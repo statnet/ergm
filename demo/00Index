@@ -1,0 +1,5 @@
+network			Using "network" to create network objects
+plot			Simple plots of networks
+ergm			Some ERGM modelling
+gof			Assessing the goodness-of-fit of models
+plot3d			Simple 3-dimensional plots of networks

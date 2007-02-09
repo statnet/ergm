@@ -1,0 +1,15 @@
+Package: statnet
+Version: 1.0-13
+Date: July 4, 2006
+Title:  Statistical Modeling of Network and Graph Data
+Author: Mark S. Handcock <handcock@stat.washington.edu>, with invaluable help
+        from David R. Hunter <dhunter@stat.psu.edu>,
+        Carter T. Butts <buttsc@uci.edu>,
+        Steven M. Goodreau <goodreau@u.washington.edu>,
+        Martina Morris <morrism@u.washington.edu>
+Maintainer: Mark S. Handcock <handcock@stat.washington.edu>
+Depends: network
+Suggests: coda, KernSmooth, latentnet
+Description: A collection of functions to plot, fit, diagnose, and simulate from random graph models. "statnet" is a synecdoche for the suite of packages based around it. For a list of functions type: help(package='statnet')
+License: GPL version 2 (June, 1991)
+URL: http://csde.washington.edu/statnet

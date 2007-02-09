@@ -1,0 +1,22 @@
+citHeader("To cite 'statnet' in publications use:")
+
+citEntry(entry="Manual",
+         title = "statnet: A suite of R packages for the Statistical Modeling of Social Networks",
+         author = personList(as.person("Mark S. Handcock"),
+                             as.person("David R. Hunter"),
+                             as.person("Carter T. Butts"),
+                             as.person("Steven M. Goodreau"),
+                             as.person("Martina Morris")), 
+         year         = 2003,
+         url          = "http://www.csde.washington.edu/statnet",
+         
+         textVersion = 
+         paste("Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau, and Martina Morris (2003) ", 
+               "statnet: A suite of R packages for the Statistical Modeling of Social Networks. ",
+               "URL http://www.csde.washington.edu/statnet.",
+               sep="")
+         )
+
+citFooter("We have invested a lot of time and effort in creating 'statnet'",
+          "for use by other researchers.",
+          "Please cite it in all papers where it is used.")
