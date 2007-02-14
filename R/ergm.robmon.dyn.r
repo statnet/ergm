@@ -1,4 +1,4 @@
-ergm.robmon <- function(theta0, nw, model, Clist, BD, 
+ergm.robmon.dyn <- function(theta0, nw, model, Clist, BD, 
                         burnin, interval, proposaltype,
                         verbose=FALSE, 
                         algorithm.control=list() ){
@@ -20,11 +20,15 @@ ergm.robmon <- function(theta0, nw, model, Clist, BD,
   eta0 <- ergm.eta(theta0, model$etamap)
   cat("Robbins-Monro algorithm with theta_0 equal to:\n")
   print(theta0)
-  MCMCparams <- list(samplesize=n1, burnin=burnin, interval=interval)
+  MCMCparams <- list(samplesize=n1, burnin=burnin, interval=interval,
+                     orig.obs=Clist$obs, meanstats=Clist$meanstats,
+                     proportionbreak=algorithm.control$proportionbreak,
+                     dyninterval=algorithm.control$dyninterval
+                    )
   MHproposal <- list(package=algorithm.control$proposalpackage, type=proposaltype)
   cat(paste("Phase 1: ",n1,"iterations"))
   cat(paste(" (interval=",MCMCparams$interval,")\n",sep=""))
-  z <- ergm.getMCMCsample(Clist, model, MHproposal, eta0, MCMCparams, verbose, BD)
+  z <- ergm.getMCMCDynsample(nw, model, MHproposal, eta0, MCMCparams, verbose, BD)
   ubar <- apply(z$statsmatrix, 2, mean)
   Ddiag <- apply(z$statsmatrix^2, 2, mean) - ubar^2
   # This is equivalent to, but more efficient than,
@@ -53,7 +57,7 @@ ergm.robmon <- function(theta0, nw, model, Clist, BD,
     cat(paste(" (burnin=",MCMCparams$burnin,")\n",sep=""))
     for(iteration in 1:n_iter) {
       eta <- ergm.eta(theta, model$etamap)
-      z <- ergm.getMCMCsample(Clist, model, MHproposal, eta, MCMCparams, verbose=FALSE, BD)
+      z <- ergm.getMCMCDynsample(nw, model, MHproposal, eta, MCMCparams, verbose=FALSE, BD)
       # MCMCparams$burnin should perhaps be increased here, since
       # each iteration begins from the observed network, which must be 
       # "forgotten".
@@ -68,12 +72,14 @@ ergm.robmon <- function(theta0, nw, model, Clist, BD,
   
   #phase 3:  Estimate covariance matrix for final theta
   n3 <- algorithm.control$phase3_n
-  if(is.null(n3)) {n3 <- 20} #default
+  if(is.null(n3)) {n3 <- 100} #default
   MCMCparams$samplesize <- n3
   cat(paste("Phase 3: ",n3,"iterations"))
   cat(paste(" (interval=",MCMCparams$interval,")\n",sep=""))
+  cat(paste(" (samplesize=",MCMCparams$samplesize,")\n",sep=""))
+ #cat(paste(" theta=",theta,")\n",sep=""))
   eta <- ergm.eta(theta, model$etamap)
-  z <- ergm.getMCMCsample(Clist, model, MHproposal, eta, MCMCparams, verbose, BD)
+  z <- ergm.getMCMCDynsample(nw, model, MHproposal, eta, MCMCparams, verbose, BD)
 # ubar <- apply(z$statsmatrix, 2, mean)
 # hessian <- (t(z$statsmatrix) %*% z$statsmatrix)/n3 - outer(ubar,ubar)
 # covar <- robust.inverse(covar)
@@ -108,9 +114,8 @@ ergm.robmon <- function(theta0, nw, model, Clist, BD,
                   # class="ergm") 
   structure(c(ve, list(newnetwork=nw, 
                  theta.original=theta0,
-                 rm.coef=theta,
                  bounddeg=BD, formula=model$formula, 
                  interval=interval, burnin=burnin, 
-                 network=nw, proposaltype=proposaltype)),
+                 network=nw, proposaltype=proposaltype, rm.coef=theta)),
              class="ergm")
 }

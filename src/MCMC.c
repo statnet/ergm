@@ -127,7 +127,7 @@ void MCMC_wrapper (double *heads, double *tails, double *dnedges,
 //   Rprintf("Initial number of discordant %d Number of g0 ties %d Number of ties in g %d\n",nw[1].nedges, nwformation.nedges,nw[0].nedges);
    hammingterm=1;
    NetworkDestroy(&nwformation);
-   Rprintf("Initial number (discord) from reference %d Number of original %d\n",nw[1].nedges,nw[0].nedges);
+//   Rprintf("Initial number (discord) from reference %d Number of original %d\n",nw[1].nedges,nw[0].nedges);
   }
   
   bd=DegreeBoundInitialize(attribs, maxout, maxin, minout, minin,
@@ -780,7 +780,7 @@ void MCMC_global (double *heads, double *tails, double *dnedges,
 //   Rprintf("Initial number of discordant %d Number of g0 ties %d Number of ties in g %d\n",nw[1].nedges, nwformation.nedges,nw[0].nedges);
    hammingterm=1;
    NetworkDestroy(&nwformation);
-   Rprintf("Initial number (discord) from reference %d Number of original %d\n",nw[1].nedges,nw[0].nedges);
+//   Rprintf("Initial number (discord) from reference %d Number of original %d\n",nw[1].nedges,nw[0].nedges);
   }
 
   mtp = m->termarray; /* points to first model term for now */

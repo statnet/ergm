@@ -446,12 +446,16 @@ The \code{algorithm.control} argument is a list that can supply any of the
        depend on the model and data being fit. See Handcock (2000) and 
        Hunter and Handcock (2006) for details.}
     \item{\code{trustregion}}{numeric; The maximum amount the algorithm will
-       allow the approximated lieklihood to be increased at a given iteration.
+       allow the approximated likelihood to be increased at a given iteration.
        Defaults to 20.}
        See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
     \item{\code{phase1_n}}{count; The number of MCMC samples to draw
        in Phase 1 of the stochastic approximation algorithm.
        Defaults to 7 plus 3 times the number of terms in the model.
+       See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
+    \item{\code{nsubphases}}{count; The number of sub-phases 
+       in Phase 2 of the stochastic approximation algorithm.
+       Defaults to \code{maxit}.
        See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
     \item{\code{initial_gain}}{numeric; The initial gain to
        Phase 2 of the stochastic approximation algorithm.

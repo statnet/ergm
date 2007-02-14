@@ -426,6 +426,7 @@ void MH_BipartiteFormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
     ndyads = (nnodes-nactors)*nactors;  
     return;
   }
+//  Rprintf("nactors %d\n",  nactors);
   
   nedges  = nwp[0].nedges;
   ndedges = nwp[1].nedges;

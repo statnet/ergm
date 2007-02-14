@@ -2407,6 +2407,7 @@ InitErgm.triangle<-function (nw, m, arglist, drop=TRUE, ...) {
   }
   m
 }
+InitErgm.triangles<-InitErgm.triangle
 
 InitErgm.tripercent<-function (nw, m, arglist, drop=TRUE, ...) {
   a <- ergm.checkargs("tripercent", arglist,

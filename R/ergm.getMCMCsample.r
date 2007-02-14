@@ -47,10 +47,10 @@ ergm.getMCMCsample <- function(Clist, model, MHproposal, eta0, MCMCparams,
 #
 # recenter statsmatrix by mean statistics if necessary
 #
-    ms=Clist$meanstats
+    ms <- Clist$meanstats
     if(!is.null(ms)) {
       if (is.null(names(ms)) && length(ms) == length(model$coef.names))
-        names(ms) = model$coef.names
+        names(ms) <- model$coef.names
 #     obs <- summary(model$formula)
       obs <- Clist$obs
 #     print(paste("obs=",obs))
@@ -66,5 +66,3 @@ ergm.getMCMCsample <- function(Clist, model, MHproposal, eta0, MCMCparams,
     }
   list(statsmatrix=statsmatrix, newedgelist=newedgelist, meanstats=ms)
 }
-
-	    
