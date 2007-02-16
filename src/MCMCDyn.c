@@ -13,8 +13,7 @@
 *****************/
 void MCMCDyn_wrapper (double *heads, double *tails, double *dnedges,
                    double *dn, int *dflag, double *bipartite, 
-                   int *nterms, char **funnames,
-                   char **sonames, 
+                   int *nterms, char **funnames, char **sonames, 
                    char **MHproposaltype, char **MHproposalpackage,
                    double *inputs, double *theta0, double *samplesize, 
                    double *sample, double *burnin, double *interval,  
