@@ -3,6 +3,7 @@ ergm <- function(formula, theta0="MPLE",
                  burnin=10000, MCMCsamplesize=10000, interval=100, maxit=3,
                  proposaltype="randomtoggle", 
                  meanstats=NULL,
+                 dissolve=NULL, gamma=0.01,
                  algorithm.control=list(),
                  verbose=FALSE, ...) {
   current.warn <- options()$warn
@@ -27,6 +28,7 @@ ergm <- function(formula, theta0="MPLE",
               style="Newton-Raphson",
               phase1_n=NULL, initial_gain=NULL, 
               nsubphases=maxit, niterations=NULL, phase3_n=NULL,
+              dyninterval=1000,
               returnMCMCstats=TRUE
              )
 
@@ -43,6 +45,9 @@ ergm <- function(formula, theta0="MPLE",
    if(proposaltype=="Hamming"){proposaltype <- "BipartiteHamming"}
    if(proposaltype=="formation"){proposaltype <- "BipartiteFormation"}
    if(proposaltype=="formationTNT"){proposaltype <- "BipartiteFormationTNT"}
+   if(!is.null(dissolve)){
+     proposaltype <- "BipartiteFormationTNT"
+   }
   }
   model.initial <- ergm.getmodel(formula, nw, drop=con$drop, initialfit=TRUE)
 #
@@ -74,26 +79,33 @@ ergm <- function(formula, theta0="MPLE",
   # revise theta0 to reflect additional parameters
 
   Clist <- ergm.Cprepare(nw, model)
-  Clist$meanstats=meanstats
+  Clist$meanstats <- meanstats
   Clist$obs <- summary(model$formula)
 
   if (verbose) cat("ergm.mainfitloop\n")
   styles <- c("Newton-Raphson","Robbins-Monro")
   con$style <- styles[pmatch(con$style,styles,nomatch=1)]
-  if(con$style == "Robbins-Monro"){
-   v <- ergm.robmon(theta0, nw, model, Clist, BD, burnin, interval,
+  if(!is.null(dissolve)){
+    model.dissolve <- ergm.getmodel.dissolve(dissolve, nw)
+    v <- ergm.robmon.dyn(theta0, nw, model, model.dissolve,
+                    Clist, BD, gamma, burnin, interval,
                     proposaltype, verbose, con)
   }else{
-   v <- ergm.mainfitloop(theta0, nw,
-                         model, Clist,
-                         BD, initialfit, burnin, MCMCsamplesize,
-                         interval, maxit, proposaltype, con$proposalpackage,
-                         compress=con$compress, verbose=verbose, 
-                         mcmc.precision=con$mcmc.precision,
-                         nr.maxit=con$nr.maxit, calc.mcmc.se=con$calc.mcmc.se,
-                         hessian=con$hessian, trustregion=con$trustregion,
-                         steplength=con$steplength,
-                         ...)
+   if(con$style == "Robbins-Monro"){
+    v <- ergm.robmon(theta0, nw, model, Clist, BD, burnin, interval,
+                     proposaltype, verbose, con)
+   }else{
+    v <- ergm.mainfitloop(theta0, nw,
+                          model, Clist,
+                          BD, initialfit, burnin, MCMCsamplesize,
+                          interval, maxit, proposaltype, con$proposalpackage,
+                          compress=con$compress, verbose=verbose, 
+                          mcmc.precision=con$mcmc.precision,
+                          nr.maxit=con$nr.maxit, calc.mcmc.se=con$calc.mcmc.se,
+                          hessian=con$hessian, trustregion=con$trustregion,
+                          steplength=con$steplength,
+                          ...)
+   }
   }
 
   if (!con$returnMCMCstats)

@@ -1,4 +1,5 @@
-ergm.getMCMCDynsample <- function(g, model, MHproposal, eta0, MCMCparams, 
+ergm.getMCMCDynsample <- function(g, model, model.dissolve, 
+                                  MHproposal, eta0, MCMCparams, 
                                   verbose, BD) {
 # Note:  In reality, there should be many fewer arguments to this function,
 # since most info should be passed via Clist (this is, after all, what Clist
@@ -9,6 +10,7 @@ ergm.getMCMCDynsample <- function(g, model, MHproposal, eta0, MCMCparams,
 #   Check for truncation of the returned edge list
 #
   Clist <- ergm.Cprepare(g, model)
+  Clist.dissolve <- ergm.Cprepare(g, model.dissolve)
   maxedges <- max(5000, Clist$nedges)
   z <- list(newnw=maxedges+1)
   while(z$newnw[1] > maxedges){
@@ -22,12 +24,16 @@ ergm.getMCMCDynsample <- function(g, model, MHproposal, eta0, MCMCparams,
           as.character(Clist$snamestring),
           as.character(MHproposal$type), as.character(MHproposal$package),
           as.double(Clist$inputs), as.double(eta0),
+          as.integer(Clist.dissolve$nterms),
+          as.character(Clist.dissolve$fnamestring),
+          as.character(Clist.dissolve$snamestring),
+          as.double(Clist.dissolve$inputs),
           as.double(MCMCparams$samplesize),
           s = double(MCMCparams$samplesize * Clist$nparam),
           as.double(MCMCparams$burnin), as.double(MCMCparams$interval),
           newnw = integer(maxedges), 
           as.integer(verbose), 
-          as.double(MCMCparams$proportionbreak), as.integer(MCMCparams$dyninterval), 
+          as.double(MCMCparams$gamma), as.integer(MCMCparams$dyninterval), 
           as.integer(BD$attribs), 
           as.integer(BD$maxout), as.integer(BD$maxin),
           as.integer(BD$minout), as.integer(BD$minin),
@@ -81,7 +87,7 @@ ergm.getMCMCDynsample.inR <- function(g, model, MHproposal, eta0, MCMCparams,
                            ncol=length(eta0))
   N <- MCMCparams$samplesize*MCMCparams$interval + MCMCparams$burnin
   for(i in 1:N){
-   if(trunc(MCMCparams$proportionbreak*network.edgecount(g)) > 0){
+   if(trunc(MCMCparams$gamma*network.edgecount(g)) > 0){
 #
 #   First thin 5% of the edges
 #
@@ -92,13 +98,13 @@ ergm.getMCMCDynsample.inR <- function(g, model, MHproposal, eta0, MCMCparams,
 #                        na.omit=TRUE, PACKAGE="network") )
 #   } 
 #   delete.edges(g, eid=sample(ids, 
-#     size=trunc(MCMCparams$proportionbreak*network.edgecount(g))+1))
+#     size=trunc(MCMCparams$gamma*network.edgecount(g))+1))
 #  }
 #  xm<-as.matrix.network(g,matrix.type="edgelist")
    }
    xm<-as.matrix.network(g,matrix.type="edgelist")
    xm <- xm[-sample(1:nrow(xm), 
-             size=trunc(MCMCparams$proportionbreak*network.edgecount(g))),]
+             size=trunc(MCMCparams$gamma*network.edgecount(g))),]
    model$terms[[1]]$inputs <-  c(1, 1,
                                  1+2*nrow(xm),
                                  nrow(xm), as.integer(xm))

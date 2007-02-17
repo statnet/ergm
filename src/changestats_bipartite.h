@@ -10,7 +10,9 @@ void d_edegree (int ntoggles, Vertex *heads, Vertex *tails,
                 ModelTerm *mtp, Network *nwp);
 void d_bimix (int ntoggles, Vertex *heads, Vertex *tails,
               ModelTerm *mtp, Network *nwp);
-void d_biduration (int ntoggles, Vertex *heads, Vertex *tails,
+void d_formation (int ntoggles, Vertex *heads, Vertex *tails,
+              ModelTerm *mtp, Network *nwp);
+void d_dissolve (int ntoggles, Vertex *heads, Vertex *tails,
               ModelTerm *mtp, Network *nwp);
 
 #endif

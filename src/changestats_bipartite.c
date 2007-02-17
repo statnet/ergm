@@ -395,6 +395,26 @@ void d_formation(int ntoggles, Vertex *heads, Vertex *tails,
   while (--i >= 0)  /*  Undo all previous toggles. */
     ToggleEdge(heads[i], tails[i], nwp); 
 }
+/*****************
+ void d_dissolve
+*****************/
+void d_dissolve(int ntoggles, Vertex *heads, Vertex *tails, 
+	      ModelTerm *mtp, Network *nwp) {
+  int edgeflag, i;
+  Vertex h, t;
+  
+  *(mtp->dstats) = 0.0;
+  for (i=0; i < ntoggles; i++)
+    {
+      edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
+      *(mtp->dstats) += edgeflag ? - 1 : 1;
+      if (i+1 < ntoggles)
+	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    }
+  i--; 
+  while (--i >= 0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
 
 //void d_esa (int ntoggles, Vertex *heads, Vertex *tails, 
 //	      struct OptionInput *inp, Gptr g) 
