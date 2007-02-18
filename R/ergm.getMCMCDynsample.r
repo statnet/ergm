@@ -12,9 +12,9 @@ ergm.getMCMCDynsample <- function(g, model, model.dissolve,
   Clist <- ergm.Cprepare(g, model)
   Clist.dissolve <- ergm.Cprepare(g, model.dissolve)
   maxedges <- max(5000, Clist$nedges)
-  z <- list(newnw=maxedges+1)
-  while(z$newnw[1] > maxedges){
-    maxedges <- 10*maxedges
+  z <- list(newnwhead=maxedges+1)
+  while(z$newnwhead[1] > maxedges){
+    maxedges <- 5*maxedges
     z <- .C("MCMCDyn_wrapper",
           as.double(Clist$heads), as.double(Clist$tails), 
           as.double(Clist$nedges), as.double(Clist$n),
@@ -31,7 +31,9 @@ ergm.getMCMCDynsample <- function(g, model, model.dissolve,
           as.double(MCMCparams$samplesize),
           s = double(MCMCparams$samplesize * Clist$nparam),
           as.double(MCMCparams$burnin), as.double(MCMCparams$interval),
-          newnw = integer(maxedges), 
+          newnwhead = integer(maxedges), newnwtail = integer(maxedges), 
+          numdissolve=integer(1),
+          dissolvehead = integer(maxedges), dissolvetail = integer(maxedges), 
           as.integer(verbose), 
           as.double(MCMCparams$gamma), as.integer(MCMCparams$dyninterval), 
           as.integer(BD$attribs), 
@@ -43,10 +45,17 @@ ergm.getMCMCDynsample <- function(g, model, model.dissolve,
           as.double(0.0), as.integer(0),
           PACKAGE="statnet") 
     }
-    if(z$newnw[1]>1){
-     newedgelist <- matrix(z$newnw[2:z$newnw[1]], ncol=2, byrow=TRUE)
+    if(z$newnwhead[1]>1){
+#    newedgelist <- matrix(z$newnw[2:z$newnw[1]], ncol=2, byrow=TRUE)
+     newedgelist <- cbind(z$newnwhead[2:z$newnwhead[1]],z$newnwtail[2:z$newnwhead[1]])
     }else{
      newedgelist <- matrix(0, ncol=2, nrow=0)
+    }
+    if(z$numdissolve>0){
+     dissolveedgelist <- cbind(z$dissolvehead[1:z$numdissolve],
+                               z$dissolvetail[1:z$numdissolve])
+    }else{
+     dissolveedgelist <- matrix(0, ncol=2, nrow=0)
     }
     statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
                           ncol=Clist$nparam,
@@ -69,7 +78,8 @@ ergm.getMCMCDynsample <- function(g, model, model.dissolve,
          statsmatrix[,!is.na(matchcols)]), 2, ms[!is.na(matchcols)], "-")
     }
   }
-  list(statsmatrix=statsmatrix, newedgelist=newedgelist, meanstats=ms)
+  list(statsmatrix=statsmatrix, newedgelist=newedgelist, meanstats=ms,
+       dissolveedgelist=dissolveedgelist)
 }
 
 ergm.getMCMCDynsample.inR <- function(g, model, MHproposal, eta0, MCMCparams, 

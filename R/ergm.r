@@ -3,7 +3,7 @@ ergm <- function(formula, theta0="MPLE",
                  burnin=10000, MCMCsamplesize=10000, interval=100, maxit=3,
                  proposaltype="randomtoggle", 
                  meanstats=NULL,
-                 dissolve=NULL, gamma=0.01,
+                 dissolve=NULL, gamma=-4.59512,
                  algorithm.control=list(),
                  verbose=FALSE, ...) {
   current.warn <- options()$warn

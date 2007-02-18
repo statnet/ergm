@@ -46,6 +46,7 @@ void DegreeBoundDestroy(DegreeBound *bd);
 int GetIndexForAttrValue(int value);
 int ModelTermHamming (char *fnames, int n_terms);
 int ModelTermFormation (char *fnames, int n_terms);
+int ModelTermDissolve (char *fnames, int n_terms);
 
 #endif
 

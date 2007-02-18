@@ -106,9 +106,9 @@ simulatedyn <- function(object, nsim=1, seed=NULL, ...,theta0,
       use.burnin <- interval
     }
 #
-    z <- list(newnw=maxedges+1)
-    while(z$newnw[1] > maxedges){
-     maxedges <- 10*maxedges
+    z <- list(newnwhead=maxedges+1)
+    while(z$newnwhead[1] > maxedges){
+     maxedges <- 5*maxedges
      z <- .C("MCMCDyn_wrapper",
              as.double(Clist$heads), as.double(Clist$tails), 
              as.double(Clist$nedges), as.double(Clist$n),
@@ -127,7 +127,9 @@ simulatedyn <- function(object, nsim=1, seed=NULL, ...,theta0,
              as.double(MCMCsamplesize),
              s = double(MCMCsamplesize * Clist$nparam),
              as.double(use.burnin), as.double(con$dyninterval), 
-             newnw = integer(maxedges), 
+             newnwhead = integer(maxedges), newnwtail = integer(maxedges),
+             numdissolve=integer(1),
+             dissolvehead = integer(maxedges), dissolvetail = integer(maxedges), 
              as.integer(verb),
              as.double(gamma), as.integer(interval),
              as.integer(BD$attribs), 
@@ -143,12 +145,23 @@ simulatedyn <- function(object, nsim=1, seed=NULL, ...,theta0,
 #   Next update the network to be the final (possibly conditionally)
 #   simulated one
 #
-    if(z$newnw[1]>1){
-     newnetwork <- matrix(z$newnw[2:z$newnw[1]], ncol=2, byrow=TRUE)
+    if(z$newnwhead[1]>1){
+#    newedgelist <- matrix(z$newnw[2:z$newnw[1]], ncol=2, byrow=TRUE)
+     newedgelist <- cbind(z$newnwhead[2:z$newnwhead[1]],z$newnwtail[2:z$newnwhead[1]])
     }else{
-     newnetwork <- matrix(0, ncol=2, nrow=0)
+     newedgelist <- matrix(0, ncol=2, nrow=0)
     }
-    out.list[[i]] <- network.update(nw, newnetwork)
+    if(z$numdissolve>0){
+     dissolveedgelist <- cbind(z$dissolvetail[1:z$numdissolve],
+                               z$dissolvehead[1:z$numdissolve])
+    }else{
+     dissolveedgelist <- matrix(0, ncol=2, nrow=0)
+    }
+    aaa <- network.update(nw, newedgelist)
+    bbb <- network.update(aaa, dissolveedgelist)
+    summary(bbb)
+    aaa %n% "dissolve" <- network.update(nw, dissolveedgelist)
+    out.list[[i]] <- aaa
     out.mat <- rbind(out.mat,z$s[(Clist$nparam+1):(2*Clist$nparam)])
     if(sequential){
       nw <-  out.list[[i]]

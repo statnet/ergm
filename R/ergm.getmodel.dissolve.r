@@ -19,11 +19,11 @@ ergm.getmodel.dissolve <- function (formula, nw, ...)
     trms<-terms(formula)
     v <- attr(trms, "variables")
   }
-  if (length(v) == 2){
+# if (length(v) == 2){
     formula <- update(formula, ~ . + dissolve)
     trms<-terms(formula)
     v <- attr(trms, "variables")
-  }
+# }
   nw <- ergm.getnetwork(formula)
   model <- structure(list(formula=formula, node.attrib = NULL,
                       coef.names = NULL,

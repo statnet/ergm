@@ -20,7 +20,8 @@ void MCMCDyn_wrapper (double *heads, double *tails, double *dnedges,
                    double *dyninputs, 
 		   double *samplesize, 
                    double *sample, double *burnin, double *interval,  
-                   int *newnetwork, 
+                   int *newnetworkhead, int *newnetworktail, 
+                   int *numdissolved, int *dissolvedhead, int *dissolvedtail, 
                    int *fVerbose, 
                    double *gamma, int *dyninterval,
                    int *attribs, int *maxout, int *maxin, int *minout,
@@ -46,8 +47,17 @@ void MCMCDyn_wrapper (double *heads, double *tails, double *dnedges,
   
   directed_flag = *dflag;
 
-  for (i = 0; i < nmax; i++)
-    newnetwork[i] = 0;
+  Edge numdissolve=13;
+  Vertex *dissolvehead, *dissolvetail;
+  dissolvehead = (Vertex *)malloc(nmax * sizeof(Vertex));
+  dissolvetail = (Vertex *)malloc(nmax * sizeof(Vertex));
+
+  for (i = 0; i < nmax; i++){
+    newnetworkhead[i] = 0;
+    newnetworktail[i] = 0;
+    dissolvehead[i] = 0;
+    dissolvetail[i] = 0;
+  }
 
   m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
 
@@ -97,9 +107,10 @@ void MCMCDyn_wrapper (double *heads, double *tails, double *dnedges,
 // Really this is a formation term
   formationterm=(*ndynterms);
   if(formationterm>0){
+   formationterm=ModelTermDissolve (*dynfunnames, *ndynterms);
    mdyn=ModelInitialize(*dynfunnames, *dynsonames, dyninputs, *ndynterms);
    Network nwformation;
-   thisterm = mdyn->termarray + 1 - 1;
+   thisterm = mdyn->termarray + formationterm - 1;
    nddyads = (Edge)(thisterm->inputparams[0]);
    double *dhead, *dtail;
    dhead = (double *) malloc(sizeof(double) * nddyads);
@@ -141,6 +152,7 @@ void MCMCDyn_wrapper (double *heads, double *tails, double *dnedges,
 	      (long int)*burnin, (long int)*interval,
 	      hammingterm,
 	      (int)*fVerbose, gamma, (int)*dyninterval,
+	      &numdissolve, dissolvehead, dissolvetail,
 	      nw, m, mdyn, bd);
    
 // Rprintf("samplesize: %f\n", *samplesize);
@@ -160,9 +172,8 @@ void MCMCDyn_wrapper (double *heads, double *tails, double *dnedges,
 	  nw[0].outedges[e].value != 0 && nextedge < nmax;
 	  e = EdgetreeSuccessor(nw[0].outedges, e))
 	{
-          newnetwork[nextedge] = v;
-	  nextedge++;
-          newnetwork[nextedge] = nw[0].outedges[e].value;
+          newnetworkhead[nextedge] = v;
+          newnetworktail[nextedge] = nw[0].outedges[e].value;
 	  nextedge++;
 	}
    }
@@ -176,20 +187,26 @@ void MCMCDyn_wrapper (double *heads, double *tails, double *dnedges,
 	{
           k = nw[0].outedges[e].value;
 	  if(v < k){
-      newnetwork[nextedge] = k;
-      nextedge++;
-      newnetwork[nextedge] = v;
+      newnetworkhead[nextedge] = k;
+      newnetworktail[nextedge] = v;
       nextedge++;
 	  }else{
-      newnetwork[nextedge] = v;
-      nextedge++;
-      newnetwork[nextedge] = k;
+      newnetworkhead[nextedge] = v;
+      newnetworktail[nextedge] = k;
       nextedge++;
 	  }
 	}
      }
   }
-  newnetwork[0]=nextedge;
+  newnetworkhead[0]=nextedge;
+
+  *numdissolved=(int)numdissolve;
+//Rprintf("numdissolved %d numdissolve %d\n", *numdissolved, numdissolve);
+  for (i = 0; i < *numdissolved; i++){
+    dissolvedhead[i] = (int)(dissolvehead[i]);
+    dissolvedtail[i] = (int)(dissolvetail[i]);
+//Rprintf(" %d %d\n", dissolvedhead[i], dissolvedtail[i]);
+  }
 
   ModelDestroy(m);
 //  Rprintf("nw edges: %d\n", nw[0].nedges);
@@ -216,6 +233,7 @@ void MCMCSampleDyn (char *MHproposaltype, char *MHproposalpackage,
   long int samplesize, long int burnin, 
   long int interval, int hammingterm, int fVerbose,
   double *gamma, int dyninterval,
+  Edge *numdissolve, Vertex *dissolvehead, Vertex *dissolvetail,
   Network *nwp, Model *m, Model *mdyn, DegreeBound *bd) {
   long int staken, tottaken, ptottaken;
   int i, j, components, diam;
@@ -290,9 +308,12 @@ void MCMCSampleDyn (char *MHproposaltype, char *MHproposalpackage,
    prepare covariance matrix for Mahalanobis distance calculations 
    in subsequent calls to M-H
    *********************/
+//Rprintf("MCMCSampleDyn pre burnin numdissolve %d\n", *numdissolve);
   MetropolisHastingsDyn(&MH, theta, networkstatistics, burnin, &staken,
 		     hammingterm, fVerbose, gamma, dyninterval,
+		     numdissolve, dissolvehead, dissolvetail,
 		     nwp, m, mdyn, bd);
+//Rprintf("MCMCSampleDyn post burnin numdissolve %d\n", *numdissolve);
   
   if (fVerbose){
     Rprintf("Returned from Metropolis-Hastings burnin\n");
@@ -313,7 +334,10 @@ void MCMCSampleDyn (char *MHproposaltype, char *MHproposalpackage,
       /* This then adds the change statistics to these values */
       
       MetropolisHastingsDyn (&MH, theta, networkstatistics, interval, &staken,
-			  hammingterm, fVerbose, gamma, dyninterval, nwp, m, mdyn, bd);
+		  hammingterm, fVerbose, gamma, dyninterval,
+		  numdissolve, dissolvehead, dissolvetail,
+		  nwp, m, mdyn, bd);
+//Rprintf("MCMCSampleDyn loop numdissolve %d\n", *numdissolve);
       tottaken += staken;
       if (fVerbose){
         if( ((3*i) % samplesize)==0 && samplesize > 500){
@@ -367,22 +391,24 @@ void MetropolisHastingsDyn (MHproposal *MHp,
 			 double *theta, double *networkstatistics,
 			 long int nsteps, long int *staken,
 			 int hammingterm, int fVerbose,
-			 double *gamma, int dyninterval,
+			 double *gamma, int dyninterval, 
+			 Edge *numdissolve,
+			 Vertex *dissolvehead, Vertex *dissolvetail,
 			 Network *nwp,
                          Model *m, Model *mdyn, DegreeBound *bd) {
-  long int step;
-  long int dstep;
+  Vertex step, dstep;
   int i, curstat=0;
   double *dstats, ip, cutoff;
   ModelTerm *mtp;
-  MHproposal MHdissolve;
+//  MHproposal MHdissolve;
+//  Vertex dissolventoggles;
   
   Vertex head, tail;
-  Edge rane, nedges;
+  Edge j, rane, nedges, numdissolved;
   
-  MHdissolve.ntoggles=10000;
-  MHdissolve.togglehead = (Vertex *)malloc(MHdissolve.ntoggles * sizeof(Vertex));
-  MHdissolve.toggletail = (Vertex *)malloc(MHdissolve.ntoggles * sizeof(Vertex));
+//  MHdissolve.ntoggles=10000;
+//  MHdissolve.togglehead = (Vertex *)malloc(MHdissolve.ntoggles * sizeof(Vertex));
+//  MHdissolve.toggletail = (Vertex *)malloc(MHdissolve.ntoggles * sizeof(Vertex));
 
   step = 0;
   dstep = 0;
@@ -390,36 +416,87 @@ void MetropolisHastingsDyn (MHproposal *MHp,
 /*  Dissolve ties */
     nedges=nwp[0].nedges;
 
-    MHdissolve.ntoggles = (Edge)(gamma[0]*nedges);
-//    Rprintf("ntoggles %d\n", MHdissolve.ntoggles); 
-//    Rprintf("theta[0] %f\n", theta[0]); 
-    if(MHdissolve.ntoggles > 0){
-     for (i=0; i < (MHdissolve.ntoggles); i++) {
-      rane = 1 + unif_rand() * nedges;
+//  Rprintf("nterms %d\n", mdyn->n_terms); 
+    if (mdyn->n_terms <= 2) { 
+     numdissolved = (Edge)(nedges*exp(gamma[0])/(1+exp(gamma[0])));
+//    Rprintf("ntoggles %d\n", numdissolved); 
+//    Rprintf("gamma[0] %f\n", gamma[0]); 
+     if(numdissolved > 0){
+     // Sample numdissolved edges without replacement
+      for (i = 0; i < nedges; i++){dissolvehead[i] = i;}
+      for (j = 0; j < numdissolved; j++) {
+	rane = nedges * unif_rand();
+	dissolvetail[j] = dissolvehead[rane] + 1;
+	dissolvehead[rane] = dissolvehead[--nedges];
+      }
+      for (i=0; i < numdissolved; i++) {
+//       rane = 1 + unif_rand() * nedges;
+       FindithEdge(&head, &tail, dissolvetail[i], &nwp[0]);
+//       MHdissolve.togglehead[i] = head;
+//       MHdissolve.toggletail[i] = tail;
+       dissolvehead[i] = head;
+       dissolvetail[i] = tail;
+      }
+     }
+    }else{
+     numdissolved=0; 
+     for (rane=1; rane <= nedges; rane++) {
       FindithEdge(&head, &tail, rane, &nwp[0]);
-      MHdissolve.togglehead[i] = head;
-      MHdissolve.toggletail[i] = tail;
+      dstats = mdyn->workspace;
+      mtp = mdyn->termarray;
+      for (i=0; i < (mdyn->n_terms-1); i++) {
+       /* Calculate change statistics */
+       mtp->dstats = dstats;
+       (*(mtp->func))(1, &head, &tail, mtp, nwp);
+       dstats += (mtp++)->nstats;
+      }
+// Rprintf("%d: ", rane); 
+      for (i=0, ip=0.0; i<(mdyn->n_stats-1); i++){
+       ip -= gamma[i] * mdyn->workspace[i];
+//  Rprintf("%f ", mdyn->workspace[i]); 
+      }
+//  Rprintf(" ip=%f\n", ip); 
+      if (log(unif_rand()) < ip) { 
+       /* Toggles off this edge */
+//     MHdissolve.togglehead[MHdissolve.ntoggles] = head;
+//     MHdissolve.toggletail[MHdissolve.ntoggles] = tail;
+       dissolvehead[numdissolved] = head;
+       dissolvetail[numdissolved] = tail;
+       numdissolved++; 
+      }
+     }
+     if(numdissolved > 0){numdissolved--;} 
+    }
+
+    if(numdissolved > 0){
+//  Rprintf("ntoggles=%d\n", numdissolved); 
+//      for (i=0; i < numdissolved; i++) {
+//Rprintf("%d h %d t %d\n", i, 
+//		 dissolvehead[i], dissolvetail[i]); 
+//      }
+      dstats = m->workspace;
+      mtp = m->termarray;
+      for (i=0; i < m->n_terms; i++) {
+       /* Calculate change statistics */
+       mtp->dstats = dstats;
+       (*(mtp->func))(numdissolved, dissolvehead, dissolvetail, mtp, nwp);
+       dstats += (mtp++)->nstats;
+      }
+      for (i = 0; i < m->n_stats; i++)
+       networkstatistics[i] += m->workspace[i];
+    
+      for (i=0; i < numdissolved; i++) {
+       ToggleEdge(dissolvehead[i], dissolvetail[i], &nwp[0]);
+       ToggleEdge(dissolvehead[i], dissolvetail[i], &nwp[1]);
+      }
      }
 
-     dstats = m->workspace;
-     mtp = m->termarray;
-     for (i=0; i < m->n_terms; i++) {
-      /* Calculate change statistics */
-      mtp->dstats = dstats;
-      (*(mtp->func))(MHdissolve.ntoggles, MHdissolve.togglehead, MHdissolve.toggletail, 
-                     mtp, nwp);  /* Call d_??? function */
-      dstats += (mtp++)->nstats;
-     }
-     for (i = 0; i < m->n_stats; i++)
-      networkstatistics[i] += m->workspace[i];
-    
-     for (i=0; i < (MHdissolve.ntoggles); i++) {
-      ToggleEdge(MHdissolve.togglehead[i], MHdissolve.toggletail[i], &nwp[0]);
-      ToggleEdge(MHdissolve.togglehead[i], MHdissolve.toggletail[i], &nwp[1]);
-     }
-    }
+    *numdissolve = numdissolved;
+//Rprintf("C numdissolve %d\n", *numdissolve);
+//Rprintf("C numdissolved %d\n", numdissolved);
+
 //    Rprintf("dissolve networkstatistics[0] %f\n", networkstatistics[0]); 
-//  Rprintf("Made dissolve: start %d end %d\n", nedges, nwp[0].nedges); 
+//    Rprintf("Made dissolve: start %d end %d\n", nedges, nwp[0].nedges); 
 
 //    MetropolisHastings (&MHdissolve, theta, &networkstatistics, dyninterval, &staken,
 //		        hammingterm, fVerbose, nwp, m, bd);
@@ -468,9 +545,7 @@ void MetropolisHastingsDyn (MHproposal *MHp,
       for (i=0; i < MHp->ntoggles; i++){
 //        ToggleEdgeWithTimestamp(MHp->togglehead[i], MHp->toggletail[i], nwp);
         ToggleEdge(MHp->togglehead[i], MHp->toggletail[i], &nwp[0]);
-        if(hammingterm){
-	 ToggleEdge(MHp->togglehead[i],  MHp->toggletail[i], &nwp[1]);  /* Toggle the discord for this edge */
-	}
+	ToggleEdge(MHp->togglehead[i],  MHp->toggletail[i], &nwp[1]);  /* Toggle the discord for this edge */
       }
       /* record network statistics for posterity */
       for (i = 0; i < m->n_stats; i++)
@@ -488,8 +563,8 @@ void MetropolisHastingsDyn (MHproposal *MHp,
 //    Rprintf("End MH: edges %d discord %d\n", nwp[0].nedges, nwp[1].nedges); 
 //    Rprintf("networkstatistics[0] %f\n", networkstatistics[0]); 
 
-  free(MHdissolve.togglehead);
-  free(MHdissolve.toggletail);
+//  free(MHdissolve.togglehead);
+//  free(MHdissolve.toggletail);
 
   *staken = dyninterval;
 }
