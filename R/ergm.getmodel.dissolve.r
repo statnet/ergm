@@ -1,4 +1,4 @@
-ergm.getmodel.dissolve <- function (formula, nw, ...) 
+ergm.getmodel.dissolve <- function (formula, nw, initial=TRUE, ...) 
 {
   # Parse the formula, create an object of class "model.ergm" that contains
   # all relevant information about the model.  As part of this job, call the
@@ -24,7 +24,9 @@ ergm.getmodel.dissolve <- function (formula, nw, ...)
     trms<-terms(formula)
     v <- attr(trms, "variables")
 # }
-  nw <- ergm.getnetwork(formula)
+  if(initial){
+    nw <- ergm.getnetwork(formula)
+  }
   model <- structure(list(formula=formula, node.attrib = NULL,
                       coef.names = NULL,
                       terms = NULL, networkstats.0 = NULL, etamap = NULL),

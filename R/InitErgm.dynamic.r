@@ -1,6 +1,6 @@
 InitErgm.dissolve<-function (nw, m, arglist, ...) {
 # ergm.checkdirected("hammingdyadcov", is.directed(nw), requirement=FALSE)
-  a <- ergm.checkargs("formation", arglist=arglist,
+  a <- ergm.checkargs("dissolve", arglist=arglist,
     varnames = c("x"),
     vartypes = c("matrixnetwork"),
     defaultvalues = list(nw),
@@ -18,14 +18,14 @@ InitErgm.dissolve<-function (nw, m, arglist, ...) {
 # There is 1 input parameter before the covariate vector, so input
 # component 1 is set to 1 (although in this case, input component 1
 # is actually arbitrary since d_dyadcov ignores the value of inp->attrib).
-   m$terms[[termnumber]] <- list(name = "dissolve", soname="statnet",
-                                 inputs = c(1, 1,
+  m$terms[[termnumber]] <- list(name = "dissolve", soname="statnet",
+                                inputs = c(1, 1,
                                    1+2*nrow(nwm),
                                    nrow(nwm), as.integer(nwm)),
                                  dependence=TRUE)
-   cn<-paste("dissolve", as.character(sys.call(0)[[4]][2]), sep = ".")
-   m$coef.names <- c(m$coef.names, cn)
-   m
+  cn<-paste("dissolve", as.character(sys.call(0)[[4]][2]), sep = ".")
+  m$coef.names <- c(m$coef.names, cn)
+  m
 }
 
 InitErgm.formation<-function (nw, m, arglist, ...) {

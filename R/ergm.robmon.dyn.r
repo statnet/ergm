@@ -17,7 +17,7 @@ ergm.robmon.dyn <- function(theta0, nw, model, model.dissolve, Clist, BD,
   
   #phase 1:  Estimate diagonal elements of D matrix (covariance matrix for theta0)
   n1 <- algorithm.control$phase1_n
-  if(is.null(n1)) {n1 <- 7 + 3 * Clist$nparam} #default value
+  if(is.null(n1)) {n1 <- max(200,7 + 3 * Clist$nparam)} #default value
   eta0 <- ergm.eta(theta0, model$etamap)
   cat("Robbins-Monro algorithm with theta_0 equal to:\n")
   print(theta0)
@@ -73,7 +73,7 @@ ergm.robmon.dyn <- function(theta0, nw, model, model.dissolve, Clist, BD,
   
   #phase 3:  Estimate covariance matrix for final theta
   n3 <- algorithm.control$phase3_n
-  if(is.null(n3)) {n3 <- 100} #default
+  if(is.null(n3)) {n3 <- 1000} #default
   MCMCparams$samplesize <- n3
   cat(paste("Phase 3: ",n3,"iterations"))
   cat(paste(" (interval=",MCMCparams$interval,")\n",sep=""))
@@ -113,7 +113,7 @@ ergm.robmon.dyn <- function(theta0, nw, model, model.dissolve, Clist, BD,
                       # mc.se=mc.se, acf=mcmcacf,
                       # fullsample=statsmatrix.all),
                   # class="ergm") 
-  structure(c(ve, list(newnetwork=nw, 
+  structure(c(ve, list(newnetwork=network.toggle(nw, z$diffedgelist), 
                  theta.original=theta0,
                  bounddeg=BD, formula=model$formula, 
                  interval=interval, burnin=burnin, 

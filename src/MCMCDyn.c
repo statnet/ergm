@@ -21,6 +21,7 @@ void MCMCDyn_wrapper (double *heads, double *tails, double *dnedges,
 		   double *samplesize, 
                    double *sample, double *burnin, double *interval,  
                    int *newnetworkhead, int *newnetworktail, 
+                   int *diffnetworkhead, int *diffnetworktail, 
                    int *numdissolved, int *dissolvedhead, int *dissolvedtail, 
                    int *fVerbose, 
                    double *gamma, int *dyninterval,
@@ -47,7 +48,7 @@ void MCMCDyn_wrapper (double *heads, double *tails, double *dnedges,
   
   directed_flag = *dflag;
 
-  Edge numdissolve=13;
+  Edge numdissolve=0;
   Vertex *dissolvehead, *dissolvetail;
   dissolvehead = (Vertex *)malloc(nmax * sizeof(Vertex));
   dissolvetail = (Vertex *)malloc(nmax * sizeof(Vertex));
@@ -55,6 +56,8 @@ void MCMCDyn_wrapper (double *heads, double *tails, double *dnedges,
   for (i = 0; i < nmax; i++){
     newnetworkhead[i] = 0;
     newnetworktail[i] = 0;
+    diffnetworkhead[i] = 0;
+    diffnetworktail[i] = 0;
     dissolvehead[i] = 0;
     dissolvetail[i] = 0;
   }
@@ -127,7 +130,7 @@ void MCMCDyn_wrapper (double *heads, double *tails, double *dnedges,
      FindithEdge(&hhead, &htail, kedge, &nwformation);
      if(EdgetreeSearch(hhead, htail, nw[0].outedges) == 0){
 //	     Rprintf(" in g0 not g hhead %d htail %d\n",hhead, htail);
-       ToggleEdge(hhead, htail, &nw[0]);
+       ToggleEdge(hhead, htail, &nw[1]);
      }
    }
    for (kedge=1; kedge <= nw[0].nedges; kedge++) {
@@ -187,18 +190,60 @@ void MCMCDyn_wrapper (double *heads, double *tails, double *dnedges,
 	{
           k = nw[0].outedges[e].value;
 	  if(v < k){
-      newnetworkhead[nextedge] = k;
-      newnetworktail[nextedge] = v;
-      nextedge++;
+           newnetworkhead[nextedge] = k;
+           newnetworktail[nextedge] = v;
+           nextedge++;
 	  }else{
-      newnetworkhead[nextedge] = v;
-      newnetworktail[nextedge] = k;
-      nextedge++;
+           newnetworkhead[nextedge] = v;
+           newnetworktail[nextedge] = k;
+           nextedge++;
 	  }
 	}
      }
   }
   newnetworkhead[0]=nextedge;
+
+  /* record new generated network DIFFERENCES to pass back to R */
+  nextedge=1;
+  if (nw[1].directed_flag) {
+   for (v=1; v<=n_nodes; v++) 
+    {
+      Vertex e;
+      for(e = EdgetreeMinimum(nw[1].outedges, v);
+	  nw[1].outedges[e].value != 0 && nextedge < nmax;
+	  e = EdgetreeSuccessor(nw[1].outedges, e))
+	{
+          diffnetworkhead[nextedge] = v;
+          diffnetworktail[nextedge] = nw[1].outedges[e].value;
+	  nextedge++;
+	}
+   }
+  }else{
+   for (v=1; v<=n_nodes; v++) 
+    {
+      Vertex e;
+      for(e = EdgetreeMinimum(nw[1].outedges, v);
+	  nw[1].outedges[e].value != 0 && nextedge < nmax;
+	  e = EdgetreeSuccessor(nw[1].outedges, e))
+	{
+          k = nw[1].outedges[e].value;
+	  if(v < k){
+           diffnetworkhead[nextedge] = k;
+           diffnetworktail[nextedge] = v;
+           nextedge++;
+	  }else{
+           diffnetworkhead[nextedge] = v;
+           diffnetworktail[nextedge] = k;
+           nextedge++;
+	  }
+	}
+     }
+  }
+  diffnetworkhead[0]=nextedge;
+//Rprintf("diffnetworkhead[0] %d\n", diffnetworkhead[0]);
+//  for (i = 1; i < diffnetworkhead[0]; i++){
+//Rprintf(" %d %d\n",  diffnetworkhead[i],  diffnetworktail[i]);
+//  }
 
   *numdissolved=(int)numdissolve;
 //Rprintf("numdissolved %d numdissolve %d\n", *numdissolved, numdissolve);
@@ -413,13 +458,20 @@ void MetropolisHastingsDyn (MHproposal *MHp,
   step = 0;
   dstep = 0;
   while (dstep < nsteps) {
+/*  Reset reference discord to null when starting to dissolve*/
+    if(dstep > 0){
+     for (rane=1; rane <= nwp[1].nedges; rane++) {
+      FindithEdge(&head, &tail, rane, &nwp[1]);
+      ToggleEdge(head, tail, &nwp[1]);
+     }
+    }
 /*  Dissolve ties */
     nedges=nwp[0].nedges;
 
 //  Rprintf("nterms %d\n", mdyn->n_terms); 
     if (mdyn->n_terms <= 2) { 
      numdissolved = (Edge)(nedges*exp(gamma[0])/(1+exp(gamma[0])));
-//    Rprintf("ntoggles %d\n", numdissolved); 
+//    Rprintf("numdissolved %d\n", numdissolved); 
 //    Rprintf("gamma[0] %f\n", gamma[0]); 
      if(numdissolved > 0){
      // Sample numdissolved edges without replacement
@@ -545,7 +597,7 @@ void MetropolisHastingsDyn (MHproposal *MHp,
       for (i=0; i < MHp->ntoggles; i++){
 //        ToggleEdgeWithTimestamp(MHp->togglehead[i], MHp->toggletail[i], nwp);
         ToggleEdge(MHp->togglehead[i], MHp->toggletail[i], &nwp[0]);
-	ToggleEdge(MHp->togglehead[i],  MHp->toggletail[i], &nwp[1]);  /* Toggle the discord for this edge */
+	ToggleEdge(MHp->togglehead[i], MHp->toggletail[i], &nwp[1]);  /* Toggle the discord for this edge */
       }
       /* record network statistics for posterity */
       for (i = 0; i < m->n_stats; i++)

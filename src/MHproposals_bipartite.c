@@ -399,14 +399,13 @@ void MH_BipartiteFormation (MHproposal *MHp, DegreeBound *bd, Network *nwp)
 }
 
 /********************
-   void MH_BipartiteTNT
+   void MH_BipartiteFormationTNT
    Tie/no tie:  Gives at least 50% chance of
    proposing a toggle of an existing (non-reference) edge, as opposed
    to simple random toggles that rarely do so in sparse 
    networks
    Propose ONLY edges not in the reference graph
 ***********************/
-//void MH_XXXX (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
 void MH_BipartiteFormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
 {  
   Vertex head, tail;
@@ -430,15 +429,19 @@ void MH_BipartiteFormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
   
   nedges  = nwp[0].nedges;
   ndedges = nwp[1].nedges;
-  nddyads = ndyads-nedges+ndedges;
-  comp = (ndedges*5.0)/(1.0*nedges);
-  if(comp > 0.5) comp = 0.5;
-  odds = comp/(1.0-comp);
+  if (ndedges > 0) {
+    comp = (ndedges*5.0)/(1.0*nedges);
+    if(comp > 0.5){comp = 0.5;}
+    odds = comp/(1.0-comp);
+  }else{
+    odds = 0.0;
+  }
+//  nddyads = ndyads-nedges+ndedges;
 //  Rprintf("comp %f nwp[0].nedges %d nwp[1].nedges %d %d %d\n",  comp,
 //		       nwp[0].nedges,
 //		       nwp[1].nedges, ndedges, nedges);
 
-  if (unif_rand() < comp && ndedges > 0) { /* Select a tie at random */
+  if (ndedges > 0 && unif_rand() < comp) { /* Select a new tie at random */
     rane = 1 + unif_rand() * ndedges;
     FindithEdge(MHp->togglehead, MHp->toggletail, rane, &nwp[1]);
     /* select a dyad not in the reference network at random */
@@ -447,7 +450,7 @@ void MH_BipartiteFormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
 //		       nwp[0].nedges,
 //		       nwp[1].nedges);
     MHp->ratio = nedges  / (odds*ndyads + nedges);
-  }else{ /* select a dyad not in the reference network at random */
+  }else{ /* select a dyad not an edge in the reference network at random */
     head = 1 + unif_rand() * nactors;
     tail = 1 + nactors + unif_rand() * (nnodes - nactors);
     while(EdgetreeSearch(head,tail,nwp[0].outedges)!=0 &&
