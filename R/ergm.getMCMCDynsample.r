@@ -11,10 +11,10 @@ ergm.getMCMCDynsample <- function(g, model, model.dissolve,
 #
   Clist <- ergm.Cprepare(g, model)
   Clist.dissolve <- ergm.Cprepare(g, model.dissolve)
-  maxedges <- max(5000, Clist$nedges)
-  z <- list(newnwhead=maxedges+1)
-  while(z$newnwhead[1] > maxedges){
-    maxedges <- 5*maxedges
+  maxchanges <- max(MCMCparams$maxchanges, Clist$nedges)
+  z <- list(newnwhead=maxchanges+1)
+  while(z$newnwhead[1] > maxchanges){
+    maxchanges <- 5*maxchanges
     z <- .C("MCMCDyn_wrapper",
           as.double(Clist$heads), as.double(Clist$tails), 
           as.double(Clist$nedges), as.double(Clist$n),
@@ -31,17 +31,16 @@ ergm.getMCMCDynsample <- function(g, model, model.dissolve,
           as.double(MCMCparams$samplesize),
           s = double(MCMCparams$samplesize * Clist$nparam),
           as.double(MCMCparams$burnin), as.double(MCMCparams$interval),
-          newnwhead = integer(maxedges), newnwtail = integer(maxedges), 
-          diffnwhead = integer(maxedges), diffnwtail = integer(maxedges), 
-          numdissolve=integer(1),
-          dissolvehead = integer(maxedges), dissolvetail = integer(maxedges), 
+          newnwhead = integer(maxchanges), newnwtail = integer(maxchanges), 
+          diffnwtime = integer(maxchanges), diffnwhead = integer(maxchanges), diffnwtail = integer(maxchanges), 
+          dissnwtime = integer(maxchanges), dissnwhead = integer(maxchanges), dissnwtail = integer(maxchanges),
           as.integer(verbose), 
           as.double(MCMCparams$gamma), as.integer(MCMCparams$dyninterval), 
           as.integer(BD$attribs), 
           as.integer(BD$maxout), as.integer(BD$maxin),
           as.integer(BD$minout), as.integer(BD$minin),
           as.integer(BD$condAllDegExact), as.integer(length(BD$attribs)), 
-          as.double(maxedges),
+          as.double(maxchanges),
           as.double(0.0), as.double(0.0), 
           as.double(0.0), as.integer(0),
           PACKAGE="statnet") 
@@ -52,17 +51,16 @@ ergm.getMCMCDynsample <- function(g, model, model.dissolve,
     }else{
      newedgelist <- matrix(0, ncol=2, nrow=0)
     }
-    if(z$numdissolve>0){
-     dissolveedgelist <- cbind(z$dissolvehead[1:z$numdissolve],
-                               z$dissolvetail[1:z$numdissolve])
+    if(z$dissnwhead[1]>1){
+     dissedgelist <- cbind(z$dissnwtime[2:z$dissnwtime[1]],z$dissnwhead[2:z$dissnwhead[1]],z$dissnwtail[2:z$dissnwhead[1]])
     }else{
-     dissolveedgelist <- matrix(0, ncol=2, nrow=0)
+     dissedgelist <- matrix(0, ncol=3, nrow=0)
     }
 #   Next create the network of differences from the origianl one
     if(z$diffnwhead[1]>1){
-     diffedgelist <- cbind(z$diffnwhead[2:z$diffnwhead[1]],z$diffnwtail[2:z$diffnwhead[1]])
+     diffedgelist <- cbind(z$diffnwtime[2:z$diffnwtime[1]],z$diffnwhead[2:z$diffnwhead[1]],z$diffnwtail[2:z$diffnwhead[1]])
     }else{
-     diffedgelist <- matrix(0, ncol=2, nrow=0)
+     diffedgelist <- matrix(0, ncol=3, nrow=0)
     }
     statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
                           ncol=Clist$nparam,
@@ -86,5 +84,5 @@ ergm.getMCMCDynsample <- function(g, model, model.dissolve,
     }
   }
   list(statsmatrix=statsmatrix, newedgelist=newedgelist, meanstats=ms,
-       diffedgelist=diffedgelist, dissolveedgelist=dissolveedgelist)
+       changed=diffedgelist, dissolved=dissedgelist)
 }

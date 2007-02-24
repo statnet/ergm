@@ -31,7 +31,7 @@
 network
   object, and \code{<term 1>}, \code{<term 2>}, etc, are each terms chosen 
   from the list given below.
-  To create a network object in \R, use the \code{\link{network}} function,
+  To create a network object in \R, use the \code{\link[network]{network}} function,
   then add nodal attributes to it using the \code{\%v\%} operator if necessary.}
 
 \section{Possible terms to represent network statistics}{

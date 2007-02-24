@@ -3854,11 +3854,12 @@ void d_cycle (int ntoggles, Vertex *heads, Vertex *tails,
 *****************/
 void d_nodemix (int ntoggles, Vertex *heads, Vertex *tails,
               ModelTerm *mtp, Network *nwp) {
-  Vertex h, t, ninputs;
+  Vertex h, t, ninputs, ninputs2;
   int i, j, edgeflag=0, matchflag;
   double rtype, ctype;
 
   ninputs = mtp->ninputparams - nwp->nnodes;
+  ninputs2 = ninputs/2;
   for (i=0; i < mtp->nstats; i++)
     mtp->dstats[i] = 0.0;
   for (i=0; i<ntoggles; i++)
@@ -3871,12 +3872,13 @@ void d_nodemix (int ntoggles, Vertex *heads, Vertex *tails,
       rtype=MIN(mtp->inputparams[h+ninputs-1],mtp->inputparams[t+ninputs-1]);
       ctype=MAX(mtp->inputparams[h+ninputs-1],mtp->inputparams[t+ninputs-1]);
       /*Find the right statistic to update*/
-      for(j=0;(j<ninputs/2)&&(!matchflag);j++)
-        if((mtp->inputparams[j]==rtype)&&
-          (mtp->inputparams[j+ninputs/2]==ctype)){
+      for(j=0;(j<ninputs2)&&(!matchflag);j++){
+        if((mtp->inputparams[j          ]==rtype)&&
+           (mtp->inputparams[j+ninputs2]==ctype)){
             mtp->dstats[j] += (edgeflag ? -1.0 : 1.0);
             matchflag++;
-          }
+        }
+      }
       if (i+1 < ntoggles)
         ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
     }
@@ -3895,11 +3897,6 @@ void d_mix (int ntoggles, Vertex *heads, Vertex *tails,
   int i, j, edgeflag=0, nstats;
 
   nstats = mtp->nstats;
-//  Rprintf("nstats %d i0 %f i1 %f i2 %f i3 %f\n",nstats,  mtp->inputparams[0],
-//                                 mtp->inputparams[1],
-//                                 mtp->inputparams[2],
-//                                 mtp->inputparams[3]
-//		  );
   for (i=0; i < mtp->nstats; i++)
     mtp->dstats[i] = 0.0;
 
@@ -3910,7 +3907,6 @@ void d_mix (int ntoggles, Vertex *heads, Vertex *tails,
       matchvalh = mtp->inputparams[h-1+2*nstats];
       matchvalt = mtp->inputparams[t-1+2*nstats];
       edgeflag=(EdgetreeSearch(h, t, nwp[0].outedges) != 0); /*Get edge state*/
-//   Rprintf("h %d t %d matchvalh %d matchvalt %d edgeflag %d\n",h,t,matchvalh,matchvalt,edgeflag);
       for (j=0; j<nstats; j++) 
 	  {
            if(matchvalh==mtp->inputparams[       j] &&

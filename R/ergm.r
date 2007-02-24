@@ -15,12 +15,14 @@ ergm <- function(formula, theta0="MPLE",
   con <- list(nr.maxit=100, calc.mcmc.se=TRUE, hessian=FALSE, 
               compress=FALSE,
               maxNumDyadTypes=10000, 
+              maxchanges=20000,
               MPLEsamplesize=50000, 
               trace=0,
               boundDeg=NULL,
               steplength=0.5,
               drop=TRUE,
               proposalpackage="statnet",
+              force.mcmc=FALSE,
               mcmc.precision=0.05,
               metric="Likelihood",
               method="BFGS",
@@ -48,6 +50,10 @@ ergm <- function(formula, theta0="MPLE",
    if(!is.null(dissolve)){
      proposaltype <- "BipartiteFormationTNT"
    }
+  }else{
+   if(!is.null(dissolve)){
+     proposaltype <- "formationTNT"
+   }
   }
   model.initial <- ergm.getmodel(formula, nw, drop=con$drop, initialfit=TRUE)
 #
@@ -63,7 +69,10 @@ ergm <- function(formula, theta0="MPLE",
   initialfit <- ergm.initialfit(theta0copy, MLestimate, Clist.initial,
                                 model.initial, verbose=verbose, ...)
   if (MLestimate && 
-      (!ergm.independencemodel(model.initial) || !is.null(meanstats))) {
+      (   !ergm.independencemodel(model.initial)
+       || !is.null(meanstats))
+       || con$force.mcmc
+      ) {
     theta0 <- initialfit$coef
     names(theta0) <- model.initial$coef.names
     theta0[is.na(theta0)] <- 0

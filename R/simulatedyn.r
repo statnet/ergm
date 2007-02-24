@@ -3,7 +3,6 @@ simulatedyn <- function(object, nsim=1, seed=NULL, ...,theta0,
                         sequential=TRUE,
                         proposaltype="formationTNT",
                         dissolve=NULL, gamma=0.01,
-                        diff=FALSE,
                         algorithm.control=list(),
                         drop=FALSE,
                         verbose=FALSE) {
@@ -15,6 +14,7 @@ simulatedyn <- function(object, nsim=1, seed=NULL, ...,theta0,
   con <- list(boundDeg=NULL, drop=drop,
               proposalpackage="statnet",
               dyninterval=1000,
+              maxchanges=20000,
               summarizestats=FALSE
              )
 
@@ -90,21 +90,11 @@ simulatedyn <- function(object, nsim=1, seed=NULL, ...,theta0,
   if(is.null(seed)){seed <- sample(10000000, size=1)}
   set.seed(as.integer(seed))
     
-  for(i in 1:nsim){
-    if(i > 1){
-      Clist <- ergm.Cprepare(nw, m)
-      model.dissolve <- ergm.getmodel.dissolve(dissolve, nw, initial=FALSE)
-      Clist.dissolve <- ergm.Cprepare(nw, model.dissolve)
-    }
-    maxedges <- max(2000, Clist$nedges)
-    if(i==1 | !sequential){
-      use.burnin <- burnin
-    }else{
-      use.burnin <- interval
-    }
-    z <- list(newnwhead=maxedges+1)
-    while(z$newnwhead[1] > maxedges){
-     maxedges <- 5*maxedges
+    maxchanges <- max(con$maxchanges, Clist$nedges)
+    use.burnin <- nsim
+    z <- list(newnwhead=maxchanges+1)
+    while(z$newnwhead[1] > maxchanges){
+     maxchanges <- 5*maxchanges
      z <- .C("MCMCDyn_wrapper",
              as.double(Clist$heads), as.double(Clist$tails), 
              as.double(Clist$nedges), as.double(Clist$n),
@@ -123,17 +113,16 @@ simulatedyn <- function(object, nsim=1, seed=NULL, ...,theta0,
              as.double(MCMCsamplesize),
              s = double(MCMCsamplesize * Clist$nparam),
              as.double(use.burnin), as.double(interval), 
-             newnwhead = integer(maxedges), newnwtail = integer(maxedges),
-             diffnwhead = integer(maxedges), diffnwtail = integer(maxedges),
-             numdissolve=integer(1),
-             dissolvehead = integer(maxedges), dissolvetail = integer(maxedges),
+             newnwhead = integer(maxchanges), newnwtail = integer(maxchanges),
+             diffnwtime = integer(maxchanges), diffnwhead = integer(maxchanges), diffnwtail = integer(maxchanges),
+             dissnwtime = integer(maxchanges), dissnwhead = integer(maxchanges), dissnwtail = integer(maxchanges),
              as.integer(verb),
              as.double(gamma), as.integer(con$dyninterval),
              as.integer(BD$attribs), 
              as.integer(BD$maxout), as.integer(BD$maxin), as.integer(BD$minout),
              as.integer(BD$minin), as.integer(BD$condAllDegExact),
              as.integer(length(BD$attribs)), 
-             as.double(maxedges), 
+             as.double(maxchanges), 
              as.double(0.0), as.double(0.0), 
              as.double(0.0), as.integer(0),
              PACKAGE="statnet")
@@ -149,40 +138,23 @@ simulatedyn <- function(object, nsim=1, seed=NULL, ...,theta0,
     }
 #   Next create the network of differences from the origianl one
     if(z$diffnwhead[1]>1){
-     diffedgelist <- cbind(z$diffnwhead[2:z$diffnwhead[1]],z$diffnwtail[2:z$diffnwhead[1]])
+     diffedgelist <- cbind(z$diffnwtime[2:z$diffnwtime[1]],z$diffnwhead[2:z$diffnwhead[1]],z$diffnwtail[2:z$diffnwhead[1]])
     }else{
-     diffedgelist <- matrix(0, ncol=2, nrow=0)
+     diffedgelist <- matrix(0, ncol=3, nrow=0)
     }
-    if(z$numdissolve>0){
-     dissolveedgelist <- cbind(z$dissolvetail[1:z$numdissolve],
-                               z$dissolvehead[1:z$numdissolve])
+    if(z$dissnwhead[1]>1){
+     dissedgelist <- cbind(z$dissnwtime[2:z$dissnwtime[1]],z$dissnwhead[2:z$dissnwhead[1]],z$dissnwtail[2:z$dissnwhead[1]])
     }else{
-     dissolveedgelist <- matrix(0, ncol=2, nrow=0)
+     dissedgelist <- matrix(0, ncol=3, nrow=0)
     }
-#   aaa <- network.update(nw, newedgelist)
-    if(diff){
-      out.net <- network.update(nw, diffedgelist)
-    }else{
-      out.net <- network.toggle(nw, diffedgelist)
-    }
-    out.net %n% "dissolved" <- network.update(out.net, dissolveedgelist)
-    out.list[[i]] <- out.net
+    out.list <- diffedgelist
     out.mat <- rbind(out.mat,z$s[(Clist$nparam+1):(2*Clist$nparam)])
-    if(sequential){
-      if(diff){
-        nw <- network.toggle(nw, diffedgelist)
-      }else{
-        nw <-  out.list[[i]]
-      }    
-    }
-   if(verbose){print(paste("Completed",i," of ",nsim))}
-  }
-  if(nsim > 1){
-    out.list <- list(formula = formula, networks = out.list, 
-                     stats = out.mat, coef=theta0)
+
+    out.list <- list(formula = formula, networks = NULL,
+                       changed=diffedgelist, 
+                       dissolved=dissedgelist, 
+                       stats = out.mat, coef=theta0)
     class(out.list) <- "network.series"
-  }else{
-    out.list <- out.list[[1]]
-  }
+
   return(out.list)
 }

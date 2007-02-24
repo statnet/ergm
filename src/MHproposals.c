@@ -1970,13 +1970,70 @@ void MH_CondDegSwitchToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {
     }
 }
 
+/********************
+   void MH_FormationTNT
+   Tie/no tie:  Gives at least 50% chance of
+   proposing a toggle of an existing (non-reference) edge, as opposed
+   to simple random toggles that rarely do so in sparse 
+   networks
+   Propose ONLY edges not in the reference graph
+***********************/
+void MH_FormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
+{  
+  Vertex head, tail;
+  Edge rane, nedges, ndedges, nddyads;
+  double comp, odds;
+  static Edge ndyads;
+  static Edge nnodes;
+  
+  if(MHp->ntoggles == 0) { /* Initialize */
+    MHp->ntoggles=1;
+    nnodes = nwp[0].nnodes;
+    ndyads = (nnodes-1)*nnodes / (nwp[0].directed_flag? 1:2);
+    return;
+  }
+  
+  nedges  = nwp[0].nedges;
+  ndedges = nwp[1].nedges;
+  if (ndedges > 0) {
+    comp = (ndedges*5.0)/(1.0*nedges);
+    if(comp > 0.5){comp = 0.5;}
+    odds = comp/(1.0-comp);
+  }else{
+    odds = 0.0;
+  }
+//  nddyads = ndyads-nedges+ndedges;
+//  Rprintf("comp %f nwp[0].nedges %d nwp[1].nedges %d %d %d\n",  comp,
+//		       nwp[0].nedges,
+//		       nwp[1].nedges, ndedges, nedges);
 
-
-
-
-
-
-
-
-
-
+  if (ndedges > 0 && unif_rand() < comp) { /* Select a new tie at random */
+    rane = 1 + unif_rand() * ndedges;
+    FindithEdge(MHp->togglehead, MHp->toggletail, rane, &nwp[1]);
+    /* select a dyad not in the reference network at random */
+//   Rprintf("nontie h %d t %d nwp[0].nedges %d nwp[1].nedges %d\n",  MHp->togglehead[0],  
+//		       MHp->toggletail[0], 
+//		       nwp[0].nedges,
+//		       nwp[1].nedges);
+    MHp->ratio = nedges  / (odds*ndyads + nedges);
+  }else{ /* select a dyad not an edge in the reference network at random */
+    head = 1 + unif_rand() * nnodes;
+    while ((tail = 1 + unif_rand() * nnodes) == head);
+    while(EdgetreeSearch(head,tail,nwp[0].outedges)!=0 &&
+          EdgetreeSearch(head,tail,nwp[1].outedges)==0){
+     head = 1 + unif_rand() * nnodes;
+     while ((tail = 1 + unif_rand() * nnodes) == head);
+    }
+    MHp->togglehead[0] = head;
+    MHp->toggletail[0] = tail;
+    if(EdgetreeSearch(MHp->togglehead[0],MHp->toggletail[0],nwp[1].outedges)!=0){
+      MHp->ratio = nedges / (odds*ndyads + nedges);
+    }else{
+      MHp->ratio = 1.0 + (odds*ndyads)/(nedges + 1);
+    }
+//   Rprintf("nontie h %d t %d nwp[0].nedges %d nwp[1].nedges %d\n",  MHp->togglehead[0],  
+//		       MHp->toggletail[0], 
+//		       nwp[0].nedges,
+//		       nwp[1].nedges);
+  }
+}

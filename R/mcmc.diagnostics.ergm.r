@@ -80,6 +80,9 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
     }
 
     attr(statsmatrix, "mcpar") <- attr(object[[component]], "mcpar")
+    if(is.null(attr(statsmatrix, "mcpar"))){
+      attr(statsmatrix, "mcpar") <- c(1,nrow(statsmatrix),1)
+    }
     attr(statsmatrix, "class") <- "mcmc"
     if(require("coda", quietly = TRUE)) {
      plot.mcmc.ergm(statsmatrix, ask=FALSE, smooth=smooth, 

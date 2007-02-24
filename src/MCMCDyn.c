@@ -21,8 +21,8 @@ void MCMCDyn_wrapper (double *heads, double *tails, double *dnedges,
 		   double *samplesize, 
                    double *sample, double *burnin, double *interval,  
                    int *newnetworkhead, int *newnetworktail, 
-                   int *diffnetworkhead, int *diffnetworktail, 
-                   int *numdissolved, int *dissolvedhead, int *dissolvedtail, 
+                   int *diffnetworktime, int *diffnetworkhead, int *diffnetworktail, 
+                   int *dissnetworktime, int *dissnetworkhead, int *dissnetworktail, 
                    int *fVerbose, 
                    double *gamma, int *dyninterval,
                    int *attribs, int *maxout, int *maxin, int *minout,
@@ -48,18 +48,36 @@ void MCMCDyn_wrapper (double *heads, double *tails, double *dnedges,
   
   directed_flag = *dflag;
 
-  Edge numdissolve=0;
-  Vertex *dissolvehead, *dissolvetail;
+  Vertex *dissolvetime, *dissolvehead, *dissolvetail;
+  dissolvetime = (Vertex *)malloc(nmax * sizeof(Vertex));
   dissolvehead = (Vertex *)malloc(nmax * sizeof(Vertex));
   dissolvetail = (Vertex *)malloc(nmax * sizeof(Vertex));
+
+  Vertex *disstime, *disshead, *disstail;
+  disstime = (Vertex *)malloc(nmax * sizeof(Vertex));
+  disshead = (Vertex *)malloc(nmax * sizeof(Vertex));
+  disstail = (Vertex *)malloc(nmax * sizeof(Vertex));
+
+  Vertex *difftime, *diffhead, *difftail;
+  difftime = (Vertex *)malloc(nmax * sizeof(Vertex));
+  diffhead = (Vertex *)malloc(nmax * sizeof(Vertex));
+  difftail = (Vertex *)malloc(nmax * sizeof(Vertex));
 
   for (i = 0; i < nmax; i++){
     newnetworkhead[i] = 0;
     newnetworktail[i] = 0;
+    diffnetworktime[i] = 0;
     diffnetworkhead[i] = 0;
     diffnetworktail[i] = 0;
+    dissolvetime[i] = 0;
     dissolvehead[i] = 0;
     dissolvetail[i] = 0;
+    difftime[i] = 0;
+    diffhead[i] = 0;
+    difftail[i] = 0;
+    disstime[i] = 0;
+    disshead[i] = 0;
+    disstail[i] = 0;
   }
 
   m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
@@ -155,7 +173,10 @@ void MCMCDyn_wrapper (double *heads, double *tails, double *dnedges,
 	      (long int)*burnin, (long int)*interval,
 	      hammingterm,
 	      (int)*fVerbose, gamma, (int)*dyninterval,
-	      &numdissolve, dissolvehead, dissolvetail,
+	      &nmax,
+	      dissolvetime, dissolvehead, dissolvetail,
+	      disstime, disshead, disstail,
+	      difftime, diffhead, difftail,
 	      nw, m, mdyn, bd);
    
 // Rprintf("samplesize: %f\n", *samplesize);
@@ -203,53 +224,25 @@ void MCMCDyn_wrapper (double *heads, double *tails, double *dnedges,
   }
   newnetworkhead[0]=nextedge;
 
-  /* record new generated network DIFFERENCES to pass back to R */
-  nextedge=1;
-  if (nw[1].directed_flag) {
-   for (v=1; v<=n_nodes; v++) 
-    {
-      Vertex e;
-      for(e = EdgetreeMinimum(nw[1].outedges, v);
-	  nw[1].outedges[e].value != 0 && nextedge < nmax;
-	  e = EdgetreeSuccessor(nw[1].outedges, e))
-	{
-          diffnetworkhead[nextedge] = v;
-          diffnetworktail[nextedge] = nw[1].outedges[e].value;
-	  nextedge++;
-	}
-   }
-  }else{
-   for (v=1; v<=n_nodes; v++) 
-    {
-      Vertex e;
-      for(e = EdgetreeMinimum(nw[1].outedges, v);
-	  nw[1].outedges[e].value != 0 && nextedge < nmax;
-	  e = EdgetreeSuccessor(nw[1].outedges, e))
-	{
-          k = nw[1].outedges[e].value;
-	  if(v < k){
-           diffnetworkhead[nextedge] = k;
-           diffnetworktail[nextedge] = v;
-           nextedge++;
-	  }else{
-           diffnetworkhead[nextedge] = v;
-           diffnetworktail[nextedge] = k;
-           nextedge++;
-	  }
-	}
-     }
-  }
-  diffnetworkhead[0]=nextedge;
-//Rprintf("diffnetworkhead[0] %d\n", diffnetworkhead[0]);
-//  for (i = 1; i < diffnetworkhead[0]; i++){
-//Rprintf(" %d %d\n",  diffnetworkhead[i],  diffnetworktail[i]);
-//  }
-
-  *numdissolved=(int)numdissolve;
+  diffnetworktime[0] = (int)(diffhead[0]);
+  diffnetworkhead[0] = (int)(diffhead[0]);
+  diffnetworktail[0] = (int)(diffhead[0]);
 //Rprintf("numdissolved %d numdissolve %d\n", *numdissolved, numdissolve);
-  for (i = 0; i < *numdissolved; i++){
-    dissolvedhead[i] = (int)(dissolvehead[i]);
-    dissolvedtail[i] = (int)(dissolvetail[i]);
+  for (i = 1; i <= diffnetworkhead[0]; i++){
+    diffnetworktime[i] = (int)(difftime[i]);
+    diffnetworkhead[i] = (int)(diffhead[i]);
+    diffnetworktail[i] = (int)(difftail[i]);
+//Rprintf(" %d %d\n", dissolvedhead[i], dissolvedtail[i]);
+  }
+
+  dissnetworktime[0] = (int)(disshead[0]);
+  dissnetworkhead[0] = (int)(disshead[0]);
+  dissnetworktail[0] = (int)(disshead[0]);
+//Rprintf("numdissolved %d numdissolve %d\n", *numdissolved, numdissolve);
+  for (i = 1; i <= dissnetworkhead[0]; i++){
+    dissnetworktime[i] = (int)(disstime[i]);
+    dissnetworkhead[i] = (int)(disshead[i]);
+    dissnetworktail[i] = (int)(disstail[i]);
 //Rprintf(" %d %d\n", dissolvedhead[i], dissolvedtail[i]);
   }
 
@@ -278,7 +271,10 @@ void MCMCSampleDyn (char *MHproposaltype, char *MHproposalpackage,
   long int samplesize, long int burnin, 
   long int interval, int hammingterm, int fVerbose,
   double *gamma, int dyninterval,
-  Edge *numdissolve, Vertex *dissolvehead, Vertex *dissolvetail,
+  Vertex *nmax,
+  Vertex *dissolvetime, Vertex *dissolvehead, Vertex *dissolvetail,
+  Vertex *disstime, Vertex *disshead, Vertex *disstail,
+  Vertex *difftime, Vertex *diffhead, Vertex *difftail,
   Network *nwp, Model *m, Model *mdyn, DegreeBound *bd) {
   long int staken, tottaken, ptottaken;
   int i, j, components, diam;
@@ -356,7 +352,10 @@ void MCMCSampleDyn (char *MHproposaltype, char *MHproposalpackage,
 //Rprintf("MCMCSampleDyn pre burnin numdissolve %d\n", *numdissolve);
   MetropolisHastingsDyn(&MH, theta, networkstatistics, burnin, &staken,
 		     hammingterm, fVerbose, gamma, dyninterval,
-		     numdissolve, dissolvehead, dissolvetail,
+		     nmax,
+		     dissolvetime, dissolvehead, dissolvetail,
+		     disstime, disshead, disstail,
+		     difftime, diffhead, difftail,
 		     nwp, m, mdyn, bd);
 //Rprintf("MCMCSampleDyn post burnin numdissolve %d\n", *numdissolve);
   
@@ -380,7 +379,10 @@ void MCMCSampleDyn (char *MHproposaltype, char *MHproposalpackage,
       
       MetropolisHastingsDyn (&MH, theta, networkstatistics, interval, &staken,
 		  hammingterm, fVerbose, gamma, dyninterval,
-		  numdissolve, dissolvehead, dissolvetail,
+		  nmax,
+		  dissolvetime, dissolvehead, dissolvetail,
+		  disstime, disshead, disstail,
+		  difftime, diffhead, difftail,
 		  nwp, m, mdyn, bd);
 //Rprintf("MCMCSampleDyn loop numdissolve %d\n", *numdissolve);
       tottaken += staken;
@@ -437,12 +439,14 @@ void MetropolisHastingsDyn (MHproposal *MHp,
 			 long int nsteps, long int *staken,
 			 int hammingterm, int fVerbose,
 			 double *gamma, int dyninterval, 
-			 Edge *numdissolve,
-			 Vertex *dissolvehead, Vertex *dissolvetail,
+			 Vertex *nmax,
+			 Vertex *dissolvetime, Vertex *dissolvehead, Vertex *dissolvetail,
+			 Vertex *disstime, Vertex *disshead, Vertex *disstail,
+			 Vertex *difftime, Vertex *diffhead, Vertex *difftail,
 			 Network *nwp,
                          Model *m, Model *mdyn, DegreeBound *bd) {
-  Vertex step, dstep;
-  int i, curstat=0;
+  Vertex v, step, dstep;
+  int i, nextdiffedge, nextdissedge, curstat=0;
   double *dstats, ip, cutoff;
   ModelTerm *mtp;
 //  MHproposal MHdissolve;
@@ -455,13 +459,16 @@ void MetropolisHastingsDyn (MHproposal *MHp,
 //  MHdissolve.togglehead = (Vertex *)malloc(MHdissolve.ntoggles * sizeof(Vertex));
 //  MHdissolve.toggletail = (Vertex *)malloc(MHdissolve.ntoggles * sizeof(Vertex));
 
+  nextdiffedge=1;
+  nextdissedge=1;
+
   step = 0;
   dstep = 0;
   while (dstep < nsteps) {
 /*  Reset reference discord to null when starting to dissolve*/
     if(dstep > 0){
-     for (rane=1; rane <= nwp[1].nedges; rane++) {
-      FindithEdge(&head, &tail, rane, &nwp[1]);
+     while (nwp[1].nedges>0) {
+      FindithEdge(&head, &tail, 1, &nwp[1]);
       ToggleEdge(head, tail, &nwp[1]);
      }
     }
@@ -470,7 +477,11 @@ void MetropolisHastingsDyn (MHproposal *MHp,
 
 //  Rprintf("nterms %d\n", mdyn->n_terms); 
     if (mdyn->n_terms <= 2) { 
-     numdissolved = (Edge)(nedges*exp(gamma[0])/(1+exp(gamma[0])));
+//   fast code for edges-only dissolve model
+//   The next line for a fixed number dissolved
+//   numdissolved = (Edge)(nedges*exp(gamma[0])/(1+exp(gamma[0])));
+//   The next line for a random (Binomial) number dissolved
+     numdissolved = rbinom((double) nedges, exp(gamma[0])/(1+exp(gamma[0])));
 //    Rprintf("numdissolved %d\n", numdissolved); 
 //    Rprintf("gamma[0] %f\n", gamma[0]); 
      if(numdissolved > 0){
@@ -482,10 +493,8 @@ void MetropolisHastingsDyn (MHproposal *MHp,
 	dissolvehead[rane] = dissolvehead[--nedges];
       }
       for (i=0; i < numdissolved; i++) {
-//       rane = 1 + unif_rand() * nedges;
-       FindithEdge(&head, &tail, dissolvetail[i], &nwp[0]);
-//       MHdissolve.togglehead[i] = head;
-//       MHdissolve.toggletail[i] = tail;
+       rane = (int)(dissolvetail[i]);
+       FindithEdge(&head, &tail, rane, &nwp[0]);
        dissolvehead[i] = head;
        dissolvetail[i] = tail;
       }
@@ -521,7 +530,7 @@ void MetropolisHastingsDyn (MHproposal *MHp,
     }
 
     if(numdissolved > 0){
-//  Rprintf("ntoggles=%d\n", numdissolved); 
+//  Rprintf("numdissolved=%d\n", numdissolved); 
 //      for (i=0; i < numdissolved; i++) {
 //Rprintf("%d h %d t %d\n", i, 
 //		 dissolvehead[i], dissolvetail[i]); 
@@ -540,10 +549,13 @@ void MetropolisHastingsDyn (MHproposal *MHp,
       for (i=0; i < numdissolved; i++) {
        ToggleEdge(dissolvehead[i], dissolvetail[i], &nwp[0]);
        ToggleEdge(dissolvehead[i], dissolvetail[i], &nwp[1]);
+       disstime[nextdissedge] = dstep;
+       disshead[nextdissedge] = dissolvehead[i];
+       disstail[nextdissedge] = dissolvetail[i];
+       nextdissedge++;
       }
      }
 
-    *numdissolve = numdissolved;
 //Rprintf("C numdissolve %d\n", *numdissolve);
 //Rprintf("C numdissolved %d\n", numdissolved);
 
@@ -607,9 +619,55 @@ void MetropolisHastingsDyn (MHproposal *MHp,
 //   nwp->duration_info.MCMCtimer++;
     }
 
-//    Rprintf("End MH: step %d edges %d\n", step, nwp[0].nedges); 
+//    Rprintf("End MH: nw[0] %d edges nw[1] changes %d\n", nwp[0].nedges, nwp[1].nedges); 
+//
+//    Record toggled dyads
+//
+    /* record new generated network DIFFERENCES to pass back to R */
+    if (nwp[1].directed_flag) {
+     for (v=1; v<=nwp[1].nnodes; v++) 
+      {
+        Vertex e;
+        for(e = EdgetreeMinimum(nwp[1].outedges, v);
+  	  nwp[1].outedges[e].value != 0 && nextdiffedge < *nmax;
+  	  e = EdgetreeSuccessor(nwp[1].outedges, e))
+  	{
+            difftime[nextdiffedge] = dstep;
+            diffhead[nextdiffedge] = v;
+            difftail[nextdiffedge] = nwp[1].outedges[e].value;
+  	  nextdiffedge++;
+  	}
+     }
+    }else{
+     for (v=1; v<=nwp[1].nnodes; v++) 
+      {
+        Vertex e;
+        for(e = EdgetreeMinimum(nwp[1].outedges, v);
+  	  nwp[1].outedges[e].value != 0 && nextdiffedge < *nmax;
+  	  e = EdgetreeSuccessor(nwp[1].outedges, e))
+  	{
+          head = nwp[1].outedges[e].value;
+          difftime[nextdiffedge] = dstep;
+  	  if(v < head){
+             diffhead[nextdiffedge] = head;
+             difftail[nextdiffedge] = v;
+             nextdiffedge++;
+  	  }else{
+             diffhead[nextdiffedge] = v;
+             difftail[nextdiffedge] = head;
+             nextdiffedge++;
+  	  }
+  	}
+       }
+    }
     dstep++;
   }
+  difftime[0]=nextdiffedge;
+  diffhead[0]=nextdiffedge;
+  difftail[0]=nextdiffedge;
+  disstime[0]=nextdissedge;
+  disshead[0]=nextdissedge;
+  disstail[0]=nextdissedge;
 /*  if (fVerbose)
     Rprintf("%d taken (MCMCtimer=%d)\n", taken, nwp->duration_info.MCMCtimer); */
 //    Rprintf("End MH: edges %d discord %d\n", nwp[0].nedges, nwp[1].nedges); 

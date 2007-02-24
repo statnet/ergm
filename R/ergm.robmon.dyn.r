@@ -24,7 +24,8 @@ ergm.robmon.dyn <- function(theta0, nw, model, model.dissolve, Clist, BD,
   MCMCparams <- list(samplesize=n1, burnin=burnin, interval=interval,
                      orig.obs=Clist$obs, meanstats=Clist$meanstats,
                      gamma=gamma,
-                     dyninterval=algorithm.control$dyninterval
+                     dyninterval=algorithm.control$dyninterval,
+                     maxchanges=algorithm.control$maxchanges
                     )
   MHproposal <- list(package=algorithm.control$proposalpackage, type=proposaltype)
   cat(paste("Phase 1: ",n1,"iterations"))
@@ -113,7 +114,7 @@ ergm.robmon.dyn <- function(theta0, nw, model, model.dissolve, Clist, BD,
                       # mc.se=mc.se, acf=mcmcacf,
                       # fullsample=statsmatrix.all),
                   # class="ergm") 
-  structure(c(ve, list(newnetwork=network.toggle(nw, z$diffedgelist), 
+  structure(c(ve, list(newnetwork=network.update(nw, z$newedgelist), 
                  theta.original=theta0,
                  bounddeg=BD, formula=model$formula, 
                  interval=interval, burnin=burnin, 

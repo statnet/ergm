@@ -1889,89 +1889,33 @@ InitErgm.nodemain<-function (nw, m, arglist, ...) {
 
 InitErgm.nodemix<-function (nw, m, arglist, drop=TRUE, ...) {
   a <- ergm.checkargs("nodemix", arglist,
-    varnames = c("attrname"),
-    vartypes = c("character"),
-    defaultvalues = list(NULL),
-    required = c(TRUE))
-  attach(a)
-  attrname<-a$attrname
-  nodecov <- get.node.attr(nw, attrname, "nodemix")
-  u<-sort(unique(nodecov))
-  if(any(is.na(nodecov))){u<-c(u,NA)}
-#   Recode to numeric if necessary
-  nodecov <- match(nodecov,u,nomatch=length(u)+1)
-  ui <- seq(along=u)
-  ucount<-sapply(ui,function(x){sum(nodecov==x,na.rm=TRUE)}) #Count cases
-  uui <- matrix(1:length(ui)^2,length(ui),length(ui))  #Create int tables
-  uui <- uui[upper.tri(uui,diag=TRUE)]
-  urm <- t(sapply(ui,rep,length(ui)))   #This is the reverse of what you'd
-  urm <- urm[upper.tri(urm,diag=TRUE)]  #expect for r/c, but it's correct
-  ucm <- sapply(ui,rep,length(ui))
-  ucm <- ucm[upper.tri(ucm,diag=TRUE)]
-  uun <- outer(u,u,paste,sep=".")
-  uun <- uun[upper.tri(uun,diag=TRUE)]
-  if (length(u)==1)
-    stop ("Argument to nodemix() has only one value", call.=FALSE)
-  if(drop){
-    mixmat <- mixingmatrix(nw,attrname)
-    mixmat <- mixmat[-nrow(mixmat),-nrow(mixmat)]
-    if(is.directed(nw))       #If directed, accumulate in upper triangle
-      mixmat[upper.tri(mixmat)] <- t(mixmat)[upper.tri(mixmat)]
-    maxmat <- ucount %o% ucount - diag(length(ucount))
-    c1mat <- diag(ucount,length(ui),length(ui))==1
-    mixvec <- mixmat[upper.tri(mixmat,diag=TRUE)]
-#   Check for extreme cells
-    mu <- (mixvec==0) | (mixvec==(maxmat[upper.tri(maxmat,diag=TRUE)])) |  (c1mat[upper.tri(c1mat,diag=TRUE)])
-    mu[is.na(mu)] <- FALSE
-    if(any(mu)){
-      dropterms <- paste(paste("nodemix",attrname,sep="."),uun[mu],sep=".")
-      cat(paste("Warning: The count of", dropterms, "is extreme.\n"))
-      cat(paste("To avoid degeneracy the terms",dropterms,
-                "have been dropped.\n"))
-      uun <- uun[!mu]
-      uui <- uui[!mu]
-      urm <- urm[!mu]
-      ucm <- ucm[!mu]
-    }
-  }
-  termnumber<-1+length(m$terms)
-  #  Number of input parameters before covariates equals twice the number
-  #  of used matrix cells, namely 2*length(uui), so that's what
-  #  input component 1 equals
-  m$terms[[termnumber]] <- list(name="nodemix", soname="statnet",
-                                inputs=c(2*length(uui), length(uui),
-                                  2*length(uui)+length(nodecov),
-                                  urm, ucm, nodecov),
-                                dependence=FALSE)
-  m$coef.names<-c(m$coef.names,paste("nodemix",attrname, uun, sep="."))
-  m
-}
-
-InitErgm.mix<-function (nw, m, arglist, drop=TRUE, ...) {
-  a <- ergm.checkargs("mix", arglist,
     varnames = c("attrname","contrast"),
     vartypes = c("character","logical"),
-    defaultvalues = list(NULL,TRUE),
+    defaultvalues = list(NULL,FALSE),
     required = c(TRUE,FALSE))
   attach(a)
   attrname<-a$attrname
   contrast<-a$contrast
+  if(is.bipartite(nw)){
+#
+#   So undirected network storage but directed mixing
+#
     nodecov <- get.node.attr(nw, attrname, "mix")
     mixmat <- mixingmatrix(nw,attrname)
     mixmat <- mixmat[-nrow(mixmat),-nrow(mixmat)]
     u <- cbind(as.vector(row(mixmat)), 
                as.vector(col(mixmat)))
     if(any(is.na(nodecov))){u<-rbind(u,NA)}
-#
-#   Recode to numeric if necessary
-#
+  #
+  #   Recode to numeric if necessary
+  #
     namescov <- sort(unique(nodecov))
     nodecov <- match(nodecov,namescov)
     if (length(nodecov)==1)
         stop ("Argument to mix() has only one value", call.=FALSE)
-#
-#   Check for degeneracy
-#
+  #
+  # Check for degeneracy
+  #
     if(drop){
      ematch <- mixmat[u]
      mu <- ematch==0
@@ -1984,20 +1928,80 @@ InitErgm.mix<-function (nw, m, arglist, drop=TRUE, ...) {
       u <- u[!mu,]
      }
     }
-  if(contrast){
-   u <- u[-1,]
-  }
-  termnumber<-1+length(m$terms)
-  #  Number of input parameters before covariates equals twice the number
-  #  of used matrix cells, namely 2*length(uui), so that's what
-  #  input component 1 equals
-  m$terms[[termnumber]] <- list(name="mix", soname="statnet",
-    inputs=c(nrow(u), nrow(u), length(nodecov)+length(u), u[,1], u[,2],nodecov),
-                                dependence=FALSE)
-  m$coef.names<-c(m$coef.names,
+    if(contrast){
+     u <- u[-1,]
+    }
+    termnumber<-1+length(m$terms)
+    #  Number of input parameters before covariates equals twice the number
+    #  of used matrix cells, namely 2*length(uui), so that's what
+    #  input component 1 equals
+    m$terms[[termnumber]] <- list(name="mix", soname="statnet",
+      inputs=c(nrow(u), nrow(u), length(nodecov)+length(u), u[,1], u[,2],nodecov),
+                                  dependence=FALSE)
+    m$coef.names<-c(m$coef.names,
        paste("mix",attrname, apply(matrix(namescov[u],ncol=2),1,paste,collapse="."), sep="."))
+  }else{
+#
+# So one mode, but could be directed or undirected
+#
+    nodecov <- get.node.attr(nw, attrname, "nodemix")
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+  #   Recode to numeric if necessary
+    nodecov <- match(nodecov,u,nomatch=length(u)+1)
+    ui <- seq(along=u)
+    ucount<-sapply(ui,function(x){sum(nodecov==x,na.rm=TRUE)}) #Count cases
+    uui <- matrix(1:length(ui)^2,length(ui),length(ui))  #Create int tables
+    uui <- uui[upper.tri(uui,diag=TRUE)]
+    urm <- t(sapply(ui,rep,length(ui)))   #This is the reverse of what you'd
+    urm <- urm[upper.tri(urm,diag=TRUE)]  #expect for r/c, but it's correct
+    ucm <- sapply(ui,rep,length(ui))
+    ucm <- ucm[upper.tri(ucm,diag=TRUE)]
+    uun <- outer(u,u,paste,sep=".")
+    uun <- uun[upper.tri(uun,diag=TRUE)]
+    if (length(u)==1)
+      stop ("Argument to nodemix() has only one value", call.=FALSE)
+    if(drop){
+      mixmat <- mixingmatrix(nw,attrname)
+      mixmat <- mixmat[-nrow(mixmat),-nrow(mixmat)]
+      if(is.directed(nw))       #If directed, accumulate in upper triangle
+        mixmat[upper.tri(mixmat)] <- t(mixmat)[upper.tri(mixmat)]
+      maxmat <- ucount %o% ucount - diag(length(ucount))
+      c1mat <- diag(ucount,length(ui),length(ui))==1
+      mixvec <- mixmat[upper.tri(mixmat,diag=TRUE)]
+  #   Check for extreme cells
+      mu <- (mixvec==0) | (mixvec==(maxmat[upper.tri(maxmat,diag=TRUE)])) |  (c1mat[upper.tri(c1mat,diag=TRUE)])
+      mu[is.na(mu)] <- FALSE
+      if(any(mu)){
+        dropterms <- paste(paste("nodemix",attrname,sep="."),uun[mu],sep=".")
+        cat(paste("Warning: The count of", dropterms, "is extreme.\n"))
+        cat(paste("To avoid degeneracy the terms",dropterms,
+                  "have been dropped.\n"))
+        if (sum(!mu)<=1){
+          stop ("One or less values of the attribute to nodemix()", call.=FALSE)
+        }
+        uun <- uun[!mu]
+        uui <- uui[!mu]
+        urm <- urm[!mu]
+        ucm <- ucm[!mu]
+      }
+    }
+    if(contrast){u <- u[-1]}
+    termnumber<-1+length(m$terms)
+    #  Number of input parameters before covariates equals twice the number
+    #  of used matrix cells, namely 2*length(uui), so that's what
+    #  input component 1 equals
+    m$terms[[termnumber]] <- list(name="nodemix", soname="statnet",
+                                  inputs=c(2*length(uui), length(uui),
+                                    2*length(uui)+length(nodecov),
+                                    urm, ucm, nodecov),
+                                  dependence=FALSE)
+    m$coef.names<-c(m$coef.names,paste("mix",attrname, uun, sep="."))
+  }
   m
 }
+
+InitErgm.mix<-InitErgm.nodemix
 
 InitErgm.receiver<-function(nw, m, arglist, drop=FALSE, ...) {
   ergm.checkdirected("receiver", is.directed(nw), requirement=TRUE,

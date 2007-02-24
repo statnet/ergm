@@ -33,6 +33,7 @@ ergm.robmon <- function(theta0, nw, model, Clist, BD,
   print(Ddiag)
   
   #phase 2:  Main phase
+  steplength <- algorithm.control$steplength
   a <- algorithm.control$initial_gain
   if(is.null(a)) {a <- 0.1} #default value
   n_sub <- algorithm.control$nsubphases
@@ -58,6 +59,11 @@ ergm.robmon <- function(theta0, nw, model, Clist, BD,
       # each iteration begins from the observed network, which must be 
       # "forgotten".
       thetamatrix <- rbind(thetamatrix,theta)
+      statsmatrix <- z$statsmatrix
+      if(steplength<1 && subphase < n_sub ){
+        statsmean <- apply(statsmatrix,2,mean)
+        statsmatrix <- sweep(statsmatrix,2,(1-steplength)*statsmean,"-")
+      }
       theta <- theta - a * Ddiaginv * z$statsmatrix
     }
     a <- a/2
