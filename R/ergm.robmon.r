@@ -35,7 +35,7 @@ ergm.robmon <- function(theta0, nw, model, Clist, BD,
   #phase 2:  Main phase
   steplength <- algorithm.control$steplength
   a <- algorithm.control$initial_gain
-  if(is.null(a)) {a <- 0.1} #default value
+  if(is.null(a)) {a <- 0.1/algorithm.control$steplength} #default value
   n_sub <- algorithm.control$nsubphases
   if(is.null(n_sub)) {n_sub <- 4} #default value
   n_iter <- algorithm.control$niterations
