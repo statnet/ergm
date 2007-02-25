@@ -1,6 +1,7 @@
 Summary.ergm <- function (object, ..., 
                           digits = max(3, getOption("digits") - 3),
-                          correlation=FALSE, covariance=FALSE)
+                          correlation=FALSE, covariance=FALSE,
+                          eps=0.0001)
 {
   if(any(is.na(object$coef)) & !is.null(object$mplefit)){
      object$coef[is.na(object$coef)] <-
@@ -133,7 +134,8 @@ if(any(is.na(object$mc.se)) & !all(object$theta1$independent)){
 print.summary.ergm <- function (x, 
               digits = max(3, getOption("digits") - 3),
               correlation=FALSE, covariance=FALSE,
-              signif.stars= getOption("show.signif.stars"),     ...)
+              signif.stars= getOption("show.signif.stars"),
+              eps=0.0001, ...)
 {
   cat("\n==========================\n")
   cat("Summary of model fit\n")
@@ -166,7 +168,8 @@ print.summary.ergm <- function (x,
   }
 
   printCoefmat(x$coefs, digits=digits, signif.stars=signif.stars,
-               P.values=TRUE, has.Pvalue=TRUE, na.print="NA", ...)
+               P.values=TRUE, has.Pvalue=TRUE, na.print="NA",
+               eps=eps, ...)
   
   if(!is.null(x$warning)){ warning(x$warning) }
 
