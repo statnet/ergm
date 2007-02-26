@@ -259,7 +259,7 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
   fit$coef <- fit$par
   fit$deviance <- fit$value
   fit$iter <- fit$counts[1]
-  asycov <- try(solve(fit$hessian), silent = TRUE)
+  asycov <- try(robust.inverse(fit$hessian), silent = TRUE)
   if (inherits(asycov, "try-error")) {
      asycov <- diag(1/diag(-fit$hessian))
   }
@@ -316,7 +316,7 @@ mk.pseudonet<-function(meanstats,f,y,start.density=NULL,ntoggles=length(meanstat
 
   if(verbose) cat("Estimating the covariance matrix of network statistics...
   ")
-  wt<-solve(cov(t(sapply(1:covS,function(i)
+  wt<-robust.inverse(cov(t(sapply(1:covS,function(i)
   summ.net(rbern.net(y,start.density))))))
   if(verbose) cat("Finished. \n")
 

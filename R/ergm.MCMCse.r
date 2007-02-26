@@ -100,12 +100,12 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
 #
 # use the exact Hessian if possible
 # 
-   test.hessian <- try(any(is.na(sqrt(diag(solve(V))))), silent=TRUE)
+   test.hessian <- try(any(is.na(sqrt(diag(robust.inverse(V))))), silent=TRUE)
    if(inherits(test.hessian,"try-error") || test.hessian){
     hessian0 <- robust.inverse(var(xsim[,!novar]))
    }else{
     if(!is.null(statsmatrix.miss)){
-     test.hessian.miss <- try(any(is.na(sqrt(diag(solve(V.miss))))), silent=TRUE)
+     test.hessian.miss <- try(any(is.na(sqrt(diag(robust.inverse(V.miss))))), silent=TRUE)
      if(inherits(test.hessian.miss,"try-error") || test.hessian.miss
                  || detna(V.miss)< -20 ){
        hessian0 <- - V
