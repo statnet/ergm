@@ -215,7 +215,11 @@
 #  End "statnet" reads
 #
    #Which nodes should we use?
-   use<-displayisolates|((apply(d,1,sum)+apply(d,2,sum))>0)
+   if(is.bipartite(x)){
+     use<-displayisolates|(apply(d,1,sum)>0)
+   }else{
+     use<-displayisolates|((apply(d,1,sum)+apply(d,2,sum))>0)
+   }
 #
 #  Which nodes should we use?
 #
@@ -225,7 +229,11 @@
     options(warn=current.warn)
     return(invisible(x))
    }
-   d <- d[use,use]
+   if(is.bipartite(x)){
+     d <- d[use,]
+   }else{
+     d <- d[use,use]
+   }
 #
    if(!is.null(coord) | mode=="fruchtermanreingold" | interactive){
       latent <- FALSE

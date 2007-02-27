@@ -1,4 +1,4 @@
-ergm.robmon <- function(theta0, nw, model, Clist, BD, 
+ergm.stocapprox <- function(theta0, nw, model, Clist, BD, 
                         burnin, interval, proposaltype,
                         verbose=FALSE, 
                         algorithm.control=list() ){
@@ -18,7 +18,7 @@ ergm.robmon <- function(theta0, nw, model, Clist, BD,
   n1 <- algorithm.control$phase1_n
   if(is.null(n1)) {n1 <- 7 + 3 * Clist$nparam} #default value
   eta0 <- ergm.eta(theta0, model$etamap)
-  cat("Robbins-Monro algorithm with theta_0 equal to:\n")
+  cat("Stochastic Approximation algorithm with theta_0 equal to:\n")
   print(theta0)
   MCMCparams <- list(samplesize=n1, burnin=burnin, interval=interval)
   MHproposal <- list(package=algorithm.control$proposalpackage, type=proposaltype)
@@ -48,7 +48,8 @@ ergm.robmon <- function(theta0, nw, model, Clist, BD,
   n_sub <- algorithm.control$nsubphases
   if(is.null(n_sub)) {n_sub <- 4} #default value
   n_iter <- algorithm.control$niterations
-  if(is.null(n_iter)) {n_iter <- 7 + Clist$nparam} #default value
+  if(is.null(n_iter)) {n_iter <- 25} #default value
+# if(is.null(n_iter)) {n_iter <- 7 + Clist$nparam} #default value
   # This default value is very simplistic; Snijders would use a minimum of
   # 7 + Clist$nparam and a maximum of 207+Clist$nparam, with the actual 
   # number determined by the autocorrelation in the samples.

@@ -92,7 +92,7 @@ ergm <- function(formula, theta0="MPLE",
   Clist$obs <- summary(model$formula)
 
   if (verbose) cat("ergm.mainfitloop\n")
-  styles <- c("Newton-Raphson","Robbins-Monro")
+  styles <- c("Newton-Raphson","Robbins-Monro","Stochastic-Approximation")
   con$style <- styles[pmatch(con$style,styles,nomatch=1)]
   if(!is.null(dissolve)){
     model.dissolve <- ergm.getmodel.dissolve(dissolve, nw)
@@ -100,11 +100,13 @@ ergm <- function(formula, theta0="MPLE",
                     Clist, BD, gamma, burnin, interval,
                     proposaltype, verbose, con)
   }else{
-   if(con$style == "Robbins-Monro"){
-    v <- ergm.robmon(theta0, nw, model, Clist, BD, burnin, interval,
-                     proposaltype, verbose, con)
-   }else{
-    v <- ergm.mainfitloop(theta0, nw,
+   v <- switch(con$style,
+    "Robbins-Monro" = ergm.robmon(theta0, nw, model, Clist, BD, burnin, interval,
+                      proposaltype, verbose, con),
+    "Stochastic-Approximation" = ergm.stocapprox(theta0, nw, model, 
+                                 Clist, BD, burnin, interval,
+                                 proposaltype, verbose, con),
+                      ergm.mainfitloop(theta0, nw,
                           model, Clist,
                           BD, initialfit, burnin, MCMCsamplesize,
                           interval, maxit, proposaltype, con$proposalpackage,
@@ -114,7 +116,7 @@ ergm <- function(formula, theta0="MPLE",
                           hessian=con$hessian, trustregion=con$trustregion,
                           steplength=con$steplength,
                           ...)
-   }
+              )
   }
 
   if (!con$returnMCMCstats)
