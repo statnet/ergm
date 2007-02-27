@@ -326,7 +326,7 @@ mk.pseudonet<-function(meanstats,f,y,start.density=NULL,ntoggles=length(meanstat
   }
   
   decider<-function(target,cur,prop,wt)
-  mahalanobis(cur,target,wt,inverted=TRUE)-mahalanobis(prop,target,wt,inverted=TRUE)>=sqrt(.Machine$double.eps)*runif(1,-1,1)
+  ergm.mahalanobis(cur,target,wt,inverted=TRUE)-ergm.mahalanobis(prop,target,wt,inverted=TRUE)>=sqrt(.Machine$double.eps)*runif(1,-1,1)
 
   y<-rbern.net(y,start.density)
   ms<-summ.net(y)
