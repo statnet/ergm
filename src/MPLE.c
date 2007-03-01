@@ -102,7 +102,7 @@ void MpleInitialize (int *responsevec, double *covmat,
   covMatPosition = covmat;
   currentResponse = responsevec;
   thisPreviousRow  = thisCurrentRow =  
-    (double*) malloc(m->n_stats*sizeof(double));
+    (double*) R_alloc(m->n_stats,sizeof(double));
   curDyadNum=0;
   thisRowNumber = 0;
   for(i=1; i < nwp->nnodes; i++){
