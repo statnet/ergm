@@ -125,21 +125,25 @@ void MCMCDyn_wrapper (double *heads, double *tails, double *dnedges,
    NetworkDestroy(&nwhamming);
   }
 
-// Really this is a formation term
+// Really this is a dissolve/formation term
   formationterm=(*ndynterms);
   if(formationterm>0){
    formationterm=ModelTermDissolve (*dynfunnames, *ndynterms);
+//   Rprintf("*ndynterms %d formationterm %d\n",*ndynterms, formationterm);
    mdyn=ModelInitialize(*dynfunnames, *dynsonames, dyninputs, *ndynterms);
    Network nwformation;
    thisterm = mdyn->termarray + formationterm - 1;
    nddyads = (Edge)(thisterm->inputparams[0]);
+//   Rprintf("nddyads %d\n",nddyads);
    double *dhead, *dtail;
    dhead = (double *) malloc(sizeof(double) * nddyads);
    dtail = (double *) malloc(sizeof(double) * nddyads);
    for (i=0; i<nddyads; i++){
-    dhead[i] = (Vertex)(thisterm->inputparams[1+        i]);
-    dtail[i] = (Vertex)(thisterm->inputparams[1+nddyads+i]);
+    dhead[i] = (Vertex)(thisterm->attrib[        i]);
+    dtail[i] = (Vertex)(thisterm->attrib[nddyads+i]);
    }
+//    dhead[i] = (Vertex)(thisterm->inputparams[1+        i]);
+//    dtail[i] = (Vertex)(thisterm->inputparams[1+nddyads+i]);
    nwformation=NetworkInitialize(dhead, dtail, nddyads, n_nodes, directed_flag, bip);
    nddyads=0;
    nw[1]=NetworkInitialize(dhead, dtail, nddyads, n_nodes, directed_flag, bip);
@@ -500,6 +504,7 @@ void MetropolisHastingsDyn (MHproposal *MHp,
       }
      }
     }else{
+     // Slow code for more complex dissolve models 
      numdissolved=0; 
      for (rane=1; rane <= nedges; rane++) {
       FindithEdge(&head, &tail, rane, &nwp[0]);

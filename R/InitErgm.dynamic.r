@@ -1,3 +1,5 @@
+#  See InitErgm.r for a general explanation 
+#  of InitErgm functions
 InitErgm.dissolve<-function (nw, m, arglist, ...) {
 # ergm.checkdirected("hammingdyadcov", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("dissolve", arglist=arglist,
@@ -19,10 +21,9 @@ InitErgm.dissolve<-function (nw, m, arglist, ...) {
 # component 1 is set to 1 (although in this case, input component 1
 # is actually arbitrary since d_dyadcov ignores the value of inp->attrib).
   m$terms[[termnumber]] <- list(name = "dissolve", soname="statnet",
-                                inputs = c(1, 1,
-                                   1+2*nrow(nwm),
+                                inputs = c(1, 1, 1+length(nwm),
                                    nrow(nwm), as.integer(nwm)),
-                                 dependence=TRUE)
+                                 dependence=FALSE)
   cn<-paste("dissolve", as.character(sys.call(0)[[4]][2]), sep = ".")
   m$coef.names <- c(m$coef.names, cn)
   m

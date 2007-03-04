@@ -61,6 +61,7 @@ Model* ModelInitialize (char *fnames, char *sonames, double *inputs,
         fn[k+2]=fnames[k];
       fn[i+2]='\0';
       /* fn is now the string 'd_[name]', where [name] is fname */
+//      Rprintf("fn: %s\n",fn);
       if((sn=(char *)malloc(sizeof(char)*(j+1)))==NULL){
         Rprintf("Error in ModelInitialize: Can't allocate %d bytes for sn.\n",
 		sizeof(char)*(j+1));
@@ -90,7 +91,10 @@ Model* ModelInitialize (char *fnames, char *sonames, double *inputs,
       /*  Now process the values in model$option[[optionnumber]]$inputs;
           See comments in InitErgm.r for details.    */
       offset = (int) *inputs++;  /* Set offset for attr vector */
+//      Rprintf("offsets: %f %f %f %f %f\n",inputs[0],inputs[1],inputs[2],
+//		         inputs[3],inputs[4],inputs[5]);
       thisterm->nstats = (int) *inputs++; /* Set # of statistics returned */
+//      Rprintf("l %d offset %d thisterm %d\n",l,offset,thisterm->nstats);
       if (thisterm->nstats <= 0)
 	{ /* Must return at least one statistic */
 	  Rprintf("Error in ModelInitialize:  Option %s cannot return %d \

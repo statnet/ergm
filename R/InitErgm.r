@@ -41,9 +41,9 @@
 #          is a C function called d_[name].
 #  soname: This is the (text) name of the package containing the C function
 #          called d_[name].
-#  inputs: This is a (numeric) vector with at least 3 components, as described
+#  inputs: This is a (numeric) vector with at least 3 elements, as described
 #          below:
-#   Component 1 -- For functions that require a vector of covariates, either
+#    Element 1 -- For functions that require a vector of covariates, either
 #                 nodal or dyadic, this optional value is the number of
 #                 input parameters BEFORE the beginning of the covariate
 #                 vector.  For instance, if there are no input parameters
@@ -51,18 +51,18 @@
 #                 set to zero.  The changestat function in C will be passed a
 #                 pointer to the start of this vector of covariates, though
 #                 the changestat function may choose to ignore this pointer,
-#                 in which case the value of component 1 is arbitrary.
-#   Component 2 -- The number of change statistics returned by the function.
-#   Component 3 -- The total number of input parameters to be passed to
-#                  the function.  If there are no nodal or dyadic coviariates,
-#                  the value of component 1 is arbitrary.
-#   Components 4+ -- The input parameters to be passed to the function.
-#                 For example, if Component 3 equals 3, then Components
-#                 4, 5, 6 are the parameters to be passed.  No 4th component
-#                 is necessary if Component3==0.  If there are nodal or
+#                 in which case the value of element 1 is arbitrary.
+#    Element 2 -- The number of change statistics returned by the function.
+#    Element 3 -- The total number of input parameters and covariates
+#                 to be passed to the function.  If there are no nodal or 
+#                 dyadic coviariates, the value of element 1 is arbitrary.
+#   Element 4+ -- The input parameters to be passed to the function.
+#                 For example, if element 3 equals 3, then elements
+#                 4, 5, 6 are the parameters to be passed.  No 4th element
+#                 is necessary if element 3==0.  If there are nodal or
 #                 dyadic covariates, they should be appended after any other
-#                 input parameters (and Component 1 may then be set to the
-#                 number of other input parameters).
+#                 input parameters (and element 1 may then be set to the
+#                 number of other input parameters excluding the covariates).
 #
 # Optional arguments of model$terms[[termnumber]]
 # -----------------------------------------------
@@ -531,7 +531,7 @@ InitErgm.ctriad<-function (nw, m, arglist, drop=TRUE, ...) {
     } else {
       #  Number of input parameters before covariates equals number of
       #  unique elements in nodecov, namely length(u), so that's what
-      #  input component 1 equals
+      #  input element 1 equals
       m$terms[[termnumber]] <- list(name="ctriad", soname="statnet",
                                     inputs=c(length(ui), length(ui),
                                       length(ui)+length(nodecov),
@@ -540,7 +540,7 @@ InitErgm.ctriad<-function (nw, m, arglist, drop=TRUE, ...) {
     }
   }else{
 #    No attributes (or diff)
-#    No covariates, so input component 1 is arbitrary
+#    No covariates, so input element 1 is arbitrary
     m$terms[[termnumber]] <- list(name="ctriad", soname="statnet",
                                   inputs=c(0,1,0))
     m$coef.names<-c(m$coef.names,"ctriad")
@@ -653,14 +653,14 @@ InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
   if(lengthd==0){return(model)}
   termnumber<-1+length(m$terms)
   if(!is.null(attrname)) {
-#  No covariates here, so input component 1 is arbitrary
+#  No covariates here, so input element 1 is arbitrary
    m$terms[[termnumber]] <- list(name="degree", soname="statnet",
                                inputs=c(lengthd, lengthd, 
                                 lengthd+length(nodecov), d, nodecov),
                                dependence=TRUE)
    m$coef.names<-c(m$coef.names,paste("degree",d,".",attrname,sep=""))
   }else{
-#  No covariates here, so input component 1 is arbitrary
+#  No covariates here, so input element 1 is arbitrary
    m$terms[[termnumber]] <- list(name="degree", soname="statnet",
                                        inputs=c(0, lengthd, lengthd, d),
                                        dependence=TRUE)
@@ -758,7 +758,7 @@ InitErgm.duration<-function (nw, m, arglist, ...) {
   }
   termnumber <- 1 + length(m$terms)
 # There is 1 input parameter before the covariate vector, so input
-# component 1 is set to 1 (although in this case, input component 1
+# element 1 is set to 1 (although in this case, input element 1
 # is actually arbitrary since d_duration ignores the value of inp->attrib).
   m$terms[[termnumber]] <- list(name = "duration", soname="statnet",
                                 inputs = c(1, 1, 
@@ -796,10 +796,11 @@ InitErgm.dyadcov<-function (nw, m, arglist, ...) {
    #Update the terms list, adding the vectorized adjacency matrix
 
 #  There is 1 input parameter before the covariate vector, so input
-#  component 1 is set to 1 (although in this case, input component 1
+#  element 1 is set to 1 (although in this case, input element 1
 #  is actually arbitrary since d_dyadcov ignores the value of inp->attrib).
    m$terms[[termnumber]] <- list(name = "dyadcov",  soname="statnet",
-                                 inputs = c(1, 3, 1+NROW(xm)*NROW(xm),
+#                                inputs = c(1, 3, 1+NROW(xm)*NROW(xm),
+                                 inputs = c(1, 3, 1+length(xm),
                                    NROW(xm), as.double(xm)),
                                  dependence=FALSE)
    if(!is.null(attrname))
@@ -812,10 +813,11 @@ InitErgm.dyadcov<-function (nw, m, arglist, ...) {
   }else{
    termnumber <- 1 + length(m$terms)
 #  There is 1 input parameter before the covariate vector, so input
-#  component 1 is set to 1 (although in this case, input component 1
+#  element 1 is set to 1 (although in this case, input element 1
 #  is actually arbitrary since d_dyadcov ignores the value of inp->attrib).
    m$terms[[termnumber]] <- list(name = "dyadcov", soname="statnet", 
-                                 inputs = c(1, 1, 1+NROW(xm)*NROW(xm),
+#                                inputs = c(1, 1, 1+NROW(xm)*NROW(xm),
+                                 inputs = c(1, 1, 1+length(xm),
                                    NROW(xm), as.double(xm)),
                                  dependence=FALSE)
    if(!is.null(attrname))
@@ -848,7 +850,7 @@ InitErgm.simmeliandynamic<-function (nw, m, arglist, ...) {
 
    termnumber <- 1 + length(m$terms)
 #  There is 1 input parameter before the covariate vector, so input
-#  component 1 is set to 1 (although in this case, input component 1
+#  element 1 is set to 1 (although in this case, input element 1
 #  is actually arbitrary since d_simmeliandynamic ignores the value of inp->attrib).
    m$terms[[termnumber]] <- list(name = "simmeliandynamic", soname="statnet", 
                                  inputs = c(1, 1, 1+NROW(xm)*NROW(xm),
@@ -884,7 +886,7 @@ InitErgm.intransitivedynamic<-function (nw, m, arglist, ...) {
 
    termnumber <- 1 + length(m$terms)
 #  There is 1 input parameter before the covariate vector, so input
-#  component 1 is set to 1 (although in this case, input component 1
+#  element 1 is set to 1 (although in this case, input element 1
 #  is actually arbitrary since d_intransitivedynamic ignores the value of inp->attrib).
    m$terms[[termnumber]] <- list(name = "intransitivedynamic", soname="statnet", 
                                  inputs = c(1, 1, 1+NROW(xm)*NROW(xm),
@@ -920,7 +922,7 @@ InitErgm.transitivedynamic<-function (nw, m, arglist, ...) {
 
    termnumber <- 1 + length(m$terms)
 #  There is 1 input parameter before the covariate vector, so input
-#  component 1 is set to 1 (although in this case, input component 1
+#  element 1 is set to 1 (although in this case, input element 1
 #  is actually arbitrary since d_transitivedynamic ignores the value of inp->attrib).
    m$terms[[termnumber]] <- list(name = "transitivedynamic", soname="statnet", 
                                  inputs = c(1, 1, 1+NROW(xm)*NROW(xm),
@@ -955,7 +957,7 @@ InitErgm.heideriandynamic<-function (nw, m, arglist, ...) {
 
   termnumber <- 1 + length(m$terms)
 # There is 1 input parameter before the covariate vector, so input
-# component 1 is set to 1
+# element 1 is set to 1
   m$terms[[termnumber]] <- list(name = "heideriandynamic", soname="statnet", 
                                 inputs = c(1, 1, 1+NROW(xm)*NROW(xm),
                                   NROW(xm), as.double(xm)),
@@ -1001,7 +1003,7 @@ InitErgm.factor<-function (nw, m, arglist, drop=TRUE, ...) {
   #Update the terms list, adding the vectorized adjacency matrix
 
 # There is 1 input parameter before the covariate vector, so input
-# component 1 is set to 1 (although in this case, input component 1
+# element 1 is set to 1 (although in this case, input element 1
 # is actually arbitrary since d_factor ignores the value of inp->attrib).
   m$terms[[termnumber]] <- list(name = "factor",  soname="statnet",
                                 inputs = c(1, 3, 1+NROW(xm)*NCOL(xm),
@@ -1029,12 +1031,14 @@ InitErgm.edgecov<-function (nw, m, arglist, ...) {
     xm<-as.matrix(x)
   termnumber <- 1 + length(m$terms)
 # There is 1 input parameter before the covariate vector, so input
-# component 1 is set to 1 (although in this case, input component 1
+# element 1 is set to 1 (although in this case, input element 1
 # is actually arbitrary since d_edgecov ignores the value of inp->attrib).
   m$terms[[termnumber]] <- list(name = "edgecov", soname="statnet", 
-                                inputs = c(1, 1, 1+NROW(xm)*NROW(xm),
+                                inputs = c(1, 1, 1+length(xm),
                                   NROW(xm), as.double(xm)),
                                 dependence=FALSE)
+#                               inputs = c(1, 1, 1+NROW(xm)*NROW(xm),
+#                                 NROW(xm), as.double(xm)),
   if(!is.null(attrname))
     cn<-paste("edgecov", as.character(sys.call(0)[[4]][2]), 
               as.character(attrname), sep = ".")
@@ -1506,7 +1510,7 @@ InitErgm.hamming<-function (nw, m, arglist, ...) {
   }
   termnumber <- 1 + length(m$terms)
 # There is 1 input parameter before the covariate vector, so input
-# component 1 is set to 1 (although in this case, input component 1
+# element 1 is set to 1 (although in this case, input element 1
 # is actually arbitrary since d_hamming ignores the value of inp->attrib).
   m$terms[[termnumber]] <- list(name = "hamming",  soname="statnet",
                                 inputs = c(0, 1, nrow(xm)*2+1, nrow(xm), as.integer(xm)))
@@ -1855,7 +1859,7 @@ InitErgm.nodematch<-function (nw, m, arglist, drop=TRUE, ...) {
   } else {
         #  Number of input parameters before covariates equals number of
         #  unique elements in nodecov, namely length(u), so that's what
-        #  input component 1 equals
+        #  input element 1 equals
     m$terms[[termnumber]] <- list(name="nodematch", soname="statnet",
                                   inputs=c(length(ui), length(ui),
                                     length(ui)+length(nodecov),
@@ -1934,7 +1938,7 @@ InitErgm.nodemix<-function (nw, m, arglist, drop=TRUE, ...) {
     termnumber<-1+length(m$terms)
     #  Number of input parameters before covariates equals twice the number
     #  of used matrix cells, namely 2*length(uui), so that's what
-    #  input component 1 equals
+    #  input element 1 equals
     m$terms[[termnumber]] <- list(name="mix", soname="statnet",
       inputs=c(nrow(u), nrow(u), length(nodecov)+length(u), u[,1], u[,2],nodecov),
                                   dependence=FALSE)
@@ -1990,7 +1994,7 @@ InitErgm.nodemix<-function (nw, m, arglist, drop=TRUE, ...) {
     termnumber<-1+length(m$terms)
     #  Number of input parameters before covariates equals twice the number
     #  of used matrix cells, namely 2*length(uui), so that's what
-    #  input component 1 equals
+    #  input element 1 equals
     m$terms[[termnumber]] <- list(name="nodemix", soname="statnet",
                                   inputs=c(2*length(uui), length(uui),
                                     2*length(uui)+length(nodecov),
@@ -2805,7 +2809,7 @@ InitErgm.balance<-function (nw, m, arglist, ...) {
       }
      }
      if (!diff) {
-#     No parameters before covariates here, so input component 1 equals 0
+#     No parameters before covariates here, so input element 1 equals 0
       m$terms[[termnumber]] <- list(name="balance", soname="statnet",
                                     inputs=c(0,1,length(nodecov),nodecov),
                                     dependence=TRUE)
@@ -2813,7 +2817,7 @@ InitErgm.balance<-function (nw, m, arglist, ...) {
      } else {
       #  Number of input parameters before covariates equals number of
       #  unique elements in nodecov, namely length(u), so that's what
-      #  input component 1 equals
+      #  input element 1 equals
       m$terms[[termnumber]] <- list(name="balance", soname="statnet",
           inputs=c(length(ui), length(ui), length(ui)+length(nodecov),
                    ui, nodecov),
@@ -2834,7 +2838,7 @@ InitErgm.balance<-function (nw, m, arglist, ...) {
 #       cat(paste("To avoid degeneracy the balance term has been dropped.\n"))
 #    }
 #   }
-#   No covariates, so input component 1 is arbitrary
+#   No covariates, so input element 1 is arbitrary
     m$terms[[termnumber]] <- list(name="balance", soname="statnet",
                                   inputs=c(0,1,0),
                                   dependence=TRUE)

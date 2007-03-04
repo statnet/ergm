@@ -1,3 +1,6 @@
+#  See InitErgm.r for a general explanation 
+#  of InitErgm functions
+
 InitErgm.triadcensus.directedonly<-function (nw, m, arglist, drop=FALSE, ...) {
   ergm.checkdirected("triadcensus", is.directed(nw), requirement=TRUE)
   a=ergm.checkargs("triadcensus", arglist,

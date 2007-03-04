@@ -1258,6 +1258,10 @@ void d_dyadcov (int ntoggles, Vertex *heads, Vertex *tails,
   double val;
   Vertex h, t;
   int i, edgeflag, refedgeflag;
+  long int nactors, nrows;
+  
+  nrows = (long int)(mtp->inputparams[0]);
+  nactors = nwp->bipartite;
   
   if(!nwp->directed_flag){
 
@@ -1271,7 +1275,7 @@ void d_dyadcov (int ntoggles, Vertex *heads, Vertex *tails,
       refedgeflag = (EdgetreeSearch(t, h, nwp->outedges) != 0);
       
       /*Get the dyadic covariate*/
-      val = mtp->inputparams[1+(t-1)+(h-1)*((long int)(mtp->inputparams[0]))];
+      val = mtp->attrib[(t-1-nactors)+(h-1)*nrows];
       
       /*Update the change statistics, as appropriate*/
       if(refedgeflag){      /* Reflected edge is present */
@@ -1319,7 +1323,7 @@ void d_dyadcov (int ntoggles, Vertex *heads, Vertex *tails,
       /*Get the initial edge state*/
       edgeflag=(EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
       /*Get the covariate value*/
-      val = mtp->inputparams[1+(t-1)+(h-1)*((long int)(mtp->inputparams[0]))];
+      val = mtp->attrib[(t-1-nactors)+(h-1)*nrows];
       /*Update the change statistic, based on the toggle type*/
       *(mtp->dstats) += edgeflag ? -val : val;
       if (i+1 < ntoggles)
@@ -1753,15 +1757,20 @@ void d_edgecov (int ntoggles, Vertex *heads, Vertex *tails,
 	      ModelTerm *mtp, Network *nwp)  {
   double val;
   Vertex h, t;
+  long int nactors, nrows;
   int i, edgeflag;
   
+  nrows = (long int)(mtp->inputparams[0]);
+  nactors = nwp->bipartite;
+
   *(mtp->dstats) = 0.0;
   for (i=0; i<ntoggles; i++) 
     {
       /*Get the initial edge state*/
       edgeflag=(EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
       /*Get the covariate value*/
-      val = mtp->inputparams[1+(t-1)+(h-1)*((long int)(mtp->inputparams[0]))];
+      val = mtp->attrib[(t-1-nactors)+(h-1)*nrows];
+//  Rprintf("h %d t %d nactors %d val %f\n",h, t, nactors, val);
       /*Update the change statistic, based on the toggle type*/
       *(mtp->dstats) += edgeflag ? -val : val;
       if (i+1 < ntoggles)
