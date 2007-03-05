@@ -724,7 +724,7 @@ InitErgm.duration<-function (nw, m, arglist, ...) {
     }
   }
   #Check for symmetry
-  if (is.null(xm) || ncol(xm)!=2){
+  if (is.null(xm) || NCOL(xm)!=2){
     stop("duration requires the edgelist of the base network")
   }
   #Coerce form to an adjacency matrix
@@ -762,7 +762,7 @@ InitErgm.duration<-function (nw, m, arglist, ...) {
 # is actually arbitrary since d_duration ignores the value of inp->attrib).
   m$terms[[termnumber]] <- list(name = "duration", soname="statnet",
                                 inputs = c(1, 1, 
-                                  nrow(xm)*2+2*nrow(formm)^2, nrow(xm),
+                                  NROW(xm)*2+2*NROW(formm)^2, NROW(xm),
                                   as.double(c(xm, formm, dissolvem))))
   m
 }
@@ -801,7 +801,7 @@ InitErgm.dyadcov<-function (nw, m, arglist, ...) {
    m$terms[[termnumber]] <- list(name = "dyadcov",  soname="statnet",
 #                                inputs = c(1, 3, 1+NROW(xm)*NROW(xm),
                                  inputs = c(1, 3, 1+length(xm),
-                                   NROW(xm), as.double(xm)),
+                                   NCOL(xm), as.double(xm)),
                                  dependence=FALSE)
    if(!is.null(attrname))
      cn<-paste("dyadcov", as.character(sys.call(0)[[4]][2]), 
@@ -811,12 +811,12 @@ InitErgm.dyadcov<-function (nw, m, arglist, ...) {
    m$coef.names <- c(m$coef.names, paste(cn, c("mutual","utri","ltri"),
                                          sep=".") )
   }else{
+#  So it is undirected
    termnumber <- 1 + length(m$terms)
 #  There is 1 input parameter before the covariate vector, so input
 #  element 1 is set to 1 (although in this case, input element 1
 #  is actually arbitrary since d_dyadcov ignores the value of inp->attrib).
    m$terms[[termnumber]] <- list(name = "dyadcov", soname="statnet", 
-#                                inputs = c(1, 1, 1+NROW(xm)*NROW(xm),
                                  inputs = c(1, 1, 1+length(xm),
                                    NROW(xm), as.double(xm)),
                                  dependence=FALSE)
@@ -1026,7 +1026,8 @@ InitErgm.edgecov<-function (nw, m, arglist, ...) {
   if(is.network(x))
     xm<-as.matrix.network(x,matrix.type="adjacency",attrname)
   else if(is.character(x))
-    xm<-as.matrix.network(nw,matrix.type="adjacency",x)
+#   xm<-as.matrix.network(nw,matrix.type="adjacency",x)
+    xm<-get.network.attribute(nw,x)
   else
     xm<-as.matrix(x)
   termnumber <- 1 + length(m$terms)
@@ -1505,7 +1506,7 @@ InitErgm.hamming<-function (nw, m, arglist, ...) {
     xm<-as.matrix(x)
     x<-paste(quote(x))
   }
-  if (is.null(xm) || ncol(xm)!=2){
+  if (is.null(xm) || NCOL(xm)!=2){
     stop("hamming() requires an edgelist")
   }
   termnumber <- 1 + length(m$terms)
@@ -1513,7 +1514,7 @@ InitErgm.hamming<-function (nw, m, arglist, ...) {
 # element 1 is set to 1 (although in this case, input element 1
 # is actually arbitrary since d_hamming ignores the value of inp->attrib).
   m$terms[[termnumber]] <- list(name = "hamming",  soname="statnet",
-                                inputs = c(0, 1, nrow(xm)*2+1, nrow(xm), as.integer(xm)))
+                                inputs = c(0, 1, NROW(xm)*2+1, NROW(xm), as.integer(xm)))
   m$coef.names<-c(m$coef.names, paste("hamming",x,sep="."))
   m
 }
@@ -1821,7 +1822,7 @@ InitErgm.nodematch<-function (nw, m, arglist, drop=TRUE, ...) {
     stop ("Argument to nodematch() has only one value", call.=FALSE)
   if(drop){
     mixmat <- mixingmatrix(nw,attrname)
-    mixmat <- mixmat[-nrow(mixmat),-nrow(mixmat)]
+    mixmat <- mixmat[-NROW(mixmat),-NROW(mixmat)]
     ematch  <- diag(mixmat)
     if(diff){
       offematch <- apply(mixmat,1,sum)+apply(mixmat,2,sum)-2*ematch
@@ -1906,7 +1907,7 @@ InitErgm.nodemix<-function (nw, m, arglist, drop=TRUE, ...) {
 #
     nodecov <- get.node.attr(nw, attrname, "mix")
     mixmat <- mixingmatrix(nw,attrname)
-    mixmat <- mixmat[-nrow(mixmat),-nrow(mixmat)]
+    mixmat <- mixmat[-NROW(mixmat),-NROW(mixmat)]
     u <- cbind(as.vector(row(mixmat)), 
                as.vector(col(mixmat)))
     if(any(is.na(nodecov))){u<-rbind(u,NA)}
@@ -1940,7 +1941,7 @@ InitErgm.nodemix<-function (nw, m, arglist, drop=TRUE, ...) {
     #  of used matrix cells, namely 2*length(uui), so that's what
     #  input element 1 equals
     m$terms[[termnumber]] <- list(name="mix", soname="statnet",
-      inputs=c(nrow(u), nrow(u), length(nodecov)+length(u), u[,1], u[,2],nodecov),
+      inputs=c(NROW(u), NROW(u), length(nodecov)+length(u), u[,1], u[,2],nodecov),
                                   dependence=FALSE)
     m$coef.names<-c(m$coef.names,
        paste("mix",attrname, apply(matrix(namescov[u],ncol=2),1,paste,collapse="."), sep="."))
@@ -1967,7 +1968,7 @@ InitErgm.nodemix<-function (nw, m, arglist, drop=TRUE, ...) {
       stop ("Argument to nodemix() has only one value", call.=FALSE)
     if(drop){
       mixmat <- mixingmatrix(nw,attrname)
-      mixmat <- mixmat[-nrow(mixmat),-nrow(mixmat)]
+      mixmat <- mixmat[-NROW(mixmat),-NROW(mixmat)]
       if(is.directed(nw))       #If directed, accumulate in upper triangle
         mixmat[upper.tri(mixmat)] <- t(mixmat)[upper.tri(mixmat)]
       maxmat <- ucount %o% ucount - diag(length(ucount))

@@ -1258,16 +1258,22 @@ void d_dyadcov (int ntoggles, Vertex *heads, Vertex *tails,
   double val;
   Vertex h, t;
   int i, edgeflag, refedgeflag;
-  long int nactors, nrows;
+  long int nactors, noffset;
   
-  nrows = (long int)(mtp->inputparams[0]);
-  nactors = nwp->bipartite;
+  noffset = nwp->bipartite;
+  nactors = (long int)(mtp->inputparams[0]);
   
-  if(!nwp->directed_flag){
+  if(nwp->directed_flag){
 
   for(i=0;i<3;i++)
     mtp->dstats[i] = 0.0;
 
+//  Rprintf("nactors %d noffset %d\n",nactors, noffset);
+//  Rprintf("attrib: ");
+//  for(i=0;i<1000;i++)
+//   Rprintf("%1.0f",mtp->attrib[i]);
+//
+//  Rprintf("\n;");
   for (i=0; i<ntoggles; i++) 
     {
       /*Get the initial state of the edge and its reflection*/
@@ -1275,7 +1281,9 @@ void d_dyadcov (int ntoggles, Vertex *heads, Vertex *tails,
       refedgeflag = (EdgetreeSearch(t, h, nwp->outedges) != 0);
       
       /*Get the dyadic covariate*/
-      val = mtp->attrib[(t-1-nactors)+(h-1)*nrows];
+//    val = mtp->attrib[(t-1-nactors)+(h-1)*ncols];
+      val = mtp->attrib[(t-1-noffset)*nactors+(h-1)];
+//  Rprintf("h %d t %d nactors %d ncols %d val %f\n",h, t, nactors, ncols, val);
       
       /*Update the change statistics, as appropriate*/
       if(refedgeflag){      /* Reflected edge is present */
@@ -1323,7 +1331,8 @@ void d_dyadcov (int ntoggles, Vertex *heads, Vertex *tails,
       /*Get the initial edge state*/
       edgeflag=(EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
       /*Get the covariate value*/
-      val = mtp->attrib[(t-1-nactors)+(h-1)*nrows];
+//      val = mtp->attrib[(t-1-nactors)+(h-1)*ncols];
+      val = mtp->attrib[(t-1-noffset)*nactors+(h-1)];
       /*Update the change statistic, based on the toggle type*/
       *(mtp->dstats) += edgeflag ? -val : val;
       if (i+1 < ntoggles)
@@ -1757,19 +1766,20 @@ void d_edgecov (int ntoggles, Vertex *heads, Vertex *tails,
 	      ModelTerm *mtp, Network *nwp)  {
   double val;
   Vertex h, t;
-  long int nactors, nrows;
+  long int nactors, noffset;
   int i, edgeflag;
   
-  nrows = (long int)(mtp->inputparams[0]);
-  nactors = nwp->bipartite;
-
+  noffset = nwp->bipartite;
+  nactors = (long int)(mtp->inputparams[0]);
+  
   *(mtp->dstats) = 0.0;
   for (i=0; i<ntoggles; i++) 
     {
       /*Get the initial edge state*/
       edgeflag=(EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
       /*Get the covariate value*/
-      val = mtp->attrib[(t-1-nactors)+(h-1)*nrows];
+//    val = mtp->attrib[(t-1-nactors)+(h-1)*ncols];
+      val = mtp->attrib[(t-1-noffset)*nactors+(h-1)];
 //  Rprintf("h %d t %d nactors %d val %f\n",h, t, nactors, val);
       /*Update the change statistic, based on the toggle type*/
       *(mtp->dstats) += edgeflag ? -val : val;
