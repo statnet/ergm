@@ -476,13 +476,16 @@ than the version given in Snijders, et. al (2006).
     \code{value(k)} is the \eqn{k^{th}} smallest unique value of the
     attrname attribute.  }
 
-    \item{\code{nodemix(attrname)}}{\emph{Attribute mixing.}
+    \item{\code{nodemix(attrname, contrast=FALSE)}}{\emph{Nodal Attribute mixing.}
     \code{attrname} is a character string giving the name of an
     attribute in the network's vertex attribute list that takes
     categorical values.  This term adds one network statistic
     to the model equaling the count of the number of ties
     between nodes with each possible pairing of the attribute values;
-    that is, a term for every entry in the mixing matrix for the attribute.}
+    that is, a term for every entry in the mixing matrix for the attribute.
+    The ordered of the attribute values is alphabetic.
+    If the option \code{contrast=TRUE} then a statistic for 
+    the first pairing is not included, making it a defacto reference category.}
 
     \item{\code{odegree(d, attrname)}}{\emph{Out-degree.}  \code{d}
     is a vector of distinct integers.  This term adds one
