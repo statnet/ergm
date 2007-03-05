@@ -2006,7 +2006,7 @@ InitErgm.nodemix<-function (nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-InitErgm.mix<-InitErgm.nodemix
+InitErgm.mix<-InitErgm.nodemix 
 
 InitErgm.receiver<-function(nw, m, arglist, drop=FALSE, ...) {
   ergm.checkdirected("receiver", is.directed(nw), requirement=TRUE,
