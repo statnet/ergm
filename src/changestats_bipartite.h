@@ -6,8 +6,12 @@
 
 void d_adegree (int ntoggles, Vertex *heads, Vertex *tails,
                 ModelTerm *mtp, Network *nwp);
+void d_adegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
+	        ModelTerm *mtp, Network *nwp);
 void d_edegree (int ntoggles, Vertex *heads, Vertex *tails,
                 ModelTerm *mtp, Network *nwp);
+void d_edegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
+	        ModelTerm *mtp, Network *nwp);
 void d_bimix (int ntoggles, Vertex *heads, Vertex *tails,
               ModelTerm *mtp, Network *nwp);
 void d_formation (int ntoggles, Vertex *heads, Vertex *tails,

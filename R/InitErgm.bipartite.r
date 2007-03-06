@@ -592,26 +592,23 @@ InitErgm.adegree<-function(nw, m, arglist, drop=TRUE, ...) {
     nodecov <- get.node.attr(nw, attrname, "adegree")
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
-#
-#   Recode to numeric if necessary
-#
-    nodecov <- match(nodecov,u,nomatch=length(u)+1)
-
+    nodecov <- match(nodecov,u) # Recode to numeric
     if (length(u)==1)
          stop ("Attribute given to adegree() has only one value", call.=FALSE)
-#
-#   Check for degeneracy
-#
-    if(drop){
-      adegreeattr <- paste("c(",paste(d,collapse=","),")",sep="")
+    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+    lu <- length(u)
+    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
+    if(drop){ #   Check for degeneracy
+      tmp <- paste("c(",paste(d,collapse=","),")")
       adegreeattr <- summary(
-       as.formula(paste('nw ~ adegree(',adegreeattr,',"',attrname,'")',sep="")),
+       as.formula(paste('nw ~ adegree(',tmp,',"',attrname,'")',sep="")),
        drop=FALSE) == 0
       if(any(adegreeattr)){
-        dropterms <- paste(paste("adegree",attrname,sep="."),d[adegreeattr],sep="")
-        cat(paste("Warning: The count of", dropterms, "is extreme.\n"))
-        cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
-        d <- d[!adegreeattr] 
+        dropterms <- paste("adeg", du[1,adegreeattr], ".", attrname,
+                           u[du[2,adegreeattr]], sep="")
+        cat("Warning: These adegree terms have extreme counts and will be dropped:\n")
+        cat(dropterms, "\n", fill=T)
+        du <- matrix(du[,!adegreeattr], nrow=2)
       }
     }
   }else{
@@ -629,25 +626,30 @@ InitErgm.adegree<-function(nw, m, arglist, drop=TRUE, ...) {
       }
     }
   }
-  lengthd<-length(d)
-  if(lengthd==0){return(model)}
   termnumber<-1+length(m$terms)
   if(!is.null(attrname)) {
-#  No covariates here, so input component 1 is arbitrary
-   m$terms[[termnumber]] <- list(name="adegree", soname="statnet",
-                               inputs=c(lengthd, lengthd, 
-                                lengthd+length(nodecov), d, nodecov),
-                               dependence=TRUE)
-   m$coef.names<-c(m$coef.names,paste("adegree",d,".",attrname,sep=""))
+    if(ncol(du)==0) {return(m)}
+    #  No covariates here, so input component 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="adegree_by_attr", soname="statnet",
+                                  inputs=c(0, ncol(du), 
+                                           length(du)+length(nodecov), 
+                                           as.vector(du), nodecov),
+                                  dependence=TRUE)
+    # See comment in d_adegree_by_attr function
+    m$coef.names<-c(m$coef.names, paste("adeg", du[1,], ".", attrname,
+                                        u[du[2,]], sep=""))
   }else{
-#  No covariates here, so input component 1 is arbitrary
-   m$terms[[termnumber]] <- list(name="adegree", soname="statnet",
+    lengthd<-length(d)
+    if(lengthd==0){return(m)}
+    #  No covariates here, so input component 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="adegree", soname="statnet",
                                        inputs=c(0, lengthd, lengthd, d),
                                        dependence=TRUE)
-   m$coef.names<-c(m$coef.names,paste("adegree",d,sep=""))
+    m$coef.names<-c(m$coef.names,paste("adegree",d,sep=""))
   }
   m
 }
+
 InitErgm.edegree<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkbipartite("edegree", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("edegree", arglist,
@@ -662,26 +664,23 @@ InitErgm.edegree<-function(nw, m, arglist, drop=TRUE, ...) {
     nodecov <- get.node.attr(nw, attrname, "edegree")
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
-#
-#   Recode to numeric if necessary
-#
-    nodecov <- match(nodecov,u,nomatch=length(u)+1)
-
+    nodecov <- match(nodecov,u) # Recode to numeric
     if (length(u)==1)
          stop ("Attribute given to edegree() has only one value", call.=FALSE)
-#
-#   Check for degeneracy
-#
-    if(drop){
-      edegreeattr <- paste("c(",paste(d,collapse=","),")",sep="")
+    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+    lu <- length(u)
+    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
+    if(drop){ #   Check for degeneracy
+      tmp <- paste("c(",paste(d,collapse=","),")")
       edegreeattr <- summary(
-       as.formula(paste('nw ~ edegree(',edegreeattr,',"',attrname,'")',sep="")),
+       as.formula(paste('nw ~ edegree(',tmp,',"',attrname,'")',sep="")),
        drop=FALSE) == 0
       if(any(edegreeattr)){
-        dropterms <- paste(paste("edegree",attrname,sep="."),d[edegreeattr],sep="")
-        cat(paste("Warning: The count of", dropterms, "is extreme.\n"))
-        cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
-        d <- d[!edegreeattr] 
+        dropterms <- paste("edeg", du[1,edegreeattr], ".", attrname,
+                           u[du[2,edegreeattr]], sep="")
+        cat("Warning: These edegree terms have extreme counts and will be dropped:\n")
+        cat(dropterms, "\n", fill=T)
+        du <- matrix(du[,!edegreeattr], nrow=2)
       }
     }
   }else{
@@ -699,25 +698,30 @@ InitErgm.edegree<-function(nw, m, arglist, drop=TRUE, ...) {
       }
     }
   }
-  lengthd<-length(d)
-  if(lengthd==0){return(model)}
   termnumber<-1+length(m$terms)
   if(!is.null(attrname)) {
-#  No covariates here, so input component 1 is arbitrary
-   m$terms[[termnumber]] <- list(name="edegree", soname="statnet",
-                               inputs=c(lengthd, lengthd, 
-                                lengthd+length(nodecov), d, nodecov),
-                               dependence=TRUE)
-   m$coef.names<-c(m$coef.names,paste("edegree",d,".",attrname,sep=""))
+    if(ncol(du)==0) {return(m)}
+    #  No covariates here, so input component 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="edegree_by_attr", soname="statnet",
+                                  inputs=c(0, ncol(du), 
+                                           length(du)+length(nodecov), 
+                                           as.vector(du), nodecov),
+                                  dependence=TRUE)
+    # See comment in d_edegree_by_attr function
+    m$coef.names<-c(m$coef.names, paste("edeg", du[1,], ".", attrname,
+                                        u[du[2,]], sep=""))
   }else{
-#  No covariates here, so input component 1 is arbitrary
-   m$terms[[termnumber]] <- list(name="edegree", soname="statnet",
+    lengthd<-length(d)
+    if(lengthd==0){return(m)}
+    #  No covariates here, so input component 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="edegree", soname="statnet",
                                        inputs=c(0, lengthd, lengthd, d),
                                        dependence=TRUE)
-   m$coef.names<-c(m$coef.names,paste("edegree",d,sep=""))
+    m$coef.names<-c(m$coef.names,paste("edegree",d,sep=""))
   }
   m
 }
+
 
 InitErgm.biduration<-function (nw, m, arglist, ...) {
   ergm.checkdirected("biduration", is.bipartite(nw), requirement=TRUE)

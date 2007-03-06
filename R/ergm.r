@@ -1,7 +1,7 @@
 ergm <- function(formula, theta0="MPLE", 
                  MPLEonly=FALSE, MLestimate=!MPLEonly, seed=NULL,
                  burnin=10000, MCMCsamplesize=10000, interval=100, maxit=3,
-                 proposaltype="randomtoggle", 
+                 proposaltype="randomtoggle", proposalargs=NULL,
                  meanstats=NULL,
                  dissolve=NULL, gamma=-4.59512,
                  algorithm.control=list(),
@@ -39,29 +39,33 @@ ergm <- function(formula, theta0="MPLE",
   nw <- ergm.getnetwork(formula)
   if(!is.null(meanstats)){ con$drop <- FALSE }
   if (verbose) cat("Fitting initial model.\n")
-  if(is.bipartite(nw)){
-   if(proposaltype=="randomtoggle"){proposaltype <- "Bipartiterandomtoggle"}
-   if(proposaltype=="TNT"){proposaltype <- "BipartiteTNT"}
-   if(proposaltype=="ConstantEdges"){proposaltype <- "BipartiteConstantEdges"}
-   if(proposaltype=="HammingConstantEdges"){proposaltype <- "BipartiteHammingConstantEdges"}
-   if(proposaltype=="Hamming"){proposaltype <- "BipartiteHamming"}
-   if(proposaltype=="formation"){proposaltype <- "BipartiteFormation"}
-   if(proposaltype=="formationTNT"){proposaltype <- "BipartiteFormationTNT"}
-   if(!is.null(dissolve)){
-     proposaltype <- "BipartiteFormationTNT"
-   }
-  }else{
-   if(!is.null(dissolve)){
-     proposaltype <- "formationTNT"
-   }
+  #  if(is.bipartite(nw)){  All this gunk moved to InitMHP functions where it belongs
+  #   if(proposaltype=="randomtoggle"){proposaltype <- "Bipartiterandomtoggle"}
+  #   if(proposaltype=="TNT"){proposaltype <- "BipartiteTNT"}
+  #   if(proposaltype=="ConstantEdges"){proposaltype <- "BipartiteConstantEdges"}
+  #   if(proposaltype=="HammingConstantEdges"){proposaltype <- "BipartiteHammingConstantEdges"}
+  #   if(proposaltype=="Hamming"){proposaltype <- "BipartiteHamming"}
+  #   if(proposaltype=="formation"){proposaltype <- "BipartiteFormation"}
+  #   if(proposaltype=="formationTNT"){proposaltype <- "BipartiteFormationTNT"}
+  if(!is.null(dissolve)){ # To do:  Write new "dynergm" (say) function that will
+    if(is.bipartite(nw))  # implement the dissolution/formation algorithm, so that
+      proposaltype <- "BipartiteFormationTNT"  # we can get it out of ergm
+    else                  # itself, where it does not belong.
+      proposaltype <- "formationTNT"
   }
+#}else{
+#   if(!is.null(dissolve)){
+#   }
+#  }
   model.initial <- ergm.getmodel(formula, nw, drop=con$drop, initialfit=TRUE)
+  MHproposal <- getMHproposal(proposaltype, proposalargs, nw, model.initial)
+  proposaltype <- MHproposal$name # This is temporary
 #
-# Check for redundant terms
+# Check for redundant terms  (This has been moved to the InitMHP functions where it belongs)
 #
-  if(proposaltype=="ConstantEdges" && "edges" %in% model.initial$coef.names){
-    stop("The model contains an 'edges' term and a proposal that holds the edges fixed. One of them is redundant. Please restate the model.")
-  }
+#  if(proposaltype=="ConstantEdges" && "edges" %in% model.initial$coef.names){
+#    stop("The model contains an 'edges' term and a proposal that holds the edges fixed. One of them is redundant. Please restate the model.")
+#  }
   BD <- ergm.boundDeg(con$boundDeg, nnodes=network.size(nw))
   Clist.initial <- ergm.Cprepare(nw, model.initial)
   Clist.initial$meanstats=meanstats

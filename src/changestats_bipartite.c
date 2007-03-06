@@ -50,72 +50,150 @@ void d_bimix (int ntoggles, Vertex *heads, Vertex *tails,
 
 /*****************
  void d_adegree
-
 *****************/
 void d_adegree (int ntoggles, Vertex *heads, Vertex *tails, 
 	        ModelTerm *mtp, Network *nwp) 
 {
+  /* It is assumed that in this bipartite network, the only edges are
+  of the form (actor, event), where actor is always strictly less
+  than event.  In other words, the degree of an actor is equivalent
+  to its outdegree and the degree of an event is equivalent to its
+  indegree.
+  */
   int i, j, echange;
-  Vertex h, t, hd, deg, *id, *od;
+  Vertex actor, event, actdeg, d, *od;
   TreeNode *oe;  
-
+  
   oe=nwp->outedges;
-  id=nwp->indegree;
   od=nwp->outdegree;
   for (i=0; i < mtp->nstats; i++) 
-    mtp->dstats[i] = 0.0;
-  
-  for (i=0; i<ntoggles; i++)
-    {      
-      echange = (EdgetreeSearch(h=heads[i], t=tails[i], oe) == 0) ? 1 : -1;
-      hd = od[h] + id[h];
-//   Rprintf("h %d t %d hd %d\n", h, t, hd);
-      for(j = 0; j < mtp->nstats; j++) 
-	{
-	  deg = (Vertex)mtp->inputparams[j];
-          mtp->dstats[j] += (hd + echange == deg) - (hd == deg);
-	}
-      
-      if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    mtp->dstats[i] = 0.0;  
+  for (i=0; i<ntoggles; i++) {      
+    echange=(EdgetreeSearch(actor=heads[i], event=tails[i], oe)==0) ? 1 : -1;
+    actdeg = od[actor];
+    for(j = 0; j < mtp->nstats; j++) {
+      d = (Vertex)mtp->inputparams[j];
+      mtp->dstats[j] += (actdeg + echange == d) - (actdeg == d);
     }
-
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
     ToggleEdge(heads[i], tails[i], nwp); 
 }
+
+/*****************
+ void d_adegree_by_attr
+*****************/
+void d_adegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
+	        ModelTerm *mtp, Network *nwp) 
+{
+  /* It is assumed that in this bipartite network, the only edges are
+  of the form (actor, event), where actor is always strictly less
+  than event.  In other words, the degree of an actor is equivalent
+  to its outdegree and the degree of an event is equivalent to its
+  indegree.
+  The inputparams are assumed to be set up as follows:
+    The first 2*nstats values are in pairs:  (degree, attrvalue)
+    The values following the first 2*nstats values are the nodal attributes.
+  */
+  int i, j, echange, actorattr;
+  Vertex actor, event, actordeg, d, *od;
+  TreeNode *oe;  
+  
+  oe=nwp->outedges;
+  od=nwp->outdegree;
+  for (i=0; i < mtp->nstats; i++) 
+    mtp->dstats[i] = 0.0;
+  for (i=0; i<ntoggles; i++) {      
+    echange=(EdgetreeSearch(actor=heads[i], event=tails[i], oe)==0) ? 1 : -1;
+    actordeg = od[actor];
+    actorattr = mtp->inputparams[2*mtp->nstats + actor - 1]; 
+    for(j = 0; j < mtp->nstats; j++) {
+      if (actorattr == mtp->inputparams[2*j+1]) { /* we have attr match */
+        d = (Vertex)mtp->inputparams[2*j];
+        mtp->dstats[j] += (actordeg + echange == d) - (actordeg == d);
+      }
+    }
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
+  
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+
 /*****************
  void d_edegree
-
 *****************/
 void d_edegree (int ntoggles, Vertex *heads, Vertex *tails, 
 	        ModelTerm *mtp, Network *nwp) 
 {
+  /* It is assumed that in this bipartite network, the only edges are
+  of the form (actor, event), where actor is always strictly less
+  than event.  In other words, the degree of an actor is equivalent
+  to its outdegree and the degree of an event is equivalent to its
+  indegree.
+  */
   int i, j, echange;
-  Vertex h, t, td=0, deg, *id, *od;
+  Vertex actor, event, eventdeg, d, *id;
   TreeNode *oe;  
-
+  
   oe=nwp->outedges;
   id=nwp->indegree;
-  od=nwp->outdegree;
+  for (i=0; i < mtp->nstats; i++) 
+    mtp->dstats[i] = 0.0;  
+  for (i=0; i<ntoggles; i++) {      
+    echange=(EdgetreeSearch(actor=heads[i], event=tails[i], oe)==0) ? 1 : -1;
+    eventdeg = id[event];
+    for(j = 0; j < mtp->nstats; j++) {
+      d = (Vertex)mtp->inputparams[j];
+      mtp->dstats[j] += (eventdeg + echange == d) - (eventdeg == d);
+    }
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+
+/*****************
+ void d_edegree_by_attr
+*****************/
+void d_edegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
+	        ModelTerm *mtp, Network *nwp) 
+{
+  /* It is assumed that in this bipartite network, the only edges are
+  of the form (actor, event), where actor is always strictly less
+  than event.  In other words, the degree of an actor is equivalent
+  to its outdegree and the degree of an event is equivalent to its
+  indegree.
+  */
+  int i, j, echange, eventattr;
+  Vertex actor, event, eventdeg, d, *id;
+  TreeNode *oe;  
+  
+  oe=nwp->outedges;
+  id=nwp->indegree;
   for (i=0; i < mtp->nstats; i++) 
     mtp->dstats[i] = 0.0;
-  
-  for (i=0; i<ntoggles; i++)
-    {      
-      echange = (EdgetreeSearch(h=heads[i], t=tails[i], oe) == 0) ? 1 : -1;
-      td = od[t] + id[t];
-//   Rprintf("h %d t %d td %d\n", h, t, td);
-      for(j = 0; j < mtp->nstats; j++) 
-	{
-	  deg = (Vertex)mtp->inputparams[j];
-          mtp->dstats[j] += (td + echange == deg) - (td == deg);
-	}
-      
-      if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  for (i=0; i<ntoggles; i++) {      
+    echange=(EdgetreeSearch(actor=heads[i], event=tails[i], oe)==0) ? 1 : -1;
+    eventdeg = id[event];
+    eventattr = mtp->inputparams[2*mtp->nstats + event - 1];
+    for(j = 0; j < mtp->nstats; j++) {
+      if (eventattr == mtp->inputparams[2*j+1]) { /* we have attr match */
+        d = (Vertex)mtp->inputparams[2*j];
+        mtp->dstats[j] += (eventdeg + echange == d) - (eventdeg == d);
+      }
     }
-
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
+  
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
     ToggleEdge(heads[i], tails[i], nwp); 
