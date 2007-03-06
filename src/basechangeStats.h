@@ -33,6 +33,8 @@ void d_ctriad (int ntoggles, Vertex *heads, Vertex *tails,
 	       ModelTerm *mtp, Network *nwp);
 void d_degree (int ntoggles, Vertex *heads, Vertex *tails, 
 	       ModelTerm *mtp, Network *nwp);
+void d_degree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
+	        ModelTerm *mtp, Network *nwp);
 void d_spartner (int ntoggles, Vertex *heads, Vertex *tails, 
 		 ModelTerm *mtp, Network *nwp);
 void d_wdegree (int ntoggles, Vertex *heads, Vertex *tails, 

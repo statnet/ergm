@@ -612,35 +612,31 @@ InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
     nodecov <- get.node.attr(nw, attrname, "degree")
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
-#
-#   Recode to numeric if necessary
-#
-    nodecov <- match(nodecov,u,nomatch=length(u)+1)
-
+    nodecov <- match(nodecov,u) # Recode to numeric
     if (length(u)==1)
          stop ("Attribute given to degree() has only one value", call.=FALSE)
-#
-#   Check for degeneracy
-#
-    if(drop){
-      degreeattr <- paste("c(",paste(d,collapse=","),")",sep="")
+    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+    lu <- length(u)
+    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
+    if(drop){ #   Check for degeneracy
+      tmp <- paste("c(",paste(d,collapse=","),")")
       degreeattr <- summary(
-       as.formula(paste('nw ~ degree(',degreeattr,',"',attrname,'")',sep="")),
+       as.formula(paste('nw ~ degree(',tmp,',"',attrname,'")',sep="")),
        drop=FALSE) == 0
       if(any(degreeattr)){
-        dropterms <- paste(paste("degree",attrname,sep="."),d[degreeattr],sep="")
-        cat(paste("Warning: The count of", dropterms, "is extreme.\n"))
-        cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
-        d <- d[!degreeattr] 
+        dropterms <- paste("deg", du[1,degreeattr], ".", attrname,
+                           u[du[2,degreeattr]], sep="")
+        cat("Warning: These degree terms have extreme counts and will be dropped:\n")
+        cat(dropterms, "\n", fill=T)
+        du <- matrix(du[,!degreeattr], nrow=2)
       }
     }
   }else{
     if(is.logical(attrname)){drop <- attrname}
     if(drop){
       mdegree <- paste("c(",paste(d,collapse=","),")",sep="")
-      mdegree <- summary(
-       as.formula(paste('nw ~ degree(',mdegree,')',sep="")),
-       drop=FALSE) == 0
+      mdegree <- summary(as.formula(paste('nw ~ degree(',mdegree,')',
+                                          sep="")), drop=FALSE) == 0
       if(any(mdegree)){
        cat(paste("Warning: There are no order", d[mdegree],"degrees.\n"))
        dropterms <- paste("degree", d[mdegree],sep="")
@@ -649,18 +645,22 @@ InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
       }
     }
   }
-  lengthd<-length(d)
-  if(lengthd==0){return(model)}
   termnumber<-1+length(m$terms)
   if(!is.null(attrname)) {
-#  No covariates here, so input element 1 is arbitrary
-   m$terms[[termnumber]] <- list(name="degree", soname="statnet",
-                               inputs=c(lengthd, lengthd, 
-                                lengthd+length(nodecov), d, nodecov),
-                               dependence=TRUE)
-   m$coef.names<-c(m$coef.names,paste("degree",d,".",attrname,sep=""))
+    if(ncol(du)==0) {return(m)}
+    #  No covariates here, so input element 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="degree_by_attr", soname="statnet",
+                                  inputs=c(0, ncol(du), 
+                                           length(du)+length(nodecov), 
+                                           as.vector(du), nodecov),
+                                  dependence=TRUE)
+    # See comment in d_degree_by_attr function
+    m$coef.names<-c(m$coef.names, paste("deg", du[1,], ".", attrname,
+                                        u[du[2,]], sep=""))
   }else{
-#  No covariates here, so input element 1 is arbitrary
+  lengthd<-length(d)
+  if(lengthd==0){return(m)}
+  #  No covariates here, so input element 1 is arbitrary
    m$terms[[termnumber]] <- list(name="degree", soname="statnet",
                                        inputs=c(0, lengthd, lengthd, d),
                                        dependence=TRUE)
