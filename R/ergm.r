@@ -47,12 +47,9 @@ ergm <- function(formula, theta0="MPLE",
   #   if(proposaltype=="Hamming"){proposaltype <- "BipartiteHamming"}
   #   if(proposaltype=="formation"){proposaltype <- "BipartiteFormation"}
   #   if(proposaltype=="formationTNT"){proposaltype <- "BipartiteFormationTNT"}
-  if(!is.null(dissolve)){ # To do:  Write new "dynergm" (say) function that will
-    if(is.bipartite(nw))  # implement the dissolution/formation algorithm, so that
-      proposaltype <- "BipartiteFormationTNT"  # we can get it out of ergm
-    else                  # itself, where it does not belong.
-      proposaltype <- "formationTNT"
-  }
+   if(!is.null(dissolve)){
+       proposaltype <- "formationTNT"
+   }
 #}else{
 #   if(!is.null(dissolve)){
 #   }
