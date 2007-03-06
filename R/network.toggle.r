@@ -14,8 +14,8 @@ network.toggle<-function(nw,nws,time=NULL)
    if(class(nws)!="network.series"){ 
       stop("network.toggle requires an edgelist or a network series")
    }
-   times <- nws$changed[,1]
-   nws <- nws$changed[times==time,2:3]
+   times <- nws$changed[,1,drop=FALSE]
+   nws <- nws$changed[times==time,2:3,drop=FALSE]
   }
   for(i in 1:nrow(nws)){  
     nw[nws[i,1],nws[i,2]] <- 1-nw[nws[i,1],nws[i,2]] 
