@@ -601,13 +601,14 @@ InitErgm.density<-function(nw, m, arglist, ...) {
 InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("degree", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("degree", arglist,
-    varnames = c("d", "attrname"),
-    vartypes = c("numeric", "character"),
-    defaultvalues = list(NULL, NULL),
-    required = c(TRUE, FALSE))
+    varnames = c("d", "attrname", "homophily"),
+    vartypes = c("numeric", "character", "logical"),
+    defaultvalues = list(NULL, NULL, FALSE),
+    required = c(TRUE, FALSE, FALSE))
   attach(a)
   d<-a$d
   attrname <- a$attrname
+  homophily <- a$homophily
   if(!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname, "degree")
     u<-sort(unique(nodecov))
@@ -615,6 +616,8 @@ InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
     nodecov <- match(nodecov,u) # Recode to numeric
     if (length(u)==1)
          stop ("Attribute given to degree() has only one value", call.=FALSE)
+  }
+  if(!is.null(attrname) && !homophily) {
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
@@ -632,21 +635,41 @@ InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
       }
     }
   }else{
-    if(is.logical(attrname)){drop <- attrname}
     if(drop){
-      mdegree <- paste("c(",paste(d,collapse=","),")",sep="")
-      mdegree <- summary(as.formula(paste('nw ~ degree(',mdegree,')',
-                                          sep="")), drop=FALSE) == 0
+      tmp <- paste("c(",paste(d,collapse=","),")",sep="")
+      if(!homophily) {
+        mdegree <- summary(as.formula(paste('nw ~ degree(',tmp,')',
+                                            sep="")), drop=FALSE) == 0
+      } else {
+        mdegree <- summary(as.formula(paste('nw ~ degree(',tmp,',"',attrname,
+                                                         '", TRUE)', sep="")), 
+                                             drop = FALSE) == 0
+      }
       if(any(mdegree)){
-       cat(paste("Warning: There are no order", d[mdegree],"degrees.\n"))
-       dropterms <- paste("degree", d[mdegree],sep="")
-       cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
-       d <- d[!mdegree] 
+        cat("Warning: These degree terms have extreme counts and will be dropped:\n")
+        cat(d[mdegree], "\n", fill=T)
+        d <- d[!mdegree] 
       }
     }
   }
   termnumber<-1+length(m$terms)
-  if(!is.null(attrname)) {
+  if(is.null(attrname)) {
+    if(length(d)==0){return(m)}
+    m$terms[[termnumber]] <- list(name="degree", soname="statnet",
+                                  inputs=c(0, length(d), length(d), d),
+                                  dependence=TRUE)
+    m$coef.names<-c(m$coef.names,paste("degree",d,sep=""))
+  } else if (homophily) {
+    if(length(d)==0){return(m)}
+    m$terms[[termnumber]] <- list(name="degree_w_homophily", soname="statnet",
+                                  inputs=c(0, length(d), 
+                                           length(d) + length(nodecov), 
+                                           d, nodecov),
+                                  dependence=TRUE)
+    # See comment in d_degree_w_homophily function
+    m$coef.names<-c(m$coef.names,paste("deg", d, ".homophily.",
+                                       attrname, sep=""))
+  } else {
     if(ncol(du)==0) {return(m)}
     #  No covariates here, so input element 1 is arbitrary
     m$terms[[termnumber]] <- list(name="degree_by_attr", soname="statnet",
@@ -657,14 +680,6 @@ InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
     # See comment in d_degree_by_attr function
     m$coef.names<-c(m$coef.names, paste("deg", du[1,], ".", attrname,
                                         u[du[2,]], sep=""))
-  }else{
-  lengthd<-length(d)
-  if(lengthd==0){return(m)}
-  #  No covariates here, so input element 1 is arbitrary
-   m$terms[[termnumber]] <- list(name="degree", soname="statnet",
-                                       inputs=c(0, lengthd, lengthd, d),
-                                       dependence=TRUE)
-   m$coef.names<-c(m$coef.names,paste("degree",d,sep=""))
   }
   m
 }
