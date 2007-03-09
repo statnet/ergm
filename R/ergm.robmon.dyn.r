@@ -59,6 +59,7 @@ ergm.robmon.dyn <- function(theta0, nw, model, model.dissolve, Clist, BD,
     cat(paste(" (burnin=",MCMCparams$burnin,")\n",sep=""))
     for(iteration in 1:n_iter) {
       eta <- ergm.eta(theta, model$etamap)
+    cat(paste(" (iteration=",iteration,"of ",n_iter,")\n",sep=""))
       z <- ergm.getMCMCDynsample(nw, model, model.dissolve, MHproposal, eta, MCMCparams, verbose=FALSE, BD)
       # MCMCparams$burnin should perhaps be increased here, since
       # each iteration begins from the observed network, which must be 

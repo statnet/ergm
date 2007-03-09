@@ -26,8 +26,6 @@ double my_choose(double n, int r) {
   return ans;
 }
 
-
-
 /*****************
  void d_absdiff
 
@@ -1357,22 +1355,28 @@ void d_dyadcov (int ntoggles, Vertex *heads, Vertex *tails,
   double val;
   Vertex h, t;
   int i, edgeflag, refedgeflag;
-  long int nactors, noffset;
+  long int nrow, noffset;
   
   noffset = nwp->bipartite;
-  nactors = (long int)(mtp->inputparams[0]);
+  if(noffset > 0){
+   nrow = (nwp->nnodes)-(long int)(mtp->inputparams[0]);
+  }else{
+   nrow = (long int)(mtp->inputparams[0]);
+  }
   
-  if(nwp->directed_flag){
-
-  for(i=0;i<3;i++)
-    mtp->dstats[i] = 0.0;
-
-//  Rprintf("nactors %d noffset %d\n",nactors, noffset);
+//  Rprintf("nrow %d noffset %d\n",nrow, noffset);
 //  Rprintf("attrib: ");
 //  for(i=0;i<1000;i++)
 //   Rprintf("%1.0f",mtp->attrib[i]);
 //
 //  Rprintf("\n;");
+
+  if(nwp->directed_flag){
+  // directed version
+
+  for(i=0;i<3;i++)
+    mtp->dstats[i] = 0.0;
+
   for (i=0; i<ntoggles; i++) 
     {
       /*Get the initial state of the edge and its reflection*/
@@ -1380,9 +1384,9 @@ void d_dyadcov (int ntoggles, Vertex *heads, Vertex *tails,
       refedgeflag = (EdgetreeSearch(t, h, nwp->outedges) != 0);
       
       /*Get the dyadic covariate*/
-//    val = mtp->attrib[(t-1-nactors)+(h-1)*ncols];
-      val = mtp->attrib[(t-1-noffset)*nactors+(h-1)];
-//  Rprintf("h %d t %d nactors %d ncols %d val %f\n",h, t, nactors, ncols, val);
+//    val = mtp->attrib[(t-1-nrow)+(h-1)*ncols];
+      val = mtp->attrib[(t-1-noffset)*nrow+(h-1)];
+//  Rprintf("h %d t %d nrow %d ncols %d val %f\n",h, t, nrow, ncols, val);
       
       /*Update the change statistics, as appropriate*/
       if(refedgeflag){      /* Reflected edge is present */
@@ -1423,15 +1427,25 @@ void d_dyadcov (int ntoggles, Vertex *heads, Vertex *tails,
 	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
     }
   }else{
-
+// undirected case (including bipartite)
   *(mtp->dstats) = 0.0;
   for (i=0; i<ntoggles; i++) 
     {
       /*Get the initial edge state*/
       edgeflag=(EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
       /*Get the covariate value*/
-//      val = mtp->attrib[(t-1-nactors)+(h-1)*ncols];
-      val = mtp->attrib[(t-1-noffset)*nactors+(h-1)];
+//      val = mtp->attrib[(t-1-nrow)+(h-1)*ncols];
+      if((t-1-noffset)*nrow+(h-1) < 0 ){
+  Rprintf("index %d\n",(t-1-noffset)*nrow+(h-1));
+  Rprintf("h %d t %d nrow %d noffset %d val %f\n",h, t, nrow, noffset, val);
+      }
+      if((t-1-noffset)*nrow+(h-1) > nrow*((long int)(mtp->inputparams[0])) -1 ){
+  Rprintf("index %d\n",(t-1-noffset)*nrow+(h-1));
+  Rprintf("h %d t %d nrow %d noffset %d val %f\n",h, t, nrow, noffset, val);
+      }
+      val = mtp->attrib[(t-1-noffset)*nrow+(h-1)];
+      /*Update the change statistic, based on the toggle type*/
+//  Rprintf("h %d t %d nrow %d noffset %d val %f\n",h, t, nrow, noffset, val);
       /*Update the change statistic, based on the toggle type*/
       *(mtp->dstats) += edgeflag ? -val : val;
       if (i+1 < ntoggles)
@@ -1865,11 +1879,15 @@ void d_edgecov (int ntoggles, Vertex *heads, Vertex *tails,
 	      ModelTerm *mtp, Network *nwp)  {
   double val;
   Vertex h, t;
-  long int nactors, noffset;
+  long int nrow, noffset;
   int i, edgeflag;
   
   noffset = nwp->bipartite;
-  nactors = (long int)(mtp->inputparams[0]);
+  if(noffset > 0){
+   nrow = (nwp->nnodes)-(long int)(mtp->inputparams[0]);
+  }else{
+   nrow = (long int)(mtp->inputparams[0]);
+  }
   
   *(mtp->dstats) = 0.0;
   for (i=0; i<ntoggles; i++) 
@@ -1877,9 +1895,9 @@ void d_edgecov (int ntoggles, Vertex *heads, Vertex *tails,
       /*Get the initial edge state*/
       edgeflag=(EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
       /*Get the covariate value*/
-//    val = mtp->attrib[(t-1-nactors)+(h-1)*ncols];
-      val = mtp->attrib[(t-1-noffset)*nactors+(h-1)];
-//  Rprintf("h %d t %d nactors %d val %f\n",h, t, nactors, val);
+//    val = mtp->attrib[(t-1-nrow)+(h-1)*ncols];
+      val = mtp->attrib[(t-1-noffset)*nrow+(h-1)];
+//  Rprintf("h %d t %d nrow %d val %f\n",h, t, nrow, val);
       /*Update the change statistic, based on the toggle type*/
       *(mtp->dstats) += edgeflag ? -val : val;
       if (i+1 < ntoggles)

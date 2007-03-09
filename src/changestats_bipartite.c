@@ -72,7 +72,7 @@ void d_adegree (int ntoggles, Vertex *heads, Vertex *tails,
     echange=(EdgetreeSearch(actor=heads[i], event=tails[i], oe)==0) ? 1 : -1;
     actdeg = od[actor];
     for(j = 0; j < mtp->nstats; j++) {
-      d = (Vertex)mtp->inputparams[j];
+      d = (Vertex)(mtp->inputparams[j]);
       mtp->dstats[j] += (actdeg + echange == d) - (actdeg == d);
     }
     if (i+1 < ntoggles)
@@ -149,7 +149,7 @@ void d_edegree (int ntoggles, Vertex *heads, Vertex *tails,
     echange=(EdgetreeSearch(actor=heads[i], event=tails[i], oe)==0) ? 1 : -1;
     eventdeg = id[event];
     for(j = 0; j < mtp->nstats; j++) {
-      d = (Vertex)mtp->inputparams[j];
+      d = (Vertex)(mtp->inputparams[j]);
       mtp->dstats[j] += (eventdeg + echange == d) - (eventdeg == d);
     }
     if (i+1 < ntoggles)

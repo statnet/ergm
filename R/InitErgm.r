@@ -55,7 +55,7 @@
 #    Element 2 -- The number of change statistics returned by the function.
 #    Element 3 -- The total number of input parameters and covariates
 #                 to be passed to the function.  If there are no nodal or 
-#                 dyadic coviariates, the value of element 1 is arbitrary.
+#                 dyadic covariates, the value of element 1 is arbitrary.
 #   Element 4+ -- The input parameters to be passed to the function.
 #                 For example, if element 3 equals 3, then elements
 #                 4, 5, 6 are the parameters to be passed.  No 4th element
@@ -833,7 +833,7 @@ InitErgm.dyadcov<-function (nw, m, arglist, ...) {
 #  is actually arbitrary since d_dyadcov ignores the value of inp->attrib).
    m$terms[[termnumber]] <- list(name = "dyadcov", soname="statnet", 
                                  inputs = c(1, 1, 1+length(xm),
-                                   NROW(xm), as.double(xm)),
+                                   NCOL(xm), as.double(xm)),
                                  dependence=FALSE)
    if(!is.null(attrname))
      cn<-paste("dyadcov", as.character(sys.call(0)[[4]][2]), 
@@ -1051,7 +1051,7 @@ InitErgm.edgecov<-function (nw, m, arglist, ...) {
 # is actually arbitrary since d_edgecov ignores the value of inp->attrib).
   m$terms[[termnumber]] <- list(name = "edgecov", soname="statnet", 
                                 inputs = c(1, 1, 1+length(xm),
-                                  NROW(xm), as.double(xm)),
+                                  NCOL(xm), as.double(xm)),
                                 dependence=FALSE)
 #                               inputs = c(1, 1, 1+NROW(xm)*NROW(xm),
 #                                 NROW(xm), as.double(xm)),

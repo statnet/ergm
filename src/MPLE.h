@@ -11,7 +11,7 @@ void MPLE_wrapper (double *heads, double *tails, double *dnedges,
 		   int *responsevec, double *covmat,
 		   int *weightsvector, double * offset, 
 		   double * compressedOffset, int maxNumDyadTypes);
-void MpleInitialize (int *responsevec, double *covmat,
+void MpleInitialize (Vertex bipartite, int *responsevec, double *covmat,
 	             int *weightsvector,
 		     double * offset, double * compressedOffset,
 		     int maxNumDyadTypes, Network *nwp, Model *m);

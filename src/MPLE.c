@@ -38,7 +38,7 @@ void MPLE_wrapper (double *heads, double *tails, double *dnedges,
   nw=NetworkInitialize(heads, tails, n_edges, n_nodes, directed_flag, bip);
   m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
   
-  MpleInitialize(responsevec, covmat, weightsvector,
+  MpleInitialize(bip, responsevec, covmat, weightsvector,
 		 offset, compressedOffset, maxNumDyadTypes, &nw, m); 
   
   ModelDestroy(m);
@@ -87,7 +87,7 @@ int findCovMatRow(double *newRow, double *matrix, int rowLength, int numRows,
  for the logistic regression is simply the vector of indicators 
  giving the states of the edges in the observed network.
 *****************/
-void MpleInitialize (int *responsevec, double *covmat, 
+void MpleInitialize (Vertex bipartite, int *responsevec, double *covmat, 
 		     int *weightsvector,
 		     double * offset, double * compressedOffset,
 		     int maxNumDyadTypes, Network *nwp, Model *m) {
@@ -96,7 +96,7 @@ void MpleInitialize (int *responsevec, double *covmat,
     foundRowPosition, totalStats, *currentResponse;
   double *thisPreviousRow, *thisCurrentRow, *covMatPosition;
   int curDyadNum;
-  Vertex i, j;
+  Vertex i, j , rowmax;
   ModelTerm *mtp;
   
   covMatPosition = covmat;
@@ -105,8 +105,13 @@ void MpleInitialize (int *responsevec, double *covmat,
     (double*) R_alloc(m->n_stats,sizeof(double));
   curDyadNum=0;
   thisRowNumber = 0;
-  for(i=1; i < nwp->nnodes; i++){
-    for(j = i+1; j <= nwp->nnodes; j++){
+  if(bipartite > 0){
+   rowmax=bipartite+1;
+  }else{
+   rowmax=nwp->nnodes;
+  }
+  for(i=1; i < rowmax; i++){
+    for(j = MAX(i,bipartite)+1; j <= nwp->nnodes; j++){
       for(d=0; d <= nwp->directed_flag; d++){ /*trivial loop if undirected*/
 	if (d==1){*currentResponse = inflag = 
 		    (EdgetreeSearch(i, j, nwp->inedges) != 0);}
