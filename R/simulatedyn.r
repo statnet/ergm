@@ -91,10 +91,14 @@ simulatedyn <- function(object, nsim=1, seed=NULL, ...,theta0,
   set.seed(as.integer(seed))
     
     maxchanges <- max(con$maxchanges, Clist$nedges)
+    con$maxchanges <- con$maxchanges/5
     use.burnin <- nsim
     z <- list(newnwhead=maxchanges+1)
-    while(z$newnwhead[1] > maxchanges){
+    while(z$newnwhead[1] > maxchanges  ||
+          z$dissnwhead[1] > maxchanges ||
+          z$diffnwhead[1] > maxchanges){
      maxchanges <- 5*maxchanges
+     con$maxchanges <- 5*con$maxchanges
      z <- .C("MCMCDyn_wrapper",
              as.double(Clist$heads), as.double(Clist$tails), 
              as.double(Clist$nedges), as.double(Clist$n),
@@ -153,6 +157,7 @@ simulatedyn <- function(object, nsim=1, seed=NULL, ...,theta0,
     out.list <- list(formula = formula, networks = NULL,
                        changed=diffedgelist, 
                        dissolved=dissedgelist, 
+                       maxchanges=con$maxchanges,
                        stats = out.mat, coef=theta0)
     class(out.list) <- "network.series"
 

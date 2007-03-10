@@ -31,8 +31,8 @@ void MCMCDyn_wrapper (double *heads, double *tails, double *dnedges,
                    double *mheads, double *mtails, double *mdnedges,
                    int *mdflag)  {
   int i, nextedge, directed_flag, hammingterm, formationterm;
-  Vertex v, k, n_nodes, nmax, bip, hhead, htail;
-  Edge n_edges, n_medges, nddyads, kedge;
+  Vertex v, k, n_nodes, bip, hhead, htail;
+  Edge n_edges, n_medges, nddyads, kedge, nmax;
   Network nw[2];
   DegreeBound *bd;
   Model *m, *mdyn;
@@ -41,7 +41,7 @@ void MCMCDyn_wrapper (double *heads, double *tails, double *dnedges,
   n_nodes = (Vertex)*dn; /* coerce double *dn to type Vertex */
   n_edges = (Vertex)*dnedges; /* coerce double *dnedges to type Vertex */
   n_medges = (Vertex)*mdnedges; /* coerce double *mdnedges to type Vertex */
-  nmax = (Vertex)*maxedges; /* coerce double *maxedges to type Vertex */
+  nmax = (Edge)*maxedges; /* coerce double *maxedges to type Edge */
   bip = (Vertex)*bipartite; /* coerce double *bipartite to type Vertex */
   
   GetRNGstate();  /* R function enabling uniform RNG */
@@ -275,7 +275,7 @@ void MCMCSampleDyn (char *MHproposaltype, char *MHproposalpackage,
   long int samplesize, long int burnin, 
   long int interval, int hammingterm, int fVerbose,
   double *gamma, int dyninterval,
-  Vertex *nmax,
+  Edge *nmax,
   Vertex *dissolvetime, Vertex *dissolvehead, Vertex *dissolvetail,
   Vertex *disstime, Vertex *disshead, Vertex *disstail,
   Vertex *difftime, Vertex *diffhead, Vertex *difftail,
@@ -437,7 +437,7 @@ R_INLINE void MetropolisHastingsDyn_null_network(Network *nwp){
 }
 
 /* Helper function to select ties to be dissolved */
-R_INLINE int MetropolisHastingsDyn_choose_dissolved(double *gamma,
+R_INLINE int MetropolisHastingsDyn_choose_dissolved(Edge *nmax, double *gamma,
 						    Vertex *dissolvehead, Vertex *dissolvetail,
 						    Network *nwp, Model *mdyn){
   unsigned int i;
@@ -448,12 +448,14 @@ R_INLINE int MetropolisHastingsDyn_choose_dissolved(double *gamma,
   nedges=nwp[0].nedges;
   
   //  Rprintf("nterms %d\n", mdyn->n_terms); 
+//  Rprintf("choose *nmax %d\n", *nmax); 
   if (mdyn->n_terms <= 2) { 
     //   fast code for edges-only dissolve model
     //   The next line for a fixed number dissolved
     //   numdissolved = (Edge)(nedges*exp(gamma[0])/(1+exp(gamma[0])));
     //   The next line for a random (Binomial) number dissolved
-    numdissolved = rbinom((double) nedges, exp(gamma[0])/(1+exp(gamma[0])));
+    while(
+      (numdissolved = rbinom((double) nedges, exp(gamma[0])/(1+exp(gamma[0]))))>*nmax);
     //    Rprintf("numdissolved %d\n", numdissolved); 
     //    Rprintf("gamma[0] %f\n", gamma[0]); 
     if(numdissolved > 0){
@@ -466,9 +468,9 @@ R_INLINE int MetropolisHastingsDyn_choose_dissolved(double *gamma,
       }
       for (i=0; i < numdissolved; i++) {
 	rane = (int)(dissolvetail[i]);
-	  FindithEdge(&head, &tail, rane, nwp);
-	  dissolvehead[i] = head;
-	  dissolvetail[i] = tail;
+	FindithEdge(&head, &tail, rane, nwp);
+	dissolvehead[i] = head;
+	dissolvetail[i] = tail;
       }
     }
   }else{
@@ -490,7 +492,7 @@ R_INLINE int MetropolisHastingsDyn_choose_dissolved(double *gamma,
 	//  Rprintf("%f ", mdyn->workspace[i]); 
       }
       //  Rprintf(" ip=%f\n", ip); 
-      if (log(unif_rand()) < ip) { 
+      if (log(unif_rand()) < ip && numdissolved < *nmax) { 
 	dissolvehead[numdissolved] = head;
 	dissolvetail[numdissolved] = tail;
 	numdissolved++; 
@@ -508,10 +510,11 @@ R_INLINE void MetropolisHastingsDyn_commit_dissolve(double *networkstatistics,
 						    Vertex *disstime, Vertex *disshead, Vertex *disstail,
 						    Network *nwp,
 						    Model *m, Model *mdyn,
-						    Vertex dstep, int numdissolved, int *nextdissedge){
+						    Vertex dstep, Edge *nmax, int numdissolved, int *nextdissedge){
   double *dstats;
   ModelTerm *mtp;
   unsigned int i;
+//  Rprintf("commit *nmax %d\n", *nmax); 
   //  Rprintf("numdissolved=%d\n", numdissolved); 
   //      for (i=0; i < numdissolved; i++) {
   //Rprintf("%d h %d t %d\n", i, 
@@ -528,7 +531,7 @@ R_INLINE void MetropolisHastingsDyn_commit_dissolve(double *networkstatistics,
   for (i = 0; i < m->n_stats; i++)
     networkstatistics[i] += m->workspace[i];
   
-  for (i=0; i < numdissolved; i++){
+  for (i=0; i < numdissolved && *nextdissedge < *nmax; i++){
     ToggleEdge(dissolvehead[i], dissolvetail[i], &nwp[0]);
     ToggleEdge(dissolvehead[i], dissolvetail[i], &nwp[1]);
     disstime[*nextdissedge] = dstep;
@@ -600,17 +603,18 @@ R_INLINE void MetropolisHastingsDyn_form(MHproposal *MHp,
 }
 
 /* Helper function to record new generated network DIFFERENCES to pass back to R */
-R_INLINE void MetropolisHastingsDyn_record_diff(Vertex nmax,
+R_INLINE void MetropolisHastingsDyn_record_diff(Edge *nmax,
 						Vertex *difftime, Vertex *diffhead, Vertex *difftail,
 						Network *nwp, 
 						Vertex dstep, int *nextdiffedge){
-  Vertex head, tail, v;
+  Vertex head, v;
+//  Rprintf("diff *nmax %d\n", *nmax); 
 
   if(nwp->directed_flag) {
     for(v=1; v<=nwp->nnodes; v++){
       Vertex e;
       for(e = EdgetreeMinimum(nwp->outedges, v);
-	  nwp->outedges[e].value != 0 && nextdiffedge < nmax;
+	  nwp->outedges[e].value != 0 && *nextdiffedge < *nmax;
 	  e = EdgetreeSuccessor(nwp->outedges, e)){
 	difftime[*nextdiffedge] = dstep;
 	diffhead[*nextdiffedge] = v;
@@ -622,7 +626,7 @@ R_INLINE void MetropolisHastingsDyn_record_diff(Vertex nmax,
     for(v=1; v<=nwp->nnodes; v++){
       Vertex e;
       for(e = EdgetreeMinimum(nwp->outedges, v);
-	  nwp->outedges[e].value != 0 && *nextdiffedge < nmax;
+	  nwp->outedges[e].value != 0 && *nextdiffedge < *nmax;
 	  e = EdgetreeSuccessor(nwp->outedges, e)){
 	head = nwp->outedges[e].value;
 	difftime[*nextdiffedge] = dstep;
@@ -659,7 +663,7 @@ void MetropolisHastingsDyn (MHproposal *MHp,
 			 long int nsteps, long int *staken,
 			 int hammingterm, int fVerbose,
 			 double *gamma, int dyninterval, 
-			 Vertex *nmax,
+			 Edge *nmax,
 			 Vertex *dissolvetime, Vertex *dissolvehead, Vertex *dissolvetail,
 			 Vertex *disstime, Vertex *disshead, Vertex *disstail,
 			 Vertex *difftime, Vertex *diffhead, Vertex *difftail,
@@ -673,13 +677,15 @@ void MetropolisHastingsDyn (MHproposal *MHp,
   nextdiffedge=1;
   nextdissedge=1;
   
+//  Rprintf("Dyn *nmax %d nmax %d\n", *nmax, nmax); 
+
   for(dstep = 0; dstep < nsteps; dstep++){
     /* Reset reference discord to null when starting to dissolve*/
     if(dstep > 0){
       MetropolisHastingsDyn_null_network(&nwp[1]);
     }
     /* Choose ties to dissolve. */
-    numdissolved = MetropolisHastingsDyn_choose_dissolved(gamma,
+    numdissolved = MetropolisHastingsDyn_choose_dissolved(nmax, gamma,
 							 dissolvehead, dissolvetail,
 							 nwp, mdyn);
 
@@ -690,7 +696,7 @@ void MetropolisHastingsDyn (MHproposal *MHp,
 					    dissolvehead, dissolvetail,
 					    disstime, disshead, disstail,
 					    nwp, m, mdyn,
-					    dstep, numdissolved, &nextdissedge);
+					    dstep, nmax, numdissolved, &nextdissedge);
     }
     
     //Rprintf("C numdissolve %d\n", *numdissolve);
@@ -708,7 +714,7 @@ void MetropolisHastingsDyn (MHproposal *MHp,
 			       m, bd);
     
     /* Record toggled dyads. */
-    MetropolisHastingsDyn_record_diff(*nmax,
+    MetropolisHastingsDyn_record_diff(nmax,
 				      difftime, diffhead, difftail,
 				      &nwp[1],
 				      dstep, &nextdiffedge);
@@ -727,4 +733,3 @@ void MetropolisHastingsDyn (MHproposal *MHp,
   
   *staken = dyninterval;
 }
-

@@ -31,6 +31,7 @@ ergm.robmon.dyn <- function(theta0, nw, model, model.dissolve, Clist, BD,
   cat(paste("Phase 1: ",n1,"iterations"))
   cat(paste(" (interval=",MCMCparams$interval,")\n",sep=""))
   z <- ergm.getMCMCDynsample(nw, model, model.dissolve, MHproposal, eta0, MCMCparams, verbose, BD)
+  MCMCparams$maxchanges <- z$maxchanges
   ubar <- apply(z$statsmatrix, 2, mean)
   Ddiag <- apply(z$statsmatrix^2, 2, mean) - ubar^2
   # This is equivalent to, but more efficient than,
@@ -59,8 +60,9 @@ ergm.robmon.dyn <- function(theta0, nw, model, model.dissolve, Clist, BD,
     cat(paste(" (burnin=",MCMCparams$burnin,")\n",sep=""))
     for(iteration in 1:n_iter) {
       eta <- ergm.eta(theta, model$etamap)
-    cat(paste(" (iteration=",iteration,"of ",n_iter,")\n",sep=""))
+    cat(paste(" (iteration = ",iteration,"of ",n_iter,")\n",sep=""))
       z <- ergm.getMCMCDynsample(nw, model, model.dissolve, MHproposal, eta, MCMCparams, verbose=FALSE, BD)
+      MCMCparams$maxchanges <- z$maxchanges
       # MCMCparams$burnin should perhaps be increased here, since
       # each iteration begins from the observed network, which must be 
       # "forgotten".
@@ -83,6 +85,7 @@ ergm.robmon.dyn <- function(theta0, nw, model, model.dissolve, Clist, BD,
  #cat(paste(" theta=",theta,")\n",sep=""))
   eta <- ergm.eta(theta, model$etamap)
   z <- ergm.getMCMCDynsample(nw, model, model.dissolve, MHproposal, eta, MCMCparams, verbose, BD)
+  MCMCparams$maxchanges <- z$maxchanges
 # ubar <- apply(z$statsmatrix, 2, mean)
 # hessian <- (t(z$statsmatrix) %*% z$statsmatrix)/n3 - outer(ubar,ubar)
 # covar <- robust.inverse(covar)

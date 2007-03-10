@@ -12,9 +12,13 @@ ergm.getMCMCDynsample <- function(g, model, model.dissolve,
   Clist <- ergm.Cprepare(g, model)
   Clist.dissolve <- ergm.Cprepare(g, model.dissolve)
   maxchanges <- max(MCMCparams$maxchanges, Clist$nedges)
+  MCMCparams$maxchanges <- MCMCparams$maxchanges/5
   z <- list(newnwhead=maxchanges+1)
-  while(z$newnwhead[1] > maxchanges){
+  while(z$newnwhead[1] > maxchanges  || 
+        z$dissnwhead[1] > maxchanges ||
+        z$diffnwhead[1] > maxchanges){
     maxchanges <- 5*maxchanges
+    MCMCparams$maxchanges <- 5*MCMCparams$maxchanges
     z <- .C("MCMCDyn_wrapper",
           as.double(Clist$heads), as.double(Clist$tails), 
           as.double(Clist$nedges), as.double(Clist$n),
@@ -84,5 +88,6 @@ ergm.getMCMCDynsample <- function(g, model, model.dissolve,
     }
   }
   list(statsmatrix=statsmatrix, newedgelist=newedgelist, meanstats=ms,
-       changed=diffedgelist, dissolved=dissedgelist)
+       changed=diffedgelist, dissolved=dissedgelist,
+       maxchanges=MCMCparams$maxchanges)
 }
