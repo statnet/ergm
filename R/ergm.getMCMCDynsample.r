@@ -20,6 +20,7 @@ ergm.getMCMCDynsample <- function(g, model, model.dissolve,
     maxchanges <- 5*maxchanges
     MCMCparams$maxchanges <- 5*MCMCparams$maxchanges
     z <- .C("MCMCDyn_wrapper",
+            as.integer(Clist.dissolve$order.code),
           as.double(Clist$heads), as.double(Clist$tails), 
           as.double(Clist$nedges), as.double(Clist$n),
           as.integer(Clist$dir), as.double(Clist$bipartite),

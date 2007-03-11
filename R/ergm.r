@@ -3,7 +3,7 @@ ergm <- function(formula, theta0="MPLE",
                  burnin=10000, MCMCsamplesize=10000, interval=100, maxit=3,
                  proposaltype="randomtoggle", proposalargs=NULL,
                  meanstats=NULL,
-                 dissolve=NULL, gamma=-4.59512,
+                 dissolve=NULL, gamma=-4.59512, dissolve.order="DissThenForm",
                  algorithm.control=list(),
                  verbose=FALSE, ...) {
   current.warn <- options()$warn
@@ -96,7 +96,7 @@ ergm <- function(formula, theta0="MPLE",
   styles <- c("Newton-Raphson","Robbins-Monro","Stochastic-Approximation")
   con$style <- styles[pmatch(con$style,styles,nomatch=1)]
   if(!is.null(dissolve)){
-    model.dissolve <- ergm.getmodel.dissolve(dissolve, nw)
+    model.dissolve <- ergm.getmodel.dissolve(dissolve, nw, dissolve.order)
     v <- ergm.robmon.dyn(theta0, nw, model, model.dissolve,
                     Clist, BD, gamma, burnin, interval,
                     proposaltype, verbose, con)

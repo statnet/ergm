@@ -40,6 +40,13 @@ ergm.Cprepare <- function(nw, m)
     Clist$fnamestring <- substring(Clist$fnamestring, 2)
   while (substring(Clist$snamestring, 1, 1)==" ")
     Clist$snamestring <- substring(Clist$snamestring, 2)
+
+  if("order" %in% names(m)) Clist$order.code <- switch(m$order,
+                                                       DissThenForm=1,
+                                                       DissAndForm=2,
+                                                       FormThenDiss=3,
+                                                       0)
+  
   Clist
 }
 

@@ -100,6 +100,7 @@ simulatedyn <- function(object, nsim=1, seed=NULL, ...,theta0,
      maxchanges <- 5*maxchanges
      con$maxchanges <- 5*con$maxchanges
      z <- .C("MCMCDyn_wrapper",
+             as.integer(Clist.dissolve$order.code),
              as.double(Clist$heads), as.double(Clist$tails), 
              as.double(Clist$nedges), as.double(Clist$n),
              as.integer(Clist$dir), as.double(Clist$bipartite),

@@ -1,4 +1,5 @@
 #include "MCMC.h"
+#include "MCMCDyn.h"
 
 /*****************
  Note on undirected networks:  For j<k, edge {j,k} should be stored
@@ -11,7 +12,7 @@
 
  Wrapper for a call from R.
 *****************/
-void MCMCDyn_wrapper (double *heads, double *tails, double *dnedges,
+void MCMCDyn_wrapper (int *order_code, double *heads, double *tails, double *dnedges,
                    double *dn, int *dflag, double *bipartite, 
                    int *nterms, char **funnames, char **sonames, 
                    char **MHproposaltype, char **MHproposalpackage,
@@ -37,6 +38,14 @@ void MCMCDyn_wrapper (double *heads, double *tails, double *dnedges,
   DegreeBound *bd;
   Model *m, *mdyn;
   ModelTerm *thisterm;
+  DynamOrder order;
+
+  switch(*order_code){
+  case 1: order=DissThenForm; break;
+  case 2: order=DissAndForm; break;
+  default:
+    error("Unsupported dynamic model code %d.", order_code);
+  }
   
   n_nodes = (Vertex)*dn; /* coerce double *dn to type Vertex */
   n_edges = (Vertex)*dnedges; /* coerce double *dnedges to type Vertex */
@@ -172,7 +181,7 @@ void MCMCDyn_wrapper (double *heads, double *tails, double *dnedges,
   
   bd=DegreeBoundInitialize(attribs, maxout, maxin, minout, minin,
 			   *condAllDegExact, *attriblength, nw);
-  MCMCSampleDyn (*MHproposaltype, *MHproposalpackage,
+  MCMCSampleDyn (order, *MHproposaltype, *MHproposalpackage,
 	      theta0, sample, (long int)*samplesize,
 	      (long int)*burnin, (long int)*interval,
 	      hammingterm,
@@ -181,7 +190,7 @@ void MCMCDyn_wrapper (double *heads, double *tails, double *dnedges,
 	      dissolvetime, dissolvehead, dissolvetail,
 	      disstime, disshead, disstail,
 	      difftime, diffhead, difftail,
-	      nw, m, mdyn, bd);
+		 nw, m, mdyn, bd);
    
 // Rprintf("samplesize: %f\n", *samplesize);
 // for (i=0; i < (*samplesize)*9; i++){
@@ -270,7 +279,7 @@ void MCMCDyn_wrapper (double *heads, double *tails, double *dnedges,
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-void MCMCSampleDyn (char *MHproposaltype, char *MHproposalpackage,
+void MCMCSampleDyn (DynamOrder order, char *MHproposaltype, char *MHproposalpackage,
   double *theta, double *networkstatistics, 
   long int samplesize, long int burnin, 
   long int interval, int hammingterm, int fVerbose,
@@ -297,9 +306,8 @@ void MCMCSampleDyn (char *MHproposaltype, char *MHproposalpackage,
   MHproposaltype[i] = 0;
   /* Extract the required string information from the relevant sources */
   if((fn=(char *)malloc(sizeof(char)*(i+4)))==NULL){
-    Rprintf("Error in MCMCSample: Can't allocate %d bytes for fn.\n",
+    error("Error in MCMCSample: Can't allocate %d bytes for fn. Memory has not been deallocated, so restart R sometime soon.\n",
 	    sizeof(char)*(i+4));
-    exit(0);
   }
   fn[0]='M';
   fn[1]='H';
@@ -311,9 +319,8 @@ void MCMCSampleDyn (char *MHproposaltype, char *MHproposalpackage,
   for (i = 0; MHproposalpackage[i] != ' ' && MHproposalpackage[i] != 0; i++);
   MHproposalpackage[i] = 0;
   if((sn=(char *)malloc(sizeof(char)*(i+1)))==NULL){
-    Rprintf("Error in ModelInitialize: Can't allocate %d bytes for sn.\n",
-	    sizeof(char)*(j+1));
-    exit(0);
+    error("Error in ModelInitialize: Can't allocate %d bytes for sn. Memory has not been deallocated, so restart R sometime soon.\n",
+	  sizeof(char)*(j+1));
   }
   sn=strncpy(sn,MHproposalpackage,i);
   sn[i]='\0';
@@ -323,9 +330,9 @@ void MCMCSampleDyn (char *MHproposaltype, char *MHproposalpackage,
   /* Search for the MH proposal function pointer */
   MH.func=(void (*)(MHproposal*, DegreeBound*, Network*)) R_FindSymbol(fn,sn,NULL);
   if(MH.func==NULL){
-    Rprintf("Error in MCMCSample: could not find function %s in "
-	    "namespace for package %s.\n",fn,sn);
-    exit(0);
+    error("Error in MCMCSample: could not find function %s in "
+	  "namespace for package %s."
+	  "Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
   }      
 
   /*Clean up by freeing sn and fn*/
@@ -354,7 +361,7 @@ void MCMCSampleDyn (char *MHproposaltype, char *MHproposalpackage,
    in subsequent calls to M-H
    *********************/
 //Rprintf("MCMCSampleDyn pre burnin numdissolve %d\n", *numdissolve);
-  MetropolisHastingsDyn(&MH, theta, networkstatistics, burnin, &staken,
+  MetropolisHastingsDyn(order, &MH, theta, networkstatistics, burnin, &staken,
 		     hammingterm, fVerbose, gamma, dyninterval,
 		     nmax,
 		     dissolvetime, dissolvehead, dissolvetail,
@@ -381,7 +388,7 @@ void MCMCSampleDyn (char *MHproposaltype, char *MHproposalpackage,
       networkstatistics += m->n_stats;
       /* This then adds the change statistics to these values */
       
-      MetropolisHastingsDyn (&MH, theta, networkstatistics, interval, &staken,
+      MetropolisHastingsDyn (order, &MH, theta, networkstatistics, interval, &staken,
 		  hammingterm, fVerbose, gamma, dyninterval,
 		  nmax,
 		  dissolvetime, dissolvehead, dissolvetail,
@@ -510,7 +517,7 @@ R_INLINE void MetropolisHastingsDyn_commit_dissolve(double *networkstatistics,
 						    Vertex *disstime, Vertex *disshead, Vertex *disstail,
 						    Network *nwp,
 						    Model *m, Model *mdyn,
-						    Vertex dstep, Edge *nmax, int numdissolved, int *nextdissedge){
+						    Vertex dstep, Edge *nmax, Edge numdissolved, Edge *nextdissedge){
   double *dstats;
   ModelTerm *mtp;
   unsigned int i;
@@ -530,8 +537,7 @@ R_INLINE void MetropolisHastingsDyn_commit_dissolve(double *networkstatistics,
   }
   for (i = 0; i < m->n_stats; i++)
     networkstatistics[i] += m->workspace[i];
-  
-  for (i=0; i < numdissolved && *nextdissedge < *nmax; i++){
+    for (i=0; i < numdissolved && *nextdissedge < *nmax; i++){
     ToggleEdge(dissolvehead[i], dissolvetail[i], &nwp[0]);
     ToggleEdge(dissolvehead[i], dissolvetail[i], &nwp[1]);
     disstime[*nextdissedge] = dstep;
@@ -606,7 +612,7 @@ R_INLINE void MetropolisHastingsDyn_form(MHproposal *MHp,
 R_INLINE void MetropolisHastingsDyn_record_diff(Edge *nmax,
 						Vertex *difftime, Vertex *diffhead, Vertex *difftail,
 						Network *nwp, 
-						Vertex dstep, int *nextdiffedge){
+						Vertex dstep, Edge *nextdiffedge){
   Vertex head, v;
 //  Rprintf("diff *nmax %d\n", *nmax); 
 
@@ -658,19 +664,19 @@ R_INLINE void MetropolisHastingsDyn_record_diff(Edge *nmax,
  // MetropolisHastingsDyn_form to between the calls to
  // _choose_dissolved and _commit_dissolve. -- PK
 *********************/
-void MetropolisHastingsDyn (MHproposal *MHp,
-			 double *theta, double *networkstatistics,
-			 long int nsteps, long int *staken,
-			 int hammingterm, int fVerbose,
-			 double *gamma, int dyninterval, 
-			 Edge *nmax,
-			 Vertex *dissolvetime, Vertex *dissolvehead, Vertex *dissolvetail,
-			 Vertex *disstime, Vertex *disshead, Vertex *disstail,
-			 Vertex *difftime, Vertex *diffhead, Vertex *difftail,
-			 Network *nwp,
-                         Model *m, Model *mdyn, DegreeBound *bd) {
-  Vertex dstep; // Why Vertex? -- PK
-  int nextdiffedge, nextdissedge; // Why not unsigned int or Edge? -- PK
+void MetropolisHastingsDyn(DynamOrder order, MHproposal *MHp,
+			   double *theta, double *networkstatistics,
+			   long int nsteps, long int *staken,
+			   int hammingterm, int fVerbose,
+			   double *gamma, int dyninterval, 
+			   Edge *nmax,
+			   Vertex *dissolvetime, Vertex *dissolvehead, Vertex *dissolvetail,
+			   Vertex *disstime, Vertex *disshead, Vertex *disstail,
+			   Vertex *difftime, Vertex *diffhead, Vertex *difftail,
+			   Network *nwp,
+			   Model *m, Model *mdyn, DegreeBound *bd) {
+  unsigned int dstep;
+  Edge nextdiffedge, nextdissedge;
 
   Edge numdissolved;
   
@@ -680,39 +686,60 @@ void MetropolisHastingsDyn (MHproposal *MHp,
 //  Rprintf("Dyn *nmax %d nmax %d\n", *nmax, nmax); 
 
   for(dstep = 0; dstep < nsteps; dstep++){
-    /* Reset reference discord to null when starting to dissolve*/
-    if(dstep > 0){
-      MetropolisHastingsDyn_null_network(&nwp[1]);
+    switch(order){
+    case DissThenForm:
+      /* Reset reference discord to null when starting to dissolve*/
+      if(dstep > 0){
+	MetropolisHastingsDyn_null_network(&nwp[1]);
+      }
+      /* Choose ties to dissolve. */
+      numdissolved = MetropolisHastingsDyn_choose_dissolved(nmax, gamma,
+							    dissolvehead, dissolvetail,
+							    nwp, mdyn);
+      /* If any were, commit the dissolution. */
+      if(numdissolved > 0){
+	MetropolisHastingsDyn_commit_dissolve(networkstatistics,
+					      gamma,
+					      dissolvehead, dissolvetail,
+					      disstime, disshead, disstail,
+					      nwp, m, mdyn,
+					      dstep, nmax, numdissolved, &nextdissedge);
+      }
+      /* Run the formation process. */
+      MetropolisHastingsDyn_form(MHp,
+				 theta, networkstatistics,
+				 dyninterval,
+				 nwp,
+				 m, bd);
+      break;
+    case DissAndForm:
+       /* Reset reference discord to null when starting to dissolve*/
+      if(dstep > 0){
+	MetropolisHastingsDyn_null_network(&nwp[1]);
+      }
+      /* Choose ties to dissolve. */
+      numdissolved = MetropolisHastingsDyn_choose_dissolved(nmax, gamma,
+							    dissolvehead, dissolvetail,
+							    nwp, mdyn);
+      /* Run the formation process. */
+      MetropolisHastingsDyn_form(MHp,
+				 theta, networkstatistics,
+				 dyninterval,
+				 nwp,
+				 m, bd);
+      /* Commit the dissolution. */
+      if(numdissolved > 0){
+	MetropolisHastingsDyn_commit_dissolve(networkstatistics,
+					      gamma,
+					      dissolvehead, dissolvetail,
+					      disstime, disshead, disstail,
+					      nwp, m, mdyn,
+					      dstep, nmax, numdissolved, &nextdissedge);
+      }
+      break;
+    default: 
+      error("Unsupported dynamic model code %d. Memory has not been deallocated so restart R sometime soon.",order);
     }
-    /* Choose ties to dissolve. */
-    numdissolved = MetropolisHastingsDyn_choose_dissolved(nmax, gamma,
-							 dissolvehead, dissolvetail,
-							 nwp, mdyn);
-
-    /* If any were, commit the dissolution. */
-    if(numdissolved > 0){
-      MetropolisHastingsDyn_commit_dissolve(networkstatistics,
-					    gamma,
-					    dissolvehead, dissolvetail,
-					    disstime, disshead, disstail,
-					    nwp, m, mdyn,
-					    dstep, nmax, numdissolved, &nextdissedge);
-    }
-    
-    //Rprintf("C numdissolve %d\n", *numdissolve);
-    //Rprintf("C numdissolved %d\n", numdissolved);
-    
-    //    Rprintf("dissolve networkstatistics[0] %f\n", networkstatistics[0]); 
-    //    Rprintf("Made dissolve: start %d end %d\n", nedges, nwp[0].nedges); 
-    
-
-    /* Run the formation process. */
-    MetropolisHastingsDyn_form(MHp,
-			       theta, networkstatistics,
-			       dyninterval,
-			       nwp,
-			       m, bd);
-    
     /* Record toggled dyads. */
     MetropolisHastingsDyn_record_diff(nmax,
 				      difftime, diffhead, difftail,
