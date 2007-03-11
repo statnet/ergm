@@ -1355,7 +1355,7 @@ void d_dyadcov (int ntoggles, Vertex *heads, Vertex *tails,
   double val;
   Vertex h, t;
   int i, edgeflag, refedgeflag;
-  long int nrow, noffset;
+  long int nrow, noffset, index;
   
   noffset = nwp->bipartite;
   if(noffset > 0){
@@ -1385,12 +1385,14 @@ void d_dyadcov (int ntoggles, Vertex *heads, Vertex *tails,
       
       /*Get the dyadic covariate*/
 //    val = mtp->attrib[(t-1-nrow)+(h-1)*ncols];
-      val = mtp->attrib[(t-1-noffset)*nrow+(h-1)];
+      index = (t-1-noffset)*nrow+(h-1);
+      if(index >= 0 && index <= nrow*nrow){
+       val = mtp->attrib[(t-1-noffset)*nrow+(h-1)];
 //  Rprintf("h %d t %d nrow %d ncols %d val %f\n",h, t, nrow, ncols, val);
       
-      /*Update the change statistics, as appropriate*/
-      if(refedgeflag){      /* Reflected edge is present */
-        if(edgeflag){         /* Toggled edge _was_ present */
+       /*Update the change statistics, as appropriate*/
+       if(refedgeflag){      /* Reflected edge is present */
+         if(edgeflag){         /* Toggled edge _was_ present */
 	  if(t>h){              /* Mut to low->high */
 	    mtp->dstats[0] -= val;
 	    mtp->dstats[1] += val;
@@ -1398,7 +1400,7 @@ void d_dyadcov (int ntoggles, Vertex *heads, Vertex *tails,
 	    mtp->dstats[0] -= val;
 	    mtp->dstats[2] += val;
 	  }
-        }else{                /* Toggled edge _was not_ present */
+         }else{                /* Toggled edge _was not_ present */
 	  if(t>h){              /* Low->high to mut */
 	    mtp->dstats[1] -= val;
 	    mtp->dstats[0] += val;
@@ -1407,7 +1409,7 @@ void d_dyadcov (int ntoggles, Vertex *heads, Vertex *tails,
 	    mtp->dstats[0] += val;
 	  }
 	}
-      }else{                /* Reflected edge is absent */
+       }else{                /* Reflected edge is absent */
         if(edgeflag){         /* Toggled edge _was_ present */
 	  if(t>h){              /* High->low to null */
 	    mtp->dstats[2] -= val;
@@ -1421,6 +1423,7 @@ void d_dyadcov (int ntoggles, Vertex *heads, Vertex *tails,
 	    mtp->dstats[1] += val;
 	  }
 	}
+       }
       }
       
       if (i+1 < ntoggles)
@@ -1434,20 +1437,15 @@ void d_dyadcov (int ntoggles, Vertex *heads, Vertex *tails,
       /*Get the initial edge state*/
       edgeflag=(EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
       /*Get the covariate value*/
-//      val = mtp->attrib[(t-1-nrow)+(h-1)*ncols];
-      if((t-1-noffset)*nrow+(h-1) < 0 ){
-  Rprintf("index %d\n",(t-1-noffset)*nrow+(h-1));
-  Rprintf("h %d t %d nrow %d noffset %d val %f\n",h, t, nrow, noffset, val);
-      }
-      if((t-1-noffset)*nrow+(h-1) > nrow*((long int)(mtp->inputparams[0])) -1 ){
-  Rprintf("index %d\n",(t-1-noffset)*nrow+(h-1));
-  Rprintf("h %d t %d nrow %d noffset %d val %f\n",h, t, nrow, noffset, val);
-      }
-      val = mtp->attrib[(t-1-noffset)*nrow+(h-1)];
+//    val = mtp->attrib[(t-1-nrow)+(h-1)*ncols];
+      index = (t-1-noffset)*nrow+(h-1);
+      if(index >= 0 && index <= nrow*((long int)(mtp->inputparams[0]))){
+       val = mtp->attrib[(t-1-noffset)*nrow+(h-1)];
       /*Update the change statistic, based on the toggle type*/
 //  Rprintf("h %d t %d nrow %d noffset %d val %f\n",h, t, nrow, noffset, val);
       /*Update the change statistic, based on the toggle type*/
-      *(mtp->dstats) += edgeflag ? -val : val;
+       *(mtp->dstats) += edgeflag ? -val : val;
+      }
       if (i+1 < ntoggles)
 	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
     }

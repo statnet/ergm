@@ -60,7 +60,9 @@ ergm.robmon.dyn <- function(theta0, nw, model, model.dissolve, Clist, BD,
     cat(paste(" (burnin=",MCMCparams$burnin,")\n",sep=""))
     for(iteration in 1:n_iter) {
       eta <- ergm.eta(theta, model$etamap)
-    cat(paste(" (iteration = ",iteration,"of ",n_iter,")\n",sep=""))
+      if(verbose){
+       cat(paste(" (iteration = ",iteration," of ",n_iter,")\n",sep=""))
+      }
       z <- ergm.getMCMCDynsample(nw, model, model.dissolve, MHproposal, eta, MCMCparams, verbose=FALSE, BD)
       MCMCparams$maxchanges <- z$maxchanges
       # MCMCparams$burnin should perhaps be increased here, since

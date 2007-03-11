@@ -498,7 +498,7 @@ R_INLINE int MetropolisHastingsDyn_choose_dissolved(Edge *nmax, double *gamma,
 	ip -= gamma[i] * mdyn->workspace[i];
 	//  Rprintf("%f ", mdyn->workspace[i]); 
       }
-      //  Rprintf(" ip=%f\n", ip); 
+      if (numdissolved >= *nmax) { Rprintf(" numdissolved=%d\n", numdissolved);} 
       if (log(unif_rand()) < ip && numdissolved < *nmax) { 
 	dissolvehead[numdissolved] = head;
 	dissolvetail[numdissolved] = tail;
@@ -614,7 +614,6 @@ R_INLINE void MetropolisHastingsDyn_record_diff(Edge *nmax,
 						Network *nwp, 
 						Vertex dstep, Edge *nextdiffedge){
   Vertex head, v;
-//  Rprintf("diff *nmax %d\n", *nmax); 
 
   if(nwp->directed_flag) {
     for(v=1; v<=nwp->nnodes; v++){
@@ -747,6 +746,7 @@ void MetropolisHastingsDyn(DynamOrder order, MHproposal *MHp,
 				      dstep, &nextdiffedge);
   }
 
+//Rprintf("record diff *nmax %d *nextdiffedge %d\n", *nmax, nextdiffedge); 
   difftime[0]=nextdiffedge;
   diffhead[0]=nextdiffedge;
   difftail[0]=nextdiffedge;

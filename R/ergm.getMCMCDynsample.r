@@ -14,9 +14,9 @@ ergm.getMCMCDynsample <- function(g, model, model.dissolve,
   maxchanges <- max(MCMCparams$maxchanges, Clist$nedges)
   MCMCparams$maxchanges <- MCMCparams$maxchanges/5
   z <- list(newnwhead=maxchanges+1)
-  while(z$newnwhead[1] > maxchanges  || 
-        z$dissnwhead[1] > maxchanges ||
-        z$diffnwhead[1] > maxchanges){
+  while(z$newnwhead[1] >= maxchanges  || 
+        z$dissnwhead[1] >= maxchanges ||
+        z$diffnwhead[1] >= maxchanges){
     maxchanges <- 5*maxchanges
     MCMCparams$maxchanges <- 5*MCMCparams$maxchanges
     z <- .C("MCMCDyn_wrapper",
@@ -50,6 +50,9 @@ ergm.getMCMCDynsample <- function(g, model, model.dissolve,
           as.double(0.0), as.integer(0),
           PACKAGE="statnet") 
     }
+#   cat(paste("z$diffnwhead = ",maxchanges,z$diffnwhead[1],"\n"))
+#   cat(paste("z$dissnwhead = ",maxchanges,z$dissnwhead[1],"\n"))
+#   cat(paste("z$newwhead = ",maxchanges,z$newnwhead[1],"\n"))
     if(z$newnwhead[1]>1){
 #    newedgelist <- matrix(z$newnw[2:z$newnw[1]], ncol=2, byrow=TRUE)
      newedgelist <- cbind(z$newnwhead[2:z$newnwhead[1]],z$newnwtail[2:z$newnwhead[1]])
