@@ -2,7 +2,8 @@ simulatedyn <- function(object, nsim=1, seed=NULL, ...,theta0,
                         burnin=1, interval=1,
                         sequential=TRUE,
                         proposaltype="formationTNT",
-                        dissolve=NULL, gamma=0.01,
+                        dissolve=NULL, gamma=-4.59512,
+                        dissolve.order="DissThenForm",
                         algorithm.control=list(),
                         drop=FALSE,
                         verbose=FALSE) {
@@ -67,7 +68,7 @@ simulatedyn <- function(object, nsim=1, seed=NULL, ...,theta0,
   distanceMetric <- 0
   Clist <- ergm.Cprepare(nw, m)
   
-  model.dissolve <- ergm.getmodel.dissolve(dissolve, nw)
+  model.dissolve <- ergm.getmodel.dissolve(dissolve, nw, dissolve.order)
   Clist.dissolve <- ergm.Cprepare(nw, model.dissolve)
 #
   MCMCsamplesize <- 1

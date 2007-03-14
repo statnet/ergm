@@ -1,4 +1,5 @@
-ergm.getmodel.dissolve <- function (formula, nw, dissolve.order, initial=TRUE, ...) 
+ergm.getmodel.dissolve <- function (formula, nw,
+    dissolve.order="DissThenForm", initial=TRUE, ...) 
 {
   # Parse the formula, create an object of class "model.ergm" that contains
   # all relevant information about the model.  As part of this job, call the
