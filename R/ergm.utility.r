@@ -52,16 +52,17 @@ degreedist <- function(g, print=TRUE)
   if(is.bipartite(g)){
    nactors <- get.network.attribute(g,"bipartite")
    nevents <- network.size(g) - nactors
-   aaa <- as.sociomatrix(g)
-   edegrees <- tabulate(apply(aaa,2,sum)+1, nbins=nactors+1)
+   mesp <- paste("c(",paste(0:nevents,collapse=","),")",sep="")
+   adegrees <- summary(as.formula(paste('g ~ adegree(',mesp,')',sep="")),drop=FALSE)
+   mesp <- paste("c(",paste(0:nactors,collapse=","),")",sep="")
+   edegrees <- summary(as.formula(paste('g ~ edegree(',mesp,')',sep="")),drop=FALSE)
    names(edegrees) <- 0:nactors
-   if(print){
+   if(!is.null(edegrees) & print){
     cat("Event degree distribution:\n")
     if(any(edegrees>0)){print(edegrees[edegrees>0])}
    }
-   adegrees <- tabulate(apply(aaa,1,sum)+1, nbins=nevents+1)
    names(adegrees) <- 0:nevents
-   if(print){
+   if(!is.null(adegrees) & print){
     cat("Actor degree distribution:\n")
     if(any(adegrees>0)){print(adegrees[adegrees>0])}
    }
