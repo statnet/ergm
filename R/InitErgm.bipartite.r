@@ -125,44 +125,44 @@ ergm.checkbipartite <- function(fname, nw.bipartiteflag, requirement,
 #    model
 #}
 #
-#InitErgm.gwevent<-function (nw, m, arglist, drop=TRUE, ...) {
-#  ergm.checkdirected("biduration", is.bipartite(nw), requirement=TRUE)
-#  a <- ergm.checkargs("gwevent", arglist,
-#    varnames = c("alpha"),
-#    vartypes = c("numeric"),
-#    defaultvalues = list(0.5),
-#    required = c(FALSE))
-#  attach(a)
-#  alpha<-a$alpha
-#  nactors <- get.network.attribute(nw,"bipartite")
-#  nevents <- network.size(nw)-nactors
-#  termnumber<-1+length(m$terms)
-#  m$terms[[termnumber]] <- list(name="gwevent",
-#                                    soname="statnet",
-#                                    inputs=c(0, 1, 2, nactors, alpha))
-#  m$coef.names<-c(m$coef.names,"gwevent")
-#  m
-#}
-#
-#InitErgm.gwactor<-function (nw, m, arglist, drop=TRUE, ...) {
-#  ergm.checkdirected("biduration", is.bipartite(nw), requirement=TRUE)
-#  a <- ergm.checkargs("gwactor", arglist,
-#    varnames = c("alpha"),
-#    vartypes = c("numeric"),
-#    defaultvalues = list(0.5),
-#    required = c(FALSE))
-#  attach(a)
-#  alpha<-a$alpha
-#  nactors <- get.network.attribute(nw,"bipartite")
-#  nevents <- network.size(nw)-nactors
-#  termnumber<-1+length(m$terms)
-#  m$terms[[termnumber]] <- list(name="gwactor",
-#                                    soname="statnet",
-#                                    inputs=c(0, 1, 2, nactors, alpha))
-#  m$coef.names<-c(m$coef.names,"gwactor")
-#  m
-#}
-#
+InitErgm.gwevent<-function (nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("biduration", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("gwevent", arglist,
+    varnames = c("alpha"),
+    vartypes = c("numeric"),
+    defaultvalues = list(0.5),
+    required = c(FALSE))
+  attach(a)
+  alpha<-a$alpha
+  nactors <- get.network.attribute(nw,"bipartite")
+  nevents <- network.size(nw)-nactors
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="gwevent",
+                                    soname="statnet",
+                                    inputs=c(0, 1, 2, nactors, alpha))
+  m$coef.names<-c(m$coef.names,"gwevent")
+  m
+}
+
+InitErgm.gwactor<-function (nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("biduration", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("gwactor", arglist,
+    varnames = c("alpha"),
+    vartypes = c("numeric"),
+    defaultvalues = list(0.5),
+    required = c(FALSE))
+  attach(a)
+  alpha<-a$alpha
+  nactors <- get.network.attribute(nw,"bipartite")
+  nevents <- network.size(nw)-nactors
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="gwactor",
+                                    soname="statnet",
+                                    inputs=c(0, 1, 2, nactors, alpha))
+  m$coef.names<-c(m$coef.names,"gwactor")
+  m
+}
+
 #InitErgm.esa<-function(g, model, d, drop=TRUE, ...)
 #{
 #    if (nargs()!=4)

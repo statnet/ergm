@@ -372,18 +372,17 @@ void d_gwevent (int ntoggles, Vertex *heads, Vertex *tails,
 		              ModelTerm *mtp, Network *nwp) {
   int i, echange=0;
   double alpha, oneexpa, change;
-  Vertex h, t, hd, td=0, *id, *od;
+  Vertex h, t, td=0, *id;
   int nactors, nevents;
 
   nevents = (int)mtp->inputparams[0];
   nactors = nwp->nnodes - nevents;
 
   id=nwp->indegree;
-  od=nwp->outdegree;
+//od=nwp->outdegree;
   change = 0.0;
   alpha = mtp->inputparams[1];
   oneexpa = 1.0-exp(-alpha);
-//  Rprintf(" nactors %d t %d hd %d echange %d change %f\n", h, t, hd, echange,change);
   
   for (i=0; i<ntoggles; i++) 
     {
@@ -396,6 +395,7 @@ void d_gwevent (int ntoggles, Vertex *heads, Vertex *tails,
       if(td!=0){
         change += echange*(1.0-pow(oneexpa,(double)td));
       }
+//Rprintf("h %d t %d td %d echange %d change %f\n", h, t, td, echange,change);
 //  Rprintf(" h %d t %d hd %d echange %d change %f\n", h, t, hd, echange,change);
 //  Rprintf(" od[h] %d id[h] %d od[t] %d id[t] %d\n", od[h], id[h], od[t], id[t]);
       
@@ -421,13 +421,13 @@ void d_gwactor (int ntoggles, Vertex *heads, Vertex *tails,
 {
   int i, echange=0;
   double alpha, oneexpa, change;
-  Vertex h, t, hd, td=0, *id, *od;
+  Vertex h, t, hd=0, *od;
   int nactors, nevents;
 
   nactors = (int)mtp->inputparams[0];
   nevents = (nwp->nnodes) - nactors;
 
-  id=nwp->indegree;
+//id=nwp->indegree;
   od=nwp->outdegree;
   change = 0.0;
   alpha = mtp->inputparams[1];

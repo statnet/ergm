@@ -19,7 +19,7 @@ ergm.getMCMCDynsample <- function(g, model, model.dissolve,
         z$diffnwhead[1] >= maxchanges){
     maxchanges <- 5*maxchanges
     MCMCparams$maxchanges <- 5*MCMCparams$maxchanges
-    if(verbose){cat(paste("MCMCDyn workspace is",maxchanges))}
+    if(verbose){cat(paste("MCMCDyn workspace is",maxchanges,"\n"))}
     z <- .C("MCMCDyn_wrapper",
           as.integer(Clist.dissolve$order.code),
           as.double(Clist$heads), as.double(Clist$tails), 
