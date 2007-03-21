@@ -10,10 +10,11 @@ network.update<-function(nw,newmatrix)
 #  cnw <- as.matrix.network(nw,matrix.type="edgelist")
 #  unw[cnw[,2],cnw[,1]] <- 0
 #  unw[,] <- 0
-   eid<-vector()
-   for(i in 1:network.size(nw)){  
-     eid <- c(eid,get.edgeIDs(unw,i))
-   }
+#  eid<-vector()
+#  for(i in 1:network.size(nw)){  
+#    eid <- c(eid,get.edgeIDs(unw,i))
+#  }
+   eid <- c(unlist(unw$iel),unlist(unw$oel))
    delete.edges(unw,eid)
    if(nrow(newmatrix)>0){
 #   unw[newmatrix] <- 1
