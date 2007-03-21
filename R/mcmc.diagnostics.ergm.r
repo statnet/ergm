@@ -213,13 +213,20 @@ print.raftery.diag.ergm <- function (x, digits = 3, simvalues=NULL, ...)
             "Dependence", "enough", "enough", "(M)", "(N)", "(Nmin)",
             "factor (I)", "burn-in?", "samples?"), 
             byrow = TRUE, nrow = 2), out)
-        if (!is.null(rownames(x$resmatrix))) 
+        if (!is.null(rownames(x$resmatrix))){ 
             out <- cbind(c("", "", rownames(x$resmatrix)), out)
+        }else{
+            out <- cbind("", out)
+        }
         dimnames(out) <- list(rep("", nrow(out)), rep("", ncol(out)))
-        out[out[,7]=="1",7] <- "yes"
-        out[out[,7]=="0",7] <- " no"
-        out[out[,6]=="1",6] <- "yes"
-        out[out[,6]=="0",6] <- " no"
+        if(ncol(out)>6){
+         out[out[,7]=="1",7] <- "yes"
+         out[out[,7]=="0",7] <- " no"
+        }
+        if(ncol(out)>6){
+         out[out[,6]=="1",6] <- "yes"
+         out[out[,6]=="0",6] <- " no"
+        }
         print.default(out, quote = FALSE, ...)
         cat("\n")
     }

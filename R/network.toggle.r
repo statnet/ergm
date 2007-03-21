@@ -18,9 +18,11 @@ network.toggle<-function(nw,nws,time=NULL)
    nws <- nws$changed[times==time,2:3,drop=FALSE]
   }
   if(nrow(nws) > 0){
-   for(i in 1:nrow(nws)){  
-    nw[nws[i,1],nws[i,2]] <- 1-nw[nws[i,1],nws[i,2]] 
-   }
+#  for(i in 1:nrow(nws)){  
+#   nw[nws[i,1],nws[i,2]] <- 1-nw[nws[i,1],nws[i,2]] 
+#  }
+   toggle.dyads(nw,tail=nws[,1],head=nws[,2])
+  }else{
+   nw
   }
-  nw
 }
