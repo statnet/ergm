@@ -80,7 +80,10 @@ ergm.stocapprox <- function(theta0, nw, model, Clist, BD,
 #     theta <- theta - a * Ddiaginv * statsmatrix
       theta <- theta - a * Ddiaginv * statsmean
     }
-cat(paste("theta new:",theta,"\n"))
+    if(verbose){
+     cat(" ")
+     cat(paste("theta new:",theta,"\n"))
+    }
     a <- a/2
     n_iter <- round(n_iter*2.52) # 2.52 is approx. 2^(4/3)
     thetamatrix <- rbind(thetamatrix,theta)

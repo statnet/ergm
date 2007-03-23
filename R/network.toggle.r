@@ -1,6 +1,6 @@
-network.toggle<-function(nw,nws,time=NULL)
+network.toggle<-function(nw,nws,timestep=NULL)
 {
-  if(is.null(time)){
+  if(is.null(timestep)){
    if(is.network(nws)){
     nws <- as.matrix.network(nws,"edgelist")
    }else{
@@ -14,8 +14,8 @@ network.toggle<-function(nw,nws,time=NULL)
    if(class(nws)!="network.series"){ 
       stop("network.toggle requires an edgelist or a network series")
    }
-   times <- nws$changed[,1,drop=FALSE]
-   nws <- nws$changed[times==time,2:3,drop=FALSE]
+   timesteps <- nws$changed[,1,drop=FALSE]
+   nws <- nws$changed[timesteps==timestep,2:3,drop=FALSE]
   }
   if(nrow(nws) > 0){
 #  for(i in 1:nrow(nws)){  
