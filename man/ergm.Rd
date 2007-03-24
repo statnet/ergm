@@ -30,7 +30,7 @@ ergm(formula, theta0="MPLE",
   operator if necessary.}
  \item{theta0}{vector; the parameter value used to generate
   the MCMC sample and as a starting value for the estimation. By default the MPLE is used (\code{theta0="MPLE"}).}
- \item{MPLEonly}{logical; \code{TRUE} if the maximum 
+ \item{MPLEonly}{logical; \code{TRUE} if the maximum
   pseudo-likelihood estimate is to be computed and returned.
   Note that \code{MPLEonly=TRUE} will render moot most other parameters in this list.}
  \item{MLestimate}{logical; \code{TRUE} if only the Monte Carlo maximum likelihood estimate
