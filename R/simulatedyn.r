@@ -153,14 +153,14 @@ simulatedyn <- function(object, nsim=1, seed=NULL, ...,theta0,
     }else{
      dissedgelist <- matrix(0, ncol=3, nrow=0)
     }
-    out.list <- diffedgelist
-    out.mat <- rbind(out.mat,z$s[(Clist$nparam+1):(2*Clist$nparam)])
+#   out.list <- diffedgelist
+#   out.mat <- rbind(out.mat,z$s[(Clist$nparam+1):(2*Clist$nparam)])
 
-    out.list <- list(formula = formula, networks = NULL,
+    out.list <- list(formula = formula, networks = nw,
                        changed=diffedgelist, 
                        dissolved=dissedgelist, 
                        maxchanges=con$maxchanges,
-                       stats = out.mat, coef=theta0)
+                       stats = NULL, coef=theta0)
     class(out.list) <- "network.series"
 
   return(out.list)
