@@ -125,7 +125,7 @@ ergm.checkbipartite <- function(fname, nw.bipartiteflag, requirement,
 #    model
 #}
 #
-InitErgm.gwevent<-function (nw, m, arglist, drop=TRUE, ...) {
+InitErgm.gwevent706<-function (nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("biduration", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("gwevent", arglist,
     varnames = c("alpha"),
@@ -144,7 +144,7 @@ InitErgm.gwevent<-function (nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-InitErgm.gwactor<-function (nw, m, arglist, drop=TRUE, ...) {
+InitErgm.gwactor706<-function (nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("biduration", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("gwactor", arglist,
     varnames = c("alpha"),
@@ -404,6 +404,107 @@ InitErgm.gwactor<-function (nw, m, arglist, drop=TRUE, ...) {
 ## End untranslated Inits
 ##
 
+InitErgm.eventfactor<-function (nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("eventfactor", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("eventfactor", arglist,
+    varnames = c("attrname","contrast"),
+    vartypes = c("character","logical"),
+    defaultvalues = list(NULL, TRUE),
+    required = c(TRUE,FALSE))
+  attach(a)
+  attrname<-a$attrname
+  nodecov <- get.node.attr(nw, attrname, "eventfactor")
+  u<-sort(unique(nodecov))
+  if(any(is.na(nodecov))){u<-c(u,NA)}
+  nodecov <- match(nodecov,u,nomatch=length(u)+1)
+  ui <- seq(along=u)
+  if(drop){
+    if (!is.directed(nw)){
+      nfc <- tapply(tabulate(as.matrix.network.edgelist(nw),
+                             nbins=network.size(nw)),
+                    nodecov,sum)
+    }else{
+      nfc <- tapply(tabulate(as.matrix.network.edgelist(nw),
+                             nbins=network.size(nw)),
+                    nodecov,sum)
+    }
+    if(any(nfc==0)){
+      dropterms <- paste(paste("eventfactor",attrname,sep="."),u[nfc==0],sep="")
+      cat(paste("Warning: The count of", dropterms, "is extreme.\n"))
+      cat(paste("To avoid degeneracy the terms",dropterms,
+                "have been dropped.\n"))
+      u<-u[nfc>0]
+      ui<-ui[nfc>0]
+    }
+  }
+  if(contrast){
+   ui <- ui[-1]
+   u <- u[-1]
+  }
+  lu <- length(ui)
+  if (lu==1){
+    stop ("Argument to eventfactor() has only one value", call.=FALSE)
+  }
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="eventfactor", soname="statnet",
+                                inputs=c(lu, lu, lu+length(nodecov),
+                                         ui, nodecov), dependence=FALSE)
+  # smallest value of u is "control group"
+  m$coef.names<-c(m$coef.names, paste("eventfactor",
+                                      attrname, paste(u), sep="."))
+  m
+}
+
+InitErgm.actorfactor<-function (nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("actorfactor", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("actorfactor", arglist,
+    varnames = c("attrname","contrast"),
+    vartypes = c("character","logical"),
+    defaultvalues = list(NULL,TRUE),
+    required = c(TRUE,FALSE))
+  attach(a)
+  attrname<-a$attrname
+  nodecov <- get.node.attr(nw, attrname, "actorfactor")
+  u<-sort(unique(nodecov))
+  if(any(is.na(nodecov))){u<-c(u,NA)}
+  nodecov <- match(nodecov,u,nomatch=length(u)+1)
+  ui <- seq(along=u)
+  if(drop){
+    if (!is.directed(nw)){
+      nfc <- tapply(tabulate(as.matrix.network.edgelist(nw),
+                             nbins=network.size(nw)),
+                    nodecov,sum)
+    }else{
+      nfc <- tapply(tabulate(as.matrix.network.edgelist(nw),
+                             nbins=network.size(nw)),
+                    nodecov,sum)
+    }
+    if(any(nfc==0)){
+      dropterms <- paste(paste("actorfactor",attrname,sep="."),u[nfc==0],sep="")
+      cat(paste("Warning: The count of", dropterms, "is extreme.\n"))
+      cat(paste("To avoid degeneracy the terms",dropterms,
+                "have been dropped.\n"))
+      u<-u[nfc>0]
+      ui<-ui[nfc>0]
+    }
+  }
+  if(contrast){
+   ui <- ui[-1]
+   u <- u[-1]
+  }
+  lu <- length(ui)
+  if (lu==1){
+    stop ("Argument to actorfactor() has only one value", call.=FALSE)
+  }
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="actorfactor", soname="statnet",
+                                inputs=c(lu, lu, lu+length(nodecov),
+                                         ui, nodecov), dependence=FALSE)
+  # smallest value of u is "control group"
+  m$coef.names<-c(m$coef.names, paste("actorfactor",
+                                      attrname, paste(u), sep="."))
+  m
+}
 InitErgm.biduration<-function (nw, m, arglist, ...) {
   ergm.checkdirected("biduration", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("biduration", arglist,
@@ -726,19 +827,19 @@ InitErgm.edegree<-function(nw, m, arglist, drop=TRUE, ...) {
 InitErgm.gwadegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   ergm.checkbipartite("gwadegree", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("gwadegree", arglist,
-    varnames = c("decay", "fixed", "attrname"),
-    vartypes = c("numeric", "logical", "character"),
-    defaultvalues = list(NULL, NULL, NULL),
+    varnames = c("decay", "attrname", "fixed"),
+    vartypes = c("numeric", "character", "logical"),
+    defaultvalues = list(0, NULL, TRUE),
     required = c(TRUE, FALSE, FALSE))
   attach(a)
   decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
+  nactors <- get.network.attribute(nw,"bipartite")
+  d <- 1:(network.size(nw) - nactors)
   if (!initialfit && !fixed) { # This is a curved exp fam
 #    if (!is.null(attrname)) {
       stop("The gwadegree term is not yet able to handle a",
            "nonfixed decay term.") # with an attribute.")
 #    }
-    nactors <- get.network.attribute(nw,"bipartite")
-    d <- 1:(network.size(nw) - nactors)
     ld<-length(d)
     if(ld==0){return(m)}
     map <- function(x,n,...) {
@@ -771,16 +872,16 @@ InitErgm.gwadegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
-    if(ncol(du)==0) {return(m)}
+    if(nrow(du)==0) {return(m)}
     #  No covariates here, so input component 1 is arbitrary
     m$terms[[termnumber]] <- list(name="gwadegree_by_attr", soname="statnet",
-                                  inputs=c(0, ncol(du), 
+                                  inputs=c(0, nrow(du), 
                                            1+length(nodecov), 
                                            decay, nodecov),
                                   dependence=TRUE)
     # See comment in d_gwadegree_by_attr function
-    m$coef.names<-c(m$coef.names, paste("gwadeg", decay, ".", du[1,], ".", 
-                                        attrname, u[du[2,]], sep=""))
+    m$coef.names<-c(m$coef.names, paste("gwadeg", decay, ".", 
+                                        attrname, u, sep=""))
   }else{
     m$terms[[termnumber]] <- list(name="gwadegree", soname="statnet",
                                        inputs=c(0, 1, 1, decay),
@@ -793,19 +894,19 @@ InitErgm.gwadegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
 InitErgm.gwedegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   ergm.checkbipartite("gwedegree", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("gwedegree", arglist,
-    varnames = c("decay", "fixed", "attrname"),
-    vartypes = c("numeric", "logical", "character"),
-    defaultvalues = list(NULL, NULL, NULL),
+    varnames = c("decay", "attrname", "fixed"),
+    vartypes = c("numeric", "character", "logical"),
+    defaultvalues = list(0, NULL, TRUE),
     required = c(TRUE, FALSE, FALSE))
   attach(a)
   decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
+  nactors <- get.network.attribute(nw,"bipartite")
+  d <- 1:nactors
   if (!initialfit && !fixed) { # This is a curved exp fam
 #    if (!is.null(attrname)) {
       stop("The gwedegree term is not yet able to handle a",
            "nonfixed decay term.") # with an attribute.")
 #    }
-    nactors <- get.network.attribute(nw,"bipartite")
-    d <- 1:nactors
     ld<-length(d)
     if(ld==0){return(m)}
     map <- function(x,n,...) {
@@ -838,16 +939,16 @@ InitErgm.gwedegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
-    if(ncol(du)==0) {return(m)}
+    if(nrow(du)==0) {return(m)}
     #  No covariates here, so input component 1 is arbitrary
     m$terms[[termnumber]] <- list(name="gwedegree_by_attr", soname="statnet",
-                                  inputs=c(0, ncol(du), 
+                                  inputs=c(0, nrow(du), 
                                            1+length(nodecov), 
                                            decay, nodecov),
                                   dependence=TRUE)
     # See comment in d_gwedegree_by_attr function
-    m$coef.names<-c(m$coef.names, paste("gwedeg", decay, ".", du[1,], ".", 
-                                        attrname, u[du[2,]], sep=""))
+    m$coef.names<-c(m$coef.names, paste("gwedeg", decay, ".", 
+                                        attrname, u, sep=""))
   }else{
     m$terms[[termnumber]] <- list(name="gwedegree", soname="statnet",
                                        inputs=c(0, 1, 1, decay),

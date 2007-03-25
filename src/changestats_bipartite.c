@@ -268,6 +268,7 @@ void d_gwadegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
     echange=(EdgetreeSearch(actor=heads[i], tails[i], oe)==0) ? 1 : -1;
     actordeg = od[actor]+(echange-1)/2;
     actorattr = mtp->inputparams[actor]; 
+//  Rprintf("actor %d tails %d actordeg %d actorattr %d echange %d\n",actor, tails[i], actordeg, actorattr, echange);
     mtp->dstats[actorattr-1] += echange * pow(oneexpd,(double)actordeg);
     if (i+1 < ntoggles)
       ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
@@ -292,15 +293,15 @@ void d_gwedegree (int ntoggles, Vertex *heads, Vertex *tails,
   int i, echange;
   double decay, oneexpd;
   Vertex event, eventdeg, *id;
-  TreeNode *ie;  
+  TreeNode *oe;  
   
   decay = mtp->inputparams[0];
   oneexpd = 1.0-exp(-decay);
-  ie=nwp->inedges;
+  oe=nwp->outedges;
   id=nwp->indegree;
   mtp->dstats[0] = 0.0;
   for (i=0; i<ntoggles; i++) {      
-    echange=(EdgetreeSearch(heads[i], event=tails[i], ie)==0) ? 1 : -1;
+    echange=(EdgetreeSearch(heads[i], event=tails[i], oe)==0) ? 1 : -1;
     eventdeg = id[event]+(echange-1)/2;
     mtp->dstats[0] += echange*pow(oneexpd,(double)eventdeg);
     if (i+1 < ntoggles)
@@ -331,18 +332,19 @@ void d_gwedegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
   int i, echange, eventattr;
   double decay, oneexpd;
   Vertex event, eventdeg, *id;
-  TreeNode *ie;
+  TreeNode *oe;
   
   decay = mtp->inputparams[0];
   oneexpd = 1.0-exp(-decay);
-  ie=nwp->inedges;
+  oe=nwp->outedges;
   id=nwp->indegree;
   for (i=0; i < mtp->nstats; i++) 
     mtp->dstats[i] = 0.0;
   for (i=0; i<ntoggles; i++) {      
-    echange=(EdgetreeSearch(heads[i], event=tails[i], ie)==0) ? 1 : -1;
+    echange=(EdgetreeSearch(heads[i], event=tails[i], oe)==0) ? 1 : -1;
     eventdeg = id[event]+(echange-1)/2;
     eventattr = mtp->inputparams[event]; 
+//  Rprintf("h %d event %d eventdeg %d eventattr %d echange %d\n",heads[i], event, eventdeg, eventattr, echange);
     mtp->dstats[eventattr-1] += echange * pow(oneexpd,(double)eventdeg);
     if (i+1 < ntoggles)
       ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
@@ -440,6 +442,67 @@ void d_biduration (int ntoggles, Vertex *heads, Vertex *tails,
     ToggleEdge(heads[i], tails[i], nwp); 
 }
 
+/*****************
+ void d_eventfactor
+*****************/
+void d_eventfactor (int ntoggles, Vertex *heads, Vertex *tails, 
+ModelTerm *mtp, Network *nwp) {
+  double s, factorval;
+  Vertex h, t, nlevels;
+  int i, j;
+  
+  nlevels = (mtp->ninputparams) - nwp->nnodes;
+  for (i=0; i < mtp->nstats; i++){
+    mtp->dstats[i] = 0.0;
+  }
+  for (i=0; i<ntoggles; i++) 
+  {
+    s = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0) ? -1.0 : 1.0;
+    for (j=0; j<(mtp->nstats); j++) 
+    {
+      factorval = (mtp->inputparams[j]);
+      mtp->dstats[j] += 
+	    ((mtp->attrib[t-1] != factorval) ? 0.0 : s);
+      
+    }
+    if (i+1 < ntoggles) 
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+
+/*****************
+ void d_actorfactor
+*****************/
+void d_actorfactor (int ntoggles, Vertex *heads, Vertex *tails, 
+ModelTerm *mtp, Network *nwp) {
+  double s, factorval;
+  Vertex h, t, nlevels;
+  int i, j;
+  
+  nlevels = (mtp->ninputparams) - nwp->nnodes;
+  for (i=0; i < mtp->nstats; i++){
+    mtp->dstats[i] = 0.0;
+  }
+  for (i=0; i<ntoggles; i++) 
+  {
+    s = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0) ? -1.0 : 1.0;
+    for (j=0; j<(mtp->nstats); j++) 
+    {
+      factorval = (mtp->inputparams[j]);
+      mtp->dstats[j] += 
+	    ((mtp->attrib[h-1] != factorval) ? 0.0 : s);
+      
+    }
+    if (i+1 < ntoggles) 
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
 //// *****************
 //// void d_actor
 ////
