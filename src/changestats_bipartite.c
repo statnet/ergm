@@ -171,6 +171,9 @@ void d_edegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
   than event.  In other words, the degree of an actor is equivalent
   to its outdegree and the degree of an event is equivalent to its
   indegree.
+  The inputparams are assumed to be set up as follows:
+    The first 2*nstats values are in pairs:  (degree, attrvalue)
+    The values following the first 2*nstats values are the nodal attributes.
   */
   int i, j, echange, eventattr;
   Vertex actor, event, eventdeg, d, *id;
@@ -200,6 +203,41 @@ void d_edegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
 }
 
 /*****************
+ void d_gwadegree
+*****************/
+void d_gwadegree (int ntoggles, Vertex *heads, Vertex *tails, 
+	        ModelTerm *mtp, Network *nwp) 
+{
+  /* It is assumed that in this bipartite network, the only edges are
+  of the form (actor, event), where actor is always strictly less
+  than event.  In other words, the degree of an actor is equivalent
+  to its outdegree and the degree of an event is equivalent to its
+  indegree.
+  */
+  int i, echange;
+  double decay, oneexpd;
+  Vertex actor, actordeg, *od;
+  TreeNode *oe;  
+  
+  decay = mtp->inputparams[0];
+  oneexpd = 1.0-exp(-decay);
+  oe=nwp->outedges;
+  od=nwp->outdegree;
+  mtp->dstats[0] = 0.0;
+  for (i=0; i<ntoggles; i++) {      
+    echange=(EdgetreeSearch(actor=heads[i], tails[i], oe)==0) ? 1 : -1;
+    actordeg = od[actor]+(echange-1)/2;
+    mtp->dstats[0] += echange*pow(oneexpd,(double)actordeg);
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
+  
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+
+/*****************
  void d_gwadegree_by_attr
 *****************/
 void d_gwadegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
@@ -211,33 +249,104 @@ void d_gwadegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
   to its outdegree and the degree of an event is equivalent to its
   indegree.
   The inputparams are assumed to be set up as follows:
-    The first 2*nstats values are in pairs:  (degree, attrvalue)
-    The values following the first 2*nstats values are the nodal attributes.
+    The first value is theta (as in Hunter et al, JASA 200?), controlling decay
+    The next sequence of values is the nodal attributes, coded as integers
+         from 1 through mtp->nstats
   */
-  int i, j, echange, actorattr;
-  double alpha, expa, oneexpa;
-  Vertex actor, event, actordeg, d, *od;
-  TreeNode *oe;  
+  int i, echange, actorattr;
+  double decay, oneexpd;
+  Vertex actor, actordeg, *od;
+  TreeNode *oe;
   
-  alpha = mtp->inputparams[0];
-  expa = exp(alpha);
-  oneexpa = (expa-1.0)/expa;
-
+  decay = mtp->inputparams[0];
+  oneexpd = 1.0-exp(-decay);
   oe=nwp->outedges;
   od=nwp->outdegree;
   for (i=0; i < mtp->nstats; i++) 
     mtp->dstats[i] = 0.0;
   for (i=0; i<ntoggles; i++) {      
-    echange=(EdgetreeSearch(actor=heads[i], event=tails[i], oe)==0) ? 1 : -1;
+    echange=(EdgetreeSearch(actor=heads[i], tails[i], oe)==0) ? 1 : -1;
     actordeg = od[actor]+(echange-1)/2;
-    if(actordeg!=0){
-      actorattr = mtp->inputparams[actor]; 
-      mtp->dstats[actorattr] += echange*expa*(1.0-pow(oneexpa,(double)actordeg));
-    }
+    actorattr = mtp->inputparams[actor]; 
+    mtp->dstats[actorattr-1] += echange * pow(oneexpd,(double)actordeg);
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+
+/*****************
+ void d_gwedegree
+*****************/
+void d_gwedegree (int ntoggles, Vertex *heads, Vertex *tails, 
+	        ModelTerm *mtp, Network *nwp) 
+{
+  /* It is assumed that in this bipartite network, the only edges are
+  of the form (actor, event), where actor is always strictly less
+  than event.  In other words, the degree of an actor is equivalent
+  to its outdegree and the degree of an event is equivalent to its
+  indegree.
+  */
+  int i, echange;
+  double decay, oneexpd;
+  Vertex event, eventdeg, *id;
+  TreeNode *ie;  
+  
+  decay = mtp->inputparams[0];
+  oneexpd = 1.0-exp(-decay);
+  ie=nwp->inedges;
+  id=nwp->indegree;
+  mtp->dstats[0] = 0.0;
+  for (i=0; i<ntoggles; i++) {      
+    echange=(EdgetreeSearch(heads[i], event=tails[i], ie)==0) ? 1 : -1;
+    eventdeg = id[event]+(echange-1)/2;
+    mtp->dstats[0] += echange*pow(oneexpd,(double)eventdeg);
     if (i+1 < ntoggles)
       ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
   }
   
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+
+/*****************
+ void d_gwedegree_by_attr
+*****************/
+void d_gwedegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
+	        ModelTerm *mtp, Network *nwp) 
+{
+  /* It is assumed that in this bipartite network, the only edges are
+  of the form (actor, event), where actor is always strictly less
+  than event.  In other words, the degree of an actor is equivalent
+  to its outdegree and the degree of an event is equivalent to its
+  indegree.
+  The inputparams are assumed to be set up as follows:
+    The first value is theta (as in Hunter et al, JASA 200?), controlling decay
+    The next sequence of values is the nodal attributes, coded as integers
+         from 1 through mtp->nstats
+  */
+  int i, echange, eventattr;
+  double decay, oneexpd;
+  Vertex event, eventdeg, *id;
+  TreeNode *ie;
+  
+  decay = mtp->inputparams[0];
+  oneexpd = 1.0-exp(-decay);
+  ie=nwp->inedges;
+  id=nwp->indegree;
+  for (i=0; i < mtp->nstats; i++) 
+    mtp->dstats[i] = 0.0;
+  for (i=0; i<ntoggles; i++) {      
+    echange=(EdgetreeSearch(heads[i], event=tails[i], ie)==0) ? 1 : -1;
+    eventdeg = id[event]+(echange-1)/2;
+    eventattr = mtp->inputparams[event]; 
+    mtp->dstats[eventattr-1] += echange * pow(oneexpd,(double)eventdeg);
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
     ToggleEdge(heads[i], tails[i], nwp); 
@@ -408,6 +517,8 @@ void d_biduration (int ntoggles, Vertex *heads, Vertex *tails,
 //    ToggleEdge(heads[i], tails[i], nwp); 
 //}
 //
+
+
 // *****************
 // void d_gwevent
 //
@@ -517,6 +628,7 @@ void d_formation(int ntoggles, Vertex *heads, Vertex *tails,
   while (--i >= 0)  /*  Undo all previous toggles. */
     ToggleEdge(heads[i], tails[i], nwp); 
 }
+
 /*****************
  void d_dissolve
 *****************/

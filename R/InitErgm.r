@@ -1225,6 +1225,47 @@ InitErgm.gwdegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   m
 }
 
+InitErgm.gwdegree706<-function(nw, m, arglist, initialfit=FALSE, ...) {
+# Slight modification to the parameterization in gwdegree.
+# ergm.checkdirected("gwdegree", is.directed(nw), requirement=FALSE)
+  a <- ergm.checkargs("gwdegree", arglist,
+    varnames = c("decay","fixed"),
+    vartypes = c("numeric","logical"),
+    defaultvalues = list(0, FALSE),
+    required = c(FALSE, FALSE))
+  attach(a)
+  decay<-a$decay;fixed<-a$fixed
+  if(!initialfit && !fixed){ # This is a curved exponential family model
+    d <- 1:(network.size(nw)-1)
+    ld<-length(d)
+    if(ld==0){return(m)}
+    map <- function(x,n,...) {
+      i <- 1:n
+      0.5 + x[1]*(exp(x[2])*(1-(1-exp(-x[2]))^i))
+      # Note small change to add number of edges to usual gwdegree.
+    }
+    gradient <- function(x,n,...) {
+      i <- 1:n
+      rbind(exp(x[2])*(1-(1-exp(-x[2]))^i),
+            x[1]*(exp(x[2])-(1-exp(-x[2]))^{i-1}*(1+i-exp(-x[2])))
+           )
+    }
+    termnumber<-1+length(m$terms)
+    m$terms[[termnumber]] <- list(name="degree", soname="statnet",
+                                  inputs=c(0, ld, ld, d),
+                                  params=list(gwdegree=NULL,
+                                    gwdegree.decay=decay),
+                                  map=map, gradient=gradient)
+    m$coef.names<-c(m$coef.names,paste("gwdegree#",d,sep=""))
+  }else{
+    termnumber<-1+length(m$terms)
+    m$terms[[termnumber]] <- list(name="gwdegree", soname="statnet",
+                                  inputs=c(0, 1, length(decay), decay))
+    m$coef.names<-c(m$coef.names,"gwdegree")
+  }
+  m
+}
+
 InitErgm.gwidegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   ergm.checkdirected("gwidegree", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("gwidegree", arglist,

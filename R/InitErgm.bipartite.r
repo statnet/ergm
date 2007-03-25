@@ -723,6 +723,140 @@ InitErgm.edegree<-function(nw, m, arglist, drop=TRUE, ...) {
 }
 
 
+InitErgm.gwadegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
+  ergm.checkbipartite("gwadegree", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("gwadegree", arglist,
+    varnames = c("decay", "fixed", "attrname"),
+    vartypes = c("numeric", "logical", "character"),
+    defaultvalues = list(NULL, NULL, NULL),
+    required = c(TRUE, FALSE, FALSE))
+  attach(a)
+  decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
+  if (!initialfit && !fixed) { # This is a curved exp fam
+#    if (!is.null(attrname)) {
+      stop("The gwadegree term is not yet able to handle a",
+           "nonfixed decay term.") # with an attribute.")
+#    }
+    nactors <- get.network.attribute(nw,"bipartite")
+    d <- 1:(network.size(nw) - nactors)
+    ld<-length(d)
+    if(ld==0){return(m)}
+    map <- function(x,n,...) {
+      i <- 1:n
+      x[1]*(exp(x[2])*(1-(1-exp(-x[2]))^i))
+    }
+    gradient <- function(x,n,...) {
+      i <- 1:n
+      rbind(exp(x[2])*(1-(1-exp(-x[2]))^i),
+            x[1]*(exp(x[2])-(1-exp(-x[2]))^
+                  {i-1}*(1+i-exp(-x[2])))
+            )
+    }
+    termnumber<-1+length(m$terms)
+    m$terms[[termnumber]] <- list(name="adegree", soname="statnet",
+                                  inputs=c(0, ld, ld, d),
+                                  params=list(gwadegree=NULL,
+                                    gwadegree.decay=decay),
+                                  map=map, gradient=gradient)
+    m$coef.names<-c(m$coef.names,paste("gwadegree#",d,sep=""))
+  }
+  termnumber<-1+length(m$terms)
+  if(!is.null(attrname)) {
+    nodecov <- get.node.attr(nw, attrname, "gwadegree")
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+    nodecov <- match(nodecov,u) # Recode to numeric
+    if (length(u)==1)
+      stop ("Attribute given to gwadegree() has only one value", call.=FALSE)
+    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+    lu <- length(u)
+    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
+    if(ncol(du)==0) {return(m)}
+    #  No covariates here, so input component 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="gwadegree_by_attr", soname="statnet",
+                                  inputs=c(0, ncol(du), 
+                                           1+length(nodecov), 
+                                           decay, nodecov),
+                                  dependence=TRUE)
+    # See comment in d_gwadegree_by_attr function
+    m$coef.names<-c(m$coef.names, paste("gwadeg", decay, ".", du[1,], ".", 
+                                        attrname, u[du[2,]], sep=""))
+  }else{
+    m$terms[[termnumber]] <- list(name="gwadegree", soname="statnet",
+                                       inputs=c(0, 1, 1, decay),
+                                       dependence=TRUE)
+    m$coef.names<-c(m$coef.names,paste("gwadeg",decay,sep=""))
+  }
+  m
+}
+
+InitErgm.gwedegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
+  ergm.checkbipartite("gwedegree", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("gwedegree", arglist,
+    varnames = c("decay", "fixed", "attrname"),
+    vartypes = c("numeric", "logical", "character"),
+    defaultvalues = list(NULL, NULL, NULL),
+    required = c(TRUE, FALSE, FALSE))
+  attach(a)
+  decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
+  if (!initialfit && !fixed) { # This is a curved exp fam
+#    if (!is.null(attrname)) {
+      stop("The gwedegree term is not yet able to handle a",
+           "nonfixed decay term.") # with an attribute.")
+#    }
+    nactors <- get.network.attribute(nw,"bipartite")
+    d <- 1:nactors
+    ld<-length(d)
+    if(ld==0){return(m)}
+    map <- function(x,n,...) {
+      i <- 1:n
+      x[1]*(exp(x[2])*(1-(1-exp(-x[2]))^i))
+    }
+    gradient <- function(x,n,...) {
+      i <- 1:n
+      rbind(exp(x[2])*(1-(1-exp(-x[2]))^i),
+            x[1]*(exp(x[2])-(1-exp(-x[2]))^
+                  {i-1}*(1+i-exp(-x[2])))
+            )
+    }
+    termnumber<-1+length(m$terms)
+    m$terms[[termnumber]] <- list(name="adegree", soname="statnet",
+                                  inputs=c(0, ld, ld, d),
+                                  params=list(gwedegree=NULL,
+                                    gwedegree.decay=decay),
+                                  map=map, gradient=gradient)
+    m$coef.names<-c(m$coef.names,paste("gwedegree#",d,sep=""))
+  }
+  termnumber<-1+length(m$terms)
+  if(!is.null(attrname)) {
+    nodecov <- get.node.attr(nw, attrname, "gwedegree")
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+    nodecov <- match(nodecov,u) # Recode to numeric
+    if (length(u)==1)
+      stop ("Attribute given to gwedegree() has only one value", call.=FALSE)
+    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+    lu <- length(u)
+    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
+    if(ncol(du)==0) {return(m)}
+    #  No covariates here, so input component 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="gwedegree_by_attr", soname="statnet",
+                                  inputs=c(0, ncol(du), 
+                                           1+length(nodecov), 
+                                           decay, nodecov),
+                                  dependence=TRUE)
+    # See comment in d_gwedegree_by_attr function
+    m$coef.names<-c(m$coef.names, paste("gwedeg", decay, ".", du[1,], ".", 
+                                        attrname, u[du[2,]], sep=""))
+  }else{
+    m$terms[[termnumber]] <- list(name="gwedegree", soname="statnet",
+                                       inputs=c(0, 1, 1, decay),
+                                       dependence=TRUE)
+    m$coef.names<-c(m$coef.names,paste("gwedeg",decay,sep=""))
+  }
+  m
+}
+
 InitErgm.biduration<-function (nw, m, arglist, ...) {
   ergm.checkdirected("biduration", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("biduration", arglist,

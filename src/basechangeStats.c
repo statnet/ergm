@@ -840,6 +840,7 @@ void d_gwdegreelambda (int ntoggles, Vertex *heads, Vertex *tails,
     {      
       echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
       change += 4.0*echange;
+      /* The above line may be an error -- should it be 2.0*echange? */
       hd = od[h] + id[h] + (echange - 1)/2;
       td = od[t] + id[t] + (echange - 1)/2;
       if(hd!=0){
@@ -874,22 +875,53 @@ void d_gwdegree (int ntoggles, Vertex *heads, Vertex *tails,
   oneexpd = 1.0-exp(-decay);
   
   change = 0.0;
-  for (i=0; i<ntoggles; i++)
-    {      
-      echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
-      change += 4.0*echange;
-      hd = od[h] + id[h] + (echange - 1)/2;
-      td = od[t] + id[t] + (echange - 1)/2;
-      if(hd!=0){
-        change -= echange*(1.0-pow(oneexpd,(double)hd));
-      }
-      if(td!=0){
-        change -= echange*(1.0-pow(oneexpd,(double)td));
-      }
+  for (i=0; i<ntoggles; i++) {      
+    echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
+    hd = od[h] + id[h] + (echange - 1)/2;
+    td = od[t] + id[t] + (echange - 1)/2;
+    change += echange*(pow(oneexpd,(double)hd)+pow(oneexpd,(double)td));
       
-      if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
+  *(mtp->dstats) = change;
+  
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+
+/*****************
+ void d_gwdegree706
+*****************/
+void d_gwdegree706 (int ntoggles, Vertex *heads, Vertex *tails, 
+       ModelTerm *mtp, Network *nwp)  {
+        /* Slight modification to the parameterization in d_gwdegree */
+  int i, echange=0;
+  double decay, oneexpd, change;
+  Vertex h, t, hd, td=0, *id, *od;
+  
+  id=nwp->indegree;
+  od=nwp->outdegree;
+  decay = mtp->inputparams[0];
+  oneexpd = 1.0-exp(-decay);
+  
+  change = 0.0;
+  for (i=0; i<ntoggles; i++) {      
+    echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
+    change += 4.0*echange;
+    hd = od[h] + id[h] + (echange - 1)/2;
+    td = od[t] + id[t] + (echange - 1)/2;
+    if(hd!=0){
+      change -= echange*(1.0-pow(oneexpd,(double)hd));
     }
+    if(td!=0){
+      change -= echange*(1.0-pow(oneexpd,(double)td));
+    }
+    
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
   *(mtp->dstats) = change;
   
   i--; 
@@ -911,18 +943,14 @@ void d_gwodegree (int ntoggles, Vertex *heads, Vertex *tails,
   oneexpd = 1.0-exp(-decay);
   
   change = 0.0;
-  for (i=0; i<ntoggles; i++)
-    {      
-      echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
-      change += 2.0*echange;
-      hd = od[h] + (echange - 1)/2;
-      if(hd!=0){
-        change -= echange*(1.0-pow(oneexpd,(double)hd));
-      }
-      
-      if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-    }
+  for (i=0; i<ntoggles; i++) {      
+    echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
+    hd = od[h] + (echange - 1)/2;
+    change += echange * pow(oneexpd,(double)hd);
+    
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
   *(mtp->dstats) = change;
   
   i--; 
@@ -944,18 +972,14 @@ void d_gwidegree (int ntoggles, Vertex *heads, Vertex *tails,
   oneexpd = 1.0-exp(-decay);
   
   change = 0.0;
-  for (i=0; i<ntoggles; i++)
-    {      
-      echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
-      change += 2.0*echange;
-      td = id[t] + (echange - 1)/2;
-      if(td!=0){
-        change -= echange*(1.0-pow(oneexpd,(double)td));
-      }
-      
-      if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-    }
+  for (i=0; i<ntoggles; i++) {      
+    echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
+    td = id[t] + (echange - 1)/2;
+    change += echange * pow(oneexpd,(double)td);
+    
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
   *(mtp->dstats) = change;
   
   i--; 
