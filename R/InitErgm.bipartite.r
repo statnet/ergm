@@ -189,7 +189,7 @@ InitErgm.r0e<-function(nw, m, arglist, ...) {
   termnumber<-1+length(m$terms)
   m$terms[[termnumber]] <- list(name="r0e", soname="statnet",
                                 inputs=c(0, 1, 0))
-  m$coef.names<-c(m$coef.names,"r0a")
+  m$coef.names<-c(m$coef.names,"r0e")
   m
 }
 #InitErgm.esa<-function(g, model, d, drop=TRUE, ...)
