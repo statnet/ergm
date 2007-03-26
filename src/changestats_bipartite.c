@@ -354,6 +354,146 @@ void d_gwedegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
     ToggleEdge(heads[i], tails[i], nwp); 
 }
 
+/*****************
+ void d_birnought
+*****************/
+void d_birnought (int ntoggles, Vertex *heads, Vertex *tails, 
+	      ModelTerm *mtp, Network *nwp)  {
+  int i, j, echange=0;
+  double nedges, change, iar0, far0, ier0, fer0;
+  Vertex h, t, hd, td=0, iak2, fak2, iek2, fek2, nnodes, *id, *od;
+  Vertex nevents, nactors;
+  TreeNode *oe;  
+  
+  oe=nwp->outedges;
+  id=nwp->indegree;
+  od=nwp->outdegree;
+  nnodes = nwp->nnodes;
+  nactors = nwp->bipartite;
+  nevents = nnodes - nactors;
+  
+  change = 0.0;
+  for (i=0; i<ntoggles; i++) {      
+    echange = (EdgetreeSearch(h=heads[i], t=tails[i], oe) == 0) ? 1 : -1;
+    iak2=0;
+    for (j=1; j<=nactors; j++) {      
+      fak2 = od[j];
+      iak2 += fak2*(fak2-1);
+    }
+    iek2=0;
+    for (j=nactors+1; j<=nnodes; j++) {      
+      fek2 = id[j];
+      iek2 += fek2*(fek2-1);
+    }
+    hd = od[h] + (echange-1)/2;
+    td = id[t] + (echange-1)/2;
+    fak2 = iak2 + echange*2*hd;
+    fek2 = iek2 + echange*2*td;
+    nedges = (double)(nwp->nedges);
+    iar0 = (nwp->nedges==0) ? 0.0 : (iak2*1.0/nedges);
+    far0 = (((nwp->nedges)+echange)==0) ? 0.0 : (fak2*1.0/(nedges+echange));
+    ier0 = (nwp->nedges==0) ? 0.0 : (iek2*1.0/nedges);
+    fer0 = (((nwp->nedges)+echange)==0) ? 0.0 : (fek2*1.0/(nedges+echange));
+    change += sqrt(far0*fer0) - sqrt(iar0*ier0);
+//   Rprintf("h %d t %d nnodes %d nedges %f iak2 %d fak2 %d iar0 %f far0 %f change %f\n",h,t, nnodes,  nedges, iak2, fak2, iar0, far0, change);
+//   Rprintf("h %d t %d nnodes %d nedges %f iek2 %d fek2 %d ier0 %f fer0 %f change %f\n",h,t, nnodes,  nedges, iek2, fek2, ier0, fer0, change);
+      
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
+  *(mtp->dstats) = change;
+  
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+
+/*****************
+ void d_r0a
+*****************/
+void d_r0a (int ntoggles, Vertex *heads, Vertex *tails, 
+	    ModelTerm *mtp, Network *nwp)  {
+  int i, j, echange=0;
+  double nedges, change, iar0, far0;
+  Vertex h, t, hd, iak2, fak2, nnodes, *od;
+  Vertex nactors;
+  TreeNode *oe;  
+  
+  oe=nwp->outedges;
+  od=nwp->outdegree;
+  nnodes = nwp->nnodes;
+  nactors = nwp->bipartite;
+  
+  change = 0.0;
+  for (i=0; i<ntoggles; i++) {      
+    echange = (EdgetreeSearch(h=heads[i], t=tails[i], oe) == 0) ? 1 : -1;
+    iak2=0;
+    for (j=1; j<=nactors; j++) {      
+      fak2 = od[j];
+      iak2 += fak2*(fak2-1);
+    }
+    hd = od[h] + (echange-1)/2;
+    fak2 = iak2 + echange*2*hd;
+    nedges = (double)(nwp->nedges);
+    iar0 = (nwp->nedges==0) ? 0.0 : (iak2*1.0/nedges);
+    far0 = (((nwp->nedges)+echange)==0) ? 0.0 : (fak2*1.0/(nedges+echange));
+    change += far0 - iar0;
+//   Rprintf("h %d t %d nnodes %d nedges %f iak2 %d fak2 %d iar0 %f far0 %f change %f\n",h,t, nnodes,  nedges, iak2, fak2, iar0, far0, change);
+//   Rprintf("h %d t %d nnodes %d nedges %f iek2 %d fek2 %d ier0 %f fer0 %f change %f\n",h,t, nnodes,  nedges, iek2, fek2, ier0, fer0, change);
+      
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
+  *(mtp->dstats) = change;
+  
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+
+/*****************
+ void d_r0e
+*****************/
+void d_r0e (int ntoggles, Vertex *heads, Vertex *tails, 
+	    ModelTerm *mtp, Network *nwp)  {
+  int i, j, echange=0;
+  double nedges, change, ier0, fer0;
+  Vertex h, t, td=0, iek2, fek2, nnodes, *id;
+  Vertex nactors;
+  TreeNode *oe;  
+  
+  oe=nwp->outedges;
+  id=nwp->indegree;
+  nnodes = nwp->nnodes;
+  nactors = nwp->bipartite;
+  
+  change = 0.0;
+  for (i=0; i<ntoggles; i++) {      
+    echange = (EdgetreeSearch(h=heads[i], t=tails[i], oe) == 0) ? 1 : -1;
+    iek2=0;
+    for (j=nactors+1; j<=nnodes; j++) {      
+      fek2 = id[j];
+      iek2 += fek2*(fek2-1);
+    }
+    td = id[t] + (echange-1)/2;
+    fek2 = iek2 + echange*2*td;
+    nedges = (double)(nwp->nedges);
+    ier0 = (nwp->nedges==0) ? 0.0 : (iek2*1.0/nedges);
+    fer0 = (((nwp->nedges)+echange)==0) ? 0.0 : (fek2*1.0/(nedges+echange));
+    change += fer0 - ier0;
+//   Rprintf("h %d t %d nnodes %d nedges %f iak2 %d fak2 %d iar0 %f far0 %f change %f\n",h,t, nnodes,  nedges, iak2, fak2, iar0, far0, change);
+//   Rprintf("h %d t %d nnodes %d nedges %f iek2 %d fek2 %d ier0 %f fer0 %f change %f\n",h,t, nnodes,  nedges, iek2, fek2, ier0, fer0, change);
+      
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
+  *(mtp->dstats) = change;
+  
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+
 void d_biduration (int ntoggles, Vertex *heads, Vertex *tails,
 		   ModelTerm *mtp, Network *nwp)
 {

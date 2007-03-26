@@ -892,6 +892,48 @@ void d_gwdegree (int ntoggles, Vertex *heads, Vertex *tails,
 }
 
 /*****************
+ void d_rnought
+*****************/
+void d_rnought (int ntoggles, Vertex *heads, Vertex *tails, 
+	      ModelTerm *mtp, Network *nwp)  {
+  int i, j, echange=0;
+  double nedges, change, ir0, fr0;
+  Vertex h, t, hd, td=0, ik2, fk2, nnodes, *id, *od;
+  TreeNode *oe;  
+  
+  oe=nwp->outedges;
+  id=nwp->indegree;
+  od=nwp->outdegree;
+  nnodes = nwp->nnodes;
+  
+  change = 0.0;
+  for (i=0; i<ntoggles; i++) {      
+    echange = (EdgetreeSearch(h=heads[i], t=tails[i], oe) == 0) ? 1 : -1;
+    ik2=0;
+    for (j=1; j<=nnodes; j++) {      
+      fk2 = od[j] + id[j];
+      ik2 += fk2*(fk2-1);
+    }
+    hd = od[h] + id[h] + (echange-1)/2;
+    td = od[t] + id[t] + (echange-1)/2;
+    fk2 = ik2 + echange*2*(hd+td);
+    nedges = (double)(nwp->nedges);
+    ir0 = (nwp->nedges==0) ? 0.0 : (ik2*0.5/nedges);
+    fr0 = (((nwp->nedges)+echange)==0) ? 0.0 : (fk2*0.5/(nedges+echange));
+    change += fr0 - ir0;
+//   Rprintf("h %d t %d nnodes %d nedges %f ik2 %d fk2 %d ir0 %f fr0 %f change %f\n",h,t, nnodes,  nedges, ik2, fk2, ir0, fr0, change);
+      
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
+  *(mtp->dstats) = change;
+  
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+
+/*****************
  void d_gwdegree706
 *****************/
 void d_gwdegree706 (int ntoggles, Vertex *heads, Vertex *tails, 

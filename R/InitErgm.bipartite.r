@@ -163,6 +163,35 @@ InitErgm.gwactor706<-function (nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
+InitErgm.r0a<-function(nw, m, arglist, ...) {
+  ergm.checkdirected("r0a", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("r0a", arglist,
+    varnames = c("attrname"),
+    vartypes = c("character"),
+    defaultvalues = list(NULL),
+    required = c(FALSE))
+  attach(a)
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="r0a", soname="statnet",
+                                inputs=c(0, 1, 0))
+  m$coef.names<-c(m$coef.names,"r0a")
+  m
+}
+
+InitErgm.r0e<-function(nw, m, arglist, ...) {
+  ergm.checkdirected("r0e", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("r0e", arglist,
+    varnames = c("attrname"),
+    vartypes = c("character"),
+    defaultvalues = list(NULL),
+    required = c(FALSE))
+  attach(a)
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="r0e", soname="statnet",
+                                inputs=c(0, 1, 0))
+  m$coef.names<-c(m$coef.names,"r0a")
+  m
+}
 #InitErgm.esa<-function(g, model, d, drop=TRUE, ...)
 #{
 #    if (nargs()!=4)
