@@ -856,9 +856,9 @@ InitErgm.edegree<-function(nw, m, arglist, drop=TRUE, ...) {
 InitErgm.gwadegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   ergm.checkbipartite("gwadegree", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("gwadegree", arglist,
-    varnames = c("decay", "attrname", "fixed"),
-    vartypes = c("numeric", "character", "logical"),
-    defaultvalues = list(0, NULL, TRUE),
+    varnames = c("decay", "fixed", "attrname"),
+    vartypes = c("numeric", "logical", "character"),
+    defaultvalues = list(0, TRUE, NULL),
     required = c(TRUE, FALSE, FALSE))
   attach(a)
   decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
@@ -904,7 +904,7 @@ InitErgm.gwadegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
     if(nrow(du)==0) {return(m)}
     #  No covariates here, so input component 1 is arbitrary
     m$terms[[termnumber]] <- list(name="gwadegree_by_attr", soname="statnet",
-                                  inputs=c(0, nrow(du), 
+                                  inputs=c(0, lu, 
                                            1+length(nodecov), 
                                            decay, nodecov),
                                   dependence=TRUE)
@@ -923,9 +923,9 @@ InitErgm.gwadegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
 InitErgm.gwedegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   ergm.checkbipartite("gwedegree", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("gwedegree", arglist,
-    varnames = c("decay", "attrname", "fixed"),
-    vartypes = c("numeric", "character", "logical"),
-    defaultvalues = list(0, NULL, TRUE),
+    varnames = c("decay", "fixed", "attrname"),
+    vartypes = c("numeric", "logical", "character"),
+    defaultvalues = list(0, TRUE, NULL),
     required = c(TRUE, FALSE, FALSE))
   attach(a)
   decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
@@ -971,7 +971,7 @@ InitErgm.gwedegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
     if(nrow(du)==0) {return(m)}
     #  No covariates here, so input component 1 is arbitrary
     m$terms[[termnumber]] <- list(name="gwedegree_by_attr", soname="statnet",
-                                  inputs=c(0, nrow(du), 
+                                  inputs=c(0, lu,
                                            1+length(nodecov), 
                                            decay, nodecov),
                                   dependence=TRUE)

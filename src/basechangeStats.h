@@ -57,10 +57,16 @@ void d_gwdegreelambda (int ntoggles, Vertex *heads, Vertex *tails,
 	    ModelTerm *mtp, Network *nwp);
 void d_gwdegree (int ntoggles, Vertex *heads, Vertex *tails, 
 	    ModelTerm *mtp, Network *nwp);
+void d_gwdegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
+	      ModelTerm *mtp, Network *nwp);
 void d_gwidegree (int ntoggles, Vertex *heads, Vertex *tails, 
 	    ModelTerm *mtp, Network *nwp);
+void d_gwidegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
+	      ModelTerm *mtp, Network *nwp);
 void d_gwodegree (int ntoggles, Vertex *heads, Vertex *tails, 
 	    ModelTerm *mtp, Network *nwp);
+void d_gwodegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
+	      ModelTerm *mtp, Network *nwp);
 void d_gwd (int ntoggles, Vertex *heads, Vertex *tails, 
 	    ModelTerm *mtp, Network *nwp);
 void d_geospartner (int ntoggles, Vertex *heads, Vertex *tails, 

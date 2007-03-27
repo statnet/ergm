@@ -430,9 +430,8 @@ void d_degree (int ntoggles, Vertex *heads, Vertex *tails,
 {
   int i, j, echange;
   Vertex head, tail, headdeg, taildeg, deg, *id, *od;
-  TreeNode *oe;  
+  TreeNode *oe=nwp->outedges;
 
-  oe=nwp->outedges;
   id=nwp->indegree;
   od=nwp->outdegree;
   for (i=0; i < mtp->nstats; i++) 
@@ -466,13 +465,11 @@ void d_degree_w_homophily (int ntoggles, Vertex *heads, Vertex *tails,
   */
   int i, j, echange, headattr, tailattr, testattr;
   Vertex head, tail, headdeg, taildeg, deg, tmp;
-  TreeNode *ie, *oe;  
+  TreeNode *ie=nwp->inedges, *oe=nwp->outedges;
   double *nodeattr;
   Edge e;
 
   nodeattr = mtp->inputparams + mtp->nstats - 1;  
-  ie=nwp->inedges;
-  oe=nwp->outedges;
   for (i=0; i < mtp->nstats; i++) 
     mtp->dstats[i] = 0.0;
   for (i=0; i<ntoggles; i++) {
@@ -529,9 +526,8 @@ void d_degree_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
   */
   int i, j, echange, headattr, tailattr, testattr;
   Vertex head, tail, headdeg, taildeg, d, *id, *od;
-  TreeNode *oe;  
+  TreeNode *oe=nwp->outedges;
   
-  oe=nwp->outedges;
   id=nwp->indegree;
   od=nwp->outdegree;
   for (i=0; i < mtp->nstats; i++) 
@@ -616,9 +612,8 @@ void d_isolates (int ntoggles, Vertex *heads, Vertex *tails,
 {
   int i, echange;
   Vertex h, t, hd, td=0, *id, *od;
-  TreeNode *oe;  
+  TreeNode *oe=nwp->outedges;
 
-  oe=nwp->outedges;
   id=nwp->indegree;
   od=nwp->outdegree;
   
@@ -892,6 +887,47 @@ void d_gwdegree (int ntoggles, Vertex *heads, Vertex *tails,
 }
 
 /*****************
+ void d_gwdegree_by_attr
+*****************/
+void d_gwdegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
+	      ModelTerm *mtp, Network *nwp)  {
+  /*The inputparams are assumed to be set up as follows:
+    The first value is the decay parameter (as in Hunter et al, JASA 200?)
+    The next sequence of values is the nodal attributes, coded as integers
+         from 1 through mtp->nstats
+  */
+  int i, hattr, tattr, echange=0;
+  double decay, oneexpd;
+  Vertex h, t, hd, td=0, *id, *od;
+  TreeNode *oe=nwp->outedges;
+  
+  id=nwp->indegree;
+  od=nwp->outdegree;
+  decay = mtp->inputparams[0];
+  oneexpd = 1.0-exp(-decay);
+  
+  for (i=0; i < mtp->nstats; i++) 
+    mtp->dstats[i] = 0.0;
+  for (i=0; i<ntoggles; i++) {      
+    echange = (EdgetreeSearch(h=heads[i], t=tails[i], oe) == 0) ? 1 : -1;
+    hd = od[h] + id[h] + (echange - 1)/2;
+    hattr = mtp->inputparams[h]; 
+    mtp->dstats[hattr-1] += echange*(pow(oneexpd,(double)hd));
+    
+    td = od[t] + id[t] + (echange - 1)/2;
+    tattr = mtp->inputparams[t]; 
+    mtp->dstats[tattr-1] += echange*(pow(oneexpd,(double)td));
+      
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
+  
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+
+/*****************
  void d_rnought
 *****************/
 void d_rnought (int ntoggles, Vertex *heads, Vertex *tails, 
@@ -899,9 +935,8 @@ void d_rnought (int ntoggles, Vertex *heads, Vertex *tails,
   int i, j, echange=0;
   double nedges, change, ir0, fr0;
   Vertex h, t, hd, td=0, ik2, fk2, nnodes, *id, *od;
-  TreeNode *oe;  
+  TreeNode *oe=nwp->outedges;
   
-  oe=nwp->outedges;
   id=nwp->indegree;
   od=nwp->outdegree;
   nnodes = nwp->nnodes;
@@ -977,23 +1012,58 @@ void d_gwdegree706 (int ntoggles, Vertex *heads, Vertex *tails,
 void d_gwodegree (int ntoggles, Vertex *heads, Vertex *tails, 
 	      ModelTerm *mtp, Network *nwp)  {
   int i, echange=0;
-  double decay, oneexpd, change;
-  Vertex h, t, hd=0, *od;
+  double decay, oneexpd;
+  Vertex h, hd=0, *od;
+  TreeNode *oe=nwp->outedges;
   
   od=nwp->outdegree;
   decay = mtp->inputparams[0];
   oneexpd = 1.0-exp(-decay);
   
-  change = 0.0;
   for (i=0; i<ntoggles; i++) {      
-    echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
+    echange = (EdgetreeSearch(h=heads[i], tails[i], oe) == 0) ? 1 : -1;
     hd = od[h] + (echange - 1)/2;
-    change += echange * pow(oneexpd,(double)hd);
+    mtp->dstats[0] += echange * pow(oneexpd,(double)hd);
     
     if (i+1 < ntoggles)
       ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
   }
-  *(mtp->dstats) = change;
+  
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+
+/*****************
+ void d_gwodegree_by_attr
+*****************/
+void d_gwodegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
+	      ModelTerm *mtp, Network *nwp)  {
+  /*The inputparams are assumed to be set up as follows:
+    The first value is the decay parameter (as in Hunter et al, JASA 200?)
+    The next sequence of values is the nodal attributes, coded as integers
+         from 1 through mtp->nstats
+  */
+  int i, hattr, echange=0;
+  double decay, oneexpd;
+  Vertex h, hd, td=0, *od;
+  TreeNode *oe=nwp->outedges;
+  
+  od=nwp->outdegree;
+  decay = mtp->inputparams[0];
+  oneexpd = 1.0-exp(-decay);
+  
+  for (i=0; i < mtp->nstats; i++) 
+    mtp->dstats[i] = 0.0;
+  for (i=0; i<ntoggles; i++) {      
+    echange = (EdgetreeSearch(h=heads[i], tails[i], oe) == 0) ? 1 : -1;
+    hd = od[h] + (echange - 1)/2;
+    hattr = mtp->inputparams[h]; 
+    mtp->dstats[hattr-1] += echange*(pow(oneexpd,(double)hd));
+      
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
@@ -1007,7 +1077,8 @@ void d_gwidegree (int ntoggles, Vertex *heads, Vertex *tails,
 	      ModelTerm *mtp, Network *nwp)  {
   int i, echange=0;
   double decay, oneexpd, change;
-  Vertex h, t, td=0, *id;
+  Vertex t, td=0, *id;
+  TreeNode *oe=nwp->outedges;
   
   id=nwp->indegree;
   decay = mtp->inputparams[0];
@@ -1015,7 +1086,7 @@ void d_gwidegree (int ntoggles, Vertex *heads, Vertex *tails,
   
   change = 0.0;
   for (i=0; i<ntoggles; i++) {      
-    echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
+    echange = (EdgetreeSearch(heads[i], t=tails[i], oe) == 0) ? 1 : -1;
     td = id[t] + (echange - 1)/2;
     change += echange * pow(oneexpd,(double)td);
     
@@ -1023,6 +1094,42 @@ void d_gwidegree (int ntoggles, Vertex *heads, Vertex *tails,
       ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
   }
   *(mtp->dstats) = change;
+  
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+
+/*****************
+ void d_gwidegree_by_attr
+*****************/
+void d_gwidegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
+	      ModelTerm *mtp, Network *nwp)  {
+  /*The inputparams are assumed to be set up as follows:
+    The first value is the decay parameter (as in Hunter et al, JASA 200?)
+    The next sequence of values is the nodal attributes, coded as integers
+         from 1 through mtp->nstats
+  */
+  int i, tattr, echange=0;
+  double decay, oneexpd;
+  Vertex t, td=0, *id;
+  TreeNode *oe=nwp->outedges;
+  
+  id=nwp->indegree;
+  decay = mtp->inputparams[0];
+  oneexpd = 1.0-exp(-decay);
+  
+  for (i=0; i < mtp->nstats; i++) 
+    mtp->dstats[i] = 0.0;
+  for (i=0; i<ntoggles; i++) {      
+    echange = (EdgetreeSearch(heads[i], t=tails[i], oe) == 0) ? 1 : -1;
+    td = id[t] + (echange - 1)/2;
+    tattr = mtp->inputparams[t]; 
+    mtp->dstats[tattr-1] += echange*(pow(oneexpd,(double)td));
+      
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
@@ -3542,11 +3649,10 @@ void d_boundeddegree (int ntoggles, Vertex *heads, Vertex *tails,
 {
   int i, j, echange;
   Vertex h, t, hd, td=0, deg, *id, *od;
-  TreeNode *oe;  
+  TreeNode *oe=nwp->outedges;
   int nstats = (int)mtp->nstats;
   Vertex bound = (Vertex)mtp->inputparams[nstats-1];
   
-  oe=nwp->outedges;
   id=nwp->indegree;
   od=nwp->outdegree;
   for (i=0; i < nstats; i++) 

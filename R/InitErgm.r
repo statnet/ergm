@@ -1189,14 +1189,19 @@ InitErgm.gwdegreelambda<-function(nw, m, arglist, initialfit=FALSE, ...) {
 InitErgm.gwdegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
 # ergm.checkdirected("gwdegree", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("gwdegree", arglist,
-    varnames = c("decay","fixed"),
-    vartypes = c("numeric","logical"),
-    defaultvalues = list(0, FALSE),
-    required = c(FALSE, FALSE))
+    varnames = c("decay", "fixed", "attrname"),
+    vartypes = c("numeric", "logical", "character"),
+    defaultvalues = list(0, FALSE, NULL),
+    required = c(TRUE, FALSE, FALSE))
   attach(a)
-  decay<-a$decay;fixed<-a$fixed
+  decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
+  termnumber<-1+length(m$terms)
+  d <- 1:(network.size(nw)-1)
   if(!initialfit && !fixed){ # This is a curved exponential family model
-    d <- 1:(network.size(nw)-1)
+    if (!is.null(attrname)) {
+      stop("The gwadegree term is not yet able to handle a",
+           "nonfixed decay term with an attribute.")
+    }
     ld<-length(d)
     if(ld==0){return(m)}
     map <- function(x,n,...) {
@@ -1209,15 +1214,32 @@ InitErgm.gwdegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
             x[1]*(exp(x[2])-(1-exp(-x[2]))^{i-1}*(1+i-exp(-x[2])))
            )
     }
-    termnumber<-1+length(m$terms)
     m$terms[[termnumber]] <- list(name="degree", soname="statnet",
                                   inputs=c(0, ld, ld, d),
                                   params=list(gwdegree=NULL,
                                     gwdegree.decay=decay),
                                   map=map, gradient=gradient)
     m$coef.names<-c(m$coef.names,paste("gwdegree#",d,sep=""))
+  } else if(!is.null(attrname)) {
+    nodecov <- get.node.attr(nw, attrname, "gwdegree")
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+    nodecov <- match(nodecov,u) # Recode to numeric
+    if (length(u)==1)
+      stop ("Attribute given to gwdegree() has only one value", call.=FALSE)
+    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+    lu <- length(u)
+    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
+    if(nrow(du)==0) {return(m)}
+    #  No covariates here, so input component 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="gwdegree_by_attr", soname="statnet",
+                                  inputs=c(0, lu, 
+                                           1+length(nodecov), 
+                                           decay, nodecov),
+                                  dependence=TRUE)
+    m$coef.names<-c(m$coef.names, paste("gwdeg", decay, ".", 
+                                        attrname, u, sep=""))
   }else{
-    termnumber<-1+length(m$terms)
     m$terms[[termnumber]] <- list(name="gwdegree", soname="statnet",
                                   inputs=c(0, 1, length(decay), decay))
     m$coef.names<-c(m$coef.names,"gwdegree")
@@ -1227,8 +1249,8 @@ InitErgm.gwdegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
 
 InitErgm.gwdegree706<-function(nw, m, arglist, initialfit=FALSE, ...) {
 # Slight modification to the parameterization in gwdegree.
-# ergm.checkdirected("gwdegree", is.directed(nw), requirement=FALSE)
-  a <- ergm.checkargs("gwdegree", arglist,
+# ergm.checkdirected("gwdegree706", is.directed(nw), requirement=FALSE)
+  a <- ergm.checkargs("gwdegree706", arglist,
     varnames = c("decay","fixed"),
     vartypes = c("numeric","logical"),
     defaultvalues = list(0, FALSE),
@@ -1259,9 +1281,9 @@ InitErgm.gwdegree706<-function(nw, m, arglist, initialfit=FALSE, ...) {
     m$coef.names<-c(m$coef.names,paste("gwdegree#",d,sep=""))
   }else{
     termnumber<-1+length(m$terms)
-    m$terms[[termnumber]] <- list(name="gwdegree", soname="statnet",
+    m$terms[[termnumber]] <- list(name="gwdegree706", soname="statnet",
                                   inputs=c(0, 1, length(decay), decay))
-    m$coef.names<-c(m$coef.names,"gwdegree")
+    m$coef.names<-c(m$coef.names,"gwdegree706")
   }
   m
 }
@@ -1269,14 +1291,19 @@ InitErgm.gwdegree706<-function(nw, m, arglist, initialfit=FALSE, ...) {
 InitErgm.gwidegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   ergm.checkdirected("gwidegree", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("gwidegree", arglist,
-    varnames = c("decay","fixed"),
-    vartypes = c("numeric","logical"),
-    defaultvalues = list(0, TRUE),
-    required = c(FALSE, FALSE))
+                      varnames = c("decay", "fixed", "attrname"),
+                      vartypes = c("numeric", "logical", "character"),
+                      defaultvalues = list(0, FALSE, NULL),
+                      required = c(TRUE, FALSE, FALSE))
   attach(a)
-  decay<-a$decay;fixed<-a$fixed
+  decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
+  termnumber<-1+length(m$terms)
+  d <- 1:(network.size(nw)-1)
   if(!initialfit && !fixed){ # This is a curved exponential family model
-    d <- 1:(network.size(nw)-1)
+    if (!is.null(attrname)) {
+      stop("The gwidegree term is not yet able to handle a",
+           "nonfixed decay term with an attribute.")
+    }
     ld<-length(d)
     if(ld==0){return(m)}
     map <- function(x,n,...) {
@@ -1289,15 +1316,32 @@ InitErgm.gwidegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
             x[1]*(exp(x[2])-(1-exp(-x[2]))^{i-1}*(1+i-exp(-x[2])))
            )
     }
-    termnumber<-1+length(m$terms)
     m$terms[[termnumber]] <- list(name="idegree", soname="statnet",
                                   inputs=c(0, ld, ld, d),
                                   params=list(gwidegree=NULL,
                                     gwidegree.decay=decay),
                                   map=map, gradient=gradient)
     m$coef.names<-c(m$coef.names,paste("gwidegree#",d,sep=""))
+  } else if(!is.null(attrname)) {
+    nodecov <- get.node.attr(nw, attrname, "gwidegree")
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+    nodecov <- match(nodecov,u) # Recode to numeric
+    if (length(u)==1)
+      stop ("Attribute given to gwidegree() has only one value", call.=FALSE)
+    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+    lu <- length(u)
+    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
+    if(nrow(du)==0) {return(m)}
+    #  No covariates here, so input component 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="gwidegree_by_attr", soname="statnet",
+                                  inputs=c(0, lu, 
+                                           1+length(nodecov), 
+                                           decay, nodecov),
+                                  dependence=TRUE)
+    m$coef.names<-c(m$coef.names, paste("gwideg", decay, ".", 
+                                        attrname, u, sep=""))
   }else{
-    termnumber<-1+length(m$terms)
     m$terms[[termnumber]] <- list(name="gwidegree", soname="statnet",
                                   inputs=c(0, 1, length(decay), decay))
     m$coef.names<-c(m$coef.names,"gwidegree")
@@ -1308,14 +1352,19 @@ InitErgm.gwidegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
 InitErgm.gwodegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   ergm.checkdirected("gwodegree", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("gwodegree", arglist,
-    varnames = c("decay","fixed"),
-    vartypes = c("numeric","logical"),
-    defaultvalues = list(0, TRUE),
-    required = c(FALSE, FALSE))
+                      varnames = c("decay", "fixed", "attrname"),
+                      vartypes = c("numeric", "logical", "character"),
+                      defaultvalues = list(0, FALSE, NULL),
+                      required = c(TRUE, FALSE, FALSE))
   attach(a)
-  decay<-a$decay;fixed<-a$fixed
+  decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
+  termnumber<-1+length(m$terms)
+  d <- 1:(network.size(nw)-1)
   if(!initialfit && !fixed){ # This is a curved exponential family model
-    d <- 1:(network.size(nw)-1)
+    if (!is.null(attrname)) {
+      stop("The gwodegree term is not yet able to handle a",
+           "nonfixed decay term with an attribute.")
+    }
     ld<-length(d)
     if(ld==0){return(m)}
     map <- function(x,n,...) {
@@ -1328,15 +1377,32 @@ InitErgm.gwodegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
             x[1]*(exp(x[2])-(1-exp(-x[2]))^{i-1}*(1+i-exp(-x[2])))
            )
     }
-    termnumber<-1+length(m$terms)
     m$terms[[termnumber]] <- list(name="odegree", soname="statnet",
                                   inputs=c(0, ld, ld, d),
                                   params=list(gwodegree=NULL,
                                     gwodegree.decay=decay),
                                   map=map, gradient=gradient)
     m$coef.names<-c(m$coef.names,paste("gwodegree#",d,sep=""))
+  } else if(!is.null(attrname)) {
+    nodecov <- get.node.attr(nw, attrname, "gwodegree")
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+    nodecov <- match(nodecov,u) # Recode to numeric
+    if (length(u)==1)
+      stop ("Attribute given to gwodegree() has only one value", call.=FALSE)
+    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+    lu <- length(u)
+    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
+    if(nrow(du)==0) {return(m)}
+    #  No covariates here, so input component 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="gwodegree_by_attr", soname="statnet",
+                                  inputs=c(0, lu, 
+                                           1+length(nodecov), 
+                                           decay, nodecov),
+                                  dependence=TRUE)
+    m$coef.names<-c(m$coef.names, paste("gwodeg", decay, ".", 
+                                        attrname, u, sep=""))
   }else{
-    termnumber<-1+length(m$terms)
     m$terms[[termnumber]] <- list(name="gwodegree", soname="statnet",
                                   inputs=c(0, 1, length(decay), decay))
     m$coef.names<-c(m$coef.names,"gwodegree")
