@@ -2235,6 +2235,91 @@ void d_idegree (int ntoggles, Vertex *heads, Vertex *tails,
 }
 
 /*****************
+ void d_idegree_w_homophily
+*****************/
+void d_idegree_w_homophily (int ntoggles, Vertex *heads, Vertex *tails, 
+	      ModelTerm *mtp, Network *nwp) 
+{
+  /*  The inputparams are assumed to be set up as follows:
+  The first nstats values are the values of degree
+  The values following the first nstats values are the nodal attributes.
+  */
+  int i, j, echange, headattr, tailattr, testattr;
+  Vertex head, tail, taildeg, deg, tmp;
+  TreeNode *ie=nwp->inedges, *oe=nwp->outedges;
+  double *nodeattr;
+  Edge e;
+
+  nodeattr = mtp->inputparams + mtp->nstats - 1;  
+  for (i=0; i < mtp->nstats; i++) 
+    mtp->dstats[i] = 0.0;
+  for (i=0; i<ntoggles; i++) {
+    head=heads[i];
+    tail=tails[i];
+    headattr = (int)nodeattr[head];
+    tailattr = (int)nodeattr[tail];    
+    if (headattr == tailattr) { /* They match; otherwise don't bother */
+      echange=(EdgetreeSearch(head, tail, oe)==0)? 1:-1;
+      taildeg=0;
+//      for(e = EdgetreeMinimum(oe, tail);
+//      (tmp = oe[e].value) != 0;
+//      e = EdgetreeSuccessor(oe, e)) {
+//        taildeg += (nodeattr[tmp]==tailattr);
+//      }
+      for(e = EdgetreeMinimum(ie, tail);
+      (tmp = ie[e].value) != 0;
+      e = EdgetreeSuccessor(ie, e)) {
+        taildeg += (nodeattr[tmp]==tailattr);
+      }
+      for(j = 0; j < mtp->nstats; j++) {
+        deg = (Vertex)mtp->inputparams[j];
+        mtp->dstats[j] += (taildeg + echange == deg) - (taildeg == deg);
+      }
+    }
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+
+/*****************
+ void d_idegree_by_attr
+*****************/
+void d_idegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
+	        ModelTerm *mtp, Network *nwp) 
+{
+  /* The inputparams are assumed to be set up as follows:
+  The first 2*nstats values are in pairs:  (degree, attrvalue)
+  The values following the first 2*nstats values are the nodal attributes.
+  */
+  int i, j, echange, tailattr, testattr;
+  Vertex tail, taildeg, d, *id;
+  TreeNode *oe=nwp->outedges;
+  
+  id=nwp->indegree;
+  for (i=0; i < mtp->nstats; i++) 
+    mtp->dstats[i] = 0.0;
+  for (i=0; i<ntoggles; i++) {
+    echange=(EdgetreeSearch(heads[i], tail=tails[i], oe)==0)? 1:-1;
+    taildeg = id[tail];
+    tailattr = mtp->inputparams[2*mtp->nstats + tail - 1]; 
+    for(j = 0; j < mtp->nstats; j++) {
+      d = (Vertex)mtp->inputparams[2*j];
+      testattr = mtp->inputparams[2*j + 1]; 
+      if (tailattr == testattr)  /* we have tail attr match */
+        mtp->dstats[j] += (taildeg + echange == d) - (taildeg == d);
+    }
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+
+/*****************
  void d_istar
 *****************/
 void d_istar (int ntoggles, Vertex *heads, Vertex *tails, 
@@ -2907,6 +2992,92 @@ void d_odegree (int ntoggles, Vertex *heads, Vertex *tails,
   
   i--; 
   while (--i >= 0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+
+/*****************
+ void d_odegree_w_homophily
+*****************/
+void d_odegree_w_homophily (int ntoggles, Vertex *heads, Vertex *tails, 
+	      ModelTerm *mtp, Network *nwp) 
+{
+  /*  The inputparams are assumed to be set up as follows:
+  The first nstats values are the values of degree
+  The values following the first nstats values are the nodal attributes.
+  */
+  int i, j, echange, headattr, tailattr, testattr;
+  Vertex head, tail, headdeg, deg, tmp;
+  TreeNode *ie=nwp->inedges, *oe=nwp->outedges;
+  double *nodeattr;
+  Edge e;
+
+  nodeattr = mtp->inputparams + mtp->nstats - 1;  
+  for (i=0; i < mtp->nstats; i++) 
+    mtp->dstats[i] = 0.0;
+  for (i=0; i<ntoggles; i++) {
+    head=heads[i];
+    tail=tails[i];
+    headattr = (int)nodeattr[head];
+    tailattr = (int)nodeattr[tail];
+    if (headattr == tailattr) { /* They match; otherwise don't bother */
+      echange=(EdgetreeSearch(head, tail, oe)==0)? 1:-1;
+      headdeg=0;
+      for(e = EdgetreeMinimum(oe, head);
+      (tmp = oe[e].value) != 0;
+      e = EdgetreeSuccessor(oe, e)) {
+        headdeg += (nodeattr[tmp]==headattr);
+      }
+//      for(e = EdgetreeMinimum(ie, head);
+//      (tmp = ie[e].value) != 0;
+//      e = EdgetreeSuccessor(ie, e)) {
+//        headdeg += (nodeattr[tmp]==headattr);
+//      }
+      for(j = 0; j < mtp->nstats; j++) {
+        deg = (Vertex)mtp->inputparams[j];
+        mtp->dstats[j] += (headdeg + echange == deg) - (headdeg == deg);
+      }
+    }
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+
+/*****************
+ void d_odegree_by_attr
+*****************/
+void d_odegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
+	        ModelTerm *mtp, Network *nwp) 
+{
+  /* The inputparams are assumed to be set up as follows:
+  The first 2*nstats values are in pairs:  (degree, attrvalue)
+  The values following the first 2*nstats values are the nodal attributes.
+  */
+  int i, j, echange, headattr, testattr;
+  Vertex head, headdeg, d, *od;
+  TreeNode *oe=nwp->outedges;
+  
+  od=nwp->outdegree;
+  for (i=0; i < mtp->nstats; i++) 
+    mtp->dstats[i] = 0.0;
+  for (i=0; i<ntoggles; i++) {
+    echange=(EdgetreeSearch(head=heads[i], tails[i], oe)==0)? 1:-1;
+    headdeg = od[head];
+    headattr = mtp->inputparams[2*mtp->nstats + head - 1]; 
+    for(j = 0; j < mtp->nstats; j++) {
+      d = (Vertex)mtp->inputparams[2*j];
+      testattr = mtp->inputparams[2*j + 1]; 
+      if (headattr == testattr) { /* we have head attr match */
+        mtp->dstats[j] += (headdeg + echange == d) - (headdeg == d);
+      }
+    }
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
     ToggleEdge(heads[i], tails[i], nwp); 
 }
 

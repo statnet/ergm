@@ -75,6 +75,7 @@ summary.statistics.network <- function(object,...,basis=NULL)
   #
   # Adjust to global values
   #
+
   tdegree0  <- match( "degree0",names(gs)) 
   if(!is.na(tdegree0)){
     gs[tdegree0] <- gs[tdegree0] + Clist$n

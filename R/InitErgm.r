@@ -89,6 +89,11 @@
 #                If theta has length p and eta has length q, then gradient
 #                should return a p by q matrix.
 #                This function takes two args:  theta and length(eta).
+#  emptynwstats: Vector of values (if nonzero) for the statistics evaluated
+#                on the empty network.  If all are zero for this term, this
+#                argument may be omitted.  Example:  If the degree0 term is
+#                among the statistics, this argument is necessary because
+#                degree0 = number of nodes for the empty network.
 
 ergm.checkargs <- function(fname, arglist, varnames=NULL, vartypes=NULL,
                            defaultvalues=list(), required=NULL) {
@@ -606,9 +611,7 @@ InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
     defaultvalues = list(NULL, NULL, FALSE),
     required = c(TRUE, FALSE, FALSE))
   attach(a)
-  d<-a$d
-  attrname <- a$attrname
-  homophily <- a$homophily
+  d<-a$d; attrname <- a$attrname; homophily <- a$homophily
   if(!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname, "degree")
     u<-sort(unique(nodecov))
@@ -653,6 +656,7 @@ InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
     }
   }
   termnumber<-1+length(m$terms)
+  emptynwstats <- 
   if(is.null(attrname)) {
     if(length(d)==0){return(m)}
     m$terms[[termnumber]] <- list(name="degree", soname="statnet",
@@ -1664,61 +1668,82 @@ InitErgm.hamming<-function (nw, m, arglist, ...) {
 InitErgm.idegree<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("idegree", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("idegree", arglist,
-    varnames = c("d", "attrname"),
-    vartypes = c("numeric", "character"),
-    defaultvalues = list(NULL, NULL),
-    required = c(TRUE, FALSE))
+    varnames = c("d", "attrname", "homophily"),
+    vartypes = c("numeric", "character", "logical"),
+    defaultvalues = list(NULL, NULL, FALSE),
+    required = c(TRUE, FALSE, FALSE))
   attach(a)
-  d<-a$d;attrname<-a$attrname
+  d<-a$d; attrname <- a$attrname; homophily <- a$homophily
   if(!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname, "idegree")
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
-#    Recode to numeric if necessary
-    nodecov <- match(nodecov,u,nomatch=length(u)+1)
+    nodecov <- match(nodecov,u) # Recode to numeric
     if (length(u)==1)
-      stop ("Attribute given to idegree() has only one value", call.=FALSE)
-    if(drop){
-      idegreeattr <- paste("c(",paste(d,collapse=","),")",sep="")
-      idegreeattr <- summary(as.formula(paste('nw ~ idegree(',idegreeattr,
-                                              ',"',attrname,'")',sep="")),
-                             drop=FALSE) == 0
+         stop ("Attribute given to idegree() has only one value", call.=FALSE)
+  }
+  if(!is.null(attrname) && !homophily) {
+    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+    lu <- length(u)
+    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
+    if(drop){ #   Check for degeneracy
+      tmp <- paste("c(",paste(d,collapse=","),")")
+      idegreeattr <- summary(
+       as.formula(paste('nw ~ idegree(',tmp,',"',attrname,'")',sep="")),
+       drop=FALSE) == 0
       if(any(idegreeattr)){
-        dropterms <- paste(paste("idegree",attrname,sep="."),
-                           d[idegreeattr],sep="")
-        cat(paste("Warning: The count of", dropterms, "is extreme.\n"))
-        cat(paste("To avoid degeneracy the terms",dropterms,
-                  "have been dropped.\n"))
-        d <- d[!idegreeattr] 
+        dropterms <- paste("ideg", du[1,idegreeattr], ".", attrname,
+                           u[du[2,idegreeattr]], sep="")
+        cat("Warning: These idegree terms have extreme counts and will be dropped:\n")
+        cat(dropterms, "\n", fill=T)
+        du <- matrix(du[,!idegreeattr], nrow=2)
       }
     }
   }else{
     if(drop){
-      midegree <- paste("c(",paste(d,collapse=","),")",sep="")
-      midegree <- summary(as.formula(paste('nw ~ idegree(',midegree,
-                                           ')',sep="")),
-                          drop=FALSE) == 0
+      tmp <- paste("c(",paste(d,collapse=","),")",sep="")
+      if(!homophily) {
+        midegree <- summary(as.formula(paste('nw ~ idegree(',tmp,')',
+                                            sep="")), drop=FALSE) == 0
+      } else {
+        midegree <- summary(as.formula(paste('nw ~ idegree(',tmp,',"',attrname,
+                                                         '", TRUE)', sep="")), 
+                                             drop = FALSE) == 0
+      }
       if(any(midegree)){
-        cat(paste("Warning: There are no order", d[midegree],"degrees.\n"))
-        dropterms <- paste("idegree", d[midegree],sep="")
-        cat(paste("To avoid degeneracy the terms",dropterms,
-                  "have been dropped.\n"))
+        cat("Warning: These idegree terms have extreme counts and will be dropped:\n")
+        cat(d[midegree], "\n", fill=T)
         d <- d[!midegree] 
       }
     }
   }
-  lengthd<-length(d)
-  if(lengthd==0){return(m)}
   termnumber<-1+length(m$terms)
-  if(!is.null(attrname)){
+  if(is.null(attrname)) {
+    if(length(d)==0){return(m)}
     m$terms[[termnumber]] <- list(name="idegree", soname="statnet",
-                                  inputs=c(lengthd, lengthd, lengthd+length(nodecov),
-                                    d, nodecov), dependence=TRUE)
-    m$coef.names<-c(m$coef.names,paste("idegree",d,".",attrname,sep=""))
-  }else{
-    m$terms[[termnumber]] <- list(name="idegree", soname="statnet",
-                                  inputs=c(0, lengthd, lengthd, d), dependence=TRUE)
+                                  inputs=c(0, length(d), length(d), d),
+                                  dependence=TRUE)
     m$coef.names<-c(m$coef.names,paste("idegree",d,sep=""))
+  } else if (homophily) {
+    if(length(d)==0){return(m)}
+    m$terms[[termnumber]] <- list(name="idegree_w_homophily", soname="statnet",
+                                  inputs=c(0, length(d), 
+                                           length(d) + length(nodecov), 
+                                           d, nodecov),
+                                  dependence=TRUE)
+    m$coef.names<-c(m$coef.names,paste("ideg", d, ".homophily.",
+                                       attrname, sep=""))
+  } else {
+    if(ncol(du)==0) {return(m)}
+    #  No covariates here, so input element 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="idegree_by_attr", soname="statnet",
+                                  inputs=c(0, ncol(du), 
+                                           length(du)+length(nodecov), 
+                                           as.vector(du), nodecov),
+                                  dependence=TRUE)
+    # See comment in d_idegree_by_attr function
+    m$coef.names<-c(m$coef.names, paste("ideg", du[1,], ".", attrname,
+                                        u[du[2,]], sep=""))
   }
   m
 }
@@ -2388,61 +2413,83 @@ InitErgm.nodeofactor<-function (nw, m, arglist, drop=TRUE, ...) {
 InitErgm.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("odegree", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("odegree", arglist,
-    varnames = c("d", "attrname"),
-    vartypes = c("numeric", "character"),
-    defaultvalues = list(NULL, NULL),
-    required = c(TRUE, FALSE))
+    varnames = c("d", "attrname", "homophily"),
+    vartypes = c("numeric", "character", "logical"),
+    defaultvalues = list(NULL, NULL, FALSE),
+    required = c(TRUE, FALSE, FALSE))
   attach(a)
-  d<-a$d;attrname<-a$attrname
+  d<-a$d; attrname <- a$attrname; homophily <- a$homophily
   if(!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname, "odegree")
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
-#    Recode to numeric if necessary
-    nodecov <- match(nodecov,u,nomatch=length(u)+1)
+    nodecov <- match(nodecov,u) # Recode to numeric
     if (length(u)==1)
-      stop ("Attribute given to odegree() has only one value", call.=FALSE)
-    if(drop){
-      odegreeattr <- paste("c(",paste(d,collapse=","),")",sep="")
-      odegreeattr <- summary(as.formula(paste('nw ~ odegree(',odegreeattr,
-                                              ',"',attrname,'")',sep="")),
-                             drop=FALSE) == 0
+         stop ("Attribute given to odegree() has only one value", call.=FALSE)
+  }
+  if(!is.null(attrname) && !homophily) {
+    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+    lu <- length(u)
+    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
+    if(drop){ #   Check for degeneracy
+      tmp <- paste("c(",paste(d,collapse=","),")")
+      odegreeattr <- summary(
+       as.formula(paste('nw ~ odegree(',tmp,',"',attrname,'")',sep="")),
+       drop=FALSE) == 0
       if(any(odegreeattr)){
-        dropterms <- paste(paste("odegree",attrname,sep="."),
-                           d[odegreeattr],sep="")
-        cat(paste("Warning: The count of", dropterms, "is extreme.\n"))
-        cat(paste("To avoid degeneracy the terms",dropterms,
-                  "have been dropped.\n"))
-        d <- d[!odegreeattr] 
+        dropterms <- paste("odeg", du[1,odegreeattr], ".", attrname,
+                           u[du[2,odegreeattr]], sep="")
+        cat("Warning: These odegree terms have extreme counts and will be dropped:\n")
+        cat(dropterms, "\n", fill=T)
+        du <- matrix(du[,!odegreeattr], nrow=2)
       }
     }
   }else{
     if(drop){
-      modegree <- paste("c(",paste(d,collapse=","),")",sep="")
-      modegree <- summary(as.formula(paste('nw ~ odegree(',modegree,
-                                           ')',sep="")),
-                          drop=FALSE) == 0
+      tmp <- paste("c(",paste(d,collapse=","),")",sep="")
+      if(!homophily) {
+        modegree <- summary(as.formula(paste('nw ~ odegree(',tmp,')',
+                                            sep="")), drop=FALSE) == 0
+      } else {
+        modegree <- summary(as.formula(paste('nw ~ odegree(',tmp,',"',attrname,
+                                                         '", TRUE)', sep="")), 
+                                             drop = FALSE) == 0
+      }
       if(any(modegree)){
-        cat(paste("Warning: There are no order", d[modegree],"degrees.\n"))
-        dropterms <- paste("odegree", d[modegree],sep="")
-        cat(paste("To avoid degeneracy the terms",dropterms,
-                  "have been dropped.\n"))
+        cat("Warning: These odegree terms have extreme counts and will be dropped:\n")
+        cat(d[modegree], "\n", fill=T)
         d <- d[!modegree] 
       }
     }
   }
-  lengthd<-length(d)
-  if(lengthd==0){return(m)}
   termnumber<-1+length(m$terms)
-  if(!is.null(attrname)){
+  if(is.null(attrname)) {
+    if(length(d)==0){return(m)}
     m$terms[[termnumber]] <- list(name="odegree", soname="statnet",
-                                  inputs=c(lengthd, lengthd, lengthd+length(nodecov),
-                                    d, nodecov), dependence=TRUE)
-    m$coef.names<-c(m$coef.names,paste("odegree",d,".",attrname,sep=""))
-  }else{
-    m$terms[[termnumber]] <- list(name="odegree", soname="statnet",
-                                  inputs=c(0, lengthd, lengthd, d), dependence=TRUE)
+                                  inputs=c(0, length(d), length(d), d),
+                                  dependence=TRUE)
     m$coef.names<-c(m$coef.names,paste("odegree",d,sep=""))
+  } else if (homophily) {
+    if(length(d)==0){return(m)}
+    m$terms[[termnumber]] <- list(name="odegree_w_homophily", soname="statnet",
+                                  inputs=c(0, length(d), 
+                                           length(d) + length(nodecov), 
+                                           d, nodecov),
+                                  dependence=TRUE)
+    # See comment in d_odegree_w_homophily function
+    m$coef.names<-c(m$coef.names,paste("odeg", d, ".homophily.",
+                                       attrname, sep=""))
+  } else {
+    if(ncol(du)==0) {return(m)}
+    #  No covariates here, so input element 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="odegree_by_attr", soname="statnet",
+                                  inputs=c(0, ncol(du), 
+                                           length(du)+length(nodecov), 
+                                           as.vector(du), nodecov),
+                                  dependence=TRUE)
+    # See comment in d_odegree_by_attr function
+    m$coef.names<-c(m$coef.names, paste("odeg", du[1,], ".", attrname,
+                                        u[du[2,]], sep=""))
   }
   m
 }
