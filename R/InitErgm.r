@@ -2419,6 +2419,7 @@ InitErgm.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
     required = c(TRUE, FALSE, FALSE))
   attach(a)
   d<-a$d; attrname <- a$attrname; homophily <- a$homophily
+  emptynwstats<-NULL
   if(!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname, "odegree")
     u<-sort(unique(nodecov))
@@ -2442,9 +2443,15 @@ InitErgm.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
         cat("Warning: These odegree terms have extreme counts and will be dropped:\n")
         cat(dropterms, "\n", fill=T)
         du <- matrix(du[,!odegreeattr], nrow=2)
-      }
+      }      
     }
-  }else{
+    if (any(du[1,]==0)) {
+      emptynwstats <- rep(0, ncol(du))
+      tmp <- du[2,du[1,]==0]
+      for(i in 1:length(tmp)) tmp[i] <- sum(nodecov==tmp[i])
+        emptynwstats[du[1,]==0] <- tmp
+    }
+  } else {
     if(drop){
       tmp <- paste("c(",paste(d,collapse=","),")",sep="")
       if(!homophily) {
@@ -2460,6 +2467,10 @@ InitErgm.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
         cat(d[modegree], "\n", fill=T)
         d <- d[!modegree] 
       }
+    }
+    if (any(d==0)) {
+      emptynwstats <- rep(0, length(d))
+      emptynwstats[d==0] <- network.size(nw)
     }
   }
   termnumber<-1+length(m$terms)
@@ -2491,6 +2502,8 @@ InitErgm.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
     m$coef.names<-c(m$coef.names, paste("odeg", du[1,], ".", attrname,
                                         u[du[2,]], sep=""))
   }
+  if (!is.null(emptynwstats)) 
+    m$terms[[termnumber]]$emptynwstats <- emptynwstats
   m
 }
 

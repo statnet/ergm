@@ -75,7 +75,21 @@ summary.statistics.network <- function(object,...,basis=NULL)
   #
   # Adjust to global values
   #
-
+ 
+  # New method:  Use $emptynwstats added to m$terms by the InitErgm function
+  # For example, check the InitErgm.odegree function.
+  i <- 1
+  for (j in 1:length(m$terms)) {
+    tmp <- m$term[[j]]
+    l <- tmp$inputs[2] # Number of statistics for this model term
+    if (!is.null(tmp$emptynwstats)) {
+      gs[i:(i+l-1)] <- gs[i:(i+l-1)] + tmp$emptynwstats
+    }
+    i <- i + l
+  }
+  
+  
+  # Old method:  do adjustments on case-by-case basis
   tdegree0  <- match( "degree0",names(gs)) 
   if(!is.na(tdegree0)){
     gs[tdegree0] <- gs[tdegree0] + Clist$n
@@ -84,10 +98,12 @@ summary.statistics.network <- function(object,...,basis=NULL)
   if(any(tidegree0 > 0)){
     gs[tidegree0] <- gs[tidegree0] + Clist$n
   }
-  todegree0  <- grep( "odegree0",names(gs)) 
-  if(any(todegree0 > 0)){
-    gs[todegree0] <- gs[todegree0] + Clist$n
-  }
+# Next few lines are commented out because they have been replaced by
+# new method above!
+#  todegree0  <- grep( "odegree0",names(gs)) 
+#  if(any(todegree0 > 0)){
+#    gs[todegree0] <- gs[todegree0] + Clist$n
+#  }
   tdegree0  <- match( "adegree0",names(gs)) 
   if(!is.na(tdegree0)){
     gs[tdegree0] <- gs[tdegree0] + nactors
