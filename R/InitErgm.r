@@ -637,7 +637,13 @@ InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
         du <- matrix(du[,!degreeattr], nrow=2)
       }
     }
-  }else{
+    if (any(du[1,]==0)) {
+      emptynwstats <- rep(0, ncol(du))
+      tmp <- du[2,du[1,]==0]
+      for(i in 1:length(tmp)) tmp[i] <- sum(nodecov==tmp[i])
+        emptynwstats[du[1,]==0] <- tmp
+    }
+  } else {
     if(drop){
       tmp <- paste("c(",paste(d,collapse=","),")",sep="")
       if(!homophily) {
@@ -654,9 +660,12 @@ InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
         d <- d[!mdegree] 
       }
     }
+    if (any(d==0)) {
+      emptynwstats <- rep(0, length(d))
+      emptynwstats[d==0] <- network.size(nw)
+    }
   }
   termnumber<-1+length(m$terms)
-  emptynwstats <- 
   if(is.null(attrname)) {
     if(length(d)==0){return(m)}
     m$terms[[termnumber]] <- list(name="degree", soname="statnet",
@@ -685,6 +694,8 @@ InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
     m$coef.names<-c(m$coef.names, paste("deg", du[1,], ".", attrname,
                                         u[du[2,]], sep=""))
   }
+  if (!is.null(emptynwstats))
+    m$terms[[termnumber]]$emptynwstats <- emptynwstats
   m
 }
 
@@ -1699,7 +1710,13 @@ InitErgm.idegree<-function(nw, m, arglist, drop=TRUE, ...) {
         du <- matrix(du[,!idegreeattr], nrow=2)
       }
     }
-  }else{
+    if (any(du[1,]==0)) {
+      emptynwstats <- rep(0, ncol(du))
+      tmp <- du[2,du[1,]==0]
+      for(i in 1:length(tmp)) tmp[i] <- sum(nodecov==tmp[i])
+        emptynwstats[du[1,]==0] <- tmp
+    }
+  } else {
     if(drop){
       tmp <- paste("c(",paste(d,collapse=","),")",sep="")
       if(!homophily) {
@@ -1715,6 +1732,10 @@ InitErgm.idegree<-function(nw, m, arglist, drop=TRUE, ...) {
         cat(d[midegree], "\n", fill=T)
         d <- d[!midegree] 
       }
+    }
+    if (any(d==0)) {
+      emptynwstats <- rep(0, length(d))
+      emptynwstats[d==0] <- network.size(nw)
     }
   }
   termnumber<-1+length(m$terms)
@@ -1745,6 +1766,8 @@ InitErgm.idegree<-function(nw, m, arglist, drop=TRUE, ...) {
     m$coef.names<-c(m$coef.names, paste("ideg", du[1,], ".", attrname,
                                         u[du[2,]], sep=""))
   }
+  if (!is.null(emptynwstats)) 
+    m$terms[[termnumber]]$emptynwstats <- emptynwstats
   m
 }
 
