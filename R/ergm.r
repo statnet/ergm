@@ -31,6 +31,7 @@ ergm <- function(formula, theta0="MPLE",
               phase1_n=NULL, initial_gain=NULL, 
               nsubphases=maxit, niterations=NULL, phase3_n=NULL,
               dyninterval=1000,
+              parallel=0,
               returnMCMCstats=TRUE
              )
 
@@ -116,6 +117,7 @@ ergm <- function(formula, theta0="MPLE",
                           nr.maxit=con$nr.maxit, calc.mcmc.se=con$calc.mcmc.se,
                           hessian=con$hessian, trustregion=con$trustregion,
                           steplength=con$steplength,
+                          parallel=con$parallel,
                           ...)
               )
   }

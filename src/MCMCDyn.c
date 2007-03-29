@@ -760,3 +760,442 @@ void MetropolisHastingsDyn(DynamOrder order, MHproposal *MHp,
   
   *staken = dyninterval;
 }
+
+void MCMCDynPhase2 (int *order_code, double *heads, double *tails, double *dnedges,
+                   double *dn, int *dflag, double *bipartite, 
+                   int *nterms, char **funnames, char **sonames, 
+                   char **MHproposaltype, char **MHproposalpackage,
+                   double *inputs, 
+		   double *theta0, double *aDdiaginv, 
+                   int *ndynterms, char **dynfunnames, char **dynsonames, 
+                   double *dyninputs, 
+		   double *samplesize, 
+                   double *sample, double *burnin, double *interval,  
+                   int *newnetworkhead, int *newnetworktail, 
+                   int *diffnetworktime, int *diffnetworkhead, int *diffnetworktail, 
+                   int *dissnetworktime, int *dissnetworkhead, int *dissnetworktail, 
+                   int *fVerbose, 
+                   double *gamma, int *dyninterval,
+                   int *attribs, int *maxout, int *maxin, int *minout,
+                   int *minin, int *condAllDegExact, int *attriblength, 
+                   double *maxedges,
+                   double *mheads, double *mtails, double *mdnedges,
+                   int *mdflag)  {
+  int i, nextedge, directed_flag, hammingterm, formationterm;
+  Vertex v, k, n_nodes, bip, hhead, htail;
+  Edge n_edges, n_medges, nddyads, kedge, nmax;
+  Network nw[2];
+  DegreeBound *bd;
+  Model *m, *mdyn;
+  ModelTerm *thisterm;
+  DynamOrder order;
+
+  switch(*order_code){
+  case 1: order=DissThenForm; break;
+  case 2: order=DissAndForm; break;
+  default:
+    error("Unsupported dynamic model code %d.", order_code);
+  }
+  
+  n_nodes = (Vertex)*dn; /* coerce double *dn to type Vertex */
+  n_edges = (Vertex)*dnedges; /* coerce double *dnedges to type Vertex */
+  n_medges = (Vertex)*mdnedges; /* coerce double *mdnedges to type Vertex */
+  nmax = (Edge)*maxedges; /* coerce double *maxedges to type Edge */
+  bip = (Vertex)*bipartite; /* coerce double *bipartite to type Vertex */
+  
+  GetRNGstate();  /* R function enabling uniform RNG */
+  
+  directed_flag = *dflag;
+
+  Vertex *dissolvetime, *dissolvehead, *dissolvetail;
+  dissolvetime = (Vertex *)malloc(nmax * sizeof(Vertex));
+  dissolvehead = (Vertex *)malloc(nmax * sizeof(Vertex));
+  dissolvetail = (Vertex *)malloc(nmax * sizeof(Vertex));
+
+  Vertex *disstime, *disshead, *disstail;
+  disstime = (Vertex *)malloc(nmax * sizeof(Vertex));
+  disshead = (Vertex *)malloc(nmax * sizeof(Vertex));
+  disstail = (Vertex *)malloc(nmax * sizeof(Vertex));
+
+  Vertex *difftime, *diffhead, *difftail;
+  difftime = (Vertex *)malloc(nmax * sizeof(Vertex));
+  diffhead = (Vertex *)malloc(nmax * sizeof(Vertex));
+  difftail = (Vertex *)malloc(nmax * sizeof(Vertex));
+
+  for (i = 0; i < nmax; i++){
+    newnetworkhead[i] = 0;
+    newnetworktail[i] = 0;
+    diffnetworktime[i] = 0;
+    diffnetworkhead[i] = 0;
+    diffnetworktail[i] = 0;
+    dissolvetime[i] = 0;
+    dissolvehead[i] = 0;
+    dissolvetail[i] = 0;
+    difftime[i] = 0;
+    diffhead[i] = 0;
+    difftail[i] = 0;
+    disstime[i] = 0;
+    disshead[i] = 0;
+    disstail[i] = 0;
+  }
+
+  m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
+
+  /* Form the missing network */
+  nw[0]=NetworkInitialize(heads, tails, n_edges, n_nodes, directed_flag, bip);
+  if (n_medges>0) {
+   nw[1]=NetworkInitialize(mheads, mtails, n_medges, n_nodes, directed_flag, bip);
+  }
+
+  hammingterm=ModelTermHamming (*funnames, *nterms);
+  if(hammingterm>0){
+//	     Rprintf("start with setup\n");
+   Network nwhamming;
+   thisterm = m->termarray + hammingterm - 1;
+   nddyads = (Edge)(thisterm->inputparams[0]);
+   double *dhead, *dtail;
+   dhead = (double *) malloc(sizeof(double) * nddyads);
+   dtail = (double *) malloc(sizeof(double) * nddyads);
+   for (i=0; i<nddyads; i++){
+    dhead[i] = (Vertex)(thisterm->inputparams[1+        i]);
+    dtail[i] = (Vertex)(thisterm->inputparams[1+nddyads+i]);
+   }
+   nwhamming=NetworkInitialize(dhead, dtail, nddyads, n_nodes, directed_flag, bip);
+   nddyads=0;
+   nw[1]=NetworkInitialize(dhead, dtail, nddyads, n_nodes, directed_flag, bip);
+//	     Rprintf("made hw[1]\n");
+   for (kedge=1; kedge <= nwhamming.nedges; kedge++) {
+     FindithEdge(&hhead, &htail, kedge, &nwhamming);
+     if(EdgetreeSearch(hhead, htail, nw[0].outedges) == 0){
+//	     Rprintf(" in g0 not g hhead %d htail %d\n",hhead, htail);
+       ToggleEdge(hhead, htail, &nw[1]);
+     }
+   }
+   for (kedge=1; kedge <= nw[0].nedges; kedge++) {
+     FindithEdge(&hhead, &htail, kedge, &nw[0]);
+     if(EdgetreeSearch(hhead, htail, nwhamming.outedges) == 0){
+//	     Rprintf("not g0  in g hhead %d htail %d\n",hhead, htail);
+       ToggleEdge(hhead, htail, &nw[1]);
+     }
+   }
+   free(dhead);
+   free(dtail);
+//   Rprintf("Initial number of discordant %d Number of g0 ties %d Number of ties in g %d\n",nw[1].nedges, nwhamming.nedges,nw[0].nedges);
+   NetworkDestroy(&nwhamming);
+  }
+
+// Really this is a dissolve/formation term
+  formationterm=(*ndynterms);
+  if(formationterm>0){
+   formationterm=ModelTermDissolve (*dynfunnames, *ndynterms);
+//   Rprintf("*ndynterms %d formationterm %d\n",*ndynterms, formationterm);
+   mdyn=ModelInitialize(*dynfunnames, *dynsonames, dyninputs, *ndynterms);
+   Network nwformation;
+   thisterm = mdyn->termarray + formationterm - 1;
+   nddyads = (Edge)(thisterm->inputparams[0]);
+//   Rprintf("nddyads %d\n",nddyads);
+   double *dhead, *dtail;
+   dhead = (double *) malloc(sizeof(double) * nddyads);
+   dtail = (double *) malloc(sizeof(double) * nddyads);
+   for (i=0; i<nddyads; i++){
+    dhead[i] = (Vertex)(thisterm->attrib[        i]);
+    dtail[i] = (Vertex)(thisterm->attrib[nddyads+i]);
+   }
+//    dhead[i] = (Vertex)(thisterm->inputparams[1+        i]);
+//    dtail[i] = (Vertex)(thisterm->inputparams[1+nddyads+i]);
+   nwformation=NetworkInitialize(dhead, dtail, nddyads, n_nodes, directed_flag, bip);
+   nddyads=0;
+   nw[1]=NetworkInitialize(dhead, dtail, nddyads, n_nodes, directed_flag, bip);
+//	     Rprintf("made hw[1]\n");
+   for (kedge=1; kedge <= nwformation.nedges; kedge++) {
+     FindithEdge(&hhead, &htail, kedge, &nwformation);
+     if(EdgetreeSearch(hhead, htail, nw[0].outedges) == 0){
+//	     Rprintf(" in g0 not g hhead %d htail %d\n",hhead, htail);
+       ToggleEdge(hhead, htail, &nw[1]);
+     }
+   }
+   for (kedge=1; kedge <= nw[0].nedges; kedge++) {
+     FindithEdge(&hhead, &htail, kedge, &nw[0]);
+     if(EdgetreeSearch(hhead, htail, nwformation.outedges) == 0){
+//	     Rprintf("not g0  in g hhead %d htail %d\n",hhead, htail);
+       ToggleEdge(hhead, htail, &nw[1]);
+     }
+   }
+   free(dhead);
+   free(dtail);
+//   Rprintf("Initial number of discordant %d Number of g0 ties %d Number of ties in g %d\n",nw[1].nedges, nwformation.nedges,nw[0].nedges);
+   hammingterm=1;
+   NetworkDestroy(&nwformation);
+//   Rprintf("Initial number (discord) from reference %d Number of original %d\n",nw[1].nedges,nw[0].nedges);
+  }
+  
+  bd=DegreeBoundInitialize(attribs, maxout, maxin, minout, minin,
+			   *condAllDegExact, *attriblength, nw);
+  MCMCSampleDynPhase2 (order, *MHproposaltype, *MHproposalpackage,
+	      theta0, aDdiaginv, sample, (long int)*samplesize,
+	      (long int)*burnin, (long int)*interval,
+	      hammingterm,
+	      (int)*fVerbose, gamma, (int)*dyninterval,
+	      &nmax,
+	      dissolvetime, dissolvehead, dissolvetail,
+	      disstime, disshead, disstail,
+	      difftime, diffhead, difftail,
+		 nw, m, mdyn, bd);
+   
+// Rprintf("samplesize: %f\n", *samplesize);
+// for (i=0; i < (*samplesize)*9; i++){
+// 	if(i == 9*trunc(i/9)){Rprintf("\n");}
+// Rprintf("%f ", sample[i]);
+// }
+// Rprintf("\n");
+
+  /* record new generated network to pass back to R */
+  nextedge=1;
+  if (nw[0].directed_flag) {
+   for (v=1; v<=n_nodes; v++) 
+    {
+      Vertex e;
+      for(e = EdgetreeMinimum(nw[0].outedges, v);
+	  nw[0].outedges[e].value != 0 && nextedge < nmax;
+	  e = EdgetreeSuccessor(nw[0].outedges, e))
+	{
+          newnetworkhead[nextedge] = v;
+          newnetworktail[nextedge] = nw[0].outedges[e].value;
+	  nextedge++;
+	}
+   }
+  }else{
+   for (v=1; v<=n_nodes; v++) 
+    {
+      Vertex e;
+      for(e = EdgetreeMinimum(nw[0].outedges, v);
+	  nw[0].outedges[e].value != 0 && nextedge < nmax;
+	  e = EdgetreeSuccessor(nw[0].outedges, e))
+	{
+          k = nw[0].outedges[e].value;
+	  if(v < k){
+           newnetworkhead[nextedge] = k;
+           newnetworktail[nextedge] = v;
+           nextedge++;
+	  }else{
+           newnetworkhead[nextedge] = v;
+           newnetworktail[nextedge] = k;
+           nextedge++;
+	  }
+	}
+     }
+  }
+  newnetworkhead[0]=nextedge;
+
+  diffnetworktime[0] = (int)(diffhead[0]);
+  diffnetworkhead[0] = (int)(diffhead[0]);
+  diffnetworktail[0] = (int)(diffhead[0]);
+//Rprintf("numdissolved %d numdissolve %d\n", *numdissolved, numdissolve);
+  for (i = 1; i <= diffnetworkhead[0]; i++){
+    diffnetworktime[i] = (int)(difftime[i]);
+    diffnetworkhead[i] = (int)(diffhead[i]);
+    diffnetworktail[i] = (int)(difftail[i]);
+//Rprintf(" %d %d\n", dissolvedhead[i], dissolvedtail[i]);
+  }
+
+  dissnetworktime[0] = (int)(disshead[0]);
+  dissnetworkhead[0] = (int)(disshead[0]);
+  dissnetworktail[0] = (int)(disshead[0]);
+//Rprintf("numdissolved %d numdissolve %d\n", *numdissolved, numdissolve);
+  for (i = 1; i <= dissnetworkhead[0]; i++){
+    dissnetworktime[i] = (int)(disstime[i]);
+    dissnetworkhead[i] = (int)(disshead[i]);
+    dissnetworktail[i] = (int)(disstail[i]);
+//Rprintf(" %d %d\n", dissolvedhead[i], dissolvedtail[i]);
+  }
+
+  ModelDestroy(m);
+//  Rprintf("nw edges: %d\n", nw[0].nedges);
+  DegreeBoundDestroy(bd);
+  NetworkDestroy(nw);
+  if (n_medges>0 || hammingterm > 0  || formationterm > 0)
+    NetworkDestroy(&nw[1]);
+  PutRNGstate();  /* Disable RNG before returning */
+}
+
+
+/*********************
+ void MCMCSampleDynPhase2
+
+ Using the parameters contained in the array theta, obtain the
+ network statistics for a sample of size samplesize.  burnin is the
+ initial number of Markov chain steps before sampling anything
+ and interval is the number of MC steps between successive 
+ networks in the sample.  Put all the sampled statistics into
+ the networkstatistics array. 
+*********************/
+void MCMCSampleDynPhase2 (DynamOrder order, char *MHproposaltype, char *MHproposalpackage,
+  double *theta, double *aDdiaginv, double *networkstatistics, 
+  long int samplesize, long int burnin, 
+  long int interval, int hammingterm, int fVerbose,
+  double *gamma, int dyninterval,
+  Edge *nmax,
+  Vertex *dissolvetime, Vertex *dissolvehead, Vertex *dissolvetail,
+  Vertex *disstime, Vertex *disshead, Vertex *disstail,
+  Vertex *difftime, Vertex *diffhead, Vertex *difftail,
+  Network *nwp, Model *m, Model *mdyn, DegreeBound *bd) {
+  long int staken, tottaken, ptottaken;
+  int i, j, components, diam;
+  ModelTerm *mtp;
+  char *fn, *sn;
+  MHproposal MH;
+  
+  components = diam = 0;
+  nwp->duration_info.MCMCtimer=0;
+  
+  if (fVerbose)
+    Rprintf("Total m->n_stats is %i; total samplesize is %d\n",
+             m->n_stats,samplesize);
+
+  for (i = 0; MHproposaltype[i] != ' ' && MHproposaltype[i] != 0; i++);
+  MHproposaltype[i] = 0;
+  /* Extract the required string information from the relevant sources */
+  if((fn=(char *)malloc(sizeof(char)*(i+4)))==NULL){
+    error("Error in MCMCSample: Can't allocate %d bytes for fn. Memory has not been deallocated, so restart R sometime soon.\n",
+	    sizeof(char)*(i+4));
+  }
+  fn[0]='M';
+  fn[1]='H';
+  fn[2]='_';
+  for(j=0;j<i;j++)
+    fn[j+3]=MHproposaltype[j];
+  fn[i+3]='\0';
+  /* fn is now the string 'MH_[name]', where [name] is MHproposaltype */
+  for (i = 0; MHproposalpackage[i] != ' ' && MHproposalpackage[i] != 0; i++);
+  MHproposalpackage[i] = 0;
+  if((sn=(char *)malloc(sizeof(char)*(i+1)))==NULL){
+    error("Error in ModelInitialize: Can't allocate %d bytes for sn. Memory has not been deallocated, so restart R sometime soon.\n",
+	  sizeof(char)*(j+1));
+  }
+  sn=strncpy(sn,MHproposalpackage,i);
+  sn[i]='\0';
+  if (fVerbose) 
+    Rprintf("MH proposal function is %s from %s package\n",fn,sn);
+
+  /* Search for the MH proposal function pointer */
+  MH.func=(void (*)(MHproposal*, DegreeBound*, Network*)) R_FindSymbol(fn,sn,NULL);
+  if(MH.func==NULL){
+    error("Error in MCMCSample: could not find function %s in "
+	  "namespace for package %s."
+	  "Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
+  }      
+
+  /*Clean up by freeing sn and fn*/
+  free((void *)fn);
+  free((void *)sn);
+
+  MH.ntoggles=0;
+  (*(MH.func))(&MH, bd, nwp); /* Call MH proposal function to initialize */
+  MH.togglehead = (Vertex *)malloc(MH.ntoggles * sizeof(Vertex));
+  MH.toggletail = (Vertex *)malloc(MH.ntoggles * sizeof(Vertex));
+  
+  /*********************
+  networkstatistics are modified in groups of m->n_stats, and they
+  reflect the CHANGE in the values of the statistics from the
+  original (observed) network.  Thus, when we begin, the initial 
+  values of the first group of m->n_stats networkstatistics should 
+  all be zero
+  *********************/
+  for (j=0; j < m->n_stats; j++)
+    networkstatistics[j] = 0.0;
+  mtp = m->termarray;
+
+  /*********************
+   Burn in step.  While we're at it, use burnin statistics to 
+   prepare covariance matrix for Mahalanobis distance calculations 
+   in subsequent calls to M-H
+   *********************/
+//Rprintf("MCMCSampleDyn pre burnin numdissolve %d\n", *numdissolve);
+  MetropolisHastingsDyn(order, &MH, theta,
+		     networkstatistics, burnin, &staken,
+		     hammingterm, fVerbose, gamma, dyninterval,
+		     nmax,
+		     dissolvetime, dissolvehead, dissolvetail,
+		     disstime, disshead, disstail,
+		     difftime, diffhead, difftail,
+		     nwp, m, mdyn, bd);
+//Rprintf("MCMCSampleDyn post burnin numdissolve %d\n", *numdissolve);
+  
+  if (fVerbose){
+    Rprintf("Returned from Metropolis-Hastings burnin\n");
+  }
+  
+  if (samplesize>1){
+    staken = 0;
+    tottaken = 0;
+    ptottaken = 0;
+
+    /* Update theta0 */
+//Rprintf("\n");
+    for (j=0; j<m->n_stats; j++){
+      theta[j] -= aDdiaginv[j] * theta[j];
+//Rprintf(" %f",  aDdiaginv[j]);
+    }
+//Rprintf("\n");
+    
+    /* Now sample networks */
+    for (i=1; i < samplesize; i++){
+      /* Set current vector of stats equal to previous vector */
+      for (j=0; j<m->n_stats; j++){
+        networkstatistics[j+m->n_stats] = networkstatistics[j];
+      }
+      networkstatistics += m->n_stats;
+      /* This then adds the change statistics to these values */
+      
+      MetropolisHastingsDyn (order, &MH, theta,
+		  networkstatistics, interval, &staken,
+		  hammingterm, fVerbose, gamma, dyninterval,
+		  nmax,
+		  dissolvetime, dissolvehead, dissolvetail,
+		  disstime, disshead, disstail,
+		  difftime, diffhead, difftail,
+		  nwp, m, mdyn, bd);
+//Rprintf("MCMCSampleDyn loop numdissolve %d\n", *numdissolve);
+      tottaken += staken;
+      if (fVerbose){
+        if( ((3*i) % samplesize)==0 && samplesize > 500){
+        Rprintf("Sampled %d from Metropolis-Hastings\n", i);}
+      }
+      
+      if( ((3*i) % samplesize)==0 && tottaken == ptottaken){
+        ptottaken = tottaken; 
+        Rprintf("Warning:  Metropolis-Hastings algorithm has accepted only "
+        "%d steps out of a possible %d\n",  ptottaken-tottaken, i); 
+      }
+//      Rprintf("Sampled %d from %d\n", i, samplesize);
+    }
+
+    /* Update theta0 one last time*/
+    for (j=0; j<m->n_stats; j++){
+      theta[j] -= aDdiaginv[j] * theta[j];
+    }
+    
+    /*********************
+    Below is an extremely crude device for letting the user know
+    when the chain doesn't accept many of the proposed steps.
+    *********************/
+//    if (fVerbose){
+//      Rprintf("Metropolis-Hastings accepted %7.3f%% of %d steps.\n",
+//	      tottaken*100.0/(1.0*interval*samplesize), interval*samplesize); 
+//    }
+//  }else{
+//    if (fVerbose){
+//      Rprintf("Metropolis-Hastings accepted %7.3f%% of %d steps.\n",
+//	      staken*100.0/(1.0*burnin), burnin); 
+//    }
+  }
+//  Rprintf("netstats: %d\n", samplesize);
+//  for (i=0; i < samplesize; i++){
+//   for (j=0; j < m->n_stats; j++){
+//      Rprintf("%f ", networkstatistics[j+(m->n_stats)*(i)]);
+//   }
+//  Rprintf("\n");
+//  }
+  free(MH.togglehead);
+  free(MH.toggletail);
+}

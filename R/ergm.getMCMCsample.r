@@ -12,37 +12,94 @@ ergm.getMCMCsample <- function(Clist, model, MHproposal, eta0, MCMCparams,
   z <- list(newnw=maxedges+1)
   while(z$newnw[1] > maxedges){
    maxedges <- 10*maxedges
-   z <- .C("MCMC_wrapper",
-          as.double(Clist$heads), as.double(Clist$tails), 
-          as.double(Clist$nedges), as.double(Clist$n),
-          as.integer(Clist$dir), as.double(Clist$bipartite),
-          as.integer(Clist$nterms), 
-          as.character(Clist$fnamestring),
-          as.character(Clist$snamestring),
-          as.character(MHproposal$type), as.character(MHproposal$package),
-          as.double(Clist$inputs), as.double(eta0),
-          as.double(MCMCparams$samplesize),
-          s = double(MCMCparams$samplesize * Clist$nparam),
-          as.double(MCMCparams$burnin), as.double(MCMCparams$interval), 
-          newnw = integer(maxedges), 
-          as.integer(verbose), as.integer(BD$attribs), 
-          as.integer(BD$maxout), as.integer(BD$maxin),
-          as.integer(BD$minout), as.integer(BD$minin),
-          as.integer(BD$condAllDegExact), as.integer(length(BD$attribs)), 
-          as.double(maxedges),
-          as.double(0.0), as.double(0.0), 
-          as.double(0.0), as.integer(0),
-          PACKAGE="statnet") 
-  }
-  statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
-                        ncol=Clist$nparam,
-                        byrow = TRUE)
-  colnames(statsmatrix) <- model$coef.names
-  if(z$newnw[1]>1){
-    newedgelist <- matrix(z$newnw[2:z$newnw[1]], ncol=2, byrow=TRUE)
+#
+#  Parallel running
+#
+   if(MCMCparams$parallel==0){
+    z <- .C("MCMC_wrapper",
+            as.double(Clist$heads), as.double(Clist$tails), 
+            as.double(Clist$nedges), as.double(Clist$n),
+            as.integer(Clist$dir), as.double(Clist$bipartite),
+            as.integer(Clist$nterms), 
+            as.character(Clist$fnamestring),
+            as.character(Clist$snamestring),
+            as.character(MHproposal$type), as.character(MHproposal$package),
+            as.double(Clist$inputs), as.double(eta0),
+            as.double(MCMCparams$samplesize),
+            s = double(MCMCparams$samplesize * Clist$nparam),
+            as.double(MCMCparams$burnin), as.double(MCMCparams$interval), 
+            newnw = integer(maxedges), 
+            as.integer(verbose), as.integer(BD$attribs), 
+            as.integer(BD$maxout), as.integer(BD$maxin),
+            as.integer(BD$minout), as.integer(BD$minin),
+            as.integer(BD$condAllDegExact), as.integer(length(BD$attribs)), 
+            as.double(maxedges),
+            as.double(0.0), as.double(0.0), 
+            as.double(0.0), as.integer(0),
+            PACKAGE="statnet") 
+    statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
+                          ncol=Clist$nparam,
+                          byrow = TRUE)
+    if(z$newnw[1]>1){
+      newedgelist <- matrix(z$newnw[2:z$newnw[1]], ncol=2, byrow=TRUE)
+    }else{
+      newedgelist <- matrix(0, ncol=2, nrow=0)
+    }
   }else{
-    newedgelist <- matrix(0, ncol=2, nrow=0)
+    rpvmbasename <- paste("ergm.parallel.",Sys.getpid(),sep="")
+    MCMCparams.parallel <- MCMCparams
+    MCMCparams.parallel$samplesize <- round(MCMCparams$samplesize / MCMCparams$parallel)
+    require(rpvm)
+    require(MASS) # needed by rpvm
+#
+#   Write the slave file
+#
+    outsetuppvm <- ergm.rpvm.setup(rpvmbasename, verbose=verbose,
+                                   packagename=packagename)
+#
+#   Saving the common variables
+#
+    save(
+     Clist,
+     MHproposal,
+     eta0,
+     MCMCparams.parallel,
+     maxedges, 
+     verbose,
+     BD, 
+     file=paste(outsetuppvm$SLAVEDIR,"/",rpvmbasename,".common.RData",sep="")
+    )
+#
+#   Run the jobs with PVM
+#
+    outlist <- ergm.rpvm.run(MCMCparams$parallel, rpvmbasename)
+#
+#   Process the results
+#
+    statsmatrix <- NULL
+#   newedgelist <- matrix(0, ncol=2, nrow=0)
+    for(i in (1:MCMCparams$parallel)){
+     load(file=
+      paste(outsetuppvm$SLAVEDIR,"/",rpvmbasename,".out.",i,".RData",sep=""))
+     statsmatrix <- rbind(statsmatrix,
+       matrix(z$s, nrow=MCMCparams.parallel$samplesize,
+       ncol=Clist$nparam,
+       byrow = TRUE))
+#    if(z$newnw[1]>1){
+#      newedgelist <- rbind(newedgelist,
+#                           matrix(z$newnw[2:z$newnw[1]], ncol=2, byrow=TRUE))
+     }
+     if(z$newnw[1]>1){
+      newedgelist <- matrix(z$newnw[2:z$newnw[1]], ncol=2, byrow=TRUE)
+     }else{
+      newedgelist <- matrix(0, ncol=2, nrow=0)
+     }
+    cat("parallel samplesize=",nrow(statsmatrix),"by",
+        MCMCparams.parallel$samplesize,"\n")
+    ergm.rpvm.clean(rpvmbasename=rpvmbasename)
   }
+  }
+  colnames(statsmatrix) <- model$coef.names
 
 #
 # recenter statsmatrix by mean statistics if necessary

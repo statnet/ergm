@@ -7,7 +7,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
                              hessian=FALSE, trustregion=20,
                              steplength=1,
                              metric="Likelihood",
-                             method="BFGS", estimate=TRUE, ...) {
+                             method="BFGS", parallel=0, estimate=TRUE, ...) {
   iteration <- 1
   newnetwork <- nw
   smean <- rep(0,Clist$nparam)
@@ -29,7 +29,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     cat("Iteration ", iteration,": Sampling ", MCMCsamplesize,
         " with parameter: \n", sep="")
     print(theta0)
-    MCMCparams=list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval)
+    MCMCparams=list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,parallel=parallel)
     MHproposal=list(package=proposalpackage, type=proposaltype)
     z <- ergm.getMCMCsample(Clist, model, MHproposal, eta0, MCMCparams, verbose, BD)
     statsmatrix=z$statsmatrix

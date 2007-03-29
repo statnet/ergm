@@ -720,6 +720,16 @@ InitErgm.dsp<-function(nw, m, arglist, drop=TRUE, ...) {
       d <- d[mdsp!=0] 
     }
   }
+  if (any(d==0)) {
+    emptynwstats <- rep(0, length(d))
+    if(is.bipartite(nw)){
+      nactors <- get.network.attribute(nw, "bipartite")
+      nevents <- network.size(nw) - nactors
+      emptynwstats[d==0] <- nactors*(nactors-1)/2 + nevents*(nevents-1)/2
+    }else{
+      emptynwstats[d==0] <- network.dyadcount(nw)
+    }
+  }
   ld<-length(d)
   if(ld==0){return(m)}
   termnumber<-1+length(m$terms)

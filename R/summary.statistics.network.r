@@ -165,14 +165,14 @@ summary.statistics.network <- function(object,...,basis=NULL)
   if(length(ts) > 0){
     gs[ts] <- sum(as.sociomatrix(nw)[,1]) + gs[ts]
   }
-  tdsp <- grep("dsp0",names(gs))
-  if(length(tdsp) >0){
-    if(is.bipartite(nw)){
-      gs[tdsp] <- nactors*(nactors-1)/2 + nevents*(nevents-1)/2 + gs[tdsp]
-    }else{
-      gs[tdsp] <- dyads + gs[tdsp]
-    }
-  }
+# tdsp <- grep("dsp0",names(gs))
+# if(length(tdsp) >0){
+#   if(is.bipartite(nw)){
+#     gs[tdsp] <- nactors*(nactors-1)/2 + nevents*(nevents-1)/2 + gs[tdsp]
+#   }else{
+#     gs[tdsp] <- dyads + gs[tdsp]
+#   }
+# }
   tesa <- grep("esa0",names(gs))
   if(length(tesa) >0){
    if(is.bipartite(nw)){

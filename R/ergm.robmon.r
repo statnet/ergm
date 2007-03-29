@@ -20,7 +20,8 @@ ergm.robmon <- function(theta0, nw, model, Clist, BD,
   eta0 <- ergm.eta(theta0, model$etamap)
   cat("Robbins-Monro algorithm with theta_0 equal to:\n")
   print(theta0)
-  MCMCparams <- list(samplesize=n1, burnin=burnin, interval=interval)
+  MCMCparams <- list(samplesize=n1, burnin=burnin, interval=interval,
+                     parallel=parallel)
   MHproposal <- list(package=algorithm.control$proposalpackage, type=proposaltype)
   cat(paste("Phase 1: ",n1,"iterations"))
   cat(paste(" (interval=",MCMCparams$interval,")\n",sep=""))
@@ -56,6 +57,9 @@ ergm.robmon <- function(theta0, nw, model, Clist, BD,
   theta <- theta0
   oldthetas <- NULL 
   MCMCparams$samplesize <- 10 # With samplesize=1, interval is irrelevant and burnin is crucial.
+  if(MCMCparams$parallel>0){
+   MCMCparams$samplesize <- MCMCparams$samplesize*MCMCparams$parallel
+  }
   for(subphase in 1:n_sub) {
     thetamatrix <- NULL # Will hold matrix of all theta values for this subphase
     cat(paste("Phase 2, subphase",subphase,": a=",a,",",n_iter,"iterations"))
