@@ -2090,6 +2090,7 @@ void d_esp (int ntoggles, Vertex *heads, Vertex *tails,
   Vertex h, t, u, v;
   TreeNode *oe=nwp->outedges, *ie=nwp->inedges;
 
+  
   for (i=0; i < mtp->nstats; i++) 
     mtp->dstats[i] = 0.0;  
   for (i=0; i<ntoggles; i++){      
@@ -2103,8 +2104,7 @@ void d_esp (int ntoggles, Vertex *heads, Vertex *tails,
         L2hu=0;
         L2ut=0;
         /* step through outedges of u */
-        for(f = EdgetreeMinimum(oe, u);
-        (v = oe[f].value) != 0;
+        for(f = EdgetreeMinimum(oe, u); (v = oe[f].value) != 0;
         f = EdgetreeSuccessor(oe, f)){
           if(EdgetreeSearch(MIN(v,t),MAX(v,t),oe)!= 0) L2ut++;
           if(EdgetreeSearch(MIN(v,h),MAX(v,h),oe)!= 0) L2hu++;
@@ -2125,23 +2125,20 @@ void d_esp (int ntoggles, Vertex *heads, Vertex *tails,
       }
     }
     /* step through inedges of t */
-    for(e = EdgetreeMinimum(ie, t);
-    (u = ie[e].value) != 0;
+    for (e = EdgetreeMinimum(ie, t); (u = ie[e].value) != 0;
     e = EdgetreeSuccessor(ie, e)){
       if (EdgetreeSearch(MIN(u,h), MAX(u,h), oe) != 0){
         L2ht++;
         L2hu=0;
         L2ut=0;
         /* step through outedges of u */
-        for(f = EdgetreeMinimum(oe, u);
-        (v = oe[f].value) != 0;
+        for(f = EdgetreeMinimum(oe, u); (v = oe[f].value) != 0;
         f = EdgetreeSuccessor(oe, f)){
           if(EdgetreeSearch(MIN(v,t),MAX(v,t),oe)!= 0) L2ut++;
           if(EdgetreeSearch(MIN(v,h),MAX(v,h),oe)!= 0) L2hu++;
         }
         /* step through inedges of u */
-        for(f = EdgetreeMinimum(ie, u); 
-        (v = ie[f].value) != 0;
+        for(f = EdgetreeMinimum(ie, u); (v = ie[f].value) != 0;
         f = EdgetreeSuccessor(ie, f)){
           if(EdgetreeSearch(MIN(v,t),MAX(v,t),oe)!= 0) L2ut++;
           if(EdgetreeSearch(MIN(v,h),MAX(v,h),oe)!= 0) L2hu++;
@@ -2157,8 +2154,9 @@ void d_esp (int ntoggles, Vertex *heads, Vertex *tails,
     }
     for(j = 0; j < mtp->nstats; j++){
       deg = (Vertex)mtp->inputparams[j];
-      mtp->dstats[j] += echange*((L2ht == deg) - (0 == deg));
-    }    
+/*      mtp->dstats[j] += echange*((L2ht == deg) - (0 == deg)); */
+      mtp->dstats[j] += echange*(L2ht == deg);
+    }
     if (i+1 < ntoggles)
       ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
   }  

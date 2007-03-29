@@ -139,14 +139,14 @@ summary.statistics.network <- function(object,...,basis=NULL)
 #  if(!is.na(tdegree0)){
 #    gs[tdegree0] <- gs[tdegree0] + nevents
 #  }
-  tspartner0 <- match("spartner0",names(gs))
-  if(!is.na(tspartner0)){
-    gs[tspartner0] <- gs[tspartner0] + Clist$nedges 
-  }
-  tsesp0 <- match("esp0",names(gs))
-  if(!is.na(tsesp0)){
-    gs[tsesp0] <- gs[tsesp0] + Clist$nedges 
-  }
+#  tspartner0 <- match("spartner0",names(gs))
+#  if(!is.na(tspartner0)){
+#    gs[tspartner0] <- gs[tspartner0] + Clist$nedges 
+#  }
+#  tsesp0 <- match("esp0",names(gs))
+#  if(!is.na(tsesp0)){
+#    gs[tsesp0] <- gs[tsesp0] + Clist$nedges 
+#  }
   #
   tgeodeg <- grep("geodegree",names(gs))
   if(length(tgeodeg) >0){
