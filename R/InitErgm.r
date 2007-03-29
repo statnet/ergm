@@ -612,6 +612,7 @@ InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
     required = c(TRUE, FALSE, FALSE))
   attach(a)
   d<-a$d; attrname <- a$attrname; homophily <- a$homophily
+  emptynwstats<-NULL
   if(!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname, "degree")
     u<-sort(unique(nodecov))
@@ -1685,6 +1686,7 @@ InitErgm.idegree<-function(nw, m, arglist, drop=TRUE, ...) {
     required = c(TRUE, FALSE, FALSE))
   attach(a)
   d<-a$d; attrname <- a$attrname; homophily <- a$homophily
+  emptynwstats<-NULL
   if(!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname, "idegree")
     u<-sort(unique(nodecov))

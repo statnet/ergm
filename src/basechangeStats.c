@@ -2082,91 +2082,86 @@ void d_edgecov (int ntoggles, Vertex *heads, Vertex *tails,
  void d_esp
 *****************/
 void d_esp (int ntoggles, Vertex *heads, Vertex *tails, 
-	    ModelTerm *mtp, Network *nwp) 
-{
+	    ModelTerm *mtp, Network *nwp) {
   Edge e, f;
   int i, j, echange;
   int L2ht, L2hu, L2ut;
   Vertex deg;
   Vertex h, t, u, v;
-  
+  TreeNode *oe=nwp->outedges, *ie=nwp->inedges;
+
   for (i=0; i < mtp->nstats; i++) 
-    mtp->dstats[i] = 0.0;
-  
+    mtp->dstats[i] = 0.0;  
   for (i=0; i<ntoggles; i++){      
     L2ht=0;
-    echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
+    echange = (EdgetreeSearch(h=heads[i], t=tails[i], oe) == 0) ? 1 : -1;
     /* step through outedges of t */
-    for(e = EdgetreeMinimum(nwp->outedges, t);
-	(u = nwp->outedges[e].value) != 0;
-	e = EdgetreeSuccessor(nwp->outedges, e)){
-      if (EdgetreeSearch(MIN(u,h), MAX(u,h), nwp->outedges) != 0){
-	L2ht++;
-	L2hu=0;
-	L2ut=0;
-	/* step through outedges of u */
-	for(f = EdgetreeMinimum(nwp->outedges, u);
-	    (v = nwp->outedges[f].value) != 0;
-	    f = EdgetreeSuccessor(nwp->outedges, f)){
-	  if(EdgetreeSearch(MIN(v,t),MAX(v,t),nwp->outedges)!= 0) L2ut++;
-	  if(EdgetreeSearch(MIN(v,h),MAX(v,h),nwp->outedges)!= 0) L2hu++;
-	}
-	/* step through inedges of u */
-	for(f = EdgetreeMinimum(nwp->inedges, u); 
-	    (v = nwp->inedges[f].value) != 0;
-	    f = EdgetreeSuccessor(nwp->inedges, f)){
-	  if(EdgetreeSearch(MIN(v,t),MAX(v,t),nwp->outedges)!= 0) L2ut++;
-	  if(EdgetreeSearch(MIN(v,h),MAX(v,h),nwp->outedges)!= 0) L2hu++;
-	}
-	for(j = 0; j < mtp->nstats; j++){
-	  deg = (Vertex)mtp->inputparams[j];
-	  mtp->dstats[j] += ((L2hu + echange == deg)
-			     - (L2hu == deg));
-	  mtp->dstats[j] += ((L2ut + echange == deg)
-			     - (L2ut == deg));
-	}
+    for(e = EdgetreeMinimum(oe, t); 
+    (u = oe[e].value) != 0; e = EdgetreeSuccessor(oe, e)) {
+      if (EdgetreeSearch(MIN(u,h), MAX(u,h), oe) != 0){
+        L2ht++;
+        L2hu=0;
+        L2ut=0;
+        /* step through outedges of u */
+        for(f = EdgetreeMinimum(oe, u);
+        (v = oe[f].value) != 0;
+        f = EdgetreeSuccessor(oe, f)){
+          if(EdgetreeSearch(MIN(v,t),MAX(v,t),oe)!= 0) L2ut++;
+          if(EdgetreeSearch(MIN(v,h),MAX(v,h),oe)!= 0) L2hu++;
+        }
+        /* step through inedges of u */
+        for(f = EdgetreeMinimum(ie, u); (v = ie[f].value) != 0;
+        f = EdgetreeSuccessor(ie, f)){
+          if(EdgetreeSearch(MIN(v,t),MAX(v,t),oe)!= 0) L2ut++;
+          if(EdgetreeSearch(MIN(v,h),MAX(v,h),oe)!= 0) L2hu++;
+        }
+        for(j = 0; j < mtp->nstats; j++){
+          deg = (Vertex)mtp->inputparams[j];
+          mtp->dstats[j] += ((L2hu + echange == deg)
+          - (L2hu == deg));
+          mtp->dstats[j] += ((L2ut + echange == deg)
+          - (L2ut == deg));
+        }
       }
     }
     /* step through inedges of t */
-    for(e = EdgetreeMinimum(nwp->inedges, t);
-	(u = nwp->inedges[e].value) != 0;
-	e = EdgetreeSuccessor(nwp->inedges, e)){
-      if (EdgetreeSearch(MIN(u,h), MAX(u,h), nwp->outedges) != 0){
-	L2ht++;
-	L2hu=0;
-	L2ut=0;
-	/* step through outedges of u */
-	for(f = EdgetreeMinimum(nwp->outedges, u);
-	    (v = nwp->outedges[f].value) != 0;
-	    f = EdgetreeSuccessor(nwp->outedges, f)){
-	  if(EdgetreeSearch(MIN(v,t),MAX(v,t),nwp->outedges)!= 0) L2ut++;
-	  if(EdgetreeSearch(MIN(v,h),MAX(v,h),nwp->outedges)!= 0) L2hu++;
-	}
-	/* step through inedges of u */
-	for(f = EdgetreeMinimum(nwp->inedges, u); 
-	    (v = nwp->inedges[f].value) != 0;
-	    f = EdgetreeSuccessor(nwp->inedges, f)){
-	  if(EdgetreeSearch(MIN(v,t),MAX(v,t),nwp->outedges)!= 0) L2ut++;
-	  if(EdgetreeSearch(MIN(v,h),MAX(v,h),nwp->outedges)!= 0) L2hu++;
-	}
-	for(j = 0; j < mtp->nstats; j++){
-	  deg = (Vertex)mtp->inputparams[j];
-	  mtp->dstats[j] += ((L2hu + echange == deg)
-			     - (L2hu == deg));
-	  mtp->dstats[j] += ((L2ut + echange == deg)
-			     - (L2ut == deg));
-	}
+    for(e = EdgetreeMinimum(ie, t);
+    (u = ie[e].value) != 0;
+    e = EdgetreeSuccessor(ie, e)){
+      if (EdgetreeSearch(MIN(u,h), MAX(u,h), oe) != 0){
+        L2ht++;
+        L2hu=0;
+        L2ut=0;
+        /* step through outedges of u */
+        for(f = EdgetreeMinimum(oe, u);
+        (v = oe[f].value) != 0;
+        f = EdgetreeSuccessor(oe, f)){
+          if(EdgetreeSearch(MIN(v,t),MAX(v,t),oe)!= 0) L2ut++;
+          if(EdgetreeSearch(MIN(v,h),MAX(v,h),oe)!= 0) L2hu++;
+        }
+        /* step through inedges of u */
+        for(f = EdgetreeMinimum(ie, u); 
+        (v = ie[f].value) != 0;
+        f = EdgetreeSuccessor(ie, f)){
+          if(EdgetreeSearch(MIN(v,t),MAX(v,t),oe)!= 0) L2ut++;
+          if(EdgetreeSearch(MIN(v,h),MAX(v,h),oe)!= 0) L2hu++;
+        }
+        for(j = 0; j < mtp->nstats; j++){
+          deg = (Vertex)mtp->inputparams[j];
+          mtp->dstats[j] += ((L2hu + echange == deg)
+          - (L2hu == deg));
+          mtp->dstats[j] += ((L2ut + echange == deg)
+          - (L2ut == deg));
+        }
       }
     }
     for(j = 0; j < mtp->nstats; j++){
       deg = (Vertex)mtp->inputparams[j];
       mtp->dstats[j] += echange*((L2ht == deg) - (0 == deg));
-    }
-    
+    }    
     if (i+1 < ntoggles)
       ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-  }
-  
+  }  
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
     ToggleEdge(heads[i], tails[i], nwp); 

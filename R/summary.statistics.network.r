@@ -81,11 +81,11 @@ summary.statistics.network <- function(object,...,basis=NULL)
   i <- 1
   for (j in 1:length(m$terms)) {
     tmp <- m$term[[j]]
-    l <- tmp$inputs[2] # Number of statistics for this model term
+    k <- tmp$inputs[2] # Number of statistics for this model term
     if (!is.null(tmp$emptynwstats)) {
-      gs[i:(i+l-1)] <- gs[i:(i+l-1)] + tmp$emptynwstats
+      gs[i:(i+k-1)] <- gs[i:(i+k-1)] + tmp$emptynwstats
     }
-    i <- i + l
+    i <- i + k
   }
   
   
@@ -105,40 +105,40 @@ summary.statistics.network <- function(object,...,basis=NULL)
 #  if(any(todegree0 > 0)){
 #    gs[todegree0] <- gs[todegree0] + Clist$n
 #  }
-  tdegree0  <- match( "adegree0",names(gs)) 
-  if(!is.na(tdegree0)){
-    gs[tdegree0] <- gs[tdegree0] + nactors
-  }
-  tdegree0  <- grep( "adeg.",names(gs)) 
-  if(any(tdegree0 > 0)){
-    for(i in seq(along=m$terms)){
-     if(m$terms[[i]]$name=="adegree_by_attr"){
-       nterms <- (m$terms[[i]]$inputs)[2]
-       aaa <- (m$terms[[1]]$inputs)[-c(1:(nterms*2+3))]
-       aaa <- table(aaa[1:nactors])
-       bbb <- matrix((m$terms[[i]]$inputs)[c(4:(nterms*2+3))],2)
-       ccc <- gs[tdegree0] < 0
-       gs[tdegree0][ccc] <- gs[tdegree0][ccc] + aaa[bbb[2,bbb[1,]==0]]
-     }
-    }
-  }
-  tdegree0  <- grep( "edeg.",names(gs)) 
-  if(any(tdegree0 > 0)){
-    for(i in seq(along=m$terms)){
-     if(m$terms[[i]]$name=="edegree_by_attr"){
-       nterms <- (m$terms[[i]]$inputs)[2]
-       aaa <- (m$terms[[1]]$inputs)[-c(1:(nterms*2+3))]
-       aaa <- table(aaa[-c(1:nactors)])
-       bbb <- matrix((m$terms[[i]]$inputs)[c(4:(nterms*2+3))],2)
-       ccc <- gs[tdegree0] < 0
-       gs[tdegree0][ccc] <- gs[tdegree0][ccc] + aaa[bbb[2,bbb[1,]==0]]
-     }
-    }
-  }
-  tdegree0  <- match( "edegree0",names(gs)) 
-  if(!is.na(tdegree0)){
-    gs[tdegree0] <- gs[tdegree0] + nevents
-  }
+#  tdegree0  <- match( "adegree0",names(gs)) 
+#  if(!is.na(tdegree0)){
+#    gs[tdegree0] <- gs[tdegree0] + nactors
+#  }
+#  tdegree0  <- grep( "adeg.",names(gs)) 
+#  if(any(tdegree0 > 0)){
+#    for(i in seq(along=m$terms)){
+#     if(m$terms[[i]]$name=="adegree_by_attr"){
+#       nterms <- (m$terms[[i]]$inputs)[2]
+#       aaa <- (m$terms[[1]]$inputs)[-c(1:(nterms*2+3))]
+#       aaa <- table(aaa[1:nactors])
+#       bbb <- matrix((m$terms[[i]]$inputs)[c(4:(nterms*2+3))],2)
+#       ccc <- gs[tdegree0] < 0
+#       gs[tdegree0][ccc] <- gs[tdegree0][ccc] + aaa[bbb[2,bbb[1,]==0]]
+#     }
+#    }
+#  }
+#  tdegree0  <- grep( "edeg.",names(gs)) 
+#  if(any(tdegree0 > 0)){
+#    for(i in seq(along=m$terms)){
+#     if(m$terms[[i]]$name=="edegree_by_attr"){
+#       nterms <- (m$terms[[i]]$inputs)[2]
+#       aaa <- (m$terms[[1]]$inputs)[-c(1:(nterms*2+3))]
+#       aaa <- table(aaa[-c(1:nactors)])
+#       bbb <- matrix((m$terms[[i]]$inputs)[c(4:(nterms*2+3))],2)
+#       ccc <- gs[tdegree0] < 0
+#       gs[tdegree0][ccc] <- gs[tdegree0][ccc] + aaa[bbb[2,bbb[1,]==0]]
+#     }
+#    }
+#  }
+#  tdegree0  <- match( "edegree0",names(gs)) 
+#  if(!is.na(tdegree0)){
+#    gs[tdegree0] <- gs[tdegree0] + nevents
+#  }
   tspartner0 <- match("spartner0",names(gs))
   if(!is.na(tspartner0)){
     gs[tspartner0] <- gs[tspartner0] + Clist$nedges 

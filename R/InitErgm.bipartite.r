@@ -711,28 +711,29 @@ InitErgm.bichange<-function (g, model, form=NULL, x=NULL, drop=TRUE, ...)
 InitErgm.adegree<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkbipartite("adegree", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("adegree", arglist,
-    varnames = c("d", "attrname"),
-    vartypes = c("numeric", "character"),
-    defaultvalues = list(NULL, NULL),
-    required = c(TRUE, FALSE))
+                      varnames = c("d", "attrname"),
+                      vartypes = c("numeric", "character"),
+                      defaultvalues = list(NULL, NULL),
+                      required = c(TRUE, FALSE))
   attach(a)
-  d<-a$d
-  attrname <- a$attrname
+  d<-a$d; attrname <- a$attrname
+  emptynwstats<-NULL
+  nactors <- get.network.attribute(nw, "bipartite")
   if(!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname, "adegree")
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u) # Recode to numeric
     if (length(u)==1)
-         stop ("Attribute given to adegree() has only one value", call.=FALSE)
+      stop ("Attribute given to adegree() has only one value", call.=FALSE)
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
     if(drop){ #   Check for degeneracy
       tmp <- paste("c(",paste(d,collapse=","),")")
-      adegreeattr <- summary(
-       as.formula(paste('nw ~ adegree(',tmp,',"',attrname,'")',sep="")),
-       drop=FALSE) == 0
+      adegreeattr <- summary(as.formula
+                             (paste('nw ~ adegree(', tmp,',"',attrname,'")',sep="")),
+                             drop=FALSE) == 0
       if(any(adegreeattr)){
         dropterms <- paste("adeg", du[1,adegreeattr], ".", attrname,
                            u[du[2,adegreeattr]], sep="")
@@ -741,19 +742,30 @@ InitErgm.adegree<-function(nw, m, arglist, drop=TRUE, ...) {
         du <- matrix(du[,!adegreeattr], nrow=2)
       }
     }
-  }else{
+    if (any(du[1,]==0)) {
+      emptynwstats <- rep(0, ncol(du))
+      tmp <- du[2,du[1,]==0]
+      for(i in 1:length(tmp)) tmp[i] <- 
+        sum(nodecov[1:nactors]==tmp[i])
+        emptynwstats[du[1,]==0] <- tmp
+    }
+  } else {
     if(is.logical(attrname)){drop <- attrname}
     if(drop){
       madegree <- paste("c(",paste(d,collapse=","),")",sep="")
       madegree <- summary(
-       as.formula(paste('nw ~ adegree(',madegree,')',sep="")),
-       drop=FALSE) == 0
+                          as.formula(paste('nw ~ adegree(',madegree,')',sep="")),
+                          drop=FALSE) == 0
       if(any(madegree)){
-       cat(paste("Warning: There are no order", d[madegree],"adegrees.\n"))
-       dropterms <- paste("adegree", d[madegree],sep="")
-       cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
-       d <- d[!madegree] 
+        cat(paste("Warning: There are no order", d[madegree],"adegrees.\n"))
+        dropterms <- paste("adegree", d[madegree],sep="")
+        cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
+        d <- d[!madegree] 
       }
+    }
+    if (any(d==0)) {
+      emptynwstats <- rep(0, length(d))
+      emptynwstats[d==0] <- nactors
     }
   }
   termnumber<-1+length(m$terms)
@@ -777,6 +789,8 @@ InitErgm.adegree<-function(nw, m, arglist, drop=TRUE, ...) {
                                        dependence=TRUE)
     m$coef.names<-c(m$coef.names,paste("adegree",d,sep=""))
   }
+  if (!is.null(emptynwstats)) 
+    m$terms[[termnumber]]$emptynwstats <- emptynwstats
   m
 }
 
@@ -788,8 +802,10 @@ InitErgm.edegree<-function(nw, m, arglist, drop=TRUE, ...) {
     defaultvalues = list(NULL, NULL),
     required = c(TRUE, FALSE))
   attach(a)
-  d<-a$d
-  attrname <- a$attrname
+  d<-a$d; attrname <- a$attrname
+  emptynwstats<-NULL
+  nactors <- get.network.attribute(nw, "bipartite")
+  n <- network.size(nw)
   if(!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname, "edegree")
     u<-sort(unique(nodecov))
@@ -813,7 +829,14 @@ InitErgm.edegree<-function(nw, m, arglist, drop=TRUE, ...) {
         du <- matrix(du[,!edegreeattr], nrow=2)
       }
     }
-  }else{
+    if (any(du[1,]==0)) {
+      emptynwstats <- rep(0, ncol(du))
+      tmp <- du[2,du[1,]==0]
+      for(i in 1:length(tmp)) tmp[i] <- 
+        sum(nodecov[(1+nactors):n]==tmp[i])
+        emptynwstats[du[1,]==0] <- tmp
+    }
+  } else {
     if(is.logical(attrname)){drop <- attrname}
     if(drop){
       medegree <- paste("c(",paste(d,collapse=","),")",sep="")
@@ -826,6 +849,10 @@ InitErgm.edegree<-function(nw, m, arglist, drop=TRUE, ...) {
        cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
        d <- d[!medegree] 
       }
+    }
+    if (any(d==0)) {
+      emptynwstats <- rep(0, length(d))
+      emptynwstats[d==0] <- n-nactors
     }
   }
   termnumber<-1+length(m$terms)
@@ -849,6 +876,8 @@ InitErgm.edegree<-function(nw, m, arglist, drop=TRUE, ...) {
                                        dependence=TRUE)
     m$coef.names<-c(m$coef.names,paste("edegree",d,sep=""))
   }
+  if (!is.null(emptynwstats)) 
+    m$terms[[termnumber]]$emptynwstats <- emptynwstats
   m
 }
 
