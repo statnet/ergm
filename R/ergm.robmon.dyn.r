@@ -31,8 +31,12 @@ ergm.robmon.dyn <- function(theta0, nw, model, model.dissolve, Clist, BD,
                      type=proposaltype)
   cat(paste("Phase 1: ",n1,"iterations"))
   cat(paste(" (interval=",MCMCparams$interval,")\n",sep=""))
+  nw.orig <- nw
   z <- ergm.getMCMCDynsample(nw, model, model.dissolve, MHproposal, 
                              eta0, MCMCparams, verbose, BD)
+# toggle.dyads(nw, tail = z$changed[,2], head = z$changed[,3])
+  nw <- network.update(nw, z$newedgelist)
+  MCMCparams$orig.obs <- summary(model$formula)
   MCMCparams$maxchanges <- z$maxchanges
   ubar <- apply(z$statsmatrix, 2, mean)
   Ddiag <- apply(z$statsmatrix^2, 2, mean) - ubar^2
@@ -54,24 +58,28 @@ ergm.robmon.dyn <- function(theta0, nw, model, model.dissolve, Clist, BD,
   # Thus, our default value assumes independence (for now!)
   theta <- theta0
   Ddiaginv<-1/Ddiag
-  oldthetas <- NULL 
   MCMCparams$samplesize <- n_iter # Now the number of Phase 2 in ergm.phase2
   if(MCMCparams$parallel>0){
    MCMCparams$samplesize <- MCMCparams$samplesize*MCMCparams$parallel
   }
   eta <- ergm.eta(theta, model$etamap)
   for(subphase in 1:n_sub) {
-    cat(paste("Phase 2, subphase",subphase,": a=",a,",",n_iter,"iterations"))
+    cat(paste("Phase 2, subphase",subphase,": a=",a,",",MCMCparams$samplesize,"iterations"))
     cat(paste(" (burnin=",MCMCparams$burnin,")\n",sep=""))
     aDdiaginv <- a * Ddiaginv
     z <- ergm.phase2(nw, model, model.dissolve, MHproposal, 
-                     eta, aDdiaginv, MCMCparams, verbose=FALSE, BD)
+                     eta, aDdiaginv, MCMCparams, verbose=TRUE, BD)
+    cat(paste(nrow(z$changed)))
+    cat(paste(summary(nw ~ edges)))
+#   toggle.dyads(nw, tail = z$changed[,2], head = z$changed[,3])
+    nw <- network.update(nw, z$newedgelist)
+    MCMCparams$orig.obs <- summary(model$formula)
     MCMCparams$maxchanges <- z$maxchanges
     eta <- z$eta
     names(eta) <- names(theta0)
     cat(paste(" (eta= ",paste(eta),")\n",sep=""))
     a <- a/2
-    n_iter <- round(n_iter*2.52) # 2.52 is approx. 2^(4/3)
+    MCMCparams$samplesize <- round(MCMCparams$samplesize*2.52) # 2.52 is approx. 2^(4/3)
   }
   theta <- eta
   
@@ -87,7 +95,7 @@ ergm.robmon.dyn <- function(theta0, nw, model, model.dissolve, Clist, BD,
 #cat(paste(" (samplesize=",MCMCparams$samplesize,")\n",sep=""))
 #cat(paste(" eta=",eta,")\n",sep=""))
   z <- ergm.getMCMCDynsample(nw, model, model.dissolve, 
-         MHproposal, eta, MCMCparams, verbose, BD)
+                             MHproposal, eta, MCMCparams, verbose, BD)
   MCMCparams$maxchanges <- z$maxchanges
 # ubar <- apply(z$statsmatrix, 2, mean)
 # hessian <- (t(z$statsmatrix) %*% z$statsmatrix)/n3 - outer(ubar,ubar)
@@ -125,11 +133,11 @@ ergm.robmon.dyn <- function(theta0, nw, model, model.dissolve, Clist, BD,
                       # mc.se=mc.se, acf=mcmcacf,
                       # fullsample=statsmatrix.all),
                   # class="ergm") 
-  structure(c(ve, list(newnetwork=network.update(nw, z$newedgelist), 
+  structure(c(ve, list(newnetwork=nw, 
                  theta.original=theta0,
                  bounddeg=BD, formula=model$formula, 
                  interval=interval, burnin=burnin, 
-                 network=nw, proposaltype=proposaltype)),
+                 network=nw.orig, proposaltype=proposaltype)),
              class="ergm")
 }
 ergm.robmon.dyn.orig <- function(theta0, nw, model, model.dissolve, Clist, BD, 
@@ -187,7 +195,6 @@ ergm.robmon.dyn.orig <- function(theta0, nw, model, model.dissolve, Clist, BD,
   # Thus, our default value assumes independence (for now!)
   theta <- theta0
   Ddiaginv<-1/Ddiag
-  oldthetas <- NULL 
   MCMCparams$samplesize <- 1 # With samplesize=1, interval is irrelevant and burnin is crucial.
   if(MCMCparams$parallel>0){
    MCMCparams$samplesize <- MCMCparams$samplesize*MCMCparams$parallel
