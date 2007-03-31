@@ -1089,11 +1089,11 @@ void MCMCSamplePhase12 (char *MHproposaltype, char *MHproposalpackage,
 		  networkstatistics, burnin, &staken,
 		  hammingterm, fVerbose, 
 		  nwp, m, bd);
-    Rprintf("Phase 1: %d steps (interval = %d)\n", nphase1,burnin);
+    Rprintf("Phase 1: %d steps (interval = %d)\n", nphase1,interval);
     /* Now sample networks */
     for (i=0; i <= nphase1; i++){
       MetropolisHastings (&MH, theta,
-		  networkstatistics, burnin, &staken,
+		  networkstatistics, interval, &staken,
 		  hammingterm, fVerbose,
 		  nwp, m, bd);
       if(i > 0){

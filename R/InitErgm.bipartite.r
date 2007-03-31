@@ -1077,6 +1077,76 @@ InitErgm.biduration<-function (nw, m, arglist, ...) {
   m
 }
 
+InitErgm.aconcurrent<-function(nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkbipartite("aconcurrent", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("aconcurrent", arglist,
+                      varnames = c("attrname"),
+                      vartypes = c("character"),
+                      defaultvalues = list(NULL),
+                      required = c(FALSE))
+  attach(a)
+  attrname <- a$attrname
+  emptynwstats<-NULL
+  nactors <- get.network.attribute(nw, "bipartite")
+  if(!is.null(attrname)) {
+    nodecov <- get.node.attr(nw, attrname, "aconcurrent")
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+    nodecov <- match(nodecov,u) # Recode to numeric
+    if (length(u)==1)
+      stop ("Attribute given to aconcurrent() has only one value", call.=FALSE)
+    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+    lu <- length(u)
+    if(drop){ #   Check for degeneracy
+      aconcurrentattr <- summary(as.formula
+                             (paste('nw ~ aconcurrent(',attrname,'")',sep="")),
+                             drop=FALSE) == 0
+      if(any(aconcurrentattr)){
+        dropterms <- paste("aconcurrent", ".", attrname,
+                           u[aconcurrentattr], sep="")
+        cat("Warning: These aconcurrent terms have extreme counts and will be dropped:\n")
+        cat(dropterms, "\n", fill=T)
+        u <- u[-aconcurrentattr]
+      }
+    }
+  } else {
+    if(is.logical(attrname)){drop <- attrname}
+    if(drop){
+      maconcurrent <- summary(
+                          as.formula(paste('nw ~ aconcurrent',sep="")),
+                          drop=FALSE) == 0
+      if(any(maconcurrent)){
+        cat(paste("Warning: There are no concurrent actors.\n"))
+        d <- NULL
+      }
+    }
+  }
+  termnumber<-1+length(m$terms)
+  if(!is.null(attrname)) {
+    if(length(u)==0) {return(m)}
+    #  No covariates here, so input component 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="aconcurrent_by_attr", soname="statnet",
+                                  inputs=c(0, length(u), 
+                                           length(u)+length(nodecov), 
+                                           u, nodecov),
+                                  dependence=TRUE)
+    # See comment in d_aconcurrent_by_attr function
+    m$coef.names<-c(m$coef.names, paste("aconcurrent",".", attrname,
+                                        u, sep=""))
+  }else{
+    lengthd<-length(d)
+    if(lengthd==0){return(m)}
+    #  No covariates here, so input component 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="aconcurrent", soname="statnet",
+                                       inputs=c(0, 1, 0),
+                                       dependence=TRUE)
+    m$coef.names<-c(m$coef.names,paste("aconcurrent",sep=""))
+  }
+  if (!is.null(emptynwstats)) 
+    m$terms[[termnumber]]$emptynwstats <- emptynwstats
+  m
+}
+
 InitErgm.hammingmix<-function (nw, m, arglist, ...) {
 # ergm.checkdirected("hammingmix", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("hammingmix", arglist=arglist,
@@ -1304,4 +1374,73 @@ InitErgm.hammingdyadcov<-function (nw, m, arglist, ...) {
    }
    m$coef.names <- c(m$coef.names, cn)
    m
+}
+InitErgm.econcurrent<-function(nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkbipartite("econcurrent", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("econcurrent", arglist,
+                      varnames = c("attrname"),
+                      vartypes = c("character"),
+                      defaultvalues = list(NULL),
+                      required = c(FALSE))
+  attach(a)
+  attrname <- a$attrname
+  emptynwstats<-NULL
+  nactors <- get.network.attribute(nw, "bipartite")
+  if(!is.null(attrname)) {
+    nodecov <- get.node.attr(nw, attrname, "econcurrent")
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+    nodecov <- match(nodecov,u) # Recode to numeric
+    if (length(u)==1)
+      stop ("Attribute given to econcurrent() has only one value", call.=FALSE)
+    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+    lu <- length(u)
+    if(drop){ #   Check for degeneracy
+      econcurrentattr <- summary(as.formula
+                             (paste('nw ~ econcurrent(',attrname,'")',sep="")),
+                             drop=FALSE) == 0
+      if(any(econcurrentattr)){
+        dropterms <- paste("econcurrent", ".", attrname,
+                           u[econcurrentattr], sep="")
+        cat("Warning: These econcurrent terms have extreme counts and will be dropped:\n")
+        cat(dropterms, "\n", fill=T)
+        u <- u[-econcurrentattr]
+      }
+    }
+  } else {
+    if(is.logical(attrname)){drop <- attrname}
+    if(drop){
+      meconcurrent <- summary(
+                          as.formula(paste('nw ~ econcurrent',sep="")),
+                          drop=FALSE) == 0
+      if(any(meconcurrent)){
+        cat(paste("Warning: There are no concurrent actors.\n"))
+        d <- NULL
+      }
+    }
+  }
+  termnumber<-1+length(m$terms)
+  if(!is.null(attrname)) {
+    if(length(u)==0) {return(m)}
+    #  No covariates here, so input component 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="econcurrent_by_attr", soname="statnet",
+                                  inputs=c(0, length(u), 
+                                           length(u)+length(nodecov), 
+                                           u, nodecov),
+                                  dependence=TRUE)
+    # See comment in d_econcurrent_by_attr function
+    m$coef.names<-c(m$coef.names, paste("econcurrent",".", attrname,
+                                        u, sep=""))
+  }else{
+    lengthd<-length(d)
+    if(lengthd==0){return(m)}
+    #  No covariates here, so input component 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="econcurrent", soname="statnet",
+                                       inputs=c(0, 1, 0),
+                                       dependence=TRUE)
+    m$coef.names<-c(m$coef.names,paste("econcurrent",sep=""))
+  }
+  if (!is.null(emptynwstats)) 
+    m$terms[[termnumber]]$emptynwstats <- emptynwstats
+  m
 }

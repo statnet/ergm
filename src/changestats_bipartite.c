@@ -126,6 +126,139 @@ void d_adegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
 }
 
 /*****************
+ void d_adegree_by_attr
+*****************/
+void d_aconcurrent_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
+	        ModelTerm *mtp, Network *nwp) 
+{
+  /* It is assumed that in this bipartite network, the only edges are
+  of the form (actor, event), where actor is always strictly less
+  than event.  In other words, the degree of an actor is equivalent
+  to its outdegree and the degree of an event is equivalent to its
+  indegree.
+  The inputparams are assumed to be set up as follows:
+    The first 2*nstats values are in pairs:  (degree, attrvalue)
+    The values following the first 2*nstats values are the nodal attributes.
+  */
+  int i, j, echange, actorattr;
+  Vertex actor, event, actordeg, d, *od;
+  TreeNode *oe;  
+  
+  oe=nwp->outedges;
+  od=nwp->outdegree;
+  for (i=0; i < mtp->nstats; i++) 
+    mtp->dstats[i] = 0.0;
+  for (i=0; i<ntoggles; i++) {      
+    echange=(EdgetreeSearch(actor=heads[i], event=tails[i], oe)==0) ? 1 : -1;
+    actordeg = od[actor];
+    actorattr = mtp->inputparams[mtp->nstats + actor - 1]; 
+    for(j = 0; j < mtp->nstats; j++) {
+//Rprintf("j %d actordeg %d actorattr %d inp %d\n",j,actordeg,actorattr,mtp->inputparams[j]);
+      if (actorattr == mtp->inputparams[j]) { /* we have attr match */
+        mtp->dstats[j] += (actordeg + echange > 1) - (actordeg > 1);
+      }
+    }
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
+  
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+void d_aconcurrent (int ntoggles, Vertex *heads, Vertex *tails, 
+	        ModelTerm *mtp, Network *nwp) 
+{
+  /* It is assumed that in this bipartite network, the only edges are
+  of the form (actor, event), where actor is always strictly less
+  than event.  In other words, the degree of an actor is equivalent
+  to its outdegree and the degree of an event is equivalent to its
+  indegree.
+  */
+  int i, j, echange;
+  Vertex actor, event, actdeg, d, *od;
+  TreeNode *oe;  
+  
+  oe=nwp->outedges;
+  od=nwp->outdegree;
+  *(mtp->dstats) = 0.0;  
+  for (i=0; i<ntoggles; i++) {      
+    echange=(EdgetreeSearch(actor=heads[i], event=tails[i], oe)==0) ? 1 : -1;
+    actdeg = od[actor];
+    *(mtp->dstats) += (actdeg + echange > 0) - (actdeg > 0);
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+void d_econcurrent_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
+	        ModelTerm *mtp, Network *nwp) 
+{
+  /* It is assumed that in this bipartite network, the only edges are
+  of the form (actor, event), where actor is always strictly less
+  than event.  In other words, the degree of an actor is equivalent
+  to its outdegree and the degree of an event is equivalent to its
+  indegree.
+  The inputparams are assumed to be set up as follows:
+    The first 2*nstats values are in pairs:  (degree, attrvalue)
+    The values following the first 2*nstats values are the nodal attributes.
+  */
+  int i, j, echange, eventattr;
+  Vertex actor, event, eventdeg, d, *id;
+  TreeNode *oe;  
+  
+  oe=nwp->outedges;
+  id=nwp->indegree;
+  for (i=0; i < mtp->nstats; i++) 
+    mtp->dstats[i] = 0.0;
+  for (i=0; i<ntoggles; i++) {      
+    echange=(EdgetreeSearch(actor=heads[i], event=tails[i], oe)==0) ? 1 : -1;
+    eventdeg = id[event];
+    eventattr = mtp->inputparams[mtp->nstats + event - 1];
+    for(j = 0; j < mtp->nstats; j++) {
+      if (eventattr == mtp->inputparams[j]) { /* we have attr match */
+        mtp->dstats[j] += (eventdeg + echange > 1) - (eventdeg > 1);
+      }
+    }
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
+  
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+void d_econcurrent (int ntoggles, Vertex *heads, Vertex *tails, 
+	            ModelTerm *mtp, Network *nwp) 
+{
+  /* It is assumed that in this bipartite network, the only edges are
+  of the form (actor, event), where actor is always strictly less
+  than event.  In other words, the degree of an actor is equivalent
+  to its outdegree and the degree of an event is equivalent to its
+  indegree.
+  */
+  int i, j, echange;
+  Vertex actor, event, eventdeg, d, *id;
+  TreeNode *oe;  
+  
+  oe=nwp->outedges;
+  id=nwp->indegree;
+  *(mtp->dstats) = 0.0;  
+  for (i=0; i<ntoggles; i++) {      
+    echange=(EdgetreeSearch(actor=heads[i], event=tails[i], oe)==0) ? 1 : -1;
+    eventdeg = id[event];
+    *(mtp->dstats) += (eventdeg + echange > 1) - (eventdeg > 1);
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+
+/*****************
  void d_edegree
 *****************/
 void d_edegree (int ntoggles, Vertex *heads, Vertex *tails, 
