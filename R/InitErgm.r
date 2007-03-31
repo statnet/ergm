@@ -2108,7 +2108,7 @@ InitErgm.nodemix<-function (nw, m, arglist, drop=TRUE, ...) {
 #   So undirected network storage but directed mixing
 #
     nodecov <- get.node.attr(nw, attrname, "mix")
-    mixmat <- mixingmatrix(nw,attrname)
+    mixmat <- mixingmatrix.via.edgelist(nw,attrname)
     mixmat <- mixmat[-NROW(mixmat),-NROW(mixmat)]
     u <- cbind(as.vector(row(mixmat)), 
                as.vector(col(mixmat)))

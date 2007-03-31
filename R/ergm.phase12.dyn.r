@@ -1,6 +1,5 @@
-ergm.phase2.dyn <- function(g, model, model.dissolve, 
+ergm.phase12.dyn <- function(g, model, model.dissolve, 
                         MHproposal, eta0,
-                        aDdiaginv,
                         MCMCparams, verbose, BD) {
   ms <- MCMCparams$meanstats
   if(!is.null(ms)) {

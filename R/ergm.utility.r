@@ -272,7 +272,7 @@ function(x, alternative = c("two.sided", "less", "greater"),
     return(rval)
 }
 
-mixingmatrix <- function(g,attrname)
+mixingmatrix.via.edgelist <- function(g,attrname)
 {
  if(!is.network(g)){
   stop("mixingmatrix() requires a network object")
@@ -305,7 +305,37 @@ mixingmatrix <- function(g,attrname)
    total <- apply(tabu,2,sum)
    tabu <- rbind(tabu,total)
    dimnames(tabu) <- list(c(u,"total"),c(u,"total"))
-   if(is.bipartite(g)){tabu <- t(tabu)}
+#  if(is.bipartite(g)){tabu <- t(tabu)}
+ }
+ tabu
+}
+
+mixingmatrix <- function(g,attrname)
+{
+ if(!is.network(g)){
+  stop("mixingmatrix() requires a network object")
+ }
+ nodecov <- get.node.attr(g, attrname)
+ u<-sort(unique(nodecov))
+ tabu <- matrix(summary(as.formula(paste("g~nodemix('",attrname,"')",sep=""))),
+                ncol=length(u))
+ if(!is.directed(g)  & !is.bipartite(g)){
+   tabu <- tabu + t(tabu)
+   total <- apply(tabu,1,sum)
+   tabu <- cbind(tabu,total)
+   tabu <- rbind(tabu,c(total,sum(total)))
+   tabu[row(tabu)>col(tabu)] <- 0
+   diag(tabu) <- diag(tabu)/2
+   tabu[nrow(tabu),] <- c(total,sum(total))
+#  dimnames(tabu)[[1]][nrow(tabu)] <- "total"
+   dimnames(tabu) <- list(c(u,"total"),c(u,"total"))
+ }else{
+   total <- apply(tabu,1,sum)
+   tabu <- cbind(tabu,total)
+   total <- apply(tabu,2,sum)
+   tabu <- rbind(tabu,total)
+   dimnames(tabu) <- list(c(u,"total"),c(u,"total"))
+#  if(is.bipartite(g)){tabu <- t(tabu)}
  }
  tabu
 }

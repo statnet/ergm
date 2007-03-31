@@ -22,7 +22,8 @@ ergm.robmon.dyn <- function(theta0, nw, model, model.dissolve, Clist, BD,
   cat("Robbins-Monro algorithm with theta_0 equal to:\n")
   print(theta0)
   names(Clist$obs) <- names(theta0)
-  MCMCparams <- list(samplesize=100, phase1=n1, burnin=burnin, interval=interval,
+  MCMCparams <- list(samplesize=100, phase1=n1, burnin=burnin,
+                     interval=interval,
                      orig.obs=Clist$obs, meanstats=Clist$meanstats,
                      gamma=gamma, parallel=algorithm.control$parallel,
                      dyninterval=algorithm.control$dyninterval,
@@ -72,15 +73,15 @@ ergm.robmon.dyn <- function(theta0, nw, model, model.dissolve, Clist, BD,
   }
 # cat(paste("Phase 2: a=",a,"Total Samplesize",MCMCparams$samplesize,"\n"))
 # aDdiaginv <- a * Ddiaginv
-  z <- ergm.phase2.dyn(nw, model, model.dissolve, MHproposal, 
-                   eta, aDdiaginv, MCMCparams, verbose=TRUE, BD)
+  z <- ergm.phase12.dyn(nw, model, model.dissolve, MHproposal, 
+                   eta, MCMCparams, verbose=TRUE, BD)
   cat("\n Number changed: ");cat(paste(nrow(z$changed)));cat("\n Edges:")
   cat(paste(summary(nw ~ edges)));cat("\n")
-# nw <- network.update(nw, z$newedgelist)
-  toggle.dyads(nw, tail = z$changed[,2], head = z$changed[,3])
+  nw <- network.update(nw, z$newedgelist)
+# toggle.dyads(nw, tail = z$changed[,2], head = z$changed[,3])
   MCMCparams$orig.obs <- summary(model$formula)
   print( MCMCparams$orig.obs)
-  MCMCparams$maxchanges <- z$maxchanges
+# MCMCparams$maxchanges <- z$maxchanges
   theta <- z$eta
   names(theta) <- names(theta0)
   cat(paste(" (eta= ",paste(theta),")\n",sep=""))
@@ -116,7 +117,7 @@ ergm.robmon.dyn <- function(theta0, nw, model, model.dissolve, Clist, BD,
                    compress=algorithm.control$compress, verbose=verbose)
 #
 # Important: Keep R-M (pre-NR) theta
-  ve$coef <- theta
+# ve$coef <- theta
 #
   endrun <- burnin+interval*(ve$samplesize-1)
   attr(ve$sample, "mcpar") <- c(burnin+1, endrun, interval)
