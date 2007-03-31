@@ -21,7 +21,7 @@ ergm.robmon <- function(theta0, nw, model, Clist, BD,
   cat("Robbins-Monro algorithm with theta_0 equal to:\n")
   print(theta0)
   MCMCparams <- list(samplesize=n1, burnin=burnin, interval=interval,
-                     parallel=parallel)
+                     parallel=algorithm.control$parallel)
   MHproposal <- list(package=algorithm.control$proposalpackage, type=proposaltype)
   cat(paste("Phase 1: ",n1,"iterations"))
   cat(paste(" (interval=",MCMCparams$interval,")\n",sep=""))

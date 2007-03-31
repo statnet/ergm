@@ -183,7 +183,7 @@ ergm.FindFailedSlaves <- function (tids) {
   }
   system(paste("mkdir -p ",SLAVEDIR,sep=""),ignore.stderr=TRUE)
 # system(paste("/bin/rm -f ",SLAVEDIR,"/*.Rout",sep=""))
-  Routs <- paste(system(paste("/bin/ls ",SLAVEDIR,"/*.Rout",sep=""),intern=TRUE,ignore.stderr=TRUE))
+  Routs <- paste(system(paste("ls ",SLAVEDIR,"/*.Rout",sep=""),intern=TRUE,ignore.stderr=TRUE))
   if(length(Routs)>0){
    unlink(paste(SLAVEDIR,"/*.Rout",sep=""))
   }

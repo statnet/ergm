@@ -49,7 +49,8 @@ void MCMCDynPhase2 (int *order_code, double *heads, double *tails, double *dnedg
                    int *nterms, char **funnames, char **sonames, 
                    char **MHproposaltype, char **MHproposalpackage,
                    double *inputs, 
-		   double *theta0, double *aDdiaginv, 
+		   double *theta0, double *gain, double *meanstats,
+		   int *phase1, int *nsub,
                    int *ndynterms, char **dynfunnames, char **dynsonames, 
                    double *dyninputs, 
 		   double *samplesize, 
@@ -66,7 +67,8 @@ void MCMCDynPhase2 (int *order_code, double *heads, double *tails, double *dnedg
                    int *mdflag);
 
 void MCMCSampleDynPhase2 (DynamOrder order, char *MHproposaltype, char *MHproposalpackage,
-  double *theta, double *aDdiaginv, double *networkstatistics, 
+  double *theta, double gain, double *meanstats,
+  int nphase1, int nsubphases, double *networkstatistics, 
   long int samplesize, long int burnin, 
   long int interval, int hammingterm, int fVerbose,
   double *gamma, int dyninterval,
