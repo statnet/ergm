@@ -1,7 +1,19 @@
-ergm.phase2.old <- function(g, model, model.dissolve, 
+ergm.phase2.dyn <- function(g, model, model.dissolve, 
                         MHproposal, eta0,
                         aDdiaginv,
                         MCMCparams, verbose, BD) {
+  ms <- MCMCparams$meanstats
+  if(!is.null(ms)) {
+    if (is.null(names(ms)) && length(ms) == length(model$coef.names))
+      names(ms) <- model$coef.names
+    obs <- MCMCparams$orig.obs
+    obs <- obs[match(names(ms), names(obs))]
+    ms  <-  ms[match(names(obs), names(ms))]
+    matchcols <- match(names(ms), names(obs))
+    if (any(!is.na(matchcols))) {
+      ms[!is.na(matchcols)] <- ms[!is.na(matchcols)] - obs[matchcols[!is.na(matchcols)]]
+    }
+  }
   Clist <- ergm.Cprepare(g, model)
   Clist.dissolve <- ergm.Cprepare(g, model.dissolve)
   maxchanges <- max(MCMCparams$maxchanges, Clist$nedges)/5
@@ -28,7 +40,9 @@ ergm.phase2.old <- function(g, model, model.dissolve,
           as.character(MHproposal$type), as.character(MHproposal$package),
           as.double(Clist$inputs),
           eta=as.double(eta0),
-          as.double(aDdiaginv),
+          as.double(MCMCparams$gain), as.double(ms),
+          as.integer(MCMCparams$phase1),
+          as.integer(MCMCparams$nsub),
           as.integer(Clist.dissolve$nterms),
           as.character(Clist.dissolve$fnamestring),
           as.character(Clist.dissolve$snamestring),
@@ -125,23 +139,6 @@ ergm.phase2.old <- function(g, model, model.dissolve,
      diffedgelist <- matrix(0, ncol=3, nrow=0)
     }
     colnames(statsmatrix) <- model$coef.names
-#
-# recenter statsmatrix by mean statistics if necessary
-#
-  ms <- MCMCparams$meanstats
-  if(!is.null(ms)) {
-    if (is.null(names(ms)) && length(ms) == length(model$coef.names))
-      names(ms) <- model$coef.names
-    obs <- MCMCparams$orig.obs
-    obs <- obs[match(colnames(statsmatrix), names(obs))]
-    ms  <-  ms[match(names(obs), names(ms))]
-    matchcols <- match(names(ms), names(obs))
-    if (any(!is.na(matchcols))) {
-      ms[!is.na(matchcols)] <- ms[!is.na(matchcols)] - obs[matchcols[!is.na(matchcols)]]
-      statsmatrix[,!is.na(matchcols)] <- sweep(as.matrix(
-         statsmatrix[,!is.na(matchcols)]), 2, ms[!is.na(matchcols)], "-")
-    }
-  }
   list(statsmatrix=statsmatrix, newedgelist=newedgelist, meanstats=ms,
        changed=diffedgelist, dissolved=dissedgelist,
        maxchanges=MCMCparams$maxchanges,
