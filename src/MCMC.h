@@ -60,4 +60,28 @@ void MCMC_global (double *heads, double *tails, double *dnedges,
 		  int *nterms, char **funnames,
 		  char **sonames, double *inputs,  double *stats); 
 
-#endif 
+void MCMCPhase12 (double *heads, double *tails, double *dnedges,
+                   double *dn, int *dflag, double *bipartite, 
+                   int *nterms, char **funnames,
+                   char **sonames, 
+                   char **MHproposaltype, char **MHproposalpackage,
+                   double *inputs, 
+		   double *theta0, double *samplesize,
+		   double *gain, double *meanstats, int *phase1, int *nsub,
+                   double *sample, double *burnin, double *interval,  
+                   int *newnetwork, 
+                   int *fVerbose, 
+                   int *attribs, int *maxout, int *maxin, int *minout,
+                   int *minin, int *condAllDegExact, int *attriblength, 
+                   double *maxedges,
+                   double *mheads, double *mtails, double *mdnedges,
+                   int *mdflag);
+
+void MCMCSamplePhase12 (char *MHproposaltype, char *MHproposalpackage,
+  double *theta, double gain, double *meanstats,
+  int nphase1, int nsubphases, double *networkstatistics, 
+  long int samplesize, long int burnin, 
+  long int interval, int hammingterm, int fVerbose,
+  Network *nwp, Model *m, DegreeBound *bd);
+
+#endif

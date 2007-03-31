@@ -1109,16 +1109,14 @@ void MCMCSampleDynPhase2 (DynamOrder order, char *MHproposaltype, char *MHpropos
   values of the first group of m->n_stats networkstatistics should 
   all be zero
   *********************/
-  double *ubar, *u2bar, *burnstatistics, *aDdiaginv;
+  double *ubar, *u2bar, *aDdiaginv;
   ubar = (double *)malloc( m->n_stats * sizeof(double));
   u2bar = (double *)malloc( m->n_stats * sizeof(double));
-  burnstatistics = (double *)malloc( m->n_stats * sizeof(double));
   aDdiaginv = (double *)malloc( m->n_stats * sizeof(double));
   for (j=0; j < m->n_stats; j++){
-    networkstatistics[j] = 0.0;
+    networkstatistics[j] = -meanstats[j];
     ubar[j] = 0.0;
     u2bar[j] = 0.0;
-    burnstatistics[j] = 0.0;
   }
   mtp = m->termarray;
 
@@ -1132,7 +1130,7 @@ void MCMCSampleDynPhase2 (DynamOrder order, char *MHproposaltype, char *MHpropos
     staken = 0;
     Rprintf("Starting burnin of %d steps\n", burnin);
     MetropolisHastingsDyn (order, &MH, theta,
-		  burnstatistics, burnin, &staken,
+		  networkstatistics, burnin, &staken,
 		  hammingterm, fVerbose, gamma, dyninterval,
 		  nmax,
 		  dissolvetime, dissolvehead, dissolvetail,
@@ -1143,7 +1141,7 @@ void MCMCSampleDynPhase2 (DynamOrder order, char *MHproposaltype, char *MHpropos
     /* Now sample networks */
     for (i=0; i <= nphase1; i++){
       MetropolisHastingsDyn (order, &MH, theta,
-		  burnstatistics, burnin, &staken,
+		  networkstatistics, burnin, &staken,
 		  hammingterm, fVerbose, gamma, dyninterval,
 		  nmax,
 		  dissolvetime, dissolvehead, dissolvetail,
@@ -1152,14 +1150,9 @@ void MCMCSampleDynPhase2 (DynamOrder order, char *MHproposaltype, char *MHpropos
 		  nwp, m, mdyn, bd);
       if(i > 0){
        for (j=0; j<m->n_stats; j++){
-        ubar[j] += burnstatistics[j];
-        u2bar[j] += burnstatistics[j]*burnstatistics[j];
-//        burnstatistics[j]=0.0;
+        ubar[j]  += networkstatistics[j];
+        u2bar[j] += networkstatistics[j]*networkstatistics[j];
        }
-      }else{
-//     for (j=0; j<m->n_stats; j++){
-//      burnstatistics[j]=0.0;
-//     }
       }
 //  Rprintf("done %d step gain %f \n", i, gain);
     }
@@ -1191,16 +1184,28 @@ void MCMCSampleDynPhase2 (DynamOrder order, char *MHproposaltype, char *MHpropos
     /* Update theta0 */
 //Rprintf("initial:\n");
       for (j=0; j<m->n_stats; j++){
-//Rprintf(" %f ns %f",  aDdiaginv[j], burnstatistics[j]);
-        theta[j] -= aDdiaginv[j] * (networkstatistics[j]-meanstats[j]);
+        theta[j] -= aDdiaginv[j] * networkstatistics[j];
       }
 //Rprintf("\n");
-//      if (fVerbose){ Rprintf("step %d from %d:\n",i, samplesize);}
+//    if (fVerbose){ Rprintf("nsubphases %d i %d\n", nsubphases, i); }
+      if (i==(nsubphases)){
+	nsubphases = trunc(nsubphases*2.52) + 1;
+        if (fVerbose){Rprintf("Updating nsub to be %d\n",nsubphases);}
+        for (j=0; j<m->n_stats; j++){
+          aDdiaginv[j] /= 2.0;
+          if (fVerbose){Rprintf("j %d theta %f ns %f\n",
+		                 j, theta[j], networkstatistics[j]);}
+//        if (fVerbose){ Rprintf(" %f statsmean %f",  theta[j],(networkstatistics[j]-meanstats[j])); }
+        }
+        Rprintf("\n");
+      }
       /* Set current vector of stats equal to previous vector */
       for (j=0; j<m->n_stats; j++){
+//      networkstatistics[j] -= meanstats[j];
         networkstatistics[j+m->n_stats] = networkstatistics[j];
       }
       networkstatistics += m->n_stats;
+//      if (fVerbose){ Rprintf("step %d from %d:\n",i, samplesize);}
       /* This then adds the change statistics to these values */
       tottaken += staken;
       if (fVerbose){
@@ -1214,16 +1219,6 @@ void MCMCSampleDynPhase2 (DynamOrder order, char *MHproposaltype, char *MHpropos
         "%d steps out of a possible %d\n",  ptottaken-tottaken, i); 
       }
 //      Rprintf("Sampled %d from %d\n", i, samplesize);
-//    if (fVerbose){ Rprintf("nsubphases %d i %d\n", nsubphases, i); }
-      if (i==(nsubphases)){
-	nsubphases = trunc(nsubphases*2.52) + 1;
-        if (fVerbose){Rprintf("Updating nsub to be %d\n",nsubphases);}
-        for (j=0; j<m->n_stats; j++){
-          aDdiaginv[j] /= 2.0;
-          if (fVerbose){Rprintf(" theta %f ns %f",  theta[j], (networkstatistics[j]-meanstats[j]));}
-//        if (fVerbose){ Rprintf(" %f statsmean %f",  theta[j],(networkstatistics[j]-meanstats[j])); }
-        }
-      }
 
     /*********************
     Below is an extremely crude device for letting the user know
@@ -1248,7 +1243,6 @@ void MCMCSampleDynPhase2 (DynamOrder order, char *MHproposaltype, char *MHpropos
 //  }
   free(ubar);
   free(u2bar);
-  free(burnstatistics);
   free(MH.togglehead);
   free(MH.toggletail);
 }

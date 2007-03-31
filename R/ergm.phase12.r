@@ -16,8 +16,8 @@ ergm.phase12 <- function(g, model,
   Clist <- ergm.Cprepare(g, model)
   maxedges <- max(MCMCparams$maxedges, Clist$nedges)/5
   MCMCparams$maxedges <- MCMCparams$maxedges/5
-  z <- list(newnwhead=maxedges+1)
-  while(z$newnwhead[1]  >= maxedges){
+  z <- list(newnw=maxedges+1)
+  while(z$newnw[1] >= maxedges){
     maxedges <- 5*maxedges
     MCMCparams$maxedges <- 5*MCMCparams$maxedges
     if(verbose){cat(paste("MCMC workspace is",maxedges,"\n"))}

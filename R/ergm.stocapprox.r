@@ -21,6 +21,7 @@ ergm.stocapprox <- function(theta0, nw, model, Clist, BD,
   cat("Robbins-Monro algorithm with theta_0 equal to:\n")
   print(theta0)
   names(Clist$obs) <- names(theta0)
+  if(is.null(Clist$meanstats)){Clist$meanstats <- Clist$obs}
   MCMCparams <- list(samplesize=100, phase1=n1, burnin=burnin,
                      interval=interval,
                      orig.obs=Clist$obs, meanstats=Clist$meanstats,
@@ -32,20 +33,6 @@ ergm.stocapprox <- function(theta0, nw, model, Clist, BD,
 # cat(paste("Phase 1: ",n1,"iterations"))
 # cat(paste(" (interval=",MCMCparams$interval,")\n",sep=""))
   nw.orig <- nw
-# z <- ergm.getMCMCDynsample(nw, model, model.dissolve, MHproposal, 
-#                            eta0, MCMCparams, verbose, BD)
-# toggle.dyads(nw, tail = z$changed[,2], head = z$changed[,3])
-# nw <- network.update(nw, z$newedgelist)
-# MCMCparams$orig.obs <- summary(model$formula)
-# MCMCparams$maxchanges <- z$maxchanges
-# ubar <- apply(z$statsmatrix, 2, mean)
-# Ddiag <- apply(z$statsmatrix^2, 2, mean) - ubar^2
-  # This is equivalent to, but more efficient than,
-  # Ddiag <- diag(t(z$statsmatrix) %*% z$statsmatrix / phase1_n - outer(ubar,ubar))
-# cat("Phase 1 complete; estimated variances are:\n")
-# print(Ddiag)
-# print(1/Ddiag)
-  
   #phase 2:  Main phase
   a <- algorithm.control$initial_gain
   if(is.null(a)) {a <- 0.1} #default value
@@ -71,7 +58,7 @@ ergm.stocapprox <- function(theta0, nw, model, Clist, BD,
   }
 # cat(paste("Phase 2: a=",a,"Total Samplesize",MCMCparams$samplesize,"\n"))
 # aDdiaginv <- a * Ddiaginv
-  z <- ergm.phase12(nw, model, model.dissolve, MHproposal, 
+  z <- ergm.phase12(nw, model, MHproposal, 
                     eta, MCMCparams, verbose=TRUE, BD)
   nw <- network.update(nw, z$newedgelist)
 # toggle.dyads(nw, tail = z$changed[,2], head = z$changed[,3])
@@ -91,7 +78,7 @@ ergm.stocapprox <- function(theta0, nw, model, Clist, BD,
   eta <- ergm.eta(theta, model$etamap)
 #cat(paste(" (samplesize=",MCMCparams$samplesize,")\n",sep=""))
 #cat(paste(" eta=",eta,")\n",sep=""))
-  z <- ergm.getMCMCsample(nw, model,
+  z <- ergm.getMCMCsample(Clist, model,
                           MHproposal, eta, MCMCparams, verbose, BD)
   MCMCparams$maxedges <- z$maxedges
 # ubar <- apply(z$statsmatrix, 2, mean)

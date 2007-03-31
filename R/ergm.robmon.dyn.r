@@ -22,6 +22,7 @@ ergm.robmon.dyn <- function(theta0, nw, model, model.dissolve, Clist, BD,
   cat("Robbins-Monro algorithm with theta_0 equal to:\n")
   print(theta0)
   names(Clist$obs) <- names(theta0)
+  if(is.null(Clist$meanstats)){Clist$meanstats <- Clist$obs}
   MCMCparams <- list(samplesize=100, phase1=n1, burnin=burnin,
                      interval=interval,
                      orig.obs=Clist$obs, meanstats=Clist$meanstats,
