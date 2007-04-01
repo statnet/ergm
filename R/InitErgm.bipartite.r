@@ -1412,8 +1412,8 @@ InitErgm.econcurrent<-function(nw, m, arglist, drop=TRUE, ...) {
                           as.formula(paste('nw ~ econcurrent',sep="")),
                           drop=FALSE) == 0
       if(any(meconcurrent)){
-        cat(paste("Warning: There are no concurrent actors.\n"))
-        d <- NULL
+        cat(paste("Warning: There are no concurrent events\n"))
+        return(m)
       }
     }
   }
@@ -1430,8 +1430,6 @@ InitErgm.econcurrent<-function(nw, m, arglist, drop=TRUE, ...) {
     m$coef.names<-c(m$coef.names, paste("econcurrent",".", attrname,
                                         u, sep=""))
   }else{
-    lengthd<-length(d)
-    if(lengthd==0){return(m)}
     #  No covariates here, so input component 1 is arbitrary
     m$terms[[termnumber]] <- list(name="econcurrent", soname="statnet",
                                        inputs=c(0, 1, 0),

@@ -29,6 +29,10 @@ void d_boundedkstar (int ntoggles, Vertex *heads, Vertex *tails,
 		     ModelTerm *mtp, Network *nwp);
 void d_boundedtriangle (int ntoggles, Vertex *heads, Vertex *tails, 
 			ModelTerm *mtp, Network *nwp);
+void d_concurrent (int ntoggles, Vertex *heads, Vertex *tails, 
+			ModelTerm *mtp, Network *nwp);
+void d_concurrent_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
+			ModelTerm *mtp, Network *nwp);
 void d_ctriad (int ntoggles, Vertex *heads, Vertex *tails, 
 	       ModelTerm *mtp, Network *nwp);
 void d_degree (int ntoggles, Vertex *heads, Vertex *tails, 

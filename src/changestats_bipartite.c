@@ -185,7 +185,7 @@ void d_aconcurrent (int ntoggles, Vertex *heads, Vertex *tails,
   for (i=0; i<ntoggles; i++) {      
     echange=(EdgetreeSearch(actor=heads[i], event=tails[i], oe)==0) ? 1 : -1;
     actdeg = od[actor];
-    *(mtp->dstats) += (actdeg + echange > 0) - (actdeg > 0);
+    *(mtp->dstats) += (actdeg + echange > 1) - (actdeg > 1);
     if (i+1 < ntoggles)
       ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
   }

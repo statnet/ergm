@@ -1865,6 +1865,73 @@ InitErgm.isolates<-function(nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
+InitErgm.concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
+# ergm.checkdirected("concurrent", is.directed(nw), requirement=TRUE)
+  a <- ergm.checkargs("concurrent", arglist,
+                      varnames = c("attrname"),
+                      vartypes = c("character"),
+                      defaultvalues = list(NULL),
+                      required = c(FALSE))
+  attach(a)
+  attrname <- a$attrname
+  emptynwstats<-NULL
+  if(!is.null(attrname)) {
+    nodecov <- get.node.attr(nw, attrname, "concurrent")
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+    nodecov <- match(nodecov,u) # Recode to numeric
+    if (length(u)==1)
+      stop ("Attribute given to concurrent() has only one value", call.=FALSE)
+    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+    lu <- length(u)
+    if(drop){ #   Check for degeneracy
+      concurrentattr <- summary(as.formula
+                             (paste('nw ~ concurrent(',attrname,'")',sep="")),
+                             drop=FALSE) == 0
+      if(any(concurrentattr)){
+        dropterms <- paste("concurrent", ".", attrname,
+                           u[concurrentattr], sep="")
+        cat("Warning: These concurrent terms have extreme counts and will be dropped:\n")
+        cat(dropterms, "\n", fill=T)
+        u <- u[-concurrentattr]
+      }
+    }
+  } else {
+    if(is.logical(attrname)){drop <- attrname}
+    if(drop){
+      mconcurrent <- summary(
+                          as.formula(paste('nw ~ concurrent',sep="")),
+                          drop=FALSE) == 0
+      if(any(mconcurrent)){
+        cat(paste("Warning: There are no concurrent actors.\n"))
+        return(m)
+      }
+    }
+  }
+  termnumber<-1+length(m$terms)
+  if(!is.null(attrname)) {
+    if(length(u)==0) {return(m)}
+    #  No covariates here, so input component 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="concurrent_by_attr", soname="statnet",
+                                  inputs=c(0, length(u), 
+                                           length(u)+length(nodecov), 
+                                           u, nodecov),
+                                  dependence=TRUE)
+    # See comment in d_concurrent_by_attr function
+    m$coef.names<-c(m$coef.names, paste("concurrent",".", attrname,
+                                        u, sep=""))
+  }else{
+    #  No covariates here, so input component 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="concurrent", soname="statnet",
+                                       inputs=c(0, 1, 0),
+                                       dependence=TRUE)
+    m$coef.names<-c(m$coef.names,paste("concurrent",sep=""))
+  }
+  if (!is.null(emptynwstats)) 
+    m$terms[[termnumber]]$emptynwstats <- emptynwstats
+  m
+}
+
 InitErgm.kstar<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("kstar", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("kstar", arglist,
