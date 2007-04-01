@@ -496,9 +496,8 @@ void d_birnought (int ntoggles, Vertex *heads, Vertex *tails,
   double nedges, change, iar0, far0, ier0, fer0;
   Vertex h, t, hd, td=0, iak2, fak2, iek2, fek2, nnodes, *id, *od;
   Vertex nevents, nactors;
-  TreeNode *oe;  
+  TreeNode *oe=nwp->outedges;
   
-  oe=nwp->outedges;
   id=nwp->indegree;
   od=nwp->outdegree;
   nnodes = nwp->nnodes;
@@ -528,8 +527,8 @@ void d_birnought (int ntoggles, Vertex *heads, Vertex *tails,
     ier0 = (nwp->nedges==0) ? 0.0 : (iek2*1.0/nedges);
     fer0 = (((nwp->nedges)+echange)==0) ? 0.0 : (fek2*1.0/(nedges+echange));
     change += sqrt(far0*fer0) - sqrt(iar0*ier0);
-//   Rprintf("h %d t %d nnodes %d nedges %f iak2 %d fak2 %d iar0 %f far0 %f change %f\n",h,t, nnodes,  nedges, iak2, fak2, iar0, far0, change);
-//   Rprintf("h %d t %d nnodes %d nedges %f iek2 %d fek2 %d ier0 %f fer0 %f change %f\n",h,t, nnodes,  nedges, iek2, fek2, ier0, fer0, change);
+//   Rprintf("h %d t %d nnodes %d nedges %f iar0 %f far0 %f change %f\n",h,t, nnodes,  nedges, iar0, far0, change);
+//   Rprintf("h %d t %d nnodes %d nedges %f ier0 %f fer0 %f change %f\n",h,t, nnodes,  nedges, ier0, fer0, change);
       
     if (i+1 < ntoggles)
       ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */

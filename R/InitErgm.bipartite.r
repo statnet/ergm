@@ -1117,7 +1117,7 @@ InitErgm.aconcurrent<-function(nw, m, arglist, drop=TRUE, ...) {
                           drop=FALSE) == 0
       if(any(maconcurrent)){
         cat(paste("Warning: There are no concurrent actors.\n"))
-        d <- NULL
+        return(m)
       }
     }
   }
@@ -1134,8 +1134,6 @@ InitErgm.aconcurrent<-function(nw, m, arglist, drop=TRUE, ...) {
     m$coef.names<-c(m$coef.names, paste("aconcurrent",".", attrname,
                                         u, sep=""))
   }else{
-    lengthd<-length(d)
-    if(lengthd==0){return(m)}
     #  No covariates here, so input component 1 is arbitrary
     m$terms[[termnumber]] <- list(name="aconcurrent", soname="statnet",
                                        inputs=c(0, 1, 0),
