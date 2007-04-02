@@ -64,7 +64,7 @@ void AddNewDurationRow (int *dmatrix, int row, int f, int m, int time, int offse
 void OverlapDurations (int *nedge, int *edge, int *ntimestep, int *nfem,
       int *ntotal, int *nchange, int *change, int *ndissolve, int *dissolve,
       int *maxoverlaps, int *omatrix) {
-  Edge e, i, j, time, row, ne = *nedge, maxo = *maxoverlaps;
+  Edge e, i, j, k, time, row, ne = *nedge, maxo = *maxoverlaps;
   Vertex f1, m1, f2, m2, nnodes, bipartite = *nfem;
   double *heads, *tails;
   TreeNode *ie, *oe;
@@ -80,7 +80,7 @@ void OverlapDurations (int *nedge, int *edge, int *ntimestep, int *nfem,
       m2=EDGE(j,1);
       if (f1 == f2 || m1 == m2) {
         AddNewOverlapRow(omatrix,row++,f1,m1,f2,m2,0,maxo);
-      }
+      }              
     }
   }
   
@@ -105,10 +105,19 @@ void OverlapDurations (int *nedge, int *edge, int *ntimestep, int *nfem,
     for(; CHANGE(j,0) == time; j++) {
       f1 = CHANGE(j,1);
       m1 = CHANGE(j,2);
-
       if (EdgetreeSearch(f1, m1, nw.outedges) != 0) { 
         /* Edge exists and must be removed. */
-        /* First, end all unfinished overlaps involving this edge */
+        /* Check whether there are any (zero-length) "concurrencies" with edges
+        that begin AT THE CURRENT TIME but that haven't yet been encountered. */
+        for (k=j+1; k < *nchange && CHANGE(k,0) == time; k++) {
+          f2 = CHANGE(k, 1);
+          m2 = CHANGE(k, 2);
+          if ((f1==f2 || m1==m2) && EdgetreeSearch(f2,m2,nw.outedges)==0) {
+            /* Any new concurrency begun this way will be immediately ended */
+            AddNewOverlapRow(omatrix,row++,f1,m1,f1,m2,time+1,maxo); 
+          } 
+        }
+        /* End all unfinished overlaps involving this edge */
         for(i=0; i <= row; i++) {
           if (OMATRIX(i, 5) == -1 &&
             ((f1 == OMATRIX(i, 0) && m1 == OMATRIX(i, 1)) ||
