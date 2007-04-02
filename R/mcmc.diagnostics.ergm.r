@@ -10,7 +10,7 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
                                   smooth=TRUE,
                                   r=0.0125, digits=6,
                                   maxplot=1000, verbose=TRUE, center=TRUE,
-                                  mcmc.title="Summary of MCMC samples", ...) {
+                                  main="Summary of MCMC samples",  xlab = "Iterations", ylab = "", ...) {
 #
   if(sample=="missing"){
     component <- "sample"
@@ -87,7 +87,8 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
     if(require("coda", quietly = TRUE)) {
      plot.mcmc.ergm(statsmatrix, ask=FALSE, smooth=smooth, 
                     maxplot=maxplot, parallel=object$parallel,
-                    x0=x0, mcmc.title=mcmc.title, ...)
+                    x0=x0, 
+                    xlab=xlab, ylab=ylab, mcmc.title=main, ...)
     }else{
      warning("For all MCMC diagnostics you need the 'coda' package.")
      return(invisible())
@@ -235,6 +236,7 @@ print.raftery.diag.ergm <- function (x, digits = 3, simvalues=NULL, ...)
 "plot.mcmc.ergm" <- function(x, trace = TRUE, density = TRUE, 
                          smooth = TRUE, bwf, 
                          auto.layout = TRUE, ask = TRUE,
+                         xlab = "Iterations", ylab = "",
                          maxplot=1000, parallel=0, x0, mcmc.title="", ...) 
 {
   oldpar <- NULL
@@ -249,7 +251,8 @@ print.raftery.diag.ergm <- function (x, digits = 3, simvalues=NULL, ...)
     y <- x[, i, drop = FALSE]
     attr(y, "class") <- "mcmc"
     if (trace){ 
-      traceplot.ergm(y, smooth = smooth, maxplot=maxplot, parallel=parallel)
+      traceplot.ergm(y, smooth = smooth, maxplot=maxplot, parallel=parallel,
+                     xlab=xlab, ylab=ylab)
       abline(h=x0[i],lty=3, lwd=2)
     }
     if (density){
@@ -263,7 +266,7 @@ print.raftery.diag.ergm <- function (x, digits = 3, simvalues=NULL, ...)
 }
 "traceplot.ergm" <-
 function (x, smooth = TRUE, col = 1:6, type = "l",
-          ylab = "", maxplot=1000, parallel=0, ...) 
+          xlab = "Iterations", ylab = "", maxplot=1000, parallel=0, ...) 
 {
 # x <- mcmc.list(x)
 # xmcpar <- c(start(x), end(x), thin(x))
@@ -275,7 +278,7 @@ function (x, smooth = TRUE, col = 1:6, type = "l",
      yp <- as.matrix(yp[seq(1,length(yp),length=maxplot),])
      xp <- xp[seq(1,length(xp),length=maxplot)]
     }
-    matplot(xp, yp, xlab = "Iterations", ylab = ylab, type = type, 
+    matplot(xp, yp, xlab = xlab, ylab = ylab, type = type, 
          col = col, ...)
     if(!is.null(parallel) && parallel>0){
      abline(v=xp[round(seq(from=1,to=length(xp),length=parallel+1))],lty=2)
