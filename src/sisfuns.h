@@ -5,7 +5,7 @@
 #include "basechangeStats.h"
 #include "model.h"
 
-int sisconj (int *colsums, int *conjseq, int nrow, int ncol, int i);
+void sisconj (int *colsums, int *conjseq, int nrow, int ncol, int i);
 void sissort(int *rowsums, int *order, int nrow);
 void sisknots (int *rowsums, int *conjseq, int *k, int *v, int nrow);
 void sissamp(int *k, int *v, int *rowsums, int colsum, int nrow, int ncol, int *sampled, double *prob);

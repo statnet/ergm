@@ -48,7 +48,7 @@ int get_max_range(int *list, int first, int last)
  * siconj() computes the conjugate sequence *
  * before sampling each column.             *
  ********************************************/
-int sisconj(int *colsums, int *conjseq, int nrow, int ncol, int i)
+void sisconj(int *colsums, int *conjseq, int nrow, int ncol, int i)
 {
    int j, k;
 

@@ -276,7 +276,7 @@ void MH_BipartiteCondDegreeDist (MHproposal *MHp, DegreeBound *bd, Network *nwp)
   /*                   P(choosing H,A,T after T and A swap roles), */
   /*                   which makes the ratio equal to 1.           */
   
-  for(valid = 0; valid == 0 && count<500; count++) {
+  for(valid = count = 0; valid == 0 && count<500; count++) {
     Hin = Hout = 0;  
     /* choose a node at random; ensure it has some edges */
     while (Hin + Hout == 0) {

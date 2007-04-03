@@ -435,7 +435,7 @@ void d_concurrent_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
     The values following the first 2*nstats values are the nodal attributes.
   */
   int i, j, echange, actorattr;
-  Vertex actor, event, actordeg, d, *od, *id;
+  Vertex actor, event, actordeg, *od, *id;
   TreeNode *oe=nwp->outedges;
 
   od=nwp->outdegree;
@@ -473,8 +473,8 @@ void d_concurrent (int ntoggles, Vertex *heads, Vertex *tails,
   to its outdegree and the degree of an event is equivalent to its
   indegree.
   */
-  int i, j, echange;
-  Vertex actor, event, actdeg, d, *od, *id;
+  int i, echange;
+  Vertex actor, event, actdeg, *od, *id;
   TreeNode *oe=nwp->outedges;
 
   od=nwp->outdegree;
@@ -535,7 +535,7 @@ void d_degree_w_homophily (int ntoggles, Vertex *heads, Vertex *tails,
   The first nstats values are the values of degree
   The values following the first nstats values are the nodal attributes.
   */
-  int i, j, echange, headattr, tailattr, testattr;
+  int i, j, echange, headattr, tailattr;
   Vertex head, tail, headdeg, taildeg, deg, tmp;
   TreeNode *ie=nwp->inedges, *oe=nwp->outedges;
   double *nodeattr;
@@ -1118,7 +1118,7 @@ void d_gwodegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
   */
   int i, hattr, echange=0;
   double decay, oneexpd;
-  Vertex h, hd, td=0, *od;
+  Vertex h, hd, *od;
   TreeNode *oe=nwp->outedges;
   
   od=nwp->outdegree;
@@ -2309,7 +2309,7 @@ void d_idegree_w_homophily (int ntoggles, Vertex *heads, Vertex *tails,
   The first nstats values are the values of degree
   The values following the first nstats values are the nodal attributes.
   */
-  int i, j, echange, headattr, tailattr, testattr;
+  int i, j, echange, headattr, tailattr;
   Vertex head, tail, taildeg, deg, tmp;
   TreeNode *ie=nwp->inedges, *oe=nwp->outedges;
   double *nodeattr;
@@ -3070,9 +3070,9 @@ void d_odegree_w_homophily (int ntoggles, Vertex *heads, Vertex *tails,
   The first nstats values are the values of degree
   The values following the first nstats values are the nodal attributes.
   */
-  int i, j, echange, headattr, tailattr, testattr;
+  int i, j, echange, headattr, tailattr;
   Vertex head, tail, headdeg, deg, tmp;
-  TreeNode *ie=nwp->inedges, *oe=nwp->outedges;
+  TreeNode *oe=nwp->outedges;
   double *nodeattr;
   Edge e;
 
@@ -4912,8 +4912,8 @@ void d_hammingdyadcov (int ntoggles, Vertex *heads, Vertex *tails,
   Vertex h, t;
   double val;
   long int nnodes, nactors, nevents, n0edge;
-  int i, j, discord;
-  
+  int i, discord;
+
   n0edge =  mtp->inputparams[0];
   nnodes = nwp[0].nnodes;
   nactors = nwp[0].bipartite;

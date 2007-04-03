@@ -8,10 +8,7 @@
 void d_D_off (int ntoggles, Vertex *heads, Vertex *tails, 
 	           ModelTerm *mtp, Network *nwp) 
 {
-  int edgeflag, i;
-  Vertex ii, jj;
-  Edge kk;
-  long int elapsed;
+  int i;
   
   *(mtp->dstats) = 0.0;
   for (i=0; i < ntoggles; i++)

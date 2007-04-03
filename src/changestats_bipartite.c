@@ -141,9 +141,9 @@ void d_aconcurrent_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
     The values following the first 2*nstats values are the nodal attributes.
   */
   int i, j, echange, actorattr;
-  Vertex actor, event, actordeg, d, *od;
-  TreeNode *oe;  
-  
+  Vertex actor, event, actordeg, *od;
+  TreeNode *oe;
+
   oe=nwp->outedges;
   od=nwp->outdegree;
   for (i=0; i < mtp->nstats; i++) 
@@ -175,8 +175,8 @@ void d_aconcurrent (int ntoggles, Vertex *heads, Vertex *tails,
   to its outdegree and the degree of an event is equivalent to its
   indegree.
   */
-  int i, j, echange;
-  Vertex actor, event, actdeg, d, *od;
+  int i, echange;
+  Vertex actor, event, actdeg, *od;
   TreeNode *oe;  
   
   oe=nwp->outedges;
@@ -206,7 +206,7 @@ void d_econcurrent_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
     The values following the first 2*nstats values are the nodal attributes.
   */
   int i, j, echange, eventattr;
-  Vertex actor, event, eventdeg, d, *id;
+  Vertex actor, event, eventdeg, *id;
   TreeNode *oe;  
   
   oe=nwp->outedges;
@@ -239,8 +239,8 @@ void d_econcurrent (int ntoggles, Vertex *heads, Vertex *tails,
   to its outdegree and the degree of an event is equivalent to its
   indegree.
   */
-  int i, j, echange;
-  Vertex actor, event, eventdeg, d, *id;
+  int i, echange;
+  Vertex actor, event, eventdeg, *id;
   TreeNode *oe;  
   
   oe=nwp->outedges;
@@ -655,13 +655,13 @@ void d_biduration (int ntoggles, Vertex *heads, Vertex *tails,
     {
       /*Get the initial state of the edge and its reflection*/
       edgeflag=(EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
-//      if(h > t){
-//	hh = t;
-//	ht = h;
-//      }else{
-//	hh = h;
-//	ht = t;
-//      }
+      if(h > t){
+        hh = t;
+        ht = h;
+      }else{
+        hh = h;
+        ht = t;
+      }
       // 1 = edge removed -1 = edge added
       discord = edgeflag ? 1 : -1;
 
