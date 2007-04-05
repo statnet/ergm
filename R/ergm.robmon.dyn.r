@@ -1,6 +1,6 @@
 ergm.robmon.dyn <- function(theta0, nw, model, model.dissolve, Clist, BD, 
                         gamma,
-                        burnin, interval, proposaltype,
+                        burnin, interval, MHproposal,
                         verbose=FALSE, 
                         algorithm.control=list() ){
   # This is based on Snijders (2002), J of Social Structure
@@ -30,8 +30,6 @@ ergm.robmon.dyn <- function(theta0, nw, model, model.dissolve, Clist, BD,
                      dyninterval=algorithm.control$dyninterval,
                      maxchanges=10*algorithm.control$maxchanges
                     )
-  MHproposal <- list(package=algorithm.control$proposalpackage,
-                     type=proposaltype)
 # cat(paste("Phase 1: ",n1,"iterations"))
 # cat(paste(" (interval=",MCMCparams$interval,")\n",sep=""))
   nw.orig <- nw
@@ -140,13 +138,13 @@ ergm.robmon.dyn <- function(theta0, nw, model, model.dissolve, Clist, BD,
                  theta.original=theta0,
                  bounddeg=BD, formula=model$formula, 
                  interval=interval, burnin=burnin, 
-                 network=nw.orig, proposaltype=proposaltype)),
+                 network=nw.orig, proposaltype=MHproposal$name)),
              class="ergm")
 }
 
 ergm.robmon.dyn.orig <- function(theta0, nw, model, model.dissolve, Clist, BD, 
                         gamma,
-                        burnin, interval, proposaltype,
+                        burnin, interval, MHproposal,
                         verbose=FALSE, 
                         algorithm.control=list() ){
   # This is based on Snijders (2002), J of Social Structure
@@ -173,8 +171,6 @@ ergm.robmon.dyn.orig <- function(theta0, nw, model, model.dissolve, Clist, BD,
                      dyninterval=algorithm.control$dyninterval,
                      maxchanges=algorithm.control$maxchanges
                     )
-  MHproposal <- list(package=algorithm.control$proposalpackage,
-                     type=proposaltype)
   cat(paste("Phase 1: ",n1,"iterations"))
   cat(paste(" (interval=",MCMCparams$interval,")\n",sep=""))
   z <- ergm.getMCMCDynsample(nw, model, model.dissolve, MHproposal, eta0, MCMCparams, verbose, BD)
@@ -275,6 +271,6 @@ ergm.robmon.dyn.orig <- function(theta0, nw, model, model.dissolve, Clist, BD,
                  theta.original=theta0,
                  bounddeg=BD, formula=model$formula, 
                  interval=interval, burnin=burnin, 
-                 network=nw, proposaltype=proposaltype)),
+                 network=nw, proposaltype=MHproposal$name)),
              class="ergm")
 }

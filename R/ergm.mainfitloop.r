@@ -1,7 +1,7 @@
 ergm.mainfitloop <- function(theta0, nw, model, Clist,
                              BD, initialfit, burnin,
-                             MCMCsamplesize, interval, maxit, proposaltype,
-                             proposalpackage, compress=FALSE, verbose=FALSE,
+                             MCMCsamplesize, interval, maxit, MHproposal,
+                             compress=FALSE, verbose=FALSE,
                              mcmc.precision=0.05, 
                              epsilon=1e-10, nr.maxit=100, calc.mcmc.se=TRUE,
                              hessian=FALSE, trustregion=20,
@@ -30,7 +30,6 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
         " with parameter: \n", sep="")
     print(theta0)
     MCMCparams=list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,parallel=parallel)
-    MHproposal=list(package=proposalpackage, type=proposaltype)
     z <- ergm.getMCMCsample(Clist, model, MHproposal, eta0, MCMCparams, verbose, BD)
     statsmatrix=z$statsmatrix
     newnetwork <- network.update(nw, z$newedgelist)
@@ -147,7 +146,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     v$newnetwork <- newnetwork
     v$interval <- interval
     v$theta.original <- theta.original
-    v$proposaltype <- proposaltype
+    v$proposaltype <- MHproposal$name
     v$mplefit <- initialfit
          
     if(!v$failure & !any(is.na(v$coef))){

@@ -46,7 +46,8 @@ sociality.network <- function (object, ...,
 
 sociality.formula <- function (formula, ..., theta0, nsim=100,
                       burnin=100, interval=100,
-                      proposaltype="randomtoggle", multiplicity=1,
+                      proposaltype="randomtoggle", proposalargs = NULL,
+                      multiplicity=1,
                       seed=NULL,  drop=FALSE,
                       statistics=NULL
 		      ) {
@@ -62,6 +63,7 @@ sociality.formula <- function (formula, ..., theta0, nsim=100,
   }
 
   m <- ergm.getmodel(trms, g, drop=drop)
+  MHproposal <- getMHproposal(proposaltype, proposalargs, g, m)
   Clist <- ergm.Cprepare(g, m)
 
   if(missing(theta0)){
@@ -95,7 +97,8 @@ sociality.formula <- function (formula, ..., theta0, nsim=100,
   # Simulate an exponential family random network model
 
   SimGraphSeriesObj <- simulate(formula, burnin=burnin, interval=interval,
-                             proposaltype=proposaltype,
+                             proposaltype=proposaltype, 
+                             proposalargs=proposalargs,
                              multiplicity=multiplicity,
                              theta0=theta0,
                              drop=drop,
@@ -120,7 +123,8 @@ sociality.formula <- function (formula, ..., theta0, nsim=100,
 
 sociality.ergm <- function (object, ..., nsim=100,
                       burnin=100, interval=100,
-                      proposaltype="randomtoggle", multiplicity=1,
+                      proposaltype="randomtoggle", proposalargs = NULL,
+                      multiplicity=1,
                       seed=NULL, drop=FALSE,
 		      statistics=NULL) {
 
@@ -161,6 +165,7 @@ sociality.ergm <- function (object, ..., nsim=100,
 
   SimGraphSeriesObj <- simulate(object, burnin=burnin, interval=interval,
                              proposaltype=proposaltype,
+                             proposalargs = proposalargs,
                              multiplicity=multiplicity,
                              drop=drop,
                              n=nsim, seed=seed)

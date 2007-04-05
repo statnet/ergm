@@ -1,5 +1,5 @@
 ergm.robmon <- function(theta0, nw, model, Clist, BD, 
-                        burnin, interval, proposaltype,
+                        burnin, interval, MHproposal,
                         verbose=FALSE, 
                         algorithm.control=list() ){
   # This is based on Snijders (2002), J of Social Structure
@@ -22,7 +22,6 @@ ergm.robmon <- function(theta0, nw, model, Clist, BD,
   print(theta0)
   MCMCparams <- list(samplesize=n1, burnin=burnin, interval=interval,
                      parallel=algorithm.control$parallel)
-  MHproposal <- list(package=algorithm.control$proposalpackage, type=proposaltype)
   cat(paste("Phase 1: ",n1,"iterations"))
   cat(paste(" (interval=",MCMCparams$interval,")\n",sep=""))
   z <- ergm.getMCMCsample(Clist, model, MHproposal, eta0, MCMCparams, verbose, BD)
@@ -135,6 +134,6 @@ cat(paste("theta new:",theta,"\n"))
                  rm.coef=theta,
                  bounddeg=BD, formula=model$formula, 
                  interval=interval, burnin=burnin, 
-                 network=nw, proposaltype=proposaltype)),
+                 network=nw, proposaltype=MHproposal$name)),
              class="ergm")
 }

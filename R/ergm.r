@@ -22,7 +22,6 @@ ergm <- function(formula, theta0="MPLE",
               boundDeg=NULL,
               steplength=0.5,
               drop=TRUE,
-              proposalpackage="statnet",
               force.mcmc=FALSE,
               mcmc.precision=0.05,
               metric="Likelihood",
@@ -41,30 +40,12 @@ ergm <- function(formula, theta0="MPLE",
   nw <- ergm.getnetwork(formula)
   if(!is.null(meanstats)){ con$drop <- FALSE }
   if (verbose) cat("Fitting initial model.\n")
-  #  if(is.bipartite(nw)){  All this gunk moved to InitMHP functions where it belongs
-  #   if(proposaltype=="randomtoggle"){proposaltype <- "Bipartiterandomtoggle"}
-  #   if(proposaltype=="TNT"){proposaltype <- "BipartiteTNT"}
-  #   if(proposaltype=="ConstantEdges"){proposaltype <- "BipartiteConstantEdges"}
-  #   if(proposaltype=="HammingConstantEdges"){proposaltype <- "BipartiteHammingConstantEdges"}
-  #   if(proposaltype=="Hamming"){proposaltype <- "BipartiteHamming"}
-  #   if(proposaltype=="formation"){proposaltype <- "BipartiteFormation"}
-  #   if(proposaltype=="formationTNT"){proposaltype <- "BipartiteFormationTNT"}
    if(!is.null(dissolve)){
        proposaltype <- "formationTNT"
    }
-#}else{
-#   if(!is.null(dissolve)){
-#   }
-#  }
   model.initial <- ergm.getmodel(formula, nw, drop=con$drop, initialfit=TRUE)
   MHproposal <- getMHproposal(proposaltype, proposalargs, nw, model.initial)
-  proposaltype <- MHproposal$name # This is temporary
-#
-# Check for redundant terms  (This has been moved to the InitMHP functions where it belongs)
-#
-#  if(proposaltype=="ConstantEdges" && "edges" %in% model.initial$coef.names){
-#    stop("The model contains an 'edges' term and a proposal that holds the edges fixed. One of them is redundant. Please restate the model.")
-#  }
+
   BD <- ergm.boundDeg(con$boundDeg, nnodes=network.size(nw))
   Clist.initial <- ergm.Cprepare(nw, model.initial)
   Clist.initial$meanstats=meanstats
@@ -101,18 +82,18 @@ ergm <- function(formula, theta0="MPLE",
     model.dissolve <- ergm.getmodel.dissolve(dissolve, nw, dissolve.order)
     v <- ergm.robmon.dyn(theta0, nw, model, model.dissolve,
                     Clist, BD, gamma, burnin, interval,
-                    proposaltype, verbose, con)
+                    MHproposal, verbose, con)
   }else{
    v <- switch(con$style,
     "Robbins-Monro" = ergm.robmon(theta0, nw, model, Clist, BD, burnin, interval,
-                      proposaltype, verbose, con),
+                      MHproposal, verbose, con),
     "Stochastic-Approximation" = ergm.stocapprox(theta0, nw, model, 
                                  Clist, BD, burnin, interval,
-                                 proposaltype, verbose, con),
+                                 MHproposal, verbose, con),
                       ergm.mainfitloop(theta0, nw,
                           model, Clist,
                           BD, initialfit, burnin, MCMCsamplesize,
-                          interval, maxit, proposaltype, con$proposalpackage,
+                          interval, maxit, MHproposal,
                           compress=con$compress, verbose=verbose, 
                           mcmc.precision=con$mcmc.precision,
                           nr.maxit=con$nr.maxit, calc.mcmc.se=con$calc.mcmc.se,

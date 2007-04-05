@@ -10,7 +10,6 @@ simulate.numeric <- function(row=NULL, col=NULL, nsim=1, seed=NULL, ...,
 
   ## Defaults :
   con <- list(boundDeg=NULL, drop=FALSE,
-              proposalpackage="statnet",
               summarizestats=FALSE
              )
 

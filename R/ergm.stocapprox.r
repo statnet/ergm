@@ -1,5 +1,5 @@
 ergm.stocapprox <- function(theta0, nw, model, Clist, BD, 
-                        burnin, interval, proposaltype,
+                        burnin, interval, MHproposal,
                         verbose=FALSE, 
                         algorithm.control=list() ){
   # This is based on Snijders (2002), J of Social Structure
@@ -28,8 +28,6 @@ ergm.stocapprox <- function(theta0, nw, model, Clist, BD,
                      parallel=algorithm.control$parallel,
                      maxedges=10*algorithm.control$maxedges
                     )
-  MHproposal <- list(package=algorithm.control$proposalpackage,
-                     type=proposaltype)
 # cat(paste("Phase 1: ",n1,"iterations"))
 # cat(paste(" (interval=",MCMCparams$interval,")\n",sep=""))
   nw.orig <- nw
@@ -120,6 +118,6 @@ ergm.stocapprox <- function(theta0, nw, model, Clist, BD,
                  theta.original=theta0,
                  bounddeg=BD, formula=model$formula, 
                  interval=interval, burnin=burnin, 
-                 network=nw.orig, proposaltype=proposaltype)),
+                 network=nw.orig, proposaltype=MHproposal$name)),
              class="ergm")
 }

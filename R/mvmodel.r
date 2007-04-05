@@ -8,7 +8,8 @@ mvmodel.default <- function(object,...)
 
 mvmodel.formula <- function (formula, ..., theta0, nsim=100,
                       burnin=100, interval=100,
-                      proposaltype="randomtoggle", multiplicity=1,
+                      proposaltype="randomtoggle", proposalargs=NULL,
+                      multiplicity=1,
                       seed=NULL,  drop=FALSE,
                       statistic=NULL
 		      ) {
@@ -24,6 +25,7 @@ mvmodel.formula <- function (formula, ..., theta0, nsim=100,
   }
 
   m <- ergm.getmodel(formula, g, drop=drop)
+  MHproposal <- getMHproposal(proposaltype, proposalargs, g, m)
   Clist <- ergm.Cprepare(g, m)
 
   if(missing(theta0)){
@@ -48,6 +50,7 @@ mvmodel.formula <- function (formula, ..., theta0, nsim=100,
 
   SimGraphSeriesObj <- simulate(formula, burnin=burnin, interval=interval,
                              proposaltype=proposaltype,
+                             proposalargs=proposalargs,
                              multiplicity=multiplicity,
                              theta0=theta0,
                              algorithm.control=list(drop=drop),
@@ -88,7 +91,8 @@ mvmodel.formula <- function (formula, ..., theta0, nsim=100,
 
 mvmodel.ergm <- function (object, ..., nsim=100,
                       burnin=100, interval=100,
-                      proposaltype="randomtoggle", multiplicity=1,
+                      proposaltype="randomtoggle", 
+                      proposalargs=NULL, multiplicity=1,
                       seed=NULL, drop=FALSE,
 		      statistic=NULL) {
 
@@ -119,6 +123,7 @@ mvmodel.ergm <- function (object, ..., nsim=100,
 
   SimGraphSeriesObj <- simulate(object, burnin=burnin, interval=interval,
                              proposaltype=proposaltype,
+                             proposalargs=proposalargs,
                              multiplicity=multiplicity,
                              algorithm.control=list(drop=drop),
                              n=nsim, seed=seed)
@@ -157,7 +162,8 @@ mvmodel.ergm <- function (object, ..., nsim=100,
 }
 mvmodel.ergmm <- function (object, ..., nsim=100,
                       burnin=100, interval=100,
-                      proposaltype="randomtoggle", multiplicity=1,
+                      proposaltype="randomtoggle", 
+                      proposalargs=NULL, multiplicity=1,
                       seed=NULL, drop=FALSE,
 		      statistic=NULL) {
 
@@ -188,6 +194,7 @@ mvmodel.ergmm <- function (object, ..., nsim=100,
 
   SimGraphSeriesObj <- rergm(object, burnin=burnin, interval=interval,
                              proposaltype=proposaltype,
+                             proposalargs=proposalargs,
                              multiplicity=multiplicity,
                              algorithm.control=list(drop=drop),
                              n=nsim, seed=seed)

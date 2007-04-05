@@ -2,6 +2,7 @@ simulatedyn <- function(object, nsim=1, seed=NULL, ...,theta0,
                         burnin=1, interval=1,
                         sequential=TRUE,
                         proposaltype="formationTNT",
+                        proposalargs = NULL,
                         dissolve=NULL, gamma=-4.59512,
                         dissolve.order="DissThenForm",
                         algorithm.control=list(),
@@ -13,7 +14,6 @@ simulatedyn <- function(object, nsim=1, seed=NULL, ...,theta0,
 
   ## Defaults :
   con <- list(boundDeg=NULL, drop=drop,
-              proposalpackage="statnet",
               dyninterval=1000,
               maxchanges=20000,
               summarizestats=FALSE
@@ -65,6 +65,7 @@ simulatedyn <- function(object, nsim=1, seed=NULL, ...,theta0,
 #  
 ################################################
   m <- ergm.getmodel(formula, nw, drop=con$drop)
+  MHproposal <- getMHproposal(proposaltype, proposalargs, nw, m)
   distanceMetric <- 0
   Clist <- ergm.Cprepare(nw, m)
   
@@ -74,15 +75,6 @@ simulatedyn <- function(object, nsim=1, seed=NULL, ...,theta0,
   MCMCsamplesize <- 1
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
-  if(is.bipartite(nw)){
-   if(proposaltype=="randomtoggle"){proposaltype <- "Bipartiterandomtoggle"}
-   if(proposaltype=="ConstantEdges"){proposaltype <- "BipartiteConstantEdges"}
-   if(proposaltype=="TNT"){proposaltype <- "BipartiteTNT"}
-   if(proposaltype=="HammingConstantEdges"){proposaltype <- "BipartiteHammingConstantEdges"}
-   if(proposaltype=="Hamming"){proposaltype <- "BipartiteHamming"}
-   if(proposaltype=="formation"){proposaltype <- "BipartiteFormation"}
-   if(proposaltype=="formationTNT"){proposaltype <- "BipartiteFormationTNT"}
-  }
   if(missing(theta0)) {
     theta0 <- rep(0,Clist$nparam)
     warning("No parameter values given, using Bernouli network\n\t")
@@ -108,8 +100,9 @@ simulatedyn <- function(object, nsim=1, seed=NULL, ...,theta0,
              as.integer(Clist$nterms), 
              as.character(Clist$fnamestring),
              as.character(Clist$snamestring), 
-             as.character(proposaltype),
-             as.character(con$proposalpackage),
+             as.character(MHproposal$name),
+             as.character(MHproposal$package),
+#  Add:  as.double(length(MHproposal$args)), as.double(MHproposal$args), 
              as.double(Clist$inputs),
              as.double(theta0),
              as.integer(Clist.dissolve$nterms),

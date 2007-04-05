@@ -11,10 +11,11 @@ gof.ergm <- function (object, ..., nsim=100,
                       GOF=~degree+espartners+distance, 
                       burnin=10000, interval=1000,
                       proposaltype="randomtoggle",
+                      proposalargs=NULL,
                       seed=NULL, drop=TRUE,
-		      summarizestats=FALSE,
+                      summarizestats=FALSE,
                       theta0=NULL,
-		      verbose=FALSE) {
+                      verbose=FALSE) {
 
   nw <- as.network(object$network)
   formula <- as.formula(paste("nw ~",paste(all.vars(object$formula)[-1],sep="+")))
@@ -35,6 +36,7 @@ gof.ergm <- function (object, ..., nsim=100,
               burnin=burnin, interval=interval,
               boundDeg=boundDeg,
               proposaltype=proposaltype,
+              proposalargs=proposalargs,
               seed=seed, drop=drop,
               summarizestats=summarizestats,
               verbose=verbose, ...)
@@ -44,9 +46,10 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
                       burnin=10000, interval=1000,
                       GOF=~degree+espartners+distance, 
                       proposaltype="randomtoggle",
+                      proposalargs=NULL,
                       seed=NULL, drop=TRUE,
                       boundDeg=NULL,
-		      summarizestats=FALSE,
+                      summarizestats=FALSE,
                       verbose=FALSE) {
 # Unused code
   theta0missing <- NULL
@@ -101,7 +104,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
 # }
 
   m <- ergm.getmodel(formula, nw, drop=drop)
-# m <- ergm.getmodel(trms, nw, drop=drop)
+  MHproposal <- getMHproposal(proposaltype, proposalargs, nw, m)
   Clist <- ergm.Cprepare(nw, m)
 
   if(is.null(theta0)){
@@ -121,6 +124,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
                   burnin=burnin, interval=interval,
                   boundDeg=boundDeg,
                   proposaltype=proposaltype,
+                  proposalargs=proposalargs,
                   drop=drop,
                   unconditional=FALSE,
                   seed=seed, verbose=verbose)
@@ -259,6 +263,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
                              theta0=theta0,
                              burnin=burnin, interval=interval,
                              proposaltype=proposaltype,
+                             proposalargs=proposalargs,
                              boundDeg=boundDeg,
                              summarizestats=summarizestats, drop=drop,
                              verbose=verbose, basis=nw)

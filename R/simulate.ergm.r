@@ -3,6 +3,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
                           basis=NULL,
                           sequential=TRUE,
                           proposaltype="randomtoggle",
+                          proposalargs=NULL,
                           algorithm.control=list(),
                           drop=FALSE,
                           verbose=FALSE) {
@@ -12,7 +13,6 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
 
   ## Defaults :
   con <- list(boundDeg=NULL, drop=drop,
-              proposalpackage="statnet",
               summarizestats=FALSE
              )
 
@@ -69,21 +69,14 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
 #  
 ################################################
   m <- ergm.getmodel(formula, nw, drop=con$drop)
+  MHproposal <- getMHproposal(proposaltype, proposalargs, nw, m)
+
   distanceMetric <- 0
   Clist <- ergm.Cprepare(nw, m)
   
   MCMCsamplesize <- 1
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
-  if(is.bipartite(nw)){
-   if(proposaltype=="randomtoggle"){proposaltype <- "Bipartiterandomtoggle"}
-   if(proposaltype=="ConstantEdges"){proposaltype <- "BipartiteConstantEdges"}
-   if(proposaltype=="TNT"){proposaltype <- "BipartiteTNT"}
-   if(proposaltype=="HammingConstantEdges"){proposaltype <- "BipartiteHammingConstantEdges"}
-   if(proposaltype=="Hamming"){proposaltype <- "BipartiteHamming"}
-   if(proposaltype=="formation"){proposaltype <- "BipartiteFormation"}
-   if(proposaltype=="formationTNT"){proposaltype <- "BipartiteFormationTNT"}
-  }
   if(missing(theta0)) {
     theta0 <- rep(0,Clist$nparam)
     warning("No parameter values given, using Bernouli network\n\t")
@@ -113,8 +106,9 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
              as.integer(Clist$nterms), 
              as.character(Clist$fnamestring),
              as.character(Clist$snamestring), 
-             as.character(proposaltype),
-             as.character(con$proposalpackage),
+             as.character(MHproposal$name),
+             as.character(MHproposal$package),
+#  Add:  as.double(length(MHproposal$args)), as.double(MHproposal$args), 
              as.double(Clist$inputs),
              as.double(theta0),
              as.double(MCMCsamplesize),
@@ -161,6 +155,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
                        burnin=1000, interval=1000, 
                        sequential=TRUE, 
                        proposaltype="randomtoggle",
+                       proposalargs=NULL, 
                        algorithm.control=list(),
                        verbose=FALSE) {
   out.list <- vector("list", nsim)
@@ -168,7 +163,6 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
 
   ## Defaults :
   con <- list(boundDeg=NULL, drop=TRUE,
-              proposalpackage="statnet",
               summarizestats=FALSE
              )
 
@@ -184,10 +178,6 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
   set.seed(as.integer(seed))
   
   nw <- object$network  
-  if(is.bipartite(nw)){
-   if(proposaltype=="randomtoggle"){proposaltype <- "Bipartiterandomtoggle"}
-   if(proposaltype=="ConstantEdges"){proposaltype <- "BipartiteConstantEdges"}
-  }
   
 #   BD <- ergm.boundDeg(NULL)
     BD <- ergm.boundDeg(con$boundDeg, nnodes=network.size(nw))
@@ -216,6 +206,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
 #  }
   
   m <- ergm.getmodel(object$formula, nw, drop=con$drop)
+  MHproposal <- getMHproposal(proposaltype, proposalargs, nw, m)
   MCMCsamplesize <- 1
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
@@ -244,8 +235,9 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
             as.integer(Clist$nterms), 
             as.character(Clist$fnamestring),
             as.character(Clist$snamestring), 
-            as.character(proposaltype),
-            as.character(con$proposalpackage),
+            as.character(MHproposal$name),
+            as.character(MHproposal$package),
+#  Add:  as.double(length(MHproposal$args)), as.double(MHproposal$args), 
             as.double(Clist$inputs),
             as.double(theta0),
             as.double(MCMCsamplesize),
