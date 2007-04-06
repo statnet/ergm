@@ -15,7 +15,7 @@ simulatedyn <- function(object, nsim=1, seed=NULL, ...,theta0,
   ## Defaults :
   con <- list(boundDeg=NULL, drop=drop,
               dyninterval=1000,
-              maxchanges=20000,
+              maxchanges=1000000,
               summarizestats=FALSE
              )
 
