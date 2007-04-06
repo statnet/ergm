@@ -303,6 +303,149 @@ void godfather_wrapper (double *heads, double *tails, double *dnedges,
   NetworkDestroy(&nw);
 }
 
+/*****************
+ void mixingmatrix_hack
+
+ This is a modified version of godfather_wrapper.  It has a very specific
+ job and this is not a good way to go about this, but there does not appear
+ to be any appropriate change statistic in place.
+ The needed change statistics are the entries in a 2x2 mixing matrix that
+ categorizes all of the edges in the network into one of four categories: 
+ edges between two monogamous people, edges between a monogamous female and
+ a polygamous male, edges between a monogamous male and a polygamous female,
+ and edges between two polygamous people.
+
+ THIS IS A TEMPORARY SOLUTION!
+ 
+*****************/
+void mixingmatrix_hack (double *heads, double *tails, double *dnedges,
+                   double *dn, int *dflag, double *bipartite, 
+                   int *nterms, char **funnames,
+                   char **sonames, 
+                   double *totalntoggles, double *timestamps, 
+                   double *toggleheads, double *toggletails,
+                   double *inputs, 
+                   double *changestats, 
+                   int *newnetwork, 
+                   int *fVerbose, 
+                   double *maxedges) {
+  int directed_flag, maxtoggles, ntoggles;
+  Vertex n_nodes, bip, *theads, *ttails, h, t;
+  Edge e, i, j, n_edges, nmax, samplesize, nextedge, tnt;
+  Network nw;
+  Model *m;
+  char *fn, *sn;
+  ModelTerm *mtp;
+  double *dstats, thistime; 
+  
+  n_nodes = (Vertex)*dn; /* coerce double *dn to type Vertex */
+  n_edges = (Vertex)*dnedges; /* coerce double *dnedges to type Vertex */
+  nmax = (Vertex)*maxedges; /* coerce double *maxedges to type Vertex */
+  bip = (Vertex)*bipartite; /* coerce double *bipartite to type Vertex */    
+  tnt = (Edge) *totalntoggles; /* coerce double *totalntoggles to type Edge */ 
+  directed_flag = *dflag;
+
+  for (i = 0; i < nmax; i++)
+    newnetwork[i] = 0;
+  m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
+  nw = NetworkInitialize(heads, tails, n_edges, n_nodes, directed_flag, bip);
+
+  /* Figure out what is the maximum number of toggles at any time step and
+  allocate an appropriate amount of memory. */
+  thistime = timestamps[0];
+  for(maxtoggles = samplesize = i = j = 1; i < tnt; i++) {
+    if (timestamps[i] == thistime) {
+      ++j; /* j counts how many timestamps match the current value. */
+    } else { /* we have encountered a new timestamp value. */
+      samplesize++;
+      maxtoggles = maxtoggles < j? j : maxtoggles;
+      j = 1;
+      thistime = timestamps[i];
+    }
+  }
+  theads = (Vertex *) malloc(sizeof(Vertex) * maxtoggles);
+  ttails = (Vertex *) malloc(sizeof(Vertex) * maxtoggles);
+
+  if (*fVerbose) {
+    Rprintf("Total m->n_stats is %i; total samplesize is %d\n",
+    m->n_stats,samplesize);
+    Rprintf("maxedges = %ld, maxtoggles = %ld, samplesize = %ld, totalntoggles = %ld\n",
+    nmax, maxtoggles, samplesize, tnt);
+  }
+  
+  /*********************
+  changestats are modified in groups of m->n_stats, and they
+  reflect the CHANGE in the values of the statistics from the
+  original (observed) network.  Thus, when we begin, the initial 
+  values of the first group of m->n_stats changestats should 
+  all be zero
+  *********************/
+  for (j=0; j < m->n_stats; j++)
+    changestats[j] = 0.0;
+  mtp = m->termarray;
+  
+  /* Now start obtaining change statistics */
+  thistime = timestamps[0];
+  theads[0] = toggleheads[0];
+  ttails[0] = toggletails[0];
+  for(i = ntoggles = 1; i <= tnt; i++) {
+    if (i<tnt && timestamps[i] == thistime) {
+      theads[ntoggles] = toggleheads[i];
+      ttails[ntoggles] = toggletails[i];
+      ++ntoggles; /* ntoggles counts how many timestamps match the current value. */
+    } else { /* we have encountered a new timestamp value. */
+      mtp = m->termarray;
+      dstats = m->workspace;
+      /* Time to calculate the change statistics for these toggles */
+      /* Set current vector of stats equal to previous vector */
+      for (j=0; j<m->n_stats; j++){
+        changestats[j+m->n_stats] = changestats[j];
+      }
+      changestats += m->n_stats;
+      /* This then adds the change statistics to these values */
+      dstats = changestats;
+      for (j=0; j < m->n_terms; j++) {  /* loop through each term */
+        mtp->dstats = dstats;
+        dstats[0] = 
+        dstats[1] =         
+        dstats[2] =         
+        dstats[3] =         
+        (*(mtp->func))(ntoggles, theads, ttails, mtp, &nw);  /* Call d_xxx function */
+        dstats += (mtp++)->nstats;
+      }
+      /* Make proposed toggles for real this time) */
+      for (j=0; j < ntoggles; j++){
+        ToggleEdge(theads[j], ttails[j], &nw);
+      }
+      /* Finished with this timestamp; go on to next one */
+      if (i<tnt) {
+        ntoggles = 1;
+        thistime = timestamps[i];
+        theads[0] = toggleheads[i];
+        ttails[0] = toggletails[i];
+      }
+    }
+  }
+  /* record new generated network to pass back to R */
+  for (h=nextedge=1; h<=n_nodes; h++) {
+    for(e = EdgetreeMinimum(nw.outedges, h);
+    (t=nw.outedges[e].value) != 0 && nextedge < nmax;
+    e = EdgetreeSuccessor(nw.outedges, e)) {
+      newnetwork[nextedge++] = h;
+      newnetwork[nextedge++] = t;
+    }
+  }
+  if (nextedge>=nmax) { 
+    Rprintf("Error!  The value of maxedges was not set high enough in ergm.godfather\n");
+  }
+  newnetwork[0]=nextedge;
+
+  /* Clean up and return */
+  free(theads);
+  free(ttails);
+  ModelDestroy(m);
+  NetworkDestroy(&nw);
+}
 
 
 
