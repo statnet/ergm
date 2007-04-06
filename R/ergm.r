@@ -76,7 +76,7 @@ ergm <- function(formula, theta0="MPLE",
 
   if (verbose) cat("ergm.mainfitloop\n")
   MCMCparams=c(con,list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,maxit=maxit))
-  MHproposal=list(package=con$proposalpackage, type=proposaltype)
+# MHproposal=list(package=con$proposalpackage, type=proposaltype)
   styles <- c("Newton-Raphson","Robbins-Monro","Stochastic-Approximation")
   con$style <- styles[pmatch(con$style,styles,nomatch=1)]
   if(!is.null(dissolve)){

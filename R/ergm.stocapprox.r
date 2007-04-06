@@ -118,6 +118,6 @@ ergm.stocapprox <- function(theta0, nw, model, Clist, BD,
                  theta.original=theta0,
                  bounddeg=BD, formula=model$formula, 
                  interval=MCMCparams$interval, burnin=MCMCparams$burnin, 
-                 network=nw.orig, proposaltype=MHproposal$type)),
+                 network=nw.orig, proposalname=MHproposal$name)),
              class="ergm")
 }
