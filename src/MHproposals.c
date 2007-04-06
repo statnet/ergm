@@ -2037,3 +2037,26 @@ void MH_FormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
 //		       nwp[1].nedges);
   }
 }
+
+
+/*********************
+ void MH_godfather
+
+ This is not really an MH proposal; it is designed to force a specific 
+ set of toggles so that the resulting change statistics may be harvested.
+ "This proposal makes you an offer you can't refuse."
+*********************/
+void MH_godfather (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {  
+  Vertex head, tail;
+
+  int fvalid, trytoggle;
+  
+  if(MHp->ntoggles == 0) { /* Initialize */
+
+    return;
+  }
+  MHp->ratio = 1.0;
+
+}
+
+

@@ -9,19 +9,6 @@ InitMHP.randomtoggle <- function(arguments, nw, model) {
   MHproposal
 }
 
-InitMHP.godfather <- function(arguments, nw, model) {
-  # This is a proposal you can't refuse.  It is useful for checking on
-  # the change statistics that result from a prescribed sequence of 
-  # edge toggles.
-  # It is assumed that "arguments" is a kx3 matrix,
-  # where the first column is the times and the next two give a list
-  # of edges.  This proposal orders the times, then performs one set of
-  # toggles for each unique value of time.
-  arguments <- arguments[order(arguments[,1]),]  
-  MHproposal <- list(name = "nonrandom", args=arguments, package="statnet")  
-  MHproposal
-}
-
 InitMHP.TNT <- function(arguments, nw, model) {
   MHproposal <- list(name = "TNT", args=NULL, package="statnet")
   if(is.bipartite(nw)){
