@@ -985,6 +985,74 @@ void d_dissolve(int ntoggles, Vertex *heads, Vertex *tails,
     ToggleEdge(heads[i], tails[i], nwp); 
 }
 
+
+/*****************
+ void d_monopolymixmat
+ 
+ ...has nothing to do with the board game; should be read 
+ "mono, poly mixing matrix"
+*****************/
+void d_monopolymixmat(int ntoggles, Vertex *heads, Vertex *tails, 
+	      ModelTerm *mtp, Network *nwp) {
+  int edgeflag, i;
+  Edge e;
+  Vertex h, t, Fdeg, Mdeg, otherF, otherM;
+  /* m/p means monogamous/polygamous; F/M means female/male */
+  int mFmM, mFpM, pFmM;   
+  /* NB: pFpM would be redundant since the total of all 4 is #edges */
+  Vertex *od=nwp->outdegree, *id=nwp->indegree;
+  TreeNode *oe = nwp->outedges, *ie = nwp->inedges;
+  int tmp;
+
+  mtp->dstats[0] = mtp->dstats[1] = mtp->dstats[2] = 0.0;
+  for (i=0; i < ntoggles; i++) {
+    edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
+    Fdeg = od[h];
+    Mdeg = id[t];
+    /* Calculate contribution from change of (F,M) edge only */
+    mFmM = (Fdeg==0 && Mdeg==0) - (Fdeg==1 && Mdeg==1) + 
+    (Fdeg==2 && Mdeg==2 && !edgeflag);
+    mFpM = (Fdeg==0 && Mdeg>0) - (Fdeg==1 && Mdeg>1) + 
+    (Fdeg==2 && Mdeg>2 && !edgeflag);
+    pFmM = (Mdeg==0 && Fdeg>0) - (Mdeg==1 && Fdeg>1) + 
+    (Mdeg==2 && Fdeg>2 && !edgeflag);
+    /* Now calculate contribution from other partners of F or M */
+    if(Fdeg - edgeflag == 1) {/* Only case that concerns us */
+      for(e = EdgetreeMinimum(oe, h);
+      (otherM = oe[e].value) != 0 && otherM == t;
+      e = EdgetreeSuccessor(oe, e)); /* This finds otherM */
+      if (id[otherM] > 1) {
+        mFpM += (Fdeg==1 ? -1 : 1);
+      } else {
+        mFmM += (Fdeg==1 ? -1 : 1);
+        pFmM += (Fdeg==1 ? 1 : -1);
+      }
+    }
+    if(Mdeg - edgeflag == 1) {/* Similarly for Mdeg */
+      for(e = EdgetreeMinimum(ie, t);
+      (otherF = ie[e].value) != 0 && otherF == h;
+      e = EdgetreeSuccessor(ie, e)); /* This finds otherF */
+      if (od[otherF] > 1) { /* otherF is poly */
+        pFmM += (Mdeg==1 ? -1 : 1);
+      } else { /*otherF is mono */
+        mFmM += (Mdeg==1 ? -1 : 1);
+        mFpM += (Mdeg==1 ? 1 : -1);
+      }
+    }
+    mtp->dstats[0] += (double) mFmM;
+    mtp->dstats[1] += (double) mFpM;
+    mtp->dstats[2] += (double) pFmM;    
+    Rprintf("Proposal (%ld, %ld) equals %ld, giving %f, %f, %f\n",
+    h,t,edgeflag, mtp->dstats[0], mtp->dstats[1], mtp->dstats[2]);
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
+  i--; 
+  while (--i >= 0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+
+
 //void d_esa (int ntoggles, Vertex *heads, Vertex *tails, 
 //	      struct OptionInput *inp, Gptr g) 
 //{

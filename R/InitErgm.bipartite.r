@@ -1440,3 +1440,20 @@ InitErgm.econcurrent<-function(nw, m, arglist, drop=TRUE, ...) {
     m$terms[[termnumber]]$emptynwstats <- emptynwstats
   m
 }
+
+
+InitErgm.monopolymixmat<-function(nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkbipartite("monopolymixmat", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("monopolymixmat", arglist,
+                   varnames = NULL,
+                   vartypes = NULL,
+                   defaultvalues = list(),
+                   required = NULL)
+  termnumber<-1+length(m$terms)
+  m$coef.names<-c(m$coef.names, c("monoFmonoM", "monoFpolyM", "polyFmonoM"))
+  m$terms[[termnumber]] <- list(name = "monopolymixmat", soname="statnet",
+                                inputs = c(0, 3, 0))
+  m
+}
+
+
