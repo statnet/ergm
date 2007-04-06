@@ -40,9 +40,9 @@ ergm <- function(formula, theta0="MPLE",
   nw <- ergm.getnetwork(formula)
   if(!is.null(meanstats)){ con$drop <- FALSE }
   if (verbose) cat("Fitting initial model.\n")
-   if(!is.null(dissolve)){
+  if(!is.null(dissolve)){
        proposaltype <- "formationTNT"
-   }
+  }
   model.initial <- ergm.getmodel(formula, nw, drop=con$drop, initialfit=TRUE)
   MHproposal <- getMHproposal(proposaltype, proposalargs, nw, model.initial)
 #

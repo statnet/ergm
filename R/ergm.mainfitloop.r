@@ -169,7 +169,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     v$newnetwork <- nw
     v$interval <- MCMCparams$interval
     v$theta.original <- theta.original
-    v$proposaltype <- MHproposal$name
+    v$proposalname <- MHproposal$name
     v$mplefit <- initialfit
          
     if(!v$failure & !any(is.na(v$coef))){

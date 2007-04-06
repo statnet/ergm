@@ -57,6 +57,7 @@ void MH_BipartiteTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
 {  
   Vertex head, tail;
   Edge rane, nedges=nwp->nedges;
+  int fvalid, trytoggle;
   static double comp=0.5;
   static double odds;
   static Edge ndyads;
@@ -72,6 +73,10 @@ void MH_BipartiteTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
     return;
   }
   
+  fvalid = 0;
+  trytoggle = 0;
+  while(fvalid==0 && trytoggle < 5000){
+
   if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
     rane = 1 + unif_rand() * nedges;
     FindithEdge(MHp->togglehead, MHp->toggletail, rane, nwp);
@@ -86,6 +91,8 @@ void MH_BipartiteTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
     }else{
       MHp->ratio = 1.0 + (odds*ndyads)/(nedges + 1);
     }
+  }
+  fvalid=CheckTogglesValid(MHp, bd, nwp);
   }
 }
 
@@ -411,6 +418,7 @@ void MH_BipartiteFormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
   Vertex head, tail;
   Edge rane, nedges, ndedges, nddyads;
   double comp, odds;
+  int fvalid, trytoggle;
 //  static double comp=0.99;
 //  static double odds;
 //  static Edge ndedges;
@@ -441,6 +449,10 @@ void MH_BipartiteFormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
 //		       nwp[0].nedges,
 //		       nwp[1].nedges, ndedges, nedges);
 
+  fvalid = 0;
+  trytoggle = 0;
+  while(fvalid==0 && trytoggle < 5000){
+
   if (ndedges > 0 && unif_rand() < comp) { /* Select a new tie at random */
     rane = 1 + unif_rand() * ndedges;
     FindithEdge(MHp->togglehead, MHp->toggletail, rane, &nwp[1]);
@@ -469,5 +481,7 @@ void MH_BipartiteFormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
 //		       MHp->toggletail[0], 
 //		       nwp[0].nedges,
 //		       nwp[1].nedges);
+  }
+  fvalid=CheckTogglesValid(MHp, bd, nwp);
   }
 }
