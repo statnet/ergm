@@ -44,7 +44,7 @@ void MetropolisHastingsDyn (DynamOrder order, MHproposal *MHp,
 		 Vertex *difftime, Vertex *diffhead, Vertex *difftail,
 		 Network *nwp, Model *m, Model *mdyn, DegreeBound *bd);
 
-void MCMCDynPhase2 (int *order_code, double *heads, double *tails, double *dnedges,
+void MCMCDynPhase12 (int *order_code, double *heads, double *tails, double *dnedges,
                    double *dn, int *dflag, double *bipartite, 
                    int *nterms, char **funnames, char **sonames, 
                    char **MHproposaltype, char **MHproposalpackage,
@@ -66,7 +66,7 @@ void MCMCDynPhase2 (int *order_code, double *heads, double *tails, double *dnedg
                    double *mheads, double *mtails, double *mdnedges,
                    int *mdflag);
 
-void MCMCSampleDynPhase2 (DynamOrder order, char *MHproposaltype, char *MHproposalpackage,
+void MCMCSampleDynPhase12 (DynamOrder order, char *MHproposaltype, char *MHproposalpackage,
   double *theta, double gain, double *meanstats,
   int nphase1, int nsubphases, double *networkstatistics, 
   long int samplesize, long int burnin, 

@@ -16,7 +16,7 @@ ergm <- function(formula, theta0="MPLE",
               compress=FALSE,
               maxNumDyadTypes=10000, 
               maxedges=20000,
-              maxchanges=20000,
+              maxchanges=1000000,
               MPLEsamplesize=50000, 
               trace=0,
               boundDeg=NULL,
@@ -45,7 +45,7 @@ ergm <- function(formula, theta0="MPLE",
    }
   model.initial <- ergm.getmodel(formula, nw, drop=con$drop, initialfit=TRUE)
   MHproposal <- getMHproposal(proposaltype, proposalargs, nw, model.initial)
-
+#
   BD <- ergm.boundDeg(con$boundDeg, nnodes=network.size(nw))
   Clist.initial <- ergm.Cprepare(nw, model.initial)
   Clist.initial$meanstats=meanstats
@@ -66,7 +66,6 @@ ergm <- function(formula, theta0="MPLE",
     initialfit$formula <- formula
     return(initialfit)
   } 
-  if (verbose) cat("Fitting ERGM.\n")
   model <- ergm.getmodel(formula, nw, drop=con$drop, expanded=TRUE)
   theta0 <- ergm.revisetheta0(model, theta0)
   # revise theta0 to reflect additional parameters
@@ -76,30 +75,39 @@ ergm <- function(formula, theta0="MPLE",
   Clist$obs <- summary(model$formula)
 
   if (verbose) cat("ergm.mainfitloop\n")
+  MCMCparams=c(con,list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,maxit=maxit))
+  MHproposal=list(package=con$proposalpackage, type=proposaltype)
   styles <- c("Newton-Raphson","Robbins-Monro","Stochastic-Approximation")
   con$style <- styles[pmatch(con$style,styles,nomatch=1)]
   if(!is.null(dissolve)){
-    model.dissolve <- ergm.getmodel.dissolve(dissolve, nw, dissolve.order)
-    v <- ergm.robmon.dyn(theta0, nw, model, model.dissolve,
-                    Clist, BD, gamma, burnin, interval,
-                    MHproposal, verbose, con)
+   if (verbose) cat("Fitting Dynamic ERGM.\n")
+   model.dissolve <- ergm.getmodel.dissolve(dissolve, nw, dissolve.order)
+   v <- switch(con$style,
+    "Robbins-Monro" = ergm.robmon.dyn(theta0, nw, model, model.dissolve,
+                    Clist, BD, gamma, 
+                    MCMCparams=MCMCparams, MHproposal=MHproposal,
+                    verbose),
+                      ergm.mainfitloop.dyn(theta0, nw,
+                          model, model.dissolve, Clist,
+                          BD, gamma, initialfit,
+                          MCMCparams=MCMCparams, MHproposal=MHproposal,
+                          verbose=verbose, 
+                          ...)
+              )
   }else{
+   if (verbose) cat("Fitting ERGM.\n")
    v <- switch(con$style,
     "Robbins-Monro" = ergm.robmon(theta0, nw, model, Clist, BD, burnin, interval,
-                      MHproposal, verbose, con),
+                      proposaltype, verbose, con),
     "Stochastic-Approximation" = ergm.stocapprox(theta0, nw, model, 
-                                 Clist, BD, burnin, interval,
-                                 MHproposal, verbose, con),
+                                 Clist, BD, 
+                                 MCMCparams=MCMCparams, MHproposal=MHproposal,
+                                 verbose),
                       ergm.mainfitloop(theta0, nw,
                           model, Clist,
-                          BD, initialfit, burnin, MCMCsamplesize,
-                          interval, maxit, MHproposal,
-                          compress=con$compress, verbose=verbose, 
-                          mcmc.precision=con$mcmc.precision,
-                          nr.maxit=con$nr.maxit, calc.mcmc.se=con$calc.mcmc.se,
-                          hessian=con$hessian, trustregion=con$trustregion,
-                          steplength=con$steplength,
-                          parallel=con$parallel,
+                          BD, initialfit,
+                          MCMCparams=MCMCparams, MHproposal=MHproposal,
+                          verbose=verbose, 
                           ...)
               )
   }

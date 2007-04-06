@@ -1,5 +1,6 @@
 network.update<-function(nw,newmatrix)
 {
+  print(paste("old:",network.edgecount(nw)," new:", nrow(newmatrix),collapse=" "))
   unw <- network.copy(nw)
   matrix.type <- which.matrix.type(newmatrix)
   if(nrow(newmatrix)==0){matrix.type <- "edgelist"}

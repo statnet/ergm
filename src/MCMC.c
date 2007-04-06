@@ -267,8 +267,14 @@ void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
   values of the first group of m->n_stats networkstatistics should 
   all be zero
   *********************/
-  for (j=0; j < m->n_stats; j++)
-    networkstatistics[j] = 0.0;
+//for (j=0; j < m->n_stats; j++)
+//  networkstatistics[j] = 0.0;
+// Rprintf("\n");
+// for (j=0; j < m->n_stats; j++){
+//   Rprintf("j %d %f\n",j,networkstatistics[j]);
+// }
+// Rprintf("\n");
+
   mtp = m->termarray;
 
   /*********************

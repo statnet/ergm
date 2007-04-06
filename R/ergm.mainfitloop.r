@@ -1,18 +1,11 @@
 ergm.mainfitloop <- function(theta0, nw, model, Clist,
-                             BD, initialfit, burnin,
-                             MCMCsamplesize, interval, maxit, MHproposal,
-                             compress=FALSE, verbose=FALSE,
-                             mcmc.precision=0.05, 
-                             epsilon=1e-10, nr.maxit=100, calc.mcmc.se=TRUE,
-                             hessian=FALSE, trustregion=20,
-                             steplength=1,
-                             metric="Likelihood",
-                             method="BFGS", parallel=0, estimate=TRUE, ...) {
+                             BD, initialfit, 
+                             MCMCparams, MHproposal,
+                             verbose=FALSE,
+                             epsilon=1e-10,
+                             estimate=TRUE, ...) {
   iteration <- 1
-  newnetwork <- nw
-  smean <- rep(0,Clist$nparam)
-#
-# meanstats <- Clist$meanstats
+  nw.orig <- nw
 #
   asyse=theta0-theta0
   mc.se=1+0.05*asyse
@@ -21,20 +14,50 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
   theta.original=theta0
   thetaprior=theta0-theta0
 
+  if(is.null(Clist$meanstats)){Clist$meanstats <- Clist$obs}
+  stats <- matrix(0,ncol=Clist$nparam,nrow=MCMCparams$samplesize)
+  stats[1,] <- Clist$obs - Clist$meanstats
+# stats[,]<-  rep(Clist$obs - Clist$meanstats,rep(nrow(stats),Clist$nparam))
+  MCMCparams$stats <- stats
+  MCMCparams$meanstats <- Clist$meanstats
+
 #  while(any(mcmc.precision*asyse < mc.se, na.rm=TRUE) && iteration <= maxit){
-  while(iteration <= maxit){
+  while(iteration <= MCMCparams$maxit){
     thetaprior <- theta0
     theta0 <- v$coef
     eta0 <- ergm.eta(theta0, model$etamap)
-    cat("Iteration ", iteration,": Sampling ", MCMCsamplesize,
+    cat("Iteration ", iteration,": Sampling ", MCMCparams$samplesize,
         " with parameter: \n", sep="")
     print(theta0)
-    MCMCparams=list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,parallel=parallel)
-    z <- ergm.getMCMCsample(Clist, model, MHproposal, eta0, MCMCparams, verbose, BD)
+    z <- ergm.getMCMCsample(nw, model, MHproposal, eta0, MCMCparams, verbose, BD)
     statsmatrix=z$statsmatrix
-    newnetwork <- network.update(nw, z$newedgelist)
+# Next line VIP for sequential update
+    nw <- network.update(nw, z$newedgelist)
+#   newnetwork <- network.update(nw, z$newedgelist)
+#   Clist <- ergm.Cprepare(nw, model)
+##  MCMCparams$orig.obs <- summary(model$formula)
+#   MCMCparams$orig.obs <- statsmatrix[nrow(statsmatrix),]+MCMCparams$orig.obs
+#   ms <- MCMCparams$meanstats
+#   if(!is.null(ms)) {
+#     if (is.null(names(ms)) && length(ms) == length(model$coef.names))
+#       names(ms) <- model$coef.names
+#     obs <- MCMCparams$orig.obs
+#     obs <- obs[match(colnames(statsmatrix), names(obs))]
+#     ms  <-  ms[match(names(obs), names(ms))]
+#     matchcols <- match(names(ms), names(obs))
+#     if (any(!is.na(matchcols))) {
+#       ms[!is.na(matchcols)] <- ms[!is.na(matchcols)] - obs[matchcols[!is.na(matchcols)]]
+#       statsmatrix[,!is.na(matchcols)] <- sweep(as.matrix(
+#          statsmatrix[,!is.na(matchcols)]), 2, ms[!is.na(matchcols)], "-")
+#     }
+#   }
+# Next line VIP for sequential update
+    MCMCparams$stats[1,] <- summary(model$formula, basis=nw)-MCMCparams$meanstats
+#   print( MCMCparams$stats[1,] )
+#   MCMCparams$stats[1,] <- summary.statistics.network(model$formula,basis=nw)-Clist$meanstats
+#   MCMCparams$stats[1,] <- statsmatrix[nrow(statsmatrix),]
+#   MCMCparams$stats[,]<-  rep(statsmatrix[nrow(statsmatrix), ],rep(nrow( MCMCparams$stats),Clist$nparam))
 #
-#   Clist <- ergm.Cprepare(newnetwork, model)
 #   Clist$meanstats=meanstats
 #   aaa <<- nw
 #   print(summary(newnetwork ~ hamming(aaa)))
@@ -43,12 +66,12 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
 #
     if(verbose){cat("Back from unconstrained MCMC...\n")}
     iteration <- iteration + 1
-    if(steplength<1 && iteration < maxit ){
+    if(MCMCparams$steplength<1 && iteration < MCMCparams$maxit ){
       statsmean <- apply(statsmatrix,2,mean)
-      statsmatrix <- sweep(statsmatrix,2,(1-steplength)*statsmean,"-")
+      statsmatrix <- sweep(statsmatrix,2,(1-MCMCparams$steplength)*statsmean,"-")
     }
     if(ergm.checkdegeneracy(statsmatrix, verbose=verbose)){
-     if(iteration <= maxit){
+     if(iteration <= MCMCparams$maxit){
       cat(paste("The MCMC sampler is producing degenerate samples.\n",
                 "Try starting the algorithm at an alternative model\n",
                 "(That is, changing the 'theta0' argument).\n",
@@ -71,26 +94,26 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     }
     if(verbose){
       cat(paste("The density of the returned network is",
-                network.density(newnetwork),"\n"))
-      cat(paste("The density of the original network is",
                 network.density(nw),"\n"))
+      cat(paste("The density of the original network is",
+                network.density(nw.orig),"\n"))
       cat("Summary of the simulation:\n")
       print(apply(statsmatrix,2,summary.statsmatrix.ergm),scipen=6)
-      degreedist(newnetwork)
+      degreedist(nw)
     }
     if(verbose){cat("Calling optimization routines...\n")}
 
 ###### old statseval begins here.
     
-  if(verbose) {cat("statseval:  epsilon value is ",epsilon,"\n")}
+  if(verbose) {cat("statseval:  epsilon value is ",MCMCparams$epsilon,"\n")}
   if(!estimate){
     if(verbose){cat("Skipping optimization routines...\n")}
     l <- list(coef=theta0, mc.se=rep(NA,length=length(theta0)),
               sample=statsmatrix, iterations=1, MCMCtheta=theta0,
               loglikelihood=NA, mcmcloglik=NULL, mle.lik=NULL,
               gradient=rep(NA,length=length(theta0)), acf=NULL,
-              samplesize=MCMCsamplesize, failure=TRUE,
-              newnetwork = newnetwork,
+              samplesize=MCMCparams$samplesize, failure=TRUE,
+              newnetwork = nw,
               formula = model$formula)
     return(structure (l, class="ergm"))
   }
@@ -100,12 +123,12 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
 # If not the last iteration do not compute all the extraneous
 # statistics that are not needed until output
 #
-  if(iteration <= maxit){
+  if(iteration <= MCMCparams$maxit){
    v<-ergm.estimate.only(theta0=theta0, model=model,
-                    statsmatrix=statsmatrix, epsilon=epsilon,
-                    nr.maxit=nr.maxit, calc.mcmc.se=calc.mcmc.se, hessian=hessian,
-                    trustregion=trustregion, method=method, metric="Likelihood",
-                    compress=compress, verbose=verbose)
+                    statsmatrix=statsmatrix, epsilon=MCMCparams$epsilon,
+                    nr.maxit=MCMCparams$nr.maxit, calc.mcmc.se=MCMCparams$calc.mcmc.se, hessian=MCMCparams$hessian,
+                    trustregion=MCMCparams$trustregion, method=MCMCparams$method, metric="Likelihood",
+                    compress=MCMCparams$compress, verbose=verbose)
   }
 #
 # End main loop
@@ -115,10 +138,10 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
 # statistics that are not needed until output
 #
   v<-ergm.estimate(theta0=theta0, model=model,
-                   statsmatrix=statsmatrix, epsilon=epsilon,
-                   nr.maxit=nr.maxit, calc.mcmc.se=calc.mcmc.se, hessian=hessian,
-                   trustregion=trustregion, method=method, metric="Likelihood",
-                   compress=compress, verbose=verbose)
+                   statsmatrix=statsmatrix, epsilon=MCMCparams$epsilon,
+                   nr.maxit=MCMCparams$nr.maxit, calc.mcmc.se=MCMCparams$calc.mcmc.se, hessian=MCMCparams$hessian,
+                   trustregion=MCMCparams$trustregion, method=MCMCparams$method, metric="Likelihood",
+                   compress=MCMCparams$compress, verbose=verbose)
 #
 #    Reform the output
 #
@@ -134,17 +157,17 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
 #   v$mle.lik <- -glm.fit$deviance/2 + v$loglikelihood
   mle.lik <- mle.lik + v$loglikelihood
 
-  v$newnetwork <- newnetwork
+  v$newnetwork <- nw
   v$formula <- model$formula
 
 ###### old ergm.statseval ends here    
     
-    v$burnin <- burnin
-    v$samplesize <- MCMCsamplesize
-    v$interval <- interval
-    v$network <- nw
-    v$newnetwork <- newnetwork
-    v$interval <- interval
+    v$burnin <- MCMCparams$burnin
+    v$samplesize <- MCMCparams$samplesize
+    v$interval <- MCMCparams$interval
+    v$network <- nw.orig
+    v$newnetwork <- nw
+    v$interval <- MCMCparams$interval
     v$theta.original <- theta.original
     v$proposaltype <- MHproposal$name
     v$mplefit <- initialfit
@@ -163,16 +186,16 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
       options(warn=0)
     }
 
-  endrun <- burnin+interval*(MCMCsamplesize-1)
-  attr(v$sample, "mcpar") <- c(burnin+1, endrun, interval)
+  endrun <- MCMCparams$burnin+MCMCparams$interval*(MCMCparams$samplesize-1)
+  attr(v$sample, "mcpar") <- c(MCMCparams$burnin+1, endrun, MCMCparams$interval)
   attr(v$sample, "class") <- "mcmc"
 # v$null.deviance <- v$mplefit$glm$null.deviance
-  v$null.deviance <- 2*network.dyadcount(nw)*log(2)
+  v$null.deviance <- 2*network.dyadcount(nw.orig)*log(2)
 # v$mle.lik <- -v$mplefit$glm$deviance/2 + v$loglikelihood
 # v$mle.lik <- -v$null.deviance/2 + v$loglikelihood
 # v$mle.lik <- -initialfit$mle.lik/2 + v$loglikelihood
   v$mle.lik <- mle.lik
-  v$mcmcloglik <- v$mcmcloglik - network.dyadcount(nw)*log(2)
+  v$mcmcloglik <- v$mcmcloglik - network.dyadcount(nw.orig)*log(2)
 # if(!is.na(v$mle.lik) && v$mle.lik>0){
 #   v$mle.lik <- -v$mplefit$glm$deviance/2 
 # }  #I'm really not sure about this mle.lik value.

@@ -1,18 +1,18 @@
 ergm.phase12.dyn <- function(g, model, model.dissolve, 
                         MHproposal, eta0,
                         MCMCparams, verbose, BD) {
-  ms <- MCMCparams$meanstats
-  if(!is.null(ms)) {
-    if (is.null(names(ms)) && length(ms) == length(model$coef.names))
-      names(ms) <- model$coef.names
-    obs <- MCMCparams$orig.obs
-    obs <- obs[match(names(ms), names(obs))]
-    ms  <-  ms[match(names(obs), names(ms))]
-    matchcols <- match(names(ms), names(obs))
-    if (any(!is.na(matchcols))) {
-      ms[!is.na(matchcols)] <- ms[!is.na(matchcols)] - obs[matchcols[!is.na(matchcols)]]
-    }
-  }
+# ms <- MCMCparams$meanstats
+# if(!is.null(ms)) {
+#   if (is.null(names(ms)) && length(ms) == length(model$coef.names))
+#     names(ms) <- model$coef.names
+#   obs <- MCMCparams$orig.obs
+#   obs <- obs[match(names(ms), names(obs))]
+#   ms  <-  ms[match(names(obs), names(ms))]
+#   matchcols <- match(names(ms), names(obs))
+#   if (any(!is.na(matchcols))) {
+#     ms[!is.na(matchcols)] <- ms[!is.na(matchcols)] - obs[matchcols[!is.na(matchcols)]]
+#   }
+# }
   Clist <- ergm.Cprepare(g, model)
   Clist.dissolve <- ergm.Cprepare(g, model.dissolve)
   maxchanges <- max(MCMCparams$maxchanges, Clist$nedges)/5
@@ -28,7 +28,7 @@ ergm.phase12.dyn <- function(g, model, model.dissolve,
 #  Parallel running
 #
     if(MCMCparams$parallel==0){
-      z <- .C("MCMCDynPhase2",
+      z <- .C("MCMCDynPhase12",
           as.integer(Clist.dissolve$order.code),
           as.double(Clist$heads), as.double(Clist$tails), 
           as.double(Clist$nedges), as.double(Clist$n),
@@ -40,7 +40,7 @@ ergm.phase12.dyn <- function(g, model, model.dissolve,
 #  Add:  as.double(length(MHproposal$args)), as.double(MHproposal$args), 
           as.double(Clist$inputs),
           eta=as.double(eta0),
-          as.double(MCMCparams$gain), as.double(ms),
+          as.double(MCMCparams$gain), as.double(MCMCparams$stats[1,]),
           as.integer(MCMCparams$phase1),
           as.integer(MCMCparams$nsub),
           as.integer(Clist.dissolve$nterms),
@@ -139,7 +139,8 @@ ergm.phase12.dyn <- function(g, model, model.dissolve,
      diffedgelist <- matrix(0, ncol=3, nrow=0)
     }
     colnames(statsmatrix) <- model$coef.names
-  list(statsmatrix=statsmatrix, newedgelist=newedgelist, meanstats=ms,
+  list(statsmatrix=statsmatrix, newedgelist=newedgelist,
+       meanstats=MCMCparams$meanstats,
        changed=diffedgelist, dissolved=dissedgelist,
        maxchanges=MCMCparams$maxchanges,
        eta=eta)

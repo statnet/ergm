@@ -1,7 +1,6 @@
 ergm.stocapprox <- function(theta0, nw, model, Clist, BD, 
-                        burnin, interval, MHproposal,
-                        verbose=FALSE, 
-                        algorithm.control=list() ){
+                            MCMCparams, MHproposal,
+                            verbose=FALSE){
   # This is based on Snijders (2002), J of Social Structure
   # and Snijders and van Duijn (2002) from A Festscrift for Ove Frank
   # Both papers are available from Tom Snijders' web page: 
@@ -15,28 +14,26 @@ ergm.stocapprox <- function(theta0, nw, model, Clist, BD,
   #     phase3_n:  Sample size for phase 3
   
   #phase 1:  Estimate diagonal elements of D matrix (covariance matrix for theta0)
-  n1 <- algorithm.control$phase1_n
+  n1 <- MCMCparams$phase1_n
   if(is.null(n1)) {n1 <- max(200,7 + 3 * Clist$nparam)} #default value
   eta0 <- ergm.eta(theta0, model$etamap)
   cat("Robbins-Monro algorithm with theta_0 equal to:\n")
   print(theta0)
   names(Clist$obs) <- names(theta0)
   if(is.null(Clist$meanstats)){Clist$meanstats <- Clist$obs}
-  MCMCparams <- list(samplesize=100, phase1=n1, burnin=burnin,
-                     interval=interval,
-                     orig.obs=Clist$obs, meanstats=Clist$meanstats,
-                     parallel=algorithm.control$parallel,
-                     maxedges=10*algorithm.control$maxedges
-                    )
+  MCMCparams <- c(MCMCparams, list(phase1=n1,
+                  stats=summary.statistics.network(model$formula, basis=nw)-Clist$meanstats,
+                  meanstats=Clist$meanstats)
+                 )
 # cat(paste("Phase 1: ",n1,"iterations"))
 # cat(paste(" (interval=",MCMCparams$interval,")\n",sep=""))
   nw.orig <- nw
   #phase 2:  Main phase
-  a <- algorithm.control$initial_gain
+  a <- MCMCparams$initial_gain
   if(is.null(a)) {a <- 0.1} #default value
-  n_sub <- algorithm.control$nsubphases
+  n_sub <- MCMCparams$nsubphases
   if(is.null(n_sub)) {n_sub <- 4} #default value
-  n_iter <- algorithm.control$niterations
+  n_iter <- MCMCparams$niterations
   if(is.null(n_iter)) {n_iter <- 7 + Clist$nparam} #default value
   # This default value is very simplistic; Snijders would use a minimum of
   # 7 + Clist$nparam and a maximum of 207+Clist$nparam, with the actual 
@@ -66,7 +63,7 @@ ergm.stocapprox <- function(theta0, nw, model, Clist, BD,
   cat(paste(" (eta= ",paste(theta),")\n",sep=""))
   
   #phase 3:  Estimate covariance matrix for final theta
-  n3 <- algorithm.control$phase3_n
+  n3 <- MCMCparams$phase3_n
   if(is.null(n3)) {n3 <- 1000} #default
   MCMCparams$samplesize <- n3
   cat(paste("Phase 3: ",n3,"iterations"))
@@ -76,7 +73,10 @@ ergm.stocapprox <- function(theta0, nw, model, Clist, BD,
   eta <- ergm.eta(theta, model$etamap)
 #cat(paste(" (samplesize=",MCMCparams$samplesize,")\n",sep=""))
 #cat(paste(" eta=",eta,")\n",sep=""))
-  z <- ergm.getMCMCsample(Clist, model,
+  stats <- matrix(0,ncol=Clist$nparam,nrow=MCMCparams$samplesize)
+  stats[1,] <- summary.statistics.network(model$formula, basis=nw) - Clist$meanstats
+  MCMCparams$stats <- stats
+  z <- ergm.getMCMCsample(nw, model,
                           MHproposal, eta, MCMCparams, verbose, BD)
   MCMCparams$maxedges <- z$maxedges
 # ubar <- apply(z$statsmatrix, 2, mean)
@@ -88,18 +88,18 @@ ergm.stocapprox <- function(theta0, nw, model, Clist, BD,
 
   ve<-ergm.estimate(theta0=theta, model=model,
                    statsmatrix=z$statsmatrix,
-                   nr.maxit=algorithm.control$nr.maxit, 
-                   calc.mcmc.se=algorithm.control$calc.mcmc.se,
-                   hessian=algorithm.control$hessian,
-                   method=algorithm.control$method,
-                   metric=algorithm.control$metric,
-                   compress=algorithm.control$compress, verbose=verbose)
+                   nr.maxit=MCMCparams$nr.maxit, 
+                   calc.mcmc.se=MCMCparams$calc.mcmc.se,
+                   hessian=MCMCparams$hessian,
+                   method=MCMCparams$method,
+                   metric=MCMCparams$metric,
+                   compress=MCMCparams$compress, verbose=verbose)
 #
 # Important: Keep R-M (pre-NR) theta
 # ve$coef <- theta
 #
-  endrun <- burnin+interval*(ve$samplesize-1)
-  attr(ve$sample, "mcpar") <- c(burnin+1, endrun, interval)
+  endrun <- MCMCparams$burnin+MCMCparams$interval*(ve$samplesize-1)
+  attr(ve$sample, "mcpar") <- c(MCMCparams$burnin+1, endrun, MCMCparams$interval)
   attr(ve$sample, "class") <- "mcmc"
   ve$null.deviance <- 2*network.dyadcount(nw)*log(2)
   ve$mle.lik <- -ve$null.deviance/2 + ve$loglikelihood
@@ -117,7 +117,7 @@ ergm.stocapprox <- function(theta0, nw, model, Clist, BD,
   structure(c(ve, list(newnetwork=nw, 
                  theta.original=theta0,
                  bounddeg=BD, formula=model$formula, 
-                 interval=interval, burnin=burnin, 
-                 network=nw.orig, proposaltype=MHproposal$name)),
+                 interval=MCMCparams$interval, burnin=MCMCparams$burnin, 
+                 network=nw.orig, proposaltype=MHproposal$type)),
              class="ergm")
 }

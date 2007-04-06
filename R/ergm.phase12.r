@@ -1,18 +1,18 @@
 ergm.phase12 <- function(g, model,
                         MHproposal, eta0,
                         MCMCparams, verbose, BD) {
-  ms <- MCMCparams$meanstats
-  if(!is.null(ms)) {
-    if (is.null(names(ms)) && length(ms) == length(model$coef.names))
-      names(ms) <- model$coef.names
-    obs <- MCMCparams$orig.obs
-    obs <- obs[match(names(ms), names(obs))]
-    ms  <-  ms[match(names(obs), names(ms))]
-    matchcols <- match(names(ms), names(obs))
-    if (any(!is.na(matchcols))) {
-      ms[!is.na(matchcols)] <- ms[!is.na(matchcols)] - obs[matchcols[!is.na(matchcols)]]
-    }
-  }
+# ms <- MCMCparams$meanstats
+# if(!is.null(ms)) {
+#   if (is.null(names(ms)) && length(ms) == length(model$coef.names))
+#     names(ms) <- model$coef.names
+#   obs <- MCMCparams$orig.obs
+#   obs <- obs[match(names(ms), names(obs))]
+#   ms  <-  ms[match(names(obs), names(ms))]
+#   matchcols <- match(names(ms), names(obs))
+#   if (any(!is.na(matchcols))) {
+#     ms[!is.na(matchcols)] <- ms[!is.na(matchcols)] - obs[matchcols[!is.na(matchcols)]]
+#   }
+# }
   Clist <- ergm.Cprepare(g, model)
   maxedges <- max(MCMCparams$maxedges, Clist$nedges)/5
   MCMCparams$maxedges <- MCMCparams$maxedges/5
@@ -33,7 +33,7 @@ ergm.phase12 <- function(g, model,
           as.double(Clist$inputs),
           eta=as.double(eta0),
           as.double(MCMCparams$samplesize),
-          as.double(MCMCparams$gain), as.double(ms),
+          as.double(MCMCparams$gain), as.double(MCMCparams$stats),
           as.integer(MCMCparams$phase1),
           as.integer(MCMCparams$nsub),
           s = double(MCMCparams$samplesize * Clist$nparam),
@@ -60,7 +60,7 @@ ergm.phase12 <- function(g, model,
       newedgelist <- matrix(0, ncol=2, nrow=0)
     }
     colnames(statsmatrix) <- model$coef.names
-    list(statsmatrix=statsmatrix, newedgelist=newedgelist, meanstats=ms,
+    list(statsmatrix=statsmatrix, newedgelist=newedgelist, meanstats=MCMCparams$meanstats,
        maxedges=MCMCparams$maxedges,
        eta=eta)
 }

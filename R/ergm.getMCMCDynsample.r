@@ -1,4 +1,4 @@
-ergm.getMCMCDynsample <- function(g, model, model.dissolve, 
+ergm.getMCMCDynsample <- function(nw, model, model.dissolve, 
                                   MHproposal, eta0, MCMCparams, 
                                   verbose, BD) {
 # Note:  In reality, there should be many fewer arguments to this function,
@@ -9,14 +9,14 @@ ergm.getMCMCDynsample <- function(g, model, model.dissolve,
 #
 #   Check for truncation of the returned edge list
 #
-  Clist <- ergm.Cprepare(g, model)
-  Clist.dissolve <- ergm.Cprepare(g, model.dissolve)
+  Clist <- ergm.Cprepare(nw, model)
+  Clist.dissolve <- ergm.Cprepare(nw, model.dissolve)
   maxchanges <- max(MCMCparams$maxchanges, Clist$nedges)/5
   MCMCparams$maxchanges <- MCMCparams$maxchanges/5
   z <- list(newnwhead=maxchanges+1)
-  while(z$newnwhead[1]  >= maxchanges || 
-        z$dissnwhead[1] >= maxchanges ||
-        z$diffnwhead[1] >= maxchanges){
+  while(z$newnwhead[1]  >= maxchanges - 10 || 
+        z$dissnwhead[1] >= maxchanges - 10 ||
+        z$diffnwhead[1] >= maxchanges - 10){
     maxchanges <- 5*maxchanges
     MCMCparams$maxchanges <- 5*MCMCparams$maxchanges
     if(verbose){cat(paste("MCMCDyn workspace is",maxchanges,"\n"))}
@@ -40,7 +40,7 @@ ergm.getMCMCDynsample <- function(g, model, model.dissolve,
           as.character(Clist.dissolve$snamestring),
           as.double(Clist.dissolve$inputs),
           as.double(MCMCparams$samplesize),
-          s = double(MCMCparams$samplesize * Clist$nparam),
+          s = as.double(t(MCMCparams$stats)),
           as.double(MCMCparams$burnin), as.double(MCMCparams$interval),
           newnwhead = integer(maxchanges), newnwtail = integer(maxchanges), 
           diffnwtime = integer(maxchanges), diffnwhead = integer(maxchanges), diffnwtail = integer(maxchanges), 
@@ -62,6 +62,7 @@ ergm.getMCMCDynsample <- function(g, model, model.dissolve,
     rpvmbasename <- paste("ergm.parallel.",Sys.getpid(),sep="")
     MCMCparams.parallel <- MCMCparams
     MCMCparams.parallel$samplesize <- round(MCMCparams$samplesize / MCMCparams$parallel)
+    MCMCparams.parallel$stats <- MCMCparams$stats[1:MCMCparams.parallel$samplesize,]
     require(rpvm)
     require(MASS) # needed by rpvm
 #
@@ -132,21 +133,29 @@ ergm.getMCMCDynsample <- function(g, model, model.dissolve,
 #
 # recenter statsmatrix by mean statistics if necessary
 #
-  ms <- MCMCparams$meanstats
-  if(!is.null(ms)) {
-    if (is.null(names(ms)) && length(ms) == length(model$coef.names))
-      names(ms) <- model$coef.names
-    obs <- MCMCparams$orig.obs
-    obs <- obs[match(colnames(statsmatrix), names(obs))]
-    ms  <-  ms[match(names(obs), names(ms))]
-    matchcols <- match(names(ms), names(obs))
-    if (any(!is.na(matchcols))) {
-      ms[!is.na(matchcols)] <- ms[!is.na(matchcols)] - obs[matchcols[!is.na(matchcols)]]
-      statsmatrix[,!is.na(matchcols)] <- sweep(as.matrix(
-         statsmatrix[,!is.na(matchcols)]), 2, ms[!is.na(matchcols)], "-")
-    }
-  }
-  list(statsmatrix=statsmatrix, newedgelist=newedgelist, meanstats=ms,
+# ms <- MCMCparams$meanstats
+# print(statsmatrix[nrow(statsmatrix),])
+# print(apply(statsmatrix,2,mean))
+# print(ms)
+# if(!is.null(ms)) {
+#   if (is.null(names(ms)) && length(ms) == length(model$coef.names))
+#     names(ms) <- model$coef.names
+#   obs <- MCMCparams$orig.obs
+#   obs <- obs[match(colnames(statsmatrix), names(obs))]
+# print("adjusting:\n")
+# print(obs)
+#   ms  <-  ms[match(names(obs), names(ms))]
+#   matchcols <- match(names(ms), names(obs))
+#   if (any(!is.na(matchcols))) {
+#     ms[!is.na(matchcols)] <- ms[!is.na(matchcols)] - obs[matchcols[!is.na(matchcols)]]
+#     statsmatrix[,!is.na(matchcols)] <- sweep(as.matrix(
+#        statsmatrix[,!is.na(matchcols)]), 2, ms[!is.na(matchcols)], "-")
+#   }
+# }
+# print(statsmatrix[nrow(statsmatrix),])
+# print(apply(statsmatrix,2,mean))
+
+  list(statsmatrix=statsmatrix, newedgelist=newedgelist, meanstats=MCMCparams$meanstats,
        changed=diffedgelist, dissolved=dissedgelist,
        maxchanges=MCMCparams$maxchanges)
 }

@@ -20,13 +20,13 @@ summary.statistics.network <- function(object,...,basis=NULL)
 {
   current.warn <- options()$warn
   options(warn=0)
-  formula <- object
-  trms <- terms(formula)
   if(is.network(basis)){
     nw <- basis
-    formula <- as.formula(paste(c("basis",as.character(formula)),collapse=" "))
-    trms <- terms(formula)
+    formula <- as.formula(paste("basis",paste(as.character(object)[-2],collapse=" ")))
+#   formula <- as.formula(paste(c("nw",as.character(formula)),collapse=" "))
   }else{
+    formula <- object
+    trms <- terms(formula)
     if(length(trms)>2){
       parent <- sys.parent()
       nw <- try(eval(trms[[2]],parent), silent = TRUE)
@@ -41,6 +41,7 @@ summary.statistics.network <- function(object,...,basis=NULL)
       stop("Must specify a network object")
     }
   }
+  
   nnodes <- network.size(nw)
   if(is.directed(nw)){
     dyads <- nnodes*(nnodes-1)

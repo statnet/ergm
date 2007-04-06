@@ -1,8 +1,7 @@
 ergm.robmon.dyn <- function(theta0, nw, model, model.dissolve, Clist, BD, 
                         gamma,
-                        burnin, interval, MHproposal,
-                        verbose=FALSE, 
-                        algorithm.control=list() ){
+                        MCMCparams, MHproposal,
+                        verbose=FALSE){
   # This is based on Snijders (2002), J of Social Structure
   # and Snijders and van Duijn (2002) from A Festscrift for Ove Frank
   # Both papers are available from Tom Snijders' web page: 
@@ -16,20 +15,20 @@ ergm.robmon.dyn <- function(theta0, nw, model, model.dissolve, Clist, BD,
   #     phase3_n:  Sample size for phase 3
   
   #phase 1:  Estimate diagonal elements of D matrix (covariance matrix for theta0)
-  n1 <- algorithm.control$phase1_n
+  n1 <- MCMCparams$phase1_n
   if(is.null(n1)) {n1 <- max(200,7 + 3 * Clist$nparam)} #default value
   eta0 <- ergm.eta(theta0, model$etamap)
   cat("Robbins-Monro algorithm with theta_0 equal to:\n")
   print(theta0)
   names(Clist$obs) <- names(theta0)
   if(is.null(Clist$meanstats)){Clist$meanstats <- Clist$obs}
-  MCMCparams <- list(samplesize=100, phase1=n1, burnin=burnin,
-                     interval=interval,
-                     orig.obs=Clist$obs, meanstats=Clist$meanstats,
-                     gamma=gamma, parallel=algorithm.control$parallel,
-                     dyninterval=algorithm.control$dyninterval,
-                     maxchanges=10*algorithm.control$maxchanges
-                    )
+  stats <- matrix(0,ncol=Clist$nparam,nrow=MCMCparams$samplesize)
+  stats[1,] <- summary.statistics.network(model$formula, basis=nw)-Clist$meanstats
+  MCMCparams <- c(MCMCparams, list(samplesize=100, phase1=n1,
+                  meanstats=Clist$meanstats,
+                  stats=stats,
+                  gamma=gamma)
+                 )
 # cat(paste("Phase 1: ",n1,"iterations"))
 # cat(paste(" (interval=",MCMCparams$interval,")\n",sep=""))
   nw.orig <- nw
@@ -48,11 +47,11 @@ ergm.robmon.dyn <- function(theta0, nw, model, model.dissolve, Clist, BD,
 # print(1/Ddiag)
   
   #phase 2:  Main phase
-  a <- algorithm.control$initial_gain
+  a <- MCMCparams$initial_gain
   if(is.null(a)) {a <- 0.1} #default value
-  n_sub <- algorithm.control$nsubphases
+  n_sub <- MCMCparams$nsubphases
   if(is.null(n_sub)) {n_sub <- 4} #default value
-  n_iter <- algorithm.control$niterations
+  n_iter <- MCMCparams$niterations
   if(is.null(n_iter)) {n_iter <- 7 + Clist$nparam} #default value
   # This default value is very simplistic; Snijders would use a minimum of
   # 7 + Clist$nparam and a maximum of 207+Clist$nparam, with the actual 
@@ -75,18 +74,19 @@ ergm.robmon.dyn <- function(theta0, nw, model, model.dissolve, Clist, BD,
   z <- ergm.phase12.dyn(nw, model, model.dissolve, MHproposal, 
                    eta, MCMCparams, verbose=TRUE, BD)
   cat("\n Number changed: ");cat(paste(nrow(z$changed)));cat("\n Edges:")
-  cat(paste(summary(nw ~ edges)));cat("\n")
-  nw <- network.update(nw, z$newedgelist)
+# cat(paste(summary(nw ~ edges)));cat("\n")
+# nw <- network.update(nw, z$newedgelist)
 # toggle.dyads(nw, tail = z$changed[,2], head = z$changed[,3])
-  MCMCparams$orig.obs <- summary(model$formula)
-  print( MCMCparams$orig.obs)
+  stats[1,] <- summary.statistics.network(model$formula, basis=nw)-Clist$meanstats
+  MCMCparams$stats <- stats
+# print( MCMCparams$orig.obs)
 # MCMCparams$maxchanges <- z$maxchanges
   theta <- z$eta
   names(theta) <- names(theta0)
   cat(paste(" (eta= ",paste(theta),")\n",sep=""))
   
   #phase 3:  Estimate covariance matrix for final theta
-  n3 <- algorithm.control$phase3_n
+  n3 <- MCMCparams$phase3_n
   if(is.null(n3)) {n3 <- 1000} #default
   MCMCparams$samplesize <- n3
   cat(paste("Phase 3: ",n3,"iterations"))
@@ -108,18 +108,19 @@ ergm.robmon.dyn <- function(theta0, nw, model, model.dissolve, Clist, BD,
 
   ve<-ergm.estimate(theta0=theta, model=model,
                    statsmatrix=z$statsmatrix,
-                   nr.maxit=algorithm.control$nr.maxit, 
-                   calc.mcmc.se=algorithm.control$calc.mcmc.se,
-                   hessian=algorithm.control$hessian,
-                   method=algorithm.control$method,
-                   metric=algorithm.control$metric,
-                   compress=algorithm.control$compress, verbose=verbose)
+                   nr.maxit=MCMCparams$nr.maxit, 
+                   trustregion=MCMCparams$trustregion, 
+                   calc.mcmc.se=MCMCparams$calc.mcmc.se,
+                   hessian=MCMCparams$hessian,
+                   method=MCMCparams$method,
+                   metric=MCMCparams$metric,
+                   compress=MCMCparams$compress, verbose=verbose)
 #
 # Important: Keep R-M (pre-NR) theta
 # ve$coef <- theta
 #
-  endrun <- burnin+interval*(ve$samplesize-1)
-  attr(ve$sample, "mcpar") <- c(burnin+1, endrun, interval)
+  endrun <- MCMCparams$burnin+MCMCparams$interval*(ve$samplesize-1)
+  attr(ve$sample, "mcpar") <- c(MCMCparams$burnin+1, endrun, MCMCparams$interval)
   attr(ve$sample, "class") <- "mcmc"
   ve$null.deviance <- 2*network.dyadcount(nw)*log(2)
   ve$mle.lik <- -ve$null.deviance/2 + ve$loglikelihood
@@ -137,8 +138,8 @@ ergm.robmon.dyn <- function(theta0, nw, model, model.dissolve, Clist, BD,
   structure(c(ve, list(newnetwork=nw, 
                  theta.original=theta0,
                  bounddeg=BD, formula=model$formula, 
-                 interval=interval, burnin=burnin, 
-                 network=nw.orig, proposaltype=MHproposal$name)),
+                 interval=MCMCparams$interval, burnin=MCMCparams$burnin, 
+                 network=nw.orig, proposaltype=MHproposal$type)),
              class="ergm")
 }
 
