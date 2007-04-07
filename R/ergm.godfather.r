@@ -1,4 +1,5 @@
-ergm.godfather <- function(formula, timestamps, toggles, verbose=FALSE) {
+ergm.godfather <- function(formula, timestamps, toggles, verbose=FALSE,
+                           algorithm.control=list()) {
   # Make the network a proposal it can't refuse.
   # Here, formula is a typical ergm formula (i.e., nw ~ terms)
   # timestamps is a vector whose length is the same as the #rows of toggles.
@@ -9,6 +10,12 @@ ergm.godfather <- function(formula, timestamps, toggles, verbose=FALSE) {
   # number of rows is determined by the # of unique timestamps and the
   # number of columns is determined by the ERGM terms as usual.
 
+  ## Defaults :
+  con <- list(maxedges=100000,
+              maxchanges=1000000
+             )
+  con[(namc <- names(algorithm.control))] <- algorithm.control
+
   nw <- ergm.getnetwork(formula)
   m <- ergm.getmodel(formula, nw, drop=F, initialfit=T)
   Clist <- ergm.Cprepare(nw, m)
@@ -16,7 +23,7 @@ ergm.godfather <- function(formula, timestamps, toggles, verbose=FALSE) {
   ots <- order(timestamps)
   toggles <- toggles[ots,]
   timestamps <- timestamps[ots]
-  maxedges <- max(2000, 5*Clist$nedges)
+  maxedges <- max(con$maxedges, 5*Clist$nedges)
   obsstat <- summary(formula)  
   z <- .C("godfather_wrapper",
           as.double(Clist$heads), as.double(Clist$tails), 
