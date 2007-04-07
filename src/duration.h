@@ -14,7 +14,16 @@ void OverlapDurations (int *nedge, int *edge, int *ntimestep, int *nfem,
       int *ntotal, int *nchange, int *change, int *ndissolve, int *dissolve,
       int *maxoverlaps, int *omatrix);
 void AddNewOverlapRow (int *omatrix, int row, int f1, int m1, 
-      int f2, int m2, int time, int maxo);
+int f2, int m2, int time1, int time2, int maxo);
+
+void old_OverlapDurations (int *nedge, int *edge, int *ntimestep, int *nfem,
+      int *ntotal, int *nchange, int *change, int *ndissolve, int *dissolve,
+      int *maxoverlaps, int *omatrix);
+void old_AddNewOverlapRow (int *omatrix, int row, int f1, int m1, 
+int f2, int m2, int time, int maxo);
+
+
+
 void godfather_wrapper (double *heads, double *tails, double *dnedges,
                    double *dn, int *dflag, double *bipartite, 
                    int *nterms, char **funnames,
