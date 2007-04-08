@@ -410,20 +410,21 @@ void godfather_wrapper (double *heads, double *tails, double *dnedges,
       }
     }
   }
-  /* record new generated network to pass back to R */
-  for (h=nextedge=1; h<=n_nodes; h++) {
-    for(e = EdgetreeMinimum(nw.outedges, h);
-    (t=nw.outedges[e].value) != 0 && nextedge < nmax;
-    e = EdgetreeSuccessor(nw.outedges, e)) {
-      newnetwork[nextedge++] = h;
-      newnetwork[nextedge++] = t;
+  if (nmax>0) {
+    /* record new generated network to pass back to R */
+    for (h=nextedge=1; h<=n_nodes; h++) {
+      for(e = EdgetreeMinimum(nw.outedges, h);
+      (t=nw.outedges[e].value) != 0 && nextedge < nmax;
+      e = EdgetreeSuccessor(nw.outedges, e)) {
+        newnetwork[nextedge++] = h;
+        newnetwork[nextedge++] = t;
+      }
     }
+    if (nextedge>=nmax) { 
+      Rprintf("Error!  The value of maxedges was not set high enough in ergm.godfather\n");
+    }
+    newnetwork[0]=nextedge;
   }
-  if (nextedge>=nmax) { 
-    Rprintf("Error!  The value of maxedges was not set high enough in ergm.godfather\n");
-  }
-  newnetwork[0]=nextedge;
-
   /* Clean up and return */
   free(theads);
   free(ttails);
