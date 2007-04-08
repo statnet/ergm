@@ -54,6 +54,6 @@ not given.")
   stats <- matrix(z$s + obsstat, ncol=Clist$nparam, byrow=T)
   colnames(stats) <- m$coef.names
   newnw <- matrix(z$newnw[z$newnw>0][-1], ncol=2, byrow=T)
-  list(stats = stats, newnw = newnw)
+  list(stats = stats, newnetwork=network.update(nw,newnw))
 }
 
