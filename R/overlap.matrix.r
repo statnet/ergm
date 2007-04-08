@@ -1,5 +1,5 @@
-overlap.matrix <- function(g0, gsim) {
-  if (!is.network(g0) || class(gsim) != "network.series") {
+overlap.matrix <- function(gsim, maxoverlaps=100000) {
+  if (!is.network((g0<-gsim$networks)) || class(gsim) != "network.series") {
     stop("This function requires that the first argument ",
          "be a network (the original) and the second ",
          "argument be a network.series (the changes)")
@@ -17,9 +17,6 @@ overlap.matrix <- function(g0, gsim) {
   # Note bizarre difference in ordering columns between $change and $dissolve.
   # dissolve is not actually used by the DurationMatrix function at all.
 
-  maxoverlaps <- 20*nedge # I have no idea what this value should be, but
-                        # it must be passed to the C code along with a large
-                        # enough matrix (maxoverlaps x 7)
   overlap <- .C("OverlapDurations", as.integer(nedge), as.integer(edges), 
                 as.integer(N), as.integer(Nfem), as.integer(Ntot), 
                 as.integer(nchange), as.integer(cha),
@@ -31,7 +28,14 @@ overlap.matrix <- function(g0, gsim) {
   overlap <- overlap[overlap[,1]>0,] # Get rid of unused rows
   overlap[overlap==-1] <- N # Overlaps that didn't end will be censored at N
   duration <- overlap[,7] - apply(overlap[,5:6], 1, max) 
-  overlap <- cbind(overlap, duration = duration)
+  fts <- apply(overlap[,c("start1","start2")], 1, 
+                        function(x) (x[1]<=x[2]) + 2*(x[2]<=x[1]))
+  fte <- overlap[,"firsttoend"]
+  type <- (((fts == 1 & fte == 2) | (fts == 2 & fte == 1)) 
+           + 2*(fts == 3 | fte == 3 | fte == fts) 
+           + 3*(fte==0))
+  type <- c("transitional","embedded","truncated")[type]
+  data.frame(overlap, duration = duration, firsttostart=fts, type=type)
 }
 
 

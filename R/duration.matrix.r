@@ -1,5 +1,5 @@
 duration.matrix <- function(g0, gsim) {
-  if (!is.network(g0) || class(gsim) != "network.series") {
+  if (!is.network((g0<-gsim$networks)) || class(gsim) != "network.series") {
     stop("This function requires that the first argument ",
          "be a network (the original) and the second ",
          "argument be a network.series (the changes)")
