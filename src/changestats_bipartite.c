@@ -488,9 +488,9 @@ void d_gwedegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
 }
 
 /*****************
- void d_birnought
+ void d_bkappa
 *****************/
-void d_birnought (int ntoggles, Vertex *heads, Vertex *tails, 
+void d_bkappa (int ntoggles, Vertex *heads, Vertex *tails, 
 	      ModelTerm *mtp, Network *nwp)  {
   int i, j, echange=0;
   double nedges, change, iar0, far0, ier0, fer0;

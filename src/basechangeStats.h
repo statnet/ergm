@@ -143,7 +143,7 @@ void d_tricorr (int ntoggles, Vertex *heads, Vertex *tails,
 		ModelTerm *mtp, Network *nwp);
 void d_ttriad (int ntoggles, Vertex *heads, Vertex *tails, 
 	       ModelTerm *mtp, Network *nwp);
-void d_rnought (int ntoggles, Vertex *heads, Vertex *tails, 
+void d_kappa (int ntoggles, Vertex *heads, Vertex *tails, 
 	      ModelTerm *mtp, Network *nwp);
 void d_boundeddegree (int ntoggles, Vertex *heads, Vertex *tails, 
 		      ModelTerm *mtp, Network *nwp);

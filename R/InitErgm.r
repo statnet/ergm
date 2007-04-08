@@ -1634,9 +1634,9 @@ InitErgm.gwesp<-function(nw, m, arglist, initialfit=FALSE, ...) {
   m
 }
 
-InitErgm.r0<-function(nw, m, arglist, ...) {
-  ergm.checkdirected("r0", is.directed(nw), requirement=FALSE)
-  a <- ergm.checkargs("r0", arglist,
+InitErgm.kappa<-function(nw, m, arglist, ...) {
+  ergm.checkdirected("kappa", is.directed(nw), requirement=FALSE)
+  a <- ergm.checkargs("kappa", arglist,
     varnames = c("attrname"),
     vartypes = c("character"),
     defaultvalues = list(NULL),
@@ -1644,13 +1644,13 @@ InitErgm.r0<-function(nw, m, arglist, ...) {
   attach(a)
   termnumber<-1+length(m$terms)
   if(is.bipartite(nw)){
-   m$terms[[termnumber]] <- list(name="birnought", soname="statnet",
+   m$terms[[termnumber]] <- list(name="bkappa", soname="statnet",
                                 inputs=c(0, 1, 0))
   }else{
-   m$terms[[termnumber]] <- list(name="rnought", soname="statnet",
+   m$terms[[termnumber]] <- list(name="kappa", soname="statnet",
                                 inputs=c(0, 1, 0))
   }
-  m$coef.names<-c(m$coef.names,"r0")
+  m$coef.names<-c(m$coef.names,"kappa")
   m
 }
 

@@ -1,4 +1,5 @@
-ergm.godfather <- function(formula, timestamps, toggles, verbose=FALSE,
+ergm.godfather <- function(formula, timestamps=NULL, toggles=NULL, sim=NULL,
+                           verbose=FALSE,
                            algorithm.control=list()) {
   # Make the network a proposal it can't refuse.
   # Here, formula is a typical ergm formula (i.e., nw ~ terms)
@@ -9,6 +10,16 @@ ergm.godfather <- function(formula, timestamps, toggles, verbose=FALSE,
   # Thus, the final product is a matrix of change statistics in which the
   # number of rows is determined by the # of unique timestamps and the
   # number of columns is determined by the ERGM terms as usual.
+
+  if(is.null(sim)){
+    if(is.null(timestamps) | is.null(toggles)){
+      stop("Both 'timestamps' and 'toggle' are required arguments if 'sim' is
+not given.")
+    }
+  }else{
+    timestamps <- sim$changed[,1]
+    toggles <- sim$changed[,3:2]
+  }
 
   ## Defaults :
   con <- list(maxedges=100000,

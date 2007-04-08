@@ -1000,9 +1000,9 @@ void d_gwdegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
 }
 
 /*****************
- void d_rnought
+ void d_kappa
 *****************/
-void d_rnought (int ntoggles, Vertex *heads, Vertex *tails, 
+void d_kappa (int ntoggles, Vertex *heads, Vertex *tails, 
 	      ModelTerm *mtp, Network *nwp)  {
   int i, j, echange=0;
   double nedges, change, ir0, fr0;

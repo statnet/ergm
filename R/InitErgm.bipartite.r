@@ -163,33 +163,33 @@ InitErgm.gwactor706<-function (nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-InitErgm.r0a<-function(nw, m, arglist, ...) {
-  ergm.checkdirected("r0a", is.bipartite(nw), requirement=TRUE)
-  a <- ergm.checkargs("r0a", arglist,
+InitErgm.akappa<-function(nw, m, arglist, ...) {
+  ergm.checkdirected("akappa", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("akappa", arglist,
     varnames = c("attrname"),
     vartypes = c("character"),
     defaultvalues = list(NULL),
     required = c(FALSE))
   attach(a)
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="r0a", soname="statnet",
+  m$terms[[termnumber]] <- list(name="akappa", soname="statnet",
                                 inputs=c(0, 1, 0))
-  m$coef.names<-c(m$coef.names,"r0a")
+  m$coef.names<-c(m$coef.names,"akappa")
   m
 }
 
-InitErgm.r0e<-function(nw, m, arglist, ...) {
-  ergm.checkdirected("r0e", is.bipartite(nw), requirement=TRUE)
-  a <- ergm.checkargs("r0e", arglist,
+InitErgm.ekappa<-function(nw, m, arglist, ...) {
+  ergm.checkdirected("ekappa", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("ekappa", arglist,
     varnames = c("attrname"),
     vartypes = c("character"),
     defaultvalues = list(NULL),
     required = c(FALSE))
   attach(a)
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="r0e", soname="statnet",
+  m$terms[[termnumber]] <- list(name="ekappa", soname="statnet",
                                 inputs=c(0, 1, 0))
-  m$coef.names<-c(m$coef.names,"r0e")
+  m$coef.names<-c(m$coef.names,"ekappa")
   m
 }
 #InitErgm.esa<-function(g, model, d, drop=TRUE, ...)
