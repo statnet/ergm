@@ -491,7 +491,7 @@ void d_gwedegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
  void d_bkappa
 *****************/
 void d_bkappa (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp)  {
+	       ModelTerm *mtp, Network *nwp)  {
   int i, j, echange=0;
   double nedges, change, iar0, far0, ier0, fer0;
   Vertex h, t, hd, td=0, iak2, fak2, iek2, fek2, nnodes, *id, *od;
