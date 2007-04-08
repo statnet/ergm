@@ -33,6 +33,7 @@ void godfather_wrapper (double *heads, double *tails, double *dnedges,
                    double *inputs, 
                    double *changestats, 
                    int *newnetwork, 
+                   int *accumulate, 
                    int *fVerbose, 
                    double *maxedges);
 

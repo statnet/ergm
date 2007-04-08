@@ -43,7 +43,7 @@ network.accumulate<-function(nw,nws,timestep=NULL)
       stop("network.accumulate requires an edgelist or a network series")
    }
    timesteps <- nws$changed[,1,drop=FALSE]
-   nws <- nws$changed[timesteps==timestep,2:3,drop=FALSE]
+   nws <- nws$changed[timesteps %in% timestep,2:3,drop=FALSE]
   }
   if(nrow(nws) > 0){
 #  for(i in 1:nrow(nws)){  

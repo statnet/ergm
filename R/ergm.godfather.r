@@ -1,4 +1,5 @@
 ergm.godfather <- function(formula, timestamps=NULL, toggles=NULL, sim=NULL,
+                           accumulate=FALSE,
                            verbose=FALSE,
                            algorithm.control=list()) {
   # Make the network a proposal it can't refuse.
@@ -50,6 +51,7 @@ not given.")
           as.double(Clist$inputs),
           s = double((1+length(unique(timestamps))) * Clist$nparam),
           newnw = integer(maxedges), 
+          as.integer(accumulate),
           as.integer(verbose),
           as.double(maxedges), 
           PACKAGE="statnet")  

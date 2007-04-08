@@ -312,6 +312,7 @@ void godfather_wrapper (double *heads, double *tails, double *dnedges,
                    double *inputs, 
                    double *changestats, 
                    int *newnetwork, 
+                   int *accumulate, 
                    int *fVerbose, 
                    double *maxedges) {
   int directed_flag, maxtoggles, ntoggles;
@@ -396,7 +397,9 @@ void godfather_wrapper (double *heads, double *tails, double *dnedges,
 
       /* Make proposed toggles for real this time) */
       for (j=0; j < ntoggles; j++){
+       if (!(*accumulate) || EdgetreeSearch(theads[j], ttails[j], nw.outedges) == 0) { 
         ToggleEdge(theads[j], ttails[j], &nw);
+       }
       }
       /* Finished with this timestamp; go on to next one */
       if (i<tnt) {
