@@ -541,9 +541,9 @@ void d_bkappa (int ntoggles, Vertex *heads, Vertex *tails,
 }
 
 /*****************
- void d_r0a
+ void d_akappa
 *****************/
-void d_r0a (int ntoggles, Vertex *heads, Vertex *tails, 
+void d_akappa (int ntoggles, Vertex *heads, Vertex *tails, 
 	    ModelTerm *mtp, Network *nwp)  {
   int i, j, echange=0;
   double nedges, change, iar0, far0;
@@ -584,9 +584,9 @@ void d_r0a (int ntoggles, Vertex *heads, Vertex *tails,
 }
 
 /*****************
- void d_r0e
+ void d_ekappa
 *****************/
-void d_r0e (int ntoggles, Vertex *heads, Vertex *tails, 
+void d_ekappa (int ntoggles, Vertex *heads, Vertex *tails, 
 	    ModelTerm *mtp, Network *nwp)  {
   int i, j, echange=0;
   double nedges, change, ier0, fer0;
