@@ -1010,12 +1010,9 @@ void d_monopolymixmat(int ntoggles, Vertex *heads, Vertex *tails,
     Fdeg = od[h];
     Mdeg = id[t];
     /* Calculate contribution from change of (F,M) edge only */
-    mFmM = (Fdeg==0 && Mdeg==0) - (Fdeg==1 && Mdeg==1 && edgeflag) + 
-    (Fdeg==2 && Mdeg==2 && !edgeflag);
-    mFpM = (Fdeg==0 && Mdeg>0) - (Fdeg==1 && Mdeg>1 && edgeflag) + 
-    (Fdeg==2 && Mdeg>2 && !edgeflag);
-    pFmM = (Mdeg==0 && Fdeg>0) - (Mdeg==1 && Fdeg>1 && edgeflag) + 
-    (Mdeg==2 && Fdeg>2 && !edgeflag);
+    mFmM = (Fdeg==0 && Mdeg==0) - (Fdeg==1 && Mdeg==1 && edgeflag);
+    mFpM = (Fdeg==0 && Mdeg>0) - (Fdeg==1 && Mdeg>1 && edgeflag); 
+    pFmM = (Mdeg==0 && Fdeg>0) - (Mdeg==1 && Fdeg>1 && edgeflag);
     /* Now calculate contribution from other partners of F or M */
     if(Fdeg - edgeflag == 1) {/* Only case that concerns us */
       for(e = EdgetreeMinimum(oe, h);
@@ -1042,8 +1039,6 @@ void d_monopolymixmat(int ntoggles, Vertex *heads, Vertex *tails,
     mtp->dstats[0] += (double) mFmM;
     mtp->dstats[1] += (double) mFpM;
     mtp->dstats[2] += (double) pFmM;    
-//    Rprintf("Proposal (%ld, %ld) equals %ld, giving %f, %f, %f\n",
-//    h,t,edgeflag, mtp->dstats[0], mtp->dstats[1], mtp->dstats[2]);
     if (i+1 < ntoggles)
       ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
   }
