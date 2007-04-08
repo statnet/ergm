@@ -32,8 +32,10 @@ not given.")
   Clist <- ergm.Cprepare(nw, m)
   Clist$obs <- summary(m$formula)  
   ots <- order(timestamps)
-  toggles <- toggles[ots,]
+  toggles <- matrix(toggles[ots,],ncol=2)
   timestamps <- timestamps[ots]
+  mincol = apply(toggles,1,which.min)
+  toggles[mincol==2,] <- toggles[mincol==2,2:1] # make sure col1 < col2
   maxedges <- max(con$maxedges, 5*Clist$nedges)
   obsstat <- summary(formula)  
   z <- .C("godfather_wrapper",
@@ -54,6 +56,7 @@ not given.")
   stats <- matrix(z$s + obsstat, ncol=Clist$nparam, byrow=T)
   colnames(stats) <- m$coef.names
   newnw <- matrix(z$newnw[z$newnw>0][-1], ncol=2, byrow=T)
-  list(stats = stats, newnetwork=network.update(nw,newnw))
+  list(stats = stats, newnetwork = network.update(nw,newnw), 
+       timestamps = c(NA, unique(timestamps)))
 }
 

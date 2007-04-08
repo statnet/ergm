@@ -380,20 +380,20 @@ void godfather_wrapper (double *heads, double *tails, double *dnedges,
       ++ntoggles; /* ntoggles counts how many timestamps match the current value. */
     } else { /* we have encountered a new timestamp value. */
       mtp = m->termarray;
-      dstats = m->workspace;
-      /* Time to calculate the change statistics for these toggles */
-      /* Set current vector of stats equal to previous vector */
-      for (j=0; j<m->n_stats; j++){
-        changestats[j+m->n_stats] = changestats[j];
-      }
+//      dstats = m->workspace;
+      /* Calculate the change statistics relative to previous step */
       changestats += m->n_stats;
-      /* This then adds the change statistics to these values */
       dstats = changestats;
       for (j=0; j < m->n_terms; j++) {  /* loop through each term */
         mtp->dstats = dstats;
         (*(mtp->func))(ntoggles, theads, ttails, mtp, &nw);  /* Call d_xxx function */
         dstats += (mtp++)->nstats;
       }
+      /* Accumulate change statistics */
+      for (j=0; j<m->n_stats; j++){
+        changestats[j] += changestats[j-m->n_stats];
+      }
+
       /* Make proposed toggles for real this time) */
       for (j=0; j < ntoggles; j++){
         ToggleEdge(theads[j], ttails[j], &nw);
