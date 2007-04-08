@@ -32,9 +32,9 @@ overlap.matrix <- function(gsim, maxoverlaps=100000) {
   type <- (((fts == 1 & fte == 2) | (fts == 2 & fte == 1)) 
            + 2*(fts == 3 | fte == 3 | fte == fts) 
            + 3*(fte==0))
-  type[overlap[,"start1"]==0 && overlap[,"start2"]==0] <- 3
+  type[overlap[,"start1"]==0 & overlap[,"start2"]==0] <- 3
   type <- c("transitional","embedded","truncated")[type]
-  data.frame(overlap, duration = duration, firsttostart=fts, type=type)
+  data.frame(overlap, duration = duration, type=type)
 }
 
 
