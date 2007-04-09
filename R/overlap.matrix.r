@@ -15,7 +15,7 @@ overlap.matrix <- function(gsim, maxoverlaps=100000) {
   # Note bizarre difference in ordering columns between $change and $dissolve.
   # dissolve is not actually used by the DurationMatrix function at all.
 
-  overlap <- .C("OverlapDurations", as.integer(nedge), as.integer(edges), 
+  overlap <- .C("OverlapDurations", as.integer(Ntot), as.integer(nedge), as.integer(edges), 
                 as.integer(N), as.integer(Nfem), as.integer(Ntot), 
                 as.integer(nchange), as.integer(cha),
                 as.integer(ndissolve), as.integer(dissolve), as.integer(maxoverlaps),
@@ -30,12 +30,10 @@ overlap.matrix <- function(gsim, maxoverlaps=100000) {
                         function(x) (x[1]<=x[2]) + 2*(x[2]<=x[1]))
   fte <- overlap[,"firsttoend"]
   type <- (((fts == 1 & fte == 2) | (fts == 2 & fte == 1)) 
-           + 2*(fts == 3 | fte == 3 | fte == fts) 
+           + 2*((fts == 3 & fte > 0) | fte == 3 | fte == fts) 
            + 3*(fte==0))
   type[overlap[,"start1"]==0 & overlap[,"start2"]==0] <- 3
   type <- c("transitional","embedded","truncated")[type]
   data.frame(overlap, duration = duration, type=type)
 }
-
-
 

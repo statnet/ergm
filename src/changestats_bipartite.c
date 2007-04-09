@@ -1002,7 +1002,6 @@ void d_monopolymixmat(int ntoggles, Vertex *heads, Vertex *tails,
   /* NB: pFpM would be redundant since the total of all 4 is #edges */
   Vertex *od=nwp->outdegree, *id=nwp->indegree;
   TreeNode *oe = nwp->outedges, *ie = nwp->inedges;
-  int tmp;
 
   mtp->dstats[0] = mtp->dstats[1] = mtp->dstats[2] = 0.0;
   for (i=0; i < ntoggles; i++) {

@@ -20,7 +20,6 @@ void DurationMatrix (int *nedge, int *edge, int *ntimestep, int *nfem,
       int *ntotal, int *nchange, int *change, int *ndissolve, int *dissolve,
       int *dmatrix) {
   int row, j, k, f, m, time, offset = *nedge + *nchange;
-  int i;
 
   /* Note:  This code assumes always that edges are listed in
      (female, male) order, where female < male.  */
@@ -40,7 +39,8 @@ void DurationMatrix (int *nedge, int *edge, int *ntimestep, int *nfem,
         /* We found a match for the (f, m) edge that must be ended */
         DMATRIX(k, 3) = time+1;
         DMATRIX(k, 4) = 1; /* non-Censored indicator */
-        /* for(i = *ndissolve; DISSOLVE(i, 1)!=f && DISSOLVE(i,2)!=m && i>=0; i--);
+        /* int i;
+        for(i = *ndissolve; DISSOLVE(i, 1)!=f && DISSOLVE(i,2)!=m && i>=0; i--);
         if (i<0) {
           Rprintf("Warning!  Dissolved edge (%d, %d) at time %d not contained in dissolve list\n",
           f,m,time);
@@ -61,12 +61,14 @@ void AddNewDurationRow (int *dmatrix, int row, int f, int m, int time, int offse
   DMATRIX(row, 4) = 0;    /* non-censoring indicator:  0=censored, 1=not */
 }
 
-void OverlapDurations (int *nedge, int *edge, int *ntimestep, int *nfem,
+void OverlapDurations (int *nnodes,
+      int *nedge, int *edge, int *ntimestep, int *nfem,
       int *ntotal, int *nchange, int *change, int *ndissolve, int *dissolve,
       int *maxoverlaps, int *omatrix) {
-  Edge e, i, j, k, time, row, ne = *nedge, maxo = *maxoverlaps;
-  int f1, m1, t1, f2, m2, nnodes, match, bipartite = *nfem;
-  double *heads, *tails, *starttimes;
+  Edge e, i, j, k, row, ne = *nedge;
+  int f1, m1, time, f2, m2, match;
+  int bipartite = *nfem, maxo=*maxoverlaps;
+  double t1, *heads, *tails, *starttimes;
   WtTreeNode *ie, *oe;
   WtNetwork nw;
 
@@ -83,21 +85,18 @@ void OverlapDurations (int *nedge, int *edge, int *ntimestep, int *nfem,
       }              
     }
   }
-  
   /* Set up a statnet (weighted) Network using existing edgeTree code 
   The weights are the start times of the edges.
   Must coerce heads and tails to double, find nnodes */
   heads = (double *) malloc(sizeof(double) * ne);
   tails = (double *) malloc(sizeof(double) * ne);
   starttimes = (double *) malloc(sizeof(double) * ne);
-  for (nnodes=1, i=0; i < ne; i++) {
+  for (i=0; i < ne; i++) {
     heads[i] = (double) EDGE(i, 0);
-    m1 = EDGE(i, 1);
-    if (m1 > nnodes) nnodes = m1; /* We assume m1 > f1 always */
-    tails[i] = (double) m1;
+    tails[i] = (double) EDGE(i, 1);
     starttimes[i] = 0.0;
   }
-  nw = WtNetworkInitialize(heads, tails, starttimes, ne, nnodes, 0, bipartite);
+  nw = WtNetworkInitialize(heads, tails, starttimes, ne, *nnodes, 0, bipartite);
   free (heads);
   free (tails);
   free (starttimes);
@@ -107,26 +106,28 @@ void OverlapDurations (int *nedge, int *edge, int *ntimestep, int *nfem,
   /* Step through time one click at a time */
   for (time=j=0; time<*ntimestep; time++) {
     for(; CHANGE(j,0) == time; j++) {
-      t1 = CHANGE(j,0);
+      t1 = (double) CHANGE(j,0);        
       f1 = CHANGE(j,1);
       m1 = CHANGE(j,2);
-      if (WtEdgetreeSearch(f1, m1, nw.outedges) != 0) { 
+      if ((e=WtEdgetreeSearch(f1, m1, nw.outedges)) != 0) { 
         /* Edge exists and must be removed. */
         /* Check whether there are any (zero-length) "concurrencies" with edges
         that begin AT THE CURRENT TIME but that haven't yet been encountered. */
         for (k=j+1; k < *nchange && CHANGE(k,0) == time; k++) {
           f2 = CHANGE(k, 1);
           m2 = CHANGE(k, 2);
-          if ((f1==f2 || m1==m2) && WtEdgetreeSearch(f2,m2,nw.outedges)==0) {
+          if ((f1==f2||m1==m2) && WtEdgetreeSearch(f2,m2,nw.outedges)==0) {
             /* Edge1 is ending, edge2 beginning; create a 0-length conc. */
             /* Any new concurrency begun this way will be immediately ended */
-            AddNewOverlapRow(omatrix, row++, f1, m1, f2, m2, t1+1, time+1, maxo);
+            t1 = nw.outedges[e].weight;
+            AddNewOverlapRow(omatrix, row++, f1, m1, f2, m2,
+                             (int) t1, time+1, maxo);
           }
         }
         /* End all unfinished overlaps involving this edge */
         for(i=0; i <= row; i++) {
-          match = (f1==OMATRIX(i, 0) && m1 == OMATRIX(i,1)) +
-          2*(f1==OMATRIX(i, 2) && m1 == OMATRIX(i,3));
+          match = (f1==OMATRIX(i, 0) && m1 == OMATRIX(i,1))? 1 : 0;
+          match += (f1==OMATRIX(i, 2) && m1 == OMATRIX(i,3)) ? 2 : 0;
           if (match>0 && OMATRIX(i,6) == -1) { /* overlap has ended */
             OMATRIX(i,6) = time+1; /* End time */
             OMATRIX(i,7) = match; /* Which edge has ended? (1 or 2) */
@@ -160,7 +161,7 @@ void OverlapDurations (int *nedge, int *edge, int *ntimestep, int *nfem,
         }
       }
       /* Finally, toggle (create or destroy) the edge */
-      WtToggleEdge(f1, m1, (double) 1+t1, &nw); 
+        WtToggleEdge(f1, m1, 1.0+t1, &nw); 
       if (row >= maxo) {
         Rprintf("Error! Value of maxoverlaps=%d too small\n",
                  maxo);
@@ -187,110 +188,114 @@ int f2, int m2, int time1, int time2, int maxo) {
 }
 
 
-void old_OverlapDurations (int *nedge, int *edge, int *ntimestep, int *nfem,
-      int *ntotal, int *nchange, int *change, int *ndissolve, int *dissolve,
-      int *maxoverlaps, int *omatrix) {
-  Edge e, i, j, k, time, row, ne = *nedge, maxo = *maxoverlaps;
-  Vertex f1, m1, f2, m2, nnodes, bipartite = *nfem;
-  double *heads, *tails;
-  TreeNode *ie, *oe;
-  Network nw;
-
-  /* Initialize by finding time-zero network overlaps */
-  row=0;
-  for(i=1; i < ne; i++) {
-    f1=EDGE(i,0); 
-    m1=EDGE(i,1);
-    for (j=0; j < i; j++) {
-      f2=EDGE(j,0); 
-      m2=EDGE(j,1);
-      if (f1 == f2 || m1 == m2) {
-        old_AddNewOverlapRow(omatrix,row++,f1,m1,f2,m2,0,maxo);
-      }
-    }
-  }
-  
-  /* Set up a statnet Network using existing edgeTree code 
-     Must coerce heads and tails to double, find nnodes */
-  heads = (double *) malloc(sizeof(double) * ne);
-  tails = (double *) malloc(sizeof(double) * ne);
-  for (nnodes=1, i=0; i < ne; i++) {
-    heads[i] = (double) EDGE(i, 0);
-    m1 = EDGE(i, 1);
-    if (m1 > nnodes) nnodes = m1; /* We assume m1 > f1 always */
-    tails[i] = (double) m1;
-  }
-  nw = NetworkInitialize(heads, tails, ne, nnodes, 0, bipartite);
-  free (heads);
-  free (tails);
-  ie=nw.inedges;
-  oe=nw.outedges;
-
-  /* Step through time one click at a time */
-  for (time=j=0; time<*ntimestep; time++) {
-    for(; CHANGE(j,0) == time; j++) {
-      f1 = CHANGE(j,1);
-      m1 = CHANGE(j,2);
-      if (EdgetreeSearch(f1, m1, nw.outedges) != 0) { 
-        /* Edge exists and must be removed. */
-        /* Check whether there are any (zero-length) "concurrencies" with edges
-        that begin AT THE CURRENT TIME but that haven't yet been encountered. */
-        for (k=j+1; k < *nchange && CHANGE(k,0) == time; k++) {
-          f2 = CHANGE(k, 1);
-          m2 = CHANGE(k, 2);
-          if ((f1==f2 || m1==m2) && EdgetreeSearch(f2,m2,nw.outedges)==0) {
-            /* Any new concurrency begun this way will be immediately ended */
-            old_AddNewOverlapRow(omatrix,row++,f1,m1,f1,m2,time+1,maxo); 
-          } 
-        }
-        /* End all unfinished overlaps involving this edge */
-        for(i=0; i <= row; i++) {
-          if (OMATRIX(i, 5) == -1 &&
-            ((f1 == OMATRIX(i, 0) && m1 == OMATRIX(i, 1)) ||
-            (f1 == OMATRIX(i, 2) && m1 == OMATRIX(i, 3)))) {
-              OMATRIX(i, 5) = time+1;  /* End time for overlap */
-              OMATRIX(i, 6) = 1; /* non-censoring indicator */
-          }
-        }
-      } else {  /* Edge does not exist and must be created. */
-        /* First, add any new overlaps that are created. */
-        /* Step through all the existing edges of f1 */
-        /* (NB:  Since f<m, all edges of f1 are out-edges) */
-        for(e = EdgetreeMinimum(oe, f1); 
-        (m2 = oe[e].value) != 0;
-        e = EdgetreeSuccessor(oe, e)) {
-          old_AddNewOverlapRow(omatrix,row++,f1,m1,f1,m2,time+1,maxo);
-        }
-        /* Now step through all existing (in-)edges of m1 */
-        for(e = EdgetreeMinimum(ie, m1);
-        (f2 = ie[e].value) != 0;
-        e = EdgetreeSuccessor(ie, e)) {
-          old_AddNewOverlapRow(omatrix,row++,f1,m1,f2,m1,time+1,maxo);
-        }
-      }
-      /* Finally, toggle (create or destroy) the edge */
-      ToggleEdge(f1, m1, &nw); 
-      if (row >= maxo) {
-        Rprintf("Error! Value of maxoverlaps=%d too small\n",
-                 maxo);
-        return;
-      }
-    }
-  }
-  /* Free memory used by network object before returning */  
-  NetworkDestroy (&nw);
-}
-
-void old_AddNewOverlapRow (int *omatrix, int row, int f1, int m1, 
-int f2, int m2, int time, int maxo) {
-  OMATRIX(row, 0) = f1; /* Female, edge 1 */
-  OMATRIX(row, 1) = m1; /* Male, edge 1 */
-  OMATRIX(row, 2) = f2; /* Female, edge 2 */
-  OMATRIX(row, 3) = m2; /* Male, edge 2 */
-  OMATRIX(row, 4) = time;  /* Start time for overlap */
-  OMATRIX(row, 5) = -1; /* End time (-1 if not yet observed) */
-  OMATRIX(row, 6) = 0;  /* noncensoring indicator: 0=censored */
-}
+//void old_OverlapDurations (int *nedge, int *edge, int *ntimestep, int *nfem,
+//      int *ntotal, int *nchange, int *change, int *ndissolve, int *dissolve,
+//      int *maxoverlaps, int *omatrix) {
+//  Edge e, i, j, k, row, ne = *nedge;
+//  int f1, m1, time, f2, m2, nnodes, match;
+//  int bipartite = *nfem, maxo=*maxoverlaps;
+//  double *heads, *tails;
+//  TreeNode *ie, *oe;
+//  Network nw;
+//
+//  /* Initialize by finding time-zero network overlaps */
+//  row=0;
+//  for(i=1; i < ne; i++) {
+//    f1=EDGE(i,0); 
+//    m1=EDGE(i,1);
+//    for (j=0; j < i; j++) {
+//      f2=EDGE(j,0); 
+//      m2=EDGE(j,1);
+//      if (f1 == f2 || m1 == m2) {
+//        old_AddNewOverlapRow(omatrix,row++,f1,m1,f2,m2,0,0,maxo);
+//      }
+//    }
+//  }
+//  
+//  /* Set up a statnet Network using existing edgeTree code 
+//     Must coerce heads and tails to double, find nnodes */
+//  heads = (double *) malloc(sizeof(double) * ne);
+//  tails = (double *) malloc(sizeof(double) * ne);
+//  for (nnodes=1, i=0; i < ne; i++) {
+//    heads[i] = (double) EDGE(i, 0);
+//    m1 = EDGE(i, 1);
+//    if (m1 > nnodes) nnodes = m1; /* We assume m1 > f1 always */
+//    tails[i] = (double) m1;
+//  }
+//  nw = NetworkInitialize(heads, tails, ne, nnodes, 0, bipartite);
+//  free (heads);
+//  free (tails);
+//  ie=nw.inedges;
+//  oe=nw.outedges;
+//
+//  /* Step through time one click at a time */
+//  for (time=j=0; time<*ntimestep; time++) {
+//    for(; CHANGE(j,0) == time; j++) {
+//      f1 = CHANGE(j,1);
+//      m1 = CHANGE(j,2);
+//      if (EdgetreeSearch(f1, m1, nw.outedges) != 0) { 
+//        /* Edge exists and must be removed. */
+//        /* Check whether there are any (zero-length) "concurrencies" with edges
+//        that begin AT THE CURRENT TIME but that haven't yet been encountered. */
+//        for (k=j+1; k < *nchange && CHANGE(k,0) == time; k++) {
+//          f2 = CHANGE(k, 1);
+//          m2 = CHANGE(k, 2);
+//          if ((f1==f2 || m1==m2) && EdgetreeSearch(f2,m2,nw.outedges)==0) {
+//            /* Edge1 is ending, edge2 beginning; create a 0-length conc. */
+//            /* Any new concurrency begun this way will be immediately ended */
+//            old_AddNewOverlapRow(omatrix,row++,f1,m1,f1,m2,time+1,0,maxo); 
+//          } 
+//        }
+//        /* End all unfinished overlaps involving this edge */
+//        for(i=0; i <= row; i++) {
+//          match = (f1==OMATRIX(i, 0) && m1 == OMATRIX(i,1))? 1 : 0;
+//          match = (f1==OMATRIX(i, 2) && m1 == OMATRIX(i,3)) ? 2 : 0;
+//          if (match>0 && OMATRIX(i, 5) == -1) { /* overlap has ended */
+//              OMATRIX(i, 5) = time+1;  /* End time */
+//              OMATRIX(i, 6) += match; /* concurrency type */
+//          }
+//        }
+//      } else {  /* Edge does not exist and must be created. */
+//        /* First, add any new overlaps that are created. */
+//        /* Step through all the existing edges of f1 */
+//        /* (NB:  Since f<m, all edges of f1 are out-edges) */
+//        for(e = EdgetreeMinimum(oe, f1); 
+//        (m2 = oe[e].value) != 0;
+//        e = EdgetreeSuccessor(oe, e)) {
+//          old_AddNewOverlapRow(omatrix,row++,f1,m1,f1,m2,time+1,0,maxo);
+//        }
+//        /* Now step through all existing (in-)edges of m1 */
+//        for(e = EdgetreeMinimum(ie, m1);
+//        (f2 = ie[e].value) != 0;
+//        e = EdgetreeSuccessor(ie, e)) {
+//          old_AddNewOverlapRow(omatrix,row++,f1,m1,f2,m1,time+1,0,maxo);
+//        }
+//      }
+//      /* Finally, toggle (create or destroy) the edge */
+//      ToggleEdge(f1, m1, &nw); 
+//      if (row >= maxo) {
+//        Rprintf("Error! Value of maxoverlaps=%d too small\n",
+//                 maxo);
+//        return;
+//      }
+//    }
+//  }
+//  /* Free memory used by network object before returning */  
+//  NetworkDestroy (&nw);
+//}
+//
+//void old_AddNewOverlapRow (int *omatrix, int row, int f1, int m1, 
+//int f2, int m2, int time, int type, int maxo) {
+//  OMATRIX(row, 0) = f1; /* Female, edge 1 */
+//  OMATRIX(row, 1) = m1; /* Male, edge 1 */
+//  OMATRIX(row, 2) = f2; /* Female, edge 2 */
+//  OMATRIX(row, 3) = m2; /* Male, edge 2 */
+//  OMATRIX(row, 4) = time;  /* Start time for overlap */
+//  OMATRIX(row, 5) = -1; /* End time (-1 if not yet observed) */
+//  OMATRIX(row, 6) = type;  /* Type indicator:  Add 1 if edge 1 ends first;
+//                           Add 2 if edge 2 ends first; (3 if end together);
+//                           Add 4 if edges begin simultaneously */
+//}
 
 /*****************
  void godfather_wrapper
@@ -320,7 +325,6 @@ void godfather_wrapper (double *heads, double *tails, double *dnedges,
   Edge e, i, j, n_edges, nmax, samplesize, nextedge, tnt;
   Network nw;
   Model *m;
-  char *fn, *sn;
   ModelTerm *mtp;
   double *dstats, thistime; 
   
@@ -431,8 +435,3 @@ void godfather_wrapper (double *heads, double *tails, double *dnedges,
   ModelDestroy(m);
   NetworkDestroy(&nw);
 }
-
-
-
-
-
