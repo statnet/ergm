@@ -24,8 +24,8 @@ InitMHP.ConstantEdges <- function(arguments, nw, model) {
   }
 # Check for redundant terms
   if("edges" %in% model$coef.names){
-    stop("The model contains an 'edges' term and a proposal that", 
-         "holds the edges fixed. One of them is redundant. Please", 
+    stop("The model contains an 'edges' term and a proposal that ", 
+         "holds the edges fixed. One of them is redundant. Please ", 
          "restate the model.")
   }
   MHproposal
