@@ -14,16 +14,11 @@ void OverlapDurations (int *nnodes, int *nedge, int *edge, int *ntimestep, int *
       int *ntotal, int *nchange, int *change, int *ndissolve, int *dissolve,
       int *maxoverlaps, int *omatrix);
 void AddNewOverlapRow (int *omatrix, int row, int f1, int m1, 
-int f2, int m2, int time1, int time2, int maxo);
-
-void old_OverlapDurations (int *nedge, int *edge, int *ntimestep, int *nfem,
+      int f2, int m2, int time1, int time2, int maxo);
+void DegreeMixMatrix (int *nnodes,
+      int *nedge, int *edge, int *ntimestep, int *nfem,
       int *ntotal, int *nchange, int *change, int *ndissolve, int *dissolve,
-      int *maxoverlaps, int *omatrix);
-void old_AddNewOverlapRow (int *omatrix, int row, int f1, int m1, 
-int f2, int m2, int time, int maxo);
-
-
-
+      int *degmixmat);
 void godfather_wrapper (double *heads, double *tails, double *dnedges,
                    double *dn, int *dflag, double *bipartite, 
                    int *nterms, char **funnames,
