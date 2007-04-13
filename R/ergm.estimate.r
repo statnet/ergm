@@ -31,9 +31,10 @@ ergm.estimate<-function(theta0, model, statsmatrix,
 #
 # Set up the initial estimate
 #
-  guess <- theta0
+  guess <- theta0[!model$offset]
   if (verbose) cat("Converting theta0 to eta0\n")
   eta0 <- ergm.eta(theta0, model$etamap) #unsure about this
+  model$etamap$theta0 <- theta0
 #
 # Log-Likelihood and gradient functions
 #
@@ -83,10 +84,11 @@ ergm.estimate<-function(theta0, model, statsmatrix,
     }
     cat("Nelder-Mead Log-likelihood ratio is ", Lout$value,"\n")
   }
-  theta <- Lout$par
-  gradient <- llik.grad(theta=theta, xobs=xobs, xsim=xsim,
+  gradient <- llik.grad(theta=Lout$par, xobs=xobs, xsim=xsim,
                         probs=probs, 
                         penalty=0.5, eta0=eta0, etamap=model$etamap)
+  theta <- theta0
+  theta[!model$offset] <- Lout$par
 #
 #  Calculate the auto-covariance of the MCMC suff. stats.
 #  and hence the MCMC s.e.
@@ -96,7 +98,7 @@ ergm.estimate<-function(theta0, model, statsmatrix,
   if(!hessian){
 #  covar <- robust.inverse(cov(xsim))
 #  Lout$hessian <- cov(xsim)
-   Lout$hessian <- llik.hessian(theta=Lout$par, xobs=xobs, xsim=xsim,
+   Lout$hessian <- llik.hessian(theta=theta, xobs=xobs, xsim=xsim,
                         probs=probs, 
                         penalty=0.5,
                         eta0=eta0, etamap=model$etamap
@@ -115,13 +117,13 @@ ergm.estimate<-function(theta0, model, statsmatrix,
   if(inherits(covar,"try-error") | is.na(covar[1])){
     covar <- robust.inverse(-Lout$hessian)
   }
-  c0  <- llik.fun(theta= theta, xobs=xobs,
+  c0  <- llik.fun(theta=Lout$par, xobs=xobs,
                   xsim=xsim, probs=probs,
                   penalty=0.5, eta0=eta0, etamap=model$etamap)
 #   VIP: Note added penalty for more skewness in the 
 #        values computed relative to 0
 #
-  c01 <- llik.fun(theta=theta0-theta0, xobs=xobs,
+  c01 <- llik.fun(theta=Lout$par-Lout$par, xobs=xobs,
                   xsim=xsim, probs=probs,
                   penalty=0.67, eta0=eta0, etamap=model$etamap)
 #

@@ -13,10 +13,17 @@ ergm.getmodel <- function (formula, nw, ...)
   if (length(v) < 3) 
     stop(paste("No model specified for network ", trms[[2]]))
   model <- structure(list(formula=formula, node.attrib = NULL, coef.names = NULL,
+                      offset = NULL,
                       terms = NULL, networkstats.0 = NULL, etamap = NULL),
                  class = "model.ergm")
   for (i in 3:length(v)) {
     if (is.call(v[[i]])) { # This term has some arguments
+      if(v[[i]][[1]] == "offset"){
+        v[[i]] <- v[[i]][[2]]
+        model$offset <- c(model$offset,TRUE)
+      }else{
+        model$offset <- c(model$offset,FALSE)
+      }
       args=v[[i]]
       args[[1]] = as.name("list")
       v[[i]][[1]] <- as.name(paste("InitErgm.", v[[i]][[1]],
@@ -24,6 +31,7 @@ ergm.getmodel <- function (formula, nw, ...)
     } else { # This term has no arguments
       v[[i]] <- call(paste("InitErgm.", v[[i]], sep = ""))
       args=list()
+      model$offset <- c(model$offset,FALSE)
     }
     v[[i]][[2]] <- nw
     names(v[[i]])[2] <-  ""

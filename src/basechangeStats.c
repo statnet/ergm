@@ -42,6 +42,7 @@ void d_absdiff (int ntoggles, Vertex *heads, Vertex *tails,
     {
       edgeflag = (EdgetreeSearch(h=heads[i],t=tails[i],nwp->outedges) != 0);
       change = abs(mtp->attrib[h-1] - mtp->attrib[t-1]);
+//    Rprintf("h %d t %d %f %f %f\n",h,t,mtp->attrib[h-1], mtp->attrib[t-1],change);
       *(mtp->dstats) += edgeflag ? -change : change;
       if (i+1 < ntoggles) 
 	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */

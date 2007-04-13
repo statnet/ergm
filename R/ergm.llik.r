@@ -3,7 +3,9 @@
 #
 llik.fun <- function(theta, xobs, xsim, probs,
                      penalty=0.5, trustregion=20, eta0, etamap){
-  eta <- ergm.eta(theta, etamap)
+  theta.offset <- etamap$theta0
+  theta.offset[!etamap$offset] <- theta
+  eta <- ergm.eta(theta.offset, etamap)
   x <- eta-eta0
 # The next line is right!
 # aaa <- sum(xobs * x) - log(sum(probs*exp(xsim %*% x)))
@@ -34,8 +36,11 @@ llik.fun <- function(theta, xobs, xsim, probs,
 }
 llik.grad <- function(theta, xobs, xsim, probs, 
                       penalty=0.5, trustregion=20, eta0, etamap){
-  eta <- ergm.eta(theta, etamap)
+  theta.offset <- etamap$theta0
+  theta.offset[!etamap$offset] <- theta
+  eta <- ergm.eta(theta.offset, etamap)
   x <- eta-eta0
+  xsim[,etamap$offsetmap] <- 0
   basepred <- xsim %*% x
   prob <- max(basepred)
   prob <- probs*exp(basepred - prob)
@@ -53,12 +58,15 @@ llik.grad <- function(theta, xobs, xsim, probs,
 # vtmp <- sweep(sweep(xsim, 2, E, "-"), 1, sqrt(prob), "*")
 # V <- t(vtmp) %*% vtmp
 # list(gradient=xobs-E,hessian=V)
-  ergm.etagradmult(theta, llr, etamap)
+  ergm.etagradmult(theta.offset, llr, etamap)
 }
 
 llik.hessian <- function(theta, xobs, xsim, probs,
                          penalty=0.5, eta0, etamap){
+# theta.offset <- etamap$theta0
+# theta.offset[!etamap$offset] <- theta
   namesx <- names(theta)
+  xsim[,etamap$offsetmap] <- 0
 #
 #    eta transformation
 #

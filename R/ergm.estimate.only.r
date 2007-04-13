@@ -31,9 +31,10 @@ ergm.estimate.only<-function(theta0, model, statsmatrix,
 #
 # Set up the initial estimate
 #
-  guess <- theta0
+  guess <- theta0[!model$offset]
   if (verbose) cat("Converting theta0 to eta0\n")
   eta0 <- ergm.eta(theta0, model$etamap) #unsure about this
+  model$etamap$theta0 <- theta0
 #
 # Log-Likelihood and gradient functions
 #
@@ -83,7 +84,8 @@ ergm.estimate.only<-function(theta0, model, statsmatrix,
     }
     cat("Nelder-Mead Log-likelihood ratio is ", Lout$value,"\n")
   }
-  theta <- Lout$par
+  theta <- theta0
+  theta[!model$offset] <- Lout$par
   names(theta) <- names(theta0)
 
 # Output results as ergm-class object

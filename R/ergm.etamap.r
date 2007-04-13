@@ -10,12 +10,17 @@ ergm.etamap <- function(model) {
 # model.
 #  The third item, etalength, is the length of eta.
 # The function ergm.eta actually carries out the mapping.
-  etamap <- list(canonical = NULL, curved=list(), etalength=NULL)
+  etamap <- list(canonical = NULL, offsetmap=NULL, offset=model$offset, curved=list(), etalength=NULL)
   from <- 1
   to <- 1
   a <- 1
   for (i in 1:length(model$terms)) {
     j <- model$terms[[i]]$inputs[2]
+    if(model$offset[i]){
+     etamap$offsetmap <- c(etamap$offsetmap, rep(TRUE,j))
+    }else{
+     etamap$offsetmap <- c(etamap$offsetmap, rep(FALSE,j))
+    }
     mti <- model$terms[[i]]
     if (is.null(mti$params)) { # Not a curved parameter
       etamap$canonical <- c(etamap$canonical, to:(to+j-1))
