@@ -1,12 +1,26 @@
-ergm.mple<-function(Clist, m, fix=NULL, theta.offset=NULL,
+ergm.mple<-function(Clist, mClist, m, fix=NULL, theta.offset=NULL,
                     MPLEonly="glm", family="binomial",
                     largestdegree=TRUE, MPLEsamplesize=50000,
                     save.glm=TRUE,
                     maxNumDyadTypes=100000,
                     theta1=NULL, verbose=FALSE, ...)
 {
-  numobs <- Clist$ndyads
-  offset <- rep(0,Clist$ndyads)
+  if(mClist$nedges>0){
+    temp <- matrix(0,ncol=Clist$n,nrow=Clist$n)
+    base <- cbind(as.vector(col(temp)), as.vector(row(temp)))
+    base <- base[base[, 2] > base[, 1], ]
+    if(mClist$dir){
+      base <- cbind(base[,c(2,1)],base)
+      base <- matrix(t(base),ncol=2,byrow=T)
+    }
+    ubase <- base[,1] + Clist$n*base[,2]
+    offset <- !is.na(match(ubase, mClist$tails+mClist$heads*Clist$n))
+    offset <- 1*offset
+    numobs <- Clist$ndyads - sum(offset)
+  }else{
+    offset <- rep(0,Clist$ndyads)
+    numobs <- Clist$ndyads
+  }
   z <- .C("MPLE_wrapper",
            as.double(Clist$heads),    as.double(Clist$tails),
            as.double(Clist$nedges),   as.double(Clist$n), 
@@ -34,6 +48,7 @@ ergm.mple<-function(Clist, m, fix=NULL, theta.offset=NULL,
 ##   xmat <- sweep(sweep(xmat,1,wend,"*"),2,Clist$meanstats/uobs,"*")
 ##   wend <- wend-wend+mean(wend)
 #  }
+  dmiss <- z$compressedOffset[uvals]
   rm(z,uvals)
 #
 # Adjust for the offset
@@ -50,6 +65,13 @@ ergm.mple<-function(Clist, m, fix=NULL, theta.offset=NULL,
    colnames(xmat) <- m$coef.names[!fix]
   }
   
+  if(mClist$nedges>0){
+    xmat <- matrix(xmat[dmiss==0,], ncol=Clist$nparam, nrow=sum(dmiss==0))
+    zy <- zy[dmiss==0]
+    wend <- wend[dmiss==0]
+    foffset <- foffset[dmiss==0]
+    colnames(xmat) <- m$coef.names
+  }
   
 #   Note:  Logistic regression model is fit without an intercept term.
 #   If an intercept is desired, the 1-star term should be included in

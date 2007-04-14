@@ -48,10 +48,12 @@ ergm <- function(formula, theta0="MPLE",
 #
   BD <- ergm.boundDeg(con$boundDeg, nnodes=network.size(nw))
   Clist.initial <- ergm.Cprepare(nw, model.initial)
+  mClist.initial <- ergm.design(nw, model.initial, initialfit=TRUE,
+                                verbose=verbose)
   Clist.initial$meanstats=meanstats
   theta0copy <- theta0
   initialfit <- ergm.initialfit(theta0copy, MLestimate, Clist.initial,
-                                model.initial, verbose=verbose, ...)
+                                mClist.initial, model.initial, verbose=verbose, ...)
   if (MLestimate && 
       (   !ergm.independencemodel(model.initial)
        || !is.null(meanstats))
@@ -71,6 +73,7 @@ ergm <- function(formula, theta0="MPLE",
   # revise theta0 to reflect additional parameters
 
   Clist <- ergm.Cprepare(nw, model)
+  mClist <- ergm.design(nw, model, verbose=verbose)
   Clist$meanstats <- meanstats
   Clist$obs <- summary(model$formula)
 
@@ -88,7 +91,7 @@ ergm <- function(formula, theta0="MPLE",
                     MCMCparams=MCMCparams, MHproposal=MHproposal,
                     verbose),
                       ergm.mainfitloop.dyn(theta0, nw,
-                          model, model.dissolve, Clist,
+                          model, model.dissolve, Clist, mClist,
                           BD, gamma, initialfit,
                           MCMCparams=MCMCparams, MHproposal=MHproposal,
                           verbose=verbose, 
@@ -104,7 +107,7 @@ ergm <- function(formula, theta0="MPLE",
                                  MCMCparams=MCMCparams, MHproposal=MHproposal,
                                  verbose),
                       ergm.mainfitloop(theta0, nw,
-                          model, Clist,
+                          model, Clist, mClist,
                           BD, initialfit,
                           MCMCparams=MCMCparams, MHproposal=MHproposal,
                           verbose=verbose, 

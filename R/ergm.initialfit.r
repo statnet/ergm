@@ -1,4 +1,4 @@
-ergm.initialfit<-function(theta0, MLestimate, Clist, m, 
+ergm.initialfit<-function(theta0, MLestimate, Clist, mClist, m, 
                           verbose=FALSE, ...) {
 # Process input for call to ergm.mple or some other alternative fitting
 # method.  If the user wishes only to obtain the fit from this method
@@ -21,7 +21,7 @@ ergm.initialfit<-function(theta0, MLestimate, Clist, m,
                "used in conjuction with MLestimate=FALSE.\n"))
   } else {
     if (fitmethod==1) {  #  MPLE
-      fit <- ergm.mple(Clist, m, verbose=verbose, ...)
+      fit <- ergm.mple(Clist, mClist, m, verbose=verbose, ...)
     }
   }
   fit

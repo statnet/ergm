@@ -41,7 +41,7 @@ void d_absdiff (int ntoggles, Vertex *heads, Vertex *tails,
   for (i=0; i<ntoggles; i++) 
     {
       edgeflag = (EdgetreeSearch(h=heads[i],t=tails[i],nwp->outedges) != 0);
-      change = abs(mtp->attrib[h-1] - mtp->attrib[t-1]);
+      change = fabs(mtp->attrib[h-1] - mtp->attrib[t-1]);
 //    Rprintf("h %d t %d %f %f %f\n",h,t,mtp->attrib[h-1], mtp->attrib[t-1],change);
       *(mtp->dstats) += edgeflag ? -change : change;
       if (i+1 < ntoggles) 
@@ -72,7 +72,7 @@ void d_absdiffcat (int ntoggles, Vertex *heads, Vertex *tails,
     hval = mtp->attrib[h-1];
     tval = mtp->attrib[t-1];
     if (hval == NAsubstitute ||  tval == NAsubstitute) change = NAsubstitute;
-    else change = abs(hval - tval);
+    else change = fabs(hval - tval);
 	  if (change>0) {
       for (/*checksum=0.0,*/ j=0; j<ninputs; j++) {
         mtp->dstats[j] += (change==mtp->inputparams[j]) ? 
@@ -80,7 +80,7 @@ void d_absdiffcat (int ntoggles, Vertex *heads, Vertex *tails,
         /*checksum += (change==mtp->inputparams[j]) ? 
              (edgeflag ? -1.0 : 1.0) : 0.0; */
       }
-      /*if (abs(checksum) != 1.0) Rprintf("Whoops! checksum=%f\n",checksum);*/
+      /*if (fabs(checksum) != 1.0) Rprintf("Whoops! checksum=%f\n",checksum);*/
     }
     if (i+1 < ntoggles)
       ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
@@ -3228,7 +3228,7 @@ ModelTerm *mtp, Network *nwp) {
   for (i=0; i<ntoggles; i++) {
     h=heads[i];
     t=tails[i];
-    *(mtp->dstats) += (abs(mtp->attrib[h-1] - mtp->attrib[t-1])
+    *(mtp->dstats) += (fabs(mtp->attrib[h-1] - mtp->attrib[t-1])
     > *(mtp->inputparams)) ? 0.0 :
     ((EdgetreeSearch(h, t, nwp->outedges) != 0) ? -1.0 : 1.0); 
     if (i+1 < ntoggles) 
@@ -3465,7 +3465,7 @@ ModelTerm *mtp, Network *nwp) {
 	    (t = nwp->outedges[e].value) != 0;
 	    e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of head */
       {
-        if(abs(mtp->attrib[h-1] - mtp->attrib[t-1])<eps){
+        if(fabs(mtp->attrib[h-1] - mtp->attrib[t-1])<eps){
           head[nedges] = h;
           tail[nedges] = t;
           nedges++;
@@ -3497,7 +3497,7 @@ ModelTerm *mtp, Network *nwp) {
 	    (node3 = nwp->outedges[e].value) != 0;
 	    e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of head */
       {
-        if(abs(hattr - mtp->attrib[node3-1])<eps){++hd;}
+        if(fabs(hattr - mtp->attrib[node3-1])<eps){++hd;}
       }
       if (!nwp->directed_flag){
         for(e = EdgetreeMinimum(nwp->inedges, h);
@@ -3540,7 +3540,7 @@ ModelTerm *mtp, Network *nwp) {
       (node3 = nwp->outedges[e].value) != 0;
       e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of tail */
       {
-        if(abs(hattr - mtp->attrib[node3-1])<eps){
+        if(fabs(hattr - mtp->attrib[node3-1])<eps){
           if (nwp->directed_flag)
           {
             if (EdgetreeSearch(node3, h, nwp->outedges) != 0)
@@ -3560,7 +3560,7 @@ ModelTerm *mtp, Network *nwp) {
       (node3 = nwp->inedges[e].value) != 0;
       e = EdgetreeSuccessor(nwp->inedges, e)) /* step through inedges of tail */
       {
-        if(abs(hattr - mtp->attrib[node3-1])<eps){
+        if(fabs(hattr - mtp->attrib[node3-1])<eps){
           if (nwp->directed_flag)
           {
             if (EdgetreeSearch(node3, h, nwp->outedges) != 0)
@@ -3664,33 +3664,33 @@ ModelTerm *mtp, Network *nwp) {
     {
       edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
       hattr = mtp->attrib[h-1];
-      if(abs(hattr - mtp->attrib[t-1])<eps){
+      if(fabs(hattr - mtp->attrib[t-1])<eps){
         hd = -edgeflag;
         for(e = EdgetreeMinimum(nwp->outedges, h);
 	      (node3 = nwp->outedges[e].value) != 0;
 	      e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of head */
         {
-          if(abs(hattr - mtp->attrib[node3-1])<eps){++hd;}
+          if(fabs(hattr - mtp->attrib[node3-1])<eps){++hd;}
         }
         if (!nwp->directed_flag){
           for(e = EdgetreeMinimum(nwp->inedges, h);
           (node3 = nwp->inedges[e].value) != 0;
           e = EdgetreeSuccessor(nwp->inedges, e)) /* step through inedges of head */
           {
-            if(abs(hattr - mtp->attrib[node3-1])<eps){++hd;}
+            if(fabs(hattr - mtp->attrib[node3-1])<eps){++hd;}
           }
           td = - edgeflag;
           for(e = EdgetreeMinimum(nwp->outedges, t);
           (node3 = nwp->outedges[e].value) != 0;
           e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of tail */
           {
-            if(abs(hattr - mtp->attrib[node3-1])<eps){++td;}
+            if(fabs(hattr - mtp->attrib[node3-1])<eps){++td;}
           }
           for(e = EdgetreeMinimum(nwp->inedges, t);
           (node3 = nwp->inedges[e].value) != 0;
           e = EdgetreeSuccessor(nwp->inedges, e)) /* step through inedges of tail */
           {
-            if(abs(hattr - mtp->attrib[node3-1])<eps){++td;}
+            if(fabs(hattr - mtp->attrib[node3-1])<eps){++td;}
           }
         }
         /* calculate the change in the number of 2-stars */
@@ -3715,7 +3715,7 @@ ModelTerm *mtp, Network *nwp) {
 	      (node3 = nwp->outedges[e].value) != 0;
 	      e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of tail */
         {
-          if(abs(hattr - mtp->attrib[node3-1])<eps){
+          if(fabs(hattr - mtp->attrib[node3-1])<eps){
             if (nwp->directed_flag)
             {
               if (EdgetreeSearch(node3, h, nwp->outedges) != 0)
@@ -3735,7 +3735,7 @@ ModelTerm *mtp, Network *nwp) {
 	      (node3 = nwp->inedges[e].value) != 0;
 	      e = EdgetreeSuccessor(nwp->inedges, e)) /* step through inedges of tail */
         {
-          if(abs(hattr - mtp->attrib[node3-1])<eps){
+          if(fabs(hattr - mtp->attrib[node3-1])<eps){
             if (nwp->directed_flag)
             {
               if (EdgetreeSearch(node3, h, nwp->outedges) != 0)
