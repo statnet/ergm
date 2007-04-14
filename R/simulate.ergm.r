@@ -122,7 +122,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
              as.integer(length(BD$attribs)), 
              as.double(maxedges), 
              as.double(0.0), as.double(0.0), 
-             as.double(0.0), as.integer(0),
+             as.double(0.0),
              PACKAGE="statnet")
     }
 #
@@ -252,7 +252,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
             as.integer(length(BD$attribs)), 
             as.double(maxedges), 
             as.double(0.0), as.double(0.0), 
-            as.double(0.0), as.integer(0),
+            as.double(0.0),
             PACKAGE="statnet")
     }
     #

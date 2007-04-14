@@ -23,8 +23,7 @@ void MCMC_wrapper (double *heads, double *tails, double *dnedges,
                    int *attribs, int *maxout, int *maxin, int *minout,
                    int *minin, int *condAllDegExact, int *attriblength, 
                    double *maxedges,
-                   double *mheads, double *mtails, double *mdnedges,
-                   int *mdflag)  {
+                   double *mheads, double *mtails, double *mdnedges) {
   int i, nextedge, directed_flag, hammingterm, formationterm;
   Vertex v, k, n_nodes, nmax, bip, hhead, htail;
   Edge n_edges, n_medges, nddyads, kedge;
@@ -824,8 +823,7 @@ void MCMCPhase12 (double *heads, double *tails, double *dnedges,
                    int *attribs, int *maxout, int *maxin, int *minout,
                    int *minin, int *condAllDegExact, int *attriblength, 
                    double *maxedges,
-                   double *mheads, double *mtails, double *mdnedges,
-                   int *mdflag)  {
+                   double *mheads, double *mtails, double *mdnedges)  {
   int i, nextedge, directed_flag, hammingterm, formationterm;
   int nphase1, nsubphases;
   Vertex v, k, n_nodes, nmax, bip, hhead, htail;

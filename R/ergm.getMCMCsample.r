@@ -37,7 +37,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, MCMCparams,
             as.integer(BD$condAllDegExact), as.integer(length(BD$attribs)), 
             as.double(maxedges),
             as.double(MCMCparams$Clist.miss$heads), as.double(MCMCparams$Clist.miss$tails),
-            as.double(MCMCparams$Clist.miss$nedges), as.integer(MCMCparams$Clist.miss$dir),
+            as.double(MCMCparams$Clist.miss$nedges),
             PACKAGE="statnet") 
     statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
                           ncol=Clist$nparam,

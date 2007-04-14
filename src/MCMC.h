@@ -41,8 +41,7 @@ void MCMC_wrapper (double *heads, double *tails, double *dnedges,
 		   int *attribs, int *maxout, int *maxin, int *minout,
 		   int *minin, int *condAllDegExact, int *attriblength, 
 		   double *maxedges,
-		   double *mheads, double *mtails, double *mdnedges,
-		   int *mdflag);
+		   double *mheads, double *mtails, double *mdnedges);
 void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
 		 double *theta, double *networkstatistics, 
 		 long int samplesize, long int burnin, 
@@ -74,8 +73,7 @@ void MCMCPhase12 (double *heads, double *tails, double *dnedges,
                    int *attribs, int *maxout, int *maxin, int *minout,
                    int *minin, int *condAllDegExact, int *attriblength, 
                    double *maxedges,
-                   double *mheads, double *mtails, double *mdnedges,
-                   int *mdflag);
+                   double *mheads, double *mtails, double *mdnedges);
 
 void MCMCSamplePhase12 (char *MHproposaltype, char *MHproposalpackage,
   double *theta, double gain, double *meanstats,
