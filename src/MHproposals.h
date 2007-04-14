@@ -22,6 +22,7 @@ void MH_CondDegree (MHproposal *MHp, DegreeBound *bd, Network *nwp);
 void MH_CondDegHexadToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp);
 void MH_CondDegTetradToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp);
 void MH_RandomNode (MHproposal *MHp, DegreeBound *bd, Network *nwp);
+void MH_randomtoggleNotObserved (MHproposal *MHp, DegreeBound *bd, Network *nwp);
 
 void MH_ConstrainedCondOutDegDist (MHproposal *MHp, DegreeBound *bd, Network *nwp);
 void MH_OneRandomTnTNode (MHproposal *MHp, DegreeBound *bd, Network *nwp);

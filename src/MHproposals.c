@@ -804,6 +804,26 @@ void MH_randomnode (MHproposal *MHp, DegreeBound *bd, Network *nwp) {
     }
 }
 
+void MH_randomtoggleNotObserved (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {  
+  Vertex head, tail;
+  
+  if(MHp->ntoggles == 0) { /* Initialize randomtoggle */
+    MHp->ntoggles=1;
+    return;
+  }
+  MHp->ratio = 1.0;
+
+   head = 1 + unif_rand() * nwp[1].nnodes;
+   while ((tail = 1 + unif_rand() * nwp[1].nnodes) == head);
+   if (!nwp->directed_flag && head > tail) {
+     MHp->togglehead[0] = tail;
+     MHp->toggletail[0] = head;
+   }else{
+     MHp->togglehead[0] = head;
+     MHp->toggletail[0] = tail;
+   }
+}
+
 /* The ones below have not been tested */
 
 /*********************
