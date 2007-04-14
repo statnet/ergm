@@ -1,8 +1,10 @@
-ergm.mainfitloop <- function(theta0, nw, model, Clist, mClist,
+ergm.mainfitloop <- function(theta0, nw, model, Clist, Clist.miss,
                              BD, initialfit, 
-                             MCMCparams, MHproposal,
+                             MCMCparams, 
+                             MHproposal, MHproposal.miss,
                              verbose=FALSE,
                              epsilon=1e-10,
+                             sequential=TRUE,
                              estimate=TRUE, ...) {
   iteration <- 1
   nw.orig <- nw
@@ -31,46 +33,28 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist, mClist,
     print(theta0)
     z <- ergm.getMCMCsample(nw, model, MHproposal, eta0, MCMCparams, verbose, BD)
     statsmatrix=z$statsmatrix
-# Next line VIP for sequential update
-    nw <- network.update(nw, z$newedgelist)
-#   newnetwork <- network.update(nw, z$newedgelist)
-#   Clist <- ergm.Cprepare(nw, model)
-##  MCMCparams$orig.obs <- summary(model$formula)
-#   MCMCparams$orig.obs <- statsmatrix[nrow(statsmatrix),]+MCMCparams$orig.obs
-#   ms <- MCMCparams$meanstats
-#   if(!is.null(ms)) {
-#     if (is.null(names(ms)) && length(ms) == length(model$coef.names))
-#       names(ms) <- model$coef.names
-#     obs <- MCMCparams$orig.obs
-#     obs <- obs[match(colnames(statsmatrix), names(obs))]
-#     ms  <-  ms[match(names(obs), names(ms))]
-#     matchcols <- match(names(ms), names(obs))
-#     if (any(!is.na(matchcols))) {
-#       ms[!is.na(matchcols)] <- ms[!is.na(matchcols)] - obs[matchcols[!is.na(matchcols)]]
-#       statsmatrix[,!is.na(matchcols)] <- sweep(as.matrix(
-#          statsmatrix[,!is.na(matchcols)]), 2, ms[!is.na(matchcols)], "-")
-#     }
-#   }
-# Next line VIP for sequential update
-    MCMCparams$stats[1,] <- summary(model$formula, basis=nw)-MCMCparams$meanstats
-#   print( MCMCparams$stats[1,] )
-#   MCMCparams$stats[1,] <- summary.statistics.network(model$formula,basis=nw)-Clist$meanstats
-#   MCMCparams$stats[1,] <- statsmatrix[nrow(statsmatrix),]
-#   MCMCparams$stats[,]<-  rep(statsmatrix[nrow(statsmatrix), ],rep(nrow( MCMCparams$stats),Clist$nparam))
+    if(MCMCparams$Clist.miss$nedges > 0){
+      statsmatrix.miss <- ergm.getMCMCsample(nw, model, MHproposal.miss, eta0, MCMCparams, verbose, BD)$statsmatrix
+      if(verbose){cat("Back from constrained MCMC...\n")}
+    }else{
+      statsmatrix.miss <- NULL
+      if(verbose){cat("Back from unconstrained MCMC...\n")}
+    }
+    if(sequential & MCMCparams$Clist.miss$nedges == 0){
+      nw <- network.update(nw, z$newedgelist)
+      MCMCparams$stats[1,] <- summary(model$formula, basis=nw)-MCMCparams$meanstats
+    }
 #
-#   Clist$meanstats=meanstats
-#   aaa <<- nw
-#   print(summary(newnetwork ~ hamming(aaa)))
-#   aaa <<- g0
-#   print(summary(newnetwork ~ hamming(aaa)))
-#
-    if(verbose){cat("Back from unconstrained MCMC...\n")}
     iteration <- iteration + 1
     if(MCMCparams$steplength<1 && iteration < MCMCparams$maxit ){
-      statsmean <- apply(statsmatrix,2,mean)
-      statsmatrix <- sweep(statsmatrix,2,(1-MCMCparams$steplength)*statsmean,"-")
+      if(!is.null(statsmatrix.miss)){
+        statsmatrix.miss <- statsmatrix.miss*MCMCparams$steplength+statsmatrix*(1-MCMCparams$steplength)
+      }else{
+        statsmean <- apply(statsmatrix,2,mean)
+        statsmatrix <- sweep(statsmatrix,2,(1-MCMCparams$steplength)*statsmean,"-")
+      }
     }
-    if(ergm.checkdegeneracy(statsmatrix, verbose=verbose)){
+    if(ergm.checkdegeneracy(statsmatrix, statsmatrix.miss, verbose=verbose)){
      if(iteration <= MCMCparams$maxit){
       cat(paste("The MCMC sampler is producing degenerate samples.\n",
                 "Try starting the algorithm at an alternative model\n",
@@ -109,7 +93,8 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist, mClist,
   if(!estimate){
     if(verbose){cat("Skipping optimization routines...\n")}
     l <- list(coef=theta0, mc.se=rep(NA,length=length(theta0)),
-              sample=statsmatrix, iterations=1, MCMCtheta=theta0,
+              sample=statsmatrix, sample.miss=statsmatrix.miss,
+              iterations=1, MCMCtheta=theta0,
               loglikelihood=NA, mcmcloglik=NULL, mle.lik=NULL,
               gradient=rep(NA,length=length(theta0)), acf=NULL,
               samplesize=MCMCparams$samplesize, failure=TRUE,
@@ -125,7 +110,9 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist, mClist,
 #
   if(iteration <= MCMCparams$maxit){
    v<-ergm.estimate.only(theta0=theta0, model=model,
-                    statsmatrix=statsmatrix, epsilon=MCMCparams$epsilon,
+                    statsmatrix=statsmatrix, 
+                    statsmatrix.miss=statsmatrix.miss, 
+                    epsilon=MCMCparams$epsilon,
                     nr.maxit=MCMCparams$nr.maxit, calc.mcmc.se=MCMCparams$calc.mcmc.se, hessian=MCMCparams$hessian,
                     trustregion=MCMCparams$trustregion, method=MCMCparams$method, metric="Likelihood",
                     compress=MCMCparams$compress, verbose=verbose)
@@ -138,7 +125,8 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist, mClist,
 # statistics that are not needed until output
 #
   v<-ergm.estimate(theta0=theta0, model=model,
-                   statsmatrix=statsmatrix, epsilon=MCMCparams$epsilon,
+                   statsmatrix=statsmatrix, statsmatrix.miss=statsmatrix.miss, 
+                   epsilon=MCMCparams$epsilon,
                    nr.maxit=MCMCparams$nr.maxit, calc.mcmc.se=MCMCparams$calc.mcmc.se, hessian=MCMCparams$hessian,
                    trustregion=MCMCparams$trustregion, method=MCMCparams$method, metric="Likelihood",
                    compress=MCMCparams$compress, verbose=verbose)

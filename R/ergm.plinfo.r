@@ -1,4 +1,4 @@
-ergm.plinfo<-function(Clist, mClist, m, fix=NULL, theta.offset=NULL)
+ergm.plinfo<-function(Clist, Clist.miss, m, fix=NULL, theta.offset=NULL)
 {
   numobs <- Clist$ndyads
 
@@ -15,17 +15,17 @@ ergm.plinfo<-function(Clist, mClist, m, fix=NULL, theta.offset=NULL)
   xmat <- matrix(z$x, numobs, Clist$nparam, byrow=TRUE)
   zy <- z$y
 
-  if(mClist$nedges>0){
+  if(Clist.miss$nedges>0){
     temp <- matrix(0,ncol=Clist$n,nrow=Clist$n)
     base <- cbind(as.vector(col(temp)), as.vector(row(temp)))
     base <- base[base[, 2] > base[, 1], ]
-    if(!mClist$dir){
+    if(!Clist.miss$dir){
       base <- base[base[, 2] > base[, 1], ]
     }else{
       base <- base[base[, 2] != base[, 1], ]
     }
     ubase <- base[,1] + Clist$n*base[,2]
-    dmiss <- !is.na(match(ubase, mClist$tails+mClist$heads*Clist$n))
+    dmiss <- !is.na(match(ubase, Clist.miss$tails+Clist.miss$heads*Clist$n))
     xmat <- matrix(xmat[!dmiss,], ncol=Clist$nparam, nrow=sum(!dmiss))
     zy <- zy[!dmiss]
   }

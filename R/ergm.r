@@ -45,15 +45,16 @@ ergm <- function(formula, theta0="MPLE",
   }
   model.initial <- ergm.getmodel(formula, nw, drop=con$drop, initialfit=TRUE)
   MHproposal <- getMHproposal(proposaltype, proposalargs, nw, model.initial)
+  MHproposal.miss <- getMHproposal("randomtoggleNonObserved", proposalargs, nw, model.initial)
 #
   BD <- ergm.boundDeg(con$boundDeg, nnodes=network.size(nw))
   Clist.initial <- ergm.Cprepare(nw, model.initial)
-  mClist.initial <- ergm.design(nw, model.initial, initialfit=TRUE,
+  Clist.miss.initial <- ergm.design(nw, model.initial, initialfit=TRUE,
                                 verbose=verbose)
   Clist.initial$meanstats=meanstats
   theta0copy <- theta0
   initialfit <- ergm.initialfit(theta0copy, MLestimate, Clist.initial,
-                                mClist.initial, model.initial, verbose=verbose, ...)
+                                Clist.miss.initial, model.initial, verbose=verbose, ...)
   if (MLestimate && 
       (   !ergm.independencemodel(model.initial)
        || !is.null(meanstats))
@@ -73,13 +74,12 @@ ergm <- function(formula, theta0="MPLE",
   # revise theta0 to reflect additional parameters
 
   Clist <- ergm.Cprepare(nw, model)
-  mClist <- ergm.design(nw, model, verbose=verbose)
+  Clist.miss <- ergm.design(nw, model, verbose=verbose)
   Clist$meanstats <- meanstats
   Clist$obs <- summary(model$formula)
 
   if (verbose) cat("ergm.mainfitloop\n")
-  MCMCparams=c(con,list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,maxit=maxit))
-# MHproposal=list(package=con$proposalpackage, type=proposaltype)
+  MCMCparams=c(con,list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,maxit=maxit,Clist.miss=Clist.miss))
   styles <- c("Newton-Raphson","Robbins-Monro","Stochastic-Approximation")
   con$style <- styles[pmatch(con$style,styles,nomatch=1)]
   if(!is.null(dissolve)){
@@ -91,9 +91,10 @@ ergm <- function(formula, theta0="MPLE",
                     MCMCparams=MCMCparams, MHproposal=MHproposal,
                     verbose),
                       ergm.mainfitloop.dyn(theta0, nw,
-                          model, model.dissolve, Clist, mClist,
+                          model, model.dissolve, Clist, Clist.miss,
                           BD, gamma, initialfit,
-                          MCMCparams=MCMCparams, MHproposal=MHproposal,
+                          MCMCparams=MCMCparams, 
+                          MHproposal=MHproposal,
                           verbose=verbose, 
                           ...)
               )
@@ -107,9 +108,10 @@ ergm <- function(formula, theta0="MPLE",
                                  MCMCparams=MCMCparams, MHproposal=MHproposal,
                                  verbose),
                       ergm.mainfitloop(theta0, nw,
-                          model, Clist, mClist,
+                          model, Clist, Clist.miss,
                           BD, initialfit,
                           MCMCparams=MCMCparams, MHproposal=MHproposal,
+                          MHproposal.miss=MHproposal.miss,
                           verbose=verbose, 
                           ...)
               )

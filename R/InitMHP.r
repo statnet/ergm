@@ -63,5 +63,13 @@ InitMHP.formationTNT <- function(arguments, nw, model) {
   MHproposal
 }
 
+InitMHP.randomtoggleNonObserved <- function(arguments, nw, model) {
+  MHproposal <- list(name = "randomtoggleNonObserved", args=NULL, package="statnet")
+  if(is.bipartite(nw)){
+    MHproposal$name <- "BipartiterandomtoggleNonObserved"
+  }
+  MHproposal
+}
+
 
 

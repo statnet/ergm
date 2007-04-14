@@ -1,4 +1,5 @@
-ergm.estimate.only<-function(theta0, model, statsmatrix,
+ergm.estimate.only<-function(theta0, model, 
+                        statsmatrix, statsmatrix.miss,
                         epsilon=1e-10, nr.maxit=100,
                         metric="Likelihood",
                         method="Nelder-Mead", compress=FALSE,
@@ -11,22 +12,35 @@ ergm.estimate.only<-function(theta0, model, statsmatrix,
     statsmatrix0 <- ergm.sufftoprob(statsmatrix,compress=TRUE)
     probs <- statsmatrix0[,ncol(statsmatrix0)]
     statsmatrix0 <- statsmatrix0[,-ncol(statsmatrix0)]
+    if(!is.null(statsmatrix.miss)){
+      statsmatrix0.miss <- ergm.sufftoprob(statsmatrix.miss,compress=TRUE)
+      probs.miss <- statsmatrix0.miss[,ncol(statsmatrix0.miss)]
+      statsmatrix0.miss <- statsmatrix0.miss[,-ncol(statsmatrix0.miss)]
+    }else{
+      statsmatrix0.miss <- NULL
+      probs.miss <- NULL
+    }
   }else{
     statsmatrix0 <- statsmatrix
     probs <- rep(1/nrow(statsmatrix0),nrow(statsmatrix0))
+    if(!is.null(statsmatrix.miss)){
+      statsmatrix0.miss <- statsmatrix.miss
+      probs.miss <- rep(1/nrow(statsmatrix0.miss),nrow(statsmatrix0.miss))
+    }else{
+      statsmatrix0.miss <- NULL
+      probs.miss <- NULL
+    }
   }
   av <- apply(sweep(statsmatrix0,1,probs,"*"), 2, sum)
   xsim <- sweep(statsmatrix0, 2, av,"-")
-  xobs <- - av
-  statsmatrix.miss <- NULL # Obviously a place holder for missing data
   if(!is.null(statsmatrix.miss)){
     av.miss <- apply(sweep(statsmatrix0.miss,1,probs.miss,"*"), 2, sum)
     xsim.miss <- sweep(statsmatrix0.miss, 2, av.miss,"-")
-    dav <- av.miss-av
+    xobs <- av.miss-av
   }else{
     xsim.miss <- NULL
     probs.miss <- NULL
-    dav <- NULL
+    xobs <- - av
   }
 #
 # Set up the initial estimate
@@ -39,9 +53,16 @@ ergm.estimate.only<-function(theta0, model, statsmatrix,
 # Log-Likelihood and gradient functions
 #
   if(metric=="Likelihood"){
+   if(is.null(statsmatrix.miss)){
 #   Default method
 #   check degeneracy removed from here?
     penalty <- 0.5
+   }else{
+    llik.fun <- llik.fun.miss
+    llik.grad <- llik.fun.miss
+    llik.hessian <- llik.hessian.miss
+    penalty <- 0.5
+   }
   }else{
 #
 #   Simple convergence without log-normal modification to
@@ -58,7 +79,9 @@ ergm.estimate.only<-function(theta0, model, statsmatrix,
                     hessian=hessian,
                     method=method,
                     control=list(trace=trace,fnscale=-1,maxit=nr.maxit),
-                    xobs=xobs, xsim=xsim, probs=probs,
+                    xobs=xobs,
+                    xsim=xsim, probs=probs,
+                    xsim.miss=xsim.miss, probs.miss=probs.miss,
                     penalty=0.5, trustregion=trustregion,
                     eta0=eta0, etamap=model$etamap))
   cat("Log-likelihood ratio is", Lout$value,"\n")
@@ -71,7 +94,9 @@ ergm.estimate.only<-function(theta0, model, statsmatrix,
                       method="Nelder-Mead",
                       control=list(trace=trace,fnscale=-1,maxit=100*nr.maxit,
                         reltol=0.01),
-                      xobs=xobs, xsim=xsim, probs=probs, 
+                      xobs=xobs, 
+                      xsim=xsim, probs=probs, 
+                      xsim.miss=xsim.miss, probs.miss=probs.miss,
                       penalty=0.5, trustregion=trustregion,
                       eta0=eta0, etamap=model$etamap))
     if(inherits(Lout,"try-error") || Lout$value > 500 ){

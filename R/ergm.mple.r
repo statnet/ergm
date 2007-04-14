@@ -1,20 +1,20 @@
-ergm.mple<-function(Clist, mClist, m, fix=NULL, theta.offset=NULL,
+ergm.mple<-function(Clist, Clist.miss, m, fix=NULL, theta.offset=NULL,
                     MPLEonly="glm", family="binomial",
                     largestdegree=TRUE, MPLEsamplesize=50000,
                     save.glm=TRUE,
                     maxNumDyadTypes=100000,
                     theta1=NULL, verbose=FALSE, ...)
 {
-  if(mClist$nedges>0){
+  if(Clist.miss$nedges>0){
     temp <- matrix(0,ncol=Clist$n,nrow=Clist$n)
     base <- cbind(as.vector(col(temp)), as.vector(row(temp)))
     base <- base[base[, 2] > base[, 1], ]
-    if(mClist$dir){
+    if(Clist.miss$dir){
       base <- cbind(base[,c(2,1)],base)
       base <- matrix(t(base),ncol=2,byrow=T)
     }
     ubase <- base[,1] + Clist$n*base[,2]
-    offset <- !is.na(match(ubase, mClist$tails+mClist$heads*Clist$n))
+    offset <- !is.na(match(ubase, Clist.miss$tails+Clist.miss$heads*Clist$n))
     offset <- 1*offset
     numobs <- Clist$ndyads - sum(offset)
   }else{
@@ -65,7 +65,7 @@ ergm.mple<-function(Clist, mClist, m, fix=NULL, theta.offset=NULL,
    colnames(xmat) <- m$coef.names[!fix]
   }
   
-  if(mClist$nedges>0){
+  if(Clist.miss$nedges>0){
     xmat <- matrix(xmat[dmiss==0,], ncol=Clist$nparam, nrow=sum(dmiss==0))
     zy <- zy[dmiss==0]
     wend <- wend[dmiss==0]

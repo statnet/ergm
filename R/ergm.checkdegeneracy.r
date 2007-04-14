@@ -1,4 +1,4 @@
-ergm.checkdegeneracy <- function(statsmatrix, verbose=FALSE) {
+ergm.checkdegeneracy <- function(statsmatrix, statsmatrix.miss=NULL, verbose=FALSE) {
 #
  degen <- FALSE
  novar <- apply(statsmatrix,2,var)<1e-6

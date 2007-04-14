@@ -13,6 +13,7 @@ void MH_BipartiteHamming (MHproposal *MHp,  DegreeBound *bd, Network *nwp);
 void MH_BipartiteCondDegreeDist (MHproposal *MHp, DegreeBound *bd, Network *nwp);
 void MH_BipartiteFormation (MHproposal *MHp,  DegreeBound *bd, Network *nwp);
 void MH_BipartiteFormationTNT (MHproposal *MHp,  DegreeBound *bd, Network *nwp);
+void MH_BipartiterandomtoggleNonObserved (MHproposal *MHp,  DegreeBound *bd, Network *nwp);
  
 #endif 
 

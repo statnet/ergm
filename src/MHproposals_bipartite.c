@@ -485,3 +485,16 @@ void MH_BipartiteFormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
   fvalid=CheckTogglesValid(MHp, bd, nwp);
   }
 }
+
+void MH_BipartiterandomtoggleNonObserved (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {  
+  Edge rane;
+
+  if(MHp->ntoggles == 0) { /* Initialize */
+    MHp->ntoggles=1;
+    return;
+  }
+  MHp->ratio = 1.0;
+  rane = 1 + unif_rand() * nwp[1].nedges;
+  FindithEdge(MHp->togglehead, MHp->toggletail, rane, &nwp[1]);
+// Rprintf("bip %d nedges %d h %d t %d\n", nwp[1].bipartite, nwp[1].nedges, MHp->togglehead[0],  MHp->toggletail[0]);
+}
