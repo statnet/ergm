@@ -19,7 +19,8 @@ duration.matrix <- function(gsim) {
                  as.integer(N), as.integer(Nfem), as.integer(Ntot), 
                  as.integer(nchange), as.integer(cha),
                  as.integer(ndissolve), as.integer(dissolve), 
-                 duration = as.integer(rep(0,5*(nedge+nchange))))$duration
+                 duration = as.integer(rep(0,5*(nedge+nchange))),
+                 PACKAGE = "statnet")$duration
   allties <- matrix(allties, ncol=5)
   colnames(allties) <- c("Fem", "Male", "Start", "End", "Noncensored")
   allties <- allties[allties[,1]!=0,] # Get rid of unused rows

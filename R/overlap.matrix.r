@@ -19,7 +19,8 @@ overlap.matrix <- function(gsim, maxoverlaps=100000) {
                 as.integer(N), as.integer(Nfem), as.integer(Ntot), 
                 as.integer(nchange), as.integer(cha),
                 as.integer(ndissolve), as.integer(dissolve), as.integer(maxoverlaps),
-                omatrix = as.integer(rep(0,8*maxoverlaps)))$omatrix
+                omatrix = as.integer(rep(0,8*maxoverlaps)),
+                PACKAGE = "statnet")$omatrix
   overlap <- matrix(overlap, ncol=8)
   colnames(overlap) <- c("Fem1", "Male1", "Fem2", "Male2", "start1", "start2", 
                          "endtime", "firsttoend")
