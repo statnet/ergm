@@ -14,6 +14,7 @@ simulatedyn <- function(object, nsim=1, seed=NULL, ...,theta0,
   con <- list(boundDeg=NULL, drop=drop,
               dyninterval=1000,
               maxchanges=1000000,
+              final=FALSE,
               summarizestats=FALSE
              )
 
@@ -58,12 +59,16 @@ simulatedyn <- function(object, nsim=1, seed=NULL, ...,theta0,
   z <- ergm.getMCMCDynsample(nw, model, model.dissolve, MHproposal,
                              theta0, MCMCparams, verbose, BD)
 
-  out.list <- list(formula = formula, networks = nw,
-                   changed=z$changed, 
-                   dissolved=z$dissolved, 
-                   maxchanges=z$maxchanges,
-                   stats = NULL, coef=theta0)
-  class(out.list) <- "network.series"
-
-  return(out.list)
+  if(final){
+   nw <- network.update(nw,z$newedgelist)
+   return(nw)
+  }else{
+    out.list <- list(formula = formula, networks = nw,
+                     changed=z$changed, 
+                     dissolved=z$dissolved, 
+                     maxchanges=z$maxchanges,
+                     stats = NULL, coef=theta0)
+    class(out.list) <- "network.series"
+    return(out.list)
+  }
 }
