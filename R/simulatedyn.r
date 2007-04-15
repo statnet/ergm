@@ -59,7 +59,7 @@ simulatedyn <- function(object, nsim=1, seed=NULL, ...,theta0,
   z <- ergm.getMCMCDynsample(nw, model, model.dissolve, MHproposal,
                              theta0, MCMCparams, verbose, BD)
 
-  if(final){
+  if(con$final){
    nw <- network.update(nw,z$newedgelist)
    return(nw)
   }else{
