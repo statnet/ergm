@@ -88,6 +88,7 @@ ergm.stocapprox <- function(theta0, nw, model, Clist, BD,
 
   ve<-ergm.estimate(theta0=theta, model=model,
                    statsmatrix=z$statsmatrix,
+                   statsmatrix.miss=NULL,
                    nr.maxit=MCMCparams$nr.maxit, 
                    calc.mcmc.se=MCMCparams$calc.mcmc.se,
                    hessian=MCMCparams$hessian,

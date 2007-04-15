@@ -110,6 +110,7 @@ cat(paste("theta new:",theta,"\n"))
 
   ve<-ergm.estimate(theta0=theta, model=model,
                    statsmatrix=z$statsmatrix,
+                   statsmatrix.miss=NULL,
                    nr.maxit=algorithm.control$nr.maxit, 
                    calc.mcmc.se=algorithm.control$calc.mcmc.se,
                    hessian=algorithm.control$hessian,
