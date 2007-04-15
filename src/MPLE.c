@@ -92,8 +92,8 @@ void MpleInitialize (Vertex bipartite, int *responsevec, double *covmat,
 		     double * offset, double * compressedOffset,
 		     int maxNumDyadTypes, Network *nwp, Model *m) {
 
-  int l, d, outflag = 0, inflag = 0, thisRowNumber,
-    foundRowPosition, totalStats, *currentResponse;
+  int l, d, outflag = 0, inflag = 0, thisRowNumber, thisOffsetNumber,
+    foundRowPosition, totalStats, *currentResponse, *currentOffset;
   double *thisPreviousRow, *thisCurrentRow, *covMatPosition;
   int curDyadNum;
   Vertex i, j , rowmax;
@@ -101,10 +101,12 @@ void MpleInitialize (Vertex bipartite, int *responsevec, double *covmat,
   
   covMatPosition = covmat;
   currentResponse = responsevec;
+  currentOffset = offset;
   thisPreviousRow  = thisCurrentRow =  
     (double*) R_alloc(m->n_stats,sizeof(double));
   curDyadNum=0;
   thisRowNumber = 0;
+  thisOffsetNumber = 0;
   if(bipartite > 0){
    rowmax=bipartite+1;
   }else{

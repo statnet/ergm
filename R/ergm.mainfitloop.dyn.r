@@ -1,6 +1,7 @@
-ergm.mainfitloop.dyn <- function(theta0, nw, model, model.dissolve, Clist,
+ergm.mainfitloop.dyn <- function(theta0, nw, model, model.dissolve, 
+                             Clist, Clist.miss,
                              BD, gamma, initialfit, 
-                             MCMCparams, MHproposal,
+                             MCMCparams, MHproposal, MHproposal.miss,
                              verbose=FALSE,
                              epsilon=1e-10,
                              estimate=TRUE, ...) {
@@ -119,7 +120,9 @@ ergm.mainfitloop.dyn <- function(theta0, nw, model, model.dissolve, Clist,
 #
   if(iteration <= MCMCparams$maxit){
    v<-ergm.estimate.only(theta0=theta0, model=model,
-                    statsmatrix=statsmatrix, epsilon=epsilon,
+                    statsmatrix=statsmatrix,
+                    statsmatrix.miss=NULL,
+                    epsilon=epsilon,
                     nr.maxit=MCMCparams$nr.maxit, 
                     calc.mcmc.se=MCMCparams$calc.mcmc.se, 
                     hessian=MCMCparams$hessian,
@@ -135,7 +138,9 @@ ergm.mainfitloop.dyn <- function(theta0, nw, model, model.dissolve, Clist,
 # statistics that are not needed until output
 #
   v<-ergm.estimate(theta0=theta0, model=model,
-                   statsmatrix=statsmatrix, epsilon=epsilon,
+                   statsmatrix=statsmatrix, 
+                   statsmatrix.miss=NULL,
+                   epsilon=epsilon,
                    nr.maxit=MCMCparams$nr.maxit, 
                    calc.mcmc.se=MCMCparams$calc.mcmc.se, 
                    hessian=MCMCparams$hessian,

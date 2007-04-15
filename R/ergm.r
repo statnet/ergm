@@ -95,6 +95,7 @@ ergm <- function(formula, theta0="MPLE",
                           BD, gamma, initialfit,
                           MCMCparams=MCMCparams, 
                           MHproposal=MHproposal,
+                          MHproposal.miss=MHproposal.miss,
                           verbose=verbose, 
                           ...)
               )
