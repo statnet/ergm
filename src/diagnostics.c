@@ -1,8 +1,7 @@
-/*  This is a collection of functions used to calculate durations of
-    edges and durations of overlaps.  They require a very specific set
-    of input and return a very specific form of output.  DH 04-02-07 */
+/*  This is a collection of functions used to calculate diagnostic 
+    statistics for dynamic networks. */
 
-#include "duration.h"
+#include "diagnostics.h"
 
 /* These #defines are not really necessary but may make the code a bit
    easier to read.  They come at a price (the possibility of hard-to-track
@@ -229,9 +228,6 @@ void DegreeMixMatrix (int *nnodes,
         case 1: //if (id[oe[i+1].value] == 1) {
           m = oe[i+1].value;
           e=EdgetreeMinimum(oe, i+1);
-//          if (m != oe[e].value) Rprintf("%d should be %d\n", m, oe[e].value);
-//          if (EdgetreeSearch(i+1, m, oe) == 0) {Rprintf("Edge (%d, %d) does not exist at time %d\n", i+1, m,time);}
-//          if (i==0) Rprintf("at time %d (%d, %d) exists and deg(%d)=%d\n",time,1,m,m,id[m]);
           if (id[m]==1) {
             ++DEGMIXMAT(i, 1);
           } else {
@@ -353,7 +349,6 @@ void godfather_wrapper (double *heads, double *tails, double *dnedges,
       ++ntoggles; /* ntoggles counts how many timestamps match the current value. */
     } else { /* we have encountered a new timestamp value. */
       mtp = m->termarray;
-//      dstats = m->workspace;
       /* Calculate the change statistics relative to previous step */
       changestats += m->n_stats;
       dstats = changestats;

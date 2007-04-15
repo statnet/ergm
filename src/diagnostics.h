@@ -1,5 +1,5 @@
-#ifndef DURATION_H
-#define DURATION_H
+#ifndef DIAGNOSTICS_H 
+#define DIAGNOSTICS_H
 
 #include <R.h>
 #include "edgeTree.h"
