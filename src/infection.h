@@ -9,7 +9,11 @@
 void Prevalence (int *nnodes,
       int *nedge, int *edge, int *ntimestep, int *nfem,
       int *ntotal, int *nchange, int *change, int *ndissolve, int *dissolve,
-      double *betarate, int *infected, int *prev);
+      int *bernoulli, double *betarate, int *infected, int *nsim, int *prev);
+void PrevalenceWithBernoulliOption (int *nnodes,
+      int *nedge, int *edge, int *ntimestep, int *nfem,
+      int *ntotal, int *nchange, int *change, int *ndissolve, int *dissolve,
+      int *bernoulli, double *betarate, int *infected, int *nsim, int *prev);
       
 #endif
 
