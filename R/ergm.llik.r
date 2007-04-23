@@ -198,7 +198,8 @@ llik.fun.miss <- function(theta, xobs, xsim, probs, xsim.miss, probs.miss,
 #
 # alternative based on log-normal approximation
   mb <- sum(basepred*probs)
-  vb <- sum(basepred*basepred*probs) - mb*mb
+# vb <- sum(basepred*basepred*probs) - mb*mb
+  vb <- sum((basepred-mb)*(basepred-mb)*probs)
   mm <- sum(misspred*probs.miss)
   vm <- sum((misspred-mm)*(misspred-mm)*probs.miss)
 # 
