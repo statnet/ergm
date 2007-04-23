@@ -804,7 +804,7 @@ void MH_randomnode (MHproposal *MHp, DegreeBound *bd, Network *nwp) {
     }
 }
 
-void MH_randomtoggleNotObserved (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {  
+void MH_randomtoggleNonObserved (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {  
   Vertex head, tail;
   
   if(MHp->ntoggles == 0) { /* Initialize randomtoggle */
