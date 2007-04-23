@@ -125,8 +125,8 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
 #  covar <- robust.inverse(cov(xsim))
 #  Lout$hessian <- cov(xsim)
    Lout$hessian <- llik.hessian(theta=theta, xobs=xobs, xsim=xsim,
-                        xsim.miss=xsim.miss, probs.miss=probs.miss,
                         probs=probs, 
+                        xsim.miss=xsim.miss, probs.miss=probs.miss,
                         penalty=0.5,
                         eta0=eta0, etamap=model$etamap
                     )
