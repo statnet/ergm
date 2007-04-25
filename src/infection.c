@@ -25,7 +25,7 @@ void Prevalence (int *nnodes,
   int k, time, ndyads, rane;
   int bipartite = *nfem;
   double *heads, *tails;
-  int *sinfected, *bsort;
+  int *sinfected;
   double beta=*betarate;
   TreeNode *ie, *oe;
   Network nw;
@@ -41,25 +41,27 @@ void Prevalence (int *nnodes,
   }
 //    Rprintf("initial bipartite %d edges %d heads[i] %f tails[i] %f\n", bipartite,ne,
 //		           heads[i-1],tails[i-1]);
-  nw = NetworkInitialize(heads, tails, ne, *nnodes, 0, bipartite);
-  ie=nw.inedges;
-  oe=nw.outedges;
-  id=nw.indegree;
-  od=nw.outdegree;
-  ndyads = bipartite*(nw.nnodes-bipartite);
 
   for (k=0; k < *nsim; k++) {
+    nw = NetworkInitialize(heads, tails, ne, *nnodes, 0, bipartite);
+    ie=nw.inedges;
+    oe=nw.outedges;
+    id=nw.indegree;
+    od=nw.outdegree;
+    ndyads = bipartite*(*nnodes-bipartite);
    if(*randomseeds){
       // Sample numdissolved edges without replacement
-      ndyads = nw.nnodes;
+      ndyads = *nnodes;
       for (i = 0; i < ndyads; i++){sinfected[i] = i;}
       for (i = 0; i < (*nseeds); i++) {
 	rane = ndyads * unif_rand();
 	infected[i] = sinfected[rane] + 1;
 	sinfected[rane] = sinfected[--ndyads];
       }
-      for (i = 0; i < nw.nnodes; i++){sinfected[i] = 0;}
+      for (i = 0; i < *nnodes; i++){sinfected[i] = 0;}
+//  Rprintf("\n", infected[i]);
       for (i=0; i < (*nseeds); i++) {
+//  Rprintf(" %d", infected[i]);
 	sinfected[infected[i]] = 1;
       }
    }else{
@@ -79,8 +81,10 @@ void Prevalence (int *nnodes,
 	(alter = oe[e].value) != 0;
 	e = EdgetreeSuccessor(oe, e)){
 	     if(!sinfected[alter-1]){
-//  Rprintf("time %d i %d sinfected %d alter %d sinfected %d beta %f\n",time,i,sinfected[i],alter,sinfected[alter],beta);
- 	       if(unif_rand() < beta/od[i+1]){sinfected[alter-1]=1;}
+ 	       if(unif_rand() < beta){
+//  Rprintf("f time %d i %d sinfected %d alter %d sinfected %d beta %f\n",time,i,sinfected[i],alter,sinfected[alter],beta);
+		       sinfected[alter-1]=1;}
+//       if(unif_rand() < beta/od[i+1]){sinfected[alter-1]=1;}
  	     }
           }
       }
@@ -93,10 +97,11 @@ void Prevalence (int *nnodes,
      for(e = EdgetreeMinimum(ie, i+1);
        (alter = ie[e].value) != 0;
        e = EdgetreeSuccessor(ie, e)){
-//    Rprintf("time %d i %d sinfected %d alter %d sinfected %d beta %f\n",time,i,sinfected[i],alter,sinfected[alter],beta);
           if(!sinfected[alter-1]){
-//    Rprintf("time %d i %d sinfected %d alter %d sinfected %d beta %f\n",time,i,sinfected[i],alter,sinfected[alter],beta);
-            if(unif_rand() < beta/id[i]){sinfected[alter-1]=1;}
+//          if(unif_rand() < beta/id[i]){sinfected[alter-1]=1;}
+            if(unif_rand() < beta){
+//    Rprintf("m time %d i %d sinfected %d alter %d sinfected %d beta %f\n",time,i,sinfected[i],alter,sinfected[alter],beta);
+		    sinfected[alter-1]=1;}
           }
         }
     }
@@ -127,6 +132,9 @@ void Prevalence (int *nnodes,
 //  id=nw.indegree;
 //  od=nw.outdegree;
 // }
+  }
+  for (i=0; i < *nnodes; i++) {
+      infected[i] = sinfected[i];
   }
   /* Free memory used by network object before returning */  
   free (sinfected);
