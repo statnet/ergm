@@ -43,12 +43,12 @@ void Prevalence (int *nnodes,
 //		           heads[i-1],tails[i-1]);
 
   for (k=0; k < *nsim; k++) {
-    nw = NetworkInitialize(heads, tails, ne, *nnodes, 0, bipartite);
-    ie=nw.inedges;
-    oe=nw.outedges;
-    id=nw.indegree;
-    od=nw.outdegree;
-    ndyads = bipartite*(*nnodes-bipartite);
+   nw = NetworkInitialize(heads, tails, ne, *nnodes, 0, bipartite);
+   ie=nw.inedges;
+   oe=nw.outedges;
+   id=nw.indegree;
+   od=nw.outdegree;
+   ndyads = bipartite*(*nnodes-bipartite);
    if(*randomseeds){
       // Sample numdissolved edges without replacement
       ndyads = *nnodes;
@@ -116,6 +116,7 @@ void Prevalence (int *nnodes,
     }
    // End of time step 
    }
+   NetworkDestroy (&nw);
    // Next k
    for (i=0; i < *nnodes; i++) {
      prev[k]=prev[k]+sinfected[i];
