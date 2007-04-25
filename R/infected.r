@@ -1,4 +1,4 @@
-prevalence <- function(gsim, nsim=1, beta=0.1) {
+prevalence <- function(gsim, nsim=1, beta=0.1, randomseeds=FALSE) {
   if (!is.network((g0<-gsim$networks)) || class(gsim) != "network.series") {
     stop("This function requires that the argument be a network.series")
   }
@@ -17,9 +17,11 @@ prevalence <- function(gsim, nsim=1, beta=0.1) {
   infected[sample(1:Ntot)] <- 1
   prevalence <- .C("Prevalence", as.integer(Ntot), 
                   as.integer(nedge), as.integer(edges), 
-                  as.integer(N), as.integer(Nfem), as.integer(Ntot), 
+                  as.integer(N), as.integer(Nfem), as.integer(sum(infected)), 
+                  as.integer(Ntot), 
                   as.integer(nchange), as.integer(cha),
                   as.integer(ndissolve), as.integer(dissolve),
+                  as.integer(randomseeds),
                   as.double(beta),
                   infected = as.integer(infected),
                   prev = as.integer(prev),

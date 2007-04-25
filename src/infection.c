@@ -14,9 +14,10 @@
 #define DEGMIXMAT(a,b) (degmixmat[(a)+(*nnodes)*(b)])
 
 void Prevalence (int *nnodes,
-      int *nedge, int *edge, int *ntimestep, int *nfem,
+      int *nedge, int *edge, int *ntimestep, int *nfem, int *nseeds,
       int *ntotal, int *nchange, int *change, int *ndissolve, int *dissolve,
-      int *bernoulli, double *betarate, int *infected, int *nsim, int *prev) {
+      int *randomseeds, double *betarate, int *infected, int *totinfected,
+      int *nsim, int *prev) {
   Vertex alter=0;
   Edge e;
   Vertex *id, *od;
@@ -48,8 +49,23 @@ void Prevalence (int *nnodes,
   ndyads = bipartite*(nw.nnodes-bipartite);
 
   for (k=0; k < *nsim; k++) {
-   for (i=0; i < *nnodes; i++) {
-     sinfected[i] = infected[i];
+   if(*randomseeds){
+      // Sample numdissolved edges without replacement
+      ndyads = nw.nnodes;
+      for (i = 0; i < ndyads; i++){sinfected[i] = i;}
+      for (i = 0; i < (*nseeds); i++) {
+	rane = ndyads * unif_rand();
+	infected[i] = sinfected[rane] + 1;
+	sinfected[rane] = sinfected[--ndyads];
+      }
+      for (i = 0; i < nw.nnodes; i++){sinfected[i] = 0;}
+      for (i=0; i < (*nseeds); i++) {
+	sinfected[infected[i]] = 1;
+      }
+   }else{
+    for (i=0; i < *nnodes; i++) {
+      sinfected[i] = infected[i];
+    }
    }
   
    /* Step through time one click at a time */
@@ -98,6 +114,9 @@ void Prevalence (int *nnodes,
    // Next k
    for (i=0; i < *nnodes; i++) {
      prev[k]=prev[k]+sinfected[i];
+   }
+   for (i=0; i < *nnodes; i++) {
+     totinfected[i] = totinfected[i] + sinfected[i];
    }
 //   Rprintf("k %d edges %d prev %d \n",k,nw.nedges,prev[k]);
 // if (k < *nsim) {
