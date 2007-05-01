@@ -350,6 +350,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
   dimnames(pval.dist)[[2]] <- c("obs","min","mean","max","MC p-value")
   pobs.dist <- obs.dist/sum(obs.dist)
   psim.dist <- sweep(sim.dist,1,apply(sim.dist,1,sum),"/")
+  psim.dist[is.na(psim.dist)] <- 1
   bds.dist <- apply(psim.dist,2,quantile,probs=c(0.025,0.975))
  }
 
@@ -364,6 +365,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
   dimnames(pval.ideg)[[2]] <- c("obs","min","mean","max","MC p-value")
   pobs.ideg <- obs.ideg/sum(obs.ideg)
   psim.ideg <- sweep(sim.ideg,1,apply(sim.ideg,1,sum),"/")
+  psim.ideg[is.na(psim.ideg)] <- 1
   bds.ideg <- apply(psim.ideg,2,quantile,probs=c(0.025,0.975))
  }
 
@@ -375,6 +377,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
   dimnames(pval.odeg)[[2]] <- c("obs","min","mean","max","MC p-value")
   pobs.odeg <- obs.odeg/sum(obs.odeg)
   psim.odeg <- sweep(sim.odeg,1,apply(sim.odeg,1,sum),"/")
+  psim.odeg[is.na(psim.odeg)] <- 1
   bds.odeg <- apply(psim.odeg,2,quantile,probs=c(0.025,0.975))
  }
 
@@ -386,6 +389,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
   dimnames(pval.deg)[[2]] <- c("obs","min","mean","max","MC p-value")
   pobs.deg <- obs.deg/sum(obs.deg)
   psim.deg <- sweep(sim.deg,1,apply(sim.deg,1,sum),"/")
+  psim.deg[is.na(psim.deg)] <- 1
   bds.deg <- apply(psim.deg,2,quantile,probs=c(0.025,0.975))
  }
 
@@ -415,6 +419,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
   dimnames(pval.dspart)[[2]] <- c("obs","min","mean","max","MC p-value")
   pobs.dspart <- obs.dspart/sum(obs.dspart)
   psim.dspart <- sweep(sim.dspart,1,apply(sim.dspart,1,sum),"/")
+  psim.dspart[is.na(psim.dspart)] <- 1
   bds.dspart <- apply(psim.dspart,2,quantile,probs=c(0.025,0.975))
  }
 
@@ -429,6 +434,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
   dimnames(pval.triadcensus)[[2]] <- c("obs","min","mean","max","MC p-value")
   pobs.triadcensus <- obs.triadcensus/sum(obs.triadcensus)
   psim.triadcensus <- sweep(sim.triadcensus,1,apply(sim.triadcensus,1,sum),"/")
+  psim.triadcensus[is.na(psim.triadcensus)] <- 1
   bds.triadcensus <- apply(psim.triadcensus,2,quantile,probs=c(0.025,0.975))
  }
 
