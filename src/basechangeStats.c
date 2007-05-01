@@ -3853,9 +3853,10 @@ ModelTerm *mtp, Network *nwp) {
 Vertex CountTriangles (Vertex h, Vertex t, int outcount, int incount, 
 		       Network *nwp) {
   Edge e;
-  Vertex change=0;
+  Vertex change;
   Vertex k;
   
+  change=0;
   if(outcount){
     for(e = EdgetreeMinimum(nwp->outedges, t);
 	(k = nwp->outedges[e].value) != 0;

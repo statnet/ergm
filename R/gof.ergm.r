@@ -400,6 +400,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
   dimnames(pval.espart)[[2]] <- c("obs","min","mean","max","MC p-value")
   pobs.espart <- obs.espart/sum(obs.espart)
   psim.espart <- sweep(sim.espart,1,apply(sim.espart,1,sum),"/")
+  psim.espart[is.na(psim.espart)] <- 1
   bds.espart <- apply(psim.espart,2,quantile,probs=c(0.025,0.975))
  }
 

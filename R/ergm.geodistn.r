@@ -10,12 +10,26 @@ ergm.geodistn <- function(edgelist, n=max(edgelist), directed=FALSE) {
 # with illegal vertex numbers (non-positive integers) or an illegal value
 # of n.
   
+  if(!directed){
+   ndyads <- n*(n-1)/2
+  }else{
+   ndyads <- n*(n-1)
+  }
 # The C code requires the edgelist to be directed and sorted correctly.
-  edgelist<-edgelist[edgelist[,1]!=edgelist[,2],] # get rid of self-edges
-  if (!directed) 
+#
+  if(!is.matrix(edgelist) || nrow(edgelist)==0){
+   return(rep(c(0,ndyads),c(n-1,1)))
+  }
+  if(nrow(edgelist)>1){
+   edgelist<-edgelist[edgelist[,1]!=edgelist[,2],] # get rid of self-edges
+   if (!directed) 
     edgelist<-rbind(edgelist,edgelist[,2:1])
-  edgelist<-unique(edgelist)
-  edgelist<-edgelist[order(edgelist[,1],edgelist[,2]),]
+   edgelist<-unique(edgelist)
+   edgelist<-edgelist[order(edgelist[,1],edgelist[,2]),]
+  }else{
+   if(edgelist[1]==edgelist[2]){return(rep(c(0,ndyads),c(n-1,1)))}
+   return(rep(c(1,0,ndyads-1),c(1,n-2,1)))
+  }
 
 # Next, we need to set up the nodelist vector:  Because of C's numbering
 # convention, we want nodelist[1]=0 and in general, nodelist[i]=2*r(i)-2,

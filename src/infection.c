@@ -141,7 +141,7 @@ void Prevalence (int *nnodes,
   free (sinfected);
   free (heads);
   free (tails);
-  NetworkDestroy (&nw);
+//NetworkDestroy (&nw);
 }
 void PrevalenceWithBernoulliOption(int *nnodes,
       int *nedge, int *edge, int *ntimestep, int *nfem,
