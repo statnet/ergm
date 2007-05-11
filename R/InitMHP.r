@@ -17,6 +17,14 @@ InitMHP.TNT <- function(arguments, nw, model) {
   MHproposal
 }
 
+InitMHP.CondDegree <- function(arguments, nw, model) {
+  MHproposal <- list(name = "CondDegree", args=NULL, package="statnet")
+# if(is.bipartite(nw)){
+#   MHproposal$name <- "BipartiteTNT"
+# }
+  MHproposal
+}
+
 InitMHP.ConstantEdges <- function(arguments, nw, model) {
   MHproposal <- list(name = "ConstantEdges", args=NULL, package="statnet")
   if(is.bipartite(nw)){

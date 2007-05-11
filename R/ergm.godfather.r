@@ -73,11 +73,9 @@ ergm.godfather <- function(formula, timestamps=NULL, toggles=NULL, sim=NULL,
   }
   out <- list(stats = stats, timestamps = c(NA, uts))
   if (con$return_new_network) { 
+    cat("Creating new network...\n")
     newnw <- matrix(z$newnw[z$newnw>0][-1], ncol=2, byrow=T)
-    out$newnetwork = network.update(nw,newnw)
+    out$newnetwork <- network.update(nw,newnw)
   }
   out
 }
-                           
-                           
-

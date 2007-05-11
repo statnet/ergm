@@ -794,6 +794,178 @@ InitErgm.adegree<-function(nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
+InitErgm.astar<-function(nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkbipartite("astar", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("astar", arglist,
+                      varnames = c("d", "attrname"),
+                      vartypes = c("numeric", "character"),
+                      defaultvalues = list(NULL, NULL),
+                      required = c(TRUE, FALSE))
+  attach(a)
+  d<-a$d; attrname <- a$attrname
+  emptynwstats<-NULL
+  nactors <- get.network.attribute(nw, "bipartite")
+  if(!is.null(attrname)) {
+    nodecov <- get.node.attr(nw, attrname, "astar")
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+    nodecov <- match(nodecov,u) # Recode to numeric
+    if (length(u)==1)
+      stop ("Attribute given to astar() has only one value", call.=FALSE)
+    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+    lu <- length(u)
+    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
+    if(drop){ #   Check for degeneracy
+      tmp <- paste("c(",paste(d,collapse=","),")")
+      astarattr <- summary(as.formula
+                             (paste('nw ~ astar(', tmp,',"',attrname,'")',sep="")),
+                             drop=FALSE) == 0
+      if(any(astarattr)){
+        dropterms <- paste("astar", du[1,astarattr], ".", attrname,
+                           u[du[2,astarattr]], sep="")
+        cat("Warning: These astar terms have extreme counts and will be dropped:\n")
+        cat(dropterms, "\n", fill=T)
+        du <- matrix(du[,!astarattr], nrow=2)
+      }
+    }
+    if (any(du[1,]==0)) {
+      emptynwstats <- rep(0, ncol(du))
+      tmp <- du[2,du[1,]==0]
+      for(i in 1:length(tmp)) tmp[i] <- 
+        sum(nodecov[1:nactors]==tmp[i])
+        emptynwstats[du[1,]==0] <- tmp
+    }
+  } else {
+    if(is.logical(attrname)){drop <- attrname}
+    if(drop){
+      mastar <- paste("c(",paste(d,collapse=","),")",sep="")
+      mastar <- summary(
+                          as.formula(paste('nw ~ astar(',mastar,')',sep="")),
+                          drop=FALSE) == 0
+      if(any(mastar)){
+        cat(paste("Warning: There are no order", d[mastar],"astars.\n"))
+        dropterms <- paste("astar", d[mastar],sep="")
+        cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
+        d <- d[!mastar] 
+      }
+    }
+    if (any(d==0)) {
+      emptynwstats <- rep(0, length(d))
+      emptynwstats[d==0] <- nactors
+    }
+  }
+  termnumber<-1+length(m$terms)
+  if(!is.null(attrname)) {
+    if(ncol(du)==0) {return(m)}
+    #  No covariates here, so input component 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="ostar_by_attr", soname="statnet",
+                                  inputs=c(0, ncol(du), 
+                                           length(du)+length(nodecov), 
+                                           as.vector(du), nodecov),
+                                  dependence=TRUE)
+    # See comment in d_astar_by_attr function
+    m$coef.names<-c(m$coef.names, paste("astar", du[1,], ".", attrname,
+                                        u[du[2,]], sep=""))
+  }else{
+    lengthd<-length(d)
+    if(lengthd==0){return(m)}
+    #  No covariates here, so input component 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="ostar", soname="statnet",
+                                       inputs=c(0, lengthd, lengthd, d),
+                                       dependence=TRUE)
+    m$coef.names<-c(m$coef.names,paste("astar",d,sep=""))
+  }
+  if (!is.null(emptynwstats)) 
+    m$terms[[termnumber]]$emptynwstats <- emptynwstats
+  m
+}
+
+InitErgm.estar<-function(nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkbipartite("estar", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("estar", arglist,
+                      varnames = c("d", "attrname"),
+                      vartypes = c("numeric", "character"),
+                      defaultvalues = list(NULL, NULL),
+                      required = c(TRUE, FALSE))
+  attach(a)
+  d<-a$d; attrname <- a$attrname
+  emptynwstats<-NULL
+  nactors <- get.network.attribute(nw, "bipartite")
+  if(!is.null(attrname)) {
+    nodecov <- get.node.attr(nw, attrname, "estar")
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+    nodecov <- match(nodecov,u) # Recode to numeric
+    if (length(u)==1)
+      stop ("Attribute given to estar() has only one value", call.=FALSE)
+    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+    lu <- length(u)
+    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
+    if(drop){ #   Check for degeneracy
+      tmp <- paste("c(",paste(d,collapse=","),")")
+      estarattr <- summary(as.formula
+                             (paste('nw ~ estar(', tmp,',"',attrname,'")',sep="")),
+                             drop=FALSE) == 0
+      if(any(astarattr)){
+        dropterms <- paste("estar", du[1,estarattr], ".", attrname,
+                           u[du[2,estarattr]], sep="")
+        cat("Warning: These estar terms have extreme counts and will be dropped:\n")
+        cat(dropterms, "\n", fill=T)
+        du <- matrix(du[,!estarattr], nrow=2)
+      }
+    }
+    if (any(du[1,]==0)) {
+      emptynwstats <- rep(0, ncol(du))
+      tmp <- du[2,du[1,]==0]
+      for(i in 1:length(tmp)) tmp[i] <- 
+        sum(nodecov[1:nactors]==tmp[i])
+        emptynwstats[du[1,]==0] <- tmp
+    }
+  } else {
+    if(is.logical(attrname)){drop <- attrname}
+    if(drop){
+      mestar <- paste("c(",paste(d,collapse=","),")",sep="")
+      mestar <- summary(
+                          as.formula(paste('nw ~ estar(',mestar,')',sep="")),
+                          drop=FALSE) == 0
+      if(any(mestar)){
+        cat(paste("Warning: There are no order", d[mestar],"estars.\n"))
+        dropterms <- paste("estar", d[mestar],sep="")
+        cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
+        d <- d[!mestar] 
+      }
+    }
+    if (any(d==0)) {
+      emptynwstats <- rep(0, length(d))
+      emptynwstats[d==0] <- nactors
+    }
+  }
+  termnumber<-1+length(m$terms)
+  if(!is.null(attrname)) {
+    if(ncol(du)==0) {return(m)}
+    #  No covariates here, so input component 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="istar_by_attr", soname="statnet",
+                                  inputs=c(0, ncol(du), 
+                                           length(du)+length(nodecov), 
+                                           as.vector(du), nodecov),
+                                  dependence=TRUE)
+    # See comment in d_estar_by_attr function
+    m$coef.names<-c(m$coef.names, paste("estar", du[1,], ".", attrname,
+                                        u[du[2,]], sep=""))
+  }else{
+    lengthd<-length(d)
+    if(lengthd==0){return(m)}
+    #  No covariates here, so input component 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="istar", soname="statnet",
+                                       inputs=c(0, lengthd, lengthd, d),
+                                       dependence=TRUE)
+    m$coef.names<-c(m$coef.names,paste("estar",d,sep=""))
+  }
+  if (!is.null(emptynwstats)) 
+    m$terms[[termnumber]]$emptynwstats <- emptynwstats
+  m
+}
+
 InitErgm.edegree<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkbipartite("edegree", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("edegree", arglist,

@@ -223,10 +223,16 @@ print.raftery.diag.ergm <- function (x, digits = 3, simvalues=NULL, ...)
         if(ncol(out)>6){
          out[out[,7]=="1",7] <- "yes"
          out[out[,7]=="0",7] <- " no"
+         out[out[,2]=="0",7] <- " no"
+         out[out[,3]=="0",7] <- " no"
+         out[out[,5]=="0",7] <- " no"
         }
         if(ncol(out)>6){
          out[out[,6]=="1",6] <- "yes"
          out[out[,6]=="0",6] <- " no"
+         out[out[,2]=="0",6] <- " no"
+         out[out[,3]=="0",6] <- " no"
+         out[out[,5]=="0",6] <- " no"
         }
         print.default(out, quote = FALSE, ...)
         cat("\n")
