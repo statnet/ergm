@@ -274,7 +274,7 @@ int ToggleEdgeWithTimestamp (Vertex head, Vertex tail, Network *nwp)
   }
 
   if (nwp->directed_flag) 
-    k = (tail-1)*(nwp->nnodes-1) + head - (head>tail) ? 1:0 - 1; 
+    k = (tail-1)*(nwp->nnodes-1) + head - ((head>tail) ? 1:0) - 1; 
   else
     k = (tail-1)*(tail-2)/2 + head - 1;    
   nwp->duration_info.lasttoggle[k] = nwp->duration_info.MCMCtimer;
@@ -296,7 +296,7 @@ int WtToggleEdgeWithTimestamp (Vertex head, Vertex tail, double weight, WtNetwor
   }
 
   if (nwp->directed_flag) 
-    k = (tail-1)*(nwp->nnodes-1) + head - (head>tail) ? 1:0 - 1; 
+    k = (tail-1)*(nwp->nnodes-1) + head - ((head>tail) ? 1:0) - 1; 
   else
     k = (tail-1)*(tail-2)/2 + head - 1;    
   nwp->duration_info.lasttoggle[k] = nwp->duration_info.MCMCtimer;
@@ -324,7 +324,7 @@ long int ElapsedTime (Vertex head, Vertex tail, Network *nwp)
   }
 
   if (nwp->directed_flag) 
-    k = (tail-1)*(nwp->nnodes-1) + head - (head>tail) ? 1:0 - 1; 
+    k = (tail-1)*(nwp->nnodes-1) + head - ((head>tail) ? 1:0) - 1; 
   else
     k = (tail-1)*(tail-2)/2 + head - 1;    
   return nwp->duration_info.MCMCtimer - nwp->duration_info.lasttoggle[k];
@@ -711,7 +711,7 @@ double EdgeWeight (Vertex head, Vertex tail, WtNetwork *nwp)
   }
 
   if (nwp->directed_flag) 
-    k = (tail-1)*(nwp->nnodes-1) + head - (head>tail) ? 1:0 - 1; 
+    k = (tail-1)*(nwp->nnodes-1) + head - ((head>tail) ? 1:0) - 1; 
   else
     k = (tail-1)*(tail-2)/2 + head - 1;    
   return nwp->outedges[k].weight;
