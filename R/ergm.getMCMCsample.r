@@ -10,43 +10,42 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, MCMCparams,
 #
 #   Check for truncation of the returned edge list
 #
-  z <- list(newnw=maxedges+1)
-  while(z$newnw[1] > maxedges){
+  z <- list(newnwheads=maxedges+1)
+  while(z$newnwheads[1] >= maxedges){
    maxedges <- 10*maxedges
 #
 #  Parallel running
 #
    if(MCMCparams$parallel==0){
     z <- .C("MCMC_wrapper",
-            as.double(Clist$heads), as.double(Clist$tails), 
-            as.double(Clist$nedges), as.double(Clist$n),
-            as.integer(Clist$dir), as.double(Clist$bipartite),
+            as.integer(Clist$heads), as.integer(Clist$tails), 
+            as.integer(Clist$nedges), as.integer(Clist$n),
+            as.integer(Clist$dir), as.integer(Clist$bipartite),
             as.integer(Clist$nterms), 
             as.character(Clist$fnamestring),
             as.character(Clist$snamestring),
             as.character(MHproposal$name), as.character(MHproposal$package),
 #  Add:  as.double(length(MHproposal$args)), as.double(MHproposal$args), 
             as.double(Clist$inputs), as.double(eta0),
-            as.double(MCMCparams$samplesize),
+            as.integer(MCMCparams$samplesize),
             s = as.double(t(MCMCparams$stats)),
-            as.double(MCMCparams$burnin), as.double(MCMCparams$interval), 
-            newnw = integer(maxedges), 
+            as.integer(MCMCparams$burnin), as.integer(MCMCparams$interval), 
+            newnwheads = integer(maxedges),
+            newnwtails = integer(maxedges), 
             as.integer(verbose), as.integer(BD$attribs), 
             as.integer(BD$maxout), as.integer(BD$maxin),
             as.integer(BD$minout), as.integer(BD$minin),
             as.integer(BD$condAllDegExact), as.integer(length(BD$attribs)), 
-            as.double(maxedges),
-            as.double(MCMCparams$Clist.miss$heads), as.double(MCMCparams$Clist.miss$tails),
-            as.double(MCMCparams$Clist.miss$nedges),
+            as.integer(maxedges),
+            as.integer(MCMCparams$Clist.miss$heads), as.integer(MCMCparams$Clist.miss$tails),
+            as.integer(MCMCparams$Clist.miss$nedges),
             PACKAGE="statnet") 
     statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
                           ncol=Clist$nparam,
                           byrow = TRUE)
-    if(z$newnw[1]>1){
-      newedgelist <- matrix(z$newnw[2:z$newnw[1]], ncol=2, byrow=TRUE)
-    }else{
-      newedgelist <- matrix(0, ncol=2, nrow=0)
-    }
+
+    newnetwork <- newnw.extract(nw,z)
+
   }else{
     rpvmbasename <- paste("ergm.parallel.",Sys.getpid(),sep="")
     MCMCparams.parallel <- MCMCparams
@@ -90,13 +89,9 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, MCMCparams,
        byrow = TRUE))
 #    if(z$newnw[1]>1){
 #      newedgelist <- rbind(newedgelist,
-#                           matrix(z$newnw[2:z$newnw[1]], ncol=2, byrow=TRUE))
-     }
-     if(z$newnw[1]>1){
-      newedgelist <- matrix(z$newnw[2:z$newnw[1]], ncol=2, byrow=TRUE)
-     }else{
-      newedgelist <- matrix(0, ncol=2, nrow=0)
-     }
+     #                           matrix(z$newnw[2:z$newnw[1]], ncol=2, byrow=TRUE))
+   }
+    newnetwork<-newnw.extract(nw,z)
     cat("parallel samplesize=",nrow(statsmatrix),"by",
         MCMCparams.parallel$samplesize,"\n")
     ergm.rpvm.clean(rpvmbasename=rpvmbasename)
@@ -124,5 +119,5 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, MCMCparams,
 #          statsmatrix[,!is.na(matchcols)]), 2, ms[!is.na(matchcols)], "-")
 #     }
 #   }
-  list(statsmatrix=statsmatrix, newedgelist=newedgelist, meanstats=Clist$meanstats)
+  list(statsmatrix=statsmatrix, newnetwork=newnetwork, meanstats=Clist$meanstats)
 }

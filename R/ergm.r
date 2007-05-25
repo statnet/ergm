@@ -2,6 +2,7 @@ ergm <- function(formula, theta0="MPLE",
                  MPLEonly=FALSE, MLestimate=!MPLEonly, seed=NULL,
                  burnin=10000, MCMCsamplesize=10000, interval=100, maxit=3,
                  proposaltype="randomtoggle", proposalargs=NULL,
+                 proposaltype.diss="dissolution", proposalargs.diss=NULL,
                  meanstats=NULL,
                  dissolve=NULL, gamma=-4.59512, dissolve.order="DissThenForm",
                  algorithm.control=list(),
@@ -40,6 +41,7 @@ ergm <- function(formula, theta0="MPLE",
   nw <- ergm.getnetwork(formula)
   if(!is.null(meanstats)){ con$drop <- FALSE }
   if (verbose) cat("Fitting initial model.\n")
+
   if(!is.null(dissolve)){
        proposaltype <- "formationTNT"
   }
@@ -83,22 +85,23 @@ ergm <- function(formula, theta0="MPLE",
   styles <- c("Newton-Raphson","Robbins-Monro","Stochastic-Approximation")
   con$style <- styles[pmatch(con$style,styles,nomatch=1)]
   if(!is.null(dissolve)){
-   if (verbose) cat("Fitting Dynamic ERGM.\n")
-   model.dissolve <- ergm.getmodel.dissolve(dissolve, nw, dissolve.order)
-   v <- switch(con$style,
-    "Robbins-Monro" = ergm.robmon.dyn(theta0, nw, model, model.dissolve,
-                    Clist, BD, gamma, 
-                    MCMCparams=MCMCparams, MHproposal=MHproposal,
-                    verbose),
-                      ergm.mainfitloop.dyn(theta0, nw,
-                          model, model.dissolve, Clist, Clist.miss,
-                          BD, gamma, initialfit,
-                          MCMCparams=MCMCparams, 
-                          MHproposal=MHproposal,
-                          MHproposal.miss=MHproposal.miss,
-                          verbose=verbose, 
-                          ...)
-              )
+    if (verbose) cat("Fitting Dynamic ERGM.\n")
+    model.dissolve <- ergm.getmodel.dissolve(dissolve, nw, dissolve.order)
+    MHproposal.diss <- getMHproposal(proposaltype.diss, proposalargs.diss, nw, model.dissolve)
+    v <- switch(con$style,
+                "Robbins-Monro" = ergm.robmon.dyn(theta0, nw, model, model.dissolve,
+                  Clist, BD, gamma, 
+                  MCMCparams=MCMCparams, MHproposal.form=MHproposal,
+                  MHproposal.diss=MHproposal.diss,
+                  verbose),
+                ergm.mainfitloop.dyn(theta0, nw,
+                                     model.form=model, model.diss=model.dissolve, Clist,
+                                     BD, gamma, initialfit,
+                                     MCMCparams=MCMCparams, 
+                                     MHproposal.form=MHproposal, MHproposal.diss=MHproposal.diss,
+                                     verbose=verbose, 
+                                     ...)
+                )
   }else{
    if (verbose) cat("Fitting ERGM.\n")
    v <- switch(con$style,
@@ -122,11 +125,12 @@ ergm <- function(formula, theta0="MPLE",
    if(v$loglikelihood>con$trustregion-0.0001){
     v$degeneracy <- con$trustregion
    }else{
-    ## Workaround.
-    #fff <- (-2*v$mplefit$glm$y+1)*model.matrix(v$mplefit$glm)
-    #v$degeneracy.type <- apply(fff,1, ergm.degeneracy,theta0, model, v$sample)
-    #v$degeneracy <- max(v$degeneracy.type)
-    v$degeneracy <- NA
+     ## Workaround.
+     #fff <- (-2*v$mplefit$glm$y+1)*model.matrix(v$mplefit$glm)
+     #v$degeneracy.type <- apply(fff,1, ergm.degeneracy,theta0, model, v$sample)
+     #v$degeneracy <- max(v$degeneracy.type)
+     v$degeneracy<-NA
+
    }
   }else{
    if(MPLEonly){

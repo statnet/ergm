@@ -63,9 +63,9 @@ summary.statistics.network <- function(object,...,basis=NULL)
   #    Calculate the global statistics
   #
   gs <- -.C("MCMC_global",
-           as.double(Clist$heads), as.double(Clist$tails), 
-           as.double(Clist$nedges), as.double(Clist$n),
-           as.integer(Clist$dir), as.double(Clist$bipartite), 
+           as.integer(Clist$heads), as.integer(Clist$tails), 
+           as.integer(Clist$nedges), as.integer(Clist$n),
+           as.integer(Clist$dir), as.integer(Clist$bipartite), 
            as.integer(Clist$nterms), 
            as.character(Clist$fnamestring), as.character(Clist$snamestring), 
            as.double(Clist$inputs),

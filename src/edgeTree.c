@@ -8,8 +8,9 @@
  that the 0th TreeNode in the array is unused and should 
  have all its values set to zero
 *******************/
-Network NetworkInitialize(double *heads, double *tails, Edge nedges, 
-			  Vertex nnodes, int directed_flag, Vertex bipartite) {
+Network NetworkInitialize(Vertex *heads, Vertex *tails, Edge nedges, 
+			  Vertex nnodes, int directed_flag, Vertex bipartite,
+			  int lasttoggle_flag) {
   Edge i, j;
   Vertex h, t;
   Network nw;
@@ -20,10 +21,13 @@ Network NetworkInitialize(double *heads, double *tails, Edge nedges,
   nw.inedges = (TreeNode *) malloc(sizeof(TreeNode) * MAXEDGES);
   nw.outedges = (TreeNode *) malloc(sizeof(TreeNode) * MAXEDGES);
 
-  nw.duration_info.MCMCtimer=0;
-  i = directed_flag? nnodes*(nnodes-1) : (nnodes*(nnodes-1))/2;
-  nw.duration_info.lasttoggle = (long int *) malloc(sizeof(long int) * i);
-  
+  if(lasttoggle_flag){
+    nw.duration_info.MCMCtimer=0;
+    i = directed_flag? nnodes*(nnodes-1) : (nnodes*(nnodes-1))/2;
+    nw.duration_info.lasttoggle = (int *) calloc(i,sizeof(int));
+  }
+  else nw.duration_info.lasttoggle = NULL;
+
   for (i=0; i<=nnodes; i++) {
     nw.inedges[i].value = nw.outedges[i].value = 0;
     nw.inedges[i].parent = nw.outedges[i].parent = 0;
@@ -56,9 +60,61 @@ Network NetworkInitialize(double *heads, double *tails, Edge nedges,
   }  
   return nw;
 }
+/*Takes vectors of doubles for edges; used only when constructing from inputparams. */
+Network NetworkInitializeD(double *heads, double *tails, Edge nedges, 
+			  Vertex nnodes, int directed_flag, Vertex bipartite,
+			  int lasttoggle_flag) {
+  Edge i, j;
+  Vertex h, t;
+  Network nw;
 
-WtNetwork WtNetworkInitialize(double *heads, double *tails, double *weights,
-			    Edge nedges, Vertex nnodes, int directed_flag, Vertex bipartite) {
+  nw.next_inedge = nw.next_outedge = (Edge)nnodes+1;
+  nw.outdegree = (Vertex *) malloc(sizeof(Vertex) * (nnodes+1));
+  nw.indegree  = (Vertex *) malloc(sizeof(Vertex) * (nnodes+1));
+  nw.inedges = (TreeNode *) malloc(sizeof(TreeNode) * MAXEDGES);
+  nw.outedges = (TreeNode *) malloc(sizeof(TreeNode) * MAXEDGES);
+
+  if(lasttoggle_flag){
+    nw.duration_info.MCMCtimer=0;
+    i = directed_flag? nnodes*(nnodes-1) : (nnodes*(nnodes-1))/2;
+    nw.duration_info.lasttoggle = (int *) calloc(i,sizeof(int));
+  }
+  else nw.duration_info.lasttoggle = NULL;
+
+  for (i=0; i<=nnodes; i++) {
+    nw.inedges[i].value = nw.outedges[i].value = 0;
+    nw.inedges[i].parent = nw.outedges[i].parent = 0;
+    nw.inedges[i].left = nw.outedges[i].left = 0;
+    nw.inedges[i].right = nw.outedges[i].right = 0;
+    nw.indegree[i] = nw.outdegree[i] = 0;
+  }
+  
+  for (; i<MAXEDGES; i++)
+    nw.inedges[i].value = nw.outedges[i].value = 0;
+
+  /*Configure a Network*/
+  nw.nnodes = nnodes;
+  nw.nedges = 0; /* Edges will be added one by one */
+  nw.directed_flag=directed_flag;
+  nw.bipartite=bipartite;
+
+  for(i = nedges; i > 0; i--) {
+    j = i * unif_rand();  /* shuffle to avoid worst-case performance */
+    h = (Vertex)heads[j];
+    t = (Vertex)tails[j];
+    heads[j] = heads[i-1];
+    tails[j] = tails[i-1];
+    heads[i-1] = h;
+    tails[i-1] = t;
+    if (!directed_flag && h > t) 
+      AddEdgeToTrees(t,h,&nw); /* Undir edges always have head < tail */ 
+    else 
+      AddEdgeToTrees(h,t,&nw);
+  }  
+  return nw;
+}
+WtNetwork WtNetworkInitialize(int *heads, int *tails, double *weights,
+			      int nedges, int nnodes, int directed_flag, int bipartite) {
   Edge i, j;
   Vertex h, t;
   double w;
@@ -72,7 +128,7 @@ WtNetwork WtNetworkInitialize(double *heads, double *tails, double *weights,
   
   nw.duration_info.MCMCtimer=0;
   i = directed_flag? nnodes*(nnodes-1) : (nnodes*(nnodes-1))/2;
-  nw.duration_info.lasttoggle = (long int *) malloc(sizeof(long int) * i);
+  nw.duration_info.lasttoggle = (int *) malloc(sizeof(int) * i);
 
   for (i=0; i<=nnodes; i++) {
     nw.inedges[i].value = nw.outedges[i].value = 0;
@@ -119,7 +175,10 @@ void NetworkDestroy(Network *nwp) {
   free (nwp->outdegree);
   free (nwp->inedges);
   free (nwp->outedges);
-  free (nwp->duration_info.lasttoggle);
+  if(nwp->duration_info.lasttoggle){
+    free (nwp->duration_info.lasttoggle);
+    nwp->duration_info.lasttoggle=NULL;
+  }
 }
 
 void WtNetworkDestroy(WtNetwork *nwp) {
@@ -266,19 +325,22 @@ int WtToggleEdge (Vertex head, Vertex tail, double weight, WtNetwork *nwp)
 int ToggleEdgeWithTimestamp (Vertex head, Vertex tail, Network *nwp) 
 {
   Edge k;
+
   if (!(nwp->directed_flag) && head > tail) {
     Vertex temp;
     temp = head; /*  Make sure head<tail always for undirected edges */
     head = tail;
     tail = temp;
   }
-
-  if (nwp->directed_flag) 
-    k = (tail-1)*(nwp->nnodes-1) + head - ((head>tail) ? 1:0) - 1; 
-  else
-    k = (tail-1)*(tail-2)/2 + head - 1;    
-  nwp->duration_info.lasttoggle[k] = nwp->duration_info.MCMCtimer;
-
+  
+  if(nwp->duration_info.lasttoggle){ // Skip timestamps if no duration info.
+    if (nwp->directed_flag) 
+      k = (tail-1)*(nwp->nnodes-1) + head - ((head>tail) ? 1:0) - 1; 
+    else
+      k = (tail-1)*(tail-2)/2 + head - 1;    
+    nwp->duration_info.lasttoggle[k] = nwp->duration_info.MCMCtimer;
+  }
+  
   if (AddEdgeToTrees(head,tail,nwp))
     return 1;
   else 
@@ -294,12 +356,13 @@ int WtToggleEdgeWithTimestamp (Vertex head, Vertex tail, double weight, WtNetwor
     head = tail;
     tail = temp;
   }
-
-  if (nwp->directed_flag) 
-    k = (tail-1)*(nwp->nnodes-1) + head - ((head>tail) ? 1:0) - 1; 
-  else
-    k = (tail-1)*(tail-2)/2 + head - 1;    
-  nwp->duration_info.lasttoggle[k] = nwp->duration_info.MCMCtimer;
+  if(nwp->duration_info.lasttoggle){ // Skip timestamps if no duration info.
+    if (nwp->directed_flag) 
+      k = (tail-1)*(nwp->nnodes-1) + head - ((head>tail) ? 1:0) - 1; 
+    else
+      k = (tail-1)*(tail-2)/2 + head - 1;    
+    nwp->duration_info.lasttoggle[k] = nwp->duration_info.MCMCtimer;
+  }
 
   if (WtAddEdgeToTrees(head,tail,weight,nwp))
     return 1;
@@ -313,7 +376,7 @@ int WtToggleEdgeWithTimestamp (Vertex head, Vertex tail, double weight, WtNetwor
  Return time since given (head,tail) was last toggled using
  ToggleEdgeWithTimestamp function
  *****************/
-long int ElapsedTime (Vertex head, Vertex tail, Network *nwp) 
+int ElapsedTime (Vertex head, Vertex tail, Network *nwp) 
 {
   Edge k;
   if (!(nwp->directed_flag) && head > tail) {
@@ -323,11 +386,34 @@ long int ElapsedTime (Vertex head, Vertex tail, Network *nwp)
     tail = temp;
   }
 
-  if (nwp->directed_flag) 
-    k = (tail-1)*(nwp->nnodes-1) + head - ((head>tail) ? 1:0) - 1; 
-  else
-    k = (tail-1)*(tail-2)/2 + head - 1;    
-  return nwp->duration_info.MCMCtimer - nwp->duration_info.lasttoggle[k];
+  if(nwp->duration_info.lasttoggle){ // Return 0 if no duration info.
+    if (nwp->directed_flag) 
+      k = (tail-1)*(nwp->nnodes-1) + head - ((head>tail) ? 1:0) - 1; 
+    else
+      k = (tail-1)*(tail-2)/2 + head - 1;    
+    return nwp->duration_info.MCMCtimer - nwp->duration_info.lasttoggle[k];
+  }
+  else return 0; 
+  /* Should maybe return an error code of some sort, since 0 elapsed time
+     is valid output. Need to think about it. */
+}
+
+/*****************
+ void TouchEdge
+
+ Named after the UNIX "touch" command.
+ Set an edge's time-stamp to the current MCMC time.
+ *****************/
+
+R_INLINE void TouchEdge(Vertex head, Vertex tail, Network *nwp){
+  unsigned int k;
+  if(nwp->duration_info.lasttoggle){ // Skip timestamps if no duration info.
+    if (nwp->directed_flag) 
+      k = (tail-1)*(nwp->nnodes-1) + head - ((head>tail) ? 1:0) - 1; 
+    else
+      k = (tail-1)*(tail-2)/2 + head - 1;    
+    nwp->duration_info.lasttoggle[k] = nwp->duration_info.MCMCtimer;
+  }
 }
 
 /*****************
@@ -715,4 +801,43 @@ double EdgeWeight (Vertex head, Vertex tail, WtNetwork *nwp)
   else
     k = (tail-1)*(tail-2)/2 + head - 1;    
   return nwp->outedges[k].weight;
+}
+
+/****************
+ unsigned int EdgeTree2EdgeList
+
+ Write the edgelist of a network into head and tail arrays.
+ Returns the number of edges in the network.
+ ****************/
+Edge EdgeTree2EdgeList(Vertex *heads, Vertex *tails, Network *nwp, Edge nmax){
+  Edge nextedge=0;
+  if (nwp->directed_flag) {
+    for (Vertex v=1; v<=nwp->nnodes; v++){
+      for(Vertex e = EdgetreeMinimum(nwp->outedges, v);
+	  nwp->outedges[e].value != 0 && nextedge < nmax;
+	  e = EdgetreeSuccessor(nwp->outedges, e)){
+	heads[nextedge] = v;
+	tails[nextedge] = nwp->outedges[e].value;
+	nextedge++;
+      }
+    }
+  }else{
+    for (Vertex v=1; v<=nwp->nnodes; v++){
+      for(Vertex e = EdgetreeMinimum(nwp->outedges, v);
+	  nwp->outedges[e].value != 0 && nextedge < nmax;
+	  e = EdgetreeSuccessor(nwp->outedges, e)){
+	Vertex k = nwp->outedges[e].value;
+	if(v < k){
+	  heads[nextedge] = k;
+	  tails[nextedge] = v;
+	  nextedge++;
+	}else{
+	  heads[nextedge] = v;
+	  tails[nextedge] = k;
+	  nextedge++;
+	}
+      }
+    }
+  }
+  return nextedge;
 }

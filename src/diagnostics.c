@@ -9,20 +9,44 @@
 #define DMATRIX(a,b) (dmatrix[(a)+(offset)*(b)])
 #define EDGE(a,b) (edge[(a)+(*nedge)*(b)])
 #define CHANGE(a,b) (change[(a)+(*nchange)*(b)])
-#define DISSOLVE(a,b) (dissolve[(a)+(*ndissolve)*(b)])
 #define OMATRIX(a,b) (omatrix[(a)+(maxo)*(b)])
 #define DEGMIXMAT(a,b) (degmixmat[(a)+(*nnodes)*(b)])
 
 
+/* Helper functions defined inline. */
+
+R_INLINE void AddNewDurationRow (int *dmatrix, int row, int h, int t, int time, int offset) {
+  DMATRIX(row, 0) = h;    /* head node number */
+  DMATRIX(row, 1) = t;    /* tail node number */
+  DMATRIX(row, 2) = time; /* timestamp: edge begins */
+  DMATRIX(row, 3) = -1;   /* timestamp:  edge ends or -1 if not yet known */
+  DMATRIX(row, 4) = 0;    /* non-censoring indicator:  0=censored, 1=not */
+}
+
+R_INLINE void AddNewOverlapRow (int *omatrix, int row, int f1, int m1, 
+int f2, int m2, int time1, int time2, int maxo) {
+  OMATRIX(row, 0) = f1; /* Female, edge 1 */
+  OMATRIX(row, 1) = m1; /* Male, edge 1 */
+  OMATRIX(row, 2) = f2; /* Female, edge 2 */
+  OMATRIX(row, 3) = m2; /* Male, edge 2 */
+  OMATRIX(row, 4) = time1;  /* Start time for edge 1 */
+  OMATRIX(row, 5) = time2;  /* Start time for edge 2 */
+  OMATRIX(row, 6) = -1; /* End time (-1 if not yet observed) */
+  OMATRIX(row, 7) = 0;  /* noncensoring indicator: 0=censored, nonzero value
+                           gives edge (1 or 2) that ended first (or 3 if they
+                           ended simultaneously). */
+}
+
 /**********************************************************/      
 
-void DurationMatrix (int *nedge, int *edge, int *ntimestep, int *nfem, 
-      int *ntotal, int *nchange, int *change, int *ndissolve, int *dissolve,
+
+void DurationMatrix (int *nedge, int *edge, int *ntimestep,
+      int *ntotal, int *nchange, int *change,
       int *dmatrix) {
-  int row, j, k, f, m, time, offset = *nedge + *nchange;
+  int row, j, k, h, t, time, offset = *nedge + *nchange;
 
   /* Note:  This code assumes always that edges are listed in
-     (female, male) order, where female < male.  */
+     (head, tail) order, where, for bipartite and underected networks, head < tail.  */
   
   /* First, initialize dmatrix by putting in time-zero network */
   for (row=0; row<*nedge; row++) {
@@ -30,45 +54,36 @@ void DurationMatrix (int *nedge, int *edge, int *ntimestep, int *nfem,
   } /* Note:  Value of i upon leaving loop is important */
 
   /* Next, step through time one click at a time */
-  for (time=j=0; time<*ntimestep; time++) {
+  for (time=1,j=0; time<=*ntimestep; time++) {
     for(; CHANGE(j,0) == time; j++) {
-      f = CHANGE(j,1);
-      m = CHANGE(j,2);
-      for(k=row; !(DMATRIX(k, 0)==f && DMATRIX(k, 1)==m) && k>=0; k--);
+      h = CHANGE(j,1);
+      t = CHANGE(j,2);
+      for(k=row; !(DMATRIX(k, 0)==h && DMATRIX(k, 1)==t) && k>=0; k--);
       if (k>=0 && DMATRIX(k,3) == -1) { 
-        /* We found a match for the (f, m) edge that must be ended */
-        DMATRIX(k, 3) = time+1;
+        /* We found a match for the (h, t) edge that must be ended */
+        DMATRIX(k, 3) = time;
         DMATRIX(k, 4) = 1; /* non-Censored indicator */
         /* int i;
-        for(i = *ndissolve; DISSOLVE(i, 1)!=f && DISSOLVE(i,2)!=m && i>=0; i--);
+        for(i = *ndissolve; DISSOLVE(i, 1)!=h && DISSOLVE(i,2)!=t && i>=0; i--);
         if (i<0) {
           Rprintf("Warning!  Dissolved edge (%d, %d) at time %d not contained in dissolve list\n",
-          f,m,time);
+          h,t,time);
         } */
       } else {
-        AddNewDurationRow(dmatrix, row++, f, m, time+1, offset);
+        AddNewDurationRow(dmatrix, row++, h, t, time, offset);
       }
     }
   }
 }
 
-
-void AddNewDurationRow (int *dmatrix, int row, int f, int m, int time, int offset) {
-  DMATRIX(row, 0) = f;    /* female node number */
-  DMATRIX(row, 1) = m;    /* male node number */
-  DMATRIX(row, 2) = time; /* timestamp: edge begins */
-  DMATRIX(row, 3) = -1;   /* timestamp:  edge ends or -1 if not yet known */
-  DMATRIX(row, 4) = 0;    /* non-censoring indicator:  0=censored, 1=not */
-}
-
 void OverlapDurations (int *nnodes,
       int *nedge, int *edge, int *ntimestep, int *nfem,
-      int *ntotal, int *nchange, int *change, int *ndissolve, int *dissolve,
+      int *ntotal, int *nchange, int *change,
       int *maxoverlaps, int *omatrix) {
   Edge e, i, j, k, row, ne = *nedge;
   int f1, m1, time, f2, m2, match;
   int bipartite = *nfem, maxo=*maxoverlaps;
-  double t1, *heads, *tails, *starttimes;
+  double t1;
   WtTreeNode *ie, *oe;
   WtNetwork nw;
 
@@ -85,26 +100,19 @@ void OverlapDurations (int *nnodes,
       }              
     }
   }
-  /* Set up a statnet (weighted) Network using existing edgeTree code 
-  The weights are the start times of the edges.
-  Must coerce heads and tails to double */
-  heads = (double *) malloc(sizeof(double) * ne);
-  tails = (double *) malloc(sizeof(double) * ne);
-  starttimes = (double *) malloc(sizeof(double) * ne);
+  double *starttimes = (double *) malloc(sizeof(double) * ne);
   for (i=0; i < ne; i++) {
-    heads[i] = (double) EDGE(i, 0);
-    tails[i] = (double) EDGE(i, 1);
     starttimes[i] = 0.0;
   }
-  nw = WtNetworkInitialize(heads, tails, starttimes, ne, *nnodes, 0, bipartite);
-  free (heads);
-  free (tails);
+
+  /* R's serialization of matrixes is column-major, so this works: */
+  nw = WtNetworkInitialize(edge, edge+*nedge, starttimes, ne, *nnodes, 0, bipartite);
   free (starttimes);
   ie=nw.inedges;
   oe=nw.outedges;
 
   /* Step through time one click at a time */
-  for (time=j=0; time<*ntimestep; time++) {
+  for (time=1,j=0; time<=*ntimestep; time++) {
     for(; CHANGE(j,0) == time; j++) {
       t1 = (double) CHANGE(j,0);        
       f1 = CHANGE(j,1);
@@ -121,7 +129,7 @@ void OverlapDurations (int *nnodes,
             /* Any new concurrency begun this way will be immediately ended */
             t1 = nw.outedges[e].weight;
             AddNewOverlapRow(omatrix, row++, f1, m1, f2, m2,
-                             (int) t1, time+1, maxo);
+                             (int) t1, time, maxo);
           }
         }
         /* End all unfinished overlaps involving this edge */
@@ -129,7 +137,7 @@ void OverlapDurations (int *nnodes,
           match = (f1==OMATRIX(i, 0) && m1 == OMATRIX(i,1))? 1 : 0;
           match += (f1==OMATRIX(i, 2) && m1 == OMATRIX(i,3)) ? 2 : 0;
           if (match>0 && OMATRIX(i,6) == -1) { /* overlap has ended */
-            OMATRIX(i,6) = time+1; /* End time */
+            OMATRIX(i,6) = time; /* End time */
             OMATRIX(i,7) = match; /* Which edge has ended? (1 or 2) */
             /* Check to see if the other edge ends at the 
             current time.  If so, then set OMATRIX(i,7)=3 */
@@ -150,14 +158,14 @@ void OverlapDurations (int *nnodes,
         (m2 = oe[e].value) != 0;
         e = WtEdgetreeSuccessor(oe, e)) {
           AddNewOverlapRow(omatrix, row++, f1, m1, f1, m2, 
-                           time+1, (int)oe[e].weight, maxo);
+                           time, (int)oe[e].weight, maxo);
         }
         /* Now step through all existing (in-)edges of m1 */
         for(e = WtEdgetreeMinimum(ie, m1);
         (f2 = ie[e].value) != 0;
         e = WtEdgetreeSuccessor(ie, e)) {
           AddNewOverlapRow(omatrix,row++,f1,m1,f2,m1,
-                           time+1, (int) ie[e].weight, maxo);
+                           time, (int) ie[e].weight, maxo);
         }
       }
       /* Finally, toggle (create or destroy) the edge */
@@ -173,24 +181,9 @@ void OverlapDurations (int *nnodes,
   WtNetworkDestroy(&nw);
 }
 
-void AddNewOverlapRow (int *omatrix, int row, int f1, int m1, 
-int f2, int m2, int time1, int time2, int maxo) {
-  OMATRIX(row, 0) = f1; /* Female, edge 1 */
-  OMATRIX(row, 1) = m1; /* Male, edge 1 */
-  OMATRIX(row, 2) = f2; /* Female, edge 2 */
-  OMATRIX(row, 3) = m2; /* Male, edge 2 */
-  OMATRIX(row, 4) = time1;  /* Start time for edge 1 */
-  OMATRIX(row, 5) = time2;  /* Start time for edge 2 */
-  OMATRIX(row, 6) = -1; /* End time (-1 if not yet observed) */
-  OMATRIX(row, 7) = 0;  /* noncensoring indicator: 0=censored, nonzero value
-                           gives edge (1 or 2) that ended first (or 3 if they
-                           ended simultaneously). */
-}
-
-
 void DegreeMixMatrix (int *nnodes,
       int *nedge, int *edge, int *ntimestep, int *nfem,
-      int *ntotal, int *nchange, int *change, int *ndissolve, int *dissolve,
+      int *ntotal, int *nchange, int *change,
       int *degmixmat) {
   Vertex f, m;
   Edge e;
@@ -201,18 +194,9 @@ void DegreeMixMatrix (int *nnodes,
   double *heads, *tails;
   TreeNode *ie, *oe;
   Network nw;
-  
-  /* Set up a statnet Network using existing edgeTree code 
-     Must coerce heads and tails to double, */
-  heads = (double *) malloc(sizeof(double) * ne);
-  tails = (double *) malloc(sizeof(double) * ne);
-  for (i=0; i < ne; i++) {
-    heads[i] = (double) EDGE(i, 0);
-    tails[i] = (double) EDGE(i, 1);
-  }
-  nw = NetworkInitialize(heads, tails, ne, *nnodes, 0, bipartite);
-  free (heads);
-  free (tails);
+
+  /* R's serialization of matrixes is column-major, so this works: */
+  nw = NetworkInitialize(edge, edge+*nedge, ne, *nnodes, 0, bipartite, 1);
   ie=nw.inedges;
   oe=nw.outedges;
   id=nw.indegree;
@@ -253,7 +237,7 @@ void DegreeMixMatrix (int *nnodes,
     /* Toggle the edges at this timestep */
     if (time < *ntimestep) {
       for(; CHANGE(j,0) == time; j++) {
-        ToggleEdge(CHANGE(j, 1), CHANGE(j, 2), &nw); 
+        ToggleEdgeWithTimestamp(CHANGE(j, 1), CHANGE(j, 2), &nw); 
       }
     }
   }
@@ -272,53 +256,35 @@ void DegreeMixMatrix (int *nnodes,
  find the changestats that result from starting from an empty network
  and then adding all of the edges to make up an observed network of interest.
 *****************/
-void godfather_wrapper (double *heads, double *tails, double *dnedges,
-                   double *dn, int *dflag, double *bipartite, 
-                   int *nterms, char **funnames,
-                   char **sonames, 
-                   double *totalntoggles, double *timestamps, 
-                   double *toggleheads, double *toggletails,
-                   double *inputs, 
-                   double *changestats, 
-                   int *newnetwork, 
-                   int *accumulate, 
-                   int *fVerbose, 
-                   double *maxedges) {
+void godfather_wrapper (int *heads, int *tails, int *dnedges,
+			int *dn, int *dflag, int *bipartite, 
+			int *nterms, char **funnames,
+			char **sonames, 
+			int *totalntoggles, int *timestamps, 
+			int *toggleheads, int *toggletails,
+			double *inputs, 
+			double *changestats, 
+			int *newnetworkheads, 
+			int *newnetworktails, 
+			int *accumulate, 
+			int *fVerbose, 
+			int *maxedges) {
   int directed_flag, maxtoggles, ntoggles;
-  Vertex n_nodes, bip, *theads, *ttails, h, t;
-  Edge e, i, j, n_edges, nmax, samplesize, nextedge, tnt;
+  Vertex n_nodes, bip;
+  Edge i, j, n_edges, nmax, samplesize, nextedge, tnt;
   Network nw;
   Model *m;
-  ModelTerm *mtp;
-  double *dstats, thistime; 
+  int thistime; 
   
   n_nodes = (Vertex)*dn; /* coerce double *dn to type Vertex */
-  n_edges = (Vertex)*dnedges; /* coerce double *dnedges to type Vertex */
-  nmax = (Vertex)*maxedges; /* coerce double *maxedges to type Vertex */
+  n_edges = (Edge)*dnedges; /* coerce double *dnedges to type Vertex */
+  nmax = (Edge)*maxedges; /* coerce double *maxedges to type Vertex */
   bip = (Vertex)*bipartite; /* coerce double *bipartite to type Vertex */    
   tnt = (Edge) *totalntoggles; /* coerce double *totalntoggles to type Edge */ 
   directed_flag = *dflag;
 
-  for (i = 0; i < nmax; i++)
-    newnetwork[i] = 0;
   m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
-  nw = NetworkInitialize(heads, tails, n_edges, n_nodes, directed_flag, bip);
-
-  /* Figure out what is the maximum number of toggles at any time step and
-  allocate an appropriate amount of memory. */
-  thistime = timestamps[0];
-  for(maxtoggles = samplesize = i = j = 1; i < tnt; i++) {
-    if (timestamps[i] == thistime) {
-      ++j; /* j counts how many timestamps match the current value. */
-    } else { /* we have encountered a new timestamp value. */
-      samplesize++;
-      maxtoggles = maxtoggles < j? j : maxtoggles;
-      j = 1;
-      thistime = timestamps[i];
-    }
-  }
-  theads = (Vertex *) malloc(sizeof(Vertex) * maxtoggles);
-  ttails = (Vertex *) malloc(sizeof(Vertex) * maxtoggles);
+  nw = NetworkInitialize(heads, tails, n_edges, n_nodes, directed_flag, bip, 1);
 
   if (*fVerbose) {
     Rprintf("Total m->n_stats is %i; total samplesize is %d\n",
@@ -336,65 +302,45 @@ void godfather_wrapper (double *heads, double *tails, double *dnedges,
   *********************/
   for (j=0; j < m->n_stats; j++)
     changestats[j] = 0.0;
-  mtp = m->termarray;
   
   /* Now start obtaining change statistics */
   thistime = timestamps[0];
-  theads[0] = toggleheads[0];
-  ttails[0] = toggletails[0];
-  for(i = ntoggles = 1; i <= tnt; i++) {
+  for(i = ntoggles = 0; i <= tnt; i++){
     if (i<tnt && timestamps[i] == thistime) {
-      theads[ntoggles] = toggleheads[i];
-      ttails[ntoggles] = toggletails[i];
       ++ntoggles; /* ntoggles counts how many timestamps match the current value. */
     } else { /* we have encountered a new timestamp value. */
-      mtp = m->termarray;
+      
       /* Calculate the change statistics relative to previous step */
       changestats += m->n_stats;
-      dstats = changestats;
-      for (j=0; j < m->n_terms; j++) {  /* loop through each term */
-        mtp->dstats = dstats;
-        (*(mtp->func))(ntoggles, theads, ttails, mtp, &nw);  /* Call d_xxx function */
-        dstats += (mtp++)->nstats;
-      }
+      ChangeStats(ntoggles, toggleheads+i-ntoggles, toggletails+i-ntoggles, &nw, m);
+
       /* Accumulate change statistics */
       for (j=0; j<m->n_stats; j++){
-        changestats[j] += changestats[j-m->n_stats];
+        changestats[j] = changestats[j-m->n_stats] + m->workspace[j];
       }
 
-      /* Make proposed toggles for real this time) */
-      for (j=0; j < ntoggles; j++){
-       if (!(*accumulate) || EdgetreeSearch(theads[j], ttails[j], nw.outedges) == 0) { 
-        ToggleEdge(theads[j], ttails[j], &nw);
-       }
+      /* Make proposed toggles (for real this time) */
+      for (j=ntoggles; j > 0; j--){
+	if (!(*accumulate) || EdgetreeSearch(toggleheads[i-j], toggletails[i-j], nw.outedges) == 0) { 
+	  ToggleEdgeWithTimestamp(toggleheads[i-j], toggletails[i-j], &nw);
+	}
       }
+      
       /* Finished with this timestamp; go on to next one */
       if (i<tnt) {
         ntoggles = 1;
         thistime = timestamps[i];
-        theads[0] = toggleheads[i];
-        ttails[0] = toggletails[i];
       }
     }
   }
   if (nmax>0) {
     /* record new generated network to pass back to R */
-    for (h=nextedge=1; h<=n_nodes; h++) {
-      for(e = EdgetreeMinimum(nw.outedges, h);
-      (t=nw.outedges[e].value) != 0 && nextedge < nmax;
-      e = EdgetreeSuccessor(nw.outedges, e)) {
-        newnetwork[nextedge++] = h;
-        newnetwork[nextedge++] = t;
-      }
-    }
-    if (nextedge>=nmax) { 
+    newnetworkheads[0]=newnetworktails[0]=EdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,&nw,nmax);
+    if (newnetworkheads[0]>=nmax) { 
       Rprintf("Error!  The value of maxedges was not set high enough in ergm.godfather\n");
     }
-    newnetwork[0]=nextedge;
   }
   /* Clean up and return */
-  free(theads);
-  free(ttails);
   ModelDestroy(m);
   NetworkDestroy(&nw);
 }

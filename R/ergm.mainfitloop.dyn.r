@@ -1,7 +1,7 @@
-ergm.mainfitloop.dyn <- function(theta0, nw, model, model.dissolve, 
-                             Clist, Clist.miss,
+ergm.mainfitloop.dyn <- function(theta0, nw, model.form, model.diss, 
+                             Clist,
                              BD, gamma, initialfit, 
-                             MCMCparams, MHproposal, MHproposal.miss,
+                             MCMCparams, MHproposal.form, MHproposal.diss,
                              verbose=FALSE,
                              epsilon=1e-10,
                              estimate=TRUE, ...) {
@@ -17,17 +17,16 @@ ergm.mainfitloop.dyn <- function(theta0, nw, model, model.dissolve,
 
   if(is.null(Clist$meanstats)){Clist$meanstats <- Clist$obs}
   stats <- matrix(0,ncol=Clist$nparam,nrow=MCMCparams$samplesize)
-  stats[1,] <- summary(model$formula, basis=nw) - Clist$meanstats
+  stats[1,] <- summary(model.form$formula, basis=nw) - Clist$meanstats
 
-  MCMCparams=c(MCMCparams, list(gamma=gamma, 
-               stats=stats,
+  MCMCparams=c(MCMCparams, list(stats=stats,
                meanstats=Clist$meanstats, orig.obs=Clist$obs))
 
 #  while(any(mcmc.precision*asyse < mc.se, na.rm=TRUE) && iteration <= MCMCparams$maxit){
   while(iteration <= MCMCparams$maxit){
     thetaprior <- theta0
     theta0 <- v$coef
-    eta0 <- ergm.eta(theta0, model$etamap)
+    eta0 <- ergm.eta(theta0, model.form$etamap)
     cat("Iteration ", iteration,": Sampling ", MCMCparams$samplesize,
         " with parameter: \n", sep="")
     print(theta0)
@@ -35,16 +34,17 @@ ergm.mainfitloop.dyn <- function(theta0, nw, model, model.dissolve,
 #                   gamma=gamma, dyninterval=dyninterval,
 #                   meanstats=Clist$meanstats, orig.obs=Clist$obs,
 #                   maxchanges=10*maxchanges)
-#   MHproposal=list(package=proposalpackage, type=proposaltype)
-    z <- ergm.getMCMCDynsample(nw, model, model.dissolve, MHproposal, 
-                               eta0, MCMCparams, verbose, BD)
+#   MHproposal.form=list(package=proposalpackage, type=proposaltype)
+    z <- ergm.getMCMCDynsample(nw, model.form, model.diss,
+                               MHproposal.form, MHproposal.diss,
+                               eta0, gamma, MCMCparams, verbose, BD)
     statsmatrix <- z$statsmatrix
 #   print( summary(nw) )
-    nw <- network.update(nw, z$newedgelist)
-# MCMCparams$orig.obs <- summary(model$formula, basis=newnetwork)
+    nw <- z$newnetwork
+# MCMCparams$orig.obs <- summary(model.form$formula, basis=newnetwork)
 #   MCMCparams$orig.obs <- statsmatrix[nrow(statsmatrix),]+meanstats
 #   Next line VIP for sequential update
-    MCMCparams$stats[1,] <- summary(model$formula, basis=nw)-MCMCparams$meanstats
+    MCMCparams$stats[1,] <- summary(model.form$formula, basis=nw)-MCMCparams$meanstats
 #   MCMCparams$stats[1,] <- statsmatrix[nrow(statsmatrix),]
 #   print( meanstats )
 #   print( MCMCparams$orig.obs )
@@ -52,7 +52,7 @@ ergm.mainfitloop.dyn <- function(theta0, nw, model, model.dissolve,
 #   print( statsmatrix[nrow(statsmatrix),] )
 #   print(  MCMCparams$stats[1,] )
 #
-#   Clist <- ergm.Cprepare(newnetwork, model)
+#   Clist <- ergm.Cprepare(newnetwork, model.form)
 #   Clist$meanstats=meanstats
 #   aaa <<- nw
 #   print(summary(newnetwork ~ hamming(aaa)))
@@ -109,7 +109,7 @@ ergm.mainfitloop.dyn <- function(theta0, nw, model, model.dissolve,
               gradient=rep(NA,length=length(theta0)), acf=NULL,
               samplesize=MCMCparams$samplesize, failure=TRUE,
               newnetwork = nw,
-              formula = model$formula)
+              formula = model.form$formula)
     return(structure (l, class="ergm"))
   }
   if(verbose){cat("Calling MCMLE Optimization...\n")}
@@ -119,7 +119,7 @@ ergm.mainfitloop.dyn <- function(theta0, nw, model, model.dissolve,
 # statistics that are not needed until output
 #
   if(iteration <= MCMCparams$maxit){
-   v<-ergm.estimate.only(theta0=theta0, model=model,
+   v<-ergm.estimate.only(theta0=theta0, model=model.form,
                     statsmatrix=statsmatrix,
                     statsmatrix.miss=NULL,
                     epsilon=epsilon,
@@ -137,7 +137,7 @@ ergm.mainfitloop.dyn <- function(theta0, nw, model, model.dissolve,
 # This is the last iteration, so compute all the extraneous
 # statistics that are not needed until output
 #
-  v<-ergm.estimate(theta0=theta0, model=model,
+  v<-ergm.estimate(theta0=theta0, model=model.form,
                    statsmatrix=statsmatrix, 
                    statsmatrix.miss=NULL,
                    epsilon=epsilon,
@@ -163,7 +163,7 @@ ergm.mainfitloop.dyn <- function(theta0, nw, model, model.dissolve,
   mle.lik <- mle.lik + v$loglikelihood
 
   v$newnetwork <- nw
-  v$formula <- model$formula
+  v$formula <- model.form$formula
 
 ###### old ergm.statseval ends here    
     
@@ -174,7 +174,7 @@ ergm.mainfitloop.dyn <- function(theta0, nw, model, model.dissolve,
     v$newnetwork <- nw
     v$interval <- MCMCparams$interval
     v$theta.original <- theta.original
-    v$proposalname <- MHproposal$name
+    v$proposalname <- MHproposal.form$name
     v$mplefit <- initialfit
          
     if(!v$failure & !any(is.na(v$coef))){

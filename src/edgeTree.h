@@ -10,8 +10,8 @@
 #define MIN(a,b) ((a)<(b) ? (a) : (b))
 #define MAX(a,b) ((a)<(b) ? (b) : (a))
 
-typedef unsigned long Vertex;
-typedef unsigned long Edge;
+typedef unsigned int Vertex;
+typedef unsigned int Edge;
 
 
 
@@ -45,8 +45,8 @@ typedef struct WtTreeNodestruct {
 edges in a network structure.
 */ 
 typedef struct Dur_Infstruct {
-  long int MCMCtimer;
-  long int *lasttoggle;
+  int MCMCtimer;
+  int *lasttoggle;
 /*  double mean_edge_duration; This is probably not a good idea */
 } Dur_Inf;
 
@@ -108,11 +108,15 @@ typedef struct WtNetworkstruct {
    single, more flexible versions of each function that are capable of 
    handling more than one type of network.  For now, this redundancy 
    approach, while it lacks elegance, has the advantage of speed. */
-Network NetworkInitialize(double *heads, double *tails, Edge nedges,
-			  Vertex nnodes, int directed_flag, Vertex bipartite);
-WtNetwork WtNetworkInitialize(double *heads, double *tails, double *weights,
-			      Edge nedges, Vertex nnodes, int directed_flag,
-			      Vertex bipartite);
+Network NetworkInitialize(Vertex *heads, Vertex *tails, Edge nedges,
+			  Vertex nnodes, int directed_flag, Vertex bipartite,
+			  int lasttoggle_flag);
+Network NetworkInitializeD(double *heads, double *tails, Edge nedges,
+			   Vertex nnodes, int directed_flag, Vertex bipartite,
+			   int lasttoggle_flag);
+WtNetwork WtNetworkInitialize(int *heads, int *tails, double *weights,
+			      int nedges, int nnodes, int directed_flag,
+			      int bipartite);
 
 Edge DesignMissing (Vertex a, Vertex b, Network *mnwp);
 Edge WtDesignMissing (Vertex a, Vertex b, WtNetwork *mnwp);
@@ -135,7 +139,7 @@ int WtToggleEdge (Vertex head, Vertex tail, double weight, WtNetwork *nwp);
 int ToggleEdgeWithTimestamp (Vertex head, Vertex tail, Network *nwp);
 int WtToggleEdgeWithTimestamp (Vertex head, Vertex tail, double weight, WtNetwork *nwp);
 
-long int ElapsedTime (Vertex head, Vertex tail, Network *nwp);
+int ElapsedTime (Vertex head, Vertex tail, Network *nwp);
 
 int AddEdgeToTrees(Vertex head, Vertex tail, Network *nwp);
 int WtAddEdgeToTrees(Vertex head, Vertex tail, double weight, WtNetwork *nwp);
@@ -164,6 +168,9 @@ void WtInOrderTreeWalk(WtTreeNode *edges, Edge x);
 
 void NetworkEdgeList(Network *nwp);
 void WtNetworkEdgeList(WtNetwork *nwp);
+
+R_INLINE void TouchEdge(Vertex head, Vertex tail, Network *nwp);
+Edge EdgeTree2EdgeList(Vertex *heads, Vertex *tails, Network *nwp, Edge nmax);
 
 /* Below are some functions that only exist for weighted (valued) networks */
 

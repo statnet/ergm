@@ -4,13 +4,13 @@
 #include "edgeTree.h"
 #include "basechangeStats.h"
 #include "model.h"
-
-void MPLE_wrapper (double *heads, double *tails, double *dnedges,
-		   double *dn, int *dflag, double *bipartite, int *nterms, 
-       char **funnames, char **sonames, double *inputs,  
+void MPLE_wrapper (int *heads, int *tails, int *dnedges,
+		   int *dn, int *dflag, int *bipartite, int *nterms, 
+		   char **funnames, char **sonames, double *inputs,  
 		   int *responsevec, double *covmat,
-		   int *weightsvector, double * offset, 
-		   double * compressedOffset, int maxNumDyadTypes);
+		   int *weightsvector,
+		   double * offset, double * compressedOffset,
+		   int maxNumDyadTypes);
 void MpleInitialize (Vertex bipartite, int *responsevec, double *covmat,
 	             int *weightsvector,
 		     double * offset, double * compressedOffset,
@@ -20,9 +20,9 @@ int findCovMatRow(double *newRow,double *matrix, int rowLength,
 		  int numRows, int *responsevec, 
 		  double * offset, double * compressedOffset, 
 		  int curDyadNum); 
-void plinfo_wrapper (double *heads, double *tails, double *dnedges,
-		     double *dn, int *dflag, int *nterms, char **funnames,
-		     char **sonames, double *inputs,
+void plinfo_wrapper (int *heads, int *tails, int *dnedges,
+		     int *dn, int *dflag, int *nterms, char **funnames,
+		     char **sonames, double *inputs,  
 		     double *responsevec, double *covmat,
 		     int *start, int *end);
 void plinfoInitialize (double *responsevec, double *covmat,

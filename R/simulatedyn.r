@@ -1,9 +1,9 @@
-simulatedyn <- function(object, nsim=1, seed=NULL, ...,theta0,
-                        burnin=1, interval=1,
-                        sequential=TRUE,
-                        proposaltype="formationTNT",
-                        proposalargs = NULL,
-                        dissolve=NULL, gamma=-4.59512,
+simulatedyn <- function(object, dissolve=NULL, nsteps=1, seed=NULL, theta0,gamma0,
+                        burnin=0, interval=1, dyninterval=1000,
+                        proposaltype.form="formationTNT",
+                        proposalargs.form = NULL,
+                        proposaltype.diss="dissolution",
+                        proposalargs.diss = NULL,
                         dissolve.order="DissThenForm",
                         algorithm.control=list(),
                         drop=FALSE,
@@ -12,7 +12,7 @@ simulatedyn <- function(object, nsim=1, seed=NULL, ...,theta0,
 
   ## Defaults :
   con <- list(boundDeg=NULL, drop=drop,
-              dyninterval=1000,
+              dyninterval=dyninterval,
               maxchanges=1000000,
               final=FALSE,
               summarizestats=FALSE
@@ -35,29 +35,39 @@ simulatedyn <- function(object, nsim=1, seed=NULL, ...,theta0,
   #
   BD <- ergm.boundDeg(con$boundDeg, nnodes=network.size(nw))
 
-  model <- ergm.getmodel(formula, nw, drop=con$drop)
-  model.dissolve <- ergm.getmodel.dissolve(dissolve, nw, dissolve.order)
+  model.form <- ergm.getmodel(formula, nw, drop=con$drop)
+  model.diss <- ergm.getmodel.dissolve(dissolve, nw, dissolve.order=dissolve.order)
 #
   verbose <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
   if(missing(theta0)) {
-    theta0 <- rep(0,length(model$coef.names))
-    warning("No parameter values given, using Bernouli network\n\t")
+    theta0 <- rep(0,length(model.form$coef.names))
+    warning("No parameter values given, using Bernouli network.\n\t")
   }
+
+  if(missing(gamma0)) {
+    gamma0 <- rep(0,length(model.diss$coef.names))
+    warning("No parameter values given, using Bernoulli dissolution.\nThis means that every time step, half the ties get dissolved!\n\t")
+  }
+
+  if(burnin!=0 || interval!=1) warning("Burnin is present or interval isn't 1. Toggle list will not be returned.")
   
   if(is.null(seed)){seed <- sample(10000000, size=1)}
   set.seed(as.integer(seed))
     
-  MHproposal <- getMHproposal(proposaltype, proposalargs, nw, model)
-  MCMCparams <- c(con,list(samplesize=1, interval=interval,
-                         stats=matrix(0,ncol=length(model$coef.names),nrow=1),
-                         burnin=nsim,
-                         parallel=0,
-                         meanstats=theta0-theta0,
-                         gamma=gamma))
+  MHproposal.form <- getMHproposal(proposaltype.form, proposalargs.form, nw, model.form)
+  MHproposal.diss <- getMHproposal(proposaltype.diss, proposalargs.diss, nw, model.diss)
+  MCMCparams <- c(con,list(nsteps=nsteps, interval=interval,
+                           stats.form=matrix(0,ncol=length(model.form$coef.names),nrow=1),
+                           stats.diss=matrix(0,ncol=length(model.diss$coef.names),nrow=1),
+                           burnin=burnin,
+                           parallel=0,
+                           meanstats.form=theta0-theta0,
+                           meanstats.diss=gamma0-gamma0))
   
-  z <- ergm.getMCMCDynsample(nw, model, model.dissolve, MHproposal,
-                             theta0, MCMCparams, verbose, BD)
+  z <- ergm.getMCMCDynsample(nw, model.form, model.diss,
+                             MHproposal.form, MHproposal.diss,
+                             theta0, gamma0, MCMCparams, verbose, BD)
 
   if(con$final){
    nw <- network.update(nw,z$newedgelist)
@@ -65,9 +75,8 @@ simulatedyn <- function(object, nsim=1, seed=NULL, ...,theta0,
   }else{
     out.list <- list(formula = formula, networks = nw,
                      changed=z$changed, 
-                     dissolved=z$dissolved, 
                      maxchanges=z$maxchanges,
-                     stats = NULL, coef=theta0)
+                     stats = NULL, coef.form=theta0,coef.diss=gamma0)
     class(out.list) <- "network.series"
     return(out.list)
   }

@@ -24,26 +24,18 @@ void Prevalence (int *nnodes,
   Edge i, j, ne = *nedge, nwedge;
   int k, time, ndyads, rane;
   int bipartite = *nfem;
-  double *heads, *tails;
   int *sinfected;
   double beta=*betarate;
   TreeNode *ie, *oe;
   Network nw;
   
   sinfected = (int *) malloc(sizeof(int) * (*nnodes));
-  /* Set up a statnet Network using existing edgeTree code 
-     Must coerce heads and tails to double, */
-  heads = (double *) malloc(sizeof(double) * ne);
-  tails = (double *) malloc(sizeof(double) * ne);
-  for (i=0; i < ne; i++) {
-   heads[i] = (double) EDGE(i, 0);
-   tails[i] = (double) EDGE(i, 1);
-  }
 //    Rprintf("initial bipartite %d edges %d heads[i] %f tails[i] %f\n", bipartite,ne,
 //		           heads[i-1],tails[i-1]);
 
   for (k=0; k < *nsim; k++) {
-   nw = NetworkInitialize(heads, tails, ne, *nnodes, 0, bipartite);
+    /* R's serialization of matrixes is column-major, so this works: */
+   nw = NetworkInitialize(edge, edge+*nedge, ne, *nnodes, 0, bipartite, 0);
    ie=nw.inedges;
    oe=nw.outedges;
    id=nw.indegree;
@@ -139,8 +131,6 @@ void Prevalence (int *nnodes,
   }
   /* Free memory used by network object before returning */  
   free (sinfected);
-  free (heads);
-  free (tails);
 //NetworkDestroy (&nw);
 }
 void PrevalenceWithBernoulliOption(int *nnodes,
@@ -153,27 +143,18 @@ void PrevalenceWithBernoulliOption(int *nnodes,
   Edge i, j, ne = *nedge, nwedge;
   int k, time, ndyads, rane;
   int bipartite = *nfem;
-  double *heads, *tails;
-  double *bheads, *btails;
+  unsigned int *bheads, *btails;
   int *sinfected, *bsort;
   double beta=*betarate;
   TreeNode *ie, *oe;
   Network nw, nws, nwt;
   
   sinfected = (int *) malloc(sizeof(int) * (*nnodes));
-  /* Set up a statnet Network using existing edgeTree code 
-     Must coerce heads and tails to double, */
-  heads = (double *) malloc(sizeof(double) * ne);
-  tails = (double *) malloc(sizeof(double) * ne);
-  for (i=0; i < ne; i++) {
-   heads[i] = (double) EDGE(i, 0);
-   tails[i] = (double) EDGE(i, 1);
-  }
 //    Rprintf("initial bipartite %d edges %d heads[i] %f tails[i] %f\n", bipartite,ne,
 //		           heads[i-1],tails[i-1]);
-  nws = NetworkInitialize(heads, tails, ne, *nnodes, 0, bipartite);
+  nws = NetworkInitialize(edge, edge+*nedge, ne, *nnodes, 0, bipartite,0);
   if(*bernoulli){
-    nw = NetworkInitialize(heads, tails, ne, *nnodes, 0, bipartite);
+    nw = NetworkInitialize(edge, edge+*nedge, ne, *nnodes, 0, bipartite,0);
   }else{
     nw = nws;
   }
@@ -231,8 +212,8 @@ void PrevalenceWithBernoulliOption(int *nnodes,
      if(*bernoulli){
       // Sample numdissolved edges without replacement
       ndyads = bipartite*(nws.nnodes-bipartite);
-      bheads = (double *) malloc(sizeof(double) * nws.nedges);
-      btails = (double *) malloc(sizeof(double) * nws.nedges);
+      bheads = (unsigned int *) malloc(sizeof(unsigned int) * nws.nedges);
+      btails = (unsigned int *) malloc(sizeof(unsigned int) * nws.nedges);
       for (i = 0; i < ndyads; i++){bsort[i] = i;}
       for (i = 0; i < nws.nedges; i++) {
 	rane = ndyads * unif_rand();
@@ -251,7 +232,7 @@ void PrevalenceWithBernoulliOption(int *nnodes,
       NetworkDestroy (&nw);
       nwedge=nws.nedges;
       Network nw;
-      nw = NetworkInitialize(bheads, btails, nwedge, *nnodes, 0, bipartite);
+      nw = NetworkInitialize(bheads, btails, nwedge, *nnodes, 0, bipartite,0);
 //    Rprintf("network reinitalized for Bernoulli bipartite %d edges %d\n", bipartite,nw.nedges);
       ie=nw.inedges;
       oe=nw.outedges;
@@ -271,7 +252,7 @@ void PrevalenceWithBernoulliOption(int *nnodes,
 //   Rprintf("k %d edges %d prev %d \n",k,nw.nedges,prev[k]);
    if (k < *nsim) {
     NetworkDestroy (&nw);
-    nw = NetworkInitialize(heads, tails, ne, *nnodes, 0, bipartite);
+    nw = NetworkInitialize(edge, edge+*nedge, ne, *nnodes, 0, bipartite,0);
     ie=nw.inedges;
     oe=nw.outedges;
     id=nw.indegree;
@@ -280,7 +261,5 @@ void PrevalenceWithBernoulliOption(int *nnodes,
   }
   /* Free memory used by network object before returning */  
   free (sinfected);
-  free (heads);
-  free (tails);
   NetworkDestroy (&nw);
 }

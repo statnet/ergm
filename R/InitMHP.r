@@ -56,9 +56,9 @@ InitMHP.Hamming <- function(arguments, nw, model) {
 }
 
 InitMHP.formation <- function(arguments, nw, model) {
-  MHproposal <- list(name = "formation", args=NULL, package="statnet")
+  MHproposal <- list(name = "Formation", args=NULL, package="statnet")
   if(is.bipartite(nw)){
-    MHproposal$name <- "Bipartiteformation"
+    MHproposal$name <- "BipartiteFormation"
   }
   MHproposal
 }
@@ -67,6 +67,14 @@ InitMHP.formationTNT <- function(arguments, nw, model) {
   MHproposal <- list(name = "FormationTNT", args=NULL, package="statnet")
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartiteFormationTNT"
+  }
+  MHproposal
+}
+
+InitMHP.dissolution <- function(arguments, nw, model) {
+  MHproposal <- list(name = "Dissolution", args=NULL, package="statnet")
+  if(is.bipartite(nw)){
+    MHproposal$name <- "BipartiteDissolution"
   }
   MHproposal
 }

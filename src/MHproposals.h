@@ -11,6 +11,20 @@
 #define NEW_EDGE      0x02 
 #define CAN_IGNORE    (OLD_EDGE | NEW_EDGE)  
 
+
+/* Maximum tries (up to an MH-specific constant). */
+#define MAX_TRIES 5000
+
+
+/* MH_* proposal failed codes. */
+/* Heads: */
+#define MH_FAILED 0
+/* Tails: */
+#define MH_UNRECOVERABLE 0
+#define MH_IMPOSSIBLE 1
+#define MH_UNSUCCESSFUL 2
+
+
 void MH_randomtoggle (MHproposal *MHp, DegreeBound *bd, Network *nwp);
 void MH_TNT (MHproposal *MHp, DegreeBound *bd, Network *nwp);
 void MH_ConstantEdges (MHproposal *MHp, DegreeBound *bd, Network *nwp);
@@ -41,5 +55,9 @@ void MH_ConstrainedAllTogglesForOneNode (MHproposal *MHp, DegreeBound *bd, Netwo
 void MH_ConstrainedReallocateWithReplacement (MHproposal *MHp, DegreeBound *bd, Network *nwp);
 void MH_ConstrainedSwitchLabelTwoNodesToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp);
 
+void MH_Formation(MHproposal *MHp, DegreeBound *bd, Network *nwp);
+void MH_FormationTNT(MHproposal *MHp, DegreeBound *bd, Network *nwp);
+//void MH_DissolutionTNT(MHproposal *MHp, DegreeBound *bd, Network *nwp);
+void MH_Dissolution(MHproposal *MHp, DegreeBound *bd, Network *nwp);
 #endif 
 

@@ -7,7 +7,7 @@ ergm.getmodel <- function (formula, nw, ...)
     stop (paste("Invalid formula of class ",dc))
   trms<-terms(formula)
   if (trms[[1]]!="~")
-    stop ("Formula must be of form 'network ~ model'.")
+    stop ("Formula must be of the form 'network ~ model'.")
   
   v <- attr(trms, "variables")
   if (length(v) < 3) 
@@ -29,9 +29,9 @@ ergm.getmodel <- function (formula, nw, ...)
       v[[i]][[1]] <- as.name(paste("InitErgm.", v[[i]][[1]],
                                    sep = ""))
     } else { # This term has no arguments
+      model$offset <- c(model$offset,FALSE)
       v[[i]] <- call(paste("InitErgm.", v[[i]], sep = ""))
       args=list()
-      model$offset <- c(model$offset,FALSE)
     }
     v[[i]][[2]] <- nw
     names(v[[i]])[2] <-  ""
@@ -57,12 +57,3 @@ ergm.getmodel <- function (formula, nw, ...)
   model$etamap <- ergm.etamap(model)
   model
 }
-
-
-
-
-
-
-
-
-

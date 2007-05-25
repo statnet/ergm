@@ -1,4 +1,10 @@
 #include "MHproposals_bipartite.h" 
+#include "MHproposals.h" 
+
+// Shorthand.
+#define Mhead (MHp->togglehead)
+#define Mtail (MHp->toggletail)
+
 
 /*********************
  void MH_bipartite
@@ -19,7 +25,6 @@ void MH_Bipartiterandomtoggle (MHproposal *MHp, DegreeBound *bd, Network *nwp)  
 
 void MH_BipartiteConstantEdges (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {  
   Vertex head, tail;
-  int valid;
   
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=2;    
@@ -31,17 +36,15 @@ void MH_BipartiteConstantEdges (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
   /* First, select edge at random */
   FindithEdge(MHp->togglehead, MHp->toggletail, 1+(nwp->nedges)*unif_rand(), nwp);
   /* Second, select dyad at random until it has no edge */
-  valid=0;
-   while (valid==0) {
+
+  do{
 //    head = 1 + unif_rand() * nwp->nnodes;
 //    tail = 1 + unif_rand() * nwp->nnodes;
     head = 1 + unif_rand() * nwp->bipartite;
     tail = 1 + nwp->bipartite + 
-           unif_rand() * (nwp->nnodes - nwp->bipartite);
-    if (EdgetreeSearch(head, tail, nwp->outedges) == 0) {
-      valid=1;
-    }
-   }
+      unif_rand() * (nwp->nnodes - nwp->bipartite);
+  }while(EdgetreeSearch(head, tail, nwp->outedges) != 0);
+      
   MHp->togglehead[1]=head;
   MHp->toggletail[1]=tail;
 }
@@ -57,7 +60,6 @@ void MH_BipartiteTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
 {  
   Vertex head, tail;
   Edge rane, nedges=nwp->nedges;
-  int fvalid, trytoggle;
   static double comp=0.5;
   static double odds;
   static Edge ndyads;
@@ -73,26 +75,23 @@ void MH_BipartiteTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
     return;
   }
   
-  fvalid = 0;
-  trytoggle = 0;
-  while(fvalid==0 && trytoggle < 5000){
-
-  if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
-    rane = 1 + unif_rand() * nedges;
-    FindithEdge(MHp->togglehead, MHp->toggletail, rane, nwp);
-    MHp->ratio = nedges  / (odds*ndyads + nedges);
-  }else{ /* Select a dyad at random */
-    head = 1 + unif_rand() * nactors;
-    tail = 1 + nactors + unif_rand() * (nnodes - nactors);
-    MHp->togglehead[0] = head;
-    MHp->toggletail[0] = tail;
-    if(EdgetreeSearch(MHp->togglehead[0],MHp->toggletail[0],nwp->outedges)!=0){
-      MHp->ratio = nedges / (odds*ndyads + nedges);
-    }else{
-      MHp->ratio = 1.0 + (odds*ndyads)/(nedges + 1);
+  for(int trytoggle = 0; trytoggle < MAX_TRIES; trytoggle++){
+    if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
+      rane = 1 + unif_rand() * nedges;
+      FindithEdge(MHp->togglehead, MHp->toggletail, rane, nwp);
+      MHp->ratio = nedges  / (odds*ndyads + nedges);
+    }else{ /* Select a dyad at random */
+      head = 1 + unif_rand() * nactors;
+      tail = 1 + nactors + unif_rand() * (nnodes - nactors);
+      MHp->togglehead[0] = head;
+      MHp->toggletail[0] = tail;
+      if(EdgetreeSearch(MHp->togglehead[0],MHp->toggletail[0],nwp->outedges)!=0){
+	MHp->ratio = nedges / (odds*ndyads + nedges);
+      }else{
+	MHp->ratio = 1.0 + (odds*ndyads)/(nedges + 1);
+      }
     }
-  }
-  fvalid=CheckTogglesValid(MHp, bd, nwp);
+    if(CheckTogglesValid(MHp, bd, nwp)) break;
   }
 }
 
@@ -107,7 +106,6 @@ void MH_BipartiteHammingConstantEdges (MHproposal *MHp, DegreeBound *bd, Network
 {  
   Vertex head, tail;
   Edge rane, nedges=nwp[0].nedges, nddyads=nwp[1].nedges;
-  int valid;
   int nde, ndn, nce, ncn;
   static double comp=0.5;
   static double odds;
@@ -126,26 +124,21 @@ void MH_BipartiteHammingConstantEdges (MHproposal *MHp, DegreeBound *bd, Network
   
   if (unif_rand() < comp && nddyads > 0) { /* Select a discordant pair of tie/nontie at random */
     /* First, select discord edge at random */
-    valid=0;
-    while (valid==0) {
+    do{
       rane = 1 + unif_rand() * nddyads;
       FindithEdge(MHp->togglehead, MHp->toggletail, rane, &nwp[1]);
-      if (EdgetreeSearch(MHp->togglehead[0], MHp->toggletail[0], nwp[0].outedges) != 0) {
-        valid=1;
-      }
-    }
+    }while(EdgetreeSearch(MHp->togglehead[0], MHp->toggletail[0], nwp[0].outedges) == 0);
+
     head=MHp->togglehead[0];
     tail=MHp->toggletail[0];
     /* Next, select discord non-edge at random */
-    valid=0;
-    while (valid==0) {
+
+    do{
       rane = 1 + unif_rand() * nddyads;
       FindithEdge(MHp->togglehead, MHp->toggletail, rane, &nwp[1]);
-      if (EdgetreeSearch(MHp->togglehead[0], MHp->toggletail[0], nwp[0].outedges) == 0) {
-        valid=1;
-      }
-    }
-    MHp->togglehead[1]=MHp->togglehead[0];
+    }while(EdgetreeSearch(MHp->togglehead[0], MHp->toggletail[0], nwp[0].outedges) != 0);
+
+      MHp->togglehead[1]=MHp->togglehead[0];
     MHp->toggletail[1]=MHp->toggletail[0];
     MHp->togglehead[0]=head;
     MHp->toggletail[0]=tail;
@@ -161,23 +154,18 @@ void MH_BipartiteHammingConstantEdges (MHproposal *MHp, DegreeBound *bd, Network
 //	    nde, nce, ndn,ncn,nddyads, MHp->ratio);
   }else{
     /* First, select concordant edge at random */
-    valid=0;
-    while (valid==0) {
+    do{
       rane = 1 + unif_rand() * nedges;
       FindithEdge(MHp->togglehead, MHp->toggletail, rane, &nwp[0]);
-      if (EdgetreeSearch(MHp->togglehead[0], MHp->toggletail[0], nwp[1].outedges) == 0) {
-        valid=1;
-      }
-    }
+    }while(EdgetreeSearch(MHp->togglehead[0], MHp->toggletail[0], nwp[1].outedges) == 0);
+       
     /* Next, select concord non-edge at random */
-    head = 1 + unif_rand() * nactors;
-    tail = 1 + nactors + unif_rand() * (nnodes - nactors);
-    while((EdgetreeSearch(head,tail,nwp[0].outedges)!=0) ||
-          (EdgetreeSearch(head,tail,nwp[1].outedges)!=0)
-	 ){
-     head = 1 + unif_rand() * nactors;
-     tail = 1 + nactors + unif_rand() * (nnodes - nactors);
-    }
+    do{
+      head = 1 + unif_rand() * nactors;
+      tail = 1 + nactors + unif_rand() * (nnodes - nactors);
+    }while((EdgetreeSearch(head,tail,nwp[0].outedges)!=0) ||
+	     (EdgetreeSearch(head,tail,nwp[1].outedges)!=0));
+
     MHp->togglehead[1]=head;
     MHp->toggletail[1]=tail;
     nde = nddyads / 2;
@@ -237,12 +225,11 @@ void MH_BipartiteHamming (MHproposal *MHp, DegreeBound *bd, Network *nwp)
 //	    nd, nc, nddyads, MHp->ratio);
   }else{
     /* select a concordant dyad at random */
-    head = 1 + unif_rand() * nactors;
-    tail = 1 + nactors + unif_rand() * (nnodes - nactors);
-    while(EdgetreeSearch(head,tail,nwp[1].outedges)!=0){
-     head = 1 + unif_rand() * nactors;
-     tail = 1 + nactors + unif_rand() * (nnodes - nactors);
-    }
+    do{
+      head = 1 + unif_rand() * nactors;
+      tail = 1 + nactors + unif_rand() * (nnodes - nactors);
+    }while(EdgetreeSearch(head,tail,nwp[1].outedges)!=0);
+
     MHp->togglehead[0]=head;
     MHp->toggletail[0]=tail;
     nd = nddyads;
@@ -283,7 +270,7 @@ void MH_BipartiteCondDegreeDist (MHproposal *MHp, DegreeBound *bd, Network *nwp)
   /*                   P(choosing H,A,T after T and A swap roles), */
   /*                   which makes the ratio equal to 1.           */
   
-  for(valid = count = 0; valid == 0 && count<500; count++) {
+  for(valid = count = 0; valid == 0 && count<MAX_TRIES/10; count++) {
     Hin = Hout = 0;  
     /* choose a node at random; ensure it has some edges */
     while (Hin + Hout == 0) {
@@ -379,27 +366,43 @@ void MH_BipartiteCondDegreeDist (MHproposal *MHp, DegreeBound *bd, Network *nwp)
 ***********************/
 void MH_BipartiteFormation (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
 {  
-  Vertex head, tail;
   static Edge nnodes;
   static Edge nactors;
+  unsigned int trytoggle;
+  static Edge ndyads;
   
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
     nnodes = nwp[0].nnodes;
     nactors = nwp[0].bipartite;
+    ndyads = (nnodes-nactors)*nactors;
+    return;
+  }
+
+  if(nwp[0].nedges==ndyads && nwp[1].nedges==0){ /* Attempting formation on a complete graph. */
+    MHp->togglehead[0]=MH_FAILED;
+    MHp->toggletail[0]=MH_IMPOSSIBLE;
     return;
   }
   
   /* select a dyad not in the reference network at random */
-  head = 1 + unif_rand() * nactors;
-  tail = 1 + nactors + unif_rand() * (nnodes - nactors);
-  while(EdgetreeSearch(head,tail,nwp[0].outedges)!=0 &&
-        EdgetreeSearch(head,tail,nwp[1].outedges)==0){
-   head = 1 + unif_rand() * nactors;
-   tail = 1 + nactors + unif_rand() * (nnodes - nactors);
+  for(trytoggle=0;trytoggle<MAX_TRIES;trytoggle++){
+    /* Keep trying dyads until either neither or both nwp[0] and nwp[1] have
+	the selected dyad and the toggle satisfies degree constraints.
+	(That is, that dyad originally had no edge (but	may have been toggled.) */
+    Mhead[0] = 1 + unif_rand() * nactors;
+    Mtail[0] = 1 + nactors + unif_rand() * (nnodes - nactors);
+    if(XNOR(EdgetreeSearch(Mhead[0],Mtail[0],nwp[0].outedges),
+	    EdgetreeSearch(Mhead[0],Mtail[0],nwp[1].outedges)) &&
+       CheckTogglesValid(MHp, bd, nwp)) break;
   }
-  MHp->togglehead[0]=head;
-  MHp->toggletail[0]=tail;
+  
+  // If no valid proposal found, signal a failed proposal.
+  if(trytoggle>=MAX_TRIES) {
+    Mhead[0]=MH_FAILED;
+    Mtail[0]=MH_UNSUCCESSFUL;
+  }
+
   MHp->ratio = 1.0;
 //   Rprintf("reference nddyads %d MHp->ratio %f\n",
 //	    nwp[1].nedges, MHp->ratio);
@@ -416,15 +419,15 @@ void MH_BipartiteFormation (MHproposal *MHp, DegreeBound *bd, Network *nwp)
 void MH_BipartiteFormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
 {  
   Vertex head, tail;
-  Edge rane, nedges, ndedges, nddyads;
+  Edge rane, nedges, ndedges;
   double comp, odds;
-  int fvalid, trytoggle;
 //  static double comp=0.99;
 //  static double odds;
 //  static Edge ndedges;
   static Edge ndyads;
   static Edge nnodes;
   static Edge nactors;
+  unsigned int trytoggle;
   
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
@@ -437,9 +440,18 @@ void MH_BipartiteFormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
   
   nedges  = nwp[0].nedges;
   ndedges = nwp[1].nedges;
-  if (ndedges > 0) {
+
+  if(nwp[0].nedges==ndyads && nwp[1].nedges==0){ /* Attempting formation on a complete graph. */
+    Mhead[0]=MH_FAILED;
+    Mtail[0]=MH_IMPOSSIBLE;
+    return;
+  }
+
+  if (ndedges > 0){
     comp = (ndedges*5.0)/(1.0*nedges);
-    if(comp > 0.5){comp = 0.5;}
+    if(comp > 0.5){
+      comp = 0.5;
+    }
     odds = comp/(1.0-comp);
   }else{
     odds = 0.0;
@@ -449,40 +461,45 @@ void MH_BipartiteFormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
 //		       nwp[0].nedges,
 //		       nwp[1].nedges, ndedges, nedges);
 
-  fvalid = 0;
-  trytoggle = 0;
-  while(fvalid==0 && trytoggle < 5000){
+  for(trytoggle=0; trytoggle < MAX_TRIES; trytoggle++){
 
-  if (ndedges > 0 && unif_rand() < comp) { /* Select a new tie at random */
-    rane = 1 + unif_rand() * ndedges;
-    FindithEdge(MHp->togglehead, MHp->toggletail, rane, &nwp[1]);
-    /* select a dyad not in the reference network at random */
+    if (ndedges > 0 && unif_rand() < comp) { /* Select a new tie at random */
+      rane = 1 + unif_rand() * ndedges;
+      FindithEdge(MHp->togglehead, MHp->toggletail, rane, &nwp[1]);
+      /* select a dyad not in the reference network at random */
 //   Rprintf("nontie h %d t %d nwp[0].nedges %d nwp[1].nedges %d\n",  MHp->togglehead[0],  
 //		       MHp->toggletail[0], 
 //		       nwp[0].nedges,
 //		       nwp[1].nedges);
     MHp->ratio = nedges  / (odds*ndyads + nedges);
-  }else{ /* select a dyad not an edge in the reference network at random */
-    head = 1 + unif_rand() * nactors;
-    tail = 1 + nactors + unif_rand() * (nnodes - nactors);
-    while(EdgetreeSearch(head,tail,nwp[0].outedges)!=0 &&
-          EdgetreeSearch(head,tail,nwp[1].outedges)==0){
-     head = 1 + unif_rand() * nactors;
-     tail = 1 + nactors + unif_rand() * (nnodes - nactors);
-    }
-    MHp->togglehead[0] = head;
-    MHp->toggletail[0] = tail;
-    if(EdgetreeSearch(MHp->togglehead[0],MHp->toggletail[0],nwp[1].outedges)!=0){
-      MHp->ratio = nedges / (odds*ndyads + nedges);
-    }else{
-      MHp->ratio = 1.0 + (odds*ndyads)/(nedges + 1);
-    }
+    }else{ /* select a dyad not an edge in the reference network at random */
+      do{ /* Keep trying dyads as long as exactly one of nwp[0] and nwp[1] has
+	     the selected dyad. (That is, that dyad originally had an edge (which
+	     may have been toggled.) */
+	head = 1 + unif_rand() * nactors;
+	tail = 1 + nactors + unif_rand() * (nnodes - nactors);
+      }while(XOR(EdgetreeSearch(head,tail,nwp[0].outedges),
+		 EdgetreeSearch(head,tail,nwp[1].outedges)));
+      
+      MHp->togglehead[0] = head;
+      MHp->toggletail[0] = tail;
+      if(EdgetreeSearch(MHp->togglehead[0],MHp->toggletail[0],nwp[1].outedges)!=0){
+	MHp->ratio = nedges / (odds*ndyads + nedges);
+      }else{
+	MHp->ratio = 1.0 + (odds*ndyads)/(nedges + 1);
+      }
 //   Rprintf("nontie h %d t %d nwp[0].nedges %d nwp[1].nedges %d\n",  MHp->togglehead[0],  
 //		       MHp->toggletail[0], 
 //		       nwp[0].nedges,
 //		       nwp[1].nedges);
+    }
+    if(CheckTogglesValid(MHp, bd, nwp)) break;
   }
-  fvalid=CheckTogglesValid(MHp, bd, nwp);
+
+  // If no valid proposal found, signal a failed proposal.
+  if(trytoggle>=MAX_TRIES) {
+    Mhead[0]=MH_FAILED;
+    Mtail[0]=MH_UNSUCCESSFUL;
   }
 }
 
@@ -497,4 +514,16 @@ void MH_BipartiterandomtoggleNonObserved (MHproposal *MHp, DegreeBound *bd, Netw
   rane = 1 + unif_rand() * nwp[1].nedges;
   FindithEdge(MHp->togglehead, MHp->toggletail, rane, &nwp[1]);
 // Rprintf("bip %d nedges %d h %d t %d\n", nwp[1].bipartite, nwp[1].nedges, MHp->togglehead[0],  MHp->toggletail[0]);
+}
+
+
+/********************
+   void MH_BipartiteDissolution
+   Propose ONLY edges in the reference graph
+   See MH_Dissolution --- the code turns out to be identical.
+***********************/
+void MH_BipartiteDissolution (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
+{  
+  MH_Dissolution(MHp,bd,nwp);
+  return;
 }

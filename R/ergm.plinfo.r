@@ -3,8 +3,8 @@ ergm.plinfo<-function(Clist, Clist.miss, m, fix=NULL, theta.offset=NULL)
   numobs <- Clist$ndyads
 
   z <- .C("plinfo_wrapper",
-          as.double(Clist$heads),    as.double(Clist$tails),
-          as.double(Clist$nedges),   as.double(Clist$n), 
+          as.integer(Clist$heads),    as.integer(Clist$tails),
+          as.integer(Clist$nedges),   as.integer(Clist$n), 
           as.integer(Clist$dir),     as.integer(Clist$nparam), 
           as.character(Clist$fnamestring),as.character(Clist$snamestring),
 	  as.double(Clist$inputs),        

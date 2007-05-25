@@ -1,5 +1,8 @@
 #include "MHproposals.h"
 
+// Shorthand.
+#define Mhead (MHp->togglehead)
+#define Mtail (MHp->toggletail)
 
 /*********************
  void MH_randomtoggle
@@ -18,7 +21,7 @@ void MH_randomtoggle (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {
 
   fvalid = 0;
   trytoggle = 0;
-  while(fvalid==0 && trytoggle < 5000){
+  while(fvalid==0 && trytoggle < MAX_TRIES){
 
    head = 1 + unif_rand() * nwp->nnodes;
    while ((tail = 1 + unif_rand() * nwp->nnodes) == head);
@@ -60,8 +63,9 @@ void MH_TNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
     FindithEdge(MHp->togglehead, MHp->toggletail, rane, nwp);
     MHp->ratio = nedges  / (odds*ndyads + nedges);
   }else{ /* Select a dyad at random */
-    head = 1 + unif_rand() * nwp->nnodes;
-    while ((tail = 1 + unif_rand() * nwp->nnodes) == head);
+    do{
+      head = 1 + unif_rand() * nwp->nnodes;
+    }while ((tail = 1 + unif_rand() * nwp->nnodes) == head);
     if (head > tail && !nwp->directed_flag)  {
       MHp->togglehead[0] = tail;
       MHp->toggletail[0] = head;
@@ -90,7 +94,6 @@ void MH_TNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
 *********************/
 void MH_ConstantEdges (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {  
   Vertex head, tail, temp;
-  int valid;
   
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=2;    
@@ -102,17 +105,14 @@ void MH_ConstantEdges (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {
   /* First, select edge at random */
   FindithEdge(MHp->togglehead, MHp->toggletail, 1+nwp->nedges*unif_rand(), nwp);
   /* Second, select dyad at random until it has no edge */
-  valid=0;
-  while (!valid) {
+  do{
     head = 1 + unif_rand() * nwp->nnodes;
     tail = 1 + unif_rand() * nwp->nnodes;
     if (!nwp->directed_flag && head > tail) {
       temp=head;  head=tail;  tail=temp; /* swap head for tail */
     }
-    if (EdgetreeSearch(head, tail, nwp->outedges) == 0 && head != tail) {
-      valid=1;
-    }
-  }
+  }while (EdgetreeSearch(head, tail, nwp->outedges) != 0 || head == tail);
+
   MHp->togglehead[1]=head;
   MHp->toggletail[1]=tail;
 }
@@ -501,7 +501,7 @@ void MH_CondDegHexadToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {
 
   fvalid = 0;
   trynode = 0;
-  while(fvalid==0 && trynode < 5000){
+  while(fvalid==0 && trynode < MAX_TRIES){
 
   trynode++;
   /* select a node at random */
@@ -1985,6 +1985,52 @@ void MH_CondDegSwitchToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {
 }
 
 /********************
+   void MH_Formation
+   Propose ONLY edges not in the reference graph
+***********************/
+void MH_Formation (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
+{  
+  static Vertex nnodes;
+  unsigned int trytoggle;
+  static Edge ndyads;
+
+  if(MHp->ntoggles == 0) { /* Initialize */
+    MHp->ntoggles=1;
+    nnodes = nwp[0].nnodes;
+    ndyads = (nnodes-1)*nnodes / (nwp[0].directed_flag? 1:2);
+    return;
+  }
+  
+  if(nwp[0].nedges==ndyads && nwp[1].nedges==0){ /* Attempting formation on a complete graph. */
+    MHp->togglehead[0]=MH_FAILED;
+    MHp->toggletail[0]=MH_IMPOSSIBLE;
+    return;
+  }
+
+  for(trytoggle=0;trytoggle<MAX_TRIES;trytoggle++){
+    /* Keep trying dyads until neither or both of nwp[0] and nwp[1] has
+       the selected dyad. (That is, that dyad originally did not have an edge
+       (which may have been toggled.) */
+    Mtail[0] =  (nwp->directed_flag ? 1 : 2) + unif_rand() * nnodes;
+    if(nwp->directed_flag){
+      Mhead[0] = 1 + unif_rand() * (nnodes-1);
+      if(Mhead[0]>=Mtail[0]) Mhead[0]++;
+    }else{
+      Mhead[0] = 1 + unif_rand() * (Mtail[0]-1);
+    }
+      
+    if(XNOR(EdgetreeSearch(Mhead[0],Mtail[0],nwp[0].outedges),
+	    EdgetreeSearch(Mhead[0],Mtail[0],nwp[1].outedges) &&
+	    CheckTogglesValid(MHp, bd, nwp))) break;
+  }
+
+  // If no valid proposal found, signal a failed proposal.
+  if(trytoggle>=MAX_TRIES) {
+    Mhead[0]=MH_FAILED;
+    Mtail[0]=MH_UNSUCCESSFUL;
+  }
+}
+/********************
    void MH_FormationTNT
    Tie/no tie:  Gives at least 50% chance of
    proposing a toggle of an existing (non-reference) edge, as opposed
@@ -1995,8 +2041,9 @@ void MH_CondDegSwitchToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {
 void MH_FormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
 {  
   Vertex head, tail;
-  Edge rane, nedges, ndedges, nddyads;
+  Edge rane, nedges, ndedges;
   double comp, odds;
+  unsigned int trytoggle=0;
   static Edge ndyads;
   static Edge nnodes;
   
@@ -2009,8 +2056,15 @@ void MH_FormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
   
   nedges  = nwp[0].nedges;
   ndedges = nwp[1].nedges;
+
+  if(nedges==ndyads && ndedges==0){  /* Attempting formation on a complete graph. */
+    MHp->togglehead[0]=MH_FAILED;
+    MHp->toggletail[0]=MH_IMPOSSIBLE;
+    return;
+  }
+  
   if (ndedges > 0) {
-    comp = (ndedges*5.0)/(1.0*nedges);
+    comp = ((double)ndedges*5.0)/((double)nedges);
     if(comp > 0.5){comp = 0.5;}
     odds = comp/(1.0-comp);
   }else{
@@ -2023,7 +2077,7 @@ void MH_FormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
 
   if (ndedges > 0 && unif_rand() < comp) { /* Select a new tie at random */
     rane = 1 + unif_rand() * ndedges;
-    FindithEdge(MHp->togglehead, MHp->toggletail, rane, &nwp[1]);
+    FindithEdge(&head, &tail, rane, &nwp[1]);
     /* select a dyad not in the reference network at random */
 //   Rprintf("nontie h %d t %d nwp[0].nedges %d nwp[1].nedges %d\n",  MHp->togglehead[0],  
 //		       MHp->toggletail[0], 
@@ -2031,16 +2085,25 @@ void MH_FormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
 //		       nwp[1].nedges);
     MHp->ratio = nedges  / (odds*ndyads + nedges);
   }else{ /* select a dyad not an edge in the reference network at random */
-    head = 1 + unif_rand() * nnodes;
-    while ((tail = 1 + unif_rand() * nnodes) == head);
-    while(EdgetreeSearch(head,tail,nwp[0].outedges)!=0 &&
-          EdgetreeSearch(head,tail,nwp[1].outedges)==0){
-     head = 1 + unif_rand() * nnodes;
-     while ((tail = 1 + unif_rand() * nnodes) == head);
+    trytoggle=0;
+    do{ /* Keep trying dyads as long as exactly one of nwp[0] and nwp[1] has
+	   the selected dyad. (That is, that dyad originally had an edge (which
+	   may have been toggled.) */
+      head = 1 + unif_rand() * nnodes;
+      while((tail = 1 + unif_rand() * nnodes) == head);
+      trytoggle++;
+    }while(((head > tail && !nwp->directed_flag) || 
+	    XOR(EdgetreeSearch(head,tail,nwp[0].outedges),
+		EdgetreeSearch(head,tail,nwp[1].outedges))) && trytoggle<MAX_TRIES);
+    
+    /* Proposal failed after trying */
+    if(trytoggle>=MAX_TRIES){
+      MHp->togglehead[0]=MH_FAILED;
+      MHp->toggletail[0]=MH_UNSUCCESSFUL; 
+      return;
     }
-    MHp->togglehead[0] = head;
-    MHp->toggletail[0] = tail;
-    if(EdgetreeSearch(MHp->togglehead[0],MHp->toggletail[0],nwp[1].outedges)!=0){
+
+    if(EdgetreeSearch(head,tail,nwp[1].outedges)!=0){
       MHp->ratio = nedges / (odds*ndyads + nedges);
     }else{
       MHp->ratio = 1.0 + (odds*ndyads)/(nedges + 1);
@@ -2050,8 +2113,52 @@ void MH_FormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
 //		       nwp[0].nedges,
 //		       nwp[1].nedges);
   }
+  MHp->togglehead[0]=head;
+  MHp->toggletail[0]=tail;
 }
 
+/********************
+   void MH_Dissolution
+   Propose ONLY edges in the reference graph
+   Any candidate edge must be either in nwp[0] or in nwp[1]. This makes
+   proposing easy.
+***********************/
+void MH_Dissolution (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
+{  
+  Edge rane, nedges=nwp[0].nedges, ndedges=nwp[1].nedges;
+  unsigned int trytoggle;
+  
+  if(MHp->ntoggles == 0) { /* Initialize */
+    MHp->ntoggles=1;
+    return;
+  }
+  
+  if(nedges==0 && ndedges==0){ /* Attempting dissolution on an empty network. */
+    Mhead[0]=MH_FAILED;
+    Mtail[0]=MH_IMPOSSIBLE;
+    return;
+  }
+  
+  /* Make sure the edge is not in nwp[0] and nwp[1], which shouldn't
+     happen anyway, but better safe than sorry. */
+  for(trytoggle=0; trytoggle<MAX_TRIES; trytoggle++){
+    rane = 1 + unif_rand() * (nedges+ndedges);
+    if(rane<=nedges){
+      FindithEdge(Mhead, Mtail, rane, nwp);
+      if(EdgetreeSearch(Mhead[0],Mtail[0],nwp[1].outedges)==0 && CheckTogglesValid(MHp, bd, nwp)) break;
+    }else{
+      FindithEdge(Mhead, Mtail, rane-nedges, nwp+1);
+      if(EdgetreeSearch(Mhead[0],Mtail[0],nwp[0].outedges)==0 && CheckTogglesValid(MHp, bd, nwp)) break;
+    }
+  }
 
+  /* Proposal failed after trying. */
+  if(trytoggle>=MAX_TRIES){ 
+    Mhead[0]=MH_FAILED;
+    Mtail[0]=MH_UNSUCCESSFUL;
+    return;
+  }
 
-
+    
+  MHp->ratio = 1.0;
+}

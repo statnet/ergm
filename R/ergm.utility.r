@@ -373,3 +373,12 @@ is.latent.cluster<-function(x){
   }
   out
 }
+
+newnw.extract<-function(oldnw,z){
+  nedges<-z$newnwheads[1]
+  newedgelist <-
+    if(nedges>0) cbind(z$newnwheads[2:(nedges+1)],z$newnwtails[2:(nedges+1)])
+    else matrix(0, ncol=2, nrow=0)
+  
+  network.update(oldnw,newedgelist)
+}

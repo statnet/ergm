@@ -19,7 +19,7 @@ ergm.godfather <- function(formula, timestamps=NULL, toggles=NULL, sim=NULL,
     }
   }else{
     timestamps <- sim$changed[,1]
-    toggles <- sim$changed[,3:2]
+    toggles <- sim$changed[,2:3]
   }
   ## Defaults :
   con <- list(maxedges=100000,
@@ -41,20 +41,21 @@ ergm.godfather <- function(formula, timestamps=NULL, toggles=NULL, sim=NULL,
   maxedges <- con$return_new_network * max(con$maxedges, 5*Clist$nedges)
   obsstat <- summary(formula)  
   z <- .C("godfather_wrapper",
-          as.double(Clist$heads), as.double(Clist$tails), 
-          as.double(Clist$nedges), as.double(Clist$n),
-          as.integer(Clist$dir), as.double(Clist$bipartite),
+          as.integer(Clist$heads), as.integer(Clist$tails), 
+          as.integer(Clist$nedges), as.integer(Clist$n),
+          as.integer(Clist$dir), as.integer(Clist$bipartite),
           as.integer(Clist$nterms), 
           as.character(Clist$fnamestring),
           as.character(Clist$snamestring), 
-          as.double(length(timestamps)), as.double(timestamps),
-          as.double(toggles[,1]), as.double(toggles[,2]),
+          as.integer(length(timestamps)), as.integer(timestamps),
+          as.integer(toggles[,1]), as.integer(toggles[,2]),
           as.double(Clist$inputs),
           s = double((1+length(unique(timestamps))) * Clist$nparam),
-          newnw = integer(maxedges+2), 
+          newnwheads = integer(maxedges+1),
+          newnwtails = integer(maxedges+1),
           as.integer(accumulate),
           as.integer(verbose),
-          as.double(maxedges), 
+          as.integer(maxedges), 
           PACKAGE="statnet")  
   stats <- matrix(z$s + obsstat, ncol=Clist$nparam, byrow=T)
   colnames(stats) <- m$coef.names
@@ -74,8 +75,7 @@ ergm.godfather <- function(formula, timestamps=NULL, toggles=NULL, sim=NULL,
   out <- list(stats = stats, timestamps = c(NA, uts))
   if (con$return_new_network) { 
     cat("Creating new network...\n")
-    newnw <- matrix(z$newnw[z$newnw>0][-1], ncol=2, byrow=T)
-    out$newnetwork <- network.update(nw,newnw)
+    out$newnetwork <- newnw.extract(nw,z)
   }
   out
 }

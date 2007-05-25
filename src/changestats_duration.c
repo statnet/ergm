@@ -104,3 +104,32 @@ double mean_duration(Network *nwp)
   return e==0 ? 0.0 : sum/(double)e;
 }
 
+
+/*****************
+ void d_edges_ageinterval
+
+ This is essentially the edges statistic, which only counts dyads with "age"
+ (time steps spent in the current state) in the interval [inputparams0,inputparams1).
+*****************/
+void d_edges_ageinterval(int ntoggles, Vertex *heads, Vertex *tails, 
+			 ModelTerm *mtp, Network *nwp){
+  int edgeflag, i;
+  Vertex h, t;
+  int from=mtp->inputparams[0], to=mtp->inputparams[1];
+  
+  *(mtp->dstats) = 0.0;
+  for (i=0; i < ntoggles; i++){
+    int age = ElapsedTime(h=heads[i],t=tails[i],nwp);
+    // Only count if the age is in [from,to). ( to=0 ==> to=Inf )
+    if(from<=age && (to==0 || age<to)){
+      edgeflag = (EdgetreeSearch(h, t, nwp->outedges) != 0);
+      *(mtp->dstats) += edgeflag ? - 1 : 1;
+    }
+
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
+  i--; 
+  while (--i >= 0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}

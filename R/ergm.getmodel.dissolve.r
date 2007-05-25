@@ -15,21 +15,10 @@ ergm.getmodel.dissolve <- function (formula, nw,
     stop ("Formula must be of the form 'network ~ model'.")
   
   v <- attr(trms, "variables")
-  if (length(v) == 1){
-    formula <- update(formula, nw ~ .)
-    trms<-terms(formula)
-    v <- attr(trms, "variables")
-  }
-# if (length(v) == 2){
-    formula <- update(formula, ~ . + dissolve)
-    trms<-terms(formula)
-    v <- attr(trms, "variables")
-# }
-  if(initial){
-    nw <- ergm.getnetwork(formula)
-  }
-  model <- structure(list(formula=formula, node.attrib = NULL,
-                      coef.names = NULL, offset=NULL,
+  if (length(v) < 3) 
+    stop(paste("No model specified for network ", trms[[2]]))
+  model <- structure(list(formula=formula, node.attrib = NULL, coef.names = NULL,
+                      offset = NULL,
                       terms = NULL, networkstats.0 = NULL, etamap = NULL),
                  class = "model.ergm")
   for (i in 3:length(v)) {

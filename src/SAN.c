@@ -1,4 +1,6 @@
+#include "MCMC.h"
 #include "SAN.h"
+
 
 /*****************
  Note on undirected networks:  For j<k, edge {j,k} should be stored
@@ -11,20 +13,20 @@
 
  Wrapper for a call from R.
 *****************/
-void SAN_wrapper (double *heads, double *tails, double *dnedges,
-                   double *dn, int *dflag, double *bipartite, 
+void SAN_wrapper (int *heads, int *tails, int *dnedges,
+                   int *dn, int *dflag, int *bipartite, 
                    int *nterms, char **funnames,
                    char **sonames, 
                    char **MHproposaltype, char **MHproposalpackage,
-                   double *inputs, double *theta0, double *samplesize, 
-                   double *sample, double *burnin, double *interval,  
-                   int *newnetwork, 
+                   double *inputs, double *theta0, int *samplesize, 
+                   double *sample, int *burnin, int *interval,  
+                   int *newnetworkheads, 
+                   int *newnetworktails, 
                    int *fVerbose, 
                    int *attribs, int *maxout, int *maxin, int *minout,
                    int *minin, int *condAllDegExact, int *attriblength, 
-                   double *maxedges,
-                   double *mheads, double *mtails, double *mdnedges,
-                   int *mdflag)  {
+                   int *maxedges,
+                   int *mheads, int *mtails, int *mdnedges)  {
   int i, nextedge, directed_flag, hammingterm, formationterm;
   Vertex v, k, n_nodes, nmax, bip, hhead, htail;
   Edge n_edges, n_medges, nddyads, kedge;
@@ -34,24 +36,22 @@ void SAN_wrapper (double *heads, double *tails, double *dnedges,
   ModelTerm *thisterm;
   
   n_nodes = (Vertex)*dn; /* coerce double *dn to type Vertex */
-  n_edges = (Vertex)*dnedges; /* coerce double *dnedges to type Vertex */
-  n_medges = (Vertex)*mdnedges; /* coerce double *mdnedges to type Vertex */
-  nmax = (Vertex)*maxedges; /* coerce double *maxedges to type Vertex */
+  n_edges = (Edge)*dnedges; 
+  n_medges = (Edge)*mdnedges;
+  nmax = (Edge)*maxedges; 
   bip = (Vertex)*bipartite; /* coerce double *bipartite to type Vertex */
   
   GetRNGstate();  /* R function enabling uniform RNG */
   
   directed_flag = *dflag;
 
-  for (i = 0; i < nmax; i++)
-    newnetwork[i] = 0;
 
   m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
 
   /* Form the missing network */
-  nw[0]=NetworkInitialize(heads, tails, n_edges, n_nodes, directed_flag, bip);
+  nw[0]=NetworkInitialize(heads, tails, n_edges, n_nodes, directed_flag, bip, 0);
   if (n_medges>0) {
-   nw[1]=NetworkInitialize(mheads, mtails, n_medges, n_nodes, directed_flag, bip);
+   nw[1]=NetworkInitialize(mheads, mtails, n_medges, n_nodes, directed_flag, bip, 0);
   }
 
   hammingterm=ModelTermHamming (*funnames, *nterms);
@@ -60,16 +60,11 @@ void SAN_wrapper (double *heads, double *tails, double *dnedges,
    Network nwhamming;
    thisterm = m->termarray + hammingterm - 1;
    nddyads = (Edge)(thisterm->inputparams[0]);
-   double *dhead, *dtail;
-   dhead = (double *) malloc(sizeof(double) * nddyads);
-   dtail = (double *) malloc(sizeof(double) * nddyads);
-   for (i=0; i<nddyads; i++){
-    dhead[i] = (Vertex)(thisterm->inputparams[1+        i]);
-    dtail[i] = (Vertex)(thisterm->inputparams[1+nddyads+i]);
-   }
-   nwhamming=NetworkInitialize(dhead, dtail, nddyads, n_nodes, directed_flag, bip);
+   nwhamming=NetworkInitializeD(thisterm->inputparams+1,
+			       thisterm->inputparams+1+nddyads, nddyads, n_nodes, directed_flag, bip, 0);
    nddyads=0;
-   nw[1]=NetworkInitialize(dhead, dtail, nddyads, n_nodes, directed_flag, bip);
+   nw[1]=NetworkInitializeD(thisterm->inputparams+1,
+			   thisterm->inputparams+1+nddyads, nddyads, n_nodes, directed_flag, bip, 0);
 //	     Rprintf("made hw[1]\n");
    for (kedge=1; kedge <= nwhamming.nedges; kedge++) {
      FindithEdge(&hhead, &htail, kedge, &nwhamming);
@@ -85,8 +80,6 @@ void SAN_wrapper (double *heads, double *tails, double *dnedges,
        ToggleEdge(hhead, htail, &nw[1]);
      }
    }
-   free(dhead);
-   free(dtail);
 //   Rprintf("Initial number of discordant %d Number of g0 ties %d Number of ties in g %d\n",nw[1].nedges, nwhamming.nedges,nw[0].nedges);
    NetworkDestroy(&nwhamming);
   }
@@ -97,16 +90,11 @@ void SAN_wrapper (double *heads, double *tails, double *dnedges,
    Network nwformation;
    thisterm = m->termarray + formationterm - 1;
    nddyads = (Edge)(thisterm->inputparams[0]);
-   double *dhead, *dtail;
-   dhead = (double *) malloc(sizeof(double) * nddyads);
-   dtail = (double *) malloc(sizeof(double) * nddyads);
-   for (i=0; i<nddyads; i++){
-    dhead[i] = (Vertex)(thisterm->inputparams[1+        i]);
-    dtail[i] = (Vertex)(thisterm->inputparams[1+nddyads+i]);
-   }
-   nwformation=NetworkInitialize(dhead, dtail, nddyads, n_nodes, directed_flag, bip);
+   nwformation=NetworkInitializeD(thisterm->inputparams+1,
+				thisterm->inputparams+1+nddyads, nddyads, n_nodes, directed_flag, bip, 0);
    nddyads=0;
-   nw[1]=NetworkInitialize(dhead, dtail, nddyads, n_nodes, directed_flag, bip);
+   nw[1]=NetworkInitializeD(thisterm->inputparams+1,
+			   thisterm->inputparams+1+nddyads, nddyads, n_nodes, directed_flag, bip, 0);
 //	     Rprintf("made hw[1]\n");
    for (kedge=1; kedge <= nwformation.nedges; kedge++) {
      FindithEdge(&hhead, &htail, kedge, &nwformation);
@@ -122,8 +110,6 @@ void SAN_wrapper (double *heads, double *tails, double *dnedges,
        ToggleEdge(hhead, htail, &nw[1]);
      }
    }
-   free(dhead);
-   free(dtail);
 //   Rprintf("Initial number of discordant %d Number of g0 ties %d Number of ties in g %d\n",nw[1].nedges, nwformation.nedges,nw[0].nedges);
    hammingterm=1;
    NetworkDestroy(&nwformation);
@@ -139,45 +125,7 @@ void SAN_wrapper (double *heads, double *tails, double *dnedges,
 	      (int)*fVerbose, nw, m, bd);
   
   /* record new generated network to pass back to R */
-  nextedge=1;
-  if (nw[0].directed_flag) {
-   for (v=1; v<=n_nodes; v++) 
-    {
-      Vertex e;
-      for(e = EdgetreeMinimum(nw[0].outedges, v);
-	  nw[0].outedges[e].value != 0 && nextedge < nmax;
-	  e = EdgetreeSuccessor(nw[0].outedges, e))
-	{
-          newnetwork[nextedge] = v;
-	  nextedge++;
-          newnetwork[nextedge] = nw[0].outedges[e].value;
-	  nextedge++;
-	}
-   }
-  }else{
-   for (v=1; v<=n_nodes; v++) 
-    {
-      Vertex e;
-      for(e = EdgetreeMinimum(nw[0].outedges, v);
-	  nw[0].outedges[e].value != 0 && nextedge < nmax;
-	  e = EdgetreeSuccessor(nw[0].outedges, e))
-	{
-          k = nw[0].outedges[e].value;
-	  if(v < k){
-      newnetwork[nextedge] = k;
-      nextedge++;
-      newnetwork[nextedge] = v;
-      nextedge++;
-	  }else{
-      newnetwork[nextedge] = v;
-      nextedge++;
-      newnetwork[nextedge] = k;
-      nextedge++;
-	  }
-	}
-     }
-  }
-  newnetwork[0]=nextedge;
+  newnetworkheads[0]=newnetworktails[0]=EdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,nw,nmax);
 
   ModelDestroy(m);
   DegreeBoundDestroy(bd);
@@ -205,8 +153,6 @@ void SANSample (char *MHproposaltype, char *MHproposalpackage,
   Network *nwp, Model *m, DegreeBound *bd) {
   long int staken, tottaken, ptottaken;
   int i, j, components, diam;
-  ModelTerm *mtp;
-  char *fn, *sn;
   MHproposal MH;
   
   components = diam = 0;
@@ -216,49 +162,7 @@ void SANSample (char *MHproposaltype, char *MHproposalpackage,
     Rprintf("Total m->n_stats is %i; total samplesize is %d\n",
              m->n_stats,samplesize);
 
-  for (i = 0; MHproposaltype[i] != ' ' && MHproposaltype[i] != 0; i++);
-  MHproposaltype[i] = 0;
-  /* Extract the required string information from the relevant sources */
-  if((fn=(char *)malloc(sizeof(char)*(i+4)))==NULL){
-    Rprintf("Error in SANSample: Can't allocate %d bytes for fn.\n",
-	    sizeof(char)*(i+4));
-    exit(0);
-  }
-  fn[0]='M';
-  fn[1]='H';
-  fn[2]='_';
-  for(j=0;j<i;j++)
-    fn[j+3]=MHproposaltype[j];
-  fn[i+3]='\0';
-  /* fn is now the string 'MH_[name]', where [name] is MHproposaltype */
-  for (i = 0; MHproposalpackage[i] != ' ' && MHproposalpackage[i] != 0; i++);
-  MHproposalpackage[i] = 0;
-  if((sn=(char *)malloc(sizeof(char)*(i+1)))==NULL){
-    Rprintf("Error in ModelInitialize: Can't allocate %d bytes for sn.\n",
-	    sizeof(char)*(j+1));
-    exit(0);
-  }
-  sn=strncpy(sn,MHproposalpackage,i);
-  sn[i]='\0';
-  if (fVerbose) 
-    Rprintf("MH proposal function is %s from %s package\n",fn,sn);
-
-  /* Search for the MH proposal function pointer */
-  MH.func=(void (*)(MHproposal*, DegreeBound*, Network*)) R_FindSymbol(fn,sn,NULL);
-  if(MH.func==NULL){
-    Rprintf("Error in SANSample: could not find function %s in "
-	    "namespace for package %s.\n",fn,sn);
-    exit(0);
-  }      
-
-  /*Clean up by freeing sn and fn*/
-  free((void *)fn);
-  free((void *)sn);
-
-  MH.ntoggles=0;
-  (*(MH.func))(&MH, bd, nwp); /* Call MH proposal function to initialize */
-  MH.togglehead = (Vertex *)malloc(MH.ntoggles * sizeof(Vertex));
-  MH.toggletail = (Vertex *)malloc(MH.ntoggles * sizeof(Vertex));
+  MH_init(&MH, MHproposaltype, MHproposalpackage, fVerbose, nwp, bd);
   
   /*********************
   networkstatistics are modified in groups of m->n_stats, and they
@@ -269,7 +173,6 @@ void SANSample (char *MHproposaltype, char *MHproposalpackage,
   *********************/
 //  for (j=0; j < m->n_stats; j++)
 //    networkstatistics[j] = 0.0;
-  mtp = m->termarray;
 
   /*********************
    Burn in step.  While we're at it, use burnin statistics to 
@@ -325,8 +228,7 @@ void SANSample (char *MHproposaltype, char *MHproposalpackage,
 	      staken*100.0/(1.0*burnin), burnin); 
     }
   }
-  free(MH.togglehead);
-  free(MH.toggletail);
+  MH_free(&MH);
 }
 
 /*********************
@@ -341,16 +243,15 @@ void SANSample (char *MHproposaltype, char *MHproposalpackage,
  essentially generates a sample of size one
 *********************/
 void SANMetropolisHastings (MHproposal *MHp,
-	 double *theta, double *networkstatistics,
-	 long int nsteps, long int *staken,
-	 int hammingterm, int fVerbose,
-	 Network *nwp,
-       Model *m, DegreeBound *bd) {
+			    double *theta, double *networkstatistics,
+			    long int nsteps, long int *staken,
+			    int hammingterm, int fVerbose,
+			    Network *nwp,
+			    Model *m, DegreeBound *bd) {
   long int step, taken;
-  int i, curstat=0;
-  double *dstats, ip;
+  int i;
+  double ip;
 //double div=0.0;
-  ModelTerm *mtp;
   
 //  div=0.0;
 //    Rprintf("\n");
@@ -366,18 +267,8 @@ void SANMetropolisHastings (MHproposal *MHp,
     MHp->ratio = 1.0;
     (*(MHp->func))(MHp, bd, nwp); /* Call MH function to propose toggles */
     //      Rprintf("Back from proposal; step=%d\n",step);
-    mtp = m->termarray;
-    dstats = m->workspace;
-    curstat = 0;
-    
-    for (i=0; i < m->n_terms; i++) {
-      /* Calculate change statistics */
-      mtp->dstats = dstats;
-      (*(mtp->func))(MHp->ntoggles, MHp->togglehead, MHp->toggletail, 
-                                mtp, nwp);  /* Call d_??? function */
-	    curstat += (mtp->nstats);
-      dstats += (mtp++)->nstats;
-    }
+
+    ChangeStats(MHp->ntoggles, MHp->togglehead, MHp->toggletail, nwp, m);
       
     /* Calculate inner product */
     for (i=0, ip=0.0; i<m->n_stats; i++){

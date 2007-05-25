@@ -19,9 +19,9 @@
    unique sets of change statistics.
  *****************/
 
-void MPLE_wrapper (double *heads, double *tails, double *dnedges,
-		   double *dn, int *dflag, double *bipartite, int *nterms, 
-       char **funnames, char **sonames, double *inputs,  
+void MPLE_wrapper (int *heads, int *tails, int *dnedges,
+		   int *dn, int *dflag, int *bipartite, int *nterms, 
+		   char **funnames, char **sonames, double *inputs,  
 		   int *responsevec, double *covmat,
 		   int *weightsvector,
 		   double * offset, double * compressedOffset,
@@ -35,7 +35,7 @@ void MPLE_wrapper (double *heads, double *tails, double *dnedges,
   Model *m;
 
   GetRNGstate(); /* Necessary for R random number generator */
-  nw=NetworkInitialize(heads, tails, n_edges, n_nodes, directed_flag, bip);
+  nw=NetworkInitialize(heads, tails, n_edges, n_nodes, directed_flag, bip, 0);
   m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
   
   MpleInitialize(bip, responsevec, covmat, weightsvector,
@@ -93,7 +93,7 @@ void MpleInitialize (Vertex bipartite, int *responsevec, double *covmat,
 		     int maxNumDyadTypes, Network *nwp, Model *m) {
 
   int l, d, outflag = 0, inflag = 0, thisRowNumber, thisOffsetNumber,
-    foundRowPosition, totalStats, *currentResponse, *currentOffset;
+    foundRowPosition, totalStats, *currentResponse;
   double *thisPreviousRow, *thisCurrentRow, *covMatPosition;
   int curDyadNum;
   Vertex i, j , rowmax;
@@ -101,7 +101,6 @@ void MpleInitialize (Vertex bipartite, int *responsevec, double *covmat,
   
   covMatPosition = covmat;
   currentResponse = responsevec;
-  currentOffset = offset;
   thisPreviousRow  = thisCurrentRow =  
     (double*) R_alloc(m->n_stats,sizeof(double));
   curDyadNum=0;
@@ -168,8 +167,8 @@ void MpleInitialize (Vertex bipartite, int *responsevec, double *covmat,
   }
 }
 
-void plinfo_wrapper (double *heads, double *tails, double *dnedges,
-		     double *dn, int *dflag, int *nterms, char **funnames,
+void plinfo_wrapper (int *heads, int *tails, int *dnedges,
+		     int *dn, int *dflag, int *nterms, char **funnames,
 		     char **sonames, double *inputs,  
 		     double *responsevec, double *covmat,
 		     int *start, int *end)
@@ -182,7 +181,7 @@ void plinfo_wrapper (double *heads, double *tails, double *dnedges,
   Vertex bip=0;  /* Assumes bipartite is irrelevant; is this true? */
 
   GetRNGstate(); /* Necessary for use of R random number generator */
-  nw=NetworkInitialize(heads, tails, n_edges, n_nodes, directed_flag, bip);
+  nw=NetworkInitialize(heads, tails, n_edges, n_nodes, directed_flag, bip, 1);
   m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
   
   plinfoInitialize(responsevec, covmat,(Vertex*)start,(Vertex*)end, &nw, m);

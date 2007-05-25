@@ -41,7 +41,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist, Clist.miss,
       if(verbose){cat("Back from unconstrained MCMC...\n")}
     }
     if(sequential & MCMCparams$Clist.miss$nedges == 0){
-      nw <- network.update(nw, z$newedgelist)
+      nw <- z$newnetwork
       MCMCparams$stats[1,] <- summary(model$formula, basis=nw)-MCMCparams$meanstats
     }
 #

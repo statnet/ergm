@@ -96,13 +96,13 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
 #
 #   Check for truncation of the returned edge list
 #
-    z <- list(newnw=maxedges+1)
-    while(z$newnw[1] > maxedges){
+    z <- list(newnwheads=maxedges+1)
+    while(z$newnwheads[1] > maxedges){
      maxedges <- 10*maxedges
      z <- .C("MCMC_wrapper",
-             as.double(Clist$heads), as.double(Clist$tails), 
-             as.double(Clist$nedges), as.double(Clist$n),
-             as.integer(Clist$dir), as.double(Clist$bipartite),
+             as.integer(Clist$heads), as.integer(Clist$tails), 
+             as.integer(Clist$nedges), as.integer(Clist$n),
+             as.integer(Clist$dir), as.integer(Clist$bipartite),
              as.integer(Clist$nterms), 
              as.character(Clist$fnamestring),
              as.character(Clist$snamestring), 
@@ -111,30 +111,26 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
 #  Add:  as.double(length(MHproposal$args)), as.double(MHproposal$args), 
              as.double(Clist$inputs),
              as.double(theta0),
-             as.double(MCMCsamplesize),
+             as.integer(MCMCsamplesize),
              s = double(MCMCsamplesize * Clist$nparam),
-             as.double(use.burnin), as.double(interval), 
-             newnw = integer(maxedges), 
+             as.integer(use.burnin), as.integer(interval), 
+             newnwheads = integer(maxedges),
+             newnwtails = integer(maxedges), 
              as.integer(verb),
              as.integer(BD$attribs), 
              as.integer(BD$maxout), as.integer(BD$maxin), as.integer(BD$minout), 
              as.integer(BD$minin), as.integer(BD$condAllDegExact),
              as.integer(length(BD$attribs)), 
-             as.double(maxedges), 
-             as.double(0.0), as.double(0.0), 
-             as.double(0.0),
+             as.integer(maxedges), 
+             as.integer(0.0), as.integer(0.0), 
+             as.integer(0.0),
              PACKAGE="statnet")
     }
 #
 #   Next update the network to be the final (possibly conditionally)
 #   simulated one
 #
-    if(z$newnw[1]>1){
-     newnetwork <- matrix(z$newnw[2:z$newnw[1]], ncol=2, byrow=TRUE)
-    }else{
-     newnetwork <- matrix(0, ncol=2, nrow=0)
-    }
-    out.list[[i]] <- network.update(nw, newnetwork)
+    out.list[[i]] <- newnw.extract(nw,z)
     out.mat <- rbind(out.mat,z$s[(Clist$nparam+1):(2*Clist$nparam)])
     if(sequential){
       nw <-  out.list[[i]]
@@ -225,13 +221,13 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
 #
 #   Check for truncation of the returned edge list
 #
-    z <- list(newnw=maxedges+1)
-    while(z$newnw[1] > maxedges){
+    z <- list(newnwheads=maxedges+1)
+    while(z$newnwheads[1] > maxedges){
      maxedges <- 10*maxedges
      z <- .C("MCMC_wrapper",
-            as.double(Clist$heads), as.double(Clist$tails), 
-            as.double(Clist$nedges), as.double(Clist$n),
-            as.integer(Clist$dir), as.double(Clist$bipartite),
+            as.integer(Clist$heads), as.integer(Clist$tails), 
+            as.integer(Clist$nedges), as.integer(Clist$n),
+            as.integer(Clist$dir), as.integer(Clist$bipartite),
             as.integer(Clist$nterms), 
             as.character(Clist$fnamestring),
             as.character(Clist$snamestring), 
@@ -240,19 +236,20 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
 #  Add:  as.double(length(MHproposal$args)), as.double(MHproposal$args), 
             as.double(Clist$inputs),
             as.double(theta0),
-            as.double(MCMCsamplesize),
+            as.integer(MCMCsamplesize),
             s = double(MCMCsamplesize * Clist$nparam),
-            as.double(use.burnin), as.double(interval), 
-            newnw = integer(maxedges), 
+            as.integer(use.burnin), as.integer(interval), 
+             newnwheads = integer(maxedges),
+             newnwtails = integer(maxedges), 
             as.integer(verb),
             as.integer(BD$attribs), 
             as.integer(BD$maxout), as.integer(BD$maxin),
             as.integer(BD$minout), 
             as.integer(BD$minin), as.integer(BD$condAllDegExact),
             as.integer(length(BD$attribs)), 
-            as.double(maxedges), 
-            as.double(0.0), as.double(0.0), 
-            as.double(0.0),
+            as.integer(maxedges), 
+            as.integer(0.0), as.integer(0.0), 
+            as.integer(0.0),
             PACKAGE="statnet")
     }
     #
@@ -273,12 +270,8 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
     #
     #   Next update the network to be the final (possibly conditionally)
     #   simulated one
-    if(z$newnw[1]>1){
-     newnetwork <- matrix(z$newnw[2:z$newnw[1]], ncol=2, byrow=TRUE)
-    }else{
-     newnetwork <- matrix(0, ncol=2, nrow=0)
-    }
-    out.list[[i]] <- network.update(nw, newnetwork)
+
+    out.list[[i]] <- newnw.extract(nw, z)
     out.mat <- rbind(out.mat,z$s[(Clist$nparam+1):(2*Clist$nparam)])
     if(sequential){
       nw <-  out.list[[i]]

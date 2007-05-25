@@ -5,6 +5,10 @@
 #include "basechangeStats.h"
 #include "model.h"
 
+/* Macros to test for logical inequality (XOR) and logical equality (XNOR). */
+#define XOR(a,b) (((a)==0) != ((b)==0))
+#define XNOR(a,b) (((a)==0) == ((b)==0))
+
 /*  Notes on MHproposal type:
    An MH proposal function must take two arguments:  a pointer to an 
    MHproposal structure, which holds all the information regarding the
@@ -28,20 +32,20 @@ typedef struct MHproposalstruct {
        'multiplicity' everywhere */
 } MHproposal;
 
-void MCMC_wrapper (double *heads, double *tails, double *dnedges,
-		   double *dn, int *dflag, double *bipartite, 
-		   int *nterms, char **funnames,
-		   char **sonames, 
-		   char **MHproposaltype, char **MHproposalpackage,
-		   double *inputs, 
-		   double *theta0, double *samplesize, double *sample,
-		   double *burnin, double *interval,
-		   int *newnetwork, 
-		   int *fVerbose, 
-		   int *attribs, int *maxout, int *maxin, int *minout,
-		   int *minin, int *condAllDegExact, int *attriblength, 
-		   double *maxedges,
-		   double *mheads, double *mtails, double *mdnedges);
+void MCMC_wrapper (int *heads, int *tails, int *dnedges,
+                   int *dn, int *dflag, int *bipartite, 
+                   int *nterms, char **funnames,
+                   char **sonames, 
+                   char **MHproposaltype, char **MHproposalpackage,
+                   double *inputs, double *theta0, int *samplesize, 
+                   double *sample, int *burnin, int *interval,  
+                   int *newnetworkheads, 
+                   int *newnetworktails, 
+                   int *fVerbose, 
+                   int *attribs, int *maxout, int *maxin, int *minout,
+                   int *minin, int *condAllDegExact, int *attriblength, 
+                   int *maxedges,
+                   int *mheads, int *mtails, int *mdnedges);
 void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
 		 double *theta, double *networkstatistics, 
 		 long int samplesize, long int burnin, 
@@ -54,26 +58,26 @@ void MetropolisHastings (MHproposal *MHp,
 			 Network *nwp, Model *m, DegreeBound *bd);
 int CheckTogglesValid(MHproposal *MHp, DegreeBound *bd, Network *nwp);
 int CheckConstrainedTogglesValid(MHproposal *MHp, DegreeBound *bd, Network *nwp);
-void MCMC_global (double *heads, double *tails, double *dnedges,
-		  double *dn, int *dflag, double *bipartite,
+void MCMC_global (int *heads, int *tails, int *dnedges,
+		  int *dn, int *dflag,  int *bipartite,
 		  int *nterms, char **funnames,
-		  char **sonames, double *inputs,  double *stats); 
-
-void MCMCPhase12 (double *heads, double *tails, double *dnedges,
-                   double *dn, int *dflag, double *bipartite, 
-                   int *nterms, char **funnames,
-                   char **sonames, 
-                   char **MHproposaltype, char **MHproposalpackage,
-                   double *inputs, 
-		   double *theta0, double *samplesize,
-		   double *gain, double *meanstats, int *phase1, int *nsub,
-                   double *sample, double *burnin, double *interval,  
-                   int *newnetwork, 
-                   int *fVerbose, 
-                   int *attribs, int *maxout, int *maxin, int *minout,
-                   int *minin, int *condAllDegExact, int *attriblength, 
-                   double *maxedges,
-                   double *mheads, double *mtails, double *mdnedges);
+		  char **sonames, double *inputs,  double *stats);
+void MCMCPhase12 (int *heads, int *tails, int *dnedges,
+		  int *dn, int *dflag, int *bipartite, 
+		  int *nterms, char **funnames,
+		  char **sonames, 
+		  char **MHproposaltype, char **MHproposalpackage,
+		  double *inputs, 
+		  double *theta0, int *samplesize,
+		  double *gain, double *meanstats, int *phase1, int *nsub,
+		  double *sample, int *burnin, int *interval,  
+		  int *newnetworkheads, 
+		  int *newnetworktails, 
+		  int *fVerbose, 
+		  int *attribs, int *maxout, int *maxin, int *minout,
+		  int *minin, int *condAllDegExact, int *attriblength, 
+		  int *maxedges,
+		  int *mheads, int *mtails, int *mdnedges);
 
 void MCMCSamplePhase12 (char *MHproposaltype, char *MHproposalpackage,
   double *theta, double gain, double *meanstats,
@@ -81,5 +85,15 @@ void MCMCSamplePhase12 (char *MHproposaltype, char *MHproposalpackage,
   long int samplesize, long int burnin, 
   long int interval, int hammingterm, int fVerbose,
   Network *nwp, Model *m, DegreeBound *bd);
+
+void MH_init(MHproposal *MH, 
+	     char *MHproposaltype, char *MHproposalpackage, 
+	     int fVerbose,
+	     Network *nwp, DegreeBound *bd);
+
+void MH_free(MHproposal *MH);
+
+R_INLINE void ChangeStats(unsigned int ntoggles, Vertex *togglehead, Vertex *toggletail, Network *nwp, Model *m);
+
 
 #endif

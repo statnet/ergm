@@ -22,9 +22,9 @@ ergm.mple<-function(Clist, Clist.miss, m, fix=NULL, theta.offset=NULL,
     numobs <- Clist$ndyads
   }
   z <- .C("MPLE_wrapper",
-           as.double(Clist$heads),    as.double(Clist$tails),
-           as.double(Clist$nedges),   as.double(Clist$n), 
-           as.integer(Clist$dir),     as.double(Clist$bipartite),
+           as.integer(Clist$heads),    as.integer(Clist$tails),
+           as.integer(Clist$nedges),   as.integer(Clist$n), 
+           as.integer(Clist$dir),     as.integer(Clist$bipartite),
            as.integer(Clist$nterms), 
            as.character(Clist$fnamestring), as.character(Clist$snamestring),
            as.double(Clist$inputs),
@@ -32,7 +32,7 @@ ergm.mple<-function(Clist, Clist.miss, m, fix=NULL, theta.offset=NULL,
            x = double(maxNumDyadTypes*Clist$nparam),
            weightsvector = integer(maxNumDyadTypes),
            as.double(offset), compressedOffset=double(maxNumDyadTypes),
-           as.double(maxNumDyadTypes),
+           as.integer(maxNumDyadTypes),
            PACKAGE="statnet")
 #
   uvals <- z$weightsvector!=0
