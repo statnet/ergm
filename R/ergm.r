@@ -122,9 +122,11 @@ ergm <- function(formula, theta0="MPLE",
    if(v$loglikelihood>con$trustregion-0.0001){
     v$degeneracy <- con$trustregion
    }else{
-    fff <- (-2*v$mplefit$glm$y+1)*model.matrix(v$mplefit$glm)
-    v$degeneracy.type <- apply(fff,1, ergm.degeneracy,theta0, model, v$sample)
-    v$degeneracy <- max(v$degeneracy.type)
+    ## Workaround.
+    #fff <- (-2*v$mplefit$glm$y+1)*model.matrix(v$mplefit$glm)
+    #v$degeneracy.type <- apply(fff,1, ergm.degeneracy,theta0, model, v$sample)
+    #v$degeneracy <- max(v$degeneracy.type)
+    v$degeneracy <- NA
    }
   }else{
    if(MPLEonly){
