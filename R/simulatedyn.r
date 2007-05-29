@@ -70,7 +70,7 @@ simulatedyn <- function(object, dissolve=NULL, nsteps=1, seed=NULL, theta0,gamma
                              theta0, gamma0, MCMCparams, verbose, BD)
 
   if(con$final){
-   nw <- network.update(nw,z$newedgelist)
+   nw <- network.update(nw,z$newedgelist,"edgelist")
    return(nw)
   }else{
     out.list <- list(formula = formula, networks = nw,

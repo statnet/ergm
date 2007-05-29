@@ -234,8 +234,7 @@ void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
 	      staken*100.0/(1.0*burnin), burnin); 
     }
   }
-  free(MH.togglehead);
-  free(MH.toggletail);
+  MH_free(&MH);
 }
 
 /*********************

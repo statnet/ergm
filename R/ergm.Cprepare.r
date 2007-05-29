@@ -9,13 +9,19 @@ ergm.Cprepare <- function(nw, m)
   e<-as.matrix.network(nw,matrix.type="edgelist")
   if(length(e)==0){
     Clist$nedges<-0
-    Clist$heads<-0
-    Clist$tails<-0
+    Clist$heads<-NULL
+    Clist$tails<-NULL
   }else{
     if(!is.matrix(e)){e <- matrix(e, ncol=2)}
     Clist$nedges<-dim(e)[1]
-    Clist$heads<-e[,1]
-    Clist$tails<-e[,2]
+    # Ensure that for undirected networks, head<tail.
+    if(Clist$dir){
+      Clist$heads<-e[,1]
+      Clist$tails<-e[,2]
+    }else{
+      Clist$heads<-pmin(e[,1],e[,2])
+      Clist$tails<-pmax(e[,1],e[,2])
+    }
   }
   Clist$ndyads<-Clist$n * (Clist$n-1)
   if (!Clist$dir) {

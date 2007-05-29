@@ -380,5 +380,5 @@ newnw.extract<-function(oldnw,z){
     if(nedges>0) cbind(z$newnwheads[2:(nedges+1)],z$newnwtails[2:(nedges+1)])
     else matrix(0, ncol=2, nrow=0)
   
-  network.update(oldnw,newedgelist)
+  network.update(oldnw,newedgelist,"edgelist")
 }

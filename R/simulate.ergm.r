@@ -84,6 +84,8 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
   
   if(is.null(seed)){seed <- sample(10000000, size=1)}
   set.seed(as.integer(seed))
+
+  curstats<-summary.statistics.network(object)
     
   for(i in 1:nsim){
     Clist <- ergm.Cprepare(nw, m)
@@ -131,7 +133,8 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
 #   simulated one
 #
     out.list[[i]] <- newnw.extract(nw,z)
-    out.mat <- rbind(out.mat,z$s[(Clist$nparam+1):(2*Clist$nparam)])
+    curstats <- z$s
+    out.mat <- rbind(out.mat,curstats)
     if(sequential){
       nw <-  out.list[[i]]
     }
@@ -272,7 +275,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
     #   simulated one
 
     out.list[[i]] <- newnw.extract(nw, z)
-    out.mat <- rbind(out.mat,z$s[(Clist$nparam+1):(2*Clist$nparam)])
+    out.mat <- rbind(out.mat,z$s[(1):(Clist$nparam)])
     if(sequential){
       nw <-  out.list[[i]]
     }

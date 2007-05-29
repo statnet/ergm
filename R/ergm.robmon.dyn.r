@@ -270,7 +270,7 @@ ergm.robmon.dyn.orig <- function(theta0, nw, model.form, model.diss, Clist, BD,
                       # mc.se=mc.se, acf=mcmcacf,
                       # fullsample=statsmatrix.all),
                   # class="ergm") 
-  structure(c(ve, list(newnetwork=network.update(nw, z$newedgelist), 
+  structure(c(ve, list(newnetwork=network.update(nw, z$newedgelist, "edgelist"), 
                  theta.original=theta0,
                  bounddeg=BD, formula=model.form$formula, 
                  interval=interval, burnin=burnin,
