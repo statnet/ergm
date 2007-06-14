@@ -170,6 +170,7 @@ ergm.checkdirected <- function(fname, nw.directedflag, requirement,
                extramessage), call.=FALSE)
 }
 
+
 InitErgm.absdiff<-function (nw, m, arglist, ...) {
   a <- ergm.checkargs("absdiff", arglist,
     varnames = c("attrname"),
