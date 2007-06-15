@@ -29,12 +29,12 @@ ergm.getmodel <- function (formula, nw, ...)
       fname <- paste("InitERGMterm.", v[[i]][[1]], sep = "")
       newInitErgm <- exists(fname, env=.GlobalEnv, mode="function")
       v[[i]][[1]] <- as.name(ifelse (newInitErgm, fname, 
-                                     paste("InitErgm.", v[[i]][[1]], sep = ""))
+                                     paste("InitErgm.", v[[i]][[1]], sep = "")))
     } else { # This term has no arguments
       fname <- paste("InitERGMterm.", v[[i]], sep = "")
       newInitErgm <- exists(fname, env=.GlobalEnv, mode="function")
       v[[i]] <- call(ifelse (newInitErgm, fname, 
-                             paste("InitErgm.", v[[i]], sep = ""))
+                             paste("InitErgm.", v[[i]], sep = "")))
       model$offset <- c(model$offset,FALSE)
       args=list()
     }
