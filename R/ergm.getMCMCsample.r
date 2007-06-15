@@ -40,6 +40,11 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, MCMCparams,
             as.integer(MCMCparams$Clist.miss$heads), as.integer(MCMCparams$Clist.miss$tails),
             as.integer(MCMCparams$Clist.miss$nedges),
             PACKAGE="statnet") 
+    if(z$newnwheads[1] > 50000){
+      stop(paste("The network has more then 50000 edges, and the model is likely to be degenerate.\n",
+                  "Try starting the algorithm at an alternative model\n",
+                  "(That is, changing the model terms or the 'theta0' argument).\n"))
+    }
     statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
                           ncol=Clist$nparam,
                           byrow = TRUE)

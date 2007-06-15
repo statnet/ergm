@@ -121,6 +121,8 @@ void MCMC_wrapper (int *heads, int *tails, int *dnedges,
 	      hammingterm,
 	      (int)*fVerbose, nw, m, bd);
 
+// Rprintf("Back! %d %d\n",nw[0].nedges, nmax);
+
   /* record new generated network to pass back to R */
   newnetworkheads[0]=newnetworktails[0]=EdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,nw,nmax);
   
@@ -185,6 +187,8 @@ void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
    prepare covariance matrix for Mahalanobis distance calculations 
    in subsequent calls to M-H
    *********************/
+//  Catch massive number of edges caused by degeneracy
+      if(nwp->nedges > (80000-1000)){burnin=1;}
   MetropolisHastings(&MH, theta, networkstatistics, burnin, &staken,
 		     hammingterm, fVerbose, nwp, m, bd);
   
@@ -206,6 +210,8 @@ void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
       networkstatistics += m->n_stats;
       /* This then adds the change statistics to these values */
       
+//  Catch massive number of edges caused by degeneracy
+      if(nwp->nedges > (80000-1000)){interval=1;}
       MetropolisHastings (&MH, theta, networkstatistics, interval, &staken,
 			  hammingterm, fVerbose, nwp, m, bd);
       tottaken += staken;
@@ -264,8 +270,6 @@ void MetropolisHastings (MHproposal *MHp,
   while (step < nsteps) {
     MHp->ratio = 1.0;
     (*(MHp->func))(MHp, bd, nwp); /* Call MH function to propose toggles */
-    //      Rprintf("Back from proposal; step=%d\n",step);
-
     
     /* Calculate change statistics. */
     ChangeStats(MHp->ntoggles, MHp->togglehead, MHp->toggletail, nwp, m);
@@ -289,10 +293,17 @@ void MetropolisHastings (MHproposal *MHp,
 	}
       }
       /* record network statistics for posterity */
-      for (i = 0; i < m->n_stats; i++)
+//    Rprintf("change stats:"); 
+      for (i = 0; i < m->n_stats; i++){
         networkstatistics[i] += m->workspace[i];
+//      Rprintf("%f ", networkstatistics[i]); 
+      }
+//    Rprintf("\n nedges %d\n", nwp->nedges); 
       taken++;
+
     }
+//  Catch massive number of edges caused by degeneracy
+//  if(nwp->nedges > (100000-1000)){step=nsteps;}
     step++;
     nwp->duration_info.MCMCtimer++;
   }
