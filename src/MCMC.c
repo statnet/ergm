@@ -124,7 +124,7 @@ void MCMC_wrapper (int *heads, int *tails, int *dnedges,
 // Rprintf("Back! %d %d\n",nw[0].nedges, nmax);
 
   /* record new generated network to pass back to R */
-  newnetworkheads[0]=newnetworktails[0]=EdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,nw,nmax);
+  newnetworkheads[0]=newnetworktails[0]=EdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,nw,nmax-1);
   
   ModelDestroy(m);
   DegreeBoundDestroy(bd);
@@ -188,13 +188,13 @@ void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
    in subsequent calls to M-H
    *********************/
 //  Catch massive number of edges caused by degeneracy
-      if(nwp->nedges > (80000-1000)){burnin=1;}
-  MetropolisHastings(&MH, theta, networkstatistics, burnin, &staken,
-		     hammingterm, fVerbose, nwp, m, bd);
+   if(nwp->nedges > (50000-1000)){burnin=1;}
+   MetropolisHastings(&MH, theta, networkstatistics, burnin, &staken,
+		      hammingterm, fVerbose, nwp, m, bd);
   
-  if (fVerbose){
-    Rprintf("Returned from Metropolis-Hastings burnin\n");
-  }
+   if (fVerbose){
+     Rprintf("Returned from Metropolis-Hastings burnin\n");
+   }
   
   if (samplesize>1){
     staken = 0;
@@ -210,8 +210,9 @@ void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
       networkstatistics += m->n_stats;
       /* This then adds the change statistics to these values */
       
-//  Catch massive number of edges caused by degeneracy
-      if(nwp->nedges > (80000-1000)){interval=1;}
+//    Catch massive number of edges caused by degeneracy
+      if(nwp->nedges > (50000-1000)){interval=1;}
+//    Rprintf("\n nedges %d interval %d\n", nwp->nedges, interval); 
       MetropolisHastings (&MH, theta, networkstatistics, interval, &staken,
 			  hammingterm, fVerbose, nwp, m, bd);
       tottaken += staken;
