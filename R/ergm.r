@@ -1,7 +1,7 @@
 ergm <- function(formula, theta0="MPLE", 
                  MPLEonly=FALSE, MLestimate=!MPLEonly, seed=NULL,
                  burnin=10000, MCMCsamplesize=10000, interval=100, maxit=3,
-                 proposaltype="randomtoggle", proposalargs=NULL,
+                 proposaltype="TNT", proposalargs=NULL,
                  proposaltype.diss="dissolution", proposalargs.diss=NULL,
                  meanstats=NULL,
                  dissolve=NULL, gamma=-4.59512, dissolve.order="DissThenForm",

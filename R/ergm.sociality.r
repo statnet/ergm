@@ -46,7 +46,7 @@ sociality.network <- function (object, ...,
 
 sociality.formula <- function (formula, ..., theta0, nsim=100,
                       burnin=100, interval=100,
-                      proposaltype="randomtoggle", proposalargs = NULL,
+                      proposaltype="TNT", proposalargs = NULL,
                       multiplicity=1,
                       seed=NULL,  drop=FALSE,
                       statistics=NULL
@@ -123,7 +123,7 @@ sociality.formula <- function (formula, ..., theta0, nsim=100,
 
 sociality.ergm <- function (object, ..., nsim=100,
                       burnin=100, interval=100,
-                      proposaltype="randomtoggle", proposalargs = NULL,
+                      proposaltype="TNT", proposalargs = NULL,
                       multiplicity=1,
                       seed=NULL, drop=FALSE,
 		      statistics=NULL) {

@@ -67,8 +67,7 @@ equivalent models, as long as they are used together with the \code{edges} (or
 slightly more straightforward than the interpretation of the \code{altkstar}
 parameters. For this reason, we recommend the use of the \code{gwdegree}
 instead of \code{altkstar}.
-    See Section 3 and especially equation (13) of 
-\url{http://www.sna.unimelb.edu.au/publications/cef4.pdf}
+    See Section 3 and especially equation (13) of \url{http://www.sna.unimelb.edu.au/publications/cef4.pdf}
 for details.
     The optional argument \code{fixed} is a logical indicating
     if the scale parameter \code{lambda}

@@ -11,7 +11,7 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
                           burnin=10000, interval=10000,
                           meanstats=NULL,
                           sequential=TRUE,
-                          proposaltype="randomtoggle",
+                          proposaltype="TNT",
                           algorithm.control=list(),
                           drop=FALSE,
                           verbose=FALSE) {
@@ -170,7 +170,7 @@ san.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
                        burnin=100000, interval=10000, 
                        meanstats=NULL,
                        sequential=TRUE, 
-                       proposaltype="randomtoggle",
+                       proposaltype="TNT",
                        algorithm.control=list(),
                        verbose=FALSE) {
   out.list <- vector("list", nsim)
