@@ -318,7 +318,7 @@ mixingmatrix <- function(g,attrname)
  nodecov <- get.node.attr(g, attrname)
  u<-sort(unique(nodecov))
  su <- summary(as.formula(paste("g~nodemix('",attrname,"')",sep="")))
- if(!is.directed(g)  & !is.bipartite(g)){
+ if(!is.directed(g) & !is.bipartite(g)){
    tabu <- matrix(0,ncol=length(u),nrow=length(u))
    tabu[row(tabu)>=col(tabu)] <- su
    tabu <- tabu + t(tabu) - diag(diag(tabu))
@@ -326,7 +326,7 @@ mixingmatrix <- function(g,attrname)
    tabu <- cbind(tabu,total)
    tabu <- rbind(tabu,c(total,sum(total)))
    tabu[row(tabu)>col(tabu)] <- 0
-   diag(tabu) <- diag(tabu)/2
+#  diag(tabu) <- diag(tabu)/2
    tabu[nrow(tabu),] <- c(total,sum(total))
 #  dimnames(tabu)[[1]][nrow(tabu)] <- "total"
    dimnames(tabu) <- list(c(u,"total"),c(u,"total"))
