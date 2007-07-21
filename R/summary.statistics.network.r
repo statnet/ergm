@@ -16,7 +16,7 @@ summary.formula <- function(object, ...){
 }
 
 
-summary.statistics.network <- function(object,...,basis=NULL)
+summary.statistics.network <- function(object,...,drop=FALSE,basis=NULL)
 {
   current.warn <- options()$warn
   options(warn=0)
@@ -57,7 +57,7 @@ summary.statistics.network <- function(object,...,basis=NULL)
     }
   }
   
-  m <- ergm.getmodel(formula, nw, drop=FALSE)
+  m <- ergm.getmodel(formula, nw, drop=drop)
   Clist <- ergm.Cprepare(nw, m)
   #
   #    Calculate the global statistics

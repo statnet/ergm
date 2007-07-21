@@ -150,7 +150,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
 
   if ('model' %in% all.gof.vars) {
    if(is.null(nw$gal$design) | !unconditional){
-    obs.model <- summary(formula)
+    obs.model <- summary(formula, drop=drop)
    }else{
     obs.model <- SimCond$obs.model
    }

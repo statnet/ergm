@@ -77,8 +77,25 @@ ergm <- function(formula, theta0="MPLE",
 
   Clist <- ergm.Cprepare(nw, model)
   Clist.miss <- ergm.design(nw, model, verbose=verbose)
-  Clist$meanstats <- meanstats
-  Clist$obs <- summary(model$formula)
+  Clist$obs <- summary(model$formula, drop=con$drop)
+  Clist$meanstats <- Clist$obs
+  if(!is.null(meanstats)){
+   if (is.null(names(meanstats))){
+    if(length(meanstats) == length(Clist$obs)){
+     names(meanstats) <- names(Clist$obs)
+     Clist$meanstats <- meanstats
+    }else{
+     namesmatch <- names(summary(model$formula, drop=FALSE))
+     if(length(meanstats) == length(namesmatch)){
+       namesmatch <- match(names(meanstats), namesmatch)
+       Clist$meanstats <- meanstats[namesmatch]
+     }
+    }
+   }else{
+    namesmatch <- match(names(Clist$obs), names(meanstats))
+    Clist$meanstats[!is.na(namesmatch)] <- meanstats[namesmatch[!is.na(namesmatch)]]
+   }
+  }
 
   if (verbose) cat("ergm.mainfitloop\n")
   MCMCparams=c(con,list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,maxit=maxit,Clist.miss=Clist.miss))

@@ -16,7 +16,6 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist, Clist.miss,
   theta.original=theta0
   thetaprior=theta0-theta0
 
-  if(is.null(Clist$meanstats)){Clist$meanstats <- Clist$obs}
   stats <- matrix(0,ncol=Clist$nparam,nrow=MCMCparams$samplesize)
   stats[1,] <- Clist$obs - Clist$meanstats
 # stats[,]<-  rep(Clist$obs - Clist$meanstats,rep(nrow(stats),Clist$nparam))
@@ -42,7 +41,9 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist, Clist.miss,
     }
     if(sequential & MCMCparams$Clist.miss$nedges == 0){
       nw <- z$newnetwork
-      MCMCparams$stats[1,] <- summary(model$formula, basis=nw)-MCMCparams$meanstats
+      nw.obs <- summary(model$formula, basis=nw)
+      namesmatch <- match(names(MCMCparams$meanstats), names(nw.obs))
+      MCMCparams$stats[1,] <- nw.obs[namesmatch]-MCMCparams$meanstats
     }
 #
     iteration <- iteration + 1

@@ -30,7 +30,7 @@ ergm.godfather <- function(formula, timestamps=NULL, toggles=NULL, sim=NULL,
   con[(namc <- names(algorithm.control))] <- algorithm.control
 
   nw <- ergm.getnetwork(formula)
-  m <- ergm.getmodel(formula, nw, drop=F, initialfit=T)
+  m <- ergm.getmodel(formula, nw, drop=FALSE, initialfit=TRUE)
   Clist <- ergm.Cprepare(nw, m)
   Clist$obs <- summary(m$formula)
   ots <- order(timestamps)

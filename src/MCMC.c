@@ -150,10 +150,11 @@ void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
   long int samplesize, long int burnin, 
   long int interval, int hammingterm, int fVerbose,
   Network *nwp, Model *m, DegreeBound *bd) {
-  long int staken, tottaken, ptottaken;
+  long int staken, tottaken, ptottaken, originterval;
   int i, j, components, diam;
   MHproposal MH;
   
+  originterval = interval;
   components = diam = 0;
   nwp->duration_info.MCMCtimer=0;
   
@@ -233,7 +234,7 @@ void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
     *********************/
     if (fVerbose){
       Rprintf("Metropolis-Hastings accepted %7.3f%% of %d steps.\n",
-	      tottaken*100.0/(1.0*interval*samplesize), interval*samplesize); 
+	      tottaken*100.0/(1.0*originterval*samplesize), originterval*samplesize); 
     }
   }else{
     if (fVerbose){
