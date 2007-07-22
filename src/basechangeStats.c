@@ -2128,7 +2128,8 @@ void d_edgecov (int ntoggles, Vertex *heads, Vertex *tails,
   
   noffset = nwp->bipartite;
   if(noffset > 0){
-   nrow = (nwp->nnodes)-(long int)(mtp->inputparams[0]);
+//   nrow = (nwp->nnodes)-(long int)(mtp->inputparams[0]);
+    nrow = noffset;
   }else{
    nrow = (long int)(mtp->inputparams[0]);
   }
@@ -2140,7 +2141,7 @@ void d_edgecov (int ntoggles, Vertex *heads, Vertex *tails,
       edgeflag=(EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
       /*Get the covariate value*/
 //    val = mtp->attrib[(t-1-nrow)+(h-1)*ncols];
-      val = mtp->attrib[(t-1-noffset)*nrow+(h-1)];
+      val = mtp->attrib[(t-1-noffset)*nrow+(h-1)];  /*Note: h/t are backwards!*/
 //  Rprintf("h %d t %d nrow %d val %f\n",h, t, nrow, val);
       /*Update the change statistic, based on the toggle type*/
       *(mtp->dstats) += edgeflag ? -val : val;
