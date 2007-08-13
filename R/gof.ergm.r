@@ -18,7 +18,8 @@ gof.ergm <- function (object, ..., nsim=100,
                       verbose=FALSE) {
 
   nw <- as.network(object$network)
-  formula <- as.formula(paste("nw ~",paste(all.vars(object$formula)[-1],sep="+")))
+  formula <- as.formula(paste("nw ~",paste(ergm.rhs.formula(object$formula),collapse="+")))
+# paste("~",paste(unlist(dimnames(attr(terms(formula),"factors"))[-1]),collapse="+"),sep="")
   if(!is.network(nw)){
     stop("A network must be given as part of the network object.")
   }
@@ -63,7 +64,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
   }
 
   if(is.ergm(nw)){
-    all.gof.vars <- all.vars(formula)[-1]
+    all.gof.vars <- ergm.rhs.formula(formula)
     if(missing(proposaltype) & !is.null(nw$proposaltype)){
       proposaltype <- nw$proposaltype
     }
@@ -77,7 +78,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
       stop("A network object on the RHS of the formula argument must be given")
     }
   }else{
-    all.gof.vars <- all.vars(GOF)
+    all.gof.vars <- ergm.rhs.formula(GOF)
   }
 
 # match variables
@@ -481,7 +482,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
 
 print.gofobject <- function(x, ...){
 
- all.gof.vars <- all.vars(x$GOF)
+ all.gof.vars <- ergm.rhs.formula(x$GOF)
 
 # match variables
 
@@ -541,7 +542,7 @@ print.gofobject <- function(x, ...){
 
 summary.gofobject <- function(object, ...){
 
- all.gof.vars <- all.vars(object$GOF)
+ all.gof.vars <- ergm.rhs.formula(object$GOF)
 
 # match variables
 
@@ -609,7 +610,7 @@ plot.gofobject <- function(x, ...,
 #par(oma=c(0.5,2,1,0.5))
 
 #statsno <- (sum(stats=='deg')>0) + (sum(stats=='espart')>0) + (sum(stats=='d
- all.gof.vars <- all.vars(x$GOF)
+ all.gof.vars <- ergm.rhs.formula(x$GOF)
  statsno <- length(all.gof.vars)
 
 # match variables
@@ -1161,3 +1162,19 @@ plot.gofobject <- function(x, ...,
    mtext(main,side=3,outer=TRUE,cex=1.5,padj=2)
    invisible()
   }
+
+#ergm.get.terms.formula <- function(formula){
+# trms <- all.names(formula)
+# ntrms <- length(trms)
+# if(ntrms == 2*trunc(ntrms/2)){
+#   ntrms <- ntrms/2
+#  }else{
+#   ntrms <- (ntrms+1)/2
+#  }
+# trms[-c(1:ntrms)]
+#}
+
+ergm.rhs.formula <- function(formula){
+#all.vars(update(formula, .~0)) 
+ unlist(dimnames(attr(terms(formula),"factors"))[-1])
+}
