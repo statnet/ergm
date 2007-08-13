@@ -22,8 +22,10 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
   set.seed(as.integer(seed))
   if(!is.null(basis)) {
     nw <- basis
-#   formula <- as.formula(paste(c("basis",as.character(formula)),
+#   formula <- as.formula(paste(c("nw",as.character(formula)),
 #                               collapse=" "))
+    formula <- update(formula, nw ~ .)
+    object <- formula
   } else {
     nw <- ergm.getnetwork(formula)
   }
