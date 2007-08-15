@@ -38,7 +38,7 @@ ergm.mple<-function(Clist, Clist.miss, m, fix=NULL, theta.offset=NULL,
   uvals <- z$weightsvector!=0
   zy <- z$y[uvals]
   wend <- z$weightsvector[uvals]
-  xmat <- as.matrix(matrix(z$x, ncol=Clist$nparam, byrow=TRUE)[uvals,])
+  xmat <- matrix(z$x, ncol=Clist$nparam, byrow=TRUE)[uvals,,drop=FALSE]
 ##
 ## Adjust for meanstats
 ##
@@ -61,12 +61,12 @@ ergm.mple<-function(Clist, Clist.miss, m, fix=NULL, theta.offset=NULL,
    colnames(xmat) <- m$coef.names
   }else{
    foffset <- xmat %*% theta.offset
-   xmat <- as.matrix(xmat[,!fix])
+   xmat <- xmat[,!fix,drop=FALSE]
    colnames(xmat) <- m$coef.names[!fix]
   }
   
   if(Clist.miss$nedges>0){
-    xmat <- matrix(xmat[dmiss==0,], ncol=Clist$nparam, nrow=sum(dmiss==0))
+    xmat <- xmat[dmiss==0,,drop=FALSE]
     zy <- zy[dmiss==0]
     wend <- wend[dmiss==0]
     foffset <- foffset[dmiss==0]
@@ -109,7 +109,7 @@ ergm.mple<-function(Clist, Clist.miss, m, fix=NULL, theta.offset=NULL,
    wend <- tau*zy*wend/sum(zy*wend) +
            (1-tau)*(1-zy)*wend/sum((1-zy)*wend)
    wend <- wend*nrow(xmat)/sum(wend)
-   xmat <- as.matrix(xmat[rsample,])
+   xmat <- xmat[rsample,,drop=FALSE]
    foffset <- foffset[rsample]
   }
 
@@ -136,7 +136,7 @@ ergm.mple<-function(Clist, Clist.miss, m, fix=NULL, theta.offset=NULL,
    }
    if(!is.na(largestdegree)){
     nxmat <- colnames(xmat)
-    xmat <- as.matrix(xmat[,-ncol(xmat)])
+    xmat <- xmat[,-ncol(xmat),drop=FALSE]
     colnames(xmat) <- nxmat[-ncol(xmat)]
    }
 #
@@ -159,7 +159,7 @@ ergm.mple<-function(Clist, Clist.miss, m, fix=NULL, theta.offset=NULL,
     independent <- independent>0
     if(any(independent)){
      mindfit <- glm(zy ~ .-1 + offset(foffset), 
-                    data=data.frame(xmat[,independent]),
+                    data=data.frame(xmat[,independent,drop=FALSE]),
                     weights=wend, family=family, ...)
      mindfit.summary <- summary(mindfit)
      theta.ind[independent] <- mindfit$coef
@@ -334,7 +334,7 @@ mk.pseudonet<-function(meanstats,f,y,start.density=NULL,ntoggles=length(meanstat
   start.density=",start.density,"\n",sep="")
 
   all.edges<-as.matrix.network.edgelist(rbern.net(y,1))
-  all.edges<-all.edges[order(runif(dim(all.edges)[1])),]
+  all.edges<-all.edges[order(runif(dim(all.edges)[1])),,drop=FALSE]
 
   if(verbose) cat("Estimating the covariance matrix of network statistics...
   ")
