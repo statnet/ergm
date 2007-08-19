@@ -89,7 +89,7 @@
 \alias{ergm.pairgeodesic}
 \alias{ergm.raftery.diag}
 \alias{ergm.revisetheta0}
-\alias{ergm.terms}
+\alias{ergm-terms}
 \alias{ergm.t.summary}
 \alias{espartnerdist}
 \alias{get.node.attr}
