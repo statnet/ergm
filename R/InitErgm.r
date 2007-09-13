@@ -599,8 +599,22 @@ InitErgm.density<-function(nw, m, arglist, ...) {
   termnumber<-1+length(m$terms)
   m$terms[[termnumber]] <- list(name="density", soname="statnet",
                                 inputs=c(0, 1, 0),
-                                dependence=TRUE)
+                                dependence=FALSE)
   m$coef.names<-c(m$coef.names,"density")
+  m
+}
+
+InitErgm.meandeg<-function(nw, m, arglist, ...) {
+  a <- ergm.checkargs("meandeg", arglist,
+    varnames = NULL,
+    vartypes = NULL,
+    defaultvalues = list(),
+    required = NULL)
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="meandeg", soname="statnet",
+                                inputs=c(0, 1, 0),
+                                dependence=FALSE)
+  m$coef.names<-c(m$coef.names,"meandeg")
   m
 }
 

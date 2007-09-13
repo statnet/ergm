@@ -650,6 +650,31 @@ void d_edges(int ntoggles, Vertex *heads, Vertex *tails,
 }
 
 /*****************
+ void d_meandeg
+*****************/
+void d_meandeg(int ntoggles, Vertex *heads, Vertex *tails, 
+	      ModelTerm *mtp, Network *nwp) {
+  int edgeflag, i;
+  Vertex h, t;
+  
+  *(mtp->dstats) = 0.0;
+
+  for (i=0; i < ntoggles; i++)
+    {
+      edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
+      *(mtp->dstats) += (edgeflag ? - 2 : 2);
+      if (i+1 < ntoggles)
+	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    }
+  
+  *(mtp->dstats)/=nwp->nnodes;
+
+  i--; 
+  while (--i >= 0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+
+/*****************
  void d_density
 *****************/
 void d_density(int ntoggles, Vertex *heads, Vertex *tails, 

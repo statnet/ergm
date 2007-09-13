@@ -1,5 +1,8 @@
 \name{ergm-terms}
 \alias{ergm-terms}
+\alias{ergm.terms}
+\alias{terms-ergm}
+\alias{terms.ergm}
 \docType{methods}
 \title{Terms used in Exponential Family Random Graph Models}
 \description{
@@ -219,7 +222,7 @@ is to be fit as a curved exponential family
     \code{triangle}, and there is no undirected cycle term of length 2.
     }
 
-    \item{\code{degree(d)(attrname)}}{\emph{Degree.}  \code{d} is a vector
+    \item{\code{degree(d, attrname)}}{\emph{Degree.}  \code{d} is a vector
     of distinct integers.  This term adds one network statistic
     to the model for each element in \code{d}; the \eqn{i^{th}}
     such statistic equals the number of nodes in the network of
@@ -404,6 +407,10 @@ than the version given in Snijders, et. al (2006).
     \code{istar}, \code{ostar}, and \code{m2star}. Note that
     \code{kstar(1)} is isomorphic to \code{edges}.  }
 
+    \item{\code{meandeg}}{\emph{Mean Vertex Degree}
+    This term adds one network statistic to the model equal to the
+    average degree of a vertex.   }
+  
     \item{\code{localtriangle(attrname)}}{\emph{Triangles Within Neighborhoods}
     This term adds one statistic to the model equal to the number
     of triangles in the network between nodes close to each other.

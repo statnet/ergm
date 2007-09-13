@@ -87,6 +87,8 @@ void d_edgecov (int ntoggles, Vertex *heads, Vertex *tails,
 		ModelTerm *mtp, Network *nwp);
 void d_edges (int ntoggles, Vertex *heads, Vertex *tails, 
 	      ModelTerm *mtp, Network *nwp);
+void d_meandeg (int ntoggles, Vertex *heads, Vertex *tails, 
+	      ModelTerm *mtp, Network *nwp);
 void d_density (int ntoggles, Vertex *heads, Vertex *tails, 
 	      ModelTerm *mtp, Network *nwp);
 void d_idegree (int ntoggles, Vertex *heads, Vertex *tails, 
