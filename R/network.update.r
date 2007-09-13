@@ -20,7 +20,7 @@ network.update<-function(nw,newmatrix,matrix.type=NULL)
 #  }
    eid <- c(unlist(unw$iel),unlist(unw$oel))
    delete.edges(unw,eid)
-   if(nrow(newmatrix)>0){
+   if(!is.null(newmatrix) && nrow(newmatrix)>0){
 #   unw[newmatrix] <- 1
     add.edges(unw,head=newmatrix[,2],tail=newmatrix[,1])
    }
