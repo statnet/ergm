@@ -58,8 +58,8 @@ simulatedyn <- function(object, dissolve=NULL, nsteps=1, seed=NULL, theta0,gamma
   MHproposal.form <- getMHproposal(proposaltype.form, proposalargs.form, nw, model.form)
   MHproposal.diss <- getMHproposal(proposaltype.diss, proposalargs.diss, nw, model.diss)
   MCMCparams <- c(con,list(nsteps=nsteps, interval=interval,
-                           stats.form=matrix(0,ncol=length(model.form$coef.names),nrow=1),
-                           stats.diss=matrix(0,ncol=length(model.diss$coef.names),nrow=1),
+                           stats.form=matrix(summary(model.form$formula),ncol=length(model.form$coef.names),nrow=1),
+                           stats.diss=matrix(summary(model.diss$formula),ncol=length(model.diss$coef.names),nrow=1),
                            burnin=burnin,
                            parallel=0,
                            meanstats.form=theta0-theta0,
@@ -76,7 +76,8 @@ simulatedyn <- function(object, dissolve=NULL, nsteps=1, seed=NULL, theta0,gamma
     out.list <- list(formula = formula, networks = nw,
                      changed=z$changed, 
                      maxchanges=z$maxchanges,
-                     stats = NULL, coef.form=theta0,coef.diss=gamma0)
+                     stats.form = z$statsmatrix.form,stats.diss = z$statsmatrix.diss,
+                     coef.form=theta0,coef.diss=gamma0)
     class(out.list) <- "network.series"
     return(out.list)
   }
