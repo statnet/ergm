@@ -64,7 +64,7 @@ ergm.checkbipartite <- function(fname, nw.bipartiteflag, requirement,
 #    }
 #    termnumber<-1+length(model$terms)
 ##  No covariates here, so input component 1 is arbitrary
-#    model$terms[[termnumber]] <- list(name="event", soname="statnet",
+#    model$terms[[termnumber]] <- list(name="event", soname="ergm",
 #                                          inputs=c(0, ld, ld+1, nactors, d))
 ##   model$coef.names<-c(model$coef.names,dnames)
 #    model$coef.names<-c(model$coef.names,paste("event.",dnames,sep=""))
@@ -118,7 +118,7 @@ ergm.checkbipartite <- function(fname, nw.bipartiteflag, requirement,
 #    }
 #    termnumber<-1+length(model$terms)
 ##  No covariates here, so input component 1 is arbitrary
-#    model$terms[[termnumber]] <- list(name="actor", soname="statnet",
+#    model$terms[[termnumber]] <- list(name="actor", soname="ergm",
 #                                          inputs=c(0, ld, ld+1, nactors, d))
 ##   model$coef.names<-c(model$coef.names,dnames)
 #    model$coef.names<-c(model$coef.names,paste("actor.",dnames,sep=""))
@@ -138,7 +138,7 @@ InitErgm.gwevent706<-function (nw, m, arglist, drop=TRUE, ...) {
   nevents <- network.size(nw)-nactors
   termnumber<-1+length(m$terms)
   m$terms[[termnumber]] <- list(name="gwevent",
-                                    soname="statnet",
+                                    soname="ergm",
                                     inputs=c(0, 1, 2, nactors, alpha))
   m$coef.names<-c(m$coef.names,"gwevent")
   m
@@ -157,7 +157,7 @@ InitErgm.gwactor706<-function (nw, m, arglist, drop=TRUE, ...) {
   nevents <- network.size(nw)-nactors
   termnumber<-1+length(m$terms)
   m$terms[[termnumber]] <- list(name="gwactor",
-                                    soname="statnet",
+                                    soname="ergm",
                                     inputs=c(0, 1, 2, nactors, alpha))
   m$coef.names<-c(m$coef.names,"gwactor")
   m
@@ -172,7 +172,7 @@ InitErgm.akappa<-function(nw, m, arglist, ...) {
     required = c(FALSE))
   attach(a)
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="akappa", soname="statnet",
+  m$terms[[termnumber]] <- list(name="akappa", soname="ergm",
                                 inputs=c(0, 1, 0))
   m$coef.names<-c(m$coef.names,"akappa")
   m
@@ -187,7 +187,7 @@ InitErgm.ekappa<-function(nw, m, arglist, ...) {
     required = c(FALSE))
   attach(a)
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="ekappa", soname="statnet",
+  m$terms[[termnumber]] <- list(name="ekappa", soname="ergm",
                                 inputs=c(0, 1, 0))
   m$coef.names<-c(m$coef.names,"ekappa")
   m
@@ -224,7 +224,7 @@ InitErgm.ekappa<-function(nw, m, arglist, ...) {
 #    if(ld==0){return(model)}
 #    termnumber<-1+length(model$terms)
 ##  No covariates here, so input component 1 is arbitrary
-#    model$terms[[termnumber]] <- list(name="esa", soname="statnet",
+#    model$terms[[termnumber]] <- list(name="esa", soname="ergm",
 #                                          inputs=c(0, ld, ld+1, nactors, d))
 #    model$coef.names<-c(model$coef.names,paste("esa",d,sep=""))
 #    model
@@ -263,7 +263,7 @@ InitErgm.ekappa<-function(nw, m, arglist, ...) {
 #    if(ld==0){return(m)}
 #    termnumber<-1+length(m$terms)
 ##  No covariates here, so input component 1 is arbitrary
-#    m$terms[[termnumber]] <- list(name="ase", soname="statnet",
+#    m$terms[[termnumber]] <- list(name="ase", soname="ergm",
 #                                          inputs=c(0, ld, ld+1, nactors, d))
 #    m$coef.names<-c(m$coef.names,paste("ase",d,sep=""))
 #    m
@@ -316,7 +316,7 @@ InitErgm.ekappa<-function(nw, m, arglist, ...) {
 #  #  Number of input parameters before covariates equals number of
 #  #  unique elements in nodecov, namely length(u), so that's what
 #  #  input component 1 equals
-#  m$terms[[termnumber]] <- list(name="bimix", soname="statnet",
+#  m$terms[[termnumber]] <- list(name="bimix", soname="ergm",
 #      inputs=c(nrow(u), nrow(u), length(nodecov)+length(u),
 #        u[,1], u[,2],nodecov),
 #      dependence=FALSE)
@@ -368,7 +368,7 @@ InitErgm.ekappa<-function(nw, m, arglist, ...) {
 #    #  Number of input parameters before covariates equals number of
 #    #  unique elements in nodecov, namely length(u), so that's what
 #    #  input component 1 equals
-#    model$terms[[termnumber]] <- list(name="bimix", soname="statnet",
+#    model$terms[[termnumber]] <- list(name="bimix", soname="ergm",
 #        inputs=c(nrow(u), nrow(u), length(nodecov)+length(u),
 #          u[,1], u[,2],nodecov))
 #    model$coef.names<-c(model$coef.names, paste("bimixconddeg",
@@ -422,7 +422,7 @@ InitErgm.ekappa<-function(nw, m, arglist, ...) {
 #    #  Number of input parameters before covariates equals number of
 #    #  unique elements in nodecov, namely length(u), so that's what
 #    #  input component 1 equals
-#    model$terms[[termnumber]] <- list(name="bimix", soname="statnet",
+#    model$terms[[termnumber]] <- list(name="bimix", soname="ergm",
 #        inputs=c(nrow(u), nrow(u), length(nodecov)+length(u),
 #          u[,1], u[,2],nodecov))
 #    model$coef.names<-c(model$coef.names, paste("bimix",
@@ -475,7 +475,7 @@ InitErgm.eventfactor<-function (nw, m, arglist, drop=TRUE, ...) {
     stop ("Argument to eventfactor() has only one value", call.=FALSE)
   }
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="eventfactor", soname="statnet",
+  m$terms[[termnumber]] <- list(name="eventfactor", soname="ergm",
                                 inputs=c(lu, lu, lu+length(nodecov),
                                          ui, nodecov), dependence=FALSE)
   # smallest value of u is "control group"
@@ -526,7 +526,7 @@ InitErgm.actorfactor<-function (nw, m, arglist, drop=TRUE, ...) {
     stop ("Argument to actorfactor() has only one value", call.=FALSE)
   }
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="actorfactor", soname="statnet",
+  m$terms[[termnumber]] <- list(name="actorfactor", soname="ergm",
                                 inputs=c(lu, lu, lu+length(nodecov),
                                          ui, nodecov), dependence=FALSE)
   # smallest value of u is "control group"
@@ -598,7 +598,7 @@ InitErgm.biduration<-function (nw, m, arglist, ...) {
 # There is 1 input parameter before the covariate vector, so input
 # component 1 is set to 1 (although in this case, input component 1
 # is actually arbitrary since d_biduration ignores the value of inp->attrib).
-  m$terms[[termnumber]] <- list(name = "biduration", soname="statnet",
+  m$terms[[termnumber]] <- list(name = "biduration", soname="ergm",
                                 inputs = c(1, 1, 
                         2 + 2*nrow(xm)+nrow(formm)*ncol(formm),
                         nrow(xm), nrow(formm), as.double(c(xm, formm)))
@@ -630,7 +630,7 @@ InitErgm.biendure<-function (g, model, drop=TRUE, ...)
 # component 1 is set to 1 (although in this case, input component 1
 # is actually arbitrary since d_biendure ignores the value of inp->attrib).
   model$terms[[termnumber]] <- list(name = "endure",
-                                        soname="statnet",
+                                        soname="ergm",
              inputs = c(1, 1, 
                         2 + 2*nrow(xm),
                         nrow(xm), nactors, as.double(c(xm))
@@ -697,7 +697,7 @@ InitErgm.bichange<-function (g, model, form=NULL, x=NULL, drop=TRUE, ...)
 # component 1 is set to 1 (although in this case, input component 1
 # is actually arbitrary since d_bichange ignores the value of inp->attrib).
   model$terms[[termnumber]] <- list(name = "bichange",
-                                        soname="statnet",
+                                        soname="ergm",
              inputs = c(1, 1, 
                         2 + 2*nrow(xm)+nrow(formm)*ncol(formm),
                         nrow(xm), nrow(formm), as.double(c(xm, formm))
@@ -772,7 +772,7 @@ InitErgm.adegree<-function(nw, m, arglist, drop=TRUE, ...) {
   if(!is.null(attrname)) {
     if(ncol(du)==0) {return(m)}
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="adegree_by_attr", soname="statnet",
+    m$terms[[termnumber]] <- list(name="adegree_by_attr", soname="ergm",
                                   inputs=c(0, ncol(du), 
                                            length(du)+length(nodecov), 
                                            as.vector(du), nodecov),
@@ -784,7 +784,7 @@ InitErgm.adegree<-function(nw, m, arglist, drop=TRUE, ...) {
     lengthd<-length(d)
     if(lengthd==0){return(m)}
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="adegree", soname="statnet",
+    m$terms[[termnumber]] <- list(name="adegree", soname="ergm",
                                        inputs=c(0, lengthd, lengthd, d),
                                        dependence=TRUE)
     m$coef.names<-c(m$coef.names,paste("adegree",d,sep=""))
@@ -858,7 +858,7 @@ InitErgm.astar<-function(nw, m, arglist, drop=TRUE, ...) {
   if(!is.null(attrname)) {
     if(ncol(du)==0) {return(m)}
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="ostar_by_attr", soname="statnet",
+    m$terms[[termnumber]] <- list(name="ostar_by_attr", soname="ergm",
                                   inputs=c(0, ncol(du), 
                                            length(du)+length(nodecov), 
                                            as.vector(du), nodecov),
@@ -870,7 +870,7 @@ InitErgm.astar<-function(nw, m, arglist, drop=TRUE, ...) {
     lengthd<-length(d)
     if(lengthd==0){return(m)}
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="ostar", soname="statnet",
+    m$terms[[termnumber]] <- list(name="ostar", soname="ergm",
                                        inputs=c(0, lengthd, lengthd, d),
                                        dependence=TRUE)
     m$coef.names<-c(m$coef.names,paste("astar",d,sep=""))
@@ -944,7 +944,7 @@ InitErgm.estar<-function(nw, m, arglist, drop=TRUE, ...) {
   if(!is.null(attrname)) {
     if(ncol(du)==0) {return(m)}
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="istar_by_attr", soname="statnet",
+    m$terms[[termnumber]] <- list(name="istar_by_attr", soname="ergm",
                                   inputs=c(0, ncol(du), 
                                            length(du)+length(nodecov), 
                                            as.vector(du), nodecov),
@@ -956,7 +956,7 @@ InitErgm.estar<-function(nw, m, arglist, drop=TRUE, ...) {
     lengthd<-length(d)
     if(lengthd==0){return(m)}
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="istar", soname="statnet",
+    m$terms[[termnumber]] <- list(name="istar", soname="ergm",
                                        inputs=c(0, lengthd, lengthd, d),
                                        dependence=TRUE)
     m$coef.names<-c(m$coef.names,paste("estar",d,sep=""))
@@ -1031,7 +1031,7 @@ InitErgm.edegree<-function(nw, m, arglist, drop=TRUE, ...) {
   if(!is.null(attrname)) {
     if(ncol(du)==0) {return(m)}
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="edegree_by_attr", soname="statnet",
+    m$terms[[termnumber]] <- list(name="edegree_by_attr", soname="ergm",
                                   inputs=c(0, ncol(du), 
                                            length(du)+length(nodecov), 
                                            as.vector(du), nodecov),
@@ -1043,7 +1043,7 @@ InitErgm.edegree<-function(nw, m, arglist, drop=TRUE, ...) {
     lengthd<-length(d)
     if(lengthd==0){return(m)}
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="edegree", soname="statnet",
+    m$terms[[termnumber]] <- list(name="edegree", soname="ergm",
                                        inputs=c(0, lengthd, lengthd, d),
                                        dependence=TRUE)
     m$coef.names<-c(m$coef.names,paste("edegree",d,sep=""))
@@ -1084,7 +1084,7 @@ InitErgm.gwadegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
             )
     }
     termnumber<-1+length(m$terms)
-    m$terms[[termnumber]] <- list(name="adegree", soname="statnet",
+    m$terms[[termnumber]] <- list(name="adegree", soname="ergm",
                                   inputs=c(0, ld, ld, d),
                                   params=list(gwadegree=NULL,
                                     gwadegree.decay=decay),
@@ -1104,7 +1104,7 @@ InitErgm.gwadegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
     du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
     if(nrow(du)==0) {return(m)}
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="gwadegree_by_attr", soname="statnet",
+    m$terms[[termnumber]] <- list(name="gwadegree_by_attr", soname="ergm",
                                   inputs=c(0, lu, 
                                            1+length(nodecov), 
                                            decay, nodecov),
@@ -1113,7 +1113,7 @@ InitErgm.gwadegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
     m$coef.names<-c(m$coef.names, paste("gwadeg", decay, ".", 
                                         attrname, u, sep=""))
   }else{
-    m$terms[[termnumber]] <- list(name="gwadegree", soname="statnet",
+    m$terms[[termnumber]] <- list(name="gwadegree", soname="ergm",
                                        inputs=c(0, 1, 1, decay),
                                        dependence=TRUE)
     m$coef.names<-c(m$coef.names,paste("gwadeg",decay,sep=""))
@@ -1151,7 +1151,7 @@ InitErgm.gwedegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
             )
     }
     termnumber<-1+length(m$terms)
-    m$terms[[termnumber]] <- list(name="adegree", soname="statnet",
+    m$terms[[termnumber]] <- list(name="adegree", soname="ergm",
                                   inputs=c(0, ld, ld, d),
                                   params=list(gwedegree=NULL,
                                     gwedegree.decay=decay),
@@ -1171,7 +1171,7 @@ InitErgm.gwedegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
     du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
     if(nrow(du)==0) {return(m)}
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="gwedegree_by_attr", soname="statnet",
+    m$terms[[termnumber]] <- list(name="gwedegree_by_attr", soname="ergm",
                                   inputs=c(0, lu,
                                            1+length(nodecov), 
                                            decay, nodecov),
@@ -1180,7 +1180,7 @@ InitErgm.gwedegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
     m$coef.names<-c(m$coef.names, paste("gwedeg", decay, ".", 
                                         attrname, u, sep=""))
   }else{
-    m$terms[[termnumber]] <- list(name="gwedegree", soname="statnet",
+    m$terms[[termnumber]] <- list(name="gwedegree", soname="ergm",
                                        inputs=c(0, 1, 1, decay),
                                        dependence=TRUE)
     m$coef.names<-c(m$coef.names,paste("gwedeg",decay,sep=""))
@@ -1238,7 +1238,7 @@ InitErgm.biduration<-function (nw, m, arglist, ...) {
 # There is 1 input parameter before the covariate vector, so input
 # component 1 is set to 1 (although in this case, input component 1
 # is actually arbitrary since d_biduration ignores the value of inp->attrib).
-  m$terms[[termnumber]] <- list(name = "biduration", soname="statnet",
+  m$terms[[termnumber]] <- list(name = "biduration", soname="ergm",
                                 inputs = c(1, 1, 
                         2 + 2*nrow(xm)+nrow(dissolvem)*ncol(dissolvem),
                         nrow(xm), nrow(dissolvem), as.double(c(xm, dissolvem)))
@@ -1297,7 +1297,7 @@ InitErgm.aconcurrent<-function(nw, m, arglist, drop=TRUE, ...) {
   if(!is.null(attrname)) {
     if(length(u)==0) {return(m)}
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="aconcurrent_by_attr", soname="statnet",
+    m$terms[[termnumber]] <- list(name="aconcurrent_by_attr", soname="ergm",
                                   inputs=c(0, length(u), 
                                            length(u)+length(nodecov), 
                                            u, nodecov),
@@ -1307,7 +1307,7 @@ InitErgm.aconcurrent<-function(nw, m, arglist, drop=TRUE, ...) {
                                         u, sep=""))
   }else{
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="aconcurrent", soname="statnet",
+    m$terms[[termnumber]] <- list(name="aconcurrent", soname="ergm",
                                        inputs=c(0, 1, 0),
                                        dependence=TRUE)
     m$coef.names<-c(m$coef.names,paste("aconcurrent",sep=""))
@@ -1383,7 +1383,7 @@ InitErgm.hammingmix<-function (nw, m, arglist, ...) {
   #  Number of input parameters before covariates equals twice the number
   #  of used matrix cells, namely 2*length(uui), so that's what
   #  input component 1 equals
-  m$terms[[termnumber]] <- list(name="hammingmix", soname="statnet",
+  m$terms[[termnumber]] <- list(name="hammingmix", soname="ergm",
     inputs=c(nrow(u), nrow(u), nrow(xm)*2+length(nodecov)+length(u)+1,
             nrow(xm),as.integer(xm), u[,1], u[,2],nodecov),
             dependence=FALSE)
@@ -1458,7 +1458,7 @@ InitErgm.hammingfixmix<-function (nw, m, arglist, ...) {
   #  Number of input parameters before covariates equals twice the number
   #  of used matrix cells, namely 2*length(uui), so that's what
   #  input component 1 equals
-  m$terms[[termnumber]] <- list(name="hammingfixmix", soname="statnet",
+  m$terms[[termnumber]] <- list(name="hammingfixmix", soname="ergm",
     inputs=c(1, 1, nrow(xm)*2+length(nodecov)+1,
             nrow(xm),as.integer(xm), nodecov),
             dependence=FALSE)
@@ -1530,7 +1530,7 @@ InitErgm.hammingdyadcov<-function (nw, m, arglist, ...) {
 # There is 1 input parameter before the covariate vector, so input
 # component 1 is set to 1 (although in this case, input component 1
 # is actually arbitrary since d_dyadcov ignores the value of inp->attrib).
-   m$terms[[termnumber]] <- list(name = "hammingdyadcov", soname="statnet",
+   m$terms[[termnumber]] <- list(name = "hammingdyadcov", soname="ergm",
                                  inputs = c(1, 1,
                                    1+2*nrow(xm)+nrow(covm)*ncol(covm),
                                    nrow(xm), as.integer(xm),
@@ -1593,7 +1593,7 @@ InitErgm.econcurrent<-function(nw, m, arglist, drop=TRUE, ...) {
   if(!is.null(attrname)) {
     if(length(u)==0) {return(m)}
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="econcurrent_by_attr", soname="statnet",
+    m$terms[[termnumber]] <- list(name="econcurrent_by_attr", soname="ergm",
                                   inputs=c(0, length(u), 
                                            length(u)+length(nodecov), 
                                            u, nodecov),
@@ -1603,7 +1603,7 @@ InitErgm.econcurrent<-function(nw, m, arglist, drop=TRUE, ...) {
                                         u, sep=""))
   }else{
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="econcurrent", soname="statnet",
+    m$terms[[termnumber]] <- list(name="econcurrent", soname="ergm",
                                        inputs=c(0, 1, 0),
                                        dependence=TRUE)
     m$coef.names<-c(m$coef.names,paste("econcurrent",sep=""))
@@ -1623,7 +1623,7 @@ InitErgm.monopolymixmat<-function(nw, m, arglist, drop=TRUE, ...) {
                    required = NULL)
   termnumber<-1+length(m$terms)
   m$coef.names<-c(m$coef.names, c("monoFmonoM", "monoFpolyM", "polyFmonoM"))
-  m$terms[[termnumber]] <- list(name = "monopolymixmat", soname="statnet",
+  m$terms[[termnumber]] <- list(name = "monopolymixmat", soname="ergm",
                                 inputs = c(0, 3, 0))
   m
 }

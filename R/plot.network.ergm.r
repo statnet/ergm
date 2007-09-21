@@ -1,5 +1,5 @@
 #Two-dimensional network visualization based on plot.network.default
-"plot.network.statnet"<-function(x,
+"plot.network.ergm"<-function(x,
     attrname=NULL,
     label=network.vertex.names(x),
     coord=NULL,
@@ -81,7 +81,7 @@
    #Replace NAs with 0s
    d[is.na(d)]<-0
 #
-#  Start statnet specific
+#  Start ergm specific
 #
 # Get missingness matrix
 #
@@ -97,7 +97,7 @@
      set.seed(seed)
    }
 #
-#  "statnet" reads
+#  "ergm" reads
 #
 #  xlims <- xlim; ylims <- ylim; rm("xlim","ylim")
    par("cex.main"=cex.main,"cex.sub"=cex.sub)
@@ -212,7 +212,7 @@
      edge.col <- matrix(edge.col,n,n)
    }
 #
-#  End "statnet" reads
+#  End "ergm" reads
 #
    #Which nodes should we use?
    if(is.bipartite(x)){
@@ -442,4 +442,4 @@
 #
    invisible(list(x=coord[,1],y=coord[,2], latentfit=latentfit))
 }
-plot.network.ergm<-plot.network.statnet
+plot.network.ergm<-plot.network.ergm

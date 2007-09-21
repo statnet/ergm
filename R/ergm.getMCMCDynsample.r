@@ -60,7 +60,7 @@ ergm.getMCMCDynsample <- function(nw, model.form, model.diss,
               diffnwheads = integer(maxchanges),
               diffnwtails = integer(maxchanges),
               as.integer(verbose), 
-              PACKAGE="statnet") 
+              PACKAGE="ergm") 
       statsmatrix.form <- matrix(z$s.form, nrow=MCMCparams$nsteps+1,
                                  ncol=Clist.form$nparam,
                                  byrow = TRUE)[-1,,drop=FALSE]

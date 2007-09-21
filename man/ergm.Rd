@@ -227,7 +227,7 @@ Similar calls are used to restrict the number of indegrees
 
 You can also set ego specific limits. For example:
 
-   \code{boundDeg=list(maxout=rep(c(3,4),c(36,35))}
+   \code{boundDeg=list(maxout=rep(c(3,4),c(36,35)))}
 
 limits the first 36 to 3 and the other 35 to 4 outdegrees.
 
@@ -259,7 +259,7 @@ The value of \code{attribs[n, i]}, therefore, is \code{TRUE}
 if node \code{n} has attribute value i, and \code{FALSE} otherwise.
 (Note that, since each column represents only a single value
 of a single attribute, the values of this matrix are all
-Boolean (\code{TRUE} or \code{FALSE}).  It is important to
+Boolean (\code{TRUE} or \code{FALSE}).)  It is important to
 note that \code{attribs} is a matrix of nodal attributes,
 not alter attributes.
 
@@ -374,19 +374,17 @@ maxin[n][0] = minin[n][0] = observed indegree of n in network
 }
 
 \section{Algorithm Tuning}{
-
-There are a large number of parameters that can be modified to define complex
-models, estimators and computational aspects. These are specified via the 
-\code{algorithm.control} argument.
-The \code{algorithm.control} argument is a list that can supply any of the
+  
+  There are a large number of parameters that can be modified to define complex
+  models, estimators and computational aspects. These are specified via the 
+  \code{algorithm.control} argument.
+  The \code{algorithm.control} argument is a list that can supply any of the
   following components:
   \describe{
     \item{\code{nr.maxit}}{count; The maximum number of iterations in the
       Newton-Raphson optimization.  Defaults to \code{100}.
       \code{maxit} gives the total number of likelihood
       function evaluations.}
-      tracing information on the
-      progress of the optimization is produced. Higher values may
     \item{\code{calc.mcmc.se}}{logical; should the contribution to the 
       standard errors of the estimator incurred by the MCMC sampling
       be computed. Default is \code{TRUE}.}
@@ -418,65 +416,67 @@ The \code{algorithm.control} argument is a list that can supply any of the
       or out degrees that a node can have. By default no constraining 
       is applied.  This is explained more fully under the 
       \code{Conditioning within models} section. Defaults to no conditioning.}
-     \item{\code{drop}}{logical; Should the degenerate terms in the model be
+    \item{\code{drop}}{logical; Should the degenerate terms in the model be
       dropped from the fit?
       If statistics occur on the extreme of their range they
       correspond to infinite parameter estimates.
       Default is \code{TRUE}.}
-     \item{\code{proposalpackage}}{character; The name of the package the 
-       \code{proposaltype} is from.
-        Defaults to \code{"statnet"}.}
-     \item{\code{mcmc.precision}}{vector; upper bounds on the precision of the 
-       standard errors induced by the MCMC algorithm.
-       Defaults to \code{0.05}.}
-     \item{\code{metric}}{character; The name of the optimization metric
-       to use. Defaults to \code{"Likelihood"}.}
-     \item{\code{method}}{character; The name of the optimization method
-       to use. See \code{\link[stats]{optim}} for the options. The default method
-       \code{"BFGS"} is a quasi-Newton method (also known as a variable
-       metric algorithm). It is attributed to
-       Broyden, Fletcher, Goldfarb and Shanno. This uses function values
-       and gradients to build up a picture of the surface to be optimized.}
-     \item{\code{style}}{character; The style of maximum 
-       likelihood estimation to use. The default is optimization of an
-       MCMC estimate of the log-likelihood. An alternative is to use 
-       a form of stochastic approximation (\code{"Robbins-Monro"}).
-       The direct use of the likelihood function has many theoretical
-       advantages over stochastic approximation, but the choice will
-       depend on the model and data being fit. See Handcock (2000) and 
-       Hunter and Handcock (2006) for details.}
+    \item{\code{proposalpackage}}{character; The name of the package the 
+      \code{proposaltype} is from.
+      Defaults to \code{"ergm"}.}
+    \item{\code{mcmc.precision}}{vector; upper bounds on the precision of the 
+      standard errors induced by the MCMC algorithm.
+      Defaults to \code{0.05}.}
+    \item{\code{metric}}{character; The name of the optimization metric
+      to use. Defaults to \code{"Likelihood"}.}
+    \item{\code{method}}{character; The name of the optimization method
+      to use. See \code{\link[stats]{optim}} for the options. The default method
+      \code{"BFGS"} is a quasi-Newton method (also known as a variable
+      metric algorithm). It is attributed to
+      Broyden, Fletcher, Goldfarb and Shanno. This uses function values
+      and gradients to build up a picture of the surface to be optimized.}
+    \item{\code{style}}{character; The style of maximum 
+      likelihood estimation to use. The default is optimization of an
+      MCMC estimate of the log-likelihood. An alternative is to use 
+      a form of stochastic approximation (\code{"Robbins-Monro"}).
+      The direct use of the likelihood function has many theoretical
+      advantages over stochastic approximation, but the choice will
+      depend on the model and data being fit. See Handcock (2000) and 
+      Hunter and Handcock (2006) for details.}
     \item{\code{trustregion}}{numeric; The maximum amount the algorithm will
-       allow the approximated likelihood to be increased at a given iteration.
-       Defaults to 20.}
-       See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
+      allow the approximated likelihood to be increased at a given iteration.
+      Defaults to 20.
+      See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
     \item{\code{phase1_n}}{count; The number of MCMC samples to draw
-       in Phase 1 of the stochastic approximation algorithm.
-       Defaults to 7 plus 3 times the number of terms in the model.
-       See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
+      in Phase 1 of the stochastic approximation algorithm.
+      Defaults to 7 plus 3 times the number of terms in the model.
+      See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
     \item{\code{nsubphases}}{count; The number of sub-phases 
-       in Phase 2 of the stochastic approximation algorithm.
-       Defaults to \code{maxit}.
-       See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
+      in Phase 2 of the stochastic approximation algorithm.
+      Defaults to \code{maxit}.
+      See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
     \item{\code{initial_gain}}{numeric; The initial gain to
-       Phase 2 of the stochastic approximation algorithm.
-       Defaults to 0.1.
-       See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
+      Phase 2 of the stochastic approximation algorithm.
+      Defaults to 0.1.
+      See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
     \item{\code{niterations}}{count; The number of MCMC samples to draw
-       in Phase 2 of the stochastic approximation algorithm.
-       Defaults to 7 plus the number of terms in the model.
-       See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
+      in Phase 2 of the stochastic approximation algorithm.
+      Defaults to 7 plus the number of terms in the model.
+      See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
     \item{\code{phase3_n}}{count; The sample size for the MCMC sample
-       in Phase 3 of the stochastic approximation algorithm.
-       Defaults to 1000.
-       See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
-     \item{\code{returnMCMCstats}}{logical; If this is \code{TRUE} (the
-       default) the matrix of change 
+      in Phase 3 of the stochastic approximation algorithm.
+      Defaults to 1000.
+      See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
+    \item{\code{returnMCMCstats}}{logical; If this is \code{TRUE} (the
+      default) the matrix of change 
       statistics from the MCMC run is returned as component \code{sample}.
       This matrix is actually an object of class \code{mcmc} and can be 
-      used directly in the \code{CODA} package to assess MCMC convergence.}
-    }
+      used directly in the \code{CODA} package to assess MCMC
+      convergence.}
+  }
 }
 
+ 
 \section{Dealing with degeneracy}{
 In order to begin the process of estimating network coefficients,
 we need starting values - guesses at the true values of the
@@ -578,9 +578,9 @@ plot(flomarriage)
 #
 plot(flomarriage, vertex.cex="wealth", main="Marriage Ties")
 #
-# Use 'data(package = "statnet")' to list the data sets in a
+# Use 'data(package = "ergm")' to list the data sets in a
 #
-data(package="statnet")
+data(package="ergm")
 #
 # Load a network object of the Florentine data
 #

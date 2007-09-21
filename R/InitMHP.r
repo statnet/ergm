@@ -2,7 +2,7 @@
 #  be set up so as not to break anything!
 
 InitMHP.randomtoggle <- function(arguments, nw, model) {
-  MHproposal <- list(name = "randomtoggle", args=NULL, package="statnet")
+  MHproposal <- list(name = "randomtoggle", args=NULL, package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "Bipartiterandomtoggle"
   }
@@ -10,7 +10,7 @@ InitMHP.randomtoggle <- function(arguments, nw, model) {
 }
 
 InitMHP.TNT <- function(arguments, nw, model) {
-  MHproposal <- list(name = "TNT", args=NULL, package="statnet")
+  MHproposal <- list(name = "TNT", args=NULL, package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartiteTNT"
   }
@@ -18,7 +18,7 @@ InitMHP.TNT <- function(arguments, nw, model) {
 }
 
 InitMHP.CondDegree <- function(arguments, nw, model) {
-  MHproposal <- list(name = "CondDegree", args=NULL, package="statnet")
+  MHproposal <- list(name = "CondDegree", args=NULL, package="ergm")
 # if(is.bipartite(nw)){
 #   MHproposal$name <- "BipartiteTNT"
 # }
@@ -26,7 +26,7 @@ InitMHP.CondDegree <- function(arguments, nw, model) {
 }
 
 InitMHP.ConstantEdges <- function(arguments, nw, model) {
-  MHproposal <- list(name = "ConstantEdges", args=NULL, package="statnet")
+  MHproposal <- list(name = "ConstantEdges", args=NULL, package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartiteConstantEdges"
   }
@@ -40,7 +40,7 @@ InitMHP.ConstantEdges <- function(arguments, nw, model) {
 }
 
 InitMHP.HammingConstantEdges <- function(arguments, nw, model) {
-  MHproposal <- list(name = "HammingConstantEdges", args=NULL, package="statnet")
+  MHproposal <- list(name = "HammingConstantEdges", args=NULL, package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartiteHammingConstantEdges"
   }
@@ -48,7 +48,7 @@ InitMHP.HammingConstantEdges <- function(arguments, nw, model) {
 }
 
 InitMHP.Hamming <- function(arguments, nw, model) {
-  MHproposal <- list(name = "Hamming", args=NULL, package="statnet")
+  MHproposal <- list(name = "Hamming", args=NULL, package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartiteHamming"
   }
@@ -56,7 +56,7 @@ InitMHP.Hamming <- function(arguments, nw, model) {
 }
 
 InitMHP.formation <- function(arguments, nw, model) {
-  MHproposal <- list(name = "Formation", args=NULL, package="statnet")
+  MHproposal <- list(name = "Formation", args=NULL, package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartiteFormation"
   }
@@ -64,7 +64,7 @@ InitMHP.formation <- function(arguments, nw, model) {
 }
 
 InitMHP.formationTNT <- function(arguments, nw, model) {
-  MHproposal <- list(name = "FormationTNT", args=NULL, package="statnet")
+  MHproposal <- list(name = "FormationTNT", args=NULL, package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartiteFormationTNT"
   }
@@ -72,7 +72,7 @@ InitMHP.formationTNT <- function(arguments, nw, model) {
 }
 
 InitMHP.dissolution <- function(arguments, nw, model) {
-  MHproposal <- list(name = "Dissolution", args=NULL, package="statnet")
+  MHproposal <- list(name = "Dissolution", args=NULL, package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartiteDissolution"
   }
@@ -80,7 +80,7 @@ InitMHP.dissolution <- function(arguments, nw, model) {
 }
 
 InitMHP.randomtoggleNonObserved <- function(arguments, nw, model) {
-  MHproposal <- list(name = "randomtoggleNonObserved", args=NULL, package="statnet")
+  MHproposal <- list(name = "randomtoggleNonObserved", args=NULL, package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartiterandomtoggleNonObserved"
   }
@@ -99,7 +99,7 @@ InitMHP.nobetweengroupties <- function(arguments, nw, model) {
   e <- unlist(sapply(d, grep, x))
   f <- b*(b-1)
   args <- c(length(b), b, e)
-  MHproposal <- list(name="nobetweengroupties", args = args, package="statnet")
+  MHproposal <- list(name="nobetweengroupties", args = args, package="ergm")
   MHproposal
 }
 

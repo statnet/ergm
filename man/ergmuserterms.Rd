@@ -1,10 +1,10 @@
-\name{statnetuserterms-package}
-\alias{statnetuserterms}
+\name{ergmuserterms-package}
+\alias{ergmuserterms}
 \alias{ergmuserterms}
 \docType{package}
-\title{Add Statistics Terms for the 'statnet' Package}
+\title{Add Statistics Terms for the 'ergm' Package}
 \description{
-  The \code{\link{statnet}} package is capable of fitting a wide range of 
+  The \code{\link{ergm}} package is capable of fitting a wide range of 
   exponential random network models, in which
   the probability of a given network, \eqn{y}, on a set of nodes is 
   \eqn{\exp(\theta{\cdot}g(y))/c(\theta)}, where 
@@ -21,13 +21,13 @@
   then add nodal attributes to it using the \code{\%v\%}
   operator if necessary.
 
-  The \code{\link{statnet}} package contains a wide range of terms.
+  The \code{\link{ergm}} package contains a wide range of terms.
   For the details on the possible
   \code{<model terms>}, see \code{\link{ergm-terms}}.  
 
   This package can be modified by users to add user-defined terms to \code{\link{ergm}}
   models.
-  The terms can be used throughout the \code{\link{statnet}} package
+  The terms can be used throughout the \code{\link{ergm}} package
   and behave identically to the supplied terms.
 }
 %\usage{
@@ -38,7 +38,7 @@
 %}
 
 \details{
-    The \code{statnetuserterms} package is available from the \code{\link{statnet}}
+    The \code{ergmuserterms} package is available from the \code{\link{statnet}}
     website (\url{http://csde.washington.edu/statnet}).
 
     The code contains some simple examples and templates.
@@ -60,7 +60,7 @@
     directed networks, \code{edges} is isomorphic to both \code{ostar(1)}
     and \code{istar(1)}.  }
 
-  In the implementation of \code{\link{statnet}}, the model is initialized in \R,
+  In the implementation of \code{\link{ergm}}, the model is initialized in \R,
   then all the model information is passed to a \code{C} program that generates
   the sample of graph statistics using MCMC.  This sample is then returned
   to \R, which then approximates the MLE.
@@ -70,7 +70,7 @@
 \seealso{ergm, network, ergm-terms}
 \examples{
 \dontrun{
-library(statnetuserterms)
+library(ergmuserterms)
 data(sampson)
 monk.fit <- ergm(samplike~m2star)
 summary(monk.fit)

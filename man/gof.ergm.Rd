@@ -136,7 +136,6 @@
        This is typically plotted using \code{\link{plot.gofobject}}.
       }
 
-}
 \seealso{ergm, network, simulate.ergm, summary.ergm, plot.gofobject}
 \examples{
 #

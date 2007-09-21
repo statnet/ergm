@@ -182,7 +182,7 @@ InitErgm.absdiff<-function (nw, m, arglist, ...) {
   termnumber<-1+length(m$terms)
   m$coef.names<-c(m$coef.names,paste("absdiff",attrname,sep="."))
   nodecov <- get.node.attr(nw, attrname, "absdiff")
-  m$terms[[termnumber]] <- list(name="absdiff", soname="statnet",
+  m$terms[[termnumber]] <- list(name="absdiff", soname="ergm",
                                 inputs=c(0,1,length(nodecov),nodecov),
                                 dependence=FALSE)
   m
@@ -211,7 +211,7 @@ InitErgm.absdiffcat<-function (nw, m, arglist, ...) {
     stop ("Argument to absdiffcat() has too few distinct differences", call.=FALSE)
   termnumber<-1+length(m$terms)  
   u2 <- u[!is.na(u)]
-  m$terms[[termnumber]] <- list(name="absdiffcat", soname="statnet",
+  m$terms[[termnumber]] <- list(name="absdiffcat", soname="ergm",
                                 inputs=c(length(u2)+1, length(u),
                                          length(u2)+1+length(nodecov),
                                          u2, NAsubstitute, nodecov),
@@ -248,7 +248,7 @@ InitErgm.bounded.degree<-function(nw, m, arglist, drop=TRUE, ...) {
     stop(paste("bounded.degree() expects its 2 arglist to be of the",
                "same length"), call.=FALSE)
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="boundeddegree", soname="statnet",
+  m$terms[[termnumber]] <- list(name="boundeddegree", soname="ergm",
                                 inputs = c(0, ld, ld+ld, c(d,bound)))
   m
 }
@@ -283,7 +283,7 @@ InitErgm.bounded.idegree<-function(nw, m, arglist, drop=TRUE, ...) {
                "same length"), call.=FALSE)
   termnumber<-1+length(m$terms)
   m$terms[[termnumber]] <- list(name="boundedidegree",
-                                soname="statnet",
+                                soname="ergm",
                                 inputs = c(0, ld, ld+ld, c(d,bound)))
   m$coef.names<-c(m$coef.names,paste("bounded.idegree",d,sep=""))
   m
@@ -315,7 +315,7 @@ InitErgm.bounded.istar<-function(nw, m, arglist, drop=TRUE, ...) {
     stop(paste("bounded.istar() expects its 2 arglist to be of the",
                "same length"), call.=FALSE)
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="boundedistar", soname="statnet",
+  m$terms[[termnumber]] <- list(name="boundedistar", soname="ergm",
                                 inputs = c(0, lk, lk+lk, c(k,bound)))
   m$coef.names<-c(m$coef.names,paste("istar",k,".bound",bound,sep=""))
   m
@@ -347,7 +347,7 @@ InitErgm.bounded.kstar<-function(nw, m, arglist, drop=TRUE, ...) {
     stop(paste("bounded.kstar() expects its 2 arglist to be of the",
                "same length"), call.=FALSE)
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="boundedkstar", soname="statnet",
+  m$terms[[termnumber]] <- list(name="boundedkstar", soname="ergm",
                                 inputs = c(0, lk, lk+lk, c(k,bound)))
   m$coef.names<-c(m$coef.names,paste("kstar",k,".bound",bound,sep=""))
   m
@@ -383,7 +383,7 @@ InitErgm.bounded.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
                "same length"), call.=FALSE)
   termnumber<-1+length(m$terms)
   m$terms[[termnumber]] <- list(name="boundedodegree",
-                                soname="statnet",
+                                soname="ergm",
                                 inputs = c(0, ld, ld+ld, c(d,bound)))
   m$coef.names<-c(m$coef.names,paste("bounded.odegree",d,sep=""))
   m
@@ -415,7 +415,7 @@ InitErgm.bounded.ostar<-function(nw, m, arglist, drop=TRUE, ...) {
     stop(paste("bounded.ostar() expects its 2 arglist to be of the",
                "same length"), call.=FALSE)
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="boundedostar", soname="statnet",
+  m$terms[[termnumber]] <- list(name="boundedostar", soname="ergm",
                                 inputs = c(0, lk, lk+lk, c(k,bound)))
   m$coef.names<-c(m$coef.names,paste("ostar",k,".bound",bound,sep=""))
   m
@@ -430,7 +430,7 @@ InitErgm.bounded.triangle<-function(nw, m, arglist, ...) {
   attach(a)
   bound<-a$bound
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="boundedtriangle", soname="statnet",
+  m$terms[[termnumber]] <- list(name="boundedtriangle", soname="ergm",
                                 inputs = c(0, 1, 1, bound))
   m$coef.names<-c(m$coef.names,paste("triangle.bound",bound,sep=""))
   m
@@ -478,12 +478,12 @@ InitErgm.sociality<-function(nw, m, arglist, drop=FALSE, ...) {
   if(ld==0){return(m)}
   termnumber<-1+length(m$terms)
   if(!is.null(attrname)){
-    m$terms[[termnumber]] <- list(name="sociality", soname="statnet",
+    m$terms[[termnumber]] <- list(name="sociality", soname="ergm",
                                   inputs=c(0, ld, ld+length(nodecov),
                                     d, nodecov))
     m$coef.names<-c(m$coef.names,paste("sociality",d,".",attrname,sep=""))
   }else{
-    m$terms[[termnumber]] <- list(name="sociality", soname="statnet",
+    m$terms[[termnumber]] <- list(name="sociality", soname="ergm",
                                   inputs=c(0, ld, ld, d))
     m$coef.names<-c(m$coef.names,paste("sociality",d,sep=""))
   }
@@ -531,14 +531,14 @@ InitErgm.ctriad<-function (nw, m, arglist, drop=TRUE, ...) {
       }
     }
     if (!diff) {
-      m$terms[[termnumber]] <- list(name="ctriad", soname="statnet",
+      m$terms[[termnumber]] <- list(name="ctriad", soname="ergm",
                                     inputs=c(0,1,length(nodecov),nodecov))
       m$coef.names<-c(m$coef.names,paste("ctriad",attrname,sep="."))
     } else {
       #  Number of input parameters before covariates equals number of
       #  unique elements in nodecov, namely length(u), so that's what
       #  input element 1 equals
-      m$terms[[termnumber]] <- list(name="ctriad", soname="statnet",
+      m$terms[[termnumber]] <- list(name="ctriad", soname="ergm",
                                     inputs=c(length(ui), length(ui),
                                       length(ui)+length(nodecov),
                                       ui, nodecov))
@@ -547,7 +547,7 @@ InitErgm.ctriad<-function (nw, m, arglist, drop=TRUE, ...) {
   }else{
 #    No attributes (or diff)
 #    No covariates, so input element 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="ctriad", soname="statnet",
+    m$terms[[termnumber]] <- list(name="ctriad", soname="ergm",
                                   inputs=c(0,1,0))
     m$coef.names<-c(m$coef.names,"ctriad")
   }
@@ -584,7 +584,7 @@ InitErgm.cycle<-function(nw, m, arglist, drop=TRUE, ...)
   usestats<-(2:mk)%in%k     #Which stats are being used?
   direct<-is.directed(nw)   #Is the graph directed?
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="cycle", soname="statnet",
+  m$terms[[termnumber]] <- list(name="cycle", soname="ergm",
                                 inputs=c(0, lk, mk+1, direct, mk, usestats))
   m$coef.names<-c(m$coef.names,paste("cycle",k,sep=""))
   m
@@ -597,7 +597,7 @@ InitErgm.density<-function(nw, m, arglist, ...) {
     defaultvalues = list(),
     required = NULL)
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="density", soname="statnet",
+  m$terms[[termnumber]] <- list(name="density", soname="ergm",
                                 inputs=c(0, 1, 0),
                                 dependence=FALSE)
   m$coef.names<-c(m$coef.names,"density")
@@ -611,7 +611,7 @@ InitErgm.meandeg<-function(nw, m, arglist, ...) {
     defaultvalues = list(),
     required = NULL)
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="meandeg", soname="statnet",
+  m$terms[[termnumber]] <- list(name="meandeg", soname="ergm",
                                 inputs=c(0, 1, 0),
                                 dependence=FALSE)
   m$coef.names<-c(m$coef.names,"meandeg")
@@ -684,13 +684,13 @@ InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
   termnumber<-1+length(m$terms)
   if(is.null(attrname)) {
     if(length(d)==0){return(m)}
-    m$terms[[termnumber]] <- list(name="degree", soname="statnet",
+    m$terms[[termnumber]] <- list(name="degree", soname="ergm",
                                   inputs=c(0, length(d), length(d), d),
                                   dependence=TRUE)
     m$coef.names<-c(m$coef.names,paste("degree",d,sep=""))
   } else if (homophily) {
     if(length(d)==0){return(m)}
-    m$terms[[termnumber]] <- list(name="degree_w_homophily", soname="statnet",
+    m$terms[[termnumber]] <- list(name="degree_w_homophily", soname="ergm",
                                   inputs=c(0, length(d), 
                                            length(d) + length(nodecov), 
                                            d, nodecov),
@@ -701,7 +701,7 @@ InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
   } else {
     if(ncol(du)==0) {return(m)}
     #  No covariates here, so input element 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="degree_by_attr", soname="statnet",
+    m$terms[[termnumber]] <- list(name="degree_by_attr", soname="ergm",
                                   inputs=c(0, ncol(du), 
                                            length(du)+length(nodecov), 
                                            as.vector(du), nodecov),
@@ -748,7 +748,7 @@ InitErgm.dsp<-function(nw, m, arglist, drop=TRUE, ...) {
   ld<-length(d)
   if(ld==0){return(m)}
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="dsp", soname="statnet",
+  m$terms[[termnumber]] <- list(name="dsp", soname="ergm",
                                 inputs=c(0, ld, ld, d))
   m$coef.names<-c(m$coef.names,paste("dsp",d,sep=""))
   m
@@ -816,7 +816,7 @@ InitErgm.duration<-function (nw, m, arglist, ...) {
 # There is 1 input parameter before the covariate vector, so input
 # element 1 is set to 1 (although in this case, input element 1
 # is actually arbitrary since d_duration ignores the value of inp->attrib).
-  m$terms[[termnumber]] <- list(name = "duration", soname="statnet",
+  m$terms[[termnumber]] <- list(name = "duration", soname="ergm",
                                 inputs = c(1, 1, 
                                   NROW(xm)*2+2*NROW(formm)^2, NROW(xm),
                                   as.double(c(xm, formm, dissolvem))))
@@ -854,7 +854,7 @@ InitErgm.dyadcov<-function (nw, m, arglist, ...) {
 #  There is 1 input parameter before the covariate vector, so input
 #  element 1 is set to 1 (although in this case, input element 1
 #  is actually arbitrary since d_dyadcov ignores the value of inp->attrib).
-   m$terms[[termnumber]] <- list(name = "dyadcov",  soname="statnet",
+   m$terms[[termnumber]] <- list(name = "dyadcov",  soname="ergm",
 #                                inputs = c(1, 3, 1+NROW(xm)*NROW(xm),
                                  inputs = c(1, 3, 1+length(xm),
                                    NCOL(xm), as.double(xm)),
@@ -872,7 +872,7 @@ InitErgm.dyadcov<-function (nw, m, arglist, ...) {
 #  There is 1 input parameter before the covariate vector, so input
 #  element 1 is set to 1 (although in this case, input element 1
 #  is actually arbitrary since d_dyadcov ignores the value of inp->attrib).
-   m$terms[[termnumber]] <- list(name = "dyadcov", soname="statnet", 
+   m$terms[[termnumber]] <- list(name = "dyadcov", soname="ergm", 
                                  inputs = c(1, 1, 1+length(xm),
                                    NCOL(xm), as.double(xm)),
                                  dependence=FALSE)
@@ -908,7 +908,7 @@ InitErgm.simmeliandynamic<-function (nw, m, arglist, ...) {
 #  There is 1 input parameter before the covariate vector, so input
 #  element 1 is set to 1 (although in this case, input element 1
 #  is actually arbitrary since d_simmeliandynamic ignores the value of inp->attrib).
-   m$terms[[termnumber]] <- list(name = "simmeliandynamic", soname="statnet", 
+   m$terms[[termnumber]] <- list(name = "simmeliandynamic", soname="ergm", 
                                  inputs = c(1, 1, 1+NROW(xm)*NROW(xm),
                                    NROW(xm), as.double(xm)),
                                  dependence=FALSE)
@@ -944,7 +944,7 @@ InitErgm.intransitivedynamic<-function (nw, m, arglist, ...) {
 #  There is 1 input parameter before the covariate vector, so input
 #  element 1 is set to 1 (although in this case, input element 1
 #  is actually arbitrary since d_intransitivedynamic ignores the value of inp->attrib).
-   m$terms[[termnumber]] <- list(name = "intransitivedynamic", soname="statnet", 
+   m$terms[[termnumber]] <- list(name = "intransitivedynamic", soname="ergm", 
                                  inputs = c(1, 1, 1+NROW(xm)*NROW(xm),
                                    NROW(xm), as.double(xm)),
                                  dependence=FALSE)
@@ -980,7 +980,7 @@ InitErgm.transitivedynamic<-function (nw, m, arglist, ...) {
 #  There is 1 input parameter before the covariate vector, so input
 #  element 1 is set to 1 (although in this case, input element 1
 #  is actually arbitrary since d_transitivedynamic ignores the value of inp->attrib).
-   m$terms[[termnumber]] <- list(name = "transitivedynamic", soname="statnet", 
+   m$terms[[termnumber]] <- list(name = "transitivedynamic", soname="ergm", 
                                  inputs = c(1, 1, 1+NROW(xm)*NROW(xm),
                                    NROW(xm), as.double(xm)),
                                  dependence=FALSE)
@@ -1014,7 +1014,7 @@ InitErgm.heideriandynamic<-function (nw, m, arglist, ...) {
   termnumber <- 1 + length(m$terms)
 # There is 1 input parameter before the covariate vector, so input
 # element 1 is set to 1
-  m$terms[[termnumber]] <- list(name = "heideriandynamic", soname="statnet", 
+  m$terms[[termnumber]] <- list(name = "heideriandynamic", soname="ergm", 
                                 inputs = c(1, 1, 1+NROW(xm)*NROW(xm),
                                   NROW(xm), as.double(xm)),
                                 dependence=FALSE)
@@ -1061,7 +1061,7 @@ InitErgm.factor<-function (nw, m, arglist, drop=TRUE, ...) {
 # There is 1 input parameter before the covariate vector, so input
 # element 1 is set to 1 (although in this case, input element 1
 # is actually arbitrary since d_factor ignores the value of inp->attrib).
-  m$terms[[termnumber]] <- list(name = "factor",  soname="statnet",
+  m$terms[[termnumber]] <- list(name = "factor",  soname="ergm",
                                 inputs = c(1, 3, 1+NROW(xm)*NCOL(xm),
                                   NCOL(xm), as.double(as.numeric(xm))),
                                 dependence=FALSE)
@@ -1090,7 +1090,7 @@ InitErgm.edgecov<-function (nw, m, arglist, ...) {
 # There is 1 input parameter before the covariate vector, so input
 # element 1 is set to 1 (although in this case, input element 1
 # is actually arbitrary since d_edgecov ignores the value of inp->attrib).
-  m$terms[[termnumber]] <- list(name = "edgecov", soname="statnet", 
+  m$terms[[termnumber]] <- list(name = "edgecov", soname="ergm", 
                                 inputs = c(1, 1, 1+length(xm),
                                   NCOL(xm), as.double(xm)),
                                 dependence=FALSE)
@@ -1112,7 +1112,7 @@ InitErgm.edges<-function(nw, m, arglist, ...) {
     defaultvalues = list(),
     required = NULL)
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="edges", soname="statnet",
+  m$terms[[termnumber]] <- list(name="edges", soname="ergm",
                                 inputs=c(0, 1, 0),
                                 dependence=FALSE)
   m$coef.names<-c(m$coef.names,"edges")
@@ -1143,7 +1143,7 @@ InitErgm.esp<-function(nw, m, arglist, drop=TRUE, ...) {
   ld<-length(d)
   if(ld==0){return(m)}
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="esp", soname="statnet",
+  m$terms[[termnumber]] <- list(name="esp", soname="ergm",
                                 inputs=c(0, ld, ld, d))
   m$coef.names<-c(m$coef.names,paste("esp",d,sep=""))
   m
@@ -1173,7 +1173,7 @@ InitErgm.gwdegreealpha<-function(nw, m, arglist, initialfit=FALSE, ...) {
                             i*(1-exp(-x[2]))^(i-1)))
     }
     termnumber<-1+length(m$terms)
-    m$terms[[termnumber]] <- list(name="degree", soname="statnet",
+    m$terms[[termnumber]] <- list(name="degree", soname="ergm",
                                   inputs=c(0, ld, ld, d),
                                   params=list(gwdegreealpha=NULL,
                                     gwdegree.alpha=alpha),
@@ -1181,7 +1181,7 @@ InitErgm.gwdegreealpha<-function(nw, m, arglist, initialfit=FALSE, ...) {
     m$coef.names<-c(m$coef.names,paste("gwdegreealpha#",d,sep=""))
   }else{
     termnumber<-1+length(m$terms)
-    m$terms[[termnumber]] <- list(name="gwdegreealpha", soname="statnet",
+    m$terms[[termnumber]] <- list(name="gwdegreealpha", soname="ergm",
                                   inputs=c(0, 1, length(alpha), alpha))
     m$coef.names<-c(m$coef.names,"gwdegreealpha")
   }
@@ -1212,7 +1212,7 @@ InitErgm.gwdegreelambda<-function(nw, m, arglist, initialfit=FALSE, ...) {
            )
     }
     termnumber<-1+length(m$terms)
-    m$terms[[termnumber]] <- list(name="degree", soname="statnet",
+    m$terms[[termnumber]] <- list(name="degree", soname="ergm",
                                   inputs=c(0, ld, ld, d),
                                   params=list(gwdegreelambda=NULL,
                                     gwdegree.lambda=lambda),
@@ -1220,7 +1220,7 @@ InitErgm.gwdegreelambda<-function(nw, m, arglist, initialfit=FALSE, ...) {
     m$coef.names<-c(m$coef.names,paste("gwdegreelambda#",d,sep=""))
   }else{
     termnumber<-1+length(m$terms)
-    m$terms[[termnumber]] <- list(name="gwdegreelambda", soname="statnet",
+    m$terms[[termnumber]] <- list(name="gwdegreelambda", soname="ergm",
                                   inputs=c(0, 1, length(lambda), lambda))
     m$coef.names<-c(m$coef.names,"gwdegree")
   }
@@ -1255,7 +1255,7 @@ InitErgm.gwdegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
             x[1]*(exp(x[2])-(1-exp(-x[2]))^{i-1}*(1+i-exp(-x[2])))
            )
     }
-    m$terms[[termnumber]] <- list(name="degree", soname="statnet",
+    m$terms[[termnumber]] <- list(name="degree", soname="ergm",
                                   inputs=c(0, ld, ld, d),
                                   params=list(gwdegree=NULL,
                                     gwdegree.decay=decay),
@@ -1273,7 +1273,7 @@ InitErgm.gwdegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
     du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
     if(nrow(du)==0) {return(m)}
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="gwdegree_by_attr", soname="statnet",
+    m$terms[[termnumber]] <- list(name="gwdegree_by_attr", soname="ergm",
                                   inputs=c(0, lu, 
                                            1+length(nodecov), 
                                            decay, nodecov),
@@ -1281,7 +1281,7 @@ InitErgm.gwdegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
     m$coef.names<-c(m$coef.names, paste("gwdeg", decay, ".", 
                                         attrname, u, sep=""))
   }else{
-    m$terms[[termnumber]] <- list(name="gwdegree", soname="statnet",
+    m$terms[[termnumber]] <- list(name="gwdegree", soname="ergm",
                                   inputs=c(0, 1, length(decay), decay))
     m$coef.names<-c(m$coef.names,"gwdegree")
   }
@@ -1314,7 +1314,7 @@ InitErgm.gwdegree706<-function(nw, m, arglist, initialfit=FALSE, ...) {
            )
     }
     termnumber<-1+length(m$terms)
-    m$terms[[termnumber]] <- list(name="degree", soname="statnet",
+    m$terms[[termnumber]] <- list(name="degree", soname="ergm",
                                   inputs=c(0, ld, ld, d),
                                   params=list(gwdegree=NULL,
                                     gwdegree.decay=decay),
@@ -1322,7 +1322,7 @@ InitErgm.gwdegree706<-function(nw, m, arglist, initialfit=FALSE, ...) {
     m$coef.names<-c(m$coef.names,paste("gwdegree#",d,sep=""))
   }else{
     termnumber<-1+length(m$terms)
-    m$terms[[termnumber]] <- list(name="gwdegree706", soname="statnet",
+    m$terms[[termnumber]] <- list(name="gwdegree706", soname="ergm",
                                   inputs=c(0, 1, length(decay), decay))
     m$coef.names<-c(m$coef.names,"gwdegree706")
   }
@@ -1357,7 +1357,7 @@ InitErgm.gwidegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
             x[1]*(exp(x[2])-(1-exp(-x[2]))^{i-1}*(1+i-exp(-x[2])))
            )
     }
-    m$terms[[termnumber]] <- list(name="idegree", soname="statnet",
+    m$terms[[termnumber]] <- list(name="idegree", soname="ergm",
                                   inputs=c(0, ld, ld, d),
                                   params=list(gwidegree=NULL,
                                     gwidegree.decay=decay),
@@ -1375,7 +1375,7 @@ InitErgm.gwidegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
     du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
     if(nrow(du)==0) {return(m)}
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="gwidegree_by_attr", soname="statnet",
+    m$terms[[termnumber]] <- list(name="gwidegree_by_attr", soname="ergm",
                                   inputs=c(0, lu, 
                                            1+length(nodecov), 
                                            decay, nodecov),
@@ -1383,7 +1383,7 @@ InitErgm.gwidegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
     m$coef.names<-c(m$coef.names, paste("gwideg", decay, ".", 
                                         attrname, u, sep=""))
   }else{
-    m$terms[[termnumber]] <- list(name="gwidegree", soname="statnet",
+    m$terms[[termnumber]] <- list(name="gwidegree", soname="ergm",
                                   inputs=c(0, 1, length(decay), decay))
     m$coef.names<-c(m$coef.names,"gwidegree")
   }
@@ -1418,7 +1418,7 @@ InitErgm.gwodegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
             x[1]*(exp(x[2])-(1-exp(-x[2]))^{i-1}*(1+i-exp(-x[2])))
            )
     }
-    m$terms[[termnumber]] <- list(name="odegree", soname="statnet",
+    m$terms[[termnumber]] <- list(name="odegree", soname="ergm",
                                   inputs=c(0, ld, ld, d),
                                   params=list(gwodegree=NULL,
                                     gwodegree.decay=decay),
@@ -1436,7 +1436,7 @@ InitErgm.gwodegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
     du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
     if(nrow(du)==0) {return(m)}
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="gwodegree_by_attr", soname="statnet",
+    m$terms[[termnumber]] <- list(name="gwodegree_by_attr", soname="ergm",
                                   inputs=c(0, lu, 
                                            1+length(nodecov), 
                                            decay, nodecov),
@@ -1444,7 +1444,7 @@ InitErgm.gwodegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
     m$coef.names<-c(m$coef.names, paste("gwodeg", decay, ".", 
                                         attrname, u, sep=""))
   }else{
-    m$terms[[termnumber]] <- list(name="gwodegree", soname="statnet",
+    m$terms[[termnumber]] <- list(name="gwodegree", soname="ergm",
                                   inputs=c(0, 1, length(decay), decay))
     m$coef.names<-c(m$coef.names,"gwodegree")
   }
@@ -1475,7 +1475,7 @@ InitErgm.altkstar<-function(nw, m, arglist, initialfit=FALSE, ...) {
            )
     }
     termnumber<-1+length(m$terms)
-    m$terms[[termnumber]] <- list(name="degree", soname="statnet",
+    m$terms[[termnumber]] <- list(name="degree", soname="ergm",
                                   inputs=c(0, ld, ld, d),
                                   params=list(altkstar=NULL,
                                     altkstar.lambda=lambda),
@@ -1483,7 +1483,7 @@ InitErgm.altkstar<-function(nw, m, arglist, initialfit=FALSE, ...) {
     m$coef.names<-c(m$coef.names,paste("altkstar#",d,sep=""))
   }else{
     termnumber<-1+length(m$terms)
-    m$terms[[termnumber]] <- list(name="altkstar", soname="statnet",
+    m$terms[[termnumber]] <- list(name="altkstar", soname="ergm",
                                   inputs=c(0, 1, length(lambda), lambda))
     m$coef.names<-c(m$coef.names,"altkstar")
   }
@@ -1514,7 +1514,7 @@ InitErgm.altistar<-function(nw, m, arglist, initialfit=FALSE, ...) {
            )
     }
     termnumber<-1+length(m$terms)
-    m$terms[[termnumber]] <- list(name="idegree", soname="statnet",
+    m$terms[[termnumber]] <- list(name="idegree", soname="ergm",
                                   inputs=c(0, ld, ld, d),
                                   params=list(altistar=NULL,
                                     altistar.lambda=lambda),
@@ -1522,7 +1522,7 @@ InitErgm.altistar<-function(nw, m, arglist, initialfit=FALSE, ...) {
     m$coef.names<-c(m$coef.names,paste("altistar#",d,sep=""))
   }else{
     termnumber<-1+length(m$terms)
-    m$terms[[termnumber]] <- list(name="altistar", soname="statnet",
+    m$terms[[termnumber]] <- list(name="altistar", soname="ergm",
                                   inputs=c(0, 1, length(lambda), lambda))
     m$coef.names<-c(m$coef.names,"altistar")
   }
@@ -1553,7 +1553,7 @@ InitErgm.altostar<-function(nw, m, arglist, initialfit=FALSE, ...) {
            )
     }
     termnumber<-1+length(m$terms)
-    m$terms[[termnumber]] <- list(name="odegree", soname="statnet",
+    m$terms[[termnumber]] <- list(name="odegree", soname="ergm",
                                   inputs=c(0, ld, ld, d),
                                   params=list(altostar=NULL,
                                     altostar.lambda=lambda),
@@ -1561,7 +1561,7 @@ InitErgm.altostar<-function(nw, m, arglist, initialfit=FALSE, ...) {
     m$coef.names<-c(m$coef.names,paste("altostar#",d,sep=""))
   }else{
     termnumber<-1+length(m$terms)
-    m$terms[[termnumber]] <- list(name="altostar", soname="statnet",
+    m$terms[[termnumber]] <- list(name="altostar", soname="ergm",
                                   inputs=c(0, 1, length(lambda), lambda))
     m$coef.names<-c(m$coef.names,"altostar")
   }
@@ -1591,17 +1591,17 @@ InitErgm.gwdsp<-function(nw, m, arglist, initialfit=FALSE, ...) {
       a <- 1-exp(-x[2])
       exp(x[2]) * rbind(1-a^i, x[1] * (1 - a^i - i*a^(i-1) ) )
     }
-    m$terms[[termnumber]] <- list(name="dsp", soname="statnet",
+    m$terms[[termnumber]] <- list(name="dsp", soname="ergm",
                                   inputs=c(0, ld, ld, d),
                                   params=list(gwdsp=NULL,gwdsp.alpha=alpha),
                                   map=map, gradient=gradient)
     m$coef.names<-c(m$coef.names,paste("gwdsp#",d,sep=""))
   }else if (initialfit && !fixed) { # First pass to get MPLE coefficient
-    m$terms[[termnumber]] <- list(name="gwdsp", soname="statnet",
+    m$terms[[termnumber]] <- list(name="gwdsp", soname="ergm",
                                   inputs=c(0, 1, length(alpha), alpha))
     m$coef.names<-c(m$coef.names,"gwdsp") # must match params$gwdsp above
   }else{ # fixed == TRUE
-    m$terms[[termnumber]] <- list(name="gwdsp", soname="statnet",
+    m$terms[[termnumber]] <- list(name="gwdsp", soname="ergm",
                                   inputs=c(0, 1, length(alpha), alpha))
     m$coef.names<-c(m$coef.names,paste("gwdsp.fixed.",alpha,sep=""))
   }
@@ -1632,17 +1632,17 @@ InitErgm.gwesp<-function(nw, m, arglist, initialfit=FALSE, ...) {
       a <- 1-exp(-x[2])
       exp(x[2]) * rbind(1-a^i, x[1] * (1 - a^i - i*a^(i-1) ) )
     }
-    m$terms[[termnumber]] <- list(name="esp", soname="statnet",
+    m$terms[[termnumber]] <- list(name="esp", soname="ergm",
                                   inputs=c(0, ld, ld, d),
                                   params=list(gwesp=NULL,gwesp.alpha=alpha),
                                   map=map, gradient=gradient)
     m$coef.names<-c(m$coef.names,paste("esp#",d,sep=""))
   }else if (initialfit && !fixed) { # First pass to get MPLE coefficient
-    m$terms[[termnumber]] <- list(name="gwesp", soname="statnet",
+    m$terms[[termnumber]] <- list(name="gwesp", soname="ergm",
                                   inputs=c(0, 1, 1, alpha))
     m$coef.names<-c(m$coef.names,"gwesp") # Must match params$gwesp above
   }else{ # fixed == TRUE
-    m$terms[[termnumber]] <- list(name="gwesp", soname="statnet",
+    m$terms[[termnumber]] <- list(name="gwesp", soname="ergm",
                                   inputs=c(0, 1, 1, alpha))
     m$coef.names<-c(m$coef.names,paste("gwesp.fixed.",alpha,sep=""))
   }
@@ -1659,10 +1659,10 @@ InitErgm.kappa<-function(nw, m, arglist, ...) {
   attach(a)
   termnumber<-1+length(m$terms)
   if(is.bipartite(nw)){
-   m$terms[[termnumber]] <- list(name="bkappa", soname="statnet",
+   m$terms[[termnumber]] <- list(name="bkappa", soname="ergm",
                                 inputs=c(0, 1, 0))
   }else{
-   m$terms[[termnumber]] <- list(name="kappa", soname="statnet",
+   m$terms[[termnumber]] <- list(name="kappa", soname="ergm",
                                 inputs=c(0, 1, 0))
   }
   m$coef.names<-c(m$coef.names,"kappa")
@@ -1696,7 +1696,7 @@ InitErgm.hamming<-function (nw, m, arglist, ...) {
 # There is 1 input parameter before the covariate vector, so input
 # element 1 is set to 1 (although in this case, input element 1
 # is actually arbitrary since d_hamming ignores the value of inp->attrib).
-  m$terms[[termnumber]] <- list(name = "hamming",  soname="statnet",
+  m$terms[[termnumber]] <- list(name = "hamming",  soname="ergm",
                                 inputs = c(0, 1, NROW(xm)*2+1, NROW(xm), as.integer(xm)))
   m$coef.names<-c(m$coef.names, paste("hamming",x,sep="."))
   m
@@ -1768,13 +1768,13 @@ InitErgm.idegree<-function(nw, m, arglist, drop=TRUE, ...) {
   termnumber<-1+length(m$terms)
   if(is.null(attrname)) {
     if(length(d)==0){return(m)}
-    m$terms[[termnumber]] <- list(name="idegree", soname="statnet",
+    m$terms[[termnumber]] <- list(name="idegree", soname="ergm",
                                   inputs=c(0, length(d), length(d), d),
                                   dependence=TRUE)
     m$coef.names<-c(m$coef.names,paste("idegree",d,sep=""))
   } else if (homophily) {
     if(length(d)==0){return(m)}
-    m$terms[[termnumber]] <- list(name="idegree_w_homophily", soname="statnet",
+    m$terms[[termnumber]] <- list(name="idegree_w_homophily", soname="ergm",
                                   inputs=c(0, length(d), 
                                            length(d) + length(nodecov), 
                                            d, nodecov),
@@ -1784,7 +1784,7 @@ InitErgm.idegree<-function(nw, m, arglist, drop=TRUE, ...) {
   } else {
     if(ncol(du)==0) {return(m)}
     #  No covariates here, so input element 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="idegree_by_attr", soname="statnet",
+    m$terms[[termnumber]] <- list(name="idegree_by_attr", soname="ergm",
                                   inputs=c(0, ncol(du), 
                                            length(du)+length(nodecov), 
                                            as.vector(du), nodecov),
@@ -1846,12 +1846,12 @@ InitErgm.istar<-function(nw, m, arglist, drop=TRUE, ...) {
   if(lk==0){return(m)}
   termnumber<-1+length(m$terms)
   if(!is.null(attrname)){
-    m$terms[[termnumber]] <- list(name="istar", soname="statnet",
+    m$terms[[termnumber]] <- list(name="istar", soname="ergm",
                                   inputs=c(lk, lk, lk+length(nodecov),
                                     k, nodecov))
     m$coef.names<-c(m$coef.names,paste("istar",k,".",attrname,sep=""))
   }else{
-    m$terms[[termnumber]] <- list(name="istar", soname="statnet",
+    m$terms[[termnumber]] <- list(name="istar", soname="ergm",
                                   inputs=c(0, lk, lk, k))
     m$coef.names<-c(m$coef.names,paste("istar",k,sep=""))
   }
@@ -1874,7 +1874,7 @@ InitErgm.isolates<-function(nw, m, arglist, drop=TRUE, ...) {
     }
   }
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="isolates", soname="statnet",
+  m$terms[[termnumber]] <- list(name="isolates", soname="ergm",
                                 inputs=c(0,1,0))
   m$coef.names<-c(m$coef.names,"isolates")
   m
@@ -1927,7 +1927,7 @@ InitErgm.concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
   if(!is.null(attrname)) {
     if(length(u)==0) {return(m)}
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="concurrent_by_attr", soname="statnet",
+    m$terms[[termnumber]] <- list(name="concurrent_by_attr", soname="ergm",
                                   inputs=c(0, length(u), 
                                            length(u)+length(nodecov), 
                                            u, nodecov),
@@ -1937,7 +1937,7 @@ InitErgm.concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
                                         u, sep=""))
   }else{
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="concurrent", soname="statnet",
+    m$terms[[termnumber]] <- list(name="concurrent", soname="ergm",
                                        inputs=c(0, 1, 0),
                                        dependence=TRUE)
     m$coef.names<-c(m$coef.names,paste("concurrent",sep=""))
@@ -1995,12 +1995,12 @@ InitErgm.kstar<-function(nw, m, arglist, drop=TRUE, ...) {
   if(lk==0){return(m)}
   termnumber<-1+length(m$terms)
   if(!is.null(attrname)){
-    m$terms[[termnumber]] <- list(name="kstar", soname="statnet",
+    m$terms[[termnumber]] <- list(name="kstar", soname="ergm",
                                   inputs=c(lk, lk, lk+length(nodecov),
                                     k, nodecov))
     m$coef.names<-c(m$coef.names,paste("kstar",k,".",attrname,sep=""))
   }else{
-    m$terms[[termnumber]] <- list(name="kstar", soname="statnet",
+    m$terms[[termnumber]] <- list(name="kstar", soname="ergm",
                                   inputs=c(0, lk, lk, k))
     m$coef.names<-c(m$coef.names,paste("kstar",k,sep=""))
   }
@@ -2022,7 +2022,7 @@ InitErgm.localtriangle<-function (nw, m, arglist, ...) {
   else
     xm<-as.matrix(x)
   termnumber <- 1 + length(m$terms)
-  m$terms[[termnumber]] <- list(name = "localtriangle", soname="statnet", 
+  m$terms[[termnumber]] <- list(name = "localtriangle", soname="ergm", 
                                 inputs = c(1, 1, 1+NROW(xm)*NROW(xm),
                                   NROW(xm), as.double(xm)))
   if(!is.null(attrname))
@@ -2055,7 +2055,7 @@ InitErgm.mutual<-function (nw, m, arglist, drop=TRUE, ...) {
     }
   }
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="mutual", soname="statnet",
+  m$terms[[termnumber]] <- list(name="mutual", soname="ergm",
                                 inputs=c(0,1,0))
   m$coef.names<-c(m$coef.names,"mutual")
   m
@@ -2082,7 +2082,7 @@ InitErgm.asymmetric<-function (nw, m, arglist, drop=TRUE, ...) {
     }
   }
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="asymmetric", soname="statnet",
+  m$terms[[termnumber]] <- list(name="asymmetric", soname="ergm",
                                 inputs=c(0,1,0))
   m$coef.names<-c(m$coef.names,"asymmetric")
   m
@@ -2137,7 +2137,7 @@ InitErgm.nodematch<-function (nw, m, arglist, drop=TRUE, ...) {
   }
   termnumber<-1+length(m$terms)  
   if (!diff) {
-    m$terms[[termnumber]] <- list(name="nodematch", soname="statnet",
+    m$terms[[termnumber]] <- list(name="nodematch", soname="ergm",
                                   inputs=c(0,1,length(nodecov),nodecov),
                                   dependence=FALSE)
     m$coef.names<-c(m$coef.names,paste("nodematch",attrname,sep="."))
@@ -2145,7 +2145,7 @@ InitErgm.nodematch<-function (nw, m, arglist, drop=TRUE, ...) {
         #  Number of input parameters before covariates equals number of
         #  unique elements in nodecov, namely length(u), so that's what
         #  input element 1 equals
-    m$terms[[termnumber]] <- list(name="nodematch", soname="statnet",
+    m$terms[[termnumber]] <- list(name="nodematch", soname="ergm",
                                   inputs=c(length(ui), length(ui),
                                     length(ui)+length(nodecov),
                                     ui, nodecov),
@@ -2170,7 +2170,7 @@ InitErgm.nodemain<-function (nw, m, arglist, ...) {
     stop("nodemain() attribute must be numeric", call.=FALSE) 
   }
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="nodemain", soname="statnet",
+  m$terms[[termnumber]] <- list(name="nodemain", soname="ergm",
                                 inputs=c(0,1,length(nodecov),nodecov),
                                 dependence=FALSE)
   m
@@ -2224,7 +2224,7 @@ InitErgm.nodemix<-function (nw, m, arglist, drop=TRUE, ...) {
     #  Number of input parameters before covariates equals twice the number
     #  of used matrix cells, namely 2*length(uui), so that's what
     #  input element 1 equals
-    m$terms[[termnumber]] <- list(name="mix", soname="statnet",
+    m$terms[[termnumber]] <- list(name="mix", soname="ergm",
       inputs=c(NROW(u), NROW(u), length(nodecov)+length(u), u[,1], u[,2],nodecov),
                                   dependence=FALSE)
     m$coef.names<-c(m$coef.names,
@@ -2280,7 +2280,7 @@ InitErgm.nodemix<-function (nw, m, arglist, drop=TRUE, ...) {
     #  Number of input parameters before covariates equals twice the number
     #  of used matrix cells, namely 2*length(uui), so that's what
     #  input element 1 equals
-    m$terms[[termnumber]] <- list(name="nodemix", soname="statnet",
+    m$terms[[termnumber]] <- list(name="nodemix", soname="ergm",
                                   inputs=c(2*length(uui), length(uui),
                                     2*length(uui)+length(nodecov),
                                     urm, ucm, nodecov),
@@ -2317,7 +2317,7 @@ InitErgm.receiver<-function(nw, m, arglist, drop=FALSE, ...) {
   ld<-length(d)
   if(ld==0){return(m)}
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="receiver", soname="statnet",
+  m$terms[[termnumber]] <- list(name="receiver", soname="ergm",
                                 inputs=c(0, ld, ld, d))
   m$coef.names<-c(m$coef.names,paste("receiver",d,sep=""))
   m
@@ -2333,7 +2333,7 @@ InitErgm.receivercov<-function (nw, m, arglist, ...) {
   m$coef.names<-c(m$coef.names, paste("receivercov",attrname,sep="."))
   nodecov <- get.node.attr(nw, attrname, "receivercov")
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="receivercov", soname="statnet",
+  m$terms[[termnumber]] <- list(name="receivercov", soname="ergm",
                                 inputs=c(0,1,length(nodecov),nodecov))
   m
 }
@@ -2363,7 +2363,7 @@ InitErgm.sender<-function(nw, m, arglist, drop=FALSE, ...) {
   ld<-length(d)
   if(ld==0){return(m)}
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="sender", soname="statnet",
+  m$terms[[termnumber]] <- list(name="sender", soname="ergm",
                                 inputs=c(0, ld, ld, d))
   m$coef.names<-c(m$coef.names,paste("sender",d,sep=""))
   m
@@ -2380,7 +2380,7 @@ InitErgm.sendercov<-function (nw, m, arglist, ...) {
   m$coef.names<-c(m$coef.names, paste("sendercov",attrname,sep="."))
   nodecov <- get.node.attr(nw, attrname, "sendercov")
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="sendercov", soname="statnet",
+  m$terms[[termnumber]] <- list(name="sendercov", soname="ergm",
                                 inputs=c(0,1,length(nodecov),nodecov))
   m
 }
@@ -2423,7 +2423,7 @@ InitErgm.nodefactor<-function (nw, m, arglist, drop=TRUE, ...) {
     stop ("Argument to nodefactor() has only one value", call.=FALSE)
   }
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="nodefactor", soname="statnet",
+  m$terms[[termnumber]] <- list(name="nodefactor", soname="ergm",
                                 inputs=c(lu-1, lu-1, lu-1+length(nodecov),
                                          ui[-1], nodecov), dependence=FALSE)
   # smallest value of u is "control group"
@@ -2471,7 +2471,7 @@ InitErgm.nodeifactor<-function (nw, m, arglist, drop=TRUE, ...) {
     stop ("Argument to nodeifactor() has only one value", call.=FALSE)
   }
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="nodeifactor", soname="statnet",
+  m$terms[[termnumber]] <- list(name="nodeifactor", soname="ergm",
                                 inputs=c(lu-1, lu-1, lu-1+length(nodecov),
                                          ui[-1], nodecov), dependence=FALSE)
   # smallest value of u is "control group"
@@ -2518,7 +2518,7 @@ InitErgm.nodeofactor<-function (nw, m, arglist, drop=TRUE, ...) {
     stop ("Argument to nodeofactor() has only one value", call.=FALSE)
   }
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="nodeofactor", soname="statnet",
+  m$terms[[termnumber]] <- list(name="nodeofactor", soname="ergm",
                                 inputs=c(lu-1, lu-1, lu-1+length(nodecov),
                                          ui[-1], nodecov), dependence=FALSE)
   # smallest value of u is "control group"
@@ -2593,13 +2593,13 @@ InitErgm.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
   termnumber<-1+length(m$terms)
   if(is.null(attrname)) {
     if(length(d)==0){return(m)}
-    m$terms[[termnumber]] <- list(name="odegree", soname="statnet",
+    m$terms[[termnumber]] <- list(name="odegree", soname="ergm",
                                   inputs=c(0, length(d), length(d), d),
                                   dependence=TRUE)
     m$coef.names<-c(m$coef.names,paste("odegree",d,sep=""))
   } else if (homophily) {
     if(length(d)==0){return(m)}
-    m$terms[[termnumber]] <- list(name="odegree_w_homophily", soname="statnet",
+    m$terms[[termnumber]] <- list(name="odegree_w_homophily", soname="ergm",
                                   inputs=c(0, length(d), 
                                            length(d) + length(nodecov), 
                                            d, nodecov),
@@ -2610,7 +2610,7 @@ InitErgm.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
   } else {
     if(ncol(du)==0) {return(m)}
     #  No covariates here, so input element 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="odegree_by_attr", soname="statnet",
+    m$terms[[termnumber]] <- list(name="odegree_by_attr", soname="ergm",
                                   inputs=c(0, ncol(du), 
                                            length(du)+length(nodecov), 
                                            as.vector(du), nodecov),
@@ -2652,7 +2652,7 @@ InitErgm.ostar<-function(nw, m, arglist, drop=TRUE, ...) {
   lk<-length(k)
   if(lk==0){return(m)}
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="ostar", soname="statnet",
+  m$terms[[termnumber]] <- list(name="ostar", soname="ergm",
                                 inputs=c(0, lk, lk, k))
   m$coef.names<-c(m$coef.names,paste("ostar",k,sep=""))
   m
@@ -2671,7 +2671,7 @@ InitErgm.smalldiff<-function (nw, m, arglist, ...) {
                                      attrname, cutoff, sep=""))
   nodecov <- get.node.attr(nw, attrname, "smalldiff")
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="smalldiff", soname="statnet",
+  m$terms[[termnumber]] <- list(name="smalldiff", soname="ergm",
                                 inputs=c(1, 1, 1+length(nodecov),
                                   cutoff, nodecov), dependence=FALSE)
   m
@@ -2717,11 +2717,11 @@ InitErgm.triangle<-function (nw, m, arglist, drop=TRUE, ...) {
       }
     }
     if (!diff) {
-      m$terms[[termnumber]] <- list(name="triangle", soname="statnet",
+      m$terms[[termnumber]] <- list(name="triangle", soname="ergm",
                                     inputs=c(0,1,length(nodecov),nodecov))
       m$coef.names<-c(m$coef.names,paste("triangle",attrname,sep="."))
     } else {
-      m$terms[[termnumber]] <- list(name="triangle", soname="statnet",
+      m$terms[[termnumber]] <- list(name="triangle", soname="ergm",
                                     inputs=c(length(ui), length(ui),
                                       length(ui)+length(nodecov),
                                       ui, nodecov))
@@ -2729,7 +2729,7 @@ InitErgm.triangle<-function (nw, m, arglist, drop=TRUE, ...) {
                                          attrname, u, sep="."))
     }
   }else{
-    m$terms[[termnumber]] <- list(name="triangle", soname="statnet",
+    m$terms[[termnumber]] <- list(name="triangle", soname="ergm",
                                   inputs=c(0,1,0))
     m$coef.names<-c(m$coef.names,"triangle")
   }
@@ -2775,12 +2775,12 @@ InitErgm.tripercent<-function (nw, m, arglist, drop=TRUE, ...) {
       }
     }
     if (!diff) {
-      m$terms[[termnumber]] <- list(name="tripercent", soname="statnet",
+      m$terms[[termnumber]] <- list(name="tripercent", soname="ergm",
                                     inputs=c(1, 1, 1+length(nodecov),
                                       1, nodecov))
       m$coef.names<-c(m$coef.names,paste("tripercent",attrname,sep="."))
     } else {
-      m$terms[[termnumber]] <- list(name="tripercent", soname="statnet",
+      m$terms[[termnumber]] <- list(name="tripercent", soname="ergm",
                                     inputs=c(length(ui), length(ui),
                                       length(ui)+length(nodecov),
                                       ui, nodecov))
@@ -2788,7 +2788,7 @@ InitErgm.tripercent<-function (nw, m, arglist, drop=TRUE, ...) {
                                          attrname, u, sep="."))
     }
   }else{
-    m$terms[[termnumber]] <- list(name="tripercent", soname="statnet",
+    m$terms[[termnumber]] <- list(name="tripercent", soname="ergm",
                                   inputs=c(0,1,0))
     m$coef.names<-c(m$coef.names,"tripercent")
   }
@@ -2836,11 +2836,11 @@ InitErgm.ttriad<-function (nw, m, arglist, drop=TRUE, ...) {
       }
     }
     if (!diff) {
-      m$terms[[termnumber]] <- list(name="ttriad", soname="statnet",
+      m$terms[[termnumber]] <- list(name="ttriad", soname="ergm",
                                     inputs=c(0,1,length(nodecov),nodecov))
       m$coef.names<-c(m$coef.names,paste("ttriad",attrname,sep="."))
      } else {
-       m$terms[[termnumber]] <- list(name="ttriad", soname="statnet",
+       m$terms[[termnumber]] <- list(name="ttriad", soname="ergm",
                                      inputs=c(length(ui), length(ui),
                                        length(ui)+length(nodecov),
                                        ui, nodecov))
@@ -2848,7 +2848,7 @@ InitErgm.ttriad<-function (nw, m, arglist, drop=TRUE, ...) {
                                           attrname, u, sep="."))
      }
   }else{
-    m$terms[[termnumber]] <- list(name="ttriad", soname="statnet",
+    m$terms[[termnumber]] <- list(name="ttriad", soname="ergm",
                                   inputs=c(0,1,0))
     m$coef.names<-c(m$coef.names,"ttriad")
   }
@@ -2871,7 +2871,7 @@ InitErgm.hiertriad<-function (nw, m, arglist, drop=TRUE, ...) {
       return(m)
     }
   }
-  m$terms[[termnumber]] <- list(name="hiertriad", soname="statnet",
+  m$terms[[termnumber]] <- list(name="hiertriad", soname="ergm",
                                 inputs=c(0,1,0))
   m$coef.names<-c(m$coef.names,"hiertriad")
   m
@@ -2893,7 +2893,7 @@ InitErgm.intransitive<-function (nw, m, arglist, drop=TRUE, ...) {
       return(m)
     }
   }
-  m$terms[[termnumber]] <- list(name="intransitive", soname="statnet",
+  m$terms[[termnumber]] <- list(name="intransitive", soname="ergm",
                                 inputs=c(0,1,0))
   m$coef.names<-c(m$coef.names,"intransitive")
   m
@@ -2915,7 +2915,7 @@ InitErgm.transitive<-function (nw, m, arglist, drop=TRUE, ...) {
       return(m)
     }
   }
-  m$terms[[termnumber]] <- list(name="transitive", soname="statnet",
+  m$terms[[termnumber]] <- list(name="transitive", soname="ergm",
                                 inputs=c(0,1,0))
   m$coef.names<-c(m$coef.names,"transitive")
   m
@@ -2937,7 +2937,7 @@ InitErgm.intransitivity<-function (nw, m, arglist, drop=TRUE, ...) {
       return(m)
     }
   }
-  m$terms[[termnumber]] <- list(name="intransitivity", soname="statnet",
+  m$terms[[termnumber]] <- list(name="intransitivity", soname="ergm",
                                 inputs=c(0,1,0))
   m$coef.names<-c(m$coef.names,"intransitivity")
   m
@@ -2959,7 +2959,7 @@ InitErgm.transitivity<-function (nw, m, arglist, drop=TRUE, ...) {
       return(m)
     }
   }
-  m$terms[[termnumber]] <- list(name="transitivity", soname="statnet",
+  m$terms[[termnumber]] <- list(name="transitivity", soname="ergm",
                                 inputs=c(0,1,0))
   m$coef.names<-c(m$coef.names,"transitivity")
   m
@@ -2981,7 +2981,7 @@ InitErgm.hiertriaddegree<-function (nw, m, arglist, drop=TRUE, ...) {
       return(m)
     }
   }
-  m$terms[[termnumber]] <- list(name="hiertriaddegree", soname="statnet",
+  m$terms[[termnumber]] <- list(name="hiertriaddegree", soname="ergm",
                                 inputs=c(0,1,0))
   m$coef.names<-c(m$coef.names,"hiertriaddegree")
   m
@@ -3013,7 +3013,7 @@ InitErgm.spatial<-function(nw, m, arglist, initialfit=FALSE, ...) {
       )
     }
     termnumber<-1+length(m$terms)
-    m$terms[[termnumber]] <- list(name="berninhom", soname="statnet",
+    m$terms[[termnumber]] <- list(name="berninhom", soname="ergm",
                                 inputs=c(0, nstat, 0, 0),
                                 dependence=TRUE,
                                 params=list(spatial.pb=pb,
@@ -3023,7 +3023,7 @@ InitErgm.spatial<-function(nw, m, arglist, initialfit=FALSE, ...) {
     m$coef.names<-c(m$coef.names,paste("spatial#",1:nstat,sep=""))
   }else{
     termnumber<-1+length(m$terms)
-    m$terms[[termnumber]] <- list(name="spatial", soname="statnet",
+    m$terms[[termnumber]] <- list(name="spatial", soname="ergm",
                                 inputs=c(0, 1, 3+nstat, c(pb, alpha, gamma, d)),
                                 dependence=TRUE)
     m$coef.names<-c(m$coef.names,"spatial.pb")
@@ -3061,7 +3061,7 @@ InitErgm.geodegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
       rbind(exp(-(x[2])*i)-1, -x[1]*i*exp(-x[2]*i))
     }
     termnumber<-1+length(m$terms)
-    m$terms[[termnumber]] <- list(name="degree", soname="statnet",
+    m$terms[[termnumber]] <- list(name="degree", soname="ergm",
                                   inputs=c(0, ld, ld, d),
                                   params=list(geodegree=NULL,
                                     geodegree.alpha=alpha),
@@ -3069,7 +3069,7 @@ InitErgm.geodegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
     m$coef.names<-c(m$coef.names,paste("geodegree#",d,sep=""))
   }else{
     termnumber<-1+length(m$terms)
-    m$terms[[termnumber]] <- list(name="geodegree", soname="statnet",
+    m$terms[[termnumber]] <- list(name="geodegree", soname="ergm",
                                   inputs=c(0, 1, length(alpha), alpha))
     m$coef.names<-c(m$coef.names,"geodegree")
   }
@@ -3078,7 +3078,7 @@ InitErgm.geodegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
 
 #InitErgm.balance<-function (nw, m, arglist, ...) {
 #  warning(paste("balance() model term is only available in the ",
-#                "'statnet' package\n", 
+#                "'ergm' package\n", 
 #                "Ingoring this term.\n", sep = ""), call. = FALSE)
 #  m
 #}
@@ -3130,7 +3130,7 @@ InitErgm.balance<-function (nw, m, arglist, ...) {
      }
      if (!diff) {
 #     No parameters before covariates here, so input element 1 equals 0
-      m$terms[[termnumber]] <- list(name="balance", soname="statnet",
+      m$terms[[termnumber]] <- list(name="balance", soname="ergm",
                                     inputs=c(0,1,length(nodecov),nodecov),
                                     dependence=TRUE)
       m$coef.names<-c(m$coef.names,paste("balance",attrname,sep="."))
@@ -3138,7 +3138,7 @@ InitErgm.balance<-function (nw, m, arglist, ...) {
       #  Number of input parameters before covariates equals number of
       #  unique elements in nodecov, namely length(u), so that's what
       #  input element 1 equals
-      m$terms[[termnumber]] <- list(name="balance", soname="statnet",
+      m$terms[[termnumber]] <- list(name="balance", soname="ergm",
           inputs=c(length(ui), length(ui), length(ui)+length(nodecov),
                    ui, nodecov),
           dependence=TRUE)
@@ -3159,7 +3159,7 @@ InitErgm.balance<-function (nw, m, arglist, ...) {
 #    }
 #   }
 #   No covariates, so input element 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="balance", soname="statnet",
+    m$terms[[termnumber]] <- list(name="balance", soname="ergm",
                                   inputs=c(0,1,0),
                                   dependence=TRUE)
     m$coef.names<-c(m$coef.names,"balance")
@@ -3189,7 +3189,7 @@ InitErgm.simmelian<-function (nw, m, arglist, drop=TRUE, ...) {
     }
   }
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="simmelian", soname="statnet",
+  m$terms[[termnumber]] <- list(name="simmelian", soname="ergm",
                                 inputs=c(0,1,0))
   m$coef.names<-c(m$coef.names,"simmelian")
   m
@@ -3216,7 +3216,7 @@ InitErgm.simmelianties<-function (nw, m, arglist, drop=TRUE, ...) {
     }
   }
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="simmelianties", soname="statnet",
+  m$terms[[termnumber]] <- list(name="simmelianties", soname="ergm",
                                 inputs=c(0,1,0))
   m$coef.names<-c(m$coef.names,"simmelianties")
   m
@@ -3243,7 +3243,7 @@ InitErgm.nearsimmelian<-function (nw, m, arglist, drop=TRUE, ...) {
     }
   }
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="nearsimmelian", soname="statnet",
+  m$terms[[termnumber]] <- list(name="nearsimmelian", soname="ergm",
                                 inputs=c(0,1,0))
   m$coef.names<-c(m$coef.names,"nearsimmelian")
   m
@@ -3257,7 +3257,7 @@ InitErgm.icvar<-function(nw, m, arglist, ...) {
     defaultvalues = list(),
     required = NULL)
     termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="icvar", soname="statnet",
+  m$terms[[termnumber]] <- list(name="icvar", soname="ergm",
                                 inputs=c(0, 1, 0),
                                 dependence=TRUE)
   m$coef.names<-c(m$coef.names,"icvar")
@@ -3272,7 +3272,7 @@ InitErgm.idc<-function(nw, m, arglist, ...) {
     defaultvalues = list(),
     required = NULL)
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="idc", soname="statnet",
+  m$terms[[termnumber]] <- list(name="idc", soname="ergm",
                                 inputs=c(0, 1, 0),
                                 dependence=TRUE)
   m$coef.names<-c(m$coef.names,"idc")

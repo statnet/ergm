@@ -10,7 +10,7 @@ ergm.plinfo<-function(Clist, Clist.miss, m, fix=NULL, theta.offset=NULL)
 	  as.double(Clist$inputs),        
 	  y = double(numobs),  x = double(numobs*Clist$nparam),
           start=as.integer(1), end=as.integer(numobs),
-          PACKAGE="statnet")
+          PACKAGE="ergm")
 
   xmat <- matrix(z$x, numobs, Clist$nparam, byrow=TRUE)
   zy <- z$y

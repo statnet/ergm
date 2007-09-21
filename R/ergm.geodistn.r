@@ -41,7 +41,7 @@ ergm.geodistn <- function(edgelist, n=max(edgelist), directed=FALSE) {
   ans<-.C("full_geodesic_distribution", as.integer(t(edgelist)),
     as.integer(n), as.integer(nodelist), as.integer(dim(edgelist)[1]),
     colors=integer(n), distances=integer(n), queue=integer(n),
-    distribution=integer(n), PACKAGE='statnet') $ distribution
+    distribution=integer(n), PACKAGE='ergm') $ distribution
   names(ans)<-c(1:(n-1),"Inf") # length n really means no path exists
   ans
 }
@@ -64,7 +64,7 @@ ergm.geodesicmatrix.edgelist <- function(edgelist, n=max(edgelist), directed=FAL
 # Now everything is ready.  Call the C code.
   ans<-.C("geodesic_matrix", as.integer(t(edgelist)), as.integer(n),
     as.integer(nodelist), as.integer(dim(edgelist)[1]), colors=integer(n),
-    gmat=integer(n*n), queue=integer(n), PACKAGE='statnet') $ gmat
+    gmat=integer(n*n), queue=integer(n), PACKAGE='ergm') $ gmat
   ans[ans==n]<-Inf # length n really means no path exists
   ans=matrix(ans,n,n,byrow=TRUE) # byrow=TRUE is only important when directed==TRUE
   ans
@@ -86,7 +86,7 @@ ergm.nodegeodesics <- function(edgelist, s, n=max(edgelist), directed=FALSE) {
 # Now everything is ready.  Call the C code.
   ans<-.C("node_geodesics", as.integer(t(edgelist)), as.integer(n),
     as.integer(nodelist), as.integer(dim(edgelist)[1]), colors=integer(n),
-    distances=integer(n), queue=integer(n), as.integer(s), PACKAGE='statnet') $ distances
+    distances=integer(n), queue=integer(n), as.integer(s), PACKAGE='ergm') $ distances
   ans[ans==n]<-Inf # length n really means no path exists
   ans
 }
@@ -107,7 +107,7 @@ ergm.pairgeodesic <- function(edgelist, s, d, n=max(edgelist), directed=F) {
   ans<-.C("pair_geodesic", as.integer(t(edgelist)), as.integer(n),
     as.integer(nodelist), as.integer(dim(edgelist)[1]), colors=integer(n),
     distances=integer(n), queue=integer(n), as.integer(s),
-    as.integer(d), PACKAGE='statnet') $ distances[d]
+    as.integer(d), PACKAGE='ergm') $ distances[d]
   if (ans==n) ans<-Inf # length n really means no path exists
   ans
 }

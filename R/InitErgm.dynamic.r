@@ -20,7 +20,7 @@ InitErgm.dissolve<-function (nw, m, arglist, ...) {
 # There is 1 input parameter before the covariate vector, so input
 # component 1 is set to 1 (although in this case, input component 1
 # is actually arbitrary since d_dyadcov ignores the value of inp->attrib).
-  m$terms[[termnumber]] <- list(name = "dissolve", soname="statnet",
+  m$terms[[termnumber]] <- list(name = "dissolve", soname="ergm",
                                 inputs = c(1, 1, 1+length(nwm),
                                    nrow(nwm), as.integer(nwm)),
                                  dependence=FALSE)
@@ -60,7 +60,7 @@ InitErgm.formation<-function (nw, m, arglist, ...) {
 # There is 1 input parameter before the covariate vector, so input
 # component 1 is set to 1 (although in this case, input component 1
 # is actually arbitrary since d_dyadcov ignores the value of inp->attrib).
-   m$terms[[termnumber]] <- list(name = "formation", soname="statnet",
+   m$terms[[termnumber]] <- list(name = "formation", soname="ergm",
                                  inputs = c(1, 1,
                                    1+2*nrow(xm),
                                    nrow(xm), as.integer(xm)),
@@ -79,7 +79,7 @@ InitErgm.edges.ageinterval<-function(nw, m, arglist, ...) {
   from=a$from
   to=a$to
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="edges_ageinterval", soname="statnet",
+  m$terms[[termnumber]] <- list(name="edges_ageinterval", soname="ergm",
                                 inputs=c(0, 1, 2, from, if(to==Inf) 0 else to),
                                 dependence=FALSE)
   m$coef.names<-c(m$coef.names,paste("edges","age",from,"to",to,sep="."))

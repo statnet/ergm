@@ -24,7 +24,7 @@
   This function produces a print out the summary measures.
 }
 \value{none}
-}
+
 \seealso{gof.ergm, gof.formula, ergm, network, simulate.ergm}
 \examples{
 #

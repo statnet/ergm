@@ -10,7 +10,7 @@ InitErgm.D.off <- function(nw, m, arglist, ...) {
   m$DURATIONflag <- TRUE
   m$coef.names<-c(m$coef.names, "D.off")
   termnumber <- 1 + length(m$terms)
-  m$terms[[termnumber]] <- list(name = "D_off", soname="statnet",
+  m$terms[[termnumber]] <- list(name = "D_off", soname="ergm",
                                 inputs = c(0, 1, 0))
   m
 }
@@ -24,7 +24,7 @@ InitErgm.D.dyad <- function(nw, m, arglist, ...) {
   m$DURATIONflag <- TRUE
   m$coef.names <- c(m$coef.names, "D.dyad")
   termnumber <- 1 + length(m$terms)
-  m$terms[[termnumber]] <- list(name = "D_dyad", soname="statnet",
+  m$terms[[termnumber]] <- list(name = "D_dyad", soname="ergm",
                                 inputs = c(0, 1, 0))
   m
 }
@@ -38,7 +38,7 @@ InitErgm.D.edge <- function(nw, m, arglist, ...) {
   m$DURATIONflag <- TRUE
   m$coef.names <- c(m$coef.names, "D.edge")
   termnumber <- 1 + length(m$terms)
-  m$terms[[termnumber]] <- list(name = "D_edge", soname="statnet",
+  m$terms[[termnumber]] <- list(name = "D_edge", soname="ergm",
                                 inputs = c(0, 1, 0))
   m
 }

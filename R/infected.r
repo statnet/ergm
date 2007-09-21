@@ -25,7 +25,7 @@ prevalence <- function(gsim, nsim=1, beta=0.1, randomseeds=FALSE) {
                   as.double(beta),
                   infected = as.integer(infected),
                   prev = as.integer(prev),
-                  PACKAGE = "statnet")
+                  PACKAGE = "ergm")
   list(prevalence=prevalence$prev, infected=prevalence$infected)
 }
 

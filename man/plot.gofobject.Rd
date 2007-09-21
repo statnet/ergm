@@ -40,7 +40,6 @@
 }
 \value{none}
 
-}
 \seealso{gof.ergm, gof.formula, ergm, network, simulate.ergm}
 \examples{
 #

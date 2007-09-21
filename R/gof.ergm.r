@@ -10,8 +10,9 @@ gof.default <- function(object,...)
 gof.ergm <- function (object, ..., nsim=100,
                       GOF=~degree+espartners+distance, 
                       burnin=10000, interval=1000,
-                      proposaltype="TNT",
-                      proposalargs=NULL,
+                      constraint=NULL,
+                      prop.weights="default",
+                      prop.args=NULL,
                       seed=NULL, drop=TRUE,
                       summarizestats=FALSE,
                       theta0=NULL,
@@ -25,9 +26,8 @@ gof.ergm <- function (object, ..., nsim=100,
   }
   if(is.null(seed)){seed <- sample(10000000, size=1)}
 
-  if(missing(proposaltype) & !is.null(object$proposaltype)){
-    proposaltype <- object$proposaltype
-  }
+  proposaltype <- lookupMH.ergm(object,"c",constraint,prop.weights)
+  
   boundDeg <- object$boundDeg
 
   if(missing(theta0)){theta0 <- object$coef}
@@ -36,22 +36,23 @@ gof.ergm <- function (object, ..., nsim=100,
               GOF=GOF,
               burnin=burnin, interval=interval,
               boundDeg=boundDeg,
-              proposaltype=proposaltype,
-              proposalargs=proposalargs,
+              constraint=forceMH(proposaltype),
+              prop.args=prop.args,
               seed=seed, drop=drop,
               summarizestats=summarizestats,
               verbose=verbose, ...)
 }
 
 gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
-                      burnin=10000, interval=1000,
-                      GOF=~degree+espartners+distance, 
-                      proposaltype="TNT",
-                      proposalargs=NULL,
-                      seed=NULL, drop=TRUE,
-                      boundDeg=NULL,
-                      summarizestats=FALSE,
-                      verbose=FALSE) {
+                        burnin=10000, interval=1000,
+                        GOF=~degree+espartners+distance,
+                        constraint=NULL,
+                        prop.weights="default",
+                        prop.args=NULL,
+                        seed=NULL, drop=TRUE,
+                        boundDeg=NULL,
+                        summarizestats=FALSE,
+                        verbose=FALSE) {
 # Unused code
   theta0missing <- NULL
   unconditional <- TRUE
@@ -65,9 +66,8 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
 
   if(is.ergm(nw)){
     all.gof.vars <- ergm.rhs.formula(formula)
-    if(missing(proposaltype) & !is.null(nw$proposaltype)){
-      proposaltype <- nw$proposaltype
-    }
+    proposaltype <- lookupMH.ergm(nw,"c",constraint,prop.weights)
+    
     boundDeg <- nw$boundDeg
     formula <- nw$formula
     if(missing(theta0)){theta0 <- nw$coef}
@@ -79,6 +79,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
     }
   }else{
     all.gof.vars <- ergm.rhs.formula(GOF)
+    proposaltype <- lookupMHproposal("c",constraint,prop.weights)
   }
 
 # match variables
@@ -105,7 +106,8 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
 # }
 
   m <- ergm.getmodel(formula, nw, drop=drop)
-  MHproposal <- getMHproposal(proposaltype, proposalargs, nw, m)
+  MHproposal <- getMHproposal(proposaltype,
+                              prop.args, nw, m)
   Clist <- ergm.Cprepare(nw, m)
 
   if(is.null(theta0)){
@@ -124,8 +126,8 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
                   GOF=GOF, nsim=nsim,
                   burnin=burnin, interval=interval,
                   boundDeg=boundDeg,
-                  proposaltype=proposaltype,
-                  proposalargs=proposalargs,
+                  constraint=forceMH(proposaltype),
+                  prop.args=prop.args,
                   drop=drop,
                   unconditional=FALSE,
                   seed=seed, verbose=verbose)
@@ -261,14 +263,16 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
   # Simulate an exponential family random graph model
 
   SimNetworkSeriesObj <- simulate(formula, nsim=nsim, seed=seed,
-                             theta0=theta0,
-                             burnin=burnin, interval=interval,
-                             proposaltype=proposaltype,
-                             proposalargs=proposalargs,
-                             boundDeg=boundDeg,
-                             summarizestats=summarizestats, drop=drop,
-                             verbose=verbose, basis=nw)
-
+                                  theta0=theta0,
+                                  burnin=burnin, interval=interval,
+                                  constraint=constraint,
+                                  simulate.ergm.control(prop.args=prop.args,
+                                                        prop.weights=prop.weights,
+                                                        boundDeg=boundDeg,
+                                                        summarizestats=summarizestats,
+                                                        drop=drop),
+                                  verbose=verbose, basis=nw)
+  
   if(verbose){cat("\nCollating simulations\n")}
 
   for (i in 1:nsim)

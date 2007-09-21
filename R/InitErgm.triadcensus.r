@@ -29,7 +29,7 @@ InitErgm.triadcensus.directedonly<-function (nw, m, arglist, drop=FALSE, ...) {
   if(lengthd==0){return(model)}
   termnumber<-1+length(m$terms)
 # No covariates here, so input component 1 is arbitrary
-  m$terms[[termnumber]] <- list(name="triadcensus", soname="statnet",
+  m$terms[[termnumber]] <- list(name="triadcensus", soname="ergm",
                                       inputs=c(0, lengthd, lengthd, d),
                                       dependence=TRUE)
   m$coef.names<-c(m$coef.names, 
@@ -74,7 +74,7 @@ InitErgm.triadcensus<-function (nw, m, arglist, drop=FALSE, ...) {
   if(lengthd==0){return(model)}
   termnumber<-1+length(m$terms)
 # No covariates here, so input component 1 is arbitrary
-  m$terms[[termnumber]] <- list(name="triadcensus", soname="statnet",
+  m$terms[[termnumber]] <- list(name="triadcensus", soname="ergm",
                                       inputs=c(0, lengthd, lengthd, d),
                                       dependence=TRUE)
   m$coef.names<-c(m$coef.names, paste("triadcensus",tcn,sep=".")[d])
@@ -98,7 +98,7 @@ InitErgm.balance<-function (nw, m, arglist, drop=TRUE, ...) {
   }
   termnumber<-1+length(m$terms)
 # No covariates here, so input component 1 is arbitrary
-  m$terms[[termnumber]] <- list(name="balance", soname="statnet",
+  m$terms[[termnumber]] <- list(name="balance", soname="ergm",
                                       inputs=c(0, 1, 0),
                                       dependence=TRUE)
   m$coef.names<-c(m$coef.names, "balance")

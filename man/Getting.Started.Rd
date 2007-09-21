@@ -2,28 +2,28 @@
 \alias{Getting.Started}
 \docType{package}
 \title{
-Getting Started with "statnet": Statistical Modeling of Network and Graph Data
+Getting Started with "ergm": Statistical Modeling of Network and Graph Data
 }
 \description{
-\code{\link{statnet}} is a collection of functions to plot, fit, diagnose, and simulate from random 
-graph models. For a list of functions type: help(package='statnet')
+\code{\link{ergm}} is a collection of functions to plot, fit, diagnose, and simulate from random 
+graph models. For a list of functions type: help(package='ergm')
 
-For a complete list of the functions, use \code{library(help="statnet")} 
+For a complete list of the functions, use \code{library(help="ergm")} 
 or read the rest of the manual. For a simple demonstration,
-use \code{demo(packages="statnet")}.
+use \code{demo(packages="ergm")}.
 
 When publishing results obtained using this package the original authors
 are to be cited as:
 
 Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau,
 and Martina Morris. 2003 
-\emph{statnet: An R package for the Statistical Modeling of Social Networks}
+\emph{ergm: An R package for the Statistical Modeling of Social Networks}
 \cr
 \url{http://www.csde.washington.edu/statnet}.
 
 All programs derived from this package must cite it.
 For complete citation information, use\cr
-\code{citation(package="statnet")}.
+\code{citation(package="ergm")}.
 }
 \details{
 Recent advances in the statistical modeling of random networks have had an
@@ -40,13 +40,13 @@ inferential properties of nontrivial models.
 This manual introduces software tools for the representation, visualization,
 and analysis of network data that address each of these previous shortcomings.
 The package relies on the \code{\link[network]{network}} package which allows networks to be
-represented in \R. The \code{\link{statnet}} package allows maximum likelihood estimates of
+represented in \R. The \code{\link{ergm}} package allows maximum likelihood estimates of
 exponential random network models to be calculated using Markov Chain Monte
 Carlo.  The package also provides tools for plotting networks, simulating
 networks and assessing model goodness-of-fit.
 
 For detailed information on how to download and install the software,
-go to the \code{\link{statnet}} website:
+go to the \code{\link{ergm}} website:
 \url{http://www.csde.washington.edu/statnet}.
 A tutorial, support newsgroup, references and links to further resources are provided there.
 }

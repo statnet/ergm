@@ -1,24 +1,12 @@
 simulatedyn <- function(object, dissolve=NULL, nsteps=1, seed=NULL, theta0,gamma0,
                         burnin=0, interval=1, dyninterval=1000,
-                        proposaltype.form="formationTNT",
-                        proposalargs.form = NULL,
-                        proposaltype.diss="dissolution",
-                        proposalargs.diss = NULL,
+                        constraint="none",
                         dissolve.order="DissThenForm",
-                        algorithm.control=list(),
-                        drop=FALSE,
+                        control=ergm.simulatedyn.control(),
                         verbose=FALSE) {
   formula <- object
 
-  ## Defaults :
-  con <- list(boundDeg=NULL, drop=drop,
-              dyninterval=dyninterval,
-              maxchanges=1000000,
-              final=FALSE,
-              summarizestats=FALSE
-             )
-
-  con[(namc <- names(algorithm.control))] <- algorithm.control
+  control$dyninterval<-dyninterval
   
   if(is.null(seed)){seed <- sample(10000000, size=1)}
   set.seed(as.integer(seed))
@@ -33,11 +21,11 @@ simulatedyn <- function(object, dissolve=NULL, nsteps=1, seed=NULL, theta0,gamma
   # Resolve conditioning
   # This is laborious to cover the various partial specifications
   #
-  BD <- ergm.boundDeg(con$boundDeg, nnodes=network.size(nw))
+  BD <- ergm.boundDeg(control$boundDeg, nnodes=network.size(nw))
 
-  model.form <- ergm.getmodel(formula, nw, drop=con$drop)
+  model.form <- ergm.getmodel(formula, nw, drop=control$drop)
   model.diss <- ergm.getmodel.dissolve(dissolve, nw, dissolve.order=dissolve.order)
-#
+
   verbose <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
   if(missing(theta0)) {
@@ -55,9 +43,11 @@ simulatedyn <- function(object, dissolve=NULL, nsteps=1, seed=NULL, theta0,gamma
   if(is.null(seed)){seed <- sample(10000000, size=1)}
   set.seed(as.integer(seed))
     
-  MHproposal.form <- getMHproposal(proposaltype.form, proposalargs.form, nw, model.form)
-  MHproposal.diss <- getMHproposal(proposaltype.diss, proposalargs.diss, nw, model.diss)
-  MCMCparams <- c(con,list(nsteps=nsteps, interval=interval,
+  MHproposal.form <- getMHproposal(lookupMHproposal("f",constraint,control$prop.weights.form),
+                                   control$prop.args.form, nw, model.form)
+  MHproposal.diss <- getMHproposal(lookupMHproposal("d",constraint,control$prop.weights.diss),
+                                   control$prop.args.diss, nw, model.diss)
+  MCMCparams <- c(control,list(nsteps=nsteps, interval=interval,
                            stats.form=matrix(summary(model.form$formula),ncol=length(model.form$coef.names),nrow=1),
                            stats.diss=matrix(summary(model.diss$formula),ncol=length(model.diss$coef.names),nrow=1),
                            burnin=burnin,
@@ -69,7 +59,7 @@ simulatedyn <- function(object, dissolve=NULL, nsteps=1, seed=NULL, theta0,gamma
                              MHproposal.form, MHproposal.diss,
                              theta0, gamma0, MCMCparams, verbose, BD)
 
-  if(con$final){
+  if(control$final){
    nw <- z$newnetwork
    return(nw)
   }else{

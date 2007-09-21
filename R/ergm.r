@@ -1,57 +1,39 @@
 ergm <- function(formula, theta0="MPLE", 
                  MPLEonly=FALSE, MLestimate=!MPLEonly, seed=NULL,
-                 burnin=10000, MCMCsamplesize=10000, interval=100, maxit=3,
-                 proposaltype="TNT", proposalargs=NULL,
-                 proposaltype.diss="dissolution", proposalargs.diss=NULL,
+                 burnin=10000, MCMCsamplesize=10000, interval=100,
+                 maxit=3,
+                 constraint="none",
                  meanstats=NULL,
                  dissolve=NULL, gamma=-4.59512, dissolve.order="DissThenForm",
-                 algorithm.control=list(),
+                 control=ergm.control(),
                  verbose=FALSE, ...) {
   current.warn <- options()$warn
   options(warn=0)
   if(!is.null(seed))  set.seed(as.integer(seed))
   if (verbose) cat("Evaluating network in model\n")
 
-  ## Defaults :
-  con <- list(nr.maxit=100, calc.mcmc.se=TRUE, hessian=FALSE, 
-              compress=FALSE,
-              maxNumDyadTypes=10000, 
-              maxedges=20000,
-              maxchanges=1000000,
-              MPLEsamplesize=50000, 
-              trace=0,
-              boundDeg=NULL,
-              steplength=0.5,
-              drop=TRUE,
-              force.mcmc=FALSE,
-              mcmc.precision=0.05,
-              metric="Likelihood",
-              method="BFGS",
-              trustregion=20,
-              style="Newton-Raphson",
-              phase1_n=NULL, initial_gain=NULL, 
-              nsubphases=maxit, niterations=NULL, phase3_n=NULL,
-              dyninterval=1000,
-              parallel=0,
-              returnMCMCstats=TRUE
-             )
-
-  con[(namc <- names(algorithm.control))] <- algorithm.control
-
   nw <- ergm.getnetwork(formula)
-  if(!is.null(meanstats)){ con$drop <- FALSE }
+  if(!is.null(meanstats)){ control$drop <- FALSE }
+  if(control$nsubphases=="maxit") control$nsubphases<-maxit
+
+  
   if (verbose) cat("Fitting initial model.\n")
 
-  if(!is.null(dissolve)){
-       proposaltype <- "formationTNT"
+  proposalclass <- if(is.null(dissolve)) "c" else "f"
+    
+  model.initial <- ergm.getmodel(formula, nw, drop=control$drop, initialfit=TRUE)
+  MHproposal <- getMHproposal(lookupMHproposal(proposalclass,constraint,control$prop.weights), control$prop.args, nw, model.initial)
+  MHproposal.miss <- getMHproposal("randomtoggleNonObserved", control$prop.args, nw, model.initial)
+
+  # MPLE & Meanstats -> need fake network
+  if("MPLE" %in% theta0 && !is.null(meanstats)){
+    nw.initial<-mk.pseudonet(meanstats, formula, nw, verbose=verbose)
   }
-  model.initial <- ergm.getmodel(formula, nw, drop=con$drop, initialfit=TRUE)
-  MHproposal <- getMHproposal(proposaltype, proposalargs, nw, model.initial)
-  MHproposal.miss <- getMHproposal("randomtoggleNonObserved", proposalargs, nw, model.initial)
-#
-  BD <- ergm.boundDeg(con$boundDeg, nnodes=network.size(nw))
-  Clist.initial <- ergm.Cprepare(nw, model.initial)
-  Clist.miss.initial <- ergm.design(nw, model.initial, initialfit=TRUE,
+  else nw.initial<-nw
+  
+  BD <- ergm.boundDeg(control$boundDeg, nnodes=network.size(nw))
+  Clist.initial <- ergm.Cprepare(nw.initial, model.initial)
+  Clist.miss.initial <- ergm.design(nw.initial, model.initial, initialfit=TRUE,
                                 verbose=verbose)
   Clist.initial$meanstats=meanstats
   theta0copy <- theta0
@@ -60,7 +42,7 @@ ergm <- function(formula, theta0="MPLE",
   if (MLestimate && 
       (   !ergm.independencemodel(model.initial)
        || !is.null(meanstats))
-       || con$force.mcmc
+       || control$force.mcmc
       ) {
     theta0 <- initialfit$coef
     names(theta0) <- model.initial$coef.names
@@ -71,13 +53,13 @@ ergm <- function(formula, theta0="MPLE",
     initialfit$formula <- formula
     return(initialfit)
   } 
-  model <- ergm.getmodel(formula, nw, drop=con$drop, expanded=TRUE)
+  model <- ergm.getmodel(formula, nw, drop=control$drop, expanded=TRUE)
   theta0 <- ergm.revisetheta0(model, theta0)
   # revise theta0 to reflect additional parameters
 
   Clist <- ergm.Cprepare(nw, model)
   Clist.miss <- ergm.design(nw, model, verbose=verbose)
-  Clist$obs <- summary(model$formula, drop=con$drop)
+  Clist$obs <- summary(model$formula, drop=control$drop)
   Clist$meanstats <- Clist$obs
   if(!is.null(meanstats)){
    if (is.null(names(meanstats))){
@@ -98,14 +80,14 @@ ergm <- function(formula, theta0="MPLE",
   }
 
   if (verbose) cat("ergm.mainfitloop\n")
-  MCMCparams=c(con,list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,maxit=maxit,Clist.miss=Clist.miss))
+  MCMCparams=c(control,list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,maxit=maxit,Clist.miss=Clist.miss))
   styles <- c("Newton-Raphson","Robbins-Monro","Stochastic-Approximation")
-  con$style <- styles[pmatch(con$style,styles,nomatch=1)]
+  control$style <- styles[pmatch(control$style,styles,nomatch=1)]
   if(!is.null(dissolve)){
     if (verbose) cat("Fitting Dynamic ERGM.\n")
     model.dissolve <- ergm.getmodel.dissolve(dissolve, nw, dissolve.order)
-    MHproposal.diss <- getMHproposal(proposaltype.diss, proposalargs.diss, nw, model.dissolve)
-    v <- switch(con$style,
+    MHproposal.diss <- getMHproposal(lookupMHproposal("d",constraint,control$weights.diss), control$prop.args.diss, nw, model.dissolve)
+    v <- switch(control$style,
                 "Robbins-Monro" = ergm.robmon.dyn(theta0, nw, model, model.dissolve,
                   Clist, BD, gamma, 
                   MCMCparams=MCMCparams, MHproposal.form=MHproposal,
@@ -121,9 +103,9 @@ ergm <- function(formula, theta0="MPLE",
                 )
   }else{
    if (verbose) cat("Fitting ERGM.\n")
-   v <- switch(con$style,
+   v <- switch(control$style,
     "Robbins-Monro" = ergm.robmon(theta0, nw, model, Clist, BD, burnin, interval,
-                      proposaltype, verbose, con),
+                      getMHproposal(lookupMHproposal("c",constraint,control$prop.weights), control$prop.args, nw, model), verbose, control),
     "Stochastic-Approximation" = ergm.stocapprox(theta0, nw, model, 
                                  Clist, BD, 
                                  MCMCparams=MCMCparams, MHproposal=MHproposal,
@@ -139,8 +121,8 @@ ergm <- function(formula, theta0="MPLE",
   }
 
   if(!is.null(v$mplefit)){
-   if(v$loglikelihood>con$trustregion-0.0001){
-    v$degeneracy <- con$trustregion
+   if(v$loglikelihood>control$trustregion-0.0001){
+    v$degeneracy <- control$trustregion
    }else{
      ## Workaround.
      #fff <- (-2*v$mplefit$glm$y+1)*model.matrix(v$mplefit$glm)
@@ -154,11 +136,11 @@ ergm <- function(formula, theta0="MPLE",
     v$degeneracy.type <- abs(model.matrix(fit$glm) %*% fit$coef)
     v$degeneracy <- max(v$degeneracy.type)
    }else{
-    v$degeneracy <- con$trustregion
+    v$degeneracy <- control$trustregion
    }
   }
 
-  if (!con$returnMCMCstats)
+  if (!control$returnMCMCstats)
     v$sample <- NULL
   options(warn=current.warn)
   v

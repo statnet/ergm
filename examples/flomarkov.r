@@ -1,7 +1,7 @@
-library(statnet)
+library(ergm)
 #
-# Use 'data(package = "statnet")' to list the data sets in a
-data(package="statnet")
+# Use 'data(package = "ergm")' to list the data sets in a
+data(package="ergm")
 #
 # Load a graph object of the Florentine data
 #

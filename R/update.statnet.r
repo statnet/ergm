@@ -1,11 +1,11 @@
-"update.statnet" <- function(object, ..., 
-            contriburl = "http://csde.washington.edu/statnet",
+"update.ergm" <- function(object, ..., 
+            contriburl = "http://csde.washington.edu/ergm",
             repos = getOption("repos"), type = getOption("pkgType"))
 {
   cran.contriburl <- contrib.url(repos, type)
   cat(paste("Initializing...\n",sep=""))
   cran.Base <- c("network", "coda")
-  csde.Base <- c("statnet")
+  csde.Base <- c("ergm")
   cran.Recommended <- c("sna", "latentnet")
   csde.Recommended <- c()
 # cran.Optional <- c("netdata")
@@ -18,14 +18,14 @@
     object <- c(cran.Base, csde.Base, cran.Recommended,
                 csde.Recommended, cran.Optional, csde.Optional)
   }
-  inuse <- match(paste("package:","statnet",sep=""), search())
+  inuse <- match(paste("package:","ergm",sep=""), search())
   if(!inherits(try(detach(pos=inuse),silent=TRUE), "try-error")){
-    cat(paste("Detaching package '", "statnet","'.\n",sep=""))
+    cat(paste("Detaching package '", "ergm","'.\n",sep=""))
   }
 #
 # local install functions
 #
-  statnet.install <- function(object, csde, contriburl=cran.contriburl,
+  ergm.install <- function(object, csde, contriburl=cran.contriburl,
                               ask=FALSE, type="recommended",
                               update.pkgs=update.cran.pkgs){
     pma <- match(csde, object)
@@ -68,25 +68,25 @@
   old.cran.pkgs <- old.packages(lib.loc=.libPaths()[1])[,1]
   update.cran.pkgs <- c(new.cran.pkgs, old.cran.pkgs)
 #
-  statnet.install(object, cran.Base, ask=FALSE, type="base")
-  statnet.install(object, csde.Base, ask=FALSE, type="base",
+  ergm.install(object, cran.Base, ask=FALSE, type="base")
+  ergm.install(object, csde.Base, ask=FALSE, type="base",
                   update.pkgs=update.csde.pkgs, contriburl=contriburl)
-  statnet.install(object, cran.Recommended, ask=TRUE, type="recommended")
-  statnet.install(object, csde.Recommended, ask=TRUE, type="recommended",
+  ergm.install(object, cran.Recommended, ask=TRUE, type="recommended")
+  ergm.install(object, csde.Recommended, ask=TRUE, type="recommended",
                   update.pkgs=update.csde.pkgs, contriburl=contriburl)
-  statnet.install(object, cran.Optional, ask=TRUE, type="optional")
-  statnet.install(object, csde.Optional, ask=TRUE, type="optional",
+  ergm.install(object, cran.Optional, ask=TRUE, type="optional")
+  ergm.install(object, csde.Optional, ask=TRUE, type="optional",
                   update.pkgs=update.csde.pkgs, contriburl=contriburl)
 #
 # check required packages for latentnet
 #
   inst.pkgs <- as.vector(installed.packages()[,1])
   if("latentnet" %in% inst.pkgs){
-    statnet.install(cran.Base.latentnet, cran.Base.latentnet, ask=FALSE, type="base")
+    ergm.install(cran.Base.latentnet, cran.Base.latentnet, ask=FALSE, type="base")
   }
 #
   cat(paste("=========================================\n",sep=""))
-  cat(paste("'statnet' is now up-to-date.\n",sep=""))
-  require(statnet)
+  cat(paste("'ergm' is now up-to-date.\n",sep=""))
+  require(ergm)
   invisible()
 }

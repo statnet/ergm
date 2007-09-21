@@ -48,7 +48,7 @@ ergm.phase12 <- function(g, model,
             as.integer(maxedges),
             as.integer(0.0), as.integer(0.0), 
             as.integer(0),
-            PACKAGE="statnet") 
+            PACKAGE="ergm") 
   }
   statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
                         ncol=Clist$nparam,

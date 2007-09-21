@@ -45,12 +45,13 @@ sociality.network <- function (object, ...,
 }
 
 sociality.formula <- function (formula, ..., theta0, nsim=100,
-                      burnin=100, interval=100,
-                      proposaltype="TNT", proposalargs = NULL,
-                      multiplicity=1,
-                      seed=NULL,  drop=FALSE,
-                      statistics=NULL
-		      ) {
+                               burnin=100, interval=100,
+                               constraint="none",
+                               prop.weights="auto",
+                               prop.args = NULL,
+                               seed=NULL,  drop=FALSE,
+                               statistics=NULL
+                               ) {
   trms <- ergm.getterms(formula)
   if(length(trms)>2){
     g <- eval(trms[[2]], sys.parent())
@@ -63,7 +64,8 @@ sociality.formula <- function (formula, ..., theta0, nsim=100,
   }
 
   m <- ergm.getmodel(trms, g, drop=drop)
-  MHproposal <- getMHproposal(proposaltype, proposalargs, g, m)
+  MHproposal <- getMHproposal(lookupMHproposal("c",constraint,prop.weights),
+                              prop.args, g, m)
   Clist <- ergm.Cprepare(g, m)
 
   if(missing(theta0)){
@@ -97,12 +99,11 @@ sociality.formula <- function (formula, ..., theta0, nsim=100,
   # Simulate an exponential family random network model
 
   SimGraphSeriesObj <- simulate(formula, burnin=burnin, interval=interval,
-                             proposaltype=proposaltype, 
-                             proposalargs=proposalargs,
-                             multiplicity=multiplicity,
-                             theta0=theta0,
-                             drop=drop,
-                             n=nsim, seed=seed)
+                                constraint=constraint, 
+                                control=simulate.ergm.control(prop.args=prop.args,
+                                  prop.weights=prop.weights,drop=drop),
+                                theta0=theta0,
+                                n=nsim, seed=seed)
 
 # cat("\nCollating simulations\n")
 
@@ -122,11 +123,10 @@ sociality.formula <- function (formula, ..., theta0, nsim=100,
   }
 
 sociality.ergm <- function (object, ..., nsim=100,
-                      burnin=100, interval=100,
-                      proposaltype="TNT", proposalargs = NULL,
-                      multiplicity=1,
-                      seed=NULL, drop=FALSE,
-		      statistics=NULL) {
+                            burnin=100, interval=100,
+                            constraint="none", prop.weights="auto", prop.args = NULL,
+                            seed=NULL, drop=FALSE,
+                            statistics=NULL) {
 
 # trms <- ergm.getterms(object$formula)
 # g <- as.network(eval(trms[[2]], sys.parent()))
@@ -164,10 +164,10 @@ sociality.ergm <- function (object, ..., nsim=100,
   # Simulate an exponential family random network model
 
   SimGraphSeriesObj <- simulate(object, burnin=burnin, interval=interval,
-                             proposaltype=proposaltype,
-                             proposalargs = proposalargs,
-                             multiplicity=multiplicity,
-                             drop=drop,
+                                constraint=constraint,
+                                control=simulate.ergm.control(prop.weights=prop.weights,
+                                  prop.args=prop.args,
+                                  drop=drop),
                              n=nsim, seed=seed)
 
 # cat("\nCollating simulations\n")

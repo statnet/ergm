@@ -56,7 +56,7 @@ simulate.numeric <- function(row=NULL, col=NULL, nsim=1, seed=NULL, ...,
           as.double(nsim.in),
           as.integer(verb),
           prob=as.double(1), probvec=double(nsim.in),
-          PACKAGE="statnet")
+          PACKAGE="ergm")
 
     mat[1:nrow.nonnull, 1:ncol.nonnull] <- matrix(s$newmat,
              ncol=ncol.nonnull)[,order(order.col.sums)]

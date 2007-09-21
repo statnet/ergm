@@ -33,7 +33,7 @@ ergm.mple<-function(Clist, Clist.miss, m, fix=NULL, theta.offset=NULL,
            weightsvector = integer(maxNumDyadTypes),
            as.double(offset), compressedOffset=double(maxNumDyadTypes),
            as.integer(maxNumDyadTypes),
-           PACKAGE="statnet")
+           PACKAGE="ergm")
 #
   uvals <- z$weightsvector!=0
   zy <- z$y[uvals]
@@ -300,55 +300,51 @@ ergm.logisticdeviance <- function(beta, X, y,
       -sum(2 * w * ifelse(y, log(p), log(1-p)))
 }
 
-mk.pseudonet<-function(meanstats,f,y,start.density=NULL,ntoggles=length(meanstats)+1,covS=length(meanstats)^2*8,verbose=FALSE){
+mk.pseudonet<-function(meanstats,f,y,ntoggles=length(meanstats)+1,covS=length(meanstats)^2*8,verbose=FALSE){
   if(verbose) cat("Constructing a fake network with correct (or close) meanstats:\n")
   oldwarn<-options()$warn
   on.exit(options(warn=oldwarn))
   options(warn=-1)
-  names(meanstats)<-NULL # all.equal can fail otherwise
-
+  
   n<-network.size(y)
   dir<-is.directed(y)
   bi<-is.bipartite(y)
   y<-network.copy(y)
   max.edges<-n*(n-1)/(2-dir)
-
-  if(is.null(start.density)){
-    statnames<-attr(terms(f),"term.labels")
-    if(any(statnames=="edges")){
-      start.density<-meanstats[which(statnames=="edges")]/max.edges
-    }
-    else start.density=.5
-  }
-
+    
   rbern.net<-function(y,p){
     y<-network.copy(y)
-    y<-network.update(y,as.matrix.network.edgelist(as.network(n,density=p,directed=dir,bipartite=bi)))
+    y<-network.update(y,as.matrix.network.edgelist(as.network(n,density=p,directed=dir,bipartite=bi)),matrix.type="edgelist")
     y
   }
   summ.net<-function(y){
     summary(as.formula(paste("y~",f[3])))
   }
-
-  if(verbose) cat("n=",n,", dir=",dir,", max.edges=",max.edges,",
-  start.density=",start.density,"\n",sep="")
-
+  
+  if(verbose) cat("n=",n,", dir=",dir,", max.edges=",max.edges,"\n",sep="")
+  
   all.edges<-as.matrix.network.edgelist(rbern.net(y,1))
   all.edges<-all.edges[order(runif(dim(all.edges)[1])),,drop=FALSE]
+  
+  if(verbose) cat("Estimating the covariance matrix of network statistics... ")
 
-  if(verbose) cat("Estimating the covariance matrix of network statistics...
-  ")
-  wt<-robust.inverse(cov(t(sapply(1:covS,function(i)
-  summ.net(rbern.net(y,start.density))))))
-  if(verbose) cat("Finished. \n")
-
+  dens.stats<-t(sapply(1:covS,function(i)
+                       summ.net(rbern.net(y,(i-1)/(covS-1)))))
+  
+  wt<-robust.inverse(cov(dens.stats))
+  if(verbose) cat("Finished.\n")
+  
   if(verbose){
     cat("Weight matrix:\n")
     print(wt)
   }
   
+  start.density<-(which.min(mahalanobis(dens.stats,meanstats,wt,inverted=TRUE))-1)/(covS-1)
+
+  if(verbose) cat("Starting density:",start.density,"\n")
+  
   decider<-function(target,cur,prop,wt)
-  ergm.mahalanobis(cur,target,wt,inverted=TRUE)-ergm.mahalanobis(prop,target,wt,inverted=TRUE)>=sqrt(.Machine$double.eps)*runif(1,-1,1)
+    mahalanobis(cur,target,wt,inverted=TRUE)-mahalanobis(prop,target,wt,inverted=TRUE)>=sqrt(.Machine$double.eps)*runif(1,-1,1)
 
   y<-rbern.net(y,start.density)
   ms<-summ.net(y)
@@ -357,11 +353,11 @@ mk.pseudonet<-function(meanstats,f,y,start.density=NULL,ntoggles=length(meanstat
   t<-0
   i<-floor(runif(ntoggles,1,max.edges+1))
   balance<-0
-  while(t<max.edges){
+  last.acc<-0
+  while(t<max.edges && (t<=n || t/2>=(t-last.acc))){
     if(verbose>=2) {print(summary(y))}
     
-    names(ms)<-NULL # all.equal fails otherwise
-    if(all.equal(ms,meanstats)==TRUE){
+    if(all(ms==meanstats)){
       if(verbose) cat("\nNetwork with right statistics found.\n")
       return(y)
     }
@@ -390,6 +386,7 @@ mk.pseudonet<-function(meanstats,f,y,start.density=NULL,ntoggles=length(meanstat
       if(decider(meanstats,ms,ms.prop,wt)){
         y<-network.copy(y.prop)
         ms<-ms.prop
+        last.acc<-t
         if(verbose) cat(": Acc")
       }else{
         if(verbose) cat(": Rej")

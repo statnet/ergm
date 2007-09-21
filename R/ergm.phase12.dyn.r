@@ -61,7 +61,7 @@ ergm.phase12.dyn <- function(g, model.form, model.diss,
               diffnwtime = integer(maxchanges), diffnwhead = integer(maxchanges), diffnwtail = integer(maxchanges),
               # Verbosity.
               as.integer(verbose), 
-          PACKAGE="statnet") 
+          PACKAGE="ergm") 
     statsmatrix <- matrix(z$s.form, nrow=MCMCparams$samplesize,
                           ncol=Clist.form$nparam,
                           byrow = TRUE)

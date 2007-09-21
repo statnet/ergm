@@ -9,4 +9,60 @@ proposal
 }
 
 
+nativeMHproposals<-
+  #                    Class Constraint       Weights   MHP
+  as.data.frame(rbind(c("c", "none",          "default",   "TNT"),
+                      c("c", "none",          "TNT",    "TNT"),
+                      c("c", "none",          "random", "randomtoggle"),
+                      c("c", "degrees",       "default",   "CondDegree"),
+                      c("c", "degrees",       "random", "CondDegree"),
+                      c("c", "edges",         "default",   "ConstantEdges"),
+                      c("c", "edges",         "random", "ConstantEdges"),
+                      c("c", "hamming",       "default",   "Hamming"),
+                      c("c", "hamming",       "random", "Hamming"),
+                      c("c", "edges+hamming", "default",   "HammingConstantEdges"),
+                      c("c", "edges+hamming", "random", "HammingConstantEdges"),
+                      c("f", "none",          "default",   "formationTNT"),
+                      c("f", "none",          "TNT",    "formationTNT"),
+                      c("f", "none",          "random", "formation"),
+                      c("d", "none",          "default",   "dissolution"),
+                      c("d", "none",          "random", "dissolution")),
+                stringsAsFactors=FALSE)
+colnames(nativeMHproposals)<-c("Class","Constraint","Weights","MHP")
 
+lookupMHproposal <- function(class, constraint, weights){
+  if(is.null(constraint)) constraint<-"none"
+  # If the proposal is specified explicitly, just use it.
+  if(length(grep(":",constraint))) return(gsub(".*:","",constraint))
+  
+  # Convert vector of constraints to a "standard form".
+  constraint<-paste(sort(tolower(constraint)),collapse="+")
+  MHP<-with(nativeMHproposals,MHP[Class==class & Constraint==constraint & Weights==weights])
+  if(length(MHP)>1) stop("Multiple matching proposals in the lookup table.",
+                         "This Should Not Be Happening. Please make a bug report.")
+  if(length(MHP)<1){
+    constraints<-with(nativeMHproposals,Constraint[Class==class & Weights==weights])
+    weightings<-with(nativeMHproposals,Weights[Class==class & Constraint==constraint])
+    stop("This combination of model constraint and proposal weighting is not implemented.",
+         "Check your arguments for typos.",
+         if(length(constraints)) paste("Constraints that go with your selected weighting are as follows: ",
+               paste(constraints,collapse=", "),".",sep="")
+         else "The supplied weighting is not recognized/implemented.",
+         if(length(weightings)) paste("Weightings that go with your selected constraint are as follows: ",
+               paste(weightings,collapse=", "),".",sep="")
+         else "The supplied constraint is not recognized/implemented."
+         )
+  }
+  MHP
+}
+
+forceMH<-function(proposaltype){
+  paste(":",proposaltype,sep="")
+}
+
+lookupMH.ergm<-function(object,class,constraint=NULL,weights){
+  if(is.null(constraint) & !is.null(object$proposaltype))
+    object$proposaltype
+  else
+    lookupMHproposal(class,constraint,weights)
+}

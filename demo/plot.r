@@ -1,9 +1,9 @@
 #
 pause <- function(){readline(prompt="Pause. Press <Enter> to continue...");invisible()}
 #
-# Use 'data(package = "statnet")' to list the data sets in it
+# Use 'data(package = "ergm")' to list the data sets in it
 #
-data(package="statnet")
+data(package="ergm")
 #
 # load the Florentine marriage network
 #

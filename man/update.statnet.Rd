@@ -89,4 +89,4 @@ update.statnet()
 }
 }
 \keyword{utilities}
-}
+

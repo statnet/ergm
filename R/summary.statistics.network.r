@@ -70,7 +70,7 @@ summary.statistics.network <- function(object,...,drop=FALSE,basis=NULL)
            as.character(Clist$fnamestring), as.character(Clist$snamestring), 
            as.double(Clist$inputs),
            gs = double(Clist$nparam),
-           PACKAGE="statnet"
+           PACKAGE="ergm"
            )$gs
   names(gs) <- m$coef.names
   #

@@ -18,7 +18,7 @@ degree.mix.matrix <- function(gsim) {
                   as.integer(N), as.integer(Nfem), as.integer(Ntot), 
                   as.integer(nchange), as.integer(cha),
                   dmm = as.integer(rep(0,4*Ntot)),
-                  PACKAGE = "statnet")$dmm
+                  PACKAGE = "ergm")$dmm
   degmixmat <- matrix(degmixmat, ncol=4)
   colnames(degmixmat) <- c("Deg0", "bothMono", "partnerConc", "Conc")
   degmixmat

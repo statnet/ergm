@@ -8,25 +8,16 @@ san.default <- function(object,...)
 }
 
 san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
-                          burnin=10000, interval=10000,
-                          meanstats=NULL,
-                          sequential=TRUE,
-                          proposaltype="TNT",
-                          algorithm.control=list(),
-                          drop=FALSE,
-                          verbose=FALSE) {
+                        burnin=10000, interval=10000,
+                        meanstats=NULL,
+                        sequential=TRUE,
+                        constraint=NULL,
+                        control=san.control(),
+                        verbose=FALSE) {
   out.list <- list()
   out.mat <- numeric(0)
   formula <- object
 
-  ## Defaults :
-  con <- list(boundDeg=NULL, drop=drop,
-              proposalpackage="statnet",
-              summarizestats=FALSE
-             )
-
-  con[(namc <- names(algorithm.control))] <- algorithm.control
-  
   if(is.null(seed)){seed <- sample(10000000, size=1)}
   set.seed(as.integer(seed))
   nw <- ergm.getnetwork(formula)
@@ -51,7 +42,7 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
 #BD <- con$boundDeg
 #  if(is.null(BD)){
 #   BD <- ergm.boundDeg(NULL)
-    BD <- ergm.boundDeg(con$boundDeg, nnodes=network.size(nw))
+    BD <- ergm.boundDeg(control$boundDeg, nnodes=network.size(nw))
 #  }
 #
 #  if (BD$condAllDegExact==TRUE && proposaltype != "conddeg") {
@@ -75,22 +66,15 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
 #  }
 #  
 ################################################
-  m <- ergm.getmodel(formula, nw, drop=con$drop)
+  m <- ergm.getmodel(formula, nw, drop=control$drop)
   distanceMetric <- 0
   Clist <- ergm.Cprepare(nw, m)
   
   MCMCsamplesize <- 1
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
-  if(is.bipartite(nw)){
-   if(proposaltype=="randomtoggle"){proposaltype <- "Bipartiterandomtoggle"}
-   if(proposaltype=="ConstantEdges"){proposaltype <- "BipartiteConstantEdges"}
-   if(proposaltype=="TNT"){proposaltype <- "BipartiteTNT"}
-   if(proposaltype=="HammingConstantEdges"){proposaltype <- "BipartiteHammingConstantEdges"}
-   if(proposaltype=="Hamming"){proposaltype <- "BipartiteHamming"}
-   if(proposaltype=="formation"){proposaltype <- "BipartiteFormation"}
-   if(proposaltype=="formationTNT"){proposaltype <- "BipartiteFormationTNT"}
-  }
+  proposaltype<-getMHproposal(proposaltype,
+                              control$prop.args,nw,model)$name
   if(missing(theta0)) {
     warning("No parameter values given, using MPLE\n\t")
   }
@@ -127,7 +111,7 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
              as.character(Clist$fnamestring),
              as.character(Clist$snamestring), 
              as.character(proposaltype),
-             as.character(con$proposalpackage),
+             as.character(control$proposalpackage),
              as.double(Clist$inputs),
              as.double(theta0),
              as.integer(MCMCsamplesize),
@@ -143,7 +127,7 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
              as.integer(maxedges), 
              as.integer(0.0), as.integer(0.0), 
              as.integer(0.0),
-             PACKAGE="statnet")
+             PACKAGE="ergm")
     }
 #
 #   Next update the network to be the final (possibly conditionally)
@@ -170,23 +154,14 @@ san.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
                        burnin=100000, interval=10000, 
                        meanstats=NULL,
                        sequential=TRUE, 
-                       proposaltype="TNT",
-                       algorithm.control=list(),
+                       constraint="NULL",
+                       control=san.control(),
                        verbose=FALSE) {
   out.list <- vector("list", nsim)
   out.mat <- numeric(0)
 
-  ## Defaults :
-  con <- list(boundDeg=NULL, drop=TRUE,
-              proposalpackage="statnet",
-              summarizestats=FALSE
-             )
-
-  con[(namc <- names(algorithm.control))] <- algorithm.control
+  proposaltype <- lookupMH.ergm(object,"c",constraint,control$prop.weights)
   
-  if(missing(proposaltype) & !is.null(object$proposaltype)){
-    proposaltype <- object$proposaltype
-  }
 #  if(missing(multiplicity) & !is.null(object$multiplicity)){
 #    multiplicity <- object$multiplicity
 #  }
@@ -194,13 +169,9 @@ san.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
   set.seed(as.integer(seed))
   
   nw <- object$network  
-  if(is.bipartite(nw)){
-   if(proposaltype=="randomtoggle"){proposaltype <- "Bipartiterandomtoggle"}
-   if(proposaltype=="ConstantEdges"){proposaltype <- "BipartiteConstantEdges"}
-  }
   
 #   BD <- ergm.boundDeg(NULL)
-    BD <- ergm.boundDeg(con$boundDeg, nnodes=network.size(nw))
+    BD <- ergm.boundDeg(control$boundDeg, nnodes=network.size(nw))
     
 ############################    
 #  if (BD$condAllDegExact==TRUE && proposaltype != "conddeg") {
@@ -225,11 +196,13 @@ san.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
 #                            nomatch=1)
 #  }
   
-  m <- ergm.getmodel(object$formula, nw, drop=con$drop)
+  m <- ergm.getmodel(object$formula, nw, drop=control$drop)
   MCMCsamplesize <- 1
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
-# multiplicity.constrained <- 1  
+  proposaltype<-getMHproposal(proposaltype,
+                              control$prop.args,nw,model)$name
+  # multiplicity.constrained <- 1  
   if(missing(meanstats)){
     stop("You need to specify target statistic via",
          " the 'meanstats' argument")
@@ -262,7 +235,7 @@ san.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
             as.character(Clist$fnamestring),
             as.character(Clist$snamestring), 
             as.character(proposaltype),
-            as.character(con$proposalpackage),
+            as.character(control$proposalpackage),
             as.double(Clist$inputs),
             as.double(theta0),
             as.integer(MCMCsamplesize),
@@ -279,11 +252,11 @@ san.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
             as.integer(maxedges), 
             as.integer(0.0), as.integer(0.0), 
             as.integer(0.0),
-            PACKAGE="statnet")
+            PACKAGE="ergm")
     }
     #
     #   summarize stats
-    if(con$summarizestats){
+    if(control$summarizestats){
       class(Clist) <- "networkClist"
       if(i==1){
         globalstatsmatrix <- summary(Clist)
@@ -314,7 +287,7 @@ san.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
   }else{
     out.list <- out.list[[1]]
   }
-  if(con$summarizestats){
+  if(control$summarizestats){
     colnames(globalstatsmatrix) <- colnames(statsmatrix)
     print(globalstatsmatrix)
     print(apply(globalstatsmatrix,2,summary.statsmatrix.ergm),scipen=6)

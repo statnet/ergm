@@ -7,11 +7,10 @@ mvmodel.default <- function(object,...)
 }
 
 mvmodel.formula <- function (formula, ..., theta0, nsim=100,
-                      burnin=100, interval=100,
-                      proposaltype="TNT", proposalargs=NULL,
-                      multiplicity=1,
-                      seed=NULL,  drop=FALSE,
-                      statistic=NULL
+                             burnin=100, interval=100,
+                             constraint="none", prop.weights="auto", prop.args=NULL,
+                             seed=NULL,  drop=FALSE,
+                             statistic=NULL
 		      ) {
   trms <- ergm.getterms(formula)
   if(length(trms)>2){
@@ -25,7 +24,8 @@ mvmodel.formula <- function (formula, ..., theta0, nsim=100,
   }
 
   m <- ergm.getmodel(formula, g, drop=drop)
-  MHproposal <- getMHproposal(proposaltype, proposalargs, g, m)
+  MHproposal <- getMHproposal(lookupMHproposal("c",constraint,prop.weights),
+                              prop.args, g, m)
   Clist <- ergm.Cprepare(g, m)
 
   if(missing(theta0)){
@@ -49,13 +49,13 @@ mvmodel.formula <- function (formula, ..., theta0, nsim=100,
   # Simulate an exponential family random network model
 
   SimGraphSeriesObj <- simulate(formula, burnin=burnin, interval=interval,
-                             proposaltype=proposaltype,
-                             proposalargs=proposalargs,
-                             multiplicity=multiplicity,
-                             theta0=theta0,
-                             algorithm.control=list(drop=drop),
-                             n=nsim, seed=seed)
-
+                                constraint=constraint,
+                                control=simulate.ergm.control(prop.args=prop.args,
+                                  prop.weights=prop.weights,
+                                  drop=drop),
+                                theta0=theta0,
+                                n=nsim, seed=seed)
+  
 # cat("\nCollating simulations\n")
 
   # Set up the output arrays
@@ -90,11 +90,10 @@ mvmodel.formula <- function (formula, ..., theta0, nsim=100,
 }
 
 mvmodel.ergm <- function (object, ..., nsim=100,
-                      burnin=100, interval=100,
-                      proposaltype="TNT", 
-                      proposalargs=NULL, multiplicity=1,
-                      seed=NULL, drop=FALSE,
-		      statistic=NULL) {
+                          burnin=100, interval=100,
+                          constraint="none", prop.weights="auto", prop.args=NULL,
+                          seed=NULL, drop=FALSE,
+                          statistic=NULL) {
 
 # trms <- ergm.getterms(object$formula)
 # g <- as.network(eval(trms[[2]], sys.parent()))
@@ -105,9 +104,11 @@ mvmodel.ergm <- function (object, ..., nsim=100,
   }
   n <- network.size(g)
   if(is.null(seed)){seed <- sample(10000000, size=1)}
-  if(missing(proposaltype) & !is.null(object$proposaltype)){
-    proposaltype <- object$proposaltype
-  }
+  proposaltype <-
+    if(missing(constraint) & !is.null(object$proposaltype))
+      object$proposaltype
+    else
+      lookupMHproposal("c",constraint,prop.weights)
 
   probabilites <- FALSE
   if(!is.function(statistic)){
@@ -122,10 +123,10 @@ mvmodel.ergm <- function (object, ..., nsim=100,
   # Simulate an exponential family random network model
 
   SimGraphSeriesObj <- simulate(object, burnin=burnin, interval=interval,
-                             proposaltype=proposaltype,
-                             proposalargs=proposalargs,
-                             multiplicity=multiplicity,
-                             algorithm.control=list(drop=drop),
+                                constraint=forceMH(proposaltype),
+                                control=simulate.ergm.control(prop.args=prop.args,
+                                  prop.weights=prop.weights,
+                                  drop=drop),
                              n=nsim, seed=seed)
 
   # cat("\nCollating simulations\n")
@@ -161,11 +162,10 @@ mvmodel.ergm <- function (object, ..., nsim=100,
   }
 }
 mvmodel.ergmm <- function (object, ..., nsim=100,
-                      burnin=100, interval=100,
-                      proposaltype="TNT", 
-                      proposalargs=NULL, multiplicity=1,
-                      seed=NULL, drop=FALSE,
-		      statistic=NULL) {
+                           burnin=100, interval=100,
+                           constraint="none", prop.weights="auto", prop.args=NULL,
+                           seed=NULL, drop=FALSE,
+                           statistic=NULL) {
 
 # trms <- ergm.getterms(object$formula)
 # g <- as.network(eval(trms[[2]], sys.parent()))
@@ -193,10 +193,10 @@ mvmodel.ergmm <- function (object, ..., nsim=100,
   # Simulate an exponential family random network model
 
   SimGraphSeriesObj <- rergm(object, burnin=burnin, interval=interval,
-                             proposaltype=proposaltype,
-                             proposalargs=proposalargs,
-                             multiplicity=multiplicity,
-                             algorithm.control=list(drop=drop),
+                             constraint=constraint,
+                             control=simulate.ergm.control(prop.args=prop.args,
+                               prop.weights=prop.weights,
+                               drop=drop),
                              n=nsim, seed=seed)
 
   # cat("\nCollating simulations\n")

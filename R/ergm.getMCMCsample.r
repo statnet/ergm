@@ -39,7 +39,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, MCMCparams,
             as.integer(maxedges),
             as.integer(MCMCparams$Clist.miss$heads), as.integer(MCMCparams$Clist.miss$tails),
             as.integer(MCMCparams$Clist.miss$nedges),
-            PACKAGE="statnet") 
+            PACKAGE="ergm") 
     if(z$newnwheads[1] >= 50000-1){
       stop(paste("\n The network has more then 50000 edges, and the model is likely to be degenerate.\n",
                   "Try starting the algorithm at an alternative model\n",

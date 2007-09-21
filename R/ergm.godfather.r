@@ -56,7 +56,7 @@ ergm.godfather <- function(formula, timestamps=NULL, toggles=NULL, sim=NULL,
           as.integer(accumulate),
           as.integer(verbose),
           as.integer(maxedges), 
-          PACKAGE="statnet")  
+          PACKAGE="ergm")  
   stats <- matrix(z$s + obsstat, ncol=Clist$nparam, byrow=T)
   colnames(stats) <- m$coef.names
   uts <- unique(timestamps)
