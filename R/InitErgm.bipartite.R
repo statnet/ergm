@@ -1,4 +1,4 @@
-#  See InitErgm.r for a general explanation 
+#  See InitErgm.R for a general explanation 
 #  of InitErgm functions
 
 # DH:  These still need to be translated into the new

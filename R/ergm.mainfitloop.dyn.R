@@ -158,7 +158,7 @@ ergm.mainfitloop.dyn <- function(theta0, nw, model.form, model.diss,
 #   This is the MCMC estimate as in the Hunter&Handcock paper
 #  l$mcmcloglik <- l$mcmcloglik - Clist$ndyads*log(2)
 #   This is the MPLE value estimate plus the ratio
-#   set in the last line of "ergm.r" 
+#   set in the last line of "ergm.R" 
 #   v$mle.lik <- -glm.fit$deviance/2 + v$loglikelihood
   mle.lik <- mle.lik + v$loglikelihood
 

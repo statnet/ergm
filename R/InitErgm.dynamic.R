@@ -1,4 +1,4 @@
-#  See InitErgm.r for a general explanation 
+#  See InitErgm.R for a general explanation 
 #  of InitErgm functions
 InitErgm.dissolve<-function (nw, m, arglist, ...) {
 # ergm.checkdirected("hammingdyadcov", is.directed(nw), requirement=FALSE)

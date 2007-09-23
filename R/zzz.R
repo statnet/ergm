@@ -1,6 +1,6 @@
 ######################################################################
 #
-# zzz.r
+# zzz.R
 #
 # copyright (c) 2003, Mark S. Handcock, University of Washington
 #                     David R. Hunter, Penn State University

@@ -64,7 +64,7 @@
       slaves<-matrix(slaves[slaves[,1]!=tid,],ncol=2)
     }
     if (newslave) {              # free capacity for spawning slaves
-      new <- .PVM.spawnR(slave=paste(SLAVENAME,".r",sep=""),
+      new <- .PVM.spawnR(slave=paste(SLAVENAME,".R",sep=""),
                          slavedir=SLAVEDIR, outdir=SLAVEDIR)
       if (length (new[new > 0]) == 0) { # spawn failed
         print ("Failed to spawn task.")
@@ -128,21 +128,21 @@
 # cat(paste("/bin/rm -f ",SLAVEDIR,"/.pargrad.",rpvmbasename,"\n",sep=""))
 # cat(paste("/bin/rm -f ",SLAVEDIR,"/.proc.",rpvmbasename,"\n",sep=""))
 # cat(paste("/bin/rm -f ",SLAVEDIR,"/.proc_fail.",rpvmbasename,"\n",sep=""))
-# cat(paste("/bin/rm -f ",SLAVENAME,".r","\n",sep=""))
-# cat(paste("/bin/rm -f ",SLAVENAME,".r.Rout","\n",sep=""))
+# cat(paste("/bin/rm -f ",SLAVENAME,".R","\n",sep=""))
+# cat(paste("/bin/rm -f ",SLAVENAME,".R.Rout","\n",sep=""))
 # cat(paste("/bin/rm -fr ",SLAVEDIR,"\n"))
 # system(paste("/bin/rm -f ",SLAVEDIR,"/.pargrad.",rpvmbasename,sep=""))
 # system(paste("/bin/rm -f ",SLAVEDIR,"/.proc.",rpvmbasename,sep=""))
 # system(paste("/bin/rm -f ",SLAVEDIR,"/.proc_fail.",rpvmbasename,sep=""))
-# system(paste("/bin/rm -f ",SLAVENAME,".r",sep=""))
-# system(paste("/bin/rm -f ",SLAVENAME,".r.Rout",sep=""))
+# system(paste("/bin/rm -f ",SLAVENAME,".R",sep=""))
+# system(paste("/bin/rm -f ",SLAVENAME,".R.Rout",sep=""))
 # system(paste("/bin/rmdir --ignore-fail-on-non-empty ",SLAVEDIR))
 #
 # cat(paste("unlink(",SLAVEDIR,", recursive=TRUE)\n"))
   unlink(SLAVEDIR, recursive=TRUE)
-  unlink(paste(getwd(),"/",SLAVENAME,".r",sep=""))
+  unlink(paste(getwd(),"/",SLAVENAME,".R",sep=""))
 # Next deletes from home
-# unlink(paste(Sys.getenv("HOME"),"/",SLAVENAME,"*.r.Rout",sep=""))
+# unlink(paste(Sys.getenv("HOME"),"/",SLAVENAME,"*.R.Rout",sep=""))
   Routs <- paste(system(paste("ls ",Sys.getenv("HOME"),"/",
    SLAVENAME,"*.Rout",sep=""),intern=TRUE,ignore.stderr=TRUE))
   if(length(Routs)>0){
@@ -187,9 +187,9 @@ ergm.FindFailedSlaves <- function (tids) {
   if(length(Routs)>0){
    unlink(paste(SLAVEDIR,"/*.Rout",sep=""))
   }
-# system(paste("ln -fs ",getwd(),"/",SLAVENAME,".r ",SLAVEDIR,"/",SLAVENAME,".r",sep=""))
-  file.symlink(paste( getwd(),"/",SLAVENAME,".r",sep=""),
-               paste(SLAVEDIR,"/",SLAVENAME,".r",sep=""))
+# system(paste("ln -fs ",getwd(),"/",SLAVENAME,".R ",SLAVEDIR,"/",SLAVENAME,".R",sep=""))
+  file.symlink(paste( getwd(),"/",SLAVENAME,".R",sep=""),
+               paste(SLAVEDIR,"/",SLAVENAME,".R",sep=""))
 #
   if(verbose){
    cat("The slave directory is set to", SLAVEDIR, "\n")
@@ -272,7 +272,7 @@ ergm.FindFailedSlaves <- function (tids) {
    'free.sprng(oldrng)',
    '} # end of repeat',
    '.PVM.exit()'
-  ),ncol=1), file=paste(SLAVENAME,".r",sep=""), ncolumns=1)
+  ),ncol=1), file=paste(SLAVENAME,".R",sep=""), ncolumns=1)
  list(mytid=mytid, SLAVEDIR=SLAVEDIR, SLAVENAME=SLAVENAME,
        pvm.PARTAG=1, pvm.RESTAG=2, pvm.EXITTAG=3)
 }
@@ -292,9 +292,9 @@ ergm.FindFailedSlaves <- function (tids) {
   if(length(Routs)>0){
    unlink(paste(SLAVEDIR,"/*.Rout",sep=""))
   }
-# system(paste("ln -fs ",getwd(),"/",SLAVENAME,".r ",SLAVEDIR,"/",SLAVENAME,".r",sep=""))
-  file.symlink(paste( getwd(),"/",SLAVENAME,".r",sep=""),
-               paste(SLAVEDIR,"/",SLAVENAME,".r",sep=""))
+# system(paste("ln -fs ",getwd(),"/",SLAVENAME,".R ",SLAVEDIR,"/",SLAVENAME,".R",sep=""))
+  file.symlink(paste( getwd(),"/",SLAVENAME,".R",sep=""),
+               paste(SLAVEDIR,"/",SLAVENAME,".R",sep=""))
 #
   if(verbose){
    cat("The slave directory is set to", SLAVEDIR, "\n")
@@ -386,7 +386,7 @@ ergm.FindFailedSlaves <- function (tids) {
    'free.sprng(oldrng)',
    '} # end of repeat',
    '.PVM.exit()'
-  ),ncol=1), file=paste(SLAVENAME,".r",sep=""), ncolumns=1)
+  ),ncol=1), file=paste(SLAVENAME,".R",sep=""), ncolumns=1)
  list(mytid=mytid, SLAVEDIR=SLAVEDIR, SLAVENAME=SLAVENAME,
        pvm.PARTAG=1, pvm.RESTAG=2, pvm.EXITTAG=3)
 }
