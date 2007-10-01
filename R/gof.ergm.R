@@ -4,7 +4,7 @@ gof <- function(object, ...){
 
 gof.default <- function(object,...)
 {
-  stop("Either a ergm object or a formula argument must be given")
+  stop("Either a ergm object, an ergmm object or a formula argument must be given")
 }
 
 gof.ergm <- function (object, ..., nsim=100,
