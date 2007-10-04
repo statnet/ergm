@@ -2580,6 +2580,38 @@ ModelTerm *mtp, Network *nwp) {
 
 
 /*****************
+ void d_m2star
+*****************/
+void d_m2star (int ntoggles, Vertex *heads, Vertex *tails,
+              ModelTerm *mtp, Network *nwp) {
+  Vertex h, t;
+  int hid, tod, change;
+  int i, edgeflag, backedgeflag;
+    
+  *(mtp->dstats) = 0.0;
+
+  for (i=0; i < ntoggles; i++)
+    {
+      /*  edgeflag is 1 if the edge from heads[i] to tails[i]  */
+      /*   exists and will disappear */
+      /*  edgeflag is 0 if the edge does not exist */
+      edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
+      backedgeflag = (EdgetreeSearch(t, h, nwp->outedges) != 0);
+
+      hid = nwp->indegree[h]; 
+      tod = nwp->outdegree[t];
+      change = hid + tod - 2*backedgeflag; 
+      *(mtp->dstats) += (edgeflag ? -change : change); 
+
+      if (i+1 < ntoggles)
+        ToggleEdge(h, t, nwp);  /* Toggle this edge if more to come */
+    }
+  i--; 
+  while (--i >= 0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+
+/*****************
  void d_nodematch
 *****************/
 void d_nodematch (int ntoggles, Vertex *heads, Vertex *tails, 

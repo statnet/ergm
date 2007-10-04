@@ -341,19 +341,21 @@ network
     \item{\code{m2star}}{\emph{Mixed 2-stars, a.k.a 2-paths:} This term can only
     be specified with a directed network; for undirected networks see
     \code{kstar(2)}. This term adds one statistic to the model, equal to the
-    number of mixed-2-stars in the network, defined as a pair of edges
-    \eqn{(i{\rightarrow}j), (j{\rightarrow}k)}{(i,j), (j,k)}. This is available
-    in the \code{statnetuserterms} supplemental package only.}
+    number of mixed 2-stars in the network, defined as a pair of edges
+    \eqn{(i{\rightarrow}j), (j{\rightarrow}k)}{(i,j), (j,k)}. A mixed 2-star is
+    sometimes called a 2-path because it is a directed path of length 2 from
+    \eqn{i} to \eqn{k} via \eqn{j}.}
 
     \item{\code{match(attrname, diff=FALSE)}}{\emph{Uniform Homophily
-    and Differential Homophily.}  This is a alias for \code{nodematch(attrname,
+    and Differential Homophily:}  This is an alias for \code{nodematch(attrname,
     diff=FALSE)}.}
 
-    \item{\code{meandeg}}{\emph{Mean Vertex Degree}
+    \item{\code{meandeg}}{\emph{Mean Vertex Degree:}
     This term adds one network statistic to the model equal to the
-    average degree of a vertex.   }
+    average degree of a vertex.  Note that this term is a constant multiple of
+    both \code{edges} and \code{density}.}
   
-    \item{\code{mutual}}{\emph{Mutuality.} This term adds one
+    \item{\code{mutual}}{\emph{Mutuality:} This term adds one
     network statistic to the model, equaling the number of pairs
     of actors for which \eqn{\{(i{\rightarrow}j), (j{\rightarrow}i)\}} both exist.
     This term can only be implemented in a directed network.  }

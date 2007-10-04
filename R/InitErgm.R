@@ -2034,6 +2034,31 @@ InitErgm.localtriangle<-function (nw, m, arglist, ...) {
   m
 }
 
+InitErgm.m2star<-function(nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("m2star", is.directed(nw), requirement=TRUE)
+  a <- ergm.checkargs("m2star", arglist,
+    varnames = NULL,
+    vartypes = NULL,
+    defaultvalues = list(),
+    required = NULL)
+  if(drop){
+   degrees <- as.matrix.network.edgelist(nw)
+   if(all(is.na(match(degrees[,1],degrees[,2])))){
+    cat(paste("Warning: The are no mixed 2-stars.\n"))
+    cat(paste("To avoid degeneracy the 'm2star' term has been dropped.\n"))
+    return(m)
+   }
+  }
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(
+       name="m2star", 
+       soname="ergm",
+       inputs=c(0,1,0),
+       dependence=TRUE)
+  m$coef.names<-c(m$coef.names,"m2star")
+  m
+}
+
 InitErgm.mutual<-function (nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("mutual", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("mutual", arglist,
