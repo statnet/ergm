@@ -310,6 +310,7 @@ mixingmatrix.via.edgelist <- function(g,attrname)
  tabu
 }
 
+
 mixingmatrix <- function(g,attrname)
 {
  if(!is.network(g)){
@@ -320,8 +321,11 @@ mixingmatrix <- function(g,attrname)
  su <- summary(as.formula(paste("g~nodemix('",attrname,"')",sep="")))
  if(!is.directed(g) & !is.bipartite(g)){
    tabu <- matrix(0,ncol=length(u),nrow=length(u))
-   tabu[row(tabu)>=col(tabu)] <- su
-   tabu <- tabu + t(tabu) - diag(diag(tabu))
+   tabu[row(tabu)<=col(tabu)] <- su
+   tabu <- t(tabu)
+   tabu[row(tabu)<=col(tabu)] <- su   
+#   tabu[row(tabu)>=col(tabu)] <- su
+#   tabu <- tabu + t(tabu) - diag(diag(tabu))
    total <- apply(tabu,1,sum)
    tabu <- cbind(tabu,total)
    tabu <- rbind(tabu,c(total,sum(total)))
@@ -341,6 +345,30 @@ mixingmatrix <- function(g,attrname)
  }
  tabu
 }
+
+# Rewritten version of mixingmatrix that does not use the nodemix model term nor
+# return totals:
+mixingmatrix2 <- function(nw, attrname) {
+  if(!is.network(nw)){
+    stop("mixingmatrix() requires a network object")
+  }
+  nodecov <- get.node.attr(nw, attrname)
+  u<-sort(unique(nodecov))
+  # nodecovnum <- match(nodecov, u)
+  el <- as.matrix.network.edgelist(nw)
+  tmp <- apply(el, 1, function(a) a[1]<a[2])
+  el[!tmp, 1:2] <- el[!tmp, 2:1]
+  tabu <- table(c(nodecov[el[,1]], u), 
+                c(nodecov[el[,2]], u)) # Add u,u diagonal to ensure each 
+  # value is represented.
+  diag(tabu) <- diag(tabu) - 1
+  if(!is.directed(nw) & !is.bipartite(nw)){
+    tabu <- tabu + t(tabu)
+    diag(tabu) <- diag(tabu)/2
+  }
+  tabu
+}
+
 
 #
 # Return TRUE iff object x is a latentfit object
