@@ -61,3 +61,103 @@ void MH_FormationTNT(MHproposal *MHp, DegreeBound *bd, Network *nwp);
 void MH_Dissolution(MHproposal *MHp, DegreeBound *bd, Network *nwp);
 #endif 
 
+
+/* Summary of which functions can currently be called from ergm (Oct. 9 2007)
+MH_randomtoggle : Done : 
+   ergm (..., constraint = "none", control=ergm.control(prop.weights="random"))
+
+MH_TNT : Done :
+   ergm (..., constraint = "none", control=ergm.control(prop.weights="default"))
+or ergm (..., constraint = "none", control=ergm.control(prop.weights="TNT"))
+
+MH_ConstantEdges : Done :
+   ergm (..., constraint = "edges", control=ergm.control(prop.weights="default"))
+or ergm (..., constraint = "edges", control=ergm.control(prop.weights="random"))
+
+MH_CondDegTetra : Not Done
+MH_CondDegreeDist : Not Done *** What is the difference with CondDegree? ***
+MH_CondOutDegreeDist : Done :
+   ergm (..., constraint = "outdegrees", control=ergm.control(prop.weights="default"))
+or ergm (..., constraint = "outdegrees", control=ergm.control(prop.weights="random"))
+MH_CondInDegreeDist : Done :
+   ergm (..., constraint = "indegrees", control=ergm.control(prop.weights="default"))
+or ergm (..., constraint = "indegrees", control=ergm.control(prop.weights="random"))
+
+MH_CondDegree : Done : *** Should it work for directed networks? ***
+   ergm (..., constraint = "degrees", control=ergm.control(prop.weights="default"))
+or ergm (..., constraint = "degrees", control=ergm.control(prop.weights="random"))
+MH_CondDegHexadToggles : Done : called from CondDegree with prob 0.1
+MH_CondDegTetradToggles : Done : called from CondDegree with prob 0.9
+
+*** Note:  We are currently missing the following functions in C: 
+    (a) MH_Hamming 
+    (b) MH_HammingConstantEdges function in C, 
+    (c) MH_nobetweengroupties
+    though one can currently invoke (a) and (b) using 
+   ergm (..., constraint = "hamming", control=ergm.control(prop.weights="default"))
+or ergm (..., constraint = "hamming", control=ergm.control(prop.weights="random"))
+or ergm (..., constraint = "edges+hamming", control=ergm.control(prop.weights="default"))
+or ergm (..., constraint = "edges+hamming", control=ergm.control(prop.weights="random"))
+but for (c), only InitMHP.nobetweengroupties exists
+
+MH_RandomNode 
+MH_randomtoggleNonObserved : Not Done :
+
+
+MH_ConstrainedCondOutDegDist 
+MH_OneRandomTnTNode 
+MH_TwoRandomToggles 
+MH_NodePairedTiesToggles 
+MH_AllTogglesForOneNode 
+MH_ReallocateWithReplacement 
+MH_SwitchLabelTwoNodesToggles 
+MH_ConstantEdgesToggles 
+MH_OneConstrainedRandomToggle 
+MH_ConstrainedTwoRandomToggles 
+MH_ConstrainedNodePairedTiesToggles 
+MH_ConstrainedCondDegDist 
+MH_ConstrainedCondDegSwitchToggles 
+MH_ConstrainedAllTogglesForOneNode 
+MH_ConstrainedReallocateWithReplacement 
+MH_ConstrainedSwitchLabelTwoNodesToggles 
+
+MH_Formation
+   ergm (..., constraint = "none", control=ergm.control(prop.weights="random"))
+MH_FormationTNT : Done :                                                                              
+   ergm (..., constraint = "none", control=ergm.control(prop.weights="default"))
+or ergm (..., constraint = "none", control=ergm.control(prop.weights="TNT"))
+//MH_DissolutionTNT
+MH_Dissolution : Done :
+   ergm (..., constraint = "none", control=ergm.control(prop.weights="default"))
+or ergm (..., constraint = "none", control=ergm.control(prop.weights="TNT"))
+
+------------------------------------------------
+From MHproposals_bipartite.h:
+
+MH_Bipartiterandomtoggle           
+MH_BipartiteConstantEdges
+
+MH_BipartiteHammingConstantEdges : Done (assuming network is bipartite):
+   ergm (..., constraint = "edges+hamming", control=ergm.control(prop.weights="default"))
+or ergm (..., constraint = "edges+hamming", control=ergm.control(prop.weights="random"))
+
+MH_BipartiteHamming : Done (assuming network is bipartite):
+   ergm (..., constraint = "edges+hamming", control=ergm.control(prop.weights="default"))
+or ergm (..., constraint = "edges+hamming", control=ergm.control(prop.weights="random"))
+
+MH_BipartiteCondDegreeDist         
+
+MH_BipartiteFormation : Done (assuming network is bipartite):
+   ergm (..., constraint = "none", control=ergm.control(prop.weights="random"))
+MH_BipartiteFormationTNT : Done (assuming network is bipartite): 
+   ergm (..., constraint = "none", control=ergm.control(prop.weights="default"))
+or ergm (..., constraint = "none", control=ergm.control(prop.weights="TNT"))
+
+MH_BipartiterandomtoggleNonObserved : Not Done (assuming network is bipartite):
+
+MH_BipartiteDissolution : Done (assuming network is bipartite):
+   ergm (..., constraint = "none", control=ergm.control(prop.weights="default"))
+or ergm (..., constraint = "none", control=ergm.control(prop.weights="TNT"))
+
+*/
+

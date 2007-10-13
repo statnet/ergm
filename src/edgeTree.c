@@ -808,34 +808,34 @@ double EdgeWeight (Vertex head, Vertex tail, WtNetwork *nwp)
 
  Write the edgelist of a network into head and tail arrays.
  Returns the number of edges in the network.
- ****************/
+****************/
 Edge EdgeTree2EdgeList(Vertex *heads, Vertex *tails, Network *nwp, Edge nmax){
   Edge nextedge=0;
   if (nwp->directed_flag) {
     for (Vertex v=1; v<=nwp->nnodes; v++){
       for(Vertex e = EdgetreeMinimum(nwp->outedges, v);
-	  nwp->outedges[e].value != 0 && nextedge < nmax;
-	  e = EdgetreeSuccessor(nwp->outedges, e)){
-	heads[nextedge] = v;
-	tails[nextedge] = nwp->outedges[e].value;
-	nextedge++;
+      nwp->outedges[e].value != 0 && nextedge < nmax;
+      e = EdgetreeSuccessor(nwp->outedges, e)){
+        heads[nextedge] = v;
+        tails[nextedge] = nwp->outedges[e].value;
+        nextedge++;
       }
     }
   }else{
     for (Vertex v=1; v<=nwp->nnodes; v++){
       for(Vertex e = EdgetreeMinimum(nwp->outedges, v);
-	  nwp->outedges[e].value != 0 && nextedge < nmax;
-	  e = EdgetreeSuccessor(nwp->outedges, e)){
-	Vertex k = nwp->outedges[e].value;
-	if(v < k){
-	  heads[nextedge] = k;
-	  tails[nextedge] = v;
-	  nextedge++;
-	}else{
-	  heads[nextedge] = v;
-	  tails[nextedge] = k;
-	  nextedge++;
-	}
+      nwp->outedges[e].value != 0 && nextedge < nmax;
+      e = EdgetreeSuccessor(nwp->outedges, e)){
+        Vertex k = nwp->outedges[e].value;
+        if(v < k){
+          heads[nextedge] = k;
+          tails[nextedge] = v;
+          nextedge++;
+        }else{
+          heads[nextedge] = v;
+          tails[nextedge] = k;
+          nextedge++;
+        }
       }
     }
   }

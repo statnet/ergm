@@ -10,25 +10,30 @@ ergm.design <- function(nw, model, initialfit=FALSE, verbose=FALSE){
     }
    }
    if(initialfit){
-    if(is.bipartite(nw)){
-     nactors <- get.network.attribute(nw,"bipartite")
-     nevents <- network.size(nw) - nactors
-     temp <- matrix(0,ncol=nactors,nrow=nactors)
-     base <- cbind(as.vector(col(temp)), as.vector(row(temp)))
-     base <- base[base[, 2] > base[, 1], ]
-     if(Clist.miss$nedges==0){
-      Clist.miss$heads <- NULL
-      Clist.miss$tails <- NULL
-     }
-     Clist.miss$heads <- c(Clist.miss$heads,base[,2]) 
-     Clist.miss$tails <- c(Clist.miss$tails,base[,1]) 
-     temp <- matrix(0,ncol=nevents,nrow=nevents)
-     base <- cbind(as.vector(col(temp)), as.vector(row(temp)))
-     base <- base[base[, 2] > base[, 1], ]
-     Clist.miss$heads <- c(Clist.miss$heads,base[,2]+nactors) 
-     Clist.miss$tails <- c(Clist.miss$tails,base[,1]+nactors) 
-     Clist.miss$nedges<-Clist.miss$nedges+(nactors*(nactors-1)+nevents*(nevents-1))/2
-    }
+### This section commented out by DH on Oct. 13, 2007.  Do we really need it?
+### If so, note that adding it back in will introduce a bug in 
+### the MPLE routine, which already knows how to deal with bipartite
+### networks without being passed a "design" matrix.  This Clist.miss only 
+### confuses the MPLE_wrapper routine.
+#    if(is.bipartite(nw)){
+#     nactors <- get.network.attribute(nw,"bipartite")
+#     nevents <- network.size(nw) - nactors
+#     temp <- matrix(0,ncol=nactors,nrow=nactors)
+#     base <- cbind(as.vector(col(temp)), as.vector(row(temp)))
+#     base <- base[base[, 2] > base[, 1], ]
+#     if(Clist.miss$nedges==0){
+#      Clist.miss$heads <- NULL
+#      Clist.miss$tails <- NULL
+#     }
+#     Clist.miss$heads <- c(Clist.miss$heads,base[,2]) 
+#     Clist.miss$tails <- c(Clist.miss$tails,base[,1]) 
+#     temp <- matrix(0,ncol=nevents,nrow=nevents)
+#     base <- cbind(as.vector(col(temp)), as.vector(row(temp)))
+#     base <- base[base[, 2] > base[, 1], ]
+#     Clist.miss$heads <- c(Clist.miss$heads,base[,2]+nactors) 
+#     Clist.miss$tails <- c(Clist.miss$tails,base[,1]+nactors) 
+#     Clist.miss$nedges<-Clist.miss$nedges+(nactors*(nactors-1)+nevents*(nevents-1))/2
+#    }
    }
    Clist.miss
 }

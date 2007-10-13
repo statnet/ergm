@@ -56,7 +56,7 @@ network
     statistic to the model equaling the sum of
     \code{abs(attrname[i]-attrname[j])} for all edges (i,j) in the network. }
 
-    \item{\code{altkstar(lambda, fixed=FALSE)}}{\emph{Alternating k-star:} This
+    \item{\code{altkstar(lambda, fixed=FALSE)}}{\emph{Alternating k-Star:} This
     term adds one network statistic to the model equal to a weighted alternating
     sequence of k-star statistics with weight parameter \code{lambda}. This is
     the version given in Snijders, et. al (2006). We suggest using the
@@ -97,7 +97,7 @@ network
     exactly \code{d[i]} edges. This term can only be used with directed
     networks; for undirected networks see \code{bounded.degree}. }
 
-    \item{\code{bounded.istar(k, bound)}}{\emph{Bounded In-stars:} The \code{k}
+    \item{\code{bounded.istar(k, bound)}}{\emph{Bounded In-Stars:} The \code{k}
     argument is a vector of distinct integers. \code{bound} is a vector of upper
     bounds corresponding to each degree. This term adds one network statistic to
     the model for each element in \code{k}. The \eqn{i}th such statistic counts
@@ -106,10 +106,10 @@ network
     different nodes \eqn{\{O_1, \dots, O_k\}}{O_1, \dots, O_k} such that the
     ties \eqn{\{(N{\lefttarrow}O_j)\}}{(O_j,N)} all exist for \eqn{j=1, \dots,
     k}. The value is the minimum of this count and \code{bound[i]}. This term
-    can only be specified for directed networks; for undirected networks, see
+    can only be used with directed networks; for undirected networks, see
     \code{bounded.kstar}. }
 
-    \item{\code{bounded.kstar(k, bound)}}{\emph{Bounded k-stars:} The \code{k}
+    \item{\code{bounded.kstar(k, bound)}}{\emph{Bounded k-Stars:} The \code{k}
     argument is a vector of distinct integers. \code{bound} is a vector of upper
     bounds corresponding to each degree. This term adds one network statistic to
     the model for each element in \code{k}. The \eqn{i}th such statistic counts
@@ -117,7 +117,7 @@ network
     \eqn{k}-instar is defined to be a node \eqn{N} and a set of \eqn{k}
     different nodes \eqn{\{O_1, \dots, O_k\}}{O_1, \dots, O_k} such that the tie
     \eqn{\{N,O_j\}} exists for \eqn{j=1, \dots, k}. The value is the minimum of
-    this count and \code{bound[i]}. This term can only be specified for
+    this count and \code{bound[i]}. This term can only be used with
     undirected networks; for directed networks, see \code{bounded.istar},
     \code{bounded.ostar}.}
     
@@ -130,7 +130,7 @@ network
     exactly \code{d[i]} edges. This term can only be used with directed
     networks; for undirected networks see \code{bounded.degree}. }
 
-    \item{\code{bounded.ostar(k, bound)}}{\emph{Bounded Out-stars:} The \code{k}
+    \item{\code{bounded.ostar(k, bound)}}{\emph{Bounded Out-Stars:} The \code{k}
     argument is a vector of distinct integers. \code{bound} is a vector of upper
     bounds corresponding to each degree. This term adds one network statistic to
     the model for each element in \code{k}. The \eqn{i}th such statistic counts
@@ -139,16 +139,16 @@ network
     different nodes \eqn{\{O_1, \dots, O_k\}}{O_1, \dots, O_k} such that the
     ties \eqn{\{(N{\rightarrow}O_j)\}}{(N,O_j)} all exist for \eqn{j=1, \dots,
     k}. The value is the minimum of this count and \code{bound[i]}. This term
-    can only be specified for directed networks; for undirected networks, see
+    can only be used with directed networks; for undirected networks, see
     \code{bounded.kstar}. }
 
     \item{\code{bounded.triangle(bound)}}{\emph{Bounded Triangles:} This term
     adds one statistic to the model equal to the minimum of the bound and the
     number of triangles in the network. For an undirected network, a triangle is
-    defined to be any set of three edges \eqn{\{i,j\}, \{j,k\}, and \{k,i\}}.
-    For a directed network, a triangle is defined as any set of three edges
-    \eqn{\{(i{\rightarrow}j), (j{\rightarrow}k)\}}{(i,j), (j,k)} and either
-    \eqn{(k{\rightarrow}i)}{(k,i)} or \eqn{(i{\rightarrow}k)}{(i,k)}.}
+    defined to be any set of three edges \eqn{\{i,j\}}, \eqn{\{j,k\}}, and
+    \eqn{\{k,i\}}. For a directed network, a triangle is defined as any set of
+    three edges \eqn{(i{\rightarrow}j), (j{\rightarrow}k)}{(i,j), (j,k)} and
+    either \eqn{(k{\rightarrow}i)}{(k,i)} or \eqn{(i{\rightarrow}k)}{(i,k)}.}
 
     \item{\code{ctriad(attrname)}}{\emph{Cyclic Triads:} This term adds one
     statistic to the model, equal to the number of cyclic triads in the network,
@@ -248,7 +248,7 @@ network
     Degree Distribution:} This term adds one network statistic to the model
     equal to the weighted degree distribution with weight parameter
     \code{decay}. This is the version given as equation (14) in
-    \url{http://www.sna.unimelb.edu.au/publications/cef4.pdf}. See the ``Remark"
+    \url{http://www.sna.unimelb.edu.au/publications/cef4.pdf}. See the "Remark"
     in section 3 of that paper to see why it is used rather than the version
     given in Snijders, et. al (2006). The optional argument \code{fixed} is a
     logical indicating if the decay parameter is to be fit as a curved
@@ -281,35 +281,35 @@ network
 %    This term adds one statistic to the model equal to the Hamming distance
 %    of the network from the network specified by \code{x}.}
 
-    \item{\code{idegree(d, attrname)}}{\emph{In-degree:} The \code{d} argument
+    \item{\code{idegree(d, attrname)}}{\emph{In-Degree:} The \code{d} argument
     is a vector of distinct integers. This term adds one network statistic to
-    the model for each element in \code{d}; the \eqn{i}th such statistic
-    equals the number of nodes in the network of in-degree \code{d[i]}, i.e. the
-    number of nodes with exactly \code{d[i]} in-edges. The optional argument
+    the model for each element in \code{d}; the \eqn{i}th such statistic equals
+    the number of nodes in the network of in-degree \code{d[i]}, i.e. the number
+    of nodes with exactly \code{d[i]} in-edges. The optional argument
     \code{attrname} is a character string giving the name of an attribute in the
-    network's vertex attribute list. If this is specified then the count is over
-    the number of configuration where all nodes have the same value of the
-    attribute. This term can only be used with directed networks; for undirected
-    networks see \code{degree}. }
+    network's vertex attribute list. If this is specified then the count only
+    considers edges in which both nodes have the same value of the attribute.
+    This term can only be used with directed networks; for undirected networks
+    see \code{degree}. }
 
     \item{\code{isolates}}{\emph{Isolates:} This term adds one statistic to the
     model equal to the number of isolates in the network. For an undirected
     network, an isolate is defined to be any node with degree zero. This term
     can only be used with undirected networks. }
 
-    \item{\code{istar(k, attrname)}}{\emph{In-stars: } The \code{k} argument is a
+    \item{\code{istar(k, attrname)}}{\emph{In-Stars: } The \code{k} argument is a
     vector of distinct integers. This term adds one network statistic to the
     model for each element in \code{k}. The \eqn{i}th such statistic counts the
     number of distinct \code{k[i]}-instars in the network, where a
     \eqn{k}-instar is defined to be a node \eqn{N} and a set of \eqn{k}
     different nodes \eqn{\{O_1, \dots, O_k\}} such that the ties
-    \eqn{(O_i{\rightarrow}N)}{(O_i, N)} exist for \eqn{i=1, \dots, k}. The
+    \eqn{(O_j{\rightarrow}N)}{(O_j, N)} exist for \eqn{j=1, \dots, k}. The
     optional argument \code{attrname} is a character string giving the name of
     an attribute in the network's vertex attribute list. If this is specified
     then the count is over the number of \eqn{k}-instars where all nodes have
     the same value of the attribute. This term can only be used for directed
     networks; for undirected networks see \code{kstar}. Note that
-    \code{istar(1)} is equal to \code{ostar(1)} and \code{edges}. }
+    \code{istar(1)} is equal to both \code{ostar(1)} and \code{edges}. }
 
     \item{\code{kstar(k, attrname)}}{\emph{k-Stars: } The \code{k} argument is a
     vector of distinct integers. This term adds one network statistic to the
@@ -338,8 +338,8 @@ network
     neighborhood. Note that this is technically a special case of
     \code{triangle}. }
 
-    \item{\code{m2star}}{\emph{Mixed 2-stars, a.k.a 2-paths:} This term can only
-    be specified with a directed network; for undirected networks see
+    \item{\code{m2star}}{\emph{Mixed 2-Stars, a.k.a 2-Paths:} This term can only
+    be used with directed networks; for undirected networks see
     \code{kstar(2)}. This term adds one statistic to the model, equal to the
     number of mixed 2-stars in the network, defined as a pair of edges
     \eqn{(i{\rightarrow}j), (j{\rightarrow}k)}{(i,j), (j,k)}. A mixed 2-star is
@@ -355,127 +355,114 @@ network
     average degree of a vertex.  Note that this term is a constant multiple of
     both \code{edges} and \code{density}.}
   
-    \item{\code{mutual}}{\emph{Mutuality:} This term adds one
-    network statistic to the model, equaling the number of pairs
-    of actors for which \eqn{\{(i{\rightarrow}j), (j{\rightarrow}i)\}} both exist.
-    This term can only be implemented in a directed network.  }
+    \item{\code{mutual}}{\emph{Mutuality:} This term adds one network statistic
+    to the model, equaling the number of pairs of actors \eqn{i} and \eqn{j} for
+    which \eqn{(i{\rightarrow}j)}{(i,j)} and \eqn{(j{\rightarrow}i)}{(j,i)} both
+    exist. This term can only be used with directed networks. }
 
-    \item{\code{nodefactor(attrname)}}{\emph{Factor Attribute Effect.}  \code{attrname}
-    is a character string giving the name of an attribute in
-    the network's vertex attribute list.  This term adds \eqn{p-1}
-    network statistics are added to the model, where \eqn{p} is the
-    number of unique values of the \code{attrname} attribute.
-    The \eqn{k^{th}} such statistic is the sum of
-    \eqn{I\{\code{attrname(i)==value(k+1)}\}+
-         I\{\code{attrname(i)==value(k+1)}\}}
-    taken over all edges \eqn{(i,j)} in the network, where
-    \code{value(k+1)} is the \eqn{(k+1)^{th}} smallest unique
-    value of the \code{attrname} attribute and I is the
-    indicator function.  }
+    \item{\code{nodefactor(attrname)}}{\emph{Factor Attribute Effect:} The
+    \code{attrname} argument is a character string giving the name of a
+    categorical attribute in the network's vertex attribute list. This term adds
+    \eqn{p-1} network statistics to the model, where \eqn{p} is the number of
+    unique values of the \code{attrname} attribute. Each of these statistics
+    gives, for a particular value of the attribute, the number of times a vertex
+    with that attribute appears in an edge in the network. The smallest
+    attribute value is omitted, because including all attribute values would
+    result in the sum of all such statistics being equal to twice the number of
+    edges and hence a linear dependency could arise. For quantitative
+    attributes, see \code{nodemain}.}
 
-    \item{\code{nodemain(attrname)}}{\emph{Main Effect of a Covariate.}
-    \code{attrname} is a character string giving the name of an
-    attribute in the network's vertex attribute list that takes
-    numeric values.  This term adds one network statistic
-    to the model equaling the sum of \code{attrname(i)}
-    and \code{attrname(j)} for all \eqn{(i,j)} edges in
-    the network. For categorical attributes see \code{nodefactor}.}
+    \item{\code{nodemain(attrname)}}{\emph{Main Effect of a Covariate:} The
+    \code{attrname} argument is a character string giving the name of a
+    quantitative (not categorical) attribute in the network's vertex attribute
+    list. This term adds a single network statistic to the model equaling the
+    sum of \code{attrname(i)} and \code{attrname(j)} for all edges \eqn{(i,j)}
+    edges in the network. For categorical attributes, see \code{nodefactor}.
+    Note that for directed networks, \code{nodemain} equals \code{receivercov}
+    plus \code{sendercov}.}
 
-    \item{\code{nodematch(attrname, diff=FALSE)}}{\emph{Uniform Homophily
-    and Differential Homophily.}  \code{attrname} is a
-    character string giving the name of an attribute in the
-    network's vertex attribute list.  When \code{diff=FALSE},
-    this term adds one network statistic to the model,
-    which counts the number of edges \eqn{(i,j)} for which
-    \code{attrname(i)==attrname(j)}.  When \code{diff=TRUE},
-    \eqn{p} network statistics are added to the model, where \eqn{p} is the
-    number of unique values of the \code{attrname} attribute.
-    The \eqn{k^{th}} such statistic counts the number of edges \eqn{(i,j)}
-    for which \code{attrname(i) == attrname(j) == value(k)}, where
-    \code{value(k)} is the \eqn{k^{th}} smallest unique value of the
-    attrname attribute.  }
+    \item{\code{nodematch(attrname, diff=FALSE)}}{\emph{Uniform Homophily and
+    Differential Homophily:} The \code{attrname} argument is a character string
+    giving the name of an attribute in the network's vertex attribute list. When
+    \code{diff=FALSE}, this term adds one network statistic to the model, which
+    counts the number of edges \eqn{(i,j)} for which
+    \code{attrname(i)==attrname(j)}. When \code{diff=TRUE}, \eqn{p} network
+    statistics are added to the model, where \eqn{p} is the number of unique
+    values of the \code{attrname} attribute. The \eqn{k}th such statistic counts
+    the number of edges \eqn{(i,j)} for which \code{attrname(i) == attrname(j)
+    == value(k)}, where \code{value(k)} is the \eqn{k}th smallest unique value
+    of the attrname attribute.}
 
-    \item{\code{nodemix(attrname, contrast=FALSE)}}{\emph{Nodal Attribute mixing.}
-    \code{attrname} is a character string giving the name of an
-    attribute in the network's vertex attribute list that takes
-    categorical values.  This term adds one network statistic
-    to the model equaling the count of the number of ties
-    between nodes with each possible pairing of the attribute values;
-    that is, a term for every entry in the mixing matrix for the attribute.
-    The ordered of the attribute values is alphabetic.
-    If the option \code{contrast=TRUE} then a statistic for 
-    the first pairing is not included, making it a defacto reference category.}
+    \item{\code{nodemix(attrname, contrast=FALSE)}}{\emph{Nodal Attribute
+    Mixing:} The \code{attrname} argument is a character string giving the name
+    of a categorical attribute in the network's vertex attribute list. This term
+    adds one network statistic to the model for each possible pairing of
+    attribute values. The statistic equals the number of edges in the network in
+    which the nodes have that pairing of values. In other words, this term
+    produces one statistic for every entry in the mixing matrix for the
+    attribute. The ordering of the attribute values is alphabetical. If the
+    option \code{contrast=TRUE} is used, then a statistic for the first pairing
+    is not included, making it the de facto reference category.}
 
-    \item{\code{odegree(d, attrname)}}{\emph{Out-degree.}  \code{d}
-    is a vector of distinct integers.  This term adds one
-    network statistic to the model for each element in \code{d};
-    the \eqn{i^{th}} such statistic equals the number of nodes
-    in the network of out-degree \code{d[i]}, i.e. the number of
-    nodes with exactly \code{d[i]} out-edges.
-    The optional argument \code{attrname} is a character string giving the
-    name of an attribute in the network's vertex attribute list.
-    If this is specified then the count is over the number of configurations
-    where all nodes have the same value of the attribute.
-    This term can
-    only be implemented with directed networks; for undirected
-    networks see \code{degree}.
-    }
+    \item{\code{odegree(d, attrname)}}{\emph{Out-Degree:} The \code{d} argument
+    is a vector of distinct integers. This term adds one network statistic to
+    the model for each element in \code{d}; the \eqn{i}th such statistic equals
+    the number of nodes in the network of out-degree \code{d[i]}, i.e. the
+    number of nodes with exactly \code{d[i]} out-edges. The optional argument
+    \code{attrname} is a character string giving the name of an attribute in the
+    network's vertex attribute list. If this is specified then the count only
+    considers edges in which both nodes have the same value of the attribute.
+    This term can only be used with directed networks; for undirected networks
+    see \code{degree}. }
 
-    \item{\code{ostar(k, attrname)}}{\emph{k-outstars.}  \code{k}
-    is a vector of distinct integers.  This term adds
-    one network statistic to the model for each element in
-    \code{k}.  The \eqn{i^{th}} such statistic counts the
-    number of distinct \code{k[i]}-outstars in the network,
-    where a k-outstar is defined to be a node N and a set of
-    k different nodes \eqn{\{O_1, \dots, O_k\}} such that the
-    ties \eqn{\{N{\rightarrow}O_i\}} exist for i=1, \dots, k. 
-    The optional argument \code{attrname} is a character string giving the
-    name of an attribute in the network's vertex attribute list.
-    If this is specified then the count is over the number of k-outstars
-    where all nodes have the same value of the attribute.
-    This term
-    can only be specified for directed networks; for undirected
-    networks see \code{kstar}.  
-    Note that \code{ostar(1)} is
-    isomorphic to \code{istar(1)} and \code{edges}.
-    }
+    \item{\code{ostar(k, attrname)}}{\emph{k-Outstars:} The \code{k} argument is
+    a vector of distinct integers. This term adds one network statistic to the
+    model for each element in \code{k}. The \eqn{i}th such statistic counts the
+    number of distinct \code{k[i]}-outstars in the network, where a
+    \eqn{k}-outstar is defined to be a node \eqn{N} and a set of \eqn{k}
+    different nodes \eqn{\{O_1, \dots, O_k\}} such that the ties
+    \eqn{(N{\rightarrow}O_j)}{(N,O_j)} exist for \eqn{j=1, \dots, k}. The
+    optional argument \code{attrname} is a character string giving the name of
+    an attribute in the network's vertex attribute list. If this is specified
+    then the count is the number of \eqn{k}-outstars where all nodes have the
+    same value of the attribute. This term can only be used with directed
+    networks; for undirected networks see \code{kstar}. Note that
+    \code{ostar(1)} is equal to both \code{istar(1)} and \code{edges}. }
 
-    \item{\code{receiver}}{\emph{Receiver effect.}  This term adds one network 
-    statistic for each node representing the number of in-ties for that node.
-    This measures the popularity of the node.
-    The term for the first node is omitted because of redundancy, but the 
-    coefficient can be computed as the negative of the sum of the coefficients
-    of all the other actors. That is the average coefficient is zero, following
-    the Holland-Leinhardt parametrization of the \eqn{p_1} model.
-    This term can only be specified with a directed network. For undirected
-    networks, see \code{sociality}.}
+    \item{\code{receiver}}{\emph{Receiver Effect:} This term adds one network
+    statistic for each node equal to the number of in-ties for that node.
+    This measures the popularity of the node. The term for the first node is
+    omitted because of redundancy, but the coefficient can be computed as the
+    negative of the sum of the coefficients of all the other actors. That is,
+    the average coefficient is zero, following the Holland-Leinhardt
+    parametrization of the \eqn{p_1} model. This term can only be used with a
+    directed network. For undirected networks, see \code{sociality}.}
 
-    \item{\code{receivercov(attrname)}}{\emph{Receiver covariate effect.}
-    \code{attrname} is a character string giving the name of an
-    attribute in the network's vertex attribute list that takes
-    numeric values.  This term adds one network statistic
-    to the model equaling the sum of the attribute values of the receiver 
-    of all in-ties.}
+    \item{\code{receivercov(attrname)}}{\emph{Receiver Covariate Effect:} The
+    \code{attrname} argument is a character string giving the name of an
+    attribute in the network's vertex attribute list that takes numeric values.
+    This term adds one network statistic to the model equaling the sum of the
+    attribute values of the receivers of all in-ties. This term can only be used
+    with a directed network. For undirected networks, see \code{nodemain}.}
 
-    \item{\code{sender}}{\emph{Sender effect.}  This term adds one network 
-    statistic for each node representing the number of out-ties for that node.
-    This measures the activity of the node.
-    The term for the first node is omitted because if redundancy, but the 
-    coefficient can be computed as the negative of the sum of the coefficients
-    of all the other actors. That is the average coefficient is zero, following
-    the Holland-Leinhardt parametrization of the \eqn{p_1} model.
-    This term can only be specified with a directed network. For undirected
-    networks, see \code{sociality}.}
+    \item{\code{sender}}{\emph{Sender Effect:} This term adds one network
+    statistic for each node equal to the number of out-ties for that node. This
+    measures the activity of the node. The term for the first node is omitted
+    because if redundancy, but the coefficient can be computed as the negative
+    of the sum of the coefficients of all the other actors. That is, the average
+    coefficient is zero, following the Holland-Leinhardt parametrization of the
+    \eqn{p_1} model. This term can only be used with a directed network. For
+    undirected networks, see \code{sociality}.}
 
-    \item{\code{sendercov(attrname)}}{\emph{Sender covariate effect.}
-    \code{attrname} is a character string giving the name of an
-    attribute in the network's vertex attribute list that takes
-    numeric values.  This term adds one network statistic
-    to the model equaling the sum of the attribute values of the sender 
-    of all out-ties.}
+    \item{\code{sendercov(attrname)}}{\emph{Sender Covariate Effect:} The
+    \code{attrname} argument is a character string giving the name of an
+    attribute in the network's vertex attribute list that takes numeric values.
+    This term adds one network statistic to the model equaling the sum of the
+    attribute values of the sender of all out-ties. This term can only be used
+    with a directed network. For undirected networks, see \code{nodemain}.}
 
     \item{\code{smalldiff(attrname, cutoff)}}{\emph{Small
-    difference.}  \code{attrname} is a character string giving
+    Difference:}  The \code{attrname} argument is a character string giving
     the name of an attribute in the network's vertex attribute
     list and \code{cutoff} is any real number. This term adds
     one network statistic to the model, equal to the number of
@@ -491,50 +478,38 @@ network
     undirected networks. For directed networks, see \code{sender} and
     \code{receiver}. }
 
-    \item{\code{triangle(attrname)}}{\emph{Triangles.}  This term
-    adds one statistic to the model equals to the number
-    of triangles in the network.  For an undirected network,
-    a triangle is defined to be any set of three edges
-    between nodal pairs \eqn{\{(i,j), (j,k), (k,i)\}}.  For a
-    directed network, a triangle is defined as any set of three edges
-    \eqn{\{(i{\rightarrow}j), (j{\rightarrow}k)\}} and either 
-    \eqn{(k{\rightarrow}i)} or \eqn{(k{\leftarrow}i)}. Note
-    that for all directed networks, triangle is isomorphic to
-    \code{ttriad+ctriad}, so at most two of the three terms
-    can be in a model.
-    The optional argument \code{attrname} restricts the count to those
-    triples of nodes with equal values of the vertex attribute specified
-    by \code{attrname}.
-    }
+    \item{\code{triangle(attrname)}}{\emph{Triangles:} This term adds one
+    statistic to the model equal to the number of triangles in the network. For
+    an undirected network, a triangle is defined to be any set \eqn{\{(i,j),
+    (j,k), (k,i)\}} of three edges. For a directed network, a triangle is
+    defined as any set of three edges \eqn{(i{\rightarrow}j)}{(i,j)} and
+    \eqn{(j{\rightarrow}k)}{(j,k)} and either \eqn{(k{\rightarrow}i)}{(k,i)} or
+    \eqn{(k{\leftarrow}i)}{(i,k)}. Note that for directed networks,
+    \code{triangle} equals \code{ttriad} plus \code{ctriad}, so at most two of
+    these three terms can be in a model. The optional argument \code{attrname}
+    restricts the count to those triples of nodes with equal values of the
+    vertex attribute specified by \code{attrname}. }
 
-    \item{\code{tripercent(attrname)}}{\emph{Triangle Percentage.}  
-    This term
-    adds one statistic to the model equals to the percentage
-    of triangles in the network relative to the number of potential triangles
-    (i.e., 2-stars).  
-    The optional argument \code{attrname} restricts the percent to those
-    triples of nodes with equal values of the vertex attribute specified
-    by \code{attrname}.
-    For an undirected network, a triangle is defined to be any set of three edges
-    between nodal pairs \eqn{\{(i,j), (j,k), (k,i)\}}.  For a
-    directed network, a triangle is defined as any set of three edges
-    \eqn{\{(i{\rightarrow}j), (j{\rightarrow}k)\}} and either 
-    \eqn{(k{\rightarrow}i)} or \eqn{(k{\leftarrow}i)}. The number
-    of potential triangles is the number of out 2-stars.}
+    \item{\code{tripercent(attrname)}}{\emph{Triangle Percentage:} This term
+    adds one statistic to the model equal to the percentage of triangles in the
+    network relative to the number of potential triangles. For the definition of
+    triangle, see \code{triangle}. A potential triangle is a 2-star. The
+    optional argument \code{attrname} restricts the counts (both numerator and
+    denominator) to those triples of nodes with equal values of the vertex
+    attribute specified by \code{attrname}. This term can only be used with
+    undirected networks.}
+    
+    \item{\code{ttriad(attrname)}}{\emph{Transitive Triads:} This term adds one
+    statistic to the model, equal to the number of transitive triads in the
+    network, defined as a set of edges \eqn{\{(i{\rightarrow}j),
+    (j{\rightarrow}k), (i{\rightarrow}k)\}}{\{(i,j), (j,k), (i,k)\}}. Note that
+    \code{triangle} equals \code{ttriad+ctriad} for a directed network, so at
+    most two of the three terms can be in a model. The optional \code{attrname}
+    is a character string giving the name of an attribute in the network's
+    vertex attribute list. If this is specified then the count is over the
+    number of cyclic triads where all three nodes have the same value of the
+    attribute. This term can only be used with a directed network.}
 
-    \item{\code{ttriad(attrname)}}{\emph{Transitive Triads.}  
-    This term adds one statistic to the model, equal to the
-    number of transitive triads in the network, defined as
-    a set of edges 
-    \eqn{\{(i{\rightarrow}j), (j{\rightarrow}k), (i{\rightarrow}k)\}}.
-     Note that for all directed networks, \code{triangle} is isomorphic to
-    \code{ttriad+ctriad}, so at most two of the three terms
-    can be in a model.
-    The optional \code{attrname} is a character string giving the
-    name of an attribute in the network's vertex attribute list.
-    If this is specified then the count is over the number of cyclic triads where
-    all three nodes have the same value of the attribute.
-    This term can only be specified with a directed network.}
 }
 
 \references{

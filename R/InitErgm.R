@@ -2348,6 +2348,8 @@ InitErgm.receiver<-function(nw, m, arglist, drop=FALSE, ...) {
   m
 }
 InitErgm.receivercov<-function (nw, m, arglist, ...) {
+  ergm.checkdirected("receivercov", is.directed(nw), requirement=TRUE,
+                     extramessage="See 'nodemain'.")
   a <- ergm.checkargs("receivercov", arglist,
     varnames = c("attrname"),
     vartypes = c("character"),
@@ -2395,6 +2397,8 @@ InitErgm.sender<-function(nw, m, arglist, drop=FALSE, ...) {
 }
 
 InitErgm.sendercov<-function (nw, m, arglist, ...) {
+  ergm.checkdirected("sendercov", is.directed(nw), requirement=TRUE,
+                     extramessage="See 'nodemain'.")
   a <- ergm.checkargs("sendercov", arglist,
     varnames = c("attrname"),
     vartypes = c("character"),
@@ -2763,6 +2767,7 @@ InitErgm.triangle<-function (nw, m, arglist, drop=TRUE, ...) {
 InitErgm.triangles<-InitErgm.triangle
 
 InitErgm.tripercent<-function (nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("tripercent", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("tripercent", arglist,
     varnames = c("attrname", "diff"),
     vartypes = c("character", "logical"),

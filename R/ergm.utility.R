@@ -356,11 +356,10 @@ mixingmatrix2 <- function(nw, attrname) {
   u<-sort(unique(nodecov))
   # nodecovnum <- match(nodecov, u)
   el <- as.matrix.network.edgelist(nw)
-  tmp <- apply(el, 1, function(a) a[1]<a[2])
-  el[!tmp, 1:2] <- el[!tmp, 2:1]
-  tabu <- table(c(nodecov[el[,1]], u), 
-                c(nodecov[el[,2]], u)) # Add u,u diagonal to ensure each 
-  # value is represented.
+  From <- c(nodecov[el[,1]], u)
+  To <- c(nodecov[el[,2]], u)
+  tabu <- table(From, To)  # Add u,u diagonal to ensure each 
+  # value is represented, then subtract it later
   diag(tabu) <- diag(tabu) - 1
   if(!is.directed(nw) & !is.bipartite(nw)){
     tabu <- tabu + t(tabu)
