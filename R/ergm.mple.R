@@ -14,7 +14,9 @@ ergm.mple<-function(Clist, Clist.miss, m, fix=NULL, theta.offset=NULL,
       base <- matrix(t(base),ncol=2,byrow=T)
     }
     ubase <- base[,1] + Clist$n*base[,2]
-    offset <- !is.na(match(ubase, Clist.miss$tails+Clist.miss$heads*Clist$n))
+#   offset <- !is.na(match(ubase, Clist.miss$tails+Clist.miss$heads*Clist$n))
+#   Changed by MSH Oct 13. The original (above) seems just wrong!
+    offset <- !is.na(match(ubase, Clist.miss$heads+Clist.miss$tails*Clist$n))
     offset <- 1*offset
     numobs <- Clist$ndyads - sum(offset)
   }else{

@@ -15,6 +15,9 @@ ergm.design <- function(nw, model, initialfit=FALSE, verbose=FALSE){
 ### the MPLE routine, which already knows how to deal with bipartite
 ### networks without being passed a "design" matrix.  This Clist.miss only 
 ### confuses the MPLE_wrapper routine.
+#### MSH on Oct 13 notes that this function (ergm.design) was added in rev 154
+#### to deal with missing data for bipartite networks.
+#### It is clearly no longer needed.
 #    if(is.bipartite(nw)){
 #     nactors <- get.network.attribute(nw,"bipartite")
 #     nevents <- network.size(nw) - nactors
