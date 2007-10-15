@@ -20,8 +20,8 @@ nativeMHproposals<-
           c("c", "nodedegrees",   "default",       "CondDegree"),
           c("c", "nodedegrees",   "random",       "CondDegree"),
 
-          c("c", "degreedist",    "default",      "CondDegree"),
-          c("c", "degreedist",    "random",       "CondDegree"),
+          c("c", "degreedist",    "default",      "CondDegreeDist"), # not yet implemented
+          c("c", "degreedist",    "random",       "CondDegreeDist"), # not yet implemented 
 
           c("c", "indegrees",     "default",      "CondInDegree"),
           c("c", "indegrees",     "random",       "CondInDegree"),

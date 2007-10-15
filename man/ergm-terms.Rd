@@ -150,15 +150,15 @@ network
     three edges \eqn{(i{\rightarrow}j), (j{\rightarrow}k)}{(i,j), (j,k)} and
     either \eqn{(k{\rightarrow}i)}{(k,i)} or \eqn{(i{\rightarrow}k)}{(i,k)}.}
 
-    \item{\code{ctriad(attrname)}}{\emph{Cyclic Triads:} This term adds one
-    statistic to the model, equal to the number of cyclic triads in the network,
+    \item{\code{ctriple(attrname)}}{\emph{Cyclic Triples:} This term adds one
+    statistic to the model, equal to the number of cyclic triples in the network,
     defined as a set of edges \eqn{\{(i{\rightarrow}j), (j{\rightarrow}k),
     (k{\rightarrow}i)\}}{\{(i,j), (j,k), (k,i)\}}. Note that for all directed
-    networks, \code{triangle} is equal to \code{ttriad+ctriad}, so at most two
+    networks, \code{triangle} is equal to \code{ttriple+ctriple}, so at most two
     of these three terms can be in a model. The argument \code{attrname} is a
     character string giving the name of an attribute in the network's vertex
     attribute list. If this is specified then the count is over the number of
-    cyclic triads where all three nodes have the same value of the attribute.
+    cyclic triples where all three nodes have the same value of the attribute.
     This term can only be used with directed networks.}
 
     \item{\code{cycle(k)}}{\emph{Cycles:} The \code{k} argument is a vector of
@@ -168,7 +168,7 @@ network
     applies to both directed and undirected graphs. For directed networks, it
     counts directed cycles of length \eqn{k}, as opposed to undirected cycles in
     the undirected case. The directed cycle terms of lengths 2 and 3 are
-    equivalent to \code{mutual} and \code{ctriad} (respectively). The undirected
+    equivalent to \code{mutual} and \code{ctriple} (respectively). The undirected
     cycle term of length 3 is equivalent to \code{triangle}, and there is no
     undirected cycle term of length 2. }
 
@@ -485,7 +485,7 @@ network
     defined as any set of three edges \eqn{(i{\rightarrow}j)}{(i,j)} and
     \eqn{(j{\rightarrow}k)}{(j,k)} and either \eqn{(k{\rightarrow}i)}{(k,i)} or
     \eqn{(k{\leftarrow}i)}{(i,k)}. Note that for directed networks,
-    \code{triangle} equals \code{ttriad} plus \code{ctriad}, so at most two of
+    \code{triangle} equals \code{ttriple} plus \code{ctriple}, so at most two of
     these three terms can be in a model. The optional argument \code{attrname}
     restricts the count to those triples of nodes with equal values of the
     vertex attribute specified by \code{attrname}. }
@@ -499,15 +499,15 @@ network
     attribute specified by \code{attrname}. This term can only be used with
     undirected networks.}
     
-    \item{\code{ttriad(attrname)}}{\emph{Transitive Triads:} This term adds one
-    statistic to the model, equal to the number of transitive triads in the
+    \item{\code{ttriple(attrname)}}{\emph{Transitive Triples:} This term adds one
+    statistic to the model, equal to the number of transitive triples in the
     network, defined as a set of edges \eqn{\{(i{\rightarrow}j),
     (j{\rightarrow}k), (i{\rightarrow}k)\}}{\{(i,j), (j,k), (i,k)\}}. Note that
-    \code{triangle} equals \code{ttriad+ctriad} for a directed network, so at
+    \code{triangle} equals \code{ttriple+ctriple} for a directed network, so at
     most two of the three terms can be in a model. The optional \code{attrname}
     is a character string giving the name of an attribute in the network's
     vertex attribute list. If this is specified then the count is over the
-    number of cyclic triads where all three nodes have the same value of the
+    number of transitive triples where all three nodes have the same value of the
     attribute. This term can only be used with a directed network.}
 
 }

@@ -63,6 +63,9 @@ void MH_Dissolution(MHproposal *MHp, DegreeBound *bd, Network *nwp);
 
 
 /* Summary of which functions can currently be called from ergm (Oct. 9 2007)
+
+Sorry to leave this in the code!  It's only temporary.  -- Dave H.
+
 MH_randomtoggle : Done : 
    ergm (..., constraint = "none", control=ergm.control(prop.weights="random"))
 

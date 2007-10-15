@@ -490,9 +490,9 @@ InitErgm.sociality<-function(nw, m, arglist, drop=FALSE, ...) {
   m
 }
 
-InitErgm.ctriad<-function (nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkdirected("ctriad", is.directed(nw), requirement=TRUE)
-  a <- ergm.checkargs("ctriad", arglist,
+InitErgm.ctriple<-function (nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("ctriple", is.directed(nw), requirement=TRUE)
+  a <- ergm.checkargs("ctriple", arglist,
     varnames = c("attrname","diff"),
     vartypes = c("character","logical"),
     defaultvalues = list(NULL,FALSE),
@@ -500,20 +500,20 @@ InitErgm.ctriad<-function (nw, m, arglist, drop=TRUE, ...) {
   attach(a)
   termnumber<-1+length(m$terms)
   if(!is.null(attrname)){
-    nodecov <- get.node.attr(nw, attrname, "ctriad")
+    nodecov <- get.node.attr(nw, attrname, "ctriple")
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     ui <- seq(along=u)
     if (length(u)==1)
-      stop ("Attribute given to ctriad() has only one value", call.=FALSE)
+      stop ("Attribute given to ctriple() has only one value", call.=FALSE)
     if(drop){
-      triattr <- summary(as.formula(paste('nw ~ ctriad(','"',attrname,
+      triattr <- summary(as.formula(paste('nw ~ ctriple(','"',attrname,
                                           '",diff=',diff,')',sep="")),
                          drop=FALSE) == 0
       if(diff){
         if(any(triattr)){
-          dropterms <- paste(paste("ctriad",attrname,sep="."),
+          dropterms <- paste(paste("ctriple",attrname,sep="."),
                              u[triattr],sep="")
           cat(paste("Warning: The count of", dropterms, "is extreme.\n"))
           cat(paste("To avoid degeneracy the terms",dropterms,
@@ -523,7 +523,7 @@ InitErgm.ctriad<-function (nw, m, arglist, drop=TRUE, ...) {
         }
       }else{
         if(triattr){
-          dropterms <- paste(paste("ctriad",attrname,sep="."),sep="")
+          dropterms <- paste(paste("ctriple",attrname,sep="."),sep="")
           cat(paste("Warning: The count of", dropterms, "is extreme.\n"))
           cat(paste("To avoid degeneracy the term",dropterms,
                     "have been dropped.\n"))
@@ -531,28 +531,29 @@ InitErgm.ctriad<-function (nw, m, arglist, drop=TRUE, ...) {
       }
     }
     if (!diff) {
-      m$terms[[termnumber]] <- list(name="ctriad", soname="ergm",
+      m$terms[[termnumber]] <- list(name="ctriple", soname="ergm",
                                     inputs=c(0,1,length(nodecov),nodecov))
-      m$coef.names<-c(m$coef.names,paste("ctriad",attrname,sep="."))
+      m$coef.names<-c(m$coef.names,paste("ctriple",attrname,sep="."))
     } else {
       #  Number of input parameters before covariates equals number of
       #  unique elements in nodecov, namely length(u), so that's what
       #  input element 1 equals
-      m$terms[[termnumber]] <- list(name="ctriad", soname="ergm",
+      m$terms[[termnumber]] <- list(name="ctriple", soname="ergm",
                                     inputs=c(length(ui), length(ui),
                                       length(ui)+length(nodecov),
                                       ui, nodecov))
-      m$coef.names<-c(m$coef.names,paste("ctriad", attrname, u, sep="."))
+      m$coef.names<-c(m$coef.names,paste("ctriple", attrname, u, sep="."))
     }
   }else{
 #    No attributes (or diff)
 #    No covariates, so input element 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="ctriad", soname="ergm",
+    m$terms[[termnumber]] <- list(name="ctriple", soname="ergm",
                                   inputs=c(0,1,0))
-    m$coef.names<-c(m$coef.names,"ctriad")
+    m$coef.names<-c(m$coef.names,"ctriple")
   }
   m
 }
+InitErgm.ctriad <- InitErgm.ctriple
 
 InitErgm.cycle<-function(nw, m, arglist, drop=TRUE, ...)
 {
@@ -2825,9 +2826,9 @@ InitErgm.tripercent<-function (nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-InitErgm.ttriad<-function (nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkdirected("ttriad", is.directed(nw), requirement=TRUE)
-  a <- ergm.checkargs("ttriad", arglist,
+InitErgm.ttriple<-function (nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("ttriple", is.directed(nw), requirement=TRUE)
+  a <- ergm.checkargs("ttriple", arglist,
     varnames = c("attrname", "diff"),
     vartypes = c("character", "logical"),
     defaultvalues = list(NULL, FALSE),
@@ -2835,20 +2836,20 @@ InitErgm.ttriad<-function (nw, m, arglist, drop=TRUE, ...) {
   attach(a)
   termnumber<-1+length(m$terms)
   if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "ttriad")
+    nodecov <- get.node.attr(nw, attrname, "ttriple")
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     ui <- seq(along=u)
     if (length(u)==1)
-      stop ("Attribute given to ttriad() has only one value", call.=FALSE)
+      stop ("Attribute given to ttriple() has only one value", call.=FALSE)
     if(drop){
-      triattr <- summary(as.formula(paste('nw ~ ttriad(','"',attrname,
+      triattr <- summary(as.formula(paste('nw ~ ttriple(','"',attrname,
                                           '",diff=',diff,')',sep="")),
                          drop=FALSE) == 0
       if(diff){
         if(any(triattr)){
-          dropterms <- paste(paste("ttriad",attrname,sep="."),
+          dropterms <- paste(paste("ttriple",attrname,sep="."),
                              u[triattr],sep="")
           cat(paste("Warning: The count of", dropterms, "is extreme.\n"))
           cat(paste("To avoid degeneracy the terms",dropterms,
@@ -2858,7 +2859,7 @@ InitErgm.ttriad<-function (nw, m, arglist, drop=TRUE, ...) {
         }
       }else{
         if(triattr){
-          dropterms <- paste(paste("ttriad",attrname,sep="."),sep="")
+          dropterms <- paste(paste("ttriple",attrname,sep="."),sep="")
           cat(paste("Warning: The count of", dropterms, "is extreme.\n"))
           cat(paste("To avoid degeneracy the term",dropterms,
                     "have been dropped.\n"))
@@ -2866,24 +2867,25 @@ InitErgm.ttriad<-function (nw, m, arglist, drop=TRUE, ...) {
       }
     }
     if (!diff) {
-      m$terms[[termnumber]] <- list(name="ttriad", soname="ergm",
+      m$terms[[termnumber]] <- list(name="ttriple", soname="ergm",
                                     inputs=c(0,1,length(nodecov),nodecov))
-      m$coef.names<-c(m$coef.names,paste("ttriad",attrname,sep="."))
+      m$coef.names<-c(m$coef.names,paste("ttriple",attrname,sep="."))
      } else {
-       m$terms[[termnumber]] <- list(name="ttriad", soname="ergm",
+       m$terms[[termnumber]] <- list(name="ttriple", soname="ergm",
                                      inputs=c(length(ui), length(ui),
                                        length(ui)+length(nodecov),
                                        ui, nodecov))
-       m$coef.names<-c(m$coef.names,paste("ttriad",
+       m$coef.names<-c(m$coef.names,paste("ttriple",
                                           attrname, u, sep="."))
      }
   }else{
-    m$terms[[termnumber]] <- list(name="ttriad", soname="ergm",
+    m$terms[[termnumber]] <- list(name="ttriple", soname="ergm",
                                   inputs=c(0,1,0))
-    m$coef.names<-c(m$coef.names,"ttriad")
+    m$coef.names<-c(m$coef.names,"ttriple")
   }
   m
 }
+InitErgm.ttriad <- InitErgm.ttriple
 
 InitErgm.hiertriad<-function (nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("hiertriad", is.directed(nw), requirement=TRUE)
