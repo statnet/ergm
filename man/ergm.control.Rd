@@ -5,12 +5,24 @@
   Auxiliary function as user interface for fine-tuning 'ergm' fitting.
 }
 \usage{
-ergm.control(prop.weights = "default", prop.args = NULL, prop.weights.diss = "default", prop.args.diss = NULL, nr.maxit = 100, calc.mcmc.se = TRUE, hessian = FALSE, compress = FALSE, maxNumDyadTypes = 10000, maxedges = 20000, maxchanges = 1e+06, MPLEsamplesize = 50000, trace = 0, boundDeg = NULL, steplength = 0.5, drop = TRUE, force.mcmc = FALSE, mcmc.precision = 0.05, metric = "Likelihood", method = "BFGS", trustregion = 20, style = "Newton-Raphson", phase1_n = NULL, initial_gain = NULL, nsubphases = "maxit", niterations = NULL, phase3_n = NULL, dyninterval = 1000, parallel = 0, returnMCMCstats = TRUE)
+ergm.control(prop.weights = "default", prop.args = NULL, prop.weights.diss = "default", 
+             prop.args.diss = NULL, nr.maxit = 100, calc.mcmc.se = TRUE, 
+             hessian = FALSE, compress = FALSE, maxNumDyadTypes = 10000, 
+             maxedges = 20000, maxchanges = 1e+06, MPLEsamplesize = 50000, trace = 0, 
+             boundDeg = NULL, steplength = 0.5, drop = TRUE, force.mcmc = FALSE, 
+             mcmc.precision = 0.05, metric = "Likelihood", method = "BFGS", 
+             trustregion = 20, style = "Newton-Raphson", phase1_n = NULL, 
+             initial_gain = NULL, nsubphases = "maxit", niterations = NULL, 
+             phase3_n = NULL, dyninterval = 1000, parallel = 0, 
+             returnMCMCstats = TRUE)
 }
 \arguments{
   \item{prop.weights}{ Specifies the method to allocate probabilities of
     being proposed to dyads. Defaults to \code{"default"}, which picks a
-    reasonable default for the specified constraint. }
+    reasonable default for the specified constraint. Possible values are
+    "TNT", "random", and "nonobserved", though not all values may be used
+    with all possible constraints (in the \code{\link{ergm}} function)
+    }
   \item{prop.args}{ An alternative, direct way of specifying additional arguments to proposal. }
   \item{prop.weights.diss}{ As \code{prop.weights}, for dissolution model. }
   \item{prop.args.diss}{ As \code{prop.args}, for dissolution model. }
@@ -59,7 +71,9 @@ ergm.control(prop.weights = "default", prop.args = NULL, prop.weights.diss = "de
     If statistics occur on the extreme of their range they
     correspond to infinite parameter estimates.
     Default is \code{TRUE}.}
-  \item{force.mcmc}{ ~~Describe \code{force.mcmc} here~~ }
+  \item{force.mcmc}{logical; should MCMC maximum likelihood be used?  Only 
+    relevant for dyadic independent networks, in which the MLE could be found
+    using MPLE instead.}
   \item{\code{mcmc.precision}}{vector; upper bounds on the precision of the 
     standard errors induced by the MCMC algorithm.
     Defaults to \code{0.05}.}
@@ -87,18 +101,14 @@ ergm.control(prop.weights = "default", prop.args = NULL, prop.weights.diss = "de
     in Phase 1 of the stochastic approximation algorithm.
     Defaults to 7 plus 3 times the number of terms in the model.
     See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
-  \item{\code{nsubphases}}{count; The number of sub-phases 
-    in Phase 2 of the stochastic approximation algorithm.
-    Defaults to \code{maxit}.
-    See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
   \item{\code{initial_gain}}{numeric; The initial gain to
     Phase 2 of the stochastic approximation algorithm.
     Defaults to 0.1.
     See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
-  
-  
-  \item{nsubphases}{ ~~Describe \code{nsubphases} here~~ }
-  
+  \item{\code{nsubphases}}{count; The number of sub-phases 
+    in Phase 2 of the stochastic approximation algorithm.
+    Defaults to \code{maxit}.
+    See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
   \item{\code{niterations}}{count; The number of MCMC samples to draw
     in Phase 2 of the stochastic approximation algorithm.
     Defaults to 7 plus the number of terms in the model.

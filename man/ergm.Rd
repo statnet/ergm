@@ -48,8 +48,8 @@ ergm(formula, theta0="MPLE",
     the MCMC likelihood based on the current sample.}
   \item{constraints}{A one-sided formula specifying one or more constraints
     on the support of the distribution of the networks being modeled,
-    using syntax similar to the "formula" argument. Multiple constraints
-    may be given, separated by "+" operators.
+    using syntax similar to the \code{formula} argument. Multiple constraints
+    may be given, separated by \dQuote{+} operators.
     Together with the model terms in the formula, the constraints define the distribution of networks being modeled.
         
     It is also possible to specify a proposal function directly by
@@ -66,24 +66,25 @@ ergm(formula, theta0="MPLE",
 	non-zero probability. Cannot be combined with other constraints.
       }
       \item{\code{bd(attribs,maxout,maxin,minout,minin)}}{
-	Constrain maximum and minimum vertex degree. See "Placing Bounds
-    on Degrees" section for more information.
+	Constrain maximum and minimum vertex degree. See \dQuote{Placing Bounds
+    on Degrees} section for more information.
       }
       \item{\code{degrees} and \code{nodedegrees}}{
-	Preserve the degree of each vertex of the network given: only networks
+	Preserve the degree of each vertex of the given network: only networks
 	whose vertex degrees are the same as those in the network passed
 	in the model formula have non-zero probability.
       }
       \item{\code{degreedist}}{
-	Preserve the degree distribution of the network given: only networks
+	Preserve the degree distribution of the given network: only networks
 	whose degree distributions are the same as those in the network passed
 	in the model formula have non-zero probability.
       }
       \item{\code{indegreedist} and \code{outdegreedist}}{
-	Preserve the (respectively) indegree or outdegree distribution of the network given.
+	Preserve the (respectively) indegree or outdegree distribution of the given
+  network.
       }
       \item{\code{edges}}{
-	Preserve the edge count of the network given: only networks
+	Preserve the edge count of the given network: only networks
 	having the same number of edges as the network passed
 	in the model formula have non-zero probability.
       }
