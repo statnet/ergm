@@ -1,6 +1,6 @@
 ergm.phase12 <- function(g, model,
                         MHproposal, eta0,
-                        MCMCparams, verbose, BD) {
+                        MCMCparams, verbose) {
 # ms <- MCMCparams$meanstats
 # if(!is.null(ms)) {
 #   if (is.null(names(ms)) && length(ms) == length(model$coef.names))
@@ -41,10 +41,10 @@ ergm.phase12 <- function(g, model,
             newnwheads = integer(maxedges),
             newnwtails = integer(maxedges),
             as.integer(verbose), 
-            as.integer(BD$attribs), 
-            as.integer(BD$maxout), as.integer(BD$maxin),
-            as.integer(BD$minout), as.integer(BD$minin),
-            as.integer(BD$condAllDegExact), as.integer(length(BD$attribs)), 
+            as.integer(MHproposal$bd$attribs), 
+            as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
+            as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
+            as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)), 
             as.integer(maxedges),
             as.integer(0.0), as.integer(0.0), 
             as.integer(0),

@@ -1,4 +1,4 @@
-#
+library(ergm)                                        #
 # Use 'data(package = "ergm")' to list the data sets in a
 data(package="ergm")
 
@@ -13,10 +13,12 @@ plot(molecule, vertex.col=molecule$val["atomic type"],vertex.cex=3)
 
 # measure tendency to match within each atomic type
 gest <- ergm(molecule ~ edges + kstar(2) + triangle + nodematch("atomic type"),
- mixed=TRUE, MCMCsamplesize=10000)
+# mixed=TRUE,
+             MCMCsamplesize=10000)
 summary(gest)
 
 # compare it to differential homophily
 gest <- ergm(molecule ~ edges + kstar(2) + triangle + nodematch("atomic type",diff=TRUE),
-  mixed=TRUE, MCMCsamplesize=10000)
+# mixed=TRUE,
+             MCMCsamplesize=10000)
 summary(gest)

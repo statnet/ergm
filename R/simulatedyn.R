@@ -1,6 +1,6 @@
 simulatedyn <- function(object, dissolve=NULL, nsteps=1, seed=NULL, theta0,gamma0,
                         burnin=0, interval=1, dyninterval=1000,
-                        constraint="none",
+                        constraints=~.,
                         dissolve.order="DissThenForm",
                         control=ergm.simulatedyn.control(),
                         verbose=FALSE) {
@@ -18,10 +18,6 @@ simulatedyn <- function(object, dissolve=NULL, nsteps=1, seed=NULL, theta0,gamma
   if(!is.network(nw)){
     stop("A network object on the LHS of the formula must be given")
   }
-  # Resolve conditioning
-  # This is laborious to cover the various partial specifications
-  #
-  BD <- ergm.boundDeg(control$boundDeg, nnodes=network.size(nw))
 
   model.form <- ergm.getmodel(formula, nw, drop=control$drop)
   model.diss <- ergm.getmodel.dissolve(dissolve, nw, dissolve.order=dissolve.order)
@@ -43,10 +39,10 @@ simulatedyn <- function(object, dissolve=NULL, nsteps=1, seed=NULL, theta0,gamma
   if(is.null(seed)){seed <- sample(10000000, size=1)}
   set.seed(as.integer(seed))
     
-  MHproposal.form <- getMHproposal(lookupMHproposal("f",constraint,control$prop.weights.form),
-                                   control$prop.args.form, nw, model.form)
-  MHproposal.diss <- getMHproposal(lookupMHproposal("d",constraint,control$prop.weights.diss),
-                                   control$prop.args.diss, nw, model.diss)
+  MHproposal.form <- getMHproposal(constraints,control$prop.args.form,nw,
+                                                    model.form,weights=control$prop.weights.form,class="f")
+  MHproposal.diss <- getMHproposal(constraints,control$prop.args.diss,nw,
+                                                    model.diss,weights=control$prop.weights.diss,class="d")
   MCMCparams <- c(control,list(nsteps=nsteps, interval=interval,
                            stats.form=matrix(summary(model.form$formula),ncol=length(model.form$coef.names),nrow=1),
                            stats.diss=matrix(summary(model.diss$formula),ncol=length(model.diss$coef.names),nrow=1),
@@ -57,13 +53,14 @@ simulatedyn <- function(object, dissolve=NULL, nsteps=1, seed=NULL, theta0,gamma
   
   z <- ergm.getMCMCDynsample(nw, model.form, model.diss,
                              MHproposal.form, MHproposal.diss,
-                             theta0, gamma0, MCMCparams, verbose, BD)
+                             theta0, gamma0, MCMCparams, verbose)
 
   if(control$final){
    nw <- z$newnetwork
    return(nw)
   }else{
     out.list <- list(formula = formula, networks = nw,
+                     constraints=constraints,
                      changed=z$changed, 
                      maxchanges=z$maxchanges,
                      stats.form = z$statsmatrix.form,stats.diss = z$statsmatrix.diss,

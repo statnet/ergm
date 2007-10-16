@@ -1,9 +1,9 @@
 ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, MCMCparams, 
-                               verbose, BD) {
+                               verbose) {
 # Note:  In reality, there should be many fewer arguments to this function,
 # since most info should be passed via Clist (this is, after all, what Clist
 # is for:  Holding all arguments required for the .C call).  In particular,
-# the elements of MHproposal, MCMCparams, verbose, and BD should certainly
+# the elements of MHproposal, MCMCparams, verbose should certainly
 # be part of Clist.  But this is a project for another day!
   Clist <- ergm.Cprepare(nw, model)
   maxedges <- max(5000, Clist$nedges)
@@ -32,10 +32,10 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, MCMCparams,
             as.integer(MCMCparams$burnin), as.integer(MCMCparams$interval), 
             newnwheads = integer(maxedges),
             newnwtails = integer(maxedges), 
-            as.integer(verbose), as.integer(BD$attribs), 
-            as.integer(BD$maxout), as.integer(BD$maxin),
-            as.integer(BD$minout), as.integer(BD$minin),
-            as.integer(BD$condAllDegExact), as.integer(length(BD$attribs)), 
+            as.integer(verbose), as.integer(MHproposal$bd$attribs), 
+            as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
+            as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
+            as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)), 
             as.integer(maxedges),
             as.integer(MCMCparams$Clist.miss$heads), as.integer(MCMCparams$Clist.miss$tails),
             as.integer(MCMCparams$Clist.miss$nedges),
@@ -73,7 +73,6 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, MCMCparams,
      MCMCparams.parallel,
      maxedges, 
      verbose,
-     BD, 
      file=paste(outsetuppvm$SLAVEDIR,"/",rpvmbasename,".common.RData",sep="")
     )
 #

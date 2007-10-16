@@ -46,8 +46,8 @@ sociality.network <- function (object, ...,
 
 sociality.formula <- function (formula, ..., theta0, nsim=100,
                                burnin=100, interval=100,
-                               constraint="none",
-                               prop.weights="auto",
+                               constraints=~.,
+                               prop.weights="default",
                                prop.args = NULL,
                                seed=NULL,  drop=FALSE,
                                statistics=NULL
@@ -64,8 +64,6 @@ sociality.formula <- function (formula, ..., theta0, nsim=100,
   }
 
   m <- ergm.getmodel(trms, g, drop=drop)
-  MHproposal <- getMHproposal(lookupMHproposal("c",constraint,prop.weights),
-                              prop.args, g, m)
   Clist <- ergm.Cprepare(g, m)
 
   if(missing(theta0)){
@@ -99,7 +97,7 @@ sociality.formula <- function (formula, ..., theta0, nsim=100,
   # Simulate an exponential family random network model
 
   SimGraphSeriesObj <- simulate(formula, burnin=burnin, interval=interval,
-                                constraint=constraint, 
+                                constraints=constraints, 
                                 control=simulate.ergm.control(prop.args=prop.args,
                                   prop.weights=prop.weights,drop=drop),
                                 theta0=theta0,
@@ -124,7 +122,7 @@ sociality.formula <- function (formula, ..., theta0, nsim=100,
 
 sociality.ergm <- function (object, ..., nsim=100,
                             burnin=100, interval=100,
-                            constraint="none", prop.weights="auto", prop.args = NULL,
+                            constraints=NULL, prop.weights="default", prop.args = NULL,
                             seed=NULL, drop=FALSE,
                             statistics=NULL) {
 
@@ -137,10 +135,7 @@ sociality.ergm <- function (object, ..., nsim=100,
   }
   n <- network.size(g)
   if(is.null(seed)){seed <- sample(10000000, size=1)}
-  if(missing(proposaltype) & !is.null(object$proposaltype)){
-    proposaltype <- object$proposaltype
-  }
-
+     
   if(!is.directed(g)){
     if(is.null(statistics)){
      dimcentrality <- 1
@@ -164,7 +159,7 @@ sociality.ergm <- function (object, ..., nsim=100,
   # Simulate an exponential family random network model
 
   SimGraphSeriesObj <- simulate(object, burnin=burnin, interval=interval,
-                                constraint=constraint,
+                                constraints=constraints,
                                 control=simulate.ergm.control(prop.weights=prop.weights,
                                   prop.args=prop.args,
                                   drop=drop),

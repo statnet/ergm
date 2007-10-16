@@ -10,7 +10,7 @@ gof.default <- function(object,...)
 gof.ergm <- function (object, ..., nsim=100,
                       GOF=~degree+espartners+distance, 
                       burnin=10000, interval=1000,
-                      constraint=NULL,
+                      constraints=NULL,
                       prop.weights="default",
                       prop.args=NULL,
                       seed=NULL, drop=TRUE,
@@ -26,17 +26,16 @@ gof.ergm <- function (object, ..., nsim=100,
   }
   if(is.null(seed)){seed <- sample(10000000, size=1)}
 
-  proposaltype <- lookupMH.ergm(object,"c",constraint,prop.weights)
+  constraints<-
+    if(is.null(constraints)) getMHproposal(object)
+    else constraints
   
-  boundDeg <- object$boundDeg
-
   if(missing(theta0)){theta0 <- object$coef}
 
   gof.formula(formula=formula, theta0=theta0, nsim=nsim,
               GOF=GOF,
               burnin=burnin, interval=interval,
-              boundDeg=boundDeg,
-              constraint=forceMH(proposaltype),
+              constraints=constraints,
               prop.args=prop.args,
               seed=seed, drop=drop,
               summarizestats=summarizestats,
@@ -46,11 +45,10 @@ gof.ergm <- function (object, ..., nsim=100,
 gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
                         burnin=10000, interval=1000,
                         GOF=~degree+espartners+distance,
-                        constraint=NULL,
+                        constraints=NULL,
                         prop.weights="default",
                         prop.args=NULL,
                         seed=NULL, drop=TRUE,
-                        boundDeg=NULL,
                         summarizestats=FALSE,
                         verbose=FALSE) {
 # Unused code
@@ -66,9 +64,6 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
 
   if(is.ergm(nw)){
     all.gof.vars <- ergm.rhs.formula(formula)
-    proposaltype <- lookupMH.ergm(nw,"c",constraint,prop.weights)
-    
-    boundDeg <- nw$boundDeg
     formula <- nw$formula
     if(missing(theta0)){theta0 <- nw$coef}
     trms <- ergm.getterms(formula)
@@ -79,7 +74,6 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
     }
   }else{
     all.gof.vars <- ergm.rhs.formula(GOF)
-    proposaltype <- lookupMHproposal("c",constraint,prop.weights)
   }
 
 # match variables
@@ -106,8 +100,9 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
 # }
 
   m <- ergm.getmodel(formula, nw, drop=drop)
-  MHproposal <- getMHproposal(proposaltype,
-                              prop.args, nw, m)
+  MHproposal <-
+    if(is.ergm(nw) && is.null(constraints)) getMHproposal(nw)
+    else getMHproposal(constraints, prop.args, nw, m, weights=prop.weights)
   Clist <- ergm.Cprepare(nw, m)
 
   if(is.null(theta0)){
@@ -125,9 +120,9 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
    SimCond <- gof(formula=formula, theta0=theta0missing,
                   GOF=GOF, nsim=nsim,
                   burnin=burnin, interval=interval,
-                  boundDeg=boundDeg,
-                  constraint=forceMH(proposaltype),
+                  constraints=constraints,
                   prop.args=prop.args,
+                  prop.weights=prop.weights,
                   drop=drop,
                   unconditional=FALSE,
                   seed=seed, verbose=verbose)
@@ -265,10 +260,9 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
   SimNetworkSeriesObj <- simulate(formula, nsim=nsim, seed=seed,
                                   theta0=theta0,
                                   burnin=burnin, interval=interval,
-                                  constraint=constraint,
+                                  constraints=MHproposal,
                                   simulate.ergm.control(prop.args=prop.args,
                                                         prop.weights=prop.weights,
-                                                        boundDeg=boundDeg,
                                                         summarizestats=summarizestats,
                                                         drop=drop),
                                   verbose=verbose, basis=nw)

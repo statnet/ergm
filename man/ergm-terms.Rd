@@ -104,7 +104,7 @@ network
     the number of distinct \code{k[i]}-instars in the network, where a
     \eqn{k}-instar is defined to be a node \eqn{N} and a set of \eqn{k}
     different nodes \eqn{\{O_1, \dots, O_k\}}{O_1, \dots, O_k} such that the
-    ties \eqn{\{(N{\lefttarrow}O_j)\}}{(O_j,N)} all exist for \eqn{j=1, \dots,
+    ties \eqn{\{(N{\leftarrow}O_j)\}}{(O_j,N)} all exist for \eqn{j=1, \dots,
     k}. The value is the minimum of this count and \code{bound[i]}. This term
     can only be used with directed networks; for undirected networks, see
     \code{bounded.kstar}. }

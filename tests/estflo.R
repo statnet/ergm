@@ -1,8 +1,8 @@
 library(ergm)
-data(gflo)
+data(florentine)
 # a markov graph fit to the Florentine data
-gest <- ergm(gflo ~ edges + kstar(2), 
-	randseed=16124, startatMPLE=TRUE)
+gest <- ergm(flomarriage ~ edges + kstar(2), 
+	seed=16124)
 gest
 summary(gest)
 #anova(gest)
@@ -15,3 +15,9 @@ summary(gest)
 #Monte Carlo MLE Coefficients:
 #    edges      star2
 #-1.622292   0.006467
+
+# While we are at it, test the constrainted version.
+gest <- ergm(flomarriage ~ edges + kstar(2), constraints=~edges, 
+	seed=16124)
+gest
+summary(gest)

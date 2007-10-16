@@ -1,10 +1,10 @@
 ergm.mainfitloop.dyn <- function(theta0, nw, model.form, model.diss, 
-                             Clist,
-                             BD, gamma, initialfit, 
-                             MCMCparams, MHproposal.form, MHproposal.diss,
-                             verbose=FALSE,
-                             epsilon=1e-10,
-                             estimate=TRUE, ...) {
+                                 Clist,
+                                 gamma, initialfit, 
+                                 MCMCparams, MHproposal.form, MHproposal.diss,
+                                 verbose=FALSE,
+                                 epsilon=1e-10,
+                                 estimate=TRUE, ...) {
   iteration <- 1
   nw.orig <- nw
 #
@@ -37,7 +37,7 @@ ergm.mainfitloop.dyn <- function(theta0, nw, model.form, model.diss,
 #   MHproposal.form=list(package=proposalpackage, type=proposaltype)
     z <- ergm.getMCMCDynsample(nw, model.form, model.diss,
                                MHproposal.form, MHproposal.diss,
-                               eta0, gamma, MCMCparams, verbose, BD)
+                               eta0, gamma, MCMCparams, verbose)
     statsmatrix <- z$statsmatrix
 #   print( summary(nw) )
     nw <- z$newnetwork
@@ -154,7 +154,6 @@ ergm.mainfitloop.dyn <- function(theta0, nw, model.form, model.diss,
 # l$boundDeg <- list(condAllDegExact=condAllDegExact, maxout=maxout,
 #                    maxin=maxin, minout=minout,
 #                    minin=minin, attribs=attribs)
-  v$boundDeg <- BD
 #   This is the MCMC estimate as in the Hunter&Handcock paper
 #  l$mcmcloglik <- l$mcmcloglik - Clist$ndyads*log(2)
 #   This is the MPLE value estimate plus the ratio
@@ -174,7 +173,8 @@ ergm.mainfitloop.dyn <- function(theta0, nw, model.form, model.diss,
     v$newnetwork <- nw
     v$interval <- MCMCparams$interval
     v$theta.original <- theta.original
-    v$proposalname <- MHproposal.form$name
+    v$proposal.form <- MHproposal.form$name
+    v$proposal.diss <- MHproposal.diss$name
     v$mplefit <- initialfit
          
     if(!v$failure & !any(is.na(v$coef))){

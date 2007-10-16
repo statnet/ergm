@@ -2,7 +2,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
                              burnin=1000, interval=1000,
                              basis=NULL,
                              sequential=TRUE,
-                             constraint="none",
+                             constraints=~.,
                              control=ergm.simulate.control(),
                              verbose=FALSE) {
   out.list <- list()
@@ -28,44 +28,10 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
     stop("A network object on the LHS of the formula or via",
          " the 'basis' argument must be given")
   }
-  # Resolve conditioning
-  # This is laborious to cover the various partial specifications
-  #
 
-######################################
-# Almost all of the following is commented out for now and should be modified.
-#BD <- control$boundDeg
-#  if(is.null(BD)){
-#   BD <- ergm.boundDeg(NULL)
-    BD <- ergm.boundDeg(control$boundDeg, nnodes=network.size(nw))
-#  }
-#
-#  if (BD$condAllDegExact==TRUE && proposaltype != "conddeg") {
-##     cat("Warning:  If condAllDegExact is set to TRUE inside boundDeg,")
-##     cat("then switching must be chosen.  Setting proposaltype == "conddeg" now.\n")
-#    proposaltype <- "conddeg"
-#  }
-#
-#  if(mixed||conditional){
-#    proposalnumber <- c(2, 3, 7, 8)[match(proposaltype,
-#                                          c("conddegdist", "conddeg",
-#                                            "condoutdeg", "condindeg"),
-#                                          nomatch=1)]
-#  }else{
-#    proposalnumber <- match(proposaltype,
-#                            c("toggle","conddegdist", "conddegdistswitch",
-#                              "conddeg", "nodeedges", "node",
-#                              "condoutdeg", "condindeg", "constantedges",
-#                              "tnt"),
-#                            nomatch=1)
-#  }
-#  
-################################################
   m <- ergm.getmodel(formula, nw, drop=control$drop)
-  MHproposal <- getMHproposal(lookupMHproposal("c",constraint,control$prop.weights),
-                              control$prop.args, nw, m)
+  MHproposal <- getMHproposal(constraints,control$prop.args, nw, m, weights=control$prop.weights,class="c")
 
-  distanceMetric <- 0
   Clist <- ergm.Cprepare(nw, m)
   
   MCMCsamplesize <- 1
@@ -113,10 +79,10 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
              newnwheads = integer(maxedges),
              newnwtails = integer(maxedges), 
              as.integer(verb),
-             as.integer(BD$attribs), 
-             as.integer(BD$maxout), as.integer(BD$maxin), as.integer(BD$minout), 
-             as.integer(BD$minin), as.integer(BD$condAllDegExact),
-             as.integer(length(BD$attribs)), 
+             as.integer(MHproposal$bd$attribs), 
+             as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin), as.integer(MHproposal$bd$minout), 
+             as.integer(MHproposal$bd$minin), as.integer(MHproposal$bd$condAllDegExact),
+             as.integer(length(MHproposal$bd$attribs)), 
              as.integer(maxedges), 
              as.integer(0.0), as.integer(0.0), 
              as.integer(0.0),
@@ -147,14 +113,12 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
 simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
                           burnin=1000, interval=1000, 
                           sequential=TRUE, 
-                          constraint=NULL,
+                          constraints=NULL,
                           control=ergm.simulate.control(),
                           verbose=FALSE) {
   out.list <- vector("list", nsim)
   out.mat <- numeric(0)
   
-  proposaltype <- lookupMH.ergm(object,"c",constraint,control$prop.weights)
-
 #  if(missing(multiplicity) & !is.null(object$multiplicity)){
 #    multiplicity <- object$multiplicity
 #  }
@@ -163,34 +127,11 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
   
   nw <- object$network  
   
-#   BD <- ergm.boundDeg(NULL)
-    BD <- ergm.boundDeg(control$boundDeg, nnodes=network.size(nw))
-    
-############################    
-#  if (BD$condAllDegExact==TRUE && proposaltype != "conddeg") {
-##     cat("Warning:  If condAllDegExact is set to TRUE inside boundDeg,")
-##     cat("then switching must be chosen.  Setting proposaltype == "conddeg" now.\n")
-#    proposaltype <- "conddeg"
-#  }
-#  if(verbose){cat(paste("Proposal type is", proposaltype,"\n"))}
-##
-#  if(mixed||conditional){
-#    proposalnumber <- c(2, 3, 7, 8)[match(proposaltype,
-#                                          c("conddegdist", "conddeg",
-#                                            "condoutdeg", "condindeg"),
-#                                          nomatch=1)]
-#  }else{
-#    proposalnumber <- match(proposaltype,
-#                            c("toggle","conddegdist", "conddegdistswitch",
-#                              "conddeg", "nodeedges",
-#                              "node", "condoutdeg", "condindeg",
-#                              "constantedges",
-#                              "tnt"),
-#                            nomatch=1)
-#  }
-  
   m <- ergm.getmodel(object$formula, nw, drop=control$drop)
-  MHproposal <- getMHproposal(proposaltype, control$prop.args, nw, m)
+  ## constraints=NULL preserves constraints of the original fit. Otherwise, new constraints.
+  MHproposal <-
+    if(is.null(constraints)) getMHproposal(object)
+    else getMHproposal(constraints,control$prop.args, nw, m, weights=control$prop.weights)
   MCMCsamplesize <- 1
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
@@ -230,11 +171,11 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
              newnwheads = integer(maxedges),
              newnwtails = integer(maxedges), 
             as.integer(verb),
-            as.integer(BD$attribs), 
-            as.integer(BD$maxout), as.integer(BD$maxin),
-            as.integer(BD$minout), 
-            as.integer(BD$minin), as.integer(BD$condAllDegExact),
-            as.integer(length(BD$attribs)), 
+            as.integer(MHproposal$bd$attribs), 
+            as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
+            as.integer(MHproposal$bd$minout), 
+            as.integer(MHproposal$bd$minin), as.integer(MHproposal$bd$condAllDegExact),
+            as.integer(length(MHproposal$bd$attribs)), 
             as.integer(maxedges), 
             as.integer(0.0), as.integer(0.0), 
             as.integer(0.0),
@@ -280,14 +221,4 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
   }
   return(out.list)
 }
-
-#simulate.ergm <- rergm.ergm
-  
-
-
-
-
-
-
-
 

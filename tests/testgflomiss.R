@@ -1,51 +1,51 @@
 library(ergm)
 #
-data(gflo)
+data(florentine)
 
 ##
 ## Create random 5% missing
 ##
-#mgflo <- rergm(graph.size(gflo),prob=0.05, directed=FALSE)
-#gflo <- set.graph.attribute(gflo, "design", mgflo)
-#summary(gflo)
+#mflomarriage <- rergm(network.size(flomarriage),prob=0.05, directed=FALSE)
+#flomarriage <- set.graph.attribute(flomarriage, "design", mflomarriage)
+#summary(flomarriage)
 
 #
 # Create random 2 nodes who are non-respondents
 #
-#respondent <- rmultinom(n=1, size=graph.size(gflo)-2,
-#                        prob=rep(1,graph.size(gflo)))
+#respondent <- rmultinom(n=1, size=network.size(flomarriage)-2,
+#                        prob=rep(1,network.size(flomarriage)))
 #respondent
 
-respondent <- rep(FALSE,graph.size(gflo))
-respondent[sample(1:graph.size(gflo), size=graph.size(gflo)-2,replace=FALSE)] <- TRUE
+respondent <- rep(FALSE,network.size(flomarriage))
+respondent[sample(1:network.size(flomarriage), size=network.size(flomarriage)-2,replace=FALSE)] <- TRUE
 respondent
 
 #
-#one <- matrix(1,ncol=1,nrow=graph.size(gflo))
+#one <- matrix(1,ncol=1,nrow=network.size(flomarriage))
 #orespondent <- one %*% t(respondent) + respondent %*% t(one) - respondent %*% t(respondent)
 #orespondent <- 1-orespondent
 #diag(orespondent) <- 0
 ##
-#mgflo <- graph(orespondent, directed=FALSE)
-#summary(mgflo)
-#sociomatrix(mgflo)
-#gflo <- set.graph.attribute(gflo, "design", mgflo)
+#mflomarriage <- graph(orespondent, directed=FALSE)
+#summary(mflomarriage)
+#sociomatrix(mflomarriage)
+#flomarriage <- set.graph.attribute(flomarriage, "design", mflomarriage)
 
-#efit <- ergm(gflo ~ edges + kstar(2), MCMCsamplesize=1000, interval=1000)
-efit <- ergm(gflo ~ edges + kstar(2), MPLEonly=TRUE)
+#efit <- ergm(flomarriage ~ edges + kstar(2), MCMCsamplesize=1000, interval=1000)
+efit <- ergm(flomarriage ~ edges + kstar(2), MPLEonly=TRUE)
 summary(efit)
 
-gflo <- set.vertex.attribute(gflo, "respondent", respondent)
+flomarriage <- set.vertex.attribute(flomarriage, "respondent", respondent)
 rm(respondent)
-summary(gflo)
+summary(flomarriage)
 
-efit <- ergm(gflo ~ edges + kstar(2), MPLEonly=T)
+efit <- ergm(flomarriage ~ edges + kstar(2), MPLEonly=T)
 summary(efit)
 
-efit <- ergm(gflo ~ edges + kstar(2), MCMCsamplesize=1000, interval=1000)
+efit <- ergm(flomarriage ~ edges + kstar(2), MCMCsamplesize=1000, interval=1000)
 summary(efit)
 
-efit <- ergm(gflo ~ edges + kstar(2), theta=c(-1.6,0),startatMPLE=F)
+efit <- ergm(flomarriage ~ edges + kstar(2), theta=c(-1.6,0),startatMPLE=F)
 
 #
 # edges  -1.6     -1.74242 0.8557   0.044   0.041373 

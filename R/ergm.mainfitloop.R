@@ -1,5 +1,5 @@
 ergm.mainfitloop <- function(theta0, nw, model, Clist, Clist.miss,
-                             BD, initialfit, 
+                             initialfit, 
                              MCMCparams, 
                              MHproposal, MHproposal.miss,
                              verbose=FALSE,
@@ -30,10 +30,10 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist, Clist.miss,
     cat("Iteration ", iteration,": Sampling ", MCMCparams$samplesize,
         " with parameter: \n", sep="")
     print(theta0)
-    z <- ergm.getMCMCsample(nw, model, MHproposal, eta0, MCMCparams, verbose, BD)
+    z <- ergm.getMCMCsample(nw, model, MHproposal, eta0, MCMCparams, verbose)
     statsmatrix=z$statsmatrix
     if(MCMCparams$Clist.miss$nedges > 0){
-      statsmatrix.miss <- ergm.getMCMCsample(nw, model, MHproposal.miss, eta0, MCMCparams, verbose, BD)$statsmatrix
+      statsmatrix.miss <- ergm.getMCMCsample(nw, model, MHproposal.miss, eta0, MCMCparams, verbose)$statsmatrix
       if(verbose){cat("Back from constrained MCMC...\n")}
     }else{
       statsmatrix.miss <- NULL
@@ -138,7 +138,6 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist, Clist.miss,
 # l$boundDeg <- list(condAllDegExact=condAllDegExact, maxout=maxout,
 #                    maxin=maxin, minout=minout,
 #                    minin=minin, attribs=attribs)
-  v$boundDeg <- BD
 #   This is the MCMC estimate as in the Hunter&Handcock paper
 #  l$mcmcloglik <- l$mcmcloglik - Clist$ndyads*log(2)
 #   This is the MPLE value estimate plus the ratio
@@ -158,7 +157,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist, Clist.miss,
     v$newnetwork <- nw
     v$interval <- MCMCparams$interval
     v$theta.original <- theta.original
-    v$proposalname <- MHproposal$name
+    v$proposal <- MHproposal
     v$mplefit <- initialfit
          
     if(!v$failure & !any(is.na(v$coef))){

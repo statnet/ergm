@@ -1,10 +1,10 @@
 ergm.getMCMCDynsample <- function(nw, model.form, model.diss,
                                   MHproposal.form, MHproposal.diss, theta0, gamma0, MCMCparams, 
-                                  verbose, BD){
+                                  verbose){
 # Note:  In reality, there should be many fewer arguments to this function,
 # since most info should be passed via Clist (this is, after all, what Clist
 # is for:  Holding all arguments required for the .C call).  In particular,
-# the elements of MHproposal.form, MCMCparams, verbose, and BD should certainly
+# the elements of MHproposal.form, MCMCparams, verbose, should certainly
 # be part of Clist.  But this is a project for another day!
 #
 #   Check for truncation of the returned edge list
@@ -44,10 +44,10 @@ ergm.getMCMCDynsample <- function(nw, model.form, model.diss,
               as.character(MHproposal.diss$name), as.character(MHproposal.diss$package),
               as.double(Clist.diss$inputs), as.double(gamma0),
               # Degree bounds.
-              as.integer(BD$attribs), 
-              as.integer(BD$maxout), as.integer(BD$maxin),
-              as.integer(BD$minout), as.integer(BD$minin),
-              as.integer(BD$condAllDegExact), as.integer(length(BD$attribs)),
+              as.integer(MHproposal$bd$attribs), 
+              as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
+              as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
+              as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)),
               # MCMC settings.
               as.double(MCMCparams$nsteps), as.integer(MCMCparams$dyninterval),
               as.double(MCMCparams$burnin), as.double(MCMCparams$interval),
@@ -91,7 +91,6 @@ ergm.getMCMCDynsample <- function(nw, model.form, model.diss,
            MCMCparams.parallel,
            maxchanges, 
            verbose,
-           BD,
            file=paste(outsetuppvm$SLAVEDIR,"/",rpvmbasename,".common.RData",sep=""))
 #
 #   Run the jobs with PVM

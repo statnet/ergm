@@ -1,4 +1,4 @@
-ergm.robmon <- function(theta0, nw, model, Clist, BD, 
+ergm.robmon <- function(theta0, nw, model, Clist,
                         burnin, interval, MHproposal,
                         verbose=FALSE, 
                         algorithm.control=list() ){
@@ -28,7 +28,7 @@ ergm.robmon <- function(theta0, nw, model, Clist, BD,
                      stats=stats, parallel=algorithm.control$parallel)
   cat(paste("Phase 1: ",n1,"iterations"))
   cat(paste(" (interval=",MCMCparams$interval,")\n",sep=""))
-  z <- ergm.getMCMCsample(nw, model, MHproposal, eta0, MCMCparams, verbose, BD)
+  z <- ergm.getMCMCsample(nw, model, MHproposal, eta0, MCMCparams, verbose)
   steplength <- algorithm.control$steplength
   statsmatrix <- z$statsmatrix
   if(steplength<1){
@@ -71,7 +71,7 @@ ergm.robmon <- function(theta0, nw, model, Clist, BD,
 #cat(paste("theta:",theta,"\n"))
       eta <- ergm.eta(theta, model$etamap)
 #cat(paste("eta:",eta,"\n"))
-      z <- ergm.getMCMCsample(nw, model, MHproposal, eta, MCMCparams, verbose=FALSE, BD)
+      z <- ergm.getMCMCsample(nw, model, MHproposal, eta, MCMCparams, verbose=FALSE)
       # MCMCparams$burnin should perhaps be increased here, since
       # each iteration begins from the observed network, which must be 
       # "forgotten".
@@ -100,7 +100,7 @@ cat(paste("theta new:",theta,"\n"))
   cat(paste("Phase 3: ",n3,"iterations"))
   cat(paste(" (interval=",MCMCparams$interval,")\n",sep=""))
   eta <- ergm.eta(theta, model$etamap)
-  z <- ergm.getMCMCsample(nw, model, MHproposal, eta, MCMCparams, verbose, BD)
+  z <- ergm.getMCMCsample(nw, model, MHproposal, eta, MCMCparams, verbose)
 # ubar <- apply(z$statsmatrix, 2, mean)
 # hessian <- (t(z$statsmatrix) %*% z$statsmatrix)/n3 - outer(ubar,ubar)
 # covar <- robust.inverse(covar)
@@ -137,8 +137,8 @@ cat(paste("theta new:",theta,"\n"))
   structure(c(ve, list(newnetwork=nw, 
                  theta.original=theta0,
                  rm.coef=theta,
-                 bounddeg=BD, formula=model$formula, 
+                 formula=model$formula, 
                  interval=interval, burnin=burnin, 
-                 network=nw, proposaltype=MHproposal$name)),
+                 network=nw, proposal=MHproposal)),
              class="ergm")
 }

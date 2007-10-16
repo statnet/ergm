@@ -1,24 +1,17 @@
 #  DH:  This file is still a work in progress, but for now it should
 #  be set up so as not to break anything!
 
-getMHproposal <- function(name, arguments, nw, model) {
-  proposal <- eval(call(paste("InitMHP.", name, sep=""),
-                        arguments, nw, model))
-#  nwlist <- proposal$nwlist
-proposal
-}
-
-
-nativeMHproposals<-
-  #         Class Constraint       Weights        MHP
-  rbind(I(c("c", "none",          "default",      "TNT")),
-          c("c", "none",          "TNT",          "TNT"),
-          c("c", "none",          "random",       "randomtoggle"),
-          c("c", "none",          "nonobserved",  "randomtoggleNonObserved"),
+MHproposals<-
+  #         Class Constraint      Weights        MHP
+  rbind(I(c("c", "",              "default",      "TNT")),
+          c("c", "",              "TNT",          "TNT"),
+          c("c", "",              "random",       "randomtoggle"),
+          c("c", "bd",            "default",       "TNT"),
+          c("c", "bd",            "TNT",           "TNT"),
+          c("c", "bd",            "random",       "randomtoggle"),
+          c("c", "",              "nonobserved",  "randomtoggleNonObserved"),
           c("c", "degrees",       "default",      "CondDegree"),
           c("c", "degrees",       "random",       "CondDegree"),
-          c("c", "nodedegrees",   "default",       "CondDegree"),
-          c("c", "nodedegrees",   "random",       "CondDegree"),
 
           c("c", "degreedist",    "default",      "CondDegreeDist"), # not yet implemented
           c("c", "degreedist",    "random",       "CondDegreeDist"), # not yet implemented 
@@ -33,48 +26,98 @@ nativeMHproposals<-
           c("c", "hamming",       "random",       "Hamming"),
           c("c", "edges+hamming", "default",      "HammingConstantEdges"),
           c("c", "edges+hamming", "random",       "HammingConstantEdges"),
-          c("f", "none",          "default",      "formationTNT"),
-          c("f", "none",          "TNT",          "formationTNT"),
-          c("f", "none",          "random",       "formation"),
-          c("d", "none",          "default",      "dissolution"),
-          c("d", "none",          "random",       "dissolution"))
-tmp <- nativeMHproposals
-nativeMHproposals <- data.frame(I(tmp[,1]), I(tmp[,2]), I(tmp[,3]), I(tmp[,4]))  
-colnames(nativeMHproposals)<-c("Class","Constraint","Weights","MHP")
+          c("f", "",              "default",      "formationTNT"),
+          c("f", "",              "TNT",          "formationTNT"),
+          c("f", "",              "random",       "formation"),
+          c("f", "bd",            "default",      "formationTNT"),
+          c("f", "bd",            "TNT",          "formationTNT"),
+          c("f", "bd",            "random",       "formation"),
+          c("d", "",              "default",      "dissolution"),
+          c("d", "",              "random",       "dissolution"),
+          c("d", "bd",            "default",      "dissolution"),
+          c("d", "bd",            "random",       "dissolution")
+        )
+tmp <- MHproposals
+MHproposals <- data.frame(I(tmp[,1]), I(tmp[,2]), I(tmp[,3]), I(tmp[,4]))  
+colnames(MHproposals)<-c("Class","Constraints","Weights","MHP")
 
-lookupMHproposal <- function(class, constraint, weights){
-  if(is.null(constraint)) constraint<-"none"
-  # If the proposal is specified explicitly, just use it.
-  if(length(grep(":",constraint))) return(gsub(".*:","",constraint))
+
+getMHproposal<-function(object, arguments=NULL, nw=NULL, model=NULL, weights="default", ...) UseMethod("getMHproposal")
+
+getMHproposal.NULL<-function(object,...) getMHproposal(~.,...)
+
+getMHproposal.MHproposal<-function(object,...) return(object)
+
+getMHproposal.character <- function(object, arguments, nw, model){
+  name<-object
+  proposal <- eval(call(paste("InitMHP.", name, sep=""),
+                        arguments, nw, model))
+
+  proposal$bd<-ergm.boundDeg(arguments$bd,network.size(nw))
+
+  class(proposal)<-"MHproposal"
+  proposal
+}
+
+getMHproposal.formula <- function(object, arguments, nw, model, weights="default", class="c") {
+
+  constraints<-object
+  ## Construct a list of constraints and arguments from the formula.
+  conlist<-list()
+  constraints<-try(as.list(attr(terms(constraints),"variables"))[-1],silent=TRUE)
+  ## The . in the default formula will break terms(...), signaling no constraints. 
+  if(!inherits(constraints,"try-error")){
+    for(constraint in constraints){
+      if(is.call(constraint)){
+        init.call<-list()
+        init.call<-list(as.name(paste("InitConstraint.", constraint[[1]], sep = "")),
+                        conlist=conlist)
+        
+        init.call<-c(init.call,as.list(constraint)[-1])
+      }else{
+        init.call <- list(as.name(paste("InitConstraint.", constraint, sep = "")),conlist=conlist)
+      }
+      conlist <- eval(as.call(init.call), attr(constraints,".Environment"))
+    }
+  }
   
-  # Convert vector of constraints to a "standard form".
-  constraint<-paste(sort(tolower(constraint)),collapse="+")
-  MHP<-with(nativeMHproposals,MHP[Class==class & Constraint==constraint & Weights==weights])
-  if(length(MHP)>1) stop("Multiple matching proposals in the lookup table.",
-                         "This Should Not Be Happening. Please make a bug report.")
-  if(length(MHP)<1){
-    constraints<-with(nativeMHproposals,Constraint[Class==class & Weights==weights])
-    weightings<-with(nativeMHproposals,Weights[Class==class & Constraint==constraint])
+  ## Remove constraints implied by other constraints.
+  for(constr in names(conlist))
+    for(impl in ConstraintImplications[[constr]])
+      conlist[[impl]]<-NULL
+  
+  ## Convert vector of constraints to a "standard form".
+  constraints<-paste(sort(tolower(names(conlist))),collapse="+")
+  name<-with(MHproposals,MHP[Class==class & Constraints==constraints & Weights==weights])
+  if(length(name)>1) stop("Multiple matching proposals in the lookup table.",
+                          "This Should Not Be Happening (tm). Unless you have",
+                          "been messing with the table, please file a bug report.")
+  if(length(name)<1){
+    constraints<-with(MHproposals,Constraint[Class==class & Weights==weights])
+    weightings<-with(MHproposals,Weights[Class==class & Constraint==constraint])
     stop("This combination of model constraint and proposal weighting is not implemented.",
          "Check your arguments for typos.",
          if(length(constraints)) paste("Constraints that go with your selected weighting are as follows: ",
-               paste(constraints,collapse=", "),".",sep="")
+                                       paste(constraints,collapse=", "),".",sep="")
          else "The supplied weighting is not recognized/implemented.",
          if(length(weightings)) paste("Weightings that go with your selected constraint are as follows: ",
-               paste(weightings,collapse=", "),".",sep="")
+                                      paste(weightings,collapse=", "),".",sep="")
          else "The supplied constraint is not recognized/implemented."
          )
   }
-  MHP
+  
+  if(is.null(arguments)) arguments<-conlist
+
+  ## Hand it off to the class character method.
+  getMHproposal.character(name,arguments,nw,model)
 }
 
-forceMH<-function(proposaltype){
-  paste(":",proposaltype,sep="")
+getMHproposal.ergm<-function(object,arguments=NULL, nw=NULL, model=NULL,weights=NULL){
+  if("proposal" %in% names(object)) object$proposal
+  else if(!is.null(object$proposal)){ # (Ab)use list name extension.
+    if(missing(arguments)||missing(model)) warning("Possibly guessing proposal type and arguments.")
+    getMHproposal(constraints=object$proposal,arguments=arguments,nw=object$network,model=list(),class="c")
+  }
+  else NULL
 }
 
-lookupMH.ergm<-function(object,class,constraint=NULL,weights){
-  if(is.null(constraint) & !is.null(object$proposaltype))
-    object$proposaltype
-  else
-    lookupMHproposal(class,constraint,weights)
-}

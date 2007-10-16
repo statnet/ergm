@@ -15,81 +15,97 @@
 ergm(formula, theta0="MPLE",
      MPLEonly=FALSE, MLestimate=!MPLEonly, seed=NULL,
      burnin=10000, MCMCsamplesize=10000, interval=100, maxit=3,
-     proposaltype="randomtoggle",
-     algorithm.control=list(),
+     constraints=~.,
+     control=ergm.control(),
      verbose=FALSE, \dots)
 }
 \arguments{
- \item{formula}{formula; an \R \code{\link{formula}} object, of the form
- \code{y ~ <model terms>},
-  where \code{y} is a network object or a matrix that can be
-  coerced to a network object.  For the details on the possible
-  \code{<model terms>}, see \code{\link{ergm-terms}}.  To create a
-  network object in \R, use the \code{network()} function,
-  then add nodal attributes to it using the \code{\%v\%}
-  operator if necessary.}
- \item{theta0}{vector; the parameter value used to generate
-  the MCMC sample and as a starting value for the estimation. By default the MPLE is used (\code{theta0="MPLE"}).}
- \item{MPLEonly}{logical; \code{TRUE} if the maximum
-  pseudo-likelihood estimate is to be computed and returned.
-  Note that \code{MPLEonly=TRUE} will render moot most other parameters in this list.}
- \item{MLestimate}{logical; \code{TRUE} if only the Monte Carlo maximum likelihood estimate
-  is to be computed and returned.}
- \item{burnin}{count; the number of proposals before any MCMC sampling
-  is done. It typically is set to a fairly large number.}
-%  Currently, there is no support for any check of the Markov
-%  chain mixing, so \code{burnin} should be set to a fairly large number.}
- \item{MCMCsamplesize}{count; the number of network statistics,
-  randomly drawn from a given distribution on the set of all networks,
-  returned by the Metropolis-Hastings algorithm.}
- \item{interval}{count; the number of proposals between sampled statistics.
-% The program prints a warning if too few proposals are being
-% accepted in any interval before each sample.
-% (if the number of proposals between sampled observations
-% ever equals an integral multiple of 100(1+the number of proposals accepted)).
+  \item{formula}{formula; an \R \code{\link{formula}} object, of the form
+    \code{y ~ <model terms>},
+    where \code{y} is a network object or a matrix that can be
+    coerced to a network object.  For the details on the possible
+    \code{<model terms>}, see \code{\link{ergm-terms}}.  To create a
+    network object in \R, use the \code{network()} function,
+    then add nodal attributes to it using the \code{\%v\%}
+    operator if necessary.}
+  \item{theta0}{vector; the parameter value used to generate
+    the MCMC sample and as a starting value for the estimation. By default the MPLE is used (\code{theta0="MPLE"}).}
+  \item{MPLEonly}{logical; \code{TRUE} if the maximum
+    pseudo-likelihood estimate is to be computed and returned.
+    Note that \code{MPLEonly=TRUE} will render moot most other parameters in this list.}
+  \item{MLestimate}{logical; \code{TRUE} if only the Monte Carlo maximum likelihood estimate
+    is to be computed and returned.}
+  \item{burnin}{count; the number of proposals before any MCMC sampling
+    is done. It typically is set to a fairly large number.}
+  \item{MCMCsamplesize}{count; the number of network statistics,
+    randomly drawn from a given distribution on the set of all networks,
+    returned by the Metropolis-Hastings algorithm.}
+  \item{interval}{count; the number of proposals between sampled statistics.
   }
- \item{maxit}{count; the number of times the parameter for the MCMC
-  should be updated by maximizing the MCMC likelihood. At each
-  step the parameter is changed to the values that maximizes
-  the MCMC likelihood based on the current sample.}
- \item{proposaltype}{The type of Metropolis-Hastings proposal used.
-   The default is \code{"randomtoggle"} to propose a dyad at random
-   to toggle (i.e., change the value of the dyad to its complement).
-   The options are 
+  \item{maxit}{count; the number of times the parameter for the MCMC
+    should be updated by maximizing the MCMC likelihood. At each
+    step the parameter is changed to the values that maximizes
+    the MCMC likelihood based on the current sample.}
+  \item{constraints}{A one-sided formula specifying one or more constraints
+    on the support of the distribution of the networks being modeled,
+    using syntax similar to the "formula" argument. Multiple constraints
+    may be given, separated by "+" operators.
+    Together with the model terms in the formula, the constraints define the distribution of networks being modeled.
+        
+    It is also possible to specify a proposal function directly by
+    passing a string with the function's name. In that case, arguments
+    to the proposal should be specified through the \code{prop.args}
+    argument to \code{\link{ergm.control}}.
+    
+    The default is \code{~.}, for an unconstrained model.
+    
+    The constraint terms currently implemented are
     \describe{
-     \item{\code{TNT}}{("tie/no-tie") proposes a dyad with
-        at least 50\% chance of toggling an existing 
-        edge, as opposed to a simple random toggle that rarely does so 
-        in sparse networks.}
-     \item{\code{ConstantEdges}}{proposes a pair of dyads with one having a tie
-        and the other not having one.}
-     \item{\code{CondDegree}}{proposes a pair of dyads in such a way
-        to retain the individual degrees of the nodes.}
-     \item{\code{CondDegreeDist}}{proposes either a hexad or tetrad of dyads
-        to toggle in a way to retain the degree distribution of the 
-        network (but not necessarily the individual degrees).}
-     \item{\code{CondOutDegreeDist}}{proposes either a hexad or tetrad of dyads
-        to toggle in a way to retain the out degree distribution of the 
-        network (but not necessarily the individual degrees).}
-     \item{\code{CondInDegreeDist}}{proposes either a hexad or tetrad of dyads
-        to toggle in a way to retain the in degree distribution of the 
-        network (but not necessarily the individual degrees).}
-     \item{\code{RandomNode}}{to propose all dyads associated with a randomly
-        sampled node.}
-     \item{\code{TwoRandomToggles}}{proposes a pair of randomly chosen
-        dyads.}
+      \item{\code{.} or \code{NULL}}{
+	A placeholder for no constraints: all networks of a particular size and type have
+	non-zero probability. Cannot be combined with other constraints.
+      }
+      \item{\code{bd(attribs,maxout,maxin,minout,minin)}}{
+	Constrain maximum and minimum vertex degree. See "Placing Bounds
+    on Degrees" section for more information.
+      }
+      \item{\code{degrees} and \code{nodedegrees}}{
+	Preserve the degree of each vertex of the network given: only networks
+	whose vertex degrees are the same as those in the network passed
+	in the model formula have non-zero probability.
+      }
+      \item{\code{degreedist}}{
+	Preserve the degree distribution of the network given: only networks
+	whose degree distributions are the same as those in the network passed
+	in the model formula have non-zero probability.
+      }
+      \item{\code{indegreedist} and \code{outdegreedist}}{
+	Preserve the (respectively) indegree or outdegree distribution of the network given.
+      }
+      \item{\code{edges}}{
+	Preserve the edge count of the network given: only networks
+	having the same number of edges as the network passed
+	in the model formula have non-zero probability.
+      }
+      \item{\code{hamming}}{
+	No clue.
+      }
     }
-  The option \code{"CondDegree"} is forced when
-  \code{condAllDegExact=TRUE}.
-  This is essential for some models or \code{boundDeg} constraints.}
- \item{algorithm.control}{A list of control parameters. See 
-  \bold{Algorithm Tuning}.}
- \item{seed}{integer; random number integer seed.
-   The default is \code{sample(10000000, size=1)}.}
- \item{verbose}{logical; if this is \code{TRUE}, the program will print out additional information, including goodness of fit 
-  statistics.}
- \item{\dots}{Additional arguments, to be passed to lower-level functions
-  in the future.}
+    Not all combinations of the above are supported.
+  }
+  \item{control}{A list of control parameters for algorithm
+    tuning. Constructed using \code{\link{ergm.control}}. }
+  \item{seed}{integer; random number integer seed. Defaults to \code{NULL} to
+    use whatever the state of the random number generater is at the time
+    of the call.
+  }
+  \item{verbose}{logical; if this is
+    \code{TRUE}, the program will print out additional information,
+    including goodness of fit statistics.
+  }
+  \item{\dots}{Additional
+    arguments, to be passed to lower-level functions in the future.
+  }
 }
 
 \section{Model Terms}{
@@ -134,7 +150,8 @@ ergm(formula, theta0="MPLE",
  \item{statsmatrix}{If the option \code{returnMCMCstats=TRUE}, this is 
   the the matrix of change statistics from the MCMC run.}
  \item{newnetwork}{The network generated at the end of the MCMC sampling.}
-
+ \item{proposal}{The structure containing information about the
+  Metropolis-Hasting proposal used.}
   See the method \code{\link{print.ergm}} for details on how
   an \code{\link{ergm}} object is printed.  Note that the
   method \code{\link{summary.ergm}} returns a summary of the
@@ -191,14 +208,12 @@ node of degree 3 and a node of degree 5, it must also add
 an edge between a node of degree 2 and a node of degree 4.
 Note that one or both of the latter nodes may be the same as
 the former nodes.
-%See the \code{proposaltype} argument for details.
 
 The package is designed so that the user can add additional 
 proposal types. 
 }
   
-
-\section{Conditioning within models}{
+\section{Placing Bounds on Degrees:}{
 There are many times when one may wish to condition on the
 number of inedges or outedges possessed by a node, either as a
 consequence of some intrinsic property of that node (e.g., to control for 
@@ -209,7 +224,7 @@ the survey asked everyone to name only three friends total) or as a
 function of the attributes of the nodes to which a node has edges
 (e.g., we specify that nodes designated ``male'' have a maximum number
 of outdegrees to nodes designated ``female'').  To accomplish this we
-use the \code{\link{ergm}} parameter \code{boundDeg}.
+use the \code{constraints} term  \code{bd}.
 
 Let's consider the simple cases first. 
 Suppose you want to condition on the total number of degrees
@@ -218,7 +233,7 @@ respondents to name three alters and no more, then you might want to
 limit your maximal outdegree to three without regard to any of the
 alters' attributes. The argument is then:  
 
-   \code{boundDeg=list(maxout=3)}
+   \code{constraints=~bd(maxout=3)}
 
 Similar calls are used to restrict the number of indegrees
 (\code{maxin}), the minimum number of outdegrees
@@ -227,20 +242,19 @@ Similar calls are used to restrict the number of indegrees
 
 You can also set ego specific limits. For example:
 
-   \code{boundDeg=list(maxout=rep(c(3,4),c(36,35)))}
+   \code{constraints=bd(maxout=rep(c(3,4),c(36,35)))}
 
 limits the first 36 to 3 and the other 35 to 4 outdegrees.
 
-Multiple restrictions can be combined. \code{boundDeg} is very flexible.
-In general, the \code{boundDeg} term can contain up to six arguments:
+Multiple restrictions can be combined. \code{bd} is very flexible.
+In general, the \code{bd} term can contain up to five arguments:
 
   \preformatted{
- boundDeg <- list(attribs=attribs,
-	          maxout=maxout,
-                  maxin=maxin,
-                  minout=minout,
-                  minin=minin,
-                  condAllDegExact=FALSE)
+    bd(attribs=attribs,
+       maxout=maxout,
+       maxin=maxin,
+       minout=minout,
+       minin=minin)
   }
 
 Omitted arguments are unrestricted, and arguments of length 1
@@ -352,130 +366,12 @@ in this case.
 %        	         minout=matrix(NA,ncol=1,nrow=71),
 %        	         minin=matrix(NA,ncol=1,nrow=71))}
 
-  Finally, \code{boundDeg} takes an optional argument,
-  \code{condAllDegExact}.  If \code{condAllDegExact} is
-  \code{TRUE}, then all other inputs to this function will be
-  ignored, and we will condition on the initial degree of all
-  nodes in the observed network - no node will change degree in
-  any toggle.  To achieve this, the code automatically creates
-  the five matrices as if only the ego column were specified.
-  It then assigns values to the ego column, for each \eqn{n} in
-  \eqn{1\dots\code{n_nodes}}.
-
-  \preformatted{
+\preformatted{
 attribs[n][0] = 1 # just the ego values
 maxout[n][0] = minout[n][0] = observed outdegree of n in network
 maxin[n][0] = minin[n][0] = observed indegree of n in network
   }
-
-% Note that if \code{condAllDegExact} is \code{TRUE}, then
-% \code{toggletwo} must be \code{TRUE} as well or else there will never
-% be a valid toggle.
 }
-
-\section{Algorithm Tuning}{
-  
-  There are a large number of parameters that can be modified to define complex
-  models, estimators and computational aspects. These are specified via the 
-  \code{algorithm.control} argument.
-  The \code{algorithm.control} argument is a list that can supply any of the
-  following components:
-  \describe{
-    \item{\code{nr.maxit}}{count; The maximum number of iterations in the
-      Newton-Raphson optimization.  Defaults to \code{100}.
-      \code{maxit} gives the total number of likelihood
-      function evaluations.}
-    \item{\code{calc.mcmc.se}}{logical; should the contribution to the 
-      standard errors of the estimator incurred by the MCMC sampling
-      be computed. Default is \code{TRUE}.}
-    \item{\code{hessian}}{logical; Should the Hessian matrix
-      of the likelihood function be computed. 
-      Default is \code{TRUE}.}
-    \item{\code{compress}}{logical; Should the matrix of sample statistics
-      returned be compressed to the set of unique statistics with a 
-      column of frequencies post-pended.  This also uses a compression
-      algorithm in the computation of the maximum psuedo-likelihood
-      estimate that will dramatically speed it for large networks.
-      Default is \code{FALSE}.}
-    \item{\code{maxNumDyadTypes}}{count; The maximum number of unique
-      pseudolikelihood change statistics to be allowed if \code{compress=TRUE}.
-      It is only relevant in that case.
-      Default is \code{10000}.}
-    \item{\code{MPLEsamplesize}}{count; the sample size to use for endogenous
-      sampling in the pseudolikelihood computation.
-      Default is \code{50000}.}
-    \item{\code{trace}}{non-negative integer; If positive,
-      tracing information on the
-      progress of the optimization is produced. Higher values may
-      produce more tracing information: for method \code{"L-BFGS-B"}
-      there are six levels of tracing.  (To understand exactly what
-      these do see the source code for \code{\link[stats]{optim}}: higher levels 
-      give more detail.)}
-    \item{\code{boundDeg}}{list; comprising up to five matrices and 
-      one or more arguments, which are used to constrain the number of in 
-      or out degrees that a node can have. By default no constraining 
-      is applied.  This is explained more fully under the 
-      \code{Conditioning within models} section. Defaults to no conditioning.}
-    \item{\code{drop}}{logical; Should the degenerate terms in the model be
-      dropped from the fit?
-      If statistics occur on the extreme of their range they
-      correspond to infinite parameter estimates.
-      Default is \code{TRUE}.}
-    \item{\code{proposalpackage}}{character; The name of the package the 
-      \code{proposaltype} is from.
-      Defaults to \code{"ergm"}.}
-    \item{\code{mcmc.precision}}{vector; upper bounds on the precision of the 
-      standard errors induced by the MCMC algorithm.
-      Defaults to \code{0.05}.}
-    \item{\code{metric}}{character; The name of the optimization metric
-      to use. Defaults to \code{"Likelihood"}.}
-    \item{\code{method}}{character; The name of the optimization method
-      to use. See \code{\link[stats]{optim}} for the options. The default method
-      \code{"BFGS"} is a quasi-Newton method (also known as a variable
-      metric algorithm). It is attributed to
-      Broyden, Fletcher, Goldfarb and Shanno. This uses function values
-      and gradients to build up a picture of the surface to be optimized.}
-    \item{\code{style}}{character; The style of maximum 
-      likelihood estimation to use. The default is optimization of an
-      MCMC estimate of the log-likelihood. An alternative is to use 
-      a form of stochastic approximation (\code{"Robbins-Monro"}).
-      The direct use of the likelihood function has many theoretical
-      advantages over stochastic approximation, but the choice will
-      depend on the model and data being fit. See Handcock (2000) and 
-      Hunter and Handcock (2006) for details.}
-    \item{\code{trustregion}}{numeric; The maximum amount the algorithm will
-      allow the approximated likelihood to be increased at a given iteration.
-      Defaults to 20.
-      See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
-    \item{\code{phase1_n}}{count; The number of MCMC samples to draw
-      in Phase 1 of the stochastic approximation algorithm.
-      Defaults to 7 plus 3 times the number of terms in the model.
-      See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
-    \item{\code{nsubphases}}{count; The number of sub-phases 
-      in Phase 2 of the stochastic approximation algorithm.
-      Defaults to \code{maxit}.
-      See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
-    \item{\code{initial_gain}}{numeric; The initial gain to
-      Phase 2 of the stochastic approximation algorithm.
-      Defaults to 0.1.
-      See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
-    \item{\code{niterations}}{count; The number of MCMC samples to draw
-      in Phase 2 of the stochastic approximation algorithm.
-      Defaults to 7 plus the number of terms in the model.
-      See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
-    \item{\code{phase3_n}}{count; The sample size for the MCMC sample
-      in Phase 3 of the stochastic approximation algorithm.
-      Defaults to 1000.
-      See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
-    \item{\code{returnMCMCstats}}{logical; If this is \code{TRUE} (the
-      default) the matrix of change 
-      statistics from the MCMC run is returned as component \code{sample}.
-      This matrix is actually an object of class \code{mcmc} and can be 
-      used directly in the \code{CODA} package to assess MCMC
-      convergence.}
-  }
-}
-
  
 \section{Dealing with degeneracy}{
 In order to begin the process of estimating network coefficients,

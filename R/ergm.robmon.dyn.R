@@ -1,4 +1,4 @@
-ergm.robmon.dyn <- function(theta0, nw, model.form, model.diss, Clist, BD, 
+ergm.robmon.dyn <- function(theta0, nw, model.form, model.diss, Clist, 
                         gamma0,
                         MCMCparams, MHproposal.form, MHproposal.diss,
                         verbose=FALSE){
@@ -32,7 +32,7 @@ ergm.robmon.dyn <- function(theta0, nw, model.form, model.diss, Clist, BD,
 # cat(paste(" (interval=",MCMCparams$interval,")\n",sep=""))
   nw.orig <- nw
 # z <- ergm.getMCMCDynsample(nw, model.form, model.diss, MHproposal, 
-#                            eta0, MCMCparams, verbose, BD)
+#                            eta0, MCMCparams, verbose)
 # toggle.dyads(nw, tail = z$changed[,2], head = z$changed[,3])
 # nw <- network.update(nw, z$newedgelist)
 # MCMCparams$orig.obs <- summary(model.form$formula)
@@ -71,7 +71,7 @@ ergm.robmon.dyn <- function(theta0, nw, model.form, model.diss, Clist, BD,
 # cat(paste("Phase 2: a=",a,"Total Samplesize",MCMCparams$samplesize,"\n"))
 # aDdiaginv <- a * Ddiaginv
   z <- ergm.phase12.dyn(nw, model.form, model.diss, MHproposal.form, MHproposal.diss,
-                        eta, gamma0, MCMCparams, verbose=TRUE, BD)
+                        eta, gamma0, MCMCparams, verbose=TRUE)
   cat("\n Number changed: ");cat(paste(nrow(z$changed)));cat("\n Edges:")
 # cat(paste(summary(nw ~ edges)));cat("\n")
 # nw <- network.update(nw, z$newedgelist)
@@ -97,7 +97,7 @@ ergm.robmon.dyn <- function(theta0, nw, model.form, model.diss, Clist, BD,
 #cat(paste(" eta=",eta,")\n",sep=""))
   z <- ergm.getMCMCDynsample(nw, model.form, model.diss, 
                              MHproposal.form, MHproposal.diss, eta, gamma0,
-                             MCMCparams, verbose, BD)
+                             MCMCparams, verbose)
   MCMCparams$maxchanges <- z$maxchanges
 # ubar <- apply(z$statsmatrix, 2, mean)
 # hessian <- (t(z$statsmatrix) %*% z$statsmatrix)/n3 - outer(ubar,ubar)
@@ -137,14 +137,14 @@ ergm.robmon.dyn <- function(theta0, nw, model.form, model.diss, Clist, BD,
                       # fullsample=statsmatrix.all),
                   # class="ergm") 
   structure(c(ve, list(newnetwork=nw, 
-                 theta.original=theta0,
-                 bounddeg=BD, formula=model.form$formula, 
-                 interval=MCMCparams$interval, burnin=MCMCparams$burnin, 
-                 network=nw.orig, proposalname=MHproposal$name)),
-             class="ergm")
+                       theta.original=theta0,
+                       formula=model.form$formula, 
+                       interval=MCMCparams$interval, burnin=MCMCparams$burnin, 
+                       network=nw.orig, proposal=MHproposal)),
+            class="ergm")
 }
 
-ergm.robmon.dyn.orig <- function(theta0, nw, model.form, model.diss, Clist, BD, 
+ergm.robmon.dyn.orig <- function(theta0, nw, model.form, model.diss, Clist, 
                         gamma0,
                         burnin, interval, MHproposal,
                         verbose=FALSE, 
@@ -175,7 +175,7 @@ ergm.robmon.dyn.orig <- function(theta0, nw, model.form, model.diss, Clist, BD,
                     )
   cat(paste("Phase 1: ",n1,"iterations"))
   cat(paste(" (interval=",MCMCparams$interval,")\n",sep=""))
-  z <- ergm.getMCMCDynsample(nw, model.form, model.diss, MHproposal.form, MHproposal.diss, eta0, gamma0, MCMCparams, verbose, BD)
+  z <- ergm.getMCMCDynsample(nw, model.form, model.diss, MHproposal.form, MHproposal.diss, eta0, gamma0, MCMCparams, verbose)
   MCMCparams$maxchanges <- z$maxchanges
   ubar <- apply(z$statsmatrix, 2, mean)
   Ddiag <- apply(z$statsmatrix^2, 2, mean) - ubar^2
@@ -211,7 +211,7 @@ ergm.robmon.dyn.orig <- function(theta0, nw, model.form, model.diss, Clist, BD,
        cat(paste(" (iteration = ",iteration," of ",n_iter,")\n",sep=""))
       }
       z <- ergm.getMCMCDynsample(nw, model.form, model.diss, MHproposal.form, MHproosal.diss, 
-                                 eta, gamma0, MCMCparams, verbose=FALSE, BD)
+                                 eta, gamma0, MCMCparams, verbose=FALSE)
       MCMCparams$maxchanges <- z$maxchanges
       # MCMCparams$burnin should perhaps be increased here, since
       # each iteration begins from the observed network, which must be 
@@ -235,7 +235,7 @@ ergm.robmon.dyn.orig <- function(theta0, nw, model.form, model.diss, Clist, BD,
  #cat(paste(" (samplesize=",MCMCparams$samplesize,")\n",sep=""))
  #cat(paste(" theta=",theta,")\n",sep=""))
   eta <- ergm.eta(theta, model.form$etamap)
-  z <- ergm.getMCMCDynsample(nw, model.form, model.diss, MHproposal.form, MHproposal.diss, eta, gamma0, MCMCparams, verbose, BD)
+  z <- ergm.getMCMCDynsample(nw, model.form, model.diss, MHproposal.form, MHproposal.diss, eta, gamma0, MCMCparams, verbose)
   MCMCparams$maxchanges <- z$maxchanges
 # ubar <- apply(z$statsmatrix, 2, mean)
 # hessian <- (t(z$statsmatrix) %*% z$statsmatrix)/n3 - outer(ubar,ubar)
@@ -271,9 +271,9 @@ ergm.robmon.dyn.orig <- function(theta0, nw, model.form, model.diss, Clist, BD,
                       # fullsample=statsmatrix.all),
                   # class="ergm") 
   structure(c(ve, list(newnetwork=network.update(nw, z$newedgelist, "edgelist"), 
-                 theta.original=theta0,
-                 bounddeg=BD, formula=model.form$formula, 
-                 interval=interval, burnin=burnin,
-                 network=nw, proposalname.form=MHproposal.form$name, proposalname.diss=MHproposal.diss$name)),
-             class="ergm")
+                       theta.original=theta0,
+                       formula=model.form$formula, 
+                       interval=interval, burnin=burnin,
+                       network=nw, proposal.form=MHproposal.form, proposal.diss=MHproposal.diss)),
+            class="ergm")
 }

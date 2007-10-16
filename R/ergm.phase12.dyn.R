@@ -1,6 +1,6 @@
 ergm.phase12.dyn <- function(g, model.form, model.diss, 
                         MHproposal.form, MHproposal.diss, eta0, gamma0,
-                        MCMCparams, verbose, BD) {
+                        MCMCparams, verbose) {
 # ms <- MCMCparams$meanstats
 # if(!is.null(ms)) {
 #   if (is.null(names(ms)) && length(ms) == length(model.form$coef.names))
@@ -47,10 +47,10 @@ ergm.phase12.dyn <- function(g, model.form, model.diss,
               as.character(MHproposal.diss$name), as.character(MHproposal.diss$package),
               as.double(Clist.diss$inputs), as.double(MCMCparams$gamma0),
               # Degree bounds.
-              as.integer(BD$attribs), 
-              as.integer(BD$maxout), as.integer(BD$maxin),
-              as.integer(BD$minout), as.integer(BD$minin),
-              as.integer(BD$condAllDegExact), as.integer(length(BD$attribs)), 
+              as.integer(MHproposal$bd$attribs), 
+              as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
+              as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
+              as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)), 
               # MCMC settings.              
               as.integer(MCMCparams$samplesize), as.integer(MCMCparams$dyninterval),
               as.integer(MCMCparams$burnin), as.integer(MCMCparams$interval),
@@ -89,7 +89,6 @@ ergm.phase12.dyn <- function(g, model.form, model.diss,
      MCMCparams.parallel,
      maxchanges, 
      verbose,
-     BD, 
      file=paste(outsetuppvm$SLAVEDIR,"/",rpvmbasename,".common.RData",sep="")
     )
 #

@@ -1,35 +1,40 @@
 library(ergm)
-data(gmonk)
+data(sampson)
 
 #
 # Create random 25% missing
 #
-# mgmonk <- rergm(graph.size(gmonk),prob=0.25, directed=FALSE)
-# gmonk <- set.graph.attribute(gmonk, "design", mgmonk)
-# summary(gmonk)
+# msamplike <- rergm(network.size(samplike),prob=0.25, directed=FALSE)
+# samplike <- set.graph.attribute(samplike, "design", msamplike)
+# summary(samplike)
 
-respondent <- rep(FALSE,graph.size(gmonk))
-respondent[sample(1:graph.size(gmonk), size=graph.size(gmonk)-2,replace=FALSE)] <- TRUE
+respondent <- rep(FALSE,network.size(samplike))
+respondent[sample(1:network.size(samplike), size=network.size(samplike)-2,replace=FALSE)] <- TRUE
 respondent
 
-summary(gmonk)
+summary(samplike)
 
-degreedist(gmonk)
+degreedist(samplike)
 
-efit <- ergm(gmonk~edges + triangle, MPLEonly=T)
+efit <- ergm(samplike~edges + triangle, MPLEonly=T)
 summary(efit)
 
-efit <- ergm(gmonk~edges + triangle, maxit=3,
+efit <- ergm(samplike~edges + triangle, maxit=3,
  MCMCsamplesize=1000, interval=1000, burnin=1000)
 summary(efit)
 
-gmonk <- set.vertex.attribute(gmonk, "respondent", respondent)
+## Test bounded degrees.
+efit <- ergm(samplike~edges + triangle,constraints=~bd(maxout=9))
+summary(efit)
+
+samplike <- set.vertex.attribute(samplike, "respondent", respondent)
 rm(respondent)
-summary(gmonk)
+summary(samplike)
 
-efit <- ergm(gmonk~edges + triangle, MPLEonly=T)
+efit <- ergm(samplike~edges + triangle, MPLEonly=T)
 summary(efit)
 
-efit <- ergm(gmonk~edges + triangle, maxit=3,
+efit <- ergm(samplike~edges + triangle, maxit=3,
  MCMCsamplesize=1000, interval=1000, burnin=1000)
 summary(efit)
+

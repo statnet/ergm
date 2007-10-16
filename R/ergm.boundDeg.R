@@ -1,24 +1,22 @@
-ergm.boundDeg <- function(boundDeg,nnodes=network.size(g)){    
+ergm.boundDeg <- function(boundDeg,nnodes){    
 #  Resolve conditioning in ERGM call, as expressed in the
 #  argument boundDeg (a list, with item names as seen below)
  if(is.null(boundDeg) ||
     all(sapply(boundDeg,function(x){length(x)=1 && x==0}))
    ) {
-    condAllDegExact <- 0
     attribs <- 0
     maxout <- 0
     maxin <- 0
     minout <- 0
     minin <- 0
  } else {
-    condAllDegExact <- boundDeg$condAllDegExact
     attribs <- boundDeg$attribs
     maxout <- boundDeg$maxout
     maxin <- boundDeg$maxin
     minout <- boundDeg$minout
     minin <- boundDeg$minin
     if (is.null(attribs)){ 
-      if(any(!is.null(c(minin,minout,maxout,maxin,condAllDegExact)))){ 
+      if(any(!is.null(c(minin,minout,maxout,maxin)))){ 
        attribs <- matrix(1,ncol=1,nrow=nnodes)
       }else{
        attribs <- 0
@@ -37,10 +35,8 @@ ergm.boundDeg <- function(boundDeg,nnodes=network.size(g)){
      maxin[is.na( maxin)] <- nnodes-1
     maxout[is.na(maxout)] <- nnodes-1
     attribs[is.na(attribs)] <- 0
-    if (is.null(condAllDegExact)) condAllDegExact <- 0
-    if (condAllDegExact!=1) condAllDegExact <- 0
  }
- list(condAllDegExact=condAllDegExact,
+ list(condAllDegExact=FALSE,
       attribs=attribs,
       maxout=maxout,
       maxin=maxin,

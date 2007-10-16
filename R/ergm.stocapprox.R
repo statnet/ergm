@@ -1,4 +1,4 @@
-ergm.stocapprox <- function(theta0, nw, model, Clist, BD, 
+ergm.stocapprox <- function(theta0, nw, model, Clist,
                             MCMCparams, MHproposal,
                             verbose=FALSE){
   # This is based on Snijders (2002), J of Social Structure
@@ -54,7 +54,7 @@ ergm.stocapprox <- function(theta0, nw, model, Clist, BD,
 # cat(paste("Phase 2: a=",a,"Total Samplesize",MCMCparams$samplesize,"\n"))
 # aDdiaginv <- a * Ddiaginv
   z <- ergm.phase12(nw, model, MHproposal, 
-                    eta, MCMCparams, verbose=TRUE, BD)
+                    eta, MCMCparams, verbose=TRUE)
   nw <- z$newnetwork
 # toggle.dyads(nw, tail = z$changed[,2], head = z$changed[,3])
 # MCMCparams$maxchanges <- z$maxchanges
@@ -77,7 +77,7 @@ ergm.stocapprox <- function(theta0, nw, model, Clist, BD,
   stats[1,] <- summary.statistics.network(model$formula, basis=nw) - Clist$meanstats
   MCMCparams$stats <- stats
   z <- ergm.getMCMCsample(nw, model,
-                          MHproposal, eta, MCMCparams, verbose, BD)
+                          MHproposal, eta, MCMCparams, verbose)
   MCMCparams$maxedges <- z$maxedges
 # ubar <- apply(z$statsmatrix, 2, mean)
 # hessian <- (t(z$statsmatrix) %*% z$statsmatrix)/n3 - outer(ubar,ubar)
@@ -117,8 +117,8 @@ ergm.stocapprox <- function(theta0, nw, model, Clist, BD,
                   # class="ergm") 
   structure(c(ve, list(newnetwork=nw, 
                  theta.original=theta0,
-                 bounddeg=BD, formula=model$formula, 
+                 formula=model$formula, 
                  interval=MCMCparams$interval, burnin=MCMCparams$burnin, 
-                 network=nw.orig, proposalname=MHproposal$name)),
+                 network=nw.orig, proposal=MHproposal)),
              class="ergm")
 }

@@ -60,6 +60,7 @@ void MH_BipartiteTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
 {  
   Vertex head, tail;
   Edge rane, nedges=nwp->nedges;
+  unsigned trytoggle;
   static double comp=0.5;
   static double odds;
   static Edge ndyads;
@@ -75,7 +76,7 @@ void MH_BipartiteTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
     return;
   }
   
-  for(int trytoggle = 0; trytoggle < MAX_TRIES; trytoggle++){
+  for(trytoggle = 0; trytoggle < MAX_TRIES; trytoggle++){
     if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
       rane = 1 + unif_rand() * nedges;
       FindithEdge(MHp->togglehead, MHp->toggletail, rane, nwp);
@@ -92,6 +93,13 @@ void MH_BipartiteTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
       }
     }
     if(CheckTogglesValid(MHp, bd, nwp)) break;
+  }
+  
+  // If tries ran out, return failure code.
+  if(trytoggle >= MAX_TRIES){
+    MHp->togglehead[0]=MH_FAILED;
+    MHp->toggletail[0]=MH_UNSUCCESSFUL; 
+    return;
   }
 }
 

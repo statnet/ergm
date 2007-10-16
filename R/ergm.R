@@ -2,7 +2,7 @@ ergm <- function(formula, theta0="MPLE",
                  MPLEonly=FALSE, MLestimate=!MPLEonly, seed=NULL,
                  burnin=10000, MCMCsamplesize=10000, interval=100,
                  maxit=3,
-                 constraint="none",
+                 constraints=~.,
                  meanstats=NULL,
                  dissolve=NULL, gamma=-4.59512, dissolve.order="DissThenForm",
                  control=ergm.control(),
@@ -22,7 +22,7 @@ ergm <- function(formula, theta0="MPLE",
   proposalclass <- if(is.null(dissolve)) "c" else "f"
     
   model.initial <- ergm.getmodel(formula, nw, drop=control$drop, initialfit=TRUE)
-  MHproposal <- getMHproposal(lookupMHproposal(proposalclass,constraint,control$prop.weights), control$prop.args, nw, model.initial)
+  MHproposal <- getMHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial,class=proposalclass)
   MHproposal.miss <- getMHproposal("randomtoggleNonObserved", control$prop.args, nw, model.initial)
 
   # MPLE & Meanstats -> need fake network
@@ -31,7 +31,6 @@ ergm <- function(formula, theta0="MPLE",
   }
   else nw.initial<-nw
   
-  BD <- ergm.boundDeg(control$boundDeg, nnodes=network.size(nw))
   Clist.initial <- ergm.Cprepare(nw.initial, model.initial)
   Clist.miss.initial <- ergm.design(nw.initial, model.initial, initialfit=TRUE,
                                 verbose=verbose)
@@ -86,16 +85,16 @@ ergm <- function(formula, theta0="MPLE",
   if(!is.null(dissolve)){
     if (verbose) cat("Fitting Dynamic ERGM.\n")
     model.dissolve <- ergm.getmodel.dissolve(dissolve, nw, dissolve.order)
-    MHproposal.diss <- getMHproposal(lookupMHproposal("d",constraint,control$weights.diss), control$prop.args.diss, nw, model.dissolve)
+    MHproposal.diss <- getMHproposal(constraints, weights=control$weights.diss, control$prop.args.diss, nw, model.dissolve,class="d")
     v <- switch(control$style,
                 "Robbins-Monro" = ergm.robmon.dyn(theta0, nw, model, model.dissolve,
-                  Clist, BD, gamma, 
+                  Clist, gamma, 
                   MCMCparams=MCMCparams, MHproposal.form=MHproposal,
                   MHproposal.diss=MHproposal.diss,
                   verbose),
                 ergm.mainfitloop.dyn(theta0, nw,
                                      model.form=model, model.diss=model.dissolve, Clist,
-                                     BD, gamma, initialfit,
+                                     gamma, initialfit,
                                      MCMCparams=MCMCparams, 
                                      MHproposal.form=MHproposal, MHproposal.diss=MHproposal.diss,
                                      verbose=verbose, 
@@ -104,15 +103,15 @@ ergm <- function(formula, theta0="MPLE",
   }else{
    if (verbose) cat("Fitting ERGM.\n")
    v <- switch(control$style,
-    "Robbins-Monro" = ergm.robmon(theta0, nw, model, Clist, BD, burnin, interval,
-                      getMHproposal(lookupMHproposal("c",constraint,control$prop.weights), control$prop.args, nw, model), verbose, control),
+    "Robbins-Monro" = ergm.robmon(theta0, nw, model, Clist, burnin, interval,
+                      getMHproposal(constraints,weights=control$prop.weights, control$prop.args, nw, model), verbose, control),
     "Stochastic-Approximation" = ergm.stocapprox(theta0, nw, model, 
-                                 Clist, BD, 
+                                 Clist, 
                                  MCMCparams=MCMCparams, MHproposal=MHproposal,
                                  verbose),
                       ergm.mainfitloop(theta0, nw,
                           model, Clist, Clist.miss,
-                          BD, initialfit,
+                          initialfit,
                           MCMCparams=MCMCparams, MHproposal=MHproposal,
                           MHproposal.miss=MHproposal.miss,
                           verbose=verbose, 
