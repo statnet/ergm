@@ -87,9 +87,9 @@ ergm(formula, theta0="MPLE",
 	having the same number of edges as the network passed
 	in the model formula have non-zero probability.
       }
-      \item{\code{hamming}}{
-	No clue.
-      }
+%      \item{\code{hamming}}{
+%	No clue.
+%      }
     }
     Not all combinations of the above are supported.
   }
@@ -222,8 +222,8 @@ for known outliers of some kind, and thus we wish to limit its indegree, an
 intrinsic property of the sampling scheme whence came our data (e.g.,
 the survey asked everyone to name only three friends total) or as a
 function of the attributes of the nodes to which a node has edges
-(e.g., we specify that nodes designated ``male'' have a maximum number
-of outdegrees to nodes designated ``female'').  To accomplish this we
+(e.g., we specify that nodes designated \dQuote{male} have a maximum number
+of outdegrees to nodes designated \dQuote{female}).  To accomplish this we
 use the \code{constraints} term  \code{bd}.
 
 Let's consider the simple cases first. 
@@ -267,8 +267,8 @@ which we are conditioning.  The dimensions of \code{attribs}
 are \code{n_nodes} rows by \code{attrcount} columns, where
 \code{attrcount} is the number of distinct attribute values
 on which we want to condition (i.e., a separate column is
-required for ``male'' and ``female'' if we want to condition on
-the number of ties to both ``male'' and ``female'' partners).
+required for \dQuote{male} and \dQuote{female} if we want to condition on
+the number of ties to both \dQuote{male} and \dQuote{female} partners).
 The value of \code{attribs[n, i]}, therefore, is \code{TRUE}
 if node \code{n} has attribute value i, and \code{FALSE} otherwise.
 (Note that, since each column represents only a single value
@@ -280,7 +280,7 @@ not alter attributes.
 So, for instance, if we wanted to construct an \code{attribs} matrix
 with two columns, one each for male and female attribute
 values (we are conditioning on these values of the attribute
-``sex''), and the attribute sex is represented in ads.sex as
+\dQuote{sex}), and the attribute sex is represented in ads.sex as
 an \code{n_node}-long vector of 0s and 1s (men and women),
 then our code would look as follows:
 
@@ -322,7 +322,7 @@ Note that in an undirected network, we only look at the outdegree
 matrices; \code{maxin} and \code{minin} will both be ignored
 in this case.
 
-% First, you would assign the ``ego'' attribute to all your nodes -
+% First, you would assign the \dQuote{ego} attribute to all your nodes -
 % because every node is an ego, every node gets a \code{TRUE} (or 1) in its
 % column in the \code{attribs} matrix.  
 
@@ -339,7 +339,7 @@ in this case.
 % by default) and create the \code{boundDeg} argument to pass
 % into the \code{\link{ergm}} call.
 
-% To create ``dummy'' \code{maxin}, \code{minout}, and
+% To create \dQuote{dummy} \code{maxin}, \code{minout}, and
 % \code{minin} matrices to correspond to the \code{attribs} and
 % \code{maxout} matrices created above, that impose no limits
 % on the amount of edges allowed, our code would look like this:
