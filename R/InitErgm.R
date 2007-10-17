@@ -2131,8 +2131,7 @@ InitErgm.nodematch<-function (nw, m, arglist, drop=TRUE, ...) {
   if (length(u)==1)
     stop ("Argument to nodematch() has only one value", call.=FALSE)
   if(drop){
-    mixmat <- mixingmatrix(nw,attrname)
-    mixmat <- mixmat[-NROW(mixmat),-NROW(mixmat)]
+    mixmat <- mixingmatrix(nw,attrname)$mat
     ematch  <- diag(mixmat)
     if(diff){
       offematch <- apply(mixmat,1,sum)+apply(mixmat,2,sum)-2*ematch
@@ -2212,25 +2211,21 @@ InitErgm.nodemix<-function (nw, m, arglist, drop=TRUE, ...) {
   attrname<-a$attrname
   contrast<-a$contrast
   if(is.bipartite(nw)){
-#
-#   So undirected network storage but directed mixing
-#
+    if (is.directed(nw)) 
+      cat("Warning!  Bipartite networks are currently\n",
+          "automatically treated as undirected\n")
+    #  So undirected network storage but directed mixing
     nodecov <- get.node.attr(nw, attrname, "mix")
-    mixmat <- mixingmatrix.via.edgelist(nw,attrname)
-    mixmat <- mixmat[-NROW(mixmat),-NROW(mixmat)]
-    u <- cbind(as.vector(row(mixmat)), 
-               as.vector(col(mixmat)))
-    if(any(is.na(nodecov))){u<-rbind(u,NA)}
-  #
-  #   Recode to numeric if necessary
-  #
+    #  Recode nodecov to numeric (but retain original sorted names in "namescov")
     namescov <- sort(unique(nodecov))
     nodecov <- match(nodecov,namescov)
     if (length(nodecov)==1)
         stop ("Argument to mix() has only one value", call.=FALSE)
-  #
-  # Check for degeneracy
-  #
+    mixmat <- mixingmatrix(nw,attrname)$mat
+    u <- cbind(as.vector(row(mixmat)), 
+               as.vector(col(mixmat)))
+    if(any(is.na(nodecov))){u<-rbind(u,NA)}
+    #  Check for degeneracy
     if(drop){
      ematch <- mixmat[u]
      mu <- ematch==0
@@ -2267,18 +2262,19 @@ InitErgm.nodemix<-function (nw, m, arglist, drop=TRUE, ...) {
     ui <- seq(along=u)
     ucount<-sapply(ui,function(x){sum(nodecov==x,na.rm=TRUE)}) #Count cases
     uui <- matrix(1:length(ui)^2,length(ui),length(ui))  #Create int tables
-    uui <- uui[upper.tri(uui,diag=TRUE)]
     urm <- t(sapply(ui,rep,length(ui)))   #This is the reverse of what you'd
-    urm <- urm[upper.tri(urm,diag=TRUE)]  #expect for r/c, but it's correct
-    ucm <- sapply(ui,rep,length(ui))
-    ucm <- ucm[upper.tri(ucm,diag=TRUE)]
+    ucm <- sapply(ui,rep,length(ui))      #expect for r/c, but it's correct
     uun <- outer(u,u,paste,sep=".")
-    uun <- uun[upper.tri(uun,diag=TRUE)]
-    if (length(u)==1)
+    if (!is.directed(nw)) {
+      uui <- uui[upper.tri(uui,diag=TRUE)]
+      urm <- urm[upper.tri(urm,diag=TRUE)]  
+      ucm <- ucm[upper.tri(ucm,diag=TRUE)]
+      uun <- uun[upper.tri(uun,diag=TRUE)]
+    }
+    if (length(u)==1)   
       stop ("Argument to nodemix() has only one value", call.=FALSE)
     if(drop){
-      mixmat <- mixingmatrix(nw,attrname)
-      mixmat <- mixmat[-NROW(mixmat),-NROW(mixmat)]
+      mixmat <- mixingmatrix(nw,attrname)$mat
       if(is.directed(nw))       #If directed, accumulate in upper triangle
         mixmat[upper.tri(mixmat)] <- t(mixmat)[upper.tri(mixmat)]
       maxmat <- ucount %o% ucount - diag(length(ucount))
@@ -2293,7 +2289,7 @@ InitErgm.nodemix<-function (nw, m, arglist, drop=TRUE, ...) {
         cat(paste("To avoid degeneracy the terms",dropterms,
                   "have been dropped.\n"))
         if (sum(!mu)<=1){
-          stop ("One or less values of the attribute to nodemix()", call.=FALSE)
+          stop ("The attribute to nodemix() must have more than one value", call.=FALSE)
         }
         uun <- uun[!mu]
         uui <- uui[!mu]

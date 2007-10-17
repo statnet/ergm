@@ -71,7 +71,7 @@ typedef struct Networkstruct {
   TreeNode *inedges;
   TreeNode *outedges;
   int directed_flag;
-  Vertex bipartite;  /* New field!  08-04-2006 DH */
+  Vertex bipartite;  
   Vertex nnodes;
   Edge nedges;
   Edge next_inedge;
@@ -90,7 +90,7 @@ typedef struct WtNetworkstruct {
   WtTreeNode *inedges;
   WtTreeNode *outedges;
   int directed_flag;
-  Vertex bipartite;  /* New field!  08-04-2006 DH */
+  Vertex bipartite; 
   Vertex nnodes;
   Edge nedges;
   Edge next_inedge;

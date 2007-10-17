@@ -4452,16 +4452,18 @@ void d_cycle (int ntoggles, Vertex *heads, Vertex *tails,
 
 /*****************
  void d_nodemix
-
+ Update mixing matrix, non-bipartite networks only 
+ (but see d_mix below)
 *****************/
 void d_nodemix (int ntoggles, Vertex *heads, Vertex *tails,
               ModelTerm *mtp, Network *nwp) {
-  Vertex h, t, ninputs, ninputs2;
+  Vertex h, t, tmpi, ninputs, ninputs2;
   int i, j, edgeflag=0, matchflag;
-  double rtype, ctype;
+  double rtype, ctype, tmp;
 
   ninputs = mtp->ninputparams - nwp->nnodes;
   ninputs2 = ninputs/2;
+
   for (i=0; i < mtp->nstats; i++)
     mtp->dstats[i] = 0.0;
   for (i=0; i<ntoggles; i++)
@@ -4471,16 +4473,19 @@ void d_nodemix (int ntoggles, Vertex *heads, Vertex *tails,
       edgeflag=(EdgetreeSearch(h, t, nwp->outedges) != 0); /*Get edge state*/
       matchflag=0;
       /*Find the node covariate values (types) for the head and tail*/
-      rtype=MIN(mtp->inputparams[h+ninputs-1],mtp->inputparams[t+ninputs-1]);
-      ctype=MAX(mtp->inputparams[h+ninputs-1],mtp->inputparams[t+ninputs-1]);
-      /*Find the right statistic to update*/
+      rtype=mtp->inputparams[h+ninputs-1];
+      ctype=mtp->inputparams[t+ninputs-1];
+      if (!nwp->directed_flag && rtype > ctype)  {
+        tmp = rtype; rtype = ctype; ctype = tmp; /* swap rtype, ctype */
+      }
+      /*Find the right statistic to update */
       for(j=0;(j<ninputs2)&&(!matchflag);j++){
         if((mtp->inputparams[j          ]==rtype)&&
            (mtp->inputparams[j+ninputs2]==ctype)){
             mtp->dstats[j] += (edgeflag ? -1.0 : 1.0);
             matchflag++;
         }
-      }
+      } 
       if (i+1 < ntoggles)
         ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
     }
@@ -4491,34 +4496,35 @@ void d_nodemix (int ntoggles, Vertex *heads, Vertex *tails,
 
 /*****************
  void d_mix
+ This appears to be the version of nodemix used for 
+ bipartite networks (only)
 *****************/
 void d_mix (int ntoggles, Vertex *heads, Vertex *tails,
               ModelTerm *mtp, Network *nwp) {
-  Vertex h, t;
+  Vertex h, t, tmpi;
   int matchvalh, matchvalt;
   int i, j, edgeflag=0, nstats;
 
   nstats = mtp->nstats;
   for (i=0; i < mtp->nstats; i++)
     mtp->dstats[i] = 0.0;
-
-  for (i=0; i<ntoggles; i++)
-    {
-      h=heads[i];
-      t=tails[i];
-      matchvalh = mtp->inputparams[h-1+2*nstats];
-      matchvalt = mtp->inputparams[t-1+2*nstats];
-      edgeflag=(EdgetreeSearch(h, t, nwp[0].outedges) != 0); /*Get edge state*/
-      for (j=0; j<nstats; j++) 
-	  {
-           if(matchvalh==mtp->inputparams[       j] &&
-	      matchvalt==mtp->inputparams[nstats+j]
-	     ){mtp->dstats[j] += edgeflag ? -1.0 : 1.0;}
-	  }
-
-      if (i+1 < ntoggles)
-        ToggleEdge(heads[i], tails[i], &nwp[0]);  /* Toggle this edge if more to come */
+  for (i=0; i<ntoggles; i++) {
+    h=heads[i];
+    t=tails[i];
+    edgeflag=(EdgetreeSearch(h, t, nwp[0].outedges) != 0); /*Get edge state*/
+    if (nwp->bipartite > 0 && h > t) { 
+      tmpi = h; h = t; t = tmpi; /* swap h, t */
     }
+    matchvalh = mtp->inputparams[h-1+2*nstats];
+    matchvalt = mtp->inputparams[t-1+2*nstats];
+    for (j=0; j<nstats; j++) {
+      if(matchvalh==mtp->inputparams[       j] &&
+	      matchvalt==mtp->inputparams[nstats+j]
+      ){mtp->dstats[j] += edgeflag ? -1.0 : 1.0;}
+	  }
+    if (i+1 < ntoggles)
+      ToggleEdge(heads[i], tails[i], &nwp[0]);  /* Toggle this edge if more to come */
+  }
 
   i--;
   while (--i>=0)  /*  Undo all previous toggles. */

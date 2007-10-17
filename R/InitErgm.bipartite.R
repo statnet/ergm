@@ -281,8 +281,7 @@ InitErgm.ekappa<-function(nw, m, arglist, ...) {
 #  nevents <- network.size(nw)-nactors
 ##
 #  nodecov <- get.node.attr(nw, attrname, "bimixall")
-#  mixmat <- mixingmatrix(nw,attrname)
-#  mixmat <- mixmat[-nrow(mixmat),-nrow(mixmat)]
+#  mixmat <- mixingmatrix(nw,attrname)$mat
 #  u <- cbind(as.vector(row(mixmat)), as.vector(col(mixmat)))
 #  if(any(is.na(nodecov))){u<-rbind(u,NA)}
 ##
@@ -337,8 +336,7 @@ InitErgm.ekappa<-function(nw, m, arglist, ...) {
 #    nevents <- network.size(g)-nactors
 ##
 #    nodecov <- get.node.attr(g, attrname, "bimixconddeg")
-#    mixmat <- mixingmatrix(g,attrname)
-#    mixmat <- mixmat[-nrow(mixmat),-nrow(mixmat)]
+#    mixmat <- mixingmatrix(g,attrname)$mat
 #    mixmat <- mixmat[-1,-1,drop=FALSE]
 #    u <- cbind(as.vector(row(mixmat)+1), as.vector(col(mixmat)+1))
 #    if(any(is.na(nodecov))){u<-rbind(u,NA)}
@@ -388,8 +386,7 @@ InitErgm.ekappa<-function(nw, m, arglist, ...) {
 #    nevents <- network.size(g)-nactors
 ##
 #    nodecov <- get.node.attr(g, attrname, "bimix")
-#    mixmat <- mixingmatrix(g,attrname)
-#    mixmat <- mixmat[-nrow(mixmat),-nrow(mixmat)]
+#    mixmat <- mixingmatrix(g,attrname)$mat
 ##   mixmat <- mixmat[-1,-1,drop=FALSE]
 #    u <- cbind(as.vector(row(mixmat)), as.vector(col(mixmat)))
 #    if(any(is.na(nodecov))){u<-rbind(u,NA)}
@@ -1346,8 +1343,7 @@ InitErgm.hammingmix<-function (nw, m, arglist, ...) {
     stop("hammingmix() requires an edgelist")
   }
     nodecov <- get.node.attr(nw, attrname, "hammingmix")
-    mixmat <- mixingmatrix(nw,attrname)
-    mixmat <- mixmat[-nrow(mixmat),-nrow(mixmat)]
+    mixmat <- mixingmatrix(nw,attrname)$mat
     u <- cbind(as.vector(row(mixmat)), 
                as.vector(col(mixmat)))
     if(any(is.na(nodecov))){u<-rbind(u,NA)}
@@ -1421,8 +1417,7 @@ InitErgm.hammingfixmix<-function (nw, m, arglist, ...) {
     stop("hammingfixmix() requires an edgelist")
   }
     nodecov <- get.node.attr(nw, attrname, "hammingfixmix")
-    mixmat <- mixingmatrix(nw,attrname)
-    mixmat <- mixmat[-nrow(mixmat),-nrow(mixmat)]
+    mixmat <- mixingmatrix(nw,attrname)$mat
     u <- cbind(as.vector(row(mixmat)), 
                as.vector(col(mixmat)))
     if(any(is.na(nodecov))){u<-rbind(u,NA)}

@@ -59,7 +59,7 @@ network
     \item{\code{altkstar(lambda, fixed=FALSE)}}{\emph{Alternating k-Star:} This
     term adds one network statistic to the model equal to a weighted alternating
     sequence of k-star statistics with weight parameter \code{lambda}. This is
-    the version given in Snijders, et. al (2006). We suggest using the
+    the version given in Snijders et al. (2006). We suggest using the
     \code{gwdegree} term instead. The \code{gwdegree} and \code{altkstar}
     produce mathematically equivalent models, as long as they are used together
     with the \code{edges} (or \code{kstar(1)}) term, yet the interpretation of
@@ -250,7 +250,7 @@ network
     \code{decay}. This is the version given as equation (14) in
     \url{http://www.sna.unimelb.edu.au/publications/cef4.pdf}. See the "Remark"
     in section 3 of that paper to see why it is used rather than the version
-    given in Snijders, et. al (2006). The optional argument \code{fixed} is a
+    given in Snijders et al. (2006). The optional argument \code{fixed} is a
     logical indicating if the decay parameter is to be fit as a curved
     exponential family model. The default is \code{TRUE}. This term can only be
     used with undirected networks.}
