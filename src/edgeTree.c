@@ -456,18 +456,18 @@ int WtAddEdgeToTrees(Vertex head, Vertex tail, double weight, WtNetwork *nwp){
 void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, 
 			Edge *next_edge) 
 {
-  TreeNode *eptr = edges+a, *new;
+  TreeNode *eptr = edges+a, *newnode;
   Edge e;
   
   if (eptr->value==0) { /* This is the first edge for this vertex. */
     eptr->value=b;
     return;
   }
-  (new=edges+*next_edge)->value=b;  
-  new->left=new->right=0;
+  (newnode=edges+*next_edge)->value=b;  
+  newnode->left=newnode->right=0;
   /* Now find the parent of this new edge */
   for (e=a; e!=0; e=(b < (eptr=edges+e)->value) ? eptr->left : eptr->right);
-  new->parent=eptr-edges;  /* Point from the new edge to the parent... */
+  newnode->parent=eptr-edges;  /* Point from the new edge to the parent... */
   if (b < eptr->value)  /* ...and have the parent point back. */
     eptr->left=*next_edge; 
   else
@@ -481,7 +481,7 @@ void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges,
 void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight, 
 			  WtTreeNode *edges, Edge *next_edge) 
 {  /*  See comments in AddHalfedgeToTree.  */
-  WtTreeNode *eptr = edges+a, *new;
+  WtTreeNode *eptr = edges+a, *newnode;
   Edge e;
   
   if (eptr->value==0) { 
@@ -489,11 +489,11 @@ void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight,
     eptr->weight = weight;  /*  Add weight too */
     return;
   }
-  (new=edges+*next_edge)->value=b;  
-  new->left=new->right=0;
-  new->weight=weight;  /*  Add weight too */
+  (newnode=edges+*next_edge)->value=b;  
+  newnode->left=newnode->right=0;
+  newnode->weight=weight;  /*  Add weight too */
   for (e=a; e!=0; e=(b < (eptr=edges+e)->value) ? eptr->left : eptr->right);
-  new->parent=eptr-edges;
+  newnode->parent=eptr-edges;
   if (b < eptr->value)
     eptr->left=*next_edge;
   else

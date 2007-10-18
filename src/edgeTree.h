@@ -10,8 +10,10 @@
 #define MIN(a,b) ((a)<(b) ? (a) : (b))
 #define MAX(a,b) ((a)<(b) ? (b) : (a))
 
-typedef unsigned int Vertex;
-typedef unsigned int Edge;
+/*typedef unsigned int Vertex;
+typedef unsigned int Edge; */
+typedef int Vertex;
+typedef int Edge;
 
 
 

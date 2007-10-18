@@ -1056,14 +1056,14 @@ void MH_OneRandomTnTNode (MHproposal *MHp, DegreeBound *bd, Network *nwp) {
 void MH_ReallocateWithReplacement (MHproposal *MHp, DegreeBound *bd, Network *nwp) {  
   int i;
   Vertex root;
-  int* edges;
+  Vertex* edges;
   int edgecount = 0;
   
   MHp->ratio=1.0;
   /* select a node at random */
   root = 1 + unif_rand() * nwp->nnodes;
 
-  edges = malloc(sizeof(int) * (nwp->nnodes+1));
+  edges = (Vertex *) malloc(sizeof(Vertex) * (nwp->nnodes+1));
   for (i = 0; i <= nwp->nnodes; i++)
     edges[i] = NO_EDGE;
   
@@ -1164,13 +1164,13 @@ void MH_AllTogglesForOneNode (MHproposal *MHp, DegreeBound *bd, Network *nwp) {
 *********************/
 void MH_SwitchLabelTwoNodesToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp) {  
   int nedge1=0, nedge2=0, k, ntoggles;
-  int *edges1, *edges2;
+  Vertex *edges1, *edges2;
   Vertex e, head2, tail2, head1, tail1;
   MHp->ratio=1.0;
   
   /* select a node at random */
-  edges1 = malloc(sizeof(Vertex) * (nwp->nnodes+1));
-  edges2 = malloc(sizeof(Vertex) * (nwp->nnodes+1));
+  edges1 = (Vertex *) malloc(sizeof(Vertex) * (nwp->nnodes+1));
+  edges2 = (Vertex *) malloc(sizeof(Vertex) * (nwp->nnodes+1));
   
   while(nedge1==0){
     head1 = 1 + unif_rand() * nwp->nnodes;
@@ -1272,13 +1272,13 @@ void MH_ConstrainedCondDegDist (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
   int noutedge=0, ninedge=0, k, fvalid=0;
   int k0, j0, j1, k1;
   int j0h, j1h;
-  int *outedges, *inedges;
+  Vertex *outedges, *inedges;
   Vertex e, alter, head, tail;
   MHp->ratio=1.0;
   
   /* select a node at random */
-  outedges = malloc(sizeof(Vertex) * (nwp->nnodes+1));
-  inedges = malloc(sizeof(Vertex) * (nwp->nnodes+1));
+  outedges = (Vertex *) malloc(sizeof(Vertex) * (nwp->nnodes+1));
+  inedges = (Vertex *) malloc(sizeof(Vertex) * (nwp->nnodes+1));
   
   while(noutedge==0 && ninedge==0){
     head = 1 + unif_rand() * nwp->nnodes;
@@ -1477,14 +1477,14 @@ void MH_ConstrainedReallocateWithReplacement (MHproposal *MHp,
        	       DegreeBound *bd, Network *nwp) {  
   int i;
   Vertex root;
-  int* edges;
+  Vertex* edges;
   int edgecount = 0;
   
   MHp->ratio=1.0;
   /* select a node at random */
   root = 1 + unif_rand() * nwp->nnodes;
 
-  edges = malloc(sizeof(int) * (nwp->nnodes+1));
+  edges = (Vertex *) malloc(sizeof(Vertex) * (nwp->nnodes+1));
   for (i = 0; i <= nwp->nnodes; i++)
     edges[i] = NO_EDGE;
   
@@ -1621,13 +1621,13 @@ void MH_ConstrainedCondDeg (MHproposal *MHp,
 					 DegreeBound *bd, Network *nwp) {  
   /* WARNING: THIS NEEDS TO BE FIXED */
   int nedge1=0, nedge2=0, k, toomany, fvalid=0;
-  int *edges1, *edges2;
+  Vertex *edges1, *edges2;
   Vertex e, head2=0, tail2, head1, tail1;
   MHp->ratio=1.0;
   
   /* select a node at random */
-  edges1 = malloc(sizeof(Vertex) * (nwp->nnodes+1));
-  edges2 = malloc(sizeof(Vertex) * (nwp->nnodes+1));
+  edges1 = (Vertex *) malloc(sizeof(Vertex) * (nwp->nnodes+1));
+  edges2 = (Vertex *) malloc(sizeof(Vertex) * (nwp->nnodes+1));
   
   while(nedge1==0){
     head1 = 1 + unif_rand() * nwp->nnodes;
@@ -1725,14 +1725,14 @@ void MH_ConstrainedCondDeg (MHproposal *MHp,
 void MH_ConstrainedSwitchLabelTwoNodesToggles (MHproposal *MHp,
        	       DegreeBound *bd, Network *nwp)  {  
   int nedge1=0, nedge2=0, k, ntoggles;
-  int *edges1, *edges2;
+  Vertex *edges1, *edges2;
   Vertex e, head2, tail2, head1, tail1;
   MHp->ratio=1.0;
   
   /* select a node at random */
 
-  edges1 = malloc(sizeof(Vertex) * (nwp->nnodes+1));
-  edges2 = malloc(sizeof(Vertex) * (nwp->nnodes+1));
+  edges1 = (Vertex *) malloc(sizeof(Vertex) * (nwp->nnodes+1));
+  edges2 = (Vertex *) malloc(sizeof(Vertex) * (nwp->nnodes+1));
 
   while(nedge1==0){
     head1 = 1 + unif_rand() * nwp->nnodes;

@@ -64,7 +64,7 @@ void MCMCDyn1Step(Network *nwp,
 		  DegreeBound *bd,
 		  unsigned log_toggles,
 		  double *F_stats, double *D_stats,
-		  unsigned int nmax, unsigned int *nextdiffedge,
+		  unsigned int nmax, Edge *nextdiffedge,
 		  Vertex *difftime, Vertex *diffhead, Vertex *difftail,
 		  unsigned int dyninterval,
 		  int fVerbose);

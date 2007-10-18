@@ -143,7 +143,7 @@ void PrevalenceWithBernoulliOption(int *nnodes,
   Edge i, j, ne = *nedge, nwedge;
   int k, time, ndyads, rane;
   int bipartite = *nfem;
-  unsigned int *bheads, *btails;
+  Vertex *bheads, *btails;
   int *sinfected, *bsort;
   double beta=*betarate;
   TreeNode *ie, *oe;
@@ -212,8 +212,8 @@ void PrevalenceWithBernoulliOption(int *nnodes,
      if(*bernoulli){
       // Sample numdissolved edges without replacement
       ndyads = bipartite*(nws.nnodes-bipartite);
-      bheads = (unsigned int *) malloc(sizeof(unsigned int) * nws.nedges);
-      btails = (unsigned int *) malloc(sizeof(unsigned int) * nws.nedges);
+      bheads = (Vertex *) malloc(sizeof(Vertex) * nws.nedges);
+      btails = (Vertex *) malloc(sizeof(Vertex) * nws.nedges);
       for (i = 0; i < ndyads; i++){bsort[i] = i;}
       for (i = 0; i < nws.nedges; i++) {
 	rane = ndyads * unif_rand();

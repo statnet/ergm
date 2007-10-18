@@ -148,11 +148,11 @@ DegreeBound* DegreeBoundInitialize(int *attribs, int *maxout, int *maxin,
 
   bd->fBoundDegByAttr = 0;
   bd->attrcount = condAllDegExact ? 1 : attriblength / nwp->nnodes;
-  bd->attribs = malloc(sizeof(int) * attriblength);
-  bd->maxout  = malloc(sizeof(int) * attriblength);
-  bd->maxin   = malloc(sizeof(int) * attriblength);
-  bd->minout  = malloc(sizeof(int) * attriblength);
-  bd->minin   = malloc(sizeof(int) * attriblength);
+  bd->attribs = (int *) malloc(sizeof(int) * attriblength);
+  bd->maxout  = (int *) malloc(sizeof(int) * attriblength);
+  bd->maxin   = (int *) malloc(sizeof(int) * attriblength);
+  bd->minout  = (int *) malloc(sizeof(int) * attriblength);
+  bd->minin   = (int *) malloc(sizeof(int) * attriblength);
   
   /* bound by degree by attribute per node */
   if (bd->attrcount)

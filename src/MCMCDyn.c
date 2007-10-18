@@ -166,7 +166,7 @@ void MCMCSampleDyn(// Observed and discordant network.
 		   int fVerbose){
 
   int i, j;
-  unsigned int nextdiffedge=1;
+  Edge nextdiffedge=1;
 
   if (fVerbose)
     Rprintf("Total m->n_stats is %i; total nsteps is %d\n",
@@ -355,7 +355,7 @@ void MCMCDyn1Step(// Observed and discordant network.
 		  // Space for output.
 		  unsigned log_toggles,
 		  double *F_stats, double *D_stats,
-		  unsigned int nmax, unsigned int *nextdiffedge,
+		  unsigned int nmax, Edge *nextdiffedge,
 		  Vertex *difftime, Vertex *diffhead, Vertex *difftail,
 		  // MCMC settings.
 		  unsigned int dyninterval,
@@ -570,7 +570,7 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
 			  // Verbosity.
 			  int fVerbose){
   int i, j, components, diam;
-  unsigned int nextdiffedge;
+  Edge nextdiffedge;
   ModelTerm *mtp;
   
   
