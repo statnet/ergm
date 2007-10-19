@@ -19,7 +19,11 @@ ergm.getmodel <- function (formula, nw, ...)
   for (i in 3:length(v)) {
     if (is.call(v[[i]])) { # This term has some arguments
       if(v[[i]][[1]] == "offset"){
-        v[[i]] <- v[[i]][[2]]
+        if(length(v[[i]][[2]]) <= 1){
+         v[[i]] <- as.call(v[[i]][2])
+        }else{
+         v[[i]] <- as.call(v[[i]][[2]])
+        }
         model$offset <- c(model$offset,TRUE)
       }else{
         model$offset <- c(model$offset,FALSE)
