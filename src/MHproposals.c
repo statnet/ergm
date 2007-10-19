@@ -2118,7 +2118,9 @@ void MH_FormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
       //		       nwp[0].nedges,
       //		       nwp[1].nedges);
     }
-    
+
+    MHp->togglehead[0]=head;
+    MHp->toggletail[0]=tail;    
     if(CheckTogglesValid(MHp, bd, nwp)) break;
     
   }
@@ -2129,9 +2131,6 @@ void MH_FormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
     MHp->toggletail[0]=MH_UNSUCCESSFUL; 
     return;
   }
-
-  MHp->togglehead[0]=head;
-  MHp->toggletail[0]=tail;
 }
 
 /********************
