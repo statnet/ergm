@@ -97,6 +97,10 @@ summary.ergm <- function (object, ..., correlation=FALSE, covariance=FALSE)
     cpval<-format(pval, digits=digits)
     cmc.se <- format(object$mc.se,digits=digits)
 
+    cmc.se[object$offset] <- NA
+    cpval[object$offset]  <- NA
+    casyse[object$offset] <- NA
+
     count <- 1
     templist <- NULL
     while (count <= length(names))

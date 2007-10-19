@@ -115,6 +115,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                         probs=probs, 
                         xsim.miss=xsim.miss, probs.miss=probs.miss,
                         penalty=0.5, eta0=eta0, etamap=model$etamap)
+  gradient[model$offset] <- 0
 #
 #  Calculate the auto-covariance of the MCMC suff. stats.
 #  and hence the MCMC s.e.
@@ -130,6 +131,8 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                         penalty=0.5,
                         eta0=eta0, etamap=model$etamap
                     )
+   Lout$hessian[,model$offset] <- 0
+   Lout$hessian[model$offset,] <- 0
   }
   if(calc.mcmc.se){
     mcmcse <- ergm.MCMCse(theta, theta0, statsmatrix0,
@@ -140,10 +143,13 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     H <- mcmcse$hessian
     covar <- robust.inverse(-H)
     if(all(!is.na(diag(covar))) && all(diag(covar)<0)){covar <- -covar}
+    mc.se[model$offset] <- NA
   }
   if(inherits(covar,"try-error") | is.na(covar[1])){
     covar <- robust.inverse(-Lout$hessian)
   }
+  covar[,model$offset] <- 0
+  covar[model$offset,] <- 0
   c0  <- llik.fun(theta=Lout$par, xobs=xobs,
                   xsim=xsim, probs=probs,
                   xsim.miss=xsim.miss, probs.miss=probs.miss,

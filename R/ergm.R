@@ -139,6 +139,7 @@ ergm <- function(formula, theta0="MPLE",
    }
   }
 
+  v$offset <- model$offset
   if (!control$returnMCMCstats)
     v$sample <- NULL
   options(warn=current.warn)
