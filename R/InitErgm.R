@@ -717,7 +717,7 @@ InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
 }
 
 InitErgm.dsp<-function(nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkdirected("dsp", is.directed(nw), requirement=FALSE)
+# ergm.checkdirected("dsp", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("dsp", arglist,
     varnames = c("d"),
     vartypes = c("numeric"),
@@ -749,7 +749,8 @@ InitErgm.dsp<-function(nw, m, arglist, drop=TRUE, ...) {
   ld<-length(d)
   if(ld==0){return(m)}
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="dsp", soname="ergm",
+  if(is.directed(nw)){dname <- "tdsp"}else{dname <- "dsp"}
+  m$terms[[termnumber]] <- list(name=dname, soname="ergm",
                                 inputs=c(0, ld, ld, d))
   m$coef.names<-c(m$coef.names,paste("dsp",d,sep=""))
   m
@@ -1044,14 +1045,14 @@ InitErgm.factor<-function (nw, m, arglist, drop=TRUE, ...) {
   }
   xm <- model.matrix(as.formula("~ x"))[,-1]
   if(drop){
-    mesp <- summary(nw ~ factor(x), drop=FALSE)
-    if(all(mesp==0)){return(m)}
-    if(any(mesp==0)){
+    mfactor <- summary(nw ~ factor(x), drop=FALSE)
+    if(all(mfactor==0)){return(m)}
+    if(any(mfactor==0)){
       cat(paste("Warning: There are no dyads with factor level",
-          names(mesp)[mesp==0],".\n"))
-      cat(paste("To avoid degeneracy the terms",names(mesp)[mesp==0],
+          names(mfactor)[mfactor==0],".\n"))
+      cat(paste("To avoid degeneracy the terms",names(mfactor)[mfactor==0],
                 "have been dropped.\n"))
-      xm <- xm[,mesp!=0] 
+      xm <- xm[,mfactor!=0] 
     }
   }
 
@@ -1121,7 +1122,7 @@ InitErgm.edges<-function(nw, m, arglist, ...) {
 }
 
 InitErgm.esp<-function(nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkdirected("esp", is.directed(nw), requirement=FALSE)
+# ergm.checkdirected("esp", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("esp", arglist,
     varnames = c("d"),
     vartypes = c("numeric"),
@@ -1144,7 +1145,8 @@ InitErgm.esp<-function(nw, m, arglist, drop=TRUE, ...) {
   ld<-length(d)
   if(ld==0){return(m)}
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="esp", soname="ergm",
+  if(is.directed(nw)){dname <- "tesp"}else{dname <- "esp"}
+  m$terms[[termnumber]] <- list(name=dname, soname="ergm",
                                 inputs=c(0, ld, ld, d))
   m$coef.names<-c(m$coef.names,paste("esp",d,sep=""))
   m
@@ -1570,7 +1572,7 @@ InitErgm.altostar<-function(nw, m, arglist, initialfit=FALSE, ...) {
 }
 
 InitErgm.gwdsp<-function(nw, m, arglist, initialfit=FALSE, ...) {
-  ergm.checkdirected("gwdsp", is.directed(nw), requirement=FALSE)
+# ergm.checkdirected("gwdsp", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("gwdsp", arglist,
     varnames = c("alpha","fixed"),
     vartypes = c("numeric","logical"),
@@ -1592,17 +1594,20 @@ InitErgm.gwdsp<-function(nw, m, arglist, initialfit=FALSE, ...) {
       a <- 1-exp(-x[2])
       exp(x[2]) * rbind(1-a^i, x[1] * (1 - a^i - i*a^(i-1) ) )
     }
-    m$terms[[termnumber]] <- list(name="dsp", soname="ergm",
+    if(is.directed(nw)){dname <- "tdsp"}else{dname <- "dsp"}
+    m$terms[[termnumber]] <- list(name=dname, soname="ergm",
                                   inputs=c(0, ld, ld, d),
                                   params=list(gwdsp=NULL,gwdsp.alpha=alpha),
                                   map=map, gradient=gradient)
     m$coef.names<-c(m$coef.names,paste("gwdsp#",d,sep=""))
   }else if (initialfit && !fixed) { # First pass to get MPLE coefficient
-    m$terms[[termnumber]] <- list(name="gwdsp", soname="ergm",
+    if(is.directed(nw)){dname <- "gwtdsp"}else{dname <- "gwdsp"}
+    m$terms[[termnumber]] <- list(name=dname, soname="ergm",
                                   inputs=c(0, 1, length(alpha), alpha))
     m$coef.names<-c(m$coef.names,"gwdsp") # must match params$gwdsp above
   }else{ # fixed == TRUE
-    m$terms[[termnumber]] <- list(name="gwdsp", soname="ergm",
+    if(is.directed(nw)){dname <- "gwtdsp"}else{dname <- "gwdsp"}
+    m$terms[[termnumber]] <- list(name=dname, soname="ergm",
                                   inputs=c(0, 1, length(alpha), alpha))
     m$coef.names<-c(m$coef.names,paste("gwdsp.fixed.",alpha,sep=""))
   }
@@ -1610,7 +1615,7 @@ InitErgm.gwdsp<-function(nw, m, arglist, initialfit=FALSE, ...) {
 }
 
 InitErgm.gwesp<-function(nw, m, arglist, initialfit=FALSE, ...) {
-  ergm.checkdirected("gwesp", is.directed(nw), requirement=FALSE)
+# ergm.checkdirected("gwesp", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("gwesp", arglist,
     varnames = c("alpha","fixed"),
     vartypes = c("numeric","logical"),
@@ -1633,17 +1638,20 @@ InitErgm.gwesp<-function(nw, m, arglist, initialfit=FALSE, ...) {
       a <- 1-exp(-x[2])
       exp(x[2]) * rbind(1-a^i, x[1] * (1 - a^i - i*a^(i-1) ) )
     }
-    m$terms[[termnumber]] <- list(name="esp", soname="ergm",
+    if(is.directed(nw)){dname <- "tesp"}else{dname <- "esp"}
+    m$terms[[termnumber]] <- list(name=dname, soname="ergm",
                                   inputs=c(0, ld, ld, d),
                                   params=list(gwesp=NULL,gwesp.alpha=alpha),
                                   map=map, gradient=gradient)
     m$coef.names<-c(m$coef.names,paste("esp#",d,sep=""))
   }else if (initialfit && !fixed) { # First pass to get MPLE coefficient
-    m$terms[[termnumber]] <- list(name="gwesp", soname="ergm",
+    if(is.directed(nw)){dname <- "gwtesp"}else{dname <- "gwesp"}
+    m$terms[[termnumber]] <- list(name=dname, soname="ergm",
                                   inputs=c(0, 1, 1, alpha))
     m$coef.names<-c(m$coef.names,"gwesp") # Must match params$gwesp above
   }else{ # fixed == TRUE
-    m$terms[[termnumber]] <- list(name="gwesp", soname="ergm",
+    if(is.directed(nw)){dname <- "gwtesp"}else{dname <- "gwesp"}
+    m$terms[[termnumber]] <- list(name=dname, soname="ergm",
                                   inputs=c(0, 1, 1, alpha))
     m$coef.names<-c(m$coef.names,paste("gwesp.fixed.",alpha,sep=""))
   }
@@ -2057,6 +2065,49 @@ InitErgm.m2star<-function(nw, m, arglist, drop=TRUE, ...) {
        inputs=c(0,1,0),
        dependence=TRUE)
   m$coef.names<-c(m$coef.names,"m2star")
+  m
+}
+
+InitErgm.twopath<-function(nw, m, arglist, drop=TRUE, ...) {
+  a <- ergm.checkargs("twopath", arglist,
+     varnames = NULL,
+     vartypes = NULL,
+     defaultvalues = list(),
+     required = NULL)
+  if(is.directed(nw)){
+   if(drop){
+    degrees <- as.matrix.network.edgelist(nw)
+    if(all(is.na(match(degrees[,1],degrees[,2])))){
+     cat(paste("Warning: The are no two-paths.\n"))
+     cat(paste("To avoid degeneracy the 'twopath' term has been dropped.\n"))
+     return(m)
+    }
+   }
+   termnumber<-1+length(m$terms)
+   m$terms[[termnumber]] <- list(
+        name="m2star", 
+        soname="ergm",
+        inputs=c(0,1,0),
+        dependence=TRUE)
+  }else{
+   k<-2
+   if(drop){
+    mkstar <- paste("c(",paste(k,collapse=","),")",sep="")
+    mkstar <- summary(as.formula(paste('nw ~ kstar(',mkstar,')',sep="")),
+                      drop=FALSE) == 0
+    if(any(mkstar)){
+      cat(paste("Warning: There are no two paths.\n"))
+      cat(paste("To avoid degeneracy the twopath term has been dropped.\n"))
+      return(m)
+    }
+   }
+   lk<-length(k)
+   if(lk==0){return(m)}
+   termnumber<-1+length(m$terms)
+   m$terms[[termnumber]] <- list(name="kstar", soname="ergm",
+                                 inputs=c(0, lk, lk, k))
+  }
+  m$coef.names<-c(m$coef.names,"twopath")
   m
 }
 
