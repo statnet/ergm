@@ -1,3 +1,4 @@
+library(ergm)
 # Test undirected network
 data(faux.mesa.high)
 m <- matrix(c(75, 0, 0, 1, 1, 1, 0, 33, 2, 4, 2, 1,
