@@ -12,10 +12,12 @@ if (max(abs(m[upper.tri(m, diag=T)] - summary(faux.mesa.high ~ nodemix("Grade"))
 
 # directed network
 data(sampson)
-m2 <- matrix(c(30, 9, 7, 5, 23, 1, 1, 2, 10), 3, 3) # Correct answer!
-if (max(abs(m2 - mixingmatrix(samplike, "group")$mat)) > 0)
+grpord<-c("Turks","loyal","outcasts")
+m2 <- matrix(c(30, 9, 7, 5, 23, 1, 1, 2, 10), 3, 3,dimnames=list(From=grpord,To=grpord)) # Correct answer!
+if (!all(m2==mixingmatrix(samplike, "group")$matrix[grpord,grpord]))
   stop ("mixingmatrix failed test on directed network samplike")
-if (max(abs(as.vector(m2) - summary(samplike ~ nodemix("group")))) > 0)
+mixnames<-t(sapply(grpord,function(from) sapply(grpord,function(to) paste("mix.group",from,to,sep="."))))
+if (!all(c(m2) == summary(samplike ~ nodemix("group"))[c(mixnames)]))
   stop ("nodemix failed test on directed network samplike")
 
 # bipartite network
