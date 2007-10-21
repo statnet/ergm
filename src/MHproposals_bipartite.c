@@ -23,6 +23,10 @@ void MH_Bipartiterandomtoggle (MHproposal *MHp, DegreeBound *bd, Network *nwp)  
                        unif_rand() * (nwp->nnodes - nwp->bipartite);
 }
 
+/********************
+   void MH_BipartiteConstantEdges
+   Chooses a pair of toggles - one a tie and one not. 
+***********************/
 void MH_BipartiteConstantEdges (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {  
   Vertex head, tail;
   
@@ -105,10 +109,9 @@ void MH_BipartiteTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
 
 /********************
    void MH_BipartiteHammingConstantEdges
-   Gives at least 50% chance of
-   proposing a toggle of an existing edge, as opposed
-   to simple random toggles that rarely do so in sparse 
-   networks
+   Chooses a pair of toggles - one a tie and one not. 
+   MSH: The name Hamming is a hack for the Hamming proposals
+        It is no different the MH_BipartiteConstantEdges
 ***********************/
 void MH_BipartiteHammingConstantEdges (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
 {  
@@ -195,13 +198,15 @@ void MH_BipartiteHammingConstantEdges (MHproposal *MHp, DegreeBound *bd, Network
 }
 
 /********************
-   void MH_BipartiteHamming
-   Gives at least 50% chance of
+   void MH_BipartiteHammingTNT
+   Tie/no tie:  Gives at least 50% chance of
    proposing a toggle of an existing edge, as opposed
    to simple random toggles that rarely do so in sparse 
    networks
+   MSH: The name Hamming is a hack for the Hamming proposals
+        It is no different the MH_BipartiteTNT
 ***********************/
-void MH_BipartiteHamming (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
+void MH_BipartiteHammingTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
 {  
   Vertex head, tail;
   Edge rane, nddyads=nwp[1].nedges;

@@ -93,7 +93,7 @@ MH_CondDegHexadToggles : Done : called from CondDegree with prob 0.1
 MH_CondDegTetradToggles : Done : called from CondDegree with prob 0.9
 
 *** Note:  We are currently missing the following functions in C: 
-    (a) MH_Hamming 
+    (a) MH_HammingTNT 
     (b) MH_HammingConstantEdges function in C, 
     (c) MH_nobetweengroupties
     though one can currently invoke (a) and (b) using 
@@ -144,7 +144,7 @@ MH_BipartiteHammingConstantEdges : Done (assuming network is bipartite):
    ergm (..., constraint = "edges+hamming", control=ergm.control(prop.weights="default"))
 or ergm (..., constraint = "edges+hamming", control=ergm.control(prop.weights="random"))
 
-MH_BipartiteHamming : Done (assuming network is bipartite):
+MH_BipartiteHammingTNT : Done (assuming network is bipartite):
    ergm (..., constraint = "edges+hamming", control=ergm.control(prop.weights="default"))
 or ergm (..., constraint = "edges+hamming", control=ergm.control(prop.weights="random"))
 

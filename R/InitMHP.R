@@ -68,10 +68,10 @@ InitMHP.HammingConstantEdges <- function(arguments, nw, model) {
   MHproposal
 }
 
-InitMHP.Hamming <- function(arguments, nw, model) {
-  MHproposal <- list(name = "Hamming", args=NULL, package="ergm")
+InitMHP.HammingTNT <- function(arguments, nw, model) {
+  MHproposal <- list(name = "HammingTNT", args=NULL, package="ergm")
   if(is.bipartite(nw)){
-    MHproposal$name <- "BipartiteHamming"
+    MHproposal$name <- "BipartiteHammingTNT"
   }
   MHproposal
 }

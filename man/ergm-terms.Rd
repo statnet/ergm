@@ -196,7 +196,10 @@ network
     is a vector of distinct integers. This term adds one network statistic to
     the model for each element in \code{d}; the \eqn{i}th such statistic equals
     the number of dyads in the network with exactly \code{d[i]} shared partners.
-    This term can only be used with undirected networks. }
+    This term can be used with directed and undirected networks.
+    For directed networks the geometric weighting is over homogeneous spared
+    partners only (i.e., only partners on a directed two-path connecting the 
+    nodes in the dyad and in the same direction).}
 
     \item{\code{dyadcov(x, attrname)}}{\emph{Dyadic Covariate:} If the network
     is directed \code{x} is either a (symmetric) matrix of dyadic covariates, or
@@ -242,7 +245,10 @@ network
     is a vector of distinct integers. This term adds one network statistic to
     the model for each element in \code{d}; the \eqn{i}th such statistic equals
     the number of edges in the network with exactly \code{d[i]} shared partners.
-    This term can only be used with undirected networks. }
+    This term can be used with directed and undirected networks.
+    For directed networks the count is over homogeneous spared
+    partners only (i.e., only partners on a directed two-path connecting the 
+    nodes in the edge and in the same direction).}
 
     \item{\code{gwdegree(decay, fixed=FALSE)}}{\emph{Geometrically Weighted
     Degree Distribution:} This term adds one network statistic to the model
@@ -261,7 +267,10 @@ network
     distribution with weight parameter \code{alpha}. The optional argument
     \code{fixed} is a logical indicating if the scale parameter \code{alpha} is
     to be fit as a curved exponential family model. The default is \code{TRUE}.
-    This term can only be used with undirected networks.}
+    This term can be used with directed and undirected networks.
+    For directed networks the count is over homogeneous spared
+    partners only (i.e., only partners on a directed two-path connecting the 
+    nodes in the dyad and in the same direction).}
 
     \item{\code{gwesp(alpha, fixed=FALSE)}}{\emph{Geometrically Weighted
     Edgewise Shared Partner Distribution:} This term adds one network statistic
@@ -269,17 +278,38 @@ network
     distribution with weight parameter \code{alpha}. The optional argument
     \code{fixed} is a logical indicating if the scale parameter \code{alpha} is
     to be fit as a curved exponential family model. The default is \code{TRUE}.
-    This term can only be used with undirected networks.}
+    This term can be used with directed and undirected networks.
+    For directed networks the geometric weighting is over homogeneous spared
+    partners only (i.e., only partners on a directed two-path connecting the 
+    nodes in the edge and in the same direction).}
+
+    \item{\code{gwidegree(decay, fixed=FALSE)}}{\emph{Geometrically Weighted
+    In-Degree Distribution:} This term adds one network statistic to the model
+    equal to the weighted in-degree distribution with weight parameter
+    \code{decay}. 
+    The optional argument \code{fixed} is a
+    logical indicating if the decay parameter is to be fit as a curved
+    exponential family model. The default is \code{TRUE}. This term can only be
+    used with directed networks.}
+
+    \item{\code{gwodegree(decay, fixed=FALSE)}}{\emph{Geometrically Weighted
+    Out-Degree Distribution:} This term adds one network statistic to the model
+    equal to the weighted out-degree distribution with weight parameter
+    \code{decay}. 
+    The optional argument \code{fixed} is a
+    logical indicating if the decay parameter is to be fit as a curved
+    exponential family model. The default is \code{TRUE}. This term can only be
+    used with directed networks.}
 
 %%   \item{\code{hamming(x, attrname)}}{\emph{Hamming Distance:}
 %%   This term adds one statistic to the model equal to the Hamming distance
 %%   of the network from the network specified by \code{x}.
 %%   The optional argument \code{attrname} specifies an optional network 
 %%   attribute of \code{x} to use instead.}
-%
-%    \item{\code{hamming(x)}}{\emph{Hamming Distance:}
-%    This term adds one statistic to the model equal to the Hamming distance
-%    of the network from the network specified by \code{x}.}
+ 
+     \item{\code{hamming(x)}}{\emph{Hamming Distance:}
+     This term adds one statistic to the model equal to the Hamming distance
+     of the network from the network specified by \code{x}.}
 
     \item{\code{idegree(d, attrname)}}{\emph{In-Degree:} The \code{d} argument
     is a vector of distinct integers. This term adds one network statistic to
@@ -322,7 +352,7 @@ network
     list. If this is specified then the count is over the number of
     \eqn{k}-stars where all nodes have the same value of the attribute. This
     term can only be used for undirected networks; for directed networks, see
-    \code{istar}, \code{ostar}, and \code{m2star}. Note that \code{kstar(1)} is
+    \code{istar}, \code{ostar}, \code{twopath} and \code{m2star}. Note that \code{kstar(1)} is
     isomorphic to \code{edges}. }
 
     \item{\code{localtriangle(attrname)}}{\emph{Triangles Within Neighborhoods:
@@ -344,7 +374,7 @@ network
     number of mixed 2-stars in the network, defined as a pair of edges
     \eqn{(i{\rightarrow}j), (j{\rightarrow}k)}{(i,j), (j,k)}. A mixed 2-star is
     sometimes called a 2-path because it is a directed path of length 2 from
-    \eqn{i} to \eqn{k} via \eqn{j}.}
+    \eqn{i} to \eqn{k} via \eqn{j}. See also \code{twopath}.}
 
     \item{\code{match(attrname, diff=FALSE)}}{\emph{Uniform Homophily
     and Differential Homophily:}  This is an alias for \code{nodematch(attrname,
@@ -509,6 +539,23 @@ network
     vertex attribute list. If this is specified then the count is over the
     number of transitive triples where all three nodes have the same value of the
     attribute. This term can only be used with a directed network.}
+
+    \item{\code{twopath}}{\emph{2-Paths:} 
+    This term adds one statistic to the model, equal to the
+    number of 2-stars in the network.
+    For directed network this is 
+    defined as a pair of edges
+    \eqn{(i{\rightarrow}j), (j{\rightarrow}k)}{(i,j), (j,k)}.
+    That is, it is a directed path of length 2 from
+    \eqn{i} to \eqn{k} via \eqn{j}.
+    For directed networks a 2-path is also a mixed 2-star.
+    For undirected network this is 
+    defined as a pair of edges
+    \eqn{(i,j), (j,k)}.
+    That is, it is an undirected path of length 2 from
+    \eqn{i} to \eqn{k} via \eqn{j}.
+    For undirected networks a 2-path is also a 2-star.
+}
 
 }
 
