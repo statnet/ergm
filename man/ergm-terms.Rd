@@ -56,6 +56,20 @@ network
     statistic to the model equaling the sum of
     \code{abs(attrname[i]-attrname[j])} for all edges (i,j) in the network. }
 
+    \item{\code{absdiffcat(attrname, omitwhich=NULL)}}{\emph{Categorical
+    Absolute Difference:} The \code{attrname} argument is a character string
+    giving the name of an attribute in the network's vertex attribute list. This
+    term adds one statistic for every possible nonzero distinct value of
+    \code{abs(attrname[i]-attrname[j])} in the network; the value of each such
+    statistic is the number of edges in the network with the corresponding
+    absolute difference. The optional \code{omitwhich} argument is a vector
+    indicating which nonzero differences, in order from smallest to largest,
+    should be omitted from the model (i.e., treated like the zero-difference
+    category). The \code{omitwhich} argument, if used, should contain indices,
+    not differences themselves. For instance, if the possible values of
+    \code{abs(attrname[i]-attrname[j])} are 0, 0.5, 3, 3.5, and 10, then to omit
+    0.5 and 10 one should set \code{omitwhich=c(1, 4)}.}
+
     \item{\code{altkstar(lambda, fixed=FALSE)}}{\emph{Alternating k-Star:} This
     term adds one network statistic to the model equal to a weighted alternating
     sequence of k-star statistics with weight parameter \code{lambda}. This is
@@ -104,7 +118,7 @@ network
     the number of distinct \code{k[i]}-instars in the network, where a
     \eqn{k}-instar is defined to be a node \eqn{N} and a set of \eqn{k}
     different nodes \eqn{\{O_1, \dots, O_k\}}{O_1, \dots, O_k} such that the
-    ties \eqn{\{(N{\leftarrow}O_j)\}}{(O_j,N)} all exist for \eqn{j=1, \dots,
+    ties \eqn{(N{\leftarrow}O_j)}{(O_j,N)} all exist for \eqn{j=1, \dots,
     k}. The value is the minimum of this count and \code{bound[i]}. This term
     can only be used with directed networks; for undirected networks, see
     \code{bounded.kstar}. }
@@ -137,7 +151,7 @@ network
     the number of distinct \code{k[i]}-outstars in the network, where a
     \eqn{k}-instar is defined to be a node \eqn{N} and a set of \eqn{k}
     different nodes \eqn{\{O_1, \dots, O_k\}}{O_1, \dots, O_k} such that the
-    ties \eqn{\{(N{\rightarrow}O_j)\}}{(N,O_j)} all exist for \eqn{j=1, \dots,
+    ties \eqn{(N{\rightarrow}O_j)}{(N,O_j)} all exist for \eqn{j=1, \dots,
     k}. The value is the minimum of this count and \code{bound[i]}. This term
     can only be used with directed networks; for undirected networks, see
     \code{bounded.kstar}. }
@@ -151,15 +165,16 @@ network
     either \eqn{(k{\rightarrow}i)}{(k,i)} or \eqn{(i{\rightarrow}k)}{(i,k)}.}
 
     \item{\code{ctriple(attrname)}}{\emph{Cyclic Triples:} This term adds one
-    statistic to the model, equal to the number of cyclic triples in the network,
-    defined as a set of edges \eqn{\{(i{\rightarrow}j), (j{\rightarrow}k),
-    (k{\rightarrow}i)\}}{\{(i,j), (j,k), (k,i)\}}. Note that for all directed
-    networks, \code{triangle} is equal to \code{ttriple+ctriple}, so at most two
-    of these three terms can be in a model. The argument \code{attrname} is a
-    character string giving the name of an attribute in the network's vertex
-    attribute list. If this is specified then the count is over the number of
-    cyclic triples where all three nodes have the same value of the attribute.
-    This term can only be used with directed networks.}
+    statistic to the model, equal to the number of cyclic triples in the
+    network, defined as a set of edges of the form \eqn{\{(i{\rightarrow}j),
+    (j{\rightarrow}k), (k{\rightarrow}i)\}}{\{(i,j), (j,k), (k,i)\}}. Note that
+    for all directed networks, \code{triangle} is equal to
+    \code{ttriple+ctriple}, so at most two of these three terms can be in a
+    model. The argument \code{attrname} is a character string giving the name of
+    an attribute in the network's vertex attribute list. If this is specified
+    then the count is over the number of cyclic triples where all three nodes
+    have the same value of the attribute. This term can only be used with
+    directed networks.}
 
     \item{\code{cycle(k)}}{\emph{Cycles:} The \code{k} argument is a vector of
     distinct integers. This term adds one network statistic to the model for
@@ -353,7 +368,7 @@ network
     \eqn{k}-stars where all nodes have the same value of the attribute. This
     term can only be used for undirected networks; for directed networks, see
     \code{istar}, \code{ostar}, \code{twopath} and \code{m2star}. Note that \code{kstar(1)} is
-    isomorphic to \code{edges}. }
+    equal to \code{edges}. }
 
     \item{\code{localtriangle(attrname)}}{\emph{Triangles Within Neighborhoods:
     } This term adds one statistic to the model equal to the number of triangles
@@ -390,17 +405,22 @@ network
     which \eqn{(i{\rightarrow}j)}{(i,j)} and \eqn{(j{\rightarrow}i)}{(j,i)} both
     exist. This term can only be used with directed networks. }
 
-    \item{\code{nodefactor(attrname)}}{\emph{Factor Attribute Effect:} The
-    \code{attrname} argument is a character string giving the name of a
-    categorical attribute in the network's vertex attribute list. This term adds
-    \eqn{p-1} network statistics to the model, where \eqn{p} is the number of
-    unique values of the \code{attrname} attribute. Each of these statistics
-    gives, for a particular value of the attribute, the number of times a vertex
-    with that attribute appears in an edge in the network. The smallest
-    attribute value is omitted, because including all attribute values would
-    result in the sum of all such statistics being equal to twice the number of
-    edges and hence a linear dependency could arise. For quantitative
-    attributes, see \code{nodemain}.}
+    \item{\code{nodefactor(attrname, omitwhich=1)}}{\emph{Factor Attribute
+    Effect:} The \code{attrname} argument is a character string giving the name
+    of a categorical attribute in the network's vertex attribute list. This term
+    adds multiple network statistics to the model, one for each of (a subset of)
+    the unique values of the \code{attrname} attribute. Each of these statistics
+    gives the number of times a vertex with that attribute appears in an edge in
+    the network. In particular, for edges whose endpoints both have the same
+    attribute value, this value is counted twice. For an analogous term for
+    quantitative vertex attributes, see \code{nodemain}. To include all
+    attribute values is usually not a good idea, because the sum of all such
+    statistics equals twice the number of edges and hence a linear dependency
+    would arise in any model also including \code{edges}. Thus, the
+    \code{omitwhich} argument tells which value(s) (numbered in order according
+    to the \code{sort} function) should be omitted. The default value, one,
+    means that the smallest (i.e., first in sorted order) attribute value is
+    omitted. }
 
     \item{\code{nodemain(attrname)}}{\emph{Main Effect of a Covariate:} The
     \code{attrname} argument is a character string giving the name of a

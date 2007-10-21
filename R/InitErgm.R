@@ -2465,12 +2465,13 @@ InitErgm.sendercov<-function (nw, m, arglist, ...) {
 
 InitErgm.nodefactor<-function (nw, m, arglist, drop=TRUE, ...) {
   a <- ergm.checkargs("nodefactor", arglist,
-    varnames = c("attrname"),
-    vartypes = c("character"),
-    defaultvalues = list(NULL),
-    required = c(TRUE))
+    varnames = c("attrname", "omitwhich"),
+    vartypes = c("character", "numeric"),
+    defaultvalues = list(NULL, 1),
+    required = c(TRUE, FALSE))
   attach(a)
   attrname<-a$attrname
+  omitwhich <- a$omitwhich
   nodecov <- get.node.attr(nw, attrname, "nodefactor")
   u<-sort(unique(nodecov))
   if(any(is.na(nodecov))){u<-c(u,NA)}
@@ -2500,12 +2501,15 @@ InitErgm.nodefactor<-function (nw, m, arglist, drop=TRUE, ...) {
     stop ("Argument to nodefactor() has only one value", call.=FALSE)
   }
   termnumber<-1+length(m$terms)
+  
   m$terms[[termnumber]] <- list(name="nodefactor", soname="ergm",
-                                inputs=c(lu-1, lu-1, lu-1+length(nodecov),
-                                         ui[-1], nodecov), dependence=FALSE)
+                                inputs=c(lu-length(omitwhich), 
+                                         lu-length(omitwhich), 
+                                         lu-length(omitwhich)+length(nodecov),
+                                         ui[-omitwhich], nodecov), dependence=FALSE)
   # smallest value of u is "control group"
   m$coef.names<-c(m$coef.names, paste("nodefactor",
-                                      attrname, paste(u[-1]), sep="."))
+                                      attrname, paste(u[-omitwhich]), sep="."))
   m
 }
 

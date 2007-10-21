@@ -87,7 +87,8 @@ getMHproposal.formula <- function(object, arguments, nw, model, weights="default
       conlist[[impl]]<-NULL
   
   ## Convert vector of constraints to a "standard form".
-  constraints<-paste(sort(tolower(names(conlist))),collapse="+")
+  ncl <- if(getRversion() >= 2.4) tolower(names(conlist)) else names(conlist)
+  constraints<-paste(sort(ncl),collapse="+")
   name<-with(MHproposals,MHP[Class==class & Constraints==constraints & Weights==weights])
   if(length(name)>1) stop("Multiple matching proposals in the lookup table.",
                           "This Should Not Be Happening (tm). Unless you have",
