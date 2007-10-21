@@ -50,6 +50,7 @@ ergm <- function(formula, theta0="MPLE",
     initialfit$network <- nw
     initialfit$newnetwork <- nw
     initialfit$formula <- formula
+    initialfit$proposal <- MHproposal
     return(initialfit)
   } 
   model <- ergm.getmodel(formula, nw, drop=control$drop, expanded=TRUE)
