@@ -56,19 +56,19 @@ network
     statistic to the model equaling the sum of
     \code{abs(attrname[i]-attrname[j])} for all edges (i,j) in the network. }
 
-    \item{\code{absdiffcat(attrname, omitwhich=NULL)}}{\emph{Categorical
+    \item{\code{absdiffcat(attrname, base=NULL)}}{\emph{Categorical
     Absolute Difference:} The \code{attrname} argument is a character string
     giving the name of an attribute in the network's vertex attribute list. This
     term adds one statistic for every possible nonzero distinct value of
     \code{abs(attrname[i]-attrname[j])} in the network; the value of each such
     statistic is the number of edges in the network with the corresponding
-    absolute difference. The optional \code{omitwhich} argument is a vector
+    absolute difference. The optional \code{base} argument is a vector
     indicating which nonzero differences, in order from smallest to largest,
     should be omitted from the model (i.e., treated like the zero-difference
-    category). The \code{omitwhich} argument, if used, should contain indices,
+    category). The \code{base} argument, if used, should contain indices,
     not differences themselves. For instance, if the possible values of
     \code{abs(attrname[i]-attrname[j])} are 0, 0.5, 3, 3.5, and 10, then to omit
-    0.5 and 10 one should set \code{omitwhich=c(1, 4)}.}
+    0.5 and 10 one should set \code{base=c(1, 4)}.}
 
     \item{\code{altkstar(lambda, fixed=FALSE)}}{\emph{Alternating k-Star:} This
     term adds one network statistic to the model equal to a weighted alternating
@@ -212,7 +212,7 @@ network
     the model for each element in \code{d}; the \eqn{i}th such statistic equals
     the number of dyads in the network with exactly \code{d[i]} shared partners.
     This term can be used with directed and undirected networks.
-    For directed networks the geometric weighting is over homogeneous spared
+    For directed networks the geometric weighting is over homogeneous shared
     partners only (i.e., only partners on a directed two-path connecting the 
     nodes in the dyad and in the same direction).}
 
@@ -261,7 +261,7 @@ network
     the model for each element in \code{d}; the \eqn{i}th such statistic equals
     the number of edges in the network with exactly \code{d[i]} shared partners.
     This term can be used with directed and undirected networks.
-    For directed networks the count is over homogeneous spared
+    For directed networks the count is over homogeneous shared
     partners only (i.e., only partners on a directed two-path connecting the 
     nodes in the edge and in the same direction).}
 
@@ -273,7 +273,7 @@ network
     in section 3 of that paper to see why it is used rather than the version
     given in Snijders et al. (2006). The optional argument \code{fixed} is a
     logical indicating if the decay parameter is to be fit as a curved
-    exponential family model. The default is \code{TRUE}. This term can only be
+    exponential family model. The default is \code{FALSE}. This term can only be
     used with undirected networks.}
 
     \item{\code{gwdsp(alpha, fixed=FALSE)}}{\emph{Geometrically Weighted
@@ -281,9 +281,9 @@ network
     to the model equal to the geometrically weighted dyadwise shared partner
     distribution with weight parameter \code{alpha}. The optional argument
     \code{fixed} is a logical indicating if the scale parameter \code{alpha} is
-    to be fit as a curved exponential family model. The default is \code{TRUE}.
+    to be fit as a curved exponential family model. The default is \code{FALSE}.
     This term can be used with directed and undirected networks.
-    For directed networks the count is over homogeneous spared
+    For directed networks the count is over homogeneous shared
     partners only (i.e., only partners on a directed two-path connecting the 
     nodes in the dyad and in the same direction).}
 
@@ -292,9 +292,9 @@ network
     to the model equal to the geometrically weighted edgewise shared partner
     distribution with weight parameter \code{alpha}. The optional argument
     \code{fixed} is a logical indicating if the scale parameter \code{alpha} is
-    to be fit as a curved exponential family model. The default is \code{TRUE}.
+    to be fit as a curved exponential family model. The default is \code{FALSE}.
     This term can be used with directed and undirected networks.
-    For directed networks the geometric weighting is over homogeneous spared
+    For directed networks the geometric weighting is over homogeneous shared
     partners only (i.e., only partners on a directed two-path connecting the 
     nodes in the edge and in the same direction).}
 
@@ -304,7 +304,7 @@ network
     \code{decay}. 
     The optional argument \code{fixed} is a
     logical indicating if the decay parameter is to be fit as a curved
-    exponential family model. The default is \code{TRUE}. This term can only be
+    exponential family model. The default is \code{FALSE}. This term can only be
     used with directed networks.}
 
     \item{\code{gwodegree(decay, fixed=FALSE)}}{\emph{Geometrically Weighted
@@ -313,7 +313,7 @@ network
     \code{decay}. 
     The optional argument \code{fixed} is a
     logical indicating if the decay parameter is to be fit as a curved
-    exponential family model. The default is \code{TRUE}. This term can only be
+    exponential family model. The default is \code{FALSE}. This term can only be
     used with directed networks.}
 
 %%   \item{\code{hamming(x, attrname)}}{\emph{Hamming Distance:}
@@ -405,22 +405,26 @@ network
     which \eqn{(i{\rightarrow}j)}{(i,j)} and \eqn{(j{\rightarrow}i)}{(j,i)} both
     exist. This term can only be used with directed networks. }
 
-    \item{\code{nodefactor(attrname, omitwhich=1)}}{\emph{Factor Attribute
-    Effect:} The \code{attrname} argument is a character string giving the name
-    of a categorical attribute in the network's vertex attribute list. This term
-    adds multiple network statistics to the model, one for each of (a subset of)
-    the unique values of the \code{attrname} attribute. Each of these statistics
+    \item{\code{nodefactor(attrname, base=1)}}{\emph{Factor Attribute Effect:}
+    The \code{attrname} argument is a character string giving the name of a
+    categorical attribute in the network's vertex attribute list. This term adds
+    multiple network statistics to the model, one for each of (a subset of) the
+    unique values of the \code{attrname} attribute. Each of these statistics
     gives the number of times a vertex with that attribute appears in an edge in
     the network. In particular, for edges whose endpoints both have the same
-    attribute value, this value is counted twice. For an analogous term for
-    quantitative vertex attributes, see \code{nodemain}. To include all
-    attribute values is usually not a good idea, because the sum of all such
-    statistics equals twice the number of edges and hence a linear dependency
-    would arise in any model also including \code{edges}. Thus, the
-    \code{omitwhich} argument tells which value(s) (numbered in order according
-    to the \code{sort} function) should be omitted. The default value, one,
-    means that the smallest (i.e., first in sorted order) attribute value is
-    omitted. }
+    attribute value, this value is counted twice. To include all attribute
+    values is usually not a good idea, because the sum of all such statistics
+    equals twice the number of edges and hence a linear dependency would arise
+    in any model also including \code{edges}. Thus, the \code{base} argument
+    tells which value(s) (numbered in order according to the \code{sort}
+    function) should be omitted. The default value, one, means that the smallest
+    (i.e., first in sorted order) attribute value is omitted. For example, if
+    the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple},
+    \dQuote{banana}, and \dQuote{pear}, then to add just two terms, one for
+    \dQuote{apple} and one for \dQuote{pear}, then set \dQuote{banana} and
+    \dQuote{orange} to the base (remember to sort the values first) by using
+    \code{nodefactor("fruit", base=2:3)}. For an analogous term for quantitative
+    vertex attributes, see \code{nodemain}. }
 
     \item{\code{nodemain(attrname)}}{\emph{Main Effect of a Covariate:} The
     \code{attrname} argument is a character string giving the name of a
@@ -560,22 +564,14 @@ network
     number of transitive triples where all three nodes have the same value of the
     attribute. This term can only be used with a directed network.}
 
-    \item{\code{twopath}}{\emph{2-Paths:} 
-    This term adds one statistic to the model, equal to the
-    number of 2-stars in the network.
-    For directed network this is 
-    defined as a pair of edges
-    \eqn{(i{\rightarrow}j), (j{\rightarrow}k)}{(i,j), (j,k)}.
-    That is, it is a directed path of length 2 from
-    \eqn{i} to \eqn{k} via \eqn{j}.
-    For directed networks a 2-path is also a mixed 2-star.
-    For undirected network this is 
-    defined as a pair of edges
-    \eqn{(i,j), (j,k)}.
-    That is, it is an undirected path of length 2 from
-    \eqn{i} to \eqn{k} via \eqn{j}.
-    For undirected networks a 2-path is also a 2-star.
-}
+    \item{\code{twopath}}{\emph{2-Paths:} This term adds one statistic to the
+    model, equal to the number of 2-paths in the network. For directed network
+    this is defined as a pair of edges \eqn{(i{\rightarrow}j),
+    (j{\rightarrow}k)}{(i,j), (j,k)}. That is, it is a directed path of length 2
+    from \eqn{i} to \eqn{k} via \eqn{j}. For directed networks a 2-path is also
+    a mixed 2-star. For undirected networks this is defined as a pair of edges
+    \eqn{\{i,j\}, \{j,k\}}. That is, it is an undirected path of length 2 from
+    \eqn{i} to \eqn{k} via \eqn{j}, also known as a 2-star.}
 
 }
 
