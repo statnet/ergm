@@ -321,7 +321,10 @@ print.mixingmatrix <- function(mm) {
     m <- rbind(m,total)
     rn <- c(rn, "Total")
     cn <- c(cn, "Total")
-    dimnames(m) <- list(From = rn,To = cn)
+    if (mm$type == "bipartite")
+      dimnames(m) <- list(Actors = rn,Events = cn)
+    else
+      dimnames(m) <- list(From = rn,To = cn)
   }
   print(m)
 }
