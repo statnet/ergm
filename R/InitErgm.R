@@ -716,6 +716,103 @@ InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
+InitErgm.degreep<-function(nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("degreep", is.directed(nw), requirement=FALSE)
+  a <- ergm.checkargs("degreep", arglist,
+    varnames = c("d", "attrname", "homophily"),
+    vartypes = c("numeric", "character", "logical"),
+    defaultvalues = list(NULL, NULL, FALSE),
+    required = c(TRUE, FALSE, FALSE))
+  attach(a)
+  d<-a$d; attrname <- a$attrname; homophily <- a$homophily
+  emptynwstats<-NULL
+  if(!is.null(attrname)) {
+    nodecov <- get.node.attr(nw, attrname, "degreep")
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+    nodecov <- match(nodecov,u) # Recode to numeric
+    if (length(u)==1)
+         stop ("Attribute given to degreep() has only one value", call.=FALSE)
+  }
+  if(!is.null(attrname) && !homophily) {
+    # Combine degreep and u into 2xk matrix, where k=length(d)*length(u)
+    lu <- length(u)
+    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
+    if(drop){ #   Check for degeneracy
+      tmp <- paste("c(",paste(d,collapse=","),")")
+      degreepattr <- summary(
+       as.formula(paste('nw ~ degreep(',tmp,',"',attrname,'")',sep="")),
+       drop=FALSE) == 0
+      if(any(degreepattr)){
+        dropterms <- paste("pdeg", du[1,degreepattr], ".", attrname,
+                           u[du[2,degreepattr]], sep="")
+        cat("Warning: These degreep terms have extreme counts and will be dropped:\n")
+        cat(dropterms, "\n", fill=T)
+        du <- matrix(du[,!degreepattr], nrow=2)
+      }
+    }
+    if (any(du[1,]==0)) {
+      emptynwstats <- rep(0, ncol(du))
+      tmp <- du[2,du[1,]==0]
+      for(i in 1:length(tmp)) tmp[i] <- sum(nodecov==tmp[i])
+        emptynwstats[du[1,]==0] <- tmp
+    }
+  } else {
+    if(drop){
+      tmp <- paste("c(",paste(d,collapse=","),")",sep="")
+      if(!homophily) {
+        mdegreep <- summary(as.formula(paste('nw ~ degreep(',tmp,')',
+                                            sep="")), drop=FALSE) == 0
+      } else {
+        mdegreep <- summary(as.formula(paste('nw ~ degreep(',tmp,',"',attrname,
+                                                         '", TRUE)', sep="")), 
+                                             drop = FALSE) == 0
+      }
+      if(any(mdegreep)){
+        cat("Warning: These degreep terms have extreme counts and will be dropped:\n")
+        cat(d[mdegreep], "\n", fill=T)
+        d <- d[!mdegreep] 
+      }
+    }
+    if (any(d==0)) {
+      emptynwstats <- rep(0, length(d))
+      emptynwstats[d==0] <- network.size(nw)
+    }
+  }
+  termnumber<-1+length(m$terms)
+  if(is.null(attrname)) {
+    if(length(d)==0){return(m)}
+    m$terms[[termnumber]] <- list(name="degreep", soname="ergm",
+                                  inputs=c(0, length(d), length(d), d),
+                                  dependence=TRUE)
+    m$coef.names<-c(m$coef.names,paste("degreep",d,sep=""))
+  } else if (homophily) {
+    if(length(d)==0){return(m)}
+    m$terms[[termnumber]] <- list(name="degreep_w_homophily", soname="ergm",
+                                  inputs=c(0, length(d), 
+                                           length(d) + length(nodecov), 
+                                           d, nodecov),
+                                  dependence=TRUE)
+    # See comment in d_degreep_w_homophily function
+    m$coef.names<-c(m$coef.names,paste("pdeg", d, ".homophily.",
+                                       attrname, sep=""))
+  } else {
+    if(ncol(du)==0) {return(m)}
+    #  No covariates here, so input element 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="degreep_by_attr", soname="ergm",
+                                  inputs=c(0, ncol(du), 
+                                           length(du)+length(nodecov), 
+                                           as.vector(du), nodecov),
+                                  dependence=TRUE)
+    # See comment in d_degreep_by_attr function
+    m$coef.names<-c(m$coef.names, paste("pdeg", du[1,], ".", attrname,
+                                        u[du[2,]], sep=""))
+  }
+  if (!is.null(emptynwstats))
+    m$terms[[termnumber]]$emptynwstats <- emptynwstats
+  m
+}
+
 InitErgm.dsp<-function(nw, m, arglist, drop=TRUE, ...) {
 # ergm.checkdirected("dsp", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("dsp", arglist,

@@ -41,6 +41,12 @@ void d_degree_w_homophily (int ntoggles, Vertex *heads, Vertex *tails,
 	      ModelTerm *mtp, Network *nwp);
 void d_degree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
 	        ModelTerm *mtp, Network *nwp);
+void d_degreep (int ntoggles, Vertex *heads, Vertex *tails, 
+	       ModelTerm *mtp, Network *nwp);
+void d_degreep_w_homophily (int ntoggles, Vertex *heads, Vertex *tails, 
+	      ModelTerm *mtp, Network *nwp);
+void d_degreep_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
+	        ModelTerm *mtp, Network *nwp);
 void d_spartner (int ntoggles, Vertex *heads, Vertex *tails, 
 		 ModelTerm *mtp, Network *nwp);
 void d_wdegree (int ntoggles, Vertex *heads, Vertex *tails, 
