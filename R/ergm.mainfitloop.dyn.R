@@ -108,8 +108,7 @@ ergm.mainfitloop.dyn <- function(theta0, nw, model.form, model.diss,
               loglikelihood=NA, mcmcloglik=NULL, mle.lik=NULL,
               gradient=rep(NA,length=length(theta0)), acf=NULL,
               samplesize=MCMCparams$samplesize, failure=TRUE,
-              newnetwork = nw,
-              formula = model.form$formula)
+              newnetwork = nw)
     return(structure (l, class="ergm"))
   }
   if(verbose){cat("Calling MCMLE Optimization...\n")}
@@ -162,7 +161,6 @@ ergm.mainfitloop.dyn <- function(theta0, nw, model.form, model.diss,
   mle.lik <- mle.lik + v$loglikelihood
 
   v$newnetwork <- nw
-  v$formula <- model.form$formula
 
 ###### old ergm.statseval ends here    
     
@@ -173,8 +171,6 @@ ergm.mainfitloop.dyn <- function(theta0, nw, model.form, model.diss,
     v$newnetwork <- nw
     v$interval <- MCMCparams$interval
     v$theta.original <- theta.original
-    v$proposal.form <- MHproposal.form$name
-    v$proposal.diss <- MHproposal.diss$name
     v$mplefit <- initialfit
          
     if(!v$failure & !any(is.na(v$coef))){

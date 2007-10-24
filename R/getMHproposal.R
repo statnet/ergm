@@ -42,9 +42,7 @@ MHproposals <- data.frame(I(tmp[,1]), I(tmp[,2]), I(tmp[,3]), I(tmp[,4]))
 colnames(MHproposals)<-c("Class","Constraints","Weights","MHP")
 
 
-getMHproposal<-function(object, arguments=NULL, nw=NULL, model=NULL, weights="default", ...) UseMethod("getMHproposal")
-
-getMHproposal.NULL<-function(object,...) getMHproposal(~.,...)
+getMHproposal<-function(object, ...) UseMethod("getMHproposal")
 
 getMHproposal.MHproposal<-function(object,...) return(object)
 
@@ -94,16 +92,16 @@ getMHproposal.formula <- function(object, arguments, nw, model, weights="default
                           "This Should Not Be Happening (tm). Unless you have",
                           "been messing with the table, please file a bug report.")
   if(length(name)<1){
-    constraints<-with(MHproposals,Constraint[Class==class & Weights==weights])
-    weightings<-with(MHproposals,Weights[Class==class & Constraint==constraint])
-    stop("This combination of model constraint and proposal weighting is not implemented.",
-         "Check your arguments for typos.",
+    constraints<-with(MHproposals,Constraints[Class==class & Weights==weights])
+    weightings<-with(MHproposals,Weights[Class==class & Constraints==constraints])
+    stop("This combination of model constraint and proposal weighting is not implemented. ",
+         "Check your arguments for typos. ",
          if(length(constraints)) paste("Constraints that go with your selected weighting are as follows: ",
                                        paste(constraints,collapse=", "),".",sep="")
-         else "The supplied weighting is not recognized/implemented.",
+         else "The supplied weighting is not recognized/implemented. ",
          if(length(weightings)) paste("Weightings that go with your selected constraint are as follows: ",
                                       paste(weightings,collapse=", "),".",sep="")
-         else "The supplied constraint is not recognized/implemented."
+         else "The supplied constraint is not recognized/implemented. "
          )
   }
   
@@ -113,12 +111,17 @@ getMHproposal.formula <- function(object, arguments, nw, model, weights="default
   getMHproposal.character(name,arguments,nw,model)
 }
 
-getMHproposal.ergm<-function(object,arguments=NULL, nw=NULL, model=NULL,weights=NULL){
-  if("proposal" %in% names(object)) object$proposal
-  else if(!is.null(object$proposal)){ # (Ab)use list name extension.
-    if(missing(arguments)||missing(model)) warning("Possibly guessing proposal type and arguments.")
-    getMHproposal(constraints=object$proposal,arguments=arguments,nw=object$network,model=list(),class="c")
-  }
-  else NULL
+getMHproposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NULL, model=NULL,weights=NULL,class="c"){
+  if(is.null(constraints)) constraints<-object$constraints
+  if(is.null(arguments)) arguments<-object$prop.args
+  if(is.null(nw)) nw<-object$network
+  if(is.null(weights)) weights<-"default"
+  if(is.null(model)){
+    model<-if(class %in% c("c","f"))
+      ergm.getmodel(object$formula,nw,...)
+    else
+      ergm.getmodel.dissolve(object$formula,nw,...)
+  }  
+  getMHproposal(constraints,arguments=arguments,nw=nw,model=model,weights=weights,class=class)
 }
 

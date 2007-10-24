@@ -7,7 +7,6 @@ ergm.control<-function(prop.weights="default",prop.args=NULL,
                        maxchanges=1000000,
                        MPLEsamplesize=50000, 
                        trace=0,
-                       boundDeg=NULL,
                        steplength=0.5,
                        drop=TRUE,
                        force.mcmc=FALSE,
@@ -27,22 +26,31 @@ ergm.control<-function(prop.weights="default",prop.args=NULL,
   control
 }
 
-simulate.ergm.control<-san.control<-ergm.simulate.control<-
-  function(prop.weights="default",prop.args=NULL,
-           boundDeg=NULL,drop=FALSE,
-           summarizestats=FALSE,
-           maxchanges=1000000){
-    control<-list()
-    for(arg in names(formals(sys.function())))
-      control[[arg]]<-get(arg)
-    control
-  }
+simulate.control<-san.control<-simulate.formula.control<-function(prop.weights="default",prop.args=NULL,
+                                                                  drop=FALSE,
+                                                                  summarizestats=FALSE,
+                                                                  maxchanges=1000000){
+  control<-list()
+  for(arg in names(formals(sys.function())))
+    control[[arg]]<-get(arg)
+  control
+}
+
+simulate.ergm.control<-san.ergm.control<-function(prop.weights=NULL,prop.args=NULL,
+                                                  drop=FALSE,
+                                                  summarizestats=FALSE,
+                                                  maxchanges=1000000){
+  control<-list()
+  for(arg in names(formals(sys.function())))
+    control[[arg]]<-get(arg)
+  control
+}
 
 
 simulatedyn.control<-simulatedyn.ergm.control<-ergm.simulatedyn.control<-
   function(prop.weights.form="default",prop.args.form=NULL,
            prop.weights.diss="default",prop.args.diss=NULL,
-           boundDeg=NULL, drop=FALSE,
+           drop=FALSE,
            summarizestats=FALSE,final=FALSE,
            maxchanges=1000000){
     control<-list()

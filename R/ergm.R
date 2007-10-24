@@ -40,8 +40,9 @@ ergm <- function(formula, theta0="MPLE",
                                 Clist.miss.initial, model.initial, verbose=verbose, ...)
   if (MLestimate && 
       (   !ergm.independencemodel(model.initial)
-       || !is.null(meanstats))
-       || control$force.mcmc
+       || !is.null(meanstats)
+       || constraints!=(~.))
+      || control$force.mcmc
       ) {
     theta0 <- initialfit$coef
     names(theta0) <- model.initial$coef.names
@@ -50,7 +51,9 @@ ergm <- function(formula, theta0="MPLE",
     initialfit$network <- nw
     initialfit$newnetwork <- nw
     initialfit$formula <- formula
-    initialfit$proposal <- MHproposal
+    initialfit$constraints <- constraints
+    initialfit$prop.args <- control$prop.args
+    initialfit$prop.weights <- control$prop.weights
     return(initialfit)
   } 
   model <- ergm.getmodel(formula, nw, drop=control$drop, expanded=TRUE)
@@ -120,6 +123,14 @@ ergm <- function(formula, theta0="MPLE",
               )
   }
 
+  v$formula <- formula
+  v$formula.diss <- dissolve
+  v$constraints <- constraints
+  v$prop.args <- control$prop.args
+  v$prop.weights <- control$prop.weights
+  v$prop.args.diss <- control$prop.args.diss
+  v$prop.weights.diss <- control$prop.weights.diss
+  
   if(!is.null(v$mplefit)){
    if(v$loglikelihood>control$trustregion-0.0001){
     v$degeneracy <- control$trustregion

@@ -138,10 +138,7 @@ san.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
   MCMCsamplesize <- 1
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
-  MHproposal<-
-    if(is.null(constraints)) getMHproposal(object)
-    else getMHproposal(constraint,
-                       control$prop.args,nw,model,weights=control$prop.weights)
+  MHproposal<-getMHproposal(object,constraints=constraints,arguments=control$prop.args,nw=nw,model=model,weights=control$prop.weights)
   # multiplicity.constrained <- 1  
   if(missing(meanstats)){
     stop("You need to specify target statistic via",

@@ -138,7 +138,6 @@ ergm.robmon.dyn <- function(theta0, nw, model.form, model.diss, Clist,
                   # class="ergm") 
   structure(c(ve, list(newnetwork=nw, 
                        theta.original=theta0,
-                       formula=model.form$formula, 
                        interval=MCMCparams$interval, burnin=MCMCparams$burnin, 
                        network=nw.orig, proposal=MHproposal)),
             class="ergm")
@@ -272,8 +271,7 @@ ergm.robmon.dyn.orig <- function(theta0, nw, model.form, model.diss, Clist,
                   # class="ergm") 
   structure(c(ve, list(newnetwork=network.update(nw, z$newedgelist, "edgelist"), 
                        theta.original=theta0,
-                       formula=model.form$formula, 
                        interval=interval, burnin=burnin,
-                       network=nw, proposal.form=MHproposal.form, proposal.diss=MHproposal.diss)),
+                       network=nw)),
             class="ergm")
 }

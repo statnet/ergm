@@ -3,7 +3,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
                              basis=NULL,
                              sequential=TRUE,
                              constraints=~.,
-                             control=ergm.simulate.control(),
+                             control=simulate.formula.control(),
                              verbose=FALSE) {
   out.list <- list()
   out.mat <- numeric(0)
@@ -114,7 +114,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
                           burnin=1000, interval=1000, 
                           sequential=TRUE, 
                           constraints=NULL,
-                          control=ergm.simulate.control(),
+                          control=simulate.ergm.control(),
                           verbose=FALSE) {
   out.list <- vector("list", nsim)
   out.mat <- numeric(0)
@@ -128,10 +128,8 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
   nw <- object$network  
   
   m <- ergm.getmodel(object$formula, nw, drop=control$drop)
-  ## constraints=NULL preserves constraints of the original fit. Otherwise, new constraints.
-  MHproposal <-
-    if(is.null(constraints)) getMHproposal(object)
-    else getMHproposal(constraints,control$prop.args, nw, m, weights=control$prop.weights)
+  ## By default, all arguments but the first are NULL, and all the information is borrowed from the fit.
+  MHproposal <- getMHproposal(object,constraints=constraints,arguments=control$prop.args, nw=nw, model=m, weights=control$prop.weights)
   MCMCsamplesize <- 1
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1

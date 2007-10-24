@@ -11,14 +11,20 @@ gof.ergm <- function (object, ..., nsim=100,
                       GOF=~degree+espartners+distance, 
                       burnin=10000, interval=1000,
                       constraints=NULL,
-                      prop.weights="default",
+                      prop.weights=NULL,
                       prop.args=NULL,
                       seed=NULL, drop=TRUE,
                       summarizestats=FALSE,
                       theta0=NULL,
                       verbose=FALSE) {
 
+  
   nw <- as.network(object$network)
+
+  ## FIXME: Need to do this differently. This approach will (probably)
+  ## break if any of the terms in the formula have non-constant
+  ## arguments.
+  ## Also, this is just plain ugly.
   formula <- as.formula(paste("nw ~",paste(ergm.rhs.formula(object$formula),collapse="+")))
 # paste("~",paste(unlist(dimnames(attr(terms(formula),"factors"))[-1]),collapse="+"),sep="")
   if(!is.network(nw)){
@@ -26,12 +32,17 @@ gof.ergm <- function (object, ..., nsim=100,
   }
   if(is.null(seed)){seed <- sample(10000000, size=1)}
 
-  constraints<-
-    if(is.null(constraints)) getMHproposal(object)
-    else constraints
-  
   if(missing(theta0)){theta0 <- object$coef}
 
+  ## FIXME: This way of doing things is bad. We should be constructing
+  ## MHproposals using MHproposal.ergm, and going from there.
+
+  ## Also, does it even make sense to be able to change constraints
+  ## for GOF? Simulate I can understand, but this...
+  if(is.null(constraints)) constraints<-object$constraints
+  if(is.null(prop.args)) prop.args<-object$prop.args
+  if(is.null(prop.weights)) prop.weights<-object$prop.weights
+  
   gof.formula(formula=formula, theta0=theta0, nsim=nsim,
               GOF=GOF,
               burnin=burnin, interval=interval,
@@ -45,7 +56,7 @@ gof.ergm <- function (object, ..., nsim=100,
 gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
                         burnin=10000, interval=1000,
                         GOF=~degree+espartners+distance,
-                        constraints=NULL,
+                        constraints=~.,
                         prop.weights="default",
                         prop.args=NULL,
                         seed=NULL, drop=TRUE,
@@ -79,16 +90,16 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
 # match variables
 
   for(i in seq(along=all.gof.vars)){
-   all.gof.vars[i] <- match.arg(all.gof.vars[i],
-    c('distance', 'espartners', 'dspartners', 'odegree', 'idegree', 
-      'degree','triadcensus','model'
-     )
-                               )
+    all.gof.vars[i] <- match.arg(all.gof.vars[i],
+                                 c('distance', 'espartners', 'dspartners', 'odegree', 'idegree', 
+                                   'degree','triadcensus','model'
+                                   )
+                                 )
   }
   GOF <- as.formula(paste("~",paste(all.gof.vars,collapse="+")))
-
+  
   nw <- as.network(nw)
-
+  
   if(!is.network(nw)){
     stop("A network object on the RHS of the formula argument must be given")
   }
@@ -101,7 +112,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
 
   m <- ergm.getmodel(formula, nw, drop=drop)
   MHproposal <-
-    if(is.ergm(nw) && is.null(constraints)) getMHproposal(nw)
+    if(is.ergm(nw)) getMHproposal(nw, constraints=constraints, arguments=prop.args, model=m, weights=prop.weights)
     else getMHproposal(constraints, prop.args, nw, m, weights=prop.weights)
   Clist <- ergm.Cprepare(nw, m)
 

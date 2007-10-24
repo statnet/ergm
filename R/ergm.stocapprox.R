@@ -117,8 +117,7 @@ ergm.stocapprox <- function(theta0, nw, model, Clist,
                   # class="ergm") 
   structure(c(ve, list(newnetwork=nw, 
                  theta.original=theta0,
-                 formula=model$formula, 
                  interval=MCMCparams$interval, burnin=MCMCparams$burnin, 
-                 network=nw.orig, proposal=MHproposal)),
+                 network=nw.orig)),
              class="ergm")
 }

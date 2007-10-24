@@ -1,7 +1,7 @@
 ergm.robmon <- function(theta0, nw, model, Clist,
                         burnin, interval, MHproposal,
                         verbose=FALSE, 
-                        algorithm.control=list() ){
+                        control=ergm.control() ){
   # This is based on Snijders (2002), J of Social Structure
   # and Snijders and van Duijn (2002) from A Festscrift for Ove Frank
   # Both papers are available from Tom Snijders' web page: 
@@ -15,7 +15,7 @@ ergm.robmon <- function(theta0, nw, model, Clist,
   #     phase3_n:  Sample size for phase 3
   
   #phase 1:  Estimate diagonal elements of D matrix (covariance matrix for theta0)
-  n1 <- algorithm.control$phase1_n
+  n1 <- control$phase1_n
   if(is.null(n1)) {n1 <- 7 + 3 * Clist$nparam} #default value
   eta0 <- ergm.eta(theta0, model$etamap)
   cat("Robbins-Monro algorithm with theta_0 equal to:\n")
@@ -25,11 +25,11 @@ ergm.robmon <- function(theta0, nw, model, Clist,
 # stats[,]<-  rep(Clist$obs - Clist$meanstats,rep(nrow(stats),Clist$nparam))
 # MCMCparams$stats <- stats
   MCMCparams <- list(samplesize=n1, burnin=burnin, interval=interval,
-                     stats=stats, parallel=algorithm.control$parallel)
+                     stats=stats, parallel=control$parallel)
   cat(paste("Phase 1: ",n1,"iterations"))
   cat(paste(" (interval=",MCMCparams$interval,")\n",sep=""))
   z <- ergm.getMCMCsample(nw, model, MHproposal, eta0, MCMCparams, verbose)
-  steplength <- algorithm.control$steplength
+  steplength <- control$steplength
   statsmatrix <- z$statsmatrix
   if(steplength<1){
     statsmean <- apply(statsmatrix,2,mean)
@@ -47,11 +47,11 @@ ergm.robmon <- function(theta0, nw, model, Clist,
 # require(covRobust)
 # Ddiag <- diag(cov.nnve(z$statsmatrix))
   #phase 2:  Main phase
-  a <- algorithm.control$initial_gain
-  if(is.null(a)) {a <- 0.1/algorithm.control$steplength} #default value
-  n_sub <- algorithm.control$nsubphases
+  a <- control$initial_gain
+  if(is.null(a)) {a <- 0.1/control$steplength} #default value
+  n_sub <- control$nsubphases
   if(is.null(n_sub)) {n_sub <- 4} #default value
-  n_iter <- algorithm.control$niterations
+  n_iter <- control$niterations
   if(is.null(n_iter)) {n_iter <- 7 + Clist$nparam} #default value
   # This default value is very simplistic; Snijders would use a minimum of
   # 7 + Clist$nparam and a maximum of 207+Clist$nparam, with the actual 
@@ -94,7 +94,7 @@ cat(paste("theta new:",theta,"\n"))
   }
   
   #phase 3:  Estimate covariance matrix for final theta
-  n3 <- algorithm.control$phase3_n
+  n3 <- control$phase3_n
   if(is.null(n3)) {n3 <- 20} #default
   MCMCparams$samplesize <- n3
   cat(paste("Phase 3: ",n3,"iterations"))
@@ -111,12 +111,12 @@ cat(paste("theta new:",theta,"\n"))
   ve<-ergm.estimate(theta0=theta, model=model,
                    statsmatrix=z$statsmatrix,
                    statsmatrix.miss=NULL,
-                   nr.maxit=algorithm.control$nr.maxit, 
-                   calc.mcmc.se=algorithm.control$calc.mcmc.se,
-                   hessian=algorithm.control$hessian,
-                   method=algorithm.control$method,
-                   metric=algorithm.control$metric,
-                   compress=algorithm.control$compress, verbose=verbose)
+                   nr.maxit=control$nr.maxit, 
+                   calc.mcmc.se=control$calc.mcmc.se,
+                   hessian=control$hessian,
+                   method=control$method,
+                   metric=control$metric,
+                   compress=control$compress, verbose=verbose)
 
   endrun <- burnin+interval*(ve$samplesize-1)
   attr(ve$sample, "mcpar") <- c(burnin+1, endrun, interval)
@@ -137,8 +137,7 @@ cat(paste("theta new:",theta,"\n"))
   structure(c(ve, list(newnetwork=nw, 
                  theta.original=theta0,
                  rm.coef=theta,
-                 formula=model$formula, 
                  interval=interval, burnin=burnin, 
-                 network=nw, proposal=MHproposal)),
+                 network=nw)),
              class="ergm")
 }
