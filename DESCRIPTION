@@ -11,5 +11,5 @@ Maintainer: Mark S. Handcock <handcock@stat.washington.edu>
 Depends: network
 Suggests: coda, KernSmooth
 Description: A collection of functions to plot, fit, diagnose, and simulate from random graph models. "statnet" is a synecdoche for the suite of packages based around it. For a list of functions type: help(package='ergm')
-License: GPL version 2 (June, 1991)
-URL: http://csde.washington.edu/statnet
+License: Not for distribution. Copyright. For evaluation purposes only.
+URL: http://statnetproject.org
