@@ -1,4 +1,4 @@
-citHeader("To cite 'statnet' in publications use:")
+citHeader("To cite 'ergm' or 'statnet' in publications use:")
 
 citEntry(entry="Manual",
          title = "statnet: A suite of R packages for the Statistical Modeling of Social Networks",
@@ -8,12 +8,12 @@ citEntry(entry="Manual",
                              as.person("Steven M. Goodreau"),
                              as.person("Martina Morris")), 
          year         = 2003,
-         url          = "http://www.csde.washington.edu/statnet",
+         url          = "http://statnetproject.org",
          
          textVersion = 
          paste("Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau, and Martina Morris (2003) ", 
                "statnet: A suite of R packages for the Statistical Modeling of Social Networks. ",
-               "URL http://www.csde.washington.edu/statnet.",
+               "URL http:/statnetproject.org.",
                sep="")
          )
 
