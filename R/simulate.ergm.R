@@ -46,7 +46,11 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
   set.seed(as.integer(seed))
 
   curstats<-summary.statistics.network(object)
-    
+
+  if (verb) {
+    cat("Starting",nsim,"MCMC iterations of",burnin+interval*MCMCsamplesize,
+        "steps each:\n")
+  }
   for(i in 1:nsim){
     Clist <- ergm.Cprepare(nw, m)
     maxedges <- max(2000, Clist$nedges)
@@ -61,6 +65,9 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
     z <- list(newnwheads=maxedges+1)
     while(z$newnwheads[1] > maxedges){
      maxedges <- 10*maxedges
+     if (verb) {
+       cat(paste("# ", i, " of ", nsim, ": ", sep=""))
+     }
      z <- .C("MCMC_wrapper",
              as.integer(Clist$heads), as.integer(Clist$tails), 
              as.integer(Clist$nedges), as.integer(Clist$n),
@@ -136,6 +143,10 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
 # multiplicity.constrained <- 1  
   if(missing(theta0))
     theta0 <- object$coef
+  if (verb) {
+    cat("Starting",nsim,"MCMC iterations of",burnin+interval*MCMCsamplesize,
+        "steps each:\n")
+  }
   for(i in 1:nsim){
     Clist <- ergm.Cprepare(nw, m)
     maxedges <- max(5000, Clist$nedges)
@@ -151,6 +162,9 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
     z <- list(newnwheads=maxedges+1)
     while(z$newnwheads[1] > maxedges){
      maxedges <- 10*maxedges
+     if (verb) {
+       cat(paste("#", i, " of ", nsim, ": ", sep=""))
+     }
      z <- .C("MCMC_wrapper",
             as.integer(Clist$heads), as.integer(Clist$tails), 
             as.integer(Clist$nedges), as.integer(Clist$n),

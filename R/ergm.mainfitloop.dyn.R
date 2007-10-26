@@ -29,7 +29,8 @@ ergm.mainfitloop.dyn <- function(theta0, nw, model.form, model.diss,
     eta0 <- ergm.eta(theta0, model.form$etamap)
     cat("Iteration ", iteration,": Sampling ", MCMCparams$samplesize,
         " with parameter: \n", sep="")
-    print(theta0)
+#    if (verbose)  # Uncomment this line!  
+      print(theta0)
 #   MCMCparams=list(samplesize=MCMCparams$samplesize, burnin=burnin, interval=interval,parallel=parallel,
 #                   gamma=gamma, dyninterval=dyninterval,
 #                   meanstats=Clist$meanstats, orig.obs=Clist$obs,

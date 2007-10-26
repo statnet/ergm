@@ -151,6 +151,7 @@ void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
   long int interval, int hammingterm, int fVerbose,
   Network *nwp, Model *m, DegreeBound *bd) {
   long int staken, tottaken, ptottaken, originterval;
+  long int dotinterval = MAX(samplesize,20) / 20;
   int i, j, components, diam;
   MHproposal MH;
   
@@ -158,11 +159,10 @@ void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
   components = diam = 0;
   nwp->duration_info.MCMCtimer=0;
   
-  if (fVerbose)
-    Rprintf("Total m->n_stats is %i; total samplesize is %d\n",
-             m->n_stats,samplesize);
-
-
+/*  if (fVerbose) {
+    Rprintf("Simulating %d stats on %ld networks using %s",
+             m->n_stats, burnin + samplesize*interval, MHproposaltype);
+  } */
   MH_init(&MH,
 	  MHproposaltype, MHproposalpackage,
 	  fVerbose,
@@ -191,11 +191,10 @@ void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
 //  Catch massive number of edges caused by degeneracy
    if(nwp->nedges > (50000-1000)){burnin=1;}
    MetropolisHastings(&MH, theta, networkstatistics, burnin, &staken,
-		      hammingterm, fVerbose, nwp, m, bd);
-  
-   if (fVerbose){
-     Rprintf("Returned from Metropolis-Hastings burnin\n");
-   }
+		      hammingterm, fVerbose, nwp, m, bd);  
+/*   if (fVerbose){
+     Rprintf("."); // First output period comes after return from burnin
+   } */
   
   if (samplesize>1){
     staken = 0;
@@ -211,35 +210,36 @@ void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
       networkstatistics += m->n_stats;
       /* This then adds the change statistics to these values */
       
-//    Catch massive number of edges caused by degeneracy
+      /* Catch massive number of edges caused by degeneracy */
       if(nwp->nedges > (50000-1000)){interval=1;}
-//    Rprintf("\n nedges %d interval %d\n", nwp->nedges, interval); 
       MetropolisHastings (&MH, theta, networkstatistics, interval, &staken,
-			  hammingterm, fVerbose, nwp, m, bd);
+                           hammingterm, fVerbose, nwp, m, bd);
       tottaken += staken;
-      if (fVerbose){
+      /*if (fVerbose){
         if( ((3*i) % samplesize)==0 && samplesize > 500){
         Rprintf("Sampled %d from Metropolis-Hastings\n", i);}
       }
-      
       if( ((3*i) % samplesize)==0 && tottaken == ptottaken){
         ptottaken = tottaken; 
         Rprintf("Warning:  Metropolis-Hastings algorithm has accepted only "
         "%d steps out of a possible %d\n",  ptottaken-tottaken, i); 
-      }
+      } */
+/*      if (fVerbose && (i % dotinterval)==0) {
+        Rprintf(".");  // Next period (but no more than 20 total) 
+      } */
     }
     /*********************
     Below is an extremely crude device for letting the user know
     when the chain doesn't accept many of the proposed steps.
     *********************/
     if (fVerbose){
-      Rprintf("Metropolis-Hastings accepted %7.3f%% of %d steps.\n",
-	      tottaken*100.0/(1.0*originterval*samplesize), originterval*samplesize); 
+      Rprintf("%s sampler accepted %6.3f%% of %d proposed steps.\n",
+      MHproposaltype, tottaken*100.0/(1.0*originterval*samplesize), originterval*samplesize); 
     }
   }else{
     if (fVerbose){
-      Rprintf("Metropolis-Hastings accepted %7.3f%% of %d steps.\n",
-	      staken*100.0/(1.0*burnin), burnin); 
+      Rprintf("%s sampler accepted %6.3f%% of %d proposed steps.\n",
+      MHproposaltype, staken*100.0/(1.0*burnin), burnin); 
     }
   }
   MH_free(&MH);
@@ -1012,8 +1012,6 @@ void MH_init(MHproposal *MH,
   }
   sn=strncpy(sn,MHproposalpackage,i);
   sn[i]='\0';
-  if (fVerbose) 
-    Rprintf("MH proposal function is %s from %s package\n",fn,sn);
   
   /* Search for the MH proposal function pointer */
   MH->func=(void (*)(MHproposal*, DegreeBound*, Network*)) R_FindSymbol(fn,sn,NULL);

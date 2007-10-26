@@ -29,7 +29,8 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist, Clist.miss,
     eta0 <- ergm.eta(theta0, model$etamap)
     cat("Iteration ", iteration,": Sampling ", MCMCparams$samplesize,
         " with parameter: \n", sep="")
-    print(theta0)
+#    if (verbose)  # Uncomment this line!
+      print(theta0)
     z <- ergm.getMCMCsample(nw, model, MHproposal, eta0, MCMCparams, verbose)
     statsmatrix=z$statsmatrix
     if(MCMCparams$Clist.miss$nedges > 0){

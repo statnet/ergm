@@ -278,14 +278,14 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
                                                         drop=drop),
                                   verbose=verbose, basis=nw)
   
-  if(verbose){cat("\nCollating simulations\n")}
+  if(verbose){
+    cat("\nCalculating statistics for simulation #")
+  }
 
-  for (i in 1:nsim)
-  { 
+  for (i in 1:nsim) { 
     if(verbose){
-     cat("\nCalculating statistics for simulation",i,"\n")
+     cat(paste("...",i,sep=""))
     }
-
     if ('model' %in% all.gof.vars) {
      sim.model[i,] <- summary(update(formula,SimNetworkSeriesObj$networks[[i]] ~ .))
     }
@@ -337,6 +337,9 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
      gi <- SimNetworkSeriesObj$networks[[i]]
      sim.triadcensus[i,] <- summary(as.formula(paste('gi',triadcensus.formula,sep="")), drop=FALSE)
     }
+  }
+  if(verbose){
+    cat("\n")
   }
 
   # calculate p-values

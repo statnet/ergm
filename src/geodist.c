@@ -75,9 +75,9 @@ void node_geodesics (int *edgelist, int *nnodes, int *nodelist,
     for (j=2*nodelist[u-1]; edgelist[j]==u; j+=2) {
       v=edgelist[j+1];
       if (nodecolor[v-1]==0) { /* WHITE */
-	nodecolor[v-1]=1; /* NONWHITE */
-	dist[v-1] = dist[u-1]+1; /* Node v is one step farther than node u */
-	Q[Qtop++]=v;  /* Push v onto top of queue */
+        nodecolor[v-1]=1; /* NONWHITE */
+        dist[v-1] = dist[u-1]+1; /* Node v is one step farther than node u */
+        Q[Qtop++]=v;  /* Push v onto top of queue */
       }
     }
   }
@@ -98,6 +98,7 @@ void full_geodesic_distribution (int *edgelist, int *nnodes,
 
   for(i=0; i<n; i++)
     geodist[i]=0;
+  /* Rprintf("nnodes = %d, nedges = %d \n", n, *nedges); */
   for(i=1; i<=n; i++) {
     node_geodesics(edgelist, nnodes, nodelist, nedges, nodecolor, dist,
 		   Q, &i);

@@ -217,8 +217,8 @@ network
     nodes in the dyad and in the same direction).}
 
     \item{\code{dyadcov(x, attrname)}}{\emph{Dyadic Covariate:} If the network
-    is directed \code{x} is either a (symmetric) matrix of dyadic covariates, or
-    an undirected network; if the latter, optional argument \code{attrname}
+    is directed, \code{x} is either a (symmetric) matrix of dyadic covariates,
+    or an undirected network; if the latter, optional argument \code{attrname}
     provides the name of the edge attribute to use for edge values. This term
     adds three statistics to the model, representing the (polytomous) effect of
     the given covariate on the four possible dyad states (i.e., null, out-tie,
@@ -229,8 +229,9 @@ network
     latter, optional argument \code{attrname} provides the name of the edge
     attribute to use for edge values. This term adds one statistic to the model,
     representing the effect of the given covariate on the appearance of edges.
-    \code{dyadcov} can be called more than once, to model the effects of
-    multiple covariates. }
+    The \code{edgecov} and \code{dyadcov} terms are equivalent for undirected
+    networks. \code{dyadcov} can be called more than once, to model the effects
+    of multiple covariates. }
 
 %   \item{\code{dyadundircov(x, attrname=NULL)}}{\emph{Edge
 %   Covariate.}  \code{x} is either a matrix of edgewise
@@ -246,11 +247,12 @@ network
     latter, optional argument \code{attrname} provides the name of the edge
     attribute to use for edge values. This term adds one statistic to the model,
     representing the effect of the given covariate on the appearance of edges.
-    \code{edgecov} applies to both directed and undirected networks. For
+    The \code{edgecov} term applies to both directed and undirected networks. For
     undirected networks the covariates are also assumed to be undirected.
-    \code{edgecov} can be called more than once, to model the effects of
+    The \code{edgecov} and \code{dyadcov} terms are equivalent for undirected
+    networks.    \code{edgecov} can be called more than once, to model the effects of
     multiple covariates. }
-
+    
     \item{\code{edges}}{\emph{Edges:} This term adds one network statistic equal
     to the number of edges in the network. For undirected networks, \code{edges}
     is equal to \code{kstar(1)}; for directed networks, \code{edges} is equal to
