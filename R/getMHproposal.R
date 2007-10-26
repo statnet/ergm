@@ -124,4 +124,3 @@ getMHproposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NUL
   }  
   getMHproposal(constraints,arguments=arguments,nw=nw,model=model,weights=weights,class=class)
 }
-

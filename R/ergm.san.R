@@ -34,13 +34,14 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
          "must be given")
   }
 
-  m <- ergm.getmodel(formula, nw, drop=control$drop)
-  Clist <- ergm.Cprepare(nw, m)
+  model <- ergm.getmodel(formula, nw, drop=control$drop)
+  Clist <- ergm.Cprepare(nw, model)
+  Clist.miss <- ergm.design(nw, model, initialfit=TRUE, verbose=verbose)
   
   MCMCsamplesize <- 1
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
-  MHproposal<-getMHproposal(constraints,control$prop.args,nw,model,weights=prop.weights)
+  MHproposal<-getMHproposal(constraints,control$prop.args,nw,model,weights=control$prop.weights)
   if(missing(theta0)) {
     warning("No parameter values given, using MPLE\n\t")
   }
@@ -50,7 +51,8 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
   set.seed(as.integer(seed))
     
   for(i in 1:nsim){
-    Clist <- ergm.Cprepare(nw, m)
+    Clist <- ergm.Cprepare(nw, model)
+#   Clist.miss <- ergm.design(nw, model, initialfit=TRUE, verbose=verbose)
     maxedges <- max(20000, Clist$nedges)
     if(i==1 | !sequential){
       use.burnin <- burnin
@@ -59,9 +61,10 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
     }
 
     if(missing(theta0)) {
-      theta0 <- ergm.mple(Clist, m, verbose=verbose, ...)$coef
+      theta0 <- ergm.mple(Clist=Clist, Clist.miss=Clist.miss, 
+                          m=model, verbose=verbose, ...)$coef
     }
-    stats <- matrix(summary(m$formula)-meanstats,
+    stats <- matrix(summary(model$formula)-meanstats,
                     ncol=Clist$nparam,byrow=T,nrow=MCMCsamplesize)
 #
 #   Check for truncation of the returned edge list
