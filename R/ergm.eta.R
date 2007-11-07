@@ -11,6 +11,7 @@ ergm.eta <- function(theta, etamap) {
       eta[cm$to] <- cm$map(theta[cm$from],length(cm$to),cm$cov)
     }
   }
+  eta[is.infinite(eta)] <- -10000
   eta
 }
 

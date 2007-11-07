@@ -44,7 +44,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
 #
 # Set up the initial estimate
 #
-  guess <- theta0[!model$offset]
+  guess <- theta0[!model$etamap$offsettheta]
   if (verbose) cat("Converting theta0 to eta0\n")
   eta0 <- ergm.eta(theta0, model$etamap) #unsure about this
   model$etamap$theta0 <- theta0
@@ -109,13 +109,13 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     cat("Nelder-Mead Log-likelihood ratio is ", Lout$value,"\n")
   }
   theta <- theta0
-  theta[!model$offset] <- Lout$par
+  theta[!model$etamap$offsettheta] <- Lout$par
   names(theta) <- names(theta0)
   gradient <- llik.grad(theta=Lout$par, xobs=xobs, xsim=xsim,
                         probs=probs, 
                         xsim.miss=xsim.miss, probs.miss=probs.miss,
                         penalty=0.5, eta0=eta0, etamap=model$etamap)
-  gradient[model$offset] <- 0
+  gradient[model$etamap$offsettheta] <- 0
 #
 #  Calculate the auto-covariance of the MCMC suff. stats.
 #  and hence the MCMC s.e.
@@ -131,8 +131,8 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                         penalty=0.5,
                         eta0=eta0, etamap=model$etamap
                     )
-   Lout$hessian[,model$offset] <- 0
-   Lout$hessian[model$offset,] <- 0
+   Lout$hessian[,model$etamap$offsettheta] <- 0
+   Lout$hessian[model$etamap$offsettheta,] <- 0
   }
   if(calc.mcmc.se){
     mcmcse <- ergm.MCMCse(theta, theta0, statsmatrix0,
@@ -143,13 +143,13 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     H <- mcmcse$hessian
     covar <- robust.inverse(-H)
     if(all(!is.na(diag(covar))) && all(diag(covar)<0)){covar <- -covar}
-    mc.se[model$offset] <- NA
+    mc.se[model$etamap$offsettheta] <- NA
   }
   if(inherits(covar,"try-error") | is.na(covar[1])){
     covar <- robust.inverse(-Lout$hessian)
   }
-  covar[,model$offset] <- 0
-  covar[model$offset,] <- 0
+  covar[,model$etamap$offsettheta ] <- NA
+  covar[ model$etamap$offsettheta,] <- NA
   c0  <- llik.fun(theta=Lout$par, xobs=xobs,
                   xsim=xsim, probs=probs,
                   xsim.miss=xsim.miss, probs.miss=probs.miss,

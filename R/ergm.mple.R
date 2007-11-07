@@ -1,4 +1,4 @@
-ergm.mple<-function(Clist, Clist.miss, m, fix=NULL, theta.offset=NULL,
+ergm.mple<-function(Clist, Clist.miss, m, theta.offset=NULL,
                     MPLEonly="glm", family="binomial",
                     largestdegree=TRUE, MPLEsamplesize=50000,
                     save.glm=TRUE,
@@ -55,16 +55,26 @@ ergm.mple<-function(Clist, Clist.miss, m, fix=NULL, theta.offset=NULL,
 #
 # Adjust for the offset
 #
-  if(is.null(fix) || all(!fix) ){
-   fix <- rep(FALSE, length=Clist$nparam)
+  if(any(m$etamap$offsettheta)){
+   if(is.null(theta.offset)){
+    theta.offset <- rep(0, length=Clist$nparam)
+    names(theta.offset) <- m$coef.names
+    theta.offset[m$etamap$offsettheta] <- -1
+    foffset <- xmat %*% theta.offset !=0
+    theta.offset[m$etamap$offsettheta] <- -Inf
+   }else{
+    foffset <- xmat %*% theta.offset
+   }
+   xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE]
+   colnames(xmat) <- m$coef.names[!m$etamap$offsettheta]
+   xmat <- xmat[foffset==0,,drop=FALSE]
+   zy <- zy[foffset==0]
+   wend <- wend[foffset==0]
+   foffset <- foffset[foffset==0]
+  }else{
+   foffset <- rep(0, length=length(zy))
    theta.offset <- rep(0, length=Clist$nparam)
    names(theta.offset) <- m$coef.names
-   foffset <- rep(0, length=nrow(xmat))
-   colnames(xmat) <- m$coef.names
-  }else{
-   foffset <- xmat %*% theta.offset
-   xmat <- xmat[,!fix,drop=FALSE]
-   colnames(xmat) <- m$coef.names[!fix]
   }
   
   if(Clist.miss$nedges>0){
@@ -199,7 +209,7 @@ ergm.mple<-function(Clist, Clist.miss, m, fix=NULL, theta.offset=NULL,
    }
    real.coef <- real.coef[-length(real.coef)]
   }
-  theta[!fix] <- real.coef
+  theta[!m$etamap$offsettheta] <- real.coef
   theta[is.na(theta)] <- 0
 
 #
@@ -217,8 +227,9 @@ ergm.mple<-function(Clist, Clist.miss, m, fix=NULL, theta.offset=NULL,
   }else{
    covar <- diag(rep(0,length(theta)))
   }
-  covar <- as.matrix(covar[!fix,!fix])
-  covar[!is.na(real.coef),!is.na(real.coef)] <- real.cov
+# covar <- as.matrix(covar[!m$etamap$offsettheta,!m$etamap$offsettheta])
+# covar[!is.na(real.coef),!is.na(real.coef)] <- real.cov
+  covar[!is.na(theta)&!m$etamap$offsettheta,!is.na(theta)&!m$etamap$offsettheta] <- real.cov
 #
   iteration <-  mplefit$iter 
   samplesize <- NA

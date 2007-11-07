@@ -19,7 +19,7 @@ summary.ergm <- function (object, ..., correlation=FALSE, covariance=FALSE)
   colnames(asycov) <- rownames(asycov)
   
   asyse <- diag(asycov)
-  asyse[asyse<0] <- NA
+  asyse[asyse<0|is.infinite(object$coef)] <- NA
   asyse <- sqrt(asyse)
   if(any(is.na(asyse)) & !is.null(object$mplefit)){
    if(is.null(object$mplefit$covar)){
@@ -82,12 +82,12 @@ summary.ergm <- function (object, ..., correlation=FALSE, covariance=FALSE)
       p <- 0
     }
     if(!is.null(object$cluster)){
-      df <- length(object$coef) + object$ngroups*(p+2) - 1 # ng-1 + ng *p + ng
+      df <- sum(!is.infinite(object$coef)) + object$ngroups*(p+2) - 1 # ng-1 + ng *p + ng
     }else{
-      df <- length(object$coef) + (nodes - (p + 1)/2) * p
+      df <- sum(!is.infinite(object$coef)) + (nodes - (p + 1)/2) * p
     }
     rdf <- dyads - df
-#   rdf <- dyads - length(object$coef)
+#   rdf <- dyads -  sum(!is.infinite(object$coef))
     tval <- object$coef / asyse
     pval <- 2 * pt(q=abs(tval), df=rdf, lower.tail=FALSE)
     values <- format(object$coef,digits=digits)

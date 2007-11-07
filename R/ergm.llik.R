@@ -4,7 +4,7 @@
 llik.fun <- function(theta, xobs, xsim, probs, xsim.miss, probs.miss,
                      penalty=0.5, trustregion=20, eta0, etamap){
   theta.offset <- etamap$theta0
-  theta.offset[!etamap$offset] <- theta
+  theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
   x <- eta-eta0
 # The next line is right!
@@ -37,7 +37,7 @@ llik.fun <- function(theta, xobs, xsim, probs, xsim.miss, probs.miss,
 llik.grad <- function(theta, xobs, xsim, probs,  xsim.miss, probs.miss,
                       penalty=0.5, trustregion=20, eta0, etamap){
   theta.offset <- etamap$theta0
-  theta.offset[!etamap$offset] <- theta
+  theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
   x <- eta-eta0
   xsim[,etamap$offsetmap] <- 0
@@ -64,7 +64,7 @@ llik.grad <- function(theta, xobs, xsim, probs,  xsim.miss, probs.miss,
 llik.hessian <- function(theta, xobs, xsim, probs, xsim.miss, probs.miss,
                          penalty=0.5, eta0, etamap){
 # theta.offset <- etamap$theta0
-# theta.offset[!etamap$offset] <- theta
+# theta.offset[!etamap$offsettheta] <- theta
   namesx <- names(theta)
   xsim[,etamap$offsetmap] <- 0
 #
@@ -184,7 +184,7 @@ llik.mcmcvar3 <- function(theta, xobs, xsim, probs,  xsim.miss, probs.miss,
 llik.fun.miss <- function(theta, xobs, xsim, probs, xsim.miss, probs.miss,
                      penalty=0.5, trustregion=20, eta0, etamap){
   theta.offset <- etamap$theta0
-  theta.offset[!etamap$offset] <- theta
+  theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
   x <- eta-eta0
 # The next line is right!
@@ -221,7 +221,7 @@ llik.fun.miss <- function(theta, xobs, xsim, probs, xsim.miss, probs.miss,
 llik.grad.miss <- function(theta, xobs, xsim, probs,  xsim.miss, probs.miss,
                       penalty=0.5, trustregion=20, eta0, etamap){
   theta.offset <- etamap$theta0
-  theta.offset[!etamap$offset] <- theta
+  theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
   x <- eta-eta0
   xsim[,etamap$offsetmap] <- 0
@@ -253,7 +253,7 @@ llik.grad.miss <- function(theta, xobs, xsim, probs,  xsim.miss, probs.miss,
 llik.hessian.miss <- function(theta, xobs, xsim, probs, xsim.miss, probs.miss,
                          penalty=0.5, eta0, etamap){
 # theta.offset <- etamap$theta0
-# theta.offset[!etamap$offset] <- theta
+# theta.offset[!etamap$offsettheta] <- theta
   namesx <- names(theta)
   xsim[,etamap$offsetmap] <- 0
 #

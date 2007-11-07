@@ -29,7 +29,8 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
          " the 'basis' argument must be given")
   }
 
-  m <- ergm.getmodel(formula, nw, drop=control$drop)
+# m <- ergm.getmodel(formula, nw, drop=control$drop)
+  m <- ergm.getmodel(formula, nw, drop=FALSE)
   MHproposal <- getMHproposal(constraints,control$prop.args, nw, m, weights=control$prop.weights,class="c")
 
   Clist <- ergm.Cprepare(nw, m)
@@ -41,6 +42,8 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
     theta0 <- rep(0,Clist$nparam)
     warning("No parameter values given, using Bernouli network\n\t")
   }
+  theta0.bdd <- theta0
+  theta0.bdd[is.infinite(theta0.bdd)] <- -10000
   
   if(is.null(seed)){seed <- sample(10000000, size=1)}
   set.seed(as.integer(seed))
@@ -79,7 +82,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
              as.character(MHproposal$package),
 #  Add:  as.double(length(MHproposal$args)), as.double(MHproposal$args), 
              as.double(Clist$inputs),
-             as.double(theta0),
+             as.double(theta0.bdd),
              as.integer(MCMCsamplesize),
              s = as.double(rep(curstats,MCMCsamplesize)),
              as.integer(use.burnin), as.integer(interval), 
@@ -134,7 +137,8 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
   
   nw <- object$network  
   
-  m <- ergm.getmodel(object$formula, nw, drop=control$drop)
+# m <- ergm.getmodel(object$formula, nw, drop=control$drop)
+  m <- ergm.getmodel(object$formula, nw, drop=FALSE)
   ## By default, all arguments but the first are NULL, and all the information is borrowed from the fit.
   MHproposal <- getMHproposal(object,constraints=constraints,arguments=control$prop.args, nw=nw, model=m, weights=control$prop.weights)
   MCMCsamplesize <- 1
@@ -143,6 +147,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
 # multiplicity.constrained <- 1  
   if(missing(theta0))
     theta0 <- object$coef
+  eta0 <- ergm.eta(theta0, m$etamap)
   if (verb) {
     cat("Starting",nsim,"MCMC iterations of",burnin+interval*MCMCsamplesize,
         "steps each:\n")
@@ -176,7 +181,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
             as.character(MHproposal$package),
 #  Add:  as.double(length(MHproposal$args)), as.double(MHproposal$args), 
             as.double(Clist$inputs),
-            as.double(theta0),
+            as.double(eta0),
             as.integer(MCMCsamplesize),
             s = double(MCMCsamplesize * Clist$nparam),
             as.integer(use.burnin), as.integer(interval), 

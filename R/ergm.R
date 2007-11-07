@@ -21,7 +21,14 @@ ergm <- function(formula, theta0="MPLE",
 
   proposalclass <- if(is.null(dissolve)) "c" else "f"
     
-  model.initial <- ergm.getmodel(formula, nw, drop=control$drop, initialfit=TRUE)
+  if(control$drop){
+   model.initial <- ergm.getmodel(formula, nw, drop=FALSE, initialfit=TRUE)
+   model.initial.drop <- ergm.getmodel(formula, nw, drop=TRUE, initialfit=TRUE)
+   namesmatch <- match(model.initial$coef.names, model.initial.drop$coef.names)
+   model.initial$etamap$offsettheta[is.na(namesmatch)] <- TRUE
+  }else{
+   model.initial <- ergm.getmodel(formula, nw, drop=control$drop, initialfit=TRUE)
+  }
   MHproposal <- getMHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial,class=proposalclass)
   MHproposal.miss <- getMHproposal("randomtoggleNonObserved", control$prop.args, nw, model.initial)
 
@@ -56,13 +63,24 @@ ergm <- function(formula, theta0="MPLE",
     initialfit$prop.weights <- control$prop.weights
     return(initialfit)
   } 
-  model <- ergm.getmodel(formula, nw, drop=control$drop, expanded=TRUE)
-  theta0 <- ergm.revisetheta0(model, theta0)
-  # revise theta0 to reflect additional parameters
+  if(control$drop){
+   model <- ergm.getmodel(formula, nw, drop=FALSE, expanded=TRUE)
+   # revise theta0 to reflect additional parameters
+   theta0 <- ergm.revisetheta0(model, theta0)
+   model.drop <- ergm.getmodel(formula, nw, drop=TRUE, expanded=TRUE)
+   namesdrop <- model$coef.names[is.na(match(model$coef.names, model.drop$coef.names))]
+   names(model$etamap$offsettheta) <- names(theta0)
+   model$etamap$offsettheta[names(model$etamap$offsettheta) %in% namesdrop] <- TRUE
+  }else{
+   model <- ergm.getmodel(formula, nw, drop=control$drop, expanded=TRUE)
+   # revise theta0 to reflect additional parameters
+   theta0 <- ergm.revisetheta0(model, theta0)
+  }
 
   Clist <- ergm.Cprepare(nw, model)
   Clist.miss <- ergm.design(nw, model, verbose=verbose)
-  Clist$obs <- summary(model$formula, drop=control$drop)
+  Clist$obs <- summary(model$formula, drop=FALSE)
+# Clist$obs <- summary(model$formula, drop=control$drop)
   Clist$meanstats <- Clist$obs
   if(!is.null(meanstats)){
    if (is.null(names(meanstats))){

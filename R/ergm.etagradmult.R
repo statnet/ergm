@@ -16,6 +16,7 @@ ergm.etagradmult <- function(theta, v, etamap) {
       ans[cm$from,] <- cm$gradient(theta[cm$from], length(cm$to), cm$cov)%*%v[cm$to,]  #cov added by CTB on 1/28/06
     }
   }
+  ans[is.infinite(ans)] <- 10000*sign(ans)[is.infinite(ans)]
   ans
 }
 
