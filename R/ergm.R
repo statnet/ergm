@@ -75,6 +75,7 @@ ergm <- function(formula, theta0="MPLE",
    model <- ergm.getmodel(formula, nw, drop=control$drop, expanded=TRUE)
    # revise theta0 to reflect additional parameters
    theta0 <- ergm.revisetheta0(model, theta0)
+   names(model$etamap$offsettheta) <- names(theta0)
   }
 
   Clist <- ergm.Cprepare(nw, model)
@@ -169,7 +170,7 @@ ergm <- function(formula, theta0="MPLE",
    }
   }
 
-  v$offset <- model$offset
+  v$offset <- model$etamap$offsettheta
   if (!control$returnMCMCstats)
     v$sample <- NULL
   options(warn=current.warn)

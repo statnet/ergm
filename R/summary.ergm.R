@@ -21,7 +21,7 @@ summary.ergm <- function (object, ..., correlation=FALSE, covariance=FALSE)
   asyse <- diag(asycov)
   asyse[asyse<0|is.infinite(object$coef)] <- NA
   asyse <- sqrt(asyse)
-  if(any(is.na(asyse)) & !is.null(object$mplefit)){
+  if(any(is.na(asyse)&!object$offset) & !is.null(object$mplefit)){
    if(is.null(object$mplefit$covar)){
     mpleasycov <- try(robust.inverse(-object$mplefit$hessian), silent=TRUE)
     if(inherits(mpleasycov,"try-error")){
