@@ -7,14 +7,14 @@
                           burnin=1000, interval=1000,
                           basis=NULL,
                           sequential=TRUE,
-                          proposaltype="randomtoggle",
-                          algorithm.control=list(),
+                          constraints = NULL,
+                          control = simulate.ergm.control()
                           verbose=FALSE)
 \method{simulate}{ergm}(object, nsim=1, seed=NULL, \dots, theta0,
                        burnin=1000, interval=1000, 
                        sequential=TRUE,
-                       proposaltype="randomtoggle",
-                       algorithm.control=list(),
+                       constraints = NULL,
+                       control = simulate.ergm.control()
                        verbose=FALSE)
 }
 \description{
@@ -55,39 +55,9 @@
     neither is specified an error is given as it is used
     to specify the nature of the network requested (e.g., size and
     directionality).}
- \item{proposaltype}{The type of Metropolis-Hastings proposal used.
-   The default is \code{"randomtoggle"} to propose a dyad at random
-   to toggle (i.e., change the value of the dyad to its complement).
-   The options are 
-    \describe{
-     \item{\code{TNT}}{("tie/no-tie") proposes a dyad with
-        at least 50\% chance of toggling an existing   
-        edge, as opposed to a simple random toggle that rarely does so
-        in sparse networks.}
-     \item{\code{ConstantEdges}}{proposes a pair of dyads with one having a tie
-        and the other not having one.}
-     \item{\code{CondDegree}}{proposes a pair of dyads in such a way
-        to retain the individual degrees of the nodes.}
-     \item{\code{CondDegreeDist}}{proposes either a hexad or tetrad of dyads
-        to toggle in a way to retain the degree distribution of the 
-        network (but not necessarily the individual degrees).}
-     \item{\code{CondOutDegreeDist}}{proposes either a hexad or tetrad of dyads
-        to toggle in a way to retain the out degree distribution of the 
-        network (but not necessarily the individual degrees).}
-     \item{\code{CondInDegreeDist}}{proposes either a hexad or tetrad of dyads
-        to toggle in a way to retain the in degree distribution of the 
-        network (but not necessarily the individual degrees).}
-     \item{\code{RandomNode}}{to propose all dyads associated with a randomly
-        sampled node.}
-     \item{\code{TwoRandomToggles}}{proposes a pair of randomly chosen
-        dyads.}
-    }
-  The option \code{"CondDegree"} is forced when
-  \code{condAllDegExact=TRUE}.
-  This is essential for some models or \code{boundDeg} constraints.
- }
- \item{algorithm.control}{A list of control parameters. See
-  \bold{Algorithm Tuning}.}
+ \item{control}{A list of control parameters for algorithm
+   tuning. Constructed using \code{\link{simulate.ergm.control}}. 
+   See \bold{Algorithm Tuning}.}
 %\item{multiplicity}{The number of replications of proposal types
 %  grouped together to form a single proposal.}
 %\item{mixed}{Should a mixed parameterization be used for the
@@ -118,6 +88,8 @@
    For random draws the results should be similar (stochastically), but the
    \code{sequential=TRUE} option is useful for dynamic draws.
    }
+ \item{proposal}{The structure containing information about the
+  Metropolis-Hasting proposal used.}
  \item{verbose}{If this is \code{TRUE}, we will print out more information as 
   we run the program, including (currently) some goodness of fit 
   statistics.}
@@ -164,9 +136,6 @@ The \code{algorithm.control} argument is a list that can supply any of the
       If statistics occur on the extreme of their range they
       correspond to infinite parameter estimates.
       Default is \code{FALSE}.}
-    \item{\code{proposalpackage}}{character; The name of the package the 
-       \code{proposaltype} is from.
-        Defaults to \code{"statnet"}.}
     \item{\code{summarizestats}}{logical; Print out a summary of 
        the sufficient statistics of the generated network. This is useful 
        as a diagnostic. Default is \code{FALSE}.}
