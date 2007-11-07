@@ -61,7 +61,7 @@ Main Loop:
 void node_geodesics (int *edgelist, int *nnodes, int *nodelist,
                      int *nedges, int *nodecolor, int *dist, 
                      int *Q, int *source) {
-  int i, j, u, v, n=*nnodes, Qbottom=0, Qtop=0;
+  int i, j, u, v, n=*nnodes, twoe = 2*(*nedges), Qbottom=0, Qtop=0;
 
   for (i=0; i<n; i++) {
     nodecolor[i]=0; /* WHITE */
@@ -72,7 +72,7 @@ void node_geodesics (int *edgelist, int *nnodes, int *nodelist,
   Q[Qtop++]=*source;  /* Push source onto top of queue */
   while (Qbottom<Qtop) {  /* Repeat until queue is empty */
     u=Q[Qbottom++]; /* Pop vertex off bottom of queue (it must be NONWHITE) */
-    for (j=2*nodelist[u-1]; edgelist[j]==u; j+=2) {
+    for (j=2*nodelist[u-1]; edgelist[j]==u && j<twoe; j+=2) {
       v=edgelist[j+1];
       if (nodecolor[v-1]==0) { /* WHITE */
         nodecolor[v-1]=1; /* NONWHITE */
@@ -132,7 +132,7 @@ void geodesic_matrix (int *edgelist, int *nnodes,
 void pair_geodesic (int *edgelist, int *nnodes, int *nodelist,
                      int *nedges, int *nodecolor, int *dist, 
                      int *Q, int *source, int *destination) {
-  int i, j, u, v, n=*nnodes, Qbottom=0, Qtop=0, done=0;
+  int i, j, u, v, n=*nnodes, twoe = 2*(*nedges), Qbottom=0, Qtop=0, done=0;
 
   for (i=0; i<n; i++) {
     nodecolor[i]=0; /* WHITE */
@@ -143,14 +143,15 @@ void pair_geodesic (int *edgelist, int *nnodes, int *nodelist,
   Q[Qtop++]=*source;  /* Push source onto top of queue */
   while (Qbottom<Qtop && !done) {  /* Repeat until queue is empty */
     u=Q[Qbottom++]; /* Pop vertex off bottom of queue (it must be NONWHITE) */
-    for (j=2*nodelist[u-1]; edgelist[j]==u && !done; j+=2) {
+    for (j=2*nodelist[u-1]; edgelist[j]==u && !done && j<twoe; j+=2) {
       v=edgelist[j+1];
       if (nodecolor[v-1]==0) { /* WHITE */
-	nodecolor[v-1]=1; /* NONWHITE */
-	dist[v-1] = dist[u-1]+1; /* Node v is one step farther than node u */
-	Q[Qtop++]=v;  /* Push v onto top of queue */
-	if (v==*destination) done=1;
+        nodecolor[v-1]=1; /* NONWHITE */
+        dist[v-1] = dist[u-1]+1; /* Node v is one step farther than node u */
+        Q[Qtop++]=v;  /* Push v onto top of queue */
+        if (v==*destination) done=1;
       }
     }
   }
 }
+

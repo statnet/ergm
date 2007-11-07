@@ -29,7 +29,7 @@
 "                    Martina Morris, University of Washington\n",sep=""))
     cat('Type help(package="ergm") to get started.\n')
     cat(paste('If utilization of "ergm" results in outcomes which will be published,\n',
-    'please specify the version of "ergm" you used and cite it,\n',
+    'please specify the version of "ergm" you used and cite it;\n',
     'see citation("ergm")\n'))
 #   cat('To cite, see citation("ergm")\n')
     require(network, quietly=TRUE)
