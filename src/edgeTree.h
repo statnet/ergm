@@ -171,7 +171,7 @@ void WtInOrderTreeWalk(WtTreeNode *edges, Edge x);
 void NetworkEdgeList(Network *nwp);
 void WtNetworkEdgeList(WtNetwork *nwp);
 
-R_INLINE void TouchEdge(Vertex head, Vertex tail, Network *nwp);
+void TouchEdge(Vertex head, Vertex tail, Network *nwp);
 Edge EdgeTree2EdgeList(Vertex *heads, Vertex *tails, Network *nwp, Edge nmax);
 
 /* Below are some functions that only exist for weighted (valued) networks */

@@ -405,7 +405,7 @@ int ElapsedTime (Vertex head, Vertex tail, Network *nwp)
  Set an edge's time-stamp to the current MCMC time.
  *****************/
 
-R_INLINE void TouchEdge(Vertex head, Vertex tail, Network *nwp){
+void TouchEdge(Vertex head, Vertex tail, Network *nwp){
   unsigned int k;
   if(nwp->duration_info.lasttoggle){ // Skip timestamps if no duration info.
     if (nwp->directed_flag) 
