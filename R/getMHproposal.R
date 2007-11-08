@@ -44,6 +44,10 @@ colnames(MHproposals)<-c("Class","Constraints","Weights","MHP")
 
 getMHproposal<-function(object, ...) UseMethod("getMHproposal")
 
+# This could be useful for trapping bugs before they become mysterious
+# segfaults.
+getMHproposal.NULL<-function(object, ...) stop("NULL passed to getMHproposal. This Should Not Be Happening (tm). Please file a bug report.")
+
 getMHproposal.MHproposal<-function(object,...) return(object)
 
 getMHproposal.character <- function(object, arguments, nw, model){
