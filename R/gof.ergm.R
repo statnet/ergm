@@ -11,10 +11,8 @@ gof.ergm <- function (object, ..., nsim=100,
                       GOF=~degree+espartners+distance, 
                       burnin=10000, interval=1000,
                       constraints=NULL,
-                      prop.weights=NULL,
-                      prop.args=NULL,
-                      seed=NULL, drop=TRUE,
-                      summarizestats=FALSE,
+                      control=gof.ergm.control(),
+                      seed=NULL,
                       theta0=NULL,
                       verbose=FALSE) {
 
@@ -34,22 +32,19 @@ gof.ergm <- function (object, ..., nsim=100,
 
   if(missing(theta0)){theta0 <- object$coef}
 
-  ## FIXME: This way of doing things is bad. We should be constructing
-  ## MHproposals using MHproposal.ergm, and going from there.
-
-  ## Also, does it even make sense to be able to change constraints
-  ## for GOF? Simulate I can understand, but this...
+  ## If a different constraint was specified, use it; otherwise, copy
+  ## from the ERGM.
+  
   if(is.null(constraints)) constraints<-object$constraints
-  if(is.null(prop.args)) prop.args<-object$prop.args
-  if(is.null(prop.weights)) prop.weights<-object$prop.weights
+  if(is.null(control$prop.args)) control$prop.args<-object$prop.args
+  if(is.null(control$prop.weights)) control$prop.weights<-object$prop.weights
   
   gof.formula(formula=formula, theta0=theta0, nsim=nsim,
               GOF=GOF,
               burnin=burnin, interval=interval,
               constraints=constraints,
-              prop.args=prop.args,
-              seed=seed, drop=drop,
-              summarizestats=summarizestats,
+              control=control,
+              seed=seed,
               verbose=verbose, ...)
 }
 
@@ -57,10 +52,8 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
                         burnin=10000, interval=1000,
                         GOF=~degree+espartners+distance,
                         constraints=~.,
-                        prop.weights="default",
-                        prop.args=NULL,
-                        seed=NULL, drop=TRUE,
-                        summarizestats=FALSE,
+                        control=gof.formula.control(),
+                        seed=NULL,
                         verbose=FALSE) {
 # Unused code
   theta0missing <- NULL
@@ -110,10 +103,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
 #   termnames <- ergm.gettermnames(trms)
 # }
 
-  m <- ergm.getmodel(formula, nw, drop=drop)
-  MHproposal <-
-    if(is.ergm(nw)) getMHproposal(nw, constraints=constraints, arguments=prop.args, model=m, weights=prop.weights)
-    else getMHproposal(constraints, prop.args, nw, m, weights=prop.weights)
+  m <- ergm.getmodel(formula, nw, drop=control$drop)
   Clist <- ergm.Cprepare(nw, m)
 
   if(is.null(theta0)){
@@ -132,9 +122,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
                   GOF=GOF, nsim=nsim,
                   burnin=burnin, interval=interval,
                   constraints=constraints,
-                  prop.args=prop.args,
-                  prop.weights=prop.weights,
-                  drop=drop,
+                  control=control,
                   unconditional=FALSE,
                   seed=seed, verbose=verbose)
   }
@@ -159,7 +147,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
 
   if ('model' %in% all.gof.vars) {
    if(is.null(nw$gal$design) | !unconditional){
-    obs.model <- summary(formula, drop=drop)
+    obs.model <- summary(formula, drop=control$drop)
    }else{
     obs.model <- SimCond$obs.model
    }
@@ -271,11 +259,11 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
   SimNetworkSeriesObj <- simulate(formula, nsim=nsim, seed=seed,
                                   theta0=theta0,
                                   burnin=burnin, interval=interval,
-                                  constraints=MHproposal,
-                                  simulate.ergm.control(prop.args=prop.args,
-                                                        prop.weights=prop.weights,
-                                                        summarizestats=summarizestats,
-                                                        drop=drop),
+                                  constraints=constraints,
+                                  simulate.formula.control(prop.args=control$prop.args,
+                                                           prop.weights=control$prop.weights,
+                                                           summarizestats=control$summarizestats,
+                                                           drop=control$drop),
                                   verbose=verbose, basis=nw)
   
   if(verbose){
@@ -490,7 +478,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
                         )
   class(returnlist) <- "gofobject"
   returnlist
-  }
+}
 
 print.gofobject <- function(x, ...){
 
@@ -1173,7 +1161,7 @@ plot.gofobject <- function(x, ...,
 
    mtext(main,side=3,outer=TRUE,cex=1.5,padj=2)
    invisible()
-  }
+}
 
 #ergm.get.terms.formula <- function(formula){
 # trms <- all.names(formula)
