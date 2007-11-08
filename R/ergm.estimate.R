@@ -83,7 +83,8 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                     xsim.miss=xsim.miss, probs.miss=probs.miss,
                     penalty=0.5, trustregion=trustregion,
                     eta0=eta0, etamap=model$etamap))
-  cat("Log-likelihood ratio is", Lout$value,"\n")
+# cat("Log-likelihood ratio is", Lout$value,"\n")
+  cat("the log-likelihood improved by", Lout$value,"\n")
   if(inherits(Lout,"try-error") || Lout$value > 199 ||
      Lout$value < -790) {
     cat("MLE could not be found. Trying Nelder-Mead...\n")

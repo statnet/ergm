@@ -167,6 +167,24 @@ summary.ergm <- function (object, ..., correlation=FALSE, covariance=FALSE)
   cat(paste("AIC:", format(object$aic, digits = 5), "  ", 
             "BIC:", format(object$bic, digits = 5), "\n", sep=" "))
   
+  if(any(object$drop)){
+    cat("\n Warning:\n")
+    for(i in names(object$coef[object$offset])){
+    cat(paste("  The term",i,
+     "is degenerate and has an infinite coefficient estimate.\n",
+      sep=" "))
+    }
+  }
+
+  if(any(object$offset&!object$drop)){
+    cat("\n Warning:\n")
+    for(i in names(object$coef[object$offset])){
+    cat(paste("  The term",i,
+     "has been offset and was not estimated from the data.\n",
+      sep=" "))
+    }
+  }
+
   if (covariance == TRUE)
     {
       cat("Asymptotic covariance matrix:\n")

@@ -25,9 +25,12 @@ ergm <- function(formula, theta0="MPLE",
    model.initial <- ergm.getmodel(formula, nw, drop=FALSE, initialfit=TRUE)
    model.initial.drop <- ergm.getmodel(formula, nw, drop=TRUE, initialfit=TRUE)
    namesmatch <- match(model.initial$coef.names, model.initial.drop$coef.names)
+   droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
+   droppedterms[is.na(namesmatch)] <- TRUE
    model.initial$etamap$offsettheta[is.na(namesmatch)] <- TRUE
   }else{
    model.initial <- ergm.getmodel(formula, nw, drop=control$drop, initialfit=TRUE)
+   droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
   }
   MHproposal <- getMHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial,class=proposalclass)
   MHproposal.miss <- getMHproposal("randomtoggleNonObserved", control$prop.args, nw, model.initial)
@@ -55,6 +58,8 @@ ergm <- function(formula, theta0="MPLE",
     names(theta0) <- model.initial$coef.names
     theta0[is.na(theta0)] <- 0
   } else { # Just return initial (non-MLE) fit and exit.
+    initialfit$offset <- model.initial$etamap$offsettheta
+    initialfit$drop <- droppedterms
     initialfit$network <- nw
     initialfit$newnetwork <- nw
     initialfit$formula <- formula
@@ -64,18 +69,24 @@ ergm <- function(formula, theta0="MPLE",
     return(initialfit)
   } 
   if(control$drop){
-   model <- ergm.getmodel(formula, nw, drop=FALSE, expanded=TRUE)
+   model <- ergm.getmodel(formula, nw, drop=FALSE, expanded=TRUE,
+             silent="MPLE" %in% theta0copy)
    # revise theta0 to reflect additional parameters
    theta0 <- ergm.revisetheta0(model, theta0)
-   model.drop <- ergm.getmodel(formula, nw, drop=TRUE, expanded=TRUE)
+   model.drop <- ergm.getmodel(formula, nw, drop=TRUE, expanded=TRUE,
+             silent="MPLE" %in% theta0copy)
    namesdrop <- model$coef.names[is.na(match(model$coef.names, model.drop$coef.names))]
    names(model$etamap$offsettheta) <- names(theta0)
+   droppedterms <- rep(FALSE, length=length(model$etamap$offsettheta))
+   droppedterms[is.na(namesmatch)] <- TRUE
+   theta0[droppedterms] <- -Inf
    model$etamap$offsettheta[names(model$etamap$offsettheta) %in% namesdrop] <- TRUE
   }else{
    model <- ergm.getmodel(formula, nw, drop=control$drop, expanded=TRUE)
    # revise theta0 to reflect additional parameters
    theta0 <- ergm.revisetheta0(model, theta0)
    names(model$etamap$offsettheta) <- names(theta0)
+   droppedterms <- rep(FALSE, length=length(model$etamap$offsettheta))
   }
 
   Clist <- ergm.Cprepare(nw, model)
@@ -171,6 +182,7 @@ ergm <- function(formula, theta0="MPLE",
   }
 
   v$offset <- model$etamap$offsettheta
+  v$drop <- droppedterms
   if (!control$returnMCMCstats)
     v$sample <- NULL
   options(warn=current.warn)

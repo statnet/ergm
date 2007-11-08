@@ -1,4 +1,4 @@
-ergm.getmodel <- function (formula, nw, ...) 
+ergm.getmodel <- function (formula, nw, silent=FALSE, ...) 
 {
   # Parse the formula, create an object of class "model.ergm" that contains
   # all relevant information about the model.  As part of this job, call the
@@ -61,7 +61,13 @@ ergm.getmodel <- function (formula, nw, ...)
         stop("The term ", substring(as.character(v[[i]][[1]]),first=10),
              " does not exist. Are you sure you have the right name?\n")
       }
-      model <- eval(v[[i]], .GlobalEnv)  #Call the InitErgm function
+      if(silent){
+       silentwarnings <- capture.output(
+        model <- eval(v[[i]], .GlobalEnv)  #Call the InitErgm function
+       )
+      }else{
+       model <- eval(v[[i]], .GlobalEnv)  #Call the InitErgm function
+      }
     } else { # New InitERGMterms style
       v[[i]][[2]] <- nw
       names(v[[i]])[2] <-  ""

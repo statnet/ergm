@@ -27,10 +27,13 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist, Clist.miss,
     thetaprior <- theta0
     theta0 <- v$coef
     eta0 <- ergm.eta(theta0, model$etamap)
-    cat("Iteration ", iteration,": Sampling ", MCMCparams$samplesize,
-        " with parameter: \n", sep="")
-#    if (verbose)  # Uncomment this line!
+    if(verbose){
+     cat("Iteration ", iteration,": Sampling ", MCMCparams$samplesize,
+         " with parameter: \n", sep="")
       print(theta0)
+    }else{
+     cat("Iteration ",iteration," of at most ", MCMCparams$maxit,": ",sep="")
+    }
     z <- ergm.getMCMCsample(nw, model, MHproposal, eta0, MCMCparams, verbose)
     statsmatrix=z$statsmatrix
     if(MCMCparams$Clist.miss$nedges > 0){
