@@ -95,5 +95,4 @@ void MH_free(MHproposal *MH);
 
 void ChangeStats(unsigned int ntoggles, Vertex *togglehead, Vertex *toggletail, Network *nwp, Model *m);
 
-
 #endif
