@@ -93,7 +93,7 @@ void MH_init(MHproposal *MH,
 
 void MH_free(MHproposal *MH);
 
-R_INLINE void ChangeStats(unsigned int ntoggles, Vertex *togglehead, Vertex *toggletail, Network *nwp, Model *m);
+void ChangeStats(unsigned int ntoggles, Vertex *togglehead, Vertex *toggletail, Network *nwp, Model *m);
 
 
 #endif

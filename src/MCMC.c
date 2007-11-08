@@ -1046,7 +1046,7 @@ void MH_free(MHproposal *MH){
   A helper's helper function to compute change statistics.
   The vector of changes is written to m->workspace.
 */
-R_INLINE void ChangeStats(unsigned int ntoggles, Vertex *togglehead, Vertex *toggletail,
+void ChangeStats(unsigned int ntoggles, Vertex *togglehead, Vertex *toggletail,
 				 Network *nwp, Model *m){
   ModelTerm *mtp = m->termarray;
   double *dstats = m->workspace;
