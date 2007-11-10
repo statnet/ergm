@@ -84,8 +84,16 @@ ergm.estimate.only<-function(theta0, model,
                     xsim.miss=xsim.miss, probs.miss=probs.miss,
                     penalty=0.5, trustregion=trustregion,
                     eta0=eta0, etamap=model$etamap))
-# cat("Log-likelihood ratio is", Lout$value,"\n")
-  cat("the log-likelihood improved by", Lout$value,"\n")
+  if(verbose){cat("Log-likelihood ratio is", Lout$value,"\n")}
+  if(Lout$value < trustregion-0.001){
+   current.scipen <- options()$scipen
+   options(scipen=3)
+   cat("the log-likelihood improved by",
+       format.pval(Lout$value,digits=4,eps=1e-4),"\n")
+   options(scipen=current.scipen)
+  }else{
+   cat("the log-likelihood did not improve.\n")
+  }
   if(inherits(Lout,"try-error") || Lout$value > 199 ||
      Lout$value < -790) {
     cat("MLE could not be found. Trying Nelder-Mead...\n")

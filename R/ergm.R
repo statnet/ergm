@@ -69,12 +69,11 @@ ergm <- function(formula, theta0="MPLE",
     return(initialfit)
   } 
   if(control$drop){
-   model <- ergm.getmodel(formula, nw, drop=FALSE, expanded=TRUE,
-             silent="MPLE" %in% theta0copy)
+   model <- ergm.getmodel(formula, nw, drop=FALSE, expanded=TRUE, silent=TRUE)
    # revise theta0 to reflect additional parameters
    theta0 <- ergm.revisetheta0(model, theta0)
-   model.drop <- ergm.getmodel(formula, nw, drop=TRUE, expanded=TRUE,
-             silent="MPLE" %in% theta0copy)
+   model.drop <- ergm.getmodel(formula, nw, drop=TRUE, expanded=TRUE, silent=TRUE)
+#            silent="MPLE" %in% theta0copy)
    namesdrop <- model$coef.names[is.na(match(model$coef.names, model.drop$coef.names))]
    names(model$etamap$offsettheta) <- names(theta0)
    droppedterms <- rep(FALSE, length=length(model$etamap$offsettheta))
@@ -161,20 +160,20 @@ ergm <- function(formula, theta0="MPLE",
   v$prop.args.diss <- control$prop.args.diss
   v$prop.weights.diss <- control$prop.weights.diss
   
-  if(!is.null(v$mplefit)){
+  if(!is.null(v$mplefit$glm)){
    if(v$loglikelihood>control$trustregion-0.0001){
     v$degeneracy <- control$trustregion
    }else{
-     ## Workaround.
-     #fff <- (-2*v$mplefit$glm$y+1)*model.matrix(v$mplefit$glm)
-     #v$degeneracy.type <- apply(fff,1, ergm.degeneracy,theta0, model, v$sample)
-     #v$degeneracy <- max(v$degeneracy.type)
-     v$degeneracy<-NA
-
+    # Workaround.
+    fff <- (-2*v$mplefit$glm$y+1)*model.matrix(v$mplefit$glm)
+    v$degeneracy.type <- apply(fff,1, ergm.degeneracy,theta0, model, v$sample)
+    v$degeneracy <- max(v$degeneracy.type)
+#   v$degeneracy<-NA
+#   v$degeneracy <- control$trustregion
    }
   }else{
    if(MPLEonly){
-    v$degeneracy.type <- abs(model.matrix(fit$glm) %*% fit$coef)
+    v$degeneracy.type <- abs(model.matrix(mplefit$glm) %*% mplefit$coef)
     v$degeneracy <- max(v$degeneracy.type)
    }else{
     v$degeneracy <- control$trustregion

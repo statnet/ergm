@@ -8,7 +8,7 @@
         H <- as.matrix(H)
      Hsvd <- try(svd(H), silent=TRUE)
      if(inherits(Hsvd,"try-error")){
-        warning("ergm can not compute the standard errrors. Is the model correctly specified?")
+        warning("ergm did not compute all the standard errrors.")
         return(H)
      }
      if (is.complex(H)) 

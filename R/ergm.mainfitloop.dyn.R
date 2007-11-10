@@ -71,7 +71,9 @@ ergm.mainfitloop.dyn <- function(theta0, nw, model.form, model.diss,
       cat(paste("The MCMC sampler is producing degenerate samples.\n",
                 "Try starting the algorithm at an alternative model\n",
                 "(That is, changing the 'theta0' argument).\n",
-                "I am trying something simple...\n"))
+                "I am trying something simple...\n",
+                "The current theta0 is:\n"))
+                print(theta0)
 #     shrink <- ergm(nw ~ edges)$coef
 #     theta0 <- 0.4*theta0
 #     theta0["edges"] <- theta0["edges"] + 0.6*shrink

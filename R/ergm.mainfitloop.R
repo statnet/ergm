@@ -64,7 +64,9 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist, Clist.miss,
       cat(paste("The MCMC sampler is producing degenerate samples.\n",
                 "Try starting the algorithm at an alternative model\n",
                 "(That is, changing the 'theta0' argument).\n",
-                "I am trying something simple...\n"))
+                "I am trying something simple...\n",
+                "The current theta0 is:\n"))
+                print(theta0)
 #     shrink <- ergm(nw ~ edges)$coef
 #     theta0 <- 0.4*theta0
 #     theta0["edges"] <- theta0["edges"] + 0.6*shrink
@@ -75,7 +77,9 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist, Clist.miss,
      }else{
       warning(paste("\n","The MCMC sampler is producing degenerate samples.\n",
                  "Try starting the algorithm at an alternative model\n",
-                 "(That is, changing the 'theta0' argument).\n"))
+                 "(That is, changing the 'theta0' argument).\n",
+                 "The current theta0 is:\n"))
+              print(theta0)
 #     v <- list(coef=theta0)
       v$coef <- theta0
       return(v)

@@ -1,6 +1,6 @@
 Package: ergm
-Version: 1.1
-Date: September 21, 2007
+Version: 1.1-306-2007.11.09-09.44.28
+Date: 2007-11-09
 Title:  Statistical Modeling of Network and Graph Data
 Author: Mark S. Handcock <handcock@stat.washington.edu>, with invaluable help
         from David R. Hunter <dhunter@stat.psu.edu>,

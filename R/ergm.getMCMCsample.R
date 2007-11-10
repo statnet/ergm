@@ -43,7 +43,9 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, MCMCparams,
     if(z$newnwheads[1] >= 50000-1){
       stop(paste("\n The network has more than 50000 edges, and the model is likely to be degenerate.\n",
                   "Try starting the algorithm at an alternative model\n",
-                  "(That is, changing the model terms or the 'theta0' argument).\n"))
+                  "(That is, changing the model terms or the 'theta0' argument).\n",
+                  "The current theta0 is:\n"))
+                  print(theta0)
     }
     statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
                           ncol=Clist$nparam,
