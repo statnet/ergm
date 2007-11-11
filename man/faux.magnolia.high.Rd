@@ -12,7 +12,7 @@ it is based are large and located in the southern US.
 \usage{data(faux.magnolia.high)}
 
 \format{
-\code{faux.magnolia.high} is a \code{\link{network}} object with 1461 vertices
+\code{faux.magnolia.high} is a \code{\link[network]{network}} object with 1461 vertices
 (students, in this case) and 974 undirected edges (mutual friendships). To
 obtain additional summary information about it, type
 \code{summary(faux.magnolia.high)}.
@@ -61,7 +61,7 @@ faux.magnolia.high <- simulate (magnolia.fit, nsim=1, burnin=100000000,
 
 }
 
-\seealso{\code{\link{network}}, \code{\link{plot.network}}, \code{\link{ergm}}}
+\seealso{\code{\link[network]{network}}, \code{\link[network]{plot.network}}, \code{\link{ergm}}}
 
 \references{
 

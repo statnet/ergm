@@ -13,7 +13,7 @@ Hispanic and Native American.
 
 \usage{data(faux.mesa.high)}
 \format{
-\code{faux.mesa.high} is a \code{\link{network}} object with 205 vertices (students, in this case)
+\code{faux.mesa.high} is a \code{\link[network]{network}} object with 205 vertices (students, in this case)
 and 203 undirected edges (mutual friendships).  To obtain additional 
 summary information about it,
 type \code{summary(faux.mesa.high)}.
@@ -56,7 +56,7 @@ The processes for handling missing data and defining the race attribute
 are described in Hunter, Goodreau \& Handcock (2007).
 }
 
-\seealso{\code{\link{network}}, \code{\link{plot.network}}, \code{\link{ergm}}}
+\seealso{\code{\link[network]{network}}, \code{\link[network]{plot.network}}, \code{\link{ergm}}}
 
 
 \references{
