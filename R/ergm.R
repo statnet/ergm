@@ -47,7 +47,8 @@ ergm <- function(formula, theta0="MPLE",
   Clist.initial$meanstats=meanstats
   theta0copy <- theta0
   initialfit <- ergm.initialfit(theta0copy, MLestimate, Clist.initial,
-                                Clist.miss.initial, model.initial, verbose=verbose, ...)
+                                Clist.miss.initial, model.initial,
+                                MPLEtype=control$MPLEtype, verbose=verbose, ...)
   if (MLestimate && 
       (   !ergm.independencemodel(model.initial)
        || !is.null(meanstats)

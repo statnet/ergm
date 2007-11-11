@@ -8,7 +8,8 @@
 ergm.control(prop.weights = "default", prop.args = NULL, prop.weights.diss = "default", 
              prop.args.diss = NULL, nr.maxit = 100, calc.mcmc.se = TRUE, 
              hessian = FALSE, compress = FALSE, maxNumDyadTypes = 10000, 
-             maxedges = 20000, maxchanges = 1e+06, MPLEsamplesize = 50000, trace = 0, 
+             maxedges = 20000, maxchanges = 1e+06, MPLEsamplesize = 50000, 
+             MPLEtype="glm", trace = 0, 
              boundDeg = NULL, steplength = 0.5, drop = TRUE, force.mcmc = FALSE, 
              mcmc.precision = 0.05, metric = "Likelihood", method = "BFGS", 
              trustregion = 20, style = "Newton-Raphson", phase1_n = NULL, 
@@ -52,6 +53,13 @@ ergm.control(prop.weights = "default", prop.args = NULL, prop.weights.diss = "de
   \item{\code{MPLEsamplesize}}{count; the sample size to use for endogenous
     sampling in the pseudolikelihood computation.
     Default is \code{50000}.}
+  \item{\code{MPLEtype}}{one of "glm" or "penalized"; method to use
+    for psuedolikelihood. "glm" is the usual
+    formal logistic regression. "penalized" uses the bias-reduced method
+    of Firth (1983) as originally implemented by 
+    Meinhard Ploner, Daniela Dunkler, Harry
+    Southworth, and Georg Heinze in the "logistf" package. 
+    Default is "glm".}
   \item{\code{trace}}{non-negative integer; If positive,
     tracing information on the
     progress of the optimization is produced. Higher values may

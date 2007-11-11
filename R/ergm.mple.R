@@ -1,5 +1,5 @@
 ergm.mple<-function(Clist, Clist.miss, m, theta.offset=NULL,
-                    MPLEonly="glm", family="binomial",
+                    MPLEtype="glm", family="binomial",
                     largestdegree=TRUE, MPLEsamplesize=50000,
                     save.glm=TRUE,
                     maxNumDyadTypes=100000,
@@ -125,9 +125,9 @@ ergm.mple<-function(Clist, Clist.miss, m, theta.offset=NULL,
    foffset <- foffset[rsample]
   }
 
-  if(MPLEonly=="penalized"){
+  if(MPLEtype=="penalized"){
    mplefit <- ergm.pen.glm(
-                  zy ~  xmat -1 + offset(foffset),
+                  zy ~ xmat -1 + offset(foffset),
                   data=data.frame(xmat), weights=wend)
 #  mple$deviance <- 2 * (mplefit$loglik-mplefit$loglik[1])[-1]
    mplefit$deviance <- -2*mplefit$loglik
@@ -136,7 +136,7 @@ ergm.mple<-function(Clist, Clist.miss, m, theta.offset=NULL,
   }else{
    options(warn=-1)
 #  options(warn=2)
-   if(MPLEonly=="logitreg"){
+   if(MPLEtype=="logitreg"){
     mplefit <- model.matrix(terms(zy ~ .-1,data=data.frame(xmat)),
                            data=data.frame(xmat))
     mplefit <- ergm.logitreg(x=mplefit, y=zy, offset=foffset, wt=wend)
@@ -241,14 +241,14 @@ ergm.mple<-function(Clist, Clist.miss, m, theta.offset=NULL,
   iteration <-  mplefit$iter 
   samplesize <- NA
 
-# mplefit <- call(MPLEonly, zy ~ 1, family=binomial)
+# mplefit <- call(MPLEtype, zy ~ 1, family=binomial)
 #
-  if(MPLEonly=="penalized"){
+  if(MPLEtype=="penalized"){
    mplefit.null <- ergm.pen.glm(zy ~ 1, weights=wend)
   }else{
    options(warn=-1)
 #  options(warn=2)
-   if(MPLEonly=="logitreg"){
+   if(MPLEtype=="logitreg"){
     mplefit.null <- ergm.logitreg(x=matrix(1,ncol=1,nrow=length(zy)),
                                   y=zy, offset=foffset, wt=wend)
    }else{
