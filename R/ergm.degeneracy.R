@@ -8,11 +8,12 @@ ergm.degeneracy <- function(object,
   if(!is.null(object$mplefit$glm) & is.matrix(object$sample)){
    # So a MCMC fit
    if(object$loglikelihood>control$trustregion-0.0001){
-    object$degeneracy <- control$trustregion
+    object$degeneracy <- Inf
    }else{
     changeobs <- (-2*object$mplefit$glm$y+1)*model.matrix(object$mplefit$glm)
     object$degeneracy.type <- apply(changeobs, 1, ergm.compute.degeneracy,
-         object$MCMCtheta, object$etamap, object$sample)
+      theta0=object$MCMCtheta, etamap=object$etamap, statsmatrix=object$sample,
+      trustregion=control$trustregion)
     wgts <- object$mplefit$glm$prior.weights
     names(wgts) <- "num.dyads"
     object$degeneracy.type <- t(rbind(object$degeneracy.type,wgts))
@@ -27,11 +28,9 @@ ergm.degeneracy <- function(object,
     wgts <- object$glm$prior.weights
     object$degeneracy.type <- cbind(object$degeneracy.type,wgts)
     colnames(object$degeneracy.type) <- c("delta.log.lik","num.dyads")
-#   dr <- residuals(object$glm,type="deviance")^2 / object$glm$prior.weights
-#   object$degeneracy.type <- rep(dr/2, fit$glm$prior.weights)
     object$degeneracy <- max(object$degeneracy.type[,1],na.rm=TRUE)
    }else{
-    object$degeneracy <- control$trustregion
+    object$degeneracy <- Inf
     object$degeneracy.type <- NULL
    }
   }
