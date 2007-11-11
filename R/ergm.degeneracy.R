@@ -1,4 +1,44 @@
-ergm.degeneracy<-function(xobs, theta0, model, statsmatrix,
+ergm.degeneracy <- function(object, 
+                          control=ergm.control(),
+                          verbose=FALSE) {
+  
+  if(!is.ergm(object)){
+    stop("A ergm object argument must be given.")
+  }
+  if(!is.null(object$mplefit$glm) & is.matrix(object$sample)){
+   # So a MCMC fit
+   if(object$loglikelihood>control$trustregion-0.0001){
+    object$degeneracy <- control$trustregion
+   }else{
+    changeobs <- (-2*object$mplefit$glm$y+1)*model.matrix(object$mplefit$glm)
+    object$degeneracy.type <- apply(changeobs, 1, ergm.compute.degeneracy,
+         object$MCMCtheta, object$etamap, object$sample)
+    wgts <- object$mplefit$glm$prior.weights
+    names(wgts) <- "num.dyads"
+    object$degeneracy.type <- t(rbind(object$degeneracy.type,wgts))
+    object$degeneracy <- max(object$degeneracy.type[,1],na.rm=TRUE)
+   }
+  }else{
+   # So a non-MCMC fit
+   if(!is.null(object$glm)){
+   # So the MPLE was fit
+    # This is the change in log-likelihood for logistic regression
+    object$degeneracy.type <- abs(model.matrix(object$glm) %*% object$glm$coef)
+    wgts <- object$glm$prior.weights
+    object$degeneracy.type <- cbind(object$degeneracy.type,wgts)
+    colnames(object$degeneracy.type) <- c("delta.log.lik","num.dyads")
+#   dr <- residuals(object$glm,type="deviance")^2 / object$glm$prior.weights
+#   object$degeneracy.type <- rep(dr/2, fit$glm$prior.weights)
+    object$degeneracy <- max(object$degeneracy.type[,1],na.rm=TRUE)
+   }else{
+    object$degeneracy <- control$trustregion
+    object$degeneracy.type <- NULL
+   }
+  }
+  object
+}
+
+ergm.compute.degeneracy<-function(xobs, theta0, etamap, statsmatrix,
                         epsilon=1e-10, nr.maxit=100,
                         verbose=FALSE, trace=6*verbose,
                         hessian=FALSE,
@@ -19,8 +59,8 @@ ergm.degeneracy<-function(xobs, theta0, model, statsmatrix,
 #
   guess <- theta0
   if (verbose) cat("Converting theta0 to eta0\n")
-  eta0 <- ergm.eta(theta0, model$etamap) #unsure about this
-  model$etamap$theta0 <- theta0
+  eta0 <- ergm.eta(theta0, etamap) #unsure about this
+  etamap$theta0 <- theta0
 #
 # Log-Likelihood and gradient functions
 #
@@ -35,7 +75,7 @@ ergm.degeneracy<-function(xobs, theta0, model, statsmatrix,
                     xsim=xsim, probs=probs,
                     xsim.miss=xsim.miss, probs.miss=probs.miss,
                     penalty=0.5, trustregion=trustregion,
-                    eta0=eta0, etamap=model$etamap))
+                    eta0=eta0, etamap=etamap))
   if(verbose){cat("Log-likelihood ratio is", Lout$value,"\n")}
   if(inherits(Lout,"try-error") || Lout$value > 199 ||
      Lout$value < -790) {
@@ -49,10 +89,15 @@ ergm.degeneracy<-function(xobs, theta0, model, statsmatrix,
 # c0  <- llik.fun(theta=Lout$par, xobs=xobs,
 #                 xsim=xsim, probs=probs,
 #                 xsim.miss=xsim.miss, probs.miss=probs.miss,
-#                 penalty=0.5, eta0=eta0, etamap=model$etamap)
+#                 penalty=0.5, eta0=eta0, etamap=etamap)
   loglikelihood <- Lout$value
+  names(loglikelihood) <- "loglikelihood"
 
+# loglikelihood
+#
+# Returns the change in the log-likelihood ratio if the dyad is toggled
+# and the change in the coefficient
 # list(coef=theta, 
 #      loglikelihood=loglikelihood)
-  loglikelihood
+  c(loglikelihood, theta)
 }

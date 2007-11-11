@@ -159,29 +159,10 @@ ergm <- function(formula, theta0="MPLE",
   v$prop.weights <- control$prop.weights
   v$prop.args.diss <- control$prop.args.diss
   v$prop.weights.diss <- control$prop.weights.diss
-  
-  if(!is.null(v$mplefit$glm)){
-   if(v$loglikelihood>control$trustregion-0.0001){
-    v$degeneracy <- control$trustregion
-   }else{
-    # Workaround.
-    fff <- (-2*v$mplefit$glm$y+1)*model.matrix(v$mplefit$glm)
-    v$degeneracy.type <- apply(fff,1, ergm.degeneracy,theta0, model, v$sample)
-    v$degeneracy <- max(v$degeneracy.type)
-#   v$degeneracy<-NA
-#   v$degeneracy <- control$trustregion
-   }
-  }else{
-   if(MPLEonly){
-    v$degeneracy.type <- abs(model.matrix(mplefit$glm) %*% mplefit$coef)
-    v$degeneracy <- max(v$degeneracy.type)
-   }else{
-    v$degeneracy <- control$trustregion
-   }
-  }
 
   v$offset <- model$etamap$offsettheta
   v$drop <- droppedterms
+  v$etamap <- model$etamap
   if (!control$returnMCMCstats)
     v$sample <- NULL
   options(warn=current.warn)
