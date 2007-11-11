@@ -24,8 +24,21 @@ ergm.degeneracy <- function(object,
    if(!is.null(object$glm)){
    # So the MPLE was fit
     # This is the change in log-likelihood for logistic regression
-    object$degeneracy.type <- abs(model.matrix(object$glm) %*% object$glm$coef)
+#   object$degeneracy.type <- abs(model.matrix(object$glm) %*% object$glm$coef)
+    changebeta <- t(influence(fit$glm,do.coef=TRUE)$coefficients/object$glm$prior.weights)
+#   newbeta <- sweep(changebeta,1,object$glm$coef,"+")
+#   changexbeta <- diag(model.matrix(object$glm) %*% newbeta)
+    changexchangebeta <- as.matrix(model.matrix(object$glm)) %*% changebeta
+    changelik <- as.vector(object$glm$y %*% changexchangebeta)
+    changesum <- changelik * (object$glm$prior.weights-1)
+#   changey <- as.vector((2*object$glm$y-1) %*% changexchangebeta)
+    changey <- (2*object$glm$y-1) * diag(changexchangebeta)
+#   changeobs <- changexbeta %*% (object$glm$prior.weights*object$glm$y)
+#   object$degeneracy.type <- abs(sum(changeobs) - changexbeta*(2*object$glm$y-1))
+#   object$degeneracy.type <- changesum-changey
+    object$degeneracy.type <- changey
     wgts <- object$glm$prior.weights
+   angelik <- as.vector(object$glm$y %*% changexchangebeta)
     object$degeneracy.type <- cbind(object$degeneracy.type,wgts)
     colnames(object$degeneracy.type) <- c("delta.log.lik","num.dyads")
     object$degeneracy <- max(object$degeneracy.type[,1],na.rm=TRUE)
@@ -90,7 +103,7 @@ ergm.compute.degeneracy<-function(xobs, theta0, etamap, statsmatrix,
 #                 xsim.miss=xsim.miss, probs.miss=probs.miss,
 #                 penalty=0.5, eta0=eta0, etamap=etamap)
   loglikelihood <- Lout$value
-  names(loglikelihood) <- "loglikelihood"
+  names(loglikelihood) <- "delta.log.lik"
 
 # loglikelihood
 #
