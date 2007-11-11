@@ -29,16 +29,17 @@ ergm.degeneracy <- function(object,
 #   newbeta <- sweep(changebeta,1,object$glm$coef,"+")
 #   changexbeta <- diag(model.matrix(object$glm) %*% newbeta)
     changexchangebeta <- as.matrix(model.matrix(object$glm)) %*% changebeta
-    changelik <- as.vector(object$glm$y %*% changexchangebeta)
-    changesum <- changelik * (object$glm$prior.weights-1)
-#   changey <- as.vector((2*object$glm$y-1) %*% changexchangebeta)
-    changey <- (2*object$glm$y-1) * diag(changexchangebeta)
+    pi <- predict(fit$glm,type="response")
+    changexpi <- pi %*% as.matrix(model.matrix(object$glm)) 
+    changenorm <- as.vector(pi %*% changexchangebeta)*object$glm$prior.weights
+    changeobs <- as.vector(object$glm$y %*% changexchangebeta)
+    changesum <- changeobs * object$glm$prior.weights
+    changey <- as.vector((2*object$glm$y-1) * diag(changexchangebeta))
 #   changeobs <- changexbeta %*% (object$glm$prior.weights*object$glm$y)
 #   object$degeneracy.type <- abs(sum(changeobs) - changexbeta*(2*object$glm$y-1))
-#   object$degeneracy.type <- changesum-changey
-    object$degeneracy.type <- changey
+    object$degeneracy.type <- abs(changesum-changey-changenorm)
+#   object$degeneracy.type <- changey
     wgts <- object$glm$prior.weights
-   angelik <- as.vector(object$glm$y %*% changexchangebeta)
     object$degeneracy.type <- cbind(object$degeneracy.type,wgts)
     colnames(object$degeneracy.type) <- c("delta.log.lik","num.dyads")
     object$degeneracy <- max(object$degeneracy.type[,1],na.rm=TRUE)
