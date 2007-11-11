@@ -88,7 +88,7 @@ ergm.compute.degeneracy<-function(xobs, theta0, etamap, statsmatrix,
                     xsim.miss=xsim.miss, probs.miss=probs.miss,
                     penalty=0.5, trustregion=trustregion,
                     eta0=eta0, etamap=etamap))
-  if(verbose){cat("Log-likelihood ratio is", Lout$value,"\n")}
+  if(verbose){cat("the change in the log-likelihood is", Lout$value,"\n")}
   if(inherits(Lout,"try-error") || Lout$value > 199 ||
      Lout$value < -790) {
     cat("MLE could not be found. Degenerate!\n")
