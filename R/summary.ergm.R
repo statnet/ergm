@@ -1,4 +1,4 @@
-summary.ergm <- function (object, ..., correlation=FALSE, covariance=FALSE)
+summary.ergm <- function (object, ..., check.degeneracy=TRUE, correlation=FALSE, covariance=FALSE)
 {
   if(any(is.na(object$coef)) & !is.null(object$mplefit)){
      object$coef[is.na(object$coef)] <-
@@ -122,9 +122,11 @@ summary.ergm <- function (object, ..., correlation=FALSE, covariance=FALSE)
   cat("\n")
   if(any(is.na(object$mc.se)) & !all(object$theta1$independent)){
    if(is.na(object$samplesize) & !all(object$theta1$independent)){
-    warning("\n  The standard errors are based on naive pseudolikelihood and are suspect.\n")
+    cat("\n Warning:\n")
+    cat("  The standard errors are based on naive pseudolikelihood and are suspect.\n")
    }else{
-    warning("\n  The standard errors are suspect due to possible poor convergence.\n")
+    cat("\n Warning:\n")
+    cat("  The standard errors are suspect due to possible poor convergence.\n")
    }
   }
 # if(is.na(object$samplesize)){
@@ -185,6 +187,17 @@ summary.ergm <- function (object, ..., correlation=FALSE, covariance=FALSE)
     }
   }
 
+  if(check.degeneracy){
+   degout <- ergm.degeneracy(object)
+  }
+# if(any(object$drop)){
+#   cat("\n Warning:\n")
+#   for(i in names(object$coef[object$offset])){
+#   cat(paste("  The term",i,
+#    "is degenerate and has an infinite coefficient estimate.\n",
+#     sep=" "))
+#   }
+# }
   if (covariance == TRUE)
     {
       cat("Asymptotic covariance matrix:\n")

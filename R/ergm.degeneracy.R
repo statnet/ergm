@@ -1,5 +1,6 @@
 ergm.degeneracy <- function(object, 
                           control=ergm.control(),
+                          fast=TRUE,
                           verbose=FALSE) {
   
   if(!is.ergm(object)){
@@ -19,14 +20,20 @@ ergm.degeneracy <- function(object,
     object$degeneracy <- Inf
    }else{
     changeobs <- (-2*object$mplefit$glm$y+1)*model.matrix(object$mplefit$glm)
-    if(length(changeobs) > 500){
+    if(fast && nrow(changeobs) > 100){
+     index <- sample((1:nrow(changeobs)), size=100, replace=FALSE)
+     changeobs <- changeobs[index,]
+     wgts <- object$mplefit$glm$prior.weights[index]
+    }else{
+     wgts <- object$mplefit$glm$prior.weights
+     if(nrow(changeobs) > 1000){
       cat("This computation may take a while ...\n")
+     }
     }
+    names(wgts) <- "num.dyads"
     object$degeneracy.type <- apply(changeobs, 1, ergm.compute.degeneracy,
       theta0=object$MCMCtheta, etamap=object$etamap, statsmatrix=object$sample,
       trustregion=control$trustregion)
-    wgts <- object$mplefit$glm$prior.weights
-    names(wgts) <- "num.dyads"
     object$degeneracy.type <- t(rbind(object$degeneracy.type,wgts))
     object$degeneracy <- max(object$degeneracy.type[,1],na.rm=TRUE)
    }
@@ -63,12 +70,12 @@ ergm.degeneracy <- function(object,
    object$degeneracy <- Inf
   }
   if(is.infinite(object$degeneracy)){
-   cat("The model is very unstable. This is indicative of a degenerate model.\n")
+   cat("\n Warning: The diagnostics indicate that the model is very unstable.\n   They suggest that the model is degenerate,\n   and that the numerical summaries are suspect.\n")
   }else{
-    cat("The instability of the model is:\n")
-    print(object$degeneracy)
+    cat("The instability of the model is: ",
+        format(object$degeneracy, digits=2),"\n")
     if(object$degeneracy > 1){
-      cat("Instabilities greater than 1 diagnose the model to be degenerate.\n")
+      cat("Instabilities greater than 1 suggest that model is degenerate.\n")
     }
   }
   if(verbose){
