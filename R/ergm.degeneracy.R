@@ -50,11 +50,11 @@ ergm.degeneracy <- function(object,
    # So the MPLE was fit
     # This is the change in log-likelihood for logistic regression
 #   object$degeneracy.type <- abs(model.matrix(object$glm) %*% object$glm$coef)
-    changebeta <- t(influence(fit$glm,do.coef=TRUE)$coefficients/object$glm$prior.weights)
+    changebeta <- t(influence(object$glm,do.coef=TRUE)$coefficients/object$glm$prior.weights)
 #   newbeta <- sweep(changebeta,1,object$glm$coef,"+")
 #   changexbeta <- diag(model.matrix(object$glm) %*% newbeta)
     changexchangebeta <- as.matrix(model.matrix(object$glm)) %*% changebeta
-    pi <- predict(fit$glm,type="response")
+    pi <- predict(object$glm,type="response")
     changexpi <- pi %*% as.matrix(model.matrix(object$glm)) 
     changenorm <- as.vector(pi %*% changexchangebeta)*object$glm$prior.weights
     changeobs <- as.vector(object$glm$y %*% changexchangebeta)

@@ -15,7 +15,6 @@ print.ergm <- function (x, digits = max(3, getOption("digits") - 3), ...)
    }else{
     cat("Newton-Raphson iterations: ", x$iterations[1], "\n")
     if(!all(x$theta1$independent)){
-     cat("Newton-Raphson iterations: ", x$iterations[1], "\n")
      cat("\nMPLE Coefficients:\n")
      print.default(format(x$coef, digits = digits), print.gap = 2, 
          quote = FALSE)

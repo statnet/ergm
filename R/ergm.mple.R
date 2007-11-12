@@ -1,6 +1,7 @@
 ergm.mple<-function(Clist, Clist.miss, m, theta.offset=NULL,
                     MPLEtype="glm", family="binomial",
-                    largestdegree=TRUE, MPLEsamplesize=50000,
+#                    largestdegree=TRUE,
+                    MPLEsamplesize=50000,
                     save.glm=TRUE,
                     maxNumDyadTypes=100000,
                     theta1=NULL, verbose=FALSE, ...)
@@ -91,18 +92,18 @@ ergm.mple<-function(Clist, Clist.miss, m, theta.offset=NULL,
 #   the model by the user.
 #  cat("number of dyads is", Clist$ndyads, "num parameters", Clist$nparam,"\n")
   
-#
-#  Warning: This used to force the largest degree to be a foil
-#
-  if(!is.na(largestdegree)){
-   largestdegree <- grep("degree[1-9]",m$coef.names)
-   largestdegree <- max(c(0,largestdegree))
-   if(largestdegree==0){largestdegree <- NA}
-   if(!is.na(largestdegree)){
-#   foffset <- foffset - 50*(xmat[,largestdegree]==-1)
-    xmat <- cbind(xmat,(xmat[,largestdegree]==-1))
-   }
-  }
+##
+##  Warning: This used to force the largest degree to be a foil
+##
+#  if(!is.na(largestdegree)){
+#   largestdegree <- grep("degree[1-9]",m$coef.names)
+#   largestdegree <- max(c(0,largestdegree))
+#   if(largestdegree==0){largestdegree <- NA}
+#   if(!is.na(largestdegree)){
+##   foffset <- foffset - 50*(xmat[,largestdegree]==-1)
+#    xmat <- cbind(xmat,(xmat[,largestdegree]==-1))
+#   }
+#  }
 
 #
 # Sample if necessary
@@ -155,11 +156,11 @@ ergm.mple<-function(Clist, Clist.miss, m, theta.offset=NULL,
       mplefit.summary <- summary(mplefit)
     }
    }
-   if(!is.na(largestdegree)){
-    nxmat <- colnames(xmat)
-    xmat <- xmat[,-ncol(xmat),drop=FALSE]
-    colnames(xmat) <- nxmat[-ncol(xmat)]
-   }
+#   if(!is.na(largestdegree)){
+#    nxmat <- colnames(xmat)
+#    xmat <- xmat[,-ncol(xmat),drop=FALSE]
+#    colnames(xmat) <- nxmat[-ncol(xmat)]
+#   }
 #
 #  Determine the independence theta and MLE
 #  Note that the term "match" is depreciated.
@@ -212,12 +213,12 @@ ergm.mple<-function(Clist, Clist.miss, m, theta.offset=NULL,
   theta <- theta.offset
   real.coef <- mplefit$coef
   real.cov <- mplefit.summary$cov.unscaled
-  if(!is.na(largestdegree)){
-   if(nrow(real.cov)==length(real.coef)){
-    real.cov <- real.cov[-nrow(real.cov), -nrow(real.cov)]
-   }
-   real.coef <- real.coef[-length(real.coef)]
-  }
+#  if(!is.na(largestdegree)){
+#   if(nrow(real.cov)==length(real.coef)){
+#    real.cov <- real.cov[-nrow(real.cov), -nrow(real.cov)]
+#   }
+#   real.coef <- real.coef[-length(real.coef)]
+#  }
   theta[!m$etamap$offsettheta] <- real.coef
   theta[is.na(theta)] <- 0
 
