@@ -1,6 +1,7 @@
 ergm.degeneracy <- function(object, 
                           control=ergm.control(),
                           fast=TRUE,
+                          test.only=FALSE,
                           verbose=FALSE) {
   
   if(!is.ergm(object)){
@@ -16,7 +17,7 @@ ergm.degeneracy <- function(object,
     }
    }
    # So a MCMC fit
-   if(object$loglikelihood>control$trustregion-0.0001){
+   if(object$loglikelihood>control$trustregion-0.1){
     object$degeneracy <- Inf
    }else{
     changeobs <- (-2*object$mplefit$glm$y+1)*model.matrix(object$mplefit$glm)
@@ -31,11 +32,17 @@ ergm.degeneracy <- function(object,
      }
     }
     names(wgts) <- "num.dyads"
-    object$degeneracy.type <- apply(changeobs, 1, ergm.compute.degeneracy,
+    object$degeneracy.type <- try(
+      apply(changeobs, 1, ergm.compute.degeneracy,
       theta0=object$MCMCtheta, etamap=object$etamap, statsmatrix=object$sample,
-      trustregion=control$trustregion)
-    object$degeneracy.type <- t(rbind(object$degeneracy.type,wgts))
-    object$degeneracy <- max(object$degeneracy.type[,1],na.rm=TRUE)
+      trustregion=control$trustregion),silent=TRUE)
+    if(inherits(object$degeneracy.type,"try-error")){
+     object$degeneracy <- Inf
+     object$degeneracy.type <- NULL
+    }else{
+     object$degeneracy.type <- t(rbind(object$degeneracy.type,wgts))
+     object$degeneracy <- max(object$degeneracy.type[,1],na.rm=TRUE)
+    }
    }
   }else{
    # So a non-MCMC fit
@@ -66,14 +73,16 @@ ergm.degeneracy <- function(object,
     object$degeneracy.type <- NULL
    }
   }
-  if(object$degeneracy>control$trustregion-0.0001){
+  if(object$degeneracy>control$trustregion-0.1){
    object$degeneracy <- Inf
   }
   if(is.infinite(object$degeneracy)){
    cat("\n Warning: The diagnostics indicate that the model is very unstable.\n   They suggest that the model is degenerate,\n   and that the numerical summaries are suspect.\n")
   }else{
-    cat("The instability of the model is: ",
+    if(!test.only || object$degeneracy > 1){
+     cat("The instability of the model is: ",
         format(object$degeneracy, digits=2),"\n")
+    }
     if(object$degeneracy > 1){
       cat("Instabilities greater than 1 suggest that model is degenerate.\n")
     }
@@ -121,14 +130,15 @@ ergm.compute.degeneracy<-function(xobs, theta0, etamap, statsmatrix,
                     xsim=xsim, probs=probs,
                     xsim.miss=xsim.miss, probs.miss=probs.miss,
                     penalty=0.5, trustregion=trustregion,
-                    eta0=eta0, etamap=etamap))
+                    eta0=eta0, etamap=etamap),silent=TRUE)
   if(verbose){cat("the change in the log-likelihood is", Lout$value,"\n")}
   if(inherits(Lout,"try-error") || Lout$value > 199 ||
-     Lout$value < -790) {
-    cat("MLE could not be found. Degenerate!\n")
-    cat("Nelder-Mead Log-likelihood ratio is ", Lout$value,"\n")
-#   return(list(coef=theta0, 
-#      loglikelihood=Lout$value))
+    Lout$value < -790) {
+    if(verbose){
+      cat("MLE could not be found. Degenerate!\n")
+      cat("Nelder-Mead Log-likelihood ratio is ", Lout$value,"\n")
+    }
+    return(c(Inf, guess))
   }
   theta <- Lout$par
   names(theta) <- names(theta0)

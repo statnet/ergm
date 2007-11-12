@@ -53,7 +53,8 @@ summary.ergm <- function (object, ..., check.degeneracy=TRUE, correlation=FALSE,
 #   MSH changed to make clearer
 #   original <- format(object$MCMCtheta, digits = digits)
     original <- format(object$theta.original, digits = digits)
-    if(is.na(object$samplesize) & !all(object$theta1$independent)){
+    if(is.na(object$samplesize) &&
+       !is.null(object$theta1$independent) && !all(object$theta1$independent)){
       cat ("\nPseudolikelihood Results:\n")
     }else{
       cat ("MCMC sample of size", object$samplesize, "\n")
@@ -187,8 +188,9 @@ summary.ergm <- function (object, ..., check.degeneracy=TRUE, correlation=FALSE,
     }
   }
 
-  if(check.degeneracy){
-   degout <- ergm.degeneracy(object)
+  if(check.degeneracy & 
+    (is.null(object$theta1$independent) || !all(object$theta1$independent))){
+   degout <- ergm.degeneracy(object, test.only=TRUE)
   }
 # if(any(object$drop)){
 #   cat("\n Warning:\n")

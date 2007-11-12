@@ -41,6 +41,7 @@ ergm.mple<-function(Clist, Clist.miss, m, theta.offset=NULL,
   zy <- z$y[uvals]
   wend <- z$weightsvector[uvals]
   xmat <- matrix(z$x, ncol=Clist$nparam, byrow=TRUE)[uvals,,drop=FALSE]
+  colnames(xmat) <- m$coef.names
 ##
 ## Adjust for meanstats
 ##
