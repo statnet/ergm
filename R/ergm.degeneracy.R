@@ -5,12 +5,23 @@ ergm.degeneracy <- function(object,
   if(!is.ergm(object)){
     stop("A ergm object argument must be given.")
   }
-  if(!is.null(object$mplefit$glm) & is.matrix(object$sample)){
+  if(is.matrix(object$sample)){
+   if(is.null(object$mplefit$glm)){
+    fit <- ergm(object$formula, MPLEonly=TRUE, Mlestimate=FALSE) 
+    if(is.null(fit$mplefit)){
+     object$mplefit$glm <- fit$glm
+    }else{
+     object$mplefit <- fit$mplefit
+    }
+   }
    # So a MCMC fit
    if(object$loglikelihood>control$trustregion-0.0001){
     object$degeneracy <- Inf
    }else{
     changeobs <- (-2*object$mplefit$glm$y+1)*model.matrix(object$mplefit$glm)
+    if(length(changeobs) > 500){
+      cat("This computation may take a while ...\n")
+    }
     object$degeneracy.type <- apply(changeobs, 1, ergm.compute.degeneracy,
       theta0=object$MCMCtheta, etamap=object$etamap, statsmatrix=object$sample,
       trustregion=control$trustregion)
@@ -48,7 +59,22 @@ ergm.degeneracy <- function(object,
     object$degeneracy.type <- NULL
    }
   }
-  object
+  if(object$degeneracy>control$trustregion-0.0001){
+   object$degeneracy <- Inf
+  }
+  if(is.infinite(object$degeneracy)){
+   cat("The model is very unstable. This is indicative of a degenerate model.\n")
+  }else{
+    cat("The instability of the model is:\n")
+    print(object$degeneracy)
+    if(object$degeneracy > 1){
+      cat("Instabilities greater than 1 diagnose the model to be degenerate.\n")
+    }
+  }
+  if(verbose){
+    print(object$degeneracy.type)
+  }
+  return(invisible(object))
 }
 
 ergm.compute.degeneracy<-function(xobs, theta0, etamap, statsmatrix,

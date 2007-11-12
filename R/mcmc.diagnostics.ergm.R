@@ -10,14 +10,19 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
                                   smooth=TRUE,
                                   r=0.0125, digits=6,
                                   maxplot=1000, verbose=TRUE, center=TRUE,
-                                  main="Summary of MCMC samples",  xlab = "Iterations", ylab = "", ...) {
+                                  main="Summary of MCMC samples",  
+                                  xlab = "Iterations", ylab = "", ...) {
 #
+  degout <- ergm.degeneracy(object)
   if(sample=="missing"){
     component <- "sample"
     statsmatrix.miss <- object[["conditionalsample"]]
     if(missing(mcmc.title)){mcmc.title <- "Summary of the Conditional Samples"} 
   }else{
     component <- sample
+  }
+  if(component=="sample"&&is.null(object$sample)){
+    stop("There is no MCMC sample associated with the object.\n")
   }
   statsmatrix <- object[[component]]
   if(!is.matrix(statsmatrix) || length(dim(statsmatrix))==0){
@@ -93,18 +98,26 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
      warning("For all MCMC diagnostics you need the 'coda' package.")
      return(invisible())
     }
-    cat("\nr=0.0125 and 0.9875:\n")
-    raft9875 <- ergm.raftery.diag(statsmatrix, r=0.9875, ...)
-    raft     <- ergm.raftery.diag(statsmatrix, r=0.0125, ...)
-    aaa <- raft9875$resmatrix > raft$resmatrix
-    aaa[is.na(aaa)] <- FALSE
-    raft$resmatrix[aaa] <- raft9875$resmatrix[aaa]
-    simvalues <- attr(statsmatrix, "mcpar")
-    if(is.null(simvalues)){
-      simvalues <- c(2, nrow(statsmatrix), 1)
-    }
-    if(verbose){
+    if(!is.infinite(degout$degeneracy)){
+     cat("\nr=0.0125 and 0.9875:\n")
+     raft9875 <- ergm.raftery.diag(statsmatrix, r=0.9875, ...)
+     raft     <- ergm.raftery.diag(statsmatrix, r=0.0125, ...)
+     aaa <- raft9875$resmatrix > raft$resmatrix
+     aaa[is.na(aaa)] <- FALSE
+     raft$resmatrix[aaa] <- raft9875$resmatrix[aaa]
+     simvalues <- attr(statsmatrix, "mcpar")
+     if(is.null(simvalues)){
+       simvalues <- c(2, nrow(statsmatrix), 1)
+     }
+     raft$degeneracy <- degout$degeneracy
+     raft$degeneracy.type <- degout$degeneracy.type
+     if(verbose){
       print(raft, simvalues=simvalues)
+     }
+    }else{
+     raft <- list(simvalues=NULL,
+                  degeneracy=degout$degeneracy,
+                  degeneracy.type=degout$degeneracy.type)
     }
     return(invisible(raft))
   }

@@ -126,6 +126,7 @@ ergm.mple<-function(Clist, Clist.miss, m, theta.offset=NULL,
   }
 
   if(MPLEtype=="penalized"){
+   if(verbose) cat("Using penalized MPLE.\n")
    mplefit <- ergm.pen.glm(
                   zy ~ xmat -1 + offset(foffset),
                   data=data.frame(xmat), weights=wend)
