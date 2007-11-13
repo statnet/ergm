@@ -80,8 +80,8 @@ ergm(formula, theta0="MPLE",
 	in the model formula have non-zero probability.
       }
       \item{\code{indegreedist} and \code{outdegreedist}}{
-	Preserve the (respectively) indegree or outdegree distribution of the given
-  network.
+	Preserve the (respectively) indegree or outdegree distribution of 
+        the given network.
       }
       \item{\code{edges}}{
 	Preserve the edge count of the given network: only networks
@@ -192,8 +192,8 @@ space is the Metropolis-Hastings algorithm, which simply chooses a dyad
 at random and proposes to toggle that edge; each possible dyad is 
 equally likely.  The \code{proposaltype} 
 option allow many more complex proposals to be specified.
-We have developed and implemented a wide range of algorithms. These are described
-in the documentation for \code{proposaltype}.
+We have developed and implemented a wide range of algorithms. These are 
+described in the documentation for \code{proposaltype}.
 %, including a double
 %Metropolis-Hastings algorithm (two random toggles); an algorithm
 %that reallocates all the edges of one node, with replacement;
