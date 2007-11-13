@@ -236,7 +236,7 @@ InitErgm.bounded.degree<-function(nw, m, arglist, drop=TRUE, ...) {
       cat(" ")
       cat(paste("Warning: There are no degree", d[is.na(mdegrees)],
                 "vertices;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
       dropterms <- paste("bounded.degree", d[is.na(mdegrees)],sep="")
 #     cat(paste("To avoid degeneracy the terms",
 #               paste(dropterms,collapse=" and, "),
@@ -274,7 +274,7 @@ InitErgm.bounded.idegree<-function(nw, m, arglist, drop=TRUE, ...) {
       cat(" ")
       cat(paste("Warning: There are no indegree", d[is.na(mdegrees)],
                 "vertices;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
       dropterms <- paste("bounded.idegree", d[is.na(mdegrees)],sep="")
 #     cat(paste("To avoid degeneracy the terms",
 #               paste(dropterms,collapse=" and, "),
@@ -310,7 +310,7 @@ InitErgm.bounded.istar<-function(nw, m, arglist, drop=TRUE, ...) {
     if(any(mistar)){
       cat(" ")
       cat(paste("Warning: There are no order", k[mistar],"bounded.istars;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
       dropterms <- paste("bounded.istar", k[mistar],sep="")
 #     cat(paste("To avoid degeneracy the terms",
 #               paste(dropterms,collapse=" and, "),
@@ -345,7 +345,7 @@ InitErgm.bounded.kstar<-function(nw, m, arglist, drop=TRUE, ...) {
       cat(" ")
       cat(paste("Warning: There are no degree", k[is.na(mdegrees)],
                 "vertices;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
       dropterms <- paste("bounded.kstar", k[is.na(mdegrees)],sep="")
 #     cat(paste("To avoid degeneracy the terms",
 #               paste(dropterms,collapse=" and, "),
@@ -383,7 +383,7 @@ InitErgm.bounded.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
       cat(" ")
       cat(paste("Warning: There are no outdegree", d[is.na(mdegrees)],
                 "vertices;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
       dropterms <- paste("bounded.odegree", d[is.na(mdegrees)],sep="")
 #     cat(paste("To avoid degeneracy the terms",
 #               paste(dropterms,collapse=" and, "),
@@ -419,7 +419,7 @@ InitErgm.bounded.ostar<-function(nw, m, arglist, drop=TRUE, ...) {
     if(any(mostar)){
       cat(" ")
       cat(paste("Warning: There are no order", k[mostar],"bounded.ostars;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
       dropterms <- paste("bounded.ostar", k[mostar],sep="")
 #     cat(paste("To avoid degeneracy the terms",
 #               paste(dropterms,collapse=" and, "),
@@ -487,7 +487,7 @@ InitErgm.sociality<-function(nw, m, arglist, drop=FALSE, ...) {
       cat(" ")
       cat(paste("Warning: There are no",attrname," ties for the vertex", 
                 d[centattr],";\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
       dropterms <- paste("sociality", d[centattr],sep="")
 #     cat(paste("To avoid degeneracy the term",
 #               paste(dropterms,collapse=" and, "),
@@ -540,7 +540,7 @@ InitErgm.ctriple<-function (nw, m, arglist, drop=TRUE, ...) {
           cat(paste("Warning: The count of",
                 paste(dropterms,collapse=" and, "),
                     "is extreme;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=""))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=""))
 #         cat(paste("To avoid degeneracy the terms",
 #               paste(dropterms,collapse=" and, "),
 #                   "have been dropped.\n"))
@@ -552,7 +552,7 @@ InitErgm.ctriple<-function (nw, m, arglist, drop=TRUE, ...) {
           dropterms <- paste(paste("ctriple",attrname,sep="."),sep="")
       cat(" ")
           cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #         cat(paste("To avoid degeneracy the term",
 #               paste(dropterms,collapse=" and, "),
 #                   "have been dropped.\n"))
@@ -602,7 +602,7 @@ InitErgm.cycle<-function(nw, m, arglist, drop=TRUE, ...)
     if(any(mcycle)){
       cat(" ")
       cat(paste("Warning: There are no order", k[mcycle],"cycles;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
       dropterms <- paste("cycle", k[mcycle],sep="")
 #     cat(paste("To avoid degeneracy the terms",
 #               paste(dropterms,collapse=" and, "),
@@ -868,7 +868,7 @@ InitErgm.dsp<-function(nw, m, arglist, drop=TRUE, ...) {
     if(any(mdsp==0)){
       cat(" ")
       cat(paste("Warning: There are no dsp", d[mdsp==0],"dyads;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
       dropterms <- paste("dsp", d[mdsp==0],sep="")
 #     cat(paste("To avoid degeneracy the terms",
 #               paste(dropterms,collapse=" and, "),
@@ -1191,7 +1191,7 @@ InitErgm.factor<-function (nw, m, arglist, drop=TRUE, ...) {
       cat(" ")
       cat(paste("Warning: There are no dyads with factor level",
           names(mfactor)[mfactor==0],";\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #     cat(paste("To avoid degeneracy the terms",names(mfactor)[mfactor==0],
 #               paste(dropterms,collapse=" and, "),
 #               "have been dropped.\n"))
@@ -1280,7 +1280,7 @@ InitErgm.esp<-function(nw, m, arglist, drop=TRUE, ...) {
     if(any(mesp==0)){
       cat(" ")
       cat(paste("Warning: There are no dyads with esp", d[mesp==0],";\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
       dropterms <- paste("esp", d[mesp==0],sep="")
 #     cat(paste("To avoid degeneracy the terms",
 #               paste(dropterms,collapse=" and, "),
@@ -1983,7 +1983,7 @@ InitErgm.istar<-function(nw, m, arglist, drop=TRUE, ...) {
         dropterms <- paste(paste("istar",attrname,sep="."),k[istarattr],sep="")
       cat(" ")
         cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #       cat(paste("To avoid degeneracy the terms",
 #               paste(dropterms,collapse=" and, "),
 #                 "have been dropped.\n"))
@@ -1998,7 +1998,7 @@ InitErgm.istar<-function(nw, m, arglist, drop=TRUE, ...) {
       if(any(mistar)){
       cat(" ")
         cat(paste("Warning: There are no order", k[mistar],"stars;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
         dropterms <- paste("istar", k[mistar],sep="")
 #       cat(paste("To avoid degeneracy the terms",
 #               paste(dropterms,collapse=" and, "),
@@ -2035,7 +2035,7 @@ InitErgm.isolates<-function(nw, m, arglist, drop=TRUE, ...) {
     if(mdsp==0){
       cat(" ")
       cat(paste("Warning: There are no isolates;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #     cat(paste("To avoid degeneracy the term has been dropped.\n"))
       return(m)
     }
@@ -2089,7 +2089,7 @@ InitErgm.concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
       if(any(mconcurrent)){
       cat(" ")
         cat(paste("Warning: There are no concurrent actors;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
         return(m)
       }
     }
@@ -2144,7 +2144,7 @@ InitErgm.kstar<-function(nw, m, arglist, drop=TRUE, ...) {
         dropterms <- paste(paste("kstar",attrname,sep="."),k[kstarattr],sep="")
       cat(" ")
         cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #       cat(paste("To avoid degeneracy the terms",
 #               paste(dropterms,collapse=" and, "),
 #                 "have been dropped.\n"))
@@ -2159,7 +2159,7 @@ InitErgm.kstar<-function(nw, m, arglist, drop=TRUE, ...) {
       if(any(mkstar)){
       cat(" ")
         cat(paste("Warning: There are no order", k[mkstar],"stars;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
         dropterms <- paste("kstar", k[mkstar],sep="")
 #       cat(paste("To avoid degeneracy the terms",
 #               paste(dropterms,collapse=" and, "),
@@ -2223,7 +2223,7 @@ InitErgm.m2star<-function(nw, m, arglist, drop=TRUE, ...) {
    if(all(is.na(match(degrees[,1],degrees[,2])))){
       cat(" ")
     cat(paste("Warning: The are no mixed 2-stars;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #   cat(paste("To avoid degeneracy the 'm2star' term has been dropped.\n"))
     return(m)
    }
@@ -2250,7 +2250,7 @@ InitErgm.twopath<-function(nw, m, arglist, drop=TRUE, ...) {
     if(all(is.na(match(degrees[,1],degrees[,2])))){
       cat(" ")
      cat(paste("Warning: The are no two-paths;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #    cat(paste("To avoid degeneracy the 'twopath' term has been dropped.\n"))
      return(m)
     }
@@ -2270,7 +2270,7 @@ InitErgm.twopath<-function(nw, m, arglist, drop=TRUE, ...) {
     if(any(mkstar)){
       cat(" ")
       cat(paste("Warning: There are no two paths;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #     cat(paste("To avoid degeneracy the twopath term has been dropped.\n"))
       return(m)
     }
@@ -2297,14 +2297,14 @@ InitErgm.mutual<-function (nw, m, arglist, drop=TRUE, ...) {
     if(nmutual==0){
       cat(" ")
       cat(paste("Warning: There are no mutual ties;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #     cat(paste("To avoid degeneracy the 'mutual' term has been dropped.\n"))
       return(m)
     }
     if(nmutual==network.dyadcount(nw)){
       cat(" ")
       cat(paste("Warning: All dyads have mutual ties!\n",
-                 " the corresponding coefficient has been fixed at it's MLE of infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of infinity.\n",sep=" "))
 #     cat(paste("To avoid degeneracy the 'mutual' term has been dropped.\n"))
       return(m)
     }
@@ -2328,14 +2328,14 @@ InitErgm.asymmetric<-function (nw, m, arglist, drop=TRUE, ...) {
     if(nasymmetric==0){
       cat(" ")
       cat(paste("Warning: There are no asymmetric ties;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #     cat(paste("To avoid degeneracy the 'asymmetric' term has been dropped.\n"))
       return(m)
     }
     if(nasymmetric==network.dyadcount(nw)){
       cat(" ")
       cat(paste("Warning: All dyads have asymmetric ties!\n",
-                 " the corresponding coefficient has been fixed at it's MLE of infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of infinity.\n",sep=" "))
 #     cat(paste("To avoid degeneracy the 'asymmetric' term has been dropped.\n"))
       return(m)
     }
@@ -2375,7 +2375,7 @@ InitErgm.nodematch<-function (nw, m, arglist, drop=TRUE, ...) {
         dropterms <- paste(paste("nodematch",attrname,sep="."),u[mu],sep="")
         cat(" ")
         cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #       cat(paste("To avoid degeneracy the terms",
 #               paste(dropterms,collapse=" and, "),
 #                 "have been dropped.\n"))
@@ -2390,7 +2390,7 @@ InitErgm.nodematch<-function (nw, m, arglist, drop=TRUE, ...) {
       if(mu){
       cat(" ")
         cat(paste("Warning: The number of matching dyads is extreme;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
         dropterms <- paste("nodematch",attrname,sep=".")
 #       cat(paste("To avoid degeneracy the term",
 #               paste(dropterms,collapse=" and, "),
@@ -2475,7 +2475,7 @@ InitErgm.nodemix<-function (nw, m, arglist, drop=TRUE, ...) {
         apply(u,1,paste,collapse="")[mu],sep="")
       cat(" ")
       cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #     cat(paste("To avoid degeneracy the terms",
 #               paste(dropterms,collapse=" and, "),
 #         "have been dropped.\n"))
@@ -2531,7 +2531,7 @@ InitErgm.nodemix<-function (nw, m, arglist, drop=TRUE, ...) {
         dropterms <- paste(paste("nodemix",attrname,sep="."),uun[mu],sep=".")
       cat(" ")
         cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #       cat(paste("To avoid degeneracy the terms",
 #               paste(dropterms,collapse=" and, "),
 #                 "have been dropped.\n"))
@@ -2578,7 +2578,7 @@ InitErgm.receiver<-function(nw, m, arglist, drop=FALSE, ...) {
       cat(" ")
       cat(paste("Warning: There are no in ties for the vertex", 
                 d[is.na(mdegrees)],";\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
       dropterms <- paste("receiver", d[is.na(mdegrees)],sep="")
 #     cat(paste("To avoid degeneracy the term",
 #               paste(dropterms,collapse=" and, "),
@@ -2629,7 +2629,7 @@ InitErgm.sender<-function(nw, m, arglist, drop=FALSE, ...) {
       cat(" ")
       cat(paste("Warning: There are no out ties for the vertex", 
                 d[is.na(mdegrees)],";\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
       dropterms <- paste("sender", d[is.na(mdegrees)],sep="")
 #     cat(paste("To avoid degeneracy the term",
 #               paste(dropterms,collapse=" and, "),
@@ -2693,7 +2693,7 @@ InitErgm.nodefactor<-function (nw, m, arglist, drop=TRUE, ...) {
       dropterms <- paste(paste("nodefactor",attrname,sep="."),u[nfc==0],sep="")
       cat(" ")
       cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #     cat(paste("To avoid degeneracy the terms",
 #               paste(dropterms,collapse=" and, "),
 #               "have been dropped.\n"))
@@ -2747,7 +2747,7 @@ InitErgm.nodeifactor<-function (nw, m, arglist, drop=TRUE, ...) {
       dropterms <- paste(paste("nodeifactor",attrname,sep="."),u[nfc==0],sep="")
       cat(" ")
       cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #     cat(paste("To avoid degeneracy the terms",
 #               paste(dropterms,collapse=" and, "),
 #               "have been dropped.\n"))
@@ -2797,7 +2797,7 @@ InitErgm.nodeofactor<-function (nw, m, arglist, drop=TRUE, ...) {
       dropterms <- paste(paste("nodeofactor",attrname,sep="."),u[nfc==0],sep="")
       cat(" ")
       cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #     cat(paste("To avoid degeneracy the terms",
 #               paste(dropterms,collapse=" and, "),
 #               "have been dropped.\n"))
@@ -2940,7 +2940,7 @@ InitErgm.ostar<-function(nw, m, arglist, drop=TRUE, ...) {
     if(any(mistar)){
       cat(" ")
       cat(paste("Warning: There are no order", k[mistar],"stars;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
       dropterms <- paste("istar", k[mistar],sep="")
 #     cat(paste("To avoid degeneracy the terms",
 #               paste(dropterms,collapse=" and, "),
@@ -3002,7 +3002,7 @@ InitErgm.triangle<-function (nw, m, arglist, drop=TRUE, ...) {
                              u[triattr],sep="")
       cat(" ")
           cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #         cat(paste("To avoid degeneracy the terms",
 #               paste(dropterms,collapse=" and, "),
 #                   "have been dropped.\n"))
@@ -3014,7 +3014,7 @@ InitErgm.triangle<-function (nw, m, arglist, drop=TRUE, ...) {
           dropterms <- paste(paste("triangle",attrname,sep="."),sep="")
       cat(" ")
           cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #         cat(paste("To avoid degeneracy the term",
 #               paste(dropterms,collapse=" and, "),
 #                   "have been dropped.\n"))
@@ -3069,7 +3069,7 @@ InitErgm.tripercent<-function (nw, m, arglist, drop=TRUE, ...) {
                              u[triattr],sep="")
       cat(" ")
           cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #         cat(paste("To avoid degeneracy the terms",
 #               paste(dropterms,collapse=" and, "),
 #                   "have been dropped.\n"))
@@ -3079,7 +3079,7 @@ InitErgm.tripercent<-function (nw, m, arglist, drop=TRUE, ...) {
           dropterms <- paste(paste("tripercent",attrname,sep="."),sep="")
       cat(" ")
           cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #         cat(paste("To avoid degeneracy the term",
 #               paste(dropterms,collapse=" and, "),
 #                   "have been dropped.\n"))
@@ -3134,7 +3134,7 @@ InitErgm.ttriple<-function (nw, m, arglist, drop=TRUE, ...) {
                              u[triattr],sep="")
       cat(" ")
           cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #         cat(paste("To avoid degeneracy the terms",
 #               paste(dropterms,collapse=" and, "),
 #                   "have been dropped.\n"))
@@ -3146,7 +3146,7 @@ InitErgm.ttriple<-function (nw, m, arglist, drop=TRUE, ...) {
           dropterms <- paste(paste("ttriple",attrname,sep="."),sep="")
       cat(" ")
           cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #         cat(paste("To avoid degeneracy the term",
 #               paste(dropterms,collapse=" and, "),
 #                   "have been dropped.\n"))
@@ -3187,7 +3187,7 @@ InitErgm.hiertriad<-function (nw, m, arglist, drop=TRUE, ...) {
     if(nhiertriad==0){
       cat(" ")
       cat(paste("Warning: There are no hiertriad ties;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #     cat(paste("To avoid degeneracy the 'hiertriad' term has been dropped.\n"))
       return(m)
     }
@@ -3211,7 +3211,7 @@ InitErgm.intransitive<-function (nw, m, arglist, drop=TRUE, ...) {
     if(nintransitive==0){
       cat(" ")
       cat(paste("Warning: There are no intransitive triads;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
  #    cat(paste("To avoid degeneracy the 'intransitive' term has been dropped.\n"))
       return(m)
     }
@@ -3235,7 +3235,7 @@ InitErgm.transitive<-function (nw, m, arglist, drop=TRUE, ...) {
     if(ntransitive==0){
       cat(" ")
       cat(paste("Warning: There are no transitive triads;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #     cat(paste("To avoid degeneracy the 'transitive' term has been dropped.\n"))
       return(m)
     }
@@ -3259,7 +3259,7 @@ InitErgm.intransitivity<-function (nw, m, arglist, drop=TRUE, ...) {
     if(nintransitive==0){
       cat(" ")
       cat(paste("Warning: There are no intransitive triads;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #     cat(paste("To avoid degeneracy the 'intransitivity' term has been dropped.\n"))
       return(m)
     }
@@ -3283,7 +3283,7 @@ InitErgm.transitivity<-function (nw, m, arglist, drop=TRUE, ...) {
     if(ntransitive==0){
       cat(" ")
       cat(paste("Warning: There are no transitive triads;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #     cat(paste("To avoid degeneracy the 'transitivity' term has been dropped.\n"))
       return(m)
     }
@@ -3307,7 +3307,7 @@ InitErgm.hiertriaddegree<-function (nw, m, arglist, drop=TRUE, ...) {
     if(nhiertriad==0){
       cat(" ")
       cat(paste("Warning: There are no hiertriaddegree ties;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #     cat(paste("To avoid degeneracy the 'hiertriaddegree' term has been dropped.\n"))
       return(m)
     }
@@ -3448,7 +3448,7 @@ InitErgm.balance<-function (nw, m, arglist, ...) {
         dropterms <- paste(paste("balance",attrname,sep="."),u[triattr],sep="")
       cat(" ")
         cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #       cat(paste("To avoid degeneracy the terms",
 #               paste(dropterms,collapse=" and, "),
 #                 "have been dropped.\n"))
@@ -3460,7 +3460,7 @@ InitErgm.balance<-function (nw, m, arglist, ...) {
          dropterms <- paste(paste("balance",attrname,sep="."),sep="")
       cat(" ")
          cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #        cat(paste("To avoid degeneracy the term",
 #               paste(dropterms,collapse=" and, "),
 #                  "have been dropped.\n"))
@@ -3519,14 +3519,14 @@ InitErgm.simmelian<-function (nw, m, arglist, drop=TRUE, ...) {
     if(nsimmelian==0){
       cat(" ")
       cat(paste("Warning: There are no simmelian triads;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #     cat(paste("To avoid degeneracy the 'simmelian' term has been dropped.\n"))
       return(m)
     }
     if(nsimmelian==network.edgecount(nw)*network.size*0.5){
       cat(" ")
       cat(paste("Warning: All triads are simmelian!\n",
-                 " The corresponding coefficient has been fixed at it's MLE of infinity.\n",sep=" "))
+                 " The corresponding coefficient has been fixed at its MLE of infinity.\n",sep=" "))
 #     cat(paste("To avoid degeneracy the 'simmelian' term has been dropped.\n"))
       return(m)
     }
@@ -3550,14 +3550,14 @@ InitErgm.simmelianties<-function (nw, m, arglist, drop=TRUE, ...) {
     if(nsimmelianties==0){
       cat(" ")
       cat(paste("Warning: There are no simmelianties ties;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #     cat(paste("To avoid degeneracy the 'simmelianties' term has been dropped.\n"))
       return(m)
     }
     if(nsimmelianties==network.edgecount(nw)){
       cat(" ")
       cat(paste("Warning: All ties have simmelianties ties!\n",
-                 " the corresponding coefficient has been fixed at it's MLE of infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of infinity.\n",sep=" "))
 #     cat(paste("To avoid degeneracy the 'simmelianties' term has been dropped.\n"))
       return(m)
     }
@@ -3581,14 +3581,14 @@ InitErgm.nearsimmelian<-function (nw, m, arglist, drop=TRUE, ...) {
     if(nsimmelian==0){
       cat(" ")
       cat(paste("Warning: There are no nearsimmelian triads;\n",
-                 " the corresponding coefficient has been fixed at it's MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
 #     cat(paste("To avoid degeneracy the 'nearsimmelian' term has been dropped.\n"))
       return(m)
     }
     if(nsimmelian==network.dyadcount(nw)*network.size(nw)*0.5){
       cat(" ")
       cat(paste("Warning: All dyads have nearsimmelian triads!\n",
-                 " the corresponding coefficient has been fixed at it's MLE of infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at its MLE of infinity.\n",sep=" "))
 #     cat(paste("To avoid degeneracy the 'nearsimmelian' term has been dropped.\n"))
       return(m)
     }
