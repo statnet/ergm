@@ -85,7 +85,7 @@ ergm.control(prop.weights = "default", prop.args = NULL, prop.weights.diss = "de
   \item{mcmc.precision}{vector; upper bounds on the precision of the 
     standard errors induced by the MCMC algorithm.
     Defaults to \code{0.05}.}
-  \item{\code{metric}{character; The name of the optimization metric
+  \item{metric}{character; The name of the optimization metric
     to use. Defaults to \code{"Likelihood"}.}
   \item{method}{character; The name of the optimization method
     to use. See \code{\link[stats]{optim}} for the options. The default method
