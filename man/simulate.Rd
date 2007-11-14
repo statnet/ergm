@@ -7,8 +7,8 @@
                           burnin=1000, interval=1000,
                           basis=NULL,
                           sequential=TRUE,
-                          constraints = NULL,
-                          control = simulate.ergm.control(),
+                          constraints = ~.,
+                          control = simulate.formula.control(),
                           verbose=FALSE)
 \method{simulate}{ergm}(object, nsim=1, seed=NULL, \dots, theta0,
                        burnin=1000, interval=1000, 
@@ -55,9 +55,16 @@
     neither is specified an error is given as it is used
     to specify the nature of the network requested (e.g., size and
     directionality).}
+  \item{constraints}{A one-sided formula specifying one or more constraints
+    on the support of the distribution of the networks being
+    simulated. See the documentation for a similar argument for
+    \code{\link{ergm}} for more information. For
+    \code{simulate.formula}, defaults to no constraints. For
+    \code{simulate.ergm}, defaults to using the same constraints as
+    those with which \code{object} was fitted.}
  \item{control}{A list of control parameters for algorithm
-   tuning. Constructed using \code{\link{simulate.ergm.control}}. 
-   See \bold{Algorithm Tuning}.}
+   tuning. Constructed using \code{\link{simulate.ergm.control}} or
+   \code{\link{simulate.formula.control}}, which have different defaults. 
 %\item{multiplicity}{The number of replications of proposal types
 %  grouped together to form a single proposal.}
 %\item{mixed}{Should a mixed parameterization be used for the
@@ -116,31 +123,6 @@
   \code{\link{ergm}}.
 }
 
-\section{Algorithm Tuning}{
-
-There are a large number of parameters that can be modified to define complex
-models, simulation processes and computational aspects. 
-These are specified via the 
-\code{algorithm.control} argument.
-The \code{algorithm.control} argument is a list that can supply any of the
-  following components:
-  \describe{
-    \item{\code{boundDeg}}{list; comprising up to five matrices and 
-      one or more arguments, which are used to constrain the number of in 
-      or out degrees that a node can have. By default no constraining 
-      is applied.  This is explained more fully under the 
-      \bold{Conditioning within models} section of the \code{\link{ergm}}
-      function. Defaults to no conditioning.}
-    \item{\code{drop}}{logical; Should the degenerate terms in the model be
-      dropped from the fit?
-      If statistics occur on the extreme of their range they
-      correspond to infinite parameter estimates.
-      Default is \code{FALSE}.}
-    \item{\code{summarizestats}}{logical; Print out a summary of 
-       the sufficient statistics of the generated network. This is useful 
-       as a diagnostic. Default is \code{FALSE}.}
-  }
-}
 \value{\code{\link[stats]{simulate}} returns an object of class \code{network.series} 
   that is a list
   consisting of the following elements:

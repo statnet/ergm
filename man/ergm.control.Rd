@@ -21,8 +21,9 @@ ergm.control(prop.weights = "default", prop.args = NULL, prop.weights.diss = "de
   \item{prop.weights}{ Specifies the method to allocate probabilities of
     being proposed to dyads. Defaults to \code{"default"}, which picks a
     reasonable default for the specified constraint. Possible values are
-    "TNT", "random", and "nonobserved", though not all values may be used
-    with all possible constraints (in the \code{\link{ergm}} function)
+    \code{"TNT"}, \code{"random"}, and \code{"nonobserved"}, though not
+    all values may be used
+    with all possible constraints (in the \code{\link{ergm}} function).
     }
   \item{prop.args}{ An alternative, direct way of specifying additional arguments to proposal. }
   \item{prop.weights.diss}{ As \code{prop.weights}, for dissolution model. }

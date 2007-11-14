@@ -16,15 +16,17 @@
 \method{gof}{formula}(formula, \dots, theta0=NULL,
          nsim=100, burnin=10000, interval=1000,
          GOF=~degree+espartners+distance,
-         proposaltype="randomtoggle",
-         seed=NULL, drop=TRUE, boundDeg = NULL, summarizestats=FALSE,
+         constraints=~.,
+         control=gof.formula.control(),
+         seed=NULL,
          verbose=FALSE)
 \method{gof}{ergm}(object, \dots,
          nsim=100,
          GOF=~degree+espartners+distance,
          burnin=10000, interval=1000,
-         proposaltype="randomtoggle",
-         seed=NULL, drop=TRUE, summarizestats=FALSE,
+         constraints=NULL,
+         control=gof.ergm.control(),
+         seed=NULL, 
          theta0=NULL, verbose=FALSE)
 }
 \arguments{
@@ -70,50 +72,18 @@
     being accepted (if the number of proposed toggles between
     sampled observations ever equals an integral multiple of
     100*(1+the number of toggles accepted)).}
- \item{proposaltype}{The type of Metropolis-Hastings proposal used.
-   The default is \code{"randomtoggle"} to propose a dyad at random
-   to toggle (i.e., change the value of the dyad to its complement).
-   The options are 
-    \describe{
-     \item{\code{TNT}}{("tie/no-tie") proposes a dyad with
-        at least 50\% chance of toggling an existing   
-        edge, as opposed to a simple random toggle that rarely does so
-        in sparse networks.}
-     \item{\code{ConstantEdges}}{proposes a pair of dyads with one having a tie
-        and the other not having one.}
-     \item{\code{CondDegree}}{proposes a pair of dyads in such a way
-        to retain the individual degrees of the nodes.}
-     \item{\code{CondDegreeDist}}{proposes either a hexad or tetrad of dyads
-        to toggle in a way to retain the degree distribution of the 
-        network (but not necessarily the individual degrees).}
-     \item{\code{CondOutDegreeDist}}{proposes either a hexad or tetrad of dyads
-        to toggle in a way to retain the out degree distribution of the 
-        network (but not necessarily the individual degrees).}
-     \item{\code{CondInDegreeDist}}{proposes either a hexad or tetrad of dyads
-        to toggle in a way to retain the in degree distribution of the 
-        network (but not necessarily the individual degrees).}
-     \item{\code{RandomNode}}{to propose all dyads associated with a randomly
-        sampled node.}
-     \item{\code{TwoRandomToggles}}{proposes a pair of randomly chosen
-        dyads.}
-    }
-  The option \code{"CondDegree"} is forced when
-  \code{condAllDegExact=TRUE}.
-  This is essential for some models or \code{boundDeg} constraints.}
-% \item{multiplicity}{The number of replications of proposal types
-%  grouped together to form a single proposal.}
-  \item{drop}{Should the degenerate terms in the model be   
-   dropped from the fit?
-   If statistics occur on the extreme of their range they
-   correspond to infinite parameter estimates.}
-  \item{boundDeg}{A list comprising of up to five matrices and one or more
-    arguments, which are used to constrain the number of in or out
-    degrees that a node can have. By default no constraining is applied.
-    This is explained more fully in the \code{\link{ergm}} function.}
-  \item{summarizestats}{Print out a summary of the sufficient statistics of
-   the generated graph. This is useful as a diagnostic.}
-  \item{seed}{Random number integer seed.
-   The default is \code{sample(10000000, size=1)}.}
+  \item{constraints}{A one-sided formula specifying one or more constraints
+    on the support of the distribution of the networks being
+    modeled. See the help for similarly-named argument in
+    \code{\link{ergm}} for more information. For
+    \code{gof.formula}, defaults to unconstrained. For \code{gof.ergm},
+    defaults to the constraints with which \code{object} was fitted.}
+  \item{control}{A list to control parameters, constructed using
+    \code{\link{gof.formula.control}} or \code{\link{gof.ergm.control}}
+    (which have different defaults).
+  \item{seed}{integer; random number integer seed. Defaults to \code{NULL} to
+    use whatever the state of the random number generater is at the time
+    of the call.}
   \item{verbose}{Provide verbose information on the progress of the
     simulation.}
   \item{\dots}{Additional arguments, to be passed to lower-level functions

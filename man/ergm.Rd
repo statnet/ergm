@@ -88,9 +88,6 @@ ergm(formula, theta0="MPLE",
 	having the same number of edges as the network passed
 	in the model formula have non-zero probability.
       }
-%      \item{\code{hamming}}{
-%	No clue.
-%      }
     }
     Not all combinations of the above are supported.
   }
