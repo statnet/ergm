@@ -9,8 +9,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
   out.mat <- numeric(0)
   formula <- object
   
-  if(is.null(seed)){seed <- sample(10000000, size=1)}
-  set.seed(as.integer(seed))
+  if(!is.null(seed)) set.seed(as.integer(seed))
   if(!is.null(basis)) {
     nw <- basis
 #   formula <- as.formula(paste(c("nw",as.character(formula)),
@@ -45,8 +44,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
   theta0.bdd <- theta0
   theta0.bdd[is.infinite(theta0.bdd)] <- -10000
   
-  if(is.null(seed)){seed <- sample(10000000, size=1)}
-  set.seed(as.integer(seed))
+  if(!is.null(seed)) set.seed(as.integer(seed))
 
   curstats<-summary.statistics.network(object)
 
@@ -132,8 +130,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
 #  if(missing(multiplicity) & !is.null(object$multiplicity)){
 #    multiplicity <- object$multiplicity
 #  }
-  if(is.null(seed)){seed <- sample(10000000, size=1)}
-  set.seed(as.integer(seed))
+  if(!is.null(seed)) set.seed(as.integer(seed))
   
   nw <- object$network  
   

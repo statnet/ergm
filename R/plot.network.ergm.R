@@ -48,7 +48,7 @@
     layout.par=NULL,
     cex.main=par("cex.main"), 
     cex.sub=par("cex.sub"),
-    seed=1,
+    seed=NULL,
     latent.control=list(maxit=500,trace=0,dyadsample=10000,
                penalty.sigma=c(5,0.5), nsubsample=200),
     colornames="rainbow",
@@ -93,9 +93,7 @@
    current.warn <- options()$warn
    if(is.null(current.warn)){current.warn <- 0}
 #
-   if(!is.null(seed) && is.numeric(seed)){ 
-     set.seed(seed)
-   }
+   if(!is.null(seed)) set.seed(seed)
 #
 #  "ergm" reads
 #

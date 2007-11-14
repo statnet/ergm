@@ -8,8 +8,7 @@ simulatedyn <- function(object, dissolve=NULL, nsteps=1, seed=NULL, theta0,gamma
 
   control$dyninterval<-dyninterval
   
-  if(is.null(seed)){seed <- sample(10000000, size=1)}
-  set.seed(as.integer(seed))
+  if(!is.null(seed)) set.seed(as.integer(seed))
   nw <- ergm.getnetwork(formula)
   if(class(nw) =="network.series"){
     nw <- nw$networks[[1]]
@@ -36,8 +35,7 @@ simulatedyn <- function(object, dissolve=NULL, nsteps=1, seed=NULL, theta0,gamma
 
   if(burnin!=0 || interval!=1) warning("Burnin is present or interval isn't 1. Toggle list will not be returned.")
   
-  if(is.null(seed)){seed <- sample(10000000, size=1)}
-  set.seed(as.integer(seed))
+  if(!is.null(seed)) set.seed(as.integer(seed))
     
   MHproposal.form <- getMHproposal(constraints,control$prop.args.form,nw,
                                                     model.form,weights=control$prop.weights.form,class="f")

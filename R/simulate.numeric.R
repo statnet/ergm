@@ -15,8 +15,7 @@ simulate.numeric <- function(row=NULL, col=NULL, nsim=1, seed=NULL, ...,
 
   con[(namc <- names(algorithm.control))] <- algorithm.control
   
-  if(is.null(seed)){seed <- sample(10000000, size=1)}
-  set.seed(as.integer(seed))
+  if(!is.null(seed)) set.seed(as.integer(seed))
 
   verb <- match(verbose,
       c("FALSE","TRUE", "very"), nomatch=1)-1

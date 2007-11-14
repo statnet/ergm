@@ -18,8 +18,7 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
   out.mat <- numeric(0)
   formula <- object
 
-  if(is.null(seed)){seed <- sample(10000000, size=1)}
-  set.seed(as.integer(seed))
+  if(!is.null(seed)) set.seed(as.integer(seed))
   nw <- ergm.getnetwork(formula)
   if(class(nw) =="network.series"){
     nw <- nw$networks[[1]]
@@ -47,8 +46,7 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
   }
 # theta0 <- c(theta0[1],rep(0,Clist$nparam-1))
   
-  if(is.null(seed)){seed <- sample(10000000, size=1)}
-  set.seed(as.integer(seed))
+  if(!is.null(seed)) set.seed(as.integer(seed))
     
   for(i in 1:nsim){
     Clist <- ergm.Cprepare(nw, model)
@@ -132,8 +130,7 @@ san.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
 #  if(missing(multiplicity) & !is.null(object$multiplicity)){
 #    multiplicity <- object$multiplicity
 #  }
-  if(is.null(seed)){seed <- sample(10000000, size=1)}
-  set.seed(as.integer(seed))
+  if(!is.null(seed)) set.seed(as.integer(seed))
   
   nw <- object$network  
   

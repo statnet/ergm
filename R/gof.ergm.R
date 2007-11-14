@@ -28,7 +28,6 @@ gof.ergm <- function (object, ..., nsim=100,
   if(!is.network(nw)){
     stop("A network must be given as part of the network object.")
   }
-  if(is.null(seed)){seed <- sample(10000000, size=1)}
 
   if(missing(theta0)){theta0 <- object$coef}
 
@@ -140,7 +139,6 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
   obs.odeg<-pobs.odeg<-sim.odeg<-psim.odeg<-pval.odeg<-bds.odeg<-pval.odeg<-NULL
 
   n <- network.size(nw)
-  if(is.null(seed)){seed <- sample(10000000, size=1)}
 
   # Calculate network statistics for the observed graph
   # Set up the output arrays of sim variables
