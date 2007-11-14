@@ -27,9 +27,9 @@
    a \code{\link{formula}} or an \code{\link{ergm}} object.
    The \code{\link{formula}} should be of the form \code{y ~ <model terms>},
    where \code{y} is a network object or a matrix that can be
-   coerced to a network object.  For the details on the possible
+   coerced to a \code{\link[network]{network}} object.  For the details on the possible
    \code{<model terms>}, see \code{\link{ergm-terms}}.  To create a
-   network object in \R, use the \code{network()} function,
+   \code{\link[network]{network}} object in \R, use the \code{network()} function,
    then add nodal attributes to it using the \code{\%v\%}
    operator if necessary.}
  \item{nsim}{Number of networks to be randomly drawn
@@ -49,8 +49,8 @@
     accepted (if the number of proposals between sampled observations
     ever equals an integral multiple of 100(1+the number of proposals
     accepted)).}
- \item{basis}{An optional network object to start the MCMC
-    algorithm from. This is used only if a network object is not
+ \item{basis}{An optional \code{\link[network]{network}} object to start the MCMC
+    algorithm from. This is used only if a \code{\link[network]{network}} object is not
     specified on the right-hand-side of the \code{\link{formula}}. If
     neither is specified an error is given as it is used
     to specify the nature of the network requested (e.g., size and

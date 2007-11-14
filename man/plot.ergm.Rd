@@ -31,7 +31,7 @@
   models.
 }
 \arguments{
-  \item{x}{an R object of class \code{\link{ergm}}.
+  \item{x}{an \R object of class \code{\link{ergm}}.
     See documentation for \code{\link{ergm}}.}
 
   \item{mle}{Plots the network using the MLE of the positions for latent models.}

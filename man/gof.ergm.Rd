@@ -30,7 +30,7 @@
          theta0=NULL, verbose=FALSE)
 }
 \arguments{
- \item{object}{an R object. Either a formula or an ergm object. 
+ \item{object}{an \R object. Either a formula or an \code{\link{ergm}} object. 
    See documentation for \code{\link{ergm}}.}
  \item{formula}{formula; An \R formula object, of the form
  \code{y ~ <model terms>},

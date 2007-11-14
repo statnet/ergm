@@ -1,5 +1,6 @@
 \name{ergm}
 \alias{ergm}
+\alias{ergm.object}
 \title{Exponential Family Random Graph Models}
 \description{
   \code{\link{ergm}} is used to fit linear exponential random network models, in which
@@ -22,10 +23,10 @@ ergm(formula, theta0="MPLE",
 \arguments{
   \item{formula}{formula; an \R \code{\link{formula}} object, of the form
     \code{y ~ <model terms>},
-    where \code{y} is a network object or a matrix that can be
-    coerced to a network object.  For the details on the possible
+    where \code{y} is a \code{\link[network]{network}} object or a matrix that can be
+    coerced to a \code{\link[network]{network}}  object.  For the details on the possible
     \code{<model terms>}, see \code{\link{ergm-terms}}.  To create a
-    network object in \R, use the \code{network()} function,
+    \code{\link[network]{network}} object in \R, use the \code{network()} function,
     then add nodal attributes to it using the \code{\%v\%}
     operator if necessary.}
   \item{theta0}{vector; the parameter value used to generate
@@ -88,6 +89,9 @@ ergm(formula, theta0="MPLE",
 	having the same number of edges as the network passed
 	in the model formula have non-zero probability.
       }
+%      \item{\code{hamming}}{
+%	No clue.
+%      }
     }
     Not all combinations of the above are supported.
   }
