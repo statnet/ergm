@@ -8,12 +8,14 @@ citEntry(entry="Manual",
                              as.person("Steven M. Goodreau"),
                              as.person("Martina Morris")), 
          year         = 2003,
+         note         = paste("Version",substring(library(help="ergm",lib.loc=NULL,character.only=TRUE)$info[[1]][2],first=16)),
          url          = "http://statnetproject.org",
          
          textVersion = 
          paste("Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau, and Martina Morris (2003) ", 
-               "statnet: A suite of R packages for the Statistical Modeling of Social Networks. ",
-               "URL http:/statnetproject.org.",
+               "statnet: A suite of R packages for the Statistical Modeling of Social Networks. Version ",
+substring(library(help="ergm",lib.loc=NULL,character.only=TRUE)$info[[1]][2],first=16),
+         ",", " URL http://statnetproject.org.",
                sep="")
          )
 
