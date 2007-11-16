@@ -13,8 +13,8 @@ MHproposals<-
           c("c", "degrees",       "default",      "CondDegree"),
           c("c", "degrees",       "random",       "CondDegree"),
 
-          c("c", "degreedist",    "default",      "CondDegreeDist"), # not yet implemented
-          c("c", "degreedist",    "random",       "CondDegreeDist"), # not yet implemented 
+          c("c", "degreedist",    "default",      "CondDegreeDist"),
+          c("c", "degreedist",    "random",       "CondDegreeDist"), 
 
           c("c", "indegrees",     "default",      "CondInDegree"),
           c("c", "indegrees",     "random",       "CondInDegree"),
