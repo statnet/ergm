@@ -80,7 +80,7 @@
     defaults to the constraints with which \code{object} was fitted.}
   \item{control}{A list to control parameters, constructed using
     \code{\link{gof.formula.control}} or \code{\link{gof.ergm.control}}
-    (which have different defaults).
+    (which have different defaults).}
   \item{seed}{integer; random number integer seed. Defaults to \code{NULL} to
     use whatever the state of the random number generater is at the time
     of the call.}

@@ -64,7 +64,9 @@
     those with which \code{object} was fitted.}
  \item{control}{A list of control parameters for algorithm
    tuning. Constructed using \code{\link{simulate.ergm.control}} or
-   \code{\link{simulate.formula.control}}, which have different defaults. 
+   \code{\link{simulate.formula.control}}, which have different
+   defaults. 
+ }
 %\item{multiplicity}{The number of replications of proposal types
 %  grouped together to form a single proposal.}
 %\item{mixed}{Should a mixed parameterization be used for the
