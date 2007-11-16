@@ -46,7 +46,7 @@ getMHproposal<-function(object, ...) UseMethod("getMHproposal")
 
 # This could be useful for trapping bugs before they become mysterious
 # segfaults.
-getMHproposal.NULL<-function(object, ...) stop("NULL passed to getMHproposal. This Should Not Be Happening (tm). Please file a bug report.")
+getMHproposal.NULL<-function(object, ...) stop("NULL passed to getMHproposal. This may be due to passing an ergm object from an earlier version. If this is the case, please refit it with the latest version, and try again. If this is not the case, this may be a bug, so please file a bug report.")
 
 getMHproposal.MHproposal<-function(object,...) return(object)
 
