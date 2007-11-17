@@ -2450,10 +2450,12 @@ InitErgm.nodemix<-function (nw, m, arglist, drop=TRUE, ...) {
   attrname<-a$attrname
   contrast<-a$contrast
   if(is.bipartite(nw)){
-    if (is.directed(nw)) 
+  # So two-mode
+    if (is.directed(nw)){ 
       cat(" ")
       cat("Warning!  Bipartite networks are currently\n",
           "automatically treated as undirected\n")
+    }
     #  So undirected network storage but directed mixing
     nodecov <- get.node.attr(nw, attrname, "mix")
     #  Recode nodecov to numeric (but retain original sorted names in "namescov")

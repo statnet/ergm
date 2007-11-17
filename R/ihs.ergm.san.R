@@ -33,7 +33,8 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
          "must be given")
   }
 
-  model <- ergm.getmodel(formula, nw, drop=control$drop)
+# model <- ergm.getmodel(formula, nw, drop=control$drop)
+  model <- ergm.getmodel(formula, nw, drop=FALSE)
   Clist <- ergm.Cprepare(nw, model)
   Clist.miss <- ergm.design(nw, model, initialfit=TRUE, verbose=verbose)
   
@@ -42,16 +43,24 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
   MHproposal<-getMHproposal(constraints,control$prop.args,nw,model,weights=control$prop.weights)
   if(missing(theta0)) {
-    warning("No parameter values given, using MPLE\n\t")
+    warning("No parameter values given, using the MPLE\n\t")
   }
 # theta0 <- c(theta0[1],rep(0,Clist$nparam-1))
   
   if(!is.null(seed)) set.seed(as.integer(seed))
-    
+
+  if (verb) {
+    cat("Starting",nsim,"MCMC iterations of",burnin+interval*MCMCsamplesize,
+        "steps each:\n")
+  }
+
   for(i in 1:nsim){
     Clist <- ergm.Cprepare(nw, model)
 #   Clist.miss <- ergm.design(nw, model, initialfit=TRUE, verbose=verbose)
     maxedges <- max(20000, Clist$nedges)
+    if (verb) {
+       cat(paste("#", i, " of ", nsim, ": ", sep=""))
+     }
     if(i==1 | !sequential){
       use.burnin <- burnin
     }else{
@@ -62,6 +71,7 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
       theta0 <- ergm.mple(Clist=Clist, Clist.miss=Clist.miss, 
                           m=model, verbose=verbose, ...)$coef
     }
+    eta0 <- ergm.eta(theta0, model$etamap)
     stats <- matrix(summary(model$formula)-meanstats,
                     ncol=Clist$nparam,byrow=T,nrow=MCMCsamplesize)
 #
@@ -80,7 +90,7 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
              as.character(MHproposal$name),
              as.character(MHproposal$package),
              as.double(Clist$inputs),
-             as.double(theta0),
+             as.double(eta0),
              as.integer(MCMCsamplesize),
              s = as.double(stats),
              as.integer(use.burnin), as.integer(interval), 
@@ -88,8 +98,9 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
              newnwtails = integer(maxedges), 
              as.integer(verb),
              as.integer(MHproposal$bd$attribs), 
-             as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin), as.integer(MHproposal$bd$minout), 
-             as.integer(MHproposal$bd$minin), as.integer(MHproposal$bd$condAllDegExact),
+             as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
+             as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
+             as.integer(MHproposal$bd$condAllDegExact),
              as.integer(length(MHproposal$bd$attribs)), 
              as.integer(maxedges), 
              as.integer(0.0), as.integer(0.0), 
@@ -134,7 +145,7 @@ san.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
   
   nw <- object$network  
   
-  m <- ergm.getmodel(object$formula, nw, drop=control$drop)
+  m <- ergm.getmodel(object$formula, nw, drop=FALSE)
   MCMCsamplesize <- 1
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
@@ -146,6 +157,11 @@ san.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
   }
   if(missing(theta0)) {
     theta0 <- object$coef
+  }
+  eta0 <- ergm.eta(theta0, m$etamap)
+  if (verb & nsim > 1) {
+    cat("Starting",nsim,"MCMC iterations of",burnin+interval*MCMCsamplesize,
+        "steps each:\n")
   }
   for(i in 1:nsim){
     Clist <- ergm.Cprepare(nw, m)
@@ -164,6 +180,9 @@ san.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
     z <- list(newnwheads=maxedges+1,newnwtails=maxedges+1)
     while(z$newnwheads[1] > maxedges){
      maxedges <- 10*maxedges
+     if (verb & nsim > 1) {
+       cat(paste("#", i, " of ", nsim, ": ", sep=""))
+     }
      z <- .C("SAN_wrapper",
             as.integer(Clist$heads), as.integer(Clist$tails), 
             as.integer(Clist$nedges), as.integer(Clist$n),
@@ -174,7 +193,7 @@ san.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
             as.character(MHproposal$name),
             as.character(MHproposal$package),
             as.double(Clist$inputs),
-            as.double(theta0),
+            as.double(eta0),
             as.integer(MCMCsamplesize),
             s = as.double(stats),
             as.integer(use.burnin), as.integer(interval), 
