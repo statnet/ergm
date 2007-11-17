@@ -36,8 +36,12 @@ ergm <- function(formula, theta0="MPLE",
   MHproposal.miss <- getMHproposal("randomtoggleNonObserved", control$prop.args, nw, model.initial)
 
   # MPLE & Meanstats -> need fake network
-  if("MPLEMK" %in% theta0 && !is.null(meanstats)){
-    nw.initial<-mk.pseudonet(meanstats, formula, nw, verbose=verbose)
+  if("MPLE" %in% theta0 && !is.null(meanstats)){
+  # if IHS 
+    nw.initial<-san(formula, meanstats=meanstats, verbose=verbose)
+  #else
+  # nw.initial<-mk.pseudonet(meanstats, formula, nw, verbose=verbose)
+  # IHS end
   }
   else nw.initial<-nw
   
