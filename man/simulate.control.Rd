@@ -44,5 +44,5 @@ simulate.ergm.control(prop.weights = NULL, prop.args = NULL, drop = FALSE, summa
 }
 \seealso{\code{\link{simulate.ergm}}, \code{\link{simulate.formula}}, \code{\link{glm.control}} performs a
   similar function for \code{\link{glm}}  }
+%\keyword{simulation}
 \keyword{models}
-\keyword{simulation}

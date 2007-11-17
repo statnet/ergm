@@ -42,5 +42,5 @@ gof.ergm.control(prop.weights = NULL, prop.args = NULL, drop = TRUE, summarizest
 }
 \seealso{\code{\link{gof.formula}}, \code{\link{gof.ergm}}, \code{\link{glm.control}} performs a
   similar function for \code{\link{glm}}}
+%\keyword{goodness of fit}
 \keyword{ models }
-\keyword{goodness of fit}

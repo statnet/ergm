@@ -18,8 +18,8 @@
                        verbose=FALSE)
 }
 \description{
-  \code{\link[stats]{simulate}} is used to draw from exponential family random network
-  models in their natural parameterizations.
+  \code{\link[stats]{simulate}} is used to draw from exponential family 
+  random network models in their natural parameterizations.
   See \code{\link{ergm}} for more information on these models.
 }
 \arguments{
@@ -27,9 +27,11 @@
    a \code{\link{formula}} or an \code{\link{ergm}} object.
    The \code{\link{formula}} should be of the form \code{y ~ <model terms>},
    where \code{y} is a network object or a matrix that can be
-   coerced to a \code{\link[network]{network}} object.  For the details on the possible
+   coerced to a \code{\link[network]{network}} object.  For the details 
+   on the possible
    \code{<model terms>}, see \code{\link{ergm-terms}}.  To create a
-   \code{\link[network]{network}} object in \R, use the \code{network()} function,
+   \code{\link[network]{network}} object in \R, use the 
+   \code{network()} function,
    then add nodal attributes to it using the \code{\%v\%}
    operator if necessary.}
  \item{nsim}{Number of networks to be randomly drawn
@@ -39,7 +41,8 @@
    The default is \code{sample(10000000, size=1)}.}
  \item{theta0}{For Bernoulli networks this is the log-odds of a tie,
     however it is only used if \code{prob} is not specified.  When given either
-    a \code{\link{formula}} or an object of class ergm, theta0 are the parameters
+    a \code{\link{formula}} or an object of class \code{ergm}, 
+    \code{theta0} are the parameters
     from which the sample is drawn.}
  \item{burnin}{The number of proposed proposals before any MCMC sampling
     is done.  Currently, there is no support for any check of the Markov
@@ -64,9 +67,7 @@
     those with which \code{object} was fitted.}
  \item{control}{A list of control parameters for algorithm
    tuning. Constructed using \code{\link{simulate.ergm.control}} or
-   \code{\link{simulate.formula.control}}, which have different
-   defaults. 
- }
+   \code{\link{simulate.formula.control}}, which have different defaults.}
 %\item{multiplicity}{The number of replications of proposal types
 %  grouped together to form a single proposal.}
 %\item{mixed}{Should a mixed parameterization be used for the
