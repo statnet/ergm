@@ -42,8 +42,6 @@ simulatedyn <- function(object, dissolve=NULL, nsteps=1, seed=NULL, theta0,gamma
   MHproposal.diss <- getMHproposal(constraints,control$prop.args.diss,nw,
                                                     model.diss,weights=control$prop.weights.diss,class="d")
   MCMCparams <- c(control,list(nsteps=nsteps, interval=interval,
-                           stats.form=matrix(summary(model.form$formula),ncol=length(model.form$coef.names),nrow=1),
-                           stats.diss=matrix(summary(model.diss$formula),ncol=length(model.diss$coef.names),nrow=1),
                            burnin=burnin,
                            parallel=0,
                            meanstats.form=theta0-theta0,
