@@ -121,7 +121,7 @@ ergm <- function(formula, theta0="MPLE",
   if(!is.null(dissolve)){
     if (verbose) cat("Fitting Dynamic ERGM.\n")
     model.dissolve <- ergm.getmodel.dissolve(dissolve, nw, dissolve.order)
-    MHproposal.diss <- getMHproposal(constraints, weights=control$weights.diss, control$prop.args.diss, nw, model.dissolve,class="d")
+    MHproposal.diss <- getMHproposal(constraints, weights=control$prop.weights.diss, control$prop.args.diss, nw, model.dissolve,class="d")
     v <- switch(control$style,
                 "Robbins-Monro" = ergm.robmon.dyn(theta0, nw, model, model.dissolve,
                   Clist, gamma, 

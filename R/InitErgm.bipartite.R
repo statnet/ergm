@@ -455,10 +455,11 @@ InitErgm.eventfactor<-function (nw, m, arglist, drop=TRUE, ...) {
                     nodecov,sum)
     }
     if(any(nfc==0)){
-      dropterms <- paste(paste("eventfactor",attrname,sep="."),u[nfc==0],sep="")
-      cat(paste("Warning: The count of", dropterms, "is extreme.\n"))
-      cat(paste("To avoid degeneracy the terms",dropterms,
-                "have been dropped.\n"))
+      cat(" ")
+      cat(paste("Warning: There are no eventfactor", ".", attrname,
+                         u[nfc==0],
+                "events;\n",
+               " the corresponding coefficient has been fixed at its MLE of nenegative infinity.\n",sep=" "))
       u<-u[nfc>0]
       ui<-ui[nfc>0]
     }
@@ -506,10 +507,11 @@ InitErgm.actorfactor<-function (nw, m, arglist, drop=TRUE, ...) {
                     nodecov,sum)
     }
     if(any(nfc==0)){
-      dropterms <- paste(paste("actorfactor",attrname,sep="."),u[nfc==0],sep="")
-      cat(paste("Warning: The count of", dropterms, "is extreme.\n"))
-      cat(paste("To avoid degeneracy the terms",dropterms,
-                "have been dropped.\n"))
+      cat(" ")
+      cat(paste("Warning: There are no actorfactor", ".", attrname,
+                         u[nfc==0],
+                "actors;\n",
+               " the corresponding coefficient has been fixed at its MLE of nenegative infinity.\n",sep=" "))
       u<-u[nfc>0]
       ui<-ui[nfc>0]
     }
@@ -732,10 +734,11 @@ InitErgm.adegree<-function(nw, m, arglist, drop=TRUE, ...) {
                              (paste('nw ~ adegree(', tmp,',"',attrname,'")',sep="")),
                              drop=FALSE) == 0
       if(any(adegreeattr)){
-        dropterms <- paste("adeg", du[1,adegreeattr], ".", attrname,
-                           u[du[2,adegreeattr]], sep="")
-        cat("Warning: These adegree terms have extreme counts and will be dropped:\n")
-        cat(dropterms, "\n", fill=T)
+        cat(" ")
+        cat(paste("Warning: There are no degree", du[1,adegreeattr], ".",
+                   attrname, u[du[2,adegreeattr]],
+                  "actors;\n",
+                  " the corresponding coefficient has been fixed at its MLE of nenegative infinity.\n",sep=" "))
         du <- matrix(du[,!adegreeattr], nrow=2)
       }
     }
@@ -754,9 +757,10 @@ InitErgm.adegree<-function(nw, m, arglist, drop=TRUE, ...) {
                           as.formula(paste('nw ~ adegree(',madegree,')',sep="")),
                           drop=FALSE) == 0
       if(any(madegree)){
-        cat(paste("Warning: There are no order", d[madegree],"adegrees.\n"))
-        dropterms <- paste("adegree", d[madegree],sep="")
-        cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
+        cat(" ")
+        cat(paste("Warning: There are no degree", d[madegree],
+                  "actors;\n",
+                  " the corresponding coefficient has been fixed at its MLE of nenegative infinity.\n",sep=" "))
         d <- d[!madegree] 
       }
     }
@@ -818,10 +822,11 @@ InitErgm.astar<-function(nw, m, arglist, drop=TRUE, ...) {
                              (paste('nw ~ astar(', tmp,',"',attrname,'")',sep="")),
                              drop=FALSE) == 0
       if(any(astarattr)){
-        dropterms <- paste("astar", du[1,astarattr], ".", attrname,
-                           u[du[2,astarattr]], sep="")
-        cat("Warning: These astar terms have extreme counts and will be dropped:\n")
-        cat(dropterms, "\n", fill=T)
+        cat(" ")
+        cat(paste("Warning: There are no actor stars", du[1,astarattr], ".",
+                   attrname, u[du[2,astarattr]],
+                  ";\n",
+                  " the corresponding coefficient has been fixed at its MLE of nenegative infinity.\n",sep=" "))
         du <- matrix(du[,!astarattr], nrow=2)
       }
     }
@@ -840,9 +845,10 @@ InitErgm.astar<-function(nw, m, arglist, drop=TRUE, ...) {
                           as.formula(paste('nw ~ astar(',mastar,')',sep="")),
                           drop=FALSE) == 0
       if(any(mastar)){
-        cat(paste("Warning: There are no order", d[mastar],"astars.\n"))
-        dropterms <- paste("astar", d[mastar],sep="")
-        cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
+        cat(" ")
+        cat(paste("Warning: There are no actor stars", d[mastar],
+                  "actors;\n",
+                  " the corresponding coefficient has been fixed at its MLE of nenegative infinity.\n",sep=" "))
         d <- d[!mastar] 
       }
     }
@@ -1013,9 +1019,11 @@ InitErgm.edegree<-function(nw, m, arglist, drop=TRUE, ...) {
        as.formula(paste('nw ~ edegree(',medegree,')',sep="")),
        drop=FALSE) == 0
       if(any(medegree)){
-       cat(paste("Warning: There are no order", d[medegree],"edegrees.\n"))
+        cat(" ")
+        cat(paste("Warning: There are no degree", d[mdegree],
+                  "events;\n",
+                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
        dropterms <- paste("edegree", d[medegree],sep="")
-       cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
        d <- d[!medegree] 
       }
     }
@@ -1267,14 +1275,17 @@ InitErgm.aconcurrent<-function(nw, m, arglist, drop=TRUE, ...) {
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     if(drop){ #   Check for degeneracy
-      aconcurrentattr <- summary(as.formula
-                             (paste('nw ~ aconcurrent(',attrname,'")',sep="")),
-                             drop=FALSE) == 0
+      aconcurrentattr <- paste('nw ~ aconcurrent("',attrname,'")',sep="")
+      aconcurrentattr <- summary(as.formula(aconcurrentattr),
+                                 drop=FALSE) == 0
       if(any(aconcurrentattr)){
+        cat(" ")
+        cat(paste("Warning: There are no aconcurrent", ".", attrname,
+                           u[aconcurrentattr],
+                  "actors;\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
         dropterms <- paste("aconcurrent", ".", attrname,
                            u[aconcurrentattr], sep="")
-        cat("Warning: These aconcurrent terms have extreme counts and will be dropped:\n")
-        cat(dropterms, "\n", fill=T)
         u <- u[-aconcurrentattr]
       }
     }
@@ -1561,14 +1572,15 @@ InitErgm.econcurrent<-function(nw, m, arglist, drop=TRUE, ...) {
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     if(drop){ #   Check for degeneracy
-      econcurrentattr <- summary(as.formula
-                             (paste('nw ~ econcurrent(',attrname,'")',sep="")),
-                             drop=FALSE) == 0
+      econcurrentattr <- paste('nw ~ econcurrent("',attrname,'")',sep="")
+      econcurrentattr <- summary(as.formula(econcurrentattr),
+                                 drop=FALSE) == 0
       if(any(econcurrentattr)){
-        dropterms <- paste("econcurrent", ".", attrname,
-                           u[econcurrentattr], sep="")
-        cat("Warning: These econcurrent terms have extreme counts and will be dropped:\n")
-        cat(dropterms, "\n", fill=T)
+        cat(" ")
+        cat(paste("Warning: There are no econcurrent", ".", attrname,
+                           u[econcurrentattr],
+                  "events;\n",
+                 " the corresponding coefficient has been fixed at its MLE of nenegative infinity.\n",sep=" "))
         u <- u[-econcurrentattr]
       }
     }
