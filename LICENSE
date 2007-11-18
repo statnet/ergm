@@ -1,32 +1,57 @@
-Copyright (c) 2003 Mark S. Handcock, University of Washington,
-                   David R. Hunter, Penn State University,
-                   Carter T. Butts, University of California-Irvine,
-                   Steven M. Goodreau, University of Washington,
-                   Martina Morris, University of Washington 
+Cite us!
 
-     All rights reserved.
+This software is distributed under the GPL-3 license with the 
+following requirements: 
+(1) you retain in "statnetuserterms" and any modifications to
+    "statnetuserterms" the copyright, author attribution and URL
+    information as provided at http://statnetproject.org/attribution.
+(2) you retain in "statnetuserterms" and any modifications to
+    "statnetuserterms" display when used the attribution:
+    "Based on 'statnet' project software (http://statnetproject.org),
+     to be cited as http://statnetproject.org/cite"
 
-     Redistribution and use in source and binary forms, with or without
-     modification, are permitted provided that the following conditions are
-     met:
+What does this mean? :-)
+====================
 
-       Redistributions of source code must retain the above copyright notice,
-       this list of conditions and the following disclaimer.
+We have invested a lot of time and effort in creating 'statnet'",
+for use by other researchers. We require that the attributions
+in the software are retained (even if only pieces of it are used),
+and that there is attribution when the package is loaded (e.g., via
+"library" or "require"). This is the default, and is it stop
+"rebadging" of the software. 
 
-       Redistributions in binary form must reproduce the above copyright
-       notice, this list of conditions and the following disclaimer in the
-       documentation and/or other materials provided with the distribution.
+One core part of credit is academic citation (i.e., citing the package in
+papers based on work that uses the package). We have a cite we want people
+to use:
 
-       Neither name of the Omega Project for Statistical Computing nor the 
-       names of its contributors may be used to endorse or promote products 
-       derived from this software without specific prior written permission.
+Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M.
+Goodreau, and Martina Morris (2003) "statnet: A suite of R packages
+for the Statistical Modeling of Social Networks." URL
+http://statnetproject.org.
 
-     THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS'' AND ANY
-     EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-     MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
-     SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-     SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-     PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-     INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
-     STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
-     THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+Please cite it in all papers where it is used.
+
+Details
+=======
+For specific citations text use the command:
+
+citation("statnetuserterms")
+
+or go to 
+
+http://statnetproject.org/cite
+
+
+So, Enjoy! and Cite us!
+
+
+Mark S. Handcock, University of Washington
+David R. Hunter, Penn State University
+Carter T. Butts, University of California-Irvine
+Steven M. Goodreau, University of Washington
+Martina Morris, University of Washington
+
+The "statnet" development team
+
+Copyright 2007
+

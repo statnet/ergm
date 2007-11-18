@@ -6,12 +6,21 @@
 #                     David R. Hunter, Penn State University
 #                     Carter T. Butts, University of California - Irvine
 #                     Martina Morris, University of Washington
-# written December 2003
-# Licensed under the GNU General Public License version 2 (June, 1991)
+# 
+# For license information see http://statnetproject.org/license
 #
-# Part of the R/ergm package
+# We have invested a lot of time and effort in creating 'statnet',
+# for use by other researchers. We require that the attributions
+# in the software are retained (even if only pieces of it are used),
+# and that there is attribution when the package is loaded (e.g., via
+# "library" or "require"). This is to stop
+# "rebadging" of the software. 
 #
-# .First.lib is run when the package is loaded with library(ergm)
+# Cite us!
+#
+# To cite see http://statnetproject.org/cite
+#
+# .First.lib is run when the package is loaded.
 #
 ######################################################################
 
@@ -32,5 +41,5 @@
     'please specify the version of "ergm" you used and cite it;\n',
     'see citation("ergm")\n'))
 #   cat('To cite, see citation("ergm")\n')
-    require(network, quietly=TRUE)
+#   require(network, quietly=TRUE)
 }
