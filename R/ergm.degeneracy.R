@@ -9,7 +9,15 @@ ergm.degeneracy <- function(object,
   }
   if(is.matrix(object$sample)){
    if(is.null(object$mplefit$glm)){
-    fit <- ergm(object$formula, MPLEonly=TRUE, Mlestimate=FALSE) 
+    current.warn <- options()$warn
+    options(warn=-1)
+    fit <- try(ergm(object$formula, MPLEonly=TRUE, Mlestimate=FALSE),silent=TRUE)
+    options(warn=current.warn)
+    if(inherits(fit,"try-error")){
+     object$degeneracy <- NA
+     object$degeneracy.type <- NULL
+     return(invisible(object))
+    }
     if(is.null(fit$mplefit)){
      object$mplefit$glm <- fit$glm
     }else{
