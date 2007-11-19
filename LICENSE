@@ -1,48 +1,48 @@
-Cite us!
+Please cite us!
 
-This software is distributed under the GPL-3 license with the 
-following requirements: 
-(1) you retain in "statnetuserterms" and any modifications to
-    "statnetuserterms" the copyright, author attribution and URL
-    information as provided at http://statnetproject.org/attribution.
-(2) you retain in "statnetuserterms" and any modifications to
-    "statnetuserterms" display when used the attribution:
-    "Based on 'statnet' project software (http://statnetproject.org),
-     to be cited as http://statnetproject.org/cite"
+This software is distributed under the GPL-3 license with the
+following requirements:
+(1) you agree to retain in "ergm" and any modifications to
+     "ergm" the copyright, author attribution and URL
+     information as provided at http://statnetproject.org/attribution.
+(2) you agree that "ergm" and any modifications to
+     "ergm" will display when used the attribution:
+     "Based on 'statnet' project software (http://statnetproject.org),
+      to be cited as in http://statnetproject.org/cite"
 
 What does this mean? :-)
 ====================
 
-We have invested a lot of time and effort in creating 'statnet'",
+We have invested a lot of time and effort in creating 'ergm'
 for use by other researchers. We require that the attributions
 in the software are retained (even if only pieces of it are used),
 and that there is attribution when the package is loaded (e.g., via
-"library" or "require"). This is the default, and is it stop
-"rebadging" of the software. 
+"library" or "require"). This is the default, and is it to stop
+"rebadging" of the software.
 
-One core part of credit is academic citation (i.e., citing the package in
-papers based on work that uses the package). We have a cite we want people
-to use:
+One core part of credit for most of us is academic citation (i.e.,
+citing the package in papers based on work that uses the package).  We
+therefore ask that when you use 'ergm' in papers, you include the following
+citation:
 
 Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M.
 Goodreau, and Martina Morris (2003) "statnet: A suite of R packages
 for the Statistical Modeling of Social Networks." URL
 http://statnetproject.org.
 
-Please cite it in all papers where it is used.
-
 Details
 =======
-For specific citations text use the command:
+For specific text that can be used for various types of citations,
+use the command:
 
-citation("statnetuserterms")
+citation("ergm")
 
-or go to 
+or go to
 
 http://statnetproject.org/cite
 
 
-So, Enjoy! and Cite us!
+So, Enjoy! and Please cite us!
 
 
 Mark S. Handcock, University of Washington
@@ -54,4 +54,3 @@ Martina Morris, University of Washington
 The "statnet" development team
 
 Copyright 2007
-
