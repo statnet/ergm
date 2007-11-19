@@ -82,10 +82,11 @@ network
     recommend the use of the \code{gwdegree} instead of \code{altkstar}. See
     Section 3 and especially equation (13) of
     \url{http://www.sna.unimelb.edu.au/publications/cef4.pdf} for details. The
-    optional argument \code{fixed} is a logical indicating if the scale
-    parameter \code{lambda} is to be fit as a curved exponential family model
-    (see Hunter and Handcock, 2006). The default is \code{TRUE}. This term can
-    only be used with undirected networks.}
+    optional argument \code{fixed} indicates whether the scale parameter
+    \code{lambda} is to be fit as a curved exponential family model (see Hunter
+    and Handcock, 2006). The default is \code{FALSE}, which means the scale
+    parameter is not fixed and thus the model is a CEF model. This term can only
+    be used with undirected networks.}
 
     \item{\code{asymmetric}}{\emph{Asymmetric Dyads:} This term adds one network
     statistic to the model, equaling the number of pairs of actors for which
@@ -108,7 +109,7 @@ network
     term adds one network statistic to the model for each element in \code{d};
     the \eqn{i}th such statistic equals the minimum of \code{bound[i]} and the
     number of nodes in the network of in-degree exactly \code{d[i]}, i.e. with
-    exactly \code{d[i]} edges. This term can only be used with directed
+    exactly \code{d[i]} in-edges. This term can only be used with directed
     networks; for undirected networks see \code{bounded.degree}. }
 
     \item{\code{bounded.istar(k, bound)}}{\emph{Bounded In-Stars:} The \code{k}
@@ -128,7 +129,7 @@ network
     bounds corresponding to each degree. This term adds one network statistic to
     the model for each element in \code{k}. The \eqn{i}th such statistic counts
     the number of distinct \code{k[i]}-stars in the network, where a
-    \eqn{k}-instar is defined to be a node \eqn{N} and a set of \eqn{k}
+    \eqn{k}-star is defined to be a node \eqn{N} and a set of \eqn{k}
     different nodes \eqn{\{O_1, \dots, O_k\}}{O_1, \dots, O_k} such that the tie
     \eqn{\{N,O_j\}} exists for \eqn{j=1, \dots, k}. The value is the minimum of
     this count and \code{bound[i]}. This term can only be used with
@@ -141,7 +142,7 @@ network
     term adds one network statistic to the model for each element in \code{d};
     the \eqn{i}th such statistic equals the minimum of \code{bound[i]} and the
     number of nodes in the network of out-degree exactly \code{d[i]}, i.e. with
-    exactly \code{d[i]} edges. This term can only be used with directed
+    exactly \code{d[i]} out-edges. This term can only be used with directed
     networks; for undirected networks see \code{bounded.degree}. }
 
     \item{\code{bounded.ostar(k, bound)}}{\emph{Bounded Out-Stars:} The \code{k}
@@ -170,11 +171,11 @@ network
     (j{\rightarrow}k), (k{\rightarrow}i)\}}{\{(i,j), (j,k), (k,i)\}}. Note that
     for all directed networks, \code{triangle} is equal to
     \code{ttriple+ctriple}, so at most two of these three terms can be in a
-    model. The argument \code{attrname} is a character string giving the name of
-    an attribute in the network's vertex attribute list. If this is specified
-    then the count is over the number of cyclic triples where all three nodes
-    have the same value of the attribute. This term can only be used with
-    directed networks.}
+    model. The optional argument \code{attrname} is a character string giving
+    the name of an attribute in the network's vertex attribute list. If this is
+    specified then the count is over the number of cyclic triples where all
+    three nodes have the same value of the attribute. This term can only be used
+    with directed networks.}
 
     \item{\code{cycle(k)}}{\emph{Cycles:} The \code{k} argument is a vector of
     distinct integers. This term adds one network statistic to the model for
@@ -191,10 +192,10 @@ network
     vector of distinct integers. This term adds one network statistic to the
     model for each element in \code{d}; the \eqn{i}th such statistic equals the
     number of nodes in the network of degree \code{d[i]}, i.e. with exactly
-    \code{d[i]} edges. The term \code{attrname} is a character string giving the
-    name of an attribute in the network's vertex attribute list. If this is
-    specified then the degree count is the number of nodes with the same value
-    of the attribute as the ego node. This term can only be used with
+    \code{d[i]} edges. The optional term \code{attrname} is a character string
+    giving the name of an attribute in the network's vertex attribute list. If
+    this is specified then the degree count is the number of nodes with the same
+    value of the attribute as the ego node. This term can only be used with
     undirected networks; for directed networks see \code{idegree} and
     \code{odegree}. }
 
@@ -212,7 +213,7 @@ network
     the model for each element in \code{d}; the \eqn{i}th such statistic equals
     the number of dyads in the network with exactly \code{d[i]} shared partners.
     This term can be used with directed and undirected networks.
-    For directed networks the geometric weighting is over homogeneous shared
+    For directed networks the count is over homogeneous shared
     partners only (i.e., only partners on a directed two-path connecting the 
     nodes in the dyad and in the same direction).}
 
@@ -265,7 +266,7 @@ network
     This term can be used with directed and undirected networks.
     For directed networks the count is over homogeneous shared
     partners only (i.e., only partners on a directed two-path connecting the 
-    nodes in the edge and in the same direction).}
+    nodes in the edge in the same direction as the edge itself).}
 
     \item{\code{gwdegree(decay, fixed=FALSE)}}{\emph{Geometrically Weighted
     Degree Distribution:} This term adds one network statistic to the model
@@ -273,50 +274,53 @@ network
     \code{decay}. This is the version given as equation (14) in
     \url{http://www.sna.unimelb.edu.au/publications/cef4.pdf}. See the "Remark"
     in section 3 of that paper to see why it is used rather than the version
-    given in Snijders et al. (2006). The optional argument \code{fixed} is a
-    logical indicating if the decay parameter is to be fit as a curved
-    exponential family model. The default is \code{FALSE}. This term can only be
-    used with undirected networks.}
+    given in Snijders et al. (2006). The optional argument \code{fixed}
+    indicates whether the scale parameter \code{lambda} is to be fit as a curved
+    exponential family model (see Hunter and Handcock, 2006). The default is
+    \code{FALSE}, which means the scale parameter is not fixed and thus the
+    model is a CEF model. This term can only be used with undirected networks.}
 
     \item{\code{gwdsp(alpha, fixed=FALSE)}}{\emph{Geometrically Weighted
     Dyadwise Shared Partner Distribution:} This term adds one network statistic
     to the model equal to the geometrically weighted dyadwise shared partner
     distribution with weight parameter \code{alpha}. The optional argument
-    \code{fixed} is a logical indicating if the scale parameter \code{alpha} is
-    to be fit as a curved exponential family model. The default is \code{FALSE}.
-    This term can be used with directed and undirected networks.
-    For directed networks the count is over homogeneous shared
-    partners only (i.e., only partners on a directed two-path connecting the 
-    nodes in the dyad and in the same direction).}
+    \code{fixed} indicates whether the scale parameter \code{lambda} is to be
+    fit as a curved exponential family model (see Hunter and Handcock, 2006).
+    The default is \code{FALSE}, which means the scale parameter is not fixed
+    and thus the model is a CEF model. This term can be used with directed and
+    undirected networks. For directed networks the count is over homogeneous
+    shared partners only (i.e., only partners on a directed two-path connecting
+    the nodes in the dyad and in the same direction).}
 
     \item{\code{gwesp(alpha, fixed=FALSE)}}{\emph{Geometrically Weighted
     Edgewise Shared Partner Distribution:} This term adds one network statistic
     to the model equal to the geometrically weighted edgewise shared partner
     distribution with weight parameter \code{alpha}. The optional argument
-    \code{fixed} is a logical indicating if the scale parameter \code{alpha} is
-    to be fit as a curved exponential family model. The default is \code{FALSE}.
-    This term can be used with directed and undirected networks.
-    For directed networks the geometric weighting is over homogeneous shared
-    partners only (i.e., only partners on a directed two-path connecting the 
-    nodes in the edge and in the same direction).}
+    \code{fixed} indicates whether the scale parameter \code{lambda} is to be
+    fit as a curved exponential family model (see Hunter and Handcock, 2006).
+    The default is \code{FALSE}, which means the scale parameter is not fixed
+    and thus the model is a CEF model. This term can be used with directed and
+    undirected networks. For directed networks the geometric weighting is over
+    homogeneous shared partners only (i.e., only partners on a directed two-path
+    connecting the nodes in the edge in the same direction as the edge itself).}
 
     \item{\code{gwidegree(decay, fixed=FALSE)}}{\emph{Geometrically Weighted
     In-Degree Distribution:} This term adds one network statistic to the model
     equal to the weighted in-degree distribution with weight parameter
-    \code{decay}. 
-    The optional argument \code{fixed} is a
-    logical indicating if the decay parameter is to be fit as a curved
-    exponential family model. The default is \code{FALSE}. This term can only be
-    used with directed networks.}
+    \code{decay}. The optional argument \code{fixed} indicates whether the scale
+    parameter \code{lambda} is to be fit as a curved exponential family model
+    (see Hunter and Handcock, 2006). The default is \code{FALSE}, which means
+    the scale parameter is not fixed and thus the model is a CEF model. This
+    term can only be used with directed networks.}
 
     \item{\code{gwodegree(decay, fixed=FALSE)}}{\emph{Geometrically Weighted
     Out-Degree Distribution:} This term adds one network statistic to the model
     equal to the weighted out-degree distribution with weight parameter
-    \code{decay}. 
-    The optional argument \code{fixed} is a
-    logical indicating if the decay parameter is to be fit as a curved
-    exponential family model. The default is \code{FALSE}. This term can only be
-    used with directed networks.}
+    \code{decay}. The optional argument \code{fixed} indicates whether the scale
+    parameter \code{lambda} is to be fit as a curved exponential family model
+    (see Hunter and Handcock, 2006). The default is \code{FALSE}, which means
+    the scale parameter is not fixed and thus the model is a CEF model. This
+    term can only be used with directed networks.}
 
 %%   \item{\code{hamming(x, attrname)}}{\emph{Hamming Distance:}
 %%   This term adds one statistic to the model equal to the Hamming distance
@@ -372,15 +376,15 @@ network
     \code{istar}, \code{ostar}, \code{twopath} and \code{m2star}. Note that \code{kstar(1)} is
     equal to \code{edges}. }
 
-    \item{\code{localtriangle(attrname)}}{\emph{Triangles Within Neighborhoods:
+    \item{\code{localtriangle(x)}}{\emph{Triangles Within Neighborhoods:
     } This term adds one statistic to the model equal to the number of triangles
-    in the network between nodes close to each other. For an undirected network,
+    in the network between nodes \dQuote{close to} each other. For an undirected network,
     a local triangle is defined to be any set of three edges between nodal pairs
     \eqn{\{(i,j), (j,k), (k,i)\}} that are in the same neighborhood. For a
     directed network, a triangle is defined as any set of three edges
     \eqn{(i{\rightarrow}j), (j{\rightarrow}k)}{(i,j), (j,k)} and either
     \eqn{(k{\rightarrow}i)} or \eqn{(k{\leftarrow}i)} where again all nodes are
-    within the same neighborhood. The argument \code{attrname} is a network or
+    within the same neighborhood. The argument \code{x} is a network or
     an adjacency matrix that specifies whether the two nodes are in the same
     neighborhood. Note that this is technically a special case of
     \code{triangle}. }
@@ -498,13 +502,13 @@ network
     \code{attrname} argument is a character string giving the name of an
     attribute in the network's vertex attribute list that takes numeric values.
     This term adds one network statistic to the model equaling the sum of the
-    attribute values of the receivers of all in-ties. This term can only be used
+    attribute values of the receivers of all ties. This term can only be used
     with a directed network. For undirected networks, see \code{nodemain}.}
 
     \item{\code{sender}}{\emph{Sender Effect:} This term adds one network
     statistic for each node equal to the number of out-ties for that node. This
     measures the activity of the node. The term for the first node is omitted
-    because if redundancy, but the coefficient can be computed as the negative
+    because of redundancy, but the coefficient can be computed as the negative
     of the sum of the coefficients of all the other actors. That is, the average
     coefficient is zero, following the Holland-Leinhardt parametrization of the
     \eqn{p_1} model. This term can only be used with a directed network. For
@@ -514,7 +518,7 @@ network
     \code{attrname} argument is a character string giving the name of an
     attribute in the network's vertex attribute list that takes numeric values.
     This term adds one network statistic to the model equaling the sum of the
-    attribute values of the sender of all out-ties. This term can only be used
+    attribute values of the senders of all ties. This term can only be used
     with a directed network. For undirected networks, see \code{nodemain}.}
 
     \item{\code{smalldiff(attrname, cutoff)}}{\emph{Small
@@ -560,7 +564,7 @@ network
     network, defined as a set of edges \eqn{\{(i{\rightarrow}j),
     (j{\rightarrow}k), (i{\rightarrow}k)\}}{\{(i,j), (j,k), (i,k)\}}. Note that
     \code{triangle} equals \code{ttriple+ctriple} for a directed network, so at
-    most two of the three terms can be in a model. The optional \code{attrname}
+    most two of the three terms can be in a model. The optional argument \code{attrname}
     is a character string giving the name of an attribute in the network's
     vertex attribute list. If this is specified then the count is over the
     number of transitive triples where all three nodes have the same value of the
