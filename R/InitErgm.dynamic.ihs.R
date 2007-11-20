@@ -14,7 +14,7 @@ InitErgm.dissolve<-function (nw, m, arglist, ...) {
 #
   nwm<-as.matrix.network(nw,matrix.type="edgelist")
   if (is.null(nwm) || ncol(nwm)!=2){
-    stop("dissolve() requires a proper network as its reference")
+    stop("dissolve() requires an proper network as its reference")
   }
   termnumber<-1+length(m$terms)
 # There is 1 input parameter before the covariate vector, so input
@@ -54,7 +54,7 @@ InitErgm.formation<-function (nw, m, arglist, ...) {
     x<-paste(quote(x))
   }
   if (is.null(xm) || ncol(xm)!=2){
-    stop("formation() requires a proper network as its reference")
+    stop("formation() requires an proper network as its reference")
   }
   termnumber<-1+length(m$terms)
 # There is 1 input parameter before the covariate vector, so input
