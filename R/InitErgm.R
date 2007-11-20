@@ -1639,6 +1639,57 @@ InitErgm.nodefactor<-function (nw, m, arglist, drop=TRUE, ...) {
 }
 
 #########################################################
+InitErgm.nodeifactor<-function (nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("nodeifactor", is.directed(nw), requirement=TRUE)
+  a <- ergm.checkargs("nodeifactor", arglist,
+    varnames = c("attrname"),
+    vartypes = c("character"),
+    defaultvalues = list(NULL),
+    required = c(TRUE))
+  attach(a)
+  attrname<-a$attrname
+  nodecov <- get.node.attr(nw, attrname, "nodeifactor")
+  u<-sort(unique(nodecov))
+  if(any(is.na(nodecov))){u<-c(u,NA)}
+  nodecov <- match(nodecov,u,nomatch=length(u)+1)
+  ui <- seq(along=u)
+  if(drop){
+    if (!is.directed(nw)){
+      nfc <- tapply(tabulate(as.matrix.network.edgelist(nw),
+                             nbins=network.size(nw)),
+                    nodecov,sum)
+    }else{
+      nfc <- tapply(tabulate(as.matrix.network.edgelist(nw),
+                             nbins=network.size(nw)),
+                    nodecov,sum)
+    }
+    if(any(nfc==0)){
+      dropterms <- paste(paste("nodeifactor",attrname,sep="."),u[nfc==0],sep="")
+      cat(" ")
+      cat(paste("Warning: The count of", dropterms, "is extreme;\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+#     cat(paste("To avoid degeneracy the terms",
+#               paste(dropterms,collapse=" and, "),
+#               "have been dropped.\n"))
+      u<-u[nfc>0]
+      ui<-ui[nfc>0]
+    }
+  }
+  lu <- length(ui)
+  if (lu==1){
+    stop ("Argument to nodeifactor() has only one value", call.=FALSE)
+  }
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="nodeifactor", soname="ergm",
+                                inputs=c(lu-1, lu-1, lu-1+length(nodecov),
+                                         ui[-1], nodecov), dependence=FALSE)
+  # smallest value of u is "control group"
+  m$coef.names<-c(m$coef.names, paste("nodeifactor",
+                                      attrname, paste(u[-1]), sep="."))
+  m
+}
+
+#########################################################
 InitErgm.nodemain<-InitErgm.nodecov<-function (nw, m, arglist, ...) {
   a <- ergm.checkargs("nodemain", arglist,
     varnames = c("attrname"),
@@ -1852,6 +1903,57 @@ InitErgm.nodemix<-InitErgm.mix<-function (nw, m, arglist, drop=TRUE, ...) {
                                   dependence=FALSE)
     m$coef.names<-c(m$coef.names,paste("mix",attrname, uun, sep="."))
   }
+  m
+}
+
+#########################################################
+InitErgm.nodeofactor<-function (nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("nodeofactor", is.directed(nw), requirement=TRUE)
+  a <- ergm.checkargs("nodeofactor", arglist,
+    varnames = c("attrname"),
+    vartypes = c("character"),
+    defaultvalues = list(NULL),
+    required = c(TRUE))
+  attach(a)
+  attrname<-a$attrname
+  nodecov <- get.node.attr(nw, attrname, "nodeofactor")
+  u<-sort(unique(nodecov))
+  if(any(is.na(nodecov))){u<-c(u,NA)}
+  nodecov <- match(nodecov,u,nomatch=length(u)+1)
+  ui <- seq(along=u)
+  if(drop){
+    if (!is.directed(nw)){
+      nfc <- tapply(tabulate(as.matrix.network.edgelist(nw),
+                             nbins=network.size(nw)),
+                    nodecov,sum)
+    }else{
+      nfc <- tapply(tabulate(as.matrix.network.edgelist(nw),
+                             nbins=network.size(nw)),
+                    nodecov,sum)
+    }
+    if(any(nfc==0)){
+      dropterms <- paste(paste("nodeofactor",attrname,sep="."),u[nfc==0],sep="")
+      cat(" ")
+      cat(paste("Warning: The count of", dropterms, "is extreme;\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+#     cat(paste("To avoid degeneracy the terms",
+#               paste(dropterms,collapse=" and, "),
+#               "have been dropped.\n"))
+      u<-u[nfc>0]
+      ui<-ui[nfc>0]
+    }
+  }
+  lu <- length(ui)
+  if (lu==1){
+    stop ("Argument to nodeofactor() has only one value", call.=FALSE)
+  }
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="nodeofactor", soname="ergm",
+                                inputs=c(lu-1, lu-1, lu-1+length(nodecov),
+                                         ui[-1], nodecov), dependence=FALSE)
+  # smallest value of u is "control group"
+  m$coef.names<-c(m$coef.names, paste("nodeofactor",
+                                      attrname, paste(u[-1]), sep="."))
   m
 }
 

@@ -17,8 +17,8 @@ ergm <- function(formula, theta0="MPLE",
 
   nw <- ergm.getnetwork(formula)
 #  if(!is.null(meanstats)){ control$drop <- FALSE }
-  if(control$nsubphases=="maxit") control$nsubphases<-maxit
-
+  if(control$nsubphases=="maxit") control$nsubphases<-maxit  
+                              
   
   if (verbose) cat("Fitting initial model.\n")
     

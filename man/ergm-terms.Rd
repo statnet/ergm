@@ -9,7 +9,7 @@
   The function \code{\link{ergm}} is used to fit linear exponential 
   random graph models, in which
   the probability of a given network, \eqn{y}, on a set of nodes is 
-  \eqn{\exp(\theta{\cdot}g(y))/c(\theta)}, where 
+  \eqn{\exp\{\theta{\cdot}g(y)\}/c(\theta)}{\exp\{\theta * g(y)\}/c(\theta)}, where 
   \eqn{g(y)} is a vector of network statistics for \eqn{y},
   \eqn{\theta} is a parameter vector of the same 
   length and \eqn{c(\theta)} is the
@@ -432,6 +432,17 @@ network
     \code{nodefactor("fruit", base=2:3)}. For an analogous term for quantitative
     vertex attributes, see \code{nodemain}. }
 
+    \item{\code{nodeifactor(attrname)}}{\emph{Factor Attribute Effect for
+    in-edges:} The \code{attrname} argument is a character string giving the
+    name of a categorical attribute in the network's vertex attribute list. This
+    term adds multiple network statistics to the model, one for all but one of
+    the unique values of the \code{attrname} attribute. Each of these statistics
+    gives the number of times a vertex with that attribute appears in an in-edge
+    in the directed network. In particular, for edges whose endpoints both have
+    the same attribute value, this value is counted twice. The first unique
+    value, in sorted order, is excluded from the model and may be considered the
+    reference category. This term may only be used with directed networks.}
+
     \item{\code{nodemain(attrname)}}{\emph{Main Effect of a Covariate:} The
     \code{attrname} argument is a character string giving the name of a
     quantitative (not categorical) attribute in the network's vertex attribute
@@ -463,6 +474,18 @@ network
     attribute. The ordering of the attribute values is alphabetical. If the
     option \code{contrast=TRUE} is used, then a statistic for the first pairing
     is not included, making it the de facto reference category.}
+
+    \item{\code{nodeofactor(attrname)}}{\emph{Factor Attribute Effect for
+    out-edges:} The \code{attrname} argument is a character string giving the
+    name of a categorical attribute in the network's vertex attribute list. This
+    term adds multiple network statistics to the model, one for all but one of
+    the unique values of the \code{attrname} attribute. Each of these statistics
+    gives the number of times a vertex with that attribute appears in an
+    out-edge in the directed network. In particular, for edges whose endpoints
+    both have the same attribute value, this value is counted twice. The first
+    unique value, in sorted order, is excluded from the model and may be
+    considered the reference category. This term may only be used with directed
+    networks.}
 
     \item{\code{odegree(d, attrname)}}{\emph{Out-Degree:} The \code{d} argument
     is a vector of distinct integers. This term adds one network statistic to
