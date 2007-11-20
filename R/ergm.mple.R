@@ -76,6 +76,11 @@ ergm.mple<-function(Clist, Clist.miss, m, theta.offset=NULL,
   }else{
    foffset <- rep(0, length=length(zy))
    theta.offset <- rep(0, length=Clist$nparam)
+   if(Clist$nedges>0){
+     theta.offset[1] <- log(Clist$nedges/(Clist$ndyads-Clist$nedges))
+   }else{
+     theta.offset[1] <- log(1/(Clist$ndyads-1))
+   }
    names(theta.offset) <- m$coef.names
   }
   
@@ -150,7 +155,8 @@ ergm.mple<-function(Clist, Clist.miss, m, theta.offset=NULL,
                    weights=wend, family=family),
                    silent = TRUE)
     if (inherits(mplefit, "try-error")) {
-      mplefit <- list(coef=theta.offset)
+      mplefit <- list(coef=theta.offset, deviance=0,
+                      cov.unscaled=diag(theta.offset))
       mplefit.summary <- list(cov.unscaled=diag(theta.offset))
     }else{
       mplefit.summary <- summary(mplefit)

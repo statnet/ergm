@@ -941,7 +941,7 @@ InitErgm.hammingdyadcov<-function (nw, m, arglist, ...) {
     cov<-paste(quote(cov))
   }
   if (is.null(covm) || !is.matrix(covm) || nrow(covm)!=get.network.attribute(nw,"bipartite")){
-    stop("hammingdyadcov() requires an proper dyadic covariate")
+    stop("hammingdyadcov() requires a proper dyadic covariate")
   }
 #
 # Extract reference network as an edgelist
@@ -959,7 +959,7 @@ InitErgm.hammingdyadcov<-function (nw, m, arglist, ...) {
     x<-paste(quote(x))
   }
   if (is.null(xm) || ncol(xm)!=2){
-    stop("hammingdyadcov() requires an proper network as its reference")
+    stop("hammingdyadcov() requires a proper network as its reference")
   }
 ##
 ##   Check for degeneracy
