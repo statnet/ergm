@@ -27,22 +27,56 @@ void MPLE_wrapper (int *heads, int *tails, int *dnedges,
 		   double * offset, double * compressedOffset,
 		   int maxNumDyadTypes)
 {
-  Network nw;
+  Network nw[2];
   Vertex n_nodes = (Vertex) *dn; 
   Edge n_edges = (Edge) *dnedges;
   int directed_flag = *dflag;
+  int hammingterm;
   Vertex bip = (Vertex) *bipartite;
+  Vertex hhead, htail;
+  Edge  nddyads, kedge;
   Model *m;
+  ModelTerm *thisterm;
 
   GetRNGstate(); /* Necessary for R random number generator */
-  nw=NetworkInitialize(heads, tails, n_edges, n_nodes, directed_flag, bip, 0);
+  nw[0]=NetworkInitialize(heads, tails, n_edges, n_nodes, directed_flag, bip, 0);
   m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
   
+  hammingterm=ModelTermHamming (*funnames, *nterms);
+  if(hammingterm>0){
+   Network nwhamming;
+   thisterm = m->termarray + hammingterm - 1;
+   nddyads = (Edge)(thisterm->inputparams[0]);
+   nwhamming=NetworkInitializeD(thisterm->inputparams+1, 
+				thisterm->inputparams+1+nddyads,
+			       	nddyads, n_nodes, directed_flag, bip,0);
+   nddyads=0;
+   nw[1]=NetworkInitializeD(thisterm->inputparams+1, 
+			   thisterm->inputparams+1+nddyads, nddyads, n_nodes, directed_flag, bip,0);
+//	     Rprintf("made hw[1]\n");
+   for (kedge=1; kedge <= nwhamming.nedges; kedge++) {
+     FindithEdge(&hhead, &htail, kedge, &nwhamming);
+     if(EdgetreeSearch(hhead, htail, nw[0].outedges) == 0){
+//	     Rprintf(" in g0 not g hhead %d htail %d\n",hhead, htail);
+       ToggleEdge(hhead, htail, &nw[1]);
+     }
+   }
+   for (kedge=1; kedge <= nw[0].nedges; kedge++) {
+     FindithEdge(&hhead, &htail, kedge, &nw[0]);
+     if(EdgetreeSearch(hhead, htail, nwhamming.outedges) == 0){
+//	     Rprintf("not g0  in g hhead %d htail %d\n",hhead, htail);
+       ToggleEdge(hhead, htail, &nw[1]);
+     }
+   }
+//   Rprintf("Initial number of discordant %d Number of g0 ties %d Number of ties in g %d\n",nw[1].nedges, nwhamming.nedges,nw[0].nedges);
+   NetworkDestroy(&nwhamming);
+  }
+
   MpleInitialize(bip, responsevec, covmat, weightsvector,
-		 offset, compressedOffset, maxNumDyadTypes, &nw, m); 
+		 offset, compressedOffset, maxNumDyadTypes, nw, m); 
   
   ModelDestroy(m);
-  NetworkDestroy(&nw);
+  NetworkDestroy(nw);
   PutRNGstate(); /* Must be called after GetRNGstate before returning to R */
 }
 

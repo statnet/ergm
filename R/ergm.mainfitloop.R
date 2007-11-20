@@ -82,7 +82,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist, Clist.miss,
               print(theta0)
 #     v <- list(coef=theta0)
       v$coef <- theta0
-      return(v)
+      return(structure (v, class="ergm"))
      }
     }
     if(verbose){

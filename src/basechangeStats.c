@@ -3174,6 +3174,7 @@ void d_hamming (int ntoggles, Vertex *heads, Vertex *tails,
   int i, nhedge, discord;
   
   nhedge = nwp[1].nedges;
+//Rprintf("nhedge %d\n",nhedge);
   *(mtp->dstats) = 0.0;
   for (i=0; i<ntoggles; i++) 
   {
@@ -3194,7 +3195,7 @@ void d_hamming (int ntoggles, Vertex *heads, Vertex *tails,
 //  so moving away one step
 //    discord = (edgeflag0!=edgeflag) ? -1 : 1;
 
-//  Rprintf("h %d t %d edgeflag %d edgeflag0 %d discord %d\n",h, t, edgeflag, edgeflag0, discord);
+//Rprintf("h %d t %d discord %d\n",h, t, discord);
 //  if(nhedge>0)
 //  Rprintf("h %d t %d discord %d nhedge %d\n",h, t, discord, nhedge);
 

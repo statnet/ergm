@@ -1824,7 +1824,7 @@ InitErgm.kappa<-function(nw, m, arglist, ...) {
   m
 }
 
-InitErgm.hamming<-function (nw, m, arglist, ...) {
+InitErgm.hamming<-function (nw, m, arglist, drop=TRUE, ...) {
   a <- ergm.checkargs("hamming", arglist,
     varnames = c("x","attrname"),
     vartypes = c("matrixnetwork", "character"),
@@ -1832,6 +1832,21 @@ InitErgm.hamming<-function (nw, m, arglist, ...) {
     required = c(FALSE, FALSE))
   attach(a)
   x<-a$x;attrname<-a$attrname
+  if(drop){ #   Check for degeneracy
+    if(is.null(attrname)){
+     hamm <- summary(nw ~ hamming(x), drop=FALSE) == 0
+    }else{
+     hamm <- summary(as.formula
+                    (paste('nw ~ hamming(x,"',attrname,'")',sep="")),
+                            drop=FALSE) == 0
+    }
+    if(hamm){
+     cat(" ")
+     cat(paste("Warning: The Hamming distance is zero;\n",
+               " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+     return(m)
+    }
+  }
   if(is.network(x)){
     xm<-as.matrix.network(x,matrix.type="edgelist",attrname)
     x<-paste(quote(x))
@@ -1845,7 +1860,7 @@ InitErgm.hamming<-function (nw, m, arglist, ...) {
     x<-paste(quote(x))
   }
   if (is.null(xm) || NCOL(xm)!=2){
-    stop("hamming() requires an edgelist")
+    stop("hamming() requires an argument that can be coerced into an edgelist.")
   }
   termnumber <- 1 + length(m$terms)
 # There is 1 input parameter before the covariate vector, so input

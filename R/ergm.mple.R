@@ -61,18 +61,17 @@ ergm.mple<-function(Clist, Clist.miss, m, theta.offset=NULL,
    if(is.null(theta.offset)){
     theta.offset <- rep(0, length=Clist$nparam)
     names(theta.offset) <- m$coef.names
-    theta.offset[m$etamap$offsettheta] <- -1
-    foffset <- xmat %*% theta.offset !=0
     theta.offset[m$etamap$offsettheta] <- -Inf
-   }else{
-    foffset <- xmat %*% theta.offset
    }
+   foffset <- xmat %*% theta.offset
+   shouldoffset <- is.infinite(foffset)
    xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE]
    colnames(xmat) <- m$coef.names[!m$etamap$offsettheta]
-   xmat <- xmat[!foffset,,drop=FALSE]
-   zy <- zy[!foffset]
-   wend <- wend[!foffset]
-   foffset <- foffset[!foffset]
+   xmat <- xmat[!shouldoffset,,drop=FALSE]
+   zy <- zy[!shouldoffset]
+   wend <- wend[!shouldoffset]
+   foffset <- foffset[!shouldoffset]
+   theta.offset <- theta.offset[!m$etamap$offsettheta]
   }else{
    foffset <- rep(0, length=length(zy))
    theta.offset <- rep(0, length=Clist$nparam)
@@ -151,13 +150,13 @@ ergm.mple<-function(Clist, Clist.miss, m, theta.offset=NULL,
     mplefit.summary <- list(cov.unscaled=mplefit$cov.unscaled)
    }else{
     mplefit <- try(
-         glm(zy ~ .-1 + offset(foffset), data=data.frame(xmat),
-                   weights=wend, family=family),
-                   silent = TRUE)
+          glm(zy ~ .-1 + offset(foffset), data=data.frame(xmat),
+                    weights=wend, family=family),
+                    silent = TRUE)
     if (inherits(mplefit, "try-error")) {
       mplefit <- list(coef=theta.offset, deviance=0,
-                      cov.unscaled=diag(theta.offset))
-      mplefit.summary <- list(cov.unscaled=diag(theta.offset))
+                      cov.unscaled=diag(length(theta.offset)))
+      mplefit.summary <- list(cov.unscaled=diag(length(theta.offset)))
     }else{
       mplefit.summary <- summary(mplefit)
     }
@@ -186,15 +185,23 @@ ergm.mple<-function(Clist, Clist.miss, m, theta.offset=NULL,
     }
     independent <- independent>0
     if(any(independent)){
-     mindfit <- glm(zy ~ .-1 + offset(foffset), 
+     mindfit <- try(glm(zy ~ .-1 + offset(foffset), 
                     data=data.frame(xmat[,independent,drop=FALSE]),
-                    weights=wend, family=family)
-     mindfit.summary <- summary(mindfit)
-     theta.ind[independent] <- mindfit$coef
-     theta1 <- list(coef=mindfit$coef, 
+                    weights=wend, family=family),
+                    silent = TRUE)
+     if (inherits(mindfit, "try-error")) {
+      theta1 <- list(coef=NULL, 
+                    theta=rep(0,ncol(xmat)),
+                    independent=independent,
+                    loglikelihood=-numobs*log(2))
+     }else{
+      mindfit.summary <- summary(mindfit)
+      theta.ind[independent] <- mindfit$coef
+      theta1 <- list(coef=mindfit$coef, 
                     theta=theta.ind,
                     independent=independent,
                     loglikelihood=-mindfit$deviance/2)
+     }
     }else{
      theta1 <- list(coef=NULL, 
                     theta=rep(0,ncol(xmat)),
@@ -227,6 +234,7 @@ ergm.mple<-function(Clist, Clist.miss, m, theta.offset=NULL,
 #  }
   theta[!m$etamap$offsettheta] <- real.coef
   theta[is.na(theta)] <- 0
+  names(theta) <- m$coef.names
 
 #
 # Old end
@@ -261,7 +269,12 @@ ergm.mple<-function(Clist, Clist.miss, m, theta.offset=NULL,
     mplefit.null <- ergm.logitreg(x=matrix(1,ncol=1,nrow=length(zy)),
                                   y=zy, offset=foffset, wt=wend)
    }else{
-    mplefit.null <- glm(zy ~ 1, family=family, weights=wend)
+    mplefit.null <- try(glm(zy ~ 1, family=family, weights=wend),
+                        silent = TRUE)
+    if (inherits(mplefit.null, "try-error")) {
+      mplefit.null <- list(coef=0, deviance=0,
+                      cov.unscaled=diag(1))
+    }
    }
    options(warn=0)
 #  options(warn=2)
