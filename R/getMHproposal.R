@@ -1,6 +1,3 @@
-#  DH:  This file is still a work in progress, but for now it should
-#  be set up so as not to break anything!
-
 MHproposals<-
   #         Class Constraint      Weights        MHP
   rbind(I(c("c", "",              "default",      "TNT")),

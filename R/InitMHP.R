@@ -1,6 +1,3 @@
-#  DH:  This file is still a work in progress, but for now it should
-#  be set up so as not to break anything!
-
 InitMHP.randomtoggle <- function(arguments, nw, model) {
   MHproposal <- list(name = "randomtoggle", args=NULL, package="ergm")
   if(is.bipartite(nw)){
