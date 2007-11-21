@@ -464,6 +464,78 @@ InitErgm.bounded.triangle<-function(nw, m, arglist, ...) {
 
 ###################################### InitErgm TERMS:  C
 #########################################################
+InitErgm.concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
+# ergm.checkdirected("concurrent", is.directed(nw), requirement=TRUE)
+  a <- ergm.checkargs("concurrent", arglist,
+                      varnames = c("attrname"),
+                      vartypes = c("character"),
+                      defaultvalues = list(NULL),
+                      required = c(FALSE))
+  attach(a)
+  attrname <- a$attrname
+  emptynwstats<-NULL
+  if(!is.null(attrname)) {
+    nodecov <- get.node.attr(nw, attrname, "concurrent")
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+    nodecov <- match(nodecov,u) # Recode to numeric
+    if (length(u)==1)
+      stop ("Attribute given to concurrent() has only one value", call.=FALSE)
+    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+    lu <- length(u)
+    if(drop){ #   Check for degeneracy
+      concurrentattr <- summary(as.formula
+                             (paste('nw ~ concurrent(',attrname,'")',sep="")),
+                             drop=FALSE) == 0
+      if(any(concurrentattr)){
+        dropterms <- paste("concurrent", ".", attrname,
+                           u[concurrentattr], sep="")
+      cat(" ")
+        cat("Warning: These concurrent terms have extreme counts and will be dropped:\n")
+        cat(dropterms, "\n", fill=T)
+        cat("  The corresponding coefficients have been fixed at their MLE of negative infinity.\n")
+        u <- u[-concurrentattr]
+      }
+    }
+  } else {
+    if(is.logical(attrname)){drop <- attrname}
+    if(drop){
+      mconcurrent <- summary(
+                          as.formula(paste('nw ~ concurrent',sep="")),
+                          drop=FALSE) == 0
+      if(any(mconcurrent)){
+      cat(" ")
+        cat(paste("Warning: There are no concurrent actors;\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+        return(m)
+      }
+    }
+  }
+  termnumber<-1+length(m$terms)
+  if(!is.null(attrname)) {
+    if(length(u)==0) {return(m)}
+    #  No covariates here, so input component 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="concurrent_by_attr", soname="ergm",
+                                  inputs=c(0, length(u), 
+                                           length(u)+length(nodecov), 
+                                           u, nodecov),
+                                  dependence=TRUE)
+    # See comment in d_concurrent_by_attr function
+    m$coef.names<-c(m$coef.names, paste("concurrent",".", attrname,
+                                        u, sep=""))
+  }else{
+    #  No covariates here, so input component 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="concurrent", soname="ergm",
+                                       inputs=c(0, 1, 0),
+                                       dependence=TRUE)
+    m$coef.names<-c(m$coef.names,paste("concurrent",sep=""))
+  }
+  if (!is.null(emptynwstats)) 
+    m$terms[[termnumber]]$emptynwstats <- emptynwstats
+  m
+}
+
+#########################################################
 InitErgm.ctriple<-InitErgm.ctriad<-function (nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("ctriple", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("ctriple", arglist,
@@ -1587,13 +1659,13 @@ InitErgm.mutual<-function (nw, m, arglist, drop=TRUE, ...) {
 #########################################################
 InitErgm.nodefactor<-function (nw, m, arglist, drop=TRUE, ...) {
   a <- ergm.checkargs("nodefactor", arglist,
-    varnames = c("attrname", "omitwhich"),
+    varnames = c("attrname", "base"),
     vartypes = c("character", "numeric"),
     defaultvalues = list(NULL, 1),
     required = c(TRUE, FALSE))
   attach(a)
   attrname<-a$attrname
-  omitwhich <- a$omitwhich
+  base <- a$base
   nodecov <- get.node.attr(nw, attrname, "nodefactor")
   u<-sort(unique(nodecov))
   if(any(is.na(nodecov))){u<-c(u,NA)}
@@ -1628,13 +1700,12 @@ InitErgm.nodefactor<-function (nw, m, arglist, drop=TRUE, ...) {
   termnumber<-1+length(m$terms)
   
   m$terms[[termnumber]] <- list(name="nodefactor", soname="ergm",
-                                inputs=c(lu-length(omitwhich), 
-                                         lu-length(omitwhich), 
-                                         lu-length(omitwhich)+length(nodecov),
-                                         ui[-omitwhich], nodecov), dependence=FALSE)
-  # smallest value of u is "control group"
+                                inputs=c(lu-length(base), 
+                                         lu-length(base), 
+                                         lu-length(base)+length(nodecov),
+                                         ui[-base], nodecov), dependence=FALSE)
   m$coef.names<-c(m$coef.names, paste("nodefactor",
-                                      attrname, paste(u[-omitwhich]), sep="."))
+                                      attrname, paste(u[-base]), sep="."))
   m
 }
 
@@ -1642,12 +1713,13 @@ InitErgm.nodefactor<-function (nw, m, arglist, drop=TRUE, ...) {
 InitErgm.nodeifactor<-function (nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("nodeifactor", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("nodeifactor", arglist,
-    varnames = c("attrname"),
-    vartypes = c("character"),
-    defaultvalues = list(NULL),
-    required = c(TRUE))
+    varnames = c("attrname", "base"),
+    vartypes = c("character", "numeric"),
+    defaultvalues = list(NULL, 1),
+    required = c(TRUE, FALSE))
   attach(a)
   attrname<-a$attrname
+  base <- a$base
   nodecov <- get.node.attr(nw, attrname, "nodeifactor")
   u<-sort(unique(nodecov))
   if(any(is.na(nodecov))){u<-c(u,NA)}
@@ -1679,13 +1751,14 @@ InitErgm.nodeifactor<-function (nw, m, arglist, drop=TRUE, ...) {
   if (lu==1){
     stop ("Argument to nodeifactor() has only one value", call.=FALSE)
   }
-  termnumber<-1+length(m$terms)
+  termnumber<-1+length(m$terms)  
   m$terms[[termnumber]] <- list(name="nodeifactor", soname="ergm",
-                                inputs=c(lu-1, lu-1, lu-1+length(nodecov),
-                                         ui[-1], nodecov), dependence=FALSE)
-  # smallest value of u is "control group"
+                                inputs=c(lu-length(base), 
+                                         lu-length(base), 
+                                         lu-length(base)+length(nodecov),
+                                         ui[-base], nodecov), dependence=FALSE)
   m$coef.names<-c(m$coef.names, paste("nodeifactor",
-                                      attrname, paste(u[-1]), sep="."))
+                                      attrname, paste(u[-base]), sep="."))
   m
 }
 
@@ -1910,12 +1983,13 @@ InitErgm.nodemix<-InitErgm.mix<-function (nw, m, arglist, drop=TRUE, ...) {
 InitErgm.nodeofactor<-function (nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("nodeofactor", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("nodeofactor", arglist,
-    varnames = c("attrname"),
-    vartypes = c("character"),
-    defaultvalues = list(NULL),
-    required = c(TRUE))
+    varnames = c("attrname", "base"),
+    vartypes = c("character", "numeric"),
+    defaultvalues = list(NULL, 1),
+    required = c(TRUE, FALSE))
   attach(a)
   attrname<-a$attrname
+  base <- a$base
   nodecov <- get.node.attr(nw, attrname, "nodeofactor")
   u<-sort(unique(nodecov))
   if(any(is.na(nodecov))){u<-c(u,NA)}
@@ -1947,13 +2021,14 @@ InitErgm.nodeofactor<-function (nw, m, arglist, drop=TRUE, ...) {
   if (lu==1){
     stop ("Argument to nodeofactor() has only one value", call.=FALSE)
   }
-  termnumber<-1+length(m$terms)
+  termnumber<-1+length(m$terms)  
   m$terms[[termnumber]] <- list(name="nodeofactor", soname="ergm",
-                                inputs=c(lu-1, lu-1, lu-1+length(nodecov),
-                                         ui[-1], nodecov), dependence=FALSE)
-  # smallest value of u is "control group"
+                                inputs=c(lu-length(base), 
+                                         lu-length(base), 
+                                         lu-length(base)+length(nodecov),
+                                         ui[-base], nodecov), dependence=FALSE)
   m$coef.names<-c(m$coef.names, paste("nodeofactor",
-                                      attrname, paste(u[-1]), sep="."))
+                                      attrname, paste(u[-base]), sep="."))
   m
 }
 

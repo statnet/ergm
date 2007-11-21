@@ -422,26 +422,30 @@ network
     values is usually not a good idea, because the sum of all such statistics
     equals twice the number of edges and hence a linear dependency would arise
     in any model also including \code{edges}. Thus, the \code{base} argument
-    tells which value(s) (numbered in order according to the \code{sort}
-    function) should be omitted. The default value, one, means that the smallest
-    (i.e., first in sorted order) attribute value is omitted. For example, if
-    the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple},
+    tells which value(s), numbered in order according to the \code{sort}
+    function, should be omitted. The default value, one, means that the smallest
+    (i.e., first in sorted order) attribute value is omitted, making this value
+    the reference category to which all other values are compared. For example,
+    if the \dQuote{fruit} factor has levels \dQuote{orange}, \dQuote{apple},
     \dQuote{banana}, and \dQuote{pear}, then to add just two terms, one for
     \dQuote{apple} and one for \dQuote{pear}, then set \dQuote{banana} and
     \dQuote{orange} to the base (remember to sort the values first) by using
     \code{nodefactor("fruit", base=2:3)}. For an analogous term for quantitative
     vertex attributes, see \code{nodemain}. }
 
-    \item{\code{nodeifactor(attrname)}}{\emph{Factor Attribute Effect for
-    in-edges:} The \code{attrname} argument is a character string giving the
+    \item{\code{nodeifactor(attrname, base=1)}}{\emph{Factor Attribute Effect
+    for in-edges:} The \code{attrname} argument is a character string giving the
     name of a categorical attribute in the network's vertex attribute list. This
-    term adds multiple network statistics to the model, one for all but one of
-    the unique values of the \code{attrname} attribute. Each of these statistics
-    gives the number of times a vertex with that attribute appears in an in-edge
-    in the directed network. In particular, for edges whose endpoints both have
-    the same attribute value, this value is counted twice. The first unique
-    value, in sorted order, is excluded from the model and may be considered the
-    reference category. This term may only be used with directed networks.}
+    term adds multiple network statistics to the model, one for each of (a
+    subset of) the unique values of the \code{attrname} attribute. Each of these
+    statistics gives the number of times a vertex with that attribute appears as
+    the terminal node of a directed tie. The \code{base} argument tells which
+    value(s), numbered in order according to the \code{sort} function, should be
+    omitted. The default value, one, means that the smallest (i.e., first in
+    sorted order) attribute value is omitted, making this value the reference
+    category to which all other values are compared. For an example, see the
+    \code{nodefactor} entry. The \code{nodeifactor} term may only be used with
+    directed networks.}
 
     \item{\code{nodemain(attrname)}}{\emph{Main Effect of a Covariate:} The
     \code{attrname} argument is a character string giving the name of a
@@ -475,17 +479,19 @@ network
     option \code{contrast=TRUE} is used, then a statistic for the first pairing
     is not included, making it the de facto reference category.}
 
-    \item{\code{nodeofactor(attrname)}}{\emph{Factor Attribute Effect for
-    out-edges:} The \code{attrname} argument is a character string giving the
-    name of a categorical attribute in the network's vertex attribute list. This
-    term adds multiple network statistics to the model, one for all but one of
-    the unique values of the \code{attrname} attribute. Each of these statistics
-    gives the number of times a vertex with that attribute appears in an
-    out-edge in the directed network. In particular, for edges whose endpoints
-    both have the same attribute value, this value is counted twice. The first
-    unique value, in sorted order, is excluded from the model and may be
-    considered the reference category. This term may only be used with directed
-    networks.}
+    \item{\code{nodeofactor(attrname, base=1)}}{\emph{Factor Attribute Effect
+    for out-edges:} The \code{attrname} argument is a character string giving
+    the name of a categorical attribute in the network's vertex attribute list.
+    This term adds multiple network statistics to the model, one for each of (a
+    subset of) the unique values of the \code{attrname} attribute. Each of these
+    statistics gives the number of times a vertex with that attribute appears as
+    the node of origin of a directed tie. The \code{base} argument tells which
+    value(s), numbered in order according to the \code{sort} function, should be
+    omitted. The default value, one, means that the smallest (i.e., first in
+    sorted order) attribute value is omitted, making this value the reference
+    category to which all other values are compared. For an example, see the
+    \code{nodefactor} entry. The \code{nodeofactor} term may only be used with
+    directed networks.}
 
     \item{\code{odegree(d, attrname)}}{\emph{Out-Degree:} The \code{d} argument
     is a vector of distinct integers. This term adds one network statistic to
