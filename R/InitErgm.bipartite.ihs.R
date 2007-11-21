@@ -1,9 +1,7 @@
 #  See InitErgm.R for a general explanation 
 #  of InitErgm functions
 
-##
-## Fixed effects
-##
+##########################################################
 #InitErgm.event<-function(g, model, drop=TRUE, ...)
 #{
 #    nevents <- is.bipartite(g)
@@ -58,6 +56,7 @@
 #    model
 #}
 #
+##########################################################
 #InitErgm.actor<-function(g, model, drop=TRUE, ...)
 #{
 #    nevents <- is.bipartite(g)
@@ -112,6 +111,76 @@
 #    model
 #}
 #
+
+#########################################################
+InitErgm.bichange<-function (g, model, form=NULL, x=NULL, drop=TRUE, ...) 
+{
+  #Check to ensure that we got the right number of arguments
+  if (!(nargs() %in% 3:5))
+    stop(paste("bichange() model term expected 0 or 1 arguments, got ", 
+                                nargs() - 3, sep = ""), call. = FALSE)
+  if (nargs()==4){drop <- x; x <- NULL}
+  #Coerce x to an adjacency matrix
+  if(is.null(x)){
+   xm<-as.matrix.network(g,matrix.type="edgelist")
+   x<-"self"
+  }else{
+   if(is.network(x)){
+    xm<-as.matrix.network(x,matrix.type="edgelist")
+    x<-paste(quote(x))
+   }else if(is.character(x)){
+#   xm<-as.matrix.network(g,matrix.type="edgelist",x)
+    xm<-get.network.attribute(g,x)
+    xm<-as.matrix.network(xm,matrix.type="edgelist")
+   }else{
+    xm<-as.matrix(x)
+    x<-paste(quote(x))
+   }
+  }
+  nactors <- get.network.attribute(g,"bipartite")
+  nevents <- network.size(g)-nactors
+  #Check for symmetry
+  if (is.null(xm) || ncol(xm)!=2){
+    stop("bichange requires the edgelist of the base graph")
+  }
+  #Coerce form to an adjacency matrix
+  if(is.network(form)){
+    formm<-as.matrix.network(form,matrix.type="adjacency")
+    form<-paste(quote(form))
+  }else if(is.character(form)){
+    formm<- g %n% form
+  }else{
+   if(is.null(x)){
+    formm <- matrix(1, nrow=nactors, ncol=nevents)
+   }else{
+    formm<-as.matrix(form)
+    form<-paste(quote(form))
+   }
+  }
+  #Check for matrix
+  if (is.null(formm) || dim(formm)!=c(nactors, nevents)){
+    stop("bichange requires a matrix of formation rates")
+  }
+  #Update the term number
+  termnumber <- 1 + length(model$terms)
+  #Update the terms list, adding the vectorized adjacency matrix
+
+# There is 1 input parameter before the covariate vector, so input
+# component 1 is set to 1 (although in this case, input component 1
+# is actually arbitrary since d_bichange ignores the value of inp->attrib).
+  model$terms[[termnumber]] <- list(name = "bichange",
+                                        soname="ergm",
+             inputs = c(1, 1, 
+                        2 + 2*nrow(xm)+nrow(formm)*ncol(formm),
+                        nrow(xm), nrow(formm), as.double(c(xm, formm))
+                       ) )
+  #Update the coefficient name list, adding dyadcov.nameofx
+  model$coef.names<-c(model$coef.names, paste(c("change"),x,sep="."))
+  #Return the updated model list
+  model
+}
+
+#########################################################
 InitErgm.gwevent706<-function (nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("biduration", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("gwevent", arglist,
@@ -150,6 +219,7 @@ InitErgm.gwactor706<-function (nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
+##########################################################
 #InitErgm.esa<-function(g, model, d, drop=TRUE, ...)
 #{
 #    if (nargs()!=4)
@@ -188,6 +258,7 @@ InitErgm.gwactor706<-function (nw, m, arglist, drop=TRUE, ...) {
 #    model
 #}
 #
+##########################################################
 #InitErgm.ase<-function(g, model, d, drop=TRUE, ...)
 #{
 #    if (nargs()!=4)
@@ -227,6 +298,7 @@ InitErgm.gwactor706<-function (nw, m, arglist, drop=TRUE, ...) {
 #    m
 #}
 #
+##########################################################
 #InitErgm.bimixall<-function (nw, m, arglist, drop=TRUE, ...) {
 #  a <- ergm.checkargs("bimix", arglist,
 #    varnames = c("attrname","contrast"),
@@ -282,6 +354,7 @@ InitErgm.gwactor706<-function (nw, m, arglist, drop=TRUE, ...) {
 #  m
 #}
 #
+##########################################################
 #InitErgm.bimixconddeg<-function (g, model, attrname, drop=TRUE, ...) {
 #    if (!is.bipartite(g))
 #      stop("The bimixconddeg term is for bipartite graphs.",
@@ -332,6 +405,7 @@ InitErgm.gwactor706<-function (nw, m, arglist, drop=TRUE, ...) {
 #    model
 #}
 #
+##########################################################
 #InitErgm.bimix<-function (g, model, attrname, drop=TRUE, ...) {
 #    if (!is.bipartite(g))
 #      stop("The bimix term is for bipartite graphs.",
@@ -389,6 +463,7 @@ InitErgm.gwactor706<-function (nw, m, arglist, drop=TRUE, ...) {
 ##
 
 ## Commented out because there is another version of InitErgm.biduration below
+##########################################################
 #InitErgm.biduration<-function (nw, m, arglist, ...) {
 #  ergm.checkdirected("biduration", is.bipartite(nw), requirement=TRUE)
 #  a <- ergm.checkargs("biduration", arglist,
@@ -464,6 +539,7 @@ InitErgm.gwactor706<-function (nw, m, arglist, drop=TRUE, ...) {
 #  model
 #}
 
+#########################################################
 InitErgm.biendure<-function (g, model, drop=TRUE, ...) 
 {
   #Check to ensure that we got the right number of arguments
@@ -497,6 +573,7 @@ InitErgm.biendure<-function (g, model, drop=TRUE, ...)
 }
 
 
+#########################################################
 InitErgm.biduration<-function (nw, m, arglist, ...) {
   ergm.checkdirected("biduration", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("biduration", arglist,
@@ -558,6 +635,7 @@ InitErgm.biduration<-function (nw, m, arglist, ...) {
   m
 }
 
+#########################################################
 InitErgm.monopolymixmat<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkbipartite("monopolymixmat", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("monopolymixmat", arglist,

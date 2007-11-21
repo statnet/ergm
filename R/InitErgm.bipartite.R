@@ -1,98 +1,80 @@
 #  See InitErgm.R for a general explanation 
 #  of InitErgm functions
 
-ergm.checkbipartite <- function(fname, nw.bipartiteflag, requirement,
-                               extramessage="") {
-  if (!nw.bipartiteflag && requirement)
-    stop(paste(fname, "model term may not be used with an non-bipartite network.",
-               extramessage), call.=FALSE)
-  if (nw.bipartiteflag && !requirement)
-    stop(paste(fname, "model term may not be used with a bipartite network.",
-               extramessage), call.=FALSE)
-}
-
-InitErgm.akappa<-function(nw, m, arglist, ...) {
-  ergm.checkdirected("akappa", is.bipartite(nw), requirement=TRUE)
-  a <- ergm.checkargs("akappa", arglist,
-    varnames = c("attrname"),
-    vartypes = c("character"),
-    defaultvalues = list(NULL),
-    required = c(FALSE))
+###################################### InitErgm TERMS:  A
+#########################################################
+InitErgm.aconcurrent<-function(nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkbipartite("aconcurrent", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("aconcurrent", arglist,
+                      varnames = c("attrname"),
+                      vartypes = c("character"),
+                      defaultvalues = list(NULL),
+                      required = c(FALSE))
   attach(a)
-  termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="akappa", soname="ergm",
-                                inputs=c(0, 1, 0))
-  m$coef.names<-c(m$coef.names,"akappa")
-  m
-}
-
-InitErgm.ekappa<-function(nw, m, arglist, ...) {
-  ergm.checkdirected("ekappa", is.bipartite(nw), requirement=TRUE)
-  a <- ergm.checkargs("ekappa", arglist,
-    varnames = c("attrname"),
-    vartypes = c("character"),
-    defaultvalues = list(NULL),
-    required = c(FALSE))
-  attach(a)
-  termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="ekappa", soname="ergm",
-                                inputs=c(0, 1, 0))
-  m$coef.names<-c(m$coef.names,"ekappa")
-  m
-}
-
-InitErgm.eventfactor<-function (nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkdirected("eventfactor", is.bipartite(nw), requirement=TRUE)
-  a <- ergm.checkargs("eventfactor", arglist,
-    varnames = c("attrname","contrast"),
-    vartypes = c("character","logical"),
-    defaultvalues = list(NULL, TRUE),
-    required = c(TRUE,FALSE))
-  attach(a)
-  attrname<-a$attrname
-  nodecov <- get.node.attr(nw, attrname, "eventfactor")
-  u<-sort(unique(nodecov))
-  if(any(is.na(nodecov))){u<-c(u,NA)}
-  nodecov <- match(nodecov,u,nomatch=length(u)+1)
-  ui <- seq(along=u)
-  if(drop){
-    if (!is.directed(nw)){
-      nfc <- tapply(tabulate(as.matrix.network.edgelist(nw),
-                             nbins=network.size(nw)),
-                    nodecov,sum)
-    }else{
-      nfc <- tapply(tabulate(as.matrix.network.edgelist(nw),
-                             nbins=network.size(nw)),
-                    nodecov,sum)
+  attrname <- a$attrname
+  emptynwstats<-NULL
+  nactors <- get.network.attribute(nw, "bipartite")
+  if(!is.null(attrname)) {
+    nodecov <- get.node.attr(nw, attrname, "aconcurrent")
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+    nodecov <- match(nodecov,u) # Recode to numeric
+    if (length(u)==1)
+      stop ("Attribute given to aconcurrent() has only one value", call.=FALSE)
+    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+    lu <- length(u)
+    if(drop){ #   Check for degeneracy
+      aconcurrentattr <- paste('nw ~ aconcurrent("',attrname,'")',sep="")
+      aconcurrentattr <- summary(as.formula(aconcurrentattr),
+                                 drop=FALSE) == 0
+      if(any(aconcurrentattr)){
+        cat(" ")
+        cat(paste("Warning: There are no aconcurrent", ".", attrname,
+                           u[aconcurrentattr],
+                  "actors;\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+        dropterms <- paste("aconcurrent", ".", attrname,
+                           u[aconcurrentattr], sep="")
+        u <- u[-aconcurrentattr]
+      }
     }
-    if(any(nfc==0)){
-      cat(" ")
-      cat(paste("Warning: There are no eventfactor", ".", attrname,
-                         u[nfc==0],
-                "events;\n",
-               " the corresponding coefficient has been fixed at its MLE of nenegative infinity.\n",sep=" "))
-      u<-u[nfc>0]
-      ui<-ui[nfc>0]
+  } else {
+    if(is.logical(attrname)){drop <- attrname}
+    if(drop){
+      maconcurrent <- summary(
+                          as.formula(paste('nw ~ aconcurrent',sep="")),
+                          drop=FALSE) == 0
+      if(any(maconcurrent)){
+        cat(paste("Warning: There are no concurrent actors.\n"))
+        return(m)
+      }
     }
   }
-  if(contrast){
-   ui <- ui[-1]
-   u <- u[-1]
-  }
-  lu <- length(ui)
-  if (lu==1){
-    stop ("Argument to eventfactor() has only one value", call.=FALSE)
-  }
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="eventfactor", soname="ergm",
-                                inputs=c(lu, lu, lu+length(nodecov),
-                                         ui, nodecov), dependence=FALSE)
-  # smallest value of u is "control group"
-  m$coef.names<-c(m$coef.names, paste("eventfactor",
-                                      attrname, paste(u), sep="."))
+  if(!is.null(attrname)) {
+    if(length(u)==0) {return(m)}
+    #  No covariates here, so input component 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="aconcurrent_by_attr", soname="ergm",
+                                  inputs=c(0, length(u), 
+                                           length(u)+length(nodecov), 
+                                           u, nodecov),
+                                  dependence=TRUE)
+    # See comment in d_aconcurrent_by_attr function
+    m$coef.names<-c(m$coef.names, paste("aconcurrent",".", attrname,
+                                        u, sep=""))
+  }else{
+    #  No covariates here, so input component 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="aconcurrent", soname="ergm",
+                                       inputs=c(0, 1, 0),
+                                       dependence=TRUE)
+    m$coef.names<-c(m$coef.names,paste("aconcurrent",sep=""))
+  }
+  if (!is.null(emptynwstats)) 
+    m$terms[[termnumber]]$emptynwstats <- emptynwstats
   m
 }
 
+#########################################################
 InitErgm.actorfactor<-function (nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("actorfactor", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("actorfactor", arglist,
@@ -145,73 +127,7 @@ InitErgm.actorfactor<-function (nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-InitErgm.bichange<-function (g, model, form=NULL, x=NULL, drop=TRUE, ...) 
-{
-  #Check to ensure that we got the right number of arguments
-  if (!(nargs() %in% 3:5))
-    stop(paste("bichange() model term expected 0 or 1 arguments, got ", 
-                                nargs() - 3, sep = ""), call. = FALSE)
-  if (nargs()==4){drop <- x; x <- NULL}
-  #Coerce x to an adjacency matrix
-  if(is.null(x)){
-   xm<-as.matrix.network(g,matrix.type="edgelist")
-   x<-"self"
-  }else{
-   if(is.network(x)){
-    xm<-as.matrix.network(x,matrix.type="edgelist")
-    x<-paste(quote(x))
-   }else if(is.character(x)){
-#   xm<-as.matrix.network(g,matrix.type="edgelist",x)
-    xm<-get.network.attribute(g,x)
-    xm<-as.matrix.network(xm,matrix.type="edgelist")
-   }else{
-    xm<-as.matrix(x)
-    x<-paste(quote(x))
-   }
-  }
-  nactors <- get.network.attribute(g,"bipartite")
-  nevents <- network.size(g)-nactors
-  #Check for symmetry
-  if (is.null(xm) || ncol(xm)!=2){
-    stop("bichange requires the edgelist of the base graph")
-  }
-  #Coerce form to an adjacency matrix
-  if(is.network(form)){
-    formm<-as.matrix.network(form,matrix.type="adjacency")
-    form<-paste(quote(form))
-  }else if(is.character(form)){
-    formm<- g %n% form
-  }else{
-   if(is.null(x)){
-    formm <- matrix(1, nrow=nactors, ncol=nevents)
-   }else{
-    formm<-as.matrix(form)
-    form<-paste(quote(form))
-   }
-  }
-  #Check for matrix
-  if (is.null(formm) || dim(formm)!=c(nactors, nevents)){
-    stop("bichange requires a matrix of formation rates")
-  }
-  #Update the term number
-  termnumber <- 1 + length(model$terms)
-  #Update the terms list, adding the vectorized adjacency matrix
-
-# There is 1 input parameter before the covariate vector, so input
-# component 1 is set to 1 (although in this case, input component 1
-# is actually arbitrary since d_bichange ignores the value of inp->attrib).
-  model$terms[[termnumber]] <- list(name = "bichange",
-                                        soname="ergm",
-             inputs = c(1, 1, 
-                        2 + 2*nrow(xm)+nrow(formm)*ncol(formm),
-                        nrow(xm), nrow(formm), as.double(c(xm, formm))
-                       ) )
-  #Update the coefficient name list, adding dyadcov.nameofx
-  model$coef.names<-c(model$coef.names, paste(c("change"),x,sep="."))
-  #Return the updated model list
-  model
-}
-
+#########################################################
 InitErgm.adegree<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkbipartite("adegree", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("adegree", arglist,
@@ -300,6 +216,23 @@ InitErgm.adegree<-function(nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
+#########################################################
+InitErgm.akappa<-function(nw, m, arglist, ...) {
+  ergm.checkdirected("akappa", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("akappa", arglist,
+    varnames = c("attrname"),
+    vartypes = c("character"),
+    defaultvalues = list(NULL),
+    required = c(FALSE))
+  attach(a)
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="akappa", soname="ergm",
+                                inputs=c(0, 1, 0))
+  m$coef.names<-c(m$coef.names,"akappa")
+  m
+}
+
+#########################################################
 InitErgm.astar<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkbipartite("astar", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("astar", arglist,
@@ -388,92 +321,78 @@ InitErgm.astar<-function(nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-InitErgm.estar<-function(nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkbipartite("estar", is.bipartite(nw), requirement=TRUE)
-  a <- ergm.checkargs("estar", arglist,
-                      varnames = c("d", "attrname"),
-                      vartypes = c("numeric", "character"),
-                      defaultvalues = list(NULL, NULL),
-                      required = c(TRUE, FALSE))
+###################################### InitErgm TERMS:  E
+#########################################################
+InitErgm.econcurrent<-function(nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkbipartite("econcurrent", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("econcurrent", arglist,
+                      varnames = c("attrname"),
+                      vartypes = c("character"),
+                      defaultvalues = list(NULL),
+                      required = c(FALSE))
   attach(a)
-  d<-a$d; attrname <- a$attrname
+  attrname <- a$attrname
   emptynwstats<-NULL
   nactors <- get.network.attribute(nw, "bipartite")
   if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "estar")
+    nodecov <- get.node.attr(nw, attrname, "econcurrent")
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u) # Recode to numeric
     if (length(u)==1)
-      stop ("Attribute given to estar() has only one value", call.=FALSE)
+      stop ("Attribute given to econcurrent() has only one value", call.=FALSE)
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
-    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
     if(drop){ #   Check for degeneracy
-      tmp <- paste("c(",paste(d,collapse=","),")")
-      estarattr <- summary(as.formula
-                             (paste('nw ~ estar(', tmp,',"',attrname,'")',sep="")),
-                             drop=FALSE) == 0
-      if(any(astarattr)){
-        dropterms <- paste("estar", du[1,estarattr], ".", attrname,
-                           u[du[2,estarattr]], sep="")
-        cat("Warning: These estar terms have extreme counts and will be dropped:\n")
-        cat(dropterms, "\n", fill=T)
-        du <- matrix(du[,!estarattr], nrow=2)
+      econcurrentattr <- paste('nw ~ econcurrent("',attrname,'")',sep="")
+      econcurrentattr <- summary(as.formula(econcurrentattr),
+                                 drop=FALSE) == 0
+      if(any(econcurrentattr)){
+        cat(" ")
+        cat(paste("Warning: There are no econcurrent", ".", attrname,
+                           u[econcurrentattr],
+                  "events;\n",
+                 " the corresponding coefficient has been fixed at its MLE of nenegative infinity.\n",sep=" "))
+        u <- u[-econcurrentattr]
       }
-    }
-    if (any(du[1,]==0)) {
-      emptynwstats <- rep(0, ncol(du))
-      tmp <- du[2,du[1,]==0]
-      for(i in 1:length(tmp)) tmp[i] <- 
-        sum(nodecov[1:nactors]==tmp[i])
-        emptynwstats[du[1,]==0] <- tmp
     }
   } else {
     if(is.logical(attrname)){drop <- attrname}
     if(drop){
-      mestar <- paste("c(",paste(d,collapse=","),")",sep="")
-      mestar <- summary(
-                          as.formula(paste('nw ~ estar(',mestar,')',sep="")),
+      meconcurrent <- summary(
+                          as.formula(paste('nw ~ econcurrent',sep="")),
                           drop=FALSE) == 0
-      if(any(mestar)){
-        cat(paste("Warning: There are no order", d[mestar],"estars.\n"))
-        dropterms <- paste("estar", d[mestar],sep="")
-        cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
-        d <- d[!mestar] 
+      if(any(meconcurrent)){
+        cat(paste("Warning: There are no concurrent events\n"))
+        return(m)
       }
-    }
-    if (any(d==0)) {
-      emptynwstats <- rep(0, length(d))
-      emptynwstats[d==0] <- nactors
     }
   }
   termnumber<-1+length(m$terms)
   if(!is.null(attrname)) {
-    if(ncol(du)==0) {return(m)}
+    if(length(u)==0) {return(m)}
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="istar_by_attr", soname="ergm",
-                                  inputs=c(0, ncol(du), 
-                                           length(du)+length(nodecov), 
-                                           as.vector(du), nodecov),
+    m$terms[[termnumber]] <- list(name="econcurrent_by_attr", soname="ergm",
+                                  inputs=c(0, length(u), 
+                                           length(u)+length(nodecov), 
+                                           u, nodecov),
                                   dependence=TRUE)
-    # See comment in d_estar_by_attr function
-    m$coef.names<-c(m$coef.names, paste("estar", du[1,], ".", attrname,
-                                        u[du[2,]], sep=""))
+    # See comment in d_econcurrent_by_attr function
+    m$coef.names<-c(m$coef.names, paste("econcurrent",".", attrname,
+                                        u, sep=""))
   }else{
-    lengthd<-length(d)
-    if(lengthd==0){return(m)}
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="istar", soname="ergm",
-                                       inputs=c(0, lengthd, lengthd, d),
+    m$terms[[termnumber]] <- list(name="econcurrent", soname="ergm",
+                                       inputs=c(0, 1, 0),
                                        dependence=TRUE)
-    m$coef.names<-c(m$coef.names,paste("estar",d,sep=""))
+    m$coef.names<-c(m$coef.names,paste("econcurrent",sep=""))
   }
   if (!is.null(emptynwstats)) 
     m$terms[[termnumber]]$emptynwstats <- emptynwstats
   m
 }
 
+#########################################################
 InitErgm.edegree<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkbipartite("edegree", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("edegree", arglist,
@@ -563,13 +482,170 @@ InitErgm.edegree<-function(nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
+#########################################################
+InitErgm.ekappa<-function(nw, m, arglist, ...) {
+  ergm.checkdirected("ekappa", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("ekappa", arglist,
+    varnames = c("attrname"),
+    vartypes = c("character"),
+    defaultvalues = list(NULL),
+    required = c(FALSE))
+  attach(a)
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="ekappa", soname="ergm",
+                                inputs=c(0, 1, 0))
+  m$coef.names<-c(m$coef.names,"ekappa")
+  m
+}
 
+#########################################################
+InitErgm.estar<-function(nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkbipartite("estar", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("estar", arglist,
+                      varnames = c("d", "attrname"),
+                      vartypes = c("numeric", "character"),
+                      defaultvalues = list(NULL, NULL),
+                      required = c(TRUE, FALSE))
+  attach(a)
+  d<-a$d; attrname <- a$attrname
+  emptynwstats<-NULL
+  nactors <- get.network.attribute(nw, "bipartite")
+  if(!is.null(attrname)) {
+    nodecov <- get.node.attr(nw, attrname, "estar")
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+    nodecov <- match(nodecov,u) # Recode to numeric
+    if (length(u)==1)
+      stop ("Attribute given to estar() has only one value", call.=FALSE)
+    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+    lu <- length(u)
+    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
+    if(drop){ #   Check for degeneracy
+      tmp <- paste("c(",paste(d,collapse=","),")")
+      estarattr <- summary(as.formula
+                             (paste('nw ~ estar(', tmp,',"',attrname,'")',sep="")),
+                             drop=FALSE) == 0
+      if(any(astarattr)){
+        dropterms <- paste("estar", du[1,estarattr], ".", attrname,
+                           u[du[2,estarattr]], sep="")
+        cat("Warning: These estar terms have extreme counts and will be dropped:\n")
+        cat(dropterms, "\n", fill=T)
+        du <- matrix(du[,!estarattr], nrow=2)
+      }
+    }
+    if (any(du[1,]==0)) {
+      emptynwstats <- rep(0, ncol(du))
+      tmp <- du[2,du[1,]==0]
+      for(i in 1:length(tmp)) tmp[i] <- 
+        sum(nodecov[1:nactors]==tmp[i])
+        emptynwstats[du[1,]==0] <- tmp
+    }
+  } else {
+    if(is.logical(attrname)){drop <- attrname}
+    if(drop){
+      mestar <- paste("c(",paste(d,collapse=","),")",sep="")
+      mestar <- summary(
+                          as.formula(paste('nw ~ estar(',mestar,')',sep="")),
+                          drop=FALSE) == 0
+      if(any(mestar)){
+        cat(paste("Warning: There are no order", d[mestar],"estars.\n"))
+        dropterms <- paste("estar", d[mestar],sep="")
+        cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
+        d <- d[!mestar] 
+      }
+    }
+    if (any(d==0)) {
+      emptynwstats <- rep(0, length(d))
+      emptynwstats[d==0] <- nactors
+    }
+  }
+  termnumber<-1+length(m$terms)
+  if(!is.null(attrname)) {
+    if(ncol(du)==0) {return(m)}
+    #  No covariates here, so input component 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="istar_by_attr", soname="ergm",
+                                  inputs=c(0, ncol(du), 
+                                           length(du)+length(nodecov), 
+                                           as.vector(du), nodecov),
+                                  dependence=TRUE)
+    # See comment in d_estar_by_attr function
+    m$coef.names<-c(m$coef.names, paste("estar", du[1,], ".", attrname,
+                                        u[du[2,]], sep=""))
+  }else{
+    lengthd<-length(d)
+    if(lengthd==0){return(m)}
+    #  No covariates here, so input component 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="istar", soname="ergm",
+                                       inputs=c(0, lengthd, lengthd, d),
+                                       dependence=TRUE)
+    m$coef.names<-c(m$coef.names,paste("estar",d,sep=""))
+  }
+  if (!is.null(emptynwstats)) 
+    m$terms[[termnumber]]$emptynwstats <- emptynwstats
+  m
+}
+
+#########################################################
+InitErgm.eventfactor<-function (nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("eventfactor", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("eventfactor", arglist,
+    varnames = c("attrname","contrast"),
+    vartypes = c("character","logical"),
+    defaultvalues = list(NULL, TRUE),
+    required = c(TRUE,FALSE))
+  attach(a)
+  attrname<-a$attrname
+  nodecov <- get.node.attr(nw, attrname, "eventfactor")
+  u<-sort(unique(nodecov))
+  if(any(is.na(nodecov))){u<-c(u,NA)}
+  nodecov <- match(nodecov,u,nomatch=length(u)+1)
+  ui <- seq(along=u)
+  if(drop){
+    if (!is.directed(nw)){
+      nfc <- tapply(tabulate(as.matrix.network.edgelist(nw),
+                             nbins=network.size(nw)),
+                    nodecov,sum)
+    }else{
+      nfc <- tapply(tabulate(as.matrix.network.edgelist(nw),
+                             nbins=network.size(nw)),
+                    nodecov,sum)
+    }
+    if(any(nfc==0)){
+      cat(" ")
+      cat(paste("Warning: There are no eventfactor", ".", attrname,
+                         u[nfc==0],
+                "events;\n",
+               " the corresponding coefficient has been fixed at its MLE of nenegative infinity.\n",sep=" "))
+      u<-u[nfc>0]
+      ui<-ui[nfc>0]
+    }
+  }
+  if(contrast){
+   ui <- ui[-1]
+   u <- u[-1]
+  }
+  lu <- length(ui)
+  if (lu==1){
+    stop ("Argument to eventfactor() has only one value", call.=FALSE)
+  }
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="eventfactor", soname="ergm",
+                                inputs=c(lu, lu, lu+length(nodecov),
+                                         ui, nodecov), dependence=FALSE)
+  # smallest value of u is "control group"
+  m$coef.names<-c(m$coef.names, paste("eventfactor",
+                                      attrname, paste(u), sep="."))
+  m
+}
+
+###################################### InitErgm TERMS:  G
+#########################################################
 InitErgm.gwadegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   ergm.checkbipartite("gwadegree", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("gwadegree", arglist,
     varnames = c("decay", "fixed", "attrname"),
     vartypes = c("numeric", "logical", "character"),
-    defaultvalues = list(0, TRUE, NULL),
+    defaultvalues = list(0, FALSE, NULL),
     required = c(TRUE, FALSE, FALSE))
   attach(a)
   decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
@@ -631,12 +707,13 @@ InitErgm.gwadegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   m
 }
 
+#########################################################
 InitErgm.gwedegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   ergm.checkbipartite("gwedegree", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("gwedegree", arglist,
     varnames = c("decay", "fixed", "attrname"),
     vartypes = c("numeric", "logical", "character"),
-    defaultvalues = list(0, TRUE, NULL),
+    defaultvalues = list(0, FALSE, NULL),
     required = c(TRUE, FALSE, FALSE))
   attach(a)
   decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
@@ -698,224 +775,9 @@ InitErgm.gwedegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   m
 }
 
-InitErgm.aconcurrent<-function(nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkbipartite("aconcurrent", is.bipartite(nw), requirement=TRUE)
-  a <- ergm.checkargs("aconcurrent", arglist,
-                      varnames = c("attrname"),
-                      vartypes = c("character"),
-                      defaultvalues = list(NULL),
-                      required = c(FALSE))
-  attach(a)
-  attrname <- a$attrname
-  emptynwstats<-NULL
-  nactors <- get.network.attribute(nw, "bipartite")
-  if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "aconcurrent")
-    u<-sort(unique(nodecov))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
-    nodecov <- match(nodecov,u) # Recode to numeric
-    if (length(u)==1)
-      stop ("Attribute given to aconcurrent() has only one value", call.=FALSE)
-    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
-    lu <- length(u)
-    if(drop){ #   Check for degeneracy
-      aconcurrentattr <- paste('nw ~ aconcurrent("',attrname,'")',sep="")
-      aconcurrentattr <- summary(as.formula(aconcurrentattr),
-                                 drop=FALSE) == 0
-      if(any(aconcurrentattr)){
-        cat(" ")
-        cat(paste("Warning: There are no aconcurrent", ".", attrname,
-                           u[aconcurrentattr],
-                  "actors;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-        dropterms <- paste("aconcurrent", ".", attrname,
-                           u[aconcurrentattr], sep="")
-        u <- u[-aconcurrentattr]
-      }
-    }
-  } else {
-    if(is.logical(attrname)){drop <- attrname}
-    if(drop){
-      maconcurrent <- summary(
-                          as.formula(paste('nw ~ aconcurrent',sep="")),
-                          drop=FALSE) == 0
-      if(any(maconcurrent)){
-        cat(paste("Warning: There are no concurrent actors.\n"))
-        return(m)
-      }
-    }
-  }
-  termnumber<-1+length(m$terms)
-  if(!is.null(attrname)) {
-    if(length(u)==0) {return(m)}
-    #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="aconcurrent_by_attr", soname="ergm",
-                                  inputs=c(0, length(u), 
-                                           length(u)+length(nodecov), 
-                                           u, nodecov),
-                                  dependence=TRUE)
-    # See comment in d_aconcurrent_by_attr function
-    m$coef.names<-c(m$coef.names, paste("aconcurrent",".", attrname,
-                                        u, sep=""))
-  }else{
-    #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="aconcurrent", soname="ergm",
-                                       inputs=c(0, 1, 0),
-                                       dependence=TRUE)
-    m$coef.names<-c(m$coef.names,paste("aconcurrent",sep=""))
-  }
-  if (!is.null(emptynwstats)) 
-    m$terms[[termnumber]]$emptynwstats <- emptynwstats
-  m
-}
 
-InitErgm.hammingmix<-function (nw, m, arglist, ...) {
-# ergm.checkdirected("hammingmix", is.directed(nw), requirement=FALSE)
-  a <- ergm.checkargs("hammingmix", arglist=arglist,
-    varnames = c("attrname","x","omitwhich"),
-    vartypes = c("character","matrixnetwork","numeric"),
-    defaultvalues = list(NULL,nw,0),
-    required = c(TRUE,FALSE,FALSE))
-  attach(a)
-  attrname<-a$attrname
-  x<-a$x
-  omitwhich<-a$omitwhich
-  contrast<-a$contrast
-  drop<-a$drop
-  contrast<-TRUE
-  drop<-TRUE
-  if(is.network(x)){
-    xm<-as.matrix.network(x,matrix.type="edgelist",attrname)
-    x<-paste(quote(x))
-  }else if(is.character(x)){
-    xm<-get.network.attribute(nw,x)
-    xm<-as.matrix.network(xm,matrix.type="edgelist")
-  }else{
-    xm<-as.matrix(x)
-    x<-paste(quote(x))
-  }
-  if (is.null(xm) || ncol(xm)!=2){
-    stop("hammingmix() requires an edgelist")
-  }
-    nodecov <- get.node.attr(nw, attrname, "hammingmix")
-    mixmat <- mixingmatrix(nw,attrname)$mat
-    u <- cbind(as.vector(row(mixmat)), 
-               as.vector(col(mixmat)))
-    if(any(is.na(nodecov))){u<-rbind(u,NA)}
-#
-#   Recode to numeric if necessary
-#
-    namescov <- sort(unique(nodecov))
-    nodecov <- match(nodecov,namescov)
-    if (length(nodecov)==1)
-        stop ("Argument to hammingmix() has only one value", call.=FALSE)
-##
-##   Check for degeneracy
-##
-#    if(drop){
-#     ematch <- mixmat[u]
-#     mu <- ematch==0
-#     mu[is.na(mu)] <- FALSE
-#     if(any(mu)){
-#      dropterms <- paste(paste("hammingmix",attrname,sep="."),
-#        apply(u,1,paste,collapse="")[mu],sep="")
-#      cat(paste("Warning: The count of", dropterms, "is extreme.\n"))
-#      cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
-#      u <- u[!mu,]
-#     }
-#    }
-  if(contrast){
-   u <- u[-1,]
-  }
-  if(all(omitwhich!=0)){
-   u <- u[-omitwhich,]
-  }
-  termnumber<-1+length(m$terms)
-  #  Number of input parameters before covariates equals twice the number
-  #  of used matrix cells, namely 2*length(uui), so that's what
-  #  input component 1 equals
-  m$terms[[termnumber]] <- list(name="hammingmix", soname="ergm",
-    inputs=c(nrow(u), nrow(u), nrow(xm)*2+length(nodecov)+length(u)+1,
-            nrow(xm),as.integer(xm), u[,1], u[,2],nodecov),
-            dependence=FALSE)
-  m$coef.names<-c(m$coef.names,
-       paste("hammingmix",attrname, apply(matrix(namescov[u],ncol=2),1,paste,collapse="."), sep="."))
-  m
-}
-
-InitErgm.hammingfixmix<-function (nw, m, arglist, ...) {
-# ergm.checkdirected("hammingfixmix", is.directed(nw), requirement=FALSE)
-  a <- ergm.checkargs("hammingfixmix", arglist=arglist,
-    varnames = c("attrname","x","omitwhich"),
-    vartypes = c("character","matrixnetwork","numeric"),
-    defaultvalues = list(NULL,nw,0),
-    required = c(TRUE,FALSE,FALSE))
-  attach(a)
-  attrname<-a$attrname
-  x<-a$x
-  omitwhich<-a$omitwhich
-  contrast<-a$contrast
-  drop<-a$drop
-  contrast<-TRUE
-  drop<-TRUE
-  if(is.network(x)){
-    xm<-as.matrix.network(x,matrix.type="edgelist",attrname)
-    x<-paste(quote(x))
-  }else if(is.character(x)){
-    xm<-get.network.attribute(nw,x)
-    xm<-as.matrix.network(xm,matrix.type="edgelist")
-  }else{
-    xm<-as.matrix(x)
-    x<-paste(quote(x))
-  }
-  if (is.null(xm) || ncol(xm)!=2){
-    stop("hammingfixmix() requires an edgelist")
-  }
-    nodecov <- get.node.attr(nw, attrname, "hammingfixmix")
-    mixmat <- mixingmatrix(nw,attrname)$mat
-    u <- cbind(as.vector(row(mixmat)), 
-               as.vector(col(mixmat)))
-    if(any(is.na(nodecov))){u<-rbind(u,NA)}
-#
-#   Recode to numeric if necessary
-#
-    namescov <- sort(unique(nodecov))
-    nodecov <- match(nodecov,namescov)
-    if (length(nodecov)==1)
-        stop ("Argument to hammingfixmix() has only one value", call.=FALSE)
-##
-##   Check for degeneracy
-##
-#    if(drop){
-#     ematch <- mixmat[u]
-#     mu <- ematch==0
-#     mu[is.na(mu)] <- FALSE
-#     if(any(mu)){
-#      dropterms <- paste(paste("hammingfixmix",attrname,sep="."),
-#        apply(u,1,paste,collapse="")[mu],sep="")
-#      cat(paste("Warning: The count of", dropterms, "is extreme.\n"))
-#      cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
-#      u <- u[!mu,]
-#     }
-#    }
-  if(contrast){
-   u <- u[-1,]
-  }
-  if(all(omitwhich!=0)){
-   u <- u[-omitwhich,]
-  }
-  termnumber<-1+length(m$terms)
-  #  Number of input parameters before covariates equals twice the number
-  #  of used matrix cells, namely 2*length(uui), so that's what
-  #  input component 1 equals
-  m$terms[[termnumber]] <- list(name="hammingfixmix", soname="ergm",
-    inputs=c(1, 1, nrow(xm)*2+length(nodecov)+1,
-            nrow(xm),as.integer(xm), nodecov),
-            dependence=FALSE)
-  m$coef.names<-c(m$coef.names, paste("hammingfixmix",attrname, sep="."))
-  m
-}
-
+###################################### InitErgm TERMS:  H
+#########################################################
 InitErgm.hammingdyadcov<-function (nw, m, arglist, ...) {
 # ergm.checkdirected("hammingdyadcov", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("hammingdyadcov", arglist=arglist,
@@ -995,72 +857,153 @@ InitErgm.hammingdyadcov<-function (nw, m, arglist, ...) {
    m$coef.names <- c(m$coef.names, cn)
    m
 }
-InitErgm.econcurrent<-function(nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkbipartite("econcurrent", is.bipartite(nw), requirement=TRUE)
-  a <- ergm.checkargs("econcurrent", arglist,
-                      varnames = c("attrname"),
-                      vartypes = c("character"),
-                      defaultvalues = list(NULL),
-                      required = c(FALSE))
+
+#########################################################
+InitErgm.hammingfixmix<-function (nw, m, arglist, ...) {
+# ergm.checkdirected("hammingfixmix", is.directed(nw), requirement=FALSE)
+  a <- ergm.checkargs("hammingfixmix", arglist=arglist,
+    varnames = c("attrname","x","omitwhich"),
+    vartypes = c("character","matrixnetwork","numeric"),
+    defaultvalues = list(NULL,nw,0),
+    required = c(TRUE,FALSE,FALSE))
   attach(a)
-  attrname <- a$attrname
-  emptynwstats<-NULL
-  nactors <- get.network.attribute(nw, "bipartite")
-  if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "econcurrent")
-    u<-sort(unique(nodecov))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
-    nodecov <- match(nodecov,u) # Recode to numeric
-    if (length(u)==1)
-      stop ("Attribute given to econcurrent() has only one value", call.=FALSE)
-    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
-    lu <- length(u)
-    if(drop){ #   Check for degeneracy
-      econcurrentattr <- paste('nw ~ econcurrent("',attrname,'")',sep="")
-      econcurrentattr <- summary(as.formula(econcurrentattr),
-                                 drop=FALSE) == 0
-      if(any(econcurrentattr)){
-        cat(" ")
-        cat(paste("Warning: There are no econcurrent", ".", attrname,
-                           u[econcurrentattr],
-                  "events;\n",
-                 " the corresponding coefficient has been fixed at its MLE of nenegative infinity.\n",sep=" "))
-        u <- u[-econcurrentattr]
-      }
-    }
-  } else {
-    if(is.logical(attrname)){drop <- attrname}
-    if(drop){
-      meconcurrent <- summary(
-                          as.formula(paste('nw ~ econcurrent',sep="")),
-                          drop=FALSE) == 0
-      if(any(meconcurrent)){
-        cat(paste("Warning: There are no concurrent events\n"))
-        return(m)
-      }
-    }
+  attrname<-a$attrname
+  x<-a$x
+  omitwhich<-a$omitwhich
+  contrast<-a$contrast
+  drop<-a$drop
+  contrast<-TRUE
+  drop<-TRUE
+  if(is.network(x)){
+    xm<-as.matrix.network(x,matrix.type="edgelist",attrname)
+    x<-paste(quote(x))
+  }else if(is.character(x)){
+    xm<-get.network.attribute(nw,x)
+    xm<-as.matrix.network(xm,matrix.type="edgelist")
+  }else{
+    xm<-as.matrix(x)
+    x<-paste(quote(x))
+  }
+  if (is.null(xm) || ncol(xm)!=2){
+    stop("hammingfixmix() requires an edgelist")
+  }
+    nodecov <- get.node.attr(nw, attrname, "hammingfixmix")
+    mixmat <- mixingmatrix(nw,attrname)$mat
+    u <- cbind(as.vector(row(mixmat)), 
+               as.vector(col(mixmat)))
+    if(any(is.na(nodecov))){u<-rbind(u,NA)}
+#
+#   Recode to numeric if necessary
+#
+    namescov <- sort(unique(nodecov))
+    nodecov <- match(nodecov,namescov)
+    if (length(nodecov)==1)
+        stop ("Argument to hammingfixmix() has only one value", call.=FALSE)
+##
+##   Check for degeneracy
+##
+#    if(drop){
+#     ematch <- mixmat[u]
+#     mu <- ematch==0
+#     mu[is.na(mu)] <- FALSE
+#     if(any(mu)){
+#      dropterms <- paste(paste("hammingfixmix",attrname,sep="."),
+#        apply(u,1,paste,collapse="")[mu],sep="")
+#      cat(paste("Warning: The count of", dropterms, "is extreme.\n"))
+#      cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
+#      u <- u[!mu,]
+#     }
+#    }
+  if(contrast){
+   u <- u[-1,]
+  }
+  if(all(omitwhich!=0)){
+   u <- u[-omitwhich,]
   }
   termnumber<-1+length(m$terms)
-  if(!is.null(attrname)) {
-    if(length(u)==0) {return(m)}
-    #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="econcurrent_by_attr", soname="ergm",
-                                  inputs=c(0, length(u), 
-                                           length(u)+length(nodecov), 
-                                           u, nodecov),
-                                  dependence=TRUE)
-    # See comment in d_econcurrent_by_attr function
-    m$coef.names<-c(m$coef.names, paste("econcurrent",".", attrname,
-                                        u, sep=""))
+  #  Number of input parameters before covariates equals twice the number
+  #  of used matrix cells, namely 2*length(uui), so that's what
+  #  input component 1 equals
+  m$terms[[termnumber]] <- list(name="hammingfixmix", soname="ergm",
+    inputs=c(1, 1, nrow(xm)*2+length(nodecov)+1,
+            nrow(xm),as.integer(xm), nodecov),
+            dependence=FALSE)
+  m$coef.names<-c(m$coef.names, paste("hammingfixmix",attrname, sep="."))
+  m
+}
+
+#########################################################
+InitErgm.hammingmix<-function (nw, m, arglist, ...) {
+# ergm.checkdirected("hammingmix", is.directed(nw), requirement=FALSE)
+  a <- ergm.checkargs("hammingmix", arglist=arglist,
+    varnames = c("attrname","x","omitwhich"),
+    vartypes = c("character","matrixnetwork","numeric"),
+    defaultvalues = list(NULL,nw,0),
+    required = c(TRUE,FALSE,FALSE))
+  attach(a)
+  attrname<-a$attrname
+  x<-a$x
+  omitwhich<-a$omitwhich
+  contrast<-a$contrast
+  drop<-a$drop
+  contrast<-TRUE
+  drop<-TRUE
+  if(is.network(x)){
+    xm<-as.matrix.network(x,matrix.type="edgelist",attrname)
+    x<-paste(quote(x))
+  }else if(is.character(x)){
+    xm<-get.network.attribute(nw,x)
+    xm<-as.matrix.network(xm,matrix.type="edgelist")
   }else{
-    #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="econcurrent", soname="ergm",
-                                       inputs=c(0, 1, 0),
-                                       dependence=TRUE)
-    m$coef.names<-c(m$coef.names,paste("econcurrent",sep=""))
+    xm<-as.matrix(x)
+    x<-paste(quote(x))
   }
-  if (!is.null(emptynwstats)) 
-    m$terms[[termnumber]]$emptynwstats <- emptynwstats
+  if (is.null(xm) || ncol(xm)!=2){
+    stop("hammingmix() requires an edgelist")
+  }
+    nodecov <- get.node.attr(nw, attrname, "hammingmix")
+    mixmat <- mixingmatrix(nw,attrname)$mat
+    u <- cbind(as.vector(row(mixmat)), 
+               as.vector(col(mixmat)))
+    if(any(is.na(nodecov))){u<-rbind(u,NA)}
+#
+#   Recode to numeric if necessary
+#
+    namescov <- sort(unique(nodecov))
+    nodecov <- match(nodecov,namescov)
+    if (length(nodecov)==1)
+        stop ("Argument to hammingmix() has only one value", call.=FALSE)
+##
+##   Check for degeneracy
+##
+#    if(drop){
+#     ematch <- mixmat[u]
+#     mu <- ematch==0
+#     mu[is.na(mu)] <- FALSE
+#     if(any(mu)){
+#      dropterms <- paste(paste("hammingmix",attrname,sep="."),
+#        apply(u,1,paste,collapse="")[mu],sep="")
+#      cat(paste("Warning: The count of", dropterms, "is extreme.\n"))
+#      cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
+#      u <- u[!mu,]
+#     }
+#    }
+  if(contrast){
+   u <- u[-1,]
+  }
+  if(all(omitwhich!=0)){
+   u <- u[-omitwhich,]
+  }
+  termnumber<-1+length(m$terms)
+  #  Number of input parameters before covariates equals twice the number
+  #  of used matrix cells, namely 2*length(uui), so that's what
+  #  input component 1 equals
+  m$terms[[termnumber]] <- list(name="hammingmix", soname="ergm",
+    inputs=c(nrow(u), nrow(u), nrow(xm)*2+length(nodecov)+length(u)+1,
+            nrow(xm),as.integer(xm), u[,1], u[,2],nodecov),
+            dependence=FALSE)
+  m$coef.names<-c(m$coef.names,
+       paste("hammingmix",attrname, apply(matrix(namescov[u],ncol=2),1,paste,collapse="."), sep="."))
   m
 }
 

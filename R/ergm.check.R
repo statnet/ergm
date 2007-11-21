@@ -63,6 +63,16 @@ ergm.checkargs <- function(fname, arglist, varnames=NULL, vartypes=NULL,
   c(.conflicts.OK=TRUE,out)
 }
 
+ergm.checkbipartite <- function(fname, nw.bipartiteflag, requirement,
+                               extramessage="") {
+  if (!nw.bipartiteflag && requirement)
+    stop(paste(fname, "model term may not be used with an non-bipartite network.",
+               extramessage), call.=FALSE)
+  if (nw.bipartiteflag && !requirement)
+    stop(paste(fname, "model term may not be used with a bipartite network.",
+               extramessage), call.=FALSE)
+}
+
 ergm.checkdirected <- function(fname, nw.directedflag, requirement,
                                extramessage="") {
   if (!nw.directedflag && requirement)
