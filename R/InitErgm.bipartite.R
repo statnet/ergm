@@ -217,22 +217,6 @@ InitErgm.adegree<-function(nw, m, arglist, drop=TRUE, ...) {
 }
 
 #########################################################
-InitErgm.akappa<-function(nw, m, arglist, ...) {
-  ergm.checkdirected("akappa", is.bipartite(nw), requirement=TRUE)
-  a <- ergm.checkargs("akappa", arglist,
-    varnames = c("attrname"),
-    vartypes = c("character"),
-    defaultvalues = list(NULL),
-    required = c(FALSE))
-  attach(a)
-  termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="akappa", soname="ergm",
-                                inputs=c(0, 1, 0))
-  m$coef.names<-c(m$coef.names,"akappa")
-  m
-}
-
-#########################################################
 InitErgm.astar<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkbipartite("astar", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("astar", arglist,
@@ -479,22 +463,6 @@ InitErgm.edegree<-function(nw, m, arglist, drop=TRUE, ...) {
   }
   if (!is.null(emptynwstats)) 
     m$terms[[termnumber]]$emptynwstats <- emptynwstats
-  m
-}
-
-#########################################################
-InitErgm.ekappa<-function(nw, m, arglist, ...) {
-  ergm.checkdirected("ekappa", is.bipartite(nw), requirement=TRUE)
-  a <- ergm.checkargs("ekappa", arglist,
-    varnames = c("attrname"),
-    vartypes = c("character"),
-    defaultvalues = list(NULL),
-    required = c(FALSE))
-  attach(a)
-  termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="ekappa", soname="ergm",
-                                inputs=c(0, 1, 0))
-  m$coef.names<-c(m$coef.names,"ekappa")
   m
 }
 

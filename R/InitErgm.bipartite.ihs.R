@@ -1,61 +1,7 @@
 #  See InitErgm.R for a general explanation 
 #  of InitErgm functions
 
-##########################################################
-#InitErgm.event<-function(g, model, drop=TRUE, ...)
-#{
-#    nevents <- is.bipartite(g)
-#    if (!nevents)
-#      stop("The event term is for bipartite graphs.",
-#           call.=FALSE)
-#    if (nargs()!=3)
-#        stop(paste("event model term expected zero argument, got ", 
-#            nargs()-2, sep=""), call.=FALSE)
-##
-##   Check for degeneracy
-## 
-#    nactors <- get.network.attribute(g,"bipartite")
-#    nevents <- network.size(g)-nactors
-#    xnames <- network.vertex.names(g)
-#    d <- nactors + (2:nevents)
-#    if(is.null(xnames)){
-#     dnames <- paste("event",d-nactors,sep="")
-#    }else{
-#     dnames <- xnames[d]
-#    }
-#    if(drop){
-#     degrees <- summary(g ~ event, drop=FALSE)
-#     if(any(degrees==0)){
-#      cat(paste("Warning: There are no actors for the event", 
-#          dnames[degrees==0],"\n"))
-#      dropterms <- dnames[degrees==0]
-#      cat(paste("To avoid degeneracy the term",dropterms,"have been dropped.\n"))
-#     }
-#     if(any(degrees==nactors)){
-#      cat(paste("Warning: The event", 
-#          dnames[degrees],"is common to all actors\n"))
-#      dropterms <- dnames[degrees==nactors]
-#      cat(paste("To avoid degeneracy the term",dropterms,"have been dropped.\n"))
-#     }
-#     d <- d[degrees!=nactors & degrees!=0] 
-#    }
-#    ld<-length(d)
-#    if(ld==0){return(model)}
-##
-#    if(is.null(xnames)){
-#     dnames <- paste("event",d-nactors,sep="")
-#    }else{
-#     dnames <- xnames[d]
-#    }
-#    termnumber<-1+length(model$terms)
-##  No covariates here, so input component 1 is arbitrary
-#    model$terms[[termnumber]] <- list(name="event", soname="ergm",
-#                                          inputs=c(0, ld, ld+1, nactors, d))
-##   model$coef.names<-c(model$coef.names,dnames)
-#    model$coef.names<-c(model$coef.names,paste("event.",dnames,sep=""))
-#    model
-#}
-#
+###################################### InitErgm TERMS:  A
 ##########################################################
 #InitErgm.actor<-function(g, model, drop=TRUE, ...)
 #{
@@ -112,6 +58,64 @@
 #}
 #
 
+#########################################################
+InitErgm.akappa<-function(nw, m, arglist, ...) {
+  ergm.checkdirected("akappa", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("akappa", arglist,
+    varnames = c("attrname"),
+    vartypes = c("character"),
+    defaultvalues = list(NULL),
+    required = c(FALSE))
+  attach(a)
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="akappa", soname="ergm",
+                                inputs=c(0, 1, 0))
+  m$coef.names<-c(m$coef.names,"akappa")
+  m
+}
+
+##########################################################
+#InitErgm.ase<-function(g, model, d, drop=TRUE, ...)
+#{
+#    if (nargs()!=4)
+#        stop(paste("ase() model term expected 1 argument, got ", 
+#            nargs()-3, sep=""), call.=FALSE)
+#    nevents <- is.bipartite(g)
+#    if (!nevents)
+#      stop("The ase term is for bipartite graphs.",
+#           call.=FALSE)
+#    nactors <- get.network.attribute(g,"bipartite")
+#    nevents <- network.size(g)-nactors
+#    if (is.directed(g))
+#      stop("the ase() term is not allowed with a directed graph",
+#           call.=FALSE)
+##
+##   Check for degeneracy
+## 
+#    if(drop){
+#     mase <- paste("c(",paste(d,collapse=","),")",sep="")
+#     mase <- summary(
+#       as.formula(paste('g ~ ase(',mase,')',sep="")),
+#       drop=FALSE)
+#     if(any(mase==0)){
+#      cat(paste("Warning: There are no ase", d[mase==0],"dyads.\n"))
+#      dropterms <- paste("ase", d[mase==0],sep="")
+#      cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
+#      d <- d[mase!=0] 
+#     }
+#    }
+#    ld<-length(d)
+#    if(ld==0){return(m)}
+#    termnumber<-1+length(m$terms)
+##  No covariates here, so input component 1 is arbitrary
+#    m$terms[[termnumber]] <- list(name="ase", soname="ergm",
+#                                          inputs=c(0, ld, ld+1, nactors, d))
+#    m$coef.names<-c(m$coef.names,paste("ase",d,sep=""))
+#    m
+#}
+#
+
+###################################### InitErgm TERMS:  B
 #########################################################
 InitErgm.bichange<-function (g, model, form=NULL, x=NULL, drop=TRUE, ...) 
 {
@@ -180,124 +184,6 @@ InitErgm.bichange<-function (g, model, form=NULL, x=NULL, drop=TRUE, ...)
   model
 }
 
-#########################################################
-InitErgm.gwevent706<-function (nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkdirected("biduration", is.bipartite(nw), requirement=TRUE)
-  a <- ergm.checkargs("gwevent", arglist,
-    varnames = c("alpha"),
-    vartypes = c("numeric"),
-    defaultvalues = list(0.5),
-    required = c(FALSE))
-  attach(a)
-  alpha<-a$alpha
-  nactors <- get.network.attribute(nw,"bipartite")
-  nevents <- network.size(nw)-nactors
-  termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="gwevent",
-                                    soname="ergm",
-                                    inputs=c(0, 1, 2, nactors, alpha))
-  m$coef.names<-c(m$coef.names,"gwevent")
-  m
-}
-
-InitErgm.gwactor706<-function (nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkdirected("biduration", is.bipartite(nw), requirement=TRUE)
-  a <- ergm.checkargs("gwactor", arglist,
-    varnames = c("alpha"),
-    vartypes = c("numeric"),
-    defaultvalues = list(0.5),
-    required = c(FALSE))
-  attach(a)
-  alpha<-a$alpha
-  nactors <- get.network.attribute(nw,"bipartite")
-  nevents <- network.size(nw)-nactors
-  termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="gwactor",
-                                    soname="ergm",
-                                    inputs=c(0, 1, 2, nactors, alpha))
-  m$coef.names<-c(m$coef.names,"gwactor")
-  m
-}
-
-##########################################################
-#InitErgm.esa<-function(g, model, d, drop=TRUE, ...)
-#{
-#    if (nargs()!=4)
-#        stop(paste("esa() model term expected 1 argument, got ", 
-#            nargs()-3, sep=""), call.=FALSE)
-#    nevents <- is.bipartite(g)
-#    if (!nevents)
-#      stop("The esa term is for bipartite graphs.",
-#           call.=FALSE)
-#    nactors <- get.network.attribute(g,"bipartite")
-#    if (is.directed(g))
-#      stop("the esa() term is not allowed with a directed graph",
-#           call.=FALSE)
-##
-##   Check for degeneracy
-## 
-#    if(drop){
-#     mesa <- paste("c(",paste(d,collapse=","),")",sep="")
-#     mesa <- summary(
-#       as.formula(paste('g ~ esa(',mesa,')',sep="")),
-#       drop=FALSE)
-#     if(any(mesa==0)){
-#      cat(paste("Warning: There are no esa", d[mesa==0],"dyads.\n"))
-#      dropterms <- paste("esa", d[mesa==0],sep="")
-#      cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
-#      d <- d[mesa!=0] 
-#     }
-#    }
-#    ld<-length(d)
-#    if(ld==0){return(model)}
-#    termnumber<-1+length(model$terms)
-##  No covariates here, so input component 1 is arbitrary
-#    model$terms[[termnumber]] <- list(name="esa", soname="ergm",
-#                                          inputs=c(0, ld, ld+1, nactors, d))
-#    model$coef.names<-c(model$coef.names,paste("esa",d,sep=""))
-#    model
-#}
-#
-##########################################################
-#InitErgm.ase<-function(g, model, d, drop=TRUE, ...)
-#{
-#    if (nargs()!=4)
-#        stop(paste("ase() model term expected 1 argument, got ", 
-#            nargs()-3, sep=""), call.=FALSE)
-#    nevents <- is.bipartite(g)
-#    if (!nevents)
-#      stop("The ase term is for bipartite graphs.",
-#           call.=FALSE)
-#    nactors <- get.network.attribute(g,"bipartite")
-#    nevents <- network.size(g)-nactors
-#    if (is.directed(g))
-#      stop("the ase() term is not allowed with a directed graph",
-#           call.=FALSE)
-##
-##   Check for degeneracy
-## 
-#    if(drop){
-#     mase <- paste("c(",paste(d,collapse=","),")",sep="")
-#     mase <- summary(
-#       as.formula(paste('g ~ ase(',mase,')',sep="")),
-#       drop=FALSE)
-#     if(any(mase==0)){
-#      cat(paste("Warning: There are no ase", d[mase==0],"dyads.\n"))
-#      dropterms <- paste("ase", d[mase==0],sep="")
-#      cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
-#      d <- d[mase!=0] 
-#     }
-#    }
-#    ld<-length(d)
-#    if(ld==0){return(m)}
-#    termnumber<-1+length(m$terms)
-##  No covariates here, so input component 1 is arbitrary
-#    m$terms[[termnumber]] <- list(name="ase", soname="ergm",
-#                                          inputs=c(0, ld, ld+1, nactors, d))
-#    m$coef.names<-c(m$coef.names,paste("ase",d,sep=""))
-#    m
-#}
-#
 ##########################################################
 #InitErgm.bimixall<-function (nw, m, arglist, drop=TRUE, ...) {
 #  a <- ergm.checkargs("bimix", arglist,
@@ -635,6 +521,161 @@ InitErgm.biduration<-function (nw, m, arglist, ...) {
   m
 }
 
+###################################### InitErgm TERMS:  E
+#########################################################
+InitErgm.ekappa<-function(nw, m, arglist, ...) {
+  ergm.checkdirected("ekappa", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("ekappa", arglist,
+    varnames = c("attrname"),
+    vartypes = c("character"),
+    defaultvalues = list(NULL),
+    required = c(FALSE))
+  attach(a)
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="ekappa", soname="ergm",
+                                inputs=c(0, 1, 0))
+  m$coef.names<-c(m$coef.names,"ekappa")
+  m
+}
+
+##########################################################
+#InitErgm.esa<-function(g, model, d, drop=TRUE, ...)
+#{
+#    if (nargs()!=4)
+#        stop(paste("esa() model term expected 1 argument, got ", 
+#            nargs()-3, sep=""), call.=FALSE)
+#    nevents <- is.bipartite(g)
+#    if (!nevents)
+#      stop("The esa term is for bipartite graphs.",
+#           call.=FALSE)
+#    nactors <- get.network.attribute(g,"bipartite")
+#    if (is.directed(g))
+#      stop("the esa() term is not allowed with a directed graph",
+#           call.=FALSE)
+##
+##   Check for degeneracy
+## 
+#    if(drop){
+#     mesa <- paste("c(",paste(d,collapse=","),")",sep="")
+#     mesa <- summary(
+#       as.formula(paste('g ~ esa(',mesa,')',sep="")),
+#       drop=FALSE)
+#     if(any(mesa==0)){
+#      cat(paste("Warning: There are no esa", d[mesa==0],"dyads.\n"))
+#      dropterms <- paste("esa", d[mesa==0],sep="")
+#      cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
+#      d <- d[mesa!=0] 
+#     }
+#    }
+#    ld<-length(d)
+#    if(ld==0){return(model)}
+#    termnumber<-1+length(model$terms)
+##  No covariates here, so input component 1 is arbitrary
+#    model$terms[[termnumber]] <- list(name="esa", soname="ergm",
+#                                          inputs=c(0, ld, ld+1, nactors, d))
+#    model$coef.names<-c(model$coef.names,paste("esa",d,sep=""))
+#    model
+#}
+#
+
+##########################################################
+#InitErgm.event<-function(g, model, drop=TRUE, ...)
+#{
+#    nevents <- is.bipartite(g)
+#    if (!nevents)
+#      stop("The event term is for bipartite graphs.",
+#           call.=FALSE)
+#    if (nargs()!=3)
+#        stop(paste("event model term expected zero argument, got ", 
+#            nargs()-2, sep=""), call.=FALSE)
+##
+##   Check for degeneracy
+## 
+#    nactors <- get.network.attribute(g,"bipartite")
+#    nevents <- network.size(g)-nactors
+#    xnames <- network.vertex.names(g)
+#    d <- nactors + (2:nevents)
+#    if(is.null(xnames)){
+#     dnames <- paste("event",d-nactors,sep="")
+#    }else{
+#     dnames <- xnames[d]
+#    }
+#    if(drop){
+#     degrees <- summary(g ~ event, drop=FALSE)
+#     if(any(degrees==0)){
+#      cat(paste("Warning: There are no actors for the event", 
+#          dnames[degrees==0],"\n"))
+#      dropterms <- dnames[degrees==0]
+#      cat(paste("To avoid degeneracy the term",dropterms,"have been dropped.\n"))
+#     }
+#     if(any(degrees==nactors)){
+#      cat(paste("Warning: The event", 
+#          dnames[degrees],"is common to all actors\n"))
+#      dropterms <- dnames[degrees==nactors]
+#      cat(paste("To avoid degeneracy the term",dropterms,"have been dropped.\n"))
+#     }
+#     d <- d[degrees!=nactors & degrees!=0] 
+#    }
+#    ld<-length(d)
+#    if(ld==0){return(model)}
+##
+#    if(is.null(xnames)){
+#     dnames <- paste("event",d-nactors,sep="")
+#    }else{
+#     dnames <- xnames[d]
+#    }
+#    termnumber<-1+length(model$terms)
+##  No covariates here, so input component 1 is arbitrary
+#    model$terms[[termnumber]] <- list(name="event", soname="ergm",
+#                                          inputs=c(0, ld, ld+1, nactors, d))
+##   model$coef.names<-c(model$coef.names,dnames)
+#    model$coef.names<-c(model$coef.names,paste("event.",dnames,sep=""))
+#    model
+#}
+#
+
+###################################### InitErgm TERMS:  G
+#########################################################
+InitErgm.gwevent706<-function (nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("biduration", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("gwevent", arglist,
+    varnames = c("alpha"),
+    vartypes = c("numeric"),
+    defaultvalues = list(0.5),
+    required = c(FALSE))
+  attach(a)
+  alpha<-a$alpha
+  nactors <- get.network.attribute(nw,"bipartite")
+  nevents <- network.size(nw)-nactors
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="gwevent",
+                                    soname="ergm",
+                                    inputs=c(0, 1, 2, nactors, alpha))
+  m$coef.names<-c(m$coef.names,"gwevent")
+  m
+}
+
+#########################################################
+InitErgm.gwactor706<-function (nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("biduration", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("gwactor", arglist,
+    varnames = c("alpha"),
+    vartypes = c("numeric"),
+    defaultvalues = list(0.5),
+    required = c(FALSE))
+  attach(a)
+  alpha<-a$alpha
+  nactors <- get.network.attribute(nw,"bipartite")
+  nevents <- network.size(nw)-nactors
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="gwactor",
+                                    soname="ergm",
+                                    inputs=c(0, 1, 2, nactors, alpha))
+  m$coef.names<-c(m$coef.names,"gwactor")
+  m
+}
+
+###################################### InitErgm TERMS:  M
 #########################################################
 InitErgm.monopolymixmat<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkbipartite("monopolymixmat", is.bipartite(nw), requirement=TRUE)
