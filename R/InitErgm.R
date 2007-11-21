@@ -222,6 +222,99 @@ InitErgm.asymmetric<-function (nw, m, arglist, drop=TRUE, ...) {
 
 ###################################### InitErgm TERMS:  B
 #########################################################
+InitErgm.balance<-function (nw, m, arglist, ...) {
+  a <- ergm.checkargs("balance", arglist,
+    varnames = c("attrname", "diff"),
+    vartypes = c("character", "logical"),
+    defaultvalues = list(NULL, FALSE),
+    required = c(FALSE, FALSE))
+  attach(a)
+  attrname <- a$attrname
+  detach(a)
+  termnumber<-1+length(m$terms)
+  if(!is.null(attrname)){
+   nodecov <- get.node.attr(nw, attrname, "balance")
+   u<-sort(unique(nodecov))
+   if(any(is.na(nodecov))){u<-c(u,NA)}
+#
+#  Recode to numeric if necessary
+#
+   nodecov <- match(nodecov,u,nomatch=length(u)+1)
+   ui <- seq(along=u)
+
+   if (length(u)==1)
+         stop ("Attribute given to balance() has only one value", call.=FALSE)
+#
+#  Check for degeneracy
+#
+   if(drop){
+      triattr <- summary(
+       as.formula(paste('nw ~ balance(','"',attrname,'",diff=',diff,')',sep="")),
+       drop=FALSE) == 0
+      if(diff){
+       if(any(triattr)){
+        dropterms <- paste(paste("balance",attrname,sep="."),u[triattr],sep="")
+      cat(" ")
+        cat(paste("Warning: The count of", dropterms, "is extreme;\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+#       cat(paste("To avoid degeneracy the terms",
+#               paste(dropterms,collapse=" and, "),
+#                 "have been dropped.\n"))
+        u <- u[!triattr] 
+        ui <- ui[!triattr] 
+       }
+      }else{
+       if(triattr){
+         dropterms <- paste(paste("balance",attrname,sep="."),sep="")
+      cat(" ")
+         cat(paste("Warning: The count of", dropterms, "is extreme;\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+#        cat(paste("To avoid degeneracy the term",
+#               paste(dropterms,collapse=" and, "),
+#                  "have been dropped.\n"))
+       }
+      }
+     }
+     if (!diff) {
+#     No parameters before covariates here, so input element 1 equals 0
+      m$terms[[termnumber]] <- list(name="balance", soname="ergm",
+                                    inputs=c(0,1,length(nodecov),nodecov),
+                                    dependence=TRUE)
+      m$coef.names<-c(m$coef.names,paste("balance",attrname,sep="."))
+     } else {
+      #  Number of input parameters before covariates equals number of
+      #  unique elements in nodecov, namely length(u), so that's what
+      #  input element 1 equals
+      m$terms[[termnumber]] <- list(name="balance", soname="ergm",
+          inputs=c(length(ui), length(ui), length(ui)+length(nodecov),
+                   ui, nodecov),
+          dependence=TRUE)
+      m$coef.names<-c(m$coef.names,paste("balance",
+          attrname, u, sep="."))
+     }
+  }else{
+#  No attributes (or diff)
+#
+#   Check for degeneracy
+#   Can't do this as starts an infinite loop
+#
+#   if(drop){
+#    triattr <- summary(as.formula('nw ~ balance'), drop=FALSE) == 0
+#    if(triattr){
+#       cat(paste("Warning: There are no balanced triads;\n",
+#       cat(paste("To avoid degeneracy the balance term has been dropped.\n"))
+#    }
+#   }
+#   No covariates, so input element 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="balance", soname="ergm",
+                                  inputs=c(0,1,0),
+                                  dependence=TRUE)
+    m$coef.names<-c(m$coef.names,"balance")
+   }
+   m
+}
+
+#########################################################
 InitErgm.bounded.degree<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("bounded.degree", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("bounded.degree", arglist,
@@ -1392,6 +1485,31 @@ InitErgm.idegree<-function(nw, m, arglist, drop=TRUE, ...) {
 }
 
 #########################################################
+InitErgm.intransitive<-function (nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("intransitive", is.directed(nw), requirement=TRUE)
+  a <- ergm.checkargs("intransitive", arglist,
+    varnames = NULL,
+    vartypes = NULL,
+    defaultvalues = list(),
+    required = NULL)
+  termnumber<-1+length(m$terms)
+  if(drop){
+    nintransitive <- summary(as.formula('nw ~ intransitive'), drop=FALSE)
+    if(nintransitive==0){
+      cat(" ")
+      cat(paste("Warning: There are no intransitive triads;\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+ #    cat(paste("To avoid degeneracy the 'intransitive' term has been dropped.\n"))
+      return(m)
+    }
+  }
+  m$terms[[termnumber]] <- list(name="intransitive", soname="ergm",
+                                inputs=c(0,1,0))
+  m$coef.names<-c(m$coef.names,"intransitive")
+  m
+}
+
+#########################################################
 InitErgm.isolates<-function(nw, m, arglist, drop=TRUE, ...) {
 # ergm.checkdirected("isolates", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("isolates", arglist,
@@ -1656,6 +1774,38 @@ InitErgm.mutual<-function (nw, m, arglist, drop=TRUE, ...) {
 }
 
 ###################################### InitErgm TERMS:  N
+#########################################################
+InitErgm.nearsimmelian<-function (nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("nearsimmelian", is.directed(nw), requirement=TRUE)
+  a <- ergm.checkargs("nearsimmelian", arglist,
+    varnames = NULL,
+    vartypes = NULL,
+    defaultvalues = list(),
+    required = NULL)
+  if(drop){
+    nsimmelian <- summary(as.formula('nw ~ nearsimmelian'), drop=FALSE)
+    if(nsimmelian==0){
+      cat(" ")
+      cat(paste("Warning: There are no nearsimmelian triads;\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+#     cat(paste("To avoid degeneracy the 'nearsimmelian' term has been dropped.\n"))
+      return(m)
+    }
+    if(nsimmelian==network.dyadcount(nw)*network.size(nw)*0.5){
+      cat(" ")
+      cat(paste("Warning: All dyads have nearsimmelian triads!\n",
+                 " the corresponding coefficient has been fixed at its MLE of infinity.\n",sep=" "))
+#     cat(paste("To avoid degeneracy the 'nearsimmelian' term has been dropped.\n"))
+      return(m)
+    }
+  }
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="nearsimmelian", soname="ergm",
+                                inputs=c(0,1,0))
+  m$coef.names<-c(m$coef.names,"nearsimmelian")
+  m
+}
+
 #########################################################
 InitErgm.nodefactor<-function (nw, m, arglist, drop=TRUE, ...) {
   a <- ergm.checkargs("nodefactor", arglist,
@@ -2284,6 +2434,70 @@ InitErgm.sendercov<-function (nw, m, arglist, ...) {
 }
 
 #########################################################
+InitErgm.simmelian<-function (nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("simmelian", is.directed(nw), requirement=TRUE)
+  a <- ergm.checkargs("simmelian", arglist,
+    varnames = NULL,
+    vartypes = NULL,
+    defaultvalues = list(),
+    required = NULL)
+  if(drop){
+    nsimmelian <- summary(as.formula('nw ~ simmelian'), drop=FALSE)
+    if(nsimmelian==0){
+      cat(" ")
+      cat(paste("Warning: There are no simmelian triads;\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+#     cat(paste("To avoid degeneracy the 'simmelian' term has been dropped.\n"))
+      return(m)
+    }
+    if(nsimmelian==network.edgecount(nw)*network.size*0.5){
+      cat(" ")
+      cat(paste("Warning: All triads are simmelian!\n",
+                 " The corresponding coefficient has been fixed at its MLE of infinity.\n",sep=" "))
+#     cat(paste("To avoid degeneracy the 'simmelian' term has been dropped.\n"))
+      return(m)
+    }
+  }
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="simmelian", soname="ergm",
+                                inputs=c(0,1,0))
+  m$coef.names<-c(m$coef.names,"simmelian")
+  m
+}
+
+#########################################################
+InitErgm.simmelianties<-function (nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("simmelianties", is.directed(nw), requirement=TRUE)
+  a <- ergm.checkargs("simmelianties", arglist,
+    varnames = NULL,
+    vartypes = NULL,
+    defaultvalues = list(),
+    required = NULL)
+  if(drop){
+    nsimmelianties <- summary(as.formula('nw ~ simmelianties'), drop=FALSE)
+    if(nsimmelianties==0){
+      cat(" ")
+      cat(paste("Warning: There are no simmelianties ties;\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+#     cat(paste("To avoid degeneracy the 'simmelianties' term has been dropped.\n"))
+      return(m)
+    }
+    if(nsimmelianties==network.edgecount(nw)){
+      cat(" ")
+      cat(paste("Warning: All ties have simmelianties ties!\n",
+                 " the corresponding coefficient has been fixed at its MLE of infinity.\n",sep=" "))
+#     cat(paste("To avoid degeneracy the 'simmelianties' term has been dropped.\n"))
+      return(m)
+    }
+  }
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="simmelianties", soname="ergm",
+                                inputs=c(0,1,0))
+  m$coef.names<-c(m$coef.names,"simmelianties")
+  m
+}
+
+#########################################################
 InitErgm.smalldiff<-function (nw, m, arglist, ...) {
   a <- ergm.checkargs("smalldiff", arglist,
     varnames = c("attrname", "cutoff"),
@@ -2362,6 +2576,31 @@ InitErgm.sociality<-function(nw, m, arglist, drop=FALSE, ...) {
 }
 
 ###################################### InitErgm TERMS:  T
+#########################################################
+InitErgm.transitive<-function (nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("transitive", is.directed(nw), requirement=TRUE)
+  a <- ergm.checkargs("transitive", arglist,
+    varnames = NULL,
+    vartypes = NULL,
+    defaultvalues = list(),
+    required = NULL)
+  termnumber<-1+length(m$terms)
+  if(drop){
+    ntransitive <- summary(as.formula('nw ~ transitive'), drop=FALSE)
+    if(ntransitive==0){
+      cat(" ")
+      cat(paste("Warning: There are no transitive triads;\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+#     cat(paste("To avoid degeneracy the 'transitive' term has been dropped.\n"))
+      return(m)
+    }
+  }
+  m$terms[[termnumber]] <- list(name="transitive", soname="ergm",
+                                inputs=c(0,1,0))
+  m$coef.names<-c(m$coef.names,"transitive")
+  m
+}
+
 #########################################################
 InitErgm.triangle<-InitErgm.triangles<-function (nw, m, arglist, drop=TRUE, ...) {
   a <- ergm.checkargs("triangle", arglist,
