@@ -2,32 +2,6 @@
 #  of InitErgm functions
 
 #########################################################
-InitErgm.balance<-function (nw, m, arglist, drop=TRUE, ...) {
-  a=ergm.checkargs("balance", arglist,
-    varnames = NULL,
-    vartypes = NULL,
-    defaultvalues = list(),
-    required = NULL)
-  if(drop){
-    mdegree <- summary(
-     as.formula('nw ~ balance'),
-     drop=FALSE) == 0
-    if(mdegree){
-     cat(paste("Warning: There are no balanced triads.\n"))
-     cat(paste("To avoid degeneracy the balance term has been dropped.\n"))
-     return(m)
-    }
-  }
-  termnumber<-1+length(m$terms)
-# No covariates here, so input component 1 is arbitrary
-  m$terms[[termnumber]] <- list(name="balance", soname="ergm",
-                                      inputs=c(0, 1, 0),
-                                      dependence=TRUE)
-  m$coef.names<-c(m$coef.names, "balance")
-  m
-}
-
-#########################################################
 InitErgm.triadcensus<-function (nw, m, arglist, drop=FALSE, ...) {
   a=ergm.checkargs("triadcensus", arglist,
     varnames = c("d","drop"),
