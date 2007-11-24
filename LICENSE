@@ -1,5 +1,9 @@
 Please cite us!
 
+This software is distributed under the GPL-3 license.  It is
+free, open source, and has the following attribution
+requirements:
+
 This software is distributed under the GPL-3 license with the
 following requirements:
 (1) you agree to retain in "ergm" and any modifications to
@@ -8,30 +12,23 @@ following requirements:
 (2) you agree that "ergm" and any modifications to
      "ergm" will display when used the attribution:
      "Based on 'statnet' project software (http://statnetproject.org),
-      to be cited as in http://statnetproject.org/cite"
+      for citation information see http://statnetproject.org/cite"
 
 What does this mean? :-)
 ====================
 
 We have invested a lot of time and effort in creating 'ergm'
-for use by other researchers. We require that the attributions
-in the software are retained (even if only pieces of it are used),
-and that there is attribution when the package is loaded (e.g., via
-"library" or "require"). This is the default, and is it to stop
-"rebadging" of the software.
+for use by other researchers (as distinct from software for our own use).
+We require that the attributions in the software are retained 
+(even if only pieces of it are used), and that there is attribution when 
+the package is loaded (e.g., via "library" or "require"). 
+This is the default, so you only need to do something if you are going to modify
+or reuse the source.
 
 One core part of credit for most of us is academic citation (i.e.,
 citing the package in papers based on work that uses the package).  We
-therefore ask that when you use 'ergm' in papers, you include the following
-citation:
+therefore ask that you cite the package when you use it in papers.
 
-Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M.
-Goodreau, and Martina Morris (2003) "statnet: A suite of R packages
-for the Statistical Modeling of Social Networks." URL
-http://statnetproject.org.
-
-Details
-=======
 For specific text that can be used for various types of citations,
 use the command:
 
@@ -41,9 +38,7 @@ or go to
 
 http://statnetproject.org/cite
 
-
-So, Enjoy! and Please cite us!
-
+Enjoy!
 
 Mark S. Handcock, University of Washington
 David R. Hunter, Penn State University

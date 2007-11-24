@@ -22,3 +22,5 @@ substring(library(help="ergm",lib.loc=NULL,character.only=TRUE)$info[[1]][2],fir
 citFooter("We have invested a lot of time and effort in creating 'statnet'",
           "for use by other researchers.",
           "Please cite it in all papers where it is used.")
+
+RShowDoc("LICENSE",package="ergm")
