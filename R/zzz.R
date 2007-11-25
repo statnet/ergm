@@ -36,10 +36,13 @@
 "                    Carter T. Butts, University of California-Irvine\n",
 "                    Steven M. Goodreau, University of Washington\n",
 "                    Martina Morris, University of Washington\n",sep=""))
-    cat('Type help(package="ergm") to get started.\n')
-    cat(paste('If utilization of "ergm" results in outcomes which will be published,\n',
-    'please specify the version of "ergm" you used and cite it;\n',
-    'see citation("ergm")\n'))
+    cat('Type help(package="ergm") to get started.\n\n')
+#    cat(paste('If utilization of "ergm" results in outcomes which will be published,\n',
+#    'please specify the version of "ergm" you used and cite it;\n',
+#    'see citation("ergm")\n'))
+    cat('Based on "statnet" project software (http://statnetproject.org),\n',
+    '  for license and citation information see citation("ergm")\n')
+    cat('Please cite it when you use it!\n')
 #   cat('To cite, see citation("ergm")\n')
 #   require(network, quietly=TRUE)
 }
