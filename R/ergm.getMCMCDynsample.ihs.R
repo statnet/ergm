@@ -49,11 +49,11 @@ ergm.getMCMCDynsample <- function(nw, model.form, model.diss,
               as.integer(MHproposal.form$bd$minout), as.integer(MHproposal.form$bd$minin),
               as.integer(MHproposal.form$bd$condAllDegExact), as.integer(length(MHproposal.form$bd$attribs)),
               # MCMC settings.
-              as.double(MCMCparams$nsteps), as.integer(MCMCparams$dyninterval),
+              as.double(MCMCparams$samplesize), as.integer(MCMCparams$dyninterval),
               as.double(MCMCparams$burnin), as.double(MCMCparams$interval),
               # Space for output.
-              s.form = as.double(cbind(t(summary(model.form$formula)),matrix(0,nrow=length(model.form$coef.names),ncol=MCMCparams$nsteps))),
-              s.diss = as.double(cbind(t(summary(model.diss$formula)),matrix(0,nrow=length(model.diss$coef.names),ncol=MCMCparams$nsteps))),
+              s.form = as.double(cbind(t(summary(model.form$formula)),matrix(0,nrow=length(model.form$coef.names),ncol=MCMCparams$samplesize))),
+              s.diss = as.double(cbind(t(summary(model.diss$formula)),matrix(0,nrow=length(model.diss$coef.names),ncol=MCMCparams$samplesize))),
               newnwheads = integer(maxchanges), newnwtails = integer(maxchanges), 
               as.double(maxchanges),
               diffnwtime = integer(maxchanges),
@@ -61,17 +61,17 @@ ergm.getMCMCDynsample <- function(nw, model.form, model.diss,
               diffnwtails = integer(maxchanges),
               as.integer(verbose), 
               PACKAGE="ergm") 
-      statsmatrix.form <- matrix(z$s.form, nrow=MCMCparams$nsteps+1,
+      statsmatrix.form <- matrix(z$s.form, nrow=MCMCparams$samplesize+1,
                                  ncol=Clist.form$nparam,
                                  byrow = TRUE)[-1,,drop=FALSE]
-      statsmatrix.diss <- matrix(z$s.diss, nrow=MCMCparams$nsteps+1,
+      statsmatrix.diss <- matrix(z$s.diss, nrow=MCMCparams$samplesize+1,
                                  ncol=Clist.diss$nparam,
                                  byrow = TRUE)[-1,,drop=FALSE]
     }else{
       rpvmbasename <- paste("ergm.parallel.",Sys.getpid(),sep="")
       MCMCparams.parallel <- MCMCparams
-      MCMCparams.parallel$nsteps <- round(MCMCparams$nsteps / MCMCparams$parallel)
-      MCMCparams.parallel$stats <- MCMCparams$stats[1:MCMCparams.parallel$nsteps,]
+      MCMCparams.parallel$samplesize <- round(MCMCparams$samplesize / MCMCparams$parallel)
+      MCMCparams.parallel$stats <- MCMCparams$stats[1:MCMCparams.parallel$samplesize,]
       require(rpvm)
       require(MASS) # needed by rpvm
 #
@@ -107,19 +107,19 @@ ergm.getMCMCDynsample <- function(nw, model.form, model.diss,
 # NOTE: rbind is S-L-O-W for large structures, so it might be quicker to "allocate" a
 # statsmatrix, and copy into it. -- PK
         statsmatrix.form <- rbind(statsmatrix.form,
-                                  matrix(z$s, nrow=MCMCparams.parallel$nsteps,
+                                  matrix(z$s, nrow=MCMCparams.parallel$samplesize,
                                          ncol=Clist.form$nparam,
                                          byrow = TRUE))
         statsmatrix.diss <- rbind(statsmatrix.diss,
-                                      matrix(z$s, nrow=MCMCparams.parallel$nsteps,
+                                      matrix(z$s, nrow=MCMCparams.parallel$samplesize,
                                              ncol=Clist.diss$nparam,
                                              byrow = TRUE))
 #    if(z$newnw[1]>1){
 #      newedgelist <- rbind(newedgelist,
 #                           matrix(z$newnw[2:z$newnw[1]], ncol=2, byrow=TRUE))
       }
-      cat("parallel nsteps=",nrow(statsmatrix),"by",
-          MCMCparams.parallel$nsteps,"\n")
+      cat("parallel samplesize=",nrow(statsmatrix),"by",
+          MCMCparams.parallel$samplesize,"\n")
       ergm.rpvm.clean(rpvmbasename=rpvmbasename)
     }
   }
