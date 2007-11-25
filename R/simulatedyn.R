@@ -2,7 +2,7 @@ simulatedyn <- function(object, dissolve=NULL, nsteps=1, seed=NULL, theta0,gamma
                         burnin=0, interval=1, dyninterval=1000,
                         constraints=~.,
                         dissolve.order="DissThenForm",
-                        control=ergm.simulatedyn.control(),
+                        control=simulatedyn.control(),
                         verbose=FALSE) {
   formula <- object
 
@@ -41,7 +41,7 @@ simulatedyn <- function(object, dissolve=NULL, nsteps=1, seed=NULL, theta0,gamma
                                                     model.form,weights=control$prop.weights.form,class="f")
   MHproposal.diss <- getMHproposal(constraints,control$prop.args.diss,nw,
                                                     model.diss,weights=control$prop.weights.diss,class="d")
-  MCMCparams <- c(control,list(samplesize=nsteps, interval=interval,
+  MCMCparams <- c(control,list(nsteps=nsteps, interval=interval,
                            burnin=burnin,
                            parallel=0,
                            meanstats.form=theta0-theta0,
