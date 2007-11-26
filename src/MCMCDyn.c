@@ -313,7 +313,7 @@ R_INLINE void MCMCDyn1Step_commit(unsigned int ntoggles,
    * empty the discordant network (nwp[1])
    * return the number of edges toggled
 */
-R_INLINE unsigned int MCMCDyn1Step_record_reset(unsigned log_toggles, Edge nmax,
+R_INLINE unsigned int MCMCDyn1Step_record_reset(Edge nmax,
 						Vertex *difftime, Vertex *diffhead, Vertex *difftail,
 						Network *nwp, 
 						Edge *nextdiffedge){
@@ -326,7 +326,7 @@ R_INLINE unsigned int MCMCDyn1Step_record_reset(unsigned log_toggles, Edge nmax,
     ToggleEdge(head, tail, &nwp[1]); // delete it from nwp[1];
     ToggleEdge(head, tail, nwp); // undo the toggle in nwp[0];
     
-    if(log_toggles && *nextdiffedge<nmax){
+    if(*nextdiffedge<nmax){
       // and record the toggle.
       difftime[*nextdiffedge] = t;
       diffhead[*nextdiffedge] = head;
@@ -361,6 +361,9 @@ void MCMCDyn1Step(// Observed and discordant network.
 		  unsigned int dyninterval,
 		  // Verbosity.
 		  int fVerbose){
+  
+  //FIXME: log_toggles directive is ignored!
+
   Edge ntoggles;
 
   /* Increment the MCMC timer. */
@@ -370,23 +373,23 @@ void MCMCDyn1Step(// Observed and discordant network.
   case DissThenForm:
     /* Run the dissolution process and commit it. */
     MCMCDyn1Step_sample(D_MH, gamma, D_stats, dyninterval, nwp, D_m, bd);
-    ntoggles = MCMCDyn1Step_record_reset(log_toggles, nmax, difftime, diffhead, difftail, nwp, nextdiffedge);
+    ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, nextdiffedge);
     MCMCDyn1Step_commit(ntoggles, diffhead+*nextdiffedge-ntoggles, difftail+*nextdiffedge-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
     
     /* Run the formation process and commit it. */
     MCMCDyn1Step_sample(F_MH, theta, F_stats, dyninterval, nwp, F_m, bd);
-    ntoggles = MCMCDyn1Step_record_reset(log_toggles, nmax, difftime, diffhead, difftail, nwp, nextdiffedge);
+    ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, nextdiffedge);
     MCMCDyn1Step_commit(ntoggles, diffhead+*nextdiffedge-ntoggles, difftail+*nextdiffedge-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
     
     break;
   case DissAndForm:
     /* Run the dissolution process. */
     MCMCDyn1Step_sample(D_MH, gamma, D_stats, dyninterval, nwp, D_m, bd);
-    ntoggles = MCMCDyn1Step_record_reset(log_toggles, nmax, difftime, diffhead, difftail, nwp, nextdiffedge);
+    ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, nextdiffedge);
     
     /* Run the formation process. */
     MCMCDyn1Step_sample(F_MH, theta, F_stats, dyninterval, nwp, F_m, bd);
-    ntoggles += MCMCDyn1Step_record_reset(log_toggles, nmax, difftime, diffhead, difftail, nwp, nextdiffedge);
+    ntoggles += MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, nextdiffedge);
     
     /* Commit both. */
     MCMCDyn1Step_commit(ntoggles, diffhead+*nextdiffedge-ntoggles, difftail+*nextdiffedge-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
@@ -394,24 +397,24 @@ void MCMCDyn1Step(// Observed and discordant network.
   case FormThenDiss:
     /* Run the formation process and commit it. */
     MCMCDyn1Step_sample(F_MH, theta, F_stats, dyninterval, nwp, F_m, bd);
-    ntoggles = MCMCDyn1Step_record_reset(log_toggles, nmax, difftime, diffhead, difftail, nwp, nextdiffedge);
+    ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, nextdiffedge);
     MCMCDyn1Step_commit(ntoggles, diffhead+*nextdiffedge-ntoggles, difftail+*nextdiffedge-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
 
     /* Run the dissolution process and commit it. */
     MCMCDyn1Step_sample(D_MH, gamma, D_stats, dyninterval, nwp, D_m, bd);
-    ntoggles = MCMCDyn1Step_record_reset(log_toggles, nmax, difftime, diffhead, difftail, nwp, nextdiffedge);
+    ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, nextdiffedge);
     MCMCDyn1Step_commit(ntoggles, diffhead+*nextdiffedge-ntoggles, difftail+*nextdiffedge-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
     break;
   case FormOnly:
     /* Run the formation process and commit it. */
     MCMCDyn1Step_sample(F_MH, theta, F_stats, dyninterval, nwp, F_m, bd);
-    ntoggles = MCMCDyn1Step_record_reset(log_toggles, nmax, difftime, diffhead, difftail, nwp, nextdiffedge);
+    ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, nextdiffedge);
     MCMCDyn1Step_commit(ntoggles, diffhead+*nextdiffedge-ntoggles, difftail+*nextdiffedge-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
     break;
   case DissOnly:
     /* Run the dissolution process and commit it. */
     MCMCDyn1Step_sample(D_MH, gamma, D_stats, dyninterval, nwp, D_m, bd);
-    ntoggles = MCMCDyn1Step_record_reset(log_toggles, nmax, difftime, diffhead, difftail, nwp, nextdiffedge);
+    ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, nextdiffedge);
     MCMCDyn1Step_commit(ntoggles, diffhead+*nextdiffedge-ntoggles, difftail+*nextdiffedge-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
     break;
   default: 
@@ -570,7 +573,7 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
 			  // Verbosity.
 			  int fVerbose){
   int i, j, components, diam;
-  Edge nextdiffedge;
+  Edge nextdiffedge=1;
   ModelTerm *mtp;
   
   

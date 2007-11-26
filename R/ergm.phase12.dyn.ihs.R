@@ -17,9 +17,9 @@ ergm.phase12.dyn <- function(g, model.form, model.diss,
   Clist.diss <- ergm.Cprepare(g, model.diss)
   maxchanges <- max(MCMCparams$maxchanges, Clist.form$nedges)/5
   MCMCparams$maxchanges <- MCMCparams$maxchanges/5
-  z <- list(newnwhead=maxchanges+1)
-  while(z$newnwhead[1]  >= maxchanges || 
-        z$diffnwhead[1] >= maxchanges){
+  z <- list(newnwheads=maxchanges+1)
+  while(z$newnwheads[1]  >= maxchanges || 
+        z$diffnwheads[1] >= maxchanges){
     maxchanges <- 5*maxchanges
     MCMCparams$maxchanges <- 5*MCMCparams$maxchanges
     if(verbose){cat(paste("MCMCDyn workspace is",maxchanges,"\n"))}
@@ -37,7 +37,7 @@ ergm.phase12.dyn <- function(g, model.form, model.diss,
               # Formation terms and proposals.
               as.integer(Clist.form$nterms), as.character(Clist.form$fnamestring), as.character(Clist.form$snamestring),
               as.character(MHproposal.form$name), as.character(MHproposal.form$package),
-#  Add:  as.double(length(MHproposal$args)), as.double(MHproposal$args), 
+#  Add:  as.double(length(MHproposal.form$args)), as.double(MHproposal.form$args), 
               as.double(Clist.form$inputs), eta=as.double(eta0),
               # Formation parameter fitting.
               as.double(MCMCparams$gain), as.double(MCMCparams$stats[1,]),
@@ -45,20 +45,20 @@ ergm.phase12.dyn <- function(g, model.form, model.diss,
               # Dissolution terms and proposals.
               as.integer(Clist.diss$nterms), as.character(Clist.diss$fnamestring), as.character(Clist.diss$snamestring),
               as.character(MHproposal.diss$name), as.character(MHproposal.diss$package),
-              as.double(Clist.diss$inputs), as.double(MCMCparams$gamma0),
+              as.double(Clist.diss$inputs), as.double(gamma0),
               # Degree bounds.
-              as.integer(MHproposal$bd$attribs), 
-              as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
-              as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
-              as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)), 
+              as.integer(MHproposal.form$bd$attribs), 
+              as.integer(MHproposal.form$bd$maxout), as.integer(MHproposal.form$bd$maxin),
+              as.integer(MHproposal.form$bd$minout), as.integer(MHproposal.form$bd$minin),
+              as.integer(MHproposal.form$bd$condAllDegExact), as.integer(length(MHproposal.form$bd$attribs)), 
               # MCMC settings.              
               as.integer(MCMCparams$samplesize), as.integer(MCMCparams$dyninterval),
               as.integer(MCMCparams$burnin), as.integer(MCMCparams$interval),
               # Space for output.
               s.form = double(MCMCparams$samplesize * Clist.form$nparam), d.form = double(MCMCparams$samplesize * Clist.diss$nparam),
-              newnwhead = integer(maxchanges), newnwtail = integer(maxchanges),
+              newnwheads = integer(maxchanges), newnwtails = integer(maxchanges),
               as.double(maxchanges),
-              diffnwtime = integer(maxchanges), diffnwhead = integer(maxchanges), diffnwtail = integer(maxchanges),
+              diffnwtime = integer(maxchanges), diffnwheads = integer(maxchanges), diffnwtails = integer(maxchanges),
               # Verbosity.
               as.integer(verbose), 
           PACKAGE="ergm") 
@@ -85,6 +85,7 @@ ergm.phase12.dyn <- function(g, model.form, model.diss,
      Clist.form,
      Clist.diss,
      MHproposal.form,
+         MHproposal.diss,
      eta0,
      MCMCparams.parallel,
      maxchanges, 
@@ -116,13 +117,13 @@ ergm.phase12.dyn <- function(g, model.form, model.diss,
     ergm.rpvm.clean(rpvmbasename=rpvmbasename)
   }
   }
-#   cat(paste("z$diffnwhead = ",maxchanges,z$diffnwhead[1],"\n"))
-#   cat(paste("z$dissnwhead = ",maxchanges,z$dissnwhead[1],"\n"))
-#   cat(paste("z$newwhead = ",maxchanges,z$newnwhead[1],"\n"))
+#   cat(paste("z$diffnwheads = ",maxchanges,z$diffnwheads[1],"\n"))
+#   cat(paste("z$dissnwheads = ",maxchanges,z$dissnwheads[1],"\n"))
+#   cat(paste("z$newwhead = ",maxchanges,z$newnwheads[1],"\n"))
   newnetwork<-newnw.extract(g,z)
 #   Next create the network of differences from the origianl one
-    if(z$diffnwhead[1]>1){
-     diffedgelist <- cbind(z$diffnwtime[2:z$diffnwtime[1]],z$diffnwhead[2:z$diffnwhead[1]],z$diffnwtail[2:z$diffnwhead[1]])
+    if(z$diffnwheads[1]>1){
+     diffedgelist <- cbind(z$diffnwtime[2:z$diffnwtime[1]],z$diffnwheads[2:z$diffnwheads[1]],z$diffnwtails[2:z$diffnwheads[1]])
     }else{
      diffedgelist <- matrix(0, ncol=3, nrow=0)
     }
