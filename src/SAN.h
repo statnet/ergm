@@ -2,7 +2,7 @@
 #define SAN_H
 
 #include "edgeTree.h"
-#include "basechangeStats.h"
+#include "changestats.h"
 #include "model.h"
 
 /*  Notes on MHproposal type: MHproposal declaration was here, and redundant with the one in 

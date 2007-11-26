@@ -2,7 +2,7 @@
 #define MCMC_H
 
 #include "edgeTree.h"
-#include "basechangeStats.h"
+#include "changestats.h"
 #include "model.h"
 
 /* Macros to test for logical inequality (XOR) and logical equality (XNOR). */

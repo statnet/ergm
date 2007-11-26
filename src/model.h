@@ -2,14 +2,14 @@
 #define MODEL_H
 
 #include "edgeTree.h"
-#include "basechangeStats.h"
+#include "changestats.h"
 #include "R_ext/Rdynload.h"
 
 /* A Model object contains information about an entire ERGM, including the
    total numbers of terms, parameters, and statistics along with a pointer
    to an array of ModelTerm structures.  */
 typedef struct Modelstruct {
-  ModelTerm *termarray; /* array of size n_terms; see basechangeStats.h
+  ModelTerm *termarray; /* array of size n_terms; see changestats.h
                            for ModelTerm definition */
   int n_terms;
   int n_stats;

@@ -2,7 +2,7 @@
 #define CHANGESTATS_duration_H
 
 #include "edgeTree.h"
-#include "basechangeStats.h"
+#include "changestats.h"
 
 void d_D_on (int ntoggles, Vertex *heads, Vertex *tail, 
                 ModelTerm *mtp, Network *nwp);

@@ -2,7 +2,7 @@
 #define SIS_H
 
 #include "edgeTree.h"
-#include "basechangeStats.h"
+#include "changestats.h"
 #include "model.h"
 
 void sisconj (int *colsums, int *conjseq, int nrow, int ncol, int i);

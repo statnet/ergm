@@ -2,7 +2,7 @@
 #define MHproposals_H
 
 #include "edgeTree.h"
-#include "basechangeStats.h"
+#include "changestats.h"
 #include "model.h"
 #include "MCMC.h"
 

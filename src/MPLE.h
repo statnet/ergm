@@ -2,7 +2,7 @@
 #define MPLE_H
 
 #include "edgeTree.h"
-#include "basechangeStats.h"
+#include "changestats.h"
 #include "model.h"
 void MPLE_wrapper (int *heads, int *tails, int *dnedges,
 		   int *dn, int *dflag, int *bipartite, int *nterms, 
