@@ -3,225 +3,175 @@
 
 #include "edgeTree.h"
 
-double my_choose(double n, int r);
-
-#define CHOOSE(n,r) ((n)<(r) ? (0) : (my_choose((double)(n),(int)(r)))) 
-
-/* Node and dyad covariates are now passed as part of inputparams.  However,
-   attrib can still be set to point to the start of these attributes if
-   you want; see comments in InitErgm.r          Dave H  12/17/2003 */
 typedef struct ModelTermstruct {
 	void (*func)(int, Vertex*, Vertex*, struct ModelTermstruct*, Network*);
-	double *attrib; /* Ptr to vector of covariates (if necessary) */
+	double *attrib; /* Ptr to vector of covariates (if necessary; generally unused) */
 	int nstats;   /* Number of change statistics to be returned */
 	double *dstats; /* ptr to change statistics returned */
 	int ninputparams; /* Number of input parameters passed to function */
 	double *inputparams; /* ptr to input parameters passed */
 } ModelTerm;
 
-void d_absdiff (int ntoggles, Vertex *heads, Vertex *tail, 
-                ModelTerm *mtp, Network *nwp);
-void d_boundedistar (int ntoggles, Vertex *heads, Vertex *tails, 
-		     ModelTerm *mtp, Network *nwp);
-void d_boundedostar (int ntoggles, Vertex *heads, Vertex *tails, 
-		     ModelTerm *mtp, Network *nwp);
-void d_boundedkstar (int ntoggles, Vertex *heads, Vertex *tails, 
-		     ModelTerm *mtp, Network *nwp);
-void d_boundedtriangle (int ntoggles, Vertex *heads, Vertex *tails, 
-			ModelTerm *mtp, Network *nwp);
-void d_concurrent (int ntoggles, Vertex *heads, Vertex *tails, 
-			ModelTerm *mtp, Network *nwp);
-void d_concurrent_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
-			ModelTerm *mtp, Network *nwp);
-void d_ctriad (int ntoggles, Vertex *heads, Vertex *tails, 
-	       ModelTerm *mtp, Network *nwp);
-void d_degree (int ntoggles, Vertex *heads, Vertex *tails, 
-	       ModelTerm *mtp, Network *nwp);
-void d_degree_w_homophily (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp);
-void d_degree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
-	        ModelTerm *mtp, Network *nwp);
-void d_degreep (int ntoggles, Vertex *heads, Vertex *tails, 
-	       ModelTerm *mtp, Network *nwp);
-void d_degreep_w_homophily (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp);
-void d_degreep_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
-	        ModelTerm *mtp, Network *nwp);
-void d_spartner (int ntoggles, Vertex *heads, Vertex *tails, 
-		 ModelTerm *mtp, Network *nwp);
-void d_wdegree (int ntoggles, Vertex *heads, Vertex *tails, 
-		ModelTerm *mtp, Network *nwp);
-void d_wspartner (int ntoggles, Vertex *heads, Vertex *tails, 
-		  ModelTerm *mtp, Network *nwp);
-void d_geodegree (int ntoggles, Vertex *heads, Vertex *tails, 
-		  ModelTerm *mtp, Network *nwp);
-void d_gwdegreealpha (int ntoggles, Vertex *heads, Vertex *tails, 
-	    ModelTerm *mtp, Network *nwp);
-void d_altkstar (int ntoggles, Vertex *heads, Vertex *tails, 
-	    ModelTerm *mtp, Network *nwp);
-void d_altistar (int ntoggles, Vertex *heads, Vertex *tails, 
-	    ModelTerm *mtp, Network *nwp);
-void d_altostar (int ntoggles, Vertex *heads, Vertex *tails, 
-	    ModelTerm *mtp, Network *nwp);
-void d_gwdegreelambda (int ntoggles, Vertex *heads, Vertex *tails, 
-	    ModelTerm *mtp, Network *nwp);
-void d_gwdegree (int ntoggles, Vertex *heads, Vertex *tails, 
-	    ModelTerm *mtp, Network *nwp);
-void d_gwdegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp);
-void d_gwidegree (int ntoggles, Vertex *heads, Vertex *tails, 
-	    ModelTerm *mtp, Network *nwp);
-void d_gwidegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp);
-void d_gwodegree (int ntoggles, Vertex *heads, Vertex *tails, 
-	    ModelTerm *mtp, Network *nwp);
-void d_gwodegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp);
-void d_gwd (int ntoggles, Vertex *heads, Vertex *tails, 
-	    ModelTerm *mtp, Network *nwp);
-void d_geospartner (int ntoggles, Vertex *heads, Vertex *tails, 
-		    ModelTerm *mtp, Network *nwp);
-void d_geotwopath (int ntoggles, Vertex *heads, Vertex *tails, 
-		   ModelTerm *mtp, Network *nwp);
-void d_dyadcov (int ntoggles, Vertex *heads, Vertex *tails, 
-		ModelTerm *mtp, Network *nwp);
-void d_heideriandynamic (int ntoggles, Vertex *heads, Vertex *tails, 
-		ModelTerm *mtp, Network *nwp);
-void d_simmeliandynamic (int ntoggles, Vertex *heads, Vertex *tails, 
-		ModelTerm *mtp, Network *nwp);
-void d_edgecov (int ntoggles, Vertex *heads, Vertex *tails, 
-		ModelTerm *mtp, Network *nwp);
-void d_edges (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp);
-void d_meandeg (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp);
-void d_density (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp);
-void d_idegree (int ntoggles, Vertex *heads, Vertex *tails, 
-		ModelTerm *mtp, Network *nwp);
-void d_istar (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp);
-void d_kstar (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp);
-void d_nodematch (int ntoggles, Vertex *heads, Vertex *tails, 
-		  ModelTerm *mtp, Network *nwp);
-void d_receiver (int ntoggles, Vertex *heads, Vertex *tails, 
-		 ModelTerm *mtp, Network *nwp);
-void d_sender (int ntoggles, Vertex *heads, Vertex *tails, 
-	       ModelTerm *mtp, Network *nwp);
-void d_sociality (int ntoggles, Vertex *heads, Vertex *tails, 
-		   ModelTerm *mtp, Network *nwp);
-void d_nearsimmian (int ntoggles, Vertex *heads, Vertex *tails, 
-	       ModelTerm *mtp, Network *nwp);
-void d_simmian (int ntoggles, Vertex *heads, Vertex *tails, 
-	       ModelTerm *mtp, Network *nwp);
-void d_mutual (int ntoggles, Vertex *heads, Vertex *tails, 
-	       ModelTerm *mtp, Network *nwp);
-void d_asymmetric (int ntoggles, Vertex *heads, Vertex *tails, 
-	       ModelTerm *mtp, Network *nwp);
-void d_nodecov (int ntoggles, Vertex *heads, Vertex *tails, 
-		ModelTerm *mtp, Network *nwp);
-void d_sendercov (int ntoggles, Vertex *heads, Vertex *tails, 
-		  ModelTerm *mtp, Network *nwp);
-void d_receivercov (int ntoggles, Vertex *heads, Vertex *tails, 
-		    ModelTerm *mtp, Network *nwp);
-void d_hamming (int ntoggles, Vertex *heads, Vertex *tails, 
-		ModelTerm *mtp, Network *nwp);
-void d_duration (int ntoggles, Vertex *heads, Vertex *tails, 
-		 ModelTerm *mtp, Network *nwp);
-void d_factor (int ntoggles, Vertex *heads, Vertex *tails, 
-		ModelTerm *mtp, Network *nwp);
-void d_nodefactor (int ntoggles, Vertex *heads, Vertex *tails, 
-		   ModelTerm *mtp, Network *nwp);
-void d_nodeifactor (int ntoggles, Vertex *heads, Vertex *tails, 
-		   ModelTerm *mtp, Network *nwp);
-void d_nodeofactor (int ntoggles, Vertex *heads, Vertex *tails, 
-		   ModelTerm *mtp, Network *nwp);
-void d_odegree (int ntoggles, Vertex *heads, Vertex *tails, 
-		ModelTerm *mtp, Network *nwp);
-void d_ostar (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp);
-void d_smalldiff (int ntoggles, Vertex *heads, Vertex *tails, 
-		  ModelTerm *mtp, Network *nwp);
-void d_localtriangle (int ntoggles, Vertex *heads, Vertex *tails, 
-		 ModelTerm *mtp, Network *nwp);
-void d_triangle (int ntoggles, Vertex *heads, Vertex *tails, 
-		 ModelTerm *mtp, Network *nwp);
-void d_tricorr (int ntoggles, Vertex *heads, Vertex *tails, 
-		ModelTerm *mtp, Network *nwp);
-void d_ttriad (int ntoggles, Vertex *heads, Vertex *tails, 
-	       ModelTerm *mtp, Network *nwp);
-void d_kappa (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp);
-void d_boundeddegree (int ntoggles, Vertex *heads, Vertex *tails, 
-		      ModelTerm *mtp, Network *nwp);
-void d_boundedodegree (int ntoggles, Vertex *heads, Vertex *tails, 
-		       ModelTerm *mtp, Network *nwp);
-void d_boundedidegree (int ntoggles, Vertex *heads, Vertex *tails, 
-		       ModelTerm *mtp, Network *nwp);
-void d_hiertriad (int ntoggles, Vertex *heads, Vertex *tails, 
-	       ModelTerm *mtp, Network *nwp);
-void d_hiertriaddegree (int ntoggles, Vertex *heads, Vertex *tails, 
-	       ModelTerm *mtp, Network *nwp);
-double numposthree (Vertex t, Network *nwp);
-Vertex CountTriangles (Vertex h, Vertex t, int outcount, int incount, Network *nwp);
+/****************************************************/
+/* changestat function prototypes, 
+   plus a few supporting function prototypes */
+#define CHANGESTAT_FN(a) void (a) (int ntoggles, Vertex *heads, Vertex *tail, ModelTerm *mtp, Network *nwp);
+/********************  changestats:  A    ***********/
+CHANGESTAT_FN(d_absdiff)         
+CHANGESTAT_FN(d_absdiffcat)
+CHANGESTAT_FN(d_aconcurrent)
+CHANGESTAT_FN(d_aconcurrent_by_attr)
+CHANGESTAT_FN(d_actorfactor)
+CHANGESTAT_FN(d_adegree)
+CHANGESTAT_FN(d_adegree_by_attr)
+CHANGESTAT_FN(d_akappa)
+CHANGESTAT_FN(d_altistar)
+CHANGESTAT_FN(d_altkstar)
+CHANGESTAT_FN(d_altostar)
+CHANGESTAT_FN(d_asymmetric)
+/********************  changestats:  B    ***********/
+CHANGESTAT_FN(d_balance)
+CHANGESTAT_FN(d_berninhom)
+CHANGESTAT_FN(d_biduration)
+CHANGESTAT_FN(d_bimix)
+CHANGESTAT_FN(d_bkappa)
+CHANGESTAT_FN(d_boundeddegree)
+CHANGESTAT_FN(d_boundedidegree)
+CHANGESTAT_FN(d_boundedodegree)
+CHANGESTAT_FN(d_boundedistar)
+  double my_choose(double n, int r);
+CHANGESTAT_FN(d_boundedkstar)
+CHANGESTAT_FN(d_boundedostar)
+CHANGESTAT_FN(d_boundedtriangle)
+  Vertex CountTriangles (Vertex h, Vertex t, int outcount, 
+                         int incount, Network *nwp);
+/********************  changestats:  C    ***********/
+CHANGESTAT_FN(d_concurrent) 
+CHANGESTAT_FN(d_concurrent_by_attr)
+CHANGESTAT_FN(d_ctriple)
+CHANGESTAT_FN(d_cycle)
+  void edgewise_path_recurse(Network *g, Vertex dest, 
+     Vertex curnode, Vertex *availnodes, long int availcount, 
+     long int curlen, double *countv, long int maxlen, 
+     int directed);
+  void edgewise_cycle_census(Network *g, Vertex t, Vertex h, 
+     double *countv, long int maxlen, int directed);
+/********************  changestats:  D    ***********/
+CHANGESTAT_FN(d_degree)
+CHANGESTAT_FN(d_degree_by_attr)
+CHANGESTAT_FN(d_degree_w_homophily)
+CHANGESTAT_FN(d_degreep)
+CHANGESTAT_FN(d_degreep_by_attr)
+CHANGESTAT_FN(d_degreep_w_homophily)
+CHANGESTAT_FN(d_density)
+CHANGESTAT_FN(d_dissolve)
+CHANGESTAT_FN(d_dsp)
+CHANGESTAT_FN(d_duration)
+CHANGESTAT_FN(d_dyadcov)
+/********************  changestats:  E    ***********/
+CHANGESTAT_FN(d_econcurrent)
+CHANGESTAT_FN(d_econcurrent_by_attr)
+CHANGESTAT_FN(d_edegree)
+CHANGESTAT_FN(d_edegree_by_attr)
+CHANGESTAT_FN(d_edgecov)
+CHANGESTAT_FN(d_edges)
+CHANGESTAT_FN(d_ekappa)
+CHANGESTAT_FN(d_esp)
+CHANGESTAT_FN(d_eventfactor)
+/********************  changestats:  F    ***********/
+CHANGESTAT_FN(d_factor)
+CHANGESTAT_FN(d_formation)
+/********************  changestats:  G    ***********/
+CHANGESTAT_FN(d_geodegree)
+CHANGESTAT_FN(d_geospartner)
+CHANGESTAT_FN(d_gwactor)
+CHANGESTAT_FN(d_gwadegree)
+CHANGESTAT_FN(d_gwadegree_by_attr)
+CHANGESTAT_FN(d_gwd)
+CHANGESTAT_FN(d_gwdegree)
+CHANGESTAT_FN(d_gwdegree_by_attr)
+CHANGESTAT_FN(d_gwdegree706)
+CHANGESTAT_FN(d_gwdegreealpha)
+CHANGESTAT_FN(d_gwdegreelambda)
+CHANGESTAT_FN(d_gwdsp)
+CHANGESTAT_FN(d_gwedegree)
+CHANGESTAT_FN(d_gwedegree_by_attr)
+CHANGESTAT_FN(d_gwesp)
+CHANGESTAT_FN(d_gwevent)
+CHANGESTAT_FN(d_gwidegree)
+CHANGESTAT_FN(d_gwidegree_by_attr)
+CHANGESTAT_FN(d_gwodegree)
+CHANGESTAT_FN(d_gwodegree_by_attr)
+CHANGESTAT_FN(d_gwtdsp)
+CHANGESTAT_FN(d_gwtesp)
+/********************  changestats:   H    ***********/
+CHANGESTAT_FN(d_hamming)
+CHANGESTAT_FN(d_hammingdyadcov)
+CHANGESTAT_FN(d_hammingfixmix)
+CHANGESTAT_FN(d_hammingmix)
+CHANGESTAT_FN(d_heideriandynamic)
+CHANGESTAT_FN(d_hiertriad)
+  double numposthree (Vertex t, Network *nwp);
+CHANGESTAT_FN(d_hiertriaddegree)
+/********************  changestats:   I    ***********/
+CHANGESTAT_FN(d_icvar)
+CHANGESTAT_FN(d_idc)
+CHANGESTAT_FN(d_idegree)
+CHANGESTAT_FN(d_idegree_by_attr)
+CHANGESTAT_FN(d_idegree_w_homophily)
+CHANGESTAT_FN(d_intransitive)
+CHANGESTAT_FN(d_intransitivedynamic)
+CHANGESTAT_FN(d_intransitivity)
+CHANGESTAT_FN(d_isolates)
+CHANGESTAT_FN(d_istar)
+/********************  changestats:   K    ***********/
+CHANGESTAT_FN(d_kappa)
+CHANGESTAT_FN(d_kstar)
+/********************  changestats:   L    ***********/
+CHANGESTAT_FN(d_localtriangle)
+/********************  changestats:   M    ***********/
+CHANGESTAT_FN(d_m2star)
+CHANGESTAT_FN(d_meandeg)
+CHANGESTAT_FN(d_mix)
+CHANGESTAT_FN(d_monopolymixmat)
+CHANGESTAT_FN(d_mutual)
+/********************  changestats:   N    ***********/
+CHANGESTAT_FN(d_nearsimmelian)
+CHANGESTAT_FN(d_nodefactor)
+CHANGESTAT_FN(d_nodeifactor)
+CHANGESTAT_FN(d_nodemain)                 
+CHANGESTAT_FN(d_nodematch)
+CHANGESTAT_FN(d_nodemix)
+CHANGESTAT_FN(d_nodeofactor)
+/********************  changestats:   O    ***********/
+CHANGESTAT_FN(d_odegree)
+CHANGESTAT_FN(d_odegree_by_attr)
+CHANGESTAT_FN(d_odegree_w_homophily)
+CHANGESTAT_FN(d_ostar)
+/********************  changestats:   R    ***********/
+CHANGESTAT_FN(d_receiver)
+CHANGESTAT_FN(d_receivercov)
+/********************  changestats:   S    ***********/
+CHANGESTAT_FN(d_sender)
+CHANGESTAT_FN(d_sendercov)
+CHANGESTAT_FN(d_simmelian)
+CHANGESTAT_FN(d_simmeliandynamic)
+CHANGESTAT_FN(d_simmelianties)
+CHANGESTAT_FN(d_smalldiff)
+CHANGESTAT_FN(d_spatial)
+CHANGESTAT_FN(d_sociality)
+/********************  changestats:   T    ***********/
+CHANGESTAT_FN(d_tdsp)
+CHANGESTAT_FN(d_tesp)
+CHANGESTAT_FN(d_transitive)
+CHANGESTAT_FN(d_transitivedynamic)
+CHANGESTAT_FN(d_transitivity)
+CHANGESTAT_FN(d_triadcensus)
+CHANGESTAT_FN(d_triangle)
+CHANGESTAT_FN(d_tripercent)
+CHANGESTAT_FN(d_ttriple)
 
-void edgewise_path_recurse(Network *g, Vertex dest, Vertex curnode, Vertex *availnodes, long int availcount, long int curlen, double *countv, long int maxlen, int directed);
 
-void edgewise_cycle_census(Network *g, Vertex t, Vertex h, double *countv, long int maxlen, int directed);
 
-void d_cycle (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp);
-
-void d_berninhom (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp);
-              
-void d_spatial (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp);
-              
-void d_nodemix (int ntoggles, Vertex *heads, Vertex *tails,
-              ModelTerm *mtp, Network *nwp);
-void d_mix (int ntoggles, Vertex *heads, Vertex *tails,
-              ModelTerm *mtp, Network *nwp);
-void d_hammingmix (int ntoggles, Vertex *heads, Vertex *tails,
-              ModelTerm *mtp, Network *nwp);
-void d_hammingfixmix (int ntoggles, Vertex *heads, Vertex *tails,
-              ModelTerm *mtp, Network *nwp);
-void d_icvar (int ntoggles, Vertex *heads, Vertex *tails,
-              ModelTerm *mtp, Network *nwp);
-void d_idc (int ntoggles, Vertex *heads, Vertex *tails,
-              ModelTerm *mtp, Network *nwp);
-              
-              
-void d_adegree (int ntoggles, Vertex *heads, Vertex *tails,
-                ModelTerm *mtp, Network *nwp);
-void d_adegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
-                ModelTerm *mtp, Network *nwp);
-void d_edegree (int ntoggles, Vertex *heads, Vertex *tails,
-                ModelTerm *mtp, Network *nwp);
-void d_edegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
-                ModelTerm *mtp, Network *nwp);
-void d_econcurrent_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
-                ModelTerm *mtp, Network *nwp);
-void d_aconcurrent_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
-                ModelTerm *mtp, Network *nwp);
-void d_bimix (int ntoggles, Vertex *heads, Vertex *tails,
-              ModelTerm *mtp, Network *nwp);
-void d_formation (int ntoggles, Vertex *heads, Vertex *tails,
-              ModelTerm *mtp, Network *nwp);
-void d_dissolve (int ntoggles, Vertex *heads, Vertex *tails,
-              ModelTerm *mtp, Network *nwp);
-void d_bkappa (int ntoggles, Vertex *heads, Vertex *tails, 
-              ModelTerm *mtp, Network *nwp);
-              
-void d_triadcensus (int ntoggles, Vertex *heads, Vertex *tails, 
-	            ModelTerm *mtp, Network *nwp);
-              
-void d_balance (int ntoggles, Vertex *heads, Vertex *tails, 
-	            ModelTerm *mtp, Network *nwp); 
-void d_intransitivity (int ntoggles, Vertex *heads, Vertex *tails, 
-	             ModelTerm *mtp, Network *nwp); 
-void d_transitivity (int ntoggles, Vertex *heads, Vertex *tails, 
-	             ModelTerm *mtp, Network *nwp);
               
 #endif
