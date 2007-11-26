@@ -222,7 +222,7 @@ InitErgm.aconcurrent<-function(nw, m, arglist, drop=TRUE, ...) {
 
 #########################################################
 InitErgm.actorfactor<-function (nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkdirected("actorfactor", is.bipartite(nw), requirement=TRUE)
+  ergm.checkdirected("actorfactor", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("actorfactor", arglist,
     varnames = c("attrname","contrast"),
     vartypes = c("character","logical"),
@@ -410,7 +410,7 @@ InitErgm.astar<-function(nw, m, arglist, drop=TRUE, ...) {
                       vartypes = c("numeric", "character"),
                       defaultvalues = list(NULL, NULL),
                       required = c(TRUE, FALSE))
-  attach(a)
+  attach(a)                           
   d<-a$d; attrname <- a$attrname
   emptynwstats<-NULL
   nactors <- get.network.attribute(nw, "bipartite")
@@ -467,7 +467,7 @@ InitErgm.astar<-function(nw, m, arglist, drop=TRUE, ...) {
   }
   termnumber<-1+length(m$terms)
   if(!is.null(attrname)) {
-    if(ncol(du)==0) {return(m)}
+    if(ncol(du)==0) {return(m)}            
     #  No covariates here, so input component 1 is arbitrary
     m$terms[[termnumber]] <- list(name="ostar_by_attr", soname="ergm",
                                   inputs=c(0, ncol(du), 
@@ -1606,7 +1606,7 @@ InitErgm.estar<-function(nw, m, arglist, drop=TRUE, ...) {
 
 #########################################################
 InitErgm.eventfactor<-function (nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkdirected("eventfactor", is.bipartite(nw), requirement=TRUE)
+  ergm.checkdirected("eventfactor", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("eventfactor", arglist,
     varnames = c("attrname","contrast"),
     vartypes = c("character","logical"),

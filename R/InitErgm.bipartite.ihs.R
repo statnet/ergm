@@ -60,7 +60,7 @@
 
 #########################################################
 InitErgm.akappa<-function(nw, m, arglist, ...) {
-  ergm.checkdirected("akappa", is.bipartite(nw), requirement=TRUE)
+  ergm.checkdirected("akappa", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("akappa", arglist,
     varnames = c("attrname"),
     vartypes = c("character"),
@@ -351,7 +351,7 @@ InitErgm.bichange<-function (g, model, form=NULL, x=NULL, drop=TRUE, ...)
 ## Commented out because there is another version of InitErgm.biduration below
 ##########################################################
 #InitErgm.biduration<-function (nw, m, arglist, ...) {
-#  ergm.checkdirected("biduration", is.bipartite(nw), requirement=TRUE)
+#  ergm.checkdirected("biduration", is.directed(nw), requirement=TRUE)
 #  a <- ergm.checkargs("biduration", arglist,
 #    varnames = c("form", "dissolve", "x"),
 #    vartypes = c("matrixnetwork", "matrixnetwork", "matrixnetwork"),
@@ -461,7 +461,7 @@ InitErgm.biendure<-function (g, model, drop=TRUE, ...)
 
 #########################################################
 InitErgm.biduration<-function (nw, m, arglist, ...) {
-  ergm.checkdirected("biduration", is.bipartite(nw), requirement=TRUE)
+  ergm.checkdirected("biduration", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("biduration", arglist,
     varnames = c("dissolve", "x"),
     vartypes = c("matrixnetwork", "matrixnetwork"),
@@ -524,7 +524,7 @@ InitErgm.biduration<-function (nw, m, arglist, ...) {
 ###################################### InitErgm TERMS:  E
 #########################################################
 InitErgm.ekappa<-function(nw, m, arglist, ...) {
-  ergm.checkdirected("ekappa", is.bipartite(nw), requirement=TRUE)
+  ergm.checkdirected("ekappa", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("ekappa", arglist,
     varnames = c("attrname"),
     vartypes = c("character"),
@@ -637,7 +637,7 @@ InitErgm.ekappa<-function(nw, m, arglist, ...) {
 ###################################### InitErgm TERMS:  G
 #########################################################
 InitErgm.gwevent706<-function (nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkdirected("biduration", is.bipartite(nw), requirement=TRUE)
+  ergm.checkdirected("biduration", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("gwevent", arglist,
     varnames = c("alpha"),
     vartypes = c("numeric"),
@@ -657,7 +657,7 @@ InitErgm.gwevent706<-function (nw, m, arglist, drop=TRUE, ...) {
 
 #########################################################
 InitErgm.gwactor706<-function (nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkdirected("biduration", is.bipartite(nw), requirement=TRUE)
+  ergm.checkdirected("biduration", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("gwactor", arglist,
     varnames = c("alpha"),
     vartypes = c("numeric"),
