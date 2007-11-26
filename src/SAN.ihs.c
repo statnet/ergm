@@ -1,5 +1,5 @@
 #include "MCMC.h"
-#include "SAN.h"
+#include "SAN.ihs.h"
 
 
 /*****************
