@@ -36,6 +36,7 @@ ergm <- function(formula, theta0="MPLE",
   MHproposal <- getMHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial)
   MHproposal.miss <- getMHproposal("randomtoggleNonObserved", control$prop.args, nw, model.initial)
 
+  meanstats <- NULL
 #  # MPLE & Meanstats -> need fake network
 #  if("MPLE" %in% theta0 && !is.null(meanstats)){
 #  # if IHS 
