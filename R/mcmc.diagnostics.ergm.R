@@ -11,7 +11,8 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
                                   r=0.0125, digits=6,
                                   maxplot=1000, verbose=TRUE, center=TRUE,
                                   main="Summary of MCMC samples",  
-                                  xlab = "Iterations", ylab = "", ...) {
+                                  xlab = "Iterations", ylab = "", 
+                                  check.degeneracy=TRUE, ...) {
 #
   if(check.degeneracy &
     (is.null(object$theta1$independent) || !all(object$theta1$independent))){

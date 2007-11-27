@@ -1,9 +1,5 @@
 Please cite us!
 
-This software is distributed under the GPL-3 license.  It is
-free, open source, and has the following attribution
-requirements:
-
 This software is distributed under the GPL-3 license with the
 following requirements:
 (1) you agree to retain in "ergm" and any modifications to
@@ -11,8 +7,8 @@ following requirements:
      information as provided at http://statnetproject.org/attribution.
 (2) you agree that "ergm" and any modifications to
      "ergm" will display when used the attribution:
-     "Based on 'statnet' project software (http://statnetproject.org),
-      for citation information see http://statnetproject.org/cite"
+     'Based on 'statnet' project software (http://statnetproject.org),
+      for license and citation information see citation("ergm")'
 
 What does this mean? :-)
 ====================
@@ -33,10 +29,6 @@ For specific text that can be used for various types of citations,
 use the command:
 
 citation("ergm")
-
-or go to
-
-http://statnetproject.org/cite
 
 Enjoy!
 
