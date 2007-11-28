@@ -144,6 +144,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
    Lout$hessian[model$etamap$offsettheta,] <- 0
   }
   if(calc.mcmc.se){
+    if (verbose) cat("Starting MCMC s.e. computation.\n")
     mcmcse <- ergm.MCMCse(theta, theta0, statsmatrix0,
                           statsmatrix.miss,
                           model=model)
@@ -199,11 +200,13 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     statsmatrix.all <- NULL
   }
 
+  if (verbose) cat("Starting MCMC s.e. ACF computation.\n")
   if(calc.mcmc.se){
     mcmcacf <- ergm.MCMCacf(statsmatrix0)
   }else{
     mcmcacf <- covar-covar
   }
+  if (verbose) cat("Ending MCMC s.e. ACF computation.\n")
 
 # Output results as ergm-class object
   structure(list(coef=theta, sample=statsmatrix, sample.miss=statsmatrix.miss, 
