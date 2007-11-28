@@ -1742,7 +1742,7 @@ InitErgm.gwdegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   d <- 1:(network.size(nw)-1)
   if(!initialfit && !fixed){ # This is a curved exponential family model
     if (!is.null(attrname)) {
-      stop("The gwadegree term is not yet able to handle a",
+      stop("The gwdegree term is not yet able to handle a",
            "nonfixed decay term with an attribute.")
     }
     ld<-length(d)
