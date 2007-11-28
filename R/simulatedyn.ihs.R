@@ -1,4 +1,4 @@
-simulatedyn <- function(object, dissolve=NULL, nsteps=1, seed=NULL, theta,gamma,
+simulatedyn <- function(object, dissolve, nsteps=1, seed=NULL, theta,gamma,
                         burnin=0, interval=1, dyninterval=1000,
                         constraints=~.,
                         dissolve.order="DissThenForm",
