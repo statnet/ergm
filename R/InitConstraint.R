@@ -34,19 +34,19 @@ InitConstraint.bd<-function(conlist, attribs=0, maxout=0, maxin=0, minout=0, min
    conlist$bd<-list(attribs,maxout,maxin,minout,minin)
 }
 
-InitConstraint.indegrees<-function(conlist){
-   if (nargs()>1)
-     stop(paste("Vertex indegrees constraint does not take arguments at this time."), call.=FALSE)
-   conlist$indegrees<-list()
-   conlist
-}
+#InitConstraint.indegrees<-function(conlist){
+#   if (nargs()>1)
+#     stop(paste("Vertex indegrees constraint does not take arguments at this time."), call.=FALSE)
+#   conlist$indegrees<-list()
+#   conlist
+#}
 
-InitConstraint.outdegrees<-function(conlist){
-   if (nargs()>1)
-     stop(paste("Vertex outdegrees constraint does not take arguments at this time."), call.=FALSE)
-   conlist$outdegrees<-list()
-   conlist
-}
+#InitConstraint.outdegrees<-function(conlist){
+#   if (nargs()>1)
+#     stop(paste("Vertex outdegrees constraint does not take arguments at this time."), call.=FALSE)
+#   conlist$outdegrees<-list()
+#   conlist
+#}
 
 InitConstraint.hamming<-function(conlist){
    if (nargs()>1)

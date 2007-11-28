@@ -37,25 +37,25 @@ InitMHP.CondDegreeDist <- function(arguments, nw, model) {
   MHproposal
 }
 
-InitMHP.CondOutDegree <- function(arguments, nw, model) {
-  MHproposal <- list(name = "CondOutDegree", args=NULL, package="ergm")
-  if (!is.directed(nw)) {
-    print("Warning:  The 'outdegree' constraint does not work with an",
-          "undirected network.  Switching to 'degree' constraint.")
-    return(InitMHP.CondDegree(arguments, nw, model))
-  }
-  MHproposal
-}
+#InitMHP.CondOutDegree <- function(arguments, nw, model) {
+#  MHproposal <- list(name = "CondOutDegree", args=NULL, package="ergm")
+#  if (!is.directed(nw)) {
+#    print("Warning:  The 'outdegree' constraint does not work with an",
+#          "undirected network.  Switching to 'degree' constraint.")
+#    return(InitMHP.CondDegree(arguments, nw, model))
+#  }
+#  MHproposal
+#}
 
-InitMHP.CondInDegree <- function(arguments, nw, model) {
-  MHproposal <- list(name = "CondInDegree", args=NULL, package="ergm")
-  if (!is.directed(nw)) {
-    print("Warning:  The 'indegree' constraint does not work with an",
-          "undirected network.  Switching to 'degree' constraint.")
-    return(InitMHP.CondDegree(arguments, nw, model))
-  }
-  MHproposal
-}
+#InitMHP.CondInDegree <- function(arguments, nw, model) {
+#  MHproposal <- list(name = "CondInDegree", args=NULL, package="ergm")
+#  if (!is.directed(nw)) {
+#    print("Warning:  The 'indegree' constraint does not work with an",
+#          "undirected network.  Switching to 'degree' constraint.")
+#    return(InitMHP.CondDegree(arguments, nw, model))
+#  }
+#  MHproposal
+#}
 
 InitMHP.ConstantEdges <- function(arguments, nw, model) {
   MHproposal <- list(name = "ConstantEdges", args=NULL, package="ergm")
