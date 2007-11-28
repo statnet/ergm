@@ -63,8 +63,10 @@ ergm.mple<-function(Clist, Clist.miss, m, theta.offset=NULL,
     names(theta.offset) <- m$coef.names
     theta.offset[m$etamap$offsettheta] <- -Inf
    }
-   foffset <- xmat %*% theta.offset
-   shouldoffset <- is.infinite(foffset)
+#  foffset <- xmat %*% theta.offset
+#  shouldoffset <- is.infinite(foffset)
+   foffset <- xmat[,!m$etamap$offsettheta]%*%theta.offset[!m$etamap$offsettheta]
+   shouldoffset <- apply(abs(xmat[,m$etamap$offsettheta])>1e-8,1,any)
    xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE]
    colnames(xmat) <- m$coef.names[!m$etamap$offsettheta]
    xmat <- xmat[!shouldoffset,,drop=FALSE]

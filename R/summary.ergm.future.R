@@ -1,8 +1,9 @@
-Summary.ergm <- function (object, ..., 
+Summary.ergm.future <- function (object, ..., 
                           digits = max(3, getOption("digits") - 3),
                           correlation=FALSE, covariance=FALSE,
                           eps=0.0001)
 {
+# separates out summary and print fns: MSH
   if(any(is.na(object$coef)) & !is.null(object$mplefit)){
      object$coef[is.na(object$coef)] <-
      object$mplefit$coef[is.na(object$coef)]
