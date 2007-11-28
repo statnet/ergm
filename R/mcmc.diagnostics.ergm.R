@@ -17,6 +17,8 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
   if(check.degeneracy &
     (is.null(object$theta1$independent) || !all(object$theta1$independent))){
    degout <- ergm.degeneracy(object)
+  }else{
+   degout <- list(degeneracy=NULL, degeneracytype=NULL)
   }
 
   if(sample=="missing"){
@@ -103,7 +105,7 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
      warning("For all MCMC diagnostics you need the 'coda' package.")
      return(invisible())
     }
-    if(!is.infinite(degout$degeneracy)){
+    if(is.null(degout$degeneracy) || !is.infinite(degout$degeneracy)){
      cat("\nr=0.0125 and 0.9875:\n")
      raft9875 <- ergm.raftery.diag(statsmatrix, r=0.9875, ...)
      raft     <- ergm.raftery.diag(statsmatrix, r=0.0125, ...)
