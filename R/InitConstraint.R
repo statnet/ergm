@@ -1,7 +1,7 @@
 ## List of which constraints make which constraints redundant.
 ConstraintImplications<-list(edges=character(0),
                              degrees=c("edges","indegrees","outdegrees","degreedist","bd"),
-                             degreedist=c("edges"),
+                             degreedist=c("edges","indegrees"),
                              bd=character(0),
                              indegrees=c("edges"),
                              outdegrees=c("edges"),
@@ -25,6 +25,13 @@ InitConstraint.degreedist<-function(conlist){
    if (nargs()>1)
      stop(paste("Degree distribution constraint does not take arguments at this time."), call.=FALSE)
    conlist$degreedist<-list()
+   conlist
+}
+
+InitConstraint.indegreedist<-function(conlist){
+   if (nargs()>1)
+     stop(paste("InDegree distribution constraint does not take arguments at this time."), call.=FALSE)
+   conlist$indegreedist<-list()
    conlist
 }
 
