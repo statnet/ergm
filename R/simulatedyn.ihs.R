@@ -37,9 +37,9 @@ simulatedyn <- function(object, dissolve=NULL, nsteps=1, seed=NULL, theta0,gamma
   
   if(!is.null(seed)) set.seed(as.integer(seed))
     
-  MHproposal.form <- getMHproposal(constraints,control$prop.args.form,nw,
+  MHproposal.form <- MHproposal(constraints,control$prop.args.form,nw,
                                                     model.form,weights=control$prop.weights.form,class="f")
-  MHproposal.diss <- getMHproposal(constraints,control$prop.args.diss,nw,
+  MHproposal.diss <- MHproposal(constraints,control$prop.args.diss,nw,
                                                     model.diss,weights=control$prop.weights.diss,class="d")
   MCMCparams <- c(control,list(samplesize=nsteps, interval=interval,
                            burnin=burnin,

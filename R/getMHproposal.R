@@ -39,15 +39,15 @@ MHproposals <- data.frame(I(tmp[,1]), I(tmp[,2]), I(tmp[,3]), I(tmp[,4]))
 colnames(MHproposals)<-c("Class","Constraints","Weights","MHP")
 
 
-getMHproposal<-function(object, ...) UseMethod("getMHproposal")
+MHproposal<-function(object, ...) UseMethod("MHproposal")
 
 # This could be useful for trapping bugs before they become mysterious
 # segfaults.
-getMHproposal.NULL<-function(object, ...) stop("NULL passed to getMHproposal. This may be due to passing an ergm object from an earlier version. If this is the case, please refit it with the latest version, and try again. If this is not the case, this may be a bug, so please file a bug report.")
+MHproposal.NULL<-function(object, ...) stop("NULL passed to MHproposal. This may be due to passing an ergm object from an earlier version. If this is the case, please refit it with the latest version, and try again. If this is not the case, this may be a bug, so please file a bug report.")
 
-getMHproposal.MHproposal<-function(object,...) return(object)
+MHproposal.MHproposal<-function(object,...) return(object)
 
-getMHproposal.character <- function(object, arguments, nw, model){
+MHproposal.character <- function(object, arguments, nw, model){
   name<-object
   proposal <- eval(call(paste("InitMHP.", name, sep=""),
                         arguments, nw, model))
@@ -58,7 +58,7 @@ getMHproposal.character <- function(object, arguments, nw, model){
   proposal
 }
 
-getMHproposal.formula <- function(object, arguments, nw, model, weights="default", class="c") {
+MHproposal.formula <- function(object, arguments, nw, model, weights="default", class="c") {
 
   constraints<-object
   ## Construct a list of constraints and arguments from the formula.
@@ -109,10 +109,10 @@ getMHproposal.formula <- function(object, arguments, nw, model, weights="default
   if(is.null(arguments)) arguments<-conlist
 
   ## Hand it off to the class character method.
-  getMHproposal.character(name,arguments,nw,model)
+  MHproposal.character(name,arguments,nw,model)
 }
 
-getMHproposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NULL, model=NULL,weights=NULL,class="c"){
+MHproposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NULL, model=NULL,weights=NULL,class="c"){
   if(is.null(constraints)) constraints<-object$constraints
   if(is.null(arguments)) arguments<-object$prop.args
   if(is.null(nw)) nw<-object$network
@@ -123,5 +123,5 @@ getMHproposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NUL
     else
       ergm.getmodel.dissolve(object$formula,nw,...)
   }  
-  getMHproposal(constraints,arguments=arguments,nw=nw,model=model,weights=weights,class=class)
+  MHproposal(constraints,arguments=arguments,nw=nw,model=model,weights=weights,class=class)
 }

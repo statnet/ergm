@@ -33,8 +33,8 @@ ergm <- function(formula, theta0="MPLE",
    model.initial <- ergm.getmodel(formula, nw, drop=control$drop, initialfit=TRUE)
    droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
   }
-  MHproposal <- getMHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial)
-  MHproposal.miss <- getMHproposal("randomtoggleNonObserved", control$prop.args, nw, model.initial)
+  MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial)
+  MHproposal.miss <- MHproposal("randomtoggleNonObserved", control$prop.args, nw, model.initial)
 
   meanstats <- NULL
 #  # MPLE & Meanstats -> need fake network
@@ -125,7 +125,7 @@ ergm <- function(formula, theta0="MPLE",
 #  if(!is.null(dissolve)){
 #    if (verbose) cat("Fitting Dynamic ERGM.\n")
 #    model.dissolve <- ergm.getmodel.dissolve(dissolve, nw, dissolve.order)
-#    MHproposal.diss <- getMHproposal(constraints, weights=control$prop.weights.diss, control$prop.args.diss, nw, model.dissolve,class="d")
+#    MHproposal.diss <- MHproposal(constraints, weights=control$prop.weights.diss, control$prop.args.diss, nw, model.dissolve,class="d")
 #    v <- switch(control$style,
 #                "Robbins-Monro" = ergm.robmon.dyn(theta0, nw, model, model.dissolve,
 #                  Clist, gamma, 
@@ -145,7 +145,7 @@ ergm <- function(formula, theta0="MPLE",
   if (verbose) cat("Fitting ERGM.\n")
     v <- switch(control$style,
                 "Robbins-Monro" = ergm.robmon(theta0, nw, model, Clist, burnin, interval,
-                                              getMHproposal(constraints,
+                                              MHproposal(constraints,
                                                             weights=control$prop.weights, 
                                                             control$prop.args, nw, model), 
                                               verbose, control),

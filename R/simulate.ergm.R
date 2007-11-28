@@ -30,7 +30,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
 
 # m <- ergm.getmodel(formula, nw, drop=control$drop)
   m <- ergm.getmodel(formula, nw, drop=FALSE)
-  MHproposal <- getMHproposal(constraints,control$prop.args, nw, m, weights=control$prop.weights,class="c")
+  MHproposal <- MHproposal(constraints,control$prop.args, nw, m, weights=control$prop.weights,class="c")
 
   Clist <- ergm.Cprepare(nw, m)
   
@@ -137,7 +137,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
 # m <- ergm.getmodel(object$formula, nw, drop=control$drop)
   m <- ergm.getmodel(object$formula, nw, drop=FALSE)
   ## By default, all arguments but the first are NULL, and all the information is borrowed from the fit.
-  MHproposal <- getMHproposal(object,constraints=constraints,arguments=control$prop.args, nw=nw, model=m, weights=control$prop.weights)
+  MHproposal <- MHproposal(object,constraints=constraints,arguments=control$prop.args, nw=nw, model=m, weights=control$prop.weights)
   MCMCsamplesize <- 1
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1

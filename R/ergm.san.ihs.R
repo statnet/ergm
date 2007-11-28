@@ -41,7 +41,7 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
   MCMCsamplesize <- 1
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
-  MHproposal<-getMHproposal(constraints,control$prop.args,nw,model,weights=control$prop.weights)
+  MHproposal<-MHproposal(constraints,control$prop.args,nw,model,weights=control$prop.weights)
   if(missing(theta0)) {
     warning("No parameter values given, using the MPLE for the passed network.\n\t")
   }
@@ -149,7 +149,7 @@ san.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
   MCMCsamplesize <- 1
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
-  MHproposal<-getMHproposal(object,constraints=constraints,arguments=control$prop.args,nw=nw,model=model,weights=control$prop.weights)
+  MHproposal<-MHproposal(object,constraints=constraints,arguments=control$prop.args,nw=nw,model=model,weights=control$prop.weights)
   # multiplicity.constrained <- 1  
   if(missing(meanstats)){
     stop("You need to specify target statistic via",
