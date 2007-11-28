@@ -2,6 +2,7 @@
 ConstraintImplications<-list(edges=character(0),
                              degrees=c("edges","indegrees","outdegrees","degreedist","bd"),
                              degreedist=c("edges","indegrees"),
+                             indegreedist=c("edges"),
                              bd=character(0),
                              indegrees=c("edges"),
                              outdegrees=c("edges"),
