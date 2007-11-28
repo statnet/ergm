@@ -2004,7 +2004,7 @@ InitErgm.gwidegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   }else{
     m$terms[[termnumber]] <- list(name="gwidegree", soname="ergm",
                                   inputs=c(0, 1, length(decay), decay))
-    m$coef.names<-c(m$coef.names,"gwidegree")
+    m$coef.names<-c(m$coef.names,paste("gwidegree.fixed.",decay,sep=""))
   }
   m
 }
@@ -2066,7 +2066,7 @@ InitErgm.gwodegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   }else{
     m$terms[[termnumber]] <- list(name="gwodegree", soname="ergm",
                                   inputs=c(0, 1, length(decay), decay))
-    m$coef.names<-c(m$coef.names,"gwodegree")
+    m$coef.names<-c(m$coef.names,paste("gwodegree.fixed.",decay,sep=""))
   }
   m
 }
