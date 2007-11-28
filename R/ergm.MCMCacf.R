@@ -20,7 +20,7 @@ ergm.MCMCacf<-function(statsmatrix, lag.max=50)
    z <- sweep(xsim, 2, av, "+")
    lag.max <- min(round(sqrt(nrow(xsim))),lag.max)
    if(nrow(xsim) > 1000){
-    lag.max <- 15*(1+1000/nrow(xsim))
+    lag.max <- round(15*(1+1000/nrow(xsim)))
    }
    corV <- acf(z, lag.max = lag.max,
     type = "correlation", plot = FALSE)$acf[1:2,,]

@@ -28,7 +28,7 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
    z <- sweep(xsim, 2, xobs, "-")
    lag.max <- min(round(sqrt(nrow(xsim))),lag.max)
    if(nrow(xsim) > 1000){
-    lag.max <- 15*(1+1000/nrow(xsim))
+    lag.max <- round(15*(1+1000/nrow(xsim)))
    }
    R <- acf(z, lag.max = lag.max,
     type = "covariance", plot = FALSE)$acf
