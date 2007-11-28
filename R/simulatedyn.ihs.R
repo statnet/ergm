@@ -1,4 +1,4 @@
-simulatedyn <- function(object, dissolve=NULL, nsteps=1, seed=NULL, theta0,gamma0,
+simulatedyn <- function(object, dissolve=NULL, nsteps=1, seed=NULL, theta,gamma,
                         burnin=0, interval=1, dyninterval=1000,
                         constraints=~.,
                         dissolve.order="DissThenForm",
@@ -23,13 +23,13 @@ simulatedyn <- function(object, dissolve=NULL, nsteps=1, seed=NULL, theta0,gamma
 
   verbose <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
-  if(missing(theta0)) {
-    theta0 <- rep(0,length(model.form$coef.names))
+  if(missing(theta)) {
+    theta <- rep(0,length(model.form$coef.names))
     warning("No parameter values given, using Bernouli network.\n\t")
   }
 
-  if(missing(gamma0)) {
-    gamma0 <- rep(0,length(model.diss$coef.names))
+  if(missing(gamma)) {
+    gamma <- rep(0,length(model.diss$coef.names))
     warning("No parameter values given, using Bernoulli dissolution.\nThis means that every time step, half the ties get dissolved!\n\t")
   }
 
@@ -44,12 +44,12 @@ simulatedyn <- function(object, dissolve=NULL, nsteps=1, seed=NULL, theta0,gamma
   MCMCparams <- c(control,list(samplesize=nsteps, interval=interval,
                            burnin=burnin,
                            parallel=0,
-                           meanstats.form=theta0-theta0,
-                           meanstats.diss=gamma0-gamma0))
+                           meanstats.form=theta-theta,
+                           meanstats.diss=gamma-gamma))
   
   z <- ergm.getMCMCDynsample(nw, model.form, model.diss,
                              MHproposal.form, MHproposal.diss,
-                             theta0, gamma0, MCMCparams, verbose)
+                             theta, gamma, MCMCparams, verbose)
 
   if(control$final){
    nw <- z$newnetwork
@@ -60,7 +60,7 @@ simulatedyn <- function(object, dissolve=NULL, nsteps=1, seed=NULL, theta0,gamma
                      changed=z$changed, 
                      maxchanges=z$maxchanges,
                      stats.form = z$statsmatrix.form,stats.diss = z$statsmatrix.diss,
-                     coef.form=theta0,coef.diss=gamma0)
+                     coef.form=theta,coef.diss=gamma)
     class(out.list) <- "network.series"
     return(out.list)
   }
