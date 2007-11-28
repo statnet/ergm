@@ -10,7 +10,7 @@ ergm.control(prop.weights = "default", prop.args = NULL, prop.weights.diss = "de
              hessian = FALSE, compress = FALSE, maxNumDyadTypes = 10000, 
              maxedges = 20000, maxchanges = 1e+06, MPLEsamplesize = 50000, 
              MPLEtype="glm", trace = 0, 
-             boundDeg = NULL, steplength = 0.5, drop = TRUE, force.mcmc = FALSE, 
+             steplength = 0.5, drop = TRUE, force.mcmc = FALSE, 
              mcmc.precision = 0.05, metric = "Likelihood", method = "BFGS", 
              trustregion = 20, style = "Newton-Raphson", phase1_n = NULL, 
              initial_gain = NULL, nsubphases = "maxit", niterations = NULL, 
@@ -68,11 +68,6 @@ ergm.control(prop.weights = "default", prop.args = NULL, prop.weights.diss = "de
     there are six levels of tracing.  (To understand exactly what
     these do see the source code for \code{\link[stats]{optim}}: higher levels 
     give more detail.)}
-  \item{boundDeg}{list; comprising up to five matrices and 
-    one or more arguments, which are used to constrain the number of in 
-    or out degrees that a node can have. By default no constraining 
-    is applied.  This is explained more fully under the 
-    \code{Conditioning within models} section of documentation for \code{\link{ergm}}. Defaults to no conditioning.}
   \item{steplength}{ Multiplier for step length, to make fitting more
     stable at the cost of efficiency. }
   \item{drop}{logical; Should the degenerate terms in the model be
