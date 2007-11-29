@@ -3601,7 +3601,7 @@ InitErgm.triadcensus<-function (nw, m, arglist, drop=FALSE, ...) {
     if(any(mdegree)){
      dropterms <- tcn[d[mdegree]]
      cat(" ")
-     cat("Warning: These types of triads do not exist in the network and will be dropped:\n")
+     cat("Warning: The following types of triads do not exist in the network and will be dropped:\n")
      cat(dropterms, "\n", fill=T)
      cat("  The corresponding coefficients have been fixed at their MLE of negative infinity.\n")
      d <- d[!mdegree]
