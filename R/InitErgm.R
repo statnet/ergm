@@ -3576,11 +3576,11 @@ InitErgm.triadcensus<-function (nw, m, arglist, drop=FALSE, ...) {
   a=ergm.checkargs("triadcensus", arglist,
     varnames = c("d","drop"),
     vartypes = c("numeric","logical"),
-    defaultvalues = list(NULL, TRUE),
+    defaultvalues = list(NULL, FALSE),
     required = c(FALSE, FALSE))
   attach(a)
   d<-a$d
-  drop<-a$drop
+# drop<-a$drop
   detach(a)
   if(is.directed(nw)){
    tcn <- c("003","012", "102", "021D", "021U", "021C", "111D",
