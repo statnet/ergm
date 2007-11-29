@@ -3576,7 +3576,7 @@ InitErgm.triadcensus<-function (nw, m, arglist, drop=FALSE, ...) {
   a=ergm.checkargs("triadcensus", arglist,
     varnames = c("d","drop"),
     vartypes = c("numeric","logical"),
-    defaultvalues = list(NULL, FALSE),
+    defaultvalues = list(NULL, TRUE),
     required = c(FALSE, FALSE))
   attach(a)
   d<-a$d
@@ -3599,9 +3599,11 @@ InitErgm.triadcensus<-function (nw, m, arglist, drop=FALSE, ...) {
      as.formula(paste('nw ~ triadcensus(',mdegree,')',sep="")),
      drop=FALSE) == 0
     if(any(mdegree)){
-     cat(paste("Warning: There are no triads of type", tcn[d[mdegree]],".\n"))
-     dropterms <- paste("triad type", tcn[d[mdegree]],sep="")
-     cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
+     dropterms <- tcn[d[mdegree]]
+     cat(" ")
+     cat("Warning: These types of triads do not exist in the network and will be dropped:\n")
+     cat(dropterms, "\n", fill=T)
+     cat("  The corresponding coefficients have been fixed at their MLE of negative infinity.\n")
      d <- d[!mdegree]
     }
   }
