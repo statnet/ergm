@@ -79,24 +79,19 @@ void MCMCDynPhase12(// Observed network.
 		    char **F_MHproposaltype, char **F_MHproposalpackage,
 		    double *F_inputs, double *theta0, 
 		    // Formation parameter fitting.
-		    double *gain, double *meanstats, 
-		    int *phase1, int *nsub,
+		    double *init_dev, double *gain,
+		    int *phase1n_base, int *phase2n_base, int *phase2sub,
 		    // Dissolution terms and proposals.
 		    int *D_nterms, char **D_funnames, char **D_sonames, 
 		    char **D_MHproposaltype, char **D_MHproposalpackage,
 		    double *D_inputs, double *gamma0,
-		    // Dissolution parameter fitting --- to add later? -PK
 		    // Degree bounds.
 		    int *attribs, int *maxout, int *maxin, int *minout,
-		    int *minin, int *condAllDegExact, int *attriblength, 
+		    int *minin, int *condAllDegExact, int *attriblength,
 		    // MCMC settings.
-		    double *nsteps, int *dyninterval,
-		    double *burnin, double *interval, 
+		    int *burnin, int *interval, int *dyninterval,
 		    // Space for output.
-		    double *F_sample, double *D_sample, 
-		    int *newnetworkhead, int *newnetworktail, 
-		    double *maxedges,
-		    int *diffnetworktime, int *diffnetworkhead, int *diffnetworktail, 
+		    int *maxedges,
 		    // Verbosity.
 		    int *fVerbose);
 
@@ -108,7 +103,9 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
 			  Model *F_m, MHproposal *F_MH,
 			  double *theta, 
 			  // Formation parameter fitting.
-			  double gain, double *meanstats, int nphase1, int nsubphases,
+			  double *dev, // DEViation of the current network's formation statistics from the target statistics.
+			  double gain,
+			  int phase1n_base, int phase2n_base, int phase2sub,
 			  // Dissolution terms and proposals.
 			  Model *D_m, MHproposal *D_MH,
 			  double *gamma, 
@@ -116,12 +113,10 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
 			  // Degree bounds.
 			  DegreeBound *bd,
 			  // Space for output.
-			  double *F_stats,  double *D_stats, // Do we still need theese?
 			  Edge nmax,
 			  Vertex *difftime, Vertex *diffhead, Vertex *difftail,
 			  // MCMC settings.
-			  unsigned int samplesize, unsigned int burnin, 
-			  unsigned int interval, unsigned int dyninterval,
+			  unsigned int burnin, unsigned int interval, unsigned int dyninterval,
 			  // Verbosity.
 			  int fVerbose);
 
