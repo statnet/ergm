@@ -1,4 +1,4 @@
-ergm2 <- function(formula, theta0="MPLE", 
+ergm <- ergm2 <- ergm.ihs <- function(formula, theta0="MPLE", 
                  MPLEonly=FALSE, MLestimate=!MPLEonly, seed=NULL,
                  burnin=10000, MCMCsamplesize=10000, interval=100,
                  maxit=3,

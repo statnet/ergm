@@ -8,7 +8,7 @@ ergm <- function(formula, theta0="MPLE",
                  constraints=~.,
 #                 meanstats=NULL,
 #                 dissolve=NULL, gamma=-4.59512, dissolve.order="DissThenForm",
-                 control=ergm.control(),                                 
+                 control=ergm.control(nsubphases=maxit),                                 
                  verbose=FALSE, ...) {
   current.warn <- options()$warn
   options(warn=0)
@@ -17,26 +17,26 @@ ergm <- function(formula, theta0="MPLE",
 
   nw <- ergm.getnetwork(formula)
 #  if(!is.null(meanstats)){ control$drop <- FALSE }
-  if(control$nsubphases=="maxit") control$nsubphases<-maxit  
+#  if(control$nsubphases=="maxit") control$nsubphases<-maxit  
                               
   
   if (verbose) cat("Fitting initial model.\n")
     
-  if(control$drop){
    model.initial <- ergm.getmodel(formula, nw, drop=FALSE, initialfit=TRUE)
+   droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
+  if(control$drop){
    model.initial.drop <- ergm.getmodel(formula, nw, drop=TRUE, initialfit=TRUE)
    namesmatch <- match(model.initial$coef.names, model.initial.drop$coef.names)
-   droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
    droppedterms[is.na(namesmatch)] <- TRUE
    model.initial$etamap$offsettheta[is.na(namesmatch)] <- TRUE
-  }else{
-   model.initial <- ergm.getmodel(formula, nw, drop=control$drop, initialfit=TRUE)
-   droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
   }
-  MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial)
-  MHproposal.miss <- MHproposal("randomtoggleNonObserved", control$prop.args, nw, model.initial)
 
-  meanstats <- NULL
+  MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial)
+#  MHproposal.miss <- MHproposal("randomtoggleNonObserved", control$prop.args, nw, model.initial)
+
+#  meanstats <- NULL
+
+
 #  # MPLE & Meanstats -> need fake network
 #  if("MPLE" %in% theta0 && !is.null(meanstats)){
 #  # if IHS 
@@ -46,11 +46,13 @@ ergm <- function(formula, theta0="MPLE",
 #  # IHS end
 #  }
 #  else 
+
   nw.initial<-nw
-  
   Clist.initial <- ergm.Cprepare(nw.initial, model.initial)
-  Clist.miss.initial <- ergm.design(nw.initial, model.initial, initialfit=TRUE,
-                                verbose=verbose)
+
+#  Clist.miss.initial <- ergm.design(nw.initial, model.initial, initialfit=TRUE,
+#                                verbose=verbose)
+
   Clist.initial$meanstats=meanstats
   theta0copy <- theta0
   initialfit <- ergm.initialfit(theta0copy, MLestimate, Clist.initial,
@@ -149,10 +151,10 @@ ergm <- function(formula, theta0="MPLE",
                                                             weights=control$prop.weights, 
                                                             control$prop.args, nw, model), 
                                               verbose, control),
-#                "Stochastic-Approximation" = ergm.stocapprox(theta0, nw, model, 
-#                                                             Clist, 
-#                                                             MCMCparams=MCMCparams, MHproposal=MHproposal,
-#                                                             verbose),
+                "Stochastic-Approximation" = ergm.stocapprox(theta0, nw, model, 
+                                                             Clist, 
+                                                             MCMCparams=MCMCparams, MHproposal=MHproposal,
+                                                             verbose),
                 ergm.mainfitloop(theta0, nw,
                                  model, Clist, Clist.miss,
                                  initialfit,
@@ -179,3 +181,7 @@ ergm <- function(formula, theta0="MPLE",
   options(warn=current.warn)
   v
 }
+
+
+if(exists(ergm.ihs)) ergm<-ergm.ihs  
+
