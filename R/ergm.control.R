@@ -18,38 +18,23 @@ ergm.control<-function(prop.weights="default",prop.args=NULL,
                        style=c("Newton-Raphson","Robbins-Monro","Stochastic-Approximation"),
                        phase1_n=NULL, initial_gain=NULL, 
                        nsubphases="maxit", niterations=NULL, phase3_n=NULL,
+                       RobMon.phase1n_base=7,
+                       RobMon.phase2n_base=7,
+                       RobMon.phase2sub=4,
+                       RobMon.init_gain=0.4,
+                       RobMon.phase3n=500,
                        dyninterval=1000,
                        parallel=0,
                        returnMCMCstats=TRUE){
-control<-list(prop.weights=prop.weights,
-             prop.args=NULL,
-             prop.weights.diss=prop.weights.diss,
-             prop.args.diss=prop.args.diss,
-             nr.maxit=nr.maxit,
-             calc.mcmc.se=calc.mcmc.se,
-             hessian=hessian,
-             compress=compress,
-             maxNumDyadTypes=maxNumDyadTypes,
-             maxedges=maxedges,
-             maxchanges=maxchanges,
-             MPLEsamplesize=MPLEsamplesize,
-             MPLEtype=match.arg(MPLEtype),
-             trace=trace,
-             steplength=steplength,
-             drop=drop,
-             force.mcmc=force.mcmc,
-             mcmc.precision=mcmc.precision,
-             metric=match.arg(metric),
-             method=match.arg(method),
-             trustregion=trustregion,
-             style=match.arg(style),
-             phase1_n=phase1_n,
-             initial_gain=initial_gain,
-             nsubphases=match.arg(nsubphases),
-             niterations=niterations,
-             phase3_n=phase3_n,
-             dyninterval=dyninterval,
-             parallel=parallel,
-             returnMCMCstats=returnMCMCstats)
+  control<-list()
+  for(arg in names(formals(sys.function())))
+    control[[arg]]<-get(arg)
+  
+  control$MPLEtype<-match.arg(MPLEtype)
+  control$metric<-match.arg(metric)
+  control$method<-match.arg(method)
+  control$style<-match.arg(style)
+  control$nsubphases<-match.arg(nsubphases)
+
   control
 }
