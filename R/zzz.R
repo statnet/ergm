@@ -46,3 +46,5 @@
 #   cat('To cite, see citation("ergm")\n')
 #   require(network, quietly=TRUE)
 }
+
+if(exists("ergm.ihs")) ergm<-ergm.ihs

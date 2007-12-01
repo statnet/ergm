@@ -181,7 +181,3 @@ ergm <- function(formula, theta0="MPLE",
   options(warn=current.warn)
   v
 }
-
-
-if(exists(ergm.ihs)) ergm<-ergm.ihs  
-

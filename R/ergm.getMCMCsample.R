@@ -54,6 +54,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, MCMCparams,
     newnetwork <- newnw.extract(nw,z)
 
   }else{
+    if(verbose){cat("Engaging warp drive ...\n")}
     rpvmbasename <- paste("ergm.parallel.",Sys.getpid(),sep="")
     MCMCparams.parallel <- MCMCparams
     MCMCparams.parallel$samplesize <- round(MCMCparams$samplesize / MCMCparams$parallel)
