@@ -633,10 +633,12 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
    Phase 2
    ********************/
   unsigned int phase2n=F_m->n_stats+7+phase2n_base;
+  double *meandev=(double*)calloc(F_m->n_stats,sizeof(double));
   for(unsigned int subphase=0; subphase<phase2sub; subphase++){
 
     for (i=0; i < phase2n; i++){
-      for(j=0;j < interval;j++)
+      for(j=0; j<F_m->n_stats; j++) meandev[j]=0;
+      for(j=0;j < interval;j++){
 	MCMCDyn1Step(nwp, order,
 		     F_m, F_MH, theta,
 		     D_m, D_MH, gamma,
@@ -647,9 +649,12 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
 		     difftime, diffhead, difftail,
 		     dyninterval,
 		     fVerbose);
+	for(unsigned int k=0;k<F_m->n_stats; k++)
+	  meandev[k]+=dev[k];
+      }
       /* Update theta0 */
       for (j=0; j<F_m->n_stats; j++){
-        theta[j] -= aDdiaginv[j] * dev[j];
+        theta[j] -= aDdiaginv[j] * dev[j]/interval;
       }
     }
     phase2n=trunc(2.52*(phase2n-phase2n_base)+phase2n_base);
@@ -662,6 +667,7 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
     
   }
   
+  free(meandev);
   free(ubar);
   free(u2bar);
 }
