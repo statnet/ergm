@@ -823,7 +823,7 @@ void MCMCSamplePhase12 (char *MHproposaltype, char *MHproposalpackage,
   long int interval, int hammingterm, int fVerbose,
   Network *nwp, Model *m, DegreeBound *bd) {
   long int staken, tottaken, ptottaken;
-  int i, j, components, diam;
+  int i, j, components, diam, iter=0;
   MHproposal MH;
   
 //Rprintf("nsubphases %d\n", nsubphases);
@@ -888,8 +888,8 @@ void MCMCSamplePhase12 (char *MHproposaltype, char *MHproposalpackage,
     }
     if (fVerbose){
       Rprintf("Returned from Phase 1\n");
+      Rprintf("\n gain times inverse variances:\n");
     }
-    Rprintf("\n gain times inverse variances:\n");
     for (j=0; j<m->n_stats; j++){
       aDdiaginv[j] = u2bar[j]-ubar[j]*ubar[j]/(1.0*nphase1);
       if( aDdiaginv[j] > 0.0){
@@ -897,9 +897,9 @@ void MCMCSamplePhase12 (char *MHproposaltype, char *MHproposalpackage,
       }else{
 	aDdiaginv[j]=0.00001;
       }
-      Rprintf(" %f", aDdiaginv[j]);
+      if (fVerbose){ Rprintf(" %f", aDdiaginv[j]);}
     }
-    Rprintf("\n");
+    if (fVerbose){ Rprintf("\n"); }
   
     staken = 0;
     tottaken = 0;
@@ -921,14 +921,17 @@ void MCMCSamplePhase12 (char *MHproposaltype, char *MHproposalpackage,
 //    if (fVerbose){ Rprintf("nsubphases %d i %d\n", nsubphases, i); }
       if (i==(nsubphases)){
 	nsubphases = trunc(nsubphases*2.52) + 1;
-        if (fVerbose){Rprintf("Updating nsub to be %d\n",nsubphases);}
+        if (fVerbose){
+	 iter++;
+	 Rprintf("End of iteration %d; Updating the number of subphases to be %d\n",iter,nsubphases);
+	}
         for (j=0; j<m->n_stats; j++){
           aDdiaginv[j] /= 2.0;
           if (fVerbose){Rprintf("j %d theta %f ns %f\n",
 		                 j, theta[j], networkstatistics[j]);}
 //        if (fVerbose){ Rprintf(" %f statsmean %f",  theta[j],(networkstatistics[j]-meanstats[j])); }
         }
-        Rprintf("\n");
+        if (fVerbose){ Rprintf("\n"); }
       }
       /* Set current vector of stats equal to previous vector */
       for (j=0; j<m->n_stats; j++){

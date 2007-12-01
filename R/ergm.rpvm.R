@@ -71,7 +71,7 @@
         sendflag <- FALSE
       }else{
         tid <- new[1]              # spawn successful
-        cat(paste("Slave spawned successfully\n"))
+#       cat(paste("Slave spawned successfully\n"))
       }
     }
     if (sendflag) {
