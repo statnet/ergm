@@ -4,14 +4,14 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, ...)
   # all relevant information about the model.  As part of this job, call the
   # appropriate InitErgm functions.
   if ((dc<-data.class(formula)) != "formula")
-    stop (paste("Invalid formula of class ",dc))
+    stop (paste("Invalid formula of class ",dc), call.=FALSE)
   trms<-terms(formula)
   if (trms[[1]]!="~")
-    stop ("Formula must be of the form 'network ~ model'.")
+    stop ("Formula must be of the form 'network ~ model'.", call.=FALSE)
   
   v <- attr(trms, "variables")
   if (length(v) < 3) 
-    stop(paste("No model specified for network ", trms[[2]]))
+    stop(paste("No model specified for network ", trms[[2]]), call.=FALSE)
   model <- structure(list(formula=formula, node.attrib = NULL, coef.names = NULL,
                       offset = NULL,
                       terms = NULL, networkstats.0 = NULL, etamap = NULL),
@@ -59,7 +59,8 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, ...)
       # InitErgm.xxxx(g, m, args, ...)
       if(!exists(as.character(v[[i]][[1]]),env=.GlobalEnv, mode="function")){
         stop("The term ", substring(as.character(v[[i]][[1]]),first=10),
-             " does not exist. Are you sure you have the right name?\n")
+             " does not exist. Are you sure you have the right name?\n",
+             call. = FALSE)
       }
       if(silent){
        silentwarnings <- capture.output(
