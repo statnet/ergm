@@ -35,6 +35,9 @@ ergm.control<-function(prop.weights="default",prop.args=NULL,
   control$method<-match.arg(method)
   control$style<-match.arg(style)
   control$nsubphases<-match.arg(nsubphases)
+  if(missing(trustregion) & control$style=="Stochastic-Approximation"){
+   control$trustregion <- 0.5
+  }
 
   control
 }

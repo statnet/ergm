@@ -17,7 +17,7 @@ ergm.stocapprox <- function(theta0, nw, model, Clist,
   n1 <- MCMCparams$phase1_n
   if(is.null(n1)) {n1 <- max(200,7 + 3 * Clist$nparam)} #default value
   eta0 <- ergm.eta(theta0, model$etamap)
-  cat("Robbins-Monro algorithm with theta_0 equal to:\n")
+  cat("Stochastic approximation algorithm with theta_0 equal to:\n")
   print(theta0)
   names(Clist$obs) <- names(theta0)
   if(is.null(Clist$meanstats)){Clist$meanstats <- Clist$obs}
@@ -89,11 +89,13 @@ ergm.stocapprox <- function(theta0, nw, model, Clist,
   ve<-ergm.estimate(theta0=theta, model=model,
                    statsmatrix=z$statsmatrix,
                    statsmatrix.miss=NULL,
+                   epsilon=MCMCparams$epsilon, 
                    nr.maxit=MCMCparams$nr.maxit, 
                    calc.mcmc.se=MCMCparams$calc.mcmc.se,
                    hessian=MCMCparams$hessian,
                    method=MCMCparams$method,
                    metric=MCMCparams$metric,
+                   trustregion=MCMCparams$trustregion,
                    compress=MCMCparams$compress, verbose=verbose)
 #
 # Important: Keep R-M (pre-NR) theta

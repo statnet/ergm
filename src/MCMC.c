@@ -832,7 +832,8 @@ void MCMCSamplePhase12 (char *MHproposaltype, char *MHproposalpackage,
   nwp->duration_info.MCMCtimer=0;
   
   if (fVerbose)
-    Rprintf("Total m->n_stats is %i; total samplesize is %d\n",
+//  Rprintf("Total m->n_stats is %i; total samplesize is %d\n",
+    Rprintf("The number of statistics is %i and the total samplesize is %d\n",
              m->n_stats,samplesize);
 
   MH_init(&MH,
@@ -905,6 +906,9 @@ void MCMCSamplePhase12 (char *MHproposaltype, char *MHproposalpackage,
     tottaken = 0;
     ptottaken = 0;
     
+    if (fVerbose){
+      Rprintf("Phase 2: (samplesize = %d)\n", samplesize);
+    }
     /* Now sample networks */
     for (i=1; i < samplesize; i++){
       
@@ -923,12 +927,12 @@ void MCMCSamplePhase12 (char *MHproposaltype, char *MHproposalpackage,
 	nsubphases = trunc(nsubphases*2.52) + 1;
         if (fVerbose){
 	 iter++;
-	 Rprintf("End of iteration %d; Updating the number of subphases to be %d\n",iter,nsubphases);
+	 Rprintf("End of iteration %d; Updating the number of sub-phases to be %d\n",iter,nsubphases);
 	}
         for (j=0; j<m->n_stats; j++){
           aDdiaginv[j] /= 2.0;
-          if (fVerbose){Rprintf("j %d theta %f ns %f\n",
-		                 j, theta[j], networkstatistics[j]);}
+          if (fVerbose){Rprintf("theta_%d = %f; change statistic[%d] = %f\n",
+		                 j+1, theta[j], j+1, networkstatistics[j]);}
 //        if (fVerbose){ Rprintf(" %f statsmean %f",  theta[j],(networkstatistics[j]-meanstats[j])); }
         }
         if (fVerbose){ Rprintf("\n"); }
@@ -975,6 +979,10 @@ void MCMCSamplePhase12 (char *MHproposaltype, char *MHproposalpackage,
 //   }
 //  Rprintf("\n");
 //  }
+  if (fVerbose){
+    Rprintf("Phase 3: MCMC-Newton-Raphson\n");
+  }
+
   free(ubar);
   free(u2bar);
   MH_free(&MH);
