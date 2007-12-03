@@ -224,12 +224,13 @@ InitErgm.aconcurrent<-function(nw, m, arglist, drop=TRUE, ...) {
 InitErgm.actorfactor<-function (nw, m, arglist, drop=TRUE, ...) {
   ergm.checkbipartite("actorfactor", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("actorfactor", arglist,
-    varnames = c("attrname","contrast"),
-    vartypes = c("character","logical"),
-    defaultvalues = list(NULL,TRUE),
-    required = c(TRUE,FALSE))
+    varnames = c("attrname", "base"),
+    vartypes = c("character", "numeric"),
+    defaultvalues = list(NULL, 1),
+    required = c(TRUE, FALSE))
   attach(a)
   attrname<-a$attrname
+  base <- a$base
   nodecov <- get.node.attr(nw, attrname, "actorfactor")
   u<-sort(unique(nodecov))
   if(any(is.na(nodecov))){u<-c(u,NA)}
@@ -246,30 +247,26 @@ InitErgm.actorfactor<-function (nw, m, arglist, drop=TRUE, ...) {
                     nodecov,sum)
     }
     if(any(nfc==0)){
+      dropterms <- paste(paste("actorfactor",attrname,sep="."),u[nfc==0],sep="")
       cat(" ")
-      cat(paste("Warning: There are no actorfactor", ".", attrname,
-                         u[nfc==0],
-                "actors;\n",
-               " the corresponding coefficient has been fixed at its MLE of nenegative infinity.\n",sep=" "))
+      cat(paste("Warning: The count of", dropterms, "is extreme;\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
       u<-u[nfc>0]
       ui<-ui[nfc>0]
     }
   }
-  if(contrast){
-   ui <- ui[-1]
-   u <- u[-1]
-  }
   lu <- length(ui)
-  if (lu==0){
+  if (lu==1){
     stop ("Argument to actorfactor() has only one value", call.=FALSE)
   }
-  termnumber<-1+length(m$terms)
+  termnumber<-1+length(m$terms)  
   m$terms[[termnumber]] <- list(name="actorfactor", soname="ergm",
-                                inputs=c(lu, lu, lu+length(nodecov),
-                                         ui, nodecov), dependence=FALSE)
-  # smallest value of u is "control group"
+                                inputs=c(lu-length(base), 
+                                         lu-length(base), 
+                                         lu-length(base)+length(nodecov),
+                                         ui[-base], nodecov), dependence=FALSE)
   m$coef.names<-c(m$coef.names, paste("actorfactor",
-                                      attrname, paste(u), sep="."))
+                                      attrname, paste(u[-base]), sep="."))
   m
 }
 
@@ -1608,12 +1605,13 @@ InitErgm.estar<-function(nw, m, arglist, drop=TRUE, ...) {
 InitErgm.eventfactor<-function (nw, m, arglist, drop=TRUE, ...) {
   ergm.checkbipartite("eventfactor", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("eventfactor", arglist,
-    varnames = c("attrname","contrast"),
-    vartypes = c("character","logical"),
-    defaultvalues = list(NULL, TRUE),
-    required = c(TRUE,FALSE))
+    varnames = c("attrname", "base"),
+    vartypes = c("character", "numeric"),
+    defaultvalues = list(NULL, 1),
+    required = c(TRUE, FALSE))
   attach(a)
   attrname<-a$attrname
+  base <- a$base
   nodecov <- get.node.attr(nw, attrname, "eventfactor")
   u<-sort(unique(nodecov))
   if(any(is.na(nodecov))){u<-c(u,NA)}
@@ -1630,30 +1628,26 @@ InitErgm.eventfactor<-function (nw, m, arglist, drop=TRUE, ...) {
                     nodecov,sum)
     }
     if(any(nfc==0)){
+      dropterms <- paste(paste("eventfactor",attrname,sep="."),u[nfc==0],sep="")
       cat(" ")
-      cat(paste("Warning: There are no eventfactor", ".", attrname,
-                         u[nfc==0],
-                "events;\n",
-               " the corresponding coefficient has been fixed at its MLE of nenegative infinity.\n",sep=" "))
+      cat(paste("Warning: The count of", dropterms, "is extreme;\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
       u<-u[nfc>0]
       ui<-ui[nfc>0]
     }
   }
-  if(contrast){
-   ui <- ui[-1]
-   u <- u[-1]
-  }
   lu <- length(ui)
-  if (lu==0){
+  if (lu==1){
     stop ("Argument to eventfactor() has only one value", call.=FALSE)
   }
-  termnumber<-1+length(m$terms)
+  termnumber<-1+length(m$terms)  
   m$terms[[termnumber]] <- list(name="eventfactor", soname="ergm",
-                                inputs=c(lu, lu, lu+length(nodecov),
-                                         ui, nodecov), dependence=FALSE)
-  # smallest value of u is "control group"
+                                inputs=c(lu-length(base), 
+                                         lu-length(base), 
+                                         lu-length(base)+length(nodecov),
+                                         ui[-base], nodecov), dependence=FALSE)
   m$coef.names<-c(m$coef.names, paste("eventfactor",
-                                      attrname, paste(u), sep="."))
+                                      attrname, paste(u[-base]), sep="."))
   m
 }
 
