@@ -646,7 +646,7 @@ InitErgm.bounded.degree<-function(nw, m, arglist, drop=TRUE, ...) {
   ld<-length(d)
   if(ld==0){return(m)}
   if (length(bound)!=ld)
-    stop(paste("bounded.degree() expects its 2 arglist to be of the",
+    stop(paste("bounded.degree() expects its 2 arglist to be of the ",
                "same length"), call.=FALSE)
   termnumber<-1+length(m$terms)
   m$terms[[termnumber]] <- list(name="boundeddegree", soname="ergm",
@@ -684,7 +684,7 @@ InitErgm.bounded.idegree<-function(nw, m, arglist, drop=TRUE, ...) {
   ld<-length(d)
   if(ld==0){return(m)}
   if (length(bound)!=ld)
-    stop(paste("bounded.idegree() expects its 2 arglist to be of the",
+    stop(paste("bounded.idegree() expects its 2 arglist to be of the ",
                "same length"), call.=FALSE)
   termnumber<-1+length(m$terms)
   m$terms[[termnumber]] <- list(name="boundedidegree",
@@ -721,7 +721,7 @@ InitErgm.bounded.istar<-function(nw, m, arglist, drop=TRUE, ...) {
   lk<-length(k)
   if(lk==0){return(m)}
   if (length(bound)!=lk)
-    stop(paste("bounded.istar() expects its 2 arglist to be of the",
+    stop(paste("bounded.istar() expects its 2 arglist to be of the ",
                "same length"), call.=FALSE)
   termnumber<-1+length(m$terms)
   m$terms[[termnumber]] <- list(name="boundedistar", soname="ergm",
@@ -757,7 +757,7 @@ InitErgm.bounded.kstar<-function(nw, m, arglist, drop=TRUE, ...) {
   lk<-length(k)
   if(lk==0){return(m)}
   if (length(bound)!=lk)
-    stop(paste("bounded.kstar() expects its 2 arglist to be of the",
+    stop(paste("bounded.kstar() expects its 2 arglist to be of the ",
                "same length"), call.=FALSE)
   termnumber<-1+length(m$terms)
   m$terms[[termnumber]] <- list(name="boundedkstar", soname="ergm",
@@ -796,7 +796,7 @@ InitErgm.bounded.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
   ld<-length(d)
   if(ld==0){return(m)}
   if (length(bound)!=ld)
-    stop(paste("bounded.odegree() expects its 2 arglist to be of the",
+    stop(paste("bounded.odegree() expects its 2 arglist to be of the ",
                "same length"), call.=FALSE)
   termnumber<-1+length(m$terms)
   m$terms[[termnumber]] <- list(name="boundedodegree",
@@ -833,7 +833,7 @@ InitErgm.bounded.ostar<-function(nw, m, arglist, drop=TRUE, ...) {
   lk<-length(k)
   if(lk==0){return(m)}
   if (length(bound)!=lk)
-    stop(paste("bounded.ostar() expects its 2 arglist to be of the",
+    stop(paste("bounded.ostar() expects its 2 arglist to be of the ",
                "same length"), call.=FALSE)
   termnumber<-1+length(m$terms)
   m$terms[[termnumber]] <- list(name="boundedostar", soname="ergm",
@@ -1742,8 +1742,8 @@ InitErgm.gwdegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   d <- 1:(network.size(nw)-1)
   if(!initialfit && !fixed){ # This is a curved exponential family model
     if (!is.null(attrname)) {
-      stop("The gwdegree term is not yet able to handle a",
-           "nonfixed decay term with an attribute.")
+      stop("The gwdegree term is not yet able to handle a ",
+           "nonfixed decay term with an attribute.", call.=FALSE)
     }
     ld<-length(d)
     if(ld==0){return(m)}
@@ -1961,8 +1961,8 @@ InitErgm.gwidegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   d <- 1:(network.size(nw)-1)
   if(!initialfit && !fixed){ # This is a curved exponential family model
     if (!is.null(attrname)) {
-      stop("The gwidegree term is not yet able to handle a",
-           "nonfixed decay term with an attribute.")
+      stop("The gwidegree term is not yet able to handle a ",
+           "nonfixed decay term with an attribute.", call.=FALSE)
     }
     ld<-length(d)
     if(ld==0){return(m)}
@@ -2023,8 +2023,8 @@ InitErgm.gwodegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   d <- 1:(network.size(nw)-1)
   if(!initialfit && !fixed){ # This is a curved exponential family model
     if (!is.null(attrname)) {
-      stop("The gwodegree term is not yet able to handle a",
-           "nonfixed decay term with an attribute.")
+      stop("The gwodegree term is not yet able to handle a ",
+           "nonfixed decay term with an attribute.", call.=FALSE)
     }
     ld<-length(d)
     if(ld==0){return(m)}
@@ -2110,7 +2110,8 @@ InitErgm.hamming<-function (nw, m, arglist, drop=TRUE, ...) {
     x<-paste(quote(x))
   }
   if (is.null(xm) || NCOL(xm)!=2){
-    stop("hamming() requires an argument that can be coerced into an edgelist.")
+    stop("hamming() requires an argument that can be coerced into an edgelist.",
+         call.=FALSE)
   }
   termnumber <- 1 + length(m$terms)
 # There is 1 input parameter before the covariate vector, so input
@@ -2148,7 +2149,7 @@ InitErgm.hammingdyadcov<-function (nw, m, arglist, ...) {
     cov<-paste(quote(cov))
   }
   if (is.null(covm) || !is.matrix(covm) || nrow(covm)!=get.network.attribute(nw,"bipartite")){
-    stop("hammingdyadcov() requires a proper dyadic covariate")
+    stop("hammingdyadcov() requires a proper dyadic covariate", call.=FALSE)
   }
 #
 # Extract reference network as an edgelist
@@ -2166,7 +2167,8 @@ InitErgm.hammingdyadcov<-function (nw, m, arglist, ...) {
     x<-paste(quote(x))
   }
   if (is.null(xm) || ncol(xm)!=2){
-    stop("hammingdyadcov() requires a proper network as its reference")
+    stop("hammingdyadcov() requires a proper network as its reference", 
+         call.=FALSE)
   }
 ##
 ##   Check for degeneracy
@@ -2230,7 +2232,7 @@ InitErgm.hammingfixmix<-function (nw, m, arglist, ...) {
     x<-paste(quote(x))
   }
   if (is.null(xm) || ncol(xm)!=2){
-    stop("hammingfixmix() requires an edgelist")
+    stop("hammingfixmix() requires an edgelist", call.=FALSE)
   }
     nodecov <- get.node.attr(nw, attrname, "hammingfixmix")
     mixmat <- mixingmatrix(nw,attrname)$mat
@@ -2304,7 +2306,7 @@ InitErgm.hammingmix<-function (nw, m, arglist, ...) {
     x<-paste(quote(x))
   }
   if (is.null(xm) || ncol(xm)!=2){
-    stop("hammingmix() requires an edgelist")
+    stop("hammingmix() requires an edgelist", call.=FALSE)
   }
     nodecov <- get.node.attr(nw, attrname, "hammingmix")
     mixmat <- mixingmatrix(nw,attrname)$mat
