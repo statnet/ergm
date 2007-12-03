@@ -222,7 +222,7 @@ InitErgm.aconcurrent<-function(nw, m, arglist, drop=TRUE, ...) {
 
 #########################################################
 InitErgm.actorfactor<-function (nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkdirected("actorfactor", is.directed(nw), requirement=TRUE)
+  ergm.checkbipartite("actorfactor", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("actorfactor", arglist,
     varnames = c("attrname","contrast"),
     vartypes = c("character","logical"),
@@ -260,7 +260,7 @@ InitErgm.actorfactor<-function (nw, m, arglist, drop=TRUE, ...) {
    u <- u[-1]
   }
   lu <- length(ui)
-  if (lu==1){
+  if (lu==0){
     stop ("Argument to actorfactor() has only one value", call.=FALSE)
   }
   termnumber<-1+length(m$terms)
@@ -1606,7 +1606,7 @@ InitErgm.estar<-function(nw, m, arglist, drop=TRUE, ...) {
 
 #########################################################
 InitErgm.eventfactor<-function (nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkdirected("eventfactor", is.directed(nw), requirement=TRUE)
+  ergm.checkbipartite("eventfactor", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("eventfactor", arglist,
     varnames = c("attrname","contrast"),
     vartypes = c("character","logical"),
@@ -1644,7 +1644,7 @@ InitErgm.eventfactor<-function (nw, m, arglist, drop=TRUE, ...) {
    u <- u[-1]
   }
   lu <- length(ui)
-  if (lu==1){
+  if (lu==0){
     stop ("Argument to eventfactor() has only one value", call.=FALSE)
   }
   termnumber<-1+length(m$terms)
@@ -1674,8 +1674,8 @@ InitErgm.gwadegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   d <- 1:(network.size(nw) - nactors)
   if (!initialfit && !fixed) { # This is a curved exp fam
 #    if (!is.null(attrname)) {
-      stop("The gwadegree term is not yet able to handle a",
-           "nonfixed decay term.") # with an attribute.")
+      stop("The gwadegree term is not yet able to handle a ",
+           "non-fixed decay term.", call.=FALSE) # with an attribute.")
 #    }
     ld<-length(d)
     if(ld==0){return(m)}
@@ -1848,8 +1848,8 @@ InitErgm.gwedegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   d <- 1:nactors
   if (!initialfit && !fixed) { # This is a curved exp fam
 #    if (!is.null(attrname)) {
-      stop("The gwedegree term is not yet able to handle a",
-           "nonfixed decay term.") # with an attribute.")
+      stop("The gwedegree term is not yet able to handle a ",
+           "non-fixed decay term.", call.=FALSE) # with an attribute.")
 #    }
     ld<-length(d)
     if(ld==0){return(m)}
