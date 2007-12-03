@@ -60,7 +60,7 @@ ergm.stocapprox <- function(theta0, nw, model, Clist,
 # MCMCparams$maxchanges <- z$maxchanges
   theta <- z$eta
   names(theta) <- names(theta0)
-  cat(paste(" (eta= ",paste(theta),")\n",sep=""))
+  cat(paste(" (eta[",seq(along=theta),"] = ",paste(theta),")\n",sep=""))
   
   #phase 3:  Estimate covariance matrix for final theta
   n3 <- MCMCparams$phase3_n

@@ -885,7 +885,7 @@ InitErgm.concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
                            u[concurrentattr], sep="")
       cat(" ")
         cat("Warning: These concurrent terms have extreme counts and will be dropped:\n")
-        cat(dropterms, "\n", fill=T)
+        cat(dropterms, "", fill=T)
         cat("  The corresponding coefficients have been fixed at their MLE of negative infinity.\n")
         u <- u[-concurrentattr]
       }
@@ -1075,7 +1075,7 @@ InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
                            u[du[2,degreeattr]], sep="")
         cat(" ")
         cat("Warning: These degree terms have extreme counts and will be dropped:\n")
-        cat(dropterms, "\n", fill=T)
+        cat(dropterms, "", fill=T)
         cat("  The corresponding coefficients have been fixed at their MLE of negative infinity.\n")
         du <- matrix(du[,!degreeattr], nrow=2)
       }
@@ -1370,7 +1370,7 @@ InitErgm.edegree<-function(nw, m, arglist, drop=TRUE, ...) {
         dropterms <- paste("edeg", du[1,edegreeattr], ".", attrname,
                            u[du[2,edegreeattr]], sep="")
         cat("Warning: These edegree terms have extreme counts and will be dropped:\n")
-        cat(dropterms, "\n", fill=T)
+        cat(dropterms, "", fill=T)
         du <- matrix(du[,!edegreeattr], nrow=2)
       }
     }
@@ -1545,7 +1545,7 @@ InitErgm.estar<-function(nw, m, arglist, drop=TRUE, ...) {
         dropterms <- paste("estar", du[1,estarattr], ".", attrname,
                            u[du[2,estarattr]], sep="")
         cat("Warning: These estar terms have extreme counts and will be dropped:\n")
-        cat(dropterms, "\n", fill=T)
+        cat(dropterms, "", fill=T)
         du <- matrix(du[,!estarattr], nrow=2)
       }
     }
@@ -2382,7 +2382,7 @@ InitErgm.idegree<-function(nw, m, arglist, drop=TRUE, ...) {
                            u[du[2,idegreeattr]], sep="")
       cat(" ")
         cat("Warning: These idegree terms have extreme counts and will be dropped:\n")
-        cat(dropterms, "\n", fill=T)
+        cat(dropterms, "", fill=T)
         cat("  The corresponding coefficients have been fixed at their MLE of negative infinity.\n")
         du <- matrix(du[,!idegreeattr], nrow=2)
       }
@@ -3182,7 +3182,7 @@ InitErgm.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
                            u[du[2,odegreeattr]], sep="")
       cat(" ")
         cat("Warning: These odegree terms have extreme counts and will be dropped:\n")
-        cat(dropterms, "\n", fill=T)
+        cat(dropterms, "", fill=T)
         cat("  The corresponding coefficients have been fixed at their MLE of negative infinity.\n")
         du <- matrix(du[,!odegreeattr], nrow=2)
       }      
@@ -3598,7 +3598,7 @@ InitErgm.triadcensus<-function (nw, m, arglist, drop=FALSE, ...) {
      dropterms <- tcn[d[mdegree]]
      cat(" ")
      cat("Warning: The following types of triads do not exist in the network and will be dropped:\n")
-     cat(dropterms, "\n", fill=T)
+     cat(dropterms, "", fill=T)
      cat("  The corresponding coefficients have been fixed at their MLE of negative infinity.\n")
      d <- d[!mdegree]
     }
