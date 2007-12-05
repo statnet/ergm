@@ -1,5 +1,5 @@
 duration.matrix <- function(gsim,
-                            actornames=if(is.bipartite(gsim$networks))
+                            b1names=if(is.bipartite(gsim$networks))
                             c("Male","Female") else c("Ego","Alter")) {
   if (!is.network((g0<-gsim$networks)) || class(gsim) != "network.series") {
     stop("This function requires that the argument be a network.series")
@@ -21,7 +21,7 @@ duration.matrix <- function(gsim,
                  duration = as.integer(rep(0,5*(nedge+nchange))),
                  PACKAGE = "ergm")$duration
   allties <- matrix(allties, ncol=5)
-  colnames(allties) <- c(actornames, "Start", "End", "Noncensored")
+  colnames(allties) <- c(b1names, "Start", "End", "Noncensored")
   allties <- allties[allties[,1]!=0,] # Get rid of unused rows
   allties[allties==-1] <- N # Edges that didn't end will be censored at N
   

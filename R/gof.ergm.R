@@ -193,7 +193,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
   if ('degree' %in% all.gof.vars) {
    if(is.null(nw$gal$design) | !unconditional){
     if(is.bipartite(nw)){
-     obs.deg <- degreedist(nw, print=FALSE)$event
+     obs.deg <- degreedist(nw, print=FALSE)$b2
      obs.deg <- c(obs.deg,rep(0,n-length(obs.deg)))
     }else{
      mesp <- paste("c(",paste(0:(n-1),collapse=","),")",sep="")
@@ -296,9 +296,9 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
     if ('degree' %in% all.gof.vars) {
      gi <- SimNetworkSeriesObj$networks[[i]]
      if(is.bipartite(gi)){
-      temp <- degreedist(gi, print=FALSE)$event
+      temp <- degreedist(gi, print=FALSE)$b2
       sim.deg[i,] <- c(temp,rep(0,n-length(temp)))
-     }else{
+     }else{                                                
       mesp <- paste("c(",paste(0:(n-1),collapse=","),")",sep="")
       sim.deg[i,] <- summary(as.formula(paste('gi ~ degree(',mesp,')',sep="")),drop=FALSE)
      }

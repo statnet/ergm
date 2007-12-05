@@ -177,7 +177,7 @@ ergm.mple<-function(Clist, Clist.miss, m, theta.offset=NULL,
        c("edges","match","nodemain","nodefactor","nodematch","absdiff",
          "edgecov","dyadcov","sender","receiver","sociality", 
          "nodemix","mix",
-         "actor.","event.",
+         "b1","b2",
          "testme")
     independent <- rep(0,ncol(xmat))
     names(independent) <- colnames(xmat)

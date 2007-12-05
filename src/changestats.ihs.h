@@ -8,7 +8,7 @@
 /* changestat function prototypes, 
    plus a few supporting function prototypes */
 /********************  changestats:  A    ***********/
-CHANGESTAT_FN(d_akappa)
+CHANGESTAT_FN(d_b1kappa)
 CHANGESTAT_FN(d_altistar)
 CHANGESTAT_FN(d_altostar)
 /********************  changestats:  B    ***********/
@@ -24,19 +24,19 @@ CHANGESTAT_FN(d_degreep_w_homophily)
 CHANGESTAT_FN(d_dissolve)
 CHANGESTAT_FN(d_duration)
 /********************  changestats:  E    ***********/
-CHANGESTAT_FN(d_ekappa)
+CHANGESTAT_FN(d_b2kappa)
 /********************  changestats:  F    ***********/
 CHANGESTAT_FN(d_factor)
 CHANGESTAT_FN(d_formation)
 /********************  changestats:  G    ***********/
 CHANGESTAT_FN(d_geodegree)
 CHANGESTAT_FN(d_geospartner)
-CHANGESTAT_FN(d_gwactor)
+CHANGESTAT_FN(d_gwb1)
 CHANGESTAT_FN(d_gwd)
 CHANGESTAT_FN(d_gwdegree706)
 CHANGESTAT_FN(d_gwdegreealpha)
 CHANGESTAT_FN(d_gwdegreelambda)
-CHANGESTAT_FN(d_gwevent)
+CHANGESTAT_FN(d_gwb2)
 /********************  changestats:   H    ***********/
 CHANGESTAT_FN(d_heideriandynamic)
 CHANGESTAT_FN(d_hiertriad)

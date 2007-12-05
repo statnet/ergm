@@ -38,7 +38,7 @@ degreedist <- function(g, print=TRUE)
  if(!is.network(g)){
   stop("degreedist() requires a network object")
  }
- if(is.directed(g)){
+ if(is.directed(g)){                                      
    mesp <- paste("c(",paste(0:(network.size(g)-1),collapse=","),")",sep="")
    outdegrees <- summary(as.formula(paste('g ~ odegree(',mesp,')',sep="")),drop=FALSE)
    indegrees <- summary(as.formula(paste('g ~ idegree(',mesp,')',sep="")),drop=FALSE)
@@ -50,24 +50,24 @@ degreedist <- function(g, print=TRUE)
    degrees <- rbind(indegrees, outdegrees)
  }else{
   if(is.bipartite(g)){
-   nactors <- get.network.attribute(g,"bipartite")
-   nevents <- network.size(g) - nactors
-   mesp <- paste("c(",paste(0:nevents,collapse=","),")",sep="")
+   nb1 <- get.network.attribute(g,"bipartite")
+   nb2 <- network.size(g) - nb1
+   mesp <- paste("c(",paste(0:nb2,collapse=","),")",sep="")
    adegrees <- summary(as.formula(paste('g ~ adegree(',mesp,')',sep="")),drop=FALSE)
-   mesp <- paste("c(",paste(0:nactors,collapse=","),")",sep="")
+   mesp <- paste("c(",paste(0:nb1,collapse=","),")",sep="")
    edegrees <- summary(as.formula(paste('g ~ edegree(',mesp,')',sep="")),drop=FALSE)
-   names(edegrees) <- 0:nactors
+   names(edegrees) <- 0:nb1
    if(!is.null(edegrees) & print){
     cat("Event degree distribution:\n")
     if(any(edegrees>0)){print(edegrees[edegrees>0])}
    }
-   names(adegrees) <- 0:nevents
+   names(adegrees) <- 0:nb2
    if(!is.null(adegrees) & print){
     cat("Actor degree distribution:\n")
     if(any(adegrees>0)){print(adegrees[adegrees>0])}
    }
-   degrees <- list(event=edegrees, actor=adegrees)
-  }else{
+   degrees <- list(b2=edegrees, b1=adegrees)
+  }else{              
    mesp <- paste("c(",paste(0:(network.size(g)-1),collapse=","),")",sep="")
    degrees <- summary(as.formula(paste('g ~ degree(',mesp,')',sep="")),drop=FALSE)
    degrees <- degrees[degrees > 0]
@@ -277,7 +277,7 @@ function(x, alternative = c("two.sided", "less", "greater"),
 mixingmatrix <- function(nw, attrname) {
   if(!is.network(nw)){
     stop("mixingmatrix() requires a network object")
-  }
+  }                                                                
   nodecov <- get.node.attr(nw, attrname)
   u<-sort(unique(nodecov))
   # nodecovnum <- match(nodecov, u)

@@ -3,26 +3,26 @@
 
 /********************  changestats:  A    ***********/
 /*****************
- changestat: d_akappa
+ changestat: d_b1kappa
 *****************/
-void d_akappa (int ntoggles, Vertex *heads, Vertex *tails, 
+void d_b1kappa (int ntoggles, Vertex *heads, Vertex *tails, 
 	    ModelTerm *mtp, Network *nwp)  {
   int i, j, echange=0;
   double nedges, change, iar0, far0;
   Vertex h, t, hd, iak2, fak2, nnodes, *od;
-  Vertex nactors;
+  Vertex nb1;
   TreeNode *oe;  
   
   oe=nwp->outedges;
   od=nwp->outdegree;
   nnodes = nwp->nnodes;
-  nactors = nwp->bipartite;
+  nb1 = nwp->bipartite;
   
   change = 0.0;
   for (i=0; i<ntoggles; i++) {      
     echange = (EdgetreeSearch(h=heads[i], t=tails[i], oe) == 0) ? 1 : -1;
     iak2=0;
-    for (j=1; j<=nactors; j++) {      
+    for (j=1; j<=nb1; j++) {      
       fak2 = od[j];
       iak2 += fak2*(fak2-1);
     }
@@ -150,18 +150,18 @@ void d_biduration (int ntoggles, Vertex *heads, Vertex *tails,
 {
   Vertex h, t, hh, ht;
   int i, k, nprevedge, edgeflag, discord, lookmore;
-  Vertex nevents, nactors;
+  Vertex nb2, nb1;
   double change=0.0;
 
   nprevedge = (int)((mtp->inputparams[0]));
-  nactors = (int)((mtp->inputparams[1]));
-//  nactors = nwp->bipartite;
-//  nevents = nwp->nnodes - nwp->bipartite;
-  nevents = nwp->nnodes - nactors;
+  nb1 = (int)((mtp->inputparams[1]));
+//  nb1 = nwp->bipartite;
+//  nb2 = nwp->nnodes - nwp->bipartite;
+  nb2 = nwp->nnodes - nb1;
 
 //  Rprintf("nprevedge %d\n", nprevedge);
-//  Rprintf("nwp->bipartite %d nevents %f\n", nwp->bipartite, nwp->bipartite);
-//  Rprintf("nactors %d nevents %d\n", nactors, nevents);
+//  Rprintf("nwp->bipartite %d nb2 %f\n", nwp->bipartite, nwp->bipartite);
+//  Rprintf("nb1 %d nb2 %d\n", nb1, nb2);
 //  for (k=1; k<=nprevedge; k++) {
 //      Rprintf("k %d x0.h %d x0.t %d\n", k,
 //	      (Vertex)(mtp->attrib[          k]),
@@ -203,8 +203,8 @@ void d_biduration (int ntoggles, Vertex *heads, Vertex *tails,
 
            /*If the proposed edge existed in x0, get dissolution rate */
 	   /* lookmore is location of (hh, ht) in the dissolve matrix */
-//           lookmore=2*nprevedge+(hh-1)+(ht-1-nevents)*nactors+1;
-           lookmore=2*nprevedge+(hh-1)+(ht-1-nactors)*nactors+1;
+//           lookmore=2*nprevedge+(hh-1)+(ht-1-nb2)*nb1+1;
+           lookmore=2*nprevedge+(hh-1)+(ht-1-nb1)*nb1+1;
 	   /* change is NEGATIVE the dissolve rate if an edge exists */
 //       Rprintf("hh %d ht %d lookmore %d att %f\n",hh, ht, lookmore, (double)(mtp->attrib[lookmore]));
 //           change=-discord*(double)(mtp->attrib[lookmore]);
@@ -292,25 +292,25 @@ void d_bkappa (int ntoggles, Vertex *heads, Vertex *tails,
   int i, j, echange=0;
   double nedges, change, iar0, far0, ier0, fer0;
   Vertex h, t, hd, td=0, iak2, fak2, iek2, fek2, nnodes, *id, *od;
-  Vertex nevents, nactors;
+  Vertex nb2, nb1;
   TreeNode *oe=nwp->outedges;
   
   id=nwp->indegree;
   od=nwp->outdegree;
   nnodes = nwp->nnodes;
-  nactors = nwp->bipartite;
-  nevents = nnodes - nactors;
+  nb1 = nwp->bipartite;
+  nb2 = nnodes - nb1;
   
   change = 0.0;
   for (i=0; i<ntoggles; i++) {      
     echange = (EdgetreeSearch(h=heads[i], t=tails[i], oe) == 0) ? 1 : -1;
     iak2=0;
-    for (j=1; j<=nactors; j++) {      
+    for (j=1; j<=nb1; j++) {      
       fak2 = od[j];
       iak2 += fak2*(fak2-1);
     }
     iek2=0;
-    for (j=nactors+1; j<=nnodes; j++) {      
+    for (j=nb1+1; j<=nnodes; j++) {      
       fek2 = id[j];
       iek2 += fek2*(fek2-1);
     }
@@ -553,26 +553,26 @@ void d_duration (int ntoggles, Vertex *heads, Vertex *tails,
 
 /********************  changestats:  E    ***********/
 /*****************
- changestat: d_ekappa
+ changestat: d_b2kappa
 *****************/
-void d_ekappa (int ntoggles, Vertex *heads, Vertex *tails, 
+void d_b2kappa (int ntoggles, Vertex *heads, Vertex *tails, 
 	    ModelTerm *mtp, Network *nwp)  {
   int i, j, echange=0;
   double nedges, change, ier0, fer0;
   Vertex h, t, td=0, iek2, fek2, nnodes, *id;
-  Vertex nactors;
+  Vertex nb1;
   TreeNode *oe;  
   
   oe=nwp->outedges;
   id=nwp->indegree;
   nnodes = nwp->nnodes;
-  nactors = nwp->bipartite;
+  nb1 = nwp->bipartite;
   
   change = 0.0;
   for (i=0; i<ntoggles; i++) {      
     echange = (EdgetreeSearch(h=heads[i], t=tails[i], oe) == 0) ? 1 : -1;
     iek2=0;
-    for (j=nactors+1; j<=nnodes; j++) {      
+    for (j=nb1+1; j<=nnodes; j++) {      
       fek2 = id[j];
       iek2 += fek2*(fek2-1);
     }
@@ -765,18 +765,18 @@ void d_geospartner (int ntoggles, Vertex *heads, Vertex *tails,
 }
 
 /*****************
- changestat: d_gwactor
+ changestat: d_gwb1
 *****************/
-void d_gwactor (int ntoggles, Vertex *heads, Vertex *tails,
+void d_gwb1 (int ntoggles, Vertex *heads, Vertex *tails,
 		              ModelTerm *mtp, Network *nwp)
 {
   int i, echange=0;
   double alpha, oneexpa, change;
   Vertex h, t, hd=0, *od;
-  int nactors, nevents;
+  int nb1, nb2;
 
-  nactors = (int)mtp->inputparams[0];
-  nevents = (nwp->nnodes) - nactors;
+  nb1 = (int)mtp->inputparams[0];
+  nb2 = (nwp->nnodes) - nb1;
 
 //id=nwp->indegree;
   od=nwp->outdegree;
@@ -948,17 +948,17 @@ void d_gwdegreelambda (int ntoggles, Vertex *heads, Vertex *tails,
 }
 
 /*****************
- changestat: d_gwevent
+ changestat: d_gwb2
 *****************/
-void d_gwevent (int ntoggles, Vertex *heads, Vertex *tails,
+void d_gwb2 (int ntoggles, Vertex *heads, Vertex *tails,
 		              ModelTerm *mtp, Network *nwp) {
   int i, echange=0;
   double alpha, oneexpa, change;
   Vertex h, t, td=0, *id;
-  int nactors, nevents;
+  int nb1, nb2;
 
-  nevents = (int)mtp->inputparams[0];
-  nactors = nwp->nnodes - nevents;
+  nb2 = (int)mtp->inputparams[0];
+  nb1 = nwp->nnodes - nb2;
 
   id=nwp->indegree;
 //od=nwp->outdegree;
@@ -2194,18 +2194,18 @@ void d_transitivity (int ntoggles, Vertex *heads, Vertex *tails,
 
 
 // *****************
-// changestat: d_actor
+// changestat: d_b1
 // *****************
-//void d_actor (int ntoggles, Vertex *heads, Vertex *tails, 
+//void d_b1 (int ntoggles, Vertex *heads, Vertex *tails, 
 //	         struct OptionInput *inp, Gptr g) 
 //{
 //  int i, j, echange;
-//  Vertex h, t, deg, nevents, nactors;
+//  Vertex h, t, deg, nb2, nb1;
 //  
-//  nactors = (Vertex)inp->inputparams[0];
-//  nevents = (nwp->nnodes) - nactors;
-////  Rprintf("nevents %d\n", nevents);
-////  Rprintf("nactors %d\n", nactors);
+//  nb1 = (Vertex)inp->inputparams[0];
+//  nb2 = (nwp->nnodes) - nb1;
+////  Rprintf("nb2 %d\n", nb2);
+////  Rprintf("nb1 %d\n", nb1);
 ////  Rprintf("inp->nstats %d\n", inp->nstats);
 ////  Rprintf("ntggles %d\n", ntoggles);
 //
@@ -2235,18 +2235,18 @@ void d_transitivity (int ntoggles, Vertex *heads, Vertex *tails,
 //}
 //
 // *****************
-// changestat: d_actor
+// changestat: d_b2
 // *****************
-//void d_event (int ntoggles, Vertex *heads, Vertex *tails, 
+//void d_b2 (int ntoggles, Vertex *heads, Vertex *tails, 
 //	         struct OptionInput *inp, Gptr g) 
 //{
 //  int i, j, echange;
-//  Vertex h, t, deg, nevents, nactors;
+//  Vertex h, t, deg, nb2, nb1;
 //  
-//  nactors = (Vertex)inp->inputparams[0];
-//  nevents = (nwp->nnodes) - nactors;
-////  Rprintf("nevents %d\n", nevents);
-////  Rprintf("nactors %d\n", nactors);
+//  nb1 = (Vertex)inp->inputparams[0];
+//  nb2 = (nwp->nnodes) - nb1;
+////  Rprintf("nb2 %d\n", nb2);
+////  Rprintf("nb1 %d\n", nb1);
 //  
 //  for (i=0; i < inp->nstats; i++) 
 //    inp->dstats[i] = 0.0;
@@ -2285,10 +2285,10 @@ void d_transitivity (int ntoggles, Vertex *heads, Vertex *tails,
 //  int L2hu, L2ut;
 //  Vertex deg;
 //  Vertex h, t, u, v;
-//  int nevents, nactors;
+//  int nb2, nb1;
 //
-//  nactors = (int)inp->inputparams[0];
-//  nevents = (nwp->nnodes) - nactors;
+//  nb1 = (int)inp->inputparams[0];
+//  nb2 = (nwp->nnodes) - nb1;
 //
 //  for (i=0; i < inp->nstats; i++) 
 //    inp->dstats[i] = 0.0;
@@ -2296,7 +2296,7 @@ void d_transitivity (int ntoggles, Vertex *heads, Vertex *tails,
 //    for (i=0; i<ntoggles; i++){      
 //     echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
 //     //
-//     // Next for actor shared event counts
+//     // Next for b1 shared b2 counts
 //     //
 ////   // step through inedges of t
 ////   for(e = EdgetreeMinimum(nwp->inedges, t);
@@ -2318,7 +2318,7 @@ void d_transitivity (int ntoggles, Vertex *heads, Vertex *tails,
 ////         }
 ////   }
 ////
-////   Next for event shared actor counts
+////   Next for b2 shared b1 counts
 ////
 //   // step through outedges of h 
 //   for(e = EdgetreeMinimum(nwp->outedges, h);
@@ -2350,9 +2350,9 @@ void d_transitivity (int ntoggles, Vertex *heads, Vertex *tails,
 //}
 //
 ///*****************
-// changestat: d_ase
+// changestat: d_b1sb2
 //*****************/
-//void d_ase (int ntoggles, Vertex *heads, Vertex *tails, 
+//void d_b1sb2 (int ntoggles, Vertex *heads, Vertex *tails, 
 //	      struct OptionInput *inp, Gptr g) 
 //{
 //  Edge e, f;
@@ -2360,10 +2360,10 @@ void d_transitivity (int ntoggles, Vertex *heads, Vertex *tails,
 //  int L2hu, L2ut;
 //  Vertex deg;
 //  Vertex h, t, u, v;
-//  int nevents, nactors;
+//  int nb2, nb1;
 //
-//  nactors = (int)inp->inputparams[0];
-//  nevents = (nwp->nnodes) - nactors;
+//  nb1 = (int)inp->inputparams[0];
+//  nb2 = (nwp->nnodes) - nb1;
 //
 //  for (i=0; i < inp->nstats; i++) 
 //    inp->dstats[i] = 0.0;
@@ -2371,7 +2371,7 @@ void d_transitivity (int ntoggles, Vertex *heads, Vertex *tails,
 //    for (i=0; i<ntoggles; i++){      
 //     echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
 //     //
-//     // Next for actor shared event counts
+//     // Next for b1 shared b2 counts
 //     //
 //     // step through inedges of t
 //     for(e = EdgetreeMinimum(nwp->inedges, t);
@@ -2461,19 +2461,19 @@ void d_transitivity (int ntoggles, Vertex *heads, Vertex *tails,
 //{
 //  Vertex h, t, hh, ht;
 //  int i, k, nprevedge, edgeflag, discord, lookmore;
-//  int nevents, nactors;
+//  int nb2, nb1;
 //  int nmat, nnodes;
 //  double change=0.0;
 //
 //  nprevedge = (int)((inp->inputparams[0]));
 //  nnodes = (nwp->nnodes);
-//  nactors = (int)(inp->inputparams[1]);
-//  nevents = nnodes - nactors;
+//  nb1 = (int)(inp->inputparams[1]);
+//  nb2 = nnodes - nb1;
 //
-//  nmat = nevents*nactors;
+//  nmat = nb2*nb1;
 //
 ////  Rprintf("nprevedge %d\n", nprevedge);
-////  Rprintf("nactors %d nevents %d\n", nactors, nevents);
+////  Rprintf("nb1 %d nb2 %d\n", nb1, nb2);
 ////  for (k=1; k<=nprevedge; k++) {
 ////      Rprintf("k %d x0.h %d x0.t %d\n", k,
 ////	      (Vertex)(inp->attrib[          k]),
@@ -2513,7 +2513,7 @@ void d_transitivity (int ntoggles, Vertex *heads, Vertex *tails,
 //
 //           /*If the proposed edge existed in x0, get dissolution rate */
 //	   /* lookmore is location of (hh, ht) in the dissolve matrix */
-//           lookmore=2*nprevedge+nmat+(hh-1)+(ht-1-nactors)*nevents;
+//           lookmore=2*nprevedge+nmat+(hh-1)+(ht-1-nb1)*nb2;
 //	   /* change is NEGATIVE the dissolve rate if an edge exists */
 ////       Rprintf("hh %d ht %d lookmore %d att %f\n",hh, ht, lookmore, (double)(inp->attrib[lookmore]));
 //           change=-discord*(double)(inp->attrib[lookmore]);
@@ -2537,7 +2537,7 @@ void d_transitivity (int ntoggles, Vertex *heads, Vertex *tails,
 //       /*If the proposed edge existed in x0, get dissolution rate */
 //       /* lookmore, so no edge exisited in x0, Get formation rate */
 //       /* lookmore is location of (hh, ht) in the form matrix */
-//       lookmore=2*nprevedge+(hh-1-nactors)+(ht-1)*nevents;
+//       lookmore=2*nprevedge+(hh-1-nb1)+(ht-1)*nb2;
 //       /* change is the form number of formed edges */
 //       change=-discord*(double)(inp->attrib[lookmore]);
 //       /*Update the change statistics, as appropriate*/
@@ -2631,7 +2631,7 @@ void d_transitivity (int ntoggles, Vertex *heads, Vertex *tails,
 //
 //              /*If the proposed edge existed in x0, get dissolution rate */
 //	      /* lookmore is location of (h, t) in the dissolve matrix */
-////            lookmore=2*nprevedge+(h-1)+(t-1-nactors)*nevents;
+////            lookmore=2*nprevedge+(h-1)+(t-1-nb1)*nb2;
 //	      /* change is NEGATIVE the dissolve rate if an edge exists */
 ////          Rprintf("h %d t %d lookmore %d att %f\n",h, t, lookmore, (double)(inp->attrib[lookmore]));
 ////              change=-discord*(double)(inp->attrib[lookmore]);
@@ -2663,17 +2663,17 @@ void d_transitivity (int ntoggles, Vertex *heads, Vertex *tails,
 //{
 //  Vertex h, t, hh, ht;
 //  int i, k, nprevedge, edgeflag, discord, lookmore;
-//  int nevents, nactors;
+//  int nb2, nb1;
 //  int nnodes;
 //  double change=0.0;
 //
 //  nprevedge = (int)((inp->inputparams[0]));
 //  nnodes = (nwp->nnodes);
-//  nactors = (int)(inp->inputparams[1]);
-//  nevents = nnodes - nactors;
+//  nb1 = (int)(inp->inputparams[1]);
+//  nb2 = nnodes - nb1;
 //
 ////  Rprintf("nprevedge %d\n", nprevedge);
-////  Rprintf("nactors %d nevents %d\n", nactors, nevents);
+////  Rprintf("nb1 %d nb2 %d\n", nb1, nb2);
 ////  for (k=1; k<=nprevedge; k++) {
 ////      Rprintf("k %d x0.h %d x0.t %d\n", k,
 ////	      (Vertex)(inp->attrib[          k]),
@@ -2751,17 +2751,17 @@ void d_transitivity (int ntoggles, Vertex *heads, Vertex *tails,
 //{
 //  Vertex h, t, hh, ht;
 //  int i, k, nprevedge, edgeflag, discord, lookmore;
-//  int nevents, nactors;
+//  int nb2, nb1;
 //  int nnodes;
 //  double change=0.0;
 //
 //  nprevedge = (int)((inp->inputparams[0]));
 //  nnodes = (nwp->nnodes);
-//  nactors = (int)(inp->inputparams[1]);
-//  nevents = nnodes - nactors;
+//  nb1 = (int)(inp->inputparams[1]);
+//  nb2 = nnodes - nb1;
 //
 ////  Rprintf("nprevedge %d\n", nprevedge);
-////  Rprintf("nactors %d nevents %d\n", nactors, nevents);
+////  Rprintf("nb1 %d nb2 %d\n", nb1, nb2);
 ////  for (k=1; k<=nprevedge; k++) {
 ////      Rprintf("k %d x0.h %d x0.t %d\n", k,
 ////	      (Vertex)(inp->attrib[          k]),
@@ -2800,7 +2800,7 @@ void d_transitivity (int ntoggles, Vertex *heads, Vertex *tails,
 //
 //           /*If the proposed edge existed in x0, get dissolution rate */
 //	   /* lookmore is location of (hh, ht) in the dissolve matrix */
-//           lookmore=2*nprevedge+(hh-1)+(ht-1-nactors)*nevents;
+//           lookmore=2*nprevedge+(hh-1)+(ht-1-nb1)*nb2;
 //	   /* change is NEGATIVE the dissolve rate if an edge exists */
 ////       Rprintf("hh %d ht %d lookmore %d att %f\n",hh, ht, lookmore, (double)(inp->attrib[lookmore]));
 //           change+=edgeflag*(double)(inp->attrib[lookmore]);
@@ -2819,7 +2819,7 @@ void d_transitivity (int ntoggles, Vertex *heads, Vertex *tails,
 //      if(lookmore && edgeflag){
 //       /* lookmore, so no edge exisited in x0, Get formation rate */
 //       /* lookmore is location of (hh, ht) in the form matrix */
-//       lookmore=2*nprevedge+(hh-1)+(ht-1-nactors)*nevents;
+//       lookmore=2*nprevedge+(hh-1)+(ht-1-nb1)*nb2;
 //       /* change is the form number of formed edges */
 //       change+=(1-edgeflag)*(double)(inp->attrib[lookmore]);
 //      }
@@ -2920,7 +2920,7 @@ void d_transitivity (int ntoggles, Vertex *heads, Vertex *tails,
 //
 //              /*If the proposed edge existed in x0, get dissolution rate */
 //	      /* lookmore is location of (h, t) in the dissolve matrix */
-////            lookmore=2*nprevedge+(h-1)+(t-1-nactors)*nevents;
+////            lookmore=2*nprevedge+(h-1)+(t-1-nb1)*nb2;
 //	      /* change is NEGATIVE the dissolve rate if an edge exists */
 ////          Rprintf("h %d t %d lookmore %d att %f\n",h, t, lookmore, (double)(inp->attrib[lookmore]));
 ////              change=-discord*(double)(inp->attrib[lookmore]);
@@ -2952,17 +2952,17 @@ void d_transitivity (int ntoggles, Vertex *heads, Vertex *tails,
 //{
 //  Vertex h, t, hh, ht;
 //  int i, k, nprevedge, edgeflag, discord, lookmore;
-//  int nevents, nactors;
+//  int nb2, nb1;
 //  int nnodes;
 //  double change=0.0;
 //
 //  nprevedge = (int)((inp->inputparams[0]));
 //  nnodes = (nwp->nnodes);
-//  nactors = (int)(inp->inputparams[1]);
-//  nevents = nnodes - nactors;
+//  nb1 = (int)(inp->inputparams[1]);
+//  nb2 = nnodes - nb1;
 //
 ////  Rprintf("nprevedge %d\n", nprevedge);
-////  Rprintf("nactors %d nevents %d\n", nactors, nevents);
+////  Rprintf("nb1 %d nb2 %d\n", nb1, nb2);
 ////  for (k=1; k<=nprevedge; k++) {
 ////      Rprintf("k %d x0.h %d x0.t %d\n", k,
 ////	      (Vertex)(inp->attrib[          k]),
@@ -3004,7 +3004,7 @@ void d_transitivity (int ntoggles, Vertex *heads, Vertex *tails,
 //
 //           /*If the proposed edge existed in x0, get dissolution rate */
 //	   /* lookmore is location of (hh, ht) in the dissolve matrix */
-//           lookmore=2*nprevedge+(hh-1)+(ht-1-nactors)*nevents;
+//           lookmore=2*nprevedge+(hh-1)+(ht-1-nb1)*nb2;
 //	   /* change is NEGATIVE the dissolve rate if an edge exists */
 ////       Rprintf("hh %d ht %d lookmore %d att %f\n",hh, ht, lookmore, (double)(inp->attrib[lookmore]));
 ////           change=-discord*(double)(inp->attrib[lookmore]);

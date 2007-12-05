@@ -9,7 +9,7 @@
     mode="fruchtermanreingold",
     displayisolates=TRUE,
     interactive=FALSE,
-    xlab=NULL,
+    xlab=NULL,                                      
     ylab=NULL,
     xlim=NULL,
     ylim=NULL,
@@ -124,12 +124,12 @@
      }
    }
    if(missing(vertex.col) && is.bipartite(x)){
-    nactors <- get.network.attribute(x,"bipartite")
-    nevents <- network.size(x) - nactors
+    nb1 <- get.network.attribute(x,"bipartite")
+    nb2 <- network.size(x) - nb1
     if(missing(colornames)){
-      vertex.col <- rep(rainbow(2),c(nactors, nevents))
+      vertex.col <- rep(rainbow(2),c(nb1, nb2))
     }else{
-      vertex.col <- rep(colornames[1:2],c(nactors, nevents))
+      vertex.col <- rep(colornames[1:2],c(nb1, nb2))
     }
    }
    if(length(vertex.col)==1){
@@ -143,9 +143,9 @@
      }
    }
    if(missing(vertex.sides) && is.bipartite(x)){
-    nactors <- get.network.attribute(x,"bipartite")
-    nevents <- network.size(x) - nactors
-    vertex.sides <- rep(c(8,3),c(nactors, nevents))
+    nb1 <- get.network.attribute(x,"bipartite")
+    nb2 <- network.size(x) - nb1
+    vertex.sides <- rep(c(8,3),c(nb1, nb2))
    }
    if(length(vertex.sides)==1){
      vertex.sides <- rep(vertex.sides,n)

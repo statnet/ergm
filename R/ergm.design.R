@@ -18,10 +18,10 @@ ergm.design <- function(nw, model, initialfit=FALSE, verbose=FALSE){
 #### MSH on Oct 13 notes that this function (ergm.design) was added in rev 47
 #### to deal with missing data for bipartite networks.
 #### It is clearly no longer needed.
-#    if(is.bipartite(nw)){
-#     nactors <- get.network.attribute(nw,"bipartite")
-#     nevents <- network.size(nw) - nactors
-#     temp <- matrix(0,ncol=nactors,nrow=nactors)
+#    if(is.bipartite(nw)){                       
+#     nb1 <- get.network.attribute(nw,"bipartite")
+#     nb2 <- network.size(nw) - nb1
+#     temp <- matrix(0,ncol=nb1,nrow=nb1)
 #     base <- cbind(as.vector(col(temp)), as.vector(row(temp)))
 #     base <- base[base[, 2] > base[, 1], ]
 #     if(Clist.miss$nedges==0){
@@ -30,12 +30,12 @@ ergm.design <- function(nw, model, initialfit=FALSE, verbose=FALSE){
 #     }
 #     Clist.miss$heads <- c(Clist.miss$heads,base[,2]) 
 #     Clist.miss$tails <- c(Clist.miss$tails,base[,1]) 
-#     temp <- matrix(0,ncol=nevents,nrow=nevents)
+#     temp <- matrix(0,ncol=nb2,nrow=nb2)
 #     base <- cbind(as.vector(col(temp)), as.vector(row(temp)))
 #     base <- base[base[, 2] > base[, 1], ]
-#     Clist.miss$heads <- c(Clist.miss$heads,base[,2]+nactors) 
-#     Clist.miss$tails <- c(Clist.miss$tails,base[,1]+nactors) 
-#     Clist.miss$nedges<-Clist.miss$nedges+(nactors*(nactors-1)+nevents*(nevents-1))/2
+#     Clist.miss$heads <- c(Clist.miss$heads,base[,2]+nb1) 
+#     Clist.miss$tails <- c(Clist.miss$tails,base[,1]+nb1) 
+#     Clist.miss$nedges<-Clist.miss$nedges+(nb1*(nb1-1)+nb2*(nb2-1))/2
 #    }
    }
    Clist.miss

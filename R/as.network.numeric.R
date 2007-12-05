@@ -7,31 +7,31 @@ as.network.numeric<-function(x,
     density=NULL, theta0=NULL, numedges=NULL, ...){
   #returns a bernouli network.
   if(bipartite){
-   nevents <- x
-   nactors <- bipartite
+   nb2 <- x
+   nb1 <- bipartite
    directed <- FALSE
-  }else{
-   nevents <- x
-   nactors <- x
+  }else{                                                        
+   nb2 <- x
+   nb1 <- x
   }
   if(directed)
-    ndyads <- nactors*(nactors-1)
+    ndyads <- nb1*(nb1-1)
   else if(bipartite)
-    ndyads <- nactors*nevents
+    ndyads <- nb1*nb2
   else
-    ndyads <- nactors*(nactors-1)/2
+    ndyads <- nb1*(nb1-1)/2
   
   if(missing(density)){
     if(missing(theta0)){
       #     So the expected number of ties is the same as
       #     the number of nodes
-      density <- nactors/ndyads
+      density <- nb1/ndyads
     }else{
       density <- exp(theta0)/(1+exp(theta0))
     }
   }
-  nw.mat <- matrix(0,nrow=nactors,ncol=nevents)
-  dimnames(nw.mat) <- list(1:nactors,1:nevents)
+  nw.mat <- matrix(0,nrow=nb1,ncol=nb2)
+  dimnames(nw.mat) <- list(1:nb1,1:nb2)
   if(is.null(numedges)){
     nwij <- runif(ndyads)<density
   }else{

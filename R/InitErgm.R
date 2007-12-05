@@ -149,9 +149,9 @@ InitErgm.absdiffcat<-function (nw, m, arglist, ...) {
 }
 
 #########################################################
-InitErgm.aconcurrent<-function(nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkbipartite("aconcurrent", is.bipartite(nw), requirement=TRUE)
-  a <- ergm.checkargs("aconcurrent", arglist,
+InitErgm.b1concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkbipartite("b1concurrent", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("b1concurrent", arglist,
                       varnames = c("attrname"),
                       vartypes = c("character"),
                       defaultvalues = list(NULL),
@@ -159,39 +159,39 @@ InitErgm.aconcurrent<-function(nw, m, arglist, drop=TRUE, ...) {
   attach(a)
   attrname <- a$attrname
   emptynwstats<-NULL
-  nactors <- get.network.attribute(nw, "bipartite")
+  nb1 <- get.network.attribute(nw, "bipartite")       
   if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "aconcurrent")
+    nodecov <- get.node.attr(nw, attrname, "b1concurrent")
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u) # Recode to numeric
     if (length(u)==1)
-      stop ("Attribute given to aconcurrent() has only one value", call.=FALSE)
+      stop ("Attribute given to b1concurrent() has only one value", call.=FALSE)
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     if(drop){ #   Check for degeneracy
-      aconcurrentattr <- paste('nw ~ aconcurrent("',attrname,'")',sep="")
-      aconcurrentattr <- summary(as.formula(aconcurrentattr),
+      b1concurrentattr <- paste('nw ~ b1concurrent("',attrname,'")',sep="")
+      b1concurrentattr <- summary(as.formula(b1concurrentattr),
                                  drop=FALSE) == 0
-      if(any(aconcurrentattr)){
+      if(any(b1concurrentattr)){
         cat(" ")
-        cat(paste("Warning: There are no aconcurrent", ".", attrname,
-                           u[aconcurrentattr],
-                  "actors;\n",
+        cat(paste("Warning: There are no b1concurrent", ".", attrname,
+                           u[b1concurrentattr],
+                  "b1s;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-        dropterms <- paste("aconcurrent", ".", attrname,
-                           u[aconcurrentattr], sep="")
-        u <- u[-aconcurrentattr]
+        dropterms <- paste("b1concurrent", ".", attrname,
+                           u[b1concurrentattr], sep="")
+        u <- u[-b1concurrentattr]
       }
     }
   } else {
     if(is.logical(attrname)){drop <- attrname}
     if(drop){
-      maconcurrent <- summary(
-                          as.formula(paste('nw ~ aconcurrent',sep="")),
+      mb1concurrent <- summary(
+                          as.formula(paste('nw ~ b1concurrent',sep="")),
                           drop=FALSE) == 0
-      if(any(maconcurrent)){
-        cat(paste("Warning: There are no concurrent actors.\n"))
+      if(any(mb1concurrent)){
+        cat(paste("Warning: There are no concurrent b1s.\n"))
         return(m)
       }
     }
@@ -200,20 +200,20 @@ InitErgm.aconcurrent<-function(nw, m, arglist, drop=TRUE, ...) {
   if(!is.null(attrname)) {
     if(length(u)==0) {return(m)}
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="aconcurrent_by_attr", soname="ergm",
+    m$terms[[termnumber]] <- list(name="b1concurrent_by_attr", soname="ergm",
                                   inputs=c(0, length(u), 
                                            length(u)+length(nodecov), 
                                            u, nodecov),
                                   dependence=TRUE)
-    # See comment in d_aconcurrent_by_attr function
-    m$coef.names<-c(m$coef.names, paste("aconcurrent",".", attrname,
+    # See comment in d_b1concurrent_by_attr function
+    m$coef.names<-c(m$coef.names, paste("b1concurrent",".", attrname,
                                         u, sep=""))
   }else{
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="aconcurrent", soname="ergm",
+    m$terms[[termnumber]] <- list(name="b1concurrent", soname="ergm",
                                        inputs=c(0, 1, 0),
                                        dependence=TRUE)
-    m$coef.names<-c(m$coef.names,paste("aconcurrent",sep=""))
+    m$coef.names<-c(m$coef.names,paste("b1concurrent",sep=""))
   }
   if (!is.null(emptynwstats)) 
     m$terms[[termnumber]]$emptynwstats <- emptynwstats
@@ -221,17 +221,17 @@ InitErgm.aconcurrent<-function(nw, m, arglist, drop=TRUE, ...) {
 }
 
 #########################################################
-InitErgm.actorfactor<-function (nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkbipartite("actorfactor", is.bipartite(nw), requirement=TRUE)
-  a <- ergm.checkargs("actorfactor", arglist,
+InitErgm.b1factor<-function (nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkbipartite("b1factor", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("b1factor", arglist,
     varnames = c("attrname", "base"),
     vartypes = c("character", "numeric"),
     defaultvalues = list(NULL, 1),
-    required = c(TRUE, FALSE))
+    required = c(TRUE, FALSE))                                    
   attach(a)
   attrname<-a$attrname
   base <- a$base
-  nodecov <- get.node.attr(nw, attrname, "actorfactor")
+  nodecov <- get.node.attr(nw, attrname, "b1factor")
   u<-sort(unique(nodecov))
   if(any(is.na(nodecov))){u<-c(u,NA)}
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -247,7 +247,7 @@ InitErgm.actorfactor<-function (nw, m, arglist, drop=TRUE, ...) {
                     nodecov,sum)
     }
     if(any(nfc==0)){
-      dropterms <- paste(paste("actorfactor",attrname,sep="."),u[nfc==0],sep="")
+      dropterms <- paste(paste("b1factor",attrname,sep="."),u[nfc==0],sep="")
       cat(" ")
       cat(paste("Warning: The count of", dropterms, "is extreme;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
@@ -257,23 +257,23 @@ InitErgm.actorfactor<-function (nw, m, arglist, drop=TRUE, ...) {
   }
   lu <- length(ui)
   if (lu==1){
-    stop ("Argument to actorfactor() has only one value", call.=FALSE)
+    stop ("Argument to b1factor() has only one value", call.=FALSE)
   }
   termnumber<-1+length(m$terms)  
-  m$terms[[termnumber]] <- list(name="actorfactor", soname="ergm",
+  m$terms[[termnumber]] <- list(name="b1factor", soname="ergm",
                                 inputs=c(lu-length(base), 
                                          lu-length(base), 
                                          lu-length(base)+length(nodecov),
                                          ui[-base], nodecov), dependence=FALSE)
-  m$coef.names<-c(m$coef.names, paste("actorfactor",
+  m$coef.names<-c(m$coef.names, paste("b1factor",
                                       attrname, paste(u[-base]), sep="."))
   m
 }
 
 #########################################################
-InitErgm.adegree<-function(nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkbipartite("adegree", is.bipartite(nw), requirement=TRUE)
-  a <- ergm.checkargs("adegree", arglist,
+InitErgm.b1degree<-function(nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkbipartite("b1degree", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("b1degree", arglist,
                       varnames = c("d", "attrname"),
                       vartypes = c("numeric", "character"),
                       defaultvalues = list(NULL, NULL),
@@ -281,78 +281,78 @@ InitErgm.adegree<-function(nw, m, arglist, drop=TRUE, ...) {
   attach(a)
   d<-a$d; attrname <- a$attrname
   emptynwstats<-NULL
-  nactors <- get.network.attribute(nw, "bipartite")
+  nb1 <- get.network.attribute(nw, "bipartite")
   if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "adegree")
+    nodecov <- get.node.attr(nw, attrname, "b1degree")
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u) # Recode to numeric
     if (length(u)==1)
-      stop ("Attribute given to adegree() has only one value", call.=FALSE)
+      stop ("Attribute given to b1degree() has only one value", call.=FALSE)
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
     if(drop){ #   Check for degeneracy
       tmp <- paste("c(",paste(d,collapse=","),")")
-      adegreeattr <- summary(as.formula
-                             (paste('nw ~ adegree(', tmp,',"',attrname,'")',sep="")),
+      b1degreeattr <- summary(as.formula
+                             (paste('nw ~ b1degree(', tmp,',"',attrname,'")',sep="")),
                              drop=FALSE) == 0
-      if(any(adegreeattr)){
+      if(any(b1degreeattr)){
         cat(" ")
-        cat(paste("Warning: There are no degree", du[1,adegreeattr], ".",
-                   attrname, u[du[2,adegreeattr]],
-                  "actors;\n",
+        cat(paste("Warning: There are no degree", du[1,b1degreeattr], ".",
+                   attrname, u[du[2,b1degreeattr]],
+                  "b1s;\n",
                   " the corresponding coefficient has been fixed at its MLE of nenegative infinity.\n",sep=" "))
-        du <- matrix(du[,!adegreeattr], nrow=2)
+        du <- matrix(du[,!b1degreeattr], nrow=2)
       }
     }
     if (any(du[1,]==0)) {
       emptynwstats <- rep(0, ncol(du))
       tmp <- du[2,du[1,]==0]
       for(i in 1:length(tmp)) tmp[i] <- 
-        sum(nodecov[1:nactors]==tmp[i])
+        sum(nodecov[1:nb1]==tmp[i])
         emptynwstats[du[1,]==0] <- tmp
     }
   } else {
     if(is.logical(attrname)){drop <- attrname}
     if(drop){
-      madegree <- paste("c(",paste(d,collapse=","),")",sep="")
-      madegree <- summary(
-                          as.formula(paste('nw ~ adegree(',madegree,')',sep="")),
+      mb1degree <- paste("c(",paste(d,collapse=","),")",sep="")
+      mb1degree <- summary(
+                          as.formula(paste('nw ~ b1degree(',mb1degree,')',sep="")),
                           drop=FALSE) == 0
-      if(any(madegree)){
+      if(any(mb1degree)){
         cat(" ")
-        cat(paste("Warning: There are no degree", d[madegree],
-                  "actors;\n",
+        cat(paste("Warning: There are no degree", d[mb1degree],
+                  "b1s;\n",
                   " the corresponding coefficient has been fixed at its MLE of nenegative infinity.\n",sep=" "))
-        d <- d[!madegree] 
+        d <- d[!mb1degree] 
       }
     }
     if (any(d==0)) {
       emptynwstats <- rep(0, length(d))
-      emptynwstats[d==0] <- nactors
+      emptynwstats[d==0] <- nb1
     }
   }
   termnumber<-1+length(m$terms)
   if(!is.null(attrname)) {
     if(ncol(du)==0) {return(m)}
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="adegree_by_attr", soname="ergm",
+    m$terms[[termnumber]] <- list(name="b1degree_by_attr", soname="ergm",
                                   inputs=c(0, ncol(du), 
                                            length(du)+length(nodecov), 
                                            as.vector(du), nodecov),
                                   dependence=TRUE)
-    # See comment in d_adegree_by_attr function
+    # See comment in d_b1degree_by_attr function
     m$coef.names<-c(m$coef.names, paste("adeg", du[1,], ".", attrname,
                                         u[du[2,]], sep=""))
   }else{
     lengthd<-length(d)
     if(lengthd==0){return(m)}
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="adegree", soname="ergm",
+    m$terms[[termnumber]] <- list(name="b1degree", soname="ergm",
                                        inputs=c(0, lengthd, lengthd, d),
                                        dependence=TRUE)
-    m$coef.names<-c(m$coef.names,paste("adegree",d,sep=""))
+    m$coef.names<-c(m$coef.names,paste("b1degree",d,sep=""))
   }
   if (!is.null(emptynwstats)) 
     m$terms[[termnumber]]$emptynwstats <- emptynwstats
@@ -400,9 +400,9 @@ InitErgm.altkstar<-function(nw, m, arglist, initialfit=FALSE, ...) {
 }
 
 #########################################################
-InitErgm.astar<-function(nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkbipartite("astar", is.bipartite(nw), requirement=TRUE)
-  a <- ergm.checkargs("astar", arglist,
+InitErgm.b1star<-function(nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkbipartite("b1star", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("b1star", arglist,
                       varnames = c("d", "attrname"),
                       vartypes = c("numeric", "character"),
                       defaultvalues = list(NULL, NULL),
@@ -410,56 +410,56 @@ InitErgm.astar<-function(nw, m, arglist, drop=TRUE, ...) {
   attach(a)                           
   d<-a$d; attrname <- a$attrname
   emptynwstats<-NULL
-  nactors <- get.network.attribute(nw, "bipartite")
+  nb1 <- get.network.attribute(nw, "bipartite")
   if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "astar")
+    nodecov <- get.node.attr(nw, attrname, "b1star")
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u) # Recode to numeric
     if (length(u)==1)
-      stop ("Attribute given to astar() has only one value", call.=FALSE)
+      stop ("Attribute given to b1star() has only one value", call.=FALSE)
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
     if(drop){ #   Check for degeneracy
       tmp <- paste("c(",paste(d,collapse=","),")")
-      astarattr <- summary(as.formula
-                             (paste('nw ~ astar(', tmp,',"',attrname,'")',sep="")),
+      b1starattr <- summary(as.formula
+                             (paste('nw ~ b1star(', tmp,',"',attrname,'")',sep="")),
                              drop=FALSE) == 0
-      if(any(astarattr)){
+      if(any(b1starattr)){
         cat(" ")
-        cat(paste("Warning: There are no actor stars", du[1,astarattr], ".",
-                   attrname, u[du[2,astarattr]],
+        cat(paste("Warning: There are no b1 stars", du[1,b1starattr], ".",
+                   attrname, u[du[2,b1starattr]],
                   ";\n",
                   " the corresponding coefficient has been fixed at its MLE of nenegative infinity.\n",sep=" "))
-        du <- matrix(du[,!astarattr], nrow=2)
+        du <- matrix(du[,!b1starattr], nrow=2)
       }
     }
     if (any(du[1,]==0)) {
       emptynwstats <- rep(0, ncol(du))
       tmp <- du[2,du[1,]==0]
       for(i in 1:length(tmp)) tmp[i] <- 
-        sum(nodecov[1:nactors]==tmp[i])
+        sum(nodecov[1:nb1]==tmp[i])
         emptynwstats[du[1,]==0] <- tmp
     }
   } else {
     if(is.logical(attrname)){drop <- attrname}
     if(drop){
-      mastar <- paste("c(",paste(d,collapse=","),")",sep="")
-      mastar <- summary(
-                          as.formula(paste('nw ~ astar(',mastar,')',sep="")),
+      mb1star <- paste("c(",paste(d,collapse=","),")",sep="")
+      mb1star <- summary(
+                          as.formula(paste('nw ~ b1star(',mb1star,')',sep="")),
                           drop=FALSE) == 0
-      if(any(mastar)){
+      if(any(mb1star)){
         cat(" ")
-        cat(paste("Warning: There are no actor stars", d[mastar],
-                  "actors;\n",
+        cat(paste("Warning: There are no b1 stars", d[mb1star],
+                  "b1s;\n",
                   " the corresponding coefficient has been fixed at its MLE of nenegative infinity.\n",sep=" "))
-        d <- d[!mastar] 
+        d <- d[!mb1star] 
       }
     }
     if (any(d==0)) {
       emptynwstats <- rep(0, length(d))
-      emptynwstats[d==0] <- nactors
+      emptynwstats[d==0] <- nb1
     }
   }
   termnumber<-1+length(m$terms)
@@ -471,8 +471,8 @@ InitErgm.astar<-function(nw, m, arglist, drop=TRUE, ...) {
                                            length(du)+length(nodecov), 
                                            as.vector(du), nodecov),
                                   dependence=TRUE)
-    # See comment in d_astar_by_attr function
-    m$coef.names<-c(m$coef.names, paste("astar", du[1,], ".", attrname,
+    # See comment in d_ostar_by_attr function
+    m$coef.names<-c(m$coef.names, paste("b1star", du[1,], ".", attrname,
                                         u[du[2,]], sep=""))
   }else{
     lengthd<-length(d)
@@ -481,7 +481,7 @@ InitErgm.astar<-function(nw, m, arglist, drop=TRUE, ...) {
     m$terms[[termnumber]] <- list(name="ostar", soname="ergm",
                                        inputs=c(0, lengthd, lengthd, d),
                                        dependence=TRUE)
-    m$coef.names<-c(m$coef.names,paste("astar",d,sep=""))
+    m$coef.names<-c(m$coef.names,paste("b1star",d,sep=""))
   }
   if (!is.null(emptynwstats)) 
     m$terms[[termnumber]]$emptynwstats <- emptynwstats
@@ -898,11 +898,11 @@ InitErgm.concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
                           drop=FALSE) == 0
       if(any(mconcurrent)){
       cat(" ")
-        cat(paste("Warning: There are no concurrent actors;\n",
+        cat(paste("Warning: There are no concurrent b1s;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
         return(m)
       }
-    }
+    }                                                         
   }
   termnumber<-1+length(m$terms)
   if(!is.null(attrname)) {
@@ -1186,9 +1186,9 @@ InitErgm.dsp<-function(nw, m, arglist, drop=TRUE, ...) {
   if (any(d==0)) {
     emptynwstats <- rep(0, length(d))
     if(is.bipartite(nw)){
-      nactors <- get.network.attribute(nw, "bipartite")
-      nevents <- network.size(nw) - nactors
-      emptynwstats[d==0] <- nactors*(nactors-1)/2 + nevents*(nevents-1)/2
+      nb1 <- get.network.attribute(nw, "bipartite")
+      nb2 <- network.size(nw) - nb1
+      emptynwstats[d==0] <- nb1*(nb1-1)/2 + nb2*(nb2-1)/2
     }else{
       emptynwstats[d==0] <- network.dyadcount(nw)
     }
@@ -1269,9 +1269,9 @@ InitErgm.dyadcov<-function (nw, m, arglist, ...) {
 
 ###################################### InitErgm TERMS:  E
 #########################################################
-InitErgm.econcurrent<-function(nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkbipartite("econcurrent", is.bipartite(nw), requirement=TRUE)
-  a <- ergm.checkargs("econcurrent", arglist,
+InitErgm.b2concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkbipartite("b2concurrent", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("b2concurrent", arglist,
                       varnames = c("attrname"),
                       vartypes = c("character"),
                       defaultvalues = list(NULL),
@@ -1279,37 +1279,37 @@ InitErgm.econcurrent<-function(nw, m, arglist, drop=TRUE, ...) {
   attach(a)
   attrname <- a$attrname
   emptynwstats<-NULL
-  nactors <- get.network.attribute(nw, "bipartite")
+  nb1 <- get.network.attribute(nw, "bipartite")
   if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "econcurrent")
+    nodecov <- get.node.attr(nw, attrname, "b2concurrent")
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u) # Recode to numeric
     if (length(u)==1)
-      stop ("Attribute given to econcurrent() has only one value", call.=FALSE)
+      stop ("Attribute given to b2concurrent() has only one value", call.=FALSE)
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     if(drop){ #   Check for degeneracy
-      econcurrentattr <- paste('nw ~ econcurrent("',attrname,'")',sep="")
-      econcurrentattr <- summary(as.formula(econcurrentattr),
+      b2concurrentattr <- paste('nw ~ b2concurrent("',attrname,'")',sep="")
+      b2concurrentattr <- summary(as.formula(b2concurrentattr),
                                  drop=FALSE) == 0
-      if(any(econcurrentattr)){
+      if(any(b2concurrentattr)){
         cat(" ")
-        cat(paste("Warning: There are no econcurrent", ".", attrname,
-                           u[econcurrentattr],
-                  "events;\n",
+        cat(paste("Warning: There are no b2concurrent", ".", attrname,
+                           u[b2concurrentattr],
+                  "b2s;\n",
                  " the corresponding coefficient has been fixed at its MLE of nenegative infinity.\n",sep=" "))
-        u <- u[-econcurrentattr]
+        u <- u[-b2concurrentattr]
       }
     }
   } else {
     if(is.logical(attrname)){drop <- attrname}
     if(drop){
-      meconcurrent <- summary(
-                          as.formula(paste('nw ~ econcurrent',sep="")),
+      mb2concurrent <- summary(
+                          as.formula(paste('nw ~ b2concurrent',sep="")),
                           drop=FALSE) == 0
-      if(any(meconcurrent)){
-        cat(paste("Warning: There are no concurrent events\n"))
+      if(any(mb2concurrent)){
+        cat(paste("Warning: There are no concurrent b2s\n"))
         return(m)
       }
     }
@@ -1318,20 +1318,20 @@ InitErgm.econcurrent<-function(nw, m, arglist, drop=TRUE, ...) {
   if(!is.null(attrname)) {
     if(length(u)==0) {return(m)}
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="econcurrent_by_attr", soname="ergm",
+    m$terms[[termnumber]] <- list(name="b2concurrent_by_attr", soname="ergm",
                                   inputs=c(0, length(u), 
                                            length(u)+length(nodecov), 
                                            u, nodecov),
                                   dependence=TRUE)
-    # See comment in d_econcurrent_by_attr function
-    m$coef.names<-c(m$coef.names, paste("econcurrent",".", attrname,
+    # See comment in d_b2concurrent_by_attr function
+    m$coef.names<-c(m$coef.names, paste("b2concurrent",".", attrname,
                                         u, sep=""))
   }else{
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="econcurrent", soname="ergm",
+    m$terms[[termnumber]] <- list(name="b2concurrent", soname="ergm",
                                        inputs=c(0, 1, 0),
                                        dependence=TRUE)
-    m$coef.names<-c(m$coef.names,paste("econcurrent",sep=""))
+    m$coef.names<-c(m$coef.names,paste("b2concurrent",sep=""))
   }
   if (!is.null(emptynwstats)) 
     m$terms[[termnumber]]$emptynwstats <- emptynwstats
@@ -1339,9 +1339,9 @@ InitErgm.econcurrent<-function(nw, m, arglist, drop=TRUE, ...) {
 }
 
 #########################################################
-InitErgm.edegree<-function(nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkbipartite("edegree", is.bipartite(nw), requirement=TRUE)
-  a <- ergm.checkargs("edegree", arglist,
+InitErgm.b2degree<-function(nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkbipartite("b2degree", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("b2degree", arglist,
     varnames = c("d", "attrname"),
     vartypes = c("numeric", "character"),
     defaultvalues = list(NULL, NULL),
@@ -1349,79 +1349,79 @@ InitErgm.edegree<-function(nw, m, arglist, drop=TRUE, ...) {
   attach(a)
   d<-a$d; attrname <- a$attrname
   emptynwstats<-NULL
-  nactors <- get.network.attribute(nw, "bipartite")
+  nb1 <- get.network.attribute(nw, "bipartite")
   n <- network.size(nw)
   if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "edegree")
+    nodecov <- get.node.attr(nw, attrname, "b2degree")
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u) # Recode to numeric
     if (length(u)==1)
-         stop ("Attribute given to edegree() has only one value", call.=FALSE)
+         stop ("Attribute given to b2degree() has only one value", call.=FALSE)
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
     if(drop){ #   Check for degeneracy
       tmp <- paste("c(",paste(d,collapse=","),")")
-      edegreeattr <- summary(
-       as.formula(paste('nw ~ edegree(',tmp,',"',attrname,'")',sep="")),
+      b2degreeattr <- summary(
+       as.formula(paste('nw ~ b2degree(',tmp,',"',attrname,'")',sep="")),
        drop=FALSE) == 0
-      if(any(edegreeattr)){
-        dropterms <- paste("edeg", du[1,edegreeattr], ".", attrname,
-                           u[du[2,edegreeattr]], sep="")
-        cat("Warning: These edegree terms have extreme counts and will be dropped:\n")
+      if(any(b2degreeattr)){
+        dropterms <- paste("b2deg", du[1,b2degreeattr], ".", attrname,
+                           u[du[2,b2degreeattr]], sep="")
+        cat("Warning: These b2degree terms have extreme counts and will be dropped:\n")
         cat(dropterms, "", fill=T)
-        du <- matrix(du[,!edegreeattr], nrow=2)
+        du <- matrix(du[,!b2degreeattr], nrow=2)
       }
     }
     if (any(du[1,]==0)) {
       emptynwstats <- rep(0, ncol(du))
       tmp <- du[2,du[1,]==0]
       for(i in 1:length(tmp)) tmp[i] <- 
-        sum(nodecov[(1+nactors):n]==tmp[i])
+        sum(nodecov[(1+nb1):n]==tmp[i])
         emptynwstats[du[1,]==0] <- tmp
     }
   } else {
     if(is.logical(attrname)){drop <- attrname}
     if(drop){
-      medegree <- paste("c(",paste(d,collapse=","),")",sep="")
-      medegree <- summary(
-       as.formula(paste('nw ~ edegree(',medegree,')',sep="")),
+      mb2degree <- paste("c(",paste(d,collapse=","),")",sep="")
+      mb2degree <- summary(
+       as.formula(paste('nw ~ b2degree(',mb2degree,')',sep="")),
        drop=FALSE) == 0
-      if(any(medegree)){
+      if(any(mb2degree)){
         cat(" ")
         cat(paste("Warning: There are no degree", d[mdegree],
-                  "events;\n",
+                  "b2s;\n",
                   " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-       dropterms <- paste("edegree", d[medegree],sep="")
-       d <- d[!medegree] 
+       dropterms <- paste("b2degree", d[mb2degree],sep="")
+       d <- d[!mb2degree] 
       }
     }
     if (any(d==0)) {
-      emptynwstats <- rep(0, length(d))
-      emptynwstats[d==0] <- n-nactors
+      emptynwstats <- rep(0, length(d))             
+      emptynwstats[d==0] <- n-nb1
     }
   }
   termnumber<-1+length(m$terms)
   if(!is.null(attrname)) {
     if(ncol(du)==0) {return(m)}
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="edegree_by_attr", soname="ergm",
+    m$terms[[termnumber]] <- list(name="b2degree_by_attr", soname="ergm",
                                   inputs=c(0, ncol(du), 
                                            length(du)+length(nodecov), 
                                            as.vector(du), nodecov),
                                   dependence=TRUE)
-    # See comment in d_edegree_by_attr function
-    m$coef.names<-c(m$coef.names, paste("edeg", du[1,], ".", attrname,
+    # See comment in d_b2degree_by_attr function
+    m$coef.names<-c(m$coef.names, paste("b2deg", du[1,], ".", attrname,
                                         u[du[2,]], sep=""))
   }else{
     lengthd<-length(d)
     if(lengthd==0){return(m)}
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="edegree", soname="ergm",
+    m$terms[[termnumber]] <- list(name="b2degree", soname="ergm",
                                        inputs=c(0, lengthd, lengthd, d),
                                        dependence=TRUE)
-    m$coef.names<-c(m$coef.names,paste("edegree",d,sep=""))
+    m$coef.names<-c(m$coef.names,paste("b2degree",d,sep=""))
   }
   if (!is.null(emptynwstats)) 
     m$terms[[termnumber]]$emptynwstats <- emptynwstats
@@ -1515,9 +1515,9 @@ InitErgm.esp<-function(nw, m, arglist, drop=TRUE, ...) {
 }
 
 #########################################################
-InitErgm.estar<-function(nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkbipartite("estar", is.bipartite(nw), requirement=TRUE)
-  a <- ergm.checkargs("estar", arglist,
+InitErgm.b2star<-function(nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkbipartite("b2star", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("b2star", arglist,
                       varnames = c("d", "attrname"),
                       vartypes = c("numeric", "character"),
                       defaultvalues = list(NULL, NULL),
@@ -1525,54 +1525,54 @@ InitErgm.estar<-function(nw, m, arglist, drop=TRUE, ...) {
   attach(a)
   d<-a$d; attrname <- a$attrname
   emptynwstats<-NULL
-  nactors <- get.network.attribute(nw, "bipartite")
+  nb1 <- get.network.attribute(nw, "bipartite")
   if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "estar")
+    nodecov <- get.node.attr(nw, attrname, "b2star")
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u) # Recode to numeric
     if (length(u)==1)
-      stop ("Attribute given to estar() has only one value", call.=FALSE)
+      stop ("Attribute given to b2star() has only one value", call.=FALSE)
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
     if(drop){ #   Check for degeneracy
       tmp <- paste("c(",paste(d,collapse=","),")")
-      estarattr <- summary(as.formula
-                             (paste('nw ~ estar(', tmp,',"',attrname,'")',sep="")),
+      b2starattr <- summary(as.formula
+                             (paste('nw ~ b2star(', tmp,',"',attrname,'")',sep="")),
                              drop=FALSE) == 0
-      if(any(astarattr)){
-        dropterms <- paste("estar", du[1,estarattr], ".", attrname,
-                           u[du[2,estarattr]], sep="")
-        cat("Warning: These estar terms have extreme counts and will be dropped:\n")
+      if(any(b2starattr)){
+        dropterms <- paste("b2star", du[1,b2starattr], ".", attrname,
+                           u[du[2,b2starattr]], sep="")
+        cat("Warning: These b2star terms have extreme counts and will be dropped:\n")
         cat(dropterms, "", fill=T)
-        du <- matrix(du[,!estarattr], nrow=2)
+        du <- matrix(du[,!b2starattr], nrow=2)
       }
     }
     if (any(du[1,]==0)) {
       emptynwstats <- rep(0, ncol(du))
       tmp <- du[2,du[1,]==0]
       for(i in 1:length(tmp)) tmp[i] <- 
-        sum(nodecov[1:nactors]==tmp[i])
+        sum(nodecov[1:nb1]==tmp[i])
         emptynwstats[du[1,]==0] <- tmp
     }
   } else {
     if(is.logical(attrname)){drop <- attrname}
     if(drop){
-      mestar <- paste("c(",paste(d,collapse=","),")",sep="")
-      mestar <- summary(
-                          as.formula(paste('nw ~ estar(',mestar,')',sep="")),
+      mb2star <- paste("c(",paste(d,collapse=","),")",sep="")
+      mb2star <- summary(
+                          as.formula(paste('nw ~ b2star(',mb2star,')',sep="")),
                           drop=FALSE) == 0
-      if(any(mestar)){
-        cat(paste("Warning: There are no order", d[mestar],"estars.\n"))
-        dropterms <- paste("estar", d[mestar],sep="")
+      if(any(mb2star)){
+        cat(paste("Warning: There are no order", d[mb2star],"b2stars.\n"))
+        dropterms <- paste("b2star", d[mb2star],sep="")
         cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
-        d <- d[!mestar] 
+        d <- d[!mb2star] 
       }
     }
     if (any(d==0)) {
       emptynwstats <- rep(0, length(d))
-      emptynwstats[d==0] <- nactors
+      emptynwstats[d==0] <- nb1
     }
   }
   termnumber<-1+length(m$terms)
@@ -1584,8 +1584,8 @@ InitErgm.estar<-function(nw, m, arglist, drop=TRUE, ...) {
                                            length(du)+length(nodecov), 
                                            as.vector(du), nodecov),
                                   dependence=TRUE)
-    # See comment in d_estar_by_attr function
-    m$coef.names<-c(m$coef.names, paste("estar", du[1,], ".", attrname,
+    # See comment in d_istar_by_attr function
+    m$coef.names<-c(m$coef.b2starnames, paste("b2star", du[1,], ".", attrname,
                                         u[du[2,]], sep=""))
   }else{
     lengthd<-length(d)
@@ -1594,7 +1594,7 @@ InitErgm.estar<-function(nw, m, arglist, drop=TRUE, ...) {
     m$terms[[termnumber]] <- list(name="istar", soname="ergm",
                                        inputs=c(0, lengthd, lengthd, d),
                                        dependence=TRUE)
-    m$coef.names<-c(m$coef.names,paste("estar",d,sep=""))
+    m$coef.names<-c(m$coef.names,paste("b2star",d,sep=""))
   }
   if (!is.null(emptynwstats)) 
     m$terms[[termnumber]]$emptynwstats <- emptynwstats
@@ -1602,9 +1602,9 @@ InitErgm.estar<-function(nw, m, arglist, drop=TRUE, ...) {
 }
 
 #########################################################
-InitErgm.eventfactor<-function (nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkbipartite("eventfactor", is.bipartite(nw), requirement=TRUE)
-  a <- ergm.checkargs("eventfactor", arglist,
+InitErgm.b2factor<-function (nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkbipartite("b2factor", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("b2factor", arglist,
     varnames = c("attrname", "base"),
     vartypes = c("character", "numeric"),
     defaultvalues = list(NULL, 1),
@@ -1612,7 +1612,7 @@ InitErgm.eventfactor<-function (nw, m, arglist, drop=TRUE, ...) {
   attach(a)
   attrname<-a$attrname
   base <- a$base
-  nodecov <- get.node.attr(nw, attrname, "eventfactor")
+  nodecov <- get.node.attr(nw, attrname, "b2factor")
   u<-sort(unique(nodecov))
   if(any(is.na(nodecov))){u<-c(u,NA)}
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -1628,7 +1628,7 @@ InitErgm.eventfactor<-function (nw, m, arglist, drop=TRUE, ...) {
                     nodecov,sum)
     }
     if(any(nfc==0)){
-      dropterms <- paste(paste("eventfactor",attrname,sep="."),u[nfc==0],sep="")
+      dropterms <- paste(paste("b2factor",attrname,sep="."),u[nfc==0],sep="")
       cat(" ")
       cat(paste("Warning: The count of", dropterms, "is extreme;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
@@ -1638,15 +1638,15 @@ InitErgm.eventfactor<-function (nw, m, arglist, drop=TRUE, ...) {
   }
   lu <- length(ui)
   if (lu==1){
-    stop ("Argument to eventfactor() has only one value", call.=FALSE)
+    stop ("Argument to b2factor() has only one value", call.=FALSE)
   }
   termnumber<-1+length(m$terms)  
-  m$terms[[termnumber]] <- list(name="eventfactor", soname="ergm",
+  m$terms[[termnumber]] <- list(name="b2factor", soname="ergm",
                                 inputs=c(lu-length(base), 
                                          lu-length(base), 
                                          lu-length(base)+length(nodecov),
                                          ui[-base], nodecov), dependence=FALSE)
-  m$coef.names<-c(m$coef.names, paste("eventfactor",
+  m$coef.names<-c(m$coef.names, paste("b2factor",
                                       attrname, paste(u[-base]), sep="."))
   m
 }
@@ -1655,20 +1655,20 @@ InitErgm.eventfactor<-function (nw, m, arglist, drop=TRUE, ...) {
 
 ###################################### InitErgm TERMS:  G
 #########################################################
-InitErgm.gwadegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
-  ergm.checkbipartite("gwadegree", is.bipartite(nw), requirement=TRUE)
-  a <- ergm.checkargs("gwadegree", arglist,
+InitErgm.gwb1degree<-function(nw, m, arglist, initialfit=FALSE, ...) {
+  ergm.checkbipartite("gwb1degree", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("gwb1degree", arglist,
     varnames = c("decay", "fixed", "attrname"),
     vartypes = c("numeric", "logical", "character"),
     defaultvalues = list(0, FALSE, NULL),
     required = c(TRUE, FALSE, FALSE))
   attach(a)
   decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
-  nactors <- get.network.attribute(nw,"bipartite")
-  d <- 1:(network.size(nw) - nactors)
+  nb1 <- get.network.attribute(nw,"bipartite")
+  d <- 1:(network.size(nw) - nb1)
   if (!initialfit && !fixed) { # This is a curved exp fam
 #    if (!is.null(attrname)) {
-      stop("The gwadegree term is not yet able to handle a ",
+      stop("The gwb1degree term is not yet able to handle a ",
            "non-fixed decay term.", call.=FALSE) # with an attribute.")
 #    }
     ld<-length(d)
@@ -1685,39 +1685,39 @@ InitErgm.gwadegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
             )
     }
     termnumber<-1+length(m$terms)
-    m$terms[[termnumber]] <- list(name="adegree", soname="ergm",
+    m$terms[[termnumber]] <- list(name="b1degree", soname="ergm",
                                   inputs=c(0, ld, ld, d),
-                                  params=list(gwadegree=NULL,
-                                    gwadegree.decay=decay),
+                                  params=list(gwb1degree=NULL,
+                                    gwb1degree.decay=decay),
                                   map=map, gradient=gradient)
-    m$coef.names<-c(m$coef.names,paste("gwadegree#",d,sep=""))
+    m$coef.names<-c(m$coef.names,paste("gwb1degree#",d,sep=""))
   }
   termnumber<-1+length(m$terms)
   if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "gwadegree")
+    nodecov <- get.node.attr(nw, attrname, "gwb1degree")
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u) # Recode to numeric
     if (length(u)==1)
-      stop ("Attribute given to gwadegree() has only one value", call.=FALSE)
+      stop ("Attribute given to gwb1degree() has only one value", call.=FALSE)
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
     if(nrow(du)==0) {return(m)}
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="gwadegree_by_attr", soname="ergm",
+    m$terms[[termnumber]] <- list(name="gwb1degree_by_attr", soname="ergm",
                                   inputs=c(0, lu, 
                                            1+length(nodecov), 
                                            decay, nodecov),
                                   dependence=TRUE)
-    # See comment in d_gwadegree_by_attr function
-    m$coef.names<-c(m$coef.names, paste("gwadeg", decay, ".", 
+    # See comment in d_gwb1degree_by_attr function
+    m$coef.names<-c(m$coef.names, paste("gwb1deg", decay, ".", 
                                         attrname, u, sep=""))
   }else{
-    m$terms[[termnumber]] <- list(name="gwadegree", soname="ergm",
+    m$terms[[termnumber]] <- list(name="gwb1degree", soname="ergm",
                                        inputs=c(0, 1, 1, decay),
                                        dependence=TRUE)
-    m$coef.names<-c(m$coef.names,paste("gwadeg",decay,sep=""))
+    m$coef.names<-c(m$coef.names,paste("gwb1deg",decay,sep=""))
   }
   m
 }
@@ -1829,20 +1829,20 @@ InitErgm.gwdsp<-function(nw, m, arglist, initialfit=FALSE, ...) {
 }
 
 #########################################################
-InitErgm.gwedegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
-  ergm.checkbipartite("gwedegree", is.bipartite(nw), requirement=TRUE)
-  a <- ergm.checkargs("gwedegree", arglist,
+InitErgm.gwb2degree<-function(nw, m, arglist, initialfit=FALSE, ...) {
+  ergm.checkbipartite("gwb2degree", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("gwb2degree", arglist,
     varnames = c("decay", "fixed", "attrname"),
     vartypes = c("numeric", "logical", "character"),
     defaultvalues = list(0, FALSE, NULL),
     required = c(TRUE, FALSE, FALSE))
   attach(a)
   decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
-  nactors <- get.network.attribute(nw,"bipartite")
-  d <- 1:nactors
+  nb1 <- get.network.attribute(nw,"bipartite")
+  d <- 1:nb1
   if (!initialfit && !fixed) { # This is a curved exp fam
 #    if (!is.null(attrname)) {
-      stop("The gwedegree term is not yet able to handle a ",
+      stop("The gwb2degree term is not yet able to handle a ",
            "non-fixed decay term.", call.=FALSE) # with an attribute.")
 #    }
     ld<-length(d)
@@ -1859,39 +1859,39 @@ InitErgm.gwedegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
             )
     }
     termnumber<-1+length(m$terms)
-    m$terms[[termnumber]] <- list(name="adegree", soname="ergm",
+    m$terms[[termnumber]] <- list(name="b2degree", soname="ergm",
                                   inputs=c(0, ld, ld, d),
-                                  params=list(gwedegree=NULL,
-                                    gwedegree.decay=decay),
+                                  params=list(gwb2degree=NULL,
+                                    gwb2degree.decay=decay),
                                   map=map, gradient=gradient)
-    m$coef.names<-c(m$coef.names,paste("gwedegree#",d,sep=""))
+    m$coef.names<-c(m$coef.names,paste("gwb2degree#",d,sep=""))
   }
   termnumber<-1+length(m$terms)
   if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "gwedegree")
+    nodecov <- get.node.attr(nw, attrname, "gwb2degree")
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u) # Recode to numeric
     if (length(u)==1)
-      stop ("Attribute given to gwedegree() has only one value", call.=FALSE)
+      stop ("Attribute given to gwb2degree() has only one value", call.=FALSE)
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
     if(nrow(du)==0) {return(m)}
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="gwedegree_by_attr", soname="ergm",
+    m$terms[[termnumber]] <- list(name="gwb2degree_by_attr", soname="ergm",
                                   inputs=c(0, lu,
                                            1+length(nodecov), 
                                            decay, nodecov),
                                   dependence=TRUE)
-    # See comment in d_gwedegree_by_attr function
-    m$coef.names<-c(m$coef.names, paste("gwedeg", decay, ".", 
+    # See comment in d_gwb2degree_by_attr function
+    m$coef.names<-c(m$coef.names, paste("gwb2deg", decay, ".", 
                                         attrname, u, sep=""))
   }else{
-    m$terms[[termnumber]] <- list(name="gwedegree", soname="ergm",
+    m$terms[[termnumber]] <- list(name="gwb2degree", soname="ergm",
                                        inputs=c(0, 1, 1, decay),
                                        dependence=TRUE)
-    m$coef.names<-c(m$coef.names,paste("gwedeg",decay,sep=""))
+    m$coef.names<-c(m$coef.names,paste("gwb2deg",decay,sep=""))
   }
   m
 }

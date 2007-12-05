@@ -7,7 +7,7 @@ summary.formula <- function(object, ...){
   if(length(trms)<3){return(object)}
   parent <- sys.parent()
   rhs <- try(eval(trms[[2]],parent), silent = TRUE)
-  while(inherits(rhs,"try-error") & parent > 1){
+  while(inherits(rhs,"try-error") & parent > 1){                      
     parent <- parent - 1
     rhs <- try(eval(trms[[2]],parent), silent = TRUE)
   }
@@ -47,9 +47,9 @@ summary.statistics.network <- function(object,...,drop=FALSE,basis=NULL)
     dyads <- nnodes*(nnodes-1)
   }else{
     if(is.bipartite(nw)){
-      nactors <- get.network.attribute(nw,"bipartite")
-      nevents <- network.size(nw) - nactors
-      dyads <- nevents*nactors
+      nb1 <- get.network.attribute(nw,"bipartite")
+      nb2 <- network.size(nw) - nb1
+      dyads <- nb2*nb1
       #   temporary! add these back later
       #   dyads <- (dyads*(dyads-1))/2
     }else{
@@ -108,7 +108,7 @@ summary.statistics.network <- function(object,...,drop=FALSE,basis=NULL)
 #  }
 #  tdegree0  <- match( "adegree0",names(gs)) 
 #  if(!is.na(tdegree0)){
-#    gs[tdegree0] <- gs[tdegree0] + nactors
+#    gs[tdegree0] <- gs[tdegree0] + nb1
 #  }
 #  tdegree0  <- grep( "adeg.",names(gs)) 
 #  if(any(tdegree0 > 0)){
@@ -116,7 +116,7 @@ summary.statistics.network <- function(object,...,drop=FALSE,basis=NULL)
 #     if(m$terms[[i]]$name=="adegree_by_attr"){
 #       nterms <- (m$terms[[i]]$inputs)[2]
 #       aaa <- (m$terms[[1]]$inputs)[-c(1:(nterms*2+3))]
-#       aaa <- table(aaa[1:nactors])
+#       aaa <- table(aaa[1:nb1])
 #       bbb <- matrix((m$terms[[i]]$inputs)[c(4:(nterms*2+3))],2)
 #       ccc <- gs[tdegree0] < 0
 #       gs[tdegree0][ccc] <- gs[tdegree0][ccc] + aaa[bbb[2,bbb[1,]==0]]
@@ -129,7 +129,7 @@ summary.statistics.network <- function(object,...,drop=FALSE,basis=NULL)
 #     if(m$terms[[i]]$name=="edegree_by_attr"){
 #       nterms <- (m$terms[[i]]$inputs)[2]
 #       aaa <- (m$terms[[1]]$inputs)[-c(1:(nterms*2+3))]
-#       aaa <- table(aaa[-c(1:nactors)])
+#       aaa <- table(aaa[-c(1:nb1)])
 #       bbb <- matrix((m$terms[[i]]$inputs)[c(4:(nterms*2+3))],2)
 #       ccc <- gs[tdegree0] < 0
 #       gs[tdegree0][ccc] <- gs[tdegree0][ccc] + aaa[bbb[2,bbb[1,]==0]]
@@ -138,7 +138,7 @@ summary.statistics.network <- function(object,...,drop=FALSE,basis=NULL)
 #  }
 #  tdegree0  <- match( "edegree0",names(gs)) 
 #  if(!is.na(tdegree0)){
-#    gs[tdegree0] <- gs[tdegree0] + nevents
+#    gs[tdegree0] <- gs[tdegree0] + nb2
 #  }
 #  tspartner0 <- match("spartner0",names(gs))
 #  if(!is.na(tspartner0)){
@@ -169,7 +169,7 @@ summary.statistics.network <- function(object,...,drop=FALSE,basis=NULL)
 # tdsp <- grep("dsp0",names(gs))
 # if(length(tdsp) >0){
 #   if(is.bipartite(nw)){
-#     gs[tdsp] <- nactors*(nactors-1)/2 + nevents*(nevents-1)/2 + gs[tdsp]
+#     gs[tdsp] <- nb1*(nb1-1)/2 + nb2*(nb2-1)/2 + gs[tdsp]
 #   }else{
 #     gs[tdsp] <- dyads + gs[tdsp]
 #   }
@@ -177,7 +177,7 @@ summary.statistics.network <- function(object,...,drop=FALSE,basis=NULL)
   tesa <- grep("esa0",names(gs))
   if(length(tesa) >0){
    if(is.bipartite(nw)){
-    gs[tesa] <- nevents*(nevents-1)/2 + gs[tesa]
+    gs[tesa] <- nb2*(nb2-1)/2 + gs[tesa]
    }else{
     gs[tesa] <- dyads + gs[tesa]
    }
