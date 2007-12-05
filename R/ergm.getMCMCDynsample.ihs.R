@@ -52,8 +52,8 @@ ergm.getMCMCDynsample <- function(nw, model.form, model.diss,
               as.double(MCMCparams$samplesize), as.integer(MCMCparams$dyninterval),
               as.double(MCMCparams$burnin), as.double(MCMCparams$interval),
               # Space for output.
-              s.form = as.double(cbind(summary(model.form$formula),matrix(0,nrow=length(model.form$coef.names),ncol=MCMCparams$samplesize))),
-              s.diss = as.double(cbind(summary(model.diss$formula),matrix(0,nrow=length(model.diss$coef.names),ncol=MCMCparams$samplesize))),
+              s.form = as.double(cbind(MCMCparams$meanstats.form,matrix(0,nrow=length(model.form$coef.names),ncol=MCMCparams$samplesize))),
+              s.diss = as.double(cbind(MCMCparams$meanstats.diss,matrix(0,nrow=length(model.diss$coef.names),ncol=MCMCparams$samplesize))),
               newnwheads = integer(maxchanges), newnwtails = integer(maxchanges), 
               as.double(maxchanges),
               diffnwtime = integer(maxchanges),
@@ -128,12 +128,18 @@ ergm.getMCMCDynsample <- function(nw, model.form, model.diss,
 #   cat(paste("z$newwhead = ",maxchanges,z$newnwheads[1],"\n"))
   newnetwork<-newnw.extract(nw,z)
 #   Next create the network of differences from the origianl one
-  diffedgelist<-if(z$diffnwheads[1]>0){
-    cbind(z$diffnwtime[2:(z$diffnwtime[1]+1)],z$diffnwheads[2:(z$diffnwheads[1]+1)],z$diffnwtails[2:(z$diffnwheads[1]+1)])
-  }else{
-    matrix(0, ncol=3, nrow=0)
-  }
+
   
+  diffedgelist<-if(MCMCparams$toggles) {
+    if(z$diffnwheads[1]>0){
+      cbind(z$diffnwtime[2:(z$diffnwtime[1]+1)],z$diffnwheads[2:(z$diffnwheads[1]+1)],z$diffnwtails[2:(z$diffnwheads[1]+1)])
+    }else{
+      matrix(0, ncol=3, nrow=0)
+    }
+  }else{
+    NULL
+  }
+
   colnames(statsmatrix.form) <- model.form$coef.names
   colnames(statsmatrix.diss) <- model.diss$coef.names
   

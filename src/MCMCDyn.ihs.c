@@ -116,13 +116,6 @@ void MCMCDyn_wrapper(// Starting network.
   MHproposal F_MH, D_MH;
   DynamOrder order;
 
-  if((diffnetworktime || diffnetworkhead || diffnetworktail) &&
-     (*burnin!=0 || *interval!=1)){
-    if(fVerbose) Rprintf("WARNING: Burnin is not 0 or interval is not 1. Diff lists are not meaningful.\n");
-  }
-
- 
-  
   nmax = (Edge)*maxedges; /* coerce double *maxedges to type Edge */
   
   
@@ -200,7 +193,7 @@ void MCMCSampleDyn(// Observed and discordant network.
 		   // Verbosity.
 		   int fVerbose){
 
-  int i, j;
+  int i, j, log_toggles = (burnin==0 && interval==1);
   Edge nextdiffedge=1;
 
   if (fVerbose)
@@ -213,7 +206,7 @@ void MCMCSampleDyn(// Observed and discordant network.
   for(i=0;i<burnin;i++)
     MCMCDyn1Step(nwp, order, 
 		 F_m, F_MH, theta, D_m, D_MH, gamma, bd,
-		 0, F_stats, D_stats,
+		 log_toggles, F_stats, D_stats,
 		 nmax, &nextdiffedge, difftime, diffhead, difftail,
 		 dyninterval, fVerbose);
   
@@ -240,7 +233,7 @@ void MCMCSampleDyn(// Observed and discordant network.
     for(j=0;j<interval;j++){
       MCMCDyn1Step(nwp, order, 
 		   F_m, F_MH, theta, D_m, D_MH, gamma, bd,
-		   burnin==0 && interval==1, F_stats, D_stats,
+		   log_toggles, F_stats, D_stats,
 		   nmax, &nextdiffedge, difftime, diffhead, difftail,
 		   dyninterval, fVerbose);
       if(nextdiffedge>=nmax) {
@@ -257,7 +250,7 @@ void MCMCSampleDyn(// Observed and discordant network.
     }
   }
 
-  if(burnin==0 && interval==1) difftime[0]=diffhead[0]=difftail[0]=nextdiffedge-1;
+  if(log_toggles) difftime[0]=diffhead[0]=difftail[0]=nextdiffedge-1;
 }
 
 /* Helper function to run the formation or the dissolution side of the process, 

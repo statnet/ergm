@@ -3,6 +3,7 @@ simulatedyn <- function(object, dissolve, nsteps=1, seed=NULL, theta,gamma,
                         constraints=~.,
                         dissolve.order="DissThenForm",
                         control=simulatedyn.control(),
+                        toggles=TRUE,
                         verbose=FALSE) {
   formula <- object
 
@@ -33,7 +34,10 @@ simulatedyn <- function(object, dissolve, nsteps=1, seed=NULL, theta,gamma,
     warning("No parameter values given, using Bernoulli dissolution.\nThis means that every time step, half the ties get dissolved!\n\t")
   }
 
-  if(burnin!=0 || interval!=1) warning("Burnin is present or interval isn't 1. Toggle list will not be returned.")
+  if((burnin!=0 || interval!=1) && toggles){
+    warning("Burnin is present or interval isn't 1. Toggle list will not be returned.")
+    toggles<-FALSE
+  }
   
   if(!is.null(seed)) set.seed(as.integer(seed))
     
@@ -42,10 +46,11 @@ simulatedyn <- function(object, dissolve, nsteps=1, seed=NULL, theta,gamma,
   MHproposal.diss <- MHproposal(constraints,control$prop.args.diss,nw,
                                                     model.diss,weights=control$prop.weights.diss,class="d")
   MCMCparams <- c(control,list(samplesize=nsteps, interval=interval,
-                           burnin=burnin,
-                           parallel=0,
-                           meanstats.form=theta-theta,
-                           meanstats.diss=gamma-gamma))
+                               burnin=burnin,
+                               parallel=0,
+                               meanstats.form=summary(model.form$formula),
+                               meanstats.diss=summary(model.diss$formula),
+                               toggles=toggles))
   
   z <- ergm.getMCMCDynsample(nw, model.form, model.diss,
                              MHproposal.form, MHproposal.diss,
