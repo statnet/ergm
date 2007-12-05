@@ -1,4 +1,4 @@
-#include "sisfuns.h"
+#include "sisfuns.ihs.h"
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
