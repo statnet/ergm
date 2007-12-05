@@ -652,16 +652,18 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
 	for(unsigned int k=0;k<F_m->n_stats; k++)
 	  meandev[k]+=dev[k];
       }
+      
       /* Update theta0 */
       for (j=0; j<F_m->n_stats; j++){
-        theta[j] -= aDdiaginv[j] * dev[j]/interval;
+	meandev[j]/=interval;
+        theta[j] -= aDdiaginv[j] * meandev[j];
       }
     }
     phase2n=trunc(2.52*(phase2n-phase2n_base)+phase2n_base);
     for (j=0; j<F_m->n_stats; j++){
       aDdiaginv[j] /= 2.0;
       if (fVerbose)Rprintf("j %d theta %f ns %f\n",
-			   j, theta[j], dev[j]);
+			   j, theta[j], meandev[j]);
     }
     Rprintf("\n");
     
