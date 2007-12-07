@@ -1,5 +1,6 @@
 ergm.initialfit<-function(theta0, MLestimate, Clist, Clist.miss, m, 
-                          MPLEtype="glm", verbose=FALSE, ...) {
+                          MPLEtype="glm", initial.loglik=NULL, 
+                          verbose=FALSE, ...) {
 # Process input for call to ergm.mple or some other alternative fitting
 # method.  If the user wishes only to obtain the fit from this method
 # (MLestimate==FALSE), this fit is returned immediately upon return to
@@ -16,11 +17,14 @@ ergm.initialfit<-function(theta0, MLestimate, Clist, Clist.miss, m,
                  "unrecognized option or wrong number of arguments."))
     }
     if(!is.null(Clist.miss)){
-     numobs <- Clist$ndyads-Clist.miss$nedges
+     mle.lik <- -log(2)*(Clist$ndyads-Clist.miss$nedges)
     }else{
-     numobs <- Clist$ndyads
+     mle.lik <- -log(2)*Clist$ndyads
     }
-    fit <- list(coef=theta0, mle.lik=-numobs*log(2)) # anything else that should be in the list? 
+    if(!is.null(initial.loglik)){
+     mle.lik <- mle.lik-initial.loglik
+    }
+    fit <- list(coef=theta0, mle.lik=mle.lik) # anything else that should be in the list? 
   } else if (is.na(fitmethod) & !MLestimate) { # Error!
     stop(paste("Unrecognized fitting method", theta0,
                "used in conjuction with MLestimate=FALSE.\n"))
