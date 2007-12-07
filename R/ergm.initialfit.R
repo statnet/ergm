@@ -15,7 +15,12 @@ ergm.initialfit<-function(theta0, MLestimate, Clist, Clist.miss, m,
       stop(paste("Invalid starting parameter vector theta0;",
                  "unrecognized option or wrong number of arguments."))
     }
-    fit <- list(coef=theta0) # anything else that should be in the list? 
+    if(!is.null(Clist.miss)){
+     numobs <- Clist$ndyads-Clist.miss$nedges
+    }else{
+     numobs <- Clist$ndyads
+    }
+    fit <- list(coef=theta0, mle.lik=-numobs*log(2)) # anything else that should be in the list? 
   } else if (is.na(fitmethod) & !MLestimate) { # Error!
     stop(paste("Unrecognized fitting method", theta0,
                "used in conjuction with MLestimate=FALSE.\n"))

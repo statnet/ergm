@@ -150,7 +150,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist, Clist.miss,
 #   This is the MPLE value estimate plus the ratio
 #   set in the last line of "ergm.R" 
 #   v$mle.lik <- -glm.fit$deviance/2 + v$loglikelihood
-  mle.lik <- mle.lik + v$loglikelihood
+  mle.lik <- mle.lik + abs(v$loglikelihood)
 
   v$newnetwork <- nw
 

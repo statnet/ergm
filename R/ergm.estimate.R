@@ -174,7 +174,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
 #
 # This is the log-likelihood calc from theta0=0
 #
-  mcmcloglik <- c0 - c01
+  mcmcloglik <- -abs(c0 - c01)
 
 #   c1 <- theta1$loglikelihood
 #   c1  <- c01
