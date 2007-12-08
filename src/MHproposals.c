@@ -1,6 +1,6 @@
 #include "MHproposals.h"
 
-// Shorthand.
+/* Shorthand. */
 #define Mhead (MHp->togglehead)
 #define Mtail (MHp->toggletail)
 
@@ -2027,7 +2027,7 @@ void MH_Formation (MHproposal *MHp, DegreeBound *bd, Network *nwp)
 	    CheckTogglesValid(MHp, bd, nwp))) break;
   }
 
-  // If no valid proposal found, signal a failed proposal.
+  /* If no valid proposal found, signal a failed proposal. */
   if(trytoggle>=MAX_TRIES) {
     Mhead[0]=MH_FAILED;
     Mtail[0]=MH_UNSUCCESSFUL;
@@ -2075,19 +2075,19 @@ void MH_FormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
   }
 
   for(int trytoggle = 0; trytoggle < MAX_TRIES; trytoggle++){
-//  nddyads = ndyads-nedges+ndedges;
-//  Rprintf("comp %f nwp[0].nedges %d nwp[1].nedges %d %d %d\n",  comp,
-//		       nwp[0].nedges,
-//		       nwp[1].nedges, ndedges, nedges);
+/*  nddyads = ndyads-nedges+ndedges; */
+/*  Rprintf("comp %f nwp[0].nedges %d nwp[1].nedges %d %d %d\n",  comp, */
+/*		       nwp[0].nedges, */
+/*		       nwp[1].nedges, ndedges, nedges); */
 
     if (ndedges > 0 && unif_rand() < comp) { /* Select a new tie at random */
       rane = 1 + unif_rand() * ndedges;
       FindithEdge(&head, &tail, rane, &nwp[1]);
       /* select a dyad not in the reference network at random */
-//   Rprintf("nontie h %d t %d nwp[0].nedges %d nwp[1].nedges %d\n",  MHp->togglehead[0],  
-//		       MHp->toggletail[0], 
-//		       nwp[0].nedges,
-//		       nwp[1].nedges);
+/*   Rprintf("nontie h %d t %d nwp[0].nedges %d nwp[1].nedges %d\n",  MHp->togglehead[0],   */
+/*		       MHp->toggletail[0],  */
+/*		       nwp[0].nedges, */
+/*		       nwp[1].nedges); */
       MHp->ratio = nedges  / (odds*ndyads + nedges);
     }else{ /* select a dyad not an edge in the reference network at random */
       trytoggle=0;
@@ -2113,10 +2113,10 @@ void MH_FormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
       }else{
 	MHp->ratio = 1.0 + (odds*ndyads)/(nedges + 1);
       }
-      //   Rprintf("nontie h %d t %d nwp[0].nedges %d nwp[1].nedges %d\n",  MHp->togglehead[0],  
-      //		       MHp->toggletail[0], 
-      //		       nwp[0].nedges,
-      //		       nwp[1].nedges);
+      /*   Rprintf("nontie h %d t %d nwp[0].nedges %d nwp[1].nedges %d\n",  MHp->togglehead[0],   */
+      /*		       MHp->toggletail[0],  */
+      /*		       nwp[0].nedges, */
+      /*		       nwp[1].nedges); */
     }
 
     MHp->togglehead[0]=head;
@@ -2125,7 +2125,7 @@ void MH_FormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
     
   }
 
-  // If tries ran out, return failure code.
+  /* If tries ran out, return failure code. */
   if(trytoggle >= MAX_TRIES){
     MHp->togglehead[0]=MH_FAILED;
     MHp->toggletail[0]=MH_UNSUCCESSFUL; 

@@ -1,7 +1,7 @@
 #include "MHproposals_bipartite.h" 
 #include "MHproposals.h" 
 
-// Shorthand.
+/* Shorthand. */
 #define Mhead (MHp->togglehead)
 #define Mtail (MHp->toggletail)
 
@@ -42,8 +42,8 @@ void MH_BipartiteConstantEdges (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
   /* Second, select dyad at random until it has no edge */
 
   do{
-//    head = 1 + unif_rand() * nwp->nnodes;
-//    tail = 1 + unif_rand() * nwp->nnodes;
+/*    head = 1 + unif_rand() * nwp->nnodes; */
+/*    tail = 1 + unif_rand() * nwp->nnodes; */
     head = 1 + unif_rand() * nwp->bipartite;
     tail = 1 + nwp->bipartite + 
       unif_rand() * (nwp->nnodes - nwp->bipartite);
@@ -99,7 +99,7 @@ void MH_BipartiteTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
     if(CheckTogglesValid(MHp, bd, nwp)) break;
   }
   
-  // If tries ran out, return failure code.
+  /* If tries ran out, return failure code. */
   if(trytoggle >= MAX_TRIES){
     MHp->togglehead[0]=MH_FAILED;
     MHp->toggletail[0]=MH_UNSUCCESSFUL; 
@@ -157,12 +157,12 @@ void MH_BipartiteHammingConstantEdges (MHproposal *MHp, DegreeBound *bd, Network
     ndn = nddyads / 2;
     nce = nedges-nde;
     ncn = ndyads-nedges-ndn;
-//    MHp->ratio = (nddyads*nddyads) / (odds*(nnodes-nddyads-2)*(nnodes-nddyads-2));
+/*    MHp->ratio = (nddyads*nddyads) / (odds*(nnodes-nddyads-2)*(nnodes-nddyads-2)); */
     MHp->ratio = (nde*ndn*1.0) / (odds*(nce+1)*(ncn+1));
-//    MHp->ratio = (1.0*(nce-1)*(ncn-1)) / (nde*ndn*odds);
-//    MHp->ratio = 1.0;
-//   Rprintf("disconcord nde %d nce %d ndn %d ncn %d nddyads %d MHp->ratio %f\n",
-//	    nde, nce, ndn,ncn,nddyads, MHp->ratio);
+/*    MHp->ratio = (1.0*(nce-1)*(ncn-1)) / (nde*ndn*odds); */
+/*    MHp->ratio = 1.0; */
+/*   Rprintf("disconcord nde %d nce %d ndn %d ncn %d nddyads %d MHp->ratio %f\n", */
+/*	    nde, nce, ndn,ncn,nddyads, MHp->ratio); */
   }else{
     /* First, select concordant edge at random */
     do{
@@ -183,18 +183,18 @@ void MH_BipartiteHammingConstantEdges (MHproposal *MHp, DegreeBound *bd, Network
     ndn = nddyads / 2;
     nce = nedges-nde;
     ncn = ndyads-nedges-ndn;
-//    MHp->ratio = ((nnodes-nddyads)*(nnodes-nddyads)) / (odds*(nddyads+2)*(nddyads+2));
+/*    MHp->ratio = ((nnodes-nddyads)*(nnodes-nddyads)) / (odds*(nddyads+2)*(nddyads+2)); */
     if(nddyads > 4){
       MHp->ratio = (odds*nce*ncn) / ((nde+1)*(ndn+1)*1.0);
-//    MHp->ratio = ((nde+1)*(ndn+1)*odds) / (1.0*nce*ncn);
+/*    MHp->ratio = ((nde+1)*(ndn+1)*odds) / (1.0*nce*ncn); */
     }else{
       MHp->ratio = 100000000.0;
     }
-//   Rprintf("concord nde %d nce %d ndn %d ncn %d nddyads %d MHp->ratio %f\n",
-//	    nde, nce, ndn,ncn,nddyads, MHp->ratio);
+/*   Rprintf("concord nde %d nce %d ndn %d ncn %d nddyads %d MHp->ratio %f\n", */
+/*	    nde, nce, ndn,ncn,nddyads, MHp->ratio); */
   }
-//   Rprintf("h0 %d t0 %d h1 %d t1 %d\n", MHp->togglehead[0],  MHp->toggletail[0], 
-//                                        MHp->togglehead[1],  MHp->toggletail[1]); 
+/*   Rprintf("h0 %d t0 %d h1 %d t1 %d\n", MHp->togglehead[0],  MHp->toggletail[0],  */
+/*                                        MHp->togglehead[1],  MHp->toggletail[1]);  */
 }
 
 /********************
@@ -232,10 +232,10 @@ void MH_BipartiteHammingTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
     nd = nddyads;
     nc = ndyads-nd;
     MHp->ratio = (nd*1.0) / (odds*(nc+1));
-//    MHp->ratio = (1.0*(nce-1)*(ncn-1)) / (nde*ndn*odds);
-//    MHp->ratio = 1.0;
-//   Rprintf("disconcord nd %d nc %d nddyads %d MHp->ratio %f\n",
-//	    nd, nc, nddyads, MHp->ratio);
+/*    MHp->ratio = (1.0*(nce-1)*(ncn-1)) / (nde*ndn*odds); */
+/*    MHp->ratio = 1.0; */
+/*   Rprintf("disconcord nd %d nc %d nddyads %d MHp->ratio %f\n", */
+/*	    nd, nc, nddyads, MHp->ratio); */
   }else{
     /* select a concordant dyad at random */
     do{
@@ -248,11 +248,11 @@ void MH_BipartiteHammingTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
     nd = nddyads;
     nc = ndyads-nd;
     MHp->ratio = (odds*nc) / ((nd+1)*1.0);
-//   Rprintf("concord nd %d nc %d nddyads %d MHp->ratio %f\n",
-//	    nd, nc, nddyads, MHp->ratio);
+/*   Rprintf("concord nd %d nc %d nddyads %d MHp->ratio %f\n", */
+/*	    nd, nc, nddyads, MHp->ratio); */
   }
-//   Rprintf("h0 %d t0 %d h1 %d t1 %d\n", MHp->togglehead[0],  MHp->toggletail[0], 
-//                                        MHp->togglehead[1],  MHp->toggletail[1]); 
+/*   Rprintf("h0 %d t0 %d h1 %d t1 %d\n", MHp->togglehead[0],  MHp->toggletail[0],  */
+/*                                        MHp->togglehead[1],  MHp->toggletail[1]);  */
 }
 
 
@@ -410,15 +410,15 @@ void MH_BipartiteFormation (MHproposal *MHp, DegreeBound *bd, Network *nwp)
        CheckTogglesValid(MHp, bd, nwp)) break;
   }
   
-  // If no valid proposal found, signal a failed proposal.
+  /* If no valid proposal found, signal a failed proposal. */
   if(trytoggle>=MAX_TRIES) {
     Mhead[0]=MH_FAILED;
     Mtail[0]=MH_UNSUCCESSFUL;
   }
 
   MHp->ratio = 1.0;
-//   Rprintf("reference nddyads %d MHp->ratio %f\n",
-//	    nwp[1].nedges, MHp->ratio);
+/*   Rprintf("reference nddyads %d MHp->ratio %f\n", */
+/*	    nwp[1].nedges, MHp->ratio); */
 }
 
 /********************
@@ -434,9 +434,9 @@ void MH_BipartiteFormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
   Vertex head, tail;
   Edge rane, nedges, ndedges;
   double comp, odds;
-//  static double comp=0.99;
-//  static double odds;
-//  static Edge ndedges;
+/*  static double comp=0.99; */
+/*  static double odds; */
+/*  static Edge ndedges; */
   static Edge ndyads;
   static Edge nnodes;
   static Edge nb1;
@@ -449,7 +449,7 @@ void MH_BipartiteFormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
     ndyads = (nnodes-nb1)*nb1;  
     return;
   }
-//  Rprintf("nb1 %d\n",  nb1);
+/*  Rprintf("nb1 %d\n",  nb1); */
   
   nedges  = nwp[0].nedges;
   ndedges = nwp[1].nedges;
@@ -469,10 +469,10 @@ void MH_BipartiteFormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
   }else{
     odds = 0.0;
   }
-//  nddyads = ndyads-nedges+ndedges;
-//  Rprintf("comp %f nwp[0].nedges %d nwp[1].nedges %d %d %d\n",  comp,
-//		       nwp[0].nedges,
-//		       nwp[1].nedges, ndedges, nedges);
+/*  nddyads = ndyads-nedges+ndedges; */
+/*  Rprintf("comp %f nwp[0].nedges %d nwp[1].nedges %d %d %d\n",  comp, */
+/*		       nwp[0].nedges, */
+/*		       nwp[1].nedges, ndedges, nedges); */
 
   for(trytoggle=0; trytoggle < MAX_TRIES; trytoggle++){
 
@@ -480,10 +480,10 @@ void MH_BipartiteFormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
       rane = 1 + unif_rand() * ndedges;
       FindithEdge(MHp->togglehead, MHp->toggletail, rane, &nwp[1]);
       /* select a dyad not in the reference network at random */
-//   Rprintf("nontie h %d t %d nwp[0].nedges %d nwp[1].nedges %d\n",  MHp->togglehead[0],  
-//		       MHp->toggletail[0], 
-//		       nwp[0].nedges,
-//		       nwp[1].nedges);
+/*   Rprintf("nontie h %d t %d nwp[0].nedges %d nwp[1].nedges %d\n",  MHp->togglehead[0],   */
+/*		       MHp->toggletail[0],  */
+/*		       nwp[0].nedges, */
+/*		       nwp[1].nedges); */
     MHp->ratio = nedges  / (odds*ndyads + nedges);
     }else{ /* select a dyad not an edge in the reference network at random */
       do{ /* Keep trying dyads as long as exactly one of nwp[0] and nwp[1] has
@@ -501,15 +501,15 @@ void MH_BipartiteFormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
       }else{
 	MHp->ratio = 1.0 + (odds*ndyads)/(nedges + 1);
       }
-//   Rprintf("nontie h %d t %d nwp[0].nedges %d nwp[1].nedges %d\n",  MHp->togglehead[0],  
-//		       MHp->toggletail[0], 
-//		       nwp[0].nedges,
-//		       nwp[1].nedges);
+/*   Rprintf("nontie h %d t %d nwp[0].nedges %d nwp[1].nedges %d\n",  MHp->togglehead[0],   */
+/*		       MHp->toggletail[0],  */
+/*		       nwp[0].nedges, */
+/*		       nwp[1].nedges); */
     }
     if(CheckTogglesValid(MHp, bd, nwp)) break;
   }
 
-  // If no valid proposal found, signal a failed proposal.
+  /* If no valid proposal found, signal a failed proposal. */
   if(trytoggle>=MAX_TRIES) {
     Mhead[0]=MH_FAILED;
     Mtail[0]=MH_UNSUCCESSFUL;
@@ -526,7 +526,7 @@ void MH_BipartiterandomtoggleNonObserved (MHproposal *MHp, DegreeBound *bd, Netw
   MHp->ratio = 1.0;
   rane = 1 + unif_rand() * nwp[1].nedges;
   FindithEdge(MHp->togglehead, MHp->toggletail, rane, &nwp[1]);
-// Rprintf("bip %d nedges %d h %d t %d\n", nwp[1].bipartite, nwp[1].nedges, MHp->togglehead[0],  MHp->toggletail[0]);
+/* Rprintf("bip %d nedges %d h %d t %d\n", nwp[1].bipartite, nwp[1].nedges, MHp->togglehead[0],  MHp->toggletail[0]); */
 }
 
 

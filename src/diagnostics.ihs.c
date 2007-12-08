@@ -1,7 +1,7 @@
 /*  This is a collection of functions used to calculate diagnostic 
     statistics for dynamic networks. */
 
-#include "diagnostics.h"
+#include "diagnostics.ihs.h"
 
 /* These #defines are not really necessary but may make the code a bit
    easier to read.  They come at a price (the possibility of hard-to-track
@@ -209,7 +209,7 @@ void DegreeMixMatrix (int *nnodes,
       switch (od[i+1]) {
         case 0: ++DEGMIXMAT(i, 0);
         break;
-        case 1: //if (id[oe[i+1].value] == 1) {
+        case 1: /*if (id[oe[i+1].value] == 1) { */
           m = oe[i+1].value;
           e=EdgetreeMinimum(oe, i+1);
           if (id[m]==1) {

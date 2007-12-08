@@ -57,7 +57,7 @@ void MH_ConstrainedSwitchLabelTwoNodesToggles (MHproposal *MHp, DegreeBound *bd,
 
 void MH_Formation(MHproposal *MHp, DegreeBound *bd, Network *nwp);
 void MH_FormationTNT(MHproposal *MHp, DegreeBound *bd, Network *nwp);
-//void MH_DissolutionTNT(MHproposal *MHp, DegreeBound *bd, Network *nwp);
+/*void MH_DissolutionTNT(MHproposal *MHp, DegreeBound *bd, Network *nwp); */
 void MH_Dissolution(MHproposal *MHp, DegreeBound *bd, Network *nwp);
 #endif 
 
@@ -129,8 +129,8 @@ MH_Formation
 MH_FormationTNT : Done :                                                                              
    ergm (..., constraint = "none", control=ergm.control(prop.weights="default"))
 or ergm (..., constraint = "none", control=ergm.control(prop.weights="TNT"))
-//MH_DissolutionTNT
-MH_Dissolution : Done :
+/*MH_DissolutionTNT */
+/*MH_Dissolution : Done :
    ergm (..., constraint = "none", control=ergm.control(prop.weights="default"))
 or ergm (..., constraint = "none", control=ergm.control(prop.weights="TNT"))
 

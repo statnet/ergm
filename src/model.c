@@ -61,7 +61,7 @@ Model* ModelInitialize (char *fnames, char *sonames, double *inputs,
         fn[k+2]=fnames[k];
       fn[i+2]='\0';
       /* fn is now the string 'd_[name]', where [name] is fname */
-//      Rprintf("fn: %s\n",fn);
+/*      Rprintf("fn: %s\n",fn); */
       if((sn=(char *)malloc(sizeof(char)*(j+1)))==NULL){
         Rprintf("Error in ModelInitialize: Can't allocate %d bytes for sn.\n",
 		sizeof(char)*(j+1));
@@ -91,10 +91,10 @@ Model* ModelInitialize (char *fnames, char *sonames, double *inputs,
       /*  Now process the values in model$option[[optionnumber]]$inputs;
           See comments in InitErgm.r for details.    */
       offset = (int) *inputs++;  /* Set offset for attr vector */
-//      Rprintf("offsets: %f %f %f %f %f\n",inputs[0],inputs[1],inputs[2],
-//		         inputs[3],inputs[4],inputs[5]);
+/*      Rprintf("offsets: %f %f %f %f %f\n",inputs[0],inputs[1],inputs[2], */
+/*		         inputs[3],inputs[4],inputs[5]); */
       thisterm->nstats = (int) *inputs++; /* Set # of statistics returned */
-//      Rprintf("l %d offset %d thisterm %d\n",l,offset,thisterm->nstats);
+/*      Rprintf("l %d offset %d thisterm %d\n",l,offset,thisterm->nstats); */
       if (thisterm->nstats <= 0)
 	{ /* Must return at least one statistic */
 	  Rprintf("Error in ModelInitialize:  Option %s cannot return %d \
@@ -234,12 +234,12 @@ int ModelTermHamming (char *fnames, int n_terms) {
       fn[i]='\0';
       /* fn is now the string '[name]', where [name] is fname */
 
-//      Rprintf("l=%d ",l);
-//        Rprintf("%s",fn);
-//      for(k=0;k<=i;k++){
-//        Rprintf("%s",fn[k]);
-//      }
-//      Rprintf("\n");
+/*      Rprintf("l=%d ",l); */
+/*        Rprintf("%s",fn); */
+/*      for(k=0;k<=i;k++){ */
+/*        Rprintf("%s",fn[k]); */
+/*      } */
+/*      Rprintf("\n"); */
 
       if(strncmp(fn,"hamming",7)==0){return(l+1);}
       /*Clean up by freeing sn and fn*/
@@ -285,12 +285,12 @@ int ModelTermFormation (char *fnames, int n_terms) {
       fn[i]='\0';
       /* fn is now the string '[name]', where [name] is fname */
 
-//      Rprintf("l=%d ",l);
-//        Rprintf("%s",fn);
-//      for(k=0;k<=i;k++){
-//        Rprintf("%s",fn[k]);
-//      }
-//      Rprintf("\n");
+/*      Rprintf("l=%d ",l); */
+/*        Rprintf("%s",fn); */
+/*      for(k=0;k<=i;k++){ */
+/*        Rprintf("%s",fn[k]); */
+/*      } */
+/*      Rprintf("\n"); */
 
       if(strncmp(fn,"formation",9)==0){return(l+1);}
       /*Clean up by freeing sn and fn*/
@@ -335,12 +335,12 @@ int ModelTermDissolve (char *fnames, int n_terms) {
       fn[i]='\0';
       /* fn is now the string '[name]', where [name] is fname */
 
-//      Rprintf("l=%d ",l);
-//        Rprintf("%s",fn);
-//      for(k=0;k<=i;k++){
-//        Rprintf("%s",fn[k]);
-//      }
-//      Rprintf("\n");
+/*      Rprintf("l=%d ",l); */
+/*        Rprintf("%s",fn); */
+/*      for(k=0;k<=i;k++){ */
+/*        Rprintf("%s",fn[k]); */
+/*      } */
+/*      Rprintf("\n"); */
 
       if(strncmp(fn,"dissolve",9)==0){return(l+1);}
       /*Clean up by freeing sn and fn*/

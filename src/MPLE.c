@@ -53,22 +53,22 @@ void MPLE_wrapper (int *heads, int *tails, int *dnedges,
    nddyads=0;
    nw[1]=NetworkInitializeD(thisterm->inputparams+1, 
 			   thisterm->inputparams+1+nddyads, nddyads, n_nodes, directed_flag, bip,0);
-//	     Rprintf("made hw[1]\n");
+/*	     Rprintf("made hw[1]\n"); */
    for (kedge=1; kedge <= nwhamming.nedges; kedge++) {
      FindithEdge(&hhead, &htail, kedge, &nwhamming);
      if(EdgetreeSearch(hhead, htail, nw[0].outedges) == 0){
-//	     Rprintf(" in g0 not g hhead %d htail %d\n",hhead, htail);
+/*	     Rprintf(" in g0 not g hhead %d htail %d\n",hhead, htail); */
        ToggleEdge(hhead, htail, &nw[1]);
      }
    }
    for (kedge=1; kedge <= nw[0].nedges; kedge++) {
      FindithEdge(&hhead, &htail, kedge, &nw[0]);
      if(EdgetreeSearch(hhead, htail, nwhamming.outedges) == 0){
-//	     Rprintf("not g0  in g hhead %d htail %d\n",hhead, htail);
+/*	     Rprintf("not g0  in g hhead %d htail %d\n",hhead, htail); */
        ToggleEdge(hhead, htail, &nw[1]);
      }
    }
-//   Rprintf("Initial number of discordant %d Number of g0 ties %d Number of ties in g %d\n",nw[1].nedges, nwhamming.nedges,nw[0].nedges);
+/*   Rprintf("Initial number of discordant %d Number of g0 ties %d Number of ties in g %d\n",nw[1].nedges, nwhamming.nedges,nw[0].nedges); */
    NetworkDestroy(&nwhamming);
   }
 

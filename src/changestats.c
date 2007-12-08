@@ -16,7 +16,7 @@ void d_absdiff (int ntoggles, Vertex *heads, Vertex *tails,
     {
       edgeflag = (EdgetreeSearch(h=heads[i],t=tails[i],nwp->outedges) != 0);
       change = fabs(mtp->attrib[h-1] - mtp->attrib[t-1]);
-//    Rprintf("h %d t %d %f %f %f\n",h,t,mtp->attrib[h-1], mtp->attrib[t-1],change);
+/*    Rprintf("h %d t %d %f %f %f\n",h,t,mtp->attrib[h-1], mtp->attrib[t-1],change); */
       *(mtp->dstats) += edgeflag ? -change : change;
       if (i+1 < ntoggles) 
 	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
@@ -122,7 +122,7 @@ void d_b1concurrent_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
     b1deg = od[b1];
     b1attr = mtp->inputparams[mtp->nstats + b1 - 1]; 
     for(j = 0; j < mtp->nstats; j++) {
-//Rprintf("j %d b1deg %d b1attr %d inp %d\n",j,b1deg,b1attr,mtp->inputparams[j]);
+/* Rprintf("j %d b1deg %d b1attr %d inp %d\n",j,b1deg,b1attr,mtp->inputparams[j]); */
       if (b1attr == mtp->inputparams[j]) { /* we have attr match */
         mtp->dstats[j] += (b1deg + echange > 1) - (b1deg > 1);
       }
@@ -321,7 +321,7 @@ void d_balance (int ntoggles, Vertex *heads, Vertex *tails,
   *(mtp->dstats) = 0.0;
 
   if (nwp->directed_flag) {
-// directed version
+/* directed version */
    for (i=0; i<ntoggles; i++) 
     {      
       edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
@@ -496,8 +496,8 @@ void d_balance (int ntoggles, Vertex *heads, Vertex *tails,
         else 
           t012 = t012 + (nwp->nnodes - 2);  
 
-//        t003 = (t300+t210+t120C+t120U+t120D+t201+t030C+t030T);
-//        t003 = t003+(t111U+t111D+t021C+t021U+t021D+t102+t012);
+/*        t003 = (t300+t210+t120C+t120U+t120D+t201+t030C+t030T); 
+        t003 = t003+(t111U+t111D+t021C+t021U+t021D+t102+t012); */
 	b = t102 + t300; 
 	*(mtp->dstats) += edgeflag ? -(double)b : (double)b;
 
@@ -505,7 +505,7 @@ void d_balance (int ntoggles, Vertex *heads, Vertex *tails,
 	  ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */ 
     }
     }else{
-//  undirected
+/*  undirected */
     for (i=0; i<ntoggles; i++) 
      {      
       edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
@@ -562,7 +562,7 @@ void d_balance (int ntoggles, Vertex *heads, Vertex *tails,
   
      if (i+1 < ntoggles)
 	  ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */ 
-     } // i loop
+     } /* i loop */
     }
     
   i--; 
@@ -983,7 +983,7 @@ void d_concurrent_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
     }
     b1attr = mtp->inputparams[mtp->nstats + b1 - 1]; 
     for(j = 0; j < mtp->nstats; j++) {
-//Rprintf("j %d b1deg %d b1attr %d inp %d\n",j,b1deg,b1attr,mtp->inputparams[j]);
+/*Rprintf("j %d b1deg %d b1attr %d inp %d\n",j,b1deg,b1attr,mtp->inputparams[j]);*/
       if (b1attr == mtp->inputparams[j]) { /* we have attr match */
         mtp->dstats[j] += (b1deg + echange > 1) - (b1deg > 1);
       }
@@ -1521,15 +1521,15 @@ void d_dyadcov (int ntoggles, Vertex *heads, Vertex *tails,
    nrow = (long int)(mtp->inputparams[0]);
   }
   
-//  Rprintf("nrow %d noffset %d\n",nrow, noffset);
-//  Rprintf("attrib: ");
-//  for(i=0;i<1000;i++)
-//   Rprintf("%1.0f",mtp->attrib[i]);
-//
-//  Rprintf("\n;");
+/*  Rprintf("nrow %d noffset %d\n",nrow, noffset);
+  Rprintf("attrib: ");
+  for(i=0;i<1000;i++)
+   Rprintf("%1.0f",mtp->attrib[i]);
+
+  Rprintf("\n;"); */
 
   if(nwp->directed_flag){
-  // directed version
+  /* directed version */
 
   for(i=0;i<3;i++)
     mtp->dstats[i] = 0.0;
@@ -1541,11 +1541,11 @@ void d_dyadcov (int ntoggles, Vertex *heads, Vertex *tails,
       refedgeflag = (EdgetreeSearch(t, h, nwp->outedges) != 0);
       
       /*Get the dyadic covariate*/
-//    val = mtp->attrib[(t-1-nrow)+(h-1)*ncols];
+/*    val = mtp->attrib[(t-1-nrow)+(h-1)*ncols]; */
       index = (t-1-noffset)*nrow+(h-1);
       if(index >= 0 && index <= nrow*nrow){
        val = mtp->attrib[(t-1-noffset)*nrow+(h-1)];
-//  Rprintf("h %d t %d nrow %d ncols %d val %f\n",h, t, nrow, ncols, val);
+/*  Rprintf("h %d t %d nrow %d ncols %d val %f\n",h, t, nrow, ncols, val); */
       
        /*Update the change statistics, as appropriate*/
        if(refedgeflag){      /* Reflected edge is present */
@@ -1587,19 +1587,19 @@ void d_dyadcov (int ntoggles, Vertex *heads, Vertex *tails,
 	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
     }
   }else{
-// undirected case (including bipartite)
+/* undirected case (including bipartite) */
   *(mtp->dstats) = 0.0;
   for (i=0; i<ntoggles; i++) 
     {
       /*Get the initial edge state*/
       edgeflag=(EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
       /*Get the covariate value*/
-//    val = mtp->attrib[(t-1-nrow)+(h-1)*ncols];
+/*    val = mtp->attrib[(t-1-nrow)+(h-1)*ncols]; */
       index = (t-1-noffset)*nrow+(h-1);
       if(index >= 0 && index <= nrow*((long int)(mtp->inputparams[0]))){
        val = mtp->attrib[(t-1-noffset)*nrow+(h-1)];
       /*Update the change statistic, based on the toggle type*/
-//  Rprintf("h %d t %d nrow %d noffset %d val %f\n",h, t, nrow, noffset, val);
+/*  Rprintf("h %d t %d nrow %d noffset %d val %f\n",h, t, nrow, noffset, val); */
       /*Update the change statistic, based on the toggle type*/
        *(mtp->dstats) += edgeflag ? -val : val;
       }
@@ -1776,7 +1776,7 @@ void d_edgecov (int ntoggles, Vertex *heads, Vertex *tails,
   
   noffset = nwp->bipartite;
   if(noffset > 0){
-//   nrow = (nwp->nnodes)-(long int)(mtp->inputparams[0]);
+/*   nrow = (nwp->nnodes)-(long int)(mtp->inputparams[0]); */
     nrow = noffset;
   }else{
    nrow = (long int)(mtp->inputparams[0]);
@@ -1788,9 +1788,9 @@ void d_edgecov (int ntoggles, Vertex *heads, Vertex *tails,
       /*Get the initial edge state*/
       edgeflag=(EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
       /*Get the covariate value*/
-//    val = mtp->attrib[(t-1-nrow)+(h-1)*ncols];
+/*    val = mtp->attrib[(t-1-nrow)+(h-1)*ncols]; */
       val = mtp->attrib[(t-1-noffset)*nrow+(h-1)];  /*Note: h/t are backwards!*/
-//  Rprintf("h %d t %d nrow %d val %f\n",h, t, nrow, val);
+/*  Rprintf("h %d t %d nrow %d val %f\n",h, t, nrow, val); */
       /*Update the change statistic, based on the toggle type*/
       *(mtp->dstats) += edgeflag ? -val : val;
       if (i+1 < ntoggles)
@@ -2008,7 +2008,7 @@ void d_gwb1degree_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
     echange=(EdgetreeSearch(b1=heads[i], tails[i], oe)==0) ? 1 : -1;
     b1deg = od[b1]+(echange-1)/2;
     b1attr = mtp->inputparams[b1]; 
-//  Rprintf("b1 %d tails %d b1deg %d b1attr %d echange %d\n",b1, tails[i], b1deg, b1attr, echange);
+/*  Rprintf("b1 %d tails %d b1deg %d b1attr %d echange %d\n",b1, tails[i], b1deg, b1attr, echange); */
     mtp->dstats[b1attr-1] += echange * pow(oneexpd,(double)b1deg);
     if (i+1 < ntoggles)
       ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
@@ -2272,7 +2272,7 @@ void d_gwb2degree_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
     echange=(EdgetreeSearch(heads[i], b2=tails[i], oe)==0) ? 1 : -1;
     b2deg = id[b2]+(echange-1)/2;
     b2attr = mtp->inputparams[b2]; 
-//  Rprintf("h %d b2 %d b2deg %d b2attr %d echange %d\n",heads[i], b2, b2deg, b2attr, echange);
+/*  Rprintf("h %d b2 %d b2deg %d b2attr %d echange %d\n",heads[i], b2, b2deg, b2attr, echange); */
     mtp->dstats[b2attr-1] += echange * pow(oneexpd,(double)b2deg);
     if (i+1 < ntoggles)
       ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
@@ -2645,33 +2645,33 @@ void d_hamming (int ntoggles, Vertex *heads, Vertex *tails,
   int i, nhedge, discord;
   
   nhedge = nwp[1].nedges;
-//Rprintf("nhedge %d\n",nhedge);
+/*Rprintf("nhedge %d\n",nhedge); */
   *(mtp->dstats) = 0.0;
   for (i=0; i<ntoggles; i++) 
   {
     /*Get the initial state of the edge and its alter in x0*/
-//  edgeflag =(EdgetreeSearch(h=heads[i], t=tails[i], nwp[0].outedges) != 0);
+/*  edgeflag =(EdgetreeSearch(h=heads[i], t=tails[i], nwp[0].outedges) != 0); */
     discord=(EdgetreeSearch(h=heads[i], t=tails[i], nwp[1].outedges) != 0);
-//    if(!nwp[0].directed_flag && h < t){
-//      hh = t;
-//      ht = h;
-//    }else{
-//      hh = h;
-//      ht = t;
-//    }
-    // if we will dissolve an edge discord=-1
-    // discord = edgeflag ? -1 : 1;
+/*    if(!nwp[0].directed_flag && h < t){
+      hh = t;
+      ht = h;
+    }else{
+      hh = h;
+      ht = t;
+    }
+     if we will dissolve an edge discord=-1
+     discord = edgeflag ? -1 : 1;
     
 
-//  so moving away one step
-//    discord = (edgeflag0!=edgeflag) ? -1 : 1;
+  so moving away one step
+    discord = (edgeflag0!=edgeflag) ? -1 : 1;
 
-//Rprintf("h %d t %d discord %d\n",h, t, discord);
-//  if(nhedge>0)
-//  Rprintf("h %d t %d discord %d nhedge %d\n",h, t, discord, nhedge);
+Rprintf("h %d t %d discord %d\n",h, t, discord);
+  if(nhedge>0)
+  Rprintf("h %d t %d discord %d nhedge %d\n",h, t, discord, nhedge); */
 
     /*Update the change statistics, as appropriate*/
-//    *(mtp->dstats) += ((edgeflag0!=edgeflag) ? -1.0 : 1.0);
+/*    *(mtp->dstats) += ((edgeflag0!=edgeflag) ? -1.0 : 1.0); */
 
     *(mtp->dstats) += (discord ? -1.0 : 1.0);
 
@@ -2701,27 +2701,27 @@ void d_hammingdyadcov (int ntoggles, Vertex *heads, Vertex *tails,
   nnodes = nwp[0].nnodes;
   nb1 = nwp[0].bipartite;
   nb2 = nwp[0].nnodes - nb1;
-//  Rprintf("nb1 %d i0 %f i1 %f i2 %f i3 %f\n", nb1,
-//                                 mtp->inputparams[0],
-//                                 mtp->inputparams[1],
-//                                 mtp->inputparams[2],
-//                                 mtp->inputparams[3]
-//		  );
-//  for (i=0; i<1000; i++) {
-//  Rprintf("i %d inp %f\n", i, mtp->inputparams[i]);
-//  }
+/*  Rprintf("nb1 %d i0 %f i1 %f i2 %f i3 %f\n", nb1,
+                                 mtp->inputparams[0],
+                                 mtp->inputparams[1],
+                                 mtp->inputparams[2],
+                                 mtp->inputparams[3]
+		  );
+  for (i=0; i<1000; i++) {
+  Rprintf("i %d inp %f\n", i, mtp->inputparams[i]);
+  } */
 
   *(mtp->dstats) = 0.0;
   for (i=0; i<ntoggles; i++) 
     {
       /*Get the initial discord state*/
-//    edgeflag=(EdgetreeSearch(h=heads[i], t=tails[i], nwp[0].outedges) != 0);
+/*    edgeflag=(EdgetreeSearch(h=heads[i], t=tails[i], nwp[0].outedges) != 0); */
       discord=(EdgetreeSearch(h=heads[i], t=tails[i], nwp[1].outedges) != 0);
       /*Get the covariate value*/
       val = mtp->inputparams[1+(t-nb1-1)*nb1+(h-1)+2*n0edge];
       /*Update the change statistic, based on the toggle type*/
       *(mtp->dstats) += discord ? -val : val;
- // Rprintf("nnodes %d n0edge %d h %d t %d discord %d val %f\n",nnodes, n0edge, h, t-nb1, discord, val);
+ /* Rprintf("nnodes %d n0edge %d h %d t %d discord %d val %f\n",nnodes, n0edge, h, t-nb1, discord, val); */
       if (i+1 < ntoggles){
         ToggleEdge(heads[i], tails[i], &nwp[0]);  /* Toggle this edge if more to come */
         ToggleEdge(heads[i], tails[i], &nwp[1]);  /* Toggle the discord for this edge */
@@ -2744,7 +2744,7 @@ void d_hammingfixmix (int ntoggles, Vertex *heads, Vertex *tails,
   int matchvalh, matchvalt;
   
   nhedge = mtp->inputparams[0];
-//  Rprintf("nhedge %d\n", nhedge);
+/*  Rprintf("nhedge %d\n", nhedge); */
   if(ntoggles==2){
    matchvalh = mtp->inputparams[heads[0]+2*nhedge];
    matchvalt = mtp->inputparams[tails[0]+2*nhedge];
@@ -2755,12 +2755,12 @@ void d_hammingfixmix (int ntoggles, Vertex *heads, Vertex *tails,
    }
   }
   *(mtp->dstats) = 0.0;
-//  Rprintf("Warning: hammingfixmix can only be used with ConstantEdges terms.\n");
-//  Rprintf("nhedge %d i0 %f i1 %f i2 %f i3 %f\n", nhedge, mtp->inputparams[0],
-//                                 mtp->inputparams[1],
-//                                 mtp->inputparams[2],
-//                                 mtp->inputparams[3]
-//		  );
+/*  Rprintf("Warning: hammingfixmix can only be used with ConstantEdges terms.\n");
+  Rprintf("nhedge %d i0 %f i1 %f i2 %f i3 %f\n", nhedge, mtp->inputparams[0],
+                                 mtp->inputparams[1],
+                                 mtp->inputparams[2],
+                                 mtp->inputparams[3]
+		  ); */
      
   for (i=0; i<ntoggles; i++)
     {
@@ -2791,11 +2791,11 @@ void d_hammingmix (int ntoggles, Vertex *heads, Vertex *tails,
   
   nhedge =  mtp->inputparams[0];
   nstats = mtp->nstats;
-//  Rprintf("nstats %d nhedge %d i0 %f i1 %f i2 %f i3 %f\n",nstats, nhedge, mtp->inputparams[0],
-//                                 mtp->inputparams[1],
-//                                 mtp->inputparams[2],
-//                                 mtp->inputparams[3]
-//		  );
+/*  Rprintf("nstats %d nhedge %d i0 %f i1 %f i2 %f i3 %f\n",nstats, nhedge, mtp->inputparams[0],
+                                 mtp->inputparams[1],
+                                 mtp->inputparams[2],
+                                 mtp->inputparams[3]
+		  ); */
   for (i=0; i < mtp->nstats; i++)
     mtp->dstats[i] = 0.0;
 
@@ -2809,7 +2809,7 @@ void d_hammingmix (int ntoggles, Vertex *heads, Vertex *tails,
       discord=(EdgetreeSearch(h=heads[i], t=tails[i], nwp[1].outedges) != 0);
       for (j=0; j<nstats; j++) 
 	  {
-//   Rprintf("h %d t %d matchvalh %d matchvalt %d edgeflag %d discord %d j %d p0 %f p1 %f\n",h,t,matchvalh,matchvalt,edgeflag,discord,j,mtp->inputparams[2*nhedge+  j], mtp->inputparams[2*nhedge+ nstats+j]);
+/*   Rprintf("h %d t %d matchvalh %d matchvalt %d edgeflag %d discord %d j %d p0 %f p1 %f\n",h,t,matchvalh,matchvalt,edgeflag,discord,j,mtp->inputparams[2*nhedge+  j], mtp->inputparams[2*nhedge+ nstats+j]); */
            if(matchvalh==mtp->inputparams[2*nhedge+1+       j] &&
 	      matchvalt==mtp->inputparams[2*nhedge+1+nstats+j]
 	     ){
@@ -2954,11 +2954,11 @@ void d_idegree_w_homophily (int ntoggles, Vertex *heads, Vertex *tails,
     if (headattr == tailattr) { /* They match; otherwise don't bother */
       echange=(EdgetreeSearch(head, tail, oe)==0)? 1:-1;
       taildeg=0;
-//      for(e = EdgetreeMinimum(oe, tail);
-//      (tmp = oe[e].value) != 0;
-//      e = EdgetreeSuccessor(oe, e)) {
-//        taildeg += (nodeattr[tmp]==tailattr);
-//      }
+/*      for(e = EdgetreeMinimum(oe, tail);
+      (tmp = oe[e].value) != 0;
+      e = EdgetreeSuccessor(oe, e)) {
+        taildeg += (nodeattr[tmp]==tailattr);
+      } */
       for(e = EdgetreeMinimum(ie, tail);
       (tmp = ie[e].value) != 0;
       e = EdgetreeSuccessor(ie, e)) {
@@ -2993,7 +2993,7 @@ void d_intransitive (int ntoggles, Vertex *heads, Vertex *tails,
     edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
     change = 0.0;
     
-//           Rprintf("h %d t %d edgeflag %d\n",h,t, edgeflag);
+/*           Rprintf("h %d t %d edgeflag %d\n",h,t, edgeflag); */
     for(e = EdgetreeMinimum(nwp->outedges, t);
 	    (node2 = nwp->outedges[e].value) != 0;
 	    e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of tail */
@@ -3026,7 +3026,7 @@ void d_intransitive (int ntoggles, Vertex *heads, Vertex *tails,
     }
     
     *(mtp->dstats) += edgeflag ? -change : change;
-//  Rprintf("h %d t %d edgeflag %d change %f\n",h,t, edgeflag, change);
+/*  Rprintf("h %d t %d edgeflag %d change %f\n",h,t, edgeflag, change); */
 
     if (i+1 < ntoggles) 
       ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
@@ -3821,11 +3821,11 @@ void d_odegree_w_homophily (int ntoggles, Vertex *heads, Vertex *tails,
       e = EdgetreeSuccessor(oe, e)) {
         headdeg += (nodeattr[tmp]==headattr);
       }
-//      for(e = EdgetreeMinimum(ie, head);
-//      (tmp = ie[e].value) != 0;
-//      e = EdgetreeSuccessor(ie, e)) {
-//        headdeg += (nodeattr[tmp]==headattr);
-//      }
+/*      for(e = EdgetreeMinimum(ie, head); */
+/*      (tmp = ie[e].value) != 0; */
+/*      e = EdgetreeSuccessor(ie, e)) { */
+/*        headdeg += (nodeattr[tmp]==headattr); */
+/*      } */
       for(j = 0; j < mtp->nstats; j++) {
         deg = (Vertex)mtp->inputparams[j];
         mtp->dstats[j] += (headdeg + echange == deg) - (headdeg == deg);
@@ -4130,7 +4130,7 @@ void d_simmelianties (int ntoggles, Vertex *heads, Vertex *tails,
 	  if(first){++change;}
          }
    }
-//   if(firstht){++change;}
+/*   if(firstht){++change;} */
       
    change = 2*change;
    *(mtp->dstats) += edgeflag ? -(double)change : (double)change;
@@ -4385,7 +4385,7 @@ void d_transitive (int ntoggles, Vertex *heads, Vertex *tails,
     edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
     change = 0.0;
     
-//           Rprintf("h %d t %d edgeflag %d\n",h,t, edgeflag);
+/*           Rprintf("h %d t %d edgeflag %d\n",h,t, edgeflag); */
     for(e = EdgetreeMinimum(nwp->outedges, t);
 	    (node2 = nwp->outedges[e].value) != 0;
 	    e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of tail */
@@ -4418,7 +4418,7 @@ void d_transitive (int ntoggles, Vertex *heads, Vertex *tails,
     }
     
     *(mtp->dstats) += edgeflag ? -change : change;
-//  Rprintf("h %d t %d edgeflag %d change %f\n",h,t, edgeflag, change);
+/*  Rprintf("h %d t %d edgeflag %d change %f\n",h,t, edgeflag, change); */
 
     if (i+1 < ntoggles) 
       ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
@@ -4444,7 +4444,7 @@ void d_triadcensus (int ntoggles, Vertex *heads, Vertex *tails,
     mtp->dstats[i] = 0.0;
 
   if (nwp->directed_flag) {
-// directed version
+/* directed version */
    for (i=0; i<ntoggles; i++) 
     {      
       edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
@@ -4665,7 +4665,7 @@ void d_triadcensus (int ntoggles, Vertex *heads, Vertex *tails,
 	  ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */ 
     }
     }else{
-//  undirected
+/*  undirected */
     for (i=0; i<ntoggles; i++) 
      {      
       edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
@@ -4735,7 +4735,7 @@ void d_triadcensus (int ntoggles, Vertex *heads, Vertex *tails,
         }
      if (i+1 < ntoggles)
 	  ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */ 
-     } // i loop
+     } /* i loop */
     }
     
   i--; 

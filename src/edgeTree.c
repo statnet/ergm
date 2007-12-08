@@ -356,7 +356,7 @@ int ToggleEdgeWithTimestamp (Vertex head, Vertex tail, Network *nwp)
     tail = temp;
   }
   
-  if(nwp->duration_info.lasttoggle){ // Skip timestamps if no duration info.
+  if(nwp->duration_info.lasttoggle){ /* Skip timestamps if no duration info. */
     if (nwp->directed_flag) 
       k = (tail-1)*(nwp->nnodes-1) + head - ((head>tail) ? 1:0) - 1; 
     else
@@ -379,7 +379,7 @@ int WtToggleEdgeWithTimestamp (Vertex head, Vertex tail, double weight, WtNetwor
     head = tail;
     tail = temp;
   }
-  if(nwp->duration_info.lasttoggle){ // Skip timestamps if no duration info.
+  if(nwp->duration_info.lasttoggle){ /* Skip timestamps if no duration info. */
     if (nwp->directed_flag) 
       k = (tail-1)*(nwp->nnodes-1) + head - ((head>tail) ? 1:0) - 1; 
     else
@@ -409,7 +409,7 @@ int ElapsedTime (Vertex head, Vertex tail, Network *nwp)
     tail = temp;
   }
 
-  if(nwp->duration_info.lasttoggle){ // Return 0 if no duration info.
+  if(nwp->duration_info.lasttoggle){ /* Return 0 if no duration info. */
     if (nwp->directed_flag) 
       k = (tail-1)*(nwp->nnodes-1) + head - ((head>tail) ? 1:0) - 1; 
     else
@@ -430,7 +430,7 @@ int ElapsedTime (Vertex head, Vertex tail, Network *nwp)
 
 void TouchEdge(Vertex head, Vertex tail, Network *nwp){
   unsigned int k;
-  if(nwp->duration_info.lasttoggle){ // Skip timestamps if no duration info.
+  if(nwp->duration_info.lasttoggle){ /* Skip timestamps if no duration info. */
     if (nwp->directed_flag) 
       k = (tail-1)*(nwp->nnodes-1) + head - ((head>tail) ? 1:0) - 1; 
     else
