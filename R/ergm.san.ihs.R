@@ -8,6 +8,7 @@ san.default <- function(object,...)
 }
 
 san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
+                        tau=1,
                         burnin=10000, interval=10000,
                         meanstats=NULL,
                         sequential=TRUE,
@@ -74,6 +75,7 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
     eta0 <- ergm.eta(theta0, model$etamap)
     stats <- matrix(summary(model$formula)-meanstats,
                     ncol=Clist$nparam,byrow=T,nrow=MCMCsamplesize)
+    tau <- rep(tau,length=length(eta0))
 #
 #   Check for truncation of the returned edge list
 #
@@ -91,6 +93,7 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
              as.character(MHproposal$package),
              as.double(Clist$inputs),
              as.double(eta0),
+             as.double(tau),
              as.integer(MCMCsamplesize),
              s = as.double(stats),
              as.integer(use.burnin), as.integer(interval), 

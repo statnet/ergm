@@ -18,7 +18,8 @@ void SAN_wrapper (int *heads, int *tails, int *dnedges,
                    int *nterms, char **funnames,
                    char **sonames, 
                    char **MHproposaltype, char **MHproposalpackage,
-                   double *inputs, double *theta0, int *samplesize, 
+                   double *inputs, double *theta0, double *tau, 
+		   int *samplesize, 
                    double *sample, int *burnin, int *interval,  
                    int *newnetworkheads, 
                    int *newnetworktails, 
@@ -119,7 +120,7 @@ void SAN_wrapper (int *heads, int *tails, int *dnedges,
   bd=DegreeBoundInitialize(attribs, maxout, maxin, minout, minin,
 			   *condAllDegExact, *attriblength, nw);
   SANSample (*MHproposaltype, *MHproposalpackage,
-	      theta0, sample, (long int)*samplesize,
+	      theta0, tau, sample, (long int)*samplesize,
 	      (long int)*burnin, (long int)*interval,
 	      hammingterm,
 	      (int)*fVerbose, nw, m, bd);
@@ -147,7 +148,7 @@ void SAN_wrapper (int *heads, int *tails, int *dnedges,
  the networkstatistics array. 
 *********************/
 void SANSample (char *MHproposaltype, char *MHproposalpackage,
-  double *theta, double *networkstatistics, 
+  double *theta, double *tau, double *networkstatistics, 
   long int samplesize, long int burnin, 
   long int interval, int hammingterm, int fVerbose,
   Network *nwp, Model *m, DegreeBound *bd) {
@@ -180,7 +181,7 @@ void SANSample (char *MHproposaltype, char *MHproposalpackage,
    prepare covariance matrix for Mahalanobis distance calculations 
    in subsequent calls to M-H
    *********************/
-  SANMetropolisHastings(&MH, theta, networkstatistics, burnin, &staken,
+  SANMetropolisHastings(&MH, theta, tau, networkstatistics, burnin, &staken,
 		     hammingterm, fVerbose, nwp, m, bd);
   
   if (fVerbose){
@@ -201,7 +202,7 @@ void SANSample (char *MHproposaltype, char *MHproposalpackage,
       networkstatistics += m->n_stats;
       /* This then adds the change statistics to these values */
       
-      SANMetropolisHastings (&MH, theta, networkstatistics, 
+      SANMetropolisHastings (&MH, theta, tau, networkstatistics, 
 		             interval, &staken,
 			     hammingterm, fVerbose, nwp, m, bd);
       tottaken += staken;
@@ -245,7 +246,7 @@ void SANSample (char *MHproposaltype, char *MHproposalpackage,
  essentially generates a sample of size one
 *********************/
 void SANMetropolisHastings (MHproposal *MHp,
-			    double *theta, double *networkstatistics,
+			    double *theta, double *tau, double *networkstatistics,
 			    long int nsteps, long int *staken,
 			    int hammingterm, int fVerbose,
 			    Network *nwp,
@@ -289,7 +290,7 @@ void SANMetropolisHastings (MHproposal *MHp,
 //     ip += m->workspace[i]*((m->workspace[i])+2.0*networkstatistics[i] );
 // Next counts of statistics that improve
      dif=(m->workspace[i])*((m->workspace[i])+2.0*networkstatistics[i]);
-     ip += dif/asig2[i];
+     ip += tau[i]*dif/asig2[i];
      div+=abs(m->workspace[i])/sqrt(asig2[i]);
 //   ip += dif;
 //   if(dif <  0.0 ) ip+=1.0;
@@ -302,7 +303,8 @@ void SANMetropolisHastings (MHproposal *MHp,
       
     /* if we accept the proposed network */
 //  if (ip < 0.0) { 
-    if (div > 0.0 && (ip < 0.0 || unif_rand() < 0.01)) { 
+//  if (div > 0.0 && (ip < 0.0 || unif_rand() < 0.01)) { 
+    if (div > 0.0 && (ip < 0.0 || unif_rand() < (nsteps-step)*0.01*tau[0]/(1.0*nsteps))) { 
 //  if (ip > exp(theta[0])*(m->n_stats)*unif_rand()/(1.0+exp(theta[0])) { 
 //    if (ip+0.1 > (m->n_stats)*unif_rand()) { 
       /* Make proposed toggles (updating timestamps--i.e., for real this time) */

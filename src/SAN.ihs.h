@@ -13,7 +13,7 @@ void SAN_wrapper (int *heads, int *tails, int *dnedges,
 		  int *nterms, char **funnames,
 		  char **sonames, 
 		  char **MHproposaltype, char **MHproposalpackage,
-		  double *inputs, double *theta0, int *samplesize, 
+		  double *inputs, double *theta0, double *tau, int *samplesize, 
 		  double *sample, int *burnin, int *interval,  
 		  int *newnetworkheads, 
 		  int *newnetworktails, 
@@ -24,12 +24,12 @@ void SAN_wrapper (int *heads, int *tails, int *dnedges,
 		  int *mheads, int *mtails, int *mdnedges);
 
 void SANSample (char *MHproposaltype, char *MHproposalpackage,
-		double *theta, double *networkstatistics, 
+		double *theta, double *tau, double *networkstatistics, 
 		long int samplesize, long int burnin, 
 		long int interval, int hammingterm, int fVerbose,
 		Network *nwp, Model *m, DegreeBound *bd);
 void SANMetropolisHastings (MHproposal *MHp,
-			 double *theta, double *statistics, 
+			 double *theta, double *tau, double *statistics, 
 			 long int nsteps, long int *staken,
 			 int hammingterm, int fVerbose,
 			 Network *nwp, Model *m, DegreeBound *bd);
