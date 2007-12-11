@@ -158,6 +158,7 @@ void SANSample (char *MHproposaltype, char *MHproposalpackage,
   components = diam = 0;
   nwp->duration_info.MCMCtimer=0;
   
+
   if (fVerbose)
     Rprintf("Total m->n_stats is %i; total samplesize is %d\n",
              m->n_stats,samplesize);
@@ -200,8 +201,9 @@ void SANSample (char *MHproposaltype, char *MHproposalpackage,
       networkstatistics += m->n_stats;
       /* This then adds the change statistics to these values */
       
-      SANMetropolisHastings (&MH, theta, networkstatistics, interval, &staken,
-			  hammingterm, fVerbose, nwp, m, bd);
+      SANMetropolisHastings (&MH, theta, networkstatistics, 
+		             interval, &staken,
+			     hammingterm, fVerbose, nwp, m, bd);
       tottaken += staken;
       if (fVerbose){
         if( ((3*i) % samplesize)==0 && samplesize > 500){
@@ -249,9 +251,19 @@ void SANMetropolisHastings (MHproposal *MHp,
 			    Network *nwp,
 			    Model *m, DegreeBound *bd) {
   long int step, taken;
-  int i;
+  int i,j;
   double ip;
-//double div=0.0;
+  double dif;
+  double div=0.0;
+  double *ubar, *u2bar, *asig2;
+  ubar = (double *)malloc( m->n_stats * sizeof(double));
+  u2bar = (double *)malloc( m->n_stats * sizeof(double));
+  asig2 = (double *)malloc( m->n_stats * sizeof(double));
+  for (j=0; j < m->n_stats; j++){
+    ubar[j] = 0.0;
+    u2bar[j] = 0.0;
+    asig2[j] = 1.0;
+  }
   
 //  div=0.0;
 //    Rprintf("\n");
@@ -270,15 +282,29 @@ void SANMetropolisHastings (MHproposal *MHp,
 
     ChangeStats(MHp->ntoggles, MHp->togglehead, MHp->toggletail, nwp, m);
       
+    div=0.0;
     /* Calculate inner product */
     for (i=0, ip=0.0; i<m->n_stats; i++){
-      ip += m->workspace[i]*((m->workspace[i])+2.0*networkstatistics[i] );
+// Next always
+//     ip += m->workspace[i]*((m->workspace[i])+2.0*networkstatistics[i] );
+// Next counts of statistics that improve
+     dif=(m->workspace[i])*((m->workspace[i])+2.0*networkstatistics[i]);
+     ip += dif/asig2[i];
+     div+=abs(m->workspace[i])/sqrt(asig2[i]);
+//   ip += dif;
+//   if(dif <  0.0 ) ip+=1.0;
+//   if(dif == 0.0 ) ip+=0.5;
+//   if((m->workspace[i]) == 0.0 ) ip-=2.0;
+//     ip += (m->workspace[i]*((m->workspace[i])+2.0*networkstatistics[i]) < 0.0 ) ? 2.0 : 0.0;
 //     ip += theta[0] * m->workspace[i]*((m->workspace[i])+2.0*networkstatistics[i] );
     }
-//    Rprintf("ip %f div %f m->workspace[i] %f ns %f\n",ip,div, m->workspace[0],networkstatistics[0]);
+//  Rprintf("ip %f m->workspace[i] %f ns %f asig2[0] %f div %f \n",ip, m->workspace[0],networkstatistics[0],asig2[0],div);
       
     /* if we accept the proposed network */
-    if (ip < 0.0) { 
+//  if (ip < 0.0) { 
+    if (div > 0.0 && (ip < 0.0 || unif_rand() < 0.01)) { 
+//  if (ip > exp(theta[0])*(m->n_stats)*unif_rand()/(1.0+exp(theta[0])) { 
+//    if (ip+0.1 > (m->n_stats)*unif_rand()) { 
       /* Make proposed toggles (updating timestamps--i.e., for real this time) */
       for (i=0; i < MHp->ntoggles; i++){
         ToggleEdgeWithTimestamp(MHp->togglehead[i], MHp->toggletail[i], nwp);
@@ -295,6 +321,18 @@ void SANMetropolisHastings (MHproposal *MHp,
 //      div += (networkstatistics[i])*(networkstatistics[i]);
 //    }
       taken++;
+      if(taken < 10000){
+       for (j=0; j<m->n_stats; j++){
+        ubar[j]  += networkstatistics[j];
+        u2bar[j] += networkstatistics[j]*networkstatistics[j];
+        asig2[j] = (u2bar[j]-ubar[j]*ubar[j]/(1.0*taken))/(1.0*taken);
+        if( asig2[j] <= 1.0){
+          asig2[j]=1.0;
+        }
+//    Rprintf("j %d ubar %f u2bar %f asig2[j] %f ns %f\n", j,  ubar[j], u2bar[j], 
+//  	  asig2[j],networkstatistics[j]); 
+       }
+      }
     }
     step++;
     nwp->duration_info.MCMCtimer++;
