@@ -6,22 +6,18 @@ ergm <- function(formula, theta0="MPLE",
                  burnin=10000, MCMCsamplesize=10000, interval=100,
                  maxit=3,
                  constraints=~.,
-#                 meanstats=NULL,
-#                 dissolve=NULL, gamma=-4.59512, dissolve.order="DissThenForm",
                  control=ergm.control(nsubphases=maxit),                                 
                  verbose=FALSE, ...) {
   current.warn <- options()$warn
   options(warn=0)
   if(!is.null(seed))  set.seed(as.integer(seed))
   if (verbose) cat("Evaluating network in model\n")
-
   nw <- ergm.getnetwork(formula)
 #  if(!is.null(meanstats)){ control$drop <- FALSE }
 #  if(control$nsubphases=="maxit") control$nsubphases<-maxit  
                               
   
-  if (verbose) cat("Fitting initial model.\n")
-    
+  if (verbose) cat("Initializing model.\n")    
    model.initial <- ergm.getmodel(formula, nw, drop=FALSE, initialfit=TRUE)
    droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
   if(control$drop){
@@ -31,6 +27,7 @@ ergm <- function(formula, theta0="MPLE",
    model.initial$etamap$offsettheta[is.na(namesmatch)] <- TRUE
   }
 
+  if (verbose) cat("Initializing Metropolis-Hastings proposal.\n")
   MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial)
 #  MHproposal.miss <- MHproposal("randomtoggleNonObserved", control$prop.args, nw, model.initial)
 
@@ -53,17 +50,15 @@ ergm <- function(formula, theta0="MPLE",
 #  Clist.miss.initial <- ergm.design(nw.initial, model.initial, initialfit=TRUE,
 #                                verbose=verbose)
 
+  if (verbose) cat("Fitting initial model.\n")
   Clist.initial$meanstats=meanstats
   theta0copy <- theta0
   initialfit <- ergm.initialfit(theta0copy, MLestimate, Clist.initial,
                                 Clist.miss.initial, model.initial,
                                 MPLEtype=control$MPLEtype, verbose=verbose, ...)
-  if (MLestimate && 
-      (   !ergm.independencemodel(model.initial)
-       || !is.null(meanstats)
-       || constraints!=(~.))
-      || control$force.mcmc
-      ) {
+  if (MLestimate && (!ergm.independencemodel(model.initial)
+                     || !is.null(meanstats) || constraints!=(~.))
+     || control$force.mcmc) {
     theta0 <- initialfit$coef
     names(theta0) <- model.initial$coef.names
     theta0[is.na(theta0)] <- 0
@@ -121,29 +116,8 @@ ergm <- function(formula, theta0="MPLE",
    }
   }
 
-  if (verbose) cat("ergm.mainfitloop\n")
   MCMCparams=c(control,
    list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,maxit=maxit,Clist.miss=Clist.miss))
-#  if(!is.null(dissolve)){
-#    if (verbose) cat("Fitting Dynamic ERGM.\n")
-#    model.dissolve <- ergm.getmodel.dissolve(dissolve, nw, dissolve.order)
-#    MHproposal.diss <- MHproposal(constraints, weights=control$prop.weights.diss, control$prop.args.diss, nw, model.dissolve,class="d")
-#    v <- switch(control$style,
-#                "Robbins-Monro" = ergm.robmon.dyn(theta0, nw, model, model.dissolve,
-#                  Clist, gamma, 
-#                  MCMCparams=MCMCparams, MHproposal.form=MHproposal,
-#                  MHproposal.diss=MHproposal.diss,
-#                  verbose),
-#                ergm.mainfitloop.dyn(theta0, nw,
-#                                     model.form=model, model.diss=model.dissolve, Clist,
-#                                     gamma, initialfit,
-#                                     MCMCparams=MCMCparams, 
-#                                     MHproposal.form=MHproposal, MHproposal.diss=MHproposal.diss,
-#                                     verbose=verbose, 
-#                                     ...)
-#                )
-#  }else{
-
   if (verbose) cat("Fitting ERGM.\n")
     v <- switch(control$style,
                 "Robbins-Monro" = ergm.robmon(theta0, nw, model, Clist, burnin, interval,
@@ -163,16 +137,10 @@ ergm <- function(formula, theta0="MPLE",
                                  verbose=verbose, 
                                  ...)
                 )
-#  }
-
   v$formula <- formula
-#  v$formula.diss <- dissolve
   v$constraints <- constraints
   v$prop.args <- control$prop.args
   v$prop.weights <- control$prop.weights
-#  v$prop.args.diss <- control$prop.args.diss
-#  v$prop.weights.diss <- control$prop.weights.diss
-
   v$offset <- model$etamap$offsettheta
   v$drop <- droppedterms
   v$etamap <- model$etamap
@@ -181,3 +149,4 @@ ergm <- function(formula, theta0="MPLE",
   options(warn=current.warn)
   v
 }
+
