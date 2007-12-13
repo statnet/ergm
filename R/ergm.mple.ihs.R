@@ -1,4 +1,4 @@
-ergm.mple<-function(Clist, Clist2, m, theta.offset=NULL,
+ergm.mple.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
                     MPLEtype="glm", family="binomial",
 #                    largestdegree=TRUE,
                     MPLEsamplesize=50000,
@@ -6,57 +6,92 @@ ergm.mple<-function(Clist, Clist2, m, theta.offset=NULL,
                     maxNumDyadTypes=100000,
                     theta1=NULL, verbose=FALSE, ...)
 {
-  offset <- rep(0,Clist$ndyads)
-  numobs <- Clist$ndyads  
+  if(Clist.miss$nedges>0){
+    temp <- matrix(0,ncol=Clist$n,nrow=Clist$n)
+    base <- cbind(as.vector(col(temp)), as.vector(row(temp)))
+    base <- base[base[, 2] > base[, 1], ]
+    if(Clist.miss$dir){
+      base <- cbind(base[,c(2,1)],base)
+      base <- matrix(t(base),ncol=2,byrow=T)
+    }
+    ubase <- base[,1] + Clist$n*base[,2]
+#   offset <- !is.na(match(ubase, Clist.miss$tails+Clist.miss$heads*Clist$n))
+#   Changed by MSH Oct 13. The original (above) seems just wrong!
+    offset <- !is.na(match(ubase, Clist.miss$heads+Clist.miss$tails*Clist$n))
+    offset <- 1*offset
+    numobs <- Clist$ndyads - sum(offset)
+  }else{
+    offset <- rep(0,Clist$ndyads)
+    numobs <- Clist$ndyads
+  }
   z <- .C("MPLE_wrapper",
-          as.integer(Clist$heads),    as.integer(Clist$tails),
-          as.integer(Clist$nedges),   as.integer(Clist$n), 
-          as.integer(Clist$dir),     as.integer(Clist$bipartite),
-          as.integer(Clist$nterms), 
-          as.character(Clist$fnamestring), as.character(Clist$snamestring),
-          as.double(Clist$inputs),
-          y = integer(maxNumDyadTypes),
-          x = double(maxNumDyadTypes*Clist$nparam),
-          weightsvector = integer(maxNumDyadTypes),
-          as.double(offset), compressedOffset=double(maxNumDyadTypes),
-          as.integer(maxNumDyadTypes),
-          PACKAGE="ergm")
+           as.integer(Clist$heads),    as.integer(Clist$tails),
+           as.integer(Clist$nedges),   as.integer(Clist$n), 
+           as.integer(Clist$dir),     as.integer(Clist$bipartite),
+           as.integer(Clist$nterms), 
+           as.character(Clist$fnamestring), as.character(Clist$snamestring),
+           as.double(Clist$inputs),
+           y = integer(maxNumDyadTypes),
+           x = double(maxNumDyadTypes*Clist$nparam),
+           weightsvector = integer(maxNumDyadTypes),
+           as.double(offset), compressedOffset=double(maxNumDyadTypes),
+           as.integer(maxNumDyadTypes),
+           PACKAGE="ergm")
+#
   uvals <- z$weightsvector!=0
   zy <- z$y[uvals]
   wend <- z$weightsvector[uvals]
   xmat <- matrix(z$x, ncol=Clist$nparam, byrow=TRUE)[uvals,,drop=FALSE]
   colnames(xmat) <- m$coef.names
+##
+## Adjust for meanstats
+##
+#  if(!is.null(Clist$meanstats)){
+#    uobs <- (zy * wend) %*% xmat
+#    xmat <- sweep(xmat,2,Clist$meanstats/uobs,"*")
+##   xmat <- sweep(sweep(xmat,1,wend,"*"),2,Clist$meanstats/uobs,"*")
+##   wend <- wend-wend+mean(wend)
+#  }
   dmiss <- z$compressedOffset[uvals]
   rm(z,uvals)
-  #
-  # Adjust for the offset
-  #
+#
+# Adjust for the offset
+#
   if(any(m$etamap$offsettheta)){
-    if(is.null(theta.offset)){
-      theta.offset <- rep(0, length=Clist$nparam)
-      names(theta.offset) <- m$coef.names
-      theta.offset[m$etamap$offsettheta] <- -Inf
-    }
-    foffset <- xmat[,!m$etamap$offsettheta]%*%theta.offset[!m$etamap$offsettheta]
-    shouldoffset <- apply(abs(xmat[,m$etamap$offsettheta])>1e-8,1,any)
-    xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE]
-    colnames(xmat) <- m$coef.names[!m$etamap$offsettheta]
-    xmat <- xmat[!shouldoffset,,drop=FALSE]
-    zy <- zy[!shouldoffset]
-    wend <- wend[!shouldoffset]
-    foffset <- foffset[!shouldoffset]
-    theta.offset <- theta.offset[!m$etamap$offsettheta]
-  }else{
-    foffset <- rep(0, length=length(zy))
+   if(is.null(theta.offset)){
     theta.offset <- rep(0, length=Clist$nparam)
-    if(Clist$nedges>0){
-      theta.offset[1] <- log(Clist$nedges/(Clist$ndyads-Clist$nedges))
-    }else{
-      theta.offset[1] <- log(1/(Clist$ndyads-1))
-    }
     names(theta.offset) <- m$coef.names
+    theta.offset[m$etamap$offsettheta] <- -Inf
+   }
+#  foffset <- xmat %*% theta.offset
+#  shouldoffset <- is.infinite(foffset)
+   foffset <- xmat[,!m$etamap$offsettheta]%*%theta.offset[!m$etamap$offsettheta]
+   shouldoffset <- apply(abs(xmat[,m$etamap$offsettheta])>1e-8,1,any)
+   xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE]
+   colnames(xmat) <- m$coef.names[!m$etamap$offsettheta]
+   xmat <- xmat[!shouldoffset,,drop=FALSE]
+   zy <- zy[!shouldoffset]
+   wend <- wend[!shouldoffset]
+   foffset <- foffset[!shouldoffset]
+   theta.offset <- theta.offset[!m$etamap$offsettheta]
+  }else{
+   foffset <- rep(0, length=length(zy))
+   theta.offset <- rep(0, length=Clist$nparam)
+   if(Clist$nedges>0){
+     theta.offset[1] <- log(Clist$nedges/(Clist$ndyads-Clist$nedges))
+   }else{
+     theta.offset[1] <- log(1/(Clist$ndyads-1))
+   }
+   names(theta.offset) <- m$coef.names
   }
   
+  if(Clist.miss$nedges>0){
+    xmat <- xmat[dmiss==0,,drop=FALSE]
+    zy <- zy[dmiss==0]
+    wend <- wend[dmiss==0]
+    foffset <- foffset[dmiss==0]
+    colnames(xmat) <- m$coef.names
+  }
   
 #   Note:  Logistic regression model is fit without an intercept term.
 #   If an intercept is desired, the 1-star term should be included in
@@ -103,6 +138,7 @@ ergm.mple<-function(Clist, Clist2, m, theta.offset=NULL,
    mplefit <- ergm.pen.glm(
                   zy ~ xmat -1 + offset(foffset),
                   data=data.frame(xmat), weights=wend)
+#  mple$deviance <- 2 * (mplefit$loglik-mplefit$loglik[1])[-1]
    mplefit$deviance <- -2*mplefit$loglik
    mplefit$cov.unscaled <- mplefit$var
    mplefit.summary <- mplefit
@@ -134,7 +170,7 @@ ergm.mple<-function(Clist, Clist2, m, theta.offset=NULL,
 #   }
 #
 #  Determine the independence theta and MLE
-#  Note that the term "match" is deprecated.
+#  Note that the term "match" is depreciated.
 #
    if(is.null(theta1)){
     independent.terms <- 
@@ -227,28 +263,28 @@ ergm.mple<-function(Clist, Clist2, m, theta.offset=NULL,
 # mplefit <- call(MPLEtype, zy ~ 1, family=binomial)
 #
   if(MPLEtype=="penalized"){
-    mplefit.null <- ergm.pen.glm(zy ~ 1, weights=wend)
+   mplefit.null <- ergm.pen.glm(zy ~ 1, weights=wend)
   }else{
-    options(warn=-1)
-    #  options(warn=2)
-    if(MPLEtype=="logitreg"){
-      mplefit.null <- ergm.logitreg(x=matrix(1,ncol=1,nrow=length(zy)),
-                                    y=zy, offset=foffset, wt=wend)
-    }else{
-      mplefit.null <- try(glm(zy ~ 1, family=family, weights=wend),
-                          silent = TRUE)
-      if (inherits(mplefit.null, "try-error")) {
-        mplefit.null <- list(coef=0, deviance=0,
-                             cov.unscaled=diag(1))
-      }
+   options(warn=-1)
+#  options(warn=2)
+   if(MPLEtype=="logitreg"){
+    mplefit.null <- ergm.logitreg(x=matrix(1,ncol=1,nrow=length(zy)),
+                                  y=zy, offset=foffset, wt=wend)
+   }else{
+    mplefit.null <- try(glm(zy ~ 1, family=family, weights=wend),
+                        silent = TRUE)
+    if (inherits(mplefit.null, "try-error")) {
+      mplefit.null <- list(coef=0, deviance=0,
+                      cov.unscaled=diag(1))
     }
-    options(warn=0)
-    #  options(warn=2)
+   }
+   options(warn=0)
+#  options(warn=2)
   }
-  
+
   null.deviance <- mplefit$null.deviance
   aic <- mplefit$aic
-  
+
   if(save.glm){
     glm <- mplefit
     glm.null <- mplefit.null
@@ -257,7 +293,7 @@ ergm.mple<-function(Clist, Clist2, m, theta.offset=NULL,
     glm.null <- NULL
   }
 
-  # Output results as ergm-class object
+# Output results as ergm-class object
   structure(list(coef=theta, sample=NA,
       iterations=iteration, mle.lik=loglik,
       MCMCtheta=theta, loglikelihoodratio=loglik, gradient=gradient,
@@ -267,8 +303,6 @@ ergm.mple<-function(Clist, Clist2, m, theta.offset=NULL,
       theta1=theta1),
      class="ergm")
 }
-
-
 ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
                           intercept = FALSE, start = rep(0, p),
                           offset=NULL, maxit=200, ...)

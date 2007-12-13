@@ -1,4 +1,4 @@
-ergm.mainfitloop <- function(theta0, nw, model, Clist, Clist.miss,
+ergm.mainfitloop <- function(theta0, nw, model, Clist,
                              initialfit, 
                              MCMCparams, 
                              MHproposal, MHproposal.miss,

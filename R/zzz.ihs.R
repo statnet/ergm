@@ -47,4 +47,10 @@
 #   require(network, quietly=TRUE)
 }
 
-if(exists("ergm.ihs")) ergm<-ergm.ihs
+if(exists("ergm.ihs")) { # Look here for a list of functions that exist in two
+  # distinct versions now, one for CRAN and one not.  This makes debugging 
+  # twice as much work for these functions.  :(
+  ergm.mple <- ergm.mple.ihs
+  ergm.initialfit <- ergm.initialfit.ihs
+  ergm<-ergm.ihs
+}
