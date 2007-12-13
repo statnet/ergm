@@ -43,7 +43,8 @@ ergm <- function(formula, theta0="MPLE",
                                 Clist2.initial, model.initial,
                                 MPLEtype=control$MPLEtype, verbose=verbose, ...)
   if (MLestimate && (!ergm.independencemodel(model.initial)
-                     || !is.null(meanstats) || constraints!=(~.))
+                     || constraints!=(~.))
+#                     || !is.null(meanstats) || constraints!=(~.))
      || control$force.mcmc) {
     theta0 <- initialfit$coef
     names(theta0) <- model.initial$coef.names
@@ -102,7 +103,6 @@ ergm <- function(formula, theta0="MPLE",
                                  model, Clist,
                                  initialfit,
                                  MCMCparams=MCMCparams, MHproposal=MHproposal,
-                                 MHproposal.miss=MHproposal.miss,
                                  verbose=verbose, 
                                  ...)
                 )

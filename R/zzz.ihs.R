@@ -52,5 +52,6 @@ if(exists("ergm.ihs")) { # Look here for a list of functions that exist in two
   # twice as much work for these functions.  :(
   ergm.mple <- ergm.mple.ihs
   ergm.initialfit <- ergm.initialfit.ihs
+  ergm.mainfitloop <- ergm.mainfitloop.ihs
   ergm<-ergm.ihs
 }
