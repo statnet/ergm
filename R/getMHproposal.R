@@ -24,20 +24,10 @@ MHproposals<-
           c("c", "hamming",       "default",      "HammingTNT"),
           c("c", "hamming",       "random",       "HammingTNT"),
           c("c", "edges+hamming", "default",      "HammingConstantEdges"),
-          c("c", "edges+hamming", "random",       "HammingConstantEdges"),
-          c("f", "",              "default",      "formationTNT"),
-          c("f", "",              "TNT",          "formationTNT"),
-          c("f", "",              "random",       "formation"),
-          c("f", "bd",            "default",      "formationTNT"),
-          c("f", "bd",            "TNT",          "formationTNT"),
-          c("f", "bd",            "random",       "formation"),
-          c("d", "",              "default",      "dissolution"),
-          c("d", "",              "random",       "dissolution"),
-          c("d", "bd",            "default",      "dissolution"),
-          c("d", "bd",            "random",       "dissolution")
+          c("c", "edges+hamming", "random",       "HammingConstantEdges")
         )
-tmp <- MHproposals
-MHproposals <- data.frame(I(tmp[,1]), I(tmp[,2]), I(tmp[,3]), I(tmp[,4]))  
+MHproposals <- data.frame(I(MHproposals[,1]), I(MHproposals[,2]), 
+                          I(MHproposals[,3]), I(MHproposals[,4]))  
 colnames(MHproposals)<-c("Class","Constraints","Weights","MHP")
 
 
@@ -119,11 +109,6 @@ MHproposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NULL, 
   if(is.null(arguments)) arguments<-object$prop.args
   if(is.null(nw)) nw<-object$network
   if(is.null(weights)) weights<-"default"
-  if(is.null(model)){
-    model<-if(class %in% c("c","f"))
-      ergm.getmodel(object$formula,nw,...)
-    else
-      ergm.getmodel.dissolve(object$formula,nw,...)
-  }  
+  if(is.null(model)) model<-ergm.getmodel(object$formula,nw,...)
   MHproposal(constraints,arguments=arguments,nw=nw,model=model,weights=weights,class=class)
 }

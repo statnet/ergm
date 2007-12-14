@@ -54,4 +54,7 @@ if(exists("ergm.ihs")) { # Look here for a list of functions that exist in two
   ergm.initialfit <- ergm.initialfit.ihs
   ergm.mainfitloop <- ergm.mainfitloop.ihs
   ergm<-ergm.ihs
+  MHproposals <- MHproposals.ihs
+  MHproposal.ergm <- MHproposal.ergm.ihs
 }
+
