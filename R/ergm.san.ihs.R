@@ -43,9 +43,9 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
   MHproposal<-MHproposal(constraints,control$prop.args,nw,model,weights=control$prop.weights)
-  if(missing(theta0)) {
-    warning("No parameter values given, using the MPLE for the passed network.\n\t")
-  }
+# if(missing(theta0)) {
+#   warning("No parameter values given, using the MPLE for the passed network.\n\t")
+# }
 # theta0 <- c(theta0[1],rep(0,Clist$nparam-1))
   
   if(!is.null(seed)) set.seed(as.integer(seed))

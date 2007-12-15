@@ -54,7 +54,7 @@ ergm.degeneracy <- function(object,
    }
   }else{
    # So a non-MCMC fit
-   if(!is.null(object$glm)){
+   if("glm" %in% class(object$glm)){
    # So the MPLE was fit
     # This is the change in log-likelihood for logistic regression
 #   object$degeneracy.type <- abs(model.matrix(object$glm) %*% object$glm$coef)
