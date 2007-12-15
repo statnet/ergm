@@ -13,6 +13,7 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
                         meanstats=NULL,
                         sequential=TRUE,
                         constraints=~.,
+                        basis=NULL,
                         control=san.control(),
                         verbose=FALSE) {
   out.list <- list()
@@ -20,7 +21,13 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
   formula <- object
 
   if(!is.null(seed)) set.seed(as.integer(seed))
-  nw <- ergm.getnetwork(formula)
+  if(!is.null(basis)) {
+    nw <- basis
+    formula <- update(formula, nw ~ .)
+    object <- formula
+  } else {
+    nw <- ergm.getnetwork(formula)
+  }
   if(class(nw) =="network.series"){
     nw <- nw$networks[[1]]
   }

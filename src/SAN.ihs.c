@@ -252,7 +252,7 @@ void SANMetropolisHastings (MHproposal *MHp,
 			    Network *nwp,
 			    Model *m, DegreeBound *bd) {
   long int step, taken;
-  int i,j;
+  int i,j, unum=0;
   double ip;
   double dif;
   double div=0.0;
@@ -290,23 +290,28 @@ void SANMetropolisHastings (MHproposal *MHp,
 //     ip += m->workspace[i]*((m->workspace[i])+2.0*networkstatistics[i] );
 // Next counts of statistics that improve
      dif=(m->workspace[i])*((m->workspace[i])+2.0*networkstatistics[i]);
-     ip += tau[i]*dif/asig2[i];
-     div+=abs(m->workspace[i])/sqrt(asig2[i]);
+     div=abs(networkstatistics[i])/sqrt(asig2[i]);
+//   ip += dif/(tau[i]*asig2[i]);
+//   ip += div*dif/(tau[i]*asig2[i]);
+//   div+=abs(networkstatistics[i])/sqrt(asig2[i]);
+//   div+=abs(m->workspace[i])/sqrt(asig2[i]);
 //   ip += dif;
-//   if(dif <  0.0 ) ip+=1.0;
-//   if(dif == 0.0 ) ip+=0.5;
+    if(dif < 0.0 ) ip+=1.0;
+    if(dif > 0.0 ) ip-=1.0;
+//  if(dif == 0.0 ) ip-=0.5;
 //   if((m->workspace[i]) == 0.0 ) ip-=2.0;
 //     ip += (m->workspace[i]*((m->workspace[i])+2.0*networkstatistics[i]) < 0.0 ) ? 2.0 : 0.0;
 //     ip += theta[0] * m->workspace[i]*((m->workspace[i])+2.0*networkstatistics[i] );
     }
 //  Rprintf("ip %f m->workspace[i] %f ns %f asig2[0] %f div %f \n",ip, m->workspace[0],networkstatistics[0],asig2[0],div);
+// Rprintf("step %d tau[0] %f tau[1] %f div %f \n",step, tau[0],tau[1],div);
       
     /* if we accept the proposed network */
 //  if (ip < 0.0) { 
 //  if (div > 0.0 && (ip < 0.0 || unif_rand() < 0.01)) { 
-    if (div > 0.0 && (ip < 0.0 || unif_rand() < (nsteps-step)*0.01*tau[0]/(1.0*nsteps))) { 
+//  if (ip <= -0.0 || unif_rand() < (nsteps-step)*0.001*tau[0]/(1.0*nsteps)) { 
 //  if (ip > exp(theta[0])*(m->n_stats)*unif_rand()/(1.0+exp(theta[0])) { 
-//    if (ip+0.1 > (m->n_stats)*unif_rand()) { 
+    if (ip > tau[0]*(m->n_stats)*unif_rand()) { 
       /* Make proposed toggles (updating timestamps--i.e., for real this time) */
       for (i=0; i < MHp->ntoggles; i++){
         ToggleEdgeWithTimestamp(MHp->togglehead[i], MHp->toggletail[i], nwp);
@@ -323,16 +328,22 @@ void SANMetropolisHastings (MHproposal *MHp,
 //      div += (networkstatistics[i])*(networkstatistics[i]);
 //    }
       taken++;
-      if(taken < 10000){
+      if(1000*trunc(taken/1000)==taken){
+       unum=0;
        for (j=0; j<m->n_stats; j++){
-        ubar[j]  += networkstatistics[j];
-        u2bar[j] += networkstatistics[j]*networkstatistics[j];
-        asig2[j] = (u2bar[j]-ubar[j]*ubar[j]/(1.0*taken))/(1.0*taken);
-        if( asig2[j] <= 1.0){
-          asig2[j]=1.0;
-        }
-//    Rprintf("j %d ubar %f u2bar %f asig2[j] %f ns %f\n", j,  ubar[j], u2bar[j], 
-//  	  asig2[j],networkstatistics[j]); 
+//  Rprintf("j %d ubar %f u2bar %f asig2[j] %f ns %f\n", j,  ubar[j], u2bar[j], 
+//	  asig2[j],networkstatistics[j]); 
+        ubar[j] = 0.0;
+        u2bar[j] = 0.0;
+       }
+      }
+      for (j=0; j<m->n_stats; j++){
+       unum++;
+       ubar[j]  += networkstatistics[j];
+       u2bar[j] += networkstatistics[j]*networkstatistics[j];
+       asig2[j] = (u2bar[j]-ubar[j]*ubar[j]/(1.0*unum))/(1.0*unum);
+       if( asig2[j] <= 0.0){
+         asig2[j]=1.0;
        }
       }
     }
