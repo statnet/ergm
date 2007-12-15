@@ -39,7 +39,7 @@ MHproposal.NULL<-function(object, ...) stop("NULL passed to MHproposal. This may
 
 MHproposal.MHproposal<-function(object,...) return(object)
 
-MHproposal.character <- function(object, arguments, nw, model){
+MHproposal.character <- function(object, arguments, nw, model, ...){
   name<-object
   proposal <- eval(call(paste("InitMHP.", name, sep=""),
                         arguments, nw, model))
@@ -50,7 +50,7 @@ MHproposal.character <- function(object, arguments, nw, model){
   proposal
 }
 
-MHproposal.formula <- function(object, arguments, nw, model, weights="default", class="c") {
+MHproposal.formula <- function(object, arguments, nw, model, weights="default", class="c", ...) {
 
   constraints<-object
   ## Construct a list of constraints and arguments from the formula.

@@ -162,22 +162,27 @@
 \alias{is.latent.cluster}
 \alias{is.matrixnetwork}
 \alias{llik.fun}
+\alias{llik.fun.miss}
 \alias{llik.fun2}
 \alias{llik.fun3}
 \alias{llik.grad}
+\alias{llik.grad.miss}
 \alias{llik.grad2}
 \alias{llik.grad3}
 \alias{llik.hessian}
+\alias{llik.hessian.miss} 
 \alias{llik.hessian2}
 \alias{llik.info3}
 \alias{llik.mcmcvar3}
 \alias{mcmc.diagnostics.default}
 \alias{midarrow}
+\alias{newnw.extract}
 \alias{plot.mcmc.ergm}
 \alias{print.raftery.diag.ergm}
 \alias{robust.inverse}
 \alias{rspartnerdist}
 \alias{set.mfrow}
+\alias{simulate.control}
 \alias{summary.formula}
 \alias{traceplot.ergm}
 \alias{twopathdist}
@@ -236,6 +241,14 @@
 \alias{sufftoprob}
 \alias{degreedist}
 \alias{mixingmatrix}
+\alias{print.mixingmatrix}
+\alias{print.summary.ergm} 
+\alias{sociality}
+\alias{sociality.default}
+\alias{sociality.ergm}
+\alias{sociality.formula}
+\alias{sociality.network}
+\alias{Summary.ergm.future}
 
 \description{
   Internal ergm functions.

@@ -306,11 +306,11 @@ mixingmatrix <- function(nw, attrname) {
   ans
 }
 
-print.mixingmatrix <- function(mm) {
-  m <- mm$mat
+print.mixingmatrix <- function(x, ...) {
+  m <- x$mat
   rn <- rownames(m)
   cn <- colnames(m)  
-  if (mm$type == "undirected") {
+  if (x$type == "undirected") {
     dimnames(m) <- list(rn, cn)
     cat("Note:  Marginal totals can be misleading\n",
         "for undirected mixing matrices.\n")
@@ -321,7 +321,7 @@ print.mixingmatrix <- function(mm) {
     m <- rbind(m,total)
     rn <- c(rn, "Total")
     cn <- c(cn, "Total")
-    if (mm$type == "bipartite")
+    if (x$type == "bipartite")
       dimnames(m) <- list(Actors = rn,Events = cn)
     else
       dimnames(m) <- list(From = rn,To = cn)
