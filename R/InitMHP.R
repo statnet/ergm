@@ -14,6 +14,14 @@ InitMHP.TNT <- function(arguments, nw, model) {
   MHproposal
 }
 
+InitMHP.TNT10 <- function(arguments, nw, model) {
+  MHproposal <- list(name = "TNT10", args=NULL, package="ergm")
+  if(is.bipartite(nw)){
+    MHproposal$name <- "BipartiteTNT"
+  }
+  MHproposal
+}
+
 InitMHP.CondDegree <- function(arguments, nw, model) {
   MHproposal <- list(name = "CondDegree", args=NULL, package="ergm")
   if (is.directed(nw)) {

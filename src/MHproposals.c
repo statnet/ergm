@@ -84,6 +84,50 @@ void MH_TNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
   }
 }
 
+void MH_TNT10 (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
+{  
+  Vertex head, tail;
+  Edge rane, nedges=nwp->nedges;
+  static double comp=0.5;
+  static double odds;
+  static Edge ndyads;
+  
+  if(MHp->ntoggles == 0) { /* Initialize */
+    MHp->ntoggles=10;
+    MHp->ratio = 1.0;
+    odds = comp/(1.0-comp);
+    ndyads = (nwp->nnodes-1)*nwp->nnodes / (nwp->directed_flag? 1:2);  
+    return;
+  }
+  
+  for(int trytoggle = 0; trytoggle < MAX_TRIES; trytoggle++){
+   for(int n = 0; n < 10; n++){
+    if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
+      rane = 1 + unif_rand() * nedges;
+      FindithEdge(MHp->togglehead, MHp->toggletail, rane, nwp);
+      MHp->ratio *= nedges  / (odds*ndyads + nedges);
+    }else{ /* Select a dyad at random */
+      do{
+	head = 1 + unif_rand() * nwp->nnodes;
+      }while ((tail = 1 + unif_rand() * nwp->nnodes) == head);
+      if (head > tail && !nwp->directed_flag)  {
+      MHp->togglehead[n] = tail;
+      MHp->toggletail[n] = head;
+    }else{
+	MHp->togglehead[n] = head;
+	MHp->toggletail[n] = tail;
+      }
+      if(EdgetreeSearch(MHp->togglehead[n],MHp->toggletail[n],nwp->outedges)!=0){
+	MHp->ratio *= nedges / (odds*ndyads + nedges);
+      }else{
+	MHp->ratio *= 1.0 + (odds*ndyads)/(nedges + 1);
+      }
+    } 
+   }
+   if(CheckTogglesValid(MHp,bd,nwp)) break;
+  }
+}
+
 /*********************
  void MH_constantedges
  propose pairs of toggles that keep number of edges

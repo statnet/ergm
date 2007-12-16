@@ -23,13 +23,14 @@ void SAN_wrapper (int *heads, int *tails, int *dnedges,
                    double *sample, int *burnin, int *interval,  
                    int *newnetworkheads, 
                    int *newnetworktails, 
+                   double *invcov, 
                    int *fVerbose, 
                    int *attribs, int *maxout, int *maxin, int *minout,
                    int *minin, int *condAllDegExact, int *attriblength, 
                    int *maxedges,
                    int *mheads, int *mtails, int *mdnedges)  {
-  int i, nextedge, directed_flag, hammingterm, formationterm;
-  Vertex v, k, n_nodes, nmax, bip, hhead, htail;
+  int directed_flag, hammingterm, formationterm;
+  Vertex n_nodes, nmax, bip, hhead, htail;
   Edge n_edges, n_medges, nddyads, kedge;
   Network nw[2];
   DegreeBound *bd;
@@ -120,7 +121,7 @@ void SAN_wrapper (int *heads, int *tails, int *dnedges,
   bd=DegreeBoundInitialize(attribs, maxout, maxin, minout, minin,
 			   *condAllDegExact, *attriblength, nw);
   SANSample (*MHproposaltype, *MHproposalpackage,
-	      theta0, tau, sample, (long int)*samplesize,
+	      theta0, invcov, tau, sample, (long int)*samplesize,
 	      (long int)*burnin, (long int)*interval,
 	      hammingterm,
 	      (int)*fVerbose, nw, m, bd);
@@ -148,7 +149,7 @@ void SAN_wrapper (int *heads, int *tails, int *dnedges,
  the networkstatistics array. 
 *********************/
 void SANSample (char *MHproposaltype, char *MHproposalpackage,
-  double *theta, double *tau, double *networkstatistics, 
+  double *theta, double *invcov, double *tau, double *networkstatistics, 
   long int samplesize, long int burnin, 
   long int interval, int hammingterm, int fVerbose,
   Network *nwp, Model *m, DegreeBound *bd) {
@@ -181,7 +182,7 @@ void SANSample (char *MHproposaltype, char *MHproposalpackage,
    prepare covariance matrix for Mahalanobis distance calculations 
    in subsequent calls to M-H
    *********************/
-  SANMetropolisHastings(&MH, theta, tau, networkstatistics, burnin, &staken,
+  SANMetropolisHastings(&MH, theta, invcov, tau, networkstatistics, burnin, &staken,
 		     hammingterm, fVerbose, nwp, m, bd);
   
   if (fVerbose){
@@ -202,7 +203,7 @@ void SANSample (char *MHproposaltype, char *MHproposalpackage,
       networkstatistics += m->n_stats;
       /* This then adds the change statistics to these values */
       
-      SANMetropolisHastings (&MH, theta, tau, networkstatistics, 
+      SANMetropolisHastings (&MH, theta, invcov, tau, networkstatistics, 
 		             interval, &staken,
 			     hammingterm, fVerbose, nwp, m, bd);
       tottaken += staken;
@@ -246,25 +247,18 @@ void SANSample (char *MHproposaltype, char *MHproposalpackage,
  essentially generates a sample of size one
 *********************/
 void SANMetropolisHastings (MHproposal *MHp,
-			    double *theta, double *tau, double *networkstatistics,
+			    double *theta, double *invcov, 
+			    double *tau, double *networkstatistics,
 			    long int nsteps, long int *staken,
 			    int hammingterm, int fVerbose,
 			    Network *nwp,
 			    Model *m, DegreeBound *bd) {
   long int step, taken;
-  int i,j, unum=0;
-  double ip;
-  double dif;
-  double div=0.0;
-  double *ubar, *u2bar, *asig2;
-  ubar = (double *)malloc( m->n_stats * sizeof(double));
-  u2bar = (double *)malloc( m->n_stats * sizeof(double));
-  asig2 = (double *)malloc( m->n_stats * sizeof(double));
-  for (j=0; j < m->n_stats; j++){
-    ubar[j] = 0.0;
-    u2bar[j] = 0.0;
-    asig2[j] = 1.0;
-  }
+  int i,j;
+  double ip,dif;
+  double *deltainvsig, *delta;
+  deltainvsig = (double *)malloc( m->n_stats * sizeof(double));
+  delta = (double *)malloc( m->n_stats * sizeof(double));
   
 //  div=0.0;
 //    Rprintf("\n");
@@ -283,35 +277,34 @@ void SANMetropolisHastings (MHproposal *MHp,
 
     ChangeStats(MHp->ntoggles, MHp->togglehead, MHp->toggletail, nwp, m);
       
-    div=0.0;
+    dif=0.0;
+    ip=0.0;
     /* Calculate inner product */
-    for (i=0, ip=0.0; i<m->n_stats; i++){
-// Next always
-//     ip += m->workspace[i]*((m->workspace[i])+2.0*networkstatistics[i] );
-// Next counts of statistics that improve
-     dif=(m->workspace[i])*((m->workspace[i])+2.0*networkstatistics[i]);
-     div=abs(networkstatistics[i])/sqrt(asig2[i]);
-//   ip += dif/(tau[i]*asig2[i]);
-//   ip += div*dif/(tau[i]*asig2[i]);
-//   div+=abs(networkstatistics[i])/sqrt(asig2[i]);
-//   div+=abs(m->workspace[i])/sqrt(asig2[i]);
-//   ip += dif;
-    if(dif < 0.0 ) ip+=1.0;
-    if(dif > 0.0 ) ip-=1.0;
-//  if(dif == 0.0 ) ip-=0.5;
-//   if((m->workspace[i]) == 0.0 ) ip-=2.0;
-//     ip += (m->workspace[i]*((m->workspace[i])+2.0*networkstatistics[i]) < 0.0 ) ? 2.0 : 0.0;
-//     ip += theta[0] * m->workspace[i]*((m->workspace[i])+2.0*networkstatistics[i] );
+    for (i=0; i<m->n_stats; i++){
+     delta[i]=0.0;
+     deltainvsig[i]=0.0;
+     for (j=0; j<m->n_stats; j++){
+      delta[i]+=networkstatistics[j]*invcov[i+(m->n_stats)*j];
+      deltainvsig[i]+=(m->workspace[j])*invcov[i+(m->n_stats)*j];
+     }
+     ip+=deltainvsig[i]*((m->workspace[i])+2.0*networkstatistics[i]);
+     dif+=delta[i]*networkstatistics[i];
     }
+//Rprintf("i %d j %d ic %f\n",i,j,invcov[i+(m->n_stats)*j]);
+//if(i<=1){Rprintf("i %d %f %f\n",i,div,div*div*dif/(tau[i]*asig2[i]));}
+//Rprintf(" ip %f dif %f\n",ip,dif);
+//Rprintf("ip %f div %f networkstatistics[0] %f networkstatistics[1] %f\n",
+//	 ip,div,networkstatistics[0],networkstatistics[1]);
 //  Rprintf("ip %f m->workspace[i] %f ns %f asig2[0] %f div %f \n",ip, m->workspace[0],networkstatistics[0],asig2[0],div);
 // Rprintf("step %d tau[0] %f tau[1] %f div %f \n",step, tau[0],tau[1],div);
       
     /* if we accept the proposed network */
-//  if (ip < 0.0) { 
+    if (ip <= 0.0) { 
+//  if (ip <= 0.0 || (ip/dif) < 0.001) { 
 //  if (div > 0.0 && (ip < 0.0 || unif_rand() < 0.01)) { 
-//  if (ip <= -0.0 || unif_rand() < (nsteps-step)*0.001*tau[0]/(1.0*nsteps)) { 
+// if (ip <= 0.0 || (ip/dif) < (nsteps-step)*0.001*tau[0]/(1.0*nsteps)) { 
 //  if (ip > exp(theta[0])*(m->n_stats)*unif_rand()/(1.0+exp(theta[0])) { 
-    if (ip > tau[0]*(m->n_stats)*unif_rand()) { 
+//  if (ip > tau[0]*(m->n_stats)*unif_rand()) { 
       /* Make proposed toggles (updating timestamps--i.e., for real this time) */
       for (i=0; i < MHp->ntoggles; i++){
         ToggleEdgeWithTimestamp(MHp->togglehead[i], MHp->toggletail[i], nwp);
@@ -328,30 +321,15 @@ void SANMetropolisHastings (MHproposal *MHp,
 //      div += (networkstatistics[i])*(networkstatistics[i]);
 //    }
       taken++;
-      if(1000*trunc(taken/1000)==taken){
-       unum=0;
-       for (j=0; j<m->n_stats; j++){
-//  Rprintf("j %d ubar %f u2bar %f asig2[j] %f ns %f\n", j,  ubar[j], u2bar[j], 
-//	  asig2[j],networkstatistics[j]); 
-        ubar[j] = 0.0;
-        u2bar[j] = 0.0;
-       }
-      }
-      for (j=0; j<m->n_stats; j++){
-       unum++;
-       ubar[j]  += networkstatistics[j];
-       u2bar[j] += networkstatistics[j]*networkstatistics[j];
-       asig2[j] = (u2bar[j]-ubar[j]*ubar[j]/(1.0*unum))/(1.0*unum);
-       if( asig2[j] <= 0.0){
-         asig2[j]=1.0;
-       }
-      }
     }
     step++;
     nwp->duration_info.MCMCtimer++;
   }
 /*  if (fVerbose)
     Rprintf("%d taken (MCMCtimer=%d)\n", taken, nwp->duration_info.MCMCtimer); */
+
+  free(deltainvsig);
+  free(delta);
 
   *staken = taken;
 }

@@ -3,6 +3,7 @@ MHproposals.ihs<-
   rbind(I(c("c", "",              "default",      "TNT")),
           c("c", "",              "TNT",          "TNT"),
           c("c", "",              "random",       "randomtoggle"),
+          c("c", "",              "TNT10",        "TNT10"),
           c("c", "bd",            "default",       "TNT"),
           c("c", "bd",            "TNT",           "TNT"),
           c("c", "bd",            "random",       "randomtoggle"),

@@ -27,6 +27,7 @@
 
 void MH_randomtoggle (MHproposal *MHp, DegreeBound *bd, Network *nwp);
 void MH_TNT (MHproposal *MHp, DegreeBound *bd, Network *nwp);
+void MH_TNT10 (MHproposal *MHp, DegreeBound *bd, Network *nwp);
 void MH_ConstantEdges (MHproposal *MHp, DegreeBound *bd, Network *nwp);
 void MH_CondDegTetra (MHproposal *MHp, DegreeBound *bd, Network *nwp);
 void MH_CondDegreeDist (MHproposal *MHp, DegreeBound *bd, Network *nwp);

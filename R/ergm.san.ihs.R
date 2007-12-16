@@ -8,7 +8,7 @@ san.default <- function(object,...)
 }
 
 san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
-                        tau=1,
+                        tau=1, invcov=NULL,
                         burnin=10000, interval=10000,
                         meanstats=NULL,
                         sequential=TRUE,
@@ -76,8 +76,12 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
     }
 
     if(missing(theta0)) {
-      theta0 <- ergm.mple(Clist=Clist, Clist.miss=Clist.miss, 
-                          m=model, verbose=verbose, ...)$coef
+      fit <- ergm.mple(Clist=Clist, Clist.miss=Clist.miss, 
+                          m=model, verbose=verbose, ...)
+      theta0 <- fit$coef
+      if(is.null(invcov)) { invcov <- fit$covar }
+    }else{
+      if(is.null(invcov)) { invcov <- diag(length(theta0)) }
     }
     eta0 <- ergm.eta(theta0, model$etamap)
     stats <- matrix(summary(model$formula)-meanstats,
@@ -106,6 +110,7 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
              as.integer(use.burnin), as.integer(interval), 
              newnwheads = integer(maxedges),
              newnwtails = integer(maxedges), 
+             as.double(invcov),
              as.integer(verb),
              as.integer(MHproposal$bd$attribs), 
              as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),

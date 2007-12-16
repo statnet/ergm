@@ -3,9 +3,10 @@ ergm.mapl <- function(formula, theta0="MPLE",
                  burnin=10000000,
                  maxit=3,
                  constraints=~.,
+                 proposaltype="TNT10",
                  meanstats=NULL,
                  control=ergm.control(MPLEtype="penalized"),
-                 tau=0.01,
+                 tau=1, invcov=NULL,
                  verbose=FALSE, ...) {
   current.warn <- options()$warn
   options(warn=0)
@@ -13,8 +14,6 @@ ergm.mapl <- function(formula, theta0="MPLE",
 
   nw <- ergm.getnetwork(formula)
   if(!is.null(meanstats)){ control$drop <- FALSE }
-  if(control$nsubphases=="maxit") control$nsubphases<-maxit
-
   
   if (verbose) cat("Fitting initial model.\n")
 
@@ -35,17 +34,14 @@ ergm.mapl <- function(formula, theta0="MPLE",
   MHproposal.miss <- MHproposal("randomtoggleNonObserved", control$prop.args, nw, model.initial)
 
   # MPLE & Meanstats -> need fake network
-  if("MPLE" %in% theta0 && !is.null(meanstats)){
-  # if IHS 
-    nw.initial<-san(formula, meanstats=meanstats, tau=tau, verbose=verbose)
-  #else
-  # nw.initial<-mk.pseudonet(meanstats, formula, nw, verbose=verbose)
-  # IHS end
+  if(!missing(meanstats)){
+    nw<-san(formula, meanstats=meanstats, 
+            constraints=~., #constraints=constraints,
+            proposaltype=proposaltype,
+            tau=tau, invcov=invcov, burnin=burnin, verbose=verbose)
+    if(verbose){print(summary(formula, basis=nw)-meanstats)}
   }
-  else nw.initial<-nw
   
-  nw.initial<-simulate(formula, verbose=verbose)
-
   Clist.initial <- ergm.Cprepare(nw, model.initial)
   Clist.miss.initial <- ergm.design(nw, model.initial, initialfit=TRUE,
                                     verbose=verbose)
@@ -54,12 +50,22 @@ ergm.mapl <- function(formula, theta0="MPLE",
   pl <- ergm.pl.ihs(Clist=Clist.initial, Clist.miss=Clist.miss.initial,
                     m=model.initial,
                     verbose=verbose)
+  initialfit <- ergm.maple(pl=pl, model.initial,
+                          MPLEtype=control$MPLEtype, 
+                          verbose=verbose, ...)
+  if("MPLE" %in% theta0){theta0 <- initialfit$coef}
+
   if(!missing(nsim)){
+   nw.initial<-simulate(formula, constraints=constraints,
+                       theta0=theta0,
+                       verbose=verbose)
+
    meanstats <- summary(formula, basis=nw)
    sim <- nw.initial
    for(i in 1:nsim){
     sim <- san(formula, meanstats=meanstats, verbose=verbose,
-               tau=tau, burnin=burnin, basis=sim)
+               proposaltype=proposaltype,
+               tau=tau, invcov=invcov, burnin=burnin, constraints=constraints, basis=sim)
     if(verbose){print(summary(formula, basis=sim)-meanstats)}
     if(verbose){print(sum(sim[,] != nw[,]))}
     Clist.initial <- ergm.Cprepare(sim, model.initial)
@@ -80,10 +86,10 @@ ergm.mapl <- function(formula, theta0="MPLE",
    }
    pl$wend <- pl$wend / nsim
    pl$wend.full <- pl$wend.full / nsim
+   initialfit <- ergm.maple(pl=pl, model.initial,
+                            MPLEtype=control$MPLEtype, 
+                            verbose=verbose, ...)
   }
-  initialfit <- ergm.maple(pl=pl, model.initial,
-                          MPLEtype=control$MPLEtype, 
-                          verbose=verbose, ...)
 
     initialfit$offset <- model.initial$etamap$offsettheta
     initialfit$drop <- droppedterms
