@@ -1,6 +1,6 @@
 ergm.mapl <- function(formula, theta0="MPLE", 
-                 MPLEonly=TRUE, MLestimate=!MPLEonly, nsim=0,
-                 burnin=10000000,
+                 MPLEonly=TRUE, MLestimate=!MPLEonly, nsim=25,
+                 burnin=10000,
                  maxit=3,
                  constraints=~.,
                  proposaltype="TNT10",
@@ -30,15 +30,13 @@ ergm.mapl <- function(formula, theta0="MPLE",
    model.initial <- ergm.getmodel(formula, nw, drop=control$drop, initialfit=TRUE)
    droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
   }
-  MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial,class=proposalclass)
-  MHproposal.miss <- MHproposal("randomtoggleNonObserved", control$prop.args, nw, model.initial)
 
   # MPLE & Meanstats -> need fake network
   if(!missing(meanstats)){
     nw<-san(formula, meanstats=meanstats, 
             constraints=~., #constraints=constraints,
             proposaltype=proposaltype,
-            tau=tau, invcov=invcov, burnin=burnin, verbose=verbose)
+            tau=tau, invcov=invcov, burnin=10*burnin, verbose=verbose)
     if(verbose){print(summary(formula, basis=nw)-meanstats)}
   }
   
@@ -55,17 +53,21 @@ ergm.mapl <- function(formula, theta0="MPLE",
                           verbose=verbose, ...)
   if("MPLE" %in% theta0){theta0 <- initialfit$coef}
 
-  if(!missing(nsim)){
-   nw.initial<-simulate(formula, constraints=constraints,
-                       theta0=theta0,
-                       verbose=verbose)
+  if(nsim>0){
+   if(missing(meanstats)){
+    meanstats <- summary(formula, basis=nw)
+    sim<-simulate(formula, constraints=constraints,
+                  theta0=theta0,
+                  verbose=verbose)
+   }else{
+    sim <- nw
+   }
 
-   meanstats <- summary(formula, basis=nw)
-   sim <- nw.initial
    for(i in 1:nsim){
     sim <- san(formula, meanstats=meanstats, verbose=verbose,
                proposaltype=proposaltype,
-               tau=tau, invcov=invcov, burnin=burnin, constraints=constraints, basis=sim)
+               tau=tau, invcov=invcov, burnin=burnin, 
+               constraints=constraints, basis=sim)
     if(verbose){print(summary(formula, basis=sim)-meanstats)}
     if(verbose){print(sum(sim[,] != nw[,]))}
     Clist.initial <- ergm.Cprepare(sim, model.initial)
@@ -91,13 +93,13 @@ ergm.mapl <- function(formula, theta0="MPLE",
                             verbose=verbose, ...)
   }
 
-    initialfit$offset <- model.initial$etamap$offsettheta
-    initialfit$drop <- droppedterms
-    initialfit$network <- nw
-    initialfit$newnetwork <- nw
-    initialfit$formula <- formula
-    initialfit$constraints <- constraints
-    initialfit$prop.args <- control$prop.args
-    initialfit$prop.weights <- control$prop.weights
-    initialfit
+  initialfit$offset <- model.initial$etamap$offsettheta
+  initialfit$drop <- droppedterms
+  initialfit$network <- nw
+  initialfit$newnetwork <- nw
+  initialfit$formula <- formula
+  initialfit$constraints <- constraints
+  initialfit$prop.args <- control$prop.args
+  initialfit$prop.weights <- control$prop.weights
+  initialfit
 }
