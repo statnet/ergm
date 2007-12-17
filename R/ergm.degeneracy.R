@@ -42,7 +42,8 @@ ergm.degeneracy <- function(object,
     names(wgts) <- "num.dyads"
     object$degeneracy.type <- try(
       apply(changeobs, 1, ergm.compute.degeneracy,
-      theta0=object$MCMCtheta, etamap=object$etamap, statsmatrix=object$sample,
+      theta0=object$MCMCtheta, etamap=object$etamap, 
+      statsmatrix=object$sample[,!object$etamap$offsettheta,drop=FALSE],
       trustregion=control$trustregion),silent=TRUE)
     if(inherits(object$degeneracy.type,"try-error")){
      object$degeneracy <- Inf
