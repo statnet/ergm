@@ -57,13 +57,16 @@ ergm.mapl <- function(formula, theta0="MPLE",
    if(missing(meanstats)){
     meanstats <- summary(formula, basis=nw)
     sim<-simulate(formula, constraints=constraints,
-                  theta0=theta0,
+                  theta0=theta0, burnin=burnin,
                   verbose=verbose)
    }else{
     sim <- nw
    }
 
    for(i in 1:nsim){
+    sim<-simulate(formula, constraints=constraints,
+                  theta0=theta0, burnin=burnin,
+                  verbose=verbose)
     sim <- san(formula, meanstats=meanstats, verbose=verbose,
                proposaltype=proposaltype,
                tau=tau, invcov=invcov, burnin=burnin, 

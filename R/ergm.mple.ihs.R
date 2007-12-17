@@ -235,8 +235,8 @@ ergm.pl.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
    }
 #  foffset <- xmat %*% theta.offset
 #  shouldoffset <- is.infinite(foffset)
-   foffset <- xmat[,!m$etamap$offsettheta]%*%theta.offset[!m$etamap$offsettheta]
-   shouldoffset <- apply(abs(xmat[,m$etamap$offsettheta])>1e-8,1,any)
+   foffset <- xmat[,!m$etamap$offsettheta,drop=FALSE]%*%theta.offset[!m$etamap$offsettheta]
+   shouldoffset <- apply(abs(xmat[,m$etamap$offsettheta,drop=FALSE])>1e-8,1,any)
    xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE]
    colnames(xmat) <- m$coef.names[!m$etamap$offsettheta]
    xmat <- xmat[!shouldoffset,,drop=FALSE]
@@ -307,7 +307,7 @@ ergm.pl.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
    foffset.full <- NULL
   }
 #
-  list(xmat=xmat, zy=zy, foffset=foffset, wend=wend, numobs=numobs,
+  list(xmat=xmat, zy=zy, foffset=foffset, wend=wend, numobs=round(sum(wend)),
        xmat.full=xmat.full, zy.full=zy.full, foffset.full=foffset.full,
        theta.offset=theta.offset, MPLEsamplesize=MPLEsamplesize)
 }
