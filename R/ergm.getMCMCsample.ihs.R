@@ -60,12 +60,35 @@ ergm.getMCMCsample.ihs <- ergm.getMCMCsample <- function(nw, model, MHproposal, 
     MCMCparams.parallel$stats <- MCMCparams$stats[1:MCMCparams.parallel$samplesize,]
     require(snow)
 #
-#   Write the slave file
+# Start PVM if necessary
+#
+    if(getClusterOption("type")=="PVM"){
+     require(rpvm)
+     PVM.running <- try(.PVM.config(), silent=TRUE)
+     if(inherits(PVM.running,"try-error")){
+      hostfile <- paste(Sys.getenv("HOME"),"/.xpvm_hosts",sep="")
+      .PVM.start.pvmd(hostfile)
+      cat("no problem... PVM started by R...\n")
+     }
+    }
+#
+#   Start Cluster
 #
     cl<-makeCluster(MCMCparams$parallel)
     clusterSetupRNG(cl)
     clusterEvalQ(cl,library(ergm))
 #   clusterEvalQ(cl,eval(paste("library(",packagename,")",sep="")))
+#
+# Start PVM if necessary
+#
+    if(getClusterOption("type")=="PVM"){
+     PVM.running <- try(.PVM.config(), silent=TRUE)
+     if(inherits(PVM.running,"try-error")){
+      hostfile <- paste(Sys.getenv("HOME"),"/.xpvm_hosts",sep="")
+      .PVM.start.pvmd(hostfile)
+      cat("no problem... PVM started by R...\n")
+     }
+    }
 #
 #   Run the jobs with rpvm or Rmpi
 #
