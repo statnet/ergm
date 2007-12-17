@@ -54,7 +54,6 @@ ergm.getMCMCsample.ihs <- ergm.getMCMCsample <- function(nw, model, MHproposal, 
     newnetwork <- newnw.extract(nw,z)
 
   }else{
-    if(verbose){cat("Engaging warp drive ...\n")}
     MCMCparams.parallel <- MCMCparams
     MCMCparams.parallel$samplesize <- round(MCMCparams$samplesize / MCMCparams$parallel)
     MCMCparams.parallel$stats <- MCMCparams$stats[1:MCMCparams.parallel$samplesize,]
@@ -63,6 +62,7 @@ ergm.getMCMCsample.ihs <- ergm.getMCMCsample <- function(nw, model, MHproposal, 
 # Start PVM if necessary
 #
     if(getClusterOption("type")=="PVM"){
+     if(verbose){cat("Engaging warp drive using PVM ...\n")}
      require(rpvm)
      PVM.running <- try(.PVM.config(), silent=TRUE)
      if(inherits(PVM.running,"try-error")){
@@ -70,6 +70,8 @@ ergm.getMCMCsample.ihs <- ergm.getMCMCsample <- function(nw, model, MHproposal, 
       .PVM.start.pvmd(hostfile)
       cat("no problem... PVM started by R...\n")
      }
+    }else{
+     if(verbose){cat("Engaging warp drive using MPI ...\n")}
     }
 #
 #   Start Cluster
