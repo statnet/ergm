@@ -46,7 +46,7 @@ ergm.getMCMCsample.ihs <- function(nw, model, MHproposal, eta0, MCMCparams,
      if(inherits(PVM.running,"try-error")){
       hostfile <- paste(Sys.getenv("HOME"),"/.xpvm_hosts",sep="")
       .PVM.start.pvmd(hostfile)
-      cat("no problem... PVM started by R...\n")
+      cat("no problem... PVM started by ergm...\n")
      }
     }else{
      if(verbose){cat("Engaging warp drive using MPI ...\n")}
@@ -58,17 +58,6 @@ ergm.getMCMCsample.ihs <- function(nw, model, MHproposal, eta0, MCMCparams,
     clusterSetupRNG(cl)
     clusterEvalQ(cl,library(ergm))
 #   clusterEvalQ(cl,eval(paste("library(",packagename,")",sep="")))
-#
-# Start PVM if necessary
-#
-    if(getClusterOption("type")=="PVM"){
-     PVM.running <- try(.PVM.config(), silent=TRUE)
-     if(inherits(PVM.running,"try-error")){
-      hostfile <- paste(Sys.getenv("HOME"),"/.xpvm_hosts",sep="")
-      .PVM.start.pvmd(hostfile)
-      cat("no problem... PVM started by R...\n")
-     }
-    }
 #
 #   Run the jobs with rpvm or Rmpi
 #
@@ -118,3 +107,4 @@ ergm.getMCMCsample.ihs <- function(nw, model, MHproposal, eta0, MCMCparams,
 #     }
 #   }
   list(statsmatrix=statsmatrix, newnetwork=newnetwork, meanstats=Clist$meanstats)
+}
