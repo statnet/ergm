@@ -20,9 +20,9 @@ substring(library(help="ergm",lib.loc=NULL,character.only=TRUE)$info[[1]][2],fir
                sep="")
          )
 
-#citFooter("We have invested a lot of time and effort in creating 'statnet'",
-#          "for use by other researchers.",
-#          "Please cite it in all papers where it is used.")
+citFooter("We have invested a lot of time and effort in creating the",
+          "'statnet' suite of packages for use by other researchers.",
+          "Please cite it in all papers where it is used.")
 #cat("Enjoy!\n\n",
 #    "Mark S. Handcock, University of Washington\n",
 #    "David R. Hunter, Penn State University\n",
