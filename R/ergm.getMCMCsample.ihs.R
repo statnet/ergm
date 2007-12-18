@@ -17,7 +17,7 @@ ergm.getMCMCsample.ihs <- function(nw, model, MHproposal, eta0, MCMCparams,
 #  Parallel running
 #
    if(MCMCparams$parallel==0){
-    z <- ergm.mcmcslave,Clist,MHproposal,eta0,MCMCparams,maxedges,verbose)
+    z <- ergm.mcmcslave(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose)
     if(z$newnwheads[1] >= 50000-1){
       stop(paste("\n The network has more than 50000 edges, and the model is likely to be degenerate.\n",
                   "Try starting the algorithm at an alternative model\n",
