@@ -1,4 +1,4 @@
-citHeader("To cite 'ergm' or 'statnet' in publications use:")
+citHeader("If you are using the 'ergm' package for research that will be published, we request that you acknowledge this with the following citation:")
 
 citEntry(entry="Manual",
          title = "statnet: A suite of R packages for the Statistical Modeling of Social Networks",
@@ -9,6 +9,7 @@ citEntry(entry="Manual",
                              as.person("Martina Morris")), 
          year         = 2003,
          note         = paste("Version",substring(library(help="ergm",lib.loc=NULL,character.only=TRUE)$info[[1]][2],first=16)),
+         address      = "Seattle, WA",
          url          = "http://statnetproject.org",
          
          textVersion = 
@@ -19,8 +20,17 @@ substring(library(help="ergm",lib.loc=NULL,character.only=TRUE)$info[[1]][2],fir
                sep="")
          )
 
-citFooter("We have invested a lot of time and effort in creating 'statnet'",
-          "for use by other researchers.",
-          "Please cite it in all papers where it is used.")
+#citFooter("We have invested a lot of time and effort in creating 'statnet'",
+#          "for use by other researchers.",
+#          "Please cite it in all papers where it is used.")
+citFooter("Enjoy!",
+          "",
+          "Mark S. Handcock, University of Washington",
+          "David R. Hunter, Penn State University",
+          "Carter T. Butts, University of California-Irvine",
+          "Steven M. Goodreau, University of Washington",
+          "Martina Morris, University of Washington",
+          "",
+          "The 'statnet' development team")
 
 RShowDoc("LICENSE",package="ergm")
