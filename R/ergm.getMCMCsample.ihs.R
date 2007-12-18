@@ -1,4 +1,4 @@
-ergm.getMCMCsample.ihs <- ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, MCMCparams, 
+ergm.getMCMCsample.ihs <- function(nw, model, MHproposal, eta0, MCMCparams, 
                                verbose) {
 # Note:  In reality, there should be many fewer arguments to this function,
 # since most info should be passed via Clist (this is, after all, what Clist
@@ -17,29 +17,7 @@ ergm.getMCMCsample.ihs <- ergm.getMCMCsample <- function(nw, model, MHproposal, 
 #  Parallel running
 #
    if(MCMCparams$parallel==0){
-    z <- .C("MCMC_wrapper",
-            as.integer(Clist$heads), as.integer(Clist$tails), 
-            as.integer(Clist$nedges), as.integer(Clist$n),
-            as.integer(Clist$dir), as.integer(Clist$bipartite),
-            as.integer(Clist$nterms), 
-            as.character(Clist$fnamestring),
-            as.character(Clist$snamestring),
-            as.character(MHproposal$name), as.character(MHproposal$package),
-#  Add:  as.double(length(MHproposal$args)), as.double(MHproposal$args), 
-            as.double(Clist$inputs), as.double(eta0),
-            as.integer(MCMCparams$samplesize),
-            s = as.double(t(MCMCparams$stats)),
-            as.integer(MCMCparams$burnin), as.integer(MCMCparams$interval), 
-            newnwheads = integer(maxedges),
-            newnwtails = integer(maxedges), 
-            as.integer(verbose), as.integer(MHproposal$bd$attribs), 
-            as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
-            as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
-            as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)), 
-            as.integer(maxedges),
-            as.integer(MCMCparams$Clist.miss$heads), as.integer(MCMCparams$Clist.miss$tails),
-            as.integer(MCMCparams$Clist.miss$nedges),
-            PACKAGE="ergm") 
+    z <- ergm.mcmcslave,Clist,MHproposal,eta0,MCMCparams,maxedges,verbose)
     if(z$newnwheads[1] >= 50000-1){
       stop(paste("\n The network has more than 50000 edges, and the model is likely to be degenerate.\n",
                   "Try starting the algorithm at an alternative model\n",
@@ -94,7 +72,7 @@ ergm.getMCMCsample.ihs <- ergm.getMCMCsample <- function(nw, model, MHproposal, 
 #
 #   Run the jobs with rpvm or Rmpi
 #
-    outlist <- clusterCall(cl,mcmcslave,
+    outlist <- clusterCall(cl,ergm.mcmcslave,
      Clist,MHproposal,eta0,MCMCparams.parallel,maxedges,verbose)
 #
 #   Process the results
@@ -140,4 +118,3 @@ ergm.getMCMCsample.ihs <- ergm.getMCMCsample <- function(nw, model, MHproposal, 
 #     }
 #   }
   list(statsmatrix=statsmatrix, newnetwork=newnetwork, meanstats=Clist$meanstats)
-}

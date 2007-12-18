@@ -1,4 +1,4 @@
-#mcmcdynslave <- function(Clist,MHproposal,eta0,MCMCparams.parallel,maxedges,verbose) {
+#mcmcdynslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
 #   'library(mpi)',
 #   'library(rsprng)',
 #   'library(MASS)',
@@ -42,10 +42,10 @@
 #'as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),',
 #'as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),',
 #'as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)),',
-#'as.double(MCMCparams.parallel$nsteps), as.integer(MCMCparams.parallel$dyninterval),',
-#'as.double(MCMCparams.parallel$burnin), as.double(MCMCparams.parallel$interval),',
-#'s.form = as.double(cbind(t(MCMCparams.parallel$stats.form),matrix(0,nrow=length(model.form$coef.names),ncol=MCMCparams.parallel$nsteps))),',
-#'s.diss = as.double(cbind(t(MCMCparams.parallel$stats.diss),matrix(0,nrow=length(model.diss$coef.names),ncol=MCMCparams.parallel$nsteps))),',
+#'as.double(MCMCparams$nsteps), as.integer(MCMCparams$dyninterval),',
+#'as.double(MCMCparams$burnin), as.double(MCMCparams$interval),',
+#'s.form = as.double(cbind(t(MCMCparams$stats.form),matrix(0,nrow=length(model.form$coef.names),ncol=MCMCparams$nsteps))),',
+#'s.diss = as.double(cbind(t(MCMCparams$stats.diss),matrix(0,nrow=length(model.diss$coef.names),ncol=MCMCparams$nsteps))),',
 #'newnwheads = integer(maxchanges), newnwtails = integer(maxchanges),',
 #'as.double(maxchanges),',
 #'diffnwtime = integer(maxchanges),',
@@ -63,8 +63,8 @@
 
 # Function the slaves will call to perform a validation on the
 # mcmc equal to their slave number.
-# Assumes: Clist MHproposal eta0 MCMCparams.parallel maxedges verbose
-mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams.parallel,maxedges,verbose) {
+# Assumes: Clist MHproposal eta0 MCMCparams maxedges verbose
+ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
   z <- .C("MCMC_wrapper",
   as.integer(Clist$heads), as.integer(Clist$tails),
   as.integer(Clist$nedges), as.integer(Clist$n),
@@ -74,10 +74,10 @@ mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams.parallel,maxedges,verbose
   as.character(Clist$snamestring),
   as.character(MHproposal$name), as.character(MHproposal$package),
   as.double(Clist$inputs), as.double(eta0),
-  as.integer(MCMCparams.parallel$samplesize),
-  s = as.double(t(MCMCparams.parallel$stats)),
-  as.integer(MCMCparams.parallel$burnin), 
-  as.integer(MCMCparams.parallel$interval),
+  as.integer(MCMCparams$samplesize),
+  s = as.double(t(MCMCparams$stats)),
+  as.integer(MCMCparams$burnin), 
+  as.integer(MCMCparams$interval),
   newnwheads = integer(maxedges),
   newnwtails = integer(maxedges),
   as.integer(verbose), as.integer(MHproposal$bd$attribs),
@@ -85,8 +85,8 @@ mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams.parallel,maxedges,verbose
   as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
   as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)),
   as.integer(maxedges),
-  as.integer(MCMCparams.parallel$Clist.miss$heads), as.integer(MCMCparams.parallel$Clist.miss$tails),
-  as.integer(MCMCparams.parallel$Clist.miss$nedges),
+  as.integer(MCMCparams$Clist.miss$heads), as.integer(MCMCparams$Clist.miss$tails),
+  as.integer(MCMCparams$Clist.miss$nedges),
   PACKAGE="ergm")
   # save the results
   list(s=z$s, newnwheads=z$newnwheads, newnwtails=z$newnwtails)
