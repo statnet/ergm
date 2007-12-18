@@ -133,7 +133,7 @@ plot(gofflo)
 #
 # And now the odds 
 #
-plot(gofflo, plotodds=TRUE)
+plot(gofflo, plotlogodds=TRUE)
 #
 # Use the formula version
 #

@@ -5,18 +5,21 @@
   Auxiliary function as user interface for fine-tuning 'ergm' fitting.
 }
 \usage{
-ergm.control(prop.weights = "default", prop.args = NULL, prop.weights.diss = "default", 
-             prop.args.diss = NULL, nr.maxit = 100, calc.mcmc.se = TRUE, 
-             hessian = FALSE, compress = FALSE, maxNumDyadTypes = 10000, 
-             maxedges = 20000, maxchanges = 1e+06, MPLEsamplesize = 50000, 
-             MPLEtype="glm", trace = 0, 
-             steplength = 0.5, drop = TRUE, force.mcmc = FALSE, 
-             mcmc.precision = 0.05, metric = "Likelihood", method = "BFGS", 
-             trustregion = 20, style = "Newton-Raphson", phase1_n = NULL, 
-             initial_gain = NULL, nsubphases = "maxit", niterations = NULL, 
-             phase3_n = NULL, dyninterval = 1000, parallel = 0, 
-             returnMCMCstats = TRUE)
-}
+
+ergm.control(prop.weights = "default", prop.args = NULL,              
+             prop.weights.diss = "default", prop.args.diss = NULL, nr.maxit =
+             100, calc.mcmc.se = TRUE, hessian = FALSE, compress = FALSE,
+             maxNumDyadTypes = 10000, maxedges = 20000, maxchanges = 1e+06,
+             MPLEsamplesize = 50000, MPLEtype=c("glm", "penalized"), trace = 0,
+             steplength = 0.5, drop = TRUE, force.mcmc = FALSE, mcmc.precision =
+             0.05, metric = c("Likelihood", "raw"), method = "BFGS", trustregion
+             = 20, style = c("Newton-Raphson", "Robbins-Monro",
+             "Stochastic-Approximation"), phase1_n = NULL, initial_gain = NULL,
+             nsubphases = "maxit", niterations = NULL, phase3_n = NULL,
+             RobMon.phase1n_base = 7, RobMon.phase2n_base = 7, RobMon.phase2sub
+             = 4, RobMon.init_gain = 0.4, RobMon.phase3n = 500, dyninterval =
+             1000, parallel = 0, returnMCMCstats = TRUE)
+             }
 \arguments{
   \item{prop.weights}{ Specifies the method to allocate probabilities of
     being proposed to dyads. Defaults to \code{"default"}, which picks a

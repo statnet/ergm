@@ -1,4 +1,4 @@
-summary.ergm <- function (object, ..., check.degeneracy=TRUE, correlation=FALSE, covariance=FALSE)
+summary.ergm <- function (object, ..., check.degeneracy=FALSE, correlation=FALSE, covariance=FALSE)
 {
   if(any(is.na(object$coef)) & !is.null(object$mplefit)){
      object$coef[is.na(object$coef)] <-

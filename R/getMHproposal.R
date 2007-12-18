@@ -71,15 +71,19 @@ MHproposal.formula <- function(object, arguments, nw, model, weights="default", 
       conlist <- eval(as.call(init.call), attr(constraints,".Environment"))
     }
   }
-  
   ## Remove constraints implied by other constraints.
   for(constr in names(conlist))
     for(impl in ConstraintImplications[[constr]])
       conlist[[impl]]<-NULL
   
   ## Convert vector of constraints to a "standard form".
-  ncl <- if(getRversion() >= 2.4) tolower(names(conlist)) else names(conlist)
-  constraints<-paste(sort(ncl),collapse="+")
+  if(getRversion() >=2.4) {
+    constraints <- paste(sort(tolower(names(conlist))),collapse="+")
+  } else {
+    ncl <- names(conlist)
+    if (is.null(ncl)) constraints <- ""
+      else constraints <- tolower(ncl)    
+  }
   name<-with(MHproposals,MHP[Class==class & Constraints==constraints & Weights==weights])
   if(length(name)>1) stop("Multiple matching proposals in the lookup table.",
                           "This Should Not Be Happening (tm). Unless you have",
@@ -97,9 +101,7 @@ MHproposal.formula <- function(object, arguments, nw, model, weights="default", 
          else "The supplied constraint is not recognized/implemented. "
          )
   }
-  
   if(is.null(arguments)) arguments<-conlist
-
   ## Hand it off to the class character method.
   MHproposal.character(name,arguments,nw,model)
 }

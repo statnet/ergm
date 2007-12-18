@@ -9,7 +9,7 @@
 }
 \usage{
 \method{plot}{gofobject}(x, \dots,
-         cex.axis=0.7, plotodds=FALSE,
+         cex.axis=0.7, plotlogodds=FALSE,
          main = "Goodness-of-fit diagnostics",
          normalize.reachability=FALSE,
          verbose=FALSE)
@@ -21,7 +21,7 @@
        See the documentation for these.}
   \item{cex.axis}{Character expansion of the axis labels relative to that for
    the plot.}
-  \item{plotodds}{Plot the odds of a dyad having given
+  \item{plotlogodds}{Plot the odds of a dyad having given
   characteristics (e.g., reachability, minimum geodesic
   distance, shared partners). This is an alternative to the
   probability of a dyad having the same property.}
@@ -60,7 +60,7 @@ plot(gofflo)
 #
 # And now the odds 
 #
-plot(gofflo, plotodds=TRUE)
+plot(gofflo, plotlogodds=TRUE)
 #
 # Use the formula version
 #

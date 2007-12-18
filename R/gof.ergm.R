@@ -599,7 +599,7 @@ summary.gofobject <- function(object, ...){
 }
 
 plot.gofobject <- function(x, ..., 
-         cex.axis=0.7, plotodds=FALSE,
+         cex.axis=0.7, plotlogodds=FALSE,
          main="Goodness-of-fit diagnostics", 
          normalize.reachability=FALSE,
          verbose=FALSE) {
@@ -648,7 +648,7 @@ plot.gofobject <- function(x, ...,
     else {
         model <- c(1:nstats)
     }
-    if (plotodds) {
+    if (plotlogodds) {
         odds <- x$psim.model
 #       odds[odds==0] <- NA
         odds[!is.na(odds)] <- log(odds[!is.na(odds)]/(1 - odds[!is.na(odds)]))
@@ -714,7 +714,7 @@ plot.gofobject <- function(x, ...,
     else {
         deg <- c(1:n)
     }
-    if (plotodds) {
+    if (plotlogodds) {
         odds <- x$psim.deg
 #       odds[odds==0] <- NA
         odds[!is.na(odds)] <- log(odds[!is.na(odds)]/(1 - odds[!is.na(odds)]))
@@ -780,7 +780,7 @@ plot.gofobject <- function(x, ...,
     else {
         odeg <- c(1:n)
     }
-    if (plotodds) {
+    if (plotlogodds) {
         odds <- x$psim.odeg
 #       odds[odds==0] <- NA
         odds[!is.na(odds)] <- log(odds[!is.na(odds)]/(1 - odds[!is.na(odds)]))
@@ -846,7 +846,7 @@ plot.gofobject <- function(x, ...,
     else {
         ideg <- c(1:n)
     }
-    if (plotodds) {
+    if (plotlogodds) {
         odds <- x$psim.ideg
 #       odds[odds==0] <- NA
         odds[!is.na(odds)] <- log(odds[!is.na(odds)]/(1 - odds[!is.na(odds)]))
@@ -907,7 +907,7 @@ plot.gofobject <- function(x, ...,
     else {
         espart <- c(1:(n-1))
     }
-    if (plotodds) {
+    if (plotlogodds) {
         odds <- x$psim.espart
 #       odds[odds==0] <- NA
         odds[!is.na(odds)] <- log(odds[!is.na(odds)]/(1 - odds[!is.na(odds)]))
@@ -968,7 +968,7 @@ plot.gofobject <- function(x, ...,
     else {
         dspart <- c(1:n)
     }
-    if (plotodds) {
+    if (plotlogodds) {
         odds <- x$psim.dspart
 #       odds[odds==0] <- NA
         odds[!is.na(odds)] <- log(odds[!is.na(odds)]/(1 - odds[!is.na(odds)]))
@@ -1021,7 +1021,7 @@ plot.gofobject <- function(x, ...,
 
   if ('triadcensus' == statname) {
 
-    if (plotodds) {
+    if (plotlogodds) {
         odds <- x$psim.triadcensus
 #       odds[odds==0] <- NA
         odds[!is.na(odds)] <- log(odds[!is.na(odds)]/(1 - odds[!is.na(odds)]))
@@ -1086,7 +1086,7 @@ plot.gofobject <- function(x, ...,
     }
     pnames <- paste(dist)
     pnames[length(dist)] <- "NR"
-    if (plotodds) {
+    if (plotlogodds) {
         odds <- x$psim.dist
 #       odds[odds==0] <- NA
         odds[!is.na(odds)] <- log(odds[!is.na(odds)]/(1 - odds[!is.na(odds)]))
@@ -1137,7 +1137,7 @@ plot.gofobject <- function(x, ...,
 
     ymin <- min(min(out,na.rm=TRUE),min(out.obs,na.rm=TRUE))
     ymax <- max(max(out,na.rm=TRUE),max(out.obs,na.rm=TRUE))
-    if(!plotodds){
+    if(!plotlogodds){
      ymin <- max(0,ymin)
      ymax <- min(1,ymax)
     }
