@@ -83,10 +83,10 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, ...)
       outlist <- eval(v[[i]], .GlobalEnv)  #Call the InitErgm function
       # Now it is necessary to add the output to the model object
       model$coef.names <- c(model$coef.names, outlist$coef.names)
-      termnumber <- 1+length(m$terms)
+      termnumber <- 1+length(model$terms)
       outlist$inputs <- c(0, length(outlist$coef.names), 
                           length(outlist$inputs), outlist$inputs)
-      m$terms[[termnumber]] <- outlist
+      model$terms[[termnumber]] <- outlist
     }
   }
   model$etamap <- ergm.etamap(model)

@@ -106,7 +106,7 @@
 #        inputs: Vector of inputs (of type double) that the
 #                d_xxx function will require.  Default is NULL.
 #        soname: This is the (text) name of the package containing the C function
-#                called d_[name].  Default is "statnet"
+#                called d_[name].  Default is "ergm"
 #    dependence: Logical variable telling whether addition of this term to
 #                the model makes the model into a dyadic dependence model.
 #                If none of the terms sets dependence==TRUE, then the model
@@ -138,9 +138,10 @@
 
 InitERGMterm.absdiff <- function(nw, arglist, ...) {
   # First, make sure this ERGM term is right for this network (optional!)
-  check.InitERGM.situation(nw, directed=NULL, bipartite=NULL)
+  check.ERGMterm.situation(nw, directed=NULL, bipartite=NULL)
   # Second, check the arguments to make sure they are appropriate.
-  a <- get.InitERGMterm.args(arglist,
+# a <- get.InitERGMterm.args(arglist,
+  a <- check.ERGMterm.args(arglist,
                              varnames = c("attrname"),
                              vartypes = c("character"),
                              defaultvalues = list(NULL),
@@ -148,10 +149,10 @@ InitERGMterm.absdiff <- function(nw, arglist, ...) {
   # Process the arguments
   nodecov <- get.node.attr(nw, a$attrname, "absdiff")
   # Construct the output list
-  list(name="absdiff",                                    #name: required
-       coef.names = paste("absdiff", a$attrname, sep=""), #coef.names: required
+  list(name="absdiff",                                     #name: required
+       coef.names = paste("absdiff", a$attrname, sep="."), #coef.names: required
        inputs = nodecov,
-       soname = "statnet",
+       soname = "ergm",
        dependence = FALSE
        )
 }
@@ -181,7 +182,7 @@ InitERGMterm.absdiff <- function(nw, arglist, ...) {
 #    stop ("Argument to absdiffcat() has too few distinct differences", call.=FALSE)
 #  termnumber<-1+length(m$terms)  
 #  u2 <- u[!is.na(u)]
-#  m$terms[[termnumber]] <- list(name="absdiffcat", soname="statnet",
+#  m$terms[[termnumber]] <- list(name="absdiffcat", soname="ergm",
 #                                inputs=c(length(u2)+1, length(u),
 #                                         length(u2)+1+length(nodecov),
 #                                         u2, NAsubstitute, nodecov),
@@ -218,7 +219,7 @@ InitERGMterm.absdiff <- function(nw, arglist, ...) {
 #    stop(paste("bounded.degree() expects its 2 arglist to be of the",
 #               "same length"), call.=FALSE)
 #  termnumber<-1+length(m$terms)
-#  m$terms[[termnumber]] <- list(name="boundeddegree", soname="statnet",
+#  m$terms[[termnumber]] <- list(name="boundeddegree", soname="ergm",
 #                                inputs = c(0, ld, ld+ld, c(d,bound)))
 #  m
 #}
@@ -254,7 +255,7 @@ InitErgm.cycle<-function(nw, m, arglist, drop=TRUE, ...)
   usestats<-(2:mk)%in%k     #Which stats are being used?
   direct<-is.directed(nw)   #Is the graph directed?
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="cycle", soname="statnet",
+  m$terms[[termnumber]] <- list(name="cycle", soname="ergm",
                                 inputs=c(0, lk, mk+1, direct, mk, usestats))
   m$coef.names<-c(m$coef.names,paste("cycle",k,sep=""))
   m
@@ -267,7 +268,7 @@ InitErgm.density<-function(nw, m, arglist, ...) {
     defaultvalues = list(),
     required = NULL)
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="density", soname="statnet",
+  m$terms[[termnumber]] <- list(name="density", soname="ergm",
                                 inputs=c(0, 1, 0),
                                 dependence=TRUE)
   m$coef.names<-c(m$coef.names,"density")
@@ -340,13 +341,13 @@ InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
   termnumber<-1+length(m$terms)
   if(is.null(attrname)) {
     if(length(d)==0){return(m)}
-    m$terms[[termnumber]] <- list(name="degree", soname="statnet",
+    m$terms[[termnumber]] <- list(name="degree", soname="ergm",
                                   inputs=c(0, length(d), length(d), d),
                                   dependence=TRUE)
     m$coef.names<-c(m$coef.names,paste("degree",d,sep=""))
   } else if (homophily) {
     if(length(d)==0){return(m)}
-    m$terms[[termnumber]] <- list(name="degree_w_homophily", soname="statnet",
+    m$terms[[termnumber]] <- list(name="degree_w_homophily", soname="ergm",
                                   inputs=c(0, length(d), 
                                            length(d) + length(nodecov), 
                                            d, nodecov),
@@ -357,7 +358,7 @@ InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
   } else {
     if(ncol(du)==0) {return(m)}
     #  No covariates here, so input element 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="degree_by_attr", soname="statnet",
+    m$terms[[termnumber]] <- list(name="degree_by_attr", soname="ergm",
                                   inputs=c(0, ncol(du), 
                                            length(du)+length(nodecov), 
                                            as.vector(du), nodecov),
