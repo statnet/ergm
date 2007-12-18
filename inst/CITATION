@@ -23,14 +23,12 @@ substring(library(help="ergm",lib.loc=NULL,character.only=TRUE)$info[[1]][2],fir
 #citFooter("We have invested a lot of time and effort in creating 'statnet'",
 #          "for use by other researchers.",
 #          "Please cite it in all papers where it is used.")
-citFooter("Enjoy!",
-          "",
-          "Mark S. Handcock, University of Washington",
-          "David R. Hunter, Penn State University",
-          "Carter T. Butts, University of California-Irvine",
-          "Steven M. Goodreau, University of Washington",
-          "Martina Morris, University of Washington",
-          "",
-          "The 'statnet' development team")
+#cat("Enjoy!\n\n",
+#    "Mark S. Handcock, University of Washington\n",
+#    "David R. Hunter, Penn State University\n",
+#    "Carter T. Butts, University of California-Irvine\n",
+#    "Steven M. Goodreau, University of Washington\n",
+#    "Martina Morris, University of Washington\n\n",
+#    "The 'statnet' development team")
 
 RShowDoc("LICENSE",package="ergm")
