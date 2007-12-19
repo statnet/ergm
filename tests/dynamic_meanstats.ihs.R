@@ -30,7 +30,10 @@ dynsim.gf<-ergm.godfather(g1~meandeg+degree(1),sim=dynsim,verbose=TRUE)
 # simulation and as returned by a "replay" of the simulation using the
 # Godfather Proposal.
 # If they don't match, it's a bug.
-print(all.equal(dynsim$stats.form,dynsim.gf$stats))
+# Note that the first row of the Godfather stats is the initial network.
+if(!isTRUE(all.equal(dynsim$stats.form,dynsim.gf$stats[-1,])))
+  stop("Formation statistics returned by simulatedyn differ from those returned",
+       "by ergm.godfather. This is a bug.")
 
 # Print out the resulting meanstats and their t-value w.r.t. the
 # target meanstats.
@@ -38,9 +41,6 @@ print(meanstats)
 meanstats.sim<-apply(dynsim$stats.form,2,mean)
 print(meanstats.sim)
 print((meanstats.sim-meanstats)/sqrt(apply(dynsim$stats.form,2,var)/effectiveSize(mcmc(dynsim$stats.form))))
-meanstats.gf<-apply(dynsim.gf$stats,2,mean)
-print(meanstats.gf)
-print((meanstats.gf-meanstats)/sqrt(apply(dynsim.gf$stats,2,var)/effectiveSize(mcmc(dynsim.gf$stats))))
 
 print(mean(duration.matrix(dynsim)$duration))
 
