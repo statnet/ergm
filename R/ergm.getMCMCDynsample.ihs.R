@@ -13,6 +13,8 @@ ergm.getMCMCDynsample <- function(nw, model.form, model.diss,
   Clist.diss <- ergm.Cprepare(nw, model.diss)
   maxchanges <- max(MCMCparams$maxchanges, Clist.form$nedges)/5
   MCMCparams$maxchanges <- MCMCparams$maxchanges/5
+  if(is.null(MCMCparams$meanstats.form)) MCMCparams$meanstats.form<-numeric(length(model.form$coef.names))
+  if(is.null(MCMCparams$meanstats.diss)) MCMCparams$meanstats.diss<-numeric(length(model.diss$coef.names))
   z <- list(newnwheads=maxchanges+1)
   while(z$newnwheads[1]  >= maxchanges - 10 || 
         z$diffnwheads[1] >= maxchanges - 10){
@@ -130,7 +132,7 @@ ergm.getMCMCDynsample <- function(nw, model.form, model.diss,
 #   Next create the network of differences from the origianl one
 
   
-  diffedgelist<-if(MCMCparams$toggles) {
+  diffedgelist<-if(!is.null(MCMCparams$toggles)) {
     if(z$diffnwheads[1]>0){
       cbind(z$diffnwtime[2:(z$diffnwtime[1]+1)],z$diffnwheads[2:(z$diffnwheads[1]+1)],z$diffnwtails[2:(z$diffnwheads[1]+1)])
     }else{
