@@ -38,8 +38,13 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
   if(missing(theta0)) {
+   if(is.bipartite(nw) && MHproposal$constraints=="degree" && require("networksis", quietly = TRUE)) {
+     return(sis.simulate(nw, formula, m, Clist, nsim=nsim,
+            verbose=verbose))
+   }else{
     theta0 <- rep(0,Clist$nparam)
     warning("No parameter values given, using Bernouli network\n\t")
+   }
   }
   theta0.bdd <- theta0
   theta0.bdd[is.infinite(theta0.bdd)] <- -10000
