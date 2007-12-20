@@ -38,7 +38,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
   if(missing(theta0)) {
-   if(is.bipartite(nw) && MHproposal$constraints=="degree" && require("networksis", quietly = TRUE)) {
+   if(is.bipartite(nw) && MHproposal$name=="CondDegree" && require("networksis", quietly = TRUE)) {
      return(sis.simulate(nw, formula, m, Clist, nsim=nsim,
             verbose=verbose))
    }else{
