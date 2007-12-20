@@ -1,7 +1,8 @@
 simulate.control<-simulate.formula.control<-function(prop.weights="default",prop.args=NULL,
                                                      drop=FALSE,
                                                      summarizestats=FALSE,
-                                                     maxchanges=1000000){
+                                                     maxchanges=1000000,
+                                                     parallel=0){
   control<-list()
   for(arg in names(formals(sys.function())))
     control[[arg]]<-get(arg)
