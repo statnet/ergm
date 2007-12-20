@@ -604,7 +604,6 @@ void MCMC_global (int *heads, int *tails, int *dnedges,
   directed_flag = *dflag;
   bip = (Vertex)*bipartite;
   
-  
   m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
   nw[0]=NetworkInitialize(heads, tails, n_edges, n_nodes, directed_flag, bip, 0);
 
@@ -667,7 +666,6 @@ void MCMC_global (int *heads, int *tails, int *dnedges,
    NetworkDestroy(&nwformation);
 /*   Rprintf("Initial number (discord) from reference %d Number of original %d\n",nw[1].nedges,nw[0].nedges); */
   }
-
 
   /* Compute the change statistics and copy them to stats for return to R. */
   ChangeStats(n_edges, heads, tails, nw, m);
