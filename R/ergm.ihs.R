@@ -36,14 +36,12 @@ ergm <- ergm2 <- ergm.ihs <- function(formula, theta0="MPLE",
   MHproposal.miss <- MHproposal("randomtoggleNonObserved", control$prop.args, nw, model.initial)
 
   # MPLE & Meanstats -> need fake network
-  if("MPLE" %in% theta0 && !is.null(meanstats)){
-  # if IHS 
+  if("MPLE" %in% theta0 && !is.null(meanstats))
     nw.initial<-san(formula, meanstats=meanstats, verbose=verbose)
-  #else
-  # nw.initial<-mk.pseudonet(meanstats, formula, nw, verbose=verbose)
-  # IHS end
-  }
-  else nw.initial<-nw
+  else if(!is.null(control$initial.network))
+    nw.initial<-control$initial.network
+  else
+    nw.initial<-nw
   
   Clist.initial <- ergm.Cprepare(nw.initial, model.initial)
   Clist.miss.initial <- ergm.design(nw.initial, model.initial, initialfit=TRUE,

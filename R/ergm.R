@@ -32,7 +32,11 @@ ergm <- function(formula, theta0="MPLE",
 # removed missing data stuff
 
 # removed "need fake network" stuff for meanstats
-  nw.initial<-nw
+  if(!is.null(control$initial.network)){
+    nw.initial<-control$initial.network
+  }else{
+    nw.initial<-nw
+  }
   Clist.initial <- ergm.Cprepare(nw.initial, model.initial)
   Clist2.initial <- list(heads=0, tails=0, nedges=0, dir=is.directed(nw)) #unused for now
 

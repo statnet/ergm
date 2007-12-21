@@ -40,7 +40,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
   if(missing(theta0)) {
    if(is.bipartite(nw) && MHproposal$name=="CondDegree" && require("networksis", quietly = TRUE)) {
      return(sis.simulate(nw, formula, m, Clist, nsim=nsim,
-            control=control, verbose=verbose))
+            control=control, verbose=verbose, ...))
    }else{
     theta0 <- rep(0,Clist$nparam)
     warning("No parameter values given, using Bernouli network\n\t")
