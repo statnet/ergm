@@ -183,7 +183,6 @@
 \alias{rspartnerdist}
 \alias{set.mfrow}
 \alias{simulate.control}
-\alias{summary.formula}
 \alias{traceplot.ergm}
 \alias{twopathdist}
 %

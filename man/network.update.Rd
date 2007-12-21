@@ -2,7 +2,7 @@
 \alias{network.update}
 \title{Replaces the sociomatrix in a network object}
 \usage{
-network.update(nw, newmatrix)
+network.update(nw, newmatrix, matrix.type=NULL)
 }
 \description{
   Replaces the sociomatrix in a network object with the sociomatrix specified by
@@ -12,7 +12,13 @@ network.update(nw, newmatrix)
 \arguments{
   \item{nw}{a \code{\link[network]{network}} object. See documentation for the \code{\link[network]{network}}
    package.}
-  \item{newmatrix}{a matrix of zeros and one indicating the presence of a tie from i to j.}
+  \item{newmatrix}{Either an adjacency matrix (a matrix of zeros and ones indicating the presence of a 
+  tie from i to j) or an edgelist (a two-column matrix listing origin and destination node numbers
+  for each edge; note that in an undirected matrix, the first column should be the smaller
+  of the two numbers).}
+  \item{matrix.type}{One of "adjacency" or "edgelist" telling which type of
+  matrix \code{newmatrix} is.  Default is to use the 
+  \code{\link[network]{which.matrix.type}} function.}
 }
 
 \value{\code{\link{network.update}} returns a \code{\link[network]{network}} object.

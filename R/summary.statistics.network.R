@@ -15,9 +15,21 @@ summary.formula <- function(object, ...){
   UseMethod("summary.statistics",object=rhs)
 }
 
+summary.statistics <- function(object, ..., drop=FALSE, basis=NULL) {
+  UseMethod("summary.statistics")
+}
 
-summary.statistics.network <- function(object,...,drop=FALSE,basis=NULL)
+summary.statistics.formula <- function(object, ..., drop=FALSE, basis=NULL) {
+  summary.statistics.network(object, ..., drop=drop, basis=basis)
+}
+
+summary.statistics.ergm <- function(object, ..., drop=FALSE, basis=NULL)
 {
+  summary.statistics.network(object$formula, ..., drop=drop, basis=basis)
+}
+
+summary.statistics.matrix <- 
+summary.statistics.network <- function(object,...,drop=FALSE, basis=NULL) {
   current.warn <- options()$warn
   options(warn=0)
   if(is.network(basis)){
@@ -36,7 +48,7 @@ summary.statistics.network <- function(object,...,drop=FALSE,basis=NULL)
       }
       if(class(nw) =="network.series")
         nw <- nw$networks[[1]]
-      nw <- as.network(nw)
+      nw <- as.network(nw, ...)
     }else{
       stop("Must specify a network object")
     }
@@ -286,7 +298,4 @@ summary.statistics.network <- function(object,...,drop=FALSE,basis=NULL)
   gs
 }
 
-summary.statistics.ergm <- function(object, ..., basis=NULL)
-{
-  summary.statistics.network(object$formula, ..., basis=basis)
-}
+
