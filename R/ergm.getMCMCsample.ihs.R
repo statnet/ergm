@@ -17,6 +17,7 @@ ergm.getMCMCsample.ihs <- function(nw, model, MHproposal, eta0, MCMCparams,
 #  Parallel running
 #
    if(MCMCparams$parallel==0){
+    flush.console()
     z <- ergm.mcmcslave(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose)
     if(z$newnwheads[1] >= 50000-1){
       stop(paste("\n The network has more than 50000 edges, and the model is likely to be degenerate.\n",
@@ -61,6 +62,7 @@ ergm.getMCMCsample.ihs <- function(nw, model, MHproposal, eta0, MCMCparams,
 #
 #   Run the jobs with rpvm or Rmpi
 #
+    flush.console()
     outlist <- clusterCall(cl,ergm.mcmcslave,
      Clist,MHproposal,eta0,MCMCparams.parallel,maxedges,verbose)
 #

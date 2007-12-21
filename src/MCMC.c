@@ -215,6 +215,13 @@ void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
       MetropolisHastings (&MH, theta, networkstatistics, interval, &staken,
                            hammingterm, fVerbose, nwp, m, bd);
       tottaken += staken;
+
+#ifdef Win32
+      if( ((100*i) % samplesize)==0 && samplesize > 500){
+	R_FlushConsole();
+    	R_ProcessEvents();
+      }
+#endif
       /*if (fVerbose){
         if( ((3*i) % samplesize)==0 && samplesize > 500){
         Rprintf("Sampled %d from Metropolis-Hastings\n", i);}
@@ -944,6 +951,12 @@ void MCMCSamplePhase12 (char *MHproposaltype, char *MHproposalpackage,
 /*      if (fVerbose){ Rprintf("step %d from %d:\n",i, samplesize);} */
       /* This then adds the change statistics to these values */
       tottaken += staken;
+#ifdef Win32
+      if( ((100*i) % samplesize)==0 && samplesize > 500){
+	R_FlushConsole();
+    	R_ProcessEvents();
+      }
+#endif
       if (fVerbose){
         if( ((3*i) % samplesize)==0 && samplesize > 500){
         Rprintf("Sampled %d from Metropolis-Hastings\n", i);}

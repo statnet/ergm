@@ -16,6 +16,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, MCMCparams,
 #
 #  Parallel running
 #
+    flush.console()
    if(MCMCparams$parallel==0){
     z <- .C("MCMC_wrapper",
             as.integer(Clist$heads), as.integer(Clist$tails), 
@@ -81,6 +82,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, MCMCparams,
 #
 #   Run the jobs with PVM
 #
+    flush.console()
     outlist <- ergm.rpvm.run(MCMCparams$parallel, rpvmbasename)
 #
 #   Process the results
