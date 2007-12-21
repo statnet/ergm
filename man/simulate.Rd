@@ -98,8 +98,8 @@
    For random draws the results should be similar (stochastically), but the
    \code{sequential=TRUE} option is useful for dynamic draws.
    }
- \item{proposal}{The structure containing information about the
-  Metropolis-Hasting proposal used.}
+% \item{proposal}{The structure containing information about the
+%  Metropolis-Hasting proposal used.}
  \item{verbose}{If this is \code{TRUE}, we will print out more information as 
   we run the program, including (currently) some goodness of fit 
   statistics.}

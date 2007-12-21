@@ -133,8 +133,6 @@ ergm.control(prop.weights = "default", prop.args = NULL,
   \item{dyninterval}{ Number of Metropolis-Hastings proposal for each
     phase in the dynamic network simulation. }
   \item{parallel}{ Number of threads in which to run the sampling. }
-  \item{returnMCMCstats}{ Whether network statistics from the sampled
-    networks should be returned. }
 }
 \value{
   A list with arguments as components.
