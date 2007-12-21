@@ -5,15 +5,15 @@
   Auxiliary function as user interface for fine-tuning 'ergm' fitting.
 }
 \usage{
-
 ergm.control(prop.weights = "default", prop.args = NULL,              
              prop.weights.diss = "default", prop.args.diss = NULL, nr.maxit =
              100, calc.mcmc.se = TRUE, hessian = FALSE, compress = FALSE,
              maxNumDyadTypes = 10000, maxedges = 20000, maxchanges = 1e+06,
              MPLEsamplesize = 50000, MPLEtype=c("glm", "penalized"), trace = 0,
              steplength = 0.5, drop = TRUE, force.mcmc = FALSE, mcmc.precision =
-             0.05, metric = c("Likelihood", "raw"), method = "BFGS", trustregion
-             = 20, style = c("Newton-Raphson", "Robbins-Monro",
+             0.05, metric = c("Likelihood", "raw"), method = c("BFGS", "Nelder-Mead"),
+             trustregion = 20, initial.loglik = NULL, 
+             style = c("Newton-Raphson", "Robbins-Monro",
              "Stochastic-Approximation"), phase1_n = NULL, initial_gain = NULL,
              nsubphases = "maxit", niterations = NULL, phase3_n = NULL,
              RobMon.phase1n_base = 7, RobMon.phase2n_base = 7, RobMon.phase2sub
@@ -92,6 +92,11 @@ ergm.control(prop.weights = "default", prop.args = NULL,
     metric algorithm). It is attributed to
     Broyden, Fletcher, Goldfarb and Shanno. This uses function values
     and gradients to build up a picture of the surface to be optimized.}
+  \item{trustregion}{numeric; The maximum amount the algorithm will
+    allow the approximated likelihood to be increased at a given iteration.
+    Defaults to 20.
+    See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
+  \item{initial.loglik}{Initial value of loglikelihood, if known.}
   \item{style}{character; The style of maximum 
     likelihood estimation to use. The default is optimization of an
     MCMC estimate of the log-likelihood. An alternative is to use 
@@ -100,10 +105,6 @@ ergm.control(prop.weights = "default", prop.args = NULL,
     advantages over stochastic approximation, but the choice will
     depend on the model and data being fit. See Handcock (2000) and 
     Hunter and Handcock (2006) for details.}
-  \item{trustregion}{numeric; The maximum amount the algorithm will
-    allow the approximated likelihood to be increased at a given iteration.
-    Defaults to 20.
-    See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
   \item{phase1_n}{count; The number of MCMC samples to draw
     in Phase 1 of the stochastic approximation algorithm.
     Defaults to 7 plus 3 times the number of terms in the model.
@@ -124,6 +125,11 @@ ergm.control(prop.weights = "default", prop.args = NULL,
     in Phase 3 of the stochastic approximation algorithm.
     Defaults to 1000.
     See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
+  \item{RobMon.phase1n_base}{Robbins-Monro control parameter}
+  \item{RobMon.phase2n_base}{Robbins-Monro control parameter}
+  \item{RobMon.phase2sub}{Robbins-Monro control parameter}
+  \item{RobMon.init_gain}{Robbins-Monro control parameter}
+  \item{RobMon.phase3n}{Robbins-Monro control parameter}
   \item{returnMCMCstats}{logical; If this is \code{TRUE} (the
     default) the matrix of change 
     statistics from the MCMC run is returned as component \code{sample}.

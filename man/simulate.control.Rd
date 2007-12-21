@@ -7,7 +7,7 @@
 }
 \usage{
 simulate.formula.control(prop.weights = "default", prop.args = NULL,
-drop = FALSE, summarizestats = FALSE, maxchanges = 1e+06)
+drop = FALSE, summarizestats = FALSE, maxchanges = 1e+06, parallel=0)
 
 simulate.ergm.control(prop.weights = NULL, prop.args = NULL, drop = FALSE, summarizestats = FALSE, maxchanges = 1e+06)
 }
@@ -35,6 +35,7 @@ simulate.ergm.control(prop.weights = NULL, prop.args = NULL, drop = FALSE, summa
     %FIXME: I am not sure this is accurate.
     Maximum number of changes in dynamic network
     simulation for which to allocate space. }
+  \item{parallel}{ Number of threads in which to run the sampling. }
 }
 \value{
   A list with arguments as components.

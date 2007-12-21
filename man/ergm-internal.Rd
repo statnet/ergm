@@ -225,9 +225,13 @@
 \alias{ergm.mainloop}
 \alias{ergm.robmon}
 %
+\alias{InitMHP.TNT10}
+
+%
 % These need to be documented!
 %
 
+\alias{plot.network.ergm}
 \alias{as.directed}
 \alias{as.edgelist}
 \alias{ergm.degeneracy} % At least this needs to be documented in summary.ergm and/or mcmc.diagnostics.ergm

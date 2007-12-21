@@ -9,11 +9,10 @@
   and suggests the run length required.
 }
 \usage{
-\method{mcmc.diagnostics}{ergm}
-                 (object, sample = "sample", smooth = TRUE, r = 0.0125,
-                 digits = 6, maxplot = 1000, verbose = TRUE, center =
-                 TRUE, main = "Summary of MCMC samples", xlab =
-                 "Iterations", ylab = "", check.degeneracy = TRUE, ...)
+\method{mcmc.diagnostics}{ergm} (object, sample = "sample", smooth = TRUE, 
+                 r = 0.0125, digits = 6, maxplot = 1000, verbose = TRUE, 
+                 center = TRUE, main = "Summary of MCMC samples", xlab =
+                 "Iterations", ylab = "", check.degeneracy = TRUE, \dots)
 }
 \arguments{
   \item{object}{An object.  See documentation for \code{\link{ergm}}.}

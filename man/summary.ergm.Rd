@@ -4,9 +4,8 @@
 % \alias{print.summary.lm.null}
 \title{Summarizing ERGM Model Fits}
 \usage{
-\method{summary}{ergm}
-               (object, ..., check.degeneracy = FALSE, correlation = FALSE, 
-               covariance = FALSE)
+\method{summary}{ergm}(object, \dots, check.degeneracy = FALSE, 
+               correlation = FALSE, covariance = FALSE)
 }
 \arguments{
   \item{object}{an object of class \code{"ergm"}, usually, a result of a
