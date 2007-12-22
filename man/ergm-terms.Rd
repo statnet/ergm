@@ -632,7 +632,6 @@ network
     Simmelian triads, as defined by Krackhardt and Handcock (2006). 
     This is a sub-graph of size three which is exactly one tie short of being complete.}
 
-
     \item{\code{nodefactor(attrname, base=1)}}{\emph{Factor Attribute Effect:}
     The \code{attrname} argument is a character string giving the name of a
     categorical attribute in the network's vertex attribute list. This term adds
@@ -775,6 +774,16 @@ network
     \item{\code{simmelian}}{\emph{Simmelian Triads:} This term adds one
     statistic to the model equal to the number of Simmelian triads, as defined by
     Krackhardt and Handcock (2006). This is a complete sub-graph of size three.}
+
+    \item{\code{simmelianties}}{\emph{Ties in Simmelian Triads:} This term adds one
+    statistic to the model equal to the number of ties in the network that are associated with
+    Simmelian triads, as defined by
+    Krackhardt and Handcock (2006). Each Simmelian has six ties
+    in it but, because Simmelians can overlap in terms of nodes
+    (and associated ties), the total number of ties in these
+    Simmelians is less than six times the number of Simmelians.
+    hence this is a measure of the clustering of Simmelians
+    (given the number of Simmelians).}
 
     \item{\code{smalldiff(attrname, cutoff)}}{\emph{Small
     Difference:}  The \code{attrname} argument is a character string giving
