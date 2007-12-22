@@ -212,6 +212,17 @@ network
     attribute. This term can only be used for undirected networks. Note that 
     \code{b2star(1)} is equal to \code{b1star(1)} and to \code{edges}. }
 
+    \item{\code{balance}}{\emph{Balanced triads:} 
+    This term adds one network statistic to
+    the model equaling the number of triads in the network that are 
+    balanced. 
+    Every unoriented directed triad may occupy one of 16 distinct states.  These states were
+    used by Davis and Leinhardt (1972)as a basis for classifying triads within 
+    a larger structure. For details see \code{\link{sna}}. The balanced triads are 
+    \code{102} and \code{300}.
+    For an undirected graph the balanced triads are those with an even number of 
+    ties (i.e., 0 and 2).}
+
     \item{\code{bounded.degree(d, bound)}}{\emph{Bounded Degree:} The \code{d}
     argument is a vector of distinct integers representing degrees. \code{bound}
     is a vector of upper bounds corresponding to each degree. This term adds one
@@ -478,16 +489,58 @@ network
     the scale parameter is not fixed and thus the model is a CEF model. This
     term can only be used with directed networks.}
 
-%%   \item{\code{hamming(x, attrname)}}{\emph{Hamming Distance:}
-%%   This term adds one statistic to the model equal to the Hamming distance
-%%   of the network from the network specified by \code{x}.
-%%   The optional argument \code{attrname} specifies an optional network 
-%%   attribute of \code{x} to use instead.}
+    \item{\code{hamming(x, attrname)}}{\emph{Hamming Distance:}
+    This term adds one statistic to the model equal to the Hamming distance
+    of the network from the network specified by \code{x}.
+    The optional argument \code{attrname} specifies an optional network 
+    attribute of \code{x} to use instead.}
  
-     \item{\code{hamming(x)}}{\emph{Hamming Distance:}
-     This term adds one statistic to the model equal to the Hamming distance
-     of the network from the network specified by \code{x}.}
+    \item{\code{hamming.weighted(cov, x, attrname)}}{\emph{Weighted Hamming Distance:}
+    This term adds one statistic to the model equal to the weighted 
+    Hamming distance of the network from the network specified by \code{x}.
+    The weights on each discordant dyad are given by the dyad covariate \code{cov}.
+    The argument \code{cov} is either a matrix of edgewise covariates, or a network; if the
+    latter, optional argument \code{attrname} provides the name of the edge
+    attribute to use for weight values.}
+ 
+    \item{\code{hammingmix(attrname, x, omitwhich=0, contrast=FALSE)}}{\emph{Hamming Distance within Mixing:}
+    This term adds one statistic to the model equal to the Hamming distance
+    of the subnetwork of dyads
+    for each possible pairing of
+    attribute values of the network from the network specified by \code{x}.
+    The optional argument \code{attrname} specifies an optional network 
+    attribute of \code{x} to use instead of directly using the ties in \code{x}.
+    The statistic equals the number of dyads in the subnetwork
+    that differ in tie value.
+    This term produces one statistic for every entry in the mixing matrix for the
+    attribute. The ordering of the attribute values is alphabetical. If the
+    option \code{contrast=TRUE} is used, then a statistic for the first pairing
+    is not included, making it the de facto reference category.
+    The option \code{omitwhich} the index of statistics to be omitted from the tabulation. 
+    For example \code{omitwhich=2}  will omit the second statistic,
+    making it the de facto reference category.}
+ 
+    \item{\code{hammingmix.constant(attrname, x, omitwhich=0, contrast=FALSE)}}{\emph{Hamming Distance with Constant Edges within Mixing:}
+    This term adds one statistic to the model equal to the Hamming distance
+    of the subnetwork of dyads
+    for each possible pairing of
+    attribute values of the network from the network specified by \code{x}.
+    The optional argument \code{attrname} specifies an optional network 
+    attribute of \code{x} to use instead of directly using the ties in \code{x}.
+    The statistic equals the number of dyads in the subnetwork
+    that differ in tie value.
+    This term produces one statistic for every entry in the mixing matrix for the
+    attribute. The ordering of the attribute values is alphabetical. If the
+    option \code{contrast=TRUE} is used, then a statistic for the first pairing
+    is not included, making it the de facto reference category.
+    The option \code{omitwhich} the index of statistics to be omitted from the tabulation. 
+    For example \code{omitwhich=2}  will omit the second statistic,
+    making it the de facto reference category.
 
+    This term is meant to be used in combination with the \code{TNT} proposal 
+    and the pairing ensures that the number of ties within each cell is constant.
+    It is the variant of the \code{hammingmix} term for this situation.}
+ 
     \item{\code{idegree(d, attrname)}}{\emph{In-Degree:} The \code{d} argument
     is a vector of distinct integers. This term adds one network statistic to
     the model for each element in \code{d}; the \eqn{i}th such statistic equals
@@ -498,6 +551,13 @@ network
     considers edges in which both nodes have the same value of the attribute.
     This term can only be used with directed networks; for undirected networks
     see \code{degree}. }
+
+    \item{\code{intransitive}}{\emph{Intransitive triads:} This term adds one
+    statistic to the model, equal to the number of intransitive triads in the
+    network. These are defined as the triads of types \code{111D},
+    \code{201}, \code{111U}, \code{021C}, and \code{030C} in the triad census of 
+    Davis and Leinhardt (1972). Note the distinction from the \code{ctriads}
+    term.}
 
     \item{\code{isolates}}{\emph{Isolates:} This term adds one statistic to the
     model equal to the number of isolates in the network. For an undirected
@@ -566,6 +626,12 @@ network
     to the model, equaling the number of pairs of actors \eqn{i} and \eqn{j} for
     which \eqn{(i{\rightarrow}j)}{(i,j)} and \eqn{(j{\rightarrow}i)}{(j,i)} both
     exist. This term can only be used with directed networks. }
+
+    \item{\code{nearsimmelian}}{\emph{Near Simmelian Triads:} This term adds one
+    statistic to the model equal to the number of near 
+    Simmelian triads, as defined by Krackhardt and Handcock (2006). 
+    This is a sub-graph of size three which is exactly one tie short of being complete.}
+
 
     \item{\code{nodefactor(attrname, base=1)}}{\emph{Factor Attribute Effect:}
     The \code{attrname} argument is a character string giving the name of a
@@ -706,6 +772,10 @@ network
     attribute values of the senders of all ties. This term can only be used
     with a directed network. For undirected networks, see \code{nodemain}.}
 
+    \item{\code{simmelian}}{\emph{Simmelian Triads:} This term adds one
+    statistic to the model equal to the number of Simmelian triads, as defined by
+    Krackhardt and Handcock (2006). This is a complete sub-graph of size three.}
+
     \item{\code{smalldiff(attrname, cutoff)}}{\emph{Small
     Difference:}  The \code{attrname} argument is a character string giving
     the name of an attribute in the network's vertex attribute
@@ -722,6 +792,34 @@ network
     with the same value of the attribute. This term can only be used with
     undirected networks. For directed networks, see \code{sender} and
     \code{receiver}. }
+
+    \item{\code{transitive}}{\emph{Transitive triads:} This term adds one
+    statistic to the model, equal to the number of transitive triads in the
+    network. These are defined as the triads of types \code{120D},
+    \code{030T}, \code{120U}, and \code{300} in the triad census of 
+    Davis and Leinhardt (1972). Note the distinction from the \code{ttriads} 
+    term.}
+
+    \item{\code{triadcensus}}{\emph{Triad Census:} 
+    This term adds one network statistic for each of the 16 types of triads
+    categorized by Davis and Leinhardt (1972). Each statistic is the count of the
+    corresponding triad type in the network.
+    Every unoriented directed triad may occupy one of 16 distinct states.  These states were
+    used by Davis and Leinhardt (1972) as a basis for classifying triads within 
+    a larger structure. For details see \code{\link[sna]{triad.classify}}, on which this code
+    is based. 
+    For an undirected graph the triad census is over the four types defined by the number of
+    ties (i.e., 0, 1, 2, and 3).}
+
+    \item{\code{triadcensus.directed}}{\emph{Triad Census for a directed graph:} 
+    This term adds one network statistic for each of the 16 types of triads
+    categorized by Davis and Leinhardt (1972). Each statistic is the count of the
+    corresponding triad type in the network.
+    Every unoriented directed triad may occupy one of 16 distinct states.  These states were
+    used by Davis and Leinhardt (1972) as a basis for classifying triads within 
+    a larger structure. For details see \code{\link[sna]{triad.classify}}, on which this code
+    is based. 
+    This term can only be used with directed networks.}
 
     \item{\code{triangle(attrname)}}{\emph{Triangles:} This term adds one
     statistic to the model equal to the number of triangles in the network. For
@@ -767,18 +865,25 @@ network
 }
 
 \references{
+
+\item Davis, J.A. and Leinhardt, S.  (1972).  ``The Structure of Positive Interpersonal
+Relations in Small Groups.''  In J. Berger (Ed.), \emph{Sociological Theories in Progress,
+Volume 2}, 218-251.  Boston: Houghton Mifflin.
+
 \item Hunter, D. R. and M. S. Handcock (2006), Inference in curved
-exponential family models for networks, Journal of Computational
+exponential family models for networks.'' Journal of Computational
 and Graphical Statistics, 15: 565-583.
 
 \item Hunter, D. R. (2007), Curved exponential family models for social
 networks, Social Networks, 29: 216-230.
 
+\item Krackhardt, D. and Handcock, M. S. (2007), ``Heider verses Simmel: Emergent Features
+in Dynamic Structures.'' Lecture Notes in Computer Science, 4503, 14-27.
 \item Snijders, T. A. B., P. E. Pattison, G. L. Robins, and
-M. S. Handcock (2006), New specifications for exponential random graph
+M. S. Handcock (2006). New specifications for exponential random graph
 models, Sociological Methodology, 36(1): 99-153. 
 }
-\seealso{ergm, network, \%v\%, \%n\%,
+\seealso{ergm, network, \%v\%, \%n\%, sna,
          summary.ergm, print.ergm}
 \examples{
 \dontrun{

@@ -2688,10 +2688,10 @@ Rprintf("h %d t %d discord %d\n",h, t, discord);
 }
 
 /*****************
- changestat: d_hammingdyadcov
+ changestat: d_hamming_weighted
 *****************/
-void d_hammingdyadcov (int ntoggles, Vertex *heads, Vertex *tails, 
-                ModelTerm *mtp, Network *nwp) {
+void d_hamming_weighted (int ntoggles, Vertex *heads, Vertex *tails, 
+                       ModelTerm *mtp, Network *nwp) {
   Vertex h, t;
   double val;
   long int nnodes, nb1, nb2, n0edge;
@@ -2735,10 +2735,10 @@ void d_hammingdyadcov (int ntoggles, Vertex *heads, Vertex *tails,
 }
 
 /*****************
- changestat: d_hammingfixmix
+ changestat: d_hammingmix_constant
 *****************/
-void d_hammingfixmix (int ntoggles, Vertex *heads, Vertex *tails, 
-                ModelTerm *mtp, Network *nwp) {
+void d_hammingmix_constant (int ntoggles, Vertex *heads, Vertex *tails, 
+                            ModelTerm *mtp, Network *nwp) {
   Vertex h, t;
   int i, nhedge, discord;
   int matchvalh, matchvalt;
@@ -2755,7 +2755,7 @@ void d_hammingfixmix (int ntoggles, Vertex *heads, Vertex *tails,
    }
   }
   *(mtp->dstats) = 0.0;
-/*  Rprintf("Warning: hammingfixmix can only be used with ConstantEdges terms.\n");
+/*  Rprintf("Warning: hammingconstantmix can only be used with ConstantEdges terms.\n");
   Rprintf("nhedge %d i0 %f i1 %f i2 %f i3 %f\n", nhedge, mtp->inputparams[0],
                                  mtp->inputparams[1],
                                  mtp->inputparams[2],

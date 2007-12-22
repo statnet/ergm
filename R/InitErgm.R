@@ -2128,22 +2128,22 @@ InitErgm.hamming<-function (nw, m, arglist, drop=TRUE, ...) {
 }
 
 #########################################################
-InitErgm.hammingdyadcov<-function (nw, m, arglist, ...) {
-# ergm.checkdirected("hammingdyadcov", is.directed(nw), requirement=FALSE)
-  a <- ergm.checkargs("hammingdyadcov", arglist=arglist,
-    varnames = c("cov","x","covattrname"),
+InitErgm.hamming.weighted<-function (nw, m, arglist, ...) {
+# ergm.checkdirected("hamming.weighted", is.directed(nw), requirement=FALSE)
+  a <- ergm.checkargs("hamming.weighted", arglist=arglist,
+    varnames = c("cov","x","attrname"),
     vartypes = c("matrixnetwork","matrixnetwork","character"),
     defaultvalues = list(NULL,nw,NULL),
     required = c(TRUE,FALSE,FALSE))
   attach(a)
-  covattrname<-a$covattrname
+  attrname<-a$attrname
   x<-a$x
   cov<-a$cov
 #
 # Extract dyadic covariate
 #
   if(is.network(cov)){
-    covm<-as.matrix.network(cov,matrix.type="adjacency",covattrname)
+    covm<-as.matrix.network(cov,matrix.type="adjacency",attrname)
     cov<-paste(quote(cov))
   }else if(is.character(cov)){
     covm<-get.network.attribute(nw,cov)
@@ -2153,7 +2153,7 @@ InitErgm.hammingdyadcov<-function (nw, m, arglist, ...) {
     cov<-paste(quote(cov))
   }
   if (is.null(covm) || !is.matrix(covm) || nrow(covm)!=get.network.attribute(nw,"bipartite")){
-    stop("hammingdyadcov() requires a proper dyadic covariate", call.=FALSE)
+    stop("hamming.weighted() requires a proper dyadic covariate", call.=FALSE)
   }
 #
 # Extract reference network as an edgelist
@@ -2171,7 +2171,7 @@ InitErgm.hammingdyadcov<-function (nw, m, arglist, ...) {
     x<-paste(quote(x))
   }
   if (is.null(xm) || ncol(xm)!=2){
-    stop("hammingdyadcov() requires a proper network as its reference", 
+    stop("hamming.weighted() requires a proper network as its reference", 
          call.=FALSE)
   }
 ##
@@ -2182,7 +2182,7 @@ InitErgm.hammingdyadcov<-function (nw, m, arglist, ...) {
 #     mu <- ematch==0
 #     mu[is.na(mu)] <- FALSE
 #     if(any(mu)){
-#      dropterms <- paste(paste("hammingdyadcov",attrname,sep="."),
+#      dropterms <- paste(paste("hamming.weighted",attrname,sep="."),
 #        apply(u,1,paste,collapse="")[mu],sep="")
 #      cat(paste("Warning: The count of", dropterms, "is extreme.\n"))
 #      cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
@@ -2193,37 +2193,36 @@ InitErgm.hammingdyadcov<-function (nw, m, arglist, ...) {
 # There is 1 input parameter before the covariate vector, so input
 # component 1 is set to 1 (although in this case, input component 1
 # is actually arbitrary since d_dyadcov ignores the value of inp->attrib).
-   m$terms[[termnumber]] <- list(name = "hammingdyadcov", soname="ergm",
+   m$terms[[termnumber]] <- list(name = "hamming_weighted", soname="ergm",
                                  inputs = c(1, 1,
                                    1+2*nrow(xm)+nrow(covm)*ncol(covm),
                                    nrow(xm), as.integer(xm),
                                    as.double(covm)),
                                  dependence=TRUE)
-   if(!is.null(covattrname)){
-     cn<-paste("hammingdyadcov", as.character(sys.call(0)[[4]][2]),
-               as.character(covattrname), sep = ".")
+   if(!is.null(attrname)){
+     cn<-paste("hamming.weighted", as.character(sys.call(0)[[4]][2]),
+               as.character(attrname), sep = ".")
    }else{
-     cn<-paste("hammingdyadcov", as.character(sys.call(0)[[4]][2]), sep = ".")
+     cn<-paste("hamming.weighted", as.character(sys.call(0)[[4]][2]), sep = ".")
    }
    m$coef.names <- c(m$coef.names, cn)
    m
 }
 
 #########################################################
-InitErgm.hammingfixmix<-function (nw, m, arglist, ...) {
-# ergm.checkdirected("hammingfixmix", is.directed(nw), requirement=FALSE)
-  a <- ergm.checkargs("hammingfixmix", arglist=arglist,
-    varnames = c("attrname","x","omitwhich"),
-    vartypes = c("character","matrixnetwork","numeric"),
-    defaultvalues = list(NULL,nw,0),
-    required = c(TRUE,FALSE,FALSE))
+InitErgm.hammingmix.constant<-function (nw, m, arglist, ...) {
+# ergm.checkdirected("hammingconstantmix", is.directed(nw), requirement=FALSE)
+  a <- ergm.checkargs("hammingmix.constant", arglist=arglist,
+    varnames = c("attrname","x","omitwhich", contrast),
+    vartypes = c("character","matrixnetwork","numeric","logical"),
+    defaultvalues = list(NULL,nw,0,FALSE),
+    required = c(TRUE,FALSE,FALSE,FALSE))
   attach(a)
   attrname<-a$attrname
   x<-a$x
   omitwhich<-a$omitwhich
   contrast<-a$contrast
   drop<-a$drop
-  contrast<-TRUE
   drop<-TRUE
   if(is.network(x)){
     xm<-as.matrix.network(x,matrix.type="edgelist",attrname)
@@ -2236,9 +2235,9 @@ InitErgm.hammingfixmix<-function (nw, m, arglist, ...) {
     x<-paste(quote(x))
   }
   if (is.null(xm) || ncol(xm)!=2){
-    stop("hammingfixmix() requires an edgelist", call.=FALSE)
+    stop("hammingmix.constant() requires an edgelist", call.=FALSE)
   }
-    nodecov <- get.node.attr(nw, attrname, "hammingfixmix")
+    nodecov <- get.node.attr(nw, attrname, "hammingmix.constant")
     mixmat <- mixingmatrix(nw,attrname)$mat
     u <- cbind(as.vector(row(mixmat)), 
                as.vector(col(mixmat)))
@@ -2249,7 +2248,7 @@ InitErgm.hammingfixmix<-function (nw, m, arglist, ...) {
     namescov <- sort(unique(nodecov))
     nodecov <- match(nodecov,namescov)
     if (length(nodecov)==1)
-        stop ("Argument to hammingfixmix() has only one value", call.=FALSE)
+        stop ("Argument to hammingmix.constant() has only one value", call.=FALSE)
 ##
 ##   Check for degeneracy
 ##
@@ -2258,7 +2257,7 @@ InitErgm.hammingfixmix<-function (nw, m, arglist, ...) {
 #     mu <- ematch==0
 #     mu[is.na(mu)] <- FALSE
 #     if(any(mu)){
-#      dropterms <- paste(paste("hammingfixmix",attrname,sep="."),
+#      dropterms <- paste(paste("hammingconstantmix",attrname,sep="."),
 #        apply(u,1,paste,collapse="")[mu],sep="")
 #      cat(paste("Warning: The count of", dropterms, "is extreme.\n"))
 #      cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
@@ -2275,11 +2274,11 @@ InitErgm.hammingfixmix<-function (nw, m, arglist, ...) {
   #  Number of input parameters before covariates equals twice the number
   #  of used matrix cells, namely 2*length(uui), so that's what
   #  input component 1 equals
-  m$terms[[termnumber]] <- list(name="hammingfixmix", soname="ergm",
+  m$terms[[termnumber]] <- list(name="hammingmix_constant", soname="ergm",
     inputs=c(1, 1, nrow(xm)*2+length(nodecov)+1,
             nrow(xm),as.integer(xm), nodecov),
             dependence=FALSE)
-  m$coef.names<-c(m$coef.names, paste("hammingfixmix",attrname, sep="."))
+  m$coef.names<-c(m$coef.names, paste("hammingmix.constant",attrname, sep="."))
   m
 }
 
@@ -2287,17 +2286,16 @@ InitErgm.hammingfixmix<-function (nw, m, arglist, ...) {
 InitErgm.hammingmix<-function (nw, m, arglist, ...) {
 # ergm.checkdirected("hammingmix", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("hammingmix", arglist=arglist,
-    varnames = c("attrname","x","omitwhich"),
-    vartypes = c("character","matrixnetwork","numeric"),
-    defaultvalues = list(NULL,nw,0),
-    required = c(TRUE,FALSE,FALSE))
+    varnames = c("attrname","x","omitwhich","contrast"),
+    vartypes = c("character","matrixnetwork","numeric","logical"),
+    defaultvalues = list(NULL,nw,0,FALSE),
+    required = c(TRUE,FALSE,FALSE,FALSE))
   attach(a)
   attrname<-a$attrname
   x<-a$x
   omitwhich<-a$omitwhich
   contrast<-a$contrast
   drop<-a$drop
-  contrast<-TRUE
   drop<-TRUE
   if(is.network(x)){
     xm<-as.matrix.network(x,matrix.type="edgelist",attrname)
@@ -3588,6 +3586,7 @@ InitErgm.triadcensus<-function (nw, m, arglist, drop=FALSE, ...) {
   d<-a$d
 # drop<-a$drop
   detach(a)
+
   if(is.directed(nw)){
    tcn <- c("003","012", "102", "021D", "021U", "021C", "111D",
             "111U", "030T", "030C", "201", "120D", "120U", "120C", "210", "300")
@@ -3607,8 +3606,7 @@ InitErgm.triadcensus<-function (nw, m, arglist, drop=FALSE, ...) {
     if(any(mdegree)){
      dropterms <- tcn[d[mdegree]]
      cat(" ")
-     cat("Warning: The following types of triads do not exist in the network and will be dropped:\n")
-     cat(dropterms, "", fill=T)
+     cat(paste("Warning: There are no triads of type", tcn[d[mdegree]],".\n"))
      cat("  The corresponding coefficients have been fixed at their MLE of negative infinity.\n")
      d <- d[!mdegree]
     }
@@ -3644,9 +3642,9 @@ InitErgm.triadcensus.directedonly<-function (nw, m, arglist, drop=FALSE, ...) {
      as.formula(paste('nw ~ triadcensus(',mdegree,')',sep="")),
      drop=FALSE) == 0
     if(any(mdegree)){
+     cat(" ")
      cat(paste("Warning: There are no triads of type", tcn[d[mdegree]],".\n"))
-     dropterms <- paste("triad type", tcn[d[mdegree]],sep="")
-     cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
+     cat("  The corresponding coefficients have been fixed at their MLE of negative infinity.\n")
      d <- d[!mdegree]
     }
   }

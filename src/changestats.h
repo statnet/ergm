@@ -83,8 +83,8 @@ CHANGESTAT_FN(d_gwtdsp)
 CHANGESTAT_FN(d_gwtesp)
 /********************  changestats:   H    ***********/
 CHANGESTAT_FN(d_hamming)
-CHANGESTAT_FN(d_hammingdyadcov)
-CHANGESTAT_FN(d_hammingfixmix)
+CHANGESTAT_FN(d_hamming_weighted)
+CHANGESTAT_FN(d_hammingmix_constant)
 CHANGESTAT_FN(d_hammingmix)
 /********************  changestats:   I    ***********/
 CHANGESTAT_FN(d_idegree)
