@@ -1,32 +1,24 @@
-This is the license.  For citation information see the R console window.
+--------------------------------------------------
+License for the 'statnet' component package 'ergm'
+--------------------------------------------------
 
-This software is distributed under the GPL-3 license.  It is free,
-open source, and has the following attribution requirements (GPL Section 7):
+This software is distributed under the GPL-3 license.  It is free, open source, and has the following attribution requirements (GPL Section 7):
 
-(a) you agree to retain in "ergm" and any modifications to
-     "ergm" the copyright, author attribution and URL
-     information as provided at http://statnetproject.org/attribution
-(b) you agree that "ergm" and any modifications to
-     "ergm" will, when used, display the attribution:
-     "Based on 'statnet' project software (http://statnetproject.org).
-      For license and citation information see http://statnetproject.org/attribution"
-(c) you agree that "ergm" and any modifications to "ergm" will display
-    the citation information, as provided in the original
-    CITATION file, when the 'citation' function in executed with the name
-    of the package given.
-(d) you agree to retain in the documentation contained within this software, 
-    and any modifications of it, the author attribution (GPL Section 7, clause c).
+(a) you agree to retain in 'ergm' and any modifications to 'ergm' the copyright, author attribution and URL information as provided at http://statnetproject.org/attribution
 
+(b) you agree that 'ergm' and any modifications to 'ergm' will, when used, display the attribution:
+ Based on 'statnet' project software (http://statnetproject.org).
+ For license and citation information see http://statnetproject.org/attribution
 
+(c) you agree that 'ergm' and any modifications to 'ergm' will display the citation information, as provided in the original CITATION file, when the 'citation' function in executed with the name of the package given.
+
+(d) you agree to retain in the documentation contained within this software, and any modifications of it, the author attribution (GPL Section 7, clause c).
+--------------------------------------------------
 
 What does this mean?
 ====================
 
-If you are modifying "ergm" or adopting any source code from "ergm" for use
-in another application, you must ensure that the copyright and attributions
-mentioned in the license above appear in the code of your modified version or
-application.  These attributions must also appear when the package is loaded
-(e.g., via "library" or "require"). 
+If you are modifying 'ergm' or adopting any source code from 'ergm' for use in another application, you must ensure that the copyright and attributions mentioned in the license above appear in the code of your modified version or application.  These attributions must also appear when the package is loaded (e.g., via 'library' or 'require').
 
 Enjoy!
 
@@ -36,6 +28,6 @@ Carter T. Butts, University of California-Irvine
 Steven M. Goodreau, University of Washington
 Martina Morris, University of Washington
 
-The "statnet" development team
+The 'statnet' development team
 
 Copyright 2007

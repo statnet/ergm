@@ -1,19 +1,19 @@
-cat("'ergm' is part of the statnet suite of packages.\n",
-"If you are using the 'ergm' package for research that will be published,\n",
-"we request that you acknowledge this with the following citation:\n\n",
-"  Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau,\n",
-"  and Martina Morris (2003) statnet: A suite of R packages for the\n",
-"  Statistical Modeling of Social Networks. Version 2.0,\n",
-"  URL http://statnetproject.org.\n\n",
-"A BibTeX entry for LaTeX users is\n\n",
-"  @Manual{,\n",
-"    title = {statnet: A suite of R packages for the Statistical Modeling of Social Networks},\n",
-"    author = {Mark S. Handcock and David R. Hunter and Carter T. Butts and Steven M. Goodreau and Martina Morris},\n",
-"    year = {2003},\n",
-"    note = {Version 2.0},\n",
-"    address = {Seattle, WA},\n",
-"    url = {http://statnetproject.org},\n",
-"  }\n")
+cat("'ergm' is part of the statnet suite of packages.\n")
+cat("If you are using the 'ergm' package for research that will be published,\n")
+cat("we request that you acknowledge this with the following citation:\n\n")
+cat("  Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau,\n")
+cat("  and Martina Morris (2003) statnet: A suite of R packages for the\n")
+cat("  Statistical Modeling of Social Networks. Version 2.0,\n")
+cat("  URL http://statnetproject.org.\n\n")
+cat("A BibTeX entry for LaTeX users is\n\n")
+cat("  @Manual{,\n")
+cat("    title = {statnet: A suite of R packages for the Statistical Modeling of Social Networks},\n")
+cat("    author = {Mark S. Handcock and David R. Hunter and Carter T. Butts and Steven M. Goodreau and Martina Morris},\n")
+cat("    year = {2003},\n")
+cat("    note = {Version 2.0},\n")
+cat("    address = {Seattle, WA},\n")
+cat("    url = {http://statnetproject.org},\n")
+cat("  }\n")
 citHeader("To cite the individual package 'ergm' please use:")
 
 citEntry(entry="Manual",
@@ -39,20 +39,3 @@ substring(library(help="ergm",lib.loc=NULL,character.only=TRUE)$info[[1]][2],fir
 citFooter("We have invested a lot of time and effort in creating the",
           "'statnet' suite of packages for use by other researchers.",
           "Please cite it in all papers where it is used.")
-#cat("Enjoy!\n\n",
-#    "Mark S. Handcock, University of Washington\n",
-#    "David R. Hunter, Penn State University\n",
-#    "Carter T. Butts, University of California-Irvine\n",
-#    "Steven M. Goodreau, University of Washington\n",
-#    "Martina Morris, University of Washington\n\n",
-#    "The 'statnet' development team")
-#if(.Platform$OS.type="unix" & .Platform$GUI!="AQUA"){
-# cat("This is the license.  For citation information see the R console window.
-#}
-
-if (getRversion() >= 2.5) {
-  RShowDoc("LICENSE",package="ergm")
-} else {
-  cat("Full license avaialable in LICENSE file in 'ergm' package subdirectory.\n")
-}
-
