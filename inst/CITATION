@@ -1,10 +1,11 @@
-cat("\n","'ergm' is part of the statnet suite of packages.\n",
-"If you are using the 'ergm' package for research that will be published, we request that you acknowledge this with the following citation:\n\n",
+cat("'ergm' is part of the statnet suite of packages.\n",
+"If you are using the 'ergm' package for research that will be published,\n",
+"we request that you acknowledge this with the following citation:\n\n",
 "  Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau,\n",
 "  and Martina Morris (2003) statnet: A suite of R packages for the\n",
 "  Statistical Modeling of Social Networks. Version 2.0,\n",
 "  URL http://statnetproject.org.\n\n",
-"A BibTeX entry for LaTeX users is\n",
+"A BibTeX entry for LaTeX users is\n\n",
 "  @Manual{,\n",
 "    title = {statnet: A suite of R packages for the Statistical Modeling of Social Networks},\n",
 "    author = {Mark S. Handcock and David R. Hunter and Carter T. Butts and Steven M. Goodreau and Martina Morris},\n",
@@ -48,5 +49,4 @@ citFooter("We have invested a lot of time and effort in creating the",
 #if(.Platform$OS.type="unix" & .Platform$GUI!="AQUA"){
 # cat("This is the license.  For citation information see the R console window.
 #}
-
 RShowDoc("LICENSE",package="ergm")
