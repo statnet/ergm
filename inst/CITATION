@@ -1,4 +1,5 @@
 cat("'ergm' is part of the statnet suite of packages.\n")
+cat('Please read the license using license.statnet("ergm")\n\n')
 cat("If you are using the 'ergm' package for research that will be published,\n")
 cat("we request that you acknowledge this with the following citation:\n\n")
 cat("  Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau,\n")

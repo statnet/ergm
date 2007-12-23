@@ -85,7 +85,7 @@ cat(
 #   cat("'Share and Enjoy.'\n\n")
 }
 license.statnet1 <- function (package="ergm", 
-         title="License Information for ergm") {
+         title="License Information for the 'statnet' component package ergm") {
   pkgpath <- try(.find.package(package))
   if(!inherits(pkgpath,"try-error")){
    path <- file.path(pkgpath, "LICENSE")
