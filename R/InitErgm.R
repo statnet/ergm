@@ -827,15 +827,14 @@ InitErgm.b2star<-function(nw, m, arglist, drop=TRUE, ...) {
 }
 
 #########################################################
-InitErgm.balance<-function (nw, m, arglist, ...) {
+InitErgm.balance<-function (nw, m, arglist, drop=TRUE, ...) {
   a <- ergm.checkargs("balance", arglist,
     varnames = c("attrname", "diff"),
     vartypes = c("character", "logical"),
     defaultvalues = list(NULL, FALSE),
     required = c(FALSE, FALSE))
-  attach(a)
   attrname <- a$attrname
-  detach(a)
+  diff <- a$diff
   termnumber<-1+length(m$terms)
   if(!is.null(attrname)){
    nodecov <- get.node.attr(nw, attrname, "balance")

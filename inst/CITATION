@@ -49,4 +49,10 @@ citFooter("We have invested a lot of time and effort in creating the",
 #if(.Platform$OS.type="unix" & .Platform$GUI!="AQUA"){
 # cat("This is the license.  For citation information see the R console window.
 #}
-RShowDoc("LICENSE",package="ergm")
+
+if (getRversion() >= 2.5) {
+  RShowDoc("LICENSE",package="ergm")
+} else {
+  cat("Full license avaialable in LICENSE file in 'ergm' package subdirectory.\n")
+}
+
