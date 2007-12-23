@@ -212,16 +212,15 @@ network
     attribute. This term can only be used for undirected networks. Note that 
     \code{b2star(1)} is equal to \code{b1star(1)} and to \code{edges}. }
 
-    \item{\code{balance}}{\emph{Balanced triads:} 
-    This term adds one network statistic to
-    the model equaling the number of triads in the network that are 
-    balanced. 
-    Every unoriented directed triad may occupy one of 16 distinct states.  These states were
-    used by Davis and Leinhardt (1972)as a basis for classifying triads within 
-    a larger structure. For details see \code{\link{sna}}. The balanced triads are 
-    \code{102} and \code{300}.
-    For an undirected graph the balanced triads are those with an even number of 
-    ties (i.e., 0 and 2).}
+    \item{\code{balance}}{\emph{Balanced triads:} This term adds one network
+    statistic to the model equaling the number of triads in the network that are
+    balanced. Every unoriented directed triad may occupy one of 16 distinct
+    states. These states were used by Davis and Leinhardt (1972)as a basis for
+    classifying triads within a larger structure. The balanced triads are those
+    of type \code{102} and \code{300}. For details about triad types, see
+    \code{\link[sna]{triad.classify}} in the \code{\link{sna}} package. For an
+    undirected graph the balanced triads are those with an even number of ties
+    (i.e., 0 and 2).}
 
     \item{\code{bounded.degree(d, bound)}}{\emph{Bounded Degree:} The \code{d}
     argument is a vector of distinct integers representing degrees. \code{bound}
@@ -554,10 +553,11 @@ network
 
     \item{\code{intransitive}}{\emph{Intransitive triads:} This term adds one
     statistic to the model, equal to the number of intransitive triads in the
-    network. These are defined as the triads of types \code{111D},
-    \code{201}, \code{111U}, \code{021C}, and \code{030C} in the triad census of 
-    Davis and Leinhardt (1972). Note the distinction from the \code{ctriads}
-    term.}
+    network. These are defined as the triads of types \code{111D}, \code{201},
+    \code{111U}, \code{021C}, and \code{030C} in the triad census of Davis and
+    Leinhardt (1972). For details about triad types, see
+    \code{\link[sna]{triad.classify}} in the \code{sna} package. Note the
+    distinction from the \code{ctriple} term.}
 
     \item{\code{isolates}}{\emph{Isolates:} This term adds one statistic to the
     model equal to the number of isolates in the network. For an undirected
@@ -804,31 +804,30 @@ network
 
     \item{\code{transitive}}{\emph{Transitive triads:} This term adds one
     statistic to the model, equal to the number of transitive triads in the
-    network. These are defined as the triads of types \code{120D},
-    \code{030T}, \code{120U}, and \code{300} in the triad census of 
-    Davis and Leinhardt (1972). Note the distinction from the \code{ttriads} 
-    term.}
+    network. These are defined as the triads of types \code{120D}, \code{030T},
+    \code{120U}, and \code{300} in the triad census of Davis and Leinhardt
+    (1972). For details about triad types, see \code{\link[sna]{triad.classify}}
+    in the \code{\link{sna}} package. Note the distinction from the
+    \code{ttriple} term.}
 
-    \item{\code{triadcensus}}{\emph{Triad Census:} 
-    This term adds one network statistic for each of the 16 types of triads
-    categorized by Davis and Leinhardt (1972). Each statistic is the count of the
-    corresponding triad type in the network.
-    Every unoriented directed triad may occupy one of 16 distinct states.  These states were
-    used by Davis and Leinhardt (1972) as a basis for classifying triads within 
-    a larger structure. For details see \code{\link[sna]{triad.classify}}, on which this code
-    is based. 
-    For an undirected graph the triad census is over the four types defined by the number of
-    ties (i.e., 0, 1, 2, and 3).}
+    \item{\code{triadcensus}}{\emph{Triad Census:} This term adds one network
+    statistic for each of the 16 types of triads categorized by Davis and
+    Leinhardt (1972). Each statistic is the count of the corresponding triad
+    type in the network. Every unoriented directed triad may occupy one of 16
+    distinct states. These states were used by Davis and Leinhardt (1972) as a
+    basis for classifying triads within a larger structure. For details see
+    \code{\link[sna]{triad.classify}}, on which this code is based. For an
+    undirected graph the triad census is over the four types defined by the
+    number of ties (i.e., 0, 1, 2, and 3).}
 
-    \item{\code{triadcensus.directed}}{\emph{Triad Census for a directed graph:} 
+    \item{\code{triadcensus.directed}}{\emph{Triad Census for a directed graph:}
     This term adds one network statistic for each of the 16 types of triads
-    categorized by Davis and Leinhardt (1972). Each statistic is the count of the
-    corresponding triad type in the network.
-    Every unoriented directed triad may occupy one of 16 distinct states.  These states were
-    used by Davis and Leinhardt (1972) as a basis for classifying triads within 
-    a larger structure. For details see \code{\link[sna]{triad.classify}}, on which this code
-    is based. 
-    This term can only be used with directed networks.}
+    categorized by Davis and Leinhardt (1972). Each statistic is the count of
+    the corresponding triad type in the network. Every unoriented directed triad
+    may occupy one of 16 distinct states. These states were used by Davis and
+    Leinhardt (1972) as a basis for classifying triads within a larger
+    structure. For details see \code{\link[sna]{triad.classify}}, on which this
+    code is based. This term can only be used with directed networks.}
 
     \item{\code{triangle(attrname)}}{\emph{Triangles:} This term adds one
     statistic to the model equal to the number of triangles in the network. For

@@ -11,10 +11,7 @@ void MH_BipartiteConstantEdges (MHproposal *MHp,  DegreeBound *bd, Network *nwp)
 void MH_BipartiteHammingConstantEdges (MHproposal *MHp,  DegreeBound *bd, Network *nwp);
 void MH_BipartiteHammingTNT (MHproposal *MHp,  DegreeBound *bd, Network *nwp);
 void MH_BipartiteCondDegreeDist (MHproposal *MHp, DegreeBound *bd, Network *nwp);
-void MH_BipartiteFormation (MHproposal *MHp,  DegreeBound *bd, Network *nwp);
-void MH_BipartiteFormationTNT (MHproposal *MHp,  DegreeBound *bd, Network *nwp);
 void MH_BipartiterandomtoggleNonObserved (MHproposal *MHp,  DegreeBound *bd, Network *nwp);
-void MH_BipartiteDissolution (MHproposal *MHp,  DegreeBound *bd, Network *nwp);
 
 #endif 
 
