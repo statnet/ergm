@@ -1,7 +1,22 @@
-citHeader("If you are using the 'ergm' package for research that will be published, we request that you acknowledge this with the following citation:")
+cat("\n","'ergm' is part of the statnet suite of packages.\n",
+"If you are using the 'ergm' package for research that will be published, we request that you acknowledge this with the following citation:\n\n",
+"  Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau,\n",
+"  and Martina Morris (2003) statnet: A suite of R packages for the\n",
+"  Statistical Modeling of Social Networks. Version 2.0,\n",
+"  URL http://statnetproject.org.\n\n",
+"A BibTeX entry for LaTeX users is\n",
+"  @Manual{,\n",
+"    title = {statnet: A suite of R packages for the Statistical Modeling of Social Networks},\n",
+"    author = {Mark S. Handcock and David R. Hunter and Carter T. Butts and Steven M. Goodreau and Martina Morris},\n",
+"    year = {2003},\n",
+"    note = {Version 2.0},\n",
+"    address = {Seattle, WA},\n",
+"    url = {http://statnetproject.org},\n",
+"  }\n")
+citHeader("To cite the individual package 'ergm' please use:")
 
 citEntry(entry="Manual",
-         title = "statnet: A suite of R packages for the Statistical Modeling of Social Networks",
+         title = "ergm: A package to fit, simulate and analyze Exponential-family models for networks",
          author = personList(as.person("Mark S. Handcock"),
                              as.person("David R. Hunter"),
                              as.person("Carter T. Butts"),
@@ -14,7 +29,7 @@ citEntry(entry="Manual",
          
          textVersion = 
          paste("Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau, and Martina Morris (2003) ", 
-               "statnet: A suite of R packages for the Statistical Modeling of Social Networks. Version ",
+               "ergm: A package to fit, simulate and analyze Exponential-family models for networks. Version ",
 substring(library(help="ergm",lib.loc=NULL,character.only=TRUE)$info[[1]][2],first=16),
          ",", " URL http://statnetproject.org.",
                sep="")
@@ -30,5 +45,8 @@ citFooter("We have invested a lot of time and effort in creating the",
 #    "Steven M. Goodreau, University of Washington\n",
 #    "Martina Morris, University of Washington\n\n",
 #    "The 'statnet' development team")
+#if(.Platform$OS.type="unix" & .Platform$GUI!="AQUA"){
+# cat("This is the license.  For citation information see the R console window.
+#}
 
 RShowDoc("LICENSE",package="ergm")
