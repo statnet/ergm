@@ -29,6 +29,9 @@ InitMHP.CondDegree <- function(arguments, nw, model) {
           "is currently perilous.  We recommend that you use 'outdegree' or",
           "'indegree' instead.")
   }
+  if(is.bipartite(nw)){
+    MHproposal$name <- "BipartiteCondDegHexadToggles"
+  }
   MHproposal
 }
 

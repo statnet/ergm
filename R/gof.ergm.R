@@ -258,10 +258,11 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
                                   theta0=theta0,
                                   burnin=burnin, interval=interval,
                                   constraints=constraints,
-                                  simulate.formula.control(prop.args=control$prop.args,
-                                                           prop.weights=control$prop.weights,
-                                                           summarizestats=control$summarizestats,
-                                                           drop=control$drop),
+                                  control=simulate.formula.control(
+                                   prop.args=control$prop.args,
+                                   prop.weights=control$prop.weights,
+                                   summarizestats=control$summarizestats,
+                                   drop=control$drop),
                                   verbose=verbose, basis=nw)
   
   if(verbose){

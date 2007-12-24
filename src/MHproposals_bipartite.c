@@ -387,5 +387,261 @@ void MH_BipartiterandomtoggleNonObserved (MHproposal *MHp, DegreeBound *bd, Netw
 /* Rprintf("bip %d nedges %d h %d t %d\n", nwp[1].bipartite, nwp[1].nedges, MHp->togglehead[0],  MHp->toggletail[0]); */
 }
 
+/* CondDegree */
+void MH_BipartiteCondDegTetradToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {  
+  Vertex A, B, C, D=0;
+  Vertex tmpA=0, tmpB, tmpC, tmpD=0;
+  int valid, n_C_nbrs, i;
+  TreeNode *tree;
+  Edge e;
+  static Edge nnodes;
+  static Edge nb1, nb2;
+  
+  if(MHp->ntoggles == 0) { /* Initialize */
+    MHp->ntoggles=4;    
+    nnodes = nwp[0].nnodes;
+    nb1 = nwp[0].bipartite;
+    nb2 = nnodes-nb1;
+   Rprintf("nb1 %d nb2 %d \n",nb1,nb2);
+    return;
+  } /* Note:  This proposal does not make work (well) with 
+  directed graphs; however, we haven't yet implemented a way
+  to warn the user about this.  */
+  MHp->ratio=1.0;
+  /* First, select edge at random */
+  FindithEdge(&A, &B, 1+nwp->nedges*unif_rand(), nwp);
+   Rprintf("nb1 %d nb2 %d A %d B %d\n",nb1,nb2,A,B);
+  /* Second, select a non-neighbor C of B and a random neighbor
+  D of C such that D is not a neighbor of A.  */
+  valid=0;
+  while (!valid) {
+    C = 1+nb1+unif_rand() * nb2;
+    tmpB = MIN(B,C);
+    tmpC = MAX(B,C);
+   Rprintf("nb1 %d nb2 %d A %d B %d C %d\n",nb1,nb2,A,B,C);
+    if (C != A && C != B  && EdgetreeSearch(tmpB, tmpC, nwp->outedges)==0) {
+      /* Now pick D, a random neighbor of C, */
+      n_C_nbrs = nwp->indegree[C]+nwp->outdegree[C];
+   Rprintf("nb1 %d nb2 %d A %d B %d C %d nC %d idc %d\n",nb1,nb2,A,B,C,n_C_nbrs, nwp->indegree[C]);
+      if(n_C_nbrs > 0) {
+        i = 1 + unif_rand() * n_C_nbrs;
+        tree = nwp->inedges;
+        if (i < nwp->indegree[C]) {
+          i = i - nwp->indegree[C];
+          tree = nwp->inedges;
+        }
+        e=EdgetreeMinimum(tree, C);
+        while (i-- > 1) {
+          e=EdgetreeSuccessor(tree,e);
+        }
+        D = tree[e].value;
+   Rprintf("nb1 %d nb2 %d A %d B %d C %d, nC %d D %d\n",nb1,nb2,A,B,C,n_C_nbrs,D);
+        /* Now check to ensure that (A,D) does not exist */        
+        tmpA = MIN(A,D);
+        tmpD = MAX(A,D);
+   Rprintf("tmpA %d tmpB %d\n",tmpA, tmpB);
+        if (A !=D && B != D && EdgetreeSearch(tmpA, tmpD, nwp->outedges)==0) {
+          valid=1;
+        }
+      }
+    }
+  }
+  MHp->togglehead[0]=A; MHp->toggletail[0]=B;
+  MHp->togglehead[1]=tmpA; MHp->toggletail[1]=tmpC;
+  MHp->togglehead[2]=tmpD; MHp->toggletail[2]=tmpB;
+  MHp->togglehead[3]=MIN(C,D); MHp->toggletail[3]=MAX(C,D);
+   Rprintf("h0 %d t1 %d\n",MHp->togglehead[0], MHp->toggletail[0]);
+   Rprintf("h0 %d t1 %d\n",MHp->togglehead[1], MHp->toggletail[1]);
+   Rprintf("h0 %d t1 %d\n",MHp->togglehead[2], MHp->toggletail[2]);
+   Rprintf("h0 %d t1 %d\n",MHp->togglehead[3], MHp->toggletail[3]);
+}  
+  
+void MH_BipartiteCondDegree (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {  
+  MHp->ratio=1.0;
+  
+  if(MHp->ntoggles == 0) { /* Initialize CondDeg by */
+	                   /* Choosing Hexad or Tetrad */
+    MH_BipartiteCondDegHexadToggles (MHp, bd, nwp);
+    MH_BipartiteCondDegTetradToggles (MHp, bd, nwp);
+    MHp->ntoggles=4;
+    return;
+  }
 
+  if( unif_rand() > 0.9 ){
+    MHp->ntoggles=6;
+  }else{
+    MHp->ntoggles=4;
+  }
 
+  if(MHp->ntoggles == 6) { /* Call Hexad */
+    MH_BipartiteCondDegHexadToggles (MHp, bd, nwp);
+  }else{ /* call Tetrad */
+    MH_BipartiteCondDegTetradToggles (MHp, bd, nwp);
+  }
+}
+void MH_BipartiteCondDegHexadToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {  
+  int x1, x2, x3, x4, x5, x6;
+  int fvalid, trynode;
+  Vertex head1, head2, head3, tail1, tail2, tail3;
+  static Edge nnodes;
+  static Edge nb1, nb2;
+  
+  if(MHp->ntoggles == 0) { /* Initialize */
+    MHp->ntoggles=6;    
+    nnodes = nwp[0].nnodes;
+    nb1 = nwp[0].bipartite;
+    nb2 = nnodes-nb1;
+    return;
+  }
+  MHp->ratio=1.0;
+  
+  x1 = -1;
+  x2 = -1;
+  x3 = -1;
+  x4 = -1;
+  x5 = -1;
+  x6 = -1;
+
+  fvalid = 0;
+  trynode = 0;
+  while(fvalid==0 && trynode < MAX_TRIES){
+
+  trynode++;
+  /* select a node at random */
+  
+  head1 = 1 + nb1 + unif_rand() * nb2;
+  tail2 = 1 + unif_rand() * nb1;
+  tail2 = 1 + unif_rand() * nb1;
+  tail3 = 1 + unif_rand() * nb1;
+  while(tail3 == tail2){
+    tail3 = 1 + unif_rand() * nb1;
+  }
+  if ((!nwp->directed_flag) && head1 > tail2){
+    x1 = EdgetreeSearch(tail2, head1, nwp->outedges) > 0;
+  }else{
+    x1 = EdgetreeSearch(head1, tail2, nwp->outedges) > 0;
+  }
+  if ((!nwp->directed_flag) && head1 > tail3){
+    x2 = EdgetreeSearch(tail3, head1, nwp->outedges) > 0;
+  }else{
+    x2 = EdgetreeSearch(head1, tail3, nwp->outedges) > 0;
+  }
+  if (x1 != x2){
+    tail1 = 1 + unif_rand() * nb1;
+    while(tail1 == tail2 || tail1 == tail3 || tail1 == head1){
+      tail1 = 1 + unif_rand() * nb1;
+    }
+    head2 = 1 + nb1 + unif_rand() * nb2;
+    while(head2 == tail2 || head2 == tail3 || head2 == head1 ||
+	  head2 == tail1 ){
+      head2 = 1 + nb1 + unif_rand() * nb2;
+    }
+    if ((!nwp->directed_flag) && head2 > tail1){
+      x3 = EdgetreeSearch(tail1, head2, nwp->outedges) > 0;
+    }else{
+      x3 = EdgetreeSearch(head2, tail1, nwp->outedges) > 0;
+    }
+    if (x2 == x3){
+      if ((!nwp->directed_flag) && head2 > tail3){
+	x4 = EdgetreeSearch(tail3, head2, nwp->outedges) > 0;
+      }else{
+	x4 = EdgetreeSearch(head2, tail3, nwp->outedges) > 0;
+      }
+      if (x4 == x1){
+	head3 = 1 + unif_rand() * nb2;
+	while(head3 == tail2 || head3 == tail3 || head3 == head1 ||
+	      head3 == tail1 || head3 == head2 ){
+	  head3 = 1 + nb1 + unif_rand() * nb2;
+	}
+	if ((!nwp->directed_flag) && head3 > tail1){
+	  x5 = EdgetreeSearch(tail1, head3, nwp->outedges) > 0;
+	}else{
+	  x5 = EdgetreeSearch(head3, tail1, nwp->outedges) > 0;
+	}
+	if (x5 == x1){
+	  if ((!nwp->directed_flag) && head3 > tail2){
+	    x6 = EdgetreeSearch(tail2, head3, nwp->outedges) > 0;
+	  }else{
+	    x6 = EdgetreeSearch(head3, tail2, nwp->outedges) > 0;
+	  }
+	  if (x6 == x2){
+	    if ( (!nwp->directed_flag) ){
+	      if ( head1 > tail2 ){
+		MHp->togglehead[0] = tail2;
+		MHp->toggletail[0] = head1;
+	      }else{
+		MHp->togglehead[0] = head1;
+		MHp->toggletail[0] = tail2;
+	      }
+	      if ( head1 > tail3 ){
+		MHp->togglehead[1] = tail3;
+		MHp->toggletail[1] = head1;
+	      }else{
+		MHp->togglehead[1] = head1;
+		MHp->toggletail[1] = tail3;
+	      }
+	      if ( head2 > tail1 ){
+		MHp->togglehead[2] = tail1;
+		MHp->toggletail[2] = head2;
+	      }else{
+		MHp->togglehead[2] = head2;
+		MHp->toggletail[2] = tail1;
+	      }
+	      if ( head2 > tail3 ){
+		MHp->togglehead[3] = tail3;
+		MHp->toggletail[3] = head2;
+	      }else{
+		MHp->togglehead[3] = head2;
+		MHp->toggletail[3] = tail3;
+	      }
+	      if ( head3 > tail1 ){
+		MHp->togglehead[4] = tail1;
+		MHp->toggletail[4] = head3;
+	      }else{
+		MHp->togglehead[4] = head3;
+		MHp->toggletail[4] = tail1;
+	      }
+	      if ( head3 > tail2 ){
+		MHp->togglehead[5] = tail2;
+		MHp->toggletail[5] = head3;
+	      }else{
+		MHp->togglehead[5] = head3;
+		MHp->toggletail[5] = tail2;
+	      }
+	    }else{
+	      MHp->togglehead[0] = head1;
+	      MHp->toggletail[0] = tail2;
+	      MHp->togglehead[1] = head1;
+	      MHp->toggletail[1] = tail3;
+	      MHp->togglehead[2] = head2;
+	      MHp->toggletail[2] = tail1;
+	      MHp->togglehead[3] = head2;
+	      MHp->toggletail[3] = tail3;
+	      MHp->togglehead[4] = head3;
+	      MHp->toggletail[4] = tail1;
+	      MHp->togglehead[5] = head3;
+	      MHp->toggletail[5] = tail2;
+	    }
+	    fvalid = 1;
+	  }
+	}
+      }
+    }
+  }
+  }
+
+  if(trynode==5000){
+      MHp->togglehead[0] = 1;
+      MHp->toggletail[0] = 2;
+      MHp->togglehead[1] = 1;
+      MHp->toggletail[1] = 2;
+      MHp->togglehead[2] = 1;
+      MHp->toggletail[2] = 2;
+      MHp->togglehead[3] = 1;
+      MHp->toggletail[3] = 2;
+      MHp->togglehead[4] = 1;
+      MHp->toggletail[4] = 2;
+      MHp->togglehead[5] = 1;
+      MHp->toggletail[5] = 2;
+  }
+}
