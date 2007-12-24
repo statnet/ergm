@@ -1,5 +1,5 @@
 "summary.network.series" <-
-  function (object, ..., wmt = which.matrix.type(x$networks[[1]])) 
+  function (object, ..., wmt = which.matrix.type(objects$networks[[1]])) 
 {
   g <- object$networks[[1]]
   cat("Number of Networks:",length(object$networks),"\n")

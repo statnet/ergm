@@ -205,8 +205,8 @@ twopathdist <- function(g, print=TRUE)
     if (!is.network(g)) {
         stop("rspartnerdist() requires a network object")
     }
-    ds <- dspartnerdist(g,print=F)
-    es <- espartnerdist(g,print=F)
+    ds <- dspartnerdist(g,print=FALSE)
+    es <- espartnerdist(g,print=FALSE)
     vec <- 0: (network.size(g) - 2)
     upperlimit <- max(vec[ds>0]) + 1
     rs <- es[1:upperlimit]/ds[1:upperlimit]

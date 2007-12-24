@@ -130,7 +130,7 @@ InitErgm.absdiffcat<-function (nw, m, arglist, ...) {
   nodecov <- get.node.attr(nw, attrname, "absdiffcat")  
   u <- sort(unique(as.vector(abs(outer(nodecov,nodecov,"-")))),na.last=NA)
   u <- u[u>0]
-  NAsubstitute <- 2*(1+max(abs(c(nodecov,u)),na.rm=T)) # Arbitrary unused (and nonzero) value
+  NAsubstitute <- 2*(1+max(abs(c(nodecov,u)),na.rm=TRUE)) # Arbitrary unused (and nonzero) value
   napositions <- is.na(nodecov)
   nodecov[napositions] <- NAsubstitute
   if(any(napositions)){u<-c(u,NA)}
@@ -629,7 +629,7 @@ InitErgm.b2degree<-function(nw, m, arglist, drop=TRUE, ...) {
         dropterms <- paste("b2deg", du[1,b2degreeattr], ".", attrname,
                            u[du[2,b2degreeattr]], sep="")
         cat("Warning: These b2degree terms have extreme counts and will be dropped:\n")
-        cat(dropterms, "", fill=T)
+        cat(dropterms, "", fill=TRUE)
         du <- matrix(du[,!b2degreeattr], nrow=2)
       }
     }
@@ -649,7 +649,7 @@ InitErgm.b2degree<-function(nw, m, arglist, drop=TRUE, ...) {
        drop=FALSE) == 0
       if(any(mb2degree)){
         cat(" ")
-        cat(paste("Warning: There are no degree", d[mdegree],
+        cat(paste("Warning: There are no degree", d[mb2degree],
                   "b2s;\n",
                   " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
        dropterms <- paste("b2degree", d[mb2degree],sep="")
@@ -770,7 +770,7 @@ InitErgm.b2star<-function(nw, m, arglist, drop=TRUE, ...) {
         dropterms <- paste("b2star", du[1,b2starattr], ".", attrname,
                            u[du[2,b2starattr]], sep="")
         cat("Warning: These b2star terms have extreme counts and will be dropped:\n")
-        cat(dropterms, "", fill=T)
+        cat(dropterms, "", fill=TRUE)
         du <- matrix(du[,!b2starattr], nrow=2)
       }
     }
@@ -927,6 +927,7 @@ InitErgm.bounded.degree<-function(nw, m, arglist, drop=TRUE, ...) {
     defaultvalues = list(NULL,5),
     required = c(TRUE,TRUE))
   attach(a)
+  bound <- a$bound; d <- a$d
   if(drop){
     degrees <- as.numeric(names(table(table(as.matrix.network.edgelist(nw)))))
     degrees[degrees > max(d)] <- max(d)
@@ -965,6 +966,7 @@ InitErgm.bounded.idegree<-function(nw, m, arglist, drop=TRUE, ...) {
     required = c(TRUE, TRUE))
   attach(a)
   d<-a$d
+  bound<-a$bound
   if(drop){
     degrees <-
       as.numeric(names(table(table(as.matrix.network.edgelist(nw)[,2]))))
@@ -1077,6 +1079,7 @@ InitErgm.bounded.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
     required = c(TRUE, TRUE))
   attach(a)
   d<-a$d
+  bound<-a$bound
   if(drop){
     degrees <-
       as.numeric(names(table(table(as.matrix.network.edgelist(nw)[,1]))))
@@ -1189,7 +1192,7 @@ InitErgm.concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
                            u[concurrentattr], sep="")
       cat(" ")
         cat("Warning: These concurrent terms have extreme counts and will be dropped:\n")
-        cat(dropterms, "", fill=T)
+        cat(dropterms, "", fill=TRUE)
         cat("  The corresponding coefficients have been fixed at their MLE of negative infinity.\n")
         u <- u[-concurrentattr]
       }
@@ -1241,6 +1244,7 @@ InitErgm.ctriple<-InitErgm.ctriad<-function (nw, m, arglist, drop=TRUE, ...) {
     defaultvalues = list(NULL,FALSE),
     required = c(FALSE,FALSE))
   attach(a)
+  attrname <- a$attrname; diff <- a$diff;
   termnumber<-1+length(m$terms)
   if(!is.null(attrname)){
     nodecov <- get.node.attr(nw, attrname, "ctriple")
@@ -1379,7 +1383,7 @@ InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
                            u[du[2,degreeattr]], sep="")
         cat(" ")
         cat("Warning: These degree terms have extreme counts and will be dropped:\n")
-        cat(dropterms, "", fill=T)
+        cat(dropterms, "", fill=TRUE)
         cat("  The corresponding coefficients have been fixed at their MLE of negative infinity.\n")
         du <- matrix(du[,!degreeattr], nrow=2)
       }
@@ -1404,7 +1408,7 @@ InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
       if(any(mdegree)){
       cat(" ")
         cat("Warning: These degree terms have extreme counts and will be dropped:\n")
-        cat(d[mdegree], "\n", fill=T)
+        cat(d[mdegree], "\n", fill=TRUE)
         cat("  The corresponding coefficients have been fixed at their MLE of negative infinity.\n")
         d <- d[!mdegree] 
       }
@@ -2389,7 +2393,7 @@ InitErgm.idegree<-function(nw, m, arglist, drop=TRUE, ...) {
                            u[du[2,idegreeattr]], sep="")
       cat(" ")
         cat("Warning: These idegree terms have extreme counts and will be dropped:\n")
-        cat(dropterms, "", fill=T)
+        cat(dropterms, "", fill=TRUE)
         cat("  The corresponding coefficients have been fixed at their MLE of negative infinity.\n")
         du <- matrix(du[,!idegreeattr], nrow=2)
       }
@@ -2414,7 +2418,7 @@ InitErgm.idegree<-function(nw, m, arglist, drop=TRUE, ...) {
       if(any(midegree)){
       cat(" ")
         cat("Warning: These idegree terms have extreme counts and will be dropped:\n")
-        cat(d[midegree], "\n", fill=T)
+        cat(d[midegree], "\n", fill=TRUE)
         cat("  The corresponding coefficients have been fixed at their MLE of negative infinity.\n")
         d <- d[!midegree] 
       }
@@ -2516,6 +2520,7 @@ InitErgm.istar<-function(nw, m, arglist, drop=TRUE, ...) {
     defaultvalues = list(NULL, NULL),
     required = c(TRUE, FALSE))
   attach(a)
+  attrname <- a$attrname
   if(!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname, "istar")
     u<-sort(unique(nodecov))
@@ -3189,7 +3194,7 @@ InitErgm.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
                            u[du[2,odegreeattr]], sep="")
       cat(" ")
         cat("Warning: These odegree terms have extreme counts and will be dropped:\n")
-        cat(dropterms, "", fill=T)
+        cat(dropterms, "", fill=TRUE)
         cat("  The corresponding coefficients have been fixed at their MLE of negative infinity.\n")
         du <- matrix(du[,!odegreeattr], nrow=2)
       }      
@@ -3214,7 +3219,7 @@ InitErgm.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
       if(any(modegree)){
       cat(" ")
         cat("Warning: These odegree terms have extreme counts and will be dropped:\n")
-        cat(d[modegree], "\n", fill=T)
+        cat(d[modegree], "\n", fill=TRUE)
         cat("  The corresponding coefficients have been fixed at their MLE of negative infinity.\n")
         d <- d[!modegree] 
       }
@@ -3478,6 +3483,8 @@ InitErgm.smalldiff<-function (nw, m, arglist, ...) {
     defaultvalues = list(NULL, NULL),
     required = c(TRUE, TRUE))
   attach(a)
+  cutoff <- a$cutoff
+  attrname <- a$attrname
   if (length(cutoff)>1)
     stop("cutoff for smalldiff() must be a scalar.", call.=FALSE)
   m$coef.names<-c(m$coef.names,paste("smalldiff.",
@@ -3612,7 +3619,7 @@ InitErgm.triadcensus<-function (nw, m, arglist, drop=FALSE, ...) {
   }
   d <- d + 1
   lengthd<-length(d)
-  if(lengthd==0){return(model)}
+  if(lengthd==0){return(m)}
   termnumber<-1+length(m$terms)
 # No covariates here, so input component 1 is arbitrary
   m$terms[[termnumber]] <- list(name="triadcensus", soname="ergm",
@@ -3630,6 +3637,7 @@ InitErgm.triangle<-InitErgm.triangles<-function (nw, m, arglist, drop=TRUE, ...)
     defaultvalues = list(NULL, FALSE),
     required = c(FALSE, FALSE))
   attach(a)
+  attrname <- a$attrname
   termnumber<-1+length(m$terms)
   if(!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname, "triangle")
@@ -3697,6 +3705,7 @@ InitErgm.tripercent<-function (nw, m, arglist, drop=TRUE, ...) {
     defaultvalues = list(NULL, FALSE),
     required = c(FALSE, FALSE))
   attach(a)
+  attrname <- a$attrname
   termnumber<-1+length(m$terms)
   if(!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname, "tripercent")
@@ -3763,6 +3772,7 @@ InitErgm.ttriple<-InitErgm.ttriad<-function (nw, m, arglist, drop=TRUE, ...) {
     defaultvalues = list(NULL, FALSE),
     required = c(FALSE, FALSE))
   attach(a)
+  attrname <- a$attrname
   termnumber<-1+length(m$terms)
   if(!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname, "ttriple")

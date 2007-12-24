@@ -91,7 +91,7 @@ ergm.nodegeodesics <- function(edgelist, s, n=max(edgelist), directed=FALSE) {
   ans
 }
 
-ergm.pairgeodesic <- function(edgelist, s, d, n=max(edgelist), directed=F) {
+ergm.pairgeodesic <- function(edgelist, s, d, n=max(edgelist), directed=FALSE) {
 # edgelist is an mx2 matrix of edges.  s=source. d=destination. n=#nodes.
 # This function returns the length of the geodesic from s to d.
   

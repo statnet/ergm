@@ -5,8 +5,7 @@ ergm.estimate.only<-function(theta0, model,
                         method="Nelder-Mead", compress=FALSE,
                         calc.mcmc.se=TRUE, hessian=TRUE,
                         verbose=FALSE, trace=6*verbose,
-                        trustregion=20,
-                        marquardt=list(lambda=0.05), ...) {
+                        trustregion=20, ...) {
   samplesize <- dim(statsmatrix)[1]
   if(compress){
     statsmatrix0 <- ergm.sufftoprob(statsmatrix,compress=TRUE)
@@ -109,9 +108,7 @@ ergm.estimate.only<-function(theta0, model,
                       penalty=0.5, trustregion=trustregion,
                       eta0=eta0, etamap=model$etamap))
     if(inherits(Lout,"try-error") || Lout$value > 500 ){
-      cat(paste("No direct MLE exists!\n",
-                "Applying stochastic approximation with Marquardt.\n"))
-      ergm.marquardt2()
+      cat(paste("No direct MLE exists!\n"))
     }
     if(Lout$convergence != 0 ){
       cat("Non-convergence after", nr.maxit, "iterations.\n")

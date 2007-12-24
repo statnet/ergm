@@ -4,7 +4,7 @@ ergm.degenerate <- function(formula, ...)
 #   termnames <- ergm.gettermnames(trms)
     parent <- sys.parent()
     g <- try(as.network(eval(trms[[2]],parent)), silent=TRUE)
-    while(inherits(rhs,"try-error") & parent > 1){
+    while(inherits(g,"try-error") & parent > 1){
       parent <- parent - 1
       g <- try(as.network(eval(trms[[2]],parent)), silent=TRUE)
     }
