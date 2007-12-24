@@ -18,7 +18,7 @@ cat("  }\n")
 citHeader("To cite the individual package 'ergm' please use:")
 
 citEntry(entry="Manual",
-         title = "ergm: A package to fit, simulate and analyze Exponential-family models for networks",
+         title = "ergm: A package to fit, simulate and analyze exponential-family models for networks",
          author = personList(as.person("Mark S. Handcock"),
                              as.person("David R. Hunter"),
                              as.person("Carter T. Butts"),
@@ -31,7 +31,7 @@ citEntry(entry="Manual",
          
          textVersion = 
          paste("Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau, and Martina Morris (2003) ", 
-               "ergm: A package to fit, simulate and analyze Exponential-family models for networks. Version ",
+               "ergm: A package to fit, simulate and analyze exponential-family models for networks. Version ",
 substring(library(help="ergm",lib.loc=NULL,character.only=TRUE)$info[[1]][2],first=16),
          ",", " URL http://statnetproject.org.",
                sep="")

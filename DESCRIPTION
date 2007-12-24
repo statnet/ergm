@@ -1,7 +1,7 @@
 Package: ergm
-Version: 1.1-471-472.1-2007.12.24-09.19.31
+Version: 1.1-475-476.1-2007.12.24-10.09.05
 Date: 2007-12-24
-Title:  Statistical Modeling of Network and Graph Data
+Title:  Fit, simulate and analyze exponential-family models for networks
 Author: Mark S. Handcock <handcock@stat.washington.edu>, with invaluable help
         from David R. Hunter <dhunter@stat.psu.edu>,
         Carter T. Butts <buttsc@uci.edu>,
