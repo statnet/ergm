@@ -9,6 +9,7 @@
    plus a few supporting function prototypes */
 /********************  changestats:  A    ***********/
 CHANGESTAT_FN(d_b1kappa)
+CHANGESTAT_FN(d_b1share)
 CHANGESTAT_FN(d_altistar)
 CHANGESTAT_FN(d_altostar)
 /********************  changestats:  B    ***********/

@@ -2349,59 +2349,110 @@ void d_transitivity (int ntoggles, Vertex *heads, Vertex *tails,
 //    ToggleEdge(heads[i], tails[i], nwp); 
 //}
 //
-///*****************
-// changestat: d_b1sb2
-//*****************/
-//void d_b1sb2 (int ntoggles, Vertex *heads, Vertex *tails, 
-//	      struct OptionInput *inp, Gptr g) 
-//{
-//  Edge e, f;
-//  int i, j, echange;
-//  int L2hu, L2ut;
-//  Vertex deg;
-//  Vertex h, t, u, v;
-//  int nb2, nb1;
-//
-//  nb1 = (int)inp->inputparams[0];
-//  nb2 = (nwp->nnodes) - nb1;
-//
-//  for (i=0; i < inp->nstats; i++) 
-//    inp->dstats[i] = 0.0;
-//  
-//    for (i=0; i<ntoggles; i++){      
-//     echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
-//     //
-//     // Next for b1 shared b2 counts
-//     //
-//     // step through inedges of t
-//     for(e = EdgetreeMinimum(nwp->inedges, t);
-//         (u = nwp->inedges[e].value) != 0;
-//         e = EdgetreeSuccessor(nwp->inedges, e)){
-//  	 if (u != h){
-//            L2hu=0;
-//            // step through outedges of u
-//            for(f = EdgetreeMinimum(nwp->outedges, u);
-//  	      (v = nwp->outedges[f].value) != 0;
-//             f = EdgetreeSuccessor(nwp->outedges, f)){
-//                 if(EdgetreeSearch(h,v,nwp->outedges)!= 0) L2hu++;
-//  	    }
-//            for(j = 0; j < inp->nstats; j++){
-//  	      deg = (Vertex)inp->inputparams[j+1];
-//              inp->dstats[j] += ((L2hu + echange == deg)
-//  			     - (L2hu == deg));
-//  	    }
-//         }
-//    }
-//     
-//   if (i+1 < ntoggles)
-//     ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-//  }
-//
-//  i--; 
-//  while (--i>=0)  /*  Undo all previous toggles. */
-//    ToggleEdge(heads[i], tails[i], nwp); 
-//}
-//
+/*****************
+ changestat: d_b1share
+*****************/
+void d_b1share (int ntoggles, Vertex *heads, Vertex *tails, 
+	       ModelTerm *mtp, Network *nwp)  {
+  Edge e, f;
+  int i, j, echange;
+  int L2hu, L2ut;
+  Vertex deg;
+  Vertex h, t, u, v;
+  int nb2, nb1;
+
+  nb1 = (int)mtp->inputparams[0];
+  nb2 = (nwp->nnodes) - nb1;
+
+  for (i=0; i < mtp->nstats; i++) 
+    mtp->dstats[i] = 0.0;
+  
+    for (i=0; i<ntoggles; i++){      
+     echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
+     //
+     // Next for b1 shared b2 counts
+     //
+     // step through inedges of t
+     for(e = EdgetreeMinimum(nwp->inedges, t);
+         (u = nwp->inedges[e].value) != 0;
+         e = EdgetreeSuccessor(nwp->inedges, e)){
+  	 if (u != h){
+            L2hu=0;
+            // step through outedges of u
+            for(f = EdgetreeMinimum(nwp->outedges, u);
+  	      (v = nwp->outedges[f].value) != 0;
+             f = EdgetreeSuccessor(nwp->outedges, f)){
+                 if(EdgetreeSearch(h,v,nwp->outedges)!= 0) L2hu++;
+  	    }
+            for(j = 0; j < mtp->nstats; j++){
+  	      deg = (Vertex)mtp->inputparams[j+1];
+              mtp->dstats[j] += ((L2hu + echange == deg)
+  			     - (L2hu == deg));
+  	    }
+         }
+    }
+     
+   if (i+1 < ntoggles)
+     ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
+
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+
+/*****************
+ changestat: d_b2share
+*****************/
+void d_b2share (int ntoggles, Vertex *heads, Vertex *tails, 
+	       ModelTerm *mtp, Network *nwp)  {
+  Edge e, f;
+  int i, j, echange;
+  int L2hu, L2ut;
+  Vertex deg;
+  Vertex h, t, u, v;
+  int nb2, nb1;
+
+  nb1 = (int)mtp->inputparams[0];
+  nb2 = (nwp->nnodes) - nb1;
+
+  for (i=0; i < mtp->nstats; i++) 
+    mtp->dstats[i] = 0.0;
+  
+    for (i=0; i<ntoggles; i++){      
+     echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
+     //
+     // Next for b2 shared b1 counts
+     //
+     // step through inedges of t
+     for(e = EdgetreeMinimum(nwp->inedges, t);
+         (u = nwp->inedges[e].value) != 0;
+         e = EdgetreeSuccessor(nwp->inedges, e)){
+  	 if (u != h){
+            L2hu=0;
+            // step through outedges of u
+            for(f = EdgetreeMinimum(nwp->outedges, u);
+  	      (v = nwp->outedges[f].value) != 0;
+             f = EdgetreeSuccessor(nwp->outedges, f)){
+                 if(EdgetreeSearch(h,v,nwp->outedges)!= 0) L2hu++;
+  	    }
+            for(j = 0; j < mtp->nstats; j++){
+  	      deg = (Vertex)mtp->inputparams[j+1];
+              mtp->dstats[j] += ((L2hu + echange == deg)
+  			     - (L2hu == deg));
+  	    }
+         }
+    }
+     
+   if (i+1 < ntoggles)
+     ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  }
+
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+
 ///*****************
 // changestat: d_bimix
 //*****************/

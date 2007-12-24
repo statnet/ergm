@@ -75,45 +75,78 @@ InitErgm.b1kappa<-function(nw, m, arglist, ...) {
 }
 
 ##########################################################
-#InitErgm.b1sb2<-function(g, model, d, drop=TRUE, ...)
-#{
-#    if (nargs()!=4)
-#        stop(paste("b1sb2() model term expected 1 argument, got ", 
-#            nargs()-3, sep=""), call.=FALSE)
-#    nb2 <- is.bipartite(g)
-#    if (!nb2)
-#      stop("The b1sb2 term is for bipartite graphs.",
-#           call.=FALSE)
-#    nb1 <- get.network.attribute(g,"bipartite")
-#    nb2 <- network.size(g)-nb1
-#    if (is.directed(g))
-#      stop("the b1sb2() term is not allowed with a directed graph",
-#           call.=FALSE)
-##
-##   Check for degeneracy
-## 
-#    if(drop){
-#     mb1sb2 <- paste("c(",paste(d,collapse=","),")",sep="")
-#     mb1sb2 <- summary(
-#       as.formula(paste('g ~ b1sb2(',mb1sb2,')',sep="")),
-#       drop=FALSE)
-#     if(any(mb1sb2==0)){
-#      cat(paste("Warning: There are no b1sb2", d[mb1sb2==0],"dyads.\n"))
-#      dropterms <- paste("b1sb2", d[mb1sb2==0],sep="")
-#      cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
-#      d <- d[mb1sb2!=0] 
-#     }
-#    }
-#    ld<-length(d)
-#    if(ld==0){return(m)}
-#    termnumber<-1+length(m$terms)
-##  No covariates here, so input component 1 is arbitrary
-#    m$terms[[termnumber]] <- list(name="b1sb2", soname="ergm",
-#                                          inputs=c(0, ld, ld+1, nb1, d))
-#    m$coef.names<-c(m$coef.names,paste("b1sb2",d,sep=""))
-#    m
-#}
+InitErgm.b1share<-function(nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("b1degree", is.directed(nw), requirement=FALSE)
+  ergm.checkbipartite("b1degree", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("b1share", arglist,
+    varnames = c("d"),
+    vartypes = c("numeric"),
+    defaultvalues = list(NULL),
+    required = c(TRUE))
+  attach(a)
+  d <- a$d
+  nb1 <- get.network.attribute(nw,"bipartite")
+  nb2 <- network.size(nw)-nb1
 #
+# Check for degeneracy
+# 
+  if(drop){
+   mb1share <- paste("c(",paste(d,collapse=","),")",sep="")
+   mb1share <- summary(
+     as.formula(paste('nw ~ b1share(',mb1share,')',sep="")),
+     drop=FALSE)
+   if(any(mb1share==0)){
+     cat(paste("Warning: There are no type 1 nodes sharing", d[mb1share==0], "type 2 nodes;\n",
+       " the corresponding coefficient has been fixed at its MLE of nenegative infinity.\n",sep=" "))
+    d <- d[mb1share!=0] 
+   }
+  }
+  ld<-length(d)
+  if(ld==0){return(m)}
+  termnumber<-1+length(m$terms)
+#No covariates here, so input component 1 is arbitrary
+  m$terms[[termnumber]] <- list(name="b1share", soname="ergm",
+                                inputs=c(0, ld, ld+1, nb1, d))
+  m$coef.names<-c(m$coef.names,paste("b1share",d,sep=""))
+  m
+}
+
+##########################################################
+InitErgm.b2share<-function(nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("b2share", is.directed(nw), requirement=FALSE)
+  ergm.checkbipartite("b2share", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("b2share", arglist,
+    varnames = c("d"),
+    vartypes = c("numeric"),
+    defaultvalues = list(NULL),
+    required = c(TRUE))
+  attach(a)
+  d <- a$d
+  nb1 <- get.network.attribute(nw,"bipartite")
+  nb2 <- network.size(nw)-nb1
+#
+# Check for degeneracy
+# 
+  if(drop){
+   mb2share <- paste("c(",paste(d,collapse=","),")",sep="")
+   mb2share <- summary(
+     as.formula(paste('nw ~ b2share(',mb2share,')',sep="")),
+     drop=FALSE)
+   if(any(mb2share==0)){
+     cat(paste("Warning: There are no type 1 nodes sharing", d[mb2share==0], "type 2 nodes;\n",
+       " the corresponding coefficient has been fixed at its MLE of nenegative infinity.\n",sep=" "))
+    d <- d[mb2share!=0] 
+   }
+  }
+  ld<-length(d)
+  if(ld==0){return(m)}
+  termnumber<-1+length(m$terms)
+#No covariates here, so input component 1 is arbitrary
+  m$terms[[termnumber]] <- list(name="b2share", soname="ergm",
+                                inputs=c(0, ld, ld+1, nb1, d))
+  m$coef.names<-c(m$coef.names,paste("b2share",d,sep=""))
+  m
+}
 
 ###################################### InitErgm TERMS:  B
 #########################################################
