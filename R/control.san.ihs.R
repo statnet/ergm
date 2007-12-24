@@ -1,4 +1,4 @@
-san.control<-function(prop.weights="default",prop.args=NULL,
+control.san<-function(prop.weights="default",prop.args=NULL,
                       drop=FALSE,
                       summarizestats=FALSE,
                       maxchanges=1000000){
@@ -8,7 +8,7 @@ san.control<-function(prop.weights="default",prop.args=NULL,
   control
 }
 
-san.ergm.control<-function(prop.weights=NULL,prop.args=NULL,
+control.san.ergm<-function(prop.weights=NULL,prop.args=NULL,
                            drop=FALSE,
                            summarizestats=FALSE,
                            maxchanges=1000000){

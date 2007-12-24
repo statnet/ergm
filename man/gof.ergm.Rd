@@ -17,7 +17,7 @@
          nsim=100, burnin=10000, interval=1000,
          GOF=~degree+espartners+distance,
          constraints=~.,
-         control=gof.formula.control(),
+         control=control.gof.formula(),
          seed=NULL,
          verbose=FALSE)
 \method{gof}{ergm}(object, \dots,
@@ -25,7 +25,7 @@
          GOF=~degree+espartners+distance,
          burnin=10000, interval=1000,
          constraints=NULL,
-         control=gof.ergm.control(),
+         control=control.gof.ergm(),
          seed=NULL, 
          theta0=NULL, verbose=FALSE)
 }
@@ -79,7 +79,7 @@
     \code{gof.formula}, defaults to unconstrained. For \code{gof.ergm},
     defaults to the constraints with which \code{object} was fitted.}
   \item{control}{A list to control parameters, constructed using
-    \code{\link{gof.formula.control}} or \code{\link{gof.ergm.control}}
+    \code{\link{control.gof.formula}} or \code{\link{control.gof.ergm}}
     (which have different defaults).}
   \item{seed}{integer; random number integer seed. Defaults to \code{NULL} to
     use whatever the state of the random number generater is at the time

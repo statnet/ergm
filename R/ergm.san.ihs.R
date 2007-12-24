@@ -14,7 +14,7 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
                         sequential=TRUE,
                         constraints=~.,
                         basis=NULL,
-                        control=san.control(),
+                        control=control.san(),
                         verbose=FALSE) {
   out.list <- list()
   out.mat <- numeric(0)
@@ -148,7 +148,7 @@ san.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
                        meanstats=NULL,
                        sequential=TRUE, 
                        constraints=NULL,
-                       control=san.control(),
+                       control=control.san(),
                        verbose=FALSE) {
   out.list <- vector("list", nsim)
   out.mat <- numeric(0)

@@ -1,5 +1,5 @@
 ergm.degeneracy <- function(object, 
-                          control=ergm.control(),
+                          control=control.ergm(),
                           fast=TRUE,
                           test.only=FALSE,
                           verbose=FALSE) {

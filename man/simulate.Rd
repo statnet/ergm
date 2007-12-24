@@ -8,13 +8,13 @@
                           basis=NULL,
                           sequential=TRUE,
                           constraints = ~.,
-                          control = simulate.formula.control(),
+                          control = control.simulate.formula(),
                           verbose=FALSE)
 \method{simulate}{ergm}(object, nsim=1, seed=NULL, \dots, theta0,
                        burnin=1000, interval=1000, 
                        sequential=TRUE,
                        constraints = NULL,
-                       control = simulate.ergm.control(),
+                       control = control.simulate.ergm(),
                        verbose=FALSE)
 }
 \description{
@@ -66,8 +66,8 @@
     \code{simulate.ergm}, defaults to using the same constraints as
     those with which \code{object} was fitted.}
  \item{control}{A list of control parameters for algorithm
-   tuning. Constructed using \code{\link{simulate.ergm.control}} or
-   \code{\link{simulate.formula.control}}, which have different defaults.}
+   tuning. Constructed using \code{\link{control.simulate.ergm}} or
+   \code{\link{control.simulate.formula}}, which have different defaults.}
 %\item{multiplicity}{The number of replications of proposal types
 %  grouped together to form a single proposal.}
 %\item{mixed}{Should a mixed parameterization be used for the

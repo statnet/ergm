@@ -5,7 +5,7 @@ ergm <- ergm2 <- ergm.ihs <- function(formula, theta0="MPLE",
                  constraints=~.,
                  meanstats=NULL,
                  dissolve=NULL, gamma=-4.59512, dissolve.order="DissThenForm",
-                 control=ergm.control(),
+                 control=control.ergm(),
                  verbose=FALSE, ...) {
   current.warn <- options()$warn
   options(warn=0)

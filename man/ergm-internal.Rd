@@ -54,8 +54,8 @@
 \alias{InitErgm.gwidegree}
 \alias{InitErgm.gwodegree}
 \alias{InitErgm.hamming}
-\alias{InitErgm.hammingdyadcov}
-\alias{InitErgm.hammingfixmix}
+\alias{InitErgm.hamming.weighted}
+\alias{InitErgm.hammingmix.constant}
 \alias{InitErgm.hammingmix}
 \alias{InitErgm.idegree}
 \alias{InitErgm.intransitive}
@@ -182,7 +182,6 @@
 \alias{robust.inverse}
 \alias{rspartnerdist}
 \alias{set.mfrow}
-\alias{simulate.control}
 \alias{traceplot.ergm}
 \alias{twopathdist}
 %
@@ -237,6 +236,10 @@
 \alias{print.network.series}
 \alias{summary.statsmatrix.ergm}
 \alias{summary.network.series}
+\alias{license.statnet}
+\alias{license.statnet1}
+\alias{statnetShowDoc}
+\alias{statnetbrowseURL}
 \alias{ergm.boundDeg}
 \alias{is.invertible}
 \alias{ostar2deg}

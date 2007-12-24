@@ -17,7 +17,7 @@ ergm(formula, theta0="MPLE",
      MPLEonly=FALSE, MLestimate=!MPLEonly, seed=NULL,
      burnin=10000, MCMCsamplesize=10000, interval=100, maxit=3,
      constraints=~.,
-     control=ergm.control(),
+     control=control.ergm(),
      verbose=FALSE, \dots)
 }
 \arguments{
@@ -56,7 +56,7 @@ ergm(formula, theta0="MPLE",
     It is also possible to specify a proposal function directly by
     passing a string with the function's name. In that case, arguments
     to the proposal should be specified through the \code{prop.args}
-    argument to \code{\link{ergm.control}}.
+    argument to \code{\link{control.ergm}}.
     
     The default is \code{~.}, for an unconstrained model.
     
@@ -96,7 +96,7 @@ ergm(formula, theta0="MPLE",
     Not all combinations of the above are supported.
   }
   \item{control}{A list of control parameters for algorithm
-    tuning. Constructed using \code{\link{ergm.control}}. }
+    tuning. Constructed using \code{\link{control.ergm}}. }
   \item{seed}{integer; random number integer seed. Defaults to \code{NULL} to
     use whatever the state of the random number generater is at the time
     of the call.
@@ -183,7 +183,7 @@ This sample is then returned to \R, which implements a
 simple Newton-Raphson algorithm to approximate the MLE.
 An alternative style of maximum likelihood estimation is to use a stochastic
 approximation algorithm. This can be chosen with the 
-\code{algorithm.control(style="Robbins-Monro")} option.
+\code{control.ergm(style="Robbins-Monro")} option.
 %There seems little reason to implement the Newton-Raphson
 %algorithm in C since it moves very quickly in \R and
 %it is easier to alter the code if it is written in \R.

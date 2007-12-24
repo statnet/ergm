@@ -5,7 +5,7 @@ ergm.mapl <- function(formula, theta0="MPLE",
                  constraints=~.,
                  proposaltype="TNT10",
                  meanstats=NULL,
-                 control=ergm.control(MPLEtype="penalized"),
+                 control=control.ergm(MPLEtype="penalized"),
                  tau=1, invcov=NULL,
                  verbose=FALSE, ...) {
   current.warn <- options()$warn

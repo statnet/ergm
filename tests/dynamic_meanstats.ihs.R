@@ -13,7 +13,7 @@ meanstats<-c(      1,    n*0.6)
 g1<-san(g0~meandeg+degree(1),meanstats=meanstats,verbose=TRUE)
 
 # Fit the model.
-dynfit<-ergm2(g1~meandeg+degree(1),dissolve=g1~edges,dissolve.orger="FormAndDiss",gamma=log(.95/.05),meanstats=meanstats,control=ergm.control(style="Robbins-Monro"),verbose=2)
+dynfit<-ergm2(g1~meandeg+degree(1),dissolve=g1~edges,dissolve.orger="FormAndDiss",gamma=log(.95/.05),meanstats=meanstats,control=control.ergm(style="Robbins-Monro"),verbose=2)
 
 theta<-dynfit$coef
 print(theta)

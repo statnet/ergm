@@ -1,15 +1,16 @@
-\name{simulate.ergm.control}
-\alias{simulate.formula.control}
-\alias{simulate.ergm.control}
-\title{ Auxiliary for Controlling ERGM Simulation }
+\name{control.gof.ergm}
+\alias{control.gof.formula}
+\alias{control.gof.ergm}
+\title{ Auxiliary for Controlling ERGM Goodness-of-Fit Evaluation  }
 \description{
-  Auxiliary function as user interface for fine-tuning ERGM simulation.
+  Auxiliary function as user interface for fine-tuning ERGM
+  Goodness-of-Fit Evaluation.
 }
 \usage{
-simulate.formula.control(prop.weights = "default", prop.args = NULL,
-drop = FALSE, summarizestats = FALSE, maxchanges = 1e+06, parallel=0)
+control.gof.formula(prop.weights = "default", prop.args = NULL, drop =
+TRUE, summarizestats = FALSE, maxchanges = 1e+06)
 
-simulate.ergm.control(prop.weights = NULL, prop.args = NULL, drop = FALSE, summarizestats = FALSE, maxchanges = 1e+06)
+control.gof.ergm(prop.weights = NULL, prop.args = NULL, drop = TRUE, summarizestats = FALSE, maxchanges = 1e+06)
 }
 \arguments{
   \item{prop.weights}{Specifies the method to allocate probabilities of
@@ -27,23 +28,20 @@ simulate.ergm.control(prop.weights = NULL, prop.args = NULL, drop = FALSE, summa
     dropped from the fit?
     If statistics occur on the extreme of their range they
     correspond to infinite parameter estimates.
-    Default is \code{FALSE}.}
+    Default is \code{TRUE}.}
   \item{summarizestats}{logical; Print out a summary of 
     the sufficient statistics of the generated network. This is useful 
     as a diagnostic. Default is \code{FALSE}.}
   \item{maxchanges}{
     %FIXME: I am not sure this is accurate.
-    Maximum number of changes in dynamic network
-    simulation for which to allocate space. }
-  \item{parallel}{ Number of threads in which to run the sampling. }
+    %Maximum number of changes in dynamic network
+    %simulation for which to allocate space. 
+    Currently unused.}
 }
 \value{
   A list with arguments as components.
 }
-\references{ \code{\link{simulate.formula}}, \code{\link{simulate.ergm}}, \code{\link{glm.control}} performs a
-  similar function for \code{\link{glm}}
-}
-\seealso{\code{\link{simulate.ergm}}, \code{\link{simulate.formula}}, \code{\link{glm.control}} performs a
-  similar function for \code{\link{glm}}  }
-%\keyword{simulation}
-\keyword{models}
+\seealso{\code{\link{gof.formula}}, \code{\link{gof.ergm}}, \code{\link{glm.control}} performs a
+  similar function for \code{\link{glm}}}
+%\keyword{goodness of fit}
+\keyword{ models }

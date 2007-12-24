@@ -1,4 +1,4 @@
-simulate.control<-simulate.formula.control<-function(prop.weights="default",
+control.simulate<-control.simulate.formula<-function(prop.weights="default",
                                                      prop.args=NULL,
                                                      drop=FALSE,
                                                      summarizestats=FALSE,
@@ -11,7 +11,7 @@ simulate.control<-simulate.formula.control<-function(prop.weights="default",
   control
 }
 
-simulate.ergm.control<-function(prop.weights=NULL,prop.args=NULL,
+control.simulate.ergm<-function(prop.weights=NULL,prop.args=NULL,
                                 drop=FALSE,
                                 summarizestats=FALSE,
                                 packagenames="ergm",

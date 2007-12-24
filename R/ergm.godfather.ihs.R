@@ -1,7 +1,7 @@
 ergm.godfather <- function(formula, timestamps=NULL, toggles=NULL, sim=NULL,
                            accumulate=FALSE,
                            verbose=FALSE,
-                           control=godfather.control()) {
+                           control=control.godfather()) {
   # Make the network a proposal it can't refuse.
   # Here, formula is a typical ergm formula (i.e., nw ~ terms)
   # timestamps is a vector whose length is the same as the #rows of toggles.
@@ -77,7 +77,7 @@ ergm.godfather <- function(formula, timestamps=NULL, toggles=NULL, sim=NULL,
   out
 }
 
-godfather.control<-simulatedyn.ergm.control<-function(maxedges=100000,
+control.godfather<-function(maxedges=100000,
               assume_consecutive_timestamps=TRUE,
               return_new_network=FALSE,
               summarizestats=FALSE,

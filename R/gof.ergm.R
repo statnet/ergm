@@ -11,7 +11,7 @@ gof.ergm <- function (object, ..., nsim=100,
                       GOF=~degree+espartners+distance, 
                       burnin=10000, interval=1000,
                       constraints=NULL,
-                      control=gof.ergm.control(),
+                      control=control.gof.ergm(),
                       seed=NULL,
                       theta0=NULL,
                       verbose=FALSE) {
@@ -51,7 +51,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
                         burnin=10000, interval=1000,
                         GOF=~degree+espartners+distance,
                         constraints=~.,
-                        control=gof.formula.control(),
+                        control=control.gof.formula(),
                         seed=NULL,
                         verbose=FALSE) {
 # Unused code
@@ -258,7 +258,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
                                   theta0=theta0,
                                   burnin=burnin, interval=interval,
                                   constraints=constraints,
-                                  control=simulate.formula.control(
+                                  control=control.simulate.formula(
                                    prop.args=control$prop.args,
                                    prop.weights=control$prop.weights,
                                    summarizestats=control$summarizestats,

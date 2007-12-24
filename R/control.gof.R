@@ -1,4 +1,4 @@
-gof.ergm.control<-function(prop.weights=NULL,prop.args=NULL,
+control.gof.ergm<-function(prop.weights=NULL,prop.args=NULL,
                            drop=TRUE,
                            summarizestats=FALSE,
                            maxchanges=1000000){
@@ -8,7 +8,7 @@ gof.ergm.control<-function(prop.weights=NULL,prop.args=NULL,
   control
 }
 
-gof.formula.control<-function(prop.weights="default",prop.args=NULL,
+control.gof.formula<-function(prop.weights="default",prop.args=NULL,
                               drop=TRUE,
                               summarizestats=FALSE,
                               maxchanges=1000000){

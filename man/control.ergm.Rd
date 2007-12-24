@@ -1,24 +1,24 @@
-\name{ergm.control}
-\alias{ergm.control}
+\name{control.ergm}
+\alias{control.ergm}
 \title{ Auxiliary for Controlling ERGM Fitting }
 \description{
   Auxiliary function as user interface for fine-tuning 'ergm' fitting.
 }
 \usage{
-ergm.control(prop.weights = "default", prop.args = NULL,              
+control.ergm(prop.weights = "default", prop.args = NULL,              
              prop.weights.diss = "default", prop.args.diss = NULL, nr.maxit =
              100, calc.mcmc.se = TRUE, hessian = FALSE, compress = FALSE,
              maxNumDyadTypes = 10000, maxedges = 20000, maxchanges = 1e+06,
              MPLEsamplesize = 50000, MPLEtype=c("glm", "penalized"), trace = 0,
              steplength = 0.5, drop = TRUE, force.mcmc = FALSE, mcmc.precision =
              0.05, metric = c("Likelihood", "raw"), method = c("BFGS", "Nelder-Mead"),
-             trustregion = 20, initial.loglik = NULL, 
+             trustregion = 20, initial.loglik = NULL, initial.network = NULL,
              style = c("Newton-Raphson", "Robbins-Monro",
              "Stochastic-Approximation"), phase1_n = NULL, initial_gain = NULL,
              nsubphases = "maxit", niterations = NULL, phase3_n = NULL,
              RobMon.phase1n_base = 7, RobMon.phase2n_base = 7, RobMon.phase2sub
              = 4, RobMon.init_gain = 0.4, RobMon.phase3n = 500, dyninterval =
-             1000, parallel = 0, returnMCMCstats = TRUE)
+             1000, packagenames="ergm", parallel = 0, returnMCMCstats = TRUE)
              }
 \arguments{
   \item{prop.weights}{ Specifies the method to allocate probabilities of
@@ -97,6 +97,8 @@ ergm.control(prop.weights = "default", prop.args = NULL,
     Defaults to 20.
     See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
   \item{initial.loglik}{Initial value of loglikelihood, if known.}
+  \item{initial.network}{Initial network for MCMC, if different from observed
+  network.}
   \item{style}{character; The style of maximum 
     likelihood estimation to use. The default is optimization of an
     MCMC estimate of the log-likelihood. An alternative is to use 
@@ -138,6 +140,7 @@ ergm.control(prop.weights = "default", prop.args = NULL,
     convergence.}
   \item{dyninterval}{ Number of Metropolis-Hastings proposal for each
     phase in the dynamic network simulation. }
+  \item{packagenames}{Names of packages in which changestatistics are found.}
   \item{parallel}{ Number of threads in which to run the sampling. }
 }
 \value{

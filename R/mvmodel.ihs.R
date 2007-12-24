@@ -48,7 +48,7 @@ mvmodel.formula <- function (formula, ..., theta0, nsim=100,
 
   SimGraphSeriesObj <- simulate(formula, burnin=burnin, interval=interval,
                                 constraints=constraints,
-                                control=simulate.ergm.control(prop.args=prop.args,
+                                control=control.simulate.ergm(prop.args=prop.args,
                                   prop.weights=prop.weights,
                                   drop=drop),
                                 theta0=theta0,
@@ -120,7 +120,7 @@ mvmodel.ergm <- function (object, ..., nsim=100,
 
   SimGraphSeriesObj <- simulate(object, burnin=burnin, interval=interval,
                                 constraints=constraints,
-                                control=simulate.ergm.control(prop.args=prop.args,
+                                control=control.simulate.ergm(prop.args=prop.args,
                                   prop.weights=prop.weights,
                                   drop=drop),
                              n=nsim, seed=seed)

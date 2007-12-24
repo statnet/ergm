@@ -3,7 +3,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
                              basis=NULL,
                              sequential=TRUE,
                              constraints=~.,
-                             control=simulate.formula.control(),
+                             control=control.simulate.formula(),
                              verbose=FALSE) {
   out.list <- list()
   out.mat <- numeric(0)
@@ -128,7 +128,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
                           burnin=1000, interval=1000, 
                           sequential=TRUE, 
                           constraints=NULL,
-                          control=simulate.ergm.control(),
+                          control=control.simulate.ergm(),
                           verbose=FALSE) {
   out.list <- vector("list", nsim)
   out.mat <- numeric(0)

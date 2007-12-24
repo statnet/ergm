@@ -1,4 +1,4 @@
-simulatedyn.control<-simulatedyn.ergm.control<-function(prop.weights.form="default",
+control.simulatedyn<-control.simulatedyn.ergm<-function(prop.weights.form="default",
                                                         prop.args.form=NULL,
                                                         prop.weights.diss="default",
                                                         prop.args.diss=NULL,

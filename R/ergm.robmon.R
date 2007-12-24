@@ -1,7 +1,7 @@
 ergm.robmon <- function(theta0, nw, model, Clist,
                         burnin, interval, MHproposal,
                         verbose=FALSE, 
-                        control=ergm.control() ){
+                        control=control.ergm() ){
   # This is based on Snijders (2002), J of Social Structure
   # and Snijders and van Duijn (2002) from A Festscrift for Ove Frank
   # Both papers are available from Tom Snijders' web page: 

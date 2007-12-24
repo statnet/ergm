@@ -7,7 +7,7 @@ ergm <- function(formula, theta0="MPLE",
                  maxit=3,
                  constraints=~.,
                  # deleted meanstats and dissolve stuff
-                 control=ergm.control(),      
+                 control=control.ergm(),      
                  verbose=FALSE, ...) {
   current.warn <- options()$warn
   options(warn=0)

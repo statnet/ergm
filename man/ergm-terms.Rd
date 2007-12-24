@@ -820,15 +820,6 @@ network
     undirected graph the triad census is over the four types defined by the
     number of ties (i.e., 0, 1, 2, and 3).}
 
-    \item{\code{triadcensus.directed}}{\emph{Triad Census for a directed graph:}
-    This term adds one network statistic for each of the 16 types of triads
-    categorized by Davis and Leinhardt (1972). Each statistic is the count of
-    the corresponding triad type in the network. Every unoriented directed triad
-    may occupy one of 16 distinct states. These states were used by Davis and
-    Leinhardt (1972) as a basis for classifying triads within a larger
-    structure. For details see \code{\link[sna]{triad.classify}}, on which this
-    code is based. This term can only be used with directed networks.}
-
     \item{\code{triangle(attrname)}}{\emph{Triangles:} This term adds one
     statistic to the model equal to the number of triangles in the network. For
     an undirected network, a triangle is defined to be any set \eqn{\{(i,j),

@@ -47,7 +47,7 @@ magnolia.fit <- ergm (magnolia ~ edges + nodematch("Grade",diff=T)
  + nodematch("Race",diff=T) + nodematch("Sex",diff=F) 
  + absdiff("Grade") + gwesp(0.25,fixed=T), burnin=10000, 
  interval=1000, MCMCsamplesize=2500, maxit=25,
- control=ergm.control(steplength=0.25))
+ control=control.ergm(steplength=0.25))
 }
 
 Then the faux.magnolia.high dataset was created by simulating a single network
