@@ -3622,7 +3622,7 @@ void d_nodematch (int ntoggles, Vertex *heads, Vertex *tails,
 *****************/
 void d_nodemix (int ntoggles, Vertex *heads, Vertex *tails,
               ModelTerm *mtp, Network *nwp) {
-  Vertex h, t, tmpi, ninputs, ninputs2;
+  Vertex h, t, ninputs, ninputs2;
   int i, j, edgeflag=0, matchflag;
   double rtype, ctype, tmp;
 

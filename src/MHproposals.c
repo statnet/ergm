@@ -853,7 +853,6 @@ void MH_randomnode (MHproposal *MHp, DegreeBound *bd, Network *nwp) {
 
 void MH_randomtoggleNonObserved (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {  
   Edge rane;
-  Vertex head, tail;
   
   if(MHp->ntoggles == 0) { /* Initialize randomtoggle */
     MHp->ntoggles=1;

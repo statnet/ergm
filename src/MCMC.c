@@ -25,8 +25,8 @@ void MCMC_wrapper (int *heads, int *tails, int *dnedges,
                    int *minin, int *condAllDegExact, int *attriblength, 
                    int *maxedges,
                    int *mheads, int *mtails, int *mdnedges) {
-  int i, nextedge, directed_flag, hammingterm, formationterm;
-  Vertex v, k, n_nodes, nmax, bip, hhead, htail;
+  int directed_flag, hammingterm, formationterm;
+  Vertex n_nodes, nmax, bip, hhead, htail;
   Edge n_edges, n_medges, nddyads, kedge;
   Network nw[2];
   DegreeBound *bd;
@@ -151,7 +151,6 @@ void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
   long int interval, int hammingterm, int fVerbose,
   Network *nwp, Model *m, DegreeBound *bd) {
   long int staken, tottaken, ptottaken, originterval;
-  long int dotinterval = MAX(samplesize,20) / 20;
   int i, j, components, diam;
   MHproposal MH;
   
@@ -192,9 +191,9 @@ void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
    if(nwp->nedges > (50000-1000)){burnin=1;}
    MetropolisHastings(&MH, theta, networkstatistics, burnin, &staken,
 		      hammingterm, fVerbose, nwp, m, bd);  
-/*   if (fVerbose){ */
-/*     Rprintf("."); /* First output period comes after return from burnin */
-/*   } */
+/*   if (fVerbose){ 
+       Rprintf("."); /* First output period comes after return from burnin
+     } */
   
   if (samplesize>1){
     staken = 0;
@@ -230,10 +229,10 @@ void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
         ptottaken = tottaken; 
         Rprintf("Warning:  Metropolis-Hastings algorithm has accepted only "
         "%d steps out of a possible %d\n",  ptottaken-tottaken, i); 
+      } 
+      if (fVerbose && (i % dotinterval)==0) { 
+        Rprintf(".");  
       } */
-/*      if (fVerbose && (i % dotinterval)==0) { */
-/*        Rprintf(".");  /* Next period (but no more than 20 total)  */
-/*      } */
     }
     /*********************
     Below is an extremely crude device for letting the user know
@@ -270,7 +269,7 @@ void MetropolisHastings (MHproposal *MHp,
 			 Network *nwp,
 			 Model *m, DegreeBound *bd) {
   long int step, taken;
-  int i, curstat=0;
+  int i;
   double ip, cutoff;
   
   step = taken = 0;
@@ -597,7 +596,7 @@ void MCMC_global (int *heads, int *tails, int *dnedges,
 		  int *nterms, char **funnames,
 		  char **sonames, double *inputs,  double *stats)
 {	
-  int i, directed_flag, hammingterm, formationterm;
+  int directed_flag, hammingterm, formationterm;
   Vertex n_nodes, hhead, htail;
   Edge n_edges, nddyads, kedge;
   Network nw[2];
@@ -700,9 +699,9 @@ void MCMCPhase12 (int *heads, int *tails, int *dnedges,
 		  int *minin, int *condAllDegExact, int *attriblength, 
 		  int *maxedges,
 		  int *mheads, int *mtails, int *mdnedges)  {
-  int i, nextedge, directed_flag, hammingterm, formationterm;
+  int directed_flag, hammingterm, formationterm;
   int nphase1, nsubphases;
-  Vertex v, k, n_nodes, nmax, bip, hhead, htail;
+  Vertex n_nodes, nmax, bip, hhead, htail;
   Edge n_edges, n_medges, nddyads, kedge;
   Network nw[2];
   DegreeBound *bd;
