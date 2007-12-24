@@ -3623,43 +3623,6 @@ InitErgm.triadcensus<-function (nw, m, arglist, drop=FALSE, ...) {
 }
 
 #########################################################
-InitErgm.triadcensus.directedonly<-function (nw, m, arglist, drop=FALSE, ...) {
-  ergm.checkdirected("triadcensus", is.directed(nw), requirement=TRUE)
-  a=ergm.checkargs("triadcensus", arglist,
-    varnames = c("d"),
-    vartypes = c("numeric"),
-    defaultvalues = list(NULL),
-    required = c(FALSE))
-  attach(a)
-  d<-a$d
-  tcn <- c("003","012", "102", "021D", "021U", "021C", "111D",
-           "111U", "030T", "030C", "201", "120D", "120U", "120C", "210", "300")
-  if(is.null(d)){d <- 2:16}
-  if(drop){
-    mdegree <- paste("c(",paste(d,collapse=","),")",sep="")
-    mdegree <- summary(
-     as.formula(paste('nw ~ triadcensus(',mdegree,')',sep="")),
-     drop=FALSE) == 0
-    if(any(mdegree)){
-     cat(" ")
-     cat(paste("Warning: There are no triads of type", tcn[d[mdegree]],".\n"))
-     cat("  The corresponding coefficients have been fixed at their MLE of negative infinity.\n")
-     d <- d[!mdegree]
-    }
-  }
-  lengthd<-length(d)
-  if(lengthd==0){return(model)}
-  termnumber<-1+length(m$terms)
-# No covariates here, so input component 1 is arbitrary
-  m$terms[[termnumber]] <- list(name="triadcensus", soname="ergm",
-                                      inputs=c(0, lengthd, lengthd, d),
-                                      dependence=TRUE)
-  m$coef.names<-c(m$coef.names, 
-   paste("triadcensus",tcn,sep=".")[d])
-  m
-}
-
-#########################################################
 InitErgm.triangle<-InitErgm.triangles<-function (nw, m, arglist, drop=TRUE, ...) {
   a <- ergm.checkargs("triangle", arglist,
     varnames = c("attrname", "diff"),

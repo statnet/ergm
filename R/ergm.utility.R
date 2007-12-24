@@ -53,20 +53,20 @@ degreedist <- function(g, print=TRUE)
    nb1 <- get.network.attribute(g,"bipartite")
    nb2 <- network.size(g) - nb1
    mesp <- paste("c(",paste(0:nb2,collapse=","),")",sep="")
-   adegrees <- summary(as.formula(paste('g ~ adegree(',mesp,')',sep="")),drop=FALSE)
+   b1degrees <- summary(as.formula(paste('g ~ b1degree(',mesp,')',sep="")),drop=FALSE)
    mesp <- paste("c(",paste(0:nb1,collapse=","),")",sep="")
-   edegrees <- summary(as.formula(paste('g ~ edegree(',mesp,')',sep="")),drop=FALSE)
-   names(edegrees) <- 0:nb1
-   if(!is.null(edegrees) & print){
+   b2degrees <- summary(as.formula(paste('g ~ b2degree(',mesp,')',sep="")),drop=FALSE)
+   names(b2degrees) <- 0:nb1
+   if(!is.null(b2degrees) & print){
     cat("Event degree distribution:\n")
-    if(any(edegrees>0)){print(edegrees[edegrees>0])}
+    if(any(b2degrees>0)){print(b2degrees[b2degrees>0])}
    }
-   names(adegrees) <- 0:nb2
-   if(!is.null(adegrees) & print){
+   names(b1degrees) <- 0:nb2
+   if(!is.null(b1degrees) & print){
     cat("Actor degree distribution:\n")
-    if(any(adegrees>0)){print(adegrees[adegrees>0])}
+    if(any(b1degrees>0)){print(b1degrees[b1degrees>0])}
    }
-   degrees <- list(b2=edegrees, b1=adegrees)
+   degrees <- list(b2=b2degrees, b1=b1degrees)
   }else{              
    mesp <- paste("c(",paste(0:(network.size(g)-1),collapse=","),")",sep="")
    degrees <- summary(as.formula(paste('g ~ degree(',mesp,')',sep="")),drop=FALSE)

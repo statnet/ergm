@@ -118,14 +118,14 @@ summary.statistics.network <- function(object,...,drop=FALSE, basis=NULL) {
 #  if(any(todegree0 > 0)){
 #    gs[todegree0] <- gs[todegree0] + Clist$n
 #  }
-#  tdegree0  <- match( "adegree0",names(gs)) 
+#  tdegree0  <- match( "b1degree0",names(gs)) 
 #  if(!is.na(tdegree0)){
 #    gs[tdegree0] <- gs[tdegree0] + nb1
 #  }
-#  tdegree0  <- grep( "adeg.",names(gs)) 
+#  tdegree0  <- grep( "b1deg.",names(gs)) 
 #  if(any(tdegree0 > 0)){
 #    for(i in seq(along=m$terms)){
-#     if(m$terms[[i]]$name=="adegree_by_attr"){
+#     if(m$terms[[i]]$name=="b1degree_by_attr"){
 #       nterms <- (m$terms[[i]]$inputs)[2]
 #       aaa <- (m$terms[[1]]$inputs)[-c(1:(nterms*2+3))]
 #       aaa <- table(aaa[1:nb1])
@@ -135,10 +135,10 @@ summary.statistics.network <- function(object,...,drop=FALSE, basis=NULL) {
 #     }
 #    }
 #  }
-#  tdegree0  <- grep( "edeg.",names(gs)) 
+#  tdegree0  <- grep( "b2deg.",names(gs)) 
 #  if(any(tdegree0 > 0)){
 #    for(i in seq(along=m$terms)){
-#     if(m$terms[[i]]$name=="edegree_by_attr"){
+#     if(m$terms[[i]]$name=="b2degree_by_attr"){
 #       nterms <- (m$terms[[i]]$inputs)[2]
 #       aaa <- (m$terms[[1]]$inputs)[-c(1:(nterms*2+3))]
 #       aaa <- table(aaa[-c(1:nb1)])
@@ -148,7 +148,7 @@ summary.statistics.network <- function(object,...,drop=FALSE, basis=NULL) {
 #     }
 #    }
 #  }
-#  tdegree0  <- match( "edegree0",names(gs)) 
+#  tdegree0  <- match( "b2degree0",names(gs)) 
 #  if(!is.na(tdegree0)){
 #    gs[tdegree0] <- gs[tdegree0] + nb2
 #  }
