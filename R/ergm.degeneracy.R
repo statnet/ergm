@@ -14,7 +14,7 @@ ergm.degeneracy <- function(object,
     fit <- try(ergm(object$formula, MPLEonly=TRUE, Mlestimate=FALSE),silent=TRUE)
     options(warn=current.warn)
     if(inherits(fit,"try-error")){
-     object$degeneracy <- NA
+     object$degeneracy.value <- NA
      object$degeneracy.type <- NULL
      return(invisible(object))
     }
@@ -26,7 +26,7 @@ ergm.degeneracy <- function(object,
    }
    # So a MCMC fit
    if(object$loglikelihood>control$trustregion-0.1){
-    object$degeneracy <- Inf
+    object$degeneracy.value <- Inf
    }else{
     changeobs <- (-2*object$mplefit$glm$y+1)*model.matrix(object$mplefit$glm)
     if(fast && nrow(changeobs) > 100){
@@ -46,11 +46,11 @@ ergm.degeneracy <- function(object,
       statsmatrix=object$sample[,!object$etamap$offsettheta,drop=FALSE],
       trustregion=control$trustregion),silent=TRUE)
     if(inherits(object$degeneracy.type,"try-error")){
-     object$degeneracy <- Inf
+     object$degeneracy.value <- Inf
      object$degeneracy.type <- NULL
     }else{
      object$degeneracy.type <- t(rbind(object$degeneracy.type,wgts))
-     object$degeneracy <- max(object$degeneracy.type[,1],na.rm=TRUE)
+     object$degeneracy.value <- max(object$degeneracy.type[,1],na.rm=TRUE)
     }
    }
   }else{
@@ -76,23 +76,23 @@ ergm.degeneracy <- function(object,
     wgts <- object$glm$prior.weights
     object$degeneracy.type <- cbind(object$degeneracy.type,wgts)
     colnames(object$degeneracy.type) <- c("delta.log.lik","num.dyads")
-    object$degeneracy <- max(object$degeneracy.type[,1],na.rm=TRUE)
+    object$degeneracy.value <- max(object$degeneracy.type[,1],na.rm=TRUE)
    }else{
-    object$degeneracy <- Inf
+    object$degeneracy.value <- Inf
     object$degeneracy.type <- NULL
    }
   }
-  if(object$degeneracy>control$trustregion-0.1){
-   object$degeneracy <- Inf
+  if(object$degeneracy.value>control$trustregion-0.1){
+   object$degeneracy.value <- Inf
   }
-  if(is.infinite(object$degeneracy)){
+  if(is.infinite(object$degeneracy.value)){
    cat("\n Warning: The diagnostics indicate that the model is very unstable.\n   They suggest that the model is degenerate,\n   and that the numerical summaries are suspect.\n")
   }else{
-    if(!test.only || object$degeneracy > 1){
+    if(!test.only || object$degeneracy.value > 1){
      cat("The instability of the model is: ",
-        format(object$degeneracy, digits=2),"\n")
+        format(object$degeneracy.value, digits=2),"\n")
     }
-    if(object$degeneracy > 1){
+    if(object$degeneracy.value > 1){
       cat("Instabilities greater than 1 suggest that model is degenerate.\n")
     }
   }

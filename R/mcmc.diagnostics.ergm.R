@@ -11,14 +11,14 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
                                   r=0.0125, digits=6,
                                   maxplot=1000, verbose=TRUE, center=TRUE,
                                   main="Summary of MCMC samples",  
-                                  xlab = "Iterations", ylab = "", 
-                                  check.degeneracy=TRUE, ...) {
+                                  xlab = "Iterations", ylab = "", ...) {
 #
-  if(check.degeneracy &
-    (is.null(object$theta1$independent) || !all(object$theta1$independent))){
-   degout <- ergm.degeneracy(object)
+  if(!is.null(object$degeneracy.value) && !is.na(object$degeneracy.value)){
+   degeneracy.value <- object$degeneracy.value
+   degeneracy.type <- object$degeneracy.type
   }else{
-   degout <- list(degeneracy=NULL, degeneracytype=NULL)
+   degeneracy.value <- NULL
+   degeneracy.type <- NULL
   }
 
   if(sample=="missing"){
@@ -105,7 +105,7 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
      warning("For all MCMC diagnostics you need the 'coda' package.")
      return(invisible())
     }
-    if(is.null(degout$degeneracy) || !is.infinite(degout$degeneracy)){
+    if(is.null(degeneracy.value) || !is.infinite(degeneracy.value)){
      cat("\nr=0.0125 and 0.9875:\n")
      raft9875 <- ergm.raftery.diag(statsmatrix, r=0.9875, ...)
      raft     <- ergm.raftery.diag(statsmatrix, r=0.0125, ...)
@@ -116,15 +116,15 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
      if(is.null(simvalues)){
        simvalues <- c(2, nrow(statsmatrix), 1)
      }
-     raft$degeneracy <- degout$degeneracy
-     raft$degeneracy.type <- degout$degeneracy.type
+     raft$degeneracy.value <- degeneracy.value
+     raft$degeneracy.type <- degeneracy.type
      if(verbose){
       print(raft, simvalues=simvalues)
      }
     }else{
      raft <- list(simvalues=NULL,
-                  degeneracy=degout$degeneracy,
-                  degeneracy.type=degout$degeneracy.type)
+                  degeneracy.value=degeneracy.value,
+                  degeneracy.type=degeneracy.type)
     }
     return(invisible(raft))
   }

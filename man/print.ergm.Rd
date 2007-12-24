@@ -6,7 +6,7 @@
   by the \code{\link{ergm}} function.
 }
 \usage{
-print.ergm (x, digits = max(3, getOption("digits") - 3), \dots)
+\method{print}{ergm}(x, digits = max(3, getOption("digits") - 3), \dots)
 }
 \arguments{
   \item{x}{An \code{\link{ergm}} object.  See documentation for \code{\link{ergm}}.}

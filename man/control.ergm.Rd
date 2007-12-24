@@ -10,7 +10,7 @@ control.ergm(prop.weights = "default", prop.args = NULL,
              100, calc.mcmc.se = TRUE, hessian = FALSE, compress = FALSE,
              maxNumDyadTypes = 10000, maxedges = 20000, maxchanges = 1e+06,
              MPLEsamplesize = 50000, MPLEtype=c("glm", "penalized"), trace = 0,
-             steplength = 0.5, drop = TRUE, force.mcmc = FALSE, mcmc.precision =
+             steplength = 0.5, drop = TRUE, force.mcmc = FALSE, check.degeneracy=TRUE, mcmc.precision =
              0.05, metric = c("Likelihood", "raw"), method = c("BFGS", "Nelder-Mead"),
              trustregion = 20, initial.loglik = NULL, initial.network = NULL,
              style = c("Newton-Raphson", "Robbins-Monro",
@@ -81,6 +81,8 @@ control.ergm(prop.weights = "default", prop.args = NULL,
   \item{force.mcmc}{logical; should MCMC maximum likelihood be used?  Only 
     relevant for dyadic independent networks, in which the MLE could be found
     using MPLE instead.}
+  \item{check.degeneracy}{Logical:  Should the diagnostics include a 
+  check for model degeneracy?}
   \item{mcmc.precision}{vector; upper bounds on the precision of the 
     standard errors induced by the MCMC algorithm.
     Defaults to \code{0.05}.}

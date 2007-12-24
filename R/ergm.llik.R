@@ -162,7 +162,7 @@ llik.info3 <- function(theta, xobs, xsim, probs,  xsim.miss, probs.miss,
   basepred <- as.vector(xsim %*% deta)
   maxbase <- max(basepred)
   w <- probs * exp(basepred-maxbase) # not normalized; cov.wt will do that
-  t(etagrad) %*% cov.wt(xsim,w,center=F)$cov %*% etagrad
+  t(etagrad) %*% cov.wt(xsim,w,center=FALSE)$cov %*% etagrad
 }
 
 

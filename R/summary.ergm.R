@@ -1,4 +1,4 @@
-summary.ergm <- function (object, ..., check.degeneracy=FALSE, correlation=FALSE, covariance=FALSE)
+summary.ergm <- function (object, ..., correlation=FALSE, covariance=FALSE)
 {
   if(any(is.na(object$coef)) & !is.null(object$mplefit)){
      object$coef[is.na(object$coef)] <-
@@ -188,9 +188,16 @@ summary.ergm <- function (object, ..., check.degeneracy=FALSE, correlation=FALSE
     }
   }
 
-  if(check.degeneracy & 
-    (is.null(object$theta1$independent) || !all(object$theta1$independent))){
-   degout <- ergm.degeneracy(object, test.only=TRUE)
+  if(!is.null(object$degeneracy.value) && !is.na(object$degeneracy.value)){
+   if(is.infinite(object$degeneracy.value)){
+    cat("\n Warning: The diagnostics indicate that the model is very unstable.\n   They suggest that the model is near degenerate,\n   and that the numerical summaries are suspect.\n")
+   }else{
+    if(object$degeneracy.value > 1){
+      cat("The instability of the model is: ",
+        format(object$degeneracy.value, digits=2),"\n")
+      cat("Instabilities greater than 1 suggest that model is near degenerate.\n")
+    }
+   }
   }
 # if(any(object$drop)){
 #   cat("\n Warning:\n")

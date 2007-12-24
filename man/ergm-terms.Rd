@@ -218,7 +218,7 @@ network
     states. These states were used by Davis and Leinhardt (1972)as a basis for
     classifying triads within a larger structure. The balanced triads are those
     of type \code{102} and \code{300}. For details about triad types, see
-    \code{\link[sna]{triad.classify}} in the \code{\link{sna}} package. For an
+    \code{\link[sna]{triad.classify}} in the \code{\link[sna]{sna}} package. For an
     undirected graph the balanced triads are those with an even number of ties
     (i.e., 0 and 2).}
 
@@ -556,7 +556,7 @@ network
     network. These are defined as the triads of types \code{111D}, \code{201},
     \code{111U}, \code{021C}, and \code{030C} in the triad census of Davis and
     Leinhardt (1972). For details about triad types, see
-    \code{\link[sna]{triad.classify}} in the \code{sna} package. Note the
+    \code{\link[sna]{triad.classify}} in the \code{\link[sna]{sna}} package. Note the
     distinction from the \code{ctriple} term.}
 
     \item{\code{isolates}}{\emph{Isolates:} This term adds one statistic to the
@@ -807,7 +807,7 @@ network
     network. These are defined as the triads of types \code{120D}, \code{030T},
     \code{120U}, and \code{300} in the triad census of Davis and Leinhardt
     (1972). For details about triad types, see \code{\link[sna]{triad.classify}}
-    in the \code{\link{sna}} package. Note the distinction from the
+    in the \code{\link[sna]{sna}} package. Note the distinction from the
     \code{ttriple} term.}
 
     \item{\code{triadcensus}}{\emph{Triad Census:} This term adds one network

@@ -36,13 +36,8 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     }
     z <- ergm.getMCMCsample(nw, model, MHproposal, eta0, MCMCparams, verbose)
     statsmatrix=z$statsmatrix
-    if(MCMCparams$Clist.miss$nedges > 0){
-      statsmatrix.miss <- ergm.getMCMCsample(nw, model, MHproposal.miss, eta0, MCMCparams, verbose)$statsmatrix
-      if(verbose){cat("Back from constrained MCMC...\n")}
-    }else{
-      statsmatrix.miss <- NULL
-      if(verbose){cat("Back from unconstrained MCMC...\n")}
-    }
+    statsmatrix.miss <- NULL
+    if(verbose){cat("Back from unconstrained MCMC...\n")}
     if(sequential & MCMCparams$Clist.miss$nedges == 0){
       nw <- z$newnetwork
       nw.obs <- summary(model$formula, basis=nw)
@@ -52,12 +47,8 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
 #
     iteration <- iteration + 1
     if(MCMCparams$steplength<1 && iteration < MCMCparams$maxit ){
-      if(!is.null(statsmatrix.miss)){
-        statsmatrix.miss <- statsmatrix.miss*MCMCparams$steplength+statsmatrix*(1-MCMCparams$steplength)
-      }else{
         statsmean <- apply(statsmatrix,2,mean)
         statsmatrix <- sweep(statsmatrix,2,(1-MCMCparams$steplength)*statsmean,"-")
-      }
     }
     if(ergm.checkdegeneracy(statsmatrix, statsmatrix.miss, verbose=verbose)){
      if(iteration <= MCMCparams$maxit){
@@ -192,5 +183,11 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
 # if(!is.na(v$mle.lik) && v$mle.lik>0){
 #   v$mle.lik <- -v$mplefit$glm$deviance/2 
 # }  #I'm really not sure about this mle.lik value.
+  if(MCMCparams$check.degeneracy & 
+    (is.null(v$theta1$independent) || !all(v$theta1$independent))){
+   degeneracy <- ergm.degeneracy(v, test.only=TRUE)
+   v$degeneracy.value <- degeneracy$degeneracy.value
+   v$degeneracy.type <- degeneracy$degeneracy.type
+  }
   v
 }

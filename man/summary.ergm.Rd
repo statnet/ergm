@@ -4,14 +4,12 @@
 % \alias{print.summary.lm.null}
 \title{Summarizing ERGM Model Fits}
 \usage{
-\method{summary}{ergm}(object, \dots, check.degeneracy = FALSE, 
+\method{summary}{ergm}(object, \dots,
                correlation = FALSE, covariance = FALSE)
 }
 \arguments{
   \item{object}{an object of class \code{"ergm"}, usually, a result of a
     call to \code{\link{ergm}}.}
-  \item{check.degeneracy}{Logical:  Should the output include a 
-    check for model degeneracy?}
   \item{correlation}{logical; if \code{TRUE}, the correlation matrix of
     the estimated parameters is returned and printed.}
   \item{covariance}{logical; if \code{TRUE}, the covariance matrix of
