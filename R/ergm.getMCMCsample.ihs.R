@@ -57,8 +57,13 @@ ergm.getMCMCsample.ihs <- function(nw, model, MHproposal, eta0, MCMCparams,
 #
     cl<-makeCluster(MCMCparams$parallel)
     clusterSetupRNG(cl)
-    clusterEvalQ(cl,library(ergm))
-#   clusterEvalQ(cl,eval(paste("library(",packagename,")",sep="")))
+    if("ergm" %in% MCMCparams$packagenames){
+     clusterEvalQ(cl,library(ergm))
+    }
+    if("networksis" %in% MCMCparams$packagenames){
+     clusterEvalQ(cl,library(networksis))
+    }
+#    clusterEvalQ(cl,eval(paste("library(",packagename,")",sep="")))
 #
 #   Run the jobs with rpvm or Rmpi
 #

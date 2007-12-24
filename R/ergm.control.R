@@ -26,6 +26,7 @@ ergm.control<-function(prop.weights="default",prop.args=NULL,
                        RobMon.init_gain=0.4,
                        RobMon.phase3n=500,
                        dyninterval=1000,
+                       packagenames="ergm",
                        parallel=0,
                        returnMCMCstats=TRUE){
   control<-list()
