@@ -28,14 +28,14 @@ sociality.network <- function (object, ...,
   smatrix <- as.sociomatrix(object)
   symmatrix <- smatrix 
   symmatrix[t(smatrix) > 0] <- 1
-  degreecent <- prestige(smatrix,gmode=gmode,cmode="indegree")
+  degreecent <- sna:::prestige(smatrix,gmode=gmode,cmode="indegree")
   odeg <- order(-degreecent)[c(1,network.size(object))]
   stats <- matrix(0,ncol=length(statistics),nrow=network.size(object))
   for(i in seq(along=statistics)){
     if(statistics[i] %in% "eigenvector.sym"){
-      stats[,i] <- prestige(symmatrix,gmode=gmode,cmode="eigenvector")
+      stats[,i] <- sna:::prestige(symmatrix,gmode=gmode,cmode="eigenvector")
     }else{
-      stats[,i] <- Re(prestige(smatrix,gmode=gmode,cmode=statistics[i]))
+      stats[,i] <- Re(sna:::prestige(smatrix,gmode=gmode,cmode=statistics[i]))
     }
     if(diff(stats[odeg,i])>0){stats[,i] <- -stats[,i]}
   }

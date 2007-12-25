@@ -34,7 +34,6 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
 
   Clist <- ergm.Cprepare(nw, m)
   
-  MCMCsamplesize <- 1
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
   if(missing(theta0)) {
@@ -47,24 +46,29 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
     warning("No parameter values given, using Bernouli network\n\t")
    }
   }
-  theta0.bdd <- theta0
-  theta0.bdd[is.infinite(theta0.bdd)] <- -10000
+  eta0 <- theta0
+  theta0.bdd[is.infinite(eta0)] <- -10000
   
   if(!is.null(seed)) set.seed(as.integer(seed))
 
   curstats<-summary.statistics.network(object)
+  MCMCparams <- list(MCMCsamplesize=1,
+      stats=curstats,
+      burnin=burnin,
+      interval=interval,
+      Clist.miss=list(heads=0,tails=0,nedges=0))
 
   if (verb) {
-    cat("Starting",nsim,"MCMC iterations of",burnin+interval*MCMCsamplesize,
+    cat("Starting",nsim,"MCMC iterations of",burnin+interval*MCMCparams$MCMCsamplesize,
         "steps each:\n")
   }
   for(i in 1:nsim){
     Clist <- ergm.Cprepare(nw, m)
     maxedges <- max(2000, Clist$nedges)
     if(i==1 | !sequential){
-      use.burnin <- burnin
+      MCMCparams$burnin <- burnin
     }else{
-      use.burnin <- interval
+      MCMCparams$burnin <- interval
     }
 #
 #   Check for truncation of the returned edge list
@@ -75,32 +79,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
      if (verb) {
        cat(paste("# ", i, " of ", nsim, ": ", sep=""))
      }
-     z <- .C("MCMC_wrapper",
-             as.integer(Clist$heads), as.integer(Clist$tails), 
-             as.integer(Clist$nedges), as.integer(Clist$n),
-             as.integer(Clist$dir), as.integer(Clist$bipartite),
-             as.integer(Clist$nterms), 
-             as.character(Clist$fnamestring),
-             as.character(Clist$snamestring), 
-             as.character(MHproposal$name),
-             as.character(MHproposal$package),
-#  Add:  as.double(length(MHproposal$args)), as.double(MHproposal$args), 
-             as.double(Clist$inputs),
-             as.double(theta0.bdd),
-             as.integer(MCMCsamplesize),
-             s = as.double(rep(curstats,MCMCsamplesize)),
-             as.integer(use.burnin), as.integer(interval), 
-             newnwheads = integer(maxedges),
-             newnwtails = integer(maxedges), 
-             as.integer(verb),
-             as.integer(MHproposal$bd$attribs), 
-             as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin), as.integer(MHproposal$bd$minout), 
-             as.integer(MHproposal$bd$minin), as.integer(MHproposal$bd$condAllDegExact),
-             as.integer(length(MHproposal$bd$attribs)), 
-             as.integer(maxedges), 
-             as.integer(0.0), as.integer(0.0), 
-             as.integer(0.0),
-             PACKAGE="ergm")
+     z <- ergm.mcmcslave(Clist,MHproposal,eta0,MCMCparams,maxedges,verb) 
     }
 #
 #   Next update the network to be the final (possibly conditionally)
@@ -144,7 +123,6 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
   m <- ergm.getmodel(object$formula, nw, drop=FALSE)
   ## By default, all arguments but the first are NULL, and all the information is borrowed from the fit.
   MHproposal <- MHproposal(object,constraints=constraints,arguments=control$prop.args, nw=nw, model=m, weights=control$prop.weights)
-  MCMCsamplesize <- 1
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
 # multiplicity.constrained <- 1  
@@ -155,13 +133,19 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
     cat("Starting",nsim,"MCMC iterations of",burnin+interval*MCMCsamplesize,
         "steps each:\n")
   }
+  MCMCparams <- list(MCMCsamplesize=1,
+      stats=eta0-eta0,
+      burnin=burnin,
+      interval=interval,
+      Clist.miss=list(heads=0,tails=0,nedges=0))
+
   for(i in 1:nsim){
     Clist <- ergm.Cprepare(nw, m)
     maxedges <- max(5000, Clist$nedges)
     if(i==1 | !sequential){
-      use.burnin <- burnin
+      MCMCparams$burnin <- burnin
     }else{
-      use.burnin <- interval
+      MCMCparams$burnin <- interval
     }
     
 #
@@ -173,35 +157,8 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
      if (verb) {
        cat(paste("#", i, " of ", nsim, ": ", sep=""))
      }
-     z <- .C("MCMC_wrapper",
-            as.integer(Clist$heads), as.integer(Clist$tails), 
-            as.integer(Clist$nedges), as.integer(Clist$n),
-            as.integer(Clist$dir), as.integer(Clist$bipartite),
-            as.integer(Clist$nterms), 
-            as.character(Clist$fnamestring),
-            as.character(Clist$snamestring), 
-            as.character(MHproposal$name),
-            as.character(MHproposal$package),
-#  Add:  as.double(length(MHproposal$args)), as.double(MHproposal$args), 
-            as.double(Clist$inputs),
-            as.double(eta0),
-            as.integer(MCMCsamplesize),
-            s = double(MCMCsamplesize * Clist$nparam),
-            as.integer(use.burnin), as.integer(interval), 
-             newnwheads = integer(maxedges),
-             newnwtails = integer(maxedges), 
-            as.integer(verb),
-            as.integer(MHproposal$bd$attribs), 
-            as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
-            as.integer(MHproposal$bd$minout), 
-            as.integer(MHproposal$bd$minin), as.integer(MHproposal$bd$condAllDegExact),
-            as.integer(length(MHproposal$bd$attribs)), 
-            as.integer(maxedges), 
-            as.integer(0.0), as.integer(0.0), 
-            as.integer(0.0),
-            PACKAGE="ergm")
+     z <- ergm.mcmcslave(Clist,MHproposal,eta0,MCMCparams,maxedges,verb) 
     }
-    #
     #   summarize stats
     if(control$summarizestats){
       class(Clist) <- "networkClist"
@@ -241,4 +198,3 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
   }
   return(out.list)
 }
-
