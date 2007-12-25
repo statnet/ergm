@@ -290,9 +290,15 @@ mixingmatrix <- function(nw, attrname) {
     type <- "bipartite"
     rowswitch <- apply(el, 1, function(x) x[1]>x[2])
     el[rowswitch, 1:2] <- el[rowswitch, 2:1]
+    nb1 <- get.network.attribute(nw,"bipartite")
+    u<-sort(unique(nodecov[1:nb1]))
+    From <- c(u, nodecov[el[,1]])
+    u<-sort(unique(nodecov[(nb1+1):network.size(nw)]))
+    To <- c(u, nodecov[el[,2]])
+  }else{
+    From <- c(u, nodecov[el[,1]])
+    To <- c(u, nodecov[el[,2]])
   }
-  From <- c(u, nodecov[el[,1]])
-  To <- c(u, nodecov[el[,2]])
   tabu <- table(From, To)  # Add u,u diagonal to ensure each 
   # value is represented, then subtract it later
   diag(tabu) <- diag(tabu) - 1

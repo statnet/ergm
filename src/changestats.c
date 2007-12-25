@@ -142,10 +142,9 @@ void d_b1concurrent_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
 void d_b1factor (int ntoggles, Vertex *heads, Vertex *tails, 
 ModelTerm *mtp, Network *nwp) {
   double s, factorval;
-  Vertex h, t, nlevels;
+  Vertex h, t;
   int i, j;
   
-  nlevels = (mtp->ninputparams) - nwp->nnodes;
   for (i=0; i < mtp->nstats; i++){
     mtp->dstats[i] = 0.0;
   }
@@ -1915,10 +1914,13 @@ void d_esp (int ntoggles, Vertex *heads, Vertex *tails,
 void d_b2factor (int ntoggles, Vertex *heads, Vertex *tails, 
 ModelTerm *mtp, Network *nwp) {
   double s, factorval;
-  Vertex h, t, nlevels;
+  Vertex h, t;
   int i, j;
+  long int nb1, nb2;
   
-  nlevels = (mtp->ninputparams) - nwp->nnodes;
+  nb1 = nwp[0].bipartite;
+  nb2 = nwp[0].nnodes - nb1;
+
   for (i=0; i < mtp->nstats; i++){
     mtp->dstats[i] = 0.0;
   }
@@ -1929,7 +1931,7 @@ ModelTerm *mtp, Network *nwp) {
     {
       factorval = (mtp->inputparams[j]);
       mtp->dstats[j] += 
-	    ((mtp->attrib[t-1] != factorval) ? 0.0 : s);
+	    ((mtp->attrib[t-nb1-1] != factorval) ? 0.0 : s);
       
     }
     if (i+1 < ntoggles) 
@@ -3495,10 +3497,9 @@ void d_nearsimmelian (int ntoggles, Vertex *heads, Vertex *tails,
 void d_nodefactor (int ntoggles, Vertex *heads, Vertex *tails, 
 ModelTerm *mtp, Network *nwp) {
   double s, factorval;
-  Vertex h, t, nlevels;
+  Vertex h, t;
   int i, j;
   
-  nlevels = (mtp->ninputparams) - nwp->nnodes;
   for (i=0; i < mtp->nstats; i++){
     mtp->dstats[i] = 0.0;
   }
@@ -3527,10 +3528,9 @@ ModelTerm *mtp, Network *nwp) {
 void d_nodeifactor (int ntoggles, Vertex *heads, Vertex *tails, 
 ModelTerm *mtp, Network *nwp) {
   double s, factorval;
-  Vertex h, t, nlevels;
+  Vertex h, t;
   int i, j;
   
-  nlevels = (mtp->ninputparams) - nwp->nnodes;
   for (i=0; i < mtp->nstats; i++){
     mtp->dstats[i] = 0.0;
   }
@@ -3665,10 +3665,9 @@ void d_nodemix (int ntoggles, Vertex *heads, Vertex *tails,
 void d_nodeofactor (int ntoggles, Vertex *heads, Vertex *tails, 
 ModelTerm *mtp, Network *nwp) {
   double s, factorval;
-  Vertex h, t, nlevels;
+  Vertex h, t;
   int i, j;
   
-  nlevels = (mtp->ninputparams) - nwp->nnodes;
   for (i=0; i < mtp->nstats; i++){
     mtp->dstats[i] = 0.0;
   }

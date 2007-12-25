@@ -396,28 +396,21 @@ InitErgm.b1factor<-function (nw, m, arglist, drop=TRUE, ...) {
   attach(a)
   attrname<-a$attrname
   base <- a$base
-  nodecov <- get.node.attr(nw, attrname, "b1factor")
+  nb1 <- get.network.attribute(nw, "bipartite")
+  nodecov <- get.node.attr(nw, attrname, "b1factor")[1:nb1]
   u<-sort(unique(nodecov))
   if(any(is.na(nodecov))){u<-c(u,NA)}
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
   ui <- seq(along=u)
   if(drop){
-    if (!is.directed(nw)){
-      nfc <- tapply(tabulate(as.matrix.network.edgelist(nw),
-                             nbins=network.size(nw)),
-                    nodecov,sum)
-    }else{
-      nfc <- tapply(tabulate(as.matrix.network.edgelist(nw),
-                             nbins=network.size(nw)),
-                    nodecov,sum)
-    }
-    if(any(nfc==0)){
-      dropterms <- paste(paste("b1factor",attrname,sep="."),u[nfc==0],sep="")
+    nfc <- summary(as.formula(paste('nw ~ b1factor("',attrname,'",base=0)',sep="")),drop=FALSE) == 0
+    if(any(nfc)){
+      dropterms <- paste(paste("b1factor",attrname,sep="."),u[nfc],sep=".")
       cat(" ")
       cat(paste("Warning: The count of", dropterms, "is extreme;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-      u<-u[nfc>0]
-      ui<-ui[nfc>0]
+      u<-u[!nfc]
+      ui<-ui[!nfc]
     }
   }
   lu <- length(ui)
@@ -425,13 +418,23 @@ InitErgm.b1factor<-function (nw, m, arglist, drop=TRUE, ...) {
     stop ("Argument to b1factor() has only one value", call.=FALSE)
   }
   termnumber<-1+length(m$terms)  
-  m$terms[[termnumber]] <- list(name="b1factor", soname="ergm",
-                                inputs=c(lu-length(base), 
-                                         lu-length(base), 
-                                         lu-length(base)+length(nodecov),
-                                         ui[-base], nodecov), dependence=FALSE)
-  m$coef.names<-c(m$coef.names, paste("b1factor",
-                                      attrname, paste(u[-base]), sep="."))
+  if(base[1]==0){
+   m$terms[[termnumber]] <- list(name="b1factor", soname="ergm",
+                                 inputs=c(lu, 
+                                          lu, 
+                                          lu+length(nodecov),
+                                          ui, nodecov), dependence=FALSE)
+   m$coef.names<-c(m$coef.names, paste("b1factor",
+                                       attrname, paste(u), sep="."))
+  }else{
+   m$terms[[termnumber]] <- list(name="b1factor", soname="ergm",
+                                 inputs=c(lu-length(base), 
+                                          lu-length(base), 
+                                          lu-length(base)+length(nodecov),
+                                          ui[-base], nodecov), dependence=FALSE)
+   m$coef.names<-c(m$coef.names, paste("b1factor",
+                                       attrname, paste(u[-base]), sep="."))
+  }
   m
 }
 
@@ -699,28 +702,21 @@ InitErgm.b2factor<-function (nw, m, arglist, drop=TRUE, ...) {
   attach(a)
   attrname<-a$attrname
   base <- a$base
-  nodecov <- get.node.attr(nw, attrname, "b2factor")
+  nb1 <- get.network.attribute(nw, "bipartite")
+  nodecov <- get.node.attr(nw, attrname, "b2factor")[(nb1+1):network.size(nw)]
   u<-sort(unique(nodecov))
   if(any(is.na(nodecov))){u<-c(u,NA)}
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
   ui <- seq(along=u)
   if(drop){
-    if (!is.directed(nw)){
-      nfc <- tapply(tabulate(as.matrix.network.edgelist(nw),
-                             nbins=network.size(nw)),
-                    nodecov,sum)
-    }else{
-      nfc <- tapply(tabulate(as.matrix.network.edgelist(nw),
-                             nbins=network.size(nw)),
-                    nodecov,sum)
-    }
-    if(any(nfc==0)){
-      dropterms <- paste(paste("b2factor",attrname,sep="."),u[nfc==0],sep="")
+    nfc <- summary(as.formula(paste('nw ~ b2factor("',attrname,'",base=0)',sep="")),drop=FALSE) == 0
+    if(any(nfc)){
+      dropterms <- paste(paste("b2factor",attrname,sep="."),u[nfc],sep=".")
       cat(" ")
       cat(paste("Warning: The count of", dropterms, "is extreme;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-      u<-u[nfc>0]
-      ui<-ui[nfc>0]
+      u<-u[!nfc]
+      ui<-ui[!nfc]
     }
   }
   lu <- length(ui)
@@ -728,13 +724,23 @@ InitErgm.b2factor<-function (nw, m, arglist, drop=TRUE, ...) {
     stop ("Argument to b2factor() has only one value", call.=FALSE)
   }
   termnumber<-1+length(m$terms)  
-  m$terms[[termnumber]] <- list(name="b2factor", soname="ergm",
-                                inputs=c(lu-length(base), 
-                                         lu-length(base), 
-                                         lu-length(base)+length(nodecov),
-                                         ui[-base], nodecov), dependence=FALSE)
-  m$coef.names<-c(m$coef.names, paste("b2factor",
-                                      attrname, paste(u[-base]), sep="."))
+  if(base[1]==0){
+   m$terms[[termnumber]] <- list(name="b2factor", soname="ergm",
+                                 inputs=c(lu, 
+                                          lu, 
+                                          lu+length(nodecov),
+                                          ui, nodecov), dependence=FALSE)
+   m$coef.names<-c(m$coef.names, paste("b2factor",
+                                       attrname, paste(u), sep="."))
+  }else{
+   m$terms[[termnumber]] <- list(name="b2factor", soname="ergm",
+                                 inputs=c(lu-length(base), 
+                                          lu-length(base), 
+                                          lu-length(base)+length(nodecov),
+                                          ui[-base], nodecov), dependence=FALSE)
+   m$coef.names<-c(m$coef.names, paste("b2factor",
+                                       attrname, paste(u[-base]), sep="."))
+  }
   m
 }
 
@@ -3004,19 +3010,21 @@ InitErgm.nodemix<-InitErgm.mix<-function (nw, m, arglist, drop=TRUE, ...) {
     }
     #  So undirected network storage but directed mixing
     nodecov <- get.node.attr(nw, attrname, "mix")
+    nb1 <- get.network.attribute(nw, "bipartite")       
     #  Recode nodecov to numeric (but retain original sorted names in "namescov")
     namescov <- sort(unique(nodecov))
+    b1namescov <- sort(unique(nodecov[1:nb1]))
+    b2namescov <- sort(unique(nodecov[(1+nb1):network.size(nw)]))
     nodecov <- match(nodecov,namescov)
     if (length(nodecov)==1)
         stop ("Argument to mix() has only one value", call.=FALSE)
     mixmat <- mixingmatrix(nw,attrname)$mat
     u <- cbind(as.vector(row(mixmat)), 
-               as.vector(col(mixmat)))
+               as.vector(col(mixmat)+nrow(mixmat)))
     if(any(is.na(nodecov))){u<-rbind(u,NA)}
     #  Check for degeneracy
     if(drop){
-     ematch <- mixmat[u]
-     mu <- ematch==0
+     mu <- as.vector(mixmat)==0
      mu[is.na(mu)] <- FALSE
      if(any(mu)){
       dropterms <- paste(paste("mix",attrname,sep="."),

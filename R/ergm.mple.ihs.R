@@ -102,7 +102,7 @@ ergm.mple.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
   real.coef <- mplefit$coef
   real.cov <- mplefit.summary$cov.unscaled
   theta[!m$etamap$offsettheta] <- real.coef
-  theta[is.na(theta)] <- 0
+# theta[is.na(theta)] <- 0
   names(theta) <- m$coef.names
 
 #
