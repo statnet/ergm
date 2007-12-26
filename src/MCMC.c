@@ -192,7 +192,7 @@ void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
    MetropolisHastings(&MH, theta, networkstatistics, burnin, &staken,
 		      hammingterm, fVerbose, nwp, m, bd);  
 /*   if (fVerbose){ 
-       Rprintf("."); /* First output period comes after return from burnin
+       Rprintf(".");
      } */
   
   if (samplesize>1){

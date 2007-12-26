@@ -8,15 +8,22 @@
 }
 \usage{
 control.simulate(prop.weights = "default", prop.args = NULL,
-drop = FALSE, summarizestats = FALSE, maxchanges = 1e+06, 
-packagenames="ergm", parallel=0)
+drop = FALSE, summarizestats = FALSE, 
+maxchanges = 1e+06, 
+packagenames="ergm", 
+parallel=0)
 
 control.simulate.formula(prop.weights = "default", prop.args = NULL,
-drop = FALSE, summarizestats = FALSE, maxchanges = 1e+06, 
-packagenames="ergm", parallel=0)
+drop = FALSE, summarizestats = FALSE, 
+maxchanges = 1e+06, 
+packagenames="ergm", 
+parallel=0)
 
 control.simulate.ergm(prop.weights = NULL, prop.args = NULL, drop = FALSE, 
-summarizestats = FALSE, packagenames="ergm", maxchanges = 1e+06)
+summarizestats = FALSE, 
+maxchanges = 1e+06, 
+packagenames="ergm", 
+parallel=0)
 }
 \arguments{
   \item{prop.weights}{Specifies the method to allocate probabilities of

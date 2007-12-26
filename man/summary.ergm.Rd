@@ -5,15 +5,19 @@
 \title{Summarizing ERGM Model Fits}
 \usage{
 \method{summary}{ergm}(object, \dots,
-               correlation = FALSE, covariance = FALSE)
+               digits = max(3, getOption("digits") - 3),
+               correlation = FALSE, covariance = FALSE, eps = 1e-04)
+
 }
 \arguments{
   \item{object}{an object of class \code{"ergm"}, usually, a result of a
     call to \code{\link{ergm}}.}
+  \item{digits}{Significant digits for coefficients}
   \item{correlation}{logical; if \code{TRUE}, the correlation matrix of
     the estimated parameters is returned and printed.}
   \item{covariance}{logical; if \code{TRUE}, the covariance matrix of
     the estimated parameters is returned and printed.}
+  \item{eps}{number; indicates the smallest p-value. See \code{\link{printCoefmat}}.}
   \item{\dots}{further arguments passed to or from other methods.}
 }
 \description{
