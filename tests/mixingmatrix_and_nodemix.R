@@ -27,7 +27,7 @@ el <- cbind( c(17, 20, 22, 26, 19, 24, 16, 22, 18, 23, 28, 20,
              10, 11, 11))
 mynw <- network(el, bipartite=15, directed=FALSE) 
 mynw %v% "names" <- rep(letters[1:3], c(10,10,10))
-m3 <- matrix(c(0, 0, 0, 9, 1, 0, 12, 1, 0), 3, 3) # Correct answer!
+m3 <- matrix(c(9, 1, 12, 1), 2, 2) # Correct answer!
 if (max(abs(m3 - mixingmatrix(mynw, "names")$mat)) > 0)
   stop ("mixingmatrix failed test on bipartite network")
 if (max(abs(as.vector(m3) - summary(mynw ~ nodemix("names")))) > 0)

@@ -30,7 +30,8 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
 
 # m <- ergm.getmodel(formula, nw, drop=control$drop)
   m <- ergm.getmodel(formula, nw, drop=FALSE)
-  MHproposal <- MHproposal(constraints,control$prop.args, nw, m, weights=control$prop.weights,class="c")
+  MHproposal <- MHproposal(constraints,arguments=control$prop.args,
+     nw=nw, model=m, weights=control$prop.weights, class="c")
 
   Clist <- ergm.Cprepare(nw, m)
   
@@ -39,7 +40,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
   if(missing(theta0)) {
    if(is.bipartite(nw) && MHproposal$name=="CondDegree" && require("networksis", quietly = TRUE)) {
      control$packagenames <- c(control$packagenames,"networksis")
-     return(sis.simulate(nw, formula, m, Clist, nsim=nsim,
+     return(networksis:::sis.simulate(nw, formula, m, Clist, nsim=nsim,
             control=control, verbose=verbose, ...))
    }else{
     theta0 <- rep(0,Clist$nparam)
@@ -47,19 +48,19 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
    }
   }
   eta0 <- theta0
-  theta0.bdd[is.infinite(eta0)] <- -10000
+  eta0[is.infinite(eta0)] <- -10000
   
   if(!is.null(seed)) set.seed(as.integer(seed))
 
   curstats<-summary.statistics.network(object)
-  MCMCparams <- list(MCMCsamplesize=1,
+  MCMCparams <- list(samplesize=1,
       stats=curstats,
       burnin=burnin,
       interval=interval,
       Clist.miss=list(heads=0,tails=0,nedges=0))
 
   if (verb) {
-    cat("Starting",nsim,"MCMC iterations of",burnin+interval*MCMCparams$MCMCsamplesize,
+    cat("Starting",nsim,"MCMC iterations of",burnin+interval*MCMCparams$samplesize,
         "steps each:\n")
   }
   for(i in 1:nsim){
@@ -122,23 +123,26 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
 # m <- ergm.getmodel(object$formula, nw, drop=control$drop)
   m <- ergm.getmodel(object$formula, nw, drop=FALSE)
   ## By default, all arguments but the first are NULL, and all the information is borrowed from the fit.
-  MHproposal <- MHproposal(object,constraints=constraints,arguments=control$prop.args, nw=nw, model=m, weights=control$prop.weights)
+  MHproposal <- MHproposal(object,
+      constraints=constraints,
+      arguments=control$prop.args, 
+      nw=nw, model=m, weights=control$prop.weights)
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
 # multiplicity.constrained <- 1  
-  if(missing(theta0))
-    theta0 <- object$coef
+  if(missing(theta0)){theta0 <- object$coef}
   eta0 <- ergm.eta(theta0, m$etamap)
-  if (verb) {
-    cat("Starting",nsim,"MCMC iterations of",burnin+interval*MCMCsamplesize,
-        "steps each:\n")
-  }
-  MCMCparams <- list(MCMCsamplesize=1,
+
+  MCMCparams <- list(samplesize=1,
       stats=eta0-eta0,
       burnin=burnin,
       interval=interval,
       Clist.miss=list(heads=0,tails=0,nedges=0))
 
+  if (verb) {
+    cat("Starting",nsim,"MCMC iterations of",burnin+interval*MCMCparams$samplesize,
+        "steps each:\n")
+  }
   for(i in 1:nsim){
     Clist <- ergm.Cprepare(nw, m)
     maxedges <- max(5000, Clist$nedges)
@@ -164,12 +168,12 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
       class(Clist) <- "networkClist"
       if(i==1){
         globalstatsmatrix <- summary(Clist)
-        statsmatrix <- matrix(z$s, MCMCsamplesize, Clist$nparam, byrow = TRUE)
+        statsmatrix <- matrix(z$s, MCMCparams$samplesize, Clist$nparam, byrow = TRUE)
         colnames(statsmatrix) <- m$coef.names
       }else{
         globalstatsmatrix <- rbind(globalstatsmatrix, summary(Clist))
         statsmatrix <- rbind(statsmatrix,
-                             matrix(z$s, MCMCsamplesize,
+                             matrix(z$s, MCMCparams$samplesize,
                                     Clist$nparam, byrow = TRUE))
       }
     }
