@@ -3015,10 +3015,13 @@ InitErgm.nodemix<-InitErgm.mix<-function (nw, m, arglist, drop=TRUE, ...) {
     namescov <- sort(unique(nodecov))
     b1namescov <- sort(unique(nodecov[1:nb1]))
     b2namescov <- sort(unique(nodecov[(1+nb1):network.size(nw)]))
-    nodecov <- match(nodecov,namescov)
+    namescov <- c(b1namescov, b2namescov)
+    b1nodecov <- match(nodecov[1:nb1],b1namescov)
+    mixmat <- mixingmatrix(nw,attrname)$mat
+    nodecov <- c(b1nodecov, 
+     match(nodecov[(1+nb1):network.size(nw)],b2namescov)+nrow(mixmat))
     if (length(nodecov)==1)
         stop ("Argument to mix() has only one value", call.=FALSE)
-    mixmat <- mixingmatrix(nw,attrname)$mat
     u <- cbind(as.vector(row(mixmat)), 
                as.vector(col(mixmat)+nrow(mixmat)))
     if(any(is.na(nodecov))){u<-rbind(u,NA)}
