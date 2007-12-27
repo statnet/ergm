@@ -38,8 +38,8 @@
 %}
 
 \details{
-    The \code{ergmuserterms} package is available from the \code{\link[statnet]{statnet}}
-    website (\url{http://csde.washington.edu/statnet}).
+    The \code{ergmuserterms} package is available from the \code{statnet}
+    website (\url{http://statnetproject.org}).
 
     The code contains some simple examples and templates.
     These include:

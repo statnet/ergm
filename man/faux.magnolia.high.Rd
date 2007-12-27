@@ -18,11 +18,12 @@ obtain additional summary information about it, type
 \code{summary(faux.magnolia.high)}.
 
 The vertex attributes are \code{Grade}, \code{Sex}, and \code{Race}. The \code{Grade}
-attribute has values 7 through 12, indicating each student's grade in school. The \code{Sex}
-attribute has values 1 for male and 2 for female. The \code{Race} attribute is based on the answers to
-two questions, one on Hispanic identity and one on race, and takes values 1
-through 6: 1 = White (non-Hisp.); 2 = Black (non-Hisp.); 3 = Hispanic; 4 = Asian
-(non-Hisp.); 5 = Native American (non-Hisp.); and 6 = Other (non-Hisp.)
+attribute has values 7 through 12, indicating each student's grade in school. 
+The \code{Race} attribute is based on the answers to
+two questions, one on Hispanic identity and one on race, and takes six possible
+values:
+White (non-Hisp.), Black (non-Hisp.), Hispanic, Asian
+(non-Hisp.), Native American, and Other (non-Hisp.)
 
 }
 
@@ -61,7 +62,8 @@ faux.magnolia.high <- simulate (magnolia.fit, nsim=1, burnin=100000000,
 
 }
 
-\seealso{\code{\link[network]{network}}, \code{\link[network]{plot.network}}, \code{\link{ergm}}}
+\seealso{\code{\link[network]{network}}, \code{\link[network]{plot.network}}, 
+\code{\link{ergm}}, \code{\link{faux.mesa.high}}}
 
 \references{
 
@@ -83,7 +85,7 @@ be cited. In addition this package should be cited as:
 
 Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau,
 and Martina Morris. 2003 
-\emph{statnet: An R package for the Statistical Modeling of Social Networks}
+\emph{statnet: A suite of R packages for the Statistical Modeling of Social Networks}
 \cr
-\url{http://www.csde.washington.edu/statnet}.
+\url{http://statnetproject.org}.
 }

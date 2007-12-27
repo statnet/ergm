@@ -12,9 +12,9 @@ license.statnet <- function (package="ergm") {
 #if (.Platform$OS.type == "windows"){
 # shell.exec(chartr("/", "\\", path))
 #}else{
-#htmlb <- try(statnetbrowseURL("http://www.csde.washington.edu/statnet/attribution/ergm.shtml"))
+#htmlb <- try(statnetbrowseURL("http://statnetproject.org/attribution/ergm.shtml"))
 # if(htmlb!=0){
-# htmlb <- try(statnetbrowseURL("http://www.csde.washington.edu/statnet/attribution/ergm.shtml", browser="lynx"))
+# htmlb <- try(statnetbrowseURL("http://statnetproject.org/attribution/ergm.shtml", browser="lynx"))
 # }
 #}
 

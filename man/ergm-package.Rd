@@ -19,7 +19,7 @@ Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau,
 and Martina Morris. 2003 
 \emph{statnet: An R package for the Statistical Modeling of Social Networks}
 \cr
-\url{http://www.csde.washington.edu/statnet}.
+\url{http://statnetproject.org}.
 
 All programs derived from this package must cite it.
 For complete citation information, use\cr
@@ -47,7 +47,7 @@ networks and assessing model goodness-of-fit.
 
 For detailed information on how to download and install the software,
 go to the \code{\link{ergm}} website:
-\url{http://www.csde.washington.edu/statnet}.
+\url{http://statnetproject.org}.
 A tutorial, support newsgroup, references and links to further resources are provided there.
 }
 \author{
@@ -71,7 +71,7 @@ Handcock, M. S., Hunter, D. R., Butts, C. T.,  Goodreau,
 S. M., and Morris, M. (2003), 
 \emph{statnet: An R package for the Statistical Modeling of Social
 Networks.},\cr
-URL \url{http://www.csde.washington.edu/statnet}
+URL \url{http://statnetproject.org}
 
 Strauss, D., and Ikeda, M.(1990). Pseudolikelihood estimation for social
 networks. Journal of the American Statistical Association, 85, 204-212. 

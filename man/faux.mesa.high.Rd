@@ -19,11 +19,12 @@ summary information about it,
 type \code{summary(faux.mesa.high)}.
 
 The vertex attributes are \code{Grade}, \code{Sex}, and \code{Race}. The \code{Grade}
-attribute has values 7 through 12, indicating each student's grade in school. The \code{Sex}
-attribute has values 1 for male and 2 for female. The \code{Race} attribute is based on the answers to
-two questions, one on Hispanic identity and one on race, and takes values 1
-through 6: 1 = White (non-Hisp.); 2 = Black (non-Hisp.); 3 = Hispanic; 4 = Asian
-(non-Hisp.); 5 = Native American (non-Hisp.); and 6 = Other (non-Hisp.)
+attribute has values 7 through 12, indicating each student's grade in school. 
+The \code{Race} attribute is based on the answers to
+two questions, one on Hispanic identity and one on race, and takes six possible
+values:
+White (non-Hisp.), Black (non-Hisp.), Hispanic, Asian
+(non-Hisp.), Native American, and Other (non-Hisp.)
 
 }
 
@@ -53,15 +54,16 @@ possessing the permuted attributes and with the same number of edges as in the
 original data.
 
 The processes for handling missing data and defining the race attribute 
-are described in Hunter, Goodreau \& Handcock (2007).
+are described in Hunter, Goodreau \& Handcock (2008).
 }
 
-\seealso{\code{\link[network]{network}}, \code{\link[network]{plot.network}}, \code{\link{ergm}}}
+\seealso{\code{\link[network]{network}}, \code{\link[network]{plot.network}}, 
+\code{\link{ergm}}, \code{\link{faux.magnolia.high}}}
 
 
 \references{
 
-Hunter D.R., Goodreau S.M. and Handcock M.S. (2007). \emph{Goodness of Fit 
+Hunter D.R., Goodreau S.M. and Handcock M.S. (2008). \emph{Goodness of Fit 
 of Social Network Models}, \emph{Journal of the American Statistical Association}.
 
 Resnick M.D., Bearman, P.S., Blum R.W. et al. (1997). \emph{Protecting adolescents
@@ -83,8 +85,10 @@ be cited. In addition this package should be cited as:
 
 Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau,
 and Martina Morris. 2003 
-\emph{statnet: An R package for the Statistical Modeling of Social Networks}
+\emph{statnet: A suite of R packages for the Statistical Modeling of Social Networks}
 \cr
-\url{http://www.csde.washington.edu/statnet}.
+\url{http://statnetproject.org}.
 }
+
+
 
