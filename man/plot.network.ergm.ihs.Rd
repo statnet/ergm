@@ -134,7 +134,7 @@ the plot. By default it is \code{colors()}.}
 }
 \details{
 \code{\link[network]{plot.network}} is a version of the standard network visualization tool
-within the \code{\link[sna]{sna}} library.  By means of clever selection
+within the \code{sna} package.  By means of clever selection
 of display parameters, a fair amount of display flexibility
 can be obtained.  Network layout -- if not specified directly
 using \code{coord} -- is determined via one of the various
@@ -169,7 +169,7 @@ See documentation for \code{latent()} in \code{\link{ergm}}.
   \item \code{adj}: \eqn{(\max A)-A}{(max A)-A}, where \eqn{A}{A} is the raw adjacency matrix
   
   \item \code{seham}: structural (dis)equivalence distances 
-     (i.e., as per \code{sedist} in the package \code{\link[sna]{sna}})
+     (i.e., as per \code{sedist} in the package \code{sna})
      based on the Hamming metric
   }
   
