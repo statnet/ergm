@@ -139,6 +139,7 @@
 \alias{ergm.geodistdist}
 \alias{ergm.geodistn}
 \alias{ergm.getMCMCsample}
+\alias{ergm.mcmcslave}
 \alias{ergm.getnetwork}
 \alias{ergm.independencemodel}
 \alias{ergm.initialfit}

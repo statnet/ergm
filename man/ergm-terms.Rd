@@ -488,54 +488,47 @@ network
     the scale parameter is not fixed and thus the model is a CEF model. This
     term can only be used with directed networks.}
 
-    \item{\code{hamming(x, attrname)}}{\emph{Hamming Distance:}
+    \item{\code{hamming(x)}}{\emph{Hamming Distance:}
     This term adds one statistic to the model equal to the Hamming distance
-    of the network from the network specified by \code{x}.
-    The optional argument \code{attrname} specifies an optional network 
-    attribute of \code{x} to use instead.}
+    of the network from the network specified by \code{x}.}
  
-    \item{\code{hamming.weighted(cov, x, attrname)}}{\emph{Weighted Hamming Distance:}
-    This term adds one statistic to the model equal to the weighted 
-    Hamming distance of the network from the network specified by \code{x}.
-    The weights on each discordant dyad are given by the dyad covariate \code{cov}.
-    The argument \code{cov} is either a matrix of edgewise covariates, or a network; if the
-    latter, optional argument \code{attrname} provides the name of the edge
-    attribute to use for weight values.}
+    \item{\code{hamming.weighted(cov, x, attrname)}}{\emph{Weighted Hamming
+    Distance:} This term adds one statistic to the model equal to the weighted
+    Hamming distance of the network from the network specified by \code{x}. The
+    weights on each discordant dyad are given by the dyad covariate \code{cov}.
+    The argument \code{cov} is either a matrix of edgewise covariates, or a
+    network; if the latter, optional argument \code{attrname} provides the name
+    of the edge attribute to use for weight values.}
  
-    \item{\code{hammingmix(attrname, x, omitwhich=0, contrast=FALSE)}}{\emph{Hamming Distance within Mixing:}
-    This term adds one statistic to the model equal to the Hamming distance
-    of the subnetwork of dyads
-    for each possible pairing of
-    attribute values of the network from the network specified by \code{x}.
-    The optional argument \code{attrname} specifies an optional network 
-    attribute of \code{x} to use instead of directly using the ties in \code{x}.
-    The statistic equals the number of dyads in the subnetwork
-    that differ in tie value.
-    This term produces one statistic for every entry in the mixing matrix for the
+    \item{\code{hammingmix(attrname, x, omitwhich=0,
+    contrast=FALSE)}}{\emph{Hamming Distance within Mixing:} This term adds one
+    statistic to the model equal to the Hamming distance of the subnetwork of
+    dyads for each possible pairing of attribute values of the network from the
+    network specified by \code{x}. 
+    The statistic equals the number of
+    dyads in the subnetwork that differ in tie value. This term produces one
+    statistic for every entry in the mixing matrix for the attribute. The
+    ordering of the attribute values is alphabetical. If the option
+    \code{contrast=TRUE} is used, then a statistic for the first pairing is not
+    included, making it the de facto reference category. The option
+    \code{omitwhich} the index of statistics to be omitted from the tabulation.
+    For example \code{omitwhich=2} will omit the second statistic, making it the
+    de facto reference category.}
+ 
+    \item{\code{hammingmix.constant(attrname, x, omitwhich=0,
+    contrast=FALSE)}}{\emph{Hamming Distance with Constant Edges within Mixing:}
+    This term adds one statistic to the model equal to the Hamming distance of
+    the subnetwork of dyads for each possible pairing of attribute values of the
+    network from the network specified by \code{x}. 
+    The statistic equals the
+    number of dyads in the subnetwork that differ in tie value. This term
+    produces one statistic for every entry in the mixing matrix for the
     attribute. The ordering of the attribute values is alphabetical. If the
     option \code{contrast=TRUE} is used, then a statistic for the first pairing
-    is not included, making it the de facto reference category.
-    The option \code{omitwhich} the index of statistics to be omitted from the tabulation. 
-    For example \code{omitwhich=2}  will omit the second statistic,
-    making it the de facto reference category.}
- 
-    \item{\code{hammingmix.constant(attrname, x, omitwhich=0, contrast=FALSE)}}{\emph{Hamming Distance with Constant Edges within Mixing:}
-    This term adds one statistic to the model equal to the Hamming distance
-    of the subnetwork of dyads
-    for each possible pairing of
-    attribute values of the network from the network specified by \code{x}.
-    The optional argument \code{attrname} specifies an optional network 
-    attribute of \code{x} to use instead of directly using the ties in \code{x}.
-    The statistic equals the number of dyads in the subnetwork
-    that differ in tie value.
-    This term produces one statistic for every entry in the mixing matrix for the
-    attribute. The ordering of the attribute values is alphabetical. If the
-    option \code{contrast=TRUE} is used, then a statistic for the first pairing
-    is not included, making it the de facto reference category.
-    The option \code{omitwhich} the index of statistics to be omitted from the tabulation. 
-    For example \code{omitwhich=2}  will omit the second statistic,
-    making it the de facto reference category.
-
+    is not included, making it the de facto reference category. The option
+    \code{omitwhich} the index of statistics to be omitted from the tabulation.
+    For example \code{omitwhich=2} will omit the second statistic, making it the
+    de facto reference category.
     This term is meant to be used in combination with the \code{TNT} proposal 
     and the pairing ensures that the number of ties within each cell is constant.
     It is the variant of the \code{hammingmix} term for this situation.}
@@ -561,8 +554,9 @@ network
 
     \item{\code{isolates}}{\emph{Isolates:} This term adds one statistic to the
     model equal to the number of isolates in the network. For an undirected
-    network, an isolate is defined to be any node with degree zero. This term
-    can only be used with undirected networks. }
+    network, an isolate is defined to be any node with degree zero. For a 
+    directed network, an isolate is any node with both in-degree and out-degree
+    equal to zero.}
 
     \item{\code{istar(k, attrname)}}{\emph{In-Stars: } The \code{k} argument is a
     vector of distinct integers. This term adds one network statistic to the

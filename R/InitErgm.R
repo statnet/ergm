@@ -1041,6 +1041,7 @@ InitErgm.bounded.istar<-function(nw, m, arglist, drop=TRUE, ...) {
 
 #########################################################
 InitErgm.bounded.kstar<-function(nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("bounded.kstar", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("bounded.kstar", arglist,
     varnames = c("k","bound"),
     vartypes = c("numeric","numeric"),
@@ -2494,7 +2495,7 @@ InitErgm.intransitive<-function (nw, m, arglist, drop=TRUE, ...) {
 
 #########################################################
 InitErgm.isolates<-function(nw, m, arglist, drop=TRUE, ...) {
-# ergm.checkdirected("isolates", is.directed(nw), requirement=FALSE)
+  ergm.checkdirected("isolates", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("isolates", arglist,
     varnames = NULL,
     vartypes = NULL,
