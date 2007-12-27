@@ -180,6 +180,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
 # v$mle.lik <- -initialfit$mle.lik/2 + v$loglikelihood
   v$mle.lik <- mle.lik
   v$mcmcloglik <- v$mcmcloglik - network.dyadcount(nw.orig)*log(2)
+  v$etamap <- model$etamap
 # if(!is.na(v$mle.lik) && v$mle.lik>0){
 #   v$mle.lik <- -v$mplefit$glm$deviance/2 
 # }  #I'm really not sure about this mle.lik value.

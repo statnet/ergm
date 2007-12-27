@@ -39,7 +39,6 @@ ergm.degeneracy <- function(object,
       cat("This computation may take a while ...\n")
      }
     }
-    names(wgts) <- "num.dyads"
     object$degeneracy.type <- try(
       apply(changeobs, 1, ergm.compute.degeneracy,
       theta0=object$MCMCtheta, etamap=object$etamap, 
@@ -50,6 +49,7 @@ ergm.degeneracy <- function(object,
      object$degeneracy.type <- NULL
     }else{
      object$degeneracy.type <- t(rbind(object$degeneracy.type,wgts))
+     colnames(object$degeneracy.type)[ncol(object$degeneracy.type)] <- "num.dyads"
      object$degeneracy.value <- max(object$degeneracy.type[,1],na.rm=TRUE)
     }
    }
@@ -88,7 +88,7 @@ ergm.degeneracy <- function(object,
   if(is.infinite(object$degeneracy.value)){
    cat("\n Warning: The diagnostics indicate that the model is very unstable.\n   They suggest that the model is degenerate,\n   and that the numerical summaries are suspect.\n")
   }else{
-    if(!test.only || object$degeneracy.value > 1){
+    if(!test.only && object$degeneracy.value > 1){
      cat("The instability of the model is: ",
         format(object$degeneracy.value, digits=2),"\n")
     }

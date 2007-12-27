@@ -76,8 +76,8 @@ InitErgm.b1kappa<-function(nw, m, arglist, ...) {
 
 ##########################################################
 InitErgm.b1share<-function(nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkdirected("b1degree", is.directed(nw), requirement=FALSE)
-  ergm.checkbipartite("b1degree", is.bipartite(nw), requirement=TRUE)
+  ergm.checkdirected("b1share", is.directed(nw), requirement=FALSE)
+  ergm.checkbipartite("b1share", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("b1share", arglist,
     varnames = c("d"),
     vartypes = c("numeric"),

@@ -82,7 +82,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                     xsim.miss=xsim.miss, probs.miss=probs.miss,
                     penalty=0.5, trustregion=trustregion,
                     eta0=eta0, etamap=model$etamap))
-  if(verbose){cat("Log-likelihood ratio is", Lout$value,"\n")}
+# if(verbose){cat("Log-likelihood ratio is", Lout$value,"\n")}
   if(Lout$value < trustregion-0.001){
    current.scipen <- options()$scipen
    options(scipen=3)

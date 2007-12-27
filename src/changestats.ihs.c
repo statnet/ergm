@@ -2361,6 +2361,7 @@ void d_b1share (int ntoggles, Vertex *heads, Vertex *tails,
   Vertex h, t, u, v;
   int nb2, nb1;
 
+//  nb1 = nwp->bipartite;
   nb1 = (int)mtp->inputparams[0];
   nb2 = (nwp->nnodes) - nb1;
 
