@@ -2,8 +2,7 @@
 \title{ANOVA for Linear Model Fits}
 \usage{
 \method{anova}{ergm}(object, \dots)
-
-anova.ergmlist(object, \dots, scale = 0, test = "F")
+\method{anova}{ergmlist}(object, \dots, scale = 0, test = "F")
 }
 \alias{anova.ergm}
 %\alias{anova.ergm.null}

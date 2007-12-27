@@ -88,7 +88,7 @@ ergm.degeneracy <- function(object,
   if(is.infinite(object$degeneracy.value)){
    cat("\n Warning: The diagnostics indicate that the model is very unstable.\n   They suggest that the model is degenerate,\n   and that the numerical summaries are suspect.\n")
   }else{
-    if(!test.only && object$degeneracy.value > 1){
+    if(!test.only || object$degeneracy.value > 1){
      cat("The instability of the model is: ",
         format(object$degeneracy.value, digits=2),"\n")
     }

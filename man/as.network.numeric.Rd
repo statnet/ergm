@@ -6,7 +6,7 @@
   \code{\link{as.network.numeric}} creates a random Bernoulli network of the given size as an object of class \code{\link[network]{network}}.
 }
 \usage{
-\method{as.network}{numeric}(x, directed = TRUE, 
+\method{as}{network.numeric}(x, directed = TRUE, 
     hyper = FALSE, loops = FALSE, multiple = FALSE, bipartite = FALSE,
     ignore.eval = TRUE, names.eval = NULL,
     edge.check = FALSE,
