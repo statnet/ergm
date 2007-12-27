@@ -14,119 +14,55 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, MCMCparams,
   while(z$newnwheads[1] >= maxedges){
    maxedges <- 10*maxedges
 #
-#  Parallel running
-#
     flush.console()
-   if(MCMCparams$parallel==0){
-    z <- .C("MCMC_wrapper",
-            as.integer(Clist$heads), as.integer(Clist$tails), 
-            as.integer(Clist$nedges), as.integer(Clist$n),
-            as.integer(Clist$dir), as.integer(Clist$bipartite),
-            as.integer(Clist$nterms), 
-            as.character(Clist$fnamestring),
-            as.character(Clist$snamestring),
-            as.character(MHproposal$name), as.character(MHproposal$package),
-#  Add:  as.double(length(MHproposal$args)), as.double(MHproposal$args), 
-            as.double(Clist$inputs), as.double(eta0),
-            as.integer(MCMCparams$samplesize),
-            s = as.double(t(MCMCparams$stats)),
-            as.integer(MCMCparams$burnin), as.integer(MCMCparams$interval), 
-            newnwheads = integer(maxedges),
-            newnwtails = integer(maxedges), 
-            as.integer(verbose), as.integer(MHproposal$bd$attribs), 
-            as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
-            as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
-            as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)), 
-            as.integer(maxedges),
-            as.integer(0.0), as.integer(0.0),
-            as.integer(0.0),
-            PACKAGE="ergm") 
-    if(z$newnwheads[1] >= 50000-1){
-      stop(paste("\n The network has more than 50000 edges, and the model is likely to be degenerate.\n",
-                  "Try starting the algorithm at an alternative model\n",
-                  "(That is, changing the model terms or the 'theta0' argument).\n",
-                  "The current eta0 is:\n"))
-                  print(eta0)
+    z <- ergm.mcmcslave(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose)
+    nedges <- z$newnwheads[1]
+    if(nedges >= 50000-1){
+      cat("\n Warning:")
+      cat("\n   The network has more than 50000 edges, and the model is likely to be degenerate.\n")
+      statsmatrix <- matrix(0, nrow=MCMCparams$samplesize,
+                            ncol=Clist$nparam)
+      newnetwork <- nw
+    }else{
+      statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
+                            ncol=Clist$nparam,
+                            byrow = TRUE)
+
+      newnetwork <- newnw.extract(nw,z)
     }
-    statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
-                          ncol=Clist$nparam,
-                          byrow = TRUE)
-
-    newnetwork <- newnw.extract(nw,z)
-
-  }else{
-    if(verbose){cat("Engaging warp drive ...\n")}
-    rpvmbasename <- paste("ergm.parallel.",Sys.getpid(),sep="")
-    MCMCparams.parallel <- MCMCparams
-    MCMCparams.parallel$samplesize <- round(MCMCparams$samplesize / MCMCparams$parallel)
-    MCMCparams.parallel$stats <- MCMCparams$stats[1:MCMCparams.parallel$samplesize,]
-    require(rpvm)
-    require(MASS) # needed by rpvm
-#
-#   Write the slave file
-#
-    outsetuppvm <- ergm.rpvm.setup(rpvmbasename, verbose=verbose,
-                                   packagename=packagename)
-#
-#   Saving the common variables
-#
-    save(
-     Clist,
-     MHproposal,
-     eta0,
-     MCMCparams.parallel,
-     maxedges, 
-     verbose,
-     file=paste(outsetuppvm$SLAVEDIR,"/",rpvmbasename,".common.RData",sep="")
-    )
-#
-#   Run the jobs with PVM
-#
-    flush.console()
-    outlist <- ergm.rpvm.run(MCMCparams$parallel, rpvmbasename)
-#
-#   Process the results
-#
-    statsmatrix <- NULL
-#   newedgelist <- matrix(0, ncol=2, nrow=0)
-    for(i in (1:MCMCparams$parallel)){
-     load(file=
-      paste(outsetuppvm$SLAVEDIR,"/",rpvmbasename,".out.",i,".RData",sep=""))
-     statsmatrix <- rbind(statsmatrix,
-       matrix(z$s, nrow=MCMCparams.parallel$samplesize,
-       ncol=Clist$nparam,
-       byrow = TRUE))
-#    if(z$newnw[1]>1){
-#      newedgelist <- rbind(newedgelist,
-     #                           matrix(z$newnw[2:z$newnw[1]], ncol=2, byrow=TRUE))
-   }
-    newnetwork<-newnw.extract(nw,z)
-    cat("parallel samplesize=",nrow(statsmatrix),"by",
-        MCMCparams.parallel$samplesize,"\n")
-    ergm.rpvm.clean(rpvmbasename=rpvmbasename)
-  }
   }
   colnames(statsmatrix) <- model$coef.names
 
-##
-## recenter statsmatrix by mean statistics if necessary
-##
-#   ms <- Clist$meanstats
-#   if(!is.null(ms)) {
-#     if (is.null(names(ms)) && length(ms) == length(model$coef.names))
-#       names(ms) <- model$coef.names
-##    obs <- summary(model$formula)
-#     obs <- Clist$obs
-##    print(paste("obs=",obs))
-##    print(paste("statsmatrix=",apply(statsmatrix,2,mean)))
-#     obs <- obs[match(colnames(statsmatrix), names(obs))]
-#     ms  <-  ms[match(names(obs), names(ms))]
-#     matchcols <- match(names(ms), names(obs))
-#     if (any(!is.na(matchcols))) {
-#       ms[!is.na(matchcols)] <- ms[!is.na(matchcols)] - obs[matchcols[!is.na(matchcols)]]
-#       statsmatrix[,!is.na(matchcols)] <- sweep(as.matrix(
-#          statsmatrix[,!is.na(matchcols)]), 2, ms[!is.na(matchcols)], "-")
-#     }
-#   }
-  list(statsmatrix=statsmatrix, newnetwork=newnetwork, meanstats=Clist$meanstats)
+  list(statsmatrix=statsmatrix,
+       newnetwork=newnetwork,
+       meanstats=Clist$meanstats,
+       nedges=nedges)
+}
+
+ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
+  z <- .C("MCMC_wrapper",
+  as.integer(Clist$heads), as.integer(Clist$tails),
+  as.integer(Clist$nedges), as.integer(Clist$n),
+  as.integer(Clist$dir), as.integer(Clist$bipartite),
+  as.integer(Clist$nterms),
+  as.character(Clist$fnamestring),
+  as.character(Clist$snamestring),
+  as.character(MHproposal$name), as.character(MHproposal$package),
+  as.double(Clist$inputs), as.double(eta0),
+  as.integer(MCMCparams$samplesize),
+  s = as.double(t(MCMCparams$stats)),
+  as.integer(MCMCparams$burnin), 
+  as.integer(MCMCparams$interval),
+  newnwheads = integer(maxedges),
+  newnwtails = integer(maxedges),
+  as.integer(verbose), as.integer(MHproposal$bd$attribs),
+  as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
+  as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
+  as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)),
+  as.integer(maxedges),
+  as.integer(0.0), as.integer(0.0),
+  as.integer(0.0),
+  PACKAGE="ergm")
+  # save the results
+  list(s=z$s, newnwheads=z$newnwheads, newnwtails=z$newnwtails)
 }

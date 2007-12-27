@@ -28,7 +28,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     theta0 <- v$coef
     eta0 <- ergm.eta(theta0, model$etamap)
     if(verbose){
-     cat("Iteration ", iteration,": Sampling ", MCMCparams$samplesize,
+     cat("Iteration ",iteration," of at most ", MCMCparams$maxit,
          " with parameter: \n", sep="")
       print(theta0)
     }else{
@@ -50,7 +50,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
         statsmean <- apply(statsmatrix,2,mean)
         statsmatrix <- sweep(statsmatrix,2,(1-MCMCparams$steplength)*statsmean,"-")
     }
-    if(ergm.checkdegeneracy(statsmatrix, statsmatrix.miss, verbose=verbose)){
+    if(z$nedges >= 50000-1 || ergm.checkdegeneracy(statsmatrix, statsmatrix.miss, verbose=verbose)){
      if(iteration <= MCMCparams$maxit){
       cat(paste("The MCMC sampler is producing degenerate samples.\n",
                 "Try starting the algorithm at an alternative model\n",
@@ -66,10 +66,10 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
       v$coef <- 0.9*theta0
       next
      }else{
-      warning(paste("\n","The MCMC sampler is producing degenerate samples.\n",
-                 "Try starting the algorithm at an alternative model\n",
-                 "(That is, changing the 'theta0' argument).\n",
-                 "The current theta0 is:\n"))
+      cat(paste("The MCMC sampler is producing degenerate samples.\n",
+                "Try starting the algorithm at an alternative model\n",
+                "(That is, changing the 'theta0' argument).\n",
+                "The current theta0 is:\n"))
               print(theta0)
 #     v <- list(coef=theta0)
       v$coef <- theta0

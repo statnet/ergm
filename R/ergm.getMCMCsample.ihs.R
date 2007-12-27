@@ -19,18 +19,19 @@ ergm.getMCMCsample.ihs <- function(nw, model, MHproposal, eta0, MCMCparams,
    if(MCMCparams$parallel==0){
     flush.console()
     z <- ergm.mcmcslave(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose)
-    if(z$newnwheads[1] >= 50000-1){
-      stop(paste("\n The network has more than 50000 edges, and the model is likely to be degenerate.\n",
-                  "Try starting the algorithm at an alternative model\n",
-                  "(That is, changing the model terms or the 'theta0' argument).\n",
-                  "The current theta0 is:\n"))
-                  print(theta0)
+    nedges <- z$newnwheads[1]
+    if(nedges >= 50000-1){
+      cat("\n Warning:")
+      cat("\n   The network has more than 50000 edges, and the model is likely to be degenerate.\n")
+      statsmatrix <- matrix(0, nrow=MCMCparams$samplesize,
+                            ncol=Clist$nparam)
+      newnetwork <- nw
+    }else{
+      statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
+                            ncol=Clist$nparam,
+                            byrow = TRUE)
+      newnetwork <- newnw.extract(nw,z)
     }
-    statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
-                          ncol=Clist$nparam,
-                          byrow = TRUE)
-
-    newnetwork <- newnw.extract(nw,z)
 
   }else{
     MCMCparams.parallel <- MCMCparams
@@ -60,9 +61,9 @@ ergm.getMCMCsample.ihs <- function(nw, model, MHproposal, eta0, MCMCparams,
     if("ergm" %in% MCMCparams$packagenames){
      clusterEvalQ(cl,library(ergm))
     }
-    if("networksis" %in% MCMCparams$packagenames){
-     clusterEvalQ(cl,library(networksis))
-    }
+#   if("networksis" %in% MCMCparams$packagenames){
+#    clusterEvalQ(cl,library(networksis))
+#   }
 #    clusterEvalQ(cl,eval(paste("library(",packagename,")",sep="")))
 #
 #   Run the jobs with rpvm or Rmpi
@@ -85,6 +86,7 @@ ergm.getMCMCsample.ihs <- function(nw, model, MHproposal, eta0, MCMCparams,
 #      newedgelist <- rbind(newedgelist,
      #                           matrix(z$newnw[2:z$newnw[1]], ncol=2, byrow=TRUE))
    }
+    nedges <- z$newnwheads[1]
     newnetwork<-newnw.extract(nw,z)
     cat("parallel samplesize=",nrow(statsmatrix),"by",
         MCMCparams.parallel$samplesize,"\n")
@@ -113,5 +115,34 @@ ergm.getMCMCsample.ihs <- function(nw, model, MHproposal, eta0, MCMCparams,
 #          statsmatrix[,!is.na(matchcols)]), 2, ms[!is.na(matchcols)], "-")
 #     }
 #   }
-  list(statsmatrix=statsmatrix, newnetwork=newnetwork, meanstats=Clist$meanstats)
+  list(statsmatrix=statsmatrix, newnetwork=newnetwork, 
+       meanstats=Clist$meanstats, nedges=nedges)
+}
+
+ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
+  z <- .C("MCMC_wrapper",
+  as.integer(Clist$heads), as.integer(Clist$tails),
+  as.integer(Clist$nedges), as.integer(Clist$n),
+  as.integer(Clist$dir), as.integer(Clist$bipartite),
+  as.integer(Clist$nterms),
+  as.character(Clist$fnamestring),
+  as.character(Clist$snamestring),
+  as.character(MHproposal$name), as.character(MHproposal$package),
+  as.double(Clist$inputs), as.double(eta0),
+  as.integer(MCMCparams$samplesize),
+  s = as.double(t(MCMCparams$stats)),
+  as.integer(MCMCparams$burnin), 
+  as.integer(MCMCparams$interval),
+  newnwheads = integer(maxedges),
+  newnwtails = integer(maxedges),
+  as.integer(verbose), as.integer(MHproposal$bd$attribs),
+  as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
+  as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
+  as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)),
+  as.integer(maxedges),
+  as.integer(0.0), as.integer(0.0),
+  as.integer(0.0),
+  PACKAGE="ergm")
+  # save the results
+  list(s=z$s, newnwheads=z$newnwheads, newnwtails=z$newnwtails)
 }
