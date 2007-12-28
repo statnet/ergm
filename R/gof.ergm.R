@@ -272,6 +272,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
   for (i in 1:nsim) { 
     if(verbose){
      cat(paste("...",i,sep=""))
+     if ((i %% 10 == 0) || (i==nsim)) cat("\n")
     }
     if ('model' %in% all.gof.vars) {
      sim.model[i,] <- summary(update(formula,SimNetworkSeriesObj$networks[[i]] ~ .))
