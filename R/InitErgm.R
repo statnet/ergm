@@ -2495,7 +2495,7 @@ InitErgm.intransitive<-function (nw, m, arglist, drop=TRUE, ...) {
 
 #########################################################
 InitErgm.isolates<-function(nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkdirected("isolates", is.directed(nw), requirement=FALSE)
+# ergm.checkdirected("isolates", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("isolates", arglist,
     varnames = NULL,
     vartypes = NULL,
@@ -3013,7 +3013,6 @@ InitErgm.nodemix<-InitErgm.mix<-function (nw, m, arglist, drop=TRUE, ...) {
     nodecov <- get.node.attr(nw, attrname, "mix")
     nb1 <- get.network.attribute(nw, "bipartite")       
     #  Recode nodecov to numeric (but retain original sorted names in "namescov")
-    namescov <- sort(unique(nodecov))
     b1namescov <- sort(unique(nodecov[1:nb1]))
     b2namescov <- sort(unique(nodecov[(1+nb1):network.size(nw)]))
     namescov <- c(b1namescov, b2namescov)
