@@ -459,3 +459,22 @@ newnw.extract<-function(oldnw,z){
   
   network.update(oldnw,newedgelist,"edgelist")
 }
+statnet.edit <- function(name,package=c("statnet","ergm","network")){
+  i <- 1
+  while(i < length(package)){
+   pkgpath <- .find.package(package[i],quiet=TRUE)
+   if(length(pkgpath)>0){
+    filepath <- file.path(pkgpath,name)
+    if(file.exists(filepath)){
+     i <- length(package)+1
+     file.edit(filepath)
+    }
+   }
+   i <- i + 1
+  }
+  if(i != length(package)+2){
+   warning(paste("The file '",name,"' does not seem to exist in 'statnet'.",
+           sep=""), call. = FALSE)
+  }
+  invisible(filepath)
+}
