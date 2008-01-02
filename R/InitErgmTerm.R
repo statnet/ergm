@@ -1,23 +1,21 @@
-
-
 #################################################################
-# InitERGMterm functions (new version:  June 2007)
+# InitErgmTerm functions (new, easier-to-write version)
 # The old InitErgm functions should still work.
 #
 # INPUT:
-# Each InitERGMterm function takes two arguments, nw and arglist,
+# Each InitErgmTerm function takes two arguments, nw and arglist,
 # which are automatically supplied by ergm.getmodel.  There may be
-# other arguments passed by ergm.getmodel, so each InitERGMterm
-# function should also include the ... argument in its list.
+# other arguments passed by ergm.getmodel, so each InitErgmTerm
+# function must also include the ... argument in its list.
 #
 # OUTPUT:
-# Each InitERGMterm function should return a list.  
+# Each InitErgmTerm function should return a list.  
 #    REQUIRED LIST ITEMS:
 #          name: Name of the C function that produces the change
 #                statistics.  (Note:  The name will have "d_" 
 #                prepended.  For example, the C function for the
 #                absdiff change statistics is called "d_absdiff"
-#                even though InitERGMterms.absdiff only returns
+#                even though InitErgmTerm.absdiff only returns
 #                names = "absdiff")
 #    coef.names: Vector of names for the coefficients (parameters)
 #                as they will be reported in the output.
@@ -33,52 +31,48 @@
 #                is assumed to be a dyadic independence model, which means
 #                that the pseudolikelihood estimate coincides with the
 #                maximum likelihood estimate.  Default value:  TRUE
-#        params: For curved exponential family models, this argument must be
-#                a list:  Each item in the list should be named with the
+#  emptynwstats: Vector of values (if nonzero) for the statistics evaluated
+#                on the empty network.  If all are zero for this term, this
+#                argument may be omitted.  Example:  If the degree0 term is
+#                among the statistics, this argument is necessary because
+#                degree0 = number of nodes for the empty network.
+#        params: For curved exponential family model terms only: This argument 
+#                is a list:  Each item in the list should be named with the
 #                corresponding parameter name (one or more of these will
 #                probably coincide with the coef.names used when
 #                initialfit=TRUE; the initial values of such parameter values
 #                will be set by MPLE, so their values in params are ignored.)
 #                Any parameter not having its initial value set by MPLE
 #                should be given its initial value in this params list.
-#           eta: A function that gives the map from theta (the canonical
+#           eta: For curved exponential family model terms only: A function 
+#                that gives the map from theta (the canonical
 #                parameters associated with the statistics for this term)
 #                to eta (the corresponding curved parameters).  The length
 #                of eta is the same as the length of the params list above.
 #                This function takes two args:  theta and length(eta).
-#      gradient: A function that gives the gradient of the eta map above.
+#      gradient: For curved exponential family model terms only: A function 
+#                that gives the gradient of the eta map above.
 #                If theta has length p and eta has length q, then gradient
 #                should return a p by q matrix.
 #                This function takes two args:  theta and length(eta).
-#  emptynwstats: Vector of values (if nonzero) for the statistics evaluated
-#                on the empty network.  If all are zero for this term, this
-#                argument may be omitted.  Example:  If the degree0 term is
-#                among the statistics, this argument is necessary because
-#                degree0 = number of nodes for the empty network.
 
 
-## Prototype InitERGMterm function...still under construction :(
-#InitERGMterm.absdiff <- function(nw, arglist, ...) {
-#  # First, make sure this ERGM term is right for this network (optional!)
-#  check.ERGMterm.situation(nw, directed=NULL, bipartite=NULL)
-#  # Second, check the arguments to make sure they are appropriate.
-## a <- get.InitERGMterm.args(arglist,
-#  a <- check.ERGMterm.args(arglist,
-#                             varnames = c("attrname"),
-#                             vartypes = c("character"),
-#                             defaultvalues = list(NULL),
-#                             required = c(TRUE))  
-#  # Process the arguments
-#  nodecov <- get.node.attr(nw, a$attrname, "absdiff")
-#  # Construct the output list
-#  list(name="absdiff",                                     #name: required
-#       coef.names = paste("absdiff", a$attrname, sep="."), #coef.names: required
-#       inputs = nodecov,
-#       soname = "ergm",
-#       dependence = FALSE
-#       )
-#}
-     
-
+# Prototype InitErgmTerm function...still under construction :(
+InitErgmTerm.absdiff <- function(nw, arglist, ...) {
+  # Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(arglist, directed=NULL, bipartite=NULL,
+                             varnames = c("attrname"),
+                             vartypes = c("character"),
+                             defaultvalues = list(NULL),
+                             required = c(TRUE))  
+  # Process the arguments
+  nodecov <- get.node.attr(nw, a$attrname, "absdiff")
+  # Construct the output list
+  list(name="absdiff",                                     #name: required
+       coef.names = paste("absdiff", a$attrname, sep="."), #coef.names: required
+       inputs = nodecov,  # We need to include the nodal covariate for this term
+       dependence = FALSE # So we don't use MCMC if not necessary
+       )
+}
 
 

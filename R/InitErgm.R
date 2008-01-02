@@ -1672,7 +1672,7 @@ InitErgm.esp<-function(nw, m, arglist, drop=TRUE, ...) {
 ###################################### InitErgm TERMS:  G
 #########################################################
 InitErgm.gwb1degree<-function(nw, m, arglist, initialfit=FALSE, ...) {
-  ergm.checkdirected("gwb2degree", is.directed(nw), requirement=FALSE)
+  ergm.checkdirected("gwb1degree", is.directed(nw), requirement=FALSE)
   ergm.checkbipartite("gwb1degree", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("gwb1degree", arglist,
     varnames = c("decay", "fixed", "attrname"),
@@ -1683,6 +1683,7 @@ InitErgm.gwb1degree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
   nb1 <- get.network.attribute(nw,"bipartite")
   d <- 1:(network.size(nw) - nb1)
+  termnumber<-1+length(m$terms)
   if (!initialfit && !fixed) { # This is a curved exp fam
 #    if (!is.null(attrname)) {
       stop("The gwb1degree term is not yet able to handle a ",
@@ -1701,40 +1702,39 @@ InitErgm.gwb1degree<-function(nw, m, arglist, initialfit=FALSE, ...) {
                   {i-1}*(1+i-exp(-x[2])))
             )
     }
-    termnumber<-1+length(m$terms)
     m$terms[[termnumber]] <- list(name="b1degree", soname="ergm",
                                   inputs=c(0, ld, ld, d),
                                   params=list(gwb1degree=NULL,
                                     gwb1degree.decay=decay),
                                   map=map, gradient=gradient)
     m$coef.names<-c(m$coef.names,paste("gwb1degree#",d,sep=""))
-  }
-  termnumber<-1+length(m$terms)
-  if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "gwb1degree")
-    u<-sort(unique(nodecov))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
-    nodecov <- match(nodecov,u) # Recode to numeric
-    if (length(u)==1)
-      stop ("Attribute given to gwb1degree() has only one value", call.=FALSE)
-    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
-    lu <- length(u)
-    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
-    if(nrow(du)==0) {return(m)}
-    #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="gwb1degree_by_attr", soname="ergm",
-                                  inputs=c(0, lu, 
-                                           1+length(nodecov), 
-                                           decay, nodecov),
-                                  dependence=TRUE)
-    # See comment in d_gwb1degree_by_attr function
-    m$coef.names<-c(m$coef.names, paste("gwb1deg", decay, ".", 
-                                        attrname, u, sep=""))
-  }else{
-    m$terms[[termnumber]] <- list(name="gwb1degree", soname="ergm",
-                                       inputs=c(0, 1, 1, decay),
-                                       dependence=TRUE)
-    m$coef.names<-c(m$coef.names,paste("gwb1deg",decay,sep=""))
+  } else {
+    if(!is.null(attrname)) {
+      nodecov <- get.node.attr(nw, attrname, "gwb1degree")
+      u<-sort(unique(nodecov))
+      if(any(is.na(nodecov))){u<-c(u,NA)}
+      nodecov <- match(nodecov,u) # Recode to numeric
+      if (length(u)==1)
+        stop ("Attribute given to gwb1degree() has only one value", call.=FALSE)
+      # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+      lu <- length(u)
+      du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
+      if(nrow(du)==0) {return(m)}
+      #  No covariates here, so input component 1 is arbitrary
+      m$terms[[termnumber]] <- list(name="gwb1degree_by_attr", soname="ergm",
+                                    inputs=c(0, lu, 
+                                             1+length(nodecov), 
+                                             decay, nodecov),
+                                    dependence=TRUE)
+      # See comment in d_gwb1degree_by_attr function
+      m$coef.names<-c(m$coef.names, paste("gwb1deg", decay, ".", 
+                                          attrname, u, sep=""))
+    }else{
+      m$terms[[termnumber]] <- list(name="gwb1degree", soname="ergm",
+                                    inputs=c(0, 1, 1, decay),
+                                    dependence=TRUE)
+      m$coef.names<-c(m$coef.names,paste("gwb1deg",decay,sep=""))
+    }
   }
   m
 }
@@ -1752,6 +1752,7 @@ InitErgm.gwb2degree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
   nb1 <- get.network.attribute(nw,"bipartite")
   d <- 1:nb1
+  termnumber<-1+length(m$terms)
   if (!initialfit && !fixed) { # This is a curved exp fam
 #    if (!is.null(attrname)) {
       stop("The gwb2degree term is not yet able to handle a ",
@@ -1770,40 +1771,39 @@ InitErgm.gwb2degree<-function(nw, m, arglist, initialfit=FALSE, ...) {
                   {i-1}*(1+i-exp(-x[2])))
             )
     }
-    termnumber<-1+length(m$terms)
     m$terms[[termnumber]] <- list(name="b2degree", soname="ergm",
                                   inputs=c(0, ld, ld, d),
                                   params=list(gwb2degree=NULL,
                                     gwb2degree.decay=decay),
                                   map=map, gradient=gradient)
     m$coef.names<-c(m$coef.names,paste("gwb2degree#",d,sep=""))
-  }
-  termnumber<-1+length(m$terms)
-  if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "gwb2degree")
-    u<-sort(unique(nodecov))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
-    nodecov <- match(nodecov,u) # Recode to numeric
-    if (length(u)==1)
-      stop ("Attribute given to gwb2degree() has only one value", call.=FALSE)
-    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
-    lu <- length(u)
-    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
-    if(nrow(du)==0) {return(m)}
-    #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="gwb2degree_by_attr", soname="ergm",
-                                  inputs=c(0, lu,
-                                           1+length(nodecov), 
-                                           decay, nodecov),
-                                  dependence=TRUE)
-    # See comment in d_gwb2degree_by_attr function
-    m$coef.names<-c(m$coef.names, paste("gwb2deg", decay, ".", 
-                                        attrname, u, sep=""))
-  }else{
-    m$terms[[termnumber]] <- list(name="gwb2degree", soname="ergm",
-                                       inputs=c(0, 1, 1, decay),
-                                       dependence=TRUE)
-    m$coef.names<-c(m$coef.names,paste("gwb2deg",decay,sep=""))
+  } else { 
+    if(!is.null(attrname)) {
+      nodecov <- get.node.attr(nw, attrname, "gwb2degree")
+      u<-sort(unique(nodecov))
+      if(any(is.na(nodecov))){u<-c(u,NA)}
+      nodecov <- match(nodecov,u) # Recode to numeric
+      if (length(u)==1)
+        stop ("Attribute given to gwb2degree() has only one value", call.=FALSE)
+      # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+      lu <- length(u)
+      du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
+      if(nrow(du)==0) {return(m)}
+      #  No covariates here, so input component 1 is arbitrary
+      m$terms[[termnumber]] <- list(name="gwb2degree_by_attr", soname="ergm",
+                                    inputs=c(0, lu,
+                                             1+length(nodecov), 
+                                             decay, nodecov),
+                                    dependence=TRUE)
+      # See comment in d_gwb2degree_by_attr function
+      m$coef.names<-c(m$coef.names, paste("gwb2deg", decay, ".", 
+                                          attrname, u, sep=""))
+    }else{
+      m$terms[[termnumber]] <- list(name="gwb2degree", soname="ergm",
+                                    inputs=c(0, 1, 1, decay),
+                                    dependence=TRUE)
+      m$coef.names<-c(m$coef.names,paste("gwb2deg",decay,sep=""))
+    }
   }
   m
 }
@@ -1994,29 +1994,31 @@ InitErgm.gwidegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
                                     gwidegree.decay=decay),
                                   map=map, gradient=gradient)
     m$coef.names<-c(m$coef.names,paste("gwidegree#",d,sep=""))
-  } else if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "gwidegree")
-    u<-sort(unique(nodecov))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
-    nodecov <- match(nodecov,u) # Recode to numeric
-    if (length(u)==1)
-      stop ("Attribute given to gwidegree() has only one value", call.=FALSE)
-    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
-    lu <- length(u)
-    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
-    if(nrow(du)==0) {return(m)}
-    #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="gwidegree_by_attr", soname="ergm",
-                                  inputs=c(0, lu, 
-                                           1+length(nodecov), 
-                                           decay, nodecov),
-                                  dependence=TRUE)
-    m$coef.names<-c(m$coef.names, paste("gwideg", decay, ".", 
-                                        attrname, u, sep=""))
-  }else{
-    m$terms[[termnumber]] <- list(name="gwidegree", soname="ergm",
-                                  inputs=c(0, 1, length(decay), decay))
-    m$coef.names<-c(m$coef.names,paste("gwidegree.fixed.",decay,sep=""))
+  } else { 
+    if(!is.null(attrname)) {
+      nodecov <- get.node.attr(nw, attrname, "gwidegree")
+      u<-sort(unique(nodecov))
+      if(any(is.na(nodecov))){u<-c(u,NA)}
+      nodecov <- match(nodecov,u) # Recode to numeric
+      if (length(u)==1)
+        stop ("Attribute given to gwidegree() has only one value", call.=FALSE)
+      # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+      lu <- length(u)
+      du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
+      if(nrow(du)==0) {return(m)}
+      #  No covariates here, so input component 1 is arbitrary
+      m$terms[[termnumber]] <- list(name="gwidegree_by_attr", soname="ergm",
+                                    inputs=c(0, lu, 
+                                             1+length(nodecov), 
+                                             decay, nodecov),
+                                    dependence=TRUE)
+      m$coef.names<-c(m$coef.names, paste("gwideg", decay, ".", 
+                                          attrname, u, sep=""))
+    }else{
+      m$terms[[termnumber]] <- list(name="gwidegree", soname="ergm",
+                                    inputs=c(0, 1, length(decay), decay))
+      m$coef.names<-c(m$coef.names,paste("gwidegree.fixed.",decay,sep=""))
+    }
   }
   m
 }
@@ -2056,30 +2058,32 @@ InitErgm.gwodegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
                                     gwodegree.decay=decay),
                                   map=map, gradient=gradient)
     m$coef.names<-c(m$coef.names,paste("gwodegree#",d,sep=""))
-  } else if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "gwodegree")
-    u<-sort(unique(nodecov))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
-    nodecov <- match(nodecov,u) # Recode to numeric
-    if (length(u)==1)
-      stop ("Attribute given to gwodegree() has only one value", call.=FALSE)
-    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
-    lu <- length(u)
-    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
-    if(nrow(du)==0) {return(m)}
-    #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="gwodegree_by_attr", soname="ergm",
-                                  inputs=c(0, lu, 
-                                           1+length(nodecov), 
-                                           decay, nodecov),
-                                  dependence=TRUE)
-    m$coef.names<-c(m$coef.names, paste("gwodeg", decay, ".", 
-                                        attrname, u, sep=""))
-  }else{
-    m$terms[[termnumber]] <- list(name="gwodegree", soname="ergm",
-                                  inputs=c(0, 1, length(decay), decay))
-#   m$coef.names<-c(m$coef.names,paste("gwodegree.fixed.",decay,sep=""))
-    m$coef.names<-c(m$coef.names,"gwodegree")
+  } else {
+    if(!is.null(attrname)) {
+      nodecov <- get.node.attr(nw, attrname, "gwodegree")
+      u<-sort(unique(nodecov))
+      if(any(is.na(nodecov))){u<-c(u,NA)}
+      nodecov <- match(nodecov,u) # Recode to numeric
+      if (length(u)==1)
+        stop ("Attribute given to gwodegree() has only one value", call.=FALSE)
+      # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+      lu <- length(u)
+      du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
+      if(nrow(du)==0) {return(m)}
+      #  No covariates here, so input component 1 is arbitrary
+      m$terms[[termnumber]] <- list(name="gwodegree_by_attr", soname="ergm",
+                                    inputs=c(0, lu, 
+                                             1+length(nodecov), 
+                                             decay, nodecov),
+                                    dependence=TRUE)
+      m$coef.names<-c(m$coef.names, paste("gwodeg", decay, ".", 
+                                          attrname, u, sep=""))
+    }else{
+      m$terms[[termnumber]] <- list(name="gwodegree", soname="ergm",
+                                    inputs=c(0, 1, length(decay), decay))
+      #   m$coef.names<-c(m$coef.names,paste("gwodegree.fixed.",decay,sep=""))
+      m$coef.names<-c(m$coef.names,"gwodegree")
+    }
   }
   m
 }

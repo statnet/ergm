@@ -1,19 +1,38 @@
-check.ERGMterm.args <- function(arglist, varnames=NULL, vartypes=NULL,
-                                  defaultvalues=list(), required=NULL) {
-  ## This function (called by InitERGMterm.xxx functions)
-  ## will check to make sure that the inputs to each model
-  ## term are of the correct type, assign default values if applicable,
-  ## and then return a list with elements (var1=var1value, var2=var2value, etc.)
+check.ErgmTerm <- function(arglist, directed=NULL, bipartite=NULL,
+                           varnames=NULL, vartypes=NULL,
+                           defaultvalues=list(), required=NULL) {
+  ## This function (called by InitErgmTerm.xxx functions) will
+  ## (a) check to make sure that the network has the correct "directed"
+  ##     and "bipartite" attributes, if applicable, i.e., if either directed
+  ##     of bipartite is non-NULL.
+  ## (b) check that the inputs to the model term are of the correct type
+  ## (c) assign default values if applicable
+  ## (d) return a list with elements (var1=var1value, var2=var2value, etc.)
   ## Note that the list returned will contain the maximum possible number of
   ## arguments; any arguments without values are returned as NULL.
-  ##   Inputs:  arglist is the list of arguments passed from ergm.getmodel
+  ##
+  ##   Inputs:  arglist (required) is the list of arguments passed from ergm.getmodel
+  ##            directed is logical if directed=T or F is required, NULL o/w
+  ##            bipartite is logical if bipartite=T or F is required, NULL o/w
   ##            varnames is a vector of variable names
   ##            vartypes is a vector of corresponding variable types
   ##            defaultvalues is a list of default values (NULL means no default)
   ##            required is a vector of logicals:  Is this var required or not?
   sc <- sys.calls()
   fname <- ifelse(length(sc)>1, as.character(sc[[length(sc)-1]]), NULL)
-  fname <- substring(fname,14) # get rid of leading "InitERGMterm."
+  fname <- substring(fname,14) # get rid of leading "InitErgmTerm."
+  message <- NULL
+  if (!is.null(directed) && directed != is.directed(nw)) {
+    message <- paste("networks with directed==",is.directed(nw),sep="")
+  }
+  if (!is.null(bipartite) && bipartite != (nw %v% "bipartite" > 0)) {
+    message <- paste("networks with bipartite", 
+                     ifelse(nw %v% "bipartite">0,"!= FALSE", " > 0"))
+  }
+  if (!is.null(message)) {
+    stop(paste("The ERGM term",fnames,"may not be used with",message))
+  }
+
   sr=sum(required)
   lv=length(varnames)
   la=length(arglist)
@@ -27,8 +46,8 @@ check.ERGMterm.args <- function(arglist, varnames=NULL, vartypes=NULL,
     stop(paste(fname,"model term expected", expected, "got", la), call.=FALSE)
   }
 # The correctness of what the user typed is checked, but it is assumed
-# that each InitERGMterm function faithfully passes in what the user typed;
-# thus, the correctness of input from the InitERGMterm function isn't checked.
+# that each InitErgmTerm function faithfully passes in what the user typed;
+# thus, the correctness of input from the InitErgmTerm function isn't checked.
   out = defaultvalues
   names(out)=varnames
   m=NULL

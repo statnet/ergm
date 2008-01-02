@@ -37,7 +37,9 @@ ergm.Cprepare <- function(nw, m)
   if (Clist$nterms>0) {
     for(i in 1:Clist$nterms) {
       Clist$fnamestring <- paste(Clist$fnamestring, mo[[i]]$name)
-      Clist$snamestring <- paste(Clist$snamestring, mo[[i]]$soname)
+      Clist$snamestring <- paste(Clist$snamestring, 
+                                 ifelse(is.null(mo[[i]]$soname), "ergm",
+                                        mo[[i]]$soname))
       Clist$inputs <- c(Clist$inputs, mo[[i]]$inputs)
       Clist$nparam <- Clist$nparam + mo[[i]]$inputs[2]
     }

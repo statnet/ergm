@@ -6,8 +6,7 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, ...) {
     stop (paste("Invalid formula of class ",dc), call.=FALSE)
   trms<-terms(formula)
   if (trms[[1]]!="~")
-    stop ("Formula must be of the form 'network ~ model'.", call.=FALSE)
-  
+    stop ("Formula must be of the form 'network ~ model'.", call.=FALSE)  
   v <- attr(trms, "variables")
   if (length(v) < 3) 
     stop(paste("No model specified for network ", trms[[2]]), call.=FALSE)
@@ -29,12 +28,12 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, ...) {
       }
       args=v[[i]]
       args[[1]] = as.name("list")
-      fname <- paste("InitERGMterm.", v[[i]][[1]], sep = "")
+      fname <- paste("InitErgmTerm.", v[[i]][[1]], sep = "")
       newInitErgm <- exists(fname, env=.GlobalEnv, mode="function")
       v[[i]][[1]] <- as.name(ifelse (newInitErgm, fname, 
                                      paste("InitErgm.", v[[i]][[1]], sep = "")))
     } else { # This term has no arguments
-      fname <- paste("InitERGMterm.", v[[i]], sep = "")
+      fname <- paste("InitErgmTerm.", v[[i]], sep = "")
       newInitErgm <- exists(fname, env=.GlobalEnv, mode="function")
       v[[i]] <- call(ifelse (newInitErgm, fname, 
                              paste("InitErgm.", v[[i]], sep = "")))
@@ -68,10 +67,11 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, ...) {
       }else{
        model <- eval(v[[i]], .GlobalEnv)  #Call the InitErgm function
       }
-    } else { # New InitERGMterms style
+    } else { # New InitErgmTerms style
       v[[i]][[2]] <- nw
       names(v[[i]])[2] <-  ""
       v[[i]][[3]] <- args
+      names(v[[i]])[3] <- ""
       dotdotdot <- list(...)
       if (length(dotdotdot>0)) {
         for(j in 1:length(dotdotdot)) {
@@ -87,7 +87,7 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, ...) {
                           length(outlist$inputs), outlist$inputs)
       model$terms[[termnumber]] <- outlist
     }
-  }
+  } 
   model$etamap <- ergm.etamap(model)
   model
 }
