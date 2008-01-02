@@ -1,5 +1,4 @@
-ergm.getmodel <- function (formula, nw, silent=FALSE, ...) 
-{
+ergm.getmodel <- function (formula, nw, silent=FALSE, ...) {
   # Parse the formula, create an object of class "model.ergm" that contains
   # all relevant information about the model.  As part of this job, call the
   # appropriate InitErgm functions.

@@ -814,7 +814,7 @@ InitErgm.b2star<-function(nw, m, arglist, drop=TRUE, ...) {
                                            length(du)+length(nodecov), 
                                            as.vector(du), nodecov),
                                   dependence=TRUE)
-    m$coef.names<-c(m$coef.b2starnames, paste("b2star", du[1,], ".", attrname,
+    m$coef.names<-c(m$coef.names, paste("b2star", du[1,], ".", attrname,
                                         u[du[2,]], sep=""))
   }else{
     lengthd<-length(d)

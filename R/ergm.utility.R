@@ -58,12 +58,12 @@ degreedist <- function(g, print=TRUE)
    b2degrees <- summary(as.formula(paste('g ~ b2degree(',mesp,')',sep="")),drop=FALSE)
    names(b2degrees) <- 0:nb1
    if(!is.null(b2degrees) & print){
-    cat("Event degree distribution:\n")
+    cat("Bipartite mode 2 degree distribution:\n")
     if(any(b2degrees>0)){print(b2degrees[b2degrees>0])}
    }
    names(b1degrees) <- 0:nb2
    if(!is.null(b1degrees) & print){
-    cat("Actor degree distribution:\n")
+    cat("Bipartite mode 1 degree distribution:\n")
     if(any(b1degrees>0)){print(b1degrees[b1degrees>0])}
    }
    degrees <- list(b2=b2degrees, b1=b1degrees)
