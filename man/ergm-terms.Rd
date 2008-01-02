@@ -500,7 +500,7 @@ network
     network; if the latter, optional argument \code{attrname} provides the name
     of the edge attribute to use for weight values.}
  
-    \item{\code{hammingmix(attrname, x, omitwhich=0,
+    \item{\code{hammingmix(attrname, x, base=0,
     contrast=FALSE)}}{\emph{Hamming Distance within Mixing:} This term adds one
     statistic to the model equal to the Hamming distance of the subnetwork of
     dyads for each possible pairing of attribute values of the network from the
@@ -511,11 +511,11 @@ network
     ordering of the attribute values is alphabetical. If the option
     \code{contrast=TRUE} is used, then a statistic for the first pairing is not
     included, making it the de facto reference category. The option
-    \code{omitwhich} the index of statistics to be omitted from the tabulation.
-    For example \code{omitwhich=2} will omit the second statistic, making it the
+    \code{base} gives the index of statistics to be omitted from the tabulation.
+    For example \code{base=2} will omit the second statistic, making it the
     de facto reference category.}
  
-    \item{\code{hammingmix.constant(attrname, x, omitwhich=0,
+    \item{\code{hammingmix.constant(attrname, x, base=0,
     contrast=FALSE)}}{\emph{Hamming Distance with Constant Edges within Mixing:}
     This term adds one statistic to the model equal to the Hamming distance of
     the subnetwork of dyads for each possible pairing of attribute values of the
@@ -526,8 +526,8 @@ network
     attribute. The ordering of the attribute values is alphabetical. If the
     option \code{contrast=TRUE} is used, then a statistic for the first pairing
     is not included, making it the de facto reference category. The option
-    \code{omitwhich} the index of statistics to be omitted from the tabulation.
-    For example \code{omitwhich=2} will omit the second statistic, making it the
+    \code{base} gives the index of statistics to be omitted from the tabulation.
+    For example \code{base=2} will omit the second statistic, making it the
     de facto reference category.
     This term is meant to be used in combination with the \code{TNT} proposal 
     and the pairing ensures that the number of ties within each cell is constant.

@@ -118,15 +118,15 @@ InitErgm.absdiff<-function (nw, m, arglist, ...) {
 #########################################################
 InitErgm.absdiffcat<-function (nw, m, arglist, ...) {
   a <- ergm.checkargs("absdiffcat", arglist,
-                   varnames = c("attrname","omitwhich"),
+                   varnames = c("attrname","base"),
                    vartypes = c("character","numeric"),
                    defaultvalues = list(NULL,NULL),
                    required = c(TRUE,FALSE))
-  # omitwhich:  If not NULL, indices of non-zero absdiff categories to delete
+  # base:  If not NULL, indices of non-zero absdiff categories to delete
   # (ordered from 1=smallest to largest).
   attach(a)
   attrname<-a$attrname
-  omitwhich <- a$omitwhich
+  base <- a$base
   nodecov <- get.node.attr(nw, attrname, "absdiffcat")  
   u <- sort(unique(as.vector(abs(outer(nodecov,nodecov,"-")))),na.last=NA)
   u <- u[u>0]
@@ -134,7 +134,7 @@ InitErgm.absdiffcat<-function (nw, m, arglist, ...) {
   napositions <- is.na(nodecov)
   nodecov[napositions] <- NAsubstitute
   if(any(napositions)){u<-c(u,NA)}
-  if(!is.null(omitwhich)) u <- u[-omitwhich]
+  if(!is.null(base)) u <- u[-base]
   if (length(u)==0)
     stop ("Argument to absdiffcat() has too few distinct differences", call.=FALSE)
   termnumber<-1+length(m$terms)  
@@ -2225,14 +2225,14 @@ InitErgm.hamming.weighted<-function (nw, m, arglist, ...) {
 InitErgm.hammingmix.constant<-function (nw, m, arglist, ...) {
 # ergm.checkdirected("hammingconstantmix", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("hammingmix.constant", arglist=arglist,
-    varnames = c("attrname","x","omitwhich", contrast),
+    varnames = c("attrname","x","base", contrast),
     vartypes = c("character","matrixnetwork","numeric","logical"),
     defaultvalues = list(NULL,nw,0,FALSE),
     required = c(TRUE,FALSE,FALSE,FALSE))
   attach(a)
   attrname<-a$attrname
   x<-a$x
-  omitwhich<-a$omitwhich
+  base<-a$base
   contrast<-a$contrast
   drop<-a$drop
   drop<-TRUE
@@ -2279,8 +2279,8 @@ InitErgm.hammingmix.constant<-function (nw, m, arglist, ...) {
   if(contrast){
    u <- u[-1,]
   }
-  if(all(omitwhich!=0)){
-   u <- u[-omitwhich,]
+  if(all(base!=0)){
+   u <- u[-base,]
   }
   termnumber<-1+length(m$terms)
   #  Number of input parameters before covariates equals twice the number
@@ -2298,14 +2298,14 @@ InitErgm.hammingmix.constant<-function (nw, m, arglist, ...) {
 InitErgm.hammingmix<-function (nw, m, arglist, ...) {
 # ergm.checkdirected("hammingmix", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("hammingmix", arglist=arglist,
-    varnames = c("attrname","x","omitwhich","contrast"),
+    varnames = c("attrname","x","base","contrast"),
     vartypes = c("character","matrixnetwork","numeric","logical"),
     defaultvalues = list(NULL,nw,0,FALSE),
     required = c(TRUE,FALSE,FALSE,FALSE))
   attach(a)
   attrname<-a$attrname
   x<-a$x
-  omitwhich<-a$omitwhich
+  base<-a$base
   contrast<-a$contrast
   drop<-a$drop
   drop<-TRUE
@@ -2352,8 +2352,8 @@ InitErgm.hammingmix<-function (nw, m, arglist, ...) {
   if(contrast){
    u <- u[-1,]
   }
-  if(all(omitwhich!=0)){
-   u <- u[-omitwhich,]
+  if(all(base!=0)){
+   u <- u[-base,]
   }
   termnumber<-1+length(m$terms)
   #  Number of input parameters before covariates equals twice the number
