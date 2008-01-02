@@ -506,12 +506,11 @@ InitErgm.b1star<-function(nw, m, arglist, drop=TRUE, ...) {
   if(!is.null(attrname)) {
     if(ncol(du)==0) {return(m)}            
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="ostar_by_attr", soname="ergm",
+    m$terms[[termnumber]] <- list(name="ostar", soname="ergm",
                                   inputs=c(0, ncol(du), 
                                            length(du)+length(nodecov), 
                                            as.vector(du), nodecov),
                                   dependence=TRUE)
-    # See comment in d_ostar_by_attr function
     m$coef.names<-c(m$coef.names, paste("b1star", du[1,], ".", attrname,
                                         u[du[2,]], sep=""))
   }else{
@@ -810,12 +809,11 @@ InitErgm.b2star<-function(nw, m, arglist, drop=TRUE, ...) {
   if(!is.null(attrname)) {
     if(ncol(du)==0) {return(m)}
     #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="istar_by_attr", soname="ergm",
+    m$terms[[termnumber]] <- list(name="istar", soname="ergm",
                                   inputs=c(0, ncol(du), 
                                            length(du)+length(nodecov), 
                                            as.vector(du), nodecov),
                                   dependence=TRUE)
-    # See comment in d_istar_by_attr function
     m$coef.names<-c(m$coef.b2starnames, paste("b2star", du[1,], ".", attrname,
                                         u[du[2,]], sep=""))
   }else{
@@ -2527,6 +2525,7 @@ InitErgm.istar<-function(nw, m, arglist, drop=TRUE, ...) {
     defaultvalues = list(NULL, NULL),
     required = c(TRUE, FALSE))
   attach(a)
+  k <- a$k
   attrname <- a$attrname
   if(!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname, "istar")
@@ -3278,37 +3277,61 @@ InitErgm.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
 InitErgm.ostar<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("ostar", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("ostar", arglist,
-    varnames = c("k"),
-    vartypes = c("numeric"),
-    defaultvalues = list(NULL),
-    required = c(TRUE))
+    varnames = c("k", "attrname"),
+    vartypes = c("numeric", "character"),
+    defaultvalues = list(NULL, NULL),
+    required = c(TRUE, FALSE))
   attach(a)
   k<-a$k
-  if(drop){
-    ks <- tabulate(tabulate(as.matrix.network.edgelist(nw)[,1]))
-    mistar <- NULL
-    for(cdeg in k){
-      aaa <- (cdeg:length(ks))
-      aaa <- aaa[ks[aaa] > 0]
-      mistar <- c(mistar, sum(choose(aaa,cdeg),na.rm=TRUE) == 0)
-    }
-    if(any(mistar)){
-      cat(" ")
-      cat(paste("Warning: There are no order", k[mistar],"stars;\n",
+  attrname <- a$attrname
+  if(!is.null(attrname)) {
+    nodecov <- get.node.attr(nw, attrname, "ostar")
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+    # Recode to numeric
+    nodecov <- match(nodecov,u,nomatch=length(u)+1)
+    if (length(u)==1)
+      stop ("Attribute given to ostar() has only one value", call.=FALSE)
+    if(drop){
+      ostarattr <- paste("c(",paste(k,collapse=","),")",sep="")
+      ostarattr <- summary(as.formula(paste('nw ~ ostar(',ostarattr,',"',
+                                            attrname,'")',sep="")),
+                           drop=FALSE) == 0
+      if(any(ostarattr)){
+        dropterms <- paste(paste("ostar",attrname,sep="."),k[ostarattr],sep="")
+        cat(" ")
+        cat(paste("Warning: The count of", dropterms, "is extreme;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-      dropterms <- paste("istar", k[mistar],sep="")
-#     cat(paste("To avoid degeneracy the terms",
-#               paste(dropterms,collapse=" and, "),
-#               "have been dropped.\n"))
-      k <- ks[mistar[!mistar]] 
+        k <- k[!ostarattr]
+      }
+    }
+  }else{
+    if(drop){
+      mostar <- paste("c(",paste(k,collapse=","),")",sep="")
+      mostar <- summary(as.formula(paste('nw ~ ostar(',mostar,')',sep="")),
+                        drop=FALSE) == 0
+      if(any(mostar)){
+      cat(" ")
+        cat(paste("Warning: There are no order", k[mostar],"stars;\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+        dropterms <- paste("ostar", k[mostar],sep="")
+        k <- k[!mostar] 
+      }
     }
   }
   lk<-length(k)
   if(lk==0){return(m)}
   termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="ostar", soname="ergm",
-                                inputs=c(0, lk, lk, k))
-  m$coef.names<-c(m$coef.names,paste("ostar",k,sep=""))
+  if(!is.null(attrname)){
+    m$terms[[termnumber]] <- list(name="ostar", soname="ergm",
+                                  inputs=c(lk, lk, lk+length(nodecov),
+                                           k, nodecov))
+    m$coef.names<-c(m$coef.names,paste("ostar",k,".",attrname,sep=""))
+  }else{
+    m$terms[[termnumber]] <- list(name="ostar", soname="ergm",
+                                  inputs=c(0, lk, lk, k))
+    m$coef.names<-c(m$coef.names,paste("ostar",k,sep=""))
+  }
   m
 }
 

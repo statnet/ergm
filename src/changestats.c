@@ -3091,48 +3091,41 @@ void d_istar (int ntoggles, Vertex *heads, Vertex *tails,
   
   if(ninputs>nstats){
     /* match on attributes */
-    for (i=0; i < ntoggles; i++)
-      {
-	/* edgeflag is 1 if edge exists and will disappear
-           edgeflag is 0 if edge DNE and will appear */
-	edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
-	hattr = mtp->attrib[h-1];
-	if(hattr == mtp->attrib[t-1]){
-	  td = - edgeflag;
-	  for(e = EdgetreeMinimum(nwp->inedges, t);
+    for (i=0; i < ntoggles; i++) {
+      /* edgeflag is 1 if edge exists and will disappear
+      edgeflag is 0 if edge DNE and will appear */
+      edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
+      hattr = mtp->attrib[h-1];
+      if(hattr == mtp->attrib[t-1]){
+        td = - edgeflag;
+        for(e = EdgetreeMinimum(nwp->inedges, t);
 	      (node3 = nwp->inedges[e].value) != 0;
-	      e = EdgetreeSuccessor(nwp->inedges, e)) /* step through inedges of tail */
-	    {
-	      if(hattr == mtp->attrib[node3-1]){++td;}
-	    }
-	  
-	  for(j=0; j < mtp->nstats; j++) 
-	    {
-	      kmo = ((int)mtp->inputparams[j]) - 1;
-	      change = CHOOSE(td, kmo); 
-	      mtp->dstats[j] += (edgeflag ? - change : change); 
-	    }
-	}
-	if (i+1 < ntoggles)
-	  ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+	      e = EdgetreeSuccessor(nwp->inedges, e)) {/* step through inedges of tail */
+          if(hattr == mtp->attrib[node3-1]){++td;}
+        }	  
+        for(j=0; j < mtp->nstats; j++) {
+          kmo = ((int)mtp->inputparams[j]) - 1;
+          change = CHOOSE(td, kmo); 
+          mtp->dstats[j] += (edgeflag ? - change : change); 
+        }
       }
+      if (i+1 < ntoggles)
+        ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    }
   }else{
-    for (i=0; i < ntoggles; i++)
-      {
-	/* edgeflag is 1 if edge exists and will disappear
-	   edgeflag is 0 if edge DNE and will appear */
-	edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
-	td = nwp->indegree[t] - edgeflag;
-	
-	for(j=0; j < mtp->nstats; j++) 
-	  {
-	    kmo = ((int)mtp->inputparams[j]) - 1;
-	    change = CHOOSE(td, kmo); 
-	    mtp->dstats[j] += (edgeflag ? - change : change); 
-	  }
-	if (i+1 < ntoggles)
-	  ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    for (i=0; i < ntoggles; i++) {
+      /* edgeflag is 1 if edge exists and will disappear
+      edgeflag is 0 if edge DNE and will appear */
+      edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
+      td = nwp->indegree[t] - edgeflag;	
+      for(j=0; j < mtp->nstats; j++) {
+        kmo = ((int)mtp->inputparams[j]) - 1;
+        change = CHOOSE(td, kmo); 
+        mtp->dstats[j] += (edgeflag ? - change : change); 
       }
+      if (i+1 < ntoggles)
+        ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    }
   }
   
   i--; 
@@ -3161,8 +3154,7 @@ ModelTerm *mtp, Network *nwp) {
   
   if(ninputs>nstats){
     /* match on attributes */
-    for (i=0; i < ntoggles; i++)
-    {
+    for (i=0; i < ntoggles; i++) {
       /* edgeflag is 1 if edge exists and will disappear
       edgeflag is 0 if edge DNE and will appear */
       edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
@@ -3171,32 +3163,27 @@ ModelTerm *mtp, Network *nwp) {
         hd = - edgeflag;
         for(e = EdgetreeMinimum(nwp->outedges, h);
         (node3 = nwp->outedges[e].value) != 0;
-        e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of head */
-        {
+        e = EdgetreeSuccessor(nwp->outedges, e)) {/* step through outedges of head */
           if(hattr == mtp->attrib[node3-1]){++hd;}
         }
         for(e = EdgetreeMinimum(nwp->inedges, h);
         (node3 = nwp->inedges[e].value) != 0;
-        e = EdgetreeSuccessor(nwp->inedges, e)) /* step through inedges of head */
-        {
+        e = EdgetreeSuccessor(nwp->inedges, e)) { /* step through inedges of head */
           if(hattr == mtp->attrib[node3-1]){++hd;}
         }
         td = - edgeflag;
         for(e = EdgetreeMinimum(nwp->outedges, t);
         (node3 = nwp->outedges[e].value) != 0;
-        e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of tail */
-        {
+        e = EdgetreeSuccessor(nwp->outedges, e)) {/* step through outedges of tail */
           if(hattr == mtp->attrib[node3-1]){++td;}
         }
         for(e = EdgetreeMinimum(nwp->inedges, t);
         (node3 = nwp->inedges[e].value) != 0;
-        e = EdgetreeSuccessor(nwp->inedges, e)) /* step through inedges of tail */
-        {
+        e = EdgetreeSuccessor(nwp->inedges, e)) {/* step through inedges of tail */
           if(hattr == mtp->attrib[node3-1]){++td;}
         }
         
-        for(j=0; j < mtp->nstats; j++) 
-        {
+        for(j=0; j < mtp->nstats; j++) {
           kmo = ((int)mtp->inputparams[j]) - 1;
 /*          if (kmo==0) {
             change=1;
@@ -3858,48 +3845,41 @@ void d_ostar (int ntoggles, Vertex *heads, Vertex *tails,
   
   if(ninputs>nstats){
     /* match on attributes */
-    for (i=0; i < ntoggles; i++)
-      {
-	/* edgeflag is 1 if edge exists and will disappear
-           edgeflag is 0 if edge DNE and will appear */
-	edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
-	hattr = mtp->attrib[t-1];
-	if(hattr == mtp->attrib[h-1]){
-	  td = - edgeflag;
-	  for(e = EdgetreeMinimum(nwp->outedges, h);
+    for (i=0; i < ntoggles; i++) {
+      /* edgeflag is 1 if edge exists and will disappear
+      edgeflag is 0 if edge DNE and will appear */
+      edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
+      hattr = mtp->attrib[t-1];
+      if(hattr == mtp->attrib[h-1]){
+        td = - edgeflag;
+        for(e = EdgetreeMinimum(nwp->outedges, h);
 	      (node3 = nwp->outedges[e].value) != 0;
-	      e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of tail */
-	    {
-	      if(hattr == mtp->attrib[node3-1]){++td;}
-	    }
-	  
-	  for(j=0; j < mtp->nstats; j++) 
-	    {
-	      kmo = ((int)mtp->inputparams[j]) - 1;
-	      change = CHOOSE(td, kmo); 
-	      mtp->dstats[j] += (edgeflag ? - change : change); 
-	    }
-	}
-	if (i+1 < ntoggles)
-	  ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+	      e = EdgetreeSuccessor(nwp->outedges, e)) { /* step through outedges of tail */
+          if(hattr == mtp->attrib[node3-1]){++td;}
+        }
+        for(j=0; j < mtp->nstats; j++) {
+          kmo = ((int)mtp->inputparams[j]) - 1;
+          change = CHOOSE(td, kmo); 
+          mtp->dstats[j] += (edgeflag ? - change : change); 
+        }
       }
+      if (i+1 < ntoggles)
+        ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    }
   }else{
-    for (i=0; i < ntoggles; i++)
-      {
-	/* edgeflag is 1 if edge exists and will disappear
-	   edgeflag is 0 if edge DNE and will appear */
-	edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
-	td = nwp->outdegree[h] - edgeflag;
-	
-	for(j=0; j < mtp->nstats; j++) 
-	  {
-	    kmo = ((int)mtp->inputparams[j]) - 1;
-	    change = CHOOSE(td, kmo); 
-	    mtp->dstats[j] += (edgeflag ? - change : change); 
-	  }
-	if (i+1 < ntoggles)
-	  ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    for (i=0; i < ntoggles; i++) {
+      /* edgeflag is 1 if edge exists and will disappear
+      edgeflag is 0 if edge DNE and will appear */
+      edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
+      td = nwp->outdegree[h] - edgeflag;      
+      for(j=0; j < mtp->nstats; j++) {
+        kmo = ((int)mtp->inputparams[j]) - 1;
+        change = CHOOSE(td, kmo); 
+        mtp->dstats[j] += (edgeflag ? - change : change); 
       }
+      if (i+1 < ntoggles)
+        ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    }
   }
   
   i--; 

@@ -1,12 +1,8 @@
-## DO NOT MAKE RESEARCHY CHANGES TO THIS FILE!  THIS IS FOR THE CRAN VERSION
-## OF ERGM ONLY
-
 ergm <- function(formula, theta0="MPLE", 
                  MPLEonly=FALSE, MLestimate=!MPLEonly, seed=NULL,
                  burnin=10000, MCMCsamplesize=10000, interval=100,
                  maxit=3,
                  constraints=~.,
-                 # deleted meanstats and dissolve stuff
                  control=control.ergm(),      
                  verbose=FALSE, ...) {
   current.warn <- options()$warn
@@ -29,9 +25,7 @@ ergm <- function(formula, theta0="MPLE",
 
   if (verbose) cat("Initializing Metropolis-Hastings proposal.\n")
   MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial)
-# removed missing data stuff
 
-# removed "need fake network" stuff for meanstats
   if(!is.null(control$initial.network)){
     nw.initial<-control$initial.network
   }else{
@@ -48,7 +42,6 @@ ergm <- function(formula, theta0="MPLE",
                                 MPLEtype=control$MPLEtype, verbose=verbose, ...)
   if (MLestimate && (!ergm.independencemodel(model.initial)
                      || constraints!=(~.))
-#                     || !is.null(meanstats) || constraints!=(~.))
      || control$force.mcmc) {
     theta0 <- initialfit$coef
     names(theta0) <- model.initial$coef.names
