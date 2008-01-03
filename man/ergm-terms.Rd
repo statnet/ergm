@@ -94,123 +94,127 @@ network
     \eqn{(j{\rightarrow}i)}{(j,i)} exists. This term can only be used with
     directed networks. }
 
-    \item{\code{b1concurrent(attrname)}}{\emph{Concurrent node count for the first 
-    mode in a bipartite (aka two-mode) network:} This term adds one network 
-    statistic to the model, equal to the number of nodes in the first mode 
-    of the network with degree 2 or higher. The first mode of a bipartite network 
-    object is sometimes known as the "actor" mode. The optional term \code{attrname} 
-    is a character string giving the name of an attribute in the network's vertex 
-    attribute list. If this is specified then the count is the number of nodes in 
-    the first mode with ties to at least 2 other nodes with the same value for that 
-    attribute as the index node. This term can only be used with undirected networks. }
+    \item{\code{b1concurrent(attrname)}}{\emph{Concurrent node count for the
+    first mode in a bipartite (aka two-mode) network:} This term adds one
+    network statistic to the model, equal to the number of nodes in the first
+    mode of the network with degree 2 or higher. The first mode of a bipartite
+    network object is sometimes known as the "actor" mode. The optional term
+    \code{attrname} is a character string giving the name of an attribute in the
+    network's vertex attribute list. If this is specified then the count is the
+    number of nodes in the first mode with ties to at least 2 other nodes with
+    the same value for that attribute as the index node. This term can only be
+    used with undirected bipartite networks. }
 
-    \item{\code{b1degree(d, attrname)}}{\emph{Degree for the first mode in a 
-    bipartite (aka two-mode) network:} The \code{d} argument is a vector of 
-    distinct integers. This term adds one network statistic to the model for each 
-    element in \code{d}; the \eqn{i}th such statistic equals the number of nodes 
-    of degree \code{d[i]} in the first mode of a bipartite network, i.e. with 
-    exactly \code{d[i]} edges. The first mode of a bipartite network object is 
-    sometimes known as the "actor" mode. The optional term \code{attrname} is a 
-    character string giving the name of an attribute in the network's vertex 
-    attribute list. If this is specified then the degree count is the number of 
-    nodes with the same value of the attribute as the ego node. This term can 
-    only be used with undirected networks.}
+    \item{\code{b1degree(d, attrname)}}{\emph{Degree for the first mode in a
+    bipartite (aka two-mode) network:} The \code{d} argument is a vector of
+    distinct integers. This term adds one network statistic to the model for
+    each element in \code{d}; the \eqn{i}th such statistic equals the number of
+    nodes of degree \code{d[i]} in the first mode of a bipartite network, i.e.
+    with exactly \code{d[i]} edges. The first mode of a bipartite network object
+    is sometimes known as the "actor" mode. The optional term \code{attrname} is
+    a character string giving the name of an attribute in the network's vertex
+    attribute list. If this is specified then the degree count is the number of
+    nodes with the same value of the attribute as the ego node. This term can
+    only be used with undirected bipartite networks.}
 
-    \item{\code{b1factor(attrname, base=1)}}{\emph{Factor Attribute Effect 
-    for the first mode in a bipartite (aka two-mode) network :} The \code{attrname} 
-    argument is a character string giving the name of a categorical attribute in 
-    the network's vertex attribute list. This term adds multiple network statistics 
-    to the model, one for each of (a subset of) the unique values of the 
-    \code{attrname} attribute. Each of these statistics gives the number of times 
-    a node with that attribute in the first mode of the network appears in an 
-    edge. The first mode of a bipartite network object is sometimes known as the 
-    "actor" mode. To include all attribute values is usually not a good idea, 
-    because the sum of all such statistics equals the number of edges and hence 
-    a linear dependency would arise in any model also including \code{edges}. 
-    Thus, the \code{base} argument tells which value(s), numbered in order 
-    according to the \code{sort} function, should be omitted. The default value,
-    one, means that the smallest (i.e., first in sorted order) attribute value 
-    is omitted, making this value the reference category to which all other values 
-    are compared. For example, if the \dQuote{fruit} factor has levels 
-    \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and \dQuote{pear}, then to 
-    add just two terms, one for \dQuote{apple} and one for \dQuote{pear}, set 
-    \dQuote{banana} and \dQuote{orange} to the base (remember to sort the values 
-    first) by using \code{nodefactor("fruit", base=2:3)}. 
-    This term can only be used with undirected networks.}
+    \item{\code{b1factor(attrname, base=1)}}{\emph{Factor Attribute Effect for
+    the first mode in a bipartite (aka two-mode) network :} The \code{attrname}
+    argument is a character string giving the name of a categorical attribute in
+    the network's vertex attribute list. This term adds multiple network
+    statistics to the model, one for each of (a subset of) the unique values of
+    the \code{attrname} attribute. Each of these statistics gives the number of
+    times a node with that attribute in the first mode of the network appears in
+    an edge. The first mode of a bipartite network object is sometimes known as
+    the "actor" mode. To include all attribute values is usually not a good
+    idea, because the sum of all such statistics equals the number of edges and
+    hence a linear dependency would arise in any model also including
+    \code{edges}. Thus, the \code{base} argument tells which value(s), numbered
+    in order according to the \code{sort} function, should be omitted. The
+    default value, one, means that the smallest (i.e., first in sorted order)
+    attribute value is omitted, making this value the reference category to
+    which all other values are compared. For example, if the \dQuote{fruit}
+    factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
+    \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
+    for \dQuote{pear}, set \dQuote{banana} and \dQuote{orange} to the base
+    (remember to sort the values first) by using \code{nodefactor("fruit",
+    base=2:3)}. This term can only be used with undirected bipartite networks.}
 
-    \item{\code{b1star(k, attrname)}}{\emph{k-Stars for the first mode in a bipartite 
-    (aka two-mode) network: } The \code{k} argument is a vector of distinct integers. 
-    This term adds one network statistic to the model for each element in \code{k}. 
-    The \eqn{i}th such statistic counts the number of distinct \code{k[i]}-stars 
-    whose center node is in the first mode of the network. The first mode of a 
-    bipartite network object is sometimes known as the "actor" mode. A \eqn{k}-star 
-    is defined to be a center node \eqn{N} and a set of \eqn{k} different nodes 
-    \eqn{\{O_1, \dots, O_k\}} such that the ties \eqn{\{N, O_i\}} exist 
-    for \eqn{i=1, \dots, k}. The optional argument \code{attrname} is a character
-    string giving the name of an attribute in the network's vertex attribute
-    list. If this is specified then the count is over the number of \eqn{k}-stars 
-    (with center node in the first mode) where all nodes have the same value of the 
-    attribute. This term can only be used for undirected networks. Note that 
-    \code{b1star(1)} is equal to \code{b2star(1)} and to \code{edges}. }
+    \item{\code{b1star(k, attrname)}}{\emph{k-Stars for the first mode in a
+    bipartite (aka two-mode) network: } The \code{k} argument is a vector of
+    distinct integers. This term adds one network statistic to the model for
+    each element in \code{k}. The \eqn{i}th such statistic counts the number of
+    distinct \code{k[i]}-stars whose center node is in the first mode of the
+    network. The first mode of a bipartite network object is sometimes known as
+    the "actor" mode. A \eqn{k}-star is defined to be a center node \eqn{N} and
+    a set of \eqn{k} different nodes \eqn{\{O_1, \dots, O_k\}} such that the
+    ties \eqn{\{N, O_i\}} exist for \eqn{i=1, \dots, k}. The optional argument
+    \code{attrname} is a character string giving the name of an attribute in the
+    network's vertex attribute list. If this is specified then the count is over
+    the number of \eqn{k}-stars (with center node in the first mode) where all
+    nodes have the same value of the attribute. This term can only be used for
+    undirected bipartite networks. Note that \code{b1star(1)} is equal to
+    \code{b2star(1)} and to \code{edges}. }
 
-    \item{\code{b2concurrent(attrname)}}{\emph{Concurrent node count for the second 
-    mode in a bipartite (aka two-mode) network:} This term adds one network 
-    statistic to the model, equal to the number of nodes in the second mode 
-    of the network with degree 2 or higher. The second mode of a bipartite network 
-    object is sometimes known as the "event" mode. The optional term \code{attrname} 
-    is a character string giving the name of an attribute in the network's vertex 
-    attribute list. If this is specified then the count is the number of nodes in 
-    the second mode with ties to at least 2 other nodes with the same value for that 
-    attribute as the index node. This term can only be used with undirected networks. }
+    \item{\code{b2concurrent(attrname)}}{\emph{Concurrent node count for the
+    second mode in a bipartite (aka two-mode) network:} This term adds one
+    network statistic to the model, equal to the number of nodes in the second
+    mode of the network with degree 2 or higher. The second mode of a bipartite
+    network object is sometimes known as the "event" mode. The optional term
+    \code{attrname} is a character string giving the name of an attribute in the
+    network's vertex attribute list. If this is specified then the count is the
+    number of nodes in the second mode with ties to at least 2 other nodes with
+    the same value for that attribute as the index node. This term can only be
+    used with undirected bipartite networks. }
 
-    \item{\code{b2degree(d, attrname)}}{\emph{Degree for the second mode in a 
-    bipartite (aka two-mode) network:} The \code{d} argument is a vector of 
-    distinct integers. This term adds one network statistic to the model for each 
-    element in \code{d}; the \eqn{i}th such statistic equals the number of nodes 
-    of degree \code{d[i]} in the second mode of a bipartite network, i.e. with 
-    exactly \code{d[i]} edges. The second mode of a bipartite network object is 
-    sometimes known as the "event" mode. The optional term \code{attrname} is a 
-    character string giving the name of an attribute in the network's vertex 
-    attribute list. If this is specified then the degree count is the number of 
-    nodes with the same value of the attribute as the ego node. This term can 
-    only be used with undirected networks.}
+    \item{\code{b2degree(d, attrname)}}{\emph{Degree for the second mode in a
+    bipartite (aka two-mode) network:} The \code{d} argument is a vector of
+    distinct integers. This term adds one network statistic to the model for
+    each element in \code{d}; the \eqn{i}th such statistic equals the number of
+    nodes of degree \code{d[i]} in the second mode of a bipartite network, i.e.
+    with exactly \code{d[i]} edges. The second mode of a bipartite network
+    object is sometimes known as the "event" mode. The optional term
+    \code{attrname} is a character string giving the name of an attribute in the
+    network's vertex attribute list. If this is specified then the degree count
+    is the number of nodes with the same value of the attribute as the ego node.
+    This term can only be used with undirected bipartite networks.}
 
-    \item{\code{b2factor(attrname, base=1)}}{\emph{Factor Attribute Effect 
-    for the second mode in a bipartite (aka two-mode) network :} The \code{attrname} 
-    argument is a character string giving the name of a categorical attribute in 
-    the network's vertex attribute list. This term adds multiple network statistics 
-    to the model, one for each of (a subset of) the unique values of the 
-    \code{attrname} attribute. Each of these statistics gives the number of times 
-    a node with that attribute in the second mode of the network appears in an 
-    edge. The second mode of a bipartite network object is sometimes known as the 
-    "event" mode. To include all attribute values is usually not a good idea, 
-    because the sum of all such statistics equals the number of edges and hence 
-    a linear dependency would arise in any model also including \code{edges}. 
-    Thus, the \code{base} argument tells which value(s), numbered in order 
-    according to the \code{sort} function, should be omitted. The default value,
-    one, means that the smallest (i.e., first in sorted order) attribute value 
-    is omitted, making this value the reference category to which all other values 
-    are compared. For example, if the \dQuote{fruit} factor has levels 
-    \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and \dQuote{pear}, then to 
-    add just two terms, one for \dQuote{apple} and one for \dQuote{pear}, set 
-    \dQuote{banana} and \dQuote{orange} to the base (remember to sort the values 
-    first) by using \code{nodefactor("fruit", base=2:3)}. 
-    This term can only be used with undirected networks.}
+    \item{\code{b2factor(attrname, base=1)}}{\emph{Factor Attribute Effect for
+    the second mode in a bipartite (aka two-mode) network :} The \code{attrname}
+    argument is a character string giving the name of a categorical attribute in
+    the network's vertex attribute list. This term adds multiple network
+    statistics to the model, one for each of (a subset of) the unique values of
+    the \code{attrname} attribute. Each of these statistics gives the number of
+    times a node with that attribute in the second mode of the network appears
+    in an edge. The second mode of a bipartite network object is sometimes known
+    as the "event" mode. To include all attribute values is usually not a good
+    idea, because the sum of all such statistics equals the number of edges and
+    hence a linear dependency would arise in any model also including
+    \code{edges}. Thus, the \code{base} argument tells which value(s), numbered
+    in order according to the \code{sort} function, should be omitted. The
+    default value, one, means that the smallest (i.e., first in sorted order)
+    attribute value is omitted, making this value the reference category to
+    which all other values are compared. For example, if the \dQuote{fruit}
+    factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
+    \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
+    for \dQuote{pear}, set \dQuote{banana} and \dQuote{orange} to the base
+    (remember to sort the values first) by using \code{nodefactor("fruit",
+    base=2:3)}. This term can only be used with undirected bipartite networks.}
 
-    \item{\code{b2star(k, attrname)}}{\emph{k-Stars for the second mode in a bipartite 
-    (aka two-mode) network: } The \code{k} argument is a vector of distinct integers. 
-    This term adds one network statistic to the model for each element in \code{k}. 
-    The \eqn{i}th such statistic counts the number of distinct \code{k[i]}-stars 
-    whose center node is in the second mode of the network. The second mode of a 
-    bipartite network object is sometimes known as the "event" mode. A \eqn{k}-star 
-    is defined to be a center node \eqn{N} and a set of \eqn{k} different nodes 
-    \eqn{\{O_1, \dots, O_k\}} such that the ties \eqn{\{N, O_i\}} exist 
-    for \eqn{i=1, \dots, k}. The optional argument \code{attrname} is a character
-    string giving the name of an attribute in the network's vertex attribute
-    list. If this is specified then the count is over the number of \eqn{k}-stars 
-    (with center node in the second mode) where all nodes have the same value of the 
-    attribute. This term can only be used for undirected networks. Note that 
-    \code{b2star(1)} is equal to \code{b1star(1)} and to \code{edges}. }
+    \item{\code{b2star(k, attrname)}}{\emph{k-Stars for the second mode in a
+    bipartite (aka two-mode) network: } The \code{k} argument is a vector of
+    distinct integers. This term adds one network statistic to the model for
+    each element in \code{k}. The \eqn{i}th such statistic counts the number of
+    distinct \code{k[i]}-stars whose center node is in the second mode of the
+    network. The second mode of a bipartite network object is sometimes known as
+    the "event" mode. A \eqn{k}-star is defined to be a center node \eqn{N} and
+    a set of \eqn{k} different nodes \eqn{\{O_1, \dots, O_k\}} such that the
+    ties \eqn{\{N, O_i\}} exist for \eqn{i=1, \dots, k}. The optional argument
+    \code{attrname} is a character string giving the name of an attribute in the
+    network's vertex attribute list. If this is specified then the count is over
+    the number of \eqn{k}-stars (with center node in the second mode) where all
+    nodes have the same value of the attribute. This term can only be used for
+    undirected bipartite networks. Note that \code{b2star(1)} is equal to
+    \code{b1star(1)} and to \code{edges}. }
 
     \item{\code{balance}}{\emph{Balanced triads:} This term adds one network
     statistic to the model equaling the number of triads in the network that are
@@ -405,34 +409,36 @@ network
     nodes in the edge in the same direction as the edge itself).}
 
     \item{\code{gwb1degree(decay, fixed=FALSE)}}{\emph{Geometrically Weighted
-    Degree Distribution for the first mode in a bipartite (aka two-mode) network:}
-    This term adds one network statistic to the model equal to the weighted 
-    degree distribution with weight parameter \code{decay}, for nodes in the 
-    first mode of a bipartite network. The first mode of a bipartite network 
-    object is sometimes known as the "actor" mode.  This statistic is based on 
-    the version given as equation (14) in 
+    Degree Distribution for the first mode in a bipartite (aka two-mode)
+    network:} This term adds one network statistic to the model equal to the
+    weighted degree distribution with weight parameter \code{decay}, for nodes
+    in the first mode of a bipartite network. The first mode of a bipartite
+    network object is sometimes known as the "actor" mode. This statistic is
+    based on the version given as equation (14) in
     \url{http://www.sna.unimelb.edu.au/publications/cef4.pdf}. See the "Remark"
     in section 3 of that paper to see why it is used rather than the version
     given in Snijders et al. (2006). The optional argument \code{fixed}
     indicates whether the scale parameter \code{lambda} is to be fit as a curved
     exponential family model (see Hunter and Handcock, 2006). The default is
     \code{FALSE}, which means the scale parameter is not fixed and thus the
-    model is a CEF model. This term can only be used with undirected networks.}
+    model is a CEF model. This term can only be used with undirected bipartite
+    networks.}
 
     \item{\code{gwb2degree(decay, fixed=FALSE)}}{\emph{Geometrically Weighted
-    Degree Distribution for the second mode in a bipartite (aka two-mode) network:}
-    This term adds one network statistic to the model equal to the weighted 
-    degree distribution with weight parameter \code{decay}, for nodes in the 
-    second mode of a bipartite network. The second mode of a bipartite network 
-    object is sometimes known as the "event" mode.  This statistic is based on 
-    the version given as equation (14) in 
+    Degree Distribution for the second mode in a bipartite (aka two-mode)
+    network:} This term adds one network statistic to the model equal to the
+    weighted degree distribution with weight parameter \code{decay}, for nodes
+    in the second mode of a bipartite network. The second mode of a bipartite
+    network object is sometimes known as the "event" mode. This statistic is
+    based on the version given as equation (14) in
     \url{http://www.sna.unimelb.edu.au/publications/cef4.pdf}. See the "Remark"
     in section 3 of that paper to see why it is used rather than the version
     given in Snijders et al. (2006). The optional argument \code{fixed}
     indicates whether the scale parameter \code{lambda} is to be fit as a curved
     exponential family model (see Hunter and Handcock, 2006). The default is
     \code{FALSE}, which means the scale parameter is not fixed and thus the
-    model is a CEF model. This term can only be used with undirected networks.}
+    model is a CEF model. This term can only be used with undirected bipartite
+    networks.}
 
     \item{\code{gwdegree(decay, fixed=FALSE)}}{\emph{Geometrically Weighted
     Degree Distribution:} This term adds one network statistic to the model
@@ -549,8 +555,9 @@ network
     network. These are defined as the triads of types \code{111D}, \code{201},
     \code{111U}, \code{021C}, and \code{030C} in the triad census of Davis and
     Leinhardt (1972). For details about triad types, see
-    \code{\link[sna]{triad.classify}} in the \code{\link[sna]{sna}} package. Note the
-    distinction from the \code{ctriple} term.}
+    \code{\link[sna]{triad.classify}} in the \code{\link[sna]{sna}} package.
+    Note the distinction from the \code{ctriple} term. This term can only be
+    used with directed networks.}
 
     \item{\code{isolates}}{\emph{Isolates:} This term adds one statistic to the
     model equal to the number of isolates in the network. For an undirected
@@ -624,7 +631,8 @@ network
     \item{\code{nearsimmelian}}{\emph{Near Simmelian Triads:} This term adds one
     statistic to the model equal to the number of near 
     Simmelian triads, as defined by Krackhardt and Handcock (2006). 
-    This is a sub-graph of size three which is exactly one tie short of being complete.}
+    This is a sub-graph of size three which is exactly one tie short of being complete.
+    This term can only be used with directed networks.}
 
     \item{\code{nodefactor(attrname, base=1)}}{\emph{Factor Attribute Effect:}
     The \code{attrname} argument is a character string giving the name of a
@@ -739,15 +747,15 @@ network
     omitted because of redundancy, but the coefficient can be computed as the
     negative of the sum of the coefficients of all the other actors. That is,
     the average coefficient is zero, following the Holland-Leinhardt
-    parametrization of the \eqn{p_1} model. This term can only be used with a
-    directed network. For undirected networks, see \code{sociality}.}
+    parametrization of the \eqn{p_1} model. This term can only be used with 
+    directed networks. For undirected networks, see \code{sociality}.}
 
     \item{\code{receivercov(attrname)}}{\emph{Receiver Covariate Effect:} The
     \code{attrname} argument is a character string giving the name of an
     attribute in the network's vertex attribute list that takes numeric values.
     This term adds one network statistic to the model equaling the sum of the
     attribute values of the receivers of all ties. This term can only be used
-    with a directed network. For undirected networks, see \code{nodemain}.}
+    with directed networks. For undirected networks, see \code{nodemain}.}
 
     \item{\code{sender}}{\emph{Sender Effect:} This term adds one network
     statistic for each node equal to the number of out-ties for that node. This
@@ -755,7 +763,7 @@ network
     because of redundancy, but the coefficient can be computed as the negative
     of the sum of the coefficients of all the other actors. That is, the average
     coefficient is zero, following the Holland-Leinhardt parametrization of the
-    \eqn{p_1} model. This term can only be used with a directed network. For
+    \eqn{p_1} model. This term can only be used with directed networkss. For
     undirected networks, see \code{sociality}.}
 
     \item{\code{sendercov(attrname)}}{\emph{Sender Covariate Effect:} The
@@ -763,21 +771,21 @@ network
     attribute in the network's vertex attribute list that takes numeric values.
     This term adds one network statistic to the model equaling the sum of the
     attribute values of the senders of all ties. This term can only be used
-    with a directed network. For undirected networks, see \code{nodemain}.}
+    with directed networks. For undirected networks, see \code{nodemain}.}
 
     \item{\code{simmelian}}{\emph{Simmelian Triads:} This term adds one
-    statistic to the model equal to the number of Simmelian triads, as defined by
-    Krackhardt and Handcock (2006). This is a complete sub-graph of size three.}
+    statistic to the model equal to the number of Simmelian triads, as defined
+    by Krackhardt and Handcock (2006). This is a complete sub-graph of size
+    three. This term can only be used with directed networks.}
 
-    \item{\code{simmelianties}}{\emph{Ties in Simmelian Triads:} This term adds one
-    statistic to the model equal to the number of ties in the network that are associated with
-    Simmelian triads, as defined by
-    Krackhardt and Handcock (2006). Each Simmelian has six ties
-    in it but, because Simmelians can overlap in terms of nodes
-    (and associated ties), the total number of ties in these
-    Simmelians is less than six times the number of Simmelians.
-    hence this is a measure of the clustering of Simmelians
-    (given the number of Simmelians).}
+    \item{\code{simmelianties}}{\emph{Ties in Simmelian Triads:} This term adds
+    one statistic to the model equal to the number of ties in the network that
+    are associated with Simmelian triads, as defined by Krackhardt and Handcock
+    (2006). Each Simmelian has six ties in it but, because Simmelians can
+    overlap in terms of nodes (and associated ties), the total number of ties in
+    these Simmelians is less than six times the number of Simmelians. hence this
+    is a measure of the clustering of Simmelians (given the number of
+    Simmelians). This term can only be used with directed networks.}
 
     \item{\code{smalldiff(attrname, cutoff)}}{\emph{Small
     Difference:}  The \code{attrname} argument is a character string giving
@@ -800,9 +808,9 @@ network
     statistic to the model, equal to the number of transitive triads in the
     network. These are defined as the triads of types \code{120D}, \code{030T},
     \code{120U}, and \code{300} in the triad census of Davis and Leinhardt
-    (1972). For details about triad types, see 
-    \code{\link[sna]{triad.classify}} in the \code{\link[sna]{sna}} package.
-    Note the distinction from the \code{ttriple} term.}
+    (1972). For details about triad types, see \code{\link[sna]{triad.classify}}
+    in the \code{\link[sna]{sna}} package. Note the distinction from the
+    \code{ttriple} term. This term can only be used with directed networks.}
 
     \item{\code{triadcensus}}{\emph{Triad Census:} This term adds one network
     statistic for each of the 16 types of triads categorized by Davis and
@@ -810,9 +818,9 @@ network
     type in the network. Every unoriented directed triad may occupy one of 16
     distinct states. These states were used by Davis and Leinhardt (1972) as a
     basis for classifying triads within a larger structure. For details see
-    \code{\link[sna]{triad.classify}} in the \code{\link[sna]{sna}} package, on which this code is based. For an
-    undirected graph the triad census is over the four types defined by the
-    number of ties (i.e., 0, 1, 2, and 3).}
+    \code{\link[sna]{triad.classify}} in the \code{\link[sna]{sna}} package, on
+    which this code is based. For an undirected graph the triad census is over
+    the four types defined by the number of ties (i.e., 0, 1, 2, and 3).}
 
     \item{\code{triangle(attrname)}}{\emph{Triangles:} This term adds one
     statistic to the model equal to the number of triangles in the network. For
@@ -844,7 +852,7 @@ network
     is a character string giving the name of an attribute in the network's
     vertex attribute list. If this is specified then the count is over the
     number of transitive triples where all three nodes have the same value of the
-    attribute. This term can only be used with a directed network.}
+    attribute. This term can only be used with directed networks.}
 
     \item{\code{twopath}}{\emph{2-Paths:} This term adds one statistic to the
     model, equal to the number of 2-paths in the network. For directed network
@@ -870,7 +878,7 @@ and Graphical Statistics, 15: 565-583.
 \item Hunter, D. R. (2007), Curved exponential family models for social
 networks, Social Networks, 29: 216-230.
 
-\item Krackhardt, D. and Handcock, M. S. (2007), ``Heider verses Simmel: Emergent Features
+\item Krackhardt, D. and Handcock, M. S. (2007), ``Heider versus Simmel: Emergent Features
 in Dynamic Structures.'' Lecture Notes in Computer Science, 4503, 14-27.
 \item Snijders, T. A. B., P. E. Pattison, G. L. Robins, and
 M. S. Handcock (2006). New specifications for exponential random graph

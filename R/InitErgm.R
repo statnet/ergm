@@ -1003,6 +1003,7 @@ InitErgm.bounded.idegree<-function(nw, m, arglist, drop=TRUE, ...) {
 
 #########################################################
 InitErgm.bounded.istar<-function(nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("bounded.istar", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("bounded.istar", arglist,
     varnames = c("k","bound"),
     vartypes = c("numeric","numeric"),
@@ -1117,6 +1118,7 @@ InitErgm.bounded.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
 
 #########################################################
 InitErgm.bounded.ostar<-function(nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("bounded.ostar", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("bounded.ostar", arglist,
     varnames = c("k","bound"),
     vartypes = c("numeric","numeric"),
@@ -1810,7 +1812,7 @@ InitErgm.gwb2degree<-function(nw, m, arglist, initialfit=FALSE, ...) {
 
 #########################################################
 InitErgm.gwdegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
-# ergm.checkdirected("gwdegree", is.directed(nw), requirement=FALSE)
+ ergm.checkdirected("gwdegree", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("gwdegree", arglist,
     varnames = c("decay", "fixed", "attrname"),
     vartypes = c("numeric", "logical", "character"),
@@ -2134,7 +2136,9 @@ InitErgm.hamming<-function (nw, m, arglist, drop=TRUE, ...) {
 # element 1 is set to 1 (although in this case, input element 1
 # is actually arbitrary since d_hamming ignores the value of inp->attrib).
   m$terms[[termnumber]] <- list(name = "hamming",  soname="ergm",
-                                inputs = c(0, 1, NROW(xm)*2+1, NROW(xm), as.integer(xm)))
+                                inputs = c(0, 1, NROW(xm)*2+1, NROW(xm), 
+                                           as.integer(xm)),
+                                dependence=FALSE)
   m$coef.names<-c(m$coef.names, paste("hamming",x,sep="."))
   m
 }
@@ -2210,7 +2214,7 @@ InitErgm.hamming.weighted<-function (nw, m, arglist, ...) {
                                    1+2*nrow(xm)+nrow(covm)*ncol(covm),
                                    nrow(xm), as.integer(xm),
                                    as.double(covm)),
-                                 dependence=TRUE)
+                                 dependence=FALSE)
    if(!is.null(attrname)){
      cn<-paste("hamming.weighted", as.character(sys.call(0)[[4]][2]),
                as.character(attrname), sep = ".")
