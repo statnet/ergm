@@ -25,6 +25,10 @@ maxchanges = 1e+06,
 packagenames="ergm", 
 parallel=0)
 }
+\details{
+    This function is only used within a call to the \code{\link{simulate}} function.
+    See the \code{usage} section in \code{\link{simulate.ergm}} for details.
+}
 \arguments{
   \item{prop.weights}{Specifies the method to allocate probabilities of
     being proposed to dyads. For the \code{\link{simulate.formula}}
@@ -56,10 +60,11 @@ parallel=0)
 \value{
   A list with arguments as components.
 }
-\references{ \code{\link{simulate.formula}}, \code{\link{simulate.ergm}}, \code{\link{glm.control}} performs a
-  similar function for \code{\link{glm}}
-}
-\seealso{\code{\link{simulate.ergm}}, \code{\link{simulate.formula}}, \code{\link{glm.control}} performs a
-  similar function for \code{\link{glm}}  }
+\seealso{ \code{\link{simulate.ergm}}, \code{\link{simulate.formula}}. 
+\code{\link{control.ergm}} performs a 
+similar function for
+\code{\link{ergm}};
+\code{\link{control.gof}} performs a
+similar function for \code{\link{gof}}.   }
 %\keyword{simulation}
 \keyword{models}

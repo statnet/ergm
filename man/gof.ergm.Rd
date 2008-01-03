@@ -1,4 +1,4 @@
-\name{gof.ergm}
+\name{gof}
 \alias{gof.ergm}
 \alias{gof.default}
 \alias{gof.formula}

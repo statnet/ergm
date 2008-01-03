@@ -1,4 +1,5 @@
-\name{control.gof.ergm}
+\name{control.gof}
+\alias{control.gof}
 \alias{control.gof.formula}
 \alias{control.gof.ergm}
 \title{ Auxiliary for Controlling ERGM Goodness-of-Fit Evaluation  }
@@ -11,6 +12,10 @@ control.gof.formula(prop.weights = "default", prop.args = NULL, drop =
 TRUE, summarizestats = FALSE, maxchanges = 1e+06)
 
 control.gof.ergm(prop.weights = NULL, prop.args = NULL, drop = TRUE, summarizestats = FALSE, maxchanges = 1e+06)
+}
+\details{
+    This function is only used within a call to the \code{\link{gof}} function.
+    See the \code{usage} section in \code{\link{gof}} for details.
 }
 \arguments{
   \item{prop.weights}{Specifies the method to allocate probabilities of
@@ -41,7 +46,12 @@ control.gof.ergm(prop.weights = NULL, prop.args = NULL, drop = TRUE, summarizest
 \value{
   A list with arguments as components.
 }
-\seealso{\code{\link{gof.formula}}, \code{\link{gof.ergm}}, \code{\link{glm.control}} performs a
-  similar function for \code{\link{glm}}}
+\seealso{ \code{\link{gof}}. The \code{\link{control.simulate}} 
+function performs a 
+similar function for
+\code{\link{simulate.ergm}}; 
+\code{\link{control.ergm}} performs a
+similar function for \code{\link{ergm}}.   }
 %\keyword{goodness of fit}
 \keyword{ models }
+

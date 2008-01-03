@@ -15,6 +15,9 @@
 \alias{InitConstraint.indegreedist}
 \alias{InitConstraint.nodedegrees}
 %
+\alias{check.ErgmTerm}
+\alias{InitErgmTerm.absdiff}
+%
 \alias{InitErgm.absdiff}
 \alias{InitErgm.absdiffcat}
 \alias{InitErgm.b1concurrent}
@@ -195,6 +198,7 @@
 \alias{ergm.statseval}
 \alias{fulldistdist}
 \alias{fullgcount}
+\alias{statnet.edit}
 %\alias{get.node.attr}
 %\alias{geodist}
 %\alias{has.loops}

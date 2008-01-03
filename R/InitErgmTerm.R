@@ -44,7 +44,7 @@
 #                will be set by MPLE, so their values in params are ignored.)
 #                Any parameter not having its initial value set by MPLE
 #                should be given its initial value in this params list.
-#           eta: For curved exponential family model terms only: A function 
+#           map: For curved exponential family model terms only: A function 
 #                that gives the map from theta (the canonical
 #                parameters associated with the statistics for this term)
 #                to eta (the corresponding curved parameters).  The length
@@ -57,7 +57,7 @@
 #                This function takes two args:  theta and length(eta).
 
 
-# Prototype InitErgmTerm function...still under construction :(
+# Prototype InitErgmTerm function
 InitErgmTerm.absdiff <- function(nw, arglist, ...) {
   # Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(arglist, directed=NULL, bipartite=NULL,

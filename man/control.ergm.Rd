@@ -20,6 +20,10 @@ control.ergm(prop.weights = "default", prop.args = NULL,
              = 4, RobMon.init_gain = 0.4, RobMon.phase3n = 500, dyninterval =
              1000, packagenames="ergm", parallel = 0, returnMCMCstats = TRUE)
              }
+\details{
+    This function is only used within a call to the \code{\link{ergm}} function.
+    See the \code{usage} section in \code{\link{ergm}} for details.
+}
 \arguments{
   \item{prop.weights}{ Specifies the method to allocate probabilities of
     being proposed to dyads. Defaults to \code{"default"}, which picks a
@@ -148,8 +152,12 @@ control.ergm(prop.weights = "default", prop.args = NULL,
 \value{
   A list with arguments as components.
 }
-\seealso{ \code{\link{ergm}}, \code{\link{glm.control}} performs a
-  similar function for \code{\link{glm}} }
+\seealso{ \code{\link{ergm}}. The \code{\link{control.simulate}} 
+function performs a 
+similar function for
+\code{\link{simulate.ergm}}; 
+\code{\link{control.gof}} performs a
+similar function for \code{\link{gof}}.   }
 
 \keyword{ models }
 
