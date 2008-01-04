@@ -1,4 +1,4 @@
-check.ErgmTerm <- function(arglist, directed=NULL, bipartite=NULL,
+check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL,
                            varnames=NULL, vartypes=NULL,
                            defaultvalues=list(), required=NULL) {
   ## This function (called by InitErgmTerm.xxx functions) will
@@ -22,15 +22,17 @@ check.ErgmTerm <- function(arglist, directed=NULL, bipartite=NULL,
   fname <- ifelse(length(sc)>1, as.character(sc[[length(sc)-1]]), NULL)
   fname <- substring(fname,14) # get rid of leading "InitErgmTerm."
   message <- NULL
-  if (!is.null(directed) && directed != is.directed(nw)) {
-    message <- paste("networks with directed==",is.directed(nw),sep="")
+  if (!is.null(directed) && directed != (dnw<-is.directed(nw))) {
+    #directed != (dnw<-eval(expression(nw$gal$dir),parent.frame()))) {
+    message <- paste("networks with directed==", dnw, sep="")
   }
-  if (!is.null(bipartite) && bipartite != (nw %v% "bipartite" > 0)) {
+  if (!is.null(bipartite) && bipartite != ((bnw <- nw %n% "bipartite") > 0)) {
+    #bipartite != (bnw <- eval(expression(nw %n% "bipartite"),parent.frame()) > 0)) {
     message <- paste("networks with bipartite", 
-                     ifelse(nw %v% "bipartite">0,"!= FALSE", " > 0"))
+                     ifelse(bnw>0, " > 0", "==FALSE"), sep="")
   }
   if (!is.null(message)) {
-    stop(paste("The ERGM term",fnames,"may not be used with",message))
+    stop(paste("The ERGM term",fname,"may not be used with",message))
   }
 
   sr=sum(required)

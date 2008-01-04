@@ -60,7 +60,7 @@
 # Prototype InitErgmTerm function
 InitErgmTerm.absdiff <- function(nw, arglist, ...) {
   # Check the network and arguments to make sure they are appropriate.
-  a <- check.ErgmTerm(arglist, directed=NULL, bipartite=NULL,
+  a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
                              varnames = c("attrname"),
                              vartypes = c("character"),
                              defaultvalues = list(NULL),

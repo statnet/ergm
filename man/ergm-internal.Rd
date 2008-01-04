@@ -1,5 +1,5 @@
-\name{statnet-internal}
-\title{Internal statnet Objects}
+\name{ergm-internal}
+\title{Internal ergm Objects}
 % terms
 \alias{ergm.checkargs}
 \alias{ergm.checkdirected}
