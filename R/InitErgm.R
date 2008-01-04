@@ -150,7 +150,7 @@ InitErgm.absdiffcat<-function (nw, m, arglist, ...) {
 
 #########################################################
 InitErgm.altkstar<-function(nw, m, arglist, initialfit=FALSE, ...) {
-# ergm.checkdirected("altkstar", is.directed(nw), requirement=FALSE)
+  ergm.checkdirected("altkstar", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("altkstar", arglist,
     varnames = c("lambda","fixed"),
     vartypes = c("numeric","logical"),
@@ -2093,31 +2093,20 @@ InitErgm.gwodegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
 ###################################### InitErgm TERMS:  H
 #########################################################
 InitErgm.hamming<-function (nw, m, arglist, drop=TRUE, ...) {
-  a <- ergm.checkargs("hamming", arglist,
-    varnames = c("x","attrname"),
-    vartypes = c("matrixnetwork", "character"),
-    defaultvalues = list(NULL, NULL),
-    required = c(FALSE, FALSE))
+  a <- ergm.checkargs("hamming", arglist=arglist,
+    varnames = c("x","cov","attrname"),
+    vartypes = c("matrixnetwork","matrixnetwork","character"),
+    defaultvalues = list(nw,NULL,NULL),
+    required = c(FALSE,FALSE,FALSE))
   attach(a)
-  x<-a$x;attrname<-a$attrname
-  if(drop){ #   Check for degeneracy
-    if(is.null(attrname)){
-     hamm <- summary(nw ~ hamming(x), drop=FALSE) == 0
-    }else{
-     hamm <- summary(as.formula
-                    (paste('nw ~ hamming(x,"',attrname,'")',sep="")),
-                            drop=FALSE) == 0
-    }
-    if(hamm){
-     cat(" ")
-     cat(paste("Warning: The Hamming distance is zero;\n",
-               " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-     return(m)
-    }
-  }
+  attrname<-a$attrname
+  x<-a$x
+  cov<-a$cov
+  termnumber<-1+length(m$terms)
+
   if(is.network(x)){
     xm<-as.matrix.network(x,matrix.type="edgelist",attrname)
-    x<-paste(quote(x))
+    x2<-paste(quote(x))
   }else if(is.character(x)){
     xm<-get.network.attribute(nw,x)
     xm<-as.matrix.network(xm,matrix.type="edgelist")
@@ -2125,104 +2114,80 @@ InitErgm.hamming<-function (nw, m, arglist, drop=TRUE, ...) {
     xm<-as.matrix.network(nw,matrix.type="edgelist")
   }else{
     xm<-as.matrix(x)
-    x<-paste(quote(x))
+    x2<-paste(quote(x))
   }
   if (is.null(xm) || NCOL(xm)!=2){
     stop("hamming() requires an argument that can be coerced into an edgelist.",
          call.=FALSE)
   }
-  termnumber <- 1 + length(m$terms)
-# There is 1 input parameter before the covariate vector, so input
-# element 1 is set to 1 (although in this case, input element 1
-# is actually arbitrary since d_hamming ignores the value of inp->attrib).
-  m$terms[[termnumber]] <- list(name = "hamming",  soname="ergm",
-                                inputs = c(0, 1, NROW(xm)*2+1, NROW(xm), 
-                                           as.integer(xm)),
-                                dependence=FALSE)
-  m$coef.names<-c(m$coef.names, paste("hamming",x,sep="."))
+  if (is.null(cov)) { # calculate unweighted hamming distance
+    if(drop){ #   Check for degeneracy
+      hamm <- summary(nw ~ hamming(x), drop=FALSE) == 0
+      if(hamm){
+        cat(paste(" Warning: The Hamming distance is zero;\n",
+                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+        return(m)
+      }
+    }
+    # There is 1 input parameter before the covariate vector, so input
+    # element 1 is set to 1 although in this case, input element 1
+    # is actually arbitrary since d_hamming ignores the value of inp->attrib.
+    m$terms[[termnumber]] <- list(name = "hamming",  soname="ergm",
+                                  inputs = c(0, 1, NROW(xm)*2+1, NROW(xm), 
+                                             as.integer(xm)),
+                                  dependence=FALSE)
+    m$coef.names<-c(m$coef.names, paste("hamming",
+                                        as.character(sys.call(0)[[4]][2]),
+                                        sep="."))
+  } else {
+    # Extract dyadic covariate
+    if(is.network(cov)){
+      covm<-as.matrix.network(cov,matrix.type="adjacency",attrname)
+      cov<-paste(quote(cov))
+    }else if(is.character(cov)){
+      covm<-get.network.attribute(nw,cov)
+      covm<-as.matrix.network(covm,matrix.type="adjacency")
+    }else{
+      covm<-as.matrix(cov)
+      cov<-paste(quote(cov))
+    }
+    if (is.null(covm) || !is.matrix(covm) || nrow(covm)!=get.network.attribute(nw,"bipartite")){
+      stop("Improper dyadic covariate passed to hamming()", call.=FALSE)
+    }
+    ##
+    ##   Check for degeneracy
+    ##
+    #    if(drop){
+      #     ematch <- mixmat[u]
+      #     mu <- ematch==0
+      #     mu[is.na(mu)] <- FALSE
+      #     if(any(mu)){
+        #      dropterms <- paste(paste("hamming.weighted",attrname,sep="."),
+                                  #        apply(u,1,paste,collapse="")[mu],sep="")
+        #      cat(paste("Warning: The count of", dropterms, "is extreme.\n"))
+        #      cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
+        #      u <- u[!mu,]
+      #     }
+    #    }
+    # There is 1 input parameter before the covariate vector, so input
+    # component 1 is set to 1 (although in this case, input component 1
+                               # is actually arbitrary since d_dyadcov ignores the value of inp->attrib).
+    m$terms[[termnumber]] <- list(name = "hamming_weighted", soname="ergm",
+                                  inputs = c(1, 1,
+                                             1+2*nrow(xm)+nrow(covm)*ncol(covm),
+                                             nrow(xm), as.integer(xm),
+                                             as.double(covm)),
+                                  dependence=FALSE)
+    if(!is.null(attrname)){
+      cn<-paste("hamming", as.character(sys.call(0)[[4]][2]), "wt",
+                as.character(attrname), sep = ".")
+    }else{
+      cn<-paste("hamming", as.character(sys.call(0)[[4]][2]), "wt",
+                as.character(sys.call(0)[[4]][3]), sep = ".")
+    }
+    m$coef.names <- c(m$coef.names, cn)
+  }
   m
-}
-
-#########################################################
-InitErgm.hamming.weighted<-function (nw, m, arglist, ...) {
-# ergm.checkdirected("hamming.weighted", is.directed(nw), requirement=FALSE)
-  a <- ergm.checkargs("hamming.weighted", arglist=arglist,
-    varnames = c("cov","x","attrname"),
-    vartypes = c("matrixnetwork","matrixnetwork","character"),
-    defaultvalues = list(NULL,nw,NULL),
-    required = c(TRUE,FALSE,FALSE))
-  attach(a)
-  attrname<-a$attrname
-  x<-a$x
-  cov<-a$cov
-#
-# Extract dyadic covariate
-#
-  if(is.network(cov)){
-    covm<-as.matrix.network(cov,matrix.type="adjacency",attrname)
-    cov<-paste(quote(cov))
-  }else if(is.character(cov)){
-    covm<-get.network.attribute(nw,cov)
-    covm<-as.matrix.network(covm,matrix.type="adjacency")
-  }else{
-    covm<-as.matrix(cov)
-    cov<-paste(quote(cov))
-  }
-  if (is.null(covm) || !is.matrix(covm) || nrow(covm)!=get.network.attribute(nw,"bipartite")){
-    stop("hamming.weighted() requires a proper dyadic covariate", call.=FALSE)
-  }
-#
-# Extract reference network as an edgelist
-#
-  if(is.network(x)){
-    xm<-as.matrix.network(x,matrix.type="edgelist")
-    x<-paste(quote(x))
-  }else if(is.character(x)){
-    xm<-get.network.attribute(nw,x)
-    xm<-as.matrix.network(xm,matrix.type="edgelist")
-  }else if(is.null(x)){
-    xm<-as.matrix.network(nw,matrix.type="edgelist")
-  }else{
-    xm<-as.matrix(x)
-    x<-paste(quote(x))
-  }
-  if (is.null(xm) || ncol(xm)!=2){
-    stop("hamming.weighted() requires a proper network as its reference", 
-         call.=FALSE)
-  }
-##
-##   Check for degeneracy
-##
-#    if(drop){
-#     ematch <- mixmat[u]
-#     mu <- ematch==0
-#     mu[is.na(mu)] <- FALSE
-#     if(any(mu)){
-#      dropterms <- paste(paste("hamming.weighted",attrname,sep="."),
-#        apply(u,1,paste,collapse="")[mu],sep="")
-#      cat(paste("Warning: The count of", dropterms, "is extreme.\n"))
-#      cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
-#      u <- u[!mu,]
-#     }
-#    }
-  termnumber<-1+length(m$terms)
-# There is 1 input parameter before the covariate vector, so input
-# component 1 is set to 1 (although in this case, input component 1
-# is actually arbitrary since d_dyadcov ignores the value of inp->attrib).
-   m$terms[[termnumber]] <- list(name = "hamming_weighted", soname="ergm",
-                                 inputs = c(1, 1,
-                                   1+2*nrow(xm)+nrow(covm)*ncol(covm),
-                                   nrow(xm), as.integer(xm),
-                                   as.double(covm)),
-                                 dependence=FALSE)
-   if(!is.null(attrname)){
-     cn<-paste("hamming.weighted", as.character(sys.call(0)[[4]][2]),
-               as.character(attrname), sep = ".")
-   }else{
-     cn<-paste("hamming.weighted", as.character(sys.call(0)[[4]][2]), sep = ".")
-   }
-   m$coef.names <- c(m$coef.names, cn)
-   m
 }
 
 #########################################################

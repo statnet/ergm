@@ -57,7 +57,6 @@
 \alias{InitErgm.gwidegree}
 \alias{InitErgm.gwodegree}
 \alias{InitErgm.hamming}
-\alias{InitErgm.hamming.weighted}
 \alias{InitErgm.hammingmix.constant}
 \alias{InitErgm.hammingmix}
 \alias{InitErgm.idegree}

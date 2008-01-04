@@ -51,24 +51,27 @@ network
   The terms currently available are:
 
     \item{\code{absdiff(attrname)}}{\emph{Absolute Difference:} The
-    \code{attrname} argument is a character string giving the name of an
-    attribute in the network's vertex attribute list. This term adds one network
-    statistic to the model equaling the sum of
+    \code{attrname} argument is a character string giving the name of a
+    quantitative attribute in the network's vertex attribute list. This term
+    adds one network statistic to the model equaling the sum of
     \code{abs(attrname[i]-attrname[j])} for all edges (i,j) in the network. }
 
-    \item{\code{absdiffcat(attrname, base=NULL)}}{\emph{Categorical
-    Absolute Difference:} The \code{attrname} argument is a character string
-    giving the name of an attribute in the network's vertex attribute list. This
-    term adds one statistic for every possible nonzero distinct value of
+    \item{\code{absdiffcat(attrname, base=NULL)}}{\emph{Categorical Absolute
+    Difference:} The \code{attrname} argument is a character string giving the
+    name of a quantitative attribute in the network's vertex attribute list.
+    This term adds one statistic for every possible nonzero distinct value of
     \code{abs(attrname[i]-attrname[j])} in the network; the value of each such
     statistic is the number of edges in the network with the corresponding
     absolute difference. The optional \code{base} argument is a vector
     indicating which nonzero differences, in order from smallest to largest,
     should be omitted from the model (i.e., treated like the zero-difference
-    category). The \code{base} argument, if used, should contain indices,
-    not differences themselves. For instance, if the possible values of
+    category). The \code{base} argument, if used, should contain indices, not
+    differences themselves. For instance, if the possible values of
     \code{abs(attrname[i]-attrname[j])} are 0, 0.5, 3, 3.5, and 10, then to omit
-    0.5 and 10 one should set \code{base=c(1, 4)}.}
+    0.5 and 10 one should set \code{base=c(1, 4)}. Note that this term should
+    generally be used only when the quantitative attribute has a limited number
+    of possible values; an example is the \code{"Grade"} attribute of the
+    \code{\link{faux.mesa.high}} or \code{\link{faux.magnolia.high}} datasets.}
 
     \item{\code{altkstar(lambda, fixed=FALSE)}}{\emph{Alternating k-Star:} This
     term adds one network statistic to the model equal to a weighted alternating
@@ -494,18 +497,20 @@ network
     the scale parameter is not fixed and thus the model is a CEF model. This
     term can only be used with directed networks.}
 
-    \item{\code{hamming(x)}}{\emph{Hamming Distance:}
-    This term adds one statistic to the model equal to the Hamming distance
-    of the network from the network specified by \code{x}.}
- 
-    \item{\code{hamming.weighted(cov, x, attrname)}}{\emph{Weighted Hamming
-    Distance:} This term adds one statistic to the model equal to the weighted
-    Hamming distance of the network from the network specified by \code{x}. The
-    weights on each discordant dyad are given by the dyad covariate \code{cov}.
-    The argument \code{cov} is either a matrix of edgewise covariates, or a
-    network; if the latter, optional argument \code{attrname} provides the name
-    of the edge attribute to use for weight values.}
- 
+    \item{\code{hamming(x, cov, attrname)}}{\emph{Hamming Distance:} This term
+    adds one statistic to the model equal to the weighted or unweighted Hamming
+    distance of the network from the network specified by \code{x}. (If no
+    argument is given, \code{x} is taken to be the observed network.) Unweighted
+    Hamming distance is defined as the total number of pairs \eqn{(i,j)}
+    (ordered or unordered, depending on whether the network is directed or
+    undirected) on which the two networks differ. If the optional argument
+    \code{cov} is specified, then the weighted Hamming distance is computed
+    instead, where each pair \eqn{(i,j)} contributes a pre-specified weight
+    toward the distance when the two networks differ on that pair. The argument
+    \code{cov} is either a matrix of edgewise weights or a network; if the
+    latter, the optional argument \code{attrname} provides the name of the edge
+    attribute to use for weight values.}
+    
     \item{\code{hammingmix(attrname, x, base=0,
     contrast=FALSE)}}{\emph{Hamming Distance within Mixing:} This term adds one
     statistic to the model equal to the Hamming distance of the subnetwork of
@@ -675,7 +680,7 @@ network
     quantitative (not categorical) attribute in the network's vertex attribute
     list. This term adds a single network statistic to the model equaling the
     sum of \code{attrname(i)} and \code{attrname(j)} for all edges \eqn{(i,j)}
-    edges in the network. For categorical attributes, see \code{nodefactor}.
+    in the network. For categorical attributes, see \code{nodefactor}.
     Note that for directed networks, \code{nodemain} equals \code{receivercov}
     plus \code{sendercov}.}
 
@@ -787,13 +792,13 @@ network
     is a measure of the clustering of Simmelians (given the number of
     Simmelians). This term can only be used with directed networks.}
 
-    \item{\code{smalldiff(attrname, cutoff)}}{\emph{Small
-    Difference:}  The \code{attrname} argument is a character string giving
-    the name of an attribute in the network's vertex attribute
-    list and \code{cutoff} is any real number. This term adds
-    one network statistic to the model, equal to the number of
-    edges \eqn{(i,j)} for which \code{abs(attrname(i)-attrname(j))}
-    is less than or equal to \code{cutoff}.  }
+    \item{\code{smalldiff(attrname, cutoff)}}{\emph{Small Difference:} The
+    \code{attrname} argument is a character string giving the name of a
+    quantitative attribute in the network's vertex attribute list and
+    \code{cutoff} is any real number. This term adds one network statistic to
+    the model, equal to the number of edges \eqn{(i,j)} for which
+    \code{abs(attrname(i)-attrname(j))} is less than or equal to \code{cutoff}.
+    }
 
     \item{\code{sociality(attrname)}}{\emph{Centralized Covariate Effect:} This
     term adds one network statistic for each node equal to the number of ties of
