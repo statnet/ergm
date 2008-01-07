@@ -1,4 +1,4 @@
-ergm.pl.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
+ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
                     MPLEsamplesize=50000,
                     maxNumDyadTypes=100000,
                     verbose=FALSE) {
@@ -11,8 +11,6 @@ ergm.pl.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
       base <- matrix(t(base),ncol=2,byrow=T)
     }
     ubase <- base[,1] + Clist$n*base[,2]
-#   offset <- !is.na(match(ubase, Clist.miss$tails+Clist.miss$heads*Clist$n))
-#   Changed by MSH Oct 13. The original (above) seems just wrong!
     offset <- !is.na(match(ubase, Clist.miss$heads+Clist.miss$tails*Clist$n))
     offset <- 1*offset
     numobs <- Clist$ndyads - sum(offset)
@@ -38,15 +36,6 @@ ergm.pl.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
   wend <- z$weightsvector[uvals]
   xmat <- matrix(z$x, ncol=Clist$nparam, byrow=TRUE)[uvals,,drop=FALSE]
   colnames(xmat) <- m$coef.names
-  ##
-  ## Adjust for meanstats
-  ##
-  #  if(!is.null(Clist$meanstats)){
-    #    uobs <- (zy * wend) %*% xmat
-    #    xmat <- sweep(xmat,2,Clist$meanstats/uobs,"*")
-    ##   xmat <- sweep(sweep(xmat,1,wend,"*"),2,Clist$meanstats/uobs,"*")
-    ##   wend <- wend-wend+mean(wend)
-  #  }
   dmiss <- z$compressedOffset[uvals]
   rm(z,uvals)
   #
@@ -58,8 +47,6 @@ ergm.pl.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
       names(theta.offset) <- m$coef.names
       theta.offset[m$etamap$offsettheta] <- -Inf
     }
-    #  foffset <- xmat %*% theta.offset
-    #  shouldoffset <- is.infinite(foffset)
     foffset <- xmat[,!m$etamap$offsettheta,drop=FALSE]%*%theta.offset[!m$etamap$offsettheta]
     shouldoffset <- apply(abs(xmat[,m$etamap$offsettheta,drop=FALSE])>1e-8,1,any)
     xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE]
@@ -88,24 +75,6 @@ ergm.pl.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
     colnames(xmat) <- m$coef.names
   }
   
-#   Note:  Logistic regression model is fit without an intercept term.
-#   If an intercept is desired, the 1-star term should be included in
-#   the model by the user.
-#  cat("number of dyads is", Clist$ndyads, "num parameters", Clist$nparam,"\n")
-  
-##
-##  Warning: This used to force the largest degree to be a foil
-##
-#  if(!is.na(largestdegree)){
-#   largestdegree <- grep("degree[1-9]",m$coef.names)
-#   largestdegree <- max(c(0,largestdegree))
-#   if(largestdegree==0){largestdegree <- NA}
-#   if(!is.na(largestdegree)){
-##   foffset <- foffset - 50*(xmat[,largestdegree]==-1)
-#    xmat <- cbind(xmat,(xmat[,largestdegree]==-1))
-#   }
-#  }
-
 #
 # Sample if necessary
 #
@@ -131,10 +100,8 @@ ergm.pl.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
    zy.full <- NULL
    foffset.full <- NULL
   }
-#
+
   list(xmat=xmat, zy=zy, foffset=foffset, wend=wend, numobs=round(sum(wend)),
        xmat.full=xmat.full, zy.full=zy.full, foffset.full=foffset.full,
        theta.offset=theta.offset, MPLEsamplesize=MPLEsamplesize)
 }
-
-
