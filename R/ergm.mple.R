@@ -37,8 +37,8 @@ ergm.mple<-function(Clist, Clist2, m, theta.offset=NULL,
       names(theta.offset) <- m$coef.names
       theta.offset[m$etamap$offsettheta] <- -Inf
     }
-    foffset <- xmat[,!m$etamap$offsettheta]%*%theta.offset[!m$etamap$offsettheta]
-    shouldoffset <- apply(abs(xmat[,m$etamap$offsettheta])>1e-8,1,any)
+    foffset <- xmat[,!m$etamap$offsettheta,drop=FALSE]%*%theta.offset[!m$etamap$offsettheta]
+    shouldoffset <- apply(abs(xmat[,m$etamap$offsettheta,drop=FALSE])>1e-8,1,any)
     xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE]
     colnames(xmat) <- m$coef.names[!m$etamap$offsettheta]
     xmat <- xmat[!shouldoffset,,drop=FALSE]
@@ -266,48 +266,6 @@ ergm.mple<-function(Clist, Clist2, m, theta.offset=NULL,
       null.deviance=null.deviance, aic=aic,
       theta1=theta1),
      class="ergm")
-}
-
-
-ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
-                          intercept = FALSE, start = rep(0, p),
-                          offset=NULL, maxit=200, ...)
-{
-  gmin <- function(beta, X, y, w, offset) {
-      eta <- (X %*% beta)+offset; p <- plogis(eta)
-      -2 * matrix(w *dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% X
-  }
-  if(is.null(dim(x))) dim(x) <- c(length(x), 1)
-  if(is.null(offset)) offset <- rep(0,length(y))
-  dn <- dimnames(x)[[2]]
-  if(!length(dn)) dn <- paste("Var", 1:ncol(x), sep="")
-  p <- ncol(x) + intercept
-  if(intercept) {x <- cbind(1, x); dn <- c("(Intercept)", dn)}
-  if(is.factor(y)) y <- (unclass(y) != 1)
-  fit <- optim(start, ergm.logisticdeviance, gmin,
-               X = x, y = y, w = wt, offset=offset,
-               method = "BFGS", hessian=TRUE, control=list(maxit=maxit), ...)
-  names(fit$par) <- dn
-  fit$coef <- fit$par
-  fit$deviance <- fit$value
-  fit$iter <- fit$counts[1]
-  asycov <- try(robust.inverse(fit$hessian), silent = TRUE)
-  if (inherits(asycov, "try-error")) {
-     asycov <- diag(1/diag(-fit$hessian))
-  }
-  fit$cov.unscaled <- asycov
-# cat("\nCoefficients:\n"); print(fit$par)
-# # R: use fit$value and fit$convergence
-# cat("\nResidual Deviance:", format(fit$value), "\n")
-  if(fit$convergence > 0)
-      cat("\nConvergence code:", fit$convergence, "\n")
-  invisible(fit)
-}
-
-ergm.logisticdeviance <- function(beta, X, y,
-                            w=rep(1,length(y)), offset=rep(0,length(y))) {
-      p <- plogis((X %*% beta)+offset)
-      -sum(2 * w * ifelse(y, log(p), log(1-p)))
 }
 
 

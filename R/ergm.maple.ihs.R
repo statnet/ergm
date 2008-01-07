@@ -1,16 +1,7 @@
-ergm.mple.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
+ergm.maple<-function(pl, m,
                     MPLEtype="glm", family="binomial",
-                    MPLEsamplesize=50000,
                     save.glm=TRUE,
-                    maxNumDyadTypes=100000,
-                    theta1=NULL, verbose=FALSE, ...)
-{
-  pl <- ergm.pl.ihs(Clist=Clist, Clist.miss=Clist.miss, m=m,
-                    theta.offset=theta.offset,
-                    MPLEsamplesize=MPLEsamplesize,
-                    maxNumDyadTypes=maxNumDyadTypes,
-                    verbose=verbose)
-
+                    theta1=NULL, verbose=FALSE, ...) {
   if(MPLEtype=="penalized"){
    if(verbose) cat("Using penalized MPLE.\n")
    mplefit <- ergm.pen.glm(
@@ -43,7 +34,7 @@ ergm.mple.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
    }
 #
 #  Determine the independence theta and MLE
-#  Note that the term "match" is depreciated.
+#  Note that the term "match" is deprecated.
 #
    if(is.null(theta1)){
     independent.terms <- 
@@ -102,7 +93,7 @@ ergm.mple.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
   real.coef <- mplefit$coef
   real.cov <- mplefit.summary$cov.unscaled
   theta[!m$etamap$offsettheta] <- real.coef
-# theta[is.na(theta)] <- 0
+  theta[is.na(theta)] <- 0
   names(theta) <- m$coef.names
 
 #
@@ -130,28 +121,28 @@ ergm.mple.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
 # mplefit <- call(MPLEtype, pl$zy ~ 1, family=binomial)
 #
   if(MPLEtype=="penalized"){
-   mplefit.null <- ergm.pen.glm(pl$zy ~ 1, weights=pl$wend)
+    mplefit.null <- ergm.pen.glm(pl$zy ~ 1, weights=pl$wend)
   }else{
-   options(warn=-1)
-#  options(warn=2)
-   if(MPLEtype=="logitreg"){
-    mplefit.null <- ergm.logitreg(x=matrix(1,ncol=1,nrow=length(pl$zy)),
-                                  y=pl$zy, offset=pl$foffset, wt=pl$wend)
-   }else{
-    mplefit.null <- try(glm(pl$zy ~ 1, family=family, weights=pl$wend),
-                        silent = TRUE)
-    if (inherits(mplefit.null, "try-error")) {
-      mplefit.null <- list(coef=0, deviance=0,
-                      cov.unscaled=diag(1))
+    options(warn=-1)
+    #  options(warn=2)
+    if(MPLEtype=="logitreg"){
+      mplefit.null <- ergm.logitreg(x=matrix(1,ncol=1,nrow=length(pl$zy)),
+                                    y=pl$zy, offset=pl$foffset, wt=pl$wend)
+    }else{
+      mplefit.null <- try(glm(pl$zy ~ 1, family=family, weights=pl$wend),
+                          silent = TRUE)
+      if (inherits(mplefit.null, "try-error")) {
+        mplefit.null <- list(coef=0, deviance=0,
+                             cov.unscaled=diag(1))
+      }
     }
-   }
-   options(warn=0)
-#  options(warn=2)
+    options(warn=0)
+    #  options(warn=2)
   }
-
+  
   null.deviance <- mplefit$null.deviance
   aic <- mplefit$aic
-
+  
   if(save.glm){
     glm <- mplefit
     glm.null <- mplefit.null
@@ -160,7 +151,7 @@ ergm.mple.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
     glm.null <- NULL
   }
 
-# Output results as ergm-class object
+  # Output results as ergm-class object
   structure(list(coef=theta, sample=NA,
       iterations=iteration, mle.lik=loglik,
       MCMCtheta=theta, loglikelihoodratio=loglik, gradient=gradient,
