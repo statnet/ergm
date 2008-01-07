@@ -5,7 +5,8 @@ ergm.mple.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
                     maxNumDyadTypes=100000,
                     theta1=NULL, verbose=FALSE, ...)
 {
-  pl <- ergm.pl.ihs(Clist=Clist, Clist.miss=Clist.miss, m=m,
+  # see also ergm.pl.ihs.R.originalandgood
+  pl <- ergm.pl(Clist=Clist, Clist.miss=Clist.miss, m=m,
                     theta.offset=theta.offset,
                     MPLEsamplesize=MPLEsamplesize,
                     maxNumDyadTypes=maxNumDyadTypes,

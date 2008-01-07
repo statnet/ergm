@@ -1,140 +1,47 @@
 ergm.mple<-function(Clist, Clist2, m, theta.offset=NULL,
                     MPLEtype="glm", family="binomial",
-#                    largestdegree=TRUE,
                     MPLEsamplesize=50000,
                     save.glm=TRUE,
                     maxNumDyadTypes=100000,
                     theta1=NULL, verbose=FALSE, ...)
 {
-  offset <- rep(0,Clist$ndyads)
-  numobs <- Clist$ndyads  
-  z <- .C("MPLE_wrapper",
-          as.integer(Clist$heads),    as.integer(Clist$tails),
-          as.integer(Clist$nedges),   as.integer(Clist$n), 
-          as.integer(Clist$dir),     as.integer(Clist$bipartite),
-          as.integer(Clist$nterms), 
-          as.character(Clist$fnamestring), as.character(Clist$snamestring),
-          as.double(Clist$inputs),
-          y = integer(maxNumDyadTypes),
-          x = double(maxNumDyadTypes*Clist$nparam),
-          weightsvector = integer(maxNumDyadTypes),
-          as.double(offset), compressedOffset=double(maxNumDyadTypes),
-          as.integer(maxNumDyadTypes),
-          PACKAGE="ergm")
-  uvals <- z$weightsvector!=0
-  zy <- z$y[uvals]
-  wend <- z$weightsvector[uvals]
-  xmat <- matrix(z$x, ncol=Clist$nparam, byrow=TRUE)[uvals,,drop=FALSE]
-  colnames(xmat) <- m$coef.names
-  dmiss <- z$compressedOffset[uvals]
-  rm(z,uvals)
-  #
-  # Adjust for the offset
-  #
-  if(any(m$etamap$offsettheta)){
-    if(is.null(theta.offset)){
-      theta.offset <- rep(0, length=Clist$nparam)
-      names(theta.offset) <- m$coef.names
-      theta.offset[m$etamap$offsettheta] <- -Inf
-    }
-    foffset <- xmat[,!m$etamap$offsettheta,drop=FALSE]%*%theta.offset[!m$etamap$offsettheta]
-    shouldoffset <- apply(abs(xmat[,m$etamap$offsettheta,drop=FALSE])>1e-8,1,any)
-    xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE]
-    colnames(xmat) <- m$coef.names[!m$etamap$offsettheta]
-    xmat <- xmat[!shouldoffset,,drop=FALSE]
-    zy <- zy[!shouldoffset]
-    wend <- wend[!shouldoffset]
-    foffset <- foffset[!shouldoffset]
-    theta.offset <- theta.offset[!m$etamap$offsettheta]
-  }else{
-    foffset <- rep(0, length=length(zy))
-    theta.offset <- rep(0, length=Clist$nparam)
-    if(Clist$nedges>0){
-      theta.offset[1] <- log(Clist$nedges/(Clist$ndyads-Clist$nedges))
-    }else{
-      theta.offset[1] <- log(1/(Clist$ndyads-1))
-    }
-    names(theta.offset) <- m$coef.names
-  }
-  
-  
-#   Note:  Logistic regression model is fit without an intercept term.
-#   If an intercept is desired, the 1-star term should be included in
-#   the model by the user.
-#  cat("number of dyads is", Clist$ndyads, "num parameters", Clist$nparam,"\n")
-  
-##
-##  Warning: This used to force the largest degree to be a foil
-##
-#  if(!is.na(largestdegree)){
-#   largestdegree <- grep("degree[1-9]",m$coef.names)
-#   largestdegree <- max(c(0,largestdegree))
-#   if(largestdegree==0){largestdegree <- NA}
-#   if(!is.na(largestdegree)){
-##   foffset <- foffset - 50*(xmat[,largestdegree]==-1)
-#    xmat <- cbind(xmat,(xmat[,largestdegree]==-1))
-#   }
-#  }
-
-#
-# Sample if necessary
-#
-  if(nrow(xmat) > MPLEsamplesize){
-   rsample <- sample((1:nrow(xmat))[zy==1], size=min(MPLEsamplesize,sum(zy)),
-                     replace=FALSE)
-   rsample <- c(rsample, 
-     sample((1:nrow(xmat))[zy==0], size=min(MPLEsamplesize,sum(!zy)),
-                     replace=FALSE) )
-   tau <- sum(zy*wend)/sum(wend)
-   xmat.full <- xmat
-   zy.full <- zy
-   foffset.full <- foffset
-   zy <- zy[rsample]
-   wend <- wend[rsample]
-   wend <- tau*zy*wend/sum(zy*wend) +
-           (1-tau)*(1-zy)*wend/sum((1-zy)*wend)
-   wend <- wend*nrow(xmat)/sum(wend)
-   xmat <- xmat[rsample,,drop=FALSE]
-   foffset <- foffset[rsample]
-  }
+  pl <- ergm.pl(Clist=Clist, Clist.miss=Clist2, m=m,
+                theta.offset=theta.offset,
+                MPLEsamplesize=MPLEsamplesize,
+                maxNumDyadTypes=maxNumDyadTypes,
+                verbose=verbose)
 
   if(MPLEtype=="penalized"){
    if(verbose) cat("Using penalized MPLE.\n")
    mplefit <- ergm.pen.glm(
-                  zy ~ xmat -1 + offset(foffset),
-                  data=data.frame(xmat), weights=wend)
+                  pl$zy ~ pl$xmat -1 + offset(pl$foffset),
+                  data=data.frame(pl$xmat), weights=pl$wend)
    mplefit$deviance <- -2*mplefit$loglik
    mplefit$cov.unscaled <- mplefit$var
    mplefit.summary <- mplefit
   }else{
    options(warn=-1)
-#  options(warn=2)
    if(MPLEtype=="logitreg"){
-    mplefit <- model.matrix(terms(zy ~ .-1,data=data.frame(xmat)),
-                           data=data.frame(xmat))
-    mplefit <- ergm.logitreg(x=mplefit, y=zy, offset=foffset, wt=wend)
+    mplefit <- model.matrix(terms(pl$zy ~ .-1,data=data.frame(pl$xmat)),
+                           data=data.frame(pl$xmat))
+    mplefit <- ergm.logitreg(x=mplefit, y=pl$zy, offset=pl$foffset, wt=pl$wend)
     mplefit.summary <- list(cov.unscaled=mplefit$cov.unscaled)
    }else{
     mplefit <- try(
-          glm(zy ~ .-1 + offset(foffset), data=data.frame(xmat),
-                    weights=wend, family=family),
+          glm(pl$zy ~ .-1 + offset(pl$foffset), data=data.frame(pl$xmat),
+                    weights=pl$wend, family=family),
                     silent = TRUE)
     if (inherits(mplefit, "try-error")) {
-      mplefit <- list(coef=theta.offset, deviance=0,
-                      cov.unscaled=diag(length(theta.offset)))
-      mplefit.summary <- list(cov.unscaled=diag(length(theta.offset)))
+      mplefit <- list(coef=pl$theta.offset, deviance=0,
+                      cov.unscaled=diag(length(pl$theta.offset)))
+      mplefit.summary <- list(cov.unscaled=diag(length(pl$theta.offset)))
     }else{
       mplefit.summary <- summary(mplefit)
     }
    }
-#   if(!is.na(largestdegree)){
-#    nxmat <- colnames(xmat)
-#    xmat <- xmat[,-ncol(xmat),drop=FALSE]
-#    colnames(xmat) <- nxmat[-ncol(xmat)]
-#   }
 #
 #  Determine the independence theta and MLE
-#  Note that the term "match" is deprecated.
+#  Note that the term "match" is depreciated.
 #
    if(is.null(theta1)){
     independent.terms <- 
@@ -143,23 +50,23 @@ ergm.mple<-function(Clist, Clist2, m, theta.offset=NULL,
          "nodemix","mix",
          "b1","b2",
          "testme")
-    independent <- rep(0,ncol(xmat))
-    names(independent) <- colnames(xmat)
+    independent <- rep(0,ncol(pl$xmat))
+    names(independent) <- colnames(pl$xmat)
     theta.ind <- independent
     for(i in seq(along=independent.terms)){
-     independent[grep(independent.terms[i], colnames(xmat))] <- i
+     independent[grep(independent.terms[i], colnames(pl$xmat))] <- i
     }
     independent <- independent>0
     if(any(independent)){
-     mindfit <- try(glm(zy ~ .-1 + offset(foffset), 
-                    data=data.frame(xmat[,independent,drop=FALSE]),
-                    weights=wend, family=family),
+     mindfit <- try(glm(pl$zy ~ .-1 + offset(pl$foffset), 
+                    data=data.frame(pl$xmat[,independent,drop=FALSE]),
+                    weights=pl$wend, family=family),
                     silent = TRUE)
      if (inherits(mindfit, "try-error")) {
       theta1 <- list(coef=NULL, 
-                    theta=rep(0,ncol(xmat)),
+                    theta=rep(0,ncol(pl$xmat)),
                     independent=independent,
-                    loglikelihood=-numobs*log(2))
+                    loglikelihood=-pl$numobs*log(2))
      }else{
       mindfit.summary <- summary(mindfit)
       theta.ind[independent] <- mindfit$coef
@@ -170,41 +77,29 @@ ergm.mple<-function(Clist, Clist2, m, theta.offset=NULL,
      }
     }else{
      theta1 <- list(coef=NULL, 
-                    theta=rep(0,ncol(xmat)),
+                    theta=rep(0,ncol(pl$xmat)),
                     independent=independent,
-                    loglikelihood=-numobs*log(2))
+                    loglikelihood=-pl$numobs*log(2))
     }
    }
 #
    options(warn=0)
-#  options(warn=2)
-   if(nrow(xmat) > MPLEsamplesize){
+   if(nrow(pl$xmat) > pl$MPLEsamplesize){
 #
 #   fix aic and deviance for sampled data
 #
     mplefit$deviance <- ergm.logisticdeviance(beta=mplefit$coef,
-     X=model.matrix(terms(zy.full ~ .-1,data=data.frame(xmat.full)),
-                           data=data.frame(xmat.full)),
-     y=zy.full, offset=foffset.full)
+     X=model.matrix(terms(pl$zy.full ~ .-1,data=data.frame(pl$xmat.full)),
+                           data=data.frame(pl$xmat.full)),
+     y=pl$zy.full, offset=pl$foffset.full)
     mplefit$aic <- mplefit$deviance + 2*mplefit$rank
    }
   }
-  theta <- theta.offset
+  theta <- pl$theta.offset
   real.coef <- mplefit$coef
   real.cov <- mplefit.summary$cov.unscaled
-#  if(!is.na(largestdegree)){
-#   if(nrow(real.cov)==length(real.coef)){
-#    real.cov <- real.cov[-nrow(real.cov), -nrow(real.cov)]
-#   }
-#   real.coef <- real.coef[-length(real.coef)]
-#  }
   theta[!m$etamap$offsettheta] <- real.coef
-# theta[is.na(theta)] <- 0
   names(theta) <- m$coef.names
-
-#
-# Old end
-#
   gradient <- rep(NA, length(theta))
 #
 # Calculate the (global) log-likelihood
@@ -217,38 +112,32 @@ ergm.mple<-function(Clist, Clist2, m, theta.offset=NULL,
   }else{
    covar <- diag(rep(0,length(theta)))
   }
-# covar <- as.matrix(covar[!m$etamap$offsettheta,!m$etamap$offsettheta])
-# covar[!is.na(real.coef),!is.na(real.coef)] <- real.cov
   covar[!is.na(theta)&!m$etamap$offsettheta,!is.na(theta)&!m$etamap$offsettheta] <- real.cov
 #
   iteration <-  mplefit$iter 
   samplesize <- NA
-
-# mplefit <- call(MPLEtype, zy ~ 1, family=binomial)
 #
   if(MPLEtype=="penalized"){
-    mplefit.null <- ergm.pen.glm(zy ~ 1, weights=wend)
+   mplefit.null <- ergm.pen.glm(pl$zy ~ 1, weights=pl$wend)
   }else{
-    options(warn=-1)
-    #  options(warn=2)
-    if(MPLEtype=="logitreg"){
-      mplefit.null <- ergm.logitreg(x=matrix(1,ncol=1,nrow=length(zy)),
-                                    y=zy, offset=foffset, wt=wend)
-    }else{
-      mplefit.null <- try(glm(zy ~ 1, family=family, weights=wend),
-                          silent = TRUE)
-      if (inherits(mplefit.null, "try-error")) {
-        mplefit.null <- list(coef=0, deviance=0,
-                             cov.unscaled=diag(1))
-      }
+   options(warn=-1)
+   if(MPLEtype=="logitreg"){
+    mplefit.null <- ergm.logitreg(x=matrix(1,ncol=1,nrow=length(pl$zy)),
+                                  y=pl$zy, offset=pl$foffset, wt=pl$wend)
+   }else{
+    mplefit.null <- try(glm(pl$zy ~ 1, family=family, weights=pl$wend),
+                        silent = TRUE)
+    if (inherits(mplefit.null, "try-error")) {
+      mplefit.null <- list(coef=0, deviance=0,
+                      cov.unscaled=diag(1))
     }
-    options(warn=0)
-    #  options(warn=2)
+   }
+   options(warn=0)
   }
-  
+
   null.deviance <- mplefit$null.deviance
   aic <- mplefit$aic
-  
+
   if(save.glm){
     glm <- mplefit
     glm.null <- mplefit.null
@@ -257,7 +146,7 @@ ergm.mple<-function(Clist, Clist2, m, theta.offset=NULL,
     glm.null <- NULL
   }
 
-  # Output results as ergm-class object
+# Output results as ergm-class object
   structure(list(coef=theta, sample=NA,
       iterations=iteration, mle.lik=loglik,
       MCMCtheta=theta, loglikelihoodratio=loglik, gradient=gradient,
