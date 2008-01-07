@@ -3479,6 +3479,29 @@ void d_nearsimmelian (int ntoggles, Vertex *heads, Vertex *tails,
 }
 
 /*****************
+ changestat: d_nodecov
+*****************/
+void d_nodecov (int ntoggles, Vertex *heads, Vertex *tails, 
+		 ModelTerm *mtp, Network *nwp) {
+  double sum;
+  Vertex h, t;
+  int i, edgeflag;
+
+  *(mtp->dstats) = 0.0;
+  for (i=0; i<ntoggles; i++) 
+    {
+      edgeflag=(EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
+      sum = mtp->attrib[h-1] + mtp->attrib[t-1];
+      *(mtp->dstats) += edgeflag ? -sum : sum;
+      if (i+1 < ntoggles)
+	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    }
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+
+/*****************
  changestat: d_nodefactor
 *****************/
 void d_nodefactor (int ntoggles, Vertex *heads, Vertex *tails, 
@@ -3534,29 +3557,6 @@ ModelTerm *mtp, Network *nwp) {
     if (i+1 < ntoggles) 
       ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
   }
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
-}
-
-/*****************
- changestat: d_nodemain
-*****************/
-void d_nodemain (int ntoggles, Vertex *heads, Vertex *tails, 
-		 ModelTerm *mtp, Network *nwp) {
-  double sum;
-  Vertex h, t;
-  int i, edgeflag;
-
-  *(mtp->dstats) = 0.0;
-  for (i=0; i<ntoggles; i++) 
-    {
-      edgeflag=(EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
-      sum = mtp->attrib[h-1] + mtp->attrib[t-1];
-      *(mtp->dstats) += edgeflag ? -sum : sum;
-      if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-    }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
     ToggleEdge(heads[i], tails[i], nwp); 

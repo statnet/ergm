@@ -2764,6 +2764,27 @@ InitErgm.nearsimmelian<-function (nw, m, arglist, drop=TRUE, ...) {
 }
 
 #########################################################
+InitErgm.nodecov<-InitErgm.nodemain<-function (nw, m, arglist, ...) {
+  a <- ergm.checkargs("nodecov", arglist,
+    varnames = c("attrname"),
+    vartypes = c("character"),
+    defaultvalues = list(NULL),
+    required = c(TRUE))
+  attach(a)
+  attrname<-a$attrname
+  m$coef.names<-c(m$coef.names, paste("nodecov",attrname,sep="."))
+  nodecov <- get.node.attr(nw, attrname, "nodecov")
+  if(!is.numeric(nodecov)){
+    stop("nodecov() attribute must be numeric", call.=FALSE) 
+  }
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="nodecov", soname="ergm",
+                                inputs=c(0,1,length(nodecov),nodecov),
+                                dependence=FALSE)
+  m
+}
+
+#########################################################
 InitErgm.nodefactor<-function (nw, m, arglist, drop=TRUE, ...) {
   a <- ergm.checkargs("nodefactor", arglist,
     varnames = c("attrname", "base"),
@@ -2866,27 +2887,6 @@ InitErgm.nodeifactor<-function (nw, m, arglist, drop=TRUE, ...) {
                                          ui[-base], nodecov), dependence=FALSE)
   m$coef.names<-c(m$coef.names, paste("nodeifactor",
                                       attrname, paste(u[-base]), sep="."))
-  m
-}
-
-#########################################################
-InitErgm.nodemain<-InitErgm.nodecov<-function (nw, m, arglist, ...) {
-  a <- ergm.checkargs("nodemain", arglist,
-    varnames = c("attrname"),
-    vartypes = c("character"),
-    defaultvalues = list(NULL),
-    required = c(TRUE))
-  attach(a)
-  attrname<-a$attrname
-  m$coef.names<-c(m$coef.names, paste("nodemain",attrname,sep="."))
-  nodecov <- get.node.attr(nw, attrname, "nodemain")
-  if(!is.numeric(nodecov)){
-    stop("nodemain() attribute must be numeric", call.=FALSE) 
-  }
-  termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="nodemain", soname="ergm",
-                                inputs=c(0,1,length(nodecov),nodecov),
-                                dependence=FALSE)
   m
 }
 
@@ -3347,7 +3347,7 @@ InitErgm.receiver<-function(nw, m, arglist, drop=FALSE, ...) {
 #########################################################
 InitErgm.receivercov<-function (nw, m, arglist, ...) {
   ergm.checkdirected("receivercov", is.directed(nw), requirement=TRUE,
-                     extramessage="See 'nodemain'.")
+                     extramessage="See 'nodecov'.")
   a <- ergm.checkargs("receivercov", arglist,
     varnames = c("attrname"),
     vartypes = c("character"),
@@ -3402,7 +3402,7 @@ InitErgm.sender<-function(nw, m, arglist, drop=FALSE, ...) {
 #########################################################
 InitErgm.sendercov<-function (nw, m, arglist, ...) {
   ergm.checkdirected("sendercov", is.directed(nw), requirement=TRUE,
-                     extramessage="See 'nodemain'.")
+                     extramessage="See 'nodecov'.")
   a <- ergm.checkargs("sendercov", arglist,
     varnames = c("attrname"),
     vartypes = c("character"),

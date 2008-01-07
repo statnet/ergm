@@ -639,6 +639,15 @@ network
     This is a sub-graph of size three which is exactly one tie short of being complete.
     This term can only be used with directed networks.}
 
+    \item{\code{nodecov(attrname)}}{\emph{Main Effect of a Covariate:} The
+    \code{attrname} argument is a character string giving the name of a
+    quantitative (not categorical) attribute in the network's vertex attribute
+    list. This term adds a single network statistic to the model equaling the
+    sum of \code{attrname(i)} and \code{attrname(j)} for all edges \eqn{(i,j)}
+    in the network. For categorical attributes, see \code{nodefactor}.
+    Note that for directed networks, \code{nodecov} equals \code{receivercov}
+    plus \code{sendercov}.}
+
     \item{\code{nodefactor(attrname, base=1)}}{\emph{Factor Attribute Effect:}
     The \code{attrname} argument is a character string giving the name of a
     categorical attribute in the network's vertex attribute list. This term adds
@@ -659,7 +668,7 @@ network
     \dQuote{apple} and one for \dQuote{pear}, then set \dQuote{banana} and
     \dQuote{orange} to the base (remember to sort the values first) by using
     \code{nodefactor("fruit", base=2:3)}. For an analogous term for quantitative
-    vertex attributes, see \code{nodemain}. }
+    vertex attributes, see \code{nodecov}. }
 
     \item{\code{nodeifactor(attrname, base=1)}}{\emph{Factor Attribute Effect
     for in-edges:} The \code{attrname} argument is a character string giving the
@@ -674,15 +683,6 @@ network
     category to which all other values are compared. For an example, see the
     \code{nodefactor} entry. The \code{nodeifactor} term may only be used with
     directed networks.}
-
-    \item{\code{nodemain(attrname)}}{\emph{Main Effect of a Covariate:} The
-    \code{attrname} argument is a character string giving the name of a
-    quantitative (not categorical) attribute in the network's vertex attribute
-    list. This term adds a single network statistic to the model equaling the
-    sum of \code{attrname(i)} and \code{attrname(j)} for all edges \eqn{(i,j)}
-    in the network. For categorical attributes, see \code{nodefactor}.
-    Note that for directed networks, \code{nodemain} equals \code{receivercov}
-    plus \code{sendercov}.}
 
     \item{\code{nodematch(attrname, diff=FALSE)}}{\emph{Uniform Homophily and
     Differential Homophily:} The \code{attrname} argument is a character string
@@ -760,7 +760,7 @@ network
     attribute in the network's vertex attribute list that takes numeric values.
     This term adds one network statistic to the model equaling the sum of the
     attribute values of the receivers of all ties. This term can only be used
-    with directed networks. For undirected networks, see \code{nodemain}.}
+    with directed networks. For undirected networks, see \code{nodecov}.}
 
     \item{\code{sender}}{\emph{Sender Effect:} This term adds one network
     statistic for each node equal to the number of out-ties for that node. This
@@ -776,7 +776,7 @@ network
     attribute in the network's vertex attribute list that takes numeric values.
     This term adds one network statistic to the model equaling the sum of the
     attribute values of the senders of all ties. This term can only be used
-    with directed networks. For undirected networks, see \code{nodemain}.}
+    with directed networks. For undirected networks, see \code{nodecov}.}
 
     \item{\code{simmelian}}{\emph{Simmelian Triads:} This term adds one
     statistic to the model equal to the number of Simmelian triads, as defined

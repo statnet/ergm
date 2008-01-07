@@ -69,10 +69,10 @@
 \alias{InitErgm.meandeg}
 \alias{InitErgm.mutual}
 \alias{InitErgm.nearsimmelian}
+\alias{InitErgm.nodecov}
+\alias{InitErgm.nodemain}
 \alias{InitErgm.nodefactor}
 \alias{InitErgm.nodeifactor}
-\alias{InitErgm.nodemain}
-\alias{InitErgm.nodecov}
 \alias{InitErgm.nodematch}
 \alias{InitErgm.match}
 \alias{InitErgm.nodemix}

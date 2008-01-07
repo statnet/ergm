@@ -38,7 +38,7 @@ ergm.maple<-function(pl, m,
 #
    if(is.null(theta1)){
     independent.terms <- 
-       c("edges","match","nodemain","nodefactor","nodematch","absdiff",
+       c("edges","match","nodecov","nodefactor","nodematch","absdiff",
          "edgecov","dyadcov","sender","receiver","sociality", 
          "nodemix","mix",
          "b1","b2",
