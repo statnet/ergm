@@ -8,7 +8,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     base <- base[base[, 2] > base[, 1], ]
     if(Clist.miss$dir){
       base <- cbind(base[,c(2,1)],base)
-      base <- matrix(t(base),ncol=2,byrow=T)
+      base <- matrix(t(base),ncol=2,byrow=TRUE)
     }
     ubase <- base[,1] + Clist$n*base[,2]
     offset <- !is.na(match(ubase, Clist.miss$heads+Clist.miss$tails*Clist$n))

@@ -150,6 +150,7 @@
 \alias{ergm.mainfitloop}
 \alias{ergm.marquardt}
 \alias{ergm.marquardt2}
+\alias{ergm.pl}
 \alias{ergm.nodegeodesics}
 \alias{ergm.pairgeodesic}
 \alias{ergm.phase12}
