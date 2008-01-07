@@ -38,6 +38,8 @@ CHANGESTAT_FN(d_gwdegree706)
 CHANGESTAT_FN(d_gwdegreealpha)
 CHANGESTAT_FN(d_gwdegreelambda)
 CHANGESTAT_FN(d_gwb2)
+CHANGESTAT_FN(d_gwb1share)
+CHANGESTAT_FN(d_gwb2share)
 /********************  changestats:   H    ***********/
 CHANGESTAT_FN(d_heideriandynamic)
 CHANGESTAT_FN(d_hiertriad)

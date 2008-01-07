@@ -725,3 +725,88 @@ InitErgm.monopolymixmat<-function(nw, m, arglist, drop=TRUE, ...) {
 }
 
 
+#########################################################
+InitErgm.gwb1share<-function(nw, m, arglist, initialfit=FALSE, ...) {
+  ergm.checkdirected("gwb1share", is.directed(nw), requirement=FALSE)
+  ergm.checkbipartite("gwb1share", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("gwb1share", arglist,
+    varnames = c("alpha","fixed"),
+    vartypes = c("numeric","logical"),
+    defaultvalues = list(0, FALSE),
+    required = c(FALSE, FALSE))
+  attach(a)
+  alpha<-a$alpha;fixed<-a$fixed
+  termnumber<-1+length(m$terms)
+  dname <- "b1share"
+  if(!initialfit && !fixed){ # This is a curved exponential family model
+    d <- 1:(network.size(nw)-1)
+    ld<-length(d)
+    if(ld==0){return(m)}
+    map<- function(x,n,...) {
+      i <- 1:n
+      x[1]*exp(x[2])*(1-(1-exp(-x[2]))^i)
+    }
+    gradient <- function(x,n,...) {
+      i <- 1:n
+      a <- 1-exp(-x[2])
+      exp(x[2]) * rbind(1-a^i, x[1] * (1 - a^i - i*a^(i-1) ) )
+    }
+    m$terms[[termnumber]] <- list(name=dname, soname="ergm",
+                                  inputs=c(0, ld, ld, d),
+                                  params=list(gwb1share=NULL,gwb1share.alpha=alpha),
+                                  map=map, gradient=gradient)
+    m$coef.names<-c(m$coef.names,paste("gwb1share#",d,sep=""))
+  }else if (initialfit && !fixed) { # First pass to get MPLE coefficient
+    m$terms[[termnumber]] <- list(name=dname, soname="ergm",
+                                  inputs=c(0, 1, length(alpha), alpha))
+    m$coef.names<-c(m$coef.names,"gwb1share") # must match params$gwb1share above
+  }else{ # fixed == TRUE
+    m$terms[[termnumber]] <- list(name=dname, soname="ergm",
+                                  inputs=c(0, 1, length(alpha), alpha))
+    m$coef.names<-c(m$coef.names,paste("gwb1share.fixed.",alpha,sep=""))
+  }
+  m
+}
+
+#########################################################
+InitErgm.gwb2share<-function(nw, m, arglist, initialfit=FALSE, ...) {
+  ergm.checkdirected("gwb2share", is.directed(nw), requirement=FALSE)
+  ergm.checkbipartite("gwb2share", is.bipartite(nw), requirement=TRUE)
+  a <- ergm.checkargs("gwb2share", arglist,
+    varnames = c("alpha","fixed"),
+    vartypes = c("numeric","logical"),
+    defaultvalues = list(0, FALSE),
+    required = c(FALSE, FALSE))
+  attach(a)
+  alpha<-a$alpha;fixed<-a$fixed
+  termnumber<-1+length(m$terms)
+  dname <- "b2share"
+  if(!initialfit && !fixed){ # This is a curved exponential family model
+    d <- 1:(network.size(nw)-1)
+    ld<-length(d)
+    if(ld==0){return(m)}
+    map<- function(x,n,...) {
+      i <- 1:n
+      x[1]*exp(x[2])*(1-(1-exp(-x[2]))^i)
+    }
+    gradient <- function(x,n,...) {
+      i <- 1:n
+      a <- 1-exp(-x[2])
+      exp(x[2]) * rbind(1-a^i, x[1] * (1 - a^i - i*a^(i-1) ) )
+    }
+    m$terms[[termnumber]] <- list(name=dname, soname="ergm",
+                                  inputs=c(0, ld, ld, d),
+                                  params=list(gwb2share=NULL,gwb2share.alpha=alpha),
+                                  map=map, gradient=gradient)
+    m$coef.names<-c(m$coef.names,paste("gwb2share#",d,sep=""))
+  }else if (initialfit && !fixed) { # First pass to get MPLE coefficient
+    m$terms[[termnumber]] <- list(name=dname, soname="ergm",
+                                  inputs=c(0, 1, length(alpha), alpha))
+    m$coef.names<-c(m$coef.names,"gwb2share") # must match params$gwb2share above
+  }else{ # fixed == TRUE
+    m$terms[[termnumber]] <- list(name=dname, soname="ergm",
+                                  inputs=c(0, 1, length(alpha), alpha))
+    m$coef.names<-c(m$coef.names,paste("gwb2share.fixed.",alpha,sep=""))
+  }
+  m
+}

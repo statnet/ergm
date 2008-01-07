@@ -1672,6 +1672,7 @@ InitErgm.esp<-function(nw, m, arglist, drop=TRUE, ...) {
 ###################################### InitErgm TERMS:  F
 
 ###################################### InitErgm TERMS:  G
+
 #########################################################
 InitErgm.gwb1degree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   ergm.checkdirected("gwb1degree", is.directed(nw), requirement=FALSE)
@@ -1740,7 +1741,6 @@ InitErgm.gwb1degree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   }
   m
 }
-
 #########################################################
 InitErgm.gwb2degree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   ergm.checkdirected("gwb2degree", is.directed(nw), requirement=FALSE)

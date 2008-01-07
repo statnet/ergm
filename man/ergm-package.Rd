@@ -17,7 +17,7 @@ are to be cited as:
 
 Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau,
 and Martina Morris. 2003 
-\emph{statnet: An R package for the Statistical Modeling of Social Networks}
+\emph{statnet: Software tools for the Statistical Modeling of Network Data}
 \cr
 \url{http://statnetproject.org}.
 
@@ -69,8 +69,7 @@ Statistical Association, 81, 832-842.
 
 Handcock, M. S., Hunter, D. R., Butts, C. T.,  Goodreau,
 S. M., and Morris, M. (2003), 
-\emph{statnet: An R package for the Statistical Modeling of Social
-Networks.},\cr
+\emph{statnet: Software tools for the Statistical Modeling of Network Data.},\cr
 URL \url{http://statnetproject.org}
 
 Strauss, D., and Ikeda, M.(1990). Pseudolikelihood estimation for social

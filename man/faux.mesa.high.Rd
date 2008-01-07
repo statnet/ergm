@@ -85,7 +85,7 @@ be cited. In addition this package should be cited as:
 
 Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau,
 and Martina Morris. 2003 
-\emph{statnet: A suite of R packages for the Statistical Modeling of Social Networks}
+\emph{statnet: Software tools for the Statistical Modeling of Network Data}
 \cr
 \url{http://statnetproject.org}.
 }

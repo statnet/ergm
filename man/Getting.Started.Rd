@@ -2,7 +2,7 @@
 \alias{Getting.Started}
 \docType{package}
 \title{
-Getting Started with "ergm": Statistical Modeling of Network and Graph Data
+Getting Started with "ergm": Fit, simulate and diagnose exponential-family models for networks
 }
 \description{
 \code{\link{ergm}} is a collection of functions to plot, fit, diagnose, and simulate from random 
@@ -69,8 +69,7 @@ Statistical Association, 81, 832-842.
 
 Handcock, M. S., Hunter, D. R., Butts, C. T.,  Goodreau,
 S. M., and Morris, M. (2003), 
-\emph{statnet: An R package for the Statistical Modeling of Social
-Networks.},\cr
+\emph{statnet: Software tools for the Statistical Modeling of Network Data.},\cr
 URL \url{http://statnetproject.org}
 
 Strauss, D., and Ikeda, M.(1990). Pseudolikelihood estimation for social
