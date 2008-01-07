@@ -45,12 +45,13 @@ ergm.mapl <- function(formula, theta0="MPLE",
                                     verbose=verbose)
   Clist.initial$meanstats=meanstats
   theta0copy <- theta0
+  
   pl <- ergm.pl(Clist=Clist.initial, Clist.miss=Clist.miss.initial,
                 m=model.initial,
                 verbose=verbose)
   initialfit <- ergm.maple(pl=pl, model.initial,
-                          MPLEtype=control$MPLEtype, 
-                          verbose=verbose, ...)
+                           MPLEtype=control$MPLEtype, 
+                           verbose=verbose, ...)
   if("MPLE" %in% theta0){theta0 <- initialfit$coef}
 
   if(nsim>0){

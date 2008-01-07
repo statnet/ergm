@@ -41,7 +41,7 @@ ergm.mple<-function(Clist, Clist2, m, theta.offset=NULL,
    }
 #
 #  Determine the independence theta and MLE
-#  Note that the term "match" is depreciated.
+#  Note that the term "match" is deprecated.
 #
    if(is.null(theta1)){
     independent.terms <- 
@@ -118,21 +118,21 @@ ergm.mple<-function(Clist, Clist2, m, theta.offset=NULL,
   samplesize <- NA
 #
   if(MPLEtype=="penalized"){
-   mplefit.null <- ergm.pen.glm(pl$zy ~ 1, weights=pl$wend)
+    mplefit.null <- ergm.pen.glm(pl$zy ~ 1, weights=pl$wend)
   }else{
-   options(warn=-1)
-   if(MPLEtype=="logitreg"){
-    mplefit.null <- ergm.logitreg(x=matrix(1,ncol=1,nrow=length(pl$zy)),
-                                  y=pl$zy, offset=pl$foffset, wt=pl$wend)
-   }else{
-    mplefit.null <- try(glm(pl$zy ~ 1, family=family, weights=pl$wend),
-                        silent = TRUE)
-    if (inherits(mplefit.null, "try-error")) {
-      mplefit.null <- list(coef=0, deviance=0,
-                      cov.unscaled=diag(1))
+    options(warn=-1)
+    if(MPLEtype=="logitreg"){
+      mplefit.null <- ergm.logitreg(x=matrix(1,ncol=1,nrow=length(pl$zy)),
+                                    y=pl$zy, offset=pl$foffset, wt=pl$wend)
+    }else{
+      mplefit.null <- try(glm(pl$zy ~ 1, family=family, weights=pl$wend),
+                          silent = TRUE)
+      if (inherits(mplefit.null, "try-error")) {
+        mplefit.null <- list(coef=0, deviance=0,
+                             cov.unscaled=diag(1))
+      }
     }
-   }
-   options(warn=0)
+    options(warn=0)
   }
 
   null.deviance <- mplefit$null.deviance
@@ -146,7 +146,7 @@ ergm.mple<-function(Clist, Clist2, m, theta.offset=NULL,
     glm.null <- NULL
   }
 
-# Output results as ergm-class object
+  # Output results as ergm-class object
   structure(list(coef=theta, sample=NA,
       iterations=iteration, mle.lik=loglik,
       MCMCtheta=theta, loglikelihoodratio=loglik, gradient=gradient,

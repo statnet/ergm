@@ -14,7 +14,7 @@ ergm.initialfit.ihs<-function(theta0, MLestimate, Clist, Clist.miss, m,
         length(theta0)!=length(m$coef.names)) {
       cat("theta0 is", theta0, "\n", "Clist$nparam is",Clist$nparam, "\n")
       stop(paste("Invalid starting parameter vector theta0;",
-                 "unrecognized option or wrong number of arguments."))
+                 "unrecognized option or wrong number of parameters."))
     }
     if(!is.null(Clist.miss)){
      mle.lik <- -log(2)*(Clist$ndyads-Clist.miss$nedges)
