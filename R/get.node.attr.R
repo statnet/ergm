@@ -6,7 +6,7 @@
 # This is a kludge, which has been patched to bring it in line with the
 # corrected class definitions.  -CTB
 
-get.node.attr <- function(nw, attrname, functionname)
+get.node.attr <- function(nw, attrname, functionname, numeric=FALSE)
 {
   if (!is.character(attrname) || length(attrname)>1)
     stop(paste("The argument", attrname, "passed to", functionname,
@@ -19,5 +19,11 @@ get.node.attr <- function(nw, attrname, functionname)
                "model term is not contained in vertex attribute list."),
          call.=FALSE)
   #"[["(nw$val,attrname)
-  unlist(get.vertex.attribute(nw,attrname))
+  out <- unlist(get.vertex.attribute(nw,attrname))
+  if(numeric && !is.numeric(out)) {
+    stop("The ", attrname, " attribute for the ", functionname, 
+         " term is not numeric as required.", call.=FALSE)
+  }
+  out
 }
+

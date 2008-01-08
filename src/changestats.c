@@ -3533,6 +3533,29 @@ ModelTerm *mtp, Network *nwp) {
 }
 
 /*****************
+ changestat: d_nodeicov
+*****************/
+void d_nodeicov (int ntoggles, Vertex *heads, Vertex *tails, 
+		    ModelTerm *mtp, Network *nwp) {
+  double sum;
+  Vertex h, t;
+  int i, edgeflag;
+  
+  *(mtp->dstats) = 0.0;
+  for (i=0; i<ntoggles; i++) 
+    {
+      edgeflag=(EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
+      sum = mtp->attrib[t-1];
+      *(mtp->dstats) += edgeflag ? -sum : sum;
+      if (i+1 < ntoggles)
+	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    }
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
+}
+
+/*****************
  changestat: d_nodeifactor
 *****************/
 void d_nodeifactor (int ntoggles, Vertex *heads, Vertex *tails, 
@@ -3644,6 +3667,29 @@ void d_nodemix (int ntoggles, Vertex *heads, Vertex *tails,
   i--;
   while (--i>=0)  /*  Undo all previous toggles. */
     ToggleEdge(heads[i], tails[i], nwp);
+}
+
+/*****************
+ changestat: d_nodeocov
+*****************/
+void d_nodeocov (int ntoggles, Vertex *heads, Vertex *tails, 
+		  ModelTerm *mtp, Network *nwp) {
+  double sum;
+  Vertex h, t;
+  int i, edgeflag;
+  
+  *(mtp->dstats) = 0.0;
+  for (i=0; i<ntoggles; i++) 
+    {
+      edgeflag=(EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
+      sum = mtp->attrib[h-1];
+      *(mtp->dstats) += edgeflag ? -sum : sum;
+      if (i+1 < ntoggles)
+	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    }
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], nwp); 
 }
 
 /*****************
@@ -3927,29 +3973,6 @@ void d_receiver (int ntoggles, Vertex *heads, Vertex *tails,
     ToggleEdge(heads[i], tails[i], nwp); 
 }
 
-/*****************
- changestat: d_receivercov
-*****************/
-void d_receivercov (int ntoggles, Vertex *heads, Vertex *tails, 
-		    ModelTerm *mtp, Network *nwp) {
-  double sum;
-  Vertex h, t;
-  int i, edgeflag;
-  
-  *(mtp->dstats) = 0.0;
-  for (i=0; i<ntoggles; i++) 
-    {
-      edgeflag=(EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
-      sum = mtp->attrib[t-1];
-      *(mtp->dstats) += edgeflag ? -sum : sum;
-      if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-    }
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
-}
-
 /********************  changestats:  S    ***********/
 /*****************
  changestat: d_sender
@@ -3985,29 +4008,6 @@ void d_sender (int ntoggles, Vertex *heads, Vertex *tails,
 	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
     }
   
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
-}
-
-/*****************
- changestat: d_sendercov
-*****************/
-void d_sendercov (int ntoggles, Vertex *heads, Vertex *tails, 
-		  ModelTerm *mtp, Network *nwp) {
-  double sum;
-  Vertex h, t;
-  int i, edgeflag;
-  
-  *(mtp->dstats) = 0.0;
-  for (i=0; i<ntoggles; i++) 
-    {
-      edgeflag=(EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
-      sum = mtp->attrib[h-1];
-      *(mtp->dstats) += edgeflag ? -sum : sum;
-      if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-    }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
     ToggleEdge(heads[i], tails[i], nwp); 

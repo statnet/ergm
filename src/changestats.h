@@ -102,13 +102,15 @@ CHANGESTAT_FN(d_m2star)
 CHANGESTAT_FN(d_meandeg)
 CHANGESTAT_FN(d_mix)
 CHANGESTAT_FN(d_mutual)
-/********************  changestats:   N    ***********/
+/********************  changestats:   N    ***********/                       
 CHANGESTAT_FN(d_nearsimmelian)
 CHANGESTAT_FN(d_nodecov)
 CHANGESTAT_FN(d_nodefactor)
+CHANGESTAT_FN(d_nodeicov)
 CHANGESTAT_FN(d_nodeifactor)
 CHANGESTAT_FN(d_nodematch)
 CHANGESTAT_FN(d_nodemix)
+CHANGESTAT_FN(d_nodeocov)
 CHANGESTAT_FN(d_nodeofactor)
 /********************  changestats:   O    ***********/
 CHANGESTAT_FN(d_odegree)
@@ -117,10 +119,8 @@ CHANGESTAT_FN(d_odegree_w_homophily)
 CHANGESTAT_FN(d_ostar)
 /********************  changestats:   R    ***********/
 CHANGESTAT_FN(d_receiver)
-CHANGESTAT_FN(d_receivercov)
 /********************  changestats:   S    ***********/
 CHANGESTAT_FN(d_sender)
-CHANGESTAT_FN(d_sendercov)
 CHANGESTAT_FN(d_simmelian)
 CHANGESTAT_FN(d_simmelianties)
 CHANGESTAT_FN(d_smalldiff)

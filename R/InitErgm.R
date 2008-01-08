@@ -108,7 +108,7 @@ InitErgm.absdiff<-function (nw, m, arglist, ...) {
   attrname<-a$attrname
   termnumber<-1+length(m$terms)
   m$coef.names<-c(m$coef.names,paste("absdiff",attrname,sep="."))
-  nodecov <- get.node.attr(nw, attrname, "absdiff")
+  nodecov <- get.node.attr(nw, attrname, "absdiff", numeric=TRUE)
   m$terms[[termnumber]] <- list(name="absdiff", soname="ergm",
                                 inputs=c(0,1,length(nodecov),nodecov),
                                 dependence=FALSE)
@@ -2773,10 +2773,7 @@ InitErgm.nodecov<-InitErgm.nodemain<-function (nw, m, arglist, ...) {
   attach(a)
   attrname<-a$attrname
   m$coef.names<-c(m$coef.names, paste("nodecov",attrname,sep="."))
-  nodecov <- get.node.attr(nw, attrname, "nodecov")
-  if(!is.numeric(nodecov)){
-    stop("nodecov() attribute must be numeric", call.=FALSE) 
-  }
+  nodecov <- get.node.attr(nw, attrname, "nodecov", numeric=TRUE)
   termnumber<-1+length(m$terms)
   m$terms[[termnumber]] <- list(name="nodecov", soname="ergm",
                                 inputs=c(0,1,length(nodecov),nodecov),
@@ -2834,6 +2831,25 @@ InitErgm.nodefactor<-function (nw, m, arglist, drop=TRUE, ...) {
                                          ui[-base], nodecov), dependence=FALSE)
   m$coef.names<-c(m$coef.names, paste("nodefactor",
                                       attrname, paste(u[-base]), sep="."))
+  m
+}
+
+#########################################################
+InitErgm.nodeicov<-function (nw, m, arglist, ...) {
+  ergm.checkdirected("nodeicov", is.directed(nw), requirement=TRUE,
+                     extramessage="See 'nodecov'.")
+  a <- ergm.checkargs("nodeicov", arglist,
+    varnames = c("attrname"),
+    vartypes = c("character"),
+    defaultvalues = list(NULL),
+    required = c(TRUE))
+  attach(a)
+  attrname<-a$attrname
+  m$coef.names<-c(m$coef.names, paste("nodeicov",attrname,sep="."))
+  nodecov <- get.node.attr(nw, attrname, "nodeicov", numeric=TRUE)
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="nodeicov", soname="ergm",
+                                inputs=c(0,1,length(nodecov),nodecov))
   m
 }
 
@@ -3091,6 +3107,25 @@ InitErgm.nodemix<-InitErgm.mix<-function (nw, m, arglist, drop=TRUE, ...) {
 }
 
 #########################################################
+InitErgm.nodeocov<-function (nw, m, arglist, ...) {
+  ergm.checkdirected("nodeocov", is.directed(nw), requirement=TRUE,
+                     extramessage="See 'nodecov'.")
+  a <- ergm.checkargs("nodeocov", arglist,
+    varnames = c("attrname"),
+    vartypes = c("character"),
+    defaultvalues = list(NULL),
+    required = c(TRUE))
+  attach(a)
+  attrname<-a$attrname
+  m$coef.names<-c(m$coef.names, paste("nodeocov",attrname,sep="."))
+  nodecov <- get.node.attr(nw, attrname, "nodeocov", numeric=TRUE)
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="nodeocov", soname="ergm",
+                                inputs=c(0,1,length(nodecov),nodecov))
+  m
+}
+
+#########################################################
 InitErgm.nodeofactor<-function (nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("nodeofactor", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("nodeofactor", arglist,
@@ -3344,25 +3379,6 @@ InitErgm.receiver<-function(nw, m, arglist, drop=FALSE, ...) {
   m
 }
 
-#########################################################
-InitErgm.receivercov<-function (nw, m, arglist, ...) {
-  ergm.checkdirected("receivercov", is.directed(nw), requirement=TRUE,
-                     extramessage="See 'nodecov'.")
-  a <- ergm.checkargs("receivercov", arglist,
-    varnames = c("attrname"),
-    vartypes = c("character"),
-    defaultvalues = list(NULL),
-    required = c(TRUE))
-  attach(a)
-  attrname<-a$attrname
-  m$coef.names<-c(m$coef.names, paste("receivercov",attrname,sep="."))
-  nodecov <- get.node.attr(nw, attrname, "receivercov")
-  termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="receivercov", soname="ergm",
-                                inputs=c(0,1,length(nodecov),nodecov))
-  m
-}
-
 ###################################### InitErgm TERMS:  S
 #########################################################
 InitErgm.sender<-function(nw, m, arglist, drop=FALSE, ...) {
@@ -3396,25 +3412,6 @@ InitErgm.sender<-function(nw, m, arglist, drop=FALSE, ...) {
   m$terms[[termnumber]] <- list(name="sender", soname="ergm",
                                 inputs=c(0, ld, ld, d))
   m$coef.names<-c(m$coef.names,paste("sender",d,sep=""))
-  m
-}
-
-#########################################################
-InitErgm.sendercov<-function (nw, m, arglist, ...) {
-  ergm.checkdirected("sendercov", is.directed(nw), requirement=TRUE,
-                     extramessage="See 'nodecov'.")
-  a <- ergm.checkargs("sendercov", arglist,
-    varnames = c("attrname"),
-    vartypes = c("character"),
-    defaultvalues = list(NULL),
-    required = c(TRUE))
-  attach(a)
-  attrname<-a$attrname
-  m$coef.names<-c(m$coef.names, paste("sendercov",attrname,sep="."))
-  nodecov <- get.node.attr(nw, attrname, "sendercov")
-  termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="sendercov", soname="ergm",
-                                inputs=c(0,1,length(nodecov),nodecov))
   m
 }
 
@@ -3496,7 +3493,7 @@ InitErgm.smalldiff<-function (nw, m, arglist, ...) {
     stop("cutoff for smalldiff() must be a scalar.", call.=FALSE)
   m$coef.names<-c(m$coef.names,paste("smalldiff.",
                                      attrname, cutoff, sep=""))
-  nodecov <- get.node.attr(nw, attrname, "smalldiff")
+  nodecov <- get.node.attr(nw, attrname, "smalldiff", numeric=TRUE)
   termnumber<-1+length(m$terms)
   m$terms[[termnumber]] <- list(name="smalldiff", soname="ergm",
                                 inputs=c(1, 1, 1+length(nodecov),

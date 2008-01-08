@@ -641,13 +641,13 @@ network
 
     \item{\code{nodecov(attrname)}}{\emph{Main Effect of a Covariate:} The
     \code{attrname} argument is a character string giving the name of a
-    quantitative (not categorical) attribute in the network's vertex attribute
+    numeric (not categorical) attribute in the network's vertex attribute
     list. This term adds a single network statistic to the model equaling the
     sum of \code{attrname(i)} and \code{attrname(j)} for all edges \eqn{(i,j)}
     in the network. For categorical attributes, see \code{nodefactor}.
-    Note that for directed networks, \code{nodecov} equals \code{receivercov}
-    plus \code{sendercov}.}
-
+    Note that for directed networks, \code{nodecov} equals \code{nodeicov}
+    plus \code{nodeocov}.}
+    
     \item{\code{nodefactor(attrname, base=1)}}{\emph{Factor Attribute Effect:}
     The \code{attrname} argument is a character string giving the name of a
     categorical attribute in the network's vertex attribute list. This term adds
@@ -669,6 +669,14 @@ network
     \dQuote{orange} to the base (remember to sort the values first) by using
     \code{nodefactor("fruit", base=2:3)}. For an analogous term for quantitative
     vertex attributes, see \code{nodecov}. }
+
+    \item{\code{nodeicov(attrname)}}{\emph{Main Effect of a Covariate for
+    In-edges:} The \code{attrname} argument is a character string giving the
+    name of a numeric (not categorical) attribute in the network's vertex
+    attribute list. This term adds a single network statistic to the model
+    equaling the total value of \code{attrname(j)} for all edges \eqn{(i,j)} in
+    the network. This term may only be used with directed networks. For
+    categorical attributes, see \code{nodeifactor}.}
 
     \item{\code{nodeifactor(attrname, base=1)}}{\emph{Factor Attribute Effect
     for in-edges:} The \code{attrname} argument is a character string giving the
@@ -706,6 +714,14 @@ network
     attribute. The ordering of the attribute values is alphabetical. If the
     option \code{contrast=TRUE} is used, then a statistic for the first pairing
     is not included, making it the de facto reference category.}
+
+    \item{\code{nodeocov(attrname)}}{\emph{Main Effect of a Covariate for
+    Out-edges:} The \code{attrname} argument is a character string giving the
+    name of a numeric (not categorical) attribute in the network's vertex
+    attribute list. This term adds a single network statistic to the model
+    equaling the total value of \code{attrname(i)} for all edges \eqn{(i,j)} in
+    the network. This term may only be used with directed networks. For
+    categorical attributes, see \code{nodeofactor}.}
 
     \item{\code{nodeofactor(attrname, base=1)}}{\emph{Factor Attribute Effect
     for out-edges:} The \code{attrname} argument is a character string giving
@@ -755,13 +771,6 @@ network
     parametrization of the \eqn{p_1} model. This term can only be used with 
     directed networks. For undirected networks, see \code{sociality}.}
 
-    \item{\code{receivercov(attrname)}}{\emph{Receiver Covariate Effect:} The
-    \code{attrname} argument is a character string giving the name of an
-    attribute in the network's vertex attribute list that takes numeric values.
-    This term adds one network statistic to the model equaling the sum of the
-    attribute values of the receivers of all ties. This term can only be used
-    with directed networks. For undirected networks, see \code{nodecov}.}
-
     \item{\code{sender}}{\emph{Sender Effect:} This term adds one network
     statistic for each node equal to the number of out-ties for that node. This
     measures the activity of the node. The term for the first node is omitted
@@ -770,13 +779,6 @@ network
     coefficient is zero, following the Holland-Leinhardt parametrization of the
     \eqn{p_1} model. This term can only be used with directed networkss. For
     undirected networks, see \code{sociality}.}
-
-    \item{\code{sendercov(attrname)}}{\emph{Sender Covariate Effect:} The
-    \code{attrname} argument is a character string giving the name of an
-    attribute in the network's vertex attribute list that takes numeric values.
-    This term adds one network statistic to the model equaling the sum of the
-    attribute values of the senders of all ties. This term can only be used
-    with directed networks. For undirected networks, see \code{nodecov}.}
 
     \item{\code{simmelian}}{\emph{Simmelian Triads:} This term adds one
     statistic to the model equal to the number of Simmelian triads, as defined
