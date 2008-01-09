@@ -158,6 +158,18 @@ similar function for
 \code{\link{simulate.ergm}}; 
 \code{\link{control.gof}} performs a
 similar function for \code{\link{gof}}.   }
+\references{
+\item
+Boer, P., Huisman, M., Snijders, T.A.B., and Zeggelink, E.P.H. (2003),
+StOCNET User’s Manual. Version 1.4.
 
+\item Firth (2003)
+
+\item Handcock, M. S. (2000)
+
+\item Hunter, D. R. and M. S. Handcock (2006), Inference in curved
+exponential family models for networks.'' Journal of Computational
+and Graphical Statistics, 15: 565-583.
+}
 \keyword{ models }
 
