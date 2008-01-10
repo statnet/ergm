@@ -241,7 +241,7 @@ print.summary.ergm <- function (x,
     if(x$degeneracy.value > 1){
       cat("The instability of the model is: ",
         format(x$degeneracy.value, digits=2),"\n")
-      cat("Instabilities greater than 1 suggest that model is near degenerate.\n")
+      cat("Instabilities greater than 1 suggest the model is near degenerate.\n")
     }
    }
   }

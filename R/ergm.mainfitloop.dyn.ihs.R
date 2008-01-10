@@ -95,7 +95,7 @@ ergm.mainfitloop.dyn <- function(theta0, nw, model.form, model.diss,
                 network.density(nw),"\n"))
       cat(paste("The density of the original network is",
                 network.density(nw.orig),"\n"))
-      cat("Summary of the simulation:\n")
+      cat("Summary of simulation, relative to observed network:\n")
       print(apply(statsmatrix,2,summary.statsmatrix.ergm),scipen=6)
       degreedist(nw)
     }

@@ -19,7 +19,7 @@ ergm.marquardt<-function() {
 #     Reconstruct the statsmatrix
 #
       sm <- ergm.curved.statsmatrix(statsmatrix,theta0,parms.curved)$sm
-##      cat("Summary of the simulation:\n")
+##      cat("Summary of simulation, relative to observed network:\n")
 ##      print(apply(sm,2,summary.statsmatrix.ergm),scipen=6)
 
     cat(paste("Warning: No MCMC-MLE exists!\n",

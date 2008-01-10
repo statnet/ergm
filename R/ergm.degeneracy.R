@@ -93,7 +93,7 @@ ergm.degeneracy <- function(object,
         format(object$degeneracy.value, digits=2),"\n")
     }
     if(object$degeneracy.value > 1){
-      cat("Instabilities greater than 1 suggest that model is degenerate.\n")
+      cat("Instabilities greater than 1 suggest the model is degenerate.\n")
     }
   }
   if(verbose){
