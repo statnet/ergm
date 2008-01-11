@@ -206,13 +206,15 @@ ergm.estimate.ihs<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     statsmatrix.all <- NULL
   }
 
-  if (verbose) cat("Starting MCMC s.e. ACF computation.\n")
-  if(calc.mcmc.se){
-    mcmcacf <- ergm.MCMCacf(statsmatrix0)
-  }else{
-    mcmcacf <- covar-covar
-  }
-  if (verbose) cat("Ending MCMC s.e. ACF computation.\n")
+# Commented out for now -- this should probably not be added to the
+# ergm object because it is not always needed.
+#    if (verbose) cat("Starting MCMC s.e. ACF computation.\n")
+#    if(calc.mcmc.se){
+#      mcmcacf <- ergm.MCMCacf(statsmatrix0)
+#    }else{
+#      mcmcacf <- covar-covar
+#    }
+#  if (verbose) cat("Ending MCMC s.e. ACF computation.\n")
 
 # Output results as ergm-class object
   return(structure(list(coef=theta, sample=statsmatrix, sample.miss=statsmatrix.miss, 
@@ -220,7 +222,7 @@ ergm.estimate.ihs<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                  MCMCtheta=theta0, 
                  loglikelihood=loglikelihood, gradient=gradient,
                  covar=covar, samplesize=samplesize, failure=FALSE,
-                 mc.se=mc.se, #acf=mcmcacf,
+                 mc.se=mc.se#, #acf=mcmcacf,
                  #fullsample=statsmatrix.all
                  ),
             class="ergm"))

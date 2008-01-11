@@ -138,7 +138,8 @@ ergm(formula, theta0="MPLE",
   of network statistics specified by the model with the parameter equal
   to \code{MCMCtheta}.  If \code{MPLEonly=TRUE} then 
   \code{MCMCtheta} equals the MPLE.}
- \item{loglikelihood}{The approximate log-likelihood for the MLE.
+ \item{loglikelihood}{The approximate change in log-likelihood 
+ in the last iteration.
   The value is only approximate because it is estimated based 
   on the MCMC random sample.}
  \item{gradient}{The value of the gradient vector of the approximated
@@ -149,13 +150,25 @@ ergm(formula, theta0="MPLE",
  \item{samplesize}{The size of the MCMC sample}
  \item{failure}{Logical:  Did the MCMC estimation fail?}
  \item{mc.se}{MCMC standard error estimates}
+ \item{newnetwork}{The final network at the end of the MCMC
+ simulation}
  \item{burnin}{If included, the burnin used for the MCMC simulation}
  \item{interval}{If included, the interval used for the MCMC simulation}
  \item{network}{Original network}
+ \item{theta.original}{The first value of theta0}
+ \item{mplefit}{The coefficients from the MPLE fit, usually used 
+ as starting values)
+ \item{null.deviance}{Deviance of the null model.}
+ \item{mle.lik}{The approximate log-likelihood for the MLE.
+  The value is only approximate because it is estimated based 
+  on the MCMC random sample.}
+ \item{etamap}{The set of functions mapping the true parameter theta
+ to the canonical parameter eta (irrelevant except in a curved exponential
+ family model)}
+ \item{degeneracy.value}{Score calculated to assess the degree of 
+ degeneracy in the model}
+ \item{degeneracy.type}{supporting output for \code{degeneracy.value}}
  \item{formula}{The original \code{\link{formula}} entered into the \code{\link{ergm}} function.}
- \item{statsmatrix}{If the option \code{returnMCMCstats=TRUE}, this is 
-  the the matrix of change statistics from the MCMC run.}
- \item{newnetwork}{The network generated at the end of the MCMC sampling.}
  \item{constraints}{Constraints used by original \code{ergm} call}
  \item{prop.weights}{MCMC proposal weights used by original \code{ergm} call
  (part of the \code{\link{control.ergm}} function output).}

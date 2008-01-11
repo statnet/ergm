@@ -179,7 +179,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
 #    }else{                 
 #      mcmcacf <- covar-covar
 #    }
-    if (verbose) cat("Ending MCMC s.e. ACF computation.\n")
+#    if (verbose) cat("Ending MCMC s.e. ACF computation.\n")
       
       # Output results as ergm-class object
     return(structure(list(coef=theta, sample=statsmatrix, 
@@ -187,7 +187,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                           MCMCtheta=theta0, 
                           loglikelihood=loglikelihood, gradient=gradient,
                           covar=covar, samplesize=samplesize, failure=FALSE,
-                          mc.se=mc.se, #acf=mcmcacf,
+                          mc.se=mc.se#, #acf=mcmcacf,
                           #fullsample=statsmatrix.all
                           ),
                         class="ergm"))

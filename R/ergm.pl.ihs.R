@@ -1,9 +1,23 @@
-ergm.pl<-function(Clist, Clist.miss=NULL, m, theta.offset=NULL,
+ergm.pl.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
                     MPLEsamplesize=50000,
                     maxNumDyadTypes=100000,
                     verbose=FALSE) {
+  if(Clist.miss$nedges>0){
+    temp <- matrix(0,ncol=Clist$n,nrow=Clist$n)
+    base <- cbind(as.vector(col(temp)), as.vector(row(temp)))
+    base <- base[base[, 2] > base[, 1], ]
+    if(Clist.miss$dir){
+      base <- cbind(base[,c(2,1)],base)
+      base <- matrix(t(base),ncol=2,byrow=TRUE)
+    }
+    ubase <- base[,1] + Clist$n*base[,2]
+    offset <- !is.na(match(ubase, Clist.miss$heads+Clist.miss$tails*Clist$n))
+    offset <- 1*offset
+    numobs <- Clist$ndyads - sum(offset)
+  }else{
     offset <- rep(0,Clist$ndyads)
     numobs <- Clist$ndyads
+  }
   z <- .C("MPLE_wrapper",
           as.integer(Clist$heads),    as.integer(Clist$tails),
           as.integer(Clist$nedges),   as.integer(Clist$n), 
@@ -22,6 +36,7 @@ ergm.pl<-function(Clist, Clist.miss=NULL, m, theta.offset=NULL,
   wend <- z$weightsvector[uvals]
   xmat <- matrix(z$x, ncol=Clist$nparam, byrow=TRUE)[uvals,,drop=FALSE]
   colnames(xmat) <- m$coef.names
+  dmiss <- z$compressedOffset[uvals]
   rm(z,uvals)
   #
   # Adjust for the offset
@@ -52,6 +67,13 @@ ergm.pl<-function(Clist, Clist.miss=NULL, m, theta.offset=NULL,
     names(theta.offset) <- m$coef.names
   }
   
+  if(Clist.miss$nedges>0){
+    xmat <- xmat[dmiss==0,,drop=FALSE]
+    zy <- zy[dmiss==0]
+    wend <- wend[dmiss==0]
+    foffset <- foffset[dmiss==0]
+    colnames(xmat) <- m$coef.names
+  }
   
 #
 # Sample if necessary
