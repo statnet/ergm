@@ -53,11 +53,10 @@
     ever equals an integral multiple of 100(1+the number of proposals
     accepted)).}
  \item{basis}{An optional \code{\link[network]{network}} object to start the MCMC
-    algorithm from. This is used only if a \code{\link[network]{network}} object is not
-    specified on the right-hand-side of the \code{\link{formula}}. If
-    neither is specified an error is given as it is used
-    to specify the nature of the network requested (e.g., size and
-    directionality).}
+    algorithm from. This overrides the left-hand-side of the \code{formula}.
+    If neither a left-hand-side nor a \code{basis} is present, an error results
+    because the characteristics of the network (e.g., size and
+    directedness) must be specified.}
   \item{constraints}{A one-sided formula specifying one or more constraints
     on the support of the distribution of the networks being
     simulated. See the documentation for a similar argument for
@@ -126,9 +125,9 @@
   \code{\link{ergm}}.
 }
 
-\value{\code{\link[stats]{simulate}} returns an object of class \code{network.series} 
-  that is a list
-  consisting of the following elements:
+\value{If \code{nsim==1}, \code{simulate.ergm} returns an object of 
+class \code{network}.  If \code{nsim>1}, it returns an object of class
+\code{network.series} that is a list with the following elements:
   \item{formula}{The \code{\link{formula}} used to generate the sample.}
   \item{networks}{A list of the generated networks.}
   \item{stats}{The \eqn{n\times p}  matrix of network change statistics, 

@@ -55,5 +55,6 @@ if(exists("ergm.ihs")) { # Look here for a list of functions that exist in two
   MHproposal.ergm <- MHproposal.ergm.ihs
   ergm.getMCMCsample <- ergm.getMCMCsample.ihs
   ergm.mple <- ergm.mple.ihs
+  ergm.estimate <- ergm.estimate.ihs
 }
 

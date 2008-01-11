@@ -86,7 +86,7 @@ ergm.marquardt<-function() {
                 sample=statsmatrix0,
 #               sample=matrix(0,ncol=length(guess),nrow=1),
                 loglikelihood=NA,
-                mcmcloglik=NA,
+#                mcmcloglik=NA,
                 covar=covar,
                 acf=ergm.MCMCacf(statsmatrix0)))
   }
@@ -121,7 +121,7 @@ ergm.marquardt2 = function() {
               coef=coef,
               MCMCtheta=theta0,
               mc.se=rep(NA,length(theta0)),
-              mcmcloglik=0,
+#              mcmcloglik=0,
               samplesize=0,
               sample=statsmatrix0,
 #               sample=matrix(0,ncol=length(guess),nrow=1),

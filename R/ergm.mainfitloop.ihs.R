@@ -104,8 +104,9 @@ ergm.mainfitloop.ihs <- function(theta0, nw, model, Clist,
     l <- list(coef=theta0, mc.se=rep(NA,length=length(theta0)),
               sample=statsmatrix, sample.miss=statsmatrix.miss,
               iterations=1, MCMCtheta=theta0,
-              loglikelihood=NA, mcmcloglik=NULL, mle.lik=NULL,
-              gradient=rep(NA,length=length(theta0)), acf=NULL,
+              loglikelihood=NA, #mcmcloglik=NULL, 
+              mle.lik=NULL,
+              gradient=rep(NA,length=length(theta0)), #acf=NULL,
               samplesize=MCMCparams$samplesize, failure=TRUE,
               newnetwork = nw)
     return(structure (l, class="ergm"))
@@ -117,13 +118,14 @@ ergm.mainfitloop.ihs <- function(theta0, nw, model, Clist,
 # statistics that are not needed until output
 #
   if(iteration <= MCMCparams$maxit){
-   v<-ergm.estimate.only(theta0=theta0, model=model,
+   v<-ergm.estimate(theta0=theta0, model=model,
                     statsmatrix=statsmatrix, 
                     statsmatrix.miss=statsmatrix.miss, 
                     epsilon=MCMCparams$epsilon,
                     nr.maxit=MCMCparams$nr.maxit, calc.mcmc.se=MCMCparams$calc.mcmc.se, hessian=MCMCparams$hessian,
                     trustregion=MCMCparams$trustregion, method=MCMCparams$method, metric="Likelihood",
-                    compress=MCMCparams$compress, verbose=verbose)
+                    compress=MCMCparams$compress, verbose=verbose,
+                    estimateonly=TRUE)
   }
 #
 # End main loop

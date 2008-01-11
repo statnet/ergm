@@ -108,8 +108,9 @@ ergm.mainfitloop.dyn <- function(theta0, nw, model.form, model.diss,
     if(verbose){cat("Skipping optimization routines...\n")}
     l <- list(coef=theta0, mc.se=rep(NA,length=length(theta0)),
               sample=statsmatrix, iterations=1, MCMCtheta=theta0,
-              loglikelihood=NA, mcmcloglik=NULL, mle.lik=NULL,
-              gradient=rep(NA,length=length(theta0)), acf=NULL,
+              loglikelihood=NA, #mcmcloglik=NULL, 
+              mle.lik=NULL,
+              gradient=rep(NA,length=length(theta0)), #acf=NULL,
               samplesize=MCMCparams$samplesize, failure=TRUE,
               newnetwork = nw)
     return(structure (l, class="ergm"))
@@ -121,7 +122,7 @@ ergm.mainfitloop.dyn <- function(theta0, nw, model.form, model.diss,
 # statistics that are not needed until output
 #
   if(iteration <= MCMCparams$maxit){
-   v<-ergm.estimate.only(theta0=theta0, model=model.form,
+   v<-ergm.estimate(theta0=theta0, model=model.form,
                     statsmatrix=statsmatrix,
                     statsmatrix.miss=NULL,
                     epsilon=epsilon,
@@ -130,7 +131,8 @@ ergm.mainfitloop.dyn <- function(theta0, nw, model.form, model.diss,
                     hessian=MCMCparams$hessian,
                     trustregion=MCMCparams$trustregion, 
                     method=MCMCparams$method, metric="Likelihood",
-                    compress=MCMCparams$compress, verbose=verbose)
+                    compress=MCMCparams$compress, verbose=verbose, 
+                    estimateonly=TRUE)
   }
 #
 # End main loop

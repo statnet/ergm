@@ -54,8 +54,9 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
       Clist.miss=list(heads=0,tails=0,nedges=0))
 
   if (verb) {
-    cat("Starting",nsim,"MCMC iterations of",burnin+interval*MCMCparams$samplesize,
-        "steps each:\n")
+    cat(paste("Starting ",nsim," MCMC iteration", ifelse(nsim>1,"s",""),
+        " of ", burnin+interval*(MCMCparams$samplesize-1), 
+        " steps", ifelse(nsim>1, " each", ""), ".\n", sep=""))
   }
   for(i in 1:nsim){
     Clist <- ergm.Cprepare(nw, m)
@@ -134,8 +135,9 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
       Clist.miss=list(heads=0,tails=0,nedges=0))
 
   if (verb) {
-    cat("Starting",nsim,"MCMC iterations of",burnin+interval*MCMCparams$samplesize,
-        "steps each:\n")
+    cat(paste("Starting ",nsim," MCMC iteration", ifelse(nsim>1,"s",""),
+        " of ", burnin+interval*(MCMCparams$samplesize-1), 
+        " steps", ifelse(nsim>1, " each", ""), ".\n", sep=""))
   }
   for(i in 1:nsim){
     Clist <- ergm.Cprepare(nw, m)
@@ -153,7 +155,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
     while(z$newnwheads[1] > maxedges){
      maxedges <- 10*maxedges
      if (verb) {
-       cat(paste("#", i, " of ", nsim, ": ", sep=""))
+       cat(paste("  #", i, " of ", nsim, ": ", sep=""))
      }
      z <- ergm.mcmcslave(Clist,MHproposal,eta0,MCMCparams,maxedges,verb) 
     }

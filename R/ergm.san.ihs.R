@@ -58,8 +58,9 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
   if(!is.null(seed)) set.seed(as.integer(seed))
 
   if (verb) {
-    cat("Starting",nsim,"MCMC iterations of",burnin+interval*MCMCsamplesize,
-        "steps each:\n")
+    cat(paste("Starting ",nsim," MCMC iteration", ifelse(nsim>1,"s",""),
+        " of ", burnin+interval*(MCMCparams$samplesize-1), 
+        " steps", ifelse(nsim>1, " each", ""), ".\n", sep=""))
   }
 
   for(i in 1:nsim){
@@ -175,7 +176,7 @@ san.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
   }
   eta0 <- ergm.eta(theta0, m$etamap)
   if (verb & nsim > 1) {
-    cat("Starting",nsim,"MCMC iterations of",burnin+interval*MCMCsamplesize,
+    cat("Starting",nsim,"MCMC iterations of",burnin+interval*(MCMCsamplesize-1),
         "steps each:\n")
   }
   for(i in 1:nsim){

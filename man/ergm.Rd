@@ -127,7 +127,7 @@ ergm(formula, theta0="MPLE",
   of \eqn{\theta}, the vector of coefficients for the model
   parameters.}
  \item{sample}{The \eqn{n\times p} matrix of network statistics, 
-  where \eqn{n} is the
+  where \eqn{n} is the                               
   sample size and \eqn{p} is the number of network statistics specified in the
   model, that is used in the maximum likelihood estimation routine.}
  \item{iterations}{The number of Newton-Raphson iterations required
@@ -144,16 +144,25 @@ ergm(formula, theta0="MPLE",
  \item{gradient}{The value of the gradient vector of the approximated
   loglikelihood function, evaluated at the maximizer.  This vector
   should be very close to zero.}
- \item{hessian}{The Hessian matrix of the approximated loglikelihood
-  function, evaluated at the maximizer.  This matrix may be inverted to
-  give an approximate covariance matrix for the MLE.}
+ \item{covar}{Approximate covariance matrix for the MLE, based on the inverse
+  Hessian of the approximated loglikelihood evaluated at the maximizer.}
  \item{samplesize}{The size of the MCMC sample}
+ \item{failure}{Logical:  Did the MCMC estimation fail?}
+ \item{mc.se}{MCMC standard error estimates}
+ \item{burnin}{If included, the burnin used for the MCMC simulation}
+ \item{interval}{If included, the interval used for the MCMC simulation}
+ \item{network}{Original network}
  \item{formula}{The original \code{\link{formula}} entered into the \code{\link{ergm}} function.}
  \item{statsmatrix}{If the option \code{returnMCMCstats=TRUE}, this is 
   the the matrix of change statistics from the MCMC run.}
  \item{newnetwork}{The network generated at the end of the MCMC sampling.}
- \item{proposal}{The structure containing information about the
-  Metropolis-Hasting proposal used.}
+ \item{constraints}{Constraints used by original \code{ergm} call}
+ \item{prop.weights}{MCMC proposal weights used by original \code{ergm} call
+ (part of the \code{\link{control.ergm}} function output).}
+ \item{offset}{vector of logical telling which model parameters are to be set
+ at a fixed value (i.e., not estimated).}
+ \item{drop}{list of terms that were dropped due to extreme values of the
+ corresponding statistics on the observed network.}
   See the method \code{\link{print.ergm}} for details on how
   an \code{\link{ergm}} object is printed.  Note that the
   method \code{\link{summary.ergm}} returns a summary of the
