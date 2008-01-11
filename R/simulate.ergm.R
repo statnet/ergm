@@ -73,7 +73,8 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
     while(z$newnwheads[1] > maxedges){
      maxedges <- 10*maxedges
      if (verb) {
-       cat(paste("# ", i, " of ", nsim, ": ", sep=""))
+       cat("   ")
+       #cat(paste("# ", i, " of ", nsim, ": ", sep=""))
      }
      z <- ergm.mcmcslave(Clist,MHproposal,eta0,MCMCparams,maxedges,verb) 
     }
@@ -155,7 +156,8 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
     while(z$newnwheads[1] > maxedges){
      maxedges <- 10*maxedges
      if (verb) {
-       cat(paste("  #", i, " of ", nsim, ": ", sep=""))
+       cat("   ")
+       #cat(paste("  #", i, " of ", nsim, ": ", sep=""))
      }
      z <- ergm.mcmcslave(Clist,MHproposal,eta0,MCMCparams,maxedges,verb) 
     }

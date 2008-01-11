@@ -54,6 +54,8 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
                         control=control.gof.formula(),
                         seed=NULL,
                         verbose=FALSE) {
+  if (verbose) 
+    cat("Starting GOF for the given ERGM formula.\n")
   # Unused code
   theta0missing <- NULL
   unconditional <- TRUE
@@ -142,7 +144,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
                              
   # Calculate network statistics for the observed graph
   # Set up the output arrays of sim variables
-  if(verb)
+  if(verbose)
     cat("Calculating observed network statistics.\n")
   
   if ('model' %in% all.gof.vars) {
@@ -270,6 +272,9 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
 # New approach below avoids having to store gigantic unnecessary
 # network.series object
 
+  if(verbose)
+    cat("Starting simulations.\n")
+  
   tempnet <- nw
   for (i in 1:nsim) {
     if(verbose){
