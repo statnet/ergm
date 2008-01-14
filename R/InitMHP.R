@@ -90,7 +90,7 @@ InitMHP.ConstantEdges <- function(arguments, nw, model) {
   e <- c("edges", "meandeg", "density")
   if(any(m<-(e %in% model$coef.names))){    
     cat(paste("Warning: The model contains the", e[m], 
-              "term and a proposal that \nholds", e[m],
+              "term and the proposal constraints\nhold", e[m],
               "constant.  This term will be ignored.\n"))
   }
   MHproposal

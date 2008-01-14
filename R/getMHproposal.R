@@ -46,7 +46,7 @@ MHproposal.character <- function(object, arguments, nw, model, ...){
   proposal <- eval(call(paste("InitMHP.", name, sep=""),
                         arguments, nw, model))
 
-  proposal$bd<-ergm.boundDeg(arguments$bd,network.size(nw))
+  proposal$bd<-ergm.boundDeg(arguments$bd,nw)
 
   class(proposal)<-"MHproposal"
   proposal

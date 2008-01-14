@@ -338,9 +338,7 @@ int CheckTogglesValid(MHproposal *MHp, DegreeBound *bd, Network *nwp) {
   int *tattr = (int *) malloc(sizeof(int) * bd->attrcount);
 
   fvalid = 1;
-////  Rprintf("bd->fBoundDegByAttr=%d\n", bd->fBoundDegByAttr);
   
-
   /* Make proposed toggles */
   for (i=0; i<MHp->ntoggles; i++)
     ToggleEdge(MHp->togglehead[i], MHp->toggletail[i], nwp);
@@ -432,11 +430,6 @@ int CheckTogglesValid(MHproposal *MHp, DegreeBound *bd, Network *nwp) {
 	      /* for each attribute
         check heads' and tails' outmax and outmin */
 	      for (k=0; k < bd->attrcount && fvalid; k++){
-          Rprintf("kshouldbe0 = %d, hattr[k]=%d, tattr[k]=%d, ", k, hattr[k], tattr[k]);
-          Rprintf("taildeg=%d, headdeg=%d\n",
-          nwp->indegree[MHp->toggletail[i]] + nwp->outdegree[MHp->toggletail[i]],
-          nwp->indegree[MHp->togglehead[i]] + nwp->outdegree[MHp->togglehead[i]]);
-          
           fvalid=!((hattr[k]>bd->maxout[MHp->togglehead[i]-1+k*nwp->nnodes])|| 
           (hattr[k] < bd->minout[MHp->togglehead[i]-1+k*nwp->nnodes]) || 
           (tattr[k] > bd->maxout[MHp->toggletail[i]-1+k*nwp->nnodes]) ||
@@ -449,7 +442,7 @@ int CheckTogglesValid(MHproposal *MHp, DegreeBound *bd, Network *nwp) {
   free(hattr);
   free(tattr);
   
-  /* Make proposed toggles */
+  /* Undo proposed toggles */
   for (i=0; i<MHp->ntoggles; i++)
     ToggleEdge(MHp->togglehead[i], MHp->toggletail[i], nwp);
   

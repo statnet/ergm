@@ -18,21 +18,20 @@ void MH_randomtoggle (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {
     return;
   }
   MHp->ratio = 1.0;
-
+  
   fvalid = 0;
   trytoggle = 0;
   while(fvalid==0 && trytoggle < MAX_TRIES){
-
-   head = 1 + unif_rand() * nwp->nnodes;
-   while ((tail = 1 + unif_rand() * nwp->nnodes) == head);
-   if (!nwp->directed_flag && head > tail) {
-     MHp->togglehead[0] = tail;
-     MHp->toggletail[0] = head;
-   }else{
-     MHp->togglehead[0] = head;
-     MHp->toggletail[0] = tail;
-   }
-   fvalid=CheckTogglesValid(MHp, bd, nwp);
+    head = 1 + unif_rand() * nwp->nnodes;
+    while ((tail = 1 + unif_rand() * nwp->nnodes) == head);
+    if (!nwp->directed_flag && head > tail) {
+      MHp->togglehead[0] = tail;
+      MHp->toggletail[0] = head;
+    }else{
+      MHp->togglehead[0] = head;
+      MHp->toggletail[0] = tail;
+    }
+    fvalid=CheckTogglesValid(MHp, bd, nwp);
   }
 }
 
@@ -65,19 +64,19 @@ void MH_TNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
       MHp->ratio = nedges  / (odds*ndyads + nedges);
     }else{ /* Select a dyad at random */
       do{
-	head = 1 + unif_rand() * nwp->nnodes;
+        head = 1 + unif_rand() * nwp->nnodes;
       }while ((tail = 1 + unif_rand() * nwp->nnodes) == head);
       if (head > tail && !nwp->directed_flag)  {
-      MHp->togglehead[0] = tail;
-      MHp->toggletail[0] = head;
-    }else{
-	MHp->togglehead[0] = head;
-	MHp->toggletail[0] = tail;
+        MHp->togglehead[0] = tail;
+        MHp->toggletail[0] = head;
+      }else{
+        MHp->togglehead[0] = head;
+        MHp->toggletail[0] = tail;
       }
       if(EdgetreeSearch(MHp->togglehead[0],MHp->toggletail[0],nwp->outedges)!=0){
-	MHp->ratio = nedges / (odds*ndyads + nedges);
+        MHp->ratio = nedges / (odds*ndyads + nedges);
       }else{
-	MHp->ratio = 1.0 + (odds*ndyads)/(nedges + 1);
+        MHp->ratio = 1.0 + (odds*ndyads)/(nedges + 1);
       }
     }
     if(CheckTogglesValid(MHp,bd,nwp)) break;
@@ -108,19 +107,19 @@ void MH_TNT10 (MHproposal *MHp, DegreeBound *bd, Network *nwp)
       MHp->ratio *= nedges  / (odds*ndyads + nedges);
     }else{ /* Select a dyad at random */
       do{
-	head = 1 + unif_rand() * nwp->nnodes;
+        head = 1 + unif_rand() * nwp->nnodes;
       }while ((tail = 1 + unif_rand() * nwp->nnodes) == head);
       if (head > tail && !nwp->directed_flag)  {
-      MHp->togglehead[n] = tail;
-      MHp->toggletail[n] = head;
-    }else{
-	MHp->togglehead[n] = head;
-	MHp->toggletail[n] = tail;
+        MHp->togglehead[n] = tail;
+        MHp->toggletail[n] = head;
+      }else{
+        MHp->togglehead[n] = head;
+        MHp->toggletail[n] = tail;
       }
       if(EdgetreeSearch(MHp->togglehead[n],MHp->toggletail[n],nwp->outedges)!=0){
-	MHp->ratio *= nedges / (odds*ndyads + nedges);
+        MHp->ratio *= nedges / (odds*ndyads + nedges);
       }else{
-	MHp->ratio *= 1.0 + (odds*ndyads)/(nedges + 1);
+        MHp->ratio *= 1.0 + (odds*ndyads)/(nedges + 1);
       }
     } 
    }
@@ -144,11 +143,11 @@ void MH_ConstantEdges (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {
   
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=2;    
+    MHp->ratio=1.0;   
     return;
   } /* Note:  This proposal cannot be used for full or empty observed graphs.
        If desired, we could check for this at initialization phase. 
        (For now, however, no way to easily return an error message and stop.)*/
-  MHp->ratio=1.0;   
   for(int trytoggle = 0; trytoggle < MAX_TRIES; trytoggle++){
     /* First, select edge at random */
     FindithEdge(MHp->togglehead, MHp->toggletail, 1+nwp->nedges*unif_rand(), nwp);
@@ -164,7 +163,7 @@ void MH_ConstantEdges (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {
     MHp->togglehead[1]=head;
     MHp->toggletail[1]=tail;
     
-    if(CheckTogglesValid(MHp,bd,nwp)) break;
+    if(CheckTogglesValid(MHp,bd,nwp)) break; 
   }
 }
   
@@ -282,24 +281,23 @@ void MH_CondDegreeDist (MHproposal *MHp, DegreeBound *bd, Network *nwp) {
   if (k0 < noutedge){
     k=0;
     for(e = EdgetreeMinimum(nwp->outedges, head);
-	((tail = nwp->outedges[e].value) != 0 && k<k0);
-	e = EdgetreeSuccessor(nwp->outedges, e)){++k;}
+    ((tail = nwp->outedges[e].value) != 0 && k<k0);
+    e = EdgetreeSuccessor(nwp->outedges, e)){++k;}
   }else{
     k=0;
     for(e = EdgetreeMinimum(nwp->inedges, head);
-	((tail = nwp->inedges[e].value) != 0 && k<(k0-noutedge));
-	e = EdgetreeSuccessor(nwp->inedges, e)){++k;}
+    ((tail = nwp->inedges[e].value) != 0 && k<(k0-noutedge));
+    e = EdgetreeSuccessor(nwp->inedges, e)){++k;}
   }
 
   if ( (!nwp->directed_flag && head > tail) ||
-       (nwp->directed_flag && k0 >= noutedge) )
-    {
-      MHp->togglehead[0] = tail;
-      MHp->toggletail[0] = head;
-    }else{
-      MHp->togglehead[0] = head;
-      MHp->toggletail[0] = tail;
-    }
+  (nwp->directed_flag && k0 >= noutedge) ) {
+    MHp->togglehead[0] = tail;
+    MHp->toggletail[0] = head;
+  }else{
+    MHp->togglehead[0] = head;
+    MHp->toggletail[0] = tail;
+  }
   
   k1=0;
   fvalid=0;
@@ -309,15 +307,15 @@ void MH_CondDegreeDist (MHproposal *MHp, DegreeBound *bd, Network *nwp) {
     if(alter == tail){fvalid=0;}
     if (k0 < noutedge || !nwp->directed_flag){
       for(e = EdgetreeMinimum(nwp->outedges, head);
-	  (fvalid==1 && ((tail1 = nwp->outedges[e].value) != 0));
-	  e = EdgetreeSuccessor(nwp->outedges, e)){
-	if(alter==tail1){fvalid=0;}}
+      (fvalid==1 && ((tail1 = nwp->outedges[e].value) != 0));
+      e = EdgetreeSuccessor(nwp->outedges, e)){
+        if(alter==tail1){fvalid=0;}}
     }
     if (k0 >= noutedge || !nwp->directed_flag){
       for(e = EdgetreeMinimum(nwp->inedges, head);
-	  (fvalid==1 && ((tail1 = nwp->inedges[e].value) != 0));
-	  e = EdgetreeSuccessor(nwp->inedges, e)){
-	if(alter==tail1){fvalid=0;}}
+      (fvalid==1 && ((tail1 = nwp->inedges[e].value) != 0));
+      e = EdgetreeSuccessor(nwp->inedges, e)){
+        if(alter==tail1){fvalid=0;}}
     }
     k1++;
   }
