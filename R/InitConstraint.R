@@ -39,7 +39,8 @@ InitConstraint.indegreedist<-function(conlist){
 InitConstraint.bd<-function(conlist, attribs=0, maxout=0, maxin=0, minout=0, minin=0){
    if (nargs()>6)
      stop(paste("Bounded degrees constraint takes at most 5 arguments; ",nargs()-1," given.",sep=""), call.=FALSE)
-   conlist$bd<-list(attribs,maxout,maxin,minout,minin)
+   conlist$bd<-list(attribs=attribs,maxout=maxout,maxin=maxin,minout=minout,minin=minin)
+   conlist
 }
 
 #InitConstraint.indegrees<-function(conlist){

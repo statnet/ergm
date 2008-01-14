@@ -15,7 +15,7 @@ ergm.boundDeg <- function(boundDeg,nnodes){
     maxin <- boundDeg$maxin
     minout <- boundDeg$minout
     minin <- boundDeg$minin
-    if (is.null(attribs)){ 
+    if (is.null(attribs) || attribs==0){ 
       if(any(!is.null(c(minin,minout,maxout,maxin)))){ 
        attribs <- matrix(1,ncol=1,nrow=nnodes)
       }else{

@@ -229,6 +229,77 @@ network
     undirected graph the balanced triads are those with an even number of ties
     (i.e., 0 and 2).}
 
+    \item{\code{bounded.degree(d, bound)}}{\emph{Bounded degree:} The \code{d}
+    argument is a vector of distinct integers representing degrees. \code{bound}
+    is a vector of upper bounds corresponding to each degree. This term adds one
+    network statistic to the model for each element in \code{d}; the \eqn{i}th
+    such statistic equals the minimum of \code{bound[i]} and the number of nodes
+    in the network of degree exactly \code{d[i]}, i.e. with exactly \code{d[i]}
+    edges. This term can only be used with undirected networks; for directed
+    networks see \code{bounded.idegree} and \code{bounded.odegree}. }
+
+    \item{\code{bounded.idegree(d, bound)}}{\emph{Bounded in-degree:} The
+    \code{d} argument is a vector of distinct integers representing in-degrees.
+    \code{bound} is a vector of upper bounds corresponding to each degree. This
+    term adds one network statistic to the model for each element in \code{d};
+    the \eqn{i}th such statistic equals the minimum of \code{bound[i]} and the
+    number of nodes in the network of in-degree exactly \code{d[i]}, i.e. with
+    exactly \code{d[i]} in-edges. This term can only be used with directed
+    networks; for undirected networks see \code{bounded.degree}. }
+
+    \item{\code{bounded.istar(k, bound)}}{\emph{Bounded in-stars:} The \code{k}
+    argument is a vector of distinct integers. \code{bound} is a vector of upper
+    bounds corresponding to each degree. This term adds one network statistic to
+    the model for each element in \code{k}. The \eqn{i}th such statistic counts
+    the number of distinct \code{k[i]}-instars in the network, where a
+    \eqn{k}-instar is defined to be a node \eqn{N} and a set of \eqn{k}
+    different nodes \eqn{\{O_1, \dots, O_k\}}{O_1, \dots, O_k} such that the
+    ties \eqn{(N{\leftarrow}O_j)}{(O_j,N)} all exist for \eqn{j=1, \dots,
+    k}. The value is the minimum of this count and \code{bound[i]}. This term
+    can only be used with directed networks; for undirected networks, see
+    \code{bounded.kstar}. }
+
+    \item{\code{bounded.kstar(k, bound)}}{\emph{Bounded k-stars:} The \code{k}
+    argument is a vector of distinct integers. \code{bound} is a vector of upper
+    bounds corresponding to each degree. This term adds one network statistic to
+    the model for each element in \code{k}. The \eqn{i}th such statistic counts
+    the number of distinct \code{k[i]}-stars in the network, where a
+    \eqn{k}-star is defined to be a node \eqn{N} and a set of \eqn{k}
+    different nodes \eqn{\{O_1, \dots, O_k\}}{O_1, \dots, O_k} such that the tie
+    \eqn{\{N,O_j\}} exists for \eqn{j=1, \dots, k}. The value is the minimum of
+    this count and \code{bound[i]}. This term can only be used with
+    undirected networks; for directed networks, see \code{bounded.istar},
+    \code{bounded.ostar}.}
+    
+    \item{\code{bounded.odegree(d, bound)}}{\emph{Bounded out-degree:} The
+    \code{d} argument is a vector of distinct integers representing in-degrees.
+    \code{bound} is a vector of upper bounds corresponding to each degree. This
+    term adds one network statistic to the model for each element in \code{d};
+    the \eqn{i}th such statistic equals the minimum of \code{bound[i]} and the
+    number of nodes in the network of out-degree exactly \code{d[i]}, i.e. with
+    exactly \code{d[i]} out-edges. This term can only be used with directed
+    networks; for undirected networks see \code{bounded.degree}. }
+
+    \item{\code{bounded.ostar(k, bound)}}{\emph{Bounded out-stars:} The \code{k}
+    argument is a vector of distinct integers. \code{bound} is a vector of upper
+    bounds corresponding to each degree. This term adds one network statistic to
+    the model for each element in \code{k}. The \eqn{i}th such statistic counts
+    the number of distinct \code{k[i]}-outstars in the network, where a
+    \eqn{k}-instar is defined to be a node \eqn{N} and a set of \eqn{k}
+    different nodes \eqn{\{O_1, \dots, O_k\}}{O_1, \dots, O_k} such that the
+    ties \eqn{(N{\rightarrow}O_j)}{(N,O_j)} all exist for \eqn{j=1, \dots,
+    k}. The value is the minimum of this count and \code{bound[i]}. This term
+    can only be used with directed networks; for undirected networks, see
+    \code{bounded.kstar}. }
+
+    \item{\code{bounded.triangle(bound)}}{\emph{Bounded triangles:} This term
+    adds one statistic to the model equal to the minimum of the bound and the
+    number of triangles in the network. For an undirected network, a triangle is
+    defined to be any set of three edges \eqn{\{i,j\}}, \eqn{\{j,k\}}, and
+    \eqn{\{k,i\}}. For a directed network, a triangle is defined as any set of
+    three edges \eqn{(i{\rightarrow}j), (j{\rightarrow}k)}{(i,j), (j,k)} and
+    either \eqn{(k{\rightarrow}i)}{(k,i)} or \eqn{(i{\rightarrow}k)}{(i,k)}.}
+
     \item{\code{concurrent(attrname)}}{\emph{Concurrent node count:} This term adds one 
     network statistic to the model, equal to the number of nodes in the network 
     with degree 2 or higher. The optional term \code{attrname} is a character string

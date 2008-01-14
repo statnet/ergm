@@ -83,6 +83,258 @@ InitErgm.altostar<-function(nw, m, arglist, initialfit=FALSE, ...) {
 }
 
 ###################################### InitErgm TERMS:  B
+#########################################################
+InitErgm.bounded.degree<-function(nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("bounded.degree", is.directed(nw), requirement=FALSE)
+  a <- ergm.checkargs("bounded.degree", arglist,
+    varnames = c("d","bound"),
+    vartypes = c("numeric","numeric"),
+    defaultvalues = list(NULL,5),
+    required = c(TRUE,TRUE))
+  attach(a)
+  bound <- a$bound; d <- a$d
+  if(drop){
+    degrees <- as.numeric(names(table(table(as.matrix.network.edgelist(nw)))))
+    degrees[degrees > max(d)] <- max(d)
+    mdegrees <- match(d, degrees)  
+    if(any(is.na(mdegrees))){
+      cat(" ")
+      cat(paste("Warning: There are no degree", d[is.na(mdegrees)],
+                "vertices;\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+      dropterms <- paste("bounded.degree", d[is.na(mdegrees)],sep="")
+#     cat(paste("To avoid degeneracy the terms",
+#               paste(dropterms,collapse=" and, "),
+#               "have been dropped.\n"))
+      d <- degrees[mdegrees[!is.na(mdegrees)]] 
+    }
+  }
+  m$coef.names<-c(m$coef.names,paste("bounded.degree",d,sep=""))
+  ld<-length(d)
+  if(ld==0){return(m)}
+  if (length(bound)!=ld)
+    stop(paste("bounded.degree() expects its 2 arglist to be of the ",
+               "same length"), call.=FALSE)
+  termnumber<-1+length(m$terms)
+  bound <- rep(bound, length=ld) 
+  m$terms[[termnumber]] <- list(name="boundeddegree", soname="ergm",
+                                inputs = c(0, ld, ld+ld, c(d,bound)))
+  if (any(d==0)) {
+    emptynwstats <- rep(0, ld)
+    emptynwstats[d==0] <- min(bound[d==0],network.size(nw))
+    m$terms[[termnumber]]$emptynwstats <- emptynwstats
+  }
+  m
+}
+
+#########################################################
+InitErgm.bounded.idegree<-function(nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("bounded.idegree", is.directed(nw), requirement=TRUE)
+  a <- ergm.checkargs("bounded.idegree", arglist,
+    varnames = c("d", "bound"),
+    vartypes = c("numeric", "numeric"),
+    defaultvalues = list(NULL, 5),
+    required = c(TRUE, TRUE))
+  attach(a)
+  d<-a$d
+  bound<-a$bound
+  if(drop){
+    degrees <-
+      as.numeric(names(table(table(as.matrix.network.edgelist(nw)[,2]))))
+    degrees[degrees > max(d)] <- max(d)
+    mdegrees <- match(d, degrees)  
+    if(any(is.na(mdegrees))){
+      cat(" ")
+      cat(paste("Warning: There are no indegree", d[is.na(mdegrees)],
+                "vertices;\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+      dropterms <- paste("bounded.idegree", d[is.na(mdegrees)],sep="")
+#     cat(paste("To avoid degeneracy the terms",
+#               paste(dropterms,collapse=" and, "),
+#               "have been dropped.\n"))
+      d <- degrees[mdegrees[!is.na(mdegrees)]] 
+    }
+  }
+  ld<-length(d)
+  if(ld==0){return(m)}
+  if (length(bound)!=ld)
+    stop(paste("bounded.idegree() expects its 2 arglist to be of the ",
+               "same length"), call.=FALSE)
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="boundedidegree",
+                                soname="ergm",
+                                inputs = c(0, ld, ld+ld, c(d,bound)))
+  m$coef.names<-c(m$coef.names,paste("bounded.idegree",d,sep=""))
+  m
+}
+
+#########################################################
+InitErgm.bounded.istar<-function(nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("bounded.istar", is.directed(nw), requirement=TRUE)
+  a <- ergm.checkargs("bounded.istar", arglist,
+    varnames = c("k","bound"),
+    vartypes = c("numeric","numeric"),
+    defaultvalues = list(NULL,5),
+    required = c(TRUE,TRUE))
+  attach(a)
+  k<-a$k;bound<-a$bound
+  if(drop){
+    mistar <- paste("c(",paste(k,collapse=","),")",sep="")
+    mistar <- summary(as.formula(paste('nw ~ bounded.istar(',mistar,')',sep="")),
+                        drop=FALSE) == 0
+    if(any(mistar)){
+      cat(" ")
+      cat(paste("Warning: There are no order", k[mistar],"bounded.istars;\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+      dropterms <- paste("bounded.istar", k[mistar],sep="")
+#     cat(paste("To avoid degeneracy the terms",
+#               paste(dropterms,collapse=" and, "),
+#               "have been dropped.\n"))
+      k <- k[!mistar] 
+    }
+  }
+  lk<-length(k)
+  if(lk==0){return(m)}
+  if (length(bound)!=lk)
+    stop(paste("bounded.istar() expects its 2 arglist to be of the ",
+               "same length"), call.=FALSE)
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="boundedistar", soname="ergm",
+                                inputs = c(0, lk, lk+lk, c(k,bound)))
+  m$coef.names<-c(m$coef.names,paste("istar",k,".bound",bound,sep=""))
+  m
+}
+
+#########################################################
+InitErgm.bounded.kstar<-function(nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("bounded.kstar", is.directed(nw), requirement=FALSE)
+  a <- ergm.checkargs("bounded.kstar", arglist,
+    varnames = c("k","bound"),
+    vartypes = c("numeric","numeric"),
+    defaultvalues = list(NULL,5),
+    required = c(TRUE,TRUE))
+  attach(a)
+  k<-a$k;bound<-a$bound
+  if(drop){
+    degrees <- as.numeric(names(table(table(as.matrix.network.edgelist(nw)))))
+    mdegrees <- match(k, degrees)  
+    if(any(is.na(mdegrees))){
+      cat(" ")
+      cat(paste("Warning: There are no degree", k[is.na(mdegrees)],
+                "vertices;\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+      dropterms <- paste("bounded.kstar", k[is.na(mdegrees)],sep="")
+#     cat(paste("To avoid degeneracy the terms",
+#               paste(dropterms,collapse=" and, "),
+#               "have been dropped.\n"))
+      k <- degrees[mdegrees[!is.na(mdegrees)]] 
+    }
+  }
+  lk<-length(k)
+  if(lk==0){return(m)}
+  if (length(bound)!=lk)
+    stop(paste("bounded.kstar() expects its 2 arglist to be of the ",
+               "same length"), call.=FALSE)
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="boundedkstar", soname="ergm",
+                                inputs = c(0, lk, lk+lk, c(k,bound)))
+  m$coef.names<-c(m$coef.names,paste("kstar",k,".bound",bound,sep=""))
+  m
+}
+
+#########################################################
+InitErgm.bounded.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("bounded.odegree", is.directed(nw), requirement=TRUE)
+  a <- ergm.checkargs("bounded.odegree", arglist,
+    varnames = c("d", "bound"),
+    vartypes = c("numeric", "numeric"),
+    defaultvalues = list(NULL, NULL),
+    required = c(TRUE, TRUE))
+  attach(a)
+  d<-a$d
+  bound<-a$bound
+  if(drop){
+    degrees <-
+      as.numeric(names(table(table(as.matrix.network.edgelist(nw)[,1]))))
+    degrees[degrees > max(d)] <- max(d)
+    mdegrees <- match(d, degrees)  
+    if(any(is.na(mdegrees))){
+      cat(" ")
+      cat(paste("Warning: There are no outdegree", d[is.na(mdegrees)],
+                "vertices;\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+      dropterms <- paste("bounded.odegree", d[is.na(mdegrees)],sep="")
+#     cat(paste("To avoid degeneracy the terms",
+#               paste(dropterms,collapse=" and, "),
+#               "have been dropped.\n"))
+      d <- degrees[mdegrees[!is.na(mdegrees)]] 
+    }
+  }
+  ld<-length(d)
+  if(ld==0){return(m)}
+  if (length(bound)!=ld)
+    stop(paste("bounded.odegree() expects its 2 arglist to be of the ",
+               "same length"), call.=FALSE)
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="boundedodegree",
+                                soname="ergm",
+                                inputs = c(0, ld, ld+ld, c(d,bound)))
+  m$coef.names<-c(m$coef.names,paste("bounded.odegree",d,sep=""))
+  m
+}
+
+#########################################################
+InitErgm.bounded.ostar<-function(nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("bounded.ostar", is.directed(nw), requirement=TRUE)
+  a <- ergm.checkargs("bounded.ostar", arglist,
+    varnames = c("k","bound"),
+    vartypes = c("numeric","numeric"),
+    defaultvalues = list(NULL,5),
+    required = c(TRUE,TRUE))
+  attach(a)
+  k<-a$k;bound<-a$bound
+  if(drop){
+    mostar <- paste("c(",paste(k,collapse=","),")",sep="")
+    mostar <- summary(as.formula(paste('nw ~ bounded.ostar(',mostar,')',sep="")),
+                        drop=FALSE) == 0
+    if(any(mostar)){
+      cat(" ")
+      cat(paste("Warning: There are no order", k[mostar],"bounded.ostars;\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+      dropterms <- paste("bounded.ostar", k[mostar],sep="")
+#     cat(paste("To avoid degeneracy the terms",
+#               paste(dropterms,collapse=" and, "),
+#               "have been dropped.\n"))
+      k <- k[!mostar] 
+    }
+  }
+  lk<-length(k)
+  if(lk==0){return(m)}
+  if (length(bound)!=lk)
+    stop(paste("bounded.ostar() expects its 2 arglist to be of the ",
+               "same length"), call.=FALSE)
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="boundedostar", soname="ergm",
+                                inputs = c(0, lk, lk+lk, c(k,bound)))
+  m$coef.names<-c(m$coef.names,paste("ostar",k,".bound",bound,sep=""))
+  m
+}
+
+#########################################################
+InitErgm.bounded.triangle<-function(nw, m, arglist, ...) {
+  a <- ergm.checkargs("bounded.triangle", arglist,
+    varnames = c("bound"),
+    vartypes = c("numeric"),
+    defaultvalues = list(5),
+    required = c(TRUE))
+  attach(a)
+  bound<-a$bound
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="boundedtriangle", soname="ergm",
+                                inputs = c(0, 1, 1, bound))
+  m$coef.names<-c(m$coef.names,paste("triangle.bound",bound,sep=""))
+  m
+}
 
 ###################################### InitErgm TERMS:  C
 

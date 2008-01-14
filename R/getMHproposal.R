@@ -1,11 +1,13 @@
 MHproposals<-
-  #         Class Constraint      Weights        MHP
+  #         Class Constraints      Weights        MHP
   rbind(I(c("c", "",              "default",      "TNT")),
           c("c", "",              "TNT",          "TNT"),
           c("c", "",              "random",       "randomtoggle"),
           c("c", "bd",            "default",       "TNT"),
           c("c", "bd",            "TNT",           "TNT"),
           c("c", "bd",            "random",       "randomtoggle"),
+          c("c", "bd+edges",      "default",      "ConstantEdges"),
+          c("c", "bd+edges",      "random",       "ConstantEdges"),          
           c("c", "",              "nonobserved",  "randomtoggleNonObserved"),
           c("c", "degrees",       "default",      "CondDegree"),
           c("c", "degrees",       "random",       "CondDegree"),
@@ -75,14 +77,12 @@ MHproposal.formula <- function(object, arguments, nw, model, weights="default", 
   for(constr in names(conlist))
     for(impl in ConstraintImplications[[constr]])
       conlist[[impl]]<-NULL
-  
+
   ## Convert vector of constraints to a "standard form".
-  if(getRversion() >=2.4) {
-    constraints <- paste(sort(tolower(names(conlist))),collapse="+")
+  if(is.null(names(conlist))) {
+    constraints <- ""
   } else {
-    ncl <- names(conlist)
-    if (is.null(ncl)) constraints <- ""
-      else constraints <- tolower(ncl)    
+    constraints <- paste(sort(tolower(names(conlist))),collapse="+")
   }
   name<-with(MHproposals,MHP[Class==class & Constraints==constraints & Weights==weights])
   if(length(name)>1) stop("Multiple matching proposals in the lookup table.",
@@ -92,13 +92,13 @@ MHproposal.formula <- function(object, arguments, nw, model, weights="default", 
     constraints<-with(MHproposals,Constraints[Class==class & Weights==weights])
     weightings<-with(MHproposals,Weights[Class==class & Constraints==constraints])
     stop("This combination of model constraint and proposal weighting is not implemented. ",
-         "Check your arguments for typos. ",
+         "Check your arguments for typos. \n",
          if(length(constraints)) paste("Constraints that go with your selected weighting are as follows: ",
-                                       paste(constraints,collapse=", "),".",sep="")
-         else "The supplied weighting is not recognized/implemented. ",
+                                       paste(constraints,collapse=", "),".\n",sep="")
+         else "The supplied weighting is not recognized/implemented.\n ",
          if(length(weightings)) paste("Weightings that go with your selected constraint are as follows: ",
-                                      paste(weightings,collapse=", "),".",sep="")
-         else "The supplied constraint is not recognized/implemented. "
+                                      paste(weightings,collapse=", "),".\n",sep="")
+         else "The supplied constraint is not recognized/implemented.\n "
          )
   }
   if(is.null(arguments)) arguments<-conlist

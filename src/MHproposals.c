@@ -149,19 +149,23 @@ void MH_ConstantEdges (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {
        If desired, we could check for this at initialization phase. 
        (For now, however, no way to easily return an error message and stop.)*/
   MHp->ratio=1.0;   
-  /* First, select edge at random */
-  FindithEdge(MHp->togglehead, MHp->toggletail, 1+nwp->nedges*unif_rand(), nwp);
-  /* Second, select dyad at random until it has no edge */
-  do{
-    head = 1 + unif_rand() * nwp->nnodes;
-    tail = 1 + unif_rand() * nwp->nnodes;
-    if (!nwp->directed_flag && head > tail) {
-      temp=head;  head=tail;  tail=temp; /* swap head for tail */
-    }
-  }while (EdgetreeSearch(head, tail, nwp->outedges) != 0 || head == tail);
-
-  MHp->togglehead[1]=head;
-  MHp->toggletail[1]=tail;
+  for(int trytoggle = 0; trytoggle < MAX_TRIES; trytoggle++){
+    /* First, select edge at random */
+    FindithEdge(MHp->togglehead, MHp->toggletail, 1+nwp->nedges*unif_rand(), nwp);
+    /* Second, select dyad at random until it has no edge */
+    do{
+      head = 1 + unif_rand() * nwp->nnodes;
+      tail = 1 + unif_rand() * nwp->nnodes;
+      if (!nwp->directed_flag && head > tail) {
+        temp=head;  head=tail;  tail=temp; /* swap head for tail */
+      }
+    }while (EdgetreeSearch(head, tail, nwp->outedges) != 0 || head == tail);
+    
+    MHp->togglehead[1]=head;
+    MHp->toggletail[1]=tail;
+    
+    if(CheckTogglesValid(MHp,bd,nwp)) break;
+  }
 }
   
 /*********************

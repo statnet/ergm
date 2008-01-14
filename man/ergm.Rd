@@ -157,7 +157,7 @@ ergm(formula, theta0="MPLE",
  \item{network}{Original network}
  \item{theta.original}{The first value of theta0}
  \item{mplefit}{The coefficients from the MPLE fit, usually used 
- as starting values)
+ as starting values}
  \item{null.deviance}{Deviance of the null model.}
  \item{mle.lik}{The approximate log-likelihood for the MLE.
   The value is only approximate because it is estimated based 

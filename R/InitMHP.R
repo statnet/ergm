@@ -87,9 +87,11 @@ InitMHP.ConstantEdges <- function(arguments, nw, model) {
     MHproposal$name <- "BipartiteConstantEdges"
   }
 # Check for redundant terms
-  if("edges" %in% model$coef.names){
-    cat("Warning: The model contains an 'edges' term and a proposal that\n", 
-         "holds the edges fixed. The 'edges' term will be ignored.\n")
+  e <- c("edges", "meandeg", "density")
+  if(any(m<-(e %in% model$coef.names))){    
+    cat(paste("Warning: The model contains the", e[m], 
+              "term and a proposal that \nholds", e[m],
+              "constant.  This term will be ignored.\n"))
   }
   MHproposal
 }

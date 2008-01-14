@@ -7,6 +7,8 @@ MHproposals.ihs<-
           c("c", "bd",            "default",       "TNT"),
           c("c", "bd",            "TNT",           "TNT"),
           c("c", "bd",            "random",       "randomtoggle"),
+          c("c", "bd+edges",      "default",      "ConstantEdges"),
+          c("c", "bd+edges",      "random",       "ConstantEdges"),          
           c("c", "",              "nonobserved",  "randomtoggleNonObserved"),
           c("c", "degrees",       "default",      "CondDegree"),
           c("c", "degrees",       "random",       "CondDegree"),
