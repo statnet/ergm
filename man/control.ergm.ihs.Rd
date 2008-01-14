@@ -5,8 +5,9 @@
   Auxiliary function as user interface for fine-tuning 'ergm' fitting.
 }
 \usage{
-control.ergm(prop.weights = "default", prop.args = NULL,
-             nr.maxit = 100, calc.mcmc.se = TRUE, hessian = FALSE, compress = FALSE,
+control.ergm(prop.weights = "default", prop.args = NULL,              
+             prop.weights.diss = "default", prop.args.diss = NULL, nr.maxit =
+             100, calc.mcmc.se = TRUE, hessian = FALSE, compress = FALSE,
              maxNumDyadTypes = 10000, maxedges = 20000, maxchanges = 1e+06,
              MPLEsamplesize = 50000, MPLEtype=c("glm", "penalized"), trace = 0,
              steplength = 0.5, drop = TRUE, force.mcmc = FALSE, check.degeneracy=TRUE, mcmc.precision =
@@ -32,6 +33,8 @@ control.ergm(prop.weights = "default", prop.args = NULL,
     with all possible constraints (in the \code{\link{ergm}} function).
     }
   \item{prop.args}{ An alternative, direct way of specifying additional arguments to proposal. }
+  \item{prop.weights.diss}{ As \code{prop.weights}, for dissolution model. }
+  \item{prop.args.diss}{ As \code{prop.args}, for dissolution model. }
   \item{nr.maxit}{ count; The maximum number of iterations in the
     Newton-Raphson optimization.  Defaults to \code{100}.
     \code{maxit} gives the total number of likelihood
@@ -108,7 +111,7 @@ control.ergm(prop.weights = "default", prop.args = NULL,
     a form of stochastic approximation (\code{"Robbins-Monro"}).
     The direct use of the likelihood function has many theoretical
     advantages over stochastic approximation, but the choice will
-    depend on the model and data being fit. See
+    depend on the model and data being fit. See Handcock (2000) and 
     Hunter and Handcock (2006) for details.}
   \item{phase1_n}{count; The number of MCMC samples to draw
     in Phase 1 of the stochastic approximation algorithm.
@@ -158,12 +161,15 @@ similar function for \code{\link{gof}}.   }
 \references{
 \item
 Boer, P., Huisman, M., Snijders, T.A.B., and Zeggelink, E.P.H. (2003),
-StOCNET User\'s Manual. Version 1.4.
+StOCNET User’s Manual. Version 1.4.
 
-\item Firth (1993), Bias Reduction in Maximum Likelihood Estimates.  Biometrika, 80: 27-38.
+\item Firth (1993),
+      Bias Reduction in Maximum Likelihood Estimates.
+      Biometrika,
+      80: 27-38.
 
 \item Hunter, D. R. and M. S. Handcock (2006), Inference in curved
-exponential family models for networks. Journal of Computational
+exponential family models for networks.'' Journal of Computational
 and Graphical Statistics, 15: 565-583.
 }
 \keyword{ models }

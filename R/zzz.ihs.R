@@ -58,5 +58,6 @@ if(exists("ergm.ihs")) { # Look here for a list of functions that exist in two
   ergm.estimate <- ergm.estimate.ihs
   ergm.MCMCse <- ergm.MCMCse.ihs
   ergm.pl <- ergm.pl.ihs
+  ergm.control <- ergm.control.ihs
 }
 

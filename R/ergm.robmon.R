@@ -123,7 +123,8 @@ cat(paste("theta new:",theta,"\n"))
   attr(ve$sample, "class") <- "mcmc"
   ve$null.deviance <- 2*network.dyadcount(nw)*log(2)
   ve$mle.lik <- -ve$null.deviance/2 + ve$loglikelihood
-  ve$mcmcloglik <- ve$mcmcloglik - network.dyadcount(nw)*log(2)
+# The next is the right one to uncomment
+# ve$mcmcloglik <- ve$mcmcloglik - network.dyadcount(nw)*log(2)
 
   # From ergm.estimate:
   #    structure(list(coef=theta, sample=statsmatrix, 

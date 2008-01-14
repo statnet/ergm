@@ -93,7 +93,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
   if(!estimate){
     if(verbose){cat("Skipping optimization routines...\n")}
     l <- list(coef=theta0, mc.se=rep(NA,length=length(theta0)),
-              sample=statsmatrix, sample.miss=statsmatrix.miss,
+              sample=statsmatrix, # sample.miss=statsmatrix.miss,
               iterations=1, MCMCtheta=theta0,
               loglikelihood=NA, #mcmcloglik=NULL, 
               mle.lik=NULL,
@@ -180,7 +180,8 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
 # v$mle.lik <- -v$null.deviance/2 + v$loglikelihood
 # v$mle.lik <- -initialfit$mle.lik/2 + v$loglikelihood
   v$mle.lik <- mle.lik
-  v$mcmcloglik <- v$mcmcloglik - network.dyadcount(nw.orig)*log(2)
+# This next is the right one
+# v$mcmcloglik <- v$mcmcloglik - network.dyadcount(nw.orig)*log(2)
   v$etamap <- model$etamap
 # if(!is.na(v$mle.lik) && v$mle.lik>0){
 #   v$mle.lik <- -v$mplefit$glm$deviance/2 

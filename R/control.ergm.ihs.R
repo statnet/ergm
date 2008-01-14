@@ -1,4 +1,5 @@
-control.ergm<-function(prop.weights="default",prop.args=NULL,
+control.ergm.ihs<-function(prop.weights="default",prop.args=NULL,
+                       prop.weights.diss="default",prop.args.diss=NULL,
                        nr.maxit=100, calc.mcmc.se=TRUE, hessian=FALSE,
                        compress=FALSE,
                        maxNumDyadTypes=10000, 

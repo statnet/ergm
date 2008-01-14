@@ -25,7 +25,8 @@ ergm(formula, theta0="MPLE",
     \code{y ~ <model terms>},
     where \code{y} is a \code{\link[network]{network}} object or a matrix that can be
     coerced to a \code{\link[network]{network}}  object.  For the details on the possible
-    \code{<model terms>}, see \code{\link{ergm-terms}}.  To create a
+    \code{<model terms>}, see \code{\link{ergm-terms}} and Morris, Handcock and
+Hunter (2008).  To create a
     \code{\link[network]{network}} object in \R, use the \code{network()} function,
     then add nodal attributes to it using the \code{\%v\%}
     operator if necessary.}
@@ -115,10 +116,10 @@ ergm(formula, theta0="MPLE",
   of potential models for their network data.  The
   terms currently supported by the program,
   and a brief description of each is given in the documentation
-  \code{\link{ergm-terms}}.
+  \code{\link{ergm-terms}}. 
   In the \code{\link{formula}} for the model, the model terms are various function-like
   calls, some of which require arguments, separated by \code{+} signs.
-  See \code{\link{ergm-terms}} for details.
+  For a more detailed understanding of the model terms, see and Morris, Handcock and Hunter (2008).
 }
 
 \value{\code{\link{ergm}} returns an object of class \code{\link{ergm}} that is a list
@@ -397,58 +398,103 @@ maxin[n][0] = minin[n][0] = observed indegree of n in network
   }
 }
  
-\section{Dealing with degeneracy}{
-In order to begin the process of estimating network coefficients,
-we need starting values - guesses at the true values of the
-network statistic coefficients.  The default is to begin the MCMC
-estimation process at the deterministic MPLE values. These
-values are often taken as good-enough final answers by many other
-applications. However recent work has indicated that they are sub-optimal and
-can be dramatically bad.
-
-In using the MPLE values, MCMC MLE often runs into
-problems caused by the inherent instability of the natural parameter
-space of the models (Handcock 2000, 2002, 2003).
-If the initial values for the parameter coefficients
-are off by a very small amount in the wrong direction, the
-result is often a sample of networks that are degenerate -
-that is, networks that are entirely full or entirely empty,
-or that are otherwise less-than-representative of the
-sample of network space our process is attempting to explore.
-(In part, this is an indication of why one should not rely
-solely on the MPLE). The package contains many algorithmic 
-tools to obtain quality inference.
-If the sample of networks is
-degenerate, our algorithm will fail in its calculation of an
-MLE for our data (usually in constructing the Hessian matrix).
-%In this case, we can attempt to converge using the Robbins-Monro
-%algorithm, minimizing the Euclidean distance between the mean of
-%the sample network statistics and the observed network statistics
-%as a function of the theta vector.  While this is a fairly
-%blunt instrument for estimating the thetas in comparison to
-%the MCMC, it still has the potential to get us thetas in the
-%right range; then we can run the MCMC again, using our better
-%estimates of theta.  A potential problem with this technique is
-%that it only works well if the space of sufficient statistics
-%is sufficiently regular around our sample network; but as a
-%stop-gap measure, it has shown some limited success.
-See the references for details, especially Handcock (2003) and Hunter and
-Handcock (2006).
-}
+%\section{Dealing with degeneracy}{
+%In order to begin the process of estimating network coefficients,
+%we need starting values - guesses at the true values of the
+%network statistic coefficients.  The default is to begin the MCMC
+%estimation process at the deterministic MPLE values. These
+%values are often taken as good-enough final answers by many other
+%applications. However recent work has indicated that they are sub-optimal and
+%can be dramatically bad.
+%
+%In using the MPLE values, MCMC MLE often runs into
+%problems caused by the inherent instability of the natural parameter
+%space of the models (Handcock 2000, 2002, 2003).
+%If the initial values for the parameter coefficients
+%are off by a very small amount in the wrong direction, the
+%result is often a sample of networks that are degenerate -
+%that is, networks that are entirely full or entirely empty,
+%or that are otherwise less-than-representative of the
+%sample of network space our process is attempting to explore.
+%(In part, this is an indication of why one should not rely
+%solely on the MPLE). The package contains many algorithmic 
+%tools to obtain quality inference.
+%If the sample of networks is
+%degenerate, our algorithm will fail in its calculation of an
+%MLE for our data (usually in constructing the Hessian matrix).
+%%In this case, we can attempt to converge using the Robbins-Monro
+%%algorithm, minimizing the Euclidean distance between the mean of
+%%the sample network statistics and the observed network statistics
+%%as a function of the theta vector.  While this is a fairly
+%%blunt instrument for estimating the thetas in comparison to
+%%the MCMC, it still has the potential to get us thetas in the
+%%right range; then we can run the MCMC again, using our better
+%%estimates of theta.  A potential problem with this technique is
+%%that it only works well if the space of sufficient statistics
+%%is sufficiently regular around our sample network; but as a
+%%stop-gap measure, it has shown some limited success.
+%See the references for details, especially Handcock (2003) and Hunter and
+%Handcock (2006).
+%}
 
 \references{
 Boer, P., Huisman, M., Snijders, T.A.B., and Zeggelink, E.P.H. (2003). 
 \emph{StOCNET: an open software system for the advanced statistical analysis 
 of social networks.} Version 1.4. Groningen: ProGAMMA / ICS
 
-Handcock, M.S. (2000) \emph{Progress in Statistical Modeling of Drug User and 
-  Sexual Networks}, Center for Statistics and the Social Sciences,
-     University of Washington.
+%Handcock, M.S. (2000) \emph{Progress in Statistical Modeling of Drug User and 
+%  Sexual Networks}, Center for Statistics and the Social Sciences,
+%     University of Washington.
 
-Handcock, M. S. (2002)
-    \emph{Degeneracy and inference for social network models}
-    Paper presented at the Sunbelt XXII International Social
-Network Conference in New Orleans, LA.
+%Handcock, M. S. (2002)
+%    \emph{Degeneracy and inference for social network models}
+%    Paper presented at the Sunbelt XXII International Social
+%Network Conference in New Orleans, LA.
+
+Admiraal R, Handcock MS (2007).
+ {\pkg{networksis}: Simulate bipartite graphs with fixed
+  marginals through sequential importance sampling}.
+ Statnet Project, Seattle, WA.
+ Version 1.\newline\url{http://statnetproject.org}.
+
+Bender-deMoll S, Morris M, Moody J (2008).
+ {Prototype Packages for Managing and Animating Longitudinal
+  Network Data: \pkg{dynamicnetwork} and \pkg{rSoNIA}.}
+ {Journal of Statistical Software}, \textbf{24}(7).
+ \url{http://www.jstatsoft.org/v24/i07/}.
+
+Boer P, Huisman M, Snijders T, Zeggelink E (2003).
+ {StOCNET: an open software system for the advanced statistical
+  analysis of social networks}.
+ Groningen: ProGAMMA / ICS, version 1.4 edition.
+
+Butts CT (2006).
+ {\pkg{netperm}: Permutation Models for Relational Data}.
+ Version 0.2, \url{http://erzuli.ss.uci.edu/R.stuff}.
+
+Butts CT (2007).
+ {\pkg{sna}: Tools for Social Network Analysis}.
+ Version 1.5, \url{http://erzuli.ss.uci.edu/R.stuff}.
+
+Butts CT (2008).
+ {\pkg{network}: {A} Package for Managing Relational Data in
+  \proglang{R}.}
+ {Journal of Statistical Software}, \textbf{24}(2).
+ \url{http://www.jstatsoft.org/v24/i02/}.
+
+Butts CT, with help~from David~Hunter, Handcock MS (2007).
+ {\pkg{network}: Classes for Relational Data}.
+ Version 1.2, \url{http://erzuli.ss.uci.edu/R.stuff}.
+
+Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).
+ {A \pkg{statnet} Tutorial.}
+ {Journal of Statistical Software}, \textbf{24}(8).
+ \url{http://www.jstatsoft.org/v24/i08/}.
+
+Goodreau SM, Kitts J, Morris M (2008{{b}}).
+ {Birds of a Feather, or Friend of a Friend? Using Exponential
+  Random Graph Models to Investigate Adolescent Social Networks.}
+ {Demography}, \textbf{45}, in press.
 
 Handcock, M. S. (2003)
     \emph{Assessing Degeneracy in Statistical Models of Social Networks},
@@ -457,9 +503,45 @@ Center for Statistics and the Social Sciences,
 University of Washington.
 \url{www.csss.washington.edu/Papers/wp39.pdf}
 
+Handcock MS (2003{{b}}).
+ {\pkg{degreenet}: Models for Skewed Count Distributions Relevant
+  to Networks}.
+ Statnet Project, Seattle, WA.
+ Version 1.0, \url{http://statnetproject.org}.
+
+Handcock MS, Hunter DR, Butts CT, Goodreau SM, Morris M (2003{{a}}).
+ {\pkg{ergm}: {A} Package to Fit, Simulate and Diagnose
+  Exponential-Family Models for Networks}.
+ Statnet Project, Seattle, WA.
+ Version 2, \url{http://statnetproject.org}.
+
+Handcock MS, Hunter DR, Butts CT, Goodreau SM, Morris M (2003{{b}}).
+ {\pkg{statnet}: Software Tools for the Statistical Modeling of
+  Network Data}.
+ Statnet Project, Seattle, WA.
+ Version 2, \url{http://statnetproject.org}.
+
 Hunter, D. R. and Handcock, M. S. (2006)
     \emph{Inference in curved exponential family models for networks},
    Journal of Computational and Graphical Statistics.
+
+Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008{{b}}).
+ {\pkg{ergm}: {A} Package to Fit, Simulate and Diagnose
+  Exponential-Family Models for Networks.}
+ {Journal of Statistical Software}, \textbf{24}(3).
+ \url{http://www.jstatsoft.org/v24/i03/}.
+
+Krivitsky PN, Handcock MS (2007).
+ {\pkg{latentnet}: Latent position and cluster models for
+  statistical networks}.
+ Seattle, WA.
+ Version 2, \url{http://statnetproject.org}.
+
+Morris M, Handcock MS, Hunter DR (2008).
+ {Specification of Exponential-Family Random Graph Models:
+  Terms and Computational Aspects.}
+ {Journal of Statistical Software}, \textbf{24}(4).
+ \url{http://www.jstatsoft.org/v24/i04/}.
 }
 
 \seealso{network, \%v\%, \%n\%, ergm-terms,
