@@ -67,7 +67,7 @@ Admiraal R, Handcock MS (2007).
  Version 1, \url{http://statnetproject.org}.
 
 Bender-deMoll S, Morris M, Moody J (2008).
- \enquote{Prototype Packages for Managing and Animating Longitudinal
+ {Prototype Packages for Managing and Animating Longitudinal
   Network Data: \pkg{dynamicnetwork} and \pkg{rSoNIA}.}
  {Journal of Statistical Software}, \textbf{24}(7).
  \url{http://www.jstatsoft.org/v24/i07/}.
@@ -90,8 +90,7 @@ Butts CT (2007).
  Version 1.5, \url{http://erzuli.ss.uci.edu/R.stuff}.
 
 Butts CT (2008).
- \enquote{\pkg{network}: {A} Package for Managing Relational Data in
-  \proglang{R}.}
+ {\pkg{network}: {A} Package for Managing Relational Data in \R.}
  {Journal of Statistical Software}, \textbf{24}(2).
  \url{http://www.jstatsoft.org/v24/i02/}.
 
@@ -103,12 +102,12 @@ Frank, O., and Strauss, D.(1986). Markov graphs. Journal of the American
 Statistical Association, 81, 832-842. 
 
 Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).
- \enquote{A \pkg{statnet} Tutorial.}
+ {A \pkg{statnet} Tutorial.}
  {Journal of Statistical Software}, \textbf{24}(8).
  \url{http://www.jstatsoft.org/v24/i08/}.
 
 Goodreau SM, Kitts J, Morris M (2008{{b}}).
- \enquote{Birds of a Feather, or Friend of a Friend? Using Exponential
+ {Birds of a Feather, or Friend of a Friend? Using Exponential
   Random Graph Models to Investigate Adolescent Social Networks.}
  {Demography}, \textbf{45}, in press.
 
@@ -142,7 +141,7 @@ Hunter, D. R. and Handcock, M. S. (2006)
    Journal of Computational and Graphical Statistics.
 
 Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008{{b}}).
- \enquote{\pkg{ergm}: {A} Package to Fit, Simulate and Diagnose
+ {\pkg{ergm}: {A} Package to Fit, Simulate and Diagnose
   Exponential-Family Models for Networks.}
  {Journal of Statistical Software}, \textbf{24}(3).
  \url{http://www.jstatsoft.org/v24/i03/}.
@@ -154,7 +153,7 @@ Krivitsky PN, Handcock MS (2007).
  Version 2, \url{http://statnetproject.org}.
 
 Morris M, Handcock MS, Hunter DR (2008).
- \enquote{Specification of Exponential-Family Random Graph Models:
+ {Specification of Exponential-Family Random Graph Models:
   Terms and Computational Aspects.}
  {Journal of Statistical Software}, \textbf{24}(4).
  \url{http://www.jstatsoft.org/v24/i04/}.

@@ -99,7 +99,7 @@ Hunter (2008).  To create a
   \item{control}{A list of control parameters for algorithm
     tuning. Constructed using \code{\link{control.ergm}}. }
   \item{seed}{integer; random number integer seed. Defaults to \code{NULL} to
-    use whatever the state of the random number generater is at the time
+    use whatever the state of the random number generator is at the time
     of the call.
   }
   \item{verbose}{logical; if this is
@@ -157,8 +157,7 @@ Hunter (2008).  To create a
  \item{interval}{If included, the interval used for the MCMC simulation}
  \item{network}{Original network}
  \item{theta.original}{The first value of theta0}
- \item{mplefit}{The coefficients from the MPLE fit, usually used 
- as starting values}
+ \item{mplefit}{The MPLE fit as a \code{glm} object.}
  \item{null.deviance}{Deviance of the null model.}
  \item{mle.lik}{The approximate log-likelihood for the MLE.
   The value is only approximate because it is estimated based 
@@ -167,8 +166,9 @@ Hunter (2008).  To create a
  to the canonical parameter eta (irrelevant except in a curved exponential
  family model)}
  \item{degeneracy.value}{Score calculated to assess the degree of 
- degeneracy in the model}
- \item{degeneracy.type}{supporting output for \code{degeneracy.value}}
+ degeneracy in the model.}
+ \item{degeneracy.type}{Supporting output for \code{degeneracy.value}. Mainly
+for internal use.}
  \item{formula}{The original \code{\link{formula}} entered into the \code{\link{ergm}} function.}
  \item{constraints}{Constraints used by original \code{ergm} call}
  \item{prop.weights}{MCMC proposal weights used by original \code{ergm} call
@@ -477,8 +477,7 @@ Butts CT (2007).
  Version 1.5, \url{http://erzuli.ss.uci.edu/R.stuff}.
 
 Butts CT (2008).
- {\pkg{network}: {A} Package for Managing Relational Data in
-  \proglang{R}.}
+ {\pkg{network}: {A} Package for Managing Relational Data in \R.}
  {Journal of Statistical Software}, \textbf{24}(2).
  \url{http://www.jstatsoft.org/v24/i02/}.
 
