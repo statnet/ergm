@@ -186,11 +186,5 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
 # if(!is.na(v$mle.lik) && v$mle.lik>0){
 #   v$mle.lik <- -v$mplefit$glm$deviance/2 
 # }  #I'm really not sure about this mle.lik value.
-  if(!is.null(MCMCparams$check.degeneracy) && MCMCparams$check.degeneracy && 
-    (is.null(v$theta1$independent) || !all(v$theta1$independent))){
-   degeneracy <- ergm.degeneracy(v, test.only=TRUE)
-   v$degeneracy.value <- degeneracy$degeneracy.value
-   v$degeneracy.type <- degeneracy$degeneracy.type
-  }
   v
 }

@@ -3128,7 +3128,8 @@ InitErgm.receiver<-function(nw, m, arglist, drop=FALSE, ...) {
   if(ld==0){return(m)}
   termnumber<-1+length(m$terms)
   m$terms[[termnumber]] <- list(name="receiver", soname="ergm",
-                                inputs=c(0, ld, ld, d))
+                                inputs=c(0, ld, ld, d),
+                                dependence=FALSE)
   m$coef.names<-c(m$coef.names,paste("receiver",d,sep=""))
   m
 }
@@ -3164,7 +3165,8 @@ InitErgm.sender<-function(nw, m, arglist, drop=FALSE, ...) {
   if(ld==0){return(m)}
   termnumber<-1+length(m$terms)
   m$terms[[termnumber]] <- list(name="sender", soname="ergm",
-                                inputs=c(0, ld, ld, d))
+                                inputs=c(0, ld, ld, d), 
+                                dependence=FALSE)
   m$coef.names<-c(m$coef.names,paste("sender",d,sep=""))
   m
 }

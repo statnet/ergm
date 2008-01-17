@@ -85,24 +85,36 @@ ergm <- function(formula, theta0="MPLE",
 
   MCMCparams=c(control,
    list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,maxit=maxit,Clist.miss=Clist2))
-  if (verbose) cat("Fitting ERGM.\n")
-    v <- switch(control$style,
-                "Robbins-Monro" = ergm.robmon(theta0, nw, model, Clist, burnin, interval,
-                                              MHproposal(constraints,
-                                                            weights=control$prop.weights, 
-                                                            control$prop.args, nw, model), 
-                                              verbose, control),
-                "Stochastic-Approximation" = ergm.stocapprox(theta0, nw, model, 
-                                                             Clist, 
-                                                             MCMCparams=MCMCparams, MHproposal=MHproposal,
-                                                             verbose),
-                ergm.mainfitloop(theta0, nw,
-                                 model, Clist,
-                                 initialfit,
-                                 MCMCparams=MCMCparams, MHproposal=MHproposal,
-                                 verbose=verbose, 
-                                 ...)
-                )
+  if (verbose) {
+    cat("Fitting ERGM.\n")
+  }
+  v <- switch(control$style,
+              "Robbins-Monro" = ergm.robmon(theta0, nw, model, Clist, burnin, interval,
+                                            MHproposal(constraints,
+                                                       weights=control$prop.weights, 
+                                                       control$prop.args, nw, model), 
+                                            verbose, control),
+              "Stochastic-Approximation" = ergm.stocapprox(theta0, nw, model, 
+                                                           Clist, 
+                                                           MCMCparams=MCMCparams, MHproposal=MHproposal,
+                                                           verbose),
+              ergm.mainfitloop(theta0, nw,
+                               model, Clist,
+                               initialfit,
+                               MCMCparams=MCMCparams, MHproposal=MHproposal,
+                               verbose=verbose, 
+                               ...)
+              )
+  if(!is.null(MCMCparams$check.degeneracy) && MCMCparams$check.degeneracy && (is.null(v$theta1$independent) || !all(v$theta1$independent))){
+    if(verbose) {
+      cat("Checking for degeneracy.\n")
+    }
+    degeneracy <- ergm.degeneracy(v, test.only=TRUE)
+  } else {
+    degeneracy <- list(degeneracy.value=NULL, degeneracy.type=NULL)
+  }
+  v$degeneracy.value <- degeneracy$degeneracy.value
+  v$degeneracy.type <- degeneracy$degeneracy.type
   v$formula <- formula
   v$constraints <- constraints
   v$prop.args <- control$prop.args

@@ -155,7 +155,16 @@ ergm <- ergm2 <- ergm.ihs <- function(formula, theta0="MPLE",
                           ...)
               )
   }
-
+  if(!is.null(MCMCparams$check.degeneracy) && MCMCparams$check.degeneracy && (is.null(v$theta1$independent) || !all(v$theta1$independent))){
+    if(verbose) {
+      cat("Checking for degeneracy.\n")
+    }
+    degeneracy <- ergm.degeneracy(v, test.only=TRUE)
+  } else {
+    degeneracy <- list(degeneracy.value=NULL, degeneracy.type=NULL)
+  }
+  v$degeneracy.value <- degeneracy$degeneracy.value
+  v$degeneracy.type <- degeneracy$degeneracy.type
   v$formula <- formula
   v$formula.diss <- dissolve
   v$constraints <- constraints
