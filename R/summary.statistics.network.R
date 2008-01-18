@@ -198,7 +198,7 @@ summary.statistics.network <- function(object,...,drop=FALSE, basis=NULL) {
   if(length(twdeg) >0){
     gs[twdeg] <- Clist$n + gs[twdeg]
   }
-  tase <- grep("ase0",names(gs))
+  tase <- grep("coincidences0",names(gs))
   if(length(tase) >0){
    if(is.bipartite(nw)){
     gs[tase] <- nb1*(nb1-1)/2 + gs[tase]
