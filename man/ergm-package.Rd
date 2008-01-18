@@ -2,7 +2,7 @@
 \alias{ergm-package}
 \docType{package}
 \title{
-Statistical Modeling of Network and Graph Data
+Fit, Simulate and Diagnose Exponential-Family Models for Networks
 }
 \description{
 \code{\link{ergm}} is a collection of functions to plot, fit, diagnose, and simulate from random 
