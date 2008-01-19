@@ -45,4 +45,6 @@
 #   require(network, quietly=TRUE)
 }
 
-
+.Last.lib <- function(libpath){
+  library.dynam.unload("ergm",libpath)
+}

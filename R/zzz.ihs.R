@@ -61,3 +61,6 @@ if(exists("ergm.ihs")) { # Look here for a list of functions that exist in two
   ergm.control <- ergm.control.ihs
 }
 
+.Last.lib <- function(libpath){
+  library.dynam.unload("ergm",libpath)
+}

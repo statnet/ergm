@@ -15,8 +15,8 @@ cat(
 paste("License for the 'statnet' component package '",package,"'\n",sep=""),
 "--------------------------------------------------\n",
 "\n",
-" This software is distributed under the GPL-2 license.  It is free,\n",
-"open source.\n")
+" This software is distributed under the GPL-2 license.  It is free\n",
+"and open source.\n")
 }else{
 if(package=="statnet"){
 cat(
