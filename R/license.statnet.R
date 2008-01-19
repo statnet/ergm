@@ -1,6 +1,6 @@
 license.statnet <- function (package="statnet") {
 
-statnet.packages <- c("statnet","ergm","degreenet","network","networksis","sna")
+statnet.packages <- c("statnet","ergm","degreenet","latentnet","network","networksis","sna")
 package <- pmatch(package, statnet.packages)
 if(is.na(package)){
    stop(gettextf("The package name should be one of %s", paste(dQuote(statnet.packages), 
