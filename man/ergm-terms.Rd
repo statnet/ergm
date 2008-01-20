@@ -631,11 +631,14 @@ network
     values of the \code{attrname} attribute. The \eqn{k}th such statistic counts
     the number of edges \eqn{(i,j)} for which \code{attrname(i) == attrname(j)
     == value(k)}, where \code{value(k)} is the \eqn{k}th smallest unique value
-    of the attrname attribute. If set to non-NULL, the optional \code{keep}
-    argument should be a vector of integers giving the values of \code{k} that
-    should be considered for matches; other values are ignored (this works for
-    both \code{diff=FALSE} and \code{diff=TRUE}. For instance, to add two
-    statistics, counting the matches for just the 2nd and 4th categories, use
+    of the attrname attribute. The optional \code{keep} argument determines
+    which values of \code{k} will be considered for matches; other values are
+    ignored. Default is that all values are considered. If \code{keep} is set to
+    non-NULL, it should be a vector of positive integers giving the values of
+    \code{k} to keep, or a vector of negative integers giving the (negative)
+    values of \code{k} to ignore. Note that this works for both
+    \code{diff=FALSE} and \code{diff=TRUE}. For example, to add two statistics,
+    counting the matches for just the 2nd and 4th categories, use
     \code{nodematch} with \code{diff=TRUE} and \code{keep=c(2,4)}.}
 
     \item{\code{nodemix(attrname, contrast=FALSE)}}{\emph{Nodal attribute
