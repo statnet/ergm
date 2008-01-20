@@ -3,7 +3,7 @@ ergm.pen.glm <- function(formula = attr(data, "formula"),
   maxit = 25, maxhs = 5, epsilon = 0.0001, maxstep = 10, beta0=NULL,
   weights=NULL)
 {
-  y <- as.vector(model.extract(model.frame(formula, data = data), response))
+  y <- as.vector(model.extract(model.frame(formula, data = data), "response"))
   n <- length(y)
   x <- model.matrix(formula, data = data)  # Model-Matrix
 
@@ -84,7 +84,7 @@ logistftest <- function(formula = attr(data, "formula"),
   epsilon = 0.0001, maxstep = 10, beta0, weights=NULL)
 {
   #n <- nrow(data)
-  y <- model.extract(model.frame(formula, data = data), response)
+  y <- model.extract(model.frame(formula, data = data), "response")
   n <- length(y)
   x <- model.matrix(formula, data = data)  ## Model-Matrix
   cov.name <- labels(x)[[2]]
