@@ -17,6 +17,14 @@
 %
 \alias{check.ErgmTerm}
 \alias{InitErgmTerm.absdiff}
+\alias{InitErgmTerm.match}
+\alias{check.ErgmTerm.summarystats}
+\alias{ergm.getglobalstats}
+\alias{get.InitErgm.fname}
+\alias{updatemodel.ErgmTerm}
+\alias{zerowarnings}
+
+
 %
 \alias{InitErgm.absdiff}
 \alias{InitErgm.absdiffcat}

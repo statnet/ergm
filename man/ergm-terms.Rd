@@ -621,7 +621,7 @@ network
     \code{nodefactor} entry. The \code{nodeifactor} term may only be used with
     directed networks.}
 
-    \item{\code{nodematch(attrname, diff=FALSE)}}{\emph{Uniform homophily and
+    \item{\code{nodematch(attrname, diff=FALSE, keep=NULL)}}{\emph{Uniform homophily and
     differential homophily:} The \code{attrname} argument is a character string
     giving the name of an attribute in the network's vertex attribute list. When
     \code{diff=FALSE}, this term adds one network statistic to the model, which
@@ -631,7 +631,12 @@ network
     values of the \code{attrname} attribute. The \eqn{k}th such statistic counts
     the number of edges \eqn{(i,j)} for which \code{attrname(i) == attrname(j)
     == value(k)}, where \code{value(k)} is the \eqn{k}th smallest unique value
-    of the attrname attribute.}
+    of the attrname attribute.  If set to non-NULL, the optional \code{keep}
+    argument should be a vector of integers giving the values of \code{k} that
+    should be considered for matches; other values are ignored (this works
+    for both \code{diff=FALSE} and \code{diff=TRUE}.  For instance, to add
+    two statistics, counting the matches for just the 2nd ane 4th categories,
+    use nodematch with \code{diff=TRUE} and \code{keep=c(2,4)}.}
 
     \item{\code{nodemix(attrname, contrast=FALSE)}}{\emph{Nodal attribute
     mixing:} The \code{attrname} argument is a character string giving the name

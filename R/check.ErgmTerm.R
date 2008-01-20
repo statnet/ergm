@@ -11,16 +11,17 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL,
   ## Note that the list returned will contain the maximum possible number of
   ## arguments; any arguments without values are returned as NULL.
   ##
-  ##   Inputs:  arglist (required) is the list of arguments passed from ergm.getmodel
+  ##   Inputs:  nw (required) is the network
+  ##            arglist (required) is the list of arguments passed from ergm.getmodel
   ##            directed is logical if directed=T or F is required, NULL o/w
   ##            bipartite is logical if bipartite=T or F is required, NULL o/w
   ##            varnames is a vector of variable names
   ##            vartypes is a vector of corresponding variable types
   ##            defaultvalues is a list of default values (NULL means no default)
   ##            required is a vector of logicals:  Is this var required or not?
-  sc <- sys.calls()
-  fname <- ifelse(length(sc)>1, as.character(sc[[length(sc)-1]]), NULL)
-  fname <- substring(fname,14) # get rid of leading "InitErgmTerm."
+
+  fname <- get.InitErgm.fname() # From what InitErgm function was this called?
+  fname <- sub('.*[.]', '', fname) # truncate up to last '.'
   message <- NULL
   if (!is.null(directed) && directed != (dnw<-is.directed(nw))) {
     #directed != (dnw<-eval(expression(nw$gal$dir),parent.frame()))) {
@@ -85,5 +86,40 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL,
     }
   }
   c(.conflicts.OK=TRUE,out)
+}
+
+check.ErgmTerm.summarystats <- function(nw, args, ...) {
+  fname <- get.InitErgm.fname() # From what InitErgm function was this called?
+  Initfn <- get(fname,envir=.GlobalEnv)
+  outlist <- Initfn(nw, args, drop=FALSE, ...)
+  m <- updatemodel.ErgmTerm(list(), outlist)
+  gs <- ergm.getglobalstats(nw, m)
+}
+
+# Search back in time through sys.calls() to find the name of the last
+# function whose name begins with "InitErgm"
+get.InitErgm.fname <- function() {
+  sc <- sys.calls()
+  i <- length(sc)
+  listofnames <- NULL
+  while (i>1) { 
+    i <- i-1
+    fname <- as.character(sc[[i]][1])
+    listofnames <- c(listofnames, fname)
+    if (substring(fname,1,8)=="InitErgm") {
+      return(fname)
+    }
+  }
+  stop('Failed to find "InitErgm..." in this list of functions:\n   ',
+       paste(listofnames, collapse=", "))
+}
+
+zerowarnings <- function(gs) {
+  out <- gs==0
+  if(any(out)) {
+    cat(" Warning:  These coefs set to -Inf due to obs val=0:\n ")
+    cat(paste(names(gs)[out], collapse=", "), "\n")
+  }
+  out
 }
 
