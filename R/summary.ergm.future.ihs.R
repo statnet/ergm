@@ -1,3 +1,4 @@
+#We should probably eliminate this file altogether.
 Summary.ergm.future <- function (object, ..., 
                           digits = max(3, getOption("digits") - 3),
                           correlation=FALSE, covariance=FALSE,
@@ -132,6 +133,7 @@ if(any(is.na(object$mc.se)) & !all(object$theta1$independent)){
   ans
 }
 
+#Danger!  conflicting versions of print.summary.ergm exist!
 print.summary.ergm <- function (x, 
               digits = max(3, getOption("digits") - 3),
               correlation=FALSE, covariance=FALSE,
