@@ -99,6 +99,8 @@
 ###################################### InitErgm TERMS:  A
 #########################################################
 InitErgm.absdiff<-function (nw, m, arglist, ...) {
+  ## Note:  because InitErgmTerm.absdiff exists, this function is 
+  ## now deprecated.  It is here (for now) for historical reasons.
   a <- ergm.checkargs("absdiff", arglist,
     varnames = c("attrname"),
     vartypes = c("character"),
@@ -2662,6 +2664,8 @@ InitErgm.nodeifactor<-function (nw, m, arglist, drop=TRUE, ...) {
 
 #########################################################
 InitErgm.nodematch<-InitErgm.match<-function (nw, m, arglist, drop=TRUE, ...) {
+  ## Note:  because InitErgmTerm.nodematch exists, this function is 
+  ## now deprecated.  It is here (for now) for historical reasons.
   a <- ergm.checkargs("nodematch", arglist,
     varnames = c("attrname", "diff"),
     vartypes = c("character", "logical"),
@@ -3103,12 +3107,14 @@ InitErgm.receiver<-function(nw, m, arglist, drop=FALSE, ...) {
   ergm.checkdirected("receiver", is.directed(nw), requirement=TRUE,
                      extramessage="See 'sociality'.")
   a <- ergm.checkargs("receiver", arglist,
-    varnames = "drop",
-    vartypes = "logical",
-    defaultvalues = list(FALSE),
-    required = FALSE)
-  drop<-a$drop
-  d <- 2:network.size(nw)
+    varnames = c("base"),
+    vartypes = c("numeric"),
+    defaultvalues = list(1),
+    required = c(FALSE))
+  d <- 1:network.size(nw)
+  if (!identical(a$base,0)) {
+    d <- d[-a$base]
+  }
   if(drop){
     degrees <- as.numeric(names(table(as.matrix.network.edgelist(nw)[,2])))
     mdegrees <- match(d, degrees)  
@@ -3140,12 +3146,14 @@ InitErgm.sender<-function(nw, m, arglist, drop=FALSE, ...) {
   ergm.checkdirected("sender", is.directed(nw), requirement=TRUE,
                      extramessage="See 'sociality'.")
   a <- ergm.checkargs("sender", arglist,
-    varnames = "drop",
-    vartypes = "logical",
-    defaultvalues = list(FALSE),
-    required = FALSE)
-  drop<-a$drop
-  d <- 2:network.size(nw)
+    varnames = c("base"),
+    vartypes = c("numeric"),
+    defaultvalues = list(1),
+    required = c(FALSE))
+  d <- 1:network.size(nw)
+  if (!identical(a$base,0)) {
+    d <- d[-a$base]
+  }
   if(drop){
     degrees <- as.numeric(names(table(as.matrix.network.edgelist(nw)[,1])))
     mdegrees <- match(d, degrees)  
@@ -3262,13 +3270,16 @@ InitErgm.sociality<-function(nw, m, arglist, drop=FALSE, ...) {
   ergm.checkdirected("sociality", is.directed(nw), requirement=FALSE,
                      extramessage = "See 'sender' and 'receiver'.")
   a <- ergm.checkargs("sociality", arglist,
-    varnames = c("attrname","drop"),
-    vartypes = c("character","logical"),
-    defaultvalues = list(NULL,FALSE),
-    required = c(FALSE,FALSE))
+    varnames = c("attrname", "base"),
+    vartypes = c("character", "numeric"),
+    defaultvalues = list(NULL, 1),
+    required = c(FALSE, FALSE))
   attach(a)
   attrname<-a$attrname
-  drop<-a$drop
+  d <- 1:network.size(nw)
+  if (!identical(a$base,0)) {
+    d <- d[-a$base]
+  }
   if(!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname, "sociality")
     u<-sort(unique(nodecov))
@@ -3278,7 +3289,6 @@ InitErgm.sociality<-function(nw, m, arglist, drop=FALSE, ...) {
     if (length(u)==1)
       stop ("Attribute given to sociality() has only one value", call.=FALSE)
   }
-  d <- 1:network.size(nw)
   if(drop){
     if(is.null(attrname)){
       centattr <- summary(nw ~ sociality, drop=FALSE) == 0
@@ -3344,13 +3354,12 @@ InitErgm.transitive<-function (nw, m, arglist, drop=TRUE, ...) {
 #########################################################
 InitErgm.triadcensus<-function (nw, m, arglist, drop=FALSE, ...) {
   a=ergm.checkargs("triadcensus", arglist,
-    varnames = c("d","drop"),
-    vartypes = c("numeric","logical"),
-    defaultvalues = list(NULL, FALSE),
-    required = c(FALSE, FALSE))
+    varnames = c("d"),
+    vartypes = c("numeric"),
+    defaultvalues = list(NULL),
+    required = c(FALSE))
   attach(a)
   d<-a$d
-# drop<-a$drop
   detach(a)
 
   if(is.directed(nw)){

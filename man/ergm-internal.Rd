@@ -17,6 +17,7 @@
 %
 \alias{check.ErgmTerm}
 \alias{InitErgmTerm.absdiff}
+\alias{InitErgmTerm.nodematch}
 \alias{InitErgmTerm.match}
 \alias{check.ErgmTerm.summarystats}
 \alias{ergm.getglobalstats}

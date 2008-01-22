@@ -2,7 +2,7 @@ mixingmatrix <- function(nw, attrname) {
   if(!is.network(nw)){
     stop("mixingmatrix() requires a network object")
   }                                                                
-  nodecov <- get.node.attr(nw, attrname)
+  nodecov <- get.node.attr(nw, attrname, functionname="mixingmatrix")
   u<-sort(unique(nodecov))
   # nodecovnum <- match(nodecov, u)
   el <- as.matrix.network.edgelist(nw)

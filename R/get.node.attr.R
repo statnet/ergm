@@ -6,13 +6,13 @@
 # This is a kludge, which has been patched to bring it in line with the
 # corrected class definitions.  -CTB
 
-get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
-  
+get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {  
   if (is.null(functionname)) {
     # Assume it's being called from InitErgm.* or InitErgmTerm.*
-    # Otherwise, ... will throw an error
+    # Otherwise,  get.InitErgm.fname() will return NULL
     functionname <- get.InitErgm.fname()
-    functionname <- sub('.*[.]', '', functionname) # truncate up to last '.'
+    functionname <- ifelse (is.null(functionname), "unknown function",
+                        sub('.*[.]', '', functionname)) # truncate up to last '.'
   }
   if (!is.character(attrname) || length(attrname)>1)
     stop(paste("The argument", attrname, "passed to", functionname,

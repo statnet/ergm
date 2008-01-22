@@ -110,8 +110,8 @@ get.InitErgm.fname <- function() {
       return(fname)
     }
   }
-  stop('Failed to find "InitErgm..." in this list of functions:\n   ',
-       paste(listofnames, collapse=", "))
+  # Didn't find InitErgm... in the list of functions
+  return(NULL)
 }
 
 zerowarnings <- function(gs) {
