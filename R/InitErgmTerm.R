@@ -57,7 +57,7 @@
 #                This function takes two args:  theta and length(eta).
 
 
-# Prototype InitErgmTerm function
+# Prototype InitErgmTerm functions
 #########################################################
 InitErgmTerm.absdiff <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
@@ -77,8 +77,7 @@ InitErgmTerm.absdiff <- function(nw, arglist, ...) {
 }
 
 #########################################################
-#InitErgmTerm.nodematch<-
-InitErgmTerm.match<-function (nw, arglist, drop=TRUE, ...) {
+InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, 
                       varnames = c("attrname", "diff", "keep"),
