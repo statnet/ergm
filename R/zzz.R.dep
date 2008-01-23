@@ -45,6 +45,10 @@
 #   require(network, quietly=TRUE)
 }
 
+# Temporary fix for the fact that plot.network (in the network package)
+# calls a non-existent function whenever the 'statnet' package is loaded:
+plot.network.ergm <- plot.network.default
+
 .Last.lib <- function(libpath){
   library.dynam.unload("ergm",libpath)
 }

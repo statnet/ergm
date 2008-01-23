@@ -112,10 +112,10 @@ ergm.getglobalstats <- function(nw, m) {
     gs[tgeodeg] <- Clist$n + gs[tgeodeg]
   }
   #
-  tisolates <- grep("isolates",names(gs))
-  if(length(tisolates) >0){
-    gs[tisolates] <- Clist$n + gs[tisolates]
-  }
+#  tisolates <- grep("isolates",names(gs))
+#  if(length(tisolates) >0){
+#    gs[tisolates] <- Clist$n + gs[tisolates]
+#  }
   ts <- grep("sender[1-9]",names(gs))
   if(length(ts) > 0){
     gs[ts] <- sum(as.sociomatrix(nw)[1,]) + gs[ts]

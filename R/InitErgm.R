@@ -2222,7 +2222,8 @@ InitErgm.intransitive<-function (nw, m, arglist, drop=TRUE, ...) {
 
 #########################################################
 InitErgm.isolates<-function(nw, m, arglist, drop=TRUE, ...) {
-# ergm.checkdirected("isolates", is.directed(nw), requirement=FALSE)
+  ## Note:  because InitErgmTerm.nodematch exists, this function is 
+  ## now deprecated.  It is here (for now) for historical reasons.
   a <- ergm.checkargs("isolates", arglist,
     varnames = NULL,
     vartypes = NULL,

@@ -89,13 +89,17 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, ...) {
 }
 
 # Take the output of an InitErgmTerm.xxx function and add it correctly
-# to an existing model object.
+# to an existing model object.  If outlist is NULL, then simply return
+# original model object.  This is sometimes important, if for example
+# a term is to be eliminated because it gives only zero statistics.
 updatemodel.ErgmTerm <- function(model, outlist) { 
-  model$coef.names <- c(model$coef.names, outlist$coef.names)
-  termnumber <- 1+length(model$terms)
-  outlist$inputs <- c(0, length(outlist$coef.names), 
-                      length(outlist$inputs), outlist$inputs)
-  model$terms[[termnumber]] <- outlist
+  if (!is.null(outlist)) { # Allow for no change if outlist==NULL
+    model$coef.names <- c(model$coef.names, outlist$coef.names)
+    termnumber <- 1+length(model$terms)
+    outlist$inputs <- c(0, length(outlist$coef.names), 
+                        length(outlist$inputs), outlist$inputs)
+    model$terms[[termnumber]] <- outlist
+  }
   model
 }
 

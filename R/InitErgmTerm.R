@@ -77,6 +77,27 @@ InitErgmTerm.absdiff <- function(nw, arglist, ...) {
 }
 
 #########################################################
+InitErgmTerm.isolates <- function(nw, arglist, drop=TRUE, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
+                     varnames = NULL,
+                     vartypes = NULL,
+                     defaultvalues = list(),
+                     required = NULL)
+  ### Process the arguments
+  if(drop) { # Check for zero statistics, print -Inf messages if applicable
+    if (!zerowarnings(check.ErgmTerm.summarystats(nw, arglist, ...))) {
+      return (NULL)  # Do not add this term at all
+    }
+  }
+  ### Construct the output list
+  list(name="isolates",                               #name: required
+       coef.names = "isolates",                       #coef.names: required
+       emptynwstats = network.size(nw) # When nw is empty, isolates=n, not 0
+       )
+}
+
+#########################################################
 InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, 
