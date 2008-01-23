@@ -1,21 +1,20 @@
-ergm.boundDeg <- function(boundDeg,nw){    
+ergm.bounddeg <- function(bounddeg,nw){    
   #  Resolve conditioning in ERGM call, as expressed in the
-  #  argument boundDeg (a list, with item names as seen below)
+  #  argument bounddeg (a list, with item names as seen below)
   nnodes=network.size(nw)
-  if(is.null(boundDeg) ||
-     all(sapply(boundDeg,function(x){length(x)=1 && x==0}))
-  ) {
+  if(is.null(bounddeg) ||
+     all(sapply(bounddeg,function(x){length(x)==1 && x==0}))) {
     attribs <- 0
     maxout <- 0
     maxin <- 0
     minout <- 0
     minin <- 0
   } else {
-    attribs <- boundDeg$attribs
-    maxout <- boundDeg$maxout
-    maxin <- boundDeg$maxin
-    minout <- boundDeg$minout
-    minin <- boundDeg$minin
+    attribs <- bounddeg$attribs
+    maxout <- bounddeg$maxout
+    maxin <- bounddeg$maxin
+    minout <- bounddeg$minout
+    minin <- bounddeg$minin
     if (is.null(attribs) || attribs==0){ 
       if(any(!is.null(c(minin,minout,maxout,maxin)))){ 
         attribs <- matrix(1,ncol=1,nrow=nnodes)
@@ -33,8 +32,8 @@ ergm.boundDeg <- function(boundDeg,nw){
     }
     if(is.null(minin )) minin <- matrix(0,ncol=ncol(attribs),nrow=nnodes)
     if(is.null(minout)) minout <- matrix(0,ncol=ncol(attribs),nrow=nnodes)
-    if(is.null(maxin )) maxin <- matrix(nnodes-1,ncol=ncol(attribs),nrow=nnodes)
-    if(is.null(maxout)) maxout <- matrix(nnodes-1,ncol=ncol(attribs),nrow=nnodes)
+    if(is.null(maxin ) || maxin==0) maxin <- matrix(nnodes-1,ncol=ncol(attribs),nrow=nnodes)
+    if(is.null(maxout) || maxout==0) maxout <- matrix(nnodes-1,ncol=ncol(attribs),nrow=nnodes)
     if(length(minin )==1) minin  <- matrix(minin ,ncol=ncol(attribs),nrow=nnodes)
     if(length(minout)==1) minout <- matrix(minout,ncol=ncol(attribs),nrow=nnodes)
     if(length(maxin )==1) maxin  <- matrix(maxin ,ncol=ncol(attribs),nrow=nnodes)

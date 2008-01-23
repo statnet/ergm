@@ -361,7 +361,7 @@ in this case.
 
 % Then, we can create dummy \code{maxin}, \code{minout},
 % \code{minin} matrices (in the future these will be empty
-% by default) and create the \code{boundDeg} argument to pass
+% by default) and create the \code{} argument to pass
 % into the \code{\link{ergm}} call.
 
 % To create \dQuote{dummy} \code{maxin}, \code{minout}, and
@@ -375,7 +375,7 @@ in this case.
 
 %  The argument we pass into the \code{\link{ergm}} call, then would look like this:
 
-%  \code{boundDeg = list( attribs=attribs,
+%  \code{ = list( attribs=attribs,
 %        	         maxout=maxout,
 %        	         maxin=maxin,
 %        	         minout=minout,
@@ -385,7 +385,7 @@ in this case.
 %  networks to those which meet your desired degree conditions.
   
 
-%  \code{boundDeg = list( attribs=attribs,
+%  \code{ = list( attribs=attribs,
 %        	         maxout=maxout,
 %        	         maxin=matrix(NA,ncol=1,nrow=71),
 %        	         minout=matrix(NA,ncol=1,nrow=71),

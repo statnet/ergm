@@ -255,7 +255,7 @@
 \alias{license.statnet1}
 \alias{statnetShowDoc}
 \alias{statnetbrowseURL}
-\alias{ergm.boundDeg}
+\alias{ergm.bounddeg}
 \alias{is.invertible}
 \alias{ostar2deg}
 \alias{sufftoprob}

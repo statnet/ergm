@@ -155,7 +155,7 @@ ergm.mainfitloop.dyn <- function(theta0, nw, model.form, model.diss,
 #    Reform the output
 #
 # check for degeneracy?  See ergm.checkdegeneracy
-# l$boundDeg <- list(condAllDegExact=condAllDegExact, maxout=maxout,
+# l$bounddeg <- list(condAllDegExact=condAllDegExact, maxout=maxout,
 #                    maxin=maxin, minout=minout,
 #                    minin=minin, attribs=attribs)
 #   This is the MCMC estimate as in the Hunter&Handcock paper
