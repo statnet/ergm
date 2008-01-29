@@ -192,6 +192,7 @@
 \alias{midarrow}
 \alias{newnw.extract}
 \alias{plot.mcmc.ergm}
+\alias{plot.network.ergm}
 \alias{print.raftery.diag.ergm}
 \alias{robust.inverse}
 \alias{rspartnerdist}

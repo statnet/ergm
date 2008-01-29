@@ -13,13 +13,6 @@ open source, and has the following attribution requirements
     when used, display the attribution:
      Based on 'statnet' project software (http://statnetproject.org).
      For license and citation information see http://statnetproject.org/attribution
-(c) you agree that 'ergm' and any modifications to 'ergm' will
-    display the citation information, as provided in the original
-    CITATION file, when the 'citation' function is executed with
-    the name of the package given.
-(d) you agree to retain in the documentation contained within this
-    software, and any modifications of it, the author attribution
-    (GPL Section 7, clause c).
 --------------------------------------------------
 
 What does this mean?
