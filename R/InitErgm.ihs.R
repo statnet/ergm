@@ -806,6 +806,79 @@ InitErgm.hamming.weighted<-function (nw, m, arglist, ...) {
    m
 }
 
+#########################################################
+InitErgm.hammingmix.constant<-function (nw, m, arglist, ...) {
+# ergm.checkdirected("hammingconstantmix", is.directed(nw), requirement=FALSE)
+  a <- ergm.checkargs("hammingmix.constant", arglist=arglist,
+    varnames = c("attrname","x","base", "contrast"),
+    vartypes = c("character","matrixnetwork","numeric","logical"),
+    defaultvalues = list(NULL,nw,0,FALSE),
+    required = c(TRUE,FALSE,FALSE,FALSE))
+  attach(a)
+  attrname<-a$attrname
+  x<-a$x
+  base<-a$base
+  contrast<-a$contrast
+  drop<-a$drop
+  drop<-TRUE
+  if(is.network(x)){
+    xm<-as.matrix.network(x,matrix.type="edgelist",attrname)
+    x<-paste(quote(x))
+  }else if(is.character(x)){
+    xm<-get.network.attribute(nw,x)
+    xm<-as.matrix.network(xm,matrix.type="edgelist")
+  }else{
+    xm<-as.matrix(x)
+    x<-paste(quote(x))
+  }
+  if (is.null(xm) || ncol(xm)!=2){
+    stop("hammingmix.constant() requires an edgelist", call.=FALSE)
+  }
+    nodecov <- get.node.attr(nw, attrname, "hammingmix.constant")
+    mixmat <- mixingmatrix(nw,attrname)$mat
+    u <- cbind(as.vector(row(mixmat)), 
+               as.vector(col(mixmat)))
+    if(any(is.na(nodecov))){u<-rbind(u,NA)}
+#
+#   Recode to numeric if necessary
+#
+    namescov <- sort(unique(nodecov))
+    nodecov <- match(nodecov,namescov)
+    if (length(nodecov)==1)
+        stop ("Argument to hammingmix.constant() has only one value", call.=FALSE)
+##
+##   Check for degeneracy
+##
+#    if(drop){
+#     ematch <- mixmat[u]
+#     mu <- ematch==0
+#     mu[is.na(mu)] <- FALSE
+#     if(any(mu)){
+#      dropterms <- paste(paste("hammingconstantmix",attrname,sep="."),
+#        apply(u,1,paste,collapse="")[mu],sep="")
+#      cat(paste("Warning: The count of", dropterms, "is extreme.\n"))
+#      cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
+#      u <- u[!mu,]
+#     }
+#    }
+  if(contrast){
+   u <- u[-1,]
+  }
+  if(all(base!=0)){
+   u <- u[-base,]
+  }
+  termnumber<-1+length(m$terms)
+  #  Number of input parameters before covariates equals twice the number
+  #  of used matrix cells, namely 2*length(uui), so that's what
+  #  input component 1 equals
+  m$terms[[termnumber]] <- list(name="hammingmix_constant", soname="ergm",
+    inputs=c(1, 1, nrow(xm)*2+length(nodecov)+1,
+            nrow(xm),as.integer(xm), nodecov),
+            dependence=FALSE)
+  m$coef.names<-c(m$coef.names, paste("hammingmix.constant",attrname, sep="."))
+  m
+}
+
 
 #########################################################
 InitErgm.heideriandynamic<-function (nw, m, arglist, ...) {
