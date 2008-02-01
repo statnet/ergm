@@ -440,4 +440,3 @@
 #
    invisible(list(x=coord[,1],y=coord[,2], latentfit=latentfit))
 }
-plot.network.ergm<-plot.network.ergm
