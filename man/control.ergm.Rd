@@ -8,7 +8,7 @@
 control.ergm(prop.weights = "default", prop.args = NULL,
              nr.maxit = 100, calc.mcmc.se = TRUE, hessian = FALSE, compress = FALSE,
              maxNumDyadTypes = 10000, maxedges = 20000, maxchanges = 1e+06,
-             MPLEsamplesize = 50000, MPLEtype=c("glm", "penalized"), trace = 0,
+             maxMPLEsamplesize = 100000, MPLEtype=c("glm", "penalized"), trace = 0,
              steplength = 0.5, drop = TRUE, force.mcmc = FALSE, check.degeneracy=TRUE, mcmc.precision =
              0.05, metric = c("Likelihood", "raw"), method = c("BFGS", "Nelder-Mead"),
              trustregion = 20, initial.loglik = NULL, initial.network = NULL,
@@ -55,9 +55,11 @@ control.ergm(prop.weights = "default", prop.args = NULL,
   \item{maxedges}{ Maximum number of edges for which to allocate space. }
   \item{maxchanges}{ Maximum number of changes in dynamic network
     simulation for which to allocate space. }
-  \item{MPLEsamplesize}{count; the sample size to use for endogenous
-    sampling in the pseudolikelihood computation.
-    Default is \code{50000}.}
+  \item{maxMPLEsamplesize}{count; the determines the
+    sample size to use for endogenous
+    sampling in the pseudolikelihood computation. The sample size is the number
+    of dyads in a network with \code{maxMPLEsamplesize} nodes.
+    Default is \code{100000}.}
   \item{MPLEtype}{one of "glm" or "penalized"; method to use
     for psuedolikelihood. "glm" is the usual
     formal logistic regression. "penalized" uses the bias-reduced method

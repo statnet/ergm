@@ -25,7 +25,7 @@ void MPLE_wrapper (int *heads, int *tails, int *dnedges,
 		   int *responsevec, double *covmat,
 		   int *weightsvector,
 		   double * offset, double * compressedOffset,
-		   int maxNumDyadTypes)
+		   int maxNumDyadTypes, int *maxMPLEsamplesize)
 {
   Network nw[2];
   Vertex n_nodes = (Vertex) *dn; 
@@ -33,6 +33,7 @@ void MPLE_wrapper (int *heads, int *tails, int *dnedges,
   int directed_flag = *dflag;
   int hammingterm;
   Vertex bip = (Vertex) *bipartite;
+  Edge maxMPLE = (Edge) *maxMPLEsamplesize;
   Vertex hhead, htail;
   Edge  nddyads, kedge;
   Model *m;
@@ -53,18 +54,15 @@ void MPLE_wrapper (int *heads, int *tails, int *dnedges,
    nddyads=0;
    nw[1]=NetworkInitializeD(thisterm->inputparams+1, 
 			   thisterm->inputparams+1+nddyads, nddyads, n_nodes, directed_flag, bip,0);
-/*	     Rprintf("made hw[1]\n"); */
    for (kedge=1; kedge <= nwhamming.nedges; kedge++) {
      FindithEdge(&hhead, &htail, kedge, &nwhamming);
      if(EdgetreeSearch(hhead, htail, nw[0].outedges) == 0){
-/*	     Rprintf(" in g0 not g hhead %d htail %d\n",hhead, htail); */
        ToggleEdge(hhead, htail, &nw[1]);
      }
    }
    for (kedge=1; kedge <= nw[0].nedges; kedge++) {
      FindithEdge(&hhead, &htail, kedge, &nw[0]);
      if(EdgetreeSearch(hhead, htail, nwhamming.outedges) == 0){
-/*	     Rprintf("not g0  in g hhead %d htail %d\n",hhead, htail); */
        ToggleEdge(hhead, htail, &nw[1]);
      }
    }
@@ -73,7 +71,7 @@ void MPLE_wrapper (int *heads, int *tails, int *dnedges,
   }
 
   MpleInitialize(bip, responsevec, covmat, weightsvector,
-		 offset, compressedOffset, maxNumDyadTypes, nw, m); 
+		 offset, compressedOffset, maxNumDyadTypes, maxMPLE, nw, m); 
   
   ModelDestroy(m);
   NetworkDestroy(nw);
@@ -124,7 +122,7 @@ int findCovMatRow(double *newRow, double *matrix, int rowLength, int numRows,
 void MpleInitialize (Vertex bipartite, int *responsevec, double *covmat, 
 		     int *weightsvector,
 		     double * offset, double * compressedOffset,
-		     int maxNumDyadTypes, Network *nwp, Model *m) {
+		     int maxNumDyadTypes, Edge maxMPLE, Network *nwp, Model *m) {
 
   int l, d, outflag = 0, inflag = 0, thisRowNumber, thisOffsetNumber,
     foundRowPosition, totalStats, *currentResponse;
@@ -153,6 +151,7 @@ void MpleInitialize (Vertex bipartite, int *responsevec, double *covmat,
 	else{*currentResponse = outflag = 
 	       (EdgetreeSearch(i, j, nwp->outedges) != 0);}
 	totalStats = 0;
+	if(*currentResponse || i <= maxMPLE){   
 	/* Let mtp loop through each model term */
 	for (mtp=m->termarray; mtp < m->termarray + m->n_terms; mtp++){
 	  mtp->dstats = covMatPosition + totalStats;
@@ -194,6 +193,7 @@ void MpleInitialize (Vertex bipartite, int *responsevec, double *covmat,
 	    currentResponse++; /* New response value */
 	    thisRowNumber++; /* New # unique rows */
 	  } else{ /* Do nothing for now if thisRowNumber >=maxNumDyadTypes */ }
+	}
 	}
 	curDyadNum++;
       }

@@ -1,6 +1,6 @@
 ergm.mple.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
                     MPLEtype="glm", family="binomial",
-                    MPLEsamplesize=50000,
+                    maxMPLEsamplesize=100000,
                     save.glm=TRUE,
                     maxNumDyadTypes=100000,
                     theta1=NULL, verbose=FALSE, ...)
@@ -8,7 +8,7 @@ ergm.mple.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
   # see also ergm.pl.ihs.R.originalandgood
   pl <- ergm.pl(Clist=Clist, Clist.miss=Clist.miss, m=m,
                     theta.offset=theta.offset,
-                    MPLEsamplesize=MPLEsamplesize,
+                    maxMPLEsamplesize=maxMPLEsamplesize,
                     maxNumDyadTypes=maxNumDyadTypes,
                     verbose=verbose)
 
@@ -88,7 +88,7 @@ ergm.mple.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
 #
    options(warn=0)
 #  options(warn=2)
-   if(nrow(pl$xmat) > pl$MPLEsamplesize){
+   if(nrow(pl$xmat) > pl$maxMPLEsamplesize){
 #
 #   fix aic and deviance for sampled data
 #

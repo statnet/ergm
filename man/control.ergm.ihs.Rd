@@ -9,7 +9,7 @@ control.ergm(prop.weights = "default", prop.args = NULL,
              prop.weights.diss = "default", prop.args.diss = NULL, nr.maxit =
              100, calc.mcmc.se = TRUE, hessian = FALSE, compress = FALSE,
              maxNumDyadTypes = 10000, maxedges = 20000, maxchanges = 1e+06,
-             MPLEsamplesize = 50000, MPLEtype=c("glm", "penalized"), trace = 0,
+             maxMPLEsamplesize = 10^11, MPLEtype=c("glm", "penalized"), trace = 0,
              steplength = 0.5, drop = TRUE, force.mcmc = FALSE, check.degeneracy=TRUE, mcmc.precision =
              0.05, metric = c("Likelihood", "raw"), method = c("BFGS", "Nelder-Mead"),
              trustregion = 20, initial.loglik = NULL, initial.network = NULL,
@@ -58,9 +58,9 @@ control.ergm(prop.weights = "default", prop.args = NULL,
   \item{maxedges}{ Maximum number of edges for which to allocate space. }
   \item{maxchanges}{ Maximum number of changes in dynamic network
     simulation for which to allocate space. }
-  \item{MPLEsamplesize}{count; the sample size to use for endogenous
+  \item{maxMPLEsamplesize}{count; the sample size to use for endogenous
     sampling in the pseudolikelihood computation.
-    Default is \code{50000}.}
+    Default is \code{10^11}.}
   \item{MPLEtype}{one of "glm" or "penalized"; method to use
     for psuedolikelihood. "glm" is the usual
     formal logistic regression. "penalized" uses the bias-reduced method
@@ -161,7 +161,7 @@ similar function for \code{\link{gof}}.   }
 \references{
 \item
 Boer, P., Huisman, M., Snijders, T.A.B., and Zeggelink, E.P.H. (2003),
-StOCNET User’s Manual. Version 1.4.
+StOCNET User\'s Manual. Version 1.4.
 
 \item Firth (1993),
       Bias Reduction in Maximum Likelihood Estimates.
@@ -169,7 +169,7 @@ StOCNET User’s Manual. Version 1.4.
       80: 27-38.
 
 \item Hunter, D. R. and M. S. Handcock (2006), Inference in curved
-exponential family models for networks.'' Journal of Computational
+exponential family models for networks. Journal of Computational
 and Graphical Statistics, 15: 565-583.
 }
 \keyword{ models }

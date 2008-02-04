@@ -7,6 +7,9 @@ ergm.Cprepare <- function(nw, m)
   if (is.null(bip)) bip <- 0
   Clist$bipartite <- bip
   e<-as.matrix.network(nw,matrix.type="edgelist")
+  if(nrow(e) > 1000000){
+   stop("The network has more than a million edges. The 'statnet'suite of packages have an (arbitrary) limit of one million edges. If you intended to model a network of over one million edges, contact the 'statnet' development team to find out how to increase the maximum size.", call.=FALSE)
+  }
   if(length(e)==0){
     Clist$nedges<-0
     Clist$heads<-NULL

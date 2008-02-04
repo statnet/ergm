@@ -1,5 +1,5 @@
 ergm.pl.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
-                    MPLEsamplesize=50000,
+                    maxMPLEsamplesize=100000,
                     maxNumDyadTypes=100000,
                     verbose=FALSE) {
   if(Clist.miss$nedges>0){
@@ -30,6 +30,7 @@ ergm.pl.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
           weightsvector = integer(maxNumDyadTypes),
           as.double(offset), compressedOffset=double(maxNumDyadTypes),
           as.integer(maxNumDyadTypes),
+          as.integer(maxMPLEsamplesize),
           PACKAGE="ergm")
   uvals <- z$weightsvector!=0
   zy <- z$y[uvals]
@@ -78,11 +79,11 @@ ergm.pl.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
 #
 # Sample if necessary
 #
-  if(nrow(xmat) > MPLEsamplesize){
-   rsample <- sample((1:nrow(xmat))[zy==1], size=min(MPLEsamplesize,sum(zy)),
+  if(nrow(xmat) > maxMPLEsamplesize){
+   rsample <- sample((1:nrow(xmat))[zy==1], size=min(maxMPLEsamplesize,sum(zy)),
                      replace=FALSE)
    rsample <- c(rsample, 
-     sample((1:nrow(xmat))[zy==0], size=min(MPLEsamplesize,sum(!zy)),
+     sample((1:nrow(xmat))[zy==0], size=min(maxMPLEsamplesize,sum(!zy)),
                      replace=FALSE) )
    tau <- sum(zy*wend)/sum(wend)
    xmat.full <- xmat
@@ -103,5 +104,5 @@ ergm.pl.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
 
   list(xmat=xmat, zy=zy, foffset=foffset, wend=wend, numobs=round(sum(wend)),
        xmat.full=xmat.full, zy.full=zy.full, foffset.full=foffset.full,
-       theta.offset=theta.offset, MPLEsamplesize=MPLEsamplesize)
+       theta.offset=theta.offset, maxMPLEsamplesize=maxMPLEsamplesize)
 }

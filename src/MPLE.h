@@ -10,11 +10,11 @@ void MPLE_wrapper (int *heads, int *tails, int *dnedges,
 		   int *responsevec, double *covmat,
 		   int *weightsvector,
 		   double * offset, double * compressedOffset,
-		   int maxNumDyadTypes);
+		   int maxNumDyadTypes, int *maxMPLEsamplesize);
 void MpleInitialize (Vertex bipartite, int *responsevec, double *covmat,
 	             int *weightsvector,
 		     double * offset, double * compressedOffset,
-		     int maxNumDyadTypes, Network *nwp, Model *m);
+		     int maxNumDyadTypes, Edge maxMPLE, Network *nwp, Model *m);
 int rowsAreSame(double *rowA,double *rowB,int rowLength);
 int findCovMatRow(double *newRow,double *matrix, int rowLength, 
 		  int numRows, int *responsevec, 

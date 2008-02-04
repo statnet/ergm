@@ -78,7 +78,7 @@ ergm.maple<-function(pl, m,
 #
    options(warn=0)
 #  options(warn=2)
-   if(nrow(pl$xmat) > pl$MPLEsamplesize){
+   if(nrow(pl$xmat) > pl$maxMPLEsamplesize){
 #
 #   fix aic and deviance for sampled data
 #

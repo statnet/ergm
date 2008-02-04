@@ -1,9 +1,9 @@
 ergm.pl<-function(Clist, Clist.miss=NULL, m, theta.offset=NULL,
-                    MPLEsamplesize=50000,
+                    maxMPLEsamplesize=100000,
                     maxNumDyadTypes=100000,
                     verbose=FALSE) {
-    offset <- rep(0,Clist$ndyads)
-    numobs <- Clist$ndyads
+  offset <- rep(0,Clist$ndyads)
+  numobs <- Clist$ndyads
   z <- .C("MPLE_wrapper",
           as.integer(Clist$heads),    as.integer(Clist$tails),
           as.integer(Clist$nedges),   as.integer(Clist$n), 
@@ -16,6 +16,7 @@ ergm.pl<-function(Clist, Clist.miss=NULL, m, theta.offset=NULL,
           weightsvector = integer(maxNumDyadTypes),
           as.double(offset), compressedOffset=double(maxNumDyadTypes),
           as.integer(maxNumDyadTypes),
+          as.integer(maxMPLEsamplesize),
           PACKAGE="ergm")
   uvals <- z$weightsvector!=0
   zy <- z$y[uvals]
@@ -51,16 +52,14 @@ ergm.pl<-function(Clist, Clist.miss=NULL, m, theta.offset=NULL,
     }
     names(theta.offset) <- m$coef.names
   }
-  
-  
 #
 # Sample if necessary
 #
-  if(nrow(xmat) > MPLEsamplesize){
-   rsample <- sample((1:nrow(xmat))[zy==1], size=min(MPLEsamplesize,sum(zy)),
+  if(nrow(xmat) > maxMPLEsamplesize){
+   rsample <- sample((1:nrow(xmat))[zy==1], size=min(maxMPLEsamplesize,sum(zy)),
                      replace=FALSE)
    rsample <- c(rsample, 
-     sample((1:nrow(xmat))[zy==0], size=min(MPLEsamplesize,sum(!zy)),
+     sample((1:nrow(xmat))[zy==0], size=min(maxMPLEsamplesize,sum(!zy)),
                      replace=FALSE) )
    tau <- sum(zy*wend)/sum(wend)
    xmat.full <- xmat
@@ -81,5 +80,5 @@ ergm.pl<-function(Clist, Clist.miss=NULL, m, theta.offset=NULL,
 
   list(xmat=xmat, zy=zy, foffset=foffset, wend=wend, numobs=round(sum(wend)),
        xmat.full=xmat.full, zy.full=zy.full, foffset.full=foffset.full,
-       theta.offset=theta.offset, MPLEsamplesize=MPLEsamplesize)
+       theta.offset=theta.offset, maxMPLEsamplesize=maxMPLEsamplesize)
 }
