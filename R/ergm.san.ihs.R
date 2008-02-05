@@ -59,7 +59,7 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
 
   if (verb) {
     cat(paste("Starting ",nsim," MCMC iteration", ifelse(nsim>1,"s",""),
-        " of ", burnin+interval*(MCMCparams$samplesize-1), 
+        " of ", burnin+interval*(MCMCsamplesize-1), 
         " steps", ifelse(nsim>1, " each", ""), ".\n", sep=""))
   }
 
