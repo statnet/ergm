@@ -5,11 +5,10 @@
 
 .First.lib <- function(lib, pkg){
     library.dynam("ergm", pkg, lib)
-    ehelp <- library(help="ergm",lib.loc=NULL,character.only=TRUE)$info[[1]]
-    cat(paste(substring(ehelp[4],first=16),"\n",
-              "Version ",substring(ehelp[2],first=16),
-              " created on ",
-               substring(ehelp[3],first=16),".\n", sep=""))
+    DESCpath <- file.path(system.file(package="ergm"), "DESCRIPTION")
+    info <- read.dcf(DESCpath)
+    cat('\nergm:', info[,"Title"], 
+        '\nVersion', info[,"Version"], 'created on', info[,"Date"], '\n') 
     cat(paste("copyright (c) 2003, Mark S. Handcock, University of Washington\n",
 "                    David R. Hunter, Penn State University\n",
 "                    Carter T. Butts, University of California-Irvine\n",
