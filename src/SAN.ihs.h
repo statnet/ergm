@@ -1,7 +1,7 @@
 #ifndef SAN_H
 #define SAN_H
 
-#include "edgeTree.h"
+#include "edgetree.ihs.h"
 #include "changestats.h"
 #include "model.h"
 

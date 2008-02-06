@@ -1,7 +1,7 @@
 #ifndef CHANGESTATS_IHS_H
 #define CHANGESTATS_IHS_H
 
-#include "edgeTree.h"
+#include "edgetree.ihs.h"
 #include "changestats.h"
 
 /****************************************************/

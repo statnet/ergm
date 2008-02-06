@@ -1,7 +1,7 @@
 #ifndef MHproposals_formdiss_IHS_H
 #define MHproposals_formdiss_IHS_H
 
-#include "edgeTree.h"
+#include "edgetree.ihs.h"
 #include "changestats.h"
 #include "model.h"
 #include "MCMC.h"

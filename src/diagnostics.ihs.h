@@ -2,7 +2,7 @@
 #define DIAGNOSTICS_H
 
 #include <R.h>
-#include "edgeTree.h"
+#include "edgetree.ihs.h"
 #include "MCMC.h"
 
 /* Function prototypes */
