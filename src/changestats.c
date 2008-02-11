@@ -2507,8 +2507,7 @@ void d_gwodegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_gwtdsp
 ****************/
-void d_gwtdsp (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_gwtdsp) {
   Edge e, f;
   int i, echange, ochange, L2hu, L2ut;
   Vertex h, t, u, v;
@@ -4208,8 +4207,9 @@ void d_sociality (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_tdsp
 *****************/
-void d_tdsp (int ntoggles, Vertex *heads, Vertex *tails, 
-	    ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_tdsp) {
+/*void d_tdsp (int ntoggles, Vertex *heads, Vertex *tails, 
+	    ModelTerm *mtp, Network *nwp) { */
   Edge e, f;
   int i, j, echange, L2hu, L2ut;
   Vertex deg, h, t, u, v;
