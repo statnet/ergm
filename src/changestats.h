@@ -12,6 +12,24 @@ typedef struct ModelTermstruct {
 	double *inputparams; /* ptr to input parameters passed */
 } ModelTerm;
 
+
+/****************************************************
+ Macros to make life easier                         */
+#define IS_OUTEDGE(a,b) (EdgetreeSearch((a),(b),nwp->outedges))
+#define IS_INEDGE(a,b) (EdgetreeSearch((a),(b),nwp->inedges))
+#define MIN_OUTEDGE(a) (EdgetreeMinimum(nwp->outedges, (a)))
+#define MIN_INEDGE(a) (EdgetreeMinimum(nwp->inedges, (a)))
+#define NEXT_OUTEDGE(e) (EdgetreeSuccessor(nwp->outedges,(e)))
+#define NEXT_INEDGE(e) (EdgetreeSuccessor(nwp->inedges,(e)))
+#define OUTVAL(e) (nwp->outedges[(e)].value)
+#define INVAL(e) (nwp->inedges[(e)].value)
+#define TOGGLE(a,b) (ToggleEdge((a),(b),nwp));
+
+#define N_CHANGE_STATS (mtp->nstats)
+#define INPUT_PARAM (mtp->inputparams)
+#define CHANGE_STAT (mtp->dstats)
+
+
 /****************************************************/
 /* changestat function prototypes, 
    plus a few supporting function prototypes */

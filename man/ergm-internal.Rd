@@ -263,11 +263,6 @@
 \alias{mixingmatrix}
 \alias{print.mixingmatrix}
 \alias{print.summary.ergm} 
-\alias{sociality}
-\alias{sociality.default}
-\alias{sociality.ergm}
-\alias{sociality.formula}
-\alias{sociality.network}
 \alias{Summary.ergm.future}
 
 \description{
