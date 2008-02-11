@@ -3,6 +3,71 @@
 \alias{ergm.terms}
 \alias{terms-ergm}
 \alias{terms.ergm}
+\alias{absdiff}
+\alias{absdiffcat}
+\alias{altkstar}
+\alias{asymmetric}
+\alias{b1concurrent}
+\alias{b1degree}
+\alias{b1factor}
+\alias{b1star}
+\alias{b2concurrent}
+\alias{b2degree}
+\alias{b2factor}
+\alias{b2star}
+\alias{balance}
+\alias{concurrent}
+\alias{ctriple}
+\alias{cycle}
+\alias{degree}
+\alias{density}
+\alias{dsp}
+\alias{dyadcov}
+\alias{edgecov}
+\alias{edges}
+\alias{esp}
+\alias{gwb1degree}
+\alias{gwb2degree}
+\alias{gwdegree}
+\alias{gwdsp}
+\alias{gwesp}
+\alias{gwidegree}
+\alias{gwodegree}
+\alias{hamming}
+\alias{hammingmix}
+\alias{idegree}
+\alias{intransitive}
+\alias{isolates}
+\alias{istar}
+\alias{kstar}
+\alias{localtriangle}
+\alias{m2star}
+\alias{match}
+\alias{meandeg}
+\alias{mutual}
+\alias{nearsimmelian}
+\alias{nodecov}
+\alias{nodefactor}
+\alias{nodeicov}
+\alias{nodeifactor}
+\alias{nodematch}
+\alias{nodemix}
+\alias{nodeocov}
+\alias{nodeofactor}
+\alias{odegree}
+\alias{ostar}
+\alias{receiver}
+\alias{sender}
+\alias{simmelian}
+\alias{simmelianties}
+\alias{smalldiff}
+\alias{sociality}
+\alias{transitive}
+\alias{triadcensus}
+\alias{triangle}
+\alias{tripercent}
+\alias{ttriple}
+\alias{twopath}
 \docType{methods}
 \title{Terms used in Exponential Family Random Graph Models}
 \description{
@@ -458,7 +523,7 @@ network
     \item{\code{gwdsp(alpha, fixed=FALSE)}}{\emph{Geometrically weighted
     dyadwise shared partner distribution:} This term adds one network statistic
     to the model equal to the geometrically weighted dyadwise shared partner
-    distribution with weight parameter \code{alpha}. The optional argument
+    distribution with weight parameter \code{alpha} \eqn{> 0}. The optional argument
     \code{fixed} indicates whether the scale parameter \code{lambda} is to be
     fit as a curved exponential family model (see Hunter and Handcock, 2006).
     The default is \code{FALSE}, which means the scale parameter is not fixed
@@ -470,7 +535,7 @@ network
     \item{\code{gwesp(alpha, fixed=FALSE)}}{\emph{Geometrically weighted
     edgewise shared partner distribution:} This term adds one network statistic
     to the model equal to the geometrically weighted edgewise shared partner
-    distribution with weight parameter \code{alpha}. The optional argument
+    distribution with weight parameter \code{alpha} \eqn{> 0}. The optional argument
     \code{fixed} indicates whether the scale parameter \code{lambda} is to be
     fit as a curved exponential family model (see Hunter and Handcock, 2006).
     The default is \code{FALSE}, which means the scale parameter is not fixed
@@ -692,17 +757,25 @@ network
     \code{nodefactor} entry. The \code{nodeifactor} term may only be used with
     directed networks.}
 
-    \item{\code{nodematch(attrname, diff=FALSE)}}{\emph{Uniform homophily and
-    differential homophily:} The \code{attrname} argument is a character string
-    giving the name of an attribute in the network's vertex attribute list. When
-    \code{diff=FALSE}, this term adds one network statistic to the model, which
-    counts the number of edges \eqn{(i,j)} for which
+    \item{\code{nodematch(attrname, diff=FALSE, keep=NULL)}}{\emph{Uniform
+    homophily and differential homophily:} The \code{attrname} argument is a
+    character string giving the name of an attribute in the network's vertex
+    attribute list. When \code{diff=FALSE}, this term adds one network statistic
+    to the model, which counts the number of edges \eqn{(i,j)} for which
     \code{attrname(i)==attrname(j)}. When \code{diff=TRUE}, \eqn{p} network
     statistics are added to the model, where \eqn{p} is the number of unique
     values of the \code{attrname} attribute. The \eqn{k}th such statistic counts
     the number of edges \eqn{(i,j)} for which \code{attrname(i) == attrname(j)
     == value(k)}, where \code{value(k)} is the \eqn{k}th smallest unique value
-    of the attrname attribute.}
+    of the attrname attribute. The optional \code{keep} argument determines
+    which values of \code{k} will be considered for matches; other values are
+    ignored. Default is that all values are considered. If \code{keep} is set to
+    non-NULL, it should be a vector of positive integers giving the values of
+    \code{k} to keep, or a vector of negative integers giving the (negative)
+    values of \code{k} to ignore. Note that this works for both
+    \code{diff=FALSE} and \code{diff=TRUE}. For example, to add two statistics,
+    counting the matches for just the 2nd and 4th categories, use
+    \code{nodematch} with \code{diff=TRUE} and \code{keep=c(2,4)}.}
 
     \item{\code{nodemix(attrname, contrast=FALSE)}}{\emph{Nodal attribute
     mixing:} The \code{attrname} argument is a character string giving the name
