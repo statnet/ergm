@@ -56,6 +56,7 @@ typedef struct WtNetworkstruct {
   Vertex *outdegree;
   double *value;  
   Dur_Inf duration_info;  
+  Edge maxedges;
 } WtNetwork;
 
 /* Note that there are really two versions of each function, one for 
@@ -66,7 +67,7 @@ typedef struct WtNetworkstruct {
    handling more than one type of network.  For now, this redundancy 
    approach, while it lacks elegance, has the advantage of speed. */
 WtNetwork WtNetworkInitialize(int *heads, int *tails, double *weights,
-			      int nedges, int nnodes, int directed_flag,
+			      int nedges, int maxedges, int nnodes, int directed_flag,
 			      int bipartite);
 Edge WtDesignMissing (Vertex a, Vertex b, WtNetwork *mnwp);
 void WtNetworkDestroy(WtNetwork *nwp);
@@ -79,7 +80,7 @@ int ElapsedTime (Vertex head, Vertex tail, Network *nwp);
 void TouchEdge(Vertex head, Vertex tail, Network *nwp);
 int WtAddEdgeToTrees(Vertex head, Vertex tail, double weight, WtNetwork *nwp);
 void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight, 
-			  WtTreeNode *edges, Edge *next_edge);
+			  WtTreeNode *edges, Edge *next_edge, Edge maxedges, Vertex nnodes);
 int WtDeleteEdgeFromTrees(Vertex head, Vertex tail, WtNetwork *nwp);
 int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges,
 		     Edge *next_edge);

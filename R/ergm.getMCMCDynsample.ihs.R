@@ -28,7 +28,8 @@ ergm.getMCMCDynsample <- function(nw, model.form, model.diss,
       z <- .C("MCMCDyn_wrapper",
               # Observed network.
               as.integer(Clist.form$heads), as.integer(Clist.form$tails), 
-              as.integer(Clist.form$nedges), as.integer(Clist.form$n),
+              as.integer(Clist.form$nedges), as.integer(Clist.form$maxpossibleedges),
+              as.integer(Clist.form$n),
               as.integer(Clist.form$dir), as.integer(Clist.form$bipartite),
               # Ordering of formation and dissolution.
               as.integer(Clist.diss$order.code),

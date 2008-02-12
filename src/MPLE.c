@@ -20,6 +20,7 @@
  *****************/
 
 void MPLE_wrapper (int *heads, int *tails, int *dnedges,
+       int *maxpossibleedges,
 		   int *dn, int *dflag, int *bipartite, int *nterms, 
 		   char **funnames, char **sonames, double *inputs,  
 		   int *responsevec, double *covmat,
@@ -35,12 +36,13 @@ void MPLE_wrapper (int *heads, int *tails, int *dnedges,
   Vertex bip = (Vertex) *bipartite;
   Edge maxMPLE = (Edge) *maxMPLEsamplesize;
   Vertex hhead, htail;
-  Edge  nddyads, kedge;
+  Edge  nddyads, kedge, maxedges=*maxpossibleedges;
   Model *m;
   ModelTerm *thisterm;
 
   GetRNGstate(); /* Necessary for R random number generator */
-  nw[0]=NetworkInitialize(heads, tails, n_edges, n_nodes, directed_flag, bip, 0);
+  nw[0]=NetworkInitialize(heads, tails, n_edges, maxedges,
+                          n_nodes, directed_flag, bip, 0);
   m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
   
   hammingterm=ModelTermHamming (*funnames, *nterms);
@@ -50,10 +52,11 @@ void MPLE_wrapper (int *heads, int *tails, int *dnedges,
    nddyads = (Edge)(thisterm->inputparams[0]);
    nwhamming=NetworkInitializeD(thisterm->inputparams+1, 
 				thisterm->inputparams+1+nddyads,
-			       	nddyads, n_nodes, directed_flag, bip,0);
+			       	nddyads, maxedges, n_nodes, directed_flag, bip,0);
    nddyads=0;
    nw[1]=NetworkInitializeD(thisterm->inputparams+1, 
-			   thisterm->inputparams+1+nddyads, nddyads, n_nodes, directed_flag, bip,0);
+			   thisterm->inputparams+1+nddyads, nddyads, maxedges,
+         n_nodes, directed_flag, bip,0);
    for (kedge=1; kedge <= nwhamming.nedges; kedge++) {
      FindithEdge(&hhead, &htail, kedge, &nwhamming);
      if(EdgetreeSearch(hhead, htail, nw[0].outedges) == 0){

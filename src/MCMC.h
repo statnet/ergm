@@ -33,6 +33,7 @@ typedef struct MHproposalstruct {
 } MHproposal;
 
 void MCMC_wrapper (int *heads, int *tails, int *dnedges,
+                   int *maxpossibleedges,
                    int *dn, int *dflag, int *bipartite, 
                    int *nterms, char **funnames,
                    char **sonames, 
@@ -59,10 +60,12 @@ void MetropolisHastings (MHproposal *MHp,
 int CheckTogglesValid(MHproposal *MHp, DegreeBound *bd, Network *nwp);
 int CheckConstrainedTogglesValid(MHproposal *MHp, DegreeBound *bd, Network *nwp);
 void MCMC_global (int *heads, int *tails, int *dnedges,
+      int *maxpossibleedges,
 		  int *dn, int *dflag,  int *bipartite,
 		  int *nterms, char **funnames,
 		  char **sonames, double *inputs,  double *stats);
 void MCMCPhase12 (int *heads, int *tails, int *dnedges,
+      int *maxpossibleedges,
 		  int *dn, int *dflag, int *bipartite, 
 		  int *nterms, char **funnames,
 		  char **sonames, 

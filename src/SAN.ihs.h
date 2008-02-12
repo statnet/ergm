@@ -9,6 +9,7 @@
     MCMC.h. */
 
 void SAN_wrapper (int *heads, int *tails, int *dnedges,
+                   int *maxpossibleedges,
 		  int *dn, int *dflag, int *bipartite, 
 		  int *nterms, char **funnames,
 		  char **sonames, 

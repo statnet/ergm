@@ -1,6 +1,7 @@
 #include "plinfo.ihs.h"
 
 void plinfo_wrapper (int *heads, int *tails, int *dnedges,
+         int *maxpossibleedges,
 		     int *dn, int *dflag, int *nterms, char **funnames,
 		     char **sonames, double *inputs,  
 		     double *responsevec, double *covmat,
@@ -8,13 +9,14 @@ void plinfo_wrapper (int *heads, int *tails, int *dnedges,
 {
   Network nw;
   Vertex n_nodes = (Vertex) *dn; 
-  Edge n_edges = (Edge) *dnedges;
+  Edge n_edges = (Edge) *dnedges, maxedges=*maxpossibleedges;
   int directed_flag = *dflag;
   Model *m;
   Vertex bip=0;  /* Assumes bipartite is irrelevant; is this true? */
 
   GetRNGstate(); /* Necessary for use of R random number generator */
-  nw=NetworkInitialize(heads, tails, n_edges, n_nodes, directed_flag, bip, 1);
+  nw=NetworkInitialize(heads, tails, n_edges, maxedges,
+                       n_nodes, directed_flag, bip, 1);
   m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
   
   plinfoInitialize(responsevec, covmat,(Vertex*)start,(Vertex*)end, &nw, m);

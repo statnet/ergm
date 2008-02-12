@@ -80,7 +80,7 @@ void OverlapDurations (int *nnodes,
       int *nedge, int *edge, int *ntimestep, int *nfem,
       int *ntotal, int *nchange, int *change,
       int *maxoverlaps, int *omatrix) {
-  Edge e, i, j, k, row, ne = *nedge;
+  Edge e, i, j, k, row, ne = *nedge, maxedges=MAXEDGES;
   int f1, m1, time, f2, m2, match;
   int bipartite = *nfem, maxo=*maxoverlaps;
   double t1;
@@ -106,7 +106,8 @@ void OverlapDurations (int *nnodes,
   }
 
   /* R's serialization of matrixes is column-major, so this works: */
-  nw = WtNetworkInitialize(edge, edge+*nedge, starttimes, ne, *nnodes, 0, bipartite);
+  nw = WtNetworkInitialize(edge, edge+*nedge, starttimes, ne, maxedges,
+                           *nnodes, 0, bipartite);
   free (starttimes);
   ie=nw.inedges;
   oe=nw.outedges;
@@ -188,7 +189,7 @@ void DegreeMixMatrix (int *nnodes,
   Vertex f, m;
   Edge e;
   Vertex *id, *od;
-  Edge i, j, ne = *nedge;
+  Edge i, j, ne = *nedge, maxedges=MAXEDGES;
   int time;
   int bipartite = *nfem;
   double *heads, *tails;
@@ -196,7 +197,8 @@ void DegreeMixMatrix (int *nnodes,
   Network nw;
 
   /* R's serialization of matrixes is column-major, so this works: */
-  nw = NetworkInitialize(edge, edge+*nedge, ne, *nnodes, 0, bipartite, 1);
+  nw = NetworkInitialize(edge, edge+*nedge, ne, maxedges,
+                         *nnodes, 0, bipartite, 1);
   ie=nw.inedges;
   oe=nw.outedges;
   id=nw.indegree;
@@ -257,6 +259,7 @@ void DegreeMixMatrix (int *nnodes,
  and then adding all of the edges to make up an observed network of interest.
 *****************/
 void godfather_wrapper (int *heads, int *tails, int *dnedges,
+      int *maxpossibleedges,
 			int *dn, int *dflag, int *bipartite, 
 			int *nterms, char **funnames,
 			char **sonames, 
@@ -272,6 +275,7 @@ void godfather_wrapper (int *heads, int *tails, int *dnedges,
   int directed_flag, maxtoggles, ntoggles;
   Vertex n_nodes, bip;
   Edge i, j, n_edges, nmax, samplesize, nextedge, tnt;
+  Edge maxnumedges=*maxpossibleedges;
   Network nw;
   Model *m;
   int thistime; 
@@ -284,7 +288,8 @@ void godfather_wrapper (int *heads, int *tails, int *dnedges,
   directed_flag = *dflag;
 
   m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
-  nw = NetworkInitialize(heads, tails, n_edges, n_nodes, directed_flag, bip, 1);
+  nw = NetworkInitialize(heads, tails, n_edges, maxnumedges,
+                         n_nodes, directed_flag, bip, 1);
 
   if (*fVerbose) {
     Rprintf("Total m->n_stats is %i; total samplesize is %d\n",

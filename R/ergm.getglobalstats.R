@@ -5,7 +5,8 @@ ergm.getglobalstats <- function(nw, m) {
   #
   gs <- -.C("MCMC_global",
            as.integer(Clist$heads), as.integer(Clist$tails), 
-           as.integer(Clist$nedges), as.integer(Clist$n),
+           as.integer(Clist$nedges), as.integer(Clist$maxpossibleedges),
+           as.integer(Clist$n),
            as.integer(Clist$dir), as.integer(Clist$bipartite), 
            as.integer(Clist$nterms), 
            as.character(Clist$fnamestring), as.character(Clist$snamestring), 

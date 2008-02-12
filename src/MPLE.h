@@ -5,6 +5,7 @@
 #include "changestats.h"
 #include "model.h"
 void MPLE_wrapper (int *heads, int *tails, int *dnedges,
+       int *maxpossibleedges,
 		   int *dn, int *dflag, int *bipartite, int *nterms, 
 		   char **funnames, char **sonames, double *inputs,  
 		   int *responsevec, double *covmat,

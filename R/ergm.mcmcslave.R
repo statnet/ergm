@@ -4,7 +4,7 @@
 ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
   z <- .C("MCMC_wrapper",
   as.integer(Clist$heads), as.integer(Clist$tails),
-  as.integer(Clist$nedges), as.integer(Clist$n),
+  as.integer(Clist$nedges), as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
   as.integer(Clist$dir), as.integer(Clist$bipartite),
   as.integer(Clist$nterms),
   as.character(Clist$fnamestring),

@@ -11,7 +11,7 @@ typedef enum {
 } DynamOrder;
 
 void MCMCDyn_wrapper(// Starting network.
-		     int *heads, int *tails, int *dnedges,
+		     int *heads, int *tails, int *n_edges, int *maxpossibleedges,
 		     int *dn, int *dflag, int *bipartite,
 		     // Ordering of formation and dissolution.
 		     int *order_code,
@@ -71,6 +71,7 @@ void MCMCDyn1Step(Network *nwp,
 
 void MCMCDynPhase12(// Observed network.
 		    int *heads, int *tails, int *n_edges,
+        int *maxpossibleedges,
 		    int *n_nodes, int *dflag, int *bipartite, 
 		    // Ordering of formation and dissolution.
 		    int *order_code, 

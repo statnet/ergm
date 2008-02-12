@@ -6,7 +6,7 @@
 #include <Rinternals.h>
 #include <Rmath.h>
 
-#define MAXEDGES 1000000
+#define MAXEDGES 1000000 /* eventually use of MAXEDGES will be phased out */
 #define MIN(a,b) ((a)<(b) ? (a) : (b))
 #define MAX(a,b) ((a)<(b) ? (b) : (a))
 
@@ -73,13 +73,16 @@ typedef struct Networkstruct {
   Vertex *indegree;
   Vertex *outdegree;
   double *value;  
-  Dur_Inf duration_info;  
+  Dur_Inf duration_info;
+  Edge maxedges;
 } Network;
 
 Network NetworkInitialize(Vertex *heads, Vertex *tails, Edge nedges,
+        Edge maxedges,
 			  Vertex nnodes, int directed_flag, Vertex bipartite,
 			  int lasttoggle_flag);
 Network NetworkInitializeD(double *heads, double *tails, Edge nedges,
+         Edge maxedges,
 			   Vertex nnodes, int directed_flag, Vertex bipartite,
 			   int lasttoggle_flag);
 void NetworkDestroy(Network *nwp);
@@ -90,7 +93,7 @@ int ToggleEdge (Vertex head, Vertex tail, Network *nwp);
 int ToggleEdgeWithTimestamp (Vertex head, Vertex tail, Network *nwp);
 int AddEdgeToTrees(Vertex head, Vertex tail, Network *nwp);
 void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, 
-		   Edge *next_edge);
+		   Edge *next_edge, Edge maxedges, Vertex nnodes);
 int DeleteEdgeFromTrees(Vertex head, Vertex tail, Network *nwp);
 int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges,
 		     Edge *next_edge);

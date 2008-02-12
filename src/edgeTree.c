@@ -32,6 +32,7 @@
  have all its values set to zero
 *******************/
 Network NetworkInitialize(Vertex *heads, Vertex *tails, Edge nedges, 
+        Edge maxedges,
 			  Vertex nnodes, int directed_flag, Vertex bipartite,
 			  int lasttoggle_flag) {
   Edge i, j;
@@ -41,8 +42,9 @@ Network NetworkInitialize(Vertex *heads, Vertex *tails, Edge nedges,
   nw.next_inedge = nw.next_outedge = (Edge)nnodes+1;
   nw.outdegree = (Vertex *) malloc(sizeof(Vertex) * (nnodes+1));
   nw.indegree  = (Vertex *) malloc(sizeof(Vertex) * (nnodes+1));
-  nw.inedges = (TreeNode *) malloc(sizeof(TreeNode) * MAXEDGES);
-  nw.outedges = (TreeNode *) malloc(sizeof(TreeNode) * MAXEDGES);
+  nw.maxedges = maxedges+nnodes+2;
+  nw.inedges = (TreeNode *) malloc(sizeof(TreeNode) * nw.maxedges);
+  nw.outedges = (TreeNode *) malloc(sizeof(TreeNode) * nw.maxedges);
 
   if(lasttoggle_flag){
     nw.duration_info.MCMCtimer=0;
@@ -59,7 +61,7 @@ Network NetworkInitialize(Vertex *heads, Vertex *tails, Edge nedges,
     nw.indegree[i] = nw.outdegree[i] = 0;
   }
   
-  for (; i<MAXEDGES; i++)
+  for (; i<nw.maxedges; i++)
     nw.inedges[i].value = nw.outedges[i].value = 0;
 
   /*Configure a Network*/
@@ -85,7 +87,9 @@ Network NetworkInitialize(Vertex *heads, Vertex *tails, Edge nedges,
 }
 
 /*Takes vectors of doubles for edges; used only when constructing from inputparams. */
-Network NetworkInitializeD(double *heads, double *tails, Edge nedges, 
+/*To do:  Make this function call NetworkInitialize to avoid repeated code */
+Network NetworkInitializeD(double *heads, double *tails, Edge nedges,
+        Edge maxedges,
 			  Vertex nnodes, int directed_flag, Vertex bipartite,
 			  int lasttoggle_flag) {
   Edge i, j;
@@ -95,8 +99,9 @@ Network NetworkInitializeD(double *heads, double *tails, Edge nedges,
   nw.next_inedge = nw.next_outedge = (Edge)nnodes+1;
   nw.outdegree = (Vertex *) malloc(sizeof(Vertex) * (nnodes+1));
   nw.indegree  = (Vertex *) malloc(sizeof(Vertex) * (nnodes+1));
-  nw.inedges = (TreeNode *) malloc(sizeof(TreeNode) * MAXEDGES);
-  nw.outedges = (TreeNode *) malloc(sizeof(TreeNode) * MAXEDGES);
+  nw.inedges = (TreeNode *) malloc(sizeof(TreeNode) * maxedges);
+  nw.outedges = (TreeNode *) malloc(sizeof(TreeNode) * maxedges);
+  nw.maxedges = maxedges;
 
   if(lasttoggle_flag){
     nw.duration_info.MCMCtimer=0;
@@ -113,7 +118,7 @@ Network NetworkInitializeD(double *heads, double *tails, Edge nedges,
     nw.indegree[i] = nw.outdegree[i] = 0;
   }
   
-  for (; i<MAXEDGES; i++)
+  for (; i<maxedges; i++)
     nw.inedges[i].value = nw.outedges[i].value = 0;
 
   /*Configure a Network*/
@@ -268,13 +273,16 @@ int ToggleEdgeWithTimestamp (Vertex head, Vertex tail, Network *nwp)
  Add an edge from head to tail after checking to see
  if it's legal. Return 1 if edge added, 0 otherwise.  Since each
  "edge" should be added to both the list of outedges and the list of 
- inedges, this actually involves two calls to AddHalfEdgeToTree (hence
+ inedges, this actually involves two calls to AddHalfedgeToTree (hence
  "Trees" instead of "Tree" in the name of this function).
 *****************/
 int AddEdgeToTrees(Vertex head, Vertex tail, Network *nwp){
   if (EdgetreeSearch(head, tail, nwp->outedges) == 0) {
-    AddHalfedgeToTree(head, tail, nwp->outedges, &(nwp->next_outedge));
-    AddHalfedgeToTree(tail, head, nwp->inedges, &(nwp->next_inedge));
+    AddHalfedgeToTree(head, tail, nwp->outedges, 
+                      &(nwp->next_outedge), nwp->maxedges, nwp->nnodes);                      
+    AddHalfedgeToTree(tail, head, nwp->inedges, 
+                      &(nwp->next_inedge), nwp->maxedges, nwp->nnodes);
+                      
     ++nwp->outdegree[head];
     ++nwp->indegree[tail];
     ++nwp->nedges;
@@ -284,11 +292,10 @@ int AddEdgeToTrees(Vertex head, Vertex tail, Network *nwp){
 }
 
 /*****************
- Edge AddHalfedgeToTree
+ Edge AddHalfedgeToTree:  Only called by AddEdgeToTrees
 *****************/
 void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, 
-			Edge *next_edge) 
-{
+			Edge *next_edge, Edge maxedges, Vertex nnodes) {
   TreeNode *eptr = edges+a, *newnode;
   Edge e;
   
@@ -305,10 +312,17 @@ void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges,
     eptr->left=*next_edge; 
   else
     eptr->right=*next_edge;
-  /* Finally, update the value of *next_edge for next time.  Note that this
-     is done simplistically, but simply counting up until a free TreeNode is 
-     found.  However, the delete-edge routine does a better job.  */
-  while (++*next_edge<MAXEDGES && edges[*next_edge].value!=0);
+                        
+  /* Finally, update the value of *next_edge for next time. */
+  while (++*next_edge<maxedges) {
+    if (edges[*next_edge].value==0) return;
+  }
+  /* Reached end of allocated memory;  back to start and recheck for "holes" */
+  for (*next_edge=(Vertex)nnodes+1; *next_edge<maxedges; ++*next_edge<maxedges) {
+    if (edges[*next_edge].value==0) return;
+  }
+  /* There are no "holes" left, so this network overflows mem allocation */
+  error("Allocated number of edges exceded\n");
 }
 
 /*****************

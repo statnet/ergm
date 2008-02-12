@@ -9,6 +9,7 @@
 *****************/
 
 R_INLINE void MCMCDyn_init_common(int *heads, int *tails, int n_edges,
+          int maxedges,
 				  int n_nodes, int dflag, int bipartite, Network *nw,
 
 				  int order_code, DynamOrder *order,
@@ -45,8 +46,10 @@ R_INLINE void MCMCDyn_init_common(int *heads, int *tails, int n_edges,
   *F_m=ModelInitialize(F_funnames, F_sonames, F_inputs, F_nterms);
   *D_m=ModelInitialize(D_funnames, D_sonames, D_inputs, D_nterms);
 
-  nw[0]=NetworkInitialize(heads, tails, n_edges, n_nodes, dflag, bipartite, 1);
-  nw[1]=NetworkInitialize(NULL, NULL, 0, n_nodes, dflag, bipartite, 0);
+  nw[0]=NetworkInitialize(heads, tails, n_edges, maxedges, 
+                          n_nodes, dflag, bipartite, 1);
+  nw[1]=NetworkInitialize(NULL, NULL, 0, maxedges,
+                          n_nodes, dflag, bipartite, 0);
 
   
   *bd=DegreeBoundInitialize(attribs, maxout, maxin, minout, minin,
@@ -83,7 +86,7 @@ R_INLINE void MCMCDyn_finish_common(Network *nw,
  Wrapper for a call from R.
 *****************/
 void MCMCDyn_wrapper(// Starting network.
-		     int *heads, int *tails, int *n_edges,
+		     int *heads, int *tails, int *n_edges, int *maxpossibleedges,
 		     int *n_nodes, int *dflag, int *bipartite,
 		     // Ordering of formation and dissolution.
 		     int *order_code,
@@ -134,7 +137,7 @@ void MCMCDyn_wrapper(// Starting network.
     }
   }
 
-  MCMCDyn_init_common(heads, tails, *n_edges,
+  MCMCDyn_init_common(heads, tails, *n_edges, *maxpossibleedges,
 		      *n_nodes, *dflag, *bipartite, nw,
 		      *order_code, &order,
 		      *F_nterms, *F_funnames, *F_sonames, F_inputs, &F_m,
@@ -455,6 +458,7 @@ void MCMCDyn1Step(// Observed and discordant network.
 
 void MCMCDynPhase12(// Observed network.
 		    int *heads, int *tails, int *n_edges,
+        int *maxpossibleedges,
 		    int *n_nodes, int *dflag, int *bipartite, 
 		    // Ordering of formation and dissolution.
 		    int *order_code, 
@@ -491,7 +495,7 @@ void MCMCDynPhase12(// Observed network.
   diffhead = (Vertex *) calloc(*maxedges,sizeof(Vertex));
   difftail = (Vertex *) calloc(*maxedges,sizeof(Vertex));
   
-  MCMCDyn_init_common(heads, tails, *n_edges,
+  MCMCDyn_init_common(heads, tails, *n_edges, *maxpossibleedges,
 		      *n_nodes, *dflag, *bipartite, nw,
 		      *order_code, &order,
 		      *F_nterms, *F_funnames, *F_sonames, F_inputs, &F_m,

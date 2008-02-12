@@ -25,14 +25,14 @@
 ###################################################################### */
 
 /*******************
- Network NetworkInitialize
+ WtNetwork WtNetworkInitialize
 
- Initialize, construct binary tree version of network.  Note
+ Initialize, construct binary tree version of network with weights.  Note
  that the 0th TreeNode in the array is unused and should 
  have all its values set to zero
 *******************/
 WtNetwork WtNetworkInitialize(int *heads, int *tails, double *weights,
-			      int nedges, int nnodes, int directed_flag, int bipartite) {
+			      int nedges, int maxedges, int nnodes, int directed_flag, int bipartite) {
   Edge i, j;
   Vertex h, t;
   double w;
@@ -41,8 +41,9 @@ WtNetwork WtNetworkInitialize(int *heads, int *tails, double *weights,
   nw.next_inedge = nw.next_outedge = (Edge)nnodes+1;
   nw.outdegree = (Vertex *) malloc(sizeof(Vertex) * (nnodes+1));
   nw.indegree  = (Vertex *) malloc(sizeof(Vertex) * (nnodes+1));
-  nw.inedges = (WtTreeNode *) malloc(sizeof(WtTreeNode) * MAXEDGES);
-  nw.outedges = (WtTreeNode *) malloc(sizeof(WtTreeNode) * MAXEDGES);
+  nw.inedges = (WtTreeNode *) malloc(sizeof(WtTreeNode) * maxedges);
+  nw.outedges = (WtTreeNode *) malloc(sizeof(WtTreeNode) * maxedges);
+  nw.maxedges = maxedges;
   
   nw.duration_info.MCMCtimer=0;
   i = directed_flag? nnodes*(nnodes-1) : (nnodes*(nnodes-1))/2;
@@ -57,7 +58,7 @@ WtNetwork WtNetworkInitialize(int *heads, int *tails, double *weights,
     nw.indegree[i] = nw.outdegree[i] = 0;
   }
   
-  for (; i<MAXEDGES; i++)
+  for (; i<maxedges; i++)
     nw.inedges[i].value = nw.outedges[i].value = 0;
 
   /*Configure a Network*/
@@ -255,14 +256,15 @@ void TouchEdge(Vertex head, Vertex tail, Network *nwp){
  Add an edge from head to tail after checking to see
  if it's legal. Return 1 if edge added, 0 otherwise.  Since each
  "edge" should be added to both the list of outedges and the list of 
- inedges, this actually involves two calls to AddHalfEdgeToTree (hence
+ inedges, this actually involves two calls to AddHalfedgeToTree (hence
  "Trees" instead of "Tree" in the name of this function).
 *****************/
 int WtAddEdgeToTrees(Vertex head, Vertex tail, double weight, WtNetwork *nwp){
   if (WtEdgetreeSearch(head, tail, nwp->outedges) == 0) {
     WtAddHalfedgeToTree(head, tail, weight, nwp->outedges, 
-			&(nwp->next_outedge));
-    WtAddHalfedgeToTree(tail, head, weight, nwp->inedges, &(nwp->next_inedge));
+			                  &(nwp->next_outedge), nwp->maxedges);
+    WtAddHalfedgeToTree(tail, head, weight, nwp->inedges, 
+                        &(nwp->next_inedge), nwp->maxedges);
     ++nwp->outdegree[head];
     ++nwp->indegree[tail];
     ++nwp->nedges;
@@ -275,7 +277,7 @@ int WtAddEdgeToTrees(Vertex head, Vertex tail, double weight, WtNetwork *nwp){
  Edge AddHalfedgeToTree
 *****************/
 void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight, 
-			  WtTreeNode *edges, Edge *next_edge) 
+			  WtTreeNode *edges, Edge *next_edge, Edge maxedges) 
 {  /*  See comments in AddHalfedgeToTree.  */
   WtTreeNode *eptr = edges+a, *newnode;
   Edge e;
@@ -294,7 +296,16 @@ void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight,
     eptr->left=*next_edge;
   else
     eptr->right=*next_edge;
-  while (++*next_edge<MAXEDGES && edges[*next_edge].value!=0);
+  /* Finally, update the value of *next_edge for next time. */
+  while (++*next_edge<maxedges) {
+    if (edges[*next_edge].value==0) return;
+  }
+  /* Reached end of allocated memory;  back to start and recheck for "holes" */
+  for (*next_edge=(Vertex)nnodes+1; *next_edge<maxedges; ++*next_edge<maxedges) {
+    if (edges[*next_edge].value==0) return;
+  }
+  /* There are no "holes" left, so this network overflows mem allocation */
+  error("Allocated number of edges exceded\n");
 }
 
 /*****************

@@ -9,6 +9,7 @@ for(n in 5000) { # n must be even
   if (round(e$coef - eta, 4) !=0) {
     stop("Failed test of simple MPLE (sparse) estimation for n =",n)
   }
+  cat(paste("Passed first MPLE test for n =",n))
 }
 
 # Next, a test for less sparse networks in which each
@@ -24,7 +25,9 @@ for(n in 5000) { # n should be a multiple of 100
   if (round(e$coef -eta, 4) !=0) {
     stop("Failed test of simple MPLE (nonsparse) estimation for n =",n)
   }
+  cat(paste("Passed second MPLE test for n =",n))
 }
+
 
 
 
