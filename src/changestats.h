@@ -15,8 +15,8 @@ typedef struct ModelTermstruct {
 
 /****************************************************
  Macros to make life easier                         */
-#define IS_OUTEDGE(a,b) (EdgetreeSearch((a),(b),nwp->outedges))
-#define IS_INEDGE(a,b) (EdgetreeSearch((a),(b),nwp->inedges))
+#define IS_OUTEDGE(a,b) (EdgetreeSearch((a),(b),nwp->outedges)!=0?1:0)
+#define IS_INEDGE(a,b) (EdgetreeSearch((a),(b),nwp->inedges)!=0?1:0)
 #define MIN_OUTEDGE(a) (EdgetreeMinimum(nwp->outedges, (a)))
 #define MIN_INEDGE(a) (EdgetreeMinimum(nwp->inedges, (a)))
 #define NEXT_OUTEDGE(e) (EdgetreeSuccessor(nwp->outedges,(e)))
@@ -26,10 +26,14 @@ typedef struct ModelTermstruct {
 #define TOGGLE(a,b) (ToggleEdge((a),(b),nwp));
 
 #define N_NODES (nwp->nnodes)
+#define OUT_DEG (nwp->outdegree)
+#define IN_DEG (nwp->indegree)
 
 #define N_CHANGE_STATS (mtp->nstats)
 #define INPUT_PARAM (mtp->inputparams)
 #define CHANGE_STAT (mtp->dstats)
+#define INPUT_ATTRIB (mtp->attrib)
+#define N_INPUT_PARAMS (mtp->ninputparams)
 
 
 /****************************************************/
