@@ -25,6 +25,8 @@ typedef struct ModelTermstruct {
 #define INVAL(e) (nwp->inedges[(e)].value)
 #define TOGGLE(a,b) (ToggleEdge((a),(b),nwp));
 
+#define N_NODES (nwp->nnodes)
+
 #define N_CHANGE_STATS (mtp->nstats)
 #define INPUT_PARAM (mtp->inputparams)
 #define CHANGE_STAT (mtp->dstats)

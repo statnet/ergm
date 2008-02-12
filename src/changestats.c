@@ -5,38 +5,33 @@
 /*****************                       
  changestat: d_absdiff
 *****************/
-void d_absdiff (int ntoggles, Vertex *heads, Vertex *tails, 
-		ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_absdiff) { 
   double change;
   Vertex h, t;
   int i, edgeflag;
 
   *(mtp->dstats) = 0.0;
-  for (i=0; i<ntoggles; i++) 
-    {
-      edgeflag = (EdgetreeSearch(h=heads[i],t=tails[i],nwp->outedges) != 0);
-      change = fabs(mtp->attrib[h-1] - mtp->attrib[t-1]);
-/*    Rprintf("h %d t %d %f %f %f\n",h,t,mtp->attrib[h-1], mtp->attrib[t-1],change); */
-      *(mtp->dstats) += edgeflag ? -change : change;
-      if (i+1 < ntoggles) 
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-    }
+  for (i=0; i<ntoggles; i++) {
+    edgeflag = (EdgetreeSearch(h=heads[i],t=tails[i],nwp->outedges) != 0);
+    change = fabs(mtp->attrib[h-1] - mtp->attrib[t-1]);
+    *(mtp->dstats) += edgeflag ? -change : change;
+    if (i+1 < ntoggles) 
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
+  }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
-  
+
 /*****************
  changestat: d_absdiffcat
 *****************/
-void d_absdiffcat (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_absdiffcat) { 
   double change, NAsubstitute, hval, tval;
   Vertex h, t, ninputs;
   int i, j, edgeflag=0;
-  /* double checksum;*/ 
   
-  ninputs = mtp->ninputparams - nwp->nnodes;
+  ninputs = mtp->ninputparams - N_NODES;
   NAsubstitute = mtp->inputparams[ninputs-1];
   for (i=0; i < mtp->nstats; i++) 
     mtp->dstats[i] = 0.0;
@@ -47,28 +42,23 @@ void d_absdiffcat (int ntoggles, Vertex *heads, Vertex *tails,
     if (hval == NAsubstitute ||  tval == NAsubstitute) change = NAsubstitute;
     else change = fabs(hval - tval);
 	  if (change>0) {
-      for (/*checksum=0.0,*/ j=0; j<ninputs; j++) {
+      for (j=0; j<ninputs; j++) {
         mtp->dstats[j] += (change==mtp->inputparams[j]) ? 
              (edgeflag ? -1.0 : 1.0) : 0.0;
-        /*checksum += (change==mtp->inputparams[j]) ? 
-             (edgeflag ? -1.0 : 1.0) : 0.0; */
       }
-      /*if (fabs(checksum) != 1.0) Rprintf("Whoops! checksum=%f\n",checksum);*/
     }
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_b1concurrent
 *****************/
-void d_b1concurrent (int ntoggles, Vertex *heads, Vertex *tails, 
-	        ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_b1concurrent) { 
   /* It is assumed that in this bipartite network, the only edges are
   of the form (b1, b2), where b1 is always strictly less
   than b2.  In other words, the degree of a b1 is equivalent
@@ -81,25 +71,23 @@ void d_b1concurrent (int ntoggles, Vertex *heads, Vertex *tails,
   
   oe=nwp->outedges;
   od=nwp->outdegree;
-  *(mtp->dstats) = 0.0;  
+  *(mtp->dstats) = 0.0;
   for (i=0; i<ntoggles; i++) {      
     echange=(EdgetreeSearch(b1=heads[i], b2=tails[i], oe)==0) ? 1 : -1;
     actdeg = od[b1];
     *(mtp->dstats) += (actdeg + echange > 1) - (actdeg > 1);
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_b1concurrent_by_attr
 *****************/
-void d_b1concurrent_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
-	        ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_b1concurrent_by_attr) { 
   /* It is assumed that in this bipartite network, the only edges are
   of the form (b1, b2), where b1 is always strictly less
   than b2.  In other words, the degree of a b1 is equivalent
@@ -128,19 +116,18 @@ void d_b1concurrent_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
       }
     }
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_b1factor
 *****************/
-void d_b1factor (int ntoggles, Vertex *heads, Vertex *tails, 
-ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_b1factor) { 
   double s, factorval;
   Vertex h, t;
   int i, j;
@@ -159,19 +146,17 @@ ModelTerm *mtp, Network *nwp) {
       
     }
     if (i+1 < ntoggles) 
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_b1degree
 *****************/
-void d_b1degree (int ntoggles, Vertex *heads, Vertex *tails, 
-	        ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_b1degree) { 
   /* It is assumed that in this bipartite network, the only edges are
   of the form (b1, b2), where b1 is always strictly less
   than b2.  In other words, the degree of a b1 is equivalent
@@ -194,19 +179,17 @@ void d_b1degree (int ntoggles, Vertex *heads, Vertex *tails,
       mtp->dstats[j] += (actdeg + echange == d) - (actdeg == d);
     }
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_b1degree_by_attr
 *****************/
-void d_b1degree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
-	        ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_b1degree_by_attr) { 
   /* It is assumed that in this bipartite network, the only edges are
   of the form (b1, b2), where b1 is always strictly less
   than b2.  In other words, the degree of a b1 is equivalent
@@ -235,19 +218,18 @@ void d_b1degree_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
       }
     }
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_altkstar
 *****************/
-void d_altkstar (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp)  {
+CHANGESTAT_FN(d_altkstar) { 
   int i, echange=0;
   double lambda, oneexpl, change;
   Vertex h, t, hd, td=0, *id, *od;
@@ -271,20 +253,19 @@ void d_altkstar (int ntoggles, Vertex *heads, Vertex *tails,
       }
       
       if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+	TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   *(mtp->dstats) = change*lambda;
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_asymmetric
 *****************/
-void d_asymmetric (int ntoggles, Vertex *heads, Vertex *tails, 
-		ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_asymmetric) { 
   Vertex h, t;
   int i, edgeflag, refedgeflag;
   
@@ -298,20 +279,18 @@ void d_asymmetric (int ntoggles, Vertex *heads, Vertex *tails,
       *(mtp->dstats) += ((edgeflag==refedgeflag) ? 1.0 : -1.0); 
       
       if (i+1 < ntoggles) 
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+	TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /********************  changestats:  B    ***********/
 /*****************
  changestat: d_balance
 *****************/
-void d_balance (int ntoggles, Vertex *heads, Vertex *tails, 
-	            ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_balance) { 
   int i, edgeflag, a, b, c, d, e, edgecount, t300, 
   t210, t120C, t120U, t120D, t201, t030C, t030T, t111U, 
   t111D, t021C, t021U, t021D, t102, t012, t003;
@@ -337,7 +316,7 @@ void d_balance (int ntoggles, Vertex *heads, Vertex *tails,
           (EdgetreeMinimum(nwp->inedges, h) != 0)) {      
 
           /* ****** loop through node3 ****** */
-          for (node3=1; node3 <= nwp->nnodes; node3++)
+          for (node3=1; node3 <= N_NODES; node3++)
              { 
              if (node3 != h && node3 != t)
                {   
@@ -493,7 +472,7 @@ void d_balance (int ntoggles, Vertex *heads, Vertex *tails,
              }    /* ******  move to next node3 ******** */
         }
         else 
-          t012 = t012 + (nwp->nnodes - 2);  
+          t012 = t012 + (N_NODES - 2);  
 
 /*        t003 = (t300+t210+t120C+t120U+t120D+t201+t030C+t030T); 
         t003 = t003+(t111U+t111D+t021C+t021U+t021D+t102+t012); */
@@ -501,7 +480,7 @@ void d_balance (int ntoggles, Vertex *heads, Vertex *tails,
 	*(mtp->dstats) += edgeflag ? -(double)b : (double)b;
 
       if (i+1 < ntoggles)
-	  ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */ 
+	  TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */ 
     }
     }else{
 /*  undirected */
@@ -516,7 +495,7 @@ void d_balance (int ntoggles, Vertex *heads, Vertex *tails,
           (EdgetreeMinimum(nwp->inedges, h) != 0)) {      
 
           /* ****** loop through node3 ****** */
-          for (node3=1; node3 <= nwp->nnodes; node3++)
+          for (node3=1; node3 <= N_NODES; node3++)
              { 
              if (node3 != h && node3 != t)
                {   
@@ -553,28 +532,26 @@ void d_balance (int ntoggles, Vertex *heads, Vertex *tails,
              }    /* ******  move to next node3 ******** */
         }
         else 
-          t102 = t102 + (nwp->nnodes - 2);  
+          t102 = t102 + (N_NODES - 2);  
 
         t003 = (t102+t201+t300);
 	b = t102 + t300; 
 	*(mtp->dstats) += edgeflag ? -(double)b : (double)b;
   
      if (i+1 < ntoggles)
-	  ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */ 
+	  TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */ 
      } /* i loop */
     }
     
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_boundeddegree
 *****************/
-void d_boundeddegree (int ntoggles, Vertex *heads, Vertex *tails, 
-		      ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_boundeddegree) { 
   int i, j, echange;
   Vertex h, t, hd, td=0, deg, *id, *od;
   TreeNode *oe=nwp->outedges;
@@ -601,19 +578,18 @@ void d_boundeddegree (int ntoggles, Vertex *heads, Vertex *tails,
       mtp->dstats[nstats-1] += (td + echange >= bound) - (td >= bound);
       
       if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+	TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_boundedidegree
 *****************/
-void d_boundedidegree (int ntoggles, Vertex *heads, Vertex *tails, 
-	               ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_boundedidegree) { 
   int i, j, echange;
   Vertex h, t, hd=0, deg;
   int nstats = (int)mtp->nstats;
@@ -633,11 +609,11 @@ void d_boundedidegree (int ntoggles, Vertex *heads, Vertex *tails,
 	}
       mtp->dstats[nstats-1] += (hd + echange >= bound) - (hd >= bound);
       if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+	TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
@@ -667,9 +643,7 @@ double my_choose(double n, int r) {
 /*****************
  changestat: d_boundedistar
 *****************/
-void d_boundedistar (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_boundedistar) { 
   double change, tod;
   double newtod;
   int edgeflag, i, j, k, bound;
@@ -696,19 +670,17 @@ void d_boundedistar (int ntoggles, Vertex *heads, Vertex *tails,
 	  mtp->dstats[j] += change;
       	}
       if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp) ;    /* Toggle this edge if more to come */
+	TOGGLE(heads[i], tails[i]) ;    /* Toggle this edge if more to come */
     }
   i--;
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_boundedkstar
 *****************/
-void d_boundedkstar (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_boundedkstar) { 
   double change, hod, tod;
   double newhod, newtod;
   int edgeflag, i, j, k, bound;
@@ -737,18 +709,17 @@ void d_boundedkstar (int ntoggles, Vertex *heads, Vertex *tails,
 	  mtp->dstats[j] += change; /* (edgeflag ? - change : change); */
       	}
       if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp) ;    /* Toggle this edge if more to come */
+	TOGGLE(heads[i], tails[i]) ;    /* Toggle this edge if more to come */
     }
   i--;
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_boundedodegree
 *****************/
-void d_boundedodegree (int ntoggles, Vertex *heads, Vertex *tails, 
-	               ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_boundedodegree) { 
   int i, j, echange;
   Vertex h, t, hd=0, deg;
   int nstats = (int)mtp->nstats;
@@ -769,19 +740,17 @@ void d_boundedodegree (int ntoggles, Vertex *heads, Vertex *tails,
       mtp->dstats[nstats-1] += (hd + echange >= bound) - (hd >= bound);
       
       if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+	TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_boundedostar
 *****************/
-void d_boundedostar (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_boundedostar) { 
   double change, hod;
   double newhod;
   int edgeflag, i, j, k, bound;
@@ -808,18 +777,17 @@ void d_boundedostar (int ntoggles, Vertex *heads, Vertex *tails,
 	  mtp->dstats[j] += change;
       	}
       if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp) ;    /* Toggle this edge if more to come */
+	TOGGLE(heads[i], tails[i]) ;    /* Toggle this edge if more to come */
     }
   i--;
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_boundedtriangle
 *****************/
-void d_boundedtriangle (int ntoggles, Vertex *heads, Vertex *tails, 
-			ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_boundedtriangle) { 
   Edge e;
   Vertex h, t, node3;
   Vertex change;
@@ -873,12 +841,12 @@ void d_boundedtriangle (int ntoggles, Vertex *heads, Vertex *tails,
       *(mtp->dstats) += boundedchange;
 
       if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+	TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp);
+    TOGGLE(heads[i], tails[i]);
 }
 
 /*****************
@@ -919,9 +887,7 @@ Vertex CountTriangles (Vertex h, Vertex t, int outcount, int incount,
 /*****************
  changestat: d_concurrent
 *****************/
-void d_concurrent (int ntoggles, Vertex *heads, Vertex *tails, 
-	        ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_concurrent) { 
   /* It is assumed that in this bipartite network, the only edges are
   of the form (b1, b2), where b1 is always strictly less
   than b2.  In other words, the degree of a b1 is equivalent
@@ -943,19 +909,17 @@ void d_concurrent (int ntoggles, Vertex *heads, Vertex *tails,
     }
     *(mtp->dstats) += (actdeg + echange > 1) - (actdeg > 1);
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_concurrent_by_attr
 *****************/
-void d_concurrent_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
-	        ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_concurrent_by_attr) { 
   /* It is assumed that in this bipartite network, the only edges are
   of the form (b1, b2), where b1 is always strictly less
   than b2.  In other words, the degree of a b1 is equivalent
@@ -988,19 +952,18 @@ void d_concurrent_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
       }
     }
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_ctriple
 *****************/
-void d_ctriple (int ntoggles, Vertex *heads, Vertex *tails, 
-ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_ctriple) { 
   Edge e;
   Vertex h, t, change, node3;
   int edgeflag, i, j;
@@ -1047,7 +1010,7 @@ ModelTerm *mtp, Network *nwp) {
       }
       
       if (i+1 < ntoggles) 
-        ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+        TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   }else{
     /* no attribute matching */
@@ -1068,21 +1031,19 @@ ModelTerm *mtp, Network *nwp) {
       *(mtp->dstats) += edgeflag ? -(double)change : change;
       
       if (i+1 < ntoggles) 
-        ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+        TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_cycle
 *****************/
-void d_cycle (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp)
-{
+CHANGESTAT_FN(d_cycle) { 
   int edgeflag,i,j,k,nstats,directed;
   Vertex h, t;
   long int maxlen;
@@ -1123,7 +1084,7 @@ void d_cycle (int ntoggles, Vertex *heads, Vertex *tails,
     }
   i--;
   while (--i >= 0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp);
+    TOGGLE(heads[i], tails[i]);
 }
 
 /*****************
@@ -1220,9 +1181,7 @@ void edgewise_cycle_census(Network *g, Vertex t, Vertex h, double *countv, long 
 /*****************
  changestat: d_degree
 *****************/
-void d_degree (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_degree) { 
   int i, j, echange;
   Vertex head, tail, headdeg, taildeg, deg, *id, *od;
   TreeNode *oe=nwp->outedges;
@@ -1241,19 +1200,17 @@ void d_degree (int ntoggles, Vertex *heads, Vertex *tails,
       mtp->dstats[j] += (taildeg + echange == deg) - (taildeg == deg);
     }
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_degree_by_attr
 *****************/
-void d_degree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
-	        ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_degree_by_attr) { 
   /* The inputparams are assumed to be set up as follows:
   The first 2*nstats values are in pairs:  (degree, attrvalue)
   The values following the first 2*nstats values are the nodal attributes.
@@ -1281,19 +1238,17 @@ void d_degree_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
         mtp->dstats[j] += (taildeg + echange == d) - (taildeg == d);
     }
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_degree_w_homophily
 *****************/
-void d_degree_w_homophily (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_degree_w_homophily) { 
   /*  The inputparams are assumed to be set up as follows:
   The first nstats values are the values of degree
   The values following the first nstats values are the nodal attributes.
@@ -1342,22 +1297,21 @@ void d_degree_w_homophily (int ntoggles, Vertex *heads, Vertex *tails,
       }
     }
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }                                        
 
 /*****************
  changestat: d_density
 *****************/
-void d_density(int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_density) {
   int edgeflag, i;
   Vertex h, t, ndyads;
   
-  ndyads = (nwp->nnodes)*(nwp->nnodes-1);
+  ndyads = (N_NODES)*(N_NODES-1);
   if(!nwp->directed_flag){
     ndyads = ndyads / 2;
   }
@@ -1368,20 +1322,18 @@ void d_density(int ntoggles, Vertex *heads, Vertex *tails,
     edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
     *(mtp->dstats) += edgeflag ? - 1 : 1;
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   *(mtp->dstats) = *(mtp->dstats) / ndyads;
   i--; 
   while (--i >= 0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_dsp
 *****************/
-void d_dsp (int ntoggles, Vertex *heads, Vertex *tails, 
-	    ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_dsp) { 
   Edge e, f;
   int i, j, echange;
   int L2hu, L2ut;
@@ -1495,19 +1447,18 @@ void d_dsp (int ntoggles, Vertex *heads, Vertex *tails,
     }
     
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_dyadcov
 *****************/
-void d_dyadcov (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp)  {
+CHANGESTAT_FN(d_dyadcov) { 
   double val;
   Vertex h, t;
   int i, edgeflag, refedgeflag;
@@ -1515,7 +1466,7 @@ void d_dyadcov (int ntoggles, Vertex *heads, Vertex *tails,
   
   noffset = nwp->bipartite;
   if(noffset > 0){
-   nrow = (nwp->nnodes)-(long int)(mtp->inputparams[0]);
+   nrow = (N_NODES)-(long int)(mtp->inputparams[0]);
   }else{
    nrow = (long int)(mtp->inputparams[0]);
   }
@@ -1583,7 +1534,7 @@ void d_dyadcov (int ntoggles, Vertex *heads, Vertex *tails,
       }
       
       if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+	TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   }else{
 /* undirected case (including bipartite) */
@@ -1603,13 +1554,13 @@ void d_dyadcov (int ntoggles, Vertex *heads, Vertex *tails,
        *(mtp->dstats) += edgeflag ? -val : val;
       }
       if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+	TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   }
 
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 
@@ -1617,9 +1568,7 @@ void d_dyadcov (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_b2concurrent
 *****************/
-void d_b2concurrent (int ntoggles, Vertex *heads, Vertex *tails, 
-	            ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_b2concurrent) { 
   /* It is assumed that in this bipartite network, the only edges are
   of the form (b1, b2), where b1 is always strictly less
   than b2.  In other words, the degree of a b1 is equivalent
@@ -1638,19 +1587,17 @@ void d_b2concurrent (int ntoggles, Vertex *heads, Vertex *tails,
     b2deg = id[b2];
     *(mtp->dstats) += (b2deg + echange > 1) - (b2deg > 1);
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_b2concurrent_by_attr
 *****************/
-void d_b2concurrent_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
-	        ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_b2concurrent_by_attr) { 
   /* It is assumed that in this bipartite network, the only edges are
   of the form (b1, b2), where b1 is always strictly less
   than b2.  In other words, the degree of a b1 is equivalent
@@ -1678,20 +1625,18 @@ void d_b2concurrent_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
       }
     }
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_b2degree
 *****************/
-void d_b2degree (int ntoggles, Vertex *heads, Vertex *tails, 
-	        ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_b2degree) { 
   /* It is assumed that in this bipartite network, the only edges are
   of the form (b1, b2), where b1 is always strictly less
   than b2.  In other words, the degree of a b1 is equivalent
@@ -1714,19 +1659,17 @@ void d_b2degree (int ntoggles, Vertex *heads, Vertex *tails,
       mtp->dstats[j] += (b2deg + echange == d) - (b2deg == d);
     }
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_b2degree_by_attr
 *****************/
-void d_b2degree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
-	        ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_b2degree_by_attr) { 
   /* It is assumed that in this bipartite network, the only edges are
   of the form (b1, b2), where b1 is always strictly less
   than b2.  In other words, the degree of a b1 is equivalent
@@ -1755,19 +1698,18 @@ void d_b2degree_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
       }
     }
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_edgecov
 *****************/
-void d_edgecov (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp)  {
+CHANGESTAT_FN(d_edgecov) { 
   double val;
   Vertex h, t;
   long int nrow, noffset;
@@ -1775,7 +1717,7 @@ void d_edgecov (int ntoggles, Vertex *heads, Vertex *tails,
   
   noffset = nwp->bipartite;
   if(noffset > 0){
-/*   nrow = (nwp->nnodes)-(long int)(mtp->inputparams[0]); */
+/*   nrow = (N_NODES)-(long int)(mtp->inputparams[0]); */
     nrow = noffset;
   }else{
    nrow = (long int)(mtp->inputparams[0]);
@@ -1793,18 +1735,17 @@ void d_edgecov (int ntoggles, Vertex *heads, Vertex *tails,
       /*Update the change statistic, based on the toggle type*/
       *(mtp->dstats) += edgeflag ? -val : val;
       if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+	TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_edges
 *****************/
-void d_edges(int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_edges) {
   int edgeflag, i;
   Vertex h, t;
   
@@ -1814,18 +1755,17 @@ void d_edges(int ntoggles, Vertex *heads, Vertex *tails,
       edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
       *(mtp->dstats) += edgeflag ? - 1 : 1;
       if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+	TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   i--; 
   while (--i >= 0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_esp
 *****************/
-void d_esp (int ntoggles, Vertex *heads, Vertex *tails, 
-	    ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_esp) { 
   Edge e, f;
   int i, j, echange;
   int L2ht, L2hu, L2ut;
@@ -1901,18 +1841,17 @@ void d_esp (int ntoggles, Vertex *heads, Vertex *tails,
       mtp->dstats[j] += echange*(L2ht == deg);
     }
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }  
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_b2factor
 *****************/
-void d_b2factor (int ntoggles, Vertex *heads, Vertex *tails, 
-ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_b2factor) { 
   double s, factorval;
   Vertex h, t;
   int i, j;
@@ -1935,11 +1874,11 @@ ModelTerm *mtp, Network *nwp) {
       
     }
     if (i+1 < ntoggles) 
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 /********************  changestats:  F    ***********/
 
@@ -1947,9 +1886,7 @@ ModelTerm *mtp, Network *nwp) {
 /*****************
  changestat: d_gwb1degree
 *****************/
-void d_gwb1degree (int ntoggles, Vertex *heads, Vertex *tails, 
-	        ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_gwb1degree) { 
   /* It is assumed that in this bipartite network, the only edges are
   of the form (b1, b2), where b1 is always strictly less
   than b2.  In other words, the degree of a b1 is equivalent
@@ -1971,20 +1908,18 @@ void d_gwb1degree (int ntoggles, Vertex *heads, Vertex *tails,
     b1deg = od[b1]+(echange-1)/2;
     mtp->dstats[0] += echange*pow(oneexpd,(double)b1deg);
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_gwb1degree_by_attr
 *****************/
-void d_gwb1degree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
-	        ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_gwb1degree_by_attr) { 
   /* It is assumed that in this bipartite network, the only edges are
   of the form (b1, b2), where b1 is always strictly less
   than b2.  In other words, the degree of a b1 is equivalent
@@ -2013,18 +1948,17 @@ void d_gwb1degree_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
 /*  Rprintf("b1 %d tails %d b1deg %d b1attr %d echange %d\n",b1, tails[i], b1deg, b1attr, echange); */
     mtp->dstats[b1attr-1] += echange * pow(oneexpd,(double)b1deg);
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_gwdegree
 *****************/
-void d_gwdegree (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp)  {
+CHANGESTAT_FN(d_gwdegree) { 
   int i, echange=0;
   double decay, oneexpd, change;
   Vertex h, t, hd, td=0, *id, *od;
@@ -2042,20 +1976,19 @@ void d_gwdegree (int ntoggles, Vertex *heads, Vertex *tails,
     change += echange*(pow(oneexpd,(double)hd)+pow(oneexpd,(double)td));
       
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   *(mtp->dstats) = change;
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_gwdegree_by_attr
 *****************/
-void d_gwdegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp)  {
+CHANGESTAT_FN(d_gwdegree_by_attr) { 
   /*The inputparams are assumed to be set up as follows:
     The first value is the decay parameter (as in Hunter et al, JASA 200?)
     The next sequence of values is the nodal attributes, coded as integers
@@ -2084,19 +2017,18 @@ void d_gwdegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
     mtp->dstats[tattr-1] += echange*(pow(oneexpd,(double)td));
       
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_gwdsp
 ****************/
-void d_gwdsp (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_gwdsp) { 
   Edge e, f;
   int i, echange, ochange;
   int L2hu, L2ut;
@@ -2200,20 +2132,18 @@ void d_gwdsp (int ntoggles, Vertex *heads, Vertex *tails,
     cumchange  = echange*cumchange;
     (*(mtp->dstats)) += cumchange;
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_gwb2degree
 *****************/
-void d_gwb2degree (int ntoggles, Vertex *heads, Vertex *tails, 
-	        ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_gwb2degree) { 
   /* It is assumed that in this bipartite network, the only edges are
   of the form (b1, b2), where b1 is always strictly less
   than b2.  In other words, the degree of a b1 is equivalent
@@ -2235,20 +2165,18 @@ void d_gwb2degree (int ntoggles, Vertex *heads, Vertex *tails,
     b2deg = id[b2]+(echange-1)/2;
     mtp->dstats[0] += echange*pow(oneexpd,(double)b2deg);
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_gwb2degree_by_attr
 *****************/
-void d_gwb2degree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
-	        ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_gwb2degree_by_attr) { 
   /* It is assumed that in this bipartite network, the only edges are
   of the form (b1, b2), where b1 is always strictly less
   than b2.  In other words, the degree of a b1 is equivalent
@@ -2277,18 +2205,17 @@ void d_gwb2degree_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
 /*  Rprintf("h %d b2 %d b2deg %d b2attr %d echange %d\n",heads[i], b2, b2deg, b2attr, echange); */
     mtp->dstats[b2attr-1] += echange * pow(oneexpd,(double)b2deg);
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_gwesp
 *****************/
-void d_gwesp (int ntoggles, Vertex *heads, Vertex *tails, 
-	           ModelTerm *mtp, Network *nwp)  {
+CHANGESTAT_FN(d_gwesp) { 
   Edge e, f;
   int i, echange, ochange;
   int L2ht, L2hu, L2ut;
@@ -2366,19 +2293,18 @@ void d_gwesp (int ntoggles, Vertex *heads, Vertex *tails,
     cumchange  = echange*cumchange;
     (*(mtp->dstats)) += cumchange;
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_gwidegree
 *****************/
-void d_gwidegree (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp)  {
+CHANGESTAT_FN(d_gwidegree) { 
   int i, echange=0;
   double decay, oneexpd, change;
   Vertex t, td=0, *id;
@@ -2395,20 +2321,19 @@ void d_gwidegree (int ntoggles, Vertex *heads, Vertex *tails,
     change += echange * pow(oneexpd,(double)td);
     
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   *(mtp->dstats) = change;
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_gwidegree_by_attr
 *****************/
-void d_gwidegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp)  {
+CHANGESTAT_FN(d_gwidegree_by_attr) { 
   /*The inputparams are assumed to be set up as follows:
     The first value is the decay parameter (as in Hunter et al, JASA 200?)
     The next sequence of values is the nodal attributes, coded as integers
@@ -2432,19 +2357,18 @@ void d_gwidegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
     mtp->dstats[tattr-1] += echange*(pow(oneexpd,(double)td));
       
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_gwodegree
 *****************/
-void d_gwodegree (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp)  {
+CHANGESTAT_FN(d_gwodegree) { 
   int i, echange=0;
   double decay, oneexpd;
   Vertex h, hd=0, *od;
@@ -2460,19 +2384,18 @@ void d_gwodegree (int ntoggles, Vertex *heads, Vertex *tails,
     mtp->dstats[0] += echange * pow(oneexpd,(double)hd);
     
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_gwodegree_by_attr
 *****************/
-void d_gwodegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp)  {
+CHANGESTAT_FN(d_gwodegree_by_attr) { 
   /*The inputparams are assumed to be set up as follows:
     The first value is the decay parameter (as in Hunter et al, JASA 200?)
     The next sequence of values is the nodal attributes, coded as integers
@@ -2496,12 +2419,12 @@ void d_gwodegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
     mtp->dstats[hattr-1] += echange*(pow(oneexpd,(double)hd));
       
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
@@ -2546,19 +2469,18 @@ CHANGESTAT_FN(d_gwtdsp) {
     }
     CHANGE_STAT[0] += echange * cumchange;
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_gwtesp
 *****************/
-void d_gwtesp (int ntoggles, Vertex *heads, Vertex *tails, 
-	           ModelTerm *mtp, Network *nwp)  {
+CHANGESTAT_FN(d_gwtesp) { 
   Edge e, f;
   int i, echange, ochange;
   int L2ht, L2hu, L2ut;
@@ -2617,20 +2539,19 @@ void d_gwtesp (int ntoggles, Vertex *heads, Vertex *tails,
     cumchange  = echange*cumchange;
     (*(mtp->dstats)) += cumchange;
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /********************  changestats:  H    ***********/
 /*****************
  changestat: d_hamming
 *****************/
-void d_hamming (int ntoggles, Vertex *heads, Vertex *tails, 
-                ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_hamming) { 
   Vertex h, t;
   int i, nhedge, discord;
   
@@ -2680,8 +2601,7 @@ Rprintf("h %d t %d discord %d\n",h, t, discord);
 /*****************
  changestat: d_hamming_weighted
 *****************/
-void d_hamming_weighted (int ntoggles, Vertex *heads, Vertex *tails, 
-                       ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_hamming_weighted) { 
   Vertex h, t;
   double val;
   long int nnodes, nb1, nb2, n0edge;
@@ -2727,8 +2647,7 @@ void d_hamming_weighted (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_hammingmix_constant
 *****************/
-void d_hammingmix_constant (int ntoggles, Vertex *heads, Vertex *tails, 
-                            ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_hammingmix_constant) { 
   Vertex h, t;
   int i, nhedge, discord;
   int matchvalh, matchvalt;
@@ -2772,8 +2691,7 @@ void d_hammingmix_constant (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_hammingmix
 *****************/
-void d_hammingmix (int ntoggles, Vertex *heads, Vertex *tails, 
-                ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_hammingmix) { 
   Vertex h, t;
   int i, j, nhedge, edgeflag, discord;
   int matchvalh, matchvalt;
@@ -2823,8 +2741,7 @@ void d_hammingmix (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_idegree
 *****************/
-void d_idegree (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_idegree) { 
   int echange, i, j;
   Edge e;
   Vertex h, t, node3, deg, td=0;
@@ -2859,7 +2776,7 @@ void d_idegree (int ntoggles, Vertex *heads, Vertex *tails,
 	    }
 	}
 	if (i+1 < ntoggles)
-	  ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+	  TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
       }
   }else{
     for (i=0; i < ntoggles; i++)
@@ -2873,21 +2790,19 @@ void d_idegree (int ntoggles, Vertex *heads, Vertex *tails,
 	    mtp->dstats[j] += (td + echange == deg) - (td == deg);
 	  }
 	if (i+1 < ntoggles)
-	  ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+	  TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
       }
   }
   
   i--; 
   while (--i >= 0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_idegree_by_attr
 *****************/
-void d_idegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
-	        ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_idegree_by_attr) { 
   /* The inputparams are assumed to be set up as follows:
   The first 2*nstats values are in pairs:  (degree, attrvalue)
   The values following the first 2*nstats values are the nodal attributes.
@@ -2910,19 +2825,17 @@ void d_idegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
         mtp->dstats[j] += (taildeg + echange == d) - (taildeg == d);
     }
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_idegree_w_homophily
 *****************/
-void d_idegree_w_homophily (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_idegree_w_homophily) { 
   /*  The inputparams are assumed to be set up as follows:
   The first nstats values are the values of degree
   The values following the first nstats values are the nodal attributes.
@@ -2960,18 +2873,17 @@ void d_idegree_w_homophily (int ntoggles, Vertex *heads, Vertex *tails,
       }
     }
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_intransitive
 *****************/
-void d_intransitive (int ntoggles, Vertex *heads, Vertex *tails, 
-                  ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_intransitive) { 
   Edge e;
   Vertex h, t, node2;
   double change;
@@ -3019,20 +2931,18 @@ void d_intransitive (int ntoggles, Vertex *heads, Vertex *tails,
 /*  Rprintf("h %d t %d edgeflag %d change %f\n",h,t, edgeflag, change); */
 
     if (i+1 < ntoggles) 
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_isolates
 *****************/
-void d_isolates (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_isolates) { 
   int i, echange;
   Vertex h, t, hd, td=0, *id, *od;
   TreeNode *oe=nwp->outedges;
@@ -3051,19 +2961,18 @@ void d_isolates (int ntoggles, Vertex *heads, Vertex *tails,
       *(mtp->dstats) += (td + echange == 0) - (td == 0);
       
       if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+	TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
 
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_istar
 *****************/
-void d_istar (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_istar) { 
   double change, td=0.0;
   int edgeflag, i, j, kmo;
   Edge e;
@@ -3098,7 +3007,7 @@ void d_istar (int ntoggles, Vertex *heads, Vertex *tails,
         }
       }
       if (i+1 < ntoggles)
-        ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+        TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   }else{
     for (i=0; i < ntoggles; i++) {
@@ -3112,21 +3021,20 @@ void d_istar (int ntoggles, Vertex *heads, Vertex *tails,
         mtp->dstats[j] += (edgeflag ? - change : change); 
       }
       if (i+1 < ntoggles)
-        ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+        TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   }
   
   i--; 
   while (--i >= 0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /********************  changestats:  K    ***********/
 /*****************
  changestat: d_kstar
 *****************/
-void d_kstar (int ntoggles, Vertex *heads, Vertex *tails, 
-ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_kstar) { 
   double change, hd, td=0.0;
   int edgeflag, i, j, kmo;
   Edge e;
@@ -3183,7 +3091,7 @@ ModelTerm *mtp, Network *nwp) {
         }
       }
       if (i+1 < ntoggles)
-        ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+        TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   }else{
     for (i=0; i < ntoggles; i++)
@@ -3205,21 +3113,20 @@ ModelTerm *mtp, Network *nwp) {
         mtp->dstats[j] += (edgeflag ? - change : change); 
       }
       if (i+1 < ntoggles)
-        ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+        TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   }
   
   i--; 
   while (--i >= 0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /********************  changestats:  L    ***********/
 /*****************
  changestat: d_localtriangle
 *****************/
-void d_localtriangle (int ntoggles, Vertex *heads, Vertex *tails, 
-		    ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_localtriangle) { 
   Edge e;
   Vertex h, t, change, node3;
   int edgeflag, i;
@@ -3280,20 +3187,19 @@ void d_localtriangle (int ntoggles, Vertex *heads, Vertex *tails,
       }
       
       if (i+1 < ntoggles) 
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+	TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /********************  changestats:  M    ***********/
 /*****************
  changestat: d_m2star
 *****************/
-void d_m2star (int ntoggles, Vertex *heads, Vertex *tails,
-              ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_m2star) {
   Vertex h, t;
   int hid, tod, change;
   int i, edgeflag, backedgeflag;
@@ -3318,14 +3224,13 @@ void d_m2star (int ntoggles, Vertex *heads, Vertex *tails,
     }
   i--; 
   while (--i >= 0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_meandeg
 *****************/
-void d_meandeg(int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_meandeg) {
   int edgeflag, i;
   Vertex h, t;
   
@@ -3336,14 +3241,14 @@ void d_meandeg(int ntoggles, Vertex *heads, Vertex *tails,
       edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
       *(mtp->dstats) += (edgeflag ? - 2 : 2);
       if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+	TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   
-  *(mtp->dstats)/=nwp->nnodes;
+  *(mtp->dstats)/=N_NODES;
 
   i--; 
   while (--i >= 0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
@@ -3351,8 +3256,7 @@ void d_meandeg(int ntoggles, Vertex *heads, Vertex *tails,
  This appears to be the version of nodemix used for 
  bipartite networks (only)
 *****************/
-void d_mix (int ntoggles, Vertex *heads, Vertex *tails,
-              ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_mix) {
   Vertex h, t, tmpi;
   int matchvalh, matchvalt;
   int i, j, edgeflag=0, nstats;
@@ -3389,8 +3293,7 @@ void d_mix (int ntoggles, Vertex *heads, Vertex *tails,
  (1,1) -> anything = -1
  anything -> (1,1) = +1
 *****************/
-void d_mutual (int ntoggles, Vertex *heads, Vertex *tails, 
-		ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_mutual) { 
   Vertex h, t;
   int i, edgeflag, refedgeflag;
   
@@ -3410,19 +3313,18 @@ void d_mutual (int ntoggles, Vertex *heads, Vertex *tails,
 	*(mtp->dstats) += 1;
       
       if (i+1 < ntoggles) 
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+	TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /********************  changestats:  N    ***********/
 /*****************
  changestat: d_nearsimmelian
 *****************/
-void d_nearsimmelian (int ntoggles, Vertex *heads, Vertex *tails, 
-                ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_nearsimmelian) { 
   Vertex h, t, node3;
   double change;
   int edgeflag, i, edgeflagth, sc;
@@ -3434,7 +3336,7 @@ void d_nearsimmelian (int ntoggles, Vertex *heads, Vertex *tails,
   edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
   edgeflagth = (EdgetreeSearch(t, h, nwp->outedges) == 0);
    
-  for(node3=1;node3<=nwp->nnodes;node3++){
+  for(node3=1;node3<=N_NODES;node3++){
     if((node3!=h)&&(node3!=t)){
      sc = edgeflagth + (EdgetreeSearch(node3, h, nwp->outedges) == 0);
      if(sc < 2){
@@ -3458,19 +3360,18 @@ void d_nearsimmelian (int ntoggles, Vertex *heads, Vertex *tails,
    }
    
    if (i+1 < ntoggles) 
-     ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+     TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_nodecov
 *****************/
-void d_nodecov (int ntoggles, Vertex *heads, Vertex *tails, 
-		 ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_nodecov) { 
   double sum;
   Vertex h, t;
   int i, edgeflag;
@@ -3482,18 +3383,17 @@ void d_nodecov (int ntoggles, Vertex *heads, Vertex *tails,
       sum = mtp->attrib[h-1] + mtp->attrib[t-1];
       *(mtp->dstats) += edgeflag ? -sum : sum;
       if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+	TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_nodefactor
 *****************/
-void d_nodefactor (int ntoggles, Vertex *heads, Vertex *tails, 
-ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_nodefactor) { 
   double s, factorval;
   Vertex h, t;
   int i, j;
@@ -3513,18 +3413,17 @@ ModelTerm *mtp, Network *nwp) {
       
     }
     if (i+1 < ntoggles) 
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_nodeicov
 *****************/
-void d_nodeicov (int ntoggles, Vertex *heads, Vertex *tails, 
-		    ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_nodeicov) { 
   double sum;
   Vertex h, t;
   int i, edgeflag;
@@ -3536,18 +3435,17 @@ void d_nodeicov (int ntoggles, Vertex *heads, Vertex *tails,
       sum = mtp->attrib[t-1];
       *(mtp->dstats) += edgeflag ? -sum : sum;
       if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+	TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_nodeifactor
 *****************/
-void d_nodeifactor (int ntoggles, Vertex *heads, Vertex *tails, 
-ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_nodeifactor) { 
   double s, factorval;
   Vertex h, t;
   int i, j;
@@ -3566,23 +3464,22 @@ ModelTerm *mtp, Network *nwp) {
       
     }
     if (i+1 < ntoggles) 
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_nodematch
 *****************/
-void d_nodematch (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_nodematch) { 
   double matchval/*, checksum=0.0*/;
   Vertex h, t, ninputs;
   int i, j, edgeflag=0, matchflag;
   
-  ninputs = mtp->ninputparams - nwp->nnodes;
+  ninputs = mtp->ninputparams - N_NODES;
   for (i=0; i < mtp->nstats; i++) 
     mtp->dstats[i] = 0.0;
   for (i=0; i<ntoggles; i++) {
@@ -3603,11 +3500,11 @@ void d_nodematch (int ntoggles, Vertex *heads, Vertex *tails,
 	    }
     }
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
@@ -3615,13 +3512,12 @@ void d_nodematch (int ntoggles, Vertex *heads, Vertex *tails,
  Update mixing matrix, non-bipartite networks only 
  (but see also d_mix)
 *****************/
-void d_nodemix (int ntoggles, Vertex *heads, Vertex *tails,
-              ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_nodemix) {
   Vertex h, t, ninputs, ninputs2;
   int i, j, edgeflag=0, matchflag;
   double rtype, ctype, tmp;
 
-  ninputs = mtp->ninputparams - nwp->nnodes;
+  ninputs = mtp->ninputparams - N_NODES;
   ninputs2 = ninputs/2;
 
   for (i=0; i < mtp->nstats; i++)
@@ -3647,18 +3543,17 @@ void d_nodemix (int ntoggles, Vertex *heads, Vertex *tails,
         }
       } 
       if (i+1 < ntoggles)
-        ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+        TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   i--;
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp);
+    TOGGLE(heads[i], tails[i]);
 }
 
 /*****************
  changestat: d_nodeocov
 *****************/
-void d_nodeocov (int ntoggles, Vertex *heads, Vertex *tails, 
-		  ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_nodeocov) { 
   double sum;
   Vertex h, t;
   int i, edgeflag;
@@ -3670,18 +3565,17 @@ void d_nodeocov (int ntoggles, Vertex *heads, Vertex *tails,
       sum = mtp->attrib[h-1];
       *(mtp->dstats) += edgeflag ? -sum : sum;
       if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+	TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_nodeofactor
 *****************/
-void d_nodeofactor (int ntoggles, Vertex *heads, Vertex *tails, 
-ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_nodeofactor) { 
   double s, factorval;
   Vertex h, t;
   int i, j;
@@ -3700,19 +3594,18 @@ ModelTerm *mtp, Network *nwp) {
       
     }
     if (i+1 < ntoggles) 
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /********************  changestats:  O    ***********/
 /*****************
  changestat: d_odegree
 *****************/
-void d_odegree (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_odegree) { 
   int echange, i, j;
   Edge e;
   Vertex h, t, node3, deg, td=0;
@@ -3747,7 +3640,7 @@ void d_odegree (int ntoggles, Vertex *heads, Vertex *tails,
 	    }
 	}
 	if (i+1 < ntoggles)
-	  ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+	  TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
       }
   }else{
     for (i=0; i < ntoggles; i++)
@@ -3761,21 +3654,19 @@ void d_odegree (int ntoggles, Vertex *heads, Vertex *tails,
 	    mtp->dstats[j] += (td + echange == deg) - (td == deg);
 	  }
 	if (i+1 < ntoggles)
-	  ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+	  TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
       }
   }
   
   i--; 
   while (--i >= 0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp);    
+    TOGGLE(heads[i], tails[i]);    
 }
 
 /*****************
  changestat: d_odegree_by_attr
 *****************/
-void d_odegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
-	        ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_odegree_by_attr) { 
   /* The inputparams are assumed to be set up as follows:
   The first 2*nstats values are in pairs:  (degree, attrvalue)
   The values following the first 2*nstats values are the nodal attributes.
@@ -3799,19 +3690,17 @@ void d_odegree_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
       }
     }
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_odegree_w_homophily
 *****************/
-void d_odegree_w_homophily (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_odegree_w_homophily) { 
   /*  The inputparams are assumed to be set up as follows:
   The first nstats values are the values of degree
   The values following the first nstats values are the nodal attributes.
@@ -3849,18 +3738,17 @@ void d_odegree_w_homophily (int ntoggles, Vertex *heads, Vertex *tails,
       }
     }
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_ostar
 *****************/
-void d_ostar (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_ostar) { 
   double change, td=0.0;
   int edgeflag, i, j, kmo;
   Edge e;
@@ -3895,7 +3783,7 @@ void d_ostar (int ntoggles, Vertex *heads, Vertex *tails,
         }
       }
       if (i+1 < ntoggles)
-        ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+        TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   }else{
     for (i=0; i < ntoggles; i++) {
@@ -3909,21 +3797,20 @@ void d_ostar (int ntoggles, Vertex *heads, Vertex *tails,
         mtp->dstats[j] += (edgeflag ? - change : change); 
       }
       if (i+1 < ntoggles)
-        ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+        TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   }
   
   i--; 
   while (--i >= 0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /********************  changestats:  R    ***********/
 /*****************
  changestat: d_receiver
 *****************/
-void d_receiver (int ntoggles, Vertex *heads, Vertex *tails, 
-	         ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_receiver) { 
   int i, j, echange;
   Vertex h, t, deg;
   
@@ -3951,20 +3838,19 @@ void d_receiver (int ntoggles, Vertex *heads, Vertex *tails,
     }
     
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /********************  changestats:  S    ***********/
 /*****************
  changestat: d_sender
 *****************/
-void d_sender (int ntoggles, Vertex *heads, Vertex *tails, 
-	       ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_sender) { 
   int i, j, echange;
   Vertex h, t, deg;
   
@@ -3991,19 +3877,18 @@ void d_sender (int ntoggles, Vertex *heads, Vertex *tails,
       }
       
       if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+	TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_simmelian
 *****************/
-void d_simmelian (int ntoggles, Vertex *heads, Vertex *tails, 
-                ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_simmelian) { 
   Edge e;
   Vertex h, t, change, node3;
   int edgeflag, i;
@@ -4031,19 +3916,18 @@ void d_simmelian (int ntoggles, Vertex *heads, Vertex *tails,
    }
    
    if (i+1 < ntoggles) 
-     ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+     TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_simmelianties
 *****************/
-void d_simmelianties (int ntoggles, Vertex *heads, Vertex *tails, 
-                ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_simmelianties) { 
   Edge e;
   Vertex h, t, change, node3, node4, first, firstht;
   int edgeflag, i;
@@ -4102,19 +3986,18 @@ void d_simmelianties (int ntoggles, Vertex *heads, Vertex *tails,
    }
    
    if (i+1 < ntoggles) 
-     ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+     TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_smalldiff
 *****************/
-void d_smalldiff (int ntoggles, Vertex *heads, Vertex *tails, 
-ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_smalldiff) { 
   Vertex h, t;
   int i;
   
@@ -4126,18 +4009,17 @@ ModelTerm *mtp, Network *nwp) {
     > *(mtp->inputparams)) ? 0.0 :
     ((EdgetreeSearch(h, t, nwp->outedges) != 0) ? -1.0 : 1.0); 
     if (i+1 < ntoggles) 
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_sociality
 *****************/
-void d_sociality (int ntoggles, Vertex *heads, Vertex *tails, 
-	           ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_sociality) { 
   int i, j, echange;
   Vertex h, t, deg;
   int ninputs, nstats;
@@ -4172,7 +4054,7 @@ void d_sociality (int ntoggles, Vertex *heads, Vertex *tails,
 	}
 	
 	if (i+1 < ntoggles)
-	  ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+	  TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
       }
   }else{
     for (i=0; i<ntoggles; i++)
@@ -4194,13 +4076,13 @@ void d_sociality (int ntoggles, Vertex *heads, Vertex *tails,
 	if(j < nstats){mtp->dstats[j] += echange;}
 	
 	if (i+1 < ntoggles)
-	  ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+	  TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
       }
   }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /********************  changestats:  T    ***********/
@@ -4208,8 +4090,6 @@ void d_sociality (int ntoggles, Vertex *heads, Vertex *tails,
  changestat: d_tdsp
 *****************/
 CHANGESTAT_FN(d_tdsp) {
-/*void d_tdsp (int ntoggles, Vertex *heads, Vertex *tails, 
-	    ModelTerm *mtp, Network *nwp) { */
   Edge e, f;
   int i, j, echange, L2hu, L2ut;
   Vertex deg, h, t, u, v;
@@ -4257,74 +4137,10 @@ CHANGESTAT_FN(d_tdsp) {
     TOGGLE(heads[i], tails[i]); 
 }
 
-void d_tdsp_old (int ntoggles, Vertex *heads, Vertex *tails, 
-	    ModelTerm *mtp, Network *nwp) {
-  Edge e, f;
-  int i, j, echange;
-  int L2hu, L2ut;
-  Vertex deg;
-  Vertex h, t, u, v;
-  
-  for (i=0; i < mtp->nstats; i++) 
-    mtp->dstats[i] = 0.0;
-
-  for (i=0; i<ntoggles; i++){      
-    echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
-    /* step through outedges of t */
-    for(e = EdgetreeMinimum(nwp->outedges, t);
-    (u = nwp->outedges[e].value) != 0;
-    e = EdgetreeSuccessor(nwp->outedges, e)){
-      if (u != h){
-        L2hu=0;
-        /* step through inedges of u */
-        for(f = EdgetreeMinimum(nwp->inedges, u); 
-        (v = nwp->inedges[f].value) != 0;
-        f = EdgetreeSuccessor(nwp->inedges, f)){
-          if(EdgetreeSearch(h,v,nwp->outedges)!= 0) {
-            L2hu++;
-          }
-        }
-        for(j = 0; j < mtp->nstats; j++){
-          deg = (Vertex)mtp->inputparams[j];
-          mtp->dstats[j] += ((L2hu + echange == deg)
-          - (L2hu == deg));
-        }
-      }
-    }
-    /* step through inedges of h */
-    for(e = EdgetreeMinimum(nwp->inedges, h);
-    (u = nwp->inedges[e].value) != 0;
-    e = EdgetreeSuccessor(nwp->inedges, e)){
-      if (u != t){
-        L2ut=0;
-        /* step through outedges of u */
-        for(f = EdgetreeMinimum(nwp->outedges, u);
-        (v = nwp->outedges[f].value) != 0;
-        f = EdgetreeSuccessor(nwp->outedges, f)){
-          if(EdgetreeSearch(v,t,nwp->outedges)!= 0) L2ut++;
-        }
-        for(j = 0; j < mtp->nstats; j++){
-          deg = (Vertex)mtp->inputparams[j];
-          mtp->dstats[j] += ((L2ut + echange == deg)
-          - (L2ut == deg));
-        }
-      }
-    }
-    
-    if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-  }
-  
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
-}
-
 /*****************
  changestat: d_tesp
 *****************/
-void d_tesp (int ntoggles, Vertex *heads, Vertex *tails, 
-	    ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_tesp) { 
   Edge e, f;
   int i, j, echange;
   int L2ht, L2hu, L2ut;
@@ -4378,18 +4194,17 @@ void d_tesp (int ntoggles, Vertex *heads, Vertex *tails,
       mtp->dstats[j] += echange*(L2ht == deg);
     }
     if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }  
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_transitive
 *****************/
-void d_transitive (int ntoggles, Vertex *heads, Vertex *tails, 
-                  ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_transitive) { 
   Edge e;
   Vertex h, t, node2;
   double change;
@@ -4437,20 +4252,18 @@ void d_transitive (int ntoggles, Vertex *heads, Vertex *tails,
 /*  Rprintf("h %d t %d edgeflag %d change %f\n",h,t, edgeflag, change); */
 
     if (i+1 < ntoggles) 
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
   }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_triadcensus
 *****************/
-void d_triadcensus (int ntoggles, Vertex *heads, Vertex *tails, 
-	            ModelTerm *mtp, Network *nwp) 
-{
+CHANGESTAT_FN(d_triadcensus) { 
   int i, j, edgeflag, a, b, c, d, e, edgecount, t300, 
   t210, t120C, t120U, t120D, t201, t030C, t030T, t111U, 
   t111D, t021C, t021U, t021D, t102, t012, t003;
@@ -4477,7 +4290,7 @@ void d_triadcensus (int ntoggles, Vertex *heads, Vertex *tails,
           (EdgetreeMinimum(nwp->inedges, h) != 0)) {      
 
           /* ****** loop through node3 ****** */
-          for (node3=1; node3 <= nwp->nnodes; node3++)
+          for (node3=1; node3 <= N_NODES; node3++)
              { 
              if (node3 != h && node3 != t)
                {   
@@ -4633,7 +4446,7 @@ void d_triadcensus (int ntoggles, Vertex *heads, Vertex *tails,
              }    /* ******  move to next node3 ******** */
         }
         else 
-          t012 = t012 + (nwp->nnodes - 2);  
+          t012 = t012 + (N_NODES - 2);  
 
       for(j = 0; j < mtp->nstats; j++)
         { 
@@ -4678,7 +4491,7 @@ void d_triadcensus (int ntoggles, Vertex *heads, Vertex *tails,
             }
         }
       if (i+1 < ntoggles)
-	  ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */ 
+	  TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */ 
     }
     }else{
 /*  undirected */
@@ -4693,7 +4506,7 @@ void d_triadcensus (int ntoggles, Vertex *heads, Vertex *tails,
           (EdgetreeMinimum(nwp->inedges, h) != 0)) {      
 
           /* ****** loop through node3 ****** */
-          for (node3=1; node3 <= nwp->nnodes; node3++)
+          for (node3=1; node3 <= N_NODES; node3++)
              { 
              if (node3 != h && node3 != t)
                {   
@@ -4730,7 +4543,7 @@ void d_triadcensus (int ntoggles, Vertex *heads, Vertex *tails,
              }    /* ******  move to next node3 ******** */
         }
         else 
-          t102 = t102 + (nwp->nnodes - 2);  
+          t102 = t102 + (N_NODES - 2);  
 
       for(j = 0; j < mtp->nstats; j++)
         { 
@@ -4750,20 +4563,19 @@ void d_triadcensus (int ntoggles, Vertex *heads, Vertex *tails,
             }
         }
      if (i+1 < ntoggles)
-	  ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */ 
+	  TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */ 
      } /* i loop */
     }
     
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_triangle
 *****************/
-void d_triangle (int ntoggles, Vertex *heads, Vertex *tails, 
-		 ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_triangle) { 
   Edge e;
   Vertex h, t, change, node3;
   int edgeflag, i, j;
@@ -4842,7 +4654,7 @@ void d_triangle (int ntoggles, Vertex *heads, Vertex *tails,
 	}
 	
 	if (i+1 < ntoggles) 
-	  ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+	  TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
       }
   }else{
     /* no attribute matching */
@@ -4894,20 +4706,19 @@ void d_triangle (int ntoggles, Vertex *heads, Vertex *tails,
 	*(mtp->dstats) += edgeflag ? -(double)change : change;
 	
 	if (i+1 < ntoggles) 
-	  ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+	  TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
       }
   }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_tripercent
 *****************/
-void d_tripercent (int ntoggles, Vertex *heads, Vertex *tails, 
-ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_tripercent) { 
   Edge e;
   Vertex h, t, change, node3;
   double hd, td=0.0, numchange;
@@ -4924,7 +4735,7 @@ ModelTerm *mtp, Network *nwp) {
   
   nstats = mtp->nstats;
   ninputs = mtp->ninputparams;
-  nnodes = nwp->nnodes;
+  nnodes = N_NODES;
   
   num2star = (double *) malloc(sizeof(double) * nstats);
   numtri = (double *) malloc(sizeof(double) * nstats);
@@ -5241,7 +5052,7 @@ ModelTerm *mtp, Network *nwp) {
       }
       
       if (i+1 < ntoggles) 
-        ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+        TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   }else{
     /* no attribute matching */
@@ -5301,7 +5112,7 @@ ModelTerm *mtp, Network *nwp) {
       newnumtri[0] += edgeflag ? -(double)change : change;
       
       if (i+1 < ntoggles) 
-        ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+        TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   }
   
@@ -5323,14 +5134,13 @@ ModelTerm *mtp, Network *nwp) {
                                         
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 /*****************
  changestat: d_ttriple
 *****************/
-void d_ttriple (int ntoggles, Vertex *heads, Vertex *tails, 
-ModelTerm *mtp, Network *nwp) {
+CHANGESTAT_FN(d_ttriple) { 
   Edge e;
   Vertex h, t, change, node3;
   int edgeflag, i, j;
@@ -5389,7 +5199,7 @@ ModelTerm *mtp, Network *nwp) {
       }
       
       if (i+1 < ntoggles) 
-        ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+        TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   }else{
     /* no attribute matching */
@@ -5421,13 +5231,13 @@ ModelTerm *mtp, Network *nwp) {
       *(mtp->dstats) += edgeflag ? -(double)change : (double)change;
       
       if (i+1 < ntoggles) 
-        ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+        TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
     }
   }
   
   i--; 
   while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE(heads[i], tails[i]); 
 }
 
 
