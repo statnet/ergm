@@ -46,7 +46,8 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
   
   if(!is.null(seed)) set.seed(as.integer(seed))
 
-  curstats<-summary.statistics.network(object)
+# curstats<-summary.statistics.network(object)
+  curstats<-summary(update(object,nw ~ .))
   MCMCparams <- list(samplesize=1,
       stats=curstats,
       burnin=burnin,
