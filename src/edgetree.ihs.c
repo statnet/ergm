@@ -159,7 +159,7 @@ Edge WtEdgetreeMinimum (WtTreeNode *edges, Edge x) {
  Toggle an edge:  Set it to the opposite of its current
  value.  Return 1 if edge added, 0 if deleted.
 *****************/
-int WtToggleEdge (Vertex head, Vertex tail, double weight, WtNetwork *nwp) 
+int WtToggleEdge (Vertex head, Vertex tail, double weight, Vertex nnodes, WtNetwork *nwp) 
 {
   if (!(nwp->directed_flag) && head > tail) {
     Vertex temp;
@@ -262,9 +262,9 @@ void TouchEdge(Vertex head, Vertex tail, Network *nwp){
 int WtAddEdgeToTrees(Vertex head, Vertex tail, double weight, WtNetwork *nwp){
   if (WtEdgetreeSearch(head, tail, nwp->outedges) == 0) {
     WtAddHalfedgeToTree(head, tail, weight, nwp->outedges, 
-			                  &(nwp->next_outedge), nwp->maxedges);
+			                  &(nwp->next_outedge), nwp->nnodes, nwp->maxedges);
     WtAddHalfedgeToTree(tail, head, weight, nwp->inedges, 
-                        &(nwp->next_inedge), nwp->maxedges);
+                        &(nwp->next_inedge), nwp->nnodes, nwp->maxedges);
     ++nwp->outdegree[head];
     ++nwp->indegree[tail];
     ++nwp->nedges;
@@ -277,7 +277,8 @@ int WtAddEdgeToTrees(Vertex head, Vertex tail, double weight, WtNetwork *nwp){
  Edge AddHalfedgeToTree
 *****************/
 void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight, 
-			  WtTreeNode *edges, Edge *next_edge, Edge maxedges) 
+			  WtTreeNode *edges, Edge *next_edge, 
+			  Vertex nnodes, Edge maxedges) 
 {  /*  See comments in AddHalfedgeToTree.  */
   WtTreeNode *eptr = edges+a, *newnode;
   Edge e;

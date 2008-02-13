@@ -170,7 +170,7 @@ void OverlapDurations (int *nnodes,
         }
       }
       /* Finally, toggle (create or destroy) the edge */
-        WtToggleEdge(f1, m1, 1.0+t1, &nw); 
+        WtToggleEdge(f1, m1, 1.0+t1, *nnodes, &nw); 
       if (row >= maxo) {
         Rprintf("Error! Value of maxoverlaps=%d too small\n",
                  maxo);

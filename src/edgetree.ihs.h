@@ -74,7 +74,7 @@ void WtNetworkDestroy(WtNetwork *nwp);
 Edge WtEdgetreeSearch (Vertex a, Vertex b, WtTreeNode *edges);
 Edge WtEdgetreeSuccessor (WtTreeNode *edges, Edge x);
 Edge WtEdgetreeMinimum (WtTreeNode *edges, Edge x);
-int WtToggleEdge (Vertex head, Vertex tail, double weight, WtNetwork *nwp);
+int WtToggleEdge (Vertex head, Vertex tail, double weight, Vertex nnodes, WtNetwork *nwp);
 int WtToggleEdgeWithTimestamp (Vertex head, Vertex tail, double weight, WtNetwork *nwp);
 int ElapsedTime (Vertex head, Vertex tail, Network *nwp);
 void TouchEdge(Vertex head, Vertex tail, Network *nwp);
