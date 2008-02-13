@@ -42,7 +42,7 @@ Network NetworkInitialize(Vertex *heads, Vertex *tails, Edge nedges,
   nw.next_inedge = nw.next_outedge = (Edge)nnodes+1;
   nw.outdegree = (Vertex *) malloc(sizeof(Vertex) * (nnodes+1));
   nw.indegree  = (Vertex *) malloc(sizeof(Vertex) * (nnodes+1));
-  nw.maxedges = maxedges+nnodes+2;
+  nw.maxedges = maxedges+nnodes+2; /* Maybe larger than needed? */
   nw.inedges = (TreeNode *) malloc(sizeof(TreeNode) * nw.maxedges);
   nw.outedges = (TreeNode *) malloc(sizeof(TreeNode) * nw.maxedges);
 
@@ -99,9 +99,9 @@ Network NetworkInitializeD(double *heads, double *tails, Edge nedges,
   nw.next_inedge = nw.next_outedge = (Edge)nnodes+1;
   nw.outdegree = (Vertex *) malloc(sizeof(Vertex) * (nnodes+1));
   nw.indegree  = (Vertex *) malloc(sizeof(Vertex) * (nnodes+1));
-  nw.inedges = (TreeNode *) malloc(sizeof(TreeNode) * maxedges);
-  nw.outedges = (TreeNode *) malloc(sizeof(TreeNode) * maxedges);
-  nw.maxedges = maxedges;
+  nw.maxedges = maxedges+nnodes+2; /* Maybe larger than needed? */
+  nw.inedges = (TreeNode *) malloc(sizeof(TreeNode) * nw.maxedges);
+  nw.outedges = (TreeNode *) malloc(sizeof(TreeNode) * nw.maxedges);
 
   if(lasttoggle_flag){
     nw.duration_info.MCMCtimer=0;

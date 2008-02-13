@@ -41,9 +41,9 @@ WtNetwork WtNetworkInitialize(int *heads, int *tails, double *weights,
   nw.next_inedge = nw.next_outedge = (Edge)nnodes+1;
   nw.outdegree = (Vertex *) malloc(sizeof(Vertex) * (nnodes+1));
   nw.indegree  = (Vertex *) malloc(sizeof(Vertex) * (nnodes+1));
-  nw.inedges = (WtTreeNode *) malloc(sizeof(WtTreeNode) * maxedges);
-  nw.outedges = (WtTreeNode *) malloc(sizeof(WtTreeNode) * maxedges);
-  nw.maxedges = maxedges;
+  nw.maxedges = maxedges+nnodes+2; /* Maybe larger than needed? */
+  nw.inedges = (WtTreeNode *) malloc(sizeof(WtTreeNode) * nw.maxedges);
+  nw.outedges = (WtTreeNode *) malloc(sizeof(WtTreeNode) * nw.maxedges);
   
   nw.duration_info.MCMCtimer=0;
   i = directed_flag? nnodes*(nnodes-1) : (nnodes*(nnodes-1))/2;
@@ -306,7 +306,7 @@ void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight,
     if (edges[*next_edge].value==0) return;
   }
   /* There are no "holes" left, so this network overflows mem allocation */
-  error("Allocated number of edges exceded\n");
+  error("Allocated number of edges exceded.\n");
 }
 
 /*****************
