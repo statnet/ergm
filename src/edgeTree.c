@@ -318,7 +318,7 @@ void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges,
     if (edges[*next_edge].value==0) return;
   }
   /* Reached end of allocated memory;  back to start and recheck for "holes" */
-  for (*next_edge=(Vertex)nnodes+1; *next_edge<maxedges; ++*next_edge<maxedges) {
+  for (*next_edge=(Vertex)nnodes+1; *next_edge<maxedges; ++*next_edge) {
     if (edges[*next_edge].value==0) return;
   }
   /* There are no "holes" left, so this network overflows mem allocation */
