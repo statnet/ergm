@@ -1977,6 +1977,9 @@ InitErgm.hammingmix<-function (nw, m, arglist, ...) {
     mixmat <- mixingmatrix(nw,attrname)$mat
     u <- cbind(as.vector(row(mixmat)), 
                as.vector(col(mixmat)))
+#   if(!is.directed(nw)){
+#    u <- u[row(mixmat) >= col(mixmat)]
+#   }
     if(any(is.na(nodecov))){u<-rbind(u,NA)}
 #
 #   Recode to numeric if necessary
@@ -2668,13 +2671,18 @@ InitErgm.nodematch<-InitErgm.match<-function (nw, m, arglist, drop=TRUE, ...) {
 #########################################################
 InitErgm.nodemix<-InitErgm.mix<-function (nw, m, arglist, drop=TRUE, ...) {
   a <- ergm.checkargs("nodemix", arglist,
-    varnames = c("attrname","contrast"),
-    vartypes = c("character","logical"),
-    defaultvalues = list(NULL,FALSE),
+    varnames = c("attrname","contrast", "directed"),
+    vartypes = c("character","logical","logical"),
+    defaultvalues = list(NULL,FALSE,NULL),
     required = c(TRUE,FALSE))
   attach(a)
   attrname<-a$attrname
   contrast<-a$contrast
+  if (is.null(a$directed)){
+   directed <- is.directed(nw)
+  }else{
+   directed <- a$directed
+  }
   if(is.bipartite(nw)){
   # So two-mode
     if (is.directed(nw)){ 
@@ -2741,7 +2749,7 @@ InitErgm.nodemix<-InitErgm.mix<-function (nw, m, arglist, drop=TRUE, ...) {
     urm <- t(sapply(ui,rep,length(ui)))   #This is the reverse of what you'd
     ucm <- sapply(ui,rep,length(ui))      #expect for r/c, but it's correct
     uun <- outer(u,u,paste,sep=".")
-    if (!is.directed(nw)) {
+    if (!directed) {
       uui <- uui[upper.tri(uui,diag=TRUE)]
       urm <- urm[upper.tri(urm,diag=TRUE)]  
       ucm <- ucm[upper.tri(ucm,diag=TRUE)]

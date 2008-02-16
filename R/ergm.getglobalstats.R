@@ -237,7 +237,7 @@ ergm.getglobalstats <- function(nw, m) {
        ng0 <-  m$terms[[i]]$inputs[4]
        nu <-  m$terms[[i]]$inputs[1]
        nw %v% "nodecov" <- m$terms[[i]]$inputs[-c(1:(2*ng0+4+2*nu))]
-       gs[tase] <- summary(nw ~ mix("nodecov"))+gs[tase]
+       gs[tase] <- summary(nw ~ mix("nodecov",directed=TRUE))+gs[tase]
      }
     }
   }
