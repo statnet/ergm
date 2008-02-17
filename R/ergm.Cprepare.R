@@ -11,9 +11,6 @@ ergm.Cprepare <- function(nw, m)
   Clist$ndyads <- n * (n-1) / (2-dir)
   e<-as.matrix.network(nw,matrix.type="edgelist")
   Clist$maxpossibleedges <- min(max(1e+6, 2*nrow(e)), Clist$ndyads)
-  if(nrow(e) > 1000000){
-    warning("The network has more than a million edges.\n ", call.=FALSE)
-  }
   if(length(e)==0){
     Clist$nedges<-0
     Clist$heads<-NULL

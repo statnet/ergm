@@ -278,14 +278,13 @@ int ToggleEdgeWithTimestamp (Vertex head, Vertex tail, Network *nwp)
 *****************/
 int AddEdgeToTrees(Vertex head, Vertex tail, Network *nwp){
   if (EdgetreeSearch(head, tail, nwp->outedges) == 0) {
-    AddHalfedgeToTree(head, tail, nwp->outedges, 
-                      &(nwp->next_outedge), nwp->maxedges, nwp->nnodes);                      
-    AddHalfedgeToTree(tail, head, nwp->inedges, 
-                      &(nwp->next_inedge), nwp->maxedges, nwp->nnodes);
-                      
+    AddHalfedgeToTree(head, tail, nwp->outedges, nwp->next_outedge);
+    AddHalfedgeToTree(tail, head, nwp->inedges, nwp->next_inedge);
     ++nwp->outdegree[head];
     ++nwp->indegree[tail];
     ++nwp->nedges;
+    UpdateNextedge (nwp->inedges, &(nwp->next_inedge), nwp); 
+    UpdateNextedge (nwp->outedges, &(nwp->next_outedge), nwp);
     return 1;
   }
   return 0;
@@ -294,35 +293,48 @@ int AddEdgeToTrees(Vertex head, Vertex tail, Network *nwp){
 /*****************
  Edge AddHalfedgeToTree:  Only called by AddEdgeToTrees
 *****************/
-void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, 
-			Edge *next_edge, Edge maxedges, Vertex nnodes) {
+void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge next_edge) {
   TreeNode *eptr = edges+a, *newnode;
   Edge e;
-  
+
   if (eptr->value==0) { /* This is the first edge for this vertex. */
     eptr->value=b;
     return;
   }
-  (newnode=edges+*next_edge)->value=b;  
-  newnode->left=newnode->right=0;
+  (newnode = edges + next_edge)->value=b;  
+  newnode->left = newnode->right = 0;
   /* Now find the parent of this new edge */
   for (e=a; e!=0; e=(b < (eptr=edges+e)->value) ? eptr->left : eptr->right);
   newnode->parent=eptr-edges;  /* Point from the new edge to the parent... */
   if (b < eptr->value)  /* ...and have the parent point back. */
-    eptr->left=*next_edge; 
+    eptr->left=next_edge; 
   else
-    eptr->right=*next_edge;
-                        
-  /* Finally, update the value of *next_edge for next time. */
-  while (++*next_edge<maxedges) {
-    if (edges[*next_edge].value==0) return;
+    eptr->right=next_edge;
+}
+
+/*****************
+void UpdateNextedge
+*****************/
+void UpdateNextedge (TreeNode *edges, Edge *nextedge, Network *nwp) {
+  int mult=2;
+  /*TreeNode *tmp_in, *tmp_out; */
+  Edge i;
+  
+  while (++*nextedge < nwp->maxedges) {
+    if (edges[*nextedge].value==0) return;
   }
   /* Reached end of allocated memory;  back to start and recheck for "holes" */
-  for (*next_edge=(Vertex)nnodes+1; *next_edge<maxedges; ++*next_edge) {
-    if (edges[*next_edge].value==0) return;
+  for (*nextedge = (Edge)nwp->nnodes+1; *nextedge < nwp->maxedges; ++*nextedge) {
+    if (edges[*nextedge].value==0) return;
   }
   /* There are no "holes" left, so this network overflows mem allocation */
-  error("Allocated number of edges exceded\n");
+  Rprintf("Allocation of %d edges exceeded... ", nwp->maxedges);
+  nwp->maxedges *= mult;
+  nwp->inedges = (TreeNode *) realloc(nwp->inedges, 
+                                      sizeof(TreeNode) * nwp->maxedges);
+  nwp->outedges = (TreeNode *) realloc(nwp->outedges, 
+                                       sizeof(TreeNode) * nwp->maxedges);
+  Rprintf("Multipled allocation by %d now.\n", mult);
 }
 
 /*****************
