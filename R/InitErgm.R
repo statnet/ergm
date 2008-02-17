@@ -2687,7 +2687,7 @@ InitErgm.nodemix<-InitErgm.mix<-function (nw, m, arglist, drop=TRUE, ...) {
   # So two-mode
     if (is.directed(nw)){ 
       cat(" ")
-      cat("Warning!  Bipartite networks are currently\n",
+      cat("Warning:  Bipartite networks are currently\n",
           "automatically treated as undirected\n")
     }
     #  So undirected network storage but directed mixing

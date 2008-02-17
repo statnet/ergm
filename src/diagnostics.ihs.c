@@ -66,7 +66,7 @@ void DurationMatrix (int *nedge, int *edge, int *ntimestep,
         /* int i;
         for(i = *ndissolve; DISSOLVE(i, 1)!=h && DISSOLVE(i,2)!=t && i>=0; i--);
         if (i<0) {
-          Rprintf("Warning!  Dissolved edge (%d, %d) at time %d not contained in dissolve list\n",
+          Rprintf("Warning:  Dissolved edge (%d, %d) at time %d not contained in dissolve list\n",
           h,t,time);
         } */
       } else {

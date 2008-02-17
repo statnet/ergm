@@ -9,7 +9,7 @@ mixingmatrix <- function(nw, attrname) {
   type <- "directed"
   if (is.bipartite(nw)) { # must have heads < tails now
     if (is.directed(nw)) 
-      cat("Warning!  Bipartite networks are currently\n",
+      cat("Warning:  Bipartite networks are currently\n",
           "automatically treated as undirected\n")
     type <- "bipartite"
     rowswitch <- apply(el, 1, function(x) x[1]>x[2])
