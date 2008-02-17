@@ -1,7 +1,7 @@
 #ifndef GEODIST_H
 #define GEODIST_H
 
-#include "edgeTree.h"
+#include "edgetree.h"
 
 void node_geodesics (int *edgelist, int *nnodes, int *nodelist,
                      int *nedges, int *nodecolor, int *dist, 

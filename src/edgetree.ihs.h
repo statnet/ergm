@@ -5,7 +5,7 @@
 #include <R.h>
 #include <Rinternals.h>
 #include <Rmath.h>
-#include "edgeTree.h"
+#include "edgetree.h"
 
 
 

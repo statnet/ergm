@@ -1,7 +1,7 @@
 #ifndef CHANGESTATS_H
 #define CHANGESTATS_H
 
-#include "edgeTree.h"
+#include "edgetree.h"
 
 typedef struct ModelTermstruct {
 	void (*func)(int, Vertex*, Vertex*, struct ModelTermstruct*, Network*);

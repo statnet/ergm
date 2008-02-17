@@ -1,7 +1,7 @@
 #ifndef MHproposals_bipartite_H
 #define MHproposals_bipartite_H
 
-#include "edgeTree.h"
+#include "edgetree.h"
 #include "changestats.h"
 #include "model.h"
 #include "MCMC.h"

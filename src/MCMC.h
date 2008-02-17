@@ -1,7 +1,7 @@
 #ifndef MCMC_H
 #define MCMC_H
 
-#include "edgeTree.h"
+#include "edgetree.h"
 #include "changestats.h"
 #include "model.h"
 

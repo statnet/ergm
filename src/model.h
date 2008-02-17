@@ -1,7 +1,7 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#include "edgeTree.h"
+#include "edgetree.h"
 #include "changestats.h"
 #include "R_ext/Rdynload.h"
 

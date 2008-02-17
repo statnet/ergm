@@ -1,7 +1,7 @@
 #ifndef MPLE_H
 #define MPLE_H
 
-#include "edgeTree.h"
+#include "edgetree.h"
 #include "changestats.h"
 #include "model.h"
 void MPLE_wrapper (int *heads, int *tails, int *dnedges,
