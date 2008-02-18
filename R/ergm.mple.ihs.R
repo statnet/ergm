@@ -50,6 +50,7 @@ ergm.mple.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
     independent.terms <- 
        c("edges","match","nodecov","nodefactor","nodematch","absdiff",
          "edgecov","dyadcov","sender","receiver","sociality", 
+         "nodeofactor","nodeifactor","nodemain",
          "nodemix","mix",
          "b1","b2",
          "testme")

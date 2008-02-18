@@ -46,6 +46,7 @@ ergm.mple<-function(Clist, Clist2, m, theta.offset=NULL,
    if(is.null(theta1)){
     independent.terms <- 
        c("edges","match","nodecov","nodefactor","nodematch","absdiff",
+         "nodeofactor","nodeifactor","nodemain",
          "edgecov","dyadcov","sender","receiver","sociality", 
          "nodemix","mix",
          "b1","b2",
