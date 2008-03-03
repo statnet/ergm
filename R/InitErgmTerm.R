@@ -55,7 +55,15 @@
 #                If theta has length p and eta has length q, then gradient
 #                should return a p by q matrix.
 #                This function takes two args:  theta and length(eta).
-
+#   inbeforecov: The old InitErgm functions used to allow (in Element 1 of the 
+#                'inputs' argument returned by the function) an optional value
+#                specifying the number of input parameters BEFORE the beginning
+#                of the covariate vector.  (See comments at top of InitErgm file.)
+#                This is not generally used any more, but because there are a
+#                few of the old change statistic C functions that expect this,
+#                this inbeforecov argument should be given the same value as
+#                the old model$terms[[termnumber]$inputs[1]
+#
 
 # Prototype InitErgmTerm functions
 #########################################################
@@ -76,6 +84,96 @@ InitErgmTerm.absdiff <- function(nw, arglist, ...) {
        )
 }
 
+########################################################
+InitErgmTerm.absdiffcat <- function(nw, arglist, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
+                      varnames = c("attrname","base"),
+                      vartypes = c("character","numeric"),
+                      defaultvalues = list(NULL,NULL),
+                      required = c(TRUE,FALSE))
+  ### Process the arguments
+  nodecov <- get.node.attr(nw, a$attrname)
+  u <- sort(unique(as.vector(abs(outer(nodecov,nodecov,"-")))),na.last=NA)
+  u <- u[u>0]
+  NAsubstitute <- 2*(1+max(abs(c(nodecov,u)),na.rm=TRUE)) # Arbitrary unused (and nonzero) value
+  napositions <- is.na(nodecov)
+  nodecov[napositions] <- NAsubstitute
+  if(any(napositions)){u<-c(u,NA)}
+  if(!is.null(a$base)) u <- u[-(a$base)]
+  if (length(u)==0)                            
+    stop ("Argument to absdiffcat() has too few distinct differences", call.=FALSE)
+  u2 <- u[!is.na(u)]
+  ### Construct the output list
+  list(name="absdiffcat",                                  #name: required
+       coef.names = paste("absdiff", a$attrname, u, sep="."), #coef.names: required
+       inputs = c(u2, NAsubstitute, nodecov),
+       dependence = FALSE, # So we don't use MCMC if not necessary
+       inbeforecov = length(u2)+1 # a relic of the way d_absdiffcat is coded
+       )
+}
+
+#########################################################
+InitErgmTerm.altkstar <- function(nw, arglist, initialfit=FALSE, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=NULL,
+                      varnames = c("lambda","fixed"),
+                      vartypes = c("numeric","logical"),
+                      defaultvalues = list(1,FALSE),
+                      required = c(FALSE,FALSE))
+  ### Process the arguments
+  if(!initialfit && !a$fixed){ # This is a curved exponential family model
+    d <- 1:(network.size(nw)-1)
+    map <- function(x,n,...) {
+      i <- 1:n
+      x[1]*(x[2]*((1-1/x[2])^i + i) - 1)
+    }
+    gradient <- function(x,n,...) {
+      i <- 1:n
+      rbind(x[2]*((1-1/x[2])^i + i) - 1,
+            x[1]*(i - 1 + (x[2]*x[2]-x[2]+i)*((1-1/x[2])^(i-1))/(x[2]*x[2])))
+    }
+    ### Construct the output list
+    outlist <- list(name="degree",                 #name: required
+       coef.names = paste("altkstar#", d, sep=""), #coef.names: required
+       inputs = d, map=map, gradient=gradient,
+       params=list(altkstar=NULL, altkstar.lambda=a$lambda)
+       )
+  } else {
+    outlist <- list (name="altkstar",                      #name: required
+       coef.names = paste("altkstar", a$lambda, sep="."),  #coef.names: required
+       inputs=a$lambda
+       )
+  }
+  outlist
+}
+
+#########################################################
+InitErgmTerm.asymmetric <- function(nw, arglist, drop=TRUE, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, directed=TRUE, bipartite=NULL,
+                      varnames = NULL,
+                      vartypes = NULL,
+                      defaultvalues = list(),
+                      required = NULL)  
+  ### Process the arguments
+  if(drop) { # Check for extreme statistics, print Inf messages if applicable
+    nasymmetric <- check.ErgmTerm.summarystats(nw, arglist, ...)
+    if (zerowarnings(nasymmetric)) { # Check for zero
+      return(NULL)
+    } else if (nasymmetric == network.dyadcount(nw)) {
+      cat(paste("Warning: All dyads have asymmetric ties!\n",
+                 " The corresponding coefficient has been fixed at its MLE of infinity.\n"))
+      return(NULL)
+    }
+  }
+  ### Construct the output list
+  list(name="asymmetric",            #name: required
+       coef.names = "asymmetric"     #coef.names: required
+       )
+}
+
+
 #########################################################
 InitErgmTerm.isolates <- function(nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
@@ -86,8 +184,8 @@ InitErgmTerm.isolates <- function(nw, arglist, drop=TRUE, ...) {
                      required = NULL)
   ### Process the arguments
   if(drop) { # Check for zero statistics, print -Inf messages if applicable
-    if (!zerowarnings(check.ErgmTerm.summarystats(nw, arglist, ...))) {
-      return (NULL)  # Do not add this term at all
+    if (zerowarnings(check.ErgmTerm.summarystats(nw, arglist, ...))) {
+      return (NULL)  # Do not add this term at all if isolates==0
     }
   }
   ### Construct the output list

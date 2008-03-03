@@ -11,17 +11,14 @@ CHANGESTAT_FN(d_absdiff) {
   int i;
 
   CHANGE_STAT[0] = 0.0;
-  for (i=0; i<ntoggles; i++) {
+  FOR_EACH_TOGGLE(i) {
     h = heads[i]; 
     t = tails[i];
     change = fabs(INPUT_ATTRIB[h-1] - INPUT_ATTRIB[t-1]);
     CHANGE_STAT[0] += IS_OUTEDGE(h,t) ? -change : change;
-    if (i+1 < ntoggles) 
-      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
+    TOGGLE_IF_MORE_TO_COME(i); /* Needed in case of multiple toggles */
   }
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    TOGGLE(heads[i], tails[i]); 
+  UNDO_PREVIOUS_TOGGLES(i); /* Needed on exit in case of multiple toggles */
 }
 
 /*****************
@@ -36,7 +33,8 @@ CHANGESTAT_FN(d_absdiffcat) {
   NAsubstitute = INPUT_PARAM[ninputs-1];
   for (i=0; i < N_CHANGE_STATS; i++) 
     CHANGE_STAT[i] = 0.0;
-  for (i=0; i<ntoggles; i++) {
+  
+  FOR_EACH_TOGGLE(i) {
     change = IS_OUTEDGE(h=heads[i], t=tails[i]) ? -1.0 : 1.0;
     hval = INPUT_ATTRIB[h-1];
     tval = INPUT_ATTRIB[t-1];
@@ -47,12 +45,9 @@ CHANGESTAT_FN(d_absdiffcat) {
         CHANGE_STAT[j] += (absdiff==INPUT_PARAM[j]) ? change : 0.0;
       }
     }
-    if (i+1 < ntoggles)
-      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
+    TOGGLE_IF_MORE_TO_COME(i); /* Needed in case of multiple toggles */
   }
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    TOGGLE(heads[i], tails[i]); 
+  UNDO_PREVIOUS_TOGGLES(i); /* Needed on exit in case of multiple toggles */
 }
 
 /*****************
@@ -66,8 +61,8 @@ CHANGESTAT_FN(d_altkstar) {
   change = 0.0;
   lambda = INPUT_PARAM[0];
   oneexpl = 1.0-1.0/lambda;
-  
-  for (i=0; i<ntoggles; i++) {
+
+  FOR_EACH_TOGGLE(i) {
     isedge = IS_OUTEDGE(h=heads[i], t=tails[i]);
     hd = OUT_DEG[h] + IN_DEG[h] - isedge;
     td = OUT_DEG[t] + IN_DEG[t] - isedge;
@@ -78,14 +73,10 @@ CHANGESTAT_FN(d_altkstar) {
       change += (1-2*isedge)*(1.0-pow(oneexpl,(double)td));
     }
     
-    if (i+1 < ntoggles)
-      TOGGLE(h, t);  /* Toggle this edge if more to come */
+    TOGGLE_IF_MORE_TO_COME(i); /* Needed in case of multiple toggles */
   }
-  CHANGE_STAT[0] = change*lambda;
-  
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    TOGGLE(heads[i], tails[i]); 
+  CHANGE_STAT[0] = change*lambda;  
+  UNDO_PREVIOUS_TOGGLES(i); /* Needed on exit in case of multiple toggles */
 }
 
 /*****************
@@ -97,17 +88,13 @@ CHANGESTAT_FN(d_asymmetric) {
   
   CHANGE_STAT[0] = 0.0;
   
-  for (i=0; i<ntoggles; i++) {
+  FOR_EACH_TOGGLE(i) {
     edgeflag = IS_OUTEDGE(h=heads[i], t=tails[i]);
     refedgeflag = IS_OUTEDGE(t,h);
     CHANGE_STAT[0] += ((edgeflag==refedgeflag) ? 1.0 : -1.0); 
-
-    if (i+1 < ntoggles) 
-      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
+    TOGGLE_IF_MORE_TO_COME(i); /* Needed in case of multiple toggles */
   }
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    TOGGLE(heads[i], tails[i]); 
+  UNDO_PREVIOUS_TOGGLES(i); /* Needed on exit in case of multiple toggles */
 }
 
 /********************  changestats:  B    ***********/

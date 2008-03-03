@@ -34,7 +34,7 @@
 # Finally, it should create 
 # model$terms[[termnumber]] , a list with the following elements, some
 # required and some optional:
-#
+#                                                                                                    
 # Required arguments of model$terms[[termnumber]]
 # -----------------------------------------------
 #    name: This is the (text) name of the term.  It is expected that there
@@ -42,7 +42,7 @@
 #  soname: This is the (text) name of the package containing the C function
 #          called d_[name].
 #  inputs: This is a (numeric) vector with at least 3 elements, as described
-#          below:
+#          below:                        
 #    Element 1 -- For functions that require a vector of covariates, either
 #                 nodal or dyadic, this optional value is the number of
 #                 input parameters BEFORE the beginning of the covariate
@@ -98,129 +98,135 @@
 
 ###################################### InitErgm TERMS:  A
 #########################################################
-InitErgm.absdiff<-function (nw, m, arglist, ...) {
-  ## Note:  because InitErgmTerm.absdiff exists, this function is 
-  ## now deprecated.  It is here (for now) for historical reasons.
-  a <- ergm.checkargs("absdiff", arglist,
-    varnames = c("attrname"),
-    vartypes = c("character"),
-    defaultvalues = list(NULL),
-    required = c(TRUE))
-  attach(a)
-  attrname<-a$attrname
-  termnumber<-1+length(m$terms)
-  m$coef.names<-c(m$coef.names,paste("absdiff",attrname,sep="."))
-  nodecov <- get.node.attr(nw, attrname, "absdiff", numeric=TRUE)
-  m$terms[[termnumber]] <- list(name="absdiff", soname="ergm",
-                                inputs=c(0,1,length(nodecov),nodecov),
-                                dependence=FALSE)
-  m
-}
+## Because InitErgmTerm.absdiff exists, the old
+## InitErgm.absdiff is irrelevant but should not be deleted for now.
+#InitErgm.absdiff<-function (nw, m, arglist, ...) {
+#  a <- ergm.checkargs("absdiff", arglist,
+#    varnames = c("attrname"),
+#    vartypes = c("character"),
+#    defaultvalues = list(NULL),
+#    required = c(TRUE))
+#  attach(a)
+#  attrname<-a$attrname
+#  termnumber<-1+length(m$terms)
+#  m$coef.names<-c(m$coef.names,paste("absdiff",attrname,sep="."))
+#  nodecov <- get.node.attr(nw, attrname, "absdiff", numeric=TRUE)
+#  m$terms[[termnumber]] <- list(name="absdiff", soname="ergm",
+#                                inputs=c(0,1,length(nodecov),nodecov),
+#                                dependence=FALSE)
+#  m
+#}
 
 #########################################################
-InitErgm.absdiffcat<-function (nw, m, arglist, ...) {
-  a <- ergm.checkargs("absdiffcat", arglist,
-                   varnames = c("attrname","base"),
-                   vartypes = c("character","numeric"),
-                   defaultvalues = list(NULL,NULL),
-                   required = c(TRUE,FALSE))
-  # base:  If not NULL, indices of non-zero absdiff categories to delete
-  # (ordered from 1=smallest to largest).
-  attach(a)
-  attrname<-a$attrname
-  base <- a$base
-  nodecov <- get.node.attr(nw, attrname, "absdiffcat")  
-  u <- sort(unique(as.vector(abs(outer(nodecov,nodecov,"-")))),na.last=NA)
-  u <- u[u>0]
-  NAsubstitute <- 2*(1+max(abs(c(nodecov,u)),na.rm=TRUE)) # Arbitrary unused (and nonzero) value
-  napositions <- is.na(nodecov)
-  nodecov[napositions] <- NAsubstitute
-  if(any(napositions)){u<-c(u,NA)}
-  if(!is.null(base)) u <- u[-base]
-  if (length(u)==0)
-    stop ("Argument to absdiffcat() has too few distinct differences", call.=FALSE)
-  termnumber<-1+length(m$terms)  
-  u2 <- u[!is.na(u)]
-  m$terms[[termnumber]] <- list(name="absdiffcat", soname="ergm",
-                                inputs=c(length(u2)+1, length(u),
-                                         length(u2)+1+length(nodecov),
-                                         u2, NAsubstitute, nodecov),
-                                dependence=FALSE)
-  m$coef.names<-c(m$coef.names,paste("absdiff", attrname, u, sep="."))
-  m
-}
+## Because InitErgmTerm.absdiffcat exists, the old
+## InitErgm.absdiffcat is irrelevant but should not be deleted for now.
+#InitErgm.absdiffcat<-function (nw, m, arglist, ...) {
+#  a <- ergm.checkargs("absdiffcat", arglist,
+#                   varnames = c("attrname","base"),
+#                   vartypes = c("character","numeric"),
+#                   defaultvalues = list(NULL,NULL),
+#                   required = c(TRUE,FALSE))
+#  # base:  If not NULL, indices of non-zero absdiff categories to delete
+#  # (ordered from 1=smallest to largest).
+#  attach(a)
+#  attrname<-a$attrname
+#  base <- a$base
+#  nodecov <- get.node.attr(nw, attrname, "absdiffcat")
+#  u <- sort(unique(as.vector(abs(outer(nodecov,nodecov,"-")))),na.last=NA)
+#  u <- u[u>0]
+#  NAsubstitute <- 2*(1+max(abs(c(nodecov,u)),na.rm=TRUE)) # Arbitrary unused (and nonzero) value
+#  napositions <- is.na(nodecov)
+#  nodecov[napositions] <- NAsubstitute
+#  if(any(napositions)){u<-c(u,NA)}
+#  if(!is.null(base)) u <- u[-base]
+#  if (length(u)==0)
+#    stop ("Argument to absdiffcat() has too few distinct differences", call.=FALSE)
+#  termnumber<-1+length(m$terms)  
+#  u2 <- u[!is.na(u)]                                  
+#  m$terms[[termnumber]] <- list(name="absdiffcat", soname="ergm",
+#                                inputs=c(length(u2)+1, length(u),
+#                                         length(u2)+1+length(nodecov),       
+#                                         u2, NAsubstitute, nodecov),
+#                                dependence=FALSE)
+#  m$coef.names<-c(m$coef.names,paste("absdiff", attrname, u, sep="."))
+#  m
+#}
 
-#########################################################
-InitErgm.altkstar<-function(nw, m, arglist, initialfit=FALSE, ...) {
-  ergm.checkdirected("altkstar", is.directed(nw), requirement=FALSE)
-  a <- ergm.checkargs("altkstar", arglist,
-    varnames = c("lambda","fixed"),
-    vartypes = c("numeric","logical"),
-    defaultvalues = list(1, FALSE),
-    required = c(FALSE, FALSE))
-  attach(a)
-  lambda<-a$lambda;fixed<-a$fixed
-  if(!initialfit && !fixed){ # This is a curved exponential family model
-    d <- 1:(network.size(nw)-1)
-    ld<-length(d)
-    if(ld==0){return(m)}
-    map <- function(x,n,...) {
-      i <- 1:n
-      x[1]*(x[2]*((1-1/x[2])^i + i) - 1)
-    }
-    gradient <- function(x,n,...) {
-      i <- 1:n
-      rbind(x[2]*((1-1/x[2])^i + i) - 1,
-            x[1]*(i - 1 + (x[2]*x[2]-x[2]+i)*((1-1/x[2])^(i-1))/(x[2]*x[2]) )
-           )
-    }
-    termnumber<-1+length(m$terms)
-    m$terms[[termnumber]] <- list(name="degree", soname="ergm",
-                                  inputs=c(0, ld, ld, d),
-                                  params=list(altkstar=NULL,
-                                    altkstar.lambda=lambda),
-                                  map=map, gradient=gradient)
-    m$coef.names<-c(m$coef.names,paste("altkstar#",d,sep=""))
-  }else{
-    termnumber<-1+length(m$terms)
-    m$terms[[termnumber]] <- list(name="altkstar", soname="ergm",
-                                  inputs=c(0, 1, length(lambda), lambda))
-    m$coef.names<-c(m$coef.names,"altkstar")
-  }
-  m
-}
+##########################################################
+## Because InitErgmTerm.altkstar exists, the old
+## InitErgm.altkstar is irrelevant but should not be deleted for now.
+#InitErgm.altkstar<-function(nw, m, arglist, initialfit=FALSE, ...) {
+#  ergm.checkdirected("altkstar", is.directed(nw), requirement=FALSE)
+#  a <- ergm.checkargs("altkstar", arglist,
+#    varnames = c("lambda","fixed"),
+#    vartypes = c("numeric","logical"),
+#    defaultvalues = list(1, FALSE),
+#    required = c(FALSE, FALSE))        
+#  attach(a)
+#  lambda<-a$lambda;fixed<-a$fixed
+#  if(!initialfit && !fixed){ # This is a curved exponential family model
+#    d <- 1:(network.size(nw)-1)
+#    ld<-length(d)
+#    if(ld==0){return(m)}
+#    map <- function(x,n,...) {
+#      i <- 1:n
+#      x[1]*(x[2]*((1-1/x[2])^i + i) - 1)
+#    }                                                                                                              
+#    gradient <- function(x,n,...) {
+#      i <- 1:n
+#      rbind(x[2]*((1-1/x[2])^i + i) - 1,
+#            x[1]*(i - 1 + (x[2]*x[2]-x[2]+i)*((1-1/x[2])^(i-1))/(x[2]*x[2]) )
+#           )
+#    }
+#    termnumber<-1+length(m$terms)
+#    m$terms[[termnumber]] <- list(name="degree", soname="ergm",
+#                                  inputs=c(0, ld, ld, d),
+#                                  params=list(altkstar=NULL,
+#                                    altkstar.lambda=lambda),
+#                                  map=map, gradient=gradient)
+#    m$coef.names<-c(m$coef.names,paste("altkstar#",d,sep=""))
+#  }else{
+#    termnumber<-1+length(m$terms)
+#    m$terms[[termnumber]] <- list(name="altkstar", soname="ergm",
+#                                  inputs=c(0, 1, length(lambda), lambda))
+#    m$coef.names<-c(m$coef.names,"altkstar")
+#  }
+#  m
+#}
 
-#########################################################
-InitErgm.asymmetric<-function (nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkdirected("asymmetric", is.directed(nw), requirement=TRUE)
-  a <- ergm.checkargs("asymmetric", arglist,
-    varnames = NULL,
-    vartypes = NULL,
-    defaultvalues = list(),
-    required = NULL)
-  if(drop){
-    nasymmetric <- summary(as.formula('nw ~ asymmetric'), drop=FALSE)
-    if(nasymmetric==0){
-      cat(" ")
-      cat(paste("Warning: There are no asymmetric ties;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#     cat(paste("To avoid degeneracy the 'asymmetric' term has been dropped.\n"))
-      return(m)
-    }
-    if(nasymmetric==network.dyadcount(nw)){
-      cat(" ")
-      cat(paste("Warning: All dyads have asymmetric ties!\n",
-                 " the corresponding coefficient has been fixed at its MLE of infinity.\n",sep=" "))
-#     cat(paste("To avoid degeneracy the 'asymmetric' term has been dropped.\n"))
-      return(m)
-    }
-  }
-  termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="asymmetric", soname="ergm",
-                                inputs=c(0,1,0))
-  m$coef.names<-c(m$coef.names,"asymmetric")
-  m
-}
+##########################################################
+## Because InitErgmTerm.asymmetric exists, the old
+## InitErgm.asymmetric is irrelevant but should not be deleted for now.
+#InitErgm.asymmetric<-function (nw, m, arglist, drop=TRUE, ...) {
+#  ergm.checkdirected("asymmetric", is.directed(nw), requirement=TRUE)
+#  a <- ergm.checkargs("asymmetric", arglist,
+#    varnames = NULL,
+#    vartypes = NULL,
+#    defaultvalues = list(),
+#    required = NULL)
+#  if(drop){
+#    nasymmetric <- summary(as.formula('nw ~ asymmetric'), drop=FALSE)
+#    if(nasymmetric==0){
+#      cat(" ")
+#      cat(paste("Warning: There are no asymmetric ties;\n",
+#                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+##     cat(paste("To avoid degeneracy the 'asymmetric' term has been dropped.\n"))
+#      return(m)
+#    }
+#    if(nasymmetric==network.dyadcount(nw)){
+#      cat(" ")
+#      cat(paste("Warning: All dyads have asymmetric ties!\n",
+#                 " the corresponding coefficient has been fixed at its MLE of infinity.\n",sep=" "))
+##     cat(paste("To avoid degeneracy the 'asymmetric' term has been dropped.\n"))
+#      return(m)
+#    }
+#  }
+#  termnumber<-1+length(m$terms)
+#  m$terms[[termnumber]] <- list(name="asymmetric", soname="ergm",
+#                                inputs=c(0,1,0))
+#  m$coef.names<-c(m$coef.names,"asymmetric")
+#  m
+#}
 
 ###################################### InitErgm TERMS:  B
 #########################################################
@@ -2149,31 +2155,33 @@ InitErgm.intransitive<-function (nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-#########################################################
-InitErgm.isolates<-function(nw, m, arglist, drop=TRUE, ...) {
-  ## Note:  because InitErgmTerm.nodematch exists, this function is 
-  ## now deprecated.  It is here (for now) for historical reasons.
-  a <- ergm.checkargs("isolates", arglist,
-    varnames = NULL,
-    vartypes = NULL,
-    defaultvalues = list(),
-    required = NULL)
-  if(drop){
-    mdsp <- summary(as.formula('nw ~ isolates'), drop=FALSE)
-    if(mdsp==0){
-      cat(" ")
-      cat(paste("Warning: There are no isolates;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#     cat(paste("To avoid degeneracy the term has been dropped.\n"))
-      return(m)
-    }
-  }
-  termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="isolates", soname="ergm",
-                                inputs=c(0,1,0))
-  m$coef.names<-c(m$coef.names,"isolates")
-  m
-}
+##########################################################
+## Because InitErgmTerm.isolates exists, the old
+## InitErgm.isolates is irrelevant but should not be deleted for now.
+#InitErgm.isolates<-function(nw, m, arglist, drop=TRUE, ...) {
+#  ## Note:  because InitErgmTerm.nodematch exists, this function is 
+#  ## now deprecated.  It is here (for now) for historical reasons.
+#  a <- ergm.checkargs("isolates", arglist,
+#    varnames = NULL,
+#    vartypes = NULL,
+#    defaultvalues = list(),
+#    required = NULL)
+#  if(drop){
+#    mdsp <- summary(as.formula('nw ~ isolates'), drop=FALSE)
+#    if(mdsp==0){
+#      cat(" ")
+#      cat(paste("Warning: There are no isolates;\n",
+#                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+##     cat(paste("To avoid degeneracy the term has been dropped.\n"))
+#      return(m)
+#    }
+#  }
+#  termnumber<-1+length(m$terms)
+#  m$terms[[termnumber]] <- list(name="isolates", soname="ergm",
+#                                inputs=c(0,1,0))
+#  m$coef.names<-c(m$coef.names,"isolates")
+#  m
+#}
 
 #########################################################
 InitErgm.istar<-function(nw, m, arglist, drop=TRUE, ...) {
@@ -2592,81 +2600,83 @@ InitErgm.nodeifactor<-function (nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-#########################################################
-InitErgm.nodematch<-InitErgm.match<-function (nw, m, arglist, drop=TRUE, ...) {
-  ## Note:  because InitErgmTerm.nodematch exists, this function is 
-  ## now deprecated.  It is here (for now) for historical reasons.
-  a <- ergm.checkargs("nodematch", arglist,
-    varnames = c("attrname", "diff"),
-    vartypes = c("character", "logical"),
-    defaultvalues = list(NULL, FALSE),
-    required = c(TRUE, FALSE))
-  attach(a)
-  attrname<-a$attrname
-  nodecov <- get.node.attr(nw, attrname, "nodematch")
-  u<-sort(unique(nodecov))
-  if(any(is.na(nodecov))){u<-c(u,NA)}
-#   Recode to numeric if necessary
-  nodecov <- match(nodecov,u,nomatch=length(u)+1)
-  ui <- seq(along=u)
-  if (length(u)==1)
-    stop ("Argument to nodematch() has only one value", call.=FALSE)
-  if(drop){
-    mixmat <- mixingmatrix(nw,attrname)$mat
-    ematch  <- diag(mixmat)
-    if(diff){
-      offematch <- apply(mixmat,1,sum)+apply(mixmat,2,sum)-2*ematch
-#     Diagonals or off-diagonals are zero
-      mu <- ematch==0 | offematch==0
-      mu[is.na(mu)] <- FALSE
-      if(any(mu)){
-        dropterms <- paste(paste("nodematch",attrname,sep="."),u[mu],sep="")
-        cat(" ")
-        cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#       cat(paste("To avoid degeneracy the terms",
-#               paste(dropterms,collapse=" and, "),
-#                 "have been dropped.\n"))
-        u <- u[!mu] 
-        ui <- ui[!mu] 
-      }
-    }else{
-      offematch <- sum(mixmat)-sum(ematch)
-#     Diagonals or off-diagonals are zero
-      mu <- sum(ematch)==0 | offematch==0
-      mu[is.na(mu)] <- FALSE
-      if(mu){
-      cat(" ")
-        cat(paste("Warning: The number of matching dyads is extreme;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-        dropterms <- paste("nodematch",attrname,sep=".")
-#       cat(paste("To avoid degeneracy the term",
-#               paste(dropterms,collapse=" and, "),
-#                 "has been dropped.\n"))
-        return(m)
-      }
-    }
-  }
-  termnumber<-1+length(m$terms)  
-  if (!diff) {
-    m$terms[[termnumber]] <- list(name="nodematch", soname="ergm",
-                                  inputs=c(0,1,length(nodecov),nodecov),
-                                  dependence=FALSE)
-    m$coef.names<-c(m$coef.names,paste("nodematch",attrname,sep="."))
-  } else {
-        #  Number of input parameters before covariates equals number of
-        #  unique elements in nodecov, namely length(u), so that's what
-        #  input element 1 equals
-    m$terms[[termnumber]] <- list(name="nodematch", soname="ergm",
-                                  inputs=c(length(ui), length(ui),
-                                    length(ui)+length(nodecov),
-                                    ui, nodecov),
-                                  dependence=FALSE)
-    m$coef.names<-c(m$coef.names,paste("nodematch",
-                                       attrname, u, sep="."))
-  }
-  m
-}
+##########################################################
+## Because InitErgmTerm.nodematch exists, the old
+## InitErgm.nodematch is irrelevant but should not be deleted for now.
+#InitErgm.nodematch<-InitErgm.match<-function (nw, m, arglist, drop=TRUE, ...) {
+#  ## Note:  because InitErgmTerm.nodematch exists, this function is 
+#  ## now deprecated.  It is here (for now) for historical reasons.
+#  a <- ergm.checkargs("nodematch", arglist,
+#    varnames = c("attrname", "diff"),
+#    vartypes = c("character", "logical"),
+#    defaultvalues = list(NULL, FALSE),
+#    required = c(TRUE, FALSE))
+#  attach(a)
+#  attrname<-a$attrname
+#  nodecov <- get.node.attr(nw, attrname, "nodematch")
+#  u<-sort(unique(nodecov))
+#  if(any(is.na(nodecov))){u<-c(u,NA)}
+##   Recode to numeric if necessary
+#  nodecov <- match(nodecov,u,nomatch=length(u)+1)
+#  ui <- seq(along=u)
+#  if (length(u)==1)
+#    stop ("Argument to nodematch() has only one value", call.=FALSE)
+#  if(drop){
+#    mixmat <- mixingmatrix(nw,attrname)$mat
+#    ematch  <- diag(mixmat)
+#    if(diff){
+#      offematch <- apply(mixmat,1,sum)+apply(mixmat,2,sum)-2*ematch
+##     Diagonals or off-diagonals are zero
+#      mu <- ematch==0 | offematch==0
+#      mu[is.na(mu)] <- FALSE
+#      if(any(mu)){
+#        dropterms <- paste(paste("nodematch",attrname,sep="."),u[mu],sep="")
+#        cat(" ")
+#        cat(paste("Warning: The count of", dropterms, "is extreme;\n",
+#                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+##       cat(paste("To avoid degeneracy the terms",
+##               paste(dropterms,collapse=" and, "),
+##                 "have been dropped.\n"))
+#        u <- u[!mu] 
+#        ui <- ui[!mu] 
+#      }
+#    }else{
+#      offematch <- sum(mixmat)-sum(ematch)
+##     Diagonals or off-diagonals are zero
+#      mu <- sum(ematch)==0 | offematch==0
+#      mu[is.na(mu)] <- FALSE
+#      if(mu){
+#      cat(" ")
+#        cat(paste("Warning: The number of matching dyads is extreme;\n",
+#                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+#        dropterms <- paste("nodematch",attrname,sep=".")
+##       cat(paste("To avoid degeneracy the term",
+##               paste(dropterms,collapse=" and, "),
+##                 "has been dropped.\n"))
+#        return(m)
+#      }
+#    }
+#  }
+#  termnumber<-1+length(m$terms)  
+#  if (!diff) {
+#    m$terms[[termnumber]] <- list(name="nodematch", soname="ergm",
+#                                  inputs=c(0,1,length(nodecov),nodecov),
+#                                  dependence=FALSE)
+#    m$coef.names<-c(m$coef.names,paste("nodematch",attrname,sep="."))
+#  } else {
+#        #  Number of input parameters before covariates equals number of
+#        #  unique elements in nodecov, namely length(u), so that's what
+#        #  input element 1 equals
+#    m$terms[[termnumber]] <- list(name="nodematch", soname="ergm",
+#                                  inputs=c(length(ui), length(ui),
+#                                    length(ui)+length(nodecov),
+#                                    ui, nodecov),
+#                                  dependence=FALSE)
+#    m$coef.names<-c(m$coef.names,paste("nodematch",
+#                                       attrname, u, sep="."))
+#  }
+#  m
+#}
 
 #########################################################
 InitErgm.nodemix<-InitErgm.mix<-function (nw, m, arglist, drop=TRUE, ...) {

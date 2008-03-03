@@ -96,7 +96,9 @@ updatemodel.ErgmTerm <- function(model, outlist) {
   if (!is.null(outlist)) { # Allow for no change if outlist==NULL
     model$coef.names <- c(model$coef.names, outlist$coef.names)
     termnumber <- 1+length(model$terms)
-    outlist$inputs <- c(0, length(outlist$coef.names), 
+    tmp <- outlist$inbeforecov
+    outlist$inputs <- c(ifelse(is.null(tmp), 0, tmp),
+                        length(outlist$coef.names), 
                         length(outlist$inputs), outlist$inputs)
     model$terms[[termnumber]] <- outlist
   }

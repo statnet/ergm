@@ -28,6 +28,11 @@ typedef struct ModelTermstruct {
 #define N_NODES (nwp->nnodes)
 #define OUT_DEG (nwp->outdegree)
 #define IN_DEG (nwp->indegree)
+#define DIRECTED (nwp->directed_flag)
+#define BIPARTITE (nwp->bipartite)
+#define N_EDGES (nwp->nedges)
+#define NEXT_INEDGE_NUM (nwp->next_inedge)
+#define NEXT_OUTEDGE_NUM (nwp->next_outedge)
 
 #define N_CHANGE_STATS (mtp->nstats)
 #define INPUT_PARAM (mtp->inputparams)
@@ -35,6 +40,9 @@ typedef struct ModelTermstruct {
 #define INPUT_ATTRIB (mtp->attrib)
 #define N_INPUT_PARAMS (mtp->ninputparams)
 
+#define FOR_EACH_TOGGLE(a) for((a)=0; (a)<ntoggles; (a)++)
+#define TOGGLE_IF_MORE_TO_COME(a) if((a)+1<ntoggles) TOGGLE(heads[(a)],tails[(a)])
+#define UNDO_PREVIOUS_TOGGLES(a) (a)--; while(--(a)>=0) TOGGLE(heads[(a)],tails[(a)])
 
 /****************************************************/
 /* changestat function prototypes, 
