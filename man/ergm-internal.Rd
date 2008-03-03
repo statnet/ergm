@@ -17,6 +17,9 @@
 %
 \alias{check.ErgmTerm}
 \alias{InitErgmTerm.absdiff}
+\alias{InitErgmTerm.absdiffcat}
+\alias{InitErgmTerm.altkstar}
+\alias{InitErgmTerm.asymmetric}
 \alias{InitErgmTerm.isolates}
 \alias{InitErgmTerm.nodematch}
 \alias{InitErgmTerm.match}
