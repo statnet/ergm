@@ -254,6 +254,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
    }
    sim.triadcensus <- array(0,dim=c(nsim,length(triadcensus)))
    dimnames(sim.triadcensus) <- list(paste(c(1:nsim)), namestriadcensus)
+   names(obs.triadcensus) <- namestriadcensus
   }
  
   # Simulate an exponential family random graph model
@@ -715,9 +716,8 @@ plot.gofobject <- function(x, ...,
     ymax <- max(max(out,na.rm=TRUE),max(out.obs,na.rm=TRUE))
 
     boxplot(data.frame(out[, model]), xlab = "model statistics", 
-        ylab = ylab, names = pnames, cex.axis = cex.axis, outline=FALSE,
-	ylim=c(ymin,ymax)
-	   )
+            ylab = ylab, names = pnames, cex.axis = cex.axis, outline=FALSE,
+            ylim=c(ymin,ymax), ...)
 
     points(seq(along = model), out.bds[1,model], pch = 1,cex=0.75)
     points(seq(along = model), out.bds[2,model], pch = 1,cex=0.75)
@@ -781,9 +781,8 @@ plot.gofobject <- function(x, ...,
     ymax <- max(max(out,na.rm=TRUE),max(out.obs,na.rm=TRUE))
 
     boxplot(data.frame(out[, deg]), xlab = "degree", 
-        ylab = ylab, names = pnames, cex.axis = cex.axis, outline=FALSE,
-	  ylim=c(ymin,ymax)
-	)
+            ylab = ylab, names = pnames, cex.axis = cex.axis, outline=FALSE,
+            ylim=c(ymin,ymax), ...)
 
     points(seq(along = deg), out.bds[1,deg], pch = 1,cex=0.75)
     points(seq(along = deg), out.bds[2,deg], pch = 1,cex=0.75)
@@ -847,9 +846,8 @@ plot.gofobject <- function(x, ...,
     ymax <- max(max(out,na.rm=TRUE),max(out.obs,na.rm=TRUE))
 
     boxplot(data.frame(out[, odeg]), xlab = "out degree", 
-        ylab = ylab, names = pnames, cex.axis = cex.axis, outline=FALSE,
-	  ylim=c(ymin,ymax)
-	)
+            ylab = ylab, names = pnames, cex.axis = cex.axis, outline=FALSE,
+            ylim=c(ymin,ymax), ...)
 
     points(seq(along = odeg), out.bds[1,odeg], pch = 1,cex=0.75)
     points(seq(along = odeg), out.bds[2,odeg], pch = 1,cex=0.75)
@@ -913,9 +911,8 @@ plot.gofobject <- function(x, ...,
     ymax <- max(max(out,na.rm=TRUE),max(out.obs,na.rm=TRUE))
 
     boxplot(data.frame(out[, ideg]), xlab = "in degree", 
-        ylab = ylab, names = pnames, cex.axis = cex.axis, outline=FALSE,
-	  ylim=c(ymin,ymax)
-	)
+            ylab = ylab, names = pnames, cex.axis = cex.axis, outline=FALSE,
+            ylim=c(ymin,ymax), ...)
 
     points(seq(along = ideg), out.bds[1,ideg], pch = 1,cex=0.75)
     points(seq(along = ideg), out.bds[2,ideg], pch = 1,cex=0.75)
@@ -974,9 +971,8 @@ plot.gofobject <- function(x, ...,
     ymax <- max(max(out,na.rm=TRUE),max(out.obs,na.rm=TRUE))
 
     boxplot(data.frame(out[, espart]), xlab = "edge-wise shared partners", 
-        ylab = ylab, names = pnames, cex.axis = cex.axis, outline=FALSE,
-	  ylim=c(ymin,ymax)
-	)
+            ylab = ylab, names = pnames, cex.axis = cex.axis, outline=FALSE,
+            ylim=c(ymin,ymax), ...)
 
     points(seq(along = espart), out.bds[1,espart], pch = 1,cex=0.75)
     points(seq(along = espart), out.bds[2,espart], pch = 1,cex=0.75)
@@ -1035,9 +1031,8 @@ plot.gofobject <- function(x, ...,
     ymax <- max(max(out,na.rm=TRUE),max(out.obs,na.rm=TRUE))
 
     boxplot(data.frame(out[, dspart]), xlab = "dyad-wise shared partners", 
-        ylab = ylab, names = pnames, cex.axis = cex.axis, outline=FALSE,
-	  ylim=c(ymin,ymax)
-	)
+            ylab = ylab, names = pnames, cex.axis = cex.axis, outline=FALSE,
+            ylim=c(ymin,ymax), ...)
 
     points(seq(along = dspart), out.bds[1,dspart], pch = 1,cex=0.75)
     points(seq(along = dspart), out.bds[2,dspart], pch = 1,cex=0.75)
@@ -1089,9 +1084,8 @@ plot.gofobject <- function(x, ...,
     ymax <- max(max(out,na.rm=TRUE),max(out.obs,na.rm=TRUE))
 
     boxplot(data.frame(out[, triadcensus]), xlab = "triad census", 
-        ylab = ylab, names = pnames, cex.axis = cex.axis, outline=FALSE,
-	  ylim=c(ymin,ymax)
-	)
+            ylab = ylab, names = pnames, cex.axis = cex.axis, outline=FALSE,
+            ylim=c(ymin,ymax), ...)
 
     points(seq(along = triadcensus), out.bds[1,triadcensus], pch = 1,cex=0.75)
     points(seq(along = triadcensus), out.bds[2,triadcensus], pch = 1,cex=0.75)
@@ -1173,9 +1167,8 @@ plot.gofobject <- function(x, ...,
     }
 
     boxplot(data.frame(out[, dist]), xlab = "minimum geodesic distance", 
-        ylab = ylab, names = pnames, cex.axis = cex.axis, outline=FALSE,
-	  ylim=c(ymin,ymax)
-    )
+            ylab = ylab, names = pnames, cex.axis = cex.axis, outline=FALSE,
+            ylim=c(ymin,ymax), ...)
 
     points(seq(along = dist), out.bds[1,dist], pch = 1,cex=0.75)
     points(seq(along = dist), out.bds[2,dist], pch = 1,cex=0.75)

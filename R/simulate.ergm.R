@@ -73,11 +73,11 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
     z <- list(newnwheads=maxedges+1)
     while(z$newnwheads[1] > maxedges){
      maxedges <- 10*maxedges
-     if (verb) {
-       cat("   ")
-       print("calling ergm.mcmcslave")
-       #cat(paste("# ", i, " of ", nsim, ": ", sep=""))
-     }
+#     if (verb) {
+#       cat("   ")
+#       print("calling ergm.mcmcslave")
+#       #cat(paste("# ", i, " of ", nsim, ": ", sep=""))
+#     }
      z <- ergm.mcmcslave(Clist,MHproposal,eta0,MCMCparams,maxedges,verb) 
 #     if (verb) {
 #       print("returning from ergm.mcmcslave; entering newnw.extract")
