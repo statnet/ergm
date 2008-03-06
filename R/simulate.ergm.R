@@ -79,18 +79,18 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
        #cat(paste("# ", i, " of ", nsim, ": ", sep=""))
      }
      z <- ergm.mcmcslave(Clist,MHproposal,eta0,MCMCparams,maxedges,verb) 
-     if (verb) {
-       print("returning from ergm.mcmcslave; entering newnw.extract")
-     }
+#     if (verb) {
+#       print("returning from ergm.mcmcslave; entering newnw.extract")
+#     }
     }
 #
 #   Next update the network to be the final (possibly conditionally)
 #   simulated one
 #
     out.list[[i]] <- newnw.extract(nw,z)
-    if (verb) {
-      print("returning from newnw.extract")
-    }
+#    if (verb) {
+#      print("returning from newnw.extract")
+#    }
     curstats <- z$s
     out.mat <- rbind(out.mat,curstats)
     if(sequential){
