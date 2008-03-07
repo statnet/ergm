@@ -29,39 +29,39 @@
   Rdf <- n - df
 #
   k <- 1 + (length(object$mplefit$glm$coef) >= 2)
-  if (k > 1 & is.latent(object)) {
-    if(length(object$mplefit$glm$coef) > 3)
-      varlist <- attr(object$terms, "variables")
-    x <- if (n <- match("x", names(object$mplefit$glm), 0))
-      object$mplefit$glm[[n]]
-    else
-      model.matrix(object$mplefit$glm)
-    varseq <- attr(x, "assign")
-    nvars <- max(0, varseq)
-    resdev <- resdf <- NULL
-    for(i in 1:(nvars - 1))
-    {
-      fit <- glm.fit(x = x[, varseq <= i, drop = FALSE], 
-                     y = object$mplefit$glm$y, weights = object$prior.weights, 
-                     start = object$mplefit$glm$start, offset = object$mplefit$glm$offset, 
-                     family = object$mplefit$glm$family, control = object$mplefit$glm$control)
-      resdev <- c(resdev, fit$deviance)
-      resdf <- c(resdf, fit$df.residual)
-    }
-
-    df <- c(0, object$mplefit$glm$df.null - object$mplefit$glm$df.residual, df)
-    Rdf <- c(object$mplefit$glm$df.null, resdf,object$mplefit$glm$df.residual, Rdf)
-    df <- n - Rdf
-    logl <- c(-object$mplefit$glm$null.deviance/2, -resdev/2,-object$mplefit$glm$deviance/2, logl)
-    pmm <- c(rep(NA,nvars),NA,pmodemean2)
-  }else{
+#  if (k > 1 & is.latent(object)) {
+#    if(length(object$mplefit$glm$coef) > 3)
+#      varlist <- attr(object$terms, "variables")
+#    x <- if (n <- match("x", names(object$mplefit$glm), 0))
+#      object$mplefit$glm[[n]]
+#    else
+#      model.matrix(object$mplefit$glm)
+#    varseq <- attr(x, "assign")
+#    nvars <- max(0, varseq)
+#    resdev <- resdf <- NULL
+#    for(i in 1:(nvars - 1))
+#    {
+#      fit <- glm.fit(x = x[, varseq <= i, drop = FALSE], 
+#                     y = object$mplefit$glm$y, weights = object$prior.weights, 
+#                     start = object$mplefit$glm$start, offset = object$mplefit$glm$offset, 
+#                     family = object$mplefit$glm$family, control = object$mplefit$glm$control)
+#      resdev <- c(resdev, fit$deviance)
+#      resdf <- c(resdf, fit$df.residual)
+#    }
+#
+#    df <- c(0, object$mplefit$glm$df.null - object$mplefit$glm$df.residual, df)
+#    Rdf <- c(object$mplefit$glm$df.null, resdf,object$mplefit$glm$df.residual, Rdf)
+#    df <- n - Rdf
+#    logl <- c(-object$mplefit$glm$null.deviance/2, -resdev/2,-object$mplefit$glm$deviance/2, logl)
+#    pmm <- c(rep(NA,nvars),NA,pmodemean2)
+#  }else{
     df <- c(0, df)
 #   Rdf <- c(object$mplefit$glm$df.null, Rdf)
 #   logl <- c(-object$mplefit$glm$null.deviance/2, logl)
     Rdf <- c(n, Rdf)
     logl <- c(-n*log(2), logl)
     pmm <- c(NA,pmodemean2)
-  }
+#  }
   pv <- pchisq(abs(2 * diff(logl)), abs(diff(df)), lower.tail = FALSE)
   table <- data.frame(pmm,c(NA, -diff(Rdf)), c(NA, diff(2 * logl)), 
                       Rdf, -2 * logl, c(NA, pv))

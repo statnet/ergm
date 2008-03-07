@@ -46,7 +46,7 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
     if(is.null(object$formula) ){
      x0 <- rep(0,ncol(statsmatrix))
     }else{
-     if(!is.latent(object) ){
+#     if(!is.latent(object) ){
       if(sample=="missing"){
         x0 <- apply(statsmatrix.miss,2,mean)
       }else{
@@ -68,7 +68,7 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
       if(ncol(statsmatrix) < length(x0)){
        x0 <- x0[-c(1:(length(x0)-ncol(statsmatrix)))]
       }
-     }
+#     }
     }
   }
   attributes(statsmatrix)$class <- NULL

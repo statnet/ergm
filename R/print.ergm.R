@@ -1,7 +1,6 @@
-print.ergm <- function (x, digits = max(3, getOption("digits") - 3), ...) 
-{
-  if(!is.latent(x) || is.null(x$Z.mle))
-  {
+print.ergm <- function (x, digits = max(3, getOption("digits") - 3), ...) {
+#  if(!is.latent(x) || is.null(x$Z.mle)) {                             
+  if(is.null(x$Z.mle)) {
    if(is.matrix(x$sample)){
     if(!is.matrix(x$thetasample)){
      cat("Newton-Raphson iterations: ", x$iterations[1], "\n")
@@ -25,8 +24,7 @@ print.ergm <- function (x, digits = max(3, getOption("digits") - 3), ...)
     }
    }
   }
-  else
-  {
+  else {
     cat("Newton-Raphson iterations: ", x$iterations[1], "\n")
     cat("MLE and Posterior Mean of Coefficients:\n")
     temp <- cbind(x$MCMCtheta,x$coef)

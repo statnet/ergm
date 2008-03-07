@@ -275,37 +275,37 @@ function(x, alternative = c("two.sided", "less", "greater"),
 
 
 
-#
-# Return TRUE iff object x is a latentfit object
-# or a latent model
-#
-is.latent<-function(x){
-  out <- is.list(x)
-  if(out){
-   out <- is.logical(x$latent)
-   if(out){
-    out <- x$latent
-   }
-  }
-  out
-}
-#
-# Return TRUE iff object x is a latentfit object
-# or a latent model and a "latentcluster" model or fit
-#
-is.latent.cluster<-function(x){
-  out <- FALSE
-  if(is.latent(x)){
-   out <- is.list(x)
-   if(out){
-    out <- is.logical(x$cluster)
-    if(out){
-     out <- x$cluster
-    }
-   }
-  }
-  out
-}
+##
+## Return TRUE iff object x is a latentfit object
+## or a latent model
+##
+#is.latent<-function(x){
+#  out <- is.list(x)
+#  if(out){
+#   out <- is.logical(x$latent)
+#   if(out){
+#    out <- x$latent
+#   }
+#  }
+#  out
+#}
+##
+## Return TRUE iff object x is a latentfit object
+## or a latent model and a "latentcluster" model or fit
+##
+#is.latent.cluster<-function(x){
+#  out <- FALSE
+#  if(is.latent(x)){
+#   out <- is.list(x)
+#   if(out){
+#    out <- is.logical(x$cluster)
+#    if(out){
+#     out <- x$cluster
+#    }
+#   }
+#  }
+#  out
+#}
 
 newnw.extract<-function(oldnw,z){
   nedges<-z$newnwheads[1]
