@@ -152,23 +152,52 @@ InitErgmTerm.altkstar <- function(nw, arglist, initialfit=FALSE, ...) {
 InitErgmTerm.asymmetric <- function(nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate
   a <- check.ErgmTerm(nw, arglist, directed=TRUE, bipartite=NULL,
-                      varnames = NULL,
-                      vartypes = NULL,
-                      defaultvalues = list(),
-                      required = NULL)
+                      varnames = c("attrname", "diff", "keep"),
+                      vartypes = c("character", "logical", "numeric"),
+                      defaultvalues = list(NULL, FALSE, NULL),
+                      required = c(FALSE, FALSE, FALSE))
   ### Process the arguments
-  if(drop) { # Check for extreme statistics, print Inf messages if applicable
-    n <- network.size(nw)
-    ndc <- n * (n-1) / 2 # temporary until network.dyadcount is fixed
+  if (!is.null(a$attrname)) {
+    nodecov <- get.node.attr(nw, a$attrname)
+    u <- sort(unique(nodecov))
+    if (!is.null(a$keep)) {
+      u <- u[a$keep]
+    }
+    #   Recode to numeric
+    nodecov <- match(nodecov,u,nomatch=length(u)+1)
+    # All of the "nomatch" should be given unique IDs so they never match:
+    dontmatch <- nodecov==(length(u)+1)
+    nodecov[dontmatch] <- length(u) + (1:sum(dontmatch))
+    ui <- seq(along=u)
+  }
+  if(drop) { # Check for zero statistics, print -Inf messages if applicable
     obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
-    if (extremewarnings(obsstats, maxval=ndc)) { 
-      return(NULL) # In this case the obs nw has 0 or n(n-1)/2 asymmetric dyads
+    if (is.null(a$attrname)) {
+      n <- network.size(nw)
+      ndc <- n * (n-1) / 2 # temporary until network.dyadcount is fixed
+      if (extremewarnings(obsstats, maxval=ndc)) {
+        return(NULL) # In this case the obs nw has 0 or n(n-1)/2 asymmetric dyads
+      }
+    } else {
+      ew <- extremewarnings(obsstats)
+      u <- u[!ew]
+      ui <- ui[!ew]
     }
   }
   ### Construct the output list
-  list(name="asymmetric",            #name: required
-       coef.names = "asymmetric"     #coef.names: required
-       )
+  out <- list(name="asymmetric",                      #name: required
+              coef.names = "asymmetric"               #coef.names: required
+              ) 
+  if (!is.null(a$attrname)) {
+    if (a$diff) {
+      out$coef.names <- paste("asymmetric", a$attrname, u, sep=".")
+      out$inputs <- c(ui, nodecov)
+    } else {
+      out$coef.names <- paste("asymmetric", a$attrname, sep=".")
+      out$inputs <- nodecov
+    }
+  }
+  out
 }
 
 
@@ -191,34 +220,59 @@ InitErgmTerm.isolates <- function(nw, arglist, drop=TRUE, ...) {
   list(name="isolates",                               #name: required
        coef.names = "isolates",                       #coef.names: required
        emptynwstats = network.size(nw) # When nw is empty, isolates=n, not 0
-       )
+       )                                                               
 }
 
 #########################################################
 InitErgmTerm.mutual<-function (nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=TRUE, bipartite=NULL,
-                      varnames = c("attrname"),
-                      vartypes = c("character"),
-                      defaultvalues = list(NULL),
-                      required = c(FALSE))
+                      varnames = c("attrname", "diff", "keep"),
+                      vartypes = c("character", "logical", "numeric"),
+                      defaultvalues = list(NULL, FALSE, NULL),
+                      required = c(FALSE, FALSE, FALSE))
   ### Process the arguments
-  if(drop) { # Check for zero statistics, print -Inf messages if applicable
-    n <- network.size(nw)
-    ndc <- n * (n-1) / 2 # temporary until network.dyadcount is fixed
-    obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
-    if (extremewarnings(obsstats, maxval=ndc)) { 
-      return(NULL) # In this case the obs nw has 0 or n(n-1)/2 asymmetric dyads
+  if (!is.null(a$attrname)) {
+    nodecov <- get.node.attr(nw, a$attrname)
+    u <- sort(unique(nodecov))
+    if (!is.null(a$keep)) {
+      u <- u[a$keep]
     }
-  } else {
-    if (!is.null(a$attrname)) {
-      nodecov <- get.node.attr(nw, a$attrname)
+    #   Recode to numeric
+    nodecov <- match(nodecov,u,nomatch=length(u)+1)
+    # All of the "nomatch" should be given unique IDs so they never match:
+    dontmatch <- nodecov==(length(u)+1)
+    nodecov[dontmatch] <- length(u) + (1:sum(dontmatch))
+    ui <- seq(along=u)
+  }
+  if(drop) { # Check for zero statistics, print -Inf messages if applicable
+    obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
+    if (is.null(a$attrname)) {
+      n <- network.size(nw)
+      ndc <- n * (n-1) / 2 # temporary until network.dyadcount is fixed
+      if (extremewarnings(obsstats, maxval=ndc)) {
+        return(NULL) # In this case the obs nw has 0 or n(n-1)/2 asymmetric dyads
+      }
+    } else {
+      ew <- extremewarnings(obsstats)
+      u <- u[!ew]
+      ui <- ui[!ew]
     }
   }
   ### Construct the output list
-  list(name="mutual",                      #name: required
-       coef.names = "mutual"               #coef.names: required
-       )
+  out <- list(name="mutual",                      #name: required
+              coef.names = "mutual"               #coef.names: required
+              ) 
+  if (!is.null(a$attrname)) {
+    if (a$diff) {
+      out$coef.names <- paste("mutual", a$attrname, u, sep=".")
+      out$inputs <- c(ui, nodecov)
+    } else {
+      out$coef.names <- paste("mutual", a$attrname, sep=".")
+      out$inputs <- nodecov
+    }
+  }
+  out
 }
 
 #########################################################
@@ -257,7 +311,7 @@ InitErgmTerm.nodefactor<-function (nw, arglist, drop=TRUE, ...) {
 InitErgmTerm.nodeifactor<-function (nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
-                      varnames = c("attrname", "base"),
+                      varnames = c("attrname", "base"),          
                       vartypes = c("character", "numeric"),
                       defaultvalues = list(NULL, 1),
                       required = c(TRUE, FALSE))

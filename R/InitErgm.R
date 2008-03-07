@@ -2392,37 +2392,39 @@ InitErgm.meandeg<-function(nw, m, arglist, ...) {
   m
 }
 
-#########################################################
-InitErgm.mutual<-function (nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkdirected("mutual", is.directed(nw), requirement=TRUE)
-  a <- ergm.checkargs("mutual", arglist,
-    varnames = NULL,
-    vartypes = NULL,
-    defaultvalues = list(),
-    required = NULL)
-  if(drop){
-    nmutual <- summary(as.formula('nw ~ mutual'), drop=FALSE)
-    if(nmutual==0){
-      cat(" ")
-      cat(paste("Warning: There are no mutual ties;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#     cat(paste("To avoid degeneracy the 'mutual' term has been dropped.\n"))
-      return(m)
-    }
-    if(nmutual==network.dyadcount(nw)){
-      cat(" ")
-      cat(paste("Warning: All dyads have mutual ties!\n",
-                 " the corresponding coefficient has been fixed at its MLE of infinity.\n",sep=" "))
-#     cat(paste("To avoid degeneracy the 'mutual' term has been dropped.\n"))
-      return(m)
-    }
-  }
-  termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="mutual", soname="ergm",
-                                inputs=c(0,1,0))
-  m$coef.names<-c(m$coef.names,"mutual")
-  m
-}
+##########################################################
+### Because InitErgmTerm.mutual exists, the old
+### InitErgm.mutual is irrelevant but should not be deleted for now.
+#InitErgm.mutual<-function (nw, m, arglist, drop=TRUE, ...) {
+#  ergm.checkdirected("mutual", is.directed(nw), requirement=TRUE)
+#  a <- ergm.checkargs("mutual", arglist,
+#    varnames = NULL,
+#    vartypes = NULL,
+#    defaultvalues = list(),
+#    required = NULL)
+#  if(drop){
+#    nmutual <- summary(as.formula('nw ~ mutual'), drop=FALSE)
+#    if(nmutual==0){
+#      cat(" ")
+#      cat(paste("Warning: There are no mutual ties;\n",
+#                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+##     cat(paste("To avoid degeneracy the 'mutual' term has been dropped.\n"))
+#      return(m)
+#    }
+#    if(nmutual==network.dyadcount(nw)){
+#      cat(" ")
+#      cat(paste("Warning: All dyads have mutual ties!\n",
+#                 " the corresponding coefficient has been fixed at its MLE of infinity.\n",sep=" "))
+##     cat(paste("To avoid degeneracy the 'mutual' term has been dropped.\n"))
+#      return(m)
+#    }
+#  }
+#  termnumber<-1+length(m$terms)
+#  m$terms[[termnumber]] <- list(name="mutual", soname="ergm",
+#                                inputs=c(0,1,0))
+#  m$coef.names<-c(m$coef.names,"mutual")
+#  m
+#}
 
 ###################################### InitErgm TERMS:  N
 #########################################################

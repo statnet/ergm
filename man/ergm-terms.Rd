@@ -160,7 +160,11 @@ network
     statistic to the model, equaling the number of pairs of actors for which
     exactly one of \eqn{(i{\rightarrow}j)}{(i,j)} or
     \eqn{(j{\rightarrow}i)}{(j,i)} exists. This term can only be used with
-    directed networks. }
+    directed networks. If the optional \code{attrname} argument is used, 
+    only asymmetric pairs that match on the named vertex attribute are counted.
+    The optional modifiers \code{diff} and \code{keep} are used in the same
+    as for the \code{nodematch} term; refer to this term for details and
+    an example.}
 
     \item{\code{b1concurrent(attrname)}}{\emph{Concurrent node count for the
     first mode in a bipartite (aka two-mode) network:} This term adds one
@@ -622,10 +626,16 @@ network
     average degree of a node.  Note that this term is a constant multiple of
     both \code{edges} and \code{density}.}
   
-    \item{\code{mutual}}{\emph{Mutuality:} This term adds one network statistic
-    to the model, equaling the number of pairs of actors \eqn{i} and \eqn{j} for
-    which \eqn{(i{\rightarrow}j)}{(i,j)} and \eqn{(j{\rightarrow}i)}{(j,i)} both
-    exist. This term can only be used with directed networks. }
+    \item{\code{mutual(attrname, diff, keep)}}{\emph{Mutuality:} This term adds
+    one network statistic to the model, equaling the number of pairs of actors
+    \eqn{i} and \eqn{j} for which \eqn{(i{\rightarrow}j)}{(i,j)} and
+    \eqn{(j{\rightarrow}i)}{(j,i)} both exist. This term can only be used with
+    directed networks. If the optional \code{attrname} argument is used, 
+    only mutual pairs that match on the named vertex attribute are counted.
+    The optional modifiers \code{diff} and \code{keep} are used in the same
+    as for the \code{nodematch} term; refer to this term for details and
+    an example.
+    }
 
     \item{\code{nearsimmelian}}{\emph{Near simmelian triads:} This term adds one
     statistic to the model equal to the number of near 
