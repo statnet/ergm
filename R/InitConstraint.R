@@ -3,6 +3,7 @@ ConstraintImplications<-list(edges=character(0),
                              degrees=c("edges","indegrees","outdegrees","degreedist","bd"),
                              degreedist=c("edges","indegrees"),
                              indegreedist=c("edges"),
+                             outdegreedist=c("edges"),
                              bd=character(0),
                              indegrees=c("edges"),
                              outdegrees=c("edges"),
@@ -33,6 +34,13 @@ InitConstraint.indegreedist<-function(conlist){
    if (nargs()>1)
      stop(paste("InDegree distribution constraint does not take arguments at this time."), call.=FALSE)
    conlist$indegreedist<-list()
+   conlist
+}
+
+InitConstraint.outdegreedist<-function(conlist){
+   if (nargs()>1)
+     stop(paste("OutDegree distribution constraint does not take arguments at this time."), call.=FALSE)
+   conlist$outdegreedist<-list()
    conlist
 }
 

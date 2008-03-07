@@ -2286,29 +2286,22 @@ CHANGESTAT_FN(d_gwesp) {
  changestat: d_gwidegree
 *****************/
 CHANGESTAT_FN(d_gwidegree) { 
-  int i, echange=0;
+  int i, edgeflag;
   double decay, oneexpd, change;
-  Vertex t, td=0, *id;
-  TreeNode *oe=nwp->outedges;
+  Vertex t, td=0;
   
-  id=nwp->indegree;
-  decay = mtp->inputparams[0];
+  decay = INPUT_PARAM[0];
   oneexpd = 1.0-exp(-decay);
-  
   change = 0.0;
-  for (i=0; i<ntoggles; i++) {      
-    echange = (EdgetreeSearch(heads[i], t=tails[i], oe) == 0) ? 1 : -1;
-    td = id[t] + (echange - 1)/2;
-    change += echange * pow(oneexpd,(double)td);
-    
-    if (i+1 < ntoggles)
-      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
+  FOR_EACH_TOGGLE(i) {
+    t=tails[i];
+    edgeflag = IS_OUTEDGE(heads[i], t); /* either 0 or 1 */
+    td = IN_DEG[t] - edgeflag;
+    change += (edgeflag? -1 : 1) * pow(oneexpd,(double)td);
+    TOGGLE_IF_MORE_TO_COME(i); 
   }
-  *(mtp->dstats) = change;
-  
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    TOGGLE(heads[i], tails[i]); 
+  CHANGE_STAT[0]=change; 
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
@@ -2350,27 +2343,22 @@ CHANGESTAT_FN(d_gwidegree_by_attr) {
  changestat: d_gwodegree
 *****************/
 CHANGESTAT_FN(d_gwodegree) { 
-  int i, echange=0;
-  double decay, oneexpd;
-  Vertex h, hd=0, *od;
-  TreeNode *oe=nwp->outedges;
+  int i, edgeflag;
+  double decay, oneexpd, change;
+  Vertex h, hd=0;
   
-  od=nwp->outdegree;
-  decay = mtp->inputparams[0];
-  oneexpd = 1.0-exp(-decay);
-  
-  for (i=0; i<ntoggles; i++) {      
-    echange = (EdgetreeSearch(h=heads[i], tails[i], oe) == 0) ? 1 : -1;
-    hd = od[h] + (echange - 1)/2;
-    mtp->dstats[0] += echange * pow(oneexpd,(double)hd);
-    
-    if (i+1 < ntoggles)
-      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
+  decay = INPUT_PARAM[0];
+  oneexpd = 1.0-exp(-decay);  
+  change = 0.0;
+  FOR_EACH_TOGGLE(i) {
+    h=heads[i];
+    edgeflag = IS_OUTEDGE(h, tails[i]); /* either 0 or 1 */
+    hd = OUT_DEG[h] - edgeflag;
+    change += (edgeflag? -1 : 1) * pow(oneexpd,(double)hd);
+    TOGGLE_IF_MORE_TO_COME(i);
   }
-  
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    TOGGLE(heads[i], tails[i]); 
+  *(mtp->dstats) = change;
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************

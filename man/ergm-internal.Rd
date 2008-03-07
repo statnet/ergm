@@ -13,6 +13,7 @@
 \alias{InitConstraint.edges}
 \alias{InitConstraint.hamming}
 \alias{InitConstraint.indegreedist}
+\alias{InitConstraint.outdegreedist}
 \alias{InitConstraint.nodedegrees}
 %
 \alias{check.ErgmTerm}
@@ -21,6 +22,8 @@
 \alias{InitErgmTerm.altkstar}
 \alias{InitErgmTerm.asymmetric}
 \alias{InitErgmTerm.isolates}
+\alias{InitErgmTerm.mutual}
+\alias{InitErgmTerm.nodefactor}
 \alias{InitErgmTerm.nodematch}
 \alias{InitErgmTerm.match}
 \alias{check.ErgmTerm.summarystats}
@@ -28,6 +31,7 @@
 \alias{get.InitErgm.fname}
 \alias{updatemodel.ErgmTerm}
 \alias{zerowarnings}
+\alias{extremewarnings}
 
 
 %
@@ -114,6 +118,7 @@
 \alias{InitMHP.CondDegree}
 \alias{InitMHP.CondDegreeDist}
 \alias{InitMHP.CondInDegreeDist}
+\alias{InitMHP.CondOutDegreeDist}
 \alias{InitMHP.ConstantEdges}
 \alias{InitMHP.dissolution}
 \alias{InitMHP.formation}

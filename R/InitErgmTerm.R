@@ -73,7 +73,7 @@ InitErgmTerm.absdiff <- function(nw, arglist, ...) {
                       varnames = c("attrname"),
                       vartypes = c("character"),
                       defaultvalues = list(NULL),
-                      required = c(TRUE))  
+                      required = c(TRUE))
   ### Process the arguments
   nodecov <- get.node.attr(nw, a$attrname)
   ### Construct the output list
@@ -101,7 +101,7 @@ InitErgmTerm.absdiffcat <- function(nw, arglist, ...) {
   nodecov[napositions] <- NAsubstitute
   if(any(napositions)){u<-c(u,NA)}
   if(!is.null(a$base)) u <- u[-(a$base)]
-  if (length(u)==0)                            
+  if (length(u)==0)
     stop ("Argument to absdiffcat() has too few distinct differences", call.=FALSE)
   u2 <- u[!is.na(u)]
   ### Construct the output list
@@ -150,21 +150,19 @@ InitErgmTerm.altkstar <- function(nw, arglist, initialfit=FALSE, ...) {
 
 #########################################################
 InitErgmTerm.asymmetric <- function(nw, arglist, drop=TRUE, ...) {
-  ### Check the network and arguments to make sure they are appropriate.
+  ### Check the network and arguments to make sure they are appropriate
   a <- check.ErgmTerm(nw, arglist, directed=TRUE, bipartite=NULL,
                       varnames = NULL,
                       vartypes = NULL,
                       defaultvalues = list(),
-                      required = NULL)  
+                      required = NULL)
   ### Process the arguments
   if(drop) { # Check for extreme statistics, print Inf messages if applicable
-    nasymmetric <- check.ErgmTerm.summarystats(nw, arglist, ...)
-    if (zerowarnings(nasymmetric)) { # Check for zero
-      return(NULL)
-    } else if (nasymmetric == network.dyadcount(nw)) {
-      cat(paste("Warning: All dyads have asymmetric ties!\n",
-                 " The corresponding coefficient has been fixed at its MLE of infinity.\n"))
-      return(NULL)
+    n <- network.size(nw)
+    ndc <- n * (n-1) / 2 # temporary until network.dyadcount is fixed
+    obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
+    if (extremewarnings(obsstats, maxval=ndc)) { 
+      return(NULL) # In this case the obs nw has 0 or n(n-1)/2 asymmetric dyads
     }
   }
   ### Construct the output list
@@ -184,8 +182,9 @@ InitErgmTerm.isolates <- function(nw, arglist, drop=TRUE, ...) {
                      required = NULL)
   ### Process the arguments
   if(drop) { # Check for zero statistics, print -Inf messages if applicable
-    if (zerowarnings(check.ErgmTerm.summarystats(nw, arglist, ...))) {
-      return (NULL)  # Do not add this term at all if isolates==0
+    obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
+    if (extremewarnings(obsstats, maxval=network.size(nw))) {
+      return (NULL)  # Do not add this term at all if isolates==0 or n
     }
   }
   ### Construct the output list
@@ -194,6 +193,66 @@ InitErgmTerm.isolates <- function(nw, arglist, drop=TRUE, ...) {
        emptynwstats = network.size(nw) # When nw is empty, isolates=n, not 0
        )
 }
+
+#########################################################
+InitErgmTerm.mutual<-function (nw, arglist, drop=TRUE, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, directed=TRUE, bipartite=NULL,
+                      varnames = c("attrname"),
+                      vartypes = c("character"),
+                      defaultvalues = list(NULL),
+                      required = c(FALSE))
+  ### Process the arguments
+  if(drop) { # Check for zero statistics, print -Inf messages if applicable
+    n <- network.size(nw)
+    ndc <- n * (n-1) / 2 # temporary until network.dyadcount is fixed
+    obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
+    if (extremewarnings(obsstats, maxval=ndc)) { 
+      return(NULL) # In this case the obs nw has 0 or n(n-1)/2 asymmetric dyads
+    }
+  } else {
+    if (!is.null(a$attrname)) {
+      nodecov <- get.node.attr(nw, a$attrname)
+    }
+  }
+  ### Construct the output list
+  list(name="mutual",                      #name: required
+       coef.names = "mutual"               #coef.names: required
+       )
+}
+
+#########################################################
+InitErgmTerm.nodefactor<-function (nw, arglist, drop=TRUE, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, 
+                      varnames = c("attrname", "base"),
+                      vartypes = c("character", "numeric"),
+                      defaultvalues = list(NULL, 1),
+                      required = c(TRUE, FALSE))
+  ### Process the arguments
+  nodecov <- get.node.attr(nw, a$attrname)
+  u <- sort(unique(nodecov))
+  if (!is.null(a$base) && !identical(a$base,0)) {
+    u <- u[-a$base]
+  }
+  #   Recode to numeric
+  nodecov <- match(nodecov,u,nomatch=length(u)+1)
+  ui <- seq(along=u)
+  #if (drop) { # Check for zero stats is superfluous in this case; it can't happen
+#  if(drop) { # Check for zero statistics, print -Inf messages if applicable
+#    obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
+#    ew <- extremewarnings(obsstats)
+#    u <- u[!ew]
+#    ui <- ui[!ew]
+#  }
+  ### Construct the output list
+  list(name="nodefactor",                                        #required
+       coef.names = paste("nodefactor", a$attrname, u, sep="."), #required
+       inputs = c(ui, nodecov),
+       dependence = FALSE, # So we don't use MCMC if not necessary
+       inbeforecov = length(ui) # a relic from the way d_nodefactor is coded       
+       )
+}  
 
 #########################################################
 InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, drop=TRUE, ...) {
@@ -216,9 +275,10 @@ InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, drop=TRUE, ..
   nodecov[dontmatch] <- length(u) + (1:sum(dontmatch))
   ui <- seq(along=u)
   if(drop) { # Check for zero statistics, print -Inf messages if applicable
-    zw <- zerowarnings(check.ErgmTerm.summarystats(nw, arglist, ...))
-    u <- u[!zw]
-    ui <- ui[!zw]
+    obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
+    ew <- extremewarnings(obsstats)
+    u <- u[!ew]
+    ui <- ui[!ew]
   }
   ### Construct the output list
   if (a$diff) {

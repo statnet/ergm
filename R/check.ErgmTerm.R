@@ -114,6 +114,7 @@ get.InitErgm.fname <- function() {
   return(NULL)
 }
 
+# zerowarnings is now deprecated; it's been replaced by extremewarnings
 zerowarnings <- function(gs) {
   out <- gs==0
   if(any(out)) {
@@ -122,4 +123,26 @@ zerowarnings <- function(gs) {
   }
   out
 }
+
+extremewarnings <- function(gs, minval=0, maxval=NULL) {
+  out <- rep(FALSE, times=length(gs))
+  if (!is.null(minval))  {
+    tmp <- (gs <= minval)
+    if (any(tmp)) {
+      out <- out | tmp
+      cat(" Warning:  These stats have minimal obs value; their coefs will be -Inf:\n")
+      cat(paste(names(gs)[tmp], collapse=", "), "\n")
+    }
+  }
+  if (!is.null(minval))  {
+    tmp <- (gs >= maxval)
+    if (any(tmp)) {
+      out <- out | tmp
+      cat(" Warning:  These stats have maximal obs value; their coefs will be +Inf:\n")
+      cat(paste(names(gs)[tmp], collapse=", "), "\n")
+    }
+  }
+  out
+}
+
 

@@ -16,6 +16,8 @@ MHproposals<-
           c("c", "degreedist",    "random",       "CondDegreeDist"), 
           c("c", "indegreedist",  "default",      "CondInDegreeDist"),
           c("c", "indegreedist",  "random",       "CondInDegreeDist"), 
+          c("c", "outdegreedist",  "default",      "CondOutDegreeDist"),
+          c("c", "outdegreedist",  "random",       "CondOutDegreeDist"), 
 
 #          c("c", "indegrees",     "default",      "CondInDegree"),
 #          c("c", "indegrees",     "random",       "CondInDegree"),

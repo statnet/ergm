@@ -25,9 +25,9 @@ InitMHP.TNT10 <- function(arguments, nw, model) {
 InitMHP.CondDegree <- function(arguments, nw, model) {
   MHproposal <- list(name = "CondDegree", args=NULL, package="ergm")
   if (is.directed(nw)) {
-    print("Warning:  Using the 'degree' constraint with a directed network",
-          "is currently perilous.  We recommend that you use 'outdegree' or",
-          "'indegree' instead.")
+    cat("Warning:  Using the 'degree' constraint with a directed network\n",
+          "is currently perilous.  We recommend that you use 'outdegree' or\n",
+          "'indegree' instead.\n")
   }
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartiteCondDegHexadToggles"
@@ -38,9 +38,9 @@ InitMHP.CondDegree <- function(arguments, nw, model) {
 InitMHP.CondDegreeDist <- function(arguments, nw, model) {
   MHproposal <- list(name = "CondDegreeDist", args=NULL, package="ergm")
   if (is.directed(nw)) {
-    print("Warning:  Using the 'degreedist' constraint with a directed network",
-          "is currently perilous.  We recommend that you use 'outdegree' or",
-          "'indegree' instead.")
+    cat("Warning:  Using the 'degreedist' constraint with a directed network\n",
+          "is currently perilous.  We recommend that you use 'outdegree' or\n",
+          "'indegree' instead.\n")
   }
   if(is.bipartite(nw)){
      MHproposal$name <- "BipartiteCondDegreeDist"
@@ -51,9 +51,22 @@ InitMHP.CondDegreeDist <- function(arguments, nw, model) {
 InitMHP.CondInDegreeDist <- function(arguments, nw, model) {
   MHproposal <- list(name = "CondInDegreeDist", args=NULL, package="ergm")
   if (!is.directed(nw)) {
-    print("Warning:  Using the 'indegreedist' constraint with an undirected network",
-          "is currently perilous.  We recommend that you use 'degreedist'",
-          " instead.")
+    cat("Warning:  Using the 'indegreedist' constraint with an undirected network\n",
+          "is currently perilous.  We recommend that you use 'degreedist'\n",
+          " instead.\n")
+  }
+  if(is.bipartite(nw)){
+     MHproposal$name <- "BipartiteCondDegreeDist"
+  }
+  MHproposal
+}
+
+InitMHP.CondOutDegreeDist <- function(arguments, nw, model) {
+  MHproposal <- list(name = "CondOutDegreeDist", args=NULL, package="ergm")
+  if (!is.directed(nw)) {
+    cat("Warning:  Using the 'outdegreedist' constraint with an undirected network\n",
+          "is currently perilous.  We recommend that you use 'degreedist'\n",
+          " instead.\n")
   }
   if(is.bipartite(nw)){
      MHproposal$name <- "BipartiteCondDegreeDist"
@@ -64,8 +77,8 @@ InitMHP.CondInDegreeDist <- function(arguments, nw, model) {
 #InitMHP.CondOutDegree <- function(arguments, nw, model) {
 #  MHproposal <- list(name = "CondOutDegree", args=NULL, package="ergm")
 #  if (!is.directed(nw)) {
-#    print("Warning:  The 'outdegree' constraint does not work with an",
-#          "undirected network.  Switching to 'degree' constraint.")
+#    cat("Warning:  The 'outdegree' constraint does not work with an\n",
+#          "undirected network.  Switching to 'degree' constraint.\n")
 #    return(InitMHP.CondDegree(arguments, nw, model))
 #  }
 #  MHproposal
@@ -74,8 +87,8 @@ InitMHP.CondInDegreeDist <- function(arguments, nw, model) {
 #InitMHP.CondInDegree <- function(arguments, nw, model) {
 #  MHproposal <- list(name = "CondInDegree", args=NULL, package="ergm")
 #  if (!is.directed(nw)) {
-#    print("Warning:  The 'indegree' constraint does not work with an",
-#          "undirected network.  Switching to 'degree' constraint.")
+#    cat("Warning:  The 'indegree' constraint does not work with an\n",
+#          "undirected network.  Switching to 'degree' constraint.\n")
 #    return(InitMHP.CondDegree(arguments, nw, model))
 #  }
 #  MHproposal

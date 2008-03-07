@@ -2589,7 +2589,7 @@ InitErgm.nodeifactor<-function (nw, m, arglist, drop=TRUE, ...) {
   if (lu==1){
     stop ("Argument to nodeifactor() has only one value", call.=FALSE)
   }
-  termnumber<-1+length(m$terms)  
+  termnumber<-1+length(m$terms)
   m$terms[[termnumber]] <- list(name="nodeifactor", soname="ergm",
                                 inputs=c(lu-length(base), 
                                          lu-length(base), 
