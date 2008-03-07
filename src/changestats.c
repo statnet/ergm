@@ -3485,41 +3485,34 @@ CHANGESTAT_FN(d_nodematch) {
  (but see also d_mix)
 *****************/
 CHANGESTAT_FN(d_nodemix) {
-  Vertex h, t, ninputs, ninputs2;
-  int i, j, edgeflag=0, matchflag;
-  double rtype, ctype, tmp;
+  Vertex h, t;
+  int i, j, edgeflag, ninputs, ninputs2;
+  double rtype, ctype, tmp, change;
 
   ninputs = N_INPUT_PARAMS - N_NODES;
   ninputs2 = ninputs/2;
-
   for (i=0; i < N_CHANGE_STATS; i++)
     CHANGE_STAT[i] = 0.0;
-  for (i=0; i<ntoggles; i++)
-    {
+  FOR_EACH_TOGGLE(i) {
       h=heads[i];
       t=tails[i];
-      edgeflag=(EdgetreeSearch(h, t, nwp->outedges) != 0); /*Get edge state*/
-      matchflag=0;
+      change = IS_OUTEDGE(h, t) ? -1.0 : 1.0;
       /*Find the node covariate values (types) for the head and tail*/
       rtype=INPUT_PARAM[h+ninputs-1];
       ctype=INPUT_PARAM[t+ninputs-1];
-      if (!nwp->directed_flag && rtype > ctype)  {
+      if (!DIRECTED && rtype > ctype)  {
         tmp = rtype; rtype = ctype; ctype = tmp; /* swap rtype, ctype */
       }
       /*Find the right statistic to update */
-      for(j=0;(j<ninputs2)&&(!matchflag);j++){
-        if((INPUT_PARAM[j          ]==rtype)&&
-           (INPUT_PARAM[j+ninputs2]==ctype)){
-            CHANGE_STAT[j] += (edgeflag ? -1.0 : 1.0);
-            matchflag++;
+      for(j=0; j<ninputs2; j++){
+        if((INPUT_PARAM[j] == rtype) && (INPUT_PARAM[j+ninputs2] == ctype)){
+          CHANGE_STAT[j] += change;
+          j = ninputs2; /* leave the for loop */
         }
       } 
-      if (i+1 < ntoggles)
-        TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
-    }
-  i--;
-  while (--i>=0)  /*  Undo all previous toggles. */
-    TOGGLE(heads[i], tails[i]);
+      TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************

@@ -2690,7 +2690,7 @@ InitErgm.nodemix<-InitErgm.mix<-function (nw, m, arglist, drop=TRUE, ...) {
     varnames = c("attrname","contrast", "directed"),
     vartypes = c("character","logical","logical"),
     defaultvalues = list(NULL,FALSE,NULL),
-    required = c(TRUE,FALSE))
+    required = c(TRUE, FALSE, FALSE))
   attach(a)
   attrname<-a$attrname
   contrast<-a$contrast

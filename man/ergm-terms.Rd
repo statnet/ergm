@@ -162,7 +162,7 @@ network
     \eqn{(j{\rightarrow}i)}{(j,i)} exists. This term can only be used with
     directed networks. If the optional \code{attrname} argument is used, 
     only asymmetric pairs that match on the named vertex attribute are counted.
-    The optional modifiers \code{diff} and \code{keep} are used in the same
+    The optional modifiers \code{diff} and \code{keep} are used in the same way
     as for the \code{nodematch} term; refer to this term for details and
     an example.}
 
@@ -632,7 +632,7 @@ network
     \eqn{(j{\rightarrow}i)}{(j,i)} both exist. This term can only be used with
     directed networks. If the optional \code{attrname} argument is used, 
     only mutual pairs that match on the named vertex attribute are counted.
-    The optional modifiers \code{diff} and \code{keep} are used in the same
+    The optional modifiers \code{diff} and \code{keep} are used in the same way
     as for the \code{nodematch} term; refer to this term for details and
     an example.
     }
