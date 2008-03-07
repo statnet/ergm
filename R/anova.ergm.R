@@ -69,11 +69,11 @@
   colnames(table) <- c("RSS", "Df", "Deviance", "Resid. Df", "Resid. Dev", 
                        "Pr(>|Chisq|)")
 #  if(k>1 & is.latent(object)){
-    if(!is.null(object$cluster)){
-     rownames(table) <- c("NULL",names(object$coef), "Latent Cluster")
-    }else{
-     rownames(table) <- c("NULL",names(object$coef), "Latent")
-    }
+#    if(!is.null(object$cluster)){
+#     rownames(table) <- c("NULL",names(object$coef), "Latent Cluster")
+#    }else{
+#     rownames(table) <- c("NULL",names(object$coef), "Latent")
+#    }
 #  }else{
     rownames(table) <- c("NULL", "Model 1:")
 #  }
