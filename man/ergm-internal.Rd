@@ -22,10 +22,12 @@
 \alias{InitErgmTerm.altkstar}
 \alias{InitErgmTerm.asymmetric}
 \alias{InitErgmTerm.isolates}
+\alias{InitErgmTerm.match}
 \alias{InitErgmTerm.mutual}
 \alias{InitErgmTerm.nodefactor}
+\alias{InitErgmTerm.nodeifactor}
 \alias{InitErgmTerm.nodematch}
-\alias{InitErgmTerm.match}
+\alias{InitErgmTerm.nodeofactor}
 \alias{check.ErgmTerm.summarystats}
 \alias{ergm.getglobalstats}
 \alias{get.InitErgm.fname}
@@ -180,8 +182,6 @@
 \alias{espartnerdist}
 \alias{get.node.attr}
 \alias{is.ergm}
-\alias{is.latent}
-\alias{is.latent.cluster}
 \alias{is.matrixnetwork}
 \alias{llik.fun}
 \alias{llik.fun.miss}

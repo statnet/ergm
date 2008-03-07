@@ -130,7 +130,7 @@ extremewarnings <- function(gs, minval=0, maxval=NULL) {
     tmp <- (gs <= minval)
     if (any(tmp)) {
       out <- out | tmp
-      cat(" Warning:  These stats have minimal obs value; their coefs will be -Inf:\n")
+      cat(" Warning:  These coefficients will be -Inf:\n")
       cat(paste(names(gs)[tmp], collapse=", "), "\n")
     }
   }
@@ -138,7 +138,7 @@ extremewarnings <- function(gs, minval=0, maxval=NULL) {
     tmp <- (gs >= maxval)
     if (any(tmp)) {
       out <- out | tmp
-      cat(" Warning:  These stats have maximal obs value; their coefs will be +Inf:\n")
+      cat(" Warning:  These coefficients will be +Inf:\n")
       cat(paste(names(gs)[tmp], collapse=", "), "\n")
     }
   }

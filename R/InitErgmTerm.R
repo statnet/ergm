@@ -238,19 +238,50 @@ InitErgmTerm.nodefactor<-function (nw, arglist, drop=TRUE, ...) {
   #   Recode to numeric
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
   ui <- seq(along=u)
-  #if (drop) { # Check for zero stats is superfluous in this case; it can't happen
-#  if(drop) { # Check for zero statistics, print -Inf messages if applicable
-#    obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
-#    ew <- extremewarnings(obsstats)
-#    u <- u[!ew]
-#    ui <- ui[!ew]
-#  }
+  if(drop) { # Check for zero statistics, print -Inf messages if applicable
+    obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
+    ew <- extremewarnings(obsstats)
+    u <- u[!ew]
+    ui <- ui[!ew]
+  }
   ### Construct the output list
   list(name="nodefactor",                                        #required
        coef.names = paste("nodefactor", a$attrname, u, sep="."), #required
        inputs = c(ui, nodecov),
        dependence = FALSE, # So we don't use MCMC if not necessary
        inbeforecov = length(ui) # a relic from the way d_nodefactor is coded       
+       )
+}  
+
+#########################################################
+InitErgmTerm.nodeifactor<-function (nw, arglist, drop=TRUE, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
+                      varnames = c("attrname", "base"),
+                      vartypes = c("character", "numeric"),
+                      defaultvalues = list(NULL, 1),
+                      required = c(TRUE, FALSE))
+  ### Process the arguments
+  nodecov <- get.node.attr(nw, a$attrname)
+  u <- sort(unique(nodecov))
+  if (!is.null(a$base) && !identical(a$base,0)) {
+    u <- u[-a$base]
+  }
+  #   Recode to numeric
+  nodecov <- match(nodecov,u,nomatch=length(u)+1)
+  ui <- seq(along=u)
+  if(drop) { # Check for zero statistics, print -Inf messages if applicable
+    obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
+    ew <- extremewarnings(obsstats)
+    u <- u[!ew]
+    ui <- ui[!ew]
+  }
+  ### Construct the output list
+  list(name="nodeifactor",                                        #required
+       coef.names = paste("nodeifactor", a$attrname, u, sep="."), #required
+       inputs = c(ui, nodecov),
+       dependence = FALSE, # So we don't use MCMC if not necessary
+       inbeforecov = length(ui) # a relic from the way d_nodeifactor is coded       
        )
 }  
 
@@ -294,4 +325,37 @@ InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, drop=TRUE, ..
        dependence = FALSE # So we don't use MCMC if not necessary
        )
 }
+
+#########################################################
+InitErgmTerm.nodeofactor<-function (nw, arglist, drop=TRUE, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
+                      varnames = c("attrname", "base"),
+                      vartypes = c("character", "numeric"),
+                      defaultvalues = list(NULL, 1),
+                      required = c(TRUE, FALSE))
+  ### Process the arguments
+  nodecov <- get.node.attr(nw, a$attrname)
+  u <- sort(unique(nodecov))
+  if (!is.null(a$base) && !identical(a$base,0)) {
+    u <- u[-a$base]
+  }
+  #   Recode to numeric
+  nodecov <- match(nodecov,u,nomatch=length(u)+1)
+  ui <- seq(along=u)
+  if(drop) { # Check for zero statistics, print -Inf messages if applicable
+    obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
+    ew <- extremewarnings(obsstats)
+    u <- u[!ew]
+    ui <- ui[!ew]
+  }
+  ### Construct the output list
+  list(name="nodeofactor",                                        #required
+       coef.names = paste("nodeofactor", a$attrname, u, sep="."), #required
+       inputs = c(ui, nodecov),
+       dependence = FALSE, # So we don't use MCMC if not necessary
+       inbeforecov = length(ui) # a relic from the way d_nodeofactor is coded       
+       )
+}  
+
 

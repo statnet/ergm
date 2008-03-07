@@ -2475,58 +2475,60 @@ InitErgm.nodecov<-InitErgm.nodemain<-function (nw, m, arglist, ...) {
   m
 }
 
-#########################################################
-InitErgm.nodefactor<-function (nw, m, arglist, drop=TRUE, ...) {
-  a <- ergm.checkargs("nodefactor", arglist,
-    varnames = c("attrname", "base"),
-    vartypes = c("character", "numeric"),
-    defaultvalues = list(NULL, 1),
-    required = c(TRUE, FALSE))
-  attach(a)
-  attrname<-a$attrname
-  base <- a$base
-  nodecov <- get.node.attr(nw, attrname, "nodefactor")
-  u<-sort(unique(nodecov))
-  if(any(is.na(nodecov))){u<-c(u,NA)}
-  nodecov <- match(nodecov,u,nomatch=length(u)+1)
-  ui <- seq(along=u)
-  if(drop){
-    if (!is.directed(nw)){
-      nfc <- tapply(tabulate(as.matrix.network.edgelist(nw),
-                             nbins=network.size(nw)),
-                    nodecov,sum)
-    }else{
-      nfc <- tapply(tabulate(as.matrix.network.edgelist(nw),
-                             nbins=network.size(nw)),
-                    nodecov,sum)
-    }
-    if(any(nfc==0)){
-      dropterms <- paste(paste("nodefactor",attrname,sep="."),u[nfc==0],sep="")
-      cat(" ")
-      cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#     cat(paste("To avoid degeneracy the terms",
-#               paste(dropterms,collapse=" and, "),
-#               "have been dropped.\n"))
-      u<-u[nfc>0]
-      ui<-ui[nfc>0]
-    }
-  }
-  lu <- length(ui)
-  if (lu==1){
-    stop ("Argument to nodefactor() has only one value", call.=FALSE)
-  }
-  termnumber<-1+length(m$terms)
-  
-  m$terms[[termnumber]] <- list(name="nodefactor", soname="ergm",
-                                inputs=c(lu-length(base), 
-                                         lu-length(base), 
-                                         lu-length(base)+length(nodecov),
-                                         ui[-base], nodecov), dependence=FALSE)
-  m$coef.names<-c(m$coef.names, paste("nodefactor",
-                                      attrname, paste(u[-base]), sep="."))
-  m
-}
+##########################################################
+### Because InitErgmTerm.nodematch exists, the old
+### InitErgm.nodematch is irrelevant but should not be deleted for now.
+#InitErgm.nodefactor<-function (nw, m, arglist, drop=TRUE, ...) {
+#  a <- ergm.checkargs("nodefactor", arglist,
+#    varnames = c("attrname", "base"),
+#    vartypes = c("character", "numeric"),
+#    defaultvalues = list(NULL, 1),
+#    required = c(TRUE, FALSE))
+#  attach(a)
+#  attrname<-a$attrname
+#  base <- a$base
+#  nodecov <- get.node.attr(nw, attrname, "nodefactor")
+#  u<-sort(unique(nodecov))
+#  if(any(is.na(nodecov))){u<-c(u,NA)}
+#  nodecov <- match(nodecov,u,nomatch=length(u)+1)
+#  ui <- seq(along=u)
+#  if(drop){
+#    if (!is.directed(nw)){
+#      nfc <- tapply(tabulate(as.matrix.network.edgelist(nw),
+#                             nbins=network.size(nw)),
+#                    nodecov,sum)
+#    }else{
+#      nfc <- tapply(tabulate(as.matrix.network.edgelist(nw),
+#                             nbins=network.size(nw)),
+#                    nodecov,sum)
+#    }
+#    if(any(nfc==0)){
+#      dropterms <- paste(paste("nodefactor",attrname,sep="."),u[nfc==0],sep="")
+#      cat(" ")
+#      cat(paste("Warning: The count of", dropterms, "is extreme;\n",
+#                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+##     cat(paste("To avoid degeneracy the terms",
+##               paste(dropterms,collapse=" and, "),
+##               "have been dropped.\n"))
+#      u<-u[nfc>0]
+#      ui<-ui[nfc>0]
+#    }
+#  }
+#  lu <- length(ui)
+#  if (lu==1){
+#    stop ("Argument to nodefactor() has only one value", call.=FALSE)
+#  }
+#  termnumber<-1+length(m$terms)
+#  
+#  m$terms[[termnumber]] <- list(name="nodefactor", soname="ergm",
+#                                inputs=c(lu-length(base), 
+#                                         lu-length(base), 
+#                                         lu-length(base)+length(nodecov),
+#                                         ui[-base], nodecov), dependence=FALSE)
+#  m$coef.names<-c(m$coef.names, paste("nodefactor",
+#                                      attrname, paste(u[-base]), sep="."))
+#  m
+#}
 
 #########################################################
 InitErgm.nodeicov<-function (nw, m, arglist, ...) {
@@ -2547,58 +2549,60 @@ InitErgm.nodeicov<-function (nw, m, arglist, ...) {
   m
 }
 
-#########################################################
-InitErgm.nodeifactor<-function (nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkdirected("nodeifactor", is.directed(nw), requirement=TRUE)
-  a <- ergm.checkargs("nodeifactor", arglist,
-    varnames = c("attrname", "base"),
-    vartypes = c("character", "numeric"),
-    defaultvalues = list(NULL, 1),
-    required = c(TRUE, FALSE))
-  attach(a)
-  attrname<-a$attrname
-  base <- a$base
-  nodecov <- get.node.attr(nw, attrname, "nodeifactor")
-  u<-sort(unique(nodecov))
-  if(any(is.na(nodecov))){u<-c(u,NA)}
-  nodecov <- match(nodecov,u,nomatch=length(u)+1)
-  ui <- seq(along=u)
-  if(drop){
-    if (!is.directed(nw)){
-      nfc <- tapply(tabulate(as.matrix.network.edgelist(nw),
-                             nbins=network.size(nw)),
-                    nodecov,sum)
-    }else{
-      nfc <- tapply(tabulate(as.matrix.network.edgelist(nw),
-                             nbins=network.size(nw)),
-                    nodecov,sum)
-    }
-    if(any(nfc==0)){
-      dropterms <- paste(paste("nodeifactor",attrname,sep="."),u[nfc==0],sep="")
-      cat(" ")
-      cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#     cat(paste("To avoid degeneracy the terms",
-#               paste(dropterms,collapse=" and, "),
-#               "have been dropped.\n"))
-      u<-u[nfc>0]
-      ui<-ui[nfc>0]
-    }
-  }
-  lu <- length(ui)
-  if (lu==1){
-    stop ("Argument to nodeifactor() has only one value", call.=FALSE)
-  }
-  termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="nodeifactor", soname="ergm",
-                                inputs=c(lu-length(base), 
-                                         lu-length(base), 
-                                         lu-length(base)+length(nodecov),
-                                         ui[-base], nodecov), dependence=FALSE)
-  m$coef.names<-c(m$coef.names, paste("nodeifactor",
-                                      attrname, paste(u[-base]), sep="."))
-  m
-}
+##########################################################
+### Because InitErgmTerm.nodeifactor exists, the old
+### InitErgm.nodeifactor is irrelevant but should not be deleted for now.
+#InitErgm.nodeifactor<-function (nw, m, arglist, drop=TRUE, ...) {
+#  ergm.checkdirected("nodeifactor", is.directed(nw), requirement=TRUE)
+#  a <- ergm.checkargs("nodeifactor", arglist,
+#    varnames = c("attrname", "base"),
+#    vartypes = c("character", "numeric"),
+#    defaultvalues = list(NULL, 1),
+#    required = c(TRUE, FALSE))
+#  attach(a)
+#  attrname<-a$attrname
+#  base <- a$base
+#  nodecov <- get.node.attr(nw, attrname, "nodeifactor")
+#  u<-sort(unique(nodecov))
+#  if(any(is.na(nodecov))){u<-c(u,NA)}
+#  nodecov <- match(nodecov,u,nomatch=length(u)+1)
+#  ui <- seq(along=u)
+#  if(drop){
+#    if (!is.directed(nw)){
+#      nfc <- tapply(tabulate(as.matrix.network.edgelist(nw),
+#                             nbins=network.size(nw)),
+#                    nodecov,sum)
+#    }else{
+#      nfc <- tapply(tabulate(as.matrix.network.edgelist(nw),
+#                             nbins=network.size(nw)),
+#                    nodecov,sum)
+#    }
+#    if(any(nfc==0)){
+#      dropterms <- paste(paste("nodeifactor",attrname,sep="."),u[nfc==0],sep="")
+#      cat(" ")
+#      cat(paste("Warning: The count of", dropterms, "is extreme;\n",
+#                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+##     cat(paste("To avoid degeneracy the terms",
+##               paste(dropterms,collapse=" and, "),
+##               "have been dropped.\n"))
+#      u<-u[nfc>0]
+#      ui<-ui[nfc>0]
+#    }
+#  }
+#  lu <- length(ui)
+#  if (lu==1){
+#    stop ("Argument to nodeifactor() has only one value", call.=FALSE)
+#  }
+#  termnumber<-1+length(m$terms)
+#  m$terms[[termnumber]] <- list(name="nodeifactor", soname="ergm",
+#                                inputs=c(lu-length(base), 
+#                                         lu-length(base), 
+#                                         lu-length(base)+length(nodecov),
+#                                         ui[-base], nodecov), dependence=FALSE)
+#  m$coef.names<-c(m$coef.names, paste("nodeifactor",
+#                                      attrname, paste(u[-base]), sep="."))
+#  m
+#}
 
 ##########################################################
 ## Because InitErgmTerm.nodematch exists, the old
@@ -2828,58 +2832,60 @@ InitErgm.nodeocov<-function (nw, m, arglist, ...) {
   m
 }
 
-#########################################################
-InitErgm.nodeofactor<-function (nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkdirected("nodeofactor", is.directed(nw), requirement=TRUE)
-  a <- ergm.checkargs("nodeofactor", arglist,
-    varnames = c("attrname", "base"),
-    vartypes = c("character", "numeric"),
-    defaultvalues = list(NULL, 1),
-    required = c(TRUE, FALSE))
-  attach(a)
-  attrname<-a$attrname
-  base <- a$base
-  nodecov <- get.node.attr(nw, attrname, "nodeofactor")
-  u<-sort(unique(nodecov))
-  if(any(is.na(nodecov))){u<-c(u,NA)}
-  nodecov <- match(nodecov,u,nomatch=length(u)+1)
-  ui <- seq(along=u)
-  if(drop){
-    if (!is.directed(nw)){
-      nfc <- tapply(tabulate(as.matrix.network.edgelist(nw),
-                             nbins=network.size(nw)),
-                    nodecov,sum)
-    }else{
-      nfc <- tapply(tabulate(as.matrix.network.edgelist(nw),
-                             nbins=network.size(nw)),
-                    nodecov,sum)
-    }
-    if(any(nfc==0)){
-      dropterms <- paste(paste("nodeofactor",attrname,sep="."),u[nfc==0],sep="")
-      cat(" ")
-      cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#     cat(paste("To avoid degeneracy the terms",
-#               paste(dropterms,collapse=" and, "),
-#               "have been dropped.\n"))
-      u<-u[nfc>0]
-      ui<-ui[nfc>0]
-    }
-  }
-  lu <- length(ui)
-  if (lu==1){
-    stop ("Argument to nodeofactor() has only one value", call.=FALSE)
-  }
-  termnumber<-1+length(m$terms)  
-  m$terms[[termnumber]] <- list(name="nodeofactor", soname="ergm",
-                                inputs=c(lu-length(base), 
-                                         lu-length(base), 
-                                         lu-length(base)+length(nodecov),
-                                         ui[-base], nodecov), dependence=FALSE)
-  m$coef.names<-c(m$coef.names, paste("nodeofactor",
-                                      attrname, paste(u[-base]), sep="."))
-  m
-}
+##########################################################
+### Because InitErgmTerm.nodeofactor exists, the old
+### InitErgm.nodeofactor is irrelevant but should not be deleted for now.
+#InitErgm.nodeofactor<-function (nw, m, arglist, drop=TRUE, ...) {
+#  ergm.checkdirected("nodeofactor", is.directed(nw), requirement=TRUE)
+#  a <- ergm.checkargs("nodeofactor", arglist,
+#    varnames = c("attrname", "base"),
+#    vartypes = c("character", "numeric"),
+#    defaultvalues = list(NULL, 1),
+#    required = c(TRUE, FALSE))
+#  attach(a)
+#  attrname<-a$attrname
+#  base <- a$base
+#  nodecov <- get.node.attr(nw, attrname, "nodeofactor")
+#  u<-sort(unique(nodecov))
+#  if(any(is.na(nodecov))){u<-c(u,NA)}
+#  nodecov <- match(nodecov,u,nomatch=length(u)+1)
+#  ui <- seq(along=u)
+#  if(drop){
+#    if (!is.directed(nw)){
+#      nfc <- tapply(tabulate(as.matrix.network.edgelist(nw),
+#                             nbins=network.size(nw)),
+#                    nodecov,sum)
+#    }else{
+#      nfc <- tapply(tabulate(as.matrix.network.edgelist(nw),
+#                             nbins=network.size(nw)),
+#                    nodecov,sum)
+#    }
+#    if(any(nfc==0)){
+#      dropterms <- paste(paste("nodeofactor",attrname,sep="."),u[nfc==0],sep="")
+#      cat(" ")
+#      cat(paste("Warning: The count of", dropterms, "is extreme;\n",
+#                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+##     cat(paste("To avoid degeneracy the terms",
+##               paste(dropterms,collapse=" and, "),
+##               "have been dropped.\n"))
+#      u<-u[nfc>0]
+#      ui<-ui[nfc>0]
+#    }
+#  }
+#  lu <- length(ui)
+#  if (lu==1){
+#    stop ("Argument to nodeofactor() has only one value", call.=FALSE)
+#  }
+#  termnumber<-1+length(m$terms)  
+#  m$terms[[termnumber]] <- list(name="nodeofactor", soname="ergm",
+#                                inputs=c(lu-length(base), 
+#                                         lu-length(base), 
+#                                         lu-length(base)+length(nodecov),
+#                                         ui[-base], nodecov), dependence=FALSE)
+#  m$coef.names<-c(m$coef.names, paste("nodeofactor",
+#                                      attrname, paste(u[-base]), sep="."))
+#  m
+#}
 
 ###################################### InitErgm TERMS:  O
 #########################################################

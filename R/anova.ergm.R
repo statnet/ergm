@@ -68,15 +68,15 @@
   variables <- paste(deparse(formula(object)), collapse = "\n")
   colnames(table) <- c("RSS", "Df", "Deviance", "Resid. Df", "Resid. Dev", 
                        "Pr(>|Chisq|)")
-  if(k>1 & is.latent(object)){
+#  if(k>1 & is.latent(object)){
     if(!is.null(object$cluster)){
      rownames(table) <- c("NULL",names(object$coef), "Latent Cluster")
     }else{
      rownames(table) <- c("NULL",names(object$coef), "Latent")
     }
-  }else{
+#  }else{
     rownames(table) <- c("NULL", "Model 1:")
-  }
+#  }
   title <- "Analysis of Variance Table\n"
   topnote <- paste("Model ", format(1), ": ", variables, sep = "", 
                    collapse = "\n")
