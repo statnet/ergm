@@ -42,7 +42,7 @@
 #  soname: This is the (text) name of the package containing the C function
 #          called d_[name].
 #  inputs: This is a (numeric) vector with at least 3 elements, as described
-#          below:                        
+#          below:
 #    Element 1 -- For functions that require a vector of covariates, either
 #                 nodal or dyadic, this optional value is the number of
 #                 input parameters BEFORE the beginning of the covariate
@@ -142,7 +142,7 @@
 #  if (length(u)==0)
 #    stop ("Argument to absdiffcat() has too few distinct differences", call.=FALSE)
 #  termnumber<-1+length(m$terms)  
-#  u2 <- u[!is.na(u)]                                  
+#  u2 <- u[!is.na(u)]
 #  m$terms[[termnumber]] <- list(name="absdiffcat", soname="ergm",
 #                                inputs=c(length(u2)+1, length(u),
 #                                         length(u2)+1+length(nodecov),       

@@ -22,7 +22,14 @@
 #
 #    OPTIONAL LIST ITEMS:
 #        inputs: Vector of inputs (of type double) that the
-#                d_xxx function will require.  Default is NULL.
+#                d_xxx function will require.  Default is NULL.  This vector
+#                may have an attribute named "ParamsBeforeCov", which is the
+#                number that used to be the old Element 1 (number of input
+#                parameters BEFORE the beginning of the covariate vector)                                                         
+#                when using the old InitErgm specification; see the comment
+#                at the top of the InitErgm.R file for details.  This 
+#                ParamsBeforeCov value is only necessary for compatibility 
+#                with some of the existing d_xxx changestatistic functions.  
 #        soname: This is the (text) name of the package containing the C function
 #                called d_[name].  Default is "ergm"
 #    dependence: Logical variable telling whether addition of this term to
@@ -55,14 +62,6 @@
 #                If theta has length p and eta has length q, then gradient
 #                should return a p by q matrix.
 #                This function takes two args:  theta and length(eta).
-#   inbeforecov: The old InitErgm functions used to allow (in Element 1 of the 
-#                'inputs' argument returned by the function) an optional value
-#                specifying the number of input parameters BEFORE the beginning
-#                of the covariate vector.  (See comments at top of InitErgm file.)
-#                This is not generally used any more, but because there are a
-#                few of the old change statistic C functions that expect this,
-#                this inbeforecov argument should be given the same value as
-#                the old model$terms[[termnumber]$inputs[1]
 #
 
 # Prototype InitErgmTerm functions
@@ -105,11 +104,12 @@ InitErgmTerm.absdiffcat <- function(nw, arglist, ...) {
     stop ("Argument to absdiffcat() has too few distinct differences", call.=FALSE)
   u2 <- u[!is.na(u)]
   ### Construct the output list
+  inputs <- c(u2, NAsubstitute, nodecov)
+  attr(inputs, "ParamsBeforeCov") <- length(u2)+1 # See comment at top of file
   list(name="absdiffcat",                                  #name: required
        coef.names = paste("absdiff", a$attrname, u, sep="."), #coef.names: required
-       inputs = c(u2, NAsubstitute, nodecov),
-       dependence = FALSE, # So we don't use MCMC if not necessary
-       inbeforecov = length(u2)+1 # a relic of the way d_absdiffcat is coded
+       inputs = inputs,
+       dependence = FALSE # So we don't use MCMC if not necessary
        )
 }
 
@@ -299,11 +299,12 @@ InitErgmTerm.nodefactor<-function (nw, arglist, drop=TRUE, ...) {
     ui <- ui[!ew]
   }
   ### Construct the output list
+  inputs <- c(ui, nodecov)
+  attr(inputs, "ParamsBeforeCov") <- length(ui) # See comment at top of file
   list(name="nodefactor",                                        #required
        coef.names = paste("nodefactor", a$attrname, u, sep="."), #required
-       inputs = c(ui, nodecov),
-       dependence = FALSE, # So we don't use MCMC if not necessary
-       inbeforecov = length(ui) # a relic from the way d_nodefactor is coded       
+       inputs = inputs,
+       dependence = FALSE # So we don't use MCMC if not necessary
        )
 }  
 
@@ -331,11 +332,12 @@ InitErgmTerm.nodeifactor<-function (nw, arglist, drop=TRUE, ...) {
     ui <- ui[!ew]
   }
   ### Construct the output list
+  inputs <- c(ui, nodecov)
+  attr(inputs, "ParamsBeforeCov") <- length(ui) # See comment at top of file
   list(name="nodeifactor",                                        #required
        coef.names = paste("nodeifactor", a$attrname, u, sep="."), #required
-       inputs = c(ui, nodecov),
-       dependence = FALSE, # So we don't use MCMC if not necessary
-       inbeforecov = length(ui) # a relic from the way d_nodeifactor is coded       
+       inputs = inputs,
+       dependence = FALSE # So we don't use MCMC if not necessary
        )
 }  
 
@@ -404,11 +406,12 @@ InitErgmTerm.nodeofactor<-function (nw, arglist, drop=TRUE, ...) {
     ui <- ui[!ew]
   }
   ### Construct the output list
+  inputs <- c(ui, nodecov)
+  attr(inputs, "ParamsBeforeCov") <- length(ui) # See comment at top of file
   list(name="nodeofactor",                                        #required
        coef.names = paste("nodeofactor", a$attrname, u, sep="."), #required
-       inputs = c(ui, nodecov),
-       dependence = FALSE, # So we don't use MCMC if not necessary
-       inbeforecov = length(ui) # a relic from the way d_nodeofactor is coded       
+       inputs = inputs,
+       dependence = FALSE # So we don't use MCMC if not necessary
        )
 }  
 
