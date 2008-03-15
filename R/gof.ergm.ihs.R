@@ -1,9 +1,8 @@
-gof <- function(object, ...){
- UseMethod("gof")
-}
+    gof <- function(object, ...){
+      UseMethod("gof")
+    }
 
-gof.default <- function(object,...)
-{
+gof.default <- function(object,...) {
   stop("Either a ergm object, an ergmm object or a formula argument must be given")
 }
 
@@ -15,7 +14,6 @@ gof.ergm <- function (object, ..., nsim=100,
                       seed=NULL,
                       theta0=NULL,
                       verbose=FALSE) {
-
   
   nw <- as.network(object$network)
 

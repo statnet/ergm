@@ -116,16 +116,17 @@ CHANGESTAT_FN(d_asymmetric) {
 }
 
 /********************  changestats:  B    ***********/
+  /* For all bipartite networks:
+   It is assumed that in this bipartite network, the only edges are
+  of the form (b1, b2), where b1 is always strictly less
+  than b2.  In other words, the degree of a b1 is equivalent
+  to its outdegree and the degree of a b2 is equivalent to its
+  indegree. */
+
 /*****************
  changestat: d_b1concurrent
 *****************/
 CHANGESTAT_FN(d_b1concurrent) { 
-  /* It is assumed that in this bipartite network, the only edges are
-  of the form (b1, b2), where b1 is always strictly less
-  than b2.  In other words, the degree of a b1 is equivalent
-  to its outdegree and the degree of a b2 is equivalent to its
-  indegree.
-  */
   int i, echange;
   Vertex b1, b2, actdeg, *od;
   TreeNode *oe;  
@@ -149,12 +150,7 @@ CHANGESTAT_FN(d_b1concurrent) {
  changestat: d_b1concurrent_by_attr
 *****************/
 CHANGESTAT_FN(d_b1concurrent_by_attr) { 
-  /* It is assumed that in this bipartite network, the only edges are
-  of the form (b1, b2), where b1 is always strictly less
-  than b2.  In other words, the degree of a b1 is equivalent
-  to its outdegree and the degree of a b2 is equivalent to its
-  indegree.
-  The inputparams are assumed to be set up as follows:
+  /*The inputparams are assumed to be set up as follows:
     The first 2*nstats values are in pairs:  (degree, attrvalue)
     The values following the first 2*nstats values are the nodal attributes.
   */
@@ -217,59 +213,41 @@ CHANGESTAT_FN(d_b1factor) {
  changestat: d_b1degree
 *****************/
 CHANGESTAT_FN(d_b1degree) { 
-  /* It is assumed that in this bipartite network, the only edges are
-  of the form (b1, b2), where b1 is always strictly less
-  than b2.  In other words, the degree of a b1 is equivalent
-  to its outdegree and the degree of a b2 is equivalent to its
-  indegree.
-  */
   int i, j, echange;
-  Vertex b1, b2, actdeg, d, *od;
-  TreeNode *oe;  
-  
-  oe=nwp->outedges;
-  od=OUT_DEG;
+  Vertex b1, b1deg, d;
+
   for (i=0; i < N_CHANGE_STATS; i++) 
     CHANGE_STAT[i] = 0.0;  
-  for (i=0; i<ntoggles; i++) {      
-    echange=(EdgetreeSearch(b1=heads[i], b2=tails[i], oe)==0) ? 1 : -1;
-    actdeg = od[b1];
+  FOR_EACH_TOGGLE(i) {
+    b1 = heads[i];
+    echange = IS_OUTEDGE(b1, tails[i]) ? -1 : 1;
+    b1deg = OUT_DEG[b1];
     for(j = 0; j < N_CHANGE_STATS; j++) {
       d = (Vertex)(INPUT_PARAM[j]);
-      CHANGE_STAT[j] += (actdeg + echange == d) - (actdeg == d);
+      CHANGE_STAT[j] += (b1deg + echange == d) - (b1deg == d);
     }
-    if (i+1 < ntoggles)
-      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
+    TOGGLE_IF_MORE_TO_COME(i);
   }
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    TOGGLE(heads[i], tails[i]); 
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
  changestat: d_b1degree_by_attr
 *****************/
 CHANGESTAT_FN(d_b1degree_by_attr) { 
-  /* It is assumed that in this bipartite network, the only edges are
-  of the form (b1, b2), where b1 is always strictly less
-  than b2.  In other words, the degree of a b1 is equivalent
-  to its outdegree and the degree of a b2 is equivalent to its
-  indegree.
-  The inputparams are assumed to be set up as follows:
-    The first 2*nstats values are in pairs:  (degree, attrvalue)
-    The values following the first 2*nstats values are the nodal attributes.
+  /* The inputparams are assumed to be set up as follows:
+     The first 2*nstats values are in pairs:  (degree, attrvalue)
+     The values following the first 2*nstats values are the nodal attributes.
   */
   int i, j, echange, b1attr;
-  Vertex b1, b2, b1deg, d, *od;
-  TreeNode *oe;  
+  Vertex b1, b1deg, d;
   
-  oe=nwp->outedges;
-  od=OUT_DEG;
   for (i=0; i < N_CHANGE_STATS; i++) 
     CHANGE_STAT[i] = 0.0;
-  for (i=0; i<ntoggles; i++) {      
-    echange=(EdgetreeSearch(b1=heads[i], b2=tails[i], oe)==0) ? 1 : -1;
-    b1deg = od[b1];
+  FOR_EACH_TOGGLE(i) {
+    b1 = heads[i];
+    echange = IS_OUTEDGE(b1, tails[i]) ? -1 : 1;
+    b1deg = OUT_DEG[b1];
     b1attr = INPUT_PARAM[2*N_CHANGE_STATS + b1 - 1]; 
     for(j = 0; j < N_CHANGE_STATS; j++) {
       if (b1attr == INPUT_PARAM[2*j+1]) { /* we have attr match */
@@ -277,13 +255,9 @@ CHANGESTAT_FN(d_b1degree_by_attr) {
         CHANGE_STAT[j] += (b1deg + echange == d) - (b1deg == d);
       }
     }
-    if (i+1 < ntoggles)
-      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
+    TOGGLE_IF_MORE_TO_COME(i);
   }
-  
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    TOGGLE(heads[i], tails[i]); 
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
@@ -1463,7 +1437,7 @@ CHANGESTAT_FN(d_dyadcov) {
   int i, edgeflag, refedgeflag;
   long int nrow, noffset, index;
   
-  noffset = nwp->bipartite;
+  noffset = BIPARTITE;
   if(noffset > 0){
    nrow = (N_NODES)-(long int)(INPUT_PARAM[0]);
   }else{
@@ -1714,31 +1688,27 @@ CHANGESTAT_FN(d_edgecov) {
   long int nrow, noffset;
   int i, edgeflag;
   
-  noffset = nwp->bipartite;
+  noffset = BIPARTITE;
   if(noffset > 0){
-/*   nrow = (N_NODES)-(long int)(INPUT_PARAM[0]); */
+    /*   nrow = (N_NODES)-(long int)(INPUT_PARAM[0]); */
     nrow = noffset;
   }else{
-   nrow = (long int)(INPUT_PARAM[0]);
+    nrow = (long int)(INPUT_PARAM[0]);
   }
   
   CHANGE_STAT[0] = 0.0;
-  for (i=0; i<ntoggles; i++) 
-    {
-      /*Get the initial edge state*/
-      edgeflag=(EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
-      /*Get the covariate value*/
-/*    val = mtp->attrib[(t-1-nrow)+(h-1)*ncols]; */
-      val = mtp->attrib[(t-1-noffset)*nrow+(h-1)];  /*Note: h/t are backwards!*/
-/*  Rprintf("h %d t %d nrow %d val %f\n",h, t, nrow, val); */
-      /*Update the change statistic, based on the toggle type*/
-      CHANGE_STAT[0] += edgeflag ? -val : val;
-      if (i+1 < ntoggles)
-	TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
-    }
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    TOGGLE(heads[i], tails[i]); 
+  FOR_EACH_TOGGLE(i) {
+    /*Get the initial edge state*/
+    edgeflag=IS_OUTEDGE(h=heads[i], t=tails[i]);
+    /*Get the covariate value*/
+    /*    val = mtp->attrib[(t-1-nrow)+(h-1)*ncols]; */
+    val = mtp->attrib[(t-1-noffset)*nrow+(h-1)];  /*Note: h/t are backwards!*/
+    /*  Rprintf("h %d t %d nrow %d val %f\n",h, t, nrow, val); */
+    /*Update the change statistic, based on the toggle type*/
+    CHANGE_STAT[0] += edgeflag ? -val : val;
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
@@ -3246,7 +3216,7 @@ CHANGESTAT_FN(d_mix) {
     h=heads[i];
     t=tails[i];
     edgeflag=(EdgetreeSearch(h, t, nwp[0].outedges) != 0); /*Get edge state*/
-    if (nwp->bipartite > 0 && h > t) { 
+    if (BIPARTITE > 0 && h > t) { 
       tmpi = h; h = t; t = tmpi; /* swap h, t */
     }
     matchvalh = INPUT_PARAM[h-1+2*nstats];

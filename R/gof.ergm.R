@@ -1,9 +1,8 @@
-gof <- function(object, ...){
- UseMethod("gof")
-}
+    gof <- function(object, ...){
+      UseMethod("gof")
+    }
 
-gof.default <- function(object,...)
-{
+gof.default <- function(object,...) {
   stop("Either a ergm object, an ergmm object or a formula argument must be given")
 }
 

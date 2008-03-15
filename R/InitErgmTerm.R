@@ -65,6 +65,7 @@
 #
 
 # Prototype InitErgmTerm functions
+############################## InitErgmTerm functions:  A
 #########################################################
 InitErgmTerm.absdiff <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
@@ -73,11 +74,12 @@ InitErgmTerm.absdiff <- function(nw, arglist, ...) {
                       vartypes = c("character"),
                       defaultvalues = list(NULL),
                       required = c(TRUE))
+  assignvariables(a) # create local variables with names in 'varnames'
   ### Process the arguments
-  nodecov <- get.node.attr(nw, a$attrname)
-  ### Construct the output list
+  nodecov <- get.node.attr(nw, attrname)
+  ### Construct the list to return
   list(name="absdiff",                                     #name: required
-       coef.names = paste("absdiff", a$attrname, sep="."), #coef.names: required
+       coef.names = paste("absdiff", attrname, sep="."), #coef.names: required
        inputs = nodecov,  # We need to include the nodal covariate for this term
        dependence = FALSE # So we don't use MCMC if not necessary
        )
@@ -91,23 +93,24 @@ InitErgmTerm.absdiffcat <- function(nw, arglist, ...) {
                       vartypes = c("character","numeric"),
                       defaultvalues = list(NULL,NULL),
                       required = c(TRUE,FALSE))
+  assignvariables(a) # create local variables with names in 'varnames'
   ### Process the arguments
-  nodecov <- get.node.attr(nw, a$attrname)
+  nodecov <- get.node.attr(nw, attrname)
   u <- sort(unique(as.vector(abs(outer(nodecov,nodecov,"-")))),na.last=NA)
   u <- u[u>0]
   NAsubstitute <- 2*(1+max(abs(c(nodecov,u)),na.rm=TRUE)) # Arbitrary unused (and nonzero) value
   napositions <- is.na(nodecov)
   nodecov[napositions] <- NAsubstitute
   if(any(napositions)){u<-c(u,NA)}
-  if(!is.null(a$base)) u <- u[-(a$base)]
+  if(!is.null(base)) u <- u[-(base)]
   if (length(u)==0)
     stop ("Argument to absdiffcat() has too few distinct differences", call.=FALSE)
   u2 <- u[!is.na(u)]
-  ### Construct the output list
+  ### Construct the list to return
   inputs <- c(u2, NAsubstitute, nodecov)
   attr(inputs, "ParamsBeforeCov") <- length(u2)+1 # See comment at top of file
   list(name="absdiffcat",                                  #name: required
-       coef.names = paste("absdiff", a$attrname, u, sep="."), #coef.names: required
+       coef.names = paste("absdiff", attrname, u, sep="."), #coef.names: required
        inputs = inputs,
        dependence = FALSE # So we don't use MCMC if not necessary
        )
@@ -121,8 +124,9 @@ InitErgmTerm.altkstar <- function(nw, arglist, initialfit=FALSE, ...) {
                       vartypes = c("numeric","logical"),
                       defaultvalues = list(1,FALSE),
                       required = c(FALSE,FALSE))
+  assignvariables(a) # create local variables with names in 'varnames'
   ### Process the arguments
-  if(!initialfit && !a$fixed){ # This is a curved exponential family model
+  if(!initialfit && !fixed){ # This is a curved exponential family model
     d <- 1:(network.size(nw)-1)
     map <- function(x,n,...) {
       i <- 1:n
@@ -133,16 +137,16 @@ InitErgmTerm.altkstar <- function(nw, arglist, initialfit=FALSE, ...) {
       rbind(x[2]*((1-1/x[2])^i + i) - 1,
             x[1]*(i - 1 + (x[2]*x[2]-x[2]+i)*((1-1/x[2])^(i-1))/(x[2]*x[2])))
     }
-    ### Construct the output list
+    ### Construct the list to return
     outlist <- list(name="degree",                 #name: required
        coef.names = paste("altkstar#", d, sep=""), #coef.names: required
        inputs = d, map=map, gradient=gradient,
-       params=list(altkstar=NULL, altkstar.lambda=a$lambda)
+       params=list(altkstar=NULL, altkstar.lambda=lambda)
        )
   } else {
     outlist <- list (name="altkstar",                      #name: required
-       coef.names = paste("altkstar", a$lambda, sep="."),  #coef.names: required
-       inputs=a$lambda
+       coef.names = paste("altkstar", lambda, sep="."),  #coef.names: required
+       inputs=lambda
        )
   }
   outlist
@@ -156,12 +160,13 @@ InitErgmTerm.asymmetric <- function(nw, arglist, drop=TRUE, ...) {
                       vartypes = c("character", "logical", "numeric"),
                       defaultvalues = list(NULL, FALSE, NULL),
                       required = c(FALSE, FALSE, FALSE))
+  assignvariables(a) # create local variables with names in 'varnames'
   ### Process the arguments
-  if (!is.null(a$attrname)) {
-    nodecov <- get.node.attr(nw, a$attrname)
+  if (!is.null(attrname)) {
+    nodecov <- get.node.attr(nw, attrname)
     u <- sort(unique(nodecov))
-    if (!is.null(a$keep)) {
-      u <- u[a$keep]
+    if (!is.null(keep)) {
+      u <- u[keep]
     }
     #   Recode to numeric
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -172,7 +177,7 @@ InitErgmTerm.asymmetric <- function(nw, arglist, drop=TRUE, ...) {
   }
   if(drop) { # Check for zero statistics, print -Inf messages if applicable
     obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
-    if (is.null(a$attrname)) {
+    if (is.null(attrname)) {
       n <- network.size(nw)
       ndc <- n * (n-1) / 2 # temporary until network.dyadcount is fixed
       if (extremewarnings(obsstats, maxval=ndc)) {
@@ -184,16 +189,16 @@ InitErgmTerm.asymmetric <- function(nw, arglist, drop=TRUE, ...) {
       ui <- ui[!ew]
     }
   }
-  ### Construct the output list
+  ### Construct the list to return
   out <- list(name="asymmetric",                      #name: required
               coef.names = "asymmetric"               #coef.names: required
               ) 
-  if (!is.null(a$attrname)) {
-    if (a$diff) {
-      out$coef.names <- paste("asymmetric", a$attrname, u, sep=".")
+  if (!is.null(attrname)) {
+    if (diff) {
+      out$coef.names <- paste("asymmetric", attrname, u, sep=".")
       out$inputs <- c(ui, nodecov)
     } else {
-      out$coef.names <- paste("asymmetric", a$attrname, sep=".")
+      out$coef.names <- paste("asymmetric", attrname, sep=".")
       out$inputs <- nodecov
     }
   }
@@ -201,6 +206,87 @@ InitErgmTerm.asymmetric <- function(nw, arglist, drop=TRUE, ...) {
 }
 
 
+############################## InitErgmTerm functions:  B
+#########################################################
+InitErgmTerm.b1degree <- function(nw, arglist, drop=TRUE, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
+                       varnames = c("d", "attrname"),
+                       vartypes = c("numeric", "character"),
+                       defaultvalues = list(NULL, NULL),
+                       required = c(TRUE, FALSE))
+  assignvariables(a) # create local variables with names in 'varnames'
+  ### Process the arguments
+  nb1 <- get.network.attribute(nw, "bipartite")
+  if(drop) { # Check for zero statistics, print -Inf messages if applicable
+    obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
+    ew <- extremewarnings(obsstats)
+    # will process the ew variable later
+  } else {ew <- FALSE}
+  if (!is.null(attrname)) {  # CASE 1:  attrname GIVEN
+    nodecov <- get.node.attr(nw, attrname)
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+    nodecov <- match(nodecov,u) # Recode to numeric
+    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+    lu <- length(u)
+    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
+    du <- matrix(du[,!ew], nrow=2) # Drop any zero-obs-value rows
+    emptynwstats <- rep(0, ncol(du))
+    if (any(du[1,]==0)) { # Alter emptynwstats
+      tmp <- du[2,du[1,]==0]
+      for(i in 1:length(tmp)) 
+        tmp[i] <- sum(nodecov[1:nb1]==tmp[i])
+      emptynwstats[du[1,]==0] <- tmp
+    }
+    name <- "b1degree_by_attr"
+    coef.names <- paste("b1deg", du[1,], ".", attrname, u[du[2,]], sep="")
+    inputs <- c(as.vector(du), nodecov)
+  } else { # CASE 2:  attrname NOT GIVEN
+    d <- d[!ew] # Drop any zero-obs-value values
+    name <- "b1degree"
+    coef.names <- paste("b1deg", d, sep="")
+    inputs <- d
+    emptynwstats <- rep(0, length(d))
+    if (any(d==0)) { # alter emptynwstats
+      emptynwstats[d==0] <- nb1
+    }
+  }
+  list(name=name, coef.names=coef.names, #name and coef.names: required
+       inputs = inputs, emptynwstats=emptynwstats)
+}
+
+############################## InitErgmTerm functions:  E
+#########################################################
+InitErgmTerm.edgecov <- function(nw, arglist, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, 
+                     varnames = c("x", "attrname"),
+                     vartypes = c("matrixmetwork", "character"),
+                     defaultvalues = list(NULL, NULL),
+                     required = c(TRUE, FALSE))
+  assignvariables(a) # create local variables with names in 'varnames'
+  ### Process the arguments
+  if(is.network(x))
+    xm<-as.matrix.network(x,matrix.type="adjacency",attrname)
+  else if(is.character(x))
+    xm<-get.network.attribute(nw,x)
+  else
+    xm<-as.matrix(x)
+  ### Construct the list to return
+  if(!is.null(attrname)) {
+    cn<-paste("edgecov", as.character(sys.call(0)[[4]][2]), 
+              as.character(attrname), sep = ".")
+  } else {
+    cn<-paste("edgecov", as.character(sys.call(0)[[4]][2]), sep = ".")
+  }
+  list(name="edgecov",   #name: required
+       coef.names = cn,  #coef.names: required
+       emptynwstats = network.size(nw) # When nw is empty, isolates=n, not 0
+       )
+}
+
+############################## InitErgmTerm functions:  I
 #########################################################
 InitErgmTerm.isolates <- function(nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
@@ -216,7 +302,7 @@ InitErgmTerm.isolates <- function(nw, arglist, drop=TRUE, ...) {
       return (NULL)  # Do not add this term at all if isolates==0 or n
     }
   }
-  ### Construct the output list
+  ### Construct the list to return
   list(name="isolates",                               #name: required
        coef.names = "isolates",                       #coef.names: required
        emptynwstats = network.size(nw) # When nw is empty, isolates=n, not 0
@@ -231,12 +317,13 @@ InitErgmTerm.mutual<-function (nw, arglist, drop=TRUE, ...) {
                       vartypes = c("character", "logical", "numeric"),
                       defaultvalues = list(NULL, FALSE, NULL),
                       required = c(FALSE, FALSE, FALSE))
+  assignvariables(a) # create local variables with names in 'varnames'
   ### Process the arguments
-  if (!is.null(a$attrname)) {
-    nodecov <- get.node.attr(nw, a$attrname)
+  if (!is.null(attrname)) {
+    nodecov <- get.node.attr(nw, attrname)
     u <- sort(unique(nodecov))
-    if (!is.null(a$keep)) {
-      u <- u[a$keep]
+    if (!is.null(keep)) {
+      u <- u[keep]
     }
     #   Recode to numeric
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -247,7 +334,7 @@ InitErgmTerm.mutual<-function (nw, arglist, drop=TRUE, ...) {
   }
   if(drop) { # Check for zero statistics, print -Inf messages if applicable
     obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
-    if (is.null(a$attrname)) {
+    if (is.null(attrname)) {
       n <- network.size(nw)
       ndc <- n * (n-1) / 2 # temporary until network.dyadcount is fixed
       if (extremewarnings(obsstats, maxval=ndc)) {
@@ -259,16 +346,16 @@ InitErgmTerm.mutual<-function (nw, arglist, drop=TRUE, ...) {
       ui <- ui[!ew]
     }
   }
-  ### Construct the output list
+  ### Construct the list to return
   out <- list(name="mutual",                      #name: required
               coef.names = "mutual"               #coef.names: required
               ) 
-  if (!is.null(a$attrname)) {
-    if (a$diff) {
-      out$coef.names <- paste("mutual", a$attrname, u, sep=".")
+  if (!is.null(attrname)) {
+    if (diff) {
+      out$coef.names <- paste("mutual", attrname, u, sep=".")
       out$inputs <- c(ui, nodecov)
     } else {
-      out$coef.names <- paste("mutual", a$attrname, sep=".")
+      out$coef.names <- paste("mutual", attrname, sep=".")
       out$inputs <- nodecov
     }
   }
@@ -283,11 +370,12 @@ InitErgmTerm.nodefactor<-function (nw, arglist, drop=TRUE, ...) {
                       vartypes = c("character", "numeric"),
                       defaultvalues = list(NULL, 1),
                       required = c(TRUE, FALSE))
+  assignvariables(a) # create local variables with names in 'varnames'
   ### Process the arguments
-  nodecov <- get.node.attr(nw, a$attrname)
+  nodecov <- get.node.attr(nw, attrname)
   u <- sort(unique(nodecov))
-  if (!is.null(a$base) && !identical(a$base,0)) {
-    u <- u[-a$base]
+  if (!is.null(base) && !identical(base,0)) {
+    u <- u[-base]
   }
   #   Recode to numeric
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -298,11 +386,11 @@ InitErgmTerm.nodefactor<-function (nw, arglist, drop=TRUE, ...) {
     u <- u[!ew]
     ui <- ui[!ew]
   }
-  ### Construct the output list
+  ### Construct the list to return
   inputs <- c(ui, nodecov)
   attr(inputs, "ParamsBeforeCov") <- length(ui) # See comment at top of file
   list(name="nodefactor",                                        #required
-       coef.names = paste("nodefactor", a$attrname, u, sep="."), #required
+       coef.names = paste("nodefactor", attrname, u, sep="."), #required
        inputs = inputs,
        dependence = FALSE # So we don't use MCMC if not necessary
        )
@@ -316,11 +404,12 @@ InitErgmTerm.nodeifactor<-function (nw, arglist, drop=TRUE, ...) {
                       vartypes = c("character", "numeric"),
                       defaultvalues = list(NULL, 1),
                       required = c(TRUE, FALSE))
+  assignvariables(a) # create local variables with names in 'varnames'
   ### Process the arguments
-  nodecov <- get.node.attr(nw, a$attrname)
+  nodecov <- get.node.attr(nw, attrname)
   u <- sort(unique(nodecov))
-  if (!is.null(a$base) && !identical(a$base,0)) {
-    u <- u[-a$base]
+  if (!is.null(base) && !identical(base,0)) {
+    u <- u[-base]
   }
   #   Recode to numeric
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -331,11 +420,11 @@ InitErgmTerm.nodeifactor<-function (nw, arglist, drop=TRUE, ...) {
     u <- u[!ew]
     ui <- ui[!ew]
   }
-  ### Construct the output list
+  ### Construct the list to return
   inputs <- c(ui, nodecov)
   attr(inputs, "ParamsBeforeCov") <- length(ui) # See comment at top of file
   list(name="nodeifactor",                                        #required
-       coef.names = paste("nodeifactor", a$attrname, u, sep="."), #required
+       coef.names = paste("nodeifactor", attrname, u, sep="."), #required
        inputs = inputs,
        dependence = FALSE # So we don't use MCMC if not necessary
        )
@@ -349,11 +438,12 @@ InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, drop=TRUE, ..
                       vartypes = c("character", "logical", "numeric"),
                       defaultvalues = list(NULL, FALSE, NULL),
                       required = c(TRUE, FALSE, FALSE))
+  assignvariables(a) # create local variables with names in 'varnames'
   ### Process the arguments
-  nodecov <- get.node.attr(nw, a$attrname)
+  nodecov <- get.node.attr(nw, attrname)
   u <- sort(unique(nodecov))
-  if (!is.null(a$keep)) {
-    u <- u[a$keep]
+  if (!is.null(keep)) {
+    u <- u[keep]
   }
   #   Recode to numeric
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -367,12 +457,12 @@ InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, drop=TRUE, ..
     u <- u[!ew]
     ui <- ui[!ew]
   }
-  ### Construct the output list
-  if (a$diff) {
-    coef.names <- paste("nodematch", a$attrname, u, sep=".")
+  ### Construct the list to return
+  if (diff) {
+    coef.names <- paste("nodematch", attrname, u, sep=".")
     inputs <- c(ui, nodecov)
   } else {
-    coef.names <- paste("nodematch", a$attrname, sep=".")
+    coef.names <- paste("nodematch", attrname, sep=".")
     inputs <- nodecov
   }
   list(name="nodematch",                                 #name: required
@@ -390,11 +480,12 @@ InitErgmTerm.nodeofactor<-function (nw, arglist, drop=TRUE, ...) {
                       vartypes = c("character", "numeric"),
                       defaultvalues = list(NULL, 1),
                       required = c(TRUE, FALSE))
+  assignvariables(a) # create local variables with names in 'varnames'
   ### Process the arguments
-  nodecov <- get.node.attr(nw, a$attrname)
+  nodecov <- get.node.attr(nw, attrname)
   u <- sort(unique(nodecov))
-  if (!is.null(a$base) && !identical(a$base,0)) {
-    u <- u[-a$base]
+  if (!is.null(base) && !identical(base,0)) {
+    u <- u[-base]
   }
   #   Recode to numeric
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -405,11 +496,11 @@ InitErgmTerm.nodeofactor<-function (nw, arglist, drop=TRUE, ...) {
     u <- u[!ew]
     ui <- ui[!ew]
   }
-  ### Construct the output list
+  ### Construct the list to return
   inputs <- c(ui, nodecov)
   attr(inputs, "ParamsBeforeCov") <- length(ui) # See comment at top of file
   list(name="nodeofactor",                                        #required
-       coef.names = paste("nodeofactor", a$attrname, u, sep="."), #required
+       coef.names = paste("nodeofactor", attrname, u, sep="."), #required
        inputs = inputs,
        dependence = FALSE # So we don't use MCMC if not necessary
        )

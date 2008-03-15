@@ -17,10 +17,13 @@
 \alias{InitConstraint.nodedegrees}
 %
 \alias{check.ErgmTerm}
+\alias{assignvariables}
 \alias{InitErgmTerm.absdiff}
 \alias{InitErgmTerm.absdiffcat}
 \alias{InitErgmTerm.altkstar}
 \alias{InitErgmTerm.asymmetric}
+\alias{InitErgmTerm.b1degree}
+\alias{InitErgmTerm.edgecov}
 \alias{InitErgmTerm.isolates}
 \alias{InitErgmTerm.match}
 \alias{InitErgmTerm.mutual}
