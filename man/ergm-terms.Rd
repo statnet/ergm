@@ -774,22 +774,44 @@ network
     networks; for undirected networks see \code{kstar}. Note that
     \code{ostar(1)} is equal to both \code{istar(1)} and \code{edges}. }
 
-    \item{\code{receiver}}{\emph{Receiver effect:} This term adds one network
+    \item{\code{receiver, base=1}}{\emph{Receiver effect:} This term adds one network
     statistic for each node equal to the number of in-ties for that node.
-    This measures the popularity of the node. The term for the first node is
-    omitted because of redundancy, but the coefficient can be computed as the
-    negative of the sum of the coefficients of all the other actors. That is,
-    the average coefficient is zero, following the Holland-Leinhardt
-    parametrization of the \eqn{p_1} model. This term can only be used with 
-    directed networks. For undirected networks, see \code{sociality}.}
-
-    \item{\code{sender}}{\emph{Sender effect:} This term adds one network
-    statistic for each node equal to the number of out-ties for that node. This
-    measures the activity of the node. The term for the first node is omitted
-    because of redundancy, but the coefficient can be computed as the negative
+    This measures the popularity of the node. 
+    To include all receiver effects is usually not a good idea, because the sum 
+    of all such statistics equals the number of edges and
+    hence a linear dependency would arise in any model also including
+    \code{edges}. Thus, the \code{base} argument tells which value(s), numbered
+    in order according to the \code{sort} function, should be omitted. The
+    default value, one, means that the first node's receiver effect is omitted, 
+    making this node the reference to which all other nodes 
+    are compared. 
+    The coefficient for the first node can be computed as the negative
     of the sum of the coefficients of all the other actors. That is, the average
     coefficient is zero, following the Holland-Leinhardt parametrization of the
-    \eqn{p_1} model. This term can only be used with directed networkss. For
+    \eqn{p_1} model. Setting \code{base=0} will use all receiver effects.
+    Setting \code{base=c(2,5)} will remove the second and fifth 
+    node's receiver effects, etc. 
+    This term can only be used with 
+    directed networks. For undirected networks, see \code{sociality}.}
+
+    \item{\code{sender, base=1}}{\emph{Sender effect:} This term adds one network
+    statistic for each node equal to the number of out-ties for that node. This
+    measures the activity of the node. 
+    To include all sender effects is usually not a good idea, because the sum 
+    of all such statistics equals the number of edges and
+    hence a linear dependency would arise in any model also including
+    \code{edges}. Thus, the \code{base} argument tells which value(s), numbered
+    in order according to the \code{sort} function, should be omitted. The
+    default value, one, means that the first node's sender effect is omitted, 
+    making this node the reference to which all other nodes 
+    are compared. 
+    The coefficient for the first node can be computed as the negative
+    of the sum of the coefficients of all the other actors. That is, the average
+    coefficient is zero, following the Holland-Leinhardt parametrization of the
+    \eqn{p_1} model. Setting \code{base=0} will use all sender effects.
+    Setting \code{base=c(2,5)} will remove the second and fifth 
+    node's sender effects, etc. 
+    This term can only be used with directed networks. For
     undirected networks, see \code{sociality}.}
 
     \item{\code{simmelian}}{\emph{Simmelian triads:} This term adds one
@@ -814,13 +836,28 @@ network
     \code{abs(attrname(i)-attrname(j))} is less than or equal to \code{cutoff}.
     }
 
-    \item{\code{sociality(attrname)}}{\emph{Undirected degree:} This
+    \item{\code{sociality(attrname, base=1)}}{\emph{Undirected degree:} This
     term adds one network statistic for each node equal to the number of ties of
     that node. The optional \code{attrname} is a character string giving the
     name of an attribute in the network's vertex attribute list that takes
     categorical values. If provided, this term only counts ties between nodes
     with the same value of the attribute. This term can only be used with
-    undirected networks. For directed networks, see \code{sender} and
+    undirected networks. 
+    To include all sociality effects is usually not a 
+    good idea, because the sum 
+    of all such statistics equals the number of edges and
+    hence a linear dependency would arise in any model also including
+    \code{edges}. Thus, the \code{base} argument tells which value(s), numbered
+    in order according to the \code{sort} function, should be omitted. The
+    default value, one, means that the first node's sociality effect is 
+    omitted, making this node the reference to which all other nodes 
+    are compared. 
+    The coefficient for the first node can be computed as the negative
+    of the sum of the coefficients of all the other actors. That is, the average
+    coefficient is zero. Setting \code{base=0} will use all sociality effects.
+    Setting \code{base=c(2,5)} will remove the second and fifth 
+    node's sociality effects, etc. 
+    For directed networks, see \code{sender} and
     \code{receiver}. }
 
     \item{\code{transitive}}{\emph{Transitive triads:} This term adds one

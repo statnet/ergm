@@ -318,7 +318,6 @@ void UpdateNextedge
 void UpdateNextedge (TreeNode *edges, Edge *nextedge, Network *nwp) {
   int mult=2;
   /*TreeNode *tmp_in, *tmp_out; */
-  Edge i;
   
   while (++*nextedge < nwp->maxedges) {
     if (edges[*nextedge].value==0) return;
