@@ -3207,32 +3207,28 @@ CHANGESTAT_FN(d_meandeg) {
 CHANGESTAT_FN(d_mix) {
   Vertex h, t, tmpi;
   int matchvalh, matchvalt;
-  int i, j, edgeflag=0, nstats;
+  int i, j, edgeflag, nstats;
 
   nstats = N_CHANGE_STATS;
   for (i=0; i < N_CHANGE_STATS; i++)
     CHANGE_STAT[i] = 0.0;
-  for (i=0; i<ntoggles; i++) {
+  FOR_EACH_TOGGLE(i) {
     h=heads[i];
     t=tails[i];
-    edgeflag=(EdgetreeSearch(h, t, nwp[0].outedges) != 0); /*Get edge state*/
+    edgeflag = IS_OUTEDGE(h, t);
     if (BIPARTITE > 0 && h > t) { 
       tmpi = h; h = t; t = tmpi; /* swap h, t */
     }
     matchvalh = INPUT_PARAM[h-1+2*nstats];
     matchvalt = INPUT_PARAM[t-1+2*nstats];
     for (j=0; j<nstats; j++) {
-      if(matchvalh==INPUT_PARAM[       j] &&
-	      matchvalt==INPUT_PARAM[nstats+j]
-      ){CHANGE_STAT[j] += edgeflag ? -1.0 : 1.0;}
+      if(matchvalh==INPUT_PARAM[j] && matchvalt==INPUT_PARAM[nstats+j]) {
+        CHANGE_STAT[j] += edgeflag ? -1.0 : 1.0;
+      }
 	  }
-    if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], &nwp[0]);  /* Toggle this edge if more to come */
+    TOGGLE_IF_MORE_TO_COME(i);
   }
-
-  i--;
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], &nwp[0]);
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************

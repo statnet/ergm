@@ -30,6 +30,7 @@
 \alias{InitErgmTerm.nodefactor}
 \alias{InitErgmTerm.nodeifactor}
 \alias{InitErgmTerm.nodematch}
+\alias{InitErgmTerm.nodemix}
 \alias{InitErgmTerm.nodeofactor}
 \alias{check.ErgmTerm.summarystats}
 \alias{ergm.getglobalstats}

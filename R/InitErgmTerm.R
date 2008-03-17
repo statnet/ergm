@@ -473,6 +473,86 @@ InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, drop=TRUE, ..
 }
 
 #########################################################
+InitErgmTerm.nodemix<-function (nw, arglist, drop=TRUE, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("attrname", "base"),
+                      vartypes = c("character", "numeric"),
+                      defaultvalues = list(NULL, NULL),
+                      required = c(TRUE, FALSE))
+  assignvariables(a) # create local variables with names in 'varnames'
+  ### Process the arguments
+  if (is.bipartite(nw) && is.directed(nw)) {
+    stop("Directed bipartite networks are not currently possible")
+  }
+  nodecov <- get.node.attr(nw, attrname)
+  if(drop) { # Check for zero statistics, print -Inf messages if applicable
+    obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
+    ew <- extremewarnings(obsstats)
+    # deal with ew variable later
+  } else { ew <- FALSE }
+  if (is.bipartite(nw)) {
+    #  So undirected network storage but directed mixing
+    nb1 <- get.network.attribute(nw, "bipartite")       
+    #  Recode nodecov to numeric (but retain original sorted names in "namescov")
+    b1namescov <- sort(unique(nodecov[1:nb1]))
+    b2namescov <- sort(unique(nodecov[(1+nb1):network.size(nw)]))
+    namescov <- c(b1namescov, b2namescov)
+    b1nodecov <- match(nodecov[1:nb1],b1namescov)
+    mixmat <- mixingmatrix(nw,attrname)$mat
+    nodecov <- c(b1nodecov, 
+     match(nodecov[(1+nb1):network.size(nw)],b2namescov)+nrow(mixmat))
+    u <- cbind(as.vector(row(mixmat)), 
+               as.vector(col(mixmat)+nrow(mixmat)))
+    if(any(is.na(nodecov))){u<-rbind(u,NA)}    
+    if (!is.null(base) && !identical(base,0)) {
+      u <- u[-base,]
+    }
+    u <- u[!ew,]
+    name <- "mix"
+    cn <- paste("mix", attrname, apply(matrix(namescov[u],ncol=2),
+                                       1,paste,collapse="."), sep=".")
+    inputs <- c(u[,1], u[,2], nodecov)
+    attr(inputs, "ParamsBeforeCov") <- NROW(u)
+  } else {# So one mode, but could be directed or undirected
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+    #   Recode to numeric if necessary
+    nodecov <- match(nodecov,u,nomatch=length(u)+1)
+    ui <- seq(along=u)
+    ucount<-sapply(ui,function(x){sum(nodecov==x,na.rm=TRUE)}) #Count cases
+    uui <- matrix(1:length(ui)^2,length(ui),length(ui))  #Create int tables
+    urm <- t(sapply(ui,rep,length(ui)))   #This is the reverse of what you'd
+    ucm <- sapply(ui,rep,length(ui))      #expect for r/c, but it's correct
+    uun <- outer(u,u,paste,sep=".")
+    if (!is.directed(nw)) {
+      uui <- uui[upper.tri(uui,diag=TRUE)]
+      urm <- urm[upper.tri(urm,diag=TRUE)]  
+      ucm <- ucm[upper.tri(ucm,diag=TRUE)]
+      uun <- uun[upper.tri(uun,diag=TRUE)]
+    }
+    if (!is.null(base) && !identical(base,0)) {
+      urm <- as.vector(urm)[-base]
+      ucm <- as.vector(ucm)[-base]
+      uun <- as.vector(uun)[-base]
+    }
+    urm <- urm[!ew]
+    ucm <- ucm[!ew]
+    uun <- uun[!ew]
+    name <- "nodemix"
+    cn <- paste("mix", attrname, uun, sep=".")
+    inputs <- c(urm, ucm, nodecov)
+    #attr(inputs, "ParamsBeforeCov") <- 2*length(uui)
+    attr(inputs, "ParamsBeforeCov") <- 2*length(uun)
+  }
+  ### Construct the list to return
+  list(name = name, coef.names = cn, # required
+       inputs = inputs, 
+       dependence = FALSE # So we don't use MCMC if not necessary
+       )
+}
+
+#########################################################
 InitErgmTerm.nodeofactor<-function (nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
