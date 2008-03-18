@@ -74,7 +74,7 @@ InitErgmTerm.absdiff <- function(nw, arglist, ...) {
                       vartypes = c("character"),
                       defaultvalues = list(NULL),
                       required = c(TRUE))
-  assignvariables(a) # create local variables with names in 'varnames'
+  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
   nodecov <- get.node.attr(nw, attrname)
   ### Construct the list to return
@@ -93,7 +93,7 @@ InitErgmTerm.absdiffcat <- function(nw, arglist, ...) {
                       vartypes = c("character","numeric"),
                       defaultvalues = list(NULL,NULL),
                       required = c(TRUE,FALSE))
-  assignvariables(a) # create local variables with names in 'varnames'
+  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
   nodecov <- get.node.attr(nw, attrname)
   u <- sort(unique(as.vector(abs(outer(nodecov,nodecov,"-")))),na.last=NA)
@@ -124,7 +124,7 @@ InitErgmTerm.altkstar <- function(nw, arglist, initialfit=FALSE, ...) {
                       vartypes = c("numeric","logical"),
                       defaultvalues = list(1,FALSE),
                       required = c(FALSE,FALSE))
-  assignvariables(a) # create local variables with names in 'varnames'
+  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
   if(!initialfit && !fixed){ # This is a curved exponential family model
     d <- 1:(network.size(nw)-1)
@@ -160,7 +160,7 @@ InitErgmTerm.asymmetric <- function(nw, arglist, drop=TRUE, ...) {
                       vartypes = c("character", "logical", "numeric"),
                       defaultvalues = list(NULL, FALSE, NULL),
                       required = c(FALSE, FALSE, FALSE))
-  assignvariables(a) # create local variables with names in 'varnames'
+  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
   if (!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname)
@@ -215,7 +215,7 @@ InitErgmTerm.b1degree <- function(nw, arglist, drop=TRUE, ...) {
                        vartypes = c("numeric", "character"),
                        defaultvalues = list(NULL, NULL),
                        required = c(TRUE, FALSE))
-  assignvariables(a) # create local variables with names in 'varnames'
+  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
   nb1 <- get.network.attribute(nw, "bipartite")
   if(drop) { # Check for zero statistics, print -Inf messages if applicable
@@ -262,10 +262,10 @@ InitErgmTerm.edgecov <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, 
                      varnames = c("x", "attrname"),
-                     vartypes = c("matrixmetwork", "character"),
+                     vartypes = c("matrixnetwork", "character"),
                      defaultvalues = list(NULL, NULL),
                      required = c(TRUE, FALSE))
-  assignvariables(a) # create local variables with names in 'varnames'
+  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
   if(is.network(x))
     xm<-as.matrix.network(x,matrix.type="adjacency",attrname)
@@ -275,14 +275,20 @@ InitErgmTerm.edgecov <- function(nw, arglist, ...) {
     xm<-as.matrix(x)
   ### Construct the list to return
   if(!is.null(attrname)) {
-    cn<-paste("edgecov", as.character(sys.call(0)[[4]][2]), 
+    # Note: the sys.call business grabs the name of the x object from the 
+    # user's call.  Not elegant, but it works as long as the user doesn't
+    # pass anything complicated.
+    cn<-paste("edgecov", as.character(sys.call(0)[[3]][2]), 
               as.character(attrname), sep = ".")
   } else {
-    cn<-paste("edgecov", as.character(sys.call(0)[[4]][2]), sep = ".")
+    cn<-paste("edgecov", as.character(sys.call(0)[[3]][2]), sep = ".")
   }
+  inputs <- c(NCOL(xm), as.double(xm))
+  attr(inputs, "ParamsBeforeCov") <- 1
   list(name="edgecov",   #name: required
        coef.names = cn,  #coef.names: required
-       emptynwstats = network.size(nw) # When nw is empty, isolates=n, not 0
+       inputs = inputs,
+       dependence=FALSE
        )
 }
 
@@ -317,7 +323,7 @@ InitErgmTerm.mutual<-function (nw, arglist, drop=TRUE, ...) {
                       vartypes = c("character", "logical", "numeric"),
                       defaultvalues = list(NULL, FALSE, NULL),
                       required = c(FALSE, FALSE, FALSE))
-  assignvariables(a) # create local variables with names in 'varnames'
+  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
   if (!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname)
@@ -370,7 +376,7 @@ InitErgmTerm.nodefactor<-function (nw, arglist, drop=TRUE, ...) {
                       vartypes = c("character", "numeric"),
                       defaultvalues = list(NULL, 1),
                       required = c(TRUE, FALSE))
-  assignvariables(a) # create local variables with names in 'varnames'
+  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
   nodecov <- get.node.attr(nw, attrname)
   u <- sort(unique(nodecov))
@@ -404,7 +410,7 @@ InitErgmTerm.nodeifactor<-function (nw, arglist, drop=TRUE, ...) {
                       vartypes = c("character", "numeric"),
                       defaultvalues = list(NULL, 1),
                       required = c(TRUE, FALSE))
-  assignvariables(a) # create local variables with names in 'varnames'
+  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
   nodecov <- get.node.attr(nw, attrname)
   u <- sort(unique(nodecov))
@@ -438,7 +444,7 @@ InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, drop=TRUE, ..
                       vartypes = c("character", "logical", "numeric"),
                       defaultvalues = list(NULL, FALSE, NULL),
                       required = c(TRUE, FALSE, FALSE))
-  assignvariables(a) # create local variables with names in 'varnames'
+  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
   nodecov <- get.node.attr(nw, attrname)
   u <- sort(unique(nodecov))
@@ -480,7 +486,7 @@ InitErgmTerm.nodemix<-function (nw, arglist, drop=TRUE, ...) {
                       vartypes = c("character", "numeric"),
                       defaultvalues = list(NULL, NULL),
                       required = c(TRUE, FALSE))
-  assignvariables(a) # create local variables with names in 'varnames'
+  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
   if (is.bipartite(nw) && is.directed(nw)) {
     stop("Directed bipartite networks are not currently possible")
@@ -560,7 +566,7 @@ InitErgmTerm.nodeofactor<-function (nw, arglist, drop=TRUE, ...) {
                       vartypes = c("character", "numeric"),
                       defaultvalues = list(NULL, 1),
                       required = c(TRUE, FALSE))
-  assignvariables(a) # create local variables with names in 'varnames'
+  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
   nodecov <- get.node.attr(nw, attrname)
   u <- sort(unique(nodecov))
