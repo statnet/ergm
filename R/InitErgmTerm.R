@@ -21,9 +21,15 @@
 #                as they will be reported in the output.
 #
 #    OPTIONAL LIST ITEMS:
-#        inputs: Vector of inputs (of type double) that the
-#                d_xxx function will require.  Default is NULL.  This vector
-#                may have an attribute named "ParamsBeforeCov", which is the
+#        inputs: Vector of (double-precision numeric) inputs that the 
+#                changestat function called d_<name> will require
+#                (see WHAT THE C CHANGESTAT FUNCTION RECEIVES below).
+#                The default is NULL; no inputs are required.  But it MUST
+#                be a vector!  Thus, if some of the inputs are, say, matrices,
+#                they must be "flattened" to vectors; if some are categorical
+#                character-valued variables, they must be converted to numbers.
+#                Optionally, the inputs vector may have an attribute named 
+#                "ParamsBeforeCov", which is the
 #                number that used to be the old Element 1 (number of input
 #                parameters BEFORE the beginning of the covariate vector)                                                         
 #                when using the old InitErgm specification; see the comment
@@ -63,7 +69,22 @@
 #                should return a p by q matrix.
 #                This function takes two args:  theta and length(eta).
 #
-
+# WHAT THE C CHANGESTAT FUNCTION RECEIVES:
+#                The changestat function, written in C and called d_<name>,
+#                where <name> is the character string passed as the required
+#                output item called "name" (see above), will have access to
+#                the vector of double-precision values created by the 
+#                InitErgmTerm function as the optional output item called
+#                "inputs".  This array will be called INPUT_PARAMS in the C
+#                code and its entries may accessed as INPUT_PARAMS[0],
+#                INPUT_PARAMS[1], and so on.  The size of the INPUT_PARAMS 
+#                array is equal to N_INPUT_PARAMS, a value which is 
+#                automatically set for you and which is available inside the
+#                C function.  Thus INPUT_PARAMS[N_INPUT_PARAMS-1] is the last
+#                element in the vector. Note in particular that it is NOT 
+#                necessary to add the number of inputs to the "inputs" vector
+#                since this is done automatically.
+#
 # Prototype InitErgmTerm functions
 ############################## InitErgmTerm functions:  A
 #########################################################

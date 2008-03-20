@@ -40,6 +40,7 @@ typedef struct ModelTermstruct {
 #define INPUT_ATTRIB (mtp->attrib)
 #define N_INPUT_PARAMS (mtp->ninputparams)
 
+#define ZERO_ALL_CHANGESTATS(a) for((a)=0; (a)<N_CHANGE_STATS; (a)++) CHANGE_STAT[(a)]=0.0
 #define FOR_EACH_TOGGLE(a) for((a)=0; (a)<ntoggles; (a)++)
 #define TOGGLE_IF_MORE_TO_COME(a) if((a)+1<ntoggles) TOGGLE(heads[(a)],tails[(a)])
 #define UNDO_PREVIOUS_TOGGLES(a) (a)--; while(--(a)>=0) TOGGLE(heads[(a)],tails[(a)])
@@ -51,14 +52,19 @@ typedef struct ModelTermstruct {
 /********************  changestats:  A    ***********/
 CHANGESTAT_FN(d_absdiff);
 CHANGESTAT_FN(d_absdiffcat);
+CHANGESTAT_FN(d_altkstar);
+CHANGESTAT_FN(d_asymmetric);
+/********************  changestats:  B    ***********/
 CHANGESTAT_FN(d_b1concurrent);
 CHANGESTAT_FN(d_b1concurrent_by_attr);
 CHANGESTAT_FN(d_b1factor);
 CHANGESTAT_FN(d_b1degree);
 CHANGESTAT_FN(d_b1degree_by_attr);
-CHANGESTAT_FN(d_altkstar);
-CHANGESTAT_FN(d_asymmetric);
-/********************  changestats:  B    ***********/
+CHANGESTAT_FN(d_b2concurrent);
+CHANGESTAT_FN(d_b2concurrent_by_attr);
+CHANGESTAT_FN(d_b2degree);
+CHANGESTAT_FN(d_b2degree_by_attr);
+CHANGESTAT_FN(d_b2factor);
 CHANGESTAT_FN(d_balance);
 CHANGESTAT_FN(d_boundeddegree);
 CHANGESTAT_FN(d_boundedidegree);
@@ -89,14 +95,9 @@ CHANGESTAT_FN(d_density);
 CHANGESTAT_FN(d_dsp);
 CHANGESTAT_FN(d_dyadcov);
 /********************  changestats:  E    ***********/
-CHANGESTAT_FN(d_b2concurrent);
-CHANGESTAT_FN(d_b2concurrent_by_attr);
-CHANGESTAT_FN(d_b2degree);
-CHANGESTAT_FN(d_b2degree_by_attr);
 CHANGESTAT_FN(d_edgecov);
 CHANGESTAT_FN(d_edges);
 CHANGESTAT_FN(d_esp);
-CHANGESTAT_FN(d_b2factor);
 /********************  changestats:  F    ***********/
 /********************  changestats:  G    ***********/
 CHANGESTAT_FN(d_gwb1degree);
