@@ -613,95 +613,97 @@ InitErgm.b2concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
 }
 
 #########################################################
-InitErgm.b2degree<-function(nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkdirected("b2degree", is.directed(nw), requirement=FALSE)
-  ergm.checkbipartite("b2degree", is.bipartite(nw), requirement=TRUE)
-  a <- ergm.checkargs("b2degree", arglist,
-    varnames = c("d", "attrname"),
-    vartypes = c("numeric", "character"),
-    defaultvalues = list(NULL, NULL),
-    required = c(TRUE, FALSE))
-  attach(a)
-  d<-a$d; attrname <- a$attrname
-  emptynwstats<-NULL
-  nb1 <- get.network.attribute(nw, "bipartite")
-  n <- network.size(nw)
-  if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "b2degree")
-    u<-sort(unique(nodecov))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
-    nodecov <- match(nodecov,u) # Recode to numeric
-    if (length(u)==1)
-         stop ("Attribute given to b2degree() has only one value", call.=FALSE)
-    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
-    lu <- length(u)
-    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
-    if(drop){ #   Check for degeneracy
-      tmp <- paste("c(",paste(d,collapse=","),")")
-      b2degreeattr <- summary(
-       as.formula(paste('nw ~ b2degree(',tmp,',"',attrname,'")',sep="")),
-       drop=FALSE) == 0
-      if(any(b2degreeattr)){
-        dropterms <- paste("b2deg", du[1,b2degreeattr], ".", attrname,
-                           u[du[2,b2degreeattr]], sep="")
-        cat("Warning: These b2degree terms have extreme counts and will be dropped:\n")
-        cat(dropterms, "", fill=TRUE)
-        du <- matrix(du[,!b2degreeattr], nrow=2)
-      }
-    }
-    if (any(du[1,]==0)) {
-      emptynwstats <- rep(0, ncol(du))
-      tmp <- du[2,du[1,]==0]
-      for(i in 1:length(tmp)) tmp[i] <- 
-        sum(nodecov[(1+nb1):n]==tmp[i])
-        emptynwstats[du[1,]==0] <- tmp
-    }
-  } else {
-    if(is.logical(attrname)){drop <- attrname}
-    if(drop){
-      mb2degree <- paste("c(",paste(d,collapse=","),")",sep="")
-      mb2degree <- summary(
-       as.formula(paste('nw ~ b2degree(',mb2degree,')',sep="")),
-       drop=FALSE) == 0
-      if(any(mb2degree)){
-        cat(" ")
-        cat(paste("Warning: There are no degree", d[mb2degree],
-                  "b2s;\n",
-                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-       dropterms <- paste("b2degree", d[mb2degree],sep="")
-       d <- d[!mb2degree] 
-      }
-    }
-    if (any(d==0)) {
-      emptynwstats <- rep(0, length(d))             
-      emptynwstats[d==0] <- n-nb1
-    }
-  }
-  termnumber<-1+length(m$terms)
-  if(!is.null(attrname)) {
-    if(ncol(du)==0) {return(m)}
-    #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="b2degree_by_attr", soname="ergm",
-                                  inputs=c(0, ncol(du), 
-                                           length(du)+length(nodecov), 
-                                           as.vector(du), nodecov),
-                                  dependence=TRUE)
-    # See comment in d_b2degree_by_attr function
-    m$coef.names<-c(m$coef.names, paste("b2deg", du[1,], ".", attrname,
-                                        u[du[2,]], sep=""))
-  }else{
-    lengthd<-length(d)
-    if(lengthd==0){return(m)}
-    #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="b2degree", soname="ergm",
-                                       inputs=c(0, lengthd, lengthd, d),
-                                       dependence=TRUE)
-    m$coef.names<-c(m$coef.names,paste("b2degree",d,sep=""))
-  }
-  if (!is.null(emptynwstats)) 
-    m$terms[[termnumber]]$emptynwstats <- emptynwstats
-  m
-}
+## Because InitErgmTerm.b2degree exists, the old
+## InitErgm.b2degree is irrelevant but should not be deleted for now.
+#InitErgm.b2degree<-function(nw, m, arglist, drop=TRUE, ...) {
+#  ergm.checkdirected("b2degree", is.directed(nw), requirement=FALSE)
+#  ergm.checkbipartite("b2degree", is.bipartite(nw), requirement=TRUE)
+#  a <- ergm.checkargs("b2degree", arglist,
+#    varnames = c("d", "attrname"),
+#    vartypes = c("numeric", "character"),
+#    defaultvalues = list(NULL, NULL),
+#    required = c(TRUE, FALSE))
+#  attach(a)
+#  d<-a$d; attrname <- a$attrname
+#  emptynwstats<-NULL
+#  nb1 <- get.network.attribute(nw, "bipartite")
+#  n <- network.size(nw)
+#  if(!is.null(attrname)) {
+#    nodecov <- get.node.attr(nw, attrname, "b2degree")
+#    u<-sort(unique(nodecov))
+#    if(any(is.na(nodecov))){u<-c(u,NA)}
+#    nodecov <- match(nodecov,u) # Recode to numeric
+#    if (length(u)==1)
+#         stop ("Attribute given to b2degree() has only one value", call.=FALSE)
+#    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+#    lu <- length(u)
+#    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
+#    if(drop){ #   Check for degeneracy
+#      tmp <- paste("c(",paste(d,collapse=","),")")
+#      b2degreeattr <- summary(
+#       as.formula(paste('nw ~ b2degree(',tmp,',"',attrname,'")',sep="")),
+#       drop=FALSE) == 0
+#      if(any(b2degreeattr)){
+#        dropterms <- paste("b2deg", du[1,b2degreeattr], ".", attrname,
+#                           u[du[2,b2degreeattr]], sep="")
+#        cat("Warning: These b2degree terms have extreme counts and will be dropped:\n")
+#        cat(dropterms, "", fill=TRUE)
+#        du <- matrix(du[,!b2degreeattr], nrow=2)
+#      }
+#    }
+#    if (any(du[1,]==0)) {
+#      emptynwstats <- rep(0, ncol(du))
+#      tmp <- du[2,du[1,]==0]
+#      for(i in 1:length(tmp)) tmp[i] <- 
+#        sum(nodecov[(1+nb1):n]==tmp[i])
+#        emptynwstats[du[1,]==0] <- tmp
+#    }
+#  } else {
+#    if(is.logical(attrname)){drop <- attrname}
+#    if(drop){
+#      mb2degree <- paste("c(",paste(d,collapse=","),")",sep="")
+#      mb2degree <- summary(
+#       as.formula(paste('nw ~ b2degree(',mb2degree,')',sep="")),
+#       drop=FALSE) == 0
+#      if(any(mb2degree)){
+#        cat(" ")
+#        cat(paste("Warning: There are no degree", d[mb2degree],
+#                  "b2s;\n",
+#                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+#       dropterms <- paste("b2degree", d[mb2degree],sep="")
+#       d <- d[!mb2degree] 
+#      }
+#    }
+#    if (any(d==0)) {
+#      emptynwstats <- rep(0, length(d))             
+#      emptynwstats[d==0] <- n-nb1
+#    }
+#  }
+#  termnumber<-1+length(m$terms)
+#  if(!is.null(attrname)) {
+#    if(ncol(du)==0) {return(m)}
+#    #  No covariates here, so input component 1 is arbitrary
+#    m$terms[[termnumber]] <- list(name="b2degree_by_attr", soname="ergm",
+#                                  inputs=c(0, ncol(du), 
+#                                           length(du)+length(nodecov), 
+#                                           as.vector(du), nodecov),
+#                                  dependence=TRUE)
+#    # See comment in d_b2degree_by_attr function
+#    m$coef.names<-c(m$coef.names, paste("b2deg", du[1,], ".", attrname,
+#                                        u[du[2,]], sep=""))
+#  }else{
+#    lengthd<-length(d)
+#    if(lengthd==0){return(m)}
+#    #  No covariates here, so input component 1 is arbitrary
+#    m$terms[[termnumber]] <- list(name="b2degree", soname="ergm",
+#                                       inputs=c(0, lengthd, lengthd, d),
+#                                       dependence=TRUE)
+#    m$coef.names<-c(m$coef.names,paste("b2degree",d,sep=""))
+#  }
+#  if (!is.null(emptynwstats)) 
+#    m$terms[[termnumber]]$emptynwstats <- emptynwstats
+#  m
+#}
 
 #########################################################
 InitErgm.b2factor<-function (nw, m, arglist, drop=TRUE, ...) {

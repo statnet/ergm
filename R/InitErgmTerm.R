@@ -277,6 +277,56 @@ InitErgmTerm.b1degree <- function(nw, arglist, drop=TRUE, ...) {
        inputs = inputs, emptynwstats=emptynwstats)
 }
 
+#########################################################
+InitErgmTerm.b2degree <- function(nw, arglist, drop=TRUE, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
+                       varnames = c("d", "attrname"),
+                       vartypes = c("numeric", "character"),
+                       defaultvalues = list(NULL, NULL),
+                       required = c(TRUE, FALSE))
+  assignvariables(a) # create local variables from names in 'varnames'
+  ### Process the arguments
+  nb1 <- get.network.attribute(nw, "bipartite")
+  n <- network.size(nw)
+  if(drop) { # Check for zero statistics, print -Inf messages if applicable
+    obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
+    ew <- extremewarnings(obsstats)
+    # will process the ew variable later
+  } else {ew <- FALSE}
+  if (!is.null(attrname)) {  # CASE 1:  attrname GIVEN
+    nodecov <- get.node.attr(nw, attrname)
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+    nodecov <- match(nodecov,u) # Recode to numeric
+    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+    lu <- length(u)
+    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
+    du <- matrix(du[,!ew], nrow=2) # Drop any zero-obs-value rows
+    emptynwstats <- rep(0, ncol(du))
+    if (any(du[1,]==0)) { # Alter emptynwstats
+      tmp <- du[2,du[1,]==0]
+      for(i in 1:length(tmp)) 
+        tmp[i] <- sum(nodecov[(1+nb1):n]==tmp[i])
+      emptynwstats[du[1,]==0] <- tmp
+    }
+    name <- "b2degree_by_attr"
+    coef.names <- paste("b2deg", du[1,], ".", attrname, u[du[2,]], sep="")
+    inputs <- c(as.vector(du), nodecov)
+  } else { # CASE 2:  attrname NOT GIVEN
+    d <- d[!ew] # Drop any zero-obs-value values
+    name <- "b2degree"
+    coef.names <- paste("b2deg", d, sep="")
+    inputs <- d
+    emptynwstats <- rep(0, length(d))
+    if (any(d==0)) { # alter emptynwstats
+      emptynwstats[d==0] <- n-nb1
+    }
+  }
+  list(name=name, coef.names=coef.names, #name and coef.names: required
+       inputs = inputs, emptynwstats=emptynwstats)
+}
+
 ############################## InitErgmTerm functions:  E
 #########################################################
 InitErgmTerm.edgecov <- function(nw, arglist, ...) {

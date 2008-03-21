@@ -436,7 +436,7 @@ network
     degree distribution:} 
     This term adds one network statistic to the model equal to the weighted
     degree distribution with weight parameter \code{decay}. This is the version
-    given as equation (14) in Hunter (2007). See the \dquote{Remark} in section
+    given as equation (14) in Hunter (2007). See the \dQuote{Remark} in section
     3 of that paper to see why it is used rather than the version given in
     Snijders et al. (2006). The optional argument \code{fixed} indicates whether
     the scale parameter \code{lambda} is to be fit as a curved exponential
@@ -841,7 +841,7 @@ network
     \item{\code{triadcensus(d)}}{\emph{Triad census:} 
     For an undirected network, this term adds one network statistic for each of
     an arbitrary subset of the 16 possible types of triads categorized by
-    \citet{davisleinhardt72} as \code{003, 012, 102, 021D, 021U, 021C, 111D,
+    Davis and Leinhardt (1972) as \code{003, 012, 102, 021D, 021U, 021C, 111D,
     111U, 030T, 030C, 201, 120D, 120U, 120C, 210,} and \code{300}. Note that at
     least one category should be dropped; otherwise a linear dependency will
     exist among the 16 statistics, since they must sum to the total number of

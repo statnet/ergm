@@ -22,7 +22,8 @@
 \alias{InitErgmTerm.absdiffcat}
 \alias{InitErgmTerm.altkstar}
 \alias{InitErgmTerm.asymmetric}
-\alias{InitErgmTerm.b1degree}
+\alias{InitErgmTerm.b1degree}   
+\alias{InitErgmTerm.b2degree}
 \alias{InitErgmTerm.edgecov}
 \alias{InitErgmTerm.isolates}
 \alias{InitErgmTerm.match}
