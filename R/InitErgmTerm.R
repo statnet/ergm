@@ -327,6 +327,30 @@ InitErgmTerm.b2degree <- function(nw, arglist, drop=TRUE, ...) {
        inputs = inputs, emptynwstats=emptynwstats)
 }
 
+############################## InitErgmTerm functions:  C
+#########################################################
+InitErgmTerm.cycle <- function(nw, arglist, drop=TRUE, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist,
+                     varnames = c("k"),
+                     vartypes = c("numeric"),
+                     defaultvalues = list(NULL),
+                     required = c(TRUE))
+  assignvariables(a) # create local variables from names in 'varnames'
+  ### Process the arguments
+  if(drop) { # Check for zero statistics, print -Inf messages if applicable
+    obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
+    ew <- extremewarnings(obsstats)
+    k <- k[!ew]
+  }
+  if (length(k)==0) return(NULL)
+  ### Construct the list to return
+  list(name="cycle",                            #name: required
+       coef.names = paste("cycle", k, sep=""),  #coef.names: required
+       inputs = c(max(k), (2:max(k)) %in% k)
+       )
+}
+
 ############################## InitErgmTerm functions:  E
 #########################################################
 InitErgmTerm.edgecov <- function(nw, arglist, ...) {

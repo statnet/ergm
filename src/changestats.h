@@ -25,6 +25,9 @@ typedef struct ModelTermstruct {
 #define INVAL(e) (nwp->inedges[(e)].value)
 #define TOGGLE(a,b) (ToggleEdge((a),(b),nwp));
 
+#define STEP_THROUGH_OUTEDGES(a,e,v) for((e)=MIN_OUTEDGE(t);((v)=OUTVAL(e))!=0;(e)=NEXT_OUTEDGE(e))
+#define STEP_THROUGH_INEDGES(a,e,v) for((e)=MIN_INEDGE(t);((v)=INVAL(e))!=0;(e)=NEXT_INEDGE(e))
+
 #define N_NODES (nwp->nnodes)
 #define OUT_DEG (nwp->outdegree)
 #define IN_DEG (nwp->indegree)
@@ -83,10 +86,9 @@ CHANGESTAT_FN(d_ctriple);
 CHANGESTAT_FN(d_cycle);
   void edgewise_path_recurse(Network *g, Vertex dest, 
      Vertex curnode, Vertex *availnodes, long int availcount, 
-     long int curlen, double *countv, long int maxlen, 
-     int directed);
+     long int curlen, double *countv, long int maxlen);
   void edgewise_cycle_census(Network *g, Vertex t, Vertex h, 
-     double *countv, long int maxlen, int directed);
+     double *countv, long int maxlen);
 /********************  changestats:  D    ***********/
 CHANGESTAT_FN(d_degree);
 CHANGESTAT_FN(d_degree_by_attr);

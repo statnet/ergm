@@ -24,6 +24,7 @@
 \alias{InitErgmTerm.asymmetric}
 \alias{InitErgmTerm.b1degree}   
 \alias{InitErgmTerm.b2degree}
+\alias{InitErgmTerm.cycle}
 \alias{InitErgmTerm.edgecov}
 \alias{InitErgmTerm.isolates}
 \alias{InitErgmTerm.match}

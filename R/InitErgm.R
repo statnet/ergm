@@ -1086,44 +1086,44 @@ InitErgm.ctriple<-InitErgm.ctriad<-function (nw, m, arglist, drop=TRUE, ...) {
 }
 
 #########################################################
-InitErgm.cycle<-function(nw, m, arglist, drop=TRUE, ...)
-{
-  #Verify arguments
-  a <- ergm.checkargs("cycle", arglist,
-    varnames = "k",
-    vartypes = "numeric",
-    defaultvalues = list(NULL),
-    required = TRUE)
-  attach(a)
-  k<-a$k
-  #Check for degeneracy
-  if(drop){
-    mcycle <- paste("c(",paste(k,collapse=","),")",sep="")
-    mcycle <- summary(as.formula(paste('nw ~ cycle(',mcycle,')',sep="")),
-      drop=FALSE) == 0
-    if(any(mcycle)){
-      cat(" ")
-      cat(paste("Warning: There are no order", k[mcycle],"cycles;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-      dropterms <- paste("cycle", k[mcycle],sep="")
-#     cat(paste("To avoid degeneracy the terms",
-#               paste(dropterms,collapse=" and, "),
-#               "have been dropped.\n"))
-      k <- k[!mcycle] 
-    }
-  }
-  #Set things up
-  lk<-length(k)             #Find the number of terms remaining
-  if(lk==0){return(m)}        #Return if no terms left
-  mk<-max(k)                #Get maximum cycle length
-  usestats<-(2:mk)%in%k     #Which stats are being used?
-  direct<-is.directed(nw)   #Is the graph directed?
-  termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="cycle", soname="ergm",
-                                inputs=c(0, lk, mk+1, direct, mk, usestats))
-  m$coef.names<-c(m$coef.names,paste("cycle",k,sep=""))
-  m
-}
+## Because InitErgmTerm.b2degree exists, the old
+## InitErgm.b2degree is irrelevant but should not be deleted for now.
+#InitErgm.cycle<-function(nw, m, arglist, drop=TRUE, ...) {
+#  #Verify arguments
+#  a <- ergm.checkargs("cycle", arglist,
+#    varnames = "k",
+#    vartypes = "numeric",
+#    defaultvalues = list(NULL),
+#    required = TRUE)
+#  attach(a)
+#  k<-a$k
+#  #Check for degeneracy
+#  if(drop){
+#    mcycle <- paste("c(",paste(k,collapse=","),")",sep="")
+#    mcycle <- summary(as.formula(paste('nw ~ cycle(',mcycle,')',sep="")),
+#      drop=FALSE) == 0
+#    if(any(mcycle)){
+#      cat(" ")
+#      cat(paste("Warning: There are no order", k[mcycle],"cycles;\n",
+#                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+#      dropterms <- paste("cycle", k[mcycle],sep="")
+##     cat(paste("To avoid degeneracy the terms",
+##               paste(dropterms,collapse=" and, "),
+##               "have been dropped.\n"))
+#      k <- k[!mcycle] 
+#    }
+#  }
+#  #Set things up
+#  lk<-length(k)             #Find the number of terms remaining
+#  if(lk==0){return(m)}        #Return if no terms left
+#  mk<-max(k)                #Get maximum cycle length
+#  usestats<-(2:mk)%in%k     #Which stats are being used?
+#  termnumber<-1+length(m$terms)
+#  m$terms[[termnumber]] <- list(name="cycle", soname="ergm",
+#                                inputs=c(0, lk, mk, mk, usestats))
+#  m$coef.names<-c(m$coef.names,paste("cycle",k,sep=""))
+#  m
+#}
 
 ###################################### InitErgm TERMS:  D
 #########################################################
