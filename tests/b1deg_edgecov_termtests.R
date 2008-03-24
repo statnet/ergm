@@ -22,13 +22,22 @@ el <- cbind( c(17, 20, 22, 26, 19, 24, 16, 22, 18, 23, 28, 20,
              10, 11, 11))
 mynw <- network(el, bipartite=15, directed=FALSE) 
 s <- summary(mynw~b1degree(0:5))
-e <- ergm(mynw~edges+b1degree(1:3),MPLEonly=T)
+#e <- ergm(mynw~edges+b1degree(1:3),MPLEonly=T)
+e <- ergm(mynw~b1degree(1:3), MPLEonly=T)
 if (!all(s==c(4,2,6,3,0,0)) || 
- !all(round(e$coef,3)==c(-6.270,3.012,8.589,12.867))) {
+# !all(round(e$coef,3)==c(-6.270,3.012,8.589,12.867))) {
+ !all(round(e$coef,3)==c(-0.693, 0.560, -0.134))) {
  stop("Failed b1degree test")
 } else {
  print("Passed b1degree test")
 }
+# NB:  The commented-out lines in the b1degree example above 
+# appear to give a horrible MPLE example in which
+# the MPLE does not actually exist but there is no indication of this
+# fact given by the algorithm!  This is not a bug, except to the extent
+# that the glm function in R does not check for this type of behavior.
+# I haven't tried to understand this fully, but decreasing the size of
+# of the epsilon in glm gives very different results (!)
 
 #b2degree
 s <- summary(mynw~b2degree(0:5))

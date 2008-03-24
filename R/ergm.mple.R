@@ -1,15 +1,15 @@
 ergm.mple<-function(Clist, Clist2, m, theta.offset=NULL,
                     MPLEtype="glm", family="binomial",
-                    maxMPLEsamplesize=100000,
+                    maxMPLEsamplesize=1e+5,
                     save.glm=TRUE,
-                    maxNumDyadTypes=100000,
-                    theta1=NULL, verbose=FALSE, ...)
-{
+                    maxNumDyadTypes=1e+5,
+                    theta1=NULL, verbose=FALSE, compressflag=TRUE,
+                    ...) {
   pl <- ergm.pl(Clist=Clist, Clist.miss=Clist2, m=m,
                 theta.offset=theta.offset,
                 maxMPLEsamplesize=maxMPLEsamplesize,
                 maxNumDyadTypes=maxNumDyadTypes,
-                verbose=verbose)
+                verbose=verbose, compressflag=compressflag)
 
   if(MPLEtype=="penalized"){
    if(verbose) cat("Using penalized MPLE.\n")

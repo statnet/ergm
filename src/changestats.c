@@ -1962,7 +1962,7 @@ CHANGESTAT_FN(d_gwidegree) {
     t=tails[i];
     edgeflag = IS_OUTEDGE(heads[i], t); /* either 0 or 1 */
     td = IN_DEG[t] - edgeflag;
-    change += (edgeflag? -1 : 1) * pow(oneexpd,(double)td);
+    change += (edgeflag? -1.0 : 1.0) * pow(oneexpd,(double)td);
     TOGGLE_IF_MORE_TO_COME(i); 
   }
   CHANGE_STAT[0]=change; 
@@ -1978,25 +1978,21 @@ CHANGESTAT_FN(d_gwidegree_by_attr) {
     The next sequence of values is the nodal attributes, coded as integers
          from 1 through N_CHANGE_STATS
   */
-  int i, tattr, echange=0;
+  int i, tattr, echange;
   double decay, oneexpd;
-  Vertex t, td=0, *id;
-  TreeNode *oe=nwp->outedges;
+  Vertex t, td;
   
-  id=IN_DEG;
   decay = INPUT_PARAM[0];
   oneexpd = 1.0-exp(-decay);
-  
   ZERO_ALL_CHANGESTATS(i);
-  FOR_EACH_TOGGLE(i) {      
-    echange = (EdgetreeSearch(heads[i], t=tails[i], oe) == 0) ? 1 : -1;
-    td = id[t] + (echange - 1)/2;
+  FOR_EACH_TOGGLE(i) {
+    t = tails[i];
+    echange = IS_OUTEDGE(heads[i], t) ? -1 : 1;
+    td = IN_DEG[t] + (echange - 1)/2;
     tattr = INPUT_PARAM[t]; 
-    CHANGE_STAT[tattr-1] += echange*(pow(oneexpd,(double)td));
-      
+    CHANGE_STAT[tattr-1] += echange*(pow(oneexpd,(double)td));      
     TOGGLE_IF_MORE_TO_COME(i);
   }
-  
   UNDO_PREVIOUS_TOGGLES(i);
 }
 
@@ -2006,7 +2002,7 @@ CHANGESTAT_FN(d_gwidegree_by_attr) {
 CHANGESTAT_FN(d_gwodegree) { 
   int i, edgeflag;
   double decay, oneexpd, change;
-  Vertex h, hd=0;
+  Vertex h, hd;
   
   decay = INPUT_PARAM[0];
   oneexpd = 1.0-exp(-decay);  
@@ -2027,29 +2023,25 @@ CHANGESTAT_FN(d_gwodegree) {
 *****************/
 CHANGESTAT_FN(d_gwodegree_by_attr) { 
   /*The inputparams are assumed to be set up as follows:
-    The first value is the decay parameter (as in Hunter et al, JASA 200?)
+    The first value is the decay parameter (as in Hunter et al, JASA 2008)
     The next sequence of values is the nodal attributes, coded as integers
          from 1 through N_CHANGE_STATS
   */
-  int i, hattr, echange=0;
+  int i, hattr, echange;
   double decay, oneexpd;
-  Vertex h, hd, *od;
-  TreeNode *oe=nwp->outedges;
+  Vertex h, hd;
   
-  od=OUT_DEG;
   decay = INPUT_PARAM[0];
   oneexpd = 1.0-exp(-decay);
-  
   ZERO_ALL_CHANGESTATS(i);
-  FOR_EACH_TOGGLE(i) {      
-    echange = (EdgetreeSearch(h=heads[i], tails[i], oe) == 0) ? 1 : -1;
-    hd = od[h] + (echange - 1)/2;
+  FOR_EACH_TOGGLE(i) {
+    h = heads[i];
+    echange = IS_OUTEDGE(h, tails[i]) ? -1 : 1;
+    hd = OUT_DEG[h] + (echange - 1)/2;
     hattr = INPUT_PARAM[h]; 
-    CHANGE_STAT[hattr-1] += echange*(pow(oneexpd,(double)hd));
-      
+    CHANGE_STAT[hattr-1] += echange*(pow(oneexpd,(double)hd));      
     TOGGLE_IF_MORE_TO_COME(i);
-  }
-  
+  }  
   UNDO_PREVIOUS_TOGGLES(i);
 }
 

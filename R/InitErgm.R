@@ -1741,12 +1741,12 @@ InitErgm.gwidegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   attach(a)
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   termnumber<-1+length(m$terms)
-  d <- 1:(network.size(nw)-1)
   if(!initialfit && !fixed){ # This is a curved exponential family model
     if (!is.null(attrname)) {
       stop("The gwidegree term is not yet able to handle a ",
            "nonfixed decay term with an attribute.", call.=FALSE)
     }
+    d <- 1:(network.size(nw)-1)
     ld<-length(d)
     if(ld==0){return(m)}
     map <- function(x,n,...) {

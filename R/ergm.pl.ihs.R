@@ -1,28 +1,33 @@
 ergm.pl.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
-                    maxMPLEsamplesize=100000,
-                    maxNumDyadTypes=100000,
-                    verbose=FALSE) {
+                    maxMPLEsamplesize=1e+5,
+                    maxNumDyadTypes=1e+5,
+                    verbose=FALSE, compressflag=TRUE) {
+  bip <- Clist$bipartite
+  n <- Clist$n
   if(Clist.miss$nedges>0){
-    temp <- matrix(0,ncol=Clist$n,nrow=Clist$n)
+    temp <- matrix(0,ncol=n,nrow=n)
     base <- cbind(as.vector(col(temp)), as.vector(row(temp)))
     base <- base[base[, 2] > base[, 1], ]
     if(Clist.miss$dir){
       base <- cbind(base[,c(2,1)],base)
       base <- matrix(t(base),ncol=2,byrow=TRUE)
     }
-    ubase <- base[,1] + Clist$n*base[,2]
-    offset <- !is.na(match(ubase, Clist.miss$heads+Clist.miss$tails*Clist$n))
+    ubase <- base[,1] + n*base[,2]
+    offset <- !is.na(match(ubase, Clist.miss$heads+Clist.miss$tails*n))
     offset <- 1*offset
     numobs <- Clist$ndyads - sum(offset)
   }else{
     offset <- rep(0,Clist$ndyads)
     numobs <- Clist$ndyads
   }
+  maxNumDyadTypes <- min(maxNumDyadTypes,
+                         ifelse(bip>0, bip*(n-bip), 
+                                ifelse(Clist$dir, n*(n-1), n*(n-1)/2)))
   z <- .C("MPLE_wrapper",
           as.integer(Clist$heads),    as.integer(Clist$tails),
           as.integer(Clist$nedges),   as.integer(Clist$maxpossibleedges),
-          as.integer(Clist$n), 
-          as.integer(Clist$dir),     as.integer(Clist$bipartite),
+          as.integer(n), 
+          as.integer(Clist$dir),     as.integer(bip),
           as.integer(Clist$nterms), 
           as.character(Clist$fnamestring), as.character(Clist$snamestring),
           as.double(Clist$inputs),
@@ -32,6 +37,7 @@ ergm.pl.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
           as.double(offset), compressedOffset=double(maxNumDyadTypes),
           as.integer(maxNumDyadTypes),
           as.integer(maxMPLEsamplesize),
+          as.integer(compressflag),
           PACKAGE="ergm")
   uvals <- z$weightsvector!=0
   zy <- z$y[uvals]

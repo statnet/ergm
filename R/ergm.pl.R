@@ -1,23 +1,31 @@
 ergm.pl<-function(Clist, Clist.miss=NULL, m, theta.offset=NULL,
-                    maxMPLEsamplesize=100000,
-                    maxNumDyadTypes=100000,
-                    verbose=FALSE) {
+                    maxMPLEsamplesize=1e+5,
+                    maxNumDyadTypes=1e+5,
+                    verbose=FALSE,
+                    compressflag=TRUE) {
   offset <- rep(0,Clist$ndyads)
-  numobs <- Clist$ndyads
+  bip <- Clist$bipartite
+  n <- Clist$n
+  maxNumDyadTypes <- min(maxNumDyadTypes,
+                         ifelse(bip>0, bip*(n-bip), 
+                                ifelse(Clist$dir, n*(n-1), n*(n-1)/2)))
+  # May have to think harder about what maxNumDyadTypes should be if we 
+  # implement a hash-table approach to compression.  
   z <- .C("MPLE_wrapper",
           as.integer(Clist$heads),    as.integer(Clist$tails),
           as.integer(Clist$nedges), as.integer(Clist$maxpossibleedges),
-          as.integer(Clist$n), 
-          as.integer(Clist$dir),     as.integer(Clist$bipartite),
+          as.integer(n), 
+          as.integer(Clist$dir),     as.integer(bip),
           as.integer(Clist$nterms), 
           as.character(Clist$fnamestring), as.character(Clist$snamestring),
           as.double(Clist$inputs),
           y = integer(maxNumDyadTypes),
           x = double(maxNumDyadTypes*Clist$nparam),
-          weightsvector = integer(maxNumDyadTypes),
+          weightsvector = as.integer(rep(1, maxNumDyadTypes)),
           as.double(offset), compressedOffset=double(maxNumDyadTypes),
           as.integer(maxNumDyadTypes),
           as.integer(maxMPLEsamplesize),
+          as.integer(compressflag),
           PACKAGE="ergm")
   uvals <- z$weightsvector!=0
   zy <- z$y[uvals]

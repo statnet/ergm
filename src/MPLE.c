@@ -26,8 +26,7 @@ void MPLE_wrapper (int *heads, int *tails, int *dnedges,
 		   int *responsevec, double *covmat,
 		   int *weightsvector,
 		   double * offset, double * compressedOffset,
-		   int maxNumDyadTypes, int *maxMPLEsamplesize)
-{
+		   int *maxNumDyadTypes, int *maxMPLEsamplesize, int *compressflag) {
   Network nw[2];
   Vertex n_nodes = (Vertex) *dn; 
   Edge n_edges = (Edge) *dnedges;
@@ -73,9 +72,11 @@ void MPLE_wrapper (int *heads, int *tails, int *dnedges,
    NetworkDestroy(&nwhamming);
   }
 
-  MpleInitialize(bip, responsevec, covmat, weightsvector,
-		 offset, compressedOffset, maxNumDyadTypes, maxMPLE, nw, m); 
-  
+  if (*compressflag) 
+    MpleInitialize(responsevec, covmat, weightsvector, offset, 
+                   compressedOffset, *maxNumDyadTypes, maxMPLE, nw, m); 
+  else
+    MpleInit_no_compress(responsevec, covmat, *maxNumDyadTypes, maxMPLE, nw, m);
   ModelDestroy(m);
   NetworkDestroy(nw);
   PutRNGstate(); /* Must be called after GetRNGstate before returning to R */
@@ -122,87 +123,132 @@ int findCovMatRow(double *newRow, double *matrix, int rowLength, int numRows,
  for the logistic regression is simply the vector of indicators 
  giving the states of the edges in the observed network.
 *****************/
-void MpleInitialize (Vertex bipartite, int *responsevec, double *covmat, 
-		     int *weightsvector,
+void MpleInitialize (int *responsevec, double *covmat, int *weightsvector,
 		     double * offset, double * compressedOffset,
 		     int maxNumDyadTypes, Edge maxMPLE, Network *nwp, Model *m) {
-
   int l, d, outflag = 0, inflag = 0, thisRowNumber, thisOffsetNumber,
     foundRowPosition, totalStats, *currentResponse;
-  double *thisPreviousRow, *thisCurrentRow, *covMatPosition;
+  double *covMatPosition;
   int curDyadNum;
   Vertex i, j , rowmax;
   ModelTerm *mtp;
-  
+  /* Note:  This function uses some macros found in changestats.h */
+
+  for(i=0; i<maxNumDyadTypes; i++) weightsvector[i]=0.0;  
   covMatPosition = covmat;
   currentResponse = responsevec;
-  thisPreviousRow  = thisCurrentRow =  
-    (double*) R_alloc(m->n_stats,sizeof(double));
   curDyadNum=0;
   thisRowNumber = 0;
   thisOffsetNumber = 0;
-  if(bipartite > 0){
-   rowmax=bipartite+1;
-  }else{
-   rowmax=nwp->nnodes;
-  }
+  if(BIPARTITE > 0) rowmax = BIPARTITE + 1;
+  else              rowmax = N_NODES;
   for(i=1; i < rowmax; i++){
-    for(j = MAX(i,bipartite)+1; j <= nwp->nnodes; j++){
-      for(d=0; d <= nwp->directed_flag; d++){ /*trivial loop if undirected*/
-	if (d==1){*currentResponse = inflag = 
-		    (EdgetreeSearch(i, j, nwp->inedges) != 0);}
-	else{*currentResponse = outflag = 
-	       (EdgetreeSearch(i, j, nwp->outedges) != 0);}
-	totalStats = 0;
-	if(*currentResponse || i <= maxMPLE){   
-	/* Let mtp loop through each model term */
-	for (mtp=m->termarray; mtp < m->termarray + m->n_terms; mtp++){
-	  mtp->dstats = covMatPosition + totalStats;
-	  /* Now call d_xxx function, which updates mtp->dstats to reflect
-	     changing the current dyad.  */
-	  if(d==0){
-	    (*(mtp->func))(1, &i, &j, mtp, nwp);
-	  }
-	  else{ 
-	    (*(mtp->func))(1, &j, &i, mtp, nwp);
-	  }
-	  /* dstats values reflect changes in current dyad; for MPLE, 
-	     values must reflect going from 0 to 1.  Thus, we have to reverse 
-	     the sign of dstats whenever the current edge exists. */
-	  if((d==0 && outflag) || (d==1 && inflag)){
-	    for(l=0; l<mtp->nstats; l++){
-	      mtp->dstats[l] = -mtp->dstats[l];
-	    }
-	  }
-	  /* Update mtp->dstats pointer to skip ahead by mtp->nstats */
-	  totalStats += mtp->nstats; 
-	}
-	/* Check to see if statistics found at covMatPosition match
-           any rows already in covmat matrix (along with corresponding
-           response values and offset values) */
-	foundRowPosition =  findCovMatRow(covMatPosition, covmat, 
-					  m->n_stats, thisRowNumber, 
-					  responsevec, offset, 
-					  compressedOffset, curDyadNum);
-	if(foundRowPosition>=0){  /* Not unique */
-	  weightsvector[foundRowPosition]++;
-	}else{                    /* unique */
-	  if(thisRowNumber<maxNumDyadTypes){ 
-	    weightsvector[thisRowNumber]=1;
-	    compressedOffset[thisRowNumber] = offset[curDyadNum];
-	    /* Shift the pointer n parameters forward in
-               the covariate matrix vector */
-	    covMatPosition += m->n_stats; /* New row in covmat matrix */
-	    currentResponse++; /* New response value */
-	    thisRowNumber++; /* New # unique rows */
+    for(j = MAX(i,BIPARTITE)+1; j <= N_NODES; j++){
+      for(d=0; d <= DIRECTED; d++){ /*trivial loop if undirected*/
+        if (d==1)*currentResponse = inflag = IS_INEDGE(i,j);
+        else     *currentResponse = outflag = IS_OUTEDGE(i,j);
+        totalStats = 0;
+        if(*currentResponse || i <= maxMPLE){   
+          /* Let mtp loop through each model term */
+          for (mtp=m->termarray; mtp < m->termarray + m->n_terms; mtp++){
+            mtp->dstats = covMatPosition + totalStats;
+            /* Now call d_xxx function, which updates mtp->dstats to reflect
+            changing the current dyad.  */
+            if(d==0){
+              (*(mtp->func))(1, &i, &j, mtp, nwp);
+            }
+            else{ 
+              (*(mtp->func))(1, &j, &i, mtp, nwp);
+            }
+            /* dstats values reflect changes in current dyad; for MPLE, 
+            values must reflect going from 0 to 1.  Thus, we have to reverse 
+            the sign of dstats whenever the current edge exists. */
+            if((d==0 && outflag) || (d==1 && inflag)){
+              for(l=0; l<mtp->nstats; l++){
+                mtp->dstats[l] = -mtp->dstats[l];
+              }
+            }
+            /* Update mtp->dstats pointer to skip ahead by mtp->nstats */
+            totalStats += mtp->nstats; 
+          }
+          /* Check to see if statistics found at covMatPosition match
+          any rows already in covmat matrix (along with corresponding
+          response values and offset values) */
+          foundRowPosition =  findCovMatRow(covMatPosition, covmat, 
+          m->n_stats, thisRowNumber, 
+          responsevec, offset, 
+          compressedOffset, curDyadNum);
+          if(foundRowPosition>=0){  /* Not unique */
+            weightsvector[foundRowPosition]++;
+          }else{                    /* unique */
+            if(thisRowNumber<maxNumDyadTypes){ 
+              weightsvector[thisRowNumber]=1;
+              compressedOffset[thisRowNumber] = offset[curDyadNum];
+              /* Shift the pointer n parameters forward in
+              the covariate matrix vector */
+              covMatPosition += m->n_stats; /* New row in covmat matrix */
+              currentResponse++; /* New response value */
+              thisRowNumber++; /* New # unique rows */
 	  } else{ /* Do nothing for now if thisRowNumber >=maxNumDyadTypes */ }
-	}
-	}
-	curDyadNum++;
+          }
+        }
+        curDyadNum++;
       }
     }
   }
 }
 
+void MpleInit_no_compress (int *responsevec, double *covmat,
+		     int maxNumDyadTypes, Edge maxMPLE, Network *nwp, Model *m) {
+  int l, d, outflag = 0, inflag = 0, thisRowNumber,
+    foundRowPosition, totalStats, *currentResponse;
+  double *covMatPosition;
+  Vertex i, j , rowmax;
+  ModelTerm *mtp;
+  /* Note:  This function uses macros found in changestats.h */
+  
+  covMatPosition = covmat;
+  currentResponse = responsevec;
+  thisRowNumber = 0;
+  if(BIPARTITE > 0) rowmax = BIPARTITE + 1;
+  else              rowmax = N_NODES;
+  for(i=1; i < rowmax; i++){
+    for(j = MAX(i,BIPARTITE)+1; j <= N_NODES; j++){
+      for(d=0; d <= DIRECTED; d++){ /*trivial loop if undirected*/
+        if (d==1)*currentResponse = inflag = IS_INEDGE(i,j);
+        else     *currentResponse = outflag = IS_OUTEDGE(i,j);
+        totalStats = 0;
+        if(*currentResponse || i <= maxMPLE){   
+          /* Let mtp loop through each model term */
+          for (mtp=m->termarray; mtp < m->termarray + m->n_terms; mtp++){
+            mtp->dstats = covMatPosition + totalStats;
+            /* Now call d_xxx function, which updates mtp->dstats to reflect
+            changing the current dyad.  */
+            if(d==0) (*(mtp->func))(1, &i, &j, mtp, nwp);
+            else(*(mtp->func))(1, &j, &i, mtp, nwp);
+            /* dstats values reflect changes in current dyad; for MPLE, 
+            values must reflect going from 0 to 1.  Thus, we have to reverse 
+            the sign of dstats whenever the current edge exists. */
+            if((d==0 && outflag) || (d==1 && inflag)){
+              for(l=0; l<mtp->nstats; l++){
+                mtp->dstats[l] = -mtp->dstats[l];
+              }
+            }
+            /* Update mtp->dstats pointer to skip ahead by mtp->nstats */
+            totalStats += mtp->nstats; 
+          }
+          if(thisRowNumber<maxNumDyadTypes){ 
+            /* Shift the pointer n parameters forward in
+            the covariate matrix vector */
+            covMatPosition += m->n_stats; /* New row in covmat matrix */
+            currentResponse++; /* New response value */
+            thisRowNumber++; /* New # unique rows */
+          } else{ /* Do nothing for now if thisRowNumber >=maxNumDyadTypes */ 
+          }
+        }
+      }
+    }
+  }
+}
 
 

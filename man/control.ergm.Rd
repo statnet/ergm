@@ -11,6 +11,7 @@ control.ergm(prop.weights = "default", prop.args = NULL,
              maxMPLEsamplesize = 100000, MPLEtype=c("glm", "penalized"), trace = 0,
              steplength = 0.5, drop = TRUE, force.mcmc = FALSE, check.degeneracy=TRUE, mcmc.precision =
              0.05, metric = c("Likelihood", "raw"), method = c("BFGS", "Nelder-Mead"),
+             MPLEcompress = TRUE,
              trustregion = 20, initial.loglik = NULL, initial.network = NULL,
              style = c("Newton-Raphson", "Robbins-Monro",
              "Stochastic-Approximation"), phase1_n = NULL, initial_gain = NULL,
@@ -97,6 +98,12 @@ control.ergm(prop.weights = "default", prop.args = NULL,
     metric algorithm). It is attributed to
     Broyden, Fletcher, Goldfarb and Shanno. This uses function values
     and gradients to build up a picture of the surface to be optimized.}
+  \item{MPLEcompress}{logical:  Should a compression algorithm be used
+    during MPLE fitting to check for duplicate rows in the large matrix of
+    covariates passed to the logistic regression routine?  Compression is
+    easier on the logistic regression routine, but it requires some pre-computing
+    and if it is known that there will be very few duplicates then this may
+    be set to FALSE.  Default is TRUE.}
   \item{trustregion}{numeric; The maximum amount the algorithm will
     allow the approximated likelihood to be increased at a given iteration.
     Defaults to 20.
