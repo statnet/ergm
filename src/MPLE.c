@@ -17,6 +17,7 @@
    (i.e., dyad values, edge or no edge) are unequal.
    The value maxNumDyadTypes is the largest allowable number of
    unique sets of change statistics.
+ Re-rewritten by Pavel Krivitsky to make compression fast. ;)
  *****************/
 
 void MPLE_wrapper (int *heads, int *tails, int *dnedges,
@@ -83,10 +84,10 @@ void MPLE_wrapper (int *heads, int *tails, int *dnedges,
 }
 
 /*************
-Hashes the covariates, offset, and response onto an unsigned integer in the interval [0,rowLength).
+Hashes the covariates, offset, and response onto an unsigned integer in the interval [0,numRows).
 Uses Jenkins One-at-a-Time hash.
 
-numRows should, ideally, be a power of 2.
+numRows should, ideally, be a power of 2, but doesn't have to be.
 **************/
 R_INLINE unsigned int hashCovMatRow(double *newRow, unsigned int rowLength, unsigned int numRows,
 				    int response, double offset){
@@ -135,7 +136,7 @@ R_INLINE unsigned int insCovMatRow(double *newRow, double *matrix, unsigned int 
 }
 
 /*****************
- void MpleInitialize
+ void MpleInit_*
 
  For finding the MPLE, an extra bit of initialization is required:  
  we must build the matrix of covariates to be used in the logistic 
@@ -148,6 +149,9 @@ R_INLINE unsigned int insCovMatRow(double *newRow, double *matrix, unsigned int 
  other edges as they are in the observed network.  The response vector 
  for the logistic regression is simply the vector of indicators 
  giving the states of the edges in the observed network.
+
+ The *_hash version also "compresses" the output by tabulating
+ duplicate rows.
 *****************/
 
 void MpleInit_no_compress (int *responsevec, double *covmat,
