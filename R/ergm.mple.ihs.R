@@ -3,14 +3,14 @@ ergm.mple.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
                     maxMPLEsamplesize=100000,
                     save.glm=TRUE,
                     maxNumDyadTypes=100000,
-                    theta1=NULL, verbose=FALSE, ...)
+                    theta1=NULL, verbose=FALSE, compressflag=TRUE, ...)
 {
   # see also ergm.pl.ihs.R.originalandgood
   pl <- ergm.pl(Clist=Clist, Clist.miss=Clist.miss, m=m,
                     theta.offset=theta.offset,
                     maxMPLEsamplesize=maxMPLEsamplesize,
                     maxNumDyadTypes=maxNumDyadTypes,
-                    verbose=verbose)
+                    verbose=verbose, compressflag=compressflag)
 
   if(MPLEtype=="penalized"){
    if(verbose) cat("Using penalized MPLE.\n")
