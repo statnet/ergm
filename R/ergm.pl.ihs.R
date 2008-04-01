@@ -1,6 +1,6 @@
 ergm.pl.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
-                    maxMPLEsamplesize=1e+5,
-                    maxNumDyadTypes=1e+5,
+                    maxMPLEsamplesize=1e+6,
+                    maxNumDyadTypes=1e+6,
                     verbose=FALSE, compressflag=TRUE) {
   bip <- Clist$bipartite
   n <- Clist$n
@@ -40,6 +40,10 @@ ergm.pl.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
           as.integer(compressflag),
           PACKAGE="ergm")
   uvals <- z$weightsvector!=0
+  if (verbose) {
+    if (compressflag) cat("Compressed ")
+    cat(paste("MPLE covariate matrix has", sum(uvals), "rows.\n"))
+  }
   zy <- z$y[uvals]
   wend <- z$weightsvector[uvals]
   xmat <- matrix(z$x, ncol=Clist$nparam, byrow=TRUE)[uvals,,drop=FALSE]

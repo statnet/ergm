@@ -10,7 +10,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   if(compress){
     statsmatrix0 <- ergm.sufftoprob(statsmatrix,compress=TRUE)
     probs <- statsmatrix0[,ncol(statsmatrix0)]
-    statsmatrix0 <- statsmatrix0[,-ncol(statsmatrix0)]
+    statsmatrix0 <- statsmatrix0[,-ncol(statsmatrix0),drop=FALSE]
   }else{
     statsmatrix0 <- statsmatrix
     probs <- rep(1/nrow(statsmatrix0),nrow(statsmatrix0))

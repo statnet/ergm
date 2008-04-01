@@ -1,8 +1,8 @@
 ergm.mple<-function(Clist, Clist2, m, theta.offset=NULL,
                     MPLEtype="glm", family="binomial",
-                    maxMPLEsamplesize=1e+5,
+                    maxMPLEsamplesize=1e+6,
                     save.glm=TRUE,
-                    maxNumDyadTypes=1e+5,
+                    maxNumDyadTypes=1e+6,
                     theta1=NULL, verbose=FALSE, compressflag=TRUE,
                     ...) {
   pl <- ergm.pl(Clist=Clist, Clist.miss=Clist2, m=m,

@@ -10,11 +10,11 @@ ergm.estimate.ihs<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   if(compress){
     statsmatrix0 <- ergm.sufftoprob(statsmatrix,compress=TRUE)
     probs <- statsmatrix0[,ncol(statsmatrix0)]
-    statsmatrix0 <- statsmatrix0[,-ncol(statsmatrix0)]
+    statsmatrix0 <- statsmatrix0[,-ncol(statsmatrix0), drop=FALSE]
     if(!is.null(statsmatrix.miss)){
       statsmatrix0.miss <- ergm.sufftoprob(statsmatrix.miss,compress=TRUE)
       probs.miss <- statsmatrix0.miss[,ncol(statsmatrix0.miss)]
-      statsmatrix0.miss <- statsmatrix0.miss[,-ncol(statsmatrix0.miss)]
+      statsmatrix0.miss <- statsmatrix0.miss[,-ncol(statsmatrix0.miss), drop=FALSE]
     }else{
       statsmatrix0.miss <- NULL
       probs.miss <- NULL

@@ -40,7 +40,9 @@ ergm <- function(formula, theta0="MPLE",
   initialfit <- ergm.initialfit(theta0copy, MLestimate, Clist.initial,
                                 Clist2.initial, model.initial,
                                 MPLEtype=control$MPLEtype, verbose=verbose, 
-                                compressflag = control$MPLEcompress, ...)
+                                compressflag = control$compress,
+                                maxNumDyadTypes=control$maxNumDyadTypes,
+                                ...)
   if (MLestimate && (!ergm.independencemodel(model.initial)
                      || constraints!=(~.))
      || control$force.mcmc) {

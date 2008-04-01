@@ -16,7 +16,7 @@ void MPLE_wrapper (int *heads, int *tails, int *dnedges,
 void MpleInit_hash (int *responsevec, double *covmat, int *weightsvector,
 		    double *offset, double *compressedOffset,
 		    int maxNumDyadTypes, Edge maxMPLE, Network *nwp, Model *m);
-void MpleInit_no_compress (int *responsevec, double *covmat,
+void MpleInit_no_compress (int *responsevec, double *covmat, int *weightsvector,
 		     int maxNumDyadTypes, Edge maxMPLE, Network *nwp, Model *m);
 int rowsAreSame(double *rowA,double *rowB,int rowLength);
 int findCovMatRow(double *newRow,double *matrix, int rowLength, 

@@ -1,6 +1,6 @@
 ergm.pl<-function(Clist, Clist.miss=NULL, m, theta.offset=NULL,
-                    maxMPLEsamplesize=1e+5,
-                    maxNumDyadTypes=1e+5,
+                    maxMPLEsamplesize=1e+6,
+                    maxNumDyadTypes=1e+6,
                     verbose=FALSE,
                     compressflag=TRUE) {
   offset <- rep(0,Clist$ndyads)
@@ -21,13 +21,17 @@ ergm.pl<-function(Clist, Clist.miss=NULL, m, theta.offset=NULL,
           as.double(Clist$inputs),
           y = integer(maxNumDyadTypes),
           x = double(maxNumDyadTypes*Clist$nparam),
-          weightsvector = as.integer(rep(1, maxNumDyadTypes)),
+          weightsvector = integer(maxNumDyadTypes),
           as.double(offset), compressedOffset=double(maxNumDyadTypes),
           as.integer(maxNumDyadTypes),
           as.integer(maxMPLEsamplesize),
           as.integer(compressflag),
           PACKAGE="ergm")
   uvals <- z$weightsvector!=0
+  if (verbose) {
+    if (compressflag) cat("Compressed ")
+    cat(paste("MPLE covariate matrix has", sum(uvals), "rows.\n"))
+  }
   zy <- z$y[uvals]
   wend <- z$weightsvector[uvals]
   xmat <- matrix(z$x, ncol=Clist$nparam, byrow=TRUE)[uvals,,drop=FALSE]

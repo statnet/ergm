@@ -77,7 +77,8 @@ void MPLE_wrapper (int *heads, int *tails, int *dnedges,
     MpleInit_hash(responsevec, covmat, weightsvector, offset, 
 		  compressedOffset, *maxNumDyadTypes, maxMPLE, nw, m); 
   else
-    MpleInit_no_compress(responsevec, covmat, *maxNumDyadTypes, maxMPLE, nw, m);
+    MpleInit_no_compress(responsevec, covmat, weightsvector, 
+      *maxNumDyadTypes, maxMPLE, nw, m);
   ModelDestroy(m);
   NetworkDestroy(nw);
   PutRNGstate(); /* Must be called after GetRNGstate before returning to R */
@@ -115,21 +116,24 @@ R_INLINE unsigned int hashCovMatRow(double *newRow, unsigned int rowLength, unsi
 
 R_INLINE unsigned int insCovMatRow(double *newRow, double *matrix, unsigned int rowLength, unsigned int numRows,
 			  int response, int *responsevec,
-			  double offset, double *compressedOffset, unsigned int *weights ){
-  unsigned int hash_pos = hashCovMatRow(newRow, rowLength, numRows, response, offset);
+			  double offset, double *compressedOffset, int *weights ){
+  unsigned int hash_pos = hashCovMatRow(newRow, rowLength, numRows, response, offset), pos, round;
   
-  for(unsigned int pos=hash_pos, round=0; !round ; pos = (pos+1)%numRows, round+=(pos==hash_pos)?1:0){
+  for(/*unsigned int*/ pos=hash_pos, round=0; !round ; pos = (pos+1)%numRows, round+=(pos==hash_pos)?1:0){
     if(weights[pos]==0){ // Space is unoccupied.
       weights[pos]=1;
       compressedOffset[pos]=offset;
       responsevec[pos]=response;
       memcpy(matrix+rowLength*pos,newRow,rowLength*sizeof(double));
       return TRUE;
-    }else if( compressedOffset[pos]==offset &&
+    }else {
+      
+      if( compressedOffset[pos]==offset &&
 	      responsevec[pos]==response &&
-	      memcmp(matrix+rowLength*pos,newRow,rowLength*sizeof(double))==0 ){ // Rows are identical.
-      weights[pos]++;
-      return TRUE;
+      memcmp(matrix+rowLength*pos,newRow,rowLength*sizeof(double))==0 ){ // Rows are identical.
+        weights[pos]++;
+        return TRUE;
+      }
     }
   }
   return FALSE; // Insertion unsuccessful: the table is full.
@@ -154,7 +158,7 @@ R_INLINE unsigned int insCovMatRow(double *newRow, double *matrix, unsigned int 
  duplicate rows.
 *****************/
 
-void MpleInit_no_compress (int *responsevec, double *covmat,
+void MpleInit_no_compress (int *responsevec, double *covmat, int *weightsvector,
 		     int maxNumDyadTypes, Edge maxMPLE, Network *nwp, Model *m) {
   int l, d, outflag = 0, inflag = 0, thisRowNumber,
     foundRowPosition, totalStats, *currentResponse;
@@ -198,7 +202,7 @@ void MpleInit_no_compress (int *responsevec, double *covmat,
             the covariate matrix vector */
             covMatPosition += m->n_stats; /* New row in covmat matrix */
             currentResponse++; /* New response value */
-            thisRowNumber++; /* New # unique rows */
+            weightsvector[thisRowNumber++]=1; /* New # unique rows */
           } else{ /* Do nothing for now if thisRowNumber >=maxNumDyadTypes */ 
           }
         }
@@ -222,7 +226,7 @@ void MpleInit_hash(int *responsevec, double *covmat, int *weightsvector,
   for(Vertex i=1; i < rowmax; i++){
     for(Vertex j = MAX(i,BIPARTITE)+1; j <= N_NODES; j++){
       for(unsigned int d=0; d <= DIRECTED; d++){ /*trivial loop if undirected*/
-	int response;
+        int response;
         if (d==1) response = inflag = IS_INEDGE(i,j);
         else      response = outflag = IS_OUTEDGE(i,j);
         unsigned int totalStats = 0;
@@ -245,12 +249,11 @@ void MpleInit_hash(int *responsevec, double *covmat, int *weightsvector,
             /* Update mtp->dstats pointer to skip ahead by mtp->nstats */
             totalStats += mtp->nstats; 
           }
-
-	  if(!insCovMatRow(newRow, covmat, m->n_stats, maxNumDyadTypes,
-			   response, responsevec, 
-			   offset[dyadNum++], compressedOffset, weightsvector))
-	    error("Too many unique dyads!");
-	}
+          if(!insCovMatRow(newRow, covmat, m->n_stats, maxNumDyadTypes, response, 
+          responsevec, offset[dyadNum++], compressedOffset, weightsvector)) {
+            error("Too many unique dyads!");
+          }
+        }
       }
     }
   }

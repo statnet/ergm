@@ -6,12 +6,11 @@
 }
 \usage{
 control.ergm(prop.weights = "default", prop.args = NULL,
-             nr.maxit = 100, calc.mcmc.se = TRUE, hessian = FALSE, compress = FALSE,
-             maxNumDyadTypes = 10000, maxedges = 20000, maxchanges = 1e+06,
+             nr.maxit = 100, calc.mcmc.se = TRUE, hessian = FALSE, compress = TRUE,
+             maxNumDyadTypes = 1e+6, maxedges = 20000, maxchanges = 1e+06,
              maxMPLEsamplesize = 100000, MPLEtype=c("glm", "penalized"), trace = 0,
              steplength = 0.5, drop = TRUE, force.mcmc = FALSE, check.degeneracy=TRUE, mcmc.precision =
              0.05, metric = c("Likelihood", "raw"), method = c("BFGS", "Nelder-Mead"),
-             MPLEcompress = TRUE,
              trustregion = 20, initial.loglik = NULL, initial.network = NULL,
              style = c("Newton-Raphson", "Robbins-Monro",
              "Stochastic-Approximation"), phase1_n = NULL, initial_gain = NULL,
@@ -52,7 +51,7 @@ control.ergm(prop.weights = "default", prop.args = NULL,
   \item{maxNumDyadTypes}{count; The maximum number of unique
     pseudolikelihood change statistics to be allowed if \code{compress=TRUE}.
     It is only relevant in that case.
-    Default is \code{10000}.}
+    Default is \code{1e+6}.}
   \item{maxedges}{ Maximum number of edges for which to allocate space. }
   \item{maxchanges}{ Maximum number of changes in dynamic network
     simulation for which to allocate space. }
@@ -98,12 +97,6 @@ control.ergm(prop.weights = "default", prop.args = NULL,
     metric algorithm). It is attributed to
     Broyden, Fletcher, Goldfarb and Shanno. This uses function values
     and gradients to build up a picture of the surface to be optimized.}
-  \item{MPLEcompress}{logical:  Should a compression algorithm be used
-    during MPLE fitting to check for duplicate rows in the large matrix of
-    covariates passed to the logistic regression routine?  Compression is
-    easier on the logistic regression routine, but it requires some pre-computing
-    and if it is known that there will be very few duplicates then this may
-    be set to FALSE.  Default is TRUE.}
   \item{trustregion}{numeric; The maximum amount the algorithm will
     allow the approximated likelihood to be increased at a given iteration.
     Defaults to 20.

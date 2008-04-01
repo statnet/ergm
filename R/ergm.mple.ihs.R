@@ -1,8 +1,8 @@
 ergm.mple.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
                     MPLEtype="glm", family="binomial",
-                    maxMPLEsamplesize=100000,
+                    maxMPLEsamplesize=1e+6,
                     save.glm=TRUE,
-                    maxNumDyadTypes=100000,
+                    maxNumDyadTypes=1e+6,
                     theta1=NULL, verbose=FALSE, compressflag=TRUE, ...)
 {
   # see also ergm.pl.ihs.R.originalandgood

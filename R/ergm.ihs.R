@@ -52,7 +52,9 @@ ergm <- ergm2 <- ergm.ihs <- function(formula, theta0="MPLE",
                                 Clist.miss.initial, model.initial,
                                 MPLEtype=control$MPLEtype, 
                                 initial.loglik=control$initial.loglik,
-                                verbose=verbose, compressflag = control$MPLEcompress, ...)
+                                verbose=verbose, compressflag = control$compress, 
+                                maxNumDyadTypes=control$maxNumDyadTypes,
+                                ...)
   if (MLestimate && 
       (   !ergm.independencemodel(model.initial)
        || !is.null(meanstats)

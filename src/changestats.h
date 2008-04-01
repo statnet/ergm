@@ -14,7 +14,8 @@ typedef struct ModelTermstruct {
 
 
 /****************************************************
- Macros to make life easier                         */
+ Macros to make life easier                         *
+ Note:  These things still need to be documented    */ 
 #define IS_OUTEDGE(a,b) (EdgetreeSearch((a),(b),nwp->outedges)!=0?1:0)
 #define IS_INEDGE(a,b) (EdgetreeSearch((a),(b),nwp->inedges)!=0?1:0)
 #define IS_UNDIRECTED_EDGE(a,b) IS_OUTEDGE(MIN(a,b), MAX(a,b))
