@@ -108,35 +108,26 @@
 
 \seealso{ergm, network, simulate.ergm, summary.ergm, plot.gofobject}
 \examples{
-#
 data(florentine)
-#
-# test the gof.ergm function
-#
 gest <- ergm(flomarriage ~ edges + kstar(2))
 gest
 summary(gest)
 
-#
-# Plot the probabilities first
-#
+# test the gof.ergm function
 gofflo <- gof(gest)
 gofflo
-#
-# Place all three on the same page
+
+# Plot all three on the same page
 # with nice margins
-#
 par(mfrow=c(1,3))
 par(oma=c(0.5,2,1,0.5))
-#
 plot(gofflo)
-#
-# And now the odds 
-#
+
+# And now the log-odds
 plot(gofflo, plotlogodds=TRUE)
-#
-# Use the formula version
-#
-plot(gof(flomarriage ~ edges + kstar(2), theta0=c(-1.6339, 0.0049)))
+
+# Use the formula version of gof
+gofflo2 <-gof(flomarriage ~ edges + kstar(2), theta0=c(-1.6339, 0.0049))
+plot(gofflo2)
 }
 \keyword{models}

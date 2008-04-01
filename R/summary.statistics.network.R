@@ -34,8 +34,9 @@ summary.statistics.network <- function(object,...,drop=FALSE, basis=NULL) {
   options(warn=0)
   if(is.network(basis)){
     nw <- basis
-    formula <- as.formula(paste("basis",paste(as.character(object)[-2],collapse=" ")))
-#   formula <- as.formula(paste(c("nw",as.character(formula)),collapse=" "))
+    formula <- as.formula(object)
+    formula[[2]] <- as.name("basis") # This seems irrelevant; network name
+                                     # not needed by ergm.getmodel
   }else{
     formula <- object
     trms <- terms(formula)
@@ -53,7 +54,6 @@ summary.statistics.network <- function(object,...,drop=FALSE, basis=NULL) {
       stop("Must specify a network object")
     }
   }
-    
   m <- ergm.getmodel(formula, nw, drop=drop)
   gs <- ergm.getglobalstats(nw, m)
   options(warn=current.warn)

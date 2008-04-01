@@ -509,123 +509,33 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
 }
 
 print.gofobject <- function(x, ...){
-
- all.gof.vars <- ergm.rhs.formula(x$GOF)
-
-# match variables
-
- for(i in seq(along=all.gof.vars)){
-   all.gof.vars[i] <- match.arg(all.gof.vars[i],
-    c('distance', 'triadcensus', 'espartners', 'dspartners', 'odegree', 'idegree', 
-      'degree','model'
-     )
-                               )
- }
- GOF <- as.formula(paste("~",paste(all.gof.vars,collapse="+")))
-
- for(statname in all.gof.vars){
-   if ('model' == statname) {
-    cat("\nGoodness-of-fit for model statistics\n\n")
-    print(x$summary.model)
-   }
-
-   if ('distance' == statname) {
-    cat("\nGoodness-of-fit for minimum geodesic distance\n\n")
-    print(x$summary.dist)
-   }
-  
-   if ('idegree' == statname) {
-    cat("\nGoodness-of-fit for in degree\n\n")
-    print(x$summary.ideg)
-   }
-  
-   if ('odegree' == statname) {
-    cat("\nGoodness-of-fit for out degree\n\n")
-    print(x$summary.odeg)
-   }
-  
-   if ('degree' == statname) {
-    cat("\nGoodness-of-fit for degree\n\n")
-    print(x$summary.deg)
-   }
-  
-   if ('espartners' == statname) {
-    cat("\nGoodness-of-fit for edgewise shared partner\n\n")
-    print(x$summary.espart)
-   }
-  
-   if ('triadcensus' == statname) {
-    cat("\nGoodness-of-fit for triad census\n\n")
-    print(x$summary.triadcensus)
-   }
-  
-   if ('dspartners' == statname) {
-    cat("\nGoodness-of-fit for dyadwise shared partner\n\n")
-    print(x$summary.dspart)
-   }
+  all.gof.vars <- ergm.rhs.formula(x$GOF)
+  # match variables
+  goftypes <- matrix( c(
+      "model", "model statistics", "summary.model",
+      "distance", "minimum geodesic distance", "summary.dist",
+      "idegree", "in-degree", "summary.ideg",
+      "odegree", "out-degree", "summary.odeg",
+      "degree", "degree", "summary.deg",
+      "espartners", "edgewise shared partner", "summary.espart",
+      "dspartners", "dyadwise shared partner", "summary.dspart",
+      "triadcensus", "triad census", "summary.triadcensus"), 
+                      byrow=TRUE, ncol=3)
+  for(i in seq(along=all.gof.vars)){
+    all.gof.vars[i] <- match.arg(all.gof.vars[i], goftypes[,1])
   }
-
+  for(statname in all.gof.vars){
+    r <- match(statname, goftypes[,1])  # find row in goftypes matrix
+    cat("\nGoodness-of-fit for", goftypes[r, 2],"\n\n")
+    m <- x[[goftypes[r, 3] ]] # get summary statistics
+    zerorows <- m[,"obs"]==0 & m[,"min"]==0 & m[,"max"]==0
+    print(m[!zerorows,])
+  }
   invisible()
 }
 
-summary.gofobject <- function(object, ...){
-
- all.gof.vars <- ergm.rhs.formula(object$GOF)
-
-# match variables
-
- for(i in seq(along=all.gof.vars)){
-   all.gof.vars[i] <- match.arg(all.gof.vars[i],
-    c('distance', 'triadcensus', 'espartners', 'dspartners', 'odegree', 'idegree', 
-      'degree','model'
-     )
-                               )
- }
- GOF <- as.formula(paste("~",paste(all.gof.vars,collapse="+")))
-
- for(statname in all.gof.vars){
-   if ('model' == statname) {
-    cat("\nGoodness-of-fit for model statistics\n\n")
-    print(object$summary.model)
-   }
-
-   if ('distance' == statname) {
-    cat("\nGoodness-of-fit for minimum geodesic distance\n\n")
-    print(object$summary.dist)
-   }
-  
-   if ('idegree' == statname) {
-    cat("\nGoodness-of-fit for in degree\n\n")
-    print(object$summary.ideg)
-   }
-  
-   if ('odegree' == statname) {
-    cat("\nGoodness-of-fit for out degree\n\n")
-    print(object$summary.odeg)
-   }
-  
-   if ('degree' == statname) {
-    cat("\nGoodness-of-fit for degree\n\n")
-    print(object$summary.deg)
-   }
-  
-   if ('espartners' == statname) {
-    cat("\nGoodness-of-fit for edgewise shared partner\n\n")
-    print(object$summary.espart)
-   }
-  
-   if ('triadcensus' == statname) {
-    cat("\nGoodness-of-fit for triad census\n\n")
-    print(object$summary.triadcensus)
-   }
-  
-   if ('dspartners' == statname) {
-    cat("\nGoodness-of-fit for dyadwise shared partner\n\n")
-    print(object$summary.dspart)
-   }
-  }
-
-  invisible()
+summary.gofobject <- function(object, ...) {
+  print.gofobject(object, ...) # Nothing better for now
 }
 
 plot.gofobject <- function(x, ..., 
