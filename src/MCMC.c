@@ -350,7 +350,7 @@ int CheckTogglesValid(MHproposal *MHp, DegreeBound *bd, Network *nwp) {
   for (i=0; i<MHp->ntoggles; i++)
     ToggleEdge(MHp->togglehead[i], MHp->toggletail[i], nwp);
 
-//  Rprintf("fvalid %d bd->fBoundDegByAttr %d\n", fvalid, bd->fBoundDegByAttr);
+  /*  Rprintf("fvalid %d bd->fBoundDegByAttr %d\n", fvalid, bd->fBoundDegByAttr); */
 
   /* if we're bounding degrees by attribute */
   if (bd->fBoundDegByAttr && fvalid) {
@@ -360,7 +360,7 @@ int CheckTogglesValid(MHproposal *MHp, DegreeBound *bd, Network *nwp) {
     if (nwp->directed_flag) {
      /* for each head and tail pair */
      for (i = 0; i < MHp->ntoggles && fvalid; i++) {
-	// work through each attribute for each toggle
+	/* work through each attribute for each toggle */
         for (k=0; k < bd->attrcount; k++){
 	        hattr[k] = tattr[k] = 0;
 	}

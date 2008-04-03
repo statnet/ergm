@@ -92,8 +92,8 @@ numRows should, ideally, be a power of 2, but doesn't have to be.
 **************/
 R_INLINE unsigned int hashCovMatRow(double *newRow, unsigned int rowLength, unsigned int numRows,
 				    int response, double offset){
-  // Cast all pointers to unsigned char pointers, since data need to
-  // be fed to the hash function one byte at a time.
+  /* Cast all pointers to unsigned char pointers, since data need to 
+     be fed to the hash function one byte at a time. */
   unsigned char *cnewRow = (unsigned char *) newRow,
     *cresponse = (unsigned char *) &response,
     *coffset = (unsigned char *) &offset;
@@ -120,7 +120,7 @@ R_INLINE unsigned int insCovMatRow(double *newRow, double *matrix, unsigned int 
   unsigned int hash_pos = hashCovMatRow(newRow, rowLength, numRows, response, offset), pos, round;
   
   for(/*unsigned int*/ pos=hash_pos, round=0; !round ; pos = (pos+1)%numRows, round+=(pos==hash_pos)?1:0){
-    if(weights[pos]==0){ // Space is unoccupied.
+    if(weights[pos]==0){ /* Space is unoccupied. */
       weights[pos]=1;
       compressedOffset[pos]=offset;
       responsevec[pos]=response;
@@ -130,13 +130,13 @@ R_INLINE unsigned int insCovMatRow(double *newRow, double *matrix, unsigned int 
       
       if( compressedOffset[pos]==offset &&
 	      responsevec[pos]==response &&
-      memcmp(matrix+rowLength*pos,newRow,rowLength*sizeof(double))==0 ){ // Rows are identical.
+      memcmp(matrix+rowLength*pos,newRow,rowLength*sizeof(double))==0 ){ /* Rows are identical. */
         weights[pos]++;
         return TRUE;
       }
     }
   }
-  return FALSE; // Insertion unsuccessful: the table is full.
+  return FALSE; /* Insertion unsuccessful: the table is full. */
 }
 
 /*****************
@@ -160,8 +160,7 @@ R_INLINE unsigned int insCovMatRow(double *newRow, double *matrix, unsigned int 
 
 void MpleInit_no_compress (int *responsevec, double *covmat, int *weightsvector,
 		     int maxNumDyadTypes, Edge maxMPLE, Network *nwp, Model *m) {
-  int l, d, outflag = 0, inflag = 0, thisRowNumber,
-    foundRowPosition, totalStats, *currentResponse;
+  int l, d, outflag = 0, inflag = 0, thisRowNumber, totalStats, *currentResponse;
   double *covMatPosition;
   Vertex i, j , rowmax;
   ModelTerm *mtp;

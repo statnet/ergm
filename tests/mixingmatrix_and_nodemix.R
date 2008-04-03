@@ -12,7 +12,7 @@ if (max(abs(m[upper.tri(m, diag=T)] - summary(faux.mesa.high ~ nodemix("Grade"))
 
 # directed network
 data(sampson)
-grpord<-c("Turks","loyal","outcasts")
+grpord<-c("Turks","Loyal","Outcasts")
 m2 <- matrix(c(30, 9, 7, 5, 23, 1, 1, 2, 10), 3, 3,dimnames=list(From=grpord,To=grpord)) # Correct answer!
 if (!all(m2==mixingmatrix(samplike, "group")$matrix[grpord,grpord]))
   stop ("mixingmatrix failed test on directed network samplike")

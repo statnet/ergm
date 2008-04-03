@@ -946,7 +946,7 @@ CHANGESTAT_FN(d_ctriple) {
  changestat: d_cycle
 *****************/
 CHANGESTAT_FN(d_cycle) { 
-  int edgeflag,i,j,k,nstats,directed;
+  int i,j,k,nstats;
   Vertex h, t;
   long int maxlen;
   double *countv,emult;
@@ -965,10 +965,10 @@ CHANGESTAT_FN(d_cycle) {
     /*Note: the ergm toggle system gets heads and tails reversed!*/
     /*edgewise_cycle_census(g,tails[i],heads[i],countv,maxlen,directed);*/
     edgewise_cycle_census(nwp,h,t,countv,maxlen);
-    
+
     /*Make the change, as needed*/
     /*edgeflag = (EdgetreeSearch(t=tails[i], h=heads[i], g.outedges) != 0);*/
-    if((!directed)&&(h>t))
+    if((!DIRECTED)&&(h>t))
       emult = IS_OUTEDGE(t, h) ? -1.0 : 1.0;
     else
       emult = IS_OUTEDGE(h, t) ? -1.0 : 1.0;
@@ -3049,7 +3049,7 @@ CHANGESTAT_FN(d_nodematch) {
 *****************/
 CHANGESTAT_FN(d_nodemix) {
   Vertex h, t;
-  int i, j, edgeflag, ninputs, ninputs2;
+  int i, j, ninputs, ninputs2;
   double rtype, ctype, tmp, change;
 
   ninputs = N_INPUT_PARAMS - N_NODES;

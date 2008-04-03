@@ -10,6 +10,7 @@ e1 <- ergm(samplike ~ edgecov(madeup.cov))
 s2 <- summary(samplike~edgecov(madeup.net))
 e2 <- ergm(samplike ~ edgecov(madeup.net))
 if (s1!=13 || s2!=13 || round(e1$coef,3)!=-1.655 || round(e2$coef,3)!=-1.655) {
+ print(list(s1=s1,e1=e1,s2=s2,e2=e2))
  stop("Failed edgecov test")
 }else{
  print("Passed edgecov test")
@@ -27,6 +28,7 @@ e <- ergm(mynw~b1degree(1:3), MPLEonly=T)
 if (!all(s==c(4,2,6,3,0,0)) || 
 # !all(round(e$coef,3)==c(-6.270,3.012,8.589,12.867))) {
  !all(round(e$coef,3)==c(-0.693, 0.560, -0.134))) {
+ print(list(s=s,e=e))
  stop("Failed b1degree test")
 } else {
  print("Passed b1degree test")
@@ -44,6 +46,7 @@ s <- summary(mynw~b2degree(0:5))
 e <- ergm(mynw~edges+b2degree(1:2),MPLEonly=T)
 if (!all(s==c(0,5,6,2,0,0)) || 
  !all(round(e$coef,3)==c(-1.367,2.099,1.534))) {
+ print(list(s=s,e=e))
  stop("Failed b2degree test")
 } else {
  print("Passed b2degree test")
