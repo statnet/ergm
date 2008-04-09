@@ -1881,7 +1881,7 @@ InitErgm.hamming<-function (nw, m, arglist, drop=TRUE, ...) {
     m$terms[[termnumber]] <- list(name = "hamming",  soname="ergm",
                                   inputs = c(0, 1, NROW(xm)*2+1, NROW(xm), 
                                              as.integer(xm)),
-                                  dependence=FALSE)
+                                  dependence=FALSE, emptynwstats=NROW(xm))
     m$coef.names<-c(m$coef.names, paste("hamming",
                                         as.character(sys.call(0)[[4]][2]),
                                         sep="."))
@@ -1923,7 +1923,8 @@ InitErgm.hamming<-function (nw, m, arglist, drop=TRUE, ...) {
                                              1+2*nrow(xm)+nrow(covm)*ncol(covm),
                                              nrow(xm), as.integer(xm),
                                              as.double(covm)),
-                                  dependence=FALSE)
+                                  dependence=FALSE, 
+                                  emptynwstats=sum(covm[xm]) )
     if(!is.null(attrname)){
       cn<-paste("hamming", as.character(sys.call(0)[[4]][2]), "wt",
                 as.character(attrname), sep = ".")
