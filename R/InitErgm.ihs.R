@@ -10,7 +10,6 @@ InitErgm.altistar<-function(nw, m, arglist, initialfit=FALSE, ...) {
     vartypes = c("numeric","logical"),
     defaultvalues = list(1, FALSE),
     required = c(FALSE, FALSE))
-  attach(a)
   lambda<-a$lambda;fixed<-a$fixed
   if(!initialfit && !fixed){ # This is a curved exponential family model
     d <- 1:(network.size(nw)-1)
@@ -50,7 +49,6 @@ InitErgm.altostar<-function(nw, m, arglist, initialfit=FALSE, ...) {
     vartypes = c("numeric","logical"),
     defaultvalues = list(1, FALSE),
     required = c(FALSE, FALSE))
-  attach(a)
   lambda<-a$lambda;fixed<-a$fixed
   if(!initialfit && !fixed){ # This is a curved exponential family model
     d <- 1:(network.size(nw)-1)
@@ -91,7 +89,6 @@ InitErgm.bounded.degree<-function(nw, m, arglist, drop=TRUE, ...) {
     vartypes = c("numeric","numeric"),
     defaultvalues = list(NULL,5),
     required = c(TRUE,TRUE))
-  attach(a)
   bound <- a$bound; d <- a$d
   if(drop){
     degrees <- as.numeric(names(table(table(as.matrix.network.edgelist(nw)))))
@@ -135,7 +132,6 @@ InitErgm.bounded.idegree<-function(nw, m, arglist, drop=TRUE, ...) {
     vartypes = c("numeric", "numeric"),
     defaultvalues = list(NULL, 5),
     required = c(TRUE, TRUE))
-  attach(a)
   d<-a$d
   bound<-a$bound
   if(drop){
@@ -176,7 +172,6 @@ InitErgm.bounded.istar<-function(nw, m, arglist, drop=TRUE, ...) {
     vartypes = c("numeric","numeric"),
     defaultvalues = list(NULL,5),
     required = c(TRUE,TRUE))
-  attach(a)
   k<-a$k;bound<-a$bound
   if(drop){
     mistar <- paste("c(",paste(k,collapse=","),")",sep="")
@@ -213,7 +208,6 @@ InitErgm.bounded.kstar<-function(nw, m, arglist, drop=TRUE, ...) {
     vartypes = c("numeric","numeric"),
     defaultvalues = list(NULL,5),
     required = c(TRUE,TRUE))
-  attach(a)
   k<-a$k;bound<-a$bound
   if(drop){
     degrees <- as.numeric(names(table(table(as.matrix.network.edgelist(nw)))))
@@ -250,7 +244,6 @@ InitErgm.bounded.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
     vartypes = c("numeric", "numeric"),
     defaultvalues = list(NULL, NULL),
     required = c(TRUE, TRUE))
-  attach(a)
   d<-a$d
   bound<-a$bound
   if(drop){
@@ -291,7 +284,6 @@ InitErgm.bounded.ostar<-function(nw, m, arglist, drop=TRUE, ...) {
     vartypes = c("numeric","numeric"),
     defaultvalues = list(NULL,5),
     required = c(TRUE,TRUE))
-  attach(a)
   k<-a$k;bound<-a$bound
   if(drop){
     mostar <- paste("c(",paste(k,collapse=","),")",sep="")
@@ -327,7 +319,6 @@ InitErgm.bounded.triangle<-function(nw, m, arglist, ...) {
     vartypes = c("numeric"),
     defaultvalues = list(5),
     required = c(TRUE))
-  attach(a)
   bound<-a$bound
   termnumber<-1+length(m$terms)
   m$terms[[termnumber]] <- list(name="boundedtriangle", soname="ergm",
@@ -347,7 +338,6 @@ InitErgm.degreep<-function(nw, m, arglist, drop=TRUE, ...) {
     vartypes = c("numeric", "character", "logical"),
     defaultvalues = list(NULL, NULL, FALSE),
     required = c(TRUE, FALSE, FALSE))
-  attach(a)
   d<-a$d; attrname <- a$attrname; homophily <- a$homophily
   emptynwstats<-NULL
   if(!is.null(attrname)) {
@@ -448,7 +438,6 @@ InitErgm.duration<-function (nw, m, arglist, ...) {
     vartypes = c("matrixnetwork", "matrixnetwork", "matrixnetwork"),
     defaultvalues = list(NULL, NULL, NULL),
     required = c(TRUE, TRUE, FALSE))
-  attach(a)
   x<-a$x;form<-a$form;dissolve<-a$dissolve
   m$coef.names<-c(m$coef.names, paste("duration.",x,sep=""))
   #Coerce x to an adjacency matrix
@@ -521,7 +510,6 @@ InitErgm.factor<-function (nw, m, arglist, drop=TRUE, ...) {
     vartypes = c("character"),
     defaultvalues = list(NULL),
     required = c(TRUE))
-  attach(a)
   factorname<-a$factorname
   x <- get(factorname)
   #Coerce x to an adjacency matrix
@@ -569,7 +557,6 @@ InitErgm.geodegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
     vartypes = c("numeric","logical"),
     defaultvalues = list(0, FALSE),
     required = c(FALSE, FALSE))
-  attach(a)
   alpha<-a$alpha;fixed<-a$fixed
   if(!initialfit && !fixed){ # This is a curved exponential family model
     d <- 1:(network.size(nw)-1)
@@ -608,7 +595,6 @@ InitErgm.gwdegree706<-function(nw, m, arglist, initialfit=FALSE, ...) {
     vartypes = c("numeric","logical"),
     defaultvalues = list(0, FALSE),
     required = c(FALSE, FALSE))
-  attach(a)
   decay<-a$decay;fixed<-a$fixed
   if(!initialfit && !fixed){ # This is a curved exponential family model
     d <- 1:(network.size(nw)-1)
@@ -649,7 +635,6 @@ InitErgm.gwdegreealpha<-function(nw, m, arglist, initialfit=FALSE, ...) {
     vartypes = c("numeric","logical"),
     defaultvalues = list(0, FALSE),
     required = c(FALSE, FALSE))
-  attach(a)
   alpha<-a$alpha;fixed<-a$fixed
   if(!initialfit && !fixed){ # This is a curved exponential family model
     d <- 1:(network.size(nw)-1)
@@ -689,7 +674,6 @@ InitErgm.gwdegreelambda<-function(nw, m, arglist, initialfit=FALSE, ...) {
     vartypes = c("numeric","logical"),
     defaultvalues = list(1, FALSE),
     required = c(FALSE, FALSE))
-  attach(a)
   lambda<-a$lambda;fixed<-a$fixed
   if(!initialfit && !fixed){ # This is a curved exponential family model
     d <- 1:(network.size(nw)-1)
@@ -732,7 +716,6 @@ InitErgm.hamming.weighted<-function (nw, m, arglist, ...) {
     vartypes = c("matrixnetwork","matrixnetwork","character"),
     defaultvalues = list(NULL,nw,NULL),
     required = c(TRUE,FALSE,FALSE))
-  attach(a)
   attrname<-a$attrname
   x<-a$x
   cov<-a$cov
@@ -814,7 +797,6 @@ InitErgm.hammingmix.constant<-function (nw, m, arglist, ...) {
     vartypes = c("character","matrixnetwork","numeric","logical"),
     defaultvalues = list(NULL,nw,0,FALSE),
     required = c(TRUE,FALSE,FALSE,FALSE))
-  attach(a)
   attrname<-a$attrname
   x<-a$x
   base<-a$base
@@ -888,7 +870,6 @@ InitErgm.heideriandynamic<-function (nw, m, arglist, ...) {
     vartypes = c("matrixnetwork","character"),
     defaultvalues = list(NULL,NULL),
     required = c(TRUE,FALSE))
-  attach(a)
   x<-a$x;attrname<-a$attrname
   #Coerce x to an adjacency matrix
   if(is.network(x))
@@ -1006,7 +987,6 @@ InitErgm.intransitivedynamic<-function (nw, m, arglist, ...) {
     vartypes = c("matrixnetwork","character"),
     defaultvalues = list(NULL,NULL),
     required = c(TRUE,FALSE))
-  attach(a)
   x<-a$x;attrname<-a$attrname
   #Coerce x to an adjacency matrix
   if(is.network(x))
@@ -1069,7 +1049,7 @@ InitErgm.kappa<-function(nw, m, arglist, ...) {
     vartypes = c("character"),
     defaultvalues = list(NULL),
     required = c(FALSE))
-  attach(a)
+  attrname <- a$attrname
   termnumber<-1+length(m$terms)
   if(is.bipartite(nw)){
    m$terms[[termnumber]] <- list(name="bkappa", soname="ergm",
@@ -1101,7 +1081,6 @@ InitErgm.simmeliandynamic<-function (nw, m, arglist, ...) {
     vartypes = c("matrixnetwork","character"),
     defaultvalues = list(NULL,NULL),
     required = c(TRUE,FALSE))
-  attach(a)
   x<-a$x;attrname<-a$attrname
   #Coerce x to an adjacency matrix
   if(is.network(x))
@@ -1137,7 +1116,7 @@ InitErgm.spatial<-function(nw, m, arglist, initialfit=FALSE, ...) {
     vartypes = c("numeric","numeric","numeric","numeric"),
     defaultvalues = list(10, -10, 0, NA),
     required = c(FALSE, FALSE, FALSE, TRUE))
-  attach(a)
+  pb <- a$pb; alpha <- a$alpha; gamma <- a$gamma; d <- a$d
   if(is.directed(nw)){
     d<-as.vector(d)
     nstat<-network.size(nw)*(network.size(nw)-1)
@@ -1184,7 +1163,6 @@ InitErgm.transitivedynamic<-function (nw, m, arglist, ...) {
     vartypes = c("matrixnetwork","character"),
     defaultvalues = list(NULL,NULL),
     required = c(TRUE,FALSE))
-  attach(a)
   x<-a$x;attrname<-a$attrname
   #Coerce x to an adjacency matrix
   if(is.network(x))

@@ -106,7 +106,6 @@
 #    vartypes = c("character"),
 #    defaultvalues = list(NULL),
 #    required = c(TRUE))
-#  attach(a)
 #  attrname<-a$attrname
 #  termnumber<-1+length(m$terms)
 #  m$coef.names<-c(m$coef.names,paste("absdiff",attrname,sep="."))
@@ -128,7 +127,6 @@
 #                   required = c(TRUE,FALSE))
 #  # base:  If not NULL, indices of non-zero absdiff categories to delete
 #  # (ordered from 1=smallest to largest).
-#  attach(a)
 #  attrname<-a$attrname
 #  base <- a$base
 #  nodecov <- get.node.attr(nw, attrname, "absdiffcat")
@@ -162,7 +160,6 @@
 #    vartypes = c("numeric","logical"),
 #    defaultvalues = list(1, FALSE),
 #    required = c(FALSE, FALSE))        
-#  attach(a)
 #  lambda<-a$lambda;fixed<-a$fixed
 #  if(!initialfit && !fixed){ # This is a curved exponential family model
 #    d <- 1:(network.size(nw)-1)
@@ -238,7 +235,6 @@ InitErgm.b1concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
                       vartypes = c("character"),
                       defaultvalues = list(NULL),
                       required = c(FALSE))
-  attach(a)
   attrname <- a$attrname
   emptynwstats<-NULL
   nb1 <- get.network.attribute(nw, "bipartite")       
@@ -315,7 +311,6 @@ InitErgm.b1concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
 #                      vartypes = c("numeric", "character"),
 #                      defaultvalues = list(NULL, NULL),
 #                      required = c(TRUE, FALSE))
-#  attach(a)
 #  d<-a$d; attrname <- a$attrname
 #  emptynwstats<-NULL
 #  nb1 <- get.network.attribute(nw, "bipartite")
@@ -405,7 +400,6 @@ InitErgm.b1factor<-function (nw, m, arglist, drop=TRUE, ...) {
     vartypes = c("character", "numeric"),
     defaultvalues = list(NULL, 1),
     required = c(TRUE, FALSE))                                    
-  attach(a)
   attrname<-a$attrname
   base <- a$base
   nb1 <- get.network.attribute(nw, "bipartite")
@@ -451,93 +445,95 @@ InitErgm.b1factor<-function (nw, m, arglist, drop=TRUE, ...) {
 }
 
 #########################################################
-InitErgm.b1star<-function(nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkdirected("b1star", is.directed(nw), requirement=FALSE)
-  ergm.checkbipartite("b1star", is.bipartite(nw), requirement=TRUE)
-  a <- ergm.checkargs("b1star", arglist,
-                      varnames = c("d", "attrname"),
-                      vartypes = c("numeric", "character"),
-                      defaultvalues = list(NULL, NULL),
-                      required = c(TRUE, FALSE))
-  attach(a)                           
-  d<-a$d; attrname <- a$attrname
-  emptynwstats<-NULL
-  nb1 <- get.network.attribute(nw, "bipartite")
-  if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "b1star")
-    u<-sort(unique(nodecov))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
-    nodecov <- match(nodecov,u) # Recode to numeric
-    if (length(u)==1)
-      stop ("Attribute given to b1star() has only one value", call.=FALSE)
-    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
-    lu <- length(u)
-    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
-    if(drop){ #   Check for degeneracy
-      tmp <- paste("c(",paste(d,collapse=","),")")
-      b1starattr <- summary(as.formula
-                             (paste('nw ~ b1star(', tmp,',"',attrname,'")',sep="")),
-                             drop=FALSE) == 0
-      if(any(b1starattr)){
-        cat(" ")
-        cat(paste("Warning: There are no b1 stars", du[1,b1starattr], ".",
-                   attrname, u[du[2,b1starattr]],
-                  ";\n",
-                  " the corresponding coefficient has been fixed at its MLE of nenegative infinity.\n",sep=" "))
-        du <- matrix(du[,!b1starattr], nrow=2)
-      }
-    }
-    if (any(du[1,]==0)) {
-      emptynwstats <- rep(0, ncol(du))
-      tmp <- du[2,du[1,]==0]
-      for(i in 1:length(tmp)) tmp[i] <- 
-        sum(nodecov[1:nb1]==tmp[i])
-        emptynwstats[du[1,]==0] <- tmp
-    }
-  } else {
-    if(is.logical(attrname)){drop <- attrname}
-    if(drop){
-      mb1star <- paste("c(",paste(d,collapse=","),")",sep="")
-      mb1star <- summary(
-                          as.formula(paste('nw ~ b1star(',mb1star,')',sep="")),
-                          drop=FALSE) == 0
-      if(any(mb1star)){
-        cat(" ")
-        cat(paste("Warning: There are no b1 stars", d[mb1star],
-                  "b1s;\n",
-                  " the corresponding coefficient has been fixed at its MLE of nenegative infinity.\n",sep=" "))
-        d <- d[!mb1star] 
-      }
-    }
-    if (any(d==0)) {
-      emptynwstats <- rep(0, length(d))
-      emptynwstats[d==0] <- nb1
-    }
-  }
-  termnumber<-1+length(m$terms)
-  if(!is.null(attrname)) {
-    if(ncol(du)==0) {return(m)}            
-    #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="ostar", soname="ergm",
-                                  inputs=c(0, ncol(du), 
-                                           length(du)+length(nodecov), 
-                                           as.vector(du), nodecov),
-                                  dependence=TRUE)
-    m$coef.names<-c(m$coef.names, paste("b1star", du[1,], ".", attrname,
-                                        u[du[2,]], sep=""))
-  }else{
-    lengthd<-length(d)
-    if(lengthd==0){return(m)}
-    #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="ostar", soname="ergm",
-                                       inputs=c(0, lengthd, lengthd, d),
-                                       dependence=TRUE)
-    m$coef.names<-c(m$coef.names,paste("b1star",d,sep=""))
-  }
-  if (!is.null(emptynwstats)) 
-    m$terms[[termnumber]]$emptynwstats <- emptynwstats
-  m
-}
+#InitErgm.b1star<-function(nw, m, arglist, drop=TRUE, ...) {
+## Because InitErgmTerm.b1star exists, the old
+## InitErgm.b1degree is irrelevant but should not be deleted for now.
+#  ergm.checkdirected("b1star", is.directed(nw), requirement=FALSE)
+#  ergm.checkbipartite("b1star", is.bipartite(nw), requirement=TRUE)
+#  a <- ergm.checkargs("b1star", arglist,
+#                      varnames = c("d", "attrname"),
+#                      vartypes = c("numeric", "character"),
+#                      defaultvalues = list(NULL, NULL),
+#                      required = c(TRUE, FALSE))
+#  d<-a$d; attrname <- a$attrname
+#  emptynwstats<-NULL
+#  nb1 <- get.network.attribute(nw, "bipartite")
+#  if(!is.null(attrname)) {
+#    nodecov <- get.node.attr(nw, attrname, "b1star")
+#    u<-sort(unique(nodecov))
+#    if(any(is.na(nodecov))){u<-c(u,NA)}
+#    nodecov <- match(nodecov,u) # Recode to numeric
+#    if (length(u)==1)
+#      stop ("Attribute given to b1star() has only one value", call.=FALSE)
+#    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+#    lu <- length(u)
+#    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
+#    if(drop){ #   Check for degeneracy
+#      tmp <- paste("c(",paste(d,collapse=","),")")
+#      b1starattr <- summary(as.formula
+#                             (paste('nw ~ b1star(', tmp,',"',attrname,'")',sep="")),
+#                             drop=FALSE) == 0
+#      if(any(b1starattr)){
+#        cat(" ")
+#        cat(paste("Warning: There are no b1 stars", du[1,b1starattr], ".",
+#                   attrname, u[du[2,b1starattr]],
+#                  ";\n",
+#                  " the corresponding coefficient has been fixed at its MLE of nenegative infinity.\n",sep=" "))
+#        du <- matrix(du[,!b1starattr], nrow=2)
+#      }
+#    } 
+#    ## This is wrong:
+#    if (any(du[1,]==0)) {
+#      emptynwstats <- rep(0, ncol(du))
+#      tmp <- du[2,du[1,]==0]
+#      for(i in 1:length(tmp)) tmp[i] <- 
+#        sum(nodecov[1:nb1]==tmp[i])
+#        emptynwstats[du[1,]==0] <- tmp
+#    }
+#  } else {
+#    if(is.logical(attrname)){drop <- attrname}
+#    if(drop){
+#      mb1star <- paste("c(",paste(d,collapse=","),")",sep="")
+#      mb1star <- summary(
+#                          as.formula(paste('nw ~ b1star(',mb1star,')',sep="")),
+#                          drop=FALSE) == 0
+#      if(any(mb1star)){
+#        cat(" ")
+#        cat(paste("Warning: There are no b1 stars", d[mb1star],
+#                  "b1s;\n",
+#                  " the corresponding coefficient has been fixed at its MLE of nenegative infinity.\n",sep=" "))
+#        d <- d[!mb1star] 
+#      }
+#    }
+#    if (any(d==0)) {
+#      emptynwstats <- rep(0, length(d))
+#      emptynwstats[d==0] <- nb1
+#    }
+#  }
+#  termnumber<-1+length(m$terms)
+#  if(!is.null(attrname)) {
+#    if(ncol(du)==0) {return(m)}            
+#    #  No covariates here, so input component 1 is arbitrary
+#    m$terms[[termnumber]] <- list(name="ostar", soname="ergm",
+#                                  inputs=c(0, ncol(du), 
+#                                           length(du)+length(nodecov), 
+#                                           as.vector(du), nodecov),
+#                                  dependence=TRUE)
+#    m$coef.names<-c(m$coef.names, paste("b1star", du[1,], ".", attrname,
+#                                        u[du[2,]], sep=""))
+#  }else{
+#    lengthd<-length(d)
+#    if(lengthd==0){return(m)}
+#    #  No covariates here, so input component 1 is arbitrary
+#    m$terms[[termnumber]] <- list(name="ostar", soname="ergm",
+#                                       inputs=c(0, lengthd, lengthd, d),
+#                                       dependence=TRUE)
+#    m$coef.names<-c(m$coef.names,paste("b1star",d,sep=""))
+#  }
+#  if (!is.null(emptynwstats)) 
+#    m$terms[[termnumber]]$emptynwstats <- emptynwstats
+#  m
+#}
 
 #########################################################
 InitErgm.b2concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
@@ -548,7 +544,6 @@ InitErgm.b2concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
                       vartypes = c("character"),
                       defaultvalues = list(NULL),
                       required = c(FALSE))
-  attach(a)
   attrname <- a$attrname
   emptynwstats<-NULL
   nb1 <- get.network.attribute(nw, "bipartite")
@@ -623,7 +618,6 @@ InitErgm.b2concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
 #    vartypes = c("numeric", "character"),
 #    defaultvalues = list(NULL, NULL),
 #    required = c(TRUE, FALSE))
-#  attach(a)
 #  d<-a$d; attrname <- a$attrname
 #  emptynwstats<-NULL
 #  nb1 <- get.network.attribute(nw, "bipartite")
@@ -714,7 +708,6 @@ InitErgm.b2factor<-function (nw, m, arglist, drop=TRUE, ...) {
     vartypes = c("character", "numeric"),
     defaultvalues = list(NULL, 1),
     required = c(TRUE, FALSE))
-  attach(a)
   attrname<-a$attrname
   base <- a$base
   nb1 <- get.network.attribute(nw, "bipartite")
@@ -768,7 +761,6 @@ InitErgm.b2star<-function(nw, m, arglist, drop=TRUE, ...) {
                       vartypes = c("numeric", "character"),
                       defaultvalues = list(NULL, NULL),
                       required = c(TRUE, FALSE))
-  attach(a)
   d<-a$d; attrname <- a$attrname
   emptynwstats<-NULL
   nb1 <- get.network.attribute(nw, "bipartite")
@@ -948,7 +940,6 @@ InitErgm.concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
                       vartypes = c("character"),
                       defaultvalues = list(NULL),
                       required = c(FALSE))
-  attach(a)
   attrname <- a$attrname
   if(!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname, "concurrent")
@@ -1019,7 +1010,6 @@ InitErgm.ctriple<-InitErgm.ctriad<-function (nw, m, arglist, drop=TRUE, ...) {
     vartypes = c("character","logical"),
     defaultvalues = list(NULL,FALSE),
     required = c(FALSE,FALSE))
-  attach(a)
   attrname <- a$attrname; diff <- a$diff;
   termnumber<-1+length(m$terms)
   if(!is.null(attrname)){
@@ -1095,7 +1085,6 @@ InitErgm.ctriple<-InitErgm.ctriad<-function (nw, m, arglist, drop=TRUE, ...) {
 #    vartypes = "numeric",
 #    defaultvalues = list(NULL),
 #    required = TRUE)
-#  attach(a)
 #  k<-a$k
 #  #Check for degeneracy
 #  if(drop){
@@ -1134,7 +1123,6 @@ InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
     vartypes = c("numeric", "character", "logical"),
     defaultvalues = list(NULL, NULL, FALSE),
     required = c(TRUE, FALSE, FALSE))
-  attach(a)
   d<-a$d; attrname <- a$attrname; homophily <- a$homophily
   emptynwstats<-NULL
   if(!is.null(attrname)) {
@@ -1251,7 +1239,7 @@ InitErgm.dsp<-function(nw, m, arglist, drop=TRUE, ...) {
     vartypes = c("numeric"),
     defaultvalues = list(NULL),
     required = c(TRUE))
-  attach(a)
+  d <- a$d
   if(drop){
     mdsp <- paste("c(",paste(d,collapse=","),")",sep="")
     mdsp <- summary(as.formula(paste('nw ~ dsp(',mdsp,')',sep="")),
@@ -1294,7 +1282,6 @@ InitErgm.dyadcov<-function (nw, m, arglist, ...) {
     vartypes = c("matrixnetwork","character"),
     defaultvalues = list(NULL,NULL),
     required = c(TRUE,FALSE))
-  attach(a)
   x<-a$x;attrname<-a$attrname
   #Coerce x to an adjacency matrix
   if(is.network(x))
@@ -1359,7 +1346,6 @@ InitErgm.edgecov<-function (nw, m, arglist, ...) {
     vartypes = c("matrixnetwork", "character"),
     defaultvalues = list(NULL, NULL),
     required = c(TRUE, FALSE))
-  attach(a)
   x<-a$x;attrname<-a$attrname
   #Coerce x to an adjacency matrix
   if(is.network(x))
@@ -1411,7 +1397,6 @@ InitErgm.esp<-function(nw, m, arglist, drop=TRUE, ...) {
     vartypes = c("numeric"),
     defaultvalues = list(NULL),
     required = c(TRUE))
-  attach(a)
   d<-a$d
   if(drop){
     mesp <- paste("c(",paste(d,collapse=","),")",sep="")
@@ -1451,7 +1436,6 @@ InitErgm.gwb1degree<-function(nw, m, arglist, initialfit=FALSE, ...) {
     vartypes = c("numeric", "logical", "character"),
     defaultvalues = list(0, FALSE, NULL),
     required = c(TRUE, FALSE, FALSE))
-  attach(a)
   decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
   nb1 <- get.network.attribute(nw,"bipartite")
   d <- 1:(network.size(nw) - nb1)
@@ -1519,7 +1503,6 @@ InitErgm.gwb2degree<-function(nw, m, arglist, initialfit=FALSE, ...) {
     vartypes = c("numeric", "logical", "character"),
     defaultvalues = list(0, FALSE, NULL),
     required = c(TRUE, FALSE, FALSE))
-  attach(a)
   decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
   nb1 <- get.network.attribute(nw,"bipartite")
   d <- 1:nb1
@@ -1587,7 +1570,6 @@ InitErgm.gwdegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
     vartypes = c("numeric", "logical", "character"),
     defaultvalues = list(0, FALSE, NULL),
     required = c(TRUE, FALSE, FALSE))
-  attach(a)
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   termnumber<-1+length(m$terms)
   d <- 1:(network.size(nw)-1)
@@ -1649,7 +1631,6 @@ InitErgm.gwdsp<-function(nw, m, arglist, initialfit=FALSE, ...) {
     vartypes = c("numeric","logical"),
     defaultvalues = list(0, FALSE),
     required = c(FALSE, FALSE))
-  attach(a)
   alpha<-a$alpha;fixed<-a$fixed
   termnumber<-1+length(m$terms)
   if(!initialfit && !fixed){ # This is a curved exponential family model
@@ -1693,7 +1674,6 @@ InitErgm.gwesp<-function(nw, m, arglist, initialfit=FALSE, ...) {
     vartypes = c("numeric","logical"),
     defaultvalues = list(0, FALSE),
     required = c(FALSE, FALSE))
-  attach(a)
   alpha<-a$alpha;fixed<-a$fixed
   termnumber<-1+length(m$terms)
   alpha=alpha[1] # Not sure why anyone would enter a vector here, but...
@@ -1738,7 +1718,6 @@ InitErgm.gwidegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
                       vartypes = c("numeric", "logical", "character"),
                       defaultvalues = list(0, FALSE, NULL),
                       required = c(TRUE, FALSE, FALSE))
-  attach(a)
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   termnumber<-1+length(m$terms)
   if(!initialfit && !fixed){ # This is a curved exponential family model
@@ -1802,7 +1781,6 @@ InitErgm.gwodegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
                       vartypes = c("numeric", "logical", "character"),
                       defaultvalues = list(0, FALSE, NULL),
                       required = c(TRUE, FALSE, FALSE))
-  attach(a)
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   termnumber<-1+length(m$terms)
   d <- 1:(network.size(nw)-1)
@@ -1867,7 +1845,6 @@ InitErgm.hamming<-function (nw, m, arglist, drop=TRUE, ...) {
     vartypes = c("matrixnetwork","matrixnetwork","character"),
     defaultvalues = list(nw,NULL,NULL),
     required = c(FALSE,FALSE,FALSE))
-  attach(a)
   attrname<-a$attrname
   x<-a$x
   cov<-a$cov
@@ -1966,7 +1943,6 @@ InitErgm.hammingmix<-function (nw, m, arglist, ...) {
     vartypes = c("character","matrixnetwork","numeric","logical"),
     defaultvalues = list(NULL,nw,0,FALSE),
     required = c(TRUE,FALSE,FALSE,FALSE))
-  attach(a)
   attrname<-a$attrname
   x<-a$x
   base<-a$base
@@ -2044,7 +2020,6 @@ InitErgm.idegree<-function(nw, m, arglist, drop=TRUE, ...) {
     vartypes = c("numeric", "character", "logical"),
     defaultvalues = list(NULL, NULL, FALSE),
     required = c(TRUE, FALSE, FALSE))
-  attach(a)
   d<-a$d; attrname <- a$attrname; homophily <- a$homophily
   emptynwstats<-NULL
   if(!is.null(attrname)) {
@@ -2198,7 +2173,6 @@ InitErgm.istar<-function(nw, m, arglist, drop=TRUE, ...) {
     vartypes = c("numeric", "character"),
     defaultvalues = list(NULL, NULL),
     required = c(TRUE, FALSE))
-  attach(a)
   k <- a$k
   attrname <- a$attrname
   if(!is.null(attrname)) {
@@ -2267,7 +2241,6 @@ InitErgm.kstar<-function(nw, m, arglist, drop=TRUE, ...) {
     vartypes = c("numeric", "character"),
     defaultvalues = list(NULL, NULL),
     required = c(TRUE, FALSE))
-  attach(a)
   k<-a$k;attrname<-a$attrname
   if(!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname, "kstar")
@@ -2334,7 +2307,6 @@ InitErgm.localtriangle<-function (nw, m, arglist, ...) {
     vartypes = c("matrixnetwork", "character"),
     defaultvalues = list(NULL, NULL),
     required = c(TRUE, FALSE))
-  attach(a)
   x<-a$x;attrname<-a$attrname
   if(is.network(x))
     xm<-as.matrix.network(x, matrix.type="adjacency", attrname)
@@ -2473,7 +2445,6 @@ InitErgm.nodecov<-InitErgm.nodemain<-function (nw, m, arglist, ...) {
     vartypes = c("character"),
     defaultvalues = list(NULL),
     required = c(TRUE))
-  attach(a)
   attrname<-a$attrname
   m$coef.names<-c(m$coef.names, paste("nodecov",attrname,sep="."))
   nodecov <- get.node.attr(nw, attrname, "nodecov", numeric=TRUE)
@@ -2493,7 +2464,6 @@ InitErgm.nodecov<-InitErgm.nodemain<-function (nw, m, arglist, ...) {
 #    vartypes = c("character", "numeric"),
 #    defaultvalues = list(NULL, 1),
 #    required = c(TRUE, FALSE))
-#  attach(a)
 #  attrname<-a$attrname
 #  base <- a$base
 #  nodecov <- get.node.attr(nw, attrname, "nodefactor")
@@ -2548,7 +2518,6 @@ InitErgm.nodeicov<-function (nw, m, arglist, ...) {
     vartypes = c("character"),
     defaultvalues = list(NULL),
     required = c(TRUE))
-  attach(a)
   attrname<-a$attrname
   m$coef.names<-c(m$coef.names, paste("nodeicov",attrname,sep="."))
   nodecov <- get.node.attr(nw, attrname, "nodeicov", numeric=TRUE)
@@ -2568,7 +2537,6 @@ InitErgm.nodeicov<-function (nw, m, arglist, ...) {
 #    vartypes = c("character", "numeric"),
 #    defaultvalues = list(NULL, 1),
 #    required = c(TRUE, FALSE))
-#  attach(a)
 #  attrname<-a$attrname
 #  base <- a$base
 #  nodecov <- get.node.attr(nw, attrname, "nodeifactor")
@@ -2624,7 +2592,6 @@ InitErgm.nodeicov<-function (nw, m, arglist, ...) {
 #    vartypes = c("character", "logical"),
 #    defaultvalues = list(NULL, FALSE),
 #    required = c(TRUE, FALSE))
-#  attach(a)
 #  attrname<-a$attrname
 #  nodecov <- get.node.attr(nw, attrname, "nodematch")
 #  u<-sort(unique(nodecov))
@@ -2700,7 +2667,6 @@ InitErgm.nodeicov<-function (nw, m, arglist, ...) {
 #    vartypes = c("character","logical","logical"),
 #    defaultvalues = list(NULL,FALSE,NULL),
 #    required = c(TRUE, FALSE, FALSE))
-#  attach(a)
 #  attrname<-a$attrname
 #  contrast<-a$contrast
 #  if (is.null(a$directed)){
@@ -2833,7 +2799,6 @@ InitErgm.nodeocov<-function (nw, m, arglist, ...) {
     vartypes = c("character"),
     defaultvalues = list(NULL),
     required = c(TRUE))
-  attach(a)
   attrname<-a$attrname
   m$coef.names<-c(m$coef.names, paste("nodeocov",attrname,sep="."))
   nodecov <- get.node.attr(nw, attrname, "nodeocov", numeric=TRUE)
@@ -2853,7 +2818,6 @@ InitErgm.nodeocov<-function (nw, m, arglist, ...) {
 #    vartypes = c("character", "numeric"),
 #    defaultvalues = list(NULL, 1),
 #    required = c(TRUE, FALSE))
-#  attach(a)
 #  attrname<-a$attrname
 #  base <- a$base
 #  nodecov <- get.node.attr(nw, attrname, "nodeofactor")
@@ -2907,7 +2871,6 @@ InitErgm.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
     vartypes = c("numeric", "character", "logical"),
     defaultvalues = list(NULL, NULL, FALSE),
     required = c(TRUE, FALSE, FALSE))
-  attach(a)
   d<-a$d; attrname <- a$attrname; homophily <- a$homophily
   emptynwstats<-NULL
   if(!is.null(attrname)) {
@@ -3009,7 +2972,6 @@ InitErgm.ostar<-function(nw, m, arglist, drop=TRUE, ...) {
     vartypes = c("numeric", "character"),
     defaultvalues = list(NULL, NULL),
     required = c(TRUE, FALSE))
-  attach(a)
   k<-a$k
   attrname <- a$attrname
   if(!is.null(attrname)) {
@@ -3212,7 +3174,6 @@ InitErgm.smalldiff<-function (nw, m, arglist, ...) {
     vartypes = c("character", "numeric"),
     defaultvalues = list(NULL, NULL),
     required = c(TRUE, TRUE))
-  attach(a)
   cutoff <- a$cutoff
   attrname <- a$attrname
   if (length(cutoff)>1)
@@ -3236,7 +3197,6 @@ InitErgm.sociality<-function(nw, m, arglist, drop=FALSE, ...) {
     vartypes = c("character", "numeric"),
     defaultvalues = list(NULL, 1),
     required = c(FALSE, FALSE))
-  attach(a)
   attrname<-a$attrname
   d <- 1:network.size(nw)
   if (!identical(a$base,0)) {
@@ -3320,9 +3280,7 @@ InitErgm.triadcensus<-function (nw, m, arglist, drop=FALSE, ...) {
     vartypes = c("numeric"),
     defaultvalues = list(NULL),
     required = c(FALSE))
-  attach(a)
   d<-a$d
-  detach(a)
 
   if(is.directed(nw)){
    tcn <- c("003","012", "102", "021D", "021U", "021C", "111D",
@@ -3367,7 +3325,6 @@ InitErgm.triangle<-InitErgm.triangles<-function (nw, m, arglist, drop=TRUE, ...)
     vartypes = c("character", "logical"),
     defaultvalues = list(NULL, FALSE),
     required = c(FALSE, FALSE))
-  attach(a)
   attrname <- a$attrname
   termnumber<-1+length(m$terms)
   if(!is.null(attrname)) {
@@ -3435,7 +3392,6 @@ InitErgm.tripercent<-function (nw, m, arglist, drop=TRUE, ...) {
     vartypes = c("character", "logical"),
     defaultvalues = list(NULL, FALSE),
     required = c(FALSE, FALSE))
-  attach(a)
   attrname <- a$attrname
   termnumber<-1+length(m$terms)
   if(!is.null(attrname)) {
@@ -3502,7 +3458,6 @@ InitErgm.ttriple<-InitErgm.ttriad<-function (nw, m, arglist, drop=TRUE, ...) {
     vartypes = c("character", "logical"),
     defaultvalues = list(NULL, FALSE),
     required = c(FALSE, FALSE))
-  attach(a)
   attrname <- a$attrname
   termnumber<-1+length(m$terms)
   if(!is.null(attrname)) {
