@@ -232,6 +232,7 @@ CHANGESTAT_FN(d_b1factor) {
   UNDO_PREVIOUS_TOGGLES(i); /* Needed on exit in case of multiple toggles */
 }
 
+
 /*****************
  changestat: d_b2concurrent
 *****************/
@@ -625,7 +626,6 @@ CHANGESTAT_FN(d_boundedidegree) {
  avoiding costly call to choose() function.  Note:  my_choose is
  usually not called directly; use CHOOSE macro instead.
 *****************/
-#define CHOOSE(n,r) ((n)<(r) ? (0) : (my_choose((double)(n),(int)(r)))) 
 double my_choose(double n, int r) {
   const double recip_factorial[21] = {1.0, 1.0, 0.5,
 	 1.66666666666667e-01, 4.16666666666667e-02, 8.33333333333333e-03,
@@ -3256,7 +3256,7 @@ CHANGESTAT_FN(d_ostar) {
   Edge e;
   Vertex h, t, node3;
   int ninputs, nstats;
-  double hattr;
+  double tattr;
   
   ninputs = (int)N_INPUT_PARAMS;
   nstats  = (int)N_CHANGE_STATS;
@@ -3268,13 +3268,13 @@ CHANGESTAT_FN(d_ostar) {
       /* edgeflag is 1 if edge exists and will disappear
       edgeflag is 0 if edge DNE and will appear */
       edgeflag = IS_OUTEDGE(h = heads[i], t = tails[i]);
-      hattr = INPUT_ATTRIB[t-1];
-      if(hattr == INPUT_ATTRIB[h-1]){
+      tattr = INPUT_ATTRIB[t-1];
+      if(tattr == INPUT_ATTRIB[h-1]){
         td = - edgeflag;
         for(e = EdgetreeMinimum(nwp->outedges, h);
 	      (node3 = nwp->outedges[e].value) != 0;
 	      e = EdgetreeSuccessor(nwp->outedges, e)) { /* step through outedges of tail */
-          if(hattr == INPUT_ATTRIB[node3-1]){++td;}
+          if(tattr == INPUT_ATTRIB[node3-1]){++td;}
         }
         for(j=0; j < N_CHANGE_STATS; j++) {
           kmo = ((int)INPUT_PARAM[j]) - 1;

@@ -505,6 +505,7 @@ InitErgm.b1factor<-function (nw, m, arglist, drop=TRUE, ...) {
 #        d <- d[!mb1star] 
 #      }
 #    }
+#    ## This is wrong:
 #    if (any(d==0)) {
 #      emptynwstats <- rep(0, length(d))
 #      emptynwstats[d==0] <- nb1
@@ -514,6 +515,7 @@ InitErgm.b1factor<-function (nw, m, arglist, drop=TRUE, ...) {
 #  if(!is.null(attrname)) {
 #    if(ncol(du)==0) {return(m)}            
 #    #  No covariates here, so input component 1 is arbitrary
+#    ## This is wrong:
 #    m$terms[[termnumber]] <- list(name="ostar", soname="ergm",
 #                                  inputs=c(0, ncol(du), 
 #                                           length(du)+length(nodecov), 
@@ -2524,7 +2526,8 @@ InitErgm.nodeicov<-function (nw, m, arglist, ...) {
   nodecov <- get.node.attr(nw, attrname, "nodeicov", numeric=TRUE)
   termnumber<-1+length(m$terms)
   m$terms[[termnumber]] <- list(name="nodeicov", soname="ergm",
-                                inputs=c(0,1,length(nodecov),nodecov))
+                                inputs=c(0,1,length(nodecov),nodecov),
+                                dependence=FALSE)
   m
 }
 
@@ -2805,7 +2808,8 @@ InitErgm.nodeocov<-function (nw, m, arglist, ...) {
   nodecov <- get.node.attr(nw, attrname, "nodeocov", numeric=TRUE)
   termnumber<-1+length(m$terms)
   m$terms[[termnumber]] <- list(name="nodeocov", soname="ergm",
-                                inputs=c(0,1,length(nodecov),nodecov))
+                                inputs=c(0,1,length(nodecov),nodecov),
+                                dependence=FALSE)
   m
 }
 

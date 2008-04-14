@@ -27,7 +27,8 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL,
     #directed != (dnw<-eval(expression(nw$gal$dir),parent.frame()))) {
     message <- paste("networks with directed==", dnw, sep="")
   }
-  if (!is.null(bipartite) && bipartite != ((bnw <- nw %n% "bipartite") > 0)) {
+  if(is.null(bnw<- nw %n% "bipartite")) bnw <- 0
+  if (!is.null(bipartite) && bipartite != (bnw > 0)) {
     #bipartite != (bnw <- eval(expression(nw %n% "bipartite"),parent.frame()) > 0)) {
     message <- paste("networks with bipartite", 
                      ifelse(bnw>0, " > 0", "==FALSE"), sep="")

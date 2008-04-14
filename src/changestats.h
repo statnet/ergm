@@ -16,6 +16,8 @@ typedef struct ModelTermstruct {
 /****************************************************
  Macros to make life easier                         *
  Note:  These things still need to be documented    */ 
+#define CHOOSE(n,r) ((n)<(r) ? (0) : (my_choose((double)(n),(int)(r)))) 
+
 #define IS_OUTEDGE(a,b) (EdgetreeSearch((a),(b),nwp->outedges)!=0?1:0)
 #define IS_INEDGE(a,b) (EdgetreeSearch((a),(b),nwp->inedges)!=0?1:0)
 #define IS_UNDIRECTED_EDGE(a,b) IS_OUTEDGE(MIN(a,b), MAX(a,b))
@@ -27,8 +29,8 @@ typedef struct ModelTermstruct {
 #define INVAL(e) (nwp->inedges[(e)].value)
 #define TOGGLE(a,b) (ToggleEdge((a),(b),nwp));
 
-#define STEP_THROUGH_OUTEDGES(a,e,v) for((e)=MIN_OUTEDGE(t);((v)=OUTVAL(e))!=0;(e)=NEXT_OUTEDGE(e))
-#define STEP_THROUGH_INEDGES(a,e,v) for((e)=MIN_INEDGE(t);((v)=INVAL(e))!=0;(e)=NEXT_INEDGE(e))
+#define STEP_THROUGH_OUTEDGES(a,e,v) for((e)=MIN_OUTEDGE(a);((v)=OUTVAL(e))!=0;(e)=NEXT_OUTEDGE(e))
+#define STEP_THROUGH_INEDGES(a,e,v) for((e)=MIN_INEDGE(a);((v)=INVAL(e))!=0;(e)=NEXT_INEDGE(e))
 
 #define N_NODES (nwp->nnodes)
 #define OUT_DEG (nwp->outdegree)
