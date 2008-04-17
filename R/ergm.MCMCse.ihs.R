@@ -33,7 +33,7 @@ ergm.MCMCse.ihs<-function(theta, theta0, statsmatrix, statsmatrix.miss,
    R <- acf(z, lag.max = lag.max,
     type = "covariance", plot = FALSE)$acf
    if(dim(R)[2] > 1){
-     part <- apply(R[-1,  ,  ], c(2, 3), sum)
+     part <- apply(R[-1,  ,  ,drop=FALSE], c(2, 3), sum)
    }else{
      part <- matrix(sum(R[-1,  ,  ]))
    }
