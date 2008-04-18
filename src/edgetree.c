@@ -331,8 +331,10 @@ void UpdateNextedge (TreeNode *edges, Edge *nextedge, Network *nwp) {
   nwp->maxedges *= mult;
   nwp->inedges = (TreeNode *) realloc(nwp->inedges, 
                                       sizeof(TreeNode) * nwp->maxedges);
+  memset(nwp->inedges+*nextedge,0,sizeof(TreeNode) * (nwp->maxedges-*nextedge));
   nwp->outedges = (TreeNode *) realloc(nwp->outedges, 
                                        sizeof(TreeNode) * nwp->maxedges);
+  memset(nwp->outedges+*nextedge,0,sizeof(TreeNode) * (nwp->maxedges-*nextedge));
   Rprintf("Multipled allocation by %d now.\n", mult);
 }
 
