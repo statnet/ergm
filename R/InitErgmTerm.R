@@ -637,10 +637,10 @@ InitErgmTerm.nodemix<-function (nw, arglist, drop=TRUE, ...) {
     namescov <- c(b1namescov, b2namescov)
     b1nodecov <- match(nodecov[1:nb1],b1namescov)
     b2nodecov <- match(nodecov[(1+nb1):network.size(nw)],b2namescov)
-    mixmat <- mixingmatrix(nw,attrname)$mat
-    nodecov <- c(b1nodecov, b2nodecov + nrow(mixmat))
-    u <- cbind(as.vector(row(mixmat)), 
-               as.vector(col(mixmat)+nrow(mixmat)))
+    nr <- length(b1namescov)
+    nc <- length(b2namescov)
+    nodecov <- c(b1nodecov, b2nodecov + nr)
+    u <- cbind(rep(1:nr,nc), nr + rep(1:nc, each=nr))
     if(any(is.na(nodecov))){u<-rbind(u,NA)}    
     if (!is.null(base) && !identical(base,0)) {
       u <- u[-base,]

@@ -42,7 +42,6 @@
 \alias{kstar}
 \alias{localtriangle}
 \alias{m2star}
-\alias{match}
 \alias{meandeg}
 \alias{mutual}
 \alias{nearsimmelian}

@@ -29,7 +29,7 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss=NULL,
    if(dim(R)[2] > 1){
      part <- apply(R[-1,  ,  ,drop=FALSE], c(2, 3), sum)
    }else{
-     part <- matrix(sum(R[-1,  ,  ]))
+     part <- matrix(sum(R[-1,  ,  , drop=FALSE]))
    }
    cov.zbar <- (R[1,  ,  ] + part + t(part))/nrow(xsim)
    prob <- exp(xsim %*% etaparam)
