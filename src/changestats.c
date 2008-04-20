@@ -39,7 +39,7 @@ CHANGESTAT_FN(d_absdiffcat) {
     if (hval == NAsubstitute ||  tval == NAsubstitute) absdiff = NAsubstitute;
     else absdiff = fabs(hval - tval);
 	  if (absdiff>0) {
-      for (j=0; j<ninputs; j++) {
+      for (j=0; j<N_CHANGE_STATS; j++) {
         CHANGE_STAT[j] += (absdiff==INPUT_PARAM[j]) ? change : 0.0;
       }
     }
