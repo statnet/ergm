@@ -15,8 +15,7 @@ void plinfo_wrapper (int *heads, int *tails, int *dnedges,
   Vertex bip=0;  /* Assumes bipartite is irrelevant; is this true? */
 
   GetRNGstate(); /* Necessary for use of R random number generator */
-  nw=NetworkInitialize(heads, tails, n_edges, maxedges,
-                       n_nodes, directed_flag, bip, 1);
+  nw=NetworkInitialize(heads, tails, n_edges, n_nodes, directed_flag, bip, 1);
   m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
   
   plinfoInitialize(responsevec, covmat,(Vertex*)start,(Vertex*)end, &nw, m);
@@ -48,7 +47,7 @@ void plinfoInitialize (double *responsevec, double *covmat,
 	
 	for (mtp=m->termarray; mtp < m->termarray + m->n_terms; mtp++){
 	  mtp->dstats = covmat;
-	  (*(mtp->func))(1, &i, &j, mtp, nwp);
+	  (*(mtp->d_func))(1, &i, &j, mtp, nwp);
 	  /* dstats are returned for TOGGLED edges; for MPLE, we need values
 	     reflecting a change from 0->1 instead.  Thus, we have to change 
 	     the sign of dstats if the edge exists. */
@@ -61,7 +60,7 @@ void plinfoInitialize (double *responsevec, double *covmat,
 	    {
 	      /* then get the network stats for these stats */
 	      mtp->dstats = covmat + offset2;
-	      (*(mtp->func))(1, &j, &i, mtp, nwp);
+	      (*(mtp->d_func))(1, &j, &i, mtp, nwp);
 	      if (inflag)
 		{
 		  for (l=0; l<mtp->nstats; l++)

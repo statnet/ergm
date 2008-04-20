@@ -46,9 +46,9 @@ R_INLINE void MCMCDyn_init_common(int *heads, int *tails, int n_edges,
   *F_m=ModelInitialize(F_funnames, F_sonames, F_inputs, F_nterms);
   *D_m=ModelInitialize(D_funnames, D_sonames, D_inputs, D_nterms);
 
-  nw[0]=NetworkInitialize(heads, tails, n_edges, maxedges, 
+  nw[0]=NetworkInitialize(heads, tails, n_edges, 
                           n_nodes, dflag, bipartite, 1);
-  nw[1]=NetworkInitialize(NULL, NULL, 0, maxedges,
+  nw[1]=NetworkInitialize(NULL, NULL, 0,
                           n_nodes, dflag, bipartite, 0);
 
   

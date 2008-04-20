@@ -6,7 +6,6 @@
 #include <Rinternals.h>
 #include <Rmath.h>
 
-#define MAXEDGES 1000000 /* eventually use of MAXEDGES will be phased out */
 #define MIN(a,b) ((a)<(b) ? (a) : (b))
 #define MAX(a,b) ((a)<(b) ? (b) : (a))
 
@@ -77,18 +76,21 @@ typedef struct Networkstruct {
   Edge maxedges;
 } Network;
 
+/* Initialization and destruction. */
 Network NetworkInitialize(Vertex *heads, Vertex *tails, Edge nedges,
-        Edge maxedges,
 			  Vertex nnodes, int directed_flag, Vertex bipartite,
 			  int lasttoggle_flag);
+void NetworkDestroy(Network *nwp);
 Network NetworkInitializeD(double *heads, double *tails, Edge nedges,
-         Edge maxedges,
 			   Vertex nnodes, int directed_flag, Vertex bipartite,
 			   int lasttoggle_flag);
-void NetworkDestroy(Network *nwp);
+
+/* Accessors. */
 Edge EdgetreeSearch (Vertex a, Vertex b, TreeNode *edges);
 Edge EdgetreeSuccessor (TreeNode *edges, Edge x);
 Edge EdgetreeMinimum (TreeNode *edges, Edge x);
+
+/* Modifiers. */
 int ToggleEdge (Vertex head, Vertex tail, Network *nwp);
 int ToggleEdgeWithTimestamp (Vertex head, Vertex tail, Network *nwp);
 int AddEdgeToTrees(Vertex head, Vertex tail, Network *nwp);
@@ -97,12 +99,21 @@ void UpdateNextedge (TreeNode *edges, Edge *nextedge, Network *nwp);
 int DeleteEdgeFromTrees(Vertex head, Vertex tail, Network *nwp);
 int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges,
 		     Edge *next_edge);
+
+/* Duration functions. */
+int ElapsedTime(Vertex head, Vertex tail, Network *nwp);
+void TouchEdge(Vertex head, Vertex tail, Network *nwp);
+
+/* Utility functions. */
 int FindithEdge (Vertex *head, Vertex *tail, Edge i, Network *nwp);
 void printedge(Edge e, TreeNode *edges);
 void InOrderTreeWalk(TreeNode *edges, Edge x);
 void NetworkEdgeList(Network *nwp);
-Edge EdgeTree2EdgeList(Vertex *heads, Vertex *tails, Network *nwp, Edge nmax);
+void ShuffleEdges(Vertex *heads, Vertex *tails, Edge nedges);
+
+/* Others... */
 Edge DesignMissing (Vertex a, Vertex b, Network *mnwp);
+Edge EdgeTree2EdgeList(Vertex *heads, Vertex *tails, Network *nwp, Edge nmax);
 
 #endif
 

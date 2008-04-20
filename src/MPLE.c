@@ -36,12 +36,12 @@ void MPLE_wrapper (int *heads, int *tails, int *dnedges,
   Vertex bip = (Vertex) *bipartite;
   Edge maxMPLE = (Edge) *maxMPLEsamplesize;
   Vertex hhead, htail;
-  Edge  nddyads, kedge, maxedges=*maxpossibleedges;
+  Edge  nddyads, kedge;
   Model *m;
   ModelTerm *thisterm;
 
   GetRNGstate(); /* Necessary for R random number generator */
-  nw[0]=NetworkInitialize(heads, tails, n_edges, maxedges,
+  nw[0]=NetworkInitialize(heads, tails, n_edges,
                           n_nodes, directed_flag, bip, 0);
   m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
   
@@ -52,10 +52,10 @@ void MPLE_wrapper (int *heads, int *tails, int *dnedges,
    nddyads = (Edge)(thisterm->inputparams[0]);
    nwhamming=NetworkInitializeD(thisterm->inputparams+1, 
 				thisterm->inputparams+1+nddyads,
-			       	nddyads, maxedges, n_nodes, directed_flag, bip,0);
+			       	nddyads, n_nodes, directed_flag, bip,0);
    nddyads=0;
    nw[1]=NetworkInitializeD(thisterm->inputparams+1, 
-			   thisterm->inputparams+1+nddyads, nddyads, maxedges,
+			   thisterm->inputparams+1+nddyads, nddyads,
          n_nodes, directed_flag, bip,0);
    for (kedge=1; kedge <= nwhamming.nedges; kedge++) {
      FindithEdge(&hhead, &htail, kedge, &nwhamming);
@@ -183,8 +183,8 @@ void MpleInit_no_compress (int *responsevec, double *covmat, int *weightsvector,
             mtp->dstats = covMatPosition + totalStats;
             /* Now call d_xxx function, which updates mtp->dstats to reflect
             changing the current dyad.  */
-            if(d==0) (*(mtp->func))(1, &i, &j, mtp, nwp);
-            else(*(mtp->func))(1, &j, &i, mtp, nwp);
+            if(d==0) (*(mtp->d_func))(1, &i, &j, mtp, nwp);
+            else(*(mtp->d_func))(1, &j, &i, mtp, nwp);
             /* dstats values reflect changes in current dyad; for MPLE, 
             values must reflect going from 0 to 1.  Thus, we have to reverse 
             the sign of dstats whenever the current edge exists. */
@@ -235,8 +235,8 @@ void MpleInit_hash(int *responsevec, double *covmat, int *weightsvector,
             mtp->dstats = newRow + totalStats;
             /* Now call d_xxx function, which updates mtp->dstats to reflect
             changing the current dyad.  */
-            if(d==0) (*(mtp->func))(1, &i, &j, mtp, nwp);
-            else(*(mtp->func))(1, &j, &i, mtp, nwp);
+            if(d==0) (*(mtp->d_func))(1, &i, &j, mtp, nwp);
+            else(*(mtp->d_func))(1, &j, &i, mtp, nwp);
             /* dstats values reflect changes in current dyad; for MPLE, 
             values must reflect going from 0 to 1.  Thus, we have to reverse 
             the sign of dstats whenever the current edge exists. */

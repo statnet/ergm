@@ -47,10 +47,10 @@ void MCMC_wrapper (int *heads, int *tails, int *dnedges,
   m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
 
   /* Form the missing network */
-  nw[0]=NetworkInitialize(heads, tails, n_edges, mpe, 
+  nw[0]=NetworkInitialize(heads, tails, n_edges, 
                           n_nodes, directed_flag, bip, 0);
   if (n_medges>0) {
-   nw[1]=NetworkInitialize(mheads, mtails, n_medges, mpe,
+   nw[1]=NetworkInitialize(mheads, mtails, n_medges,
                            n_nodes, directed_flag, bip, 0);
   }
 
@@ -61,11 +61,11 @@ void MCMC_wrapper (int *heads, int *tails, int *dnedges,
    thisterm = m->termarray + hammingterm - 1;
    nddyads = (Edge)(thisterm->inputparams[0]);
    nwhamming=NetworkInitializeD(thisterm->inputparams+1, 
-				thisterm->inputparams+1+nddyads, nddyads, mpe, 
+				thisterm->inputparams+1+nddyads, nddyads, 
         n_nodes, directed_flag, bip,0);
    nddyads=0;
    nw[1]=NetworkInitializeD(thisterm->inputparams+1, 
-			   thisterm->inputparams+1+nddyads, nddyads, mpe,
+			   thisterm->inputparams+1+nddyads, nddyads,
          n_nodes, directed_flag, bip,0);
 /*	     Rprintf("made hw[1]\n"); */
    for (kedge=1; kedge <= nwhamming.nedges; kedge++) {
@@ -93,11 +93,11 @@ void MCMC_wrapper (int *heads, int *tails, int *dnedges,
    thisterm = m->termarray + formationterm - 1;
    nddyads = (Edge)(thisterm->inputparams[0]);
    nwformation=NetworkInitializeD(thisterm->inputparams+1,
-				  thisterm->inputparams+1+nddyads, nddyads, mpe,
+				  thisterm->inputparams+1+nddyads, nddyads,
           n_nodes, directed_flag, bip,0);
    nddyads=0;
    nw[1]=NetworkInitializeD(thisterm->inputparams+1,
-			    thisterm->inputparams+1+nddyads, nddyads, mpe,
+			    thisterm->inputparams+1+nddyads, nddyads,
           n_nodes, directed_flag, bip,0);
 /*	     Rprintf("made hw[1]\n"); */
    for (kedge=1; kedge <= nwformation.nedges; kedge++) {
@@ -588,113 +588,6 @@ int CheckConstrainedTogglesValid(MHproposal *MHp, DegreeBound *bd, Network *nwp)
   return fvalid;
 }
 
-/*****************
- void MCMC_global
-
- Wrapper for a call from R.  Return the change in the statistics when
- we go from the observed graph to an empty graph.  If the empty graph
- has true global values equal to zero for all statistics, then this change
- (with a minus sign in front) gives the true global values for the
- observed graph.
-*****************/
-void MCMC_global (int *heads, int *tails, int *dnedges, 
-      int *maxpossibleedges,
-		  int *dn, int *dflag,  int *bipartite,
-		  int *nterms, char **funnames,
-		  char **sonames, double *inputs,  double *stats)
-{	
-  int directed_flag, hammingterm, formationterm;
-  Vertex n_nodes, hhead, htail;
-  Edge n_edges, nddyads, kedge, mpe=*maxpossibleedges;
-  Network nw[2];
-  Model *m;
-  ModelTerm *thisterm;
-  Vertex bip;
-
-/*	     Rprintf("prestart with setup\n"); */
-  n_nodes = (Vertex)*dn; 
-  n_edges = (Edge)*dnedges;     
-  directed_flag = *dflag;
-  bip = (Vertex)*bipartite;
-  
-  m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
-  nw[0]=NetworkInitialize(heads, tails, n_edges, mpe,
-                          n_nodes, directed_flag, bip, 0);
-
-  hammingterm=ModelTermHamming (*funnames, *nterms);
-/*	     Rprintf("start with setup\n"); */
-  if(hammingterm>0){
-   Network nwhamming;
-   thisterm = m->termarray + hammingterm - 1;
-   nddyads = (Edge)(thisterm->inputparams[0]);
-
-   nwhamming=NetworkInitializeD(thisterm->inputparams+1, 
-			       thisterm->inputparams+1+nddyads, nddyads, mpe,
-             n_nodes, directed_flag, bip, 0);
-   nddyads=0;
-   nw[1]=NetworkInitializeD(thisterm->inputparams+1, 
-			   thisterm->inputparams+1+nddyads, nddyads, mpe,
-         n_nodes, directed_flag, bip, 0);
-   for (kedge=1; kedge <= nwhamming.nedges; kedge++) {
-     FindithEdge(&hhead, &htail, kedge, &nwhamming);
-     if(EdgetreeSearch(hhead, htail, nw[0].outedges) == 0){
-       ToggleEdge(hhead, htail, &nw[1]);
-     }
-   }
-   for (kedge=1; kedge <= nw[0].nedges; kedge++) {
-     FindithEdge(&hhead, &htail, kedge, &nw[0]);
-     if(EdgetreeSearch(hhead, htail, nwhamming.outedges) == 0){
-       ToggleEdge(hhead, htail, &nw[1]);
-     }
-   }
-   NetworkDestroy(&nwhamming);
-/*	     Rprintf("done with setup nw[1].nedges %d\n",nw[1].nedges); */
-  }
-
-/* Really this is a formation term */
-  formationterm=ModelTermFormation (*funnames, *nterms);
-  if(formationterm>0){
-   Network nwformation;
-   thisterm = m->termarray + formationterm - 1;
-   nddyads = (Edge)(thisterm->inputparams[0]);
-   nwformation=NetworkInitializeD(thisterm->inputparams+1,
-				  thisterm->inputparams+1+nddyads, nddyads, mpe,
-          n_nodes, directed_flag, bip, 0);
-   nddyads=0;
-   nw[1]=NetworkInitializeD(thisterm->inputparams+1,
-			   thisterm->inputparams+1+nddyads, nddyads, mpe,
-         n_nodes, directed_flag, bip, 0);
-/*	     Rprintf("made hw[1]\n"); */
-   for (kedge=1; kedge <= nwformation.nedges; kedge++) {
-     FindithEdge(&hhead, &htail, kedge, &nwformation);
-     if(EdgetreeSearch(hhead, htail, nw[0].outedges) == 0){
-/*	     Rprintf(" in g0 not g hhead %d htail %d\n",hhead, htail); */
-       ToggleEdge(hhead, htail, &nw[0]);
-     }
-   }
-   for (kedge=1; kedge <= nw[0].nedges; kedge++) {
-     FindithEdge(&hhead, &htail, kedge, &nw[0]);
-     if(EdgetreeSearch(hhead, htail, nwformation.outedges) == 0){
-/*	     Rprintf("not g0  in g hhead %d htail %d\n",hhead, htail); */
-       ToggleEdge(hhead, htail, &nw[1]);
-     }
-   }
-/*   Rprintf("Initial number of discordant %d Number of g0 ties %d Number of ties in g %d\n",nw[1].nedges, nwformation.nedges,nw[0].nedges); */
-   hammingterm=1;
-   NetworkDestroy(&nwformation);
-/*   Rprintf("Initial number (discord) from reference %d Number of original %d\n",nw[1].nedges,nw[0].nedges); */
-  }
-
-  /* Compute the change statistics and copy them to stats for return to R. */
-  ChangeStats(n_edges, heads, tails, nw, m);
-  memcpy(stats,m->workspace,m->n_stats*sizeof(double));
-
-  ModelDestroy(m);
-  NetworkDestroy(nw);
-  if (hammingterm > 0 || formationterm > 0)
-    NetworkDestroy(&nw[1]);
-}
-
 void MCMCPhase12 (int *heads, int *tails, int *dnedges, 
       int *maxpossibleedges,
 		  int *dn, int *dflag, int *bipartite, 
@@ -737,10 +630,10 @@ void MCMCPhase12 (int *heads, int *tails, int *dnedges,
   m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
 
   /* Form the missing network */
-  nw[0]=NetworkInitialize(heads, tails, n_edges, mpe,
+  nw[0]=NetworkInitialize(heads, tails, n_edges,
                           n_nodes, directed_flag, bip,0);
   if (n_medges>0) {
-   nw[1]=NetworkInitialize(mheads, mtails, n_medges, mpe,
+   nw[1]=NetworkInitialize(mheads, mtails, n_medges,
                            n_nodes, directed_flag, bip,0);
   }
 
@@ -752,11 +645,11 @@ void MCMCPhase12 (int *heads, int *tails, int *dnedges,
    nddyads = (Edge)(thisterm->inputparams[0]);
 
    nwhamming=NetworkInitializeD(thisterm->inputparams+1,
-			       thisterm->inputparams+1+nddyads, nddyads, mpe,
+			       thisterm->inputparams+1+nddyads, nddyads,
              n_nodes, directed_flag, bip, 0);
    nddyads=0;
    nw[1]=NetworkInitializeD(thisterm->inputparams+1,
-			   thisterm->inputparams+1+nddyads, nddyads, mpe,
+			   thisterm->inputparams+1+nddyads, nddyads,
          n_nodes, directed_flag, bip,0);
 /*	     Rprintf("made hw[1]\n"); */
    for (kedge=1; kedge <= nwhamming.nedges; kedge++) {
@@ -784,11 +677,11 @@ void MCMCPhase12 (int *heads, int *tails, int *dnedges,
    thisterm = m->termarray + formationterm - 1;
    nddyads = (Edge)(thisterm->inputparams[0]);
    nwformation=NetworkInitializeD(thisterm->inputparams+1, 
-				  thisterm->inputparams+1+nddyads, nddyads, mpe,
+				  thisterm->inputparams+1+nddyads, nddyads,
           n_nodes, directed_flag, bip, 0);
    nddyads=0;
    nw[1]=NetworkInitializeD(thisterm->inputparams+1, 
-			   thisterm->inputparams+1+nddyads, nddyads, mpe,
+			   thisterm->inputparams+1+nddyads, nddyads,
          n_nodes, directed_flag, bip,0);
 /*	     Rprintf("made hw[1]\n"); */
    for (kedge=1; kedge <= nwformation.nedges; kedge++) {
@@ -1094,7 +987,7 @@ void ChangeStats(unsigned int ntoggles, Vertex *togglehead, Vertex *toggletail,
   for (unsigned int i=0; i < m->n_terms; i++){
     /* Calculate change statistics */
     mtp->dstats = dstats; /* Stuck the change statistic here.*/
-    (*(mtp->func))(ntoggles, togglehead, toggletail, 
+    (*(mtp->d_func))(ntoggles, togglehead, toggletail, 
 		   mtp, nwp);  /* Call d_??? function */
     dstats += (mtp++)->nstats;
   }

@@ -31,35 +31,27 @@
  that the 0th TreeNode in the array is unused and should 
  have all its values set to zero
 *******************/
-WtNetwork WtNetworkInitialize(int *heads, int *tails, double *weights,
-			      int nedges, int maxedges, int nnodes, int directed_flag, int bipartite) {
-  Edge i, j;
-  Vertex h, t;
-  double w;
+WtNetwork WtNetworkInitialize(Vertex *heads, Vertex *tails, double *weights,
+			      Edge nedges, Vertex nnodes, int directed_flag, Vertex bipartite,
+			      int lasttoggle_flag) {
+  Edge i;
   WtNetwork nw;
 
   nw.next_inedge = nw.next_outedge = (Edge)nnodes+1;
-  nw.outdegree = (Vertex *) malloc(sizeof(Vertex) * (nnodes+1));
-  nw.indegree  = (Vertex *) malloc(sizeof(Vertex) * (nnodes+1));
-  nw.maxedges = maxedges+nnodes+2; /* Maybe larger than needed? */
-  nw.inedges = (WtTreeNode *) malloc(sizeof(WtTreeNode) * nw.maxedges);
-  nw.outedges = (WtTreeNode *) malloc(sizeof(WtTreeNode) * nw.maxedges);
-  
-  nw.duration_info.MCMCtimer=0;
-  i = directed_flag? nnodes*(nnodes-1) : (nnodes*(nnodes-1))/2;
-  nw.duration_info.lasttoggle = (int *) malloc(sizeof(int) * i);
+  /* Calloc will zero the allocated memory for us, probably a lot
+     faster. */
+  nw.outdegree = (Vertex *) calloc((nnodes+1),sizeof(Vertex));
+  nw.indegree  = (Vertex *) calloc((nnodes+1),sizeof(Vertex));
+  nw.maxedges = MAX(nedges,1)+nnodes+2; /* Maybe larger than needed? */
+  nw.inedges = (WtTreeNode *) calloc(nw.maxedges,sizeof(WtTreeNode));
+  nw.outedges = (WtTreeNode *) calloc(nw.maxedges,sizeof(WtTreeNode));
 
-  for (i=0; i<=nnodes; i++) {
-    nw.inedges[i].value = nw.outedges[i].value = 0;
-    nw.inedges[i].parent = nw.outedges[i].parent = 0;
-    nw.inedges[i].left = nw.outedges[i].left = 0;
-    nw.inedges[i].right = nw.outedges[i].right = 0;
-    nw.inedges[i].weight = nw.outedges[i].weight = 0.0;
-    nw.indegree[i] = nw.outdegree[i] = 0;
+  if(lasttoggle_flag){
+    nw.duration_info.MCMCtimer=0;
+    i = directed_flag? nnodes*(nnodes-1) : (nnodes*(nnodes-1))/2;
+    nw.duration_info.lasttoggle = (int *) calloc(i, sizeof(int));
   }
-  
-  for (; i<maxedges; i++)
-    nw.inedges[i].value = nw.outedges[i].value = 0;
+  else nw.duration_info.lasttoggle = NULL;
 
   /*Configure a Network*/
   nw.nnodes = nnodes;
@@ -67,22 +59,36 @@ WtNetwork WtNetworkInitialize(int *heads, int *tails, double *weights,
   nw.directed_flag=directed_flag;
   nw.bipartite=bipartite;
 
+  WtShuffleEdges(heads,tails,weights,nedges); /* shuffle to avoid worst-case performance */
+
   for(i = nedges; i > 0; i--) {
-    j = i * unif_rand();  /* shuffle to avoid worst-case performance */
-    h = (Vertex)heads[j];
-    t = (Vertex)tails[j];
-    w = weights[j];
-    heads[j] = heads[i-1];
-    tails[j] = tails[i-1];
-    weights[j] = weights[i-1];
-    heads[i-1] = h;
-    tails[i-1] = t;
-    weights[i-1] = w;
+    Vertex h=heads[i], t=tails[i];
+    double w=weights[i];
     if (!directed_flag && h > t) 
       WtAddEdgeToTrees(t,h,w,&nw); /* Undir edges always have head < tail */ 
     else 
       WtAddEdgeToTrees(h,t,w,&nw);
   }
+  return nw;
+}
+
+/*Takes vectors of doubles for edges; used only when constructing from inputparams. */
+WtNetwork WtNetworkInitializeD(double *heads, double *tails, double *weights, Edge nedges,
+			     Vertex nnodes, int directed_flag, Vertex bipartite,
+			     int lasttoggle_flag) {
+
+  Vertex *iheads=malloc(sizeof(Vertex)*nedges);
+  Vertex *itails=malloc(sizeof(Vertex)*nedges);
+  
+  for(Edge i=0; i<nedges; i++){
+    iheads[i]=heads[i];
+    itails[i]=tails[i];
+  }
+
+  WtNetwork nw=WtNetworkInitialize(iheads,itails,weights,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag);
+
+  free(iheads);
+  free(itails);
   return nw;
 }
 
@@ -94,7 +100,10 @@ void WtNetworkDestroy(WtNetwork *nwp) {
   free (nwp->outdegree);
   free (nwp->inedges);
   free (nwp->outedges);
-  free (nwp->duration_info.lasttoggle);
+  if(nwp->duration_info.lasttoggle){
+    free (nwp->duration_info.lasttoggle);
+    nwp->duration_info.lasttoggle=NULL;
+  }
 }
 
 /*****************
@@ -159,7 +168,7 @@ Edge WtEdgetreeMinimum (WtTreeNode *edges, Edge x) {
  Toggle an edge:  Set it to the opposite of its current
  value.  Return 1 if edge added, 0 if deleted.
 *****************/
-int WtToggleEdge (Vertex head, Vertex tail, double weight, Vertex nnodes, WtNetwork *nwp) 
+int WtToggleEdge (Vertex head, Vertex tail, double weight, WtNetwork *nwp) 
 {
   if (!(nwp->directed_flag) && head > tail) {
     Vertex temp;
@@ -173,7 +182,6 @@ int WtToggleEdge (Vertex head, Vertex tail, double weight, Vertex nnodes, WtNetw
     return 1 - WtDeleteEdgeFromTrees(head,tail,nwp);
 }
 
-
 /*****************
  Edge ToggleEdgeWithTimestamp
  By MSH 11/26/06
@@ -184,12 +192,14 @@ int WtToggleEdge (Vertex head, Vertex tail, double weight, Vertex nnodes, WtNetw
 int WtToggleEdgeWithTimestamp (Vertex head, Vertex tail, double weight, WtNetwork *nwp) 
 {
   Edge k;
+
   if (!(nwp->directed_flag) && head > tail) {
     Vertex temp;
     temp = head; /*  Make sure head<tail always for undirected edges */
     head = tail;
     tail = temp;
   }
+  
   if(nwp->duration_info.lasttoggle){ /* Skip timestamps if no duration info. */
     if (nwp->directed_flag) 
       k = (tail-1)*(nwp->nnodes-1) + head - ((head>tail) ? 1:0) - 1; 
@@ -210,7 +220,7 @@ int WtToggleEdgeWithTimestamp (Vertex head, Vertex tail, double weight, WtNetwor
  Return time since given (head,tail) was last toggled using
  ToggleEdgeWithTimestamp function
  *****************/
-int ElapsedTime (Vertex head, Vertex tail, Network *nwp) 
+int WtElapsedTime (Vertex head, Vertex tail, WtNetwork *nwp) 
 {
   Edge k;
   if (!(nwp->directed_flag) && head > tail) {
@@ -239,7 +249,7 @@ int ElapsedTime (Vertex head, Vertex tail, Network *nwp)
  Set an edge's time-stamp to the current MCMC time.
  *****************/
 
-void TouchEdge(Vertex head, Vertex tail, Network *nwp){
+void WtTouchEdge(Vertex head, Vertex tail, WtNetwork *nwp){
   unsigned int k;
   if(nwp->duration_info.lasttoggle){ /* Skip timestamps if no duration info. */
     if (nwp->directed_flag) 
@@ -261,52 +271,64 @@ void TouchEdge(Vertex head, Vertex tail, Network *nwp){
 *****************/
 int WtAddEdgeToTrees(Vertex head, Vertex tail, double weight, WtNetwork *nwp){
   if (WtEdgetreeSearch(head, tail, nwp->outedges) == 0) {
-    WtAddHalfedgeToTree(head, tail, weight, nwp->outedges, 
-			                  &(nwp->next_outedge), nwp->nnodes, nwp->maxedges);
-    WtAddHalfedgeToTree(tail, head, weight, nwp->inedges, 
-                        &(nwp->next_inedge), nwp->nnodes, nwp->maxedges);
+    WtAddHalfedgeToTree(head, tail, weight, nwp->outedges, nwp->next_outedge);
+    WtAddHalfedgeToTree(tail, head, weight, nwp->inedges, nwp->next_inedge);
     ++nwp->outdegree[head];
     ++nwp->indegree[tail];
     ++nwp->nedges;
+    WtUpdateNextedge (nwp->inedges, &(nwp->next_inedge), nwp); 
+    WtUpdateNextedge (nwp->outedges, &(nwp->next_outedge), nwp);
     return 1;
   }
   return 0;
 }
 
 /*****************
- Edge AddHalfedgeToTree
+ void WtAddHalfedgeToTree:  Only called by AddEdgeToTrees
 *****************/
-void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight, 
-			  WtTreeNode *edges, Edge *next_edge, 
-			  Vertex nnodes, Edge maxedges) 
-{  /*  See comments in AddHalfedgeToTree.  */
+void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight, WtTreeNode *edges, Edge next_edge){
   WtTreeNode *eptr = edges+a, *newnode;
   Edge e;
-  
-  if (eptr->value==0) { 
+
+  if (eptr->value==0) { /* This is the first edge for this vertex. */
     eptr->value=b;
     eptr->weight = weight;  /*  Add weight too */
     return;
   }
-  (newnode=edges+*next_edge)->value=b;  
-  newnode->left=newnode->right=0;
+  (newnode = edges + next_edge)->value=b;  
+  newnode->left = newnode->right = 0;
+  /* Now find the parent of this new edge */
   newnode->weight=weight;  /*  Add weight too */
   for (e=a; e!=0; e=(b < (eptr=edges+e)->value) ? eptr->left : eptr->right);
-  newnode->parent=eptr-edges;
-  if (b < eptr->value)
-    eptr->left=*next_edge;
+  newnode->parent=eptr-edges;  /* Point from the new edge to the parent... */
+  if (b < eptr->value)  /* ...and have the parent point back. */
+    eptr->left=next_edge; 
   else
-    eptr->right=*next_edge;
-  /* Finally, update the value of *next_edge for next time. */
-  while (++*next_edge<maxedges) {
-    if (edges[*next_edge].value==0) return;
+    eptr->right=next_edge;
+}
+
+/*****************
+void UpdateNextedge
+*****************/
+void WtUpdateNextedge (WtTreeNode *edges, Edge *nextedge, WtNetwork *nwp) {
+  int mult=2;
+  /*WtTreeNode *tmp_in, *tmp_out; */
+  
+  while (++*nextedge < nwp->maxedges) {
+    if (edges[*nextedge].value==0) return;
   }
   /* Reached end of allocated memory;  back to start and recheck for "holes" */
-  for (*next_edge=(Vertex)nnodes+1; *next_edge<maxedges; ++*next_edge) {
-    if (edges[*next_edge].value==0) return;
+  for (*nextedge = (Edge)nwp->nnodes+1; *nextedge < nwp->maxedges; ++*nextedge) {
+    if (edges[*nextedge].value==0) return;
   }
   /* There are no "holes" left, so this network overflows mem allocation */
-  error("Allocated number of edges exceded.\n");
+  nwp->maxedges *= mult;
+  nwp->inedges = (WtTreeNode *) realloc(nwp->inedges, 
+					sizeof(WtTreeNode) * nwp->maxedges);
+  memset(nwp->inedges+*nextedge,0,sizeof(TreeNode) * (nwp->maxedges-*nextedge));
+  nwp->outedges = (WtTreeNode *) realloc(nwp->outedges, 
+					 sizeof(WtTreeNode) * nwp->maxedges);
+  memset(nwp->outedges+*nextedge,0,sizeof(WtTreeNode) * (nwp->maxedges-*nextedge));
 }
 
 /*****************
@@ -317,10 +339,8 @@ void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight,
  be done once for outedges and once for inedges.
 *****************/
 int WtDeleteEdgeFromTrees(Vertex head, Vertex tail, WtNetwork *nwp){
-  if (WtDeleteHalfedgeFromTree(head, tail, nwp->outedges,
-			       &(nwp->next_outedge))&&
-      WtDeleteHalfedgeFromTree(tail, head, nwp->inedges, 
-			       &(nwp->next_inedge))) {
+  if (WtDeleteHalfedgeFromTree(head, tail, nwp->outedges,&(nwp->next_outedge))&&
+      WtDeleteHalfedgeFromTree(tail, head, nwp->inedges, &(nwp->next_inedge))) {
     --nwp->outdegree[head];
     --nwp->indegree[tail];
     --nwp->nedges;
@@ -338,19 +358,22 @@ int WtDeleteEdgeFromTrees(Vertex head, Vertex tail, WtNetwork *nwp){
 *****************/
 int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges,
 		     Edge *next_edge){ 
-  /* see comments in DeleteHalfedgeFromTree */
   Edge x, z, root=(Edge)a;
   WtTreeNode *xptr, *zptr, *ptr;
 
   if ((z=WtEdgetreeSearch(a, b, edges))==0)  /* z is the current TreeNode. */
-    return 0;
+    return 0; /* This edge doesn't exist, so return 0 */
+  /* First, determine which node to splice out; this is z.  If the current
+     z has two children, then we'll actually splice out its successor. */
   if ((zptr=edges+z)->left != 0 && zptr->right != 0) {
     z=WtEdgetreeSuccessor(edges, z);
     zptr->value = (ptr=edges+z)->value;
     zptr=ptr;
   }
+  /* Set x to the child of z (there is at most one). */
   if ((x=zptr->left) == 0)
     x = zptr->right;
+  /* Splice out node z */
   if (z == root) {
     zptr->value = (xptr=edges+x)->value;
     if (x != 0) {
@@ -369,6 +392,7 @@ int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges,
     else 
       ptr->right = x;
   }  
+  /* Clear z node, update *next_edge if necessary. */
   zptr->value=0;
   if (z < *next_edge)
     *next_edge=z;
@@ -454,11 +478,84 @@ int WtFindithEdge (Vertex *head, Vertex *tail, Edge i, WtNetwork *nwp) {
   while (i-- > 1) {
     e=WtEdgetreeSuccessor(nwp->outedges, e);
   }
-  *head = h;                             
+  *head = h;
   *tail = nwp->outedges[e].value;
   return 1;
 }
 
+/*****************
+  int WtFindithnonEdge
+
+  Find the ith nonedge in the WtNetwork *nwp and
+  update the values of head and tail appropriately.  Return
+  1 if successful, 0 otherwise.  
+  Note that i is numbered from 1, not 0.  Thus, the maximum possible
+  value of i is (ndyads - nwp->nedges).
+******************/
+
+/* This function is not yet written.  It's not clear whether it'll
+   be needed. */      
+
+/* int WtFindithnonEdge (Vertex *head, Vertex *tail, Edge i, WtNetwork *nwp) {
+} */
+
+
+/****************
+ Edge EdgeTree2EdgeList
+
+ Write the edgelist of a network into head and tail arrays.
+ Returns the number of edges in the network.
+****************/
+Edge WtEdgeTree2EdgeList(Vertex *heads, Vertex *tails, double *weights, WtNetwork *nwp, Edge nmax){
+  Edge nextedge=0;
+  if (nwp->directed_flag) {
+    for (Vertex v=1; v<=nwp->nnodes; v++){
+      for(Vertex e = WtEdgetreeMinimum(nwp->outedges, v);
+      nwp->outedges[e].value != 0 && nextedge < nmax;
+      e = WtEdgetreeSuccessor(nwp->outedges, e)){
+        heads[nextedge] = v;
+        tails[nextedge] = nwp->outedges[e].value;
+	if(weights) weights[nextedge] = EdgeWeight(heads[nextedge],tails[nextedge],nwp);
+        nextedge++;
+      }
+    }
+  }else{
+    for (Vertex v=1; v<=nwp->nnodes; v++){
+      for(Vertex e = WtEdgetreeMinimum(nwp->outedges, v);
+      nwp->outedges[e].value != 0 && nextedge < nmax;
+      e = WtEdgetreeSuccessor(nwp->outedges, e)){
+        Vertex k = nwp->outedges[e].value;
+        if(v < k){
+          heads[nextedge] = k;
+          tails[nextedge] = v;
+	  if(weights) weights[nextedge] = EdgeWeight(k,v,nwp);
+          nextedge++;
+        }else{
+          heads[nextedge] = v;
+          tails[nextedge] = k;
+	  if(weights) weights[nextedge] = EdgeWeight(v,k,nwp);
+          nextedge++;
+        }
+      }
+    }
+  }
+  return nextedge;
+}
+
+void WtShuffleEdges(Vertex *heads, Vertex *tails, double *weights, Edge nedges){
+  for(Edge i = nedges; i > 0; i--) {
+    Edge j = i * unif_rand();  /* shuffle to avoid worst-case performance */
+    Vertex h = heads[j];
+    Vertex t = tails[j];
+    double w = weights[j];
+    heads[j] = heads[i-1];
+    tails[j] = tails[i-1];
+    weights[j] = weights[i-1];
+    heads[i-1] = h;
+    tails[i-1] = t;
+    weights[i-1] = w;
+  }
+}
 
 /*****************
  long int EdgeWeight
@@ -481,5 +578,3 @@ double EdgeWeight (Vertex head, Vertex tail, WtNetwork *nwp)
     k = (tail-1)*(tail-2)/2 + head - 1;    
   return nwp->outedges[k].weight;
 }
-
-

@@ -21,7 +21,7 @@ void Prevalence (int *nnodes,
   Vertex alter=0;
   Edge e;
   Vertex *id, *od;
-  Edge i, j, ne = *nedge, nwedge, maxedges=MAXEDGES;
+  Edge i, j, ne = *nedge;
   int k, time, ndyads, rane;
   int bipartite = *nfem;
   int *sinfected;
@@ -35,7 +35,7 @@ void Prevalence (int *nnodes,
 
   for (k=0; k < *nsim; k++) {
     /* R's serialization of matrixes is column-major, so this works: */
-   nw = NetworkInitialize(edge, edge+*nedge, ne, maxedges,
+   nw = NetworkInitialize(edge, edge+*nedge, ne,
                           *nnodes, 0, bipartite, 0);
    ie=nw.inedges;
    oe=nw.outedges;
@@ -141,7 +141,7 @@ void PrevalenceWithBernoulliOption(int *nnodes,
   Vertex alter=0;
   Edge e;
   Vertex *id, *od;
-  Edge i, j, ne = *nedge, nwedge, maxedges=MAXEDGES;
+  Edge i, j, ne = *nedge, nwedge;
   int k, time, ndyads, rane;
   int bipartite = *nfem;
   Vertex *bheads, *btails;
@@ -153,10 +153,10 @@ void PrevalenceWithBernoulliOption(int *nnodes,
   sinfected = (int *) malloc(sizeof(int) * (*nnodes));
 //    Rprintf("initial bipartite %d edges %d heads[i] %f tails[i] %f\n", bipartite,ne,
 //		           heads[i-1],tails[i-1]);
-  nws = NetworkInitialize(edge, edge+*nedge, ne, maxedges,
+  nws = NetworkInitialize(edge, edge+*nedge, ne,
                           *nnodes, 0, bipartite,0);
   if(*bernoulli){
-    nw = NetworkInitialize(edge, edge+*nedge, ne, maxedges, 
+    nw = NetworkInitialize(edge, edge+*nedge, ne,
                            *nnodes, 0, bipartite,0);
   }else{
     nw = nws;
@@ -235,7 +235,7 @@ void PrevalenceWithBernoulliOption(int *nnodes,
       NetworkDestroy (&nw);
       nwedge=nws.nedges;
       Network nw;
-      nw = NetworkInitialize(bheads, btails, nwedge, maxedges,
+      nw = NetworkInitialize(bheads, btails, nwedge,
                              *nnodes, 0, bipartite,0);
 //    Rprintf("network reinitalized for Bernoulli bipartite %d edges %d\n", bipartite,nw.nedges);
       ie=nw.inedges;
@@ -256,7 +256,7 @@ void PrevalenceWithBernoulliOption(int *nnodes,
 //   Rprintf("k %d edges %d prev %d \n",k,nw.nedges,prev[k]);
    if (k < *nsim) {
     NetworkDestroy (&nw);
-    nw = NetworkInitialize(edge, edge+*nedge, ne, maxedges,
+    nw = NetworkInitialize(edge, edge+*nedge, ne,
                            *nnodes, 0, bipartite,0);
     ie=nw.inedges;
     oe=nw.outedges;

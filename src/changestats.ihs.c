@@ -5,8 +5,7 @@
 /*****************
  changestat: d_b1kappa
 *****************/
-void d_b1kappa (int ntoggles, Vertex *heads, Vertex *tails, 
-	    ModelTerm *mtp, Network *nwp)  {
+D_CHANGESTAT_FN(d_b1kappa){
   int i, j, echange=0;
   double nedges, change, iar0, far0;
   Vertex h, t, hd, iak2, fak2, nnodes, *od;
@@ -48,8 +47,7 @@ void d_b1kappa (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_altistar
 *****************/
-void d_altistar (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp)  {
+D_CHANGESTAT_FN(d_altistar) {
   int i, echange=0;
   double lambda, oneexpl, change;
   Vertex h, t, td=0, *id;
@@ -80,8 +78,7 @@ void d_altistar (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_altostar
 *****************/
-void d_altostar (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp)  {
+D_CHANGESTAT_FN(d_altostar) {
   int i, echange=0;
   double lambda, oneexpl, change;
   Vertex h, t, hd=0, *od;
@@ -114,8 +111,7 @@ void d_altostar (int ntoggles, Vertex *heads, Vertex *tails,
  changestat: d_berninhom
  Changescores for inhomogeneous Bernoulli graphs
 *****************/
-void d_berninhom (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp)
+D_CHANGESTAT_FN(d_berninhom)
 {
   int edgeflag, i, nstats;                         
   Vertex h, t, n;
@@ -145,8 +141,7 @@ void d_berninhom (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_biduration
 *****************/
-void d_biduration (int ntoggles, Vertex *heads, Vertex *tails,
-		   ModelTerm *mtp, Network *nwp)
+D_CHANGESTAT_FN(d_biduration)
 {
   Vertex h, t, hh, ht;
   int i, k, nprevedge, edgeflag, discord, lookmore;
@@ -236,8 +231,7 @@ void d_biduration (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_bimix
 *****************/
-void d_bimix (int ntoggles, Vertex *heads, Vertex *tails,
-		              ModelTerm *mtp, Network *nwp) {
+D_CHANGESTAT_FN(d_bimix){
 
   int matchvalh, matchvalt;
   Vertex h, t, nnodes, nstats;
@@ -287,8 +281,7 @@ void d_bimix (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_bkappa
 *****************/
-void d_bkappa (int ntoggles, Vertex *heads, Vertex *tails, 
-	       ModelTerm *mtp, Network *nwp)  {
+D_CHANGESTAT_FN(d_bkappa)  {
   int i, j, echange=0;
   double nedges, change, iar0, far0, ier0, fer0;
   Vertex h, t, hd, td=0, iak2, fak2, iek2, fek2, nnodes, *id, *od;
@@ -340,8 +333,7 @@ void d_bkappa (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_degreep
 *****************/
-void d_degreep (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp) 
+D_CHANGESTAT_FN(d_degreep) 
 {
   int i, j, echange;
   Vertex head, tail, headdeg, taildeg, deg, *id, *od;
@@ -371,8 +363,7 @@ void d_degreep (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_degreep_by_attr
 *****************/
-void d_degreep_by_attr (int ntoggles, Vertex *heads, Vertex *tails, 
-	        ModelTerm *mtp, Network *nwp) 
+D_CHANGESTAT_FN(d_degreep_by_attr) 
 {
   /* The inputparams are assumed to be set up as follows:
   The first 2*nstats values are in pairs:  (degree, attrvalue)
@@ -411,8 +402,7 @@ void d_degreep_by_attr (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_degreep_w_homophily
 *****************/
-void d_degreep_w_homophily (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp) 
+D_CHANGESTAT_FN(d_degreep_w_homophily) 
 {
   /*  The inputparams are assumed to be set up as follows:
   The first nstats values are the values of degree
@@ -472,8 +462,7 @@ void d_degreep_w_homophily (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_dissolve
 *****************/
-void d_dissolve(int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp) {
+D_CHANGESTAT_FN(d_dissolve) {
   int edgeflag, i;
   Vertex h, t;
   
@@ -493,8 +482,7 @@ void d_dissolve(int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_duration
 *****************/
-void d_duration (int ntoggles, Vertex *heads, Vertex *tails, 
-                 ModelTerm *mtp, Network *nwp) {
+D_CHANGESTAT_FN(d_duration) {
   Vertex h, t, hh, ht;
   int i, k, nhedge, edgeflag, discord, lookmore;
   int ndyads, nnodes;
@@ -555,8 +543,7 @@ void d_duration (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_b2kappa
 *****************/
-void d_b2kappa (int ntoggles, Vertex *heads, Vertex *tails, 
-	    ModelTerm *mtp, Network *nwp)  {
+D_CHANGESTAT_FN(d_b2kappa)  {
   int i, j, echange=0;
   double nedges, change, ier0, fer0;
   Vertex h, t, td=0, iek2, fek2, nnodes, *id;
@@ -599,8 +586,7 @@ void d_b2kappa (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_factor
 *****************/
-void d_factor (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp)  {         
+D_CHANGESTAT_FN(d_factor)  {         
   double val, s;
   Vertex h, t;
   long int nlevels;
@@ -633,8 +619,7 @@ void d_factor (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_formation
 *****************/
-void d_formation(int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp) {
+D_CHANGESTAT_FN(d_formation) {
   int edgeflag, i;
   Vertex h, t;
   
@@ -655,8 +640,7 @@ void d_formation(int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_geodegree
 *****************/
-void d_geodegree (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp) {
+D_CHANGESTAT_FN(d_geodegree) {
   int i, echange;
   double alpha;
   Vertex h, t, hd, td=0, *id, *od;
@@ -687,8 +671,7 @@ void d_geodegree (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_geospartner
 *****************/
-void d_geospartner (int ntoggles, Vertex *heads, Vertex *tails, 
-	           ModelTerm *mtp, Network *nwp) {
+D_CHANGESTAT_FN(d_geospartner) {
   Edge e, f;
   int i, echange;
   int L2ht, L2hu, L2ut;
@@ -767,8 +750,7 @@ void d_geospartner (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_gwb1
 *****************/
-void d_gwb1 (int ntoggles, Vertex *heads, Vertex *tails,
-		              ModelTerm *mtp, Network *nwp)
+D_CHANGESTAT_FN(d_gwb1)
 {
   int i, echange=0;
   double alpha, oneexpa, change;
@@ -807,8 +789,7 @@ void d_gwb1 (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_gwd
 *****************/
-void d_gwd (int ntoggles, Vertex *heads, Vertex *tails, 
-	    ModelTerm *mtp, Network *nwp) {
+D_CHANGESTAT_FN(d_gwd) {
   int i, echange;
   double alpha;
   Vertex h, t, hd, td=0, *id, *od;
@@ -836,8 +817,7 @@ void d_gwd (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_gwdegree706
 *****************/
-void d_gwdegree706 (int ntoggles, Vertex *heads, Vertex *tails, 
-       ModelTerm *mtp, Network *nwp)  {
+D_CHANGESTAT_FN(d_gwdegree706)  {
         /* Slight modification to the parameterization in d_gwdegree */
   int i, echange=0;
   double decay, oneexpd, change;
@@ -874,8 +854,7 @@ void d_gwdegree706 (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_gwdegreealpha
 *****************/
-void d_gwdegreealpha (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp)  {
+D_CHANGESTAT_FN(d_gwdegreealpha)  {
   int i, echange=0;
   double alpha, oneexpa, change;
   Vertex h, t, hd, td=0, *id, *od;
@@ -911,8 +890,7 @@ void d_gwdegreealpha (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_gwdegreelambda
 *****************/
-void d_gwdegreelambda (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp)  {
+D_CHANGESTAT_FN(d_gwdegreelambda)  {
   int i, echange=0;
   double lambda, oneexpl, change;
   Vertex h, t, hd, td=0, *id, *od;
@@ -950,8 +928,7 @@ void d_gwdegreelambda (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_gwb2
 *****************/
-void d_gwb2 (int ntoggles, Vertex *heads, Vertex *tails,
-		              ModelTerm *mtp, Network *nwp) {
+D_CHANGESTAT_FN(d_gwb2){
   int i, echange=0;
   double alpha, oneexpa, change;
   Vertex h, t, td=0, *id;
@@ -998,8 +975,7 @@ void d_gwb2 (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_heideriandynamic
 *****************/
-void d_heideriandynamic (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp)  {
+D_CHANGESTAT_FN(d_heideriandynamic)  {
   long int nnodes;
   Vertex h, t;
   int i, edgeflag, edgeflagth;
@@ -1045,8 +1021,7 @@ void d_heideriandynamic (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_hiertriad
 *****************/
-void d_hiertriad (int ntoggles, Vertex *heads, Vertex *tails, 
-                  ModelTerm *mtp, Network *nwp) {
+D_CHANGESTAT_FN(d_hiertriad) {
   Edge e;
   Vertex h, t, node3;
   double pos3;
@@ -1092,8 +1067,7 @@ void d_hiertriad (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_hiertriaddegree
 *****************/
-void d_hiertriaddegree (int ntoggles, Vertex *heads, Vertex *tails, 
-                  ModelTerm *mtp, Network *nwp) {
+D_CHANGESTAT_FN(d_hiertriaddegree) {
   Edge e;
   Vertex h, t, node3, ideg;
   double pos3;
@@ -1170,8 +1144,7 @@ double numposthree (Vertex t, Network *nwp) {
 /*****************
  changestat: d_icvar
 *****************/
-void d_icvar (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp)  {
+D_CHANGESTAT_FN(d_icvar)  {
   int i, edgeflag, ichange, change;
   Vertex nnodes, h, t, *id;
   
@@ -1204,8 +1177,7 @@ void d_icvar (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_idc
 *****************/
-void d_idc (int ntoggles, Vertex *heads, Vertex *tails, 
-	    ModelTerm *mtp, Network *nwp)  {
+D_CHANGESTAT_FN(d_idc)  {
   int i, edgeflag, ichange, change;
   Vertex k, nnodes, maxidegree0, maxidegree1;
   Vertex h, t, *id;
@@ -1250,8 +1222,7 @@ void d_idc (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_intransitivedynamic
 *****************/
-void d_intransitivedynamic (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp)  {
+D_CHANGESTAT_FN(d_intransitivedynamic)  {
   Edge e;
   long int nnodes;
   Vertex h, t, node3;
@@ -1332,8 +1303,7 @@ void d_intransitivedynamic (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_intransitivity
 *****************/
-void d_intransitivity (int ntoggles, Vertex *heads, Vertex *tails, 
-	             ModelTerm *mtp, Network *nwp) 
+D_CHANGESTAT_FN(d_intransitivity) 
 {
   int i, edgeflag, a, b, c, d, e, edgecount, t300, 
   t210, t120C, t120U, t120D, t201, t030C, t030T, t111U, 
@@ -1596,8 +1566,7 @@ void d_intransitivity (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_kappa
 *****************/
-void d_kappa (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp)  {
+D_CHANGESTAT_FN(d_kappa)  {
   int i, j, echange=0;
   double nedges, change, ir0, fr0;
   Vertex h, t, hd, td=0, ik2, fk2, nnodes, *id, *od;
@@ -1639,8 +1608,7 @@ void d_kappa (int ntoggles, Vertex *heads, Vertex *tails,
  ...has nothing to do with the board game; should be read 
  "mono, poly mixing matrix"
 *****************/
-void d_monopolymixmat(int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp) {
+D_CHANGESTAT_FN(d_monopolymixmat) {
   int edgeflag, i;
   Edge e;
   Vertex h, t, Fdeg, Mdeg, otherF, otherM;
@@ -1707,8 +1675,7 @@ void d_monopolymixmat(int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_simmeliandynamic
 *****************/
-void d_simmeliandynamic (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp)  {
+D_CHANGESTAT_FN(d_simmeliandynamic)  {
   Edge e;
   long int nnodes;
   Vertex h, t, node3, change;
@@ -1764,8 +1731,7 @@ void d_simmeliandynamic (int ntoggles, Vertex *heads, Vertex *tails,
  changestat: d_spatial
   Changescores for inhomogeneous Bernoulli graphs
 *****************/                            
-void d_spatial (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp)
+D_CHANGESTAT_FN(d_spatial)
 {
   int edgeflag, i, nstats;
   Vertex h, t, n;
@@ -1799,8 +1765,7 @@ void d_spatial (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_transitivedynamic
 *****************/
-void d_transitivedynamic (int ntoggles, Vertex *heads, Vertex *tails, 
-	                  ModelTerm *mtp, Network *nwp)  {
+D_CHANGESTAT_FN(d_transitivedynamic)  {
   Edge e;
   long int nnodes;
   Vertex h, t, node3;
@@ -1881,8 +1846,7 @@ void d_transitivedynamic (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_transitivity
 *****************/
-void d_transitivity (int ntoggles, Vertex *heads, Vertex *tails, 
-	             ModelTerm *mtp, Network *nwp) 
+D_CHANGESTAT_FN(d_transitivity) 
 {
   int i, edgeflag, a, b, c, d, e, edgecount, t300, 
   t210, t120C, t120U, t120D, t201, t030C, t030T, t111U, 
@@ -2144,8 +2108,7 @@ void d_transitivity (int ntoggles, Vertex *heads, Vertex *tails,
 ///*****************
 // changestat: d_nearsimmelian
 //*****************/
-//void d_nearsimmelian (int ntoggles, Vertex *heads, Vertex *tails, 
-//                ModelTerm *mtp, Network *nwp) {
+//D_CHANGESTAT_FN(d_nearsimmelian) {
 //  Edge e;
 //  long int n;
 //  Vertex h, t, change, node3;
@@ -2196,8 +2159,7 @@ void d_transitivity (int ntoggles, Vertex *heads, Vertex *tails,
 // *****************
 // changestat: d_b1
 // *****************
-//void d_b1 (int ntoggles, Vertex *heads, Vertex *tails, 
-//	         struct OptionInput *inp, Gptr g) 
+//D_CHANGESTAT_FN(d_b1) 
 //{
 //  int i, j, echange;
 //  Vertex h, t, deg, nb2, nb1;
@@ -2237,8 +2199,7 @@ void d_transitivity (int ntoggles, Vertex *heads, Vertex *tails,
 // *****************
 // changestat: d_b2
 // *****************
-//void d_b2 (int ntoggles, Vertex *heads, Vertex *tails, 
-//	         struct OptionInput *inp, Gptr g) 
+//D_CHANGESTAT_FN(d_b2) 
 //{
 //  int i, j, echange;
 //  Vertex h, t, deg, nb2, nb1;
@@ -2277,8 +2238,7 @@ void d_transitivity (int ntoggles, Vertex *heads, Vertex *tails,
 ///*****************
 // changestat: d_esa
 //*****************/
-//void d_esa (int ntoggles, Vertex *heads, Vertex *tails, 
-//	      struct OptionInput *inp, Gptr g) 
+//D_CHANGESTAT_FN(d_esa) 
 //{
 //  Edge e, f;
 //  int i, j, echange;
@@ -2352,8 +2312,7 @@ void d_transitivity (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_b1share
 *****************/
-void d_b1share (int ntoggles, Vertex *heads, Vertex *tails, 
-	       ModelTerm *mtp, Network *nwp)  {
+D_CHANGESTAT_FN(d_b1share)  {
   Edge e, f;
   int i, j, echange;
   int L2hu, L2ut;
@@ -2405,8 +2364,7 @@ void d_b1share (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_b2share
 *****************/
-void d_b2share (int ntoggles, Vertex *heads, Vertex *tails, 
-	       ModelTerm *mtp, Network *nwp)  {
+D_CHANGESTAT_FN(d_b2share)  {
   Edge e, f;
   int i, j, echange;
   int L2hu, L2ut;
@@ -2457,8 +2415,7 @@ void d_b2share (int ntoggles, Vertex *heads, Vertex *tails,
 ///*****************
 // changestat: d_bimix
 //*****************/
-//void d_bimix (int ntoggles, Vertex *heads, Vertex *tails, 
-//	        struct OptionInput *inp, Gptr g) {
+//D_CHANGESTAT_FN(d_bimix) {
 //
 //  int matchvalh, matchvalt, matchswap;
 //  Vertex h, t, nnodes, nstats;
@@ -2508,8 +2465,7 @@ void d_b2share (int ntoggles, Vertex *heads, Vertex *tails,
 ///*****************
 // changestat: d_dynamic
 //*****************/
-//void d_dynamic (int ntoggles, Vertex *heads, Vertex *tails, 
-//	         struct OptionInput *inp, Gptr g) 
+//D_CHANGESTAT_FN(d_dynamic) 
 //{
 //  Vertex h, t, hh, ht;
 //  int i, k, nprevedge, edgeflag, discord, lookmore;
@@ -2619,8 +2575,7 @@ void d_b2share (int ntoggles, Vertex *heads, Vertex *tails,
 ///*****************
 // changestat: d_biduration
 //*****************/
-//void d_biduration (int ntoggles, Vertex *heads, Vertex *tails, 
-//	        struct OptionInput *inp, Gptr g) {
+//D_CHANGESTAT_FN(d_biduration) {
 //
 //  int matchvalh, matchvalt;
 //  int k, nprevedge, discord, lookmore;
@@ -2710,8 +2665,7 @@ void d_b2share (int ntoggles, Vertex *heads, Vertex *tails,
 ///*****************
 // changestat: d_endure
 //*****************/
-//void d_endure (int ntoggles, Vertex *heads, Vertex *tails, 
-//	         struct OptionInput *inp, Gptr g) 
+//D_CHANGESTAT_FN(d_endure) 
 //{
 //  Vertex h, t, hh, ht;
 //  int i, k, nprevedge, edgeflag, discord, lookmore;
@@ -2798,8 +2752,7 @@ void d_b2share (int ntoggles, Vertex *heads, Vertex *tails,
 ///*****************
 // changestat: d_bichange
 //*****************/
-//void d_bichange (int ntoggles, Vertex *heads, Vertex *tails, 
-//	         struct OptionInput *inp, Gptr g) 
+//D_CHANGESTAT_FN(d_bichange) 
 //{
 //  Vertex h, t, hh, ht;
 //  int i, k, nprevedge, edgeflag, discord, lookmore;
@@ -2891,8 +2844,7 @@ void d_b2share (int ntoggles, Vertex *heads, Vertex *tails,
 ///*****************
 // changestat: d_step
 //*****************/
-//void d_step (int ntoggles, Vertex *heads, Vertex *tails, 
-//	     struct OptionInput *inp, Gptr g) {
+//D_CHANGESTAT_FN(d_step) {
 //
 //  int matchvalh, matchvalt;
 //  int k, nprevedge, discord, lookmore;
@@ -2999,8 +2951,7 @@ void d_b2share (int ntoggles, Vertex *heads, Vertex *tails,
 ///*****************
 // changestat: d_biduration_old
 //*****************/
-//void d_biduration_old (int ntoggles, Vertex *heads, Vertex *tails, 
-//	         struct OptionInput *inp, Gptr g) 
+//D_CHANGESTAT_FN(d_biduration_old) 
 //{
 //  Vertex h, t, hh, ht;
 //  int i, k, nprevedge, edgeflag, discord, lookmore;
@@ -3089,8 +3040,7 @@ void d_b2share (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_gwb2share
 ****************/
-void d_gwb2share (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp) {
+D_CHANGESTAT_FN(d_gwb2share) {
   Edge e, f;
   int i, echange, ochange;
   int L2hu, L2ut;
@@ -3136,8 +3086,7 @@ void d_gwb2share (int ntoggles, Vertex *heads, Vertex *tails,
 /*****************
  changestat: d_gwb1share
 ****************/
-void d_gwb1share (int ntoggles, Vertex *heads, Vertex *tails, 
-	      ModelTerm *mtp, Network *nwp) {
+D_CHANGESTAT_FN(d_gwb1share) {
   Edge e, f;
   int i, echange, ochange;
   int L2hu, L2ut;

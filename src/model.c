@@ -75,14 +75,27 @@ Model* ModelInitialize (char *fnames, char *sonames, double *inputs,
       interest for a particular edge toggle.  This function is obtained by
       searching for symbols associated with the object file with prefix
       sn, having the name fn.  Assuming that one is found, we're golden.*/ 
-      thisterm->func = 
+      thisterm->d_func = 
 	(void (*)(int, Vertex*, Vertex*, ModelTerm*, Network*))
 	R_FindSymbol(fn,sn,NULL);
-      if(thisterm->func==NULL){
+      if(thisterm->d_func==NULL){
         Rprintf("Error in ModelInitialize: could not find function %s in "
                 "namespace for package %s.\n",fn,sn);
 	exit(0);
       }      
+
+      /* Optional function to compute the statistic of interest for
+	 the network given. It can be more efficient than going one
+	 edge at a time. */
+      fn[0]='s';
+      thisterm->s_func = 
+	(void (*)(ModelTerm*, Network*)) R_FindSymbol(fn,sn,NULL);
+
+      /* Optional function for those statistics that care about
+	 duration. Called just before the timer is incremented. */
+      fn[0]='t';
+      thisterm->t_func =
+	(void (*)(ModelTerm*, Network*)) R_FindSymbol(fn,sn,NULL);
 
       /*Clean up by freeing sn and fn*/
       free((void *)fn);

@@ -32,7 +32,7 @@ void SAN_wrapper (int *heads, int *tails, int *dnedges,
                    int *mheads, int *mtails, int *mdnedges)  {
   int directed_flag, hammingterm, formationterm;
   Vertex n_nodes, nmax, bip, hhead, htail;
-  Edge n_edges, n_medges, nddyads, kedge, maxnumedges=*maxpossibleedges;
+  Edge n_edges, n_medges, nddyads, kedge;
   Network nw[2];
   DegreeBound *bd;
   Model *m;
@@ -52,10 +52,10 @@ void SAN_wrapper (int *heads, int *tails, int *dnedges,
   m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
 
   /* Form the missing network */
-  nw[0]=NetworkInitialize(heads, tails, n_edges, maxnumedges,
+  nw[0]=NetworkInitialize(heads, tails, n_edges,
                           n_nodes, directed_flag, bip, 0);
   if (n_medges>0) {
-   nw[1]=NetworkInitialize(mheads, mtails, n_medges, maxnumedges,
+   nw[1]=NetworkInitialize(mheads, mtails, n_medges,
                           n_nodes, directed_flag, bip, 0);
   }
 
@@ -66,11 +66,11 @@ void SAN_wrapper (int *heads, int *tails, int *dnedges,
    thisterm = m->termarray + hammingterm - 1;
    nddyads = (Edge)(thisterm->inputparams[0]);
    nwhamming=NetworkInitializeD(thisterm->inputparams+1,
-			       thisterm->inputparams+1+nddyads, nddyads, maxnumedges,
+			       thisterm->inputparams+1+nddyads, nddyads,
              n_nodes, directed_flag, bip, 0);
    nddyads=0;
    nw[1]=NetworkInitializeD(thisterm->inputparams+1,
-			   thisterm->inputparams+1+nddyads, nddyads, maxnumedges,
+			   thisterm->inputparams+1+nddyads, nddyads,
          n_nodes, directed_flag, bip, 0);
 //	     Rprintf("made hw[1]\n");
    for (kedge=1; kedge <= nwhamming.nedges; kedge++) {
@@ -98,11 +98,11 @@ void SAN_wrapper (int *heads, int *tails, int *dnedges,
    thisterm = m->termarray + formationterm - 1;
    nddyads = (Edge)(thisterm->inputparams[0]);
    nwformation=NetworkInitializeD(thisterm->inputparams+1,
-				thisterm->inputparams+1+nddyads, nddyads, maxnumedges,
+				thisterm->inputparams+1+nddyads, nddyads,
         n_nodes, directed_flag, bip, 0);
    nddyads=0;
    nw[1]=NetworkInitializeD(thisterm->inputparams+1,
-			   thisterm->inputparams+1+nddyads, nddyads, maxnumedges,
+			   thisterm->inputparams+1+nddyads, nddyads,
          n_nodes, directed_flag, bip, 0);
 //	     Rprintf("made hw[1]\n");
    for (kedge=1; kedge <= nwformation.nedges; kedge++) {

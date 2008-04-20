@@ -3,9 +3,9 @@ ergm.getglobalstats <- function(nw, m) {
   #
   #    Calculate the global statistics
   #
-  gs <- -.C("MCMC_global",
+  gs <- -.C("network_stats_wrapper",
            as.integer(Clist$heads), as.integer(Clist$tails), 
-           as.integer(Clist$nedges), as.integer(Clist$maxpossibleedges),
+           as.integer(Clist$nedges),
            as.integer(Clist$n),
            as.integer(Clist$dir), as.integer(Clist$bipartite), 
            as.integer(Clist$nterms), 
@@ -15,6 +15,14 @@ ergm.getglobalstats <- function(nw, m) {
            PACKAGE="ergm"
            )$gs
   names(gs) <- m$coef.names
+
+  #
+  # For now, negate the gs values, since they are supposed to be from
+  # 0 -> y rather than the other way around.
+  #
+
+  gs<--gs
+  
   #
   # Adjust to global values
   #

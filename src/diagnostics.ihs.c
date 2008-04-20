@@ -80,7 +80,7 @@ void OverlapDurations (int *nnodes,
       int *nedge, int *edge, int *ntimestep, int *nfem,
       int *ntotal, int *nchange, int *change,
       int *maxoverlaps, int *omatrix) {
-  Edge e, i, j, k, row, ne = *nedge, maxedges=MAXEDGES;
+  Edge e, i, j, k, row, ne = *nedge;
   int f1, m1, time, f2, m2, match;
   int bipartite = *nfem, maxo=*maxoverlaps;
   double t1;
@@ -106,8 +106,8 @@ void OverlapDurations (int *nnodes,
   }
 
   /* R's serialization of matrixes is column-major, so this works: */
-  nw = WtNetworkInitialize(edge, edge+*nedge, starttimes, ne, maxedges,
-                           *nnodes, 0, bipartite);
+  nw = WtNetworkInitialize(edge, edge+*nedge, starttimes, ne,
+                           *nnodes, 0, bipartite,0);
   free (starttimes);
   ie=nw.inedges;
   oe=nw.outedges;
@@ -170,7 +170,7 @@ void OverlapDurations (int *nnodes,
         }
       }
       /* Finally, toggle (create or destroy) the edge */
-        WtToggleEdge(f1, m1, 1.0+t1, *nnodes, &nw); 
+        WtToggleEdge(f1, m1, 1.0+t1, &nw); 
       if (row >= maxo) {
         Rprintf("Error! Value of maxoverlaps=%d too small\n",
                  maxo);
@@ -186,18 +186,17 @@ void DegreeMixMatrix (int *nnodes,
       int *nedge, int *edge, int *ntimestep, int *nfem,
       int *ntotal, int *nchange, int *change,
       int *degmixmat) {
-  Vertex f, m;
+  Vertex m;
   Edge e;
   Vertex *id, *od;
-  Edge i, j, ne = *nedge, maxedges=MAXEDGES;
+  Edge i, j, ne = *nedge;
   int time;
   int bipartite = *nfem;
-  double *heads, *tails;
   TreeNode *ie, *oe;
   Network nw;
 
   /* R's serialization of matrixes is column-major, so this works: */
-  nw = NetworkInitialize(edge, edge+*nedge, ne, maxedges,
+  nw = NetworkInitialize(edge, edge+*nedge, ne,
                          *nnodes, 0, bipartite, 1);
   ie=nw.inedges;
   oe=nw.outedges;
@@ -272,30 +271,29 @@ void godfather_wrapper (int *heads, int *tails, int *dnedges,
 			int *accumulate, 
 			int *fVerbose, 
 			int *maxedges) {
-  int directed_flag, maxtoggles, ntoggles;
+  int directed_flag, ntoggles;
   Vertex n_nodes, bip;
-  Edge i, j, n_edges, nmax, samplesize, nextedge, tnt;
-  Edge maxnumedges=*maxpossibleedges;
+  Edge i, j, n_edges, nmax, tnt;
   Network nw;
   Model *m;
   int thistime; 
   
   n_nodes = (Vertex)*dn; /* coerce double *dn to type Vertex */
   n_edges = (Edge)*dnedges; /* coerce double *dnedges to type Vertex */
-  nmax = (Edge)*maxedges; /* coerce double *maxedges to type Vertex */
+  nmax = (Edge)*maxedges; /* coerce double *maxedges to type Edge */
   bip = (Vertex)*bipartite; /* coerce double *bipartite to type Vertex */    
   tnt = (Edge) *totalntoggles; /* coerce double *totalntoggles to type Edge */ 
   directed_flag = *dflag;
 
   m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
-  nw = NetworkInitialize(heads, tails, n_edges, maxnumedges,
+  nw = NetworkInitialize(heads, tails, n_edges,
                          n_nodes, directed_flag, bip, 1);
 
   if (*fVerbose) {
-    Rprintf("Total m->n_stats is %i; total samplesize is %d\n",
-    m->n_stats,samplesize);
-    Rprintf("maxedges = %ld, maxtoggles = %ld, samplesize = %ld, totalntoggles = %ld\n",
-    nmax, maxtoggles, samplesize, tnt);
+    Rprintf("Total m->n_stats is %i.\n",
+    m->n_stats);
+    Rprintf("maxedges = %ld, totalntoggles = %ld\n",
+    nmax, tnt);
   }
   
   /*********************

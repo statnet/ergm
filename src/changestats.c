@@ -5,7 +5,7 @@
 /*****************                       
  changestat: d_absdiff
 *****************/
-CHANGESTAT_FN(d_absdiff) { 
+D_CHANGESTAT_FN(d_absdiff) { 
   double change;
   Vertex h, t;
   int i;
@@ -24,7 +24,7 @@ CHANGESTAT_FN(d_absdiff) {
 /*****************
  changestat: d_absdiffcat
 *****************/
-CHANGESTAT_FN(d_absdiffcat) { 
+D_CHANGESTAT_FN(d_absdiffcat) { 
   double change, absdiff, NAsubstitute, hval, tval;
   Vertex h, t, ninputs;
   int i, j;
@@ -51,7 +51,7 @@ CHANGESTAT_FN(d_absdiffcat) {
 /*****************
  changestat: d_altkstar
 *****************/
-CHANGESTAT_FN(d_altkstar) { 
+D_CHANGESTAT_FN(d_altkstar) { 
   int i, isedge;
   double lambda, oneexpl, change;
   Vertex h, t, hd, td=0;
@@ -79,7 +79,7 @@ CHANGESTAT_FN(d_altkstar) {
 /*****************
  changestat: d_asymmetric
 *****************/
-CHANGESTAT_FN(d_asymmetric) { 
+D_CHANGESTAT_FN(d_asymmetric) { 
   double matchval, change;
   Vertex h, t;
   int i, j, ninputs, noattr;
@@ -122,7 +122,7 @@ CHANGESTAT_FN(d_asymmetric) {
 /*****************
  changestat: d_b1concurrent
 *****************/
-CHANGESTAT_FN(d_b1concurrent) { 
+D_CHANGESTAT_FN(d_b1concurrent) { 
   int i, echange;
   Vertex b1, b1deg;
   
@@ -140,7 +140,7 @@ CHANGESTAT_FN(d_b1concurrent) {
 /*****************
  changestat: d_b1concurrent_by_attr
 *****************/
-CHANGESTAT_FN(d_b1concurrent_by_attr) { 
+D_CHANGESTAT_FN(d_b1concurrent_by_attr) { 
   /*The inputparams are assumed to be set up as follows:
     The first 2*nstats values are in pairs:  (degree, attrvalue)
     The values following the first 2*nstats values are the nodal attributes. */
@@ -166,7 +166,7 @@ CHANGESTAT_FN(d_b1concurrent_by_attr) {
 /*****************
  changestat: d_b1degree
 *****************/
-CHANGESTAT_FN(d_b1degree) { 
+D_CHANGESTAT_FN(d_b1degree) { 
   int i, j, echange;
   Vertex b1, b1deg, d;
 
@@ -187,7 +187,7 @@ CHANGESTAT_FN(d_b1degree) {
 /*****************
  changestat: d_b1degree_by_attr
 *****************/
-CHANGESTAT_FN(d_b1degree_by_attr) { 
+D_CHANGESTAT_FN(d_b1degree_by_attr) { 
   /* The inputparams are assumed to be set up as follows:
      The first 2*nstats values are in pairs:  (degree, attrvalue)
      The values following the first 2*nstats values are the nodal attributes. */
@@ -214,7 +214,7 @@ CHANGESTAT_FN(d_b1degree_by_attr) {
 /*****************
  changestat: d_b1factor
 *****************/
-CHANGESTAT_FN(d_b1factor) { 
+D_CHANGESTAT_FN(d_b1factor) { 
   double s, factorval;
   Vertex b1;
   int i, j;
@@ -236,7 +236,7 @@ CHANGESTAT_FN(d_b1factor) {
 /*****************
  changestat: d_b2concurrent
 *****************/
-CHANGESTAT_FN(d_b2concurrent) { 
+D_CHANGESTAT_FN(d_b2concurrent) { 
   int i, echange;
   Vertex b2, b2deg;
 
@@ -254,7 +254,7 @@ CHANGESTAT_FN(d_b2concurrent) {
 /*****************
  changestat: d_b2concurrent_by_attr
 *****************/
-CHANGESTAT_FN(d_b2concurrent_by_attr) { 
+D_CHANGESTAT_FN(d_b2concurrent_by_attr) { 
   /*The inputparams are assumed to be set up as follows:
     The first 2*nstats values are in pairs:  (degree, attrvalue)
     The values following the first 2*nstats values are the nodal attributes.*/
@@ -280,7 +280,7 @@ CHANGESTAT_FN(d_b2concurrent_by_attr) {
 /*****************
  changestat: d_b2degree
 *****************/
-CHANGESTAT_FN(d_b2degree) { 
+D_CHANGESTAT_FN(d_b2degree) { 
   int i, j, echange;
   Vertex b2, b2deg, d;
 
@@ -301,7 +301,7 @@ CHANGESTAT_FN(d_b2degree) {
 /*****************
  changestat: d_b2degree_by_attr
 *****************/
-CHANGESTAT_FN(d_b2degree_by_attr) { 
+D_CHANGESTAT_FN(d_b2degree_by_attr) { 
   /*The inputparams are assumed to be set up as follows:
     The first 2*nstats values are in pairs:  (degree, attrvalue)
     The values following the first 2*nstats values are the nodal attributes. */
@@ -328,7 +328,7 @@ CHANGESTAT_FN(d_b2degree_by_attr) {
 /*****************
  changestat: d_b2factor
 *****************/
-CHANGESTAT_FN(d_b2factor) { 
+D_CHANGESTAT_FN(d_b2factor) { 
   double s, factorval;
   Vertex nb1, b2;
   int i, j;
@@ -350,7 +350,7 @@ CHANGESTAT_FN(d_b2factor) {
 /*****************
  changestat: d_balance
 *****************/
-CHANGESTAT_FN(d_balance) { 
+D_CHANGESTAT_FN(d_balance) { 
   int i, edgeflag, a, b, c, d, e, edgecount, t300, 
   t210, t120C, t120U, t120D, t201, t030C, t030T, t111U, 
   t111D, t021C, t021U, t021D, t102, t012, t003;
@@ -571,7 +571,7 @@ CHANGESTAT_FN(d_balance) {
 /*****************
  changestat: d_boundeddegree
 *****************/
-CHANGESTAT_FN(d_boundeddegree) { 
+D_CHANGESTAT_FN(d_boundeddegree) { 
   int i, j, echange;
   Vertex h, t, hd, td=0, deg;
   int nstats = (int)N_CHANGE_STATS;
@@ -599,7 +599,7 @@ CHANGESTAT_FN(d_boundeddegree) {
 /*****************
  changestat: d_boundedidegree
 *****************/
-CHANGESTAT_FN(d_boundedidegree) { 
+D_CHANGESTAT_FN(d_boundedidegree) { 
   int i, j, echange;
   Vertex h, hd=0, deg;
   int nstats = (int)N_CHANGE_STATS;
@@ -646,7 +646,7 @@ double my_choose(double n, int r) {
 /*****************
  changestat: d_boundedistar
 *****************/
-CHANGESTAT_FN(d_boundedistar) { 
+D_CHANGESTAT_FN(d_boundedistar) { 
   double change, tod;
   double newtod;
   int edgeflag, i, j, k, bound;
@@ -674,7 +674,7 @@ CHANGESTAT_FN(d_boundedistar) {
 /*****************
  changestat: d_boundedkstar
 *****************/
-CHANGESTAT_FN(d_boundedkstar) { 
+D_CHANGESTAT_FN(d_boundedkstar) { 
   double change, hod, tod;
   double newhod, newtod;
   int edgeflag, i, j, k, bound;
@@ -707,7 +707,7 @@ CHANGESTAT_FN(d_boundedkstar) {
 /*****************
  changestat: d_boundedodegree
 *****************/
-CHANGESTAT_FN(d_boundedodegree) { 
+D_CHANGESTAT_FN(d_boundedodegree) { 
   int i, j, echange;
   Vertex h, hd=0, deg;
   int nstats = (int)N_CHANGE_STATS;
@@ -731,7 +731,7 @@ CHANGESTAT_FN(d_boundedodegree) {
 /*****************
  changestat: d_boundedostar
 *****************/
-CHANGESTAT_FN(d_boundedostar) { 
+D_CHANGESTAT_FN(d_boundedostar) { 
   double change, hod;
   double newhod;
   int edgeflag, i, j, k, bound;
@@ -759,7 +759,7 @@ CHANGESTAT_FN(d_boundedostar) {
 /*****************
  changestat: d_boundedtriangle
 *****************/
-CHANGESTAT_FN(d_boundedtriangle) { 
+D_CHANGESTAT_FN(d_boundedtriangle) { 
   Edge e;
   Vertex h, t, node3;
   Vertex change;
@@ -841,7 +841,7 @@ Vertex CountTriangles (Vertex h, Vertex t, int outcount, int incount,
 /*****************
  changestat: d_concurrent
 *****************/
-CHANGESTAT_FN(d_concurrent) { 
+D_CHANGESTAT_FN(d_concurrent) { 
   int i, echange;
   Vertex h, t, hdeg, tdeg;
 
@@ -866,7 +866,7 @@ CHANGESTAT_FN(d_concurrent) {
 /*****************
  changestat: d_concurrent_by_attr
 *****************/
-CHANGESTAT_FN(d_concurrent_by_attr) { 
+D_CHANGESTAT_FN(d_concurrent_by_attr) { 
   /*The inputparams are assumed to be set up as follows:
     The first 2*nstats values are in pairs:  (degree, attrvalue)
     The values following the first 2*nstats values are the nodal attributes.
@@ -903,7 +903,7 @@ CHANGESTAT_FN(d_concurrent_by_attr) {
 /*****************
  changestat: d_ctriple
 *****************/
-CHANGESTAT_FN(d_ctriple) { 
+D_CHANGESTAT_FN(d_ctriple) { 
   Edge e;
   Vertex h, t, change, node3;
   int i, j;
@@ -945,7 +945,7 @@ CHANGESTAT_FN(d_ctriple) {
 /*****************
  changestat: d_cycle
 *****************/
-CHANGESTAT_FN(d_cycle) { 
+D_CHANGESTAT_FN(d_cycle) { 
   int i,j,k,nstats;
   Vertex h, t;
   long int maxlen;
@@ -1067,7 +1067,7 @@ void edgewise_cycle_census(Network *nwp, Vertex t, Vertex h,
 /*****************
  changestat: d_degree
 *****************/
-CHANGESTAT_FN(d_degree) { 
+D_CHANGESTAT_FN(d_degree) { 
   int i, j, echange;
   Vertex head, tail, headdeg, taildeg, deg, *id, *od;
   TreeNode *oe=nwp->outedges;
@@ -1092,7 +1092,7 @@ CHANGESTAT_FN(d_degree) {
 /*****************
  changestat: d_degree_by_attr
 *****************/
-CHANGESTAT_FN(d_degree_by_attr) { 
+D_CHANGESTAT_FN(d_degree_by_attr) { 
   /* The inputparams are assumed to be set up as follows:
   The first 2*nstats values are in pairs:  (degree, attrvalue)
   The values following the first 2*nstats values are the nodal attributes.
@@ -1126,7 +1126,7 @@ CHANGESTAT_FN(d_degree_by_attr) {
 /*****************
  changestat: d_degree_w_homophily
 *****************/
-CHANGESTAT_FN(d_degree_w_homophily) { 
+D_CHANGESTAT_FN(d_degree_w_homophily) { 
   /*  The inputparams are assumed to be set up as follows:
   The first nstats values are the values of degree
   The values following the first nstats values are the nodal attributes.
@@ -1181,7 +1181,7 @@ CHANGESTAT_FN(d_degree_w_homophily) {
 /*****************
  changestat: d_density
 *****************/
-CHANGESTAT_FN(d_density) {
+D_CHANGESTAT_FN(d_density) {
   int i;
   Vertex ndyads;
   
@@ -1201,7 +1201,7 @@ CHANGESTAT_FN(d_density) {
 /*****************
  changestat: d_dsp
 *****************/
-CHANGESTAT_FN(d_dsp) { 
+D_CHANGESTAT_FN(d_dsp) { 
   Edge e, f;
   int i, j, echange;
   int L2hu, L2ut;
@@ -1321,7 +1321,7 @@ CHANGESTAT_FN(d_dsp) {
 /*****************
  changestat: d_dyadcov
 *****************/
-CHANGESTAT_FN(d_dyadcov) { 
+D_CHANGESTAT_FN(d_dyadcov) { 
   double val;
   Vertex h, t;
   int i, edgeflag, refedgeflag;
@@ -1425,7 +1425,7 @@ CHANGESTAT_FN(d_dyadcov) {
 /*****************
  changestat: d_edgecov
 *****************/
-CHANGESTAT_FN(d_edgecov) {
+D_CHANGESTAT_FN(d_edgecov) {
   double val;
   Vertex h, t;
   long int nrow, noffset;
@@ -1457,7 +1457,7 @@ CHANGESTAT_FN(d_edgecov) {
 /*****************
  changestat: d_edges
 *****************/
-CHANGESTAT_FN(d_edges) {
+D_CHANGESTAT_FN(d_edges) {
   int edgeflag, i;
   Vertex h, t;
   
@@ -1474,7 +1474,7 @@ CHANGESTAT_FN(d_edges) {
 /*****************
  changestat: d_esp
 *****************/
-CHANGESTAT_FN(d_esp) { 
+D_CHANGESTAT_FN(d_esp) { 
   Edge e, f;
   int i, j, echange;
   int L2ht, L2hu, L2ut;
@@ -1559,7 +1559,7 @@ CHANGESTAT_FN(d_esp) {
 /*****************
  changestat: d_gwb1degree
 *****************/
-CHANGESTAT_FN(d_gwb1degree) { 
+D_CHANGESTAT_FN(d_gwb1degree) { 
   /* It is assumed that in this bipartite network, the only edges are
   of the form (b1, b2), where b1 is always strictly less
   than b2.  In other words, the degree of a b1 is equivalent
@@ -1589,7 +1589,7 @@ CHANGESTAT_FN(d_gwb1degree) {
 /*****************
  changestat: d_gwb1degree_by_attr
 *****************/
-CHANGESTAT_FN(d_gwb1degree_by_attr) { 
+D_CHANGESTAT_FN(d_gwb1degree_by_attr) { 
   /* It is assumed that in this bipartite network, the only edges are
   of the form (b1, b2), where b1 is always strictly less
   than b2.  In other words, the degree of a b1 is equivalent
@@ -1624,7 +1624,7 @@ CHANGESTAT_FN(d_gwb1degree_by_attr) {
 /*****************
  changestat: d_gwdegree
 *****************/
-CHANGESTAT_FN(d_gwdegree) { 
+D_CHANGESTAT_FN(d_gwdegree) { 
   int i, echange=0;
   double decay, oneexpd, change;
   Vertex h, t, hd, td=0, *id, *od;
@@ -1651,7 +1651,7 @@ CHANGESTAT_FN(d_gwdegree) {
 /*****************
  changestat: d_gwdegree_by_attr
 *****************/
-CHANGESTAT_FN(d_gwdegree_by_attr) { 
+D_CHANGESTAT_FN(d_gwdegree_by_attr) { 
   /*The inputparams are assumed to be set up as follows:
     The first value is the decay parameter (as in Hunter et al, JASA 200?)
     The next sequence of values is the nodal attributes, coded as integers
@@ -1687,7 +1687,7 @@ CHANGESTAT_FN(d_gwdegree_by_attr) {
 /*****************
  changestat: d_gwdsp
 ****************/
-CHANGESTAT_FN(d_gwdsp) { 
+D_CHANGESTAT_FN(d_gwdsp) { 
   Edge e, f;
   int i, echange, ochange;
   int L2hu, L2ut;
@@ -1799,7 +1799,7 @@ CHANGESTAT_FN(d_gwdsp) {
 /*****************
  changestat: d_gwb2degree
 *****************/
-CHANGESTAT_FN(d_gwb2degree) { 
+D_CHANGESTAT_FN(d_gwb2degree) { 
   /* It is assumed that in this bipartite network, the only edges are
   of the form (b1, b2), where b1 is always strictly less
   than b2.  In other words, the degree of a b1 is equivalent
@@ -1829,7 +1829,7 @@ CHANGESTAT_FN(d_gwb2degree) {
 /*****************
  changestat: d_gwb2degree_by_attr
 *****************/
-CHANGESTAT_FN(d_gwb2degree_by_attr) { 
+D_CHANGESTAT_FN(d_gwb2degree_by_attr) { 
   /* It is assumed that in this bipartite network, the only edges are
   of the form (b1, b2), where b1 is always strictly less
   than b2.  In other words, the degree of a b1 is equivalent
@@ -1864,7 +1864,7 @@ CHANGESTAT_FN(d_gwb2degree_by_attr) {
 /*****************
  changestat: d_gwesp
 *****************/
-CHANGESTAT_FN(d_gwesp) { 
+D_CHANGESTAT_FN(d_gwesp) { 
   Edge e, f;
   int i, echange, ochange;
   int L2ht, L2hu, L2ut;
@@ -1950,7 +1950,7 @@ CHANGESTAT_FN(d_gwesp) {
 /*****************
  changestat: d_gwidegree
 *****************/
-CHANGESTAT_FN(d_gwidegree) { 
+D_CHANGESTAT_FN(d_gwidegree) { 
   int i, edgeflag;
   double decay, oneexpd, change;
   Vertex t, td=0;
@@ -1972,7 +1972,7 @@ CHANGESTAT_FN(d_gwidegree) {
 /*****************
  changestat: d_gwidegree_by_attr
 *****************/
-CHANGESTAT_FN(d_gwidegree_by_attr) { 
+D_CHANGESTAT_FN(d_gwidegree_by_attr) { 
   /*The inputparams are assumed to be set up as follows:
     The first value is the decay parameter (as in Hunter et al, JASA 200?)
     The next sequence of values is the nodal attributes, coded as integers
@@ -1999,7 +1999,7 @@ CHANGESTAT_FN(d_gwidegree_by_attr) {
 /*****************
  changestat: d_gwodegree
 *****************/
-CHANGESTAT_FN(d_gwodegree) { 
+D_CHANGESTAT_FN(d_gwodegree) { 
   int i, edgeflag;
   double decay, oneexpd, change;
   Vertex h, hd;
@@ -2021,7 +2021,7 @@ CHANGESTAT_FN(d_gwodegree) {
 /*****************
  changestat: d_gwodegree_by_attr
 *****************/
-CHANGESTAT_FN(d_gwodegree_by_attr) { 
+D_CHANGESTAT_FN(d_gwodegree_by_attr) { 
   /*The inputparams are assumed to be set up as follows:
     The first value is the decay parameter (as in Hunter et al, JASA 2008)
     The next sequence of values is the nodal attributes, coded as integers
@@ -2048,7 +2048,7 @@ CHANGESTAT_FN(d_gwodegree_by_attr) {
 /*****************
  changestat: d_gwtdsp
 ****************/
-CHANGESTAT_FN(d_gwtdsp) {
+D_CHANGESTAT_FN(d_gwtdsp) {
   Edge e, f;
   int i, echange, ochange, L2hu, L2ut;
   Vertex h, t, u, v;
@@ -2095,7 +2095,7 @@ CHANGESTAT_FN(d_gwtdsp) {
 /*****************
  changestat: d_gwtesp
 *****************/
-CHANGESTAT_FN(d_gwtesp) { 
+D_CHANGESTAT_FN(d_gwtesp) { 
   Edge e, f;
   int i, echange, ochange;
   int L2ht, L2hu, L2ut;
@@ -2163,7 +2163,7 @@ CHANGESTAT_FN(d_gwtesp) {
 /*****************
  changestat: d_hamming
 *****************/
-CHANGESTAT_FN(d_hamming) { 
+D_CHANGESTAT_FN(d_hamming) { 
   Vertex h, t;
   int i, nhedge, discord;
   
@@ -2213,7 +2213,7 @@ Rprintf("h %d t %d discord %d\n",h, t, discord);
 /*****************
  changestat: d_hamming_weighted
 *****************/
-CHANGESTAT_FN(d_hamming_weighted) { 
+D_CHANGESTAT_FN(d_hamming_weighted) { 
   Vertex h, t;
   double val;
   long int nnodes, nb1, nb2, n0edge;
@@ -2259,7 +2259,7 @@ CHANGESTAT_FN(d_hamming_weighted) {
 /*****************
  changestat: d_hammingmix_constant
 *****************/
-CHANGESTAT_FN(d_hammingmix_constant) { 
+D_CHANGESTAT_FN(d_hammingmix_constant) { 
   Vertex h, t;
   int i, nhedge, discord;
   int matchvalh, matchvalt;
@@ -2303,7 +2303,7 @@ CHANGESTAT_FN(d_hammingmix_constant) {
 /*****************
  changestat: d_hammingmix
 *****************/
-CHANGESTAT_FN(d_hammingmix) { 
+D_CHANGESTAT_FN(d_hammingmix) { 
   Vertex h, t;
   int i, j, nhedge, edgeflag, discord;
   int matchvalh, matchvalt;
@@ -2351,7 +2351,7 @@ CHANGESTAT_FN(d_hammingmix) {
 /*****************
  changestat: d_idegree
 *****************/
-CHANGESTAT_FN(d_idegree) { 
+D_CHANGESTAT_FN(d_idegree) { 
   int echange, i, j;
   Edge e;
   Vertex h, t, node3, deg, td=0;
@@ -2406,7 +2406,7 @@ CHANGESTAT_FN(d_idegree) {
 /*****************
  changestat: d_idegree_by_attr
 *****************/
-CHANGESTAT_FN(d_idegree_by_attr) { 
+D_CHANGESTAT_FN(d_idegree_by_attr) { 
   /* The inputparams are assumed to be set up as follows:
   The first 2*nstats values are in pairs:  (degree, attrvalue)
   The values following the first 2*nstats values are the nodal attributes.
@@ -2435,7 +2435,7 @@ CHANGESTAT_FN(d_idegree_by_attr) {
 /*****************
  changestat: d_idegree_w_homophily
 *****************/
-CHANGESTAT_FN(d_idegree_w_homophily) { 
+D_CHANGESTAT_FN(d_idegree_w_homophily) { 
   /*  The inputparams are assumed to be set up as follows:
   The first nstats values are the values of degree
   The values following the first nstats values are the nodal attributes.
@@ -2479,7 +2479,7 @@ CHANGESTAT_FN(d_idegree_w_homophily) {
 /*****************
  changestat: d_intransitive
 *****************/
-CHANGESTAT_FN(d_intransitive) { 
+D_CHANGESTAT_FN(d_intransitive) { 
   Edge e;
   Vertex h, t, node2;
   double change;
@@ -2535,7 +2535,7 @@ CHANGESTAT_FN(d_intransitive) {
 /*****************
  changestat: d_isolates
 *****************/
-CHANGESTAT_FN(d_isolates) { 
+D_CHANGESTAT_FN(d_isolates) { 
   int i, echange;
   Vertex h, t, hd, td=0, *id, *od;
   TreeNode *oe=nwp->outedges;
@@ -2562,7 +2562,7 @@ CHANGESTAT_FN(d_isolates) {
 /*****************
  changestat: d_istar
 *****************/
-CHANGESTAT_FN(d_istar) { 
+D_CHANGESTAT_FN(d_istar) { 
   double change, td=0.0;
   int edgeflag, i, j, kmo;
   Edge e;
@@ -2618,7 +2618,7 @@ CHANGESTAT_FN(d_istar) {
 /*****************
  changestat: d_kstar
 *****************/
-CHANGESTAT_FN(d_kstar) { 
+D_CHANGESTAT_FN(d_kstar) { 
   double change, hd, td=0.0;
   int edgeflag, i, j, kmo;
   Edge e;
@@ -2704,7 +2704,7 @@ CHANGESTAT_FN(d_kstar) {
 /*****************
  changestat: d_localtriangle
 *****************/
-CHANGESTAT_FN(d_localtriangle) { 
+D_CHANGESTAT_FN(d_localtriangle) { 
   Edge e;
   Vertex h, t, change, node3;
   int edgeflag, i;
@@ -2773,7 +2773,7 @@ CHANGESTAT_FN(d_localtriangle) {
 /*****************
  changestat: d_m2star
 *****************/
-CHANGESTAT_FN(d_m2star) {
+D_CHANGESTAT_FN(d_m2star) {
   Vertex h, t;
   int hid, tod, change;
   int i, edgeflag, backedgeflag;
@@ -2801,7 +2801,7 @@ CHANGESTAT_FN(d_m2star) {
 /*****************
  changestat: d_meandeg
 *****************/
-CHANGESTAT_FN(d_meandeg) {
+D_CHANGESTAT_FN(d_meandeg) {
   int i;
 
   CHANGE_STAT[0] = 0.0;
@@ -2818,7 +2818,7 @@ CHANGESTAT_FN(d_meandeg) {
  This appears to be the version of nodemix used for 
  bipartite networks (only)
 *****************/
-CHANGESTAT_FN(d_mix) {
+D_CHANGESTAT_FN(d_mix) {
   Vertex h, t, tmpi;
   int matchvalh, matchvalt;
   int i, j, edgeflag, nstats;
@@ -2850,7 +2850,7 @@ CHANGESTAT_FN(d_mix) {
  (1,1) -> anything = -1
  anything -> (1,1) = +1
 *****************/
-CHANGESTAT_FN(d_mutual) { 
+D_CHANGESTAT_FN(d_mutual) { 
   double matchval, change;
   Vertex h, t;
   int i, j, ninputs, noattr;
@@ -2888,7 +2888,7 @@ CHANGESTAT_FN(d_mutual) {
 /*****************
  changestat: d_nearsimmelian
 *****************/
-CHANGESTAT_FN(d_nearsimmelian) { 
+D_CHANGESTAT_FN(d_nearsimmelian) { 
   Vertex h, t, node3;
   double change;
   int edgeflag, i, edgeflagth, sc;
@@ -2931,7 +2931,7 @@ CHANGESTAT_FN(d_nearsimmelian) {
 /*****************
  changestat: d_nodecov
 *****************/
-CHANGESTAT_FN(d_nodecov) { 
+D_CHANGESTAT_FN(d_nodecov) { 
   double sum;
   Vertex h, t;
   int i, edgeflag;
@@ -2950,7 +2950,7 @@ CHANGESTAT_FN(d_nodecov) {
 /*****************
  changestat: d_nodefactor
 *****************/
-CHANGESTAT_FN(d_nodefactor) { 
+D_CHANGESTAT_FN(d_nodefactor) { 
   double s, factorval;
   Vertex h, t;
   int i, j, hattr, tattr;
@@ -2975,7 +2975,7 @@ CHANGESTAT_FN(d_nodefactor) {
 /*****************
  changestat: d_nodeicov
 *****************/
-CHANGESTAT_FN(d_nodeicov) { 
+D_CHANGESTAT_FN(d_nodeicov) { 
   double sum;
   Vertex h, t;
   int i, edgeflag;
@@ -2994,7 +2994,7 @@ CHANGESTAT_FN(d_nodeicov) {
 /*****************
  changestat: d_nodeifactor
 *****************/
-CHANGESTAT_FN(d_nodeifactor) { 
+D_CHANGESTAT_FN(d_nodeifactor) { 
   double s;
   Vertex t;
   int i, j, tattr;
@@ -3015,7 +3015,7 @@ CHANGESTAT_FN(d_nodeifactor) {
 /*****************
  changestat: d_nodematch
 *****************/
-CHANGESTAT_FN(d_nodematch) { 
+D_CHANGESTAT_FN(d_nodematch) { 
   double matchval;
   Vertex h, t, ninputs;
   int i, j, edgeflag;
@@ -3047,7 +3047,7 @@ CHANGESTAT_FN(d_nodematch) {
  Update mixing matrix, non-bipartite networks only 
  (but see also d_mix)
 *****************/
-CHANGESTAT_FN(d_nodemix) {
+D_CHANGESTAT_FN(d_nodemix) {
   Vertex h, t;
   int i, j, ninputs, ninputs2;
   double rtype, ctype, tmp, change;
@@ -3080,7 +3080,7 @@ CHANGESTAT_FN(d_nodemix) {
 /*****************
  changestat: d_nodeocov
 *****************/
-CHANGESTAT_FN(d_nodeocov) { 
+D_CHANGESTAT_FN(d_nodeocov) { 
   double sum;
   Vertex h, t;
   int i, edgeflag;
@@ -3099,7 +3099,7 @@ CHANGESTAT_FN(d_nodeocov) {
 /*****************
  changestat: d_nodeofactor
 *****************/
-CHANGESTAT_FN(d_nodeofactor) { 
+D_CHANGESTAT_FN(d_nodeofactor) { 
   double s;
   Vertex h;
   int i, j, hattr;
@@ -3121,7 +3121,7 @@ CHANGESTAT_FN(d_nodeofactor) {
 /*****************
  changestat: d_odegree
 *****************/
-CHANGESTAT_FN(d_odegree) { 
+D_CHANGESTAT_FN(d_odegree) { 
   int echange, i, j;
   Edge e;
   Vertex h, t, node3, deg, td=0;
@@ -3176,7 +3176,7 @@ CHANGESTAT_FN(d_odegree) {
 /*****************
  changestat: d_odegree_by_attr
 *****************/
-CHANGESTAT_FN(d_odegree_by_attr) { 
+D_CHANGESTAT_FN(d_odegree_by_attr) { 
   /* The inputparams are assumed to be set up as follows:
   The first 2*nstats values are in pairs:  (degree, attrvalue)
   The values following the first 2*nstats values are the nodal attributes.
@@ -3206,7 +3206,7 @@ CHANGESTAT_FN(d_odegree_by_attr) {
 /*****************
  changestat: d_odegree_w_homophily
 *****************/
-CHANGESTAT_FN(d_odegree_w_homophily) { 
+D_CHANGESTAT_FN(d_odegree_w_homophily) { 
   /*  The inputparams are assumed to be set up as follows:
   The first nstats values are the values of degree
   The values following the first nstats values are the nodal attributes.
@@ -3250,7 +3250,7 @@ CHANGESTAT_FN(d_odegree_w_homophily) {
 /*****************
  changestat: d_ostar
 *****************/
-CHANGESTAT_FN(d_ostar) { 
+D_CHANGESTAT_FN(d_ostar) { 
   double change, td=0.0;
   int edgeflag, i, j, kmo;
   Edge e;
@@ -3306,7 +3306,7 @@ CHANGESTAT_FN(d_ostar) {
 /*****************
  changestat: d_receiver
 *****************/
-CHANGESTAT_FN(d_receiver) { 
+D_CHANGESTAT_FN(d_receiver) { 
   int i, j, echange;
   Vertex h, t, deg;
   
@@ -3341,7 +3341,7 @@ CHANGESTAT_FN(d_receiver) {
 /*****************
  changestat: d_sender
 *****************/
-CHANGESTAT_FN(d_sender) { 
+D_CHANGESTAT_FN(d_sender) { 
   int i, j, echange;
   Vertex h, t, deg;
   
@@ -3374,7 +3374,7 @@ CHANGESTAT_FN(d_sender) {
 /*****************
  changestat: d_simmelian
 *****************/
-CHANGESTAT_FN(d_simmelian) { 
+D_CHANGESTAT_FN(d_simmelian) { 
   Edge e;
   Vertex h, t, change, node3;
   int edgeflag, i;
@@ -3410,7 +3410,7 @@ CHANGESTAT_FN(d_simmelian) {
 /*****************
  changestat: d_simmelianties
 *****************/
-CHANGESTAT_FN(d_simmelianties) { 
+D_CHANGESTAT_FN(d_simmelianties) { 
   Edge e;
   Vertex h, t, change, node3, node4, first, firstht;
   int edgeflag, i;
@@ -3477,7 +3477,7 @@ CHANGESTAT_FN(d_simmelianties) {
 /*****************
  changestat: d_smalldiff
 *****************/
-CHANGESTAT_FN(d_smalldiff) { 
+D_CHANGESTAT_FN(d_smalldiff) { 
   Vertex h, t;
   int i;
   
@@ -3496,7 +3496,7 @@ CHANGESTAT_FN(d_smalldiff) {
 /*****************
  changestat: d_sociality
 *****************/
-CHANGESTAT_FN(d_sociality) { 
+D_CHANGESTAT_FN(d_sociality) { 
   int i, j, echange;
   Vertex h, t, deg;
   int ninputs, nstats;
@@ -3561,7 +3561,7 @@ CHANGESTAT_FN(d_sociality) {
 /*****************
  changestat: d_tdsp
 *****************/
-CHANGESTAT_FN(d_tdsp) {
+D_CHANGESTAT_FN(d_tdsp) {
   Edge e, f;
   int i, j, echange, L2hu, L2ut;
   Vertex deg, h, t, u, v;
@@ -3608,7 +3608,7 @@ CHANGESTAT_FN(d_tdsp) {
 /*****************
  changestat: d_tesp
 *****************/
-CHANGESTAT_FN(d_tesp) { 
+D_CHANGESTAT_FN(d_tesp) { 
   Edge e, f;
   int i, j, echange;
   int L2ht, L2hu, L2ut;
@@ -3668,7 +3668,7 @@ CHANGESTAT_FN(d_tesp) {
 /*****************
  changestat: d_transitive
 *****************/
-CHANGESTAT_FN(d_transitive) { 
+D_CHANGESTAT_FN(d_transitive) { 
   Edge e;
   Vertex h, t, node2;
   double change;
@@ -3724,7 +3724,7 @@ CHANGESTAT_FN(d_transitive) {
 /*****************
  changestat: d_triadcensus
 *****************/
-CHANGESTAT_FN(d_triadcensus) { 
+D_CHANGESTAT_FN(d_triadcensus) { 
   int i, j, edgeflag, a, b, c, d, e, edgecount, t300, 
   t210, t120C, t120U, t120D, t201, t030C, t030T, t111U, 
   t111D, t021C, t021U, t021D, t102, t012, t003;
@@ -4030,7 +4030,7 @@ CHANGESTAT_FN(d_triadcensus) {
 /*****************
  changestat: d_triangle
 *****************/
-CHANGESTAT_FN(d_triangle) { 
+D_CHANGESTAT_FN(d_triangle) { 
   Edge e;
   Vertex h, t, change, node3;
   int i, j;
@@ -4085,7 +4085,7 @@ CHANGESTAT_FN(d_triangle) {
 /*****************
  changestat: d_tripercent
 *****************/
-CHANGESTAT_FN(d_tripercent) { 
+D_CHANGESTAT_FN(d_tripercent) { 
   Edge e;
   Vertex h, t, change, node3;
   double hd, td=0.0, numchange;
@@ -4501,7 +4501,7 @@ CHANGESTAT_FN(d_tripercent) {
 /*****************
  changestat: d_ttriple
 *****************/
-CHANGESTAT_FN(d_ttriple) { 
+D_CHANGESTAT_FN(d_ttriple) { 
   Edge e;
   Vertex h, t, change, node3;
   int i, j;

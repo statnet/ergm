@@ -8,61 +8,61 @@
 /* changestat function prototypes, 
    plus a few supporting function prototypes */
 /********************  changestats:  A    ***********/
-CHANGESTAT_FN(d_b1kappa);
-CHANGESTAT_FN(d_b1share);
-CHANGESTAT_FN(d_altistar);
-CHANGESTAT_FN(d_altostar);
+D_CHANGESTAT_FN(d_b1kappa);
+D_CHANGESTAT_FN(d_b1share);
+D_CHANGESTAT_FN(d_altistar);
+D_CHANGESTAT_FN(d_altostar);
 /********************  changestats:  B    ***********/
-CHANGESTAT_FN(d_berninhom);
-CHANGESTAT_FN(d_biduration);
-CHANGESTAT_FN(d_bimix);
-CHANGESTAT_FN(d_bkappa);
+D_CHANGESTAT_FN(d_berninhom);
+D_CHANGESTAT_FN(d_biduration);
+D_CHANGESTAT_FN(d_bimix);
+D_CHANGESTAT_FN(d_bkappa);
 /********************  changestats:  C    ***********/
 /********************  changestats:  D    ***********/
-CHANGESTAT_FN(d_degreep);
-CHANGESTAT_FN(d_degreep_by_attr);
-CHANGESTAT_FN(d_degreep_w_homophily);
-CHANGESTAT_FN(d_dissolve);
-CHANGESTAT_FN(d_duration);
+D_CHANGESTAT_FN(d_degreep);
+D_CHANGESTAT_FN(d_degreep_by_attr);
+D_CHANGESTAT_FN(d_degreep_w_homophily);
+D_CHANGESTAT_FN(d_dissolve);
+D_CHANGESTAT_FN(d_duration);
 /********************  changestats:  E    ***********/
-CHANGESTAT_FN(d_b2kappa);
+D_CHANGESTAT_FN(d_b2kappa);
 /********************  changestats:  F    ***********/
-CHANGESTAT_FN(d_factor);
-CHANGESTAT_FN(d_formation);
+D_CHANGESTAT_FN(d_factor);
+D_CHANGESTAT_FN(d_formation);
 /********************  changestats:  G    ***********/
-CHANGESTAT_FN(d_geodegree);
-CHANGESTAT_FN(d_geospartner);
-CHANGESTAT_FN(d_gwb1);
-CHANGESTAT_FN(d_gwd);
-CHANGESTAT_FN(d_gwdegree706);
-CHANGESTAT_FN(d_gwdegreealpha);
-CHANGESTAT_FN(d_gwdegreelambda);
-CHANGESTAT_FN(d_gwb2);
-CHANGESTAT_FN(d_gwb1share);
-CHANGESTAT_FN(d_gwb2share);
+D_CHANGESTAT_FN(d_geodegree);
+D_CHANGESTAT_FN(d_geospartner);
+D_CHANGESTAT_FN(d_gwb1);
+D_CHANGESTAT_FN(d_gwd);
+D_CHANGESTAT_FN(d_gwdegree706);
+D_CHANGESTAT_FN(d_gwdegreealpha);
+D_CHANGESTAT_FN(d_gwdegreelambda);
+D_CHANGESTAT_FN(d_gwb2);
+D_CHANGESTAT_FN(d_gwb1share);
+D_CHANGESTAT_FN(d_gwb2share);
 /********************  changestats:   H    ***********/
-CHANGESTAT_FN(d_heideriandynamic);
-CHANGESTAT_FN(d_hiertriad);
+D_CHANGESTAT_FN(d_heideriandynamic);
+D_CHANGESTAT_FN(d_hiertriad);
   double numposthree (Vertex t, Network *nwp);
-CHANGESTAT_FN(d_hiertriaddegree);
+D_CHANGESTAT_FN(d_hiertriaddegree);
 /********************  changestats:   I    ***********/
-CHANGESTAT_FN(d_icvar);
-CHANGESTAT_FN(d_idc);
-CHANGESTAT_FN(d_intransitivedynamic);
-CHANGESTAT_FN(d_intransitivity);
+D_CHANGESTAT_FN(d_icvar);
+D_CHANGESTAT_FN(d_idc);
+D_CHANGESTAT_FN(d_intransitivedynamic);
+D_CHANGESTAT_FN(d_intransitivity);
 /********************  changestats:   K    ***********/
-CHANGESTAT_FN(d_kappa);
+D_CHANGESTAT_FN(d_kappa);
 /********************  changestats:   L    ***********/
 /********************  changestats:   M    ***********/
-CHANGESTAT_FN(d_monopolymixmat);
+D_CHANGESTAT_FN(d_monopolymixmat);
 /********************  changestats:   N    ***********/
 /********************  changestats:   O    ***********/
 /********************  changestats:   R    ***********/
 /********************  changestats:   S    ***********/
-CHANGESTAT_FN(d_simmeliandynamic);
-CHANGESTAT_FN(d_spatial);
+D_CHANGESTAT_FN(d_simmeliandynamic);
+D_CHANGESTAT_FN(d_spatial);
 /********************  changestats:   T    ***********/
-CHANGESTAT_FN(d_transitivedynamic);
-CHANGESTAT_FN(d_transitivity);
+D_CHANGESTAT_FN(d_transitivedynamic);
+D_CHANGESTAT_FN(d_transitivity);
        
 #endif
