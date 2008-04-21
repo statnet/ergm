@@ -28,7 +28,7 @@ void MCMC_wrapper (int *heads, int *tails, int *dnedges,
                    int *mheads, int *mtails, int *mdnedges) {
   int directed_flag, hammingterm, formationterm;
   Vertex n_nodes, nmax, bip, hhead, htail;
-  Edge n_edges, n_medges, nddyads, kedge, mpe=*maxpossibleedges;
+  Edge n_edges, n_medges, nddyads, kedge;
   Network nw[2];
   DegreeBound *bd;
   Model *m;
@@ -608,7 +608,7 @@ void MCMCPhase12 (int *heads, int *tails, int *dnedges,
   int directed_flag, hammingterm, formationterm;
   int nphase1, nsubphases;
   Vertex n_nodes, nmax, bip, hhead, htail;
-  Edge n_edges, n_medges, nddyads, kedge, mpe=*maxpossibleedges;
+  Edge n_edges, n_medges, nddyads, kedge;
   Network nw[2];
   DegreeBound *bd;
   Model *m;

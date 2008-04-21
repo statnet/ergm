@@ -24,6 +24,7 @@
 \alias{InitErgmTerm.asymmetric}
 \alias{InitErgmTerm.b1degree}   
 \alias{InitErgmTerm.b2degree}
+\alias{InitErgmTerm.b1star}
 \alias{InitErgmTerm.cycle}
 \alias{InitErgmTerm.edgecov}
 \alias{InitErgmTerm.isolates}

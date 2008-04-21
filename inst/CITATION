@@ -4,16 +4,16 @@ cat("If you are using the 'ergm' package for research that will be published,\n"
 cat("we request that you acknowledge this with the following citation:\n\n")
 cat("  Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau,\n")
 cat("  and Martina Morris (2003) statnet: Software Tools for the Statistical\n")
-cat("  Modeling of Network Data. Version 2.0,\n")
-cat("  URL http://statnetproject.org.\n\n")
+cat("  Modeling of Network Data. Version 2.0. Project home page at http://statnetproject.org,\n")
+cat("  URL http://CRAN.R-project.org/package=statnet.\n\n")
 cat("A BibTeX entry for LaTeX users is\n\n")
 cat("  @Manual{,\n")
 cat("    title = {statnet: Software Tools for the Statistical Modeling of Network Data},\n")
 cat("    author = {Mark S. Handcock and David R. Hunter and Carter T. Butts and Steven M. Goodreau and Martina Morris},\n")
 cat("    year = {2003},\n")
-cat("    note = {Version 2.0},\n")
+cat("    note = {Version 2.0. Project home page at \url{http://statnetproject.org}},\n")
 cat("    address = {Seattle, WA},\n")
-cat("    url = {http://statnetproject.org},\n")
+cat("    url = {http://CRAN.R-project.org/package=statnet},\n")
 cat("  }\n")
 citHeader("To cite the individual package 'ergm' please use:")
 
@@ -25,15 +25,16 @@ citEntry(entry="Manual",
                              as.person("Steven M. Goodreau"),
                              as.person("Martina Morris")), 
          year         = 2003,
-         note         = paste("Version",substring(library(help="ergm",lib.loc=NULL,character.only=TRUE)$info[[1]][2],first=16)),
+         note         = paste("Version",substring(library(help="ergm",lib.loc=NULL,character.only=TRUE)$info[[1]][2],first=16),". Project home page at http://statnetproject.org"),
          address      = "Seattle, WA",
-         url          = "http://statnetproject.org",
+         url          = "http://CRAN.R-project.org/package=ergm",
          
          textVersion = 
          paste("Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau, and Martina Morris (2003) ", 
                "ergm: A Package to Fit, Simulate and Diagnose Exponential-Family Models for Networks. Version ",
 substring(library(help="ergm",lib.loc=NULL,character.only=TRUE)$info[[1]][2],first=16),
-         ",", " URL http://statnetproject.org.",
+         ". Project home page at http://statnetproject.org",
+         ",", " URL http://CRAN.R-project.org/package=ergm.",
                sep="")
          )
 

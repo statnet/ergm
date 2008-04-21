@@ -49,7 +49,7 @@ summary.ergm <- function (object, ...,
               offset = object$offset,
               drop = object$drop,
               covariance=covariance,
-              pseudolikelihood=is.na(object$samplesize) && !is.null(object$theta1$independent) && all(object$theta1$independent),
+              pseudolikelihood=is.na(object$samplesize) && !is.null(object$theta1$independent) && !all(object$theta1$independent),
               iterations=object$iterations[1])
 
   if(ans$pseudolikelihood){
