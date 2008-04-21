@@ -62,21 +62,21 @@ void SummStats(Edge n_edges, Vertex *heads, Vertex *tails,
 
   ShuffleEdges(heads,tails,n_edges); /* Shuffle edgelist. */
 
+  for (unsigned int termi=0; termi < m->n_terms; termi++)
+    m->termarray[termi].dstats = m->workspace;
+  
   /* Doing this one toggle at a time saves a lot of toggles... */
   for(Edge e=0; e<n_edges; e++){
     ModelTerm *mtp = m->termarray;
-    double *dstats = m->workspace;
+    double *statspos=stats;
 
-    for (unsigned int i=0; i < m->n_terms; i++){
-      mtp->dstats = dstats; /* Stuck the change statistic here.*/
-      if(!mtp->s_func)
+    for (unsigned int termi=0; termi < m->n_terms; termi++, mtp++){
+      if(!mtp->s_func){
 	(*(mtp->d_func))(1, heads+e, tails+e, 
 			 mtp, nwp);  /* Call d_??? function */
-      dstats += (mtp++)->nstats;
-    }
-
-    for (unsigned int i=0; i < m->n_stats; i++){
-      stats[i]+=m->workspace[i];
+	for (unsigned int i=0; i < mtp->nstats; i++,statspos++)
+	  *statspos += mtp->dstats[i];
+      }else statspos += mtp->nstats;
     }
 
     ToggleEdge(heads[e],tails[e],nwp);
@@ -84,10 +84,12 @@ void SummStats(Edge n_edges, Vertex *heads, Vertex *tails,
 
   ModelTerm *mtp = m->termarray;
   double *dstats = m->workspace;
-  for (unsigned int i=0; i < m->n_terms; i++){
-    mtp->dstats = dstats; /* Stuck the change statistic here.*/
-    if(mtp->s_func)
+  double *statspos=stats;
+  for (unsigned int termi=0; termi < m->n_terms; termi++, dstats+=mtp->nstats, mtp++ ){
+    if(mtp->s_func){
       (*(mtp->s_func))(mtp, nwp);  /* Call s_??? function */
-    dstats += (mtp++)->nstats;
+      for (unsigned int i=0; i < mtp->nstats; i++,statspos++)
+	*statspos += mtp->dstats[i];
+    }else statspos += mtp->nstats;
   }
 }
