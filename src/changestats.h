@@ -110,7 +110,7 @@ D_CHANGESTAT_FN(d_dsp);
 D_CHANGESTAT_FN(d_dyadcov);
 /********************  changestats:  E    ***********/
 D_CHANGESTAT_FN(d_edgecov);
-D_CHANGESTAT_FN(d_edges);
+D_CHANGESTAT_FN(d_edges);S_CHANGESTAT_FN(s_edges);
 D_CHANGESTAT_FN(d_esp);
 /********************  changestats:  F    ***********/
 /********************  changestats:  G    ***********/

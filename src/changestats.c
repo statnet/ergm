@@ -1471,6 +1471,10 @@ D_CHANGESTAT_FN(d_edges) {
   UNDO_PREVIOUS_TOGGLES(i);
 }
 
+S_CHANGESTAT_FN(s_edges) {
+  CHANGE_STAT[0] = N_EDGES;
+}
+
 /*****************
  changestat: d_esp
 *****************/
