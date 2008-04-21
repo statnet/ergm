@@ -111,8 +111,7 @@ double mean_duration(Network *nwp)
  This is essentially the edges statistic, which only counts dyads with "age"
  (time steps spent in the current state) in the interval [inputparams0,inputparams1).
 *****************/
-void d_edges_ageinterval(int ntoggles, Vertex *heads, Vertex *tails, 
-			 ModelTerm *mtp, Network *nwp){
+D_CHANGESTAT_FN(d_edges_ageinterval){
   int edgeflag, i;
   Vertex h, t;
   int from=mtp->inputparams[0], to=mtp->inputparams[1];
