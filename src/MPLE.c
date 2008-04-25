@@ -248,8 +248,10 @@ void MpleInit_hash(int *responsevec, double *covmat, int *weightsvector,
             /* Update mtp->dstats pointer to skip ahead by mtp->nstats */
             totalStats += mtp->nstats; 
           }
-          if(!insCovMatRow(newRow, covmat, m->n_stats, maxNumDyadTypes, response, 
-          responsevec, offset[dyadNum++], compressedOffset, weightsvector)) {
+          if(!insCovMatRow(newRow, covmat, m->n_stats,
+			   maxNumDyadTypes, response, 
+			   responsevec, offset ? offset[dyadNum++]:0, 
+			   compressedOffset, weightsvector)) {
             error("Too many unique dyads!");
           }
         }

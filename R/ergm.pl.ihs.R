@@ -17,7 +17,7 @@ ergm.pl.ihs<-function(Clist, Clist.miss, m, theta.offset=NULL,
     offset <- 1*offset
     numobs <- Clist$ndyads - sum(offset)
   }else{
-    offset <- rep(0,Clist$ndyads)
+    offset <- NULL
     numobs <- Clist$ndyads
   }
   maxNumDyadTypes <- min(maxNumDyadTypes,
