@@ -14,7 +14,11 @@ print.summary.ergm <- function (x,
   
   cat ("Newton-Raphson iterations: ", x$iterations, "\n")
   if(x$pseudolikelihood){
-    cat ("\nPseudolikelihood Results:\n")
+    if (x$independence) {
+      cat ("\nMaximum Likelihood Results:\n")
+    } else {
+      cat ("\nMaximum Pseudolikelihood Results:\n")
+    }
   }else{
     cat ("MCMC sample of size", x$samplesize, "\n")
     cat ("\nMonte Carlo MLE Results:\n")
@@ -26,7 +30,7 @@ print.summary.ergm <- function (x,
        print(x$randomeffects)
      }else{
       cat ("\nSender and Receiver random effects:\n  Covariances:\n")
-      print(x$randomeffects)       
+      print(x$randomeffects)
       corr <- x$randomeffects[1,2]/sqrt(x$randomeffects[1,1]*x$randomeffects[2,2])
       corr <- max(min(1,corr),-1)
       cat (paste("\n  Correlation between sender and receiver:  ",
@@ -38,9 +42,8 @@ print.summary.ergm <- function (x,
                P.values=TRUE, has.Pvalue=TRUE, na.print="NA",
                eps=eps, ...)
   
-  if(!is.null(x$warning)){ 
-     cat("\n Warning:\n")
-     cat(x$warning)
+  if(!is.null(x$message)){ 
+     cat(x$message)
   }
 
   cat("\n")

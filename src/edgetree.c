@@ -74,8 +74,8 @@ Network NetworkInitializeD(double *heads, double *tails, Edge nedges,
 			  Vertex nnodes, int directed_flag, Vertex bipartite,
 			  int lasttoggle_flag) {
 
-  Vertex *iheads=malloc(sizeof(Vertex)*nedges);
-  Vertex *itails=malloc(sizeof(Vertex)*nedges);
+  Vertex *iheads=(Vertex*)malloc(sizeof(Vertex)*nedges);
+  Vertex *itails=(Vertex*)malloc(sizeof(Vertex)*nedges);
   
   for(Edge i=0; i<nedges; i++){
     iheads[i]=heads[i];

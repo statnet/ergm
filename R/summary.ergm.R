@@ -43,13 +43,16 @@ summary.ergm <- function (object, ...,
 #   original <- format(object$MCMCtheta, digits = digits)
 #   original <- format(object$theta.original, digits = digits)
 
+  pseudolikelihood <- is.na(object$samplesize)
+  independence <- !is.null(object$theta1$independent) && all(object$theta1$independent)
   ans <- list(formula=object$formula, randomeffects=object$re,
               digits=digits, correlation=correlation,
               degeneracy.value = object$degeneracy.value,
               offset = object$offset,
               drop = object$drop,
               covariance=covariance,
-              pseudolikelihood=is.na(object$samplesize) && !is.null(object$theta1$independent) && !all(object$theta1$independent),
+              pseudolikelihood=pseudolikelihood,
+              independence=independence,
               iterations=object$iterations[1])
 
   if(ans$pseudolikelihood){
@@ -124,36 +127,29 @@ summary.ergm <- function (object, ...,
   colnames(tempmatrix) <- c("Estimate", "Std. Error", "MCMC s.e.", "p-value")
   rownames(tempmatrix) <- names(object$coef)
 
-  if (!is.null(object$theta1$independent) && !all(object$theta1$independent)){
-    if(ans$pseudolikelihood) {
-      ans$warning <- "  The standard errors are based on naive pseudolikelihood and are suspect.\n"
-    }
+  devtext <- "Deviance:"
+  if (!independence) {
+    if (pseudolikelihood) {
+      devtext <- "Pseudo-deviance:"
+      ans$message <- "\nWarning:  The standard errors are based on naive pseudolikelihood and are suspect.\n"
+    } 
     else if(any(is.na(object$mc.se))) {
-      ans$warning <- "  The standard errors are suspect due to possible poor convergence.\n"
+      ans$message <- "\nWarning:  The standard errors are suspect due to possible poor convergence.\n"
     }
+  } else {
+    ans$message <- "\nFor this model, the pseudolikelihood is the same as the likelihood.\n"
   }
+  ans$devtable <- c("",apply(cbind(paste(format(c("   Null", 
+            "Residual", ""), width = 8), devtext), 
+            format(c(object$null.deviance,
+                     -2*object$mle.lik, 
+                     object$null.deviance+2*object$mle.lik),
+                digits = 5), " on",
+            format(c(dyads, rdf, df),
+                digits = 5)," degrees of freedom\n"), 
+            1, paste, collapse = " "),"\n")
+
   
-  if(ans$pseudolikelihood){
-    ans$devtable <- c("",apply(cbind(paste(format(c("    Null", 
-            "Residual", ""), width = 8, flag = ""), "Pseudo-deviance:"), 
-            format(c(object$null.deviance,
-                     -2*object$mle.lik, 
-                     object$null.deviance+2*object$mle.lik),
-                digits = 5), " on",
-            format(c(dyads, rdf, df),
-                digits = 5)," degrees of freedom\n"), 
-            1, paste, collapse = " "),"\n")
-  }else{
-    ans$devtable <- c("",apply(cbind(paste(format(c("   Null", 
-            "Residual", ""), width = 8), "Deviance:"), 
-            format(c(object$null.deviance,
-                     -2*object$mle.lik, 
-                     object$null.deviance+2*object$mle.lik),
-                digits = 5), " on",
-            format(c(dyads, rdf, df),
-                digits = 5)," degrees of freedom\n"), 
-            1, paste, collapse = " "),"\n")
-  }
   ans$aic <- -2*object$mle.lik + 2*df
   ans$bic <- -2*object$mle.lik + log(dyads)*df
   
