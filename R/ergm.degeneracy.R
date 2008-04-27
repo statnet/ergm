@@ -103,7 +103,7 @@ ergm.degeneracy <- function(object,
 }
 
 ergm.compute.degeneracy<-function(xobs, theta0, etamap, statsmatrix,
-                        nr.maxit=100, nr.reltol=0.01,
+                        epsilon=1e-10, nr.maxit=100, nr.reltol=0.01,
                         verbose=FALSE, trace=6*verbose,
                         hessian=FALSE, guess=theta0,
                         trustregion=20, ...) {
@@ -150,7 +150,7 @@ ergm.compute.degeneracy<-function(xobs, theta0, etamap, statsmatrix,
     return(c(Inf, guess))
   }
   theta <- Lout$par
-  names(theta) <- names(guess)
+  names(theta) <- names(theta0)
 # c0  <- llik.fun(theta=Lout$par, xobs=xobs,
 #                 xsim=xsim, probs=probs,
 #                 xsim.miss=xsim.miss, probs.miss=probs.miss,
