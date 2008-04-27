@@ -103,9 +103,9 @@ ergm.degeneracy <- function(object,
 }
 
 ergm.compute.degeneracy<-function(xobs, theta0, etamap, statsmatrix,
-                        epsilon=1e-10, nr.maxit=100,
+                        nr.maxit=100, nr.reltol=0.01,
                         verbose=FALSE, trace=6*verbose,
-                        hessian=FALSE,
+                        hessian=FALSE, guess=theta0,
                         trustregion=20, ...) {
   samplesize <- dim(statsmatrix)[1]
   statsmatrix0 <- statsmatrix
@@ -121,7 +121,6 @@ ergm.compute.degeneracy<-function(xobs, theta0, etamap, statsmatrix,
 #
 # Set up the initial estimate
 #
-  guess <- theta0
   if (verbose) cat("Converting theta0 to eta0\n")
   eta0 <- ergm.eta(theta0, etamap) #unsure about this
   etamap$theta0 <- theta0
@@ -134,7 +133,8 @@ ergm.compute.degeneracy<-function(xobs, theta0, etamap, statsmatrix,
                     fn=llik.fun, #  gr=llik.grad,
                     hessian=FALSE,
                     method="BFGS",
-                    control=list(trace=trace,fnscale=-1,maxit=nr.maxit),
+                    control=list(trace=trace,fnscale=-1,reltol=nr.reltol,
+                                 maxit=nr.maxit),
                     xobs=xobs,
                     xsim=xsim, probs=probs,
                     xsim.miss=xsim.miss, probs.miss=probs.miss,
@@ -150,7 +150,7 @@ ergm.compute.degeneracy<-function(xobs, theta0, etamap, statsmatrix,
     return(c(Inf, guess))
   }
   theta <- Lout$par
-  names(theta) <- names(theta0)
+  names(theta) <- names(guess)
 # c0  <- llik.fun(theta=Lout$par, xobs=xobs,
 #                 xsim=xsim, probs=probs,
 #                 xsim.miss=xsim.miss, probs.miss=probs.miss,
