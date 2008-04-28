@@ -112,6 +112,7 @@ cat(paste("theta new:",theta,"\n"))
                    statsmatrix=z$statsmatrix,
                    statsmatrix.miss=NULL,
                    nr.maxit=control$nr.maxit, 
+                   nr.reltol=control$nr.reltol,
                    calc.mcmc.se=control$calc.mcmc.se,
                    hessian=control$hessian,
                    method=control$method,
