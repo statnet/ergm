@@ -6,7 +6,8 @@
 }
 \usage{
 control.ergm(prop.weights = "default", prop.args = NULL,
-             nr.maxit = 100, nr.reltol = sqrt(.Machine$double.eps), calc.mcmc.se = TRUE, hessian = FALSE, compress = TRUE,
+             nr.maxit = 100, nr.reltol = sqrt(.Machine$double.eps), 
+             calc.mcmc.se = TRUE, hessian = FALSE, compress = TRUE,
              maxNumDyadTypes = 1e+6, maxedges = 20000, maxchanges = 1e+06,
              maxMPLEsamplesize = 100000, MPLEtype=c("glm", "penalized"), trace = 0,
              steplength = 0.5, drop = TRUE, force.mcmc = FALSE, check.degeneracy=TRUE, mcmc.precision =
@@ -32,10 +33,6 @@ control.ergm(prop.weights = "default", prop.args = NULL,
     with all possible constraints (in the \code{\link{ergm}} function).
     }
   \item{prop.args}{ An alternative, direct way of specifying additional arguments to proposal. }
-  \item{nr.maxit}{ count; The maximum number of iterations in the
-    Newton-Raphson optimization.  Defaults to \code{100}.
-    \code{maxit} gives the total number of likelihood
-    function evaluations. }
   \item{nr.maxit}{ count; The maximum number of iterations in the
     Newton-Raphson optimization.  Defaults to \code{100}.
     \code{maxit} gives the total number of likelihood
