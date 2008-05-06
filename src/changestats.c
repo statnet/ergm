@@ -529,8 +529,8 @@ D_CHANGESTAT_FN(d_balance) {
         /* ****** loop through node3 ****** */
         for (node3=1; node3 <= N_NODES; node3++) { 
           if (node3 != h && node3 != t) {
-            a = IS_OUTEDGE(MIN(node3, t), MAX(node3, t));
-            b = IS_OUTEDGE(MIN(node3, h), MAX(node3, h));
+            a = IS_UNDIRECTED_EDGE(node3, t);
+            b = IS_UNDIRECTED_EDGE(node3, h);
             edgecount = (a + b);
             
             switch(edgecount){  
@@ -4052,13 +4052,13 @@ D_CHANGESTAT_FN(d_triangle) {
         STEP_THROUGH_OUTEDGES(t, e, node3) { /* step through outedges of tail */
           if(hattr == INPUT_ATTRIB[node3-1]){
             if (DIRECTED) change += IS_OUTEDGE(node3, h) + IS_INEDGE(node3, h);
-            else change += IS_OUTEDGE(MIN(node3,h), MAX(node3,h));
+            else change += IS_UNDIRECTED_EDGE(node3,h);
           }
         }
         STEP_THROUGH_INEDGES(t, e, node3) { /* step through inedges of tail */
           if(hattr == INPUT_ATTRIB[node3-1]){
             if (DIRECTED) change += IS_OUTEDGE(node3, h) + IS_INEDGE(node3, h);
-            else change += IS_OUTEDGE(MIN(node3,h), MAX(node3,h));
+            else change += IS_UNDIRECTED_EDGE(node3,h);
           }
         }
         if(N_CHANGE_STATS>1){ /* diff = TRUE */
@@ -4073,11 +4073,11 @@ D_CHANGESTAT_FN(d_triangle) {
     }else{ /* no attribute matching */
       STEP_THROUGH_OUTEDGES(t, e, node3) { /* step through outedges of tail */
         if (DIRECTED) change += IS_OUTEDGE(node3, h) + IS_INEDGE(node3, h);
-	      else change += IS_OUTEDGE(MIN(node3,h), MAX(node3,h));
+	      else change += IS_UNDIRECTED_EDGE(node3,h);
       }
       STEP_THROUGH_INEDGES(t, e, node3) { /* step through inedges of tail */
         if (DIRECTED) change += IS_OUTEDGE(node3, h) + IS_INEDGE(node3, h);
-	      else change += IS_OUTEDGE(MIN(node3,h), MAX(node3,h));
+	      else change += IS_UNDIRECTED_EDGE(node3,h);
       }
       CHANGE_STAT[0] += edgemult * change;
     }
