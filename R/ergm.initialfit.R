@@ -20,7 +20,7 @@ ergm.initialfit<-function(theta0, MLestimate, Clist, Clist2, m,
     if(!is.null(initial.loglik)){
      mle.lik <- mle.lik-initial.loglik
     }
-    fit <- list(coef=theta0, mle.lik=mle.lik) # anything else that should be in the list? 
+    fit <- structure(list(coef=theta0, mle.lik=mle.lik),class="ergm")
   } else if (is.na(fitmethod) & !MLestimate) { # Error!
     stop(paste("Unrecognized fitting method", theta0,
                "used in conjuction with MLestimate=FALSE.\n"))
