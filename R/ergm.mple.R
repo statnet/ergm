@@ -1,4 +1,4 @@
-ergm.mple<-function(Clist, Clist2, m, theta.offset=NULL,
+ergm.mple<-function(Clist, Clist2, m, theta0=NULL, theta.offset=NULL,
                     MPLEtype="glm", family="binomial",
                     maxMPLEsamplesize=1e+6,
                     save.glm=TRUE,
@@ -15,7 +15,8 @@ ergm.mple<-function(Clist, Clist2, m, theta.offset=NULL,
    if(verbose) cat("Using penalized MPLE.\n")
    mplefit <- ergm.pen.glm(
                   pl$zy ~ pl$xmat -1 + offset(pl$foffset),
-                  data=data.frame(pl$xmat), weights=pl$wend)
+                  data=data.frame(pl$xmat), weights=pl$wend,
+                           beta0=theta0)
    mplefit$deviance <- -2*mplefit$loglik
    mplefit$cov.unscaled <- mplefit$var
    mplefit.summary <- mplefit
@@ -24,12 +25,13 @@ ergm.mple<-function(Clist, Clist2, m, theta.offset=NULL,
    if(MPLEtype=="logitreg"){
     mplefit <- model.matrix(terms(pl$zy ~ .-1,data=data.frame(pl$xmat)),
                            data=data.frame(pl$xmat))
-    mplefit <- ergm.logitreg(x=mplefit, y=pl$zy, offset=pl$foffset, wt=pl$wend)
+    mplefit <- ergm.logitreg(x=mplefit, y=pl$zy, offset=pl$foffset, wt=pl$wend,
+                             start=theta0)
     mplefit.summary <- list(cov.unscaled=mplefit$cov.unscaled)
    }else{
     mplefit <- try(
           glm(pl$zy ~ .-1 + offset(pl$foffset), data=data.frame(pl$xmat),
-                    weights=pl$wend, family=family),
+                    weights=pl$wend, family=family, start=theta0),
                     silent = TRUE)
     if (inherits(mplefit, "try-error")) {
       mplefit <- list(coef=pl$theta.offset, deviance=0,

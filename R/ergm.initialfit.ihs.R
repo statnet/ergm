@@ -1,5 +1,6 @@
 ergm.initialfit.ihs<-function(theta0, MLestimate, Clist, Clist.miss, m, 
-                          MPLEtype="glm", initial.loglik=NULL, 
+                          MPLEtype="glm", initial.loglik=NULL,
+                          force.MPLE=FALSE,
                           verbose=FALSE, ...) {
 # Process input for call to ergm.mple or some other alternative fitting
 # method.  If the user wishes only to obtain the fit from this method
@@ -9,6 +10,7 @@ ergm.initialfit.ihs<-function(theta0, MLestimate, Clist, Clist.miss, m,
 # initial parameters.
   fitmethod <- match("MPLE", theta0)
   if (is.na(fitmethod) & MLestimate) { # theta0 should be a start vector
+    
     theta0 <- as.vector(theta0)
     if (length(theta0) != Clist$nparam |
         length(theta0)!=length(m$coef.names)) {
@@ -16,15 +18,22 @@ ergm.initialfit.ihs<-function(theta0, MLestimate, Clist, Clist.miss, m,
       stop(paste("Invalid starting parameter vector theta0;",
                  "unrecognized option or wrong number of parameters."))
     }
-    if(!is.null(Clist.miss)){
-     mle.lik <- -log(2)*(Clist$ndyads-Clist.miss$nedges)
-    }else{
-     mle.lik <- -log(2)*Clist$ndyads
+
+    if(force.MPLE){
+      fit <- ergm.mple(Clist, Clist.miss, m, MPLEtype=MPLEtype,
+                       theta0=theta0,
+                       verbose=verbose, ...)
+    }else{    
+      if(!is.null(Clist.miss)){
+        mle.lik <- -log(2)*(Clist$ndyads-Clist.miss$nedges)
+      }else{
+        mle.lik <- -log(2)*Clist$ndyads
+      }
+      if(!is.null(initial.loglik)){
+        mle.lik <- mle.lik-initial.loglik
+      }
+      fit <- structure(list(coef=theta0, mle.lik=mle.lik),class="ergm")
     }
-    if(!is.null(initial.loglik)){
-     mle.lik <- mle.lik-initial.loglik
-    }
-    fit <- structure(list(coef=theta0, mle.lik=mle.lik),class="ergm")
   } else if (is.na(fitmethod) & !MLestimate) { # Error!
     stop(paste("Unrecognized fitting method", theta0,
                "used in conjuction with MLestimate=FALSE.\n"))

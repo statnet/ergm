@@ -54,6 +54,8 @@ ergm <- ergm2 <- ergm.ihs <- function(formula, theta0="MPLE",
                                 initial.loglik=control$initial.loglik,
                                 verbose=verbose, compressflag = control$compress, 
                                 maxNumDyadTypes=control$maxNumDyadTypes,
+                                force.MPLE=(ergm.independencemodel(model.initial)
+                                            && constraints==(~.)),
                                 ...)
   if (MLestimate && 
       (   !ergm.independencemodel(model.initial)
