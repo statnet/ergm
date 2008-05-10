@@ -1,4 +1,4 @@
-#include "changestats_duration.ihs.h"
+#include "changestats_duration.h"
 
 /*****************
  void d_D_off

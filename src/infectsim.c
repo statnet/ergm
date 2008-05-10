@@ -1,6 +1,6 @@
 /* C speedup of infectsim function */
 
-#include "infectsim.ihs.h"
+#include "infectsim.h"
 
 
 

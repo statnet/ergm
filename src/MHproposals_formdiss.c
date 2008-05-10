@@ -1,4 +1,4 @@
-#include "MHproposals_formdiss.ihs.h"
+#include "MHproposals_formdiss.h"
 
 /* Shorthand. */
 #define Mhead (MHp->togglehead)

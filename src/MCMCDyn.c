@@ -1,5 +1,5 @@
 #include "MCMC.h"
-#include "MCMCDyn.ihs.h"
+#include "MCMCDyn.h"
 #include "MHproposals.h"
 
 /*****************

@@ -1,4 +1,4 @@
-#include "plinfo.ihs.h"
+#include "plinfo.h"
 
 void plinfo_wrapper (int *heads, int *tails, int *dnedges,
          int *maxpossibleedges,

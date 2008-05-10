@@ -1,7 +1,7 @@
 #ifndef PLINFO_IHS_H
 #define PLINFO_IHS_H
 
-#include "edgetree.ihs.h"
+#include "wtedgetree.h"
 #include "changestats.h"
 #include "model.h"
 #include "MPLE.h"

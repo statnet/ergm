@@ -1,7 +1,7 @@
 /*  This is a collection of functions used to calculate diagnostic 
     statistics for dynamic networks. */
 
-#include "diagnostics.ihs.h"
+#include "diagnostics.h"
 
 /* These #defines are not really necessary but may make the code a bit
    easier to read.  They come at a price (the possibility of hard-to-track

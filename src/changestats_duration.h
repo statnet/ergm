@@ -1,7 +1,7 @@
 #ifndef CHANGESTATS_DURATION_H
 #define CHANGESTATS_DURATION_H
 
-#include "edgetree.ihs.h"
+#include "wtedgetree.h"
 #include "changestats.h"
 
 void d_D_on (int ntoggles, Vertex *heads, Vertex *tail, 

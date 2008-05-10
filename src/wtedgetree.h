@@ -1,5 +1,5 @@
-#ifndef EDGETREE_IHS_H
-#define EDGETREE_IHS_H
+#ifndef WTEDGETREE_H
+#define WTEDGETREE_H
 
 #include <math.h>
 #include <R.h>
