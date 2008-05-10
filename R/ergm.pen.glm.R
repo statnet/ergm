@@ -1,3 +1,18 @@
+#  File ergm/R/ergm.pen.glm.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+# Copyright 2003 Mark S. Handcock, University of Washington
+#                David R. Hunter, Penn State University
+#                Carter T. Butts, University of California - Irvine
+#                Steven M. Goodreau, University of Washington
+#                Martina Morris, University of Washington
+# Copyright 2007 The statnet Development Team
+######################################################################
+#  File ergm/R/ergm.pen.glm.R
 ergm.pen.glm <- function(formula = attr(data, "formula"), 
  data = sys.parent(), alpha = 0.05, 
   maxit = 25, maxhs = 5, epsilon = 0.0001, maxstep = 10, beta0=NULL,
