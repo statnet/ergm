@@ -1,6 +1,7 @@
-ergm.initialfit<-function(theta0, MLestimate, Clist, Clist2, m, 
+ergm.initialfit<-function(theta0, MLestimate, Clist, Clist.miss, m, 
                           MPLEtype="glm", initial.loglik=NULL,
-                          force.MPLE=FALSE, verbose=FALSE, ...) {
+                          force.MPLE=FALSE,
+                          verbose=FALSE, ...) {
 # Process input for call to ergm.mple or some other alternative fitting
 # method.  If the user wishes only to obtain the fit from this method
 # (MLestimate==FALSE), this fit is returned immediately upon return to
@@ -8,7 +9,7 @@ ergm.initialfit<-function(theta0, MLestimate, Clist, Clist2, m,
 # we also check to see whether the theta0 value is a valid vector of
 # initial parameters.
   fitmethod <- match("MPLE", theta0)
-  if (is.na(fitmethod) && MLestimate) { # theta0 should be a start vector
+  if (is.na(fitmethod) & MLestimate) { # theta0 should be a start vector
     
     theta0 <- as.vector(theta0)
     if (length(theta0) != Clist$nparam |
@@ -17,14 +18,17 @@ ergm.initialfit<-function(theta0, MLestimate, Clist, Clist2, m,
       stop(paste("Invalid starting parameter vector theta0;",
                  "unrecognized option or wrong number of parameters."))
     }
-    
+
     if(force.MPLE){
-      fit <- ergm.mple(Clist, Clist2, m, MPLEtype=MPLEtype,
+      fit <- ergm.mple(Clist, Clist.miss, m, MPLEtype=MPLEtype,
                        theta0=theta0,
                        verbose=verbose, ...)
-    }
-    else{
-      mle.lik <- -log(2)*Clist$ndyads
+    }else{    
+      if(!is.null(Clist.miss)){
+        mle.lik <- -log(2)*(Clist$ndyads-Clist.miss$nedges)
+      }else{
+        mle.lik <- -log(2)*Clist$ndyads
+      }
       if(!is.null(initial.loglik)){
         mle.lik <- mle.lik-initial.loglik
       }
@@ -35,10 +39,9 @@ ergm.initialfit<-function(theta0, MLestimate, Clist, Clist2, m,
                "used in conjuction with MLestimate=FALSE.\n"))
   } else {
     if (fitmethod==1) {  #  MPLE
-      fit <- ergm.mple(Clist, Clist2, m, MPLEtype=MPLEtype,
+      fit <- ergm.mple(Clist, Clist.miss, m, MPLEtype=MPLEtype,
                        verbose=verbose, ...)
     }
   }
   fit
 }
-

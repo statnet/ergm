@@ -1,5 +1,5 @@
-#ifndef MHproposals_formdiss_IHS_H
-#define MHproposals_formdiss_IHS_H
+#ifndef MHproposals_formdiss_H
+#define MHproposals_formdiss_H
 
 #include "wtedgetree.h"
 #include "changestats.h"

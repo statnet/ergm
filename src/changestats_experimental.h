@@ -1,5 +1,5 @@
-#ifndef CHANGESTATS_IHS_H
-#define CHANGESTATS_IHS_H
+#ifndef CHANGESTATS_EXPERIMENTAL_H
+#define CHANGESTATS_EXPERIMENTAL_H
 
 #include "wtedgetree.h"
 #include "changestats.h"

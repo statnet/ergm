@@ -21,50 +21,32 @@
 ######################################################################
 
 .First.lib <- function(lib, pkg){
-    library.dynam("ergm", pkg, lib)
-    DESCpath <- file.path(system.file(package="ergm"), "DESCRIPTION")
-    info <- read.dcf(DESCpath)
-    cat('\nergm:', info[,"Title"], 
-        '\nVersion', info[,"Version"], 'created on', info[,"Date"], '\n') 
-
+  library.dynam("ergm", pkg, lib)
+  DESCpath <- file.path(system.file(package="ergm"), "DESCRIPTION")
+  info <- read.dcf(DESCpath)
+  cat('\nergm:', info[,"Title"], 
+      '\nVersion', info[,"Version"], 'created on', info[,"Date"], '\n') 
+  
 #    ehelp <- library(help="ergm",lib.loc=NULL,character.only=TRUE)$info[[1]]
 #    cat(paste(substring(ehelp[4],first=16),"\n",
 #              "Version ",substring(ehelp[2],first=16),
 #              " created on ",
 #               substring(ehelp[3],first=16),".\n", sep=""))
-    cat(paste("copyright (c) 2003, Mark S. Handcock, University of Washington\n",
+  cat(paste("copyright (c) 2003, Mark S. Handcock, University of Washington\n",
 "                    David R. Hunter, Penn State University\n",
 "                    Carter T. Butts, University of California-Irvine\n",
 "                    Steven M. Goodreau, University of Washington\n",
 "                    Martina Morris, University of Washington\n",sep=""))
-    cat('Type help(package="ergm") to get started.\n\n')
+  cat('Type help(package="ergm") to get started.\n\n')
 #    cat(paste('If utilization of "ergm" results in outcomes which will be published,\n',
 #    'please specify the version of "ergm" you used and cite it;\n',
 #    'see citation("ergm")\n'))
-    cat('Based on "statnet" project software (http://statnetproject.org).\n',
-        'For license and citation information see http://statnetproject.org/attribution\n',
-        'or type citation("ergm").\n')
+  cat('Based on "statnet" project software (http://statnetproject.org).\n',
+      'For license and citation information see http://statnetproject.org/attribution\n',
+      'or type citation("ergm").\n')
 #   cat('Please cite it when you use it!\n')
 #   cat('To cite, see citation("ergm")\n')
 #   require(network, quietly=TRUE)
-}
-
-if(exists("ergm.ihs")) { # Look here for a list of functions that exist in two
-  # distinct versions now, one for CRAN and one not.  This makes debugging 
-  # twice as much work for these functions.  :(
-  ergm.mple <- ergm.mple.ihs
-  ergm.initialfit <- ergm.initialfit.ihs
-  ergm.mainfitloop <- ergm.mainfitloop.ihs
-  ergm<-ergm.ihs
-  MHproposals <- MHproposals.ihs
-  MHproposal.ergm <- MHproposal.ergm.ihs
-  ergm.getMCMCsample <- ergm.getMCMCsample.ihs
-  ergm.mcmcslave <- ergm.mcmcslave.ihs
-  ergm.mple <- ergm.mple.ihs
-  ergm.estimate <- ergm.estimate.ihs
-  ergm.MCMCse <- ergm.MCMCse.ihs
-  ergm.pl <- ergm.pl.ihs
-  control.ergm <- control.ergm.ihs
 }
 
 .Last.lib <- function(libpath){

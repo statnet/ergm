@@ -1,5 +1,5 @@
-#ifndef PLINFO_IHS_H
-#define PLINFO_IHS_H
+#ifndef PLINFO_H
+#define PLINFO_H
 
 #include "wtedgetree.h"
 #include "changestats.h"

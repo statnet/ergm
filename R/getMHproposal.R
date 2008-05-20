@@ -1,8 +1,9 @@
 MHproposals<-
-  #         Class Constraints      Weights        MHP
+  #         Class Constraint      Weights        MHP
   rbind(I(c("c", "",              "default",      "TNT")),
           c("c", "",              "TNT",          "TNT"),
           c("c", "",              "random",       "randomtoggle"),
+          c("c", "",              "TNT10",        "TNT10"),
           c("c", "bd",            "default",       "TNT"),
           c("c", "bd",            "TNT",           "TNT"),
           c("c", "bd",            "random",       "randomtoggle"),
@@ -16,8 +17,6 @@ MHproposals<-
           c("c", "degreedist",    "random",       "CondDegreeDist"), 
           c("c", "indegreedist",  "default",      "CondInDegreeDist"),
           c("c", "indegreedist",  "random",       "CondInDegreeDist"), 
-          c("c", "outdegreedist",  "default",      "CondOutDegreeDist"),
-          c("c", "outdegreedist",  "random",       "CondOutDegreeDist"), 
 
 #          c("c", "indegrees",     "default",      "CondInDegree"),
 #          c("c", "indegrees",     "random",       "CondInDegree"),
@@ -28,12 +27,21 @@ MHproposals<-
           c("c", "hamming",       "default",      "HammingTNT"),
           c("c", "hamming",       "random",       "HammingTNT"),
           c("c", "edges+hamming", "default",      "HammingConstantEdges"),
-          c("c", "edges+hamming", "random",       "HammingConstantEdges")
+          c("c", "edges+hamming", "random",       "HammingConstantEdges"),
+          c("f", "",              "default",      "formationTNT"),
+          c("f", "",              "TNT",          "formationTNT"),
+          c("f", "",              "random",       "formation"),
+          c("f", "bd",            "default",      "formationTNT"),
+          c("f", "bd",            "TNT",          "formationTNT"),
+          c("f", "bd",            "random",       "formation"),
+          c("d", "",              "default",      "dissolution"),
+          c("d", "",              "random",       "dissolution"),
+          c("d", "bd",            "default",      "dissolution"),
+          c("d", "bd",            "random",       "dissolution")
         )
 MHproposals <- data.frame(I(MHproposals[,1]), I(MHproposals[,2]), 
                           I(MHproposals[,3]), I(MHproposals[,4]))  
 colnames(MHproposals)<-c("Class","Constraints","Weights","MHP")
-
 
 MHproposal<-function(object, ...) UseMethod("MHproposal")
 
@@ -113,6 +121,12 @@ MHproposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NULL, 
   if(is.null(arguments)) arguments<-object$prop.args
   if(is.null(nw)) nw<-object$network
   if(is.null(weights)) weights<-"default"
-  if(is.null(model)) model<-ergm.getmodel(object$formula,nw,...)
+  if(is.null(model)){
+    model<-if(class %in% c("c","f"))
+      ergm.getmodel(object$formula,nw,...)
+    else
+      ergm.getmodel.dissolve(object$formula,nw,...)
+  }  
   MHproposal(constraints,arguments=arguments,nw=nw,model=model,weights=weights,class=class)
 }
+
