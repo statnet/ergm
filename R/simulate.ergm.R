@@ -1,11 +1,14 @@
 simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
                              burnin=1000, interval=1000,
                              basis=NULL,
-                             sequential=TRUE,
+                             statsonly=FALSE,
+                             sequential=!statsonly, 
                              constraints=~.,
                              control=control.simulate.formula(),
                              verbose=FALSE) {
-  out.list <- list()
+  if (!statsonly) {
+    nw.list <- list()
+  }
   out.mat <- numeric(0)
   formula <- object
   
@@ -83,26 +86,40 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
 #       print("returning from ergm.mcmcslave; entering newnw.extract")
 #     }
     }
-#
-#   Next update the network to be the final (possibly conditionally)
-#   simulated one
-#
-    out.list[[i]] <- newnw.extract(nw,z)
+    #
+    #   Next update the network to be the final (possibly conditionally)
+    #   simulated one
+    #
+    if (!statsonly) {
+      nw.list[[i]] <- newnw.extract(nw,z)
+    }
 #    if (verb) {
 #      print("returning from newnw.extract")
 #    }
     curstats <- z$s
+    names(curstats) <- m$coef.names
     out.mat <- rbind(out.mat,curstats)
     if(sequential){
-      nw <-  out.list[[i]]
+      if (!statsonly)
+        nw <-  nw.list[[i]]
+      else 
+        nw <- newnw.extract(nw, z)
     }
   }
   if(nsim > 1){
-    out.list <- list(formula = formula, networks = out.list, 
-                     stats = out.mat, coef=theta0)
-    class(out.list) <- "network.series"
-  }else{
-    out.list <- out.list[[1]]
+    rownames(out.mat) <- NULL
+    if (statsonly) {
+      out.list <- as.matrix(out.mat)
+    } else {
+      out.list <- list(formula = formula, networks = nw.list, 
+                       stats = out.mat, coef=theta0)
+      class(out.list) <- "network.series"
+    }
+  }else if (statsonly) {
+    out.list <- as.vector(out.mat)
+    names(out.list) <- colnames(out.mat)
+  } else {
+    out.list <- nw.list[[1]]
   }
   return(out.list)
 }
@@ -110,11 +127,14 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
 
 simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
                           burnin=1000, interval=1000, 
-                          sequential=TRUE, 
+                          statsonly=FALSE,
+                          sequential=!statsonly, 
                           constraints=NULL,
                           control=control.simulate.ergm(),
                           verbose=FALSE) {
-  out.list <- vector("list", nsim)
+  if (!statsonly) {
+    nw.list <- vector("list", nsim)
+  }
   out.mat <- numeric(0)
   
 #  if(missing(multiplicity) & !is.null(object$multiplicity)){
@@ -187,18 +207,33 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
     #   Next update the network to be the final (possibly conditionally)
     #   simulated one
 
-    out.list[[i]] <- newnw.extract(nw, z)
-    out.mat <- rbind(out.mat,z$s[(1):(Clist$nparam)])
+    if (!statsonly) {
+      nw.list[[i]] <- newnw.extract(nw, z)
+    }
+    curstats <- z$s[(1):(Clist$nparam)]
+    names(curstats) <- m$coef.names
+    out.mat <- rbind(out.mat,curstats)
     if(sequential){
-      nw <-  out.list[[i]]
+      if (!statsonly) 
+        nw <-  nw.list[[i]]
+      else 
+        nw <- newnw.extract(nw, z)
     }
   }
   if(nsim > 1){
-    out.list <- list(formula = object$formula, networks = out.list, 
-                     stats = out.mat, coef=theta0)
-    class(out.list) <- "network.series"
-  }else{
-    out.list <- out.list[[1]]
+    rownames(out.mat) <- NULL
+    if (statsonly) {
+      out.list <- as.matrix(out.mat)
+    } else {
+      out.list <- list(formula = object$formula, networks = nw.list, 
+                       stats = out.mat, coef=theta0)
+      class(out.list) <- "network.series"
+    }
+  } else if (statsonly) {
+    out.list <- as.vector(out.mat)
+    names(out.list) <- colnames(out.mat)
+  } else {
+    out.list <- nw.list[[1]]
   }
   if(control$summarizestats){
     colnames(globalstatsmatrix) <- colnames(statsmatrix)

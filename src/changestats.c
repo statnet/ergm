@@ -1879,7 +1879,7 @@ D_CHANGESTAT_FN(d_gwesp) {
   alpha = INPUT_PARAM[0];
   oneexpa = 1.0-exp(-alpha);
   
-  FOR_EACH_TOGGLE(i){      
+  FOR_EACH_TOGGLE(i){
     cumchange=0.0;
     L2ht=0;
     ochange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 0 : -1;
@@ -2159,11 +2159,81 @@ D_CHANGESTAT_FN(d_gwtesp) {
     (CHANGE_STAT[0]) += cumchange;
     TOGGLE_IF_MORE_TO_COME(i);
   }
-  
   UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /********************  changestats:  H    ***********/
+/*****************
+ changestat: d_hamhamming
+*****************/
+/* This function must be passed two networks in the forms of edgelists:
+   One is the network from which hamming distances are calculated and the
+   other is the network of weights on the dyads, which is an edgelist with a
+   third column of weights.  Note that all non-edges in the second network
+   will have the value given by defaultval; thus, the "unweighted" hamming
+   distance is obtained when the default is 1.0 and the second network is
+   empty. */
+D_CHANGESTAT_FN(d_hamhamming) { 
+  /* FIXME:  When all of the old "hamming" code is eliminated, we can 
+     replace "hamhamming" by "hamming" */
+  int i, discord;
+  Edge nedges, start2, nedges2, max, min, mid;
+  Vertex h, t, h1, t1;
+  double defaultval, val;
+  
+  ZERO_ALL_CHANGESTATS(i);
+  nedges = INPUT_PARAM[0];
+  start2 = nedges*2+2;
+  defaultval = INPUT_PARAM[start2-1]; /* Hamming wt for non-edges in cov nw */
+  nedges2 = INPUT_PARAM[start2];      /* # edges in the covariate (2nd) network */
+  /* This code searches for (h,t) in both networks, relying on them being passed 
+     as edgelists in "dictionary order" (i.e. sorted by 1st column then by 2nd) */
+  FOR_EACH_TOGGLE(i) {
+    discord=IS_OUTEDGE(h = heads[i], t = tails[i]);
+    /* First, search first network to see whether hamming stat goes up or down */
+    min=1;
+    max=nedges;
+    while (max >= min) {
+      mid = (min + max)/2;
+      h1 = INPUT_PARAM[mid];
+      t1 = INPUT_PARAM[mid+nedges];
+      if (h<h1 || (h==h1)&&(t<t1)) { /* Move search window down */
+        max = mid-1;
+      }
+      else if (h>h1 || (h==h1)&&(t>t1)) { /* Move search window up */
+        min = mid+1;
+      }
+      else {
+        discord=1-discord;
+        break;
+      }
+    }
+    /* Second, search second network to see if the weight is different from
+       different from defaultval.  In unweighted case, this */
+    min=1;
+    max=nedges2;
+    val = defaultval;
+    while (max >= min) {
+      mid = (min + max)/2;
+      h1 = INPUT_PARAM[start2 + mid];
+      t1 = INPUT_PARAM[start2 + mid + nedges2];
+      if (h<h1 || (h==h1)&&(t<t1)) { /* Move search window down */
+        max = mid-1;
+      }
+      else if (h>h1 || (h==h1)&&(t>t1)) { /* Move search window up */
+        min=mid+1;
+      }
+      else {
+        val = INPUT_PARAM[start2 + mid + nedges2 + nedges2];
+        break;
+      }
+    }
+    CHANGE_STAT[0] += (discord ? -val : val);
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);  
+}
+
 /*****************
  changestat: d_hamming
 *****************/

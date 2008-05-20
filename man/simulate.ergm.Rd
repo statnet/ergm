@@ -6,13 +6,15 @@
 \method{simulate}{formula}(object, nsim=1, seed=NULL, \dots, theta0,
                           burnin=1000, interval=1000,
                           basis=NULL,
-                          sequential=TRUE,
+                          statsonly=FALSE,
+                          sequential=!statsonly, 
                           constraints = ~.,
                           control = control.simulate.formula(),
                           verbose=FALSE)
 \method{simulate}{ergm}(object, nsim=1, seed=NULL, \dots, theta0,
                        burnin=1000, interval=1000, 
-                       sequential=TRUE,
+                       statsonly=FALSE,
+                       sequential=!statsonly, 
                        constraints = NULL,
                        control = control.simulate.ergm(),
                        verbose=FALSE)
@@ -92,6 +94,8 @@
 %  returned for the degree terms are their natural parameterization
 %  estimates conditional on the non-degree term statistics.
 %  }
+ \item{statsonly}{If TRUE, return only the network statistics (not the 
+   network(s) themselves)}
  \item{sequential}{Should the returned draws use the prior draw 
    as the starting network or always use the initially passed network?
    For random draws the results should be similar (stochastically), but the
