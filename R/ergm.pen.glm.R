@@ -14,8 +14,9 @@
 ######################################################################
 #  File ergm/R/ergm.pen.glm.R
 ergm.pen.glm <- function(formula = attr(data, "formula"), 
- data = sys.parent(), alpha = 0.05, 
-  maxit = 25, maxhs = 5, epsilon = 0.0001, maxstep = 10, beta0=NULL,
+  data = sys.parent(), alpha = 0.05, 
+  maxit = 25, maxhs = 5, epsilon = 0.0001, maxstep = 10, 
+  start=NULL,
   weights=NULL)
 {
   y <- as.vector(model.extract(model.frame(formula, data = data), "response"))
@@ -36,8 +37,8 @@ ergm.pen.glm <- function(formula = attr(data, "formula"),
   if(missing(weights)){weights <- rep(1,length=n)}
   beta <- c(log((sum(y*weights)/sum((1-y)*weights))),
             rep(0, k - 1))
-  if(!missing(beta0)){
-    beta[1] <- beta[1] - sum((x %*% beta0)*weights)
+  if(!missing(start) && !is.null(start) && ncol(x)==length(start)){
+    beta[1] <- beta[1] - sum((x %*% start)*weights)
   }
   iter <- 0
   pi <- as.vector(1/(1 + exp( - x %*% beta)))
@@ -88,15 +89,18 @@ ergm.pen.glm <- function(formula = attr(data, "formula"),
 #                                  weights=weights),
               iter = iter, n = n, 
               terms = colnames(x), y = y, 
-              formula = as.formula(formula), call=match.call())
-  fit$linear.predictors <- as.vector(x %*% beta)
-  fit$method <- "Penalized ML"
-  vars <- diag(covs)
+              formula = as.formula(formula), call=match.call(),
+              data = data, 
+              model.matrix = x, 
+              method = "pen.glm.fit",
+              linear.predictors=as.vector(x %*% beta))
+  class(fit) <- c("pen.glm")
+# vars <- diag(covs)
   fit
 }
 logistftest <- function(formula = attr(data, "formula"),
   data = sys.parent(), test, values, maxit = 25, maxhs = 5, 
-  epsilon = 0.0001, maxstep = 10, beta0, weights=NULL)
+  epsilon = 0.0001, maxstep = 10, start, weights=NULL)
 {
   #n <- nrow(data)
   y <- model.extract(model.frame(formula, data = data), "response")
@@ -110,14 +114,14 @@ logistftest <- function(formula = attr(data, "formula"),
   if(missing(weights)){weights <- rep(1,length=n)}
   beta <- c(log((sum(y*weights)/sum((1-y)*weights))),
             rep(0, k - 1))  
-  if(!missing(beta0)){
-    beta[1] <- beta[1] - sum((x %*% beta0)*weights)
+  if(!missing(start) && !is.null(start) && ncol(x)==length(start)){
+    beta[1] <- beta[1] - sum((x %*% start)*weights)
   }
 ##berechne Startwerte
   iter <- 0
   loglik <- rep(0, 2)
   pi <- as.vector(1/(1 + exp( - x %*% beta)))
-  if(missing(beta0)) {
+  if(missing(start)) {
 ################## coxphfplot braucht dies nicht! ###
   loglik[2] <- sum((y * log(pi) + (1 - y) * log(1 - pi))*weights)
   XW2 <- sweep(x, 1, (weights*(pi * (1 - pi)))^0.5, "*") #### X' (W ^ 1/2)
@@ -165,8 +169,8 @@ logistftest <- function(formula = attr(data, "formula"),
   pos <- pos[OK]
   cov.name2 <- cov.name2[OK]
   k2 <- length(cov.name2)  ## Anzahl Faktoren
-  if(!missing(beta0))
-    offset <- beta0
+  if(!missing(start))
+    offset <- start
   else offset <- rep(0, k)  ## Vektor der fixierten Werte
   if(!missing(values))
     offset[pos] <- values
@@ -216,4 +220,8 @@ logistftest <- function(formula = attr(data, "formula"),
   }
 #######################
   loglik
+}
+model.matrix.pen.glm <- function(object, ...)
+{
+	object$model.matrix
 }
