@@ -17,9 +17,10 @@ ergm.mple<-function(Clist, Clist.miss, m, theta0=NULL, theta.offset=NULL,
    mplefit <- ergm.pen.glm(
                   pl$zy ~ pl$xmat -1 + offset(pl$foffset),
                   data=data.frame(pl$xmat), weights=pl$wend,
-                           beta0=theta0)
+                  start=theta0)
 #  mple$deviance <- 2 * (mplefit$loglik-mplefit$loglik[1])[-1]
    mplefit$deviance <- -2*mplefit$loglik
+   mplefit$pl <- pl
    mplefit$cov.unscaled <- mplefit$var
    mplefit.summary <- mplefit
   }else{

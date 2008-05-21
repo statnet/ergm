@@ -1,4 +1,4 @@
-ergm.maple<-function(pl, m,
+ergm.maple<-function(pl, m, theta0=NULL,
                     MPLEtype="glm", family="binomial",
                     save.glm=TRUE,
                     theta1=NULL, verbose=FALSE, ...) {
@@ -6,7 +6,8 @@ ergm.maple<-function(pl, m,
    if(verbose) cat("Using penalized MPLE.\n")
    mplefit <- ergm.pen.glm(
                   pl$zy ~ pl$xmat -1 + offset(pl$foffset),
-                  data=data.frame(pl$xmat), weights=pl$wend)
+                  data=data.frame(pl$xmat), weights=pl$wend,
+                           start=theta0)
 #  mple$deviance <- 2 * (mplefit$loglik-mplefit$loglik[1])[-1]
    mplefit$deviance <- -2*mplefit$loglik
    mplefit$cov.unscaled <- mplefit$var
@@ -17,12 +18,13 @@ ergm.maple<-function(pl, m,
    if(MPLEtype=="logitreg"){
     mplefit <- model.matrix(terms(pl$zy ~ .-1,data=data.frame(pl$xmat)),
                            data=data.frame(pl$xmat))
-    mplefit <- ergm.logitreg(x=mplefit, y=pl$zy, offset=pl$foffset, wt=pl$wend)
+    mplefit <- ergm.logitreg(x=mplefit, y=pl$zy, offset=pl$foffset, wt=pl$wend,
+                             start=theta0)
     mplefit.summary <- list(cov.unscaled=mplefit$cov.unscaled)
    }else{
     mplefit <- try(
           glm(pl$zy ~ .-1 + offset(pl$foffset), data=data.frame(pl$xmat),
-                    weights=pl$wend, family=family),
+                    weights=pl$wend, family=family, start=theta0),
                     silent = TRUE)
     if (inherits(mplefit, "try-error")) {
       mplefit <- list(coef=pl$theta.offset, deviance=0,
@@ -34,7 +36,7 @@ ergm.maple<-function(pl, m,
    }
 #
 #  Determine the independence theta and MLE
-#  Note that the term "match" is deprecated.
+#  Note that the term "match" is depreciated.
 #
    if(is.null(theta1)){
     independent.terms <- 
@@ -94,7 +96,7 @@ ergm.maple<-function(pl, m,
   real.coef <- mplefit$coef
   real.cov <- mplefit.summary$cov.unscaled
   theta[!m$etamap$offsettheta] <- real.coef
-  theta[is.na(theta)] <- 0
+# theta[is.na(theta)] <- 0
   names(theta) <- m$coef.names
 
 #
@@ -122,28 +124,28 @@ ergm.maple<-function(pl, m,
 # mplefit <- call(MPLEtype, pl$zy ~ 1, family=binomial)
 #
   if(MPLEtype=="penalized"){
-    mplefit.null <- ergm.pen.glm(pl$zy ~ 1, weights=pl$wend)
+   mplefit.null <- ergm.pen.glm(pl$zy ~ 1, weights=pl$wend)
   }else{
-    options(warn=-1)
-    #  options(warn=2)
-    if(MPLEtype=="logitreg"){
-      mplefit.null <- ergm.logitreg(x=matrix(1,ncol=1,nrow=length(pl$zy)),
-                                    y=pl$zy, offset=pl$foffset, wt=pl$wend)
-    }else{
-      mplefit.null <- try(glm(pl$zy ~ 1, family=family, weights=pl$wend),
-                          silent = TRUE)
-      if (inherits(mplefit.null, "try-error")) {
-        mplefit.null <- list(coef=0, deviance=0,
-                             cov.unscaled=diag(1))
-      }
+   options(warn=-1)
+#  options(warn=2)
+   if(MPLEtype=="logitreg"){
+    mplefit.null <- ergm.logitreg(x=matrix(1,ncol=1,nrow=length(pl$zy)),
+                                  y=pl$zy, offset=pl$foffset, wt=pl$wend)
+   }else{
+    mplefit.null <- try(glm(pl$zy ~ 1, family=family, weights=pl$wend),
+                        silent = TRUE)
+    if (inherits(mplefit.null, "try-error")) {
+      mplefit.null <- list(coef=0, deviance=0,
+                      cov.unscaled=diag(1))
     }
-    options(warn=0)
-    #  options(warn=2)
+   }
+   options(warn=0)
+#  options(warn=2)
   }
-  
+
   null.deviance <- mplefit$null.deviance
   aic <- mplefit$aic
-  
+
   if(save.glm){
     glm <- mplefit
     glm.null <- mplefit.null
@@ -152,7 +154,7 @@ ergm.maple<-function(pl, m,
     glm.null <- NULL
   }
 
-  # Output results as ergm-class object
+# Output results as ergm-class object
   structure(list(coef=theta, sample=NA,
       iterations=iteration, mle.lik=loglik,
       MCMCtheta=theta, loglikelihoodratio=loglik, gradient=gradient,
