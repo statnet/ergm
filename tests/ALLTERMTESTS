@@ -1,4 +1,5 @@
 source("a_termtests.R")
 source("b1deg_edgecov_termtests.R")
 source("cycle_termtests.R")
+source("hamming_termtests.R")
 source("nodefactor_termtests.R")
