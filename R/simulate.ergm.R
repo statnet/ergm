@@ -219,6 +219,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
         nw <-  nw.list[[i]]
       else 
         nw <- newnw.extract(nw, z)
+      MCMCparams$stats<-curstats
     }
   }
   if(nsim > 1){
