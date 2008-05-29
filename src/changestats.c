@@ -4621,4 +4621,177 @@ D_CHANGESTAT_FN(d_ttriple) {
   UNDO_PREVIOUS_TOGGLES(i);
 }
 
+/***************************************************************
+ changestats internal
+***************************************************************/
+
+/*****************
+ changestat: d_b1degree_edgecov
+*****************/
+CHANGESTAT_FN(d_b1degree_edgecov) { 
+  int i, j, k, echange, n1, n2, edgecovval;
+  Vertex b1, b2, b1deg, d;
+
+  n1 = BIPARTITE;
+  n2 = N_NODES - BIPARTITE;
+  for (i=0; i < N_CHANGE_STATS; i++) 
+    CHANGE_STAT[i] = 0.0;  
+  FOR_EACH_TOGGLE(i) {
+    b1 = heads[i];
+    b2 = tails[i];
+    echange = IS_OUTEDGE(b1, b2) ? -1 : 1;
+    edgecovval = INPUT_PARAM[N_CHANGE_STATS -1 + (b1-1)*n2 + b2-n1];
+    b1deg = 0;
+    for (k=n1+1; k <= N_NODES; k++) 
+      b1deg += IS_OUTEDGE(b1,k)*INPUT_PARAM[N_CHANGE_STATS -1 + (b1-1)*n2 + k-n1];
+    for(j = 0; j < N_CHANGE_STATS; j++) {
+      d = (Vertex)(INPUT_PARAM[j]);
+      CHANGE_STAT[j] += (b1deg + echange*edgecovval == d) - (b1deg == d);
+    }
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
+}
+
+/*****************
+ changestat: d_b2degree_edgecov
+*****************/
+CHANGESTAT_FN(d_b2degree_edgecov) { 
+  int i, j, k, echange, n1, n2, edgecovval;
+  Vertex b1, b2, b2deg, d;
+
+  n1 = BIPARTITE;
+  n2 = N_NODES - BIPARTITE;
+  for (i=0; i < N_CHANGE_STATS; i++)
+    CHANGE_STAT[i] = 0.0;  
+  FOR_EACH_TOGGLE(i) {
+    b1 = heads[i];
+    b2 = tails[i];
+    echange = IS_OUTEDGE(b1, b2) ? -1 : 1;
+    edgecovval = INPUT_PARAM[N_CHANGE_STATS -1 + (b2-n1-1)*n1 + b1];
+    b2deg = 0;
+    for (k=1; k <= n1; k++) 
+      b2deg += IS_OUTEDGE(k,b2)*INPUT_PARAM[N_CHANGE_STATS -1 + (b2-n1-1)*n1 + k];
+    for(j = 0; j < N_CHANGE_STATS; j++) {
+      d = (Vertex)(INPUT_PARAM[j]);
+      CHANGE_STAT[j] += (b2deg + echange*edgecovval == d) - (b2deg == d);
+    }
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
+}
+
+
+/*****************
+ changestat: d_b1mindegree
+*****************/
+CHANGESTAT_FN(d_b1mindegree) { 
+  int i, j, echange;
+  Vertex b1, b1deg, d;
+
+  for (i=0; i < N_CHANGE_STATS; i++) 
+    CHANGE_STAT[i] = 0.0;  
+  FOR_EACH_TOGGLE(i) {
+    b1 = heads[i];
+    echange = IS_OUTEDGE(b1, tails[i]) ? -1 : 1;
+    b1deg = OUT_DEG[b1];
+    for(j = 0; j < N_CHANGE_STATS; j++) {
+      d = (Vertex)(INPUT_PARAM[j]);
+      CHANGE_STAT[j] += (b1deg + echange >= d) - (b1deg >= d);
+    }
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
+}
+
+/*****************
+ changestat: d_b2mindegree
+*****************/
+CHANGESTAT_FN(d_b2mindegree) { 
+  /* It is assumed that in this bipartite network, the only edges are
+  of the form (b1, b2), where b1 is always strictly less
+  than b2.  In other words, the degree of a b1 is equivalent
+  to its outdegree and the degree of a b2 is equivalent to its
+  indegree.
+  */
+  int i, j, echange;
+  Vertex b1, b2, b2deg, d, *id;
+  TreeNode *oe;  
+  
+  oe=nwp->outedges;
+  id=IN_DEG;
+  for (i=0; i < N_CHANGE_STATS; i++) 
+    CHANGE_STAT[i] = 0.0;  
+  for (i=0; i<ntoggles; i++) {      
+    echange=(EdgetreeSearch(b1=heads[i], b2=tails[i], oe)==0) ? 1 : -1;
+    b2deg = id[b2];
+    for(j = 0; j < N_CHANGE_STATS; j++) {
+      d = (Vertex)(INPUT_PARAM[j]);
+      CHANGE_STAT[j] += (b2deg + echange >= d) - (b2deg >= d);
+    }
+    if (i+1 < ntoggles)
+      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
+  }
+  i--; 
+  while (--i>=0)  /*  Undo all previous toggles. */
+    TOGGLE(heads[i], tails[i]); 
+}
+
+
+/*****************
+ changestat: d_b1mindegree_edgecov
+*****************/
+CHANGESTAT_FN(d_b1mindegree_edgecov) { 
+  int i, j, k, echange, n1, n2, edgecovval;
+  Vertex b1, b2, b1deg, d;
+
+  n1 = BIPARTITE;
+  n2 = N_NODES - BIPARTITE;
+  for (i=0; i < N_CHANGE_STATS; i++) 
+    CHANGE_STAT[i] = 0.0;  
+  FOR_EACH_TOGGLE(i) {
+    b1 = heads[i];
+    b2 = tails[i];
+    echange = IS_OUTEDGE(b1, b2) ? -1 : 1;
+    edgecovval = INPUT_PARAM[N_CHANGE_STATS -1 + (b1-1)*n2 + b2-n1];
+    b1deg = 0;
+    for (k=n1+1; k <= N_NODES; k++) 
+      b1deg += IS_OUTEDGE(b1,k)*INPUT_PARAM[N_CHANGE_STATS -1 + (b1-1)*n2 + k-n1];
+    for(j = 0; j < N_CHANGE_STATS; j++) {
+      d = (Vertex)(INPUT_PARAM[j]);
+      CHANGE_STAT[j] += (b1deg + echange*edgecovval >= d) - (b1deg >= d);
+    }
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
+}
+
+/*****************
+ changestat: d_b2mindegree_edgecov
+*****************/
+CHANGESTAT_FN(d_b2mindegree_edgecov) { 
+  int i, j, k, echange, n1, n2, edgecovval;
+  Vertex b1, b2, b2deg, d;
+
+  n1 = BIPARTITE;
+  n2 = N_NODES - BIPARTITE;
+  for (i=0; i < N_CHANGE_STATS; i++)
+    CHANGE_STAT[i] = 0.0;  
+  FOR_EACH_TOGGLE(i) {
+    b1 = heads[i];
+    b2 = tails[i];
+    echange = IS_OUTEDGE(b1, b2) ? -1 : 1;
+    edgecovval = INPUT_PARAM[N_CHANGE_STATS -1 + (b2-n1-1)*n1 + b1];
+    b2deg = 0;
+    for (k=1; k <= n1; k++) 
+      b2deg += IS_OUTEDGE(k,b2)*INPUT_PARAM[N_CHANGE_STATS -1 + (b2-n1-1)*n1 + k];
+    for(j = 0; j < N_CHANGE_STATS; j++) {
+      d = (Vertex)(INPUT_PARAM[j]);
+      CHANGE_STAT[j] += (b2deg + echange*edgecovval >= d) - (b2deg >= d);
+    }
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
+}
+
 
