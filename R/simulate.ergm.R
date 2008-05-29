@@ -17,7 +17,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
     nw <- basis
 #   formula <- as.formula(paste(c("nw",as.character(formula)),
 #                               collapse=" "))
-    formula <- update(formula, nw ~ .)
+    formula <- safeupdate.formula(formula, nw ~ .)
     object <- formula
   } else {
     nw <- ergm.getnetwork(formula)
@@ -50,7 +50,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
   if(!is.null(seed)) set.seed(as.integer(seed))
 
 # curstats<-summary.statistics.network(object)
-  curstats<-summary(update(object,nw ~ .))
+  curstats<-summary(safeupdate.formula(object,nw ~ .))
   MCMCparams <- list(samplesize=1,
       stats=curstats,
       burnin=burnin,
@@ -159,7 +159,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
   eta0 <- ergm.eta(theta0, m$etamap)
 
   MCMCparams <- list(samplesize=1,
-      stats=eta0-eta0,
+      stats=summary(safeupdate.formula(object$formula,nw ~ .)),
       burnin=burnin,
       interval=interval,
       Clist.miss=list(heads=0,tails=0,nedges=0))

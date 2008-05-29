@@ -334,3 +334,9 @@ statnet.edit <- function(name,package=c("statnet","ergm","network")){
   }
   invisible(filepath)
 }
+
+safeupdate.formula<-function (old, new, ...){
+  tmp <- .Internal(update.formula(as.formula(old), as.formula(new)))
+  out <- formula(terms.formula(tmp, simplify = FALSE))
+  return(out)
+}

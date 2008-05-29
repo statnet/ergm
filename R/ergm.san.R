@@ -23,7 +23,7 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
   if(!is.null(seed)) set.seed(as.integer(seed))
   if(!is.null(basis)) {
     nw <- basis
-    formula <- update(formula, nw ~ .)
+    formula <- safeupdate.formula(formula, nw ~ .)
     object <- formula
   } else {
     nw <- ergm.getnetwork(formula)
