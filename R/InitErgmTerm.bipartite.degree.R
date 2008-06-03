@@ -27,7 +27,7 @@ InitErgmTerm.b1degree.edgecov <- function(nw, arglist, drop=TRUE, ...) {
 
   name <- "b1degree_edgecov"
   coef.names <- paste("b1deg.edgecov",as.character(sys.call(0)[[3]][[3]]),d,sep=".")
-  edgecov.vector <- as.vector(edgelist(edgecov))
+  edgecov.vector <- as.vector(edgelist.ergm(edgecov))
   inputs <- c(d,edgecov.vector)
   emptynwstats <- rep(0, length(d))
   if (any(d==0)) { # alter emptynwstats
@@ -69,7 +69,7 @@ InitErgmTerm.b2degree.edgecov <- function(nw, arglist, drop=TRUE, ...) {
 
   name <- "b2degree_edgecov"
   coef.names <- paste("b2deg.edgecov",as.character(sys.call(0)[[3]][[3]]),d,sep=".")
-  edgecov.vector <- as.vector(edgelist(edgecov))
+  edgecov.vector <- as.vector(edgelist.ergm(edgecov))
   inputs <- c(d,edgecov.vector)
   emptynwstats <- rep(0, length(d))
   if (any(d==0)) { # alter emptynwstats
@@ -172,7 +172,7 @@ InitErgmTerm.b1mindegree.edgecov <- function(nw, arglist, drop=TRUE, ...) {
 
   name <- "b1mindegree_edgecov"
   coef.names <- paste("b1mindeg.edgecov",as.character(sys.call(0)[[3]][[3]]),d,sep=".")
-  edgecov.vector <- as.vector(edgelist(edgecov))
+  edgecov.vector <- as.vector(edgelist.ergm(edgecov))
   inputs <- c(d,edgecov.vector)
   emptynwstats <- rep(0, length(d))
   if (any(d==0)) { # alter emptynwstats
@@ -214,7 +214,7 @@ InitErgmTerm.b2mindegree.edgecov <- function(nw, arglist, drop=TRUE, ...) {
 
   name <- "b2mindegree_edgecov"
   coef.names <- paste("b2mindeg.edgecov",as.character(sys.call(0)[[3]][[3]]),d,sep=".")
-  edgecov.vector <- as.vector(edgelist(edgecov))
+  edgecov.vector <- as.vector(edgelist.ergm(edgecov))
   inputs <- c(d,edgecov.vector)
   emptynwstats <- rep(0, length(d))
   if (any(d==0)) { # alter emptynwstats
