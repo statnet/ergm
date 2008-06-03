@@ -10,7 +10,7 @@ control.ergm(prop.weights = "default", prop.args = NULL,
              100, calc.mcmc.se = TRUE, hessian = FALSE, compress = FALSE,
              maxNumDyadTypes = 10000, maxedges = 20000, maxchanges = 1e+06,
              maxMPLEsamplesize = 10^11, MPLEtype=c("glm", "penalized"), trace = 0,
-             steplength = 0.5, drop = TRUE, force.mcmc = FALSE, check.degeneracy=TRUE, mcmc.precision =
+             steplength = 0.5, drop = TRUE, force.mcmc = FALSE, check.degeneracy=FALSE, mcmc.precision =
              0.05, metric = c("Likelihood", "raw"), method = c("BFGS", "Nelder-Mead"),
              trustregion = 20, initial.loglik = NULL, initial.network = NULL,
              style = c("Newton-Raphson", "Robbins-Monro",
