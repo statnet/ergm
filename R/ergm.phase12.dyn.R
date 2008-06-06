@@ -47,8 +47,9 @@ ergm.phase12.dyn <- function(g, meanstats, model.form, model.diss,
           as.integer(MHproposal.form$bd$minout), as.integer(MHproposal.form$bd$minin),
           as.integer(MHproposal.form$bd$condAllDegExact), as.integer(length(MHproposal.form$bd$attribs)), 
           # MCMC settings.              
-          as.integer(MCMCparams$burnin), as.integer(MCMCparams$dyninterval),
+          as.integer(MCMCparams$burnin),
           as.integer(MCMCparams$interval),
+          as.integer(MCMCparams$dyninterval),
           # Space for output.
           as.integer(maxchanges),
           # Verbosity.
