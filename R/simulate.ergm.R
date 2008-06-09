@@ -55,6 +55,8 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
       stats=curstats,
       burnin=burnin,
       interval=interval,
+      parallel=control$parallel,
+      packagenames=control$packagenames,
       Clist.miss=list(heads=0,tails=0,nedges=0))
 
   if (verb) {
@@ -62,7 +64,8 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
         " of ", burnin+interval*(MCMCparams$samplesize-1), 
         " steps", ifelse(nsim>1, " each", ""), ".\n", sep=""))
   }
-  for(i in 1:nsim){
+  if(sequential){
+   for(i in 1:nsim){
     Clist <- ergm.Cprepare(nw, m)
     maxedges <- max(2000, Clist$nedges)
     if(i==1 | !sequential){
@@ -76,15 +79,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
     z <- list(newnwheads=maxedges+1)
     while(z$newnwheads[1] > maxedges){
      maxedges <- 10*maxedges
-#     if (verb) {
-#       cat("   ")
-#       print("calling ergm.mcmcslave")
-#       #cat(paste("# ", i, " of ", nsim, ": ", sep=""))
-#     }
      z <- ergm.mcmcslave(Clist,MHproposal,eta0,MCMCparams,maxedges,verb) 
-#     if (verb) {
-#       print("returning from ergm.mcmcslave; entering newnw.extract")
-#     }
     }
     #
     #   Next update the network to be the final (possibly conditionally)
@@ -93,9 +88,6 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
     if (!statsonly) {
       nw.list[[i]] <- newnw.extract(nw,z)
     }
-#    if (verb) {
-#      print("returning from newnw.extract")
-#    }
     curstats <- z$s
     names(curstats) <- m$coef.names
     out.mat <- rbind(out.mat,curstats)
@@ -106,6 +98,95 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
         nw <- newnw.extract(nw, z)
       MCMCparams$stats<-curstats
     }
+   }
+  }else{
+#
+#   non-sequential hence parallel
+#
+    Clist <- ergm.Cprepare(nw, m)
+    maxedges <- max(2000, Clist$nedges)
+    MCMCparams$burnin <- burnin
+#
+#   Check for truncation of the returned edge list
+#
+    z <- list(newnwheads=maxedges+1)
+    while(z$newnwheads[1] > maxedges){
+     maxedges <- 10*maxedges
+     z <- ergm.mcmcslave(Clist,MHproposal,eta0,MCMCparams,maxedges,verb) 
+    }
+    MCMCparams$burnin <- interval
+    #
+    #   Next update the network to be the final (possibly conditionally)
+    #   simulated one
+    #
+    if (!statsonly) {
+      nw.list[[1]] <- newnw.extract(nw,z)
+    }
+    curstats <- z$s
+    names(curstats) <- m$coef.names
+    out.mat <- rbind(out.mat,curstats)
+    if (!statsonly)
+      nw <-  nw.list[[1]]
+    else 
+      nw <- newnw.extract(nw, z)
+    MCMCparams$stats<-curstats
+#
+    if(nsim > 1){
+     Clist <- ergm.Cprepare(nw, m)
+     maxedges <- max(2000, Clist$nedges)
+     MCMCparams.parallel <- MCMCparams
+     require(snow)
+#
+#    Start PVM if necessary
+#
+     if(getClusterOption("type")=="PVM"){
+      if(verbose){cat("Engaging warp drive using PVM ...\n")}
+      require(rpvm)
+      PVM.running <- try(.PVM.config(), silent=TRUE)
+      if(inherits(PVM.running,"try-error")){
+       hostfile <- paste(Sys.getenv("HOME"),"/.xpvm_hosts",sep="")
+       .PVM.start.pvmd(hostfile)
+       cat("no problem... PVM started by ergm...\n")
+      }
+     }else{
+      if(verbose){cat("Engaging warp drive using MPI ...\n")}
+     }
+#
+#    Start Cluster
+#
+     cl<-makeCluster(MCMCparams$parallel)
+     clusterSetupRNG(cl)
+     if("ergm" %in% MCMCparams$packagenames){
+      clusterEvalQ(cl,library(ergm))
+     }
+#
+#    Run the jobs with rpvm or Rmpi
+#
+     for(j in 1:ceiling((nsim-1)/MCMCparams$parallel)){
+      flush.console()
+      outlist <- clusterCall(cl,ergm.mcmcslave,
+       Clist,MHproposal,eta0,MCMCparams.parallel,maxedges,verb)
+#
+#     Process the results
+#
+#     Next update the network to be the final (possibly conditionally)
+#     simulated one
+
+      for(i in ((j-1)*MCMCparams$parallel+2):min(nsim,j*MCMCparams$parallel)){
+       k <- i-((j-1)*MCMCparams$parallel+1)
+       if (!statsonly) {
+        nw.list[[i]] <- newnw.extract(nw, outlist[[k]])
+       }
+       curstats <- outlist[[k]]$s[(1):(Clist$nparam)]
+       names(curstats) <- m$coef.names
+       out.mat <- rbind(out.mat,curstats)
+      }
+      if (verb) {
+        cat(paste("Completed ",k," of ", nsim, " simulations.\n", sep=""))
+      }
+    }
+    stopCluster(cl)
+  }
   }
   if(nsim > 1){
     rownames(out.mat) <- NULL
@@ -116,7 +197,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
                        stats = out.mat, coef=theta0)
       class(out.list) <- "network.series"
     }
-  }else if (statsonly) {
+  } else if (statsonly) {
     out.list <- as.vector(out.mat)
     names(out.list) <- colnames(out.mat)
   } else {
@@ -162,6 +243,8 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
       stats=summary(safeupdate.formula(object$formula,nw ~ .)),
       burnin=burnin,
       interval=interval,
+      parallel=control$parallel,
+      packagenames=control$packagenames,
       Clist.miss=list(heads=0,tails=0,nedges=0))
 
   if (verb) {
@@ -169,6 +252,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
         " of ", burnin+interval*(MCMCparams$samplesize-1), 
         " steps", ifelse(nsim>1, " each", ""), ".\n", sep=""))
   }
+  if(sequential){
   for(i in 1:nsim){
     Clist <- ergm.Cprepare(nw, m)
     maxedges <- max(5000, Clist$nedges)
@@ -222,6 +306,110 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
       MCMCparams$stats<-curstats
     }
   }
+  }else{
+#
+#   non-sequential (so parallel)
+#
+    Clist <- ergm.Cprepare(nw, m)
+    maxedges <- max(5000, Clist$nedges)
+    MCMCparams$burnin <- burnin
+#
+#   Check for truncation of the returned edge list
+#
+    z <- list(newnwheads=maxedges+1)
+    while(z$newnwheads[1] > maxedges){
+     maxedges <- 10*maxedges
+     if (verb) {
+       cat("   ")
+     }
+     z <- ergm.mcmcslave(Clist,MHproposal,eta0,MCMCparams,maxedges,verb) 
+    }
+    #   summarize stats
+    if(control$summarizestats){
+      class(Clist) <- "networkClist"
+      globalstatsmatrix <- summary(Clist)
+      statsmatrix <- matrix(z$s, MCMCparams$samplesize, Clist$nparam, byrow = TRUE)
+      colnames(statsmatrix) <- m$coef.names
+    }
+    #
+    #   Next update the network to be the final (possibly conditionally)
+    #   simulated one
+
+    if (!statsonly) {
+      nw.list[[1]] <- newnw.extract(nw, z)
+    }
+    curstats <- z$s[(1):(Clist$nparam)]
+    names(curstats) <- m$coef.names
+    out.mat <- rbind(out.mat,curstats)
+    if (!statsonly) 
+      nw <-  nw.list[[1]]
+    else 
+      nw <- newnw.extract(nw, z)
+
+    MCMCparams$burnin <- interval
+#
+    if(nsim > 1){
+     Clist <- ergm.Cprepare(nw, m)
+     maxedges <- max(2000, Clist$nedges)
+     MCMCparams.parallel <- MCMCparams
+     require(snow)
+#
+#    Start PVM if necessary
+#
+     if(getClusterOption("type")=="PVM"){
+      if(verbose){cat("Engaging warp drive using PVM ...\n")}
+      require(rpvm)
+      PVM.running <- try(.PVM.config(), silent=TRUE)
+      if(inherits(PVM.running,"try-error")){
+       hostfile <- paste(Sys.getenv("HOME"),"/.xpvm_hosts",sep="")
+       .PVM.start.pvmd(hostfile)
+       cat("no problem... PVM started by ergm...\n")
+      }
+     }else{
+      if(verbose){cat("Engaging warp drive using MPI ...\n")}
+     }
+#
+#    Start Cluster
+#
+     cl<-makeCluster(MCMCparams$parallel)
+     clusterSetupRNG(cl)
+     if("ergm" %in% MCMCparams$packagenames){
+      clusterEvalQ(cl,library(ergm))
+     }
+#
+#    Run the jobs with rpvm or Rmpi
+#
+     for(j in 1:ceiling((nsim-1)/MCMCparams$parallel)){
+      flush.console()
+      outlist <- clusterCall(cl,ergm.mcmcslave,
+       Clist,MHproposal,eta0,MCMCparams.parallel,maxedges,verb)
+#
+#     Process the results
+#
+#     Next update the network to be the final (possibly conditionally)
+#     simulated one
+
+      for(i in ((j-1)*MCMCparams$parallel+2):min(nsim,j*MCMCparams$parallel)){
+       k <- i-((j-1)*MCMCparams$parallel+1)
+       if (!statsonly) {
+        nw.list[[i]] <- newnw.extract(nw, outlist[[k]])
+       }
+       curstats <- outlist[[k]]$s[(1):(Clist$nparam)]
+       names(curstats) <- m$coef.names
+       out.mat <- rbind(out.mat,curstats)
+       if(control$summarizestats){
+        statsmatrix <- rbind(statsmatrix,
+                             matrix(outlist[[k]]$s, MCMCparams$samplesize,
+                                    Clist$nparam, byrow = TRUE))
+       }
+      }
+      if (verb) {
+        cat(paste("Completed ",k," of ", nsim, " simulations.\n", sep=""))
+      }
+    }
+    stopCluster(cl)
+    }
+  }
   if(nsim > 1){
     rownames(out.mat) <- NULL
     if (statsonly) {
@@ -236,12 +424,6 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
     names(out.list) <- colnames(out.mat)
   } else {
     out.list <- nw.list[[1]]
-  }
-  if(control$summarizestats){
-    colnames(globalstatsmatrix) <- colnames(statsmatrix)
-    print(globalstatsmatrix)
-    print(apply(globalstatsmatrix,2,summary.statsmatrix.ergm),scipen=6)
-    print(apply(statsmatrix,2,summary.statsmatrix.ergm),scipen=6)
   }
   return(out.list)
 }
