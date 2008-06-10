@@ -224,7 +224,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
 #  }
   if(!is.null(seed)) set.seed(as.integer(seed))
   
-  nw <- object$network  
+  nw <- object$newnetwork  
   
 # m <- ergm.getmodel(object$formula, nw, drop=control$drop)
   m <- ergm.getmodel(object$formula, nw, drop=FALSE)
