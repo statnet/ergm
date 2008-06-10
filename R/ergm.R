@@ -13,7 +13,14 @@ ergm <- function(formula, theta0="MPLE",
   if (verbose) cat("Evaluating network in model\n")
 
   nw <- ergm.getnetwork(formula)
-  if(!is.null(meanstats)){ control$drop <- FALSE }
+  if(!is.null(meanstats)){
+    control$drop <- FALSE
+
+    ## If meanstats are given, overwrite the given network and formula
+    ## with SAN-ed network and formula.
+    nw<-san(formula, meanstats=meanstats, verbose=verbose)
+    formula<-safeupdate.formula(formula,nw~.)
+  }
   if(control$nsubphases=="maxit") control$nsubphases<-maxit
 
   
@@ -35,16 +42,8 @@ ergm <- function(formula, theta0="MPLE",
   MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial,class=proposalclass)
   MHproposal.miss <- MHproposal("randomtoggleNonObserved", control$prop.args, nw, model.initial)
 
-  # MPLE & Meanstats -> need fake network
-  if("MPLE" %in% theta0 && !is.null(meanstats))
-    nw.initial<-san(formula, meanstats=meanstats, verbose=verbose)
-  else if(!is.null(control$initial.network))
-    nw.initial<-control$initial.network
-  else
-    nw.initial<-nw
-  
-  Clist.initial <- ergm.Cprepare(nw.initial, model.initial)
-  Clist.miss.initial <- ergm.design(nw.initial, model.initial, initialfit=TRUE,
+  Clist.initial <- ergm.Cprepare(nw, model.initial)
+  Clist.miss.initial <- ergm.design(nw, model.initial, initialfit=TRUE,
                                 verbose=verbose)
   Clist.initial$meanstats=meanstats
   theta0copy <- theta0
