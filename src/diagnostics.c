@@ -264,6 +264,7 @@ void godfather_wrapper (int *heads, int *tails, int *dnedges,
 			char **sonames, 
 			int *totalntoggles, int *timestamps, 
 			int *toggleheads, int *toggletails,
+			int *dstart, int *dend,
 			double *inputs, 
 			double *changestats, 
 			int *newnetworkheads, 
@@ -276,7 +277,7 @@ void godfather_wrapper (int *heads, int *tails, int *dnedges,
   Edge i, j, n_edges, nmax, tnt;
   Network nw;
   Model *m;
-  int thistime; 
+  int start=*dstart, end=*dend; 
   
   n_nodes = (Vertex)*dn; /* coerce double *dn to type Vertex */
   n_edges = (Edge)*dnedges; /* coerce double *dnedges to type Vertex */
@@ -307,35 +308,26 @@ void godfather_wrapper (int *heads, int *tails, int *dnedges,
     changestats[j] = 0.0;
   
   /* Now start obtaining change statistics */
-  thistime = timestamps[0];
-  for(i = ntoggles = 0; i <= tnt; i++){
-    if (i<tnt && timestamps[i] == thistime) {
-      ++ntoggles; /* ntoggles counts how many timestamps match the current value. */
-    } else { /* we have encountered a new timestamp value. */
-      
-      /* Calculate the change statistics relative to previous step */
-      changestats += m->n_stats;
-      ChangeStats(ntoggles, toggleheads+i-ntoggles, toggletails+i-ntoggles, &nw, m);
-
+  unsigned int pos=0;
+  for(unsigned int t=start;t<=end;t++){
+    changestats += m->n_stats;
+    for (j=0; j<m->n_stats; j++){
+      changestats[j] = changestats[j-m->n_stats];
+    }
+    for(;pos<tnt && timestamps[pos]==t;pos++){
+      ChangeStats(1, toggleheads+pos, toggletails+pos, &nw, m);
       /* Accumulate change statistics */
       for (j=0; j<m->n_stats; j++){
-        changestats[j] = changestats[j-m->n_stats] + m->workspace[j];
+	changestats[j] += m->workspace[j];
       }
-
+	
       /* Make proposed toggles (for real this time) */
-      for (j=ntoggles; j > 0; j--){
-	if (!(*accumulate) || EdgetreeSearch(toggleheads[i-j], toggletails[i-j], nw.outedges) == 0) { 
-	  ToggleEdgeWithTimestamp(toggleheads[i-j], toggletails[i-j], &nw);
-	}
-      }
-      
-      /* Finished with this timestamp; go on to next one */
-      if (i<tnt) {
-        ntoggles = 1;
-        thistime = timestamps[i];
+      if (!(*accumulate) || EdgetreeSearch(toggleheads[i-j], toggletails[i-j], nw.outedges) == 0) { 
+	ToggleEdgeWithTimestamp(toggleheads[pos], toggletails[pos], &nw);
       }
     }
   }
+
   if (nmax>0) {
     /* record new generated network to pass back to R */
     newnetworkheads[0]=newnetworktails[0]=EdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,&nw,nmax);

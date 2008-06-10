@@ -1,4 +1,5 @@
 ergm.godfather <- function(formula, timestamps=NULL, toggles=NULL, sim=NULL,
+                           start=NULL, end=NULL,
                            accumulate=FALSE,
                            verbose=FALSE,
                            control=control.godfather()) {
@@ -17,12 +18,16 @@ ergm.godfather <- function(formula, timestamps=NULL, toggles=NULL, sim=NULL,
       stop("Both 'timestamps' and 'toggle' are required arguments if 'sim' ",
            "is not given.")
     }
+    if(is.null(start)) start<-min(timestamps)
+    if(is.null(end)) end<-max(timestamps)
   }else{
     if(nrow(sim$changed)==0){
       stop("Where are no changes (or too many changes) to compute!")
     }else{
       timestamps <- sim$changed[,1]
       toggles <- sim$changed[,2:3]
+      start <- attr(sim$changed,"start")
+      end <- attr(sim$changed,"end")
     }
   }
 
@@ -47,8 +52,9 @@ ergm.godfather <- function(formula, timestamps=NULL, toggles=NULL, sim=NULL,
           as.character(Clist$snamestring), 
           as.integer(length(timestamps)), as.integer(timestamps),
           as.integer(toggles[,1]), as.integer(toggles[,2]),
+          as.integer(start), as.integer(end),
           as.double(Clist$inputs),
-          s = double((1+length(unique(timestamps))) * Clist$nparam),
+          s = double((2+end-start) * Clist$nparam),
           newnwheads = integer(maxedges+1),
           newnwtails = integer(maxedges+1),
           as.integer(accumulate),
@@ -57,20 +63,8 @@ ergm.godfather <- function(formula, timestamps=NULL, toggles=NULL, sim=NULL,
           PACKAGE="ergm")  
   stats <- matrix(z$s + obsstat, ncol=Clist$nparam, byrow=T)
   colnames(stats) <- m$coef.names
-  uts <- unique(timestamps)
-  if (control$assume_consecutive_timestamps) {
-    if (!all(uts %% 1 == 0)) {
-      print(paste("ergm.godfather cannnot assume consecutive timestamps",
-                  "unless timestamps are integers"))
-    } else {
-      # Insert timesteps whenever an integer is skipped
-      uts2 <- min(uts):max(uts)
-      stats <- stats[c(1,1+cumsum(uts2 %in% uts)),] # Don't forget:  first row
-      # of original 'stats' matrix is initial value, not matching any timestamp
-      uts <- uts2
-    }
-  }
-  out <- list(stats = stats, timestamps = c(NA, uts))
+
+  out <- list(stats = stats, timestamps = c(NA, start:end))
   if (control$return_new_network) { 
     cat("Creating new network...\n")
     out$newnetwork <- newnw.extract(nw,z)

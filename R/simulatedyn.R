@@ -60,9 +60,12 @@ simulatedyn <- function(object, dissolve, nsteps=1, seed=NULL, theta,gamma,
    nw <- z$newnetwork
    return(nw)
   }else{
+    changed<-z$changed
+    attr(changed,"start")<-1
+    attr(changed,"end")<-nsteps
     out.list <- list(formula = formula, networks = nw,
                      constraints=constraints,
-                     changed=z$changed, 
+                     changed=changed, 
                      maxchanges=z$maxchanges,
                      stats.form = z$statsmatrix.form,stats.diss = z$statsmatrix.diss,
                      coef.form=theta,coef.diss=gamma)
