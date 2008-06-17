@@ -464,7 +464,8 @@ InitErgmTerm.hamming<-function (nw, arglist, drop=TRUE, ...) {
   } else {
     # Extract dyadic covariate
     if(is.network(cov)){
-      covm<-matrix(as.matrix.network(cov,matrix.type="edgelist",attrname),ncol=2)
+      covm<-as.matrix.network(cov,matrix.type="edgelist",attrname)
+      if(length(covm)==2){covm <- matrix(covm,ncol=2)}
       if (NCOL(covm)==2)
         covm <- cbind(covm,1)
     }else if(is.character(cov)){
