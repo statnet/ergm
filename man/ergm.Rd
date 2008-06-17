@@ -17,6 +17,9 @@ ergm(formula, theta0="MPLE",
      MPLEonly=FALSE, MLestimate=!MPLEonly, seed=NULL,
      burnin=10000, MCMCsamplesize=10000, interval=100, maxit=3,
      constraints=~.,
+     meanstats = NULL,
+     dissolve = NULL,
+     gamma = -4.59512, dissolve.order = "DissThenForm",
      control=control.ergm(),
      verbose=FALSE, \dots)
 }
@@ -31,7 +34,8 @@ Hunter (2008).  To create a
     then add nodal attributes to it using the \code{\%v\%}
     operator if necessary.}
   \item{theta0}{vector; the parameter value used to generate
-    the MCMC sample and as a starting value for the estimation. By default the MPLE is used (\code{theta0="MPLE"}).}
+    the MCMC sample and as a starting value for the estimation.
+    By default the MPLE is used (\code{theta0="MPLE"}).}
   \item{MPLEonly}{logical; \code{TRUE} if the maximum
     pseudo-likelihood estimate is to be computed and returned.
     Note that \code{MPLEonly=TRUE} will render moot most other parameters in this list.}
@@ -52,62 +56,68 @@ Hunter (2008).  To create a
     on the support of the distribution of the networks being modeled,
     using syntax similar to the \code{formula} argument. Multiple constraints
     may be given, separated by \dQuote{+} operators.
-    Together with the model terms in the formula, the constraints define the distribution of networks being modeled.
-        
-    It is also possible to specify a proposal function directly by
-    passing a string with the function's name. In that case, arguments
-    to the proposal should be specified through the \code{prop.args}
-    argument to \code{\link{control.ergm}}.
-    
+    Together with the model terms in the formula, the constraints
+    define the distribution of networks being modeled.
+
+    It is also possible to specify a proposal function directly
+    by passing a string with the function's name.  In that case,
+    arguments to the proposal should be specified through the
+    \code{prop.args} argument to \code{\link{control.ergm}}.
+
     The default is \code{~.}, for an unconstrained model.
-    
-    The constraint terms currently implemented are
-    \describe{
+
+    The constraint terms currently implemented are \describe{
       \item{\code{.} or \code{NULL}}{
-	A placeholder for no constraints: all networks of a particular size and type have
-	non-zero probability. Cannot be combined with other constraints.
-      }
-      \item{\code{bd(attribs,maxout,maxin,minout,minin)}}{
-	Constrain maximum and minimum vertex degree. See \dQuote{Placing Bounds
+	A placeholder for no constraints: all networks of a
+	particular size and type have non-zero probability.
+	Cannot be combined with other constraints.
+      } \item{\code{bd(attribs,maxout,maxin,minout,minin)}}{
+	Constrain maximum and minimum vertex degree.  See
+	\dQuote{Placing Bounds
     on Degrees} section for more information.
+      } \item{\code{degrees} and \code{nodedegrees}}{
+	Preserve the degree of each vertex of the given network:
+	only networks whose vertex degrees are the same as those
+	in the network passed in the model formula have non-zero
+	probability.
+      } \item{\code{degreedist}}{
+	Preserve the degree distribution of the given network:
+	only networks whose degree distributions are the same as
+	those in the network passed in the model formula have
+	non-zero probability.
+      } \item{\code{indegreedist} and \code{outdegreedist}}{
+	Preserve the (respectively) indegree or outdegree
+	distribution of the given network.
+      } \item{\code{edges}}{
+	Preserve the edge count of the given network: only
+	networks having the same number of edges as the network
+	passed in the model formula have non-zero probability.
       }
-      \item{\code{degrees} and \code{nodedegrees}}{
-	Preserve the degree of each vertex of the given network: only networks
-	whose vertex degrees are the same as those in the network passed
-	in the model formula have non-zero probability.
-      }
-      \item{\code{degreedist}}{
-	Preserve the degree distribution of the given network: only networks
-	whose degree distributions are the same as those in the network passed
-	in the model formula have non-zero probability.
-      }
-      \item{\code{indegreedist} and \code{outdegreedist}}{
-	Preserve the (respectively) indegree or outdegree distribution of 
-        the given network.
-      }
-      \item{\code{edges}}{
-	Preserve the edge count of the given network: only networks
-	having the same number of edges as the network passed
-	in the model formula have non-zero probability.
-      }
-%      \item{\code{hamming}}{
-%	No clue.
-%      }
-    }
-    Not all combinations of the above are supported.
+% \item{\code{hamming}}{ % No clue.  % }
+    } Not all combinations of the above are supported.
   }
+  \item{meanstats}{vector; the mean-value parameter value for the
+    model.  If this is given the algorithm finds the natural
+    parameter value corresponding to this mean-value parameter
+    If it is missing then mean-value parameter used are the observed
+    statistics of the network in the formula.}
+  \item{dissolve}{formula for dynamic model.}
+  \item{gamma}{vector; the parameter value used fro the dynamic model formula.}
+  \item{dissolve.order}{character: The type of dynamic model
+    used. The default is "DissThenForm".}
   \item{control}{A list of control parameters for algorithm
-    tuning. Constructed using \code{\link{control.ergm}}. }
-  \item{seed}{integer; random number integer seed. Defaults to \code{NULL} to
-    use whatever the state of the random number generator is at the time
-    of the call.
+    tuning.  Constructed using \code{\link{control.ergm}}.  }
+  \item{seed}{integer; random number integer seed.  Defaults to
+   \code{NULL} to use whatever the state of the random number
+   generator is at the time of the call.
   }
   \item{verbose}{logical; if this is
-    \code{TRUE}, the program will print out additional information,
-    including goodness of fit statistics.
+    \code{TRUE}, the program will print out additional
+    information, including goodness of fit statistics.
   }
   \item{\dots}{Additional
-    arguments, to be passed to lower-level functions in the future.
+    arguments, to be passed to lower-level functions in the
+    future.
   }
 }
 

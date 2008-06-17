@@ -1,11 +1,10 @@
-\name{plot.network.statnet}
-\alias{plot.network.statnet}
+\name{plot.network.ergm}
 \alias{plot.network.ergm}
 \alias{plot.network.series}
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{Two-Dimensional Visualization of Networks }
 \description{
-  \code{\link{plot.network.statnet}} produces a simple two-dimensional plot of
+  \code{\link{plot.network.ergm}} produces a simple two-dimensional plot of
   the network object \code{x}. A variety of options are available
   to control vertex placement, display details, color, etc.
   The function is based on the 
@@ -15,7 +14,7 @@
   See \code{\link[network]{plot.network}} in the \code{\link[network]{network}} package for details.
 }
 \usage{
-\method{plot.network}{statnet}(x,
+\method{plot.network}{ergm}(x,
     attrname=NULL,
     label=network.vertex.names(x),
     coord=NULL,

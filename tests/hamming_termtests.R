@@ -158,5 +158,5 @@ net2 <- network(net2, directed=T)
 if(summary(net1~hamming(net2)) != 2)
   stop("failed test 13")
 
-print("Passted all hamming summary tests")
+print("Passed all hamming summary tests")
 
