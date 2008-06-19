@@ -7,7 +7,7 @@ san.default <- function(object,...)
   stop("Either a ergm object or a formula argument must be given")
 }
 
-san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
+san.formula <- function(object, nsim=1, seed=NULL, ...,theta0=NULL,
                         tau=1, invcov=NULL,
                         burnin=10000, interval=10000,
                         meanstats=NULL,
@@ -32,7 +32,7 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
     nw <- nw$networks[[1]]
   }
   nw <- as.network(nw)
-  if(missing(meanstats)){
+  if(is.null(meanstats)){
     stop("You need to specify target statistic via",
          " the 'meanstats' argument")
   }
@@ -50,7 +50,7 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
   MHproposal<-MHproposal(constraints,control$prop.args,nw,model,weights=control$prop.weights)
-# if(missing(theta0)) {
+# if(is.null(theta0)) {
 #   warning("No parameter values given, using the MPLE for the passed network.\n\t")
 # }
 # theta0 <- c(theta0[1],rep(0,Clist$nparam-1))
@@ -76,7 +76,7 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
       use.burnin <- interval
     }
 
-    if(missing(theta0)) {
+    if(is.null(theta0)) {
       fit <- ergm.mple(Clist=Clist, Clist.miss=Clist.miss, 
                           m=model, verbose=verbose, ...)
       theta0 <- fit$coef
@@ -155,7 +155,7 @@ san.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
   out.list <- vector("list", nsim)
   out.mat <- numeric(0)
   
-#  if(missing(multiplicity) & !is.null(object$multiplicity)){
+#  if(is.null(multiplicity) & !is.null(object$multiplicity)){
 #    multiplicity <- object$multiplicity
 #  }
   if(!is.null(seed)) set.seed(as.integer(seed))
@@ -168,11 +168,11 @@ san.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
   MHproposal<-MHproposal(object,constraints=constraints,arguments=control$prop.args,nw=nw,model=model,weights=control$prop.weights)
   # multiplicity.constrained <- 1  
-  if(missing(meanstats)){
+  if(is.null(meanstats)){
     stop("You need to specify target statistic via",
          " the 'meanstats' argument")
   }
-  if(missing(theta0)) {
+  if(is.null(theta0)) {
     theta0 <- object$coef
   }
   eta0 <- ergm.eta(theta0, m$etamap)

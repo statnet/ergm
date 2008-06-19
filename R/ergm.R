@@ -1,4 +1,4 @@
-ergm <- function(formula, theta0="MPLE", 
+ergm <- function(formula, theta0="MPLE",
                  MPLEonly=FALSE, MLestimate=!MPLEonly, seed=NULL,
                  burnin=10000, MCMCsamplesize=10000, interval=100,
                  maxit=3,
@@ -16,9 +16,10 @@ ergm <- function(formula, theta0="MPLE",
   if(!is.null(meanstats)){
     control$drop <- FALSE
 
+    if(verbose) cat("Constructing an approximate response network.\n")
     ## If meanstats are given, overwrite the given network and formula
     ## with SAN-ed network and formula.
-    nw<-san(formula, meanstats=meanstats, verbose=verbose)
+    nw<-san(formula, meanstats=meanstats, theta0=if(is.numeric(theta0)) theta0, verbose=verbose)
     formula<-safeupdate.formula(formula,nw~.)
   }
   if(control$nsubphases=="maxit") control$nsubphases<-maxit
