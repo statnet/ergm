@@ -283,9 +283,9 @@ R_INLINE void MCMCDyn1Step_sample(MHproposal *MH,
 
     // Proposal failed.
     if(MH->togglehead[0]==MH_FAILED){
-      if(MH->togglehead[1]==MH_UNRECOVERABLE) 
+      if(MH->toggletail[0]==MH_UNRECOVERABLE) 
 	error("Something very bad happened during proposal. Memory has not been deallocated, so restart R soon.");
-      if(MH->togglehead[1]==MH_IMPOSSIBLE) break;
+      if(MH->toggletail[0]==MH_IMPOSSIBLE) break;
     }
 
     ChangeStats(MH->ntoggles, MH->togglehead, MH->toggletail, nwp, m);
