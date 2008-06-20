@@ -36,19 +36,19 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     }
     z <- ergm.getMCMCsample(nw, model, MHproposal, eta0, MCMCparams, verbose)
     statsmatrix=z$statsmatrix
-    if(verbose){
-      sm<-statsmatrix[,!model$offset,drop=FALSE]
-      cat("Deviation: ",apply(sm,2,mean),"\n")
-      require(coda,quiet=TRUE)
-      cat("Studentized deviation: ",
-          apply(sm,2,mean)/sqrt(apply(sm^2,2,mean)/effectiveSize(as.mcmc(sm))),
-          "\n")
-      effSize<-effectiveSize(as.mcmc(sm))
-      stats.cov<-t(cov(sm)/effSize)/effSize
-      cat("Mahalanobis distance: ",
-          mahalanobis(apply(sm,2,mean),0,stats.cov),
-          "\n")
-    }
+#    if(verbose && FALSE){
+#      sm<-statsmatrix[,!model$offset,drop=FALSE]
+#      cat("Deviation: ",apply(sm,2,mean),"\n")
+#      require(coda,quiet=TRUE)
+#      cat("Studentized deviation: ",
+#          apply(sm,2,mean)/sqrt(apply(sm^2,2,mean)/effectiveSize(as.mcmc(sm))),
+#          "\n")
+#      effSize<-effectiveSize(as.mcmc(sm))
+#      stats.cov<-t(cov(sm)/effSize)/effSize
+#      cat("Mahalanobis distance: ",
+#          mahalanobis(apply(sm,2,mean),0,stats.cov),
+#          "\n")
+#    }
     if(MCMCparams$Clist.miss$nedges > 0){
       statsmatrix.miss <- ergm.getMCMCsample(nw, model, MHproposal.miss, eta0, MCMCparams, verbose)$statsmatrix
       if(verbose){cat("Back from constrained MCMC...\n")}
