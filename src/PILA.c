@@ -1,4 +1,4 @@
-#include "MCMC2.h"
+#include "PILA.h"
 #include "R_ext/Lapack.h"
 #include "R_ext/BLAS.h"
 
@@ -174,7 +174,7 @@ void PILASample (char *MHproposaltype, char *MHproposalpackage,
   unsigned int p_ext=m->n_stats+1;
   
   // Init theta_ext.
-  double *theta_ext=R_alloc(p_ext,sizeof(double));
+  double *theta_ext=(double *)R_alloc(p_ext,sizeof(double));
   theta_ext[0]=1;
   memcpy(theta_ext+1,theta,m->n_stats*sizeof(double));
   
@@ -184,16 +184,16 @@ void PILASample (char *MHproposaltype, char *MHproposalpackage,
 	  nwp, bd);
   
   // Init XtX, XtY, etc.
-  double *XtX = R_alloc(p_ext*p_ext,sizeof(double)),
-    *XtX_work = R_alloc(p_ext*p_ext,sizeof(double)),
-    *XtY = R_alloc(m->n_stats*p_ext,sizeof(double)),
-    *XtY_work = R_alloc(m->n_stats*p_ext,sizeof(double)),
-    *ns_dev = R_alloc(m->n_stats,sizeof(double)),
-    *ns_dev_work = R_alloc(m->n_stats,sizeof(double)),
+  double *XtX = (double *)R_alloc(p_ext*p_ext,sizeof(double)),
+    *XtX_work = (double *)R_alloc(p_ext*p_ext,sizeof(double)),
+    *XtY = (double *)R_alloc(m->n_stats*p_ext,sizeof(double)),
+    *XtY_work = (double *)R_alloc(m->n_stats*p_ext,sizeof(double)),
+    *ns_dev = (double *)R_alloc(m->n_stats,sizeof(double)),
+    *ns_dev_work = (double *)R_alloc(m->n_stats,sizeof(double)),
     n = 0,
-    *cs = R_alloc(m->n_stats,sizeof(double)),
+    *cs = (double *)R_alloc(m->n_stats,sizeof(double)),
     cs_mag = 0,
-    *theta_mean = R_alloc(p_ext,sizeof(double)) 
+    *theta_mean = (double *)R_alloc(p_ext,sizeof(double)) 
     ;
   memset(XtX,0,p_ext*p_ext*sizeof(double));
   memset(XtY,0,m->n_stats*p_ext*sizeof(double));
