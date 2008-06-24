@@ -10,6 +10,9 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, ...) {
   v <- attr(trms, "variables")
   if (length(v) < 3) 
     stop(paste("No model specified for network ", trms[[2]]), call.=FALSE)
+
+  formula.env<-environment(formula)
+  
   model <- structure(list(formula=formula, node.attrib = NULL, coef.names = NULL,
                       offset = NULL,
                       terms = NULL, networkstats.0 = NULL, etamap = NULL),
@@ -29,12 +32,12 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, ...) {
       args=v[[i]]
       args[[1]] = as.name("list")
       fname <- paste("InitErgmTerm.", v[[i]][[1]], sep = "")
-      newInitErgm <- exists(fname, env=.GlobalEnv, mode="function")
+      newInitErgm <- exists(fname, env=formula.env, mode="function")
       v[[i]][[1]] <- as.name(ifelse (newInitErgm, fname, 
                                      paste("InitErgm.", v[[i]][[1]], sep = "")))
     } else { # This term has no arguments
       fname <- paste("InitErgmTerm.", v[[i]], sep = "")
-      newInitErgm <- exists(fname, env=.GlobalEnv, mode="function")
+      newInitErgm <- exists(fname, env=formula.env, mode="function")
       v[[i]] <- call(ifelse (newInitErgm, fname, 
                              paste("InitErgm.", v[[i]], sep = "")))
       model$offset <- c(model$offset,FALSE)
@@ -55,17 +58,17 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, ...) {
       }
       # The above steps are preparing the way to make the function call
       # InitErgm.xxxx(g, m, args, ...)
-      if(!exists(as.character(v[[i]][[1]]),env=.GlobalEnv, mode="function")){
+      if(!exists(as.character(v[[i]][[1]]),env=formula.env, mode="function")){
         stop("The term ", substring(as.character(v[[i]][[1]]),first=10),
              " does not exist. Are you sure you have the right name?\n",
              call. = FALSE)
       }
       if(silent){
        silentwarnings <- capture.output(
-        model <- eval(v[[i]], .GlobalEnv)  #Call the InitErgm function
+        model <- eval(v[[i]], formula.env)  #Call the InitErgm function
        )
       }else{
-       model <- eval(v[[i]], .GlobalEnv)  #Call the InitErgm function
+       model <- eval(v[[i]], formula.env)  #Call the InitErgm function
       }
     } else { # New InitErgmTerms style
       v[[i]][[2]] <- nw
@@ -79,7 +82,7 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, ...) {
           names(v[[i]])[3+j] <- names(dotdotdot)[j]
         }
       }
-      outlist <- eval(v[[i]], .GlobalEnv)  #Call the InitErgm function
+      outlist <- eval(v[[i]], formula.env)  #Call the InitErgm function
       # Now it is necessary to add the output to the model object
       model <- updatemodel.ErgmTerm(model, outlist)
     }

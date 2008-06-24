@@ -13,6 +13,9 @@ ergm.getmodel.dissolve <- function (formula, nw,
   trms<-terms(formula)
   if (trms[[1]]!="~")
     stop ("Formula must be of the form 'network ~ model'.")
+
+  # Extract the formula's environment 
+  formula.env<-environment(formula)
   
   v <- attr(trms, "variables")
   if (length(v) < 3) 
@@ -53,11 +56,11 @@ ergm.getmodel.dissolve <- function (formula, nw,
     # The above steps are preparing the way to make the function call
     # InitErgm.xxxx(g, m, args, ...)
 #    m <- eval(v[[i]], sys.parent())  #Call the InitErgm function
-    if(!exists(as.character(v[[i]][[1]]),env=.GlobalEnv, mode="function")){
+    if(!exists(as.character(v[[i]][[1]]),env=formula.env, mode="function")){
      stop("The term ", substring(as.character(v[[i]][[1]]),first=10),
           " does not exist. Are you sure you have the right name?\n")
     }
-    model <- eval(v[[i]], .GlobalEnv)  #Call the InitErgm function
+    model <- eval(v[[i]], formula.env)  #Call the InitErgm function
   }
   model$etamap <- ergm.etamap(model)
   model$order <- dissolve.order
