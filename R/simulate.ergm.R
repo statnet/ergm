@@ -162,6 +162,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
 #
 #    Run the jobs with rpvm or Rmpi
 #
+     netstore <- 1
      for(j in 1:ceiling((nsim-1)/MCMCparams$parallel)){
       flush.console()
       outlist <- clusterCall(cl,ergm.mcmcslave,
@@ -172,7 +173,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
 #     Next update the network to be the final (possibly conditionally)
 #     simulated one
 
-      for(i in ((j-1)*MCMCparams$parallel+2):min(nsim,j*MCMCparams$parallel)){
+      for(i in ((j-1)*MCMCparams$parallel+2):min(nsim,j*MCMCparams$parallel+1)){
        k <- i-((j-1)*MCMCparams$parallel+1)
        if (!statsonly) {
         nw.list[[i]] <- newnw.extract(nw, outlist[[k]])
@@ -389,7 +390,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
 #     Next update the network to be the final (possibly conditionally)
 #     simulated one
 
-      for(i in ((j-1)*MCMCparams$parallel+2):min(nsim,j*MCMCparams$parallel)){
+      for(i in ((j-1)*MCMCparams$parallel+2):min(nsim,j*MCMCparams$parallel+1)){
        k <- i-((j-1)*MCMCparams$parallel+1)
        if (!statsonly) {
         nw.list[[i]] <- newnw.extract(nw, outlist[[k]])
