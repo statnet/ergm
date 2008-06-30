@@ -19,8 +19,17 @@ ergm <- function(formula, theta0="MPLE",
     if(verbose) cat("Constructing an approximate response network.\n")
     ## If meanstats are given, overwrite the given network and formula
     ## with SAN-ed network and formula.
-    nw<-san(formula, burnin=control$SAN.burnin, meanstats=meanstats, theta0=if(is.numeric(theta0)) theta0, verbose=verbose)
+    nw<-san(formula, burnin=control$SAN.burnin, meanstats=meanstats,
+            theta0=if(is.numeric(theta0)) theta0, 
+            constraints=constraints,
+            verbose=verbose)
     formula<-safeupdate.formula(formula,nw~.)
+    if (verbose) {
+     cat("Original meanstats:\n")
+     print(meanstats)
+     cat("Original meanstats - SAN meanstats:\n")
+     print(summary(formula, basis=nw)-meanstats)
+    }
   }
   if(control$nsubphases=="maxit") control$nsubphases<-maxit
 

@@ -106,6 +106,9 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
       cat("Summary of simulation, relative to observed network:\n")
       print(apply(statsmatrix,2,summary.statsmatrix.ergm),scipen=6)
       degreedist(nw)
+      cat("Meanstats of simulation, relative to observed network:\n")
+      print(summary(model$formula, basis=nw)-Clist$meanstats)
+
     }
     if(verbose){cat("Calling optimization routines...\n")}
 
@@ -183,6 +186,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     v$interval <- MCMCparams$interval
     v$theta.original <- theta.original
     v$mplefit <- initialfit
+    v$parallel <- MCMCparams$parallel
          
     if(!v$failure & !any(is.na(v$coef))){
 #     asyse <- sqrt(diag(robust.inverse(-v$hessian)))
