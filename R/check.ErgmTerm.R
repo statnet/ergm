@@ -101,10 +101,10 @@ assignvariables <- function(a) {
       assign(names(a)[i], a[[i]], envir=parent.frame())
 }
 
-check.ErgmTerm.summarystats <- function(nw, args, ...) {
+check.ErgmTerm.summarystats <- function(nw, arglist, ...) {
   fname <- get.InitErgm.fname() # From what InitErgm function was this called?
   Initfn <- get(fname,envir=.GlobalEnv)
-  outlist <- Initfn(nw, args, drop=FALSE, ...)
+  outlist <- Initfn(nw, arglist, drop=FALSE, ...)
   m <- updatemodel.ErgmTerm(list(), outlist)
   gs <- ergm.getglobalstats(nw, m)
 }
