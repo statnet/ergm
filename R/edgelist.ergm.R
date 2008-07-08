@@ -14,7 +14,7 @@ edgelist.ergm.matrix <- function(x, directed=TRUE, check.uniqueness=TRUE,
       x[tmp,] <- x[tmp,2:1]
     }
     x <- x[order(x[,1], x[,2]), , drop=FALSE]
-    x <- x[apply(x, 1, '!='), , drop=FALSE]
+    x <- x[x[,1]!=x[,2], , drop=FALSE]
     if (check.uniqueness)
       x <- unique(x)
     return(x)
