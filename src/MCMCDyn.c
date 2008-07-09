@@ -8,7 +8,7 @@
  should have (k,j) with k>j.
 *****************/
 
-R_INLINE void MCMCDyn_init_common(int *heads, int *tails, int n_edges,
+/*R_INLINE*/ void MCMCDyn_init_common(int *heads, int *tails, int n_edges,
           int maxedges,
 				  int n_nodes, int dflag, int bipartite, Network *nw,
 
@@ -60,7 +60,7 @@ R_INLINE void MCMCDyn_init_common(int *heads, int *tails, int n_edges,
 
 }
 
-R_INLINE void MCMCDyn_finish_common(Network *nw,
+/*R_INLINE*/ void MCMCDyn_finish_common(Network *nw,
 
 				    Model *F_m,
 				    Model *D_m,
@@ -263,7 +263,7 @@ void MCMCSampleDyn(// Observed and discordant network.
    in this phase, while "O_stats" and "O_m" are for the other process (whose
    statistcs are still affected and need to be updated).
 */
-R_INLINE void MCMCDyn1Step_sample(MHproposal *MH,
+/*R_INLINE*/ void MCMCDyn1Step_sample(MHproposal *MH,
 				  double *par, double *stats,
 				  int dyninterval, 
 				  Network *nwp,
@@ -319,7 +319,7 @@ R_INLINE void MCMCDyn1Step_sample(MHproposal *MH,
   MCMCDyn1Step_commit
   Applies a list of toggles to a network, updating change statistics and time stamps.
 */
-R_INLINE void MCMCDyn1Step_commit(unsigned int ntoggles,
+/*R_INLINE*/ void MCMCDyn1Step_commit(unsigned int ntoggles,
 				  Vertex *diffhead, Vertex *difftail,
 				  Network *nwp,
 				  Model *F_m, double *F_stats,
@@ -344,7 +344,7 @@ R_INLINE void MCMCDyn1Step_commit(unsigned int ntoggles,
    * empty the discordant network (nwp[1])
    * return the number of edges toggled
 */
-R_INLINE unsigned int MCMCDyn1Step_record_reset(Edge nmax,
+/*R_INLINE*/ unsigned int MCMCDyn1Step_record_reset(Edge nmax,
 						Vertex *difftime, Vertex *diffhead, Vertex *difftail,
 						Network *nwp, 
 						Edge *nextdiffedge){

@@ -340,3 +340,9 @@ safeupdate.formula<-function (old, new, ...){
   out <- formula(terms.formula(tmp, simplify = FALSE))
   return(out)
 }
+
+copy.named<-function(x){
+  y<-list()
+  for(name in names(x)) y[[name]]<-x[[name]]
+  y
+}

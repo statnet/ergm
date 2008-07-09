@@ -2,32 +2,29 @@ ergm.runPILAsampler <- function(nw, model, MHproposal, eta0, MCMCparams,
                                verbose) {
 
   Clist <- ergm.Cprepare(nw, model)
-  z <- ergm.PILAslave(Clist,MHproposal,eta0,MCMCparams,verbose)
+  z <- ergm.PILAslave(Clist,MHproposal,eta0,MCMCparams,verbose,debug=verbose>0)
   nedges <- z$newnwheads[1]
+  out<-list(statsmatrix=matrix(z$s, nrow=MCMCparams$samplesize,
+              ncol=Clist$nparam,
+              byrow = TRUE),
+            etamatrix=matrix(z$eta, nrow=MCMCparams$samplesize,
+              ncol=Clist$nparam,
+              byrow=TRUE)
+            )
 
-  statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
-                        ncol=Clist$nparam,
-                        byrow = TRUE)
-  #statsmatrix.b <- matrix(z$s.b, nrow=MCMCparams$samplesize,
-  #                      ncol=Clist$nparam,
-  #                      byrow = TRUE)
-  etamatrix <- matrix(z$eta, nrow=MCMCparams$samplesize,
-                      ncol=Clist$nparam,
-                      byrow=TRUE)
-  #etamatrix.b <- matrix(z$eta.b, nrow=MCMCparams$samplesize,
-  #                    ncol=Clist$nparam,
-  #                    byrow=TRUE)
-  colnames(statsmatrix) <- model$coef.names
+  z$s<-z$eta<-NULL
+  for(name in names(z)){
+    out[[name]]<-matrix(z[[name]],nrow=MCMCparams$samplesize+1,byrow=TRUE)
+  }
 
-  list(statsmatrix=statsmatrix, etamatrix=etamatrix,
-       #statsmatrix.b=statsmatrix.b, etamatrix.b=etamatrix.b,
-       #newnetwork=newnetwork, 
-       meanstats=Clist$meanstats, nedges=nedges)
+  colnames(out$statsmatrix) <- model$coef.names
+
+  out
 }
 # Function the slaves will call to perform a validation on the
 # mcmc equal to their slave number.
 # Assumes: Clist MHproposal eta0 MCMCparams maxedges verbose
-ergm.PILAslave <- function(Clist,MHproposal,eta0,MCMCparams,verbose) {
+ergm.PILAslave <- function(Clist,MHproposal,eta0,MCMCparams,verbose,debug=FALSE) {
   z <- .C("PILA_wrapper",
           as.integer(Clist$heads), as.integer(Clist$tails),
           as.integer(Clist$nedges),
@@ -41,8 +38,6 @@ ergm.PILAslave <- function(Clist,MHproposal,eta0,MCMCparams,verbose) {
           as.integer(MCMCparams$interval),
           s = as.double(t(MCMCparams$stats)),
           as.integer(MCMCparams$burnin),
-          double(0), #eta.b=double(MCMCparams$burnin*length(eta0)),
-          double(0), #s.b=double(MCMCparams$burnin*length(eta0)),
           as.double(MCMCparams$PILA.steplength), as.double(MCMCparams$PILA.gamma),
           as.integer(verbose), as.integer(MHproposal$bd$attribs),
           as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
@@ -50,7 +45,16 @@ ergm.PILAslave <- function(Clist,MHproposal,eta0,MCMCparams,verbose) {
           as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)),
           as.integer(MCMCparams$Clist.miss$heads), as.integer(MCMCparams$Clist.miss$tails),
           as.integer(MCMCparams$Clist.miss$nedges),
+          theta.mean.save=if(debug)double((MCMCparams$samplesize+1)*(Clist$nterms+1)),
+          XtX.save=if(debug)double((MCMCparams$samplesize+1)*(Clist$nterms+1)^2),
+          XtY.save=if(debug)double((MCMCparams$samplesize+1)*(Clist$nterms+1)*Clist$nterms),
+          beta.save=if(debug)double((MCMCparams$samplesize+1)*(Clist$nterms+1)*Clist$nterms),
+          direction.save=if(debug)double((MCMCparams$samplesize+1)*Clist$nterms),
+          dtheta.save=if(debug)double((MCMCparams$samplesize+1)*Clist$nterms),
+          insensitive.save=if(debug)integer((MCMCparams$samplesize+1)*Clist$nterms),
+          ineffectual.save=if(debug)integer((MCMCparams$samplesize+1)*Clist$nterms),
+          dropped.save=if(debug)integer((MCMCparams$samplesize+1)),
           PACKAGE="ergm")
-                                        # save the results
-  list(s=z$s, eta=z$eta, s.b=z$s.b, eta.b=z$eta.b, newnwheads=z$newnwheads, newnwtails=z$newnwtails)
+  ## save the results
+  copy.named(z)
 }

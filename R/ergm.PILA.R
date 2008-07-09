@@ -12,11 +12,10 @@ ergm.PILA <- function(theta0, nw, model, Clist,
 
   z <- ergm.runPILAsampler(nw, model, MHproposal, theta0, MCMCparams, verbose)
 
-  theta<-z$etamatrix[dim(z$etamatrix)[2],]
+  theta<-z$etamatrix[dim(z$etamatrix)[1],]
   if(verbose)cat("Theta estimated:",theta,"\n")
 
-  theta.hist<-z$etamatrix
-  
+  hist<-z
   z <- ergm.getMCMCsample(nw, model, MHproposal, theta, MCMCparams, verbose)
   
   if(verbose){cat("Calling MCMLE Optimization...\n")}
@@ -53,7 +52,7 @@ ergm.PILA <- function(theta0, nw, model, Clist,
   structure(c(ve, list(newnetwork=nw, 
                  theta.original=theta0,
                  PILA.coef=theta,
-                       theta.hist=theta.hist,
+                       PILA.hist=hist,
                  interval=MCMCparams$interval, burnin=MCMCparams$burnin, 
                  network=nw)),
              class="ergm")

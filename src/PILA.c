@@ -21,12 +21,14 @@ void PILA_wrapper(int *heads, int *tails, int *dnedges,
                    double *inputs, double *theta,
 		   int *samplesize, int *interval, 
                    double *sample, int *burnin, 
-		   double *theta_burnin, double *sample_burnin,
 		   double *alpha, double *gamma,
 		  int *fVerbose, 
                    int *attribs, int *maxout, int *maxin, int *minout,
                    int *minin, int *condAllDegExact, int *attriblength, 
-		  int *mheads, int *mtails, int *mdnedges) {
+		  int *mheads, int *mtails, int *mdnedges,
+		  double *theta_mean_save, double *XtX_save, double *XtY_save, double *beta_save, 
+		  double *direction_save, double *dtheta_save,
+		  int *insensitive_save, int *ineffectual_save, int *dropped_save) {
   int directed_flag, hammingterm, formationterm;
   Vertex n_nodes, nmax, bip, hhead, htail;
   Edge n_edges, n_medges, nddyads, kedge;
@@ -126,10 +128,12 @@ void PILA_wrapper(int *heads, int *tails, int *dnedges,
 	      theta, sample, (long int)*samplesize,
 	       *interval,
 	      (long int)*burnin,
-	       theta_burnin, sample_burnin, 
 	      *alpha,*gamma,
 	      hammingterm,
-	      (int)*fVerbose, nw, m, bd);
+	      (int)*fVerbose, nw, m, bd,
+	      theta_mean_save, XtX_save, XtY_save, beta_save, 
+	      direction_save, dtheta_save,
+	      insensitive_save, ineffectual_save, dropped_save);
 
 /*   int ii;
    double mos=0.0;
@@ -148,7 +152,7 @@ void PILA_wrapper(int *heads, int *tails, int *dnedges,
   PutRNGstate();  /* Disable RNG before returning */
 }
 
-double pythagn(double *a, unsigned int n){
+double vnorm(double *a, unsigned int n){
   double tmp=0;
   for(unsigned int i=0;i<n;i++){
     tmp+=a[i]*a[i];
@@ -156,6 +160,74 @@ double pythagn(double *a, unsigned int n){
   return(sqrt(tmp));
 }
 
+void dmat_cm_t(double *A, unsigned int n, unsigned int m, void *workspace){
+  memcpy(workspace,A,n*m*sizeof(double));
+  for(unsigned int r=0; r<n; r++){
+    for(unsigned int c=0; c<m; c++){
+      A[c+r*m]=((double *)workspace)[r+c*n];
+    }
+  }
+}
+
+void dmat_sq_cm_t(double *A, unsigned int n){
+  for(unsigned int r=0; r<n; r++){
+    for(unsigned int c=0; c<n; c++){
+      double tmp=A[r+c*n];
+      A[r+c*n]=A[c+r*n];
+      A[c+r*n]=tmp;
+    }
+  }
+}
+
+void dmat_cm_delcol(double *A, unsigned int n, unsigned int m, unsigned int c){
+  memmove(A+c*n,A+(c+1)*n,(m-c-1)*n*sizeof(double));
+}
+
+void dmat_cm_delrow(double *A, unsigned int n, unsigned int m, unsigned int r){
+  for(unsigned int c=0; c<m; c++){
+    memmove(A+c*(n-1),A+c*n,r*sizeof(double));
+    memmove(A+c*(n-1)+r,A+c*n+r+1,(n-r-1)*sizeof(double));
+  }
+}
+
+void PILA_SummUp(unsigned int p, unsigned int p_ext, double gamma,
+		 double *theta_ext, double *cs,
+
+		 double *theta_mean, double *n, double *cs_mag, 
+		 double *XtX, double *XtY, double *cs_mean){
+
+  (*n)*=gamma;
+  (*n)++;
+
+   for(unsigned int i=1; i<p_ext; i++){
+     theta_mean[i]*=gamma;
+     theta_mean[i]+=theta_ext[i]; 
+   }
+
+  for(unsigned int c=0;c<p_ext;c++){
+    for(unsigned int r=0;r<p_ext;r++){
+      XtX[r+c*p_ext]*=gamma;
+      XtX[r+c*p_ext]+=theta_ext[r]*theta_ext[c];
+    }
+  }
+  
+  for(unsigned int c=0;c<p;c++){
+    for(unsigned int r=0;r<p_ext;r++){
+      XtY[r+c*p_ext]*=gamma;
+      XtY[r+c*p_ext]+=theta_ext[r]*cs[c];
+    }
+    cs_mean[c]*=gamma;
+    cs_mean[c]+=cs[c];
+  }
+  
+  (*cs_mag)*=gamma;
+  (*cs_mag)+=vnorm(cs,p);
+}
+
+
+#define dsaveif(var_save,var,len) {if(s%interval==0 && var_save && var) {memcpy((var_save),(var),(len)*sizeof(double)); (var_save)+=(len);}}
+#define isaveif(var_save,var,len) {if(s%interval==0 && var_save && var) {memcpy((var_save),(var),(len)*sizeof(int)); (var_save)+=(len);}}
+		   
 /*********************
  void PILASample
 
@@ -163,20 +235,22 @@ double pythagn(double *a, unsigned int n){
 *********************/
 void PILASample (char *MHproposaltype, char *MHproposalpackage,
 		  double *theta, double *networkstatistics, 
-		  long int samplesize, unsigned int interval,
-		  long int burnin,
-		  double *theta_burnin, double *sample_burnin,
-		  double alpha, double gamma,
+		 long int samplesize, unsigned int interval,
+		 long int burnin,
+		 double alpha, double gamma,
 		  int hammingterm, int fVerbose,
-		  Network *nwp, Model *m, DegreeBound *bd) {
+		 Network *nwp, Model *m, DegreeBound *bd,
+		 double *theta_mean_save, double *XtX_save, double *XtY_save, double *beta_save, 
+		 double *direction_save, double *dtheta_save,
+		 int *insensitive_save, int *ineffectual_save, int *dropped_save) {
   long int staken;
   MHproposal MH;
-  unsigned int p_ext=m->n_stats+1;
+  unsigned int p_ext=m->n_stats+1, p=m->n_stats;
   
   // Init theta_ext.
   double *theta_ext=(double *)R_alloc(p_ext,sizeof(double));
   theta_ext[0]=1;
-  memcpy(theta_ext+1,theta,m->n_stats*sizeof(double));
+  memcpy(theta_ext+1,theta,p*sizeof(double));
   
   MH_init(&MH,
 	  MHproposaltype, MHproposalpackage,
@@ -186,185 +260,240 @@ void PILASample (char *MHproposaltype, char *MHproposalpackage,
   // Init XtX, XtY, etc.
   double *XtX = (double *)R_alloc(p_ext*p_ext,sizeof(double)),
     *XtX_work = (double *)R_alloc(p_ext*p_ext,sizeof(double)),
-    *XtY = (double *)R_alloc(m->n_stats*p_ext,sizeof(double)),
-    *XtY_work = (double *)R_alloc(m->n_stats*p_ext,sizeof(double)),
-    *ns_dev = (double *)R_alloc(m->n_stats,sizeof(double)),
-    *ns_dev_work = (double *)R_alloc(m->n_stats,sizeof(double)),
+    *XtY = (double *)R_alloc(p*p_ext,sizeof(double)),
+    *XtY_work = (double *)R_alloc(p*p_ext,sizeof(double)),
+    *cs_mean = (double *)R_alloc(p,sizeof(double)),
+    *ns = (double *)R_alloc(p,sizeof(double)),
     n = 0,
-    *cs = (double *)R_alloc(m->n_stats,sizeof(double)),
+    *cs = (double *)R_alloc(p,sizeof(double)),
     cs_mag = 0,
     *theta_mean = (double *)R_alloc(p_ext,sizeof(double)) 
     ;
+
   memset(XtX,0,p_ext*p_ext*sizeof(double));
-  memset(XtY,0,m->n_stats*p_ext*sizeof(double));
-  memset(ns_dev,0,m->n_stats*sizeof(double));
-  memset(cs,0,m->n_stats*sizeof(double));
+  memset(XtY,0,p*p_ext*sizeof(double));
+  memset(cs_mean,0,p*sizeof(double));
+  memset(cs,0,p*sizeof(double));
+  memset(theta_mean,0,p_ext*sizeof(double));
   
   for(unsigned int s = 0; s<burnin; s++){
-    n*=gamma;
-    n++;
-
-    // Record theta for burnin
-    if(theta_burnin){
-      memcpy(theta_burnin,theta_ext+1,m->n_stats*sizeof(double));
-      theta_burnin+=m->n_stats;
-    }
-
-    // Update mean theta (the 1st element stays at 0)
-    for(unsigned int i=1; i<p_ext; i++){
-      theta_mean[i]*=gamma;
-      theta_mean[i]+=theta_ext[i]; 
-    }
-
-    memset(cs,0,m->n_stats*sizeof(double));
+   
+    memset(cs,0,p*sizeof(double));
+    staken=0;
     MetropolisHastings(&MH, theta_ext+1, cs, 1, &staken,
 		       hammingterm, fVerbose, nwp, m, bd);
     // Update network statistics.
-    for(unsigned int i=0; i<m->n_stats; i++)
+    for(unsigned int i=0; i<p; i++)
       networkstatistics[i]+=cs[i];
-    // Record network statistics for burnin.
-    if(sample_burnin){
-      memcpy(sample_burnin,networkstatistics,m->n_stats*sizeof(double));
-      sample_burnin+=m->n_stats;
+
+    if(1||staken){
+      PILA_SummUp(p,p_ext,gamma,
+		  theta_ext,cs,
+
+		  theta_mean,&n,&cs_mag,XtX,XtY,cs_mean);
+
+      for(unsigned int i=0; i<p; i++)
+	theta_ext[i+1]=theta[i]+rnorm(0,alpha);
     }
-    // update XtX, XtY, and ns_dev
-    for(unsigned int c=0;c<p_ext;c++){
-      for(unsigned int r=0;r<p_ext;r++){
-	XtX[r+c*p_ext]*=gamma;
-	XtX[r+c*p_ext]+=(theta_ext[r]-theta_mean[r]/n)*(theta_ext[c]-theta_mean[c]/n);
-      }
-    }
-    
-    for(unsigned int c=0;c<m->n_stats;c++){
-      for(unsigned int r=0;r<p_ext;r++){
-	XtY[r+c*p_ext]*=gamma;
-	XtY[r+c*p_ext]+=(theta_ext[r]-theta_mean[r]/n)*cs[c];
-      }
-      ns_dev[c]*=gamma;
-      ns_dev[c]+=networkstatistics[c];
-    }
-    
-    cs_mag*=gamma;
-    cs_mag+=pythagn(cs,m->n_stats);
-    
-    for(unsigned int i=1; i<p_ext; i++)
-      theta_ext[i]=theta[i-1]+rnorm(0,.5);
   }
 
-  memcpy(theta_ext+1,theta,m->n_stats*sizeof(double));
+  memcpy(theta_ext+1,theta,p*sizeof(double));
+  
+  unsigned int *insensitive = (unsigned int *) R_alloc(p,sizeof(unsigned int)),
+    *ineffectual=(unsigned int *) R_alloc(p,sizeof(unsigned int));
+
   for (unsigned int s=0; s < samplesize*interval; s++){
     // Record theta 
     if(s % interval == 0){
-      memcpy(theta,theta_mean+1,m->n_stats*sizeof(double));
-      for(unsigned int i=0; i<m->n_stats;i++) theta[i]/=n;
-      theta+=m->n_stats;
+      memcpy(theta,theta_mean+1,p*sizeof(double));
+      for(unsigned int i=0; i<p;i++) theta[i]/=n;
+      theta+=p;
     }
     
-    n*=gamma;
-    n++;
-
-    // Update mean theta (the 1st element stays at 0)
-    
-    for(unsigned int i=1; i<p_ext; i++){
-      theta_mean[i]*=gamma;
-      theta_mean[i]+=theta_ext[i]; 
-    }
-
-    memset(cs,0,m->n_stats*sizeof(double));
+    memset(cs,0,p*sizeof(double));
+    staken=0;
     MetropolisHastings(&MH, theta_ext+1, cs, 1, &staken,
 		       hammingterm, fVerbose, nwp, m, bd);
     // Update network statistics.
-    for(unsigned int i=0; i<m->n_stats; i++)
+    for(unsigned int i=0; i<p; i++)
       networkstatistics[i]+=cs[i];
+
     // Record network statistics.
-    if(s % interval == 0){
-      memcpy(networkstatistics+m->n_stats,networkstatistics,m->n_stats*sizeof(double));
-      networkstatistics+=m->n_stats;
+    if(s && s % interval == 0){
+      memcpy(networkstatistics+p,networkstatistics,p*sizeof(double));
+      networkstatistics+=p;
     }
-
-    // update XtX, XtY, and ns_dev
-    for(unsigned int c=0;c<p_ext;c++){
-      for(unsigned int r=0;r<p_ext;r++){
-	XtX[r+c*p_ext]*=gamma;
-	XtX[r+c*p_ext]+=(theta_ext[r]-theta_mean[r]/n)*(theta_ext[c]-theta_mean[c]/n);
-      }
-    }
-    
-    for(unsigned int c=0;c<m->n_stats;c++){
-      for(unsigned int r=0;r<p_ext;r++){
-	XtY[r+c*p_ext]*=gamma;
-	XtY[r+c*p_ext]+=(theta_ext[r]-theta_mean[r]/n)*cs[c];
-      }
-      ns_dev[c]*=gamma;
-      ns_dev[c]+=networkstatistics[c];
-    }
-    
-    cs_mag*=gamma;
-    cs_mag+=pythagn(cs,m->n_stats);
         
-    memcpy(XtX_work,XtX,p_ext*p_ext*sizeof(double));
-    memcpy(XtY_work,XtY,p_ext*m->n_stats*sizeof(double));
-    memcpy(ns_dev_work,ns_dev,m->n_stats*sizeof(double));
-    
-    //Rprintf("\n%u:\n",s);
-    //Rprintf("cs: %f\n",cs[0]);
-    //Rprintf("ns: %f\n",networkstatistics[0]);
-    //Rprintf("theta_mean: %f\n",theta_mean[1]/n);
-    //Rprintf("XtX: %f ,%f ,%f ,%f\n",XtX[0]/n,XtX[1]/n,XtX[2]/n,XtX[3]/n);
-    //Rprintf("XtY: %f ,%f\n",XtY[0]/n,XtY[1]/n);
-    //Rprintf("ns_dev: %f\n",ns_dev[0]/n);
-    // Solve for beta+.
-    int info;
-    F77_CALL(dposv)("U",&p_ext,&(m->n_stats),XtX_work,
-		    &p_ext,XtY_work,&p_ext,&info);
-    if(info!=0) {error("Error in dposv, code %d.",info);}
-    // Now, XtY_work contains beta+.
-    //Rprintf("beta+: %f ,%f\n",XtY_work[0],XtY_work[1]);
-    // Compute the vector with direction we need to head in,
-    // and having the magnitude of a one-step change.
-    // Note that this is a simplification, since pythagn(ns_dev)
-    // is n times the magnitude it should be, as is ns_dev_work.
-    for(unsigned int c=0; c<m->n_stats;c++)
-      ns_dev_work[c]*=(cs_mag/n)/pythagn(ns_dev,m->n_stats);
-    //Rprintf("Target CS (w/o beta0): %f\n",ns_dev_work[0]);
-    // beta0 represent "drift" in the statistics, and so should be
-    // subtracted from the desired direction
-    for(unsigned int c=0; c<m->n_stats;c++)
-      ns_dev_work[c]+=XtY_work[c*m->n_stats];
-    //Rprintf("Target CS (w/ beta0): %f\n",ns_dev_work[0]);
-    // The first row of beta needs to be thrown
-    // away before inverting.
-    for(unsigned int c=0;c<m->n_stats;c++){
-      for(unsigned int r=1;r<p_ext;r++){
-	XtY_work[r+c*m->n_stats-1]=XtY_work[r+c*p_ext];
-      }
-    }
+    if(1||staken){
+      PILA_SummUp(p,p_ext,gamma,
+		  theta_ext,cs,
 
-    // In order to write the problem as Ax=b, transpose beta.
-    for(unsigned int c=0;c<m->n_stats;c++){
-      for(unsigned int r=0;r<m->n_stats;r++){
-	double tmp=XtY_work[r+c*m->n_stats];
-	XtY_work[r+c*m->n_stats]=XtY_work[c+r*m->n_stats];
-	XtY_work[c+r*m->n_stats]=tmp;
+		  theta_mean,&n,&cs_mag,XtX,XtY,cs_mean);
+
+      // Solve for beta+:
+      memcpy(XtX_work,XtX,p_ext*p_ext*sizeof(double));
+      memcpy(XtY_work,XtY,p_ext*p*sizeof(double));    
+      
+      // "Center" the regression about the current theta_mean.
+      for(unsigned int c=0;c<p_ext;c++){
+	for(unsigned int r=0;r<p_ext;r++){
+	  XtX_work[r+c*p_ext]-=theta_mean[r]*theta_mean[c]/n;
+	}
       }
+      for(unsigned int c=0;c<p;c++){
+	for(unsigned int r=0;r<p_ext;r++){
+	  XtY_work[r+c*p_ext]-=theta_mean[r]*cs_mean[c]/n;
+	}
+      }
+      
+      dsaveif(XtX_save,XtX,p_ext*p_ext);
+      dsaveif(XtY_save,XtY,p_ext*p);
+      dsaveif(theta_mean_save,theta_mean,p_ext);
+    
+      // Make Fortran call to solve for beta+.
+      int info;
+      F77_CALL(dposv)("U",&p_ext,&(p),XtX_work,
+		      &p_ext,XtY_work,&p_ext,&info);
+      if(info!=0) {
+	Rprintf("Error in dposv, code %d, at iteration %d.",info,s);
+	return;
+      }
+      // XtY_work now contains beta+.
+
+      dsaveif(beta_save,XtY_work,p_ext*p);
+      
+      // Compute the direction in which we need to go, with the approx.
+      // magnitude of one step.
+
+      memcpy(ns,networkstatistics,p*sizeof(double));
+      double ns_mul=-fmin(1,cs_mag/n/vnorm(ns,p));
+      for(unsigned int c=0; c<p;c++){
+	ns[c]*=ns_mul;
+      }
+      
+      dsaveif(direction_save,ns,p);
+      
+      // beta0 (col 1 of XtY) represent "drift" in the statistics, so
+      // subtract it from the desired direction.
+      for(unsigned int c=0; c<p;c++)
+	ns[c]-=XtY_work[c*p_ext];
+
+      // If a particular statistc's (dG/dtheta) is too small, 
+      // mark it as being "insensitive" to
+      // theta (at least given this network configuration),
+      // and "drop" it.
+      
+      double e_max=0;
+      unsigned int dropped=0;
+      memset(insensitive,0,p*sizeof(double));
+      // Find the max norm of the coefficient.
+      for(unsigned int c=0; c<p; c++){
+	if(vnorm(XtY_work+c*p_ext+1,p)>e_max){
+	  e_max=vnorm(XtY_work+c*p_ext+1,p);
+	}
+      }
+      // Mark any statistic less than the square root of machine-epsilon of it
+      // as "insensitive".
+      for(unsigned int c=0; c<p; c++){
+	insensitive[c]=(vnorm(XtY_work+c*p_ext+1,p)/e_max<sqrt(sqrt(2.220446e-16))); // .Machine$double.eps^0.25
+	if(insensitive[c]) dropped++;
+      }
+
+      isaveif(insensitive_save,insensitive,p);
+      isaveif(dropped_save,&dropped,1);
+
+      // Remove the "insensitive" statistics.
+      // Counting backwards here, so need signed int.
+      for(int c=p-1,deleted=0; c>=0;c--){
+	if(insensitive[c]){
+	  dmat_cm_delcol(XtY_work,p_ext,p-deleted,c);
+	  deleted++;
+	  memmove(ns+c,ns+c+1,(p-c-deleted)*sizeof(double));
+	}
+      }
+      // XtY_work is now a matrix of dimension (p_ext)*(p-dropped).
+      // For debugging purposes, zero all the "vacated" entries.
+      memset(XtY_work+p_ext*(p-dropped),0,p_ext*dropped*sizeof(double));
+
+      // Since we need to transpose beta anyway, do it here...
+      // Use XtX_work for temporary storage.
+      dmat_cm_t(XtY_work, p_ext, p-dropped, XtX_work);
+      // beta+ is now transposed, and beta+^t has dimension
+      // (p-dropped)*(p_ext).
+
+      // Throw away the first column of beta+^t:
+      dmat_cm_delcol(XtY_work,p-dropped,p_ext,0);
+      // XtY now contains beta^t with dropped rows.
+      // For debugging purposes, zero all the "vacated" entries.
+      memset(XtY_work+p*(p-dropped),0,p*(dropped+1)*sizeof(double));
+
+      // Also, (dropped) of the columns in the beta^t matrix will have to go to keep it square:
+      // we take the norm of each column, and throw away the one with the smallest norm.
+      // This is a very bad algorithm.
+      memset(ineffectual,0,p*sizeof(unsigned int));
+      for(unsigned int i=0; i<dropped;i++){
+	unsigned int c_min=0;
+	double m_min=HUGE_VAL;
+	for(unsigned int c=0; c<p; c++){
+	  if(!ineffectual[c] && vnorm(XtY_work+c*(p-dropped),p-dropped)<m_min){
+	    c_min=c;
+	    m_min=vnorm(XtY_work+c*(p-dropped),p-dropped);
+	  }
+	}
+	ineffectual[c_min]=1;
+      }
+      for(int c=p-1,deleted=0; c>=0;c--){
+	if(ineffectual[c]){
+	  dmat_cm_delcol(XtY_work,p-dropped,p-deleted,c);
+	  deleted++;
+	}
+      }
+      
+      isaveif(ineffectual_save,ineffectual,p);
+      
+      // XtY_work is now a p-dropped by p-dropped matrix,
+      // whose rows correspond to network statistics and whose columns
+      // correspond to parameters.
+      // For debugging purposes, zero all the "vacated" entries.
+      memset(XtY_work+(p-dropped)*(p-dropped),0,(p*p_ext-(p-dropped)*(p-dropped))*sizeof(double));
+    
+      // Solve for G * beta^-1.
+      int one=1;
+      int msize = p-dropped;
+      // Note that XtX_work is throw-away memory here.
+      F77_CALL(dgesv)(&msize,&one,XtY_work,&msize,
+		      (int *) XtX_work,ns,&msize,&info);
+      if(info!=0) {
+	Rprintf("Error in dgesv, code %d, at iteration %d.",info,s);
+	return;
+      }
+      // ns now contains the estimated change in theta with "ineffectual"
+      // coefficients dropped. Now, reconstruct the full-length change in theta.
+      double stepsize=vnorm(ns,p-dropped)/(p-dropped);
+      for(int i=p-1,pos=p-dropped-1; i>=0; i--){
+	if(ineffectual[i])
+	  ns[i]=rnorm(0,stepsize/3);
+	else{
+	  // Note that pos <= i, always.
+	  ns[i]=ns[pos];
+	  pos--;
+	}
+      }
+      
+      // Now, generate new theta by adding the change to the mean.
+      
+      // Normalize the change to have magnitude alpha:
+      
+      double stepscl=alpha/vnorm(ns,p);
+
+      dsaveif(dtheta_save,ns,p);
+
+      for(unsigned int i=0; i<p;i++)
+	theta_ext[i+1]=theta_mean[i+1]/n+ns[i]*stepscl;
     }
-    
-    //Rprintf("beta: %f\n",XtY_work[0]);
-    
-    // Solve for G * beta^-1.
-    int one=1;
-    // Note that XtX_work is throw-away memory here.
-    F77_CALL(dgesv)(&(m->n_stats),&one,XtY_work,&(m->n_stats),
-		    (int *) XtX_work,ns_dev_work,&(m->n_stats),&info);
-    if(info!=0) {error("Error in dgesv, code %d.",info);}
-    // ns_dev_work now contains the estimated change in theta.
-    //Rprintf("change in theta (raw): %f\n",ns_dev_work[0]);
-    // Now, generate new theta by adding the change to the mean,
-    // along with a random perturbation.
-    for(unsigned int i=0; i<m->n_stats;i++)
-      theta_ext[i+1]=theta_mean[i+1]/n-alpha*ns_dev_work[i]+rnorm(0,0.5);
   }
   MH_free(&MH);
-  
 }
 
+#undef dsaveif
+#undef isaveif
