@@ -131,7 +131,8 @@ ergm <- function(formula, theta0="MPLE",
 
   if (verbose) cat("ergm.mainfitloop\n")
   MCMCparams=c(control,
-   list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,maxit=maxit,Clist.miss=Clist.miss))
+   list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,
+        maxit=maxit,Clist.miss=Clist.miss, mcmc.precision=control$mcmc.precision))
   if(!is.null(dissolve)){
     if (verbose) cat("Fitting Dynamic ERGM.\n")
     model.dissolve <- ergm.getmodel.dissolve(dissolve, nw, dissolve.order)
