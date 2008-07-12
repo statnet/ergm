@@ -15,7 +15,7 @@ ergm.stocapprox <- function(theta0, nw, model, Clist,
   
   #phase 1:  Estimate diagonal elements of D matrix (covariance matrix for theta0)
   n1 <- MCMCparams$phase1_n
-  if(is.null(n1)) {n1 <- max(200,7 + 3 * Clist$nparam)} #default value
+  if(is.null(n1)) {n1 <- max(200,7 + 3 * Clist$nstats)} #default value
   eta0 <- ergm.eta(theta0, model$etamap)
   cat("Stochastic approximation algorithm with theta_0 equal to:\n")
   print(theta0)
@@ -34,9 +34,9 @@ ergm.stocapprox <- function(theta0, nw, model, Clist,
   n_sub <- MCMCparams$nsubphases
   if(is.null(n_sub)) {n_sub <- 4} #default value
   n_iter <- MCMCparams$niterations
-  if(is.null(n_iter)) {n_iter <- 7 + Clist$nparam} #default value
+  if(is.null(n_iter)) {n_iter <- 7 + Clist$nstats} #default value
   # This default value is very simplistic; Snijders would use a minimum of
-  # 7 + Clist$nparam and a maximum of 207+Clist$nparam, with the actual 
+  # 7 + Clist$nstats and a maximum of 207+Clist$nstats, with the actual 
   # number determined by the autocorrelation in the samples.
   # Thus, our default value assumes independence (for now!)
   theta <- theta0
@@ -73,7 +73,7 @@ ergm.stocapprox <- function(theta0, nw, model, Clist,
   eta <- ergm.eta(theta, model$etamap)
 #cat(paste(" (samplesize=",MCMCparams$samplesize,")\n",sep=""))
 #cat(paste(" eta=",eta,")\n",sep=""))
-  stats <- matrix(0,ncol=Clist$nparam,nrow=MCMCparams$samplesize)
+  stats <- matrix(0,ncol=Clist$nstats,nrow=MCMCparams$samplesize)
   stats[1,] <- summary.statistics.network(model$formula, basis=nw) - Clist$meanstats
   MCMCparams$stats <- stats
   z <- ergm.getMCMCsample(nw, model,

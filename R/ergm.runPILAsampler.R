@@ -5,10 +5,10 @@ ergm.runPILAsampler <- function(nw, model, MHproposal, eta0, MCMCparams,
   z <- ergm.PILAslave(Clist,MHproposal,eta0,MCMCparams,verbose,debug=verbose>0)
   nedges <- z$newnwheads[1]
   out<-list(statsmatrix=matrix(z$s, nrow=MCMCparams$samplesize,
-              ncol=Clist$nparam,
+              ncol=Clist$nstats,
               byrow = TRUE),
             etamatrix=matrix(z$eta, nrow=MCMCparams$samplesize,
-              ncol=Clist$nparam,
+              ncol=Clist$nstats,
               byrow=TRUE)
             )
 

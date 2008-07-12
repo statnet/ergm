@@ -41,7 +41,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
   if(missing(theta0)) {
-    theta0 <- rep(0,Clist$nparam)
+    theta0 <- rep(0,Clist$nstats)
     warning("No parameter values given, using Bernouli network\n\t")
   }
   eta0 <- theta0
@@ -178,7 +178,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
        if (!statsonly) {
         nw.list[[i]] <- newnw.extract(nw, outlist[[k]])
        }
-       curstats <- outlist[[k]]$s[(1):(Clist$nparam)]
+       curstats <- outlist[[k]]$s[(1):(Clist$nstats)]
        names(curstats) <- m$coef.names
        out.mat <- rbind(out.mat,curstats)
       }
@@ -280,13 +280,13 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
       class(Clist) <- "networkClist"
       if(i==1){
         globalstatsmatrix <- summary(Clist)
-        statsmatrix <- matrix(z$s, MCMCparams$samplesize, Clist$nparam, byrow = TRUE)
+        statsmatrix <- matrix(z$s, MCMCparams$samplesize, Clist$nstats, byrow = TRUE)
         colnames(statsmatrix) <- m$coef.names
       }else{
         globalstatsmatrix <- rbind(globalstatsmatrix, summary(Clist))
         statsmatrix <- rbind(statsmatrix,
                              matrix(z$s, MCMCparams$samplesize,
-                                    Clist$nparam, byrow = TRUE))
+                                    Clist$nstats, byrow = TRUE))
       }
     }
     #
@@ -296,7 +296,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
     if (!statsonly) {
       nw.list[[i]] <- newnw.extract(nw, z)
     }
-    curstats <- z$s[(1):(Clist$nparam)]
+    curstats <- z$s[(1):(Clist$nstats)]
     names(curstats) <- m$coef.names
     out.mat <- rbind(out.mat,curstats)
     if(sequential){
@@ -329,7 +329,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
     if(control$summarizestats){
       class(Clist) <- "networkClist"
       globalstatsmatrix <- summary(Clist)
-      statsmatrix <- matrix(z$s, MCMCparams$samplesize, Clist$nparam, byrow = TRUE)
+      statsmatrix <- matrix(z$s, MCMCparams$samplesize, Clist$nstats, byrow = TRUE)
       colnames(statsmatrix) <- m$coef.names
     }
     #
@@ -339,7 +339,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
     if (!statsonly) {
       nw.list[[1]] <- newnw.extract(nw, z)
     }
-    curstats <- z$s[(1):(Clist$nparam)]
+    curstats <- z$s[(1):(Clist$nstats)]
     names(curstats) <- m$coef.names
     out.mat <- rbind(out.mat,curstats)
     if (!statsonly) 
@@ -395,13 +395,13 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
        if (!statsonly) {
         nw.list[[i]] <- newnw.extract(nw, outlist[[k]])
        }
-       curstats <- outlist[[k]]$s[(1):(Clist$nparam)]
+       curstats <- outlist[[k]]$s[(1):(Clist$nstats)]
        names(curstats) <- m$coef.names
        out.mat <- rbind(out.mat,curstats)
        if(control$summarizestats){
         statsmatrix <- rbind(statsmatrix,
                              matrix(outlist[[k]]$s, MCMCparams$samplesize,
-                                    Clist$nparam, byrow = TRUE))
+                                    Clist$nstats, byrow = TRUE))
        }
       }
       if (verb) {

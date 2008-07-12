@@ -30,7 +30,7 @@ ergm.Cprepare <- function(nw, m)
   mo<-m$terms 
   
   Clist$nterms<-length(mo)
-  Clist$nparam<-0
+  Clist$nstats<-0
   Clist$fnamestring<-""
   Clist$snamestring<-""
   Clist$inputs<-numeric(0)
@@ -41,7 +41,7 @@ ergm.Cprepare <- function(nw, m)
                                  ifelse(is.null(mo[[i]]$soname), "ergm",
                                         mo[[i]]$soname))
       Clist$inputs <- c(Clist$inputs, mo[[i]]$inputs)
-      Clist$nparam <- Clist$nparam + mo[[i]]$inputs[2]
+      Clist$nstats <- Clist$nstats + mo[[i]]$inputs[2]
     }
   }
   while (substring(Clist$fnamestring, 1, 1)==" ")

@@ -3,7 +3,7 @@ ergm.PILA <- function(theta0, nw, model, Clist,
                       verbose=FALSE){
   if(verbose)cat("PILA algorithm with theta_0 equal to:\n")
   print(theta0)
-  stats <- matrix(0,ncol=Clist$nparam,nrow=MCMCparams$samplesize)
+  stats <- matrix(0,ncol=Clist$nstats,nrow=MCMCparams$samplesize)
   stats[1,] <- Clist$obs - Clist$meanstats
 
   MCMCparams$stats<-stats

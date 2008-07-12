@@ -16,13 +16,13 @@ ergm.robmon <- function(theta0, nw, model, Clist,
   
   #phase 1:  Estimate diagonal elements of D matrix (covariance matrix for theta0)
   n1 <- control$phase1_n
-  if(is.null(n1)) {n1 <- 7 + 3 * Clist$nparam} #default value
+  if(is.null(n1)) {n1 <- 7 + 3 * Clist$nstats} #default value
   eta0 <- ergm.eta(theta0, model$etamap)
   cat("Robbins-Monro algorithm with theta_0 equal to:\n")
   print(theta0)
-  stats <- matrix(0,ncol=Clist$nparam,nrow=n1)
+  stats <- matrix(0,ncol=Clist$nstats,nrow=n1)
   stats[1,] <- Clist$obs - Clist$meanstats
-# stats[,]<-  rep(Clist$obs - Clist$meanstats,rep(nrow(stats),Clist$nparam))
+# stats[,]<-  rep(Clist$obs - Clist$meanstats,rep(nrow(stats),Clist$nstats))
 # MCMCparams$stats <- stats
   MCMCparams <- list(samplesize=n1, burnin=burnin, interval=interval,
                      stats=stats, parallel=control$parallel)
@@ -52,9 +52,9 @@ ergm.robmon <- function(theta0, nw, model, Clist,
   n_sub <- control$nsubphases
   if(is.null(n_sub)) {n_sub <- 4} #default value
   n_iter <- control$niterations
-  if(is.null(n_iter)) {n_iter <- 7 + Clist$nparam} #default value
+  if(is.null(n_iter)) {n_iter <- 7 + Clist$nstats} #default value
   # This default value is very simplistic; Snijders would use a minimum of
-  # 7 + Clist$nparam and a maximum of 207+Clist$nparam, with the actual 
+  # 7 + Clist$nstats and a maximum of 207+Clist$nstats, with the actual 
   # number determined by the autocorrelation in the samples.
   # Thus, our default value assumes independence (for now!)
   theta <- theta0

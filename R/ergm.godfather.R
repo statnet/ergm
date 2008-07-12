@@ -54,14 +54,14 @@ ergm.godfather <- function(formula, timestamps=NULL, toggles=NULL, sim=NULL,
           as.integer(toggles[,1]), as.integer(toggles[,2]),
           as.integer(start), as.integer(end),
           as.double(Clist$inputs),
-          s = double((2+end-start) * Clist$nparam),
+          s = double((2+end-start) * Clist$nstats),
           newnwheads = integer(maxedges+1),
           newnwtails = integer(maxedges+1),
           as.integer(accumulate),
           as.integer(verbose),
           as.integer(maxedges), 
           PACKAGE="ergm")  
-  stats <- matrix(z$s + obsstat, ncol=Clist$nparam, byrow=T)
+  stats <- matrix(z$s + obsstat, ncol=Clist$nstats, byrow=T)
   colnames(stats) <- m$coef.names
 
   out <- list(stats = stats, timestamps = c(NA, start:end))

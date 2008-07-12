@@ -53,7 +53,7 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0=NULL,
 # if(is.null(theta0)) {
 #   warning("No parameter values given, using the MPLE for the passed network.\n\t")
 # }
-# theta0 <- c(theta0[1],rep(0,Clist$nparam-1))
+# theta0 <- c(theta0[1],rep(0,Clist$nstats-1))
   
   if(!is.null(seed)) set.seed(as.integer(seed))
 
@@ -86,7 +86,7 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0=NULL,
     }
     eta0 <- ergm.eta(theta0, model$etamap)
     stats <- matrix(summary(model$formula)-meanstats,
-                    ncol=Clist$nparam,byrow=T,nrow=MCMCsamplesize)
+                    ncol=Clist$nstats,byrow=T,nrow=MCMCsamplesize)
     tau <- rep(tau,length=length(eta0))
 #
 #   Check for truncation of the returned edge list
@@ -129,7 +129,7 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0=NULL,
 #   simulated one
 #
     out.list[[i]] <- newnw.extract(nw, z)
-    out.mat <- rbind(out.mat,z$s[(Clist$nparam+1):(2*Clist$nparam)])
+    out.mat <- rbind(out.mat,z$s[(Clist$nstats+1):(2*Clist$nstats)])
     if(sequential){
       nw <-  out.list[[i]]
     }
@@ -190,7 +190,7 @@ san.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
     }
     
     stats <- matrix(summary(m$formula)-meanstats,
-                    ncol=Clist$nparam,byrow=T,nrow=MCMCsamplesize)
+                    ncol=Clist$nstats,byrow=T,nrow=MCMCsamplesize)
 #
 #   Check for truncation of the returned edge list
 #
@@ -234,13 +234,13 @@ san.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
       class(Clist) <- "networkClist"
       if(i==1){
         globalstatsmatrix <- summary(Clist)
-        statsmatrix <- matrix(z$s, MCMCsamplesize, Clist$nparam, byrow = TRUE)
+        statsmatrix <- matrix(z$s, MCMCsamplesize, Clist$nstats, byrow = TRUE)
         colnames(statsmatrix) <- m$coef.names
       }else{
         globalstatsmatrix <- rbind(globalstatsmatrix, summary(Clist))
         statsmatrix <- rbind(statsmatrix,
                              matrix(z$s, MCMCsamplesize,
-                                    Clist$nparam, byrow = TRUE))
+                                    Clist$nstats, byrow = TRUE))
       }
     }
     #
@@ -249,7 +249,7 @@ san.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
 
     
     out.list[[i]] <- newnw.extract(nw,z)
-    out.mat <- rbind(out.mat,z$s[(Clist$nparam+1):(2*Clist$nparam)])
+    out.mat <- rbind(out.mat,z$s[(Clist$nstats+1):(2*Clist$nstats)])
     if(sequential){
       nw <-  out.list[[i]]
     }

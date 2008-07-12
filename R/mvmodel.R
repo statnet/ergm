@@ -27,7 +27,7 @@ mvmodel.formula <- function (formula, ..., theta0, nsim=100,
   Clist <- ergm.Cprepare(g, m)
 
   if(missing(theta0)){
-      theta0 <- rep(0,Clist$nparam)
+      theta0 <- rep(0,Clist$nstats)
       warning("No parameter values given, using 0\n\t")
   }
 

@@ -24,11 +24,11 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, MCMCparams,
       cat("\n Warning:")
       cat("\n   The network has more than 50000 edges, and the model is likely to be degenerate.\n")
       statsmatrix <- matrix(0, nrow=MCMCparams$samplesize,
-                            ncol=Clist$nparam)
+                            ncol=Clist$nstats)
       newnetwork <- nw
     }else{
       statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
-                            ncol=Clist$nparam,
+                            ncol=Clist$nstats,
                             byrow = TRUE)
       newnetwork <- newnw.extract(nw,z)
     }
@@ -80,7 +80,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, MCMCparams,
      z <- outlist[[i]]
      statsmatrix <- rbind(statsmatrix,
        matrix(z$s, nrow=MCMCparams.parallel$samplesize,
-       ncol=Clist$nparam,
+       ncol=Clist$nstats,
        byrow = TRUE))
 #    if(z$newnw[1]>1){
 #      newedgelist <- rbind(newedgelist,

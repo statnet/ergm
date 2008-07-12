@@ -37,7 +37,7 @@ ergm.phase12 <- function(g, model,
             as.double(MCMCparams$gain), as.double(MCMCparams$stats),
             as.integer(MCMCparams$phase1),
             as.integer(MCMCparams$nsub),
-            s = double(MCMCparams$samplesize * Clist$nparam),
+            s = double(MCMCparams$samplesize * Clist$nstats),
             as.integer(MCMCparams$burnin), as.integer(MCMCparams$interval),
             newnwheads = integer(maxedges),
             newnwtails = integer(maxedges),
@@ -52,7 +52,7 @@ ergm.phase12 <- function(g, model,
             PACKAGE="ergm") 
   }
   statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
-                        ncol=Clist$nparam,
+                        ncol=Clist$nstats,
                         byrow = TRUE)
   eta <- z$eta
   names(eta) <- names(eta0)

@@ -12,9 +12,9 @@ ergm.initialfit<-function(theta0, MLestimate, Clist, Clist.miss, m,
   if (is.na(fitmethod) & MLestimate) { # theta0 should be a start vector
     
     theta0 <- as.vector(theta0)
-    if (length(theta0) != Clist$nparam |
+    if (length(theta0) != Clist$nstats |
         length(theta0)!=length(m$coef.names)) {
-      cat("theta0 is", theta0, "\n", "Clist$nparam is",Clist$nparam, "\n")
+      cat("theta0 is", theta0, "\n", "Clist$nstats is",Clist$nstats, "\n")
       stop(paste("Invalid starting parameter vector theta0;",
                  "unrecognized option or wrong number of parameters."))
     }

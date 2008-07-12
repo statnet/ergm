@@ -6,14 +6,14 @@ ergm.plinfo<-function(Clist, Clist.miss, m, fix=NULL, theta.offset=NULL)
           as.integer(Clist$heads),    as.integer(Clist$tails),
           as.integer(Clist$nedges),   as.integer(Clist$maxpossibleedges),
           as.integer(Clist$n), 
-          as.integer(Clist$dir),     as.integer(Clist$nparam), 
+          as.integer(Clist$dir),     as.integer(Clist$nstats), 
           as.character(Clist$fnamestring),as.character(Clist$snamestring),
 	  as.double(Clist$inputs),        
-	  y = double(numobs),  x = double(numobs*Clist$nparam),
+	  y = double(numobs),  x = double(numobs*Clist$nstats),
           start=as.integer(1), end=as.integer(numobs),
           PACKAGE="ergm")
 
-  xmat <- matrix(z$x, numobs, Clist$nparam, byrow=TRUE)
+  xmat <- matrix(z$x, numobs, Clist$nstats, byrow=TRUE)
   zy <- z$y
 
   if(Clist.miss$nedges>0){
@@ -27,7 +27,7 @@ ergm.plinfo<-function(Clist, Clist.miss, m, fix=NULL, theta.offset=NULL)
     }
     ubase <- base[,1] + Clist$n*base[,2]
     dmiss <- !is.na(match(ubase, Clist.miss$tails+Clist.miss$heads*Clist$n))
-    xmat <- matrix(xmat[!dmiss,], ncol=Clist$nparam, nrow=sum(!dmiss))
+    xmat <- matrix(xmat[!dmiss,], ncol=Clist$nstats, nrow=sum(!dmiss))
     zy <- zy[!dmiss]
   }
   

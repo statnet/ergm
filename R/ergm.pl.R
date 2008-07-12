@@ -32,7 +32,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
           as.character(Clist$fnamestring), as.character(Clist$snamestring),
           as.double(Clist$inputs),
           y = integer(maxNumDyadTypes),
-          x = double(maxNumDyadTypes*Clist$nparam),
+          x = double(maxNumDyadTypes*Clist$nstats),
           weightsvector = integer(maxNumDyadTypes),
           as.double(offset), compressedOffset=double(maxNumDyadTypes),
           as.integer(maxNumDyadTypes),
@@ -46,7 +46,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
   }
   zy <- z$y[uvals]
   wend <- z$weightsvector[uvals]
-  xmat <- matrix(z$x, ncol=Clist$nparam, byrow=TRUE)[uvals,,drop=FALSE]
+  xmat <- matrix(z$x, ncol=Clist$nstats, byrow=TRUE)[uvals,,drop=FALSE]
   colnames(xmat) <- m$coef.names
   dmiss <- z$compressedOffset[uvals]
   rm(z,uvals)
@@ -55,7 +55,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
   #
   if(any(m$etamap$offsettheta)){
     if(is.null(theta.offset)){
-      theta.offset <- rep(0, length=Clist$nparam)
+      theta.offset <- rep(0, length=Clist$nstats)
       names(theta.offset) <- m$coef.names
       theta.offset[m$etamap$offsettheta] <- -Inf
     }
@@ -70,7 +70,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
 #    theta.offset <- theta.offset[!m$etamap$offsettheta]
   }else{
     foffset <- rep(0, length=length(zy))
-    theta.offset <- rep(0, length=Clist$nparam)
+    theta.offset <- rep(0, length=Clist$nstats)
     if(Clist$nedges>0){
       theta.offset[1] <- log(Clist$nedges/(Clist$ndyads-Clist$nedges))
     }else{

@@ -11,7 +11,7 @@ ergm.getglobalstats <- function(nw, m) {
            as.integer(Clist$nterms), 
            as.character(Clist$fnamestring), as.character(Clist$snamestring), 
            as.double(Clist$inputs),
-           gs = double(Clist$nparam),
+           gs = double(Clist$nstats),
            PACKAGE="ergm"
            )$gs
   names(gs) <- m$coef.names

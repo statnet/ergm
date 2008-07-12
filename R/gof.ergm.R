@@ -104,7 +104,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
   Clist <- ergm.Cprepare(nw, m)
 
   if(is.null(theta0)){
-      theta0 <- rep(0,Clist$nparam)
+      theta0 <- rep(0,Clist$nstats)
       warning("No parameter values given, using 0\n\t")
   }
 # if(is.bipartite(nw)){

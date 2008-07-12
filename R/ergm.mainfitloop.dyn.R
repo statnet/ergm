@@ -16,7 +16,7 @@ ergm.mainfitloop.dyn <- function(theta0, nw, model.form, model.diss,
   thetaprior=theta0-theta0
 
   if(is.null(Clist$meanstats)){Clist$meanstats <- Clist$obs}
-  stats <- matrix(0,ncol=Clist$nparam,nrow=MCMCparams$samplesize)
+  stats <- matrix(0,ncol=Clist$nstats,nrow=MCMCparams$samplesize)
   stats[1,] <- summary(model.form$formula, basis=nw) - Clist$meanstats
 
   MCMCparams=c(MCMCparams, list(stats=stats,

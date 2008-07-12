@@ -16,9 +16,9 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
   theta.original=theta0
   thetaprior=theta0-theta0
 
-  stats <- matrix(0,ncol=Clist$nparam,nrow=MCMCparams$samplesize)
+  stats <- matrix(0,ncol=Clist$nstats,nrow=MCMCparams$samplesize)
   stats[1,] <- Clist$obs - Clist$meanstats
-# stats[,]<-  rep(Clist$obs - Clist$meanstats,rep(nrow(stats),Clist$nparam))
+# stats[,]<-  rep(Clist$obs - Clist$meanstats,rep(nrow(stats),Clist$nstats))
   MCMCparams$stats <- stats
   MCMCparams$meanstats <- Clist$meanstats
 

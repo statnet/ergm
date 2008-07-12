@@ -65,10 +65,10 @@ ergm.getMCMCDynsample <- function(nw, model.form, model.diss,
               as.integer(verbose), 
               PACKAGE="ergm") 
       statsmatrix.form <- matrix(z$s.form, nrow=MCMCparams$samplesize+1,
-                                 ncol=Clist.form$nparam,
+                                 ncol=Clist.form$nstats,
                                  byrow = TRUE)[-1,,drop=FALSE]
       statsmatrix.diss <- matrix(z$s.diss, nrow=MCMCparams$samplesize+1,
-                                 ncol=Clist.diss$nparam,
+                                 ncol=Clist.diss$nstats,
                                  byrow = TRUE)[-1,,drop=FALSE]
     }else{
       rpvmbasename <- paste("ergm.parallel.",Sys.getpid(),sep="")
@@ -111,11 +111,11 @@ ergm.getMCMCDynsample <- function(nw, model.form, model.diss,
 # statsmatrix, and copy into it. -- PK
         statsmatrix.form <- rbind(statsmatrix.form,
                                   matrix(z$s, nrow=MCMCparams.parallel$samplesize,
-                                         ncol=Clist.form$nparam,
+                                         ncol=Clist.form$nstats,
                                          byrow = TRUE))
         statsmatrix.diss <- rbind(statsmatrix.diss,
                                       matrix(z$s, nrow=MCMCparams.parallel$samplesize,
-                                             ncol=Clist.diss$nparam,
+                                             ncol=Clist.diss$nstats,
                                              byrow = TRUE))
 #    if(z$newnw[1]>1){
 #      newedgelist <- rbind(newedgelist,
