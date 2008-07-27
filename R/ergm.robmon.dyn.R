@@ -13,7 +13,7 @@ ergm.robmon.dyn <- function(theta0, nw, model.form, model.diss, Clist,
   print(theta0)
   eta0 <- ergm.eta(theta0, model.form$etamap)
 
-  z <- ergm.phase12.dyn(nw, meanstats, model.form, model.diss, MHproposal.form, MHproposal.diss,
+  z <- ergm.phase12.dyn(nw, Clist$meanstats, model.form, model.diss, MHproposal.form, MHproposal.diss,
                         eta0, gamma0, MCMCparams, verbose=verbose)
 
   eta <- z$eta
