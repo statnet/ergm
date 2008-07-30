@@ -45,6 +45,8 @@ Network NetworkInitialize(Vertex *heads, Vertex *tails, Edge nedges,
   nw.inedges = (TreeNode *) calloc(nw.maxedges,sizeof(TreeNode));
   nw.outedges = (TreeNode *) calloc(nw.maxedges,sizeof(TreeNode));
 
+  GetRNGstate();  /* R function enabling uniform RNG */
+
   if(lasttoggle_flag){
     nw.duration_info.MCMCtimer=0;
     nw.duration_info.lasttoggle = (int *) calloc(directed_flag? nnodes*(nnodes-1) : (nnodes*(nnodes-1))/2, sizeof(int));
@@ -285,7 +287,7 @@ void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge next_edge){
   TreeNode *eptr = edges+a, *newnode;
   Edge e;
 
-  if (eptr->value==0) { /* This is the first edge for this vertex. */
+  if (eptr->value==0) { /* This is the first edge for vertex a. */
     eptr->value=b;
     return;
   }
@@ -533,7 +535,7 @@ Edge EdgeTree2EdgeList(Vertex *heads, Vertex *tails, Network *nwp, Edge nmax){
 
 void ShuffleEdges(Vertex *heads, Vertex *tails, Edge nedges){
   for(Edge i = nedges; i > 0; i--) {
-    Edge j = i * unif_rand();  /* shuffle to avoid worst-case performance */
+    Edge j = (double) i * unif_rand();  /* shuffle to avoid worst-case performance */
     Vertex h = heads[j];
     Vertex t = tails[j];
     heads[j] = heads[i-1];

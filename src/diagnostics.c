@@ -1,6 +1,9 @@
 /*  This is a collection of functions used to calculate diagnostic 
     statistics for dynamic networks. */
 
+/* It does not appear that the "ntotal" variable is ever used in any of
+   the three functions in which it is an argument.  */
+    
 #include "diagnostics.h"
 
 /* These #defines are not really necessary but may make the code a bit
@@ -106,7 +109,7 @@ void OverlapDurations (int *nnodes,
   }
 
   /* R's serialization of matrixes is column-major, so this works: */
-  nw = WtNetworkInitialize(edge, edge+*nedge, starttimes, ne,
+  nw = WtNetworkInitialize(edge, edge+ne, starttimes, ne,
                            *nnodes, 0, bipartite,0);
   free (starttimes);
   ie=nw.inedges;
@@ -114,11 +117,11 @@ void OverlapDurations (int *nnodes,
 
   /* Step through time one click at a time */
   for (time=1,j=0; time<=*ntimestep; time++) {
-    for(; CHANGE(j,0) == time; j++) {
+    for(; j < *nchange & CHANGE(j,0) == time; j++) {
       t1 = (double) CHANGE(j,0);        
       f1 = CHANGE(j,1);
       m1 = CHANGE(j,2);
-      if ((e=WtEdgetreeSearch(f1, m1, nw.outedges)) != 0) { 
+      if ((e=WtEdgetreeSearch(f1, m1, nw.outedges)) != 0) {
         /* Edge exists and must be removed. */
         /* Check whether there are any (zero-length) "concurrencies" with edges
         that begin AT THE CURRENT TIME but that haven't yet been encountered. */

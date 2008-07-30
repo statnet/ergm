@@ -37,6 +37,8 @@ WtNetwork WtNetworkInitialize(Vertex *heads, Vertex *tails, double *weights,
   Edge i;
   WtNetwork nw;
 
+  GetRNGstate();  /* R function enabling uniform RNG */
+
   nw.next_inedge = nw.next_outedge = (Edge)nnodes+1;
   /* Calloc will zero the allocated memory for us, probably a lot
      faster. */
@@ -61,7 +63,7 @@ WtNetwork WtNetworkInitialize(Vertex *heads, Vertex *tails, double *weights,
 
   WtShuffleEdges(heads,tails,weights,nedges); /* shuffle to avoid worst-case performance */
 
-  for(i = nedges; i > 0; i--) {
+  for(i = 0; i < nedges; i++) {
     Vertex h=heads[i], t=tails[i];
     double w=weights[i];
     if (!directed_flag && h > t) 
@@ -284,21 +286,21 @@ int WtAddEdgeToTrees(Vertex head, Vertex tail, double weight, WtNetwork *nwp){
 }
 
 /*****************
- void WtAddHalfedgeToTree:  Only called by AddEdgeToTrees
+ void WtAddHalfedgeToTree:  Only called by WtAddEdgeToTrees
 *****************/
 void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight, WtTreeNode *edges, Edge next_edge){
   WtTreeNode *eptr = edges+a, *newnode;
   Edge e;
 
-  if (eptr->value==0) { /* This is the first edge for this vertex. */
+  if (eptr->value==0) { /* This is the first edge for vertex a. */
     eptr->value=b;
     eptr->weight = weight;  /*  Add weight too */
     return;
   }
   (newnode = edges + next_edge)->value=b;  
   newnode->left = newnode->right = 0;
-  /* Now find the parent of this new edge */
   newnode->weight=weight;  /*  Add weight too */
+  /* Now find the parent of this new edge */
   for (e=a; e!=0; e=(b < (eptr=edges+e)->value) ? eptr->left : eptr->right);
   newnode->parent=eptr-edges;  /* Point from the new edge to the parent... */
   if (b < eptr->value)  /* ...and have the parent point back. */
@@ -323,6 +325,7 @@ void WtUpdateNextedge (WtTreeNode *edges, Edge *nextedge, WtNetwork *nwp) {
   }
   /* There are no "holes" left, so this network overflows mem allocation */
   nwp->maxedges *= mult;
+  Rprintf("New value of nwp->maxedges is %d\n", nwp->maxedges);
   nwp->inedges = (WtTreeNode *) realloc(nwp->inedges, 
 					sizeof(WtTreeNode) * nwp->maxedges);
   memset(nwp->inedges+*nextedge,0,sizeof(TreeNode) * (nwp->maxedges-*nextedge));
@@ -415,7 +418,7 @@ void Wtprintedge(Edge e, WtTreeNode *edges){
 }
 
 /*****************
- void NetworkEdgeList
+ void WtNetworkEdgeList
 
  Print an edgelist for a network
 *****************/
@@ -429,7 +432,7 @@ void WtNetworkEdgeList(WtNetwork *nwp) {
 }
 
 /*****************
- void InOrderTreeWalk
+ void WtInOrderTreeWalk
 
  Diagnostic routine that prints the nodes in the tree rooted
  at edges[x], in increasing order of their values.
