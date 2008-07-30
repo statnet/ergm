@@ -1,4 +1,4 @@
-ergm.getmodel <- function (formula, nw, silent=FALSE, ...) {
+ergm.getmodel <- function (formula, nw, silent=FALSE, ...,dissolve.order=NULL) {
   # Parse the formula, create an object of class "model.ergm" that contains
   # all relevant information about the model.  As part of this job, call the
   # appropriate InitErgm functions.
@@ -88,6 +88,7 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, ...) {
     }
   } 
   model$etamap <- ergm.etamap(model)
+  model$order <- dissolve.order
   model
 }
 

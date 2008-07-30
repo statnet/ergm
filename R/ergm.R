@@ -135,7 +135,8 @@ ergm <- function(formula, theta0="MPLE",
         maxit=maxit,Clist.miss=Clist.miss, mcmc.precision=control$mcmc.precision))
   if(!is.null(dissolve)){
     if (verbose) cat("Fitting Dynamic ERGM.\n")
-    model.dissolve <- ergm.getmodel.dissolve(dissolve, nw, dissolve.order)
+    dissolve<-safeupdate.formula(dissolve,nw~.)
+    model.dissolve <- ergm.getmodel(dissolve, nw, dissolve.order=dissolve.order)
     MHproposal.diss <- MHproposal(constraints, weights=control$prop.weights.diss, control$prop.args.diss, nw, model.dissolve,class="d")
     v <- switch(control$style,
                 "Robbins-Monro" = ergm.robmon.dyn(theta0, nw, model, model.dissolve,

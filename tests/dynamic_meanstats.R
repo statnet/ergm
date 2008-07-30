@@ -12,7 +12,7 @@ meanstats<-c(      1,    n*0.6)
 g1<-san(g0~meandeg+degree(1),meanstats=meanstats,verbose=TRUE)
 
 # Fit the model.
-dynfit<-ergm(g1~meandeg+degree(1),dissolve=g1~edges,dissolve.orger="FormAndDiss",gamma=log(.95/.05),meanstats=meanstats,control=control.ergm(style="Robbins-Monro"),verbose=2)
+dynfit<-ergm(g1~meandeg+degree(1),dissolve=~edges,dissolve.order="FormAndDiss",gamma=log(.95/.05),meanstats=meanstats,control=control.ergm(style="Robbins-Monro"),verbose=2)
 
 theta<-dynfit$coef
 print(theta)
@@ -21,7 +21,7 @@ gamma<-log(.95/.05)
 print(gamma)
 
 # Simulate from the fit.
-dynsim<-simulatedyn(g1~meandeg+degree(1),dissolve=g1~edges,dissolve.order="FormAndDiss",theta=theta,gamma=gamma,nsteps=1000,verbose=TRUE)
+dynsim<-simulatedyn(g1~meandeg+degree(1),dissolve=~edges,dissolve.order="FormAndDiss",theta=theta,gamma=gamma,nsteps=1000,verbose=TRUE)
 
 dynsim.gf<-ergm.godfather(g1~meandeg+degree(1),sim=dynsim,verbose=TRUE)
 
