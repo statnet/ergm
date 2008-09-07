@@ -1,4 +1,4 @@
-# overlap.matrix is a wrapper for the OverlapDuration function in C.
+# overlap.matrix is a wrapper for the OverlapDurations function in C.
 # Its job is to look at a network.series object (of which the only important
 # parts are the original network and a 3-column matrix giving the times
 # and nodes of each edge-toggle starting from the original) and return
@@ -36,7 +36,7 @@
 #      truncated: We can't identify the overlap type due to censoring at either
 #                 the beginning or the end
 
-overlap.matrix <- function(gsim, maxoverlaps=100000) {
+overlap.matrix <- function(gsim, maxoverlaps=1000000) {
   if (!is.network((g0<-gsim$networks)) || class(gsim) != "network.series") {
     stop("This function requires that the argument be a network.series")
   }

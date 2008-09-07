@@ -87,12 +87,12 @@ void OverlapDurations (int *nnodes,
   int f1, m1, time, f2, m2, match;
   int bipartite = *nfem, maxo=*maxoverlaps;
   double t1;
-  WtTreeNode *ie, *oe;
   WtNetwork nw;
 
   /* Initialize by finding time-zero network overlaps */
   row=0;
   for(i=1; i < ne; i++) {
+//    Rprintf("i=%d\n",i);
     f1=EDGE(i,0); 
     m1=EDGE(i,1);
     for (j=0; j < i; j++) {
@@ -108,36 +108,41 @@ void OverlapDurations (int *nnodes,
     starttimes[i] = 0.0;
   }
 
-  /* R's serialization of matrixes is column-major, so this works: */
+  /* R's serialization of matrices is column-major, so this works: */
   nw = WtNetworkInitialize(edge, edge+ne, starttimes, ne,
                            *nnodes, 0, bipartite,0);
   free (starttimes);
-  ie=nw.inedges;
-  oe=nw.outedges;
 
   /* Step through time one click at a time */
   for (time=1,j=0; time<=*ntimestep; time++) {
     for(; j < *nchange & CHANGE(j,0) == time; j++) {
-      t1 = (double) CHANGE(j,0);        
+      t1 = (double) CHANGE(j,0);
       f1 = CHANGE(j,1);
       m1 = CHANGE(j,2);
+//Yowza1 f1=103, m1=1657
+//    if(time==210)Rprintf("Yowza1 f1=%d, m1=%d\n",f1,m1);  
       if ((e=WtEdgetreeSearch(f1, m1, nw.outedges)) != 0) {
+//    if(time==210)Rprintf("Yowza2\n");  
         /* Edge exists and must be removed. */
         /* Check whether there are any (zero-length) "concurrencies" with edges
         that begin AT THE CURRENT TIME but that haven't yet been encountered. */
+//    if(time==210)Rprintf("Yowza5\n");  
         for (k=j+1; k < *nchange && CHANGE(k,0) == time; k++) {
           f2 = CHANGE(k, 1);
           m2 = CHANGE(k, 2);
+//    if(time==210)Rprintf("Yowza6\n");  
           if ((f1==f2||m1==m2) && WtEdgetreeSearch(f2,m2,nw.outedges)==0) {
             /* Edge1 is ending, edge2 beginning; create a 0-length conc. */
             /* Any new concurrency begun this way will be immediately ended */
             t1 = nw.outedges[e].weight;
+//    if(time==210)Rprintf("Yowza7\n");  
             AddNewOverlapRow(omatrix, row++, f1, m1, f2, m2,
                              (int) t1, time, maxo);
           }
         }
         /* End all unfinished overlaps involving this edge */
         for(i=0; i <= row; i++) {
+//    if(time==210)Rprintf("Yowza i=%d of %d\n",i,row);  
           match = (f1==OMATRIX(i, 0) && m1 == OMATRIX(i,1))? 1 : 0;
           match += (f1==OMATRIX(i, 2) && m1 == OMATRIX(i,3)) ? 2 : 0;
           if (match>0 && OMATRIX(i,6) == -1) { /* overlap has ended */
@@ -147,6 +152,7 @@ void OverlapDurations (int *nnodes,
             current time.  If so, then set OMATRIX(i,7)=3 */
             f2 = OMATRIX(i, 4-2*match); /* either OMATRIX(i, 2) or (i, 0) */
             m2 = OMATRIX(i, 5-2*match); /* either OMATRIX(i, 3) or (i, 1) */
+//    if(time==210)Rprintf("Yowza4\n");  
             for (k=j+1; k < *nchange && CHANGE(k,0) == time; k++) {
               if (CHANGE(k,1) == f2 && CHANGE(k,2) == m1) { 
                 OMATRIX(i,7)=3; /* Both edges ended simultaneously */
@@ -158,22 +164,31 @@ void OverlapDurations (int *nnodes,
         /* First, add any new overlaps that are created. */
         /* Step through all the existing edges of f1 */
         /* (NB:  Since f<m, all edges of f1 are out-edges) */
-        for(e = WtEdgetreeMinimum(oe, f1); 
-        (m2 = oe[e].value) != 0;
-        e = WtEdgetreeSuccessor(oe, e)) {
+//    if(time==210)Rprintf("Yowza10 f1=%d, WtEdgetreeMinimum(nw.outedges, f1)=%d \n",f1,WtEdgetreeMinimum(nw.outedges, f1));  
+        for(e = WtEdgetreeMinimum(nw.outedges, f1); 
+        (m2 = nw.outedges[e].value) != 0;
+        e = WtEdgetreeSuccessor(nw.outedges, e)) {
+//    if(time==210)Rprintf("Yowza11\n");
           AddNewOverlapRow(omatrix, row++, f1, m1, f1, m2, 
-                           time, (int)oe[e].weight, maxo);
+                           time, (int)nw.outedges[e].weight, maxo);
         }
         /* Now step through all existing (in-)edges of m1 */
-        for(e = WtEdgetreeMinimum(ie, m1);
-        (f2 = ie[e].value) != 0;
-        e = WtEdgetreeSuccessor(ie, e)) {
+//    if(time==210)Rprintf("Yowza11.5 m1=%d\n",m1);
+//    if(time==210)Rprintf("Yowza12 m1=%d, DaveWtEdgetreeMinimum(nw.inedges, m1)=%d \n",m1,DaveWtEdgetreeMinimum(nw.inedges, m1));  
+        for(e = WtEdgetreeMinimum(nw.inedges, m1);
+        (f2 = nw.inedges[e].value) != 0;
+        e = WtEdgetreeSuccessor(nw.inedges, e)) {
+//    if(time==210)Rprintf("Yowza13\n");  
           AddNewOverlapRow(omatrix,row++,f1,m1,f2,m1,
-                           time, (int) ie[e].weight, maxo);
+                           time, (int) nw.inedges[e].weight, maxo);
         }
       }
       /* Finally, toggle (create or destroy) the edge */
+//          if(time==210)Rprintf("Yowza14\n");  
+
         WtToggleEdge(f1, m1, 1.0+t1, &nw); 
+//            if(time==210)Rprintf("Yowza15\n");  
+
       if (row >= maxo) {
         Rprintf("Error! Value of maxoverlaps=%d too small\n",
                  maxo);
@@ -191,32 +206,25 @@ void DegreeMixMatrix (int *nnodes,
       int *degmixmat) {
   Vertex m;
   Edge e;
-  Vertex *id, *od;
   Edge i, j, ne = *nedge;
   int time;
   int bipartite = *nfem;
-  TreeNode *ie, *oe;
   Network nw;
 
-  /* R's serialization of matrixes is column-major, so this works: */
+  /* R's serialization of matrices is column-major, so this works: */
   nw = NetworkInitialize(edge, edge+*nedge, ne,
                          *nnodes, 0, bipartite, 1);
-  ie=nw.inedges;
-  oe=nw.outedges;
-  id=nw.indegree;
-  od=nw.outdegree;
-  
   /* Step through time one click at a time */
   for (time=j=0; time <= *ntimestep; time++) {
     /* Update the DEGMIXMAT */
     for (i=0; i < *nfem; i++) {
-      switch (od[i+1]) {
+      switch (nw.outdegree[i+1]) {
         case 0: ++DEGMIXMAT(i, 0);
         break;
-        case 1: /*if (id[oe[i+1].value] == 1) { */
-          m = oe[i+1].value;
-          e=EdgetreeMinimum(oe, i+1);
-          if (id[m]==1) {
+        case 1: /*if (nw.indegree[nw.outedges[i+1].value] == 1) { */
+          m = nw.outedges[i+1].value;
+          e=EdgetreeMinimum(nw.outedges, i+1);
+          if (nw.indegree[m]==1) {
             ++DEGMIXMAT(i, 1);
           } else {
             ++DEGMIXMAT(i, 2);
@@ -226,10 +234,10 @@ void DegreeMixMatrix (int *nnodes,
       }
     }
     for (; i < *nnodes; i++) {
-      switch (id[i+1]) {
+      switch (nw.indegree[i+1]) {
         case 0: ++DEGMIXMAT(i, 0);
         break;
-        case 1: if (od[ie[i+1].value] == 1) {
+        case 1: if (nw.outdegree[nw.inedges[i+1].value] == 1) {
           ++DEGMIXMAT(i, 1);
         } else {
           ++DEGMIXMAT(i, 2);

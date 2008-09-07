@@ -28,7 +28,7 @@
  WtNetwork WtNetworkInitialize
 
  Initialize, construct binary tree version of network with weights.  Note
- that the 0th TreeNode in the array is unused and should 
+ that the 0th WtTreeNode in the array is unused and should 
  have all its values set to zero
 *******************/
 WtNetwork WtNetworkInitialize(Vertex *heads, Vertex *tails, double *weights,
@@ -111,9 +111,9 @@ void WtNetworkDestroy(WtNetwork *nwp) {
 /*****************
  Edge EdgetreeSearch
 
- Check to see if there's a TreeNode with value b 
+ Check to see if there's a WtTreeNode with value b 
  in the tree rooted at edges[a].  Return i such that 
- edges[i] is that TreeNode, or 0 if none.
+ edges[i] is that WtTreeNode, or 0 if none.
 *****************/
 Edge WtEdgetreeSearch (Vertex a, Vertex b, WtTreeNode *edges) {
   WtTreeNode *es;
@@ -122,8 +122,7 @@ Edge WtEdgetreeSearch (Vertex a, Vertex b, WtTreeNode *edges) {
 
   es = edges + e;
   v = es->value;
-  while(e != 0 && b != v)
-    {
+  while(e != 0 && b != v)  {
       e = (b<v)?  es->left : es->right;
       es = edges + e;
       v = es->value;
@@ -134,7 +133,7 @@ Edge WtEdgetreeSearch (Vertex a, Vertex b, WtTreeNode *edges) {
 /*****************
  Edge EdgetreeSuccessor
 
- Return the index of the TreeNode with the smallest value
+ Return the index of the WtTreeNode with the smallest value
  greater than edges[x].value in the same edge tree, or 0
  if none.  This is used by (for instance)
  the DeleteHalfedgeFromTree function.
@@ -153,7 +152,7 @@ Edge WtEdgetreeSuccessor (WtTreeNode *edges, Edge x) {
 /*****************
  Edge EdgetreeMinimum
 
- Return the index of the TreeNode with the
+ Return the index of the WtTreeNode with the
  smallest value in the subtree rooted at x
 *****************/
 Edge WtEdgetreeMinimum (WtTreeNode *edges, Edge x) {
@@ -161,6 +160,19 @@ Edge WtEdgetreeMinimum (WtTreeNode *edges, Edge x) {
 
   while ((y=(edges+x)->left) != 0)
     x=y;
+  return x;
+}
+
+
+Edge DaveWtEdgetreeMinimum (WtTreeNode *edges, Edge x) {
+  Edge y;
+Rprintf("Here we go!\n");
+
+Wtprintedge(edges, x);
+  while ((y=(edges+x)->left) != 0) {
+    x=y;
+Wtprintedge(edges, x);
+  }
   return x;
 }
 
@@ -314,7 +326,6 @@ void UpdateNextedge
 *****************/
 void WtUpdateNextedge (WtTreeNode *edges, Edge *nextedge, WtNetwork *nwp) {
   int mult=2;
-  /*WtTreeNode *tmp_in, *tmp_out; */
   
   while (++*nextedge < nwp->maxedges) {
     if (edges[*nextedge].value==0) return;
@@ -325,17 +336,16 @@ void WtUpdateNextedge (WtTreeNode *edges, Edge *nextedge, WtNetwork *nwp) {
   }
   /* There are no "holes" left, so this network overflows mem allocation */
   nwp->maxedges *= mult;
-  Rprintf("New value of nwp->maxedges is %d\n", nwp->maxedges);
   nwp->inedges = (WtTreeNode *) realloc(nwp->inedges, 
 					sizeof(WtTreeNode) * nwp->maxedges);
-  memset(nwp->inedges+*nextedge,0,sizeof(TreeNode) * (nwp->maxedges-*nextedge));
+  memset(nwp->inedges+*nextedge,0,sizeof(WtTreeNode) * (nwp->maxedges-*nextedge));
   nwp->outedges = (WtTreeNode *) realloc(nwp->outedges, 
 					 sizeof(WtTreeNode) * nwp->maxedges);
   memset(nwp->outedges+*nextedge,0,sizeof(WtTreeNode) * (nwp->maxedges-*nextedge));
 }
 
 /*****************
- int DeleteEdgeFromTrees
+ int WtDeleteEdgeFromTrees
 
  Find and delete the edge from head to tail.  
  Return 1 if successful, 0 otherwise.  As with AddEdgeToTrees, this must
@@ -353,10 +363,10 @@ int WtDeleteEdgeFromTrees(Vertex head, Vertex tail, WtNetwork *nwp){
 }
 
 /*****************
- int DeleteHalfedgeFromTree
+ int WtDeleteHalfedgeFromTree
 
- Delete the TreeNode with value b from the tree rooted at edges[a].
- Return 0 if no such TreeNode exists, 1 otherwise.  Also update the
+ Delete the WtTreeNode with value b from the tree rooted at edges[a].
+ Return 0 if no such WtTreeNode exists, 1 otherwise.  Also update the
  value of *next_edge appropriately.
 *****************/
 int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges,
@@ -364,7 +374,7 @@ int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges,
   Edge x, z, root=(Edge)a;
   WtTreeNode *xptr, *zptr, *ptr;
 
-  if ((z=WtEdgetreeSearch(a, b, edges))==0)  /* z is the current TreeNode. */
+  if ((z=WtEdgetreeSearch(a, b, edges))==0)  /* z is the current WtTreeNode. */
     return 0; /* This edge doesn't exist, so return 0 */
   /* First, determine which node to splice out; this is z.  If the current
      z has two children, then we'll actually splice out its successor. */
@@ -406,7 +416,7 @@ int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges,
  void printedge
 
  Diagnostic routine that prints out the contents
- of the specified TreeNode (used for debugging).  
+ of the specified WtTreeNode (used for debugging).  
 *****************/
 void Wtprintedge(Edge e, WtTreeNode *edges){
   Rprintf("Edge structure [%d]:\n",e);
