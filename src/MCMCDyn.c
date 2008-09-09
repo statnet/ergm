@@ -239,8 +239,10 @@ void MCMCSampleDyn(// Observed and discordant network.
 		   log_toggles, F_stats, D_stats,
 		   nmax, &nextdiffedge, difftime, diffhead, difftail,
 		   dyninterval, fVerbose);
-      if(nextdiffedge>=nmax) {
+      if(log_toggles && nextdiffedge>=nmax) {
 	if(fVerbose) Rprintf("Nmax of %d exceeded.\n",nmax);
+	// Mark this run as "bad".
+	difftime[0]=diffhead[0]=difftail[0]=nmax+1;
 	return;
       }
     }

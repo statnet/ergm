@@ -15,7 +15,7 @@ ergm.getMCMCDynsample <- function(nw, model.form, model.diss,
   MCMCparams$maxchanges <- MCMCparams$maxchanges/5
   if(is.null(MCMCparams$meanstats.form)) MCMCparams$meanstats.form<-numeric(length(model.form$coef.names))
   if(is.null(MCMCparams$meanstats.diss)) MCMCparams$meanstats.diss<-numeric(length(model.diss$coef.names))
-  z <- list(newnwheads=maxchanges+1)
+  z <- list(newnwheads=maxchanges+1,diffnwheads=maxchanges+1)
   while(z$newnwheads[1]  >= maxchanges - 10 || 
         z$diffnwheads[1] >= maxchanges - 10){
     maxchanges <- 5*maxchanges
