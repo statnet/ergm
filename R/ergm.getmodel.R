@@ -4,20 +4,28 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, ...,dissolve.order=NULL) {
   # appropriate InitErgm functions.
   if ((dc<-data.class(formula)) != "formula")
     stop (paste("Invalid formula of class ",dc), call.=FALSE)
-  trms<-terms(formula)
-  if (trms[[1]]!="~")
-    stop ("Formula must be of the form 'network ~ model'.", call.=FALSE)  
-  v <- attr(trms, "variables")
-  if (length(v) < 3) 
-    stop(paste("No model specified for network ", trms[[2]]), call.=FALSE)
 
+  if (formula[[1]]!="~")
+    stop ("Formula must be of the form 'network ~ model'.", call.=FALSE)  
+  
+  if (length(formula) < 3) 
+    stop(paste("No model specified for network ", formula[[2]]), call.=FALSE)
+
+  v<-list()
+  rhs<-formula[[3]]
+  while(length(rhs)==3 && rhs[[1]]=="+"){ # i.e. list(`+`, all but last summand, last summand)
+    v<-c(rhs[[3]],v) # store the last summand
+    rhs<-rhs[[2]] # "recurse" into the all but last summands
+  }
+  v<-c(rhs,v)
+  
   formula.env<-environment(formula)
   
   model <- structure(list(formula=formula, node.attrib = NULL, coef.names = NULL,
                       offset = NULL,
                       terms = NULL, networkstats.0 = NULL, etamap = NULL),
                  class = "model.ergm")
-  for (i in 3:length(v)) {
+  for (i in 1:length(v)) {
     if (is.call(v[[i]])) { # This term has some arguments
       if(v[[i]][[1]] == "offset"){
         if(length(v[[i]][[2]]) <= 1){
