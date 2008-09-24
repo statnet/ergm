@@ -3,7 +3,7 @@ library(coda)
 
 n<-50
 
-g0<-network(n,dir=FALSE)
+g0<-network.initialize(n,dir=FALSE)
 
 #            meandeg, degree(1)
 meanstats<-c(      1,    n*0.6)
@@ -43,4 +43,8 @@ print((meanstats.sim-meanstats)/sqrt(apply(dynsim$stats.form,2,var)/effectiveSiz
 
 print(mean(duration.matrix(dynsim)$duration))
 
+# Simulate from an equivalent fit.
+dynsim<-simulatedyn(g1~meandeg+degree(1),dissolve=~dyadcov(matrix(1,n,n))+edges,dissolve.order="FormAndDiss",theta=theta,gamma=c(1,gamma-1),nsteps=1000,verbose=TRUE)
+
+print(mean(duration.matrix(dynsim)$duration))
 
