@@ -92,6 +92,7 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0=NULL,
 #   Check for truncation of the returned edge list
 #
     z <- list(newnwheads=maxedges+1)
+    eta0[is.na(eta0)]<-0
     while(z$newnwheads[1] > maxedges){
      maxedges <- 10*maxedges
      z <- .C("SAN_wrapper",
