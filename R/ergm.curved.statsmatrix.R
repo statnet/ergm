@@ -1,0 +1,56 @@
+#  File ergm/R/ergm.curved.statsmatrix.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+# Copyright 2003 Mark S. Handcock, University of Washington
+#                David R. Hunter, Penn State University
+#                Carter T. Butts, University of California - Irvine
+#                Steven M. Goodreau, University of Washington
+#                Martina Morris, University of Washington
+# Copyright 2007 The statnet Development Team
+######################################################################
+"ergm.curved.statsmatrix" <- function(statsmatrix,theta,etamap){
+# This function maps statsmatrix to its reduced form
+# based on the etamap object created by ergm.etamap.
+# By MSH 1/29/06
+#
+  eta <- rep(0,etamap$etalength)
+  ec <- etamap$canonical
+  eta[ec[ec>0]] <- theta[ec>0]
+  nstats <- sum(ec>0) + length(etamap$curved)
+
+  if(length(etamap$curved)>0) {
+    sm <- matrix(0, nrow=length(eta), ncol=nstats)
+    namessm <- rep("", nstats)
+    icurved <- 0
+    istat <- 0
+    for(i in 1:nstats) {
+      istat <- istat + 1
+      if(ec[istat] > 0){
+#      sm[istat,i] <- eta[istat] 
+       sm[istat,i] <- 1
+       namessm[i] <- names(theta)[istat]
+      }else{
+       icurved <- icurved + 1
+       cm <- etamap$curved[[icurved]]
+       sm[cm$to,i] <- cm$map(theta[cm$from],length(cm$to),cm$cov)
+#      (un)scale by linear coefficient
+       sm[cm$to,i] <- sm[cm$to,i] / theta[cm$from][1]
+       namessm[i] <- names(theta)[istat]
+# MSH: Is this last line right? I have commented it out 7/19/06
+#      And changed to "from"
+#      istat <- istat + length(cm$to)
+       istat <- istat + length(cm$from) - 1
+      }
+    }
+    sm <- statsmatrix %*% sm
+    colnames(sm) <- namessm
+  }else{
+    sm <- statsmatrix
+  }
+  novar <- apply(sm,2,var)<1e-6
+  list(sm=sm, novar=novar)
+}

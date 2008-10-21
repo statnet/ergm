@@ -1,0 +1,38 @@
+--------------------------------------------------
+License for the 'statnet' component package 'ergm'
+--------------------------------------------------
+
+This software is distributed under the GPL-3 license.  It is free,
+open source, and has the following attribution requirements
+(GPL Section 7):
+
+(a) you agree to retain in 'ergm' and any modifications to 'ergm'
+    the copyright, author attribution and URL information as
+    provided at http://statnetproject.org/attribution
+(b) you agree that 'ergm' and any modifications to 'ergm' will,
+    when used, display the attribution:
+     Based on 'statnet' project software (http://statnetproject.org).
+     For license and citation information see http://statnetproject.org/attribution
+--------------------------------------------------
+
+What does this mean?
+====================
+
+If you are modifying 'ergm' or adopting any source code from
+'ergm' for use in another application, you must ensure that the
+copyright and attributions mentioned in the license above appear
+in the code of your modified version or application. These 
+attributions must also appear when the package is loaded
+(e.g., via 'library' or 'require').
+
+Enjoy!
+
+Mark S. Handcock, University of Washington
+David R. Hunter, Penn State University
+Carter T. Butts, University of California-Irvine
+Steven M. Goodreau, University of Washington
+Martina Morris, University of Washington
+
+The 'statnet' development team
+
+Copyright 2008
