@@ -3749,49 +3749,33 @@ D_CHANGESTAT_FN(d_transitive) {
   int edgeflag, i;
   
   CHANGE_STAT[0] = 0.0;
-  FOR_EACH_TOGGLE(i) 
-  {
+  FOR_EACH_TOGGLE(i) {
     edgeflag = IS_OUTEDGE(h = heads[i], t = tails[i]);
-    change = 0.0;
+    change = 0.0; /* change should become the number of transitive triples
+                     a->b, b->c, a->c in which h->t is found  */
     
-/*           Rprintf("h %d t %d edgeflag %d\n",h,t, edgeflag); */
-    for(e = EdgetreeMinimum(nwp->outedges, t);
-	    (node2 = nwp->outedges[e].value) != 0;
-	    e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of tail */
-    {
-      if (node2 != h){
-       if (EdgetreeSearch(h, node2, nwp->outedges) == 0){
-        change = change - 1.0;
-       }
+    STEP_THROUGH_OUTEDGES(t, e, node2) { /* step through outedges of tail */
+      if (h != node2 && IS_OUTEDGE(h, node2)){
+        change = change + 1.0; /* Here we have h->t, t->node2, h->node2 */
       }
     }
-    for(e = EdgetreeMinimum(nwp->inedges, t);
-	    (node2 = nwp->inedges[e].value) != 0;
-	    e = EdgetreeSuccessor(nwp->inedges, e)) /* step through inedges of tail */
-    {
-      if (node2 != h){
-       if (EdgetreeSearch(h, node2, nwp->outedges) != 0){
-        change = change + 1.0;
-       }
+    STEP_THROUGH_INEDGES(t, e, node2) { /* step through inedges of tail */
+      if (h != node2) {
+        change = change + IS_OUTEDGE(h, node2) + IS_OUTEDGE(node2, h);
+        /* Here we have h->t and node2->t, with either node2->h or h->node2 */
       }
     }
-    for(e = EdgetreeMinimum(nwp->inedges, h);
-	    (node2 = nwp->inedges[e].value) != 0;
-	    e = EdgetreeSuccessor(nwp->inedges, e)) /* step through inedges of hail */
-    {
-      if (node2 != t){
-       if (EdgetreeSearch(node2, t, nwp->outedges) == 0){
-        change = change - 1.0;
-       }
-      }
-    }
-    
+//    STEP_THROUGH_INEDGES(h, e, node2) { /* step through inedges of head */
+//      if (node2 != t){
+//        if (!IS_OUTEDGE(node2, t)){
+//          change = change - 1.0;
+//        }
+//      }
+//    }
     CHANGE_STAT[0] += edgeflag ? -change : change;
-/*  Rprintf("h %d t %d edgeflag %d change %f\n",h,t, edgeflag, change); */
-
+//  Rprintf("h %d t %d edgeflag %d change %f C_S[0]=%f\n",h,t, edgeflag, change,CHANGE_STAT[0]); 
     TOGGLE_IF_MORE_TO_COME(i);
   }
-  
   UNDO_PREVIOUS_TOGGLES(i);
 }
 

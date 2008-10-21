@@ -1,5 +1,5 @@
 MHproposals<-
-  #         Class Constraint      Weights        MHP
+  #         Class Constraints      Weights        MHP
   rbind(I(c("c", "",              "default",      "TNT")),
           c("c", "",              "TNT",          "TNT"),
           c("c", "",              "random",       "randomtoggle"),
@@ -17,6 +17,8 @@ MHproposals<-
           c("c", "degreedist",    "random",       "CondDegreeDist"), 
           c("c", "indegreedist",  "default",      "CondInDegreeDist"),
           c("c", "indegreedist",  "random",       "CondInDegreeDist"), 
+          c("c", "outdegreedist",  "default",      "CondOutDegreeDist"),
+          c("c", "outdegreedist",  "random",       "CondOutDegreeDist"), 
 
 #          c("c", "indegrees",     "default",      "CondInDegree"),
 #          c("c", "indegrees",     "random",       "CondInDegree"),

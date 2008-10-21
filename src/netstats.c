@@ -58,10 +58,10 @@ void network_stats_wrapper(int *heads, int *tails, int *dnedges,
  passed an empty network
 *****************/
 void SummStats(Edge n_edges, Vertex *heads, Vertex *tails,
-	       Network *nwp, Model *m, double *stats){
-
+Network *nwp, Model *m, double *stats){
+  
   ShuffleEdges(heads,tails,n_edges); /* Shuffle edgelist. */
-
+  
   for (unsigned int termi=0; termi < m->n_terms; termi++)
     m->termarray[termi].dstats = m->workspace;
   
@@ -69,19 +69,19 @@ void SummStats(Edge n_edges, Vertex *heads, Vertex *tails,
   for(Edge e=0; e<n_edges; e++){
     ModelTerm *mtp = m->termarray;
     double *statspos=stats;
-
+    
     for (unsigned int termi=0; termi < m->n_terms; termi++, mtp++){
       if(!mtp->s_func){
-	(*(mtp->d_func))(1, heads+e, tails+e, 
-			 mtp, nwp);  /* Call d_??? function */
-	for (unsigned int i=0; i < mtp->nstats; i++,statspos++)
-	  *statspos += mtp->dstats[i];
+        (*(mtp->d_func))(1, heads+e, tails+e, 
+        mtp, nwp);  /* Call d_??? function */
+        for (unsigned int i=0; i < mtp->nstats; i++,statspos++)
+          *statspos += mtp->dstats[i];
       }else statspos += mtp->nstats;
     }
-
+    
     ToggleEdge(heads[e],tails[e],nwp);
   }
-
+  
   ModelTerm *mtp = m->termarray;
   double *dstats = m->workspace;
   double *statspos=stats;
@@ -89,7 +89,8 @@ void SummStats(Edge n_edges, Vertex *heads, Vertex *tails,
     if(mtp->s_func){
       (*(mtp->s_func))(mtp, nwp);  /* Call s_??? function */
       for (unsigned int i=0; i < mtp->nstats; i++,statspos++)
-	*statspos += mtp->dstats[i];
+        *statspos += mtp->dstats[i];
     }else statspos += mtp->nstats;
   }
 }
+

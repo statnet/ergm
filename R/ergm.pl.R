@@ -2,6 +2,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
                     maxMPLEsamplesize=1e+6,
                     maxNumDyadTypes=1e+6,
                     verbose=FALSE, compressflag=TRUE) {
+  offset <- rep(0,Clist$ndyads)
   bip <- Clist$bipartite
   n <- Clist$n
   if(Clist.miss$nedges>0){
@@ -23,6 +24,8 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
   maxNumDyadTypes <- min(maxNumDyadTypes,
                          ifelse(bip>0, bip*(n-bip), 
                                 ifelse(Clist$dir, n*(n-1), n*(n-1)/2)))
+  # May have to think harder about what maxNumDyadTypes should be if we 
+  # implement a hash-table approach to compression.  
   z <- .C("MPLE_wrapper",
           as.integer(Clist$heads),    as.integer(Clist$tails),
           as.integer(Clist$nedges),   as.integer(Clist$maxpossibleedges),

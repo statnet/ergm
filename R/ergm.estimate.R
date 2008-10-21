@@ -126,85 +126,85 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                           failure=FALSE),
                         class="ergm"))
   } else {
-  gradient <- llik.grad(theta=Lout$par, xobs=xobs, xsim=xsim,
-                        probs=probs, 
-                        xsim.miss=xsim.miss, probs.miss=probs.miss,
-                        penalty=0.5, eta0=eta0, etamap=model$etamap)
-  gradient[model$etamap$offsettheta] <- 0
-#
-#  Calculate the auto-covariance of the MCMC suff. stats.
-#  and hence the MCMC s.e.
-#
-  mc.se <- rep(NA, length=length(theta))
-  covar <- NA
-  if(!hessian){
-#  covar <- robust.inverse(cov(xsim))
-#  Lout$hessian <- cov(xsim)
-   Lout$hessian <- llik.hessian(theta=theta, xobs=xobs, xsim=xsim,
-                        probs=probs, 
-                        xsim.miss=xsim.miss, probs.miss=probs.miss,
-                        penalty=0.5,
-                        eta0=eta0, etamap=model$etamap
-                    )
-   Lout$hessian[,model$etamap$offsettheta] <- 0
-   Lout$hessian[model$etamap$offsettheta,] <- 0
-  }
-  if(calc.mcmc.se){
-    if (verbose) cat("Starting MCMC s.e. computation.\n")
-    mcmcse <- ergm.MCMCse(theta, theta0, statsmatrix0,
-                          statsmatrix.miss,
-                          model=model)
-    mc.se <- mcmcse$mc.se
-#   covar <- robust.inverse(-mcmcse$hessian)
-    H <- mcmcse$hessian
-    covar <- robust.inverse(-H)
-    if(all(!is.na(diag(covar))) && all(diag(covar)<0)){covar <- -covar}
-    mc.se[model$etamap$offsettheta] <- NA
-  }
-  if(inherits(covar,"try-error") | is.na(covar[1])){
-    covar <- robust.inverse(-Lout$hessian)
-  }
-  covar[,model$etamap$offsettheta ] <- NA
-  covar[ model$etamap$offsettheta,] <- NA
-  c0  <- llik.fun(theta=Lout$par, xobs=xobs,
-                  xsim=xsim, probs=probs,
-                  xsim.miss=xsim.miss, probs.miss=probs.miss,
-                  penalty=0.5, eta0=eta0, etamap=model$etamap)
-#   VIP: Note added penalty for more skewness in the 
-#        values computed relative to 0
-#
-  c01 <- llik.fun(theta=Lout$par-Lout$par, xobs=xobs,
-                  xsim=xsim, probs=probs,
-                  xsim.miss=xsim.miss, probs.miss=probs.miss,
-                  penalty=0.67, eta0=eta0, etamap=model$etamap)
-#
-# This is the log-likelihood calc from theta0=0
-#
-  mcmcloglik <- -abs(c0 - c01)
-
-#   c1 <- theta1$loglikelihood
-#   c1  <- c01
-# loglikelihood <- mcmcloglik
-  loglikelihood <- Lout$value
-
-#
-# Use the psuedo-likelihood as a base
-#
-  iteration <- Lout$counts[1]
-#
-  names(theta) <- names(theta0)
-
-############################
-#
-#  Reconstruct the reduced form statsmatrix for curved 
-#  parametrizations
-#
-  statsmatrix.all <- statsmatrix
-  statsmatrix <- ergm.curved.statsmatrix(statsmatrix,theta,model$etamap)$sm
-  statsmatrix0 <- statsmatrix
-  if(all(dim(statsmatrix.all)==dim(statsmatrix))){
-    statsmatrix.all <- NULL
-  }
+    gradient <- llik.grad(theta=Lout$par, xobs=xobs, xsim=xsim,
+                          probs=probs, 
+                          xsim.miss=xsim.miss, probs.miss=probs.miss,
+                          penalty=0.5, eta0=eta0, etamap=model$etamap)
+    gradient[model$etamap$offsettheta] <- 0
+    #
+    #  Calculate the auto-covariance of the MCMC suff. stats.
+    #  and hence the MCMC s.e.
+    #
+    mc.se <- rep(NA, length=length(theta))
+    covar <- NA
+    if(!hessian){
+      #  covar <- robust.inverse(cov(xsim))
+      #  Lout$hessian <- cov(xsim)
+      Lout$hessian <- llik.hessian(theta=theta, xobs=xobs, xsim=xsim,
+                                   probs=probs, 
+                                   xsim.miss=xsim.miss, probs.miss=probs.miss,
+                                   penalty=0.5,
+                                   eta0=eta0, etamap=model$etamap
+                                   )
+      Lout$hessian[,model$etamap$offsettheta] <- 0
+      Lout$hessian[model$etamap$offsettheta,] <- 0
+    }
+    if(calc.mcmc.se){
+      if (verbose) cat("Starting MCMC s.e. computation.\n")
+        mcmcse <- ergm.MCMCse(theta, theta0, statsmatrix0,
+                              statsmatrix.miss,
+                              model=model)
+        mc.se <- mcmcse$mc.se
+        #   covar <- robust.inverse(-mcmcse$hessian)
+        H <- mcmcse$hessian
+        covar <- robust.inverse(-H)
+        if(all(!is.na(diag(covar))) && all(diag(covar)<0)){covar <- -covar}
+        mc.se[model$etamap$offsettheta] <- NA
+    }
+    if(inherits(covar,"try-error") | is.na(covar[1])){
+      covar <- robust.inverse(-Lout$hessian)
+    }
+    covar[,model$etamap$offsettheta ] <- NA
+    covar[ model$etamap$offsettheta,] <- NA
+    c0  <- llik.fun(theta=Lout$par, xobs=xobs,
+                    xsim=xsim, probs=probs,
+                    xsim.miss=xsim.miss, probs.miss=probs.miss,
+                    penalty=0.5, eta0=eta0, etamap=model$etamap)
+    #   VIP: Note added penalty for more skewness in the 
+    #        values computed relative to 0
+    #
+    c01 <- llik.fun(theta=Lout$par-Lout$par, xobs=xobs,
+                    xsim=xsim, probs=probs,
+                    xsim.miss=xsim.miss, probs.miss=probs.miss,
+                    penalty=0.67, eta0=eta0, etamap=model$etamap)
+    #
+    # This is the log-likelihood calc from theta0=0
+    #
+    mcmcloglik <- -abs(c0 - c01)
+    
+    #   c1 <- theta1$loglikelihood
+    #   c1  <- c01
+    # loglikelihood <- mcmcloglik
+    loglikelihood <- Lout$value
+    
+    #
+    # Use the psuedo-likelihood as a base
+    #
+    iteration <- Lout$counts[1]
+    #
+    names(theta) <- names(theta0)
+    
+    ############################
+    #
+    #  Reconstruct the reduced form statsmatrix for curved 
+    #  parametrizations
+    #
+    statsmatrix.all <- statsmatrix
+    statsmatrix <- ergm.curved.statsmatrix(statsmatrix,theta,model$etamap)$sm
+    statsmatrix0 <- statsmatrix
+    if(all(dim(statsmatrix.all)==dim(statsmatrix))){
+      statsmatrix.all <- NULL
+    }
 
 # Commented out for now -- this should probably not be added to the
 # ergm object because it is not always needed.
@@ -214,10 +214,10 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
 #    }else{
 #      mcmcacf <- covar-covar
 #    }
-#  if (verbose) cat("Ending MCMC s.e. ACF computation.\n")
+#    if (verbose) cat("Ending MCMC s.e. ACF computation.\n")
 
 # Output results as ergm-class object
-  return(structure(list(coef=theta, sample=statsmatrix, sample.miss=statsmatrix.miss, 
+return(structure(list(coef=theta, sample=statsmatrix, sample.miss=statsmatrix.miss, 
                  iterations=iteration, #mcmcloglik=mcmcloglik,
                  MCMCtheta=theta0, 
                  loglikelihood=loglikelihood, gradient=gradient,

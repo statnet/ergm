@@ -174,14 +174,14 @@ ergm.getglobalstats <- function(nw, m) {
   if(length(tase) >0){
     gs[tase] <- summary(nw~asymmetric)+gs[tase]
   }
-  tase <- match("transitivity",names(gs))
-  if(!is.na(tase)){
-    gs[tase] <- nnodes*(nnodes-1)*(nnodes-2)/6+gs[tase]
-  }
-  tase <- match("transitive",names(gs))
-  if(!is.na(tase)){
-    gs[tase] <- nnodes*(nnodes-1)*(nnodes-2)/6+gs[tase]
-  }
+#  tase <- match("transitivity",names(gs))
+#  if(!is.na(tase)){
+#    gs[tase] <- nnodes*(nnodes-1)*(nnodes-2)/6+gs[tase]
+#  }
+#  tase <- match("transitive",names(gs))
+#  if(!is.na(tase)){
+#    gs[tase] <- nnodes*(nnodes-1)*(nnodes-2)/6+gs[tase]
+#  }
   tase <- grep("intransitivedynamic",names(gs))
   if(length(tase) >0){
     gs[tase] <- summary(nw~intransitive)+gs[tase]

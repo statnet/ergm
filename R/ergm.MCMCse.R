@@ -1,7 +1,6 @@
 ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
                       model, 
-                      lag.max=50, lag.max.miss=lag.max)
-{
+                      lag.max=50, lag.max.miss=lag.max) {
   av <- apply(statsmatrix, 2, mean)
   xsim <- sweep(statsmatrix, 2, av, "-")
   xobs <- -av
@@ -35,7 +34,7 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
    if(dim(R)[2] > 1){
      part <- apply(R[-1,  ,  ,drop=FALSE], c(2, 3), sum)
    }else{
-     part <- matrix(sum(R[-1,  ,  ]))
+     part <- matrix(sum(R[-1,  ,  , drop=FALSE]))
    }
    cov.zbar <- (R[1,  ,  ] + part + t(part))/nrow(xsim)
    prob <- exp(xsim %*% etaparam)

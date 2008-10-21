@@ -7,14 +7,14 @@
                           burnin=1000, interval=1000,
                           basis=NULL,
                           statsonly=FALSE,
-                          sequential=!statsonly, 
+                          sequential=TRUE,
                           constraints = ~.,
                           control = control.simulate.formula(),
                           verbose=FALSE)
-\method{simulate}{ergm}(object, nsim=1, seed=NULL, \dots, theta0,
+\method{simulate}{ergm}(object, nsim=1, seed=NULL, \dots, theta0=NULL,
                        burnin=1000, interval=1000, 
                        statsonly=FALSE,
-                       sequential=!statsonly, 
+                       sequential=TRUE,
                        constraints = NULL,
                        control = control.simulate.ergm(),
                        verbose=FALSE)

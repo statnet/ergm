@@ -28,7 +28,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     theta0 <- v$coef
     eta0 <- ergm.eta(theta0, model$etamap)
     if(verbose){
-     cat("Iteration ", iteration,": Sampling ", MCMCparams$samplesize,
+     cat("Iteration ",iteration," of at most ", MCMCparams$maxit,
          " with parameter: \n", sep="")
       print(theta0)
     }else{
@@ -72,7 +72,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
         statsmatrix <- sweep(statsmatrix,2,(1-MCMCparams$steplength)*statsmean,"-")
       }
     }
-    if(ergm.checkdegeneracy(statsmatrix, statsmatrix.miss, verbose=verbose)){
+    if(z$nedges >= 50000-1 || ergm.checkdegeneracy(statsmatrix, statsmatrix.miss, verbose=verbose)){
      if(iteration <= MCMCparams$maxit){
       cat(paste("The MCMC sampler is producing degenerate samples.\n",
                 "Try starting the algorithm at an alternative model\n",
@@ -88,10 +88,10 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
       v$coef <- 0.9*theta0
       next
      }else{
-      warning(paste("\n","The MCMC sampler is producing degenerate samples.\n",
-                 "Try starting the algorithm at an alternative model\n",
-                 "(That is, changing the 'theta0' argument).\n",
-                 "The current theta0 is:\n"))
+      cat(paste("The MCMC sampler is producing degenerate samples.\n",
+                "Try starting the algorithm at an alternative model\n",
+                "(That is, changing the 'theta0' argument).\n",
+                "The current theta0 is:\n"))
               print(theta0)
 #     v <- list(coef=theta0)
       v$coef <- theta0
@@ -108,7 +108,6 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
       degreedist(nw)
       cat("Meanstats of simulation, relative to observed network:\n")
       print(summary(model$formula, basis=nw)-Clist$meanstats)
-
     }
     if(verbose){cat("Calling optimization routines...\n")}
 
@@ -138,7 +137,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
                     statsmatrix=statsmatrix, 
                     statsmatrix.miss=statsmatrix.miss, 
                     epsilon=MCMCparams$epsilon,
-                    nr.maxit=MCMCparams$nr.maxit, 
+                    nr.maxit=MCMCparams$nr.maxit,
                     nr.reltol=MCMCparams$nr.reltol,
                     calc.mcmc.se=MCMCparams$calc.mcmc.se, hessian=MCMCparams$hessian,
                     trustregion=MCMCparams$trustregion, method=MCMCparams$method, metric="Likelihood",
@@ -211,7 +210,9 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
 # v$mle.lik <- -v$null.deviance/2 + v$loglikelihood
 # v$mle.lik <- -initialfit$mle.lik/2 + v$loglikelihood
   v$mle.lik <- mle.lik
-  v$mcmcloglik <- v$mcmcloglik - network.dyadcount(nw.orig)*log(2)
+# This next is the right one
+# v$mcmcloglik <- v$mcmcloglik - network.dyadcount(nw.orig)*log(2)
+  v$etamap <- model$etamap
 # if(!is.na(v$mle.lik) && v$mle.lik>0){
 #   v$mle.lik <- -v$mplefit$glm$deviance/2 
 # }  #I'm really not sure about this mle.lik value.

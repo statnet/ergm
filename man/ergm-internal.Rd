@@ -27,6 +27,7 @@
 \alias{InitErgmTerm.b1star}
 \alias{InitErgmTerm.cycle}
 \alias{InitErgmTerm.edgecov}
+\alias{InitErgmTerm.hamming}
 \alias{InitErgmTerm.isolates}
 \alias{InitErgmTerm.match}
 \alias{InitErgmTerm.mutual}
@@ -39,6 +40,9 @@
 \alias{ergm.getglobalstats}
 \alias{get.InitErgm.fname}
 \alias{updatemodel.ErgmTerm}
+\alias{copy.named}
+\alias{safeupdate.formula}
+\alias{model.matrix.pen.glm}
 \alias{zerowarnings}
 \alias{extremewarnings}
 
