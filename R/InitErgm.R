@@ -1266,6 +1266,8 @@ InitErgm.dsp<-function(nw, m, arglist, drop=TRUE, ...) {
     }else{
       emptynwstats[d==0] <- network.dyadcount(nw)
     }
+  }else{
+    emptynwstats <- NULL
   }
   ld<-length(d)
   if(ld==0){return(m)}
@@ -1273,6 +1275,10 @@ InitErgm.dsp<-function(nw, m, arglist, drop=TRUE, ...) {
   if(is.directed(nw)){dname <- "tdsp"}else{dname <- "dsp"}
   m$terms[[termnumber]] <- list(name=dname, soname="ergm",
                                 inputs=c(0, ld, ld, d))
+
+  if (!is.null(emptynwstats)) 
+    m$terms[[termnumber]]$emptynwstats <- emptynwstats
+
   m$coef.names<-c(m$coef.names,paste("dsp",d,sep=""))
   m
 }
@@ -1772,6 +1778,50 @@ InitErgm.gwidegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
       m$coef.names<-c(m$coef.names, "gwidegree")
 #      m$coef.names<-c(m$coef.names,paste("gwidegree.fixed.",decay,sep=""))
     }
+  }
+  m
+}
+
+#########################################################
+InitErgm.gwnsp<-function(nw, m, arglist, initialfit=FALSE, ...) {
+# ergm.checkdirected("gwnsp", is.directed(nw), requirement=FALSE)
+  a <- ergm.checkargs("gwnsp", arglist,
+    varnames = c("alpha","fixed"),
+    vartypes = c("numeric","logical"),
+    defaultvalues = list(0, FALSE),
+    required = c(FALSE, FALSE))
+  alpha<-a$alpha;fixed<-a$fixed
+  termnumber<-1+length(m$terms)
+  alpha=alpha[1] # Not sure why anyone would enter a vector here, but...
+  if(!initialfit && !fixed){ # This is a curved exponential family model
+    d <- 1:(network.size(nw)-1)
+    ld<-length(d)
+    if(ld==0){return(m)}
+    map <- function(x,n,...){
+      i <- 1:n
+      x[1]*exp(x[2])*(1-(1-exp(-x[2]))^i)
+    }
+    gradient <- function(x,n,...){
+      i <- 1:n
+      a <- 1-exp(-x[2])
+      exp(x[2]) * rbind(1-a^i, x[1] * (1 - a^i - i*a^(i-1) ) )
+    }
+    if(is.directed(nw)){dname <- "tnsp"}else{dname <- "nsp"}
+    m$terms[[termnumber]] <- list(name=dname, soname="ergm",
+                                  inputs=c(0, ld, ld, d),
+                                  params=list(gwnsp=NULL,gwnsp.alpha=alpha),
+                                  map=map, gradient=gradient)
+    m$coef.names<-c(m$coef.names,paste("nsp#",d,sep=""))
+  }else if (initialfit && !fixed) { # First pass to get MPLE coefficient
+    if(is.directed(nw)){dname <- "gwtnsp"}else{dname <- "gwnsp"}
+    m$terms[[termnumber]] <- list(name=dname, soname="ergm",
+                                  inputs=c(0, 1, 1, alpha))
+    m$coef.names<-c(m$coef.names,"gwnsp") # Must match params$gwnsp above
+  }else{ # fixed == TRUE
+    if(is.directed(nw)){dname <- "gwtnsp"}else{dname <- "gwnsp"}
+    m$terms[[termnumber]] <- list(name=dname, soname="ergm",
+                                  inputs=c(0, 1, 1, alpha))
+    m$coef.names<-c(m$coef.names,paste("gwnsp.fixed.",alpha,sep=""))
   }
   m
 }
@@ -2867,6 +2917,55 @@ InitErgm.nodeocov<-function (nw, m, arglist, ...) {
 #                                      attrname, paste(u[-base]), sep="."))
 #  m
 #}
+
+#########################################################
+InitErgm.nsp<-function(nw, m, arglist, drop=TRUE, ...) {
+# ergm.checkdirected("nsp", is.directed(nw), requirement=FALSE)
+  a <- ergm.checkargs("nsp", arglist,
+    varnames = c("d"),
+    vartypes = c("numeric"),
+    defaultvalues = list(NULL),
+    required = c(TRUE))
+  d<-a$d
+  if(drop){
+    mnsp <- paste("c(",paste(d,collapse=","),")",sep="")
+    mnsp <- summary(as.formula(paste('nw ~ nsp(',mnsp,')',sep="")),
+                    drop=FALSE)
+    if(any(mnsp==0)){
+      cat(" ")
+      cat(paste("Warning: There are no dyads with nsp", d[mnsp==0],";\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+      dropterms <- paste("nsp", d[mnsp==0],sep="")
+#     cat(paste("To avoid degeneracy the terms",
+#               paste(dropterms,collapse=" and, "),
+#               "have been dropped.\n"))
+      d <- d[mnsp!=0] 
+    }
+  }
+  if (any(d==0)) {
+    emptynwstats <- rep(0, length(d))
+    if(is.bipartite(nw)){
+      nb1 <- get.network.attribute(nw, "bipartite")
+      nb2 <- network.size(nw) - nb1
+      emptynwstats[d==0] <- nb1*(nb1-1)/2 + nb2*(nb2-1)/2
+    }else{
+      emptynwstats[d==0] <- network.dyadcount(nw)
+    }
+  }else{
+    emptynwstats <- NULL
+  }
+  ld<-length(d)
+  if(ld==0){return(m)}
+  termnumber<-1+length(m$terms)
+  if(is.directed(nw)){dname <- "tnsp"}else{dname <- "nsp"}
+  m$terms[[termnumber]] <- list(name=dname, soname="ergm",
+                                inputs=c(0, ld, ld, d))
+  if (!is.null(emptynwstats)) 
+    m$terms[[termnumber]]$emptynwstats <- emptynwstats
+
+  m$coef.names<-c(m$coef.names,paste("nsp",d,sep=""))
+  m
+}
 
 ###################################### InitErgm TERMS:  O
 #########################################################

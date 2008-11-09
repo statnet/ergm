@@ -126,14 +126,6 @@ ergm.getglobalstats <- function(nw, m) {
   if(length(ts) > 0){
     gs[ts] <- sum(as.sociomatrix(nw)[,1]) + gs[ts]
   }
-  tdsp <- grep("dsp0",names(gs))
-  if(length(tdsp) >0){
-    if(is.bipartite(nw)){
-      gs[tdsp] <- nb1*(nb1-1)/2 + nb2*(nb2-1)/2 + gs[tdsp]
-    }else{
-      gs[tdsp] <- dyads + gs[tdsp]
-    }
-  }
   tesa <- grep("esa0",names(gs))
   if(length(tesa) >0){
    if(is.bipartite(nw)){

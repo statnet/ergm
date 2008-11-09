@@ -32,6 +32,7 @@
 \alias{gwdsp}
 \alias{gwesp}
 \alias{gwidegree}
+\alias{gwnsp}
 \alias{gwodegree}
 \alias{hamming}
 \alias{hammingmix}
@@ -53,6 +54,7 @@
 \alias{nodemix}
 \alias{nodeocov}
 \alias{nodeofactor}
+\alias{nsp}
 \alias{odegree}
 \alias{ostar}
 \alias{receiver}
@@ -467,7 +469,7 @@ network
     undirected networks. For directed networks the geometric weighting is over
     homogeneous shared partners only (i.e., only partners on a directed two-path
     connecting the nodes in the edge and in the same direction).}
-    
+ 
     \item{\code{gwidegree(decay, fixed=FALSE)}}{\emph{Geometrically weighted
     in-degree distribution:} This term adds one network statistic to the model
     equal to the weighted in-degree distribution with weight parameter
@@ -476,7 +478,22 @@ network
     (see Hunter and Handcock, 2006). The default is \code{FALSE}, which means
     the scale parameter is not fixed and thus the model is a CEF model. This
     term can only be used with directed networks.}
-    
+
+    \item{\code{gwnsp(alpha, fixed=FALSE)}}{\emph{Geometrically weighted
+    nonedgewise shared partner distribution:} This term is just like
+    \code{gwesp} and \code{gwdsp} except it adds a statistic equal to
+    the geometrically weighted {\em nonedgewise} (that is, over dyads
+    that do not have an edge) shared partner distribution with weight
+    parameter \code{alpha}. The optional argument \code{fixed} indicates
+    whether the scale parameter \code{lambda} is to be fit as a curved
+    exponential-family model (see Hunter and Handcock, 2006).  The
+    default is \code{FALSE}, which means the scale parameter is not
+    fixed and thus the model is a CEF model. This term can be used with
+    directed and undirected networks. For directed networks the
+    geometric weighting is over homogeneous shared partners only (i.e.,
+    only partners on a directed two-path connecting the nodes in the
+    non-edge and in the same direction).}
+  
     \item{\code{gwodegree(decay, fixed=FALSE)}}{\emph{Geometrically weighted
     out-degree distribution:} This term adds one network statistic to the model
     equal to the weighted out-degree distribution with weight parameter
@@ -737,7 +754,18 @@ network
     (remember to sort the values first) by using \code{nodefactor("fruit",
     base=2:3)}. For an analogous term for quantitative vertex attributes, see
     \code{nodeocov}. }
-    
+  
+    \item{\code{nsp(d)}}{\emph{Nonedgewise shared partners:} This is
+    just like the \code{dsp} and \code{esp} terms, except this term adds
+    one network statistic to the model for each element in \code{d}
+    where the \eqn{i}th such statistic equals the number of {\em
+    non-edges} (that is, dyads that do not have an edge) in the network
+    with exactly \code{d[i]} shared partners. This term can be used with
+    directed and undirected networks. For directed networks the count is
+    over homogeneous shared partners only (i.e., only partners on a
+    directed two-path connecting the nodes in the non-edge and in the same
+    direction).}
+  
     \item{\code{odegree(d, attrname)}}{\emph{Out-degree:} The \code{d} argument
     is a vector of distinct integers. This term adds one network statistic to
     the model for each element in \code{d}; the \eqn{i}th such statistic equals

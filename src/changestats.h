@@ -126,10 +126,12 @@ D_CHANGESTAT_FN(d_gwb2degree_by_attr);
 D_CHANGESTAT_FN(d_gwesp);
 D_CHANGESTAT_FN(d_gwidegree);
 D_CHANGESTAT_FN(d_gwidegree_by_attr);
+D_CHANGESTAT_FN(d_gwnsp);
 D_CHANGESTAT_FN(d_gwodegree);
 D_CHANGESTAT_FN(d_gwodegree_by_attr);
 D_CHANGESTAT_FN(d_gwtdsp);
 D_CHANGESTAT_FN(d_gwtesp);
+D_CHANGESTAT_FN(d_gwtnsp);
 /********************  changestats:   H    ***********/
 D_CHANGESTAT_FN(d_hamming);
 D_CHANGESTAT_FN(d_hamming_weighted);
@@ -161,6 +163,7 @@ D_CHANGESTAT_FN(d_nodematch);
 D_CHANGESTAT_FN(d_nodemix);
 D_CHANGESTAT_FN(d_nodeocov);
 D_CHANGESTAT_FN(d_nodeofactor);
+D_CHANGESTAT_FN(d_nsp);
 /********************  changestats:   O    ***********/
 D_CHANGESTAT_FN(d_odegree);
 D_CHANGESTAT_FN(d_odegree_by_attr);
@@ -177,6 +180,7 @@ D_CHANGESTAT_FN(d_sociality);
 /********************  changestats:   T    ***********/
 D_CHANGESTAT_FN(d_tdsp);
 D_CHANGESTAT_FN(d_tesp);
+D_CHANGESTAT_FN(d_tnsp);
 D_CHANGESTAT_FN(d_transitive);
 D_CHANGESTAT_FN(d_triadcensus);
 D_CHANGESTAT_FN(d_triangle);
