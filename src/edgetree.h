@@ -116,12 +116,3 @@ Edge DesignMissing (Vertex a, Vertex b, Network *mnwp);
 Edge EdgeTree2EdgeList(Vertex *heads, Vertex *tails, Network *nwp, Edge nmax);
 
 #endif
-
-
-
-
-
-
-
-
-

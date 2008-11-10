@@ -60,7 +60,7 @@ Hunter (2008).  To create a
     define the distribution of networks being modeled.
 
     It is also possible to specify a proposal function directly
-    by passing a string with the function's name.  In that case,
+    by passing a string with the function's name. In that case,
     arguments to the proposal should be specified through the
     \code{prop.args} argument to \code{\link{control.ergm}}.
 
@@ -69,32 +69,38 @@ Hunter (2008).  To create a
     The constraint terms currently implemented are \describe{
       \item{\code{.} or \code{NULL}}{
 	A placeholder for no constraints: all networks of a
-	particular size and type have non-zero probability.
-	Cannot be combined with other constraints.
-      } \item{\code{bd(attribs,maxout,maxin,minout,minin)}}{
-	Constrain maximum and minimum vertex degree.  See
-	\dQuote{Placing Bounds
-    on Degrees} section for more information.
-      } \item{\code{degrees} and \code{nodedegrees}}{
-	Preserve the degree of each vertex of the given network:
-	only networks whose vertex degrees are the same as those
-	in the network passed in the model formula have non-zero
-	probability.
-      } \item{\code{degreedist}}{
-	Preserve the degree distribution of the given network:
-	only networks whose degree distributions are the same as
-	those in the network passed in the model formula have
-	non-zero probability.
-      } \item{\code{indegreedist} and \code{outdegreedist}}{
-	Preserve the (respectively) indegree or outdegree
-	distribution of the given network.
-      } \item{\code{edges}}{
-	Preserve the edge count of the given network: only
-	networks having the same number of edges as the network
-	passed in the model formula have non-zero probability.
+  particular size and type have non-zero probability.
+  Cannot be combined with other constraints.
       }
-% \item{\code{hamming}}{ % No clue.  % }
-    } Not all combinations of the above are supported.
+      \item{\code{bd(attribs,maxout,maxin,minout,minin)}}{
+  Constrain maximum and minimum vertex degree. See
+  \dQuote{Placing Bounds
+    on Degrees} section for more information.
+      }
+      \item{\code{degrees} and \code{nodedegrees}}{
+	Preserve the degree of each vertex of the given network: only networks
+	whose vertex degrees are the same as those in the network passed
+	in the model formula have non-zero probability.
+      }
+      \item{\code{degreedist}}{
+	Preserve the degree distribution of the given network: only networks
+	whose degree distributions are the same as those in the network passed
+	in the model formula have non-zero probability.
+      }
+      \item{\code{indegreedist} and \code{outdegreedist}}{
+	Preserve the (respectively) indegree or outdegree distribution of 
+        the given network.
+      }
+      \item{\code{edges}}{
+	Preserve the edge count of the given network: only networks
+	having the same number of edges as the network passed
+	in the model formula have non-zero probability.
+      }
+%      \item{\code{hamming}}{
+%	No clue.
+%      }
+    }
+    Not all combinations of the above are supported.
   }
   \item{meanstats}{vector; the mean-value parameter value for the
     model.  If this is given the algorithm finds the natural
@@ -106,7 +112,7 @@ Hunter (2008).  To create a
   \item{dissolve.order}{character: The type of dynamic model
     used. The default is "DissThenForm".}
   \item{control}{A list of control parameters for algorithm
-    tuning.  Constructed using \code{\link{control.ergm}}.  }
+    tuning. Constructed using \code{\link{control.ergm}}. }
   \item{seed}{integer; random number integer seed.  Defaults to
    \code{NULL} to use whatever the state of the random number
    generator is at the time of the call.
@@ -116,8 +122,7 @@ Hunter (2008).  To create a
     information, including goodness of fit statistics.
   }
   \item{\dots}{Additional
-    arguments, to be passed to lower-level functions in the
-    future.
+    arguments, to be passed to lower-level functions in the future.
   }
 }
 
