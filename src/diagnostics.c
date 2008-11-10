@@ -58,7 +58,7 @@ void DurationMatrix (int *nedge, int *edge, int *ntimestep,
 
   /* Next, step through time one click at a time */
   for (time=1,j=0; time<=*ntimestep; time++) {
-    for(; CHANGE(j,0) == time; j++) {
+    for(; CHANGE(j,0) == time && j<*nchange; j++) {
       h = CHANGE(j,1);
       t = CHANGE(j,2);
       for(k=row; !(DMATRIX(k, 0)==h && DMATRIX(k, 1)==t) && k>=0; k--);
