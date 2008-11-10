@@ -10,7 +10,6 @@
 %                Steven M. Goodreau, University of Washington
 %                Martina Morris, University of Washington
 % Copyright 2007 The statnet Development Team
-%  File ergm/man/plot.gofobject.Rd
 \name{plot.gofobject}
 \alias{plot.gofobject}
 \title{Plot Goodness-of-Fit Diagnostics on a Exponential Family Random Graph Model}

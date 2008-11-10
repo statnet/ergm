@@ -10,7 +10,6 @@
 %                Steven M. Goodreau, University of Washington
 %                Martina Morris, University of Washington
 % Copyright 2007 The statnet Development Team
-%  File ergm/man/ergmuserterms.Rd
 \name{ergmuserterms-package}
 \alias{ergmuserterms}
 \alias{ergmuserterms}

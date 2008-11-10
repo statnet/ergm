@@ -10,7 +10,6 @@
 %                Steven M. Goodreau, University of Washington
 %                Martina Morris, University of Washington
 % Copyright 2007 The statnet Development Team
-%  File ergm/man/anova.ergm.Rd
 \name{anova.ergm}
 \title{ANOVA for Linear Model Fits}
 \usage{

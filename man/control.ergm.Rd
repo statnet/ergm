@@ -10,7 +10,6 @@
 %                Steven M. Goodreau, University of Washington
 %                Martina Morris, University of Washington
 % Copyright 2007 The statnet Development Team
-%  File ergm/man/control.ergm.Rd
 \name{control.ergm}
 \alias{control.ergm}
 \title{ Auxiliary for Controlling ERGM Fitting }
@@ -21,8 +20,8 @@
 control.ergm(prop.weights = "default", prop.args = NULL,
              nr.maxit = 100, nr.reltol = sqrt(.Machine$double.eps), 
              calc.mcmc.se = TRUE, hessian = FALSE, compress = TRUE,
-             maxNumDyadTypes = 1e+6, maxedges = 20000, maxchanges = 1e+06,
-             maxMPLEsamplesize = 100000, MPLEtype=c("glm", "penalized"), trace = 0,
+             maxNumDyadTypes = 10000, maxedges = 20000, maxchanges = 1e+06,
+             maxMPLEsamplesize = 10^11, MPLEtype=c("glm", "penalized"), trace = 0,
              steplength = 0.5, drop = TRUE, force.mcmc = FALSE, check.degeneracy=FALSE, mcmc.precision =
              0.05, metric = c("Likelihood", "raw"), method = c("BFGS", "Nelder-Mead"),
              trustregion = 20, initial.loglik = NULL, initial.network = NULL,
@@ -69,15 +68,13 @@ control.ergm(prop.weights = "default", prop.args = NULL,
   \item{maxNumDyadTypes}{count; The maximum number of unique
     pseudolikelihood change statistics to be allowed if \code{compress=TRUE}.
     It is only relevant in that case.
-    Default is \code{1e+6}.}
+    Default is \code{10000}.}
   \item{maxedges}{ Maximum number of edges for which to allocate space. }
   \item{maxchanges}{ Maximum number of changes in dynamic network
     simulation for which to allocate space. }
-  \item{maxMPLEsamplesize}{count; the determines the
-    sample size to use for endogenous
-    sampling in the pseudolikelihood computation. The sample size is the number
-    of dyads in a network with \code{maxMPLEsamplesize} nodes.
-    Default is \code{100000}.}
+  \item{maxMPLEsamplesize}{count; the sample size to use for endogenous
+    sampling in the pseudolikelihood computation.
+    Default is \code{10^11}.}
   \item{MPLEtype}{one of "glm" or "penalized"; method to use
     for psuedolikelihood. "glm" is the usual
     formal logistic regression. "penalized" uses the bias-reduced method
@@ -128,7 +125,7 @@ control.ergm(prop.weights = "default", prop.args = NULL,
     a form of stochastic approximation (\code{"Robbins-Monro"}).
     The direct use of the likelihood function has many theoretical
     advantages over stochastic approximation, but the choice will
-    depend on the model and data being fit. See
+    depend on the model and data being fit. See Handcock (2000) and 
     Hunter and Handcock (2006) for details.}
   \item{phase1_n}{count; The number of MCMC samples to draw
     in Phase 1 of the stochastic approximation algorithm.
@@ -180,7 +177,10 @@ similar function for \code{\link{gof}}.   }
 Boer, P., Huisman, M., Snijders, T.A.B., and Zeggelink, E.P.H. (2003),
 StOCNET User\'s Manual. Version 1.4.
 
-\item Firth (1993), Bias Reduction in Maximum Likelihood Estimates.  Biometrika, 80: 27-38.
+\item Firth (1993),
+      Bias Reduction in Maximum Likelihood Estimates.
+      Biometrika,
+      80: 27-38.
 
 \item Hunter, D. R. and M. S. Handcock (2006), Inference in curved
 exponential family models for networks. Journal of Computational

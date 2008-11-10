@@ -10,7 +10,6 @@
 %                Steven M. Goodreau, University of Washington
 %                Martina Morris, University of Washington
 % Copyright 2007 The statnet Development Team
-%  File ergm/man/network.update.Rd
 \name{network.update}
 \alias{network.update}
 \title{Replaces the sociomatrix in a network object}

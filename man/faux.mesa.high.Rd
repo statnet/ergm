@@ -10,7 +10,6 @@
 %                Steven M. Goodreau, University of Washington
 %                Martina Morris, University of Washington
 % Copyright 2007 The statnet Development Team
-%  File ergm/man/faux.mesa.high.Rd
 \name{faux.mesa.high}
 \docType{data}
 \title{Goodreau's Faux Mesa High School as a network object}

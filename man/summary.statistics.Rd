@@ -10,7 +10,6 @@
 %                Steven M. Goodreau, University of Washington
 %                Martina Morris, University of Washington
 % Copyright 2007 The statnet Development Team
-%  File ergm/man/summary.statistics.Rd
 \name{summary.statistics}
 \alias{summary.statistics}
 \alias{summary.statistics.matrix}

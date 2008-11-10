@@ -44,7 +44,8 @@ Hunter (2008).  To create a
     then add nodal attributes to it using the \code{\%v\%}
     operator if necessary.}
   \item{theta0}{vector; the parameter value used to generate
-    the MCMC sample and as a starting value for the estimation. By default the MPLE is used (\code{theta0="MPLE"}).}
+    the MCMC sample and as a starting value for the estimation.
+    By default the MPLE is used (\code{theta0="MPLE"}).}
   \item{MPLEonly}{logical; \code{TRUE} if the maximum
     pseudo-likelihood estimate is to be computed and returned.
     Note that \code{MPLEonly=TRUE} will render moot most other parameters in this list.}
@@ -65,23 +66,25 @@ Hunter (2008).  To create a
     on the support of the distribution of the networks being modeled,
     using syntax similar to the \code{formula} argument. Multiple constraints
     may be given, separated by \dQuote{+} operators.
-    Together with the model terms in the formula, the constraints define the distribution of networks being modeled.
-        
-    It is also possible to specify a proposal function directly by
-    passing a string with the function's name. In that case, arguments
-    to the proposal should be specified through the \code{prop.args}
-    argument to \code{\link{control.ergm}}.
-    
+    Together with the model terms in the formula, the constraints
+    define the distribution of networks being modeled.
+
+    It is also possible to specify a proposal function directly
+    by passing a string with the function's name. In that case,
+    arguments to the proposal should be specified through the
+    \code{prop.args} argument to \code{\link{control.ergm}}.
+
     The default is \code{~.}, for an unconstrained model.
-    
-    The constraint terms currently implemented are
-    \describe{
+
+    The constraint terms currently implemented are \describe{
       \item{\code{.} or \code{NULL}}{
-	A placeholder for no constraints: all networks of a particular size and type have
-	non-zero probability. Cannot be combined with other constraints.
+	A placeholder for no constraints: all networks of a
+  particular size and type have non-zero probability.
+  Cannot be combined with other constraints.
       }
       \item{\code{bd(attribs,maxout,maxin,minout,minin)}}{
-	Constrain maximum and minimum vertex degree. See \dQuote{Placing Bounds
+  Constrain maximum and minimum vertex degree. See
+  \dQuote{Placing Bounds
     on Degrees} section for more information.
       }
       \item{\code{degrees} and \code{nodedegrees}}{
@@ -111,13 +114,13 @@ Hunter (2008).  To create a
   }
   \item{control}{A list of control parameters for algorithm
     tuning. Constructed using \code{\link{control.ergm}}. }
-  \item{seed}{integer; random number integer seed. Defaults to \code{NULL} to
-    use whatever the state of the random number generator is at the time
-    of the call.
+  \item{seed}{integer; random number integer seed.  Defaults to
+   \code{NULL} to use whatever the state of the random number
+   generator is at the time of the call.
   }
   \item{verbose}{logical; if this is
-    \code{TRUE}, the program will print out additional information,
-    including goodness of fit statistics.
+    \code{TRUE}, the program will print out additional
+    information, including goodness of fit statistics.
   }
   \item{\dots}{Additional
     arguments, to be passed to lower-level functions in the future.

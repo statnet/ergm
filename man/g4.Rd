@@ -10,7 +10,6 @@
 %                Steven M. Goodreau, University of Washington
 %                Martina Morris, University of Washington
 % Copyright 2007 The statnet Development Team
-%  File ergm/man/g4.Rd
 \name{g4}
 \alias{g4}
 \title{Goodreau's four node network as a ``network" object}

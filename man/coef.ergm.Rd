@@ -10,7 +10,6 @@
 %                Steven M. Goodreau, University of Washington
 %                Martina Morris, University of Washington
 % Copyright 2007 The statnet Development Team
-%  File ergm/man/coef.ergm.Rd
 \name{coef.ergm}
 \alias{coef.ergm}
 \alias{coefficients.ergm}

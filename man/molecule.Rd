@@ -10,7 +10,6 @@
 %                Steven M. Goodreau, University of Washington
 %                Martina Morris, University of Washington
 % Copyright 2007 The statnet Development Team
-%  File ergm/man/molecule.Rd
 \name{molecule}
 \alias{molecule}
 \title{Synthetic network with 20 nodes and 28 edges}
