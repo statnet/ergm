@@ -693,37 +693,44 @@ network
     base=2:3)}. For an analogous term for quantitative vertex attributes, see
     \code{nodeicov}. }
     
-    \item{\code{nodematch(attrname, diff=FALSE, keep=NULL)}}{\emph{Uniform
-    homophily and differential homophily:} 
-    The \code{attrname} argument is a character string giving the name of an
-    attribute in the network's vertex attribute list. When \code{diff=FALSE},
-    this term adds one network statistic to the model, which counts the number
-    of edges \eqn{(i,j)} for which \code{attrname(i)==attrname(j)}. When
-    \code{diff=TRUE}, \eqn{p} network statistics are added to the model, where
-    \eqn{p} is the number of unique values of the \code{attrname} attribute. The
-    \eqn{k}th such statistic counts the number of edges \eqn{(i,j)} for which
-    \code{attrname(i) == attrname(j) == value(k)}, where \code{value(k)} is the
-    \eqn{k}th smallest unique value of the attrname attribute. If set to
-    non-NULL, the optional \code{keep} argument should be a vector of integers
-    giving the values of \code{k} that should be considered for matches; other
-    values are ignored (this works for both \code{diff=FALSE} and
-    \code{diff=TRUE}). For instance, to add two statistics, counting the matches
-    for just the 2nd and 4th categories, use \code{nodematch} with
-    \code{diff=TRUE} and \code{keep=c(2,4)}.}
+    \item{\code{nodematch(attrname, diff=FALSE,
+    keep=NULL)}}{\emph{Uniform homophily and differential homophily:}
+    The \code{attrname} argument is a character vector giving one or
+    more names of attributes in the network's vertex attribute
+    list. When \code{diff=FALSE}, this term adds one network statistic
+    to the model, which counts the number of edges \eqn{(i,j)} for which
+    \code{attrname(i)==attrname(j)}. (When multiple names are given, the
+    statistic counts only those on which all the named attributes
+    match.) When \code{diff=TRUE}, \eqn{p} network statistics are added
+    to the model, where \eqn{p} is the number of unique values of the
+    \code{attrname} attribute. The \eqn{k}th such statistic counts the
+    number of edges \eqn{(i,j)} for which \code{attrname(i) ==
+    attrname(j) == value(k)}, where \code{value(k)} is the \eqn{k}th
+    smallest unique value of the attrname attribute. If set to non-NULL,
+    the optional \code{keep} argument should be a vector of integers
+    giving the values of \code{k} that should be considered for matches;
+    other values are ignored (this works for both \code{diff=FALSE} and
+    \code{diff=TRUE}). For instance, to add two statistics, counting the
+    matches for just the 2nd and 4th categories, use \code{nodematch}
+    with \code{diff=TRUE} and \code{keep=c(2,4)}.}
    
-    \item{\code{nodemix(attrname, base=NULL)}}{\emph{Nodal attribute mixing:} 
-    The \code{attrname} argument is a character string giving the name of a
-    categorical attribute in the network's vertex attribute list. By default,
-    this term adds one network statistic to the model for each possible pairing
-    of attribute values. The statistic equals the number of edges in the network
-    in which the nodes have that pairing of values. In other words, this term
-    produces one statistic for every entry in the mixing matrix for the
-    attribute. The ordering of the attribute values is alphabetical (for nominal
-    categories) or numerical (for ordered categories). The optional \code{base}
-    argument is a vector of integers corresponding to the pairings that should
-    not be included. If \code{base} contains only negative integers, then these
-    integers correspond to the only pairings that should be included. By default
-    (i.e., with \code{base=NULL} or \code{base=0}), all pairings are included.}
+    \item{\code{nodemix(attrname, base=NULL)}}{\emph{Nodal attribute
+    mixing:} The \code{attrname} argument is a character vector giving
+    the names of categorical attributes in the network's vertex
+    attribute list. By default, this term adds one network statistic to
+    the model for each possible pairing of attribute values. The
+    statistic equals the number of edges in the network in which the
+    nodes have that pairing of values. (When multiple names are given, a
+    statistic is added for each combination of attribute values for
+    those names.) In other words, this term produces one statistic for
+    every entry in the mixing matrix for the attribute(s). The ordering of
+    the attribute values is alphabetical (for nominal categories) or
+    numerical (for ordered categories). The optional \code{base}
+    argument is a vector of integers corresponding to the pairings that
+    should not be included. If \code{base} contains only negative
+    integers, then these integers correspond to the only pairings that
+    should be included. By default (i.e., with \code{base=NULL} or
+    \code{base=0}), all pairings are included.}
     
     \item{\code{nodeocov(attrname)}}{\emph{Main effect of a covariate for
     out-edges:} 

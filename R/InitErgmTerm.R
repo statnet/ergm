@@ -665,7 +665,12 @@ InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, drop=TRUE, ..
                       required = c(TRUE, FALSE, FALSE))
   assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
-  nodecov <- get.node.attr(nw, attrname)
+  nodecov <-
+    if(length(attrname)==1)
+      get.node.attr(nw, attrname)
+    else{
+      do.call(paste,c(sapply(attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
+    }
   u <- sort(unique(nodecov))
   if (!is.null(keep)) {
     u <- u[keep]
@@ -684,10 +689,10 @@ InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, drop=TRUE, ..
   }
   ### Construct the list to return
   if (diff) {
-    coef.names <- paste("nodematch", attrname, u, sep=".")
+    coef.names <- paste("nodematch", paste(attrname,collapse="."), u, sep=".")
     inputs <- c(ui, nodecov)
   } else {
-    coef.names <- paste("nodematch", attrname, sep=".")
+    coef.names <- paste("nodematch", paste(attrname,collapse="."), sep=".")
     inputs <- nodecov
   }
   list(name="nodematch",                                 #name: required
@@ -710,7 +715,14 @@ InitErgmTerm.nodemix<-function (nw, arglist, drop=TRUE, ...) {
   if (is.bipartite(nw) && is.directed(nw)) {
     stop("Directed bipartite networks are not currently possible")
   }
-  nodecov <- get.node.attr(nw, attrname)
+  
+  nodecov <-
+    if(length(attrname)==1)
+      get.node.attr(nw, attrname)
+    else{
+      do.call(paste,c(sapply(attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
+    }
+    
   if(drop) { # Check for zero statistics, print -Inf messages if applicable
     obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
     ew <- extremewarnings(obsstats)
@@ -735,7 +747,7 @@ InitErgmTerm.nodemix<-function (nw, arglist, drop=TRUE, ...) {
     }
     u <- u[!ew,]
     name <- "mix"
-    cn <- paste("mix", attrname, apply(matrix(namescov[u],ncol=2),
+    cn <- paste("mix", paste(attrname,collapse="."), apply(matrix(namescov[u],ncol=2),
                                        1,paste,collapse="."), sep=".")
     inputs <- c(u[,1], u[,2], nodecov)
     attr(inputs, "ParamsBeforeCov") <- NROW(u)
@@ -765,7 +777,7 @@ InitErgmTerm.nodemix<-function (nw, arglist, drop=TRUE, ...) {
     ucm <- ucm[!ew]
     uun <- uun[!ew]
     name <- "nodemix"
-    cn <- paste("mix", attrname, uun, sep=".")
+    cn <- paste("mix", paste(attrname,collapse="."), uun, sep=".")
     inputs <- c(urm, ucm, nodecov)
     #attr(inputs, "ParamsBeforeCov") <- 2*length(uui)
     attr(inputs, "ParamsBeforeCov") <- 2*length(uun)
