@@ -642,26 +642,30 @@ network
     directed networks, \code{nodecov} equals \code{nodeicov} plus
     \code{nodeocov}.}
     
-    \item{\code{nodefactor(attrname, base=1)}}{\emph{Factor attribute effect:}
-    The \code{attrname} argument is a character string giving the name of a
-    categorical attribute in the network's vertex attribute list. This term adds
-    multiple network statistics to the model, one for each of (a subset of) the
-    unique values of the \code{attrname} attribute. Each of these statistics
-    gives the number of times a node with that attribute appears in an edge in
-    the network. In particular, for edges whose endpoints both have the same
-    attribute value, this value is counted twice. To include all attribute
-    values is usually not a good idea, because the sum of all such statistics
-    equals twice the number of edges and hence a linear dependency would arise
-    in any model also including \code{edges}. Thus, the \code{base} argument
-    tells which value(s) (numbered in order according to the \code{sort}
-    function) should be omitted. The default value, \code{base=1}, means that
-    the smallest (i.e., first in sorted order) attribute value is omitted. For
+    \item{\code{nodefactor(attrname, base=1)}}{\emph{Factor attribute
+    effect:} The \code{attrname} argument is a character vector giving
+    one or more names of categorical attributes in the network's vertex
+    attribute list. This term adds multiple network statistics to the
+    model, one for each of (a subset of) the unique values of the
+    \code{attrname} attribute (or each combination of the attributes
+    given). Each of these statistics gives the number of times a node
+    with that attribute or those attributes appears in an edge in the
+    network. In particular, for edges whose endpoints both have the same
+    attribute values, this value is counted twice. To include all
+    attribute values is usually not a good idea, because the sum of all
+    such statistics equals twice the number of edges and hence a linear
+    dependency would arise in any model also including
+    \code{edges}. Thus, the \code{base} argument tells which value(s)
+    (numbered in order according to the \code{sort} function) should be
+    omitted. The default value, \code{base=1}, means that the smallest
+    (i.e., first in sorted order) attribute value is omitted. For
     example, if the \dQuote{fruit} factor has levels \dQuote{orange},
-    \dQuote{apple}, \dQuote{banana}, and \dQuote{pear}, then to add just two
-    terms, one for \dQuote{apple} and one for \dQuote{pear}, then set
-    \dQuote{banana} and \dQuote{orange} to the base (remember to sort the values
-    first) by using \code{nodefactor("fruit", base=2:3)}. For an analogous term
-    for quantitative vertex attributes, see \code{nodecov}. }
+    \dQuote{apple}, \dQuote{banana}, and \dQuote{pear}, then to add just
+    two terms, one for \dQuote{apple} and one for \dQuote{pear}, then
+    set \dQuote{banana} and \dQuote{orange} to the base (remember to
+    sort the values first) by using \code{nodefactor("fruit",
+    base=2:3)}. For an analogous term for quantitative vertex
+    attributes, see \code{nodecov}. }
     
     \item{\code{nodeicov(attrname)}}{\emph{Main effect of a covariate for
     in-edges:} 
@@ -672,26 +676,28 @@ network
     term may only be used with directed networks. For categorical attributes,
     see \code{nodeifactor}.}
     
-    \item{\code{nodeifactor(attrname, base=1)}}{\emph{Factor attribute effect
-    for in-edges:} 
-    The \code{attrname} argument is a character string giving the name of a
-    categorical attribute in the network's vertex attribute list. This term adds
-    multiple network statistics to the model, one for each of (a subset of) the
-    unique values of the \code{attrname} attribute. Each of these statistics
-    gives the number of times a node with that attribute appears as the terminal
-    node of a directed tie. To include all attribute values is usually not a
-    good idea, because the sum of all such statistics equals the number of edges
-    and hence a linear dependency would arise in any model also including
-    \code{edges}. Thus, the \code{base} argument tells which value(s) (numbered
-    in order according to the \code{sort} function) should be omitted. The
-    default value, \code{base=1}, means that the smallest (i.e., first in sorted
-    order) attribute value is omitted. For example, if the \dQuote{fruit} factor
-    has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
-    \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
-    for \dQuote{pear}, then set \dQuote{banana} and \dQuote{orange} to the base
-    (remember to sort the values first) by using \code{nodefactor("fruit",
-    base=2:3)}. For an analogous term for quantitative vertex attributes, see
-    \code{nodeicov}. }
+    \item{\code{nodeifactor(attrname, base=1)}}{\emph{Factor attribute
+    effect for in-edges:} The \code{attrname} argument is a character
+    vector giving one or more names of a categorical attribute in the
+    network's vertex attribute list. This term adds multiple network
+    statistics to the model, one for each of (a subset of) the unique
+    values of the \code{attrname} attribute (or each combination of the
+    attributes given). Each of these statistics gives the number of
+    times a node with that attribute or those attributes appears as the
+    terminal node of a directed tie. To include all attribute values is
+    usually not a good idea, because the sum of all such statistics
+    equals the number of edges and hence a linear dependency would arise
+    in any model also including \code{edges}. Thus, the \code{base}
+    argument tells which value(s) (numbered in order according to the
+    \code{sort} function) should be omitted. The default value,
+    \code{base=1}, means that the smallest (i.e., first in sorted order)
+    attribute value is omitted. For example, if the \dQuote{fruit}
+    factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana},
+    and \dQuote{pear}, then to add just two terms, one for
+    \dQuote{apple} and one for \dQuote{pear}, then set \dQuote{banana}
+    and \dQuote{orange} to the base (remember to sort the values first)
+    by using \code{nodefactor("fruit", base=2:3)}. For an analogous term
+    for quantitative vertex attributes, see \code{nodeicov}. }
     
     \item{\code{nodematch(attrname, diff=FALSE,
     keep=NULL)}}{\emph{Uniform homophily and differential homophily:}
@@ -741,26 +747,28 @@ network
     term may only be used with directed networks. For categorical attributes,
     see \code{nodeofactor}.}
  
-    \item{\code{nodeofactor(attrname, base=1)}}{\emph{Factor attribute effect
-    for out-edges:} 
-    The \code{attrname} argument is a character string giving the name of a
-    categorical attribute in the network's vertex attribute list. This term adds
-    multiple network statistics to the model, one for each of (a subset of) the
-    unique values of the \code{attrname} attribute. Each of these statistics
-    gives the number of times a node with that attribute appears as the node of
-    origin of a directed tie. To include all attribute values is usually not a
-    good idea, because the sum of all such statistics equals the number of edges
-    and hence a linear dependency would arise in any model also including
-    \code{edges}. Thus, the \code{base} argument tells which value(s) (numbered
-    in order according to the \code{sort} function) should be omitted. The
-    default value, \code{base=1}, means that the smallest (i.e., first in sorted
-    order) attribute value is omitted. For example, if the \dQuote{fruit} factor
-    has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana}, and
-    \dQuote{pear}, then to add just two terms, one for \dQuote{apple} and one
-    for \dQuote{pear}, then set \dQuote{banana} and \dQuote{orange} to the base
-    (remember to sort the values first) by using \code{nodefactor("fruit",
-    base=2:3)}. For an analogous term for quantitative vertex attributes, see
-    \code{nodeocov}. }
+    \item{\code{nodeofactor(attrname, base=1)}}{\emph{Factor attribute
+    effect for out-edges:} The \code{attrname} argument is a character
+    string giving one or more names of categorical attributes in the
+    network's vertex attribute list. This term adds multiple network
+    statistics to the model, one for each of (a subset of) the unique
+    values of the \code{attrname} attribute (or each combination of the
+    attributes given). Each of these statistics gives the number of
+    times a node with that attribute or those attributes appears as the
+    node of origin of a directed tie. To include all attribute values is
+    usually not a good idea, because the sum of all such statistics
+    equals the number of edges and hence a linear dependency would arise
+    in any model also including \code{edges}. Thus, the \code{base}
+    argument tells which value(s) (numbered in order according to the
+    \code{sort} function) should be omitted. The default value,
+    \code{base=1}, means that the smallest (i.e., first in sorted order)
+    attribute value is omitted. For example, if the \dQuote{fruit}
+    factor has levels \dQuote{orange}, \dQuote{apple}, \dQuote{banana},
+    and \dQuote{pear}, then to add just two terms, one for
+    \dQuote{apple} and one for \dQuote{pear}, then set \dQuote{banana}
+    and \dQuote{orange} to the base (remember to sort the values first)
+    by using \code{nodefactor("fruit", base=2:3)}. For an analogous term
+    for quantitative vertex attributes, see \code{nodeocov}. }
   
     \item{\code{nsp(d)}}{\emph{Nonedgewise shared partners:} This is
     just like the \code{dsp} and \code{esp} terms, except this term adds

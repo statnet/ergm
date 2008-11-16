@@ -597,7 +597,14 @@ InitErgmTerm.nodefactor<-function (nw, arglist, drop=TRUE, ...) {
                       required = c(TRUE, FALSE))
   assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
-  nodecov <- get.node.attr(nw, attrname)
+
+  nodecov <-
+    if(length(attrname)==1)
+      get.node.attr(nw, attrname)
+    else{
+      do.call(paste,c(sapply(attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
+    }
+
   u <- sort(unique(nodecov))
   if (!is.null(base) && !identical(base,0)) {
     u <- u[-base]
@@ -615,7 +622,7 @@ InitErgmTerm.nodefactor<-function (nw, arglist, drop=TRUE, ...) {
   inputs <- c(ui, nodecov)
   attr(inputs, "ParamsBeforeCov") <- length(ui) # See comment at top of file
   list(name="nodefactor",                                        #required
-       coef.names = paste("nodefactor", attrname, u, sep="."), #required
+       coef.names = paste("nodefactor", paste(attrname,collapse="."), u, sep="."), #required
        inputs = inputs,
        dependence = FALSE # So we don't use MCMC if not necessary
        )
@@ -631,7 +638,14 @@ InitErgmTerm.nodeifactor<-function (nw, arglist, drop=TRUE, ...) {
                       required = c(TRUE, FALSE))
   assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
-  nodecov <- get.node.attr(nw, attrname)
+
+  nodecov <-
+    if(length(attrname)==1)
+      get.node.attr(nw, attrname)
+    else{
+      do.call(paste,c(sapply(attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
+    }
+
   u <- sort(unique(nodecov))
   if (!is.null(base) && !identical(base,0)) {
     u <- u[-base]
@@ -649,7 +663,7 @@ InitErgmTerm.nodeifactor<-function (nw, arglist, drop=TRUE, ...) {
   inputs <- c(ui, nodecov)
   attr(inputs, "ParamsBeforeCov") <- length(ui) # See comment at top of file
   list(name="nodeifactor",                                        #required
-       coef.names = paste("nodeifactor", attrname, u, sep="."), #required
+       coef.names = paste("nodeifactor", paste(attrname,collapse="."), u, sep="."), #required
        inputs = inputs,
        dependence = FALSE # So we don't use MCMC if not necessary
        )
@@ -799,7 +813,14 @@ InitErgmTerm.nodeofactor<-function (nw, arglist, drop=TRUE, ...) {
                       required = c(TRUE, FALSE))
   assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
-  nodecov <- get.node.attr(nw, attrname)
+
+  nodecov <-
+    if(length(attrname)==1)
+      get.node.attr(nw, attrname)
+    else{
+      do.call(paste,c(sapply(attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
+    }
+
   u <- sort(unique(nodecov))
   if (!is.null(base) && !identical(base,0)) {
     u <- u[-base]
@@ -817,7 +838,7 @@ InitErgmTerm.nodeofactor<-function (nw, arglist, drop=TRUE, ...) {
   inputs <- c(ui, nodecov)
   attr(inputs, "ParamsBeforeCov") <- length(ui) # See comment at top of file
   list(name="nodeofactor",                                        #required
-       coef.names = paste("nodeofactor", attrname, u, sep="."), #required
+       coef.names = paste("nodeofactor", paste(attrname,collapse="."), u, sep="."), #required
        inputs = inputs,
        dependence = FALSE # So we don't use MCMC if not necessary
        )
