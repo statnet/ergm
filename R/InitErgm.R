@@ -3431,6 +3431,7 @@ InitErgm.triangle<-InitErgm.triangles<-function (nw, m, arglist, drop=TRUE, ...)
     defaultvalues = list(NULL, FALSE),
     required = c(FALSE, FALSE))
   attrname <- a$attrname
+  diff <- a$diff
   termnumber<-1+length(m$terms)
   if(!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname, "triangle")
@@ -3498,6 +3499,7 @@ InitErgm.tripercent<-function (nw, m, arglist, drop=TRUE, ...) {
     defaultvalues = list(NULL, FALSE),
     required = c(FALSE, FALSE))
   attrname <- a$attrname
+  diff <- a$diff
   termnumber<-1+length(m$terms)
   if(!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname, "tripercent")
@@ -3564,6 +3566,7 @@ InitErgm.ttriple<-InitErgm.ttriad<-function (nw, m, arglist, drop=TRUE, ...) {
     defaultvalues = list(NULL, FALSE),
     required = c(FALSE, FALSE))
   attrname <- a$attrname
+  diff <- a$diff
   termnumber<-1+length(m$terms)
   if(!is.null(attrname)) {
     nodecov <- get.node.attr(nw, attrname, "ttriple")
