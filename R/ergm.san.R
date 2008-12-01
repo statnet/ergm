@@ -85,7 +85,12 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0=NULL,
       if(is.null(invcov)) { invcov <- diag(length(theta0)) }
     }
     eta0 <- ergm.eta(theta0, model$etamap)
-    stats <- matrix(summary(model$formula)-meanstats,
+    
+    netsumm<-summary(model$formula)
+    if(length(netsumm)!=length(meanstats))
+      stop("Incorrect length of the meanstats vector: should be ", length(netsumm), " but is ",length(meanstats),".")
+
+    stats <- matrix(netsumm-meanstats,
                     ncol=Clist$nstats,byrow=T,nrow=MCMCsamplesize)
     tau <- rep(tau,length=length(eta0))
 #

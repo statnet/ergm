@@ -14,15 +14,23 @@ ergm <- function(formula, theta0="MPLE",
 
   nw <- ergm.getnetwork(formula)
   if(!is.null(meanstats)){
+    netsumm<-summary(formula)
+    if(length(netsumm)!=length(meanstats))
+      stop("Incorrect length of the meanstats vector: should be ", length(netsumm), " but is ",length(meanstats),".")
+    
     control$drop <- FALSE
 
     if(verbose) cat("Constructing an approximate response network.\n")
     ## If meanstats are given, overwrite the given network and formula
     ## with SAN-ed network and formula.
-    nw<-san(formula, burnin=control$SAN.burnin, meanstats=meanstats,
+    nw<-san(formula, meanstats=meanstats,
             theta0=if(is.numeric(theta0)) theta0, 
             constraints=constraints,
-            verbose=verbose)
+            verbose=verbose,
+            burnin=
+            if(is.null(control$SAN.burnin)) burnin
+            else control$SAN.burnin,
+            interval=interval)
     formula<-safeupdate.formula(formula,nw~.)
     if (verbose) {
      cat("Original meanstats:\n")
