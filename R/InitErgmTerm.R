@@ -91,17 +91,17 @@
 InitErgmTerm.absdiff <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
-                      varnames = c("attrname"),
-                      vartypes = c("character"),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      varnames = c("attrname","pow"),
+                      vartypes = c("character","numeric"),
+                      defaultvalues = list(NULL,1),
+                      required = c(TRUE,FALSE))
   assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
   nodecov <- get.node.attr(nw, attrname)
   ### Construct the list to return
   list(name="absdiff",                                     #name: required
-       coef.names = paste("absdiff", attrname, sep="."), #coef.names: required
-       inputs = nodecov,  # We need to include the nodal covariate for this term
+       coef.names = paste(paste("absdiff",if(pow!=1) pow else "",sep=""), attrname, sep="."), #coef.names: required
+       inputs = c(pow,nodecov),  # We need to include the nodal covariate for this term
        dependence = FALSE # So we don't use MCMC if not necessary
        )
 }

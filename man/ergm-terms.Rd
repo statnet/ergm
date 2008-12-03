@@ -116,11 +116,13 @@ network
 
   The terms currently available are:
   \describe{
-    \item{\code{absdiff(attrname)}}{\emph{Absolute difference:} 
-    The \code{attrname} argument is a character string giving the name of a
-    quantitative attribute in the network's vertex attribute list. This term
-    adds one network statistic to the model equaling the sum of
-    \code{abs(attrname[i]-attrname[j])} for all edges (i,j) in the network. }
+    
+    \item{\code{absdiff(attrname,pow=1)}}{\emph{Absolute difference:}
+    The \code{attrname} argument is a character string giving the name
+    of a quantitative attribute in the network's vertex attribute
+    list. This term adds one network statistic to the model equaling the
+    sum of \code{abs(attrname[i]-attrname[j])^pow} for all edges (i,j)
+    in the network. }
     
     \item{\code{absdiffcat(attrname, base=NULL)}}{\emph{Categorical absolute
     difference:} 

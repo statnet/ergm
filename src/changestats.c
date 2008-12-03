@@ -14,7 +14,11 @@ D_CHANGESTAT_FN(d_absdiff) {
   FOR_EACH_TOGGLE(i) {
     h = heads[i]; 
     t = tails[i];
-    change = fabs(INPUT_ATTRIB[h-1] - INPUT_ATTRIB[t-1]);
+    if(INPUT_ATTRIB[0]==1){
+      change = fabs(INPUT_ATTRIB[h] - INPUT_ATTRIB[t]);
+    }else{
+      change = pow(fabs(INPUT_ATTRIB[h] - INPUT_ATTRIB[t]),INPUT_ATTRIB[0]);
+    }
     CHANGE_STAT[0] += IS_OUTEDGE(h,t) ? -change : change;
     TOGGLE_IF_MORE_TO_COME(i); /* Needed in case of multiple toggles */
   }
