@@ -2493,10 +2493,10 @@ D_CHANGESTAT_FN(d_hamhamming) {
       mid = (min + max)/2;
       h1 = INPUT_PARAM[mid];
       t1 = INPUT_PARAM[mid+nedges];
-      if (h<h1 || (h==h1)&&(t<t1)) { /* Move search window down */
+      if (h<h1 || ((h==h1)&&(t<t1))) { /* Move search window down */
         max = mid-1;
       }
-      else if (h>h1 || (h==h1)&&(t>t1)) { /* Move search window up */
+      else if (h>h1 || ((h==h1)&&(t>t1))) { /* Move search window up */
         min = mid+1;
       }
       else {
@@ -2513,10 +2513,10 @@ D_CHANGESTAT_FN(d_hamhamming) {
       mid = (min + max)/2;
       h1 = INPUT_PARAM[start2 + mid];
       t1 = INPUT_PARAM[start2 + mid + nedges2];
-      if (h<h1 || (h==h1)&&(t<t1)) { /* Move search window down */
+      if (h<h1 || ((h==h1)&&(t<t1))) { /* Move search window down */
         max = mid-1;
       }
-      else if (h>h1 || (h==h1)&&(t>t1)) { /* Move search window up */
+      else if (h>h1 || ((h==h1)&&(t>t1))) { /* Move search window up */
         min=mid+1;
       }
       else {
@@ -5221,10 +5221,10 @@ CHANGESTAT_FN(d_b1degree_edgecov) {
       mid = (min + max)/2;
       h2 = INPUT_PARAM[mid+N_CHANGE_STATS-1];
       t2 = INPUT_PARAM[mid+nedges+N_CHANGE_STATS-1];
-      if (h1<h2 || (h1==h2)&&(t1<t2)) { /* Move search window down */
+      if (h1<h2 || ((h1==h2)&&(t1<t2))) { /* Move search window down */
         max = mid-1;
       }
-      else if (h1>h2 || (h1==h2)&&(t1>t2)) { /* Move search window up */
+      else if (h1>h2 || ((h1==h2)&&(t1>t2))) { /* Move search window up */
         min = mid+1;
       }
       else {
@@ -5241,10 +5241,10 @@ CHANGESTAT_FN(d_b1degree_edgecov) {
             mid = (min + max)/2;
             h2 = INPUT_PARAM[mid+N_CHANGE_STATS-1];
             t2 = INPUT_PARAM[mid+nedges+N_CHANGE_STATS-1];
-            if (h1<h2 || (h1==h2)&&(k<t2)) { /* Move search window down */
+            if (h1<h2 || ((h1==h2)&&(k<t2))) { /* Move search window down */
               max = mid-1;
             }
-            else if (h1>h2 || (h1==h2)&&(k>t2)) { /* Move search window up */
+            else if (h1>h2 || ((h1==h2)&&(k>t2))) { /* Move search window up */
               min = mid+1;
             }
             else {
@@ -5288,10 +5288,10 @@ CHANGESTAT_FN(d_b2degree_edgecov) {
       mid = (min + max)/2;
       h2 = INPUT_PARAM[mid+N_CHANGE_STATS-1];
       t2 = INPUT_PARAM[mid+nedges+N_CHANGE_STATS-1];
-      if (h1<h2 || (h1==h2)&&(t1<t2)) { /* Move search window down */
+      if (h1<h2 || ((h1==h2)&&(t1<t2))) { /* Move search window down */
         max = mid-1;
       }
-      else if (h1>h2 || (h1==h2)&&(t1>t2)) { /* Move search window up */
+      else if (h1>h2 || ((h1==h2)&&(t1>t2))) { /* Move search window up */
         min = mid+1;
       }
       else {
@@ -5308,10 +5308,10 @@ CHANGESTAT_FN(d_b2degree_edgecov) {
             mid = (min + max)/2;
             h2 = INPUT_PARAM[mid+N_CHANGE_STATS-1];
             t2 = INPUT_PARAM[mid+nedges+N_CHANGE_STATS-1];
-            if (k<h2 || (k==h2)&&(t1<t2)) { /* Move search window down */
+            if (k<h2 || ((k==h2)&&(t1<t2))) { /* Move search window down */
               max = mid-1;
             }
-            else if (k>h2 || (k==h2)&&(t1>t2)) { /* Move search window up */
+            else if (k>h2 || ((k==h2)&&(t1>t2))) { /* Move search window up */
               min = mid+1;
             }
             else {
@@ -5411,10 +5411,10 @@ CHANGESTAT_FN(d_b1mindegree_edgecov) {
       mid = (min + max)/2;
       h2 = INPUT_PARAM[mid+N_CHANGE_STATS-1];
       t2 = INPUT_PARAM[mid+nedges+N_CHANGE_STATS-1];
-      if (h1<h2 || (h1==h2)&&(t1<t2)) { /* Move search window down */
+      if (h1<h2 || ((h1==h2)&&(t1<t2))) { /* Move search window down */
         max = mid-1;
       }
-      else if (h1>h2 || (h1==h2)&&(t1>t2)) { /* Move search window up */
+      else if (h1>h2 || ((h1==h2)&&(t1>t2))) { /* Move search window up */
         min = mid+1;
       }
       else {
@@ -5431,10 +5431,10 @@ CHANGESTAT_FN(d_b1mindegree_edgecov) {
             mid = (min + max)/2;
             h2 = INPUT_PARAM[mid+N_CHANGE_STATS-1];
             t2 = INPUT_PARAM[mid+nedges+N_CHANGE_STATS-1];
-            if (h1<h2 || (h1==h2)&&(k<t2)) { /* Move search window down */
+            if (h1<h2 || ((h1==h2)&&(k<t2))) { /* Move search window down */
               max = mid-1;
             }
-            else if (h1>h2 || (h1==h2)&&(k>t2)) { /* Move search window up */
+            else if (h1>h2 || ((h1==h2)&&(k>t2))) { /* Move search window up */
               min = mid+1;
             }
             else {
@@ -5479,10 +5479,10 @@ CHANGESTAT_FN(d_b2mindegree_edgecov) {
       mid = (min + max)/2;
       h2 = INPUT_PARAM[mid+N_CHANGE_STATS-1];
       t2 = INPUT_PARAM[mid+nedges+N_CHANGE_STATS-1];
-      if (h1<h2 || (h1==h2)&&(t1<t2)) { /* Move search window down */
+      if (h1<h2 || ((h1==h2)&&(t1<t2))) { /* Move search window down */
         max = mid-1;
       }
-      else if (h1>h2 || (h1==h2)&&(t1>t2)) { /* Move search window up */
+      else if (h1>h2 || ((h1==h2)&&(t1>t2))) { /* Move search window up */
         min = mid+1;
       }
       else {
@@ -5499,10 +5499,10 @@ CHANGESTAT_FN(d_b2mindegree_edgecov) {
             mid = (min + max)/2;
             h2 = INPUT_PARAM[mid+N_CHANGE_STATS-1];
             t2 = INPUT_PARAM[mid+nedges+N_CHANGE_STATS-1];
-            if (k<h2 || (k==h2)&&(t1<t2)) { /* Move search window down */
+            if (k<h2 || ((k==h2)&&(t1<t2))) { /* Move search window down */
               max = mid-1;
             }
-            else if (k>h2 || (k==h2)&&(t1>t2)) { /* Move search window up */
+            else if (k>h2 || ((k==h2)&&(t1>t2))) { /* Move search window up */
               min = mid+1;
             }
             else {

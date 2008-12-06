@@ -2315,7 +2315,7 @@ D_CHANGESTAT_FN(d_transitivity)
 D_CHANGESTAT_FN(d_b1share)  {
   Edge e, f;
   int i, j, echange;
-  int L2hu, L2ut;
+  int L2hu;
   Vertex deg;
   Vertex h, t, u, v;
   int nb2, nb1;
@@ -2367,7 +2367,7 @@ D_CHANGESTAT_FN(d_b1share)  {
 D_CHANGESTAT_FN(d_b2share)  {
   Edge e, f;
   int i, j, echange;
-  int L2hu, L2ut;
+  int L2hu;
   Vertex deg;
   Vertex h, t, u, v;
   int nb2, nb1;
@@ -3043,7 +3043,7 @@ D_CHANGESTAT_FN(d_b2share)  {
 D_CHANGESTAT_FN(d_gwb2share) {
   Edge e, f;
   int i, echange, ochange;
-  int L2hu, L2ut;
+  int L2ut;
   Vertex h, t, u, v;
   double alpha, oneexpa, cumchange;
   
@@ -3089,7 +3089,7 @@ D_CHANGESTAT_FN(d_gwb2share) {
 D_CHANGESTAT_FN(d_gwb1share) {
   Edge e, f;
   int i, echange, ochange;
-  int L2hu, L2ut;
+  int L2hu;
   Vertex h, t, u, v;
   double alpha, oneexpa, cumchange;
   
