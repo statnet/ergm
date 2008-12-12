@@ -37,7 +37,7 @@ summary.ergm <- function (object, ...,
   colnames(asycov) <- rownames(asycov)
   
   asyse <- diag(asycov)
-  asyse[asyse<0|is.infinite(object$coef)] <- NA
+  asyse[asyse<0|is.infinite(object$coef)|object$offset] <- NA
   asyse <- sqrt(asyse)
   if(any(is.na(asyse)&!object$offset) & !is.null(object$mplefit)){
    if(is.null(object$mplefit$covar)){

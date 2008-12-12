@@ -19,6 +19,7 @@ ergm.mple<-function(Clist, Clist2, m, theta0=NULL, theta.offset=NULL,
                     maxNumDyadTypes=1e+6,
                     theta1=NULL, verbose=FALSE, compressflag=TRUE,
                     ...) {
+  if(is.numeric(theta0)){theta.offset=theta0}
   pl <- ergm.pl(Clist=Clist, Clist.miss=Clist2, m=m,
                 theta.offset=theta.offset,
                 maxMPLEsamplesize=maxMPLEsamplesize,
@@ -30,7 +31,7 @@ ergm.mple<-function(Clist, Clist2, m, theta0=NULL, theta.offset=NULL,
    mplefit <- ergm.pen.glm(
                   pl$zy ~ pl$xmat -1 + offset(pl$foffset),
                   data=data.frame(pl$xmat), weights=pl$wend,
-                  start=theta0)
+                  start=theta0[!m$etamap$offsettheta])
    mplefit$deviance <- -2*mplefit$loglik
    mplefit$cov.unscaled <- mplefit$var
    mplefit.summary <- mplefit
@@ -40,12 +41,13 @@ ergm.mple<-function(Clist, Clist2, m, theta0=NULL, theta.offset=NULL,
     mplefit <- model.matrix(terms(pl$zy ~ .-1,data=data.frame(pl$xmat)),
                            data=data.frame(pl$xmat))
     mplefit <- ergm.logitreg(x=mplefit, y=pl$zy, offset=pl$foffset, wt=pl$wend,
-                             start=theta0)
+                             start=theta0[!m$etamap$offsettheta])
     mplefit.summary <- list(cov.unscaled=mplefit$cov.unscaled)
    }else{
     mplefit <- try(
           glm(pl$zy ~ .-1 + offset(pl$foffset), data=data.frame(pl$xmat),
-                    weights=pl$wend, family=family, start=theta0),
+              weights=pl$wend, family=family,
+              start=theta0[!m$etamap$offsettheta]),
                     silent = TRUE)
     if (inherits(mplefit, "try-error")) {
       mplefit <- list(coef=pl$theta.offset, deviance=0,
