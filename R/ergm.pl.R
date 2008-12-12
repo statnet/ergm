@@ -62,15 +62,16 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
       names(theta.offset) <- m$coef.names
       theta.offset[m$etamap$offsettheta] <- -Inf
     }
-    foffset <- xmat[,!m$etamap$offsettheta,drop=FALSE]%*%theta.offset[!m$etamap$offsettheta]
-    shouldoffset <- apply(abs(xmat[,m$etamap$offsettheta,drop=FALSE])>1e-8,1,any)
+#   foffset <- xmat[,!m$etamap$offsettheta,drop=FALSE]%*%theta.offset[!m$etamap$offsettheta]
+#   shouldoffset <- apply(abs(xmat[,m$etamap$offsettheta,drop=FALSE])>1e-8,1,any)
+    foffset <- xmat[,m$etamap$offsettheta,drop=FALSE]%*%theta.offset[m$etamap$offsettheta]
     xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE]
     colnames(xmat) <- m$coef.names[!m$etamap$offsettheta]
-    xmat <- xmat[!shouldoffset,,drop=FALSE]
-    zy <- zy[!shouldoffset]
-    wend <- wend[!shouldoffset]
-    foffset <- foffset[!shouldoffset]
-#    theta.offset <- theta.offset[!m$etamap$offsettheta]
+#   xmat <- xmat[!shouldoffset,,drop=FALSE]
+#   zy <- zy[!shouldoffset]
+#   wend <- wend[!shouldoffset]
+#   foffset <- foffset[!shouldoffset]
+##   theta.offset <- theta.offset[!m$etamap$offsettheta]
   }else{
     foffset <- rep(0, length=length(zy))
     theta.offset <- rep(0, length=Clist$nstats)
@@ -87,7 +88,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     zy <- zy[dmiss==0]
     wend <- wend[dmiss==0]
     foffset <- foffset[dmiss==0]
-    colnames(xmat) <- m$coef.names
+    if(is.null(colnames(xmat))){colnames(xmat) <- m$coef.names}
   }
   
 #
