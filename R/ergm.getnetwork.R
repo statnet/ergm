@@ -1,4 +1,4 @@
-ergm.getnetwork <- function (formula) {
+ergm.getnetwork <- function (formula, loopswarning=FALSE) {
   current.warn <- options()$warn
 # options(warn=0)
   if ((dc<-data.class(formula)) != "formula")
@@ -15,6 +15,14 @@ ergm.getnetwork <- function (formula) {
   if(inherits(nw,"try-error")){
       stop("Invalid network. Is the left-hand-side of the formula correct?")
   }
-# options(warn=current.warn)
+  # options(warn=current.warn)
+  if (loopswarning) {
+    e <- as.matrix.network.edgelist(nw)
+    if(any(e[,1]==e[,2])) {
+      print("Warning:  This network contains loops")
+    } else if (has.loops(nw)) {
+      print("Warning:  This network is allowed to contain loops")
+    }
+  }
   nw
 }
