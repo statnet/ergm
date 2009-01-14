@@ -1074,13 +1074,12 @@ void edgewise_cycle_census(Network *nwp, Vertex t, Vertex h,
 D_CHANGESTAT_FN(d_degree) { 
   int i, j, echange;
   Vertex head, tail, headdeg, taildeg, deg, *id, *od;
-  TreeNode *oe=nwp->outedges;
 
   id=IN_DEG;
   od=OUT_DEG;
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
-    echange=(EdgetreeSearch(head=heads[i], tail=tails[i], oe)==0)? 1:-1;
+    echange=(EdgetreeSearch(head=heads[i], tail=tails[i], nwp->outedges)==0)? 1:-1;
     headdeg = od[head] + id[head];
     taildeg = od[tail] + id[tail];
     for(j = 0; j < N_CHANGE_STATS; j++) {
@@ -1103,13 +1102,12 @@ D_CHANGESTAT_FN(d_degree_by_attr) {
   */
   int i, j, echange, headattr, tailattr, testattr;
   Vertex head, tail, headdeg, taildeg, d, *id, *od;
-  TreeNode *oe=nwp->outedges;
   
   id=IN_DEG;
   od=OUT_DEG;
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
-    echange=(EdgetreeSearch(head=heads[i], tail=tails[i], oe)==0)? 1:-1;
+    echange=(EdgetreeSearch(head=heads[i], tail=tails[i], nwp->outedges)==0)? 1:-1;
     headdeg = od[head] + id[head];
     taildeg = od[tail] + id[tail];
     headattr = INPUT_PARAM[2*N_CHANGE_STATS + head - 1]; 
@@ -1137,7 +1135,6 @@ D_CHANGESTAT_FN(d_degree_w_homophily) {
   */
   int i, j, echange, headattr, tailattr;
   Vertex head, tail, headdeg, taildeg, deg, tmp;
-  TreeNode *ie=nwp->inedges, *oe=nwp->outedges;
   double *nodeattr;
   Edge e;
 
@@ -1149,26 +1146,26 @@ D_CHANGESTAT_FN(d_degree_w_homophily) {
     headattr = (int)nodeattr[head];
     tailattr = (int)nodeattr[tail];    
     if (headattr == tailattr) { /* They match; otherwise don't bother */
-      echange=(EdgetreeSearch(head, tail, oe)==0)? 1:-1;
+      echange=(EdgetreeSearch(head, tail, nwp->outedges)==0)? 1:-1;
       headdeg=taildeg=0;
-      for(e = EdgetreeMinimum(oe, head);
-      (tmp = oe[e].value) != 0;
-      e = EdgetreeSuccessor(oe, e)) {
+      for(e = EdgetreeMinimum(nwp->outedges, head);
+      (tmp = nwp->outedges[e].value) != 0;
+      e = EdgetreeSuccessor(nwp->outedges, e)) {
         headdeg += (nodeattr[tmp]==headattr);
       }
-      for(e = EdgetreeMinimum(ie, head);
-      (tmp = ie[e].value) != 0;
-      e = EdgetreeSuccessor(ie, e)) {
+      for(e = EdgetreeMinimum(nwp->inedges, head);
+      (tmp = nwp->inedges[e].value) != 0;
+      e = EdgetreeSuccessor(nwp->inedges, e)) {
         headdeg += (nodeattr[tmp]==headattr);
       }
-      for(e = EdgetreeMinimum(oe, tail);
-      (tmp = oe[e].value) != 0;
-      e = EdgetreeSuccessor(oe, e)) {
+      for(e = EdgetreeMinimum(nwp->outedges, tail);
+      (tmp = nwp->outedges[e].value) != 0;
+      e = EdgetreeSuccessor(nwp->outedges, e)) {
         taildeg += (nodeattr[tmp]==tailattr);
       }
-      for(e = EdgetreeMinimum(ie, tail);
-      (tmp = ie[e].value) != 0;
-      e = EdgetreeSuccessor(ie, e)) {
+      for(e = EdgetreeMinimum(nwp->inedges, tail);
+      (tmp = nwp->inedges[e].value) != 0;
+      e = EdgetreeSuccessor(nwp->inedges, e)) {
         taildeg += (nodeattr[tmp]==tailattr);
       }
       for(j = 0; j < N_CHANGE_STATS; j++) {
@@ -1488,31 +1485,29 @@ D_CHANGESTAT_FN(d_esp) {
   int L2ht, L2hu, L2ut;
   Vertex deg;
   Vertex h, t, u, v;
-  TreeNode *oe=nwp->outedges, *ie=nwp->inedges;
-
   
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
     L2ht=0;
-    echange = (EdgetreeSearch(h=heads[i], t=tails[i], oe) == 0) ? 1 : -1;
+    echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
     /* step through outedges of t */
-    for(e = EdgetreeMinimum(oe, t); 
-    (u = oe[e].value) != 0; e = EdgetreeSuccessor(oe, e)) {
-      if (EdgetreeSearch(MIN(u,h), MAX(u,h), oe) != 0){
+    for(e = EdgetreeMinimum(nwp->outedges, t); 
+    (u = nwp->outedges[e].value) != 0; e = EdgetreeSuccessor(nwp->outedges, e)) {
+      if (EdgetreeSearch(MIN(u,h), MAX(u,h), nwp->outedges) != 0){
         L2ht++;
         L2hu=0;
         L2ut=0;
         /* step through outedges of u */
-        for(f = EdgetreeMinimum(oe, u); (v = oe[f].value) != 0;
-        f = EdgetreeSuccessor(oe, f)){
-          if(EdgetreeSearch(MIN(v,t),MAX(v,t),oe)!= 0) L2ut++;
-          if(EdgetreeSearch(MIN(v,h),MAX(v,h),oe)!= 0) L2hu++;
+        for(f = EdgetreeMinimum(nwp->outedges, u); (v = nwp->outedges[f].value) != 0;
+        f = EdgetreeSuccessor(nwp->outedges, f)){
+          if(EdgetreeSearch(MIN(v,t),MAX(v,t),nwp->outedges)!= 0) L2ut++;
+          if(EdgetreeSearch(MIN(v,h),MAX(v,h),nwp->outedges)!= 0) L2hu++;
         }
         /* step through inedges of u */
-        for(f = EdgetreeMinimum(ie, u); (v = ie[f].value) != 0;
-        f = EdgetreeSuccessor(ie, f)){
-          if(EdgetreeSearch(MIN(v,t),MAX(v,t),oe)!= 0) L2ut++;
-          if(EdgetreeSearch(MIN(v,h),MAX(v,h),oe)!= 0) L2hu++;
+        for(f = EdgetreeMinimum(nwp->inedges, u); (v = nwp->inedges[f].value) != 0;
+        f = EdgetreeSuccessor(nwp->inedges, f)){
+          if(EdgetreeSearch(MIN(v,t),MAX(v,t),nwp->outedges)!= 0) L2ut++;
+          if(EdgetreeSearch(MIN(v,h),MAX(v,h),nwp->outedges)!= 0) L2hu++;
         }
         for(j = 0; j < N_CHANGE_STATS; j++){
           deg = (Vertex)INPUT_PARAM[j];
@@ -1524,23 +1519,23 @@ D_CHANGESTAT_FN(d_esp) {
       }
     }
     /* step through inedges of t */
-    for (e = EdgetreeMinimum(ie, t); (u = ie[e].value) != 0;
-    e = EdgetreeSuccessor(ie, e)){
-      if (EdgetreeSearch(MIN(u,h), MAX(u,h), oe) != 0){
+    for (e = EdgetreeMinimum(nwp->inedges, t); (u = nwp->inedges[e].value) != 0;
+    e = EdgetreeSuccessor(nwp->inedges, e)){
+      if (EdgetreeSearch(MIN(u,h), MAX(u,h), nwp->outedges) != 0){
         L2ht++;
         L2hu=0;
         L2ut=0;
         /* step through outedges of u */
-        for(f = EdgetreeMinimum(oe, u); (v = oe[f].value) != 0;
-        f = EdgetreeSuccessor(oe, f)){
-          if(EdgetreeSearch(MIN(v,t),MAX(v,t),oe)!= 0) L2ut++;
-          if(EdgetreeSearch(MIN(v,h),MAX(v,h),oe)!= 0) L2hu++;
+        for(f = EdgetreeMinimum(nwp->outedges, u); (v = nwp->outedges[f].value) != 0;
+        f = EdgetreeSuccessor(nwp->outedges, f)){
+          if(EdgetreeSearch(MIN(v,t),MAX(v,t),nwp->outedges)!= 0) L2ut++;
+          if(EdgetreeSearch(MIN(v,h),MAX(v,h),nwp->outedges)!= 0) L2hu++;
         }
         /* step through inedges of u */
-        for(f = EdgetreeMinimum(ie, u); (v = ie[f].value) != 0;
-        f = EdgetreeSuccessor(ie, f)){
-          if(EdgetreeSearch(MIN(v,t),MAX(v,t),oe)!= 0) L2ut++;
-          if(EdgetreeSearch(MIN(v,h),MAX(v,h),oe)!= 0) L2hu++;
+        for(f = EdgetreeMinimum(nwp->inedges, u); (v = nwp->inedges[f].value) != 0;
+        f = EdgetreeSuccessor(nwp->inedges, f)){
+          if(EdgetreeSearch(MIN(v,t),MAX(v,t),nwp->outedges)!= 0) L2ut++;
+          if(EdgetreeSearch(MIN(v,h),MAX(v,h),nwp->outedges)!= 0) L2hu++;
         }
         for(j = 0; j < N_CHANGE_STATS; j++){
           deg = (Vertex)INPUT_PARAM[j];
@@ -1577,15 +1572,13 @@ D_CHANGESTAT_FN(d_gwb1degree) {
   int i, echange;
   double decay, oneexpd;
   Vertex b1, b1deg, *od;
-  TreeNode *oe;  
   
   decay = INPUT_PARAM[0];
   oneexpd = 1.0-exp(-decay);
-  oe=nwp->outedges;
   od=OUT_DEG;
   CHANGE_STAT[0] = 0.0;
   FOR_EACH_TOGGLE(i) {
-    echange=(EdgetreeSearch(b1=heads[i], tails[i], oe)==0) ? 1 : -1;
+    echange=(EdgetreeSearch(b1=heads[i], tails[i], nwp->outedges)==0) ? 1 : -1;
     b1deg = od[b1]+(echange-1)/2;
     CHANGE_STAT[0] += echange*pow(oneexpd,(double)b1deg);
     TOGGLE_IF_MORE_TO_COME(i);
@@ -1611,15 +1604,13 @@ D_CHANGESTAT_FN(d_gwb1degree_by_attr) {
   int i, echange, b1attr;
   double decay, oneexpd;
   Vertex b1, b1deg, *od;
-  TreeNode *oe;
   
   decay = INPUT_PARAM[0];
   oneexpd = 1.0-exp(-decay);
-  oe=nwp->outedges;
   od=OUT_DEG;
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
-    echange=(EdgetreeSearch(b1=heads[i], tails[i], oe)==0) ? 1 : -1;
+    echange=(EdgetreeSearch(b1=heads[i], tails[i], nwp->outedges)==0) ? 1 : -1;
     b1deg = od[b1]+(echange-1)/2;
     b1attr = INPUT_PARAM[b1]; 
 /*  Rprintf("b1 %d tails %d b1deg %d b1attr %d echange %d\n",b1, tails[i], b1deg, b1attr, echange); */
@@ -1668,7 +1659,6 @@ D_CHANGESTAT_FN(d_gwdegree_by_attr) {
   int i, hattr, tattr, echange=0;
   double decay, oneexpd;
   Vertex h, t, hd, td=0, *id, *od;
-  TreeNode *oe=nwp->outedges;
   
   id=IN_DEG;
   od=OUT_DEG;
@@ -1676,8 +1666,8 @@ D_CHANGESTAT_FN(d_gwdegree_by_attr) {
   oneexpd = 1.0-exp(-decay);
   
   ZERO_ALL_CHANGESTATS(i);
-  FOR_EACH_TOGGLE(i) {      
-    echange = (EdgetreeSearch(h=heads[i], t=tails[i], oe) == 0) ? 1 : -1;
+  FOR_EACH_TOGGLE(i) {
+    echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
     hd = od[h] + id[h] + (echange - 1)/2;
     hattr = INPUT_PARAM[h]; 
     CHANGE_STAT[hattr-1] += echange*(pow(oneexpd,(double)hd));
@@ -1817,15 +1807,13 @@ D_CHANGESTAT_FN(d_gwb2degree) {
   int i, echange;
   double decay, oneexpd;
   Vertex b2, b2deg, *id;
-  TreeNode *oe;  
   
   decay = INPUT_PARAM[0];
   oneexpd = 1.0-exp(-decay);
-  oe=nwp->outedges;
   id=IN_DEG;
   CHANGE_STAT[0] = 0.0;
   FOR_EACH_TOGGLE(i) {      
-    echange=(EdgetreeSearch(heads[i], b2=tails[i], oe)==0) ? 1 : -1;
+    echange=(EdgetreeSearch(heads[i], b2=tails[i], nwp->outedges)==0) ? 1 : -1;
     b2deg = id[b2]+(echange-1)/2;
     CHANGE_STAT[0] += echange*pow(oneexpd,(double)b2deg);
     TOGGLE_IF_MORE_TO_COME(i);
@@ -1851,15 +1839,13 @@ D_CHANGESTAT_FN(d_gwb2degree_by_attr) {
   int i, echange, b2attr;
   double decay, oneexpd;
   Vertex b2, b2deg, *id;
-  TreeNode *oe;
   
   decay = INPUT_PARAM[0];
   oneexpd = 1.0-exp(-decay);
-  oe=nwp->outedges;
   id=IN_DEG;
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {      
-    echange=(EdgetreeSearch(heads[i], b2=tails[i], oe)==0) ? 1 : -1;
+    echange=(EdgetreeSearch(heads[i], b2=tails[i], nwp->outedges)==0) ? 1 : -1;
     b2deg = id[b2]+(echange-1)/2;
     b2attr = INPUT_PARAM[b2]; 
 /*  Rprintf("h %d b2 %d b2deg %d b2attr %d echange %d\n",heads[i], b2, b2deg, b2attr, echange); */
@@ -2783,12 +2769,11 @@ D_CHANGESTAT_FN(d_idegree_by_attr) {
   */
   int i, j, echange, tailattr, testattr;
   Vertex tail, taildeg, d, *id;
-  TreeNode *oe=nwp->outedges;
   
   id=IN_DEG;
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
-    echange=(EdgetreeSearch(heads[i], tail=tails[i], oe)==0)? 1:-1;
+    echange=(EdgetreeSearch(heads[i], tail=tails[i], nwp->outedges)==0)? 1:-1;
     taildeg = id[tail];
     tailattr = INPUT_PARAM[2*N_CHANGE_STATS + tail - 1]; 
     for(j = 0; j < N_CHANGE_STATS; j++) {
@@ -2812,7 +2797,6 @@ D_CHANGESTAT_FN(d_idegree_w_homophily) {
   */
   int i, j, echange, headattr, tailattr;
   Vertex head, tail, taildeg, deg, tmp;
-  TreeNode *ie=nwp->inedges, *oe=nwp->outedges;
   double *nodeattr;
   Edge e;
 
@@ -2824,16 +2808,16 @@ D_CHANGESTAT_FN(d_idegree_w_homophily) {
     headattr = (int)nodeattr[head];
     tailattr = (int)nodeattr[tail];    
     if (headattr == tailattr) { /* They match; otherwise don't bother */
-      echange=(EdgetreeSearch(head, tail, oe)==0)? 1:-1;
+      echange=(EdgetreeSearch(head, tail, nwp->outedges)==0)? 1:-1;
       taildeg=0;
-/*      for(e = EdgetreeMinimum(oe, tail);
-      (tmp = oe[e].value) != 0;
-      e = EdgetreeSuccessor(oe, e)) {
+/*      for(e = EdgetreeMinimum(nwp->outedges, tail);
+      (tmp = nwp->outedges[e].value) != 0;
+      e = EdgetreeSuccessor(nwp->outedges, e)) {
         taildeg += (nodeattr[tmp]==tailattr);
       } */
-      for(e = EdgetreeMinimum(ie, tail);
-      (tmp = ie[e].value) != 0;
-      e = EdgetreeSuccessor(ie, e)) {
+      for(e = EdgetreeMinimum(nwp->inedges, tail);
+      (tmp = nwp->inedges[e].value) != 0;
+      e = EdgetreeSuccessor(nwp->inedges, e)) {
         taildeg += (nodeattr[tmp]==tailattr);
       }
       for(j = 0; j < N_CHANGE_STATS; j++) {
@@ -2908,7 +2892,6 @@ D_CHANGESTAT_FN(d_intransitive) {
 D_CHANGESTAT_FN(d_isolates) { 
   int i, echange;
   Vertex h, t, hd, td=0, *id, *od;
-  TreeNode *oe=nwp->outedges;
 
   id=IN_DEG;
   od=OUT_DEG;
@@ -2917,7 +2900,7 @@ D_CHANGESTAT_FN(d_isolates) {
   
   FOR_EACH_TOGGLE(i)
     {      
-      echange = (EdgetreeSearch(h=heads[i], t=tails[i], oe) == 0) ? 1 : -1;
+      echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
       hd = od[h] + id[h];
       td = od[t] + id[t];
       CHANGE_STAT[0] += (hd + echange == 0) - (hd == 0);
@@ -3496,11 +3479,8 @@ D_CHANGESTAT_FN(d_nsp) {
   int L2ht, L2hu, L2ut;
   Vertex deg;
   Vertex h, t, u, v;
-  TreeNode *oe=nwp->outedges, *ie=nwp->inedges;
-
   
   ZERO_ALL_CHANGESTATS(i);
-
   FOR_EACH_TOGGLE(i) {
     echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
     /* step through outedges of t */
@@ -3611,25 +3591,25 @@ D_CHANGESTAT_FN(d_nsp) {
 
   FOR_EACH_TOGGLE(i) {
     L2ht=0;
-    echange = (EdgetreeSearch(h=heads[i], t=tails[i], oe) == 0) ? 1 : -1;
+    echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
     /* step through outedges of t */
-    for(e = EdgetreeMinimum(oe, t); 
-    (u = oe[e].value) != 0; e = EdgetreeSuccessor(oe, e)) {
-      if (EdgetreeSearch(MIN(u,h), MAX(u,h), oe) != 0){
+    for(e = EdgetreeMinimum(nwp->outedges, t); 
+    (u = nwp->outedges[e].value) != 0; e = EdgetreeSuccessor(nwp->outedges, e)) {
+      if (EdgetreeSearch(MIN(u,h), MAX(u,h), nwp->outedges) != 0){
         L2ht++;
         L2hu=0;
         L2ut=0;
         /* step through outedges of u */
-        for(f = EdgetreeMinimum(oe, u); (v = oe[f].value) != 0;
-        f = EdgetreeSuccessor(oe, f)){
-          if(EdgetreeSearch(MIN(v,t),MAX(v,t),oe)!= 0) L2ut++;
-          if(EdgetreeSearch(MIN(v,h),MAX(v,h),oe)!= 0) L2hu++;
+        for(f = EdgetreeMinimum(nwp->outedges, u); (v = nwp->outedges[f].value) != 0;
+        f = EdgetreeSuccessor(nwp->outedges, f)){
+          if(EdgetreeSearch(MIN(v,t),MAX(v,t),nwp->outedges)!= 0) L2ut++;
+          if(EdgetreeSearch(MIN(v,h),MAX(v,h),nwp->outedges)!= 0) L2hu++;
         }
         /* step through inedges of u */
-        for(f = EdgetreeMinimum(ie, u); (v = ie[f].value) != 0;
-        f = EdgetreeSuccessor(ie, f)){
-          if(EdgetreeSearch(MIN(v,t),MAX(v,t),oe)!= 0) L2ut++;
-          if(EdgetreeSearch(MIN(v,h),MAX(v,h),oe)!= 0) L2hu++;
+        for(f = EdgetreeMinimum(nwp->inedges, u); (v = nwp->inedges[f].value) != 0;
+        f = EdgetreeSuccessor(nwp->inedges, f)){
+          if(EdgetreeSearch(MIN(v,t),MAX(v,t),nwp->outedges)!= 0) L2ut++;
+          if(EdgetreeSearch(MIN(v,h),MAX(v,h),nwp->outedges)!= 0) L2hu++;
         }
         for(j = 0; j < N_CHANGE_STATS; j++){
           deg = (Vertex)INPUT_PARAM[j];
@@ -3641,23 +3621,23 @@ D_CHANGESTAT_FN(d_nsp) {
       }
     }
     /* step through inedges of t */
-    for (e = EdgetreeMinimum(ie, t); (u = ie[e].value) != 0;
-    e = EdgetreeSuccessor(ie, e)){
-      if (EdgetreeSearch(MIN(u,h), MAX(u,h), oe) != 0){
+    for (e = EdgetreeMinimum(nwp->inedges, t); (u = nwp->inedges[e].value) != 0;
+    e = EdgetreeSuccessor(nwp->inedges, e)){
+      if (EdgetreeSearch(MIN(u,h), MAX(u,h), nwp->outedges) != 0){
         L2ht++;
         L2hu=0;
         L2ut=0;
         /* step through outedges of u */
-        for(f = EdgetreeMinimum(oe, u); (v = oe[f].value) != 0;
-        f = EdgetreeSuccessor(oe, f)){
-          if(EdgetreeSearch(MIN(v,t),MAX(v,t),oe)!= 0) L2ut++;
-          if(EdgetreeSearch(MIN(v,h),MAX(v,h),oe)!= 0) L2hu++;
+        for(f = EdgetreeMinimum(nwp->outedges, u); (v = nwp->outedges[f].value) != 0;
+        f = EdgetreeSuccessor(nwp->outedges, f)){
+          if(EdgetreeSearch(MIN(v,t),MAX(v,t),nwp->outedges)!= 0) L2ut++;
+          if(EdgetreeSearch(MIN(v,h),MAX(v,h),nwp->outedges)!= 0) L2hu++;
         }
         /* step through inedges of u */
-        for(f = EdgetreeMinimum(ie, u); (v = ie[f].value) != 0;
-        f = EdgetreeSuccessor(ie, f)){
-          if(EdgetreeSearch(MIN(v,t),MAX(v,t),oe)!= 0) L2ut++;
-          if(EdgetreeSearch(MIN(v,h),MAX(v,h),oe)!= 0) L2hu++;
+        for(f = EdgetreeMinimum(nwp->inedges, u); (v = nwp->inedges[f].value) != 0;
+        f = EdgetreeSuccessor(nwp->inedges, f)){
+          if(EdgetreeSearch(MIN(v,t),MAX(v,t),nwp->outedges)!= 0) L2ut++;
+          if(EdgetreeSearch(MIN(v,h),MAX(v,h),nwp->outedges)!= 0) L2hu++;
         }
         for(j = 0; j < N_CHANGE_STATS; j++){
           deg = (Vertex)INPUT_PARAM[j];
@@ -3745,12 +3725,11 @@ D_CHANGESTAT_FN(d_odegree_by_attr) {
   */
   int i, j, echange, headattr, testattr;
   Vertex head, headdeg, d, *od;
-  TreeNode *oe=nwp->outedges;
   
   od=OUT_DEG;
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
-    echange=(EdgetreeSearch(head=heads[i], tails[i], oe)==0)? 1:-1;
+    echange=(EdgetreeSearch(head=heads[i], tails[i], nwp->outedges)==0)? 1:-1;
     headdeg = od[head];
     headattr = INPUT_PARAM[2*N_CHANGE_STATS + head - 1]; 
     for(j = 0; j < N_CHANGE_STATS; j++) {
@@ -3775,7 +3754,6 @@ D_CHANGESTAT_FN(d_odegree_w_homophily) {
   */
   int i, j, echange, headattr, tailattr;
   Vertex head, tail, headdeg, deg, tmp;
-  TreeNode *oe=nwp->outedges;
   double *nodeattr;
   Edge e;
 
@@ -3787,16 +3765,16 @@ D_CHANGESTAT_FN(d_odegree_w_homophily) {
     headattr = (int)nodeattr[head];
     tailattr = (int)nodeattr[tail];
     if (headattr == tailattr) { /* They match; otherwise don't bother */
-      echange=(EdgetreeSearch(head, tail, oe)==0)? 1:-1;
+      echange=(EdgetreeSearch(head, tail, nwp->outedges)==0)? 1:-1;
       headdeg=0;
-      for(e = EdgetreeMinimum(oe, head);
-      (tmp = oe[e].value) != 0;
-      e = EdgetreeSuccessor(oe, e)) {
+      for(e = EdgetreeMinimum(nwp->outedges, head);
+      (tmp = nwp->outedges[e].value) != 0;
+      e = EdgetreeSuccessor(nwp->outedges, e)) {
         headdeg += (nodeattr[tmp]==headattr);
       }
-/*      for(e = EdgetreeMinimum(ie, head); */
-/*      (tmp = ie[e].value) != 0; */
-/*      e = EdgetreeSuccessor(ie, e)) { */
+/*      for(e = EdgetreeMinimum(nwp->inedges, head); */
+/*      (tmp = nwp->inedges[e].value) != 0; */
+/*      e = EdgetreeSuccessor(nwp->inedges, e)) { */
 /*        headdeg += (nodeattr[tmp]==headattr); */
 /*      } */
       for(j = 0; j < N_CHANGE_STATS; j++) {
@@ -4176,22 +4154,20 @@ D_CHANGESTAT_FN(d_tesp) {
   int L2ht, L2hu, L2ut;
   Vertex deg;
   Vertex h, t, u, v;
-  TreeNode *oe=nwp->outedges, *ie=nwp->inedges;
-
   
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i){      
     L2ht=0;
-    echange = (EdgetreeSearch(h=heads[i], t=tails[i], oe) == 0) ? 1 : -1;
+    echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
     /* step through outedges of t */
-    for(e = EdgetreeMinimum(oe, t); 
-    (u = oe[e].value) != 0; e = EdgetreeSuccessor(oe, e)) {
-      if (EdgetreeSearch(h, u, oe) != 0){
+    for(e = EdgetreeMinimum(nwp->outedges, t); 
+    (u = nwp->outedges[e].value) != 0; e = EdgetreeSuccessor(nwp->outedges, e)) {
+      if (EdgetreeSearch(h, u, nwp->outedges) != 0){
         L2hu=0;
         /* step through inedges of u */
-        for(f = EdgetreeMinimum(ie, u); (v = ie[f].value) != 0;
-        f = EdgetreeSuccessor(ie, f)){
-          if(EdgetreeSearch(h,v,oe)!= 0) L2hu++;
+        for(f = EdgetreeMinimum(nwp->inedges, u); (v = nwp->inedges[f].value) != 0;
+        f = EdgetreeSuccessor(nwp->inedges, f)){
+          if(EdgetreeSearch(h,v,nwp->outedges)!= 0) L2hu++;
         }
         for(j = 0; j < N_CHANGE_STATS; j++){
           deg = (Vertex)INPUT_PARAM[j];
@@ -4200,17 +4176,17 @@ D_CHANGESTAT_FN(d_tesp) {
       }
     }
     /* step through inedges of t */
-    for (e = EdgetreeMinimum(ie, t); (u = ie[e].value) != 0;
-    e = EdgetreeSuccessor(ie, e)){
-      if (EdgetreeSearch(h, u, oe) != 0){
+    for (e = EdgetreeMinimum(nwp->inedges, t); (u = nwp->inedges[e].value) != 0;
+    e = EdgetreeSuccessor(nwp->inedges, e)){
+      if (EdgetreeSearch(h, u, nwp->outedges) != 0){
         L2ht++;
       }
-      if (EdgetreeSearch(u, h, oe) != 0){
+      if (EdgetreeSearch(u, h, nwp->outedges) != 0){
         L2ut=0;
         /* step through outedges of u */
-        for(f = EdgetreeMinimum(oe, u); (v = oe[f].value) != 0;
-        f = EdgetreeSuccessor(oe, f)){
-          if(EdgetreeSearch(v, t,oe)!= 0) L2ut++;
+        for(f = EdgetreeMinimum(nwp->outedges, u); (v = nwp->outedges[f].value) != 0;
+        f = EdgetreeSuccessor(nwp->outedges, f)){
+          if(EdgetreeSearch(v, t,nwp->outedges)!= 0) L2ut++;
         }
         for(j = 0; j < N_CHANGE_STATS; j++){
           deg = (Vertex)INPUT_PARAM[j];
@@ -4236,8 +4212,6 @@ D_CHANGESTAT_FN(d_tnsp) {
   int L2ht, L2hu, L2ut;
   Vertex deg;
   Vertex h, t, u, v;
-  TreeNode *oe=nwp->outedges, *ie=nwp->inedges;
-
   
   ZERO_ALL_CHANGESTATS(i);
 
@@ -4280,16 +4254,16 @@ D_CHANGESTAT_FN(d_tnsp) {
 
     FOR_EACH_TOGGLE(i){      
     L2ht=0;
-    echange = (EdgetreeSearch(h=heads[i], t=tails[i], oe) == 0) ? 1 : -1;
+    echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
     /* step through outedges of t */
-    for(e = EdgetreeMinimum(oe, t); 
-    (u = oe[e].value) != 0; e = EdgetreeSuccessor(oe, e)) {
-      if (EdgetreeSearch(h, u, oe) != 0){
+    for(e = EdgetreeMinimum(nwp->outedges, t); 
+    (u = nwp->outedges[e].value) != 0; e = EdgetreeSuccessor(nwp->outedges, e)) {
+      if (EdgetreeSearch(h, u, nwp->outedges) != 0){
         L2hu=0;
         /* step through inedges of u */
-        for(f = EdgetreeMinimum(ie, u); (v = ie[f].value) != 0;
-        f = EdgetreeSuccessor(ie, f)){
-          if(EdgetreeSearch(h,v,oe)!= 0) L2hu++;
+        for(f = EdgetreeMinimum(nwp->inedges, u); (v = nwp->inedges[f].value) != 0;
+        f = EdgetreeSuccessor(nwp->inedges, f)){
+          if(EdgetreeSearch(h,v,nwp->outedges)!= 0) L2hu++;
         }
         for(j = 0; j < N_CHANGE_STATS; j++){
           deg = (Vertex)INPUT_PARAM[j];
@@ -4298,17 +4272,17 @@ D_CHANGESTAT_FN(d_tnsp) {
       }
     }
     /* step through inedges of t */
-    for (e = EdgetreeMinimum(ie, t); (u = ie[e].value) != 0;
-    e = EdgetreeSuccessor(ie, e)){
-      if (EdgetreeSearch(h, u, oe) != 0){
+    for (e = EdgetreeMinimum(nwp->inedges, t); (u = nwp->inedges[e].value) != 0;
+    e = EdgetreeSuccessor(nwp->inedges, e)){
+      if (EdgetreeSearch(h, u, nwp->outedges) != 0){
         L2ht++;
       }
-      if (EdgetreeSearch(u, h, oe) != 0){
+      if (EdgetreeSearch(u, h, nwp->outedges) != 0){
         L2ut=0;
         /* step through outedges of u */
-        for(f = EdgetreeMinimum(oe, u); (v = oe[f].value) != 0;
-        f = EdgetreeSuccessor(oe, f)){
-          if(EdgetreeSearch(v, t,oe)!= 0) L2ut++;
+        for(f = EdgetreeMinimum(nwp->outedges, u); (v = nwp->outedges[f].value) != 0;
+        f = EdgetreeSuccessor(nwp->outedges, f)){
+          if(EdgetreeSearch(v, t,nwp->outedges)!= 0) L2ut++;
         }
         for(j = 0; j < N_CHANGE_STATS; j++){
           deg = (Vertex)INPUT_PARAM[j];
@@ -5365,14 +5339,12 @@ CHANGESTAT_FN(d_b2mindegree) {
   */
   int i, j, echange;
   Vertex b1, b2, b2deg, d, *id;
-  TreeNode *oe;  
-  
-  oe=nwp->outedges;
+
   id=IN_DEG;
   for (i=0; i < N_CHANGE_STATS; i++) 
     CHANGE_STAT[i] = 0.0;  
   for (i=0; i<ntoggles; i++) {      
-    echange=(EdgetreeSearch(b1=heads[i], b2=tails[i], oe)==0) ? 1 : -1;
+    echange=(EdgetreeSearch(b1=heads[i], b2=tails[i], nwp->outedges)==0) ? 1 : -1;
     b2deg = id[b2];
     for(j = 0; j < N_CHANGE_STATS; j++) {
       d = (Vertex)(INPUT_PARAM[j]);

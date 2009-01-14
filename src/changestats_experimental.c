@@ -10,16 +10,13 @@ D_CHANGESTAT_FN(d_b1kappa){
   double nedges, change, iar0, far0;
   Vertex h, t, hd, iak2, fak2, nnodes, *od;
   Vertex nb1;
-  TreeNode *oe;  
-  
-  oe=nwp->outedges;
+
   od=nwp->outdegree;
   nnodes = nwp->nnodes;
   nb1 = nwp->bipartite;
-  
   change = 0.0;
   for (i=0; i<ntoggles; i++) {      
-    echange = (EdgetreeSearch(h=heads[i], t=tails[i], oe) == 0) ? 1 : -1;
+    echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
     iak2=0;
     for (j=1; j<=nb1; j++) {      
       fak2 = od[j];
@@ -286,7 +283,6 @@ D_CHANGESTAT_FN(d_bkappa)  {
   double nedges, change, iar0, far0, ier0, fer0;
   Vertex h, t, hd, td=0, iak2, fak2, iek2, fek2, nnodes, *id, *od;
   Vertex nb2, nb1;
-  TreeNode *oe=nwp->outedges;
   
   id=nwp->indegree;
   od=nwp->outdegree;
@@ -296,7 +292,7 @@ D_CHANGESTAT_FN(d_bkappa)  {
   
   change = 0.0;
   for (i=0; i<ntoggles; i++) {      
-    echange = (EdgetreeSearch(h=heads[i], t=tails[i], oe) == 0) ? 1 : -1;
+    echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
     iak2=0;
     for (j=1; j<=nb1; j++) {      
       fak2 = od[j];
@@ -337,14 +333,13 @@ D_CHANGESTAT_FN(d_degreep)
 {
   int i, j, echange;
   Vertex head, tail, headdeg, taildeg, deg, *id, *od;
-  TreeNode *oe=nwp->outedges;
 
   id=nwp->indegree;
   od=nwp->outdegree;
   for (i=0; i < mtp->nstats; i++) 
     mtp->dstats[i] = 0.0;  
   for (i=0; i<ntoggles; i++) {      
-    echange=(EdgetreeSearch(head=heads[i], tail=tails[i], oe)==0)? 1:-1;
+    echange=(EdgetreeSearch(head=heads[i], tail=tails[i], nwp->outedges)==0)? 1:-1;
     headdeg = od[head] + id[head];
     taildeg = od[tail] + id[tail];
     for(j = 0; j < mtp->nstats; j++) {
@@ -371,14 +366,13 @@ D_CHANGESTAT_FN(d_degreep_by_attr)
   */
   int i, j, echange, headattr, tailattr, testattr;
   Vertex head, tail, headdeg, taildeg, d, *id, *od;
-  TreeNode *oe=nwp->outedges;
   
   id=nwp->indegree;
   od=nwp->outdegree;
   for (i=0; i < mtp->nstats; i++) 
     mtp->dstats[i] = 0.0;
   for (i=0; i<ntoggles; i++) {
-    echange=(EdgetreeSearch(head=heads[i], tail=tails[i], oe)==0)? 1:-1;
+    echange=(EdgetreeSearch(head=heads[i], tail=tails[i], nwp->outedges)==0)? 1:-1;
     headdeg = od[head] + id[head];
     taildeg = od[tail] + id[tail];
     headattr = mtp->inputparams[2*mtp->nstats + head - 1]; 
@@ -410,7 +404,6 @@ D_CHANGESTAT_FN(d_degreep_w_homophily)
   */
   int i, j, echange, headattr, tailattr;
   Vertex head, tail, headdeg, taildeg, deg, tmp;
-  TreeNode *ie=nwp->inedges, *oe=nwp->outedges;
   double *nodeattr;
   Edge e;
 
@@ -423,26 +416,26 @@ D_CHANGESTAT_FN(d_degreep_w_homophily)
     headattr = (int)nodeattr[head];
     tailattr = (int)nodeattr[tail];    
     if (headattr == tailattr) { /* They match; otherwise don't bother */
-      echange=(EdgetreeSearch(head, tail, oe)==0)? 1:-1;
+      echange=(EdgetreeSearch(head, tail, nwp->outedges)==0)? 1:-1;
       headdeg=taildeg=0;
-      for(e = EdgetreeMinimum(oe, head);
-      (tmp = oe[e].value) != 0;
-      e = EdgetreeSuccessor(oe, e)) {
+      for(e = EdgetreeMinimum(nwp->outedges, head);
+      (tmp = nwp->outedges[e].value) != 0;
+      e = EdgetreeSuccessor(nwp->outedges, e)) {
         headdeg += (nodeattr[tmp]==headattr);
       }
-      for(e = EdgetreeMinimum(ie, head);
-      (tmp = ie[e].value) != 0;
-      e = EdgetreeSuccessor(ie, e)) {
+      for(e = EdgetreeMinimum(nwp->inedges, head);
+      (tmp = nwp->inedges[e].value) != 0;
+      e = EdgetreeSuccessor(nwp->inedges, e)) {
         headdeg += (nodeattr[tmp]==headattr);
       }
-      for(e = EdgetreeMinimum(oe, tail);
-      (tmp = oe[e].value) != 0;
-      e = EdgetreeSuccessor(oe, e)) {
+      for(e = EdgetreeMinimum(nwp->outedges, tail);
+      (tmp = nwp->outedges[e].value) != 0;
+      e = EdgetreeSuccessor(nwp->outedges, e)) {
         taildeg += (nodeattr[tmp]==tailattr);
       }
-      for(e = EdgetreeMinimum(ie, tail);
-      (tmp = ie[e].value) != 0;
-      e = EdgetreeSuccessor(ie, e)) {
+      for(e = EdgetreeMinimum(nwp->inedges, tail);
+      (tmp = nwp->inedges[e].value) != 0;
+      e = EdgetreeSuccessor(nwp->inedges, e)) {
         taildeg += (nodeattr[tmp]==tailattr);
       }
       for(j = 0; j < mtp->nstats; j++) {
@@ -548,16 +541,14 @@ D_CHANGESTAT_FN(d_b2kappa)  {
   double nedges, change, ier0, fer0;
   Vertex h, t, td=0, iek2, fek2, nnodes, *id;
   Vertex nb1;
-  TreeNode *oe;  
-  
-  oe=nwp->outedges;
+
   id=nwp->indegree;
   nnodes = nwp->nnodes;
   nb1 = nwp->bipartite;
   
   change = 0.0;
   for (i=0; i<ntoggles; i++) {      
-    echange = (EdgetreeSearch(h=heads[i], t=tails[i], oe) == 0) ? 1 : -1;
+    echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
     iek2=0;
     for (j=nb1+1; j<=nnodes; j++) {      
       fek2 = id[j];
@@ -1570,7 +1561,6 @@ D_CHANGESTAT_FN(d_kappa)  {
   int i, j, echange=0;
   double nedges, change, ir0, fr0;
   Vertex h, t, hd, td=0, ik2, fk2, nnodes, *id, *od;
-  TreeNode *oe=nwp->outedges;
   
   id=nwp->indegree;
   od=nwp->outdegree;
@@ -1578,7 +1568,7 @@ D_CHANGESTAT_FN(d_kappa)  {
   
   change = 0.0;
   for (i=0; i<ntoggles; i++) {      
-    echange = (EdgetreeSearch(h=heads[i], t=tails[i], oe) == 0) ? 1 : -1;
+    echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
     ik2=0;
     for (j=1; j<=nnodes; j++) {      
       fk2 = od[j] + id[j];
@@ -1616,7 +1606,6 @@ D_CHANGESTAT_FN(d_monopolymixmat) {
   int mFmM, mFpM, pFmM;   
   /* NB: pFpM would be redundant since the total of all 4 is #edges */
   Vertex *od=nwp->outdegree, *id=nwp->indegree;
-  TreeNode *oe = nwp->outedges, *ie = nwp->inedges;
 
   mtp->dstats[0] = mtp->dstats[1] = mtp->dstats[2] = 0.0;
   for (i=0; i < ntoggles; i++) {
@@ -1629,9 +1618,9 @@ D_CHANGESTAT_FN(d_monopolymixmat) {
     pFmM = (Mdeg==0 && Fdeg>0) - (Mdeg==1 && Fdeg>1 && edgeflag);
     /* Now calculate contribution from other partners of F or M */
     if(Fdeg - edgeflag == 1) {/* Only case that concerns us */
-      for(e = EdgetreeMinimum(oe, h);
-      (otherM = oe[e].value) != 0 && otherM == t;
-      e = EdgetreeSuccessor(oe, e)); /* This finds otherM */
+      for(e = EdgetreeMinimum(nwp->outedges, h);
+      (otherM = nwp->outedges[e].value) != 0 && otherM == t;
+      e = EdgetreeSuccessor(nwp->outedges, e)); /* This finds otherM */
       if (id[otherM] > 1) {
         mFpM += (Fdeg==1 ? -1 : 1);
       } else {
@@ -1640,9 +1629,9 @@ D_CHANGESTAT_FN(d_monopolymixmat) {
       }
     }
     if(Mdeg - edgeflag == 1) {/* Similarly for Mdeg */
-      for(e = EdgetreeMinimum(ie, t);
-      (otherF = ie[e].value) != 0 && otherF == h;
-      e = EdgetreeSuccessor(ie, e)); /* This finds otherF */
+      for(e = EdgetreeMinimum(nwp->inedges, t);
+      (otherF = nwp->inedges[e].value) != 0 && otherF == h;
+      e = EdgetreeSuccessor(nwp->inedges, e)); /* This finds otherF */
       if (od[otherF] > 1) { /* otherF is poly */
         pFmM += (Mdeg==1 ? -1 : 1);
       } else { /*otherF is mono */

@@ -26,7 +26,6 @@ void Prevalence (int *nnodes,
   int bipartite = *nfem;
   int *sinfected;
   double beta=*betarate;
-  TreeNode *ie, *oe;
   Network nw;
   
   sinfected = (int *) malloc(sizeof(int) * (*nnodes));
@@ -37,8 +36,6 @@ void Prevalence (int *nnodes,
     /* R's serialization of matrixes is column-major, so this works: */
    nw = NetworkInitialize(edge, edge+*nedge, ne,
                           *nnodes, 0, bipartite, 0);
-   ie=nw.inedges;
-   oe=nw.outedges;
    id=nw.indegree;
    od=nw.outdegree;
    ndyads = bipartite*(*nnodes-bipartite);
@@ -47,9 +44,9 @@ void Prevalence (int *nnodes,
       ndyads = *nnodes;
       for (i = 0; i < ndyads; i++){sinfected[i] = i;}
       for (i = 0; i < (*nseeds); i++) {
-	rane = ndyads * unif_rand();
-	infected[i] = sinfected[rane] + 1;
-	sinfected[rane] = sinfected[--ndyads];
+        rane = ndyads * unif_rand();
+        infected[i] = sinfected[rane] + 1;
+        sinfected[rane] = sinfected[--ndyads];
       }
       for (i = 0; i < *nnodes; i++){sinfected[i] = 0;}
 //  Rprintf("\n", infected[i]);
@@ -70,9 +67,9 @@ void Prevalence (int *nnodes,
     for (i=0; i < *nfem; i++) {
      /* step through outedges of i  */
      if(sinfected[i]){
-      for(e = EdgetreeMinimum(oe, i+1);
-	(alter = oe[e].value) != 0;
-	e = EdgetreeSuccessor(oe, e)){
+      for(e = EdgetreeMinimum(nw.outedges, i+1);
+	(alter = nw.outedges[e].value) != 0;
+	e = EdgetreeSuccessor(nw.outedges, e)){
 	     if(!sinfected[alter-1]){
  	       if(unif_rand() < beta){
 //  Rprintf("f time %d i %d sinfected %d alter %d sinfected %d beta %f\n",time,i,sinfected[i],alter,sinfected[alter],beta);
@@ -87,9 +84,9 @@ void Prevalence (int *nnodes,
 //    Rprintf("males time %d i %d sinfected %d\n",time,i,sinfected[i]);
     /* step through outedges of i  */
     if(sinfected[i]){
-     for(e = EdgetreeMinimum(ie, i+1);
-       (alter = ie[e].value) != 0;
-       e = EdgetreeSuccessor(ie, e)){
+     for(e = EdgetreeMinimum(nw.inedges, i+1);
+       (alter = nw.inedges[e].value) != 0;
+       e = EdgetreeSuccessor(nw.inedges, e)){
           if(!sinfected[alter-1]){
 //          if(unif_rand() < beta/id[i]){sinfected[alter-1]=1;}
             if(unif_rand() < beta){
@@ -121,8 +118,6 @@ void Prevalence (int *nnodes,
 // if (k < *nsim) {
 //  NetworkDestroy (&nw);
 //  nw = NetworkInitialize(heads, tails, ne, maxedges, *nnodes, 0, bipartite);
-//  ie=nw.inedges;
-//  oe=nw.outedges;
 //  id=nw.indegree;
 //  od=nw.outdegree;
 // }
@@ -147,7 +142,6 @@ void PrevalenceWithBernoulliOption(int *nnodes,
   Vertex *bheads, *btails;
   int *sinfected, *bsort;
   double beta=*betarate;
-  TreeNode *ie, *oe;
   Network nw, nws, nwt;
   
   sinfected = (int *) malloc(sizeof(int) * (*nnodes));
@@ -161,8 +155,6 @@ void PrevalenceWithBernoulliOption(int *nnodes,
   }else{
     nw = nws;
   }
-  ie=nw.inedges;
-  oe=nw.outedges;
   id=nw.indegree;
   od=nw.outdegree;
   ndyads = bipartite*(nws.nnodes-bipartite);
@@ -180,9 +172,9 @@ void PrevalenceWithBernoulliOption(int *nnodes,
     for (i=0; i < *nfem; i++) {
      /* step through outedges of i  */
      if(sinfected[i]){
-      for(e = EdgetreeMinimum(oe, i+1);
-	(alter = oe[e].value) != 0;
-	e = EdgetreeSuccessor(oe, e)){
+      for(e = EdgetreeMinimum(nw.outedges, i+1);
+	(alter = nw.outedges[e].value) != 0;
+	e = EdgetreeSuccessor(nw.outedges, e)){
 	     if(!sinfected[alter-1]){
 //  Rprintf("time %d i %d sinfected %d alter %d sinfected %d beta %f\n",time,i,sinfected[i],alter,sinfected[alter],beta);
  	       if(unif_rand() < beta/od[i+1]){sinfected[alter-1]=1;}
@@ -195,9 +187,9 @@ void PrevalenceWithBernoulliOption(int *nnodes,
 //    Rprintf("males time %d i %d sinfected %d\n",time,i,sinfected[i]);
     /* step through outedges of i  */
     if(sinfected[i]){
-     for(e = EdgetreeMinimum(ie, i+1);
-       (alter = ie[e].value) != 0;
-       e = EdgetreeSuccessor(ie, e)){
+     for(e = EdgetreeMinimum(nw.inedges, i+1);
+       (alter = nw.inedges[e].value) != 0;
+       e = EdgetreeSuccessor(nw.inedges, e)){
 //    Rprintf("time %d i %d sinfected %d alter %d sinfected %d beta %f\n",time,i,sinfected[i],alter,sinfected[alter],beta);
           if(!sinfected[alter-1]){
 //    Rprintf("time %d i %d sinfected %d alter %d sinfected %d beta %f\n",time,i,sinfected[i],alter,sinfected[alter],beta);
@@ -238,8 +230,6 @@ void PrevalenceWithBernoulliOption(int *nnodes,
       nw = NetworkInitialize(bheads, btails, nwedge,
                              *nnodes, 0, bipartite,0);
 //    Rprintf("network reinitalized for Bernoulli bipartite %d edges %d\n", bipartite,nw.nedges);
-      ie=nw.inedges;
-      oe=nw.outedges;
       id=nw.indegree;
       od=nw.outdegree;
       free (bheads);
@@ -258,8 +248,6 @@ void PrevalenceWithBernoulliOption(int *nnodes,
     NetworkDestroy (&nw);
     nw = NetworkInitialize(edge, edge+*nedge, ne,
                            *nnodes, 0, bipartite,0);
-    ie=nw.inedges;
-    oe=nw.outedges;
     id=nw.indegree;
     od=nw.outdegree;
    }
