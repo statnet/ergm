@@ -166,7 +166,8 @@ InitErgmTerm.altkstar <- function(nw, arglist, initialfit=FALSE, ...) {
        )
   } else {
     outlist <- list (name="altkstar",                      #name: required
-       coef.names = paste("altkstar", lambda, sep="."),  #coef.names: required
+       coef.names = "altkstar",  #coef.names: required
+#       coef.names = paste("altkstar", lambda, sep="."),  #coef.names: required
        inputs=lambda
        )
   }
