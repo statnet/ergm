@@ -1,4 +1,4 @@
-ergm.getnetwork <- function (formula, loopswarning=FALSE) {
+ergm.getnetwork <- function (formula, loopswarning=TRUE) {
   current.warn <- options()$warn
 # options(warn=0)
   if ((dc<-data.class(formula)) != "formula")
