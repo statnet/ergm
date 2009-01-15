@@ -25,8 +25,7 @@ ergm <- function(formula, theta0="MPLE",
   if (verbose) cat("Evaluating network in model\n")
   nw <- ergm.getnetwork(formula)
   if(control$nsubphases=="maxit") control$nsubphases<-maxit  
-                              
-  
+
   if (verbose) cat("Initializing model.\n")    
    model.initial <- ergm.getmodel(formula, nw, drop=FALSE, initialfit=TRUE)
    droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
@@ -59,9 +58,10 @@ ergm <- function(formula, theta0="MPLE",
                                 force.MPLE=(ergm.independencemodel(model.initial)
                                             && constraints==(~.)),
                                 ...)
-  if (MLestimate && (!ergm.independencemodel(model.initial)
-                     || constraints!=(~.))
-     || control$force.mcmc) {
+  MCMCflag <- ((MLestimate && (!ergm.independencemodel(model.initial)
+                               || constraints!=(~.)))
+                || control$force.mcmc)
+  if (MCMCflag) {
     theta0 <- initialfit$coef
     names(theta0) <- model.initial$coef.names
     theta0[is.na(theta0)] <- 0
@@ -144,6 +144,10 @@ ergm <- function(formula, theta0="MPLE",
   if (!control$returnMCMCstats)
     v$sample <- NULL
   options(warn=current.warn)
+  if (MCMCflag) {
+    cat("\nThis model was fit using MCMC.  To examine model diagnostics", 
+        "and check for degeneracy, use the mcmc.diagnostics() function.\n")
+  }
   v
 }
 

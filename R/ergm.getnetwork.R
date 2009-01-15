@@ -12,7 +12,7 @@
 #                Martina Morris, University of Washington
 # Copyright 2007 The statnet Development Team
 ######################################################################
-ergm.getnetwork <- function (formula, loopswarning=FALSE) {
+ergm.getnetwork <- function (formula, loopswarning=TRUE) {
   current.warn <- options()$warn
 # options(warn=0)
   if ((dc<-data.class(formula)) != "formula")
