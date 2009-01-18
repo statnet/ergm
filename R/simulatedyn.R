@@ -4,7 +4,7 @@ simulatedyn <- function(object, dissolve, nsteps=1, seed=NULL, theta,gamma,
                         dissolve.order="DissThenForm",
                         control=control.simulatedyn(),
                         toggles=TRUE,
-                        verbose=FALSE) {
+                        verbose=FALSE, ...) {
   formula <- object
 
   control$dyninterval<-dyninterval
