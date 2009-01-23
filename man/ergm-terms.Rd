@@ -117,7 +117,7 @@ network
   The terms currently available are:
   \describe{
     
-    \item{\code{absdiff(attrname,pow=1)}}{\emph{Absolute difference:}
+    \item{\code{absdiff(attrname, pow=1)}}{\emph{Absolute difference:}
     The \code{attrname} argument is a character string giving the name
     of a quantitative attribute in the network's vertex attribute
     list. This term adds one network statistic to the model equaling the

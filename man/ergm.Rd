@@ -96,6 +96,11 @@ Hunter (2008).  To create a
 	having the same number of edges as the network passed
 	in the model formula have non-zero probability.
       }
+      
+      \item{\code{observed}}{
+	Preserve the observed dyads of the given network.
+      }
+      
 %      \item{\code{hamming}}{
 %	No clue.
 %      }
