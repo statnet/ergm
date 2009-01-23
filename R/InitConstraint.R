@@ -7,7 +7,8 @@ ConstraintImplications<-list(edges=character(0),
                              bd=character(0),
                              indegrees=c("edges"),
                              outdegrees=c("edges"),
-                             hamming=character(0))
+                             hamming=character(0),
+                             nonobserved=character(0))
 
 InitConstraint.edges<-function(conlist){
    if (nargs()>1)
@@ -70,4 +71,11 @@ InitConstraint.hamming<-function(conlist){
      stop(paste("Hamming distance constraint does not take arguments at this time."), call.=FALSE)
    conlist$hamming<-list()
    conlist
+}
+
+InitConstraint.observed <- function(conlist){
+  if(nargs()>1)
+    stop(paste("Toggle non-observed constraint does not take arguments at this time."), call.=FALSE)
+  conlist$nonobserved<-list()
+  conlist
 }

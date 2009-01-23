@@ -2495,13 +2495,15 @@ InitErgm.nearsimmelian<-function (nw, m, arglist, drop=TRUE, ...) {
 #########################################################
 InitErgm.nodecov<-InitErgm.nodemain<-function (nw, m, arglist, ...) {
   a <- ergm.checkargs("nodecov", arglist,
-    varnames = c("attrname"),
-    vartypes = c("character"),
-    defaultvalues = list(NULL),
-    required = c(TRUE))
+    varnames = c("attrname","transform","transformname"),
+    vartypes = c("character","function","character"),
+    defaultvalues = list(NULL,function(x)x,""),
+    required = c(TRUE,FALSE,FALSE))
   attrname<-a$attrname
-  m$coef.names<-c(m$coef.names, paste("nodecov",attrname,sep="."))
-  nodecov <- get.node.attr(nw, attrname, "nodecov", numeric=TRUE)
+  f<-a$transform
+  f.name<-a$transformname
+  m$coef.names<-c(m$coef.names, paste(paste("nodecov",f.name,sep=""),attrname,sep="."))
+  nodecov <- f(get.node.attr(nw, attrname, "nodecov", numeric=TRUE))
   termnumber<-1+length(m$terms)
   m$terms[[termnumber]] <- list(name="nodecov", soname="ergm",
                                 inputs=c(0,1,length(nodecov),nodecov),
@@ -2568,13 +2570,15 @@ InitErgm.nodeicov<-function (nw, m, arglist, ...) {
   ergm.checkdirected("nodeicov", is.directed(nw), requirement=TRUE,
                      extramessage="See 'nodecov'.")
   a <- ergm.checkargs("nodeicov", arglist,
-    varnames = c("attrname"),
-    vartypes = c("character"),
-    defaultvalues = list(NULL),
-    required = c(TRUE))
+    varnames = c("attrname","transform","transformname"),
+    vartypes = c("character","function","character"),
+    defaultvalues = list(NULL,function(x)x,""),
+    required = c(TRUE,FALSE,FALSE))
   attrname<-a$attrname
-  m$coef.names<-c(m$coef.names, paste("nodeicov",attrname,sep="."))
-  nodecov <- get.node.attr(nw, attrname, "nodeicov", numeric=TRUE)
+  f<-a$transform
+  f.name<-a$transformname
+  m$coef.names<-c(m$coef.names, paste(paste("nodeicov",f.name,sep=""),attrname,sep="."))
+  nodecov <- f(get.node.attr(nw, attrname, "nodeicov", numeric=TRUE))
   termnumber<-1+length(m$terms)
   m$terms[[termnumber]] <- list(name="nodeicov", soname="ergm",
                                 inputs=c(0,1,length(nodecov),nodecov),
@@ -2850,13 +2854,15 @@ InitErgm.nodeocov<-function (nw, m, arglist, ...) {
   ergm.checkdirected("nodeocov", is.directed(nw), requirement=TRUE,
                      extramessage="See 'nodecov'.")
   a <- ergm.checkargs("nodeocov", arglist,
-    varnames = c("attrname"),
-    vartypes = c("character"),
-    defaultvalues = list(NULL),
-    required = c(TRUE))
+    varnames = c("attrname","transform","transformname"),
+    vartypes = c("character","function","character"),
+    defaultvalues = list(NULL,function(x)x,""),
+    required = c(TRUE,FALSE,FALSE))
   attrname<-a$attrname
-  m$coef.names<-c(m$coef.names, paste("nodeocov",attrname,sep="."))
-  nodecov <- get.node.attr(nw, attrname, "nodeocov", numeric=TRUE)
+  f<-a$transform
+  f.name<-a$transformname
+  m$coef.names<-c(m$coef.names, paste(paste("nodeocov",f.name,sep=""),attrname,sep="."))
+  nodecov <- f(get.node.attr(nw, attrname, "nodeocov", numeric=TRUE))
   termnumber<-1+length(m$terms)
   m$terms[[termnumber]] <- list(name="nodeocov", soname="ergm",
                                 inputs=c(0,1,length(nodecov),nodecov),
