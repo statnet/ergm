@@ -127,6 +127,10 @@ Hunter (2008).  To create a
   }
 }
 
+\section{Modeling Partially Observed Networks}{
+
+}
+
 \section{Model Terms}{
   The \code{\link{ergm}} function allows the user to explore a large number
   of potential models for their network data.  The
