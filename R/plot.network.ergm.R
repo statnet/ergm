@@ -85,8 +85,8 @@
 #
 # Get missingness matrix
 #
-   Ydesign <- get.network.attribute(x,"design")  
-   if(!is.null(Ydesign)){
+   Ydesign <- is.na(x)  
+   if(network.edgecount(Ydesign)!=0){
     if(is.network(Ydesign)){Ydesign <- as.sociomatrix(Ydesign)}
     Ydesign <- Ydesign==0
    }   
