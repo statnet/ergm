@@ -60,6 +60,7 @@ ergm.pl<-function(Clist, Clist.miss=NULL, m, theta.offset=NULL,
       theta.offset[m$etamap$offsettheta] <- -Inf
     }
     foffset <- xmat[,m$etamap$offsettheta,drop=FALSE]%*%theta.offset[m$etamap$offsettheta]
+    foffset[is.nan(foffset)] <- 0 # zero times +-Inf should be zero in this context
 #   shouldoffset <- apply(abs(xmat[,m$etamap$offsettheta,drop=FALSE])>1e-8,1,any)
     xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE]
     colnames(xmat) <- m$coef.names[!m$etamap$offsettheta]

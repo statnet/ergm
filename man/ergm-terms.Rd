@@ -875,7 +875,7 @@ network
     used with directed networks.}
     
     \item{\code{triadcensus(d)}}{\emph{Triad census:} 
-    For an undirected network, this term adds one network statistic for each of
+    For a directed network, this term adds one network statistic for each of
     an arbitrary subset of the 16 possible types of triads categorized by
     Davis and Leinhardt (1972) as \code{003, 012, 102, 021D, 021U, 021C, 111D,
     111U, 030T, 030C, 201, 120D, 120U, 120C, 210,} and \code{300}. Note that at
