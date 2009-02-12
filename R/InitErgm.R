@@ -3172,6 +3172,7 @@ InitErgm.receiver<-function(nw, m, arglist, drop=FALSE, ...) {
                                 inputs=c(0, ld, ld, d),
                                 dependence=FALSE)
   m$coef.names<-c(m$coef.names,paste("receiver",d,sep=""))
+  m$terms[[termnumber]]$emptynwstats <- sum(nw[,1])
   m
 }
 
@@ -3211,6 +3212,7 @@ InitErgm.sender<-function(nw, m, arglist, drop=FALSE, ...) {
                                 inputs=c(0, ld, ld, d), 
                                 dependence=FALSE)
   m$coef.names<-c(m$coef.names,paste("sender",d,sep=""))
+  m$terms[[termnumber]]$emptynwstats <- sum(nw[1,])
   m
 }
 
@@ -3392,6 +3394,7 @@ InitErgm.triadcensus<-function (nw, m, arglist, drop=FALSE, ...) {
     defaultvalues = list(NULL),
     required = c(FALSE))
   d<-a$d
+  emptynwstats<-NULL
 
   if(is.directed(nw)){
    tcn <- c("003","012", "102", "021D", "021U", "021C", "111D",
@@ -3417,6 +3420,12 @@ InitErgm.triadcensus<-function (nw, m, arglist, drop=FALSE, ...) {
      d <- d[!mdegree]
     }
   }
+  if (any(d==0)) {
+    emptynwstats <- rep(0,length(d))
+    nwsize <- network.size(nw)
+    # to undo triadcensus change, comment out next line:
+    emptynwstats[d==0] <- nwsize * (nwsize-1) * (nwsize-2) / 6
+  }
   d <- d + 1
   lengthd<-length(d)
   if(lengthd==0){return(m)}
@@ -3426,6 +3435,8 @@ InitErgm.triadcensus<-function (nw, m, arglist, drop=FALSE, ...) {
                                       inputs=c(0, lengthd, lengthd, d),
                                       dependence=TRUE)
   m$coef.names<-c(m$coef.names, paste("triadcensus",tcn,sep=".")[d])
+  if (!is.null(emptynwstats))
+    m$terms[[termnumber]]$emptynwstats <- emptynwstats
   m
 }
 

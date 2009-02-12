@@ -168,10 +168,10 @@ Edge DaveWtEdgetreeMinimum (WtTreeNode *edges, Edge x) {
   Edge y;
 Rprintf("Here we go!\n");
 
-Wtprintedge(edges, x);
+Wtprintedge(x, edges);
   while ((y=(edges+x)->left) != 0) {
     x=y;
-Wtprintedge(edges, x);
+Wtprintedge(x, edges);
   }
   return x;
 }
@@ -413,7 +413,7 @@ int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges,
 }
 
 /*****************
- void printedge
+ void Wtprintedge
 
  Diagnostic routine that prints out the contents
  of the specified WtTreeNode (used for debugging).  

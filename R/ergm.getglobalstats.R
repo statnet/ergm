@@ -51,142 +51,23 @@ ergm.getglobalstats <- function(nw, m) {
     }
   }
   
-
-  # Next few lines are commented out because they have been replaced by
-  # new method above!
-#  tdegree0  <- match( "degree0",names(gs)) 
-#  if(!is.na(tdegree0)){
-#    gs[tdegree0] <- gs[tdegree0] + Clist$n
-#  }
-#  tidegree0  <- grep( "idegree0",names(gs)) 
-#  if(any(tidegree0 > 0)){
-#    gs[tidegree0] <- gs[tidegree0] + Clist$n
-#  }
-#  todegree0  <- grep( "odegree0",names(gs)) 
-#  if(any(todegree0 > 0)){
-#    gs[todegree0] <- gs[todegree0] + Clist$n
-#  }
-#  tdegree0  <- match( "b1degree0",names(gs)) 
-#  if(!is.na(tdegree0)){
-#    gs[tdegree0] <- gs[tdegree0] + nb1
-#  }
-#  tdegree0  <- grep( "b1deg.",names(gs)) 
-#  if(any(tdegree0 > 0)){
-#    for(i in seq(along=m$terms)){
-#     if(m$terms[[i]]$name=="b1degree_by_attr"){
-#       nterms <- (m$terms[[i]]$inputs)[2]
-#       aaa <- (m$terms[[1]]$inputs)[-c(1:(nterms*2+3))]
-#       aaa <- table(aaa[1:nb1])
-#       bbb <- matrix((m$terms[[i]]$inputs)[c(4:(nterms*2+3))],2)
-#       ccc <- gs[tdegree0] < 0
-#       gs[tdegree0][ccc] <- gs[tdegree0][ccc] + aaa[bbb[2,bbb[1,]==0]]
-#     }
-#    }
-#  }
-#  tdegree0  <- grep( "b2deg.",names(gs)) 
-#  if(any(tdegree0 > 0)){
-#    for(i in seq(along=m$terms)){
-#     if(m$terms[[i]]$name=="b2degree_by_attr"){
-#       nterms <- (m$terms[[i]]$inputs)[2]
-#       aaa <- (m$terms[[1]]$inputs)[-c(1:(nterms*2+3))]
-#       aaa <- table(aaa[-c(1:nb1)])
-#       bbb <- matrix((m$terms[[i]]$inputs)[c(4:(nterms*2+3))],2)
-#       ccc <- gs[tdegree0] < 0
-#       gs[tdegree0][ccc] <- gs[tdegree0][ccc] + aaa[bbb[2,bbb[1,]==0]]
-#     }
-#    }
-#  }
-#  tdegree0  <- match( "b2degree0",names(gs)) 
-#  if(!is.na(tdegree0)){
-#    gs[tdegree0] <- gs[tdegree0] + nb2
-#  }
-#  tspartner0 <- match("spartner0",names(gs))
-#  if(!is.na(tspartner0)){
-#    gs[tspartner0] <- gs[tspartner0] + Clist$nedges 
-#  }
-#  tsesp0 <- match("esp0",names(gs))
-#  if(!is.na(tsesp0)){
-#    gs[tsesp0] <- gs[tsesp0] + Clist$nedges 
-#  }
-  #
-  tgeodeg <- grep("geodegree",names(gs))
-  if(length(tgeodeg) >0){
-    gs[tgeodeg] <- Clist$n + gs[tgeodeg]
-  }
-  #
-#  tisolates <- grep("isolates",names(gs))
-#  if(length(tisolates) >0){
-#    gs[tisolates] <- Clist$n + gs[tisolates]
-#  }
-  ts <- grep("sender[1-9]",names(gs))
-  if(length(ts) > 0){
-    gs[ts] <- sum(as.sociomatrix(nw)[1,]) + gs[ts]
-  }
-  ts <- grep("receiver[1-9]",names(gs))
-  if(length(ts) > 0){
-    gs[ts] <- sum(as.sociomatrix(nw)[,1]) + gs[ts]
-  }
-  tesa <- grep("esa0",names(gs))
-  if(length(tesa) >0){
-   if(is.bipartite(nw)){
-    gs[tesa] <- nb2*(nb2-1)/2 + gs[tesa]
-   }else{
-    gs[tesa] <- dyads + gs[tesa]
-   }
-  }
-  twdeg <- grep("ewdegree",names(gs))
-  if(length(twdeg) >0){
-    gs[twdeg] <- Clist$n + gs[twdeg]
-  }
-  tase <- grep("coincidences0",names(gs))
-  if(length(tase) >0){
-   if(is.bipartite(nw)){
-    gs[tase] <- nb1*(nb1-1)/2 + gs[tase]
-   }else{
-    gs[tase] <- dyads + gs[tase]
-   }
-  }
+  # It looks impossible to handle "duration" using the $emptynwstats, so 
+  # this is done separately:
   tase <- grep("duration",names(gs))
   if(length(tase) >0){
     gs[tase] <- -gs[tase]
   }
-  # tgeosdeg <- grep("geospartner",names(gs))
-  # if(length(tgeosdeg) >0){
-  #   gs[tgeosdeg] <- Clist$nedges + gs[tgeosdeg]
-  # }
-  # twdeg <- grep("gwdegree",names(gs))
-  # if(length(twdeg) >0){
-  #   gs[twdeg] <- Clist$n + gs[twdeg]
-  # }
-  # tgwesp <- grep("gwesp",names(gs))
-  # if(length(tgwesp) >0){
-  #   gs[tgwesp] <- Clist$nedges + gs[tgwesp]
-  # }
-  tase <- grep("heideriandynamic",names(gs))
-  if(length(tase) >0){
-    gs[tase] <- summary(nw~asymmetric)+gs[tase]
-  }
-#  tase <- match("transitivity",names(gs))
+  
+  # to undo triadcensus change, uncomment next 8 lines:
+#  tase <- match("triadcensus.003",names(gs))
 #  if(!is.na(tase)){
-#    gs[tase] <- nnodes*(nnodes-1)*(nnodes-2)/6+gs[tase]
+#    gs[tase] <- nnodes*(nnodes-1)*(nnodes-2)/6-gs[tase]
 #  }
-#  tase <- match("transitive",names(gs))
+#  tase <- match("triadcensus.0",names(gs))
 #  if(!is.na(tase)){
-#    gs[tase] <- nnodes*(nnodes-1)*(nnodes-2)/6+gs[tase]
+#    gs[tase] <- nnodes*(nnodes-1)*(nnodes-2)/6-gs[tase]
 #  }
-  tase <- grep("intransitivedynamic",names(gs))
-  if(length(tase) >0){
-    gs[tase] <- summary(nw~intransitive)+gs[tase]
-#   gs[tase] <- nnodes*(nnodes-1)*(nnodes-2)/6-gs[tase]
-  }
-  tase <- match("triadcensus.003",names(gs))
-  if(!is.na(tase)){
-    gs[tase] <- nnodes*(nnodes-1)*(nnodes-2)/6-gs[tase]
-  }
-  tase <- match("triadcensus.0",names(gs))
-  if(!is.na(tase)){
-    gs[tase] <- nnodes*(nnodes-1)*(nnodes-2)/6-gs[tase]
-  }
+
   tase <- grep("hamming\\.",names(gs))
   if(length(tase) > 0){
     for(i in seq(along=m$terms)){

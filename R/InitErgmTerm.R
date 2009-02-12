@@ -165,11 +165,15 @@ InitErgmTerm.altkstar <- function(nw, arglist, initialfit=FALSE, ...) {
        params=list(altkstar=NULL, altkstar.lambda=lambda)
        )
   } else {
+    if (initialfit) { # coef.names must match "altkstar" from params list above
+      coef.names = "altkstar"
+    } else { # Not necessary to match; provide more informative label
+      coef.names = paste("altkstar", lambda, sep=".")
+    }
     outlist <- list (name="altkstar",                      #name: required
-       coef.names = "altkstar",  #coef.names: required
-#       coef.names = paste("altkstar", lambda, sep="."),  #coef.names: required
-       inputs=lambda
-       )
+                     coef.names = coef.names,
+                     inputs=lambda
+                     )
   }
   outlist
 }

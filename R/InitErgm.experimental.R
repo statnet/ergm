@@ -583,6 +583,7 @@ InitErgm.geodegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
                                   inputs=c(0, 1, length(alpha), alpha))
     m$coef.names<-c(m$coef.names,"geodegree")
   }
+  m$terms[[termnumber]]$emptynwstats <- network.size(nw)
   m
 }
 
@@ -893,6 +894,7 @@ InitErgm.heideriandynamic<-function (nw, m, arglist, ...) {
     cn<-paste("heideriandynamic", as.character(sys.call(0)[[4]][2]), sep = ".")
 
   m$coef.names <- c(m$coef.names, cn)
+  m$terms[[termnumber]]$emptynwstats <- summary(nw~asymmetric)
   m
 }
 
@@ -1012,7 +1014,8 @@ InitErgm.intransitivedynamic<-function (nw, m, arglist, ...) {
      cn<-paste("intransitivedynamic", as.character(sys.call(0)[[4]][2]), sep = ".")
 
    m$coef.names <- c(m$coef.names, cn)
-  m
+   m$terms[[termnumber]]$emptynwstats <- summary(nw~intransitive)
+   m
 }
 
 #########################################################
