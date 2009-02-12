@@ -58,6 +58,7 @@ ergm.getglobalstats <- function(nw, m) {
     gs[tase] <- -gs[tase]
   }
   
+  # SEARCH_ON_THIS_TO_TRACK_DOWN_TRIADCENSUS_CHANGE
   # to undo triadcensus change, uncomment next 8 lines:
 #  tase <- match("triadcensus.003",names(gs))
 #  if(!is.na(tase)){
@@ -67,6 +68,10 @@ ergm.getglobalstats <- function(nw, m) {
 #  if(!is.na(tase)){
 #    gs[tase] <- nnodes*(nnodes-1)*(nnodes-2)/6-gs[tase]
 #  }
+
+
+## Please stop adding ad hoc global-stat-changing code here.  Use
+## emptynwstats in the InitErgm function instead.
 
   tase <- grep("hamming\\.",names(gs))
   if(length(tase) > 0){
@@ -104,17 +109,21 @@ ergm.getglobalstats <- function(nw, m) {
      }
     }
   }
-  tase <- grep("hammingmix\\.",names(gs))
-  if(length(tase) > 0){
-    for(i in seq(along=m$terms)){
-     if(m$terms[[i]]$name=="hammingmix"){
-       ng0 <-  m$terms[[i]]$inputs[4]
-       nu <-  m$terms[[i]]$inputs[1]
-       nw %v% "nodecov" <- m$terms[[i]]$inputs[-c(1:(2*ng0+4+2*nu))]
-       gs[tase] <- summary(nw ~ mix("nodecov",directed=TRUE))+gs[tase]
-     }
-    }
-  }
+
+# Old hammingmix code.  Can be deleted when no longer needed to
+# show how this used to work.
+#  tase <- grep("hammingmix\\.",names(gs))
+#  if(length(tase) > 0){
+#    for(i in seq(along=m$terms)){
+#     if(m$terms[[i]]$name=="hammingmix"){
+#       ng0 <-  m$terms[[i]]$inputs[4]
+#       nu <-  m$terms[[i]]$inputs[1]
+#       nw %v% "nodecov" <- m$terms[[i]]$inputs[-c(1:(2*ng0+4+2*nu))]
+#       gs[tase] <- summary(nw ~ nodemix("nodecov"))+gs[tase]
+#     }
+#    }
+#  }
+
   gs
 }
 

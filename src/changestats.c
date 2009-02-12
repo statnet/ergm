@@ -4501,7 +4501,8 @@ D_CHANGESTAT_FN(d_triadcensus) {
         for(j = 0; j < N_CHANGE_STATS; j++) { 
           triadtype = (Vertex)INPUT_PARAM[j]; 
           
-          switch(triadtype) { /* to undo triadcensus change, change - to plus in 
+          switch(triadtype) { /* SEARCH_ON_THIS_TO_TRACK_DOWN_TRIADCENSUS_CHANGE
+                                 to undo triadcensus change, change - to plus in 
                                   next two lines: */
             case 1:  t003 = -(t300+t210+t120C+t120U+t120D+t201+t030C+t030T);
             t003 = t003-(t111U+t111D+t021C+t021U+t021D+t102+t012);
@@ -4589,7 +4590,8 @@ D_CHANGESTAT_FN(d_triadcensus) {
           for(j = 0; j < N_CHANGE_STATS; j++) {
             triadtype = (Vertex)INPUT_PARAM[j]; 
             
-            switch(triadtype) { /* to undo triadcensus change, change - to plus in 
+            switch(triadtype) { /* SEARCH_ON_THIS_TO_TRACK_DOWN_TRIADCENSUS_CHANGE
+                                  to undo triadcensus change, change - to plus in 
                                   next line: */
               case 1:  t003 = -(t102+t201+t300);
               CHANGE_STAT[j] += edgeflag ? -(double)t003 : (double)t003;

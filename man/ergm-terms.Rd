@@ -520,17 +520,17 @@ network
     a network; if the latter, the optional argument \code{attrname} provides the
     name of the edge attribute to use for weight values.}
     
-    \item{\code{hammingmix(attrname, x, base=0,
-    contrast=FALSE)}}{\emph{Hamming distance within mixing:} 
+    \item{\code{hammingmix(attrname, x, base=0)}}{\emph{Hamming 
+    distance within mixing:} 
     This term adds one statistic to the model for every possible pairing of
     attribute values of the network. Each such statistic is the Hamming distance
     (i.e., the number of differences) between the appropriate subset of dyads in
     the network and the corresponding subset in \code{x}. The ordering of the
-    attribute values is alphabetical. If the option \code{contrast=TRUE} is
-    used, then a statistic for the first pairing is not included, making it the
-    de facto reference category. The option \code{base} gives the index of
+    attribute values is alphabetical. 
+    The option \code{base} gives the index of
     statistics to be omitted from the tabulation. For example \code{base=2} will
-    omit the second statistic, making it the de facto reference category.}
+    omit the second statistic, making it the de facto reference category.
+    This term can only be used with directed networks.}
  
     \item{\code{idegree(d, attrname)}}{\emph{In-degree:} The \code{d} argument
     is a vector of distinct integers. This term adds one network statistic to

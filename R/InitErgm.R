@@ -1992,6 +1992,7 @@ InitErgm.gwodegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
 
 #########################################################
 InitErgm.hammingmix<-function (nw, m, arglist, ...) {
+  ergm.checkdirected("hammingmix", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("hammingmix", arglist=arglist,
     varnames = c("attrname","x","base","contrast"),
     vartypes = c("character","matrixnetwork","numeric","logical"),
@@ -2000,9 +2001,11 @@ InitErgm.hammingmix<-function (nw, m, arglist, ...) {
   attrname<-a$attrname
   x<-a$x
   base<-a$base
-  contrast<-a$contrast
   drop<-a$drop
   drop<-TRUE
+  if (a$contrast) {
+    stop("The 'contrast' argument of the hammingmix term is deprecated.  Use 'base' instead")
+  }
   if(is.network(x)){
     xm<-as.matrix.network(x,matrix.type="edgelist",attrname)
     x<-paste(quote(x))
@@ -2046,11 +2049,8 @@ InitErgm.hammingmix<-function (nw, m, arglist, ...) {
 #      u <- u[!mu,]
 #     }
 #    }
-  if(contrast){
-   u <- u[-1,]
-  }
-  if(all(base!=0)){
-   u <- u[-base,]
+  if (!is.null(base) && !identical(base,0)) {
+    u <- u[-base,]
   }
   termnumber<-1+length(m$terms)
   #  Number of input parameters before covariates equals twice the number
@@ -2061,7 +2061,14 @@ InitErgm.hammingmix<-function (nw, m, arglist, ...) {
             nrow(xm),as.integer(xm), u[,1], u[,2],nodecov),
             dependence=FALSE)
   m$coef.names<-c(m$coef.names,
-       paste("hammingmix",attrname, apply(matrix(namescov[u],ncol=2),1,paste,collapse="."), sep="."))
+                  paste("hammingmix",attrname, 
+                        apply(matrix(namescov[u],ncol=2),1,paste,collapse="."), 
+                        sep="."))
+  # Note:  The emptynwstats code below does not work right for
+  # undirected networks, mostly since hammingmix doesn't work 
+  # in this case anyway.
+  nw %v% "_tmp_nodecov" <- nodecov
+  m$terms[[termnumber]]$emptynwstats <- summary(nw ~ nodemix("_tmp_nodecov"))
   m
 }
 
@@ -3423,6 +3430,7 @@ InitErgm.triadcensus<-function (nw, m, arglist, drop=FALSE, ...) {
   if (any(d==0)) {
     emptynwstats <- rep(0,length(d))
     nwsize <- network.size(nw)
+    # SEARCH_ON_THIS_TO_TRACK_DOWN_TRIADCENSUS_CHANGE
     # to undo triadcensus change, comment out next line:
     emptynwstats[d==0] <- nwsize * (nwsize-1) * (nwsize-2) / 6
   }
