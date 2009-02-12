@@ -452,6 +452,8 @@ InitErgmTerm.hamming<-function (nw, arglist, drop=TRUE, ...) {
   if (is.vector(xm)) xm <- matrix(xm, ncol=2)
 
   ## Process case without dyadcov (i.e. unweighted) ##
+  sc03 <- sys.call(0)[[3]]
+  coef.names <- "hamming"  # This might be modified later
   if (is.null(cov)) {
     if(drop){ #   Check for zero statistics (Should this happen when !is.null(cov)?)
       obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
@@ -459,7 +461,8 @@ InitErgmTerm.hamming<-function (nw, arglist, drop=TRUE, ...) {
         return(NULL) # In this case the observed Hamming distance is zero.
     }
 #    name <- "hamhamming_weighted"
-    coef.names <- paste("hamming",as.character(sys.call(0)[[3]][[2]]),sep=".")
+    if (length(sc03)>1) 
+      coef.names <- paste("hamming", as.character(sc03[[2]]), sep=".")
     covm <- NULL
     if (is.null(defaultweight))
       defaultweight <- 1.0
@@ -487,11 +490,11 @@ InitErgmTerm.hamming<-function (nw, arglist, drop=TRUE, ...) {
     emptynwstats <- sum(apply(xm, 1, function(a,b) sum(b[(a[1]==b[,1] & a[2]==b[,2]),3]), covm))
     if (is.null(defaultweight))
       defaultweight <- 0
-    if(!is.null(attrname)){
-      coef.names<-paste("hamming", as.character(sys.call(0)[[3]][2]), "wt",
+    if(!is.null(attrname) && length(sc03)>1){
+      coef.names<-paste("hamming", as.character(sc03[2]), "wt",
                 as.character(attrname), sep = ".")
-    }else{
-      coef.names<-paste("hamming", as.character(sys.call(0)[[3]][2]), "wt",
+    }else if (length(sc03)>1) {
+      coef.names<-paste("hamming", as.character(sc03[2]), "wt",
                 as.character(sys.call(0)[[3]][3]), sep = ".")
     }
   }

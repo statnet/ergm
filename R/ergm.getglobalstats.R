@@ -21,7 +21,8 @@ ergm.getglobalstats <- function(nw, m) {
   #
                                                                 
   # New method:  Use $emptynwstats added to m$terms by the InitErgm function
-  # For example, check the InitErgm.degree function.
+  # Read the comments at the top of InitErgm.R or InitErgmTerm.R for 
+  # an explanation of the $emptynwstats mechanism
   i <- 1
   for (j in 1:length(m$terms)) {
     tmp <- m$term[[j]]
@@ -31,26 +32,7 @@ ergm.getglobalstats <- function(nw, m) {
     }
     i <- i + k
   }
-  
-  # Old method:  do adjustments on case-by-case basis 
-  # This really needs to be eliminated eventually by inserting the
-  # correct $emptynwstats values into the appropriate InitErgm functions
-
-  nnodes <- network.size(nw)
-  if(is.directed(nw)){
-    dyads <- nnodes*(nnodes-1)
-  }else{
-    if(is.bipartite(nw)){
-      nb1 <- get.network.attribute(nw,"bipartite")
-      nb2 <- network.size(nw) - nb1
-      dyads <- nb2*nb1
-      #   temporary! add these back later
-      #   dyads <- (dyads*(dyads-1))/2
-    }else{
-      dyads <- (nnodes*(nnodes-1))/2
-    }
-  }
-  
+    
   # It looks impossible to handle "duration" using the $emptynwstats, so 
   # this is done separately:
   tase <- grep("duration",names(gs))
@@ -70,45 +52,10 @@ ergm.getglobalstats <- function(nw, m) {
 #  }
 
 
-## Please stop adding ad hoc global-stat-changing code here.  Use
+## Please don't add ad hoc global-stat-changing code here.  Use
 ## emptynwstats in the InitErgm function instead.
 
-  tase <- grep("hamming\\.",names(gs))
-  if(length(tase) > 0){
-    for(i in seq(along=m$terms)){
-     if(m$terms[[i]]$name=="hamming"){
-       ng0 <-  m$terms[[i]]$inputs[4]
-       gs[tase] <- ng0+gs[tase]
-     }
-    }
-  }
-  tase <- grep("hammingdyadcov\\.",names(gs))
-  if(length(tase) > 0){
-    for(i in seq(along=m$terms)){
-     if(m$terms[[i]]$name=="hammingdyadcov"){
-       ng0 <-  m$terms[[i]]$inputs[4]
-       dimnw=dim(as.sociomatrix(nw))
-       g0 <- matrix(m$terms[[i]]$inputs[4+(1:(2*ng0))],ncol=2)
-       g0 <- cbind(g0[,2],g0[,1]-dimnw[1])
-       covm <- array(m$terms[[i]]$inputs[-c(1:(2*ng0+4))], dim=dimnw)
-#      ss <- 0
-#      for(i in 1:nrow(g0)){
-#       ss <- ss + covm[g0[i, 1], g0[i, 2]]
-#      }
-       g00 <- g0[,1]+dimnw[1]*(g0[,2]-1)
-       gs[tase] <- sum(covm[g00])+gs[tase]
-     }
-    }
-  }
-  tase <- grep("hammingfixmix\\.",names(gs))
-  if(length(tase) > 0){
-    for(i in seq(along=m$terms)){
-     if(m$terms[[i]]$name=="hammingfixmix"){
-       ng0 <-  m$terms[[i]]$inputs[4]
-       gs[tase] <- ng0+gs[tase]
-     }
-    }
-  }
+
 
 # Old hammingmix code.  Can be deleted when no longer needed to
 # show how this used to work.

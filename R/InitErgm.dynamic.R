@@ -1,7 +1,6 @@
 #  See InitErgm.R for a general explanation 
 #  of InitErgm functions
 InitErgm.dissolve<-function (nw, m, arglist, ...) {
-# ergm.checkdirected("hammingdyadcov", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("dissolve", arglist=arglist,
     varnames = c("x"),
     vartypes = c("matrixnetwork"),
@@ -30,7 +29,6 @@ InitErgm.dissolve<-function (nw, m, arglist, ...) {
 }
 
 InitErgm.formation<-function (nw, m, arglist, ...) {
-# ergm.checkdirected("hammingdyadcov", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("formation", arglist=arglist,
     varnames = c("x"),
     vartypes = c("matrixnetwork"),
