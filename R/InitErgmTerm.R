@@ -649,10 +649,21 @@ InitErgmTerm.nodeifactor<-function (nw, arglist, drop=TRUE, ...) {
                       required = c(TRUE, FALSE))
   assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
-  nodecov <- get.node.attr(nw, attrname)
+
+  nodecov <-
+    if(length(attrname)==1)
+      get.node.attr(nw, attrname)
+    else{
+      do.call(paste,c(sapply(attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
+    }
+
   u <- sort(unique(nodecov))
   if (!is.null(base) && !identical(base,0)) {
     u <- u[-base]
+    if (length(u)==0) { # Get outta here!  (can happen if user passes attribute with one value)
+      print("Warning:  nodeifactor term deleted because it contributes no statistics")
+      return()
+    }
   }
   #   Recode to numeric
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -667,11 +678,11 @@ InitErgmTerm.nodeifactor<-function (nw, arglist, drop=TRUE, ...) {
   inputs <- c(ui, nodecov)
   attr(inputs, "ParamsBeforeCov") <- length(ui) # See comment at top of file
   list(name="nodeifactor",                                        #required
-       coef.names = paste("nodeifactor", attrname, u, sep="."), #required
+       coef.names = paste("nodeifactor", paste(attrname,collapse="."), u, sep="."), #required
        inputs = inputs,
        dependence = FALSE # So we don't use MCMC if not necessary
        )
-}  
+}
 
 #########################################################
 InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, drop=TRUE, ...) {
@@ -805,10 +816,21 @@ InitErgmTerm.nodeofactor<-function (nw, arglist, drop=TRUE, ...) {
                       required = c(TRUE, FALSE))
   assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
-  nodecov <- get.node.attr(nw, attrname)
+
+  nodecov <-
+    if(length(attrname)==1)
+      get.node.attr(nw, attrname)
+    else{
+      do.call(paste,c(sapply(attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
+    }
+
   u <- sort(unique(nodecov))
   if (!is.null(base) && !identical(base,0)) {
     u <- u[-base]
+    if (length(u)==0) { # Get outta here!  (can happen if user passes attribute with one value)
+      print("Warning:  nodeofactor term deleted because it contributes no statistics")
+      return()
+    }
   }
   #   Recode to numeric
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -823,7 +845,7 @@ InitErgmTerm.nodeofactor<-function (nw, arglist, drop=TRUE, ...) {
   inputs <- c(ui, nodecov)
   attr(inputs, "ParamsBeforeCov") <- length(ui) # See comment at top of file
   list(name="nodeofactor",                                        #required
-       coef.names = paste("nodeofactor", attrname, u, sep="."), #required
+       coef.names = paste("nodeofactor", paste(attrname,collapse="."), u, sep="."), #required
        inputs = inputs,
        dependence = FALSE # So we don't use MCMC if not necessary
        )
