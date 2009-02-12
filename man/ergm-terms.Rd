@@ -687,7 +687,9 @@ network
     attributes given). Each of these statistics gives the number of
     times a node with that attribute or those attributes appears as the
     terminal node of a directed tie. To include all attribute values is
-    usually not a good idea, because the sum of all such statistics
+    usually not a good idea -- though this may be accomplished if desired
+    by setting \code{base=0} --
+    because the sum of all such statistics
     equals the number of edges and hence a linear dependency would arise
     in any model also including \code{edges}. Thus, the \code{base}
     argument tells which value(s) (numbered in order according to the
@@ -758,7 +760,9 @@ network
     attributes given). Each of these statistics gives the number of
     times a node with that attribute or those attributes appears as the
     node of origin of a directed tie. To include all attribute values is
-    usually not a good idea, because the sum of all such statistics
+    usually not a good idea -- though this may be accomplished if desired
+    by setting \code{base=0} --
+    because the sum of all such statistics
     equals the number of edges and hence a linear dependency would arise
     in any model also including \code{edges}. Thus, the \code{base}
     argument tells which value(s) (numbered in order according to the
