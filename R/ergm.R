@@ -4,7 +4,7 @@ ergm <- function(formula, theta0="MPLE",
                  maxit=3,
                  constraints=~.,
                  meanstats=NULL,
-                 dissolve=NULL, gamma=-4.59512, dissolve.order="DissThenForm",
+                 dissolve=NULL, gamma=-4.59512, dissolve.order="DissThenForm", # this line not in CRAN
                  control=control.ergm(),
                  verbose=FALSE, ...) {
   current.warn <- options()$warn
@@ -41,9 +41,9 @@ ergm <- function(formula, theta0="MPLE",
   }
   if(control$nsubphases=="maxit") control$nsubphases<-maxit
   
-  if (verbose) cat("Fitting initial model.\n")
+  if (verbose) cat("Initializing model.\n")
 
-  proposalclass <- if(is.null(dissolve)) "c" else "f"
+  proposalclass <- if(is.null(dissolve)) "c" else "f"  # This line not in CRAN version
     
   if(control$drop){
    model.initial <- ergm.getmodel(formula, nw, drop=FALSE, initialfit=TRUE)
@@ -56,12 +56,15 @@ ergm <- function(formula, theta0="MPLE",
    model.initial <- ergm.getmodel(formula, nw, drop=control$drop, initialfit=TRUE)
    droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
   }
+  if (verbose) cat("Initializing Metropolis-Hastings proposal.\n")
   MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial,class=proposalclass)
+  # Note:  MHproposal function in CRAN version does not use the "class" argument for now
   MHproposal.miss <- MHproposal("randomtoggleNonObserved", control$prop.args, nw, model.initial)
 
   Clist.initial <- ergm.Cprepare(nw, model.initial)
   Clist.miss.initial <- ergm.design(nw, model.initial, initialfit=TRUE,
                                 verbose=verbose)
+  if (verbose) cat("Fitting initial model.\n")
   Clist.initial$meanstats=meanstats
   theta0copy <- theta0
   initialfit <- ergm.initialfit(theta0copy, MLestimate, Clist.initial,
@@ -135,11 +138,11 @@ ergm <- function(formula, theta0="MPLE",
    }
   }
 
-  if (verbose) cat("ergm.mainfitloop\n")
   MCMCparams=c(control,
    list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,
         maxit=maxit,Clist.miss=Clist.miss, mcmc.precision=control$mcmc.precision))
-  if(!is.null(dissolve)){
+
+  if(!is.null(dissolve)){  # This section not in CRAN version.
     if (verbose) cat("Fitting Dynamic ERGM.\n")
     dissolve<-safeupdate.formula(dissolve,nw~.)
     model.dissolve <- ergm.getmodel(dissolve, nw, dissolve.order=dissolve.order)
@@ -166,7 +169,7 @@ ergm <- function(formula, theta0="MPLE",
     "PILA" = ergm.PILA(theta0, nw, model, Clist,
       MHproposal(constraints,weights=control$prop.weights, control$prop.args, nw, model),
       MCMCparams, control, verbose),
-  
+    #  PILA stuff:  Not in CRAN version
     "Stochastic-Approximation" = ergm.stocapprox(theta0, nw, model, 
                                  Clist, 
                                  MCMCparams=MCMCparams, MHproposal=MHproposal,
@@ -191,12 +194,12 @@ ergm <- function(formula, theta0="MPLE",
   v$degeneracy.value <- degeneracy$degeneracy.value
   v$degeneracy.type <- degeneracy$degeneracy.type
   v$formula <- formula
-  v$formula.diss <- dissolve
+  v$formula.diss <- dissolve  # Not in CRAN version
   v$constraints <- constraints
   v$prop.args <- control$prop.args
   v$prop.weights <- control$prop.weights
-  v$prop.args.diss <- control$prop.args.diss
-  v$prop.weights.diss <- control$prop.weights.diss
+  v$prop.args.diss <- control$prop.args.diss # Not in CRAN version
+  v$prop.weights.diss <- control$prop.weights.diss # Not in CRAN version
 
   v$offset <- model$etamap$offsettheta
   v$drop <- droppedterms

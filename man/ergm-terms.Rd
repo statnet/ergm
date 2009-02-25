@@ -654,9 +654,10 @@ network
     with that attribute or those attributes appears in an edge in the
     network. In particular, for edges whose endpoints both have the same
     attribute values, this value is counted twice. To include all
-    attribute values is usually not a good idea, because the sum of all
-    such statistics equals twice the number of edges and hence a linear
-    dependency would arise in any model also including
+    attribute values is usually not a good idea -- though this may be 
+    accomplished if desired by setting \code{base=0} -- because the sum
+    of all such statistics equals twice the number of edges and hence a 
+    linear dependency would arise in any model also including
     \code{edges}. Thus, the \code{base} argument tells which value(s)
     (numbered in order according to the \code{sort} function) should be
     omitted. The default value, \code{base=1}, means that the smallest

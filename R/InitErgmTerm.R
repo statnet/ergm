@@ -616,6 +616,10 @@ InitErgmTerm.nodefactor<-function (nw, arglist, drop=TRUE, ...) {
   u <- sort(unique(nodecov))
   if (!is.null(base) && !identical(base,0)) {
     u <- u[-base]
+    if (length(u)==0) { # Get outta here!  (can happen if user passes attribute with one value)
+      print("Warning:  nodefactor term deleted because it contributes no statistics")
+      return()
+    }
   }
   #   Recode to numeric
   nodecov <- match(nodecov,u,nomatch=length(u)+1)

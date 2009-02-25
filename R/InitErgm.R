@@ -1992,6 +1992,8 @@ InitErgm.gwodegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
 
 #########################################################
 InitErgm.hammingmix<-function (nw, m, arglist, ...) {
+  # There is no reason hammingmix should be directed-only, but for now
+  # the undirected version does not seem to work properly, so:
   ergm.checkdirected("hammingmix", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("hammingmix", arglist=arglist,
     varnames = c("attrname","x","base","contrast"),
@@ -2064,7 +2066,7 @@ InitErgm.hammingmix<-function (nw, m, arglist, ...) {
                   paste("hammingmix",attrname, 
                         apply(matrix(namescov[u],ncol=2),1,paste,collapse="."), 
                         sep="."))
-  # Note:  The emptynwstats code below does not work right for
+  # The emptynwstats code below does not work right for
   # undirected networks, mostly since hammingmix doesn't work 
   # in this case anyway.
   nw %v% "_tmp_nodecov" <- nodecov
@@ -2659,6 +2661,7 @@ InitErgm.nodeicov<-function (nw, m, arglist, ...) {
 #    defaultvalues = list(NULL, FALSE),
 #    required = c(TRUE, FALSE))
 #  attrname<-a$attrname
+#  diff <- a$diff
 #  nodecov <- get.node.attr(nw, attrname, "nodematch")
 #  u<-sort(unique(nodecov))
 #  if(any(is.na(nodecov))){u<-c(u,NA)}
