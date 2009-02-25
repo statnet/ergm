@@ -13,8 +13,7 @@
 # Copyright 2007 The statnet Development Team
 ######################################################################
 control.ergm<-function(prop.weights="default",prop.args=NULL,
-                       nr.maxit=100, nr.reltol=sqrt(.Machine$double.eps),
-                       calc.mcmc.se=TRUE, hessian=FALSE,
+                       nr.maxit=100, calc.mcmc.se=TRUE, hessian=FALSE,
                        compress=TRUE,
                        maxNumDyadTypes=1e+6, 
                        maxedges=20000,

@@ -12,53 +12,82 @@
 #                Martina Morris, University of Washington
 # Copyright 2007 The statnet Development Team
 ######################################################################
-ergm <- function(formula, theta0="MPLE", 
+ergm <- function(formula, theta0="MPLE",
                  MPLEonly=FALSE, MLestimate=!MPLEonly, seed=NULL,
                  burnin=10000, MCMCsamplesize=10000, interval=100,
                  maxit=3,
                  constraints=~.,
-                 control=control.ergm(),      
+                 meanstats=NULL,
+                 control=control.ergm(),
                  verbose=FALSE, ...) {
   current.warn <- options()$warn
   options(warn=0)
   if(!is.null(seed))  set.seed(as.integer(seed))
   if (verbose) cat("Evaluating network in model\n")
-  nw <- ergm.getnetwork(formula)
-  if(control$nsubphases=="maxit") control$nsubphases<-maxit  
 
-  if (verbose) cat("Initializing model.\n")    
-   model.initial <- ergm.getmodel(formula, nw, drop=FALSE, initialfit=TRUE)
-   droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
+  nw <- ergm.getnetwork(formula)
+  if(!is.null(meanstats)){
+    netsumm<-summary(formula)
+    if(length(netsumm)!=length(meanstats))
+      stop("Incorrect length of the meanstats vector: should be ", length(netsumm), " but is ",length(meanstats),".")
+    
+    control$drop <- FALSE
+
+    if(verbose) cat("Constructing an approximate response network.\n")
+    ## If meanstats are given, overwrite the given network and formula
+    ## with SAN-ed network and formula.
+    nw<-san(formula, meanstats=meanstats,
+            theta0=if(is.numeric(theta0)) theta0, 
+            constraints=constraints,
+            verbose=verbose,
+            burnin=
+            if(is.null(control$SAN.burnin)) burnin
+            else control$SAN.burnin,
+            interval=interval)
+    formula<-safeupdate.formula(formula,nw~.)
+    if (verbose) {
+     cat("Original meanstats:\n")
+     print(meanstats)
+     cat("Original meanstats - SAN meanstats:\n")
+     print(summary(formula, basis=nw)-meanstats)
+    }
+  }
+  if(control$nsubphases=="maxit") control$nsubphases<-maxit
+  
+  if (verbose) cat("Initializing model.\n")
+
   if(control$drop){
+   model.initial <- ergm.getmodel(formula, nw, drop=FALSE, initialfit=TRUE)
    model.initial.drop <- ergm.getmodel(formula, nw, drop=TRUE, initialfit=TRUE)
    namesmatch <- match(model.initial$coef.names, model.initial.drop$coef.names)
+   droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
    droppedterms[is.na(namesmatch)] <- TRUE
    model.initial$etamap$offsettheta[is.na(namesmatch)] <- TRUE
+  }else{
+   model.initial <- ergm.getmodel(formula, nw, drop=control$drop, initialfit=TRUE)
+   droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
   }
-
   if (verbose) cat("Initializing Metropolis-Hastings proposal.\n")
   MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial)
+  MHproposal.miss <- MHproposal("randomtoggleNonObserved", control$prop.args, nw, model.initial)
 
-  if(!is.null(control$initial.network)){
-    nw.initial<-control$initial.network
-  }else{
-    nw.initial<-nw
-  }
-  Clist.initial <- ergm.Cprepare(nw.initial, model.initial)
-  Clist2.initial <- list(heads=0, tails=0, nedges=0, dir=is.directed(nw)) #unused for now
-
+  Clist.initial <- ergm.Cprepare(nw, model.initial)
+  Clist.miss.initial <- ergm.design(nw, model.initial, initialfit=TRUE,
+                                verbose=verbose)
   if (verbose) cat("Fitting initial model.\n")
-  Clist.initial$meanstats=NULL
+  Clist.initial$meanstats=meanstats
   theta0copy <- theta0
   initialfit <- ergm.initialfit(theta0copy, MLestimate, Clist.initial,
-                                Clist2.initial, model.initial,
-                                MPLEtype=control$MPLEtype, verbose=verbose, 
-                                compressflag = control$compress,
+                                Clist.miss.initial, model.initial,
+                                MPLEtype=control$MPLEtype, 
+                                initial.loglik=control$initial.loglik,
+                                verbose=verbose, compressflag = control$compress, 
                                 maxNumDyadTypes=control$maxNumDyadTypes,
                                 force.MPLE=(ergm.independencemodel(model.initial)
                                             && constraints==(~.)),
                                 ...)
   MCMCflag <- ((MLestimate && (!ergm.independencemodel(model.initial)
+                               || !is.null(meanstats)
                                || constraints!=(~.)))
                 || control$force.mcmc)
   if (MCMCflag) {
@@ -97,32 +126,47 @@ ergm <- function(formula, theta0="MPLE",
   }
 
   Clist <- ergm.Cprepare(nw, model)
-  Clist2 <- list(heads=0, tails=0, nedges=0, dir=is.directed(nw)) #unused for now
+  Clist.miss <- ergm.design(nw, model, verbose=verbose)
   Clist$obs <- summary(model$formula, drop=FALSE)
 # Clist$obs <- summary(model$formula, drop=control$drop)
   Clist$meanstats <- Clist$obs
+  if(!is.null(meanstats)){
+   if (is.null(names(meanstats))){
+    if(length(meanstats) == length(Clist$obs)){
+     names(meanstats) <- names(Clist$obs)
+     Clist$meanstats <- meanstats
+    }else{
+     namesmatch <- names(summary(model$formula, drop=FALSE))
+     if(length(meanstats) == length(namesmatch)){
+       namesmatch <- match(names(meanstats), namesmatch)
+       Clist$meanstats <- meanstats[namesmatch]
+     }
+    }
+   }else{
+    namesmatch <- match(names(Clist$obs), names(meanstats))
+    Clist$meanstats[!is.na(namesmatch)] <- meanstats[namesmatch[!is.na(namesmatch)]]
+   }
+  }
 
   MCMCparams=c(control,
-   list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,maxit=maxit,Clist.miss=Clist2))
-  if (verbose) {
-    cat("Fitting ERGM.\n")
-  }
-  v <- switch(control$style,
-              "Robbins-Monro" = ergm.robmon(theta0, nw, model, Clist, burnin, interval,
-                                            MHproposal(constraints,
-                                                       weights=control$prop.weights, 
-                                                       control$prop.args, nw, model), 
-                                            verbose, control),
-              "Stochastic-Approximation" = ergm.stocapprox(theta0, nw, model, 
-                                                           Clist, 
-                                                           MCMCparams=MCMCparams, MHproposal=MHproposal,
-                                                           verbose),
-              ergm.mainfitloop(theta0, nw,
-                               model, Clist,
-                               initialfit,
-                               MCMCparams=MCMCparams, MHproposal=MHproposal,
-                               verbose=verbose, 
-                               ...)
+   list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,
+        maxit=maxit,Clist.miss=Clist.miss, mcmc.precision=control$mcmc.precision))
+
+   if (verbose) cat("Fitting ERGM.\n")
+   v <- switch(control$style,
+    "Robbins-Monro" = ergm.robmon(theta0, nw, model, Clist, burnin, interval,
+                      MHproposal(constraints,weights=control$prop.weights, control$prop.args, nw, model), verbose, control),
+    "Stochastic-Approximation" = ergm.stocapprox(theta0, nw, model, 
+                                 Clist, 
+                                 MCMCparams=MCMCparams, MHproposal=MHproposal,
+                                 verbose),
+                      ergm.mainfitloop(theta0, nw,
+                          model, Clist, 
+                          initialfit,
+                          MCMCparams=MCMCparams, MHproposal=MHproposal,
+                          MHproposal.miss=MHproposal.miss,
+                          verbose=verbose, 
+                          ...)
               )
   if(!is.null(MCMCparams$check.degeneracy) && MCMCparams$check.degeneracy && (is.null(v$theta1$independent) || !all(v$theta1$independent))){
     if(verbose) {
@@ -138,6 +182,7 @@ ergm <- function(formula, theta0="MPLE",
   v$constraints <- constraints
   v$prop.args <- control$prop.args
   v$prop.weights <- control$prop.weights
+
   v$offset <- model$etamap$offsettheta
   v$drop <- droppedterms
   v$etamap <- model$etamap
@@ -150,4 +195,3 @@ ergm <- function(formula, theta0="MPLE",
   }
   v
 }
-

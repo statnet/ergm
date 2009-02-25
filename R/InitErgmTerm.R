@@ -104,17 +104,17 @@
 InitErgmTerm.absdiff <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
-                      varnames = c("attrname"),
-                      vartypes = c("character"),
-                      defaultvalues = list(NULL),
-                      required = c(TRUE))
+                      varnames = c("attrname","pow"),
+                      vartypes = c("character","numeric"),
+                      defaultvalues = list(NULL,1),
+                      required = c(TRUE,FALSE))
   assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
   nodecov <- get.node.attr(nw, attrname)
   ### Construct the list to return
   list(name="absdiff",                                     #name: required
-       coef.names = paste("absdiff", attrname, sep="."), #coef.names: required
-       inputs = nodecov,  # We need to include the nodal covariate for this term
+       coef.names = paste(paste("absdiff",if(pow!=1) pow else "",sep=""), attrname, sep="."), #coef.names: required
+       inputs = c(pow,nodecov),  # We need to include the nodal covariate for this term
        dependence = FALSE # So we don't use MCMC if not necessary
        )
 }
@@ -465,6 +465,8 @@ InitErgmTerm.hamming<-function (nw, arglist, drop=TRUE, ...) {
   if (is.vector(xm)) xm <- matrix(xm, ncol=2)
 
   ## Process case without dyadcov (i.e. unweighted) ##
+  sc03 <- sys.call(0)[[3]]
+  coef.names <- "hamming"  # This might be modified later
   if (is.null(cov)) {
     if(drop){ #   Check for zero statistics (Should this happen when !is.null(cov)?)
       obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
@@ -472,7 +474,8 @@ InitErgmTerm.hamming<-function (nw, arglist, drop=TRUE, ...) {
         return(NULL) # In this case the observed Hamming distance is zero.
     }
 #    name <- "hamhamming_weighted"
-    coef.names <- paste("hamming",as.character(sys.call(0)[[3]][[2]]),sep=".")
+    if (length(sc03)>1) 
+      coef.names <- paste("hamming", as.character(sc03[[2]]), sep=".")
     covm <- NULL
     if (is.null(defaultweight))
       defaultweight <- 1.0
@@ -500,11 +503,11 @@ InitErgmTerm.hamming<-function (nw, arglist, drop=TRUE, ...) {
     emptynwstats <- sum(apply(xm, 1, function(a,b) sum(b[(a[1]==b[,1] & a[2]==b[,2]),3]), covm))
     if (is.null(defaultweight))
       defaultweight <- 0
-    if(!is.null(attrname)){
-      coef.names<-paste("hamming", as.character(sys.call(0)[[3]][2]), "wt",
+    if(!is.null(attrname) && length(sc03)>1){
+      coef.names<-paste("hamming", as.character(sc03[2]), "wt",
                 as.character(attrname), sep = ".")
-    }else{
-      coef.names<-paste("hamming", as.character(sys.call(0)[[3]][2]), "wt",
+    }else if (length(sc03)>1) {
+      coef.names<-paste("hamming", as.character(sc03[2]), "wt",
                 as.character(sys.call(0)[[3]][3]), sep = ".")
     }
   }
@@ -615,10 +618,21 @@ InitErgmTerm.nodefactor<-function (nw, arglist, drop=TRUE, ...) {
                       required = c(TRUE, FALSE))
   assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
-  nodecov <- get.node.attr(nw, attrname)
+
+  nodecov <-
+    if(length(attrname)==1)
+      get.node.attr(nw, attrname)
+    else{
+      do.call(paste,c(sapply(attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
+    }
+
   u <- sort(unique(nodecov))
   if (!is.null(base) && !identical(base,0)) {
     u <- u[-base]
+    if (length(u)==0) { # Get outta here!  (can happen if user passes attribute with one value)
+      print("Warning:  nodefactor term deleted because it contributes no statistics")
+      return()
+    }
   }
   #   Recode to numeric
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -633,7 +647,7 @@ InitErgmTerm.nodefactor<-function (nw, arglist, drop=TRUE, ...) {
   inputs <- c(ui, nodecov)
   attr(inputs, "ParamsBeforeCov") <- length(ui) # See comment at top of file
   list(name="nodefactor",                                        #required
-       coef.names = paste("nodefactor", attrname, u, sep="."), #required
+       coef.names = paste("nodefactor", paste(attrname,collapse="."), u, sep="."), #required
        inputs = inputs,
        dependence = FALSE # So we don't use MCMC if not necessary
        )
@@ -694,7 +708,12 @@ InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, drop=TRUE, ..
                       required = c(TRUE, FALSE, FALSE))
   assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
-  nodecov <- get.node.attr(nw, attrname)
+  nodecov <-
+    if(length(attrname)==1)
+      get.node.attr(nw, attrname)
+    else{
+      do.call(paste,c(sapply(attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
+    }
   u <- sort(unique(nodecov))
   if (!is.null(keep)) {
     u <- u[keep]
@@ -713,10 +732,10 @@ InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, drop=TRUE, ..
   }
   ### Construct the list to return
   if (diff) {
-    coef.names <- paste("nodematch", attrname, u, sep=".")
+    coef.names <- paste("nodematch", paste(attrname,collapse="."), u, sep=".")
     inputs <- c(ui, nodecov)
   } else {
-    coef.names <- paste("nodematch", attrname, sep=".")
+    coef.names <- paste("nodematch", paste(attrname,collapse="."), sep=".")
     inputs <- nodecov
   }
   list(name="nodematch",                                 #name: required
@@ -739,7 +758,14 @@ InitErgmTerm.nodemix<-function (nw, arglist, drop=TRUE, ...) {
   if (is.bipartite(nw) && is.directed(nw)) {
     stop("Directed bipartite networks are not currently possible")
   }
-  nodecov <- get.node.attr(nw, attrname)
+  
+  nodecov <-
+    if(length(attrname)==1)
+      get.node.attr(nw, attrname)
+    else{
+      do.call(paste,c(sapply(attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
+    }
+    
   if(drop) { # Check for zero statistics, print -Inf messages if applicable
     obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
     ew <- extremewarnings(obsstats)
@@ -764,7 +790,7 @@ InitErgmTerm.nodemix<-function (nw, arglist, drop=TRUE, ...) {
     }
     u <- u[!ew,]
     name <- "mix"
-    cn <- paste("mix", attrname, apply(matrix(namescov[u],ncol=2),
+    cn <- paste("mix", paste(attrname,collapse="."), apply(matrix(namescov[u],ncol=2),
                                        1,paste,collapse="."), sep=".")
     inputs <- c(u[,1], u[,2], nodecov)
     attr(inputs, "ParamsBeforeCov") <- NROW(u)
@@ -794,7 +820,7 @@ InitErgmTerm.nodemix<-function (nw, arglist, drop=TRUE, ...) {
     ucm <- ucm[!ew]
     uun <- uun[!ew]
     name <- "nodemix"
-    cn <- paste("mix", attrname, uun, sep=".")
+    cn <- paste("mix", paste(attrname,collapse="."), uun, sep=".")
     inputs <- c(urm, ucm, nodecov)
     #attr(inputs, "ParamsBeforeCov") <- 2*length(uui)
     attr(inputs, "ParamsBeforeCov") <- 2*length(uun)

@@ -1280,6 +1280,8 @@ InitErgm.dsp<-function(nw, m, arglist, drop=TRUE, ...) {
     }else{
       emptynwstats[d==0] <- network.dyadcount(nw)
     }
+  }else{
+    emptynwstats <- NULL
   }
   ld<-length(d)
   if(ld==0){return(m)}
@@ -1287,6 +1289,10 @@ InitErgm.dsp<-function(nw, m, arglist, drop=TRUE, ...) {
   if(is.directed(nw)){dname <- "tdsp"}else{dname <- "dsp"}
   m$terms[[termnumber]] <- list(name=dname, soname="ergm",
                                 inputs=c(0, ld, ld, d))
+
+  if (!is.null(emptynwstats)) 
+    m$terms[[termnumber]]$emptynwstats <- emptynwstats
+
   m$coef.names<-c(m$coef.names,paste("dsp",d,sep=""))
   m
 }
@@ -1791,6 +1797,50 @@ InitErgm.gwidegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
 }
 
 #########################################################
+InitErgm.gwnsp<-function(nw, m, arglist, initialfit=FALSE, ...) {
+# ergm.checkdirected("gwnsp", is.directed(nw), requirement=FALSE)
+  a <- ergm.checkargs("gwnsp", arglist,
+    varnames = c("alpha","fixed"),
+    vartypes = c("numeric","logical"),
+    defaultvalues = list(0, FALSE),
+    required = c(FALSE, FALSE))
+  alpha<-a$alpha;fixed<-a$fixed
+  termnumber<-1+length(m$terms)
+  alpha=alpha[1] # Not sure why anyone would enter a vector here, but...
+  if(!initialfit && !fixed){ # This is a curved exponential family model
+    d <- 1:(network.size(nw)-1)
+    ld<-length(d)
+    if(ld==0){return(m)}
+    map <- function(x,n,...){
+      i <- 1:n
+      x[1]*exp(x[2])*(1-(1-exp(-x[2]))^i)
+    }
+    gradient <- function(x,n,...){
+      i <- 1:n
+      a <- 1-exp(-x[2])
+      exp(x[2]) * rbind(1-a^i, x[1] * (1 - a^i - i*a^(i-1) ) )
+    }
+    if(is.directed(nw)){dname <- "tnsp"}else{dname <- "nsp"}
+    m$terms[[termnumber]] <- list(name=dname, soname="ergm",
+                                  inputs=c(0, ld, ld, d),
+                                  params=list(gwnsp=NULL,gwnsp.alpha=alpha),
+                                  map=map, gradient=gradient)
+    m$coef.names<-c(m$coef.names,paste("nsp#",d,sep=""))
+  }else if (initialfit && !fixed) { # First pass to get MPLE coefficient
+    if(is.directed(nw)){dname <- "gwtnsp"}else{dname <- "gwnsp"}
+    m$terms[[termnumber]] <- list(name=dname, soname="ergm",
+                                  inputs=c(0, 1, 1, alpha))
+    m$coef.names<-c(m$coef.names,"gwnsp") # Must match params$gwnsp above
+  }else{ # fixed == TRUE
+    if(is.directed(nw)){dname <- "gwtnsp"}else{dname <- "gwnsp"}
+    m$terms[[termnumber]] <- list(name=dname, soname="ergm",
+                                  inputs=c(0, 1, 1, alpha))
+    m$coef.names<-c(m$coef.names,paste("gwnsp.fixed.",alpha,sep=""))
+  }
+  m
+}
+
+#########################################################
 InitErgm.gwodegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   ergm.checkdirected("gwodegree", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("gwodegree", arglist,
@@ -1956,6 +2006,9 @@ InitErgm.gwodegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
 
 #########################################################
 InitErgm.hammingmix<-function (nw, m, arglist, ...) {
+  # There is no reason hammingmix should be directed-only, but for now
+  # the undirected version does not seem to work properly, so:
+  ergm.checkdirected("hammingmix", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("hammingmix", arglist=arglist,
     varnames = c("attrname","x","base","contrast"),
     vartypes = c("character","matrixnetwork","numeric","logical"),
@@ -1964,9 +2017,11 @@ InitErgm.hammingmix<-function (nw, m, arglist, ...) {
   attrname<-a$attrname
   x<-a$x
   base<-a$base
-  contrast<-a$contrast
   drop<-a$drop
   drop<-TRUE
+  if (a$contrast) {
+    stop("The 'contrast' argument of the hammingmix term is deprecated.  Use 'base' instead")
+  }
   if(is.network(x)){
     xm<-as.matrix.network(x,matrix.type="edgelist",attrname)
     x<-paste(quote(x))
@@ -2010,11 +2065,8 @@ InitErgm.hammingmix<-function (nw, m, arglist, ...) {
 #      u <- u[!mu,]
 #     }
 #    }
-  if(contrast){
-   u <- u[-1,]
-  }
-  if(all(base!=0)){
-   u <- u[-base,]
+  if (!is.null(base) && !identical(base,0)) {
+    u <- u[-base,]
   }
   termnumber<-1+length(m$terms)
   #  Number of input parameters before covariates equals twice the number
@@ -2025,7 +2077,14 @@ InitErgm.hammingmix<-function (nw, m, arglist, ...) {
             nrow(xm),as.integer(xm), u[,1], u[,2],nodecov),
             dependence=FALSE)
   m$coef.names<-c(m$coef.names,
-       paste("hammingmix",attrname, apply(matrix(namescov[u],ncol=2),1,paste,collapse="."), sep="."))
+                  paste("hammingmix",attrname, 
+                        apply(matrix(namescov[u],ncol=2),1,paste,collapse="."), 
+                        sep="."))
+  # The emptynwstats code below does not work right for
+  # undirected networks, mostly since hammingmix doesn't work 
+  # in this case anyway.
+  nw %v% "_tmp_nodecov" <- nodecov
+  m$terms[[termnumber]]$emptynwstats <- summary(nw ~ nodemix("_tmp_nodecov"))
   m
 }
 
@@ -2883,6 +2942,55 @@ InitErgm.nodeocov<-function (nw, m, arglist, ...) {
 #  m
 #}
 
+#########################################################
+InitErgm.nsp<-function(nw, m, arglist, drop=TRUE, ...) {
+# ergm.checkdirected("nsp", is.directed(nw), requirement=FALSE)
+  a <- ergm.checkargs("nsp", arglist,
+    varnames = c("d"),
+    vartypes = c("numeric"),
+    defaultvalues = list(NULL),
+    required = c(TRUE))
+  d<-a$d
+  if(drop){
+    mnsp <- paste("c(",paste(d,collapse=","),")",sep="")
+    mnsp <- summary(as.formula(paste('nw ~ nsp(',mnsp,')',sep="")),
+                    drop=FALSE)
+    if(any(mnsp==0)){
+      cat(" ")
+      cat(paste("Warning: There are no dyads with nsp", d[mnsp==0],";\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+      dropterms <- paste("nsp", d[mnsp==0],sep="")
+#     cat(paste("To avoid degeneracy the terms",
+#               paste(dropterms,collapse=" and, "),
+#               "have been dropped.\n"))
+      d <- d[mnsp!=0] 
+    }
+  }
+  if (any(d==0)) {
+    emptynwstats <- rep(0, length(d))
+    if(is.bipartite(nw)){
+      nb1 <- get.network.attribute(nw, "bipartite")
+      nb2 <- network.size(nw) - nb1
+      emptynwstats[d==0] <- nb1*(nb1-1)/2 + nb2*(nb2-1)/2
+    }else{
+      emptynwstats[d==0] <- network.dyadcount(nw)
+    }
+  }else{
+    emptynwstats <- NULL
+  }
+  ld<-length(d)
+  if(ld==0){return(m)}
+  termnumber<-1+length(m$terms)
+  if(is.directed(nw)){dname <- "tnsp"}else{dname <- "nsp"}
+  m$terms[[termnumber]] <- list(name=dname, soname="ergm",
+                                inputs=c(0, ld, ld, d))
+  if (!is.null(emptynwstats)) 
+    m$terms[[termnumber]]$emptynwstats <- emptynwstats
+
+  m$coef.names<-c(m$coef.names,paste("nsp",d,sep=""))
+  m
+}
+
 ###################################### InitErgm TERMS:  O
 #########################################################
 InitErgm.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
@@ -3082,6 +3190,7 @@ InitErgm.receiver<-function(nw, m, arglist, drop=FALSE, ...) {
                                 inputs=c(0, ld, ld, d),
                                 dependence=FALSE)
   m$coef.names<-c(m$coef.names,paste("receiver",d,sep=""))
+  m$terms[[termnumber]]$emptynwstats <- sum(nw[,1])
   m
 }
 
@@ -3121,6 +3230,7 @@ InitErgm.sender<-function(nw, m, arglist, drop=FALSE, ...) {
                                 inputs=c(0, ld, ld, d), 
                                 dependence=FALSE)
   m$coef.names<-c(m$coef.names,paste("sender",d,sep=""))
+  m$terms[[termnumber]]$emptynwstats <- sum(nw[1,])
   m
 }
 
@@ -3302,6 +3412,7 @@ InitErgm.triadcensus<-function (nw, m, arglist, drop=FALSE, ...) {
     defaultvalues = list(NULL),
     required = c(FALSE))
   d<-a$d
+  emptynwstats<-NULL
 
   if(is.directed(nw)){
    tcn <- c("003","012", "102", "021D", "021U", "021C", "111D",
@@ -3327,6 +3438,13 @@ InitErgm.triadcensus<-function (nw, m, arglist, drop=FALSE, ...) {
      d <- d[!mdegree]
     }
   }
+  if (any(d==0)) {
+    emptynwstats <- rep(0,length(d))
+    nwsize <- network.size(nw)
+    # SEARCH_ON_THIS_TO_TRACK_DOWN_TRIADCENSUS_CHANGE
+    # to undo triadcensus change, comment out next line:
+    emptynwstats[d==0] <- nwsize * (nwsize-1) * (nwsize-2) / 6
+  }
   d <- d + 1
   lengthd<-length(d)
   if(lengthd==0){return(m)}
@@ -3336,6 +3454,8 @@ InitErgm.triadcensus<-function (nw, m, arglist, drop=FALSE, ...) {
                                       inputs=c(0, lengthd, lengthd, d),
                                       dependence=TRUE)
   m$coef.names<-c(m$coef.names, paste("triadcensus",tcn,sep=".")[d])
+  if (!is.null(emptynwstats))
+    m$terms[[termnumber]]$emptynwstats <- emptynwstats
   m
 }
 
