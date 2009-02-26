@@ -241,6 +241,46 @@ network
     undirected bipartite networks. Note that \code{b1star(1)} is equal to
     \code{b2star(1)} and to \code{edges}. }
     
+    \item{\code{b1starmix(k, attrname, base=NULL, diff=TRUE)}}{\emph{ Mixing
+    matrix for k-stars centered on the first mode of a bipartite network:} Only
+    a single value of \eqn{k} is allowed. This term counts all k-stars in which
+    the b2 nodes (called events in some contexts) are homophilous in the sense
+    that they all share the same value of \code{attrname}. However, the b1 node
+    (in some contexts, the actor) at the center of the k-star does NOT have to
+    have the same value as the b2 nodes; indeed, the values taken by the b1
+    nodes may be completely distinct from those of the b2 nodes, which allows
+    for the use of this term in cases where there are two separate nodal
+    attributes, one for the b1 nodes and another for the b2 nodes (in this case,
+    however, these two attributes should be combined to form a single nodal
+    attribute called \code{attrname}. A different statistic is created for each
+    value of \code{attrname} seen in a b1 node, even if no k-stars are observed
+    with this value. Whether a different statistic is created for each value
+    seen in a b2 node depends on the value of the \code{diff} argument: When
+    \code{diff=TRUE}, the default, a different statistic is created for each
+    value and thus the behavior of this term is reminiscent of the
+    \code{nodemix} term, from which it takes its name; when \code{diff=FALSE},
+    all homophilous k-stars are counted together, though these k-stars are still
+    categorized according to the value of the central b1 node. The \code{base}
+    term may be used to control which of the possible terms are left out of the
+    model: By default, all terms are included, but if \code{base} is set to a
+    vector of indices then the corresponding terms (in the order they would be
+    created when \code{base=NULL}) are left out.}
+
+    \item{\code{b1twostar(b1attrname, b2attrname, base=NULL)}}{\emph{ Two-star
+    census for central nodes ceneterd on the first mode of a bipartite network:}
+    This term takes two nodal attribute names, one for b1 nodes (actors in some
+    contexts) and one for b2 nodes (events in some contexts). Only
+    \code{b1attrname} is required; if \code{b2attrname} is not passed, it is
+    assumed to be the same as \code{b1attrname}. Assuming that there are
+    \eqn{n_1} values of \code{b1attrname} among the b1 nodes and \eqn{n_2}
+    values of \code{b2attrname} among the b2 nodes, then the total number of
+    distinct categories of two stars according to these two attributes is
+    \eqn{n_1(n_2)(n_2+1)/2}. This model term creates a distinct statistic
+    counting each of these categories. The \code{base} term may be used to leave
+    some of these categories out; when passed as a vector of integer indices (in
+    the order the statistics would be created when \code{base=NULL}), the
+    corresponding terms will be left out.}
+    
     \item{\code{b2concurrent(attrname)}}{\emph{Concurrent node count for the
     second mode in a bipartite (aka two-mode) network:} This term adds one
     network statistic to the model, equal to the number of nodes in the second
@@ -302,6 +342,16 @@ network
     undirected bipartite networks. Note that \code{b2star(1)} is equal to
     \code{b1star(1)} and to \code{edges}. }
     
+    \item{\code{b2starmix(k, attrname, base=NULL, diff=TRUE)}}{\emph{ Mixing
+    matrix for k-stars centered on the second mode of a bipartite network:} 
+    This term is exactly the same as \code{b1starmix} except that the roles of
+    b1 and b2 are reversed.}
+    
+    \item{\code{b2twostar(b1attrname, b2attrname, base=NULL)}}{\emph{ Two-star
+    census for central nodes ceneterd on the second mode of a bipartite
+    network:} This term is exactly the same as \code{b1twostar} except that the
+    roles of b1 and b2 are reversed.}    
+
     \item{\code{balance}}{\emph{Balanced triads:} 
     This term adds one network statistic to the model equal to the number of
     triads in the network that are balanced. The balanced triads are those of
@@ -887,6 +937,33 @@ network
     which statistics are included just as for the \code{sender} and
     \code{receiver} terms.}
     
+    \item{\code{threepath(keep=1:4)}}{\emph{ Three-paths:}
+    For an undirected network, this term adds one statistic equal to the number
+    of threepaths, where a threepath is defined as a path of length three that
+    traverses three distinct edges.
+    Note that a threepath need not
+    include four distinct nodes; in particular, a triangle counts as three
+    threepaths.  For a directed network, this term adds four statistics 
+    (or some subset of these four specified by the \code{keep} argument),
+    one for each of the four distinct types of directed three-paths.  If the 
+    nodes of the path are written from left to right such that the middle edge
+    points to the right (R), then the four types are RRR, RRL, LRR, and LRL.
+    That is, an RRR threepath is of the form 
+    \eqn{i\rightarrow j\rightarrow k\rightarrow l}{i-->j-->k-->l}, and RRL
+    threepath is of the form
+    \eqn{i\rightarrow j\rightarrow k\leftarrow l}{i-->j-->k<--l}, etc.
+    Like in the undirected case, there is no requirement that the nodes be
+    distinct in a directed threepath.  However, the three edges must all be 
+    distinct.  Thus, a mutual tie \eqn{i\leftrightarrow j}{i<-->j} does not
+    count as a threepath of the form
+    \eqn{i\rightarrow j\rightarrow i\leftarrow j}{i-->j-->i<--j}; however,
+    in the subnetwork \eqn{i\leftrightarrow j \rightarrow k}{i<-->j-->k},
+    there are two directed threepaths, one LRR
+    (\eqn{k\leftarrow j\rightarrow i\leftarrow j}{k<--j-->i-->j})
+    and one RRR
+    (\eqn{j\rightarrow i\rightarrow j\leftarrow k}{k<--j-->i-->j}).
+    }
+
     \item{\code{transitive}}{\emph{Transitive triads:} 
     This term adds one statistic to the model, equal to the number of triads in
     the network that are transitive. The transitive triads are those of type
