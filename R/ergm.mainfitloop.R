@@ -15,7 +15,7 @@
 ergm.mainfitloop <- function(theta0, nw, model, Clist,
                              initialfit, 
                              MCMCparams, 
-                             MHproposal, 
+                             MHproposal, MHproposal.miss,
                              verbose=FALSE,
                              epsilon=1e-10,
                              sequential=TRUE,
@@ -50,8 +50,26 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     }
     z <- ergm.getMCMCsample(nw, model, MHproposal, eta0, MCMCparams, verbose)
     statsmatrix=z$statsmatrix
-    statsmatrix.miss <- NULL
-    if(verbose){cat("Back from unconstrained MCMC...\n")}
+#    if(verbose && FALSE){
+#      sm<-statsmatrix[,!model$offset,drop=FALSE]
+#      cat("Deviation: ",apply(sm,2,mean),"\n")
+#      require(coda,quiet=TRUE)
+#      cat("Studentized deviation: ",
+#          apply(sm,2,mean)/sqrt(apply(sm^2,2,mean)/effectiveSize(as.mcmc(sm))),
+#          "\n")
+#      effSize<-effectiveSize(as.mcmc(sm))
+#      stats.cov<-t(cov(sm)/effSize)/effSize
+#      cat("Mahalanobis distance: ",
+#          mahalanobis(apply(sm,2,mean),0,stats.cov),
+#          "\n")
+#    }
+    if(MCMCparams$Clist.miss$nedges > 0){
+      statsmatrix.miss <- ergm.getMCMCsample(nw, model, MHproposal.miss, eta0, MCMCparams, verbose)$statsmatrix
+      if(verbose){cat("Back from constrained MCMC...\n")}
+    }else{
+      statsmatrix.miss <- NULL
+      if(verbose){cat("Back from unconstrained MCMC...\n")}
+    }
     if(sequential & MCMCparams$Clist.miss$nedges == 0){
       nw <- z$newnetwork
       nw.obs <- summary(model$formula, basis=nw)
@@ -61,8 +79,12 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
 #
     iteration <- iteration + 1
     if(MCMCparams$steplength<1 && iteration < MCMCparams$maxit ){
+      if(!is.null(statsmatrix.miss)){
+        statsmatrix.miss <- statsmatrix.miss*MCMCparams$steplength+statsmatrix*(1-MCMCparams$steplength)
+      }else{
         statsmean <- apply(statsmatrix,2,mean)
         statsmatrix <- sweep(statsmatrix,2,(1-MCMCparams$steplength)*statsmean,"-")
+      }
     }
     if(z$nedges >= 50000-1 || ergm.checkdegeneracy(statsmatrix, statsmatrix.miss, verbose=verbose)){
      if(iteration <= MCMCparams$maxit){
@@ -109,7 +131,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
   if(!estimate){
     if(verbose){cat("Skipping optimization routines...\n")}
     l <- list(coef=theta0, mc.se=rep(NA,length=length(theta0)),
-              sample=statsmatrix, # sample.miss=statsmatrix.miss,
+              sample=statsmatrix, sample.miss=statsmatrix.miss,
               iterations=1, MCMCtheta=theta0,
               loglikelihood=NA, #mcmcloglik=NULL, 
               mle.lik=NULL,

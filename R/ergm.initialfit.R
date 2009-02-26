@@ -12,9 +12,10 @@
 #                Martina Morris, University of Washington
 # Copyright 2007 The statnet Development Team
 ######################################################################
-ergm.initialfit<-function(theta0, MLestimate, Clist, Clist2, m, 
+ergm.initialfit<-function(theta0, MLestimate, Clist, Clist.miss, m, 
                           MPLEtype="glm", initial.loglik=NULL,
-                          force.MPLE=FALSE, verbose=FALSE, ...) {
+                          force.MPLE=FALSE,
+                          verbose=FALSE, ...) {
 # Process input for call to ergm.mple or some other alternative fitting
 # method.  If the user wishes only to obtain the fit from this method
 # (MLestimate==FALSE), this fit is returned immediately upon return to
@@ -33,11 +34,15 @@ ergm.initialfit<-function(theta0, MLestimate, Clist, Clist2, m,
     }
 
     if(force.MPLE){
-      fit <- ergm.mple(Clist, Clist2, m, MPLEtype=MPLEtype,
+      fit <- ergm.mple(Clist, Clist.miss, m, MPLEtype=MPLEtype,
                        theta0=theta0,
                        verbose=verbose, ...)
-    } else {
-      mle.lik <- -log(2)*Clist$ndyads
+    }else{    
+      if(!is.null(Clist.miss)){
+        mle.lik <- -log(2)*(Clist$ndyads-Clist.miss$nedges)
+      }else{
+        mle.lik <- -log(2)*Clist$ndyads
+      }
       if(!is.null(initial.loglik)){
         mle.lik <- mle.lik-initial.loglik
       }
@@ -48,7 +53,7 @@ ergm.initialfit<-function(theta0, MLestimate, Clist, Clist2, m,
                "used in conjuction with MLestimate=FALSE.\n"))
   } else {
     if (fitmethod==1) {  #  MPLE
-      fit <- ergm.mple(Clist, Clist2, m, MPLEtype=MPLEtype,
+      fit <- ergm.mple(Clist, Clist.miss, m, MPLEtype=MPLEtype,
                        verbose=verbose, ...)
     }
   }

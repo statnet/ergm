@@ -130,3 +130,4 @@ MHproposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NULL, 
   if(is.null(model)) model<-ergm.getmodel(object$formula,nw,...)
   MHproposal(constraints,arguments=arguments,nw=nw,model=model,weights=weights,class=class)
 }
+

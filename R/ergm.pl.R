@@ -12,13 +12,29 @@
 #                Martina Morris, University of Washington
 # Copyright 2007 The statnet Development Team
 ######################################################################
-ergm.pl<-function(Clist, Clist.miss=NULL, m, theta.offset=NULL,
+ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
                     maxMPLEsamplesize=1e+6,
                     maxNumDyadTypes=1e+6,
                     verbose=FALSE, compressflag=TRUE) {
   offset <- rep(0,Clist$ndyads)
   bip <- Clist$bipartite
   n <- Clist$n
+  if(Clist.miss$nedges>0){
+    temp <- matrix(0,ncol=n,nrow=n)
+    base <- cbind(as.vector(col(temp)), as.vector(row(temp)))
+    base <- base[base[, 2] > base[, 1], ]
+    if(Clist.miss$dir){
+      base <- cbind(base[,c(2,1)],base)
+      base <- matrix(t(base),ncol=2,byrow=TRUE)
+    }
+    ubase <- base[,1] + n*base[,2]
+    offset <- !is.na(match(ubase, Clist.miss$heads+Clist.miss$tails*n))
+    offset <- 1*offset
+    numobs <- Clist$ndyads - sum(offset)
+  }else{
+    offset <- NULL
+    numobs <- Clist$ndyads
+  }
   maxNumDyadTypes <- min(maxNumDyadTypes,
                          ifelse(bip>0, bip*(n-bip), 
                                 ifelse(Clist$dir, n*(n-1), n*(n-1)/2)))
@@ -49,6 +65,7 @@ ergm.pl<-function(Clist, Clist.miss=NULL, m, theta.offset=NULL,
   wend <- z$weightsvector[uvals]
   xmat <- matrix(z$x, ncol=Clist$nstats, byrow=TRUE)[uvals,,drop=FALSE]
   colnames(xmat) <- m$coef.names
+  dmiss <- z$compressedOffset[uvals]
   rm(z,uvals)
   #
   # Adjust for the offset
@@ -62,6 +79,7 @@ ergm.pl<-function(Clist, Clist.miss=NULL, m, theta.offset=NULL,
     foffset <- xmat[,m$etamap$offsettheta,drop=FALSE]%*%theta.offset[m$etamap$offsettheta]
     foffset[is.nan(foffset)] <- 0 # zero times +-Inf should be zero in this context
 #   shouldoffset <- apply(abs(xmat[,m$etamap$offsettheta,drop=FALSE])>1e-8,1,any)
+    foffset <- xmat[,m$etamap$offsettheta,drop=FALSE]%*%theta.offset[m$etamap$offsettheta]
     xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE]
     colnames(xmat) <- m$coef.names[!m$etamap$offsettheta]
 #   xmat <- xmat[!shouldoffset,,drop=FALSE]
@@ -79,6 +97,15 @@ ergm.pl<-function(Clist, Clist.miss=NULL, m, theta.offset=NULL,
     }
     names(theta.offset) <- m$coef.names
   }
+  
+  if(Clist.miss$nedges>0){
+    xmat <- xmat[dmiss==0,,drop=FALSE]
+    zy <- zy[dmiss==0]
+    wend <- wend[dmiss==0]
+    foffset <- foffset[dmiss==0]
+    if(is.null(colnames(xmat))){colnames(xmat) <- m$coef.names}
+  }
+  
 #
 # Sample if necessary
 #

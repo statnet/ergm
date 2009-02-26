@@ -71,7 +71,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
                      interval=interval,
                      parallel=control$parallel,
                      packagenames=control$packagenames,
-                     Clist.miss=list(heads=0,tails=0,nedges=0))
+                     Clist.miss=ergm.design(nw, m, verbose=verbose))
   
   if (verb) {
     cat(paste("Starting ",nsim," MCMC iteration", ifelse(nsim>1,"s",""),
@@ -260,7 +260,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
       interval=interval,
       parallel=control$parallel,
       packagenames=control$packagenames,
-      Clist.miss=list(heads=0,tails=0,nedges=0))
+      Clist.miss=ergm.design(nw, m, verbose=verbose))
 
   if (verb) {
     cat(paste("Starting ",nsim," MCMC iteration", ifelse(nsim>1,"s",""),

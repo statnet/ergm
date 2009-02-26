@@ -25,14 +25,36 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     statsmatrix0 <- ergm.sufftoprob(statsmatrix,compress=TRUE)
     probs <- statsmatrix0[,ncol(statsmatrix0)]
     statsmatrix0 <- statsmatrix0[,-ncol(statsmatrix0), drop=FALSE]
+    if(!is.null(statsmatrix.miss)){
+      statsmatrix0.miss <- ergm.sufftoprob(statsmatrix.miss,compress=TRUE)
+      probs.miss <- statsmatrix0.miss[,ncol(statsmatrix0.miss)]
+      statsmatrix0.miss <- statsmatrix0.miss[,-ncol(statsmatrix0.miss), drop=FALSE]
+    }else{
+      statsmatrix0.miss <- NULL
+      probs.miss <- NULL
+    }
   }else{
     statsmatrix0 <- statsmatrix
     probs <- rep(1/nrow(statsmatrix0),nrow(statsmatrix0))
+    if(!is.null(statsmatrix.miss)){
+      statsmatrix0.miss <- statsmatrix.miss
+      probs.miss <- rep(1/nrow(statsmatrix0.miss),nrow(statsmatrix0.miss))
+    }else{
+      statsmatrix0.miss <- NULL
+      probs.miss <- NULL
+    }
   }
   av <- apply(sweep(statsmatrix0,1,probs,"*"), 2, sum)
   xsim <- sweep(statsmatrix0, 2, av,"-")
-  xobs <- - av
-  
+  if(!is.null(statsmatrix.miss)){
+    av.miss <- apply(sweep(statsmatrix0.miss,1,probs.miss,"*"), 2, sum)
+    xsim.miss <- sweep(statsmatrix0.miss, 2, av.miss,"-")
+    xobs <- av.miss-av
+  }else{
+    xsim.miss <- NULL
+    probs.miss <- NULL
+    xobs <- - av
+  }
 #
 # Set up the initial estimate
 #
@@ -44,9 +66,16 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
 # Log-Likelihood and gradient functions
 #
   if(metric=="Likelihood"){
+   if(is.null(statsmatrix.miss)){
 #   Default method
 #   check degeneracy removed from here?
     penalty <- 0.5
+   }else{
+    llik.fun <- llik.fun.miss
+    llik.grad <- llik.fun.miss
+    llik.hessian <- llik.hessian.miss
+    penalty <- 0.5
+   }
   }else{
 #
 #   Simple convergence without log-normal modification to
@@ -65,6 +94,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                     control=list(trace=trace,fnscale=-1,maxit=nr.maxit,reltol=nr.reltol),
                     xobs=xobs,
                     xsim=xsim, probs=probs,
+                    xsim.miss=xsim.miss, probs.miss=probs.miss,
                     penalty=0.5, trustregion=trustregion,
                     eta0=eta0, etamap=model$etamap))
 # if(verbose){cat("Log-likelihood ratio is", Lout$value,"\n")}
@@ -85,10 +115,10 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                       hessian=hessian,
                       method="Nelder-Mead",
                       control=list(trace=trace,fnscale=-1,maxit=100*nr.maxit,
-#                       reltol=nr.reltol,
                         reltol=0.01),
                       xobs=xobs, 
                       xsim=xsim, probs=probs, 
+                      xsim.miss=xsim.miss, probs.miss=probs.miss,
                       penalty=0.5, trustregion=trustregion,
                       eta0=eta0, etamap=model$etamap))
     if(inherits(Lout,"try-error") || Lout$value > 500 ){
@@ -112,6 +142,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   } else {
     gradient <- llik.grad(theta=Lout$par, xobs=xobs, xsim=xsim,
                           probs=probs, 
+                          xsim.miss=xsim.miss, probs.miss=probs.miss,
                           penalty=0.5, eta0=eta0, etamap=model$etamap)
     gradient[model$etamap$offsettheta] <- 0
     #
@@ -125,6 +156,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
       #  Lout$hessian <- cov(xsim)
       Lout$hessian <- llik.hessian(theta=theta, xobs=xobs, xsim=xsim,
                                    probs=probs, 
+                                   xsim.miss=xsim.miss, probs.miss=probs.miss,
                                    penalty=0.5,
                                    eta0=eta0, etamap=model$etamap
                                    )
@@ -150,12 +182,14 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     covar[ model$etamap$offsettheta,] <- NA
     c0  <- llik.fun(theta=Lout$par, xobs=xobs,
                     xsim=xsim, probs=probs,
+                    xsim.miss=xsim.miss, probs.miss=probs.miss,
                     penalty=0.5, eta0=eta0, etamap=model$etamap)
     #   VIP: Note added penalty for more skewness in the 
     #        values computed relative to 0
     #
     c01 <- llik.fun(theta=Lout$par-Lout$par, xobs=xobs,
                     xsim=xsim, probs=probs,
+                    xsim.miss=xsim.miss, probs.miss=probs.miss,
                     penalty=0.67, eta0=eta0, etamap=model$etamap)
     #
     # This is the log-likelihood calc from theta0=0
@@ -196,15 +230,15 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
 #    }
 #    if (verbose) cat("Ending MCMC s.e. ACF computation.\n")
 
-      # Output results as ergm-class object
-    return(structure(list(coef=theta, sample=statsmatrix, 
-                          iterations=iteration, #mcmcloglik=mcmcloglik,
-                          MCMCtheta=theta0, 
-                          loglikelihood=loglikelihood, gradient=gradient,
-                          covar=covar, samplesize=samplesize, failure=FALSE,
-                          mc.se=mc.se#, #acf=mcmcacf,
-                          #fullsample=statsmatrix.all
-                          ),
-                        class="ergm"))
+# Output results as ergm-class object
+return(structure(list(coef=theta, sample=statsmatrix, sample.miss=statsmatrix.miss, 
+                 iterations=iteration, #mcmcloglik=mcmcloglik,
+                 MCMCtheta=theta0, 
+                 loglikelihood=loglikelihood, gradient=gradient,
+                 covar=covar, samplesize=samplesize, failure=FALSE,
+                 mc.se=mc.se#, #acf=mcmcacf,
+                 #fullsample=statsmatrix.all
+                 ),
+            class="ergm"))
   }
 }

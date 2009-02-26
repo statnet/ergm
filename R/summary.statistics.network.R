@@ -42,6 +42,7 @@ summary.statistics.ergm <- function(object, ..., drop=FALSE, basis=NULL)
   summary.statistics.network(object$formula, ..., drop=drop, basis=basis)
 }
 
+summary.statistics.default <-
 summary.statistics.matrix <- 
 summary.statistics.network <- function(object,...,drop=FALSE, basis=NULL) {
   current.warn <- options()$warn
@@ -60,6 +61,9 @@ summary.statistics.network <- function(object,...,drop=FALSE, basis=NULL) {
       while(inherits(nw,"try-error") & parent > 1){
         parent <- parent - 1
         nw <- try(eval(trms[[2]],parent), silent = TRUE)
+      }
+      if (inherits(nw, "try-error")) {
+        stop(trms[[2]], " is not a network or network.series object")
       }
       if(class(nw) =="network.series")
         nw <- nw$networks[[1]]
