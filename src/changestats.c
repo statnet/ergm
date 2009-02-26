@@ -1,6 +1,5 @@
 #include "changestats.h"
 
-
 /********************  changestats:  A    ***********/
 /*****************                       
  changestat: d_absdiff
@@ -238,6 +237,121 @@ D_CHANGESTAT_FN(d_b1factor) {
 
 
 /*****************
+ changestat: d_b1starmix
+*****************/
+D_CHANGESTAT_FN(d_b1starmix) { 
+  double change;
+  int edgeflag, i, j, kmo;
+  Edge e;
+  Vertex h, t, node3, nnodes, hd;
+  int ninputs, nstats;
+  double hattr, tattr;
+  
+  ninputs = (int)N_INPUT_PARAMS;
+  nstats  = (int)N_CHANGE_STATS;
+  nnodes = N_NODES;
+  kmo = (int)INPUT_PARAM[0] - 1;
+  
+  ZERO_ALL_CHANGESTATS(i);
+  FOR_EACH_TOGGLE(i) {
+    /* edgeflag is 1 if edge exists and will disappear
+    edgeflag is 0 if edge DNE and will appear */
+    edgeflag = IS_OUTEDGE(h = heads[i], t = tails[i]);
+    hattr = INPUT_ATTRIB[h-1];
+    tattr = INPUT_ATTRIB[t-1];
+    hd = - edgeflag; /* if edge exists set to -1 because it will be recounted */
+
+    STEP_THROUGH_OUTEDGES(h, e, node3) { /* step through outedges of head */
+      if(tattr == INPUT_ATTRIB[node3-1]){++hd;}
+    }
+    for(j=0; j < N_CHANGE_STATS; j++) {
+      if (INPUT_ATTRIB[nnodes+j] == hattr && 
+      INPUT_ATTRIB[nnodes+nstats+j] == tattr) {
+        change = CHOOSE(hd, kmo); 
+        CHANGE_STAT[j] += (edgeflag ? - change : change); 
+      }
+    }
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
+}
+
+/*****************
+ changestat: d_b1starmixhomophily
+*****************/
+D_CHANGESTAT_FN(d_b1starmixhomophily) { 
+  double change;
+  int edgeflag, i, j, kmo;
+  Edge e;
+  Vertex h, t, node3, nnodes, hd;
+  int ninputs, nstats;
+  double hattr, tattr;
+  
+  ninputs = (int)N_INPUT_PARAMS;
+  nstats  = (int)N_CHANGE_STATS;
+  nnodes = N_NODES;
+  kmo = (int)INPUT_PARAM[0] - 1;
+  
+  ZERO_ALL_CHANGESTATS(i);
+  FOR_EACH_TOGGLE(i) {
+    /* edgeflag is 1 if edge exists and will disappear
+    edgeflag is 0 if edge DNE and will appear */
+    edgeflag = IS_OUTEDGE(h = heads[i], t = tails[i]);
+    hattr = INPUT_ATTRIB[h-1];
+    tattr = INPUT_ATTRIB[t-1];
+    hd = - edgeflag; /* if edge exists set to -1 because it will be recounted */
+
+    STEP_THROUGH_OUTEDGES(h, e, node3) { /* step through outedges of head */
+      if(tattr == INPUT_ATTRIB[node3-1]){++hd;}
+    }
+    for(j=0; j < N_CHANGE_STATS; j++) {
+      if (INPUT_ATTRIB[nnodes+j] == hattr) {
+        change = CHOOSE(hd, kmo); 
+        CHANGE_STAT[j] += (edgeflag ? - change : change); 
+      }
+    }
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
+}
+
+/*****************
+ changestat: d_b1twostar
+*****************/
+D_CHANGESTAT_FN(d_b1twostar) { 
+  double change;
+  int i, j;
+  Edge e;
+  Vertex h, t, node3, nnodes;
+  int ninputs, nstats;
+  double hattr, tattr, n3attr;
+  
+  ninputs = (int)N_INPUT_PARAMS;
+  nstats  = (int)N_CHANGE_STATS;
+  nnodes = N_NODES;
+  
+  ZERO_ALL_CHANGESTATS(i);
+  FOR_EACH_TOGGLE(i) {
+    change = IS_OUTEDGE(h = heads[i], t = tails[i])? -1.0 : 1.0 ;
+    hattr = INPUT_PARAM[h-1];
+    tattr = INPUT_PARAM[t-1];
+
+    STEP_THROUGH_OUTEDGES(h, e, node3) { /* step through outedges of head */
+      n3attr = INPUT_PARAM[node3-1];
+      for(j=0; j < N_CHANGE_STATS; j++) {
+        if (node3 != t && INPUT_PARAM[nnodes + j] == hattr && 
+            INPUT_PARAM[nnodes + nstats + j] == MIN(tattr, n3attr) &&
+            INPUT_PARAM[nnodes + 2*nstats + j] == MAX(tattr, n3attr)) {
+          CHANGE_STAT[j] += change;
+        }
+      }
+    }
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
+}
+
+/*****************
  changestat: d_b2concurrent
 *****************/
 D_CHANGESTAT_FN(d_b2concurrent) { 
@@ -349,6 +463,121 @@ D_CHANGESTAT_FN(d_b2factor) {
     TOGGLE_IF_MORE_TO_COME(i); /* Needed in case of multiple toggles */
   }
   UNDO_PREVIOUS_TOGGLES(i); /* Needed on exit in case of multiple toggles */
+}
+
+/*****************
+ changestat: d_b2starmix
+*****************/
+D_CHANGESTAT_FN(d_b2starmix) { 
+  double change;
+  int edgeflag, i, j, kmo;
+  Edge e;
+  Vertex h, t, node3, nnodes, td;
+  int ninputs, nstats;
+  double hattr, tattr;
+  
+  ninputs = (int)N_INPUT_PARAMS;
+  nstats  = (int)N_CHANGE_STATS;
+  nnodes = N_NODES;
+  kmo = (int)INPUT_PARAM[0] - 1;
+  
+  ZERO_ALL_CHANGESTATS(i);
+  FOR_EACH_TOGGLE(i) {
+    /* edgeflag is 1 if edge exists and will disappear
+    edgeflag is 0 if edge DNE and will appear */
+    edgeflag = IS_OUTEDGE(h = heads[i], t = tails[i]);
+    hattr = INPUT_ATTRIB[h-1];
+    tattr = INPUT_ATTRIB[t-1];
+    td = - edgeflag; /* if edge exists set to -1 because it will be recounted */
+
+    STEP_THROUGH_INEDGES(t, e, node3) { /* step through inedges of tail */
+      if(hattr == INPUT_ATTRIB[node3-1]){++td;}
+    }
+    for(j=0; j < N_CHANGE_STATS; j++) {
+      if (INPUT_ATTRIB[nnodes+j] == hattr && 
+      INPUT_ATTRIB[nnodes+nstats+j] == tattr) {
+        change = CHOOSE(td, kmo); 
+        CHANGE_STAT[j] += (edgeflag ? - change : change); 
+      }
+    }
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
+}
+
+/*****************
+ changestat: d_b2starmixhomophily
+*****************/
+D_CHANGESTAT_FN(d_b2starmixhomophily) { 
+  double change;
+  int edgeflag, i, j, kmo;
+  Edge e;
+  Vertex h, t, node3, nnodes, td;
+  int ninputs, nstats;
+  double hattr, tattr;
+  
+  ninputs = (int)N_INPUT_PARAMS;
+  nstats  = (int)N_CHANGE_STATS;
+  nnodes = N_NODES;
+  kmo = (int)INPUT_PARAM[0] - 1;
+  
+  ZERO_ALL_CHANGESTATS(i);
+  FOR_EACH_TOGGLE(i) {
+    /* edgeflag is 1 if edge exists and will disappear
+    edgeflag is 0 if edge DNE and will appear */
+    edgeflag = IS_OUTEDGE(h = heads[i], t = tails[i]);
+    hattr = INPUT_ATTRIB[h-1];
+    tattr = INPUT_ATTRIB[t-1];
+    td = - edgeflag; /* if edge exists set to -1 because it will be recounted */
+
+    STEP_THROUGH_INEDGES(t, e, node3) { /* step through inedges of tail */
+      if(hattr == INPUT_ATTRIB[node3-1]){++td;}
+    }
+    for(j=0; j < N_CHANGE_STATS; j++) {
+      if (INPUT_ATTRIB[nnodes+j] == tattr) {
+        change = CHOOSE(td, kmo); 
+        CHANGE_STAT[j] += (edgeflag ? - change : change); 
+      }
+    }
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
+}
+
+/*****************
+ changestat: d_b2twostar
+*****************/
+D_CHANGESTAT_FN(d_b2twostar) { 
+  double change;
+  int i, j;
+  Edge e;
+  Vertex h, t, node3, nnodes;
+  int ninputs, nstats;
+  double hattr, tattr, n3attr;
+  
+  ninputs = (int)N_INPUT_PARAMS;
+  nstats  = (int)N_CHANGE_STATS;
+  nnodes = N_NODES;
+  
+  ZERO_ALL_CHANGESTATS(i);
+  FOR_EACH_TOGGLE(i) {
+    change = IS_OUTEDGE(h = heads[i], t = tails[i])? -1.0 : 1.0 ;
+    hattr = INPUT_PARAM[h-1];
+    tattr = INPUT_PARAM[t-1];
+
+    STEP_THROUGH_INEDGES(t, e, node3) { /* step through inedges of tail */
+      n3attr = INPUT_PARAM[node3-1];
+      for(j=0; j < N_CHANGE_STATS; j++) {
+        if (node3 != h && INPUT_PARAM[nnodes + j] == tattr && 
+            INPUT_PARAM[nnodes + nstats + j] == MIN(hattr, n3attr) &&
+            INPUT_PARAM[nnodes + 2*nstats + j] == MAX(hattr, n3attr)) {
+          CHANGE_STAT[j] += change;
+        }
+      }
+    }
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
@@ -4195,6 +4424,66 @@ D_CHANGESTAT_FN(d_tesp) {
     }
     TOGGLE_IF_MORE_TO_COME(i);
   }  
+  UNDO_PREVIOUS_TOGGLES(i);
+}
+
+/*****************
+ changestat: d_threepath
+*****************/
+D_CHANGESTAT_FN(d_threepath) { 
+  int i, j, k, edgeflag, change, dchange[4];
+  Edge e;
+  Vertex h, t, node3;
+  /* The four values of dchange represent the four different types of
+     directed threepaths oriented so that the middle step is always 
+     "right" (R).  In order:   RRR, RRL, LRR, LRL 
+                         i.e., >>>  >><  <>>  <><  */
+  ZERO_ALL_CHANGESTATS(i);
+  FOR_EACH_TOGGLE(i) {
+    edgeflag = IS_OUTEDGE(h = heads[i], t = tails[i]);
+    /* Step A: Count threepaths in which h->t is the middle edge */
+    dchange[0] = IN_DEG[h] * OUT_DEG[t]; /* R then R; may count t->h->t->h */
+    dchange[1] = IN_DEG[h] * (IN_DEG[t]-edgeflag); /* R then L */
+    dchange[2] = (OUT_DEG[h]-edgeflag) * OUT_DEG[t]; /* L then R */
+    dchange[3] = (OUT_DEG[h]-edgeflag) * (IN_DEG[t]-edgeflag); /* L then L */
+    /* Step B: Count threepaths where h is one endpoint */
+    STEP_THROUGH_OUTEDGES(t, e, node3) { /* h->t->node3-x  which means -RL */
+      dchange[1] += IN_DEG[node3]-1;    /* RRL; subtract 1 for t itself */
+      dchange[0] += OUT_DEG[node3]; /* RRR; possibly counted h->t->h->t */
+    }
+    STEP_THROUGH_INEDGES(t, e, node3) { /* x-node3->t<-h  which means -RL*/
+      if (node3 != h) {
+        dchange[3] += OUT_DEG[node3]-1;  /* LRL; subtract 1 for t itself */
+        dchange[1] += IN_DEG[node3];     /* RRL */
+      }
+    }
+    /* Step C: Count threepaths where t is one endpoint */
+    STEP_THROUGH_INEDGES(h, e, node3) { /* x-node3->h->t  which means -RR */
+      dchange[2] += OUT_DEG[node3]-1;  /* LRR; subtract 1 for h itself */
+      dchange[0] += IN_DEG[node3]; /* RRR; possibly counted h->t->h->t */
+    }
+    STEP_THROUGH_OUTEDGES(h, e, node3) { /* t<-h->node3-x  which means LR- */
+      if (node3 != t) {
+        dchange[3] += IN_DEG[node3]-1; /* LRL; subtract 1 for h itself */
+        dchange[2] += OUT_DEG[node3];  /* LRR */
+      }
+    }
+    /* Finally, correct for overcounted t->h->t->h and h->t->h->t */
+    if (DIRECTED) {
+      dchange[0] -= IS_INEDGE(h, t) * (1 + 2 * edgeflag);
+      /* t->h->t->h is counted in A whenever IS_INEDGE(h,t) but 
+         h->t->h->t is only counted in B and C when also IS_OUTEDGE(h, t) */
+      for (j = 0; j < N_INPUT_PARAMS; j++) {
+        k = (int) INPUT_PARAM[j];
+        CHANGE_STAT[j] += (edgeflag ? -dchange[k-1] : dchange[k-1]);
+      }
+    }
+    else { /* Undirected case; don't need t->h->t->h correction */
+      change = dchange[0] + dchange[1] + dchange[2] + dchange[3];
+      CHANGE_STAT[0] += (edgeflag ? -change : change); 
+    }
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
   UNDO_PREVIOUS_TOGGLES(i);
 }
 

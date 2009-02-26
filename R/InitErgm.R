@@ -447,7 +447,7 @@ InitErgm.b1factor<-function (nw, m, arglist, drop=TRUE, ...) {
 #########################################################
 #InitErgm.b1star<-function(nw, m, arglist, drop=TRUE, ...) {
 ## Because InitErgmTerm.b1star exists, the old
-## InitErgm.b1degree is irrelevant but should not be deleted for now.
+## InitErgm.b1star is irrelevant but should not be deleted for now.
 #  ergm.checkdirected("b1star", is.directed(nw), requirement=FALSE)
 #  ergm.checkbipartite("b1star", is.bipartite(nw), requirement=TRUE)
 #  a <- ergm.checkargs("b1star", arglist,
@@ -754,91 +754,93 @@ InitErgm.b2factor<-function (nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-#########################################################
-InitErgm.b2star<-function(nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkdirected("b2star", is.directed(nw), requirement=FALSE)
-  ergm.checkbipartite("b2star", is.bipartite(nw), requirement=TRUE)
-  a <- ergm.checkargs("b2star", arglist,
-                      varnames = c("d", "attrname"),
-                      vartypes = c("numeric", "character"),
-                      defaultvalues = list(NULL, NULL),
-                      required = c(TRUE, FALSE))
-  d<-a$d; attrname <- a$attrname
-  emptynwstats<-NULL
-  nb1 <- get.network.attribute(nw, "bipartite")
-  if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "b2star")
-    u<-sort(unique(nodecov))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
-    nodecov <- match(nodecov,u) # Recode to numeric
-    if (length(u)==1)
-      stop ("Attribute given to b2star() has only one value", call.=FALSE)
-    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
-    lu <- length(u)
-    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
-    if(drop){ #   Check for degeneracy
-      tmp <- paste("c(",paste(d,collapse=","),")")
-      b2starattr <- summary(as.formula
-                             (paste('nw ~ b2star(', tmp,',"',attrname,'")',sep="")),
-                             drop=FALSE) == 0
-      if(any(b2starattr)){
-        dropterms <- paste("b2star", du[1,b2starattr], ".", attrname,
-                           u[du[2,b2starattr]], sep="")
-        cat("Warning: These b2star terms have extreme counts and will be dropped:\n")
-        cat(dropterms, "", fill=TRUE)
-        du <- matrix(du[,!b2starattr], nrow=2)
-      }
-    }
-    if (any(du[1,]==0)) {
-      emptynwstats <- rep(0, ncol(du))
-      tmp <- du[2,du[1,]==0]
-      for(i in 1:length(tmp)) tmp[i] <- 
-        sum(nodecov[1:nb1]==tmp[i])
-        emptynwstats[du[1,]==0] <- tmp
-    }
-  } else {
-    if(is.logical(attrname)){drop <- attrname}
-    if(drop){
-      mb2star <- paste("c(",paste(d,collapse=","),")",sep="")
-      mb2star <- summary(
-                          as.formula(paste('nw ~ b2star(',mb2star,')',sep="")),
-                          drop=FALSE) == 0
-      if(any(mb2star)){
-        cat(paste("Warning: There are no order", d[mb2star],"b2stars.\n"))
-        dropterms <- paste("b2star", d[mb2star],sep="")
-        cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
-        d <- d[!mb2star] 
-      }
-    }
-    if (any(d==0)) {
-      emptynwstats <- rep(0, length(d))
-      emptynwstats[d==0] <- nb1
-    }
-  }
-  termnumber<-1+length(m$terms)
-  if(!is.null(attrname)) {
-    if(ncol(du)==0) {return(m)}
-    #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="istar", soname="ergm",
-                                  inputs=c(0, ncol(du), 
-                                           length(du)+length(nodecov), 
-                                           as.vector(du), nodecov),
-                                  dependence=TRUE)
-    m$coef.names<-c(m$coef.names, paste("b2star", du[1,], ".", attrname,
-                                        u[du[2,]], sep=""))
-  }else{
-    lengthd<-length(d)
-    if(lengthd==0){return(m)}
-    #  No covariates here, so input component 1 is arbitrary
-    m$terms[[termnumber]] <- list(name="istar", soname="ergm",
-                                       inputs=c(0, lengthd, lengthd, d),
-                                       dependence=TRUE)
-    m$coef.names<-c(m$coef.names,paste("b2star",d,sep=""))
-  }
-  if (!is.null(emptynwstats)) 
-    m$terms[[termnumber]]$emptynwstats <- emptynwstats
-  m
-}
+##########################################################
+#InitErgm.b2star<-function(nw, m, arglist, drop=TRUE, ...) {
+# Because InitErgmTerm.b2star exists, the old
+# InitErgm.b2star is irrelevant but should not be deleted for now.
+#  ergm.checkdirected("b2star", is.directed(nw), requirement=FALSE)
+#  ergm.checkbipartite("b2star", is.bipartite(nw), requirement=TRUE)
+#  a <- ergm.checkargs("b2star", arglist,
+#                      varnames = c("d", "attrname"),
+#                      vartypes = c("numeric", "character"),
+#                      defaultvalues = list(NULL, NULL),
+#                      required = c(TRUE, FALSE))
+#  d<-a$d; attrname <- a$attrname
+#  emptynwstats<-NULL
+#  nb1 <- get.network.attribute(nw, "bipartite")
+#  if(!is.null(attrname)) {
+#    nodecov <- get.node.attr(nw, attrname, "b2star")
+#    u<-sort(unique(nodecov))
+#    if(any(is.na(nodecov))){u<-c(u,NA)}
+#    nodecov <- match(nodecov,u) # Recode to numeric
+#    if (length(u)==1)
+#      stop ("Attribute given to b2star() has only one value", call.=FALSE)
+#    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+#    lu <- length(u)
+#    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
+#    if(drop){ #   Check for degeneracy
+#      tmp <- paste("c(",paste(d,collapse=","),")")
+#      b2starattr <- summary(as.formula
+#                             (paste('nw ~ b2star(', tmp,',"',attrname,'")',sep="")),
+#                             drop=FALSE) == 0
+#      if(any(b2starattr)){
+#        dropterms <- paste("b2star", du[1,b2starattr], ".", attrname,
+#                           u[du[2,b2starattr]], sep="")
+#        cat("Warning: These b2star terms have extreme counts and will be dropped:\n")
+#        cat(dropterms, "", fill=TRUE)
+#        du <- matrix(du[,!b2starattr], nrow=2)
+#      }
+#    }
+#    if (any(du[1,]==0)) {
+#      emptynwstats <- rep(0, ncol(du))
+#      tmp <- du[2,du[1,]==0]
+#      for(i in 1:length(tmp)) tmp[i] <- 
+#        sum(nodecov[1:nb1]==tmp[i])
+#        emptynwstats[du[1,]==0] <- tmp
+#    }
+#  } else {
+#    if(is.logical(attrname)){drop <- attrname}
+#    if(drop){
+#      mb2star <- paste("c(",paste(d,collapse=","),")",sep="")
+#      mb2star <- summary(
+#                          as.formula(paste('nw ~ b2star(',mb2star,')',sep="")),
+#                          drop=FALSE) == 0
+#      if(any(mb2star)){
+#        cat(paste("Warning: There are no order", d[mb2star],"b2stars.\n"))
+#        dropterms <- paste("b2star", d[mb2star],sep="")
+#        cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
+#        d <- d[!mb2star] 
+#      }
+#    }
+#    if (any(d==0)) {
+#      emptynwstats <- rep(0, length(d))
+#      emptynwstats[d==0] <- nb1
+#    }
+#  }
+#  termnumber<-1+length(m$terms)
+#  if(!is.null(attrname)) {
+#    if(ncol(du)==0) {return(m)}
+#    #  No covariates here, so input component 1 is arbitrary
+#    m$terms[[termnumber]] <- list(name="istar", soname="ergm",
+#                                  inputs=c(0, ncol(du), 
+#                                           length(du)+length(nodecov), 
+#                                           as.vector(du), nodecov),
+#                                  dependence=TRUE)
+#    m$coef.names<-c(m$coef.names, paste("b2star", du[1,], ".", attrname,
+#                                        u[du[2,]], sep=""))
+#  }else{
+#    lengthd<-length(d)
+#    if(lengthd==0){return(m)}
+#    #  No covariates here, so input component 1 is arbitrary
+#    m$terms[[termnumber]] <- list(name="istar", soname="ergm",
+#                                       inputs=c(0, lengthd, lengthd, d),
+#                                       dependence=TRUE)
+#    m$coef.names<-c(m$coef.names,paste("b2star",d,sep=""))
+#  }
+#  if (!is.null(emptynwstats)) 
+#    m$terms[[termnumber]]$emptynwstats <- emptynwstats
+#  m
+#}
 
 #########################################################
 InitErgm.balance<-function (nw, m, arglist, drop=TRUE, ...) {
