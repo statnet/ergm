@@ -41,8 +41,7 @@ ergm.mapl <- function(formula, theta0="MPLE",
   }
   
   Clist.initial <- ergm.Cprepare(nw, model.initial)
-  Clist.miss.initial <- ergm.design(nw, model.initial, initialfit=TRUE,
-                                    verbose=verbose)
+  Clist.miss.initial <- ergm.design(nw, model.initial, verbose=verbose)
   Clist.initial$meanstats=meanstats
   theta0copy <- theta0
   
@@ -75,8 +74,7 @@ ergm.mapl <- function(formula, theta0="MPLE",
     if(verbose){print(summary(formula, basis=sim)-meanstats)}
     if(verbose){print(sum(sim[,] != nw[,]))}
     Clist.initial <- ergm.Cprepare(sim, model.initial)
-    Clist.miss.initial <- ergm.design(sim, model.initial, initialfit=TRUE,
-                                verbose=verbose)
+    Clist.miss.initial <- ergm.design(sim, model.initial, verbose=verbose)
     Clist.initial$meanstats=meanstats
     sim.pl <- ergm.pl(Clist=Clist.initial, Clist.miss=Clist.miss.initial,
                       m=model.initial,

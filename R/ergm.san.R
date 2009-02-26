@@ -44,7 +44,7 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0=NULL,
 # model <- ergm.getmodel(formula, nw, drop=control$drop)
   model <- ergm.getmodel(formula, nw, drop=FALSE)
   Clist <- ergm.Cprepare(nw, model)
-  Clist.miss <- ergm.design(nw, model, initialfit=TRUE, verbose=verbose)
+  Clist.miss <- ergm.design(nw, model, verbose=verbose)
   
   MCMCsamplesize <- 1
   verb <- match(verbose,
@@ -65,7 +65,7 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0=NULL,
 
   for(i in 1:nsim){
     Clist <- ergm.Cprepare(nw, model)
-#   Clist.miss <- ergm.design(nw, model, initialfit=TRUE, verbose=verbose)
+#   Clist.miss <- ergm.design(nw, model, verbose=verbose)
     maxedges <- max(20000, Clist$nedges)
     if (verb) {
        cat(paste("#", i, " of ", nsim, ": ", sep=""))

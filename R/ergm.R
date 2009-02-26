@@ -62,8 +62,7 @@ ergm <- function(formula, theta0="MPLE",
   MHproposal.miss <- MHproposal("randomtoggleNonObserved", control$prop.args, nw, model.initial)
 
   Clist.initial <- ergm.Cprepare(nw, model.initial)
-  Clist.miss.initial <- ergm.design(nw, model.initial, initialfit=TRUE,
-                                verbose=verbose)
+  Clist.miss.initial <- ergm.design(nw, model.initial, verbose=verbose)
   if (verbose) cat("Fitting initial model.\n")
   Clist.initial$meanstats=meanstats
   theta0copy <- theta0

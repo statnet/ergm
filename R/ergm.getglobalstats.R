@@ -32,25 +32,13 @@ ergm.getglobalstats <- function(nw, m) {
     }
     i <- i + k
   }
-    
+  # Note:  "duration" is not in the CRAN version.  
   # It looks impossible to handle "duration" using the $emptynwstats, so 
   # this is done separately:
   tase <- grep("duration",names(gs))
   if(length(tase) >0){
     gs[tase] <- -gs[tase]
   }
-  
-  # SEARCH_ON_THIS_TO_TRACK_DOWN_TRIADCENSUS_CHANGE
-  # to undo triadcensus change, uncomment next 8 lines:
-#  tase <- match("triadcensus.003",names(gs))
-#  if(!is.na(tase)){
-#    gs[tase] <- nnodes*(nnodes-1)*(nnodes-2)/6-gs[tase]
-#  }
-#  tase <- match("triadcensus.0",names(gs))
-#  if(!is.na(tase)){
-#    gs[tase] <- nnodes*(nnodes-1)*(nnodes-2)/6-gs[tase]
-#  }
-
 
 ## Please don't add ad hoc global-stat-changing code here.  Use
 ## emptynwstats in the InitErgm function instead.
