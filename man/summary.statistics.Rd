@@ -14,6 +14,7 @@
 \alias{summary.statistics}
 \alias{summary.statistics.matrix}
 \alias{summary.statistics.network}
+\alias{summary.statistics.default}
 \alias{summary.statistics.formula}
 \alias{summary.statistics.ergm}
 \alias{summary.formula}

@@ -30,6 +30,7 @@ ergm(formula, theta0="MPLE",
      MPLEonly=FALSE, MLestimate=!MPLEonly, seed=NULL,
      burnin=10000, MCMCsamplesize=10000, interval=100, maxit=3,
      constraints=~.,
+     meanstats = NULL,
      control=control.ergm(),
      verbose=FALSE, \dots)
 }
@@ -106,12 +107,22 @@ Hunter (2008).  To create a
 	having the same number of edges as the network passed
 	in the model formula have non-zero probability.
       }
+      
+      \item{\code{observed}}{
+	Preserve the observed dyads of the given network.
+      }
+      
 %      \item{\code{hamming}}{
 %	No clue.
 %      }
     }
     Not all combinations of the above are supported.
   }
+  \item{meanstats}{vector; the mean-value parameter value for the
+    model.  If this is given the algorithm finds the natural
+    parameter value corresponding to this mean-value parameter
+    If it is missing then mean-value parameter used are the observed
+    statistics of the network in the formula.}
   \item{control}{A list of control parameters for algorithm
     tuning. Constructed using \code{\link{control.ergm}}. }
   \item{seed}{integer; random number integer seed.  Defaults to
@@ -125,10 +136,6 @@ Hunter (2008).  To create a
   \item{\dots}{Additional
     arguments, to be passed to lower-level functions in the future.
   }
-}
-
-\section{Modeling Partially Observed Networks}{
-
 }
 
 \section{Model Terms}{

@@ -23,7 +23,6 @@ MHproposals<-
           c("c", "bd",            "random",       "randomtoggle"),
           c("c", "bd+edges",      "default",      "ConstantEdges"),
           c("c", "bd+edges",      "random",       "ConstantEdges"),          
-          c("c", "",              "nonobserved",  "randomtoggleNonObserved"),
           c("c", "degrees",       "default",      "CondDegree"),
           c("c", "degrees",       "random",       "CondDegree"),
 
@@ -43,7 +42,9 @@ MHproposals<-
           c("c", "hamming",       "default",      "HammingTNT"),
           c("c", "hamming",       "random",       "HammingTNT"),
           c("c", "edges+hamming", "default",      "HammingConstantEdges"),
-          c("c", "edges+hamming", "random",       "HammingConstantEdges")
+          c("c", "edges+hamming", "random",       "HammingConstantEdges"),
+          c("c", "observed",      "default",      "randomtoggleNonObserved"),
+          c("c", "observed",      "random",       "randomtoggleNonObserved"),
         )
 MHproposals <- data.frame(I(MHproposals[,1]), I(MHproposals[,2]), 
                           I(MHproposals[,3]), I(MHproposals[,4]))  
