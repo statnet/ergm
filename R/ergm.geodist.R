@@ -32,11 +32,6 @@ fullgcount<-function(dat,geodist.precomp=NULL, directed=FALSE){
    tabulate(allcnt,nbins=ncol(cnt))
 }
 
-ergm.geodistdist<-function(nw, directed=is.directed(nw)){
- ergm.geodistn(edgelist=as.matrix.network(nw,matrix.type="edgelist"),
-               n=nw$gal$n, directed=directed)/(2-is.directed(nw))
-}
-
 ergm.geodesicmatrix<-function(nw, directed=is.directed(nw)){
  ergm.geodesicmatrix.edgelist(edgelist=as.matrix.network(nw,matrix.type="edgelist"),
                n=nw$gal$n, directed=directed)

@@ -1,6 +1,11 @@
 # Code for calculating the geodesic distribution
 # 12/03/2004  DH
 
+ergm.geodistdist<-function(nw, directed=is.directed(nw)){
+ ergm.geodistn(edgelist=as.matrix.network(nw,matrix.type="edgelist"),
+               n=nw$gal$n, directed=directed)/(2-is.directed(nw))
+}
+
 ergm.geodistn <- function(edgelist, n=max(edgelist), directed=FALSE) {
 # edgelist is an mx2 matrix of edges.  n is the number of nodes.
 # This function returns a vector of length n, where

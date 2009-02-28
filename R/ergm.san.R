@@ -91,7 +91,7 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0=NULL,
       stop("Incorrect length of the meanstats vector: should be ", length(netsumm), " but is ",length(meanstats),".")
 
     stats <- matrix(netsumm-meanstats,
-                    ncol=Clist$nstats,byrow=T,nrow=MCMCsamplesize)
+                    ncol=Clist$nstats,byrow=TRUE,nrow=MCMCsamplesize)
     tau <- rep(tau,length=length(eta0))
 #
 #   Check for truncation of the returned edge list
@@ -172,7 +172,7 @@ san.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
   MCMCsamplesize <- 1
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
-  MHproposal<-MHproposal(object,constraints=constraints,arguments=control$prop.args,nw=nw,model=model,weights=control$prop.weights)
+  MHproposal<-MHproposal(object,constraints=constraints,arguments=control$prop.args,nw=nw,model=m,weights=control$prop.weights)
   # multiplicity.constrained <- 1  
   if(is.null(meanstats)){
     stop("You need to specify target statistic via",
@@ -196,7 +196,7 @@ san.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
     }
     
     stats <- matrix(summary(m$formula)-meanstats,
-                    ncol=Clist$nstats,byrow=T,nrow=MCMCsamplesize)
+                    ncol=Clist$nstats,byrow=TRUE,nrow=MCMCsamplesize)
 #
 #   Check for truncation of the returned edge list
 #
