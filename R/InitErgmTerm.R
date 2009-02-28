@@ -108,13 +108,12 @@ InitErgmTerm.absdiff <- function(nw, arglist, ...) {
                       vartypes = c("character","numeric"),
                       defaultvalues = list(NULL,1),
                       required = c(TRUE,FALSE))
-  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
-  nodecov <- get.node.attr(nw, attrname)
+  nodecov <- get.node.attr(nw, a$attrname)
   ### Construct the list to return
   list(name="absdiff",                                     #name: required
-       coef.names = paste(paste("absdiff",if(pow!=1) pow else "",sep=""), attrname, sep="."), #coef.names: required
-       inputs = c(pow,nodecov),  # We need to include the nodal covariate for this term
+       coef.names = paste(paste("absdiff",if(a$pow!=1) a$pow else "",sep=""), a$attrname, sep="."), #coef.names: required
+       inputs = c(a$pow,nodecov),  # We need to include the nodal covariate for this term
        dependence = FALSE # So we don't use MCMC if not necessary
        )
 }
@@ -127,16 +126,15 @@ InitErgmTerm.absdiffcat <- function(nw, arglist, ...) {
                       vartypes = c("character","numeric"),
                       defaultvalues = list(NULL,NULL),
                       required = c(TRUE,FALSE))
-  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
-  nodecov <- get.node.attr(nw, attrname)
+  nodecov <- get.node.attr(nw, a$attrname)
   u <- sort(unique(as.vector(abs(outer(nodecov,nodecov,"-")))),na.last=NA)
   u <- u[u>0]
   NAsubstitute <- 2*(1+max(abs(c(nodecov,u)),na.rm=TRUE)) # Arbitrary unused (and nonzero) value
   napositions <- is.na(nodecov)
   nodecov[napositions] <- NAsubstitute
   if(any(napositions)){u<-c(u,NA)}
-  if(!is.null(base)) u <- u[-(base)]
+  if(!is.null(a$base)) u <- u[-(a$base)]
   if (length(u)==0)
     stop ("Argument to absdiffcat() has too few distinct differences", call.=FALSE)
   u2 <- u[!is.na(u)]
@@ -144,7 +142,7 @@ InitErgmTerm.absdiffcat <- function(nw, arglist, ...) {
   inputs <- c(u2, NAsubstitute, nodecov)
   attr(inputs, "ParamsBeforeCov") <- length(u2)+1 # See comment at top of file
   list(name="absdiffcat",                                  #name: required
-       coef.names = paste("absdiff", attrname, u, sep="."), #coef.names: required
+       coef.names = paste("absdiff", a$attrname, u, sep="."), #coef.names: required
        inputs = inputs,
        dependence = FALSE # So we don't use MCMC if not necessary
        )
@@ -158,9 +156,8 @@ InitErgmTerm.altkstar <- function(nw, arglist, initialfit=FALSE, ...) {
                       vartypes = c("numeric","logical"),
                       defaultvalues = list(1,FALSE),
                       required = c(FALSE,FALSE))
-  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
-  if(!initialfit && !fixed){ # This is a curved exponential family model
+  if(!initialfit && !a$fixed){ # This is a curved exponential family model
     d <- 1:(network.size(nw)-1)
     map <- function(x,n,...) {
       i <- 1:n
@@ -175,17 +172,17 @@ InitErgmTerm.altkstar <- function(nw, arglist, initialfit=FALSE, ...) {
     outlist <- list(name="degree",                 #name: required
        coef.names = paste("altkstar#", d, sep=""), #coef.names: required
        inputs = d, map=map, gradient=gradient,
-       params=list(altkstar=NULL, altkstar.lambda=lambda)
+       params=list(altkstar=NULL, altkstar.lambda=a$lambda)
        )
   } else {
     if (initialfit) { # coef.names must match "altkstar" from params list above
       coef.names = "altkstar"
     } else { # Not necessary to match; provide more informative label
-      coef.names = paste("altkstar", lambda, sep=".")
+      coef.names = paste("altkstar", a$lambda, sep=".")
     }
     outlist <- list (name="altkstar",                      #name: required
                      coef.names = coef.names,
-                     inputs=lambda
+                     inputs=a$lambda
                      )
   }
   outlist
@@ -199,13 +196,12 @@ InitErgmTerm.asymmetric <- function(nw, arglist, drop=TRUE, ...) {
                       vartypes = c("character", "logical", "numeric"),
                       defaultvalues = list(NULL, FALSE, NULL),
                       required = c(FALSE, FALSE, FALSE))
-  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
-  if (!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname)
+  if (!is.null(a$attrname)) {
+    nodecov <- get.node.attr(nw, a$attrname)
     u <- sort(unique(nodecov))
-    if (!is.null(keep)) {
-      u <- u[keep]
+    if (!is.null(a$keep)) {
+      u <- u[a$keep]
     }
     #   Recode to numeric
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -216,7 +212,7 @@ InitErgmTerm.asymmetric <- function(nw, arglist, drop=TRUE, ...) {
   }
   if(drop) { # Check for zero statistics, print -Inf messages if applicable
     obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
-    if (is.null(attrname)) {
+    if (is.null(a$attrname)) {
       n <- network.size(nw)
       ndc <- n * (n-1) / 2 # temporary until network.dyadcount is fixed
       if (extremewarnings(obsstats, maxval=ndc)) {
@@ -232,12 +228,12 @@ InitErgmTerm.asymmetric <- function(nw, arglist, drop=TRUE, ...) {
   out <- list(name="asymmetric",                      #name: required
               coef.names = "asymmetric"               #coef.names: required
               ) 
-  if (!is.null(attrname)) {
-    if (diff) {
-      out$coef.names <- paste("asymmetric", attrname, u, sep=".")
+  if (!is.null(a$attrname)) {
+    if (a$diff) {
+      out$coef.names <- paste("asymmetric", a$attrname, u, sep=".")
       out$inputs <- c(ui, nodecov)
     } else {
-      out$coef.names <- paste("asymmetric", attrname, sep=".")
+      out$coef.names <- paste("asymmetric", a$attrname, sep=".")
       out$inputs <- nodecov
     }
   }
@@ -254,7 +250,6 @@ InitErgmTerm.b1degree <- function(nw, arglist, drop=TRUE, ...) {
                        vartypes = c("numeric", "character"),
                        defaultvalues = list(NULL, NULL),
                        required = c(TRUE, FALSE))
-  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
   nb1 <- get.network.attribute(nw, "bipartite")
   if(drop) { # Check for zero statistics, print -Inf messages if applicable
@@ -262,14 +257,14 @@ InitErgmTerm.b1degree <- function(nw, arglist, drop=TRUE, ...) {
     ew <- extremewarnings(obsstats)
     # will process the ew variable later
   } else {ew <- FALSE}
-  if (!is.null(byarg)) {  # CASE 1:  byarg GIVEN
-    nodecov <- get.node.attr(nw, byarg)
+  if (!is.null(a$byarg)) {  # CASE 1:  a$byarg GIVEN
+    nodecov <- get.node.attr(nw, a$byarg)
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u) # Recode to numeric
-    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+    # Combine degree and u into 2xk matrix, where k=length(a$d)*length(u)
     lu <- length(u)
-    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
+    du <- rbind(rep(a$d,lu), rep(1:lu, rep(length(a$d), lu)))
     du <- matrix(du[,!ew], nrow=2) # Drop any zero-obs-value rows
     emptynwstats <- rep(0, ncol(du))
     if (any(du[1,]==0)) { # Alter emptynwstats
@@ -279,16 +274,16 @@ InitErgmTerm.b1degree <- function(nw, arglist, drop=TRUE, ...) {
       emptynwstats[du[1,]==0] <- tmp
     }
     name <- "b1degree_by_attr"
-    coef.names <- paste("b1deg", du[1,], ".", byarg, u[du[2,]], sep="")
+    coef.names <- paste("b1deg", du[1,], ".", a$byarg, u[du[2,]], sep="")
     inputs <- c(as.vector(du), nodecov)
-  } else { # CASE 2:  byarg NOT GIVEN
-    d <- d[!ew] # Drop any zero-obs-value values
+  } else { # CASE 2:  a$byarg NOT GIVEN
+    a$d <- a$d[!ew] # Drop any zero-obs-value values
     name <- "b1degree"
-    coef.names <- paste("b1deg", d, sep="")
-    inputs <- d
-    emptynwstats <- rep(0, length(d))
-    if (any(d==0)) { # alter emptynwstats
-      emptynwstats[d==0] <- nb1
+    coef.names <- paste("b1deg", a$d, sep="")
+    inputs <- a$d
+    emptynwstats <- rep(0, length(a$d))
+    if (any(a$d==0)) { # alter emptynwstats
+      emptynwstats[a$d==0] <- nb1
     }
   }
   list(name=name, coef.names=coef.names, #name and coef.names: required
@@ -303,28 +298,27 @@ InitErgmTerm.b1star <- function(nw, arglist, drop=TRUE, ...) {
                        vartypes = c("numeric", "character"),
                        defaultvalues = list(NULL, NULL),
                        required = c(TRUE, FALSE))
-  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
   if(drop) { # Check for zero statistics, print -Inf messages if applicable
     obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
     ew <- extremewarnings(obsstats)
     # will process the ew variable later
   } else {ew <- FALSE}
-  if (!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname)
+  if (!is.null(a$attrname)) {
+    nodecov <- get.node.attr(nw, a$attrname)
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     # Recode to numeric
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     name <- "ostar"
-    coef.names <- paste("b1star", k, ".", attrname, sep="")
-    inputs <- c(k, nodecov)
-    attr(inputs, "ParamsBeforeCov") <- length(k)
+    coef.names <- paste("b1star", a$k, ".", a$attrname, sep="")
+    inputs <- c(a$k, nodecov)
+    attr(inputs, "ParamsBeforeCov") <- length(a$k)
   } 
   else {
     name <- "ostar"
-    coef.names <- paste("b1star",k,sep="")
-    inputs <- k
+    coef.names <- paste("b1star",a$k,sep="")
+    inputs <- a$k
   }
   list(name = name, coef.names = coef.names, #name and coef.names: required
        inputs = inputs)
@@ -338,7 +332,6 @@ InitErgmTerm.b1starmix <- function(nw, arglist, drop=TRUE, ...) {
                        vartypes = c("numeric", "character", "numeric", "logical"),
                        defaultvalues = list(NULL, NULL, NULL, TRUE),
                        required = c(TRUE, TRUE, FALSE, FALSE))
-  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
   nb1 <- get.network.attribute(nw, "bipartite")
   if(drop) { # Check for zero statistics, print -Inf messages if applicable
@@ -346,12 +339,12 @@ InitErgmTerm.b1starmix <- function(nw, arglist, drop=TRUE, ...) {
     ew <- extremewarnings(obsstats)
     # will process the ew variable later
   } else {ew <- FALSE}
-  nodecov <- get.node.attr(nw, attrname)
+  nodecov <- get.node.attr(nw, a$attrname)
   u<-sort(unique(nodecov))
   if(any(is.na(nodecov))){u<-c(u,NA)}
   # Recode to numeric
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
-  if (length(k) > 1) 
+  if (length(a$k) > 1) 
     { stop("Only a single scalar k may be used with each b1starmix term") }
   b1namescov <- sort(unique(nodecov[1:nb1]))
   b2namescov <- sort(unique(nodecov[(1+nb1):network.size(nw)]))
@@ -361,25 +354,25 @@ InitErgmTerm.b1starmix <- function(nw, arglist, drop=TRUE, ...) {
   nr <- length(b1namescov)
   nc <- length(b2namescov)
   nodecov <- c(b1nodecov, b2nodecov + nr)
-  if (diff) {
+  if (a$diff) {
     u <- cbind(rep(1:nr,nc), nr + rep(1:nc, each=nr))
-    if (!is.null(base) && !identical(base,0)) { u <- u[-base,] }
+    if (!is.null(a$base) && !identical(a$base,0)) { u <- u[-a$base,] }
     u <- u[!ew,]
     name <- "b1starmix"
-    coef.names <- paste("b1starmix", k, attrname,
+    coef.names <- paste("b1starmix", a$k, a$attrname,
                         apply(matrix(namescov[u],ncol=2), 1,paste,collapse="."), 
                         sep=".")
-    inputs <- c(k, nodecov, u[,1], u[,2])
-    attr(inputs, "ParamsBeforeCov") <- length(k) # should be 1
+    inputs <- c(a$k, nodecov, u[,1], u[,2])
+    attr(inputs, "ParamsBeforeCov") <- length(a$k) # should be 1
   }
   else {
     u <- 1:nr
-    if (!is.null(base) && !identical(base,0)) { u <- u[-base] }
+    if (!is.null(a$base) && !identical(a$base,0)) { u <- u[-a$base] }
     u <- u[!ew]
     name <- "b1starmixhomophily"
-    coef.names <- paste("b1starmix", k, attrname, namescov[u], sep=".")
-    inputs <- c(k, nodecov, u)
-    attr(inputs, "ParamsBeforeCov") <- length(k) # should be 1
+    coef.names <- paste("b1starmix", a$k, a$attrname, namescov[u], sep=".")
+    inputs <- c(a$k, nodecov, u)
+    attr(inputs, "ParamsBeforeCov") <- length(a$k) # should be 1
   }
   list(name = name, coef.names = coef.names, #name and coef.names: required
        inputs = inputs)
@@ -393,7 +386,6 @@ InitErgmTerm.b1twostar <- function(nw, arglist, drop=TRUE, ...) {
                        vartypes = c("character", "character", "numeric"),
                        defaultvalues = list(NULL, NULL, NULL),
                        required = c(TRUE, FALSE, FALSE))
-  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
   nb1 <- get.network.attribute(nw, "bipartite")
   n <- network.size(nw)
@@ -402,11 +394,11 @@ InitErgmTerm.b1twostar <- function(nw, arglist, drop=TRUE, ...) {
     ew <- extremewarnings(obsstats)
     # will process the ew variable later
   } else {ew <- FALSE}
-  b1nodecov <- get.node.attr(nw, b1attrname)[1:nb1]
+  b1nodecov <- get.node.attr(nw, a$b1attrname)[1:nb1]
   b1u<-sort(unique(b1nodecov))
   if(any(is.na(b1nodecov))){ b1u<-c(b1u,NA) }
-  if(is.null(b2attrname)) { b2attrname <- b1attrname }
-  b2nodecov <- get.node.attr(nw, b2attrname)[(1+nb1):n]
+  if(is.null(a$b2attrname)) { a$b2attrname <- a$b1attrname }
+  b2nodecov <- get.node.attr(nw, a$b2attrname)[(1+nb1):n]
   b2u<-sort(unique(b2nodecov))
   if(any(is.na(b2nodecov))){b2u<-c(b2u,NA)}
   # Recode to numeric
@@ -416,9 +408,9 @@ InitErgmTerm.b1twostar <- function(nw, arglist, drop=TRUE, ...) {
   nc <- length(b2u)
   u <- cbind(rep(1:nr, nc*nc), rep(rep(1:nc, each=nr), nc), rep(1:nc, each=nc*nr))
   u <- u[u[,2] <= u[,3],]  
-  if (!is.null(base) && !identical(base,0)) { u <- u[-base,] }
+  if (!is.null(a$base) && !identical(a$base,0)) { u <- u[-a$base,] }
   u <- u[!ew,]
-  coef.names <- paste("b1twostar", b1attrname, b1u[u[,1]],  b2attrname,
+  coef.names <- paste("b1twostar", a$b1attrname, b1u[u[,1]],  a$b2attrname,
                       apply(matrix(b2u[u[,2:3]],ncol=2), 1, paste, collapse="."),
                       sep=".")
   list(name = "b1twostar", coef.names = coef.names, #name and coef.names: required
@@ -433,7 +425,6 @@ InitErgmTerm.b2degree <- function(nw, arglist, drop=TRUE, ...) {
                        vartypes = c("numeric", "character"),
                        defaultvalues = list(NULL, NULL),
                        required = c(TRUE, FALSE))
-  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
   nb1 <- get.network.attribute(nw, "bipartite")
   n <- network.size(nw)
@@ -442,14 +433,14 @@ InitErgmTerm.b2degree <- function(nw, arglist, drop=TRUE, ...) {
     ew <- extremewarnings(obsstats)
     # will process the ew variable later
   } else {ew <- FALSE}
-  if (!is.null(byarg)) {  # CASE 1:  byarg GIVEN
-    nodecov <- get.node.attr(nw, byarg)
+  if (!is.null(a$byarg)) {  # CASE 1:  a$byarg GIVEN
+    nodecov <- get.node.attr(nw, a$byarg)
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u) # Recode to numeric
-    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+    # Combine degree and u into 2xk matrix, where k=length(a$d)*length(u)
     lu <- length(u)
-    du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
+    du <- rbind(rep(a$d,lu), rep(1:lu, rep(length(a$d), lu)))
     du <- matrix(du[,!ew], nrow=2) # Drop any zero-obs-value rows
     emptynwstats <- rep(0, ncol(du))
     if (any(du[1,]==0)) { # Alter emptynwstats
@@ -459,16 +450,16 @@ InitErgmTerm.b2degree <- function(nw, arglist, drop=TRUE, ...) {
       emptynwstats[du[1,]==0] <- tmp
     }
     name <- "b2degree_by_attr"
-    coef.names <- paste("b2deg", du[1,], ".", byarg, u[du[2,]], sep="")
+    coef.names <- paste("b2deg", du[1,], ".", a$byarg, u[du[2,]], sep="")
     inputs <- c(as.vector(du), nodecov)
-  } else { # CASE 2:  byarg NOT GIVEN
-    d <- d[!ew] # Drop any zero-obs-value values
+  } else { # CASE 2:  a$byarg NOT GIVEN
+    a$d <- a$d[!ew] # Drop any zero-obs-value values
     name <- "b2degree"
-    coef.names <- paste("b2deg", d, sep="")
-    inputs <- d
-    emptynwstats <- rep(0, length(d))
-    if (any(d==0)) { # alter emptynwstats
-      emptynwstats[d==0] <- n-nb1
+    coef.names <- paste("b2deg", a$d, sep="")
+    inputs <- a$d
+    emptynwstats <- rep(0, length(a$d))
+    if (any(a$d==0)) { # alter emptynwstats
+      emptynwstats[a$d==0] <- n-nb1
     }
   }
   list(name=name, coef.names=coef.names, #name and coef.names: required
@@ -483,28 +474,27 @@ InitErgmTerm.b2star <- function(nw, arglist, drop=TRUE, ...) {
                        vartypes = c("numeric", "character"),
                        defaultvalues = list(NULL, NULL),
                        required = c(TRUE, FALSE))
-  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
   if(drop) { # Check for zero statistics, print -Inf messages if applicable
     obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
     ew <- extremewarnings(obsstats)
     # will process the ew variable later
   } else {ew <- FALSE}
-  if (!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname)
+  if (!is.null(a$attrname)) {
+    nodecov <- get.node.attr(nw, a$attrname)
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     # Recode to numeric
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     name <- "istar"
-    coef.names <- paste("b2star", k, ".", attrname, sep="")
-    inputs <- c(k, nodecov)
-    attr(inputs, "ParamsBeforeCov") <- length(k)
+    coef.names <- paste("b2star", a$k, ".", a$attrname, sep="")
+    inputs <- c(a$k, nodecov)
+    attr(inputs, "ParamsBeforeCov") <- length(a$k)
   } 
   else {
     name <- "istar"
-    coef.names <- paste("b2star",k,sep="")
-    inputs <- k
+    coef.names <- paste("b2star",a$k,sep="")
+    inputs <- a$k
   }
   list(name = name, coef.names = coef.names, #name and coef.names: required
        inputs = inputs)
@@ -518,7 +508,6 @@ InitErgmTerm.b2starmix <- function(nw, arglist, drop=TRUE, ...) {
                        vartypes = c("numeric", "character", "numeric", "logical"),
                        defaultvalues = list(NULL, NULL, NULL, TRUE),
                        required = c(TRUE, TRUE, FALSE, FALSE))
-  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
   nb1 <- get.network.attribute(nw, "bipartite")
   if(drop) { # Check for zero statistics, print -Inf messages if applicable
@@ -526,12 +515,12 @@ InitErgmTerm.b2starmix <- function(nw, arglist, drop=TRUE, ...) {
     ew <- extremewarnings(obsstats)
     # will process the ew variable later
   } else {ew <- FALSE}
-  nodecov <- get.node.attr(nw, attrname)
+  nodecov <- get.node.attr(nw, a$attrname)
   u<-sort(unique(nodecov))
   if(any(is.na(nodecov))){u<-c(u,NA)}
   # Recode to numeric
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
-  if (length(k) > 1) 
+  if (length(a$k) > 1) 
     { stop("Only a single scalar k may be used with each b2starmix term") }
   b1namescov <- sort(unique(nodecov[1:nb1]))
   b2namescov <- sort(unique(nodecov[(1+nb1):network.size(nw)]))
@@ -541,25 +530,25 @@ InitErgmTerm.b2starmix <- function(nw, arglist, drop=TRUE, ...) {
   nr <- length(b1namescov)
   nc <- length(b2namescov)
   nodecov <- c(b1nodecov, b2nodecov + nr)
-  if (diff) {
+  if (a$diff) {
     u <- cbind(rep(1:nr,nc), nr + rep(1:nc, each=nr))
-    if (!is.null(base) && !identical(base,0)) { u <- u[-base,] }
+    if (!is.null(a$base) && !identical(a$base,0)) { u <- u[-a$base,] }
     u <- u[!ew,]
     name <- "b2starmix"
-    coef.names <- paste("b2starmix", k, attrname,
+    coef.names <- paste("b2starmix", a$k, a$attrname,
                         apply(matrix(namescov[u[,2:1]],ncol=2), 1,paste,collapse="."), 
                         sep=".")
-    inputs <- c(k, nodecov, u[,1], u[,2])
-    attr(inputs, "ParamsBeforeCov") <- length(k) # should be 1
+    inputs <- c(a$k, nodecov, u[,1], u[,2])
+    attr(inputs, "ParamsBeforeCov") <- length(a$k) # should be 1
   }
   else {
     u <- nr+(1:nc)
-    if (!is.null(base) && !identical(base,0)) { u <- u[-base] }
+    if (!is.null(a$base) && !identical(a$base,0)) { u <- u[-a$base] }
     u <- u[!ew]
     name <- "b2starmixhomophily"
-    coef.names <- paste("b2starmix", k, attrname, namescov[u], sep=".")
-    inputs <- c(k, nodecov, u)
-    attr(inputs, "ParamsBeforeCov") <- length(k) # should be 1
+    coef.names <- paste("b2starmix", a$k, a$attrname, namescov[u], sep=".")
+    inputs <- c(a$k, nodecov, u)
+    attr(inputs, "ParamsBeforeCov") <- length(a$k) # should be 1
   }
   list(name = name, coef.names = coef.names, #name and coef.names: required
        inputs = inputs)
@@ -573,7 +562,6 @@ InitErgmTerm.b2twostar <- function(nw, arglist, drop=TRUE, ...) {
                        vartypes = c("character", "character", "numeric"),
                        defaultvalues = list(NULL, NULL, NULL),
                        required = c(TRUE, FALSE, FALSE))
-  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
   nb1 <- get.network.attribute(nw, "bipartite")
   n <- network.size(nw)
@@ -582,11 +570,11 @@ InitErgmTerm.b2twostar <- function(nw, arglist, drop=TRUE, ...) {
     ew <- extremewarnings(obsstats)
     # will process the ew variable later
   } else {ew <- FALSE}
-  b1nodecov <- get.node.attr(nw, b1attrname)[1:nb1]
+  b1nodecov <- get.node.attr(nw, a$b1attrname)[1:nb1]
   b1u<-sort(unique(b1nodecov))
   if(any(is.na(b1nodecov))){ b1u<-c(b1u,NA) }
-  if(is.null(b2attrname)) { b2attrname <- b1attrname }
-  b2nodecov <- get.node.attr(nw, b2attrname)[(1+nb1):n]
+  if(is.null(a$b2attrname)) { a$b2attrname <- a$b1attrname }
+  b2nodecov <- get.node.attr(nw, a$b2attrname)[(1+nb1):n]
   b2u<-sort(unique(b2nodecov))
   if(any(is.na(b2nodecov))){b2u<-c(b2u,NA)}
   # Recode to numeric
@@ -596,9 +584,9 @@ InitErgmTerm.b2twostar <- function(nw, arglist, drop=TRUE, ...) {
   nc <- length(b2u)
   u <- cbind(rep(1:nc, nr*nr), rep(rep(1:nr, each=nc), nr), rep(1:nr, each=nc*nr))
   u <- u[u[,2] <= u[,3],]  
-  if (!is.null(base) && !identical(base,0)) { u <- u[-base,] }
+  if (!is.null(a$base) && !identical(a$base,0)) { u <- u[-a$base,] }
   u <- u[!ew,]
-  coef.names <- paste("b2twostar", b2attrname, b2u[u[,1]],  b1attrname,
+  coef.names <- paste("b2twostar", a$b2attrname, b2u[u[,1]],  a$b1attrname,
                       apply(matrix(b1u[u[,2:3]],ncol=2), 1, paste, collapse="."),
                       sep=".")
   list(name = "b2twostar", coef.names = coef.names, #name and coef.names: required
@@ -614,18 +602,17 @@ InitErgmTerm.cycle <- function(nw, arglist, drop=TRUE, ...) {
                      vartypes = c("numeric"),
                      defaultvalues = list(NULL),
                      required = c(TRUE))
-  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
   if(drop) { # Check for zero statistics, print -Inf messages if applicable
     obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
     ew <- extremewarnings(obsstats)
-    k <- k[!ew]
+    a$k <- a$k[!ew]
   }
-  if (length(k)==0) return(NULL)
+  if (length(a$k)==0) return(NULL)
   ### Construct the list to return
   list(name="cycle",                            #name: required
-       coef.names = paste("cycle", k, sep=""),  #coef.names: required
-       inputs = c(max(k), (2:max(k)) %in% k)
+       coef.names = paste("cycle", a$k, sep=""),  #coef.names: required
+       inputs = c(max(a$k), (2:max(a$k)) %in% a$k)
        )
 }
 
@@ -638,21 +625,20 @@ InitErgmTerm.edgecov <- function(nw, arglist, ...) {
                      vartypes = c("matrixnetwork", "character"),
                      defaultvalues = list(NULL, NULL),
                      required = c(TRUE, FALSE))
-  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
-  if(is.network(x))
-    xm<-as.matrix.network(x,matrix.type="adjacency",attrname)
-  else if(is.character(x))
-    xm<-get.network.attribute(nw,x)
+  if(is.network(a$x))
+    xm<-as.matrix.network(a$x,matrix.type="adjacency",a$attrname)
+  else if(is.character(a$x))
+    xm<-get.network.attribute(nw,a$x)
   else
-    xm<-as.matrix(x)
+    xm<-as.matrix(a$x)
   ### Construct the list to return
-  if(!is.null(attrname)) {
+  if(!is.null(a$attrname)) {
     # Note: the sys.call business grabs the name of the x object from the 
     # user's call.  Not elegant, but it works as long as the user doesn't
     # pass anything complicated.
     cn<-paste("edgecov", as.character(sys.call(0)[[3]][2]), 
-              as.character(attrname), sep = ".")
+              as.character(a$attrname), sep = ".")
   } else {
     cn<-paste("edgecov", as.character(sys.call(0)[[3]][2]), sep = ".")
   }
@@ -673,18 +659,17 @@ InitErgmTerm.hamming<-function (nw, arglist, drop=TRUE, ...) {
 	    vartypes = c("matrixnetwork","matrixnetwork","character","numeric"),
 	    defaultvalues = list(nw, NULL, NULL, NULL),
 	    required = c(FALSE, FALSE, FALSE, FALSE))
-  assignvariables(a) # create local variables with names in 'varnames'
 
   ## Process hamming network ##
-  if(is.network(x)){													# Arg to hamming is a network
-    xm<-as.matrix.network(x,matrix.type="edgelist",attrname)
-  }else if(is.character(x)){												# Arg to hamming is the name of an attribute in nw
-    xm<-get.network.attribute(nw,x)
+  if(is.network(a$x)){													# Arg to hamming is a network
+    xm<-as.matrix.network(a$x,matrix.type="edgelist",a$attrname)
+  }else if(is.character(a$x)){												# Arg to hamming is the name of an attribute in nw
+    xm<-get.network.attribute(nw,a$x)
     xm<-as.matrix.network(xm,matrix.type="edgelist")
-  }else if(is.null(x)){
+  }else if(is.null(a$x)){
     xm<-as.matrix.network(nw,matrix.type="edgelist")								# Arg to hamming does not exist; uses nw
   }else{
-    xm<-as.matrix(x)													# Arg to hamming is anything else; attempts to coerce
+    xm<-as.matrix(a$x)													# Arg to hamming is anything else; attempts to coerce
   }
   if (is.vector(xm)) xm <- matrix(xm, ncol=2)
 
@@ -709,7 +694,7 @@ InitErgmTerm.hamming<-function (nw, arglist, drop=TRUE, ...) {
   } else {
     # Extract dyadic covariate
     if(is.network(cov)){
-      covm<-as.matrix.network(cov,matrix.type="edgelist",attrname)
+      covm<-as.matrix.network(cov,matrix.type="edgelist",a$attrname)
       if(length(covm)==2){covm <- matrix(covm,ncol=2)}
       if(length(covm)==3){covm <- matrix(covm,ncol=3)}
       if (NCOL(covm)==2)
@@ -727,9 +712,9 @@ InitErgmTerm.hamming<-function (nw, arglist, drop=TRUE, ...) {
     emptynwstats <- sum(apply(xm, 1, function(a,b) sum(b[(a[1]==b[,1] & a[2]==b[,2]),3]), covm))
     if (is.null(defaultweight))
       defaultweight <- 0
-    if(!is.null(attrname) && length(sc03)>1){
+    if(!is.null(a$attrname) && length(sc03)>1){
       coef.names<-paste("hamming", as.character(sc03[2]), "wt",
-                as.character(attrname), sep = ".")
+                as.character(a$attrname), sep = ".")
     }else if (length(sc03)>1) {
       coef.names<-paste("hamming", as.character(sc03[2]), "wt",
                 as.character(sys.call(0)[[3]][3]), sep = ".")
@@ -787,13 +772,12 @@ InitErgmTerm.mutual<-function (nw, arglist, drop=TRUE, ...) {
                       vartypes = c("character", "logical", "numeric"),
                       defaultvalues = list(NULL, FALSE, NULL),
                       required = c(FALSE, FALSE, FALSE))
-  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
-  if (!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname)
+  if (!is.null(a$attrname)) {
+    nodecov <- get.node.attr(nw, a$attrname)
     u <- sort(unique(nodecov))
-    if (!is.null(keep)) {
-      u <- u[keep]
+    if (!is.null(a$keep)) {
+      u <- u[a$keep]
     }
     #   Recode to numeric
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -804,7 +788,7 @@ InitErgmTerm.mutual<-function (nw, arglist, drop=TRUE, ...) {
   }
   if(drop) { # Check for zero statistics, print -Inf messages if applicable
     obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
-    if (is.null(attrname)) {
+    if (is.null(a$attrname)) {
       n <- network.size(nw)
       ndc <- n * (n-1) / 2 # temporary until network.dyadcount is fixed
       if (extremewarnings(obsstats, maxval=ndc)) {
@@ -820,12 +804,12 @@ InitErgmTerm.mutual<-function (nw, arglist, drop=TRUE, ...) {
   out <- list(name="mutual",                      #name: required
               coef.names = "mutual"               #coef.names: required
               ) 
-  if (!is.null(attrname)) {
-    if (diff) {
-      out$coef.names <- paste("mutual", attrname, u, sep=".")
+  if (!is.null(a$attrname)) {
+    if (a$diff) {
+      out$coef.names <- paste("mutual", a$attrname, u, sep=".")
       out$inputs <- c(ui, nodecov)
     } else {
-      out$coef.names <- paste("mutual", attrname, sep=".")
+      out$coef.names <- paste("mutual", a$attrname, sep=".")
       out$inputs <- nodecov
     }
   }
@@ -840,19 +824,18 @@ InitErgmTerm.nodefactor<-function (nw, arglist, drop=TRUE, ...) {
                       vartypes = c("character", "numeric"),
                       defaultvalues = list(NULL, 1),
                       required = c(TRUE, FALSE))
-  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
 
   nodecov <-
-    if(length(attrname)==1)
-      get.node.attr(nw, attrname)
+    if(length(a$attrname)==1)
+      get.node.attr(nw, a$attrname)
     else{
-      do.call(paste,c(sapply(attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
+      do.call(paste,c(sapply(a$attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
     }
 
   u <- sort(unique(nodecov))
-  if (!is.null(base) && !identical(base,0)) {
-    u <- u[-base]
+  if (!is.null(a$base) && !identical(a$base,0)) {
+    u <- u[-a$base]
     if (length(u)==0) { # Get outta here!  (can happen if user passes attribute with one value)
       print("Warning:  nodefactor term deleted because it contributes no statistics")
       return()
@@ -871,7 +854,7 @@ InitErgmTerm.nodefactor<-function (nw, arglist, drop=TRUE, ...) {
   inputs <- c(ui, nodecov)
   attr(inputs, "ParamsBeforeCov") <- length(ui) # See comment at top of file
   list(name="nodefactor",                                        #required
-       coef.names = paste("nodefactor", paste(attrname,collapse="."), u, sep="."), #required
+       coef.names = paste("nodefactor", paste(a$attrname,collapse="."), u, sep="."), #required
        inputs = inputs,
        dependence = FALSE # So we don't use MCMC if not necessary
        )
@@ -885,19 +868,18 @@ InitErgmTerm.nodeifactor<-function (nw, arglist, drop=TRUE, ...) {
                       vartypes = c("character", "numeric"),
                       defaultvalues = list(NULL, 1),
                       required = c(TRUE, FALSE))
-  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
 
   nodecov <-
-    if(length(attrname)==1)
-      get.node.attr(nw, attrname)
+    if(length(a$attrname)==1)
+      get.node.attr(nw, a$attrname)
     else{
-      do.call(paste,c(sapply(attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
+      do.call(paste,c(sapply(a$attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
     }
 
   u <- sort(unique(nodecov))
-  if (!is.null(base) && !identical(base,0)) {
-    u <- u[-base]
+  if (!is.null(a$base) && !identical(a$base,0)) {
+    u <- u[-a$base]
     if (length(u)==0) { # Get outta here!  (can happen if user passes attribute with one value)
       print("Warning:  nodeifactor term deleted because it contributes no statistics")
       return()
@@ -916,7 +898,7 @@ InitErgmTerm.nodeifactor<-function (nw, arglist, drop=TRUE, ...) {
   inputs <- c(ui, nodecov)
   attr(inputs, "ParamsBeforeCov") <- length(ui) # See comment at top of file
   list(name="nodeifactor",                                        #required
-       coef.names = paste("nodeifactor", paste(attrname,collapse="."), u, sep="."), #required
+       coef.names = paste("nodeifactor", paste(a$attrname,collapse="."), u, sep="."), #required
        inputs = inputs,
        dependence = FALSE # So we don't use MCMC if not necessary
        )
@@ -930,17 +912,16 @@ InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, drop=TRUE, ..
                       vartypes = c("character", "logical", "numeric"),
                       defaultvalues = list(NULL, FALSE, NULL),
                       required = c(TRUE, FALSE, FALSE))
-  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
   nodecov <-
-    if(length(attrname)==1)
-      get.node.attr(nw, attrname)
+    if(length(a$attrname)==1)
+      get.node.attr(nw, a$attrname)
     else{
-      do.call(paste,c(sapply(attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
+      do.call(paste,c(sapply(a$attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
     }
   u <- sort(unique(nodecov))
-  if (!is.null(keep)) {
-    u <- u[keep]
+  if (!is.null(a$keep)) {
+    u <- u[a$keep]
   }
   #   Recode to numeric
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -955,11 +936,11 @@ InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, drop=TRUE, ..
     ui <- ui[!ew]
   }
   ### Construct the list to return
-  if (diff) {
-    coef.names <- paste("nodematch", paste(attrname,collapse="."), u, sep=".")
+  if (a$diff) {
+    coef.names <- paste("nodematch", paste(a$attrname,collapse="."), u, sep=".")
     inputs <- c(ui, nodecov)
   } else {
-    coef.names <- paste("nodematch", paste(attrname,collapse="."), sep=".")
+    coef.names <- paste("nodematch", paste(a$attrname,collapse="."), sep=".")
     inputs <- nodecov
   }
   list(name="nodematch",                                 #name: required
@@ -977,17 +958,16 @@ InitErgmTerm.nodemix<-function (nw, arglist, drop=TRUE, ...) {
                       vartypes = c("character", "numeric"),
                       defaultvalues = list(NULL, NULL),
                       required = c(TRUE, FALSE))
-  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
   if (is.bipartite(nw) && is.directed(nw)) {
     stop("Directed bipartite networks are not currently possible")
   }
   
   nodecov <-
-    if(length(attrname)==1)
-      get.node.attr(nw, attrname)
+    if(length(a$attrname)==1)
+      get.node.attr(nw, a$attrname)
     else{
-      do.call(paste,c(sapply(attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
+      do.call(paste,c(sapply(a$attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
     }
     
   if(drop) { # Check for zero statistics, print -Inf messages if applicable
@@ -1009,12 +989,12 @@ InitErgmTerm.nodemix<-function (nw, arglist, drop=TRUE, ...) {
     nodecov <- c(b1nodecov, b2nodecov + nr)
     u <- cbind(rep(1:nr,nc), nr + rep(1:nc, each=nr))
     if(any(is.na(nodecov))){u<-rbind(u,NA)}    
-    if (!is.null(base) && !identical(base,0)) {
-      u <- u[-base,]
+    if (!is.null(a$base) && !identical(a$base,0)) {
+      u <- u[-a$base,]
     }
     u <- u[!ew,]
     name <- "mix"
-    cn <- paste("mix", paste(attrname,collapse="."), apply(matrix(namescov[u],ncol=2),
+    cn <- paste("mix", paste(a$attrname,collapse="."), apply(matrix(namescov[u],ncol=2),
                                        1,paste,collapse="."), sep=".")
     inputs <- c(u[,1], u[,2], nodecov)
     attr(inputs, "ParamsBeforeCov") <- NROW(u)
@@ -1035,16 +1015,16 @@ InitErgmTerm.nodemix<-function (nw, arglist, drop=TRUE, ...) {
       ucm <- ucm[upper.tri(ucm,diag=TRUE)]
       uun <- uun[upper.tri(uun,diag=TRUE)]
     }
-    if (!is.null(base) && !identical(base,0)) {
-      urm <- as.vector(urm)[-base]
-      ucm <- as.vector(ucm)[-base]
-      uun <- as.vector(uun)[-base]
+    if (!is.null(a$base) && !identical(a$base,0)) {
+      urm <- as.vector(urm)[-a$base]
+      ucm <- as.vector(ucm)[-a$base]
+      uun <- as.vector(uun)[-a$base]
     }
     urm <- urm[!ew]
     ucm <- ucm[!ew]
     uun <- uun[!ew]
     name <- "nodemix"
-    cn <- paste("mix", paste(attrname,collapse="."), uun, sep=".")
+    cn <- paste("mix", paste(a$attrname,collapse="."), uun, sep=".")
     inputs <- c(urm, ucm, nodecov)
     #attr(inputs, "ParamsBeforeCov") <- 2*length(uui)
     attr(inputs, "ParamsBeforeCov") <- 2*length(uun)
@@ -1064,19 +1044,17 @@ InitErgmTerm.nodeofactor<-function (nw, arglist, drop=TRUE, ...) {
                       vartypes = c("character", "numeric"),
                       defaultvalues = list(NULL, 1),
                       required = c(TRUE, FALSE))
-  assignvariables(a) # create local variables from names in 'varnames'
   ### Process the arguments
-
   nodecov <-
-    if(length(attrname)==1)
-      get.node.attr(nw, attrname)
+    if(length(a$attrname)==1)
+      get.node.attr(nw, a$attrname)
     else{
-      do.call(paste,c(sapply(attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
+      do.call(paste,c(sapply(a$attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
     }
 
   u <- sort(unique(nodecov))
-  if (!is.null(base) && !identical(base,0)) {
-    u <- u[-base]
+  if (!is.null(a$base) && !identical(a$base,0)) {
+    u <- u[-a$base]
     if (length(u)==0) { # Get outta here!  (can happen if user passes attribute with one value)
       print("Warning:  nodeofactor term deleted because it contributes no statistics")
       return()
@@ -1095,7 +1073,7 @@ InitErgmTerm.nodeofactor<-function (nw, arglist, drop=TRUE, ...) {
   inputs <- c(ui, nodecov)
   attr(inputs, "ParamsBeforeCov") <- length(ui) # See comment at top of file
   list(name="nodeofactor",                                        #required
-       coef.names = paste("nodeofactor", paste(attrname,collapse="."), u, sep="."), #required
+       coef.names = paste("nodeofactor", paste(a$attrname,collapse="."), u, sep="."), #required
        inputs = inputs,
        dependence = FALSE # So we don't use MCMC if not necessary
        )
@@ -1110,7 +1088,6 @@ InitErgmTerm.threepath <- function(nw, arglist, drop=TRUE, ...) {
                        vartypes = c("numeric"),
                        defaultvalues = list(1:4),
                        required = c(FALSE))
-  assignvariables(a) # create local variables from names in 'varnames'
   if(drop) { # Check for zero statistics, print -Inf messages if applicable
     obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
     ew <- extremewarnings(obsstats)
@@ -1118,12 +1095,12 @@ InitErgmTerm.threepath <- function(nw, arglist, drop=TRUE, ...) {
   } 
   else 
     ew <- FALSE
-  types <- c("RRR","RRL","LRR","LRL")[keep]
+  types <- c("RRR","RRL","LRR","LRL")[a$keep]
   types <- types[!ew]  
   if (is.directed(nw)) {
     return(list(name = "threepath", 
                 coef.names = paste("threepath", types, sep="."),
-                inputs=keep[!ew]))
+                inputs=a$keep[!ew]))
   }
   else {
     return(list(name = "threepath", coef.names = "threepath"))

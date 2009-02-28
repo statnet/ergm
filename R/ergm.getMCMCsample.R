@@ -26,86 +26,30 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, MCMCparams,
 #
   z <- list(newnwheads=maxedges+1)
   while(z$newnwheads[1] >= maxedges){
-   maxedges <- 10*maxedges
+    maxedges <- 10*maxedges
 #
 #  Parallel running
 #
-   if(MCMCparams$parallel==0){
-    flush.console()
-    z <- ergm.mcmcslave(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose)
-    nedges <- z$newnwheads[1]
-    if(nedges >= 50000-1){
-      cat("\n Warning:")
-      cat("\n   The network has more than 50000 edges, and the model is likely to be degenerate.\n")
-      statsmatrix <- matrix(0, nrow=MCMCparams$samplesize,
-                            ncol=Clist$nstats)
-      newnetwork <- nw
+    if(MCMCparams$parallel==0){
+      flush.console()
+      z <- ergm.mcmcslave(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose)
+      nedges <- z$newnwheads[1]
+      if(nedges >= 50000-1){
+        cat("\n Warning:")
+        cat("\n   The network has more than 50000 edges, and the model is likely to be degenerate.\n")
+        statsmatrix <- matrix(0, nrow=MCMCparams$samplesize,
+                              ncol=Clist$nstats)
+        newnetwork <- nw
+      }else{
+        statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
+                              ncol=Clist$nstats,
+                              byrow = TRUE)
+        newnetwork <- newnw.extract(nw,z)
+      }
+      
     }else{
-      statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
-                            ncol=Clist$nstats,
-                            byrow = TRUE)
-      newnetwork <- newnw.extract(nw,z)
+      stop("parallization not enabled for now.")
     }
-
-  }else{
-    MCMCparams.parallel <- MCMCparams
-    MCMCparams.parallel$samplesize <- round(MCMCparams$samplesize / MCMCparams$parallel)
-    MCMCparams.parallel$stats <- MCMCparams$stats[1:MCMCparams.parallel$samplesize,]
-    require(snow)
-#
-# Start PVM if necessary
-#
-    if(getClusterOption("type")=="PVM"){
-     if(verbose){cat("Engaging warp drive using PVM ...\n")}
-     require(rpvm)
-     PVM.running <- try(.PVM.config(), silent=TRUE)
-     if(inherits(PVM.running,"try-error")){
-      hostfile <- paste(Sys.getenv("HOME"),"/.xpvm_hosts",sep="")
-      .PVM.start.pvmd(hostfile)
-      cat("no problem... PVM started by ergm...\n")
-     }
-    }else{
-     if(verbose){cat("Engaging warp drive using MPI ...\n")}
-    }
-#
-#   Start Cluster
-#
-    cl<-makeCluster(MCMCparams$parallel)
-    clusterSetupRNG(cl)
-    if("ergm" %in% MCMCparams$packagenames){
-     clusterEvalQ(cl,library(ergm))
-    }
-#   if("networksis" %in% MCMCparams$packagenames){
-#    clusterEvalQ(cl,library(networksis))
-#   }
-#    clusterEvalQ(cl,eval(paste("library(",packagename,")",sep="")))
-#
-#   Run the jobs with rpvm or Rmpi
-#
-    flush.console()
-    outlist <- clusterCall(cl,ergm.mcmcslave,
-     Clist,MHproposal,eta0,MCMCparams.parallel,maxedges,verbose)
-#
-#   Process the results
-#
-    statsmatrix <- NULL
-#   newedgelist <- matrix(0, ncol=2, nrow=0)
-    for(i in (1:MCMCparams$parallel)){
-     z <- outlist[[i]]
-     statsmatrix <- rbind(statsmatrix,
-       matrix(z$s, nrow=MCMCparams.parallel$samplesize,
-       ncol=Clist$nstats,
-       byrow = TRUE))
-#    if(z$newnw[1]>1){
-#      newedgelist <- rbind(newedgelist,
-     #                           matrix(z$newnw[2:z$newnw[1]], ncol=2, byrow=TRUE))
-   }
-    nedges <- z$newnwheads[1]
-    newnetwork<-newnw.extract(nw,z)
-    cat("parallel samplesize=",nrow(statsmatrix),"by",
-        MCMCparams.parallel$samplesize,"\n")
-    stopCluster(cl)
-  }
   }
   colnames(statsmatrix) <- model$coef.names
 

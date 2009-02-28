@@ -44,7 +44,7 @@ MHproposals<-
           c("c", "edges+hamming", "default",      "HammingConstantEdges"),
           c("c", "edges+hamming", "random",       "HammingConstantEdges"),
           c("c", "observed",      "default",      "randomtoggleNonObserved"),
-          c("c", "observed",      "random",       "randomtoggleNonObserved"),
+          c("c", "observed",      "random",       "randomtoggleNonObserved")
         )
 MHproposals <- data.frame(I(MHproposals[,1]), I(MHproposals[,2]), 
                           I(MHproposals[,3]), I(MHproposals[,4]))  

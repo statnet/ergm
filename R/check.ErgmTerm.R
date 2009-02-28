@@ -104,15 +104,28 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL,
   out
 }
 
-# The following short function takes a list as an argument and creates a variable
-# out of each of its elements *in the calling environment*.  In this way, it
-# sort of works like "attach" but without creating a new environment and
-# without all of the headaches that "attach" can give because the variables
-# it creates are not in the correct frame.
+######
+## As of ergm version 2.2, the assignvariables function is deprecated.
+## This is so that there are no "mysterious" variable assignments in the
+## InitErgmTerm functions, which is prehaps better programming style
+## and which also prevents a whole raft of warnings when using
+## R CMD build.
+######
+## The following short function takes a list as an argument and creates a variable
+## out of each of its elements *in the calling environment*.  In this way, it
+## sort of works like "attach" but without creating a new environment and
+## without all of the headaches that "attach" can give because the variables
+## it creates are not in the correct frame.
+#assignvariables <- function(a) {
+#  if(length(a)>0)
+#    for(i in 1:length(a)) 
+#      assign(names(a)[i], a[[i]], envir=parent.frame())
+#}
 assignvariables <- function(a) {
-  if(length(a)>0)
-    for(i in 1:length(a)) 
-      assign(names(a)[i], a[[i]], envir=parent.frame())
+  stop("The assignvariables function has been deprecated.  Please modify\n",
+       "the ", get.InitErgm.fname(), " function so that it does not rely\n",
+       "on this function.  For instance, instead of 'assignvariables(a)'\n",
+       "followed by using 'attrname' throughout, use 'a$attrname' instead.")
 }
 
 check.ErgmTerm.summarystats <- function(nw, arglist, ...) {
