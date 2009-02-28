@@ -15,29 +15,6 @@
  */
 
 #include "edgetree.h"
-/*######################################################################
-#
-# copyright (c) 2003, Mark S. Handcock, University of Washington
-#                     David R. Hunter, Penn State University
-#                     Carter T. Butts, University of California - Irvine
-#                     Martina Morris, University of Washington
-# 
-# For license information see http://statnetproject.org/license
-#
-# We have invested a lot of time and effort in creating 'statnet',
-# for use by other researchers. We require that the attributions
-# in the software are retained (even if only pieces of it are used),
-# and that there is attribution when the package is loaded (e.g., via
-# "library" or "require"). This is to stop
-# "rebadging" of the software. 
-#
-# Cite us!
-#
-# To cite see http://statnetproject.org/cite
-#
-# .First.lib is run when the package is loaded.
-#
-###################################################################### */
 
 /*******************
  Network NetworkInitialize
@@ -59,6 +36,8 @@ Network NetworkInitialize(Vertex *heads, Vertex *tails, Edge nedges,
   nw.maxedges = MAX(nedges,1)+nnodes+2; /* Maybe larger than needed? */
   nw.inedges = (TreeNode *) calloc(nw.maxedges,sizeof(TreeNode));
   nw.outedges = (TreeNode *) calloc(nw.maxedges,sizeof(TreeNode));
+
+  GetRNGstate();  /* R function enabling uniform RNG */
 
   if(lasttoggle_flag){
     nw.duration_info.MCMCtimer=0;
@@ -300,7 +279,7 @@ void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge next_edge){
   TreeNode *eptr = edges+a, *newnode;
   Edge e;
 
-  if (eptr->value==0) { /* This is the first edge for this vertex. */
+  if (eptr->value==0) { /* This is the first edge for vertex a. */
     eptr->value=b;
     return;
   }
@@ -548,7 +527,7 @@ Edge EdgeTree2EdgeList(Vertex *heads, Vertex *tails, Network *nwp, Edge nmax){
 
 void ShuffleEdges(Vertex *heads, Vertex *tails, Edge nedges){
   for(Edge i = nedges; i > 0; i--) {
-    Edge j = i * unif_rand();  /* shuffle to avoid worst-case performance */
+    Edge j = (double) i * unif_rand();  /* shuffle to avoid worst-case performance */
     Vertex h = heads[j];
     Vertex t = tails[j];
     heads[j] = heads[i-1];

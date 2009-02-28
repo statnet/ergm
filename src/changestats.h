@@ -77,6 +77,8 @@ typedef struct ModelTermstruct {
 /****************************************************/
 /* changestat function prototypes, 
    plus a few supporting function prototypes */
+#define CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *heads, Vertex *tails, ModelTerm *mtp, Network *nwp)
+/* NB:  CHANGESTAT_FN is now deprecated (replaced by D_CHANGESTAT_FN) */
 #define D_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *heads, Vertex *tails, ModelTerm *mtp, Network *nwp)
 #define T_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)
 #define S_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)
@@ -91,11 +93,17 @@ D_CHANGESTAT_FN(d_b1concurrent_by_attr);
 D_CHANGESTAT_FN(d_b1factor);
 D_CHANGESTAT_FN(d_b1degree);
 D_CHANGESTAT_FN(d_b1degree_by_attr);
+D_CHANGESTAT_FN(d_b1starmix);
+D_CHANGESTAT_FN(d_b1starmixhomophily);
+D_CHANGESTAT_FN(d_b1twostar);
 D_CHANGESTAT_FN(d_b2concurrent);
 D_CHANGESTAT_FN(d_b2concurrent_by_attr);
 D_CHANGESTAT_FN(d_b2degree);
 D_CHANGESTAT_FN(d_b2degree_by_attr);
 D_CHANGESTAT_FN(d_b2factor);
+D_CHANGESTAT_FN(d_b2starmix);
+D_CHANGESTAT_FN(d_b2starmixhomophily);
+D_CHANGESTAT_FN(d_b2twostar);
 D_CHANGESTAT_FN(d_balance);
 D_CHANGESTAT_FN(d_boundeddegree);
 D_CHANGESTAT_FN(d_boundedidegree);
@@ -140,10 +148,12 @@ D_CHANGESTAT_FN(d_gwb2degree_by_attr);
 D_CHANGESTAT_FN(d_gwesp);
 D_CHANGESTAT_FN(d_gwidegree);
 D_CHANGESTAT_FN(d_gwidegree_by_attr);
+D_CHANGESTAT_FN(d_gwnsp);
 D_CHANGESTAT_FN(d_gwodegree);
 D_CHANGESTAT_FN(d_gwodegree_by_attr);
 D_CHANGESTAT_FN(d_gwtdsp);
 D_CHANGESTAT_FN(d_gwtesp);
+D_CHANGESTAT_FN(d_gwtnsp);
 /********************  changestats:   H    ***********/
 D_CHANGESTAT_FN(d_hamming);
 D_CHANGESTAT_FN(d_hamming_weighted);
@@ -175,6 +185,7 @@ D_CHANGESTAT_FN(d_nodematch);
 D_CHANGESTAT_FN(d_nodemix);
 D_CHANGESTAT_FN(d_nodeocov);
 D_CHANGESTAT_FN(d_nodeofactor);
+D_CHANGESTAT_FN(d_nsp);
 /********************  changestats:   O    ***********/
 D_CHANGESTAT_FN(d_odegree);
 D_CHANGESTAT_FN(d_odegree_by_attr);
@@ -191,6 +202,8 @@ D_CHANGESTAT_FN(d_sociality);
 /********************  changestats:   T    ***********/
 D_CHANGESTAT_FN(d_tdsp);
 D_CHANGESTAT_FN(d_tesp);
+D_CHANGESTAT_FN(d_threepath);
+D_CHANGESTAT_FN(d_tnsp);
 D_CHANGESTAT_FN(d_transitive);
 D_CHANGESTAT_FN(d_triadcensus);
 D_CHANGESTAT_FN(d_triangle);

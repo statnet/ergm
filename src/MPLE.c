@@ -105,7 +105,7 @@ Uses Jenkins One-at-a-Time hash.
 
 numRows should, ideally, be a power of 2, but doesn't have to be.
 **************/
-R_INLINE unsigned int hashCovMatRow(double *newRow, unsigned int rowLength, unsigned int numRows,
+/*R_INLINE*/ unsigned int hashCovMatRow(double *newRow, unsigned int rowLength, unsigned int numRows,
 				    int response, double offset){
   /* Cast all pointers to unsigned char pointers, since data need to 
      be fed to the hash function one byte at a time. */
@@ -129,7 +129,7 @@ R_INLINE unsigned int hashCovMatRow(double *newRow, unsigned int rowLength, unsi
   return(hash % numRows);
 }
 
-R_INLINE unsigned int insCovMatRow(double *newRow, double *matrix, unsigned int rowLength, unsigned int numRows,
+/*R_INLINE*/ unsigned int insCovMatRow(double *newRow, double *matrix, unsigned int rowLength, unsigned int numRows,
 			  int response, int *responsevec,
 			  double offset, double *compressedOffset, int *weights ){
   unsigned int hash_pos = hashCovMatRow(newRow, rowLength, numRows, response, offset), pos, round;

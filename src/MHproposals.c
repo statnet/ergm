@@ -869,7 +869,7 @@ void MH_randomnode (MHproposal *MHp, DegreeBound *bd, Network *nwp) {
 }
 
 void MH_randomtoggleNonObserved (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {  
-  Edge rane;
+  Edge rane, nmissing = nwp[1].nedges;
   
   if(MHp->ntoggles == 0) { /* Initialize randomtoggle */
     MHp->ntoggles=1;
@@ -877,7 +877,12 @@ void MH_randomtoggleNonObserved (MHproposal *MHp, DegreeBound *bd, Network *nwp)
   }
   MHp->ratio = 1.0;
 
-  rane = 1 + unif_rand() * nwp[1].nedges;
+  if(nmissing==0){
+    *MHp->togglehead = MH_FAILED;
+    *MHp->toggletail = MH_IMPOSSIBLE;
+  }
+
+  rane = 1 + unif_rand() * nmissing;
   FindithEdge(MHp->togglehead, MHp->toggletail, rane, &nwp[1]);
 }
 
