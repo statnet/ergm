@@ -720,7 +720,6 @@ InitErgmTerm.hamming<-function (nw, arglist, drop=TRUE, ...) {
                 as.character(sys.call(0)[[3]][3]), sep = ".")
     }
   }
-
   ## Return ##
   if (!is.null(xm)) {
     if (!is.directed(nw)) {
