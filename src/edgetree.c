@@ -1,29 +1,5 @@
 #include "edgetree.h"
 
-/*######################################################################
-#
-# copyright (c) 2003, Mark S. Handcock, University of Washington
-#                     David R. Hunter, Penn State University
-#                     Carter T. Butts, University of California - Irvine
-#                     Martina Morris, University of Washington
-# 
-# For license information see http://statnetproject.org/license
-#
-# We have invested a lot of time and effort in creating 'statnet',
-# for use by other researchers. We require that the attributions
-# in the software are retained (even if only pieces of it are used),
-# and that there is attribution when the package is loaded (e.g., via
-# "library" or "require"). This is to stop
-# "rebadging" of the software. 
-#
-# Cite us!
-#
-# To cite see http://statnetproject.org/cite
-#
-# .First.lib is run when the package is loaded.
-#
-###################################################################### */
-
 /*******************
  Network NetworkInitialize
 

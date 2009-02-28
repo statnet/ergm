@@ -11,10 +11,14 @@
 \alias{b1degree}
 \alias{b1factor}
 \alias{b1star}
+\alias{b1starmix}
+\alias{b1twostar}
 \alias{b2concurrent}
 \alias{b2degree}
 \alias{b2factor}
 \alias{b2star}
+\alias{b2starmix}
+\alias{b2twostar}
 \alias{balance}
 \alias{concurrent}
 \alias{ctriple}
@@ -63,6 +67,7 @@
 \alias{simmelianties}
 \alias{smalldiff}
 \alias{sociality}
+\alias{threepath}
 \alias{transitive}
 \alias{triadcensus}
 \alias{triangle}

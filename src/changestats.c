@@ -235,7 +235,6 @@ D_CHANGESTAT_FN(d_b1factor) {
   UNDO_PREVIOUS_TOGGLES(i); /* Needed on exit in case of multiple toggles */
 }
 
-
 /*****************
  changestat: d_b1starmix
 *****************/
@@ -4098,7 +4097,7 @@ D_CHANGESTAT_FN(d_receiver) {
       }
       if(j < N_CHANGE_STATS)
         CHANGE_STAT[j] += echange;
-    }    
+    }
     TOGGLE_IF_MORE_TO_COME(i);
   }
   UNDO_PREVIOUS_TOGGLES(i);
@@ -4129,7 +4128,7 @@ D_CHANGESTAT_FN(d_sender) {
 	deg = (Vertex)INPUT_PARAM[j];
        }
        if(j < N_CHANGE_STATS){CHANGE_STAT[j] += echange;}
-      }      
+      }
       TOGGLE_IF_MORE_TO_COME(i);
     }
   UNDO_PREVIOUS_TOGGLES(i);
