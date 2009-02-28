@@ -231,15 +231,15 @@ InitErgm.b1concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("b1concurrent", is.directed(nw), requirement=FALSE)
   ergm.checkbipartite("b1concurrent", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("b1concurrent", arglist,
-                      varnames = c("attrname"),
+                      varnames = c("byarg"),
                       vartypes = c("character"),
                       defaultvalues = list(NULL),
                       required = c(FALSE))
-  attrname <- a$attrname
+  byarg <- a$byarg
   emptynwstats<-NULL
   nb1 <- get.network.attribute(nw, "bipartite")       
-  if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "b1concurrent")
+  if(!is.null(byarg)) {
+    nodecov <- get.node.attr(nw, byarg, "b1concurrent")
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u) # Recode to numeric
@@ -249,23 +249,23 @@ InitErgm.b1concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
     lu <- length(u)
     ui <- seq(along=u)
     if(drop){ #   Check for degeneracy
-      b1concurrentattr <- paste('nw ~ b1concurrent("',attrname,'")',sep="")
+      b1concurrentattr <- paste('nw ~ b1concurrent("',byarg,'")',sep="")
       b1concurrentattr <- summary(as.formula(b1concurrentattr),
                                  drop=FALSE) == 0
       if(any(b1concurrentattr)){
         cat(" ")
-        cat(paste("Warning: There are no b1concurrent", ".", attrname,
+        cat(paste("Warning: There are no b1concurrent", ".", byarg,
                            u[b1concurrentattr],
                   "b1s;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-        dropterms <- paste("b1concurrent", ".", attrname,
+        dropterms <- paste("b1concurrent", ".", byarg,
                            u[b1concurrentattr], sep="")
         u <- u[-b1concurrentattr]
         ui <- ui[-b1concurrentattr]
       }
     }
   } else {
-    if(is.logical(attrname)){drop <- attrname}
+    if(is.logical(byarg)){drop <- byarg}
     if(drop){
       mb1concurrent <- summary(
                           as.formula(paste('nw ~ b1concurrent',sep="")),
@@ -277,7 +277,7 @@ InitErgm.b1concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
     }
   }
   termnumber<-1+length(m$terms)
-  if(!is.null(attrname)) {
+  if(!is.null(byarg)) {
     if(length(u)==0) {return(m)}
     #  No covariates here, so input component 1 is arbitrary
     m$terms[[termnumber]] <- list(name="b1concurrent_by_attr", soname="ergm",
@@ -286,7 +286,7 @@ InitErgm.b1concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
                                            ui, nodecov),
                                   dependence=TRUE)
     # See comment in d_b1concurrent_by_attr function
-    m$coef.names<-c(m$coef.names, paste("b1concurrent",".", attrname,
+    m$coef.names<-c(m$coef.names, paste("b1concurrent",".", byarg,
                                         u, sep=""))
   }else{
     #  No covariates here, so input component 1 is arbitrary
@@ -542,15 +542,15 @@ InitErgm.b2concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("b2concurrent", is.directed(nw), requirement=FALSE)
   ergm.checkbipartite("b2concurrent", is.bipartite(nw), requirement=TRUE)
   a <- ergm.checkargs("b2concurrent", arglist,
-                      varnames = c("attrname"),
+                      varnames = c("byarg"),
                       vartypes = c("character"),
                       defaultvalues = list(NULL),
                       required = c(FALSE))
-  attrname <- a$attrname
+  byarg <- a$byarg
   emptynwstats<-NULL
   nb1 <- get.network.attribute(nw, "bipartite")
-  if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "b2concurrent")
+  if(!is.null(byarg)) {
+    nodecov <- get.node.attr(nw, byarg, "b2concurrent")
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u) # Recode to numeric
@@ -560,12 +560,12 @@ InitErgm.b2concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
     lu <- length(u)
     ui <- seq(along=u)
     if(drop){ #   Check for degeneracy
-      b2concurrentattr <- paste('nw ~ b2concurrent("',attrname,'")',sep="")
+      b2concurrentattr <- paste('nw ~ b2concurrent("',byarg,'")',sep="")
       b2concurrentattr <- summary(as.formula(b2concurrentattr),
                                  drop=FALSE) == 0
       if(any(b2concurrentattr)){
         cat(" ")
-        cat(paste("Warning: There are no b2concurrent", ".", attrname,
+        cat(paste("Warning: There are no b2concurrent", ".", byarg,
                            u[b2concurrentattr],
                   "b2s;\n",
                  " the corresponding coefficient has been fixed at its MLE of nenegative infinity.\n",sep=" "))
@@ -574,7 +574,7 @@ InitErgm.b2concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
       }
     }
   } else {
-    if(is.logical(attrname)){drop <- attrname}
+    if(is.logical(byarg)){drop <- byarg}
     if(drop){
       mb2concurrent <- summary(
                           as.formula(paste('nw ~ b2concurrent',sep="")),
@@ -586,7 +586,7 @@ InitErgm.b2concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
     }
   }
   termnumber<-1+length(m$terms)
-  if(!is.null(attrname)) {
+  if(!is.null(byarg)) {
     if(length(u)==0) {return(m)}
     #  No covariates here, so input component 1 is arbitrary
     m$terms[[termnumber]] <- list(name="b2concurrent_by_attr", soname="ergm",
@@ -595,7 +595,7 @@ InitErgm.b2concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
                                            ui, nodecov),
                                   dependence=TRUE)
     # See comment in d_b2concurrent_by_attr function
-    m$coef.names<-c(m$coef.names, paste("b2concurrent",".", attrname,
+    m$coef.names<-c(m$coef.names, paste("b2concurrent",".", byarg,
                                         u, sep=""))
   }else{
     #  No covariates here, so input component 1 is arbitrary
@@ -940,13 +940,13 @@ InitErgm.balance<-function (nw, m, arglist, drop=TRUE, ...) {
 InitErgm.concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("concurrent", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("concurrent", arglist,
-                      varnames = c("attrname"),
+                      varnames = c("byarg"),
                       vartypes = c("character"),
                       defaultvalues = list(NULL),
                       required = c(FALSE))
-  attrname <- a$attrname
-  if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "concurrent")
+  byarg <- a$byarg
+  if(!is.null(byarg)) {
+    nodecov <- get.node.attr(nw, byarg, "concurrent")
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u) # Recode to numeric
@@ -957,10 +957,10 @@ InitErgm.concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
     ui <- seq(along=u)
     if(drop){ #   Check for degeneracy
       concurrentattr <- summary(as.formula
-                             (paste('nw ~ concurrent(',attrname,'")',sep="")),
+                             (paste('nw ~ concurrent(',byarg,'")',sep="")),
                              drop=FALSE) == 0
       if(any(concurrentattr)){
-        dropterms <- paste("concurrent", ".", attrname,
+        dropterms <- paste("concurrent", ".", byarg,
                            u[concurrentattr], sep="")
       cat(" ")
         cat("Warning: These concurrent terms have extreme counts and will be dropped:\n")
@@ -971,7 +971,7 @@ InitErgm.concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
       }
     }
   } else {
-    if(is.logical(attrname)){drop <- attrname}
+    if(is.logical(byarg)){drop <- byarg}
     if(drop){
       mconcurrent <- summary(
                           as.formula(paste('nw ~ concurrent',sep="")),
@@ -985,7 +985,7 @@ InitErgm.concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
     }                                                         
   }
   termnumber<-1+length(m$terms)
-  if(!is.null(attrname)) {
+  if(!is.null(byarg)) {
     if(length(u)==0) {return(m)}
     #  No covariates here, so input component 1 is arbitrary
     m$terms[[termnumber]] <- list(name="concurrent_by_attr", soname="ergm",
@@ -994,7 +994,7 @@ InitErgm.concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
                                            ui, nodecov),
                                   dependence=TRUE)
     # See comment in d_concurrent_by_attr function
-    m$coef.names<-c(m$coef.names, paste("concurrent",".", attrname,
+    m$coef.names<-c(m$coef.names, paste("concurrent",".", byarg,
                                         u, sep=""))
   }else{
     #  No covariates here, so input component 1 is arbitrary
@@ -1123,31 +1123,31 @@ InitErgm.ctriple<-InitErgm.ctriad<-function (nw, m, arglist, drop=TRUE, ...) {
 InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("degree", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("degree", arglist,
-    varnames = c("d", "attrname", "homophily"),
+    varnames = c("d", "byarg", "homophily"),
     vartypes = c("numeric", "character", "logical"),
     defaultvalues = list(NULL, NULL, FALSE),
     required = c(TRUE, FALSE, FALSE))
-  d<-a$d; attrname <- a$attrname; homophily <- a$homophily
+  d<-a$d; byarg <- a$byarg; homophily <- a$homophily
   emptynwstats<-NULL
-  if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "degree")
+  if(!is.null(byarg)) {
+    nodecov <- get.node.attr(nw, byarg, "degree")
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u) # Recode to numeric
     if (length(u)==1)
          stop ("Attribute given to degree() has only one value", call.=FALSE)
   }
-  if(!is.null(attrname) && !homophily) {
+  if(!is.null(byarg) && !homophily) {
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
     if(drop){ #   Check for degeneracy
       tmp <- paste("c(",paste(d,collapse=","),")")
       degreeattr <- summary(
-       as.formula(paste('nw ~ degree(',tmp,',"',attrname,'")',sep="")),
+       as.formula(paste('nw ~ degree(',tmp,',"',byarg,'")',sep="")),
        drop=FALSE) == 0
       if(any(degreeattr)){
-        dropterms <- paste("deg", du[1,degreeattr], ".", attrname,
+        dropterms <- paste("deg", du[1,degreeattr], ".", byarg,
                            u[du[2,degreeattr]], sep="")
         cat(" ")
         cat("Warning: These degree terms have extreme counts and will be dropped:\n")
@@ -1169,7 +1169,7 @@ InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
         mdegree <- summary(as.formula(paste('nw ~ degree(',tmp,')',
                                             sep="")), drop=FALSE) == 0
       } else {
-        mdegree <- summary(as.formula(paste('nw ~ degree(',tmp,',"',attrname,
+        mdegree <- summary(as.formula(paste('nw ~ degree(',tmp,',"',byarg,
                                                          '", TRUE)', sep="")), 
                                              drop = FALSE) == 0
       }
@@ -1187,7 +1187,7 @@ InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
     }
   }
   termnumber<-1+length(m$terms)
-  if(is.null(attrname)) {
+  if(is.null(byarg)) {
     if(length(d)==0){return(m)}
     m$terms[[termnumber]] <- list(name="degree", soname="ergm",
                                   inputs=c(0, length(d), length(d), d),
@@ -1202,7 +1202,7 @@ InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
                                   dependence=TRUE)
     # See comment in d_degree_w_homophily function
     m$coef.names<-c(m$coef.names,paste("deg", d, ".homophily.",
-                                       attrname, sep=""))
+                                       byarg, sep=""))
   } else {
     if(ncol(du)==0) {return(m)}
     #  No covariates here, so input element 1 is arbitrary
@@ -1212,7 +1212,7 @@ InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
                                            as.vector(du), nodecov),
                                   dependence=TRUE)
     # See comment in d_degree_by_attr function
-    m$coef.names<-c(m$coef.names, paste("deg", du[1,], ".", attrname,
+    m$coef.names<-c(m$coef.names, paste("deg", du[1,], ".", byarg,
                                         u[du[2,]], sep=""))
   }
   if (!is.null(emptynwstats))
@@ -2081,31 +2081,31 @@ InitErgm.hammingmix<-function (nw, m, arglist, ...) {
 InitErgm.idegree<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("idegree", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("idegree", arglist,
-    varnames = c("d", "attrname", "homophily"),
+    varnames = c("d", "byarg", "homophily"),
     vartypes = c("numeric", "character", "logical"),
     defaultvalues = list(NULL, NULL, FALSE),
     required = c(TRUE, FALSE, FALSE))
-  d<-a$d; attrname <- a$attrname; homophily <- a$homophily
+  d<-a$d; byarg <- a$byarg; homophily <- a$homophily
   emptynwstats<-NULL
-  if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "idegree")
+  if(!is.null(byarg)) {
+    nodecov <- get.node.attr(nw, byarg, "idegree")
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u) # Recode to numeric
     if (length(u)==1)
          stop ("Attribute given to idegree() has only one value", call.=FALSE)
   }
-  if(!is.null(attrname) && !homophily) {
+  if(!is.null(byarg) && !homophily) {
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
     if(drop){ #   Check for degeneracy
       tmp <- paste("c(",paste(d,collapse=","),")")
       idegreeattr <- summary(
-       as.formula(paste('nw ~ idegree(',tmp,',"',attrname,'")',sep="")),
+       as.formula(paste('nw ~ idegree(',tmp,',"',byarg,'")',sep="")),
        drop=FALSE) == 0
       if(any(idegreeattr)){
-        dropterms <- paste("ideg", du[1,idegreeattr], ".", attrname,
+        dropterms <- paste("ideg", du[1,idegreeattr], ".", byarg,
                            u[du[2,idegreeattr]], sep="")
       cat(" ")
         cat("Warning: These idegree terms have extreme counts and will be dropped:\n")
@@ -2127,7 +2127,7 @@ InitErgm.idegree<-function(nw, m, arglist, drop=TRUE, ...) {
         midegree <- summary(as.formula(paste('nw ~ idegree(',tmp,')',
                                             sep="")), drop=FALSE) == 0
       } else {
-        midegree <- summary(as.formula(paste('nw ~ idegree(',tmp,',"',attrname,
+        midegree <- summary(as.formula(paste('nw ~ idegree(',tmp,',"',byarg,
                                                          '", TRUE)', sep="")), 
                                              drop = FALSE) == 0
       }
@@ -2145,7 +2145,7 @@ InitErgm.idegree<-function(nw, m, arglist, drop=TRUE, ...) {
     }
   }
   termnumber<-1+length(m$terms)
-  if(is.null(attrname)) {
+  if(is.null(byarg)) {
     if(length(d)==0){return(m)}
     m$terms[[termnumber]] <- list(name="idegree", soname="ergm",
                                   inputs=c(0, length(d), length(d), d),
@@ -2159,7 +2159,7 @@ InitErgm.idegree<-function(nw, m, arglist, drop=TRUE, ...) {
                                            d, nodecov),
                                   dependence=TRUE)
     m$coef.names<-c(m$coef.names,paste("ideg", d, ".homophily.",
-                                       attrname, sep=""))
+                                       byarg, sep=""))
   } else {
     if(ncol(du)==0) {return(m)}
     #  No covariates here, so input element 1 is arbitrary
@@ -2169,7 +2169,7 @@ InitErgm.idegree<-function(nw, m, arglist, drop=TRUE, ...) {
                                            as.vector(du), nodecov),
                                   dependence=TRUE)
     # See comment in d_idegree_by_attr function
-    m$coef.names<-c(m$coef.names, paste("ideg", du[1,], ".", attrname,
+    m$coef.names<-c(m$coef.names, paste("ideg", du[1,], ".", byarg,
                                         u[du[2,]], sep=""))
   }
   if (!is.null(emptynwstats)) 
@@ -2990,31 +2990,31 @@ InitErgm.nsp<-function(nw, m, arglist, drop=TRUE, ...) {
 InitErgm.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("odegree", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("odegree", arglist,
-    varnames = c("d", "attrname", "homophily"),
+    varnames = c("d", "byarg", "homophily"),
     vartypes = c("numeric", "character", "logical"),
     defaultvalues = list(NULL, NULL, FALSE),
     required = c(TRUE, FALSE, FALSE))
-  d<-a$d; attrname <- a$attrname; homophily <- a$homophily
+  d<-a$d; byarg <- a$byarg; homophily <- a$homophily
   emptynwstats<-NULL
-  if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "odegree")
+  if(!is.null(byarg)) {
+    nodecov <- get.node.attr(nw, byarg, "odegree")
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u) # Recode to numeric
     if (length(u)==1)
          stop ("Attribute given to odegree() has only one value", call.=FALSE)
   }
-  if(!is.null(attrname) && !homophily) {
+  if(!is.null(byarg) && !homophily) {
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
     if(drop){ #   Check for degeneracy
       tmp <- paste("c(",paste(d,collapse=","),")")
       odegreeattr <- summary(
-       as.formula(paste('nw ~ odegree(',tmp,',"',attrname,'")',sep="")),
+       as.formula(paste('nw ~ odegree(',tmp,',"',byarg,'")',sep="")),
        drop=FALSE) == 0
       if(any(odegreeattr)){
-        dropterms <- paste("odeg", du[1,odegreeattr], ".", attrname,
+        dropterms <- paste("odeg", du[1,odegreeattr], ".", byarg,
                            u[du[2,odegreeattr]], sep="")
       cat(" ")
         cat("Warning: These odegree terms have extreme counts and will be dropped:\n")
@@ -3036,7 +3036,7 @@ InitErgm.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
         modegree <- summary(as.formula(paste('nw ~ odegree(',tmp,')',
                                             sep="")), drop=FALSE) == 0
       } else {
-        modegree <- summary(as.formula(paste('nw ~ odegree(',tmp,',"',attrname,
+        modegree <- summary(as.formula(paste('nw ~ odegree(',tmp,',"',byarg,
                                                          '", TRUE)', sep="")), 
                                              drop = FALSE) == 0
       }
@@ -3054,7 +3054,7 @@ InitErgm.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
     }
   }
   termnumber<-1+length(m$terms)
-  if(is.null(attrname)) {
+  if(is.null(byarg)) {
     if(length(d)==0){return(m)}
     m$terms[[termnumber]] <- list(name="odegree", soname="ergm",
                                   inputs=c(0, length(d), length(d), d),
@@ -3069,7 +3069,7 @@ InitErgm.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
                                   dependence=TRUE)
     # See comment in d_odegree_w_homophily function
     m$coef.names<-c(m$coef.names,paste("odeg", d, ".homophily.",
-                                       attrname, sep=""))
+                                       byarg, sep=""))
   } else {
     if(ncol(du)==0) {return(m)}
     #  No covariates here, so input element 1 is arbitrary
@@ -3079,7 +3079,7 @@ InitErgm.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
                                            as.vector(du), nodecov),
                                   dependence=TRUE)
     # See comment in d_odegree_by_attr function
-    m$coef.names<-c(m$coef.names, paste("odeg", du[1,], ".", attrname,
+    m$coef.names<-c(m$coef.names, paste("odeg", du[1,], ".", byarg,
                                         u[du[2,]], sep=""))
   }
   if (!is.null(emptynwstats)) 

@@ -237,7 +237,7 @@ InitErgmTerm.asymmetric <- function(nw, arglist, drop=TRUE, ...) {
 InitErgmTerm.b1degree <- function(nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
-                       varnames = c("d", "attrname"),
+                       varnames = c("d", "byarg"),
                        vartypes = c("numeric", "character"),
                        defaultvalues = list(NULL, NULL),
                        required = c(TRUE, FALSE))
@@ -249,8 +249,8 @@ InitErgmTerm.b1degree <- function(nw, arglist, drop=TRUE, ...) {
     ew <- extremewarnings(obsstats)
     # will process the ew variable later
   } else {ew <- FALSE}
-  if (!is.null(attrname)) {  # CASE 1:  attrname GIVEN
-    nodecov <- get.node.attr(nw, attrname)
+  if (!is.null(byarg)) {  # CASE 1:  byarg GIVEN
+    nodecov <- get.node.attr(nw, byarg)
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u) # Recode to numeric
@@ -266,9 +266,9 @@ InitErgmTerm.b1degree <- function(nw, arglist, drop=TRUE, ...) {
       emptynwstats[du[1,]==0] <- tmp
     }
     name <- "b1degree_by_attr"
-    coef.names <- paste("b1deg", du[1,], ".", attrname, u[du[2,]], sep="")
+    coef.names <- paste("b1deg", du[1,], ".", byarg, u[du[2,]], sep="")
     inputs <- c(as.vector(du), nodecov)
-  } else { # CASE 2:  attrname NOT GIVEN
+  } else { # CASE 2:  byarg NOT GIVEN
     d <- d[!ew] # Drop any zero-obs-value values
     name <- "b1degree"
     coef.names <- paste("b1deg", d, sep="")
@@ -416,7 +416,7 @@ InitErgmTerm.b1twostar <- function(nw, arglist, drop=TRUE, ...) {
 InitErgmTerm.b2degree <- function(nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
-                       varnames = c("d", "attrname"),
+                       varnames = c("d", "byarg"),
                        vartypes = c("numeric", "character"),
                        defaultvalues = list(NULL, NULL),
                        required = c(TRUE, FALSE))
@@ -429,8 +429,8 @@ InitErgmTerm.b2degree <- function(nw, arglist, drop=TRUE, ...) {
     ew <- extremewarnings(obsstats)
     # will process the ew variable later
   } else {ew <- FALSE}
-  if (!is.null(attrname)) {  # CASE 1:  attrname GIVEN
-    nodecov <- get.node.attr(nw, attrname)
+  if (!is.null(byarg)) {  # CASE 1:  byarg GIVEN
+    nodecov <- get.node.attr(nw, byarg)
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u) # Recode to numeric
@@ -446,9 +446,9 @@ InitErgmTerm.b2degree <- function(nw, arglist, drop=TRUE, ...) {
       emptynwstats[du[1,]==0] <- tmp
     }
     name <- "b2degree_by_attr"
-    coef.names <- paste("b2deg", du[1,], ".", attrname, u[du[2,]], sep="")
+    coef.names <- paste("b2deg", du[1,], ".", byarg, u[du[2,]], sep="")
     inputs <- c(as.vector(du), nodecov)
-  } else { # CASE 2:  attrname NOT GIVEN
+  } else { # CASE 2:  byarg NOT GIVEN
     d <- d[!ew] # Drop any zero-obs-value values
     name <- "b2degree"
     coef.names <- paste("b2deg", d, sep="")
