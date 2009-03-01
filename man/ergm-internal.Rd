@@ -15,6 +15,7 @@
 \alias{InitConstraint.indegreedist}
 \alias{InitConstraint.outdegreedist}
 \alias{InitConstraint.nodedegrees}
+\alias{InitConstraint.observed}
 %
 \alias{check.ErgmTerm}
 \alias{assignvariables}
