@@ -12,7 +12,7 @@ ergmversion <- ergmdesc$Version
 ergmdate <- ergmdesc$Date
 s <- regexpr("20[0-9][0-9]", ergmdate)
 ergmyear <- ifelse (s==-1, "2003", substr(ergmdate, s, s+3))
-      
+ergmauthors <- c(authors, "Pavel Krivitsky")
 
 citHeader(
    "'ergm' is part of the statnet suite of packages.  ",
@@ -33,16 +33,16 @@ citEntry(entry = "Manual",
          author = authors, 
          year = statnetyear,
          note = paste("Version ", statnetversion, ". Project home page at ",
-                      "\\url{", projhomepage, "}", sep=""),
+                      "\\ url{", projhomepage, "}", sep=""),
          address = "Seattle, WA",
          url = "http://CRAN.R-project.org/package=statnet")
 
 citEntry(entry="Manual",
-         author = authors,
+         author = ergmauthors,
          title = ergmtitle,
          year         = ergmyear,
          note         = paste("Version ", ergmversion,
-                        ".  Project home page at \\url{", projhomepage, "}", 
+                        ".  Project home page at \\ url{", projhomepage, "}", 
                         sep=""),
          address      = "Seattle, WA",
          url          = "http://CRAN.R-project.org/package=ergm",

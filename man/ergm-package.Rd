@@ -61,15 +61,15 @@ Maintainer: Mark S. Handcock \email{handcock@stat.washington.edu}
 }
 \references{
 Admiraal R, Handcock MS (2007).
- {\pkg{networksis}: Simulate bipartite graphs with fixed
-  marginals through sequential importance sampling}.
+ \pkg{networksis}: Simulate bipartite graphs with fixed
+  marginals through sequential importance sampling.
  Statnet Project, Seattle, WA.
  Version 1, \url{http://statnetproject.org}.
 
 Bender-deMoll S, Morris M, Moody J (2008).
- {Prototype Packages for Managing and Animating Longitudinal
-  Network Data: \pkg{dynamicnetwork} and \pkg{rSoNIA}.}
- {Journal of Statistical Software}, \textbf{24}(7).
+ Prototype Packages for Managing and Animating Longitudinal
+  Network Data: \pkg{dynamicnetwork} and \pkg{rSoNIA}.
+ \emph{Journal of Statistical Software}, 24(7).
  \url{http://www.jstatsoft.org/v24/i07/}.
 
 Besag, J., 1974, Spatial interaction and the statistical analysis
@@ -77,39 +77,39 @@ of lattice systems (with discussion), Journal of the Royal Statistical
 Society, B, 36, 192-236.
 
 Boer P, Huisman M, Snijders T, Zeggelink E (2003).
- {StOCNET: an open software system for the advanced statistical
-  analysis of social networks}.
+ StOCNET: an open software system for the advanced statistical
+  analysis of social networks.
  Groningen: ProGAMMA / ICS, version 1.4 edition.
 
 Butts CT (2006).
- {\pkg{netperm}: Permutation Models for Relational Data}.
+ \pkg{netperm}: Permutation Models for Relational Data.
  Version 0.2, \url{http://erzuli.ss.uci.edu/R.stuff}.
 
 Butts CT (2007).
- {\pkg{sna}: Tools for Social Network Analysis}.
+ \pkg{sna}: Tools for Social Network Analysis.
  Version 1.5, \url{http://erzuli.ss.uci.edu/R.stuff}.
 
 Butts CT (2008).
- {\pkg{network}: {A} Package for Managing Relational Data in \R.}
- {Journal of Statistical Software}, \textbf{24}(2).
+ \pkg{network}: A Package for Managing Relational Data in \R.
+ \emph{Journal of Statistical Software}, 24(2).
  \url{http://www.jstatsoft.org/v24/i02/}.
 
 Butts CT, with help~from David~Hunter, Handcock MS (2007).
- {\pkg{network}: Classes for Relational Data}.
+ \pkg{network}: Classes for Relational Data.
  Version 1.2, \url{http://erzuli.ss.uci.edu/R.stuff}.
 
 Frank, O., and Strauss, D.(1986). Markov graphs. Journal of the American
 Statistical Association, 81, 832-842. 
 
 Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).
- {A \pkg{statnet} Tutorial.}
- {Journal of Statistical Software}, \textbf{24}(8).
+ A \pkg{statnet} Tutorial.
+ \emph{Journal of Statistical Software}, 24(8).
  \url{http://www.jstatsoft.org/v24/i08/}.
 
-Goodreau SM, Kitts J, Morris M (2008{{b}}).
- {Birds of a Feather, or Friend of a Friend? Using Exponential
-  Random Graph Models to Investigate Adolescent Social Networks.}
- {Demography}, \textbf{45}, in press.
+Goodreau SM, Kitts J, Morris M (2008b).
+ Birds of a Feather, or Friend of a Friend? Using Exponential
+  Random Graph Models to Investigate Adolescent Social Networks.
+ \emph{Demography}, 45, in press.
 
 Handcock, M. S. (2003)
     \emph{Assessing Degeneracy in Statistical Models of Social Networks},
@@ -118,48 +118,50 @@ Center for Statistics and the Social Sciences,
 University of Washington.
 \url{www.csss.washington.edu/Papers/wp39.pdf}
 
-Handcock MS (2003{{b}}).
- {\pkg{degreenet}: Models for Skewed Count Distributions Relevant
-  to Networks}.
+Handcock MS (2003b).
+ \pkg{degreenet}: Models for Skewed Count Distributions Relevant
+  to Networks.
  Statnet Project, Seattle, WA.
  Version 1.0, \url{http://statnetproject.org}.
 
-Handcock MS, Hunter DR, Butts CT, Goodreau SM, Morris M (2003{{a}}).
- {\pkg{ergm}: {A} Package to Fit, Simulate and Diagnose
-  Exponential-Family Models for Networks}.
+Handcock MS, Hunter DR, Butts CT, Goodreau SM, Morris M (2003a).
+ \pkg{ergm}: A Package to Fit, Simulate and Diagnose
+  Exponential-Family Models for Networks.
  Statnet Project, Seattle, WA.
  Version 2, \url{http://statnetproject.org}.
 
-Handcock MS, Hunter DR, Butts CT, Goodreau SM, Morris M (2003{{b}}).
- {\pkg{statnet}: Software Tools for the Statistical Modeling of
-  Network Data}.
+Handcock MS, Hunter DR, Butts CT, Goodreau SM, Morris M (2003b).
+ \pkg{statnet}: Software Tools for the Statistical Modeling of
+  Network Data.
  Statnet Project, Seattle, WA.
  Version 2, \url{http://statnetproject.org}.
 
 Hunter, D. R. and Handcock, M. S. (2006)
-    \emph{Inference in curved exponential family models for networks},
-   Journal of Computational and Graphical Statistics.
+   Inference in curved exponential family models for networks,
+   \emph{Journal of Computational and Graphical Statistics},
+   15: 565-583
+   
 
-Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008{{b}}).
- {\pkg{ergm}: {A} Package to Fit, Simulate and Diagnose
-  Exponential-Family Models for Networks.}
- {Journal of Statistical Software}, \textbf{24}(3).
+Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b).
+ \pkg{ergm}: A Package to Fit, Simulate and Diagnose
+  Exponential-Family Models for Networks.
+ \emph{Journal of Statistical Software}, 24(3).
  \url{http://www.jstatsoft.org/v24/i03/}.
 
 Krivitsky PN, Handcock MS (2007).
- {\pkg{latentnet}: Latent position and cluster models for
-  statistical networks}.
+ \pkg{latentnet}: Latent position and cluster models for
+  statistical networks.
  Seattle, WA.
  Version 2, \url{http://statnetproject.org}.
 
 Morris M, Handcock MS, Hunter DR (2008).
- {Specification of Exponential-Family Random Graph Models:
-  Terms and Computational Aspects.}
- {Journal of Statistical Software}, \textbf{24}(4).
+ Specification of Exponential-Family Random Graph Models:
+  Terms and Computational Aspects.
+ \emph{Journal of Statistical Software}, 24(4).
  \url{http://www.jstatsoft.org/v24/i04/}.
 
 Strauss, D., and Ikeda, M.(1990). Pseudolikelihood estimation for social
-networks. Journal of the American Statistical Association, 85, 204-212. 
+networks \emph{Journal of the American Statistical Association}, 85, 204-212. 
 }
 \keyword{ package }
 \keyword{ models }
