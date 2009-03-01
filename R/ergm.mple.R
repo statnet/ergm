@@ -19,7 +19,6 @@ ergm.mple<-function(Clist, Clist.miss, m, theta0=NULL, theta.offset=NULL,
                     maxNumDyadTypes=1e+6,
                     theta1=NULL, verbose=FALSE, compressflag=TRUE,
                     ...) {
-  # see also ergm.pl.R.originalandgood
   if(is.numeric(theta0)){theta.offset=theta0}
   pl <- ergm.pl(Clist=Clist, Clist.miss=Clist.miss, m=m,
                 theta.offset=theta.offset,
@@ -39,13 +38,8 @@ ergm.mple<-function(Clist, Clist.miss, m, theta0=NULL, theta.offset=NULL,
    mplefit.summary <- mplefit
   }else{
    options(warn=-1)
-#  options(warn=2)
    if(MPLEtype=="logitreg"){
-    mplefit <- model.matrix(terms(pl$zy ~ .-1,data=data.frame(pl$xmat)),
-                           data=data.frame(pl$xmat))
-    mplefit <- ergm.logitreg(x=mplefit, y=pl$zy, offset=pl$foffset, wt=pl$wend,
-                             start=theta0[!m$etamap$offsettheta])
-    mplefit.summary <- list(cov.unscaled=mplefit$cov.unscaled)
+    # Getting rid of logitreg MPLEtype;  all of this is now gone
    }else{
     mplefit <- try(
           glm(pl$zy ~ .-1 + offset(pl$foffset), data=data.frame(pl$xmat),

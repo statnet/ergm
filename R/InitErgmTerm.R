@@ -676,8 +676,8 @@ InitErgmTerm.hamming<-function (nw, arglist, drop=TRUE, ...) {
   ## Process case without dyadcov (i.e. unweighted) ##
   sc03 <- sys.call(0)[[3]]
   coef.names <- "hamming"  # This might be modified later
-  if (is.null(cov)) {
-    if(drop){ #   Check for zero statistics (Should this happen when !is.null(cov)?)
+  if (is.null(a$cov)) {
+    if(drop){ #   Check for zero statistics (Should this happen when !is.null(a$cov)?)
       obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
       if (extremewarnings(obsstats))
         return(NULL) # In this case the observed Hamming distance is zero.
@@ -686,32 +686,32 @@ InitErgmTerm.hamming<-function (nw, arglist, drop=TRUE, ...) {
     if (length(sc03)>1) 
       coef.names <- paste("hamming", as.character(sc03[[2]]), sep=".")
     covm <- NULL
-    if (is.null(defaultweight))
-      defaultweight <- 1.0
-    emptynwstats <- NROW(xm) * defaultweight
+    if (is.null(a$defaultweight))
+      a$defaultweight <- 1.0
+    emptynwstats <- NROW(xm) * a$defaultweight
 
   ## Process case with dyadcov (i.e. weighted) ##
   } else {
     # Extract dyadic covariate
-    if(is.network(cov)){
-      covm<-as.matrix.network(cov,matrix.type="edgelist",a$attrname)
+    if(is.network(a$cov)){
+      covm<-as.matrix.network(a$cov,matrix.type="edgelist",a$attrname)
       if(length(covm)==2){covm <- matrix(covm,ncol=2)}
       if(length(covm)==3){covm <- matrix(covm,ncol=3)}
       if (NCOL(covm)==2)
         covm <- cbind(covm,1)
-    }else if(is.character(cov)){
-      covm<-get.network.attribute(nw,cov)
+    }else if(is.character(a$cov)){
+      covm<-get.network.attribute(nw,a$cov)
       covm<-as.matrix.network(covm,matrix.type="edgelist") # DH:  Not really sure what should happen here
     }else{
-      covm<-as.matrix(cov)
+      covm<-as.matrix(a$cov)
     }
     if (is.null(covm) || !is.matrix(covm) || NCOL(covm)!=3){
       stop("Improper dyadic covariate passed to hamming()", call.=FALSE)
     }
     #    name = "hamhamming_weighted"
     emptynwstats <- sum(apply(xm, 1, function(a,b) sum(b[(a[1]==b[,1] & a[2]==b[,2]),3]), covm))
-    if (is.null(defaultweight))
-      defaultweight <- 0
+    if (is.null(a$defaultweight))
+      a$defaultweight <- 0
     if(!is.null(a$attrname) && length(sc03)>1){
       coef.names<-paste("hamming", as.character(sc03[2]), "wt",
                 as.character(a$attrname), sep = ".")
@@ -735,7 +735,7 @@ InitErgmTerm.hamming<-function (nw, arglist, drop=TRUE, ...) {
     }
    covm <- covm[order(covm[,1], covm[,2]), , drop=FALSE]
   }
-  inputs <- c(NROW(xm), as.vector(xm), defaultweight, NROW(covm), as.vector(covm))
+  inputs <- c(NROW(xm), as.vector(xm), a$defaultweight, NROW(covm), as.vector(covm))
   list(name="hamhamming", coef.names=coef.names, #name and coef.names: required 
        inputs = inputs, emptynwstats = emptynwstats, dependence = FALSE)
 }
