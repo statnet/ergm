@@ -11,12 +11,21 @@
 \usage{
 \method{edgelist.ergm}{default}(x,\dots)
 \method{edgelist.ergm}{network}(x, \dots)
-\method{edgelist.ergm}{matrix}(x, directed=TRUE, \dots)
+\method{edgelist.ergm}{matrix}(x, directed=TRUE, check.uniqueness=TRUE,
+                               check.sorted=TRUE, \dots)
 }
 \arguments{
  \item{x}{an \R object. Either a network or a matrix of some sort.  }
  \item{directed}{logical:  Are the edges directed?  If x is a square 
  matrix with NROWS(x)!=2, equal to !all(x==t(x))}
+ \item{check.uniqueness}{An edgelist should have unique rows.  By default,
+ therefore, uniqueness is checked.  However, if the input is known to 
+ have unique rows already, then setting this option to FALSE will save
+ computing time}
+ \item{check.sorted}{An edgelist should have its rows sorted in dictionary
+ order.  By default, therefore, the matrix is checked to see whether it is
+ sorted.  However, if the input is known to be sorted already, then
+ setting this option to FALSE will save computing time.}
 }
 
 \details{
@@ -44,7 +53,7 @@
 A matrix with two rows, in the format described under "Details"
       }
 
-\seealso{\code{\link{as.matrix.network}}}
+\seealso{\code{\link[network]{as.matrix.network}}}
 %\examples{
 %}
 \keyword{models}
