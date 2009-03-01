@@ -1036,28 +1036,30 @@ network
  }
 }
 \references{
-\item Davis, J.A. and Leinhardt, S.  (1972).  The Structure of Positive Interpersonal
-Relations in Small Groups.  In J. Berger (Ed.), \emph{Sociological Theories in Progress,
-Volume 2}, 218--251.  Boston: Houghton Mifflin.
-
-\item Holland, P. W. and S. Leinhardt (1981). An exponential family
-of probability distributions for directed graphs.
-\emph{Journal of the American Statistical Association}, 76:
-33--50.
-
-\item Hunter, D. R. and M. S. Handcock (2006). Inference in curved
-exponential family models for networks. \emph{Journal of Computational
-and Graphical Statistics}, 15: 565--583.
-
-\item Hunter, D. R. (2007). Curved exponential family models for social
-networks. \emph{Social Networks}, 29: 216--230.
-
-\item Krackhardt, D. and Handcock, M. S. (2007).  Heider versus Simmel: Emergent Features
-in Dynamic Structures. \emph{Lecture Notes in Computer Science}, 4503, 14--27.
-
-\item Snijders, T. A. B., P. E. Pattison, G. L. Robins, and
-M. S. Handcock (2006). New specifications for exponential random graph
-models, \emph{Sociological Methodology}, 36(1): 99-153. 
+\itemize{
+  \item Davis, J.A. and Leinhardt, S.  (1972).  The Structure of Positive Interpersonal
+  Relations in Small Groups.  In J. Berger (Ed.), \emph{Sociological Theories in Progress,
+  Volume 2}, 218--251.  Boston: Houghton Mifflin.
+  
+  \item Holland, P. W. and S. Leinhardt (1981). An exponential family
+  of probability distributions for directed graphs.
+  \emph{Journal of the American Statistical Association}, 76:
+  33--50.
+  
+  \item Hunter, D. R. and M. S. Handcock (2006). Inference in curved
+  exponential family models for networks. \emph{Journal of Computational
+  and Graphical Statistics}, 15: 565--583.
+  
+  \item Hunter, D. R. (2007). Curved exponential family models for social
+  networks. \emph{Social Networks}, 29: 216--230.
+  
+  \item Krackhardt, D. and Handcock, M. S. (2007).  Heider versus Simmel: Emergent Features
+  in Dynamic Structures. \emph{Lecture Notes in Computer Science}, 4503, 14--27.
+  
+  \item Snijders, T. A. B., P. E. Pattison, G. L. Robins, and
+  M. S. Handcock (2006). New specifications for exponential random graph
+  models, \emph{Sociological Methodology}, 36(1): 99-153. 
+  }
 }
 \seealso{ergm, network, \%v\%, \%n\%, sna,
          summary.ergm, print.ergm}

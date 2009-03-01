@@ -26,6 +26,8 @@
  order.  By default, therefore, the matrix is checked to see whether it is
  sorted.  However, if the input is known to be sorted already, then
  setting this option to FALSE will save computing time.}
+ \item{\dots}{Additional
+ arguments, to be passed to lower-level functions in the future.}
 }
 
 \details{
