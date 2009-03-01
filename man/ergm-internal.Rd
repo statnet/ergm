@@ -35,8 +35,13 @@
 \alias{InitErgmTerm.altkstar}
 \alias{InitErgmTerm.asymmetric}
 \alias{InitErgmTerm.b1degree}   
-\alias{InitErgmTerm.b2degree}
 \alias{InitErgmTerm.b1star}
+\alias{InitErgmTerm.b1starmix}
+\alias{InitErgmTerm.b1twostar}
+\alias{InitErgmTerm.b2degree}
+\alias{InitErgmTerm.b2star}
+\alias{InitErgmTerm.b2starmix}
+\alias{InitErgmTerm.b2twostar}
 \alias{InitErgmTerm.cycle}
 \alias{InitErgmTerm.edgecov}
 \alias{InitErgmTerm.hamming}
@@ -48,6 +53,7 @@
 \alias{InitErgmTerm.nodematch}
 \alias{InitErgmTerm.nodemix}
 \alias{InitErgmTerm.nodeofactor}
+\alias{InitErgmTerm.threepath}
 \alias{check.ErgmTerm.summarystats}
 \alias{ergm.getglobalstats}
 \alias{get.InitErgm.fname}
@@ -97,6 +103,7 @@
 \alias{InitErgm.gwb2degree}
 \alias{InitErgm.gwesp}
 \alias{InitErgm.gwidegree}
+\alias{InitErgm.gwnsp}
 \alias{InitErgm.gwodegree}
 \alias{InitErgm.hamming}
 \alias{InitErgm.hammingmix.constant}
@@ -122,6 +129,7 @@
 \alias{InitErgm.mix}
 \alias{InitErgm.nodeocov}
 \alias{InitErgm.nodeofactor}
+\alias{InitErgm.nsp}
 \alias{InitErgm.odegree}
 \alias{InitErgm.ostar}
 \alias{InitErgm.receiver}
@@ -171,6 +179,7 @@
 \alias{ergm.curved.statsmatrix}
 \alias{ergm.curved.update}
 \alias{ergm.degenerate}
+\alias{ergm.design}
 \alias{ergm.estimate}
 \alias{ergm.estimate.only}
 \alias{ergm.eta}
@@ -230,6 +239,12 @@
 \alias{traceplot.ergm}
 \alias{twopathdist}
 %
+\alias{control.san}
+\alias{control.san.ergm}
+\alias{san}
+\alias{san.default}
+\alias{san.ergm}
+\alias{san.formula}
 \alias{ergm.sufftoprob}
 \alias{ergm.Cprepare}
 \alias{ergm.getmodel}

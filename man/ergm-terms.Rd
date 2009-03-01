@@ -206,8 +206,8 @@ network
     is sometimes known as the "actor" mode. The optional argument \code{by} is
     a character string giving the name of an attribute in the network's vertex
     attribute list. If this is specified 
-    then a separate degree count is given for each value of \code{d} within the
-    subnetwork induced by each \code{by} category.
+    then each node's degree is tabulated only with other nodes having the same
+    value of the \code{by} attribute.
     This term can
     only be used with undirected bipartite networks.}
     
@@ -308,8 +308,8 @@ network
     object is sometimes known as the "event" mode. The optional term
     \code{by} is a character string giving the name of an attribute in the
     network's vertex attribute list. If this is specified 
-    then a separate degree count is given for each value of \code{d} within the
-    subnetwork induced by each \code{by} category.
+    then each node's degree is tabulated only with other nodes having the same
+    value of the \code{by} attribute.
     This term can only be used with undirected bipartite networks.}
     
     \item{\code{b2factor(attrname, base=1)}}{\emph{Factor attribute effect for
@@ -409,8 +409,8 @@ network
     \code{d[i]}, i.e. with exactly \code{d[i]} edges. The optional argument
     \code{by} is a character string giving the name of an attribute in the
     network's vertex attribute list. If this is specified 
-    then a separate degree count is given for each value of \code{d} within the
-    subnetwork induced by each \code{by} category.
+    then each node's degree is tabulated only with other nodes having the same
+    value of the \code{by} attribute.
     This term can only be used with undirected networks; for directed networks
     see \code{idegree} and \code{odegree}. }
     
@@ -610,8 +610,8 @@ network
     of nodes with exactly \code{d[i]} in-edges. The optional term
     \code{by} is a character string giving the name of an attribute in the
     network's vertex attribute list. If this is specified 
-    then a separate degree count is given for each value of \code{d} within the
-    subnetwork induced by each \code{by} category.
+    then each node's degree is tabulated only with other nodes having the same
+    value of the \code{by} attribute.
     This term can only be used with directed networks; for undirected networks
     see \code{degree}. }
     
@@ -867,8 +867,8 @@ network
     number of nodes with exactly \code{d[i]} out-edges. The optional argument
     \code{by} is a character string giving the name of an attribute in the
     network's vertex attribute list. If this is specified 
-    then a separate degree count is given for each value of \code{d} within the
-    subnetwork induced by each \code{by} category.
+    then each node's degree is tabulated only with other nodes having the same
+    value of the \code{by} attribute.
     This term can only be used with directed networks; for undirected networks
     see \code{degree}. }
     
