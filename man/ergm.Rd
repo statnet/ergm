@@ -479,15 +479,15 @@ of social networks.} Version 1.4. Groningen: ProGAMMA / ICS
 %Network Conference in New Orleans, LA.
 
 Admiraal R, Handcock MS (2007).
- {\pkg{networksis}: Simulate bipartite graphs with fixed
-  marginals through sequential importance sampling}.
+ \pkg{networksis}: Simulate bipartite graphs with fixed
+  marginals through sequential importance sampling.
  Statnet Project, Seattle, WA.
- Version 1.\newline\url{http://statnetproject.org}.
+ Version 1. \url{http://statnetproject.org}.
 
 Bender-deMoll S, Morris M, Moody J (2008).
- {Prototype Packages for Managing and Animating Longitudinal
-  Network Data: \pkg{dynamicnetwork} and \pkg{rSoNIA}.}
- {Journal of Statistical Software}, \textbf{24}(7).
+ Prototype Packages for Managing and Animating Longitudinal
+  Network Data: \pkg{dynamicnetwork} and \pkg{rSoNIA}.
+ {Journal of Statistical Software}, 24(7).
  \url{http://www.jstatsoft.org/v24/i07/}.
 
 Boer P, Huisman M, Snijders T, Zeggelink E (2003).

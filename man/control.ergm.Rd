@@ -18,10 +18,11 @@
 }
 \usage{
 control.ergm(prop.weights = "default", prop.args = NULL,
-             nr.maxit = 100, nr.reltol = sqrt(.Machine$double.eps), 
+             nr.maxit = 100,  
              calc.mcmc.se = TRUE, hessian = FALSE, compress = TRUE,
-             maxNumDyadTypes = 10000, maxedges = 20000, maxchanges = 1e+06,
-             maxMPLEsamplesize = 10^11, MPLEtype=c("glm", "penalized"), trace = 0,
+             SAN.burnin=NULL,
+             maxNumDyadTypes = 1e+06, maxedges = 20000, maxchanges = 1e+06,
+             maxMPLEsamplesize = 1e+05, MPLEtype=c("glm", "penalized"), trace = 0,
              steplength = 0.5, drop = TRUE, force.mcmc = FALSE, check.degeneracy=FALSE, mcmc.precision =
              0.05, metric = c("Likelihood", "raw"), method = c("BFGS", "Nelder-Mead"),
              trustregion = 20, initial.loglik = NULL, initial.network = NULL,
@@ -29,7 +30,7 @@ control.ergm(prop.weights = "default", prop.args = NULL,
              "Stochastic-Approximation"), phase1_n = NULL, initial_gain = NULL,
              nsubphases = "maxit", niterations = NULL, phase3_n = NULL,
              RobMon.phase1n_base = 7, RobMon.phase2n_base = 7, RobMon.phase2sub
-             = 4, RobMon.init_gain = 0.4, RobMon.phase3n = 500, dyninterval =
+             = 4, RobMon.init_gain = 0.1, RobMon.phase3n = 500, dyninterval =
              1000, packagenames="ergm", parallel = 0, returnMCMCstats = TRUE)
              }
 \details{
@@ -49,10 +50,6 @@ control.ergm(prop.weights = "default", prop.args = NULL,
     Newton-Raphson optimization.  Defaults to \code{100}.
     \code{maxit} gives the total number of likelihood
     function evaluations. }
-  \item{nr.reltol}{Relative convergence tolerance.  The Newton-Raphson optimization
-    stops if it is unable to increase the log-likelihood by a factor of
-    \code{reltol * (abs(log-likelihood) + reltol)} at a step.  Defaults to
-    \code{sqrt(.Machine$double.eps)}, typically about \code{1e-8}.}
   \item{calc.mcmc.se}{logical; should the contribution to the 
     standard errors of the estimator incurred by the MCMC sampling
     be computed. Default is \code{TRUE}.}
@@ -65,6 +62,8 @@ control.ergm(prop.weights = "default", prop.args = NULL,
     algorithm in the computation of the maximum psuedo-likelihood
     estimate that will dramatically speed it for large networks.
     Default is \code{FALSE}.}
+  \item{SAN.burnin}{Burnin used for calling SAN routine.  If NULL,
+  \code{burnin} is used.}
   \item{maxNumDyadTypes}{count; The maximum number of unique
     pseudolikelihood change statistics to be allowed if \code{compress=TRUE}.
     It is only relevant in that case.
@@ -173,18 +172,20 @@ similar function for
 \code{\link{control.gof}} performs a
 similar function for \code{\link{gof}}.   }
 \references{
-\item
-Boer, P., Huisman, M., Snijders, T.A.B., and Zeggelink, E.P.H. (2003),
-StOCNET User\'s Manual. Version 1.4.
+  \itemize{
+    \item
+    Boer, P., Huisman, M., Snijders, T.A.B., and Zeggelink, E.P.H. (2003),
+    StOCNET User\'s Manual. Version 1.4.
+    
+    \item Firth (1993),
+    Bias Reduction in Maximum Likelihood Estimates.
+    Biometrika,
+    80: 27-38.
 
-\item Firth (1993),
-      Bias Reduction in Maximum Likelihood Estimates.
-      Biometrika,
-      80: 27-38.
-
-\item Hunter, D. R. and M. S. Handcock (2006), Inference in curved
-exponential family models for networks. Journal of Computational
-and Graphical Statistics, 15: 565-583.
+    \item Hunter, D. R. and M. S. Handcock (2006), Inference in curved
+    exponential family models for networks. Journal of Computational
+    and Graphical Statistics, 15: 565-583.
+  }
 }
 \keyword{ models }
 
