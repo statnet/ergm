@@ -89,20 +89,20 @@ of lattice systems (with discussion), \emph{Journal of the Royal Statistical
 Society, B}, 36, 192-236.
 
 Boer P, Huisman M, Snijders T, Zeggelink E (2003).
- {StOCNET: an open software system for the advanced statistical
-  analysis of social networks}.
+ StOCNET: an open software system for the advanced statistical
+  analysis of social networks.
  Groningen: ProGAMMA / ICS, version 1.4 edition.
 
 Butts CT (2006).
- {\pkg{netperm}: Permutation Models for Relational Data}.
+ \pkg{netperm}: Permutation Models for Relational Data.
  Version 0.2, \url{http://erzuli.ss.uci.edu/R.stuff}.
 
 Butts CT (2007).
- {\pkg{sna}: Tools for Social Network Analysis}.
+ \pkg{sna}: Tools for Social Network Analysis.
  Version 1.5, \url{http://erzuli.ss.uci.edu/R.stuff}.
 
 Butts CT (2008).
- \pkg{network}: {A} Package for Managing Relational Data in \R.
+ \pkg{network}: A Package for Managing Relational Data in \R.
  \emph{Journal of Statistical Software}, 24(2).
  \url{http://www.jstatsoft.org/v24/i02/}.
 
@@ -118,10 +118,10 @@ Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).
  \emph{Journal of Statistical Software}, 24(8).
  \url{http://www.jstatsoft.org/v24/i08/}.
 
-Goodreau SM, Kitts J, Morris M (2008{{b}}).
+Goodreau SM, Kitts J, Morris M (2008b).
  Birds of a Feather, or Friend of a Friend? Using Exponential
   Random Graph Models to Investigate Adolescent Social Networks.
- \emph{Demography}, \textbf{45}, in press.
+ \emph{Demography}, 45, in press.
 
 Handcock, M. S. (2003)
     Assessing Degeneracy in Statistical Models of Social Networks,
@@ -130,19 +130,19 @@ Center for Statistics and the Social Sciences,
 University of Washington.
 \url{www.csss.washington.edu/Papers/wp39.pdf}
 
-Handcock MS (2003{{b}}).
+Handcock MS (2003b).
  \pkg{degreenet}: Models for Skewed Count Distributions Relevant
   to Networks.
  Statnet Project, Seattle, WA.
  Version 1.0, \url{http://statnetproject.org}.
 
-Handcock MS, Hunter DR, Butts CT, Goodreau SM, Morris M (2003{{a}}).
- \pkg{ergm}: {A} Package to Fit, Simulate and Diagnose
+Handcock MS, Hunter DR, Butts CT, Goodreau SM, Morris M (2003a).
+ \pkg{ergm}: A Package to Fit, Simulate and Diagnose
   Exponential-Family Models for Networks.
  Statnet Project, Seattle, WA.
  Version 2, \url{http://statnetproject.org}.
 
-Handcock MS, Hunter DR, Butts CT, Goodreau SM, Morris M (2003{{b}}).
+Handcock MS, Hunter DR, Butts CT, Goodreau SM, Morris M (2003b).
  \pkg{statnet}: Software Tools for the Statistical Modeling of
   Network Data.
  Statnet Project, Seattle, WA.
@@ -153,8 +153,8 @@ Hunter, D. R. and Handcock, M. S. (2006)
    \emph{Journal of Computational and Graphical Statistics},
    15: 565-583.
 
-Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008{{b}}).
- \pkg{ergm}: {A} Package to Fit, Simulate and Diagnose
+Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b).
+ \pkg{ergm}: A Package to Fit, Simulate and Diagnose
   Exponential-Family Models for Networks.
  \emph{Journal of Statistical Software}, 24(3).
  \url{http://www.jstatsoft.org/v24/i03/}.

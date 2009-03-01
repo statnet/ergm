@@ -1338,7 +1338,7 @@ void MH_ConstrainedCondDegDist (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
   int k0, j0, j1, k1;
   int j0h, j1h;
   Vertex *outedges, *inedges;
-  Vertex e, alter, head, tail;
+  Vertex e, alter, head=0, tail;
   MHp->ratio=1.0;
   
   /* select a node at random */
