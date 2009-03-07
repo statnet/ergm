@@ -68,21 +68,13 @@ print.summary.ergm <- function (x,
   
 
   if(any(x$drop)){
-    cat("\n Warning:\n")
-    for(i in names(x$coefs[x$offset,1])){
-     cat(paste("  The term",i,
-     "is degenerate and has an infinite coefficient estimate.\n",
-      sep=" "))
-    }
+    cat("\n Warning: The following terms have infinite coefficient estimates:\n  ")
+    cat(rownames(x$coefs)[x$drop], "\n\n")
   }
 
   if(any(x$offset&!x$drop)){
-    cat("\n Warning:\n")
-    for(i in names(x$coefs[x$offset,1])){
-    cat(paste("  The term",i,
-     "has been offset and was not estimated from the data.\n",
-      sep=" "))
-    }
+    cat("\n Warning: The following terms are fixed by offset and are not estimated:\n  ")
+    cat(rownames(x$coefs)[x$offset & !x$drop], "\n\n")
   }
 
   if(!is.null(x$degeneracy.value) && !is.na(x$degeneracy.value)){
