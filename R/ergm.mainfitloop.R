@@ -49,7 +49,8 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
      cat("Iteration ",iteration," of at most ", MCMCparams$maxit,": ",sep="")
     }
     z <- ergm.getMCMCsample(nw, model, MHproposal, eta0, MCMCparams, verbose)
-    statsmatrix=z$statsmatrix
+    statsmatrix <- z$statsmatrix
+    v$sample <- statsmatrix
 #    if(verbose && FALSE){
 #      sm<-statsmatrix[,!model$offset,drop=FALSE]
 #      cat("Deviation: ",apply(sm,2,mean),"\n")
@@ -94,11 +95,6 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
                 "I am trying something simple...\n",
                 "The current theta0 is:\n"))
                 print(theta0)
-#     shrink <- ergm(nw ~ edges)$coef
-#     theta0 <- 0.4*theta0
-#     theta0["edges"] <- theta0["edges"] + 0.6*shrink
-#     v <- list(coef=theta0)
-#     v$coef <- theta0
       v$coef <- 0.9*theta0
       next
      }else{
@@ -106,8 +102,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
                 "Try starting the algorithm at an alternative model\n",
                 "(That is, changing the 'theta0' argument).\n",
                 "The current theta0 is:\n"))
-              print(theta0)
-#     v <- list(coef=theta0)
+      print(theta0)
       v$coef <- theta0
       return(structure (v, class="ergm"))
      }

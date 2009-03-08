@@ -31,22 +31,21 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, MCMCparams,
 #  Parallel running
 #
     if(MCMCparams$parallel==0){
-      flush.console()
-      z <- ergm.mcmcslave(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose)
-      nedges <- z$newnwheads[1]
-      if(nedges >= 50000-1){
-        cat("\n Warning:")
-        cat("\n   The network has more than 50000 edges, and the model is likely to be degenerate.\n")
-        statsmatrix <- matrix(0, nrow=MCMCparams$samplesize,
-                              ncol=Clist$nstats)
-        newnetwork <- nw
-      }else{
-        statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
-                              ncol=Clist$nstats,
-                              byrow = TRUE)
-        newnetwork <- newnw.extract(nw,z)
-      }
-      
+    flush.console()
+    z <- ergm.mcmcslave(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose)
+    nedges <- z$newnwheads[1]
+    statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
+                          ncol=Clist$nstats,
+                          byrow = TRUE)
+    newnetwork <- newnw.extract(nw,z)
+    if(nedges >= 50000-1){
+      cat("\n Warning:")
+      cat("\n   The network has more than 50000 edges, and the model is likely to be degenerate.\n")
+#  NOT SURE ABOUT COMMENTING OUT THE FOLLOWING THREE LINES:
+#      statsmatrix <- matrix(0, nrow=MCMCparams$samplesize,
+#                            ncol=Clist$nstats)
+#      newnetwork <- nw
+    }      
     }else{
       stop("parallization not enabled for now.")
     }

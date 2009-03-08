@@ -43,11 +43,15 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
     component <- sample
   }
   if(component=="sample"&&is.null(object$sample)){
-    stop("There is no MCMC sample associated with the object.\n")
+    cat("There is no MCMC sample associated with the object.\n",
+        "Quitting mcmc.diagnostics.\n")
+    return()
   }
   statsmatrix <- object[[component]]
   if(!is.matrix(statsmatrix) || length(dim(statsmatrix))==0){
-    stop("There is no ",component," component of the object.\n")
+    cat("There is no",component,"component of the object.\n",
+        "Quitting mcmc.diagnostics.\n")
+    return()
   }
   if(component=="thetasample"){
     if(is.null(object$MCMCtheta)){
