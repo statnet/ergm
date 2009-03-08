@@ -20,19 +20,18 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, MCMCparams,
     flush.console()
     z <- ergm.mcmcslave(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose)
     nedges <- z$newnwheads[1]
+    statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
+                          ncol=Clist$nstats,
+                          byrow = TRUE)
+    newnetwork <- newnw.extract(nw,z)
     if(nedges >= 50000-1){
       cat("\n Warning:")
       cat("\n   The network has more than 50000 edges, and the model is likely to be degenerate.\n")
+#  THE FOLLOWING THREE LINES ARE COMMENTED OUT IN branches/2.2:
       statsmatrix <- matrix(0, nrow=MCMCparams$samplesize,
                             ncol=Clist$nstats)
       newnetwork <- nw
-    }else{
-      statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
-                            ncol=Clist$nstats,
-                            byrow = TRUE)
-      newnetwork <- newnw.extract(nw,z)
-    }
-
+    }      
   }else{
     MCMCparams.parallel <- MCMCparams
     MCMCparams.parallel$samplesize <- round(MCMCparams$samplesize / MCMCparams$parallel)

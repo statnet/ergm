@@ -35,7 +35,8 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
      cat("Iteration ",iteration," of at most ", MCMCparams$maxit,": ",sep="")
     }
     z <- ergm.getMCMCsample(nw, model, MHproposal, eta0, MCMCparams, verbose)
-    statsmatrix=z$statsmatrix
+    statsmatrix <- z$statsmatrix
+    v$sample <- statsmatrix
 #    if(verbose && FALSE){
 #      sm<-statsmatrix[,!model$offset,drop=FALSE]
 #      cat("Deviation: ",apply(sm,2,mean),"\n")
