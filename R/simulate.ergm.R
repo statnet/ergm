@@ -64,11 +64,28 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
               " of ", burnin+interval*(MCMCparams$samplesize-1), 
               " steps", ifelse(nsim>1, " each", ""), ".\n", sep=""))
   }
-  if(sequential){
+
+  if(sequential && statsonly){
+    # We can do the whole thing in one run.
+    Clist <- ergm.Cprepare(nw, m)
+    MCMCparams <- list(samplesize=nsim,
+                       stats=matrix(curstats,ncol=Clist$nstats,nrow=nsim,byrow=TRUE),
+                       burnin=burnin,
+                       interval=interval,
+                       parallel=control$parallel,
+                       packagenames=control$packagenames,
+                       Clist.miss=ergm.design(nw, m, verbose=verbose))
+    z <- ergm.mcmcslave(Clist,MHproposal,eta0,MCMCparams,0,verb) 
+    out.mat <- matrix(z$s, nrow=MCMCparams$samplesize,
+                       ncol=Clist$nstats,
+                       byrow = TRUE)
+    colnames(out.mat) <- m$coef.names
+  }else if(sequential){
+    # Then statsonly = FALSE
     for(i in 1:nsim){
       Clist <- ergm.Cprepare(nw, m)
       maxedges <- max(2000, Clist$nedges)
-      if(i==1 | !sequential){
+      if(i==1){
         MCMCparams$burnin <- burnin
       }else{
         MCMCparams$burnin <- interval
@@ -85,19 +102,13 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
       #   Next update the network to be the final (possibly conditionally)
       #   simulated one
       #
-      if (!statsonly) {
-        nw.list[[i]] <- newnw.extract(nw,z)
-      }
+      nw.list[[i]] <- newnw.extract(nw,z)
+      
       curstats <- z$s
       names(curstats) <- m$coef.names
       out.mat <- rbind(out.mat,curstats)
-      if (sequential){
-        if (!statsonly)
-          nw <-  nw.list[[i]]
-        else 
-          nw <- newnw.extract(nw, z)
-        MCMCparams$stats<-curstats
-      }
+      nw <-  nw.list[[i]]
+      MCMCparams$stats<-curstats
     }
   }else{
     #
@@ -240,8 +251,9 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
   if(missing(theta0)){theta0 <- object$coef}
   eta0 <- ergm.eta(theta0, m$etamap)
 
+  curstats<-summary(safeupdate.formula(object$formula,nw ~ .))
   MCMCparams <- list(samplesize=1,
-      stats=summary(safeupdate.formula(object$formula,nw ~ .)),
+      stats=curstats,
       burnin=burnin,
       interval=interval,
       parallel=control$parallel,
@@ -253,15 +265,31 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
         " of ", burnin+interval*(MCMCparams$samplesize-1), 
         " steps", ifelse(nsim>1, " each", ""), ".\n", sep=""))
   }
-  if(sequential){
-  for(i in 1:nsim){
+
+  if(sequential && statsonly){
     Clist <- ergm.Cprepare(nw, m)
-    maxedges <- max(5000, Clist$nedges)
-    if(i==1 | !sequential){
-      MCMCparams$burnin <- burnin
-    }else{
-      MCMCparams$burnin <- interval
-    }
+    MCMCparams <- list(samplesize=nsim,
+                       stats=matrix(curstats,ncol=Clist$nstats,nrow=nsim,byrow=TRUE),
+                       burnin=burnin,
+                       interval=interval,
+                       parallel=control$parallel,
+                       packagenames=control$packagenames,
+                       Clist.miss=ergm.design(nw, m, verbose=verbose))
+    
+    z <- ergm.mcmcslave(Clist,MHproposal,eta0,MCMCparams,0,verb) 
+    out.mat <- matrix(z$s, nrow=MCMCparams$samplesize,
+                      ncol=Clist$nstats,
+                      byrow = TRUE)
+  }else if(sequential){
+    # Then statsonly = FALSE
+    for(i in 1:nsim){
+      Clist <- ergm.Cprepare(nw, m)
+      maxedges <- max(5000, Clist$nedges)
+      if(i==1){
+        MCMCparams$burnin <- burnin
+      }else{
+        MCMCparams$burnin <- interval
+      }
     
 #
 #   Check for truncation of the returned edge list
@@ -293,20 +321,14 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
     #   Next update the network to be the final (possibly conditionally)
     #   simulated one
 
-    if (!statsonly) {
       nw.list[[i]] <- newnw.extract(nw, z)
-    }
+      
     curstats <- z$s[(1):(Clist$nstats)]
     names(curstats) <- m$coef.names
     out.mat <- rbind(out.mat,curstats)
-    if(sequential){
-      if (!statsonly) 
-        nw <-  nw.list[[i]]
-      else 
-        nw <- newnw.extract(nw, z)
-      MCMCparams$stats<-curstats
+      nw <-  nw.list[[i]]
+       MCMCparams$stats<-curstats
     }
-  }
   }else{
 #
 #   non-sequential (so parallel)

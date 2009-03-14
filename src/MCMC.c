@@ -138,7 +138,8 @@ void MCMC_wrapper (int *heads, int *tails, int *dnedges,
 /* Rprintf("Back! %d %d\n",nw[0].nedges, nmax); */
 
   /* record new generated network to pass back to R */
-  newnetworkheads[0]=newnetworktails[0]=EdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,nw,nmax-1);
+  if(nmax>0 && newnetworkheads && newnetworktails)
+    newnetworkheads[0]=newnetworktails[0]=EdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,nw,nmax-1);
   
   ModelDestroy(m);
   DegreeBoundDestroy(bd);
@@ -713,8 +714,9 @@ void MCMCPhase12 (int *heads, int *tails, int *dnedges,
 	      (int)*fVerbose, nw, m, bd);
   
   /* record new generated network to pass back to R */
-  newnetworkheads[0]=newnetworktails[0]=EdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,nw,nmax);
-
+  if(nmax>0 && newnetworkheads && newnetworktails)
+    newnetworkheads[0]=newnetworktails[0]=EdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,nw,nmax);
+  
   ModelDestroy(m);
   DegreeBoundDestroy(bd);
   NetworkDestroy(nw);
