@@ -341,6 +341,13 @@ safeupdate.formula<-function (old, new, ...){
   return(out)
 }
 
+term.list.formula<-function(rhs){
+  if(length(rhs)==1) list(rhs)
+  else if(rhs[[1]]=="+") c(term.list.formula(rhs[[2]]),term.list.formula(rhs[[3]]))
+  else if(rhs[[1]]=="(") term.list.formula(rhs[[2]])
+  else list(rhs)
+}
+
 copy.named<-function(x){
   y<-list()
   for(name in names(x)) y[[name]]<-x[[name]]
