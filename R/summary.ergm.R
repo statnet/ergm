@@ -27,14 +27,17 @@ summary.ergm <- function (object, ...,
   asyse <- sqrt(asyse)
   if(any(is.na(asyse)&!object$offset) & !is.null(object$mplefit)){
    if(is.null(object$mplefit$covar)){
-    mpleasycov <- try(robust.inverse(-object$mplefit$hessian), silent=TRUE)
-    if(inherits(mpleasycov,"try-error")){
-     mpleasycov <- diag(1/diag(-object$mplefit$hessian))
+    if(!is.null(object$mplefit$covar)){
+     mpleasycov <- try(robust.inverse(-object$mplefit$hessian), silent=TRUE)
+     if(inherits(mpleasycov,"try-error")){
+      mpleasycov <- diag(1/diag(-object$mplefit$hessian))
+     }
+     asyse[is.na(asyse)] <- sqrt(diag(mpleasycov))[is.na(asyse)]
     }
    }else{
     mpleasycov <- object$mplefit$covar
+    asyse[is.na(asyse)] <- sqrt(diag(mpleasycov))[is.na(asyse)]
    }
-   asyse[is.na(asyse)] <- sqrt(diag(mpleasycov))[is.na(asyse)]
   }
   asyse <- matrix(asyse, ncol=length(asyse))
   colnames(asyse) <- colnames(asycov)
