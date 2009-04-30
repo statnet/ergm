@@ -1,10 +1,14 @@
 ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
                       model, 
                       lag.max=50, lag.max.miss=lag.max) {
+# Adjust for offset
+  statsmatrix <- statsmatrix[!model$etamap$offsettheta,!model$etamap$offsettheta]
+#
   av <- apply(statsmatrix, 2, mean)
   xsim <- sweep(statsmatrix, 2, av, "-")
   xobs <- -av
   if(!is.null(statsmatrix.miss)){
+   statsmatrix.miss <- statsmatrix.miss[!model$etamap$offsettheta,!model$etamap$offsettheta]
    av.miss <- apply(statsmatrix.miss, 2, mean)
    xsim.miss <- sweep(statsmatrix.miss, 2, av.miss,"-")
    dav <- av.miss-av
@@ -15,6 +19,9 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
   eta0 <- ergm.eta(theta0, model$etamap)
   eta <- ergm.eta(theta, model$etamap)
   etagrad <- ergm.etagrad(theta, model$etamap)
+  eta0 <- eta0[!model$etamap$offsettheta]
+  eta <- eta[!model$etamap$offsettheta]
+  etagrad <- etagrad[!model$etamap$offsettheta,!model$etamap$offsettheta]
   etaparam <- eta-eta0
 #
 # names(theta) <- dimnames(statsmatrix)[[2]]
@@ -71,8 +78,7 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
     V.miss <- etagrad %*% V.miss %*% t(etagrad)
     cov.zbar.miss <- etagrad %*% cov.zbar.miss %*% t(etagrad)  
    }
-
-   detna <- function(x){x <- determinant(x); if(is.na(x[1])){x <- -40};x}
+   detna <- function(x){x <- det(x); if(is.na(x)){x <- -40};x}
    novar <- diag(V)==0
    V <- V[!novar,,drop=FALSE] 
    V <- V[,!novar,drop=FALSE] 
@@ -90,12 +96,12 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
       mc.se.miss0 <- try(diag(solve(V.miss, t(solve(V.miss, cov.zbar.miss)))),
                         silent=TRUE)
       if(inherits(mc.se.miss0,"try-error") || detna(V.miss)< -20){
-       mc.se[!novar] <- sqrt(mc.se0)
+       mc.se[!model$etamap$offsettheta][!novar] <- sqrt(mc.se0)
       }else{
-       mc.se[!novar] <- sqrt(mc.se0 + mc.se.miss0)
+       mc.se[!model$etamap$offsettheta][!novar] <- sqrt(mc.se0 + mc.se.miss0)
       }
     }else{
-       mc.se[!novar] <- sqrt(mc.se0)
+       mc.se[!model$etamap$offsettheta][!novar] <- sqrt(mc.se0)
     }
    }
    names(mc.se) <- names(theta)
@@ -118,8 +124,11 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
      hessian0 <- - V
     }
    }
+   covar <- matrix(NA, ncol=length(theta), nrow=length(theta))
+   covar[!model$etamap$offsettheta,!model$etamap$offsettheta][!novar, !novar] <- robust.inverse(-hessian0)
+   dimnames(covar) <- list(names(theta),names(theta))
    hessian <- matrix(NA, ncol=length(theta), nrow=length(theta))
-   hessian[!novar, !novar] <- hessian0
+   hessian[!model$etamap$offsettheta,!model$etamap$offsettheta][!novar, !novar] <- hessian0
    dimnames(hessian) <- list(names(theta),names(theta))
-   list(mc.se=mc.se, hessian=hessian, gradient=gradient)
+   list(mc.se=mc.se, hessian=hessian, gradient=gradient, covar=covar)
 }

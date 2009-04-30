@@ -157,15 +157,16 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
         mc.se <- mcmcse$mc.se
         #   covar <- robust.inverse(-mcmcse$hessian)
         H <- mcmcse$hessian
-        covar <- robust.inverse(-H)
-        if(all(!is.na(diag(covar))) && all(diag(covar)<0)){covar <- -covar}
-        mc.se[model$etamap$offsettheta] <- NA
+        covar <- mcmcse$covar
+#       covar <- robust.inverse(-H)
+#        if(all(!is.na(diag(covar))) && all(diag(covar)<0)){covar <- -covar}
+#        mc.se[model$etamap$offsettheta] <- NA
     }
-    if(inherits(covar,"try-error") | is.na(covar[1])){
-      covar <- robust.inverse(-Lout$hessian)
+    if(inherits(covar,"try-error") | (length(covar)==1 && is.na(covar[1])) ){
+     covar <- robust.inverse(-Lout$hessian)
+     covar[,model$etamap$offsettheta ] <- NA
+     covar[ model$etamap$offsettheta,] <- NA
     }
-    covar[,model$etamap$offsettheta ] <- NA
-    covar[ model$etamap$offsettheta,] <- NA
     c0  <- llik.fun(theta=Lout$par, xobs=xobs,
                     xsim=xsim, probs=probs,
                     xsim.miss=xsim.miss, probs.miss=probs.miss,
