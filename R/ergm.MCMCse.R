@@ -118,7 +118,9 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
                  || detna(V.miss)< -20 ){
        hessian0 <- - V
      }else{
-       hessian0 <-  V.miss-V
+#      hessian0 <-  V.miss-V
+       hessian0 <- robust.inverse(var(xsim[,!novar]))+robust.inverse(var(xsim.miss[,!novar]))
+#      hessian0 <- -var(xsim[,!novar])+var(xsim.miss[,!novar])
      }
     }else{
      hessian0 <- - V
