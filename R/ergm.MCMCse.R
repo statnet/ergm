@@ -94,7 +94,7 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
    if(!(inherits(mc.se0,"try-error") || detna(V)< -20)){
     if(!is.null(statsmatrix.miss)){
       mc.se.miss0 <- try(diag(solve(V.miss, t(solve(V.miss, cov.zbar.miss)))),
-                        silent=TRUE)
+                         silent=TRUE)
       if(inherits(mc.se.miss0,"try-error") || detna(V.miss)< -20){
        mc.se[!model$etamap$offsettheta][!novar] <- sqrt(mc.se0)
       }else{
@@ -124,11 +124,11 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
      hessian0 <- - V
     }
    }
-   covar <- matrix(NA, ncol=length(theta), nrow=length(theta))
-   covar[!model$etamap$offsettheta,!model$etamap$offsettheta][!novar, !novar] <- robust.inverse(-hessian0)
-   dimnames(covar) <- list(names(theta),names(theta))
    hessian <- matrix(NA, ncol=length(theta), nrow=length(theta))
    hessian[!model$etamap$offsettheta,!model$etamap$offsettheta][!novar, !novar] <- hessian0
    dimnames(hessian) <- list(names(theta),names(theta))
+   covar <- matrix(NA, ncol=length(theta), nrow=length(theta))
+   covar[!model$etamap$offsettheta,!model$etamap$offsettheta][!novar, !novar] <- robust.inverse(-hessian0)
+   dimnames(covar) <- list(names(theta),names(theta))
    list(mc.se=mc.se, hessian=hessian, gradient=gradient, covar=covar)
 }

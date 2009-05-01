@@ -155,8 +155,8 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                               statsmatrix.miss,
                               model=model)
         mc.se <- mcmcse$mc.se
-        #   covar <- robust.inverse(-mcmcse$hessian)
-        H <- mcmcse$hessian
+#       covar <- robust.inverse(-mcmcse$hessian)
+#       H <- mcmcse$hessian
         covar <- mcmcse$covar
 #       covar <- robust.inverse(-H)
 #        if(all(!is.na(diag(covar))) && all(diag(covar)<0)){covar <- -covar}
