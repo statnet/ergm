@@ -21,7 +21,18 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
 # stats[,]<-  rep(Clist$obs - Clist$meanstats,rep(nrow(stats),Clist$nstats))
   MCMCparams$stats <- stats
   MCMCparams$meanstats <- Clist$meanstats
-
+  if(MCMCparams$Clist.miss$nedges > 0){
+    MCMCparams.miss <- MCMCparams
+    if(!is.null(MCMCparams$miss.MCMCsamplesize)){
+      MCMCparams.miss$MCMCsamplesize <- MCMCparams$miss.MCMCsamplesize
+    }
+    if(!is.null(MCMCparams$miss.interval)){
+      MCMCparams.miss$interval <- MCMCparams$miss.interval
+    }
+    if(!is.null(MCMCparams$miss.burnin)){
+      MCMCparams.miss$burnin <- MCMCparams$miss.burnin
+    }
+  }
 #  while(any(mcmc.precision*asyse < mc.se, na.rm=TRUE) && iteration <= maxit){
   while(iteration <= MCMCparams$maxit){
     thetaprior <- theta0
@@ -32,7 +43,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
          " with parameter: \n", sep="")
       print(theta0)
     }else{
-     cat("Iteration ",iteration," of at most ", MCMCparams$maxit,": ",sep="")
+     cat("Iteration ",iteration," of at most ", MCMCparams$maxit,": \n",sep="")
     }
     z <- ergm.getMCMCsample(nw, model, MHproposal, eta0, MCMCparams, verbose)
     statsmatrix <- z$statsmatrix
@@ -51,7 +62,8 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
 #          "\n")
 #    }
     if(MCMCparams$Clist.miss$nedges > 0){
-      statsmatrix.miss <- ergm.getMCMCsample(nw, model, MHproposal.miss, eta0, MCMCparams, verbose)$statsmatrix
+      z.miss <- ergm.getMCMCsample(nw, model, MHproposal.miss, eta0, MCMCparams.miss, verbose)
+      statsmatrix.miss <-z.miss$statsmatrix
       if(verbose){cat("Back from constrained MCMC...\n")}
     }else{
       statsmatrix.miss <- NULL
@@ -176,7 +188,8 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
 #   v$mle.lik <- -glm.fit$deviance/2 + v$loglikelihood
   mle.lik <- mle.lik + abs(v$loglikelihood)
 
-  v$newnetwork <- nw
+  v$newnetwork <- z$newnetwork
+# v$newnetwork <- nw
 
 ###### old ergm.statseval ends here    
     

@@ -1729,13 +1729,13 @@ InitErgm.gwidegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
                       defaultvalues = list(0, FALSE, NULL),
                       required = c(TRUE, FALSE, FALSE))
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
+  d <- 1:(network.size(nw)-1)
   termnumber<-1+length(m$terms)
   if(!initialfit && !fixed){ # This is a curved exponential family model
     if (!is.null(attrname)) {
       stop("The gwidegree term is not yet able to handle a ",
            "nonfixed decay term with an attribute.", call.=FALSE)
     }
-    d <- 1:(network.size(nw)-1)
     ld<-length(d)
     if(ld==0){return(m)}
     map <- function(x,n,...) {
@@ -1834,7 +1834,7 @@ InitErgm.gwodegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   a <- ergm.checkargs("gwodegree", arglist,
                       varnames = c("decay", "fixed", "attrname"),
                       vartypes = c("numeric", "logical", "character"),
-                      defaultvalues = list(0, FALSE, NULL),
+                      defaultvalues = list(0, TRUE, NULL),
                       required = c(TRUE, FALSE, FALSE))
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   termnumber<-1+length(m$terms)

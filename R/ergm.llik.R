@@ -15,10 +15,12 @@ llik.fun <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
 # alternative based on log-normal approximation
   mb <- sum(basepred*probs)
   vb <- sum(basepred*basepred*probs) - mb*mb
+  mb <- wtd.median(basepred, weight=probs)
+  vb <- 1.4826*wtd.median(abs(basepred-mb), weight=probs)
 # 
 # This is the log-likelihood ratio (and not its negative)
 #
-  llr <- sum(xobs * x) - (mb + penalty*vb)
+  llr <- sum(xobs * x) - (mb + penalty*vb*vb)
   if(is.infinite(llr) | is.na(llr)){llr <- -800}
 #
 # Penalize changes to trustregion
@@ -63,13 +65,15 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NU
 # theta.offset <- etamap$theta0
 # theta.offset[!etamap$offsettheta] <- theta
   namesx <- names(theta)
-  xsim[,etamap$offsetmap] <- 0
+# xsim[,etamap$offsettheta] <- 0
+  xsim <- xsim[,!etamap$offsettheta]
 #
 #    eta transformation
 #
   eta <- ergm.eta(theta, etamap)
   etagrad <- ergm.etagrad(theta, etamap)
   x <- eta-eta0
+  x <- x[!etamap$offsettheta]
   basepred <- xsim %*% x
   prob <- max(basepred)
   prob <- probs*exp(basepred - prob)
@@ -79,8 +83,10 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NU
   htmp <- sweep(sweep(xsim, 2, E, "-"), 1, sqrt(prob), "*")
   htmp <- htmp %*% t(etagrad)
   H <- t(htmp) %*% htmp
-  dimnames(H) <- list(namesx, namesx)
-  -H
+  He <- matrix(NA, ncol = length(theta), nrow = length(theta))
+  He[!etamap$offsettheta, !etamap$offsettheta] <- H
+  dimnames(He) <- list(names(namesx), names(namesx))
+  He
 }
 
 # DH:  This llik.exp function does not appear to be used anywhere.

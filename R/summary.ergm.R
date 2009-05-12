@@ -4,6 +4,8 @@ summary.ergm <- function (object, ...,
                           eps=0.0001)
 {
 # separates out summary and print fns: MSH
+  pseudolikelihood <- is.null(object$samplesize) || is.na(object$samplesize)
+  independence <- !is.null(object$theta1$independent) && all(object$theta1$independent)
   if(any(is.na(object$coef)) & !is.null(object$mplefit)){
      object$coef[is.na(object$coef)] <-
      object$mplefit$coef[is.na(object$coef)]
@@ -11,6 +13,8 @@ summary.ergm <- function (object, ...,
   if(is.null(object$hessian) && is.null(object$covar)){
    return()
   }
+  nodes<- network.size(object$network)
+  dyads<- network.dyadcount(object$network)
   if(is.null(object$covar)){
    asycov <- try(robust.inverse(-object$hessian), silent=TRUE)
    if(inherits(asycov,"try-error")){
@@ -18,6 +22,16 @@ summary.ergm <- function (object, ...,
    }
   }else{
    asycov <- object$covar
+   if(FALSE & !pseudolikelihood & !independence){
+    if(is.directed(object$network)){
+     mdyads <- nodes * (nodes-1)
+    }else{
+     mdyads <- nodes * (nodes-1) / 2
+    }
+    # Adjust for missing dyads
+    asycov <- asycov*mdyads/dyads
+    object$mc.se <- object$mc.se*sqrt(mdyads/dyads)
+   }
   }
   rownames(asycov) <- names(object$coef)
   colnames(asycov) <- rownames(asycov)
@@ -46,8 +60,6 @@ summary.ergm <- function (object, ...,
 #   original <- format(object$MCMCtheta, digits = digits)
 #   original <- format(object$theta.original, digits = digits)
 
-  pseudolikelihood <- is.na(object$samplesize)
-  independence <- !is.null(object$theta1$independent) && all(object$theta1$independent)
   ans <- list(formula=object$formula, randomeffects=object$re,
               digits=digits, correlation=correlation,
               degeneracy.value = object$degeneracy.value,

@@ -30,10 +30,13 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
       probs.miss <- NULL
     }
   }
-  av <- apply(sweep(statsmatrix0,1,probs,"*"), 2, sum)
+
+# av <- apply(sweep(statsmatrix0,1,probs,"*"), 2, sum)
+  av <- apply(statsmatrix0,2,wtd.median,weight=probs)
   xsim <- sweep(statsmatrix0, 2, av,"-")
   if(!is.null(statsmatrix.miss)){
-    av.miss <- apply(sweep(statsmatrix0.miss,1,probs.miss,"*"), 2, sum)
+#   av.miss <- apply(sweep(statsmatrix0.miss,1,probs.miss,"*"), 2, sum)
+    av.miss <- apply(statsmatrix0.miss,2,wtd.median,weight=probs.miss)
     xsim.miss <- sweep(statsmatrix0.miss, 2, av.miss,"-")
     xobs <- av.miss-av
   }else{
@@ -57,7 +60,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
 #   check degeneracy removed from here?
     penalty <- 0.5
    }else{
-    llik.fun <- llik.fun.miss
+    llik.fun <- llik.fun.miss.robust
     llik.grad <- llik.fun.miss
     llik.hessian <- llik.hessian.miss
     penalty <- 0.5
@@ -138,16 +141,25 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     mc.se <- rep(NA, length=length(theta))
     covar <- NA
     if(!hessian){
-      #  covar <- robust.inverse(cov(xsim))
-      #  Lout$hessian <- cov(xsim)
-      Lout$hessian <- llik.hessian(theta=theta, xobs=xobs, xsim=xsim,
-                                   probs=probs, 
-                                   xsim.miss=xsim.miss, probs.miss=probs.miss,
-                                   penalty=0.5,
-                                   eta0=eta0, etamap=model$etamap
-                                   )
-      Lout$hessian[,model$etamap$offsettheta] <- 0
-      Lout$hessian[model$etamap$offsettheta,] <- 0
+     #  covar <- robust.inverse(cov(xsim))
+     #  Lout$hessian <- cov(xsim)
+     Lout$hessian <- llik.hessian(theta=theta, xobs=xobs, xsim=xsim,
+                                  probs=probs, 
+                                  xsim.miss=xsim.miss, probs.miss=probs.miss,
+                                  penalty=0.5,
+                                  eta0=eta0, etamap=model$etamap
+                                 )
+     covar <- matrix(NA, ncol=length(theta), nrow=length(theta))
+     covar[!model$etamap$offsettheta,!model$etamap$offsettheta ] <- robust.inverse(-Lout$hessian)
+     dimnames(covar) <- list(names(theta),names(theta))
+    }else{
+     covar <- matrix(NA, ncol=length(theta), nrow=length(theta))
+     covar[!model$etamap$offsettheta,!model$etamap$offsettheta ] <- robust.inverse(-Lout$hessian)
+     dimnames(covar) <- list(names(theta),names(theta))
+     He <- matrix(NA, ncol=length(theta), nrow=length(theta))
+     He[!model$etamap$offsettheta,!model$etamap$offsettheta ] <- Lout$hessian
+     dimnames(He) <- list(names(theta),names(theta))
+     Lout$hessian <- He
     }
     if(calc.mcmc.se){
       if (verbose) cat("Starting MCMC s.e. computation.\n")
@@ -158,14 +170,10 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
 #       covar <- robust.inverse(-mcmcse$hessian)
 #       H <- mcmcse$hessian
         covar <- mcmcse$covar
+#
 #       covar <- robust.inverse(-H)
-#        if(all(!is.na(diag(covar))) && all(diag(covar)<0)){covar <- -covar}
-#        mc.se[model$etamap$offsettheta] <- NA
-    }
-    if(inherits(covar,"try-error") | (length(covar)==1 && is.na(covar[1])) ){
-     covar <- robust.inverse(-Lout$hessian)
-     covar[,model$etamap$offsettheta ] <- NA
-     covar[ model$etamap$offsettheta,] <- NA
+#       if(all(!is.na(diag(covar))) && all(diag(covar)<0)){covar <- -covar}
+#       mc.se[model$etamap$offsettheta] <- NA
     }
     c0  <- llik.fun(theta=Lout$par, xobs=xobs,
                     xsim=xsim, probs=probs,
