@@ -49,10 +49,10 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
    gradient <- (xobs-E) %*% t(etagrad)
    V <- etagrad %*% V %*% t(etagrad)
    cov.zbar <- etagrad %*% cov.zbar %*% t(etagrad)  
-   V <- V[!model$etamap$offsettheta,]
-   V <- V[,!model$etamap$offsettheta]
-   cov.zbar <- cov.zbar[!model$etamap$offsettheta,]
-   cov.zbar <- cov.zbar[,!model$etamap$offsettheta]
+   V <- V[!model$etamap$offsettheta,,drop=FALSE]
+   V <- V[,!model$etamap$offsettheta,drop=FALSE]
+   cov.zbar <- cov.zbar[!model$etamap$offsettheta,,drop=FALSE]
+   cov.zbar <- cov.zbar[,!model$etamap$offsettheta,drop=FALSE]
    novar <- diag(V)==0
 #
 #  Calculate the auto-covariance of the Conditional MCMC suff. stats.
@@ -80,10 +80,10 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
     V.miss <- etagrad %*% V.miss %*% t(etagrad)
     cov.zbar.miss <- etagrad %*% cov.zbar.miss %*% t(etagrad)  
     gradient <- gradient - (xobs+E.miss-E) %*% t(etagrad)
-    V.miss <- V.miss[,!model$etamap$offsettheta]
-    V.miss <- V.miss[!model$etamap$offsettheta,]
-    cov.zbar.miss <- cov.zbar.miss[,!model$etamap$offsettheta]
-    cov.zbar.miss <- cov.zbar.miss[!model$etamap$offsettheta,]
+    V.miss <- V.miss[,!model$etamap$offsettheta,,drop=FALSE]
+    V.miss <- V.miss[!model$etamap$offsettheta,,drop=FALSE]
+    cov.zbar.miss <- cov.zbar.miss[,!model$etamap$offsettheta,drop=FALSE]
+    cov.zbar.miss <- cov.zbar.miss[!model$etamap$offsettheta,,drop=FALSE]
     novar <- novar & diag(V.miss)==0
     V.miss <- V.miss[!novar,,drop=FALSE] 
     V.miss <- V.miss[,!novar,drop=FALSE] 
@@ -121,7 +121,7 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
 # 
    test.hessian <- try(any(is.na(sqrt(diag(robust.inverse(V))))), silent=TRUE)
    if(inherits(test.hessian,"try-error") || test.hessian){
-    hessian0 <- robust.inverse(var(xsim[,!novar]))
+    hessian0 <- robust.inverse(var(xsim[,!nova,drop=FALSE]))
    }else{
     if(!is.null(statsmatrix.miss)){
      test.hessian.miss <- try(any(is.na(sqrt(diag(robust.inverse(V.miss))))), silent=TRUE)
@@ -130,7 +130,7 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
        hessian0 <- - V
      }else{
        hessian0 <-  V.miss-V
-#      hessian0 <- -robust.inverse(var(xsim[,!novar]))-robust.inverse(var(xsim.miss[,!novar]))
+#      hessian0 <- -robust.inverse(var(xsim[,!novar,drop=FALSE]))-robust.inverse(var(xsim.miss[,!novar,drop=FALSE]))
 #      hessian0 <- -var(xsim[,!novar])+var(xsim.miss[,!novar])
      }
     }else{
@@ -139,10 +139,13 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
    }
 #  hessian0 <- - V
    hessian <- matrix(NA, ncol=length(theta), nrow=length(theta))
-   hessian[!model$etamap$offsettheta,!model$etamap$offsettheta][!novar, !novar] <- hessian0
+   hessian <- hessian[!model$etamap$offsettheta,!model$etamap$offsettheta,drop=FALSE]
+   hessian[!novar, !novar] <- hessian0
+#  hessian[!model$etamap$offsettheta,!model$etamap$offsettheta,drop=FALSE][!novar, !novar,drop=FALSE] <- hessian0
    dimnames(hessian) <- list(names(theta),names(theta))
    covar <- matrix(NA, ncol=length(theta), nrow=length(theta))
-   covar[!model$etamap$offsettheta,!model$etamap$offsettheta][!novar, !novar] <- robust.inverse(-hessian0)
+   covar <- covar[!model$etamap$offsettheta,!model$etamap$offsettheta,drop=FALSE]
+   covar[!novar, !novar] <- robust.inverse(-hessian0)
    dimnames(covar) <- list(names(theta),names(theta))
    list(mc.se=mc.se, hessian=hessian, gradient=gradient, covar=covar)
 }
