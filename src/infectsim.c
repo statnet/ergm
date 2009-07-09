@@ -75,7 +75,7 @@ void InfectSimLoop (int *time, int *N,
         R_ego_numpartners[id_suscept-1] = 0;
         R_partner_numpartners[id_suscept-1] = 0;
         for(j=0; j<*Nedges; j++) {
-          if (day < ND_enddate[j] && day >= ND_startdate[j]) {
+          if (day <= ND_enddate[j] && day >= ND_startdate[j]) {
             P1 = ND_part1[j];
             P2 = ND_part2[j];
             if (P1 == id_suscept || P2 == id_suscept) {
