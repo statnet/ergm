@@ -1,7 +1,7 @@
 simulatedyn <- function(object, dissolve, nsteps=1, seed=NULL, theta,gamma,
                         burnin=0, interval=1, dyninterval=1000,
                         constraints=~.,
-                        dissolve.order="DissThenForm",
+                        dissolve.order="DissAndForm",
                         control=control.simulatedyn(),
                         toggles=TRUE,
                         verbose=FALSE, ...) {
@@ -22,7 +22,7 @@ simulatedyn <- function(object, dissolve, nsteps=1, seed=NULL, theta,gamma,
   dissolve<-safeupdate.formula(dissolve,nw~.)
   
   model.form <- ergm.getmodel(formula, nw, drop=control$drop)
-  model.diss <- ergm.getmodel(dissolve, nw, dissolve.order=dissolve.order)
+  model.diss <- ergm.getmodel(dissolve, nw, dissolve.order=dissolve.order,drop=control$drop)
 
   verbose <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1

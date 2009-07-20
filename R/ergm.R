@@ -4,7 +4,7 @@ ergm <- function(formula, theta0="MPLE",
                  maxit=3,
                  constraints=~.,
                  meanstats=NULL,
-                 dissolve=NULL, gamma=-4.59512, dissolve.order="DissThenForm", # this line not in CRAN
+                 dissolve=NULL, gamma=-4.59512, dissolve.order="FormAndDiss", # this line not in CRAN
                  control=control.ergm(),
                  verbose=FALSE, ...) {
   current.warn <- options()$warn
