@@ -555,29 +555,37 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
 			  // Verbosity.
 			  int fVerbose){
   int i, j;
-  Edge nextdiffedge=1;
-  unsigned int phase1n=phase1n_base+3*F_m->n_stats;
+  unsigned int phase1n=phase1n_base+3*F_m->n_stats, *changed;
   
-  double *ubar, *u2bar, *aDdiaginv, *D_stats;
-  ubar = (double *)malloc( F_m->n_stats * sizeof(double));
-  u2bar = (double *)malloc( F_m->n_stats * sizeof(double));
-  aDdiaginv = (double *)malloc( F_m->n_stats * sizeof(double));
-  D_stats = (double *)calloc( D_m->n_stats, sizeof(double));
+  double *ubar, *ubar0, *aDdiaginv, *D_stats, *prevdev, n;
+
+  unsigned int nomix;
+  
+  do{
+    ubar = (double *)malloc( F_m->n_stats * sizeof(double));
+    ubar0 = (double *)malloc( F_m->n_stats * sizeof(double));
+    prevdev = (double *)malloc( F_m->n_stats * sizeof(double));
+    changed = (unsigned int *)malloc( F_m->n_stats * sizeof(double));
+    aDdiaginv = (double *)malloc( F_m->n_stats * sizeof(double));
+    D_stats = (double *)calloc( D_m->n_stats, sizeof(double));
+    
+    Edge nextdiffedge=1;
 
   for (j=0; j < F_m->n_stats; j++){
     ubar[j] = 0.0;
-    u2bar[j] = 0.0;
+    ubar0[j] = 0.0;
+    prevdev[j]=dev[j];
+    changed[j]=0;
     Rprintf("j %d %f\n",j,theta[j]);
+    n=0;
   }
 
   /*********************
-   Burn in step.  While we're at it, use burnin statistics to 
-   prepare covariance matrix for Mahalanobis distance calculations 
-   in subsequent calls to M-H
+   Burn in step. 
    *********************/
   
   if(fVerbose) Rprintf("Starting burnin of %d steps\n", burnin);
-  for(i=0;i<burnin;i++)
+  for(i=0;i<burnin;i++){
     MCMCDyn1Step(nwp, order,
 		 F_m, F_MH, theta,
 		 D_m, D_MH, gamma,
@@ -588,15 +596,36 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
 		 difftime, diffhead, difftail,
 		 dyninterval,
 		 fVerbose);
+    for(j=0; j<F_m->n_stats; j++){
+      ubar0[j] *= 1-1.0/burnin;
+      n*=1-1.0/burnin;
+      ubar0[j] += dev[j];
+      n++;
+
+      
+      if(i>burnin/2 && dev[j]!=prevdev[j]) changed[j]++;
+      prevdev[j]=dev[j];
+    }
+  }
+
+  nomix=0;
+  for(j=0; j<F_m->n_stats; j++){
+    ubar0[j] /= n;
+    if(changed[j]<0.05*burnin/2 && dev[j]!=0){ /* It's OK if statistic is spot on. */
+      if(fVerbose)Rprintf("Bad mixing: %d\n", j);
+      nomix=1;
+    }
+  }
 
   /********************
-   Phase 1
+   Phase 1: estimate dgy/dtheta
    ********************/
   
   Rprintf("Phase 1: %d steps (interval = %d)\n", phase1n,interval);
 
   for(j=0; j<F_m->n_stats; j++){
     theta[j]++;
+    n=0;
     for(i=0; i < phase1n*interval; i++){
       MCMCDyn1Step(nwp, order,
 		   F_m, F_MH, theta,
@@ -608,40 +637,30 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
 		   difftime, diffhead, difftail,
 		   dyninterval,
 		   fVerbose);
-      ubar[j]  += dev[j];
+      ubar[j]*=1-1.0/(phase1n*interval);
+      n*=1-1.0/(phase1n*interval);
+      ubar[j]  += dev[j]-ubar0[j];
+      n++;
     }
+
+    ubar[j]/=n;
     theta[j]--;
   }
 
-  for(i=0; i < phase1n*interval; i++){
-    MCMCDyn1Step(nwp, order,
-		 F_m, F_MH, theta,
-		 D_m, D_MH, gamma,
-		 bd,
-		 0,
-		 dev, D_stats,
-		 nmax, &nextdiffedge,
-		   difftime, diffhead, difftail,
-		 dyninterval,
-		 fVerbose);
-    for(j=0; j<F_m->n_stats; j++){
-      ubar[j]  -= dev[j];
-    }
-  }
-  
   if (fVerbose){
     Rprintf("Returned from Phase 1\n");
     Rprintf("j, approx dgy/dtheta, gain*dtheta/dgy:\n");
   }
   
   for (j=0; j<F_m->n_stats; j++){
-    aDdiaginv[j]=ubar[j]/(phase1n*interval);
+    aDdiaginv[j]=ubar[j];
     if( aDdiaginv[j] > 0.0){
       if(fVerbose) Rprintf("%d, %f, %f\n", j, aDdiaginv[j], gain/aDdiaginv[j]);
       aDdiaginv[j] = gain/aDdiaginv[j];
     }else{
-      if(fVerbose) Rprintf("%d, %f, %f\n", j, aDdiaginv[j], 0.00001);
-      aDdiaginv[j]=0.00001;
+      if(fVerbose) Rprintf("%d, %f, %f\n", j, aDdiaginv[j], 0.00000);
+      aDdiaginv[j]=0.00000;
+      nomix=1;
     }
   }
   
@@ -651,13 +670,15 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
   unsigned int phase2n=F_m->n_stats+7+phase2n_base;
   double *meandev=(double*)calloc(F_m->n_stats,sizeof(double));
   double *meandevlong=(double*)calloc(F_m->n_stats,sizeof(double));
+  double n2;
 
-  for(unsigned int subphase=0; subphase<phase2sub; subphase++){
+  for(unsigned int subphase=0; subphase<(nomix?(int)ceil(phase2sub/2):phase2sub); subphase++){
 
     for(j=0; j<F_m->n_stats; j++) meandevlong[j]=dev[j];
-
+    n2=1;
     for (i=0; i < phase2n; i++){
       for(j=0; j<F_m->n_stats; j++) meandev[j]=dev[j];
+      n=1;
       for(j=0;j < interval;j++){
 	MCMCDyn1Step(nwp, order,
 		     F_m, F_MH, theta,
@@ -671,31 +692,41 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
 		     fVerbose);
 	for(unsigned int k=0;k<F_m->n_stats; k++){
 	  meandev[k]*=1-1.0/interval;
+	  n*=1-1.0/interval;
 	  meandev[k]+=dev[k];
+	  n++;
 	}
       }
       
       /* Update theta0 */
       for (j=0; j<F_m->n_stats; j++){
-        theta[j] -= aDdiaginv[j] * (meandev[j]/interval);
+        theta[j] -= aDdiaginv[j] * (meandev[j]/n);
 
 	meandevlong[j]*=1-1.0/phase2n;
-	meandevlong[j]+=meandev[j]/interval;
+	n2*=1-1.0/phase2n;
+	meandevlong[j]+=meandev[j]/n;
+	n2++;
       }
     }
 
     for (j=0; j<F_m->n_stats; j++){
       aDdiaginv[j] /= 2.0;
       if (fVerbose)Rprintf("subphase j %d theta %f ns %f\n",
-			   j, theta[j], meandevlong[j]/phase2n);
+			   j, theta[j], meandevlong[j]/n2);
     }
     Rprintf("\n");
 
     phase2n=trunc(2.52*(phase2n-phase2n_base)+phase2n_base);
   }
-  
-  free(meandev);
-  free(meandevlong);
+
+
   free(ubar);
-  free(u2bar);
+  free(ubar0);
+  free(prevdev);
+  free(changed);
+  free(aDdiaginv);
+  free(D_stats );
+  }while(nomix);
+	 
+
 }
