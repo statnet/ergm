@@ -16,46 +16,20 @@ ergm.robmon.dyn <- function(theta0, nw, model.form, model.diss, Clist,
   z <- ergm.phase12.dyn(nw, Clist$meanstats, model.form, model.diss, MHproposal.form, MHproposal.diss,
                         eta0, gamma0, MCMCparams, verbose=verbose)
 
-  eta <- z$eta
   MCMCparams$samplesize<-MCMCparams$RobMon.phase3n
-  z <- ergm.getMCMCDynsample(nw, model.form, model.diss, 
-                             MHproposal.form, MHproposal.diss, eta, gamma0,
+  # Skip burnin this time: if we haven't converged yet, there ain't
+  # much anyone can do.
+  MCMCparams$burnin<-0
+  s <- ergm.getMCMCDynsample(nw, model.form, model.diss, 
+                             MHproposal.form, MHproposal.diss, z$eta, gamma0,
                              MCMCparams, verbose)
   
-  if(verbose){cat("Calling MCMLE Optimization...\n")}
-  if(verbose){cat("Using Newton-Raphson Step ...\n")}
-
-  ve<-ergm.estimate(theta0=eta, model=model.form,
-                    statsmatrix=z$statsmatrix.form,
-                    statsmatrix.miss=NULL,
-                    nr.maxit=MCMCparams$nr.maxit, 
-                    nr.reltol=MCMCparams$nr.reltol, 
-                    trustregion=MCMCparams$trustregion, 
-                    calc.mcmc.se=MCMCparams$calc.mcmc.se,
-                    hessian=MCMCparams$hessian,
-                    method=MCMCparams$method,
-                    metric=MCMCparams$metric,
-                    compress=MCMCparams$compress, verbose=verbose)
-  #
-  # Important: Keep R-M (pre-NR) theta
-  ve$coef <- eta
-  #
+  ve<-with(z,list(coef=eta,sample=s$statsmatrix.form,sample.miss=NULL))
+  
   endrun <- MCMCparams$burnin+MCMCparams$interval*(ve$samplesize-1)
   attr(ve$sample, "mcpar") <- c(MCMCparams$burnin+1, endrun, MCMCparams$interval)
   attr(ve$sample, "class") <- "mcmc"
-  ve$null.deviance <- 2*network.dyadcount(nw)*log(2)
-  ve$mle.lik <- -ve$null.deviance/2 + ve$loglikelihood
-  ve$mcmcloglik <- ve$mcmcloglik - network.dyadcount(nw)*log(2)
-
-  # From ergm.estimate:
-  #    structure(list(coef=theta, sample=statsmatrix, 
-  # iterations=iteration, mcmcloglik=mcmcloglik,
-  # MCMCtheta=theta0, 
-  # loglikelihood=loglikelihood, gradient=gradient,
-  # covar=covar, samplesize=samplesize, failure=FALSE,
-  # mc.se=mc.se, acf=mcmcacf,
-  # fullsample=statsmatrix.all),
-  # class="ergm") 
+  
   structure(c(ve, list(newnetwork=nw, 
                        theta.original=theta0,
                        interval=MCMCparams$interval, burnin=MCMCparams$burnin, 
