@@ -8,9 +8,9 @@ duration.matrix <- function(gsim) {
   if(is.null(Nbip)) Nbip<-0
   Ntot <- g0%n%"n"
   edges <- as.edgelist(g0)
-  # Workaround --- if a network is undirected (or bipartite), force heads<tails.
-  if(!is.directed(g0)) edges<-t(apply(edges,1,sort))
   nedge <- nrow(edges)
+  # Workaround --- if a network is undirected (or bipartite), force heads<tails.
+  if(!is.directed(g0) && nedge) edges<-t(apply(edges,1,sort))
   nchange <- nrow(cha)
 
   allties <- .C("DurationMatrix", as.integer(nedge), as.integer(edges), 
