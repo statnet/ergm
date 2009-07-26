@@ -20,24 +20,24 @@ ergm.phase12.dyn <- function(g, meanstats, model.form, model.diss,
   if(verbose){cat(paste("MCMCDyn workspace is",maxchanges,"\n"))}
   
   z <- .C("MCMCDynPhase12",
-          # Observed/starting network.
+          # Observed/starting network. 1
           as.integer(Clist.form$heads), as.integer(Clist.form$tails), 
           as.integer(Clist.form$nedges), as.integer(Clist.form$maxpossibleedges),
           as.integer(Clist.form$n),
           as.integer(Clist.form$dir), as.integer(Clist.form$bipartite),
-          # Order code.
+          # Order code. 8
           as.integer(Clist.diss$order.code),
-          # Formation terms and proposals.
+          # Formation terms and proposals. 9
           as.integer(Clist.form$nterms), as.character(Clist.form$fnamestring), as.character(Clist.form$snamestring),
           as.character(MHproposal.form$name), as.character(MHproposal.form$package),
           as.double(Clist.form$inputs), eta=as.double(eta0),
-          # Formation parameter fitting.
+          # Formation parameter fitting. 16
           as.double(summary(model.form$formula)-meanstats),
           as.double(MCMCparams$RobMon.init_gain),
           as.integer(MCMCparams$RobMon.phase1n_base),
           as.integer(MCMCparams$RobMon.phase2n_base),
           as.integer(MCMCparams$RobMon.phase2sub),              
-          # Dissolution terms and proposals.
+          # Dissolution terms and proposals. 21
           as.integer(Clist.diss$nterms), as.character(Clist.diss$fnamestring), as.character(Clist.diss$snamestring),
           as.character(MHproposal.diss$name), as.character(MHproposal.diss$package),
           as.double(Clist.diss$inputs), as.double(gamma0),
