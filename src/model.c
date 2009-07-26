@@ -155,6 +155,8 @@ DegreeBound* DegreeBoundInitialize(int *attribs, int *maxout, int *maxin,
 {
   int i,j;
   DegreeBound *bd;
+
+  if(!(minout||minin||maxout||maxin||condAllDegExact)) return NULL;
   
 
   bd = (DegreeBound *) malloc(sizeof(DegreeBound));

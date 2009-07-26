@@ -142,7 +142,7 @@ void MCMC_wrapper (int *heads, int *tails, int *dnedges,
     newnetworkheads[0]=newnetworktails[0]=EdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,nw,nmax-1);
   
   ModelDestroy(m);
-  DegreeBoundDestroy(bd);
+  if(bd)DegreeBoundDestroy(bd);
   NetworkDestroy(nw);
   if (n_medges>0 || hammingterm > 0  || formationterm > 0)
     NetworkDestroy(&nw[1]);
@@ -342,6 +342,9 @@ void MetropolisHastings (MHproposal *MHp,
 int CheckTogglesValid(MHproposal *MHp, DegreeBound *bd, Network *nwp) {
   int fvalid;
   int i;
+
+  if(!bd) return 1;
+
   int *hattr = (int *) malloc(sizeof(int) * bd->attrcount);
   int *tattr = (int *) malloc(sizeof(int) * bd->attrcount);
 
@@ -466,6 +469,8 @@ int CheckConstrainedTogglesValid(MHproposal *MHp, DegreeBound *bd, Network *nwp)
 {
   int fvalid = 1;
   int i;
+
+  if(!bd) return 1;
 
   /* Make proposed toggles */
   for (i=0; i<MHp->ntoggles; i++)
@@ -718,7 +723,7 @@ void MCMCPhase12 (int *heads, int *tails, int *dnedges,
     newnetworkheads[0]=newnetworktails[0]=EdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,nw,nmax);
   
   ModelDestroy(m);
-  DegreeBoundDestroy(bd);
+  if(bd)DegreeBoundDestroy(bd);
   NetworkDestroy(nw);
   if (n_medges>0 || hammingterm > 0  || formationterm > 0)
     NetworkDestroy(&nw[1]);

@@ -71,7 +71,7 @@
 				    MHproposal *D_MH){
   MH_free(F_MH);
   MH_free(D_MH);
-  DegreeBoundDestroy(bd);
+  if(bd)DegreeBoundDestroy(bd);
   ModelDestroy(F_m);
   ModelDestroy(D_m);
   NetworkDestroy(nw);
@@ -620,10 +620,14 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
   /********************
    Phase 1: estimate dgy/dtheta
    ********************/
-  
   Rprintf("Phase 1: %d steps (interval = %d)\n", phase1n,interval);
 
   for(j=0; j<F_m->n_stats; j++){
+    /*If it's a badly mixing parameter, don't bother with its derivatie this round.*/
+    if(changed[j]<0.05*burnin/2 && dev[j]!=0){
+      ubar[j]=0;
+      continue;
+    }
     theta[j]++;
     n=0;
     for(i=0; i < phase1n*interval; i++){

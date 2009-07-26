@@ -145,7 +145,7 @@ void PILA_wrapper(int *heads, int *tails, int *dnedges,
 /* Rprintf("Back! %d %d\n",nw[0].nedges, nmax); */
   
   ModelDestroy(m);
-  DegreeBoundDestroy(bd);
+  if(bd)DegreeBoundDestroy(bd);
   NetworkDestroy(nw);
   if (n_medges>0 || hammingterm > 0  || formationterm > 0)
     NetworkDestroy(&nw[1]);

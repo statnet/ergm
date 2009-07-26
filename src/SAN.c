@@ -137,7 +137,7 @@ void SAN_wrapper (int *heads, int *tails, int *dnedges,
   newnetworkheads[0]=newnetworktails[0]=EdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,nw,nmax);
 
   ModelDestroy(m);
-  DegreeBoundDestroy(bd);
+  if(bd)DegreeBoundDestroy(bd);
   NetworkDestroy(nw);
   if (n_medges>0 || hammingterm > 0  || formationterm > 0)
     NetworkDestroy(&nw[1]);

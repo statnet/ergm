@@ -4,11 +4,11 @@ ergm.bounddeg <- function(bounddeg,nw){
   nnodes=network.size(nw)
   if(is.null(bounddeg) ||
      all(sapply(bounddeg,function(x){length(x)==1 && x==0}))) {
-    attribs <- 0
-    maxout <- 0
-    maxin <- 0
-    minout <- 0
-    minin <- 0
+    attribs <- NULL
+    maxout <- NULL
+    maxin <- NULL
+    minout <- NULL
+    minin <- NULL
   } else {
     attribs <- bounddeg$attribs
     maxout <- bounddeg$maxout
