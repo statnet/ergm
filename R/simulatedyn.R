@@ -19,7 +19,7 @@ simulatedyn <- function(object, dissolve, nsteps=1, seed=NULL, theta,gamma,
     stop("A network object on the LHS of the formula must be given")
   }
 
-  dissolve<-safeupdate.formula(dissolve,nw~.)
+  dissolve<-ergm.update.formula(dissolve,nw~.)
   
   model.form <- ergm.getmodel(formula, nw, drop=control$drop)
   model.diss <- ergm.getmodel(dissolve, nw, dissolve.order=dissolve.order,drop=control$drop)

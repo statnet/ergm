@@ -31,7 +31,7 @@ ergm <- function(formula, theta0="MPLE",
             if(is.null(control$SAN.burnin)) burnin
             else control$SAN.burnin,
             interval=interval)
-    formula<-safeupdate.formula(formula,nw~.)
+    formula<-ergm.update.formula(formula,nw~.)
     if (verbose) {
      cat("Original meanstats:\n")
      print(meanstats)
@@ -143,7 +143,7 @@ ergm <- function(formula, theta0="MPLE",
 
   if(!is.null(dissolve)){  # This section not in CRAN version.
     if (verbose) cat("Fitting Dynamic ERGM.\n")
-    dissolve<-safeupdate.formula(dissolve,nw~.)
+    dissolve<-ergm.update.formula(dissolve,nw~.)
     model.dissolve <- ergm.getmodel(dissolve, nw, dissolve.order=dissolve.order)
     MHproposal.diss <- MHproposal(constraints, weights=control$prop.weights.diss, control$prop.args.diss, nw, model.dissolve,class="d")
     v <- switch(control$style,

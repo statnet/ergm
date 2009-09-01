@@ -335,10 +335,15 @@ statnet.edit <- function(name,package=c("statnet","ergm","network")){
   invisible(filepath)
 }
 
-safeupdate.formula<-function (old, new, ...){
-  tmp <- .Internal(update.formula(as.formula(old), as.formula(new)))
-  out <- formula(terms.formula(tmp, simplify = FALSE, keep.order=TRUE))
-  return(out)
+ergm.update.formula<-function (object, new, ...){
+  tmp <- as.formula(.Internal(update.formula(as.formula(object), as.formula(new))))
+  # Ensure that the formula's environment gets set to the network's
+  # environment.
+  if(new[[2]]==".")
+    environment(tmp)<-environment(object)
+  else
+    environment(tmp)<-environment(new)
+  return(tmp)
 }
 
 term.list.formula<-function(rhs){
