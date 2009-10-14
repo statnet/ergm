@@ -677,8 +677,7 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
 	aDdiaginv[j] = gain/aDdiaginv[j];
       }else{
 	if(fVerbose) Rprintf("%d, %f, %f\n", j, aDdiaginv[j], 0.00000);
-	aDdiaginv[j]=0.00000;
-	nomix=1;
+	aDdiaginv[j]=0.0001;
       }
     }
     
