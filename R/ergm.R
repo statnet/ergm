@@ -35,7 +35,7 @@ ergm <- function(formula, theta0="MPLE",
     if (verbose) {
      cat("Original meanstats:\n")
      print(meanstats)
-     cat("Original meanstats - SAN meanstats:\n")
+     cat("SAN meanstats - Original meanstats:\n")
      print(summary(formula, basis=nw)-meanstats)
     }
   }
