@@ -114,12 +114,12 @@ double MCMCSampleDynObjective(Network *nwp,
     }									
   }									
   double result=0;
-  unsigned int var_good=1;
+  unsigned int var_good=TRUE;
   for(unsigned int k=0; k<n_stats; k++){
     double var;
     var=fmax(F_stats2_acc[k]-F_stats_acc[k]*F_stats_acc[k]/S,0)/S;
 
-    if(var/(F_stats2_acc[k]+F_stats_acc[k]*F_stats_acc[k]/S)<0.0001) var_good=0;
+    if(var/(F_stats2_acc[k]+F_stats_acc[k]*F_stats_acc[k]/S)<0.0001) var_good=FALSE;
     
     if(*use_var<0) var=1;
     
@@ -171,13 +171,21 @@ void MCMCDynSPSA(// Observed and discordant network.
 		       // Verbosity.
 		       int fVerbose){
 
-  double *F_stats_acc=malloc(sizeof(double)*F_m->n_stats),
-    *F_stats2_acc=malloc(sizeof(double)*F_m->n_stats),
-    *F_thetaP=malloc(sizeof(double)*F_m->n_stats),
-    *F_DstatDtheta=malloc(sizeof(double)*F_m->n_stats),
-    *delta=malloc(sizeof(double)*F_m->n_stats),
+
+  unsigned int n_par=F_m->n_stats,
+    n_stats=F_m->n_stats;
+
+  double *F_stats_acc=malloc(sizeof(double)*n_stats),
+    *F_stats2_acc=malloc(sizeof(double)*n_stats),
+    *F_thetaP=malloc(sizeof(double)*n_par),
+    *F_DobjDtheta=malloc(sizeof(double)*n_par),
+    *delta=malloc(sizeof(double)*n_par),
     objPU,objPD,
-    *D_stats=malloc(sizeof(double)*D_m->n_stats);
+    *D_stats=malloc(sizeof(double)*D_m->n_stats),
+    *F_theta_acc=calloc(n_par,sizeof(double)),
+    *F_theta2_acc=calloc(n_par,sizeof(double)),
+    *F_theta_sd=calloc(n_par,sizeof(double)),
+    sdsum,varsum;
 
   int use_var=-20;
 
@@ -189,21 +197,35 @@ void MCMCDynSPSA(// Observed and discordant network.
     double gain=a/pow(A+i+1,alpha);
     double diff=c/pow(i+1,gamma);
     
-    if(fVerbose) Rprintf("\nIteration %d/%d: gain=%f diff=%f\n",i+1,iterations,gain,diff);
-    Rprintf("F_theta=[ ");
-    for(unsigned int k=0; k<F_m->n_stats; k++) Rprintf("%f ",F_theta[k]);
-    Rprintf("]\n");
+    if(fVerbose){
+      Rprintf("\nIteration %d/%d: gain=%f diff=%f\n",i+1,iterations,gain,diff);
+      Rprintf("F_theta=[ ");
+      for(unsigned int k=0; k<n_par; k++) Rprintf("%f ",F_theta[k]);
+      Rprintf("]\n");
+    }
+
+    sdsum=0;
+    for(unsigned int k=0; k<n_par; k++){
+      F_theta_acc[k]+=F_theta[k];
+      F_theta2_acc[k]+=F_theta[k]*F_theta[k];
+      if(i)
+	F_theta_sd[k]=sqrt((F_theta2_acc[k]-F_theta_acc[k]*F_theta_acc[k]/(i+1))/(i+1));
+      else
+	F_theta_sd[k]=1;
+      
+      sdsum+=F_theta_sd[k];
+    }
 
     // Generate delta
     if(fVerbose) Rprintf("Perturbation: [ ");
-    for(unsigned int k=0; k<F_m->n_stats; k++){
-      delta[k]=(rbinom(1,0.5)*2-1)*diff;
+    for(unsigned int k=0; k<n_par; k++){
+      delta[k]=(rbinom(1,0.5)*2-1)*diff*F_theta_sd[k]/sdsum*n_par;
       if(fVerbose) Rprintf("%f ", delta[k]);     
     }
     if(fVerbose) Rprintf("]\n");
     
     // Compute theta perturbed "up"
-    for(unsigned int k=0; k<F_m->n_stats; k++){
+    for(unsigned int k=0; k<n_par; k++){
       F_thetaP[k]=F_theta[k]+delta[k];
     }
     // Evaluate the objective function with theta perturbed "up"
@@ -215,7 +237,7 @@ void MCMCDynSPSA(// Observed and discordant network.
     }
 
     // Compute theta perturbed "down"
-    for(unsigned int k=0; k<F_m->n_stats; k++){
+    for(unsigned int k=0; k<n_par; k++){
       F_thetaP[k]=F_theta[k]-delta[k];
     }
     // Evaluate the objective function with theta perturbed "down"
@@ -227,21 +249,27 @@ void MCMCDynSPSA(// Observed and discordant network.
 
     // Estimate the gradient, and make the step
     if(fVerbose) Rprintf("Estimated gradient: [ ");
-    for(unsigned int k=0; k<F_m->n_stats; k++){
-      F_DstatDtheta[k]=(objPU-objPD)/delta[k]/2;
-      if(fVerbose) Rprintf("%f ", F_DstatDtheta[k]);
-      F_theta[k]=F_theta[k]-gain*F_DstatDtheta[k];
+    for(unsigned int k=0; k<n_par; k++){
+      F_DobjDtheta[k]=(objPU-objPD)/delta[k]/2*F_theta_sd[k]/sdsum*n_par;
+      if(fVerbose) Rprintf("%f ", F_DobjDtheta[k]);
+      F_theta[k]=F_theta[k]-gain*F_DobjDtheta[k]*F_theta_sd[k]/sdsum*n_par;
     }
-    if(fVerbose) Rprintf("]\n");
-    Rprintf("F_theta=[ ");
-    for(unsigned int k=0; k<F_m->n_stats; k++) Rprintf("%f ",F_theta[k]);
-    Rprintf("]\n");
+    if(fVerbose){
+      Rprintf("]\n");
+      Rprintf("F_theta=[ ");
+      for(unsigned int k=0; k<n_par; k++) Rprintf("%f ",F_theta[k]);
+      Rprintf("]\n");
+
+      Rprintf("mean F_theta=[ ");
+      for(unsigned int k=0; k<n_par; k++) Rprintf("%f ",F_theta_acc[k]/(i+1));
+      Rprintf("]\n");
+    }
   }
 
   free(F_stats_acc);
   free(F_stats2_acc);
   free(F_thetaP);
-  free(F_DstatDtheta);
+  free(F_DobjDtheta);
   free(D_stats);
   free(delta);
 }

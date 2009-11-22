@@ -13,6 +13,32 @@ typedef enum {
   DissOnly=5
 } DynamOrder;
 
+void MCMCDyn_init_common(int *heads, int *tails, int n_edges,
+          int maxedges,
+				  int n_nodes, int dflag, int bipartite, Network *nw,
+
+				  int order_code, DynamOrder *order,
+				  int F_nterms, char *F_funnames, char *F_sonames, double *F_inputs, Model **F_m,
+				  int D_nterms, char *D_funnames, char *D_sonames, double *D_inputs, Model **D_m,
+				  
+				  int *attribs, int *maxout, int *maxin, int *minout,
+				  int *minin, int condAllDegExact, int attriblength, DegreeBound **bd,
+
+				  char *F_MHproposaltype, char *F_MHproposalpackage, MHproposal *F_MH,
+				  char *D_MHproposaltype, char *D_MHproposalpackage, MHproposal *D_MH,
+			 int fVerbose);
+
+
+void MCMCDyn_finish_common(Network *nw,
+
+				    Model *F_m,
+				    Model *D_m,
+				  
+				    DegreeBound *bd,
+
+				    MHproposal *F_MH,
+			   MHproposal *D_MH);
+
 void MCMCDyn_wrapper(// Starting network.
 		     int *heads, int *tails, int *n_edges, int *maxpossibleedges,
 		     int *dn, int *dflag, int *bipartite,
