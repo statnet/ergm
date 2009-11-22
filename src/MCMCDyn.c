@@ -1,4 +1,3 @@
-#include "MCMC.h"
 #include "MCMCDyn.h"
 
 /*****************

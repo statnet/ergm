@@ -2,9 +2,10 @@
 #define PILA_H
 
 #include "edgetree.h"
-#include "changestats.h"
+#include "changestat.h"
+#include "MHproposal.h"
 #include "model.h"
-#include "MCMC.h"
+
 void PILA_wrapper(int *heads, int *tails, int *dnedges,
 		  int *dn, int *dflag, int *bipartite, 
                    int *nterms, char **funnames,

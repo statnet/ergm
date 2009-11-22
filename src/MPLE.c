@@ -1,4 +1,5 @@
 #include "MPLE.h"
+#include "changestat.h"
 
 /* *****************
  void MPLE_wrapper
@@ -164,7 +165,7 @@ void MpleInit_no_compress (int *responsevec, double *covmat, int *weightsvector,
   double *covMatPosition;
   Vertex i, j , rowmax;
   ModelTerm *mtp;
-  /* Note:  This function uses macros found in changestats.h */
+  /* Note:  This function uses macros found in changestat.h */
   
   covMatPosition = covmat;
   currentResponse = responsevec;

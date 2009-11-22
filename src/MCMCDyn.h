@@ -1,8 +1,10 @@
 #ifndef MCMCDYN_H
 #define MCMCDYN_H
 
-#include "MCMC.h"
-#include "MHproposals.h"
+#include "edgetree.h"
+#include "MHproposal.h"
+#include "changestat.h"
+#include "model.h"
 
 typedef enum {
   DissThenForm=1,

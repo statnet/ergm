@@ -3,7 +3,7 @@
 
 #include <R.h>
 #include "wtedgetree.h"
-#include "MCMC.h"
+#include "model.h"
 
 /* Function prototypes */
 void DurationMatrix (int *nedge, int *edge, int *ntimestep,

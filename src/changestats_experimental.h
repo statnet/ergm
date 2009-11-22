@@ -1,8 +1,8 @@
 #ifndef CHANGESTATS_EXPERIMENTAL_H
 #define CHANGESTATS_EXPERIMENTAL_H
 
-#include "wtedgetree.h"
-#include "changestats.h"
+#include "edgetree.h"
+#include "changestat.h"
 
 /****************************************************/
 /* changestat function prototypes, 

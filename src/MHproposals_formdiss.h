@@ -1,11 +1,10 @@
 #ifndef MHproposals_formdiss_H
 #define MHproposals_formdiss_H
 
-#include "wtedgetree.h"
-#include "changestats.h"
+#include "edgetree.h"
+#include "changestat.h"
 #include "model.h"
-#include "MCMC.h"
-#include "MHproposals.h"
+#include "MHproposal.h"
 
 void MH_Formation(MHproposal *MHp, DegreeBound *bd, Network *nwp);
 void MH_FormationTNT(MHproposal *MHp, DegreeBound *bd, Network *nwp);

@@ -1,4 +1,5 @@
 #include "PILA.h"
+#include "MCMC.h"
 #include "R_ext/Lapack.h"
 #include "R_ext/BLAS.h"
 

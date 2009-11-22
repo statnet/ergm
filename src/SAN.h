@@ -1,12 +1,10 @@
 #ifndef SAN_H
 #define SAN_H
 
-#include "wtedgetree.h"
-#include "changestats.h"
+#include "edgetree.h"
+#include "changestat.h"
+#include "MHproposal.h"
 #include "model.h"
-
-/*  Notes on MHproposal type: MHproposal declaration was here, and redundant with the one in 
-    MCMC.h. */
 
 void SAN_wrapper (int *heads, int *tails, int *dnedges,
                    int *maxpossibleedges,

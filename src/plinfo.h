@@ -1,8 +1,7 @@
 #ifndef PLINFO_H
 #define PLINFO_H
 
-#include "wtedgetree.h"
-#include "changestats.h"
+#include "edgetree.h"
 #include "model.h"
 #include "MPLE.h"
 

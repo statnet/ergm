@@ -1,8 +1,8 @@
 #ifndef CHANGESTATS_DURATION_H
 #define CHANGESTATS_DURATION_H
 
-#include "wtedgetree.h"
-#include "changestats.h"
+#include "edgetree.h"
+#include "changestat.h"
 
 void d_D_on (int ntoggles, Vertex *heads, Vertex *tail, 
                 ModelTerm *mtp, Network *nwp);

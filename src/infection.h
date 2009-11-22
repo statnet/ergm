@@ -3,7 +3,6 @@
 
 #include <R.h>
 #include "wtedgetree.h"
-#include "MCMC.h"
 
 /* Function prototypes */
 void Prevalence (int *nnodes,
