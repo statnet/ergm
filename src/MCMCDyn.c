@@ -93,11 +93,11 @@ void MCMCDyn_wrapper(// Starting network.
 		     // Formation terms and proposals.
 		     int *F_nterms, char **F_funnames, char **F_sonames, 
 		     char **F_MHproposaltype, char **F_MHproposalpackage,
-		     double *F_inputs, double *theta, 
+		     double *F_inputs, double *F_theta, 
 		     // Dissolution terms and proposals.
 		     int *D_nterms, char **D_funnames, char **D_sonames,
 		     char **D_MHproposaltype, char **D_MHproposalpackage,
-		     double *D_inputs, double *gamma,
+		     double *D_inputs, double *D_theta,
 		     // Degree bounds.
 		     int *attribs, int *maxout, int *maxin, int *minout,
 		     int *minin, int *condAllDegExact, int *attriblength, 
@@ -149,8 +149,8 @@ void MCMCDyn_wrapper(// Starting network.
 		      *fVerbose);
 
   MCMCSampleDyn(nw, order,
-		F_m, &F_MH, theta,
-		D_m, &D_MH, gamma,
+		F_m, &F_MH, F_theta,
+		D_m, &D_MH, D_theta,
 		bd,
 		F_sample, D_sample, nmax, difftime, diffhead, difftail,
 		*nsteps, *dyninterval, *burnin, *interval,
@@ -167,7 +167,7 @@ void MCMCDyn_wrapper(// Starting network.
 /*********************
  void MCMCSampleDyn
 
- Using the parameters contained in the array theta, obtain the
+ Using the parameters contained in the array F_theta, obtain the
  network statistics for a sample of size nsteps.  burnin is the
  initial number of Markov chain steps before sampling anything
  and interval is the number of MC steps between successive 
@@ -180,10 +180,10 @@ void MCMCSampleDyn(// Observed and discordant network.
 		   DynamOrder order,
 		   // Formation terms and proposals.
 		   Model *F_m, MHproposal *F_MH,
-		   double *theta,
+		   double *F_theta,
 		   // Dissolution terms and proposals.
 		   Model *D_m, MHproposal *D_MH,
-		   double *gamma,
+		   double *D_theta,
 		   // Degree bounds.
 		   DegreeBound *bd,
 		   // Space for output.
@@ -208,7 +208,7 @@ void MCMCSampleDyn(// Observed and discordant network.
 
   for(i=0;i<burnin;i++)
     MCMCDyn1Step(nwp, order, 
-		 F_m, F_MH, theta, D_m, D_MH, gamma, bd,
+		 F_m, F_MH, F_theta, D_m, D_MH, D_theta, bd,
 		 log_toggles, F_stats, D_stats,
 		 nmax, &nextdiffedge, difftime, diffhead, difftail,
 		 dyninterval, fVerbose);
@@ -235,7 +235,7 @@ void MCMCSampleDyn(// Observed and discordant network.
     /* This then adds the change statistics to these values */
     for(j=0;j<interval;j++){
       MCMCDyn1Step(nwp, order, 
-		   F_m, F_MH, theta, D_m, D_MH, gamma, bd,
+		   F_m, F_MH, F_theta, D_m, D_MH, D_theta, bd,
 		   log_toggles, F_stats, D_stats,
 		   nmax, &nextdiffedge, difftime, diffhead, difftail,
 		   dyninterval, fVerbose);
@@ -380,9 +380,9 @@ void MCMCDyn1Step(// Observed and discordant network.
 		  // Ordering of formation and dissolution.
 		  DynamOrder order,
 		  // Formation terms and proposals.
-		  Model *F_m, MHproposal *F_MH, double *theta,
+		  Model *F_m, MHproposal *F_MH, double *F_theta,
 		  // Dissolution terms and proposals.
-		  Model *D_m, MHproposal *D_MH, double *gamma,
+		  Model *D_m, MHproposal *D_MH, double *D_theta,
 		  // Degree bounds.
 		  DegreeBound *bd,
 		  // Space for output.
@@ -396,67 +396,317 @@ void MCMCDyn1Step(// Observed and discordant network.
 		  int fVerbose){
   
   Edge ntoggles;
-  Edge startnextdiffedge=*nextdiffedge;
 
+  Edge nde=1;
+  if(nextdiffedge) nde=*nextdiffedge;
+  
   /* Increment the MCMC timer. */
   nwp->duration_info.MCMCtimer++;
 
   switch(order){
   case DissThenForm:
     /* Run the dissolution process and commit it. */
-    MCMCDyn1Step_sample(D_MH, gamma, D_stats, dyninterval, nwp, D_m, bd);
-    ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, nextdiffedge);
-    MCMCDyn1Step_commit(ntoggles, diffhead+*nextdiffedge-ntoggles, difftail+*nextdiffedge-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
+    MCMCDyn1Step_sample(D_MH, D_theta, D_stats, dyninterval, nwp, D_m, bd);
+    ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, &nde);
+    MCMCDyn1Step_commit(ntoggles, diffhead+nde-ntoggles, difftail+nde-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
     
     /* Run the formation process and commit it. */
-    MCMCDyn1Step_sample(F_MH, theta, F_stats, dyninterval, nwp, F_m, bd);
-    ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, nextdiffedge);
-    MCMCDyn1Step_commit(ntoggles, diffhead+*nextdiffedge-ntoggles, difftail+*nextdiffedge-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
+    MCMCDyn1Step_sample(F_MH, F_theta, F_stats, dyninterval, nwp, F_m, bd);
+    ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, &nde);
+    MCMCDyn1Step_commit(ntoggles, diffhead+nde-ntoggles, difftail+nde-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
     
     break;
   case DissAndForm:
     /* Run the dissolution process. */
-    MCMCDyn1Step_sample(D_MH, gamma, D_stats, dyninterval, nwp, D_m, bd);
-    ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, nextdiffedge);
+    MCMCDyn1Step_sample(D_MH, D_theta, D_stats, dyninterval, nwp, D_m, bd);
+    ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, &nde);
     
     /* Run the formation process. */
-    MCMCDyn1Step_sample(F_MH, theta, F_stats, dyninterval, nwp, F_m, bd);
-    ntoggles += MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, nextdiffedge);
+    MCMCDyn1Step_sample(F_MH, F_theta, F_stats, dyninterval, nwp, F_m, bd);
+    ntoggles += MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, &nde);
     
     /* Commit both. */
-    MCMCDyn1Step_commit(ntoggles, diffhead+*nextdiffedge-ntoggles, difftail+*nextdiffedge-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
+    MCMCDyn1Step_commit(ntoggles, diffhead+nde-ntoggles, difftail+nde-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
     break;
   case FormThenDiss:
     /* Run the formation process and commit it. */
-    MCMCDyn1Step_sample(F_MH, theta, F_stats, dyninterval, nwp, F_m, bd);
-    ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, nextdiffedge);
-    MCMCDyn1Step_commit(ntoggles, diffhead+*nextdiffedge-ntoggles, difftail+*nextdiffedge-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
+    MCMCDyn1Step_sample(F_MH, F_theta, F_stats, dyninterval, nwp, F_m, bd);
+    ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, &nde);
+    MCMCDyn1Step_commit(ntoggles, diffhead+nde-ntoggles, difftail+nde-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
 
     /* Run the dissolution process and commit it. */
-    MCMCDyn1Step_sample(D_MH, gamma, D_stats, dyninterval, nwp, D_m, bd);
-    ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, nextdiffedge);
-    MCMCDyn1Step_commit(ntoggles, diffhead+*nextdiffedge-ntoggles, difftail+*nextdiffedge-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
+    MCMCDyn1Step_sample(D_MH, D_theta, D_stats, dyninterval, nwp, D_m, bd);
+    ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, &nde);
+    MCMCDyn1Step_commit(ntoggles, diffhead+nde-ntoggles, difftail+nde-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
     break;
   case FormOnly:
     /* Run the formation process and commit it. */
-    MCMCDyn1Step_sample(F_MH, theta, F_stats, dyninterval, nwp, F_m, bd);
-    ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, nextdiffedge);
-    MCMCDyn1Step_commit(ntoggles, diffhead+*nextdiffedge-ntoggles, difftail+*nextdiffedge-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
+    MCMCDyn1Step_sample(F_MH, F_theta, F_stats, dyninterval, nwp, F_m, bd);
+    ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, &nde);
+    MCMCDyn1Step_commit(ntoggles, diffhead+nde-ntoggles, difftail+nde-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
     break;
   case DissOnly:
     /* Run the dissolution process and commit it. */
-    MCMCDyn1Step_sample(D_MH, gamma, D_stats, dyninterval, nwp, D_m, bd);
-    ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, nextdiffedge);
-    MCMCDyn1Step_commit(ntoggles, diffhead+*nextdiffedge-ntoggles, difftail+*nextdiffedge-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
+    MCMCDyn1Step_sample(D_MH, D_theta, D_stats, dyninterval, nwp, D_m, bd);
+    ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, &nde);
+    MCMCDyn1Step_commit(ntoggles, diffhead+nde-ntoggles, difftail+nde-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
     break;
   default: 
     error("Unsupported dynamic model code %d. Memory has not been deallocated so restart R sometime soon.",order);
   }
 
   // If we don't keep a log of toggles, reset the position to save space.
-  if(!log_toggles)
-    *nextdiffedge=startnextdiffedge;
+  if(log_toggles)
+    *nextdiffedge=nde;
 }
+
+void MCMCDynSPSA_wrapper(// Observed network.
+		    int *heads, int *tails, int *n_edges,
+		    int *maxpossibleedges,
+		    int *n_nodes, int *dflag, int *bipartite, 
+		    // Ordering of formation and dissolution.
+		    int *order_code, 
+		    // Formation terms and proposals.
+		    int *F_nterms, char **F_funnames, char **F_sonames, 
+		    char **F_MHproposaltype, char **F_MHproposalpackage,
+		    double *F_inputs, double *F_theta0, 
+		    double *init_dev,
+		    // SPSA settings.
+		    double *a,
+		    double *alpha,
+		    double *A,
+		    double *c,
+		    double *gamma,
+		    int *iterations,
+		    // Dissolution terms and proposals.
+		    int *D_nterms, char **D_funnames, char **D_sonames, 
+		    char **D_MHproposaltype, char **D_MHproposalpackage,
+		    double *D_inputs, double *D_theta0,
+		    // Degree bounds.
+		    int *attribs, int *maxout, int *maxin, int *minout,
+		    int *minin, int *condAllDegExact, int *attriblength,
+		    // MCMC settings.
+		    int *burnin, int *interval, int *dyninterval,
+		    // Space for output.
+		    int *maxedges,
+		    // Verbosity.
+		    int *fVerbose){
+
+  Network nw[2];
+  DegreeBound *bd;
+  Model *F_m, *D_m;
+  MHproposal F_MH, D_MH;
+  DynamOrder order;
+  
+  
+  Vertex *difftime, *diffhead, *difftail;
+  difftime = (Vertex *) calloc(*maxedges,sizeof(Vertex));
+  diffhead = (Vertex *) calloc(*maxedges,sizeof(Vertex));
+  difftail = (Vertex *) calloc(*maxedges,sizeof(Vertex));
+  
+  MCMCDyn_init_common(heads, tails, *n_edges, *maxpossibleedges,
+		      *n_nodes, *dflag, *bipartite, nw,
+		      *order_code, &order,
+		      *F_nterms, *F_funnames, *F_sonames, F_inputs, &F_m,
+		      *D_nterms, *D_funnames, *D_sonames, D_inputs, &D_m,
+		      attribs, maxout, maxin, minout,
+		      minin, *condAllDegExact, *attriblength, &bd,
+		      *F_MHproposaltype, *F_MHproposalpackage, &F_MH,
+		      *D_MHproposaltype, *D_MHproposalpackage, &D_MH,
+		      *fVerbose);
+
+  MCMCDynSPSA(nw, order,
+	      
+	      F_m, &F_MH, F_theta0, 
+	      init_dev, *a, *alpha, *A, *c, *gamma, *iterations,
+	      
+	      D_m, &D_MH, D_theta0,
+	      
+	      bd,
+	      *maxedges,
+	      difftime, diffhead, difftail,
+	      *burnin, *interval, *dyninterval,
+	      *fVerbose);
+  
+  MCMCDyn_finish_common(nw, F_m, D_m, bd, &F_MH, &D_MH);
+
+}
+
+
+double MCMCSampleDynObjective(Network *nwp,
+			      // Ordering of formation and dissolution.
+			      DynamOrder order,
+			      // Formation terms and proposals.
+			      Model *F_m, MHproposal *F_MH, double *F_theta,
+			      // Dissolution terms and proposals.
+			      Model *D_m, MHproposal *D_MH, double *D_theta,
+			      // Degree bounds.
+			      DegreeBound *bd,
+			      double *F_stats, double *D_stats,
+			      unsigned int nmax,
+			      Vertex *difftime, Vertex *diffhead, Vertex *difftail,
+			      // MCMC settings.
+			      unsigned int dyninterval,
+			      unsigned int burnin,
+			      unsigned int S,
+			      double *F_stats_acc, double* F_stats2_acc, int *use_var,
+			      int fVerbose){
+
+  // These are the same... for now.
+  unsigned int n_stats=F_m->n_stats;
+  unsigned int n_par=F_m->n_stats;
+
+  if(fVerbose){
+    Rprintf("MCMC Run: %d steps after discarding %d\n F_theta=[ ",S,burnin);
+    for(unsigned int k=0; k<n_par; k++) Rprintf("%f ",F_theta[k]);
+    Rprintf("]\n");
+  }
+
+  memset(F_stats_acc,0,sizeof(double)*n_stats);			
+  memset(F_stats2_acc,0,sizeof(double)*n_stats);			
+  for(unsigned int s=0; s<burnin; s++)					
+    MCMCDyn1Step(nwp, order, F_m, F_MH, F_theta, D_m, D_MH, D_theta, bd, 0, F_stats, D_stats, nmax, NULL, difftime, diffhead, difftail, dyninterval, 0); 
+  for(unsigned int s=0; s<S; s++){					
+    MCMCDyn1Step(nwp, order, F_m, F_MH, F_theta, D_m, D_MH, D_theta, bd, 0, F_stats, D_stats, nmax, NULL, difftime, diffhead, difftail, dyninterval, 0); 
+    for(unsigned int k=0; k<n_stats; k++){				
+      F_stats_acc[k]+=F_stats[k];					
+      F_stats2_acc[k]+=F_stats[k]*F_stats[k];				
+    }									
+  }									
+  double result=0;
+  unsigned int var_good=1;
+  for(unsigned int k=0; k<n_stats; k++){
+    double var;
+    var=fmax(F_stats2_acc[k]-F_stats_acc[k]*F_stats_acc[k]/S,0)/S;
+
+    if(var/(F_stats2_acc[k]+F_stats_acc[k]*F_stats_acc[k]/S)<0.0001) var_good=0;
+    
+    if(*use_var<0) var=1;
+    
+    result+=F_stats_acc[k]*F_stats_acc[k]/S/S/var;
+  }
+
+  if(var_good && *use_var<1) (*use_var)++;
+
+  if(fVerbose){
+    Rprintf(" g(Y)=[ ");
+    for(unsigned int k=0; k<n_stats; k++) Rprintf("%f(%f) ",F_stats_acc[k]/S,sqrt((F_stats2_acc[k]-F_stats_acc[k]*F_stats_acc[k]/S)/S));
+    Rprintf("]\n Objective=%f\n",result);
+  }
+
+  return result;
+}
+
+
+/*********************
+ void MCMCDynSPSA
+*********************/
+void MCMCDynSPSA(// Observed and discordant network.
+		       Network *nwp,
+		       // Ordering of formation and dissolution.
+		       DynamOrder order,
+		       // Formation terms and proposals.
+		       Model *F_m, MHproposal *F_MH,
+		       double *F_theta, 
+		       // Formation parameter fitting.
+		       double *dev, // DEViation of the current network's formation statistics from the target statistics.
+		       // SPSA settings.
+		       double a,
+		       double alpha,
+		       double A,
+		       double c,
+		       double gamma,
+		       unsigned int iterations,
+		       // Dissolution terms and proposals.
+		       Model *D_m, MHproposal *D_MH,
+		       double *D_theta, 
+		       // Dissolution parameter fitting --- to add later? -PK
+		       // Degree bounds.
+		       DegreeBound *bd,
+		       // Space for output.
+		       Edge nmax,
+		       Vertex *difftime, Vertex *diffhead, Vertex *difftail,
+		       // MCMC settings.
+		       unsigned int burnin, unsigned int interval, unsigned int dyninterval,
+		       // Verbosity.
+		       int fVerbose){
+
+  double *F_stats_acc=malloc(sizeof(double)*F_m->n_stats),
+    *F_stats2_acc=malloc(sizeof(double)*F_m->n_stats),
+    *F_thetaP=malloc(sizeof(double)*F_m->n_stats),
+    *F_DstatDtheta=malloc(sizeof(double)*F_m->n_stats),
+    *delta=malloc(sizeof(double)*F_m->n_stats),
+    objPU,objPD,
+    *D_stats=malloc(sizeof(double)*D_m->n_stats);
+
+  int use_var=-20;
+
+  // Burn-in
+  MCMCSampleDynObjective(nwp, order, F_m, F_MH, F_theta, D_m, D_MH, D_theta, bd, dev, D_stats, nmax, difftime, diffhead, difftail, dyninterval,burnin,interval,F_stats_acc,F_stats2_acc, &use_var, fVerbose);
+
+  for(unsigned int i=0; i<iterations; i++){
+    R_CheckUserInterrupt();
+    double gain=a/pow(A+i+1,alpha);
+    double diff=c/pow(i+1,gamma);
+    
+    if(fVerbose) Rprintf("\nIteration %d/%d: gain=%f diff=%f\n",i+1,iterations,gain,diff);
+    Rprintf("F_theta=[ ");
+    for(unsigned int k=0; k<F_m->n_stats; k++) Rprintf("%f ",F_theta[k]);
+    Rprintf("]\n");
+
+    // Generate delta
+    if(fVerbose) Rprintf("Perturbation: [ ");
+    for(unsigned int k=0; k<F_m->n_stats; k++){
+      delta[k]=(rbinom(1,0.5)*2-1)*diff;
+      if(fVerbose) Rprintf("%f ", delta[k]);     
+    }
+    if(fVerbose) Rprintf("]\n");
+    
+    // Compute theta perturbed "up"
+    for(unsigned int k=0; k<F_m->n_stats; k++){
+      F_thetaP[k]=F_theta[k]+delta[k];
+    }
+    // Evaluate the objective function with theta perturbed "up"
+    objPU=MCMCSampleDynObjective(nwp, order, F_m, F_MH, F_thetaP, D_m, D_MH, D_theta, bd, dev, D_stats, nmax, difftime, diffhead, difftail, dyninterval,interval,interval,F_stats_acc,F_stats2_acc, &use_var, fVerbose);
+
+    if(use_var==0){
+      if(fVerbose) Rprintf("Switching to variance-normalized objective function!\n");
+      continue;
+    }
+
+    // Compute theta perturbed "down"
+    for(unsigned int k=0; k<F_m->n_stats; k++){
+      F_thetaP[k]=F_theta[k]-delta[k];
+    }
+    // Evaluate the objective function with theta perturbed "down"
+    objPD=MCMCSampleDynObjective(nwp, order, F_m, F_MH, F_thetaP, D_m, D_MH, D_theta, bd, dev, D_stats, nmax, difftime, diffhead, difftail, dyninterval,interval,interval,F_stats_acc,F_stats2_acc, &use_var, fVerbose);
+
+    if(use_var==0){
+      if(fVerbose) Rprintf("Switching to variance-normalized objective function!\n");
+    }
+
+    // Estimate the gradient, and make the step
+    if(fVerbose) Rprintf("Estimated gradient: [ ");
+    for(unsigned int k=0; k<F_m->n_stats; k++){
+      F_DstatDtheta[k]=(objPU-objPD)/delta[k]/2;
+      if(fVerbose) Rprintf("%f ", F_DstatDtheta[k]);
+      F_theta[k]=F_theta[k]-gain*F_DstatDtheta[k];
+    }
+    if(fVerbose) Rprintf("]\n");
+    Rprintf("F_theta=[ ");
+    for(unsigned int k=0; k<F_m->n_stats; k++) Rprintf("%f ",F_theta[k]);
+    Rprintf("]\n");
+  }
+
+  free(F_stats_acc);
+  free(F_stats2_acc);
+  free(F_thetaP);
+  free(F_DstatDtheta);
+  free(D_stats);
+  free(delta);
+}
+
+
 
 void MCMCDynPhase12(// Observed network.
 		    int *heads, int *tails, int *n_edges,
@@ -501,7 +751,7 @@ void MCMCDynPhase12(// Observed network.
 		      *n_nodes, *dflag, *bipartite, nw,
 		      *order_code, &order,
 		      *F_nterms, *F_funnames, *F_sonames, F_inputs, &F_m,
-		      *D_nterms, *D_funnames, *D_sonames, D_inputs, &D_m,
+		      *D_nterms, *D_funnames, *D_sonames, F_inputs, &D_m,
 		      attribs, maxout, maxin, minout,
 		      minin, *condAllDegExact, *attriblength, &bd,
 		      *F_MHproposaltype, *F_MHproposalpackage, &F_MH,
@@ -555,91 +805,95 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
 			  // Verbosity.
 			  int fVerbose){
   int i, j;
-  unsigned int phase1n=phase1n_base+3*F_m->n_stats, *changed;
+  Edge nextdiffedge=1;
+  unsigned int phase1n=phase1n_base+3*F_m->n_stats;
+  double *meandev=(double*)calloc(F_m->n_stats,sizeof(double));
   
-  double *ubar, *aDdiaginv, *D_stats, *prevdev, n, ubar0, ubar0_next;
+  double *ubar, *u2bar, *aDdiaginv, *D_stats;
+  ubar = (double *)malloc( F_m->n_stats * sizeof(double));
+  u2bar = (double *)malloc( F_m->n_stats * sizeof(double));
+  aDdiaginv = (double *)malloc( F_m->n_stats * sizeof(double));
+  D_stats = (double *)calloc( D_m->n_stats, sizeof(double));
 
-  unsigned int nomix;
-  unsigned int nomixed=0;
+
+  /*********************
+   Burn in step. 
+   *********************/
   
+  if(fVerbose) Rprintf("Starting burnin of %d steps\n", burnin);
+  for(i=0;i<burnin;i++)
+    MCMCDyn1Step(nwp, order,
+		 F_m, F_MH, theta,
+		 D_m, D_MH, gamma,
+		 bd,
+		 0,
+		 dev, D_stats,
+		 nmax, &nextdiffedge,
+		 difftime, diffhead, difftail,
+		 dyninterval,
+		 fVerbose);
+
+  unsigned int redo, redos=3;
   do{
-    nomixed++;
-    if(nomixed>10) error("Robbins-Monro failing to converge.");
-    ubar = (double *)malloc( F_m->n_stats * sizeof(double));
-    prevdev = (double *)malloc( F_m->n_stats * sizeof(double));
-    changed = (unsigned int *)malloc( F_m->n_stats * sizeof(double));
-    aDdiaginv = (double *)malloc( F_m->n_stats * sizeof(double));
-    D_stats = (double *)calloc( D_m->n_stats, sizeof(double));
-    
-    Edge nextdiffedge=1;
 
-    ubar0_next=0;
+    redo=FALSE;
 
-    for (j=0; j < F_m->n_stats; j++){
-      ubar[j] = 0.0;
-      prevdev[j]=dev[j];
-      changed[j]=0;
-      Rprintf("j %d %f\n",j,theta[j]);
-      n=0;
-      theta[j]-=0.5;
+  /********************
+   Phase 1
+   ********************/
+  
+  Rprintf("Phase 1: %d steps (interval = %d)\n", phase1n,interval);
+  
+  for (j=0; j < F_m->n_stats; j++){
+    ubar[j] = 0.0;
+    u2bar[j] = 0.0;
+    Rprintf("j %d %f\n",j,theta[j]);
+  }
+
+  for (i=0; i < phase1n*interval; i++){
+    MCMCDyn1Step(nwp, order,
+		 F_m, F_MH, theta,
+		 D_m, D_MH, gamma,
+		 bd,
+		 0,
+		 dev, D_stats,
+		 nmax, &nextdiffedge,
+		 difftime, diffhead, difftail,
+		 dyninterval,
+		 fVerbose);
+    for (j=0; j<F_m->n_stats; j++){
+      ubar[j]  += dev[j];
+      u2bar[j] += dev[j]*dev[j];
     }
-    
-    /*********************
-    Burn in step. 
-    *********************/
-    
-    if(fVerbose) Rprintf("Starting burnin of %d steps\n", burnin);
-    for(i=0;i<burnin;i++){
-      MCMCDyn1Step(nwp, order,
-		   F_m, F_MH, theta,
-		   D_m, D_MH, gamma,
-		   bd,
-		   0,
-		   dev, D_stats,
-		   nmax, &nextdiffedge,
-		   difftime, diffhead, difftail,
-		   dyninterval,
-		   fVerbose);
-
-      // Find the average value for the first statistic.
-      ubar0_next *= 1-1.0/burnin;
-      n*=1-1.0/burnin;
-      ubar0_next += dev[0];
-      n++;
-      
-      for(j=0; j<F_m->n_stats; j++){
-	if(i>burnin/2 && dev[j]!=prevdev[j]) changed[j]++;
-	prevdev[j]=dev[j];
-      }
+  }
+  
+  if (fVerbose){
+    Rprintf("Returned from Phase 1\n");
+    Rprintf("gain times inverse variances:\n");
+  }
+  
+  for (j=0; j<F_m->n_stats; j++){
+    aDdiaginv[j] = (u2bar[j]-ubar[j]*ubar[j]/(1.0*phase1n*interval))/(phase1n*interval);
+    if( aDdiaginv[j] > 0.0){
+      aDdiaginv[j] = gain/sqrt(aDdiaginv[j]);
+    }else{
+      aDdiaginv[j]=0.00001;
+      redos--;
+      if(redos>0) redo=TRUE;
     }
+    if(fVerbose) Rprintf(" %f", aDdiaginv[j]);
+  }
+  if(fVerbose) Rprintf("\n");
+  
+  /********************
+   Phase 2
+   ********************/
+  unsigned int phase2n=F_m->n_stats+7+phase2n_base;
+  for(unsigned int subphase=0; subphase<phase2sub; subphase++){
 
-    ubar0_next /= n;
-    nomix=0;
-    for(j=0; j<F_m->n_stats; j++){
-            if(changed[j]<0.05*burnin/2 && dev[j]!=0){ /* It's OK if statistic is spot on. */
-	if(fVerbose)Rprintf("Bad mixing: %d\n", j);
-	nomix=1;
-      }
-    }
-    
-    /********************
-      Phase 1: estimate dgy/dtheta
-    ********************/
-    Rprintf("Phase 1: %d steps (interval = %d)\n", phase1n,interval);
-    
-    for(j=0; j<F_m->n_stats; j++){
-      ubar0=ubar0_next;
-      ubar0_next=0;
-
-      /*If it's a badly mixing statistic, don't bother with its derivatie this round.*/
-      if(changed[j]<0.05*burnin/2 && dev[j]!=0){
-	ubar[j]=0;
-	continue;
-      }
-
-      theta[j]++;
-      n=0;
-      for(i=0; i < phase1n*interval; i++){
+    for (i=0; i < phase2n; i++){
+      for(j=0; j<F_m->n_stats; j++) meandev[j]=0;
+      for(j=0;j < interval;j++){
 	MCMCDyn1Step(nwp, order,
 		     F_m, F_MH, theta,
 		     D_m, D_MH, gamma,
@@ -650,99 +904,29 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
 		     difftime, diffhead, difftail,
 		     dyninterval,
 		     fVerbose);
-	ubar[j]*=1-1.0/(phase1n*interval);
-	n*=1-1.0/(phase1n*interval);
-	ubar[j] += dev[j]-ubar0;
-	n++;
-	
-	if(j+1<F_m->n_stats){
-	  ubar0_next*=1-1.0/(phase1n*interval);
-	  ubar0_next+=dev[j+1];
-	}
+	for(unsigned int k=0;k<F_m->n_stats; k++)
+	  meandev[k]+=dev[k];
       }
       
-      ubar[j]/=n;
-      ubar0_next/=n;
-    }
-    
-    if (fVerbose){
-      Rprintf("Returned from Phase 1\n");
-      Rprintf("j, approx dgy/dtheta, gain*dtheta/dgy:\n");
-    }
-    
-    for (j=0; j<F_m->n_stats; j++){
-      aDdiaginv[j]=ubar[j];
-      if( aDdiaginv[j] > 0.0){
-	if(fVerbose) Rprintf("%d, %f, %f\n", j, aDdiaginv[j], gain/aDdiaginv[j]);
-	aDdiaginv[j] = gain/aDdiaginv[j];
-      }else{
-	if(fVerbose) Rprintf("%d, %f, %f\n", j, aDdiaginv[j], 0.00000);
-	aDdiaginv[j]=0.0001;
-      }
-    }
-    
-    /********************
-      Phase 2
-    ********************/
-    unsigned int phase2n=F_m->n_stats+7+phase2n_base;
-    double *meandev=(double*)calloc(F_m->n_stats,sizeof(double));
-    double *meandevlong=(double*)calloc(F_m->n_stats,sizeof(double));
-    double n2;
-    
-    for(unsigned int subphase=0; subphase<(nomix?(int)ceil(phase2sub/2):phase2sub); subphase++){
-      
-      for(j=0; j<F_m->n_stats; j++) meandevlong[j]=dev[j];
-      n2=1;
-      for (i=0; i < phase2n; i++){
-	for(j=0; j<F_m->n_stats; j++) meandev[j]=dev[j];
-	n=1;
-	for(j=0;j < interval;j++){
-	  MCMCDyn1Step(nwp, order,
-		       F_m, F_MH, theta,
-		       D_m, D_MH, gamma,
-		       bd,
-		       0,
-		       dev, D_stats,
-		       nmax, &nextdiffedge,
-		       difftime, diffhead, difftail,
-		       dyninterval,
-		       fVerbose);
-	  for(unsigned int k=0;k<F_m->n_stats; k++){
-	    meandev[k]*=1-1.0/interval;
-	    n*=1-1.0/interval;
-	    meandev[k]+=dev[k];
-	    n++;
-	  }
-	}
-	
-	/* Update theta0 */
-	for (j=0; j<F_m->n_stats; j++){
-	  theta[j] -= aDdiaginv[j] * (meandev[j]/n);
-	  
-	  meandevlong[j]*=1-1.0/phase2n;
-	  n2*=1-1.0/phase2n;
-	  meandevlong[j]+=meandev[j]/n;
-	  n2++;
-	}
-      }
-      
+      /* Update theta0 */
       for (j=0; j<F_m->n_stats; j++){
-	aDdiaginv[j] /= 2.0;
-	if (fVerbose)Rprintf("subphase j %d theta %f ns %f\n",
-			     j, theta[j], meandevlong[j]/n2);
+	meandev[j]/=interval;
+        theta[j] -= aDdiaginv[j] * meandev[j];
       }
-      Rprintf("\n");
-      
-      phase2n=trunc(2.52*(phase2n-phase2n_base)+phase2n_base);
     }
+    phase2n=trunc(2.52*(phase2n-phase2n_base)+phase2n_base);
+    for (j=0; j<F_m->n_stats; j++){
+      aDdiaginv[j] /= 2.0;
+      if (fVerbose)Rprintf("j %d theta %f ns %f\n",
+			   j, theta[j], meandev[j]);
+    }
+    Rprintf("\n");
     
-    
-    free(ubar);
-    free(prevdev);
-    free(changed);
-    free(aDdiaginv);
-    free(D_stats );
-  }while(nomix);
-	 
+  }
 
+  }while(redo);
+  
+  free(meandev);
+  free(ubar);
+  free(u2bar);
 }

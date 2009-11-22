@@ -146,7 +146,12 @@ ergm <- function(formula, theta0="MPLE",
     dissolve<-ergm.update.formula(dissolve,nw~.)
     model.dissolve <- ergm.getmodel(dissolve, nw, dissolve.order=dissolve.order)
     MHproposal.diss <- MHproposal(constraints, weights=control$prop.weights.diss, control$prop.args.diss, nw, model.dissolve,class="d")
-    v <- switch(control$style,
+    v <- switch(control$style.dyn,
+                "SPSA" = ergm.SPSA.dyn(theta0, nw, model, model.dissolve,
+                  Clist, gamma, 
+                  MCMCparams=MCMCparams, MHproposal.form=MHproposal,
+                  MHproposal.diss=MHproposal.diss,
+                  verbose),
                 "Robbins-Monro" = ergm.robmon.dyn(theta0, nw, model, model.dissolve,
                   Clist, gamma, 
                   MCMCparams=MCMCparams, MHproposal.form=MHproposal,

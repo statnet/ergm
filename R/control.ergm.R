@@ -23,6 +23,7 @@ control.ergm<-function(prop.weights="default",prop.args=NULL,
                        initial.loglik=NULL,
                        initial.network=NULL,
                        style=c("Newton-Raphson","Robbins-Monro","Stochastic-Approximation","PILA"),
+                       style.dyn=c("Robbins-Monro","SPSA"),
                        phase1_n=NULL, initial_gain=NULL, 
                        nsubphases="maxit", niterations=NULL, phase3_n=NULL,
                        RobMon.phase1n_base=7,
@@ -32,6 +33,12 @@ control.ergm<-function(prop.weights="default",prop.args=NULL,
                        RobMon.phase3n=500,
                        PILA.gamma=.99,
                        PILA.steplength=.1,
+                       SPSA.a=1,
+                       SPSA.alpha=0.602,
+                       SPSA.A=30,
+                       SPSA.c=1,
+                       SPSA.gamma=0.101,
+                       SPSA.iterations=1000,
                        dyninterval=1000,
                        packagenames="ergm",
                        parallel=0,
@@ -44,6 +51,7 @@ control.ergm<-function(prop.weights="default",prop.args=NULL,
   control$metric<-match.arg(metric)
   control$method<-match.arg(method)
   control$style<-match.arg(style)
+  control$style.dyn<-match.arg(style.dyn)
   control$nsubphases<-match.arg(nsubphases)
   if(missing(trustregion) & control$style=="Stochastic-Approximation"){
    control$trustregion <- 0.5
