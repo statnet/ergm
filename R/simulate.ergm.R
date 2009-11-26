@@ -102,7 +102,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
       #   Next update the network to be the final (possibly conditionally)
       #   simulated one
       #
-      nw.list[[i]] <- newnw.extract(nw,z)
+      nw.list[[i]] <- newnw.extract(nw,z,output=control$network.output)
       
       curstats <- z$s
       names(curstats) <- m$coef.names
@@ -131,7 +131,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
     #   simulated one
     #
     if (!statsonly) {
-      nw.list[[1]] <- newnw.extract(nw,z)
+      nw.list[[1]] <- newnw.extract(nw,z,output=control$network.output)
     }
     curstats <- z$s
     names(curstats) <- m$coef.names
@@ -139,7 +139,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
     if (!statsonly)
       nw <-  nw.list[[1]]
     else 
-      nw <- newnw.extract(nw, z)
+      nw <- newnw.extract(nw, z,output=control$network.output)
     MCMCparams$stats<-curstats
     #
     if(nsim > 1){
@@ -187,7 +187,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
         for(i in ((j-1)*MCMCparams$parallel+2):min(nsim,j*MCMCparams$parallel+1)){
           k <- i-((j-1)*MCMCparams$parallel+1)
           if (!statsonly) {
-            nw.list[[i]] <- newnw.extract(nw, outlist[[k]])
+            nw.list[[i]] <- newnw.extract(nw, outlist[[k]],output=control$network.output)
           }
           curstats <- outlist[[k]]$s[(1):(Clist$nstats)]
           names(curstats) <- m$coef.names
@@ -321,7 +321,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
     #   Next update the network to be the final (possibly conditionally)
     #   simulated one
 
-      nw.list[[i]] <- newnw.extract(nw, z)
+      nw.list[[i]] <- newnw.extract(nw, z, output=control$network.output)
       
     curstats <- z$s[(1):(Clist$nstats)]
     names(curstats) <- m$coef.names
@@ -359,7 +359,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
     #   simulated one
 
     if (!statsonly) {
-      nw.list[[1]] <- newnw.extract(nw, z)
+      nw.list[[1]] <- newnw.extract(nw, z,output=control$network.output)
     }
     curstats <- z$s[(1):(Clist$nstats)]
     names(curstats) <- m$coef.names
@@ -367,7 +367,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
     if (!statsonly) 
       nw <-  nw.list[[1]]
     else 
-      nw <- newnw.extract(nw, z)
+      nw <- newnw.extract(nw, z,output=control$network.output)
 
     MCMCparams$burnin <- interval
 #
@@ -415,7 +415,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
       for(i in ((j-1)*MCMCparams$parallel+2):min(nsim,j*MCMCparams$parallel+1)){
        k <- i-((j-1)*MCMCparams$parallel+1)
        if (!statsonly) {
-        nw.list[[i]] <- newnw.extract(nw, outlist[[k]])
+        nw.list[[i]] <- newnw.extract(nw, outlist[[k]],output=control$network.output)
        }
        curstats <- outlist[[k]]$s[(1):(Clist$nstats)]
        names(curstats) <- m$coef.names
