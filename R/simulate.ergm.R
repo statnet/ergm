@@ -107,7 +107,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
       curstats <- z$s
       names(curstats) <- m$coef.names
       out.mat <- rbind(out.mat,curstats)
-      nw <-  nw.list[[i]]
+      nw <- as.network.uncompressed(nw.list[[i]])
       MCMCparams$stats<-curstats
     }
   }else{
@@ -137,13 +137,13 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
     names(curstats) <- m$coef.names
     out.mat <- rbind(out.mat,curstats)
     if (!statsonly)
-      nw <-  nw.list[[1]]
+      nw <- nw.list[[1]]
     else 
       nw <- newnw.extract(nw, z,output=control$network.output)
     MCMCparams$stats<-curstats
     #
     if(nsim > 1){
-      Clist <- ergm.Cprepare(nw, m)
+      Clist <- ergm.Cprepare(as.netwrok.uncompressed(nw), m)
       maxedges <- max(2000, Clist$nedges)
       MCMCparams.parallel <- MCMCparams
       require(snow)
@@ -326,8 +326,8 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
     curstats <- z$s[(1):(Clist$nstats)]
     names(curstats) <- m$coef.names
     out.mat <- rbind(out.mat,curstats)
-      nw <-  nw.list[[i]]
-       MCMCparams$stats<-curstats
+    nw <- nw.list[[i]]
+    MCMCparams$stats<-curstats
     }
   }else{
 #
@@ -365,14 +365,14 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
     names(curstats) <- m$coef.names
     out.mat <- rbind(out.mat,curstats)
     if (!statsonly) 
-      nw <-  nw.list[[1]]
+      nw <- nw.list[[1]]
     else 
       nw <- newnw.extract(nw, z,output=control$network.output)
 
     MCMCparams$burnin <- interval
 #
     if(nsim > 1){
-     Clist <- ergm.Cprepare(nw, m)
+     Clist <- ergm.Cprepare(as.network.uncompressed(nw), m)
      maxedges <- max(2000, Clist$nedges)
      MCMCparams.parallel <- MCMCparams
      require(snow)
