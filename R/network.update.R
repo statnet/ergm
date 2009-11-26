@@ -61,7 +61,7 @@ as.edgelist.compressed<-function(x, attrname=NULL, force.bipartite=FALSE){
     else if(force.bipartite)
       out<-as.edgelist.compressed(out,attrname=attrname,force.bipartite=force.bipartite)
   }else{
-    stop("as.edgelist.compressed input must be network, or list thereof.\n")
+    warning("as.edgelist.compressed input must be network, or list thereof.\n Returning the original object.\n")
   }
   #Return the result
   out
@@ -69,6 +69,11 @@ as.edgelist.compressed<-function(x, attrname=NULL, force.bipartite=FALSE){
 as.network.uncompressed<-function(x, 
         na.rm=FALSE, edge.check=FALSE){
   #Initialize the network object
+  if(class(x)=="network"){return(x)}
+  if(is.null(attr(x,"vnames"))){
+   warning("as.network.uncompressed input must be a compressed network, or a network.\n Returning the original object.\n")
+   return(x)
+  }
   n<-attr(x,"n")
   directed<-attr(x,"directed")
   g<-network.initialize(n,directed=directed)
