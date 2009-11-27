@@ -14,12 +14,12 @@ ergm <- function(formula, theta0="MPLE",
 
   nw <- ergm.getnetwork(formula)
   if(!is.null(meanstats)){
+   control$drop <- FALSE
+   if(!(!is.null(control$SAN.burnin) && is.na(control$SAN.burnin))){
     netsumm<-summary(formula)
     if(length(netsumm)!=length(meanstats))
       stop("Incorrect length of the meanstats vector: should be ", length(netsumm), " but is ",length(meanstats),".")
     
-    control$drop <- FALSE
-
     if(verbose) cat("Constructing an approximate response network.\n")
     ## If meanstats are given, overwrite the given network and formula
     ## with SAN-ed network and formula.
@@ -38,6 +38,7 @@ ergm <- function(formula, theta0="MPLE",
      cat("SAN meanstats - Original meanstats:\n")
      print(summary(formula, basis=nw)-meanstats)
     }
+   }
   }
   if(control$nsubphases=="maxit") control$nsubphases<-maxit
   

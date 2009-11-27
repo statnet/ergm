@@ -9,9 +9,9 @@ ergm.initialfit<-function(theta0, MLestimate, Clist, Clist.miss, m,
 # we also check to see whether the theta0 value is a valid vector of
 # initial parameters.
   fitmethod <- match("MPLE", theta0)
-  if(is.na(fitmethod) && any(m$offset)) { # theta0 has an offset
-   force.MPLE <- TRUE
-  }
+# if(is.na(fitmethod) && any(m$offset)) { # theta0 has an offset
+#  force.MPLE <- TRUE
+# }
   if (is.na(fitmethod) && (MLestimate|any(m$offset))) { # theta0 should be a start vector
     
     theta0 <- as.vector(theta0)

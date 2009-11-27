@@ -54,30 +54,43 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
 #
 # Log-Likelihood and gradient functions
 #
-  if(metric=="Likelihood"){
-   if(is.null(statsmatrix.miss)){
-#   Default method
-#   check degeneracy removed from here?
-    penalty <- 0.5
-   }else{
-    llik.fun <- llik.fun.miss.robust
-    llik.grad <- llik.fun.miss
-    llik.hessian <- llik.hessian.miss
-    penalty <- 0.5
-   }
+  penalty <- 0.5
+  if(is.null(statsmatrix.miss)){
+   llik.fun <- switch(metric,
+                      Likelihood=llik.fun.mean,
+                      Median.Likelihood=llik.fun.median,
+                      EF.Likelihood=llik.fun.EF,
+		      llik.fun2)
+   llik.grad <- switch(metric,
+                      Likelihood=llik.grad,
+                      Median.Likelihood=llik.grad,
+                      EF.Likelihood=llik.grad,
+		      llik.grad2)
+   llik.hessian <- switch(metric,
+                      Likelihood=llik.hessian,
+                      Median.Likelihood=llik.hessian,
+                      EF.Likelihood=llik.hessian,
+		      llik.hessian2)
   }else{
-#
-#   Simple convergence without log-normal modification to
-#   log-likelihood computation
-#
-    llik.fun <- llik.fun2
-    llik.grad <- llik.fun2
-    llik.hessian <- llik.hessian2
-    penalty <- 0.5
+   llik.fun <- switch(metric,
+                      Likelihood=llik.fun.miss.robust,
+                      Median.Likelihood=llik.fun.miss.robust,
+                      EF.Likelihood=llik.fun.miss.robust,
+		      llik.fun.miss.robust)
+   llik.grad <- switch(metric,
+                      Likelihood=llik.fun.miss,
+                      Median.Likelihood=llik.fun.miss,
+                      EF.Likelihood=llik.fun.miss,
+		      llik.fun.miss)
+   llik.hessian <- switch(metric,
+                      Likelihood=llik.hessian.miss,
+                      Median.Likelihood=llik.hessian.miss,
+                      EF.Likelihood=llik.hessian.miss,
+		      llik.hessian.miss)
   }
   if (verbose) cat("Optimizing loglikelihood\n")
   Lout <- try(optim(par=guess, 
-                    fn=llik.fun, #  gr=llik.grad,
+                    fn=llik.fun, gr=llik.grad,
                     hessian=hessian,
                     method=method,
                     control=list(trace=trace,fnscale=-1,maxit=nr.maxit,reltol=nr.reltol),

@@ -154,7 +154,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
                     nr.reltol=MCMCparams$nr.reltol,
                     calc.mcmc.se=MCMCparams$calc.mcmc.se, hessian=MCMCparams$hessian,
                     trustregion=MCMCparams$trustregion, method=MCMCparams$method,
-                    metric="Likelihood",
+                    metric=MCMCparams$metric,
                     compress=MCMCparams$compress, verbose=verbose,
                     estimateonly=TRUE)
   }
@@ -172,7 +172,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
                    nr.reltol=MCMCparams$nr.reltol,
                    calc.mcmc.se=MCMCparams$calc.mcmc.se, hessian=MCMCparams$hessian,
                    trustregion=MCMCparams$trustregion, method=MCMCparams$method,
-                   metric="Likelihood",
+                   metric=MCMCparams$metric,
                    compress=MCMCparams$compress, verbose=verbose)
 #
 #    Reform the output

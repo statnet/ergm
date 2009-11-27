@@ -1,4 +1,4 @@
-llik.fun <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
+llik.fun.mean <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
                      penalty=0.5, trustregion=20, eta0, etamap){
   theta.offset <- etamap$theta0
   theta.offset[!etamap$offsettheta] <- theta
@@ -15,8 +15,6 @@ llik.fun <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
 # alternative based on log-normal approximation
   mb <- sum(basepred*probs)
   vb <- sum(basepred*basepred*probs) - mb*mb
-  mb <- wtd.median(basepred, weight=probs)
-  vb <- 1.4826*wtd.median(abs(basepred-mb), weight=probs)
 # 
 # This is the log-likelihood ratio (and not its negative)
 #
@@ -39,6 +37,9 @@ llik.grad <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=NULL
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
   x <- eta-eta0
+  basepred <- xsim %*% x
+# if(any(etamap$offsettheta)){browser()}
+# xsim[,etamap$offsettheta] <- 0
   xsim[,etamap$offsetmap] <- 0
   basepred <- xsim %*% x
   prob <- max(basepred)
@@ -50,14 +51,16 @@ llik.grad <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=NULL
 #
 # Penalize changes to trustregion
 #
-  llr <- llr - 2*(llr-trustregion)*(llr>trustregion)
+# llr <- llr - 2*(llr-trustregion)*(llr>trustregion)
 # 
 # The next lines are for the Hessian which optim does not use
 #
 # vtmp <- sweep(sweep(xsim, 2, E, "-"), 1, sqrt(prob), "*")
 # V <- t(vtmp) %*% vtmp
 # list(gradient=xobs-E,hessian=V)
-  ergm.etagradmult(theta.offset, llr, etamap)
+# print(ergm.etagradmult(theta.offset, llr, etamap))
+  llr <- ergm.etagradmult(theta.offset, llr, etamap)
+  llr[!etamap$offsetmap]
 }
 
 llik.hessian <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
@@ -100,6 +103,31 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NU
 #   if(is.infinite(llr) | is.na(llr)){llr <- -800}
 #   llr
 # }
+llik.fun.EF <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
+                     penalty=0.5, trustregion=20, eta0, etamap){
+  theta.offset <- etamap$theta0
+  theta.offset[!etamap$offsettheta] <- theta
+  eta <- ergm.eta(theta.offset, etamap)
+  x <- eta-eta0
+# The next line is right!
+# aaa <- sum(xobs * x) - log(sum(probs*exp(xsim %*% x)))
+# These lines standardize:
+  basepred <- xsim %*% x
+#
+  maxbase <- max(basepred)
+  llr <- sum(xobs * x) - maxbase - log(sum(probs*exp(basepred-maxbase)))
+  if(is.infinite(llr) | is.na(llr)){llr <- -800}
+#
+# Penalize changes to trustregion
+#
+  llr <- llr - 2*(llr-trustregion)*(llr>trustregion)
+#
+# cat(paste("max, log-lik",maxbase,llr,"\n"))
+# aaa <- sum(xobs * x) - log(sum(probs*exp(xsim %*% x)))
+# cat(paste("log-lik",llr,aaa,"\n"))
+# aaa
+  llr
+}
 
 #
 # Simple convergence
@@ -181,4 +209,36 @@ llik.mcmcvar3 <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=
 # \sum_i p_i^2 \left( \frac{\sum_i p_i U_i^2}{[\sum_i p_i U_i]^2} - 1 \right)
 }
 
-
+llik.fun.median <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
+                     penalty=0.5, trustregion=20, eta0, etamap){
+  theta.offset <- etamap$theta0
+  theta.offset[!etamap$offsettheta] <- theta
+  eta <- ergm.eta(theta.offset, etamap)
+  x <- eta-eta0
+# The next line is right!
+# aaa <- sum(xobs * x) - log(sum(probs*exp(xsim %*% x)))
+# These lines standardize:
+  basepred <- xsim %*% x
+#
+# maxbase <- max(basepred)
+# llr <- sum(xobs * x) - maxbase - log(sum(probs*exp(basepred-maxbase)))
+#
+# alternative based on log-normal approximation
+  mb <- wtd.median(basepred, weight=probs)
+  vb <- 1.4826*wtd.median(abs(basepred-mb), weight=probs)
+# 
+# This is the log-likelihood ratio (and not its negative)
+#
+  llr <- sum(xobs * x) - (mb + penalty*vb*vb)
+  if(is.infinite(llr) | is.na(llr)){llr <- -800}
+#
+# Penalize changes to trustregion
+#
+  llr <- llr - 2*(llr-trustregion)*(llr>trustregion)
+#
+# cat(paste("max, log-lik",maxbase,llr,"\n"))
+# aaa <- sum(xobs * x) - log(sum(probs*exp(xsim %*% x)))
+# cat(paste("log-lik",llr,aaa,"\n"))
+# aaa
+  llr
+}

@@ -87,8 +87,9 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, MCMCparams,
    }
     nedges <- z$newnwheads[1]
     newnetwork<-newnw.extract(nw,z)
-    cat("parallel samplesize=",nrow(statsmatrix),"by",
-        MCMCparams.parallel$samplesize,"\n")
+    if(verbose){cat("parallel samplesize=",nrow(statsmatrix),"by",
+	MCMCparams.parallel$samplesize,"\n")}
+
     stopCluster(cl)
   }
   }

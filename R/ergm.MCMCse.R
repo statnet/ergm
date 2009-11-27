@@ -47,10 +47,14 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
    vtmp <- sweep(sweep(xsim, 2, E, "-"), 1, sqrt(prob), "*")
    V <- t(vtmp) %*% vtmp
    gradient <- (xobs-E) %*% t(etagrad)
-   V <- etagrad %*% V %*% t(etagrad)
-   cov.zbar <- etagrad %*% cov.zbar %*% t(etagrad)  
-   V <- V[!model$etamap$offsettheta,,drop=FALSE]
-   V <- V[,!model$etamap$offsettheta,drop=FALSE]
+   V <- as.matrix(etagrad %*% V %*% t(etagrad))
+   cov.zbar <- as.matrix(etagrad %*% cov.zbar %*% t(etagrad))
+   if(any(!model$etamap$offsettheta)){
+    V <- as.matrix(V[!model$etamap$offsettheta,])
+    V <- as.matrix(V[,!model$etamap$offsettheta])
+   }else{
+    V <- matrix(ncol=0,nrow=0)
+   }
    cov.zbar <- cov.zbar[!model$etamap$offsettheta,,drop=FALSE]
    cov.zbar <- cov.zbar[,!model$etamap$offsettheta,drop=FALSE]
    novar <- diag(V)==0
@@ -80,8 +84,12 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
     V.miss <- etagrad %*% V.miss %*% t(etagrad)
     cov.zbar.miss <- etagrad %*% cov.zbar.miss %*% t(etagrad)  
     gradient <- gradient - (xobs+E.miss-E) %*% t(etagrad)
-    V.miss <- V.miss[,!model$etamap$offsettheta,,drop=FALSE]
-    V.miss <- V.miss[!model$etamap$offsettheta,,drop=FALSE]
+    if(any(!model$etamap$offsettheta)){
+     V.miss <- V.miss[!model$etamap$offsettheta,]
+     V.miss <- V.miss[,!model$etamap$offsettheta]
+    }else{
+     V.miss <- matrix(ncol=0,nrow=0)
+    }
     cov.zbar.miss <- cov.zbar.miss[,!model$etamap$offsettheta,drop=FALSE]
     cov.zbar.miss <- cov.zbar.miss[!model$etamap$offsettheta,,drop=FALSE]
     novar <- novar & diag(V.miss)==0
@@ -91,8 +99,13 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
     cov.zbar.miss <- cov.zbar.miss[,!novar,drop=FALSE] 
    }
    detna <- function(x){x <- det(x); if(is.na(x)){x <- -40};x}
-   V <- V[!novar,,drop=FALSE] 
-   V <- V[,!novar,drop=FALSE] 
+   if(nrow(V)==1){
+    V <- as.matrix(V[!novar,]) 
+    V <- as.matrix(V[,!novar]) 
+   }else{
+    V <- V[!novar,,drop=FALSE] 
+    V <- V[,!novar,drop=FALSE] 
+   }
    if(all(dim(V)==c(0,0))){
     hessian <- matrix(NA, ncol=length(theta), nrow=length(theta))
     mc.se <- rep(NA,length=length(theta))
@@ -139,13 +152,27 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
    }
 #  hessian0 <- - V
    hessian <- matrix(NA, ncol=length(theta), nrow=length(theta))
-   hessian <- hessian[!model$etamap$offsettheta,!model$etamap$offsettheta,drop=FALSE]
-   hessian[!novar, !novar] <- hessian0
+#  hessian <- hessian[!model$etamap$offsettheta,!model$etamap$offsettheta,drop=FALSE]
+#  hessian[!novar, !novar] <- hessian0
 #  hessian[!model$etamap$offsettheta,!model$etamap$offsettheta,drop=FALSE][!novar, !novar,drop=FALSE] <- hessian0
+   if(nrow(V)==1){
+    hessian[!novar, !novar] <- hessian0
+   }else{
+    hessian[!model$etamap$offsettheta,!model$etamap$offsettheta][!novar, !novar] <- hessian0
+    hessian[!model$etamap$offsettheta,][novar,] <- NA
+    hessian[,!model$etamap$offsettheta][,novar] <- NA
+   }
    dimnames(hessian) <- list(names(theta),names(theta))
    covar <- matrix(NA, ncol=length(theta), nrow=length(theta))
-   covar <- covar[!model$etamap$offsettheta,!model$etamap$offsettheta,drop=FALSE]
-   covar[!novar, !novar] <- robust.inverse(-hessian0)
+#  covar <- covar[!model$etamap$offsettheta,!model$etamap$offsettheta,drop=FALSE]
+#  covar[!novar, !novar] <- robust.inverse(-hessian0)
+   if(nrow(V)==1){
+    covar[!novar, !novar] <- robust.inverse(-hessian0)
+   }else{
+    covar[!model$etamap$offsettheta,!model$etamap$offsettheta][!novar, !novar] <- robust.inverse(-hessian0)
+    covar[!model$etamap$offsettheta,][novar,] <- NA
+    covar[,!model$etamap$offsettheta][,novar] <- NA
+   }
    dimnames(covar) <- list(names(theta),names(theta))
    list(mc.se=mc.se, hessian=hessian, gradient=gradient, covar=covar)
 }
