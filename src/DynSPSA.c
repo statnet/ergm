@@ -185,7 +185,7 @@ void MCMCDynSPSA(// Observed and discordant network.
     *F_theta_acc=calloc(n_par,sizeof(double)),
     *F_theta2_acc=calloc(n_par,sizeof(double)),
     *F_theta_sd=calloc(n_par,sizeof(double)),
-    sdsum,varsum;
+    sdsum;
 
   int use_var=-20;
 
@@ -270,6 +270,7 @@ void MCMCDynSPSA(// Observed and discordant network.
   free(F_stats2_acc);
   free(F_thetaP);
   free(F_DobjDtheta);
+  free(F_theta_sd);
   free(D_stats);
   free(delta);
 }

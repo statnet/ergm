@@ -15,7 +15,9 @@ control.ergm(prop.weights = "default", prop.args = NULL,
              0.05, metric = c("Likelihood", "raw"), method = c("BFGS", "Nelder-Mead"),
              trustregion = 20, initial.loglik = NULL, initial.network = NULL,
              style = c("Newton-Raphson", "Robbins-Monro",
-             "Stochastic-Approximation"), phase1_n = NULL, initial_gain = NULL,
+             "Stochastic-Approximation"),
+             style.dyn = c("Robbins-Monro", "SPSA", "SPSA2"),
+             phase1_n = NULL, initial_gain = NULL,
              nsubphases = "maxit", niterations = NULL, phase3_n = NULL,
              RobMon.phase1n_base = 7, RobMon.phase2n_base = 7, RobMon.phase2sub
              = 4, RobMon.init_gain = 0.1, RobMon.phase3n = 500, dyninterval =
@@ -116,6 +118,15 @@ control.ergm(prop.weights = "default", prop.args = NULL,
     advantages over stochastic approximation, but the choice will
     depend on the model and data being fit. See Handcock (2000) and 
     Hunter and Handcock (2006) for details.}
+  \item{style.dyn}{character; The style of method of moments estimation
+    to use. The default is a form of stochastic approximation
+    (\code{"Robbins-Monro"}), but it should only be used if it is known
+    a priori that the derivative of each element of the equilibrium
+    expected values of statistics of interest with respect to the
+    corresponding formation phase parameter is positive. The other
+    option, (\code{"SPSA"}) is less precise but does not make this
+    assumption. \code{"SPSA2"} is multithreaded, but runs slower for
+    some reason.}
   \item{phase1_n}{count; The number of MCMC samples to draw
     in Phase 1 of the stochastic approximation algorithm.
     Defaults to 7 plus 3 times the number of terms in the model.

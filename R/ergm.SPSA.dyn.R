@@ -1,6 +1,6 @@
 ergm.SPSA.dyn <- function(theta0, nw, model.form, model.diss, Clist, 
                       gamma0,
-                      MCMCparams, MHproposal.form, MHproposal.diss,
+                      MCMCparams, MHproposal.form, MHproposal.diss, MT=FALSE,
                       verbose=FALSE){
   eta0 <- ergm.eta(theta0, model.form$etamap)
 
@@ -11,7 +11,7 @@ ergm.SPSA.dyn <- function(theta0, nw, model.form, model.diss, Clist,
   eta0 <- ergm.eta(theta0, model.form$etamap)
 
   z <- ergm.SPSA.C.dyn(nw, Clist$meanstats, model.form, model.diss, MHproposal.form, MHproposal.diss,
-                        eta0, gamma0, MCMCparams, verbose=verbose)
+                        eta0, gamma0, MCMCparams, MT=MT, verbose=verbose)
 
   ve<-with(z,list(coef=eta,sample=NULL,sample.miss=NULL))
     
@@ -24,15 +24,24 @@ ergm.SPSA.dyn <- function(theta0, nw, model.form, model.diss, Clist,
 
 ergm.SPSA.C.dyn <- function(g, meanstats, model.form, model.diss, 
                           MHproposal.form, MHproposal.diss, eta0, gamma0,
-                          MCMCparams, verbose) {
+                          MCMCparams, MT, verbose) {
 
   Clist.form <- ergm.Cprepare(g, model.form)
   Clist.diss <- ergm.Cprepare(g, model.diss)
   maxchanges <- max(MCMCparams$maxchanges, Clist.form$nedges)/5
   MCMCparams$maxchanges <- MCMCparams$maxchanges/5
   if(verbose){cat(paste("MCMCDyn workspace is",maxchanges,"\n"))}
+
+  if(MT){
+    cat("Using multithreaded SPSA.\n")
+    f<-"MCMCDynSPSA_MT_wrapper"
+  }
+  else{
+    cat("Using single-threaded SPSA.\n")
+    f<-"MCMCDynSPSA_wrapper"
+  }
   
-  z <- .C("MCMCDynSPSA_wrapper",
+  z <- .C(f,
           # Observed/starting network. 1
           as.integer(Clist.form$heads), as.integer(Clist.form$tails), 
           as.integer(Clist.form$nedges), as.integer(Clist.form$maxpossibleedges),

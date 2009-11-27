@@ -36,6 +36,25 @@ void MCMCDynSPSA_wrapper(// Observed network.
 		    // Verbosity.
 		    int *fVerbose);
 
+double MCMCSampleDynObjective(Network *nwp,
+			      // Ordering of formation and dissolution.
+			      DynamOrder order,
+			      // Formation terms and proposals.
+			      Model *F_m, MHproposal *F_MH, double *F_theta,
+			      // Dissolution terms and proposals.
+			      Model *D_m, MHproposal *D_MH, double *D_theta,
+			      // Degree bounds.
+			      DegreeBound *bd,
+			      double *F_stats, double *D_stats,
+			      unsigned int nmax,
+			      Vertex *difftime, Vertex *diffhead, Vertex *difftail,
+			      // MCMC settings.
+			      unsigned int dyninterval,
+			      unsigned int burnin,
+			      unsigned int S,
+			      double *F_stats_acc, double* F_stats2_acc, int *use_var,
+			      int fVerbose);
+
 void MCMCDynSPSA(// Observed and discordant network.
 		       Network *nwp,
 		       // Ordering of formation and dissolution.
