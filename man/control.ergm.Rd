@@ -96,7 +96,7 @@ control.ergm(prop.weights = "default", prop.args = NULL,
     standard errors induced by the MCMC algorithm.
     Defaults to \code{0.05}.}
   \item{metric}{character; The name of the optimization metric
-    to use. Defaults to \code{"Likelihood"}.}
+    to use. Defaults to \code{"Median.Likelihood"}.}
   \item{method}{character; The name of the optimization method
     to use. See \code{\link[stats]{optim}} for the options. The default method
     \code{"BFGS"} is a quasi-Newton method (also known as a variable
