@@ -14,8 +14,6 @@ g1<-san(g0~meandeg+degree(1),meanstats=meanstats,verbose=TRUE)
 # Fit the model.
 dynfit<-ergm(g1~meandeg+degree(1),dissolve=~edges,dissolve.order="FormAndDiss",gamma=log(.95/.05),meanstats=meanstats,verbose=2)
 
-dynfit.SPSA<-ergm(g1~meandeg+degree(1),dissolve=~edges,dissolve.order="FormAndDiss",gamma=log(.95/.05),meanstats=meanstats,verbose=2,control=control.ergm(style.dyn="SPSA"))
-
 theta<-dynfit$coef
 print(theta)
 
