@@ -11,6 +11,8 @@ MHproposals<-
           c("c", "bd+edges",      "random",       "ConstantEdges"),          
           c("c", "degrees",       "default",      "CondDegree"),
           c("c", "degrees",       "random",       "CondDegree"),
+          c("c", "degreesTetra",       "default",      "CondDegreeTetra"),
+          c("c", "degreesTetra",       "random",       "CondDegreeTetra"),
 
           c("c", "degreedist",    "default",      "CondDegreeDist"),
           c("c", "degreedist",    "random",       "CondDegreeDist"), 

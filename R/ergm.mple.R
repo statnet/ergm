@@ -107,6 +107,7 @@ ergm.mple<-function(Clist, Clist.miss, m, theta0=NULL, theta.offset=NULL,
   theta <- pl$theta.offset
   real.coef <- mplefit$coef
   real.cov <- mplefit.summary$cov.unscaled
+  if(dim(real.cov)==c(1,1)){real.cov <- as.vector(real.cov)}
   theta[!m$etamap$offsettheta] <- real.coef
 # theta[is.na(theta)] <- 0
   names(theta) <- m$coef.names
@@ -128,7 +129,8 @@ ergm.mple<-function(Clist, Clist.miss, m, theta0=NULL, theta.offset=NULL,
   }
 # covar <- as.matrix(covar[!m$etamap$offsettheta,!m$etamap$offsettheta])
 # covar[!is.na(real.coef),!is.na(real.coef)] <- real.cov
-  covar[!is.na(theta)&!m$etamap$offsettheta,!is.na(theta)&!m$etamap$offsettheta] <- real.cov
+  covar[!is.na(theta)&!m$etamap$offsettheta,
+        !is.na(theta)&!m$etamap$offsettheta] <- real.cov
 #
   iteration <-  mplefit$iter 
   samplesize <- NA

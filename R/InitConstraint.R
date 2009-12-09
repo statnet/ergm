@@ -24,6 +24,13 @@ InitConstraint.degrees<-InitConstraint.nodedegrees<-function(conlist){
    conlist
 }
 
+InitConstraint.degreesTetra<-function(conlist){
+   if (nargs()>1)
+     stop(paste("Vertex degreesTetra constraint does not take arguments at this time."), call.=FALSE)
+   conlist$degrees<-list()
+   conlist
+}
+
 InitConstraint.degreedist<-function(conlist){
    if (nargs()>1)
      stop(paste("Degree distribution constraint does not take arguments at this time."), call.=FALSE)

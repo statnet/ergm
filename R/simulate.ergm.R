@@ -143,7 +143,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
     MCMCparams$stats<-curstats
     #
     if(nsim > 1){
-      Clist <- ergm.Cprepare(as.netwrok.uncompressed(nw), m)
+      Clist <- ergm.Cprepare(as.network.uncompressed(nw), m)
       maxedges <- max(2000, Clist$nedges)
       MCMCparams.parallel <- MCMCparams
       require(snow)

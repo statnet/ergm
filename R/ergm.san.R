@@ -134,10 +134,10 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0=NULL,
 #   Next update the network to be the final (possibly conditionally)
 #   simulated one
 #
-    out.list[[i]] <- newnw.extract(nw, z)
+    out.list[[i]] <- newnw.extract(nw, z, output=control$network.output)
     out.mat <- rbind(out.mat,z$s[(Clist$nstats+1):(2*Clist$nstats)])
     if(sequential){
-      nw <-  out.list[[i]]
+      nw <-  as.network.uncompressed(out.list[[i]])
     }
   }
   if(nsim > 1){

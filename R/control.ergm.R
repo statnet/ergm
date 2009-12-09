@@ -49,6 +49,8 @@ control.ergm<-function(prop.weights="default",prop.args=NULL,
   for(arg in names(formals(sys.function())))
     control[[arg]]<-get(arg)
   
+#                      metric=c("Likelihood","Median.Likelihood","EF.Likelihood"),
+
   control$MPLEtype<-match.arg(MPLEtype)
   control$metric<-match.arg(metric)
   control$method<-match.arg(method)

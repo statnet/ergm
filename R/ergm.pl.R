@@ -60,7 +60,8 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     if(is.null(theta.offset)){
       theta.offset <- rep(0, length=Clist$nstats)
       names(theta.offset) <- m$coef.names
-      theta.offset[m$etamap$offsettheta] <- -Inf
+#     theta.offset[m$etamap$offsettheta] <- -Inf
+      theta.offset[m$etamap$offsettheta] <- -10000
     }
 #   foffset <- xmat[,!m$etamap$offsettheta,drop=FALSE]%*%theta.offset[!m$etamap$offsettheta]
 #   shouldoffset <- apply(abs(xmat[,m$etamap$offsettheta,drop=FALSE])>1e-8,1,any)
