@@ -115,7 +115,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
    if(verbose){cat("Calling adaptive MCMLE Optimization...\n")}
    adaptive.steplength <- 2
    statsmean <- apply(statsmatrix.0,2,mean)
-   v <- list(loglikelihood=2)
+   v <- list(loglikelihood=4)
    while(v$loglikelihood > 2){
     adaptive.steplength <- adaptive.steplength / 2
     if(!is.null(statsmatrix.0.miss)){
