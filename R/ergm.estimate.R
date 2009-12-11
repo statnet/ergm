@@ -90,7 +90,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   }
   if (verbose) cat("Optimizing loglikelihood\n")
   Lout <- try(optim(par=guess, 
-                    fn=llik.fun, gr=llik.grad,
+                    fn=llik.fun,  gr=llik.grad,
                     hessian=hessian,
                     method=method,
                     control=list(trace=trace,fnscale=-1,maxit=nr.maxit,reltol=nr.reltol),
@@ -100,15 +100,15 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                     penalty=0.5, trustregion=trustregion,
                     eta0=eta0, etamap=model$etamap))
 # if(verbose){cat("Log-likelihood ratio is", Lout$value,"\n")}
-  if(Lout$value < trustregion-0.001){
-   current.scipen <- options()$scipen
-   options(scipen=3)
-   cat("the log-likelihood improved by",
-       format.pval(Lout$value,digits=4,eps=1e-4),"\n")
-   options(scipen=current.scipen)
-  }else{
-   cat("the log-likelihood did not improve.\n")
-  }
+# if(Lout$value < trustregion-0.001){
+#  current.scipen <- options()$scipen
+#  options(scipen=3)
+#  cat("the log-likelihood improved by",
+#      format.pval(Lout$value,digits=4,eps=1e-4),"\n")
+#  options(scipen=current.scipen)
+# }else{
+#  cat("the log-likelihood did not improve.\n")
+# }
   if(inherits(Lout,"try-error") || Lout$value > 199 ||
      Lout$value < -790) {
     cat("MLE could not be found. Trying Nelder-Mead...\n")
@@ -139,6 +139,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     return(structure(list(coef=theta, 
                           MCMCtheta=theta0, 
                           samplesize=samplesize, 
+                          loglikelihood=Lout$value, 
                           failure=FALSE),
                         class="ergm"))
   } else {

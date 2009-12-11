@@ -4,7 +4,6 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
                              MHproposal, MHproposal.miss,
                              verbose=FALSE,
                              epsilon=1e-10,
-                             sequential=TRUE,
                              estimate=TRUE, ...) {
   iteration <- 1
   nw.orig <- nw
@@ -18,7 +17,6 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
 
   stats <- matrix(0,ncol=Clist$nstats,nrow=MCMCparams$samplesize)
   stats[1,] <- Clist$obs - Clist$meanstats
-# stats[,]<-  rep(Clist$obs - Clist$meanstats,rep(nrow(stats),Clist$nstats))
   MCMCparams$stats <- stats
   MCMCparams$meanstats <- Clist$meanstats
   if(MCMCparams$Clist.miss$nedges > 0){
@@ -33,7 +31,6 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
       MCMCparams.miss$burnin <- MCMCparams$miss.burnin
     }
   }
-#  while(any(mcmc.precision*asyse < mc.se, na.rm=TRUE) && iteration <= maxit){
   while(iteration <= MCMCparams$maxit){
     thetaprior <- theta0
     theta0 <- v$coef
@@ -48,19 +45,6 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     z <- ergm.getMCMCsample(nw, model, MHproposal, eta0, MCMCparams, verbose)
     statsmatrix <- z$statsmatrix
     v$sample <- statsmatrix
-#    if(verbose && FALSE){
-#      sm<-statsmatrix[,!model$offset,drop=FALSE]
-#      cat("Deviation: ",apply(sm,2,mean),"\n")
-#      require(coda,quiet=TRUE)
-#      cat("Studentized deviation: ",
-#          apply(sm,2,mean)/sqrt(apply(sm^2,2,mean)/effectiveSize(as.mcmc(sm))),
-#          "\n")
-#      effSize<-effectiveSize(as.mcmc(sm))
-#      stats.cov<-t(cov(sm)/effSize)/effSize
-#      cat("Mahalanobis distance: ",
-#          mahalanobis(apply(sm,2,mean),0,stats.cov),
-#          "\n")
-#    }
     if(MCMCparams$Clist.miss$nedges > 0){
       z.miss <- ergm.getMCMCsample(nw, model, MHproposal.miss, eta0, MCMCparams.miss, verbose)
       statsmatrix.miss <-z.miss$statsmatrix
@@ -69,7 +53,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
       statsmatrix.miss <- NULL
       if(verbose){cat("Back from unconstrained MCMC...\n")}
     }
-    if(sequential & MCMCparams$Clist.miss$nedges == 0){
+    if(MCMCparams$sequential & MCMCparams$Clist.miss$nedges == 0){
       nw <- z$newnetwork
       nw.obs <- summary(model$formula, basis=nw)
       namesmatch <- match(names(MCMCparams$meanstats), names(nw.obs))
@@ -77,14 +61,6 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     }
 #
     iteration <- iteration + 1
-    if(MCMCparams$steplength<1 && iteration < MCMCparams$maxit ){
-      if(!is.null(statsmatrix.miss)){
-        statsmatrix.miss <- statsmatrix.miss*MCMCparams$steplength+statsmatrix*(1-MCMCparams$steplength)
-      }else{
-        statsmean <- apply(statsmatrix,2,mean)
-        statsmatrix <- sweep(statsmatrix,2,(1-MCMCparams$steplength)*statsmean,"-")
-      }
-    }
     if(z$nedges >= 50000-1 || ergm.checkdegeneracy(statsmatrix, statsmatrix.miss, verbose=verbose)){
      if(iteration <= MCMCparams$maxit){
       cat(paste("The MCMC sampler is producing degenerate samples.\n",
@@ -93,11 +69,6 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
                 "I am trying something simple...\n",
                 "The current theta0 is:\n"))
                 print(theta0)
-#     shrink <- ergm(nw ~ edges)$coef
-#     theta0 <- 0.4*theta0
-#     theta0["edges"] <- theta0["edges"] + 0.6*shrink
-#     v <- list(coef=theta0)
-#     v$coef <- theta0
       v$coef <- 0.9*theta0
       next
      }else{
@@ -106,7 +77,6 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
                 "(That is, changing the 'theta0' argument).\n",
                 "The current theta0 is:\n"))
               print(theta0)
-#     v <- list(coef=theta0)
       v$coef <- theta0
       return(structure (v, class="ergm"))
      }
@@ -139,29 +109,83 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
               newnetwork = nw)
     return(structure (l, class="ergm"))
   }
-  if(verbose){cat("Calling MCMLE Optimization...\n")}
-  if(verbose){cat("Using Newton-Raphson Step ...\n")}
+  statsmatrix.0 <- statsmatrix
+  statsmatrix.0.miss <- statsmatrix.miss
+  if(MCMCparams$steplength=="adaptive"){
+   if(verbose){cat("Calling adaptive MCMLE Optimization...\n")}
+   adaptive.steplength <- 2
+   statsmean <- apply(statsmatrix.0,2,mean)
+   v <- list(loglikelihood=2)
+   while(v$loglikelihood > 2){
+    adaptive.steplength <- adaptive.steplength / 2
+    if(!is.null(statsmatrix.0.miss)){
+      statsmatrix.miss <- statsmatrix.0.miss*adaptive.steplength+statsmatrix.0*(1-adaptive.steplength)
+    }else{
+      statsmatrix <- sweep(statsmatrix.0,2,(1-adaptive.steplength)*statsmean,"-")
+    }
+    if(verbose){cat(paste("Using Newton-Raphson Step with step length",adaptive.steplength,"...\n"))}
 #
-# If not the last iteration do not compute all the extraneous
-# statistics that are not needed until output
+#   If not the last iteration do not compute all the extraneous
+#   statistics that are not needed until output
 #
-  if(iteration <= MCMCparams$maxit){
-   v<-ergm.estimate(theta0=theta0, model=model,
-                    statsmatrix=statsmatrix, 
-                    statsmatrix.miss=statsmatrix.miss, 
-                    epsilon=MCMCparams$epsilon,
-                    nr.maxit=MCMCparams$nr.maxit,
-                    nr.reltol=MCMCparams$nr.reltol,
-                    calc.mcmc.se=MCMCparams$calc.mcmc.se, hessian=MCMCparams$hessian,
-                    trustregion=MCMCparams$trustregion, method=MCMCparams$method,
-                    metric=MCMCparams$metric,
-                    compress=MCMCparams$compress, verbose=verbose,
-                    estimateonly=TRUE)
+     v<-ergm.estimate(theta0=theta0, model=model,
+                      statsmatrix=statsmatrix, 
+                      statsmatrix.miss=statsmatrix.miss, 
+                      epsilon=MCMCparams$epsilon,
+                      nr.maxit=MCMCparams$nr.maxit,
+                      nr.reltol=MCMCparams$nr.reltol,
+                      calc.mcmc.se=MCMCparams$calc.mcmc.se, hessian=MCMCparams$hessian,
+                      trustregion=MCMCparams$trustregion, method=MCMCparams$method,
+                      metric=MCMCparams$metric,
+                      compress=MCMCparams$compress, verbose=verbose,
+                      estimateonly=TRUE)
+   }
+   if(v$loglikelihood < MCMCparams$trustregion-0.001){
+     current.scipen <- options()$scipen
+    options(scipen=3)
+    cat("the log-likelihood improved by",
+        format.pval(v$loglikelihood,digits=4,eps=1e-4),"\n")
+    options(scipen=current.scipen)
+   }else{
+    cat("the log-likelihood did not improve.\n")
+   }
+   if((adaptive.steplength==1) && (v$loglikelihood < 0.001) ){break}
+  }else{
+    if(verbose){cat("Calling MCMLE Optimization...\n")}
+    statsmean <- apply(statsmatrix.0,2,mean)
+    if(!is.null(statsmatrix.0.miss)){
+      statsmatrix.miss <- statsmatrix.0.miss*MCMCparams$steplength+statsmatrix.0*(1-MCMCparams$steplength)
+    }else{
+      statsmatrix <- sweep(statsmatrix.0,2,(1-MCMCparams$steplength)*statsmean,"-")
+    }
+    if(verbose){cat(paste("Using Newton-Raphson Step with step length ",MCMCparams$steplength," ...\n"))}
+    v<-ergm.estimate(theta0=theta0, model=model,
+                     statsmatrix=statsmatrix, 
+                     statsmatrix.miss=statsmatrix.miss, 
+                     epsilon=MCMCparams$epsilon,
+                     nr.maxit=MCMCparams$nr.maxit,
+                     nr.reltol=MCMCparams$nr.reltol,
+                     calc.mcmc.se=MCMCparams$calc.mcmc.se, hessian=MCMCparams$hessian,
+                     trustregion=MCMCparams$trustregion, method=MCMCparams$method,
+                     metric=MCMCparams$metric,
+                     compress=MCMCparams$compress, verbose=verbose,
+                     estimateonly=TRUE)
+   if(v$loglikelihood < MCMCparams$trustregion-0.001){
+     current.scipen <- options()$scipen
+    options(scipen=3)
+    cat("the log-likelihood improved by",
+        format.pval(v$loglikelihood,digits=4,eps=1e-4),"\n")
+    options(scipen=current.scipen)
+   }else{
+    cat("the log-likelihood did not improve.\n")
+   }
+   if((MCMCparams$steplength==1) && (v$loglikelihood < 0.001) ){break}
   }
 #
 # End main loop
 #
   }
+#
 # This is the last iteration, so compute all the extraneous
 # statistics that are not needed until output
 #
@@ -170,7 +194,8 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
                    epsilon=MCMCparams$epsilon,
                    nr.maxit=MCMCparams$nr.maxit,
                    nr.reltol=MCMCparams$nr.reltol,
-                   calc.mcmc.se=MCMCparams$calc.mcmc.se, hessian=MCMCparams$hessian,
+                   calc.mcmc.se=MCMCparams$calc.mcmc.se, 
+		   hessian=MCMCparams$hessian,
                    trustregion=MCMCparams$trustregion, method=MCMCparams$method,
                    metric=MCMCparams$metric,
                    compress=MCMCparams$compress, verbose=verbose)

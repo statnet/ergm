@@ -13,6 +13,8 @@ MHproposals<-
           c("c", "degrees",       "random",       "CondDegree"),
           c("c", "degreesTetra",       "default",      "CondDegreeTetra"),
           c("c", "degreesTetra",       "random",       "CondDegreeTetra"),
+          c("c", "degreesHexad",       "default",      "CondDegreeHexad"),
+          c("c", "degreesHexad",       "random",       "CondDegreeHexad"),
 
           c("c", "degreedist",    "default",      "CondDegreeDist"),
           c("c", "degreedist",    "random",       "CondDegreeDist"), 

@@ -11,8 +11,9 @@ control.ergm(prop.weights = "default", prop.args = NULL,
              SAN.burnin=NULL,
              maxNumDyadTypes = 1e+06, maxedges = 20000, maxchanges = 1e+06,
              maxMPLEsamplesize = 1e+05, MPLEtype=c("glm", "penalized"), trace = 0,
-             steplength = 0.5, drop = TRUE, force.mcmc = FALSE, check.degeneracy=FALSE, mcmc.precision =
-             0.05, metric = c("Likelihood", "raw"), method = c("BFGS", "Nelder-Mead"),
+             steplength = 0.5, sequential=TRUE,
+	     drop = TRUE, force.mcmc = FALSE, check.degeneracy=FALSE, 
+	     mcmc.precision = 0.05, metric = c("Likelihood", "raw"), method = c("BFGS", "Nelder-Mead"),
              trustregion = 20, initial.loglik = NULL, initial.network = NULL,
              style = c("Newton-Raphson", "Robbins-Monro",
              "Stochastic-Approximation"),
@@ -82,6 +83,12 @@ control.ergm(prop.weights = "default", prop.args = NULL,
     give more detail.)}
   \item{steplength}{ Multiplier for step length, to make fitting more
     stable at the cost of efficiency. }
+  \item{sequential}{Should the next iteration ofthe fit use the last network 
+    sampled as the starting network or always use the initially passed network?
+    The results should be similar (stochastically), but the
+    \code{sequential=TRUE} option if \code{meanstats} is far from the
+    passed network.
+   }
   \item{drop}{logical; Should the degenerate terms in the model be
     dropped from the fit?
     If statistics occur on the extreme of their range they

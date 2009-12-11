@@ -18,7 +18,7 @@ llik.fun.mean <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=N
 # 
 # This is the log-likelihood ratio (and not its negative)
 #
-  llr <- sum(xobs * x) - (mb + penalty*vb*vb)
+  llr <- sum(xobs * x) - (mb + penalty*vb)
   if(is.infinite(llr) | is.na(llr)){llr <- -800}
 #
 # Penalize changes to trustregion
@@ -225,11 +225,11 @@ llik.fun.median <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss
 #
 # alternative based on log-normal approximation
   mb <- wtd.median(basepred, weight=probs)
-  vb <- 1.4826*wtd.median(abs(basepred-mb), weight=probs)
+  sdb <- 1.4826*wtd.median(abs(basepred-mb), weight=probs)
 # 
 # This is the log-likelihood ratio (and not its negative)
 #
-  llr <- sum(xobs * x) - (mb + penalty*vb*vb)
+  llr <- sum(xobs * x) - (mb + penalty*sdb*sdb)
   if(is.infinite(llr) | is.na(llr)){llr <- -800}
 #
 # Penalize changes to trustregion
