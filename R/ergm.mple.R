@@ -3,7 +3,9 @@ ergm.mple<-function(Clist, Clist.miss, m, theta0=NULL, theta.offset=NULL,
                     maxMPLEsamplesize=1e+6,
                     save.glm=TRUE,
                     maxNumDyadTypes=1e+6,
-                    theta1=NULL, verbose=FALSE, compressflag=TRUE,
+                    theta1=NULL, 
+		    conddeg=NULL, MCMCparams=NULL, MHproposal=NULL,
+		    verbose=FALSE, compressflag=TRUE,
                     ...) {
   # see also ergm.pl.R.originalandgood
   if(is.numeric(theta0)){theta.offset <- theta0}
@@ -11,6 +13,8 @@ ergm.mple<-function(Clist, Clist.miss, m, theta0=NULL, theta.offset=NULL,
                 theta.offset=theta.offset,
                 maxMPLEsamplesize=maxMPLEsamplesize,
                 maxNumDyadTypes=maxNumDyadTypes,
+                conddeg=conddeg, 
+		MCMCparams=MCMCparams, MHproposal=MHproposal,
                 verbose=verbose, compressflag=compressflag)
 
   if(MPLEtype=="penalized"){

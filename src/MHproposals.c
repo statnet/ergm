@@ -168,7 +168,7 @@ void MH_ConstantEdges (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {
 }
   
 /*********************
- void MH_CondDegTetra
+ void MH_CondDegreeTetrad
  
  Select an edge (A,B) at random.  Then select
  another node C at random, making sure it has at least one neighbor
@@ -182,7 +182,7 @@ void MH_ConstantEdges (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {
   
  Note that this algorithm may be inefficient if the network is not sparse. 
 *********************/
-void MH_CondDegTetra (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {  
+void MH_CondDegreeTetrad (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {  
   Vertex A, B, C, D=0;
   Vertex tmpA=0, tmpB, tmpC, tmpD=0;
   int valid, n_C_nbrs, i;
@@ -517,25 +517,25 @@ void MH_CondDegree (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {
   
   if(MHp->ntoggles == 0) { /* Initialize CondDeg by */
 	                   /* Choosing Hexad or Tetrad */
-    if( unif_rand() > 0.9 ){
-      MHp->ntoggles=6;
-    }else{
+//  if( unif_rand() > 0.9 ){
+//    MHp->ntoggles=6;
+//  }else{
       MHp->ntoggles=4;
-    }
+//  }
     return;
   }
 
   if(MHp->ntoggles == 6) { /* Call Hexad */
-    MH_CondDegHexadToggles (MHp, bd, nwp);
+    MH_CondDegreeHexadToggles (MHp, bd, nwp);
   }else{ /* call Tetrad */
-    MH_CondDegTetradToggles (MHp, bd, nwp);
+    MH_CondDegreeTetradToggles (MHp, bd, nwp);
   }
 }
 
 /*********************
- void MH_CondDegHexadToggles
+ void MH_CondDegreeHexadToggles
 *********************/
-void MH_CondDegHexadToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {  
+void MH_CondDegreeHexadToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {  
   int x1, x2, x3, x4, x5, x6;
   int fvalid, trynode;
   Vertex head1, head2, head3, tail1, tail2, tail3;
@@ -692,9 +692,9 @@ void MH_CondDegHexadToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {
 }
 
 /*********************
- void MH_CondDegTetradToggles
+ void MH_CondDegreeTetradToggles
 *********************/
-void MH_CondDegTetradToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp) {  
+void MH_CondDegreeTetradToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp) {  
   int x1, x2, x3, x4;
   int fvalid, trynode;
   Vertex head1, head2, tail1, tail2;

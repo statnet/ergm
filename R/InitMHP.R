@@ -35,8 +35,8 @@ InitMHP.CondDegree <- function(arguments, nw, model) {
   MHproposal
 }
 
-InitMHP.CondDegreeTetra <- function(arguments, nw, model) {
-  MHproposal <- list(name = "CondDegreeTetra", args=NULL, package="ergm")
+InitMHP.CondDegreeTetrad <- function(arguments, nw, model) {
+  MHproposal <- list(name = "CondDegreeTetradToggles", args=NULL, package="ergm")
   if (is.directed(nw)) {
     cat("Warning:  Using the 'degree' constraint with a directed network\n",
           "is currently perilous.  We recommend that you use 'outdegree' or\n",
@@ -49,7 +49,7 @@ InitMHP.CondDegreeTetra <- function(arguments, nw, model) {
 }
 
 InitMHP.CondDegreeHexad <- function(arguments, nw, model) {
-  MHproposal <- list(name = "CondDegreeHexad", args=NULL, package="ergm")
+  MHproposal <- list(name = "CondDegreeHexadToggles", args=NULL, package="ergm")
   if (is.directed(nw)) {
     cat("Warning:  Using the 'degree' constraint with a directed network\n",
           "is currently perilous.  We recommend that you use 'outdegree' or\n",

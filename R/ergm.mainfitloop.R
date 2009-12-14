@@ -115,8 +115,8 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
    if(verbose){cat("Calling adaptive MCMLE Optimization...\n")}
    adaptive.steplength <- 2
    statsmean <- apply(statsmatrix.0,2,mean)
-   v <- list(loglikelihood=4)
-   while(v$loglikelihood > 2){
+   v <- list(loglikelihood=MCMCparams$adaptive.trustregion*2)
+   while(v$loglikelihood > MCMCparams$adaptive.trustregion){
     adaptive.steplength <- adaptive.steplength / 2
     if(!is.null(statsmatrix.0.miss)){
       statsmatrix.miss <- statsmatrix.0.miss*adaptive.steplength+statsmatrix.0*(1-adaptive.steplength)
@@ -149,7 +149,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
    }else{
     cat("the log-likelihood did not improve.\n")
    }
-   if((adaptive.steplength==1) && (v$loglikelihood < 0.001) ){break}
+   if((adaptive.steplength==1) && (v$loglikelihood < MCMCparams$adaptive.epsilon) ){break}
   }else{
     if(verbose){cat("Calling MCMLE Optimization...\n")}
     statsmean <- apply(statsmatrix.0,2,mean)
@@ -179,7 +179,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
    }else{
     cat("the log-likelihood did not improve.\n")
    }
-   if((MCMCparams$steplength==1) && (v$loglikelihood < 0.001) ){break}
+   if((MCMCparams$steplength==1) && (v$loglikelihood < MCMCparams$adaptive.epsilon) ){break}
   }
 #
 # End main loop

@@ -24,17 +24,17 @@ InitConstraint.degrees<-InitConstraint.nodedegrees<-function(conlist){
    conlist
 }
 
-InitConstraint.degreesTetra<-function(conlist){
+InitConstraint.degreesTetrad<-function(conlist){
    if (nargs()>1)
-     stop(paste("Vertex degreesTetra constraint does not take arguments at this time."), call.=FALSE)
-   conlist$degrees<-list()
+     stop(paste("Vertex degreesTetrad constraint does not take arguments at this time."), call.=FALSE)
+   conlist$degreesTetrad<-list()
    conlist
 }
 
 InitConstraint.degreesHexad<-function(conlist){
    if (nargs()>1)
      stop(paste("Vertex degreesHexad constraint does not take arguments at this time."), call.=FALSE)
-   conlist$degrees<-list()
+   conlist$Hexad<-list()
    conlist
 }
 

@@ -62,16 +62,21 @@ ergm <- function(formula, theta0="MPLE",
   # Note:  MHproposal function in CRAN version does not use the "class" argument for now
   MHproposal.miss <- MHproposal("randomtoggleNonObserved", control$prop.args, nw, model.initial)
 
-  Clist.initial <- ergm.Cprepare(nw, model.initial)
-  Clist.miss.initial <- ergm.design(nw, model.initial, verbose=verbose)
+  if(MHproposal$name=="CondDegree"){ conddeg <- control$drop }
+  MCMCparams=c(control,
+   list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,
+        maxit=maxit,Clist.miss=NULL, mcmc.precision=control$mcmc.precision))
+
+
   if (verbose) cat("Fitting initial model.\n")
-  Clist.initial$meanstats=meanstats
   theta0copy <- theta0
-  initialfit <- ergm.initialfit(theta0copy, MLestimate, Clist.initial,
-                                Clist.miss.initial, model.initial,
+  initialfit <- ergm.initialfit(theta0copy, MLestimate, 
+                                formula, nw, meanstats,
+				model.initial,
                                 MPLEtype=control$MPLEtype, 
                                 initial.loglik=control$initial.loglik,
-                                verbose=verbose, compressflag = control$compress, 
+                                conddeg, MCMCparams, MHproposal,
+				verbose=verbose, compressflag = control$compress, 
                                 maxNumDyadTypes=control$maxNumDyadTypes,
                                 force.MPLE=(ergm.independencemodel(model.initial)
                                             && constraints==(~.)),
