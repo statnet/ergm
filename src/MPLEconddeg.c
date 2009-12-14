@@ -166,7 +166,7 @@ void CondDegSampler (char *MHproposaltype, char *MHproposalpackage,
   long int interval, int hammingterm, int fVerbose,
   Network *nwp, Model *m, DegreeBound *bd) {
   long int staken, tottaken, ptottaken, originterval;
-  int i, j, components, diam;
+  int i, components, diam;
   MHproposal MH;
   
   originterval = interval;
@@ -270,7 +270,6 @@ void CondDegSample (MHproposal *MHp,
 			 Model *m, DegreeBound *bd) {
   long int step, taken;
   int i;
-  double ip, cutoff;
   
   step = taken = 0;
   while (step < nsteps) {

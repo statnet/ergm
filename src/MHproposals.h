@@ -13,7 +13,7 @@ void MH_CondOutDegreeDist (MHproposal *MHp, DegreeBound *bd, Network *nwp);
 void MH_CondInDegreeDist (MHproposal *MHp, DegreeBound *bd, Network *nwp);
 void MH_CondDegree (MHproposal *MHp, DegreeBound *bd, Network *nwp);
 void MH_CondDegreeHexadToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp);
-void MH_CondDegresTetradToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp);
+void MH_CondDegreeTetradToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp);
 void MH_RandomNode (MHproposal *MHp, DegreeBound *bd, Network *nwp);
 void MH_randomtoggleNonObserved (MHproposal *MHp, DegreeBound *bd, Network *nwp);
 
