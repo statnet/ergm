@@ -57,11 +57,25 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0=NULL,
   
   if(!is.null(seed)) set.seed(as.integer(seed))
 
+  if(MHproposal$name=="CondDegree"){ 
+   formula.conddegmple <- ergm.update.formula(formula, ~ conddegmple + .)
+   m.conddeg <- ergm.getmodel(formula.conddegmple, nw, drop=FALSE, initialfit=TRUE)
+   Clist.conddegmple <- ergm.Cprepare(nw, m.conddeg)
+   Clist.conddegmple$meanstats=c(1,meanstats)
+   conddeg <- list(m=m.conddeg, Clist=Clist.conddegmple, Clist.miss=ergm.Cprepare(nw, m.conddeg))
+  }else{
+   conddeg <- NULL
+  }
+
   if (verb) {
     cat(paste("Starting ",nsim," MCMC iteration", ifelse(nsim>1,"s",""),
         " of ", burnin+interval*(MCMCsamplesize-1), 
         " steps", ifelse(nsim>1, " each", ""), ".\n", sep=""))
   }
+
+  MCMCparams=c(control,
+     list(samplesize=burnin, burnin=burnin, interval=interval,
+          Clist.miss=Clist.miss))
 
   for(i in 1:nsim){
     Clist <- ergm.Cprepare(nw, model)
@@ -78,7 +92,9 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0=NULL,
 
     if(is.null(theta0)) {
       fit <- ergm.mple(Clist=Clist, Clist.miss=Clist.miss, 
-                          m=model, verbose=verbose, ...)
+                       conddeg=conddeg,
+		       MCMCparams=MCMCparams, MHproposal=MHproposal,
+                       m=model, verbose=verbose, ...)
       theta0 <- fit$coef
       if(is.null(invcov)) { invcov <- fit$covar }
     }else{
