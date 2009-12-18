@@ -62,6 +62,7 @@ as.edgelist.compressed<-function(x, attrname=NULL, force.bipartite=FALSE){
       out<-as.edgelist.compressed(out,attrname=attrname,force.bipartite=force.bipartite)
   }else{
     warning("as.edgelist.compressed input must be network, or list thereof.\n Returning the original object.\n")
+    return(x)
   }
   #Return the result
   out
