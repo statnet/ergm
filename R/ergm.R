@@ -62,7 +62,7 @@ ergm <- function(formula, theta0="MPLE",
   # Note:  MHproposal function in CRAN version does not use the "class" argument for now
   MHproposal.miss <- MHproposal("randomtoggleNonObserved", control$prop.args, nw, model.initial)
 
-  if(MHproposal$name=="CondDegree"){ conddeg <- control$drop }
+  conddeg <- switch(MHproposal$name=="CondDegree",control$drop,NULL)
   MCMCparams=c(control,
    list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,
         maxit=maxit,Clist.miss=NULL, mcmc.precision=control$mcmc.precision))
@@ -70,16 +70,17 @@ ergm <- function(formula, theta0="MPLE",
 
   if (verbose) cat("Fitting initial model.\n")
   theta0copy <- theta0
-  initialfit <- ergm.initialfit(theta0copy, MLestimate, 
-                                formula, nw, meanstats,
-				model.initial,
+  initialfit <- ergm.initialfit(theta0=theta0copy, MLestimate=MLestimate, 
+                                formula=formula, nw=nw, meanstats=meanstats,
+				m=model.initial,
                                 MPLEtype=control$MPLEtype, 
                                 initial.loglik=control$initial.loglik,
-                                conddeg, MCMCparams, MHproposal,
-				verbose=verbose, compressflag = control$compress, 
-                                maxNumDyadTypes=control$maxNumDyadTypes,
+                                conddeg=conddeg, MCMCparams=MCMCparams, MHproposal=MHproposal,
                                 force.MPLE=(ergm.independencemodel(model.initial)
                                             && constraints==(~.)),
+				verbose=verbose, 
+                                compressflag = control$compress, 
+                                maxNumDyadTypes=control$maxNumDyadTypes,
                                 ...)
   MCMCflag <- ((MLestimate && (!ergm.independencemodel(model.initial)
                                || !is.null(meanstats)
