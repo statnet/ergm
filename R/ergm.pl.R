@@ -16,7 +16,6 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
                     maxMPLEsamplesize=1e+6,
                     maxNumDyadTypes=1e+6,
                     verbose=FALSE, compressflag=TRUE) {
-  offset <- rep(0,Clist$ndyads)
   bip <- Clist$bipartite
   n <- Clist$n
   if(Clist.miss$nedges>0){
