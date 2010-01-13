@@ -60,9 +60,9 @@ variable within each chain.
 In fact, an \code{object} contains the matrix of
 statistics from the MCMC run as component \code{$sample}.
 This matrix is actually an object of class \code{mcmc} and
-can be used directly in the \code{CODA} package to assess MCMC
+can be used directly in the \code{coda} package to assess MCMC
 convergence. \emph{Hence all MCMC diagnostic methods available
-in \code{\link[coda]{coda}} are available directly.} See the examples and
+in \code{coda} are available directly.} See the examples and
 \url{http://www.mrc-bsu.cam.ac.uk/bugs/classic/coda04/readme.shtml}.
 
 More information can be found by looking at the documentation of
@@ -89,11 +89,11 @@ More information can be found by looking at the documentation of
   S. Richardson, eds.). London, U.K.: Chapman and Hall.
 }
 \author{Mark S. Handcock, \email{handcock@stat.washington.edu}
-  based on the \code{\link[coda]{coda}} package and also ideas
-  from \code{\link[mcgibbsit]{mcgibbsit}} by 
+  based on the \code{coda} package and also ideas
+  from \code{mcgibbsit} by 
   Gregory R. Warnes \email{gregory\_r\_warnes@groton.pfizer.com}.
   It is based on the the R function 
-  \code{raftery.diag} in \code{\link[coda]{coda}}.
+  \code{raftery.diag} in \code{coda}.
   \code{raftery.diag}, in turn, is based on the
   FORTRAN program \code{gibbsit} written by Steven Lewis which is available
   from the Statlib archive.  }
@@ -128,8 +128,8 @@ More information can be found by looking at the documentation of
 %        of a lack of convergence or a poor multi-chain
 %        algorithm.}
 }
-\seealso{\code{\link{ergm}}, \code{\link[network]{network}},
-         \code{\link[coda]{coda}}, \code{\link[mcgibbsit]{mcgibbsit}}, 
+\seealso{\code{\link{ergm}}, \code{network} package,
+         \code{coda} package, \code{mcgibbsit} package, 
          \code{\link{summary.ergm}}
         }
 \examples{
@@ -153,7 +153,7 @@ library(coda)
 plot(gest$sample, ask=FALSE)
 ergm.raftery.diag(gest$sample, r=0.1)
 #
-# A full range of diagnostics are available 
+# A full range of diagnostics is available 
 # using codamenu()
 #
 }

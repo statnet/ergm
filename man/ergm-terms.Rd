@@ -468,7 +468,7 @@ network
     \item{\code{esp(d)}}{\emph{Edgewise shared partners:} 
     This is just like the \code{dsp} term, except this term adds one network
     statistic to the model for each element in \code{d} where the \eqn{i}th such
-    statistic equals the number of {\em edges} (rather than dyads) in the
+    statistic equals the number of \emph{edges} (rather than dyads) in the
     network with exactly \code{d[i]} shared partners. This term can be used with
     directed and undirected networks. For directed networks the count is over
     homogeneous shared partners only (i.e., only partners on a directed two-path
@@ -533,7 +533,7 @@ network
     \item{\code{gwesp(alpha, fixed=FALSE)}}{\emph{Geometrically weighted
     edgewise shared partner distribution:} 
     This term is just like \code{gwdsp} except it adds a statistic equal to the
-    geometrically weighted {\em edgewise} (not dyadwise) shared partner
+    geometrically weighted \emph{edgewise} (not dyadwise) shared partner
     distribution with weight parameter \code{alpha}. The optional argument
     \code{fixed} indicates whether the scale parameter \code{lambda} is to be
     fit as a curved exponential-family model (see Hunter and Handcock, 2006).
@@ -555,7 +555,7 @@ network
     \item{\code{gwnsp(alpha, fixed=FALSE)}}{\emph{Geometrically weighted
     nonedgewise shared partner distribution:} This term is just like
     \code{gwesp} and \code{gwdsp} except it adds a statistic equal to
-    the geometrically weighted {\em nonedgewise} (that is, over dyads
+    the geometrically weighted \emph{nonedgewise} (that is, over dyads
     that do not have an edge) shared partner distribution with weight
     parameter \code{alpha}. The optional argument \code{fixed} indicates
     whether the scale parameter \code{lambda} is to be fit as a curved
@@ -852,8 +852,8 @@ network
     \item{\code{nsp(d)}}{\emph{Nonedgewise shared partners:} This is
     just like the \code{dsp} and \code{esp} terms, except this term adds
     one network statistic to the model for each element in \code{d}
-    where the \eqn{i}th such statistic equals the number of {\em
-    non-edges} (that is, dyads that do not have an edge) in the network
+    where the \eqn{i}th such statistic equals the number of 
+    \emph{non-edges} (that is, dyads that do not have an edge) in the network
     with exactly \code{d[i]} shared partners. This term can be used with
     directed and undirected networks. For directed networks the count is
     over homogeneous shared partners only (i.e., only partners on a
