@@ -1,0 +1,8 @@
+Logfile for ergm version 2.2-x
+
+DATE: 
+FILE:
+CHANGES:
+
+
+
