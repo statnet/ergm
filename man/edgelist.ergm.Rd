@@ -1,15 +1,3 @@
-\name{edgelist.ergm}
-\alias{edgelist.ergm}
-\alias{edgelist.ergm.default}
-\alias{edgelist.ergm.network}
-\alias{edgelist.ergm.matrix}
-\title{Return edgelist in standard ergm format}
-\description{
-  \code{\link{edgelist.ergm}} returns an edgelist for a network in a format
-  that is expected by many of the routines of the ergm package.
-}
-\usage{
-\method{edgelist.ergm}{default}(x,\dots)
 \method{edgelist.ergm}{network}(x, \dots)
 \method{edgelist.ergm}{matrix}(x, directed=TRUE, check.uniqueness=TRUE,
                                check.sorted=TRUE, \dots)

@@ -1,8 +1,8 @@
-Logfile for ergm version 2.2-x
+Logfile for ergm version 2.2-3
 
-DATE: 
-FILE:
-CHANGES:
+DATE: 2010-Jan-25 
+FILE: DESCRIPTION
+CHANGES: Changed version to 2.3
 
 
 
