@@ -1,8 +1,8 @@
-Logfile for ergm version 2.2-x
+Logfile for ergm version 2.2-3
 
-DATE: 
-FILE:
-CHANGES:
+DATE: 2010-Jan-25 
+FILE: many
+CHANGES: Deleted headers from all .R, .Rd, .c, and .h files.  (These will be replaced later with updated versions)
 
 
 

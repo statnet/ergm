@@ -1,17 +1,3 @@
-san <- function(object, ...){
- UseMethod("san")
-}
-
-san.default <- function(object,...)
-{
-  stop("Either a ergm object or a formula argument must be given")
-}
-
-san.formula <- function(object, nsim=1, seed=NULL, ...,theta0=NULL,
-                        tau=1, invcov=NULL,
-                        burnin=10000, interval=10000,
-                        meanstats=NULL,
-                        sequential=TRUE,
                         constraints=~.,
                         basis=NULL,
                         control=control.san(),

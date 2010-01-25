@@ -1,18 +1,4 @@
 #
-#   missing data code
-#
-llik.fun.miss <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
-                     penalty=0.5, trustregion=20, eta0, etamap){
-  theta.offset <- etamap$theta0
-  theta.offset[!etamap$offsettheta] <- theta
-  eta <- ergm.eta(theta.offset, etamap)
-  x <- eta-eta0
-# The next line is right!
-# aaa <- sum(xobs * x) - log(sum(probs*exp(xsim %*% x)))
-# These lines standardize:
-  basepred <- xsim %*% x
-  misspred <- xsim.miss %*% x
-#
 # maxbase <- max(basepred)
 # llr <- sum(xobs * x) - maxbase - log(sum(probs*exp(basepred-maxbase)))
 #
