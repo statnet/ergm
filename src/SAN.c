@@ -1,3 +1,18 @@
+#include "MCMC.h"
+#include "SAN.h"
+
+
+/*****************
+ Note on undirected networks:  For j<k, edge {j,k} should be stored
+ as (j,k) rather than (k,j).  In other words, only directed networks
+ should have (k,j) with k>j.
+*****************/
+
+/*****************
+ void SAN_wrapper
+
+ Wrapper for a call from R.
+*****************/
 void SAN_wrapper (int *heads, int *tails, int *dnedges, 
                    int *maxpossibleedges,
                    int *dn, int *dflag, int *bipartite, 

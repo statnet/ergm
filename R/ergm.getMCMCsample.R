@@ -1,70 +1,20 @@
-ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, MCMCparams, 
-                               verbose) {
-# Note:  In reality, there should be many fewer arguments to this function,
-# since most info should be passed via Clist (this is, after all, what Clist
-# is for:  Holding all arguments required for the .C call).  In particular,
-# the elements of MHproposal, MCMCparams, verbose should certainly
-# be part of Clist.  But this is a project for another day!
-  Clist <- ergm.Cprepare(nw, model)
-  maxedges <- max(5000, Clist$nedges)
+# This function is nothing other than an R wrapper for the MCMC_wrapper
+# function in C.  It assumes that the calling function will send only what is 
+# necessary, namely:
 #
-#   Check for truncation of the returned edge list
+#  Clist (the result of calling ergm.Cprepare(network, model))
+#  MHproposal (the result of calling MHproposal(...))
+#  eta0 (the canonical parameter value governing the MCMC simulation)
+#  MCMCparams (sort of a catch-all for other arguments passed)
+#  verbose (which governs the verbosity of the C functions)
 #
-  z <- list(newnwheads=maxedges+1)
-  while(z$newnwheads[1] >= maxedges){
-    maxedges <- 10*maxedges
-#
-#  Parallel running
-#
-    if(MCMCparams$parallel==0){
-    flush.console()
-    z <- ergm.mcmcslave(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose)
-    nedges <- z$newnwheads[1]
-    statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
-                          ncol=Clist$nstats,
-                          byrow = TRUE)
-    newnetwork <- newnw.extract(nw,z)
-    if(nedges >= 50000-1){
-      cat("\n Warning:")
-      cat("\n   The network has more than 50000 edges, and the model is likely to be degenerate.\n")
-#  NOT SURE ABOUT COMMENTING OUT THE FOLLOWING THREE LINES:
-#      statsmatrix <- matrix(0, nrow=MCMCparams$samplesize,
-#                            ncol=Clist$nstats)
-#      newnetwork <- nw
-    }      
-    }else{
-      stop("parallization not enabled for now.")
-    }
-  }
-  colnames(statsmatrix) <- model$coef.names
+#  It returns only the named elements of the .C() call, after some 
+#  post-processing (e.g., the statistics matrix is coerced to the correct
+#                   dimensions and given appropriate column names)
+#  NB:  The statistics are all RELATIVE TO THE ORIGINAL MATRIX!
+#       i.e., the calling function must shift the statistics if necessary.
 
-##
-## recenter statsmatrix by mean statistics if necessary
-##
-#   ms <- Clist$meanstats
-#   if(!is.null(ms)) {
-#     if (is.null(names(ms)) && length(ms) == length(model$coef.names))
-#       names(ms) <- model$coef.names
-##    obs <- summary(model$formula)
-#     obs <- Clist$obs
-##    print(paste("obs=",obs))
-##    print(paste("statsmatrix=",apply(statsmatrix,2,mean)))
-#     obs <- obs[match(colnames(statsmatrix), names(obs))]
-#     ms  <-  ms[match(names(obs), names(ms))]
-#     matchcols <- match(names(ms), names(obs))
-#     if (any(!is.na(matchcols))) {
-#       ms[!is.na(matchcols)] <- ms[!is.na(matchcols)] - obs[matchcols[!is.na(matchcols)]]
-#       statsmatrix[,!is.na(matchcols)] <- sweep(as.matrix(
-#          statsmatrix[,!is.na(matchcols)]), 2, ms[!is.na(matchcols)], "-")
-#     }
-#   }
-  list(statsmatrix=statsmatrix, newnetwork=newnetwork, 
-       meanstats=Clist$meanstats, nedges=nedges)
-}
-# Function the slaves will call to perform a validation on the
-# mcmc equal to their slave number.
-# Assumes: Clist MHproposal eta0 MCMCparams maxedges verbose
-ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
+ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALSE) {
   z <- .C("MCMC_wrapper",
   as.integer(Clist$heads), as.integer(Clist$tails),
   as.integer(Clist$nedges), as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
@@ -75,7 +25,61 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
   as.character(MHproposal$name), as.character(MHproposal$package),
   as.double(Clist$inputs), as.double(eta0),
   as.integer(MCMCparams$samplesize),
-  s = as.double(t(MCMCparams$stats)),
+# The line below was changed as of version 2.2-3.  Now, the statsmatrix is 
+# initialized to zero instead of allowing the first row to be nonzero, then 
+# adding this first row to each row within MCMC_wrapper.
+# Any unmodified old function trying to use the new version will generate an 
+# error because the MCMCparams$nmatrixentries object is new and will not yet 
+# exist in an unmodified function.
+  statsmatrix = double(MCMCparams$nmatrixentries),
+#  statsmatrix = as.double(t(MCMCparams$stats)), # By default, as.double goes bycol, not byrow; thus, we use the transpose here.
+  as.integer(MCMCparams$burnin), 
+  as.integer(MCMCparams$interval),
+  newnwheads = integer(MCMCparams$maxedges),
+  newnwtails = integer(MCMCparams$maxedges),
+  as.integer(verbose), as.integer(MHproposal$bd$attribs),
+  as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
+  as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
+  as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)),
+  as.integer(MCMCparams$maxedges),
+  as.integer(MCMCparams$Clist.miss$heads), as.integer(MCMCparams$Clist.miss$tails),
+  as.integer(MCMCparams$Clist.miss$nedges),
+  PACKAGE="ergm")
+
+  ## Post-processing of z$statsmatrix element: coerce to correct-sized matrix
+  statsmatrix <- matrix(z$statsmatrix, nrow = MCMCparams$samplesize, byrow=TRUE)
+  
+  ## Post-processing of z$newnwheads and z$newnwtails: Combine into newedgelist
+  nedges <- z$newnwheads[1]  # This tells how many new edges there are, whose
+       # heads are listed starting at z$newnwheads[2], and similarly for tails.
+  if (nedges==0) { newedgelist <- matrix(0, ncol=2, nrow=0)}
+  else { newedgelist <- cbind(z$newnwtails[2:(nedges+1)], z$newnwheads[2:(nedges+1)])}
+  
+  ## outta here:  Return list with "statsmatrix" and "newedgelist"
+  return(list(statsmatrix = statsmatrix, newedgelist = newedgelist))
+}
+
+
+# ergm.mcmcslave should now be unnecessary; the ergm.getMCMCsample function
+# now takes its place (as of version 2.2-3)
+
+# Function the slaves will call to perform a validation on the
+# mcmc equal to their slave number.
+# Assumes: Clist MHproposal eta0 MCMCparams maxedges verbose
+ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
+  warning("Using deprecated function ergm.mcmcslave!")
+  z <- .C("MCMC_wrapper",
+  as.integer(Clist$heads), as.integer(Clist$tails),
+  as.integer(Clist$nedges), as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
+  as.integer(Clist$dir), as.integer(Clist$bipartite),
+  as.integer(Clist$nterms),
+  as.character(Clist$fnamestring),
+  as.character(Clist$snamestring),
+  as.character(MHproposal$name), as.character(MHproposal$package),
+  as.double(Clist$inputs), as.double(eta0),
+  as.integer(MCMCparams$samplesize),
+#  s = as.double(t(MCMCparams$stats)),
+  s = double(MCMCparams$samplesize * length(MCMCparams$stats)),
   as.integer(MCMCparams$burnin), 
   as.integer(MCMCparams$interval),
   newnwheads = integer(maxedges),
