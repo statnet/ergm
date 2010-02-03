@@ -1,8 +1,36 @@
-Logfile for ergm version 2.2-3
+Logfile for ergm version 2.3
 
 DATE: 2010-Jan-25 
 FILE: DESCRIPTION
 CHANGES: Changed version to 2.3
+
+DATE: 2010-Feb-2
+FILE: src/ SAN.c, SAN.h, wtedgetree.c, wtedgetree.h
+CHANGES: Replaced code accidentally deleted when deleting "headers" last time
+
+DATE: 2010-Feb-2
+FILE: R/ control.san.R, ergm.llik.miss.R, ergm.san.R
+CHANGES: Replaced code accidentally deleted when deleting "headers" last time
+
+DATE: 2010-Feb-2
+FILE: R/is.inCH.R
+CHANGES: Added function to see whether a point in R^d is inside the interior of
+         the convex hull of a given set of points.  NB:  Uses Rglpk package
+
+DATE: 2010-Feb-2
+FILE: man/edgelist.ergm.Rd
+CHANGES: Replaced code accidentally deleted when deleting "headers" last time
+
+DATE: 2010-Feb-3
+FILE: R/simulate.ergm.R
+CHANGES: Major changes to both simulate.ergm and simulate.formula to reflect
+         new "ergm.getMCMCsample" function
+
+DATE: 2010-Feb-3
+FILE: R/ergm.getMCMCsample.R
+CHANGES: Major changes:  ergm.getMCMCsample is now only a wrapper to MCMC_wrapper
+         and mcmcslave is now deprecated
+
 
 
 

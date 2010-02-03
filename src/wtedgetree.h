@@ -1,3 +1,18 @@
+#ifndef WTEDGETREE_H
+#define WTEDGETREE_H
+
+#include <math.h>
+#include <R.h>
+#include <Rinternals.h>
+#include <Rmath.h>
+#include "edgetree.h"
+
+
+
+/* WtTreeNode is just like TreeNode but with an extra field for a
+   weight, or value, that might be associated with the node */
+typedef struct WtTreeNodestruct {
+  Vertex value;      /*  the vertex at the other end of the edge  */
   Edge parent;   /*  parent of this node in the tree (0 for root) */
   Edge left;     /*  left child (0 if none)  */
   Edge right;    /*  right child (0 if none) */

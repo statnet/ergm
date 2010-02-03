@@ -1,3 +1,18 @@
+#ifndef SAN_H
+#define SAN_H
+
+#include "wtedgetree.h"
+#include "changestats.h"
+#include "model.h"
+
+/*  Notes on MHproposal type: MHproposal declaration was here, and redundant with the one in 
+    MCMC.h. */
+
+void SAN_wrapper (int *heads, int *tails, int *dnedges,
+                   int *maxpossibleedges,
+		  int *dn, int *dflag, int *bipartite, 
+		  int *nterms, char **funnames,
+		  char **sonames, 
 		  char **MHproposaltype, char **MHproposalpackage,
 		  double *inputs, double *theta0, double *tau, int *samplesize, 
 		  double *sample, int *burnin, int *interval,  
