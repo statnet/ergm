@@ -1,7 +1,7 @@
-simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
-                          burnin=1000, interval=1000, 
+simulate.ergm <- function(object, nsim=1, seed=NULL, theta0=NULL,
+                          burnin=1000, interval=1000,
                           statsonly=FALSE,
-                          sequential=TRUE, 
+                          sequential=TRUE,
                           constraints=NULL,
                           control=control.simulate.ergm(),
                           verbose=FALSE, ...) {
@@ -61,7 +61,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, theta0,
 
   # prepare MCMCparams object
   MCMCparams <- list(samplesize=1,
-                     maxedges = max(2000, Clist$nedges),
+                     maxedges = 1+max(20000, Clist$nedges),
 #                     stats=curstats, # deprecated as of version 2.2-3
                      burnin=burnin,
                      interval=interval,
@@ -76,6 +76,8 @@ simulate.formula <- function(object, nsim=1, seed=NULL, theta0,
               " steps", ifelse(nsim>1, " each", ""), ".\n", sep=""))
   }
   
+  #########################
+  ## Main part of function:
   if(sequential && statsonly){ 
     # Call MCMC_wrapper only one time, using the C function to generate the whole
     # matrix of network statistics.
@@ -83,7 +85,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, theta0,
     MCMCparams$nmatrixentries <- nsim * length(curstats)
     z <- ergm.getMCMCsample(Clist, MHproposal, theta0, MCMCparams, verbose=verbose)
     # Check to see whether maxedges was too small; if so, rerun with 10x more
-    while (NROW(z$newedgelist) >= MCMCparams$maxedges) {
+    while (1+NROW(z$newedgelist) >= MCMCparams$maxedges) {
       MCMCparams$maxedges <- 10*MCMCparams$maxedges
       if (verbose) cat("Increasing possible number of newedges to ", 
                        MCMCparams$maxedges, "\n")
@@ -109,13 +111,12 @@ simulate.formula <- function(object, nsim=1, seed=NULL, theta0,
   # more complicated situation:  Either we want a network for each
   # MCMC iteration (statsonly=FALSE) or we want to restart each chain
   # at the original network (sequential=FALSE).
-  MCMCparams$maxedges <- max(2000, Clist$nedges)
   MCMCparams$nmatrixentries <- length(curstats)
   for(i in 1:nsim){
     MCMCparams$burnin <- ifelse(i==1 || !sequential, burnin, interval)
     z <- ergm.getMCMCsample(Clist, MHproposal, theta0, MCMCparams, verbose)
     # Check to see whether maxedges was too small; if so, rerun with 10x more
-    while (NROW(z$newedgelist) >= MCMCparams$maxedges) {
+    while (1+NROW(z$newedgelist) >= MCMCparams$maxedges) {
       MCMCparams$maxedges <- 10*MCMCparams$maxedges
       if (verbose) cat("Increasing possible number of newedges to ", 
                        MCMCparams$maxedges, "\n")
