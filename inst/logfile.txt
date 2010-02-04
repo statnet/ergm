@@ -41,6 +41,10 @@ FILE: DESCRIPTION, R/is.inCH.R
 CHANGES: Added Rglpk to "suggests" and added line so that Rglpk 
          (required by that function) is loaded when is.inCH is called
 
+DATE: 2010-Feb-4
+FILE: R/ergm.stepping.R
+CHANGES: Added function implementing steplength algorithm
+
 
 
 
