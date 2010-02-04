@@ -1,10 +1,10 @@
-ergm <- function(formula, theta0="MPLE",
+ergm <- function(formula, theta0="MPLE",               ##### Note that the network, nw, is included in the formula, e.g. nw ~ edges + degree(2:5)
                  MPLEonly=FALSE, MLestimate=!MPLEonly, seed=NULL,
-                 burnin=10000, MCMCsamplesize=10000, interval=100,
-                 maxit=3,
+                 burnin=10000, MCMCsamplesize=1000, interval=1000, stepMCMCsize=100, gridsize=100,
+# Later:  Move stuff like stepMCMCsize and gridsize into control.ergm?
+                 maxit=1, control=control.ergm(),
                  constraints=~.,
                  meanstats=NULL,
-                 control=control.ergm(),
                  verbose=FALSE, ...) {
   current.warn <- options()$warn
   options(warn=0)
@@ -133,9 +133,9 @@ ergm <- function(formula, theta0="MPLE",
    }
   }
 
-  MCMCparams=c(control,
-   list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,
-        maxit=maxit,Clist.miss=Clist.miss, mcmc.precision=control$mcmc.precision))
+  MCMCparams=c(control, list(samplesize=MCMCsamplesize, burnin=burnin,
+  interval=interval, stepMCMCsize=stepMCMCsize, gridsize=gridsize,
+  maxit=maxit,Clist.miss=Clist.miss, mcmc.precision=control$mcmc.precision))
 
    if (verbose) cat("Fitting ERGM.\n")
    v <- switch(control$style,
@@ -145,7 +145,15 @@ ergm <- function(formula, theta0="MPLE",
                                  Clist, 
                                  MCMCparams=MCMCparams, MHproposal=MHproposal,
                                  verbose),
-                      ergm.mainfitloop(theta0, nw,
+			   "Stepping" = ergm.stepping(theta0, nw, model, Clist, initialfit, 
+				#nstats=nstats, 
+				#approx=lognormapprox, filename.prefix=NULL, 
+				#control=control.ergm(nsim1=100, nsim2=1000, gridsize=100),  # simulation parameters
+				#plots=FALSE,  # currently useless, but plots can be reimplemented
+				MCMCparams=MCMCparams, 
+				MHproposal=MHproposal, MHproposal.miss=MHproposal.miss, 
+				verbose=verbose,...),
+     ergm.mainfitloop(theta0, nw,
                           model, Clist, 
                           initialfit,
                           MCMCparams=MCMCparams, MHproposal=MHproposal,

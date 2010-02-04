@@ -1,4 +1,4 @@
-ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
+ergm.estimate<-function(theta0, model, xobs=NULL, statsmatrix, statsmatrix.miss=NULL,    #####Added xobs=NULL
                         epsilon=1e-10, nr.maxit=100, nr.reltol=sqrt(.Machine$double.eps),
                         metric="Likelihood",
                         method="Nelder-Mead", compress=FALSE,
@@ -31,15 +31,19 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     }
   }
   av <- apply(sweep(statsmatrix0,1,probs,"*"), 2, sum)
-  xsim <- sweep(statsmatrix0, 2, av,"-")
+  xsim <- sweep(statsmatrix0, 2, av,"-")                   ##what is happening here?
   if(!is.null(statsmatrix.miss)){
     av.miss <- apply(sweep(statsmatrix0.miss,1,probs.miss,"*"), 2, sum)
     xsim.miss <- sweep(statsmatrix0.miss, 2, av.miss,"-")
-    xobs <- av.miss-av
+    if (is.null(xobs)) {
+      xobs <- av.miss-av
+    }
   }else{
     xsim.miss <- NULL
     probs.miss <- NULL
-    xobs <- - av
+    if (is.null(xobs)) {
+      xobs <- - av
+    }
   }
 #
 # Set up the initial estimate

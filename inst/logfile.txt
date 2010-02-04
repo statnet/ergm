@@ -31,4 +31,16 @@ FILE: R/ergm.getMCMCsample.R
 CHANGES: Major changes:  ergm.getMCMCsample is now only a wrapper to MCMC_wrapper
          and mcmcslave is now deprecated
 
+DATE: 2010-Feb-4
+FILE: R/ergm.R, ergm.estimate.R, ergm.mainfitloop.R, control.ergm.R
+CHANGES: Several small changes that will eventually lead to implementation of
+         the steplength algorithm Ruth has been working on 
+
+DATE: 2010-Feb-4
+FILE: DESCRIPTION, R/is.inCH.R 
+CHANGES: Added Rglpk to "suggests" and added line so that Rglpk 
+         (required by that function) is loaded when is.inCH is called
+
+         
+
          

@@ -1,6 +1,8 @@
 ## Uses package Rglpk
 
+# Add library(Rglpk) call to this function.
 is.inCH <- function(q, p) {
+  library(Rglpk) # Needed in order to solve the linear program
 	R = NROW(p)
 	C=length(q)+1
 	ans <- Rglpk_solve_LP(obj=c(as.vector(q),-1), mat=cbind(rbind(q,p),-1), 

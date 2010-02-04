@@ -6,8 +6,10 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
                              epsilon=1e-10,
                              sequential=TRUE,
                              estimate=TRUE, ...) {
+#   preliminary, to set up structure. 
   iteration <- 1
   nw.orig <- nw
+
 #
   asyse=theta0-theta0
   mc.se=1+0.05*asyse
@@ -34,8 +36,13 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     }else{
      cat("Iteration ",iteration," of at most ", MCMCparams$maxit,": ",sep="")
     }
-    z <- ergm.getMCMCsample(nw, model, MHproposal, eta0, MCMCparams, verbose)
+    Clist <- ergm.Cprepare(nw, model)
+	  
+#   Takes MCMC sample from the initial value, theta0 (technically, from its etamap) 
+#   for the first iteration.
+    z <- ergm.getMCMCsample(Clist, MHproposal, eta0, MCMCparams, verbose)
     statsmatrix <- z$statsmatrix
+    colnames(statsmatrix) <- model$coef.names
     v$sample <- statsmatrix
 #    if(verbose && FALSE){
 #      sm<-statsmatrix[,!model$offset,drop=FALSE]
@@ -50,21 +57,29 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
 #          mahalanobis(apply(sm,2,mean),0,stats.cov),
 #          "\n")
 #    }
-    if(MCMCparams$Clist.miss$nedges > 0){
-      statsmatrix.miss <- ergm.getMCMCsample(nw, model, MHproposal.miss, eta0, MCMCparams, verbose)$statsmatrix
+
+##  Does the same, if missing edges:		 
+	  if(MCMCparams$Clist.miss$nedges > 0){
+      Clist <- ergm.Cprepare(nw, model)
+      statsmatrix.miss <- ergm.getMCMCsample(Clist, MHproposal.miss, eta0, MCMCparams, verbose)$statsmatrix
+      colnames(statsmatrix.miss) <- model$coef.names
       if(verbose){cat("Back from constrained MCMC...\n")}
     }else{
       statsmatrix.miss <- NULL
       if(verbose){cat("Back from unconstrained MCMC...\n")}
     }
     if(sequential & MCMCparams$Clist.miss$nedges == 0){
-      nw <- z$newnetwork
+      nw <- network.update(nw, z$newedgelist, "edgelist")
       nw.obs <- summary(model$formula, basis=nw)
       namesmatch <- match(names(MCMCparams$meanstats), names(nw.obs))
       MCMCparams$stats[1,] <- nw.obs[namesmatch]-MCMCparams$meanstats
     }
-#
-    iteration <- iteration + 1
+
+#  Next iteration begins here:
+	  iteration <- iteration + 1
+#  This is the old version of using the steplength 
+#  (no is.inCH, just guess a steplength to use for every step.)
+#  Can probably delete...
     if(MCMCparams$steplength<1 && iteration < MCMCparams$maxit ){
       if(!is.null(statsmatrix.miss)){
         statsmatrix.miss <- statsmatrix.miss*MCMCparams$steplength+statsmatrix*(1-MCMCparams$steplength)
@@ -73,7 +88,9 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
         statsmatrix <- sweep(statsmatrix,2,(1-MCMCparams$steplength)*statsmean,"-")
       }
     }
-    if(z$nedges >= 50000-1 || ergm.checkdegeneracy(statsmatrix, statsmatrix.miss, verbose=verbose)){
+	
+#  Check for degeneracy if new network has fewer than 49999 edges
+    if(NROW(z$newedgelist) >= 50000-1 || ergm.checkdegeneracy(statsmatrix, statsmatrix.miss, verbose=verbose)){
      if(iteration <= MCMCparams$maxit){
       cat(paste("The MCMC sampler is producing degenerate samples.\n",
                 "Try starting the algorithm at an alternative model\n",
@@ -93,6 +110,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
       return(structure (v, class="ergm"))
      }
     }
+
     if(verbose){
       cat(paste("The density of the returned network is",
                 network.density(nw),"\n"))
@@ -105,6 +123,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
       print(summary(model$formula, basis=nw)-Clist$meanstats)
     }
     if(verbose){cat("Calling optimization routines...\n")}
+
 
 ###### old statseval begins here.
     
