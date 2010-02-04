@@ -15,6 +15,74 @@
 #       i.e., the calling function must shift the statistics if necessary.
 
 ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALSE) {
+
+  if(verbose)
+    cat("\nheads: ",
+    as.integer(Clist$heads), 
+    "\ntails: ",
+    as.integer(Clist$tails),
+    "\nnedges: ",
+    as.integer(Clist$nedges), 
+    "\nmaxpossibleedges: ",
+    as.integer(Clist$maxpossibleedges), 
+    "\nn: ",
+    as.integer(Clist$n),
+    "\ndir: ",
+    as.integer(Clist$dir), 
+    "\nbipartite: ",
+    as.integer(Clist$bipartite),
+    "\nnterms: ",
+    as.integer(Clist$nterms),
+    "\nfnamestring: ",
+    as.character(Clist$fnamestring),
+    "\nsnamestring: ",
+    as.character(Clist$snamestring),
+    "\nMHproposalname: ",
+    as.character(MHproposal$name), 
+    "\nMHproposalpackage: ",
+    as.character(MHproposal$package),
+    "\ninputs: ",
+    as.double(Clist$inputs), 
+    "\neta0: ",
+    as.double(eta0),
+    "\nsamplesize: ",
+    as.integer(MCMCparams$samplesize),
+    "\nstats: ",
+    #  s = as.double(t(MCMCparams$stats)),
+    double(MCMCparams$nmatrixentries),
+    "\nburnin: ",
+    as.integer(MCMCparams$burnin), 
+    "\ninterval: ",
+    as.integer(MCMCparams$interval),
+    "\nnumnewheads and numnewtails same as maxedges",
+    #  newnwheads = integer(maxedges),
+    #  newnwtails = integer(maxedges),
+    "\nverbose: ",
+    as.integer(verbose), 
+    "\nbd attribs: ",
+    as.integer(MHproposal$bd$attribs),
+    "\nbd maxout: ",
+    as.integer(MHproposal$bd$maxout), 
+    "\nbd maxin: ",
+    as.integer(MHproposal$bd$maxin),
+    "\nbd minout: ",
+    as.integer(MHproposal$bd$minout), 
+    "\nbf condAllDegExact: ",
+    as.integer(MHproposal$bd$minin),
+    "\nbd condAllDegExact: ",
+    as.integer(MHproposal$bd$condAllDegExact), 
+    "\nbd attribs: ",
+    as.integer(length(MHproposal$bd$attribs)),
+    "\nmaxedges: ",
+    as.integer(MCMCparams$maxedges),
+    "\nmiss.heads: ",
+    as.integer(MCMCparams$Clist.miss$heads), 
+    "\nmiss.tails: ",
+    as.integer(MCMCparams$Clist.miss$tails),
+    "\nmiss.nedges: ",
+    as.integer(MCMCparams$Clist.miss$nedges))
+
+
   z <- .C("MCMC_wrapper",
   as.integer(Clist$heads), as.integer(Clist$tails),
   as.integer(Clist$nedges), as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
@@ -25,14 +93,14 @@ ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALS
   as.character(MHproposal$name), as.character(MHproposal$package),
   as.double(Clist$inputs), as.double(eta0),
   as.integer(MCMCparams$samplesize),
-# The line below was changed as of version 2.2-3.  Now, the statsmatrix is 
-# initialized to zero instead of allowing the first row to be nonzero, then 
-# adding this first row to each row within MCMC_wrapper.
-# Any unmodified old function trying to use the new version will generate an 
-# error because the MCMCparams$nmatrixentries object is new and will not yet 
-# exist in an unmodified function.
+  # The line below was changed as of version 2.2-3.  Now, the statsmatrix is 
+  # initialized to zero instead of allowing the first row to be nonzero, then 
+  # adding this first row to each row within MCMC_wrapper.
+  # Any unmodified old function trying to use the new version will generate an 
+  # error because the MCMCparams$nmatrixentries object is new and will not yet 
+  # exist in an unmodified function.
   statsmatrix = double(MCMCparams$nmatrixentries),
-#  statsmatrix = as.double(t(MCMCparams$stats)), # By default, as.double goes bycol, not byrow; thus, we use the transpose here.
+  #  statsmatrix = as.double(t(MCMCparams$stats)), # By default, as.double goes bycol, not byrow; thus, we use the transpose here.
   as.integer(MCMCparams$burnin), 
   as.integer(MCMCparams$interval),
   newnwheads = integer(MCMCparams$maxedges),

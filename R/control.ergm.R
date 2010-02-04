@@ -8,17 +8,18 @@ control.ergm<-function(prop.weights="default",prop.args=NULL,
                        maxMPLEsamplesize=100000,
                        MPLEtype=c("glm", "penalized"),
                        trace=0,
-                       steplength=0.5,
+                       steplength=0.5,                     ##### ????
+#		       nsim1=100,nsim2=1000, gridsize=100, ##### for ergm.stepping.R
                        drop=TRUE,
                        force.mcmc=FALSE,
                        check.degeneracy=FALSE,
                        mcmc.precision=0.05,
                        metric=c("Likelihood","raw"),
                        method=c("BFGS","Nelder-Mead"),
-                       trustregion=20,
+                       trustregion=20,                     ##### ????
                        initial.loglik=NULL,
                        initial.network=NULL,
-                       style=c("Newton-Raphson","Robbins-Monro","Stochastic-Approximation"),
+                       style=c("Newton-Raphson","Robbins-Monro","Stochastic-Approximation","Stepping"),    ##### Added "Stepping" option
                        phase1_n=NULL, initial_gain=NULL, 
                        nsubphases="maxit", niterations=NULL, phase3_n=NULL,
                        RobMon.phase1n_base=7,
