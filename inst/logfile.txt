@@ -45,5 +45,18 @@ DATE: 2010-Feb-4
 FILE: R/ergm.stepping.R
 CHANGES: Added function implementing steplength algorithm
          
+DATE: 2010-Feb-6
+FILE: R/ergm.stocapprox.R, ergm.robmon.R, ergm.mainfitloop.R
+CHANGES: Modified old calls to "ergm.getMCMCsample" in view of new updates
+
+DATE: 2010-Feb-6
+FILE: R/ergm.getMCMCsample.R
+CHANGES: Added check of when the simulation has filled its allotment of
+         memory for newedges (if so, then re-call function with 10x more memory)
+
+DATE: 2010-Feb-6
+FILE: R/simulate.ergm.R
+CHANGES: Removed old check from here because it's now in ergm.getMCMCsample
+         
 
          
