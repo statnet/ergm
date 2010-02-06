@@ -18,11 +18,13 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
   theta.original=theta0
   thetaprior=theta0-theta0
 
-#  stats <- matrix(0,ncol=Clist$nstats,nrow=MCMCparams$samplesize)
-#  stats[1,] <- Clist$obs - Clist$meanstats
+
+  #  stats <- matrix(0,ncol=Clist$nstats,nrow=MCMCparams$samplesize)
+  statshift <- Clist$obs - Clist$meanstats
 ## stats[,]<-  rep(Clist$obs - Clist$meanstats,rep(nrow(stats),Clist$nstats))
 #  MCMCparams$stats <- stats
   MCMCparams$meanstats <- Clist$meanstats
+  MCMCparams$nmatrixentries = MCMCparams$samplesize * Clist$nstats
 
 #  while(any(mcmc.precision*asyse < mc.se, na.rm=TRUE) && iteration <= maxit){
   while(iteration <= MCMCparams$maxit){
@@ -43,7 +45,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     
     # post-processing of sample statistics:  Shift each row by the
     # matrix Clist$obs - Clist$meanstats, attach column names
-    statsmatrix <- sweep(z$statsmatrix, 2, Clist$obs-Clist$meanstats, "+")
+    statsmatrix <- sweep(z$statsmatrix, 2, statshift, "+")
     colnames(statsmatrix) <- model$coef.names
     v$sample <- statsmatrix
 
@@ -52,7 +54,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
       Clist <- ergm.Cprepare(nw, model)
       # Obtain MCMC sample, followed by post-processing
       z <- ergm.getMCMCsample(Clist, MHproposal.miss, eta0, MCMCparams, verbose)
-      statsmatrix <- sweep(z$statsmatrix, 2, Clist$obs-Clist$meanstats, "+")
+      statsmatrix <- sweep(z$statsmatrix, 2, statshift, "+")
       colnames(statsmatrix.miss) <- model$coef.names
       if(verbose){cat("Back from constrained MCMC...\n")}
     }else{
@@ -63,7 +65,6 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
       nw <- network.update(nw, z$newedgelist, "edgelist")
       nw.obs <- summary(model$formula, basis=nw)
       namesmatch <- match(names(MCMCparams$meanstats), names(nw.obs))
-      MCMCparams$stats[1,] <- nw.obs[namesmatch]-MCMCparams$meanstats
     }
 
 #  Next iteration begins here:

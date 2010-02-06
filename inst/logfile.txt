@@ -44,7 +44,7 @@ CHANGES: Added Rglpk to "suggests" and added line so that Rglpk
 DATE: 2010-Feb-4
 FILE: R/ergm.stepping.R
 CHANGES: Added function implementing steplength algorithm
-         
+
 DATE: 2010-Feb-6
 FILE: R/ergm.stocapprox.R, ergm.robmon.R, ergm.mainfitloop.R
 CHANGES: Modified old calls to "ergm.getMCMCsample" in view of new updates
@@ -61,7 +61,24 @@ CHANGES: Removed old check from here because it's now in ergm.getMCMCsample
 DATE: 2010-Feb-6
 FILE: R/ergm.getMCMCsample.R
 CHANGES: Removed deprecated function ergm.mcmcslave after checking that no 
-         existing function calls it
+         existing function calls it (to retrieve the old function, see svn
+         version 10805).
+
+DATE: 2010-Feb-6
+FILE: R/ergm.R
+CHANGES: Restored defaults to original values
+
+DATE: 2010-Feb-6
+FILE: R/ergm.stocapprox.R, ergm.robmon.R, ergm.mainfitloop.R, ergm.phase12.R
+CHANGES: Various small debugging tasks so that known examples work with new changes
+
+DATE: 2010-Feb-6
+FILE: R/getMCMCsample.R
+CHANGES: Deleted lengthy verbose output used earlier for debugging
+
+
+
+
 
 
          
