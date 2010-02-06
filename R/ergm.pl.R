@@ -1,7 +1,9 @@
 ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
                     maxMPLEsamplesize=1e+6,
                     maxNumDyadTypes=1e+6,
+		    conddeg=NULL, MCMCparams, MHproposal,
                     verbose=FALSE, compressflag=TRUE) {
+  offset <- rep(0,Clist$ndyads)
   bip <- Clist$bipartite
   n <- Clist$n
   if(Clist.miss$nedges>0){
@@ -25,9 +27,10 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
                                 ifelse(Clist$dir, n*(n-1), n*(n-1)/2)))
   # May have to think harder about what maxNumDyadTypes should be if we 
   # implement a hash-table approach to compression.  
+  if(is.null(conddeg)){
   z <- .C("MPLE_wrapper",
           as.integer(Clist$heads),    as.integer(Clist$tails),
-          as.integer(Clist$nedges), as.integer(Clist$maxpossibleedges),
+          as.integer(Clist$nedges),   as.integer(Clist$maxpossibleedges),
           as.integer(n), 
           as.integer(Clist$dir),     as.integer(bip),
           as.integer(Clist$nterms), 
@@ -52,6 +55,57 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
   colnames(xmat) <- m$coef.names
   dmiss <- z$compressedOffset[uvals]
   rm(z,uvals)
+  }else{
+  # Conditional on degree version
+  eta0 <- ergm.eta(rep(0,length(conddeg$m$coef.names)), conddeg$m$etamap)
+
+  stats <- matrix(0,ncol=conddeg$Clist$nstats,nrow=MCMCparams$samplesize+1)
+  MCMCparams$stats <- stats
+  maxedges <- max(5000, conddeg$Clist$nedges)
+  flush.console()
+  z <- .C("MPLEconddeg_wrapper",
+  as.integer(conddeg$Clist$heads), as.integer(conddeg$Clist$tails),
+  as.integer(conddeg$Clist$nedges), as.integer(conddeg$Clist$maxpossibleedges), as.integer(conddeg$Clist$n),
+  as.integer(conddeg$Clist$dir), as.integer(conddeg$Clist$bipartite),
+  as.integer(conddeg$Clist$nterms),
+  as.character(conddeg$Clist$fnamestring),
+  as.character(conddeg$Clist$snamestring),
+  as.character(MHproposal$name), as.character(MHproposal$package),
+  as.double(conddeg$Clist$inputs), as.double(eta0),
+  as.integer(MCMCparams$samplesize+1),
+  s = as.double(t(MCMCparams$stats)),
+  as.integer(0), 
+  as.integer(1),
+  newnwheads = integer(maxedges),
+  newnwtails = integer(maxedges),
+  as.integer(verbose), as.integer(MHproposal$bd$attribs),
+  as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
+  as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
+  as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)),
+  as.integer(maxedges),
+  as.integer(MCMCparams$Clist.miss$heads), as.integer(MCMCparams$Clist.miss$tails),
+  as.integer(MCMCparams$Clist.miss$nedges),
+  PACKAGE="ergm")
+  # save the results
+  z <- list(s=z$s, newnwheads=z$newnwheads, newnwtails=z$newnwtails)
+
+  nedges <- z$newnwheads[1]
+  statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize+1,
+                        ncol=conddeg$Clist$nstats,
+                        byrow = TRUE)
+  colnames(statsmatrix) <- conddeg$m$coef.names
+# xb <- apply(statsmatrix,2,diff)
+  xb <- statsmatrix[-1,]
+  zy <- round(xb[,1]-1)
+  xmat <- xb[,-1,drop=FALSE]
+  xmat[zy==1,] <- -xmat[zy==1,]
+  wend <- zy-zy+1
+  #
+  #foffset <- NULL
+  #foffset.full <- NULL
+  #xmat.full <- xmat
+  #zy.full <- zy
+  }
   #
   # Adjust for the offset
   #
@@ -59,24 +113,14 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     if(is.null(theta.offset)){
       theta.offset <- rep(0, length=Clist$nstats)
       names(theta.offset) <- m$coef.names
-      theta.offset[m$etamap$offsettheta] <- -Inf
+#     theta.offset[m$etamap$offsettheta] <- -Inf
+      theta.offset[m$etamap$offsettheta] <- -10000
     }
-    # Commenting out recent version of this section that does not work;
     #foffset <- xmat[,m$etamap$offsettheta,drop=FALSE]%*%theta.offset[m$etamap$offsettheta]
     #foffset[is.nan(foffset)] <- 0 # zero times +-Inf should be zero in this context
-    #foffset <- xmat[,m$etamap$offsettheta,drop=FALSE]%*%theta.offset[m$etamap$offsettheta]
-    #xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE]
-    #colnames(xmat) <- m$coef.names[!m$etamap$offsettheta]
-    
-    # Returning to the version from CRAN ergm v. 2.1:
-    foffset <- xmat[,!m$etamap$offsettheta,drop=FALSE]%*%theta.offset[!m$etamap$offsettheta]
-    shouldoffset <- apply(abs(xmat[,m$etamap$offsettheta,drop=FALSE])>1e-8,1,any)
+    foffset <- xmat[,m$etamap$offsettheta,drop=FALSE]%*%theta.offset[m$etamap$offsettheta]
     xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE]
     colnames(xmat) <- m$coef.names[!m$etamap$offsettheta]
-    xmat <- xmat[!shouldoffset,,drop=FALSE]
-    zy <- zy[!shouldoffset]
-    wend <- wend[!shouldoffset]
-    foffset <- foffset[!shouldoffset]
   }else{
     foffset <- rep(0, length=length(zy))
     theta.offset <- rep(0, length=Clist$nstats)

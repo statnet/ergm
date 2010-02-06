@@ -76,6 +76,12 @@ DATE: 2010-Feb-6
 FILE: R/getMCMCsample.R
 CHANGES: Deleted lengthy verbose output used earlier for debugging
 
+DATE: 2010-Feb-6
+FILE: R/ergm.mple.R, ergm.pl.R
+CHANGES: Made these versions look nearly the same as trunk versions, where a
+         former bug had been fixed
+
+         
 
 
 
