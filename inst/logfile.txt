@@ -58,5 +58,10 @@ DATE: 2010-Feb-6
 FILE: R/simulate.ergm.R
 CHANGES: Removed old check from here because it's now in ergm.getMCMCsample
          
+DATE: 2010-Feb-6
+FILE: R/ergm.getMCMCsample.R
+CHANGES: Removed deprecated function ergm.mcmcslave after checking that no 
+         existing function calls it
+
 
          
