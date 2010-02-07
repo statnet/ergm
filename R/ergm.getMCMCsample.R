@@ -9,80 +9,15 @@
 #  verbose (which governs the verbosity of the C functions)
 #
 #  It returns only the named elements of the .C() call, after some 
-#  post-processing (e.g., the statistics matrix is coerced to the correct
-#                   dimensions and given appropriate column names)
+#  post-processing: the statistics matrix is coerced to the correct
+#                   dimensions and the heads/tails are returned as an edgelist
 #  NB:  The statistics are all RELATIVE TO THE ORIGINAL MATRIX!
 #       i.e., the calling function must shift the statistics if necessary.
+#       The calling function must also attach column names to the statistics
+#       matrix if required.
 
 ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALSE) {
-
-  if(verbose)
-    cat("\nheads: ",
-    as.integer(Clist$heads), 
-    "\ntails: ",
-    as.integer(Clist$tails),
-    "\nnedges: ",
-    as.integer(Clist$nedges), 
-    "\nmaxpossibleedges: ",
-    as.integer(Clist$maxpossibleedges), 
-    "\nn: ",
-    as.integer(Clist$n),
-    "\ndir: ",
-    as.integer(Clist$dir), 
-    "\nbipartite: ",
-    as.integer(Clist$bipartite),
-    "\nnterms: ",
-    as.integer(Clist$nterms),
-    "\nfnamestring: ",
-    as.character(Clist$fnamestring),
-    "\nsnamestring: ",
-    as.character(Clist$snamestring),
-    "\nMHproposalname: ",
-    as.character(MHproposal$name), 
-    "\nMHproposalpackage: ",
-    as.character(MHproposal$package),
-    "\ninputs: ",
-    as.double(Clist$inputs), 
-    "\neta0: ",
-    as.double(eta0),
-    "\nsamplesize: ",
-    as.integer(MCMCparams$samplesize),
-    "\nstats: ",
-    #  s = as.double(t(MCMCparams$stats)),
-    double(MCMCparams$nmatrixentries),
-    "\nburnin: ",
-    as.integer(MCMCparams$burnin), 
-    "\ninterval: ",
-    as.integer(MCMCparams$interval),
-    "\nnumnewheads and numnewtails same as maxedges",
-    #  newnwheads = integer(maxedges),
-    #  newnwtails = integer(maxedges),
-    "\nverbose: ",
-    as.integer(verbose), 
-    "\nbd attribs: ",
-    as.integer(MHproposal$bd$attribs),
-    "\nbd maxout: ",
-    as.integer(MHproposal$bd$maxout), 
-    "\nbd maxin: ",
-    as.integer(MHproposal$bd$maxin),
-    "\nbd minout: ",
-    as.integer(MHproposal$bd$minout), 
-    "\nbf condAllDegExact: ",
-    as.integer(MHproposal$bd$minin),
-    "\nbd condAllDegExact: ",
-    as.integer(MHproposal$bd$condAllDegExact), 
-    "\nbd attribs: ",
-    as.integer(length(MHproposal$bd$attribs)),
-    "\nmaxedges: ",
-    as.integer(MCMCparams$maxedges),
-    "\nmiss.heads: ",
-    as.integer(MCMCparams$Clist.miss$heads), 
-    "\nmiss.tails: ",
-    as.integer(MCMCparams$Clist.miss$tails),
-    "\nmiss.nedges: ",
-    as.integer(MCMCparams$Clist.miss$nedges))
-
-
+  maxedges <- MCMCparams$maxedges
   z <- .C("MCMC_wrapper",
   as.integer(Clist$heads), as.integer(Clist$tails),
   as.integer(Clist$nedges), as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
@@ -109,57 +44,34 @@ ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALS
   as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
   as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
   as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)),
-  as.integer(MCMCparams$maxedges),
-  as.integer(MCMCparams$Clist.miss$heads), as.integer(MCMCparams$Clist.miss$tails),
-  as.integer(MCMCparams$Clist.miss$nedges),
-  PACKAGE="ergm")
-
-  ## Post-processing of z$statsmatrix element: coerce to correct-sized matrix
-  statsmatrix <- matrix(z$statsmatrix, nrow = MCMCparams$samplesize, byrow=TRUE)
-  
-  ## Post-processing of z$newnwheads and z$newnwtails: Combine into newedgelist
-  nedges <- z$newnwheads[1]  # This tells how many new edges there are, whose
-       # heads are listed starting at z$newnwheads[2], and similarly for tails.
-  if (nedges==0) { newedgelist <- matrix(0, ncol=2, nrow=0)}
-  else { newedgelist <- cbind(z$newnwtails[2:(nedges+1)], z$newnwheads[2:(nedges+1)])}
-  
-  ## outta here:  Return list with "statsmatrix" and "newedgelist"
-  return(list(statsmatrix = statsmatrix, newedgelist = newedgelist))
-}
-
-
-# ergm.mcmcslave should now be unnecessary; the ergm.getMCMCsample function
-# now takes its place (as of version 2.2-3)
-
-# Function the slaves will call to perform a validation on the
-# mcmc equal to their slave number.
-# Assumes: Clist MHproposal eta0 MCMCparams maxedges verbose
-ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
-  warning("Using deprecated function ergm.mcmcslave!")
-  z <- .C("MCMC_wrapper",
-  as.integer(Clist$heads), as.integer(Clist$tails),
-  as.integer(Clist$nedges), as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
-  as.integer(Clist$dir), as.integer(Clist$bipartite),
-  as.integer(Clist$nterms),
-  as.character(Clist$fnamestring),
-  as.character(Clist$snamestring),
-  as.character(MHproposal$name), as.character(MHproposal$package),
-  as.double(Clist$inputs), as.double(eta0),
-  as.integer(MCMCparams$samplesize),
-#  s = as.double(t(MCMCparams$stats)),
-  s = double(MCMCparams$samplesize * length(MCMCparams$stats)),
-  as.integer(MCMCparams$burnin), 
-  as.integer(MCMCparams$interval),
-  newnwheads = integer(maxedges),
-  newnwtails = integer(maxedges),
-  as.integer(verbose), as.integer(MHproposal$bd$attribs),
-  as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
-  as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
-  as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)),
   as.integer(maxedges),
   as.integer(MCMCparams$Clist.miss$heads), as.integer(MCMCparams$Clist.miss$tails),
   as.integer(MCMCparams$Clist.miss$nedges),
   PACKAGE="ergm")
-  # save the results
-  list(s=z$s, newnwheads=z$newnwheads, newnwtails=z$newnwtails)
+
+  nedges <- z$newnwheads[1]  # This tells how many new edges there are
+  if (nedges >= maxedges) {
+    # The simulation has filled up the available memory for storing edges, 
+    # so rerun it with ten times more
+    # To do:  Check to see whether it is possible to pass a "statsonly"
+    # argument to the C code, thus avoiding the need to store the final network
+    # and eliminating the need to make this particular check.
+    MCMCparams$maxedges <- maxedges * 10
+    if (verbose) cat("Increasing possible number of newedges to ", 
+                     MCMCparams$maxedges, "\n")
+    return(ergm.getMCMCsample(Clist, MHproposal, eta0, MCMCparams, verbose=FALSE))
+  } else if (nedges==0) { 
+    newedgelist <- matrix(0, ncol=2, nrow=0)
+  } else { 
+    ## Post-processing of z$newnwheads and z$newnwtails: Combine into newedgelist
+    ## The heads are listed starting at z$newnwheads[2], and similarly for tails.
+    newedgelist <- cbind(z$newnwtails[2:(nedges+1)], z$newnwheads[2:(nedges+1)])
+  }
+
+  ## Post-processing of z$statsmatrix element: coerce to correct-sized matrix
+  statsmatrix <- matrix(z$statsmatrix, nrow = MCMCparams$samplesize, byrow=TRUE)
+
+  ## outta here:  Return list with "statsmatrix" and "newedgelist"
+  return(list(statsmatrix = statsmatrix, newedgelist = newedgelist))
 }
+

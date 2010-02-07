@@ -1,8 +1,8 @@
 ergm <- function(formula, theta0="MPLE",               ##### Note that the network, nw, is included in the formula, e.g. nw ~ edges + degree(2:5)
                  MPLEonly=FALSE, MLestimate=!MPLEonly, seed=NULL,
-                 burnin=10000, MCMCsamplesize=1000, interval=1000, stepMCMCsize=100, gridsize=100,
+                 burnin=10000, MCMCsamplesize=10000, interval=100, stepMCMCsize=100, gridsize=100,
 # Later:  Move stuff like stepMCMCsize and gridsize into control.ergm?
-                 maxit=1, control=control.ergm(),
+                 maxit=3, control=control.ergm(),
                  constraints=~.,
                  meanstats=NULL,
                  verbose=FALSE, ...) {

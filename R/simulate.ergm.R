@@ -1,8 +1,8 @@
-simulate.ergm <- function(object, nsim=1, seed=NULL, theta0=NULL,
+simulate.ergm <- function(object, nsim=1, seed=NULL, theta0=object$coef,
                           burnin=1000, interval=1000,
                           statsonly=FALSE,
                           sequential=TRUE,
-                          constraints=NULL,
+                          constraints=~.,
                           control=control.simulate.ergm(),
                           verbose=FALSE, ...) {
   simulate.formula(object$formula, nsim=nsim, seed=seed, theta0=theta0,
@@ -84,13 +84,6 @@ simulate.formula <- function(object, nsim=1, seed=NULL, theta0,
     MCMCparams$samplesize <- nsim
     MCMCparams$nmatrixentries <- nsim * length(curstats)
     z <- ergm.getMCMCsample(Clist, MHproposal, theta0, MCMCparams, verbose=verbose)
-    # Check to see whether maxedges was too small; if so, rerun with 10x more
-    while (1+NROW(z$newedgelist) >= MCMCparams$maxedges) {
-      MCMCparams$maxedges <- 10*MCMCparams$maxedges
-      if (verbose) cat("Increasing possible number of newedges to ", 
-                       MCMCparams$maxedges, "\n")
-      z <- ergm.getMCMCsample(Clist, MHproposal, theta0, MCMCparams, verbose)
-    }
     
     # Post-processing:  Add term names to columns and shift each row by
     # observed statistics.
@@ -115,15 +108,9 @@ simulate.formula <- function(object, nsim=1, seed=NULL, theta0,
   for(i in 1:nsim){
     MCMCparams$burnin <- ifelse(i==1 || !sequential, burnin, interval)
     z <- ergm.getMCMCsample(Clist, MHproposal, theta0, MCMCparams, verbose)
-    # Check to see whether maxedges was too small; if so, rerun with 10x more
-    while (1+NROW(z$newedgelist) >= MCMCparams$maxedges) {
-      MCMCparams$maxedges <- 10*MCMCparams$maxedges
-      if (verbose) cat("Increasing possible number of newedges to ", 
-                       MCMCparams$maxedges, "\n")
-      z <- ergm.getMCMCsample(Clist, MHproposal, theta0, MCMCparams, verbose)
-    }
+
     # Create a network object if statsonly==FALSE
-    if (!statsonly) { 
+    if (!statsonly) {
       nw.list[[i]] <- network.update(nw, z$newedgelist, matrix.type="edgelist")
     }
     out.mat[i,] <- curstats + z$statsmatrix
