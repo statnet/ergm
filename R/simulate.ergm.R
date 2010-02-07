@@ -2,7 +2,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, theta0=object$coef,
                           burnin=1000, interval=1000,
                           statsonly=FALSE,
                           sequential=TRUE,
-                          constraints=NULL,
+                          constraints=~.,
                           control=control.simulate.ergm(),
                           verbose=FALSE, ...) {
   simulate.formula(object$formula, nsim=nsim, seed=seed, theta0=theta0,
