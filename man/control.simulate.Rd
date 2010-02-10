@@ -19,7 +19,7 @@ maxchanges = 1e+06,
 packagenames="ergm", 
 parallel=0)
 
-control.simulate.ergm(prop.weights = NULL, prop.args = NULL, drop = FALSE, 
+control.simulate.ergm(prop.weights = "default", prop.args = NULL, drop = FALSE, 
 summarizestats = FALSE, 
 maxchanges = 1e+06, 
 packagenames="ergm", 

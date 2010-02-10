@@ -1,53 +1,61 @@
 ergm.estimate<-function(theta0, model, xobs=NULL, statsmatrix, statsmatrix.miss=NULL,    #####Added xobs=NULL
-                        epsilon=1e-10, nr.maxit=100, nr.reltol=sqrt(.Machine$double.eps),
+                        epsilon=1e-10, nr.maxit=500, nr.reltol=sqrt(.Machine$double.eps),
                         metric="Likelihood",
                         method="Nelder-Mead", compress=FALSE,
                         calc.mcmc.se=TRUE, hessian=TRUE,
                         verbose=FALSE, trace=6*verbose,
                         trustregion=20, 
                         estimateonly=FALSE, ...) {
-  samplesize <- dim(statsmatrix)[1]
+  # If there are missing data to deal with, statsmatrix.miss will not be NULL;
+  # in this case, do some preprocessing.  Otherwise, skip ahead.
+  missingflag <- !is.null(statsmatrix.miss)
+  if (missingflag) {
+    if (compress) { # See comment below for explanation of "compress"
+      statsmatrix0.miss <- ergm.sufftoprob(statsmatrix.miss, compress=TRUE)
+      probs.miss <- statsmatrix0.miss[,ncol(statsmatrix0.miss)]
+      statsmatrix0.miss <- statsmatrix0.miss[,-ncol(statsmatrix0.miss), drop=FALSE]      
+    }
+    statsmatrix0.miss <- statsmatrix.miss
+    probs.miss <- rep(1/nrow(statsmatrix0.miss),nrow(statsmatrix0.miss))
+    # Center the statsmatrix0.miss matrix by subtracting the column mean vector:
+    av.miss <- apply(sweep(statsmatrix0.miss,1,probs.miss,"*"), 2, sum)
+    xsim.miss <- sweep(statsmatrix0.miss, 2, av.miss,"-")
+  }
+
+  # Now check to see whether to compress the statsmatrix by searching for
+  # nonunique rows.  After compression, rows should be unique and each row
+  # has a 'prob' weight telling what proportion of the original rows match it.
   if(compress){
     statsmatrix0 <- ergm.sufftoprob(statsmatrix,compress=TRUE)
     probs <- statsmatrix0[,ncol(statsmatrix0)]
     statsmatrix0 <- statsmatrix0[,-ncol(statsmatrix0), drop=FALSE]
-    if(!is.null(statsmatrix.miss)){
-      statsmatrix0.miss <- ergm.sufftoprob(statsmatrix.miss,compress=TRUE)
-      probs.miss <- statsmatrix0.miss[,ncol(statsmatrix0.miss)]
-      statsmatrix0.miss <- statsmatrix0.miss[,-ncol(statsmatrix0.miss), drop=FALSE]
-    }else{
-      statsmatrix0.miss <- NULL
-      probs.miss <- NULL
-    }
-  }else{
+  } else {
     statsmatrix0 <- statsmatrix
     probs <- rep(1/nrow(statsmatrix0),nrow(statsmatrix0))
-    if(!is.null(statsmatrix.miss)){
-      statsmatrix0.miss <- statsmatrix.miss
-      probs.miss <- rep(1/nrow(statsmatrix0.miss),nrow(statsmatrix0.miss))
-    }else{
-      statsmatrix0.miss <- NULL
-      probs.miss <- NULL
-    }
   }
+  
+  # Center the statsmatrix0 matrix by subtracting the column means.  Note that
+  # this means that xobs, if not NULL, should already have these means subtracted
+  # out!  THIS IS A BAD IDEA!!  It means that the statsmatrix and xobs are not
+  # on the same scale.
+  # To do:  Change this so that either centering
+  # is not done or the centering is applied to the xobs vector as well in a 
+  # sensible fashion.  Maybe the latter would be better for reasons of numerical
+  # stability? 
   av <- apply(sweep(statsmatrix0,1,probs,"*"), 2, sum)
-  xsim <- sweep(statsmatrix0, 2, av,"-")                   ##what is happening here?
-  if(!is.null(statsmatrix.miss)){
-    av.miss <- apply(sweep(statsmatrix0.miss,1,probs.miss,"*"), 2, sum)
-    xsim.miss <- sweep(statsmatrix0.miss, 2, av.miss,"-")
-    if (is.null(xobs)) {
-      xobs <- av.miss-av
-    }
-  }else{
-    xsim.miss <- NULL
-    probs.miss <- NULL
-    if (is.null(xobs)) {
-      xobs <- - av
-    }
+  xsim <- sweep(statsmatrix0, 2, av,"-")
+  
+  # fix xobs.  Current algorithm is stupid:  If xobs==NULL, then set xobs=-av
+  # and otherwise, do nothing.  Should be:  If xobs==NULL, set it to zero.  Then,
+  # subtract av and add av.miss.
+  if (is.null(xobs)) {
+    xobs <-  -av + ifelse(missingflag, av.miss, 0)
   }
+  
 #
 # Set up the initial estimate
 #
+
   guess <- theta0[!model$etamap$offsettheta]
   if (verbose) cat("Converting theta0 to eta0\n")
   eta0 <- ergm.eta(theta0, model$etamap) #unsure about this
@@ -76,6 +84,7 @@ ergm.estimate<-function(theta0, model, xobs=NULL, statsmatrix, statsmatrix.miss=
     llik.hessian <- llik.hessian2
     penalty <- 0.5
   }
+
   if (verbose) cat("Optimizing loglikelihood\n")
   Lout <- try(optim(par=guess, 
                     fn=llik.fun, #  gr=llik.grad,
@@ -84,7 +93,8 @@ ergm.estimate<-function(theta0, model, xobs=NULL, statsmatrix, statsmatrix.miss=
                     control=list(trace=trace,fnscale=-1,maxit=nr.maxit,reltol=nr.reltol),
                     xobs=xobs,
                     xsim=xsim, probs=probs,
-                    xsim.miss=xsim.miss, probs.miss=probs.miss,
+                    xsim.miss = ifelse(missingflag, xsim.miss, NULL),
+                    probs.miss = ifelse(missingflag, xsim.miss, NULL),
                     penalty=0.5, trustregion=trustregion,
                     eta0=eta0, etamap=model$etamap))
 # if(verbose){cat("Log-likelihood ratio is", Lout$value,"\n")}
@@ -108,7 +118,8 @@ ergm.estimate<-function(theta0, model, xobs=NULL, statsmatrix, statsmatrix.miss=
                         reltol=0.01),
                       xobs=xobs, 
                       xsim=xsim, probs=probs, 
-                      xsim.miss=xsim.miss, probs.miss=probs.miss,
+                      xsim.miss = ifelse(missingflag, xsim.miss, NULL),
+                      probs.miss = ifelse(missingflag, xsim.miss, NULL),
                       penalty=0.5, trustregion=trustregion,
                       eta0=eta0, etamap=model$etamap))
     if(inherits(Lout,"try-error") || Lout$value > 500 ){
@@ -126,13 +137,14 @@ ergm.estimate<-function(theta0, model, xobs=NULL, statsmatrix, statsmatrix.miss=
     # Output results as ergm-class object
     return(structure(list(coef=theta, 
                           MCMCtheta=theta0, 
-                          samplesize=samplesize, 
+                          samplesize=NROW(statsmatrix),
                           failure=FALSE),
                         class="ergm"))
   } else {
     gradient <- llik.grad(theta=Lout$par, xobs=xobs, xsim=xsim,
                           probs=probs, 
-                          xsim.miss=xsim.miss, probs.miss=probs.miss,
+                          xsim.miss = ifelse(missingflag, xsim.miss, NULL),
+                          probs.miss = ifelse(missingflag, xsim.miss, NULL),
                           penalty=0.5, eta0=eta0, etamap=model$etamap)
     gradient[model$etamap$offsettheta] <- 0
     #
@@ -146,7 +158,8 @@ ergm.estimate<-function(theta0, model, xobs=NULL, statsmatrix, statsmatrix.miss=
       #  Lout$hessian <- cov(xsim)
       Lout$hessian <- llik.hessian(theta=theta, xobs=xobs, xsim=xsim,
                                    probs=probs, 
-                                   xsim.miss=xsim.miss, probs.miss=probs.miss,
+                                   xsim.miss = ifelse(missingflag, xsim.miss, NULL),
+                                   probs.miss = ifelse(missingflag, xsim.miss, NULL),
                                    penalty=0.5,
                                    eta0=eta0, etamap=model$etamap
                                    )
@@ -172,14 +185,16 @@ ergm.estimate<-function(theta0, model, xobs=NULL, statsmatrix, statsmatrix.miss=
     covar[ model$etamap$offsettheta,] <- NA
     c0  <- llik.fun(theta=Lout$par, xobs=xobs,
                     xsim=xsim, probs=probs,
-                    xsim.miss=xsim.miss, probs.miss=probs.miss,
+                    xsim.miss = ifelse(missingflag, xsim.miss, NULL),
+                    probs.miss = ifelse(missingflag, xsim.miss, NULL),
                     penalty=0.5, eta0=eta0, etamap=model$etamap)
     #   VIP: Note added penalty for more skewness in the 
     #        values computed relative to 0
     #
     c01 <- llik.fun(theta=Lout$par-Lout$par, xobs=xobs,
                     xsim=xsim, probs=probs,
-                    xsim.miss=xsim.miss, probs.miss=probs.miss,
+                    xsim.miss = ifelse(missingflag, xsim.miss, NULL),
+                    probs.miss = ifelse(missingflag, xsim.miss, NULL),
                     penalty=0.67, eta0=eta0, etamap=model$etamap)
     #
     # This is the log-likelihood calc from theta0=0
@@ -225,10 +240,35 @@ return(structure(list(coef=theta, sample=statsmatrix, sample.miss=statsmatrix.mi
                  iterations=iteration, #mcmcloglik=mcmcloglik,
                  MCMCtheta=theta0, 
                  loglikelihood=loglikelihood, gradient=gradient,
-                 covar=covar, samplesize=samplesize, failure=FALSE,
+                 covar=covar, samplesize=NROW(statsmatrix), failure=FALSE,
                  mc.se=mc.se#, #acf=mcmcacf,
                  #fullsample=statsmatrix.all
                  ),
             class="ergm"))
   }
 }
+
+
+
+# pre-processing:  
+#  (0) find sample size of statsmatrix;
+#  (1) set up centered version of the statsmatrix; (choices:  compress?  missing?)
+#  (2) obtain first guess at optimal
+#  (3) convert theta0 to eta0
+#  (4) modify value of xobs like statsmatrix has been modified
+#  (5) change model$etamap$theta0 to theta0 (??)
+#  (6) Determine appropriate set of likelihood and gradient functions
+#  (7) call optim function
+#  (8) check for errors in optim call (retry if errors found)
+#  (9) report change in loglikelihood; report on non-convergence
+#  (10) modify value of theta to optimal; add names
+#  (11) return if estimateonly==TRUE
+#  (12) calculate gradient vector
+#  (13) If optim did not already return hessian matrix approximation, calculate hessian
+#  (14) For both gradient and Hessian, zero out entries corresponding to model$etamap$offsettheta
+#  (15) if calc.mcmc.se==TRUE, calculate MCMC S.E.
+#  (16) set covar equal to the inverse of the Hessian
+#  (17) for entries corresponding to model$etamap$offsettheta, set covar entries to NA
+#  (18) calculate mcmcloglik approximation (currently using very ad-hoc method)
+
+

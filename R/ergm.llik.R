@@ -2,35 +2,30 @@ llik.fun <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
                      penalty=0.5, trustregion=20, eta0, etamap){
   theta.offset <- etamap$theta0
   theta.offset[!etamap$offsettheta] <- theta
+  # Convert theta to eta
   eta <- ergm.eta(theta.offset, etamap)
+
+  # Calculate approximation to l(eta) - l(eta0) using a lognormal approximation
+  # i.e., assuming that the network statistics are approximately normally 
+  # distributed so that exp(eta * stats) is lognormal
   x <- eta-eta0
-# The next line is right!
-# aaa <- sum(xobs * x) - log(sum(probs*exp(xsim %*% x)))
-# These lines standardize:
   basepred <- xsim %*% x
-#
-# maxbase <- max(basepred)
-# llr <- sum(xobs * x) - maxbase - log(sum(probs*exp(basepred-maxbase)))
-#
-# alternative based on log-normal approximation
   mb <- sum(basepred*probs)
   vb <- sum(basepred*basepred*probs) - mb*mb
-# 
-# This is the log-likelihood ratio (and not its negative)
-#
-  llr <- sum(xobs * x) - (mb + penalty*vb)
+  llr <- sum(xobs * x) - mb - penalty*vb
+  
+  # Simplistic error control;  -800 is effectively like -Inf:
   if(is.infinite(llr) | is.na(llr)){llr <- -800}
-#
-# Penalize changes to trustregion
-#
-  llr <- llr - 2*(llr-trustregion)*(llr>trustregion)
-#
-# cat(paste("max, log-lik",maxbase,llr,"\n"))
-# aaa <- sum(xobs * x) - log(sum(probs*exp(xsim %*% x)))
-# cat(paste("log-lik",llr,aaa,"\n"))
-# aaa
-  llr
+
+  # trustregion is the maximum value of llr that we actually trust.
+  # So if llr>trustregion, return a value less than trustregion instead.
+  if (llr>trustregion) {
+    return(2*trustregion - llr)
+  } else {
+    return(llr)
+  }
 }
+
 llik.grad <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=NULL,
                       penalty=0.5, trustregion=20, eta0, etamap){
   theta.offset <- etamap$theta0
