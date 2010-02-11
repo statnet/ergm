@@ -102,6 +102,12 @@ FILE: R/ergm.degeneracy.R, ergm.llik.R, ergm.llik.miss.R
 CHANGES: Changed "penalty" argument to "varweight"; changed ergm.llik function
          by adding comments
 
+DATE: 2010-Feb-11
+FILE: R/ergm.stepping.R
+CHANGES: Added mle.lik to output produced; changed format of output
+
+
+
 
 
 

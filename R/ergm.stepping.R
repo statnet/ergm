@@ -1,21 +1,3 @@
-#  File ergm/R/ergm.stepping.R  Last updated by Ruth, 1 February 2010
-#  Part of the statnet package, http://statnetproject.org
-#
-#  This software is distributed under the GPL-3 license.  It is free,
-#  open source, and has the attribution requirements (GPL Section 7) in
-#    http://statnetproject.org/attribution
-#
-# Copyright 2003 Mark S. Handcock, University of Washington
-#                David R. Hunter, Penn State University
-#                Carter T. Butts, University of California - Irvine
-#                Steven M. Goodreau, University of Washington
-#                Martina Morris, University of Washington
-# Copyright 2007 The statnet Development Team
-######################################################################
-#  MCMCparams=c(control,
-#   list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,stepMCMCsize=stepMCMCsize,
-#        gridsize=gridsize, maxit=maxit,Clist.miss=Clist.miss, mcmc.precision=control$mcmc.precision))
-
 ergm.stepping = function(theta0, nw, model, Clist, initialfit, 
 #control=control.ergm(nsim1=100, nsim2=1000, gridsize=100),  # simulation parameters
 ## approx=lognormapprox, filename.prefix=NULL, plots=FALSE,  # currently useless, but plots can be reimplemented
@@ -29,7 +11,7 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
 					nw.orig <- nw
 					asyse=theta0-theta0
 					mc.se=1+0.05*asyse
-#####					mle.lik=initialfit$mle.lik
+					mle.lik=initialfit$mle.lik
 #					v=list(coef=theta0)
 					theta.original=theta0
 #					thetaprior=theta0-theta0
@@ -66,11 +48,9 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
 		
 		hi <- MCMCparams$gridsize  # Goal: Let alpha be largest possible multiple of .01
 		lo <- alph <- 0
-		cat("Iteration #",iter,"\n")
-		flush.console()
+		cat("Iteration #",iter, ". ")
 		while (hi-lo>1 || hi > alph) {
-			cat("  Trying alpha=", alph<-ceiling((hi+lo)/2),"/", MCMCparams$gridsize,"\n")
-			flush.console()
+      alph<-ceiling((hi+lo)/2)
 			alpha[[iter]] = alph/MCMCparams$gridsize
 			xi[[iter]] = alpha[[iter]]*obsstats  + (1-alpha[[iter]])*sampmeans[[iter]]
 			inCH=is.inCH(xi[[iter]], samples[[iter]])
@@ -93,7 +73,10 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
 ####		cat(paste("xi",xi[[iter]], "\n"))
 ####    eta[[iter+1]]=optim(par=eta[[iter]], approx, control=list(fnscale=-1), eta0=eta[[iter]], s=samples[[iter]], xi=xi[[iter]])$par
 ####		cat(paste("eta", eta[[iter+1]], "\n"))
-		v<-ergm.estimate(theta0=eta[[iter]], model=model, 
+		cat("  Trying alpha=", alph,"/", MCMCparams$gridsize,"\n")
+    flush.console()
+
+    v<-ergm.estimate(theta0=eta[[iter]], model=model, 
                      xobs=xi[[iter]] - sampmeans[[iter]],  
 						 statsmatrix=samples[[iter]], 
 #statsmatrix.miss=statsmatrix.miss, 
@@ -105,7 +88,6 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
 #compress=MCMCparams$compress, 
 						 verbose=verbose,
 						 estimateonly=TRUE)		
-		cat("v$coef", v$coef, "\n")
     eta[[iter+1]]<-v$coef
 		
 ## If alpha is still not 1, go back to next iteration
@@ -113,10 +95,10 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
 ## would not hurt with a larger sample size
 	    finished = (alph==MCMCparams$gridsize)
 	}
-	cat("Now ending with one large sample.\n for MLE \n")
+	cat("Now ending with one large sample for MLE. \n")
 	flush.console()
 	iter=iter+1
-    finalsample=simulate.formula(formula, nsim=MCMCparams$stepMCMCsize,   ###why can I not change this to MCMCparams$MCMCsamplesize without an error in length?
+    finalsample=simulate.formula(formula, nsim=MCMCparams$samplesize,   ###why can I not change this to MCMCparams$MCMCsamplesize without an error in length?
                                      theta0=eta[[iter]], burnin=MCMCparams$burnin, 
                                      interval=MCMCparams$interval, statsonly=T)
 	sampmeans[[iter]]=colMeans(finalsample)
@@ -142,7 +124,7 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
 									 verbose=verbose)
 	
 #####	final.mle
-#####					mle.lik <- mle.lik + abs(v$loglikelihood)
+	mle.lik <- mle.lik + abs(v$loglikelihood)
 	v$newnetwork <- nw
 	v$burnin <- MCMCparams$burnin
 	v$samplesize <- MCMCparams$samplesize
@@ -175,7 +157,7 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
 # v$mle.lik <- -v$mplefit$glm$deviance/2 + v$loglikelihood
 # v$mle.lik <- -v$null.deviance/2 + v$loglikelihood
 # v$mle.lik <- -initialfit$mle.lik/2 + v$loglikelihood
-#####					v$mle.lik <- mle.lik
+	v$mle.lik <- mle.lik
 # This next is the right one
 # v$mcmcloglik <- v$mcmcloglik - network.dyadcount(nw.orig)*log(2)
 	v$etamap <- model$etamap
