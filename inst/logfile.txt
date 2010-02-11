@@ -85,6 +85,25 @@ DATE: 2010-Feb-6
 FILE: R/simulate.ergm.R, control.simulate.R
 CHANGES: fixed problems with simulate.ergm and control.simulate.ergm defaults
 
+DATE: 2010-Feb-6
+FILE: man/simulate.ergm.Rd, control.simulate.Rd
+CHANGES: made doc files match changes to argument defaults
+
+DATE: 2010-Feb-10
+FILE: R/ergm.stepping.R
+CHANGES: fixed bugs so this function can properly call ergm.estimate
+
+DATE: 2010-Feb-10
+FILE: R/ergm.estimate.R
+CHANGES: Added comments, reorganized function, made subtle changes
+
+DATE: 2010-Feb-10
+FILE: R/ergm.degeneracy.R, ergm.llik.R, ergm.llik.miss.R
+CHANGES: Changed "penalty" argument to "varweight"; changed ergm.llik function
+         by adding comments
+
+
+
 
 
 
