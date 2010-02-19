@@ -1,5 +1,5 @@
 control.ergm<-function(prop.weights="default",prop.args=NULL,
-                       nr.maxit=100, calc.mcmc.se=TRUE, hessian=FALSE,
+                       nr.maxit=1000, calc.mcmc.se=TRUE, hessian=FALSE,
                        compress=TRUE,
                        SAN.burnin=NULL,
                        maxNumDyadTypes=1e+6, 

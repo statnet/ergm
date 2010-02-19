@@ -1,5 +1,5 @@
 ergm.estimate<-function(theta0, model, xobs=NULL, statsmatrix, statsmatrix.miss=NULL,    #####Added xobs=NULL
-                        epsilon=1e-10, nr.maxit=500, nr.reltol=sqrt(.Machine$double.eps),
+                        epsilon=1e-10, nr.maxit=1000, nr.reltol=sqrt(.Machine$double.eps),
                         metric="Likelihood",
                         method="Nelder-Mead", compress=FALSE,
                         calc.mcmc.se=TRUE, hessianflag=TRUE,
@@ -87,7 +87,7 @@ ergm.estimate<-function(theta0, model, xobs=NULL, statsmatrix, statsmatrix.miss=
   }
 
   if (verbose) cat("Optimizing loglikelihood\n")
-  Lout <- try(optim(par=guess, 
+  Lout <- try(optim(par=guess,                  
                     fn=loglikelihoodfn, #  gr=gradientfn,
                     hessian=hessianflag,
                     method=method,

@@ -106,6 +106,9 @@ DATE: 2010-Feb-11
 FILE: R/ergm.stepping.R
 CHANGES: Added mle.lik to output produced; changed format of output
 
+DATE: 2010-Feb-19
+FILE: R/control.ergm.R, ergm.estimate.R
+CHANGES: Changed default value of nr.maxit to 1000
 
 
 

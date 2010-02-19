@@ -145,7 +145,7 @@ ergm <- function(formula, theta0="MPLE",               ##### Note that the netwo
                                  Clist, 
                                  MCMCparams=MCMCparams, MHproposal=MHproposal,
                                  verbose),
-			   "Stepping" = ergm.stepping(theta0, nw, model, Clist, initialfit, 
+    "Stepping" = ergm.stepping(theta0, nw, model, Clist, initialfit, 
 				#nstats=nstats, 
 				#approx=lognormapprox, filename.prefix=NULL, 
 				#control=control.ergm(nsim1=100, nsim2=1000, gridsize=100),  # simulation parameters
