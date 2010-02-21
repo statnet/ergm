@@ -98,7 +98,7 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NU
 # Simple convergence
 #
 llik.fun2 <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL, 
-                      varweight=0.5, eta0, etamap){
+                      varweight=0.5, trustregion, eta0, etamap){
   eta <- ergm.eta(theta, etamap)
   x <- eta-eta0
   basepred <- xsim * x
@@ -108,7 +108,7 @@ llik.fun2 <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
 }
 
 llik.grad2 <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
-                       varweight=0.5, eta0, etamap){
+                       varweight=0.5, trustregion, eta0, etamap){
   eta <- ergm.eta(theta, etamap)
   x <- eta-eta0
   basepred <- xsim * x
@@ -130,7 +130,7 @@ llik.hessian2 <- llik.hessian
 ##### New stuff:  (Based on Hunter and Handcock)
 
 llik.fun3 <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL, 
-                      varweight=0.5, eta0, etamap){ # eqn (5) 
+                      varweight=0.5, trustregion, eta0, etamap){ # eqn (5) 
   eta <- ergm.eta(theta, etamap)
   deta <- matrix(eta-eta0,ncol=1) #px1
   basepred <- as.vector(xsim %*% deta) #nx1

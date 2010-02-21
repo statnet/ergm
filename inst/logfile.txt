@@ -110,7 +110,14 @@ DATE: 2010-Feb-19
 FILE: R/control.ergm.R, ergm.estimate.R
 CHANGES: Changed default value of nr.maxit to 1000
 
+DATE: 2010-Feb-19
+FILE: R/ergm.llik.R
+CHANGES: added "trustregion" argument to functions without one, since all are 
+         assumed to have one.
 
+DATE: 2010-Feb-19
+FILE: R/ergm.stepping.R
+CHANGES: multiple bug fixes
 
 
 

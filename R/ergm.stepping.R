@@ -3,8 +3,7 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
 ## approx=lognormapprox, filename.prefix=NULL, plots=FALSE,  # currently useless, but plots can be reimplemented
 				MCMCparams=MCMCparams, 
 				MHproposal=MHproposal, MHproposal.miss=MHproposal.miss, 
-				verbose=FALSE, estimate=TRUE, sequential=TRUE
-#,...
+				verbose=FALSE, estimate=TRUE, sequential=TRUE, ...
 ){ 
 
 #   preliminary, to set up structure. 
@@ -78,16 +77,18 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
 
     v<-ergm.estimate(theta0=eta[[iter]], model=model, 
                      xobs=xi[[iter]] - sampmeans[[iter]],  
-						 statsmatrix=samples[[iter]], 
-#statsmatrix.miss=statsmatrix.miss, 
-#epsilon=MCMCparams$epsilon,
-#nr.maxit=MCMCparams$nr.maxit,
-# nr.reltol=MCMCparams$nr.reltol,
-#calc.mcmc.se=MCMCparams$calc.mcmc.se, hessian=MCMCparams$hessian,
-# trustregion=MCMCparams$trustregion, method=MCMCparams$method, metric="Likelihood",
-#compress=MCMCparams$compress, 
-						 verbose=verbose,
-						 estimateonly=TRUE)		
+                     statsmatrix=samples[[iter]], 
+                     #statsmatrix.miss=statsmatrix.miss, 
+                     #epsilon=MCMCparams$epsilon,
+                     nr.maxit=MCMCparams$nr.maxit,
+                     # nr.reltol=MCMCparams$nr.reltol,
+                     #calc.mcmc.se=MCMCparams$calc.mcmc.se, hessian=MCMCparams$hessian,
+                     # trustregion=MCMCparams$trustregion, method=MCMCparams$method, 
+                     metric=MCMCparams$metric,
+                     #compress=MCMCparams$compress, 
+                     verbose=verbose,
+                     estimateonly=TRUE, 
+                     ...)
     eta[[iter+1]]<-v$coef
 		
 ## If alpha is still not 1, go back to next iteration
@@ -98,7 +99,7 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
 	cat("Now ending with one large sample for MLE. \n")
 	flush.console()
 	iter=iter+1
-    finalsample=simulate.formula(formula, nsim=MCMCparams$samplesize,   ###why can I not change this to MCMCparams$MCMCsamplesize without an error in length?
+    finalsample=simulate.formula(formula, nsim=MCMCparams$samplesize,
                                      theta0=eta[[iter]], burnin=MCMCparams$burnin, 
                                      interval=MCMCparams$interval, statsonly=T)
 	sampmeans[[iter]]=colMeans(finalsample)
@@ -114,15 +115,16 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
 	v<-ergm.estimate(theta0=eta[[iter]], model=model, 
                    xobs=obsstats - sampmeans[[iter]],  
 					 statsmatrix=finalsample,
-#statsmatrix.miss=statsmatrix.miss, 
-#epsilon=MCMCparams$epsilon,
-#nr.maxit=MCMCparams$nr.maxit,
-#nr.reltol=MCMCparams$nr.reltol,
-#calc.mcmc.se=MCMCparams$calc.mcmc.se, hessian=MCMCparams$hessian,
-#trustregion=MCMCparams$trustregion, method=MCMCparams$method, metric="Likelihood",
-#compress=MCMCparams$compress, 
-									 verbose=verbose)
-	
+           #statsmatrix.miss=statsmatrix.miss, 
+           epsilon=MCMCparams$epsilon,
+           nr.maxit=MCMCparams$nr.maxit,
+           nr.reltol=MCMCparams$nr.reltol,
+           calc.mcmc.se=MCMCparams$calc.mcmc.se, hessian=MCMCparams$hessian,
+           trustregion=MCMCparams$trustregion, method=MCMCparams$method, 
+           metric=MCMCparams$metric,
+           compress=MCMCparams$compress, 
+           verbose=verbose, ...)
+
 #####	final.mle
 	mle.lik <- mle.lik + abs(v$loglikelihood)
 	v$newnetwork <- nw

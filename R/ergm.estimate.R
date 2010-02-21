@@ -112,7 +112,7 @@ ergm.estimate<-function(theta0, model, xobs=NULL, statsmatrix, statsmatrix.miss=
   if(inherits(Lout,"try-error") || Lout$value > 199 ||
      Lout$value < -790) {
     cat("MLE could not be found. Trying Nelder-Mead...\n")
-    Lout <- try(optim(par=guess, 
+    Lout <- try(optim(par=guess,
                       fn=llik.fun,
                       hessian=hessianflag,
                       method="Nelder-Mead",
