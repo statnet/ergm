@@ -2,7 +2,7 @@
 #   missing data code
 #
 llik.fun.miss <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
-                     penalty=0.5, trustregion=20, eta0, etamap){
+                     varweight=0.5, trustregion=20, eta0, etamap){
   theta.offset <- etamap$theta0
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
@@ -25,7 +25,7 @@ llik.fun.miss <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=N
 # 
 # This is the log-likelihood ratio (and not its negative)
 #
-  llr <- sum(xobs * x) + (mm + penalty*vm) - (mb + penalty*vb)
+  llr <- sum(xobs * x) + (mm + varweight*vm) - (mb + varweight*vb)
   if(is.infinite(llr) | is.na(llr)){llr <- -800}
 #
 # Penalize changes to trustregion
@@ -39,7 +39,7 @@ llik.fun.miss <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=N
   llr
 }
 llik.grad.miss <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=NULL,
-                      penalty=0.5, trustregion=20, eta0, etamap){
+                      varweight=0.5, trustregion=20, eta0, etamap){
   theta.offset <- etamap$theta0
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
@@ -71,7 +71,7 @@ llik.grad.miss <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss
 }
 
 llik.hessian.miss <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
-                         penalty=0.5, eta0, etamap){
+                         varweight=0.5, eta0, etamap){
 # theta.offset <- etamap$theta0
 # theta.offset[!etamap$offsettheta] <- theta
   namesx <- names(theta)

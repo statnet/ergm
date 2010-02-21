@@ -1,38 +1,37 @@
+# Note:  Former "penalty" argument has been changed to "varweight" to better
+# reflect what it actually is.  The default value of 0.5 is the "true" weight,
+# in the sense that the lognormal approximation is given by
+# sum(xobs * x) - mb - 0.5*vb
 llik.fun <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
-                     penalty=0.5, trustregion=20, eta0, etamap){
+                     varweight=0.5, trustregion=20, eta0, etamap){
   theta.offset <- etamap$theta0
   theta.offset[!etamap$offsettheta] <- theta
+  # Convert theta to eta
   eta <- ergm.eta(theta.offset, etamap)
+
+  # Calculate approximation to l(eta) - l(eta0) using a lognormal approximation
+  # i.e., assuming that the network statistics are approximately normally 
+  # distributed so that exp(eta * stats) is lognormal
   x <- eta-eta0
-# The next line is right!
-# aaa <- sum(xobs * x) - log(sum(probs*exp(xsim %*% x)))
-# These lines standardize:
   basepred <- xsim %*% x
-#
-# maxbase <- max(basepred)
-# llr <- sum(xobs * x) - maxbase - log(sum(probs*exp(basepred-maxbase)))
-#
-# alternative based on log-normal approximation
   mb <- sum(basepred*probs)
   vb <- sum(basepred*basepred*probs) - mb*mb
-# 
-# This is the log-likelihood ratio (and not its negative)
-#
-  llr <- sum(xobs * x) - (mb + penalty*vb)
+  llr <- sum(xobs * x) - mb - varweight*vb
+
+  # Simplistic error control;  -800 is effectively like -Inf:
   if(is.infinite(llr) | is.na(llr)){llr <- -800}
-#
-# Penalize changes to trustregion
-#
-  llr <- llr - 2*(llr-trustregion)*(llr>trustregion)
-#
-# cat(paste("max, log-lik",maxbase,llr,"\n"))
-# aaa <- sum(xobs * x) - log(sum(probs*exp(xsim %*% x)))
-# cat(paste("log-lik",llr,aaa,"\n"))
-# aaa
-  llr
+
+  # trustregion is the maximum value of llr that we actually trust.
+  # So if llr>trustregion, return a value less than trustregion instead.
+  if (llr>trustregion) {
+    return(2*trustregion - llr)
+  } else {
+    return(llr)
+  }
 }
+
 llik.grad <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=NULL,
-                      penalty=0.5, trustregion=20, eta0, etamap){
+                      varweight=0.5, trustregion=20, eta0, etamap){
   theta.offset <- etamap$theta0
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
@@ -59,7 +58,7 @@ llik.grad <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=NULL
 }
 
 llik.hessian <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
-                         penalty=0.5, eta0, etamap){
+                         varweight=0.5, eta0, etamap){
 # theta.offset <- etamap$theta0
 # theta.offset[!etamap$offsettheta] <- theta
   namesx <- names(theta)
@@ -86,11 +85,11 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NU
 # DH:  This llik.exp function does not appear to be used anywhere.
 # MSH: Yep, just another idea based on exp. family theory
 # llik.exp <- function(theta, xobs, xsim, probs, 
-#                      penalty=0.5, eta0, etamap){
+#                      varweight=0.5, eta0, etamap){
 #   eta <- ergm.eta(theta, etamap)
 #   x <- eta-eta0
 #   vb <- var(xsim)
-#   llr <- -sum(xobs * x) + penalty*(t(x) %*% vb %*% x)
+#   llr <- -sum(xobs * x) + varweight*(t(x) %*% vb %*% x)
 #   if(is.infinite(llr) | is.na(llr)){llr <- -800}
 #   llr
 # }
@@ -99,7 +98,7 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NU
 # Simple convergence
 #
 llik.fun2 <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL, 
-                      penalty=0.5, eta0, etamap){
+                      varweight=0.5, trustregion, eta0, etamap){
   eta <- ergm.eta(theta, etamap)
   x <- eta-eta0
   basepred <- xsim * x
@@ -109,7 +108,7 @@ llik.fun2 <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
 }
 
 llik.grad2 <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
-                       penalty=0.5, eta0, etamap){
+                       varweight=0.5, trustregion, eta0, etamap){
   eta <- ergm.eta(theta, etamap)
   x <- eta-eta0
   basepred <- xsim * x
@@ -131,7 +130,7 @@ llik.hessian2 <- llik.hessian
 ##### New stuff:  (Based on Hunter and Handcock)
 
 llik.fun3 <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL, 
-                      penalty=0.5, eta0, etamap){ # eqn (5) 
+                      varweight=0.5, trustregion, eta0, etamap){ # eqn (5) 
   eta <- ergm.eta(theta, etamap)
   deta <- matrix(eta-eta0,ncol=1) #px1
   basepred <- as.vector(xsim %*% deta) #nx1
@@ -140,7 +139,7 @@ llik.fun3 <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
 }
 
 llik.grad3 <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=NULL,
-                       penalty=0.5, eta0, etamap){ #eqn (11)
+                       varweight=0.5, eta0, etamap){ #eqn (11)
   eta <- ergm.eta(theta, etamap)
   deta <- matrix(eta-eta0,ncol=1)
   basepred <- as.vector(xsim %*% deta)
@@ -152,7 +151,7 @@ llik.grad3 <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=NUL
 
 
 llik.info3 <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=NULL,
-                       penalty=0.5, eta0, etamap){ #eqn (12)
+                       varweight=0.5, eta0, etamap){ #eqn (12)
   eta <- ergm.eta(theta, etamap)
   etagrad <- ergm.etagrad(theta,etamap)
   deta <- matrix(eta-eta0,ncol=1)
@@ -164,7 +163,7 @@ llik.info3 <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=NUL
 
 
 llik.mcmcvar3 <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=NULL,
-                          penalty=0.5, eta0, etamap){ #eqn (13) sort of
+                          varweight=0.5, eta0, etamap){ #eqn (13) sort of
   eta <- ergm.eta(theta, etamap)
   deta <- matrix(eta-eta0,ncol=1)
   basepred <- as.vector(xsim %*% deta)

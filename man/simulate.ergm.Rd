@@ -11,11 +11,11 @@
                           constraints = ~.,
                           control = control.simulate.formula(),
                           verbose=FALSE)
-\method{simulate}{ergm}(object, nsim=1, seed=NULL, \dots, theta0=NULL,
+\method{simulate}{ergm}(object, nsim=1, seed=NULL, \dots, theta0=object$coef,
                        burnin=1000, interval=1000, 
                        statsonly=FALSE,
                        sequential=TRUE,
-                       constraints = NULL,
+                       constraints = ~.,
                        control = control.simulate.ergm(),
                        verbose=FALSE)
 }
