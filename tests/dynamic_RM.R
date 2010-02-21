@@ -39,6 +39,7 @@ if(!isTRUE(all.equal(dynsim$stats.form,dynsim.gf$stats[-1,])))
 print(meanstats)
 meanstats.sim<-apply(dynsim$stats.form,2,mean)
 print(meanstats.sim)
+print(effectiveSize(mcmc(dynsim$stats.form)))
 print((meanstats.sim-meanstats)/sqrt(apply(dynsim$stats.form,2,var)/effectiveSize(mcmc(dynsim$stats.form))))
 
 print(mean(duration.matrix(dynsim)$duration))

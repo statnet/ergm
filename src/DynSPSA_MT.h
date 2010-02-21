@@ -58,6 +58,8 @@ void MCMCDynSPSA_MT_wrapper(// Observed network.
 		    // Verbosity.
 		    int *fVerbose);
 
+void *MCMCSampleDynObjective_MT(void *args);
+
 void MCMCDynSPSA_MT(MCMCSampleDynObjective_args *t1args,
 		    MCMCSampleDynObjective_args *t2args,
 		    double *F_theta, 
