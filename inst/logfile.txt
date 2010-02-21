@@ -119,6 +119,11 @@ DATE: 2010-Feb-19
 FILE: R/ergm.stepping.R
 CHANGES: multiple bug fixes
 
+DATE: 2010-Feb-21
+FILE: data/ecoli.RData
+CHANGES: Added five different versions of the ecoli dataset (due to Salgado et 
+         al, 2001) that is analyzed in Saul and Filkov, 2007
+
 
 
 
