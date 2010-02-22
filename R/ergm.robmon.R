@@ -28,7 +28,7 @@ ergm.robmon <- function(theta0, nw, model, Clist,
                      stats=stats, parallel=control$parallel)
   cat(paste("Phase 1: ",n1,"iterations"))
   cat(paste(" (interval=",MCMCparams$interval,")\n",sep=""))
-  z <- ergm.getMCMCsample(nw, model, MHproposal, eta0, MCMCparams, verbose)
+  z <- ergm.getMCMCsample.parallel(nw, model, MHproposal, eta0, MCMCparams, verbose)
   steplength <- control$steplength
   statsmatrix <- z$statsmatrix
   if(steplength<1){
@@ -71,7 +71,7 @@ ergm.robmon <- function(theta0, nw, model, Clist,
 #cat(paste("theta:",theta,"\n"))
       eta <- ergm.eta(theta, model$etamap)
 #cat(paste("eta:",eta,"\n"))
-      z <- ergm.getMCMCsample(nw, model, MHproposal, eta, MCMCparams, verbose=FALSE)
+      z <- ergm.getMCMCsample.parallel(nw, model, MHproposal, eta, MCMCparams, verbose=FALSE)
       # MCMCparams$burnin should perhaps be increased here, since
       # each iteration begins from the observed network, which must be 
       # "forgotten".
@@ -100,7 +100,7 @@ cat(paste("theta new:",theta,"\n"))
   cat(paste("Phase 3: ",n3,"iterations"))
   cat(paste(" (interval=",MCMCparams$interval,")\n",sep=""))
   eta <- ergm.eta(theta, model$etamap)
-  z <- ergm.getMCMCsample(nw, model, MHproposal, eta, MCMCparams, verbose)
+  z <- ergm.getMCMCsample.parallel(nw, model, MHproposal, eta, MCMCparams, verbose)
 # ubar <- apply(z$statsmatrix, 2, mean)
 # hessian <- (t(z$statsmatrix) %*% z$statsmatrix)/n3 - outer(ubar,ubar)
 # covar <- robust.inverse(covar)

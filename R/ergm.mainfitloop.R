@@ -42,11 +42,11 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     }else{
      cat("Iteration ",iteration," of at most ", MCMCparams$maxit,": \n",sep="")
     }
-    z <- ergm.getMCMCsample(nw, model, MHproposal, eta0, MCMCparams, verbose)
+    z <- ergm.getMCMCsample.parallel(nw, model, MHproposal, eta0, MCMCparams, verbose)
     statsmatrix <- z$statsmatrix
     v$sample <- statsmatrix
     if(MCMCparams$Clist.miss$nedges > 0){
-      z.miss <- ergm.getMCMCsample(nw, model, MHproposal.miss, eta0, MCMCparams.miss, verbose)
+      z.miss <- ergm.getMCMCsample.parallel(nw, model, MHproposal.miss, eta0, MCMCparams.miss, verbose)
       statsmatrix.miss <-z.miss$statsmatrix
       if(verbose){cat("Back from constrained MCMC...\n")}
     }else{

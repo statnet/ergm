@@ -16,7 +16,7 @@ ergm.PILA <- function(theta0, nw, model, Clist,
   if(verbose)cat("Theta estimated:",theta,"\n")
 
   hist<-z
-  z <- ergm.getMCMCsample(nw, model, MHproposal, theta, MCMCparams, verbose)
+  z <- ergm.getMCMCsample.parallel(nw, model, MHproposal, theta, MCMCparams, verbose)
   
   if(verbose){cat("Calling MCMLE Optimization...\n")}
   if(verbose){cat("Using Newton-Raphson Step ...\n")}

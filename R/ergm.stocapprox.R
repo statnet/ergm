@@ -76,7 +76,7 @@ ergm.stocapprox <- function(theta0, nw, model, Clist,
   stats <- matrix(0,ncol=Clist$nstats,nrow=MCMCparams$samplesize)
   stats[1,] <- summary.statistics.network(model$formula, basis=nw) - Clist$meanstats
   MCMCparams$stats <- stats
-  z <- ergm.getMCMCsample(nw, model,
+  z <- ergm.getMCMCsample.parallel(nw, model,
                           MHproposal, eta, MCMCparams, verbose)
   MCMCparams$maxedges <- z$maxedges
 # ubar <- apply(z$statsmatrix, 2, mean)
