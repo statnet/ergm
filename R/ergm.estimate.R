@@ -1,4 +1,9 @@
-ergm.estimate<-function(theta0, model, xobs=NULL, statsmatrix, statsmatrix.miss=NULL,    #####Added xobs=NULL
+# Search for a maximizer of the loglikelihood function, given a matrix of
+# observed statistics that has already had the "observed statistics" vector
+# subtracted out (i.e., the "observed stats" are assumed to be zero here)
+# and the value of the theta0 vector that produced this matrix of statistics.
+# This function is missing-data capable.
+ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                         epsilon=1e-10, nr.maxit=1000, nr.reltol=sqrt(.Machine$double.eps),
                         metric="Likelihood",
                         method="Nelder-Mead", compress=FALSE,
@@ -33,25 +38,19 @@ ergm.estimate<-function(theta0, model, xobs=NULL, statsmatrix, statsmatrix.miss=
     statsmatrix0 <- statsmatrix
     probs <- rep(1/nrow(statsmatrix0),nrow(statsmatrix0))
   }
-  
-  # Center the statsmatrix0 matrix by subtracting the column means.  Note that
-  # this means that xobs, if not NULL, should already have these means subtracted
-  # out!  THIS IS A BAD IDEA!!  It means that the statsmatrix and xobs are not
-  # on the same scale.
-  # To do:  Change this so that either centering
-  # is not done or the centering is applied to the xobs vector as well in a 
-  # sensible fashion.  Maybe the latter would be better for reasons of numerical
-  # stability? 
+
+  # Here, it is assumed that the statsmatrix0 matrix has already had the
+  # "observed statistics" subtracted out.  Another way to say this is that
+  # when ergm.estimate is called, the "observed statistics" should equal
+  # zero when measured on the scale of the statsmatrix0 statistics.
+  # Here, we recenter the statsmatrix0 matrix by subtracting some measure
+  # of center (e.g., the column means).  Since this shifts the scale, the
+  # value of xobs (playing the role of "observed statistics") must be
+  # adjusted accordingly.
   av <- apply(sweep(statsmatrix0,1,probs,"*"), 2, sum)
   xsim <- sweep(statsmatrix0, 2, av,"-")
-  
-  # fix xobs.  Current algorithm is stupid:  If xobs==NULL, then set xobs=-av
-  # and otherwise, do nothing.  Should be:  If xobs==NULL, set it to zero.  Then,
-  # subtract av and add av.miss.
-  if (is.null(xobs)) {
-    xobs <-  -av + ifelse(missingflag, av.miss, 0)
-  }
-  
+  xobs <-  -av + ifelse(missingflag, av.miss, 0)
+
   # Convert theta0 to eta0
   eta0 <- ergm.eta(theta0, model$etamap)
   

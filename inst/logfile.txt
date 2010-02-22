@@ -124,4 +124,7 @@ FILE: data/ecoli.RData
 CHANGES: Added five different versions of the ecoli dataset (due to Salgado et 
          al, 2001) that is analyzed in Saul and Filkov, 2007
 
+DATE: 2010-Feb-22
+FILE: R/ergm.estimate.R, ergm.stepping.R
+CHANGES: Eliminated experimental "xobs" argument of ergm.estimate
 

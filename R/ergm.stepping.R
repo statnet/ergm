@@ -75,9 +75,12 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
 		cat("  Trying alpha=", alph,"/", MCMCparams$gridsize,"\n")
     flush.console()
 
+    # ergm.estimate requires that the simulated stats be "centered" in the sense that the
+    # observed statistics would be exactly zero on the same scale.  In this case, the
+    # "observed statistics" equal xi[[iter]].
     v<-ergm.estimate(theta0=eta[[iter]], model=model, 
-                     xobs=xi[[iter]] - sampmeans[[iter]],  
-                     statsmatrix=samples[[iter]], 
+                     #xobs=xi[[iter]] - sampmeans[[iter]],  
+                     statsmatrix=sweep(samples[[iter]], 2, xi[[iter]], '-'), 
                      #statsmatrix.miss=statsmatrix.miss, 
                      #epsilon=MCMCparams$epsilon,
                      nr.maxit=MCMCparams$nr.maxit,
@@ -112,9 +115,12 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
 #####									  control=list(fnscale=-1), eta0=eta[[iter]], 
 #####									  s=finalsample, xi=obsstats)$par
 
+    # ergm.estimate requires that the simulated stats be "centered" in the sense that the
+    # observed statistics would be exactly zero on the same scale.  In this case, the
+    # "observed statistics" equal obsstats.
 	v<-ergm.estimate(theta0=eta[[iter]], model=model, 
-                   xobs=obsstats - sampmeans[[iter]],  
-					 statsmatrix=finalsample,
+                   #xobs=obsstats - sampmeans[[iter]],  
+                     statsmatrix=sweep(finalsample, 2, obsstats, '-'),
            #statsmatrix.miss=statsmatrix.miss, 
            epsilon=MCMCparams$epsilon,
            nr.maxit=MCMCparams$nr.maxit,
