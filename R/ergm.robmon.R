@@ -114,7 +114,7 @@ cat(paste("theta new:",theta,"\n"))
                    nr.maxit=control$nr.maxit, 
                    nr.reltol=control$nr.reltol,
                    calc.mcmc.se=control$calc.mcmc.se,
-                   hessian=control$hessian,
+                   hessianflag=control$hessian,
                    method=control$method,
                    metric=control$metric,
                    compress=control$compress, verbose=verbose)

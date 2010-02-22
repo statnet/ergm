@@ -127,7 +127,7 @@ ergm.compute.degeneracy<-function(xobs, theta0, etamap, statsmatrix,
 #
 # Log-Likelihood and gradient functions
 #
-  penalty <- 0.5
+  varweight <- 0.5
   if (verbose) cat("Optimizing loglikelihood\n")
   Lout <- try(optim(par=guess, 
                     fn=llik.fun, #  gr=llik.grad,
@@ -138,7 +138,7 @@ ergm.compute.degeneracy<-function(xobs, theta0, etamap, statsmatrix,
                     xobs=xobs,
                     xsim=xsim, probs=probs,
                     xsim.miss=xsim.miss, probs.miss=probs.miss,
-                    penalty=0.5, trustregion=trustregion,
+                    varweight=varweight, trustregion=trustregion,
                     eta0=eta0, etamap=etamap),silent=TRUE)
   if(verbose){cat("the change in the log-likelihood is", Lout$value,"\n")}
   if(inherits(Lout,"try-error") || Lout$value > 199 ||
@@ -154,7 +154,7 @@ ergm.compute.degeneracy<-function(xobs, theta0, etamap, statsmatrix,
 # c0  <- llik.fun(theta=Lout$par, xobs=xobs,
 #                 xsim=xsim, probs=probs,
 #                 xsim.miss=xsim.miss, probs.miss=probs.miss,
-#                 penalty=0.5, eta0=eta0, etamap=etamap)
+#                 varweight=0.5, eta0=eta0, etamap=etamap)
   loglikelihood <- Lout$value
   names(loglikelihood) <- "delta.log.lik"
 
