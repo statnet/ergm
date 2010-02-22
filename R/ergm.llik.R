@@ -47,14 +47,16 @@ llik.grad <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=NULL
 #
 # Penalize changes to trustregion
 #
-  llr <- llr - 2*(llr-trustregion)*(llr>trustregion)
+# llr <- llr - 2*(llr-trustregion)*(llr>trustregion)
 # 
 # The next lines are for the Hessian which optim does not use
 #
 # vtmp <- sweep(sweep(xsim, 2, E, "-"), 1, sqrt(prob), "*")
 # V <- t(vtmp) %*% vtmp
 # list(gradient=xobs-E,hessian=V)
-  ergm.etagradmult(theta.offset, llr, etamap)
+# print(ergm.etagradmult(theta.offset, llr, etamap))
+  llr <- ergm.etagradmult(theta.offset, llr, etamap)
+  llr[!etamap$offsetmap]
 }
 
 llik.hessian <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
@@ -62,13 +64,15 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NU
 # theta.offset <- etamap$theta0
 # theta.offset[!etamap$offsettheta] <- theta
   namesx <- names(theta)
-  xsim[,etamap$offsetmap] <- 0
+# xsim[,etamap$offsettheta] <- 0
+  xsim <- xsim[,!etamap$offsettheta]
 #
 #    eta transformation
 #
   eta <- ergm.eta(theta, etamap)
   etagrad <- ergm.etagrad(theta, etamap)
   x <- eta-eta0
+  x <- x[!etamap$offsettheta]
   basepred <- xsim %*% x
   prob <- max(basepred)
   prob <- probs*exp(basepred - prob)
@@ -78,8 +82,10 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NU
   htmp <- sweep(sweep(xsim, 2, E, "-"), 1, sqrt(prob), "*")
   htmp <- htmp %*% t(etagrad)
   H <- t(htmp) %*% htmp
-  dimnames(H) <- list(namesx, namesx)
-  -H
+  He <- matrix(NA, ncol = length(theta), nrow = length(theta))
+  He[!etamap$offsettheta, !etamap$offsettheta] <- H
+  dimnames(He) <- list(names(namesx), names(namesx))
+  He
 }
 
 # DH:  This llik.exp function does not appear to be used anywhere.
@@ -93,6 +99,31 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NU
 #   if(is.infinite(llr) | is.na(llr)){llr <- -800}
 #   llr
 # }
+llik.fun.EF <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
+                     varweight=0.5, trustregion=20, eta0, etamap){
+  theta.offset <- etamap$theta0
+  theta.offset[!etamap$offsettheta] <- theta
+  eta <- ergm.eta(theta.offset, etamap)
+  x <- eta-eta0
+# The next line is right!
+# aaa <- sum(xobs * x) - log(sum(probs*exp(xsim %*% x)))
+# These lines standardize:
+  basepred <- xsim %*% x
+#
+  maxbase <- max(basepred)
+  llr <- sum(xobs * x) - maxbase - log(sum(probs*exp(basepred-maxbase)))
+  if(is.infinite(llr) | is.na(llr)){llr <- -800}
+#
+# Penalize changes to trustregion
+#
+  llr <- llr - 2*(llr-trustregion)*(llr>trustregion)
+#
+# cat(paste("max, log-lik",maxbase,llr,"\n"))
+# aaa <- sum(xobs * x) - log(sum(probs*exp(xsim %*% x)))
+# cat(paste("log-lik",llr,aaa,"\n"))
+# aaa
+  llr
+}
 
 #
 # Simple convergence
@@ -174,4 +205,36 @@ llik.mcmcvar3 <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=
 # \sum_i p_i^2 \left( \frac{\sum_i p_i U_i^2}{[\sum_i p_i U_i]^2} - 1 \right)
 }
 
-
+llik.fun.median <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
+                     varweight=0.5, trustregion=20, eta0, etamap){
+  theta.offset <- etamap$theta0
+  theta.offset[!etamap$offsettheta] <- theta
+  eta <- ergm.eta(theta.offset, etamap)
+  x <- eta-eta0
+# The next line is right!
+# aaa <- sum(xobs * x) - log(sum(probs*exp(xsim %*% x)))
+# These lines standardize:
+  basepred <- xsim %*% x
+#
+# maxbase <- max(basepred)
+# llr <- sum(xobs * x) - maxbase - log(sum(probs*exp(basepred-maxbase)))
+#
+# alternative based on log-normal approximation
+  mb <- wtd.median(basepred, weight=probs)
+  sdb <- 1.4826*wtd.median(abs(basepred-mb), weight=probs)
+# 
+# This is the log-likelihood ratio (and not its negative)
+#
+  llr <- sum(xobs * x) - (mb + varweight*sdb*sdb)
+  if(is.infinite(llr) | is.na(llr)){llr <- -800}
+#
+# Penalize changes to trustregion
+#
+  llr <- llr - 2*(llr-trustregion)*(llr>trustregion)
+#
+# cat(paste("max, log-lik",maxbase,llr,"\n"))
+# aaa <- sum(xobs * x) - log(sum(probs*exp(xsim %*% x)))
+# cat(paste("log-lik",llr,aaa,"\n"))
+# aaa
+  llr
+}

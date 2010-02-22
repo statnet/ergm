@@ -128,4 +128,11 @@ DATE: 2010-Feb-22
 FILE: R/ergm.estimate.R, ergm.stepping.R
 CHANGES: Eliminated experimental "xobs" argument of ergm.estimate
 
+DATE: 2010-Feb-22
+FILE: R/ergm.estimate.R, ergm.llik.R, ergm.llik.miss.R
+CHANGES: brought these files up to date with trunk versions (and vice versa)
+
+DATE: 2010-Feb-22
+FILE: R/ergm.mainfitloop.R, ergm.robmon.R, ergm.stepping.R, ergm.stocapprox.R
+CHANGES: Used "hessianflag" instead of "hessian" when calling ergm.estimate
 
