@@ -18,11 +18,13 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
   theta.original=theta0
   thetaprior=theta0-theta0
 
-  stats <- matrix(0,ncol=Clist$nstats,nrow=MCMCparams$samplesize)
-  stats[1,] <- Clist$obs - Clist$meanstats
-# stats[,]<-  rep(Clist$obs - Clist$meanstats,rep(nrow(stats),Clist$nstats))
-  MCMCparams$stats <- stats
+
+  #  stats <- matrix(0,ncol=Clist$nstats,nrow=MCMCparams$samplesize)
+  statshift <- Clist$obs - Clist$meanstats
+## stats[,]<-  rep(Clist$obs - Clist$meanstats,rep(nrow(stats),Clist$nstats))
+#  MCMCparams$stats <- stats
   MCMCparams$meanstats <- Clist$meanstats
+  MCMCparams$nmatrixentries = MCMCparams$samplesize * Clist$nstats
 
 #  while(any(mcmc.precision*asyse < mc.se, na.rm=TRUE) && iteration <= maxit){
   while(iteration <= MCMCparams$maxit){
@@ -38,30 +40,21 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     }
     Clist <- ergm.Cprepare(nw, model)
 	  
-#   Takes MCMC sample from the initial value, theta0 (technically, from its etamap) 
-#   for the first iteration.
+    # Obtain MCMC sample
     z <- ergm.getMCMCsample(Clist, MHproposal, eta0, MCMCparams, verbose)
-    statsmatrix <- z$statsmatrix
+    
+    # post-processing of sample statistics:  Shift each row by the
+    # matrix Clist$obs - Clist$meanstats, attach column names
+    statsmatrix <- sweep(z$statsmatrix, 2, statshift, "+")
     colnames(statsmatrix) <- model$coef.names
     v$sample <- statsmatrix
-#    if(verbose && FALSE){
-#      sm<-statsmatrix[,!model$offset,drop=FALSE]
-#      cat("Deviation: ",apply(sm,2,mean),"\n")
-#      require(coda,quiet=TRUE)
-#      cat("Studentized deviation: ",
-#          apply(sm,2,mean)/sqrt(apply(sm^2,2,mean)/effectiveSize(as.mcmc(sm))),
-#          "\n")
-#      effSize<-effectiveSize(as.mcmc(sm))
-#      stats.cov<-t(cov(sm)/effSize)/effSize
-#      cat("Mahalanobis distance: ",
-#          mahalanobis(apply(sm,2,mean),0,stats.cov),
-#          "\n")
-#    }
 
-##  Does the same, if missing edges:		 
+    ##  Does the same, if missing edges:		 
 	  if(MCMCparams$Clist.miss$nedges > 0){
       Clist <- ergm.Cprepare(nw, model)
-      statsmatrix.miss <- ergm.getMCMCsample(Clist, MHproposal.miss, eta0, MCMCparams, verbose)$statsmatrix
+      # Obtain MCMC sample, followed by post-processing
+      z <- ergm.getMCMCsample(Clist, MHproposal.miss, eta0, MCMCparams, verbose)
+      statsmatrix <- sweep(z$statsmatrix, 2, statshift, "+")
       colnames(statsmatrix.miss) <- model$coef.names
       if(verbose){cat("Back from constrained MCMC...\n")}
     }else{
@@ -72,7 +65,6 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
       nw <- network.update(nw, z$newedgelist, "edgelist")
       nw.obs <- summary(model$formula, basis=nw)
       namesmatch <- match(names(MCMCparams$meanstats), names(nw.obs))
-      MCMCparams$stats[1,] <- nw.obs[namesmatch]-MCMCparams$meanstats
     }
 
 #  Next iteration begins here:
@@ -153,7 +145,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
                     epsilon=MCMCparams$epsilon,
                     nr.maxit=MCMCparams$nr.maxit,
                     nr.reltol=MCMCparams$nr.reltol,
-                    calc.mcmc.se=MCMCparams$calc.mcmc.se, hessian=MCMCparams$hessian,
+                    calc.mcmc.se=MCMCparams$calc.mcmc.se, hessianflag=MCMCparams$hessian,
                     trustregion=MCMCparams$trustregion, method=MCMCparams$method, metric="Likelihood",
                     compress=MCMCparams$compress, verbose=verbose,
                     estimateonly=TRUE)
@@ -170,7 +162,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
                    epsilon=MCMCparams$epsilon,
                    nr.maxit=MCMCparams$nr.maxit,
                    nr.reltol=MCMCparams$nr.reltol,
-                   calc.mcmc.se=MCMCparams$calc.mcmc.se, hessian=MCMCparams$hessian,
+                   calc.mcmc.se=MCMCparams$calc.mcmc.se, hessianflag=MCMCparams$hessian,
                    trustregion=MCMCparams$trustregion, method=MCMCparams$method, metric="Likelihood",
                    compress=MCMCparams$compress, verbose=verbose)
 #

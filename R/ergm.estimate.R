@@ -22,9 +22,9 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     }
     statsmatrix0.miss <- statsmatrix.miss
     probs.miss <- rep(1/nrow(statsmatrix0.miss),nrow(statsmatrix0.miss))
-    # Center the statsmatrix0.miss matrix by subtracting the column mean vector:
-    av.miss <- apply(sweep(statsmatrix0.miss,1,probs.miss,"*"), 2, sum)
-    xsim.miss <- sweep(statsmatrix0.miss, 2, av.miss,"-")
+  } else { # these objects should be defined as NULL so they exist later on
+    probs.miss <- NULL
+    xsim.miss <- NULL
   }
 
   # Now check to see whether to compress the statsmatrix by searching for
@@ -49,8 +49,15 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   # adjusted accordingly.
   av <- apply(sweep(statsmatrix0,1,probs,"*"), 2, sum)
   xsim <- sweep(statsmatrix0, 2, av,"-")
-  xobs <-  -av + ifelse(missingflag, av.miss, 0)
-
+  xobs <-  -av 
+  # Do the same recentering for the statsmatrix0.miss matrix, if appropriate.
+  # Note that xobs must be adjusted too.
+  if(missingflag) {
+    av.miss <- apply(sweep(statsmatrix0.miss,1,probs.miss,"*"), 2, sum)
+    xsim.miss <- sweep(statsmatrix0.miss, 2, av.miss,"-")
+    xobs <- av.miss-av
+  }
+  
   # Convert theta0 to eta0
   eta0 <- ergm.eta(theta0, model$etamap)
   
@@ -61,67 +68,80 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   guess <- theta0[!model$etamap$offsettheta]
   model$etamap$theta0 <- theta0
 
-  #
-# Log-Likelihood and gradient functions
-#
-
   # Choose appropriate loglikelihood, gradient, and Hessian functions
+  # depending on metric chosen and also whether missingflag==TRUE
   # Also, choose varweight multiplier for covariance term in loglikelihood
   # where 0.5 is the "true" value but this can be increased or decreased
-  if(metric=="Likelihood" && !missingflag) {
-    loglikelihoodfn <- llik.fun
-    gradientfn <- llik.grad
-    Hessianfn <- llik.hessian
-    varweight <- 0.5
-  } else if (metric == "Likelihood" && missingflag) {
-    loglikelihoodfn <- llik.fun.miss
-    gradientfn <- llik.grad.miss
-    Hessianfn <- llik.hessian.miss
-    varweight <- 0.5
+  varweight <- 0.5
+  if (missingflag) {
+    loglikelihoodfn <- switch(metric,
+                       Likelihood=llik.fun.miss.robust,
+                       Median.Likelihood=llik.fun.miss.robust,
+                       EF.Likelihood=llik.fun.miss.robust,
+                llik.fun.miss.robust)
+    # This looks like a bug:  (None of these functions is a gradient)
+    gradientfn <- switch(metric,
+                        Likelihood=llik.fun.miss,
+                        Median.Likelihood=llik.fun.miss,
+                        EF.Likelihood=llik.fun.miss,
+                 llik.fun.miss)
+    Hessianfn <- switch(metric,
+                           Likelihood=llik.hessian.miss,
+                           Median.Likelihood=llik.hessian.miss,
+                           EF.Likelihood=llik.hessian.miss,
+                    llik.hessian.miss)
   } else {
-    loglikelihoodfn <- llik.fun2
-    gradientfn <- llik.grad2
-    Hessianfn <- llik.hessian2
-    varweight <- 0.5
+    loglikelihoodfn <- switch(metric,
+                       Likelihood=llik.fun,
+                       Median.Likelihood=llik.fun.median,
+                       EF.Likelihood=llik.fun.EF,
+                llik.fun2)
+    gradientfn <- switch(metric,
+                        Likelihood=llik.grad,
+                        Median.Likelihood=llik.grad,
+                        EF.Likelihood=llik.grad,
+                 llik.grad2)
+    Hessianfn <- switch(metric,
+                           Likelihood=llik.hessian,
+                           Median.Likelihood=llik.hessian,
+                           EF.Likelihood=llik.hessian,
+                    llik.hessian2)
   }
 
   if (verbose) cat("Optimizing loglikelihood\n")
-  Lout <- try(optim(par=guess,                  
-                    fn=loglikelihoodfn, #  gr=gradientfn,
+  Lout <- try(optim(par=guess,
+                    fn=loglikelihoodfn,   gr=gradientfn,
                     hessian=hessianflag,
                     method=method,
                     control=list(trace=trace, fnscale=-1,
                                  maxit=nr.maxit,reltol=nr.reltol),
                     xobs=xobs,
                     xsim=xsim, probs=probs,
-                    xsim.miss = ifelse(missingflag, xsim.miss, NULL),
-                    probs.miss = ifelse(missingflag, xsim.miss, NULL),
+                    xsim.miss=xsim.miss, probs.miss=probs.miss,
                     varweight=varweight, trustregion=trustregion,
                     eta0=eta0, etamap=model$etamap))
-# if(verbose){cat("Log-likelihood ratio is", Lout$value,"\n")}
-  if(Lout$value < trustregion-0.001){
-   current.scipen <- options()$scipen
-   options(scipen=3)
-   cat("the log-likelihood improved by",
-       format.pval(Lout$value,digits=4,eps=1e-4),"\n")
-   options(scipen=current.scipen)
-  }else{
-   cat("the log-likelihood did not improve.\n")
-  }
+# if(Lout$value < trustregion-0.001){
+#  current.scipen <- options()$scipen
+#  options(scipen=3)
+#  cat("the log-likelihood improved by",
+#      format.pval(Lout$value,digits=4,eps=1e-4),"\n")
+#  options(scipen=current.scipen)
+# }else{
+#  cat("the log-likelihood did not improve.\n")
+# }
   if(inherits(Lout,"try-error") || Lout$value > 199 ||
      Lout$value < -790) {
     cat("MLE could not be found. Trying Nelder-Mead...\n")
-    Lout <- try(optim(par=guess,
-                      fn=llik.fun,
+    Lout <- try(optim(par=guess, 
+                      fn=loglikelihoodfn,
                       hessian=hessianflag,
                       method="Nelder-Mead",
                       control=list(trace=trace,fnscale=-1,maxit=100*nr.maxit,
                         reltol=0.01),
                       xobs=xobs, 
                       xsim=xsim, probs=probs, 
-                      xsim.miss = ifelse(missingflag, xsim.miss, NULL),
-                      probs.miss = ifelse(missingflag, xsim.miss, NULL),
-                      varweight = varweight, trustregion=trustregion,
+                      xsim.miss=xsim.miss, probs.miss=probs.miss,
+                      varweight=varweight, trustregion=trustregion,
                       eta0=eta0, etamap=model$etamap))
     if(inherits(Lout,"try-error") || Lout$value > 500 ){
       cat(paste("No direct MLE exists!\n"))
@@ -139,13 +159,13 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     return(structure(list(coef=theta, 
                           MCMCtheta=theta0, 
                           samplesize=NROW(statsmatrix),
+                          loglikelihood=Lout$value, 
                           failure=FALSE),
                         class="ergm"))
   } else {
     gradient <- llik.grad(theta=Lout$par, xobs=xobs, xsim=xsim,
                           probs=probs, 
-                          xsim.miss = ifelse(missingflag, xsim.miss, NULL),
-                          probs.miss = ifelse(missingflag, xsim.miss, NULL),
+                          xsim.miss=xsim.miss, probs.miss=probs.miss,
                           varweight=varweight, eta0=eta0, etamap=model$etamap)
     gradient[model$etamap$offsettheta] <- 0
     #
@@ -155,17 +175,25 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     mc.se <- rep(NA, length=length(theta))
     covar <- NA
     if(!hessianflag){
-      #  covar <- robust.inverse(cov(xsim))
-      #  Lout$hessian <- cov(xsim)
-      Lout$hessian <- llik.hessian(theta=theta, xobs=xobs, xsim=xsim,
-                                   probs=probs, 
-                                   xsim.miss = ifelse(missingflag, xsim.miss, NULL),
-                                   probs.miss = ifelse(missingflag, xsim.miss, NULL),
-                                   varweight=varweight,
-                                   eta0=eta0, etamap=model$etamap
-                                   )
-      Lout$hessian[,model$etamap$offsettheta] <- 0
-      Lout$hessian[model$etamap$offsettheta,] <- 0
+     #  covar <- robust.inverse(cov(xsim))
+     #  Lout$hessian <- cov(xsim)
+     Lout$hessian <- Hessianfn(theta=theta, xobs=xobs, xsim=xsim,
+                                  probs=probs, 
+                                  xsim.miss=xsim.miss, probs.miss=probs.miss,
+                                  varweight=varweight,
+                                  eta0=eta0, etamap=model$etamap
+                                  )
+     covar <- matrix(NA, ncol=length(theta), nrow=length(theta))
+     covar[!model$etamap$offsettheta,!model$etamap$offsettheta ] <- robust.inverse(-Lout$hessian)
+     dimnames(covar) <- list(names(theta),names(theta))
+    }else{
+     covar <- matrix(NA, ncol=length(theta), nrow=length(theta))
+     covar[!model$etamap$offsettheta,!model$etamap$offsettheta ] <- robust.inverse(-Lout$hessian)
+     dimnames(covar) <- list(names(theta),names(theta))
+     He <- matrix(NA, ncol=length(theta), nrow=length(theta))
+     He[!model$etamap$offsettheta,!model$etamap$offsettheta ] <- Lout$hessian
+     dimnames(He) <- list(names(theta),names(theta))
+     Lout$hessian <- He
     }
     if(calc.mcmc.se){
       if (verbose) cat("Starting MCMC s.e. computation.\n")
@@ -173,30 +201,21 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                               statsmatrix.miss,
                               model=model)
         mc.se <- mcmcse$mc.se
-        #   covar <- robust.inverse(-mcmcse$hessian)
-        H <- mcmcse$hessian
-        covar <- robust.inverse(-H)
-        if(all(!is.na(diag(covar))) && all(diag(covar)<0)){covar <- -covar}
-        mc.se[model$etamap$offsettheta] <- NA
+#       covar <- robust.inverse(-mcmcse$hessian)
+#       H <- mcmcse$hessian
+        covar <- mcmcse$covar
+#       covar <- robust.inverse(-H)
+#       if(all(!is.na(diag(covar))) && all(diag(covar)<0)){covar <- -covar}
+#       mc.se[model$etamap$offsettheta] <- NA
     }
-    if(inherits(covar,"try-error") | is.na(covar[1])){
-      covar <- robust.inverse(-Lout$hessian)
-    }
-    covar[,model$etamap$offsettheta ] <- NA
-    covar[ model$etamap$offsettheta,] <- NA
     c0  <- llik.fun(theta=Lout$par, xobs=xobs,
                     xsim=xsim, probs=probs,
-                    xsim.miss = ifelse(missingflag, xsim.miss, NULL),
-                    probs.miss = ifelse(missingflag, xsim.miss, NULL),
+                    xsim.miss=xsim.miss, probs.miss=probs.miss,
                     varweight=0.5, eta0=eta0, etamap=model$etamap)
-    #   VIP: Note added varweight for more skewness in the 
-    #        values computed relative to 0
-    #
     c01 <- llik.fun(theta=Lout$par-Lout$par, xobs=xobs,
                     xsim=xsim, probs=probs,
-                    xsim.miss = ifelse(missingflag, xsim.miss, NULL),
-                    probs.miss = ifelse(missingflag, xsim.miss, NULL),
-                    varweight=0.67, eta0=eta0, etamap=model$etamap)
+                    xsim.miss=xsim.miss, probs.miss=probs.miss,
+                    varweight=0.5, eta0=eta0, etamap=model$etamap)
     #
     # This is the log-likelihood calc from theta0=0
     #
@@ -248,28 +267,3 @@ return(structure(list(coef=theta, sample=statsmatrix, sample.miss=statsmatrix.mi
             class="ergm"))
   }
 }
-
-
-
-# pre-processing:  
-#  (0) find sample size of statsmatrix;
-#  (1) set up centered version of the statsmatrix; (choices:  compress?  missing?)
-#  (2) obtain first guess at optimal
-#  (3) convert theta0 to eta0
-#  (4) modify value of xobs like statsmatrix has been modified
-#  (5) change model$etamap$theta0 to theta0 (??)
-#  (6) Determine appropriate set of likelihood and gradient functions
-#  (7) call optim function
-#  (8) check for errors in optim call (retry if errors found)
-#  (9) report change in loglikelihood; report on non-convergence
-#  (10) modify value of theta to optimal; add names
-#  (11) return if estimateonly==TRUE
-#  (12) calculate gradient vector
-#  (13) If optim did not already return hessian matrix approximation, calculate hessian
-#  (14) For both gradient and Hessian, zero out entries corresponding to model$etamap$offsettheta
-#  (15) if calc.mcmc.se==TRUE, calculate MCMC S.E.
-#  (16) set covar equal to the inverse of the Hessian
-#  (17) for entries corresponding to model$etamap$offsettheta, set covar entries to NA
-#  (18) calculate mcmcloglik approximation (currently using very ad-hoc method)
-
-
