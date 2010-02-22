@@ -11,8 +11,8 @@
 #  It returns only the named elements of the .C() call, after some 
 #  post-processing: the statistics matrix is coerced to the correct
 #                   dimensions and the heads/tails are returned as an edgelist
-#  NB:  The statistics are all RELATIVE TO THE ORIGINAL MATRIX!
-#       i.e., the calling function must shift the statistics if necessary.
+#  NB:  The statistics are all RELATIVE TO THE ORIGINAL NETWORK!
+#       i.e., the calling function must shift the statistics if required.
 #       The calling function must also attach column names to the statistics
 #       matrix if required.
 
@@ -33,10 +33,11 @@ ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALS
   # adding this first row to each row within MCMC_wrapper.
   # Any unmodified old function trying to use the new version will generate an 
   # error because the MCMCparams$nmatrixentries object is new and will not yet 
-  # exist in an unmodified function.
+  # exist in an unmodified function.  This is worth it:  There is no reason
+  # that MCMCparams should include a huge matrix.
   statsmatrix = double(MCMCparams$nmatrixentries),
   #  statsmatrix = as.double(t(MCMCparams$stats)), # By default, as.double goes bycol, not byrow; thus, we use the transpose here.
-  as.integer(MCMCparams$burnin), 
+  as.integer(MCMCparams$burnin),
   as.integer(MCMCparams$interval),
   newnwheads = integer(MCMCparams$maxedges),
   newnwtails = integer(MCMCparams$maxedges),
