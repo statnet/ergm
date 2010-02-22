@@ -73,8 +73,8 @@ llik.grad.miss <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss
 llik.hessian.miss <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
                          varweight=0.5, eta0, etamap){
   namesx <- names(theta)
-  xsim <- xsim[,!etamap$offsettheta]
-  xsim.miss <- xsim.miss[,!etamap$offsettheta]
+  xsim <- xsim[,!etamap$offsettheta, drop=FALSE]
+  xsim.miss <- xsim.miss[,!etamap$offsettheta, drop=FALSE]
   xobs <- xobs[!etamap$offsettheta]
 #
 #    eta transformation

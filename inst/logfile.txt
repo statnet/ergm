@@ -136,3 +136,12 @@ DATE: 2010-Feb-22
 FILE: R/ergm.mainfitloop.R, ergm.robmon.R, ergm.stepping.R, ergm.stocapprox.R
 CHANGES: Used "hessianflag" instead of "hessian" when calling ergm.estimate
 
+DATE: 2010-Feb-22
+FILE: R/ergm.llik.R, 
+CHANGES: Added default values to all "trustregion" args; fixed bug in hessian
+         by adding "drop=FALSE"
+
+DATE: 2010-Feb-22
+FILE: R/ergm.llik.miss.R, 
+CHANGES: fixed bugs in hessian by adding "drop=FALSE"
+
