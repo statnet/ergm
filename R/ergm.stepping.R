@@ -42,7 +42,7 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
 ## Generate an mcmc sample from the probability distribution determined by orig.mle
 		samples[[iter]]=simulate.formula(formula, nsim=MCMCparams$stepMCMCsize,       
 										 theta0=eta[[iter]], burnin=MCMCparams$burnin, 
-										 interval=MCMCparams$interval, statsonly=T)
+										 interval=MCMCparams$interval, statsonly=TRUE)
 		sampmeans[[iter]]=colMeans(samples[[iter]])
 		
 		hi <- MCMCparams$gridsize  # Goal: Let alpha be largest possible multiple of .01
@@ -104,7 +104,7 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
 	iter=iter+1
     finalsample=simulate.formula(formula, nsim=MCMCparams$samplesize,
                                      theta0=eta[[iter]], burnin=MCMCparams$burnin, 
-                                     interval=MCMCparams$interval, statsonly=T)
+                                     interval=MCMCparams$interval, statsonly=TRUE)
 	sampmeans[[iter]]=colMeans(finalsample)
 	inCH=is.inCH(obsstats, finalsample)
 	if (!inCH)

@@ -145,3 +145,7 @@ DATE: 2010-Feb-22
 FILE: R/ergm.llik.miss.R, 
 CHANGES: fixed bugs in hessian by adding "drop=FALSE"
 
+DATE: 2010-Feb-22
+FILE: R/ergm.R, control.ergm.R, man/simulate.ergm.Rd, man/control.ergm.Rd
+CHANGES: fixed codoc agreement problems found by R CMD check
+

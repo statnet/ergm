@@ -1,7 +1,6 @@
 ergm <- function(formula, theta0="MPLE",               ##### Note that the network, nw, is included in the formula, e.g. nw ~ edges + degree(2:5)
                  MPLEonly=FALSE, MLestimate=!MPLEonly, seed=NULL,
-                 burnin=10000, MCMCsamplesize=10000, interval=100, stepMCMCsize=100, gridsize=100,
-# Later:  Move stuff like stepMCMCsize and gridsize into control.ergm?
+                 burnin=10000, MCMCsamplesize=10000, interval=100,
                  maxit=3, control=control.ergm(),
                  constraints=~.,
                  meanstats=NULL,
@@ -134,7 +133,7 @@ ergm <- function(formula, theta0="MPLE",               ##### Note that the netwo
   }
 
   MCMCparams=c(control, list(samplesize=MCMCsamplesize, burnin=burnin,
-  interval=interval, stepMCMCsize=stepMCMCsize, gridsize=gridsize,
+  interval=interval, stepMCMCsize=control$stepMCMCsize, gridsize=control$gridsize,
   maxit=maxit,Clist.miss=Clist.miss, mcmc.precision=control$mcmc.precision))
 
    if (verbose) cat("Fitting ERGM.\n")
@@ -145,7 +144,7 @@ ergm <- function(formula, theta0="MPLE",               ##### Note that the netwo
                                  Clist, 
                                  MCMCparams=MCMCparams, MHproposal=MHproposal,
                                  verbose),
-			   "Stepping" = ergm.stepping(theta0, nw, model, Clist, initialfit, 
+    "Stepping" = ergm.stepping(theta0, nw, model, Clist, initialfit, 
 				#nstats=nstats, 
 				#approx=lognormapprox, filename.prefix=NULL, 
 				#control=control.ergm(nsim1=100, nsim2=1000, gridsize=100),  # simulation parameters
