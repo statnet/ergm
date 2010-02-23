@@ -3,21 +3,21 @@
 \alias{simulate.formula}
 \title{Draw from the distribution of an Exponential Family Random Graph Model}
 \usage{
-\method{simulate}{formula}(object, nsim=1, seed=NULL, \dots, theta0,
+\method{simulate}{formula}(object, nsim=1, seed=NULL, theta0,
                           burnin=1000, interval=1000,
                           basis=NULL,
                           statsonly=FALSE,
                           sequential=TRUE,
                           constraints = ~.,
                           control = control.simulate.formula(),
-                          verbose=FALSE)
-\method{simulate}{ergm}(object, nsim=1, seed=NULL, \dots, theta0=object$coef,
+                          verbose=FALSE, \dots)
+\method{simulate}{ergm}(object, nsim=1, seed=NULL, theta0=object$coef,
                        burnin=1000, interval=1000, 
                        statsonly=FALSE,
                        sequential=TRUE,
                        constraints = ~.,
                        control = control.simulate.ergm(),
-                       verbose=FALSE)
+                       verbose=FALSE, \dots)
 }
 \description{
   \code{\link[stats]{simulate}} is used to draw from exponential family 
