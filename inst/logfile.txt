@@ -149,3 +149,13 @@ DATE: 2010-Feb-22
 FILE: R/ergm.R, control.ergm.R, man/simulate.ergm.Rd, man/control.ergm.Rd
 CHANGES: fixed codoc agreement problems found by R CMD check
 
+DATE: 2010-Feb-25
+FILE: R/ergm.pl.R
+CHANGES: Reverted to old code in one section that was not working
+
+DATE: 2010-Feb-26
+FILE: R/ergm.estimate.R, ergm.llik.R
+CHANGES: Added closed-form lognormal approximation estimation capability;
+         started rewriting Hessian code in ergm.llik.R
+
+
