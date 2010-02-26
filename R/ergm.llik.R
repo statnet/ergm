@@ -88,6 +88,43 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NU
   He
 }
 
+
+# Use the naive approximation to the Hessian matrix.  
+# Namely, sum_i(w_i g_i g_i^t) - (sum_i w_i g_i)(sum_i w_i g_i)^t
+# where g_i is the ith vector of statistics and
+# w_i = normalized version of exp((eta-eta0)^t g_i) so that sum_i w_i=1
+# This is equation (3.5) of Hunter and Handcock (2006)
+# Currently, llik.hessian.naive is merely a rewrite of llik.hessian
+llik.hessian.naive <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
+                               varweight=0.5, eta0, etamap){
+  namesx <- names(theta)
+  xsim <- xsim[,!etamap$offsettheta, drop=FALSE]
+  eta <- ergm.eta(theta, etamap)
+  etagrad <- ergm.etagrad(theta, etamap)
+
+  # It does not matter if we subtract a constant from the (eta-eta0)^t g vector
+  # prior to exponentiation.  So subtract to make maximum value = 0 for 
+  # the sake of numberical stability:
+  x <- eta-eta0
+  x <- x[!etamap$offsettheta]
+  basepred <- xsim %*% x
+  w <- probs * exp(basepred - max(basepred))
+  w <- w/sum(w)
+  wtxsim <- sweep(xsim, 1, w, "*")
+  swg <- colSums(wtxsim)
+  H <- t(wtxsim) %*% xsim - outer(swg,swg)
+  
+  # One last step, for the case of a curved EF:  Front- and back-multiply by
+  # the gradient of eta(theta).
+  H <- crossprod(etagrad, crossprod(H, etagrad))
+  He <- matrix(NA, ncol = length(theta), nrow = length(theta))
+  He[!etamap$offsettheta, !etamap$offsettheta] <- H
+  dimnames(He) <- list(names(namesx), names(namesx))
+  He
+}
+
+
+
 # DH:  This llik.exp function does not appear to be used anywhere.
 # MSH: Yep, just another idea based on exp. family theory
 # llik.exp <- function(theta, xobs, xsim, probs, 
