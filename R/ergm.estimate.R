@@ -214,6 +214,18 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                               model=model)
         mc.se <- mcmcse$mc.se
        covar <- robust.inverse(-mcmcse$hessian)
+       # Eventually, this if-statement may be removed:
+       if (verbose) {
+         if (metric=="Likelihood") {
+           cat ("Here are the standard errors based on the exact Hessian of the ",
+                "log-normal approximation:\n")
+           print(sqrt(diag(robust.inverse(-Lout$hessian))))
+         }
+         cat ("Here are the standard errors based on the 'naive' approximation ",
+              "of the log-likelihood as in eqn. (3.5) of H&H 2006:\n")
+         print(sqrt(diag(covar)))
+       }
+       
 #       H <- mcmcse$hessian
 #        covar <- mcmcse$covar
 #       covar <- robust.inverse(-H)
