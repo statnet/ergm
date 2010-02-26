@@ -158,4 +158,9 @@ FILE: R/ergm.estimate.R, ergm.llik.R
 CHANGES: Added closed-form lognormal approximation estimation capability;
          started rewriting Hessian code in ergm.llik.R
 
+DATE: 2010-Feb-26
+FILE: R/ergm.estimate.R
+CHANGES: Added message outputting two distinct std error estimates (temporary)
+
+
 
