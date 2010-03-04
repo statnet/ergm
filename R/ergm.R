@@ -85,7 +85,7 @@ ergm <- function(formula, theta0="MPLE",
   MCMCflag <- ((MLestimate && (!ergm.independencemodel(model.initial)
                                || !is.null(meanstats)
                                || constraints!=(~.)))
-                || control$force.mcmc)
+                || control$force.mcmc || !is.null(dissolve))
   if (MCMCflag) {
     theta0 <- initialfit$coef
     names(theta0) <- model.initial$coef.names
