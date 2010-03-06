@@ -1,7 +1,7 @@
 network.update<-function(nw,newmatrix,matrix.type=NULL,output="network")
 {
 #  print(paste("old:",network.edgecount(nw)," new:", nrow(newmatrix),collapse=" "))
-  unw <- network.copy(nw)
+  unw <- network.copy(as.network.uncompressed(nw))
   if(is.null(matrix.type)){
     warning("Don't leave matrix type to chance! Pass matrix.type to network.update!")
     matrix.type <- which.matrix.type(newmatrix)

@@ -107,11 +107,16 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   # First: If we're using the lognormal approximation, the maximizer is
   # closed-form.
   if (metric=="Likelihood") {
-    # Note:  Still need to add offset capability here!
-    Lout <- list(hessian = -cov(xsim))
-    Lout$par <- eta0 - solve(Lout$hessian, xobs)
+    if (missingflag) {
+     Lout <- list(hessian = -((cov(xsim)-cov(xsim.miss))[!model$etamap$offsettheta,!model$etamap$offsettheta]))
+    } else {
+     Lout <- list(hessian = -(cov(xsim)[!model$etamap$offsettheta,!model$etamap$offsettheta]))
+    }
+    Lout$par <- eta0[!model$etamap$offsettheta] - solve(Lout$hessian, xobs[!model$etamap$offsettheta])
     Lout$convergence <- 0 # maybe add some error-checking here to get other codes
-    Lout$value <- crossprod(xobs, Lout$par - eta0 + xobs/2)
+    Lout$value <- crossprod(xobs[!model$etamap$offsettheta], Lout$par - eta0[!model$etamap$offsettheta] + xobs[!model$etamap$offsettheta]/2)
+    Lout$value <- Lout$value - crossprod(xobs[!model$etamap$offsettheta],
+Lout$par-Lout$par - eta0[!model$etamap$offsettheta] + xobs[!model$etamap$offsettheta]/2)
     hessianflag <- TRUE # to make sure we don't recompute the Hessian later on
   } else {
     # "guess" will be the starting point for the optim search algorithm.
@@ -214,8 +219,13 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
         mcmcse <- ergm.MCMCse(theta, theta0, statsmatrix0,
                               statsmatrix.miss,
                               model=model)
+       if (metric=="Likelihood") {
+        mcmcse$covar <- covar
+        mc.se <- sqrt(diag(covar)/NROW(statsmatrix))
+       }else{
         mc.se <- mcmcse$mc.se
-       covar <- robust.inverse(-mcmcse$hessian)
+        covar <- mcmcse$covar
+       }
        # Eventually, this if-statement may be removed:
        if (verbose) {
          if (metric=="Likelihood") {
@@ -225,11 +235,10 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
          }
          cat ("Here are the standard errors based on the 'naive' approximation ",
               "of the log-likelihood as in eqn. (3.5) of H&H 2006:\n")
-         print(sqrt(diag(covar)))
+         print(sqrt(diag(robust.inverse(-mcmcse$hessian))))
        }
        
 #       H <- mcmcse$hessian
-        covar <- mcmcse$covar
 #       covar <- robust.inverse(-H)
 #       if(all(!is.na(diag(covar))) && all(diag(covar)<0)){covar <- -covar}
 #       mc.se[model$etamap$offsettheta] <- NA

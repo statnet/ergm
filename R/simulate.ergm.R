@@ -194,7 +194,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, ...,theta0,
           out.mat <- rbind(out.mat,curstats)
         }
         if (verb) {
-          cat(paste("Completed ",k," of ", nsim, " simulations.\n", sep=""))
+          cat(paste("Completed ",i," of ", nsim, " simulations.\n", sep=""))
         }
       }
       stopCluster(cl)
@@ -427,7 +427,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
        }
       }
       if (verb) {
-        cat(paste("Completed ",k," of ", nsim, " simulations.\n", sep=""))
+        cat(paste("Completed ",i," of ", nsim, " simulations.\n", sep=""))
       }
     }
     stopCluster(cl)
