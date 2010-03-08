@@ -10,6 +10,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                         calc.mcmc.se=TRUE, hessianflag=TRUE,
                         verbose=FALSE, trace=6*verbose,
                         trustregion=20, 
+                        cov.type="robust", 
                         estimateonly=FALSE, ...) {
   # If there are missing data to deal with, statsmatrix.miss will not be NULL;
   # in this case, do some preprocessing.  Otherwise, skip ahead.
@@ -48,16 +49,30 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   # value of xobs (playing the role of "observed statistics") must be
   # adjusted accordingly.
 # av <- apply(sweep(statsmatrix0,1,probs,"*"), 2, sum)
-  V=covMcd(statsmatrix0[,!model$etamap$offsettheta])$cov
-# b=capture.output(av <- covMcd(statsmatrix0)$center)
+  if(cov.type=="robust"){
+   V=try(covMcd(statsmatrix0[,!model$etamap$offsettheta])$cov)
+   if(inherits(V,"try-error")){
+    V=cov(statsmatrix0[,!model$etamap$offsettheta])
+   }
+#  b=capture.output(av <- covMcd(statsmatrix0)$center)
+  }else{
+   V=cov(statsmatrix0[,!model$etamap$offsettheta])
+  }
   av <- apply(statsmatrix0,2,wtd.median,weight=probs)
   xsim <- sweep(statsmatrix0, 2, av,"-")
   xobs <-  -av 
   # Do the same recentering for the statsmatrix0.miss matrix, if appropriate.
   # Note that xobs must be adjusted too.
   if(missingflag) {
-    V.miss=covMcd(statsmatrix0.miss[,!model$etamap$offsettheta])$cov
-#   b=capture.output(av.miss <- covMcd(statsmatrix0.miss)$center)
+    if(cov.type=="robust"){
+     V.miss=try(covMcd(statsmatrix0.miss[,!model$etamap$offsettheta])$cov)
+     if(inherits(V.miss,"try-error")){
+      V.miss=cov(statsmatrix0.miss[,!model$etamap$offsettheta])
+     }
+#    b=capture.output(av.miss <- covMcd(statsmatrix0.miss)$center)
+    }else{
+     V.miss=cov(statsmatrix0.miss[,!model$etamap$offsettheta])
+    }
 #   av.miss <- apply(sweep(statsmatrix0.miss,1,probs.miss,"*"), 2, sum)
     av.miss <- apply(statsmatrix0.miss,2,wtd.median,weight=probs.miss)
     xsim.miss <- sweep(statsmatrix0.miss, 2, av.miss,"-")
@@ -131,13 +146,23 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     } else {
      if (verbose) { cat("Using log-normal approx (no optim)\n") }
 #    Lout <- list(hessian = -(covMcd(xsim)$cov[!model$etamap$offsettheta,!model$etamap$offsettheta]))
-     Lout <- list(hessian = -(V[!model$etamap$offsettheta,!model$etamap$offsettheta]))
+#    Lout <- list(hessian = -(V[!model$etamap$offsettheta,!model$etamap$offsettheta]))
+     Lout <- list(hessian = -V)
     }
-    Lout$par <- eta0[!model$etamap$offsettheta] - solve(Lout$hessian, xobs[!model$etamap$offsettheta])
+    Lout$par <- try(eta0[!model$etamap$offsettheta] - solve(Lout$hessian, xobs[!model$etamap$offsettheta]))
+    if(inherits(Lout$par,"try-error")){
+     if (missingflag) {
+      Lout <- list(hessian = -(as.matrix(nearPD(V-V.miss)$mat)))
+     }else{
+      Lout <- list(hessian = -(as.matrix(nearPD(V)$mat)))
+     }
+     Lout$par <- eta0[!model$etamap$offsettheta] - solve(Lout$hessian, xobs[!model$etamap$offsettheta])
+    }
     Lout$convergence <- 0 # maybe add some error-checking here to get other codes
-    Lout$value <- crossprod(xobs[!model$etamap$offsettheta], Lout$par - eta0[!model$etamap$offsettheta] + xobs[!model$etamap$offsettheta]/2)
-    Lout$value <- Lout$value - crossprod(xobs[!model$etamap$offsettheta],
-Lout$par-Lout$par - eta0[!model$etamap$offsettheta] + xobs[!model$etamap$offsettheta]/2)
+#   Lout$value <- crossprod(xobs[!model$etamap$offsettheta], Lout$par - eta0[!model$etamap$offsettheta] + xobs[!model$etamap$offsettheta]/2)
+#   Lout$value <- Lout$value - crossprod(xobs[!model$etamap$offsettheta], Lout$par-Lout$par - eta0[!model$etamap$offsettheta] + xobs[!model$etamap$offsettheta]/2)
+    Lout$value <- 0.5*crossprod(xobs[!model$etamap$offsettheta],
+            Lout$par - eta0[!model$etamap$offsettheta])
     hessianflag <- TRUE # to make sure we don't recompute the Hessian later on
   } else {
     # "guess" will be the starting point for the optim search algorithm.
