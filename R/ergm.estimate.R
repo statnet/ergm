@@ -50,13 +50,13 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   # adjusted accordingly.
 # av <- apply(sweep(statsmatrix0,1,probs,"*"), 2, sum)
   if(cov.type=="robust"){
-   V=try(covMcd(statsmatrix0[,!model$etamap$offsettheta])$cov)
+   V=try(covMcd(statsmatrix0[,!model$etamap$offsettheta,drop=FALSE])$cov)
    if(inherits(V,"try-error")){
-    V=cov(statsmatrix0[,!model$etamap$offsettheta])
+    V=cov(statsmatrix0[,!model$etamap$offsettheta,drop=FALSE])
    }
 #  b=capture.output(av <- covMcd(statsmatrix0)$center)
   }else{
-   V=cov(statsmatrix0[,!model$etamap$offsettheta])
+   V=cov(statsmatrix0[,!model$etamap$offsettheta,drop=FALSE])
   }
   av <- apply(statsmatrix0,2,wtd.median,weight=probs)
   xsim <- sweep(statsmatrix0, 2, av,"-")
@@ -65,13 +65,13 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   # Note that xobs must be adjusted too.
   if(missingflag) {
     if(cov.type=="robust"){
-     V.miss=try(covMcd(statsmatrix0.miss[,!model$etamap$offsettheta])$cov)
+     V.miss=try(covMcd(statsmatrix0.miss[,!model$etamap$offsettheta,drop=FALSE])$cov)
      if(inherits(V.miss,"try-error")){
-      V.miss=cov(statsmatrix0.miss[,!model$etamap$offsettheta])
+      V.miss=cov(statsmatrix0.miss[,!model$etamap$offsettheta,drop=FALSE])
      }
 #    b=capture.output(av.miss <- covMcd(statsmatrix0.miss)$center)
     }else{
-     V.miss=cov(statsmatrix0.miss[,!model$etamap$offsettheta])
+     V.miss=cov(statsmatrix0.miss[,!model$etamap$offsettheta,drop=FALSE])
     }
 #   av.miss <- apply(sweep(statsmatrix0.miss,1,probs.miss,"*"), 2, sum)
     av.miss <- apply(statsmatrix0.miss,2,wtd.median,weight=probs.miss)
@@ -262,26 +262,33 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     }
     if(calc.mcmc.se){
       if (verbose) cat("Starting MCMC s.e. computation.\n")
-        mcmcse <- ergm.MCMCse(theta, theta0, statsmatrix0,
+       if (metric=="Likelihood") {
+        mcmcse <- ergm.MCMCse.lognormal(theta, theta0, 
+                              statsmatrix0, statsmatrix.miss,
+                              V, V.miss,
+                              model=model)
+       }else{
+        mcmcse <- ergm.MCMCse(theta, theta0, 
+                              statsmatrix0,
                               statsmatrix.miss,
                               model=model)
-       if (metric=="Likelihood") {
-        mcmcse$covar <- covar
-        mc.se <- sqrt(diag(covar)/NROW(statsmatrix))
-       }else{
-        mc.se <- mcmcse$mc.se
-        covar <- mcmcse$covar
        }
+       mc.se <- mcmcse$mc.se
+       covar <- mcmcse$covar
        # Eventually, this if-statement may be removed:
        if (verbose) {
          if (metric=="Likelihood") {
            cat ("Here are the standard errors based on the exact Hessian of the ",
                 "log-normal approximation:\n")
            print(sqrt(diag(robust.inverse(-Lout$hessian))))
+           cat ("MCMC standard errors\n.")
+           print(sqrt(diag(covar)/NROW(statsmatrix)))
          }
          cat ("Here are the standard errors based on the 'naive' approximation ",
               "of the log-likelihood as in eqn. (3.5) of H&H 2006:\n")
          print(sqrt(diag(robust.inverse(-mcmcse$hessian))))
+         cat ("MCMC standard errors\n.")
+         print(mc.se)
        }
        
 #       H <- mcmcse$hessian
