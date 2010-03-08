@@ -1,18 +1,16 @@
 ergm.stepping = function(theta0, nw, model, Clist, initialfit, 
-#control=control.ergm(nsim1=100, nsim2=1000, gridsize=100),  # simulation parameters
-## approx=lognormapprox, filename.prefix=NULL, plots=FALSE,  # currently useless, but plots can be reimplemented
 				MCMCparams=MCMCparams, 
 				MHproposal=MHproposal, MHproposal.miss=MHproposal.miss, 
-				verbose=FALSE, estimate=TRUE, sequential=TRUE, ...
-){ 
-
+				verbose=FALSE, estimate=TRUE, sequential=TRUE, ...)
+{ 
 #   preliminary, to set up structure. 
 					nw.orig <- nw
 					asyse=theta0-theta0
 					mc.se=1+0.05*asyse
 					mle.lik=initialfit$mle.lik
-#					v=list(coef=theta0)
 					theta.original=theta0
+##Trash these?	
+#					v=list(coef=theta0)
 #					thetaprior=theta0-theta0
 #					stats <- matrix(0,ncol=Clist$nstats,nrow=MCMCparams$samplesize)					
 #					stats[1,] <- Clist$obs - Clist$meanstats
@@ -55,7 +53,7 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
 			inCH=is.inCH(xi[[iter]], samples[[iter]])
 			if (inCH)
 			lo=alph
-## If 1/gridsize is not small enough, function fails and gives error message
+    # If 1/gridsize is not small enough, function fails and gives error message
 			else if (alph==1)
 			stop("alpha=", 1/MCMCparams$gridsize, "still not small enough for MLE.N.  Try using a", 
 				 " gridsize larger than ", MCMCparams$gridsize)
@@ -67,36 +65,41 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
 			alpha[[iter]] = alph/MCMCparams$gridsize
 			xi[[iter]] = alpha[[iter]]*obsstats  + (1-alpha[[iter]])*sampmeans[[iter]]
 		}
-## When the stepped xi is in the convex hull, find the MLE for gyobs=xi
-##########Here is the problem:  why do I not get the same estimate by each method? ##########
-####		cat(paste("xi",xi[[iter]], "\n"))
-####    eta[[iter+1]]=optim(par=eta[[iter]], approx, control=list(fnscale=-1), eta0=eta[[iter]], s=samples[[iter]], xi=xi[[iter]])$par
-####		cat(paste("eta", eta[[iter+1]], "\n"))
+    # When the stepped xi is in the convex hull, find the MLE for gyobs=xi
 		cat("  Trying alpha=", alph,"/", MCMCparams$gridsize,"\n")
     flush.console()
 
     # ergm.estimate requires that the simulated stats be "centered" in the sense that the
     # observed statistics would be exactly zero on the same scale.  In this case, the
     # "observed statistics" equal xi[[iter]].
+    
+    # As in Hummel, Hunter, Handcock, we replace alph by C*alph for some constant C (the 
+    # paper uses 0.95) and update the xi[[iter]] value prior to use, for the MCMC MLE step, 
+    # a xi that we are certain is not on the edge of the convex hull:
+	C=.95
+	xi[[iter]] = C*alpha[[iter]]*obsstats  + (1-C*alpha[[iter]])*sampmeans[[iter]]
+		
     v<-ergm.estimate(theta0=eta[[iter]], model=model, 
-                     #xobs=xi[[iter]] - sampmeans[[iter]],  
                      statsmatrix=sweep(samples[[iter]], 2, xi[[iter]], '-'), 
-                     #statsmatrix.miss=statsmatrix.miss, 
-                     #epsilon=MCMCparams$epsilon,
                      nr.maxit=MCMCparams$nr.maxit,
-                     # nr.reltol=MCMCparams$nr.reltol,
-                     #calc.mcmc.se=MCMCparams$calc.mcmc.se, hessianflag=MCMCparams$hessian,
-                     # trustregion=MCMCparams$trustregion, method=MCMCparams$method, 
                      metric=MCMCparams$metric,
-                     #compress=MCMCparams$compress, 
                      verbose=verbose,
                      estimateonly=TRUE, 
+					 #statsmatrix.miss=statsmatrix.miss, 
+					 #epsilon=MCMCparams$epsilon,
+					 # nr.reltol=MCMCparams$nr.reltol,
+					 #calc.mcmc.se=MCMCparams$calc.mcmc.se, hessianflag=MCMCparams$hessian,
+					 # trustregion=MCMCparams$trustregion, method=MCMCparams$method, 
+					 #compress=MCMCparams$compress, 
                      ...)
     eta[[iter+1]]<-v$coef
 		
 ## If alpha is still not 1, go back to next iteration
-## If alpha is 1, then latest eta is a valid MLE, but maybe one more loop
-## would not hurt with a larger sample size
+## If alpha is 1, then we might be able to obtain a valid MLE using C=1. 
+## So we do one more loop with a larger sample size for a xi based on C=.95*alpha=1, 
+## (to obtain a better sample),		
+## followed by one more loop with a larger sample size for the true xi (C=1, alpha=1)
+## (to obtain a better MLE):
 	    finished = (alph==MCMCparams$gridsize)
 	}
 	cat("Now ending with one large sample for MLE. \n")
@@ -105,22 +108,42 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
     finalsample=simulate.formula(formula, nsim=MCMCparams$samplesize,
                                      theta0=eta[[iter]], burnin=MCMCparams$burnin, 
                                      interval=MCMCparams$interval, statsonly=TRUE)
-	sampmeans[[iter]]=colMeans(finalsample)
-	inCH=is.inCH(obsstats, finalsample)
+  # Using the large sample from xi=.95*obsstats+.05*sampmeans we now find the MLE for the original problem:		
+	xi[[iter]] = obsstats
+	v<-ergm.estimate(theta0=eta[[iter]], model=model, 
+									 statsmatrix=sweep(finalsample, 2, xi[[iter]], '-'), 
+									 nr.maxit=MCMCparams$nr.maxit,
+									 metric=MCMCparams$metric,
+									 verbose=verbose,
+									 estimateonly=TRUE, 
+                                     #statsmatrix.miss=statsmatrix.miss, 
+                                     #epsilon=MCMCparams$epsilon,
+                                     # nr.reltol=MCMCparams$nr.reltol,
+                                     #calc.mcmc.se=MCMCparams$calc.mcmc.se, hessianflag=MCMCparams$hessian,
+                                     # trustregion=MCMCparams$trustregion, method=MCMCparams$method, 
+                                     #compress=MCMCparams$compress, 
+									 ...)
+	eta[[iter+1]]<-v$coef 
+					
+  # Here is the second "larger sample size" loop, using the new (true) MLE as eta0.  The idea is
+  # to both get a slightly better MLE and to get a much better Hessian.
+
+	iter=iter+1
+	finalsample2=simulate.formula(formula, nsim=MCMCparams$samplesize,
+									 theta0=eta[[iter]], burnin=MCMCparams$burnin, 
+									 interval=MCMCparams$interval, statsonly=TRUE)			
+					
+	sampmeans[[iter]]=colMeans(finalsample2)
+	inCH=is.inCH(obsstats, finalsample2)
 	if (!inCH)
     stop("Observed statistics are not in final sample convex hull.")
     
-## final iteration now that we are in the convex hull, needs to be same form as what is returned in ergm.estimate
-#####	final.mle = eta[[iter+1]] = optim(par=eta[[iter]], approx,
-#####									  control=list(fnscale=-1), eta0=eta[[iter]], 
-#####									  s=finalsample, xi=obsstats)$par
 
     # ergm.estimate requires that the simulated stats be "centered" in the sense that the
     # observed statistics would be exactly zero on the same scale.  In this case, the
     # "observed statistics" equal obsstats.
 	v<-ergm.estimate(theta0=eta[[iter]], model=model, 
-                   #xobs=obsstats - sampmeans[[iter]],  
-                     statsmatrix=sweep(finalsample, 2, obsstats, '-'),
+		   statsmatrix=sweep(finalsample2, 2, obsstats, '-'),
            #statsmatrix.miss=statsmatrix.miss, 
            epsilon=MCMCparams$epsilon,
            nr.maxit=MCMCparams$nr.maxit,
@@ -145,8 +168,6 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
 	v$parallel <- MCMCparams$parallel
 	
 	if(!v$failure & !any(is.na(v$coef))){
-#     asyse <- sqrt(diag(robust.inverse(-v$hessian)))
-#     asyse <- try(sqrt(diag(robust.inverse(cov(statsmatrix)))))
 		asyse <- mc.se
 		options(warn=-1)
 		if(is.null(v$covar)){
@@ -160,18 +181,10 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
 	endrun <- MCMCparams$burnin+MCMCparams$interval*(MCMCparams$samplesize-1)
 	attr(v$sample, "mcpar") <- c(MCMCparams$burnin+1, endrun, MCMCparams$interval)
 	attr(v$sample, "class") <- "mcmc"
-# v$null.deviance <- v$mplefit$glm$null.deviance
 	v$null.deviance <- 2*network.dyadcount(nw.orig)*log(2)
-# v$mle.lik <- -v$mplefit$glm$deviance/2 + v$loglikelihood
-# v$mle.lik <- -v$null.deviance/2 + v$loglikelihood
-# v$mle.lik <- -initialfit$mle.lik/2 + v$loglikelihood
 	v$mle.lik <- mle.lik
-# This next is the right one
-# v$mcmcloglik <- v$mcmcloglik - network.dyadcount(nw.orig)*log(2)
 	v$etamap <- model$etamap
-# if(!is.na(v$mle.lik) && v$mle.lik>0){
-#   v$mle.lik <- -v$mplefit$glm$deviance/2 
-# }  #I am really not sure about this mle.lik value.
+
 	v
 }  # Ends the whole function
 

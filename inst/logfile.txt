@@ -162,5 +162,14 @@ DATE: 2010-Feb-26
 FILE: R/ergm.estimate.R
 CHANGES: Added message outputting two distinct std error estimates (temporary)
 
+DATE: 2010-Mar-8
+FILE: R/ergm.estimate.R
+CHANGES: Fixed error in closed-form lognormal calculation of Lout$value
+
+DATE: 2010-Mar-8
+FILE: R/ergm.stepping.R
+CHANGES: Implemented several changes in preparation to submit article
+
+
 
 
