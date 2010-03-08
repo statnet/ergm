@@ -48,12 +48,16 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   # value of xobs (playing the role of "observed statistics") must be
   # adjusted accordingly.
 # av <- apply(sweep(statsmatrix0,1,probs,"*"), 2, sum)
+  V=covMcd(statsmatrix0[,!model$etamap$offsettheta])$cov
+# b=capture.output(av <- covMcd(statsmatrix0)$center)
   av <- apply(statsmatrix0,2,wtd.median,weight=probs)
   xsim <- sweep(statsmatrix0, 2, av,"-")
   xobs <-  -av 
   # Do the same recentering for the statsmatrix0.miss matrix, if appropriate.
   # Note that xobs must be adjusted too.
   if(missingflag) {
+    V.miss=covMcd(statsmatrix0.miss[,!model$etamap$offsettheta])$cov
+#   b=capture.output(av.miss <- covMcd(statsmatrix0.miss)$center)
 #   av.miss <- apply(sweep(statsmatrix0.miss,1,probs.miss,"*"), 2, sum)
     av.miss <- apply(statsmatrix0.miss,2,wtd.median,weight=probs.miss)
     xsim.miss <- sweep(statsmatrix0.miss, 2, av.miss,"-")
@@ -108,9 +112,26 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   # closed-form.
   if (metric=="Likelihood") {
     if (missingflag) {
-     Lout <- list(hessian = -((cov(xsim)-cov(xsim.miss))[!model$etamap$offsettheta,!model$etamap$offsettheta]))
+     if (verbose) { cat("Using log-normal approx with missing (no optim)\n") }
+#    Lout <- list(hessian = -((covMcd(xsim)$cov-covMcd(xsim.miss)$cov)[!model$etamap$offsettheta,!model$etamap$offsettheta]))
+     Lout <- list(hessian = -(V-V.miss))
+#    prob <- probs*exp(xsim %*% eta0)
+#    prob <- prob/sum(prob)
+#    E <- apply(sweep(xsim, 1, prob, "*"), 2, sum)
+##   E <- apply(xsim,2,wtd.median,weight=prob)
+#    vtmp <- sweep(sweep(xsim, 2, E, "-"), 1, sqrt(prob), "*")
+#    V <- t(vtmp) %*% vtmp
+#    prob.miss <- probs.miss*exp(xsim.miss %*% eta0)
+#    prob.miss <- prob.miss/sum(prob.miss)
+#    E.miss <- apply(sweep(xsim.miss, 1, prob.miss, "*"), 2, sum)
+##   E.miss <- apply(xsim.miss,2,wtd.median,weight=prob.miss)
+#    vtmp <- sweep(sweep(xsim.miss, 2, E.miss, "-"), 1, sqrt(prob.miss), "*")
+#    V.miss <- t(vtmp) %*% vtmp
+#    Lout <- list(hessian = -(V-V.miss)[!model$etamap$offsettheta,!model$etamap$offsettheta])
     } else {
-     Lout <- list(hessian = -(cov(xsim)[!model$etamap$offsettheta,!model$etamap$offsettheta]))
+     if (verbose) { cat("Using log-normal approx (no optim)\n") }
+#    Lout <- list(hessian = -(covMcd(xsim)$cov[!model$etamap$offsettheta,!model$etamap$offsettheta]))
+     Lout <- list(hessian = -(V[!model$etamap$offsettheta,!model$etamap$offsettheta]))
     }
     Lout$par <- eta0[!model$etamap$offsettheta] - solve(Lout$hessian, xobs[!model$etamap$offsettheta])
     Lout$convergence <- 0 # maybe add some error-checking here to get other codes
@@ -194,8 +215,8 @@ Lout$par-Lout$par - eta0[!model$etamap$offsettheta] + xobs[!model$etamap$offsett
     mc.se <- rep(NA, length=length(theta))
     covar <- NA
     if(!hessianflag){
-     #  covar <- robust.inverse(cov(xsim))
-     #  Lout$hessian <- cov(xsim)
+     #  covar <- robust.inverse(covMcd(xsim))
+     #  Lout$hessian <- covMcd(xsim)
      Lout$hessian <- Hessianfn(theta=theta, xobs=xobs, xsim=xsim,
                                probs=probs, 
                                xsim.miss=xsim.miss, probs.miss=probs.miss,
