@@ -170,6 +170,9 @@ DATE: 2010-Mar-8
 FILE: R/ergm.stepping.R
 CHANGES: Implemented several changes in preparation to submit article
 
+DATE: 2010-Mar-9
+FILE: src/edgetree.c, wtedgetree.c
+CHANGES: Added PutRNGstate() function to match GetRNGstate().
 
 
 
