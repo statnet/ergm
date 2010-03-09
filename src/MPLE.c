@@ -146,11 +146,13 @@ numRows should, ideally, be a power of 2, but doesn't have to be.
   unsigned int hash_pos = hashCovMatRow(newRow, rowLength, numRows, response, offset), pos, round;
   
   for(/*unsigned int*/ pos=hash_pos, round=0; !round ; pos = (pos+1)%numRows, round+=(pos==hash_pos)?1:0){
+    if(weights[pos]==0){ /* Space is unoccupied. */
       weights[pos]=1;
       compressedOffset[pos]=offset;
       responsevec[pos]=response;
       memcpy(matrix+rowLength*pos,newRow,rowLength*sizeof(double));
       return TRUE;
+    }
   }
   return FALSE; /* Insertion unsuccessful: the table is full. */
 }
