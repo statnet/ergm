@@ -54,7 +54,6 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
    if(inherits(V,"try-error")){
     V=cov(statsmatrix0[,!model$etamap$offsettheta,drop=FALSE])
    }
-#  b=capture.output(av <- covMcd(statsmatrix0)$center)
   }else{
    V=cov(statsmatrix0[,!model$etamap$offsettheta,drop=FALSE])
   }
@@ -69,7 +68,6 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
      if(inherits(V.miss,"try-error")){
       V.miss=cov(statsmatrix0.miss[,!model$etamap$offsettheta,drop=FALSE])
      }
-#    b=capture.output(av.miss <- covMcd(statsmatrix0.miss)$center)
     }else{
      V.miss=cov(statsmatrix0.miss[,!model$etamap$offsettheta,drop=FALSE])
     }
@@ -128,25 +126,9 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   if (metric=="Likelihood") {
     if (missingflag) {
      if (verbose) { cat("Using log-normal approx with missing (no optim)\n") }
-#    Lout <- list(hessian = -((covMcd(xsim)$cov-covMcd(xsim.miss)$cov)[!model$etamap$offsettheta,!model$etamap$offsettheta]))
      Lout <- list(hessian = -(V-V.miss))
-#    prob <- probs*exp(xsim %*% eta0)
-#    prob <- prob/sum(prob)
-#    E <- apply(sweep(xsim, 1, prob, "*"), 2, sum)
-##   E <- apply(xsim,2,wtd.median,weight=prob)
-#    vtmp <- sweep(sweep(xsim, 2, E, "-"), 1, sqrt(prob), "*")
-#    V <- t(vtmp) %*% vtmp
-#    prob.miss <- probs.miss*exp(xsim.miss %*% eta0)
-#    prob.miss <- prob.miss/sum(prob.miss)
-#    E.miss <- apply(sweep(xsim.miss, 1, prob.miss, "*"), 2, sum)
-##   E.miss <- apply(xsim.miss,2,wtd.median,weight=prob.miss)
-#    vtmp <- sweep(sweep(xsim.miss, 2, E.miss, "-"), 1, sqrt(prob.miss), "*")
-#    V.miss <- t(vtmp) %*% vtmp
-#    Lout <- list(hessian = -(V-V.miss)[!model$etamap$offsettheta,!model$etamap$offsettheta])
     } else {
      if (verbose) { cat("Using log-normal approx (no optim)\n") }
-#    Lout <- list(hessian = -(covMcd(xsim)$cov[!model$etamap$offsettheta,!model$etamap$offsettheta]))
-#    Lout <- list(hessian = -(V[!model$etamap$offsettheta,!model$etamap$offsettheta]))
      Lout <- list(hessian = -V)
     }
     Lout$par <- try(eta0[!model$etamap$offsettheta] - solve(Lout$hessian, xobs[!model$etamap$offsettheta]))
@@ -159,8 +141,6 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
      Lout$par <- eta0[!model$etamap$offsettheta] - solve(Lout$hessian, xobs[!model$etamap$offsettheta])
     }
     Lout$convergence <- 0 # maybe add some error-checking here to get other codes
-#   Lout$value <- crossprod(xobs[!model$etamap$offsettheta], Lout$par - eta0[!model$etamap$offsettheta] + xobs[!model$etamap$offsettheta]/2)
-#   Lout$value <- Lout$value - crossprod(xobs[!model$etamap$offsettheta], Lout$par-Lout$par - eta0[!model$etamap$offsettheta] + xobs[!model$etamap$offsettheta]/2)
     Lout$value <- 0.5*crossprod(xobs[!model$etamap$offsettheta],
             Lout$par - eta0[!model$etamap$offsettheta])
     hessianflag <- TRUE # to make sure we don't recompute the Hessian later on
@@ -290,11 +270,6 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
          cat ("MCMC standard errors\n.")
          print(mc.se)
        }
-       
-#       H <- mcmcse$hessian
-#       covar <- robust.inverse(-H)
-#       if(all(!is.na(diag(covar))) && all(diag(covar)<0)){covar <- -covar}
-#       mc.se[model$etamap$offsettheta] <- NA
     }
     c0  <- loglikelihoodfn(theta=Lout$par, xobs=xobs,
                            xsim=xsim, probs=probs,
