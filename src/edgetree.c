@@ -43,7 +43,8 @@ Network NetworkInitialize(Vertex *heads, Vertex *tails, Edge nedges,
       AddEdgeToTrees(t,h,&nw); /* Undir edges always have head < tail */ 
     else 
       AddEdgeToTrees(h,t,&nw);
-  }  
+  }
+  PutRNGstate();
   return nw;
 }
 

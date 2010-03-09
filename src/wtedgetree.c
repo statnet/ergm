@@ -71,6 +71,7 @@ WtNetwork WtNetworkInitialize(Vertex *heads, Vertex *tails, double *weights,
     else 
       WtAddEdgeToTrees(h,t,w,&nw);
   }
+  PutRNGstate();
   return nw;
 }
 
