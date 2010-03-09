@@ -45,6 +45,7 @@ Network NetworkInitialize(Vertex *heads, Vertex *tails, Edge nedges,
     else 
       AddEdgeToTrees(h,t,&nw);
   }  
+  PutRNGstate();
   return nw;
 }
 
