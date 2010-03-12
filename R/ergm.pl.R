@@ -18,8 +18,8 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     offset <- 1*offset
     numobs <- Clist$ndyads - sum(offset)
   }else{
-    offset <- NULL
     numobs <- Clist$ndyads
+    offset <- rep(0,numobs)
   }
 
   maxNumDyadTypes <- min(maxNumDyadTypes,

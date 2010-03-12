@@ -121,6 +121,7 @@ numRows should, ideally, be a power of 2, but doesn't have to be.
   unsigned int hash_pos = hashCovMatRow(newRow, rowLength, numRows, response, offset), pos, round;
   
   for(/*unsigned int*/ pos=hash_pos, round=0; !round ; pos = (pos+1)%numRows, round+=(pos==hash_pos)?1:0){
+//    Rprintf("pos %d round %d hash_pos %d\n",pos,round,hash_pos);
     if(weights[pos]==0){ /* Space is unoccupied. */
       weights[pos]=1;
       compressedOffset[pos]=offset;
@@ -151,7 +152,15 @@ numRows should, ideally, be a power of 2, but doesn't have to be.
       compressedOffset[pos]=offset;
       responsevec[pos]=response;
       memcpy(matrix+rowLength*pos,newRow,rowLength*sizeof(double));
+//    Rprintf("pos %d round %d hash_pos %d\n",pos,round,hash_pos);
       return TRUE;
+    }else{
+      if( compressedOffset[pos]==offset &&
+	      responsevec[pos]==response &&
+      memcmp(matrix+rowLength*pos,newRow,rowLength*sizeof(double))==0 ){ /* Rows are identical. */
+        weights[pos]++;
+        return TRUE;
+      }
     }
   }
   return FALSE; /* Insertion unsuccessful: the table is full. */
