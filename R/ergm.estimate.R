@@ -107,9 +107,12 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   if (metric=="Likelihood") {
     # Note:  Still need to add offset capability here!
     Lout <- list(hessian = -cov(xsim))
-    Lout$par <- eta0 - solve(Lout$hessian, xobs)
+    if (inherits( try( Lout$par <- eta0 - solve(Lout$hessian, xobs)), "try-error")) {
+      print(Lout$hessian)
+      stop("Covariance matrix of simulated statistics (above) is singular.")
+    }
     Lout$convergence <- 0 # maybe add some error-checking here to get other codes
-    Lout$value <- crossprod(xobs, Lout$par - eta0 + xobs/2)
+    Lout$value <- 0.5 * crossprod(xobs, Lout$par - eta0)
     hessianflag <- TRUE # to make sure we don't recompute the Hessian later on
   } else {
     # "guess" will be the starting point for the optim search algorithm.
@@ -213,19 +216,21 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                               statsmatrix.miss,
                               model=model)
         mc.se <- mcmcse$mc.se
-       covar <- robust.inverse(-mcmcse$hessian)
-       # Eventually, this if-statement may be removed:
-       if (verbose) {
-         if (metric=="Likelihood") {
-           cat ("Here are the standard errors based on the exact Hessian of the ",
-                "log-normal approximation:\n")
-           print(sqrt(diag(robust.inverse(-Lout$hessian))))
-         }
-         cat ("Here are the standard errors based on the 'naive' approximation ",
-              "of the log-likelihood as in eqn. (3.5) of H&H 2006:\n")
-         print(sqrt(diag(covar)))
-       }
-       
+       covar2 <- robust.inverse(-mcmcse$hessian)
+#       # Eventually, this if-statement may be removed:
+#       if (verbose) {
+#         if (metric=="Likelihood") {
+#           cat ("Here are the standard errors based on the exact Hessian of the ",
+#                "log-normal approximation:\n")
+#           #print(sqrt(diag(robust.inverse(-Lout$hessian))))
+#           print(sqrt(diag(covar)))
+#         }
+#         cat ("Here are the standard errors based on the 'naive' approximation ",
+#              "of the log-likelihood as in eqn. (3.5) of H&H 2006:\n")
+#         print(sqrt(diag(covar2)))
+#       }
+
+
 #       H <- mcmcse$hessian
 #        covar <- mcmcse$covar
 #       covar <- robust.inverse(-H)

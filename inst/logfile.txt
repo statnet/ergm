@@ -174,5 +174,20 @@ DATE: 2010-Mar-9
 FILE: src/edgetree.c, wtedgetree.c
 CHANGES: Added PutRNGstate() function to match GetRNGstate().
 
+DATE: 2010-Mar-16
+FILE: R/ergm.estimate.R, ergm.stepping.R 
+CHANGES: Implemented several small changes in preparation to submit article
+
+DATE: 2010-Mar-16
+FILE: R/ergm.llik.R
+CHANGES: Fixed hessian functions, which had been returning negative hessian
+
+DATE: 2010-Mar-16
+FILE: data/ecoli.RData
+CHANGES: Removed three of the five networks; now only ecoli1 and ecoli2 exist
+
+DATE: 2010-Mar-16
+FILE: man/ecoli.Rd
+CHANGES: Began writing documentation for ecoli data.  Way not finished.
 
 
