@@ -218,5 +218,9 @@ DATE: 2010-Mar-17
 FILE: R/InitMHP.R, getMHproposal.R
 CHANGES: Updated MHP files in 2.3 by copying from trunk
 
+DATE: 2010-Mar-17
+FILE: src/MCMCDyn.c, MCMCDyn.h
+CHANGES: Added MCMCDyn.* files from trunk to version 2.3
+
 
 
