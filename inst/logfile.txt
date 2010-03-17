@@ -206,4 +206,11 @@ DATE: 2010-Mar-17
 FILE: src/model.c, model.h, MCMC.c, MCMC.h
 CHANGES: Debugging code so that version 2.3 will install
 
+DATE: 2010-Mar-17
+FILE: src/model.c, model.h, MCMC.c, MCMC.h
+CHANGES: Debugging code so that version 2.3 will install
+
+DATE: 2010-Mar-17
+FILE: R/ergm.san.R, ergm.utility.R, gof.ergm.R, simulate.ergm.R
+CHANGES: Replaced safeupdate.formula by ergm.update.formula in 2.3
 

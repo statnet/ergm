@@ -11,6 +11,10 @@ MHproposals<-
           c("c", "bd+edges",      "random",       "ConstantEdges"),          
           c("c", "degrees",       "default",      "CondDegree"),
           c("c", "degrees",       "random",       "CondDegree"),
+          c("c", "degreesTetrad",       "default",      "CondDegreeTetradToggles"),
+          c("c", "degreesTetrad",       "random",       "CondDegreeTetradToggles"),
+          c("c", "degreesHexad",       "default",      "CondDegreeHexadToggles"),
+          c("c", "degreesHexad",       "random",       "CondDegreeHexadToggles"),
 
           c("c", "degreedist",    "default",      "CondDegreeDist"),
           c("c", "degreedist",    "random",       "CondDegreeDist"), 
@@ -30,7 +34,17 @@ MHproposals<-
           c("c", "edges+hamming", "default",      "HammingConstantEdges"),
           c("c", "edges+hamming", "random",       "HammingConstantEdges"),
           c("c", "observed",      "default",      "randomtoggleNonObserved"),
-          c("c", "observed",      "random",       "randomtoggleNonObserved")
+          c("c", "observed",      "random",       "randomtoggleNonObserved"),
+          c("f", "",              "default",      "formationTNT"),
+          c("f", "",              "TNT",          "formationTNT"),
+          c("f", "",              "random",       "formation"),
+          c("f", "bd",            "default",      "formationTNT"),
+          c("f", "bd",            "TNT",          "formationTNT"),
+          c("f", "bd",            "random",       "formation"),
+          c("d", "",              "default",      "dissolution"),
+          c("d", "",              "random",       "dissolution"),
+          c("d", "bd",            "default",      "dissolution"),
+          c("d", "bd",            "random",       "dissolution")
         )
 MHproposals <- data.frame(I(MHproposals[,1]), I(MHproposals[,2]), 
                           I(MHproposals[,3]), I(MHproposals[,4]))  
@@ -114,7 +128,12 @@ MHproposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NULL, 
   if(is.null(arguments)) arguments<-object$prop.args
   if(is.null(nw)) nw<-object$network
   if(is.null(weights)) weights<-"default"
-  if(is.null(model)) model<-ergm.getmodel(object$formula,nw,...)
+  if(is.null(model)){
+    model<-if(class %in% c("c","f"))
+      ergm.getmodel(object$formula,nw,...)
+    else
+      ergm.getmodel.dissolve(object$formula,nw,...)
+  }  
   MHproposal(constraints,arguments=arguments,nw=nw,model=model,weights=weights,class=class)
 }
 
