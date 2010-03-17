@@ -222,5 +222,8 @@ DATE: 2010-Mar-17
 FILE: src/MCMCDyn.c, MCMCDyn.h
 CHANGES: Added MCMCDyn.* files from trunk to version 2.3
 
+DATE: 2010-Mar-17
+FILE: R/network.update.R
+CHANGES: Copied trunk version of network.update to 2.3
 
 
