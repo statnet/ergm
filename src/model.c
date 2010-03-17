@@ -145,78 +145,6 @@ Model* ModelInitialize (char *fnames, char *sonames, double *inputs,
 }
 
 
-/***********************
- DegreeBound* DegreeBoundInitialize
-************************/
-DegreeBound* DegreeBoundInitialize(int *attribs, int *maxout, int *maxin,
-	          	   int *minout, 
-			   int *minin, int condAllDegExact,  int attriblength,
-			   Network *nwp)
-{
-  int i,j;
-  DegreeBound *bd;
-  
-
-  bd = (DegreeBound *) malloc(sizeof(DegreeBound));
-
-  bd->fBoundDegByAttr = 0;
-  bd->attrcount = condAllDegExact ? 1 : attriblength / nwp->nnodes;
-  bd->attribs = (int *) malloc(sizeof(int) * attriblength);
-  bd->maxout  = (int *) malloc(sizeof(int) * attriblength);
-  bd->maxin   = (int *) malloc(sizeof(int) * attriblength);
-  bd->minout  = (int *) malloc(sizeof(int) * attriblength);
-  bd->minin   = (int *) malloc(sizeof(int) * attriblength);
-  
-  /* bound by degree by attribute per node */
-  if (bd->attrcount)
-    {
-      /* flag that we have data here */
-      bd->fBoundDegByAttr = 1;
-      
-      if (!condAllDegExact)
-	{
-	  for (i=1; i <= nwp->nnodes; i++)
-	    for (j=0; j < bd->attrcount; j++)
-	      {
-		bd->attribs[i-1 + j*nwp->nnodes] = 
-		  attribs[(i - 1 + j*nwp->nnodes)];
-		bd->maxout[i-1 + j*nwp->nnodes] =  
-		  maxout[(i - 1 + j*nwp->nnodes)];
-		bd->maxin[i-1 + j*nwp->nnodes] =  
-		  maxin[(i - 1 + j*nwp->nnodes)];
-		bd->minout[i-1 + j*nwp->nnodes] =  
-		  minout[(i - 1 + j*nwp->nnodes)];
-		bd->minin[i-1 + j*nwp->nnodes] =   
-		  minin[(i - 1 + j*nwp->nnodes)];
-	      }
-	}
-      else  /* condAllDegExact == TRUE */
-	{
-	  /* all ego columns get values of current in and out degrees;
-	   max and min ego columns for (each of in and out) get same value; */
-	  for (i=1;i<=nwp->nnodes;i++)
-	    bd->maxout[i-1] = bd->minout[i-1] = nwp->outdegree[i];
-	  
-	  for (i=1;i<=nwp->nnodes;i++)
-	    bd->maxin[i-1] = bd->minin[i-1] = nwp->indegree[i];
-	}
-    }
-  return bd;
-}
-
-
-/*****************
-  void DegreeBoundDestroy
-******************/
-void DegreeBoundDestroy(DegreeBound *bd)
-{  
-  free(bd->attribs); 
-  free(bd->maxout); 
-  free(bd->minout); 
-  free(bd->maxin); 
-  free(bd->minin); 
-  free(bd);
-}
 
 /*****************
  int ModelTermHamming
@@ -368,4 +296,24 @@ int ModelTermDissolve (char *fnames, int n_terms) {
     }
   
   return(0);
+}
+
+
+/*
+  MCMCChangeStats
+  A helper's helper function to compute change statistics.
+  The vector of changes is written to m->workspace.
+*/
+void ChangeStats(unsigned int ntoggles, Vertex *togglehead, Vertex *toggletail,
+				 Network *nwp, Model *m){
+  ModelTerm *mtp = m->termarray;
+  double *dstats = m->workspace;
+  
+  for (unsigned int i=0; i < m->n_terms; i++){
+    /* Calculate change statistics */
+    mtp->dstats = dstats; /* Stuck the change statistic here.*/
+    (*(mtp->d_func))(ntoggles, togglehead, toggletail, 
+		   mtp, nwp);  /* Call d_??? function */
+    dstats += (mtp++)->nstats;
+  }
 }

@@ -190,4 +190,20 @@ DATE: 2010-Mar-16
 FILE: man/ecoli.Rd
 CHANGES: Began writing documentation for ecoli data.  Way not finished.
 
+DATE: 2010-Mar-17
+FILE: R/control.simulatedyn.R, ergm.R, ergm.getMCMCDynsample.R,
+       ergm.mainfitloop.dyn.R, ergm.phase12.dyn.R, ergm.robmon.dyn.R,
+       simulatedyn.R,
+      man/ergm.Rd,
+      src/MHproposal.c, MHproposal.h, MHproposals.c, MHproposals.h, 
+       MHproposals_bipartite.c, MHproposals_bipartite.h, MHproposals_formdiss.c,
+       MHproposals_formdiss.h, changestat.c, changestat.h, changestats.c,
+       changestats.h,
+      tests/dynamic_simtest.R
+CHANGES:  Added dynamic files
+
+DATE: 2010-Mar-17
+FILE: src/model.c, model.h, MCMC.c, MCMC.h
+CHANGES: Debugging code so that version 2.3 will install
+
 
