@@ -1,9 +1,11 @@
-ergm <- function(formula, theta0="MPLE",               ##### Note that the network, nw, is included in the formula, e.g. nw ~ edges + degree(2:5)
+ergm <- function(formula, theta0="MPLE",
                  MPLEonly=FALSE, MLestimate=!MPLEonly, seed=NULL,
                  burnin=10000, MCMCsamplesize=10000, interval=100,
-                 maxit=3, control=control.ergm(),
+                 maxit=3,
                  constraints=~.,
                  meanstats=NULL,
+                 dissolve=NULL, gamma=-4.59512, dissolve.order="FormAndDiss", # this line not in CRAN
+                 control=control.ergm(),
                  verbose=FALSE, ...) {
   current.warn <- options()$warn
   options(warn=0)
@@ -12,12 +14,12 @@ ergm <- function(formula, theta0="MPLE",               ##### Note that the netwo
 
   nw <- ergm.getnetwork(formula)
   if(!is.null(meanstats)){
+   control$drop <- FALSE
+   if(!(!is.null(control$SAN.burnin) && is.na(control$SAN.burnin))){
     netsumm<-summary(formula)
     if(length(netsumm)!=length(meanstats))
       stop("Incorrect length of the meanstats vector: should be ", length(netsumm), " but is ",length(meanstats),".")
     
-    control$drop <- FALSE
-
     if(verbose) cat("Constructing an approximate response network.\n")
     ## If meanstats are given, overwrite the given network and formula
     ## with SAN-ed network and formula.
@@ -29,18 +31,21 @@ ergm <- function(formula, theta0="MPLE",               ##### Note that the netwo
             if(is.null(control$SAN.burnin)) burnin
             else control$SAN.burnin,
             interval=interval)
-    formula<-safeupdate.formula(formula,nw~.)
+    formula<-ergm.update.formula(formula,nw~.)
     if (verbose) {
      cat("Original meanstats:\n")
      print(meanstats)
-     cat("Original meanstats - SAN meanstats:\n")
+     cat("SAN meanstats - Original meanstats:\n")
      print(summary(formula, basis=nw)-meanstats)
     }
+   }
   }
   if(control$nsubphases=="maxit") control$nsubphases<-maxit
   
   if (verbose) cat("Initializing model.\n")
 
+  proposalclass <- if(is.null(dissolve)) "c" else "f"  # This line not in CRAN version
+    
   if(control$drop){
    model.initial <- ergm.getmodel(formula, nw, drop=FALSE, initialfit=TRUE)
    model.initial.drop <- ergm.getmodel(formula, nw, drop=TRUE, initialfit=TRUE)
@@ -53,27 +58,34 @@ ergm <- function(formula, theta0="MPLE",               ##### Note that the netwo
    droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
   }
   if (verbose) cat("Initializing Metropolis-Hastings proposal.\n")
-  MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial)
+  MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial,class=proposalclass)
+  # Note:  MHproposal function in CRAN version does not use the "class" argument for now
   MHproposal.miss <- MHproposal("randomtoggleNonObserved", control$prop.args, nw, model.initial)
 
-  Clist.initial <- ergm.Cprepare(nw, model.initial)
-  Clist.miss.initial <- ergm.design(nw, model.initial, verbose=verbose)
+  conddeg <- switch(MHproposal$name=="CondDegree",control$drop,NULL)
+  MCMCparams=c(control,
+   list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,
+        maxit=maxit,Clist.miss=NULL, mcmc.precision=control$mcmc.precision))
+
+
   if (verbose) cat("Fitting initial model.\n")
-  Clist.initial$meanstats=meanstats
   theta0copy <- theta0
-  initialfit <- ergm.initialfit(theta0copy, MLestimate, Clist.initial,
-                                Clist.miss.initial, model.initial,
+  initialfit <- ergm.initialfit(theta0=theta0copy, MLestimate=MLestimate, 
+                                formula=formula, nw=nw, meanstats=meanstats,
+				m=model.initial,
                                 MPLEtype=control$MPLEtype, 
                                 initial.loglik=control$initial.loglik,
-                                verbose=verbose, compressflag = control$compress, 
-                                maxNumDyadTypes=control$maxNumDyadTypes,
+                                conddeg=conddeg, MCMCparams=MCMCparams, MHproposal=MHproposal,
                                 force.MPLE=(ergm.independencemodel(model.initial)
                                             && constraints==(~.)),
+				verbose=verbose, 
+                                compressflag = control$compress, 
+                                maxNumDyadTypes=control$maxNumDyadTypes,
                                 ...)
   MCMCflag <- ((MLestimate && (!ergm.independencemodel(model.initial)
                                || !is.null(meanstats)
                                || constraints!=(~.)))
-                || control$force.mcmc)
+                || control$force.mcmc || !is.null(dissolve))
   if (MCMCflag) {
     theta0 <- initialfit$coef
     names(theta0) <- model.initial$coef.names
@@ -132,14 +144,48 @@ ergm <- function(formula, theta0="MPLE",               ##### Note that the netwo
    }
   }
 
-  MCMCparams=c(control, list(samplesize=MCMCsamplesize, burnin=burnin,
-  interval=interval, stepMCMCsize=control$stepMCMCsize, gridsize=control$gridsize,
-  maxit=maxit,Clist.miss=Clist.miss, mcmc.precision=control$mcmc.precision))
+  MCMCparams=c(control,
+   list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,
+        maxit=maxit,Clist.miss=Clist.miss, mcmc.precision=control$mcmc.precision))
 
+  if(!is.null(dissolve)){  # This section not in CRAN version.
+    if (verbose) cat("Fitting Dynamic ERGM.\n")
+    dissolve<-ergm.update.formula(dissolve,nw~.)
+    model.dissolve <- ergm.getmodel(dissolve, nw, dissolve.order=dissolve.order)
+    MHproposal.diss <- MHproposal(constraints, weights=control$prop.weights.diss, control$prop.args.diss, nw, model.dissolve,class="d")
+    v <- switch(control$style.dyn,
+                "SPSA" = ergm.SPSA.dyn(theta0, nw, model, model.dissolve,
+                  Clist, gamma, 
+                  MCMCparams=MCMCparams, MHproposal.form=MHproposal,
+                  MHproposal.diss=MHproposal.diss,MT=FALSE,
+                  verbose),
+                "SPSA2" = ergm.SPSA.dyn(theta0, nw, model, model.dissolve,
+                  Clist, gamma, 
+                  MCMCparams=MCMCparams, MHproposal.form=MHproposal,
+                  MHproposal.diss=MHproposal.diss,MT=TRUE,
+                  verbose),
+                "Robbins-Monro" = ergm.robmon.dyn(theta0, nw, model, model.dissolve,
+                  Clist, gamma, 
+                  MCMCparams=MCMCparams, MHproposal.form=MHproposal,
+                  MHproposal.diss=MHproposal.diss,
+                  verbose),
+                ergm.mainfitloop.dyn(theta0, nw,
+                                     model.form=model, model.diss=model.dissolve, Clist,
+                                     gamma, initialfit,
+                                     MCMCparams=MCMCparams, 
+                                     MHproposal.form=MHproposal, MHproposal.diss=MHproposal.diss,
+                                     verbose=verbose, 
+                                     ...)
+                )
+  }else{
    if (verbose) cat("Fitting ERGM.\n")
    v <- switch(control$style,
     "Robbins-Monro" = ergm.robmon(theta0, nw, model, Clist, burnin, interval,
                       MHproposal(constraints,weights=control$prop.weights, control$prop.args, nw, model), verbose, control),
+    "PILA" = ergm.PILA(theta0, nw, model, Clist,
+      MHproposal(constraints,weights=control$prop.weights, control$prop.args, nw, model),
+      MCMCparams, control, verbose),
+    #  PILA stuff:  Not in CRAN version
     "Stochastic-Approximation" = ergm.stocapprox(theta0, nw, model, 
                                  Clist, 
                                  MCMCparams=MCMCparams, MHproposal=MHproposal,
@@ -160,6 +206,7 @@ ergm <- function(formula, theta0="MPLE",               ##### Note that the netwo
                           verbose=verbose, 
                           ...)
               )
+  }
   if(!is.null(MCMCparams$check.degeneracy) && MCMCparams$check.degeneracy && (is.null(v$theta1$independent) || !all(v$theta1$independent))){
     if(verbose) {
       cat("Checking for degeneracy.\n")
@@ -171,9 +218,12 @@ ergm <- function(formula, theta0="MPLE",               ##### Note that the netwo
   v$degeneracy.value <- degeneracy$degeneracy.value
   v$degeneracy.type <- degeneracy$degeneracy.type
   v$formula <- formula
+  v$formula.diss <- dissolve  # Not in CRAN version
   v$constraints <- constraints
   v$prop.args <- control$prop.args
   v$prop.weights <- control$prop.weights
+  v$prop.args.diss <- control$prop.args.diss # Not in CRAN version
+  v$prop.weights.diss <- control$prop.weights.diss # Not in CRAN version
 
   v$offset <- model$etamap$offsettheta
   v$drop <- droppedterms

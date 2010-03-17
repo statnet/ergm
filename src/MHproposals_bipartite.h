@@ -2,9 +2,9 @@
 #define MHproposals_bipartite_H
 
 #include "edgetree.h"
-#include "changestats.h"
+#include "changestat.h"
 #include "model.h"
-#include "MCMC.h"
+#include "MHproposal.h"
 
 void MH_Bipartiterandomtoggle (MHproposal *MHp,  DegreeBound *bd, Network *nwp);
 void MH_BipartiteConstantEdges (MHproposal *MHp,  DegreeBound *bd, Network *nwp);

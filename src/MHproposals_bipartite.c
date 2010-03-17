@@ -1,5 +1,4 @@
 #include "MHproposals_bipartite.h" 
-#include "MHproposals.h" 
 
 /* Shorthand. */
 #define Mhead (MHp->togglehead)
