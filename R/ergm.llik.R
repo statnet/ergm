@@ -81,7 +81,7 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NU
 # 
   htmp <- sweep(sweep(xsim, 2, E, "-"), 1, sqrt(prob), "*")
   htmp <- htmp %*% t(etagrad)
-  H <- t(htmp) %*% htmp
+  H <- - t(htmp) %*% htmp
   He <- matrix(NA, ncol = length(theta), nrow = length(theta))
   He[!etamap$offsettheta, !etamap$offsettheta] <- H
   dimnames(He) <- list(names(namesx), names(namesx))
@@ -90,7 +90,7 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NU
 
 
 # Use the naive approximation to the Hessian matrix.  
-# Namely, sum_i(w_i g_i g_i^t) - (sum_i w_i g_i)(sum_i w_i g_i)^t
+# Namely, (sum_i w_i g_i)(sum_i w_i g_i)^t - sum_i(w_i g_i g_i^t)
 # where g_i is the ith vector of statistics and
 # w_i = normalized version of exp((eta-eta0)^t g_i) so that sum_i w_i=1
 # This is equation (3.5) of Hunter and Handcock (2006)
@@ -112,7 +112,7 @@ llik.hessian.naive <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.m
   w <- w/sum(w)
   wtxsim <- sweep(xsim, 1, w, "*")
   swg <- colSums(wtxsim)
-  H <- t(wtxsim) %*% xsim - outer(swg,swg)
+  H <- outer(swg,swg) - t(wtxsim) %*% xsim 
   
   # One last step, for the case of a curved EF:  Front- and back-multiply by
   # the gradient of eta(theta).
