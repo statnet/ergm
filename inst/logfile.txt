@@ -214,3 +214,9 @@ DATE: 2010-Mar-17
 FILE: R/ergm.san.R, ergm.utility.R, gof.ergm.R, simulate.ergm.R
 CHANGES: Replaced safeupdate.formula by ergm.update.formula in 2.3
 
+DATE: 2010-Mar-17
+FILE: R/InitMHP.R, getMHproposal.R
+CHANGES: Updated MHP files in 2.3 by copying from trunk
+
+
+
