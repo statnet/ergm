@@ -268,7 +268,7 @@ void MH_BipartiteFormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
       rane = 1 + unif_rand() * ndedges;
       FindithEdge(&head, &tail, rane, nwp+1);
       
-      MHp->ratio = nedges  / ((double)nempty+1)/comp *((ndedges==1)? 1 : comp);
+      MHp->ratio = ndedges  / ((double)nempty+1)/comp *((ndedges==1)? 1 : comp);
     }else{ /* select an empty dyad in nwp[0] at random */
       do{ /* Keep trying dyads as long as it's an edge in nwp[0]. */
 	head = 1 + unif_rand() * nb1;
