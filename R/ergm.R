@@ -72,13 +72,13 @@ ergm <- function(formula, theta0="MPLE",
   theta0copy <- theta0
   initialfit <- ergm.initialfit(theta0=theta0copy, MLestimate=MLestimate, 
                                 formula=formula, nw=nw, meanstats=meanstats,
-				m=model.initial,
+                                m=model.initial,
                                 MPLEtype=control$MPLEtype, 
                                 initial.loglik=control$initial.loglik,
                                 conddeg=conddeg, MCMCparams=MCMCparams, MHproposal=MHproposal,
                                 force.MPLE=(ergm.independencemodel(model.initial)
-                                            && constraints==(~.)),
-				verbose=verbose, 
+                                            && constraints==(~.) && is.null(dissolve)),
+                                verbose=verbose, 
                                 compressflag = control$compress, 
                                 maxNumDyadTypes=control$maxNumDyadTypes,
                                 ...)
@@ -218,12 +218,12 @@ ergm <- function(formula, theta0="MPLE",
   v$degeneracy.value <- degeneracy$degeneracy.value
   v$degeneracy.type <- degeneracy$degeneracy.type
   v$formula <- formula
-  v$formula.diss <- dissolve  # Not in CRAN version
+  v$formula.diss <- dissolve
   v$constraints <- constraints
   v$prop.args <- control$prop.args
   v$prop.weights <- control$prop.weights
-  v$prop.args.diss <- control$prop.args.diss # Not in CRAN version
-  v$prop.weights.diss <- control$prop.weights.diss # Not in CRAN version
+  v$prop.args.diss <- control$prop.args.diss
+  v$prop.weights.diss <- control$prop.weights.diss
 
   v$offset <- model$etamap$offsettheta
   v$drop <- droppedterms
