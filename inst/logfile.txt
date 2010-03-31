@@ -190,3 +190,58 @@ DATE: 2010-Mar-16
 FILE: man/ecoli.Rd
 CHANGES: Began writing documentation for ecoli data.  Way not finished.
 
+DATE: 2010-Mar-24
+FILE: R/is.inCH.R, man/is.inCH.Rd
+CHANGES: Changed arguments to R function, updated man page
+
+DATE: 2010-Mar-24
+FILE: R/ergm.R
+CHANGES: Fixed code-documentation mismatch in order of arguments
+
+DATE: 2010-Mar-26
+FILE: R/InitMHP.R
+CHANGES: Added a couple additional proposals from trunk version
+
+DATE: 2010-Mar-26
+FILE: R/ergm.MCMCse.lognormal.R, wtd.median.R, man/wtd.median.Rd
+CHANGES: Added some trunk functions
+
+DATE: 2010-Mar-26
+FILE: DESCRIPTION
+CHANGES: Added "Matrix" to list of suggested packages
+
+DATE: 2010-Mar-26
+FILE: man/ergm-internal.Rd
+CHANGES: Added new R functions without documentation files to the list
+
+DATE: 2010-Mar-28
+FILE: man/ecoli.Rd
+CHANGES: Updated documentation for ecoli datasets
+
+DATE: 2010-Mar-29
+FILE: R/ergm.mple.R
+CHANGES: Removed "start" argument from glm call
+
+DATE: 2010-Mar-30
+FILE: R/ergm.estmate.R, ergm.stepping.R, ergm.llik.R
+CHANGES: Fixed bugs in llik.fun2 and llik.gradient2; modified some of the syntax
+         of the ergm.estimate function as well
+
+DATE: 2010-Mar-30
+FILE: R/ergm.mainfitloop.R, control.ergm.R, man/control.ergm.Rd
+CHANGES: "Likelihood" metric is now called "lognormal"
+
+DATE: 2010-Mar-31
+FILE: src/edgetree.c
+CHANGES: Added NetworkCopy function from trunk
+
+DATE: 2010-Mar-31
+FILE: R/ergm.utility.R
+CHANGES: Deleted "safeupdate.formula" function, added "ergm.update.formula" and 
+         "term.list.formula"
+
+DATE: 2010-Mar-31
+FILE: R/network.update.R, man/network.update.Rd
+CHANGES: Added "output" argument to function
+
+

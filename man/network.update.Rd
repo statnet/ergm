@@ -2,7 +2,7 @@
 \alias{network.update}
 \title{Replaces the sociomatrix in a network object}
 \usage{
-network.update(nw, newmatrix, matrix.type=NULL)
+network.update(nw, newmatrix, matrix.type=NULL, output="network")
 }
 \description{
   Replaces the sociomatrix in a network object with the sociomatrix specified by
@@ -19,6 +19,7 @@ network.update(nw, newmatrix, matrix.type=NULL)
   \item{matrix.type}{One of "adjacency" or "edgelist" telling which type of
   matrix \code{newmatrix} is.  Default is to use the 
   \code{\link[network]{which.matrix.type}} function.}
+  \item{output}{Currently unused.}
 }
 
 \value{\code{\link{network.update}} returns a \code{\link[network]{network}} object.

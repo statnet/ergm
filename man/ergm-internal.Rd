@@ -48,7 +48,8 @@
 \alias{get.InitErgm.fname}
 \alias{updatemodel.ErgmTerm}
 \alias{copy.named}
-\alias{safeupdate.formula}
+\alias{ergm.update.formula}
+\alias{term.list.formula}
 \alias{model.matrix.pen.glm}
 \alias{zerowarnings}
 \alias{extremewarnings}
@@ -151,6 +152,9 @@
 \alias{InitMHP.randomtoggle}
 \alias{InitMHP.randomtoggleNonObserved}
 \alias{InitMHP.TNT}
+\alias{InitMHP.TNT10}
+\alias{InitMHP.CondDegreeHexad}
+\alias{InitMHP.CondDegreeTetrad}
 \alias{MHproposal}
 \alias{MHproposal.character}
 \alias{MHproposal.ergm}
@@ -198,6 +202,7 @@
 \alias{ergm.raftery.diag}
 \alias{ergm.revisetheta0}
 \alias{ergm.rhs.formula} 
+\alias{ergm.stepping}
 \alias{ergm.stocapprox}
 \alias{ergm.t.summary}
 \alias{espartnerdist}
@@ -217,6 +222,10 @@
 \alias{llik.hessian2}
 \alias{llik.info3}
 \alias{llik.mcmcvar3}
+\alias{llik.fun.EF}
+\alias{llik.fun.median}
+\alias{llik.fun.miss.robust}
+\alias{llik.hessian.naive}
 \alias{mcmc.diagnostics.default}
 \alias{midarrow}
 \alias{newnw.extract}
@@ -262,6 +271,7 @@
 %\alias{symmetrize}
 %
 \alias{ergm.MCMCse}
+\alias{ergm.MCMCse.lognormal}
 %\alias{ergm.latentplot}
 %\alias{mlpY.grad.plot}
 %\alias{mlpY.plot}
@@ -274,7 +284,6 @@
 \alias{ergm.mainloop}
 \alias{ergm.robmon}
 %
-\alias{InitMHP.TNT10}
 
 %
 % These need to be documented!

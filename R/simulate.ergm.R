@@ -38,7 +38,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, theta0,
   }
 
   # New formula (no longer use 'object'):
-  formula <- safeupdate.formula(object, nw ~ .)
+  formula <- ergm.update.formula(object, nw ~ .)
   
   # Prepare inputs to ergm.getMCMCsample
   m <- ergm.getmodel(formula, nw, drop=FALSE)

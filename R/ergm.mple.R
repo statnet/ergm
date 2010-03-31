@@ -28,13 +28,15 @@ ergm.mple<-function(Clist, Clist.miss, m, theta0=NULL, theta.offset=NULL,
    mplefit.summary <- mplefit
   }else{
    options(warn=-1)
+#  options(warn=2)
    if(MPLEtype=="logitreg"){
     # Getting rid of logitreg MPLEtype;  all of this is now gone
    }else{
     mplefit <- try(
           glm(pl$zy ~ .-1 + offset(pl$foffset), data=data.frame(pl$xmat),
-               weights=pl$wend, family=family,
-               start=theta0[!m$etamap$offsettheta]),
+               weights=pl$wend, family=family),
+# Note:  It appears that specifying a starting vector can lead to problems!
+#               start=theta0[!m$etamap$offsettheta]),
                     silent = TRUE)
     if (inherits(mplefit, "try-error")) {
       mplefit <- list(coef=pl$theta.offset, deviance=0,

@@ -14,7 +14,7 @@ control.ergm<-function(prop.weights="default",prop.args=NULL,
                        force.mcmc=FALSE,
                        check.degeneracy=FALSE,
                        mcmc.precision=0.05,
-                       metric=c("Likelihood","raw"),
+                       metric=c("lognormal","naive"),
                        method=c("BFGS","Nelder-Mead"),
                        trustregion=20,                     ##### ????
                        initial.loglik=NULL,

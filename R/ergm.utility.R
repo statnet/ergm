@@ -307,13 +307,13 @@ function(x, alternative = c("two.sided", "less", "greater"),
 #  out
 #}
 
-newnw.extract<-function(oldnw,z){
+newnw.extract<-function(oldnw,z,output="network"){
   nedges<-z$newnwheads[1]
   newedgelist <-
     if(nedges>0) cbind(z$newnwheads[2:(nedges+1)],z$newnwtails[2:(nedges+1)])
     else matrix(0, ncol=2, nrow=0)
   
-  network.update(oldnw,newedgelist,"edgelist")
+  network.update(oldnw,newedgelist,"edgelist",output=output)
 }
 statnet.edit <- function(name,package=c("statnet","ergm","network")){
   i <- 1
@@ -335,10 +335,22 @@ statnet.edit <- function(name,package=c("statnet","ergm","network")){
   invisible(filepath)
 }
 
-safeupdate.formula<-function (old, new, ...){
-  tmp <- .Internal(update.formula(as.formula(old), as.formula(new)))
-  out <- formula(terms.formula(tmp, simplify = FALSE))
-  return(out)
+ergm.update.formula<-function (object, new, ...){
+  tmp <- as.formula(.Internal(update.formula(as.formula(object), as.formula(new))))
+  # Ensure that the formula's environment gets set to the network's
+  # environment.
+  if(new[[2]]==".")
+    environment(tmp)<-environment(object)
+  else
+    environment(tmp)<-environment(new)
+  return(tmp)
+}
+
+term.list.formula<-function(rhs){
+  if(length(rhs)==1) list(rhs)
+  else if(rhs[[1]]=="+") c(term.list.formula(rhs[[2]]),term.list.formula(rhs[[3]]))
+  else if(rhs[[1]]=="(") term.list.formula(rhs[[2]])
+  else list(rhs)
 }
 
 copy.named<-function(x){
