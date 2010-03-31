@@ -7,7 +7,6 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
                              estimate=TRUE, ...) {
   iteration <- 1
   nw.orig <- nw
-#
   asyse=theta0-theta0
   mc.se=1+0.05*asyse
   mle.lik=initialfit$mle.lik
@@ -36,11 +35,11 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     theta0 <- v$coef
     eta0 <- ergm.eta(theta0, model$etamap)
     if(verbose){
-     cat("Iteration ",iteration," of at most ", MCMCparams$maxit,
-         " with parameter: \n", sep="")
+      cat("Iteration ",iteration," of at most ", MCMCparams$maxit,
+          " with parameter: \n", sep="")
       print(theta0)
     }else{
-     cat("Iteration ",iteration," of at most ", MCMCparams$maxit,": \n",sep="")
+      cat("Iteration ",iteration," of at most ", MCMCparams$maxit,": \n",sep="")
     }
     z <- ergm.getMCMCsample.parallel(nw, model, MHproposal, eta0, MCMCparams, verbose)
     statsmatrix <- z$statsmatrix

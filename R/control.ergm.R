@@ -22,7 +22,8 @@ control.ergm<-function(prop.weights="default",prop.args=NULL,
                        force.mcmc=FALSE,
                        check.degeneracy=FALSE,
                        mcmc.precision=0.05,
-                       metric=c("Likelihood","Median.Likelihood","EF.Likelihood"),
+                       metric=c("Median.Likelihood", "lognormal", 
+                                "EF.Likelihood", "naive"),
                        method=c("BFGS","Nelder-Mead"),
                        trustregion=20,
                        initial.loglik=NULL,
@@ -54,8 +55,6 @@ control.ergm<-function(prop.weights="default",prop.args=NULL,
   for(arg in names(formals(sys.function())))
     control[[arg]]<-get(arg)
   
-#                      metric=c("Median.Likelihood","Likelihood","EF.Likelihood"),
-
   control$MPLEtype<-match.arg(MPLEtype)
   control$metric<-match.arg(metric)
   control$method<-match.arg(method)

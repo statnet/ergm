@@ -5,7 +5,7 @@
 # This function is missing-data capable.
 ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                         epsilon=1e-10, nr.maxit=1000, nr.reltol=sqrt(.Machine$double.eps),
-                        metric="Likelihood",
+                        metric="lognormal",
                         method="Nelder-Mead", compress=FALSE,
                         calc.mcmc.se=TRUE, hessianflag=TRUE,
                         verbose=FALSE, trace=6*verbose,
@@ -88,33 +88,39 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   if (missingflag) {
     loglikelihoodfn <- switch(metric,
                               Likelihood=llik.fun.miss.robust,
+                              lognormal=llik.fun.miss.robust,
                               Median.Likelihood=llik.fun.miss.robust,
                               EF.Likelihood=llik.fun.miss.robust,
                               llik.fun.miss.robust)
     # This looks like a bug:  (None of these functions is a gradient)
     gradientfn <- switch(metric,
                          Likelihood=llik.fun.miss,
+                         lognormal=llik.fun.miss,
                          Median.Likelihood=llik.fun.miss,
                          EF.Likelihood=llik.fun.miss,
                          llik.fun.miss)
     Hessianfn <- switch(metric,
                         Likelihood=llik.hessian.miss,
+                        lognormal=llik.hessian.miss,
                         Median.Likelihood=llik.hessian.miss,
                         EF.Likelihood=llik.hessian.miss,
                         llik.hessian.miss)
   } else {
     loglikelihoodfn <- switch(metric,
                               Likelihood=llik.fun,
+                              lognormal=llik.fun,
                               Median.Likelihood=llik.fun.median,
                               EF.Likelihood=llik.fun.EF,
                               llik.fun2)
     gradientfn <- switch(metric,
                          Likelihood=llik.grad,
+                         lognormal=llik.grad,
                          Median.Likelihood=llik.grad,
                          EF.Likelihood=llik.grad,
                          llik.grad2)
     Hessianfn <- switch(metric,
                         Likelihood=llik.hessian,
+                        lognormal=llik.hessian,
                         Median.Likelihood=llik.hessian,
                         EF.Likelihood=llik.hessian,
                         llik.hessian2)
@@ -123,7 +129,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   # Now find maximizer of approximate loglikelihood ratio l(eta) - l(eta0).
   # First: If we're using the lognormal approximation, the maximizer is
   # closed-form.
-  if (metric=="Likelihood") {
+  if (metric=="lognormal" || metric=="Likelihood") {
     if (missingflag) {
      if (verbose) { cat("Using log-normal approx with missing (no optim)\n") }
      Lout <- list(hessian = -(V-V.miss))
@@ -132,13 +138,23 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
      Lout <- list(hessian = -V)
     }
     Lout$par <- try(eta0[!model$etamap$offsettheta] - solve(Lout$hessian, xobs[!model$etamap$offsettheta]))
+    # If there's an error, first try a robust matrix inverse.  This can often
+    # happen if the matrix of simulated statistics does not ever change for one
+    # or more statistics.
     if(inherits(Lout$par,"try-error")){
-     if (missingflag) {
-      Lout <- list(hessian = -(as.matrix(nearPD(V-V.miss)$mat)))
-     }else{
-      Lout <- list(hessian = -(as.matrix(nearPD(V)$mat)))
-     }
-     Lout$par <- eta0[!model$etamap$offsettheta] - solve(Lout$hessian, xobs[!model$etamap$offsettheta])
+      Lout$par <- try(eta0[!model$etamap$offsettheta] - 
+                      robust.inverse(Lout$hessian) %*% 
+                      xobs[!model$etamap$offsettheta])
+    }
+    # If there's still an error, use the Matrix package to try to find an 
+    # alternative Hessian approximant that has no zero eigenvalues.    
+    if(inherits(Lout$par,"try-error")){
+      if (missingflag) {
+        Lout <- list(hessian = -(as.matrix(nearPD(V-V.miss)$mat)))
+      }else{
+        Lout <- list(hessian = -(as.matrix(nearPD(V)$mat)))
+      }
+      Lout$par <- eta0[!model$etamap$offsettheta] - solve(Lout$hessian, xobs[!model$etamap$offsettheta])
     }
     Lout$convergence <- 0 # maybe add some error-checking here to get other codes
     Lout$value <- 0.5*crossprod(xobs[!model$etamap$offsettheta],
@@ -164,15 +180,15 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                       xsim.miss=xsim.miss, probs.miss=probs.miss,
                       varweight=varweight, trustregion=trustregion,
                       eta0=eta0, etamap=model$etamap))
-    # if(Lout$value < trustregion-0.001){
-      #  current.scipen <- options()$scipen
-      #  options(scipen=3)
-      #  cat("the log-likelihood improved by",
-             #      format.pval(Lout$value,digits=4,eps=1e-4),"\n")
-      #  options(scipen=current.scipen)
-    # }else{
-      #  cat("the log-likelihood did not improve.\n")
-    # }
+#    if(Lout$value < trustregion-0.001){
+#      current.scipen <- options()$scipen
+#      options(scipen=3)
+#      cat("the log-likelihood improved by",
+#          format.pval(Lout$value,digits=4,eps=1e-4),"\n")
+#      options(scipen=current.scipen)
+#    }else{
+#      cat("the log-likelihood did not improve.\n")
+#    }
     if(inherits(Lout,"try-error") || Lout$value > 199 || Lout$value < -790) {
       cat("MLE could not be found. Trying Nelder-Mead...\n")
       Lout <- try(optim(par=guess, 
@@ -242,7 +258,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     }
     if(calc.mcmc.se){
       if (verbose) cat("Starting MCMC s.e. computation.\n")
-       if (metric=="Likelihood") {
+       if (metric=="lognormal" || metric=="Likelihood") {
         mcmcse <- ergm.MCMCse.lognormal(theta, theta0, 
                               statsmatrix0, statsmatrix.miss,
                               V, V.miss,
@@ -254,22 +270,21 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                               model=model)
        }
        mc.se <- mcmcse$mc.se
-       covar <- mcmcse$covar
        # Eventually, this if-statement may be removed:
-       if (verbose) {
-         if (metric=="Likelihood") {
-           cat ("Here are the standard errors based on the exact Hessian of the ",
-                "log-normal approximation:\n")
-           print(sqrt(diag(robust.inverse(-Lout$hessian))))
-           cat ("MCMC standard errors\n.")
-           print(sqrt(diag(covar)/NROW(statsmatrix)))
-         }
-         cat ("Here are the standard errors based on the 'naive' approximation ",
-              "of the log-likelihood as in eqn. (3.5) of H&H 2006:\n")
-         print(sqrt(diag(robust.inverse(-mcmcse$hessian))))
-         cat ("MCMC standard errors\n.")
-         print(mc.se)
-       }
+#       if (verbose) {
+#         if (metric=="lognormal" || metric=="Likelihood") {
+#           cat ("Here are the standard errors based on the exact Hessian of the ",
+#                "log-normal approximation:\n")
+#           print(sqrt(diag(robust.inverse(-Lout$hessian))))
+#           cat ("MCMC standard errors\n.")
+#           print(sqrt(diag(covar)/NROW(statsmatrix)))
+#         }
+#         cat ("Here are the standard errors based on the 'naive' approximation ",
+#              "of the log-likelihood as in eqn. (3.5) of H&H 2006:\n")
+#         print(sqrt(diag(robust.inverse(-mcmcse$hessian))))
+#         cat ("MCMC standard errors\n.")
+#         print(mc.se)
+#       }
     }
     c0  <- loglikelihoodfn(theta=Lout$par, xobs=xobs,
                            xsim=xsim, probs=probs,

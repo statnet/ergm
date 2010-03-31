@@ -12,8 +12,11 @@ control.ergm(prop.weights = "default", prop.args = NULL,
              maxNumDyadTypes = 1e+06, maxedges = 20000, maxchanges = 1e+06,
              maxMPLEsamplesize = 1e+05, MPLEtype=c("glm", "penalized"), trace = 0,
              steplength = 0.5, sequential=TRUE,
-	     drop = TRUE, force.mcmc = FALSE, check.degeneracy=FALSE, 
-	     mcmc.precision = 0.05, metric = c("Likelihood", "raw"), method = c("BFGS", "Nelder-Mead"),
+             drop = TRUE, force.mcmc = FALSE, check.degeneracy=FALSE, 
+             mcmc.precision = 0.05, 
+             metric=c("Median.Likelihood", "lognormal", 
+             "EF.Likelihood", "naive"),
+             method = c("BFGS", "Nelder-Mead"),
              trustregion = 20, initial.loglik = NULL, initial.network = NULL,
              style = c("Newton-Raphson", "Robbins-Monro",
              "Stochastic-Approximation", "Stepping"),
@@ -104,7 +107,8 @@ control.ergm(prop.weights = "default", prop.args = NULL,
     standard errors induced by the MCMC algorithm.
     Defaults to \code{0.05}.}
   \item{metric}{character; The name of the optimization metric
-    to use. Defaults to \code{"Median.Likelihood"}.}
+    to use. Defaults to \code{"Median.Likelihood"}.  See Hummel et al (2010)
+    for an explanation of "lognormal" and "naive".}
   \item{method}{character; The name of the optimization method
     to use. See \code{\link[stats]{optim}} for the options. The default method
     \code{"BFGS"} is a quasi-Newton method (also known as a variable

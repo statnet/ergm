@@ -5,7 +5,7 @@ ergm.mple<-function(Clist, Clist.miss, m, theta0=NULL, theta.offset=NULL,
                     maxNumDyadTypes=1e+6,
                     theta1=NULL, 
 		    conddeg=NULL, MCMCparams=NULL, MHproposal=NULL,
-		    verbose=FALSE, compressflag=TRUE,
+        verbose=FALSE, compressflag=TRUE,
                     ...) {
   # see also ergm.pl.R.originalandgood
   if(is.numeric(theta0)){theta.offset <- theta0}
@@ -39,8 +39,9 @@ ergm.mple<-function(Clist, Clist.miss, m, theta0=NULL, theta.offset=NULL,
    }else{
     mplefit <- try(
           glm(pl$zy ~ .-1 + offset(pl$foffset), data=data.frame(pl$xmat),
-               weights=pl$wend, family=family,
-               start=theta0[!m$etamap$offsettheta]),
+               weights=pl$wend, family=family),
+# Note:  It appears that specifying a starting vector can lead to problems!
+#               start=theta0[!m$etamap$offsettheta]),
                     silent = TRUE)
     if (inherits(mplefit, "try-error")) {
       mplefit <- list(coef=pl$theta.offset, deviance=0,

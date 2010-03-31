@@ -131,7 +131,7 @@ ergm.mainfitloop.dyn <- function(theta0, nw, model.form, model.diss,
                     calc.mcmc.se=MCMCparams$calc.mcmc.se, 
                     hessianflag=MCMCparams$hessian,
                     trustregion=MCMCparams$trustregion, 
-                    method=MCMCparams$method, metric="Likelihood",
+                    method=MCMCparams$method, metric="lognormal",
                     compress=MCMCparams$compress, verbose=verbose, 
                     estimateonly=TRUE)
   }
@@ -151,7 +151,7 @@ ergm.mainfitloop.dyn <- function(theta0, nw, model.form, model.diss,
                    calc.mcmc.se=MCMCparams$calc.mcmc.se, 
                    hessianflag=MCMCparams$hessian,
                    trustregion=MCMCparams$trustregion, 
-                   method=MCMCparams$method, metric="Likelihood",
+                   method=MCMCparams$method, metric="lognormal",
                    compress=MCMCparams$compress, verbose=verbose)
 #
 #    Reform the output
