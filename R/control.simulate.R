@@ -12,7 +12,7 @@ control.simulate<-control.simulate.formula<-function(prop.weights="default",
   control
 }
 
-control.simulate.ergm<-function(prop.weights=NULL,
+control.simulate.ergm<-function(prop.weights="default",
                                 prop.args=NULL,
                                 drop=FALSE,
                                 summarizestats=FALSE,
