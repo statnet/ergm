@@ -1,4 +1,3 @@
-%
 \name{ergm}
 \alias{ergm}
 \alias{ergm.object}
@@ -37,7 +36,9 @@ Hunter (2008).  To create a
     By default the MPLE is used (\code{theta0="MPLE"}).}
   \item{MPLEonly}{logical; \code{TRUE} if the maximum
     pseudo-likelihood estimate is to be computed and returned.
-    Note that \code{MPLEonly=TRUE} will render moot most other parameters in this list.}
+    Note that \code{MPLEonly=TRUE} will render moot most other parameters in this list.
+    See \code{\link{ergmMPLE}} to obtain the vector of change statistics,
+    needed to calculate the MPLE.}
   \item{MLestimate}{logical; \code{TRUE} if only the Monte Carlo maximum likelihood estimate
     is to be computed and returned.}
   \item{burnin}{count; the number of proposals before any MCMC sampling
@@ -558,8 +559,8 @@ Morris M, Handcock MS, Hunter DR (2008).
  \url{http://www.jstatsoft.org/v24/i04/}.
 }
 
-\seealso{network, \%v\%, \%n\%, ergm-terms,
-         summary.ergm, print.ergm}
+\seealso{network, \%v\%, \%n\%, \code{\link{ergm-terms}}, \code{\link{ergmMPLE}},
+         \code{\link{summary.ergm}}, \code{\link{print.ergm}}}
 \examples{
 #
 # load the Florentine marriage data matrix
