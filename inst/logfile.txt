@@ -284,3 +284,7 @@ DATE: 2010-Mar-31
 FILE: man/network.update.Rd
 CHANGES: Added "output" argument to doc file
 
+DATE: 2010-Apr-4
+FILE: src/MHproposals.c
+CHANGES: Fixed rarely occurring bug in Hastings ratio calculation
+
