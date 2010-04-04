@@ -78,10 +78,10 @@ void MH_TNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
    Note that this happens extremely rarely unless the graph is small or the
    parameter values lead to extremely sparse networks.  */
       if(EdgetreeSearch(MHp->togglehead[0],MHp->toggletail[0],nwp->outedges)!=0){
-        MHp->ratio = (//nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
+        MHp->ratio = (nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
                                   nedges / (odds*ndyads + nedges));
       }else{
-        MHp->ratio = (//nedges==0 ? comp*ndyads + (1.0-comp) :
+        MHp->ratio = (nedges==0 ? comp*ndyads + (1.0-comp) :
                                   1.0 + (odds*ndyads)/(nedges + 1));
       }
     }
