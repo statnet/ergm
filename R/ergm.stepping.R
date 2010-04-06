@@ -1,46 +1,34 @@
 ergm.stepping = function(theta0, nw, model, Clist, initialfit, 
-				MCMCparams=MCMCparams, 
-				MHproposal=MHproposal, MHproposal.miss=MHproposal.miss, 
-verbose=FALSE, estimate=TRUE, sequential=TRUE, ...){ ##filename.prefix=NULL
+                         MCMCparams, MHproposal, MHproposal.miss, 
+                         verbose=FALSE, ...){
 
-#   preliminary, to set up structure. 
-					nw.orig <- nw
-					asyse=theta0-theta0
-					mc.se=1+0.05*asyse
-					mle.lik=initialfit$mle.lik
-					theta.original=theta0
-##Trash these?	
-#					v=list(coef=theta0)
-#					thetaprior=theta0-theta0
-#					stats <- matrix(0,ncol=Clist$nstats,nrow=MCMCparams$samplesize)					
-#					stats[1,] <- Clist$obs - Clist$meanstats
-#					MCMCparams$stats <- stats
-#					MCMCparams$meanstats <- Clist$meanstats
-#					thetaprior <- theta0
-#					theta0 <- v$coef
-#					eta0 <- ergm.eta(theta0, model$etamap)
-						
+  #   preliminary, to set up structure. 
+  nw.orig <- nw
+  asyse=theta0-theta0
+  mc.se=1+0.05*asyse
+  mle.lik=initialfit$mle.lik
+  theta.original=theta0
+  
+  ## Prepare the output structure:
+  formula <- model$formula  # formula for this model
+  obsstats <- summary(model$formula)  # Observed statistics
+  theta0 <- theta0  # beginning parameter value
+  samples <- list()  # matrices of sampled network statistics
+  sampmeans <- list() # vectors of column means of stats matrices
+  xi <- list() # "new obsstats" values, somewhere between obsstats and sampmeans
+  eta <- list() # MLE using lognormal approximation and "new obsstats"
+  gamma <- list() # factor controlling convex combo: # xi=gamma*obsstats + (1-gamma)*sampmeans	
 	
-	
-## Prepare the output structure:
-   	formula = model$formula  # formula for this model
-    obsstats= summary(model$formula)  # Observed statistics
-    theta0 = theta0  # beginning parameter value
-    samples=list()  # matrices of sampled network statistics
-    sampmeans=list() # vectors of column means of stats matrices
-    xi=list() # "new obsstats" values, somewhere between obsstats and sampmeans
-    eta=list() # MLE using lognormal approximation and "new obsstats"
-    gamma=list() # factor controlling convex combo: # xi=gamma*obsstats + (1-gamma)*sampmeans	
-	
-	iter = 0
-	eta[[1]]=theta0
-	finished = FALSE
+	iter <- 0
+	eta[[1]] <- theta0
+	finished <- FALSE
+  countdown <- 2
 	while (!finished) { # Iterate until gamma==1
 		iter=iter+1
-## Generate an mcmc sample from the probability distribution determined by orig.mle
+    ## Generate an mcmc sample from the probability distribution determined by orig.mle
 		samples[[iter]]=simulate.formula(formula, nsim=MCMCparams$stepMCMCsize,       
-										 theta0=eta[[iter]], burnin=MCMCparams$burnin, 
-										 interval=MCMCparams$interval, statsonly=TRUE)
+                                     theta0=eta[[iter]], burnin=MCMCparams$burnin, 
+                                     interval=MCMCparams$interval, statsonly=TRUE)
 		sampmeans[[iter]]=colMeans(samples[[iter]])
 		
 		hi <- MCMCparams$gridsize  # Goal: Let gamma be largest possible multiple of .01
@@ -69,35 +57,44 @@ verbose=FALSE, estimate=TRUE, sequential=TRUE, ...){ ##filename.prefix=NULL
 			xi[[iter]] <- gamma[[iter]]*obsstats  + (1-gamma[[iter]])*sampmeans[[iter]]
 		}
 	
-    #Now we have found an gamm that moves xi inside the convex hull, but very close to the boundary			
-    # As in Hummel, Hunter, Handcock, we replace gamm by C*gamm for some constant C (the 
-    # paper uses 0.95) and update the xi[[iter]] value prior to use, for the MCMC MLE step, 
-    # a xi that we are certain is not on the edge of the convex hull:
-		C <- .95
-		
-    # ergm.estimate requires that the simulated stats be "centered" in the sense that the
-    # observed statistics would be exactly zero on the same scale.  In this case, the
-    # "observed statistics" equal xi[[iter]].
+    # Now we have found a gamm that moves xi inside the convex hull, but very 
+    # close to the boundary.
+    # As in Hummel, Hunter, Handcock, we replace gamm by C*gamm for some 
+    # constant C (the paper uses 0.95) and update the xi[[iter]] value prior 
+    # to use, for the MCMC MLE step, a xi that we are certain is not on the 
+    # edge of the convex hull (except when gamma=1):
+    if (gamm == MCMCparams$gridsize && 
+        is.inCH((1/.95)*obsstats + (1-1/.95)*sampmeans[[iter]], samples[[iter]]) ) {
+      if (verbose) 
+        cat("Observed stats are well inside the convex hull.\n")
+      C <- 1
+      countdown <- countdown - 1
+    } else {
+      C <- .95
+      countdown <- 2 #  Reset countdown
+    }
+    # We'd like to have gamma==1 for 2 consecutive iterations before
+    # we declare that we're finished.
+    finished = (countdown==0)
     
-	xi[[iter]] <- C*gamma[[iter]]*obsstats  + (1-C*gamma[[iter]])*sampmeans[[iter]]
-		
-# When the stepped xi is in the convex hull (but not on the boundary), find the MLE for gyobs=xi
-#		cat("  Trying gamma=", gamm,"/", MCMCparams$gridsize,"\n") #Only if C=1
+    xi[[iter]] <- C*gamma[[iter]]*obsstats  + (1-C*gamma[[iter]])*sampmeans[[iter]]
+    # When the stepped xi is in the convex hull (but not on the boundary), find the MLE for gyobs=xi
+    #		cat("  Trying gamma=", gamm,"/", MCMCparams$gridsize,"\n") #Only if C=1
 		cat("  Trying gamma=", round(C*gamma[[iter]],3),"\n")  
 		flush.console()
-
+    
 ############# PLOTS print if VERBOSE=TRUE #################
-		if(verbose){	
+  if(verbose){
 #  Take a look at obsstats (in red dot) and the "new obsstats" (in green triangle):
 ##		par(mgp = c(2,.8,0), mar = .1+c(3,3,3,1)) ## How do I put more margin at the top?
-    par(ask=T)
+    par(ask=TRUE)
 		pairs(rbind(samples[[iter]], obsstats, xi[[iter]], sampmeans[[iter]]), 
 			  col=c(rep(1, nrow(samples[[iter]])), 2, 2, 2),#2, 7, 3), 
 			  pch=c(rep(46, nrow(samples[[iter]])), 4, 20, 4),
 #			  main=paste("Iteration ", iter, ":", "\n",
 #						 "Stepped stats = ", round(C*gamma[[iter]],3), 
 #						 "(Observed stats) + ", round(1-C*gamma[[iter]],3), "(Sample Mean)", sep=""),
-			  main=paste("Iteration ", iter, ":",
+			  main=paste("Iteration ", iter, ": ",
                    "gamma = ", round(C*gamma[[iter]], 3), sep=""),
 			  cex.main=1.5, cex.axis=1.5, cex.lab=1.5)
     
@@ -114,28 +111,24 @@ verbose=FALSE, estimate=TRUE, sequential=TRUE, ...){ ##filename.prefix=NULL
 		} #ends if(verbose)
 ############# END PLOTS #################		
 		
+    # ergm.estimate requires that the simulated stats be "centered" in the sense that the
+    # observed statistics would be exactly zero on the same scale.  In this case, the
+    # "observed statistics" equal xi[[iter]].
     v<-ergm.estimate(theta0=eta[[iter]], model=model, 
                      statsmatrix=sweep(samples[[iter]], 2, xi[[iter]], '-'), 
                      nr.maxit=MCMCparams$nr.maxit,
                      metric=MCMCparams$metric,
                      verbose=verbose,
+                     trace=0,  # suppress 'optim' output
                      estimateonly=TRUE, 
-					 #statsmatrix.miss=statsmatrix.miss, 
-					 #epsilon=MCMCparams$epsilon,
-					 # nr.reltol=MCMCparams$nr.reltol,
-					 #calc.mcmc.se=MCMCparams$calc.mcmc.se, hessianflag=MCMCparams$hessian,
-					 # trustregion=MCMCparams$trustregion, method=MCMCparams$method, 
-					 #compress=MCMCparams$compress, 
+                     #statsmatrix.miss=statsmatrix.miss, 
+                     #epsilon=MCMCparams$epsilon,
+                     # nr.reltol=MCMCparams$nr.reltol,
+                     #calc.mcmc.se=MCMCparams$calc.mcmc.se, hessianflag=MCMCparams$hessian,
+                     # trustregion=MCMCparams$trustregion, method=MCMCparams$method, 
+                     #compress=MCMCparams$compress, 
                      ...)
     eta[[iter+1]]<-v$coef
-		
-## If gamma is still not 1, go back to next iteration
-## If gamma is 1, then we might be able to obtain a valid MLE using C=1. 
-## So we do one more loop with a larger sample size for a xi based on C=.95*gamma=1, 
-## (to obtain a better sample),		
-## followed by one more loop with a larger sample size for the true xi (C=1, gamma=1)
-## (to obtain a better MLE):
-	    finished = (gamm==MCMCparams$gridsize)
 	}
 	cat("Now ending with one large sample for MLE. \n")
 	flush.console()
@@ -151,13 +144,14 @@ verbose=FALSE, estimate=TRUE, sequential=TRUE, ...){ ##filename.prefix=NULL
 									 nr.maxit=MCMCparams$nr.maxit,
 									 metric=MCMCparams$metric,
 									 verbose=verbose,
+                   trace=0,  # suppress 'optim' output
 									 estimateonly=TRUE, 
-                                     #statsmatrix.miss=statsmatrix.miss, 
-                                     #epsilon=MCMCparams$epsilon,
-                                     # nr.reltol=MCMCparams$nr.reltol,
-                                     #calc.mcmc.se=MCMCparams$calc.mcmc.se, hessianflag=MCMCparams$hessian,
-                                     # trustregion=MCMCparams$trustregion, method=MCMCparams$method, 
-                                     #compress=MCMCparams$compress, 
+                   #statsmatrix.miss=statsmatrix.miss, 
+                   #epsilon=MCMCparams$epsilon,
+                   # nr.reltol=MCMCparams$nr.reltol,
+                   #calc.mcmc.se=MCMCparams$calc.mcmc.se, hessianflag=MCMCparams$hessian,
+                   # trustregion=MCMCparams$trustregion, method=MCMCparams$method, 
+                   #compress=MCMCparams$compress, 
 									 ...)
 	eta[[iter+1]]<-v$coef 
 	
@@ -181,7 +175,7 @@ verbose=FALSE, estimate=TRUE, sequential=TRUE, ...){ ##filename.prefix=NULL
 									 interval=MCMCparams$interval, statsonly=TRUE)			
 					
 	sampmeans[[iter]]=colMeans(finalsample2)
-	
+
 ############# FINAL PLOT 2 prints if VERBOSE=TRUE #################
 		if(verbose){		
 	pairs(rbind(finalsample2, obsstats, sampmeans[[iter]]), 
@@ -191,28 +185,30 @@ verbose=FALSE, estimate=TRUE, sequential=TRUE, ...){ ##filename.prefix=NULL
           cex.main=1.5, cex.axis=1.5, cex.lab=1.5)
 		} #ends if(verbose)
 ############# END PLOT #################		
-	
-	inCH=is.inCH(obsstats, finalsample2)
-	if (!inCH)
+
+  inCH=is.inCH(obsstats, finalsample2)
+	if (!inCH) {
     stop("Observed statistics are not in final sample convex hull.")
-    
+  }
 
-    # ergm.estimate requires that the simulated stats be "centered" in the sense that the
-    # observed statistics would be exactly zero on the same scale.  In this case, the
-    # "observed statistics" equal obsstats.
+  # ergm.estimate requires that the simulated stats be "centered" in the sense that the
+  # observed statistics would be exactly zero on the same scale.  In this case, the
+  # "observed statistics" equal obsstats.
 	v<-ergm.estimate(theta0=eta[[iter]], model=model, 
-		   statsmatrix=sweep(finalsample2, 2, obsstats, '-'),
-           #statsmatrix.miss=statsmatrix.miss, 
-           epsilon=MCMCparams$epsilon,
-           nr.maxit=MCMCparams$nr.maxit,
-           nr.reltol=MCMCparams$nr.reltol,
-           calc.mcmc.se=MCMCparams$calc.mcmc.se, hessianflag=MCMCparams$hessian,
-           trustregion=MCMCparams$trustregion, method=MCMCparams$method, 
-           metric=MCMCparams$metric,
-           compress=MCMCparams$compress, 
-           verbose=verbose, ...)
+                   statsmatrix=sweep(finalsample2, 2, obsstats, '-'),
+                   #statsmatrix.miss=statsmatrix.miss, 
+                   epsilon=MCMCparams$epsilon,
+                   nr.maxit=MCMCparams$nr.maxit,
+                   nr.reltol=MCMCparams$nr.reltol,
+                   calc.mcmc.se=MCMCparams$calc.mcmc.se, hessianflag=MCMCparams$hessian,
+                   trustregion=MCMCparams$trustregion, method=MCMCparams$method, 
+                   metric=MCMCparams$metric,
+                   compress=MCMCparams$compress, 
+                   verbose=verbose, 
+                   trace=0,  # suppress 'optim' output
+                   ...)
 
-#####	final.mle
+  #####	final.mle
 	mle.lik <- mle.lik + abs(v$loglikelihood)
 	v$newnetwork <- nw
 	v$burnin <- MCMCparams$burnin

@@ -96,7 +96,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
   }
 
 # if(is.bipartite(nw)){
-#   formula <- safeupdate.formula(formula, ~ . + bipartite)
+#   formula <- ergm.update.formula(formula, ~ . + bipartite)
 #   trms <- ergm.getterms(formula)
 #   termnames <- ergm.gettermnames(trms)
 # }
@@ -293,7 +293,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
 #     if ((i %% 10 == 0) || (i==nsim)) cat("\n")
 #    }
     if ('model' %in% all.gof.vars) {
-     sim.model[i,] <- summary(safeupdate.formula(formula,tempnet ~ .))
+     sim.model[i,] <- summary(ergm.update.formula(formula,tempnet ~ .))
     }
     if ('distance' %in% all.gof.vars) {
      sim.dist[i,] <- ergm.geodistdist(tempnet)
@@ -1102,6 +1102,6 @@ plot.gofobject <- function(x, ...,
 #}
 
 ergm.rhs.formula <- function(formula){
-#all.vars(safeupdate.formula(formula, .~0)) 
+#all.vars(ergm.update.formula(formula, .~0)) 
  unlist(dimnames(attr(terms(formula),"factors"))[-1])
 }

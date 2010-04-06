@@ -169,7 +169,7 @@ llik.fun2 <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
                       varweight=0.5, trustregion=20, eta0, etamap){
   eta <- ergm.eta(theta, etamap)
   x <- eta-eta0
-  basepred <- xsim * x
+  basepred <- xsim %*% x
   maxbase <- max(basepred)
   llr <- sum(xobs * x) - maxbase - log(sum(probs*exp(basepred-maxbase)))
   llr
@@ -179,11 +179,11 @@ llik.grad2 <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL
                        varweight=0.5, trustregion=20, eta0, etamap){
   eta <- ergm.eta(theta, etamap)
   x <- eta-eta0
-  basepred <- xsim * x
+  basepred <- xsim %*% x
   prob <- max(basepred)
   prob <- probs*exp(basepred - prob)
   prob <- prob/sum(prob)
-  E <- sum(xsim*prob)
+  E <- sum(xsim*as.vector(prob))
 # 
 #    The next lines are for the Hessian which optim does not use
 # 

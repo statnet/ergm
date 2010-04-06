@@ -1,4 +1,4 @@
-network.update<-function(nw,newmatrix,matrix.type=NULL)
+network.update<-function(nw,newmatrix,matrix.type=NULL,output="network")
 {
 #  print(paste("old:",network.edgecount(nw)," new:", nrow(newmatrix),collapse=" "))
   unw <- network.copy(nw)

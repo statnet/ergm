@@ -1,0 +1,21 @@
+library(ergm)
+data(faux.mesa.high)
+formula <- faux.mesa.high ~ nodematch("Sex")
+
+mplesetup <- ergmMPLE(formula)
+ord <- order(mplesetup$weights)
+m <- cbind(mplesetup$weights, mplesetup$response, mplesetup$predictor)[ord,]
+if (!all(m - matrix(c(71, 132, 10284, 10423, 1, 1, 0, 0, 0, 1, 1, 0), 4,3) == 0)) {
+  stop("Failed first test of ergmMPLE")
+}
+
+modelfit <- ergmMPLE(formula, fitmodel=TRUE)
+alt <- glm(mplesetup$response ~ mplesetup$predictor - 1, 
+           weights = mplesetup$weights, family="binomial")
+if(!all(modelfit$coef == alt$coefficients)) {
+  stop("Failed second test of ergmMPLE")
+}
+
+
+
+

@@ -6,11 +6,8 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
                              epsilon=1e-10,
                              sequential=TRUE,
                              estimate=TRUE, ...) {
-#   preliminary, to set up structure. 
   iteration <- 1
   nw.orig <- nw
-
-#
   asyse=theta0-theta0
   mc.se=1+0.05*asyse
   mle.lik=initialfit$mle.lik
@@ -32,11 +29,11 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     theta0 <- v$coef
     eta0 <- ergm.eta(theta0, model$etamap)
     if(verbose){
-     cat("Iteration ",iteration," of at most ", MCMCparams$maxit,
-         " with parameter: \n", sep="")
+      cat("Iteration ",iteration," of at most ", MCMCparams$maxit,
+          " with parameter: \n", sep="")
       print(theta0)
     }else{
-     cat("Iteration ",iteration," of at most ", MCMCparams$maxit,": ",sep="")
+      cat("Iteration ",iteration," of at most ", MCMCparams$maxit,": \n",sep="")
     }
     Clist <- ergm.Cprepare(nw, model)
 	  
@@ -146,7 +143,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
                     nr.maxit=MCMCparams$nr.maxit,
                     nr.reltol=MCMCparams$nr.reltol,
                     calc.mcmc.se=MCMCparams$calc.mcmc.se, hessianflag=MCMCparams$hessian,
-                    trustregion=MCMCparams$trustregion, method=MCMCparams$method, metric="Likelihood",
+                    trustregion=MCMCparams$trustregion, method=MCMCparams$method, metric="lognormal",
                     compress=MCMCparams$compress, verbose=verbose,
                     estimateonly=TRUE)
   }
@@ -163,7 +160,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
                    nr.maxit=MCMCparams$nr.maxit,
                    nr.reltol=MCMCparams$nr.reltol,
                    calc.mcmc.se=MCMCparams$calc.mcmc.se, hessianflag=MCMCparams$hessian,
-                   trustregion=MCMCparams$trustregion, method=MCMCparams$method, metric="Likelihood",
+                   trustregion=MCMCparams$trustregion, method=MCMCparams$method, metric="lognormal",
                    compress=MCMCparams$compress, verbose=verbose)
 #
 #    Reform the output

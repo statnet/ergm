@@ -1,9 +1,10 @@
-ergm <- function(formula, theta0="MPLE",               ##### Note that the network, nw, is included in the formula, e.g. nw ~ edges + degree(2:5)
+ergm <- function(formula, theta0="MPLE",
                  MPLEonly=FALSE, MLestimate=!MPLEonly, seed=NULL,
                  burnin=10000, MCMCsamplesize=10000, interval=100,
-                 maxit=3, control=control.ergm(),
+                 maxit=3,
                  constraints=~.,
                  meanstats=NULL,
+                 control=control.ergm(),
                  verbose=FALSE, ...) {
   current.warn <- options()$warn
   options(warn=0)
@@ -29,7 +30,7 @@ ergm <- function(formula, theta0="MPLE",               ##### Note that the netwo
             if(is.null(control$SAN.burnin)) burnin
             else control$SAN.burnin,
             interval=interval)
-    formula<-safeupdate.formula(formula,nw~.)
+    formula<-ergm.update.formula(formula,nw~.)
     if (verbose) {
      cat("Original meanstats:\n")
      print(meanstats)
