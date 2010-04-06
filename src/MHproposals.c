@@ -61,7 +61,13 @@ void MH_TNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
     if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
       rane = 1 + unif_rand() * nedges;
       FindithEdge(MHp->togglehead, MHp->toggletail, rane, nwp);
-      MHp->ratio = nedges  / (odds*ndyads + nedges);
+      /* Thanks to Robert Goudie for pointing out an error in the previous 
+      version of this sampler when proposing to go from nedges==0 to nedges==1 
+      or vice versa.  Note that this happens extremely rarely unless the 
+      network is small or the parameter values lead to extremely sparse 
+      networks.  */
+      MHp->ratio = (nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
+                                nedges / (odds*ndyads + nedges));
     }else{ /* Select a dyad at random */
       do{
         head = 1 + unif_rand() * nwp->nnodes;
@@ -73,10 +79,6 @@ void MH_TNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
         MHp->togglehead[0] = head;
         MHp->toggletail[0] = tail;
       }
-/* Thanks to Robert Goudie for pointing out an error in the previous version of 
-   this sampler when proposing to go from nedges==0 to nedges==1 or vice versa.
-   Note that this happens extremely rarely unless the graph is small or the
-   parameter values lead to extremely sparse networks.  */
       if(EdgetreeSearch(MHp->togglehead[0],MHp->toggletail[0],nwp->outedges)!=0){
         MHp->ratio = (nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
                                   nedges / (odds*ndyads + nedges));
@@ -89,6 +91,12 @@ void MH_TNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
   }
 }
 
+/********************
+   void MH_TNT10
+   Attempts to do 10 TNT steps at once, but this seems flawed currently
+   because it does not correctly update network quantities like nedges
+   after each of the 10 proposed toggles.
+***********************/
 void MH_TNT10 (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
 {  
   Vertex head, tail;
@@ -123,9 +131,11 @@ void MH_TNT10 (MHproposal *MHp, DegreeBound *bd, Network *nwp)
         MHp->toggletail[n] = tail;
       }
       if(EdgetreeSearch(MHp->togglehead[n],MHp->toggletail[n],nwp->outedges)!=0){
-        MHp->ratio *= nedges / (odds*ndyads + nedges);
+        MHp->ratio *= (nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
+                                  nedges / (odds*ndyads + nedges));
       }else{
-        MHp->ratio *= 1.0 + (odds*ndyads)/(nedges + 1);
+        MHp->ratio *= (nedges==0 ? comp*ndyads + (1.0-comp) :
+                                  1.0 + (odds*ndyads)/(nedges + 1));
       }
     } 
    }
@@ -174,7 +184,7 @@ void MH_ConstantEdges (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {
 }
   
 /*********************
- void MH_CondDegTetra
+ void MH_CondDegreeTetrad
  
  Select an edge (A,B) at random.  Then select
  another node C at random, making sure it has at least one neighbor
@@ -188,7 +198,7 @@ void MH_ConstantEdges (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {
   
  Note that this algorithm may be inefficient if the network is not sparse. 
 *********************/
-void MH_CondDegTetra (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {  
+void MH_CondDegreeTetrad (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {  
   Vertex A, B, C, D=0;
   Vertex tmpA=0, tmpB, tmpC, tmpD=0;
   int valid, n_C_nbrs, i;
@@ -523,25 +533,25 @@ void MH_CondDegree (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {
   
   if(MHp->ntoggles == 0) { /* Initialize CondDeg by */
 	                   /* Choosing Hexad or Tetrad */
-    if( unif_rand() > 0.9 ){
+/*    if( unif_rand() > 0.9 ){
       MHp->ntoggles=6;
-    }else{
+    }else{ */
       MHp->ntoggles=4;
-    }
+/*    } */
     return;
   }
 
   if(MHp->ntoggles == 6) { /* Call Hexad */
-    MH_CondDegHexadToggles (MHp, bd, nwp);
+    MH_CondDegreeHexadToggles (MHp, bd, nwp);
   }else{ /* call Tetrad */
-    MH_CondDegTetradToggles (MHp, bd, nwp);
+    MH_CondDegreeTetradToggles (MHp, bd, nwp);
   }
 }
 
 /*********************
- void MH_CondDegHexadToggles
+ void MH_CondDegreeHexadToggles
 *********************/
-void MH_CondDegHexadToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {  
+void MH_CondDegreeHexadToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {  
   int x1, x2, x3, x4, x5, x6;
   int fvalid, trynode;
   Vertex head1, head2, head3, tail1, tail2, tail3;
@@ -698,9 +708,9 @@ void MH_CondDegHexadToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {
 }
 
 /*********************
- void MH_CondDegTetradToggles
+ void MH_CondDegreeTetradToggles
 *********************/
-void MH_CondDegTetradToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp) {  
+void MH_CondDegreeTetradToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp) {  
   int x1, x2, x3, x4;
   int fvalid, trynode;
   Vertex head1, head2, tail1, tail2;

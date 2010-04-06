@@ -257,3 +257,9 @@ FILE: R/ergmMPLE.R, man/ergmMPLE.Rd, tests/ergmMPLEtest.R
 CHANGES: Added a new function for returning change statistic matrix, used for
          calculating MPLE.  Also added test and documentation files.
 
+DATE: 2010-Apr-6
+FILE: src/MHproposals.c, MHproposals.h, MHproposals_bipartite.c
+CHANGES: Fixed rarely occurring bug in Hastings ratio calculation; renamed a few
+         proposal functions
+
+
