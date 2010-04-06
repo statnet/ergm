@@ -1,4 +1,5 @@
 #include "MHproposals_bipartite.h" 
+#include "MHproposals.h" 
 
 /* Shorthand. */
 #define Mhead (MHp->togglehead)
@@ -83,16 +84,24 @@ void MH_BipartiteTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
     if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
       rane = 1 + unif_rand() * nedges;
       FindithEdge(MHp->togglehead, MHp->toggletail, rane, nwp);
-      MHp->ratio = nedges  / (odds*ndyads + nedges);
+      /* Thanks to Robert Goudie for pointing out an error in the previous 
+      version of this sampler when proposing to go from nedges==0 to nedges==1 
+      or vice versa.  Note that this happens extremely rarely unless the 
+      network is small or the parameter values lead to extremely sparse 
+      networks.  */
+      MHp->ratio = (nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
+                                nedges / (odds*ndyads + nedges));
     }else{ /* Select a dyad at random */
       head = 1 + unif_rand() * nb1;
       tail = 1 + nb1 + unif_rand() * (nnodes - nb1);
       MHp->togglehead[0] = head;
       MHp->toggletail[0] = tail;
       if(EdgetreeSearch(MHp->togglehead[0],MHp->toggletail[0],nwp->outedges)!=0){
-	MHp->ratio = nedges / (odds*ndyads + nedges);
+        MHp->ratio = (nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
+                                  nedges / (odds*ndyads + nedges));
       }else{
-	MHp->ratio = 1.0 + (odds*ndyads)/(nedges + 1);
+        MHp->ratio = (nedges==0 ? comp*ndyads + (1.0-comp) :
+                                  1.0 + (odds*ndyads)/(nedges + 1));
       }
     }
     if(CheckTogglesValid(MHp, bd, nwp)) break;
@@ -230,6 +239,8 @@ void MH_BipartiteHammingTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
     FindithEdge(MHp->togglehead, MHp->toggletail, rane, &nwp[1]);
     nd = nddyads;
     nc = ndyads-nd;
+    /*  Fixme!  Not sure whether the ratio is calculated correctly here.
+        Check out the similar ratio calculations for other TNT proposals. */
     MHp->ratio = (nd*1.0) / (odds*(nc+1));
 /*    MHp->ratio = (1.0*(nce-1)*(ncn-1)) / (nde*ndn*odds); */
 /*    MHp->ratio = 1.0; */
@@ -246,6 +257,8 @@ void MH_BipartiteHammingTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
     MHp->toggletail[0]=tail;
     nd = nddyads;
     nc = ndyads-nd;
+    /*  Fixme!  Not sure whether the ratio is calculated correctly here.
+        Check out the similar ratio calculations for other TNT proposals. */
     MHp->ratio = (odds*nc) / ((nd+1)*1.0);
 /*   Rprintf("concord nd %d nc %d nddyads %d MHp->ratio %f\n", */
 /*	    nd, nc, nddyads, MHp->ratio); */
