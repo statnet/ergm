@@ -7,15 +7,15 @@ san.default <- function(object,...)
   stop("Either a ergm object or a formula argument must be given")
 }
 
-san.formula <- function(object, nsim=1, seed=NULL, ...,theta0=NULL,
+san.formula <- function(object, nsim=1, seed=NULL, theta0=NULL,
                         tau=1, invcov=NULL,
                         burnin=10000, interval=10000,
                         meanstats=NULL,
+                        basis=NULL,
                         sequential=TRUE,
                         constraints=~.,
-                        basis=NULL,
                         control=control.san(),
-                        verbose=FALSE) {
+                        verbose=FALSE, ...) {
   out.list <- list()
   out.mat <- numeric(0)
   formula <- object
@@ -93,7 +93,7 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0=NULL,
     if(is.null(theta0)) {
       fit <- ergm.mple(Clist=Clist, Clist.miss=Clist.miss, 
                        conddeg=conddeg,
-		       MCMCparams=MCMCparams, MHproposal=MHproposal,
+                       MCMCparams=MCMCparams, MHproposal=MHproposal,
                        m=model, verbose=verbose, ...)
       theta0 <- fit$coef
       if(is.null(invcov)) { invcov <- fit$covar }
@@ -166,128 +166,21 @@ san.formula <- function(object, nsim=1, seed=NULL, ...,theta0=NULL,
   return(out.list)
 }
 
-
-san.ergm <- function(object, nsim=1, seed=NULL, ..., theta0=NULL,
-                       burnin=100000, interval=10000, 
+san.ergm <- function(object, nsim=1, seed=NULL, theta0=object$coef,
+                       burnin=10000, interval=10000, 
                        meanstats=NULL,
+                       basis=NULL,
                        sequential=TRUE, 
                        constraints=NULL,
                        control=control.san(),
-                       verbose=FALSE) {
-  out.list <- vector("list", nsim)
-  out.mat <- numeric(0)
-  
-#  if(is.null(multiplicity) & !is.null(object$multiplicity)){
-#    multiplicity <- object$multiplicity
-#  }
-  if(!is.null(seed)) set.seed(as.integer(seed))
-  
-  nw <- object$network  
-  
-  m <- ergm.getmodel(object$formula, nw, drop=FALSE)
-  MCMCsamplesize <- 1
-  verb <- match(verbose,
-                c("FALSE","TRUE", "very"), nomatch=1)-1
-  MHproposal<-MHproposal(object,constraints=constraints,arguments=control$prop.args,nw=nw,model=m,weights=control$prop.weights)
-  # multiplicity.constrained <- 1  
-  if(is.null(meanstats)){
-    stop("You need to specify target statistic via",
-         " the 'meanstats' argument")
-  }
-  if(is.null(theta0)) {
-    theta0 <- object$coef
-  }
-  eta0 <- ergm.eta(theta0, m$etamap)
-  if (verb & nsim > 1) {
-    cat("Starting",nsim,"MCMC iterations of",burnin+interval*(MCMCsamplesize-1),
-        "steps each:\n")
-  }
-  for(i in 1:nsim){
-    Clist <- ergm.Cprepare(nw, m)
-    maxedges <- max(5000, Clist$nedges)
-    if(i==1 | !sequential){
-      use.burnin <- burnin
-    }else{
-      use.burnin <- interval
-    }
-    
-    stats <- matrix(summary(m$formula)-meanstats,
-                    ncol=Clist$nstats,byrow=TRUE,nrow=MCMCsamplesize)
-#
-#   Check for truncation of the returned edge list
-#
-    z <- list(newnwheads=maxedges+1,newnwtails=maxedges+1)
-    while(z$newnwheads[1] > maxedges){
-     maxedges <- 10*maxedges
-     if (verb & nsim > 1) {
-       cat(paste("#", i, " of ", nsim, ": ", sep=""))
-     }
-     z <- .C("SAN_wrapper",
-            as.integer(Clist$heads), as.integer(Clist$tails), 
-            as.integer(Clist$nedges), as.integer(Clist$maxpossibleedges),
-            as.integer(Clist$n),
-            as.integer(Clist$dir), as.integer(Clist$bipartite),
-            as.integer(Clist$nterms), 
-            as.character(Clist$fnamestring),
-            as.character(Clist$snamestring), 
-            as.character(MHproposal$name),
-            as.character(MHproposal$package),
-            as.double(Clist$inputs),
-            as.double(eta0),
-            as.integer(MCMCsamplesize),
-            s = as.double(stats),
-            as.integer(use.burnin), as.integer(interval), 
-             newnwheads = integer(maxedges),
-             newnwtails = integer(maxedges), 
-            as.integer(verb),
-            as.integer(MHproposal$bd$attribs), 
-            as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
-            as.integer(MHproposal$bd$minout), 
-            as.integer(MHproposal$bd$minin), as.integer(MHproposal$bd$condAllDegExact),
-            as.integer(length(MHproposal$bd$attribs)), 
-            as.integer(maxedges), 
-            as.integer(0.0), as.integer(0.0), 
-            as.integer(0.0),
-            PACKAGE="ergm")
-    }
-    #
-    #   summarize stats
-    if(control$summarizestats){
-      class(Clist) <- "networkClist"
-      if(i==1){
-        globalstatsmatrix <- summary(Clist)
-        statsmatrix <- matrix(z$s, MCMCsamplesize, Clist$nstats, byrow = TRUE)
-        colnames(statsmatrix) <- m$coef.names
-      }else{
-        globalstatsmatrix <- rbind(globalstatsmatrix, summary(Clist))
-        statsmatrix <- rbind(statsmatrix,
-                             matrix(z$s, MCMCsamplesize,
-                                    Clist$nstats, byrow = TRUE))
-      }
-    }
-    #
-    #   Next update the network to be the final (possibly conditionally)
-    #   simulated one
-
-    
-    out.list[[i]] <- newnw.extract(nw,z)
-    out.mat <- rbind(out.mat,z$s[(Clist$nstats+1):(2*Clist$nstats)])
-    if(sequential){
-      nw <-  out.list[[i]]
-    }
-  }
-  if(nsim > 1){
-    out.list <- list(formula = object$formula, networks = out.list, 
-                     stats = out.mat, coef=theta0)
-    class(out.list) <- "network.series"
-  }else{
-    out.list <- out.list[[1]]
-  }
-  if(control$summarizestats){
-    colnames(globalstatsmatrix) <- colnames(statsmatrix)
-    print(globalstatsmatrix)
-    print(apply(globalstatsmatrix,2,summary.statsmatrix.ergm),scipen=6)
-    print(apply(statsmatrix,2,summary.statsmatrix.ergm),scipen=6)
-  }
-  return(out.list)
+                       verbose=FALSE, ...) {
+  san.formula(object$formula, nsim=nsim, seed=seed, theta0=theta0,
+              burnin=burnin, interval=interval,
+              meanstats=meanstats,
+              basis=basis,
+              sequential=sequential,
+              constraints=constraints,
+              control=control,
+              verbose=verbose, ...)
 }
+
