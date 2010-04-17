@@ -58,7 +58,7 @@ void MCMCDyn_wrapper(// Starting network.
 		     int *attribs, int *maxout, int *maxin, int *minout,
 		     int *minin, int *condAllDegExact, int *attriblength, 
 		     // MCMC settings.
-		     double *nsteps,  int *dyninterval,
+		     double *nsteps,  int *MH_interval,
 		     double *burnin, double *interval,  
 		     // Space for output.
 		     double *F_sample, double *D_sample, 
@@ -83,7 +83,7 @@ void MCMCSampleDyn(// Observed and discordant network.
 		   Edge nmax,
 		   Vertex *difftime, Vertex *diffhead, Vertex *difftail,		    
 		   // MCMC settings.
-		   unsigned int nsteps, unsigned int dyninterval,
+		   unsigned int nsteps, unsigned int MH_interval,
 		   unsigned int burnin, unsigned int interval, 
 		   // Verbosity.
 		   int fVerbose);
@@ -97,6 +97,6 @@ void MCMCDyn1Step(Network *nwp,
 		  double *F_stats, double *D_stats,
 		  unsigned int nmax, Edge *nextdiffedge,
 		  Vertex *difftime, Vertex *diffhead, Vertex *difftail,
-		  unsigned int dyninterval,
+		  unsigned int MH_interval,
 		  int fVerbose);
 #endif

@@ -29,6 +29,7 @@ void MCMCDynSPSA_wrapper(// Observed network.
 		    int *burnin, int *interval, int *dyninterval,
 		    // Space for output.
 		    int *maxedges,
+		    double *obj_history,
 		    // Verbosity.
 		    int *fVerbose){
 
@@ -64,6 +65,7 @@ void MCMCDynSPSA_wrapper(// Observed network.
 	      
 	      bd,
 	      *maxedges,
+	      obj_history,
 	      difftime, diffhead, difftail,
 	      *burnin, *interval, *dyninterval,
 	      *fVerbose);
@@ -103,30 +105,33 @@ double MCMCSampleDynObjective(Network *nwp,
   }
 
   memset(F_stats_acc,0,sizeof(double)*n_stats);			
-  memset(F_stats2_acc,0,sizeof(double)*n_stats);			
+  if(F_stats2_acc) memset(F_stats2_acc,0,sizeof(double)*n_stats);			
   for(unsigned int s=0; s<burnin; s++)					
     MCMCDyn1Step(nwp, order, F_m, F_MH, F_theta, D_m, D_MH, D_theta, bd, 0, F_stats, D_stats, nmax, NULL, difftime, diffhead, difftail, dyninterval, 0); 
   for(unsigned int s=0; s<S; s++){					
     MCMCDyn1Step(nwp, order, F_m, F_MH, F_theta, D_m, D_MH, D_theta, bd, 0, F_stats, D_stats, nmax, NULL, difftime, diffhead, difftail, dyninterval, 0); 
     for(unsigned int k=0; k<n_stats; k++){				
       F_stats_acc[k]+=F_stats[k];					
-      F_stats2_acc[k]+=F_stats[k]*F_stats[k];				
-    }									
-  }									
+      if(F_stats2_acc){
+	F_stats2_acc[k]+=F_stats[k]*F_stats[k];
+      }
+    }
+  }															
   double result=0;
   unsigned int var_good=TRUE;
   for(unsigned int k=0; k<n_stats; k++){
     double var;
-    var=fmax(F_stats2_acc[k]-F_stats_acc[k]*F_stats_acc[k]/S,0)/S;
-
-    if(var/(F_stats2_acc[k]+F_stats_acc[k]*F_stats_acc[k]/S)<0.0001) var_good=FALSE;
-    
-    if(*use_var<0) var=1;
+    if(F_stats2_acc){
+      var=fmax(F_stats2_acc[k]-F_stats_acc[k]*F_stats_acc[k]/S,0)/S;
+      
+      if(var/(F_stats2_acc[k]+F_stats_acc[k]*F_stats_acc[k]/S)<0.0001) var_good=FALSE;
+    }else var=1;
+    if(use_var && *use_var<0) var=1;
     
     result+=F_stats_acc[k]*F_stats_acc[k]/S/S/var;
   }
 
-  if(var_good && *use_var<1) (*use_var)++;
+  if(var_good && use_var && *use_var<1) (*use_var)++;
 
   if(fVerbose){
     Rprintf(" g(Y)=[ ");
@@ -165,6 +170,7 @@ void MCMCDynSPSA(// Observed and discordant network.
 		       DegreeBound *bd,
 		       // Space for output.
 		       Edge nmax,
+		       double *obj_history,
 		       Vertex *difftime, Vertex *diffhead, Vertex *difftail,
 		       // MCMC settings.
 		       unsigned int burnin, unsigned int interval, unsigned int dyninterval,
@@ -185,6 +191,7 @@ void MCMCDynSPSA(// Observed and discordant network.
     *F_theta_acc=calloc(n_par,sizeof(double)),
     *F_theta2_acc=calloc(n_par,sizeof(double)),
     *F_theta_sd=calloc(n_par,sizeof(double)),
+    acc_total=0,
     sdsum;
 
   int use_var=-20;
@@ -206,11 +213,16 @@ void MCMCDynSPSA(// Observed and discordant network.
 
     sdsum=0;
     for(unsigned int k=0; k<n_par; k++){
+      
+      F_theta_acc[k]*=1-1.0/iterations*10;
       F_theta_acc[k]+=F_theta[k];
+      F_theta2_acc[k]*=1-1.0/iterations*10;
       F_theta2_acc[k]+=F_theta[k]*F_theta[k];
-      if(i)
-	F_theta_sd[k]=sqrt((F_theta2_acc[k]-F_theta_acc[k]*F_theta_acc[k]/(i+1))/(i+1));
-      else
+      acc_total*=1-1.0/iterations*10;
+      acc_total++;
+      /*      if(i)
+	F_theta_sd[k]=sqrt((F_theta2_acc[k]-F_theta_acc[k]*F_theta_acc[k]/(acc_total))/(acc_total));
+	else*/
 	F_theta_sd[k]=1;
       
       sdsum+=F_theta_sd[k];
@@ -247,12 +259,13 @@ void MCMCDynSPSA(// Observed and discordant network.
       if(fVerbose) Rprintf("Switching to variance-normalized objective function!\n");
     }
 
-    // Estimate the gradient, and make the step
+    // Estimate the gradient, and make the step (at most diff)
     if(fVerbose) Rprintf("Estimated gradient: [ ");
     for(unsigned int k=0; k<n_par; k++){
-      F_DobjDtheta[k]=(objPU-objPD)/delta[k]/2*F_theta_sd[k]/sdsum*n_par;
+      F_DobjDtheta[k]=(objPU-objPD)/delta[k]/2;
       if(fVerbose) Rprintf("%f ", F_DobjDtheta[k]);
-      F_theta[k]=F_theta[k]-gain*F_DobjDtheta[k]*F_theta_sd[k]/sdsum*n_par;
+      F_theta[k]=F_theta[k]-sign(F_DobjDtheta[k])*fmin(fabs(gain*F_DobjDtheta[k]),diff);
+      if(isnan(F_theta[k])) error("Dammit!");
     }
     if(fVerbose){
       Rprintf("]\n");
@@ -261,10 +274,15 @@ void MCMCDynSPSA(// Observed and discordant network.
       Rprintf("]\n");
 
       Rprintf("mean F_theta=[ ");
-      for(unsigned int k=0; k<n_par; k++) Rprintf("%f ",F_theta_acc[k]/(i+1));
+      for(unsigned int k=0; k<n_par; k++) Rprintf("%f ",F_theta_acc[k]/acc_total);
       Rprintf("]\n");
     }
+    obj_history[i]=(objPU+objPD)/2;
   }
+
+  // Return smoothed theta.
+  for(unsigned int k=0; k<n_par; k++)
+    F_theta[k]=F_theta_acc[k]/acc_total;
 
   free(F_stats_acc);
   free(F_stats2_acc);

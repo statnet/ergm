@@ -238,10 +238,12 @@ void MCMCDynSPSA_MT(MCMCSampleDynObjective_args *t1args,
       use_var[1]--;
     }
 
+    if(fVerbose) Rprintf("Objective functions: Down=%f, Up=%f.\n", objPD, objPU);
+
     // Estimate the gradient, and make the step
-    if(fVerbose) Rprintf("Estimated gradient: [ ");
+    if(fVerbose) Rprintf("Estimated normalized gradient: [ ");
     for(unsigned int k=0; k<n_par; k++){
-      F_DobjDtheta[k]=(objPU-objPD)/delta[k]/2*F_theta_sd[k]/sdsum*n_par;
+      F_DobjDtheta[k]=(objPU-objPD)/delta[k]/2*F_theta_sd[k]/sdsum*n_par/(objPU+objPD)*2;
       if(fVerbose) Rprintf("%f ", F_DobjDtheta[k]);
       F_theta[k]=F_theta[k]-gain*F_DobjDtheta[k]*F_theta_sd[k]/sdsum*n_par;
     }

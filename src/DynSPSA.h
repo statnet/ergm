@@ -33,6 +33,7 @@ void MCMCDynSPSA_wrapper(// Observed network.
 		    int *burnin, int *interval, int *dyninterval,
 		    // Space for output.
 		    int *maxedges,
+		    double *obj_history,
 		    // Verbosity.
 		    int *fVerbose);
 
@@ -79,6 +80,7 @@ void MCMCDynSPSA(// Observed and discordant network.
 		       DegreeBound *bd,
 		       // Space for output.
 		       Edge nmax,
+		       double *obj_history,
 		       Vertex *difftime, Vertex *diffhead, Vertex *difftail,
 		       // MCMC settings.
 		       unsigned int burnin, unsigned int interval, unsigned int dyninterval,
