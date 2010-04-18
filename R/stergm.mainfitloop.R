@@ -1,4 +1,4 @@
-ergm.mainfitloop.dyn <- function(theta0, nw, model.form, model.diss, 
+stergm.mainfitloop <- function(theta0, nw, model.form, model.diss, 
                                  Clist,
                                  gamma, initialfit, 
                                  MCMCparams, MHproposal.form, MHproposal.diss,
@@ -36,7 +36,7 @@ ergm.mainfitloop.dyn <- function(theta0, nw, model.form, model.diss,
 #                   meanstats=Clist$meanstats, orig.obs=Clist$obs,
 #                   maxchanges=10*maxchanges)
 #   MHproposal.form=list(package=proposalpackage, type=proposaltype)
-    z <- ergm.getMCMCDynsample(nw, model.form, model.diss,
+    z <- stergm.getMCMCsample(nw, model.form, model.diss,
                                MHproposal.form, MHproposal.diss,
                                eta0, gamma, MCMCparams, verbose)
     statsmatrix <- z$statsmatrix

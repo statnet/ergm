@@ -4,7 +4,6 @@ ergm <- function(formula, theta0="MPLE",
                  maxit=3,
                  constraints=~.,
                  meanstats=NULL,
-                 dissolve=NULL, gamma=-4.59512, dissolve.order="FormAndDiss", # this line not in CRAN
                  control=control.ergm(),
                  verbose=FALSE, ...) {
   current.warn <- options()$warn
@@ -43,8 +42,6 @@ ergm <- function(formula, theta0="MPLE",
   if(control$nsubphases=="maxit") control$nsubphases<-maxit
   
   if (verbose) cat("Initializing model.\n")
-
-  proposalclass <- if(is.null(dissolve)) "c" else "f"  # This line not in CRAN version
     
   if(control$drop){
    model.initial <- ergm.getmodel(formula, nw, drop=FALSE, initialfit=TRUE)
@@ -58,7 +55,7 @@ ergm <- function(formula, theta0="MPLE",
    droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
   }
   if (verbose) cat("Initializing Metropolis-Hastings proposal.\n")
-  MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial,class=proposalclass)
+  MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial,class="c")
   # Note:  MHproposal function in CRAN version does not use the "class" argument for now
   MHproposal.miss <- MHproposal("randomtoggleNonObserved", control$prop.args, nw, model.initial)
 
@@ -77,7 +74,7 @@ ergm <- function(formula, theta0="MPLE",
                                 initial.loglik=control$initial.loglik,
                                 conddeg=conddeg, MCMCparams=MCMCparams, MHproposal=MHproposal,
                                 force.MPLE=(ergm.independencemodel(model.initial)
-                                            && constraints==(~.) && is.null(dissolve)),
+                                            && constraints==(~.)),
                                 verbose=verbose, 
                                 compressflag = control$compress, 
                                 maxNumDyadTypes=control$maxNumDyadTypes,
@@ -85,7 +82,7 @@ ergm <- function(formula, theta0="MPLE",
   MCMCflag <- ((MLestimate && (!ergm.independencemodel(model.initial)
                                || !is.null(meanstats)
                                || constraints!=(~.)))
-                || control$force.mcmc || !is.null(dissolve))
+                || control$force.mcmc)
   if (MCMCflag) {
     theta0 <- initialfit$coef
     names(theta0) <- model.initial$coef.names
@@ -148,38 +145,9 @@ ergm <- function(formula, theta0="MPLE",
    list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,
         maxit=maxit,Clist.miss=Clist.miss, mcmc.precision=control$mcmc.precision))
 
-  if(!is.null(dissolve)){  # This section not in CRAN version.
-    if (verbose) cat("Fitting Dynamic ERGM.\n")
-    dissolve<-ergm.update.formula(dissolve,nw~.)
-    model.dissolve <- ergm.getmodel(dissolve, nw, dissolve.order=dissolve.order)
-    MHproposal.diss <- MHproposal(constraints, weights=control$prop.weights.diss, control$prop.args.diss, nw, model.dissolve,class="d")
-    v <- switch(control$style.dyn,
-                "SPSA" = ergm.SPSA.dyn(theta0, nw, model, model.dissolve,
-                  Clist, gamma, 
-                  MCMCparams=MCMCparams, MHproposal.form=MHproposal,
-                  MHproposal.diss=MHproposal.diss,MT=FALSE,
-                  verbose),
-                "SPSA2" = ergm.SPSA.dyn(theta0, nw, model, model.dissolve,
-                  Clist, gamma, 
-                  MCMCparams=MCMCparams, MHproposal.form=MHproposal,
-                  MHproposal.diss=MHproposal.diss,MT=TRUE,
-                  verbose),
-                "Robbins-Monro" = ergm.robmon.dyn(theta0, nw, model, model.dissolve,
-                  Clist, gamma, 
-                  MCMCparams=MCMCparams, MHproposal.form=MHproposal,
-                  MHproposal.diss=MHproposal.diss,
-                  verbose),
-                ergm.mainfitloop.dyn(theta0, nw,
-                                     model.form=model, model.diss=model.dissolve, Clist,
-                                     gamma, initialfit,
-                                     MCMCparams=MCMCparams, 
-                                     MHproposal.form=MHproposal, MHproposal.diss=MHproposal.diss,
-                                     verbose=verbose, 
-                                     ...)
-                )
-  }else{
-   if (verbose) cat("Fitting ERGM.\n")
-   v <- switch(control$style,
+
+  if (verbose) cat("Fitting ERGM.\n")
+  v <- switch(control$style,
     "Robbins-Monro" = ergm.robmon(theta0, nw, model, Clist, burnin, interval,
                       MHproposal(constraints,weights=control$prop.weights, control$prop.args, nw, model), verbose, control),
     "PILA" = ergm.PILA(theta0, nw, model, Clist,
@@ -206,7 +174,7 @@ ergm <- function(formula, theta0="MPLE",
                           verbose=verbose, 
                           ...)
               )
-  }
+
   if(!is.null(MCMCparams$check.degeneracy) && MCMCparams$check.degeneracy && (is.null(v$theta1$independent) || !all(v$theta1$independent))){
     if(verbose) {
       cat("Checking for degeneracy.\n")
@@ -218,12 +186,9 @@ ergm <- function(formula, theta0="MPLE",
   v$degeneracy.value <- degeneracy$degeneracy.value
   v$degeneracy.type <- degeneracy$degeneracy.type
   v$formula <- formula
-  v$formula.diss <- dissolve
   v$constraints <- constraints
   v$prop.args <- control$prop.args
   v$prop.weights <- control$prop.weights
-  v$prop.args.diss <- control$prop.args.diss
-  v$prop.weights.diss <- control$prop.weights.diss
 
   v$offset <- model$etamap$offsettheta
   v$drop <- droppedterms

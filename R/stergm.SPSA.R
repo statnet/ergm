@@ -1,25 +1,47 @@
-ergm.phase12.dyn <- function(g, meanstats, model.form, model.diss, 
-                             MHproposal.form, MHproposal.diss, eta0, gamma0,
-                             MCMCparams, verbose) {
-  # ms <- MCMCparams$meanstats
-  # if(!is.null(ms)) {
-  #   if (is.null(names(ms)) && length(ms) == length(model.form$coef.names))
-  #     names(ms) <- model.form$coef.names
-  #   obs <- MCMCparams$orig.obs
-  #   obs <- obs[match(names(ms), names(obs))]
-  #   ms  <-  ms[match(names(obs), names(ms))]
-  #   matchcols <- match(names(ms), names(obs))
-  #   if (any(!is.na(matchcols))) {
-  #     ms[!is.na(matchcols)] <- ms[!is.na(matchcols)] - obs[matchcols[!is.na(matchcols)]]
-  #   }
-  # }
+stergm.SPSA <- function(theta0, nw, model.form, model.diss, Clist, 
+                      gamma0,
+                      MCMCparams, MHproposal.form, MHproposal.diss, MT=FALSE,
+                      verbose=FALSE){
+  eta0 <- ergm.eta(theta0, model.form$etamap)
+
+  if(verbose){
+    cat("SPSA algorithm with theta_0 equal to\n")
+    print(theta0)
+  }
+  eta0 <- ergm.eta(theta0, model.form$etamap)
+
+  z <- stergm.SPSA.C(nw, Clist$meanstats, model.form, model.diss, MHproposal.form, MHproposal.diss,
+                        eta0, gamma0, MCMCparams, MT=MT, verbose=verbose)
+
+  ve<-with(z,list(coef=eta,sample=NULL,sample.miss=NULL,objective.history=objective.history))
+    
+  structure(c(ve, list(newnetwork=nw, 
+                       theta.original=theta0,
+                       network=nw)),
+            class="stergm")
+}
+
+
+stergm.SPSA.C <- function(g, meanstats, model.form, model.diss, 
+                          MHproposal.form, MHproposal.diss, eta0, gamma0,
+                          MCMCparams, MT, verbose) {
+
   Clist.form <- ergm.Cprepare(g, model.form)
   Clist.diss <- ergm.Cprepare(g, model.diss)
   maxchanges <- max(MCMCparams$maxchanges, Clist.form$nedges)/5
   MCMCparams$maxchanges <- MCMCparams$maxchanges/5
   if(verbose){cat(paste("MCMCDyn workspace is",maxchanges,"\n"))}
+
+  if(MT){
+    cat("Using multithreaded SPSA.\n")
+    f<-"MCMCDynSPSA_MT_wrapper"
+  }
+  else{
+    cat("Using single-threaded SPSA.\n")
+    f<-"MCMCDynSPSA_wrapper"
+  }
   
-  z <- .C("MCMCDynPhase12",
+  z <- .C(f,
           # Observed/starting network. 1
           as.integer(Clist.form$heads), as.integer(Clist.form$tails), 
           as.integer(Clist.form$nedges), as.integer(Clist.form$maxpossibleedges),
@@ -33,10 +55,13 @@ ergm.phase12.dyn <- function(g, meanstats, model.form, model.diss,
           as.double(Clist.form$inputs), eta=as.double(eta0),
           # Formation parameter fitting. 16
           as.double(summary(model.form$formula)-meanstats),
-          as.double(MCMCparams$RobMon.init_gain),
-          as.integer(MCMCparams$RobMon.phase1n_base),
-          as.integer(MCMCparams$RobMon.phase2n_base),
-          as.integer(MCMCparams$RobMon.phase2sub),              
+          # Initial deviation. 17
+          as.double(MCMCparams$SPSA.a),
+          as.double(MCMCparams$SPSA.alpha),
+          as.double(MCMCparams$SPSA.A),
+          as.double(MCMCparams$SPSA.c),
+          as.double(MCMCparams$SPSA.gamma),
+          as.integer(MCMCparams$SPSA.iterations),              
           # Dissolution terms and proposals. 21
           as.integer(Clist.diss$nterms), as.character(Clist.diss$fnamestring), as.character(Clist.diss$snamestring),
           as.character(MHproposal.diss$name), as.character(MHproposal.diss$package),
@@ -47,11 +72,12 @@ ergm.phase12.dyn <- function(g, meanstats, model.form, model.diss,
           as.integer(MHproposal.form$bd$minout), as.integer(MHproposal.form$bd$minin),
           as.integer(MHproposal.form$bd$condAllDegExact), as.integer(length(MHproposal.form$bd$attribs)), 
           # MCMC settings.              
+          as.integer(MCMCparams$SPSA.burnin),
+          as.integer(MCMCparams$SPSA.interval),
           as.integer(MCMCparams$burnin),
-          as.integer(MCMCparams$interval),
-          as.integer(MCMCparams$dyninterval),
           # Space for output.
           as.integer(maxchanges),
+          objective.history=double(MCMCparams$SPSA.iterations),
           # Verbosity.
           as.integer(verbose), 
           PACKAGE="ergm") 
@@ -60,5 +86,6 @@ ergm.phase12.dyn <- function(g, meanstats, model.form, model.diss,
   names(eta) <- names(eta0)
 
   list(meanstats=MCMCparams$meanstats,
-       eta=eta)
+       eta=eta,
+       objective.history=z$objective.history)
 }

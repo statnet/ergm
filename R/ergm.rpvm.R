@@ -277,9 +277,10 @@ ergm.FindFailedSlaves <- function (tids) {
        pvm.PARTAG=1, pvm.RESTAG=2, pvm.EXITTAG=3)
 }
 
-"ergm.rpvm.setup.dyn" <- function(rpvmbasename,
+stergm.rpvm.setup <- function(rpvmbasename,
    SLAVEDIR=NULL, SLAVENAME=NULL,
    verbose=FALSE, aux=FALSE, packagename="ergm", ...){
+  warning("This probably won't work.")
   if(missing(SLAVEDIR)){
    SLAVEDIR <- paste(getwd(),"/",rpvmbasename,".run",sep="")
   }

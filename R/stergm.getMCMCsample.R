@@ -1,5 +1,5 @@
-ergm.getMCMCDynsample <- function(nw, model.form, model.diss,
-                                  MHproposal.form, MHproposal.diss, theta0, gamma0, MCMCparams, 
+stergm.getMCMCsample <- function(nw, model.form, model.diss,
+                                  MHproposal.form, MHproposal.diss, theta.form0, theta.diss0, MCMCparams, 
                                   verbose){
 # Note:  In reality, there should be many fewer arguments to this function,
 # since most info should be passed via Clist (this is, after all, what Clist
@@ -11,6 +11,12 @@ ergm.getMCMCDynsample <- function(nw, model.form, model.diss,
 #
   Clist.form <- ergm.Cprepare(nw, model.form)
   Clist.diss <- ergm.Cprepare(nw, model.diss)
+
+  ## Sanity check: parameter vectors are as long as they are supposed to be:
+
+  if(length(theta.form0)!=model.form$etamap$etalength) stop("Wrong number of formation parameters for the model: ",length(theta.form0), ", but should be ", model.form$etamap$etalength)
+  if(length(theta.diss0)!=model.diss$etamap$etalength) stop("Wrong number of dissolution parameters for the model: ",length(theta.diss0), ", but should be ", model.diss$etamap$etalength)
+  
   maxchanges <- max(MCMCparams$maxchanges, Clist.form$nedges)/5
   MCMCparams$maxchanges <- MCMCparams$maxchanges/5
   if(is.null(MCMCparams$meanstats.form)) MCMCparams$meanstats.form<-numeric(length(model.form$coef.names))
@@ -21,9 +27,7 @@ ergm.getMCMCDynsample <- function(nw, model.form, model.diss,
     maxchanges <- 5*maxchanges
     MCMCparams$maxchanges <- 5*MCMCparams$maxchanges
     if(verbose){cat(paste("MCMCDyn workspace is",maxchanges,"\n"))}
-#
-#  Parallel running
-#
+    
     if(MCMCparams$parallel==0){
       z <- .C("MCMCDyn_wrapper",
               # Observed network.
@@ -32,28 +36,28 @@ ergm.getMCMCDynsample <- function(nw, model.form, model.diss,
               as.integer(Clist.form$n),
               as.integer(Clist.form$dir), as.integer(Clist.form$bipartite),
               # Ordering of formation and dissolution.
-              as.integer(Clist.diss$order.code),
+              as.integer(Clist.diss$stergm.order.code),
               # Formation terms and proposals.
               as.integer(Clist.form$nterms), 
               as.character(Clist.form$fnamestring),
               as.character(Clist.form$snamestring),
               as.character(MHproposal.form$name), as.character(MHproposal.form$package),
-              as.double(Clist.form$inputs), as.double(theta0),
+              as.double(Clist.form$inputs), as.double(theta.form0),
               #?  Add:  as.double(length(MHproposal.form$args)), as.double(MHproposal.form$args),
               # Dissolution terms and proposals.
               as.integer(Clist.diss$nterms), 
               as.character(Clist.diss$fnamestring),
               as.character(Clist.diss$snamestring),
               as.character(MHproposal.diss$name), as.character(MHproposal.diss$package),
-              as.double(Clist.diss$inputs), as.double(gamma0),
+              as.double(Clist.diss$inputs), as.double(theta.diss0),
               # Degree bounds.
               as.integer(MHproposal.form$bd$attribs), 
               as.integer(MHproposal.form$bd$maxout), as.integer(MHproposal.form$bd$maxin),
               as.integer(MHproposal.form$bd$minout), as.integer(MHproposal.form$bd$minin),
               as.integer(MHproposal.form$bd$condAllDegExact), as.integer(length(MHproposal.form$bd$attribs)),
               # MCMC settings.
-              as.double(MCMCparams$samplesize), as.integer(MCMCparams$dyninterval),
-              as.double(MCMCparams$burnin), as.double(MCMCparams$interval),
+              as.double(MCMCparams$samplesize), as.integer(MCMCparams$MH.burnin),
+              as.double(MCMCparams$time.burnin), as.double(MCMCparams$time.interval),
               # Space for output.
               s.form = as.double(cbind(MCMCparams$meanstats.form,matrix(0,nrow=length(model.form$coef.names),ncol=MCMCparams$samplesize))),
               s.diss = as.double(cbind(MCMCparams$meanstats.diss,matrix(0,nrow=length(model.diss$coef.names),ncol=MCMCparams$samplesize))),
@@ -80,7 +84,7 @@ ergm.getMCMCDynsample <- function(nw, model.form, model.diss,
 #
 #   Write the slave file
 #
-      outsetuppvm <- ergm.rpvm.setup.dyn(rpvmbasename, verbose=verbose,
+      outsetuppvm <- stergm.rpvm.setup(rpvmbasename, verbose=verbose,
                                        packagename=packagename)
 #
 #   Saving the common variables
@@ -89,8 +93,8 @@ ergm.getMCMCDynsample <- function(nw, model.form, model.diss,
            Clist.diss,
            MHproposal.form,
            MHproposal.diss,
-           theta0,
-           gamma0,
+           theta.form0,
+           theta.diss0,
            MCMCparams.parallel,
            maxchanges, 
            verbose,

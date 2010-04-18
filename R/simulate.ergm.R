@@ -11,7 +11,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, theta0=object$coef,
                    control=control, verbose=verbose, ...)
 }
 
-simulate.formula <- function(object, nsim=1, seed=NULL, theta0,
+simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0,
                              burnin=1000, interval=1000,
                              basis=NULL,
                              statsonly=FALSE,
