@@ -118,7 +118,7 @@ control.ergm(prop.weights = "default", prop.args = NULL,
   \item{trustregion}{numeric; The maximum amount the algorithm will
     allow the approximated likelihood to be increased at a given iteration.
     Defaults to 20.
-    See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
+    See Snijders (2002) for details.}
   \item{initial.loglik}{Initial value of loglikelihood, if known.}
   \item{initial.network}{Initial network for MCMC, if different from observed
   network.}
@@ -144,23 +144,23 @@ control.ergm(prop.weights = "default", prop.args = NULL,
   \item{phase1_n}{count; The number of MCMC samples to draw
     in Phase 1 of the stochastic approximation algorithm.
     Defaults to 7 plus 3 times the number of terms in the model.
-    See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
+    See Snijders (2002) for details.}
   \item{initial_gain}{numeric; The initial gain to
     Phase 2 of the stochastic approximation algorithm.
     Defaults to 0.1.
-    See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
+    See Snijders (2002) for details.}
   \item{nsubphases}{count; The number of sub-phases 
     in Phase 2 of the stochastic approximation algorithm.
     Defaults to \code{maxit}.
-    See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
+    See Snijders (2002) for details.}
   \item{niterations}{count; The number of MCMC samples to draw
     in Phase 2 of the stochastic approximation algorithm.
     Defaults to 7 plus the number of terms in the model.
-    See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
+    See Snijders (2002) for details.}
   \item{phase3_n}{count; The sample size for the MCMC sample
     in Phase 3 of the stochastic approximation algorithm.
     Defaults to 1000.
-    See Boer, Huisman, Snijders, and Zeggelink (2003) for details.}
+    See Snijders (2002) for details.}
   \item{RobMon.phase1n_base}{Robbins-Monro control parameter}
   \item{RobMon.phase2n_base}{Robbins-Monro control parameter}
   \item{RobMon.phase2sub}{Robbins-Monro control parameter}
@@ -195,8 +195,11 @@ similar function for \code{\link{gof}}.   }
 \references{
   \itemize{
     \item
-    Boer, P., Huisman, M., Snijders, T.A.B., and Zeggelink, E.P.H. (2003),
-    StOCNET User\'s Manual. Version 1.4.
+    Snijders, T.A.B. (2002),
+    Markov Chain Monte Carlo Estimation of Exponential Random Graph Models.
+    Journal of Social Structure.
+    Available from 
+    \url{http://www.cmu.edu/joss/content/articles/volume3/Snijders.pdf}.
     
     \item Firth (1993),
     Bias Reduction in Maximum Likelihood Estimates.
