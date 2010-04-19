@@ -267,3 +267,7 @@ FILE: R/ergm.san.R, control.san.R, man/san.Rd, control.san.Rd
 CHANGES: Major changes to san.ergm; deleted control.san.ergm; added docs for san
          and control.san
 
+DATE: 2010-Apr-19
+FILE: man/control.ergm.Rd, ergm.Rd
+CHANGES: Eliminated Boer et al reference, replaced with Snijders (2002)
+

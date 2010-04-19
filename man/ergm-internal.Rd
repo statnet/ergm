@@ -237,12 +237,6 @@
 \alias{traceplot.ergm}
 \alias{twopathdist}
 %
-\alias{control.san}
-\alias{control.san.ergm}
-\alias{san}
-\alias{san.default}
-\alias{san.ergm}
-\alias{san.formula}
 \alias{ergm.sufftoprob}
 \alias{ergm.Cprepare}
 \alias{ergm.getmodel}

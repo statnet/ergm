@@ -108,9 +108,9 @@ Hunter (2008).  To create a
     Not all combinations of the above are supported.
   }
   \item{meanstats}{vector; the mean-value parameter value for the
-    model.  If this is given the algorithm finds the natural
-    parameter value corresponding to this mean-value parameter
-    If it is missing then mean-value parameter used are the observed
+    model.  If this is given, the algorithm finds the natural
+    parameter value corresponding to this mean-value parameter.
+    If it is missing, the mean-value parameters used are the observed
     statistics of the network in the formula.}
   \item{control}{A list of control parameters for algorithm
     tuning. Constructed using \code{\link{control.ergm}}. }
@@ -454,10 +454,6 @@ maxin[n][0] = minin[n][0] = observed indegree of n in network
 %}
 
 \references{
-Boer, P., Huisman, M., Snijders, T.A.B., and Zeggelink, E.P.H. (2003). 
-\emph{StOCNET: an open software system for the advanced statistical analysis 
-of social networks.} Version 1.4. Groningen: ProGAMMA / ICS
-
 %Handcock, M.S. (2000) \emph{Progress in Statistical Modeling of Drug User and 
 %  Sexual Networks}, Center for Statistics and the Social Sciences,
 %     University of Washington.
@@ -478,11 +474,6 @@ Bender-deMoll S, Morris M, Moody J (2008).
   Network Data: \pkg{dynamicnetwork} and \pkg{rSoNIA}.
  \emph{Journal of Statistical Software}, 24(7).
  \url{http://www.jstatsoft.org/v24/i07/}.
-
-Boer P, Huisman M, Snijders T, Zeggelink E (2003).
- StOCNET: an open software system for the advanced statistical
-  analysis of social networks.
- Groningen: ProGAMMA / ICS, version 1.4 edition.
 
 Butts CT (2006).
  \pkg{netperm}: Permutation Models for Relational Data.
@@ -557,6 +548,13 @@ Morris M, Handcock MS, Hunter DR (2008).
   Terms and Computational Aspects.
  \emph{Journal of Statistical Software}, 24(4).
  \url{http://www.jstatsoft.org/v24/i04/}.
+ 
+Snijders, T.A.B. (2002),
+Markov Chain Monte Carlo Estimation of Exponential Random Graph Models.
+Journal of Social Structure.
+Available from 
+\url{http://www.cmu.edu/joss/content/articles/volume3/Snijders.pdf}.
+ 
 }
 
 \seealso{network, \%v\%, \%n\%, \code{\link{ergm-terms}}, \code{\link{ergmMPLE}},
