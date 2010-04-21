@@ -15,7 +15,7 @@ of mean statistics}
                       constraints = ~.,
                       control = control.san(),
                       verbose=FALSE, \dots)
-\method{san}{ergm}(object, nsim=1, seed=NULL, theta0=NULL,
+\method{san}{ergm}(object, nsim=1, seed=NULL, theta0=object$coef,
                       burnin=10000, interval=10000, 
                       meanstats=NULL,
                       basis=NULL,
@@ -59,6 +59,9 @@ of mean statistics}
  \item{basis}{If not NULL, a network that forms the beginning of the
     Markov chain.  If NULL, this is taken to be the network named in the
     formula.}
+ \item{sequential}{Logical:  Should the returned draws use the prior draw 
+   as the starting network or always use the initially passed network?
+   }
  \item{constraints}{A one-sided formula specifying one or more constraints
     on the support of the distribution of the networks being
     simulated. See the documentation for a similar argument for
