@@ -262,4 +262,17 @@ FILE: src/MHproposals.c, MHproposals.h, MHproposals_bipartite.c
 CHANGES: Fixed rarely occurring bug in Hastings ratio calculation; renamed a few
          proposal functions
 
+DATE: 2010-Apr-9
+FILE: R/ergm.san.R, control.san.R, man/san.Rd, control.san.Rd
+CHANGES: Major changes to san.ergm; deleted control.san.ergm; added docs for san
+         and control.san
+
+DATE: 2010-Apr-19
+FILE: man/control.ergm.Rd, ergm.Rd
+CHANGES: Eliminated Boer et al reference, replaced with Snijders (2002)
+
+DATE: 2010-Apr-21
+FILE: man/san.Rd, control.san.Rd
+CHANGES: Fixed codoc mismatches to get ready to upload to CRAN
+
 
