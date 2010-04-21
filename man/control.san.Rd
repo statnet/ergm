@@ -7,7 +7,7 @@
 }
 \usage{
 control.san(prop.weights = "default", prop.args = NULL,
-            drop = FALSE, summarizestats = FALSE, 
+            drop = FALSE, 
             maxchanges = 1000000)
 }
 \details{

@@ -271,3 +271,8 @@ DATE: 2010-Apr-19
 FILE: man/control.ergm.Rd, ergm.Rd
 CHANGES: Eliminated Boer et al reference, replaced with Snijders (2002)
 
+DATE: 2010-Apr-21
+FILE: man/san.Rd, control.san.Rd
+CHANGES: Fixed codoc mismatches to get ready to upload to CRAN
+
+
