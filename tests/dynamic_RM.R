@@ -12,16 +12,16 @@ meanstats<-c(      1,    n*0.6)
 g1<-san(g0~meandeg+degree(1),meanstats=meanstats,verbose=TRUE)
 
 # Fit the model.
-dynfit<-ergm(g1~meandeg+degree(1),dissolve=~edges,dissolve.order="FormAndDiss",gamma=log(.95/.05),meanstats=meanstats,verbose=2)
+dynfit<-stergm(g1~meandeg+degree(1),dissolution=~edges,stergm.order="FormAndDiss",theta.diss=log(.95/.05),meanstats=meanstats,verbose=TRUE,control=control.stergm(RM.interval=100))
 
-theta<-dynfit$coef
-print(theta)
+theta.form<-dynfit$coef.form
+print(theta.form)
 
-gamma<-log(.95/.05)
-print(gamma)
+theta.diss<-log(.95/.05)
+print(theta.diss)
 
 # Simulate from the fit.
-dynsim<-simulatedyn(g1~meandeg+degree(1),dissolve=~edges,dissolve.order="FormAndDiss",theta=theta,gamma=gamma,nsteps=1000,verbose=TRUE)
+dynsim<-simulate(dynfit,nsim=1000,verbose=TRUE)
 
 dynsim.gf<-ergm.godfather(g1~meandeg+degree(1),sim=dynsim,verbose=TRUE)
 
@@ -31,7 +31,7 @@ dynsim.gf<-ergm.godfather(g1~meandeg+degree(1),sim=dynsim,verbose=TRUE)
 # If they don't match, it's a bug.
 # Note that the first row of the Godfather stats is the initial network.
 if(!isTRUE(all.equal(dynsim$stats.form,dynsim.gf$stats[-1,])))
-  stop("Formation statistics returned by simulatedyn differ from those returned",
+  stop("Formation statistics returned by simulate differ from those returned",
        "by ergm.godfather. This is a bug.")
 
 # Print out the resulting meanstats and their t-value w.r.t. the
@@ -45,7 +45,7 @@ print((meanstats.sim-meanstats)/sqrt(apply(dynsim$stats.form,2,var)/effectiveSiz
 print(mean(duration.matrix(dynsim)$duration))
 
 # Simulate from an equivalent fit.
-dynsim<-simulatedyn(g1~meandeg+degree(1),dissolve=~dyadcov(matrix(1,n,n))+edges,dissolve.order="FormAndDiss",theta=theta,gamma=c(1,gamma-1),nsteps=1000,verbose=TRUE)
+dynsim<-simulate(g1~meandeg+degree(1),dissolution=~dyadcov(matrix(1,n,n))+edges,theta.form=theta.form,theta.diss=c(1,theta.diss-1),nsim=1000,verbose=TRUE)
 
 print(mean(duration.matrix(dynsim)$duration))
 
