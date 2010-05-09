@@ -24,6 +24,7 @@
 \alias{ctriple}
 \alias{cycle}
 \alias{degree}
+\alias{degcrossprod}
 \alias{density}
 \alias{dsp}
 \alias{dyadcov}
@@ -401,6 +402,11 @@ network
     value of the \code{by} attribute.
     This term can only be used with undirected networks; for directed networks
     see \code{idegree} and \code{odegree}. }
+    
+    \item{\code{degcrossprod}}{\emph{Degree Cross-Product:} 
+    This term adds one network statistic equal to the sum of the cross-products
+of the degrees of all pairs of nodes in the network which are tied.
+    Only coded for undirected networks.}
     
     \item{\code{density}}{\emph{Density:} 
     This term adds one network statistic equal to the density of the network.
