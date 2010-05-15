@@ -5,5 +5,6 @@
 #include "changestat.h"
 
 D_CHANGESTAT_FN(d_degcrossprod);
+D_CHANGESTAT_FN(d_degcor); S_CHANGESTAT_FN(s_degcor);
 
 #endif
