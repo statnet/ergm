@@ -15,11 +15,11 @@ InitErgmTerm.degcor<-function (nw, arglist, drop=TRUE, ...) {
   deg1<-deg[el[,1]]
   deg2<-deg[el[,2]]
   alldeg<-c(deg1,deg2)
-  sigma2<-(mean(alldeg*alldeg)-mean(alldeg)^2)
+  sigma2<-(sum(alldeg*alldeg)-length(alldeg)*(mean(alldeg)^2))
   ### Construct the list to return
   list(name="degcor",                            #name: required
        coef.names = "degcor",                    #coef.names: required
-       inputs=sigma2*2*summary(nw ~ edges),
+       inputs=sigma2,
        dependence = TRUE # So we don't use MCMC if not necessary
        )
 }

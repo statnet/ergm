@@ -404,7 +404,12 @@ network
     see \code{idegree} and \code{odegree}. }
     
     \item{\code{degcrossprod}}{\emph{Degree Cross-Product:} 
-    This term adds one network statistic equal to the sum of the cross-products
+    This term adds one network statistic equal to the mean of the cross-products
+of the degrees of all pairs of nodes in the network which are tied.
+    Only coded for undirected networks.}
+
+    \item{\code{degcor}}{\emph{Degree Correlation:} 
+    This term adds one network statistic equal to the correlation 
 of the degrees of all pairs of nodes in the network which are tied.
     Only coded for undirected networks.}
     
