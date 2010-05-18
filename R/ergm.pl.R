@@ -56,6 +56,9 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
   dmiss <- z$compressedOffset[uvals]
   rm(z,uvals)
   }else{
+    if (verbose) {
+      cat("Using the MPLE conditional on degree.\n")
+    }
     # Conditional on degree version
     eta0 <- ergm.eta(rep(0,length(conddeg$m$coef.names)), conddeg$m$etamap)
     
