@@ -87,7 +87,10 @@ MHproposal.formula <- function(object, arguments, nw, model, weights="default", 
       }else{
         init.call <- list(as.name(paste("InitConstraint.", constraint, sep = "")),conlist=conlist)
       }
-      conlist <- eval(as.call(init.call), attr(constraints,".Environment"))
+      conlist <- try(eval(as.call(init.call), attr(constraints,".Environment")))
+      if(inherits(conlist,"try-error")){
+        stop(paste("The constraint you have selected ('",constraints,"') does not exist in 'ergm'. Are you sure you have not mistyped it?",sep=""))
+      }
     }
   }
   ## Remove constraints implied by other constraints.
