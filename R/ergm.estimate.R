@@ -168,10 +168,9 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     guess <- theta0[!model$etamap$offsettheta]
     model$etamap$theta0 <- theta0
     
-    if (verbose) { cat("Optimizing loglikelihood\n") }
-  loglikelihoodfn.trust<-function(...){
-    value<-loglikelihoodfn(...)
-    grad<-gradientfn(...)
+  loglikelihoodfn.trust<-function(trustregion=20, ...){
+    value<-loglikelihoodfn(trustregion=20, ...)
+    grad<-gradientfn(trustregion=20, ...)
     hess<-Hessianfn(...)
     hess[upper.tri(hess)]<-t(hess)[upper.tri(hess)]
 #    print(value)
