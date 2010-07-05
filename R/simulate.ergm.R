@@ -1,10 +1,12 @@
 simulate.ergm <- function(object, nsim=1, seed=NULL, theta0=object$coef,
-                          burnin=1000, interval=1000,
+                          burnin=NULL, interval=NULL,
                           statsonly=FALSE,
                           sequential=TRUE,
-                          constraints=~.,
+                          constraints=NULL,
                           control=control.simulate.ergm(),
                           verbose=FALSE, ...) {
+  if(is.null(burnin)){burnin <- object$burnin}
+  if(is.null(interval)){interval <- object$interval}
   simulate.formula(object$formula, nsim=nsim, seed=seed, theta0=theta0,
                    burnin=burnin, interval=interval, statsonly=statsonly,
                    sequential=sequential, constraints=constraints,
