@@ -60,7 +60,7 @@ llik.grad <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=NULL
 }
 
 llik.hessian <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
-                         varweight=0.5, eta0, etamap){
+                         varweight=0.5, trustregion=20, eta0, etamap){
 # theta.offset <- etamap$theta0
 # theta.offset[!etamap$offsettheta] <- theta
   namesx <- names(theta)

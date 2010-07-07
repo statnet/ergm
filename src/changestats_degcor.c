@@ -114,3 +114,57 @@ S_CHANGESTAT_FN(s_adegcor) {
   sigma2 = mu2/(2.0*N_EDGES) -  mu*mu;
   CHANGE_STAT[0] = (cross / (2.0*N_EDGES) -  mu*mu) / sigma2;
 }
+D_CHANGESTAT_FN(d_rdegcor) { 
+  int i;
+  double current;
+
+  (*(mtp->s_func))(mtp, nwp);  /* Call s_??? function */
+  current = mtp->dstats[0];
+  FOR_EACH_TOGGLE(i) { TOGGLE(heads[i],tails[i]); }
+  (*(mtp->s_func))(mtp, nwp);  /* Call s_??? function */
+//  CHANGE_STAT[0] = mtp->dstats[0] - current;
+//   Rprintf("c %f p %f",current,mtp->dstats[0]);
+  mtp->dstats[0] -= current;
+//   Rprintf(" p-c %f\n",mtp->dstats[0]);
+  FOR_EACH_TOGGLE(i) { TOGGLE(heads[i],tails[i]); }
+}
+S_CHANGESTAT_FN(s_rdegcor) { 
+  Vertex h, t, hdeg, tdeg;
+  Edge e;
+  double mu, mu2, sigma2, cross;
+  Vertex hrank, trank;
+  Vertex *ndeg=malloc(sizeof(Vertex)*(N_NODES+1));
+
+  for(h=0; h <= N_NODES; h++) { ndeg[h]=0; }
+  for(h=0; h < N_NODES; h++) {
+   STEP_THROUGH_OUTEDGES(h, e, t) { /* step through outedges of head */
+    hdeg = OUT_DEG[h] + IN_DEG[h];
+    tdeg = OUT_DEG[t] + IN_DEG[t];
+    ndeg[hdeg+1]++;
+    ndeg[tdeg+1]++;
+   }
+  }
+for(h=1; h <= N_NODES; h++) {
+    ndeg[h] += ndeg[h-1];
+}
+// Rprintf("h  %d hdeg[h] %d \n",h,ndeg[h]);}
+
+  mu = 0.0;
+  mu2 = 0.0;
+  cross = 0.0;
+  for(h=1; h <= N_NODES; h++) {
+   STEP_THROUGH_OUTEDGES(h, e, t) { /* step through outedges of head */
+    hdeg = OUT_DEG[h] + IN_DEG[h];
+    tdeg = OUT_DEG[t] + IN_DEG[t];
+    hrank = (ndeg[hdeg+1]+ndeg[hdeg+2]+1)*0.5;
+    trank = (ndeg[tdeg+1]+ndeg[tdeg+2]+1)*0.5;
+    mu  += (double)(hrank + trank);
+    mu2 += (double)(hrank*hrank + trank*trank);
+    cross += 2.0*hrank*trank;
+   }
+  }
+  mu = mu / (2.0*N_EDGES);
+  sigma2 = mu2/(2.0*N_EDGES) -  mu*mu;
+  CHANGE_STAT[0] = (cross / (2.0*N_EDGES) -  mu*mu) / sigma2;
+  free(ndeg);
+}
