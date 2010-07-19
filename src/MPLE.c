@@ -127,10 +127,10 @@ numRows should, ideally, be a power of 2, but doesn't have to be.
       responsevec[pos]=response;
       memcpy(matrix+rowLength*pos,newRow,rowLength*sizeof(double));
       return TRUE;
-    }else {      
-      if(compressedOffset[pos]==offset &&
-	       responsevec[pos]==response &&
-         memcmp(matrix+rowLength*pos,newRow,rowLength*sizeof(double))==0 ){ /* Rows are identical. */
+    }else{
+      if( compressedOffset[pos]==offset &&
+        responsevec[pos]==response &&
+      memcmp(matrix+rowLength*pos,newRow,rowLength*sizeof(double))==0 ){ /* Rows are identical. */
         weights[pos]++;
         return TRUE;
       }
@@ -204,7 +204,8 @@ void MpleInit_no_compress (int *responsevec, double *covmat, int *weightsvector,
             covMatPosition += m->n_stats; /* New row in covmat matrix */
             currentResponse++; /* New response value */
             weightsvector[thisRowNumber++]=1; /* New # unique rows */
-            compressedOffset[dyadNum]=offset[dyadNum++];
+            compressedOffset[dyadNum]=offset[dyadNum];
+            dyadNum++;
           } else{ /* Do nothing for now if thisRowNumber >=maxNumDyadTypes */ 
           }
         }

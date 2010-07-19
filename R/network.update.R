@@ -25,7 +25,8 @@ network.update<-function(nw,newmatrix,matrix.type=NULL,output="network")
     add.edges(unw,head=newmatrix[,2],tail=newmatrix[,1])
    }
   }
-  if(output=="as.edgelist.compressed") unw <- as.edgelist.compressed(unw)
+  if(!is.null(output) && output=="as.edgelist.compressed") 
+    {unw <- as.edgelist.compressed(unw)}
   unw
 }
 #Force the input into edgelist form.  Network size, directedness, and vertex
@@ -68,7 +69,7 @@ as.edgelist.compressed<-function(x, attrname=NULL, force.bipartite=FALSE){
   out
 }
 as.network.uncompressed<-function(x, 
-        na.rm=FALSE, edge.check=FALSE){
+        na.rm=FALSE, edge.check=FALSE, ...){
   #Initialize the network object
   if(class(x)=="network"){return(x)}
   if(is.null(attr(x,"vnames"))){

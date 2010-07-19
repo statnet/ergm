@@ -15,7 +15,7 @@
                        burnin=NULL, interval=NULL, 
                        statsonly=FALSE,
                        sequential=TRUE,
-                       constraints = ~.,
+                       constraints = NULL,
                        control = control.simulate.ergm(),
                        verbose=FALSE, \dots)
 }
