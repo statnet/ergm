@@ -12,7 +12,9 @@ print.summary.ergm <- function (x,
   print(x$formula)
   cat("\n")
   
-  cat ("Newton-Raphson iterations: ", x$iterations, "\n")
+  if (!is.null(x$iterations)) {
+    cat("Newton-Raphson iterations: ", x$iterations, "\n")
+  }
   if(x$pseudolikelihood){
     if (x$independence) {
       cat ("\nMaximum Likelihood Results:\n")

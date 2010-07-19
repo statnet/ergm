@@ -1,10 +1,13 @@
 simulate.ergm <- function(object, nsim=1, seed=NULL, theta0=object$coef,
-                          burnin=1000, interval=1000,
+                          burnin=NULL, interval=NULL,
                           statsonly=FALSE,
                           sequential=TRUE,
-                          constraints=~.,
+                          constraints=NULL,
                           control=control.simulate.ergm(),
                           verbose=FALSE, ...) {
+  if(is.null(burnin)){burnin <- object$burnin}
+  if(is.null(interval)){interval <- object$interval}
+  if(is.null(constraints)){constraints <- object$constraints}
   simulate.formula(object$formula, nsim=nsim, seed=seed, theta0=theta0,
                    burnin=burnin, interval=interval, statsonly=statsonly,
                    sequential=sequential, constraints=constraints,
@@ -111,15 +114,17 @@ simulate.formula <- function(object, nsim=1, seed=NULL, theta0,
 
     # Create a network object if statsonly==FALSE
     if (!statsonly) {
-      nw.list[[i]] <- network.update(nw, z$newedgelist, matrix.type="edgelist")
+      nw.list[[i]] <- network.update(nw, z$newedgelist, matrix.type="edgelist",
+                                     output=control$network.output)
     }
     out.mat[i,] <- curstats + z$statsmatrix
     if (sequential){ 
       # If we get here, statsonly must be FALSE
-      nw <- nw.list[[i]]
+      nw <- as.network.uncompressed(nw.list[[i]])
       Clist <- ergm.Cprepare(nw, m)
       curstats <- curstats + z$statsmatrix
     }
+    if(verbose){cat(sprintf("Finished simulation %d of %d.\n",i, nsim))}
   }
   
   if (statsonly)

@@ -43,23 +43,23 @@ ergm <- function(formula, theta0="MPLE",
   if (verbose) cat("Initializing model.\n")
 
   if(control$drop){
-   model.initial <- ergm.getmodel(formula, nw, drop=FALSE, initialfit=TRUE)
-   model.initial.drop <- ergm.getmodel(formula, nw, drop=TRUE, initialfit=TRUE)
-   namesmatch <- match(model.initial$coef.names, model.initial.drop$coef.names)
-   droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
-   droppedterms[is.na(namesmatch)] <- TRUE
-   model.initial$etamap$offsettheta[is.na(namesmatch)] <- TRUE
+    model.initial <- ergm.getmodel(formula, nw, drop=FALSE, initialfit=TRUE)
+    model.initial.drop <- ergm.getmodel(formula, nw, drop=TRUE, initialfit=TRUE)
+    namesmatch <- match(model.initial$coef.names, model.initial.drop$coef.names)
+    droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
+    droppedterms[is.na(namesmatch)] <- TRUE
+    model.initial$etamap$offsettheta[is.na(namesmatch)] <- TRUE
   }else{
-   model.initial <- ergm.getmodel(formula, nw, drop=control$drop, initialfit=TRUE)
-   droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
+    model.initial <- ergm.getmodel(formula, nw, drop=control$drop, initialfit=TRUE)
+    droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
   }
-  if (verbose) cat("Initializing Metropolis-Hastings proposal.\n")
+  if (verbose) { cat("Initializing Metropolis-Hastings proposal.\n") }
   MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial)
   MHproposal.miss <- MHproposal("randomtoggleNonObserved", control$prop.args, nw, model.initial)
 
   Clist.initial <- ergm.Cprepare(nw, model.initial)
   Clist.miss.initial <- ergm.design(nw, model.initial, verbose=verbose)
-  if (verbose) cat("Fitting initial model.\n")
+  if (verbose) { cat("Fitting initial model.\n") }
   Clist.initial$meanstats=meanstats
   theta0copy <- theta0
   initialfit <- ergm.initialfit(theta0copy, MLestimate, Clist.initial,
@@ -139,8 +139,10 @@ ergm <- function(formula, theta0="MPLE",
 
    if (verbose) cat("Fitting ERGM.\n")
    v <- switch(control$style,
-    "Robbins-Monro" = ergm.robmon(theta0, nw, model, Clist, burnin, interval,
-                      MHproposal(constraints,weights=control$prop.weights, control$prop.args, nw, model), verbose, control),
+    "Robbins-Monro" = ergm.robmon(theta0, nw, model, Clist, Clist.miss,
+                                  burnin, interval,
+                      MHproposal(constraints,weights=control$prop.weights, 
+                                 control$prop.args, nw, model), verbose, control),
     "Stochastic-Approximation" = ergm.stocapprox(theta0, nw, model, 
                                  Clist, 
                                  MCMCparams=MCMCparams, MHproposal=MHproposal,

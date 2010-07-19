@@ -1,4 +1,4 @@
-ergm.robmon <- function(theta0, nw, model, Clist,
+ergm.robmon <- function(theta0, nw, model, Clist, Clist.miss,
                         burnin, interval, MHproposal,
                         verbose=FALSE, 
                         control=control.ergm() ){
@@ -24,9 +24,10 @@ ergm.robmon <- function(theta0, nw, model, Clist,
 #  stats[1,] <- Clist$obs - Clist$meanstats
 ## stats[,]<-  rep(Clist$obs - Clist$meanstats,rep(nrow(stats),Clist$nstats))
 ## MCMCparams$stats <- stats
-  MCMCparams <- list(samplesize=n1, burnin=burnin, interval=interval,
-                     nmatrixentries = n1* Clist$nstats, #stats=stats, 
-                     parallel=control$parallel)
+  MCMCparams <- c(control, 
+                  list(samplesize=n1, burnin=burnin, interval=interval,
+                       nmatrixentries = n1* Clist$nstats, #stats=stats, 
+                       parallel=control$parallel, Clist.miss=Clist.miss))
   cat(paste("Phase 1: ",n1,"iterations"))
   cat(paste(" (interval=",MCMCparams$interval,")\n",sep=""))
   z <- ergm.getMCMCsample(Clist, MHproposal, eta0, MCMCparams, verbose)

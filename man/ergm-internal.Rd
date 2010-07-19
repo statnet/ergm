@@ -279,6 +279,9 @@
 \alias{ergm.robmon}
 %
 
+\alias{as.edgelist.compressed}
+\alias{as.network.uncompressed}
+
 %
 % These need to be documented!
 %

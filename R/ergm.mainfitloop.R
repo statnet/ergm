@@ -28,7 +28,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     thetaprior <- theta0
     theta0 <- v$coef
     eta0 <- ergm.eta(theta0, model$etamap)
-    if(verbose){
+    if(verbose || TRUE){ # Note:  Forcing verbose output here for now
       cat("Iteration ",iteration," of at most ", MCMCparams$maxit,
           " with parameter: \n", sep="")
       print(theta0)
@@ -51,7 +51,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
       Clist <- ergm.Cprepare(nw, model)
       # Obtain MCMC sample, followed by post-processing
       z <- ergm.getMCMCsample(Clist, MHproposal.miss, eta0, MCMCparams, verbose)
-      statsmatrix <- sweep(z$statsmatrix, 2, statshift, "+")
+      statsmatrix.miss <- sweep(z$statsmatrix, 2, statshift, "+")
       colnames(statsmatrix.miss) <- model$coef.names
       if(verbose){cat("Back from constrained MCMC...\n")}
     }else{
