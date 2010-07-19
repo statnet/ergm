@@ -17,6 +17,7 @@ ergm.MCMCse.lognormal<-function(theta, theta0, statsmatrix, statsmatrix.miss,
   eta <- ergm.eta(theta, model$etamap)
   etagrad <- ergm.etagrad(theta, model$etamap)
   etaparam <- eta-eta0
+  V <- as.matrix(etagrad %*% V %*% t(etagrad))
 #
   names(theta) <- names(theta0)
 #
@@ -47,23 +48,24 @@ ergm.MCMCse.lognormal<-function(theta, theta0, statsmatrix, statsmatrix.miss,
 #
    lag.max.miss <- lag.max
    if(!is.null(statsmatrix.miss)){
-    z <- xsim.miss
-    R <- acf(z, lag.max = lag.max.miss,
-     type = "covariance", plot = FALSE)$acf
-    if(dim(R)[2] > 1){
-     part <- apply(R[-1,  ,  ,drop=FALSE], c(2, 3), sum)
-    }else{
-     part <- matrix(sum(R[-1,  ,  , drop=FALSE]))
-    }
-    cov.zbar.miss <- (R[1,  ,  ] + part + t(part))/nrow(xsim.miss)
-    cov.zbar.miss <- etagrad %*% cov.zbar.miss %*% t(etagrad)  
-    cov.zbar.miss <- cov.zbar.miss[,!model$etamap$offsettheta,drop=FALSE]
-    cov.zbar.miss <- cov.zbar.miss[!model$etamap$offsettheta,,drop=FALSE]
-    novar <- novar & diag(V.miss)==0
-    V.miss <- V.miss[!novar,,drop=FALSE] 
-    V.miss <- V.miss[,!novar,drop=FALSE] 
-    cov.zbar.miss <- cov.zbar.miss[!novar,,drop=FALSE] 
-    cov.zbar.miss <- cov.zbar.miss[,!novar,drop=FALSE] 
+     V.miss <- as.matrix(etagrad %*% V.miss %*% t(etagrad))
+     z <- xsim.miss
+     R <- acf(z, lag.max = lag.max.miss,
+              type = "covariance", plot = FALSE)$acf
+     if(dim(R)[2] > 1){
+       part <- apply(R[-1,  ,  ,drop=FALSE], c(2, 3), sum)
+     }else{
+       part <- matrix(sum(R[-1,  ,  , drop=FALSE]))
+     }
+     cov.zbar.miss <- (R[1,  ,  ] + part + t(part))/nrow(xsim.miss)
+     cov.zbar.miss <- etagrad %*% cov.zbar.miss %*% t(etagrad)  
+     cov.zbar.miss <- cov.zbar.miss[,!model$etamap$offsettheta,drop=FALSE]
+     cov.zbar.miss <- cov.zbar.miss[!model$etamap$offsettheta,,drop=FALSE]
+     novar <- novar & diag(V.miss)==0
+     V.miss <- V.miss[!novar,,drop=FALSE] 
+     V.miss <- V.miss[,!novar,drop=FALSE] 
+     cov.zbar.miss <- cov.zbar.miss[!novar,,drop=FALSE] 
+     cov.zbar.miss <- cov.zbar.miss[,!novar,drop=FALSE] 
    }
    detna <- function(x){x <- det(x); if(is.na(x)){x <- -40};x}
    if(nrow(V)==1){

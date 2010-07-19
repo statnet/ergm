@@ -48,7 +48,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   # value of xobs (playing the role of "observed statistics") must be
   # adjusted accordingly.
   av <- apply(sweep(statsmatrix0,1,probs,"*"), 2, sum)
-  V=cov(statsmatrix0[,!model$etamap$offsettheta,drop=FALSE])
+  V=cov(statsmatrix0[,!model$etamap$offsetmap,drop=FALSE])
   xsim <- sweep(statsmatrix0, 2, av,"-")
   xobs <-  -av 
   # Do the same recentering for the statsmatrix0.miss matrix, if appropriate.
@@ -57,7 +57,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     av.miss <- apply(sweep(statsmatrix0.miss,1,probs.miss,"*"), 2, sum)
     xsim.miss <- sweep(statsmatrix0.miss, 2, av.miss,"-")
     xobs <- av.miss-av
-    V.miss=cov(statsmatrix0.miss[,!model$etamap$offsettheta,drop=FALSE])
+    V.miss=cov(statsmatrix0.miss[,!model$etamap$offsetmap,drop=FALSE])
   }
   
   # Convert theta0 (possibly "curved" parameters) to eta0 (canonical parameters)
@@ -111,23 +111,25 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   
   # Now find maximizer of approximate loglikelihood ratio l(eta) - l(eta0).
   # First: If we're using the lognormal approximation, the maximizer is
-  # closed-form.
-  if (metric=="lognormal" || metric=="Likelihood") {
+  # closed-form.  We can't use the closed-form maximizer if we are
+  # dealing with a curved exponential family.
+  if (all(model$etamap$canonical==1) && 
+      (metric=="lognormal" || metric=="Likelihood")) {
     if (missingflag) {
-     if (verbose) { cat("Using log-normal approx with missing (no optim)\n") }
-     Lout <- list(hessian = -(V-V.miss))
+      if (verbose) { cat("Using log-normal approx with missing (no optim)\n") }
+      Lout <- list(hessian = -(V-V.miss))
     } else {
-     if (verbose) { cat("Using log-normal approx (no optim)\n") }
-     Lout <- list(hessian = -V)
+      if (verbose) { cat("Using log-normal approx (no optim)\n") }
+      Lout <- list(hessian = -V)
     }
-    Lout$par <- try(eta0[!model$etamap$offsettheta] - solve(Lout$hessian, xobs[!model$etamap$offsettheta]))
+    Lout$par <- try(eta0[!model$etamap$offsetmap] - solve(Lout$hessian, xobs[!model$etamap$offsetmap]))
     # If there's an error, first try a robust matrix inverse.  This can often
     # happen if the matrix of simulated statistics does not ever change for one
     # or more statistics.
     if(inherits(Lout$par,"try-error")){
-      Lout$par <- try(eta0[!model$etamap$offsettheta] - 
+      Lout$par <- try(eta0[!model$etamap$offsetmap] - 
                       robust.inverse(Lout$hessian) %*% 
-                      xobs[!model$etamap$offsettheta])
+                      xobs[!model$etamap$offsetmap])
     }
     # If there's still an error, use the Matrix package to try to find an 
     # alternative Hessian approximant that has no zero eigenvalues.    
@@ -138,11 +140,11 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
       }else{
         Lout <- list(hessian = -(as.matrix(nearPD(V)$mat)))
       }
-      Lout$par <- eta0[!model$etamap$offsettheta] - solve(Lout$hessian, xobs[!model$etamap$offsettheta])
+      Lout$par <- eta0[!model$etamap$offsetmap] - solve(Lout$hessian, xobs[!model$etamap$offsetmap])
     }
     Lout$convergence <- 0 # maybe add some error-checking here to get other codes
-    Lout$value <- 0.5*crossprod(xobs[!model$etamap$offsettheta],
-            Lout$par - eta0[!model$etamap$offsettheta])
+    Lout$value <- 0.5*crossprod(xobs[!model$etamap$offsetmap],
+            Lout$par - eta0[!model$etamap$offsetmap])
     hessianflag <- TRUE # to make sure we don't recompute the Hessian later on
   } else {
     # "guess" will be the starting point for the optim search algorithm.
@@ -164,15 +166,15 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                       xsim.miss=xsim.miss, probs.miss=probs.miss,
                       varweight=varweight, trustregion=trustregion,
                       eta0=eta0, etamap=model$etamap))
-#    if(Lout$value < trustregion-0.001){
-#      current.scipen <- options()$scipen
-#      options(scipen=3)
-#      cat("the log-likelihood improved by",
-#          format.pval(Lout$value,digits=4,eps=1e-4),"\n")
-#      options(scipen=current.scipen)
-#    }else{
-#      cat("the log-likelihood did not improve.\n")
-#    }
+    if(Lout$value < trustregion-0.001){
+      current.scipen <- options()$scipen
+      options(scipen=3)
+      cat("the log-likelihood improved by",
+          format.pval(Lout$value,digits=4,eps=1e-4),"\n")
+      options(scipen=current.scipen)
+    }else{
+      cat("the log-likelihood did not improve.\n")
+    }
     if(inherits(Lout,"try-error") || Lout$value > 199 || Lout$value < -790) {
       cat("MLE could not be found. Trying Nelder-Mead...\n")
       Lout <- try(optim(par=guess, 

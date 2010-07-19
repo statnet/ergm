@@ -56,7 +56,7 @@ llik.grad <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=NULL
 # list(gradient=xobs-E,hessian=V)
 # print(ergm.etagradmult(theta.offset, llr, etamap))
   llr <- ergm.etagradmult(theta.offset, llr, etamap)
-  llr[!etamap$offsetmap]
+  llr[!etamap$offsettheta]
 }
 
 llik.hessian <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,

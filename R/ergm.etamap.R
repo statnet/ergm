@@ -1,15 +1,22 @@
 ergm.etamap <- function(model) {
 # Take a model object and create a 'mapping' from the parameter of
 # interest, theta, to the canonical parameter, eta.  This 'mapping'
-# is a list with three items:
+# is a list with six items:
 #  The first item, canonical, summarizes the
 # one-to-one correspondence between those components of theta that
 # are actually canonical and their counterparts in eta.
-#  The second item,
+#  The fifth item,
 # curved, is itself a list, with one element per curved EF term in the
 # model.
-#  The third item, etalength, is the length of eta.
+#  The sixth item, etalength, is the length of eta.
 # The function ergm.eta actually carries out the mapping.
+#
+# Apparently three more items have been added to the list:
+#  Items 2 through 4 (offsetmap, offset, and offsettheta)
+#  tell which terms to offset.  The first, offsetmap, should be used
+#  to index the parameters and terms in the canonical parameterization,
+#  whereas the last, offsettheta, indexes those of the curved 
+#  parameter theta.
   etamap <- list(canonical = NULL, offsetmap=NULL, offset=model$offset,
                  offsettheta=NULL, curved=list(), etalength=NULL)
   from <- 1

@@ -78,6 +78,7 @@ void MPLE_wrapper (int *heads, int *tails, int *dnedges,
 		  compressedOffset, *maxNumDyadTypes, maxMPLE, nw, m); 
   else
     MpleInit_no_compress(responsevec, covmat, weightsvector, 
+      offset, compressedOffset,
       *maxNumDyadTypes, maxMPLE, nw, m);
   ModelDestroy(m);
   NetworkDestroy(nw);
@@ -126,11 +127,10 @@ numRows should, ideally, be a power of 2, but doesn't have to be.
       responsevec[pos]=response;
       memcpy(matrix+rowLength*pos,newRow,rowLength*sizeof(double));
       return TRUE;
-    }else {
-      
-      if( compressedOffset[pos]==offset &&
-	      responsevec[pos]==response &&
-      memcmp(matrix+rowLength*pos,newRow,rowLength*sizeof(double))==0 ){ /* Rows are identical. */
+    }else {      
+      if(compressedOffset[pos]==offset &&
+	       responsevec[pos]==response &&
+         memcmp(matrix+rowLength*pos,newRow,rowLength*sizeof(double))==0 ){ /* Rows are identical. */
         weights[pos]++;
         return TRUE;
       }
@@ -159,9 +159,11 @@ numRows should, ideally, be a power of 2, but doesn't have to be.
 *****************/
 
 void MpleInit_no_compress (int *responsevec, double *covmat, int *weightsvector,
+         double * offset, double * compressedOffset,
 		     int maxNumDyadTypes, Edge maxMPLE, Network *nwp, Model *m) {
   int l, d, outflag = 0, inflag = 0, thisRowNumber, totalStats, *currentResponse;
   double *covMatPosition;
+  Edge dyadNum=0;
   Vertex i, j , rowmax;
   ModelTerm *mtp;
   /* Note:  This function uses macros found in changestats.h */
@@ -202,6 +204,7 @@ void MpleInit_no_compress (int *responsevec, double *covmat, int *weightsvector,
             covMatPosition += m->n_stats; /* New row in covmat matrix */
             currentResponse++; /* New response value */
             weightsvector[thisRowNumber++]=1; /* New # unique rows */
+            compressedOffset[dyadNum]=offset[dyadNum++];
           } else{ /* Do nothing for now if thisRowNumber >=maxNumDyadTypes */ 
           }
         }
@@ -249,10 +252,10 @@ void MpleInit_hash(int *responsevec, double *covmat, int *weightsvector,
             totalStats += mtp->nstats; 
           }
           if(!insCovMatRow(newRow, covmat, m->n_stats,
-			   maxNumDyadTypes, response, 
-			   responsevec, offset ? offset[dyadNum++]:0, 
-			   compressedOffset, weightsvector)) {
-            error("Too many unique dyads!");
+            maxNumDyadTypes, response, 
+            responsevec, offset ? offset[dyadNum++]:0, 
+            compressedOffset, weightsvector)) {
+            error("Too many unique dyads!\nTry increasing the default value of maxNumDyadTypes using control.ergm");
           }
         }
       }

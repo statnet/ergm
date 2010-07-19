@@ -13,8 +13,16 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     temp <- matrix(0,ncol=n,nrow=n)
     base <- cbind(as.vector(col(temp)), as.vector(row(temp)))
     base <- base[base[, 2] > base[, 1], ]
+    # At this point, the rows of base are in dictionary order
     if(Clist.miss$dir){
-      base <- cbind(base[,c(2,1)],base)
+      # If we get here, then interleave the transposed rows, as in
+      # (1,2), (2,1),   (1,3), (3,1),   (1,4), (4,1),  etc.
+      # This is necessary because it's the order in which the
+      # MPLE wrapper expects them to be entered, which is only
+      # important when there are missing data because the "offset" 
+      # vector in that case must index the correct rows.
+      # (The C code reconstructs the base matrix from scratch.)
+      base <- cbind(base, base[,c(2,1)])
       base <- matrix(t(base),ncol=2,byrow=TRUE)
     }
     ubase <- base[,1] + n*base[,2]
