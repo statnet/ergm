@@ -64,7 +64,7 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0,
 
   # prepare MCMCparams object
   MCMCparams <- list(samplesize=1,
-                     maxedges = 1+max(20000, Clist$nedges),
+                     maxedges = 1+max(control$maxedges, Clist$nedges),
 #                     stats=curstats, # deprecated as of version 2.2-3
                      burnin=burnin,
                      interval=interval,
@@ -108,7 +108,8 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0,
   # MCMC iteration (statsonly=FALSE) or we want to restart each chain
   # at the original network (sequential=FALSE).
   MCMCparams$nmatrixentries <- length(curstats)
-  for(i in 1:nsim){
+  if(sequential){
+   for(i in 1:nsim){
     MCMCparams$burnin <- ifelse(i==1 || !sequential, burnin, interval)
     z <- ergm.getMCMCsample(Clist, MHproposal, theta0, MCMCparams, verbose)
 
@@ -118,18 +119,17 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0,
                                      output=control$network.output)
     }
     out.mat[i,] <- curstats + z$statsmatrix
-    if (sequential){ 
-      # If we get here, statsonly must be FALSE
-      nw <- as.network.uncompressed(nw.list[[i]])
-      Clist <- ergm.Cprepare(nw, m)
-      curstats <- curstats + z$statsmatrix
-    }
+    # If we get here, statsonly must be FALSE
+    nw <- as.network.uncompressed(nw.list[[i]])
+    Clist <- ergm.Cprepare(nw, m)
+    curstats <- curstats + z$statsmatrix
     if(verbose){cat(sprintf("Finished simulation %d of %d.\n",i, nsim))}
   }
   
   if (statsonly)
     return(out.mat[1:nsim,]) # If nsim==1, this will return a vector, not a matrix
   
+  }
   # If we get here, statsonly==FALSE.
   if (nsim==1) {
     return(nw.list[[1]])

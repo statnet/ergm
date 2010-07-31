@@ -80,7 +80,7 @@ san.formula <- function(object, nsim=1, seed=NULL, theta0=NULL,
   for(i in 1:nsim){
     Clist <- ergm.Cprepare(nw, model)
 #   Clist.miss <- ergm.design(nw, model, verbose=verbose)
-    maxedges <- max(20000, Clist$nedges)
+    maxedges <- max(control$maxedges, Clist$nedges)
     if (verb) {
        cat(paste("#", i, " of ", nsim, ": ", sep=""))
      }
