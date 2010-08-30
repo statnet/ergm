@@ -610,21 +610,51 @@ D_CHANGESTAT_FN(d_factor)  {
 /*****************
  changestat: d_formation
 *****************/
-D_CHANGESTAT_FN(d_formation) {
-  int edgeflag, i;
+D_CHANGESTAT_FN(d_formation) { 
   Vertex h, t;
+  int i, nhedge, discord;
   
-  *(mtp->dstats) = 0.0;
-  for (i=0; i < ntoggles; i++)
-    {
-      edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
-      *(mtp->dstats) += edgeflag ? - 1 : 1;
-      if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  nhedge = nwp[1].nedges;
+/*Rprintf("nhedge %d\n",nhedge); */
+  CHANGE_STAT[0] = 0.0;
+  FOR_EACH_TOGGLE(i) {
+    /*Get the initial state of the edge and its alter in x0*/
+/*  edgeflag =(EdgetreeSearch(h=heads[i], t=tails[i], nwp[0].outedges) != 0); */
+    discord=(EdgetreeSearch(h=heads[i], t=tails[i], nwp[1].outedges) != 0);
+/*    if(!nwp[0].directed_flag && h < t){
+      hh = t;
+      ht = h;
+    }else{
+      hh = h;
+      ht = t;
     }
-  i--; 
-  while (--i >= 0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+     if we will dissolve an edge discord=-1
+     discord = edgeflag ? -1 : 1;
+    
+
+  so moving away one step
+    discord = (edgeflag0!=edgeflag) ? -1 : 1;
+
+Rprintf("h %d t %d discord %d\n",h, t, discord);
+  if(nhedge>0)
+  Rprintf("h %d t %d discord %d nhedge %d\n",h, t, discord, nhedge); */
+
+    /*Update the change statistics, as appropriate*/
+/*    CHANGE_STAT[0] += ((edgeflag0!=edgeflag) ? -1.0 : 1.0); */
+
+    CHANGE_STAT[0] += (discord ? -1.0 : 1.0);
+
+
+    if (i+1 < ntoggles){
+      ToggleEdge(heads[i], tails[i], &nwp[0]);  /* Toggle this edge if more to come */
+      ToggleEdge(heads[i], tails[i], &nwp[1]);  /* Toggle the discord for this edge */
+    }
+  }
+  i--;
+  while (--i>=0){  /*  Undo all previous toggles. */
+    ToggleEdge(heads[i], tails[i], &nwp[0]);
+    ToggleEdge(heads[i], tails[i], &nwp[1]);  /* Toggle the discord for this edge */
+  }
 }
 
 /********************  changestats:  G    ***********/

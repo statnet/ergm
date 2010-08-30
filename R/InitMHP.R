@@ -159,6 +159,15 @@ InitMHP.formation <- function(arguments, nw, model) {
   MHproposal
 }
 
+InitMHP.formationMLE <- function(arguments, nw, model) {
+  MHproposal <- list(name = "FormationMLE", args=NULL, package="ergm")
+  MHproposal
+}
+InitMHP.dissolutionMLE <- function(arguments, nw, model) {
+  MHproposal <- list(name = "DissolutionMLE", args=NULL, package="ergm")
+  MHproposal
+}
+
 InitMHP.formationTNT <- function(arguments, nw, model) {
   MHproposal <- list(name = "FormationTNT", args=NULL, package="ergm")
   if(is.bipartite(nw)){

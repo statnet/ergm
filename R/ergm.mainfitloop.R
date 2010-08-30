@@ -18,7 +18,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
   stats[1,] <- Clist$obs - Clist$meanstats
   MCMCparams$stats <- stats
   MCMCparams$meanstats <- Clist$meanstats
-  if(MCMCparams$Clist.miss$nedges > 0){
+  if(network.naedgecount(nw) > 0){
     MCMCparams.miss <- MCMCparams
     if(!is.null(MCMCparams$miss.MCMCsamplesize)){
       MCMCparams.miss$MCMCsamplesize <- MCMCparams$miss.MCMCsamplesize
@@ -44,7 +44,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     z <- ergm.getMCMCsample.parallel(nw, model, MHproposal, eta0, MCMCparams, verbose)
     statsmatrix <- z$statsmatrix
     v$sample <- statsmatrix
-    if(MCMCparams$Clist.miss$nedges > 0){
+    if(network.naedgecount(nw) > 0){
       z.miss <- ergm.getMCMCsample.parallel(nw, model, MHproposal.miss, eta0, MCMCparams.miss, verbose)
       statsmatrix.miss <-z.miss$statsmatrix
       if(verbose){cat("Back from constrained MCMC...\n")}
@@ -52,7 +52,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
       statsmatrix.miss <- NULL
       if(verbose){cat("Back from unconstrained MCMC...\n")}
     }
-    if(MCMCparams$sequential & MCMCparams$Clist.miss$nedges == 0){
+    if(MCMCparams$sequential & network.naedgecount(nw) == 0){
       nw <- z$newnetwork
       nw.obs <- summary(model$formula, basis=nw)
       namesmatch <- match(names(MCMCparams$meanstats), names(nw.obs))

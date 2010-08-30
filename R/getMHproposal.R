@@ -44,7 +44,15 @@ MHproposals<-
           c("d", "",              "default",      "dissolution"),
           c("d", "",              "random",       "dissolution"),
           c("d", "bd",            "default",      "dissolution"),
-          c("d", "bd",            "random",       "dissolution")
+          c("d", "bd",            "random",       "dissolution"),
+          c("fmle", "",           "default",      "formationMLE"),
+          c("fmle", "",           "random",       "formationMLE"),
+          c("fmle", "bd",         "default",      "formationMLE"),
+          c("fmle", "bd",         "random",       "formationMLE"),
+          c("dmle", "",           "default",      "dissolutionMLE"),
+          c("dmle", "",           "random",       "dissolutionMLE"),
+          c("dmle", "bd",         "default",      "dissolutionMLE"),
+          c("dmle", "bd",         "random",       "dissolutionMLE")
         )
 MHproposals <- data.frame(I(MHproposals[,1]), I(MHproposals[,2]), 
                           I(MHproposals[,3]), I(MHproposals[,4]))  

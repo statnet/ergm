@@ -146,7 +146,9 @@ numRows should, ideally, be a power of 2, but doesn't have to be.
 			  double offset, double *compressedOffset, int *weights ){
   unsigned int hash_pos = hashCovMatRow(newRow, rowLength, numRows, response, offset), pos, round;
   
+// Rprintf("start %d %d\n",hash_pos,numRows);
   for(/*unsigned int*/ pos=hash_pos, round=0; !round ; pos = (pos+1)%numRows, round+=(pos==hash_pos)?1:0){
+// Rprintf("pos %d round %d hash_pos %d\n",pos,round,hash_pos);
     if(weights[pos]==0){ /* Space is unoccupied. */
       weights[pos]=1;
       compressedOffset[pos]=offset;

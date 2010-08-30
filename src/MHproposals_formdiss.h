@@ -7,9 +7,11 @@
 #include "MHproposal.h"
 
 void MH_Formation(MHproposal *MHp, DegreeBound *bd, Network *nwp);
+void MH_FormationMLE(MHproposal *MHp, DegreeBound *bd, Network *nwp);
 void MH_FormationTNT(MHproposal *MHp, DegreeBound *bd, Network *nwp);
 /*void MH_DissolutionTNT(MHproposal *MHp, DegreeBound *bd, Network *nwp); */
 void MH_Dissolution(MHproposal *MHp, DegreeBound *bd, Network *nwp);
+void MH_DissolutionMLE(MHproposal *MHp, DegreeBound *bd, Network *nwp);
 
 void MH_BipartiteFormation (MHproposal *MHp,  DegreeBound *bd, Network *nwp);
 void MH_BipartiteFormationTNT (MHproposal *MHp,  DegreeBound *bd, Network *nwp);

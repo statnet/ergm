@@ -12,6 +12,38 @@ ergm <- function(formula, theta0="MPLE",
   if (verbose) cat("Evaluating network in model\n")
 
   nw <- ergm.getnetwork(formula)
+  proposalclass <- "c"
+  # Next for conditional MLE in dynamic model 
+  if(is.character(MLestimate) && 
+     (MLestimate=="formation") | (MLestimate=="dissolution")){
+   MLestimate=!MPLEonly
+   lhs <- terms(formula)[[2]]
+   if(is.call(lhs) && (lhs[[1]]=="+")){
+    proposalclass <- "fmle"
+    y0 <- ergm.getnetwork(as.formula(paste("~",lhs[[3]])))
+    y1 <- ergm.getnetwork(as.formula(paste("~",lhs[[2]])))
+    nw = network.copy(y0)
+    ydiscordantedges <- as.matrix(network(as.sociomatrix(y1)&!as.sociomatrix(y0),directed=is.directed(y0)),matrix.type="edgelist")
+    add.edges(nw,ydiscordantedges[,1],ydiscordantedges[,2])
+#   delete.edges(y0,eid=1:length(y0$mel))
+#   add.edges(y0,ydiscordantedges[,1],ydiscordantedges[,2])
+   }
+   if(is.call(lhs) && (lhs[[1]]=="-")){
+    proposalclass <- "dmle"
+    y0 <- ergm.getnetwork(as.formula(paste("~",lhs[[3]])))
+    y1 <- ergm.getnetwork(as.formula(paste("~",lhs[[2]])))
+    nw = network.copy(y0)
+    delete.edges(nw,eid=1:length(nw$mel))
+    yminusedges <- as.matrix(network(as.sociomatrix(y0)&as.sociomatrix(y1),directed=is.directed(y0)),matrix.type="edgelist")
+    add.edges(nw,yminusedges[,1],yminusedges[,2])
+#   ydiscordantedges <- as.matrix(network(as.sociomatrix(y0)&!as.sociomatrix(y1),directed=is.directed(y0)),matrix.type="edgelist")
+#   delete.edges(y0,eid=1:length(y0$mel))
+#   add.edges(y0,ydiscordantedges[,1],ydiscordantedges[,2])
+   }
+   formula.passed<-formula
+   formula<-ergm.update.formula(formula,nw~.)
+  }
+  # End conditional MLE in dynamic model
   if(!is.null(meanstats)){
    control$drop <- FALSE
    if(!(!is.null(control$SAN.burnin) && is.na(control$SAN.burnin))){
@@ -55,7 +87,8 @@ ergm <- function(formula, theta0="MPLE",
    droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
   }
   if (verbose) cat("Initializing Metropolis-Hastings proposal.\n")
-  MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial,class="c")
+
+  MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial,class=proposalclass)
   # Note:  MHproposal function in CRAN version does not use the "class" argument for now
   MHproposal.miss <- MHproposal("randomtoggleNonObserved", control$prop.args, nw, model.initial)
 
@@ -119,7 +152,11 @@ ergm <- function(formula, theta0="MPLE",
   }
 
   Clist <- ergm.Cprepare(nw, model)
-  Clist.miss <- ergm.design(nw, model, verbose=verbose)
+  if((MHproposal$name!="FormationMLE")&(MHproposal$name!="DissolutionMLE")){
+    Clist.miss <- ergm.design(nw, model, verbose=verbose)
+  }else{
+    Clist.miss <- ergm.Cprepare(y0, model)
+  }
   Clist$obs <- summary(model$formula, drop=FALSE)
 # Clist$obs <- summary(model$formula, drop=control$drop)
   Clist$meanstats <- Clist$obs
@@ -185,7 +222,11 @@ ergm <- function(formula, theta0="MPLE",
   }
   v$degeneracy.value <- degeneracy$degeneracy.value
   v$degeneracy.type <- degeneracy$degeneracy.type
-  v$formula <- formula
+  if(exists("formula.passed")){
+    v$formula <- formula.passed
+  }else{
+    v$formula <- formula
+  }
   v$constraints <- constraints
   v$prop.args <- control$prop.args
   v$prop.weights <- control$prop.weights
