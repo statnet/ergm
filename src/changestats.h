@@ -113,6 +113,7 @@ D_CHANGESTAT_FN(d_odegree);
 D_CHANGESTAT_FN(d_odegree_by_attr);
 D_CHANGESTAT_FN(d_odegree_w_homophily);
 D_CHANGESTAT_FN(d_ostar);
+D_CHANGESTAT_FN(d_outdegreepopularity);
 /********************  changestats:   R    ***********/
 D_CHANGESTAT_FN(d_receiver);
 /********************  changestats:   S    ***********/
@@ -131,6 +132,7 @@ D_CHANGESTAT_FN(d_triadcensus);
 D_CHANGESTAT_FN(d_triangle);
 D_CHANGESTAT_FN(d_tripercent);
 D_CHANGESTAT_FN(d_ttriple);
+D_CHANGESTAT_FN(d_transitiveties);
 
 /********************  changestats: internal ***********/
 D_CHANGESTAT_FN(d_b1degree_edgecov);
