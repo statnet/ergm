@@ -114,9 +114,11 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
    cov.zbar <- cov.zbar[!novar,,drop=FALSE] 
    cov.zbar <- cov.zbar[,!novar,drop=FALSE] 
    mc.se <- rep(NA,length=length(theta))
-   mc.se0 <- try(diag(solve(V, t(solve(V, cov.zbar)))), silent=TRUE)
+   mc.se0 <- try(solve(V, cov.zbar), silent=TRUE)
    if(!(inherits(mc.se0,"try-error") || detna(V)< -20)){
-    if(!is.null(statsmatrix.miss)){
+    mc.se0 <- try(diag(solve(V, t(mc.se0))), silent=TRUE)
+    if(!(inherits(mc.se0,"try-error") || detna(V)< -20)){
+     if(!is.null(statsmatrix.miss)){
       mc.se.miss0 <- try(diag(solve(V.miss, t(solve(V.miss, cov.zbar.miss)))),
                          silent=TRUE)
       if(inherits(mc.se.miss0,"try-error") || detna(V.miss)< -20){
@@ -124,8 +126,9 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
       }else{
        mc.se[!model$etamap$offsettheta][!novar] <- sqrt(mc.se0 + mc.se.miss0)
       }
-    }else{
+     }else{
        mc.se[!model$etamap$offsettheta][!novar] <- sqrt(mc.se0)
+     }
     }
    }
    names(mc.se) <- names(theta)

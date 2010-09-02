@@ -3062,10 +3062,9 @@ D_CHANGESTAT_FN(d_idegree_w_homophily) {
  changestat: d_indegreepopularity
 *****************/
 D_CHANGESTAT_FN(d_indegreepopularity) { 
-  Edge e;
   int i, edgeflag;
   double change;
-  Vertex t, h, node3, deg=0;
+  Vertex t, h, deg=0;
   
   change = 0.0;
   FOR_EACH_TOGGLE(i) {
@@ -4102,10 +4101,9 @@ D_CHANGESTAT_FN(d_ostar) {
  changestat: d_outdegreepopularity
 *****************/
 D_CHANGESTAT_FN(d_outdegreepopularity) { 
-  Edge e;
   int i, edgeflag;
   double change;
-  Vertex t, h, node3, deg=0;
+  Vertex t, h, deg=0;
   
   change = 0.0;
   FOR_EACH_TOGGLE(i) {
@@ -4115,7 +4113,7 @@ D_CHANGESTAT_FN(d_outdegreepopularity) {
     change += (edgeflag? -1.0 : 1.0) * sqrt((double)(OUT_DEG[t]));
     deg = (double)(OUT_DEG[h]);
     if(edgeflag){
-      change += IN_DEG[h]*(sqrt(deg)-sqrt(deg-1.0));
+      change += IN_DEG[h]*(sqrt(deg-1.0)-sqrt(deg));
     }else{
       change += IN_DEG[h]*(sqrt(deg+1.0)-sqrt(deg));
     }
@@ -5467,95 +5465,6 @@ D_CHANGESTAT_FN(d_ttriple) {
         change += IS_OUTEDGE(node3, h) + IS_INEDGE(node3, h);
       }
       CHANGE_STAT[0] += edgemult * change;
-    }
-    TOGGLE_IF_MORE_TO_COME(i);
-  }
-  UNDO_PREVIOUS_TOGGLES(i);
-}
-
-/*****************
- changestat: d_transitiveties
-*****************/
-D_CHANGESTAT_FN(d_transitiveties) { 
-  Edge e, f, g;
-  Vertex h, t, change, node3, node4, node5;
-  int i, j, htrans, ntrans;
-  double hattr, edgemult;
-  
-  ZERO_ALL_CHANGESTATS(i);
-  FOR_EACH_TOGGLE(i) {
-    h = heads[i];
-    t = tails[i];
-    edgemult = IS_OUTEDGE(h, t) ? -1.0 : 1.0;
-    change = 0;
-    if(N_INPUT_PARAMS > 0){ /* match on attributes */
-      hattr = INPUT_ATTRIB[h-1];
-      if(hattr == INPUT_ATTRIB[t-1]) {
-        STEP_THROUGH_OUTEDGES(t, e, node3) { /* step through outedges of tail */
-          if(hattr == INPUT_ATTRIB[node3-1])
-            change += IS_INEDGE(node3, h);
-        }
-        STEP_THROUGH_INEDGES(t, e, node3) { /* step through inedges of tail */
-          if(hattr == INPUT_ATTRIB[node3-1])
-            change += IS_OUTEDGE(node3, h) + IS_INEDGE(node3, h);
-        }
-        if(N_CHANGE_STATS > 1) { /* diff = TRUE; matches must be tabled */
-          for (j=0; j<N_CHANGE_STATS; j++){
-            if (hattr == INPUT_PARAM[j])
-              CHANGE_STAT[j] += edgemult * change;
-          }
-        } else { /* diff = FALSE; all matches equivalent */
-              CHANGE_STAT[0] += edgemult * change;          
-        }
-      }
-    }else{ /* no attribute matching */
-      ntrans=0;
-      STEP_THROUGH_OUTEDGES(t, e, node3) { /* step through outedges of tail */
-        if(IS_INEDGE(node3, h)){ /* Forms transitive, so check if already */
-         htrans=1;
-         STEP_THROUGH_OUTEDGES(h, f, node4) { /* step through outedges of head */
-           STEP_THROUGH_OUTEDGES(node4, g, node5) {
-            if(IS_OUTEDGE(h, node5)){ htrans=0; }
-	   }
-           STEP_THROUGH_INEDGES(node4, g, node5) {
-            if(IS_OUTEDGE(h, node5)){ htrans=0; }
-	   }
-	  }
-	  if(htrans){ntrans++;}
-	}
-      }
-      STEP_THROUGH_INEDGES(t, e, node3) { /* step through outedges of tail */
-        if(IS_INEDGE(node3, h)){ /* Forms transitive, so check if already */
-         htrans=1;
-         STEP_THROUGH_OUTEDGES(h, f, node4) { /* step through outedges of head */
-           STEP_THROUGH_OUTEDGES(node4, g, node5) {
-            if(IS_OUTEDGE(h, node5)){ htrans=0; }
-	   }
-           STEP_THROUGH_INEDGES(node4, g, node5) {
-            if(IS_OUTEDGE(h, node5)){ htrans=0; }
-	   }
-	  }
-	  if(htrans){ntrans++;}
-	}
-      }
-      if(ntrans>0){ change += edgemult;}
-      ntrans=0;
-      STEP_THROUGH_INEDGES(t, e, node3) { /* step through outedges of tail */
-        if(IS_OUTEDGE(node3, h)){ /* Forms transitive, so check if already */
-         htrans=1;
-         STEP_THROUGH_OUTEDGES(node3, f, node4) { /* step through outedges of head */
-           STEP_THROUGH_OUTEDGES(node4, g, node5) {
-            if(IS_OUTEDGE(node3, node5)){ htrans=0; }
-	   }
-           STEP_THROUGH_INEDGES(node4, g, node5) {
-            if(IS_OUTEDGE(node3, node5)){ htrans=0; }
-	   }
-	  }
-	  if(htrans){ntrans++;}
-	}
-      }
-      if(ntrans>0){ change += edgemult;}
-      CHANGE_STAT[0] += change;
     }
     TOGGLE_IF_MORE_TO_COME(i);
   }
