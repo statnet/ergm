@@ -16,32 +16,45 @@ ergm <- function(formula, theta0="MPLE",
   # Next for conditional MLE in dynamic model 
   if(is.character(MLestimate) && 
      (MLestimate=="formation") | (MLestimate=="dissolution")){
-   MLestimate=!MPLEonly
    lhs <- terms(formula)[[2]]
-   if(is.call(lhs) && (lhs[[1]]=="+")){
+   if( is.call(lhs) && (lhs[[1]]=="|")){
+   if(MLestimate=="formation"){
     proposalclass <- "fmle"
     y0 <- ergm.getnetwork(as.formula(paste("~",lhs[[3]])))
     y1 <- ergm.getnetwork(as.formula(paste("~",lhs[[2]])))
     nw = network.copy(y0)
+    nwm = network.copy(y0)
+    set.edge.attribute(nwm,attrname="na",value=TRUE)
     ydiscordantedges <- as.matrix(network(as.sociomatrix(y1)&!as.sociomatrix(y0),directed=is.directed(y0)),matrix.type="edgelist")
     add.edges(nw,ydiscordantedges[,1],ydiscordantedges[,2])
+    add.edges(nwm,ydiscordantedges[,1],ydiscordantedges[,2])
 #   delete.edges(y0,eid=1:length(y0$mel))
 #   add.edges(y0,ydiscordantedges[,1],ydiscordantedges[,2])
    }
-   if(is.call(lhs) && (lhs[[1]]=="-")){
+   if(MLestimate=="dissolution"){
     proposalclass <- "dmle"
     y0 <- ergm.getnetwork(as.formula(paste("~",lhs[[3]])))
     y1 <- ergm.getnetwork(as.formula(paste("~",lhs[[2]])))
-    nw = network.copy(y0)
-    delete.edges(nw,eid=1:length(nw$mel))
+#   nw = network.copy(y0)
+#   delete.edges(nw,eid=1:length(nw$mel))
+    nw = copy.null.network(y0)
+    nwm <- as.sociomatrix(y0)
+    y0nonedges <- as.matrix(network((nwm==0)&col(nwm)!=row(nwm),directed=is.directed(y0)),matrix.type="edgelist")
+    nwm = copy.null.network(y0)
+    add.edges(nwm,y0nonedges[,1],y0nonedges[,2])
+    set.edge.attribute(nwm,attrname="na",value=TRUE)
     yminusedges <- as.matrix(network(as.sociomatrix(y0)&as.sociomatrix(y1),directed=is.directed(y0)),matrix.type="edgelist")
     add.edges(nw,yminusedges[,1],yminusedges[,2])
+    add.edges(nwm,yminusedges[,1],yminusedges[,2])
 #   ydiscordantedges <- as.matrix(network(as.sociomatrix(y0)&!as.sociomatrix(y1),directed=is.directed(y0)),matrix.type="edgelist")
 #   delete.edges(y0,eid=1:length(y0$mel))
 #   add.edges(y0,ydiscordantedges[,1],ydiscordantedges[,2])
    }
    formula.passed<-formula
    formula<-ergm.update.formula(formula,nw~.)
+   MLestimate=!MPLEonly
+  }}else{
+   nwm <- nw
   }
   # End conditional MLE in dynamic model
   if(!is.null(meanstats)){
@@ -101,7 +114,7 @@ ergm <- function(formula, theta0="MPLE",
   if (verbose) cat("Fitting initial model.\n")
   theta0copy <- theta0
   initialfit <- ergm.initialfit(theta0=theta0copy, MLestimate=MLestimate, 
-                                formula=formula, nw=nw, meanstats=meanstats,
+                                formula=formula, nw=nwm, meanstats=meanstats,
                                 m=model.initial,
                                 MPLEtype=control$MPLEtype, 
                                 initial.loglik=control$initial.loglik,
