@@ -14,6 +14,7 @@ ergm.initialfit<-function(theta0, MLestimate,
   fitmethod <- match("MPLE", theta0)
   if(is.na(fitmethod) && any(m$offset)) { # theta0 has an offset
    force.MPLE <- TRUE
+   force.MPLE <- FALSE
   }
 #
   if(!is.null(conddeg)){

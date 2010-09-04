@@ -13,6 +13,11 @@ llik.fun <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
   # i.e., assuming that the network statistics are approximately normally 
   # distributed so that exp(eta * stats) is lognormal
   x <- eta-eta0
+# MSH: Is this robust?
+  x <- x[!etamap$offsetmap]
+  xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
+  xobs <- xobs[!etamap$offsetmap]
+  #
   basepred <- xsim %*% x
   mb <- sum(basepred*probs)
   vb <- sum(basepred*basepred*probs) - mb*mb
@@ -30,13 +35,46 @@ llik.fun <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
   }
 }
 
+#llik.grad <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=NULL,
+#                      varweight=0.5, trustregion=20, eta0, etamap){
+#  theta.offset <- etamap$theta0
+#  theta.offset[!etamap$offsettheta] <- theta
+#  eta <- ergm.eta(theta.offset, etamap)
+#  x <- eta-eta0
+#  xsim[,etamap$offsetmap] <- 0
+#  basepred <- xsim %*% x
+#  prob <- max(basepred)
+#  prob <- probs*exp(basepred - prob)
+#  prob <- prob/sum(prob)
+#  E <- apply(sweep(xsim, 1, prob, "*"), 2, sum)
+#  llr <- xobs - E
+#  llr[is.na(llr) | is.infinite(llr)] <- 0
+##
+## Penalize changes to trustregion
+##
+## llr <- llr - 2*(llr-trustregion)*(llr>trustregion)
+## 
+## The next lines are for the Hessian which optim does not use
+##
+## vtmp <- sweep(sweep(xsim, 2, E, "-"), 1, sqrt(prob), "*")
+## V <- t(vtmp) %*% vtmp
+## list(gradient=xobs-E,hessian=V)
+## print(ergm.etagradmult(theta.offset, llr, etamap))
+#  llr <- ergm.etagradmult(theta.offset, llr, etamap)
+#  llr[!etamap$offsetmap]
+#}
 llik.grad <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=NULL,
                       varweight=0.5, trustregion=20, eta0, etamap){
   theta.offset <- etamap$theta0
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
+# xsim[,etamap$offsetmap] <- 0
   x <- eta-eta0
-  xsim[,etamap$offsetmap] <- 0
+# MSH: Is this robust?
+  x <- x[!etamap$offsetmap]
+  xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
+  xobs <- xobs[!etamap$offsetmap]
+#
   basepred <- xsim %*% x
   prob <- max(basepred)
   prob <- probs*exp(basepred - prob)
@@ -55,24 +93,32 @@ llik.grad <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=NULL
 # V <- t(vtmp) %*% vtmp
 # list(gradient=xobs-E,hessian=V)
 # print(ergm.etagradmult(theta.offset, llr, etamap))
-  llr <- ergm.etagradmult(theta.offset, llr, etamap)
+  llr.offset <- rep(0,length(etamap$offsetmap))
+  llr.offset[!etamap$offsetmap] <- llr
+  llr <- ergm.etagradmult(theta.offset, llr.offset, etamap)
   llr[!etamap$offsetmap]
 }
 
 llik.hessian <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
                          varweight=0.5, trustregion=20, eta0, etamap){
-# theta.offset <- etamap$theta0
-# theta.offset[!etamap$offsettheta] <- theta
+  theta.offset <- etamap$theta0
+  theta.offset[!etamap$offsettheta] <- theta
   namesx <- names(theta)
 # xsim[,etamap$offsettheta] <- 0
-  xsim <- xsim[,!etamap$offsettheta, drop=FALSE]
 #
 #    eta transformation
 #
-  eta <- ergm.eta(theta, etamap)
-  etagrad <- ergm.etagrad(theta, etamap)
+  eta <- ergm.eta(theta.offset, etamap)
+  etagrad <- ergm.etagrad(theta.offset, etamap)
   x <- eta-eta0
-  x <- x[!etamap$offsettheta]
+# MSH: Is this robust?
+  x <- x[!etamap$offsetmap]
+  xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
+  xobs <- xobs[!etamap$offsetmap]
+  etagrad <- etagrad[,!etamap$offsetmap,drop=FALSE]
+  etagrad <- etagrad[!etamap$offsetmap,,drop=FALSE]
+#
+# x <- x[!etamap$offsettheta]
   basepred <- xsim %*% x
   prob <- max(basepred)
   prob <- probs*exp(basepred - prob)
@@ -82,10 +128,11 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NU
   htmp <- sweep(sweep(xsim, 2, E, "-"), 1, sqrt(prob), "*")
   htmp <- htmp %*% t(etagrad)
   H <- - t(htmp) %*% htmp
-  He <- matrix(NA, ncol = length(theta), nrow = length(theta))
-  He[!etamap$offsettheta, !etamap$offsettheta] <- H
-  dimnames(He) <- list(names(namesx), names(namesx))
-  He
+# He <- matrix(NA, ncol = length(theta), nrow = length(theta))
+# He[!etamap$offsettheta, !etamap$offsettheta] <- H
+# dimnames(He) <- list(names(namesx), names(namesx))
+# He
+  H
 }
 
 

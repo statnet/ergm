@@ -165,7 +165,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     # But only the non-offset values are relevant; the others will be
     # passed to the likelihood functions by way of the etamap$theta0 element
     # of the model object.  NB:  This is a really ugly way to do this!  Change it?
-    guess <- theta0[!model$etamap$offsetmap]
+    guess <- theta0[!model$etamap$offsettheta]
     model$etamap$theta0 <- theta0
     
   loglikelihoodfn.trust<-function(trustregion=20, ...){
@@ -179,7 +179,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     list(value=value,gradient=as.vector(grad),hessian=hess)
   }
   if (verbose) cat("Optimizing loglikelihood\n")
-  cat("Using trust\n")
+# cat("Using trust\n")
   Lout <- try(trust(objfun=loglikelihoodfn.trust, parinit=guess,
                     rinit=1, 
                     rmax=100, 
@@ -190,15 +190,15 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                     varweight=varweight, trustregion=trustregion,
                     eta0=eta0, etamap=model$etamap))
   Lout$par<-Lout$argument
-    if(Lout$value < trustregion-0.001){
-      current.scipen <- options()$scipen
-      options(scipen=3)
-      cat("the log-likelihood improved by",
-          format.pval(Lout$value,digits=4,eps=1e-4),"\n")
-      options(scipen=current.scipen)
-    }else{
-      cat("the log-likelihood did not improve.\n")
-    }
+#   if(Lout$value < trustregion-0.001){
+#     current.scipen <- options()$scipen
+#     options(scipen=3)
+#     cat("the log-likelihood improved by",
+#         format.pval(Lout$value,digits=4,eps=1e-4),"\n")
+#     options(scipen=current.scipen)
+#   }else{
+#     cat("the log-likelihood did not improve.\n")
+#   }
     if(inherits(Lout,"try-error") || Lout$value > 199 || Lout$value < -790) {
       cat("MLE could not be found. Trying Nelder-Mead...\n")
       Lout <- try(optim(par=guess, 
@@ -234,11 +234,12 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                           failure=FALSE),
                         class="ergm"))
   } else {
-    gradient <- llik.grad(theta=Lout$par, xobs=xobs, xsim=xsim,
+    gradienttheta <- llik.grad(theta=Lout$par, xobs=xobs, xsim=xsim,
                           probs=probs, 
                           xsim.miss=xsim.miss, probs.miss=probs.miss,
                           varweight=varweight, eta0=eta0, etamap=model$etamap)
-    gradient[model$etamap$offsettheta] <- 0
+    gradient <- rep(NA, length=length(theta0))
+    gradient[!model$etamap$offsettheta] <- gradienttheta
     #
     #  Calculate the auto-covariance of the MCMC suff. stats.
     #  and hence the MCMC s.e.
