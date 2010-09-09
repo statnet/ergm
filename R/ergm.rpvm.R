@@ -259,6 +259,8 @@ ergm.FindFailedSlaves <- function (tids) {
 'as.integer(maxedges),',
 'as.integer(MCMCparams.parallel$Clist.miss$heads), as.integer(MCMCparams.parallel$Clist.miss$tails),',
 'as.integer(MCMCparams.parallel$Clist.miss$nedges),',
+'as.integer(MCMCparams.parallel$Clist.dt$heads), as.integer(MCMCparams.parallel$Clist.parallel.dt$tails),',
+'as.integer(MCMCparams$Clist.dt$nedges),',
 'PACKAGE="ergm")',
    '# save the results',
    'z <- list(s=z$s, newnwheads=z$newnwheads, newnwtails=z$newnwtails)',

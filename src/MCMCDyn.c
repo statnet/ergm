@@ -79,7 +79,7 @@
 }
 
 /*****************
- void MCMC_wrapper
+ void MCMCDyn_wrapper
 
  Wrapper for a call from R.
 *****************/

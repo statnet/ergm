@@ -10,7 +10,7 @@
 *****************/
 
 /*****************
- void MCMC_wrapper
+ void PILA_wrapper
 
  Wrapper for a call from R.
 *****************/
