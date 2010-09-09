@@ -87,18 +87,17 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   varweight <- 0.5
   if (missingflag) {
     loglikelihoodfn <- switch(metric,
-                              Likelihood=llik.fun.miss.robust,
-                              lognormal=llik.fun.miss.robust,
-                              Median.Likelihood=llik.fun.miss.robust,
-                              EF.Likelihood=llik.fun.miss.robust,
+                              Likelihood=llik.fun.miss,
+                              lognormal=llik.fun.miss,
+                              Median.Likelihood=llik.fun.miss,
+                              EF.Likelihood=llik.fun.miss,
                               llik.fun.miss.robust)
-    # This looks like a bug:  (None of these functions is a gradient)
     gradientfn <- switch(metric,
-                         Likelihood=llik.fun.miss,
-                         lognormal=llik.fun.miss,
-                         Median.Likelihood=llik.fun.miss,
-                         EF.Likelihood=llik.fun.miss,
-                         llik.fun.miss)
+                         Likelihood=llik.grad.miss,
+                         lognormal=llik.grad.miss,
+                         Median.Likelihood=llik.grad.miss,
+                         EF.Likelihood=llik.grad.miss,
+                         llik.grad.miss)
     Hessianfn <- switch(metric,
                         Likelihood=llik.hessian.miss,
                         lognormal=llik.hessian.miss,
