@@ -2,13 +2,13 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
                       model, 
                       lag.max=10, lag.max.miss=lag.max) {
 # Adjust for any offset
-# av <- apply(statsmatrix, 2, mean)
-  av <- apply(statsmatrix,2,median)
+  av <- apply(statsmatrix, 2, mean)
+# av <- apply(statsmatrix,2,median)
   xsim <- sweep(statsmatrix, 2, av, "-")
   xobs <- -av
   if(!is.null(statsmatrix.miss)){
-#  av.miss <- apply(statsmatrix.miss, 2, mean)
-   av.miss <- apply(statsmatrix.miss, 2, median)
+   av.miss <- apply(statsmatrix.miss, 2, mean)
+#  av.miss <- apply(statsmatrix.miss, 2, median)
    xsim.miss <- sweep(statsmatrix.miss, 2, av.miss,"-")
    xobs <- av.miss-av
   }
@@ -16,9 +16,15 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
 # eta transformation
 #
   eta0 <- ergm.eta(theta0, model$etamap)
-  eta <- ergm.eta(theta, model$etamap)
+  eta <-  ergm.eta(theta, model$etamap)
   etagrad <- ergm.etagrad(theta, model$etamap)
   etaparam <- eta-eta0
+  etaparam <- etaparam[!model$etamap$offsetmap]
+  xsim <- xsim[,!model$etamap$offsetmap, drop=FALSE]
+  xsim.miss <- xsim.miss[,!model$etamap$offsetmap, drop=FALSE]
+  xobs <- xobs[!model$etamap$offsetmap]
+  etagrad <- etagrad[,!model$etamap$offsetmap,drop=FALSE]
+  etagrad <- etagrad[!model$etamap$offsetmap,,drop=FALSE]
 #
 # names(theta) <- dimnames(statsmatrix)[[2]]
   names(theta) <- names(theta0)
@@ -40,23 +46,25 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
      part <- matrix(sum(R[-1,  ,  , drop=FALSE]))
    }
    cov.zbar <- (R[1,  ,  ] + part + t(part))/nrow(xsim)
-   prob <- exp(xsim %*% etaparam)
+   basepred <- xsim %*% etaparam
+   prob <- max(basepred)
+   prob <- exp(basepred - prob)
    prob <- prob/sum(prob)
-#  E <- apply(sweep(xsim, 1, prob, "*"), 2, sum)
-   E <- apply(xsim,2,wtd.median,weight=prob)
-   vtmp <- sweep(sweep(xsim, 2, E, "-"), 1, sqrt(prob), "*")
-   V <- t(vtmp) %*% vtmp
+   E <- apply(sweep(xsim, 1, prob, "*"), 2, sum)
+#  E <- apply(xsim,2,wtd.median,weight=prob)
+   htmp <- sweep(sweep(xsim, 2, E, "-"), 1, sqrt(prob), "*")
+   htmp <- htmp %*% t(etagrad)
+   V <- t(htmp) %*% htmp
    gradient <- (xobs-E) %*% t(etagrad)
-   V <- as.matrix(etagrad %*% V %*% t(etagrad))
    cov.zbar <- as.matrix(etagrad %*% cov.zbar %*% t(etagrad))
-   if(any(!model$etamap$offsettheta)){
-    V <- as.matrix(V[!model$etamap$offsettheta,])
-    V <- as.matrix(V[,!model$etamap$offsettheta])
-   }else{
-    V <- matrix(ncol=0,nrow=0)
-   }
-   cov.zbar <- cov.zbar[!model$etamap$offsettheta,,drop=FALSE]
-   cov.zbar <- cov.zbar[,!model$etamap$offsettheta,drop=FALSE]
+#  if(any(!model$etamap$offsettheta)){
+#   V <- as.matrix(V[!model$etamap$offsettheta,])
+#   V <- as.matrix(V[,!model$etamap$offsettheta])
+#  }else{
+#   V <- matrix(ncol=0,nrow=0)
+#  }
+#  cov.zbar <- cov.zbar[!model$etamap$offsettheta,,drop=FALSE]
+#  cov.zbar <- cov.zbar[,!model$etamap$offsettheta,drop=FALSE]
    novar <- diag(V)==0
 #
 #  Calculate the auto-covariance of the Conditional MCMC suff. stats.
@@ -75,24 +83,26 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
      part <- matrix(sum(R[-1,  ,  , drop=FALSE]))
     }
     cov.zbar.miss <- (R[1,  ,  ] + part + t(part))/nrow(xsim.miss)
-    prob.miss <- exp(xsim.miss %*% etaparam)
+    misspred <- xsim.miss %*% etaparam
+    prob.miss <- max(misspred)
+    prob.miss <- exp(misspred - prob.miss)
     prob.miss <- prob.miss/sum(prob.miss)
-#   E.miss <- apply(sweep(xsim.miss, 1, prob.miss, "*"), 2, sum)
-    E.miss <- apply(xsim.miss,2,wtd.median,weight=prob.miss)
-    vtmp <- sweep(sweep(xsim.miss, 2, E.miss, "-"), 1, sqrt(prob.miss), "*")
-    V.miss <- t(vtmp) %*% vtmp
-    V.miss <- etagrad %*% V.miss %*% t(etagrad)
-    cov.zbar.miss <- etagrad %*% cov.zbar.miss %*% t(etagrad)  
-    gradient <- gradient - (xobs+E.miss-E) %*% t(etagrad)
-    if(any(!model$etamap$offsettheta)){
-     V.miss <- V.miss[!model$etamap$offsettheta,]
-     V.miss <- V.miss[,!model$etamap$offsettheta]
-    }else{
-     V.miss <- matrix(ncol=0,nrow=0)
-    }
-    cov.zbar.miss <- cov.zbar.miss[,!model$etamap$offsettheta,drop=FALSE]
-    cov.zbar.miss <- cov.zbar.miss[!model$etamap$offsettheta,,drop=FALSE]
-    novar <- novar & diag(V.miss)==0
+    E.miss <- apply(sweep(xsim.miss, 1, prob.miss, "*"), 2, sum)
+#   E.miss <- apply(xsim.miss,2,wtd.median,weight=prob.miss)
+    htmp <- sweep(sweep(xsim.miss, 2, E.miss, "-"), 1, sqrt(prob.miss), "*")
+    htmp <- htmp %*% t(etagrad)
+    V.miss <- t(htmp) %*% htmp
+    gradient.miss <- (xobs-E.miss) %*% t(etagrad)
+    cov.zbar.miss <- as.matrix(etagrad %*% cov.zbar.miss %*% t(etagrad))
+#   if(any(!model$etamap$offsettheta)){
+#    V <- as.matrix(V[!model$etamap$offsettheta,])
+#    V <- as.matrix(V[,!model$etamap$offsettheta])
+#   }else{
+#    V <- matrix(ncol=0,nrow=0)
+#   }
+#   cov.zbar <- cov.zbar[!model$etamap$offsettheta,,drop=FALSE]
+#   cov.zbar <- cov.zbar[,!model$etamap$offsettheta,drop=FALSE]
+    novar <- novar | (diag(V.miss)==0)
     V.miss <- V.miss[!novar,,drop=FALSE] 
     V.miss <- V.miss[,!novar,drop=FALSE] 
     cov.zbar.miss <- cov.zbar.miss[!novar,,drop=FALSE] 
