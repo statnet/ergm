@@ -32,7 +32,7 @@
  have all its values set to zero
 *******************/
 WtNetwork WtNetworkInitialize(Vertex *heads, Vertex *tails, double *weights,
-			      Edge nedges, Vertex nnodes, int directed_flag, Vertex bipartite,
+			      Edge nedges, Vertex nnodes, int directed_flag, Vertex bipartite, double baseline_weight,
 			      int lasttoggle_flag) {
   Edge i;
   WtNetwork nw;
@@ -60,16 +60,19 @@ WtNetwork WtNetworkInitialize(Vertex *heads, Vertex *tails, double *weights,
   nw.nedges = 0; /* Edges will be added one by one */
   nw.directed_flag=directed_flag;
   nw.bipartite=bipartite;
+  nw.baseline_weight=baseline_weight;
 
   WtShuffleEdges(heads,tails,weights,nedges); /* shuffle to avoid worst-case performance */
 
   for(i = 0; i < nedges; i++) {
     Vertex h=heads[i], t=tails[i];
     double w=weights[i];
-    if (!directed_flag && h > t) 
-      WtAddEdgeToTrees(t,h,w,&nw); /* Undir edges always have head < tail */ 
-    else 
-      WtAddEdgeToTrees(h,t,w,&nw);
+    if(w!=baseline_weight){
+      if (!directed_flag && h > t) 
+	WtAddEdgeToTrees(t,h,w,&nw); /* Undir edges always have head < tail */ 
+      else 
+	WtAddEdgeToTrees(h,t,w,&nw);
+    }
   }
   PutRNGstate();
   return nw;
@@ -77,8 +80,8 @@ WtNetwork WtNetworkInitialize(Vertex *heads, Vertex *tails, double *weights,
 
 /*Takes vectors of doubles for edges; used only when constructing from inputparams. */
 WtNetwork WtNetworkInitializeD(double *heads, double *tails, double *weights, Edge nedges,
-			     Vertex nnodes, int directed_flag, Vertex bipartite,
-			     int lasttoggle_flag) {
+			       Vertex nnodes, int directed_flag, Vertex bipartite, double baseline_weight,
+			       int lasttoggle_flag) {
 
   Vertex *iheads=malloc(sizeof(Vertex)*nedges);
   Vertex *itails=malloc(sizeof(Vertex)*nedges);
@@ -88,7 +91,7 @@ WtNetwork WtNetworkInitializeD(double *heads, double *tails, double *weights, Ed
     itails[i]=tails[i];
   }
 
-  WtNetwork nw=WtNetworkInitialize(iheads,itails,weights,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag);
+  WtNetwork nw=WtNetworkInitialize(iheads,itails,weights,nedges,nnodes,directed_flag,bipartite,baseline_weight,lasttoggle_flag);
 
   free(iheads);
   free(itails);
@@ -110,7 +113,7 @@ void WtNetworkDestroy(WtNetwork *nwp) {
 }
 
 /*****************
- Edge EdgetreeSearch
+ Edge WtEdgetreeSearch
 
  Check to see if there's a WtTreeNode with value b 
  in the tree rooted at edges[a].  Return i such that 
@@ -178,12 +181,12 @@ Wtprintedge(x, edges);
 }
 
 /*****************
- Edge ToggleEdge
+ int WtSetEdge
 
- Toggle an edge:  Set it to the opposite of its current
- value.  Return 1 if edge added, 0 if deleted.
+ Set an weighted edge value: set it to its new weight. Create if it
+does not exist, destroy by setting to baseline. 
 *****************/
-int WtToggleEdge (Vertex head, Vertex tail, double weight, WtNetwork *nwp) 
+void WtSetEdge (Vertex head, Vertex tail, double weight, WtNetwork *nwp) 
 {
   if (!(nwp->directed_flag) && head > tail) {
     Vertex temp;
@@ -191,20 +194,57 @@ int WtToggleEdge (Vertex head, Vertex tail, double weight, WtNetwork *nwp)
     head = tail;
     tail = temp;
   }
-  if (WtAddEdgeToTrees(head,tail,weight,nwp))
-    return 1;
-  else 
-    return 1 - WtDeleteEdgeFromTrees(head,tail,nwp);
+
+  if(weight==nwp->baseline_weight){
+    // If the function is to set the edge value to the baseline, just delete it.
+    WtDeleteEdgeFromTrees(head,tail,nwp);
+  }else{
+    // Find the out-edge
+    Edge oe=WtEdgetreeSearch(head,tail,nwp->outedges);
+    if(oe){
+      // If it exists AND already has the target weight, do nothing.
+      if(nwp->outedges[oe].weight==weight) return;
+      else{
+	// Find the corresponding in-edge.
+	Edge ie=WtEdgetreeSearch(tail,head,nwp->inedges);
+	nwp->inedges[ie].weight=nwp->outedges[oe].weight=weight;
+      }
+    }else{
+      // Otherwise, create a new edge with that weight.
+      WtAddEdgeToTrees(head,tail,weight,nwp);
+    }
+
+  }
 }
 
 /*****************
- Edge ToggleEdgeWithTimestamp
- By MSH 11/26/06
+ int WtGetEdge
 
- Same as ToggleEdge, but this time with the additional
+ Set an weighted edge value: set it to its new weight. Create if it
+does not exist, destroy by setting to baseline. 
+*****************/
+double WtGetEdge (Vertex head, Vertex tail, WtNetwork *nwp) 
+{
+  if (!(nwp->directed_flag) && head > tail) {
+    Vertex temp;
+    temp = head; /*  Make sure head<tail always for undirected edges */
+    head = tail;
+    tail = temp;
+  }
+
+  Edge oe=WtEdgetreeSearch(head,tail,nwp->outedges);
+  if(oe) return nwp->outedges[oe].weight;
+  else return nwp->baseline_weight;
+}
+
+
+/*****************
+ Edge WtSetEdgeWithTimestamp
+
+ Same as WtSetEdge, but this time with the additional
  step of updating the matrix of 'lasttoggle' times
  *****************/
-int WtToggleEdgeWithTimestamp (Vertex head, Vertex tail, double weight, WtNetwork *nwp) 
+void WtSetEdgeWithTimestamp (Vertex head, Vertex tail, double weight, WtNetwork *nwp) 
 {
   Edge k;
 
@@ -223,10 +263,7 @@ int WtToggleEdgeWithTimestamp (Vertex head, Vertex tail, double weight, WtNetwor
     nwp->duration_info.lasttoggle[k] = nwp->duration_info.MCMCtimer;
   }
 
-  if (WtAddEdgeToTrees(head,tail,weight,nwp))
-    return 1;
-  else 
-    return 1 - WtDeleteEdgeFromTrees(head,tail,nwp);
+  WtSetEdge(head,tail,weight,nwp);
 }
 
 /*****************
@@ -326,7 +363,7 @@ void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight, WtTreeNode *edges, 
 void UpdateNextedge
 *****************/
 void WtUpdateNextedge (WtTreeNode *edges, Edge *nextedge, WtNetwork *nwp) {
-  int mult=2;
+  const unsigned int mult=2;
   
   while (++*nextedge < nwp->maxedges) {
     if (edges[*nextedge].value==0) return;
@@ -470,15 +507,16 @@ Edge WtDesignMissing (Vertex a, Vertex b, WtNetwork *mnwp) {
 }
 
 /*****************
-  int FindithEdge
+  int WtFindithEdge
 
-  Find the ith edge in the Network *nwp and
-  update the values of head and tail appropriately.  Return
-  1 if successful, 0 otherwise.  
+  Find the ith edge in the WtNetwork *nwp and update the values of
+  head, tail, and weight appropriately. If the value passed to head,
+  tail, or weight is NULL, it is not updated, so it is possible to
+  only obtain what is needed. Return 1 if successful, 0 otherwise.
   Note that i is numbered from 1, not 0.  Thus, the maximum possible
   value of i is nwp->nedges.
 ******************/
-int WtFindithEdge (Vertex *head, Vertex *tail, Edge i, WtNetwork *nwp) {
+int WtFindithEdge (Vertex *head, Vertex *tail, double *weight, Edge i, WtNetwork *nwp) {
   Vertex h=1;
   Edge e;
 
@@ -492,8 +530,9 @@ int WtFindithEdge (Vertex *head, Vertex *tail, Edge i, WtNetwork *nwp) {
   while (i-- > 1) {
     e=WtEdgetreeSuccessor(nwp->outedges, e);
   }
-  *head = h;
-  *tail = nwp->outedges[e].value;
+  if(head) *head = h;
+  if(tail) *tail = nwp->outedges[e].value;
+  if(weight) *weight = nwp->outedges[e].weight;
   return 1;
 }
 
@@ -529,7 +568,7 @@ Edge WtEdgeTree2EdgeList(Vertex *heads, Vertex *tails, double *weights, WtNetwor
       e = WtEdgetreeSuccessor(nwp->outedges, e)){
         heads[nextedge] = v;
         tails[nextedge] = nwp->outedges[e].value;
-	if(weights) weights[nextedge] = EdgeWeight(heads[nextedge],tails[nextedge],nwp);
+	if(weights) weights[nextedge] = nwp->outedges[e].weight;
         nextedge++;
       }
     }
@@ -542,12 +581,12 @@ Edge WtEdgeTree2EdgeList(Vertex *heads, Vertex *tails, double *weights, WtNetwor
         if(v < k){
           heads[nextedge] = k;
           tails[nextedge] = v;
-	  if(weights) weights[nextedge] = EdgeWeight(k,v,nwp);
+	  if(weights) weights[nextedge] = nwp->outedges[e].weight;
           nextedge++;
         }else{
           heads[nextedge] = v;
           tails[nextedge] = k;
-	  if(weights) weights[nextedge] = EdgeWeight(v,k,nwp);
+	  if(weights) weights[nextedge] = nwp->outedges[e].weight;
           nextedge++;
         }
       }
@@ -572,16 +611,16 @@ void WtShuffleEdges(Vertex *heads, Vertex *tails, double *weights, Edge nedges){
 }
 
 /*****************
- long int EdgeWeight
+ double EdgeWeight
 
  Return weight of (head,tail) in a WtNetwork
  *****************/
-double EdgeWeight (Vertex head, Vertex tail, WtNetwork *nwp) 
+/*double EdgeWeight (Vertex head, Vertex tail, WtNetwork *nwp) 
 {
   Edge k;
   if (!(nwp->directed_flag) && head > tail) {
     Vertex temp;
-    temp = head; /*  Make sure head<tail always for undirected edges */
+    temp = head; //  Make sure head<tail always for undirected edges 
     head = tail;
     tail = temp;
   }
@@ -592,3 +631,5 @@ double EdgeWeight (Vertex head, Vertex tail, WtNetwork *nwp)
     k = (tail-1)*(tail-2)/2 + head - 1;    
   return nwp->outedges[k].weight;
 }
+
+*/
