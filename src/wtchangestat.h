@@ -45,7 +45,7 @@ typedef struct WtModelTermstruct {
 /****************************************************/
 /* changestat function prototypes, 
    plus a few supporting function prototypes */
-#define WtD_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *heads, Vertex *tails, double *weights, double *oldweights,  WtModelTerm *mtp, WtNetwork *nwp)
+#define WtD_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *heads, Vertex *tails, double *weights, WtModelTerm *mtp, WtNetwork *nwp)
 #define WtT_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)
 #define WtS_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)              
 #endif
