@@ -1,19 +1,35 @@
-ergm.getglobalstats <- function(nw, m) {
-  Clist <- ergm.Cprepare(nw, m)
+ergm.getglobalstats <- function(nw, m, response=NULL) {
+  Clist <- ergm.Cprepare(nw, m, response=response)
   #
   #    Calculate the global statistics
   #
-  gs <- .C("network_stats_wrapper",
-           as.integer(Clist$heads), as.integer(Clist$tails), 
-           as.integer(Clist$nedges),
-           as.integer(Clist$n),
-           as.integer(Clist$dir), as.integer(Clist$bipartite), 
-           as.integer(Clist$nterms), 
-           as.character(Clist$fnamestring), as.character(Clist$snamestring), 
-           as.double(Clist$inputs),
-           gs = double(Clist$nstats),
-           PACKAGE="ergm"
-           )$gs
+  
+  gs <- (
+         if(is.null(response))
+         .C("network_stats_wrapper",
+            as.integer(Clist$heads), as.integer(Clist$tails), 
+            as.integer(Clist$nedges),
+            as.integer(Clist$n),
+            as.integer(Clist$dir), as.integer(Clist$bipartite), 
+            as.integer(Clist$nterms), 
+            as.character(Clist$fnamestring), as.character(Clist$snamestring), 
+            as.double(Clist$inputs),
+            gs = double(Clist$nstats),
+            PACKAGE="ergm"
+            )$gs
+         else
+         .C("wt_network_stats_wrapper",
+            as.integer(Clist$heads), as.integer(Clist$tails), as.double(Clist$weights), 
+            as.integer(Clist$nedges), as.double(Clist$baseline_weight),
+            as.integer(Clist$n),
+            as.integer(Clist$dir), as.integer(Clist$bipartite), 
+            as.integer(Clist$nterms), 
+            as.character(Clist$fnamestring), as.character(Clist$snamestring), 
+            as.double(Clist$inputs),
+            gs = double(Clist$nstats),
+            PACKAGE="ergm"
+            )$gs
+         )
   names(gs) <- m$coef.names
   
   #

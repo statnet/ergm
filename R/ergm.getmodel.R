@@ -52,12 +52,11 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, ...,stergm.order=NULL) {
       names(v[[i]])[3] <- ""
       v[[i]][[4]] <- args
       dotdotdot <- list(...)
-      if (length(dotdotdot>0)) {
-        for(j in 1:length(dotdotdot)) {
-          v[[i]][[4+j]] <- dotdotdot[[j]]
-          names(v[[i]])[4+j] <- names(dotdotdot)[j]
-        }
-      }
+      for(j in seq_along(dotdotdot)) {
+        if(is.null(dotdotdot[[j]])) next
+        v[[i]][[4+j]] <- dotdotdot[[j]]
+        names(v[[i]])[4+j] <- names(dotdotdot)[j]
+      }    
       # The above steps are preparing the way to make the function call
       # InitErgm.xxxx(g, m, args, ...)
       if(!exists(as.character(v[[i]][[1]]),env=formula.env, mode="function")){
@@ -78,11 +77,10 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, ...,stergm.order=NULL) {
       v[[i]][[3]] <- args
       names(v[[i]])[3] <- ""
       dotdotdot <- list(...)
-      if (length(dotdotdot>0)) {
-        for(j in 1:length(dotdotdot)) {
-          v[[i]][[3+j]] <- dotdotdot[[j]]
-          names(v[[i]])[3+j] <- names(dotdotdot)[j]
-        }
+      for(j in seq_along(dotdotdot)) {
+        if(is.null(dotdotdot[[j]])) next
+        v[[i]][[3+j]] <- dotdotdot[[j]]
+        names(v[[i]])[3+j] <- names(dotdotdot)[j]
       }
       outlist <- eval(v[[i]], formula.env)  #Call the InitErgm function
       # Now it is necessary to add the output to the model object

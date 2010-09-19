@@ -1,4 +1,4 @@
-ergm.Cprepare <- function(nw, m) 
+ergm.Cprepare <- function(nw, m, response=NULL) 
 {
   # Build an object called Clist that contains all the necessary
   # ingredients to be passed to the C function.
@@ -9,14 +9,16 @@ ergm.Cprepare <- function(nw, m)
   if (is.null(bip)) bip <- 0
   Clist$bipartite <- bip
   Clist$ndyads <- n * (n-1) / (2-dir)
-  e<-as.matrix.network(nw,matrix.type="edgelist")
+  e<-as.matrix.network(nw,matrix.type="edgelist",attrname=response)
   Clist$maxpossibleedges <- min(max(1e+6, 2*nrow(e)), Clist$ndyads)
   if(length(e)==0){
     Clist$nedges<-0
     Clist$heads<-NULL
     Clist$tails<-NULL
+    Clist$weights<-NULL
+    Clist$baseline_weight<-0
   }else{
-    if(!is.matrix(e)){e <- matrix(e, ncol=2)}
+    if(!is.matrix(e)){e <- matrix(e, ncol=2+!is.null(response))}
     Clist$nedges<-dim(e)[1]
     # Ensure that for undirected networks, head<tail.
     if(dir){
@@ -25,6 +27,11 @@ ergm.Cprepare <- function(nw, m)
     }else{
       Clist$heads<-pmin(e[,1],e[,2])
       Clist$tails<-pmax(e[,1],e[,2])
+    }
+    if(!is.null(response)){
+      Clist$weights<-e[,3]
+      Clist$baseline_weight<-0
+      # TODO: Make the choice of baseline weight adaptive (i.e. most frequent value).
     }
   }
   mo<-m$terms 

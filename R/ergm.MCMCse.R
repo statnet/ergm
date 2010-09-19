@@ -21,7 +21,7 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
   etaparam <- eta-eta0
   etaparam <- etaparam[!model$etamap$offsetmap]
   xsim <- xsim[,!model$etamap$offsetmap, drop=FALSE]
-  xsim.miss <- xsim.miss[,!model$etamap$offsetmap, drop=FALSE]
+  if(!is.null(statsmatrix.miss)) xsim.miss <- xsim.miss[,!model$etamap$offsetmap, drop=FALSE]
   xobs <- xobs[!model$etamap$offsetmap]
   etagrad <- etagrad[,!model$etamap$offsetmap,drop=FALSE]
   etagrad <- etagrad[!model$etamap$offsetmap,,drop=FALSE]

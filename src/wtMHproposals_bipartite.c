@@ -28,11 +28,19 @@ void MH_BipartitePseudoPoisson (WtMHproposal *MHp, WtNetwork *nwp)  {
   oldwt = WtGetEdge(Mhead[0],Mtail[0],nwp);
 
   // If we can, decrement with probability 1/2. Otherwise, increment.
-  inc = (unif_rand()<0.5 || oldwt==0) ? 1 : -1;
-  Mweight[0]+=inc;
+  inc = (unif_rand()<0.5) ? +1 : -1;
+
+  Mweight[0]=oldwt + inc;
   
-  // Multiply the acceptance ratio by the ratio of reference measures.
+  // If the proposed weight is outside of the support, automatically
+  // reject the proposal.
+  if(Mweight[0]<0){
+    MHp->ratio=0;
+  }
+  else{
+    // Multiply the acceptance ratio by the ratio of reference measures.
   // This is y!/(y+1)! if incrementing and y!/(y-1)! if decrementing.
-  MHp->ratio = inc>0 ? 1.0/Mweight[0] : oldwt;
+    MHp->ratio = inc>0 ? 1.0/Mweight[0] : oldwt;
+  }
   
 }

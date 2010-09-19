@@ -195,7 +195,7 @@ void WtSetEdge (Vertex head, Vertex tail, double weight, WtNetwork *nwp)
     tail = temp;
   }
 
-  if(weight==nwp->baseline_weight){
+  if(0 && weight==nwp->baseline_weight){
     // If the function is to set the edge value to the baseline, just delete it.
     WtDeleteEdgeFromTrees(head,tail,nwp);
   }else{
@@ -213,7 +213,6 @@ void WtSetEdge (Vertex head, Vertex tail, double weight, WtNetwork *nwp)
       // Otherwise, create a new edge with that weight.
       WtAddEdgeToTrees(head,tail,weight,nwp);
     }
-
   }
 }
 

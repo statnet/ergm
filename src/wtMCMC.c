@@ -66,8 +66,6 @@ void WtMCMC_wrapper (int *heads, int *tails, double *weights, int *dnedges, doub
   
   WtModelDestroy(m);
   WtNetworkDestroy(nw);
-  if (n_medges>0)
-    WtNetworkDestroy(&nw[1]);
   PutRNGstate();  /* Disable RNG before returning */
 }
 
@@ -209,40 +207,43 @@ void WtMetropolisHastings (WtMHproposal *MHp,
   double ip, cutoff;
   
   step = taken = 0;
-/*  if (fVerbose)
+  /*  if (fVerbose)
     Rprintf("Now proposing %d MH steps... ", nsteps); */
   while (step < nsteps) {
     MHp->ratio = 1.0;
     (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
     
-    /* Calculate change statistics. */
-    WtChangeStats(MHp->ntoggles, MHp->togglehead, MHp->toggletail, MHp->toggleweight, nwp, m);
-      
-    /* Calculate inner product */
-    for (i=0, ip=0.0; i<m->n_stats; i++){
-      ip += theta[i] * m->workspace[i];
-    }
-    /* The logic is to set exp(cutoff) = exp(ip) * qratio ,
-    then let the MH probability equal min{exp(cutoff), 1.0}.
-    But we'll do it in log space instead.  */
-    cutoff = ip + log(MHp->ratio);
-      
-    /* if we accept the proposed network */
-    if (cutoff >= 0.0 || log(unif_rand()) < cutoff) { 
-      /* Make proposed toggles (updating timestamps--i.e., for real this time) */
-      for (i=0; i < MHp->ntoggles; i++){
-        WtSetEdge(MHp->togglehead[i], MHp->toggletail[i], MHp->toggleweight[i], nwp);
-      }
-      /* record network statistics for posterity */
-/*    Rprintf("change stats:");  */
-      for (i = 0; i < m->n_stats; i++){
-        networkstatistics[i] += m->workspace[i];
-/*      Rprintf("%f ", networkstatistics[i]);  */
-      }
-/*    Rprintf("\n nedges %d\n", nwp->nedges);  */
-      taken++;
+    // If the proposal failed, skip it.
+    if(*MHp->togglehead!=MH_FAILED){
+      /* Calculate change statistics. */
+      WtChangeStats(MHp->ntoggles, MHp->togglehead, MHp->toggletail, MHp->toggleweight, nwp, m);
 
+      /* Calculate inner product */
+      for (i=0, ip=0.0; i<m->n_stats; i++){
+	ip += theta[i] * m->workspace[i];
+      }
+      /* The logic is to set exp(cutoff) = exp(ip) * qratio ,
+	 then let the MH probability equal min{exp(cutoff), 1.0}.
+	 But we'll do it in log space instead.  */
+      cutoff = ip + log(MHp->ratio);
+      
+      /* if we accept the proposed network */    
+      if (cutoff >= 0.0 || log(unif_rand()) < cutoff) { 
+	/* Make proposed toggles (updating timestamps--i.e., for real this time) */
+	for (i=0; i < MHp->ntoggles; i++){
+	  WtSetEdge(MHp->togglehead[i], MHp->toggletail[i], MHp->toggleweight[i], nwp);
+	}
+	/* record network statistics for posterity */
+	for (i = 0; i < m->n_stats; i++){
+	  networkstatistics[i] += m->workspace[i];	  
+	}
+	taken++;
+      }
+    }else{
+      // For the moment, just break.
+      if(*MHp->toggletail==MH_IMPOSSIBLE || *MHp->toggletail==MH_UNRECOVERABLE) break;
     }
+
 /*  Catch massive number of edges caused by degeneracy */
 /*  if(nwp->nedges > (100000-1000)){step=nsteps;} */
     step++;

@@ -18,16 +18,17 @@
 
 ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALSE) {
   maxedges <- MCMCparams$maxedges
-  z <- .C("MCMC_wrapper",
-  as.integer(Clist$heads), as.integer(Clist$tails),
-  as.integer(Clist$nedges), as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
-  as.integer(Clist$dir), as.integer(Clist$bipartite),
-  as.integer(Clist$nterms),
-  as.character(Clist$fnamestring),
-  as.character(Clist$snamestring),
-  as.character(MHproposal$name), as.character(MHproposal$package),
-  as.double(Clist$inputs), as.double(eta0),
-  as.integer(MCMCparams$samplesize),
+  if(is.null(Clist$weights))
+    z <- .C("MCMC_wrapper",
+            as.integer(Clist$heads), as.integer(Clist$tails),
+            as.integer(Clist$nedges), as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
+            as.integer(Clist$dir), as.integer(Clist$bipartite),
+            as.integer(Clist$nterms),
+            as.character(Clist$fnamestring),
+            as.character(Clist$snamestring),
+            as.character(MHproposal$name), as.character(MHproposal$package),
+            as.double(Clist$inputs), as.double(eta0),
+            as.integer(MCMCparams$samplesize),
   # The line below was changed as of version 2.2-3.  Now, the statsmatrix is 
   # initialized to zero instead of allowing the first row to be nonzero, then 
   # adding this first row to each row within MCMC_wrapper.
@@ -35,20 +36,49 @@ ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALS
   # error because the MCMCparams$nmatrixentries object is new and will not yet 
   # exist in an unmodified function.  This is worth it:  There is no reason
   # that MCMCparams should include a huge matrix.
-  statsmatrix = double(MCMCparams$nmatrixentries),
+            statsmatrix = double(MCMCparams$nmatrixentries),
   #  statsmatrix = as.double(t(MCMCparams$stats)), # By default, as.double goes bycol, not byrow; thus, we use the transpose here.
-  as.integer(MCMCparams$burnin),
-  as.integer(MCMCparams$interval),
-  newnwheads = integer(MCMCparams$maxedges),
-  newnwtails = integer(MCMCparams$maxedges),
-  as.integer(verbose), as.integer(MHproposal$bd$attribs),
-  as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
-  as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
-  as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)),
-  as.integer(maxedges),
-  as.integer(MCMCparams$Clist.miss$heads), as.integer(MCMCparams$Clist.miss$tails),
-  as.integer(MCMCparams$Clist.miss$nedges),
-  PACKAGE="ergm")
+            as.integer(MCMCparams$burnin),
+            as.integer(MCMCparams$interval),
+            newnwheads = integer(MCMCparams$maxedges),
+            newnwtails = integer(MCMCparams$maxedges),
+            as.integer(verbose), as.integer(MHproposal$bd$attribs),
+            as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
+            as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
+            as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)),
+            as.integer(maxedges),
+            as.integer(MCMCparams$Clist.miss$heads), as.integer(MCMCparams$Clist.miss$tails),
+            as.integer(MCMCparams$Clist.miss$nedges),
+            PACKAGE="ergm")
+  else
+    z <- .C("WtMCMC_wrapper",
+            as.integer(Clist$heads), as.integer(Clist$tails), as.double(Clist$weights),
+            as.integer(Clist$nedges), as.double(Clist$baseline_weight), as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
+            as.integer(Clist$dir), as.integer(Clist$bipartite),
+            as.integer(Clist$nterms),
+            as.character(Clist$fnamestring),
+            as.character(Clist$snamestring),
+            as.character(MHproposal$name), as.character(MHproposal$package),
+            as.double(Clist$inputs), as.double(eta0),
+            as.integer(MCMCparams$samplesize),
+  # The line below was changed as of version 2.2-3.  Now, the statsmatrix is 
+  # initialized to zero instead of allowing the first row to be nonzero, then 
+  # adding this first row to each row within MCMC_wrapper.
+  # Any unmodified old function trying to use the new version will generate an 
+  # error because the MCMCparams$nmatrixentries object is new and will not yet 
+  # exist in an unmodified function.  This is worth it:  There is no reason
+  # that MCMCparams should include a huge matrix.
+            statsmatrix = double(MCMCparams$nmatrixentries),
+  #  statsmatrix = as.double(t(MCMCparams$stats)), # By default, as.double goes bycol, not byrow; thus, we use the transpose here.
+            as.integer(MCMCparams$burnin),
+            as.integer(MCMCparams$interval),
+            newnwheads = integer(MCMCparams$maxedges),
+            newnwtails = integer(MCMCparams$maxedges),
+            newnwweights = double(MCMCparams$maxedges),
+            as.integer(verbose), 
+            as.integer(maxedges),
+            PACKAGE="ergm")
+
 
   nedges <- z$newnwheads[1]  # This tells how many new edges there are
   if (nedges >= maxedges) {
@@ -62,11 +92,12 @@ ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALS
                      MCMCparams$maxedges, "\n")
     return(ergm.getMCMCsample(Clist, MHproposal, eta0, MCMCparams, verbose=FALSE))
   } else if (nedges==0) { 
-    newedgelist <- matrix(0, ncol=2, nrow=0)
+    newedgelist <- matrix(0, ncol=2+(!is.null(Clist$weights)), nrow=0)
   } else { 
     ## Post-processing of z$newnwheads and z$newnwtails: Combine into newedgelist
     ## The heads are listed starting at z$newnwheads[2], and similarly for tails.
     newedgelist <- cbind(z$newnwtails[2:(nedges+1)], z$newnwheads[2:(nedges+1)])
+    if(!is.null(Clist$weights)) newedgelist<-cbind(newedgelist,z$newnwweights[2:(nedges+1)])
   }
 
   ## Post-processing of z$statsmatrix element: coerce to correct-sized matrix

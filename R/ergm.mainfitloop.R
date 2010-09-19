@@ -4,7 +4,8 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
                              MHproposal, MHproposal.miss,
                              verbose=FALSE,
                              epsilon=1e-10,
-                             estimate=TRUE, ...) {
+                             estimate=TRUE,
+                             response=response,...) {
   iteration <- 1
   nw.orig <- nw
   asyse=theta0-theta0
@@ -41,11 +42,11 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     }else{
       cat("Iteration ",iteration," of at most ", MCMCparams$maxit,": \n",sep="")
     }
-    z <- ergm.getMCMCsample.parallel(nw, model, MHproposal, eta0, MCMCparams, verbose)
+    z <- ergm.getMCMCsample.parallel(nw, model, MHproposal, eta0, MCMCparams, verbose,response=response)
     statsmatrix <- z$statsmatrix
     v$sample <- statsmatrix
     if(network.naedgecount(nw) > 0){
-      z.miss <- ergm.getMCMCsample.parallel(nw, model, MHproposal.miss, eta0, MCMCparams.miss, verbose)
+      z.miss <- ergm.getMCMCsample.parallel(nw, model, MHproposal.miss, eta0, MCMCparams.miss, verbose, response=response)
       statsmatrix.miss <-z.miss$statsmatrix
       if(verbose){cat("Back from constrained MCMC...\n")}
     }else{
@@ -54,7 +55,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     }
     if(MCMCparams$sequential & network.naedgecount(nw) == 0){
       nw <- z$newnetwork
-      nw.obs <- summary(model$formula, basis=nw)
+      nw.obs <- summary(model$formula, basis=nw,response=response)
       namesmatch <- match(names(MCMCparams$meanstats), names(nw.obs))
       MCMCparams$stats[1,] <- nw.obs[namesmatch]-MCMCparams$meanstats
     }
@@ -89,7 +90,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
       print(apply(statsmatrix,2,summary.statsmatrix.ergm),scipen=6)
       degreedist(nw)
       cat("Meanstats of simulation, relative to observed network:\n")
-      print(summary(model$formula, basis=nw)-Clist$meanstats)
+      print(summary(model$formula, basis=nw,response=response)-Clist$meanstats)
     }
     if(verbose){cat("Calling optimization routines...\n")}
 

@@ -1,11 +1,11 @@
 ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams, 
-                               verbose) {
+                               verbose, response=NULL) {
 # Note:  In reality, there should be many fewer arguments to this function,
 # since most info should be passed via Clist (this is, after all, what Clist
 # is for:  Holding all arguments required for the .C call).  In particular,
 # the elements of MHproposal, MCMCparams, verbose should certainly
 # be part of Clist.  But this is a project for another day!
-  Clist <- ergm.Cprepare(nw, model)
+  Clist <- ergm.Cprepare(nw, model, response=response)
   maxedges <- max(5000, Clist$nedges)
 #
 #   Check for truncation of the returned edge list
@@ -23,7 +23,7 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
     statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
                           ncol=Clist$nstats,
                           byrow = TRUE)
-    newnetwork <- newnw.extract(nw,z)
+    newnetwork <- newnw.extract(nw,z,response=response)
     if(nedges >= 50000-1){
       cat("\n Warning:")
       cat("\n   The network has more than 50000 edges, and the model is likely to be degenerate.\n")
@@ -86,7 +86,7 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
      #                           matrix(z$newnw[2:z$newnw[1]], ncol=2, byrow=TRUE))
    }
     nedges <- z$newnwheads[1]
-    newnetwork<-newnw.extract(nw,z)
+    newnetwork<-newnw.extract(nw,z,response=response)
     if(verbose){cat("parallel samplesize=",nrow(statsmatrix),"by",
 	MCMCparams.parallel$samplesize,"\n")}
 
@@ -122,29 +122,53 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
 # mcmc equal to their slave number.
 # Assumes: Clist MHproposal eta0 MCMCparams maxedges verbose
 ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
-  z <- .C("MCMC_wrapper",
-  as.integer(Clist$heads), as.integer(Clist$tails),
-  as.integer(Clist$nedges), as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
-  as.integer(Clist$dir), as.integer(Clist$bipartite),
-  as.integer(Clist$nterms),
-  as.character(Clist$fnamestring),
-  as.character(Clist$snamestring),
-  as.character(MHproposal$name), as.character(MHproposal$package),
-  as.double(Clist$inputs), as.double(eta0),
-  as.integer(MCMCparams$samplesize),
-  s = as.double(t(MCMCparams$stats)),
-  as.integer(MCMCparams$burnin), 
-  as.integer(MCMCparams$interval),
-  newnwheads = integer(maxedges),
-  newnwtails = integer(maxedges),
-  as.integer(verbose), as.integer(MHproposal$bd$attribs),
-  as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
-  as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
-  as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)),
-  as.integer(maxedges),
-  as.integer(MCMCparams$Clist.miss$heads), as.integer(MCMCparams$Clist.miss$tails),
-  as.integer(MCMCparams$Clist.miss$nedges),
-  PACKAGE="ergm")
+  if(is.null(Clist$weights)){
+    z <- .C("MCMC_wrapper",
+            as.integer(Clist$heads), as.integer(Clist$tails),
+            as.integer(Clist$nedges), as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
+            as.integer(Clist$dir), as.integer(Clist$bipartite),
+            as.integer(Clist$nterms),
+            as.character(Clist$fnamestring),
+            as.character(Clist$snamestring),
+            as.character(MHproposal$name), as.character(MHproposal$package),
+            as.double(Clist$inputs), as.double(eta0),
+            as.integer(MCMCparams$samplesize),
+            s = as.double(t(MCMCparams$stats)),
+            as.integer(MCMCparams$burnin), 
+            as.integer(MCMCparams$interval),
+            newnwheads = integer(maxedges),
+            newnwtails = integer(maxedges),
+            as.integer(verbose), as.integer(MHproposal$bd$attribs),
+            as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
+            as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
+            as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)),
+            as.integer(maxedges),
+            as.integer(MCMCparams$Clist.miss$heads), as.integer(MCMCparams$Clist.miss$tails),
+            as.integer(MCMCparams$Clist.miss$nedges),
+            PACKAGE="ergm")
   # save the results
-  list(s=z$s, newnwheads=z$newnwheads, newnwtails=z$newnwtails)
+    list(s=z$s, newnwheads=z$newnwheads, newnwtails=z$newnwtails)
+  }else{
+    z <- .C("WtMCMC_wrapper",
+            as.integer(Clist$heads), as.integer(Clist$tails), as.double(Clist$weights),
+            as.integer(Clist$nedges), as.double(Clist$baseline_weight), as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
+            as.integer(Clist$dir), as.integer(Clist$bipartite),
+            as.integer(Clist$nterms),
+            as.character(Clist$fnamestring),
+            as.character(Clist$snamestring),
+            as.character(MHproposal$name), as.character(MHproposal$package),
+            as.double(Clist$inputs), as.double(eta0),
+            as.integer(MCMCparams$samplesize),
+            s = as.double(t(MCMCparams$stats)),
+            as.integer(MCMCparams$burnin), 
+            as.integer(MCMCparams$interval),
+            newnwheads = integer(maxedges),
+            newnwtails = integer(maxedges),
+            newnwweights = double(maxedges),
+            as.integer(verbose), 
+            as.integer(maxedges),
+            PACKAGE="ergm")
+    # save the results
+    list(s=z$s, newnwheads=z$newnwheads, newnwtails=z$newnwtails, newnwweights=z$newnwweights)
+  }
 }

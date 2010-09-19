@@ -307,13 +307,18 @@ function(x, alternative = c("two.sided", "less", "greater"),
 #  out
 #}
 
-newnw.extract<-function(oldnw,z,output="network"){
+newnw.extract<-function(oldnw,z,output="network",response=NULL){
   nedges<-z$newnwheads[1]
   newedgelist <-
     if(nedges>0) cbind(z$newnwheads[2:(nedges+1)],z$newnwtails[2:(nedges+1)])
     else matrix(0, ncol=2, nrow=0)
-  
-  network.update(oldnw,newedgelist,"edgelist",output=output)
+
+  newnw<-network.update(oldnw,newedgelist,"edgelist",output=output)
+
+  if(!is.null(response)){
+    newnw<-set.edge.attribute(newnw,attrname=response,z$newnwweights[2:(nedges+1)])
+  }
+  newnw
 }
 statnet.edit <- function(name,package=c("statnet","ergm","network")){
   i <- 1

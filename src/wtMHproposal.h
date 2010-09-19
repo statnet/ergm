@@ -42,7 +42,6 @@ typedef struct WtMHproposalstruct {
   Vertex *togglehead;
   Vertex *toggletail;
   double *toggleweight;
-  double *oldweight; // Used to "back up" weights for multi-dyad proposals.
   double ratio;
   int status;
   double *inputs; /* may be used if needed, ignored if not. */

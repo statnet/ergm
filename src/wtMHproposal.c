@@ -53,7 +53,6 @@ void WtMH_init(WtMHproposal *MH,
   MH->togglehead = (Vertex *)malloc(MH->ntoggles * sizeof(Vertex));
   MH->toggletail = (Vertex *)malloc(MH->ntoggles * sizeof(Vertex));
   MH->toggleweight = (double *)malloc(MH->ntoggles * sizeof(double));
-  MH->oldweight = (double *)malloc(MH->ntoggles * sizeof(double));
 }
 
 /*********************
@@ -65,6 +64,5 @@ void WtMH_free(WtMHproposal *MH){
   free(MH->togglehead);
   free(MH->toggletail);
   free(MH->toggleweight);
-  free(MH->oldweight);
 }
 

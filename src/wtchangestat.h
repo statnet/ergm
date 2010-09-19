@@ -38,7 +38,7 @@ typedef struct WtModelTermstruct {
 // weights with the current weights, and then swap them back when
 // done.
 #define GETOLDWT(a) oldwt=GETWT(heads[(a)],tails[(a)])
-#define OLDWT oldwt;
+#define OLDWT oldwt
 #define SETWT_IF_MORE_TO_COME(a) {if((a)+1<ntoggles) {SETWT(heads[(a)],tails[(a)],weights[(a)]); weights[(a)]=oldwt;}}
 #define UNDO_PREVIOUS_SETWTS(a) (a)--; while(--(a)>=0){oldwt=GETWT(heads[(a)],tails[(a)]); SETWT(heads[(a)],tails[(a)],weights[(a)]); weights[(a)]=oldwt; }
 
