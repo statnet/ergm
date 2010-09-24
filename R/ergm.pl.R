@@ -5,6 +5,9 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
                     verbose=FALSE, compressflag=TRUE) {
   bip <- Clist$bipartite
   n <- Clist$n
+# Determine whether any edges are missing.  If so, this will reduce the
+# number of observed (numobs) and also "turn off" the missing edges by
+# setting offset to 1 in the corresponding rows.
   if(Clist.miss$nedges>0){
     temp <- matrix(0,ncol=n,nrow=n)
     base <- cbind(as.vector(col(temp)), as.vector(row(temp)))
@@ -118,19 +121,22 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     if(is.null(theta.offset)){
       theta.offset <- rep(0, length=Clist$nstats)
       names(theta.offset) <- m$coef.names
-#     theta.offset[m$etamap$offsettheta] <- -Inf
-      theta.offset[m$etamap$offsettheta] <- -10000
+      theta.offset[m$etamap$offsettheta] <- -Inf
+#     theta.offset[m$etamap$offsettheta] <- -10000
     }
-#   foffset <- xmat[,!m$etamap$offsettheta,drop=FALSE]%*%theta.offset[!m$etamap$offsettheta]
-#   shouldoffset <- apply(abs(xmat[,m$etamap$offsettheta,drop=FALSE])>1e-8,1,any)
-    foffset <- xmat[,m$etamap$offsettheta,drop=FALSE]%*%theta.offset[m$etamap$offsettheta]
+# Commenting out recent version of this section that does not work;
+#   foffset <- xmat[,m$etamap$offsettheta,drop=FALSE]%*%theta.offset[m$etamap$offsettheta]
+#  Returning to the version from CRAN ergm v. 2.1:
+
+    foffset <- xmat[,!m$etamap$offsettheta,drop=FALSE]%*%theta.offset[!m$etamap$offsettheta]
+    shouldoffset <- apply(abs(xmat[,m$etamap$offsettheta,drop=FALSE])>1e-8,1,any)
     xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE]
     colnames(xmat) <- m$coef.names[!m$etamap$offsettheta]
-#   xmat <- xmat[!shouldoffset,,drop=FALSE]
-#   zy <- zy[!shouldoffset]
-#   wend <- wend[!shouldoffset]
-#   foffset <- foffset[!shouldoffset]
-##   theta.offset <- theta.offset[!m$etamap$offsettheta]
+    xmat <- xmat[!shouldoffset,,drop=FALSE]
+    zy <- zy[!shouldoffset]
+    wend <- wend[!shouldoffset]
+    foffset <- foffset[!shouldoffset]
+#   theta.offset <- theta.offset[!m$etamap$offsettheta]
   }else{
     foffset <- rep(0, length=length(zy))
     theta.offset <- rep(0, length=Clist$nstats)
