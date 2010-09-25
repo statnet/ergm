@@ -20,11 +20,13 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
   etagrad <- ergm.etagrad(theta, model$etamap)
   etaparam <- eta-eta0
   etaparam <- etaparam[!model$etamap$offsetmap]
-  xsim <- xsim[,!model$etamap$offsetmap, drop=FALSE]
-  xsim.miss <- xsim.miss[,!model$etamap$offsetmap, drop=FALSE]
-  xobs <- xobs[!model$etamap$offsetmap]
   etagrad <- etagrad[,!model$etamap$offsetmap,drop=FALSE]
   etagrad <- etagrad[!model$etamap$offsetmap,,drop=FALSE]
+  xobs <- xobs[!model$etamap$offsetmap]
+  xsim <- xsim[,!model$etamap$offsetmap, drop=FALSE]
+  if(!is.null(statsmatrix.miss)){
+   xsim.miss <- xsim.miss[,!model$etamap$offsetmap, drop=FALSE]
+  }
 #
 # names(theta) <- dimnames(statsmatrix)[[2]]
   names(theta) <- names(theta0)
@@ -107,6 +109,7 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
     V.miss <- V.miss[,!novar,drop=FALSE] 
     cov.zbar.miss <- cov.zbar.miss[!novar,,drop=FALSE] 
     cov.zbar.miss <- cov.zbar.miss[,!novar,drop=FALSE] 
+    gradient.miss <- gradient.miss[!novar] 
    }
    detna <- function(x){x <- det(x); if(is.na(x)){x <- -40};x}
    if(nrow(V)==1){
@@ -123,21 +126,32 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
    }
    cov.zbar <- cov.zbar[!novar,,drop=FALSE] 
    cov.zbar <- cov.zbar[,!novar,drop=FALSE] 
+   gradient <- gradient[!novar] 
+   gradient.full <- rep(NA,length=length(theta))
+   if(!is.null(statsmatrix.miss)){
+     gradient.full[!model$etamap$offsettheta][!novar] <- gradient - gradient.miss 
+   }else{
+     gradient.full[!model$etamap$offsettheta][!novar] <- gradient
+   }
    mc.se <- rep(NA,length=length(theta))
    mc.se0 <- try(solve(V, cov.zbar), silent=TRUE)
-   if(!(inherits(mc.se0,"try-error") || detna(V)< -20)){
+   if(!(inherits(mc.se0,"try-error"))){
     mc.se0 <- try(diag(solve(V, t(mc.se0))), silent=TRUE)
-    if(!(inherits(mc.se0,"try-error") || detna(V)< -20)){
+    if(!(inherits(mc.se0,"try-error"))){
      if(!is.null(statsmatrix.miss)){
-      mc.se.miss0 <- try(diag(solve(V.miss, t(solve(V.miss, cov.zbar.miss)))),
-                         silent=TRUE)
-      if(inherits(mc.se.miss0,"try-error") || detna(V.miss)< -20){
-       mc.se[!model$etamap$offsettheta][!novar] <- sqrt(mc.se0)
+      mc.se.miss0 <- try(solve(V.miss, cov.zbar.miss), silent=TRUE)
+      if(!(inherits(mc.se.miss0,"try-error"))){
+       mc.se.miss0 <- try(diag(solve(V.miss, t(mc.se.miss0))), silent=TRUE)
+       if(!inherits(mc.se.miss0,"try-error")){
+        mc.se[!model$etamap$offsettheta][!novar] <- sqrt(mc.se0 + mc.se.miss0)
+       }else{
+        mc.se[!model$etamap$offsettheta][!novar] <- sqrt(mc.se0)
+       }
       }else{
-       mc.se[!model$etamap$offsettheta][!novar] <- sqrt(mc.se0 + mc.se.miss0)
+       mc.se[!model$etamap$offsettheta][!novar] <- sqrt(mc.se0)
       }
      }else{
-       mc.se[!model$etamap$offsettheta][!novar] <- sqrt(mc.se0)
+      mc.se[!model$etamap$offsettheta][!novar] <- sqrt(mc.se0)
      }
     }
    }
@@ -147,12 +161,12 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
 # 
    test.hessian <- try(any(is.na(sqrt(diag(robust.inverse(V))))), silent=TRUE)
    if(inherits(test.hessian,"try-error") || test.hessian){
-    hessian0 <- robust.inverse(var(xsim[,!nova,drop=FALSE]))
+    hessian0 <- robust.inverse(var(xsim[,!novar,drop=FALSE]))
    }else{
     if(!is.null(statsmatrix.miss)){
      test.hessian.miss <- try(any(is.na(sqrt(diag(robust.inverse(V.miss))))), silent=TRUE)
      if(inherits(test.hessian.miss,"try-error") || test.hessian.miss
-                 || detna(V.miss)< -20 ){
+                 || detna(V.miss)< -25 ){
        hessian0 <- - V
      }else{
        hessian0 <-  V.miss-V
@@ -187,5 +201,5 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
     covar[,!model$etamap$offsettheta][,novar] <- NA
    }
    dimnames(covar) <- list(names(theta),names(theta))
-   list(mc.se=mc.se, hessian=hessian, gradient=gradient, covar=covar)
+   list(mc.se=mc.se, hessian=hessian, gradient=gradient.full, covar=covar)
 }
