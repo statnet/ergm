@@ -115,7 +115,7 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
 
     # Create a network object if statsonly==FALSE
     if (!statsonly) {
-      nw.list[[i]] <- network.update(nw, z$newedgelist[,1:2], matrix.type="edgelist",
+      nw.list[[i]] <- network.update(nw, z$newedgelist[,1:2,drop=FALSE], matrix.type="edgelist",
                                      output=control$network.output)
       if(!is.null(response)){
         nw.list[[i]]<-set.edge.attribute(nw.list[[i]],attrname=response,z$newedgelist[,3])

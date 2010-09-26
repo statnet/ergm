@@ -15,7 +15,9 @@ ergm.Cprepare <- function(nw, m, response=NULL)
     Clist$nedges<-0
     Clist$heads<-NULL
     Clist$tails<-NULL
-    Clist$weights<-NULL
+    ## Make sure weights attribute exists, even if it's empty, since
+    ## it's used to decide whether MCMC or WtMCMC is called.
+    Clist$weights<-as.numeric(NULL)
     Clist$baseline_weight<-0
   }else{
     if(!is.matrix(e)){e <- matrix(e, ncol=2+!is.null(response))}
