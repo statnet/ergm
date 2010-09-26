@@ -23,39 +23,104 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
     proposalclass <- "fmle"
     y0 <- ergm.getnetwork(as.formula(paste("~",lhs[[3]])))
     y1 <- ergm.getnetwork(as.formula(paste("~",lhs[[2]])))
-    nw = network.copy(y0)
-    nwm = network.copy(y0)
-    set.edge.attribute(nwm,attrname="na",value=TRUE)
-    ydiscordantedges <- as.matrix(network(as.sociomatrix(y1)&!as.sociomatrix(y0),directed=is.directed(y0)),matrix.type="edgelist")
+    #
+    # nw contents:
+    # y0 y1  nw  nw[2] initial
+    #  0  0   0    0    0
+    #  0  1   1    0    1
+    #  0 NA  NA    0    NA
+    #  1  0   1    1    NA
+    #  1  1   1    1    NA
+    #  1 NA   1    1    NA
+    # NA  0  NA    0    NA
+    # NA  1   1    0    NA
+    # NA NA  NA    0    NA
+    #
+    nw <- network.copy(y1)
+    y0edges <- as.sociomatrix(y0)
+    y0edges[is.na(y0edges)] <- 0
+    y1edges <- as.sociomatrix(y1)
+    y1edges[is.na(y1edges)] <- 0
+    ydiscordantedges <- as.matrix(network((!y1edges)&y0edges,
+      directed=is.directed(y0)),matrix.type="edgelist")
     add.edges(nw,ydiscordantedges[,1],ydiscordantedges[,2])
-    add.edges(nwm,ydiscordantedges[,1],ydiscordantedges[,2])
-#   delete.edges(y0,eid=1:length(y0$mel))
-#   add.edges(y0,ydiscordantedges[,1],ydiscordantedges[,2])
+    nwm <- network.copy(y1)
+    y0edges <- as.sociomatrix(y0)
+    y0edges[is.na(y0edges)] <- 1
+    y0edges <- as.matrix(network(y0edges,directed=is.directed(y0)),
+                         matrix.type="edgelist")
+    if(nrow(y0edges)>0){
+     for(i in 1:nrow(y0edges)){
+      nwm[y0edges[i,1],y0edges[i,2]] <- NA
+     }
+    }
+    MHproposal.miss <- "formationNonObservedMLE"
    }
    if(MLestimate=="dissolution"){
     proposalclass <- "dmle"
     y0 <- ergm.getnetwork(as.formula(paste("~",lhs[[3]])))
     y1 <- ergm.getnetwork(as.formula(paste("~",lhs[[2]])))
-#   nw = network.copy(y0)
-#   delete.edges(nw,eid=1:length(nw$mel))
-    nw = copy.null.network(y0)
-    nwm <- as.sociomatrix(y0)
-    y0nonedges <- as.matrix(network((nwm==0)&col(nwm)!=row(nwm),directed=is.directed(y0)),matrix.type="edgelist")
-    nwm = copy.null.network(y0)
-    add.edges(nwm,y0nonedges[,1],y0nonedges[,2])
-    set.edge.attribute(nwm,attrname="na",value=TRUE)
-    yminusedges <- as.matrix(network(as.sociomatrix(y0)&as.sociomatrix(y1),directed=is.directed(y0)),matrix.type="edgelist")
-    add.edges(nw,yminusedges[,1],yminusedges[,2])
-    add.edges(nwm,yminusedges[,1],yminusedges[,2])
-#   ydiscordantedges <- as.matrix(network(as.sociomatrix(y0)&!as.sociomatrix(y1),directed=is.directed(y0)),matrix.type="edgelist")
-#   delete.edges(y0,eid=1:length(y0$mel))
-#   add.edges(y0,ydiscordantedges[,1],ydiscordantedges[,2])
+    # nw contents:
+    # y0 y1  nw  nw[2] initial
+    #  0  0   0    0    NA
+    #  0  1   0    0    NA
+    #  0 NA   0    0    NA
+    #  1  0   0    1     0
+    #  1  1   1    1     1
+    #  1 NA  NA    1    NA
+    # NA  0   0    0    NA
+    # NA  1  NA    0    NA
+    # NA  NA NA    0    NA
+    nw <- network.copy(y1)
+    y0edges <- as.sociomatrix(y0)
+    y0edges[is.na(y0edges)] <- 1
+    y1edges <- as.sociomatrix(y1)
+    y1edges[is.na(y1edges)] <- 1
+    yminusedges <- as.matrix(network((!y0edges)&y1edges,directed=is.directed(y0)),matrix.type="edgelist")
+    y1edges <- cbind(unlist(lapply(y1$mel, "[[", "outl")),unlist(lapply(y1$mel, "[[", "inl")))
+    y1delete <- match(yminusedges[,1]+yminusedges[,2]*network.size(y1),
+                      y1edges[,1]+y1edges[,2]*network.size(y1))
+    delete.edges(nw,y1delete)
+    #
+    y0edges <- as.sociomatrix(is.na(y0))
+    y1edges <- as.sociomatrix(y1)
+    y1edges[is.na(y1edges)] <- 1
+    yminusedges <- as.matrix(network(y0edges&y1edges,directed=is.directed(y0)),matrix.type="edgelist")
+    if(nrow(yminusedges)>0){
+     for(i in 1:nrow(yminusedges)){
+      nw[yminusedges[i,1],yminusedges[i,2]] <- NA
+     }
+    }
+    #
+    y0edges <- as.sociomatrix(is.na(y0))
+    y1edges <- as.sociomatrix(y1)
+    y1edges[is.na(y1edges)] <- 0
+#   yminusedges <- as.matrix(network(y0edges&(!y1edges),directed=is.directed(y0)),matrix.type="edgelist")
+    yminusedges <- as.matrix(network(y0edges,directed=is.directed(y0)),matrix.type="edgelist")
+    set.edge.attribute(y0,attrname="na",value=FALSE)
+    nwm <- network.copy(y1)
+    y0edges <- as.sociomatrix(y0)
+    y0edges[is.na(y0edges)] <- 0
+    y0edges <- as.matrix(network(!y0edges,directed=is.directed(y0)),
+                         matrix.type="edgelist")
+    if(nrow(y0edges)>0){
+     for(i in 1:nrow(y0edges)){
+      nwm[y0edges[i,1],y0edges[i,2]] <- NA
+     }
+    }
+    if(nrow(yminusedges)>0){
+     for(i in 1:nrow(yminusedges)){
+      y0[yminusedges[i,1],yminusedges[i,2]] <- 0
+     }
+    }
+    MHproposal.miss <- "dissolutionNonObservedMLE"
    }
    formula.passed<-formula
    formula<-ergm.update.formula(formula,nw~.)
    MLestimate=!MPLEonly
   }}else{
-   nwm <- nw
+   nwm <- network.copy(nw)
+   MHproposal.miss <- "randomtoggleNonObserved"
   }
   # End conditional MLE in dynamic model
   if(!is.null(meanstats)){
@@ -98,6 +163,7 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
    droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
    droppedterms[is.na(namesmatch)] <- TRUE
    model.initial$etamap$offsettheta[is.na(namesmatch)] <- TRUE
+   model.initial$etamap$offsetmap[model.initial$etamap$canonical[droppedterms & (model.initial$etamap$canonical>0)]] <- TRUE
   }else{
    model.initial <- ergm.getmodel(formula, nw, response=response, drop=control$drop, initialfit=TRUE)
    droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
@@ -106,12 +172,13 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
 
   MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial,class=proposalclass,family=family)
   # Note:  MHproposal function in CRAN version does not use the "class" argument for now
-  MHproposal.miss <- MHproposal("randomtoggleNonObserved", control$prop.args, nw, model.initial)
+  MHproposal.miss <- MHproposal(MHproposal.miss, control$prop.args, nw, model.initial)
 
   conddeg <- switch(MHproposal$name=="CondDegree",control$drop,NULL)
   MCMCparams=c(control,
    list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,
-        maxit=maxit,Clist.miss=NULL, mcmc.precision=control$mcmc.precision))
+        maxit=maxit, Clist.miss=NULL, Clist.dt=NULL,
+	mcmc.precision=control$mcmc.precision))
 
 
   if (verbose) cat("Fitting initial model.\n")
@@ -153,12 +220,14 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
    theta0 <- ergm.revisetheta0(model, theta0)
    model.drop <- ergm.getmodel(formula, nw, response=response, drop=TRUE, expanded=TRUE, silent=TRUE)
 #            silent="MPLE" %in% theta0copy)
+   eta0 <- ergm.eta(theta0, model$etamap)
    namesdrop <- model$coef.names[is.na(match(model$coef.names, model.drop$coef.names))]
    names(model$etamap$offsettheta) <- names(theta0)
    droppedterms <- rep(FALSE, length=length(model$etamap$offsettheta))
    droppedterms[is.na(namesmatch)] <- TRUE
    theta0[droppedterms] <- -Inf
    model$etamap$offsettheta[names(model$etamap$offsettheta) %in% namesdrop] <- TRUE
+   model$etamap$offsetmap[model$etamap$canonical[droppedterms & (model$etamap$canonical>0)]] <- TRUE
   }else{
    model <- ergm.getmodel(formula, nw, response=response, drop=control$drop, expanded=TRUE)
    # revise theta0 to reflect additional parameters
@@ -168,10 +237,11 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
   }
 
   Clist <- ergm.Cprepare(nw, model, response=response)
+  Clist.miss <- ergm.design(nw, model, verbose=FALSE)
   if((MHproposal$name!="FormationMLE")&(MHproposal$name!="DissolutionMLE")){
-    Clist.miss <- ergm.design(nw, model, verbose=verbose)
+    Clist.dt <- list(heads=NULL, tails=NULL, nedges=0, dir=is.directed(nw))
   }else{
-    Clist.miss <- ergm.Cprepare(y0, model)
+    Clist.dt <- ergm.Cprepare(y0, model)
   }
   Clist$obs <- summary(model$formula, drop=FALSE, response=response)
 
@@ -196,7 +266,7 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
 
   MCMCparams=c(control,
    list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,
-        maxit=maxit,Clist.miss=Clist.miss, mcmc.precision=control$mcmc.precision))
+        maxit=maxit,Clist.miss=Clist.miss,Clist.dt=Clist.dt, mcmc.precision=control$mcmc.precision))
 
 
   if (verbose) cat("Fitting ERGM.\n")
