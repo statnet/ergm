@@ -117,4 +117,3 @@ ergm.pairgeodesic <- function(edgelist, s, d, n=max(edgelist), directed=FALSE) {
   ans
 }
 
-

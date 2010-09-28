@@ -33,6 +33,11 @@ ergm.getglobalstats <- function(nw, m) {
     i <- i + k
   }
 
+  tase <- grep("duration",names(gs)) # not currently part of CRAN version
+  if(length(tase) >0){
+    gs[tase] <- -gs[tase]
+  }
+
   gs
 }
 

@@ -2,8 +2,10 @@ control.simulate<-control.simulate.formula<-function(prop.weights="default",
                                                      prop.args=NULL,
                                                      drop=FALSE,
                                                      summarizestats=FALSE,
+                                                     maxedges=20000,
                                                      maxchanges=1000000,
                                                      packagenames="ergm",
+                                                     network.output="network",
                                                      parallel=0){
   control<-list()
   for(arg in names(formals(sys.function())))
@@ -16,7 +18,9 @@ control.simulate.ergm<-function(prop.weights="default",
                                 drop=FALSE,
                                 summarizestats=FALSE,
                                 maxchanges=1000000,
+                                maxedges=20000,
                                 packagenames="ergm",
+                                network.output="network",
                                 parallel=0){
   control<-list()
   for(arg in names(formals(sys.function())))

@@ -30,7 +30,11 @@ ergm.mple<-function(Clist, Clist.miss, m, theta0=NULL, theta.offset=NULL,
    options(warn=-1)
 #  options(warn=2)
    if(MPLEtype=="logitreg"){
-    # Getting rid of logitreg MPLEtype;  all of this is now gone
+    mplefit <- model.matrix(terms(pl$zy ~ .-1,data=data.frame(pl$xmat)),
+                           data=data.frame(pl$xmat))
+    mplefit <- ergm.logitreg(x=mplefit, y=pl$zy, offset=pl$foffset, wt=pl$wend,
+                             start=theta0[!m$etamap$offsettheta])
+    mplefit.summary <- list(cov.unscaled=mplefit$cov.unscaled)
    }else{
     mplefit <- try(
           glm(pl$zy ~ .-1 + offset(pl$foffset), data=data.frame(pl$xmat),

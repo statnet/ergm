@@ -179,6 +179,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   }
   if (verbose) cat("Optimizing loglikelihood\n")
 # cat("Using trust\n")
+  library(trust)
   Lout <- try(trust(objfun=loglikelihoodfn.trust, parinit=guess,
                     rinit=1, 
                     rmax=100, 

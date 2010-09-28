@@ -80,7 +80,7 @@ san.formula <- function(object, nsim=1, seed=NULL, theta0=NULL,
   for(i in 1:nsim){
     Clist <- ergm.Cprepare(nw, model)
 #   Clist.miss <- ergm.design(nw, model, verbose=verbose)
-    maxedges <- max(20000, Clist$nedges)
+    maxedges <- max(control$maxedges, Clist$nedges)
     if (verb) {
        cat(paste("#", i, " of ", nsim, ": ", sep=""))
      }
@@ -150,10 +150,10 @@ san.formula <- function(object, nsim=1, seed=NULL, theta0=NULL,
 #   Next update the network to be the final (possibly conditionally)
 #   simulated one
 #
-    out.list[[i]] <- newnw.extract(nw, z)
+    out.list[[i]] <- newnw.extract(nw, z, output=control$network.output)
     out.mat <- rbind(out.mat,z$s[(Clist$nstats+1):(2*Clist$nstats)])
     if(sequential){
-      nw <-  out.list[[i]]
+      nw <-  as.network.uncompressed(out.list[[i]])
     }
   }
   if(nsim > 1){
