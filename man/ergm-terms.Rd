@@ -25,6 +25,7 @@
 \alias{cycle}
 \alias{degree}
 \alias{degcrossprod}
+\alias{degcor}
 \alias{density}
 \alias{dsp}
 \alias{dyadcov}

@@ -5,16 +5,17 @@
   Auxiliary function as user interface for fine-tuning 'ergm' fitting.
 }
 \usage{
-control.ergm(prop.weights = "default", prop.args = NULL,              
-             prop.weights.diss = "default", prop.args.diss = NULL, nr.maxit =
-             1000, calc.mcmc.se = TRUE, hessian = FALSE, compress = FALSE,
+control.ergm(prop.weights = "default", prop.args = NULL,
+             prop.weights.diss = "default", prop.args.diss = NULL, 
+             nr.maxit = 1000,
+             calc.mcmc.se = TRUE, hessian = FALSE, compress = FALSE,
              SAN.burnin=NULL,
              maxNumDyadTypes = 1e+06, maxedges = 20000, maxchanges = 1e+06,
              maxMPLEsamplesize = 1e+05, MPLEtype=c("glm", "penalized"), trace = 0,
              steplength = 0.5, sequential=TRUE,
              drop = TRUE, force.mcmc = FALSE, check.degeneracy=FALSE, 
              mcmc.precision = 0.05, 
-             metric=c("Median.Likelihood", "lognormal", 
+             metric = c("Median.Likelihood", "lognormal",
              "EF.Likelihood", "naive"),
              method = c("BFGS", "Nelder-Mead"),
              trustregion = 20, initial.loglik = NULL, initial.network = NULL,

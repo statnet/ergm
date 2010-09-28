@@ -32,32 +32,11 @@ ergm.getglobalstats <- function(nw, m) {
     }
     i <- i + k
   }
-  # Note:  "duration" is not in the CRAN version.  
-  # It looks impossible to handle "duration" using the $emptynwstats, so 
-  # this is done separately:
-  tase <- grep("duration",names(gs))
+
+  tase <- grep("duration",names(gs)) # not currently part of CRAN version
   if(length(tase) >0){
     gs[tase] <- -gs[tase]
   }
-
-## Please don't add ad hoc global-stat-changing code here.  Use
-## emptynwstats in the InitErgm function instead.
-
-
-
-# Old hammingmix code.  Can be deleted when no longer needed to
-# show how this used to work.
-#  tase <- grep("hammingmix\\.",names(gs))
-#  if(length(tase) > 0){
-#    for(i in seq(along=m$terms)){
-#     if(m$terms[[i]]$name=="hammingmix"){
-#       ng0 <-  m$terms[[i]]$inputs[4]
-#       nu <-  m$terms[[i]]$inputs[1]
-#       nw %v% "nodecov" <- m$terms[[i]]$inputs[-c(1:(2*ng0+4+2*nu))]
-#       gs[tase] <- summary(nw ~ nodemix("nodecov"))+gs[tase]
-#     }
-#    }
-#  }
 
   gs
 }

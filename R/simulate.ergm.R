@@ -14,6 +14,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, theta0=object$coef,
                    control=control, verbose=verbose, ...)
 }
 
+# In CRAN version, the following function is called simulate.formula
 simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0,
                              burnin=1000, interval=1000,
                              basis=NULL,
@@ -119,10 +120,12 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0,
                                      output=control$network.output)
     }
     out.mat[i,] <- curstats + z$statsmatrix
-    # If we get here, statsonly must be FALSE
-    nw <- as.network.uncompressed(nw.list[[i]])
-    Clist <- ergm.Cprepare(nw, m)
-    curstats <- curstats + z$statsmatrix
+    if (sequential){ 
+      # If we get here, statsonly must be FALSE
+      nw <- as.network.uncompressed(nw.list[[i]])
+      Clist <- ergm.Cprepare(nw, m)
+      curstats <- curstats + z$statsmatrix
+    }
     if(verbose){cat(sprintf("Finished simulation %d of %d.\n",i, nsim))}
   }
   

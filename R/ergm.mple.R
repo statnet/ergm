@@ -7,7 +7,6 @@ ergm.mple<-function(Clist, Clist.miss, m, theta0=NULL, theta.offset=NULL,
 		    conddeg=NULL, MCMCparams=NULL, MHproposal=NULL,
         verbose=FALSE, compressflag=TRUE,
                     ...) {
-  # see also ergm.pl.R.originalandgood
   if(is.numeric(theta0)){theta.offset <- theta0}
   pl <- ergm.pl(Clist=Clist, Clist.miss=Clist.miss, m=m,
                 theta.offset=theta.offset,
