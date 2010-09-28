@@ -64,6 +64,6 @@ paste("'",package,"' for use in another application, you must ensure that the\n"
 "               Steven M. Goodreau, University of Washington\n",
 "               Martina Morris, University of Washington\n",
 "\n",
-"Copyright 2007 The statnet Development Team")
+"Copyright 2010 The statnet Development Team\n")
 }
 }
