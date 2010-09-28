@@ -73,12 +73,17 @@ ergm.stocapprox <- function(theta0, nw, model, Clist,
   eta <- ergm.eta(theta, model$etamap)
 #cat(paste(" (samplesize=",MCMCparams$samplesize,")\n",sep=""))
 #cat(paste(" eta=",eta,")\n",sep=""))
-  stats <- matrix(0,ncol=Clist$nstats,nrow=MCMCparams$samplesize)
-  stats[1,] <- summary.statistics.network(model$formula, basis=nw) - Clist$meanstats
-  MCMCparams$stats <- stats
-  z <- ergm.getMCMCsample.parallel(nw, model,
-                          MHproposal, eta, MCMCparams, verbose)
-  MCMCparams$maxedges <- z$maxedges
+
+  # Obtain MCMC sample
+  MCMCparams$nmatrixentries <- Clist$nstats * MCMCparams$samplesize #Unnecessary?
+  z <- ergm.getMCMCsample(Clist, MHproposal, eta0, MCMCparams, verbose)
+  
+  # post-processing of sample statistics:  Shift each row,
+  # attach column names
+  statshift <- summary.statistics.network(model$formula, basis=nw) - Clist$meanstats
+  statsmatrix <- sweep(z$statsmatrix, 2, statshift, "+")
+  colnames(statsmatrix) <- model$coef.names
+  v$sample <- statsmatrix
 # ubar <- apply(z$statsmatrix, 2, mean)
 # hessian <- (t(z$statsmatrix) %*% z$statsmatrix)/n3 - outer(ubar,ubar)
 # covar <- robust.inverse(covar)
@@ -87,7 +92,7 @@ ergm.stocapprox <- function(theta0, nw, model, Clist,
   if(verbose){cat("Using Newton-Raphson Step ...\n")}
 
   ve<-ergm.estimate(theta0=theta, model=model,
-                   statsmatrix=z$statsmatrix,
+                   statsmatrix=statsmatrix,
                    statsmatrix.miss=NULL,
                    epsilon=MCMCparams$epsilon, 
                    nr.maxit=MCMCparams$nr.maxit, 

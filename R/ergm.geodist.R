@@ -34,7 +34,7 @@ fullgcount<-function(dat,geodist.precomp=NULL, directed=FALSE){
 
 ergm.geodesicmatrix<-function(nw, directed=is.directed(nw)){
  ergm.geodesicmatrix.edgelist(edgelist=as.matrix.network(nw,matrix.type="edgelist"),
-               n=nw$gal$n, directed=directed)
+               n=network.size(nw), directed=directed)
 }
 
 ergm.geodesicmatrix.old<-function(nw, directed=is.directed(nw), n=nw$gal$n){

@@ -53,7 +53,7 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
 #     if(!is.latent(object) ){
       if(sample=="missing"){
         x0 <- apply(statsmatrix.miss,2,mean)
-	print(x0)
+#        print(x0)
       }else{
         x0 <- rep(0,ncol(statsmatrix))
       }
@@ -66,10 +66,10 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
        }
       }else{
        if(sample=="missing"){
-       print(x0)
-        print(apply(statsmatrix,2,mean))
-        statsmatrix <- sweep(statsmatrix,2,x0,"-")
-        x0 <- rep(0,ncol(statsmatrix))
+#         print(x0)
+#         print(apply(statsmatrix,2,mean))
+         statsmatrix <- sweep(statsmatrix,2,x0,"-")
+         x0 <- rep(0,ncol(statsmatrix))
        }
       }
       if(ncol(statsmatrix) < length(x0)){

@@ -15,6 +15,8 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, theta0=object$coef,
 }
 
 # In CRAN version, the following function is called simulate.formula
+# Here, there is a good reason to call it simulate.formula.ergm:
+# see simulate.formula.R
 simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0,
                              burnin=1000, interval=1000,
                              basis=NULL,
