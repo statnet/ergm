@@ -5,7 +5,7 @@ ergm.design <- function(nw, model, verbose=FALSE){
     Clist.miss <- ergm.Cprepare(is.na(nw), model)
     if(verbose){
       cat("Design matrix:\n")
-      summary(is.na(nw))
+      print(summary(is.na(nw)))
     }
   }
   Clist.miss

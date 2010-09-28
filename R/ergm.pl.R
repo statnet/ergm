@@ -30,8 +30,8 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     offset <- 1*offset
     numobs <- Clist$ndyads - sum(offset)
   }else{
-    offset <- NULL
     numobs <- Clist$ndyads
+    offset <- rep(0,numobs)
   }
 
   maxNumDyadTypes <- min(maxNumDyadTypes,
@@ -68,6 +68,9 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
   dmiss <- z$compressedOffset[uvals]
   rm(z,uvals)
   }else{
+    if (verbose) {
+      cat("Using the MPLE conditional on degree.\n")
+    }
     # Conditional on degree version
     eta0 <- ergm.eta(rep(0,length(conddeg$m$coef.names)), conddeg$m$etamap)
     
@@ -128,6 +131,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
       theta.offset <- rep(0, length=Clist$nstats)
       names(theta.offset) <- m$coef.names
       theta.offset[m$etamap$offsettheta] <- -Inf
+#     theta.offset[m$etamap$offsettheta] <- -10000
     }
     # Commenting out recent version of this section that does not work;
     #foffset <- xmat[,m$etamap$offsettheta,drop=FALSE]%*%theta.offset[m$etamap$offsettheta]
@@ -137,7 +141,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     #colnames(xmat) <- m$coef.names[!m$etamap$offsettheta]
     
     # Returning to the version from CRAN ergm v. 2.1:
-    foffset <- xmat[,!m$etamap$offsettheta,drop=FALSE] %*% 
+    foffset <- xmat[,!m$etamap$offsettheta,drop=FALSE] %*%
                theta.offset[!m$etamap$offsettheta]
     shouldoffset <- apply(abs(xmat[,m$etamap$offsettheta,drop=FALSE])>1e-8,1,any)
     xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE]
@@ -146,6 +150,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     zy <- zy[!shouldoffset]
     wend <- wend[!shouldoffset]
     foffset <- foffset[!shouldoffset]
+#   theta.offset <- theta.offset[!m$etamap$offsettheta]
   }else{
     foffset <- rep(0, length=length(zy))
     theta.offset <- rep(0, length=Clist$nstats)

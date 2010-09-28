@@ -11,13 +11,7 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, ...) {
   if (length(formula) < 3) 
     stop(paste("No model specified for network ", formula[[2]]), call.=FALSE)
 
-  v<-list()
-  rhs<-formula[[3]]
-  while(length(rhs)==3 && rhs[[1]]=="+"){ # i.e. list(`+`, all but last summand, last summand)
-    v<-c(rhs[[3]],v) # store the last summand
-    rhs<-rhs[[2]] # "recurse" into the all but last summands
-  }
-  v<-c(rhs,v)
+  v<-term.list.formula(formula[[3]])
   
   formula.env<-environment(formula)
   
