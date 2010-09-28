@@ -1,3 +1,4 @@
+#################################################################
 # InitErgmTerm functions (new, easier-to-write version)
 # The old InitErgm functions should still work.
 #

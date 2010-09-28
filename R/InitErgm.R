@@ -1729,13 +1729,13 @@ InitErgm.gwidegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
                       defaultvalues = list(0, FALSE, NULL),
                       required = c(TRUE, FALSE, FALSE))
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
+  d <- 1:(network.size(nw)-1)
   termnumber<-1+length(m$terms)
   if(!initialfit && !fixed){ # This is a curved exponential family model
     if (!is.null(attrname)) {
       stop("The gwidegree term is not yet able to handle a ",
            "nonfixed decay term with an attribute.", call.=FALSE)
     }
-    d <- 1:(network.size(nw)-1)
     ld<-length(d)
     if(ld==0){return(m)}
     map <- function(x,n,...) {
@@ -1834,7 +1834,7 @@ InitErgm.gwodegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   a <- ergm.checkargs("gwodegree", arglist,
                       varnames = c("decay", "fixed", "attrname"),
                       vartypes = c("numeric", "logical", "character"),
-                      defaultvalues = list(0, FALSE, NULL),
+                      defaultvalues = list(0, TRUE, NULL),
                       required = c(TRUE, FALSE, FALSE))
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   termnumber<-1+length(m$terms)
@@ -2177,6 +2177,39 @@ InitErgm.idegree<-function(nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
+
+#########################################################
+InitErgm.indegreepopularity<-function (nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("indegreepopularity", is.directed(nw), requirement=TRUE)
+  a <- ergm.checkargs("indegreepopularity", arglist,
+    varnames = NULL,
+    vartypes = NULL,
+    defaultvalues = list(),
+    required = NULL)
+  if(drop){
+    nindegreepopularity <- summary(as.formula('nw ~ indegreepopularity'), drop=FALSE)
+    if(nindegreepopularity==0){
+      cat(" ")
+      cat(paste("Warning: There is no indegree popularity;\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+#     cat(paste("To avoid degeneracy the 'indegreepopularity' term has been dropped.\n"))
+      return(m)
+    }
+    if(network.dyadcount(nw)==network.edgecount(nw)){
+      cat(" ")
+      cat(paste("Warning: The indegree popularity is maximized!\n",
+                 " The corresponding coefficient has been fixed at its MLE of infinity.\n",sep=" "))
+#     cat(paste("To avoid degeneracy the 'indegreepopularity' term has been dropped.\n"))
+      return(m)
+    }
+  }
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="indegreepopularity", soname="ergm",
+                                inputs=c(0,1,0))
+  m$coef.names<-c(m$coef.names,"indegreepopularity")
+  m
+}
+
 #########################################################
 InitErgm.intransitive<-function (nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("intransitive", is.directed(nw), requirement=TRUE)
@@ -2506,13 +2539,15 @@ InitErgm.nearsimmelian<-function (nw, m, arglist, drop=TRUE, ...) {
 #########################################################
 InitErgm.nodecov<-InitErgm.nodemain<-function (nw, m, arglist, ...) {
   a <- ergm.checkargs("nodecov", arglist,
-    varnames = c("attrname"),
-    vartypes = c("character"),
-    defaultvalues = list(NULL),
-    required = c(TRUE))
+    varnames = c("attrname","transform","transformname"),
+    vartypes = c("character","function","character"),
+    defaultvalues = list(NULL,function(x)x,""),
+    required = c(TRUE,FALSE,FALSE))
   attrname<-a$attrname
-  m$coef.names<-c(m$coef.names, paste("nodecov",attrname,sep="."))
-  nodecov <- get.node.attr(nw, attrname, "nodecov", numeric=TRUE)
+  f<-a$transform
+  f.name<-a$transformname
+  m$coef.names<-c(m$coef.names, paste(paste("nodecov",f.name,sep=""),attrname,sep="."))
+  nodecov <- f(get.node.attr(nw, attrname, "nodecov", numeric=TRUE))
   termnumber<-1+length(m$terms)
   m$terms[[termnumber]] <- list(name="nodecov", soname="ergm",
                                 inputs=c(0,1,length(nodecov),nodecov),
@@ -2579,13 +2614,15 @@ InitErgm.nodeicov<-function (nw, m, arglist, ...) {
   ergm.checkdirected("nodeicov", is.directed(nw), requirement=TRUE,
                      extramessage="See 'nodecov'.")
   a <- ergm.checkargs("nodeicov", arglist,
-    varnames = c("attrname"),
-    vartypes = c("character"),
-    defaultvalues = list(NULL),
-    required = c(TRUE))
+    varnames = c("attrname","transform","transformname"),
+    vartypes = c("character","function","character"),
+    defaultvalues = list(NULL,function(x)x,""),
+    required = c(TRUE,FALSE,FALSE))
   attrname<-a$attrname
-  m$coef.names<-c(m$coef.names, paste("nodeicov",attrname,sep="."))
-  nodecov <- get.node.attr(nw, attrname, "nodeicov", numeric=TRUE)
+  f<-a$transform
+  f.name<-a$transformname
+  m$coef.names<-c(m$coef.names, paste(paste("nodeicov",f.name,sep=""),attrname,sep="."))
+  nodecov <- f(get.node.attr(nw, attrname, "nodeicov", numeric=TRUE))
   termnumber<-1+length(m$terms)
   m$terms[[termnumber]] <- list(name="nodeicov", soname="ergm",
                                 inputs=c(0,1,length(nodecov),nodecov),
@@ -2862,13 +2899,15 @@ InitErgm.nodeocov<-function (nw, m, arglist, ...) {
   ergm.checkdirected("nodeocov", is.directed(nw), requirement=TRUE,
                      extramessage="See 'nodecov'.")
   a <- ergm.checkargs("nodeocov", arglist,
-    varnames = c("attrname"),
-    vartypes = c("character"),
-    defaultvalues = list(NULL),
-    required = c(TRUE))
+    varnames = c("attrname","transform","transformname"),
+    vartypes = c("character","function","character"),
+    defaultvalues = list(NULL,function(x)x,""),
+    required = c(TRUE,FALSE,FALSE))
   attrname<-a$attrname
-  m$coef.names<-c(m$coef.names, paste("nodeocov",attrname,sep="."))
-  nodecov <- get.node.attr(nw, attrname, "nodeocov", numeric=TRUE)
+  f<-a$transform
+  f.name<-a$transformname
+  m$coef.names<-c(m$coef.names, paste(paste("nodeocov",f.name,sep=""),attrname,sep="."))
+  nodecov <- f(get.node.attr(nw, attrname, "nodeocov", numeric=TRUE))
   termnumber<-1+length(m$terms)
   m$terms[[termnumber]] <- list(name="nodeocov", soname="ergm",
                                 inputs=c(0,1,length(nodecov),nodecov),
@@ -3078,6 +3117,38 @@ InitErgm.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
   }
   if (!is.null(emptynwstats)) 
     m$terms[[termnumber]]$emptynwstats <- emptynwstats
+  m
+}
+
+#########################################################
+InitErgm.outdegreepopularity<-function (nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("outdegreepopularity", is.directed(nw), requirement=TRUE)
+  a <- ergm.checkargs("outdegreepopularity", arglist,
+    varnames = NULL,
+    vartypes = NULL,
+    defaultvalues = list(),
+    required = NULL)
+  if(drop){
+    noutdegreepopularity <- summary(as.formula('nw ~ outdegreepopularity'), drop=FALSE)
+    if(noutdegreepopularity==0){
+      cat(" ")
+      cat(paste("Warning: There is no outdegree popularity;\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+#     cat(paste("To avoid degeneracy the 'outdegreepopularity' term has been dropped.\n"))
+      return(m)
+    }
+    if(network.dyadcount(nw)==network.edgecount(nw)){
+      cat(" ")
+      cat(paste("Warning: The outdegree popularity is maximized!\n",
+                 " The corresponding coefficient has been fixed at its MLE of infinity.\n",sep=" "))
+#     cat(paste("To avoid degeneracy the 'outdegreepopularity' term has been dropped.\n"))
+      return(m)
+    }
+  }
+  termnumber<-1+length(m$terms)
+  m$terms[[termnumber]] <- list(name="outdegreepopularity", soname="ergm",
+                                inputs=c(0,1,0))
+  m$coef.names<-c(m$coef.names,"outdegreepopularity")
   m
 }
 
@@ -3645,6 +3716,74 @@ InitErgm.ttriple<-InitErgm.ttriad<-function (nw, m, arglist, drop=TRUE, ...) {
     m$terms[[termnumber]] <- list(name="ttriple", soname="ergm",
                                   inputs=c(0,1,0))
     m$coef.names<-c(m$coef.names,"ttriple")
+  }
+  m
+}
+
+#########################################################
+InitErgm.transitiveties<-function (nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("transitiveties", is.directed(nw), requirement=TRUE)
+  a <- ergm.checkargs("transitiveties", arglist,
+    varnames = c("attrname", "diff"),
+    vartypes = c("character", "logical"),
+    defaultvalues = list(NULL, FALSE),
+    required = c(FALSE, FALSE))
+  attrname <- a$attrname
+  diff <- a$diff
+  termnumber<-1+length(m$terms)
+  if(!is.null(attrname)) {
+    nodecov <- get.node.attr(nw, attrname, "transitiveties")
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+    nodecov <- match(nodecov,u,nomatch=length(u)+1)
+    ui <- seq(along=u)
+    if (length(u)==1)
+      stop ("Attribute given to transitiveties() has only one value", call.=FALSE)
+    if(drop){
+      triattr <- summary(as.formula(paste('nw ~ transitiveties(','"',attrname,
+                                          '",diff=',diff,')',sep="")),
+                         drop=FALSE) == 0
+      if(diff){
+        if(any(triattr)){
+          dropterms <- paste(paste("transitiveties",attrname,sep="."),
+                             u[triattr],sep="")
+      cat(" ")
+          cat(paste("Warning: The count of", dropterms, "is extreme;\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+#         cat(paste("To avoid degeneracy the terms",
+#               paste(dropterms,collapse=" and, "),
+#                   "have been dropped.\n"))
+          u <- u[!triattr] 
+          ui <- ui[!triattr] 
+        }
+      }else{
+        if(triattr){
+          dropterms <- paste(paste("transitiveties",attrname,sep="."),sep="")
+      cat(" ")
+          cat(paste("Warning: The count of", dropterms, "is extreme;\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+#         cat(paste("To avoid degeneracy the term",
+#               paste(dropterms,collapse=" and, "),
+#                   "have been dropped.\n"))
+        }
+      }
+    }
+    if (!diff) {
+      m$terms[[termnumber]] <- list(name="transitiveties", soname="ergm",
+                                    inputs=c(0,1,length(nodecov),nodecov))
+      m$coef.names<-c(m$coef.names,paste("transitiveties",attrname,sep="."))
+     } else {
+       m$terms[[termnumber]] <- list(name="transitiveties", soname="ergm",
+                                     inputs=c(length(ui), length(ui),
+                                       length(ui)+length(nodecov),
+                                       ui, nodecov))
+       m$coef.names<-c(m$coef.names,paste("transitiveties",
+                                          attrname, u, sep="."))
+     }
+  }else{
+    m$terms[[termnumber]] <- list(name="transitiveties", soname="ergm",
+                                  inputs=c(0,1,0))
+    m$coef.names<-c(m$coef.names,"transitiveties")
   }
   m
 }
