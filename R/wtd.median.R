@@ -1,4 +1,4 @@
- "wtd.median"<- function(x, na.rm = FALSE, weight=FALSE) {
+wtd.median <- function(x, na.rm = FALSE, weight=FALSE) {
  	if(mode(x) != "numeric")
  		stop("need numeric data")
  	x <- as.vector(x)
@@ -33,7 +33,8 @@
  	  }
  	}
  }
- "wtd.mean"<- function(x, na.rm = FALSE, weight=FALSE) {
+
+wtd.mean <- function(x, na.rm = FALSE, weight=FALSE) {
      if (length(weight)==1) return(mean(x, na.rm = na.rm))
      if (na.rm) {
        s <- !is.na(x + weight)

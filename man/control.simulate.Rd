@@ -51,7 +51,9 @@ parallel=0)
   \item{summarizestats}{logical; Print out a summary of 
     the sufficient statistics of the generated network. This is useful 
     as a diagnostic. Default is \code{FALSE}.}
-  \item{output.network}{character; class with which to store the output networks. The options are "network" (default) and "as.edgelist.compressed" (which saves space but only supports networks with vertex attributes}
+  \item{output.network}{character; class with which to store the output 
+  networks. The options are "network" (default) and "edgelist.compressed" 
+  (which saves space but only supports networks without vertex attributes)}
   \item{maxchanges}{
     %FIXME: I am not sure this is accurate.
     %Maximum number of changes in dynamic network
