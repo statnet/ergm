@@ -52,6 +52,11 @@ ergm.geodistn <- function(edgelist, n=max(edgelist), directed=FALSE) {
 }
 
 
+ergm.geodesicmatrix <- function(nw, directed=is.directed(nw)){
+ ergm.geodesicmatrix.edgelist(edgelist=as.matrix.network(nw,matrix.type="edgelist"),
+               n=network.size(nw), directed=directed)
+}
+
 
 ergm.geodesicmatrix.edgelist <- function(edgelist, n=max(edgelist), directed=FALSE) {
 # edgelist is an mx2 matrix of edges.  n=#nodes.
