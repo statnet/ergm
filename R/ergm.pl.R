@@ -5,15 +5,24 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
                     verbose=FALSE, compressflag=TRUE) {
   bip <- Clist$bipartite
   n <- Clist$n
-# Determine whether any edges are missing.  If so, this will reduce the
-# number of observed (numobs) and also "turn off" the missing edges by
-# setting offset to 1 in the corresponding rows.
+
+  # Determine whether any edges are missing.  If so, this will reduce the
+  # number of observed (numobs) and also "turn off" the missing edges by
+  # setting offset to 1 in the corresponding rows.
   if(Clist.miss$nedges>0){
     temp <- matrix(0,ncol=n,nrow=n)
     base <- cbind(as.vector(col(temp)), as.vector(row(temp)))
     base <- base[base[, 2] > base[, 1], ]
+    # At this point, the rows of base are in dictionary order
     if(Clist.miss$dir){
-      base <- cbind(base[,c(2,1)],base)
+      # If we get here, then interleave the transposed rows, as in
+      # (1,2), (2,1),   (1,3), (3,1),   (1,4), (4,1),  etc.
+      # This is necessary because it's the order in which the
+      # MPLE wrapper expects them to be entered, which is only
+      # important when there are missing data because the "offset" 
+      # vector in that case must index the correct rows.
+      # (The C code reconstructs the base matrix from scratch.)
+      base <- cbind(base, base[,c(2,1)])
       base <- matrix(t(base),ncol=2,byrow=TRUE)
     }
     ubase <- base[,1] + n*base[,2]
@@ -124,11 +133,16 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
       theta.offset[m$etamap$offsettheta] <- -Inf
 #     theta.offset[m$etamap$offsettheta] <- -10000
     }
-# Commenting out recent version of this section that does not work;
-#   foffset <- xmat[,m$etamap$offsettheta,drop=FALSE]%*%theta.offset[m$etamap$offsettheta]
-#  Returning to the version from CRAN ergm v. 2.1:
-
-    foffset <- xmat[,!m$etamap$offsettheta,drop=FALSE]%*%theta.offset[!m$etamap$offsettheta]
+    # Commenting out recent version of this section that does not work;
+    #foffset <- xmat[,m$etamap$offsettheta,drop=FALSE]%*%theta.offset[m$etamap$offsettheta]
+    #foffset[is.nan(foffset)] <- 0 # zero times +-Inf should be zero in this context
+    #foffset <- xmat[,m$etamap$offsettheta,drop=FALSE]%*%theta.offset[m$etamap$offsettheta]
+    #xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE]
+    #colnames(xmat) <- m$coef.names[!m$etamap$offsettheta]
+    
+    # Returning to the version from CRAN ergm v. 2.1:
+    foffset <- xmat[,!m$etamap$offsettheta,drop=FALSE] %*%
+               theta.offset[!m$etamap$offsettheta]
     shouldoffset <- apply(abs(xmat[,m$etamap$offsettheta,drop=FALSE])>1e-8,1,any)
     xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE]
     colnames(xmat) <- m$coef.names[!m$etamap$offsettheta]
