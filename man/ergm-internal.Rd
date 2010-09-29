@@ -9,7 +9,9 @@
 \alias{ConstraintImplications}
 \alias{InitConstraint.bd}
 \alias{InitConstraint.degreedist}
-\alias{InitConstraint.degrees}                  
+\alias{InitConstraint.degreesHexad}
+\alias{InitConstraint.degreesTetrad}
+\alias{InitConstraint.degrees}
 \alias{InitConstraint.edges}
 \alias{InitConstraint.hamming}
 \alias{InitConstraint.indegreedist}
@@ -21,6 +23,7 @@
 \alias{assignvariables}
 \alias{InitErgmTerm.absdiff}
 \alias{InitErgmTerm.absdiffcat}
+\alias{InitErgmTerm.adegcor}
 \alias{InitErgmTerm.altkstar}
 \alias{InitErgmTerm.asymmetric}
 \alias{InitErgmTerm.b1degree}   
@@ -32,6 +35,8 @@
 \alias{InitErgmTerm.b2starmix}
 \alias{InitErgmTerm.b2twostar}
 \alias{InitErgmTerm.cycle}
+\alias{InitErgmTerm.degcor}
+\alias{InitErgmTerm.degcrossprod}
 \alias{InitErgmTerm.edgecov}
 \alias{InitErgmTerm.hamming}
 \alias{InitErgmTerm.isolates}
@@ -42,6 +47,7 @@
 \alias{InitErgmTerm.nodematch}
 \alias{InitErgmTerm.nodemix}
 \alias{InitErgmTerm.nodeofactor}
+\alias{InitErgmTerm.rdegcor}
 \alias{InitErgmTerm.threepath}
 \alias{check.ErgmTerm.summarystats}
 \alias{ergm.getglobalstats}
@@ -99,6 +105,7 @@
 \alias{InitErgm.hammingmix.constant}
 \alias{InitErgm.hammingmix}
 \alias{InitErgm.idegree}
+\alias{InitErgm.indegreepopularity}
 \alias{InitErgm.intransitive}
 \alias{InitErgm.isolates}
 \alias{InitErgm.istar}
@@ -121,6 +128,7 @@
 \alias{InitErgm.nodeofactor}
 \alias{InitErgm.nsp}
 \alias{InitErgm.odegree}
+\alias{InitErgm.outdegreepopularity}
 \alias{InitErgm.ostar}
 \alias{InitErgm.receiver}
 \alias{InitErgm.sender}
@@ -129,6 +137,7 @@
 \alias{InitErgm.smalldiff}
 \alias{InitErgm.sociality}
 \alias{InitErgm.transitive}
+\alias{InitErgm.transitiveties}
 \alias{InitErgm.triadcensus}
 \alias{InitErgm.triadcensus.directedonly}
 \alias{InitErgm.triangle}
