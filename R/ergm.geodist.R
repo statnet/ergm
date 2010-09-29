@@ -50,7 +50,7 @@ ergm.geodesicmatrix.old<-function(nw, directed=is.directed(nw), n=nw$gal$n){
 fulldistdist<-function(dat,geodist.precomp=NULL, directed=FALSE){
    #Get the counts matrix
    if(is.null(geodist.precomp))
-      cnt<-ergm.geodistR(dat)$gdist
+      cnt<-ergm.geodist(dat)$gdist
    else
       cnt<-geodist.precomp$gdist
    if(directed){

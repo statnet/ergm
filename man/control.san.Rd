@@ -29,7 +29,7 @@ control.san(prop.weights = "default", prop.args = NULL,
     If statistics occur on the extreme of their range they
     correspond to infinite parameter estimates.
     Default is \code{FALSE}.}
-  \item{output.network}{character: R class with which to output 
+  \item{network.output}{character: R class with which to output 
   networks. The options are "network" (default) and "edgelist.compressed" 
   (which saves space but only supports networks without vertex attributes)}
   \item{maxchanges}{

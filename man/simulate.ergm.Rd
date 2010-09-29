@@ -12,10 +12,10 @@
                           control = control.simulate.formula(),
                           verbose=FALSE, \dots)
 \method{simulate}{ergm}(object, nsim=1, seed=NULL, theta0=object$coef,
-                       burnin=NULL, interval=NULL, 
+                       burnin=1000, interval=1000, 
                        statsonly=FALSE,
                        sequential=TRUE,
-                       constraints = ~.,
+                       constraints = NULL,
                        control = control.simulate.ergm(),
                        verbose=FALSE, \dots)
 }
