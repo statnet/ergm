@@ -23,8 +23,6 @@ llik.fun <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
   vb <- sum(basepred*basepred*probs) - mb*mb
   llr <- sum(xobs * x) - mb - varweight*vb
   #
-  maxbase <- max(basepred)
-  llr <- sum(xobs * x) - maxbase - log(sum(probs*exp(basepred-maxbase)))
 
   # Simplistic error control;  -800 is effectively like -Inf:
   if(is.infinite(llr) | is.na(llr)){llr <- -800}

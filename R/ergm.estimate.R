@@ -50,7 +50,8 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   # adjusted accordingly.
 # av <- apply(sweep(statsmatrix0,1,probs,"*"), 2, sum)
   if(cov.type=="robust"){
-   V=try(covMcd(statsmatrix0[,!model$etamap$offsetmap,drop=FALSE])$cov)
+   V=try(capture.output(
+      covMcd(statsmatrix0[,!model$etamap$offsetmap,drop=FALSE])$cov))
    if(inherits(V,"try-error")){
     V=cov(statsmatrix0[,!model$etamap$offsetmap,drop=FALSE])
    }
@@ -64,7 +65,8 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   # Note that xobs must be adjusted too.
   if(missingflag) {
     if(cov.type=="robust"){
-     V.miss=try(covMcd(statsmatrix0.miss[,!model$etamap$offsetmap,drop=FALSE])$cov)
+     V.miss=try(capture.output(
+        covMcd(statsmatrix0.miss[,!model$etamap$offsetmap,drop=FALSE])$cov))
      if(inherits(V.miss,"try-error")){
       V.miss=cov(statsmatrix0.miss[,!model$etamap$offsetmap,drop=FALSE])
      }
@@ -269,14 +271,15 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     if(calc.mcmc.se){
       if (verbose) cat("Starting MCMC s.e. computation.\n")
        if (metric=="lognormal" || metric=="Likelihood") {
-        mcmcse <- ergm.MCMCse.lognormal(theta, theta0, 
-                              statsmatrix0, statsmatrix.miss,
-                              V, V.miss,
+        mcmcse <- ergm.MCMCse.lognormal(theta=theta, theta0=theta0, 
+                              statsmatrix=statsmatrix0, 
+                              statsmatrix.miss=statsmatrix.miss,
+                              H=V, H.miss=V.miss,
                               model=model)
        }else{
-        mcmcse <- ergm.MCMCse(theta, theta0, 
-                              statsmatrix0,
-                              statsmatrix.miss,
+        mcmcse <- ergm.MCMCse(theta=theta,theta0=theta0, 
+                              statsmatrix=statsmatrix0,
+                              statsmatrix.miss=statsmatrix.miss,
                               model=model)
        }
        mc.se <- mcmcse$mc.se
