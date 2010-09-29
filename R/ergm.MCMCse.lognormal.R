@@ -1,4 +1,4 @@
-ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
+ergm.MCMCse.lognormal<-function(theta, theta0, statsmatrix, statsmatrix.miss,
                       H, H.miss, model, 
                       lag.max=10, lag.max.miss=lag.max) {
 #
