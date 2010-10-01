@@ -168,3 +168,41 @@ for(h=1; h <= N_NODES; h++) {
   CHANGE_STAT[0] = (cross / (2.0*N_EDGES) -  mu*mu) / sigma2;
   free(ndeg);
 }
+S_CHANGESTAT_FN(s_pdegcor) { 
+  Vertex h, t, hdeg, tdeg;
+  Edge e;
+  double mu, mu2, muh, muh2, sigma2, sigmah2, cross;
+
+  mu = 0.0;
+  mu2 = 0.0;
+  muh = 0.0;
+  muh2 = 0.0;
+  cross = 0.0;
+  for(h=1; h <= N_NODES; h++) {
+   STEP_THROUGH_OUTEDGES(h, e, t) { /* step through outedges of head */
+    hdeg = OUT_DEG[h];
+    tdeg = IN_DEG[t];
+    mu   += (double)(tdeg);
+    muh  += (double)(hdeg);
+    mu2 += (double)(tdeg*tdeg);
+    muh2 += (double)(hdeg*hdeg);
+    cross += hdeg*tdeg;
+   }
+  }
+  mu = mu / (N_EDGES);
+  muh = muh / (N_EDGES);
+  sigma2 = mu2/(N_EDGES) -  mu*mu;
+  sigmah2 = muh2/(N_EDGES) -  muh*muh;
+  CHANGE_STAT[0] = (cross / (N_EDGES) -  muh*mu) / sqrt(sigma2*sigmah2);
+}
+D_CHANGESTAT_FN(d_pdegcor) { 
+  int i;
+  double current;
+
+  (*(mtp->s_func))(mtp, nwp);  /* Call s_??? function */
+  current = mtp->dstats[0];
+  FOR_EACH_TOGGLE(i) { TOGGLE(heads[i],tails[i]); }
+  (*(mtp->s_func))(mtp, nwp);  /* Call s_??? function */
+  mtp->dstats[0] -= current;
+  FOR_EACH_TOGGLE(i) { TOGGLE(heads[i],tails[i]); }
+}
