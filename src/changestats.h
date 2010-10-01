@@ -97,6 +97,7 @@ D_CHANGESTAT_FN(d_m2star);
 D_CHANGESTAT_FN(d_meandeg);
 D_CHANGESTAT_FN(d_mix);
 D_CHANGESTAT_FN(d_mutual);
+D_CHANGESTAT_FN(d_mutual_by_attr);
 /********************  changestats:   N    ***********/                       
 D_CHANGESTAT_FN(d_nearsimmelian);
 D_CHANGESTAT_FN(d_nodecov);

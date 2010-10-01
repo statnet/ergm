@@ -3491,6 +3491,30 @@ D_CHANGESTAT_FN(d_mutual) {
   }
   UNDO_PREVIOUS_TOGGLES(i);
 }
+/*****************
+ changestat: d_mutual_by_attr
+*****************/
+D_CHANGESTAT_FN(d_mutual_by_attr) { 
+  double matchval, change;
+  Vertex h, t;
+  int i, j, ninputs;
+
+  ninputs = N_INPUT_PARAMS - N_NODES;
+  ZERO_ALL_CHANGESTATS(i);
+  FOR_EACH_TOGGLE(i) {
+    h = heads[i];
+    t = tails[i];
+    if (IS_OUTEDGE(t,h)) { /* otherwise, no change occurs */
+      change = IS_OUTEDGE(h, t) ? -1.0 : 1.0 ;
+      matchval = INPUT_PARAM[h+ninputs-1];
+      for (j=0; j<ninputs; j++) {
+        if (matchval == INPUT_PARAM[j]){CHANGE_STAT[j] += change;}
+      }
+    }
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
+}
 
 /********************  changestats:  N    ***********/
 /*****************
