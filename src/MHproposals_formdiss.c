@@ -72,14 +72,14 @@ void MH_FormationMLE (MHproposal *MHp, DegreeBound *bd, Network *nwp)
     return;
   }
   
-  if(nwp[1].nedges==ndyads){ /* Attempting formation on a complete graph. */
+  if(nwp[2].nedges==ndyads){ /* Attempting formation on a complete graph. */
     Mhead[0]=MH_FAILED;
     Mtail[0]=MH_IMPOSSIBLE;
     return;
   }
 
   for(trytoggle=0;trytoggle<MAX_TRIES;trytoggle++){
-    /* Keep trying dyads until neither or both of nwp[0] and nwp[1] has
+    /* Keep trying dyads until neither or both of nwp[0] and nwp[2] has
        the selected dyad. (That is, that dyad originally did not have an edge
        (which may have been toggled.) */
     /* Generate. */
@@ -98,7 +98,7 @@ void MH_FormationMLE (MHproposal *MHp, DegreeBound *bd, Network *nwp)
     }
       
     if((!EdgetreeSearch(Mhead[0],Mtail[0],nwp[0].outedges)|
-        !EdgetreeSearch(Mhead[0],Mtail[0],nwp[1].outedges)) &&
+        !EdgetreeSearch(Mhead[0],Mtail[0],nwp[2].outedges)) &&
 	    CheckTogglesValid(MHp, bd, nwp)) break;
   }
 
@@ -126,14 +126,14 @@ void MH_DissolutionMLE (MHproposal *MHp, DegreeBound *bd, Network *nwp)
     return;
   }
   
-  if(nwp[1].nedges==0){ /* Attempting dissolution on a complete graph. */
+  if(nwp[2].nedges==0){ /* Attempting dissolution on a complete graph. */
     Mhead[0]=MH_FAILED;
     Mtail[0]=MH_IMPOSSIBLE;
     return;
   }
 
   for(trytoggle=0;trytoggle<MAX_TRIES;trytoggle++){
-    /* Keep trying dyads until neither or both of nwp[0] and nwp[1] has
+    /* Keep trying dyads until neither or both of nwp[0] and nwp[2] has
        the selected dyad. (That is, that dyad originally did not have an edge
        (which may have been toggled.) */
     /* Generate. */
@@ -152,7 +152,121 @@ void MH_DissolutionMLE (MHproposal *MHp, DegreeBound *bd, Network *nwp)
     }
       
     if(( EdgetreeSearch(Mhead[0],Mtail[0],nwp[0].outedges)|
-         EdgetreeSearch(Mhead[0],Mtail[0],nwp[1].outedges)) &&
+         EdgetreeSearch(Mhead[0],Mtail[0],nwp[2].outedges)) &&
+	    CheckTogglesValid(MHp, bd, nwp)) break;
+  }
+
+  /* If no valid proposal found, signal a failed proposal. */
+  if(trytoggle>=MAX_TRIES) {
+    Mhead[0]=MH_FAILED;
+    Mtail[0]=MH_UNSUCCESSFUL;
+  }
+}
+
+/********************
+   void MH_FormationNonObservedMLE
+   Propose ONLY edges not in the reference graph
+***********************/
+void MH_FormationNonObservedMLE (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
+{  
+  static Vertex nnodes;
+  unsigned int trytoggle;
+  static Edge ndyads;
+  static Edge rane, nmissing;
+
+  if(MHp->ntoggles == 0) { /* Initialize */
+    MHp->ntoggles=1;
+    nnodes = nwp[0].nnodes;
+    ndyads = (nnodes-1)*nnodes / (nwp[0].directed_flag? 1:2);
+    nmissing = nwp[1].nedges;
+    if(nmissing==0){
+      *MHp->togglehead = MH_FAILED;
+      *MHp->toggletail = MH_IMPOSSIBLE;
+    }
+    return;
+  }
+  
+  if(nwp[2].nedges==ndyads){ /* Attempting formation on a complete graph. */
+    Mhead[0]=MH_FAILED;
+    Mtail[0]=MH_IMPOSSIBLE;
+    return;
+  }
+
+  for(trytoggle=0;trytoggle<MAX_TRIES;trytoggle++){
+    /* Keep trying dyads until neither or both of nwp[0] and nwp[2] has
+       the selected dyad. (That is, that dyad originally did not have an edge
+       (which may have been toggled.) */
+    /* Generate. */
+  
+    rane = 1 + unif_rand() * nmissing;
+    FindithEdge(Mhead, Mtail, rane, &nwp[1]);
+
+    /* If undirected, reorder. */
+    if(!nwp->directed_flag && Mtail[0]<Mhead[0]){
+      Vertex tmp=Mtail[0];
+      Mtail[0]=Mhead[0];
+      Mhead[0]=tmp;
+    }
+      
+    if((!EdgetreeSearch(Mhead[0],Mtail[0],nwp[0].outedges)|
+        !EdgetreeSearch(Mhead[0],Mtail[0],nwp[2].outedges)) &&
+	    CheckTogglesValid(MHp, bd, nwp)) break;
+  }
+
+  /* If no valid proposal found, signal a failed proposal. */
+  if(trytoggle>=MAX_TRIES) {
+    Mhead[0]=MH_FAILED;
+    Mtail[0]=MH_UNSUCCESSFUL;
+  }
+}
+
+/********************
+   void MH_DissolutionNonObservedMLE
+   Propose ONLY edges not in the reference graph
+***********************/
+void MH_DissolutionNonObservedMLE (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
+{  
+  static Vertex nnodes;
+  unsigned int trytoggle;
+  static Edge ndyads;
+  static Edge rane, nmissing;
+
+  if(MHp->ntoggles == 0) { /* Initialize */
+    MHp->ntoggles=1;
+    nnodes = nwp[0].nnodes;
+    ndyads = (nnodes-1)*nnodes / (nwp[0].directed_flag? 1:2);
+    nmissing = nwp[1].nedges;
+    if(nmissing==0){
+      *MHp->togglehead = MH_FAILED;
+      *MHp->toggletail = MH_IMPOSSIBLE;
+    }
+    return;
+  }
+  
+  if(nwp[2].nedges==0){ /* Attempting dissolution on a empty graph. */
+    Mhead[0]=MH_FAILED;
+    Mtail[0]=MH_IMPOSSIBLE;
+    return;
+  }
+
+  for(trytoggle=0;trytoggle<MAX_TRIES;trytoggle++){
+    /* Keep trying dyads until neither or both of nwp[0] and nwp[2] has
+       the selected dyad. (That is, that dyad originally did not have an edge
+       (which may have been toggled.) */
+    /* Generate. */
+  
+    rane = 1 + unif_rand() * nmissing;
+    FindithEdge(Mhead, Mtail, rane, &nwp[1]);
+
+    /* If undirected, reorder. */
+    if(!nwp->directed_flag && Mtail[0]<Mhead[0]){
+      Vertex tmp=Mtail[0];
+      Mtail[0]=Mhead[0];
+      Mhead[0]=tmp;
+    }
+      
+    if(( EdgetreeSearch(Mhead[0],Mtail[0],nwp[0].outedges)|
+         EdgetreeSearch(Mhead[0],Mtail[0],nwp[2].outedges)) &&
 	    CheckTogglesValid(MHp, bd, nwp)) break;
   }
 
