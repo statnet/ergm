@@ -47,10 +47,14 @@ MHproposals<-
           c("d", "bd",            "random",       "dissolution"),
           c("fmle", "",           "default",      "formationMLE"),
           c("fmle", "",           "random",       "formationMLE"),
+          c("fmle", "observed",   "default",      "formationNonObservedMLE"),
+          c("fmle", "observed",   "random",       "formationNonObservedMLE"),
           c("fmle", "bd",         "default",      "formationMLE"),
           c("fmle", "bd",         "random",       "formationMLE"),
           c("dmle", "",           "default",      "dissolutionMLE"),
           c("dmle", "",           "random",       "dissolutionMLE"),
+          c("dmle", "observed",   "default",      "dissolutionNonObservedMLE"),
+          c("dmle", "observed",   "random",       "dissolutionNonObservedMLE"),
           c("dmle", "bd",         "default",      "dissolutionMLE"),
           c("dmle", "bd",         "random",       "dissolutionMLE")
         )

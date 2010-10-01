@@ -6,7 +6,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
                              epsilon=1e-10,
                              estimate=TRUE, ...) {
   iteration <- 1
-  nw.orig <- nw
+  nw.orig <- network.copy(nw)
   asyse=theta0-theta0
   mc.se=1+0.05*asyse
   mle.lik=initialfit$mle.lik
@@ -44,16 +44,18 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     z <- ergm.getMCMCsample.parallel(nw, model, MHproposal, eta0, MCMCparams, verbose)
     statsmatrix <- z$statsmatrix
     v$sample <- statsmatrix
+    nw.returned <- network.copy(z$newnetwork)
     if(network.naedgecount(nw) > 0){
       z.miss <- ergm.getMCMCsample.parallel(nw, model, MHproposal.miss, eta0, MCMCparams.miss, verbose)
       statsmatrix.miss <-z.miss$statsmatrix
+      nw.miss.returned <- network.copy(z.miss$newnetwork)
       if(verbose){cat("Back from constrained MCMC...\n")}
     }else{
       statsmatrix.miss <- NULL
       if(verbose){cat("Back from unconstrained MCMC...\n")}
     }
     if(MCMCparams$sequential & network.naedgecount(nw) == 0){
-      nw <- z$newnetwork
+      nw <- nw.returned
       nw.obs <- summary(model$formula, basis=nw)
       namesmatch <- match(names(MCMCparams$meanstats), names(nw.obs))
       MCMCparams$stats[1,] <- nw.obs[namesmatch]-MCMCparams$meanstats
@@ -82,14 +84,25 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     }
     if(verbose){
       cat(paste("The density of the returned network is",
-                network.density(nw),"\n"))
+                network.density(nw.returned),"\n"))
       cat(paste("The density of the original network is",
                 network.density(nw.orig),"\n"))
       cat("Summary of simulation, relative to observed network:\n")
-      print(apply(statsmatrix,2,summary.statsmatrix.ergm),scipen=6)
-      degreedist(nw)
+      b = apply(statsmatrix,2,summary.statsmatrix.ergm)
+      print(b,scipen=6)
+      degreedist(nw.returned)
       cat("Meanstats of simulation, relative to observed network:\n")
-      print(summary(model$formula, basis=nw)-Clist$meanstats)
+      print(summary(model$formula, basis=nw.returned)-Clist$meanstats)
+      if(network.naedgecount(nw) > 0){
+       cat("Summary of simulation, relative to missing network:\n")
+        a = apply(statsmatrix.miss,2,summary.statsmatrix.ergm)[4,]
+        b = sweep(apply(statsmatrix,2,summary.statsmatrix.ergm),2,a,"-")
+        print(b,scipen=6)
+       degreedist(nw.miss.returned)
+       cat("Meanstats of simulation, relative to missing network:\n")
+       print(summary(model$formula, basis=nw.miss.returned)-Clist$meanstats)
+       nw.returned <- network.copy(nw.miss.returned)
+      }
     }
     if(verbose){cat("Calling optimization routines...\n")}
 
@@ -105,7 +118,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
               mle.lik=NULL,
               gradient=rep(NA,length=length(theta0)), #acf=NULL,
               samplesize=MCMCparams$samplesize, failure=TRUE,
-              newnetwork = nw)
+              newnetwork = nw.returned)
     return(structure (l, class="ergm"))
   }
   statsmatrix.0 <- statsmatrix
@@ -212,7 +225,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
 #   v$mle.lik <- -glm.fit$deviance/2 + v$loglikelihood
   mle.lik <- mle.lik + abs(v$loglikelihood)
 
-  v$newnetwork <- z$newnetwork
+# v$newnetwork <- network.copy(z$newnetwork)
 # v$newnetwork <- nw
 
 ###### old ergm.statseval ends here    
@@ -220,8 +233,8 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     v$burnin <- MCMCparams$burnin
     v$samplesize <- MCMCparams$samplesize
     v$interval <- MCMCparams$interval
-    v$network <- nw.orig
-    v$newnetwork <- nw
+    v$network <- network.copy(nw.orig)
+    v$newnetwork <- network.copy(nw.returned)
     v$interval <- MCMCparams$interval
     v$theta.original <- theta.original
     v$mplefit <- initialfit

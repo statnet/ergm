@@ -11,7 +11,8 @@
 
  Wrapper for a call from R.
 *****************/
-void MCMC_wrapper (int *heads, int *tails, int *dnedges,
+void MCMC_wrapper (int *dnumnets, int *nedges,
+		   int *heads, int *tails,
                    int *maxpossibleedges,
                    int *dn, int *dflag, int *bipartite, 
                    int *nterms, char **funnames,
@@ -24,19 +25,17 @@ void MCMC_wrapper (int *heads, int *tails, int *dnedges,
                    int *fVerbose, 
                    int *attribs, int *maxout, int *maxin, int *minout,
                    int *minin, int *condAllDegExact, int *attriblength, 
-                   int *maxedges,
-                   int *mheads, int *mtails, int *mdnedges) {
+                   int *maxedges){
   int directed_flag, hammingterm;
   Vertex n_nodes, nmax, bip, hhead, htail;
-  Edge n_edges, n_medges, nddyads, kedge;
-  Network nw[2];
+  Edge n_networks, nddyads, kedge;
+  Network nw[3];
   DegreeBound *bd;
   Model *m;
   ModelTerm *thisterm;
   
   n_nodes = (Vertex)*dn; /* coerce double *dn to type Vertex */
-  n_edges = (Edge)*dnedges; /* coerce double *dnedges to type Edge */
-  n_medges = (Edge)*mdnedges; /* coerce double *mdnedges to type Edge */
+  n_networks = (Edge)*dnumnets; /* coerce double *dnumnets to type Edge */
   nmax = (Edge)*maxedges; /* coerce double *maxedges to type Edge */
   bip = (Vertex)*bipartite; /* coerce double *bipartite to type Vertex */
   
@@ -46,13 +45,27 @@ void MCMC_wrapper (int *heads, int *tails, int *dnedges,
 
   m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
 
+  //Rprintf("Init: 0 edges %d yplus edges %d\n",nedges[0],nedges[1]); 
   /* Form the network */
-  nw[0]=NetworkInitialize(heads, tails, n_edges, 
+  nw[0]=NetworkInitialize(heads, tails, nedges[0], 
                           n_nodes, directed_flag, bip, 0);
   /* Form the missing network */
-  if (n_medges>0) {
-   nw[1]=NetworkInitialize(mheads, mtails, n_medges,
+  if (nedges[1]>0) {
+   heads += nedges[0];
+   tails += nedges[0];
+   nw[1]=NetworkInitialize(heads, tails, nedges[1],
                            n_nodes, directed_flag, bip, 0);
+   heads -= nedges[0];
+   tails -= nedges[0];
+  }
+  /* Form the DTERGM network */
+  if (nedges[2]>0) {
+   heads += nedges[0]+nedges[1];
+   tails += nedges[0]+nedges[1];
+   nw[2]=NetworkInitialize(heads, tails, nedges[2],
+                           n_nodes, directed_flag, bip, 0);
+   heads -= nedges[0]+nedges[1];
+   tails -= nedges[0]+nedges[1];
   }
 
   hammingterm=ModelTermHamming (*funnames, *nterms);
@@ -89,15 +102,15 @@ void MCMC_wrapper (int *heads, int *tails, int *dnedges,
 
 /* Really this is a formation term */
 //	     Rprintf("proposal %s\n",*MHproposaltype); 
-	     Rprintf("proposal %s\n",*MHproposaltype); 
+//	     Rprintf("proposal %s\n",*MHproposaltype); 
   if(!strncmp(*MHproposaltype,"FormationMLE",12)){
-     Rprintf("formation: y0 edges %d yplus edges %d\n",n_medges,n_edges); 
+     Rprintf("formation: y0 edges %d yplus edges %d\n",nedges[1],nedges[0]); 
 //   Rprintf("proposal %d\n",strncmp(*MHproposaltype,"FormationMLE",12)); 
-// nw[1]=NetworkInitialize(heads, tails, n_edges, 
+// nw[1]=NetworkInitialize(heads, tails, nedges[0], 
 //                         n_nodes, directed_flag, bip, 0);
   }
   if(!strncmp(*MHproposaltype,"DissolutionMLE",14)){
-     Rprintf("dissolution: y0 edges %d yplus edges %d\n",n_medges,n_edges); 
+     Rprintf("dissolution: y0 edges %d yplus edges %d\n",nedges[1],nedges[0]); 
   }
   
   bd=DegreeBoundInitialize(attribs, maxout, maxin, minout, minin,
@@ -124,8 +137,10 @@ void MCMC_wrapper (int *heads, int *tails, int *dnedges,
   ModelDestroy(m);
   if(bd)DegreeBoundDestroy(bd);
   NetworkDestroy(nw);
-  if (n_medges>0 || hammingterm > 0)
+  if (nedges[1]>0 || hammingterm > 0)
     NetworkDestroy(&nw[1]);
+  if (nedges[2]>0)
+    NetworkDestroy(&nw[2]);
   PutRNGstate();  /* Disable RNG before returning */
 }
 

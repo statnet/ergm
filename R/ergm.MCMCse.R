@@ -128,8 +128,8 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
 #   gradient.miss <- tcrossprod(xobs-E.miss, etagrad)
     cov.zbar.miss <- suppressWarnings(chol(cov.zbar.miss, pivot=TRUE))
     cov.zbar.offset[!offsetmap,!offsetmap] <- cov.zbar.miss
-    cov.zbar.miss.offset <- t(ergm.etagradmult(theta.offset, t(cov.zbar.miss.offset), etamap))
-    cov.zbar.miss <- crossprod(cov.zbar.miss.offset, cov.zbar.miss.offset)
+    cov.zbar.offset <- t(ergm.etagradmult(theta.offset, t(cov.zbar.offset), etamap))
+    cov.zbar.miss <- crossprod(cov.zbar.offset, cov.zbar.offset)
 #   cov.zbar.miss <- as.matrix(etagrad %*% cov.zbar.miss %*% t(etagrad))
 #   if(any(!offsettheta)){
 #    H <- as.matrix(H[!offsettheta,])
