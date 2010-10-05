@@ -1336,7 +1336,7 @@ D_CHANGESTAT_FN(d_degree_by_attr) {
   od=OUT_DEG;
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
-    echange=(EdgetreeSearch(head=heads[i], tail=tails[i], nwp->outedges)==0)? 1:-1;
+    echange = IS_OUTEDGE(head=heads[i], tail=tails[i]) ? -1:1;
     headdeg = od[head] + id[head];
     taildeg = od[tail] + id[tail];
     headattr = INPUT_PARAM[2*N_CHANGE_STATS + head - 1]; 
@@ -1363,7 +1363,7 @@ D_CHANGESTAT_FN(d_degree_w_homophily) {
   The values following the first nstats values are the nodal attributes.
   */
   int i, j, echange, headattr, tailattr;
-  Vertex head, tail, headdeg, taildeg, deg, tmp;
+  Vertex head, tail, headdeg, taildeg, deg, v;
   double *nodeattr;
   Edge e;
 
@@ -1375,28 +1375,13 @@ D_CHANGESTAT_FN(d_degree_w_homophily) {
     headattr = (int)nodeattr[head];
     tailattr = (int)nodeattr[tail];    
     if (headattr == tailattr) { /* They match; otherwise don't bother */
-      echange=(EdgetreeSearch(head, tail, nwp->outedges)==0)? 1:-1;
+      echange = IS_OUTEDGE(head, tail) ? -1:1;
+      headdeg=taildeg=-1; /* since headattr==tailattr, subtract the automatic match */
       headdeg=taildeg=0;
-      for(e = EdgetreeMinimum(nwp->outedges, head);
-      (tmp = nwp->outedges[e].value) != 0;
-      e = EdgetreeSuccessor(nwp->outedges, e)) {
-        headdeg += (nodeattr[tmp]==headattr);
-      }
-      for(e = EdgetreeMinimum(nwp->inedges, head);
-      (tmp = nwp->inedges[e].value) != 0;
-      e = EdgetreeSuccessor(nwp->inedges, e)) {
-        headdeg += (nodeattr[tmp]==headattr);
-      }
-      for(e = EdgetreeMinimum(nwp->outedges, tail);
-      (tmp = nwp->outedges[e].value) != 0;
-      e = EdgetreeSuccessor(nwp->outedges, e)) {
-        taildeg += (nodeattr[tmp]==tailattr);
-      }
-      for(e = EdgetreeMinimum(nwp->inedges, tail);
-      (tmp = nwp->inedges[e].value) != 0;
-      e = EdgetreeSuccessor(nwp->inedges, e)) {
-        taildeg += (nodeattr[tmp]==tailattr);
-      }
+      STEP_THROUGH_OUTEDGES(head, e, v) { headdeg += (nodeattr[v]==headattr); }
+      STEP_THROUGH_INEDGES(head, e, v) { headdeg += (nodeattr[v]==headattr); }
+      STEP_THROUGH_OUTEDGES(tail, e, v) { taildeg += (nodeattr[v]==tailattr); }
+      STEP_THROUGH_INEDGES(tail, e, v) { taildeg += (nodeattr[v]==tailattr); }
       for(j = 0; j < N_CHANGE_STATS; j++) {
         deg = (Vertex)INPUT_PARAM[j];
         CHANGE_STAT[j] += (headdeg + echange == deg) - (headdeg == deg);
@@ -3060,6 +3045,33 @@ D_CHANGESTAT_FN(d_idegree_w_homophily) {
 }
 
 /*****************
+ changestat: d_indegreepopularity
+*****************/
+D_CHANGESTAT_FN(d_indegreepopularity) { 
+  int i, edgeflag;
+  double change;
+  Vertex t, h, deg=0;
+  
+  change = 0.0;
+  FOR_EACH_TOGGLE(i) {
+    h=heads[i];
+    t=tails[i];
+    edgeflag = IS_OUTEDGE(h, t); /* either 0 or 1 */
+    deg = (double)(IN_DEG[t]);
+    if(edgeflag){
+      change -= sqrt(deg);
+      change += (deg-1.0)*(sqrt(deg-1.0)-sqrt(deg));
+    }else{
+      change += sqrt(deg+1.0);
+      change += deg*(sqrt(deg+1.0)-sqrt(deg));
+    }
+    TOGGLE_IF_MORE_TO_COME(i); 
+  }
+  CHANGE_STAT[0]=change; 
+  UNDO_PREVIOUS_TOGGLES(i);
+}
+
+/*****************
  changestat: d_intransitive
 *****************/
 D_CHANGESTAT_FN(d_intransitive) { 
@@ -4068,6 +4080,32 @@ D_CHANGESTAT_FN(d_ostar) {
     }
   }
   
+  UNDO_PREVIOUS_TOGGLES(i);
+}
+
+/*****************
+ changestat: d_outdegreepopularity
+*****************/
+D_CHANGESTAT_FN(d_outdegreepopularity) { 
+  int i, edgeflag;
+  double change;
+  Vertex t, h, deg=0;
+  
+  change = 0.0;
+  FOR_EACH_TOGGLE(i) {
+    h=heads[i];
+    t=tails[i];
+    edgeflag = IS_OUTEDGE(h, t); /* either 0 or 1 */
+    change += (edgeflag? -1.0 : 1.0) * sqrt((double)(OUT_DEG[t]));
+    deg = (double)(OUT_DEG[h]);
+    if(edgeflag){
+      change += IN_DEG[h]*(sqrt(deg-1.0)-sqrt(deg));
+    }else{
+      change += IN_DEG[h]*(sqrt(deg+1.0)-sqrt(deg));
+    }
+    TOGGLE_IF_MORE_TO_COME(i); 
+  }
+  CHANGE_STAT[0]=change; 
   UNDO_PREVIOUS_TOGGLES(i);
 }
 

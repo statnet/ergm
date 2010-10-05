@@ -392,15 +392,20 @@ network
     equivalent to \code{triangle}, and there is no undirected cycle term of
     length 2.}
     
-    \item{\code{degree(d, by=NULL)}}{\emph{Degree:} 
+    \item{\code{degree(d, by=NULL, homophily=FALSE)}}{\emph{Degree:} 
     The \code{d} argument is a vector of distinct integers. This term adds one
     network statistic to the model for each element in \code{d}; the \eqn{i}th
     such statistic equals the number of nodes in the network of degree
     \code{d[i]}, i.e. with exactly \code{d[i]} edges. The optional argument
     \code{by} is a character string giving the name of an attribute in the
-    network's vertex attribute list. If this is specified 
-    then each node's degree is tabulated only with other nodes having the same
-    value of the \code{by} attribute.
+    network's vertex attribute list. 
+    If this is specified and \code{homophily} is \code{TRUE},
+    then degrees are calculated using the subnetwork consisting of only
+    edges whose endpoints have the same value of the \code{by} attribute.
+    If \code{by} is specified and
+    \code{homophily} is \code{FALSE} (the default), then separate degree 
+    statistics are calculated for nodes having each separate
+    value of the attribute.
     This term can only be used with undirected networks; for directed networks
     see \code{idegree} and \code{odegree}. }
     
@@ -603,15 +608,20 @@ of the degrees of all pairs of nodes in the network which are tied.
     omit the second statistic, making it the de facto reference category.
     This term can only be used with directed networks.}
  
-    \item{\code{idegree(d, by=NULL)}}{\emph{In-degree:} The \code{d} argument
+    \item{\code{idegree(d, by=NULL, homophily=FALSE)}}{\emph{In-degree:} The \code{d} argument
     is a vector of distinct integers. This term adds one network statistic to
     the model for each element in \code{d}; the \eqn{i}th such statistic equals
     the number of nodes in the network of in-degree \code{d[i]}, i.e. the number
     of nodes with exactly \code{d[i]} in-edges. The optional term
     \code{by} is a character string giving the name of an attribute in the
-    network's vertex attribute list. If this is specified 
-    then each node's degree is tabulated only with other nodes having the same
-    value of the \code{by} attribute.
+    network's vertex attribute list. 
+    If this is specified and \code{homophily} is \code{TRUE},
+    then degrees are calculated using the subnetwork consisting of only
+    edges whose endpoints have the same value of the \code{by} attribute.
+    If \code{by} is specified and
+    \code{homophily} is \code{FALSE} (the default), then separate degree 
+    statistics are calculated for nodes having each separate
+    value of the attribute.
     This term can only be used with directed networks; for undirected networks
     see \code{degree}. }
     
@@ -860,15 +870,20 @@ of the degrees of all pairs of nodes in the network which are tied.
     directed two-path connecting the nodes in the non-edge and in the same
     direction).}
   
-    \item{\code{odegree(d, by=NULL)}}{\emph{Out-degree:} The \code{d} argument
+    \item{\code{odegree(d, by=NULL, homophily=FALSE)}}{\emph{Out-degree:} The \code{d} argument
     is a vector of distinct integers. This term adds one network statistic to
     the model for each element in \code{d}; the \eqn{i}th such statistic equals
     the number of nodes in the network of out-degree \code{d[i]}, i.e. the
     number of nodes with exactly \code{d[i]} out-edges. The optional argument
     \code{by} is a character string giving the name of an attribute in the
-    network's vertex attribute list. If this is specified 
-    then each node's degree is tabulated only with other nodes having the same
-    value of the \code{by} attribute.
+    network's vertex attribute list. 
+    If this is specified and \code{homophily} is \code{TRUE},
+    then degrees are calculated using the subnetwork consisting of only
+    edges whose endpoints have the same value of the \code{by} attribute.
+    If \code{by} is specified and
+    \code{homophily} is \code{FALSE} (the default), then separate degree 
+    statistics are calculated for nodes having each separate
+    value of the attribute.
     This term can only be used with directed networks; for undirected networks
     see \code{degree}. }
     
