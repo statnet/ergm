@@ -1335,7 +1335,7 @@ D_CHANGESTAT_FN(d_degree_by_attr) {
   od=OUT_DEG;
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
-    echange=(EdgetreeSearch(head=heads[i], tail=tails[i], nwp->outedges)==0)? 1:-1;
+    echange = IS_OUTEDGE(head=heads[i], tail=tails[i]) ? -1:1;
     headdeg = od[head] + id[head];
     taildeg = od[tail] + id[tail];
     headattr = INPUT_PARAM[2*N_CHANGE_STATS + head - 1]; 
@@ -1362,7 +1362,7 @@ D_CHANGESTAT_FN(d_degree_w_homophily) {
   The values following the first nstats values are the nodal attributes.
   */
   int i, j, echange, headattr, tailattr;
-  Vertex head, tail, headdeg, taildeg, deg, tmp;
+  Vertex head, tail, headdeg, taildeg, deg, v;
   double *nodeattr;
   Edge e;
 
@@ -1374,28 +1374,13 @@ D_CHANGESTAT_FN(d_degree_w_homophily) {
     headattr = (int)nodeattr[head];
     tailattr = (int)nodeattr[tail];    
     if (headattr == tailattr) { /* They match; otherwise don't bother */
-      echange=(EdgetreeSearch(head, tail, nwp->outedges)==0)? 1:-1;
+      echange = IS_OUTEDGE(head, tail) ? -1:1;
+      headdeg=taildeg=-1; /* since headattr==tailattr, subtract the automatic match */
       headdeg=taildeg=0;
-      for(e = EdgetreeMinimum(nwp->outedges, head);
-      (tmp = nwp->outedges[e].value) != 0;
-      e = EdgetreeSuccessor(nwp->outedges, e)) {
-        headdeg += (nodeattr[tmp]==headattr);
-      }
-      for(e = EdgetreeMinimum(nwp->inedges, head);
-      (tmp = nwp->inedges[e].value) != 0;
-      e = EdgetreeSuccessor(nwp->inedges, e)) {
-        headdeg += (nodeattr[tmp]==headattr);
-      }
-      for(e = EdgetreeMinimum(nwp->outedges, tail);
-      (tmp = nwp->outedges[e].value) != 0;
-      e = EdgetreeSuccessor(nwp->outedges, e)) {
-        taildeg += (nodeattr[tmp]==tailattr);
-      }
-      for(e = EdgetreeMinimum(nwp->inedges, tail);
-      (tmp = nwp->inedges[e].value) != 0;
-      e = EdgetreeSuccessor(nwp->inedges, e)) {
-        taildeg += (nodeattr[tmp]==tailattr);
-      }
+      STEP_THROUGH_OUTEDGES(head, e, v) { headdeg += (nodeattr[v]==headattr); }
+      STEP_THROUGH_INEDGES(head, e, v) { headdeg += (nodeattr[v]==headattr); }
+      STEP_THROUGH_OUTEDGES(tail, e, v) { taildeg += (nodeattr[v]==tailattr); }
+      STEP_THROUGH_INEDGES(tail, e, v) { taildeg += (nodeattr[v]==tailattr); }
       for(j = 0; j < N_CHANGE_STATS; j++) {
         deg = (Vertex)INPUT_PARAM[j];
         CHANGE_STAT[j] += (headdeg + echange == deg) - (headdeg == deg);
