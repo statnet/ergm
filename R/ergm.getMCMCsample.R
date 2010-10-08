@@ -18,9 +18,23 @@
 
 ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALSE) {
   maxedges <- MCMCparams$maxedges
+  nedges <- c(Clist$nedges,0,0)
+  heads <- Clist$heads
+  tails <- Clist$tails
+  if(!is.null(MCMCparams$Clist.miss)){
+    nedges[2] <- MCMCparams$Clist.miss$nedges
+    heads <- c(heads, MCMCparams$Clist.miss$heads)
+    tails <- c(tails, MCMCparams$Clist.miss$tails)
+  }
+  if(!is.null(MCMCparams$Clist.dt)){
+    nedges[3] <- MCMCparams$Clist.dt$nedges
+    heads <- c(heads, MCMCparams$Clist.dt$heads)
+    tails <- c(tails, MCMCparams$Clist.dt$tails)
+  }
   z <- .C("MCMC_wrapper",
-  as.integer(Clist$heads), as.integer(Clist$tails),
-  as.integer(Clist$nedges), as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
+  as.integer(length(nedges)), as.integer(nedges),
+  as.integer(heads), as.integer(tails),
+  as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
   as.integer(Clist$dir), as.integer(Clist$bipartite),
   as.integer(Clist$nterms),
   as.character(Clist$fnamestring),
@@ -46,8 +60,6 @@ ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALS
   as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
   as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)),
   as.integer(maxedges),
-  as.integer(MCMCparams$Clist.miss$heads), as.integer(MCMCparams$Clist.miss$tails),
-  as.integer(MCMCparams$Clist.miss$nedges),
   PACKAGE="ergm")
 
   nedges <- z$newnwheads[1]  # This tells how many new edges there are

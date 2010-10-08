@@ -701,13 +701,20 @@ of the degrees of all pairs of nodes in the network which are tied.
     average degree of a node.  Note that this term is a constant multiple of
     both \code{edges} and \code{density}.}
   
-    \item{\code{mutual(attrname=NULL, diff=FALSE, keep=NULL)}}{\emph{Mutuality:} 
+    \item{\code{mutual(same=NULL, diff=FALSE, by=NULL, keep=NULL)}}{\emph{Mutuality:} 
     This term adds one network statistic to the model equal to the number of
     pairs of actors \eqn{i} and \eqn{j} for which \eqn{(i{\rightarrow}j)}{(i,j)}
     and \eqn{(j{\rightarrow}i)}{(j,i)} both exist. This term can only be used
-    with directed networks. If the optional \code{attrname} argument is used,
-    only mutual pairs that match on the named vertex attribute are counted. The
-    optional modifiers \code{diff} and \code{keep} are used in the same way as
+    with directed networks. If the optional \code{same} argument is used,
+    only mutual pairs that match on the named vertex attribute are counted. 
+    The optional argument \code{by} is
+    a character string giving the name of an attribute in the network's vertex
+    attribute list. If this is specified 
+    then each node's degree is tabulated only with other nodes having the same
+    value of the \code{by} attribute.
+    When \code{by} is set (and \code{same=NULL}), this term adds one network statistic to the model for each value, \code{v}, the attribute takes. This statistic counts the number of mutual dyads \eqn{(i,j)} for which the attribute of
+    vertex \code{i} is \code{v}.
+    The optional modifiers \code{diff} and \code{keep} are used in the same way as
     for the \code{nodematch} term; refer to this term for details and an
     example. }
     
@@ -1035,7 +1042,8 @@ of the degrees of all pairs of nodes in the network which are tied.
     potential but incomplete triangle). For the definition of triangle, see
     \code{triangle}. The optional argument \code{attrname} restricts the counts
     (both numerator and denominator) to those triples of nodes with equal values
-    of the vertex attribute specified by \code{attrname}. This term can only be
+    of the vertex attribute specified by \code{attrname}. This is often called
+    the mean correlation coefficient. This term can only be
     used with undirected networks; for directed networks, it is difficult to
     define the numerator and denominator in a consistent and meaningful way.}
     

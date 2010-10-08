@@ -31,7 +31,7 @@ control.san(prop.weights = "default", prop.args = NULL,
     correspond to infinite parameter estimates.
     Default is \code{FALSE}.}
   \item{maxedges}{maximum number of edges expected in network}
-  \item{packagenames}{TBA}
+  \item{packagenames}{Names of packages in which changestatistics are found. Currently unused as \code{ergm} is presumed.}
   \item{network.output}{character: R class with which to output 
   networks. The options are "network" (default) and "edgelist.compressed" 
   (which saves space but only supports networks without vertex attributes)}
@@ -40,7 +40,7 @@ control.san(prop.weights = "default", prop.args = NULL,
     %Maximum number of changes in dynamic network
     %simulation for which to allocate space. 
     Currently unused}
-  \item{parallel}{TBA}
+  \item{parallel}{Number of threads in which to run the sampling. Currently unimplemented}
 }
 \value{
   A list with arguments as components.
