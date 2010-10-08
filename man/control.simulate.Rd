@@ -52,7 +52,7 @@ parallel=0)
   \item{summarizestats}{logical; Print out a summary of 
     the sufficient statistics of the generated network. This is useful 
     as a diagnostic. Default is \code{FALSE}.}
-  \item{maxedges}{maximum number of edges allowed expected in network}
+  \item{maxedges}{maximum number of edges expected in network}
   \item{network.output}{character; class with which to store the output 
   networks. The options are "network" (default) and "edgelist.compressed" 
   (which saves space but only supports networks without vertex attributes)}
