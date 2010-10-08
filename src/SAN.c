@@ -133,7 +133,8 @@ void SAN_wrapper (int *heads, int *tails, int *dnedges,
 	      (int)*fVerbose, nw, m, bd);
   
   /* record new generated network to pass back to R */
-  newnetworkheads[0]=newnetworktails[0]=EdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,nw,nmax);
+  if(nmax > 0)
+  newnetworkheads[0]=newnetworktails[0]=EdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,nw,nmax-1);
 
   ModelDestroy(m);
   if(bd)DegreeBoundDestroy(bd);
