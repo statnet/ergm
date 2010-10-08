@@ -1042,7 +1042,8 @@ of the degrees of all pairs of nodes in the network which are tied.
     potential but incomplete triangle). For the definition of triangle, see
     \code{triangle}. The optional argument \code{attrname} restricts the counts
     (both numerator and denominator) to those triples of nodes with equal values
-    of the vertex attribute specified by \code{attrname}. This term can only be
+    of the vertex attribute specified by \code{attrname}. This is often called
+    the mean correlation coefficient. This term can only be
     used with undirected networks; for directed networks, it is difficult to
     define the numerator and denominator in a consistent and meaningful way.}
     

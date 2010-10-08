@@ -18,7 +18,6 @@
 
 ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALSE) {
   maxedges <- MCMCparams$maxedges
-  numnetworks <- 0
   nedges <- c(Clist$nedges,0,0)
   heads <- Clist$heads
   tails <- Clist$tails
@@ -33,7 +32,7 @@ ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALS
     tails <- c(tails, MCMCparams$Clist.dt$tails)
   }
   z <- .C("MCMC_wrapper",
-  as.integer(numnetworks), as.integer(nedges),
+  as.integer(length(nedges)), as.integer(nedges),
   as.integer(heads), as.integer(tails),
   as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
   as.integer(Clist$dir), as.integer(Clist$bipartite),
