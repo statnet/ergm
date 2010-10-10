@@ -90,6 +90,10 @@ ergm.MCMCse.lognormal<-function(theta, theta0, statsmatrix, statsmatrix.miss,
     mc.se <- rep(NA,length=length(theta))
     return(list(mc.se=mc.se, hessian=hessian))
    }
+   if (length(model$etamap$curved)!=0) {
+     print("Curved exponential family model.")
+     novar <- rep(F, ncol(cov.zbar))
+   }
    cov.zbar <- cov.zbar[!novar,,drop=FALSE] 
    cov.zbar <- cov.zbar[,!novar,drop=FALSE] 
    mc.se <- rep(NA,length=length(theta))

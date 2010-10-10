@@ -1688,7 +1688,7 @@ InitErgm.gwesp<-function(nw, m, arglist, initialfit=FALSE, ...) {
   termnumber<-1+length(m$terms)
   alpha=alpha[1] # Not sure why anyone would enter a vector here, but...
   if(!initialfit && !fixed){ # This is a curved exponential family model
-    d <- 1:(network.size(nw)-1)
+    d <- 1:(network.size(nw)-2)
     ld<-length(d)
     if(ld==0){return(m)}
     map <- function(x,n,...){

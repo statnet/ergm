@@ -133,9 +133,12 @@ ergm <- function(formula, theta0="MPLE",
    }
   }
 
-  MCMCparams=c(control, list(samplesize=MCMCsamplesize, burnin=burnin,
-  interval=interval, stepMCMCsize=control$stepMCMCsize, gridsize=control$gridsize,
-  maxit=maxit,Clist.miss=Clist.miss, mcmc.precision=control$mcmc.precision))
+  MCMCparams <- c(control, 
+                  list(samplesize=MCMCsamplesize, burnin=burnin,
+                       interval=interval, stepMCMCsize=control$stepMCMCsize,
+                       gridsize=control$gridsize, maxit=maxit,
+                       Clist.miss=Clist.miss, nr.reltol=control$reltol,
+                       mcmc.precision=control$mcmc.precision))
 
    if (verbose) cat("Fitting ERGM.\n")
    v <- switch(control$style,

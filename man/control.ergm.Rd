@@ -11,7 +11,8 @@ control.ergm(prop.weights = "default", prop.args = NULL,
              calc.mcmc.se = TRUE, hessian = TRUE, compress = FALSE,
              SAN.burnin=NULL,
              maxNumDyadTypes = 1e+06, maxedges = 20000, maxchanges = 1e+06,
-             maxMPLEsamplesize = 1e+05, MPLEtype=c("glm", "penalized"), trace = 0,
+             maxMPLEsamplesize = 1e+05, MPLEtype=c("glm", "penalized"), 
+             nr.reltol=sqrt(.Machine$double.eps), trace = 0,
              steplength = 0.5, sequential=TRUE,
              drop = TRUE, force.mcmc = FALSE, check.degeneracy=FALSE, 
              mcmc.precision = 0.05, 
@@ -79,6 +80,9 @@ control.ergm(prop.weights = "default", prop.args = NULL,
     Meinhard Ploner, Daniela Dunkler, Harry
     Southworth, and Georg Heinze in the "logistf" package. 
     Default is "glm".}
+  \item{nr.reltol}{Relative convergence tolerance, passed to optimization
+  routines like \code{optim}.  See the \code{reltol} control argument for the
+  \code{optim} function.}
   \item{trace}{non-negative integer; If positive,
     tracing information on the
     progress of the optimization is produced. Higher values may
