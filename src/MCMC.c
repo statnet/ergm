@@ -276,7 +276,7 @@ void MetropolisHastings (MHproposal *MHp,
 			 double *theta, double *networkstatistics,
 			 long int nsteps, long int *staken,
 			 int hammingterm,
-			 int fVerbose,
+       int fVerbose,
 			 Network *nwp,
 			 Model *m, DegreeBound *bd) {
   long int step, taken;
@@ -308,15 +308,15 @@ void MetropolisHastings (MHproposal *MHp,
       for (i=0; i < MHp->ntoggles; i++){
         ToggleEdgeWithTimestamp(MHp->togglehead[i], MHp->toggletail[i], nwp);
       }
-//    if(!strncmp(MHproposaltype,"FormationMLE",12) |
-//       !strncmp(MHproposaltype,"DissolutionMLE",14) |
-//hammingterm
-	if(hammingterm
-	){
+      //    if(!strncmp(MHproposaltype,"FormationMLE",12) |
+      //       !strncmp(MHproposaltype,"DissolutionMLE",14) |
+      //hammingterm
+      if(hammingterm
+      ){
         for (i=0; i < MHp->ntoggles; i++){
-         Rprintf("Toggle Discord: h %d t %d\n",MHp->togglehead[i],  MHp->toggletail[i]); 
-	 ToggleEdge(MHp->togglehead[i],  MHp->toggletail[i], &nwp[1]);  /* Toggle the discord for this edge */
-	}
+          Rprintf("Toggle Discord: h %d t %d\n",MHp->togglehead[i],  MHp->toggletail[i]); 
+          ToggleEdge(MHp->togglehead[i],  MHp->toggletail[i], &nwp[1]);  /* Toggle the discord for this edge */
+        }
       }
       /* record network statistics for posterity */
 /*    Rprintf("change stats:");  */
@@ -466,7 +466,7 @@ void MCMCPhase12 (int *heads, int *tails, int *dnedges,
   /* record new generated network to pass back to R */
   if(nmax>0 && newnetworkheads && newnetworktails)
     newnetworkheads[0]=newnetworktails[0]=EdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,nw,nmax);
-  
+
   ModelDestroy(m);
   if(bd)DegreeBoundDestroy(bd);
   NetworkDestroy(nw);
@@ -537,16 +537,16 @@ void MCMCSamplePhase12 (char *MHproposaltype, char *MHproposalpackage,
     Rprintf("Starting burnin of %d steps\n", burnin);
     MetropolisHastings (&MH, theta,
 		  networkstatistics, burnin, &staken,
-		  hammingterm, 
-		  fVerbose, 
+      hammingterm,
+      fVerbose,
 		  nwp, m, bd);
     Rprintf("Phase 1: %d steps (interval = %d)\n", nphase1,interval);
     /* Now sample networks */
     for (i=0; i <= nphase1; i++){
       MetropolisHastings (&MH, theta,
 		  networkstatistics, interval, &staken,
-		  hammingterm,
-		  fVerbose,
+      hammingterm,
+      fVerbose,
 		  nwp, m, bd);
       if(i > 0){
        for (j=0; j<m->n_stats; j++){
@@ -584,8 +584,8 @@ void MCMCSamplePhase12 (char *MHproposaltype, char *MHproposalpackage,
       
       MetropolisHastings (&MH, theta,
 		  networkstatistics, interval, &staken,
-		  hammingterm,
-		  fVerbose,
+      hammingterm,
+      fVerbose,
 		  nwp, m, bd);
     /* Update theta0 */
 /*Rprintf("initial:\n"); */
