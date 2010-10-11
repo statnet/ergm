@@ -243,19 +243,19 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
      Lout$hessian <- He
     }
     if(calc.mcmc.se){
-      if (verbose) cat("Starting MCMC s.e. computation.\n")
-      if ((metric=="lognormal" || metric=="Likelihood") ) {
-        mcmcse <- ergm.MCMCse.lognormal(theta, theta0,
-                              statsmatrix0, statsmatrix.miss,
-                              V, V.miss,
-                              model=model)
-       }else{
-        mcmcse <- ergm.MCMCse(theta, theta0, 
-                              statsmatrix0,
-                              statsmatrix.miss,
-                              model=model)
-       }
-       mc.se <- mcmcse$mc.se
+      if (verbose) { cat("Starting MCMC s.e. computation.\n") }
+      if ((metric=="lognormal" || metric=="Likelihood") 
+          && length(model$etamap$curved)==0) {
+        mc.se <- ergm.MCMCse.lognormal(theta, theta0,
+                                       statsmatrix0, statsmatrix.miss,
+                                       V, V.miss,
+                                       model=model)
+      } else {
+        mc.se <- ergm.MCMCse(theta, theta0, 
+                             statsmatrix0,
+                             statsmatrix.miss,
+                             model=model)
+      }
     }
     c0  <- loglikelihoodfn(theta=Lout$par, xobs=xobs,
                            xsim=xsim, probs=probs,
