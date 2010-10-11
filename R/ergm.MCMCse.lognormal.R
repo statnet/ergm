@@ -20,8 +20,11 @@ ergm.MCMCse.lognormal<-function(theta, theta0, statsmatrix, statsmatrix.miss,
    av.miss <- apply(statsmatrix.miss, 2, mean)
 #  av.miss <- apply(statsmatrix.miss, 2, median)
    xsim.miss <- sweep(statsmatrix.miss, 2, av.miss,"-")
+   xsim.miss <- xsim.miss[,!offsetmap, drop=FALSE]
    xobs <- av.miss-av
   }
+  xobs <- xobs[!offsetmap]
+  xsim <- xsim[,!offsetmap, drop=FALSE]
 
   # Take any theta offsets (values fixed at theta0) into consideration
   theta.offset <- etamap$theta0
@@ -49,8 +52,9 @@ ergm.MCMCse.lognormal<-function(theta, theta0, statsmatrix, statsmatrix.miss,
   cov.zbar <- crossprod(cov.zbar.offset, cov.zbar.offset)
 
   # Identify canonical parameters corresponding to statistics that do not vary
-  # DRH:  The novar calculation here does not work for curved EF models,
-  # where the covariance matrix can be of a different size than H.
+  # Note that some care may be required here, as H and cov.zbar may not be
+  # the same dimension in case of a curved EF model, in which case this 
+  # is probably the wrong function to call!
   novar <- diag(H)==0
 
   #  Calculate the auto-covariance of the Conditional MCMC suff. stats.
@@ -68,8 +72,8 @@ ergm.MCMCse.lognormal<-function(theta, theta0, statsmatrix, statsmatrix.miss,
     cov.zbar.miss <- (R[1,  ,  ] + part + t(part))/nrow(xsim.miss)
     cov.zbar.miss <- suppressWarnings(chol(cov.zbar.miss, pivot=TRUE))
     cov.zbar.offset[!offsetmap,!offsetmap] <- cov.zbar.miss
-    cov.zbar.miss.offset <- t(ergm.etagradmult(theta.offset, t(cov.zbar.miss.offset), etamap))
-    cov.zbar.miss <- crossprod(cov.zbar.miss.offset, cov.zbar.miss.offset)
+    cov.zbar.offset <- t(ergm.etagradmult(theta.offset, t(cov.zbar.offset), etamap))
+    cov.zbar.miss <- crossprod(cov.zbar.offset, cov.zbar.offset)
     novar <- novar | (diag(H.miss)==0)
     H.miss <- H.miss[!novar,,drop=FALSE] 
     H.miss <- H.miss[,!novar,drop=FALSE] 
@@ -86,7 +90,7 @@ ergm.MCMCse.lognormal<-function(theta, theta0, statsmatrix, statsmatrix.miss,
   if(all(dim(H)==c(0,0))){
     hessian <- matrix(NA, ncol=length(theta), nrow=length(theta))
     mc.se <- rep(NA,length=length(theta))
-    return(list(mc.se=mc.se, hessian=hessian))
+    return(mc.se)
   }
   cov.zbar <- cov.zbar[!novar,,drop=FALSE] 
   cov.zbar <- cov.zbar[,!novar,drop=FALSE] 
@@ -163,6 +167,6 @@ ergm.MCMCse.lognormal<-function(theta, theta0, statsmatrix, statsmatrix.miss,
 #  }
 #  dimnames(covar) <- list(names(theta),names(theta))
 #  list(mc.se=mc.se, hessian=hessian, covar=covar)
-  list(mc.se=mc.se)
+  return(mc.se)
 }
 

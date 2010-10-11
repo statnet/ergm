@@ -271,33 +271,17 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     if(calc.mcmc.se){
       if (verbose) cat("Starting MCMC s.e. computation.\n")
        if (metric=="lognormal" || metric=="Likelihood") {
-        mcmcse <- ergm.MCMCse.lognormal(theta=theta, theta0=theta0, 
+        mc.se <- ergm.MCMCse.lognormal(theta=theta, theta0=theta0, 
                               statsmatrix=statsmatrix0, 
                               statsmatrix.miss=statsmatrix.miss,
                               H=V, H.miss=V.miss,
                               model=model)
        }else{
-        mcmcse <- ergm.MCMCse(theta=theta,theta0=theta0, 
+        mc.se <- ergm.MCMCse(theta=theta,theta0=theta0, 
                               statsmatrix=statsmatrix0,
                               statsmatrix.miss=statsmatrix.miss,
                               model=model)
        }
-       mc.se <- mcmcse$mc.se
-       # Eventually, this if-statement may be removed:
-#       if (verbose) {
-#         if (metric=="lognormal" || metric=="Likelihood") {
-#           cat ("Here are the standard errors based on the exact Hessian of the ",
-#                "log-normal approximation:\n")
-#           print(sqrt(diag(robust.inverse(-Lout$hessian))))
-#           cat ("MCMC standard errors\n.")
-#           print(sqrt(diag(covar)/NROW(statsmatrix)))
-#         }
-#         cat ("Here are the standard errors based on the 'naive' approximation ",
-#              "of the log-likelihood as in eqn. (3.5) of H&H 2006:\n")
-#         print(sqrt(diag(robust.inverse(-mcmcse$hessian))))
-#         cat ("MCMC standard errors\n.")
-#         print(mc.se)
-#       }
     }
     c0  <- loglikelihoodfn(theta=Lout$par, xobs=xobs,
                            xsim=xsim, probs=probs,
