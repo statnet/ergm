@@ -129,10 +129,12 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
   nedges <- c(Clist$nedges,0,0)
   heads <- Clist$heads
   tails <- Clist$tails
+  weights <- Clist$weights
   if(!is.null(MCMCparams$Clist.miss)){
     nedges[2] <- MCMCparams$Clist.miss$nedges
     heads <- c(heads, MCMCparams$Clist.miss$heads)
     tails <- c(tails, MCMCparams$Clist.miss$tails)
+    weights <- c(weights, rep(1,nedges[1]))
   }
   if(!is.null(MCMCparams$Clist.dt)){
     nedges[3] <- MCMCparams$Clist.dt$nedges
@@ -168,7 +170,7 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
   }else{
     z <- .C("WtMCMC_wrapper",
             as.integer(numnetworks), as.integer(nedges),
-            as.integer(Clist$heads), as.integer(Clist$tails), as.double(Clist$weights),
+            as.integer(heads), as.integer(tails), as.double(weights),
             as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
             as.integer(Clist$dir), as.integer(Clist$bipartite),
             as.integer(Clist$nterms),

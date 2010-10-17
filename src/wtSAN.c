@@ -30,13 +30,13 @@ void WtSAN_wrapper (int *dnumnets, int *nedges,
 		    int *maxedges)  {
   int directed_flag;
   Vertex n_nodes, nmax, bip, hhead, htail;
-  Edge n_edges, n_medges, nddyads, kedge;
+  Edge n_networks, n_edges, n_medges, nddyads, kedge;
   WtNetwork nw[2];
   WtModel *m;
   WtModelTerm *thisterm;
   
   n_nodes = (Vertex)*dn; /* coerce double *dn to type Vertex */
-  n_edges = (Edge)*dnedges; 
+  n_networks = (Edge)*dnumnets; 
   nmax = (Edge)*maxedges; 
   bip = (Vertex)*bipartite; /* coerce double *bipartite to type Vertex */
   

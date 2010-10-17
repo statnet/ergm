@@ -27,12 +27,12 @@ void WtMCMC_wrapper (int *dnumnets, int *nedges,
 		     int *maxedges) {
   int directed_flag;
   Vertex n_nodes, nmax, bip, hhead, htail;
-  Edge n_edges, n_medges, nddyads, kedge;
+  Edge n_networks, n_edges, n_medges, nddyads, kedge;
   WtNetwork nw[2];
   WtModel *m;
   
   n_nodes = (Vertex)*dn; /* coerce double *dn to type Vertex */
-  n_edges = (Edge)*dnedges; /* coerce double *dnedges to type Edge */
+  n_networks = (Edge)*dnumnets; /* coerce double *dnumnets to type Edge */
   nmax = (Edge)*maxedges; /* coerce double *maxedges to type Edge */
   bip = (Vertex)*bipartite; /* coerce double *bipartite to type Vertex */
   
@@ -50,7 +50,7 @@ void WtMCMC_wrapper (int *dnumnets, int *nedges,
    heads += nedges[0];
    tails += nedges[0];
    weights += nedges[0];
-   nw[1]=NetworkInitialize(heads, tails, weights, nedges[1],
+   nw[1]=WtNetworkInitialize(heads, tails, weights, nedges[1],
                            n_nodes, directed_flag, bip, 0);
    heads -= nedges[0];
    tails -= nedges[0];
@@ -77,7 +77,7 @@ void WtMCMC_wrapper (int *dnumnets, int *nedges,
   
   WtModelDestroy(m);
   WtNetworkDestroy(nw);
-  if (nedges[1]>0 || hammingterm > 0)
+  if (nedges[1]>0)
     WtNetworkDestroy(&nw[1]);
   PutRNGstate();  /* Disable RNG before returning */
 }
