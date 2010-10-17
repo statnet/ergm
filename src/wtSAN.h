@@ -6,20 +6,21 @@
 #include "wtMHproposal.h"
 #include "wtmodel.h"
 
-void WtSAN_wrapper (int *heads, int *tails, double *weights, int *dnedges, double *baseline_weights,
-                   int *maxpossibleedges,
-		  int *dn, int *dflag, int *bipartite, 
-		  int *nterms, char **funnames,
-		  char **sonames, 
-		  char **MHproposaltype, char **MHproposalpackage,
-		  double *inputs, double *theta0, double *tau, int *samplesize, 
-		  double *sample, int *burnin, int *interval,  
-		  int *newnetworkheads, 
-		  int *newnetworktails, 
-		  double *newnetworkweights,
-		  double *invcov,
-		  int *fVerbose, 
-		  int *maxedges);
+void WtSAN_wrapper (int * dnumnets, int *nedges,
+		    int *heads, int *tails, double *weights,
+		    int *maxpossibleedges,
+		    int *dn, int *dflag, int *bipartite, 
+		    int *nterms, char **funnames,
+		    char **sonames, 
+		    char **MHproposaltype, char **MHproposalpackage,
+		    double *inputs, double *theta0, double *tau, int *samplesize, 
+		    double *sample, int *burnin, int *interval,  
+		    int *newnetworkheads, 
+		    int *newnetworktails, 
+		    double *newnetworkweights,
+		    double *invcov,
+		    int *fVerbose, 
+		    int *maxedges);
 
 void WtSANSample (char *MHproposaltype, char *MHproposalpackage,
 		double *theta, double *invcov, double *tau, double *networkstatistics, 

@@ -12,21 +12,22 @@
 
  Wrapper for a call from R.
 *****************/
-void WtSAN_wrapper (int *heads, int *tails, double *weights, int *dnedges, double *baseline_weight,
-                   int *maxpossibleedges,
-                   int *dn, int *dflag, int *bipartite, 
-                   int *nterms, char **funnames,
-                   char **sonames, 
-                   char **MHproposaltype, char **MHproposalpackage,
-                   double *inputs, double *theta0, double *tau, 
-		   int *samplesize, 
-                   double *sample, int *burnin, int *interval,  
-                   int *newnetworkheads, 
-                   int *newnetworktails, 
-		  double *newnetworkweights,
-                   double *invcov, 
-                   int *fVerbose, 
-                   int *maxedges)  {
+void WtSAN_wrapper (int *dnumnets, int *nedges,
+		    int *heads, int *tails, double *weights, 
+		    int *maxpossibleedges,
+		    int *dn, int *dflag, int *bipartite, 
+		    int *nterms, char **funnames,
+		    char **sonames, 
+		    char **MHproposaltype, char **MHproposalpackage,
+		    double *inputs, double *theta0, double *tau, 
+		    int *samplesize, 
+		    double *sample, int *burnin, int *interval,  
+		    int *newnetworkheads, 
+		    int *newnetworktails, 
+		    double *newnetworkweights,
+		    double *invcov, 
+		    int *fVerbose, 
+		    int *maxedges)  {
   int directed_flag;
   Vertex n_nodes, nmax, bip, hhead, htail;
   Edge n_edges, n_medges, nddyads, kedge;
@@ -48,7 +49,19 @@ void WtSAN_wrapper (int *heads, int *tails, double *weights, int *dnedges, doubl
 
   /* Form the missing network */
   nw[0]=WtNetworkInitialize(heads, tails, weights, n_edges,
-			    n_nodes, directed_flag, bip, *baseline_weight, 0);
+			    n_nodes, directed_flag, bip, 0);
+  /* Form the missing network */
+  if (nedges[1]>0) {
+   heads += nedges[0];
+   tails += nedges[0];
+   weights += nedges[0];
+   nw[1]=WtNetworkInitialize(heads, tails, weights, nedges[1],
+                           n_nodes, directed_flag, bip, 0);
+   heads -= nedges[0];
+   tails -= nedges[0];
+   weights -= nedges[0];
+  }
+
 
   WtSANSample (*MHproposaltype, *MHproposalpackage,
 	      theta0, invcov, tau, sample, (long int)*samplesize,
@@ -60,6 +73,8 @@ void WtSAN_wrapper (int *heads, int *tails, double *weights, int *dnedges, doubl
 
   WtModelDestroy(m);
   WtNetworkDestroy(nw);
+  if (nedges[1]>0)
+    WtNetworkDestroy(&nw[1]);
   PutRNGstate();  /* Disable RNG before returning */
 }
 

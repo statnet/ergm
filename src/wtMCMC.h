@@ -6,19 +6,20 @@
 #include "wtMHproposal.h"
 #include "wtmodel.h"
 
-void WtMCMC_wrapper (int *heads, int *tails, double *weights, int *dnedges, double *baseline_weight,
-                   int *maxpossibleedges,
-                   int *dn, int *dflag, int *bipartite, 
-                   int *nterms, char **funnames,
-                   char **sonames, 
-                   char **MHproposaltype, char **MHproposalpackage,
-                   double *inputs, double *theta0, int *samplesize, 
-                   double *sample, int *burnin, int *interval,  
-                   int *newnetworkheads, 
-                   int *newnetworktails, 
+void WtMCMC_wrapper (int *dnumnets, int *nedges, 
+		     int *heads, int *tails, double *weights,
+		     int *maxpossibleedges,
+		     int *dn, int *dflag, int *bipartite, 
+		     int *nterms, char **funnames,
+		     char **sonames, 
+		     char **MHproposaltype, char **MHproposalpackage,
+		     double *inputs, double *theta0, int *samplesize, 
+		     double *sample, int *burnin, int *interval,  
+		     int *newnetworkheads, 
+		     int *newnetworktails, 
 		     double *newnetworkweights,
-                   int *fVerbose, 
-                   int *maxedges);
+		     int *fVerbose, 
+		     int *maxedges);
 void WtMCMCSample (char *MHproposaltype, char *MHproposalpackage,
 		 double *theta, double *networkstatistics, 
 		 long int samplesize, long int burnin, 

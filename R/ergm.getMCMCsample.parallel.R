@@ -6,6 +6,9 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
 # the elements of MHproposal, MCMCparams, verbose should certainly
 # be part of Clist.  But this is a project for another day!
   Clist <- ergm.Cprepare(nw, model, response=response)
+  if(is.null(MCMCparams$Clist.dt)){
+    MCMCparams$Clist.dt <- list(heads=NULL, tails=NULL, nedges=0, dir=is.directed(nw))
+  }
   maxedges <- max(5000, Clist$nedges)
 #
 #   Check for truncation of the returned edge list
@@ -30,7 +33,7 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
 #  THE FOLLOWING THREE LINES ARE COMMENTED OUT IN branches/2.2:
       statsmatrix <- matrix(0, nrow=MCMCparams$samplesize,
                             ncol=Clist$nstats)
-      newnetwork <- nw
+      newnetwork <- network.copy(nw)
     }      
   }else{
     MCMCparams.parallel <- MCMCparams
@@ -122,36 +125,51 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
 # mcmc equal to their slave number.
 # Assumes: Clist MHproposal eta0 MCMCparams maxedges verbose
 ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
+  numnetworks <- 0
+  nedges <- c(Clist$nedges,0,0)
+  heads <- Clist$heads
+  tails <- Clist$tails
+  if(!is.null(MCMCparams$Clist.miss)){
+    nedges[2] <- MCMCparams$Clist.miss$nedges
+    heads <- c(heads, MCMCparams$Clist.miss$heads)
+    tails <- c(tails, MCMCparams$Clist.miss$tails)
+  }
+  if(!is.null(MCMCparams$Clist.dt)){
+    nedges[3] <- MCMCparams$Clist.dt$nedges
+    heads <- c(heads, MCMCparams$Clist.dt$heads)
+    tails <- c(tails, MCMCparams$Clist.dt$tails)
+  }
   if(is.null(Clist$weights)){
-    z <- .C("MCMC_wrapper",
-            as.integer(Clist$heads), as.integer(Clist$tails),
-            as.integer(Clist$nedges), as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
-            as.integer(Clist$dir), as.integer(Clist$bipartite),
-            as.integer(Clist$nterms),
-            as.character(Clist$fnamestring),
-            as.character(Clist$snamestring),
-            as.character(MHproposal$name), as.character(MHproposal$package),
-            as.double(Clist$inputs), as.double(eta0),
-            as.integer(MCMCparams$samplesize),
-            s = as.double(t(MCMCparams$stats)),
-            as.integer(MCMCparams$burnin), 
-            as.integer(MCMCparams$interval),
-            newnwheads = integer(maxedges),
-            newnwtails = integer(maxedges),
-            as.integer(verbose), as.integer(MHproposal$bd$attribs),
-            as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
-            as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
-            as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)),
-            as.integer(maxedges),
-            as.integer(MCMCparams$Clist.miss$heads), as.integer(MCMCparams$Clist.miss$tails),
-            as.integer(MCMCparams$Clist.miss$nedges),
-            PACKAGE="ergm")
+  z <- .C("MCMC_wrapper",
+  as.integer(numnetworks), as.integer(nedges),
+  as.integer(heads), as.integer(tails),
+  as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
+  as.integer(Clist$dir), as.integer(Clist$bipartite),
+  as.integer(Clist$nterms),
+  as.character(Clist$fnamestring),
+  as.character(Clist$snamestring),
+  as.character(MHproposal$name), as.character(MHproposal$package),
+  as.double(Clist$inputs), as.double(eta0),
+  as.integer(MCMCparams$samplesize),
+  s = as.double(t(MCMCparams$stats)),
+  as.integer(MCMCparams$burnin), 
+  as.integer(MCMCparams$interval),
+  newnwheads = integer(maxedges),
+  newnwtails = integer(maxedges),
+  as.integer(verbose), as.integer(MHproposal$bd$attribs),
+  as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
+  as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
+  as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)),
+  as.integer(maxedges),
+  PACKAGE="ergm")
+
   # save the results
     list(s=z$s, newnwheads=z$newnwheads, newnwtails=z$newnwtails)
   }else{
     z <- .C("WtMCMC_wrapper",
+            as.integer(numnetworks), as.integer(nedges),
             as.integer(Clist$heads), as.integer(Clist$tails), as.double(Clist$weights),
-            as.integer(Clist$nedges), as.double(Clist$baseline_weight), as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
+            as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
             as.integer(Clist$dir), as.integer(Clist$bipartite),
             as.integer(Clist$nterms),
             as.character(Clist$fnamestring),

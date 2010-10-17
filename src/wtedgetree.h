@@ -55,17 +55,16 @@ typedef struct WtNetworkstruct {
   Vertex *indegree;
   Vertex *outdegree;
   double *value;
-  double baseline_weight;
   Dur_Inf duration_info;
   Edge maxedges;
 } WtNetwork;
 
 /* Initialization and destruction. */
 WtNetwork WtNetworkInitialize(Vertex *heads, Vertex *tails, double *weights, Edge nedges,
-			      Vertex nnodes, int directed_flag, Vertex bipartite, double baseline_weight,
+			      Vertex nnodes, int directed_flag, Vertex bipartite,
 			      int lasttoggle_flag);
 WtNetwork WtNetworkInitializeD(double *heads, double *tails, double *weights, Edge nedges,
-			       Vertex nnodes, int directed_flag, Vertex bipartite, double baseline_weight,
+			       Vertex nnodes, int directed_flag, Vertex bipartite,
 			      int lasttoggle_flag);
 
 void WtNetworkDestroy(WtNetwork *nwp);

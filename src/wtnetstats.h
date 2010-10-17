@@ -5,7 +5,7 @@
 #include "wtmodel.h"
 #include "wtMHproposal.h"
 
-void wt_network_stats_wrapper(int *heads, int *tails, double *weights, int *dnedges, double *baseline_weight,
+void wt_network_stats_wrapper(int *heads, int *tails, double *weights, int *dnedges,
 			   int *dn, int *dflag,  int *bipartite,
 			   int *nterms, char **funnames,
 			   char **sonames, double *inputs,  double *stats);

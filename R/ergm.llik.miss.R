@@ -70,22 +70,22 @@ llik.grad.miss <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss
   prob.miss <- probs.miss*exp(misspred - prob.miss)
   prob.miss <- prob.miss/sum(prob.miss)
   E.miss <- apply(sweep(xsim.miss, 1, prob.miss, "*"), 2, sum)
-  llr <- xobs + E.miss-E
-  llr[is.na(llr) | is.infinite(llr)] <- 0
+  llg <- xobs + E.miss-E
+  llg[is.na(llg) | is.infinite(llg)] <- 0
 #
 # Penalize changes to trustregion
 #
-  llr <- llr - 2*(llr-trustregion)*(llr>trustregion)
+# llg <- llg - 2*(llg-trustregion)*(llg>trustregion)
 # 
 # The next lines are for the Hessian which optim does not use
 #
 # vtmp <- sweep(sweep(xsim, 2, E, "-"), 1, sqrt(prob), "*")
 # V <- t(vtmp) %*% vtmp
 # list(gradient=xobs-E,hessian=V)
-  llr.offset <- rep(0,length(etamap$offsetmap))
-  llr.offset[!etamap$offsetmap] <- llr
-  llr <- ergm.etagradmult(theta.offset, llr.offset, etamap)
-  llr[!etamap$offsetmap]
+  llg.offset <- rep(0,length(etamap$offsetmap))
+  llg.offset[!etamap$offsetmap] <- llg
+  llg <- ergm.etagradmult(theta.offset, llg.offset, etamap)
+  llg[!etamap$offsettheta]
 }
 
 llik.hessian.miss <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
@@ -97,15 +97,15 @@ llik.hessian.miss <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.mi
 #    eta transformation
 #
   eta <- ergm.eta(theta.offset, etamap)
-  etagrad <- ergm.etagrad(theta.offset, etamap)
+# etagrad <- ergm.etagrad(theta.offset, etamap)
   x <- eta-eta0
 # MSH: Is this robust?
   x <- x[!etamap$offsetmap]
   xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
   xsim.miss <- xsim.miss[,!etamap$offsetmap, drop=FALSE]
   xobs <- xobs[!etamap$offsetmap]
-  etagrad <- etagrad[,!etamap$offsetmap,drop=FALSE]
-  etagrad <- etagrad[!etamap$offsetmap,,drop=FALSE]
+# etagrad <- etagrad[,!etamap$offsetmap,drop=FALSE]
+# etagrad <- etagrad[!etamap$offsettheta,,drop=FALSE]
 #
   basepred <- xsim %*% x
   prob <- max(basepred)
@@ -117,16 +117,23 @@ llik.hessian.miss <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.mi
   prob.miss <- probs.miss*exp(misspred - prob.miss)
   prob.miss <- prob.miss/sum(prob.miss)
   E.miss <- apply(sweep(xsim.miss, 1, prob.miss, "*"), 2, sum)
-  llr <- xobs + E.miss - E
+  llg <- xobs + E.miss - E
 # 
   htmp <- sweep(sweep(xsim, 2, E, "-"), 1, sqrt(prob), "*")
-  htmp <- htmp %*% t(etagrad)
-  H <- t(htmp) %*% htmp
-# H <- etagrad %*% H %*% t(etagrad)
+# htmp <- htmp %*% t(etagrad)
+# H <- t(htmp) %*% htmp
+  htmp.offset <- matrix(0, ncol = length(etamap$offsetmap), nrow = nrow(htmp))
+  htmp.offset[,!etamap$offsetmap] <- htmp
+  htmp.offset <- t(ergm.etagradmult(theta.offset, t(htmp.offset), etamap))
+  H <- crossprod(htmp.offset, htmp.offset)
+##H <- etagrad %*% H %*% t(etagrad)
   htmp <- sweep(sweep(xsim.miss, 2, E.miss, "-"), 1, sqrt(prob.miss), "*")
-  htmp <- htmp %*% t(etagrad)
-  H.miss <- t(htmp) %*% htmp
-# H.miss <- etagrad %*% H.miss %*% t(etagrad)
+# htmp <- htmp %*% t(etagrad)
+# H.miss <- t(htmp) %*% htmp
+##H.miss <- etagrad %*% H.miss %*% t(etagrad)
+  htmp.offset[,!etamap$offsetmap] <- htmp
+  htmp.offset <- t(ergm.etagradmult(theta.offset, t(htmp.offset), etamap))
+  H.miss <- crossprod(htmp.offset, htmp.offset)
   H <- H.miss-H
 # He <- matrix(NA, ncol = length(theta), nrow = length(theta))
 # He[!etamap$offsettheta, !etamap$offsettheta] <- H

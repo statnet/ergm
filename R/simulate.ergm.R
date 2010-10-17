@@ -1,5 +1,5 @@
 simulate.ergm <- function(object, nsim=1, seed=NULL, theta0=object$coef,
-                          burnin=NULL, interval=NULL,
+                          burnin=1000, interval=1000,
                           statsonly=FALSE,
                           sequential=TRUE,
                           constraints=NULL,
@@ -55,7 +55,10 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
     theta0 <- rep(0,Clist$nstats)
     warning("No parameter values given, using Bernouli network\n\t")
   }
-  if (any(is.infinite(theta0) | is.nan(theta0) | is.na(theta0)))
+  if (any(is.infinite(theta0))){
+   theta0[is.infinite(theta0)] <- sign(theta0[is.infinite(theta0)])*10000 
+  }
+  if (any(is.nan(theta0) | is.na(theta0)))
     stop("Illegal value of theta0 passed to simulate.formula")
     
   # Create vector of current statistics
@@ -82,7 +85,7 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
   #########################
   ## Main part of function:
   if(sequential && statsonly){ 
-    # Call MCMC_wrapper only one time, using the C function to generate the whole
+    # Call ergm.getMCMCsample only one time, using the C function to generate the whole
     # matrix of network statistics.
     MCMCparams$samplesize <- nsim
     MCMCparams$nmatrixentries <- nsim * length(curstats)
@@ -102,7 +105,7 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
   out.mat <- matrix(nrow=nsim, ncol=length(curstats), 
                     dimnames = list(NULL, m$coef.names)) 
   
-  # Call MCMC_wrapper once for each network desired.  This is much slower
+  # Call ergm.getMCMCsample once for each network desired.  This is much slower
   # than when sequential==TRUE and statsonly==TRUE, but here we have a 
   # more complicated situation:  Either we want a network for each
   # MCMC iteration (statsonly=FALSE) or we want to restart each chain
@@ -122,10 +125,12 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
       }
     }
     out.mat[i,] <- curstats + z$statsmatrix
-    # If we get here, statsonly must be FALSE
-    nw <- as.network.uncompressed(nw.list[[i]])
-    Clist <- ergm.Cprepare(nw, m, response=response)
-    curstats <- curstats + z$statsmatrix
+    if (sequential){ 
+      # If we get here, statsonly must be FALSE
+      nw <- as.network.uncompressed(nw.list[[i]])
+      Clist <- ergm.Cprepare(nw, m, response=response)
+      curstats <- curstats + z$statsmatrix
+    }
     if(verbose){cat(sprintf("Finished simulation %d of %d.\n",i, nsim))}
   }
   

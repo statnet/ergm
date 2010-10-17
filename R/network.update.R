@@ -25,7 +25,7 @@ network.update<-function(nw,newmatrix,matrix.type=NULL,output="network")
     add.edges(unw,head=newmatrix[,2],tail=newmatrix[,1])
    }
   }
-  if(!is.null(output) && output=="as.edgelist.compressed") 
+  if(!is.null(output) && output=="edgelist.compressed") 
     {unw <- as.edgelist.compressed(unw)}
   unw
 }

@@ -18,7 +18,6 @@ ergm.Cprepare <- function(nw, m, response=NULL)
     ## Make sure weights attribute exists, even if it's empty, since
     ## it's used to decide whether MCMC or WtMCMC is called.
     Clist$weights<-as.numeric(NULL)
-    Clist$baseline_weight<-0
   }else{
     if(!is.matrix(e)){e <- matrix(e, ncol=2+!is.null(response))}
     Clist$nedges<-dim(e)[1]
@@ -32,8 +31,6 @@ ergm.Cprepare <- function(nw, m, response=NULL)
     }
     if(!is.null(response)){
       Clist$weights<-e[,3]
-      Clist$baseline_weight<-0
-      # TODO: Make the choice of baseline weight adaptive (i.e. most frequent value).
     }
   }
   mo<-m$terms 

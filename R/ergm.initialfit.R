@@ -22,13 +22,13 @@ ergm.initialfit<-function(theta0, MLestimate,
    m.conddeg <- ergm.getmodel(formula.conddegmple, nw, drop=conddeg, initialfit=TRUE)
    fitmethod <- 1
    Clist <- ergm.Cprepare(nw, m.conddeg)
-   Clist.miss <- ergm.design(nw, m.conddeg, verbose=verbose)
+   Clist.miss <- ergm.design(nw, m.conddeg, verbose=FALSE)
    Clist$meanstats=c(1,meanstats)
    conddeg <- list(m=m.conddeg, Clist=Clist, Clist.miss=Clist.miss)
   }
   #
   Clist <- ergm.Cprepare(nw, m)
-  Clist.miss <- ergm.design(nw, m, verbose=verbose)
+  Clist.miss <- ergm.design(nw, m, verbose=FALSE)
   Clist$meanstats=meanstats
   MCMCparams$Clist.miss=Clist.miss
 #

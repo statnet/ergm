@@ -5,5 +5,7 @@
 #include "changestat.h"
 
 D_CHANGESTAT_FN(d_transitiveties); S_CHANGESTAT_FN(s_transitiveties);
+D_CHANGESTAT_FN(d_cyclicalties); S_CHANGESTAT_FN(s_cyclicalties);
+D_CHANGESTAT_FN(d_transitiveties2); S_CHANGESTAT_FN(s_transitiveties2);
 
 #endif

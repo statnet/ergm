@@ -32,7 +32,7 @@
  have all its values set to zero
 *******************/
 WtNetwork WtNetworkInitialize(Vertex *heads, Vertex *tails, double *weights,
-			      Edge nedges, Vertex nnodes, int directed_flag, Vertex bipartite, double baseline_weight,
+			      Edge nedges, Vertex nnodes, int directed_flag, Vertex bipartite,
 			      int lasttoggle_flag) {
   Edge i;
   WtNetwork nw;
@@ -60,14 +60,12 @@ WtNetwork WtNetworkInitialize(Vertex *heads, Vertex *tails, double *weights,
   nw.nedges = 0; /* Edges will be added one by one */
   nw.directed_flag=directed_flag;
   nw.bipartite=bipartite;
-  nw.baseline_weight=baseline_weight;
-
   WtShuffleEdges(heads,tails,weights,nedges); /* shuffle to avoid worst-case performance */
 
   for(i = 0; i < nedges; i++) {
     Vertex h=heads[i], t=tails[i];
     double w=weights[i];
-    if(w!=baseline_weight){
+    if(w!=0){
       if (!directed_flag && h > t) 
 	WtAddEdgeToTrees(t,h,w,&nw); /* Undir edges always have head < tail */ 
       else 
@@ -80,7 +78,7 @@ WtNetwork WtNetworkInitialize(Vertex *heads, Vertex *tails, double *weights,
 
 /*Takes vectors of doubles for edges; used only when constructing from inputparams. */
 WtNetwork WtNetworkInitializeD(double *heads, double *tails, double *weights, Edge nedges,
-			       Vertex nnodes, int directed_flag, Vertex bipartite, double baseline_weight,
+			       Vertex nnodes, int directed_flag, Vertex bipartite,
 			       int lasttoggle_flag) {
 
   Vertex *iheads=malloc(sizeof(Vertex)*nedges);
@@ -91,7 +89,7 @@ WtNetwork WtNetworkInitializeD(double *heads, double *tails, double *weights, Ed
     itails[i]=tails[i];
   }
 
-  WtNetwork nw=WtNetworkInitialize(iheads,itails,weights,nedges,nnodes,directed_flag,bipartite,baseline_weight,lasttoggle_flag);
+  WtNetwork nw=WtNetworkInitialize(iheads,itails,weights,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag);
 
   free(iheads);
   free(itails);
@@ -184,7 +182,7 @@ Wtprintedge(x, edges);
  int WtSetEdge
 
  Set an weighted edge value: set it to its new weight. Create if it
-does not exist, destroy by setting to baseline. 
+does not exist, destroy by setting to 0. 
 *****************/
 void WtSetEdge (Vertex head, Vertex tail, double weight, WtNetwork *nwp) 
 {
@@ -195,8 +193,8 @@ void WtSetEdge (Vertex head, Vertex tail, double weight, WtNetwork *nwp)
     tail = temp;
   }
 
-  if(0 && weight==nwp->baseline_weight){
-    // If the function is to set the edge value to the baseline, just delete it.
+  if(0 && weight==0){
+    // If the function is to set the edge value to 0, just delete it.
     WtDeleteEdgeFromTrees(head,tail,nwp);
   }else{
     // Find the out-edge
@@ -219,8 +217,7 @@ void WtSetEdge (Vertex head, Vertex tail, double weight, WtNetwork *nwp)
 /*****************
  int WtGetEdge
 
- Set an weighted edge value: set it to its new weight. Create if it
-does not exist, destroy by setting to baseline. 
+Get weighted edge value. Return 0 if edge does not exist.
 *****************/
 double WtGetEdge (Vertex head, Vertex tail, WtNetwork *nwp) 
 {
@@ -233,7 +230,7 @@ double WtGetEdge (Vertex head, Vertex tail, WtNetwork *nwp)
 
   Edge oe=WtEdgetreeSearch(head,tail,nwp->outedges);
   if(oe) return nwp->outedges[oe].weight;
-  else return nwp->baseline_weight;
+  else return 0;
 }
 
 

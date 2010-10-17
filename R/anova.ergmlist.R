@@ -1,5 +1,4 @@
-"anova.ergmlist" <-
-  function (object, ..., scale = 0, test = "F") 
+anova.ergmlist <- function (object, ..., scale = 0, test = "F") 
 {
   objects <- list(object, ...)
   responses <- as.character(lapply(objects, function(x) deparse(x$formula[[2]])))

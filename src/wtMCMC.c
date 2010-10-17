@@ -11,25 +11,25 @@
 
  Wrapper for a call from R.
 *****************/
-void WtMCMC_wrapper (int *heads, int *tails, double *weights, int *dnedges, double *baseline_weight,
-                   int *maxpossibleedges,
-                   int *dn, int *dflag, int *bipartite, 
-                   int *nterms, char **funnames,
-                   char **sonames, 
-                   char **MHproposaltype, char **MHproposalpackage,
-                   double *inputs, double *theta0, int *samplesize, 
-                   double *sample, int *burnin, int *interval,  
-                   int *newnetworkheads, 
-                   int *newnetworktails, 
+void WtMCMC_wrapper (int *dnumnets, int *nedges,
+		     int *heads, int *tails, double *weights, 
+		     int *maxpossibleedges,
+		     int *dn, int *dflag, int *bipartite, 
+		     int *nterms, char **funnames,
+		     char **sonames, 
+		     char **MHproposaltype, char **MHproposalpackage,
+		     double *inputs, double *theta0, int *samplesize, 
+		     double *sample, int *burnin, int *interval,  
+		     int *newnetworkheads, 
+		     int *newnetworktails, 
 		     double *newnetworkweights,
-                   int *fVerbose, 
+		     int *fVerbose, 
 		     int *maxedges) {
   int directed_flag;
   Vertex n_nodes, nmax, bip, hhead, htail;
   Edge n_edges, n_medges, nddyads, kedge;
   WtNetwork nw[2];
   WtModel *m;
-  WtModelTerm *thisterm;
   
   n_nodes = (Vertex)*dn; /* coerce double *dn to type Vertex */
   n_edges = (Edge)*dnedges; /* coerce double *dnedges to type Edge */
@@ -44,7 +44,18 @@ void WtMCMC_wrapper (int *heads, int *tails, double *weights, int *dnedges, doub
 
   /* Form the network */
   nw[0]=WtNetworkInitialize(heads, tails, weights, n_edges, 
-                          n_nodes, directed_flag, bip, *baseline_weight, 0);
+			    n_nodes, directed_flag, bip, 0);
+  /* Form the missing network */
+  if (nedges[1]>0) {
+   heads += nedges[0];
+   tails += nedges[0];
+   weights += nedges[0];
+   nw[1]=NetworkInitialize(heads, tails, weights, nedges[1],
+                           n_nodes, directed_flag, bip, 0);
+   heads -= nedges[0];
+   tails -= nedges[0];
+   weights -= nedges[0];
+  }
 
   WtMCMCSample (*MHproposaltype, *MHproposalpackage,
 	      theta0, sample, (long int)*samplesize,
@@ -66,6 +77,8 @@ void WtMCMC_wrapper (int *heads, int *tails, double *weights, int *dnedges, doub
   
   WtModelDestroy(m);
   WtNetworkDestroy(nw);
+  if (nedges[1]>0 || hammingterm > 0)
+    WtNetworkDestroy(&nw[1]);
   PutRNGstate();  /* Disable RNG before returning */
 }
 

@@ -238,6 +238,7 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
 
   Clist <- ergm.Cprepare(nw, model, response=response)
   Clist.miss <- ergm.design(nw, model, verbose=FALSE)
+  Clist.miss <- ergm.design(nw, model, verbose=FALSE)
   if((MHproposal$name!="FormationMLE")&(MHproposal$name!="DissolutionMLE")){
     Clist.dt <- list(heads=NULL, tails=NULL, nedges=0, dir=is.directed(nw))
   }else{

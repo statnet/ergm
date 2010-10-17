@@ -167,6 +167,14 @@ InitMHP.dissolutionMLE <- function(arguments, nw, model) {
   MHproposal <- list(name = "DissolutionMLE", args=NULL, package="ergm")
   MHproposal
 }
+InitMHP.formationNonObservedMLE <- function(arguments, nw, model) {
+  MHproposal <- list(name = "FormationNonObservedMLE", args=NULL, package="ergm")
+  MHproposal
+}
+InitMHP.dissolutionNonObservedMLE <- function(arguments, nw, model) {
+  MHproposal <- list(name = "DissolutionNonObservedMLE", args=NULL, package="ergm")
+  MHproposal
+}
 
 InitMHP.formationTNT <- function(arguments, nw, model) {
   MHproposal <- list(name = "FormationTNT", args=NULL, package="ergm")

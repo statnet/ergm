@@ -12,7 +12,8 @@
 
  Wrapper for a call from R.
 *****************/
-void SAN_wrapper (int *heads, int *tails, int *dnedges, 
+void SAN_wrapper ( int *dnumnets, int *nedges,
+		   int *heads, int *tails,
                    int *maxpossibleedges,
                    int *dn, int *dflag, int *bipartite, 
                    int *nterms, char **funnames,
@@ -27,19 +28,17 @@ void SAN_wrapper (int *heads, int *tails, int *dnedges,
                    int *fVerbose, 
                    int *attribs, int *maxout, int *maxin, int *minout,
                    int *minin, int *condAllDegExact, int *attriblength, 
-                   int *maxedges,
-                   int *mheads, int *mtails, int *mdnedges)  {
+                   int *maxedges){
   int directed_flag, hammingterm, formationterm;
   Vertex n_nodes, nmax, bip, hhead, htail;
-  Edge n_edges, n_medges, nddyads, kedge;
+  Edge n_networks, nddyads, kedge;
   Network nw[2];
   DegreeBound *bd;
   Model *m;
   ModelTerm *thisterm;
   
   n_nodes = (Vertex)*dn; /* coerce double *dn to type Vertex */
-  n_edges = (Edge)*dnedges; 
-  n_medges = (Edge)*mdnedges;
+  n_networks = (Edge)*dnumnets; 
   nmax = (Edge)*maxedges; 
   bip = (Vertex)*bipartite; /* coerce double *bipartite to type Vertex */
   
@@ -47,15 +46,19 @@ void SAN_wrapper (int *heads, int *tails, int *dnedges,
   
   directed_flag = *dflag;
 
-
   m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
 
+  /* Form the network */
+  nw[0]=NetworkInitialize(heads, tails, nedges[0],
+                          n_nodes, directed_flag, bip, 0);
   /* Form the missing network */
-  nw[0]=NetworkInitialize(heads, tails, n_edges,
-                          n_nodes, directed_flag, bip, 0);
-  if (n_medges>0) {
-   nw[1]=NetworkInitialize(mheads, mtails, n_medges,
-                          n_nodes, directed_flag, bip, 0);
+  if (nedges[1]>0) {
+   heads += nedges[0];
+   tails += nedges[0];
+   nw[1]=NetworkInitialize(heads, tails, nedges[1],
+                           n_nodes, directed_flag, bip, 0);
+   heads -= nedges[0];
+   tails -= nedges[0];
   }
 
   hammingterm=ModelTermHamming (*funnames, *nterms);
@@ -133,12 +136,13 @@ void SAN_wrapper (int *heads, int *tails, int *dnedges,
 	      (int)*fVerbose, nw, m, bd);
   
   /* record new generated network to pass back to R */
-  newnetworkheads[0]=newnetworktails[0]=EdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,nw,nmax);
+  if(nmax > 0)
+  newnetworkheads[0]=newnetworktails[0]=EdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,nw,nmax-1);
 
   ModelDestroy(m);
   if(bd)DegreeBoundDestroy(bd);
   NetworkDestroy(nw);
-  if (n_medges>0 || hammingterm > 0  || formationterm > 0)
+  if (nedges[1]>0 || hammingterm > 0  || formationterm > 0)
     NetworkDestroy(&nw[1]);
   PutRNGstate();  /* Disable RNG before returning */
 }
