@@ -8,23 +8,24 @@
 }
 \usage{
 control.simulate(prop.weights = "default", prop.args = NULL,
-drop = FALSE, summarizestats = FALSE, 
+drop = FALSE, summarizestats = FALSE, maxedges=20000,
 maxchanges = 1e+06, 
 packagenames="ergm", 
+network.output="network",
 parallel=0)
 
 control.simulate.formula(prop.weights = "default", prop.args = NULL,
-drop = FALSE, summarizestats = FALSE, 
-network.output="network",
+drop = FALSE, summarizestats = FALSE, maxedges=20000,
 maxchanges = 1e+06, 
 packagenames="ergm", 
+network.output="network",
 parallel=0)
 
 control.simulate.ergm(prop.weights = "default", prop.args = NULL, drop = FALSE, 
 summarizestats = FALSE, 
-network.output="network",
-maxchanges = 1e+06, 
+maxchanges = 1e+06, maxedges = 20000,
 packagenames="ergm", 
+network.output="network",
 parallel=0)
 }
 \details{
@@ -51,7 +52,10 @@ parallel=0)
   \item{summarizestats}{logical; Print out a summary of 
     the sufficient statistics of the generated network. This is useful 
     as a diagnostic. Default is \code{FALSE}.}
-  \item{output.network}{character; class with which to store the output networks. The options are "network" (default) and "as.edgelist.compressed" (which saves space but only supports networks with vertex attributes}
+  \item{maxedges}{maximum number of edges expected in network}
+  \item{network.output}{character; class with which to store the output 
+  networks. The options are "network" (default) and "edgelist.compressed" 
+  (which saves space but only supports networks without vertex attributes)}
   \item{maxchanges}{
     %FIXME: I am not sure this is accurate.
     %Maximum number of changes in dynamic network

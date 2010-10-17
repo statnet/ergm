@@ -5,26 +5,27 @@
   Auxiliary function as user interface for fine-tuning 'ergm' fitting.
 }
 \usage{
-control.ergm(prop.weights = "default", prop.args = NULL,              
-             prop.weights.diss = "default", prop.args.diss = NULL, nr.maxit =
-             1000, calc.mcmc.se = TRUE, hessian = FALSE, compress = FALSE,
+control.ergm(prop.weights = "default", prop.args = NULL,
+             prop.weights.diss = "default", prop.args.diss = NULL, 
+             nr.maxit = 100,
+             calc.mcmc.se = TRUE, hessian = TRUE, compress = FALSE,
              SAN.burnin=NULL,
              maxNumDyadTypes = 1e+06, maxedges = 20000, maxchanges = 1e+06,
              maxMPLEsamplesize = 1e+05, MPLEtype=c("glm", "penalized"), trace = 0,
              steplength = 0.5, sequential=TRUE,
              drop = TRUE, force.mcmc = FALSE, check.degeneracy=FALSE, 
              mcmc.precision = 0.05, 
-             metric=c("Median.Likelihood", "lognormal", 
+             metric = c("Median.Likelihood", "lognormal",
              "EF.Likelihood", "naive"),
              method = c("BFGS", "Nelder-Mead"),
              trustregion = 20, initial.loglik = NULL, initial.network = NULL,
              style = c("Newton-Raphson", "Robbins-Monro",
-             "Stochastic-Approximation", "Stepping"),
+             "Stochastic-Approximation", "Stepping","PILA"),
              style.dyn = c("Robbins-Monro", "SPSA", "SPSA2"),
              phase1_n = NULL, initial_gain = NULL,
              nsubphases = "maxit", niterations = NULL, phase3_n = NULL,
-             RobMon.phase1n_base = 7, RobMon.phase2n_base = 7, RobMon.phase2sub
-             = 4, RobMon.init_gain = 0.1, RobMon.phase3n = 500, 
+             RobMon.phase1n_base = 7, RobMon.phase2n_base = 100, RobMon.phase2sub
+             = 7, RobMon.init_gain = 0.5, RobMon.phase3n = 500, 
              stepMCMCsize=100, gridsize=100, dyninterval=1000, 
              packagenames="ergm", parallel = 0, returnMCMCstats = TRUE)
              }

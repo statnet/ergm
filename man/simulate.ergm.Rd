@@ -15,7 +15,7 @@
                        burnin=1000, interval=1000, 
                        statsonly=FALSE,
                        sequential=TRUE,
-                       constraints = ~.,
+                       constraints = NULL,
                        control = control.simulate.ergm(),
                        verbose=FALSE, \dots)
 }
@@ -46,10 +46,10 @@
     a \code{\link{formula}} or an object of class \code{ergm}, 
     \code{theta0} are the parameters
     from which the sample is drawn.}
- \item{burnin}{The number of proposed proposals before any MCMC sampling
-    is done.  Currently, there is no support for any check of the Markov
-    chain mixing, so \code{burnin} should be set to a fairly large number.}
+ \item{burnin}{The number of proposals before any MCMC sampling
+    is done.  If NULL in simulate.ergm, the value of object$burnin is used.}
  \item{interval}{The number of proposals between sampled statistics.
+    If NULL in simulate.ergm, the value of object$interval is used.
     The program prints a warning if too few proposals are being
     accepted (if the number of proposals between sampled observations
     ever equals an integral multiple of 100(1+the number of proposals

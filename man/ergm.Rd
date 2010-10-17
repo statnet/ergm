@@ -110,9 +110,9 @@ Hunter (2008).  To create a
     Not all combinations of the above are supported.
   }
   \item{meanstats}{vector; the mean-value parameter value for the
-    model.  If this is given the algorithm finds the natural
-    parameter value corresponding to this mean-value parameter
-    If it is missing then mean-value parameter used are the observed
+    model.  If this is given, the algorithm finds the natural
+    parameter value corresponding to this mean-value parameter.
+    If it is missing, the mean-value parameters used are the observed
     statistics of the network in the formula.}
   \item{dissolve}{formula for dynamic model.}
   \item{gamma}{vector; the parameter value used fro the dynamic model formula.}
@@ -554,12 +554,13 @@ Morris M, Handcock MS, Hunter DR (2008).
   Terms and Computational Aspects.
  \emph{Journal of Statistical Software}, 24(4).
  \url{http://www.jstatsoft.org/v24/i04/}.
-
- Snijders, T.A.B. (2002),
+ 
+Snijders, T.A.B. (2002),
 Markov Chain Monte Carlo Estimation of Exponential Random Graph Models.
 Journal of Social Structure.
 Available from 
 \url{http://www.cmu.edu/joss/content/articles/volume3/Snijders.pdf}.
+ 
 }
 
 \seealso{network, \%v\%, \%n\%, \code{\link{ergm-terms}}, \code{\link{ergmMPLE}},
