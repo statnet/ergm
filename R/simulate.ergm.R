@@ -8,13 +8,13 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, theta0=object$coef,
   if(is.null(burnin)){burnin <- object$burnin}
   if(is.null(interval)){interval <- object$interval}
   if(is.null(constraints)){constraints <- object$constraints}
-  simulate.formula(object$formula, nsim=nsim, seed=seed, theta0=theta0, response=object$response, family=object$family,
+  simulate.formula(object$formula, nsim=nsim, seed=seed, theta0=theta0, response=object$response, reference=object$reference,
                    burnin=burnin, interval=interval, statsonly=statsonly,
                    sequential=sequential, constraints=constraints,
                    control=control, verbose=verbose, ...)
 }
 
-simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NULL, family="PseudoBernoulli.logit",
+simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NULL, reference="Bernoulli",
                              burnin=1000, interval=1000,
                              basis=NULL,
                              statsonly=FALSE,
@@ -47,7 +47,7 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
   m <- ergm.getmodel(formula, nw, drop=FALSE, response=response)
   Clist <- ergm.Cprepare(nw, m, response=response)
   MHproposal <- MHproposal(constraints,arguments=control$prop.args,
-                           nw=nw, model=m, weights=control$prop.weights, class="c",family=family)  
+                           nw=nw, model=m, weights=control$prop.weights, class="c",reference=reference)  
 
   # Just in case the user did not give a theta0 value, set it to zero.
   # (probably we could just return an error in this case!)

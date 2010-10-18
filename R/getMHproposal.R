@@ -1,68 +1,68 @@
 MHproposals<-
-  #         Class Constraints     Family              Weights        MHP
-  rbind(I(c("c", "",              "PseudoBernoulli.logit",  "default",      "TNT")),
-          c("c", "",              "PseudoBernoulli.logit",  "TNT",          "TNT"),
-          c("c", "",              "PseudoBernoulli.logit",  "random",       "randomtoggle"),
-          c("c", "",              "PseudoBernoulli.logit",  "TNT10",        "TNT10"),
-          c("c", "bd",            "PseudoBernoulli.logit",  "default",       "TNT"),
-          c("c", "bd",            "PseudoBernoulli.logit",  "TNT",           "TNT"),
-          c("c", "bd",            "PseudoBernoulli.logit",  "random",       "randomtoggle"),
-          c("c", "bd+edges",      "PseudoBernoulli.logit",  "default",      "ConstantEdges"),
-          c("c", "bd+edges",      "PseudoBernoulli.logit",      "random",       "ConstantEdges"),          
-          c("c", "degrees",       "PseudoBernoulli.logit",       "default",      "CondDegree"),
-          c("c", "degrees",       "PseudoBernoulli.logit",       "random",       "CondDegree"),
-          c("c", "degreesTetrad", "PseudoBernoulli.logit",       "default",      "CondDegreeTetradToggles"),
-          c("c", "degreesTetrad", "PseudoBernoulli.logit",       "random",       "CondDegreeTetradToggles"),
-          c("c", "degreesHexad",  "PseudoBernoulli.logit",       "default",      "CondDegreeHexadToggles"),
-          c("c", "degreesHexad",  "PseudoBernoulli.logit",       "random",       "CondDegreeHexadToggles"),
+  #         Class Constraints     Reference              Weights        MHP
+  rbind(I(c("c", "",              "Bernoulli",  "default",      "TNT")),
+          c("c", "",              "Bernoulli",  "TNT",          "TNT"),
+          c("c", "",              "Bernoulli",  "random",       "randomtoggle"),
+          c("c", "",              "Bernoulli",  "TNT10",        "TNT10"),
+          c("c", "bd",            "Bernoulli",  "default",       "TNT"),
+          c("c", "bd",            "Bernoulli",  "TNT",           "TNT"),
+          c("c", "bd",            "Bernoulli",  "random",       "randomtoggle"),
+          c("c", "bd+edges",      "Bernoulli",  "default",      "ConstantEdges"),
+          c("c", "bd+edges",      "Bernoulli",      "random",       "ConstantEdges"),          
+          c("c", "degrees",       "Bernoulli",       "default",      "CondDegree"),
+          c("c", "degrees",       "Bernoulli",       "random",       "CondDegree"),
+          c("c", "degreesTetrad", "Bernoulli",       "default",      "CondDegreeTetradToggles"),
+          c("c", "degreesTetrad", "Bernoulli",       "random",       "CondDegreeTetradToggles"),
+          c("c", "degreesHexad",  "Bernoulli",       "default",      "CondDegreeHexadToggles"),
+          c("c", "degreesHexad",  "Bernoulli",       "random",       "CondDegreeHexadToggles"),
 
-          c("c", "degreedist",    "PseudoBernoulli.logit",    "default",      "CondDegreeDist"),
-          c("c", "degreedist",    "PseudoBernoulli.logit",    "random",       "CondDegreeDist"), 
-          c("c", "indegreedist",  "PseudoBernoulli.logit",  "default",      "CondInDegreeDist"),
-          c("c", "indegreedist",  "PseudoBernoulli.logit",  "random",       "CondInDegreeDist"), 
-          c("c", "outdegreedist", "PseudoBernoulli.logit",  "default",      "CondOutDegreeDist"),
-          c("c", "outdegreedist", "PseudoBernoulli.logit",  "random",       "CondOutDegreeDist"), 
-#          c("c", "indegrees",    "PseudoBernoulli.logit",     "default",      "CondInDegree"),
-#          c("c", "indegrees",    "PseudoBernoulli.logit",     "random",       "CondInDegree"),
-#          c("c", "outdegrees",   "PseudoBernoulli.logit",    "default",      "CondOutDegree"),
-#          c("c", "outdegrees",   "PseudoBernoulli.logit",    "random",       "CondOutDegree"),
-          c("c", "edges",         "PseudoBernoulli.logit",         "default",      "ConstantEdges"),
-          c("c", "edges",         "PseudoBernoulli.logit",         "random",       "ConstantEdges"),
-          c("c", "hamming",       "PseudoBernoulli.logit",       "default",      "HammingTNT"),
-          c("c", "hamming",       "PseudoBernoulli.logit",       "random",       "HammingTNT"),
-          c("c", "edges+hamming", "PseudoBernoulli.logit", "default",      "HammingConstantEdges"),
-          c("c", "edges+hamming", "PseudoBernoulli.logit", "random",       "HammingConstantEdges"),
-          c("c", "observed",      "PseudoBernoulli.logit",      "default",      "randomtoggleNonObserved"),
-          c("c", "observed",      "PseudoBernoulli.logit",      "random",       "randomtoggleNonObserved"),
-          c("f", "",              "PseudoBernoulli.logit",              "default",      "formationTNT"),
-          c("f", "",              "PseudoBernoulli.logit",              "TNT",          "formationTNT"),
-          c("f", "",              "PseudoBernoulli.logit",              "random",       "formation"),
-          c("f", "bd",            "PseudoBernoulli.logit",            "default",      "formationTNT"),
-          c("f", "bd",            "PseudoBernoulli.logit",            "TNT",          "formationTNT"),
-          c("f", "bd",            "PseudoBernoulli.logit",            "random",       "formation"),
-          c("d", "",              "PseudoBernoulli.logit",              "default",      "dissolution"),
-          c("d", "",              "PseudoBernoulli.logit",              "random",       "dissolution"),
-          c("d", "bd",            "PseudoBernoulli.logit",            "default",      "dissolution"),
-          c("d", "bd",            "PseudoBernoulli.logit",            "random",       "dissolution"),
-          c("fmle", "",           "PseudoBernoulli.logit",            "default",      "formationMLE"),
-          c("fmle", "",           "PseudoBernoulli.logit",            "random",       "formationMLE"),
-          c("fmle", "observed",   "PseudoBernoulli.logit",            "default",      "formationNonObservedMLE"),
-          c("fmle", "observed",   "PseudoBernoulli.logit",            "random",       "formationNonObservedMLE"),
-          c("fmle", "bd",         "PseudoBernoulli.logit",            "default",      "formationMLE"),
-          c("fmle", "bd",         "PseudoBernoulli.logit",            "random",       "formationMLE"),
-          c("dmle", "",           "PseudoBernoulli.logit",            "default",      "dissolutionMLE"),
-          c("dmle", "",           "PseudoBernoulli.logit",            "random",       "dissolutionMLE"),
-          c("dmle", "observed",   "PseudoBernoulli.logit",            "default",      "dissolutionNonObservedMLE"),
-          c("dmle", "observed",   "PseudoBernoulli.logit",            "random",       "dissolutionNonObservedMLE"),
-          c("dmle", "bd",         "PseudoBernoulli.logit",            "default",      "dissolutionMLE"),
-          c("dmle", "bd",         "PseudoBernoulli.logit",            "random",       "dissolutionMLE"),
-          c("c", "",              "PseudoPoisson.log",  "default",      "PseudoPoisson"),
-          c("c", "",              "PseudoPoisson.log",  "random",       "PseudoPoisson")
+          c("c", "degreedist",    "Bernoulli",    "default",      "CondDegreeDist"),
+          c("c", "degreedist",    "Bernoulli",    "random",       "CondDegreeDist"), 
+          c("c", "indegreedist",  "Bernoulli",  "default",      "CondInDegreeDist"),
+          c("c", "indegreedist",  "Bernoulli",  "random",       "CondInDegreeDist"), 
+          c("c", "outdegreedist", "Bernoulli",  "default",      "CondOutDegreeDist"),
+          c("c", "outdegreedist", "Bernoulli",  "random",       "CondOutDegreeDist"), 
+#          c("c", "indegrees",    "Bernoulli",     "default",      "CondInDegree"),
+#          c("c", "indegrees",    "Bernoulli",     "random",       "CondInDegree"),
+#          c("c", "outdegrees",   "Bernoulli",    "default",      "CondOutDegree"),
+#          c("c", "outdegrees",   "Bernoulli",    "random",       "CondOutDegree"),
+          c("c", "edges",         "Bernoulli",         "default",      "ConstantEdges"),
+          c("c", "edges",         "Bernoulli",         "random",       "ConstantEdges"),
+          c("c", "hamming",       "Bernoulli",       "default",      "HammingTNT"),
+          c("c", "hamming",       "Bernoulli",       "random",       "HammingTNT"),
+          c("c", "edges+hamming", "Bernoulli", "default",      "HammingConstantEdges"),
+          c("c", "edges+hamming", "Bernoulli", "random",       "HammingConstantEdges"),
+          c("c", "observed",      "Bernoulli",      "default",      "randomtoggleNonObserved"),
+          c("c", "observed",      "Bernoulli",      "random",       "randomtoggleNonObserved"),
+          c("f", "",              "Bernoulli",              "default",      "formationTNT"),
+          c("f", "",              "Bernoulli",              "TNT",          "formationTNT"),
+          c("f", "",              "Bernoulli",              "random",       "formation"),
+          c("f", "bd",            "Bernoulli",            "default",      "formationTNT"),
+          c("f", "bd",            "Bernoulli",            "TNT",          "formationTNT"),
+          c("f", "bd",            "Bernoulli",            "random",       "formation"),
+          c("d", "",              "Bernoulli",              "default",      "dissolution"),
+          c("d", "",              "Bernoulli",              "random",       "dissolution"),
+          c("d", "bd",            "Bernoulli",            "default",      "dissolution"),
+          c("d", "bd",            "Bernoulli",            "random",       "dissolution"),
+          c("fmle", "",           "Bernoulli",            "default",      "formationMLE"),
+          c("fmle", "",           "Bernoulli",            "random",       "formationMLE"),
+          c("fmle", "observed",   "Bernoulli",            "default",      "formationNonObservedMLE"),
+          c("fmle", "observed",   "Bernoulli",            "random",       "formationNonObservedMLE"),
+          c("fmle", "bd",         "Bernoulli",            "default",      "formationMLE"),
+          c("fmle", "bd",         "Bernoulli",            "random",       "formationMLE"),
+          c("dmle", "",           "Bernoulli",            "default",      "dissolutionMLE"),
+          c("dmle", "",           "Bernoulli",            "random",       "dissolutionMLE"),
+          c("dmle", "observed",   "Bernoulli",            "default",      "dissolutionNonObservedMLE"),
+          c("dmle", "observed",   "Bernoulli",            "random",       "dissolutionNonObservedMLE"),
+          c("dmle", "bd",         "Bernoulli",            "default",      "dissolutionMLE"),
+          c("dmle", "bd",         "Bernoulli",            "random",       "dissolutionMLE"),
+          c("c", "",              "Poisson",  "default",      "Poisson"),
+          c("c", "",              "Poisson",  "random",       "Poisson")
         )
 MHproposals <- data.frame(I(MHproposals[,1]), I(MHproposals[,2]), 
                           I(MHproposals[,3]), I(MHproposals[,4]),
                           I(MHproposals[,5]))
-colnames(MHproposals)<-c("Class","Constraints","Family","Weights","MHP")
+colnames(MHproposals)<-c("Class","Constraints","Reference","Weights","MHP")
 
 MHproposal<-function(object, ...) UseMethod("MHproposal")
 
@@ -83,7 +83,7 @@ MHproposal.character <- function(object, arguments, nw, model, ...){
   proposal
 }
 
-MHproposal.formula <- function(object, arguments, nw, model, weights="default", class="c", family="PseudoBernoulli.logit", ...) {
+MHproposal.formula <- function(object, arguments, nw, model, weights="default", class="c", reference="Bernoulli", ...) {
 
   constraints<-object
   ## Construct a list of constraints and arguments from the formula.
@@ -118,11 +118,11 @@ MHproposal.formula <- function(object, arguments, nw, model, weights="default", 
   } else {
     constraints <- paste(sort(tolower(names(conlist))),collapse="+")
   }
-  name<-with(MHproposals,MHP[Class==class & Constraints==constraints & Family==family & Weights==weights])
+  name<-with(MHproposals,MHP[Class==class & Constraints==constraints & Reference==reference & Weights==weights])
   if(length(name)>1) stop("Multiple matching proposals in the lookup table.",
                           "This Should Not Be Happening (tm). Unless you have",
                           "been messing with the table, please file a bug report.")
-  ## TODO: Get intelligent error messages for family mismatches as well.
+  ## TODO: Get intelligent error messages for reference mismatches as well.
   if(length(name)<1){
     constraints<-with(MHproposals,Constraints[Class==class & Weights==weights])
     weightings<-with(MHproposals,Weights[Class==class & Constraints==constraints])
@@ -141,7 +141,7 @@ MHproposal.formula <- function(object, arguments, nw, model, weights="default", 
   MHproposal.character(name,arguments,nw,model)
 }
 
-MHproposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NULL, model=NULL,weights=NULL,class="c", family="PseudoBernoulli.logit"){
+MHproposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NULL, model=NULL,weights=NULL,class="c", reference="Bernoulli"){
   if(is.null(constraints)) constraints<-object$constraints
   if(is.null(arguments)) arguments<-object$prop.args
   if(is.null(nw)) nw<-object$network
@@ -152,6 +152,6 @@ MHproposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NULL, 
     else
       ergm.getmodel.dissolve(object$formula,nw,...)
   }  
-  MHproposal(constraints,arguments=arguments,nw=nw,model=model,weights=weights,class=class,family=family)
+  MHproposal(constraints,arguments=arguments,nw=nw,model=model,weights=weights,class=class,reference=reference)
 }
 

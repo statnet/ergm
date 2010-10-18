@@ -5,16 +5,16 @@
 #define Mweight (MHp->toggleweight)
 
 /*********************
- void MH_PseudoPoisson
+ void MH_Poisson
 
- Default weighted MH algorithm for PseudoPoisson
+ Default MH algorithm for Poisson-reference ERGM
 *********************/
-void MH_BipartitePseudoPoisson (WtMHproposal *MHp, WtNetwork *nwp)  {  
+void MH_BipartitePoisson (WtMHproposal *MHp, WtNetwork *nwp)  {  
   Vertex head, tail;
   double oldwt, inc;
   int fvalid, trytoggle;
   
-  if(MHp->ntoggles == 0) { // Initialize PseudoPoisson 
+  if(MHp->ntoggles == 0) { // Initialize Poisson 
     MHp->ntoggles=1;
     return;
   }

@@ -101,7 +101,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
         print(b,scipen=6)
        degreedist(nw.miss.returned)
        cat("Meanstats of simulation, relative to missing network:\n")
-       print(summary(model$formula, basis=nw.miss.returned)-Clist$meanstats)
+       print(summary(model$formula, basis=nw.miss.returned,response=response)-Clist$meanstats)
        nw.returned <- network.copy(nw.miss.returned)
       }
     }

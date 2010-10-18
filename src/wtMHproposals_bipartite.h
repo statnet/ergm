@@ -3,7 +3,7 @@
 
 #include "wtMHproposal.h"
 
-void MH_BipartitePseudoPoisson (WtMHproposal *MHp, WtNetwork *nwp);
+void MH_BipartitePoisson (WtMHproposal *MHp, WtNetwork *nwp);
 
 #endif 
 

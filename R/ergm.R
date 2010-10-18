@@ -2,7 +2,7 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
                  MPLEonly=FALSE, MLestimate=!MPLEonly, seed=NULL,
                  burnin=10000, MCMCsamplesize=10000, interval=100,
                  maxit=3,
-                 family="PseudoBernoulli.logit",
+                 reference="Bernoulli",
                  constraints=~.,
                  meanstats=NULL,
                  control=control.ergm(),
@@ -136,7 +136,7 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
     nw<-san(formula, meanstats=meanstats,
             theta0=if(is.numeric(theta0)) theta0,
             response=response,
-            family=family,
+            reference=reference,
             constraints=constraints,
             verbose=verbose,
             burnin=
@@ -170,7 +170,7 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
   }
   if (verbose) cat("Initializing Metropolis-Hastings proposal.\n")
 
-  MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial,class=proposalclass,family=family)
+  MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial,class=proposalclass,reference=reference)
   # Note:  MHproposal function in CRAN version does not use the "class" argument for now
   MHproposal.miss <- MHproposal(MHproposal.miss, control$prop.args, nw, model.initial)
 
@@ -189,7 +189,7 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
                                 MPLEtype=control$MPLEtype, 
                                 initial.loglik=control$initial.loglik,
                                 conddeg=conddeg, MCMCparams=MCMCparams, MHproposal=MHproposal,
-                                force.MPLE=(!control$force.mcmc && ergm.independencemodel(model.initial)
+                                force.MPLE=(!control$force.mcmc && reference=="Bernoulli" && ergm.independencemodel(model.initial)
                                             && constraints==(~.)),
                                 verbose=verbose, 
                                 compressflag = control$compress, 
@@ -198,7 +198,7 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
   MCMCflag <- ((MLestimate && (!ergm.independencemodel(model.initial)
                                || !is.null(meanstats)
                                || constraints!=(~.)))
-                || control$force.mcmc)
+                || control$force.mcmc || reference!="Bernoulli")
   if (MCMCflag) {
     theta0 <- initialfit$coef
     names(theta0) <- model.initial$coef.names
@@ -319,8 +319,8 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
   v$prop.args <- control$prop.args
   v$prop.weights <- control$prop.weights
 
-  v$response=response
-  v$family=family
+  v$response<-response
+  v$reference<-reference
 
   v$offset <- model$etamap$offsettheta
   v$drop <- droppedterms

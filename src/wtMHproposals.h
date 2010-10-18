@@ -3,7 +3,7 @@
 
 #include "wtMHproposal.h"
 
-void MH_PseudoPoisson (WtMHproposal *MHp, WtNetwork *nwp);
+void MH_Poisson (WtMHproposal *MHp, WtNetwork *nwp);
 
 #endif 
 

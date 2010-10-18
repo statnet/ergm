@@ -29,8 +29,8 @@ void WtSAN_wrapper (int *dnumnets, int *nedges,
 		    int *fVerbose, 
 		    int *maxedges)  {
   int directed_flag;
-  Vertex n_nodes, nmax, bip, hhead, htail;
-  Edge n_networks, n_edges, n_medges, nddyads, kedge;
+  Vertex n_nodes, nmax, bip;
+  Edge n_networks;
   WtNetwork nw[2];
   WtModel *m;
   WtModelTerm *thisterm;
@@ -48,7 +48,7 @@ void WtSAN_wrapper (int *dnumnets, int *nedges,
   m=WtModelInitialize(*funnames, *sonames, inputs, *nterms);
 
   /* Form the missing network */
-  nw[0]=WtNetworkInitialize(heads, tails, weights, n_edges,
+  nw[0]=WtNetworkInitialize(heads, tails, weights, nedges[0],
 			    n_nodes, directed_flag, bip, 0);
   /* Form the missing network */
   if (nedges[1]>0) {

@@ -169,7 +169,7 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
     list(s=z$s, newnwheads=z$newnwheads, newnwtails=z$newnwtails)
   }else{
     z <- .C("WtMCMC_wrapper",
-            as.integer(numnetworks), as.integer(nedges),
+            as.integer(length(nedges)), as.integer(nedges),
             as.integer(heads), as.integer(tails), as.double(weights),
             as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
             as.integer(Clist$dir), as.integer(Clist$bipartite),

@@ -21,16 +21,19 @@ ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALS
   nedges <- c(Clist$nedges,0,0)
   heads <- Clist$heads
   tails <- Clist$tails
+  weights <- Clist$weights
   if(!is.null(MCMCparams$Clist.miss)){
     nedges[2] <- MCMCparams$Clist.miss$nedges
     heads <- c(heads, MCMCparams$Clist.miss$heads)
     tails <- c(tails, MCMCparams$Clist.miss$tails)
+    weights <- c(weights, rep(1,nedges[1]))
   }
   if(!is.null(MCMCparams$Clist.dt)){
     nedges[3] <- MCMCparams$Clist.dt$nedges
     heads <- c(heads, MCMCparams$Clist.dt$heads)
     tails <- c(tails, MCMCparams$Clist.dt$tails)
   }
+  if(is.null(Clist$weights)){
   z <- .C("MCMC_wrapper",
   as.integer(length(nedges)), as.integer(nedges),
   as.integer(heads), as.integer(tails),
@@ -61,6 +64,28 @@ ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALS
   as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)),
   as.integer(maxedges),
   PACKAGE="ergm")
+}else{
+  z <- .C("WtMCMC_wrapper",
+          as.integer(length(nedges)), as.integer(nedges),
+          as.integer(heads), as.integer(tails), as.double(weights),
+          as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
+          as.integer(Clist$dir), as.integer(Clist$bipartite),
+          as.integer(Clist$nterms),
+          as.character(Clist$fnamestring),
+          as.character(Clist$snamestring),
+          as.character(MHproposal$name), as.character(MHproposal$package),
+          as.double(Clist$inputs), as.double(eta0),
+          as.integer(MCMCparams$samplesize),
+          statsmatrix = double(MCMCparams$nmatrixentries),
+          as.integer(MCMCparams$burnin), 
+          as.integer(MCMCparams$interval),
+          newnwheads = integer(maxedges),
+          newnwtails = integer(maxedges),
+          newnwweights = double(maxedges),
+          as.integer(verbose), 
+          as.integer(maxedges),
+          PACKAGE="ergm")
+}
 
   nedges <- z$newnwheads[1]  # This tells how many new edges there are
   if (nedges >= maxedges) {
