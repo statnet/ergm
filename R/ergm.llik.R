@@ -310,10 +310,20 @@ llik.mcmcvar3 <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=
 
 llik.fun.median <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
                      varweight=0.5, trustregion=20, eta0, etamap){
+pppp
   theta.offset <- etamap$theta0
   theta.offset[!etamap$offsettheta] <- theta
+  # Convert theta to eta
   eta <- ergm.eta(theta.offset, etamap)
+
+  # Calculate approximation to l(eta) - l(eta0) using a lognormal approximation
+  # i.e., assuming that the network statistics are approximately normally 
+  # distributed so that exp(eta * stats) is lognormal
   x <- eta-eta0
+# MSH: Is this robust?
+  x <- x[!etamap$offsetmap]
+  xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
+  xobs <- xobs[!etamap$offsetmap]
 # The next line is right!
 # aaa <- sum(xobs * x) - log(sum(probs*exp(xsim %*% x)))
 # These lines standardize:

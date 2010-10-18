@@ -10,7 +10,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                         calc.mcmc.se=TRUE, hessianflag=TRUE,
                         verbose=FALSE, trace=6*verbose,
                         trustregion=20, 
-                        cov.type="robust", 
+                        cov.type="normal",# cov.type="robust", 
                         estimateonly=FALSE, ...) {
   # If there are missing data to deal with, statsmatrix.miss will not be NULL;
   # in this case, do some preprocessing.  Otherwise, skip ahead.
@@ -50,23 +50,26 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   # adjusted accordingly.
 # av <- apply(sweep(statsmatrix0,1,probs,"*"), 2, sum)
   if(cov.type=="robust"){
-   V=try(capture.output(
-      covMcd(statsmatrix0[,!model$etamap$offsetmap,drop=FALSE])$cov))
+   av <- apply(statsmatrix0,2,wtd.median,weight=probs)
+   V=try(
+      covMcd(statsmatrix0[,!model$etamap$offsetmap,drop=FALSE])$cov,
+       silent=TRUE)
    if(inherits(V,"try-error")){
     V=cov(statsmatrix0[,!model$etamap$offsetmap,drop=FALSE])
    }
   }else{
+   av <- apply(statsmatrix0,2,weighted.mean,weight=probs)
    V=cov(statsmatrix0[,!model$etamap$offsetmap,drop=FALSE])
   }
-  av <- apply(statsmatrix0,2,wtd.median,weight=probs)
   xsim <- sweep(statsmatrix0, 2, av,"-")
   xobs <-  -av 
   # Do the same recentering for the statsmatrix0.miss matrix, if appropriate.
   # Note that xobs must be adjusted too.
   if(missingflag) {
     if(cov.type=="robust"){
-     V.miss=try(capture.output(
-        covMcd(statsmatrix0.miss[,!model$etamap$offsetmap,drop=FALSE])$cov))
+     V.miss=try(
+        covMcd(statsmatrix0.miss[,!model$etamap$offsetmap,drop=FALSE])$cov,
+               silent=TRUE)
      if(inherits(V.miss,"try-error")){
       V.miss=cov(statsmatrix0.miss[,!model$etamap$offsetmap,drop=FALSE])
      }
@@ -138,14 +141,17 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
      if (verbose) { cat("Using log-normal approx (no optim)\n") }
      Lout <- list(hessian = -V)
     }
-    Lout$par <- try(eta0[!model$etamap$offsetmap] - solve(Lout$hessian, xobs[!model$etamap$offsetmap]))
+    Lout$par <- try(
+      eta0[!model$etamap$offsetmap] - solve(Lout$hessian, xobs[!model$etamap$offsetmap]),
+                silent=TRUE)
     # If there's an error, first try a robust matrix inverse.  This can often
     # happen if the matrix of simulated statistics does not ever change for one
     # or more statistics.
     if(inherits(Lout$par,"try-error")){
-      Lout$par <- try(eta0[!model$etamap$offsetmap] - 
-                      robust.inverse(Lout$hessian) %*% 
-                      xobs[!model$etamap$offsetmap])
+      Lout$par <- try(
+       eta0[!model$etamap$offsetmap] - robust.inverse(Lout$hessian) %*% 
+                      xobs[!model$etamap$offsetmap],
+                  silent=TRUE)
     }
     # If there's still an error, use the Matrix package to try to find an 
     # alternative Hessian approximant that has no zero eigenvalues.    
@@ -159,7 +165,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     }
     Lout$convergence <- 0 # maybe add some error-checking here to get other codes
     Lout$value <- 0.5*crossprod(xobs[!model$etamap$offsetmap],
-            Lout$par - eta0[!model$etamap$offsetmap])
+                  Lout$par - eta0[!model$etamap$offsetmap])
     hessianflag <- TRUE # to make sure we don't recompute the Hessian later on
   } else {
     # "guess" will be the starting point for the optim search algorithm.
@@ -169,28 +175,29 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     guess <- theta0[!model$etamap$offsettheta]
     model$etamap$theta0 <- theta0
     
-  loglikelihoodfn.trust<-function(trustregion=20, ...){
-    value<-loglikelihoodfn(trustregion=20, ...)
-    grad<-gradientfn(trustregion=20, ...)
-    hess<-Hessianfn(...)
-    hess[upper.tri(hess)]<-t(hess)[upper.tri(hess)]
-#    print(value)
-#    print(grad)
-#    print(hess)
-    list(value=value,gradient=as.vector(grad),hessian=hess)
-  }
-  if (verbose) cat("Optimizing loglikelihood\n")
-# cat("Using trust\n")
-  Lout <- try(trust(objfun=loglikelihoodfn.trust, parinit=guess,
-                    rinit=1, 
-                    rmax=100, 
-                    parscale=rep(1,length(guess)), minimize=FALSE,
-                    xobs=xobs,
-                    xsim=xsim, probs=probs,
-                    xsim.miss=xsim.miss, probs.miss=probs.miss,
-                    varweight=varweight, trustregion=trustregion,
-                    eta0=eta0, etamap=model$etamap))
-  Lout$par<-Lout$argument
+    loglikelihoodfn.trust<-function(trustregion=20, ...){
+      value<-loglikelihoodfn(trustregion=20, ...)
+      grad<-gradientfn(trustregion=20, ...)
+      hess<-Hessianfn(...)
+      hess[upper.tri(hess)]<-t(hess)[upper.tri(hess)]
+#      print(value)
+#      print(grad)
+#      print(hess)
+      list(value=value,gradient=as.vector(grad),hessian=hess)
+    }
+    if (verbose) cat("Optimizing loglikelihood\n")
+#   cat("Using trust\n")
+    Lout <- try(trust(objfun=loglikelihoodfn.trust, parinit=guess,
+                      rinit=1, 
+                      rmax=100, 
+                      parscale=rep(1,length(guess)), minimize=FALSE,
+                      xobs=xobs,
+                      xsim=xsim, probs=probs,
+                      xsim.miss=xsim.miss, probs.miss=probs.miss,
+                      varweight=varweight, trustregion=trustregion,
+                      eta0=eta0, etamap=model$etamap),
+            silent=FALSE)
+    Lout$par<-Lout$argument
 #   if(Lout$value < trustregion-0.001){
 #     current.scipen <- options()$scipen
 #     options(scipen=3)
@@ -203,7 +210,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     if(inherits(Lout,"try-error") || Lout$value > 199 || Lout$value < -790) {
       cat("MLE could not be found. Trying Nelder-Mead...\n")
       Lout <- try(optim(par=guess, 
-                        fn=loglikelihoodfn,
+                        fn=llik.fun.median,
                         hessian=hessianflag,
                         method="Nelder-Mead",
                         control=list(trace=trace,fnscale=-1,maxit=100*nr.maxit,
@@ -212,7 +219,8 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                         xsim=xsim, probs=probs, 
                         xsim.miss=xsim.miss, probs.miss=probs.miss,
                         varweight=varweight, trustregion=trustregion,
-                        eta0=eta0, etamap=model$etamap))
+                        eta0=eta0, etamap=model$etamap),
+              silent=FALSE)
       if(inherits(Lout,"try-error") || Lout$value > 500 ){
         cat(paste("No direct MLE exists!\n"))
       }
