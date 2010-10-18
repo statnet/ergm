@@ -10,7 +10,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                         calc.mcmc.se=TRUE, hessianflag=TRUE,
                         verbose=FALSE, trace=6*verbose,
                         trustregion=20, 
-                        cov.type="robust", 
+                        cov.type="normal",# cov.type="robust", 
                         estimateonly=FALSE, ...) {
   # If there are missing data to deal with, statsmatrix.miss will not be NULL;
   # in this case, do some preprocessing.  Otherwise, skip ahead.
@@ -50,8 +50,9 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   # adjusted accordingly.
 # av <- apply(sweep(statsmatrix0,1,probs,"*"), 2, sum)
   if(cov.type=="robust"){
-   V=try(capture.output(
-      covMcd(statsmatrix0[,!model$etamap$offsetmap,drop=FALSE])$cov))
+   V=try(
+      covMcd(statsmatrix0[,!model$etamap$offsetmap,drop=FALSE])$cov,
+       silent=TRUE)
    if(inherits(V,"try-error")){
     V=cov(statsmatrix0[,!model$etamap$offsetmap,drop=FALSE])
    }
@@ -65,8 +66,9 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   # Note that xobs must be adjusted too.
   if(missingflag) {
     if(cov.type=="robust"){
-     V.miss=try(capture.output(
-        covMcd(statsmatrix0.miss[,!model$etamap$offsetmap,drop=FALSE])$cov))
+     V.miss=try(
+        covMcd(statsmatrix0.miss[,!model$etamap$offsetmap,drop=FALSE])$cov,
+               silent=TRUE)
      if(inherits(V.miss,"try-error")){
       V.miss=cov(statsmatrix0.miss[,!model$etamap$offsetmap,drop=FALSE])
      }
@@ -138,14 +140,16 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
      if (verbose) { cat("Using log-normal approx (no optim)\n") }
      Lout <- list(hessian = -V)
     }
-    Lout$par <- try(eta0[!model$etamap$offsetmap] - solve(Lout$hessian, xobs[!model$etamap$offsetmap]))
+    Lout$par <- try(eta0[!model$etamap$offsetmap] - solve(Lout$hessian, xobs[!model$etamap$offsetmap]),
+                silent=TRUE)
     # If there's an error, first try a robust matrix inverse.  This can often
     # happen if the matrix of simulated statistics does not ever change for one
     # or more statistics.
     if(inherits(Lout$par,"try-error")){
-      Lout$par <- try(eta0[!model$etamap$offsetmap] - 
-                      robust.inverse(Lout$hessian) %*% 
-                      xobs[!model$etamap$offsetmap])
+      Lout$par <- try(
+       eta0[!model$etamap$offsetmap] - robust.inverse(Lout$hessian) %*% 
+                      xobs[!model$etamap$offsetmap],
+                  silent=TRUE)
     }
     # If there's still an error, use the Matrix package to try to find an 
     # alternative Hessian approximant that has no zero eigenvalues.    
@@ -189,7 +193,8 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                     xsim=xsim, probs=probs,
                     xsim.miss=xsim.miss, probs.miss=probs.miss,
                     varweight=varweight, trustregion=trustregion,
-                    eta0=eta0, etamap=model$etamap))
+                    eta0=eta0, etamap=model$etamap),
+          silent=FALSE)
   Lout$par<-Lout$argument
 #   if(Lout$value < trustregion-0.001){
 #     current.scipen <- options()$scipen
@@ -212,7 +217,8 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                         xsim=xsim, probs=probs, 
                         xsim.miss=xsim.miss, probs.miss=probs.miss,
                         varweight=varweight, trustregion=trustregion,
-                        eta0=eta0, etamap=model$etamap))
+                        eta0=eta0, etamap=model$etamap),
+              silent=FALSE)
       if(inherits(Lout,"try-error") || Lout$value > 500 ){
         cat(paste("No direct MLE exists!\n"))
       }

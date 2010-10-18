@@ -187,7 +187,7 @@ ergm <- function(formula, theta0="MPLE",
                                 initial.loglik=control$initial.loglik,
                                 conddeg=conddeg, MCMCparams=MCMCparams, MHproposal=MHproposal,
                                 force.MPLE=(ergm.independencemodel(model.initial)
-                                            && constraints==(~.)),
+                                            && constraints==(~.) && (!control$force.mcmc)),
                                 verbose=verbose, 
                                 compressflag = control$compress, 
                                 maxNumDyadTypes=control$maxNumDyadTypes,
