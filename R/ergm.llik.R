@@ -310,7 +310,6 @@ llik.mcmcvar3 <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=
 
 llik.fun.median <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
                      varweight=0.5, trustregion=20, eta0, etamap){
-pppp
   theta.offset <- etamap$theta0
   theta.offset[!etamap$offsettheta] <- theta
   # Convert theta to eta
