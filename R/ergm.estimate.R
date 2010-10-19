@@ -48,7 +48,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   # value of xobs (playing the role of "observed statistics") must be
   # adjusted accordingly.
   av <- apply(sweep(statsmatrix0,1,probs,"*"), 2, sum)
-  V=cov(statsmatrix0[,!model$etamap$offsetmap,drop=FALSE])
+  V=cov.wt(statsmatrix0[,!model$etamap$offsetmap,drop=FALSE], wt=probs)$cov
   xsim <- sweep(statsmatrix0, 2, av,"-")
   xobs <-  -av 
   # Do the same recentering for the statsmatrix0.miss matrix, if appropriate.
@@ -57,7 +57,8 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     av.miss <- apply(sweep(statsmatrix0.miss,1,probs.miss,"*"), 2, sum)
     xsim.miss <- sweep(statsmatrix0.miss, 2, av.miss,"-")
     xobs <- av.miss-av
-    V.miss=cov(statsmatrix0.miss[,!model$etamap$offsetmap,drop=FALSE])
+    V.miss=cov.wt(statsmatrix0.miss[, !model$etamap$offsetmap, drop=FALSE], 
+                  wt=probs.miss)$cov
   }
   
   # Convert theta0 (possibly "curved" parameters) to eta0 (canonical parameters)
@@ -305,14 +306,14 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
 #    if (verbose) cat("Ending MCMC s.e. ACF computation.\n")
 
 # Output results as ergm-class object
-return(structure(list(coef=theta, sample=statsmatrix, sample.miss=statsmatrix.miss, 
-                 iterations=iteration, #mcmcloglik=mcmcloglik,
-                 MCMCtheta=theta0, 
-                 loglikelihood=loglikelihood, gradient=gradient,
-                 covar=covar, samplesize=NROW(statsmatrix), failure=FALSE,
-                 mc.se=mc.se#, #acf=mcmcacf,
-                 #fullsample=statsmatrix.all
-                 ),
-            class="ergm"))
+  return(structure(list(coef=theta, sample=statsmatrix, sample.miss=statsmatrix.miss, 
+                        iterations=iteration, #mcmcloglik=mcmcloglik,
+                        MCMCtheta=theta0, 
+                        loglikelihood=loglikelihood, gradient=gradient,
+                        covar=covar, samplesize=NROW(statsmatrix), failure=FALSE,
+                        mc.se=mc.se#, #acf=mcmcacf,
+                        #fullsample=statsmatrix.all
+                        ),
+                    class="ergm"))
   }
 }

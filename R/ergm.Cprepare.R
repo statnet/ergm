@@ -36,12 +36,19 @@ ergm.Cprepare <- function(nw, m)
   Clist$inputs<-numeric(0)
   if (Clist$nterms>0) {
     for(i in 1:Clist$nterms) {
-      Clist$fnamestring <- paste(Clist$fnamestring, mo[[i]]$name)
+      term_i <- mo[[i]]
+      Clist$fnamestring <- paste(Clist$fnamestring, term_i$name)
+      # This lets "pkgname" play the same role as "soname":
       Clist$snamestring <- paste(Clist$snamestring, 
-                                 ifelse(is.null(mo[[i]]$soname), "ergm",
-                                        mo[[i]]$soname))
-      Clist$inputs <- c(Clist$inputs, mo[[i]]$inputs)
-      Clist$nstats <- Clist$nstats + mo[[i]]$inputs[2]
+                                 if (!is.null(term_i$soname)) {
+                                   term_i$soname
+                                 } else if (!is.null(term_i$pkgname)) {
+                                   term_i$pkgname
+                                 } else {
+                                   "ergm"
+                                 } )
+      Clist$inputs <- c(Clist$inputs, term_i$inputs)
+      Clist$nstats <- Clist$nstats + term_i$inputs[2]
     }
   }
   while (substring(Clist$fnamestring, 1, 1)==" ")
