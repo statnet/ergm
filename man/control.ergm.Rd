@@ -8,7 +8,7 @@
 control.ergm(prop.weights = "default", prop.args = NULL,
              prop.weights.diss = "default", prop.args.diss = NULL, 
              nr.maxit = 100,
-             calc.mcmc.se = TRUE, hessian = TRUE, compress = FALSE,
+             calc.mcmc.se = TRUE, hessian = TRUE, compress = TRUE,
              SAN.burnin=NULL,
              maxNumDyadTypes = 1e+06, maxedges = 20000, maxchanges = 1e+06,
              maxMPLEsamplesize = 1e+05, MPLEtype=c("glm", "penalized"), 

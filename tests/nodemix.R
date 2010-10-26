@@ -4,8 +4,6 @@ data(faux.mesa.high)
 m <- matrix(c(75, 0, 0, 1, 1, 1, 0, 33, 2, 4, 2, 1,
  0, 2, 23, 7, 6, 4, 1, 4, 7, 9, 1, 5, 1, 2, 6, 1, 17, 5,
  1, 1, 4, 5, 5, 6), 6, 6)  # Correct answer!
-if (max(abs(m - mixingmatrix(faux.mesa.high, "Grade")$mat)) > 0)
-  stop ("mixingmatrix failed test on undirected network faux.mesa.high")
 if (max(abs(m[upper.tri(m, diag=T)] - summary(faux.mesa.high ~ nodemix("Grade")))) > 0)
   stop ("nodemix failed test on undirected network faux.mesa.high")
 
@@ -14,8 +12,6 @@ if (max(abs(m[upper.tri(m, diag=T)] - summary(faux.mesa.high ~ nodemix("Grade"))
 data(sampson)
 grpord<-c("Turks","Loyal","Outcasts")
 m2 <- matrix(c(30, 9, 7, 5, 23, 1, 1, 2, 10), 3, 3,dimnames=list(From=grpord,To=grpord)) # Correct answer!
-if (!all(m2==mixingmatrix(samplike, "group")$matrix[grpord,grpord]))
-  stop ("mixingmatrix failed test on directed network samplike")
 mixnames<-t(sapply(grpord,function(from) sapply(grpord,function(to) paste("mix.group",from,to,sep="."))))
 if (!all(c(m2) == summary(samplike ~ nodemix("group"))[c(mixnames)]))
   stop ("nodemix failed test on directed network samplike")
@@ -28,8 +24,6 @@ el <- cbind( c(17, 20, 22, 26, 19, 24, 16, 22, 18, 23, 28, 20,
 mynw <- network(el, bipartite=15, directed=FALSE) 
 mynw %v% "names" <- rep(letters[1:3], c(10,10,8))
 m3 <- matrix(c(9, 1, 12, 1), 2, 2) # Correct answer!
-if (max(abs(m3 - mixingmatrix(mynw, "names")$mat)) > 0)
-  stop ("mixingmatrix failed test on bipartite network")
 if (max(abs(as.vector(m3) - summary(mynw ~ nodemix("names")))) > 0)
   stop ("nodemix failed test on bipartite network")
 
