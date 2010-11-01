@@ -759,7 +759,7 @@ InitErgmTerm.mutual<-function (nw, arglist, drop=TRUE, ...) {
                       defaultvalues = list(NULL, NULL, FALSE, NULL),
                       required = c(FALSE, FALSE, FALSE, FALSE))
   ### Process the arguments
-  if (!is.null(a$same) | !is.null(a$by)) {
+  if (!is.null(a$same) || !is.null(a$by)) {
     if (!is.null(a$same)) {
      attrname <- a$same
     }else{
@@ -779,7 +779,7 @@ InitErgmTerm.mutual<-function (nw, arglist, drop=TRUE, ...) {
   }
   if(drop) { # Check for zero statistics, print -Inf messages if applicable
     obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
-    if (is.null(a$same)&is.null(a$by)) {
+    if (is.null(a$same) && is.null(a$by)) {
       n <- network.size(nw)
       ndc <- n * (n-1) / 2 # temporary until network.dyadcount is fixed
       if (extremewarnings(obsstats, maxval=ndc)) {
@@ -792,7 +792,7 @@ InitErgmTerm.mutual<-function (nw, arglist, drop=TRUE, ...) {
     }
   }
   ### Construct the list to return
-  if (!is.null(a$same) | !is.null(a$by)) {
+  if (!is.null(a$same) || !is.null(a$by)) {
     if (is.null(a$same)) {
       coef.names <- paste("mutual.by", attrname, u, sep=".")
       inputs <- c(ui, nodecov)
@@ -805,7 +805,7 @@ InitErgmTerm.mutual<-function (nw, arglist, drop=TRUE, ...) {
       inputs <- nodecov
      }
     }
-    if (is.null(a$same) & !is.null(a$by)) {
+    if (is.null(a$same) && !is.null(a$by)) {
      name <- "mutual_by_attr"
     }else{
      name <- "mutual"
