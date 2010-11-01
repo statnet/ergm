@@ -1,4 +1,3 @@
-
 #include "changestats.h"
 
 /********************  changestats:  A    ***********/
@@ -6,10 +5,14 @@
  changestat: d_absdiff
 *****************/
 D_CHANGESTAT_FN(d_absdiff) { 
-  double change, p; Vertex h, t; int i;
+  double change, p;
+  Vertex h, t;
+  int i;
+
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
-    h = heads[i]; t = tails[i]; 
+    h = heads[i]; 
+    t = tails[i];
     p = INPUT_ATTRIB[0];
     if(p==1.0){
       change = fabs(INPUT_ATTRIB[h] - INPUT_ATTRIB[t]);

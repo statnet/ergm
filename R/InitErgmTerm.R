@@ -754,13 +754,18 @@ InitErgmTerm.isolates <- function(nw, arglist, drop=TRUE, ...) {
 InitErgmTerm.mutual<-function (nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=TRUE, bipartite=NULL,
-                      varnames = c("attrname", "diff", "keep"),
-                      vartypes = c("character", "logical", "numeric"),
-                      defaultvalues = list(NULL, FALSE, NULL),
-                      required = c(FALSE, FALSE, FALSE))
+                      varnames = c("same", "by", "diff", "keep"),
+                      vartypes = c("character", "character", "logical", "numeric"),
+                      defaultvalues = list(NULL, NULL, FALSE, NULL),
+                      required = c(FALSE, FALSE, FALSE, FALSE))
   ### Process the arguments
-  if (!is.null(a$attrname)) {
-    nodecov <- get.node.attr(nw, a$attrname)
+  if (!is.null(a$same) || !is.null(a$by)) {
+    if (!is.null(a$same)) {
+     attrname <- a$same
+    }else{
+     attrname <- a$by
+    }
+    nodecov <- get.node.attr(nw, attrname)
     u <- sort(unique(nodecov))
     if (!is.null(a$keep)) {
       u <- u[a$keep]
@@ -774,7 +779,7 @@ InitErgmTerm.mutual<-function (nw, arglist, drop=TRUE, ...) {
   }
   if(drop) { # Check for zero statistics, print -Inf messages if applicable
     obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
-    if (is.null(a$attrname)) {
+    if (is.null(a$same) && is.null(a$by)) {
       n <- network.size(nw)
       ndc <- n * (n-1) / 2 # temporary until network.dyadcount is fixed
       if (extremewarnings(obsstats, maxval=ndc)) {
@@ -787,18 +792,33 @@ InitErgmTerm.mutual<-function (nw, arglist, drop=TRUE, ...) {
     }
   }
   ### Construct the list to return
-  out <- list(name="mutual",                      #name: required
-              coef.names = "mutual"               #coef.names: required
-              ) 
-  if (!is.null(a$attrname)) {
-    if (a$diff) {
-      out$coef.names <- paste("mutual", a$attrname, u, sep=".")
-      out$inputs <- c(ui, nodecov)
-    } else {
-      out$coef.names <- paste("mutual", a$attrname, sep=".")
-      out$inputs <- nodecov
+  if (!is.null(a$same) || !is.null(a$by)) {
+    if (is.null(a$same)) {
+      coef.names <- paste("mutual.by", attrname, u, sep=".")
+      inputs <- c(ui, nodecov)
+    }else{
+     if (a$diff) {
+      coef.names <- paste("mutual.same", attrname, u, sep=".")
+      inputs <- c(ui, nodecov)
+     }else{ 
+      coef.names <- paste("mutual", attrname, sep=".")
+      inputs <- nodecov
+     }
     }
+    if (is.null(a$same) && !is.null(a$by)) {
+     name <- "mutual_by_attr"
+    }else{
+     name <- "mutual"
+    }
+  }else{
+     name <- "mutual"
+     coef.names <- "mutual"
+     inputs <- NULL
   }
+  out <- list(name=name,                      #name: required
+              coef.names = coef.names,        #coef.names: required
+	      inputs=inputs
+             ) 
   out
 }
 

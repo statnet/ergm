@@ -145,7 +145,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     }
     Lout$convergence <- 0 # maybe add some error-checking here to get other codes
     Lout$value <- 0.5*crossprod(xobs[!model$etamap$offsetmap],
-            Lout$par - eta0[!model$etamap$offsetmap])
+                                Lout$par - eta0[!model$etamap$offsetmap])
     hessianflag <- TRUE # to make sure we don't recompute the Hessian later on
   } else {
     # "guess" will be the starting point for the optim search algorithm.
