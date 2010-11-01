@@ -90,6 +90,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   # Also, choose varweight multiplier for covariance term in loglikelihood
   # where 0.5 is the "true" value but this can be increased or decreased
   varweight <- 0.5
+  if (verbose) { cat("Using", metric, "metric (see control.ergm function).\n") }
   if (missingflag) {
     loglikelihoodfn <- switch(metric,
                               Likelihood=llik.fun.miss,
@@ -132,14 +133,16 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   
   # Now find maximizer of approximate loglikelihood ratio l(eta) - l(eta0).
   # First: If we're using the lognormal approximation, the maximizer is
-  # closed-form.
-  if (metric=="lognormal" || metric=="Likelihood") {
+  # closed-form.  We can't use the closed-form maximizer if we are
+  # dealing with a curved exponential family.
+  if (all(model$etamap$canonical==1) && 
+      (metric=="lognormal" || metric=="Likelihood")) {
     if (missingflag) {
-     if (verbose) { cat("Using log-normal approx with missing (no optim)\n") }
-     Lout <- list(hessian = -(V-V.miss))
+      if (verbose) { cat("Using log-normal approx with missing (no optim)\n") }
+      Lout <- list(hessian = -(V-V.miss))
     } else {
-     if (verbose) { cat("Using log-normal approx (no optim)\n") }
-     Lout <- list(hessian = -V)
+      if (verbose) { cat("Using log-normal approx (no optim)\n") }
+      Lout <- list(hessian = -V)
     }
     Lout$par <- try(
       eta0[!model$etamap$offsetmap] - solve(Lout$hessian, xobs[!model$etamap$offsetmap]),
@@ -277,19 +280,20 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
      Lout$hessian <- He
     }
     if(calc.mcmc.se){
-      if (verbose) cat("Starting MCMC s.e. computation.\n")
-       if (metric=="lognormal" || metric=="Likelihood") {
+      if (verbose) { cat("Starting MCMC s.e. computation.\n") }
+      if ((metric=="lognormal" || metric=="Likelihood")
+          && length(model$etamap$curved)==0) {
         mc.se <- ergm.MCMCse.lognormal(theta=theta, theta0=theta0, 
-                              statsmatrix=statsmatrix0, 
-                              statsmatrix.miss=statsmatrix.miss,
-                              H=V, H.miss=V.miss,
-                              model=model)
-       }else{
+                                       statsmatrix=statsmatrix0, 
+                                       statsmatrix.miss=statsmatrix.miss,
+                                       H=V, H.miss=V.miss,
+                                       model=model)
+      } else {
         mc.se <- ergm.MCMCse(theta=theta,theta0=theta0, 
-                              statsmatrix=statsmatrix0,
-                              statsmatrix.miss=statsmatrix.miss,
-                              model=model)
-       }
+                             statsmatrix=statsmatrix0,
+                             statsmatrix.miss=statsmatrix.miss,
+                             model=model)
+      }
     }
     c0  <- loglikelihoodfn(theta=Lout$par, xobs=xobs,
                            xsim=xsim, probs=probs,
@@ -328,25 +332,25 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
       statsmatrix.all <- NULL
     }
 
-# Commented out for now -- this should probably not be added to the
-# ergm object because it is not always needed.
-#    if (verbose) cat("Starting MCMC s.e. ACF computation.\n")
-#    if(calc.mcmc.se){
-#      mcmcacf <- ergm.MCMCacf(statsmatrix0)
-#    }else{
-#      mcmcacf <- covar-covar
-#    }
-#    if (verbose) cat("Ending MCMC s.e. ACF computation.\n")
+    # Commented out for now -- this should probably not be added to the
+    # ergm object because it is not always needed.
+    #if (verbose) cat("Starting MCMC s.e. ACF computation.\n")
+    #if(calc.mcmc.se){
+    #  mcmcacf <- ergm.MCMCacf(statsmatrix0)
+    #}else{
+    #  mcmcacf <- covar-covar
+    #}
+    #if (verbose) cat("Ending MCMC s.e. ACF computation.\n")
 
-# Output results as ergm-class object
-return(structure(list(coef=theta, sample=statsmatrix, sample.miss=statsmatrix.miss, 
-                 iterations=iteration, #mcmcloglik=mcmcloglik,
-                 MCMCtheta=theta0, 
-                 loglikelihood=loglikelihood, gradient=gradient,
-                 covar=covar, samplesize=NROW(statsmatrix), failure=FALSE,
-                 mc.se=mc.se#, #acf=mcmcacf,
-                 #fullsample=statsmatrix.all
-                 ),
-            class="ergm"))
+    # Output results as ergm-class object
+    return(structure(list(coef=theta, sample=statsmatrix, sample.miss=statsmatrix.miss, 
+                          iterations=iteration, #mcmcloglik=mcmcloglik,
+                          MCMCtheta=theta0, 
+                          loglikelihood=loglikelihood, gradient=gradient,
+                          covar=covar, samplesize=NROW(statsmatrix), failure=FALSE,
+                          mc.se=mc.se#, #acf=mcmcacf,
+                          #fullsample=statsmatrix.all
+                          ),
+                        class="ergm"))
   }
 }
