@@ -27,7 +27,7 @@ ergm.initialfit<-function(theta0, MLestimate, Clist, Clist.miss, m,
                        verbose=verbose, ...)
     }else{    
       if(!is.null(Clist.miss)){
-        mle.lik <- -log(2)*(Clist$ndyads-network.naedgecount(nw))
+        mle.lik <- -log(2)*(Clist$ndyads-Clist.miss$nedges)
       }else{
         mle.lik <- -log(2)*Clist$ndyads
       }
