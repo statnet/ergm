@@ -12,8 +12,8 @@
 "                    David R. Hunter, Penn State University\n",
 "                    Carter T. Butts, University of California-Irvine\n",
 "                    Steven M. Goodreau, University of Washington\n",
-"                    Martina Morris, University of Washington\n",
-"                    Pavel Krivitsky, Carnegie Mellon University\n",sep=""))
+"                    Pavel N. Krivitsky, Carnegie Mellon University\n",
+"                    Martina Morris, University of Washington\n",sep=""))
   cat('Type help(package="ergm") to get started.\n\n')
   cat('Based on "statnet" project software (http://statnetproject.org).\n',
       'For license and citation information see http://statnetproject.org/attribution\n',
