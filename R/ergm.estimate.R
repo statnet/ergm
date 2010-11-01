@@ -69,20 +69,20 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
   # Also, choose varweight multiplier for covariance term in loglikelihood
   # where 0.5 is the "true" value but this can be increased or decreased
   varweight <- 0.5
+  if (verbose) { cat("Using", metric, "metric (see control.ergm function).\n") }
   if (missingflag) {
     loglikelihoodfn <- switch(metric,
-                              Likelihood=llik.fun.miss.robust,
-                              lognormal=llik.fun.miss.robust,
-                              Median.Likelihood=llik.fun.miss.robust,
-                              EF.Likelihood=llik.fun.miss.robust,
+                              Likelihood=llik.fun.miss,
+                              lognormal=llik.fun.miss,
+                              Median.Likelihood=llik.fun.miss,
+                              EF.Likelihood=llik.fun.miss,
                               llik.fun.miss.robust)
-    # This looks like a bug:  (None of these functions is a gradient)
     gradientfn <- switch(metric,
-                         Likelihood=llik.fun.miss,
-                         lognormal=llik.fun.miss,
-                         Median.Likelihood=llik.fun.miss,
-                         EF.Likelihood=llik.fun.miss,
-                         llik.fun.miss)
+                         Likelihood=llik.grad.miss,
+                         lognormal=llik.grad.miss,
+                         Median.Likelihood=llik.grad.miss,
+                         EF.Likelihood=llik.grad.miss,
+                         llik.grad.miss)
     Hessianfn <- switch(metric,
                         Likelihood=llik.hessian.miss,
                         lognormal=llik.hessian.miss,
@@ -211,11 +211,12 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                           failure=FALSE),
                         class="ergm"))
   } else {
-    gradient <- llik.grad(theta=Lout$par, xobs=xobs, xsim=xsim,
+    gradienttheta <- llik.grad(theta=Lout$par, xobs=xobs, xsim=xsim,
                           probs=probs, 
                           xsim.miss=xsim.miss, probs.miss=probs.miss,
                           varweight=varweight, eta0=eta0, etamap=model$etamap)
-    gradient[model$etamap$offsettheta] <- 0
+    gradient <- rep(NA, length=length(theta0))
+    gradient[!model$etamap$offsettheta] <- gradienttheta
     #
     #  Calculate the auto-covariance of the MCMC suff. stats.
     #  and hence the MCMC s.e.
@@ -245,16 +246,17 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     }
     if(calc.mcmc.se){
       if (verbose) { cat("Starting MCMC s.e. computation.\n") }
-      if ((metric=="lognormal" || metric=="Likelihood") 
+      if ((metric=="lognormal" || metric=="Likelihood")
           && length(model$etamap$curved)==0) {
-        mc.se <- ergm.MCMCse.lognormal(theta, theta0,
-                                       statsmatrix0, statsmatrix.miss,
-                                       V, V.miss,
+        mc.se <- ergm.MCMCse.lognormal(theta=theta, theta0=theta0, 
+                                       statsmatrix=statsmatrix0, 
+                                       statsmatrix.miss=statsmatrix.miss,
+                                       H=V, H.miss=V.miss,
                                        model=model)
       } else {
-        mc.se <- ergm.MCMCse(theta, theta0, 
-                             statsmatrix0,
-                             statsmatrix.miss,
+        mc.se <- ergm.MCMCse(theta=theta,theta0=theta0, 
+                             statsmatrix=statsmatrix0,
+                             statsmatrix.miss=statsmatrix.miss,
                              model=model)
       }
     }
@@ -295,25 +297,25 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
       statsmatrix.all <- NULL
     }
 
-# Commented out for now -- this should probably not be added to the
-# ergm object because it is not always needed.
-#    if (verbose) cat("Starting MCMC s.e. ACF computation.\n")
-#    if(calc.mcmc.se){
-#      mcmcacf <- ergm.MCMCacf(statsmatrix0)
-#    }else{
-#      mcmcacf <- covar-covar
-#    }
-#    if (verbose) cat("Ending MCMC s.e. ACF computation.\n")
+    # Commented out for now -- this should probably not be added to the
+    # ergm object because it is not always needed.
+    #if (verbose) cat("Starting MCMC s.e. ACF computation.\n")
+    #if(calc.mcmc.se){
+    #  mcmcacf <- ergm.MCMCacf(statsmatrix0)
+    #}else{
+    #  mcmcacf <- covar-covar
+    #}
+    #if (verbose) cat("Ending MCMC s.e. ACF computation.\n")
 
-# Output results as ergm-class object
-  return(structure(list(coef=theta, sample=statsmatrix, sample.miss=statsmatrix.miss, 
-                        iterations=iteration, #mcmcloglik=mcmcloglik,
-                        MCMCtheta=theta0, 
-                        loglikelihood=loglikelihood, gradient=gradient,
-                        covar=covar, samplesize=NROW(statsmatrix), failure=FALSE,
-                        mc.se=mc.se#, #acf=mcmcacf,
-                        #fullsample=statsmatrix.all
-                        ),
-                    class="ergm"))
+    # Output results as ergm-class object
+    return(structure(list(coef=theta, sample=statsmatrix, sample.miss=statsmatrix.miss, 
+                          iterations=iteration, #mcmcloglik=mcmcloglik,
+                          MCMCtheta=theta0, 
+                          loglikelihood=loglikelihood, gradient=gradient,
+                          covar=covar, samplesize=NROW(statsmatrix), failure=FALSE,
+                          mc.se=mc.se#, #acf=mcmcacf,
+                          #fullsample=statsmatrix.all
+                          ),
+                        class="ergm"))
   }
 }

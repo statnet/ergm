@@ -69,6 +69,7 @@ ergm <- function(formula, theta0="MPLE",
                                 verbose=verbose, compressflag = control$compress, 
                                 maxNumDyadTypes=control$maxNumDyadTypes,
                                 force.MPLE=(ergm.independencemodel(model.initial)
+                                            && !control$force.mcmc
                                             && constraints==(~.)),
                                 ...)
   MCMCflag <- ((MLestimate && (!ergm.independencemodel(model.initial)
