@@ -1,5 +1,6 @@
 ergm.initialfit<-function(theta0, MLestimate, Clist, Clist.miss, m, 
                           MPLEtype="glm", initial.loglik=NULL,
+                          conddeg=NULL, MCMCparams=NULL, MHproposal=NULL,
                           force.MPLE=FALSE,
                           verbose=FALSE, ...) {
 # Process input for call to ergm.mple or some other alternative fitting
@@ -21,11 +22,12 @@ ergm.initialfit<-function(theta0, MLestimate, Clist, Clist.miss, m,
 
     if(force.MPLE){
       fit <- ergm.mple(Clist, Clist.miss, m, MPLEtype=MPLEtype,
-                       theta0=theta0,
+                       theta0=theta0, conddeg=conddeg, 
+		       MCMCparams=MCMCparams, MHproposal=MHproposal,
                        verbose=verbose, ...)
     }else{    
       if(!is.null(Clist.miss)){
-        mle.lik <- -log(2)*(Clist$ndyads-Clist.miss$nedges)
+        mle.lik <- -log(2)*(Clist$ndyads-network.naedgecount(nw))
       }else{
         mle.lik <- -log(2)*Clist$ndyads
       }
@@ -40,7 +42,9 @@ ergm.initialfit<-function(theta0, MLestimate, Clist, Clist.miss, m,
   } else {
     if (fitmethod==1) {  #  MPLE
       fit <- ergm.mple(Clist, Clist.miss, m, MPLEtype=MPLEtype,
-                       verbose=verbose, ...)
+                       conddeg=conddeg, 
+		       MCMCparams=MCMCparams, MHproposal=MHproposal,
+		       verbose=verbose, ...)
     }
   }
   fit
