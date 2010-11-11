@@ -1,6 +1,6 @@
 #include "wtchangestat.h"
 
-D_CHANGESTAT_FN(d_from_s) { 
+WtD_CHANGESTAT_FN(d_from_s) { 
   int i;
   double current, OLDWT;
 

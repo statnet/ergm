@@ -19,20 +19,17 @@ typedef struct WtModelTermstruct {
  Macros to make life easier                         *
  Note:  These things still need to be documented    */ 
 
-#define IS_OUTEDGE(a,b) (EdgetreeSearch((a),(b),nwp->outedges)!=0?1:0)
-#define IS_INEDGE(a,b) (EdgetreeSearch((a),(b),nwp->inedges)!=0?1:0)
+#define IS_OUTEDGE(a,b) (WtEdgetreeSearch((a),(b),nwp->outedges)!=0?1:0)
+#define IS_INEDGE(a,b) (WtEdgetreeSearch((a),(b),nwp->inedges)!=0?1:0)
 #define IS_UNDIRECTED_EDGE(a,b) IS_OUTEDGE(MIN(a,b), MAX(a,b))
-#define MIN_OUTEDGE(a) (EdgetreeMinimum(nwp->outedges, (a)))
-#define MIN_INEDGE(a) (EdgetreeMinimum(nwp->inedges, (a)))
-#define NEXT_OUTEDGE(e) (EdgetreeSuccessor(nwp->outedges,(e)))
-#define NEXT_INEDGE(e) (EdgetreeSuccessor(nwp->inedges,(e)))
+#define MIN_OUTEDGE(a) (WtEdgetreeMinimum(nwp->outedges, (a)))
+#define MIN_INEDGE(a) (WtEdgetreeMinimum(nwp->inedges, (a)))
+#define NEXT_OUTEDGE(e) (WtEdgetreeSuccessor(nwp->outedges,(e)))
+#define NEXT_INEDGE(e) (WtEdgetreeSuccessor(nwp->inedges,(e)))
 #define OUTVAL(e) (nwp->outedges[(e)].value)
 #define INVAL(e) (nwp->inedges[(e)].value)
-#define TOGGLE(a,b) (ToggleEdge((a),(b),nwp));
-#define TOGGLE_DISCORD(a,b) (ToggleEdge((a),(b),nwp+1));
-
-#define STEP_THROUGH_OUTEDGES(a,e,v) for((e)=MIN_OUTEDGE(a);((v)=OUTVAL(e))!=0;(e)=NEXT_OUTEDGE(e))
-#define STEP_THROUGH_INEDGES(a,e,v) for((e)=MIN_INEDGE(a);((v)=INVAL(e))!=0;(e)=NEXT_INEDGE(e))
+//#define TOGGLE(a,b) (WtToggleEdge((a),(b),nwp));
+//#define TOGGLE_DISCORD(a,b) (WtToggleEdge((a),(b),nwp+1));
 
 #define GETWT(h,t) (WtGetEdge(h,t,nwp))
 #define SETWT(h,t,w) (WtSetEdge(h,t,w,nwp))
@@ -47,6 +44,22 @@ typedef struct WtModelTermstruct {
 #define INPUT_ATTRIB (mtp->attrib)
 #define N_INPUT_PARAMS (mtp->ninputparams)
 
+
+// Original STEP_THROUGH_*EDGES macros
+#define STEP_THROUGH_OUTEDGES(a,e,v) for((e)=MIN_OUTEDGE(a);((v)=OUTVAL(e))!=0;(e)=NEXT_OUTEDGE(e))
+#define STEP_THROUGH_INEDGES(a,e,v) for((e)=MIN_INEDGE(a);((v)=INVAL(e))!=0;(e)=NEXT_INEDGE(e))
+
+// Also execute for each edge, automatically adapting to undirected networks.
+#define EXEC_THROUGH_OUTEDGES(a,e,v,torun) if(DIRECTED){ STEP_THROUGH_OUTEDGES(a,e,v) {torun} } else EXEC_THROUGH_EDGES(a,e,v,torun)
+#define EXEC_THROUGH_INEDGES(a,e,v,torun) if(DIRECTED){ STEP_THROUGH_INEDGES(a,e,v) {torun} } else EXEC_THROUGH_EDGES(a,e,v,torun)
+#define EXEC_THROUGH_EDGES(a,e,v,torun) STEP_THROUGH_OUTEDGES(a,e,v) {torun}  STEP_THROUGH_INEDGES(a,e,v) {torun} 
+
+// Non-adaptive versions.
+#define EXEC_THROUGH_FOUTEDGES(a,e,v,torun) STEP_THROUGH_OUTEDGES(a,e,v) torun 
+#define EXEC_THROUGH_FINEDGES(a,e,v,torun) STEP_THROUGH_INEDGES(a,e,v) torun  
+
+
+
 #define ZERO_ALL_CHANGESTATS(a) for((a)=0; (a)<N_CHANGE_STATS; (a)++) CHANGE_STAT[(a)]=0.0
 #define FOR_EACH_TOGGLE(a) for((a)=0; (a)<ntoggles; (a)++)
 // The idea here is to essentially swap the contents of the proposed
@@ -55,17 +68,27 @@ typedef struct WtModelTermstruct {
 #define OLDWT oldwt
 #define GETOLDWT(a) OLDWT=GETWT(heads[(a)],tails[(a)])
 
-#define SETWT_WITH_BACKUP(a) {SETWT(heads[(a)],tails[(a)],weights[(a)]); weights[(a)]=OLDWT;}
+// Yes, the next two macros are, in fact, identical:
+// swap(x,y) is a self-inverse.
+#define SETWT_WITH_BACKUP(a) {GETOLDWT(a); SETWT(heads[(a)],tails[(a)],weights[(a)]); weights[(a)]=OLDWT;}
 #define UNDO_SETWT(a) {GETOLDWT(a); SETWT(heads[(a)],tails[(a)],weights[(a)]); weights[(a)]=OLDWT;}
-#define SETWT_IF_MORE_TO_COME(a) {if((a)+1<ntoggles) {SETWT_WITH_BACKUP}}
-#define UNDO_PREVIOUS_SETWTS(a) (a)--; while(--(a)>=0){UNDO_SETWT}
+#define SETWT_IF_MORE_TO_COME(a) {if((a)+1<ntoggles) {SETWT_WITH_BACKUP(a)}}
+#define UNDO_PREVIOUS_SETWTS(a) (a)--; while(--(a)>=0){UNDO_SETWT(a)}
 
 /****************************************************/
 /* changestat function prototypes, 
    plus a few supporting function prototypes */
 #define WtD_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *heads, Vertex *tails, double *weights, WtModelTerm *mtp, WtNetwork *nwp)
-#define WtT_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)
-#define WtS_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)              
+#define WtT_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
+#define WtS_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
 
 WtD_CHANGESTAT_FN(d_from_s);
+// This could be done more efficiently (saving a function call) 
+// by assigning a function pointer as follows:
+ #define WtD_FROM_S_FN(a) WtD_CHANGESTAT_FN(*a)=d_from_s;
+// However, it looks like it might confuse the function finding routines.
+// In the future, it might be a good idea to have the initialization
+// code autodetect when D_ function is not found, but S_ function is, and set it properly.
+//#define WtD_FROM_S_FN(a) WtD_CHANGESTAT_FN(a){ d_from_s(ntoggles, heads, tails, weights, mtp, nwp); }
+
 #endif

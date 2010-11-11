@@ -61,7 +61,7 @@ InitErgmTerm.mutualweights<-function (nw, arglist, drop=TRUE, response=NULL, ...
 
 InitErgmTerm.transitiveweights<-function (nw, arglist, drop=TRUE, response=NULL, ...) {
 ### Check the network and arguments to make sure they are appropriate.
-  a <- check.ErgmTerm(nw, arglist, directed=TRUE, bipartite=NULL,
+  a <- check.ErgmTerm(nw, arglist, bipartite=NULL,
                       varnames = c("form"),
                       vartypes = c("character"),
                       defaultvalues = list("max"),
@@ -74,8 +74,8 @@ InitErgmTerm.transitiveweights<-function (nw, arglist, drop=TRUE, response=NULL,
     } 
   }
   form<-match.arg(a$form,c("max","sum"))
-  list(name=switch(form,min="transitiveweights_min",nabsdiff="transitiveweights_nabsdiff"),
-       coef.names=switch(form,min="transitiveweights.min",nabsdiff="transitiveweights.nabsdiff"),
+  list(name=switch(form,max="transitiveweights_max",sum="transitiveweights_sum"),
+       coef.names=switch(form,max="transitiveweights.max",sum="transitiveweights.sum"),
        inputs=NULL,
        dependence=FALSE)
   
@@ -83,7 +83,7 @@ InitErgmTerm.transitiveweights<-function (nw, arglist, drop=TRUE, response=NULL,
 
 InitErgmTerm.cyclicweights<-function (nw, arglist, drop=TRUE, response=NULL, ...) {
 ### Check the network and arguments to make sure they are appropriate.
-  a <- check.ErgmTerm(nw, arglist, directed=TRUE, bipartite=NULL,
+  a <- check.ErgmTerm(nw, arglist,  bipartite=NULL,
                       varnames = c("form"),
                       vartypes = c("character"),
                       defaultvalues = list("max"),
@@ -96,8 +96,8 @@ InitErgmTerm.cyclicweights<-function (nw, arglist, drop=TRUE, response=NULL, ...
     } 
   }
   form<-match.arg(a$form,c("max","sum"))
-  list(name=switch(form,min="cyclicweights_min",nabsdiff="cyclicweights_nabsdiff"),
-       coef.names=switch(form,min="cyclicweights.min",nabsdiff="cyclicweights.nabsdiff"),
+  list(name=switch(form,max="cyclicweights_max",sum="cyclicweights_sum"),
+       coef.names=switch(form,max="cyclicweights.max",sum="cyclicweights.sum"),
        inputs=NULL,
        dependence=FALSE)
   

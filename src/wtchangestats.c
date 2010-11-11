@@ -6,21 +6,21 @@
  stat: cyclicweights(_max)
 *****************/
 
-D_CHANGESTAT_FN(d_cyclicweights_max) = d_from_s;
+WtD_FROM_S_FN(d_cyclicweights_max)
 
-S_CHANGESTAT_FN(s_cyclicweights_max) { 
+WtS_CHANGESTAT_FN(s_cyclicweights_max) { 
   Edge e1, e2;
-  Vertex h, t, change, node3;
+  Vertex h, t, node3;
   
-  change=0;
+  CHANGE_STAT[0]=0;
   for (h=1; h <= N_NODES; h++) {
-    STEP_THROUGH_OUTEDGES(h, e1, t) {
+    EXEC_THROUGH_FOUTEDGES(h, e1, t, {
       double best_path = 0;
-      STEP_THROUGH_OUTEDGES(t, e2, node3) { 
+      EXEC_THROUGH_OUTEDGES(t, e2, node3, { 
 	best_path = fmax(best_path, fmin(GETWT(node3,h),GETWT(t,node3)));
-      }
+	})
       CHANGE_STAT[0] += fmin(best_path, GETWT(h,t));
-    }
+      })
   }
 }
 
@@ -28,25 +28,25 @@ S_CHANGESTAT_FN(s_cyclicweights_max) {
  stat: cyclicweights(_sum)
 *****************/
 
-D_CHANGESTAT_FN(d_cyclicweights_sum) = d_from_s;
+WtD_FROM_S_FN(d_cyclicweights_sum)
 
-S_CHANGESTAT_FN(s_cyclicweights_sum) { 
+WtS_CHANGESTAT_FN(s_cyclicweights_sum) { 
   Edge e1, e2;
-  Vertex h, t, change, node3;
+  Vertex h, t, node3;
   
-  change=0;
+  CHANGE_STAT[0]=0;
   for (h=1; h <= N_NODES; h++) {
-    STEP_THROUGH_OUTEDGES(h, e1, t) {
+    EXEC_THROUGH_FOUTEDGES(h, e1, t, {
       double path_strength = 0;
-      STEP_THROUGH_OUTEDGES(t, e2, node3) { 
+      EXEC_THROUGH_OUTEDGES(t, e2, node3, { 
 	path_strength += fmin(GETWT(node3,h),GETWT(t,node3));
-      }
+	})
       CHANGE_STAT[0] += fmin(path_strength, GETWT(h,t));
-    }
+      })
   }
 }
 
-/********************  changestats:   N    ***********/
+/********************  changestats:   M    ***********/
 
 /*****************
  stat: mutualweights
@@ -127,21 +127,21 @@ WtD_CHANGESTAT_FN(d_sum) {
  stat: transitiveweights(_max)
 *****************/
 
-D_CHANGESTAT_FN(d_transitiveweights_max) = d_from_s;
+WtD_FROM_S_FN(d_transitiveweights_max)
 
-S_CHANGESTAT_FN(s_transitiveweights_max) { 
+WtS_CHANGESTAT_FN(s_transitiveweights_max) { 
   Edge e1, e2;
-  Vertex h, t, change, node3;
+  Vertex h, t, node3;
   
-  change=0;
+  CHANGE_STAT[0]=0;
   for (h=1; h <= N_NODES; h++) {
-    STEP_THROUGH_OUTEDGES(h, e1, t) {
+    EXEC_THROUGH_FOUTEDGES(h, e1, t, {
       double best_path = 0;
-      STEP_THROUGH_INEDGES(t, e2, node3) { 
+      EXEC_THROUGH_INEDGES(t, e2, node3, { 
 	best_path = fmax(best_path, fmin(GETWT(h,node3),GETWT(node3,t)));
-      }
+	})
       CHANGE_STAT[0] += fmin(best_path, GETWT(h,t));
-    }
+      })
   }
 }
 
@@ -149,20 +149,20 @@ S_CHANGESTAT_FN(s_transitiveweights_max) {
  stat: transitiveweights(_sum)
 *****************/
 
-D_CHANGESTAT_FN(d_transitiveweights_sum) = d_from_s;
+WtD_FROM_S_FN(d_transitiveweights_sum)
 
-S_CHANGESTAT_FN(s_transitiveweights_sum) { 
+WtS_CHANGESTAT_FN(s_transitiveweights_sum) { 
   Edge e1, e2;
-  Vertex h, t, change, node3;
+  Vertex h, t, node3;
   
-  change=0;
+  CHANGE_STAT[0]=0;
   for (h=1; h <= N_NODES; h++) {
-    STEP_THROUGH_OUTEDGES(h, e1, t) {
+    EXEC_THROUGH_FOUTEDGES(h, e1, t, {
       double path_strength = 0;
-      STEP_THROUGH_INEDGES(t, e2, node3) { 
+      EXEC_THROUGH_INEDGES(t, e2, node3, { 
 	path_strength += fmin(GETWT(h,node3),GETWT(node3,t));
-      }
+	})
       CHANGE_STAT[0] += fmin(path_strength, GETWT(h,t));
-    }
+      })
   }
 }
