@@ -19,6 +19,21 @@ typedef struct WtModelTermstruct {
  Macros to make life easier                         *
  Note:  These things still need to be documented    */ 
 
+#define IS_OUTEDGE(a,b) (EdgetreeSearch((a),(b),nwp->outedges)!=0?1:0)
+#define IS_INEDGE(a,b) (EdgetreeSearch((a),(b),nwp->inedges)!=0?1:0)
+#define IS_UNDIRECTED_EDGE(a,b) IS_OUTEDGE(MIN(a,b), MAX(a,b))
+#define MIN_OUTEDGE(a) (EdgetreeMinimum(nwp->outedges, (a)))
+#define MIN_INEDGE(a) (EdgetreeMinimum(nwp->inedges, (a)))
+#define NEXT_OUTEDGE(e) (EdgetreeSuccessor(nwp->outedges,(e)))
+#define NEXT_INEDGE(e) (EdgetreeSuccessor(nwp->inedges,(e)))
+#define OUTVAL(e) (nwp->outedges[(e)].value)
+#define INVAL(e) (nwp->inedges[(e)].value)
+#define TOGGLE(a,b) (ToggleEdge((a),(b),nwp));
+#define TOGGLE_DISCORD(a,b) (ToggleEdge((a),(b),nwp+1));
+
+#define STEP_THROUGH_OUTEDGES(a,e,v) for((e)=MIN_OUTEDGE(a);((v)=OUTVAL(e))!=0;(e)=NEXT_OUTEDGE(e))
+#define STEP_THROUGH_INEDGES(a,e,v) for((e)=MIN_INEDGE(a);((v)=INVAL(e))!=0;(e)=NEXT_INEDGE(e))
+
 #define GETWT(h,t) (WtGetEdge(h,t,nwp))
 #define SETWT(h,t,w) (WtSetEdge(h,t,w,nwp))
 #define N_NODES (nwp->nnodes)
@@ -37,10 +52,13 @@ typedef struct WtModelTermstruct {
 // The idea here is to essentially swap the contents of the proposed
 // weights with the current weights, and then swap them back when
 // done.
-#define GETOLDWT(a) oldwt=GETWT(heads[(a)],tails[(a)])
 #define OLDWT oldwt
-#define SETWT_IF_MORE_TO_COME(a) {if((a)+1<ntoggles) {SETWT(heads[(a)],tails[(a)],weights[(a)]); weights[(a)]=oldwt;}}
-#define UNDO_PREVIOUS_SETWTS(a) (a)--; while(--(a)>=0){oldwt=GETWT(heads[(a)],tails[(a)]); SETWT(heads[(a)],tails[(a)],weights[(a)]); weights[(a)]=oldwt; }
+#define GETOLDWT(a) OLDWT=GETWT(heads[(a)],tails[(a)])
+
+#define SETWT_WITH_BACKUP(a) {SETWT(heads[(a)],tails[(a)],weights[(a)]); weights[(a)]=OLDWT;}
+#define UNDO_SETWT(a) {GETOLDWT(a); SETWT(heads[(a)],tails[(a)],weights[(a)]); weights[(a)]=OLDWT;}
+#define SETWT_IF_MORE_TO_COME(a) {if((a)+1<ntoggles) {SETWT_WITH_BACKUP}}
+#define UNDO_PREVIOUS_SETWTS(a) (a)--; while(--(a)>=0){UNDO_SETWT}
 
 /****************************************************/
 /* changestat function prototypes, 
@@ -48,4 +66,6 @@ typedef struct WtModelTermstruct {
 #define WtD_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *heads, Vertex *tails, double *weights, WtModelTerm *mtp, WtNetwork *nwp)
 #define WtT_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)
 #define WtS_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)              
+
+WtD_CHANGESTAT_FN(d_from_s);
 #endif
