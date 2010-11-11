@@ -5,18 +5,19 @@
  changestat: d_absdiff
 *****************/
 D_CHANGESTAT_FN(d_absdiff) { 
-  double change;
+  double change, p;
   Vertex h, t;
   int i;
 
-  CHANGE_STAT[0] = 0.0;
+  ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
     h = heads[i]; 
     t = tails[i];
-    if(INPUT_ATTRIB[0]==1){
+    p = INPUT_ATTRIB[0];
+    if(p==1.0){
       change = fabs(INPUT_ATTRIB[h] - INPUT_ATTRIB[t]);
-    }else{
-      change = pow(fabs(INPUT_ATTRIB[h] - INPUT_ATTRIB[t]),INPUT_ATTRIB[0]);
+    } else {
+      change = pow(fabs(INPUT_ATTRIB[h] - INPUT_ATTRIB[t]), p);
     }
     CHANGE_STAT[0] += IS_OUTEDGE(h,t) ? -change : change;
     TOGGLE_IF_MORE_TO_COME(i); /* Needed in case of multiple toggles */
