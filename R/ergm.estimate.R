@@ -179,8 +179,8 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     model$etamap$theta0 <- theta0
     
     loglikelihoodfn.trust<-function(trustregion=20, ...){
-      value<-loglikelihoodfn(trustregion=20, ...)
-      grad<-gradientfn(trustregion=20, ...)
+      value<-loglikelihoodfn(trustregion=trustregion, ...)
+      grad<-gradientfn(trustregion=trustregion, ...)
       hess<-Hessianfn(...)
       hess[upper.tri(hess)]<-t(hess)[upper.tri(hess)]
 #      print(value)
