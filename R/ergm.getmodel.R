@@ -1,4 +1,4 @@
-ergm.getmodel <- function (formula, nw, silent=FALSE, ...,stergm.order=NULL) {
+ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, ...,stergm.order=NULL) {
   # Parse the formula, create an object of class "model.ergm" that contains
   # all relevant information about the model.  As part of this job, call the
   # appropriate InitErgm functions.
@@ -19,6 +19,10 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, ...,stergm.order=NULL) {
                       offset = NULL,
                       terms = NULL, networkstats.0 = NULL, etamap = NULL),
                  class = "model.ergm")
+
+  termroot<-if(is.null(response)) "InitErgm" else "InitWtErgm"
+
+  
   for (i in 1:length(v)) {
     if (is.call(v[[i]])) { # This term has some arguments
       if(v[[i]][[1]] == "offset"){
@@ -33,15 +37,15 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, ...,stergm.order=NULL) {
       }
       args=v[[i]]
       args[[1]] = as.name("list")
-      fname <- paste("InitErgmTerm.", v[[i]][[1]], sep = "")
+      fname <- paste(termroot,"Term.", v[[i]][[1]], sep = "")
       newInitErgm <- exists(fname, env=formula.env, mode="function")
       v[[i]][[1]] <- as.name(ifelse (newInitErgm, fname, 
-                                     paste("InitErgm.", v[[i]][[1]], sep = "")))
+                                     paste(termroot,".", v[[i]][[1]], sep = "")))
     } else { # This term has no arguments
-      fname <- paste("InitErgmTerm.", v[[i]], sep = "")
+      fname <- paste(termroot,"Term.", v[[i]], sep = "")
       newInitErgm <- exists(fname, env=formula.env, mode="function")
       v[[i]] <- call(ifelse (newInitErgm, fname, 
-                             paste("InitErgm.", v[[i]], sep = "")))
+                             paste(termroot,".", v[[i]], sep = "")))
       model$offset <- c(model$offset,FALSE)
       args=list()
     }
@@ -51,7 +55,7 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, ...,stergm.order=NULL) {
       v[[i]][[3]] <- model
       names(v[[i]])[3] <- ""
       v[[i]][[4]] <- args
-      dotdotdot <- list(...)
+      dotdotdot <- c(list(response=response), list(...))
       for(j in seq_along(dotdotdot)) {
         if(is.null(dotdotdot[[j]])) next
         v[[i]][[4+j]] <- dotdotdot[[j]]
@@ -60,8 +64,8 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, ...,stergm.order=NULL) {
       # The above steps are preparing the way to make the function call
       # InitErgm.xxxx(g, m, args, ...)
       if(!exists(as.character(v[[i]][[1]]),env=formula.env, mode="function")){
-        stop("The term ", substring(as.character(v[[i]][[1]]),first=10),
-             " does not exist. Are you sure you have the right name?\n",
+        stop("The term ", substring(as.character(v[[i]][[1]]),first=nchar(termroot)+2),
+             " does not exist for this type of ERGM. Are you sure you have the right name?\n",
              call. = FALSE)
       }
       if(silent){
@@ -76,7 +80,7 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, ...,stergm.order=NULL) {
       names(v[[i]])[2] <-  ""
       v[[i]][[3]] <- args
       names(v[[i]])[3] <- ""
-      dotdotdot <- list(...)
+      dotdotdot <- c(list(response=response),list(...))
       for(j in seq_along(dotdotdot)) {
         if(is.null(dotdotdot[[j]])) next
         v[[i]][[3+j]] <- dotdotdot[[j]]

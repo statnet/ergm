@@ -50,13 +50,13 @@ typedef struct WtModelTermstruct {
 #define STEP_THROUGH_INEDGES(a,e,v) for((e)=MIN_INEDGE(a);((v)=INVAL(e))!=0;(e)=NEXT_INEDGE(e))
 
 // Also execute for each edge, automatically adapting to undirected networks.
-#define EXEC_THROUGH_OUTEDGES(a,e,v,torun) if(DIRECTED){ STEP_THROUGH_OUTEDGES(a,e,v) {torun} } else EXEC_THROUGH_EDGES(a,e,v,torun)
-#define EXEC_THROUGH_INEDGES(a,e,v,torun) if(DIRECTED){ STEP_THROUGH_INEDGES(a,e,v) {torun} } else EXEC_THROUGH_EDGES(a,e,v,torun)
-#define EXEC_THROUGH_EDGES(a,e,v,torun) STEP_THROUGH_OUTEDGES(a,e,v) {torun}  STEP_THROUGH_INEDGES(a,e,v) {torun} 
+#define EXEC_THROUGH_OUTEDGES(a,e,v,subroutine) if(DIRECTED){ STEP_THROUGH_OUTEDGES(a,e,v) {subroutine} } else EXEC_THROUGH_EDGES(a,e,v,subroutine)
+#define EXEC_THROUGH_INEDGES(a,e,v,subroutine) if(DIRECTED){ STEP_THROUGH_INEDGES(a,e,v) {subroutine} } else EXEC_THROUGH_EDGES(a,e,v,subroutine)
+#define EXEC_THROUGH_EDGES(a,e,v,subroutine) STEP_THROUGH_OUTEDGES(a,e,v) {subroutine}  STEP_THROUGH_INEDGES(a,e,v) {subroutine} 
 
-// Non-adaptive versions.
-#define EXEC_THROUGH_FOUTEDGES(a,e,v,torun) STEP_THROUGH_OUTEDGES(a,e,v) torun 
-#define EXEC_THROUGH_FINEDGES(a,e,v,torun) STEP_THROUGH_INEDGES(a,e,v) torun  
+// Non-adaptive versions. (I.e. ForceOUT/INEDGES.)
+#define EXEC_THROUGH_FOUTEDGES(a,e,v,subroutine) STEP_THROUGH_OUTEDGES(a,e,v) {subroutine}
+#define EXEC_THROUGH_FINEDGES(a,e,v,subroutine) STEP_THROUGH_INEDGES(a,e,v) {subroutine}
 
 
 
