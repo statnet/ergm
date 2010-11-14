@@ -182,6 +182,7 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
 
 
   if (verbose) cat("Fitting initial model.\n")
+  if(reference!="Bernoulli" && theta0=="MPLE") stop("MPLE initial values are not implemented for weithed network ERGMs. Please specify theta0 manually.")
   theta0copy <- theta0
   initialfit <- ergm.initialfit(theta0=theta0copy, MLestimate=MLestimate, 
                                 formula=formula, nw=nwm, meanstats=meanstats,
