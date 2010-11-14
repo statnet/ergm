@@ -13,10 +13,12 @@ WtD_CHANGESTAT_FN(d_mutualweights_min);
 WtD_CHANGESTAT_FN(d_mutualweights_nabsdiff);
 
 /********************  changestats:   N    ***********/
+D_CHANGESTAT_FN(d_nodefactor_wt);
 WtD_CHANGESTAT_FN(d_nonzero);
 
 /********************  changestats:   S    ***********/
 WtD_CHANGESTAT_FN(d_sum);
+WtD_CHANGESTAT_FN(d_nsumlogfactorial);
 
 /********************  changestats:   T    ***********/
 WtD_CHANGESTAT_FN(d_transitiveweighs_max); WtS_CHANGESTAT_FN(s_transitiveweights_max);

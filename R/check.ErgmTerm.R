@@ -33,6 +33,7 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL,
     message <- paste("networks with bipartite", 
                      ifelse(bnw>0, " > 0", "==FALSE"), sep="")
   }
+
   if (!is.null(message)) {
     stop(paste("The ERGM term",fname,"may not be used with",message))
   }
@@ -119,7 +120,7 @@ check.ErgmTerm.summarystats <- function(nw, arglist, ...) {
   Initfn <- get(fname,envir=.GlobalEnv)
   outlist <- Initfn(nw, arglist, drop=FALSE, ...)
   m <- updatemodel.ErgmTerm(list(), outlist)
-  gs <- ergm.getglobalstats(nw, m)
+  gs <- ergm.getglobalstats(nw, m, response=list(...)[["response"]])
 }
 
 # Search back in time through sys.calls() to find the name of the last
@@ -132,11 +133,11 @@ get.InitErgm.fname <- function() {
     i <- i-1
     fname <- as.character(sc[[i]][1])
     listofnames <- c(listofnames, fname)
-    if (substring(fname,1,8)=="InitErgm") {
+    if (substring(fname,1,8)=="InitErgm" || substring(fname,1,10)=="InitWtErgm") {
       return(fname)
     }
   }
-  # Didn't find InitErgm... in the list of functions
+  # Didn't find Init[Wt]Ergm... in the list of functions
   return(NULL)
 }
 

@@ -85,10 +85,10 @@ typedef struct WtModelTermstruct {
 WtD_CHANGESTAT_FN(d_from_s);
 // This could be done more efficiently (saving a function call) 
 // by assigning a function pointer as follows:
- #define WtD_FROM_S_FN(a) WtD_CHANGESTAT_FN(*a)=d_from_s;
+// #define WtD_FROM_S_FN(a) WtD_CHANGESTAT_FN(*a)=d_from_s;
 // However, it looks like it might confuse the function finding routines.
 // In the future, it might be a good idea to have the initialization
 // code autodetect when D_ function is not found, but S_ function is, and set it properly.
-//#define WtD_FROM_S_FN(a) WtD_CHANGESTAT_FN(a){ d_from_s(ntoggles, heads, tails, weights, mtp, nwp); }
+#define WtD_FROM_S_FN(a) WtD_CHANGESTAT_FN(a){ d_from_s(ntoggles, heads, tails, weights, mtp, nwp); }
 
 #endif
