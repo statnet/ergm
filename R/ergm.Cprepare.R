@@ -20,8 +20,12 @@ ergm.Cprepare <- function(nw, m, response=NULL)
     Clist$weights<-as.numeric(NULL)
   }else{
     if(!is.matrix(e)){e <- matrix(e, ncol=2+!is.null(response))}
+
+    ## Delete 0 edges.
+    if(!is.null(response)) e<-e[e[,3]!=0,]
+    
     Clist$nedges<-dim(e)[1]
-    # Ensure that for undirected networks, head<tail.
+    ## Ensure that for undirected networks, head<tail.
     if(dir){
       Clist$heads<-e[,1]
       Clist$tails<-e[,2]
