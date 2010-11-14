@@ -43,7 +43,11 @@ summary.statistics.network <- function(object,...,drop=FALSE, basis=NULL) {
     trms <- terms(formula)
     if(length(trms)>2){
       parent <- sys.parent()
-      nw <- ergm.getnetwork(formula)
+      nw <- try(eval(trms[[2]],parent), silent = TRUE)
+      while(inherits(nw,"try-error") & parent > 1){
+        parent <- parent - 1
+        nw <- try(eval(trms[[2]],parent), silent = TRUE)
+      }
       if (inherits(nw, "try-error")) {
         stop(trms[[2]], " is not a network or network.series object")
       }
