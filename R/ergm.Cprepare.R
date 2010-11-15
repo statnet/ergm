@@ -22,7 +22,7 @@ ergm.Cprepare <- function(nw, m, response=NULL)
     if(!is.matrix(e)){e <- matrix(e, ncol=2+!is.null(response))}
 
     ## Delete 0 edges.
-    if(!is.null(response)) e<-e[e[,3]!=0,]
+    if(!is.null(response)) e<-e[e[,3]!=0,,drop=FALSE]
     
     Clist$nedges<-dim(e)[1]
     ## Ensure that for undirected networks, head<tail.
