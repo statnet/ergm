@@ -65,7 +65,7 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL,
                      name, "argument"), call.=FALSE)
         }
         # valid name match with mth variable if we got to here
-        if (!eval(call(paste("is.",vartypes[m],sep=""),arglist[[i]]))) {
+        if (all(sapply(strsplit(vartypes[m],",",fixed=TRUE)[[1]], function(vartype) !eval(call(paste("is.",vartype,sep=""),arglist[[i]]))))) {
           # Wrong type
           stop(paste(name, "argument to", fname, "model term is not of",
                      "the expected", vartypes[m], "type"), call.=FALSE)
