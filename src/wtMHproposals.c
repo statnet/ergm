@@ -10,7 +10,7 @@
 
  Default MH algorithm for Poisson-reference ERGM
 *********************/
-void MH_Poisson (WtMHproposal *MHp, WtNetwork *nwp)  {  
+void MH_Poisson(WtMHproposal *MHp, WtNetwork *nwp)  {  
   Vertex head, tail;
   double oldwt, inc;
   int fvalid, trytoggle;
@@ -50,4 +50,31 @@ void MH_Poisson (WtMHproposal *MHp, WtNetwork *nwp)  {
   MHp->ratio *= inc>0 ? 1.0/Mweight[0] : oldwt;
   }
   
+}
+
+/*********************
+ void MH_CompleteOrdering
+
+ Default MH algorithm for ERGM over complete orderings
+*********************/
+void MH_CompleteOrdering(WtMHproposal *MHp, WtNetwork *nwp)  {  
+  Vertex head, tail1, tail2;
+  double oldwt, inc;
+  int fvalid, trytoggle;
+  
+  if(MHp->ntoggles == 0) { // Initialize Poisson 
+    MHp->ntoggles=2;
+    return;
+  }
+  
+  head = 1 + unif_rand() * nwp->nnodes;
+  while((tail1 = 1 + unif_rand() * nwp->nnodes) == head);
+  while((tail2 = 1 + tail1 + unif_rand() * (nwp->nnodes - tail1)) == head);
+
+  Mhead[0] = Mhead[1] = head;
+  Mtail[0] = tail1;
+  Mtail[1] = tail2;
+  
+  Mweight[1] = WtGetEdge(Mhead[0],Mtail[0],nwp);
+  Mweight[0] = WtGetEdge(Mhead[1],Mtail[1],nwp);
 }

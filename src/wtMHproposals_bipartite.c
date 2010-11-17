@@ -9,7 +9,7 @@
 
  Default MH algorithm for Poisson-reference ERGM
 *********************/
-void MH_BipartitePoisson (WtMHproposal *MHp, WtNetwork *nwp)  {  
+void MH_BipartitePoisson(WtMHproposal *MHp, WtNetwork *nwp)  {  
   Vertex head, tail;
   double oldwt, inc;
   int fvalid, trytoggle;
@@ -20,10 +20,8 @@ void MH_BipartitePoisson (WtMHproposal *MHp, WtNetwork *nwp)  {
   }
   MHp->ratio = 1.0;
   
-  head = 1 + unif_rand() * nwp->nnodes;
   Mhead[0] = 1 + unif_rand() * nwp->bipartite;
-  Mtail[0] = 1 + nwp->bipartite + 
-    unif_rand() * (nwp->nnodes - nwp->bipartite);
+  Mtail[0] = 1 + nwp->bipartite + unif_rand() * (nwp->nnodes - nwp->bipartite);
 
   oldwt = WtGetEdge(Mhead[0],Mtail[0],nwp);
 
@@ -43,4 +41,28 @@ void MH_BipartitePoisson (WtMHproposal *MHp, WtNetwork *nwp)  {
     MHp->ratio = inc>0 ? 1.0/Mweight[0] : oldwt;
   }
   
+}
+
+/*********************
+ void MH_CompleteOrderingBipartite
+
+ Default MH algorithm for ERGM over complete orderings
+*********************/
+void MH_CompleteOrderingBipartite(WtMHproposal *MHp, WtNetwork *nwp)  {  
+  Vertex head, tail1, tail2;
+  double oldwt, inc;
+  int fvalid, trytoggle;
+  
+  if(MHp->ntoggles == 0) { // Initialize Poisson 
+    MHp->ntoggles=2;
+    return;
+  }
+    
+  
+  Mhead[0] = Mhead[1] = 1 + unif_rand() * nwp->bipartite;
+  Mtail[0] = 1 + nwp->bipartite + unif_rand() * (nwp->nnodes - nwp->bipartite);
+  Mtail[1] = 1 + Mtail[0] + unif_rand() * (nwp->nnodes - Mtail[0]);
+  
+  Mweight[1] = WtGetEdge(Mhead[0],Mtail[0],nwp);
+  Mweight[0] = WtGetEdge(Mhead[1],Mtail[1],nwp);
 }
