@@ -21,30 +21,6 @@ WtD_CHANGESTAT_FN(d_atleast) {
 /********************  changestats:   C    ***********/
 
 /*****************
- stat: cyclicweights(_threshold)
-*****************/
-
-WtD_FROM_S_FN(d_cyclicweights)
-
-WtS_CHANGESTAT_FN(s_cyclicweights) { 
-  Edge e1, e2;
-  Vertex h, t, node3;
-  
-  CHANGE_STAT[0]=0;
-  for (h=1; h <= N_NODES; h++) {
-    EXEC_THROUGH_FOUTEDGES(h, e1, t, {
-	if(GETWT(h,t)<=INPUT_ATTRIB[0]) break;
-	EXEC_THROUGH_OUTEDGES(t, e2, node3, { 
-	    if(GETWT(node3,h)>INPUT_ATTRIB[0] && GETWT(t,node3)>INPUT_ATTRIB[0]){
-	      CHANGE_STAT[0]++; 
-	      break;
-	    }
-	  })
-	  })
-      }
-}
-
-/*****************
  stat: cyclicweights(_max)
 *****************/
 
@@ -88,6 +64,31 @@ WtS_CHANGESTAT_FN(s_cyclicweights_sum) {
   }
 }
 
+/*****************
+ stat: cyclicweights(_threshold)
+*****************/
+
+WtD_FROM_S_FN(d_cyclicweights_threshold)
+
+WtS_CHANGESTAT_FN(s_cyclicweights_threshold) { 
+  Edge e1, e2;
+  Vertex h, t, node3;
+  
+  CHANGE_STAT[0]=0;
+  for (h=1; h <= N_NODES; h++) {
+    EXEC_THROUGH_FOUTEDGES(h, e1, t, {
+	if(GETWT(h,t)<=INPUT_ATTRIB[0]) break;
+	EXEC_THROUGH_OUTEDGES(t, e2, node3, { 
+	    if(GETWT(node3,h)>INPUT_ATTRIB[0] && GETWT(t,node3)>INPUT_ATTRIB[0]){
+	      CHANGE_STAT[0]++; 
+	      break;
+	    }
+	  })
+	  })
+      }
+}
+
+
 /********************  changestats:   G    ***********/
 
 /*****************
@@ -128,23 +129,6 @@ WtD_CHANGESTAT_FN(d_ininterval) {
 /********************  changestats:   M    ***********/
 
 /*****************
- stat: mutual (thresholded)
-*****************/
-WtD_CHANGESTAT_FN(d_mutual_wt_threshold){
-  double change, OLDWT, thweight;
-  int i;
-  
-  ZERO_ALL_CHANGESTATS(i);
-  FOR_EACH_TOGGLE(i){
-    GETOLDWT(i);
-    thweight = GETWT(tails[i],heads[i]);
-    CHANGE_STAT[0] +=  (weights[i]>INPUT_ATTRIB[0]&&thweight>INPUT_ATTRIB[0]? 1:0) - (OLDWT>INPUT_ATTRIB[0]&&thweight>INPUT_ATTRIB[0]? 1:0);
-    SETWT_IF_MORE_TO_COME(i);
-  }
-  UNDO_PREVIOUS_SETWTS(i);
-}
-
-/*****************
  stat: mutual (minimum)
 *****************/
 WtD_CHANGESTAT_FN(d_mutual_wt_min){
@@ -177,7 +161,6 @@ WtD_CHANGESTAT_FN(d_mutual_wt_nabsdiff){
   }
   UNDO_PREVIOUS_SETWTS(i);
 }
-
 
 /********************  changestats:   N    ***********/
 
@@ -263,31 +246,6 @@ WtD_CHANGESTAT_FN(d_sum) {
 /********************  changestats:   T    ***********/
 
 /*****************
- stat: transitiveweights (threshold)
-*****************/
-
-WtD_FROM_S_FN(d_transitiveweights)
-
-WtS_CHANGESTAT_FN(s_transitiveweights) { 
-  Edge e1, e2;
-  Vertex h, t, node3;
-  
-  CHANGE_STAT[0]=0;
-  for (h=1; h <= N_NODES; h++) {
-    EXEC_THROUGH_FOUTEDGES(h, e1, t, {
-	if(GETWT(h,t)<=INPUT_ATTRIB[0]) break;
-	EXEC_THROUGH_INEDGES(t, e2, node3, { 
-	    if(GETWT(h,node3)>INPUT_ATTRIB[0] && GETWT(node3,t)>INPUT_ATTRIB[0]){
-	      CHANGE_STAT[0]++; 
-	      break;
-	    }
-	  })
-	  })
-      }
-}
-
-
-/*****************
  stat: transitiveweights(_max)
 *****************/
 
@@ -330,3 +288,28 @@ WtS_CHANGESTAT_FN(s_transitiveweights_sum) {
       })
   }
 }
+
+/*****************
+ stat: transitiveweights (threshold)
+*****************/
+
+WtD_FROM_S_FN(d_transitiveweights_threshold)
+
+WtS_CHANGESTAT_FN(s_transitiveweights_threshold) { 
+  Edge e1, e2;
+  Vertex h, t, node3;
+  
+  CHANGE_STAT[0]=0;
+  for (h=1; h <= N_NODES; h++) {
+    EXEC_THROUGH_FOUTEDGES(h, e1, t, {
+	if(GETWT(h,t)<=INPUT_ATTRIB[0]) break;
+	EXEC_THROUGH_INEDGES(t, e2, node3, { 
+	    if(GETWT(h,node3)>INPUT_ATTRIB[0] && GETWT(node3,t)>INPUT_ATTRIB[0]){
+	      CHANGE_STAT[0]++; 
+	      break;
+	    }
+	  })
+	  })
+      }
+}
+
