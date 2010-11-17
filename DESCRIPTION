@@ -1,6 +1,6 @@
 Package: ergm
-Version: 2.3-10969-2010.11.15-00.33.28
-Date: 2010-11-15
+Version: 2.3-10969-10971.1-2010.11.17-15.15.34
+Date: 2010-11-17
 Title:  Fit, Simulate and Diagnose Exponential-Family Models for Networks
 Author: Mark S. Handcock <handcock@stat.ucla.edu>,
         David R. Hunter <dhunter@stat.psu.edu>,
