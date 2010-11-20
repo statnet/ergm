@@ -57,7 +57,10 @@ MHproposals<-
           c("dmle", "bd",         "Bernoulli",            "default",      "dissolutionMLE"),
           c("dmle", "bd",         "Bernoulli",            "random",       "dissolutionMLE"),
           c("c", "",              "Poisson",  "default",      "Poisson"),
-          c("c", "",              "Poisson",  "random",       "Poisson")
+          c("c", "",              "Poisson",  "random",       "Poisson"),
+          c("c", "",              "DescRank",  "default",      "DescRank"),
+          c("c", "",              "DescRank",  "random",       "DescRank")
+
         )
 MHproposals <- data.frame(I(MHproposals[,1]), I(MHproposals[,2]), 
                           I(MHproposals[,3]), I(MHproposals[,4]),

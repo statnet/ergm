@@ -25,22 +25,23 @@ void MH_BipartitePoisson(WtMHproposal *MHp, WtNetwork *nwp)  {
 
   oldwt = WtGetEdge(Mhead[0],Mtail[0],nwp);
 
-  // If we can, decrement with probability 1/2. Otherwise, increment.
-  inc = (unif_rand()<0.5) ? +1 : -1;
+  if(oldwt==0){
+    // Starting with 0, can only incremement, but must adjust MH ratio.
+    inc = +1;
+    MHp->ratio *= 0.5;
+  }else{
+    // Choose whether to increment or to decrement.
+    inc = (unif_rand()<0.5) ? +1 : -1;
+  }
 
-  Mweight[0]=oldwt + inc;
+  // If going from 1 to 0, adjust the MH ratio for the forced increment.
+  if(oldwt==1 && inc==-1) MHp->ratio *= 2;
   
-  // If the proposed weight is outside of the support, automatically
-  // reject the proposal.
-  if(Mweight[0]<0){
-    MHp->ratio=0;
-  }
-  else{
-    // Multiply the acceptance ratio by the ratio of reference measures.
+  Mweight[0]= oldwt + inc;
+  
+  // Multiply the acceptance ratio by the ratio of reference measures.
   // This is y!/(y+1)! if incrementing and y!/(y-1)! if decrementing.
-    MHp->ratio = inc>0 ? 1.0/Mweight[0] : oldwt;
-  }
-  
+  MHp->ratio *= inc>0 ? 1.0/Mweight[0] : oldwt;  
 }
 
 /*********************
