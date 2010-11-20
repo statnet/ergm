@@ -97,10 +97,10 @@ InitWtErgmTerm.sum<-function(nw, arglist, response, drop=TRUE, ...) {
 InitWtErgmTerm.nodefactor<-function (nw, arglist, response, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, 
-                      varnames = c("attrname", "base"),
-                      vartypes = c("character", "numeric"),
-                      defaultvalues = list(NULL, 1),
-                      required = c(TRUE, FALSE))
+                      varnames = c("attrname", "base","form"),
+                      vartypes = c("character", "numeric","character"),
+                      defaultvalues = list(NULL, 1, "sum"),
+                      required = c(TRUE, FALSE, FALSE))
   ### Process the arguments
 
   nodecov <-
@@ -130,8 +130,9 @@ InitWtErgmTerm.nodefactor<-function (nw, arglist, response, drop=TRUE, ...) {
   ### Construct the list to return
   inputs <- c(ui, nodecov)
   attr(inputs, "ParamsBeforeCov") <- length(ui) # See comment at top of file R/InitErgmTerm.R
-  list(name="nodefactor_wt",                                        #required
-       coef.names = paste("nodefactor", paste(a$attrname,collapse="."), u, sep="."), #required
+  form<-match.arg(a$form,c("sum","nonzero"))
+  list(name=paste("nodefactor",form,sep="_"),                                        #required
+       coef.names = paste("nodefactor",form, paste(a$attrname,collapse="."), u, sep="."), #required
        inputs = inputs,
        dependence = FALSE # So we don't use MCMC if not necessary
        )

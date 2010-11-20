@@ -166,9 +166,35 @@ WtD_CHANGESTAT_FN(d_mutual_wt_nabsdiff){
 
 
 /*****************
- stat: nodefactor
+ stat: nodefactor (nonzero)
 *****************/
-WtD_CHANGESTAT_FN(d_nodefactor_wt){ 
+WtD_CHANGESTAT_FN(d_nodefactor_nonzero){ 
+  double s, factorval, OLDWT;
+  Vertex h, t;
+  int i, j, hattr, tattr;
+  
+  ZERO_ALL_CHANGESTATS(i);
+  FOR_EACH_TOGGLE(i) {
+    h = heads[i];
+    t = tails[i];
+    GETOLDWT(i);
+    s = (weights[i]!=0) - (OLDWT!=0);
+    hattr = INPUT_ATTRIB[h-1];
+    tattr = INPUT_ATTRIB[t-1];
+    for (j=0; j < N_CHANGE_STATS; j++) {
+      factorval = INPUT_PARAM[j];
+      if (hattr == factorval) CHANGE_STAT[j] += s;
+      if (tattr == factorval) CHANGE_STAT[j] += s;
+    }
+    SETWT_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_SETWTS(i);
+}
+
+/*****************
+ stat: nodefactor (sum)
+*****************/
+WtD_CHANGESTAT_FN(d_nodefactor_sum){ 
   double s, factorval, OLDWT;
   Vertex h, t;
   int i, j, hattr, tattr;
