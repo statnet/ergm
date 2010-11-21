@@ -3,6 +3,7 @@
 
 #include "edgetree.h"
 #include "model.h"
+#include "MHproposal.h"
 
 void network_stats_wrapper(int *heads, int *tails, int *dnedges, 
 			   int *dn, int *dflag,  int *bipartite,

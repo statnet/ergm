@@ -1,4 +1,5 @@
 #include "MPLE.h"
+#include "changestat.h"
 
 /* *****************
  void MPLE_wrapper
@@ -77,9 +78,8 @@ void MPLE_wrapper (int *heads, int *tails, int *dnedges,
     MpleInit_hash(responsevec, covmat, weightsvector, offset, 
 		  compressedOffset, *maxNumDyadTypes, maxMPLE, nw, m); 
   else
-    MpleInit_no_compress(responsevec, covmat, weightsvector, 
-      offset, compressedOffset,
-      *maxNumDyadTypes, maxMPLE, nw, m);
+    MpleInit_no_compress(responsevec, covmat, weightsvector, offset, 
+		  compressedOffset, *maxNumDyadTypes, maxMPLE, nw, m); 
   ModelDestroy(m);
   NetworkDestroy(nw);
   PutRNGstate(); /* Must be called after GetRNGstate before returning to R */

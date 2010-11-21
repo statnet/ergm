@@ -1,8 +1,9 @@
 #ifndef SAN_H
 #define SAN_H
 
-#include "wtedgetree.h"
-#include "changestats.h"
+#include "edgetree.h"
+#include "changestat.h"
+#include "MHproposal.h"
 #include "model.h"
 
 void SAN_wrapper (int *dnumnets, int *nedges,

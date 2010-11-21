@@ -1,4 +1,3 @@
-
 #ifndef EDGETREE_H
 #define EDGETREE_H
 
@@ -85,6 +84,8 @@ void NetworkDestroy(Network *nwp);
 Network NetworkInitializeD(double *heads, double *tails, Edge nedges,
 			   Vertex nnodes, int directed_flag, Vertex bipartite,
 			   int lasttoggle_flag);
+
+Network *NetworkCopy(Network *dest, Network *src);
 
 /* Accessors. */
 Edge EdgetreeSearch (Vertex a, Vertex b, TreeNode *edges);
