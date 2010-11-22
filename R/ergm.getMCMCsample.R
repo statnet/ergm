@@ -78,7 +78,7 @@ ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALS
   } else { 
     ## Post-processing of z$newnwheads and z$newnwtails: Combine into newedgelist
     ## The heads are listed starting at z$newnwheads[2], and similarly for tails.
-    newedgelist <- cbind(z$newnwtails[2:(nedges+1)], z$newnwheads[2:(nedges+1)])
+    newedgelist <- cbind(z$newnwheads[2:(nedges+1)], z$newnwtails[2:(nedges+1)])
   }
 
   ## Post-processing of z$statsmatrix element: coerce to correct-sized matrix
