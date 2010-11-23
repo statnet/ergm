@@ -1,15 +1,48 @@
-#  File ergm/R/ergm.llik.miss.R
-#  Part of the statnet package, http://statnetproject.org
+#==========================================================================
+# This file contains the following 4 functions for calculating
+# log likelihoods when missing data is present
+#          <llik.fun.miss>         <llik.hessian.miss>
+#          <llik.grad.miss>        <llik.fun.miss.robust>
+#=========================================================================
+
+
+
+
+
+###################################################################################
+# Each of the <llik.X.miss> functions computes the log likelihood ratio,
+# l(eta)-l(eta0) for networks that have missing edges; these functions parallel
+# the <llik.X> functions found in <ergm.llik> but are missing-data capable; these
+# are used by the <optim> rountine in <ergm.estimate> 
+# 
 #
-#  This software is distributed under the GPL-3 license.  It is free,
-#  open source, and has the attribution requirements (GPL Section 7) in
-#    http://statnetproject.org/attribution
+# --PARAMETERS--
+#   theta      : the vector of theta parameters; this is only used to solidify
+#                offset coefficients for profile likelihood; the not-offset
+#                terms are given by 'theta0' of the 'etamap'
+#   xobs       : the vector of observed statistics (when passed by <ergm.estimate>
+#                these are the negative mean observed stats)
+#   xsim       : the matrix of simulated ?? statistics (when passed by <ergm.estimate>
+#                this is the mean centered stats matrix)
+#   probs      : the probability weight for each row of the stats matrix
+#   xsim.miss  : the 'xsim' counterpart for missing observations
+#   probs.miss : the 'probs' counterpart for missing observations
+#   varweight  : the weight by which the variance of the base predictions will scaled;
+#                the name of this param was changed from 'penalty' to better reflect
+#                what this parameter actually is; default=0.5, which is the "true" 
+#                weight, in the sense that the lognormal approximation is given by
+#                               sum(xobs * x) - mb - 0.5*vb 
+#   trustregion: the maximum value of the log-likelihood ratio that is trusted;
+#                default=20
+#   eta0       : the initial eta vector
+#   etamap     : the theta -> eta mapping, as returned by <ergm.etamap>
 #
-#  Copyright 2010 the statnet development team
-######################################################################
 #
-#   missing data code
+# --RETURNED--
+#   llr: the log-likelihood ratio of l(eta) - l(eta0)
 #
+####################################################################################
+
 llik.fun.miss <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
                      varweight=0.5, trustregion=20, eta0, etamap){
   theta.offset <- etamap$theta0
@@ -49,6 +82,10 @@ llik.fun.miss <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=N
     return(llr)
   }
 }
+
+
+
+
 llik.grad.miss <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=NULL,
                       varweight=0.5, trustregion=20, eta0, etamap){
   theta.offset <- etamap$theta0
@@ -87,6 +124,8 @@ llik.grad.miss <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss
   llg <- ergm.etagradmult(theta.offset, llg.offset, etamap)
   llg[!etamap$offsettheta]
 }
+
+
 
 llik.hessian.miss <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
                          varweight=0.5, eta0, etamap){
@@ -141,9 +180,17 @@ llik.hessian.miss <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.mi
 # He
   H
 }
+
+
+
+
+
+
 #
 #  robust missing data code
 #
+
+
 llik.fun.miss.robust<- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
                      varweight=0.5, trustregion=20, eta0, etamap){
   theta.offset <- etamap$theta0
@@ -183,4 +230,5 @@ llik.fun.miss.robust<- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.
     return(llr)
   }
 }
+
 llik.fun.miss.robust<- llik.fun.miss 

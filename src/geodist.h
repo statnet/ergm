@@ -1,4 +1,3 @@
-
 #ifndef GEODIST_H
 #define GEODIST_H
 

@@ -1,8 +1,50 @@
-# Search for a maximizer of the loglikelihood function, given a matrix of
-# observed statistics that has already had the "observed statistics" vector
-# subtracted out (i.e., the "observed stats" are assumed to be zero here)
-# and the value of the theta0 vector that produced this matrix of statistics.
-# This function is missing-data capable.
+##################################################################################
+# The <ergm.estimate> function searches for and returns a maximizer of the
+# log-likelihood function. This function is missing-data capable.
+#
+# --PARAMETERS--
+#   theta0          : the vector of theta parameters that produced 'statsmatrix'
+#   model           : the model, as returned by <ergm.getmodel>
+#   statsmatrix     : the matrix of observed statistics that has already had the
+#                     "observed statistics" vector subtracted out (i.e., the
+#                     "observed stats" are assumed to be zero here)
+#   statsmatrix.miss: the corresponding statsmatrix for the missing edges;
+#                     default=NULL
+#   nr.maxit        : the maximum number of iterations to use within the <optim>
+#                     rountine; default=1000
+#   nr.reltol       : the relative tolerance to use within the <optim> rountine;
+#                     default=sqrt(.Machine$double.eps)
+#   metric          : the name of a metric to use, as either "Likelihood",
+#                     "lognormal", "Median.Likelihood", or "EF.Likelihood";
+#                     default="lognormal"
+#   method          : the method to be used by the <optim> routine;
+#                     default="Nelder-Mead"
+#   compress        : whether the matrix of statistics should be compressed
+#                     via <ergm.sufftoprob>; default=FALSE
+#   calc.mcmc.se    : whether to calculate the standard errors induced by the
+#                     MCMC algorithm; default=TRUE
+#   hessainflag     : whether the Hessian matrix of the likelihood function
+#                     should be computed; default=TRUE
+#   verbose         : whether the progress of the estimation should be printed;
+#                     default=FALSE
+#   trace           : a non-negative interger specifying how much tracing
+#                     information should be printed by the <optim> routine;
+#                     default=6*'verbose'
+#   trustregion     : the trust region parameter for the likelihood functions
+#   estimateonly    : whether only the estimates (vs. the estimates and the
+#                     standard errors) should be calculated; default=FALSE
+#
+#
+# --IGNORED PARAMETERS--
+#   epsilon         : ??; default=1e-10
+#
+#
+# --RETURNED--
+#   an ergm object as a list containing several components; for details
+#   see the return list in the <ergm> function header (<ergm.estimate>=^)
+#
+###################################################################################
+
 ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                         epsilon=1e-10, nr.maxit=1000, nr.reltol=sqrt(.Machine$double.eps),
                         metric="lognormal",

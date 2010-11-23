@@ -2,14 +2,14 @@
 #define MODEL_H
 
 #include "edgetree.h"
-#include "changestats.h"
+#include "changestat.h"
 #include "R_ext/Rdynload.h"
 
 /* A Model object contains information about an entire ERGM, including the
    total numbers of terms, parameters, and statistics along with a pointer
    to an array of ModelTerm structures.  */
 typedef struct Modelstruct {
-  ModelTerm *termarray; /* array of size n_terms; see changestats.h
+  ModelTerm *termarray; /* array of size n_terms; see changestat.h
                            for ModelTerm definition */
   int n_terms;
   int n_stats;
@@ -27,26 +27,13 @@ void ModelDestroy(Model *m);
 /* A Model object contains information about an entire ERGM, including the
    total numbers of terms, parameters, and statistics along with a pointer
    to an array of ModelTerm structures.  */
-typedef struct DegreeBoundstruct {
-  int attrcount;
-  int fBoundDegByAttr;
-  int *attribs;
-  int *maxout;
-  int *minout;
-  int *maxin;
-  int *minin;
-} DegreeBound;
-
-DegreeBound* DegreeBoundInitialize(int *attribs, int *maxout, int *maxin, 
-			   int *minout, int *minin, int condAllDegExact, 
-			   int attriblength, Network *nwp);
-
-void DegreeBoundDestroy(DegreeBound *bd);
 
 int GetIndexForAttrValue(int value);
 int ModelTermHamming (char *fnames, int n_terms);
 int ModelTermFormation (char *fnames, int n_terms);
 int ModelTermDissolve (char *fnames, int n_terms);
+
+void ChangeStats(unsigned int ntoggles, Vertex *togglehead, Vertex *toggletail, Network *nwp, Model *m);
 
 #endif
 

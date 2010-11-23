@@ -1,7 +1,50 @@
-# Note:  Former "penalty" argument has been changed to "varweight" to better
-# reflect what it actually is.  The default value of 0.5 is the "true" weight,
-# in the sense that the lognormal approximation is given by
-# sum(xobs * x) - mb - 0.5*vb
+#=================================================================================
+# This file contains the following 14 functions for computing log likelihoods
+#      <llik.fun>            <llik.fun.EF>     <llik.grad3>
+#      <llik.grad>           <llik.fun2>       <llik.info3>
+#      <llik.hessian>        <llik.grad2>      <llik.mcmcvar3>
+#      <llik.hessian.naive>  <llik.hessian2>   <llik.fun.median>
+#      <llik.exp>            <llik.fun3>
+#=================================================================================
+
+
+
+
+###################################################################################
+# Each of the <llik.X> functions computes the log likelihood ratio, l(eta)-l(eta0),
+# to be maximized  by the <optim> rountine in <ergm.estimate>
+# 
+#
+# --PARAMETERS--
+#   theta      : the vector of theta parameters; this is only used to solidify
+#                offset coefficients for profile likelihood; the not-offset
+#                terms are given by 'theta0' of the 'etamap'
+#   xobs       : the vector of observed statistics (when passed by <ergm.estimate>
+#                these are the negative mean observed stats)
+#   xsim       : the matrix of simulated ?? statistics (when passed by <ergm.estimate>
+#                this is the mean centered stats matrix)
+#   probs      : the probability weight for each row of the stats matrix
+#   varweight  : the weight by which the variance of the base predictions will scaled;
+#                the name of this param was changed from 'penalty' to better reflect
+#                what this parameter actually is; default=0.5, which is the "true" 
+#                weight, in the sense that the lognormal approximation is given by
+#                               sum(xobs * x) - mb - 0.5*vb 
+#   trustregion: the maximum value of the log-likelihood ratio that is trusted;
+#                default=20
+#   eta0       : the initial eta vector
+#   etamap     : the theta -> eta mapping, as returned by <ergm.etamap>
+#
+#
+# --IGNORED PARAMETERS--
+#   xsim.miss  : the 'xsim' counterpart for missing observations; default=NULL
+#   probs.miss : the 'probs' counterpart for missing observations; default=NULL
+#
+#
+# --RETURNED--
+#   llr: the log-likelihood ratio of l(eta) - l(eta0)
+#
+####################################################################################
+
 llik.fun <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
                      varweight=0.5, trustregion=20, eta0, etamap){
   theta.offset <- etamap$theta0
@@ -36,6 +79,8 @@ llik.fun <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
   }
 }
 
+
+
 #llik.grad <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=NULL,
 #                      varweight=0.5, trustregion=20, eta0, etamap){
 #  theta.offset <- etamap$theta0
@@ -64,6 +109,8 @@ llik.fun <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
 #  llg <- ergm.etagradmult(theta.offset, llg, etamap)
 #  llg[!etamap$offsettheta]
 #}
+
+
 llik.grad <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=NULL,
                       varweight=0.5, trustregion=20, eta0, etamap){
   theta.offset <- etamap$theta0
@@ -104,6 +151,8 @@ llik.grad <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=NULL
 # print(llg)
   llg[!etamap$offsettheta]
 }
+
+
 
 llik.hessian <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
                          varweight=0.5, trustregion=20, eta0, etamap){
@@ -155,6 +204,8 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NU
   He
 }
 
+
+
 # Use the naive approximation to the Hessian matrix.  
 # Namely, (sum_i w_i g_i)(sum_i w_i g_i)^t - sum_i(w_i g_i g_i^t)
 # where g_i is the ith vector of statistics and
@@ -202,6 +253,10 @@ llik.hessian.naive <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.m
 #   if(is.infinite(llr) | is.na(llr)){llr <- -800}
 #   llr
 # }
+
+
+
+
 llik.fun.EF <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
                      varweight=0.5, trustregion=20, eta0, etamap){
   theta.offset <- etamap$theta0
@@ -241,6 +296,8 @@ llik.fun2 <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
   llr
 }
 
+
+
 llik.grad2 <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
                        varweight=0.5, trustregion=20, eta0, etamap){
   eta <- ergm.eta(theta, etamap)
@@ -261,6 +318,7 @@ llik.grad2 <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL
 
 llik.hessian2 <- llik.hessian
 
+
 ##### New stuff:  (Based on Hunter and Handcock)
 
 llik.fun3 <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL, 
@@ -272,6 +330,8 @@ llik.fun3 <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
   sum(xobs * deta) - maxbase - log(sum(probs*exp(basepred-maxbase)))
 }
 
+
+
 llik.grad3 <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=NULL,
                        varweight=0.5, trustregion=20, eta0, etamap){ #eqn (11)
   eta <- ergm.eta(theta, etamap)
@@ -282,6 +342,7 @@ llik.grad3 <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=NUL
   w <- tmp/sum(tmp)
   ergm.etagradmult (theta, xobs-apply(sweep(xsim,1,w,"*"),2,sum), etamap)
 }
+
 
 
 llik.info3 <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=NULL,
@@ -296,6 +357,7 @@ llik.info3 <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=NUL
 }
 
 
+
 llik.mcmcvar3 <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=NULL,
                           varweight=0.5, eta0, etamap){ #eqn (13) sort of
   eta <- ergm.eta(theta, etamap)
@@ -307,6 +369,8 @@ llik.mcmcvar3 <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=
 # Assuming Z_i independent, eqn (13) becomes
 # \sum_i p_i^2 \left( \frac{\sum_i p_i U_i^2}{[\sum_i p_i U_i]^2} - 1 \right)
 }
+
+
 
 llik.fun.median <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
                      varweight=0.5, trustregion=20, eta0, etamap){

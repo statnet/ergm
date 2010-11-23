@@ -1,3 +1,19 @@
+###############################################################################
+# The <print.network.series> function prints the summary information for the
+# first network in the given series along with the number of networks in the
+# series, and the formula and coefficients associated with the series
+#
+# --PARAMETERS--
+#   x  :  a network.series object
+#   ...:  additional parameters; these will be ignored 
+#   wmt:  which matrix type is used to describe the networks;
+#         default=which.matrix.type(objects$networks[[1]])) 
+#
+# --RETURNED--
+#   the first network in x
+#
+###############################################################################
+
 "print.network.series" <-
   function (x, ..., wmt = which.matrix.type(x$networks[[1]])) 
 {

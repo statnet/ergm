@@ -382,6 +382,7 @@ int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges,
   if ((zptr=edges+z)->left != 0 && zptr->right != 0) {
     z=WtEdgetreeSuccessor(edges, z);
     zptr->value = (ptr=edges+z)->value;
+    zptr->weight = ptr->weight;
     zptr=ptr;
   }
   /* Set x to the child of z (there is at most one). */
@@ -390,6 +391,7 @@ int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges,
   /* Splice out node z */
   if (z == root) {
     zptr->value = (xptr=edges+x)->value;
+    zptr->weight = xptr->weight;
     if (x != 0) {
       if ((zptr->left=xptr->left) != 0)
 	(edges+zptr->left)->parent = z;
@@ -408,6 +410,7 @@ int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges,
   }  
   /* Clear z node, update *next_edge if necessary. */
   zptr->value=0;
+  zptr->weight=0;
   if (z < *next_edge)
     *next_edge=z;
   return 1;

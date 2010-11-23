@@ -1,3 +1,16 @@
+#################################################################
+# The <as.directed> function, rather unituitivetly, takes a
+# network and returns its *undirected* counterpart
+#
+# --PARAMETERS--
+#   x: a network object
+#
+# --RETURNED--
+#   unw: the undirected version of network x if previously directed
+#   x  : if x is already undirected
+#
+#################################################################
+
 as.directed<-function(x){
   if(!is.network(x))
     stop("as.directed requires an argument of class network.\n")

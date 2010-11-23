@@ -1,3 +1,32 @@
+############################################################################
+# The <ergm.stepping> function provides one of the styles of maximum
+# likelihood estimation that can be used. This one is attributed to ?? and
+# uses ?? approach. The other  MLE styles are found in functions <ergm.robmon>
+# <ergm.stocapprox> and <ergm.mainfitloop>
+#
+# --PARAMETERS--
+#   theta0         : the initial theta values
+#   nw             : the network
+#   model          : the model, as returned by <ergm.getmodel>
+#   Clist          : a list of several network and model parameters,
+#                    as returned by <ergm.Cprepare>
+#   initialfit     : an ergm object, as the initial fit
+#   MCMCparams     : a list of parameters for controlling the MCMC sampling
+#   MHproposal     : an MHproposal object for 'nw', as returned by
+#                    <getMHproposal>
+#   MHproposal.miss: an MHproposal object for the missing network of'nw',
+#                    as returned by <getMHproposal>
+#   verbose        : whether the MCMC sampling should be verbose AND
+#                    the diagnostic plots should be printed ; default=FALSE
+#   ...            : additional paramters that are passed onto
+#                    <ergm.estimate>
+#
+# --RETURNED--
+#   v: an ergm object as a list containing several items; for details see
+#      the return list in the <ergm> function header (<ergm.stepping>=@)
+#
+###########################################################################      
+
 ergm.stepping = function(theta0, nw, model, Clist, initialfit, 
                          MCMCparams, MHproposal, MHproposal.miss, 
                          verbose=FALSE, ...){

@@ -1,10 +1,83 @@
-    gof <- function(object, ...){
+#=============================================================================
+# This file contains the following 8 functions for assessing goodness of fit
+#         <gof>              <summary.gofobject>
+#         <gof.default>      <plot.gofobject>
+#         <gof.ergm>         <ergm.get.terms.formula>
+#         <gof.formula>      <ergm.rhs.formula>
+#=============================================================================
+
+
+
+###############################################################################
+# Each of the <gof.X> functions assesses the goodness of fit of X by comparison
+# with 'nsim' ergm simulations of X
+#
+# --PARAMETERS--
+#   object/formula: either an ergm object or a formula
+#   ...           : additional parameters passed from within the program;
+#                   these are ignored
+#   theta0        : the parameters from which the simulations will be drawn;
+#                   default=NULL;
+#   nsim          : the number of simulated ergms, with which to compare X;
+#                   default=100
+#   burnin        : the number of proposals to disregard before any MCMC
+#                   sampling is done; this is passed along to the simulation
+#                   routines; default=10000
+#   interval      : the number of proposals between sampled ergm statistics;
+#                   this is passed along to the simulation rountines;
+#                   default=1000
+#   GOF           : a one-sided formula specifying which summary statistics
+#                   should be used in the GOF comparison; choices include
+#                       distance      espartners    dspartners
+#                       odegree       idegree       degree
+#                       triadcensus   model
+#                   default=~degree+espartners+distance
+#   constraints   : a one-sided formula of the constraint terms; options are
+#                         bd        degrees        nodegrees
+#                         edges     degreedist     indegreedist
+#                         observed  outdegreedist
+#                   default="~ ."   
+#   control       : a list of parameters for controlling GOF evaluation, as
+#                   returned by <control.gof.X>; default=control.gof.X()
+#                   (note that <control.gof.X> has different defaults 
+#                    depending on the class of X)
+#   seed          : an integer value at which to set the random generator;
+#                   default=NULL
+#   verbose       : whether to print information on the progress of the
+#                   simulations; default=FALSE
+#
+# --RETURNED--
+#   returnlist: a list with the following components for each term
+#               G given in 'GOF'
+#      summary.G: a matrix of summary statistics for the observed and
+#                 simulated G's; if G takes on the values {G1, G2,...,Gq},
+#                 the entries of 'summary.G' are
+#         [i,1]-- the observed frequency of Gi
+#         [i,2]-- the minimum value of Gi from the simulations
+#         [i,3]-- the mean value of Gi from the simulations
+#         [i,4]-- the maximum value of Gi from the simulations
+#         [i,5]-- the p-value for the observed Gi estimated from the
+#                 distribution of simulations
+#      pobs.G   : a vector giving G's observed probability distribution
+#      psim.G   : a matrix of G's simulated probability distributions; each
+#                 row gives a distribution
+#      bds.G    : the estimatd confidence interval, as the .025 and .975
+#                 quantile values of the simulations
+#      obs.G    : the vector of summary statistics for the observed X
+#      sim.G    : the matrix of summary statistics for each simulated
+#                 version of X
+#
+###############################################################################
+
+gof <- function(object, ...){
       UseMethod("gof")
     }
+
 
 gof.default <- function(object,...) {
   stop("Either a ergm object, an ergmm object or a formula argument must be given")
 }
+
 
 gof.ergm <- function (object, ..., nsim=100,
                       GOF=~degree+espartners+distance, 
@@ -44,6 +117,8 @@ gof.ergm <- function (object, ..., nsim=100,
               seed=seed,
               verbose=verbose, ...)
 }
+
+
 
 gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
                         burnin=10000, interval=1000,
@@ -505,6 +580,20 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
   returnlist
 }
 
+
+
+################################################################
+# The <print.gofobject> function prints the summary matrices
+# of each GOF term included in the build of the gofobject
+#
+# --PARAMETERS--
+#   x  : a gofobject, as returned by one of the <gof.X> functions
+#   ...: additional printing parameters; these are ignored
+#
+# --RETURNED--
+#   NULL
+#################################################################
+
 print.gofobject <- function(x, ...){
   all.gof.vars <- ergm.rhs.formula(x$GOF)
   # match variables
@@ -531,9 +620,35 @@ print.gofobject <- function(x, ...){
   invisible()
 }
 
+
+
 summary.gofobject <- function(object, ...) {
   print.gofobject(object, ...) # Nothing better for now
 }
+
+
+###################################################################
+# The <plot.gofobject> function plots the GOF diagnostics for each
+# term included in the build of the gofobject
+#
+# --PARAMETERS--
+#   x          : a gofobject, as returned by one of the <gof.X>
+#                functions
+#   ...        : additional par arguments to send to the native R
+#                plotting functions
+#   cex.axis   : the magnification of the text used in axis notation;
+#                default=0.7
+#   plotlogodds: whether the summary results should be presented
+#                as their logodds; default=FALSE
+#   main       : the main title; default="Goodness-of-fit diagnostics"
+#   verbose    : this parameter is ignored; default=FALSE
+#   normalize.reachibility: whether to normalize the distances in
+#                the 'distance' GOF summary; default=FALSE
+#
+# --RETURNED--
+#   NULL
+#
+###################################################################
 
 plot.gofobject <- function(x, ..., 
          cex.axis=0.7, plotlogodds=FALSE,
@@ -1090,6 +1205,8 @@ plot.gofobject <- function(x, ...,
    invisible()
 }
 
+
+
 #ergm.get.terms.formula <- function(formula){
 # trms <- all.names(formula)
 # ntrms <- length(trms)
@@ -1100,6 +1217,8 @@ plot.gofobject <- function(x, ...,
 #  }
 # trms[-c(1:ntrms)]
 #}
+
+
 
 ergm.rhs.formula <- function(formula){
 #all.vars(ergm.update.formula(formula, .~0)) 
