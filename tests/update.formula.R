@@ -1,6 +1,7 @@
 # Test code created by Nicola Soriani
 # depends on proper functioning of update.formula
 
+library(ergm)
 predict.ergm.model<- function(model)  # only for Directed Network
 {
  net<-model$"network"
