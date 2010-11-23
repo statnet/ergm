@@ -179,7 +179,7 @@ InitWtErgmTerm.mutual<-function (nw, arglist, response, drop=TRUE, ...) {
   list(name=switch(form,min="mutual_wt_min",nabsdiff="mutual_wt_nabsdiff",threshold="mutual_wt_threshold"),
        coef.names=switch(form,min="mutual.min",nabsdiff="mutual.nabsdiff",threshold=paste("mutual",a$threshold,sep=".")),
        inputs=if(form=="threshold") threshold,
-       dependence=FALSE)
+       dependence=TRUE)
 }
 
 InitWtErgmTerm.transitiveties<-function (nw, arglist, response, drop=TRUE, ...) {
@@ -198,8 +198,8 @@ InitWtErgmTerm.transitiveties<-function (nw, arglist, response, drop=TRUE, ...) 
   }
   list(name="transitiveweights_threshold",
        coef.names="transitiveties",
-       inputs=c(0),
-       dependence=FALSE)
+       inputs=c(a$threshold),
+       dependence=TRUE)
   
 }
 
@@ -221,7 +221,7 @@ InitWtErgmTerm.transitiveweights<-function (nw, arglist, response, drop=TRUE, ..
   list(name=switch(form,max="transitiveweights_max",sum="transitiveweights_sum",threshold="transitiveweights_threshold"),
        coef.names=switch(form,max="transitiveweights.max",sum="transitiveweights.sum",threshold=paste("transitiveweights",a$threshold,sep=".")),
        inputs=if(form=="threshold") threshold,
-       dependence=FALSE)
+       dependence=TRUE)
   
 }
 
@@ -241,8 +241,8 @@ InitWtErgmTerm.cyclicties<-function (nw, arglist, response, drop=TRUE, ...) {
   }
   list(name="cyclicweights_threshold",
        coef.names="cyclicties",
-       inputs=c(0),
-       dependence=FALSE)
+       inputs=c(a$threshold),
+       dependence=TRUE)
   
 }
 
@@ -264,6 +264,6 @@ InitWtErgmTerm.cyclicweights<-function (nw, arglist, response, drop=TRUE, ...) {
   list(name=switch(form,max="cyclicweights_max",sum="cyclicweights_sum",threshold="cyclicweights_threshold"),
        coef.names=switch(form,max="cyclicweights.max",sum="cyclicweights.sum",threshold=paste("cyclicweights",a$threshold,sep=".")),
        inputs=if(form=="threshold") threshold,
-       dependence=FALSE)
+       dependence=TRUE)
   
 }
