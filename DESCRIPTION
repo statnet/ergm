@@ -1,6 +1,6 @@
 Package: ergm
-Version: 2.3
-Date: 2010-01-13
+Version: 2.2-8
+Date: 2010-11-23
 Title:  Fit, Simulate and Diagnose Exponential-Family Models for Networks
 Author: Mark S. Handcock <handcock@stat.ucla.edu>,
         David R. Hunter <dhunter@stat.psu.edu>,
@@ -10,7 +10,7 @@ Author: Mark S. Handcock <handcock@stat.ucla.edu>,
         Martina Morris <morrism@u.washington.edu>
 Maintainer: David R. Hunter <dhunter@stat.psu.edu>
 Depends: network
-Suggests: coda, KernSmooth, sna, Rglpk, Matrix
+Suggests: coda, KernSmooth, sna, Rglpk, robustbase, Matrix, trust
 Description: An integrated set of tools to analyze and simulate networks based on exponential-family random graph models (ERGM). "ergm" is a part of the "statnet" suite of packages for network analysis.  For a list of functions type: help(package='ergm')
 License: file LICENSE
 URL: http://statnet.org

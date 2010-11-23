@@ -5,18 +5,19 @@
  changestat: d_absdiff
 *****************/
 D_CHANGESTAT_FN(d_absdiff) { 
-  double change;
+  double change, p;
   Vertex h, t;
   int i;
 
-  CHANGE_STAT[0] = 0.0;
+  ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
     h = heads[i]; 
     t = tails[i];
-    if(INPUT_ATTRIB[0]==1){
+    p = INPUT_ATTRIB[0];
+    if(p==1.0){
       change = fabs(INPUT_ATTRIB[h] - INPUT_ATTRIB[t]);
-    }else{
-      change = pow(fabs(INPUT_ATTRIB[h] - INPUT_ATTRIB[t]),INPUT_ATTRIB[0]);
+    } else {
+      change = pow(fabs(INPUT_ATTRIB[h] - INPUT_ATTRIB[t]), p);
     }
     CHANGE_STAT[0] += IS_OUTEDGE(h,t) ? -change : change;
     TOGGLE_IF_MORE_TO_COME(i); /* Needed in case of multiple toggles */
@@ -1335,7 +1336,7 @@ D_CHANGESTAT_FN(d_degree_by_attr) {
   od=OUT_DEG;
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
-    echange=(EdgetreeSearch(head=heads[i], tail=tails[i], nwp->outedges)==0)? 1:-1;
+    echange = IS_OUTEDGE(head=heads[i], tail=tails[i]) ? -1:1;
     headdeg = od[head] + id[head];
     taildeg = od[tail] + id[tail];
     headattr = INPUT_PARAM[2*N_CHANGE_STATS + head - 1]; 
@@ -1362,7 +1363,7 @@ D_CHANGESTAT_FN(d_degree_w_homophily) {
   The values following the first nstats values are the nodal attributes.
   */
   int i, j, echange, headattr, tailattr;
-  Vertex head, tail, headdeg, taildeg, deg, tmp;
+  Vertex head, tail, headdeg, taildeg, deg, v;
   double *nodeattr;
   Edge e;
 
@@ -1374,28 +1375,13 @@ D_CHANGESTAT_FN(d_degree_w_homophily) {
     headattr = (int)nodeattr[head];
     tailattr = (int)nodeattr[tail];    
     if (headattr == tailattr) { /* They match; otherwise don't bother */
-      echange=(EdgetreeSearch(head, tail, nwp->outedges)==0)? 1:-1;
+      echange = IS_OUTEDGE(head, tail) ? -1:1;
+      headdeg=taildeg=-1; /* since headattr==tailattr, subtract the automatic match */
       headdeg=taildeg=0;
-      for(e = EdgetreeMinimum(nwp->outedges, head);
-      (tmp = nwp->outedges[e].value) != 0;
-      e = EdgetreeSuccessor(nwp->outedges, e)) {
-        headdeg += (nodeattr[tmp]==headattr);
-      }
-      for(e = EdgetreeMinimum(nwp->inedges, head);
-      (tmp = nwp->inedges[e].value) != 0;
-      e = EdgetreeSuccessor(nwp->inedges, e)) {
-        headdeg += (nodeattr[tmp]==headattr);
-      }
-      for(e = EdgetreeMinimum(nwp->outedges, tail);
-      (tmp = nwp->outedges[e].value) != 0;
-      e = EdgetreeSuccessor(nwp->outedges, e)) {
-        taildeg += (nodeattr[tmp]==tailattr);
-      }
-      for(e = EdgetreeMinimum(nwp->inedges, tail);
-      (tmp = nwp->inedges[e].value) != 0;
-      e = EdgetreeSuccessor(nwp->inedges, e)) {
-        taildeg += (nodeattr[tmp]==tailattr);
-      }
+      STEP_THROUGH_OUTEDGES(head, e, v) { headdeg += (nodeattr[v]==headattr); }
+      STEP_THROUGH_INEDGES(head, e, v) { headdeg += (nodeattr[v]==headattr); }
+      STEP_THROUGH_OUTEDGES(tail, e, v) { taildeg += (nodeattr[v]==tailattr); }
+      STEP_THROUGH_INEDGES(tail, e, v) { taildeg += (nodeattr[v]==tailattr); }
       for(j = 0; j < N_CHANGE_STATS; j++) {
         deg = (Vertex)INPUT_PARAM[j];
         CHANGE_STAT[j] += (headdeg + echange == deg) - (headdeg == deg);
@@ -3059,6 +3045,33 @@ D_CHANGESTAT_FN(d_idegree_w_homophily) {
 }
 
 /*****************
+ changestat: d_indegreepopularity
+*****************/
+D_CHANGESTAT_FN(d_indegreepopularity) { 
+  int i, edgeflag;
+  double change;
+  Vertex t, h, deg=0;
+  
+  change = 0.0;
+  FOR_EACH_TOGGLE(i) {
+    h=heads[i];
+    t=tails[i];
+    edgeflag = IS_OUTEDGE(h, t); /* either 0 or 1 */
+    deg = (double)(IN_DEG[t]);
+    if(edgeflag){
+      change -= sqrt(deg);
+      change += (deg-1.0)*(sqrt(deg-1.0)-sqrt(deg));
+    }else{
+      change += sqrt(deg+1.0);
+      change += deg*(sqrt(deg+1.0)-sqrt(deg));
+    }
+    TOGGLE_IF_MORE_TO_COME(i); 
+  }
+  CHANGE_STAT[0]=change; 
+  UNDO_PREVIOUS_TOGGLES(i);
+}
+
+/*****************
  changestat: d_intransitive
 *****************/
 D_CHANGESTAT_FN(d_intransitive) { 
@@ -3458,6 +3471,30 @@ D_CHANGESTAT_FN(d_mutual) {
             }
           }
         }
+      }
+    }
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
+}
+/*****************
+ changestat: d_mutual_by_attr
+*****************/
+D_CHANGESTAT_FN(d_mutual_by_attr) { 
+  double matchval, change;
+  Vertex h, t;
+  int i, j, ninputs;
+
+  ninputs = N_INPUT_PARAMS - N_NODES;
+  ZERO_ALL_CHANGESTATS(i);
+  FOR_EACH_TOGGLE(i) {
+    h = heads[i];
+    t = tails[i];
+    if (IS_OUTEDGE(t,h)) { /* otherwise, no change occurs */
+      change = IS_OUTEDGE(h, t) ? -1.0 : 1.0 ;
+      matchval = INPUT_PARAM[h+ninputs-1];
+      for (j=0; j<ninputs; j++) {
+        if (matchval == INPUT_PARAM[j]){CHANGE_STAT[j] += change;}
       }
     }
     TOGGLE_IF_MORE_TO_COME(i);
@@ -4067,6 +4104,32 @@ D_CHANGESTAT_FN(d_ostar) {
     }
   }
   
+  UNDO_PREVIOUS_TOGGLES(i);
+}
+
+/*****************
+ changestat: d_outdegreepopularity
+*****************/
+D_CHANGESTAT_FN(d_outdegreepopularity) { 
+  int i, edgeflag;
+  double change;
+  Vertex t, h, deg=0;
+  
+  change = 0.0;
+  FOR_EACH_TOGGLE(i) {
+    h=heads[i];
+    t=tails[i];
+    edgeflag = IS_OUTEDGE(h, t); /* either 0 or 1 */
+    change += (edgeflag? -1.0 : 1.0) * sqrt((double)(OUT_DEG[t]));
+    deg = (double)(OUT_DEG[h]);
+    if(edgeflag){
+      change += IN_DEG[h]*(sqrt(deg-1.0)-sqrt(deg));
+    }else{
+      change += IN_DEG[h]*(sqrt(deg+1.0)-sqrt(deg));
+    }
+    TOGGLE_IF_MORE_TO_COME(i); 
+  }
+  CHANGE_STAT[0]=change; 
   UNDO_PREVIOUS_TOGGLES(i);
 }
 
@@ -5412,333 +5475,6 @@ D_CHANGESTAT_FN(d_ttriple) {
         change += IS_OUTEDGE(node3, h) + IS_INEDGE(node3, h);
       }
       CHANGE_STAT[0] += edgemult * change;
-    }
-    TOGGLE_IF_MORE_TO_COME(i);
-  }
-  UNDO_PREVIOUS_TOGGLES(i);
-}
-
-/***************************************************************
- changestats internal
-***************************************************************/
-
-/*****************
- changestat: d_b1degree_edgecov
-*****************/
-
-CHANGESTAT_FN(d_b1degree_edgecov) { 
-  int i, j, k, echange, n1, n2, edgecovval, min, max, mid, nedges;
-  Vertex h1, t1, h2, t2, b1deg, d;
-
-  n1 = BIPARTITE;
-  n2 = N_NODES - BIPARTITE;
-  nedges = (N_INPUT_PARAMS - N_CHANGE_STATS)/2;
-  for (i=0; i < N_CHANGE_STATS; i++) 
-    CHANGE_STAT[i] = 0.0;  
-  FOR_EACH_TOGGLE(i) {
-    b1deg = 0;
-    h1 = heads[i];
-    t1 = tails[i];
-    echange = IS_OUTEDGE(h1, t1) ? -1 : 1;
-    edgecovval = 0;
-    min=N_CHANGE_STATS;          /*  Begin: Determine whether this tie exists in edgecov*/
-    max=nedges+min-1;
-    while (max >= min) {
-      mid = (min + max)/2;
-      h2 = INPUT_PARAM[mid+N_CHANGE_STATS-1];
-      t2 = INPUT_PARAM[mid+nedges+N_CHANGE_STATS-1];
-      if (h1<h2 || ((h1==h2)&&(t1<t2))) { /* Move search window down */
-        max = mid-1;
-      }
-      else if (h1>h2 || ((h1==h2)&&(t1>t2))) { /* Move search window up */
-        min = mid+1;
-      }
-      else {
-        edgecovval = 1;
-        break;
-      }
-    }                            /*  End: Determine whether this tie exists in edgecov*/
-    if (edgecovval == 1) {       /*  Begin: determine current edgecov-degree of node of interest*/
-      for (k=n1+1; k <= N_NODES; k++) 
-        if (IS_OUTEDGE(h1,k)) {
-          min=N_CHANGE_STATS;
-          max=nedges+min-1;
-          while (max >= min) {
-            mid = (min + max)/2;
-            h2 = INPUT_PARAM[mid+N_CHANGE_STATS-1];
-            t2 = INPUT_PARAM[mid+nedges+N_CHANGE_STATS-1];
-            if (h1<h2 || ((h1==h2)&&(k<t2))) { /* Move search window down */
-              max = mid-1;
-            }
-            else if (h1>h2 || ((h1==h2)&&(k>t2))) { /* Move search window up */
-              min = mid+1;
-            }
-            else {
-              b1deg ++;
-              break;
-            }
-          }
-        }                      
-    }                            /*  End: determine current edgecov-degree of node of interest*/
-    for(j = 0; j < N_CHANGE_STATS; j++) {
-      d = (Vertex)(INPUT_PARAM[j]);
-      CHANGE_STAT[j] += (b1deg + echange*edgecovval == d) - (b1deg == d);
-    }
-    TOGGLE_IF_MORE_TO_COME(i);
-  }
-  UNDO_PREVIOUS_TOGGLES(i);
-}
-
-/*****************
- changestat: d_b2degree_edgecov
-*****************/
-
-CHANGESTAT_FN(d_b2degree_edgecov) { 
-  int i, j, k, echange, n1, n2, edgecovval, min, max, mid, nedges;
-  Vertex h1, t1, h2, t2, b2deg, d;
-
-  n1 = BIPARTITE;
-  n2 = N_NODES - BIPARTITE;
-  nedges = (N_INPUT_PARAMS - N_CHANGE_STATS)/2;  
-  for (i=0; i < N_CHANGE_STATS; i++)
-    CHANGE_STAT[i] = 0.0;  
-  FOR_EACH_TOGGLE(i) {
-    b2deg = 0;
-    h1 = heads[i];
-    t1 = tails[i];
-    echange = IS_OUTEDGE(h1, t1) ? -1 : 1;
-    edgecovval = 0;
-    min=N_CHANGE_STATS;          /*  Begin: Determine whether this tie exists in edgecov*/
-    max=nedges+min-1;
-    while (max >= min) {
-      mid = (min + max)/2;
-      h2 = INPUT_PARAM[mid+N_CHANGE_STATS-1];
-      t2 = INPUT_PARAM[mid+nedges+N_CHANGE_STATS-1];
-      if (h1<h2 || ((h1==h2)&&(t1<t2))) { /* Move search window down */
-        max = mid-1;
-      }
-      else if (h1>h2 || ((h1==h2)&&(t1>t2))) { /* Move search window up */
-        min = mid+1;
-      }
-      else {
-        edgecovval = 1;
-        break;                  
-      }
-    }                            /*  End: Determine whether this tie exists in edgecov*/
-    if (edgecovval == 1) {       /*  Begin: determine current edgecov-degree of node of interest*/
-      for (k=1; k <= n1; k++) 
-        if (IS_OUTEDGE(k,t1)) {
-          min=N_CHANGE_STATS;
-          max=nedges+min-1;
-          while (max >= min) {
-            mid = (min + max)/2;
-            h2 = INPUT_PARAM[mid+N_CHANGE_STATS-1];
-            t2 = INPUT_PARAM[mid+nedges+N_CHANGE_STATS-1];
-            if (k<h2 || ((k==h2)&&(t1<t2))) { /* Move search window down */
-              max = mid-1;
-            }
-            else if (k>h2 || ((k==h2)&&(t1>t2))) { /* Move search window up */
-              min = mid+1;
-            }
-            else {
-              b2deg ++;
-              break;
-            }
-          }
-        }                      
-    }                            /*  End: determine current edgecov-degree of node of interest*/
-    for(j = 0; j < N_CHANGE_STATS; j++) {
-      d = (Vertex)(INPUT_PARAM[j]);
-      CHANGE_STAT[j] += (b2deg + echange*edgecovval == d) - (b2deg == d);
-    }
-    TOGGLE_IF_MORE_TO_COME(i);
-  }
-  UNDO_PREVIOUS_TOGGLES(i);
-}
-
-
-/*****************
- changestat: d_b1mindegree
-*****************/
-CHANGESTAT_FN(d_b1mindegree) { 
-  int i, j, echange;
-  Vertex b1, b1deg, d;
-
-  for (i=0; i < N_CHANGE_STATS; i++) 
-    CHANGE_STAT[i] = 0.0;  
-  FOR_EACH_TOGGLE(i) {
-    b1 = heads[i];
-    echange = IS_OUTEDGE(b1, tails[i]) ? -1 : 1;
-    b1deg = OUT_DEG[b1];
-    for(j = 0; j < N_CHANGE_STATS; j++) {
-      d = (Vertex)(INPUT_PARAM[j]);
-      CHANGE_STAT[j] += (b1deg + echange >= d) - (b1deg >= d);
-    }
-    TOGGLE_IF_MORE_TO_COME(i);
-  }
-  UNDO_PREVIOUS_TOGGLES(i);
-}
-
-/*****************
- changestat: d_b2mindegree
-*****************/
-CHANGESTAT_FN(d_b2mindegree) { 
-  /* It is assumed that in this bipartite network, the only edges are
-  of the form (b1, b2), where b1 is always strictly less
-  than b2.  In other words, the degree of a b1 is equivalent
-  to its outdegree and the degree of a b2 is equivalent to its
-  indegree.
-  */
-  int i, j, echange;
-  Vertex b1, b2, b2deg, d, *id;
-
-  id=IN_DEG;
-  for (i=0; i < N_CHANGE_STATS; i++) 
-    CHANGE_STAT[i] = 0.0;  
-  for (i=0; i<ntoggles; i++) {      
-    echange=(EdgetreeSearch(b1=heads[i], b2=tails[i], nwp->outedges)==0) ? 1 : -1;
-    b2deg = id[b2];
-    for(j = 0; j < N_CHANGE_STATS; j++) {
-      d = (Vertex)(INPUT_PARAM[j]);
-      CHANGE_STAT[j] += (b2deg + echange >= d) - (b2deg >= d);
-    }
-    if (i+1 < ntoggles)
-      TOGGLE(heads[i], tails[i]);  /* Toggle this edge if more to come */
-  }
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    TOGGLE(heads[i], tails[i]); 
-}
-
-
-/*****************
- changestat: d_b1mindegree_edgecov
-*****************/
-CHANGESTAT_FN(d_b1mindegree_edgecov) { 
-  int i, j, k, echange, n1, n2, edgecovval, min, max, mid, nedges;
-  Vertex h1, t1, h2, t2, b1deg, d;
-
-  n1 = BIPARTITE;
-  n2 = N_NODES - BIPARTITE;
-  nedges = (N_INPUT_PARAMS - N_CHANGE_STATS)/2;
-  for (i=0; i < N_CHANGE_STATS; i++) 
-    CHANGE_STAT[i] = 0.0;  
-  FOR_EACH_TOGGLE(i) {
-    b1deg = 0;
-    h1 = heads[i];
-    t1 = tails[i];
-    echange = IS_OUTEDGE(h1, t1) ? -1 : 1;
-    edgecovval = 0;
-    min=N_CHANGE_STATS;          /*  Begin: Determine whether this tie exists in edgecov*/
-    max=nedges+min-1;
-    while (max >= min) {
-      mid = (min + max)/2;
-      h2 = INPUT_PARAM[mid+N_CHANGE_STATS-1];
-      t2 = INPUT_PARAM[mid+nedges+N_CHANGE_STATS-1];
-      if (h1<h2 || ((h1==h2)&&(t1<t2))) { /* Move search window down */
-        max = mid-1;
-      }
-      else if (h1>h2 || ((h1==h2)&&(t1>t2))) { /* Move search window up */
-        min = mid+1;
-      }
-      else {
-        edgecovval = 1;
-        break;
-      }
-    }                            /*  End: Determine whether this tie exists in edgecov*/
-    if (edgecovval == 1) {       /*  Begin: determine current edgecov-degree of node of interest*/
-      for (k=n1+1; k <= N_NODES; k++) 
-        if (IS_OUTEDGE(h1,k)) {
-          min=N_CHANGE_STATS;
-          max=nedges+min-1;
-          while (max >= min) {
-            mid = (min + max)/2;
-            h2 = INPUT_PARAM[mid+N_CHANGE_STATS-1];
-            t2 = INPUT_PARAM[mid+nedges+N_CHANGE_STATS-1];
-            if (h1<h2 || ((h1==h2)&&(k<t2))) { /* Move search window down */
-              max = mid-1;
-            }
-            else if (h1>h2 || ((h1==h2)&&(k>t2))) { /* Move search window up */
-              min = mid+1;
-            }
-            else {
-              b1deg ++;
-              break;
-            }
-          }
-        }                      
-    }                            /*  End: determine current edgecov-degree of node of interest*/
-    for(j = 0; j < N_CHANGE_STATS; j++) {
-      d = (Vertex)(INPUT_PARAM[j]);
-      CHANGE_STAT[j] += (b1deg + echange*edgecovval >= d) - (b1deg >= d);
-    }
-    TOGGLE_IF_MORE_TO_COME(i);
-  }
-  UNDO_PREVIOUS_TOGGLES(i);
-}
-
-
-/*****************
- changestat: d_b2mindegree_edgecov
-*****************/
-
-CHANGESTAT_FN(d_b2mindegree_edgecov) { 
-  int i, j, k, echange, n1, n2, edgecovval, min, max, mid, nedges;
-  Vertex h1, t1, h2, t2, b2deg, d;
-
-  n1 = BIPARTITE;
-  n2 = N_NODES - BIPARTITE;
-  nedges = (N_INPUT_PARAMS - N_CHANGE_STATS)/2;  
-  for (i=0; i < N_CHANGE_STATS; i++)
-    CHANGE_STAT[i] = 0.0;  
-  FOR_EACH_TOGGLE(i) {
-    b2deg = 0;
-    h1 = heads[i];
-    t1 = tails[i];
-    echange = IS_OUTEDGE(h1, t1) ? -1 : 1;
-    edgecovval = 0;
-    min=N_CHANGE_STATS;          /*  Begin: Determine whether this tie exists in edgecov*/
-    max=nedges+min-1;
-    while (max >= min) {
-      mid = (min + max)/2;
-      h2 = INPUT_PARAM[mid+N_CHANGE_STATS-1];
-      t2 = INPUT_PARAM[mid+nedges+N_CHANGE_STATS-1];
-      if (h1<h2 || ((h1==h2)&&(t1<t2))) { /* Move search window down */
-        max = mid-1;
-      }
-      else if (h1>h2 || ((h1==h2)&&(t1>t2))) { /* Move search window up */
-        min = mid+1;
-      }
-      else {
-        edgecovval = 1;
-        break;                  
-      }
-    }                            /*  End: Determine whether this tie exists in edgecov*/
-    if (edgecovval == 1) {       /*  Begin: determine current edgecov-degree of node of interest*/
-      for (k=1; k <= n1; k++) 
-        if (IS_OUTEDGE(k,t1)) {
-          min=N_CHANGE_STATS;
-          max=nedges+min-1;
-          while (max >= min) {
-            mid = (min + max)/2;
-            h2 = INPUT_PARAM[mid+N_CHANGE_STATS-1];
-            t2 = INPUT_PARAM[mid+nedges+N_CHANGE_STATS-1];
-            if (k<h2 || ((k==h2)&&(t1<t2))) { /* Move search window down */
-              max = mid-1;
-            }
-            else if (k>h2 || ((k==h2)&&(t1>t2))) { /* Move search window up */
-              min = mid+1;
-            }
-            else {
-              b2deg ++;
-              break;
-            }
-          }
-        }                      
-    }                            /*  End: determine current edgecov-degree of node of interest*/
-    for(j = 0; j < N_CHANGE_STATS; j++) {
-      d = (Vertex)(INPUT_PARAM[j]);
-      CHANGE_STAT[j] += (b2deg + echange*edgecovval >= d) - (b2deg >= d);
     }
     TOGGLE_IF_MORE_TO_COME(i);
   }

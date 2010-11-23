@@ -1,3 +1,36 @@
+#==========================================================================
+# This file contains the following 5 functions for computing summary stats
+#      <summary.statistics>           <summary.statistics.formula>
+#      <summary.formula>              <summary.statistics.ergm>
+#      <summary.statisitcs.default>   <summary.statistics.network>
+#      <summary.statisitics.matrix>
+#==========================================================================
+
+
+
+
+#############################################################################
+# Each of the <summary.statistics.X> functions and <summary.formula> checks
+# that the implicit formula is correctly given as 'nw ~ term(s)' and returns
+# the global statistics of the network specified by the formula
+#
+# --PARAMETERS--
+#   object:  a formula, matrix, ergm, or network, as appropriate
+#   drop  :  whether to drop degenerate terms when the model is
+#            constructed from the formula (T or F); default=FALSE
+#   basis :  optionally, the network from the formula; if a network
+#            is passed to 'basis', it is assumed that 'object' is the
+#            formula
+#
+# --RETURNED--
+#   gs: the vector of global stats, as returned by <ergm.getglobalstats>
+#############################################################################
+
+summary.statistics <- function(object, ..., drop=FALSE, basis=NULL) {
+  UseMethod("summary.statistics")
+}
+
+
 summary.formula <- function(object, ...){
   current.warn <- options()$warn
   options(warn=0)
@@ -15,18 +48,20 @@ summary.formula <- function(object, ...){
   UseMethod("summary.statistics",object=rhs)
 }
 
-summary.statistics <- function(object, ..., drop=FALSE, basis=NULL) {
-  UseMethod("summary.statistics")
-}
+
 
 summary.statistics.formula <- function(object, ..., drop=FALSE, basis=NULL) {
   summary.statistics.network(object, ..., drop=drop, basis=basis)
 }
 
+
+
 summary.statistics.ergm <- function(object, ..., drop=FALSE, basis=NULL)
 {
   summary.statistics.network(object$formula, ..., drop=drop, basis=basis)
 }
+
+
 
 summary.statistics.default <-
 summary.statistics.matrix <- 

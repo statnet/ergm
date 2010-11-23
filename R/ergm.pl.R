@@ -1,3 +1,64 @@
+###############################################################################
+# The <ergm.pl> function prepares many of the components needed by <ergm.mple>
+# for the regression rountines that are used to find the MPLE estimated ergm;
+# this is largely done through <MPLE_wrapper.C>
+#
+# --PARAMETERS--
+#   Clist            : a list of parameters used for fitting and returned
+#                      by <ergm.Cprepare>
+#   Clist.miss       : the corresponding 'Clist' for the network of missing
+#                      edges returned by <ergm.design>
+#   m                : the model, as returned by <ergm.getmodel>
+#   theta.offset     : a logical vector specifying which of the model
+#                      coefficients are offset, i.e. fixed
+#   maxMPLEsamplesize: the sample size to use for endogenous sampling in the
+#                      pseudolikelihood computation; default=1e6
+#   maxNumDyadTypes  : the maximum number of unique pseudolikelihood
+#                      change statistics to be allowed if 'compressflag'=TRUE;
+#                      if this is less than the networks maximum count of
+#                      unique change stats, these will be sampled to attain
+#                      the correct size; default=1e6
+#   conddeg          : an indicator of whether the MPLE should be conditional
+#                      on degree; non-NULL values indicate yes, NULL no;
+#                      default=NULL (I haven't yet found a function that passes this)
+#   MCMCparams       : a list of MCMC related parameters; recognized variables
+#                      include:
+#      samplesize    : the number of networks to sample, which will inform the size
+#                      of the returned 'xmat'
+#      Clist.miss    : see 'Clist.miss' above; some of the code uses this Clist.miss,
+#                      some uses the one above, does this seem right?
+#   MHproposal       : an MHproposal object, as returned by <ergm.getMHproposal>
+#   verbose          : whether this and the C routines should be verbose (T or F);
+#                      default=FALSE
+#   compressflag     : whether to compress the design matrix of change stats by
+#                      tabulating the unique rows (T or F); default=TRUE
+#
+#
+# --RETURNED--
+#   a list containing
+#     xmat     : the possibly compressed and possibly sampled matrix of change
+#                statistics
+#     zy       : the corresponding vector of responses, i.e. tie values
+#     foffset  : ??
+#     wend     : the vector of weights for 'xmat' and 'zy'
+#     numobs   : the number of dyads 
+#     xmat.full: the 'xmat' before sampling; if no sampling is needed, this
+#                is NULL
+#     zy.full  : the 'zy' before  sampling; if no sampling is needed, this
+#                is NULL
+#     foffset.full     : ??
+#     theta.offset     : a numeric vector whose ith entry tells whether the
+#                        the ith curved coefficient?? was offset/fixed; -Inf
+#                        implies the coefficient was fixed, 0 otherwise; if
+#                        the model hasn't any curved terms, the first entry
+#                        of this vector is one of
+#                           log(Clist$nedges/(Clist$ndyads-Clist$nedges))
+#                           log(1/(Clist$ndyads-1))
+#                        depending on 'Clist$nedges'
+#     maxMPLEsamplesize: the 'maxMPLEsamplesize' inputted to <ergm.pl>
+#    
+###############################################################################
+
 ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
                     maxMPLEsamplesize=1e+6,
                     maxNumDyadTypes=1e+6,
@@ -13,8 +74,16 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     temp <- matrix(0,ncol=n,nrow=n)
     base <- cbind(as.vector(col(temp)), as.vector(row(temp)))
     base <- base[base[, 2] > base[, 1], ]
+    # At this point, the rows of base are in dictionary order
     if(Clist.miss$dir){
-      base <- cbind(base[,c(2,1)],base)
+      # If we get here, then interleave the transposed rows, as in
+      # (1,2), (2,1),   (1,3), (3,1),   (1,4), (4,1),  etc.
+      # This is necessary because it's the order in which the
+      # MPLE wrapper expects them to be entered, which is only
+      # important when there are missing data because the "offset" 
+      # vector in that case must index the correct rows.
+      # (The C code reconstructs the base matrix from scratch.)
+      base <- cbind(base, base[,c(2,1)])
       base <- matrix(t(base),ncol=2,byrow=TRUE)
     }
     ubase <- base[,1] + n*base[,2]
@@ -22,8 +91,8 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     offset <- 1*offset
     numobs <- Clist$ndyads - sum(offset)
   }else{
-    offset <- NULL
     numobs <- Clist$ndyads
+    offset <- rep(0,numobs)
   }
 
   maxNumDyadTypes <- min(maxNumDyadTypes,
@@ -60,6 +129,9 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
   dmiss <- z$compressedOffset[uvals]
   rm(z,uvals)
   }else{
+    if (verbose) {
+      cat("Using the MPLE conditional on degree.\n")
+    }
     # Conditional on degree version
     eta0 <- ergm.eta(rep(0,length(conddeg$m$coef.names)), conddeg$m$etamap)
     
@@ -120,6 +192,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
       theta.offset <- rep(0, length=Clist$nstats)
       names(theta.offset) <- m$coef.names
       theta.offset[m$etamap$offsettheta] <- -Inf
+#     theta.offset[m$etamap$offsettheta] <- -10000
     }
     # Commenting out recent version of this section that does not work;
     #foffset <- xmat[,m$etamap$offsettheta,drop=FALSE]%*%theta.offset[m$etamap$offsettheta]
@@ -129,7 +202,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     #colnames(xmat) <- m$coef.names[!m$etamap$offsettheta]
     
     # Returning to the version from CRAN ergm v. 2.1:
-    foffset <- xmat[,!m$etamap$offsettheta,drop=FALSE] %*% 
+    foffset <- xmat[,!m$etamap$offsettheta,drop=FALSE] %*%
                theta.offset[!m$etamap$offsettheta]
     shouldoffset <- apply(abs(xmat[,m$etamap$offsettheta,drop=FALSE])>1e-8,1,any)
     xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE]
@@ -138,6 +211,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     zy <- zy[!shouldoffset]
     wend <- wend[!shouldoffset]
     foffset <- foffset[!shouldoffset]
+#   theta.offset <- theta.offset[!m$etamap$offsettheta]
   }else{
     foffset <- rep(0, length=length(zy))
     theta.offset <- rep(0, length=Clist$nstats)

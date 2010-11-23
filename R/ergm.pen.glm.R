@@ -1,3 +1,56 @@
+#===================================================================
+# This file contains the following 3 files for fitting and 
+#             <ergm.pen.glm>
+#             <logistftest>
+#             <model.matrix.pen.glm>
+#===================================================================
+
+
+
+
+###############################################################################
+# The <ergm.pen.glm> function calculates and returns an ergm fit using a
+# a penalized glm approach
+#
+# --PARAMETERS--
+#   formula: a formula 'y ~ x + ..', presumably y as the 'zy' returned by 
+#            <ergm.pl> and x as 'xmat' returned by <ergm.pl>
+#   data   : ?? this is passed in as a data.frame, but this code uses this
+#            variable as an enviroment; default=sys.parent()
+#   alpha  : ??, this code merely returns 'alpha', and no caller provides
+#            an alpha; default=0.05
+#   maxit  : the maximum number of iterations to use in this fitting;
+#            default=25
+#   maxhs  : the maximum number of half steps to use; default=5
+#   epsilon: the value used to return the fit; when the sum of changes ?
+#            falls below this, the fit is returned; if 'maxit' iterations
+#            are realized, this is ignored; default=1e-4
+#   maxstep: ??; default=10
+#   start  : an optional starting vector of theta coefficients;
+#            default=NULL
+#   weights: the weights corresponding to y and x of 'formula'; default=NULL
+#
+#
+# --RETURNED--
+#   fit: a 'pen.glm' object as a list containing:
+#     coefficients     : the theta coefficients maximizing the penalized
+#                        aproach?? 
+#     alpha            : the 'alpha' above 
+#     var              : the covariance matrix
+#     df               : the degrees of freedom
+#     loglik           : the log-likelihood corresponding to 'coefficients'
+#     iter             : the number of iterations used, as either 'maxit' or
+#                        the number needed to achieve convergence according
+#                        to 'epsilon'
+#     terms            : the names of the coefficients
+#     formula          : the 'formula' above
+#     data             : the 'data' above
+#     model.matrix     : the design matrix
+#     method           : "pen.glm.fit"
+#     linear.predictors: the predicted y as 'model.matrix'*'coefficients'
+#
+##############################################################################
+
 ergm.pen.glm <- function(formula = attr(data, "formula"), 
   data = sys.parent(), alpha = 0.05, 
   maxit = 25, maxhs = 5, epsilon = 0.0001, maxstep = 10, 
@@ -83,6 +136,21 @@ ergm.pen.glm <- function(formula = attr(data, "formula"),
 # vars <- diag(covs)
   fit
 }
+
+
+
+
+###############################################################################
+# The <logistftest> function computes the log-likelihood via the ?? approach
+#
+# --PARAMETERS--
+#   identical to those of <ergm.pen.glm> 
+#
+# --RETURNED--
+#   loglik: the log-likelihood as calculated using the ????
+#
+###############################################################################
+
 logistftest <- function(formula = attr(data, "formula"),
   data = sys.parent(), test, values, maxit = 25, maxhs = 5, 
   epsilon = 0.0001, maxstep = 10, start, weights=NULL)
@@ -203,9 +271,13 @@ logistftest <- function(formula = attr(data, "formula"),
    }
    if(iter == maxit | sum(abs(delta)) <= epsilon) break
   }
-#######################
   loglik
 }
+
+
+
+
+
 model.matrix.pen.glm <- function(object, ...)
 {
 	object$model.matrix

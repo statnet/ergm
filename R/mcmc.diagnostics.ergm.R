@@ -1,3 +1,54 @@
+#=================================================================================
+# This file contains the following 12 diagnostic tools and their helper functions
+#      <mcmc.diagnostics>            <traceplot.ergm>
+#      <mcmc.diagnostics.default>    <set.mfrow>
+#      <mcmc.diagnostics.ergm>       <nvar.mcmc>
+#      <ergm.raftery.diag>           <is.mcmc.object>
+#      <print.raftery.diag.ergm>     <is.mcmc.list.object>
+#      <plot.mcmc.ergm>              <varnames.mcmc>
+#=================================================================================
+
+
+
+#########################################################################
+# The <mcmc.diagnostics.X> functions create diagnostic plots for the
+# MCMC sampled statistics of the ergm X and prints the Raftery-Lewis
+# diagnostics, indicating whether are sufficient or not; if X is not an
+# ergm, execution will halt
+#
+# --PARAMTERS--
+#   object : an ergm object, that has an MCMC established stats matrix
+#   sample : the name of the component in 'object' to base the diagnosis
+#            on; recognized strings are "missing", "sample", and
+#            "thetasample"; default="sample"
+#   smooth : whether to draw a smooth line through the trace plots;
+#            default=TRUE
+#   maxplot: the maximum number of statistics to plot; default=1000
+#   verbose: whether to print out additional information about the
+#            MCMC runs including lag correlations; default=TRUE
+#   center : whether the samples should be centered on the observed
+#            statistics; default=TRUE
+#   ...    : addtional parameters that are passed to <plot.mcmc.ergm>
+#   main, ylab, xlab: have their usual par-like meanings
+#
+#
+# --IGNORED PARAMETERS--
+#   r      : what percentile of the distribution to estimate; this is
+#            ignored: default=.0125
+#   digits : the number of digits to print; default=6
+#
+# --RETURNED--
+#   raft: a list containing
+#    params          : 
+#    resmatrix       :
+#    degeneracy.value: the degeneracy.value of 'object', as computed by
+#                      <ergm.degeneracy>
+#    degeneracy.type : the degeneracy.type of 'object', as computed by
+#                      <ergm.compute.degeneracy> 
+#    simvals         :
+#
+##########################################################################
+
 mcmc.diagnostics <- function(object, ...) {
   UseMethod("mcmc.diagnostics")
 }
@@ -23,8 +74,8 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
 
   if(sample=="missing"){
     component <- "sample"
-    statsmatrix.miss <- object[["conditionalsample"]]
-    if(missing(mcmc.title)){mcmc.title <- "Summary of the Conditional Samples"} 
+    statsmatrix.miss <- object[["sample.miss"]]
+    if(missing(main)){mcmc.title <- "Summary of the Conditional Samples"} 
   }else{
     component <- sample
   }
@@ -53,6 +104,7 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
 #     if(!is.latent(object) ){
       if(sample=="missing"){
         x0 <- apply(statsmatrix.miss,2,mean)
+#        print(x0)
       }else{
         x0 <- rep(0,ncol(statsmatrix))
       }
@@ -65,8 +117,10 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
        }
       }else{
        if(sample=="missing"){
-        statsmatrix <- sweep(statsmatrix,2,x0,"-")
-        x0 <- rep(0,ncol(statsmatrix))
+#         print(x0)
+#         print(apply(statsmatrix,2,mean))
+         statsmatrix <- sweep(statsmatrix,2,x0,"-")
+         x0 <- rep(0,ncol(statsmatrix))
        }
       }
       if(ncol(statsmatrix) < length(x0)){
@@ -133,6 +187,35 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
     return(invisible(raft))
   }
 }
+
+
+
+###############################################################
+# The <ergm.raftery.diag> function computes and returns
+# values associated with the Raftery and Lewis diagnostics.
+#
+# --PARAMETERS--
+#   data        : the matrix of summary statistics or an mcmc
+#                 object or list thereof
+#   q           : the quantile to be estimated; default=.025
+#   r           : the desired margin of error of the estimate;
+#                 default=.005
+#   s           : the probability of obtaining an estimate in
+#                 the interval (q-r, q+r); default=.95
+#   converge.eps: the precision required for convergence;
+#                 default=.001
+#
+# --RETURN--
+#   if 'data' is a single matrix or mcmc object, a list containing
+#      params   : the vector of input parameters c('r', 's', 'q')
+#      resmatrix: the
+#   is returned;  if 'data' is a list, then a list of the lists
+#   above, with the additional components
+#      tspar    : the time series parameters of 'data'
+#      Niters   : the number of iterations in 'data'
+#
+##################################################################
+
 "ergm.raftery.diag" <-
 function (data, q = 0.025, r = 0.005, s = 0.95, converge.eps = 0.001) 
 {
@@ -219,6 +302,21 @@ function (data, q = 0.025, r = 0.005, s = 0.95, converge.eps = 0.001)
     class(y) <- "raftery.diag.ergm"
     return(y)
 }
+
+
+#######################################################################
+# The <print.raftery.diag.ergm> function prints out the results of
+# the Raftery-Lewis diagnostics
+#
+# --PARAMETERS--
+#   x        :  a raftery.diag or rafter.diag.ergm object
+#   digits   :  the number of digits to print; default=3
+#   simvalues:  ??; default=NULL
+#
+# --RETURNED--
+#   'x' as inputted
+########################################################################
+
 print.raftery.diag.ergm <- function (x, digits = 3, simvalues=NULL, ...) 
 {
     if(is.null(simvalues)){
@@ -263,6 +361,47 @@ print.raftery.diag.ergm <- function (x, digits = 3, simvalues=NULL, ...)
     }
     invisible(x)
 }
+
+
+##################################################################
+# The <plot.mcmc.ergm> function plots a choice of trace plots
+# and density plots for each of the variables in the given
+# mcmc object or statsmatrix 'x'
+#
+# --PARAMETERS--
+#   x          : a matrix of summary statistics or an mcmc object
+#   trace      : whether to produce a trace plot via
+#                <trace.plot.ergm> (T or F); default=TRUE
+#   density    : whether to print a plot of the density estimate
+#                for each variable in 'x' (T or F); default=TRUE
+#   smooth     : whether to draw a smooth line through the trace
+#                plot (T or F); this is passed to <trace.plot.ergm>;
+#                default=TRUE
+#   bwf        : a function for calculating the bandwidth that 
+#                is passed to the R coda function <densplot>;
+#                default=1.06*the min of the sd and IQ range 
+#                divided by 1.34*the sample size to the negative
+#                1/5 power
+#   auto.layout: whether to use the <set.mfrow> function to
+#                layout the plots (T or F); default=TRUE
+#   ask        : whether the user should be asked before
+#                printing each plot (T or F); default=TRUE
+#   maxplot    : the maximum number of trace plots to print;
+#                default=1000
+#   parallel   : the number of vertical parallel lines to print
+#                on the trace plots; default=0 
+#   x0         : a vector of positions at which to draw horizontal
+#                lines on the traceplots and vertical lines on
+#                the density plots
+#   mcmc.title : the title to position over the plots; default=""
+#   xlab, ylab : have their usual par-like meanings
+#   ...        : additional parameters, all of which will be
+#                ignored
+#
+# --RETURNED--
+#   NULL
+###################################################################
+
 "plot.mcmc.ergm" <- function(x, trace = TRUE, density = TRUE, 
                          smooth = TRUE, bwf, 
                          auto.layout = TRUE, ask = TRUE,
@@ -294,6 +433,28 @@ print.raftery.diag.ergm <- function (x, digits = 3, simvalues=NULL, ...)
     if(i==1){mtext(text=mcmc.title, outer=TRUE, line = -1.5)}
   }
 }
+
+
+
+####################################################################
+# The <traceplot.ergm> function plots a trace plot for each of the
+# variables in an mcmc object or stats matrix 'x'
+#
+# --PARAMETERS--
+#   x       : a matrix of summary statistics or an mcmc object
+#   smooth  : whether to draw a smooth line through the trace
+#             plot (T or F); default=TRUE
+#   maxplot : the maximum number of trace plots to print;
+#             default=1000
+#   parallel: the number of vertical parallel lines to print
+#             on the trace plots; default=0 
+#   col, type, xlab, and ylab take on their usual par-like meanings
+#
+# --RETURNED--
+#   NULL
+#
+######################################################################
+
 "traceplot.ergm" <-
 function (x, smooth = TRUE, col = 1:6, type = "l",
           xlab = "Iterations", ylab = "", maxplot=1000, parallel=0, ...) 
@@ -322,31 +483,52 @@ function (x, smooth = TRUE, col = 1:6, type = "l",
     }
   }
 }
+
+
+
+
+###################################################################
+# The <set.mfrow> functions sets the par mfrow variable to
+# accomodate the mcmc diagnostic plots
+#
+# --PARAMETERS--
+#   Nchains: the number of chains; default=1
+#   Nparms : the number of theta coefficients?? ;default=1
+#   nplots : how many plots there will be per variable;
+#            default=1
+#   sepplot: whether there will be separate plots per chain;
+#            default=FALSE
+#
+# --RETURNED--
+#   mfrow: the par 'mfrow' vector c(nr, nc) used to set up the
+#          dimensions of the graphics window; the values nr x nc
+#          are:
+#     if only density plots OR trace plots are requested, dimensions are: 
+#	1 x 1	if Nparms = 1 
+#	1 X 2 	if Nparms = 2 
+#	2 X 2 	if Nparms = 3 or 4 
+#	3 X 2 	if Nparms = 5 or 6 or 10 - 12 
+#	3 X 3 	if Nparms = 7 - 9 or >= 13 
+#     if both density plots AND trace plots are requested, dimensions are: 
+#	1 x 2	if Nparms = 1 
+#	2 X 2 	if Nparms = 2 
+#	3 X 2 	if Nparms = 3, 5, 6, 10, 11, or 12 
+#	4 x 2	if Nparms otherwise 
+#     if separate plots are requested for each chain, dimensions are: 
+#	1 x 2	if Nparms = 1 & Nchains = 2 
+#	2 X 2 	if Nparms = 2 & Nchains = 2 OR Nparms = 1 & Nchains = 3 or 4 
+#	3 x 2	if Nparms = 3 or >= 5 & Nchains = 2  
+#		   OR Nchains = 5 or 6 or 10 - 12 (and any Nparms) 
+#	2 x 3	if Nparms = 2 or 4 & Nchains = 3 
+#	4 x 2   if Nparms = 4 & Nchains = 2  
+#		   OR Nchains = 4 & Nparms > 1 
+#	3 x 3	if Nparms = 3 or >= 5  & Nchains = 3  
+#		   OR Nchains = 7 - 9 or >= 13 (and any Nparms)
+############################################################################
+
 "set.mfrow" <-
 function (Nchains = 1, Nparms = 1, nplots = 1, sepplot = FALSE) 
 {
-  ## Set up dimensions of graphics window: 
-  ## If only density plots OR trace plots are requested, dimensions are: 
-  ##	1 x 1	if Nparms = 1 
-  ##	1 X 2 	if Nparms = 2 
-  ##	2 X 2 	if Nparms = 3 or 4 
-  ##	3 X 2 	if Nparms = 5 or 6 or 10 - 12 
-  ##	3 X 3 	if Nparms = 7 - 9 or >= 13 
-  ## If both density plots AND trace plots are requested, dimensions are: 
-  ##	1 x 2	if Nparms = 1 
-  ##	2 X 2 	if Nparms = 2 
-  ##	3 X 2 	if Nparms = 3, 5, 6, 10, 11, or 12 
-  ##	4 x 2	if Nparms otherwise 
-  ## If separate plots are requested for each chain, dimensions are: 
-  ##	1 x 2	if Nparms = 1 & Nchains = 2 
-  ##	2 X 2 	if Nparms = 2 & Nchains = 2 OR Nparms = 1 & Nchains = 3 or 4 
-  ##	3 x 2	if Nparms = 3 or >= 5 & Nchains = 2  
-  ##		   OR Nchains = 5 or 6 or 10 - 12 (and any Nparms) 
-  ##	2 x 3	if Nparms = 2 or 4 & Nchains = 3 
-  ##	4 x 2   if Nparms = 4 & Nchains = 2  
-  ##		   OR Nchains = 4 & Nparms > 1 
-  ##	3 x 3	if Nparms = 3 or >= 5  & Nchains = 3  
-  ##		   OR Nchains = 7 - 9 or >= 13 (and any Nparms)
   mfrow <- if (sepplot && Nchains > 1 && nplots == 1) {
     ## Separate plots per chain
     ## Only one plot per variable
@@ -417,6 +599,8 @@ function (Nchains = 1, Nparms = 1, nplots = 1, sepplot = FALSE)
   }
   return(mfrow)
 }
+
+
 
 #"nvar.mcmc" <- function (x) {
 #  if (is.mcmc.object(x)) {

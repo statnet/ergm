@@ -1,3 +1,17 @@
+###############################################################################
+# The <is.inCH> function determines whether a vector p is in the convex hull
+# of the vectors M
+#
+# --PARAMETERS--
+#   p:  a vector of length n
+#   M:  a q by n matrix 
+#
+# --RETURNED--
+#   x: TRUE if p is in the CH of the points M
+#      FALSE othewise
+#
+###############################################################################
+
 is.inCH <- function(p, M) {
   p <- as.vector(p)
   if (!is.matrix(M)) 

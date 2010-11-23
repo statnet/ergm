@@ -7,8 +7,9 @@
 }
 \usage{
 control.san(prop.weights = "default", prop.args = NULL,
-            drop = FALSE, 
-            maxchanges = 1000000)
+            drop = FALSE, maxedges=20000, maxchanges=1000000,
+            packagenames="ergm", network.output="network",
+            parallel = 0)
 }
 \details{
     This function is only used within a call to the \code{\link{san}} function.
@@ -29,11 +30,17 @@ control.san(prop.weights = "default", prop.args = NULL,
     If statistics occur on the extreme of their range they
     correspond to infinite parameter estimates.
     Default is \code{FALSE}.}
+  \item{maxedges}{maximum number of edges expected in network}
+  \item{packagenames}{Names of packages in which changestatistics are found. Currently unused as \code{ergm} is presumed.}
+  \item{network.output}{character: R class with which to output 
+  networks. The options are "network" (default) and "edgelist.compressed" 
+  (which saves space but only supports networks without vertex attributes)}
   \item{maxchanges}{
     %FIXME: I am not sure this is accurate.
     %Maximum number of changes in dynamic network
     %simulation for which to allocate space. 
     Currently unused}
+  \item{parallel}{Number of threads in which to run the sampling. Currently unimplemented}
 }
 \value{
   A list with arguments as components.

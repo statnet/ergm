@@ -1,4 +1,19 @@
- "wtd.median"<- function(x, na.rm = FALSE, weight=FALSE) {
+#################################################################################
+# The <wtd.median> function determines and returns the weighted median of a
+# vector x
+#
+# --PARAMETERS--
+#   x     : a numeric vector
+#   na.rm : whether missing values should be removed (T or F); default=FALSE
+#   weight: a vector of weights for each value in x
+#
+# --RETURNED--
+#   NA                     if x has missing values and 'na.rm'=FALSE
+#   the weighted median    otherwise  
+#
+################################################################################
+
+wtd.median <- function(x, na.rm = FALSE, weight=FALSE) {
  	if(mode(x) != "numeric")
  		stop("need numeric data")
  	x <- as.vector(x)
@@ -33,3 +48,5 @@
  	  }
  	}
  }
+
+# Got rid of wtd.mean function because weighted.mean already exists in R

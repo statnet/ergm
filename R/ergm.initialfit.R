@@ -1,13 +1,49 @@
+####################################################################################
+# The <ergm.initialfit> function fits an initial ergm object using either ML or MPL
+# estimation.  If initial parameters are provided in 'theta0' and 'MLestimate' is 
+# TRUE, the number of parameters in 'theta0' is checked for correctness.
+# 
+# --PARAMETERS--
+#   theta0        :  either a vector whose first entry is "MPLE" or a vector
+#                    of initail coefficients; THIS FUNCTION WILL BREAK IF 
+#                    'theta0' has "MPLE" as any entry but the first
+#   MLestimate    :  whether a MLestimate should be used (T or F); 
+#                       if TRUE, this may be overriden by 'force.MPLE'=TRUE  or
+#                                theta0=c("MPLE", ...)
+#                       if FALSE, 'theta0' must have "MPLE" as its 1st entry to 
+#                                  avoid an error
+#   Clist         :  the list of parameters needed for ML or MPL estimation and 
+#                    returned by <ergm.Cprepare>
+#   Clist.miss    :  the list of parameters for the network of missing edges
+#                    needed for ML or MPL estimation and returned by <ergm.design> 
+#   m             :  the model as returned by <ergm.getmodel>
+#   MPLEtype      :  the method for MPL estimation as either "glm", "penalized",
+#                    or "logitreg"; this is ignored if ML estimation is used;
+#                    default="glm" 
+#   initial.loglik:  the initial log likelihood; default=NULL
+#   force.MPLE    :  whether MPL estimation should be forced instead of ML 
+#                    estimation (T or F); this is ignored if 'MLestimate'=FALSE
+#                    or "MPLE" is an entry into 'theta0'; default=FALSE
+#   verbose       :  whether the MPL estimation should be verbose (T or F); 
+#                    default=FALSE
+#   ...           :  addtional parameters that are used with MPL estimation and
+#                    may be set via <control.ergm>
+#
+#
+# --RETURNED--
+#    an ergm object as one of the following lists
+#     if MLE  -- a list with 2 components
+#                  coef   : 'theta0'
+#                  mle.lik:  the MLE likelihood
+#    if MPLE -- the list returned by <ergm.mple>
+#
+######################################################################################
+
 ergm.initialfit<-function(theta0, MLestimate, Clist, Clist.miss, m, 
                           MPLEtype="glm", initial.loglik=NULL,
+                          conddeg=NULL, MCMCparams=NULL, MHproposal=NULL,
                           force.MPLE=FALSE,
                           verbose=FALSE, ...) {
-# Process input for call to ergm.mple or some other alternative fitting
-# method.  If the user wishes only to obtain the fit from this method
-# (MLestimate==FALSE), this fit is returned immediately upon return to
-# ergm function and the function terminates.  Otherwise (MLestimate==TRUE),
-# we also check to see whether the theta0 value is a valid vector of
-# initial parameters.
   fitmethod <- match("MPLE", theta0)
   if (is.na(fitmethod) && MLestimate) { # theta0 should be a start vector
     
@@ -21,7 +57,8 @@ ergm.initialfit<-function(theta0, MLestimate, Clist, Clist.miss, m,
 
     if(force.MPLE){
       fit <- ergm.mple(Clist, Clist.miss, m, MPLEtype=MPLEtype,
-                       theta0=theta0,
+                       theta0=theta0, conddeg=conddeg, 
+		       MCMCparams=MCMCparams, MHproposal=MHproposal,
                        verbose=verbose, ...)
     }else{    
       if(!is.null(Clist.miss)){
@@ -40,7 +77,9 @@ ergm.initialfit<-function(theta0, MLestimate, Clist, Clist.miss, m,
   } else {
     if (fitmethod==1) {  #  MPLE
       fit <- ergm.mple(Clist, Clist.miss, m, MPLEtype=MPLEtype,
-                       verbose=verbose, ...)
+                       conddeg=conddeg, 
+		       MCMCparams=MCMCparams, MHproposal=MHproposal,
+		       verbose=verbose, ...)
     }
   }
   fit

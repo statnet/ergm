@@ -18,8 +18,6 @@ ergm(formula, theta0="MPLE",
      burnin=10000, MCMCsamplesize=10000, interval=100, maxit=3,
      constraints=~.,
      meanstats = NULL,
-     dissolve = NULL,
-     gamma = -4.59512, dissolve.order = "DissThenForm",
      control=control.ergm(),
      verbose=FALSE, \dots)
 }
@@ -110,14 +108,10 @@ Hunter (2008).  To create a
     Not all combinations of the above are supported.
   }
   \item{meanstats}{vector; the mean-value parameter value for the
-    model.  If this is given the algorithm finds the natural
-    parameter value corresponding to this mean-value parameter
-    If it is missing then mean-value parameter used are the observed
+    model.  If this is given, the algorithm finds the natural
+    parameter value corresponding to this mean-value parameter.
+    If it is missing, the mean-value parameters used are the observed
     statistics of the network in the formula.}
-  \item{dissolve}{formula for dynamic model.}
-  \item{gamma}{vector; the parameter value used fro the dynamic model formula.}
-  \item{dissolve.order}{character: The type of dynamic model
-    used. The default is "DissThenForm".}
   \item{control}{A list of control parameters for algorithm
     tuning. Constructed using \code{\link{control.ergm}}. }
   \item{seed}{integer; random number integer seed.  Defaults to

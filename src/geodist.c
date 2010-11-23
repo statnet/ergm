@@ -1,4 +1,3 @@
-
 #include "geodist.h"
 
 /* The geodist functions are based on breadth-first search.

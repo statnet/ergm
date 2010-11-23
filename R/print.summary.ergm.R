@@ -1,3 +1,25 @@
+###############################################################################
+# The <print.summary.ergm> function prints a subset of the information given
+# by <summary.ergm>
+#
+# --PARAMETERS--
+#   x           : a "summary.ergm" object, as returned by <summary.ergm>
+#   digits      : the number of significant digits for the coefficients;
+#                 default=max(3, getOption("digits")-3)
+#   correlation : whether the correlation matrix of the estimated parameters
+#                 should be printed (T or F); default=FALSE
+#   covariance  : whether the covariance matrix of the estimated parameters
+#                 should be printed (T or F); default=FALSE
+#   signif.stars: whether stars are to be printed on summary tables of
+#                 coefficients (T or F); default=getOption("show.signif.stars")
+#   eps         : the tolerance to be passed to the R <printCoefmat> function
+#   ...         : additional parameters to be passed to <printCoefmat> 
+#
+# --RETURNED--
+#   x
+#
+###############################################################################
+
 print.summary.ergm <- function (x, 
               digits = max(3, getOption("digits") - 3),
               correlation=FALSE, covariance=FALSE,

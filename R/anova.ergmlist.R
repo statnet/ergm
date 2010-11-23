@@ -1,5 +1,26 @@
-anova.ergmlist <-
-  function (object, ..., scale = 0, test = "F") 
+#################################################################################
+# The <anova.ergmlist> function computes an analysis of variance table for one
+# or more linear model fits with the same response.
+#
+# --PARAMETERS--
+#   object:  an ergm object
+#   ...   :  additional ergm objects. If these have a different response than
+#            that of object, these are ignored. If this argument is not provided,
+#            the <anova.ergm> function is used instead
+#
+#
+# --IGNORED PARAMETERS--
+#   scale:  a numeric estimate of the noise variance, sigma^2; default=0, which
+#           estimates sigma^2 from the largest model considered
+#   test :  a character string, "F", "Chisq", or "Cp", specifying which
+#           test statistic to use; default="F"
+#
+# --RETURNED--
+#   an anova object with the analysis of variance table for the considered ergms
+#
+#################################################################################
+
+anova.ergmlist <- function (object, ..., scale = 0, test = "F") 
 {
   objects <- list(object, ...)
   responses <- as.character(lapply(objects, function(x) deparse(x$formula[[2]])))

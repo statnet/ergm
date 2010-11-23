@@ -1,9 +1,59 @@
+###############################################################################
+# The <summary.ergm> function prints a 'summary of model fit' table and returns
+# the components of this table and several others listed below
+#
+# --PARAMETERS--
+#   object     : an ergm object
+#
+#
+# --IGNORED PARAMETERS--
+#   ...        : used for flexibility
+#   digits     : significant digits for the coefficients;default=
+#                max(3,getOption("digits")-3), but the hard-coded value is 5
+#   correlation: whether the correlation matrix of the estimated parameters
+#                should be printed (T or F); default=FALSE
+#   covariance : whether the covariance matrix of the estimated parameters
+#                should be printed (T or F); default=FALSE
+#   eps        : the numerical tolerance inputted to the native R function
+#                <format.pval>; the code using 'eps' is now commented out;
+#                default=.0001
+#
+# --RETURNED--
+#   ans: a "summary.ergm" object as a list containing the following
+#      formula         : object$formula
+#      randomeffects   : object$re
+#      digits          : the 'digits' inputted to <summary.ergm> or the default
+#                        value (despite the fact the digits will be 5)
+#      correlation     : the 'correlation' passed to <summary.ergm>
+#      degeneracy.value: object$degenarcy.value
+#      offset          : object$offset
+#      drop            : object$drop
+#      covariance      : the 'covariance' passed to <summary.ergm>
+#      pseudolikelihood: whether pseudoliklelihood was used (T or F)
+#      independence    : whether ?? (T or F)
+#      iterations      : object$iterations
+#      samplesize      : NA if 'pseudolikelihood'=TRUE, object$samplesize otherwise
+#      message         : a message regarding the validity of the standard error
+#                        estimates
+#      aic             : the AIC goodness of fit measure
+#      bic             : the BIC goodness of fit measure
+#      coefs           : the dataframe of parameter coefficients and their
+#                        standard erros and p-values
+#      asycov          : the asymptotic covariance matrix
+#      asyse           : the asymptotic standard error matrix
+#      senderreceivercorrelation: 'randomeffects' if this is a matrix;
+#                        otherwise, the correlation between sender and receiver??
+#
+################################################################################
+
 summary.ergm <- function (object, ..., 
                           digits = max(3, getOption("digits") - 3),
                           correlation=FALSE, covariance=FALSE,
                           eps=0.0001)
 {
 # separates out summary and print fns: MSH
+  pseudolikelihood <- is.null(object$samplesize) || is.na(object$samplesize)
+  independence <- !is.null(object$theta1$independent) && all(object$theta1$independent)
   if(any(is.na(object$coef)) & !is.null(object$mplefit)){
      object$coef[is.na(object$coef)] <-
      object$mplefit$coef[is.na(object$coef)]
@@ -11,6 +61,8 @@ summary.ergm <- function (object, ...,
   if(is.null(object$hessian) && is.null(object$covar)){
    return()
   }
+  nodes<- network.size(object$network)
+  dyads<- network.dyadcount(object$network)
   if(is.null(object$covar)){
    asycov <- try(robust.inverse(-object$hessian), silent=TRUE)
    if(inherits(asycov,"try-error")){
@@ -18,6 +70,16 @@ summary.ergm <- function (object, ...,
    }
   }else{
    asycov <- object$covar
+   if(FALSE & !pseudolikelihood & !independence){
+    if(is.directed(object$network)){
+     mdyads <- nodes * (nodes-1)
+    }else{
+     mdyads <- nodes * (nodes-1) / 2
+    }
+    # Adjust for missing dyads
+    asycov <- asycov*mdyads/dyads
+    object$mc.se <- object$mc.se*sqrt(mdyads/dyads)
+   }
   }
   rownames(asycov) <- names(object$coef)
   colnames(asycov) <- rownames(asycov)
@@ -27,14 +89,17 @@ summary.ergm <- function (object, ...,
   asyse <- sqrt(asyse)
   if(any(is.na(asyse)&!object$offset) & !is.null(object$mplefit)){
    if(is.null(object$mplefit$covar)){
-    mpleasycov <- try(robust.inverse(-object$mplefit$hessian), silent=TRUE)
-    if(inherits(mpleasycov,"try-error")){
-     mpleasycov <- diag(1/diag(-object$mplefit$hessian))
+    if(!is.null(object$mplefit$covar)){
+     mpleasycov <- try(robust.inverse(-object$mplefit$hessian), silent=TRUE)
+     if(inherits(mpleasycov,"try-error")){
+      mpleasycov <- diag(1/diag(-object$mplefit$hessian))
+     }
+     asyse[is.na(asyse)] <- sqrt(diag(mpleasycov))[is.na(asyse)]
     }
    }else{
     mpleasycov <- object$mplefit$covar
+    asyse[is.na(asyse)] <- sqrt(diag(mpleasycov))[is.na(asyse)]
    }
-   asyse[is.na(asyse)] <- sqrt(diag(mpleasycov))[is.na(asyse)]
   }
   asyse <- matrix(asyse, ncol=length(asyse))
   colnames(asyse) <- colnames(asycov)
@@ -43,8 +108,6 @@ summary.ergm <- function (object, ...,
 #   original <- format(object$MCMCtheta, digits = digits)
 #   original <- format(object$theta.original, digits = digits)
 
-  pseudolikelihood <- is.na(object$samplesize)
-  independence <- !is.null(object$theta1$independent) && all(object$theta1$independent)
   ans <- list(formula=object$formula, randomeffects=object$re,
               digits=digits, correlation=correlation,
               degeneracy.value = object$degeneracy.value,

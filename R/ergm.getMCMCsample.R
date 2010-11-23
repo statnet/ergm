@@ -1,26 +1,59 @@
-# This function is nothing other than an R wrapper for the MCMC_wrapper
-# function in C.  It assumes that the calling function will send only what is 
-# necessary, namely:
+########################################################################################
+# The <ergm.getMCMCsample> function samples a network using an MCMC algorithm via
+# <MCMC_wrapper.C> and returns the network as an edgelist and a stats matrix. Note
+# that the stats will be relative to the original network, i.e., the calling function
+# must shift the statistics if required. The calling function must also attach column
+# names to the statistics matrix if required.
 #
-#  Clist (the result of calling ergm.Cprepare(network, model))
-#  MHproposal (the result of calling MHproposal(...))
-#  eta0 (the canonical parameter value governing the MCMC simulation)
-#  MCMCparams (sort of a catch-all for other arguments passed)
-#  verbose (which governs the verbosity of the C functions)
+# --PARAMETERS--
+#   Clist     :  a list of parameters required by <MCMC_wrapper.C> and the result of
+#                calling <ergm.Cprepare>
+#   MHproposal:  a list of the parameters needed for Metropolis-Hastings proposals and
+#                the result of calling <MHproposal>
+#   eta0      :  the initial eta coefficients (these are passed in as theta coefs by
+#                <simulate.ergm>)
+#   verbose   :  whether the C functions should be verbose; default=FALSE 
+#   MCMCparams:  list of MCMC tuning parameters; those recognized include
+#                  maxedges      :  the maximum number of new edges that memory will be
+#                                   allocated for
+#                  samplesize    :  the number of networks to be sampled
+#                  nmatrixentries:  the number of entries the the returned 'statsmatrix'
+#                                   will have??
+#                  interval      :  the number of samples to ignore between sampled networks
+#                  burnin        :  the number of samples to initially ignore for the burn-in
+#                                   period
+#                  Clist.miss    :  a corresponding 'Clist' for the network of missing edges,
+#                                   as returned by <ergm.design>
+#                  Clist.dt      :  a list of ??
 #
-#  It returns only the named elements of the .C() call, after some 
-#  post-processing: the statistics matrix is coerced to the correct
-#                   dimensions and the heads/tails are returned as an edgelist
-#  NB:  The statistics are all RELATIVE TO THE ORIGINAL NETWORK!
-#       i.e., the calling function must shift the statistics if required.
-#       The calling function must also attach column names to the statistics
-#       matrix if required.
+#
+# --RETURNED--
+#   the sampled network and its statistics within a list containing:
+#     statsmatrix:  the stats matrix for the sampled network, coerced into the correct
+#                   dimesions and RELATIVE TO THE ORIGINAL NETWORK!
+#     edgelist   :  the edgelist for the sampled network
+#
+#########################################################################################
 
 ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALSE) {
   maxedges <- MCMCparams$maxedges
+  nedges <- c(Clist$nedges,0,0)
+  heads <- Clist$heads
+  tails <- Clist$tails
+  if(!is.null(MCMCparams$Clist.miss)){
+    nedges[2] <- MCMCparams$Clist.miss$nedges
+    heads <- c(heads, MCMCparams$Clist.miss$heads)
+    tails <- c(tails, MCMCparams$Clist.miss$tails)
+  }
+  if(!is.null(MCMCparams$Clist.dt)){
+    nedges[3] <- MCMCparams$Clist.dt$nedges
+    heads <- c(heads, MCMCparams$Clist.dt$heads)
+    tails <- c(tails, MCMCparams$Clist.dt$tails)
+  }
   z <- .C("MCMC_wrapper",
-  as.integer(Clist$heads), as.integer(Clist$tails),
-  as.integer(Clist$nedges), as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
+  as.integer(length(nedges)), as.integer(nedges),
+  as.integer(heads), as.integer(tails),
+  as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
   as.integer(Clist$dir), as.integer(Clist$bipartite),
   as.integer(Clist$nterms),
   as.character(Clist$fnamestring),
@@ -46,8 +79,6 @@ ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALS
   as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
   as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)),
   as.integer(maxedges),
-  as.integer(MCMCparams$Clist.miss$heads), as.integer(MCMCparams$Clist.miss$tails),
-  as.integer(MCMCparams$Clist.miss$nedges),
   PACKAGE="ergm")
 
   nedges <- z$newnwheads[1]  # This tells how many new edges there are
@@ -66,7 +97,7 @@ ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALS
   } else { 
     ## Post-processing of z$newnwheads and z$newnwtails: Combine into newedgelist
     ## The heads are listed starting at z$newnwheads[2], and similarly for tails.
-    newedgelist <- cbind(z$newnwtails[2:(nedges+1)], z$newnwheads[2:(nedges+1)])
+    newedgelist <- cbind(z$newnwheads[2:(nedges+1)], z$newnwtails[2:(nedges+1)])
   }
 
   ## Post-processing of z$statsmatrix element: coerce to correct-sized matrix

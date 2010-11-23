@@ -1,3 +1,15 @@
+###############################################################################
+# The <license.statnet> function prints the licensing information for any of
+# the statnet packages
+#
+# --PARAMETERS--
+#   package: the name of one of the statnet packages; default="statnet"
+#
+# --RETURNED--
+#   NULL
+#
+###############################################################################
+
 license.statnet <- function (package="statnet") {
 
 statnet.packages <- c("statnet","ergm","degreenet","latentnet","network","networksis","sna")
@@ -64,6 +76,6 @@ paste("'",package,"' for use in another application, you must ensure that the\n"
 "               Steven M. Goodreau, University of Washington\n",
 "               Martina Morris, University of Washington\n",
 "\n",
-"Copyright 2007 The statnet Development Team")
+"Copyright 2010 The statnet Development Team\n")
 }
 }

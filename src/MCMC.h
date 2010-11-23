@@ -6,7 +6,8 @@
 #include "MHproposal.h"
 #include "model.h"
 
-void MCMC_wrapper (int *heads, int *tails, int *dnedges,
+void MCMC_wrapper (int *dnumnets, int *dnedges,
+		   int *heads, int *tails,
                    int *maxpossibleedges,
                    int *dn, int *dflag, int *bipartite, 
                    int *nterms, char **funnames,
@@ -19,8 +20,7 @@ void MCMC_wrapper (int *heads, int *tails, int *dnedges,
                    int *fVerbose, 
                    int *attribs, int *maxout, int *maxin, int *minout,
                    int *minin, int *condAllDegExact, int *attriblength, 
-                   int *maxedges,
-                   int *mheads, int *mtails, int *mdnedges);
+                   int *maxedges);
 void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
 		 double *theta, double *networkstatistics, 
 		 long int samplesize, long int burnin, 
@@ -29,7 +29,8 @@ void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
 void MetropolisHastings (MHproposal *MHp,
 			 double *theta, double *statistics, 
 			 long int nsteps, long int *staken,
-			 int hammingterm, int fVerbose,
+       int hammingterm,
+       int fVerbose,
 			 Network *nwp, Model *m, DegreeBound *bd);
 void MCMCPhase12 (int *heads, int *tails, int *dnedges,
       int *maxpossibleedges,

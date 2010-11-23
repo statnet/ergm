@@ -6,20 +6,27 @@
 }
 \usage{
 control.ergm(prop.weights = "default", prop.args = NULL,
-             nr.maxit = 1000,  
-             calc.mcmc.se = TRUE, hessian = FALSE, compress = TRUE,
+             prop.weights.diss = "default", prop.args.diss = NULL, 
+             nr.maxit = 100,
+             calc.mcmc.se = TRUE, hessian = TRUE, compress = TRUE,
              SAN.burnin=NULL,
              maxNumDyadTypes = 1e+06, maxedges = 20000, maxchanges = 1e+06,
-             maxMPLEsamplesize = 1e+05, MPLEtype=c("glm", "penalized"), trace = 0,
-             steplength = 0.5, drop = TRUE, force.mcmc = FALSE, check.degeneracy=FALSE, mcmc.precision =
-             0.05, metric = c("lognormal", "naive"), method = c("BFGS", "Nelder-Mead"),
+             maxMPLEsamplesize = 1e+05, MPLEtype=c("glm", "penalized"), 
+             nr.reltol=sqrt(.Machine$double.eps), trace = 0,
+             steplength = 0.5, sequential=TRUE,
+             drop = TRUE, force.mcmc = FALSE, check.degeneracy=FALSE, 
+             mcmc.precision = 0.05, 
+             metric = c("lognormal", "Median.Likelihood",
+             "EF.Likelihood", "naive"),
+             method = c("BFGS", "Nelder-Mead"),
              trustregion = 20, initial.loglik = NULL, initial.network = NULL,
              style = c("Newton-Raphson", "Robbins-Monro",
-             "Stochastic-Approximation", "Stepping"), 
+             "Stochastic-Approximation", "Stepping","PILA"),
+             style.dyn = c("Robbins-Monro", "SPSA", "SPSA2"),
              phase1_n = NULL, initial_gain = NULL,
              nsubphases = "maxit", niterations = NULL, phase3_n = NULL,
-             RobMon.phase1n_base = 7, RobMon.phase2n_base = 7, RobMon.phase2sub
-             = 4, RobMon.init_gain = 0.1, RobMon.phase3n = 500, 
+             RobMon.phase1n_base = 7, RobMon.phase2n_base = 100, RobMon.phase2sub
+             = 7, RobMon.init_gain = 0.5, RobMon.phase3n = 500, 
              stepMCMCsize=100, gridsize=100, dyninterval=1000, 
              packagenames="ergm", parallel = 0, returnMCMCstats = TRUE)
              }
@@ -36,6 +43,8 @@ control.ergm(prop.weights = "default", prop.args = NULL,
     with all possible constraints (in the \code{\link{ergm}} function).
     }
   \item{prop.args}{ An alternative, direct way of specifying additional arguments to proposal. }
+  \item{prop.weights.diss}{ As \code{prop.weights}, for dissolution model. }
+  \item{prop.args.diss}{ As \code{prop.args}, for dissolution model. }
   \item{nr.maxit}{ count; The maximum number of iterations in the
     Newton-Raphson optimization.  Defaults to \code{1000}.
     \code{maxit} gives the total number of likelihood
@@ -71,6 +80,9 @@ control.ergm(prop.weights = "default", prop.args = NULL,
     Meinhard Ploner, Daniela Dunkler, Harry
     Southworth, and Georg Heinze in the "logistf" package. 
     Default is "glm".}
+  \item{nr.reltol}{Relative convergence tolerance, passed to optimization
+  routines like \code{optim}.  See the \code{reltol} control argument for the
+  \code{optim} function.}
   \item{trace}{non-negative integer; If positive,
     tracing information on the
     progress of the optimization is produced. Higher values may
@@ -80,6 +92,12 @@ control.ergm(prop.weights = "default", prop.args = NULL,
     give more detail.)}
   \item{steplength}{ Multiplier for step length, to make fitting more
     stable at the cost of efficiency. }
+  \item{sequential}{Should the next iteration of the fit use the last network 
+    sampled as the starting network or always use the initially passed network?
+    The results should be similar (stochastically), but the
+    \code{sequential=TRUE} option if \code{meanstats} is far from the
+    passed network.
+   }
   \item{drop}{logical; Should the degenerate terms in the model be
     dropped from the fit?
     If statistics occur on the extreme of their range they
@@ -94,7 +112,7 @@ control.ergm(prop.weights = "default", prop.args = NULL,
     standard errors induced by the MCMC algorithm.
     Defaults to \code{0.05}.}
   \item{metric}{character; The name of the optimization metric
-    to use. Defaults to \code{"lognormal"}.  See Hummel et al (2010)
+    to use. Defaults to \code{"Median.Likelihood"}.  See Hummel et al (2010)
     for an explanation of "lognormal" and "naive".}
   \item{method}{character; The name of the optimization method
     to use. See \code{\link[stats]{optim}} for the options. The default method
@@ -119,6 +137,15 @@ control.ergm(prop.weights = "default", prop.args = NULL,
     advantages over stochastic approximation, but the choice will
     depend on the model and data being fit. See Handcock (2000) and 
     Hunter and Handcock (2006) for details.}
+  \item{style.dyn}{character; The style of method of moments estimation
+    to use. The default is a form of stochastic approximation
+    (\code{"Robbins-Monro"}), but it should only be used if it is known
+    a priori that the derivative of each element of the equilibrium
+    expected values of statistics of interest with respect to the
+    corresponding formation phase parameter is positive. The other
+    option, (\code{"SPSA"}) is less precise but does not make this
+    assumption. \code{"SPSA2"} is multithreaded, but runs slower for
+    some reason.}
   \item{phase1_n}{count; The number of MCMC samples to draw
     in Phase 1 of the stochastic approximation algorithm.
     Defaults to 7 plus 3 times the number of terms in the model.

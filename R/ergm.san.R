@@ -1,3 +1,63 @@
+#=========================================================================
+# This file contains 4 functions for created "SAN-ed" networks & formulas
+#           <san>              <san.formula>
+#           <san.default>      <san.ergm>
+#=========================================================================
+
+
+
+
+####################################################################
+# Each of the <san.X> functions samples one or more networks via
+# <SAN_wrapper.C> according to the vector of mean stats given;
+# execution will halt
+#    - if X is neither an ergm object or a formula
+#    - if the formula does not correctly specify a network
+#    - no mean stats are given
+#
+# --PARAMETERS--
+#   object     : an ergm object of a formula for such
+#   nsim       : the number of sampled networks to return;
+#                default=1
+#   seed       : the number at which to start the random number
+#                generator; default=NULL
+#   theta0     : a vector of initial values for the theta coefficients;
+#                default=those returned by <ergm.mple>
+#   tau        : ??;  default=1
+#   invcov     : the covariance matrix?; default=that from the mple
+#                fit if 'theta0'=NULL, else default=the identity matrix
+#                of size 'theta0'
+#   burnin     : the number of proposal to disregard before sampling
+#                begins; default=1e4
+#   interval   : the number of proposals between sampled statistics;
+#                default=1e4
+#   meanstats  : a vector of the mean statistics for each model
+#                coefficient; default=NULL (which will halt execution)
+#   basis      : optionally, a network can be provided in 'basis' and
+#                this replaces that given by 'object'; default=NULL
+#   sequential : whether subsequent sampling should start with the
+#                previously sampled network; the alternative is to
+#                always begin sampling from the original network;
+#                default=TRUE
+#   constraints: a one-sided formula giving one or more constraints on
+#                the support of the distribution of the networks being
+#                modeled; a list of availabe options is described in the
+#                <ergm> R documentation; default=~.
+#   verbose    : whether this and the C program should be verbose;
+#                default=FALSE
+#   ...        : additional parameters that will passed onto <ergm.mple>
+#
+# --RETURNED--
+#   outlist: either a single sampled network if 'nsim'=1, else a
+#            network.series object as list containing
+#              formula :  the formula given by 'object'
+#              networks:  the list of sampled networks
+#              stats   :  the summary statistics of the sampled networks
+#              coef    :  the initial theta coefficients used by
+#                         the sampling rountine, i.e. 'theta0'
+#            
+##############################################################################
+
 san <- function(object, ...){
  UseMethod("san")
 }
@@ -80,7 +140,7 @@ san.formula <- function(object, nsim=1, seed=NULL, theta0=NULL,
   for(i in 1:nsim){
     Clist <- ergm.Cprepare(nw, model)
 #   Clist.miss <- ergm.design(nw, model, verbose=verbose)
-    maxedges <- max(20000, Clist$nedges)
+    maxedges <- max(control$maxedges, Clist$nedges)
     if (verb) {
        cat(paste("#", i, " of ", nsim, ": ", sep=""))
      }
@@ -116,9 +176,18 @@ san.formula <- function(object, nsim=1, seed=NULL, theta0=NULL,
     eta0[is.na(eta0)]<-0
     while(z$newnwheads[1] > maxedges){
      maxedges <- 10*maxedges
+     nedges <- c(Clist$nedges,0)
+     heads <- Clist$heads
+     tails <- Clist$tails
+     if(!is.null(MCMCparams$Clist.miss)){
+       nedges[2] <- MCMCparams$Clist.miss$nedges
+       heads <- c(heads, MCMCparams$Clist.miss$heads)
+       tails <- c(tails, MCMCparams$Clist.miss$tails)
+     }
      z <- .C("SAN_wrapper",
-             as.integer(Clist$heads), as.integer(Clist$tails), 
-             as.integer(Clist$nedges), as.integer(Clist$maxpossibleedges),
+             as.integer(length(nedges)), as.integer(nedges),
+             as.integer(heads), as.integer(tails),
+             as.integer(Clist$maxpossibleedges),
              as.integer(Clist$n),
              as.integer(Clist$dir), as.integer(Clist$bipartite),
              as.integer(Clist$nterms), 
@@ -142,18 +211,16 @@ san.formula <- function(object, nsim=1, seed=NULL, theta0=NULL,
              as.integer(MHproposal$bd$condAllDegExact),
              as.integer(length(MHproposal$bd$attribs)), 
              as.integer(maxedges), 
-             as.integer(0.0), as.integer(0.0), 
-             as.integer(0.0),
              PACKAGE="ergm")
     }
 #
 #   Next update the network to be the final (possibly conditionally)
 #   simulated one
 #
-    out.list[[i]] <- newnw.extract(nw, z)
+    out.list[[i]] <- newnw.extract(nw, z, output=control$network.output)
     out.mat <- rbind(out.mat,z$s[(Clist$nstats+1):(2*Clist$nstats)])
     if(sequential){
-      nw <-  out.list[[i]]
+      nw <-  as.network.uncompressed(out.list[[i]])
     }
   }
   if(nsim > 1){
@@ -165,6 +232,7 @@ san.formula <- function(object, nsim=1, seed=NULL, theta0=NULL,
   }
   return(out.list)
 }
+
 
 san.ergm <- function(object, nsim=1, seed=NULL, theta0=object$coef,
                        burnin=10000, interval=10000, 

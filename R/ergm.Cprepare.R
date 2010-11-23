@@ -1,7 +1,37 @@
+##########################################################################
+# The <ergm.Cprepare> function builds an object called Clist that contains
+# all the necessary ingredients to be passed to the C functions
+#
+# --PARAMETERS--
+#   nw:  a network object
+#   m :  a model object, as returned by <ergm.getmodel> 
+#
+# --RETURNED--
+#   Clist:  a list of parameters used by several of the fitting routines
+#           containing
+#            n               :  the size of the network
+#            dir             :  whether the network is directed (T or F)
+#            bipartite       :  whether the network is bipartite (T or F)
+#            ndyads          :  the number of dyads in the network
+#            maxpossibleedges:  the maximum number of edges to allocate
+#                               space for
+#            nedges          :  the number of edges in this network  
+#            heads           :  the vector of head nodes
+#            tails           :  the vector of tail nodes
+#            nterms          :  the number of model terms
+#            nstats          :  the total number of change statistics
+#                               for all model terms
+#            inputs          :  the concatenated vector of 'input's from each
+#                               model term as returned by <InitErgmTerm.X> or
+#                               <InitErgm.X>
+#            fnamestring     :  the concatenated string of model term names
+#            snamestring     :  the concatenated string of package names that
+#                               contain the C function 'd_fname'; default="ergm"
+#                               for each fname in fnamestring
+##########################################################################
+
 ergm.Cprepare <- function(nw, m) 
 {
-  # Build an object called Clist that contains all the necessary
-  # ingredients to be passed to the C function.
   n <- network.size(nw)
   dir <- is.directed(nw)
   Clist<-list(n=n, dir=dir)
@@ -36,12 +66,19 @@ ergm.Cprepare <- function(nw, m)
   Clist$inputs<-numeric(0)
   if (Clist$nterms>0) {
     for(i in 1:Clist$nterms) {
-      Clist$fnamestring <- paste(Clist$fnamestring, mo[[i]]$name)
+      term_i <- mo[[i]]
+      Clist$fnamestring <- paste(Clist$fnamestring, term_i$name)
+      # This lets "pkgname" play the same role as "soname":
       Clist$snamestring <- paste(Clist$snamestring, 
-                                 ifelse(is.null(mo[[i]]$soname), "ergm",
-                                        mo[[i]]$soname))
-      Clist$inputs <- c(Clist$inputs, mo[[i]]$inputs)
-      Clist$nstats <- Clist$nstats + mo[[i]]$inputs[2]
+                                 if (!is.null(term_i$soname)) {
+                                   term_i$soname
+                                 } else if (!is.null(term_i$pkgname)) {
+                                   term_i$pkgname
+                                 } else {
+                                   "ergm"
+                                 } )
+      Clist$inputs <- c(Clist$inputs, term_i$inputs)
+      Clist$nstats <- Clist$nstats + term_i$inputs[2]
     }
   }
   while (substring(Clist$fnamestring, 1, 1)==" ")
@@ -49,15 +86,6 @@ ergm.Cprepare <- function(nw, m)
   while (substring(Clist$snamestring, 1, 1)==" ")
     Clist$snamestring <- substring(Clist$snamestring, 2)
 
-  if("order" %in% names(m)) Clist$order.code <- switch(m$order,
-                                                       DissThenForm=1,
-                                                       DissAndForm=2,
-                                                       FormAndDiss=2,
-                                                       FormThenDiss=3,
-                                                       FormOnly=4,
-                                                       DissOnly=5,
-                                                       0)
-  
   Clist
 }
 
