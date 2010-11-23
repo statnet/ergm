@@ -1,3 +1,70 @@
+InitErgmTerm.absdiff <- function(nw, arglist, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
+                      varnames = c("attrname","pow","form"),
+                      vartypes = c("character","numeric","character"),
+                      defaultvalues = list(NULL,1,"sum"),
+                      required = c(TRUE,FALSE,FALSE))
+  ### Process the arguments
+  nodecov <- get.node.attr(nw, a$attrname)
+  ### Construct the list to return
+  form<-match.arg(a$form,c("sum","nonzero"))
+  list(name=paste("absdiff",form,sep="_"),                                     #name: required
+       coef.names = paste(paste("absdiff",if(a$pow!=1) a$pow else "",sep=""), form,  a$attrname, sep="."), #coef.names: required
+       inputs = c(a$pow,nodecov),  # We need to include the nodal covariate for this term
+       dependence = FALSE # So we don't use MCMC if not necessary
+       )
+}
+
+InitErgmTerm.absdiffcat <- function(nw, arglist, response, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
+                      varnames = c("attrname","base","form"),
+                      vartypes = c("character","numeric","character"),
+                      defaultvalues = list(NULL,NULL,"sum"),
+                      required = c(TRUE,FALSE,FALSE))
+  ### Process the arguments
+  nodecov <- get.node.attr(nw, a$attrname)
+  u <- sort(unique(as.vector(abs(outer(nodecov,nodecov,"-")))),na.last=NA)
+  u <- u[u>0]
+  NAsubstitute <- 2*(1+max(abs(c(nodecov,u)),na.rm=TRUE)) # Arbitrary unused (and nonzero) value
+  napositions <- is.na(nodecov)
+  nodecov[napositions] <- NAsubstitute
+  if(any(napositions)){u<-c(u,NA)}
+  if(!is.null(a$base)) u <- u[-(a$base)]
+  if (length(u)==0)
+    stop ("Argument to absdiffcat() has too few distinct differences", call.=FALSE)
+  u2 <- u[!is.na(u)]
+  ### Construct the list to return
+  inputs <- c(u2, NAsubstitute, nodecov)
+  attr(inputs, "ParamsBeforeCov") <- length(u2)+1 # See comment at top of file
+  form<-match.arg(a$form,c("sum","nonzero"))
+  list(name=paste("absdiffcat",form,sep="_"),                                  #name: required
+       coef.names = paste("absdiff",form, a$attrname, u, sep="."), #coef.names: required
+       inputs = inputs,
+       dependence = FALSE # So we don't use MCMC if not necessary
+       )
+}
+
+
+InitWtErgmTerm.atleast<-function(nw, arglist, response, drop=TRUE, ...) {
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("threshold"),
+                      vartypes = c("numeric"),
+                      defaultvalues = list(0),
+                      required = c(FALSE))
+  if(drop) { # Check for zero statistics, print -Inf messages if applicable
+    obsstats <- check.ErgmTerm.summarystats(nw, arglist, response=response, ...)
+    if (extremewarnings(obsstats,minval=0,maxval=network.dyadcount(nw,TRUE))) {
+      return(NULL) # In this case the obs nw has 0 or n(n-1)/2 asymmetric dyads
+    } 
+  }
+  list(name="atleast",
+       coef.names=paste("atleast",a$threshold,sep="."),
+       inputs=a$threshold,
+       dependence=FALSE)
+}
+
 InitWtErgmTerm.CMP<-function(nw, arglist, response, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = NULL,
@@ -35,26 +102,6 @@ InitWtErgmTerm.ininterval<-function(nw, arglist, response, drop=TRUE, ...) {
        inputs=c(a$lower,a$upper,a$open),
        dependence=FALSE)
 }
-
-
-InitWtErgmTerm.atleast<-function(nw, arglist, response, drop=TRUE, ...) {
-  a <- check.ErgmTerm(nw, arglist,
-                      varnames = c("threshold"),
-                      vartypes = c("numeric"),
-                      defaultvalues = list(0),
-                      required = c(FALSE))
-  if(drop) { # Check for zero statistics, print -Inf messages if applicable
-    obsstats <- check.ErgmTerm.summarystats(nw, arglist, response=response, ...)
-    if (extremewarnings(obsstats,minval=0,maxval=network.dyadcount(nw,TRUE))) {
-      return(NULL) # In this case the obs nw has 0 or n(n-1)/2 asymmetric dyads
-    } 
-  }
-  list(name="atleast",
-       coef.names=paste("atleast",a$threshold,sep="."),
-       inputs=a$threshold,
-       dependence=FALSE)
-}
-
 
 InitWtErgmTerm.greaterthan<-function(nw, arglist, response, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,

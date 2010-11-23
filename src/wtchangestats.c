@@ -2,10 +2,95 @@
 
 /********************  changestats:   A    ***********/
 
+/*****************                       
+ stat: absdiff(_nonzero)
+*****************/
+WtD_CHANGESTAT_FN(d_absdiff_nonzero){ 
+  double p = INPUT_ATTRIB[0];
+  int i;
+
+  ZERO_ALL_CHANGESTATS(i);
+  EXEC_THROUGH_TOGGLES(i,{
+    if(p==1.0){
+      CHANGE_STAT[0] += fabs(INPUT_ATTRIB[heads[i]] - INPUT_ATTRIB[tails[i]])*((weights[i]!=0)-(CURWT!=0));
+    } else {
+      CHANGE_STAT[0] += pow(fabs(INPUT_ATTRIB[heads[i]] - INPUT_ATTRIB[tails[i]]), p)*((weights[i]!=0)-(CURWT!=0));
+    }
+    })
+}
+
+/*****************                       
+ stat: absdiff(_sum)
+*****************/
+WtD_CHANGESTAT_FN(d_absdiff_sum){ 
+  double p = INPUT_ATTRIB[0];
+  int i;
+
+  ZERO_ALL_CHANGESTATS(i);
+  EXEC_THROUGH_TOGGLES(i,{
+    if(p==1.0){
+      CHANGE_STAT[0] += fabs(INPUT_ATTRIB[heads[i]] - INPUT_ATTRIB[tails[i]])*(weights[i]-CURWT);
+    } else {
+      CHANGE_STAT[0] += pow(fabs(INPUT_ATTRIB[heads[i]] - INPUT_ATTRIB[tails[i]]), p)*(weights[i]-CURWT);
+    }
+    })
+}
+
+/*****************
+ stat: absdiffcat(_nonzero)
+*****************/
+WtD_CHANGESTAT_FN(d_absdiffcat_nonzero){ 
+  double change, absdiff, NAsubstitute, hval, tval;
+  Vertex ninputs;
+  int i, j;
+  
+  ninputs = N_INPUT_PARAMS - N_NODES;
+  NAsubstitute = INPUT_PARAM[ninputs-1];
+  ZERO_ALL_CHANGESTATS(i);
+  EXEC_THROUGH_TOGGLES(i,{
+      change = (weights[i]!=0)-(CURWT!=0);
+      hval = INPUT_ATTRIB[heads[i]-1];
+      tval = INPUT_ATTRIB[tails[i]-1];
+      if (hval == NAsubstitute ||  tval == NAsubstitute) absdiff = NAsubstitute;
+      else absdiff = fabs(hval - tval);
+      if (absdiff>0){
+	for (j=0; j<N_CHANGE_STATS; j++){
+	  CHANGE_STAT[j] += (absdiff==INPUT_PARAM[j]) ? change : 0.0;
+	}
+      }
+    })
+}
+
+/*****************
+ stat: absdiffcat(_sum)
+*****************/
+WtD_CHANGESTAT_FN(d_absdiffcat_sum){ 
+  double change, absdiff, NAsubstitute, hval, tval;
+  Vertex ninputs;
+  int i, j;
+  
+  ninputs = N_INPUT_PARAMS - N_NODES;
+  NAsubstitute = INPUT_PARAM[ninputs-1];
+  ZERO_ALL_CHANGESTATS(i);
+  EXEC_THROUGH_TOGGLES(i,{
+      change = weights[i]-CURWT;
+      hval = INPUT_ATTRIB[heads[i]-1];
+      tval = INPUT_ATTRIB[tails[i]-1];
+      if (hval == NAsubstitute ||  tval == NAsubstitute) absdiff = NAsubstitute;
+      else absdiff = fabs(hval - tval);
+      if (absdiff>0){
+	for (j=0; j<N_CHANGE_STATS; j++){
+	  CHANGE_STAT[j] += (absdiff==INPUT_PARAM[j]) ? change : 0.0;
+	}
+      }
+    })
+}
+
+
 /*****************
  stat: atleast
 *****************/
-WtD_CHANGESTAT_FN(d_atleast) {
+WtD_CHANGESTAT_FN(d_atleast){
   int i;
   
   CHANGE_STAT[0] = 0.0;
@@ -22,12 +107,12 @@ WtD_CHANGESTAT_FN(d_atleast) {
 
 WtD_FROM_S_FN(d_cyclicweights_max)
 
-WtS_CHANGESTAT_FN(s_cyclicweights_max) { 
+WtS_CHANGESTAT_FN(s_cyclicweights_max){ 
   Edge e1, e2;
   Vertex h, t, node3;
   
   CHANGE_STAT[0]=0;
-  for (h=1; h <= N_NODES; h++) {
+  for (h=1; h <= N_NODES; h++){
     EXEC_THROUGH_FOUTEDGES(h, e1, t, {
       double best_path = 0;
       EXEC_THROUGH_OUTEDGES(t, e2, node3, { 
@@ -44,12 +129,12 @@ WtS_CHANGESTAT_FN(s_cyclicweights_max) {
 
 WtD_FROM_S_FN(d_cyclicweights_sum)
 
-WtS_CHANGESTAT_FN(s_cyclicweights_sum) { 
+WtS_CHANGESTAT_FN(s_cyclicweights_sum){ 
   Edge e1, e2;
   Vertex h, t, node3;
   
   CHANGE_STAT[0]=0;
-  for (h=1; h <= N_NODES; h++) {
+  for (h=1; h <= N_NODES; h++){
     EXEC_THROUGH_FOUTEDGES(h, e1, t, {
       double path_strength = 0;
       EXEC_THROUGH_OUTEDGES(t, e2, node3, { 
@@ -66,12 +151,12 @@ WtS_CHANGESTAT_FN(s_cyclicweights_sum) {
 
 WtD_FROM_S_FN(d_cyclicweights_threshold)
 
-WtS_CHANGESTAT_FN(s_cyclicweights_threshold) { 
+WtS_CHANGESTAT_FN(s_cyclicweights_threshold){ 
   Edge e1, e2;
   Vertex h, t, node3;
   
   CHANGE_STAT[0]=0;
-  for (h=1; h <= N_NODES; h++) {
+  for (h=1; h <= N_NODES; h++){
     EXEC_THROUGH_FOUTEDGES(h, e1, t, {
 	if(GETWT(h,t)<=INPUT_ATTRIB[0]) break;
 	EXEC_THROUGH_OUTEDGES(t, e2, node3, { 
@@ -90,7 +175,7 @@ WtS_CHANGESTAT_FN(s_cyclicweights_threshold) {
 /*****************
  stat: greaterthan
 *****************/
-WtD_CHANGESTAT_FN(d_greaterthan) {
+WtD_CHANGESTAT_FN(d_greaterthan){
   int i;
   
   CHANGE_STAT[0] = 0.0;
@@ -148,9 +233,9 @@ WtD_CHANGESTAT_FN(d_mutual_wt_nabsdiff){
 /********************  changestats:   N    ***********/
 
 /*****************
- changestat: nodecov (nonzero)
+ stat: nodecov (nonzero)
 *****************/
-WtD_CHANGESTAT_FN(d_nodecov_nonzero) { 
+WtD_CHANGESTAT_FN(d_nodecov_nonzero){ 
   int i;
 
   CHANGE_STAT[0] = 0.0;
@@ -160,9 +245,9 @@ WtD_CHANGESTAT_FN(d_nodecov_nonzero) {
 }
 
 /*****************
- changestat: d_nodecov
+ stat: d_nodecov
 *****************/
-WtD_CHANGESTAT_FN(d_nodecov_sum) { 
+WtD_CHANGESTAT_FN(d_nodecov_sum){ 
   int i;
 
   CHANGE_STAT[0] = 0.0;
@@ -187,7 +272,7 @@ WtD_CHANGESTAT_FN(d_nodefactor_nonzero){
         s = (weights[i]!=0) - (CURWT!=0);
     hattr = INPUT_ATTRIB[h-1];
     tattr = INPUT_ATTRIB[t-1];
-    for (j=0; j < N_CHANGE_STATS; j++) {
+    for (j=0; j < N_CHANGE_STATS; j++){
       factorval = INPUT_PARAM[j];
       if (hattr == factorval) CHANGE_STAT[j] += s;
       if (tattr == factorval) CHANGE_STAT[j] += s;
@@ -210,7 +295,7 @@ WtD_CHANGESTAT_FN(d_nodefactor_sum){
     s = weights[i] - CURWT;
     hattr = INPUT_ATTRIB[h-1];
     tattr = INPUT_ATTRIB[t-1];
-    for (j=0; j < N_CHANGE_STATS; j++) {
+    for (j=0; j < N_CHANGE_STATS; j++){
       factorval = INPUT_PARAM[j];
       if (hattr == factorval) CHANGE_STAT[j] += s;
       if (tattr == factorval) CHANGE_STAT[j] += s;
@@ -221,7 +306,7 @@ WtD_CHANGESTAT_FN(d_nodefactor_sum){
 /*****************
  stat: nonzero
 *****************/
-WtD_CHANGESTAT_FN(d_nonzero) {
+WtD_CHANGESTAT_FN(d_nonzero){
   int i;
   
   CHANGE_STAT[0] = 0.0;
@@ -237,7 +322,7 @@ WtD_CHANGESTAT_FN(d_nonzero) {
  stat: nsumlogfactorial
  Turns a Poisson-reference or geometric-reference ERGM into a Conway-Maxwell-Poisson distribution
 *****************/
-WtD_CHANGESTAT_FN(d_nsumlogfactorial) {
+WtD_CHANGESTAT_FN(d_nsumlogfactorial){
   int i;
   
   CHANGE_STAT[0] = 0.0;
@@ -249,7 +334,7 @@ WtD_CHANGESTAT_FN(d_nsumlogfactorial) {
 /*****************
  stat: sum
 *****************/
-WtD_CHANGESTAT_FN(d_sum) {
+WtD_CHANGESTAT_FN(d_sum){
   int i;
   
   CHANGE_STAT[0] = 0.0;
@@ -266,12 +351,12 @@ WtD_CHANGESTAT_FN(d_sum) {
 
 WtD_FROM_S_FN(d_transitiveweights_max)
 
-WtS_CHANGESTAT_FN(s_transitiveweights_max) { 
+WtS_CHANGESTAT_FN(s_transitiveweights_max){ 
   Edge e1, e2;
   Vertex h, t, node3;
   
   CHANGE_STAT[0]=0;
-  for (h=1; h <= N_NODES; h++) {
+  for (h=1; h <= N_NODES; h++){
     EXEC_THROUGH_FOUTEDGES(h, e1, t, {
       double best_path = 0;
       EXEC_THROUGH_INEDGES(t, e2, node3, { 
@@ -288,12 +373,12 @@ WtS_CHANGESTAT_FN(s_transitiveweights_max) {
 
 WtD_FROM_S_FN(d_transitiveweights_sum)
 
-WtS_CHANGESTAT_FN(s_transitiveweights_sum) { 
+WtS_CHANGESTAT_FN(s_transitiveweights_sum){ 
   Edge e1, e2;
   Vertex h, t, node3;
   
   CHANGE_STAT[0]=0;
-  for (h=1; h <= N_NODES; h++) {
+  for (h=1; h <= N_NODES; h++){
     EXEC_THROUGH_FOUTEDGES(h, e1, t, {
       double path_strength = 0;
       EXEC_THROUGH_INEDGES(t, e2, node3, { 
@@ -310,12 +395,12 @@ WtS_CHANGESTAT_FN(s_transitiveweights_sum) {
 
 WtD_FROM_S_FN(d_transitiveweights_threshold)
 
-WtS_CHANGESTAT_FN(s_transitiveweights_threshold) { 
+WtS_CHANGESTAT_FN(s_transitiveweights_threshold){ 
   Edge e1, e2;
   Vertex h, t, node3;
   
   CHANGE_STAT[0]=0;
-  for (h=1; h <= N_NODES; h++) {
+  for (h=1; h <= N_NODES; h++){
     EXEC_THROUGH_FOUTEDGES(h, e1, t, {
 	if(GETWT(h,t)<=INPUT_ATTRIB[0]) break;
 	EXEC_THROUGH_INEDGES(t, e2, node3, { 
