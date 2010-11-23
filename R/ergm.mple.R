@@ -1,3 +1,45 @@
+##########################################################################
+# The <ergm.mple> function finds a maximizer to the psuedolikelihood
+# function
+#
+# --PARAMETERS--
+#   Clist            : a list of parameters used for fitting and returned
+#                      by <ergm.Cprepare>
+#   Clist.miss       : the corresponding 'Clist' for the network of missing
+#                      edges returned by <ergm.design>            
+#   m                : the model, as returned by <ergm.getmodel>
+#   theta0           : either a vector whose first entry is "MPLE" or a vector
+#                      of initail coefficients
+#   theta.offset     : haven't yet found anyone who passes this is ; default=NULL
+#   MPLEtype         : the method for MPL estimation as "penalized", "glm" or
+#                      "logitreg"; default="glm"    
+#   family           : the family to use in the R native routine <glm>; only
+#                      applicable if "glm" is the 'MPLEtype'; default="binomial"
+#   maxMPLEsamplesize: the sample size to use for endogenous sampling in the psuedo-
+#                      likelihood computation; default=1e6
+#   save.glm         :
+#   maxNumDyadTypes  : the maximum number of unique psuedolikelihood change stats
+#                      to be allowed if 'compress'=TRUE; ignored if 
+#                      'compress'!=TRUE; default=1e+6    
+#   thetal           : haven't yet found anyone who passes this is ; default=NULL
+#   conddeg          : an indicator of whether the MPLE should be conditional
+#                      on degree; non-NULL values indicate yes, NULL no;
+#                      default=NULL (I haven't yet found a function that passes this)   
+#   MCMCparams       : a list of MCMC related parameters; see X for details
+#   MHproposal       : an MHproposal object, as returned by <ergm.getMHproposal>
+#   verbose          : whether this and the C routines should be verbose (T or F);
+#                      default=FALSE
+#   compressflag     : whether to compress the design matrix of change stats by
+#                      tabulating the unique rows (T or F); default=TRUE
+#   ...              : additional parameters passed from within; all will be
+#                      ignored
+#
+# --RETURNED--
+#   an ergm object as a list containing several items; for details see
+#   the return list in the <ergm> function header (<ergm.mple>=!);
+#
+######################################################################################
+
 ergm.mple<-function(Clist, Clist.miss, m, theta0=NULL, theta.offset=NULL,
                     MPLEtype="glm", family="binomial",
                     maxMPLEsamplesize=1e+6,

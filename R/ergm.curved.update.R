@@ -1,3 +1,24 @@
+###############################################################################
+# The <ergm.curved.update> function ....
+#
+# --PARAMETERS--
+#   ecurved   :  a list of parameters relating to curved model terms, as
+#                returned by <ergm.curved>
+#   theta0    :  the vector of model parameters  
+#   m.expanded:  the expanded model??, as returned by <ergm.getmodel>??
+#   g         :  the network; there is no type checking on this variable
+#                and it is only needed for the network size
+#
+#
+# --RETURNED--
+#   a list of the parameters needed by to ??? and containing
+#     parms.curved: a list of the input parameters for each curved term
+#     eta0        : the vector of curved eta 'm.expanded' coefficients 
+#                   mapped from 'theta0'
+#     theta0      : 'theta0' 
+#
+###############################################################################
+
 "ergm.curved.update" <- function(ecurved,theta0,m.expanded,g){
 #
         geodf <- ecurved$geodf

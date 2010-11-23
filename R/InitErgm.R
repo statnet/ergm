@@ -1,103 +1,134 @@
-# Upon encountering a model term such as [name](args), ergm and related
-# routines will call a function of the form InitErgm.[name].  The specific
-# function call will be of the form
-#   InitErgm.[name](network, model, arguments, ...)
-# where network is the network object, model is a model object that should be
-# updated and then returned, arguments is the list (if any) of arguments
-# passed to the model term by the user, and ... includes any arguments
-# passed to the InitErgm function from within the program.
+#==========================================================================
+# This file contains the following 55 old, harder-to-write ergm-term
+# initialization functions (each prepended with "InitErgm"):
+#      <b1concurrent>       <gwesp>               <odegree>
+#      <b1factor>           <gwidegree>           <outdegreepopularity>
+#      <b2concurrent>       <gwnsp>               <ostar>
+#      <b2factor>           <gwodegree>           <receiver> 
+#      <balance>            <hammingmix>          <sender>
+#      <concurrent>         <idegree>             <simmelian>
+#      <ctriple>=<ctriad>   <indegreepopularity>  <simmelianties>
+#      <degree>             <intransitive>        <smalldiff>
+#      <density>            <istar>               <sociality>
+#      <dsp>                <kstar>               <transitive>
+#      <dyadcov>            <localtriangle>       <triadcensus>
+#      <edgecov>            <m2star>              <triangle>=<triangles>
+#      <edges>              <meandeg>             <tripercent>
+#      <esp>                <nearsimmelian>       <ttriple>=<ttriad>
+#      <gwb1degree>         <nodemean>            <transitiveties>
+#      <gwb2degree>         <nodeicov>            <twopath>
+#      <gwdegree>           <nodeocov>
+#      <gwdsp>              <nsp>
+#==========================================================================
+
+  
+
+##############################################################################
+# The <InitErgm.X> functions initialize each ergm term, X, of a model m, by
+#   1) checking the validity of X and its arguments via <checkargs>,
+#      <checkbipartite> and <checkdirected>
+#   2) setting termnumber to 1+length(m$terms)
+#   3) updating m$coef.names (see the RETURNED section for detail)
+#   4) updating m$terms (see the RETURNED section for detail)
+# The model m is updated with each succesive call to a <InitErgm.X> function
+# via <ergm.getmodel>
+# 
+# --PARAMETERS--
+#   nw        : the network being modeled
+#   m         : the model, as given by <ergm.getmodel>
+#   arglist   : the arguments given with term X in formula that specifies the model
+#   initialfit: whether the parameters for this term have been initially fit
+#               (T or F); if FALSE, the ergm belongs to the curved exponential
+#               family; if TRUE, the term X does not the ergm to be curved,
+#               though other terms may; default=FALSE
+#   drop      : whether coefficients with 0 values should be
+#               dropped; 'drop' must also have a default value when used;
+#               default=TRUE 
 #
-# Arguments of
-# the latter type include such items as drop (a logical flag telling whether
-# degenerate terms should be dropped) and expanded (a logical flag used
-# by curved exponential family terms).  Because such arguments are usually
-# passed to ALL InitErgm functions, regardless of whether they are used,
-# it is important that each InitErgm function declaration include the
-# dot-dot-dot (...) argument.  Finally, such arguments are not guaranteed
-# to be passed when the InitErgm function is called, so any InitErgm function
-# requiring such an argument should supply a default value.
+# --IGNORED PARAMETERS--
+#   ... : ignored, but necessary to accomodate other arguments
+#         passed by <ergm.getmodel>; as an example: if drop=TRUE is passed
+#         from inside the program, then the statement
+#                ergm(nw ~ triangle + kstar (2:4) + nodematch("sex"))
+#         results in the following function calls:
+#              InitErgm.triangle (nw, model, list(), drop=TRUE)
+#              InitErgm.kstar (nw, model, list(2:4), drop=TRUE)
+#              InitErgm.nodematch (nw, model, list("sex"), drop=TRUE)
 #
-# An example:  If drop=TRUE is passed from inside the program,
-# then the statement
-#     ergm(nw ~ triangle + kstar (2:4) + nodematch("sex"))
-# results in the following function calls:
-#     InitErgm.triangle (nw, model, list(), drop=TRUE)
-#     InitErgm.kstar (nw, model, list(2:4), drop=TRUE)
-#     InitErgm.nodematch (nw, model, list("sex"), drop=TRUE)
 #
-# Each InitErgm.[name] function should check its argument list for errors, 
-# then set termnumber to 1+length(model$terms).
-# Next, it should add the names of the statistics that
-# will be computed to the vector model$coef.names.  These names must be
-# concatenated onto model$coef.names in the same order they will be produced
-# by the changestat function.
-# Finally, it should create 
-# model$terms[[termnumber]] , a list with the following elements, some
-# required and some optional:
-#                                                                                                    
-# Required arguments of model$terms[[termnumber]]
-# -----------------------------------------------
-#    name: This is the (text) name of the term.  It is expected that there
-#          is a C function called d_[name].
-#  soname: This is the (text) name of the package containing the C function
-#          called d_[name].
-#  inputs: This is a (numeric) vector with at least 3 elements, as described
-#          below:
-#    Element 1 -- For functions that require a vector of covariates, either
-#                 nodal or dyadic, this optional value is the number of
-#                 input parameters BEFORE the beginning of the covariate
-#                 vector.  For instance, if there are no input parameters
-#                 passed before the covariate vector, this value should be
-#                 set to zero.  The changestat function in C will be passed a
-#                 pointer to the start of this vector of covariates, though
-#                 the changestat function may choose to ignore this pointer,
-#                 in which case the value of element 1 is arbitrary.
-#    Element 2 -- The number of change statistics returned by the function.
-#    Element 3 -- The total number of input parameters and covariates
-#                 to be passed to the function.  If there are no nodal or 
-#                 dyadic covariates, the value of element 1 is arbitrary.
-#   Element 4+ -- The input parameters to be passed to the function.
-#                 For example, if element 3 equals 3, then elements
-#                 4, 5, 6 are the parameters to be passed.  No 4th element
-#                 is necessary if element 3==0.  If there are nodal or
-#                 dyadic covariates, they should be appended after any other
-#                 input parameters (and element 1 may then be set to the
-#                 number of other input parameters excluding the covariates).
+# --RETURNED--
+#   m: the model, with the following 2 updated components
+#     coef.names: the names of the statistics that will be computed; these
+#                 will (and must) be concatenated onto m$coef.names in the
+#                 same order they will be produced by the changestat function
+#     terms     : a list of term-specific elements required by the C changestats
+#                 functions and other R rountines; the starred components of this
+#                 list are required*, the remaining components are optional:
+#       *name  : the name of term X; this is used to locate the C function calculating
+#                the change statistics for X, which will be 'name' prepended with "d_";
+#                e.g., if X=absdiff, 'name'="absdiff", and the C function is "d_absdiff"
+#       *soname: the name of the package containing the C function called d_'name';
+#                default="ergm"
+#       *inputs: a numeric vector with at least 3 entries, as described below:
+#           [1] -- the number of input parameters BEFORE the beginning of the
+#                  vector of nodal or dyadic covariates; 'input'[1] should
+#                  be set to 0 if there are no input parameters passed before the
+#                  covariate vector; this is used to pass a pointer to the start
+#                  of the covariate vector to the C changestats code; the C code
+#                  may ignore the value of this entry
+#           [2] -- the number of change statistics returned by the function.
+#           [3] -- the total number of input parameters and covariates
+#                  to be passed to the function; if there are no nodal or 
+#                  dyadic covariates, the value of 'input'[1] is arbitrary
+#          [4+] -- the input parameters to be passed to the function; 'inputs'[3]
+#                  will specify how many additional entries are needed; for example,
+#                  if 'inputs'[3]=3, then [4],[5] and [6] are the parameters
+#                  to be passed; if 'inputs'[3]=0, no 4th entry is necessary;
+#                  nodal and dyadic covariates should be appended after any other
+#                  input parameters and 'inputs'[1] should be set accordingly
+#    dependence : whether the addition of term X to the model makes the model
+#                 into a dyadic dependence model (T or F); if all terms have
+#                 'dependence' set FALSE, the model is assumed to be a
+#                 dyadic independence model; default=TRUE
+#   emptynwstats: the vector of values (if nonzero) for the statistics evaluated
+#                 on the empty network; if all are zero for this term, this
+#                 argument may be omitted.  Example:  If the degree0 term is
+#                 among the statistics, this argument is unnecessary because
+#                 degree0 = number of nodes for the empty network
+#    params     : a list of parameter values for curved exponential family model
+#                 terms only; each item in the list should be named with the
+#                 corresponding parameter name; those that coincide with the
+#                 coef.names (used when initialfit=TRUE) will have their 'params'
+#                 set by MPLE and their initial values in 'params' are ignored;
+#                 otherwise, parameters should be given an initial value in this list
+#    map        : a function taking two arguments, theta and length('params'), which
+#                 gives the map from the canonical parameters, theta, to the curved
+#                 parameters, eta; 'map' is only necessary for curved exponential
+#                 family model terms
+#   gradient    : a function taking two arguments, theta and length('params'), which
+#                 gives the gradient of the eta map above as a p by q matrix, where
+#                 p=length(theta), q=length(params); 'gradient' is only necessary
+#                 for curved exponential family model terms
 #
-# Optional arguments of model$terms[[termnumber]]
-# -----------------------------------------------
-#    dependence: Logical variable telling whether addition of this term to
-#                the model makes the model into a dyadic dependence model.
-#                If none of the terms sets dependence==TRUE, then the model
-#                is assumed to be a dyadic independence model, which means
-#                that the pseudolikelihood estimate coincides with the
-#                maximum likelihood estimate.  Default value:  TRUE
-#        params: For curved exponential family models, this argument must be
-#                a list:  Each item in the list should be named with the
-#                corresponding parameter name (one or more of these will
-#                probably coincide with the coef.names used when
-#                initialfit=TRUE; the initial values of such parameter values
-#                will be set by MPLE, so their values in params are ignored.)
-#                Any parameter not having its initial value set by MPLE
-#                should be given its initial value in this params list.
-#           eta: A function that gives the map from theta (the canonical
-#                parameters associated with the statistics for this term)
-#                to eta (the corresponding curved parameters).  The length
-#                of eta is the same as the length of the params list above.
-#                This function takes two args:  theta and length(eta).
-#      gradient: A function that gives the gradient of the eta map above.
-#                If theta has length p and eta has length q, then gradient
-#                should return a p by q matrix.
-#                This function takes two args:  theta and length(eta).
-#  emptynwstats: Vector of values (if nonzero) for the statistics evaluated
-#                on the empty network.  If all are zero for this term, this
-#                argument may be omitted.  Example:  If the degree0 term is
-#                among the statistics, this argument is necessary because
-#                degree0 = number of nodes for the empty network.
+# WHAT THE C CHANGESTAT FUNCTION RECEIVES:
+#                The changestat function, written in C and called d_'name',
+#                will have access to 'inputs'; this array will be called INPUT_PARAMS
+#                in the C code and its entries may accessed as INPUT_PARAMS[0],
+#                INPUT_PARAMS[1], and so on; the size of INPUT_PARAMS=N_INPUT_PARAMS,
+#                a value which is automatically set for you and which is available
+#                inside the C function; thus INPUT_PARAMS[N_INPUT_PARAMS-1] is the last
+#                element in the vector; note in particular that it is NOT necessary 
+#                to add the number of inputs to 'inputs' since this is done automatically
+#
+##############################################################################################
 
 
-###################################### InitErgm TERMS:  A
-#########################################################
+
+
+#=======================InitErgmTerm functions:  A============================#
+
+
+###############################################################################
 ## Because InitErgmTerm.absdiff exists, the old
 ## InitErgm.absdiff is irrelevant but should not be deleted for now.
 #InitErgm.absdiff<-function (nw, m, arglist, ...) {
@@ -116,7 +147,9 @@
 #  m
 #}
 
-#########################################################
+
+
+#################################################################################
 ## Because InitErgmTerm.absdiffcat exists, the old
 ## InitErgm.absdiffcat is irrelevant but should not be deleted for now.
 #InitErgm.absdiffcat<-function (nw, m, arglist, ...) {
@@ -150,7 +183,9 @@
 #  m
 #}
 
-##########################################################
+
+
+##################################################################################
 ## Because InitErgmTerm.altkstar exists, the old
 ## InitErgm.altkstar is irrelevant but should not be deleted for now.
 #InitErgm.altkstar<-function(nw, m, arglist, initialfit=FALSE, ...) {
@@ -191,7 +226,9 @@
 #  m
 #}
 
-##########################################################
+
+
+##################################################################################
 ## Because InitErgmTerm.asymmetric exists, the old
 ## InitErgm.asymmetric is irrelevant but should not be deleted for now.
 #InitErgm.asymmetric<-function (nw, m, arglist, drop=TRUE, ...) {
@@ -225,8 +262,11 @@
 #  m
 #}
 
-###################################### InitErgm TERMS:  B
-#########################################################
+
+#=======================InitErgmTerm functions:  B============================#
+
+
+#################################################################################
 InitErgm.b1concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("b1concurrent", is.directed(nw), requirement=FALSE)
   ergm.checkbipartite("b1concurrent", is.bipartite(nw), requirement=TRUE)
@@ -300,7 +340,9 @@ InitErgm.b1concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-##########################################################
+
+
+##################################################################################
 ## Because InitErgmTerm.b1degree exists, the old
 ## InitErgm.b1degree is irrelevant but should not be deleted for now.
 #InitErgm.b1degree<-function(nw, m, arglist, drop=TRUE, ...) {
@@ -391,7 +433,9 @@ InitErgm.b1concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
 #  m
 #}
 
-#########################################################
+
+
+#################################################################################
 InitErgm.b1factor<-function (nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("b1factor", is.directed(nw), requirement=FALSE)
   ergm.checkbipartite("b1factor", is.bipartite(nw), requirement=TRUE)
@@ -444,7 +488,9 @@ InitErgm.b1factor<-function (nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-#########################################################
+
+
+#################################################################################
 #InitErgm.b1star<-function(nw, m, arglist, drop=TRUE, ...) {
 ## Because InitErgmTerm.b1star exists, the old
 ## InitErgm.b1star is irrelevant but should not be deleted for now.
@@ -537,7 +583,9 @@ InitErgm.b1factor<-function (nw, m, arglist, drop=TRUE, ...) {
 #  m
 #}
 
-#########################################################
+
+
+#################################################################################
 InitErgm.b2concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("b2concurrent", is.directed(nw), requirement=FALSE)
   ergm.checkbipartite("b2concurrent", is.bipartite(nw), requirement=TRUE)
@@ -609,7 +657,9 @@ InitErgm.b2concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-#########################################################
+
+
+#################################################################################
 ## Because InitErgmTerm.b2degree exists, the old
 ## InitErgm.b2degree is irrelevant but should not be deleted for now.
 #InitErgm.b2degree<-function(nw, m, arglist, drop=TRUE, ...) {
@@ -701,7 +751,9 @@ InitErgm.b2concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
 #  m
 #}
 
-#########################################################
+
+
+#################################################################################
 InitErgm.b2factor<-function (nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("b2factor", is.directed(nw), requirement=FALSE)
   ergm.checkbipartite("b2factor", is.bipartite(nw), requirement=TRUE)
@@ -754,7 +806,9 @@ InitErgm.b2factor<-function (nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-##########################################################
+
+
+##################################################################################
 #InitErgm.b2star<-function(nw, m, arglist, drop=TRUE, ...) {
 # Because InitErgmTerm.b2star exists, the old
 # InitErgm.b2star is irrelevant but should not be deleted for now.
@@ -842,7 +896,9 @@ InitErgm.b2factor<-function (nw, m, arglist, drop=TRUE, ...) {
 #  m
 #}
 
-#########################################################
+
+
+#################################################################################
 InitErgm.balance<-function (nw, m, arglist, drop=TRUE, ...) {
   a <- ergm.checkargs("balance", arglist,
     varnames = c("attrname", "diff"),
@@ -935,8 +991,11 @@ InitErgm.balance<-function (nw, m, arglist, drop=TRUE, ...) {
 }
 
 
-###################################### InitErgm TERMS:  C
-#########################################################
+
+#=======================InitErgmTerm functions: C============================#
+
+
+#################################################################################
 InitErgm.concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("concurrent", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("concurrent", arglist,
@@ -1006,7 +1065,9 @@ InitErgm.concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-#########################################################
+
+
+#################################################################################
 InitErgm.ctriple<-InitErgm.ctriad<-function (nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("ctriple", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("ctriple", arglist,
@@ -1079,7 +1140,9 @@ InitErgm.ctriple<-InitErgm.ctriad<-function (nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-#########################################################
+
+
+#################################################################################
 ## Because InitErgmTerm.b2degree exists, the old
 ## InitErgm.b2degree is irrelevant but should not be deleted for now.
 #InitErgm.cycle<-function(nw, m, arglist, drop=TRUE, ...) {
@@ -1118,8 +1181,12 @@ InitErgm.ctriple<-InitErgm.ctriad<-function (nw, m, arglist, drop=TRUE, ...) {
 #  m
 #}
 
-###################################### InitErgm TERMS:  D
-#########################################################
+
+#=======================InitErgmTerm functions:  D============================#
+
+
+
+#################################################################################
 InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("degree", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("degree", arglist,
@@ -1220,7 +1287,9 @@ InitErgm.degree<-function(nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-#########################################################
+
+
+#################################################################################
 InitErgm.density<-function(nw, m, arglist, ...) {
   a <- ergm.checkargs("density", arglist,
     varnames = NULL,
@@ -1235,7 +1304,9 @@ InitErgm.density<-function(nw, m, arglist, ...) {
   m
 }
 
-#########################################################
+
+
+#################################################################################
 InitErgm.dsp<-function(nw, m, arglist, drop=TRUE, ...) {
 # ergm.checkdirected("dsp", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("dsp", arglist,
@@ -1285,7 +1356,9 @@ InitErgm.dsp<-function(nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-#########################################################
+
+
+#################################################################################
 InitErgm.dyadcov<-function (nw, m, arglist, ...) {
   a <- ergm.checkargs("dyadcov", arglist,
     varnames = c("x","attrname"),
@@ -1348,8 +1421,11 @@ InitErgm.dyadcov<-function (nw, m, arglist, ...) {
   m
 }
 
-###################################### InitErgm TERMS:  E
-#########################################################
+
+#=======================InitErgmTerm functions:  E============================#
+
+
+#################################################################################
 InitErgm.edgecov<-function (nw, m, arglist, ...) {
   a <- ergm.checkargs("edgecov", arglist,
     varnames = c("x", "attrname"),
@@ -1384,7 +1460,9 @@ InitErgm.edgecov<-function (nw, m, arglist, ...) {
   m
 }
 
-#########################################################
+
+
+#################################################################################
 InitErgm.edges<-function(nw, m, arglist, ...) {
   a <- ergm.checkargs("edges", arglist,
     varnames = NULL,
@@ -1399,7 +1477,9 @@ InitErgm.edges<-function(nw, m, arglist, ...) {
   m
 }
 
-#########################################################
+
+
+#################################################################################
 InitErgm.esp<-function(nw, m, arglist, drop=TRUE, ...) {
 # ergm.checkdirected("esp", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("esp", arglist,
@@ -1433,11 +1513,11 @@ InitErgm.esp<-function(nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-###################################### InitErgm TERMS:  F
 
-###################################### InitErgm TERMS:  G
+#=======================InitErgmTerm functions:  G============================#
 
-#########################################################
+
+#################################################################################
 InitErgm.gwb1degree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   ergm.checkdirected("gwb1degree", is.directed(nw), requirement=FALSE)
   ergm.checkbipartite("gwb1degree", is.bipartite(nw), requirement=TRUE)
@@ -1504,7 +1584,9 @@ InitErgm.gwb1degree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   }
   m
 }
-#########################################################
+
+
+#################################################################################
 InitErgm.gwb2degree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   ergm.checkdirected("gwb2degree", is.directed(nw), requirement=FALSE)
   ergm.checkbipartite("gwb2degree", is.bipartite(nw), requirement=TRUE)
@@ -1572,7 +1654,9 @@ InitErgm.gwb2degree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   m
 }
 
-#########################################################
+
+
+#################################################################################
 InitErgm.gwdegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
  ergm.checkdirected("gwdegree", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("gwdegree", arglist,
@@ -1633,7 +1717,8 @@ InitErgm.gwdegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   m
 }
 
-#########################################################
+
+#################################################################################
 InitErgm.gwdsp<-function(nw, m, arglist, initialfit=FALSE, ...) {
 # ergm.checkdirected("gwdsp", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("gwdsp", arglist,
@@ -1676,7 +1761,8 @@ InitErgm.gwdsp<-function(nw, m, arglist, initialfit=FALSE, ...) {
   m
 }
 
-#########################################################
+
+#################################################################################
 InitErgm.gwesp<-function(nw, m, arglist, initialfit=FALSE, ...) {
 # ergm.checkdirected("gwesp", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("gwesp", arglist,
@@ -1720,7 +1806,9 @@ InitErgm.gwesp<-function(nw, m, arglist, initialfit=FALSE, ...) {
   m
 }
 
-#########################################################
+
+
+#################################################################################
 InitErgm.gwidegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   ergm.checkdirected("gwidegree", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("gwidegree", arglist,
@@ -1784,7 +1872,8 @@ InitErgm.gwidegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   m
 }
 
-#########################################################
+
+#################################################################################
 InitErgm.gwnsp<-function(nw, m, arglist, initialfit=FALSE, ...) {
 # ergm.checkdirected("gwnsp", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("gwnsp", arglist,
@@ -1828,7 +1917,9 @@ InitErgm.gwnsp<-function(nw, m, arglist, initialfit=FALSE, ...) {
   m
 }
 
-#########################################################
+
+
+#################################################################################
 InitErgm.gwodegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   ergm.checkdirected("gwodegree", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("gwodegree", arglist,
@@ -1892,8 +1983,11 @@ InitErgm.gwodegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   m
 }
 
-###################################### InitErgm TERMS:  H
-#########################################################
+
+#=======================InitErgmTerm functions:  H============================#
+
+
+#################################################################################
 #InitErgm.hamming<-function (nw, m, arglist, drop=TRUE, ...) {
 #  a <- ergm.checkargs("hamming", arglist=arglist,
 #    varnames = c("x","cov","attrname"),
@@ -1992,7 +2086,9 @@ InitErgm.gwodegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
 #  m
 #}
 
-#########################################################
+
+
+#################################################################################
 InitErgm.hammingmix<-function (nw, m, arglist, ...) {
   # There is no reason hammingmix should be directed-only, but for now
   # the undirected version does not seem to work properly, so:
@@ -2076,8 +2172,11 @@ InitErgm.hammingmix<-function (nw, m, arglist, ...) {
   m
 }
 
-###################################### InitErgm TERMS:  I
-#########################################################
+
+#=======================InitErgmTerm functions:  I============================#
+
+
+#################################################################################
 InitErgm.idegree<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("idegree", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("idegree", arglist,
@@ -2178,7 +2277,8 @@ InitErgm.idegree<-function(nw, m, arglist, drop=TRUE, ...) {
 }
 
 
-#########################################################
+
+#################################################################################
 InitErgm.indegreepopularity<-function (nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("indegreepopularity", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("indegreepopularity", arglist,
@@ -2210,7 +2310,9 @@ InitErgm.indegreepopularity<-function (nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-#########################################################
+
+
+#################################################################################
 InitErgm.intransitive<-function (nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("intransitive", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("intransitive", arglist,
@@ -2235,7 +2337,9 @@ InitErgm.intransitive<-function (nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-##########################################################
+
+
+##################################################################################
 ## Because InitErgmTerm.isolates exists, the old
 ## InitErgm.isolates is irrelevant but should not be deleted for now.
 #InitErgm.isolates<-function(nw, m, arglist, drop=TRUE, ...) {
@@ -2263,7 +2367,9 @@ InitErgm.intransitive<-function (nw, m, arglist, drop=TRUE, ...) {
 #  m
 #}
 
-#########################################################
+
+
+#################################################################################
 InitErgm.istar<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("istar", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("istar", arglist,
@@ -2330,8 +2436,12 @@ InitErgm.istar<-function(nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-###################################### InitErgm TERMS:  K
-#########################################################
+
+
+#=======================InitErgmTerm functions:  K============================#
+
+
+#################################################################################
 InitErgm.kstar<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("kstar", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("kstar", arglist,
@@ -2397,8 +2507,12 @@ InitErgm.kstar<-function(nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-###################################### InitErgm TERMS:  L
-#########################################################
+
+
+#=======================InitErgmTerm functions:  L============================#
+
+
+#################################################################################
 InitErgm.localtriangle<-function (nw, m, arglist, ...) {
   a <- ergm.checkargs("localtriangle", arglist,
     varnames = c("x", "attrname"),
@@ -2425,8 +2539,11 @@ InitErgm.localtriangle<-function (nw, m, arglist, ...) {
   m
 }
 
-###################################### InitErgm TERMS:  M
-#########################################################
+
+#=======================InitErgmTerm functions:  M============================#
+
+
+#################################################################################
 InitErgm.m2star<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("m2star", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("m2star", arglist,
@@ -2454,7 +2571,9 @@ InitErgm.m2star<-function(nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-#########################################################
+
+
+#################################################################################
 InitErgm.meandeg<-function(nw, m, arglist, ...) {
   a <- ergm.checkargs("meandeg", arglist,
     varnames = NULL,
@@ -2469,7 +2588,8 @@ InitErgm.meandeg<-function(nw, m, arglist, ...) {
   m
 }
 
-##########################################################
+
+##################################################################################
 ### Because InitErgmTerm.mutual exists, the old
 ### InitErgm.mutual is irrelevant but should not be deleted for now.
 #InitErgm.mutual<-function (nw, m, arglist, drop=TRUE, ...) {
@@ -2503,8 +2623,11 @@ InitErgm.meandeg<-function(nw, m, arglist, ...) {
 #  m
 #}
 
-###################################### InitErgm TERMS:  N
-#########################################################
+
+#=======================InitErgmTerm functions:  N============================#
+
+
+#################################################################################
 InitErgm.nearsimmelian<-function (nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("nearsimmelian", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("nearsimmelian", arglist,
@@ -2536,7 +2659,9 @@ InitErgm.nearsimmelian<-function (nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-#########################################################
+
+
+#################################################################################
 InitErgm.nodecov<-InitErgm.nodemain<-function (nw, m, arglist, ...) {
   a <- ergm.checkargs("nodecov", arglist,
     varnames = c("attrname","transform","transformname"),
@@ -2555,7 +2680,9 @@ InitErgm.nodecov<-InitErgm.nodemain<-function (nw, m, arglist, ...) {
   m
 }
 
-##########################################################
+
+
+##################################################################################
 ### Because InitErgmTerm.nodematch exists, the old
 ### InitErgm.nodematch is irrelevant but should not be deleted for now.
 #InitErgm.nodefactor<-function (nw, m, arglist, drop=TRUE, ...) {
@@ -2609,7 +2736,9 @@ InitErgm.nodecov<-InitErgm.nodemain<-function (nw, m, arglist, ...) {
 #  m
 #}
 
-#########################################################
+
+
+#################################################################################
 InitErgm.nodeicov<-function (nw, m, arglist, ...) {
   ergm.checkdirected("nodeicov", is.directed(nw), requirement=TRUE,
                      extramessage="See 'nodecov'.")
@@ -2630,7 +2759,9 @@ InitErgm.nodeicov<-function (nw, m, arglist, ...) {
   m
 }
 
-##########################################################
+
+
+##################################################################################
 ### Because InitErgmTerm.nodeifactor exists, the old
 ### InitErgm.nodeifactor is irrelevant but should not be deleted for now.
 #InitErgm.nodeifactor<-function (nw, m, arglist, drop=TRUE, ...) {
@@ -2684,7 +2815,9 @@ InitErgm.nodeicov<-function (nw, m, arglist, ...) {
 #  m
 #}
 
-##########################################################
+
+
+##################################################################################
 ## Because InitErgmTerm.nodematch exists, the old
 ## InitErgm.nodematch is irrelevant but should not be deleted for now.
 #InitErgm.nodematch<-InitErgm.match<-function (nw, m, arglist, drop=TRUE, ...) {
@@ -2762,7 +2895,9 @@ InitErgm.nodeicov<-function (nw, m, arglist, ...) {
 #  m
 #}
 
-#########################################################
+
+
+#################################################################################
 ## Because InitErgmTerm.nodemix exists, the old
 ## InitErgm.nodemix is irrelevant but should not be deleted for now.
 #InitErgm.nodemix<-InitErgm.mix<-function (nw, m, arglist, drop=TRUE, ...) {
@@ -2894,7 +3029,9 @@ InitErgm.nodeicov<-function (nw, m, arglist, ...) {
 #  m
 #}
 
-#########################################################
+
+
+#################################################################################
 InitErgm.nodeocov<-function (nw, m, arglist, ...) {
   ergm.checkdirected("nodeocov", is.directed(nw), requirement=TRUE,
                      extramessage="See 'nodecov'.")
@@ -2915,7 +3052,9 @@ InitErgm.nodeocov<-function (nw, m, arglist, ...) {
   m
 }
 
-##########################################################
+
+
+##################################################################################
 ### Because InitErgmTerm.nodeofactor exists, the old
 ### InitErgm.nodeofactor is irrelevant but should not be deleted for now.
 #InitErgm.nodeofactor<-function (nw, m, arglist, drop=TRUE, ...) {
@@ -2969,7 +3108,9 @@ InitErgm.nodeocov<-function (nw, m, arglist, ...) {
 #  m
 #}
 
-#########################################################
+
+
+#################################################################################
 InitErgm.nsp<-function(nw, m, arglist, drop=TRUE, ...) {
 # ergm.checkdirected("nsp", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("nsp", arglist,
@@ -3018,8 +3159,12 @@ InitErgm.nsp<-function(nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-###################################### InitErgm TERMS:  O
-#########################################################
+
+
+#=======================InitErgmTerm functions:  O============================#
+
+
+#################################################################################
 InitErgm.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("odegree", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("odegree", arglist,
@@ -3120,7 +3265,9 @@ InitErgm.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-#########################################################
+
+
+#################################################################################
 InitErgm.outdegreepopularity<-function (nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("outdegreepopularity", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("outdegreepopularity", arglist,
@@ -3152,7 +3299,9 @@ InitErgm.outdegreepopularity<-function (nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-#########################################################
+
+
+#################################################################################
 InitErgm.ostar<-function(nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("ostar", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("ostar", arglist,
@@ -3213,8 +3362,12 @@ InitErgm.ostar<-function(nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-###################################### InitErgm TERMS:  R
-#########################################################
+
+
+#=======================InitErgmTerm functions:  R============================#
+
+
+#################################################################################
 InitErgm.receiver<-function(nw, m, arglist, drop=FALSE, ...) {
   ergm.checkdirected("receiver", is.directed(nw), requirement=TRUE,
                      extramessage="See 'sociality'.")
@@ -3253,8 +3406,11 @@ InitErgm.receiver<-function(nw, m, arglist, drop=FALSE, ...) {
   m
 }
 
-###################################### InitErgm TERMS:  S
-#########################################################
+
+#=======================InitErgmTerm functions:  S============================#
+
+
+#################################################################################
 InitErgm.sender<-function(nw, m, arglist, drop=FALSE, ...) {
   ergm.checkdirected("sender", is.directed(nw), requirement=TRUE,
                      extramessage="See 'sociality'.")
@@ -3293,7 +3449,9 @@ InitErgm.sender<-function(nw, m, arglist, drop=FALSE, ...) {
   m
 }
 
-#########################################################
+
+
+#################################################################################
 InitErgm.simmelian<-function (nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("simmelian", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("simmelian", arglist,
@@ -3325,7 +3483,8 @@ InitErgm.simmelian<-function (nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-#########################################################
+
+#################################################################################
 InitErgm.simmelianties<-function (nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("simmelianties", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("simmelianties", arglist,
@@ -3357,7 +3516,9 @@ InitErgm.simmelianties<-function (nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-#########################################################
+
+
+#################################################################################
 InitErgm.smalldiff<-function (nw, m, arglist, ...) {
   a <- ergm.checkargs("smalldiff", arglist,
     varnames = c("attrname", "cutoff"),
@@ -3378,7 +3539,8 @@ InitErgm.smalldiff<-function (nw, m, arglist, ...) {
   m
 }
 
-#########################################################
+
+#################################################################################
 InitErgm.sociality<-function(nw, m, arglist, drop=FALSE, ...) {
   ergm.checkdirected("sociality", is.directed(nw), requirement=FALSE,
                      extramessage = "See 'sender' and 'receiver'.")
@@ -3437,8 +3599,11 @@ InitErgm.sociality<-function(nw, m, arglist, drop=FALSE, ...) {
   m
 }
 
-###################################### InitErgm TERMS:  T
-#########################################################
+
+#=======================InitErgmTerm functions:  T============================#
+
+
+#################################################################################
 InitErgm.transitive<-function (nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("transitive", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("transitive", arglist,
@@ -3463,7 +3628,8 @@ InitErgm.transitive<-function (nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-#########################################################
+
+#################################################################################
 InitErgm.triadcensus<-function (nw, m, arglist, drop=FALSE, ...) {
   a=ergm.checkargs("triadcensus", arglist,
     varnames = c("d"),
@@ -3518,7 +3684,9 @@ InitErgm.triadcensus<-function (nw, m, arglist, drop=FALSE, ...) {
   m
 }
 
-#########################################################
+
+
+#################################################################################
 InitErgm.triangle<-InitErgm.triangles<-function (nw, m, arglist, drop=TRUE, ...) {
   a <- ergm.checkargs("triangle", arglist,
     varnames = c("attrname", "diff"),
@@ -3585,7 +3753,9 @@ InitErgm.triangle<-InitErgm.triangles<-function (nw, m, arglist, drop=TRUE, ...)
   m
 }
 
-#########################################################
+
+
+#################################################################################
 InitErgm.tripercent<-function (nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("tripercent", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("tripercent", arglist,
@@ -3652,7 +3822,9 @@ InitErgm.tripercent<-function (nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-#########################################################
+
+
+#################################################################################
 InitErgm.ttriple<-InitErgm.ttriad<-function (nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("ttriple", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("ttriple", arglist,
@@ -3720,7 +3892,9 @@ InitErgm.ttriple<-InitErgm.ttriad<-function (nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-#########################################################
+
+
+#################################################################################
 InitErgm.transitiveties<-function (nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("transitiveties", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("transitiveties", arglist,
@@ -3788,7 +3962,9 @@ InitErgm.transitiveties<-function (nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-#########################################################
+
+
+#################################################################################
 InitErgm.twopath<-function(nw, m, arglist, drop=TRUE, ...) {
   a <- ergm.checkargs("twopath", arglist,
      varnames = NULL,

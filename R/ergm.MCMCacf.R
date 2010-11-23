@@ -1,3 +1,16 @@
+##########################################################################
+# The <ergm.MCMCacf> function computes and returns the auto correlation
+# matrix of the MCMC smapling
+#
+# --PARAMETERS--
+#   statsmatrix:  the matrix of network statistics
+#   lag.max    :  the maximum lag at which to calculate the acf
+#
+# --RETURNED--
+#   corV:  the correlation among the statsmatrix
+#
+##########################################################################
+
 ergm.MCMCacf<-function(statsmatrix, lag.max=50)
 {
   if(ncol(statsmatrix)==1){

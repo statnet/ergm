@@ -1,8 +1,28 @@
+#=======================================================================================
+# This file contains the following 5 functions from Carter's SNA code
+#          <ergm.geodist>            <ergm.geodesicmatrix>
+#          <fullgcount>              <fulldistdist>
+#          <ergm.geodesicmatrix>
+#=======================================================================================
+
+
+
+
+##############################################################################
+# The <ergm.geodist> function finds the geodesic distance between all pairs of
+# nodes via <geodist_R.C> using a BFS, a la Brandes (2000). (Thanks, Ulrik!)
+# 
+# --PARAMETERS--
+#   dat        :  an adjacency matrix
+#   inf.replace:  a replacement value for infinite values; default=Inf
 #
-# Carter's code from SNA
+# --RETURNED--
+#   o: a list of two matrices:
+#      sigma: the matrix of ?? between all pairs of nodes
+#      gd   : the matrix of geodesic distances between all pairs of nodes
 #
-#geodist - Find the numbers and lengths of geodesics among nodes in a graph 
-#using a BFS, a la Brandes (2000).  (Thanks, Ulrik!)
+###############################################################################
+
 ergm.geodist<-function(dat,inf.replace=Inf){
    n<-dim(dat)[2]
    #Initialize the matrices
@@ -18,6 +38,8 @@ ergm.geodist<-function(dat,inf.replace=Inf){
    o
 }
 
+
+
 fullgcount<-function(dat,geodist.precomp=NULL, directed=FALSE){
    #Get the counts matrix
    if(is.null(geodist.precomp))
@@ -32,10 +54,14 @@ fullgcount<-function(dat,geodist.precomp=NULL, directed=FALSE){
    tabulate(allcnt,nbins=ncol(cnt))
 }
 
+
+
 ergm.geodesicmatrix<-function(nw, directed=is.directed(nw)){
  ergm.geodesicmatrix.edgelist(edgelist=as.matrix.network(nw,matrix.type="edgelist"),
                n=network.size(nw), directed=directed)
 }
+
+
 
 ergm.geodesicmatrix.old<-function(nw, directed=is.directed(nw), n=nw$gal$n){
   ans<-matrix(0,n,n)
@@ -46,6 +72,8 @@ ergm.geodesicmatrix.old<-function(nw, directed=is.directed(nw), n=nw$gal$n){
   ans[ans==n]<-Inf
   ans
 }
+
+
 
 fulldistdist<-function(dat,geodist.precomp=NULL, directed=FALSE){
    #Get the counts matrix

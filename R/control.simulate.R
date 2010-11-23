@@ -1,3 +1,11 @@
+#==========================================================
+# This file contains the following 2 functions for
+# controlling simulation routines
+#        <control.simulate> = <control.simulate.formula>
+#        <control.simulate.ergm>
+#==========================================================
+
+
 control.simulate<-control.simulate.formula<-function(prop.weights="default",
                                                      prop.args=NULL,
                                                      drop=FALSE,

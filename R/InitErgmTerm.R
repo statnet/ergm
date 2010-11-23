@@ -1,93 +1,105 @@
-#################################################################
-# InitErgmTerm functions (new, easier-to-write version)
-# The old InitErgm functions should still work.
+#====================================================================
+# This file contains the following 22 new, easier-to-write ergm-term
+# initialization functions (each prepended with "InitErgmTerm"):
+#   <absdiff>       <b2degree>    <mutual>
+#   <absdiffcat>    <b2star>      <nodefactor>
+#   <altkstar>      <b2starmix>   <nodeifactor>
+#   <asymmetric>    <b2twostar>   <nodematch>=<match>
+#   <b1degree>      <cycle>       <nodemix>
+#   <b1star>        <edgecov>     <nodeofactor>
+#   <b1starmix>     <hamming>     <threepath>
+#   <b1twostar>     <isolates>
+#====================================================================
+
+
+
+
+##############################################################################
+# The <InitErgmTerm.X> functions initialize each ergm term, X, by
+#   1) checking the validity of X and its arguments via <check.ErgmTerm> and
+#   2) setting appropiate values for each of the components in the returned list
+# X is initialized for inclusion into a model that is specified by formula F and
+# built via <ergm.getmodel>
+# 
+# --PARAMETERS--
+#   nw        : the network given in formula F
+#   arglist   : the arguments given with term X in formula F
+#   initialfit: whether the parameters for this term have been initially fit
+#               (T or F); if FALSE, the ergm belongs to the curved exponential
+#               family; if TRUE, the term X does not the ergm to be curved,
+#               though other terms may; default=FALSE
+#   drop      : whether coefficients with 0 values should be
+#               dropped; default=TRUE
 #
-# INPUT:
-# Each InitErgmTerm function takes two arguments, nw and arglist,
-# which are automatically supplied by ergm.getmodel.  There may be
-# other arguments passed by ergm.getmodel, so each InitErgmTerm
-# function must also include the ... argument in its list.
+# --IGNORED PARAMETERS--
+#   ... : ignored, but necessary to accomodate other arguments
+#         passed by <ergm.getmodel>
 #
-# OUTPUT:
-# Each InitErgmTerm function should return a list.  
-#    REQUIRED LIST ITEMS:
-#          name: Name of the C function that produces the change
-#                statistics.  (Note:  The name will have "d_" 
-#                prepended.  For example, the C function for the
-#                absdiff change statistics is called "d_absdiff"
-#                even though InitErgmTerm.absdiff only returns
-#                names = "absdiff")
-#    coef.names: Vector of names for the coefficients (parameters)
-#                as they will be reported in the output.
-#
-#    OPTIONAL LIST ITEMS:
-#        inputs: Vector of (double-precision numeric) inputs that the 
-#                changestat function called d_<name> will require
-#                (see WHAT THE C CHANGESTAT FUNCTION RECEIVES below).
-#                The default is NULL; no inputs are required.  But it MUST
-#                be a vector!  Thus, if some of the inputs are, say, matrices,
-#                they must be "flattened" to vectors; if some are categorical
-#                character-valued variables, they must be converted to numbers.
-#                Optionally, the inputs vector may have an attribute named 
-#                "ParamsBeforeCov", which is the
-#                number that used to be the old Element 1 (number of input
-#                parameters BEFORE the beginning of the covariate vector)                                                         
-#                when using the old InitErgm specification; see the comment
-#                at the top of the InitErgm.R file for details.  This 
-#                ParamsBeforeCov value is only necessary for compatibility 
-#                with some of the existing d_xxx changestatistic functions.
-#        soname: This is the (text) name of the package containing the C function
-#                called d_[name].  Default is "ergm"
-#    dependence: Logical variable telling whether addition of this term to
-#                the model makes the model into a dyadic dependence model.
-#                If none of the terms sets dependence==TRUE, then the model
-#                is assumed to be a dyadic independence model, which means
-#                that the pseudolikelihood estimate coincides with the
-#                maximum likelihood estimate.  Default value:  TRUE
-#  emptynwstats: Vector of values (if nonzero) for the statistics evaluated
-#                on the empty network.  If all are zero for this term, this
-#                argument may be omitted.  Example:  If the degree0 term is
-#                among the statistics, this argument is necessary because
-#                degree0 = number of nodes for the empty network.
-#        params: For curved exponential family model terms only: This argument 
-#                is a list:  Each item in the list should be named with the
-#                corresponding parameter name (one or more of these will
-#                probably coincide with the coef.names used when
-#                initialfit=TRUE; the initial values of such parameter values
-#                will be set by MPLE, so their values in params are ignored.)
-#                Any parameter not having its initial value set by MPLE
-#                should be given its initial value in this params list.
-#           map: For curved exponential family model terms only: A function 
-#                that gives the map from theta (the canonical
-#                parameters associated with the statistics for this term)
-#                to eta (the corresponding curved parameters).  The length
-#                of eta is the same as the length of the params list above.
-#                This function takes two args:  theta and length(eta).
-#      gradient: For curved exponential family model terms only: A function 
-#                that gives the gradient of the eta map above.
-#                If theta has length p and eta has length q, then gradient
-#                should return a p by q matrix.
-#                This function takes two args:  theta and length(eta).
+# --RETURNED--
+#   a list of term-specific elements required by the C changestats
+#   functions and other R rountines; the first two components of this
+#   list are required*, the remaining components are optional:
+#     *name      : the name of term X; this is used to locate the C function
+#                  calculating the change statistics for X, which will be
+#                  'name' prepended with "d_"; for example if X=absdiff,
+#                  'name'="absdiff", and the C function is "d_absdiff"
+#     *coef.names: the vector of names for the coefficients (parameters)
+#                  as they will be reported in the output
+#     inputs     : the vector of (double-precision numeric) inputs that the 
+#                  changestat function called d_<name> will require
+#                  (see WHAT THE C CHANGESTAT FUNCTION RECEIVES below);
+#                  this MUST be a vector!; thus, if the inputs are  matrices,
+#                  they must be "flattened" to vectors; if they are categorical
+#                  character-valued variables, they must be converted to numbers;
+#                  optionally, 'inputs' may have an attribute named
+#                  "ParamsBeforeCov",which is the number that used to be the
+#                  old Element 1 and is needed for backwards compatability
+#                  (see the old <InitErgm> for details); default=NULL
+#     soname     : the name of the package containing the C function called
+#                  d_'name'; default="ergm"
+#     dependence : whether the addition of term X to the model makes the model
+#                  into a dyadic dependence model (T or F); if all terms have
+#                  'dependence' set FALSE, the model is assumed to be a
+#                  dyadic independence model; default=TRUE
+#    emptynwstats: the vector of values (if nonzero) for the statistics evaluated
+#                  on the empty network; if all are zero for this term, this
+#                  argument may be omitted.  Example:  If the degree0 term is
+#                  among the statistics, this argument is unnecessary because
+#                  degree0 = number of nodes for the empty network
+#    params      : a list of parameter values for curved exponential family model
+#                  terms only; each item in the list should be named with the
+#                  corresponding parameter name; those that coincide with the
+#                  coef.names (used when initialfit=TRUE) will have their 'params'
+#                  set by MPLE and their initial values in 'params' are ignored;
+#                  otherwise, parameters should be given an initial value in this list
+#    map         : a function taking two arguments, theta and length('params'), which
+#                  gives the map from the canonical parameters, theta, to the curved
+#                  parameters, eta; 'map' is only necessary for curved exponential
+#                  family model terms
+#   gradient     : a function taking two arguments, theta and length('params'), which
+#                  gives the gradient of the eta map above as a p by q matrix, where
+#                  p=length(theta), q=length(params); 'gradient' is only necessary
+#                  for curved exponential family model terms
 #
 # WHAT THE C CHANGESTAT FUNCTION RECEIVES:
-#                The changestat function, written in C and called d_<name>,
-#                where <name> is the character string passed as the required
-#                output item called "name" (see above), will have access to
-#                the vector of double-precision values created by the 
-#                InitErgmTerm function as the optional output item called
-#                "inputs".  This array will be called INPUT_PARAMS in the C
-#                code and its entries may accessed as INPUT_PARAMS[0],
-#                INPUT_PARAMS[1], and so on.  The size of the INPUT_PARAMS 
-#                array is equal to N_INPUT_PARAMS, a value which is 
-#                automatically set for you and which is available inside the
-#                C function.  Thus INPUT_PARAMS[N_INPUT_PARAMS-1] is the last
-#                element in the vector. Note in particular that it is NOT 
-#                necessary to add the number of inputs to the "inputs" vector
-#                since this is done automatically.
+#                The changestat function, written in C and called d_'name',
+#                will have access to 'inputs'; this array will be called INPUT_PARAMS
+#                in the C code and its entries may accessed as INPUT_PARAMS[0],
+#                INPUT_PARAMS[1], and so on; the size of INPUT_PARAMS=N_INPUT_PARAMS,
+#                a value which is automatically set for you and which is available
+#                inside the C function; thus INPUT_PARAMS[N_INPUT_PARAMS-1] is the last
+#                element in the vector; note in particular that it is NOT necessary 
+#                to add the number of inputs to 'inputs' since this is done automatically
 #
-# Prototype InitErgmTerm functions
-############################## InitErgmTerm functions:  A
-#########################################################
+##############################################################################################
+
+
+
+
+#=======================InitErgmTerm functions:  A============================#
+
+
+#################################################################################
 InitErgmTerm.absdiff <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
@@ -105,7 +117,9 @@ InitErgmTerm.absdiff <- function(nw, arglist, ...) {
        )
 }
 
-########################################################
+
+
+#################################################################################
 InitErgmTerm.absdiffcat <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
@@ -135,7 +149,9 @@ InitErgmTerm.absdiffcat <- function(nw, arglist, ...) {
        )
 }
 
-#########################################################
+
+
+#################################################################################
 InitErgmTerm.altkstar <- function(nw, arglist, initialfit=FALSE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=NULL,
@@ -175,7 +191,10 @@ InitErgmTerm.altkstar <- function(nw, arglist, initialfit=FALSE, ...) {
   outlist
 }
 
-#########################################################
+
+
+
+#################################################################################
 InitErgmTerm.asymmetric <- function(nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate
   a <- check.ErgmTerm(nw, arglist, directed=TRUE, bipartite=NULL,
@@ -228,8 +247,11 @@ InitErgmTerm.asymmetric <- function(nw, arglist, drop=TRUE, ...) {
 }
 
 
-############################## InitErgmTerm functions:  B
-#########################################################
+
+#=======================InitErgmTerm functions:  B============================#
+
+
+################################################################################
 InitErgmTerm.b1degree <- function(nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -277,7 +299,7 @@ InitErgmTerm.b1degree <- function(nw, arglist, drop=TRUE, ...) {
        inputs = inputs, emptynwstats=emptynwstats)
 }
 
-#########################################################
+################################################################################
 InitErgmTerm.b1star <- function(nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -311,7 +333,8 @@ InitErgmTerm.b1star <- function(nw, arglist, drop=TRUE, ...) {
        inputs = inputs)
 }
 
-#########################################################
+
+################################################################################
 InitErgmTerm.b1starmix <- function(nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -365,7 +388,9 @@ InitErgmTerm.b1starmix <- function(nw, arglist, drop=TRUE, ...) {
        inputs = inputs)
 }
 
-#########################################################
+
+
+################################################################################
 InitErgmTerm.b1twostar <- function(nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -404,7 +429,9 @@ InitErgmTerm.b1twostar <- function(nw, arglist, drop=TRUE, ...) {
        inputs = c(b1nodecov, b2nodecov, u[,1], u[,2], u[,3]) )
 }
 
-#########################################################
+
+
+################################################################################
 InitErgmTerm.b2degree <- function(nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -453,7 +480,9 @@ InitErgmTerm.b2degree <- function(nw, arglist, drop=TRUE, ...) {
        inputs = inputs, emptynwstats=emptynwstats)
 }
 
-#########################################################
+
+
+################################################################################
 InitErgmTerm.b2star <- function(nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -487,7 +516,9 @@ InitErgmTerm.b2star <- function(nw, arglist, drop=TRUE, ...) {
        inputs = inputs)
 }
 
-#########################################################
+
+
+################################################################################
 InitErgmTerm.b2starmix <- function(nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -541,7 +572,9 @@ InitErgmTerm.b2starmix <- function(nw, arglist, drop=TRUE, ...) {
        inputs = inputs)
 }
 
-#########################################################
+
+
+################################################################################
 InitErgmTerm.b2twostar <- function(nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
@@ -580,8 +613,12 @@ InitErgmTerm.b2twostar <- function(nw, arglist, drop=TRUE, ...) {
        inputs = c(b1nodecov, b2nodecov, u[,1], u[,2], u[,3]) )
 }
 
-############################## InitErgmTerm functions:  C
-#########################################################
+
+
+#=======================InitErgmTerm functions:  C============================#
+
+
+################################################################################
 InitErgmTerm.cycle <- function(nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist,
@@ -603,8 +640,12 @@ InitErgmTerm.cycle <- function(nw, arglist, drop=TRUE, ...) {
        )
 }
 
-############################## InitErgmTerm functions:  E
-#########################################################
+
+
+#=======================InitErgmTerm functions:  E============================#
+
+
+################################################################################
 InitErgmTerm.edgecov <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, 
@@ -638,8 +679,12 @@ InitErgmTerm.edgecov <- function(nw, arglist, ...) {
        )
 }
 
-############################## InitErgmTerm functions:  H
-#########################################################
+
+
+#=======================InitErgmTerm functions:  H============================#
+
+
+################################################################################
 InitErgmTerm.hamming<-function (nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm (nw, arglist,
 	    varnames = c("x","cov","attrname","defaultweight"),
@@ -727,8 +772,12 @@ InitErgmTerm.hamming<-function (nw, arglist, drop=TRUE, ...) {
        inputs = inputs, emptynwstats = emptynwstats, dependence = FALSE)
 }
 
-############################## InitErgmTerm functions:  I
-#########################################################
+
+
+#=======================InitErgmTerm functions:  I============================#
+
+
+################################################################################
 InitErgmTerm.isolates <- function(nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
@@ -750,7 +799,12 @@ InitErgmTerm.isolates <- function(nw, arglist, drop=TRUE, ...) {
        )                                                               
 }
 
-#########################################################
+
+
+#=======================InitErgmTerm functions:  M============================#
+
+
+################################################################################
 InitErgmTerm.mutual<-function (nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=TRUE, bipartite=NULL,
@@ -822,7 +876,12 @@ InitErgmTerm.mutual<-function (nw, arglist, drop=TRUE, ...) {
   out
 }
 
-#########################################################
+
+
+#=======================InitErgmTerm functions:  N============================#
+
+
+################################################################################
 InitErgmTerm.nodefactor<-function (nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, 
@@ -866,7 +925,9 @@ InitErgmTerm.nodefactor<-function (nw, arglist, drop=TRUE, ...) {
        )
 }  
 
-#########################################################
+
+
+################################################################################
 InitErgmTerm.nodeifactor<-function (nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
@@ -910,7 +971,8 @@ InitErgmTerm.nodeifactor<-function (nw, arglist, drop=TRUE, ...) {
        )
 }
 
-#########################################################
+
+################################################################################
 InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, 
@@ -956,7 +1018,9 @@ InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, drop=TRUE, ..
        )
 }
 
-#########################################################
+
+
+################################################################################
 InitErgmTerm.nodemix<-function (nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist,
@@ -1042,7 +1106,9 @@ InitErgmTerm.nodemix<-function (nw, arglist, drop=TRUE, ...) {
        )
 }
 
-#########################################################
+
+
+################################################################################
 InitErgmTerm.nodeofactor<-function (nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
@@ -1085,8 +1151,12 @@ InitErgmTerm.nodeofactor<-function (nw, arglist, drop=TRUE, ...) {
        )
 }  
 
-############################## InitErgmTerm functions:  T
-#########################################################
+
+
+#=======================InitErgmTerm functions:  T============================#
+
+
+################################################################################
 InitErgmTerm.threepath <- function(nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, 

@@ -1,3 +1,20 @@
+###############################################################################
+# The <summary.network.series> function provides a summary of the first
+# network in the given series
+#
+# --PARAMETERS--
+#   object: a network.series object
+#
+# --IGNORED PARAMETERS--
+#   ...:  additional parameters passed from within
+#   wmt:  which matrix type is used to describe the networks;
+#         default=which.matrix.type(objects$networks[[1]])) 
+#
+# --RETURNED--
+#   the summary of the first network in the series    
+# 
+###############################################################################
+
 "summary.network.series" <-
   function (object, ..., wmt = which.matrix.type(objects$networks[[1]])) 
 {

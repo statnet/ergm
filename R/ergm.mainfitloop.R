@@ -1,3 +1,57 @@
+############################################################################
+# The <ergm.mainfitloop> function provides one of the styles of maximum
+# likelihood estimation that can be used. This one is the default and uses
+# optimization of an MCMC estimate of the log-likelihood.  (The other
+# MLE styles are found in functions <ergm.robmon>, <ergm.stocapprox>, and
+# <ergm.stepping> 
+#
+#
+# --PARAMETERS--
+#   theta0         : the initial theta values
+#   nw             : the network 
+#   model          : the model, as returned by <ergm.getmodel>
+#   Clist          : a list of several network and model parameters,
+#                    as returned by <ergm.Cprepare>
+#   initialfit     : an ergm object, as the initial fit, possibly returned
+#                    by <ergm.initialfit>
+#   MCMCparams     : a list of parameters for controlling the MCMC sampling;
+#                    recognized components include
+#     samplesize   : the number of MCMC sampled networks
+#     maxit        : the maximum number of iterations to use
+#     Clist.miss   : the 'Clist' for the network of missing edges, as
+#                    returned by <ergm.design>
+#     epsilon      : ??, this is passed to <ergm.estimate>, which ignores it;
+#                    also, this is used in place of the 'epsilon' argument for
+#                    function
+#   MHproposal     : an MHproposal object for 'nw', as returned by
+#                    <getMHproposal>
+#   MHproposal.miss: an MHproposal object for the missing network of'nw',
+#                    as returned by <getMHproposal>
+#   verbose        : whether the MCMC sampling should be verbose (T or F);
+#                    default=FALSE
+#   sequential     : whether to update the network returned in
+#                    'v$newnetwork'; if the network has missing edges,
+#                    this is ignored; default=TRUE
+#   estimate       : whether to optimize the theta0 coefficients via
+#                    <ergm.estimate>; default=TRUE
+#   ...            : additional parameters that may be passed from within;
+#                    all are ignored
+#
+#
+# --IGNORED PARAMETERS--
+#   epsilon:  ??, any epsilon value used is that of the 'MCMCparams';
+#            default=1e-10
+#
+#
+# --RETURNED--
+#   v: an ergm object as a list containing several items; for details see
+#      the return list in the <ergm> function header (<ergm.mainfitloop>=*);
+#      note that if the model is degenerate, only 'coef' and 'sample' are
+#      returned; if 'estimate'=FALSE, the MCMC and se variables will be
+#      NA or NULL
+#
+###########################################################################
+
 ergm.mainfitloop <- function(theta0, nw, model, Clist,
                              initialfit, 
                              MCMCparams, 

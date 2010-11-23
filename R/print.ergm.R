@@ -1,3 +1,17 @@
+###############################################################################
+# The <print.ergm> function prints summary information for a given ergm
+#
+# --PARAMETERS--
+#   x     :  an ergm object
+#   digits:  the number of significant digits for the coefficients;
+#            default=max(3, getOption("digits")-3)
+#   ...   :  additional parameters passed form within; these will be ignored
+#
+# --RETURNED--
+#   x
+# 
+###############################################################################
+
 print.ergm <- function (x, digits = max(3, getOption("digits") - 3), ...) {
 #  if(!is.latent(x) || is.null(x$Z.mle)) {                             
   if(is.null(x$Z.mle)) {
