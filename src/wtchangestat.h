@@ -92,14 +92,21 @@ typedef struct WtModelTermstruct {
 // The idea here is to essentially swap the contents of the proposed
 // weights with the current weights, and then swap them back when
 // done.
-#define OLDWT oldwt
-#define GETOLDWT(a) OLDWT=GETWT(heads[(a)],tails[(a)])
-// Yes, the next two macros are, in fact, identical:
-// swap(x,y) is a self-inverse.
-#define SETWT_WITH_BACKUP(a) {GETOLDWT(a); SETWT(heads[(a)],tails[(a)],weights[(a)]); weights[(a)]=OLDWT;}
-#define UNDO_SETWT(a) {GETOLDWT(a); SETWT(heads[(a)],tails[(a)],weights[(a)]); weights[(a)]=OLDWT;}
+#define CURWT curwt
+#define GETCURWT(a) double CURWT=GETWT(heads[(a)],tails[(a)])
+// SETWT_WITH_BACKUP(a) must be called _after_ GETCURWT(a)!
+#define SETWT_WITH_BACKUP(a) {SETWT(heads[(a)],tails[(a)],weights[(a)]); weights[(a)]=CURWT;}
+#define UNDO_SETWT(a) {GETCURWT(a); SETWT(heads[(a)],tails[(a)],weights[(a)]); weights[(a)]=CURWT;}
 #define SETWT_IF_MORE_TO_COME(a) {if((a)+1<ntoggles) {SETWT_WITH_BACKUP(a)}}
 #define UNDO_PREVIOUS_SETWTS(a) (a)--; while(--(a)>=0){UNDO_SETWT(a)}
+// Brings together the above operations:
+// For each toggle:
+//    Get the current edge weight.
+//    Calculate the change.
+//    Back up the current edge weight by swapping weight[i] with current edge weight.
+// For each toggle:
+//    Undo the changes by swapping them back.
+#define EXEC_THROUGH_TOGGLES(a,subroutine){FOR_EACH_TOGGLE(a){ GETCURWT(a); {subroutine}; SETWT_IF_MORE_TO_COME(a);} UNDO_PREVIOUS_SETWTS(a);}
 
 /****************************************************/
 /* changestat function prototypes, 

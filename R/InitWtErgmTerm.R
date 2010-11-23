@@ -136,7 +136,25 @@ InitWtErgmTerm.nodefactor<-function (nw, arglist, response, drop=TRUE, ...) {
        inputs = inputs,
        dependence = FALSE # So we don't use MCMC if not necessary
        )
-}  
+}
+
+InitErgmTerm.nodecov<-InitErgmTerm.nodemain<-function (nw, arglist, response, drop=TRUE, ...) {
+  a <- ergm.ErgmTerm(nw, arglist,
+                     varnames = c("attrname","transform","transformname","form"),
+                     vartypes = c("character","function","character","character"),
+                     defaultvalues = list(NULL,identity,"","sum"),
+                     required = c(TRUE,FALSE,FALSE,FALSE))
+  attrname<-a$attrname
+  f<-a$transform
+  f.name<-a$transformname
+  inputs <- f(get.node.attr(nw, attrname, "nodecov", numeric=TRUE))
+  attr(inputs, "ParamsBeforeCov")<-length(inputs)
+  form<-match.arg(a$form,c("sum","nonzero"))
+  list(name=paste("nodecov",form,sep="_"), soname="ergm",
+       coef.names = paste("nodecov",form,f.name,attrname,sep="."),
+       inputs=inputs,
+       dependence=FALSE)
+}
 
 InitWtErgmTerm.nonzero<-function(nw, arglist, response, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,

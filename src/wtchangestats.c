@@ -6,16 +6,12 @@
  stat: atleast
 *****************/
 WtD_CHANGESTAT_FN(d_atleast) {
-  double OLDWT;
   int i;
   
   CHANGE_STAT[0] = 0.0;
-  FOR_EACH_TOGGLE(i){
-    GETOLDWT(i);
-    CHANGE_STAT[0] += (weights[i]>=INPUT_ATTRIB[0]) - (OLDWT>=INPUT_ATTRIB[0]);
-    SETWT_IF_MORE_TO_COME(i);
-  }
-  UNDO_PREVIOUS_SETWTS(i);
+  EXEC_THROUGH_TOGGLES(i,{
+      CHANGE_STAT[0] += (weights[i]>=INPUT_ATTRIB[0]) - (CURWT>=INPUT_ATTRIB[0]);
+    })
 }
 
 /********************  changestats:   C    ***********/
@@ -95,16 +91,12 @@ WtS_CHANGESTAT_FN(s_cyclicweights_threshold) {
  stat: greaterthan
 *****************/
 WtD_CHANGESTAT_FN(d_greaterthan) {
-  double OLDWT;
   int i;
   
   CHANGE_STAT[0] = 0.0;
-  FOR_EACH_TOGGLE(i){
-    GETOLDWT(i);
-    CHANGE_STAT[0] += (weights[i]>INPUT_ATTRIB[0]) - (OLDWT>INPUT_ATTRIB[0]);
-    SETWT_IF_MORE_TO_COME(i);
-  }
-  UNDO_PREVIOUS_SETWTS(i);
+  EXEC_THROUGH_TOGGLES(i,{
+      CHANGE_STAT[0] += (weights[i]>INPUT_ATTRIB[0]) - (CURWT>INPUT_ATTRIB[0]);
+  })
 }
 
 /********************  changestats:   I    ***********/
@@ -112,17 +104,13 @@ WtD_CHANGESTAT_FN(d_greaterthan) {
 /*****************
  stat: ininterval
 *****************/
-WtD_CHANGESTAT_FN(d_ininterval) {
-  double OLDWT;
+WtD_CHANGESTAT_FN(d_ininterval){
   int i;
   
   CHANGE_STAT[0] = 0.0;
-  FOR_EACH_TOGGLE(i){
-    GETOLDWT(i);
-    CHANGE_STAT[0] += ((INPUT_ATTRIB[2] ? weights[i]>INPUT_ATTRIB[0] : weights[i]>=INPUT_ATTRIB[0]) && (INPUT_ATTRIB[3] ? weights[i]<INPUT_ATTRIB[1] : weights[i]<=INPUT_ATTRIB[1])) - ((INPUT_ATTRIB[2] ? OLDWT>INPUT_ATTRIB[0] : OLDWT>=INPUT_ATTRIB[0]) && (INPUT_ATTRIB[3] ? OLDWT<INPUT_ATTRIB[1] : OLDWT<=INPUT_ATTRIB[1]));
-    SETWT_IF_MORE_TO_COME(i);
-  }
-  UNDO_PREVIOUS_SETWTS(i);
+  EXEC_THROUGH_TOGGLES(i,{
+      CHANGE_STAT[0] += ((INPUT_ATTRIB[2] ? weights[i]>INPUT_ATTRIB[0] : weights[i]>=INPUT_ATTRIB[0]) && (INPUT_ATTRIB[3] ? weights[i]<INPUT_ATTRIB[1] : weights[i]<=INPUT_ATTRIB[1])) - ((INPUT_ATTRIB[2] ? CURWT>INPUT_ATTRIB[0] : CURWT>=INPUT_ATTRIB[0]) && (INPUT_ATTRIB[3] ? CURWT<INPUT_ATTRIB[1] : CURWT<=INPUT_ATTRIB[1]));
+    })
 }
 
 
@@ -132,53 +120,71 @@ WtD_CHANGESTAT_FN(d_ininterval) {
  stat: mutual (minimum)
 *****************/
 WtD_CHANGESTAT_FN(d_mutual_wt_min){
-  double change, OLDWT, thweight;
+  double thweight;
   int i;
   
   ZERO_ALL_CHANGESTATS(i);
-  FOR_EACH_TOGGLE(i){
-    GETOLDWT(i);
-    thweight = GETWT(tails[i],heads[i]);
-    CHANGE_STAT[0] += fmin(weights[i],thweight) - fmin(OLDWT,thweight);
-    SETWT_IF_MORE_TO_COME(i);
-  }
-  UNDO_PREVIOUS_SETWTS(i);
+  EXEC_THROUGH_TOGGLES(i,{
+      thweight = GETWT(tails[i],heads[i]);
+      CHANGE_STAT[0] += fmin(weights[i],thweight) - fmin(CURWT,thweight);
+    })
 }
+
 
 /*****************
  stat: mutual (-|yij-yji|)
 *****************/
 WtD_CHANGESTAT_FN(d_mutual_wt_nabsdiff){
-  double change, OLDWT, thweight;
+  double thweight;
   int i;
   
   ZERO_ALL_CHANGESTATS(i);
-  FOR_EACH_TOGGLE(i){
-    GETOLDWT(i);
-    thweight = GETWT(tails[i],heads[i]);
-    CHANGE_STAT[0] -= fabs(weights[i]-thweight) - fabs(OLDWT-thweight);
-    SETWT_IF_MORE_TO_COME(i);
-  }
-  UNDO_PREVIOUS_SETWTS(i);
+  EXEC_THROUGH_TOGGLES(i,{
+      thweight = GETWT(tails[i],heads[i]);
+    CHANGE_STAT[0] -= fabs(weights[i]-thweight) - fabs(CURWT-thweight);
+  })
 }
 
 /********************  changestats:   N    ***********/
+
+/*****************
+ changestat: nodecov (nonzero)
+*****************/
+WtD_CHANGESTAT_FN(d_nodecov_nonzero) { 
+  int i;
+
+  CHANGE_STAT[0] = 0.0;
+  EXEC_THROUGH_TOGGLES(i,{
+      CHANGE_STAT[0] += (INPUT_ATTRIB[heads[i]-1] + INPUT_ATTRIB[tails[i]-1])*((weights[i]!=0)-(CURWT!=0));
+  })
+}
+
+/*****************
+ changestat: d_nodecov
+*****************/
+WtD_CHANGESTAT_FN(d_nodecov_sum) { 
+  int i;
+
+  CHANGE_STAT[0] = 0.0;
+  EXEC_THROUGH_TOGGLES(i,{
+      CHANGE_STAT[0] += (INPUT_ATTRIB[heads[i]-1] + INPUT_ATTRIB[tails[i]-1])*(weights[i]-CURWT);
+  })
+}
 
 
 /*****************
  stat: nodefactor (nonzero)
 *****************/
 WtD_CHANGESTAT_FN(d_nodefactor_nonzero){ 
-  double s, factorval, OLDWT;
+  double s, factorval;
   Vertex h, t;
   int i, j, hattr, tattr;
   
   ZERO_ALL_CHANGESTATS(i);
-  FOR_EACH_TOGGLE(i) {
+  EXEC_THROUGH_TOGGLES(i, {
     h = heads[i];
     t = tails[i];
-    GETOLDWT(i);
-    s = (weights[i]!=0) - (OLDWT!=0);
+        s = (weights[i]!=0) - (CURWT!=0);
     hattr = INPUT_ATTRIB[h-1];
     tattr = INPUT_ATTRIB[t-1];
     for (j=0; j < N_CHANGE_STATS; j++) {
@@ -186,25 +192,22 @@ WtD_CHANGESTAT_FN(d_nodefactor_nonzero){
       if (hattr == factorval) CHANGE_STAT[j] += s;
       if (tattr == factorval) CHANGE_STAT[j] += s;
     }
-    SETWT_IF_MORE_TO_COME(i);
-  }
-  UNDO_PREVIOUS_SETWTS(i);
+  })
 }
 
 /*****************
  stat: nodefactor (sum)
 *****************/
 WtD_CHANGESTAT_FN(d_nodefactor_sum){ 
-  double s, factorval, OLDWT;
+  double s, factorval;
   Vertex h, t;
   int i, j, hattr, tattr;
   
   ZERO_ALL_CHANGESTATS(i);
-  FOR_EACH_TOGGLE(i) {
+  EXEC_THROUGH_TOGGLES(i, {
     h = heads[i];
     t = tails[i];
-    GETOLDWT(i);
-    s = weights[i] - OLDWT;
+    s = weights[i] - CURWT;
     hattr = INPUT_ATTRIB[h-1];
     tattr = INPUT_ATTRIB[t-1];
     for (j=0; j < N_CHANGE_STATS; j++) {
@@ -212,25 +215,19 @@ WtD_CHANGESTAT_FN(d_nodefactor_sum){
       if (hattr == factorval) CHANGE_STAT[j] += s;
       if (tattr == factorval) CHANGE_STAT[j] += s;
     }
-    SETWT_IF_MORE_TO_COME(i);
-  }
-  UNDO_PREVIOUS_SETWTS(i);
+  })
 }
 
 /*****************
  stat: nonzero
 *****************/
 WtD_CHANGESTAT_FN(d_nonzero) {
-  double OLDWT;
   int i;
   
   CHANGE_STAT[0] = 0.0;
-  FOR_EACH_TOGGLE(i){
-    GETOLDWT(i);
-    CHANGE_STAT[0] += (weights[i]!=0) - (OLDWT!=0);
-    SETWT_IF_MORE_TO_COME(i);
-  }
-  UNDO_PREVIOUS_SETWTS(i);
+  EXEC_THROUGH_TOGGLES(i,{
+        CHANGE_STAT[0] += (weights[i]!=0) - (CURWT!=0);
+  })
 }
 
 
@@ -241,32 +238,24 @@ WtD_CHANGESTAT_FN(d_nonzero) {
  Turns a Poisson-reference or geometric-reference ERGM into a Conway-Maxwell-Poisson distribution
 *****************/
 WtD_CHANGESTAT_FN(d_nsumlogfactorial) {
-  double OLDWT;
   int i;
   
   CHANGE_STAT[0] = 0.0;
-  FOR_EACH_TOGGLE(i){
-    GETOLDWT(i);
-    CHANGE_STAT[0] -= lgamma1p(weights[i])-lgamma1p(OLDWT);
-    SETWT_IF_MORE_TO_COME(i);
-  }
-  UNDO_PREVIOUS_SETWTS(i);
+  EXEC_THROUGH_TOGGLES(i,{
+      CHANGE_STAT[0] -= lgamma1p(weights[i])-lgamma1p(CURWT);
+  })
 }
 
 /*****************
  stat: sum
 *****************/
 WtD_CHANGESTAT_FN(d_sum) {
-  double OLDWT;
   int i;
   
   CHANGE_STAT[0] = 0.0;
-  FOR_EACH_TOGGLE(i){
-    GETOLDWT(i);
-    CHANGE_STAT[0] += weights[i]-OLDWT;
-    SETWT_IF_MORE_TO_COME(i);
-  }
-  UNDO_PREVIOUS_SETWTS(i);
+  EXEC_THROUGH_TOGGLES(i,{
+      CHANGE_STAT[0] += weights[i]-CURWT;
+  })
 }
 
 /********************  changestats:   T    ***********/
