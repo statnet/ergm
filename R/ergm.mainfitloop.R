@@ -5,7 +5,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
                              verbose=FALSE,
                              epsilon=1e-10,
                              estimate=TRUE,
-                             response=response,...) {
+                             response=NULL,...) {
   iteration <- 1
   nw.orig <- network.copy(nw)
   asyse=theta0-theta0
