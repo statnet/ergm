@@ -16,7 +16,7 @@ WtD_CHANGESTAT_FN(d_absdiff_nonzero){
     } else {
       CHANGE_STAT[0] += pow(fabs(INPUT_ATTRIB[heads[i]] - INPUT_ATTRIB[tails[i]]), p)*((weights[i]!=0)-(CURWT!=0));
     }
-    })
+    });
 }
 
 /*****************                       
@@ -33,7 +33,7 @@ WtD_CHANGESTAT_FN(d_absdiff_sum){
     } else {
       CHANGE_STAT[0] += pow(fabs(INPUT_ATTRIB[heads[i]] - INPUT_ATTRIB[tails[i]]), p)*(weights[i]-CURWT);
     }
-    })
+    });
 }
 
 /*****************
@@ -58,7 +58,7 @@ WtD_CHANGESTAT_FN(d_absdiffcat_nonzero){
 	  CHANGE_STAT[j] += (absdiff==INPUT_PARAM[j]) ? change : 0.0;
 	}
       }
-    })
+    });
 }
 
 /*****************
@@ -83,7 +83,7 @@ WtD_CHANGESTAT_FN(d_absdiffcat_sum){
 	  CHANGE_STAT[j] += (absdiff==INPUT_PARAM[j]) ? change : 0.0;
 	}
       }
-    })
+    });
 }
 
 
@@ -96,7 +96,7 @@ WtD_CHANGESTAT_FN(d_atleast){
   CHANGE_STAT[0] = 0.0;
   EXEC_THROUGH_TOGGLES(i,{
       CHANGE_STAT[0] += (weights[i]>=INPUT_ATTRIB[0]) - (CURWT>=INPUT_ATTRIB[0]);
-    })
+    });
 }
 
 /********************  changestats:   C    ***********/
@@ -181,7 +181,7 @@ WtD_CHANGESTAT_FN(d_greaterthan){
   CHANGE_STAT[0] = 0.0;
   EXEC_THROUGH_TOGGLES(i,{
       CHANGE_STAT[0] += (weights[i]>INPUT_ATTRIB[0]) - (CURWT>INPUT_ATTRIB[0]);
-  })
+  });
 }
 
 /********************  changestats:   I    ***********/
@@ -195,7 +195,7 @@ WtD_CHANGESTAT_FN(d_ininterval){
   CHANGE_STAT[0] = 0.0;
   EXEC_THROUGH_TOGGLES(i,{
       CHANGE_STAT[0] += ((INPUT_ATTRIB[2] ? weights[i]>INPUT_ATTRIB[0] : weights[i]>=INPUT_ATTRIB[0]) && (INPUT_ATTRIB[3] ? weights[i]<INPUT_ATTRIB[1] : weights[i]<=INPUT_ATTRIB[1])) - ((INPUT_ATTRIB[2] ? CURWT>INPUT_ATTRIB[0] : CURWT>=INPUT_ATTRIB[0]) && (INPUT_ATTRIB[3] ? CURWT<INPUT_ATTRIB[1] : CURWT<=INPUT_ATTRIB[1]));
-    })
+    });
 }
 
 
@@ -212,7 +212,7 @@ WtD_CHANGESTAT_FN(d_mutual_wt_min){
   EXEC_THROUGH_TOGGLES(i,{
       thweight = GETWT(tails[i],heads[i]);
       CHANGE_STAT[0] += fmin(weights[i],thweight) - fmin(CURWT,thweight);
-    })
+    });
 }
 
 
@@ -227,7 +227,7 @@ WtD_CHANGESTAT_FN(d_mutual_wt_nabsdiff){
   EXEC_THROUGH_TOGGLES(i,{
       thweight = GETWT(tails[i],heads[i]);
     CHANGE_STAT[0] -= fabs(weights[i]-thweight) - fabs(CURWT-thweight);
-  })
+  });
 }
 
 /********************  changestats:   N    ***********/
@@ -241,7 +241,7 @@ WtD_CHANGESTAT_FN(d_nodecov_nonzero){
   CHANGE_STAT[0] = 0.0;
   EXEC_THROUGH_TOGGLES(i,{
       CHANGE_STAT[0] += (INPUT_ATTRIB[heads[i]-1] + INPUT_ATTRIB[tails[i]-1])*((weights[i]!=0)-(CURWT!=0));
-  })
+  });
 }
 
 /*****************
@@ -253,7 +253,7 @@ WtD_CHANGESTAT_FN(d_nodecov_sum){
   CHANGE_STAT[0] = 0.0;
   EXEC_THROUGH_TOGGLES(i,{
       CHANGE_STAT[0] += (INPUT_ATTRIB[heads[i]-1] + INPUT_ATTRIB[tails[i]-1])*(weights[i]-CURWT);
-  })
+  });
 }
 
 
@@ -277,7 +277,7 @@ WtD_CHANGESTAT_FN(d_nodefactor_nonzero){
       if (hattr == factorval) CHANGE_STAT[j] += s;
       if (tattr == factorval) CHANGE_STAT[j] += s;
     }
-  })
+  });
 }
 
 /*****************
@@ -300,7 +300,7 @@ WtD_CHANGESTAT_FN(d_nodefactor_sum){
       if (hattr == factorval) CHANGE_STAT[j] += s;
       if (tattr == factorval) CHANGE_STAT[j] += s;
     }
-  })
+  });
 }
 
 /*****************
@@ -312,7 +312,7 @@ WtD_CHANGESTAT_FN(d_nonzero){
   CHANGE_STAT[0] = 0.0;
   EXEC_THROUGH_TOGGLES(i,{
         CHANGE_STAT[0] += (weights[i]!=0) - (CURWT!=0);
-  })
+  });
 }
 
 
@@ -328,7 +328,7 @@ WtD_CHANGESTAT_FN(d_nsumlogfactorial){
   CHANGE_STAT[0] = 0.0;
   EXEC_THROUGH_TOGGLES(i,{
       CHANGE_STAT[0] -= lgamma1p(weights[i])-lgamma1p(CURWT);
-  })
+  });
 }
 
 /*****************
@@ -340,7 +340,7 @@ WtD_CHANGESTAT_FN(d_sum){
   CHANGE_STAT[0] = 0.0;
   EXEC_THROUGH_TOGGLES(i,{
       CHANGE_STAT[0] += weights[i]-CURWT;
-  })
+  });
 }
 
 /********************  changestats:   T    ***********/
