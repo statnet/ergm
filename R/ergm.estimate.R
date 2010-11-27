@@ -289,10 +289,16 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                                        H=V, H.miss=V.miss,
                                        model=model)
       } else {
-        mc.se <- ergm.MCMCse(theta=theta,theta0=theta0, 
+        MCMCse <- ergm.MCMCse(theta=theta,theta0=theta0, 
                              statsmatrix=statsmatrix0,
                              statsmatrix.miss=statsmatrix.miss,
                              model=model)
+        mc.se <- MCMCse$mc.se
+#       The next line forces the s.e. in summary.ergm to be combine
+#       the hessian of the likelihood plus the MCMC s.e.
+#       covar <- MCMCse$mc.cov+covar
+#       If the above line is commented out only the hessian ofthe likelihood 
+#       is used.
       }
     }
     c0  <- loglikelihoodfn(theta=Lout$par, xobs=xobs,
