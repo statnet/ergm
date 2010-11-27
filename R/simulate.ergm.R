@@ -132,12 +132,60 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0,
       curstats <- curstats + z$statsmatrix
     }
     if(verbose){cat(sprintf("Finished simulation %d of %d.\n",i, nsim))}
+   }
+  }else{
+    MCMCparams.parallel <- MCMCparams
+    MCMCparams.parallel$samplesize <- 1
+    MCMCparams.parallel$nmatrixentries <- length(curstats)
+    require(snow)
+#
+# Start PVM if necessary
+#
+    if(getClusterOption("type")=="PVM"){
+     if(verbose){cat("Engaging warp drive using PVM ...\n")}
+     require(rpvm)
+     PVM.running <- try(.PVM.config(), silent=TRUE)
+     if(inherits(PVM.running,"try-error")){
+      hostfile <- paste(Sys.getenv("HOME"),"/.xpvm_hosts",sep="")
+      .PVM.start.pvmd(hostfile)
+      cat("no problem... PVM started by ergm...\n")
+     }
+    }else{
+     if(verbose){cat("Engaging warp drive using MPI ...\n")}
+    }
+#
+#   Start Cluster
+#
+    cl<-makeCluster(MCMCparams$parallel)
+    clusterSetupRNG(cl)
+    if("ergm" %in% MCMCparams$packagenames){
+     clusterEvalQ(cl,library(ergm))
+    }
+#
+#   Run the jobs with rpvm or Rmpi
+#
+    flush.console()
+    outlist <- clusterCall(cl,ergm.getMCMCsample,
+     Clist,MHproposal,theta0,MCMCparams.parallel,verbose)
+#
+#   Process the results
+#
+    for(i in (1:MCMCparams$parallel)){
+     z <- outlist[[i]]
+     nedges <- z$newnwheads[1]
+     # Create a network object if statsonly==FALSE
+     if (!statsonly) {
+      nw.list[[i]] <- network.update(nw, z$newedgelist, matrix.type="edgelist",
+                                     output=control$network.output)
+     }
+     nw <- as.network.uncompressed(nw.list[[i]])
+     out.mat[i,] <- summary(formula)
+    }
   }
   
   if (statsonly)
     return(out.mat[1:nsim,]) # If nsim==1, this will return a vector, not a matrix
   
-  }
   # If we get here, statsonly==FALSE.
   if (nsim==1) {
     return(nw.list[[1]])

@@ -135,5 +135,30 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
     }
   }
   names(mc.se) <- names(theta)
-  return(mc.se)
+  mc.cov <- matrix(NA,ncol=length(theta),nrow=length(theta))
+  mc.cov0 <- try(solve(H, cov.zbar), silent=TRUE)
+  if(!(inherits(mc.cov0,"try-error"))){
+    mc.cov0 <- try(solve(H, t(mc.cov0)), silent=TRUE)
+    if(!(inherits(mc.cov0,"try-error"))){
+      if(!is.null(statsmatrix.miss)){
+        mc.cov.miss0 <- try(solve(H.miss, cov.zbar.miss), silent=TRUE)
+        if(!(inherits(mc.cov.miss0,"try-error"))){
+          mc.cov.miss0 <- try(solve(H.miss, t(mc.cov.miss0)), silent=TRUE)
+          if(!inherits(mc.cov.miss0,"try-error")){
+            mc.cov[!offsettheta,!offsettheta][!novar,!novar] <- mc.cov0 + mc.cov.miss0
+          }else{
+            mc.cov[!offsettheta,!offsettheta][!novar,!novar] <- mc.cov0
+          }
+        }else{
+          mc.cov[!offsettheta,!offsettheta][!novar,!novar] <- mc.cov0
+        }
+      }else{
+        mc.cov[!offsettheta,!offsettheta][!novar,!novar] <- mc.cov0
+      }
+    }
+  }
+  colnames(mc.cov) <- names(theta)
+  rownames(mc.cov) <- names(theta)
+#
+  return(list(mc.se=mc.se, mc.cov=mc.cov))
 }

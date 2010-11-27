@@ -1,6 +1,7 @@
 summary.ergm <- function (object, ..., 
                           digits = max(3, getOption("digits") - 3),
                           correlation=FALSE, covariance=FALSE,
+                          total.variation=TRUE,
                           eps=0.0001)
 {
 # separates out summary and print fns: MSH
@@ -15,6 +16,7 @@ summary.ergm <- function (object, ...,
   }
   nodes<- network.size(object$network)
   dyads<- network.dyadcount(object$network)
+  mc.se<- object$mc.se
   if(is.null(object$covar)){
    asycov <- try(robust.inverse(-object$hessian), silent=TRUE)
    if(inherits(asycov,"try-error")){
@@ -30,13 +32,16 @@ summary.ergm <- function (object, ...,
     }
     # Adjust for missing dyads
     asycov <- asycov*mdyads/dyads
-    object$mc.se <- object$mc.se*sqrt(mdyads/dyads)
+    mc.se <- mc.se*sqrt(mdyads/dyads)
    }
   }
   rownames(asycov) <- names(object$coef)
   colnames(asycov) <- rownames(asycov)
   
   asyse <- diag(asycov)
+  if(total.variation & any(!is.na(mc.se))){
+   asyse[!is.na(mc.se)] <- asyse[!is.na(mc.se)]+mc.se[!is.na(mc.se)]^2
+  }
   asyse[asyse<0|is.infinite(object$coef)|object$offset] <- NA
   asyse <- sqrt(asyse)
   if(any(is.na(asyse)&!object$offset) & !is.null(object$mplefit)){
@@ -102,12 +107,18 @@ summary.ergm <- function (object, ...,
   tval <- object$coef / asyse
   pval <- 2 * pt(q=abs(tval), df=rdf, lower.tail=FALSE)
 
+# Convert to % error
+  if(any(!is.na(mc.se))){
+#  mc.se[!is.na(mc.se)] <- formatC(round(100*mc.se[!is.na(mc.se)]*mc.se[!is.na(mc.se)]/(asyse[!is.na(mc.se)]*asyse[!is.na(mc.se)])),digits=0,width=5,format="d")
+   mc.se[!is.na(mc.se)] <- round(100*mc.se[!is.na(mc.se)]*mc.se[!is.na(mc.se)]/(asyse[!is.na(mc.se)]*asyse[!is.na(mc.se)]))
+  }
+
 # values <- format(object$coef,digits=digits)
 # names <- names(values)
 # names(values) <- NULL
 # casyse<-format(asyse, digits=digits)
 # cpval<-format(pval, digits=digits)
-# cmc.se <- format(object$mc.se,digits=digits)
+# cmc.se <- format(mc.se,digits=digits)
 
 # cmc.se[object$offset] <- NA
 # cpval[object$offset]  <- NA
@@ -134,12 +145,12 @@ summary.ergm <- function (object, ...,
   while (count <= length(names(object$coef)))
     {
      templist <- append(templist,c(object$coef[count],
-          asyse[count],object$mc.se[count],pval[count]))
+          asyse[count],mc.se[count],pval[count]))
      count <- count+1
     }
 
   tempmatrix <- matrix(templist, ncol=4,byrow=TRUE)
-  colnames(tempmatrix) <- c("Estimate", "Std. Error", "MCMC s.e.", "p-value")
+  colnames(tempmatrix) <- c("Estimate", "Std. Error", "MCMC %", "p-value")
   rownames(tempmatrix) <- names(object$coef)
 
   devtext <- "Deviance:"
@@ -148,7 +159,7 @@ summary.ergm <- function (object, ...,
       devtext <- "Pseudo-deviance:"
       ans$message <- "\nWarning:  The standard errors are based on naive pseudolikelihood and are suspect.\n"
     } 
-    else if(any(is.na(object$mc.se))) {
+    else if(any(is.na(mc.se))) {
       ans$message <- "\nWarning:  The standard errors are suspect due to possible poor convergence.\n"
     }
   } else {

@@ -2,7 +2,7 @@ print.summary.ergm <- function (x,
               digits = max(3, getOption("digits") - 3),
               correlation=FALSE, covariance=FALSE,
               signif.stars= getOption("show.signif.stars"),
-              eps=0.0001, ...)
+              eps.Pvalue=0.0001, ...)
 {
   cat("\n==========================\n")
   cat("Summary of model fit\n")
@@ -42,7 +42,7 @@ print.summary.ergm <- function (x,
 
   printCoefmat(x$coefs, digits=digits, signif.stars=signif.stars,
                P.values=TRUE, has.Pvalue=TRUE, na.print="NA",
-               eps=eps, ...)
+               eps.Pvalue=eps.Pvalue, ...)
   
   if(!is.null(x$message)){ 
      cat(x$message)

@@ -17,6 +17,8 @@
     the estimated parameters is returned and printed.}
   \item{covariance}{logical; if \code{TRUE}, the covariance matrix of
     the estimated parameters is returned and printed.}
+  \item{total.variation}{logical; if \code{TRUE}, the standard errors
+reported in the \code{Std. Error} column are based on the sum of the likelihood variation and the MCMC variation. If \code{FALSE} only the likelihood varuation is used. The \eqn{p}-values are based on this source of variation.}
   \item{eps}{number; indicates the smallest p-value. See \code{\link{printCoefmat}}.}
   \item{\dots}{further arguments passed to or from other methods.}
 }
