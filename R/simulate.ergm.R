@@ -8,7 +8,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, theta0=object$coef,
   if(is.null(burnin)){burnin <- object$burnin}
   if(is.null(interval)){interval <- object$interval}
   if(is.null(constraints)){constraints <- object$constraints}
-  simulate.formula(object$formula, nsim=nsim, seed=seed, theta0=theta0, response=object$response, reference=object$reference,
+  simulate.formula(object$formula, nsim=nsim, seed=seed, theta0=theta0, response=object$response, reference=if(is.null(object$reference)) "Bernoulli" else object$reference,
                    burnin=burnin, interval=interval, statsonly=statsonly,
                    sequential=sequential, constraints=constraints,
                    control=control, verbose=verbose, ...)

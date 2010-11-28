@@ -208,6 +208,7 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
     initialfit$offset <- model.initial$etamap$offsettheta
     initialfit$drop <- droppedterms
     initialfit$network <- nw
+    initialfit$reference <- reference
     initialfit$newnetwork <- nw
     initialfit$formula <- formula
     initialfit$constraints <- constraints
