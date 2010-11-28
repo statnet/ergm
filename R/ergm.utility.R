@@ -308,15 +308,21 @@ function(x, alternative = c("two.sided", "less", "greater"),
 #}
 
 newnw.extract<-function(oldnw,z,output="network",response=NULL){
-  nedges<-z$newnwheads[1]
-  newedgelist <-
-    if(nedges>0) cbind(z$newnwheads[2:(nedges+1)],z$newnwtails[2:(nedges+1)])
-    else matrix(0, ncol=2, nrow=0)
-
+  if("newedgelist" %in% names(z)){
+    newedgelist<-z$newedgelist[,1:2,drop=FALSE]
+    if(!is.null(response))
+       newnwweights<-z$newedgelist[,3]
+  }else{
+    nedges<-z$newnwheads[1]
+    newedgelist <-
+      if(nedges>0) cbind(z$newnwheads[2:(nedges+1)],z$newnwtails[2:(nedges+1)])
+      else matrix(0, ncol=2, nrow=0)
+    newnwweights <- z$newnwweights[2:(nedges+1)]
+  }
+  
   newnw<-network.update(oldnw,newedgelist,"edgelist",output=output)
-
   if(!is.null(response)){
-    newnw<-set.edge.attribute(newnw,attrname=response,z$newnwweights[2:(nedges+1)])
+    newnw<-set.edge.attribute(newnw,attrname=response,newnwweights)
   }
   newnw
 }
