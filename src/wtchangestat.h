@@ -82,23 +82,31 @@ typedef struct WtModelTermstruct {
 #define INPUT_PARAM (mtp->inputparams)
 #define N_INPUT_PARAMS (mtp->ninputparams) /* Number of inputs passed */
 
+#define TOGGLEIND toggleind
+
 /* macro to set all changestats to zero at start of function */
-#define ZERO_ALL_CHANGESTATS(a) for((a)=0; (a)<N_CHANGE_STATS; (a)++) CHANGE_STAT[(a)]=0.0
+#define ZERO_ALL_CHANGESTATS() for(unsigned int TOGGLEIND=0; TOGGLEIND<N_CHANGE_STATS; TOGGLEIND++) CHANGE_STAT[TOGGLEIND]=0.0
 
 /* macros to cycle through all toggles proposed for the current step, then
    make the current toggle in case of more than one proposed toggle, then
    undo all of the toggles to reset the original network state.  */
-#define FOR_EACH_TOGGLE(a) for((a)=0; (a)<ntoggles; (a)++)
+#define FOR_EACH_TOGGLE() for(unsigned int TOGGLEIND=0; TOGGLEIND<ntoggles; TOGGLEIND++)
 // The idea here is to essentially swap the contents of the proposed
 // weights with the current weights, and then swap them back when
 // done.
-#define CURWT curwt
-#define GETCURWT(a) double CURWT=GETWT(heads[(a)],tails[(a)])
-// SETWT_WITH_BACKUP(a) must be called _after_ GETCURWT(a)!
-#define SETWT_WITH_BACKUP(a) {SETWT(heads[(a)],tails[(a)],weights[(a)]); weights[(a)]=CURWT;}
-#define UNDO_SETWT(a) {GETCURWT(a); SETWT(heads[(a)],tails[(a)],weights[(a)]); weights[(a)]=CURWT;}
-#define SETWT_IF_MORE_TO_COME(a) {if((a)+1<ntoggles) {SETWT_WITH_BACKUP(a)}}
-#define UNDO_PREVIOUS_SETWTS(a) (a)--; while(--(a)>=0){UNDO_SETWT(a)}
+#define HEAD head
+#define TAIL tail
+#define NEWWT newwt
+#define OLDWT oldwt
+
+#define GETOLDTOGGLEINFO() Vertex HEAD=heads[TOGGLEIND], TAIL=tails[TOGGLEIND]; double OLDWT=GETWT(HEAD,TAIL);
+#define GETTOGGLEINFO() GETOLDTOGGLEINFO(); double NEWWT=weights[TOGGLEIND];
+
+// SETWT_WITH_BACKUP(a) must be called _after_ GETTOGGLEINFO!
+#define SETWT_WITH_BACKUP() {SETWT(HEAD,TAIL,NEWWT); weights[TOGGLEIND]=OLDWT;}
+#define UNDO_SETWT() {GETOLDTOGGLEINFO(); SETWT(HEAD,TAIL,weights[TOGGLEIND]); weights[TOGGLEIND]=OLDWT;}
+#define SETWT_IF_MORE_TO_COME() {if(TOGGLEIND+1<ntoggles) {SETWT_WITH_BACKUP()}}
+#define UNDO_PREVIOUS_SETWTS() for(unsigned int TOGGLEIND=0; TOGGLEIND+1<ntoggles; TOGGLEIND++){UNDO_SETWT()}
 // Brings together the above operations:
 // For each toggle:
 //    Get the current edge weight.
@@ -106,7 +114,7 @@ typedef struct WtModelTermstruct {
 //    Back up the current edge weight by swapping weight[i] with current edge weight.
 // For each toggle:
 //    Undo the changes by swapping them back.
-#define EXEC_THROUGH_TOGGLES(a,subroutine){FOR_EACH_TOGGLE(a){ GETCURWT(a); {subroutine}; SETWT_IF_MORE_TO_COME(a);} UNDO_PREVIOUS_SETWTS(a);}
+#define EXEC_THROUGH_TOGGLES(subroutine){ZERO_ALL_CHANGESTATS();FOR_EACH_TOGGLE(){ GETTOGGLEINFO(); {subroutine}; SETWT_IF_MORE_TO_COME();} UNDO_PREVIOUS_SETWTS();}
 
 /****************************************************/
 /* changestat function prototypes, 

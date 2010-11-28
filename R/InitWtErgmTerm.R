@@ -1,4 +1,4 @@
-InitErgmTerm.absdiff <- function(nw, arglist, ...) {
+InitWtErgmTerm.absdiff <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
                       varnames = c("attrname","pow","form"),
@@ -16,7 +16,7 @@ InitErgmTerm.absdiff <- function(nw, arglist, ...) {
        )
 }
 
-InitErgmTerm.absdiffcat <- function(nw, arglist, response, ...) {
+InitWtErgmTerm.absdiffcat <- function(nw, arglist, response, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
                       varnames = c("attrname","base","form"),
@@ -185,7 +185,7 @@ InitWtErgmTerm.nodefactor<-function (nw, arglist, response, drop=TRUE, ...) {
        )
 }
 
-InitErgmTerm.nodecov<-InitErgmTerm.nodemain<-function (nw, arglist, response, drop=TRUE, ...) {
+InitWtErgmTerm.nodecov<-InitWtErgmTerm.nodemain<-function (nw, arglist, response, drop=TRUE, ...) {
   a <- ergm.ErgmTerm(nw, arglist,
                      varnames = c("attrname","transform","transformname","form"),
                      vartypes = c("character","function","character","character"),
@@ -290,7 +290,7 @@ InitWtErgmTerm.transitiveweights<-function (nw, arglist, response, drop=TRUE, ..
   
 }
 
-InitWtErgmTerm.cyclicties<-function (nw, arglist, response, drop=TRUE, ...) {
+InitWtErgmTerm.cyclicalties<-function (nw, arglist, response, drop=TRUE, ...) {
 ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, bipartite=NULL,
                       varnames = c("threshold"),
@@ -305,7 +305,7 @@ InitWtErgmTerm.cyclicties<-function (nw, arglist, response, drop=TRUE, ...) {
     } 
   }
   list(name="cyclicweights_threshold",
-       coef.names="cyclicties",
+       coef.names="cyclicalties",
        inputs=c(a$threshold),
        dependence=TRUE)
   
