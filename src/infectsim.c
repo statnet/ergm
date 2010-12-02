@@ -19,9 +19,9 @@ void InfectSimLoop (int *time, int *N,
                     int *R_seed, int *R_race,
                     int *R_infector_race,
                     int *lrecvec, double *recvec) {
-  int t, ndiscord;
+  int ndiscord;
   int i, j, day, edge, R1, R2, P1, P2;
-  int id_infect, id_suscept;
+  int id_infect=0, id_suscept=0;
   int rel_duration, day_of_rel, recency;
   double prob_trans;
   

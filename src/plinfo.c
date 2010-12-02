@@ -9,7 +9,8 @@ void plinfo_wrapper (int *heads, int *tails, int *dnedges,
 {
   Network nw;
   Vertex n_nodes = (Vertex) *dn; 
-  Edge n_edges = (Edge) *dnedges, maxedges=*maxpossibleedges;
+  Edge n_edges = (Edge) *dnedges;
+//  Edge maxedges=*maxpossibleedges;
   int directed_flag = *dflag;
   Model *m;
   Vertex bip=0;  /* Assumes bipartite is irrelevant; is this true? */

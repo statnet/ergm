@@ -31,7 +31,7 @@ void PILA_wrapper(int *heads, int *tails, int *dnedges,
 		  double *direction_save, double *dtheta_save,
 		  int *insensitive_save, int *ineffectual_save, int *dropped_save) {
   int directed_flag, hammingterm, formationterm;
-  Vertex n_nodes, nmax, bip, hhead, htail;
+  Vertex n_nodes, bip, hhead, htail;
   Edge n_edges, n_medges, nddyads, kedge;
   Network nw[2];
   DegreeBound *bd;
