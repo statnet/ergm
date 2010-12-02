@@ -60,8 +60,10 @@ edgelist.ergm.matrix <- function(x, directed=TRUE, check.uniqueness=TRUE,
       tmp <- apply(x, 1, function(a) a[1]>a[2]) 
       x[tmp,] <- x[tmp,2:1]
     }
-    x <- x[order(x[,1], x[,2]), , drop=FALSE]
-    x <- x[x[,1]!=x[,2], , drop=FALSE]
+    if (check.sorted) {
+      x <- x[order(x[,1], x[,2]), , drop=FALSE]
+    }
+    x <- x[x[,1]!=x[,2], , drop=FALSE] # delete self-loops no matter what
     if (check.uniqueness)
       x <- unique(x)
     return(x)
