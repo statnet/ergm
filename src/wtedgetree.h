@@ -78,7 +78,8 @@ Edge WtEdgetreeMinimum (WtTreeNode *edges, Edge x);
 /* Modifiers. */
 void WtSetEdge (Vertex head, Vertex tail, double weight, WtNetwork *nwp);
 void WtSetEdgeWithTimestamp (Vertex head, Vertex tail, double weight, WtNetwork *nwp);
-
+int WtToggleEdge (Vertex head, Vertex tail, double weight, WtNetwork *nwp);
+int WtToggleEdgeWithTimestamp (Vertex head, Vertex tail, double weight, WtNetwork *nwp);
 int WtAddEdgeToTrees(Vertex head, Vertex tail, double weight, WtNetwork *nwp);
 void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight, WtTreeNode *edges, Edge next_edge);
 void WtUpdateNextedge (WtTreeNode *edges, Edge *nextedge, WtNetwork *nwp);
@@ -101,9 +102,7 @@ void WtShuffleEdges(Vertex *heads, Vertex *tails, double *weights, Edge nedges);
 Edge WtDesignMissing (Vertex a, Vertex b, WtNetwork *mnwp);
 Edge WtEdgeTree2EdgeList(Vertex *heads, Vertex *tails, double*weights, WtNetwork *nwp, Edge nmax);
 
-/* Below are some functions that only exist for weighted (valued) networks */
 
-//double EdgeWeight (Vertex head, Vertex tail, WtNetwork *nwp);
 #endif
 
 
