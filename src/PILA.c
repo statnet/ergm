@@ -31,7 +31,7 @@ void PILA_wrapper(int *heads, int *tails, int *dnedges,
 		  double *direction_save, double *dtheta_save,
 		  int *insensitive_save, int *ineffectual_save, int *dropped_save) {
   int directed_flag, hammingterm, formationterm;
-  Vertex n_nodes, nmax, bip, hhead, htail;
+  Vertex n_nodes, bip, hhead, htail;
   Edge n_edges, n_medges, nddyads, kedge;
   Network nw[2];
   DegreeBound *bd;
@@ -352,13 +352,16 @@ void PILASample (char *MHproposaltype, char *MHproposalpackage,
       dsaveif(theta_mean_save,theta_mean,p_ext);
     
       // Make Fortran call to solve for beta+.
-      int info;
-      F77_CALL(dposv)("U",&p_ext,&(p),XtX_work,
-		      &p_ext,XtY_work,&p_ext,&info);
+      int info, p_ext_int=p_ext, p_int=p; // Last two solve annoying compiler warning
+      F77_CALL(dposv)("U",&p_ext_int,&(p_int),XtX_work,
+		      &p_ext_int,XtY_work,&p_ext_int,&info);
       if(info!=0) {
 	Rprintf("Error in dposv, code %d, at iteration %d.",info,s);
 	return;
       }
+      // Probably unnecessary, but better safe than sorry:
+      p_ext=p_ext_int; p=p_int;
+      
       // XtY_work now contains beta+.
 
       dsaveif(beta_save,XtY_work,p_ext*p);

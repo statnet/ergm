@@ -114,7 +114,7 @@ void OverlapDurations (int *nnodes,
 
   /* Step through time one click at a time */
   for (time=1,j=0; time<=*ntimestep; time++) {
-    for(; j < *nchange & CHANGE(j,0) == time; j++) {
+    for(; j < *nchange && CHANGE(j,0) == time; j++) {
       t1 = (double) CHANGE(j,0);
       f1 = CHANGE(j,1);
       m1 = CHANGE(j,2);
@@ -266,9 +266,9 @@ void godfather_wrapper (int *heads, int *tails, int *dnedges,
 			int *accumulate, 
 			int *fVerbose, 
 			int *maxedges) {
-  int directed_flag, ntoggles;
+  int directed_flag;
   Vertex n_nodes, bip;
-  Edge i, j, n_edges, nmax, tnt;
+  Edge j, n_edges, nmax, tnt;
   Network nw;
   Model *m;
   int start=*dstart, end=*dend; 
@@ -316,7 +316,9 @@ void godfather_wrapper (int *heads, int *tails, int *dnedges,
       }
 	
       /* Make proposed toggles (for real this time) */
-      if (!(*accumulate) || EdgetreeSearch(toggleheads[i-j], toggletails[i-j], nw.outedges) == 0) { 
+      //Obvious bug in next line, since i is uninitialized and j just finished loop:
+      //if (!(*accumulate) || EdgetreeSearch(toggleheads[i-j], toggletails[i-j], nw.outedges) == 0) { 
+      if (!(*accumulate)) { 
 	ToggleEdgeWithTimestamp(toggleheads[pos], toggletails[pos], &nw);
       }
     }

@@ -142,7 +142,7 @@ void PrevalenceWithBernoulliOption(int *nnodes,
   Vertex *bheads, *btails;
   int *sinfected, *bsort;
   double beta=*betarate;
-  Network nw, nws, nwt;
+  Network nw, nws;
   
   sinfected = (int *) malloc(sizeof(int) * (*nnodes));
 //    Rprintf("initial bipartite %d edges %d heads[i] %f tails[i] %f\n", bipartite,ne,
