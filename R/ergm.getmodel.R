@@ -28,7 +28,6 @@
 # --RETURNED--
 #   a 'model.ergm' object as a list containing:
 #     formula       :  the formula inputted to <ergm.getmodel>
-#     node.attrib   :  a list ? of nodal attributes??; this will always be NULL
 #     coef.names    :  a vector of coefficient names
 #     offset        :  a logical vector of whether each term was "offset", where this
 #                      refers to which terms should be held constant for the profile
@@ -56,7 +55,7 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, ...) {
   
   formula.env<-environment(formula)
   
-  model <- structure(list(formula=formula, node.attrib = NULL, coef.names = NULL,
+  model <- structure(list(formula=formula, coef.names = NULL,
                       offset = NULL,
                       terms = NULL, networkstats.0 = NULL, etamap = NULL),
                  class = "model.ergm")

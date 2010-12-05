@@ -38,11 +38,6 @@
 #                    all are ignored
 #
 #
-# --IGNORED PARAMETERS--
-#   epsilon:  ??, any epsilon value used is that of the 'MCMCparams';
-#            default=1e-10
-#
-#
 # --RETURNED--
 #   v: an ergm object as a list containing several items; for details see
 #      the return list in the <ergm> function header (<ergm.mainfitloop>=*);
@@ -57,7 +52,6 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
                              MCMCparams, 
                              MHproposal, MHproposal.miss,
                              verbose=FALSE,
-                             epsilon=1e-10,
                              sequential=TRUE,
                              estimate=TRUE, ...) {
   # Calculate the amount by which all of the MCMC statistics should be adjusted
