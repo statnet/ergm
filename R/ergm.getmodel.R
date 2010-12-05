@@ -15,7 +15,7 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, ...,stergm.order=NULL) {
   
   formula.env<-environment(formula)
   
-  model <- structure(list(formula=formula, node.attrib = NULL, coef.names = NULL,
+  model <- structure(list(formula=formula, coef.names = NULL,
                       offset = NULL,
                       terms = NULL, networkstats.0 = NULL, etamap = NULL),
                  class = "model.ergm")
