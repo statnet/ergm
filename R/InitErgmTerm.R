@@ -969,7 +969,7 @@ InitErgmTerm.concurrent<-function(nw, arglist, drop=TRUE, ...) {
     ui <- seq(along=u)
     if(drop){ #   Check for degeneracy
       concurrentattr <- summary(as.formula
-                             (paste('nw ~ concurrent(',byarg,'")',sep="")),
+                             (paste('nw ~ concurrent("',byarg,'")',sep="")),
                              drop=FALSE) == 0
       if(any(concurrentattr)){
         dropterms <- paste("concurrent", ".", byarg,
