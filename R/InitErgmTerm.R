@@ -3101,7 +3101,7 @@ InitErgmTerm.simmelian<-function (nw, arglist, drop=TRUE, ...) {
 #     cat(paste("To avoid degeneracy the 'simmelian' term has been dropped.\n"))
       return(NULL)
     }
-    if(nsimmelian==network.edgecount(nw)*network.size*0.5){
+    if(nsimmelian==network.edgecount(nw)*network.size(nw)*0.5){
       cat(" ")
       cat(paste("Warning: All triads are simmelian!\n",
                  " The corresponding coefficient has been fixed at its MLE of infinity.\n",sep=" "))
