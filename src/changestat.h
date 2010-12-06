@@ -17,7 +17,6 @@ typedef struct ModelTermstruct {
 
 /****************************************************
  Macros to make life easier                         *
- Note:  These things still need to be documented    */ 
 /* binomial coefficient macro: */
 #define CHOOSE(n,r) ((n)<(r) ? (0) : (my_choose((double)(n),(int)(r)))) 
 
@@ -88,9 +87,7 @@ typedef struct ModelTermstruct {
 #define UNDO_PREVIOUS_DISCORD_TOGGLES(a) (a)--; while(--(a)>=0) {TOGGLE(heads[(a)],tails[(a)]); TOGGLE_DISCORD(heads[(a)],tails[(a)])}
 
 /****************************************************/
-/* changestat function prototypes, 
-   plus a few supporting function prototypes */
-/* changestat function prototype */
+/* changestat function prototypes */
 #define CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *heads, Vertex *tails, ModelTerm *mtp, Network *nwp)
 
 /* NB:  CHANGESTAT_FN is now deprecated (replaced by D_CHANGESTAT_FN) */
