@@ -227,30 +227,17 @@ approximation algorithm. This can be chosen with the
 %algorithm in C since it moves very quickly in \R and
 %it is easier to alter the code if it is written in \R.
 
-The default mechanism for proposing new networks for the MCMC sample 
-space is the Metropolis-Hastings algorithm, which simply chooses a dyad 
-at random and proposes to toggle that edge; each possible dyad is 
-equally likely.  The \code{proposaltype} 
-option allow many more complex proposals to be specified.
-We have developed and implemented a wide range of algorithms. These are 
-described in the documentation for \code{proposaltype}.
-%, including a double
-%Metropolis-Hastings algorithm (two random toggles); an algorithm
-%that reallocates all the edges of one node, with replacement;
-%and an algorithm that toggles all dyads based on a single node
-%(i.e., gives the complement edges for all dyads rooted at
-%a randomly chosen node).
-For example, we have included proposal functions that condition on
-maintaining the absolute degree distribution for the observed
-network.  Each proposal network will have exactly the same number
-of nodes with each degree as does the original network; this
-means that if the proposal network removes an edge between a
-node of degree 3 and a node of degree 5, it must also add
-an edge between a node of degree 2 and a node of degree 4.
-Note that one or both of the latter nodes may be the same as
-the former nodes.
+The mechanism for proposing new networks for the MCMC sampling
+scheme, which is a Metropolis-Hastings algorithm, depends on 
+two things:  The \code{constraints}, which define the set of possible
+networks that could be proposed in a particular Markov chain step,
+and the weights placed on these possible steps by the 
+proposal distribution.  The former may be controlled using the
+\code{constraints} argument described above.  The latter may
+be controlled using the \code{prop.weights} argument to the
+\code{\link{control.ergm}} function.
 
-The package is designed so that the user can add additional 
+The package is designed so that the user could conceivably add additional 
 proposal types. 
 }
   
