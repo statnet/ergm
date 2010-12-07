@@ -17,7 +17,6 @@ typedef struct WtModelTermstruct {
 
 /****************************************************
  Macros to make life easier                         *
- Note:  These things still need to be documented    */ 
 /* binomial coefficient macro: */
 #define CHOOSE(n,r) ((n)<(r) ? (0) : (my_choose((double)(n),(int)(r)))) 
 

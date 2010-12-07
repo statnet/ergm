@@ -3,7 +3,6 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
                              MCMCparams, 
                              MHproposal, MHproposal.miss,
                              verbose=FALSE,
-                             epsilon=1e-10,
                              estimate=TRUE,
                              response=NULL,...) {
   iteration <- 1
