@@ -34,10 +34,13 @@
 
 ergm.etamap <- function(model) {
   etamap <- list(canonical = NULL, offsetmap=NULL, offset=model$offset,
-                 offsettheta=NULL, curved=list(), etalength=NULL)
+                 offsettheta=NULL, curved=list(), etalength=0)
   from <- 1
   to <- 1
   a <- 1
+  if (is.null(model$terms)) {
+    return(etamap)
+  }
   for (i in 1:length(model$terms)) {
     j <- model$terms[[i]]$inputs[2]
     if(model$offset[i]){
