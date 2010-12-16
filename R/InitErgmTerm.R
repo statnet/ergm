@@ -1283,10 +1283,10 @@ InitErgmTerm.dyadcov<-function (nw, arglist, ...) {
 
 #Update the terms list, adding the vectorized adjacency matrix
   if(!is.null(attrname))
-    cn<-paste("dyadcov", as.character(sys.call(0)[[4]][2]), 
+    cn<-paste("dyadcov", as.character(sys.call(0)[[3]][2]), 
               as.character(attrname), sep = ".")
   else
-    cn<-paste("dyadcov", as.character(sys.call(0)[[4]][2]), sep = ".")
+    cn<-paste("dyadcov", as.character(sys.call(0)[[3]][2]), sep = ".")
  
   if(is.directed(nw)){
    #Check for symmetry
@@ -1974,7 +1974,7 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ...) {
   # undirected networks, mostly since hammingmix doesn't work 
   # in this case anyway.
   nw %v% "_tmp_nodecov" <- nodecov
-  emptynwstats <- summary(nw ~ nodemix("_tmp_nodecov"))
+  emptynwstats <- summary(nw ~ nodemix("_tmp_nodecov", base))
   list(name="hammingmix", coef.names=coef.names, inputs=inputs, 
        emptynwstats=emptynwstats, dependence=FALSE)
 }
@@ -2303,10 +2303,10 @@ InitErgmTerm.localtriangle<-function (nw, arglist, ...) {
   else
     xm<-as.matrix(x)
   if(!is.null(attrname))
-    coef.names <- paste("localtriangle", as.character(sys.call(0)[[4]][2]), 
-                        as.character(sys.call(0)[[5]]), sep = ".")
+    coef.names <- paste("localtriangle", as.character(sys.call(0)[[3]][2]), 
+                        as.character(sys.call(0)[[4]]), sep = ".")
   else
-    coef.names <- paste("localtriangle", as.character(sys.call(0)[[4]][2]),
+    coef.names <- paste("localtriangle", as.character(sys.call(0)[[3]][2]),
                         sep = ".")
   inputs <- c(NROW(xm), as.double(xm))
   attr(inputs, "ParamsBeforeCov") <- 1
@@ -2783,7 +2783,7 @@ InitErgmTerm.nsp<-function(nw, arglist, drop=TRUE, ...) {
 # The following line was commented out in <InitErgm.nsp>
 #   ergm.checkdirected("nsp", is.directed(nw), requirement=FALSE)
 # so I have not included 'directed=TRUE' in the call to <check.ErgmTerm>
-  a <- check.ErgmTerm("nsp", arglist,
+  a <- check.ErgmTerm(nw, arglist,
                       varnames = c("d"),
                       vartypes = c("numeric"),
                       defaultvalues = list(NULL),
@@ -2906,7 +2906,7 @@ InitErgmTerm.odegree<-function(nw, arglist, drop=TRUE, ...) {
     inputs <- c(d)
   } else if (homophily) {
     if(length(d)==0){return(NULL)}
-    name <- "odegeree_w_homophily"
+    name <- "odegree_w_homophily"
     # See comment in d_odegree_w_homophily function
     coef.names <- paste("odeg", d, ".homophily.",byarg, sep="")
     inputs <- c(d, nodecov)
