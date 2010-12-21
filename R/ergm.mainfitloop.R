@@ -38,11 +38,6 @@
 #                    all are ignored
 #
 #
-# --IGNORED PARAMETERS--
-#   epsilon:  ??, any epsilon value used is that of the 'MCMCparams';
-#            default=1e-10
-#
-#
 # --RETURNED--
 #   v: an ergm object as a list containing several items; for details see
 #      the return list in the <ergm> function header (<ergm.mainfitloop>=*);
@@ -57,7 +52,6 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
                              MCMCparams, 
                              MHproposal, MHproposal.miss,
                              verbose=FALSE,
-                             epsilon=1e-10,
                              sequential=TRUE,
                              estimate=TRUE, ...) {
   # Calculate the amount by which all of the MCMC statistics should be adjusted
@@ -93,7 +87,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
 
     ##  Does the same, if missing edges:
 	  if(MCMCparams$Clist.miss$nedges > 0){
-      z <- ergm.getMCMCsample(MCMCparams$Clist.miss, MHproposal.miss, mcmc.eta0, MCMCparams, verbose)
+      z <- ergm.getMCMCsample(Clist, MHproposal.miss, mcmc.eta0, MCMCparams, verbose)
       statsmatrix.miss <- sweep(z$statsmatrix, 2, statshift, "+")
       colnames(statsmatrix.miss) <- model$coef.names
       if(verbose){cat("Back from constrained MCMC...\n")}

@@ -165,7 +165,9 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
       if (verbose) { cat("Using log-normal approx (no optim)\n") }
       Lout <- list(hessian = -V)
     }
-    Lout$par <- try(eta0[!model$etamap$offsetmap] - solve(Lout$hessian, xobs[!model$etamap$offsetmap]))
+    Lout$par <- try(eta0[!model$etamap$offsetmap] 
+                    - solve(Lout$hessian, xobs[!model$etamap$offsetmap]),
+                    silent=TRUE)
     # If there's an error, first try a robust matrix inverse.  This can often
     # happen if the matrix of simulated statistics does not ever change for one
     # or more statistics.
