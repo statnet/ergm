@@ -87,7 +87,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
 
     ##  Does the same, if missing edges:
 	  if(MCMCparams$Clist.miss$nedges > 0){
-      z <- ergm.getMCMCsample(MCMCparams$Clist.miss, MHproposal.miss, mcmc.eta0, MCMCparams, verbose)
+      z <- ergm.getMCMCsample(Clist, MHproposal.miss, mcmc.eta0, MCMCparams, verbose)
       statsmatrix.miss <- sweep(z$statsmatrix, 2, statshift, "+")
       colnames(statsmatrix.miss) <- model$coef.names
       if(verbose){cat("Back from constrained MCMC...\n")}
