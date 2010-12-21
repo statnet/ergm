@@ -3481,7 +3481,7 @@ D_CHANGESTAT_FN(d_mutual) {
  changestat: d_mutual_by_attr
 *****************/
 D_CHANGESTAT_FN(d_mutual_by_attr) { 
-  double matchval, change;
+  double change;
   Vertex h, t;
   int i, j, ninputs;
 
@@ -3492,9 +3492,9 @@ D_CHANGESTAT_FN(d_mutual_by_attr) {
     t = tails[i];
     if (IS_OUTEDGE(t,h)) { /* otherwise, no change occurs */
       change = IS_OUTEDGE(h, t) ? -1.0 : 1.0 ;
-      matchval = INPUT_PARAM[h+ninputs-1];
       for (j=0; j<ninputs; j++) {
-        if (matchval == INPUT_PARAM[j]){CHANGE_STAT[j] += change;}
+        if (INPUT_PARAM[h+ninputs-1] == INPUT_PARAM[j]){CHANGE_STAT[j] += change;}
+        if (INPUT_PARAM[t+ninputs-1] == INPUT_PARAM[j]){CHANGE_STAT[j] += change;}
       }
     }
     TOGGLE_IF_MORE_TO_COME(i);
