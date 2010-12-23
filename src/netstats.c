@@ -59,6 +59,8 @@ void network_stats_wrapper(int *heads, int *tails, int *dnedges,
 void SummStats(Edge n_edges, Vertex *heads, Vertex *tails,
 Network *nwp, Model *m, double *stats){
   
+  GetRNGstate();  /* R function enabling uniform RNG */
+  
   ShuffleEdges(heads,tails,n_edges); /* Shuffle edgelist. */
   
   for (unsigned int termi=0; termi < m->n_terms; termi++)
@@ -91,5 +93,7 @@ Network *nwp, Model *m, double *stats){
         *statspos += mtp->dstats[i];
     }else statspos += mtp->nstats;
   }
+  
+  PutRNGstate();
 }
 
