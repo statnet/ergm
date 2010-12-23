@@ -76,7 +76,7 @@ More information can be found by looking at the documentation of
   Practical Markov Chain Monte Carlo (W.R. Gilks, D.J. Spiegelhalter and
   S. Richardson, eds.). London, U.K.: Chapman and Hall.
 }
-\author{Mark S. Handcock, \email{handcock@stat.washington.edu}
+\author{Mark S. Handcock, \email{handcock@stat.ucla.edu}
   based on the \code{coda} package and also ideas
   from \code{mcgibbsit} by 
   Gregory R. Warnes \email{gregory\_r\_warnes@groton.pfizer.com}.

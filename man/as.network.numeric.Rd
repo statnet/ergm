@@ -39,7 +39,7 @@ divided by the number of dyads (so the expected number of ties is the same as th
   An object of class \code{\link[network]{network}}
 }
 \references{ Butts, C.T.  2002.  ``Memory Structures for Relational Data in R: Classes and Interfaces''  Working Paper. }
-\author{ Carter T. Butts \email{buttsc@uci.edu} and Mark S. Handcock \email{handcock@stat.washington.edu} }
+\author{ Carter T. Butts \email{buttsc@uci.edu} and Mark S. Handcock \email{handcock@stat.ucla.edu} }
 %\note{ ~~further notes~~ }
 %
 % ~Make other sections like Warning with \section{Warning }{....} ~
