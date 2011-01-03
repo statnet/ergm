@@ -3720,73 +3720,74 @@ InitErgm.ttriple<-InitErgm.ttriad<-function (nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-#########################################################
-InitErgm.transitiveties<-function (nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkdirected("transitiveties", is.directed(nw), requirement=TRUE)
-  a <- ergm.checkargs("transitiveties", arglist,
-    varnames = c("attrname", "diff"),
-    vartypes = c("character", "logical"),
-    defaultvalues = list(NULL, FALSE),
-    required = c(FALSE, FALSE))
-  attrname <- a$attrname
-  diff <- a$diff
-  termnumber<-1+length(m$terms)
-  if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "transitiveties")
-    u<-sort(unique(nodecov))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
-    nodecov <- match(nodecov,u,nomatch=length(u)+1)
-    ui <- seq(along=u)
-    if (length(u)==1)
-      stop ("Attribute given to transitiveties() has only one value", call.=FALSE)
-    if(drop){
-      triattr <- summary(as.formula(paste('nw ~ transitiveties(','"',attrname,
-                                          '",diff=',diff,')',sep="")),
-                         drop=FALSE) == 0
-      if(diff){
-        if(any(triattr)){
-          dropterms <- paste(paste("transitiveties",attrname,sep="."),
-                             u[triattr],sep="")
-      cat(" ")
-          cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#         cat(paste("To avoid degeneracy the terms",
-#               paste(dropterms,collapse=" and, "),
-#                   "have been dropped.\n"))
-          u <- u[!triattr] 
-          ui <- ui[!triattr] 
-        }
-      }else{
-        if(triattr){
-          dropterms <- paste(paste("transitiveties",attrname,sep="."),sep="")
-      cat(" ")
-          cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#         cat(paste("To avoid degeneracy the term",
-#               paste(dropterms,collapse=" and, "),
-#                   "have been dropped.\n"))
-        }
-      }
-    }
-    if (!diff) {
-      m$terms[[termnumber]] <- list(name="transitiveties", soname="ergm",
-                                    inputs=c(0,1,length(nodecov),nodecov))
-      m$coef.names<-c(m$coef.names,paste("transitiveties",attrname,sep="."))
-     } else {
-       m$terms[[termnumber]] <- list(name="transitiveties", soname="ergm",
-                                     inputs=c(length(ui), length(ui),
-                                       length(ui)+length(nodecov),
-                                       ui, nodecov))
-       m$coef.names<-c(m$coef.names,paste("transitiveties",
-                                          attrname, u, sep="."))
-     }
-  }else{
-    m$terms[[termnumber]] <- list(name="transitiveties", soname="ergm",
-                                  inputs=c(0,1,0))
-    m$coef.names<-c(m$coef.names,"transitiveties")
-  }
-  m
-}
+# This is commented out because InitErgmTerm.transitiveties now exists.
+##########################################################
+#InitErgm.transitiveties<-function (nw, m, arglist, drop=TRUE, ...) {
+#  ergm.checkdirected("transitiveties", is.directed(nw), requirement=TRUE)
+#  a <- ergm.checkargs("transitiveties", arglist,
+#    varnames = c("attrname", "diff"),
+#    vartypes = c("character", "logical"),
+#    defaultvalues = list(NULL, FALSE),
+#    required = c(FALSE, FALSE))
+#  attrname <- a$attrname
+#  diff <- a$diff
+#  termnumber<-1+length(m$terms)
+#  if(!is.null(attrname)) {
+#    nodecov <- get.node.attr(nw, attrname, "transitiveties")
+#    u<-sort(unique(nodecov))
+#    if(any(is.na(nodecov))){u<-c(u,NA)}
+#    nodecov <- match(nodecov,u,nomatch=length(u)+1)
+#    ui <- seq(along=u)
+#    if (length(u)==1)
+#      stop ("Attribute given to transitiveties() has only one value", call.=FALSE)
+#    if(drop){
+#      triattr <- summary(as.formula(paste('nw ~ transitiveties(','"',attrname,
+#                                          '",diff=',diff,')',sep="")),
+#                         drop=FALSE) == 0
+#      if(diff){
+#        if(any(triattr)){
+#          dropterms <- paste(paste("transitiveties",attrname,sep="."),
+#                             u[triattr],sep="")
+#      cat(" ")
+#          cat(paste("Warning: The count of", dropterms, "is extreme;\n",
+#                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+##         cat(paste("To avoid degeneracy the terms",
+##               paste(dropterms,collapse=" and, "),
+##                   "have been dropped.\n"))
+#          u <- u[!triattr] 
+#          ui <- ui[!triattr] 
+#        }
+#      }else{
+#        if(triattr){
+#          dropterms <- paste(paste("transitiveties",attrname,sep="."),sep="")
+#      cat(" ")
+#          cat(paste("Warning: The count of", dropterms, "is extreme;\n",
+#                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+##         cat(paste("To avoid degeneracy the term",
+##               paste(dropterms,collapse=" and, "),
+##                   "have been dropped.\n"))
+#        }
+#      }
+#    }
+#    if (!diff) {
+#      m$terms[[termnumber]] <- list(name="transitiveties", soname="ergm",
+#                                    inputs=c(0,1,length(nodecov),nodecov))
+#      m$coef.names<-c(m$coef.names,paste("transitiveties",attrname,sep="."))
+#     } else {
+#       m$terms[[termnumber]] <- list(name="transitiveties", soname="ergm",
+#                                     inputs=c(length(ui), length(ui),
+#                                       length(ui)+length(nodecov),
+#                                       ui, nodecov))
+#       m$coef.names<-c(m$coef.names,paste("transitiveties",
+#                                          attrname, u, sep="."))
+#     }
+#  }else{
+#    m$terms[[termnumber]] <- list(name="transitiveties", soname="ergm",
+#                                  inputs=c(0,1,0))
+#    m$coef.names<-c(m$coef.names,"transitiveties")
+#  }
+#  m
+#}
 
 #########################################################
 InitErgm.transitiveties2<-function (nw, m, arglist, drop=TRUE, ...) {
