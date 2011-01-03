@@ -57,13 +57,13 @@
 #
 ###############################################################################
 
-simulate.ergm <- function(object, nsim=1, seed=NULL, theta0=object$coef,
+simulate.ergm <- function(object, nsim=1, theta0=object$coef,
                           burnin=1000, interval=1000,
-                          statsonly=FALSE,
+                          statsonly=FALSE, ..., seed=NULL,
                           sequential=TRUE,
                           constraints=NULL,
                           control=control.simulate.ergm(),
-                          verbose=FALSE, ...) {
+                          verbose=FALSE) {
   if(is.null(burnin)){burnin <- object$burnin}
   if(is.null(interval)){interval <- object$interval}
   if(is.null(constraints)){constraints <- object$constraints}
@@ -102,10 +102,10 @@ simulate.formula <- function(object, nsim=1, seed=NULL, theta0,
   }
 
   # New formula (no longer use 'object'):
-  formula <- ergm.update.formula(object, nw ~ .)
+  form <- ergm.update.formula(object, nw ~ .)
   
   # Prepare inputs to ergm.getMCMCsample
-  m <- ergm.getmodel(formula, nw, drop=FALSE)
+  m <- ergm.getmodel(form, nw, drop=FALSE)
   Clist <- ergm.Cprepare(nw, m)
   MHproposal <- MHproposal(constraints,arguments=control$prop.args,
                            nw=nw, model=m, weights=control$prop.weights, class="c")  
@@ -123,7 +123,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, theta0,
     stop("Illegal value of theta0 passed to simulate.formula")
     
   # Create vector of current statistics
-  curstats<-summary(formula)
+  curstats<-summary(form)
   names(curstats) <- m$coef.names
 
   # prepare MCMCparams object
@@ -138,9 +138,8 @@ simulate.formula <- function(object, nsim=1, seed=NULL, theta0,
   
   # Explain how many iterations and steps will ensue if verbose==TRUE
   if (verbose) {
-    cat(paste("Starting ",nsim," MCMC iteration", ifelse(nsim>1,"s",""),
-              " of ", burnin+interval*(MCMCparams$samplesize-1), 
-              " steps", ifelse(nsim>1, " each", ""), ".\n", sep=""))
+    cat (paste ("Starting MCMC iterations to generate ", nsim,
+                " network", ifelse(nsim>1,"s",""), sep=""))
   }
   
   #########################
@@ -172,11 +171,10 @@ simulate.formula <- function(object, nsim=1, seed=NULL, theta0,
   # MCMC iteration (statsonly=FALSE) or we want to restart each chain
   # at the original network (sequential=FALSE).
   MCMCparams$nmatrixentries <- length(curstats)
-  if(sequential){
-   for(i in 1:nsim){
-    MCMCparams$burnin <- ifelse(i==1 || !sequential, burnin, interval)
+  for(i in 1:nsim){
+    MCMCparams$burnin <- ifelse(i==1, burnin, interval)
     z <- ergm.getMCMCsample(Clist, MHproposal, theta0, MCMCparams, verbose)
-
+    
     # Create a network object if statsonly==FALSE
     if (!statsonly) {
       nw.list[[i]] <- network.update(nw, z$newedgelist, matrix.type="edgelist",
@@ -195,15 +193,14 @@ simulate.formula <- function(object, nsim=1, seed=NULL, theta0,
   if (statsonly)
     return(out.mat[1:nsim,]) # If nsim==1, this will return a vector, not a matrix
   
-  }
   # If we get here, statsonly==FALSE.
   if (nsim==1) {
     return(nw.list[[1]])
   } else {  
-  out.list <- list(formula = object, networks = nw.list, 
-                   stats = out.mat, coef=theta0)
-  class(out.list) <- "network.series"
-  return(out.list)
+    out.list <- list(formula = object, networks = nw.list, 
+                     stats = out.mat, coef=theta0)
+    class(out.list) <- "network.series"
+    return(out.list)
   }
 }
 
