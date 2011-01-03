@@ -4237,67 +4237,48 @@ D_CHANGESTAT_FN(d_simmelian) {
  changestat: d_simmelianties
 *****************/
 D_CHANGESTAT_FN(d_simmelianties) { 
-  Edge e;
-  Vertex h, t, change, node3, node4, first, firstht;
+  Edge e, e2;
+  Vertex h, t, change, node3, node4, first, htflag;
   int edgeflag, i;
   
  CHANGE_STAT[0] = 0.0;
- FOR_EACH_TOGGLE(i) 
- {
-  edgeflag = IS_OUTEDGE(h = heads[i], t = tails[i]);
+ FOR_EACH_TOGGLE(i) {
+   edgeflag = IS_OUTEDGE(h = HEAD(i), t = TAIL(i));
    
-  if(EdgetreeSearch(t, h, nwp->outedges) != 0){
-   change = 0;
-   firstht = 0;
-   
-   for(e = EdgetreeMinimum(nwp->outedges, t);
-       (node3 = nwp->outedges[e].value) != 0;
-       e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of tail */
-   {
-     if (node3 != h
-      && EdgetreeSearch(node3, h, nwp->outedges) != 0 
-      && EdgetreeSearch(h, node3, nwp->outedges) != 0 
-      && EdgetreeSearch(node3, t, nwp->outedges) != 0 
-        ){
-          firstht = 1;
-          ++change;
-          first = 1;
-          for(e = EdgetreeMinimum(nwp->outedges, h);
-              (node4 = nwp->outedges[e].value) != 0;
-              e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of tail */
-          {
-          if (node4 != t  && node4 != node3
-           && EdgetreeSearch(node4, h, nwp->outedges) != 0 
-           && EdgetreeSearch(node4, node3, nwp->outedges) != 0 
-           && EdgetreeSearch(node3, node4, nwp->outedges) != 0 
-             ){first = 0;}
-	  }
-	  if(first){++change;}
-
-          first = 1;
-          for(e = EdgetreeMinimum(nwp->outedges, t);
-              (node4 = nwp->outedges[e].value) != 0;
-              e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of tail */
-          {
-          if (node4 != h  && node4 != node3
-           && EdgetreeSearch(node4, t, nwp->outedges) != 0 
-           && EdgetreeSearch(node4, node3, nwp->outedges) != 0 
-           && EdgetreeSearch(node3, node4, nwp->outedges) != 0 
-             ){first = 0;}
-	  }
-	  if(first){++change;}
+   if(IS_OUTEDGE(t, h)){
+     change = htflag = 0;
+     STEP_THROUGH_OUTEDGES(t, e, node3) { /* step through outedges of tail */
+       if (node3 != h
+       && IS_OUTEDGE(node3, h) && IS_OUTEDGE(h, node3) && IS_OUTEDGE(node3, t)){
+         htflag=1; /* h, t is itself in a simmelian triple (along with t, h)*/
+         first = 1;
+         /* Find out whether (h, node3) is in any other simmelian triple */
+         STEP_THROUGH_OUTEDGES (h, e2, node4) { /* step through outedges of head */
+           if (node4 != t  && node4 != node3 && IS_OUTEDGE(node4, h) 
+           && IS_OUTEDGE(node4, node3) && IS_OUTEDGE(node3, node4)){
+             first = 0;
+           }
          }
+         if(first){++change;}
+         first = 1;
+         /* Find out whether (t, node3) is in any other simmelian triple */
+         STEP_THROUGH_OUTEDGES (t, e2, node4) { /* step through outedges of tail */
+           if (node4 != h  && node4 != node3 && IS_OUTEDGE(node4, t) 
+           && IS_OUTEDGE(node4, node3) && IS_OUTEDGE(node3, node4)) {
+             first = 0;
+           }
+         }
+         if(first){++change;}
+       }
+     }
+     change += htflag;
+     change = 2*change; /* All changes must happen in pairs here; no tie can
+                           be counted without its opposite */
+     CHANGE_STAT[0] += edgeflag ? -(double)change : (double)change;
    }
-/*   if(firstht){++change;} */
-      
-   change = 2*change;
-   CHANGE_STAT[0] += edgeflag ? -(double)change : (double)change;
-   }
-   
    TOGGLE_IF_MORE_TO_COME(i);
-  }
-  
-  UNDO_PREVIOUS_TOGGLES(i);
+ }
+ UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************

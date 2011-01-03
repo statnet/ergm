@@ -482,20 +482,18 @@ if (s.0 != 8 || round(e.0$coef - .6069, 3) != 0) {
   print("Passed simmelian term test")
 }
 
-                
-                
+
 # simmelianties, directed
-# failing to get consistent output here too.
-#num.tests=num.tests + 1
-#s.0 <- summary(samplike~simmelianties)
-#e.0 <- ergm(samplike~simmelianties, MPLEonly=TRUE)
-#if (s.0 != 32 || round(e.0$coef - .1842, 3) != 0) {
-#  print(list(s.0=s.0, e.0=e.0))
-#  stop("Failed simmelianties term test")
-#} else {
-#  num.passed.tests=num.passed.tests+1
-#  print("Passed simmelianties term test")
-#}
+num.tests=num.tests + 1
+s.0 <- summary(samplike~simmelianties)
+e.0 <- ergm(samplike~simmelianties, MPLEonly=TRUE)
+if (s.0 != 32 || round(e.0$coef - .1984, 3) != 0) {
+  print(list(s.0=s.0, e.0=e.0))
+  stop("Failed simmelianties term test")
+} else {
+  num.passed.tests=num.passed.tests+1
+  print("Passed simmelianties term test")
+}
 
 
 
