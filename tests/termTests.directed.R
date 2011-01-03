@@ -229,58 +229,58 @@ s.s <- summary(samplike~mutual(same="group"))
 e.s <- ergm(samplike~mutual(same="group"), MPLEonly=TRUE)
 # none of the calls below elicit consistent output
 
-#s.b <- summary(samplike~mutual(by="Trinity"))
-#e.b <- ergm(samplike~mutual(by="Trinity"), MPLEonly=TRUE)
-#s.sb <- summary(samplike~mutual(same="group", by="Trinity"))
-#set.seed(3)
-#e.sb <- ergm(samplike~mutual(same="group", by="Trinity"))
-#s.sd <- summary(samplike~mutual(same="group", diff=TRUE))
-#set.seed(7)                
-#e.sd <- ergm(samplike~mutual(same="group", diff=TRUE))
-#s.sk <- summary(samplike~mutual(same="group", keep=2))
-#set.seed(9)                
-#e.sk <- ergm(samplike~mutual(same="group", keep=1))
-#s.bd <- summary(samplike~mutual(by="Trinity", diff=TRUE))
-#set.seed(5)                
-#e.bd <- ergm(samplike~mutual(by="Trinity", diff=TRUE))
-#s.bk <- summary(samplike~mutual(by="Trinity", keep=2))
-#set.seed(1)                
-#e.bk <- ergm(samplike~mutual(by="Trinity", keep=2:3))
-#s.sbd <- summary(samplike~mutual(same="group", by="Trinity", diff=TRUE))
-#set.seed(5)                
-#e.sbd <- ergm(samplike~mutual(same="group", by="Trinity", diff=TRUE))
-#s.sbk <- summary(samplike~mutual(same="group", by="Trinity", keep=1))
-#set.seed(1)                
-#e.sbk <- ergm(samplike~mutual(same="group", by="Trinity", keep=3))
-#s.bdk <- summary(samplike~mutual(by="Trinity", diff=TRUE, keep=2))
-#set.seed(6)                 
-#e.bdk <- ergm(samplike~mutual(by="Trinity", diff=TRUE, keep=3))
-#s.sbdk <- summary(samplike~mutual(same="group", by="Trinity", diff=TRUE, keep=1:2))
-#set.seed(4)                
-#e.sbdk <- ergm(samplike~mutual(same="group", by="Trinity", diff=TRUE, keep=2))
+s.b <- summary(samplike~mutual(by="Trinity"))
+e.b <- ergm(samplike~mutual(by="Trinity"), MPLEonly=TRUE)
+s.sb <- summary(samplike~mutual(same="group", by="Trinity"))
+set.seed(3)
+e.sb <- ergm(samplike~mutual(same="group", by="Trinity"))
+s.sd <- summary(samplike~mutual(same="group", diff=TRUE))
+set.seed(7)                
+e.sd <- ergm(samplike~mutual(same="group", diff=TRUE))
+s.sk <- summary(samplike~mutual(same="group", keep=2))
+set.seed(9)                
+e.sk <- ergm(samplike~mutual(same="group", keep=1))
+s.bd <- summary(samplike~mutual(by="Trinity", diff=TRUE))
+set.seed(5)                
+e.bd <- ergm(samplike~mutual(by="Trinity", diff=TRUE))
+s.bk <- summary(samplike~mutual(by="Trinity", keep=2))
+set.seed(1)                
+e.bk <- ergm(samplike~mutual(by="Trinity", keep=2:3))
+s.sbd <- summary(samplike~mutual(same="group", by="Trinity", diff=TRUE))
+set.seed(5)                
+e.sbd <- ergm(samplike~mutual(same="group", by="Trinity", diff=TRUE))
+s.sbk <- summary(samplike~mutual(same="group", by="Trinity", keep=1))
+set.seed(1)                
+e.sbk <- ergm(samplike~mutual(same="group", by="Trinity", keep=3))
+s.bdk <- summary(samplike~mutual(by="Trinity", diff=TRUE, keep=2))
+set.seed(6)                 
+e.bdk <- ergm(samplike~mutual(by="Trinity", diff=TRUE, keep=3))
+s.sbdk <- summary(samplike~mutual(same="group", by="Trinity", diff=TRUE, keep=1:2))
+set.seed(4)                
+e.sbdk <- ergm(samplike~mutual(same="group", by="Trinity", diff=TRUE, keep=2))
 if (s.0 != 28 || round(e.0$coef - .5596, 3) != 0 ||
-    s.s != 23 || round(e.s$coef - .9954, 3) != 0) {
-# ||
-#    !all(s.b==c(10,7,11)) ||
-#    !all(round(e.b$coef-c(.4353, .4925, .7419),3)==0) ||
-#    s.sb != 23 || round(e.sb$coef - 1.009583, 3) != 0 ||
-#    !all(s.sd==c(8,4,11)) ||
-#    !all(round(e.sd$coef-c(.62704, 1.79218, 1.16109),3)==0) ||
-#    s.sk != 4 || round(e.sk$coef - .61742, 3) != 0 ||
-#    !all(s.bd==c(4,13,11)) ||
-#    !all(round(e.bd$coef+c(.352107, .3924212, .09426922),3)==0) ||
-#    s.bk != 7 || !all(round(e.bk$coef - c(.53457, .72498)) == 0) ||
-#    !all(s.sbd==c(8,4,11)) ||
-#    !all(round(e.sbd$coef-c(0.6162249, 1.7936108, 1.2160099),3)==0) ||
-#    s.sbk != 8 || round(e.sbk$coef - 1.185569, 3) != 0 ||
-#    s.bdk != 12 || round(e.bdk$coef - .73796, 3) != 0 ||
-#    !all(s.sbdk==c(8,4)) || round(e.sbdk$coef - 1.787132, 3) != 0) {
- print(list(s.0=s.0, e.0=e.0,s.s=s.s, e.s=e.s))
-#, s.b=s.b, e.b=e.b,
-#            s.sb=s.sb, e.sb=e.sb, s.d=s.d, e.d=e.d, s.sk=s.sk, e.sk=e.sk,
-#            s.bd=s.bd, e.bd=e.bd, s.bk=s.bk, e.bk=e.bk, s.sbd=s.sbd,
-#            e.sbd=e.sbd, s.sbk=s.sbk, e.sbk=e.sbk, s.bdk=s.bdk,
-#            s.sbdk=s.sbdk, e.sbdk=e.sbdk))
+    s.s != 23 || round(e.s$coef - .9954, 3) != 0
+ ||
+    !all(s.b==c(10,7,11)) ||
+    !all(round(e.b$coef-c(.4353, .4925, .7419),3)==0) ||
+    s.sb != 23 || round(e.sb$coef - 1.009583, 3) != 0 ||
+    !all(s.sd==c(8,4,11)) ||
+    !all(round(e.sd$coef-c(.62704, 1.79218, 1.16109),3)==0) ||
+    s.sk != 4 || round(e.sk$coef - .61742, 3) != 0 ||
+    !all(s.bd==c(4,13,11)) ||
+    !all(round(e.bd$coef+c(.352107, .3924212, .09426922),3)==0) ||
+    s.bk != 7 || !all(round(e.bk$coef - c(.53457, .72498)) == 0) ||
+    !all(s.sbd==c(8,4,11)) ||
+    !all(round(e.sbd$coef-c(0.6162249, 1.7936108, 1.2160099),3)==0) ||
+    s.sbk != 8 || round(e.sbk$coef - 1.185569, 3) != 0 ||
+    s.bdk != 12 || round(e.bdk$coef - .73796, 3) != 0 ||
+    !all(s.sbdk==c(8,4)) || round(e.sbdk$coef - 1.787132, 3) != 0) {
+ print(list(s.0=s.0, e.0=e.0,s.s=s.s, e.s=e.s
+, s.b=s.b, e.b=e.b,
+            s.sb=s.sb, e.sb=e.sb, s.sd=s.sd, e.sd=e.sd, s.sk=s.sk, e.sk=e.sk,
+            s.bd=s.bd, e.bd=e.bd, s.bk=s.bk, e.bk=e.bk, s.sbd=s.sbd,
+            e.sbd=e.sbd, s.sbk=s.sbk, e.sbk=e.sbk, s.bdk=s.bdk,
+            s.sbdk=s.sbdk, e.sbdk=e.sbdk))
  stop("Failed mutual term test")
 } else {
   num.passed.tests=num.passed.tests+1
@@ -533,7 +533,7 @@ if (s.0 != 154 || round(e.0$coef + .07745, 3) != 0) {
 
 
 
-# ttripe=ttriad, directed
+# ttriple=ttriad, directed
 num.tests=num.tests + 1
 s.0 <- summary(samplike~ttriple)
 e.0 <- ergm(samplike~ttriad, MPLEonly=TRUE)
@@ -552,31 +552,6 @@ if (s.0 != 154 || round(e.0$coef + .07745, 3) != 0 ||
   print("Passed ttriple term test")
 }
 
-
-
-# there does not appear to be a changestats function for
-# this term.
-
-# transitiveties, directed
-# num.tests=num.tests + 1
-# error: no function d_transitiveties exists
-# this has to do with the trunk-tags interaction.
-# s.0 <- summary(samplike~transitiveties)
-#e.0 <- ergm(samplike~transitiveties, MPLEonly=TRUE)
-#s.a <- summary(samplike~transitiveties("group"))
-#e.a <- ergm(samplike~transitiveties("group"), MPLEonly=TRUE)                
-#s.ad <- summary(samplike~transitiveties("Trinity", diff=TRUE))
-#e.ad <- ergm(samplike~transitiveties("Trinity", diff=TRUE), MPLEonly=TRUE)   
-#if (s.0 != 62 || round(e.0$coef + .06997, 3) != 0 ||
-#    s.a != 18 || round(e.a$coef - .06354, 3) != 0 ||
-#    !all(s.ad==c(2,0,0)) ||
-#    !all(round(e.ad$coef + c(.70278, .44099), 3) == 0)) { 
-# print(list(s.0=s.0, e.0=e.0, s.a=s.a, e.a=e.a, s.ad=s.ad, e.ad=e.ad))
-# stop("Failed transitiveties term test")
-#} else {
-# num.passed.tests=num.passed.tests+1
-# print("Passed transitiveties term test")
-#}
 
 
 if (num.passed.tests==num.tests)
