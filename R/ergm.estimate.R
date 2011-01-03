@@ -58,7 +58,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     V=cov(statsmatrix0[,!model$etamap$offsetmap,drop=FALSE])
    }
   }else{
-   av <- apply(statsmatrix0,2,weighted.mean,weight=probs)
+   av <- apply(statsmatrix0, 2, weighted.mean, w=probs)
    V=cov(statsmatrix0[,!model$etamap$offsetmap,drop=FALSE])
   }
   xsim <- sweep(statsmatrix0, 2, av,"-")
@@ -72,17 +72,18 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                silent=TRUE)
      if(inherits(V.miss,"try-error")){
       V.miss=cov(statsmatrix0.miss[,!model$etamap$offsetmap,drop=FALSE])
+      av.miss <- apply(statsmatrix0.miss,2,wtd.median,weight=probs.miss)
      }
     }else{
-     V.miss=cov(statsmatrix0.miss[,!model$etamap$offsetmap,drop=FALSE])
+     V.miss=cov(statsmatrix0.miss[, !model$etamap$offsetmap, drop=FALSE])
+     av.miss <- apply(statsmatrix0.miss, 2, weighted.mean, w=probs.miss)
     }
 #   av.miss <- apply(sweep(statsmatrix0.miss,1,probs.miss,"*"), 2, sum)
-    av.miss <- apply(statsmatrix0.miss,2,wtd.median,weight=probs.miss)
     xsim.miss <- sweep(statsmatrix0.miss, 2, av.miss,"-")
     xobs <- av.miss-av
   }
   
-  # Convert theta0 to eta0
+  # Convert theta0 (possibly "curved" parameters) to eta0 (canonical parameters)
   eta0 <- ergm.eta(theta0, model$etamap)
 
   # Choose appropriate loglikelihood, gradient, and Hessian functions
@@ -144,20 +145,20 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
       if (verbose) { cat("Using log-normal approx (no optim)\n") }
       Lout <- list(hessian = -V)
     }
-    Lout$par <- try(
-      eta0[!model$etamap$offsetmap] - solve(Lout$hessian, xobs[!model$etamap$offsetmap]),
-                silent=TRUE)
+    Lout$par <- try(eta0[!model$etamap$offsetmap] 
+                    - solve(Lout$hessian, xobs[!model$etamap$offsetmap]),
+                    silent=TRUE)
     # If there's an error, first try a robust matrix inverse.  This can often
     # happen if the matrix of simulated statistics does not ever change for one
     # or more statistics.
     if(inherits(Lout$par,"try-error")){
-      Lout$par <- try(
-       eta0[!model$etamap$offsetmap] - robust.inverse(Lout$hessian) %*% 
+      Lout$par <- try(eta0[!model$etamap$offsetmap] 
+                      - robust.inverse(Lout$hessian) %*% 
                       xobs[!model$etamap$offsetmap],
-                  silent=TRUE)
+                      silent=TRUE)
     }
     # If there's still an error, use the Matrix package to try to find an 
-    # alternative Hessian approximant that has no zero eigenvalues.    
+    # alternative Hessian approximant that has no zero eigenvalues.
     if(inherits(Lout$par,"try-error")){
       if (missingflag) {
         Lout <- list(hessian = -(as.matrix(nearPD(V-V.miss)$mat)))
@@ -188,8 +189,8 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
 #      print(hess)
       list(value=value,gradient=as.vector(grad),hessian=hess)
     }
-    if (verbose) cat("Optimizing loglikelihood\n")
-#   cat("Using trust\n")
+
+    if (verbose) { cat("Optimizing loglikelihood\n") }
     Lout <- try(trust(objfun=loglikelihoodfn.trust, parinit=guess,
                       rinit=1, 
                       rmax=100, 
@@ -259,8 +260,8 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     mc.se <- rep(NA, length=length(theta))
     covar <- NA
     if(!hessianflag){
-     #  covar <- robust.inverse(covMcd(xsim))
-     #  Lout$hessian <- covMcd(xsim)
+     #  covar <- robust.inverse(cov(xsim))
+     #  Lout$hessian <- cov(xsim)
      Lout$hessian <- Hessianfn(theta=theta, xobs=xobs, xsim=xsim,
                                probs=probs, 
                                xsim.miss=xsim.miss, probs.miss=probs.miss,
@@ -294,10 +295,10 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                              statsmatrix.miss=statsmatrix.miss,
                              model=model)
         mc.se <- MCMCse$mc.se
-#       The next line forces the s.e. in summary.ergm to be combine
+#       The next line forces the s.e. in summary.ergm to combine
 #       the hessian of the likelihood plus the MCMC s.e.
 #       covar <- MCMCse$mc.cov+covar
-#       If the above line is commented out only the hessian ofthe likelihood 
+#       If the above line is commented out only the hessian of the likelihood 
 #       is used.
       }
     }
