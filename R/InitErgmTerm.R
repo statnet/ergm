@@ -1401,9 +1401,10 @@ InitErgmTerm.esp<-function(nw, arglist, drop=TRUE, ...) {
 #################################################################################
 InitErgmTerm.gwb1degree<-function(nw, arglist, initialfit=FALSE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+  # default for 'fixed' should be made 'FALSE' when the function can handle it!                    
                       varnames = c("decay", "fixed", "attrname"),
                       vartypes = c("numeric", "logical", "character"),
-                      defaultvalues = list(0, FALSE, NULL),
+                      defaultvalues = list(0, TRUE, NULL),
                       required = c(TRUE, FALSE, FALSE))
   decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
   nb1 <- get.network.attribute(nw,"bipartite")
@@ -1460,9 +1461,10 @@ InitErgmTerm.gwb1degree<-function(nw, arglist, initialfit=FALSE, ...) {
 #################################################################################
 InitErgmTerm.gwb2degree<-function(nw, arglist, initialfit=FALSE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+  # default for 'fixed' should be made 'FALSE' when the function can handle it!                    
                       varnames = c("decay", "fixed", "attrname"),
                       vartypes = c("numeric", "logical", "character"),
-                      defaultvalues = list(0, FALSE, NULL),
+                      defaultvalues = list(0, TRUE, NULL),
                       required = c(TRUE, FALSE, FALSE))
   decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
   nb1 <- get.network.attribute(nw,"bipartite")

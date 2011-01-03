@@ -292,12 +292,11 @@ if (!all(s.a==c(6,3,16,16,8,6)) ||
 
 # gwb1degree, bipartite
 num.tests=num.tests+1
-# error on the line below: can't handle non-fixed decay term
-# s.d <- summary(bipnw~gwb1degree(.3))
+s.d <- summary(bipnw~gwb1degree(.3))
 e.d <- ergm(bipnw~gwb1degree(.4), MPLEonly=TRUE)
 s.df <- summary(bipnw~gwb1degree(.3, fixed=TRUE))
 e.df <- ergm(bipnw~gwb1degree(.2, fixed=TRUE), MPLEonly=TRUE)
-# s.da <- summary(bipnw~gwb1degree(.1, attrname="Letter"))
+s.da <- summary(bipnw~gwb1degree(.1, attrname="Letter"))
 e.da <- ergm(bipnw~gwb1degree(.1, attrname="Letter"), MPLEonly=TRUE)
 s.dfa <- summary(bipnw~gwb1degree(.1, TRUE, "Letter"))
 e.dfa <- ergm(bipnw~gwb1degree(.1, TRUE, "Letter"), MPLEonly=TRUE)
@@ -317,12 +316,11 @@ if (round(e.d$coef + 6.979, 3) != 0 ||
 
 # gwb2degree, bipartite
 num.tests=num.tests+1
-# error on the line below: can't handle non-fixed decay term
-# s.d <- summary(bipnw~gwb2degree(.3))
+s.d <- summary(bipnw~gwb2degree(.3))
 e.d <- ergm(bipnw~gwb2degree(.4), MPLEonly=TRUE)
 s.df <- summary(bipnw~gwb2degree(.3, fixed=TRUE))
 e.df <- ergm(bipnw~gwb2degree(.2, fixed=TRUE), MPLEonly=TRUE)
-# s.da <- summary(bipnw~gwb2degree(.1, attrname="Letter"))
+s.da <- summary(bipnw~gwb2degree(.1, attrname="Letter"))
 e.da <- ergm(bipnw~gwb2degree(.1, attrname="Letter"), MPLEonly=TRUE)
 s.dfa <- summary(bipnw~gwb2degree(.1, TRUE, "Letter"))
 e.dfa <- ergm(bipnw~gwb2degree(.1, TRUE, "Letter"), MPLEonly=TRUE)
