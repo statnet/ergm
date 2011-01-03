@@ -1441,10 +1441,11 @@ InitErgm.esp<-function(nw, m, arglist, drop=TRUE, ...) {
 InitErgm.gwb1degree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   ergm.checkdirected("gwb1degree", is.directed(nw), requirement=FALSE)
   ergm.checkbipartite("gwb1degree", is.bipartite(nw), requirement=TRUE)
+  # default for 'fixed' should be made 'FALSE' when the function can handle it!                    
   a <- ergm.checkargs("gwb1degree", arglist,
     varnames = c("decay", "fixed", "attrname"),
     vartypes = c("numeric", "logical", "character"),
-    defaultvalues = list(0, FALSE, NULL),
+    defaultvalues = list(0, TRUE, NULL),
     required = c(TRUE, FALSE, FALSE))
   decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
   nb1 <- get.network.attribute(nw,"bipartite")
@@ -1508,10 +1509,11 @@ InitErgm.gwb1degree<-function(nw, m, arglist, initialfit=FALSE, ...) {
 InitErgm.gwb2degree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   ergm.checkdirected("gwb2degree", is.directed(nw), requirement=FALSE)
   ergm.checkbipartite("gwb2degree", is.bipartite(nw), requirement=TRUE)
+  # default for 'fixed' should be made 'FALSE' when the function can handle it!                    
   a <- ergm.checkargs("gwb2degree", arglist,
     varnames = c("decay", "fixed", "attrname"),
     vartypes = c("numeric", "logical", "character"),
-    defaultvalues = list(0, FALSE, NULL),
+    defaultvalues = list(0, TRUE, NULL),
     required = c(TRUE, FALSE, FALSE))
   decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
   nb1 <- get.network.attribute(nw,"bipartite")
