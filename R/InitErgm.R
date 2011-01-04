@@ -1585,11 +1585,12 @@ InitErgm.gwdegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   termnumber<-1+length(m$terms)
   d <- 1:(network.size(nw)-1)
+  if (!is.null(attrname) && !fixed && !initialfit) {
+    warning("The gwdegree term cannot yet handle a nonfixed decay ",
+            "term with an attribute.  Switching to fixed=TRUE.", call.=FALSE)
+    fixed <- TRUE
+  }
   if(!initialfit && !fixed){ # This is a curved exponential family model
-    if (!is.null(attrname)) {
-      stop("The gwdegree term is not yet able to handle a ",
-           "nonfixed decay term with an attribute.", call.=FALSE)
-    }
     ld<-length(d)
     if(ld==0){return(m)}
     map <- function(x,n,...) {
@@ -1733,11 +1734,12 @@ InitErgm.gwidegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   d <- 1:(network.size(nw)-1)
   termnumber<-1+length(m$terms)
+  if (!is.null(attrname) && !fixed && !initialfit) {
+    warning("The gwidegree term cannot yet handle a nonfixed decay ",
+            "term with an attribute.  Switching to fixed=TRUE.", call.=FALSE)
+    fixed <- TRUE
+  }
   if(!initialfit && !fixed){ # This is a curved exponential family model
-    if (!is.null(attrname)) {
-      stop("The gwidegree term is not yet able to handle a ",
-           "nonfixed decay term with an attribute.", call.=FALSE)
-    }
     ld<-length(d)
     if(ld==0){return(m)}
     map <- function(x,n,...) {
@@ -1841,11 +1843,12 @@ InitErgm.gwodegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   termnumber<-1+length(m$terms)
   d <- 1:(network.size(nw)-1)
+  if (!is.null(attrname) && !fixed && !initialfit) {
+    warning("The gwodegree term cannot yet handle a nonfixed decay ",
+            "term with an attribute.  Switching to fixed=TRUE.", call.=FALSE)
+    fixed <- TRUE
+  }
   if(!initialfit && !fixed){ # This is a curved exponential family model
-    if (!is.null(attrname)) {
-      stop("The gwodegree term is not yet able to handle a ",
-           "nonfixed decay term with an attribute.", call.=FALSE)
-    }
     ld<-length(d)
     if(ld==0){return(m)}
     map <- function(x,n,...) {
