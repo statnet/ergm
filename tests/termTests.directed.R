@@ -112,33 +112,32 @@ if (round(s.d - 24.23040, 3) != 0 ||
 }
 
 
-# REINSTATE the following tests, when the base issue
-# is resolved.
+
 
 # hammingmix, directed
-#num.tests=num.tests + 1
-#set.seed(32)
-#nodes <- trunc(runif(65, 1, 18))
-#nodes2 <- trunc(runif(65, 1,18))                
-#el <- cbind(nodes, nodes2)
-#el[46,1] <- 3
-#s.a <- summary(samplike~hammingmix("group"))
-#e.a <- ergm(samplike~hammingmix("group"), MPLEonly=TRUE)
-#s.ax <- summary(samplike~hammingmix("group", x=el))
-#e.ax <- ergm(samplike~hammingmix("group", x=el), MPLEonly=TRUE)
-#s.ab <- summary(samplike~hammingmix("group", base=1))
-#e.ab <- ergm(samplike~hammingmix("group", base=2:3), MPLEonly=TRUE)
-#s.axb <- summary(samplike~hammingmix("group", el, 2))
-#e.axb <- ergm(samplike~hammingmix("group", el, 1:2), MPLEonly=TRUE)
-#if (s.0 != 12 || round(e.0$coef + 3.961, 3) != 0 ||
-#    !all(s.b==c(4,5,3)) ||
-#    !all(round(e.b$coef+c(4.143, 3.62, 4.105),3)==0)) {
-# print(list(s.0=s.0, e.0=e.0))
-# stop("Failed hammingmix term test")
-#} else {
-#  num.passed.tests=num.passed.tests+1
-#  print("Passed hammingmix term test")
-#}
+num.tests=num.tests + 1
+set.seed(32)
+nodes <- trunc(runif(65, 1, 18))
+nodes2 <- trunc(runif(65, 1,18))                
+el <- cbind(nodes, nodes2)
+el[46,1] <- 3
+# if x is not specified, summaries should be 0
+s.a <- summary(samplike~hammingmix("group"))
+s.ax <- summary(samplike~hammingmix("group", x=el))
+e.ax <- ergm(samplike~hammingmix("group", x=el), MPLEonly=TRUE)
+s.axb <- summary(samplike~hammingmix("group", el, 2:6))
+e.axb <- ergm(samplike~hammingmix("group", el, c(1,2,5,6,8,9)), MPLEonly=TRUE)
+if (!all(s.a == 0) ||
+    !all(s.ax==c(36, 0, 8, 4, 18, 2, 16, 12, 50)) ||
+    !all(round(e.ax$coef[2:4]+c(1.0986, .2876, 2.5649),3)==0) ||
+    !all(s.axb==c(36,16,12,50)) ||
+    !all(round(e.axb$coef+c(.28768, 2.5649, .91629),3) ==0)) {
+ print(list(s.a=s.a, s.ax=s.ax, e.ax=e.ax, s.axb=s.axb, e.axb=e.axb))
+ stop("Failed hammingmix term test")
+} else {
+  num.passed.tests=num.passed.tests+1
+  print("Passed hammingmix term test")
+}
 
 
 # idegree, directed
@@ -220,8 +219,6 @@ if (s.0 != 378 || round(e.0$coef + .1028, 3) != 0) {
 
                 
 # mutual, directed
-# Ayn:  Many of the tests below are wrong or unnecessary
-# When same and by are used together, by is ignored.
 num.tests=num.tests + 1
 s.0 <- summary(samplike~mutual)
 e.0 <- ergm(samplike~mutual, MPLEonly=TRUE)
@@ -229,56 +226,23 @@ s.s <- summary(samplike~mutual(same="group"))
 e.s <- ergm(samplike~mutual(same="group"), MPLEonly=TRUE)
 s.b <- summary(samplike~mutual(by="Trinity"))
 e.b <- ergm(samplike~mutual(by="Trinity"), MPLEonly=TRUE)
-s.sb <- summary(samplike~mutual(same="group", by="Trinity"))
-set.seed(3)
-e.sb <- ergm(samplike~mutual(same="group", by="Trinity"))
 s.sd <- summary(samplike~mutual(same="group", diff=TRUE))
-set.seed(7)                
-e.sd <- ergm(samplike~mutual(same="group", diff=TRUE))
+e.sd <- ergm(samplike~mutual(same="group", diff=TRUE), MPLEonly=TRUE)
 s.sk <- summary(samplike~mutual(same="group", keep=2))
-set.seed(9)                
-e.sk <- ergm(samplike~mutual(same="group", keep=1))
-s.bd <- summary(samplike~mutual(by="Trinity", diff=TRUE))
-set.seed(5)                
-e.bd <- ergm(samplike~mutual(by="Trinity", diff=TRUE))
+e.sk <- ergm(samplike~mutual(same="group", keep=1), MPLEonly=TRUE)
 s.bk <- summary(samplike~mutual(by="Trinity", keep=2))
-set.seed(1)                
-e.bk <- ergm(samplike~mutual(by="Trinity", keep=2:3))
-s.sbd <- summary(samplike~mutual(same="group", by="Trinity", diff=TRUE))
-set.seed(5)                
-e.sbd <- ergm(samplike~mutual(same="group", by="Trinity", diff=TRUE))
-s.sbk <- summary(samplike~mutual(same="group", by="Trinity", keep=1))
-set.seed(1)                
-e.sbk <- ergm(samplike~mutual(same="group", by="Trinity", keep=3))
-s.bdk <- summary(samplike~mutual(by="Trinity", diff=TRUE, keep=2))
-set.seed(6)                 
-e.bdk <- ergm(samplike~mutual(by="Trinity", diff=TRUE, keep=3))
-s.sbdk <- summary(samplike~mutual(same="group", by="Trinity", diff=TRUE, keep=1:2))
-set.seed(4)                
-e.sbdk <- ergm(samplike~mutual(same="group", by="Trinity", diff=TRUE, keep=2))
+e.bk <- ergm(samplike~mutual(by="Trinity", keep=2:3), MPLEonly=TRUE)
 if (s.0 != 28 || round(e.0$coef - .5596, 3) != 0 ||
-    s.s != 23 || round(e.s$coef - .9954, 3) != 0
- ||
-    !all(s.b==c(10,7,11)) ||
-    !all(round(e.b$coef-c(.4353, .4925, .7419),3)==0) ||
-    s.sb != 23 || round(e.sb$coef - 1.009583, 3) != 0 ||
+    s.s != 23 || round(e.s$coef - .9954, 3) != 0 ||
+    !all(s.b==c(17,18,21)) ||
+    !all(round(e.b$coef-c(.0157, .0667, .8077),3)==0) ||
     !all(s.sd==c(8,4,11)) ||
-    !all(round(e.sd$coef-c(.62704, 1.79218, 1.16109),3)==0) ||
-    s.sk != 4 || round(e.sk$coef - .61742, 3) != 0 ||
-    !all(s.bd==c(4,13,11)) ||
-    !all(round(e.bd$coef+c(.352107, .3924212, .09426922),3)==0) ||
-    s.bk != 7 || !all(round(e.bk$coef - c(.53457, .72498)) == 0) ||
-    !all(s.sbd==c(8,4,11)) ||
-    !all(round(e.sbd$coef-c(0.6162249, 1.7936108, 1.2160099),3)==0) ||
-    s.sbk != 8 || round(e.sbk$coef - 1.185569, 3) != 0 ||
-    s.bdk != 12 || round(e.bdk$coef - .73796, 3) != 0 ||
-    !all(s.sbdk==c(8,4)) || round(e.sbdk$coef - 1.787132, 3) != 0) {
- print(list(s.0=s.0, e.0=e.0,s.s=s.s, e.s=e.s
-, s.b=s.b, e.b=e.b,
-            s.sb=s.sb, e.sb=e.sb, s.sd=s.sd, e.sd=e.sd, s.sk=s.sk, e.sk=e.sk,
-            s.bd=s.bd, e.bd=e.bd, s.bk=s.bk, e.bk=e.bk, s.sbd=s.sbd,
-            e.sbd=e.sbd, s.sbk=s.sbk, e.sbk=e.sbk, s.bdk=s.bdk,
-            s.sbdk=s.sbdk, e.sbdk=e.sbdk))
+    !all(round(e.sd$coef-c(.8267, 1.3863, 1.0116),3)==0) ||
+    s.sk != 4 || round(e.sk$coef - .8266, 3) != 0 ||
+    s.bk != 18 || !all(round(e.bk$coef - c(.0714, .8108)) == 0)){
+ print(list(s.0=s.0, e.0=e.0,s.s=s.s, e.s=e.s, s.b=s.b, e.b=e.b,
+            s.sd=s.sd, e.sd=e.sd, s.sk=s.sk, e.sk=e.sk,
+            s.bk=s.bk, e.bk=e.bk))
  stop("Failed mutual term test")
 } else {
   num.passed.tests=num.passed.tests+1

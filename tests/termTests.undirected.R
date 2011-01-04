@@ -129,12 +129,13 @@ s.0 <- summary(fmh~sociality)
 s.a <- summary(fmh~sociality("Race"))
 s.b <- summary(fmh~sociality(base=2:203))
 s.ab <- summary(fmh~sociality("Race", base=3:200))
-e.ab <- ergm(fmh~sociality("Race", base=2:202), MPLEonly=TRUE)
+e.ab <- ergm(fmh~sociality("Race", base=3:205), MPLEonly=TRUE)
 if (!all(head(s.0)==c(4,0,0,1,0,0)) ||
     !all(s.a[45:50]==c(0,8,0,0,0,3)) ||
     !all(s.b==c(13,3,1)) ||
-    !all(s.ab==c(7,3,2,0,0,0,0))) { 
- print(list(s.0=s.0, s.a=s.a, s.ab=s.ab, s.b=s.b))
+    !all(s.ab==c(7,3,2,0,0,0,0)) ||
+    !all(round(e.ab$coef + c(2.6595, 3.5464), 3) ==0)) { 
+ print(list(s.0=s.0, s.a=s.a, s.b=s.b, s.ab=s.ab, e.ab=e.ab))
  stop("Failed sociality term test")
 } else {
  num.passed.tests=num.passed.tests+1
