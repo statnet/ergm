@@ -220,13 +220,13 @@ if (s.0 != 378 || round(e.0$coef + .1028, 3) != 0) {
 
                 
 # mutual, directed
+# Ayn:  Many of the tests below are wrong or unnecessary
+# When same and by are used together, by is ignored.
 num.tests=num.tests + 1
 s.0 <- summary(samplike~mutual)
 e.0 <- ergm(samplike~mutual, MPLEonly=TRUE)
 s.s <- summary(samplike~mutual(same="group"))
 e.s <- ergm(samplike~mutual(same="group"), MPLEonly=TRUE)
-# none of the calls below elicit consistent output
-
 s.b <- summary(samplike~mutual(by="Trinity"))
 e.b <- ergm(samplike~mutual(by="Trinity"), MPLEonly=TRUE)
 s.sb <- summary(samplike~mutual(same="group", by="Trinity"))
@@ -493,26 +493,6 @@ if (s.0 != 32 || round(e.0$coef - .1984, 3) != 0) {
   print("Passed simmelianties term test")
 }
 
-
-
-# sociality, directed
-num.tests=num.tests + 1
-s.0 <- summary(fmh~sociality)
-s.a <- summary(fmh~sociality("Race"))
-s.b <- summary(fmh~sociality(base=2:203))
-s.ab <- summary(fmh~sociality("Race", base=3:200))
-# the line below issues a lot of warnings, am excluding for now                
-# e.ab <- ergm(fmh~sociality("Race", base=2:202), MPLEonly=TRUE)
-if (!all(head(s.0)==c(4,0,0,1,0,0)) ||
-    !all(s.a[45:50]==c(0,8,0,0,0,3)) ||
-    !all(s.b==c(13,3,1)) ||
-    !all(s.ab==c(7,3,2,0,0,0,0))) { 
- print(list(s.0=s.0, s.a=s.a, s.ab=s.ab, s.b=s.b))
- stop("Failed sociality term test")
-} else {
- num.passed.tests=num.passed.tests+1
- print("Passed sociality term test")
-}
 
 
 # transitive, directed

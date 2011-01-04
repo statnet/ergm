@@ -294,7 +294,8 @@ InitErgmTerm.b1concurrent<-function(nw, arglist, drop=TRUE, ...) {
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     ui <- seq(along=u)
-    if(drop){ #   Check for degeneracy
+    if(drop){ #   Check for zero statistics
+      #FIXME:  Should use check.ErgmTerm.summarystats function here
       b1concurrentattr <- paste('nw ~ b1concurrent("',byarg,'")',sep="")
       b1concurrentattr <- summary(as.formula(b1concurrentattr),
                                  drop=FALSE) == 0
@@ -2367,6 +2368,8 @@ InitErgmTerm.mutual<-function (nw, arglist, drop=TRUE, ...) {
   if (!is.null(a$same) || !is.null(a$by)) {
     if (!is.null(a$same)) {
      attrname <- a$same
+     if (!is.null(a$by)) 
+       warning("Ignoring 'by' argument to mutual because 'same' exists", call.=FALSE)
     }else{
      attrname <- a$by
     }
@@ -2420,11 +2423,9 @@ InitErgmTerm.mutual<-function (nw, arglist, drop=TRUE, ...) {
      coef.names <- "mutual"
      inputs <- NULL
   }
-  out <- list(name=name,                      #name: required
-              coef.names = coef.names,        #coef.names: required
-	      inputs=inputs
-             ) 
-  out
+  list(name=name,                      #name: required
+       coef.names = coef.names,        #coef.names: required
+       inputs=inputs) 
 }
 
 
@@ -3190,18 +3191,21 @@ InitErgmTerm.sociality<-function(nw, arglist, drop=FALSE, ...) {
       stop ("Attribute given to sociality() has only one value", call.=FALSE)
   }
   if(drop){
-    if(is.null(attrname)){
-      centattr <- summary(nw ~ sociality, drop=FALSE) == 0
-    }else{
-      centattr <- summary(as.formula(paste('nw ~ sociality(','"',attrname,
-                                           '")',sep="")),
-                          drop=FALSE) == 0
-    }
+    obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
+    centattr <- obsstats == 0
+# Old code, fixed by using check.ErgmTerm.summarystats function:
+#    if(is.null(attrname)){
+#      centattr <- summary(nw ~ sociality, drop=FALSE) == 0
+#    }else{
+#      centattr <- summary(as.formula(paste('nw ~ sociality(','"',attrname,
+#                                           '")',sep="")),
+#                          drop=FALSE) == 0
+#    }
     if(any(centattr)){
-      cat(" ")
-      cat(paste("Warning: There are no",attrname," ties for the vertex", 
+      cat(paste(" Warning: There are no ", attrname," ties for the vertex ", 
                 d[centattr],";\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+                 " the corresponding coefficient has been fixed at ",
+                 "its MLE of negative infinity.\n", sep=""))
       dropterms <- paste("sociality", d[centattr],sep="")
 #     cat(paste("To avoid degeneracy the term",
 #               paste(dropterms,collapse=" and, "),

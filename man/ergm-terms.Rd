@@ -702,21 +702,24 @@ of the degrees of all pairs of nodes in the network which are tied.
     both \code{edges} and \code{density}.}
   
     \item{\code{mutual(same=NULL, diff=FALSE, by=NULL, keep=NULL)}}{\emph{Mutuality:} 
-    This term adds one network statistic to the model equal to the number of
+    Equal to the number of
     pairs of actors \eqn{i} and \eqn{j} for which \eqn{(i{\rightarrow}j)}{(i,j)}
     and \eqn{(j{\rightarrow}i)}{(j,i)} both exist. This term can only be used
-    with directed networks. If the optional \code{same} argument is used,
-    only mutual pairs that match on the named vertex attribute are counted. 
-    The optional argument \code{by} is
-    a character string giving the name of an attribute in the network's vertex
-    attribute list. If this is specified 
-    then each node's degree is tabulated only with other nodes having the same
-    value of the \code{by} attribute.
-    When \code{by} is set (and \code{same=NULL}), this term adds one network statistic to the model for each value, \code{v}, the attribute takes. This statistic counts the number of mutual dyads \eqn{(i,j)} for which the attribute of
-    vertex \code{i} is \code{v}.
-    The optional modifiers \code{diff} and \code{keep} are used in the same way as
-    for the \code{nodematch} term; refer to this term for details and an
-    example. }
+    with directed networks. If the optional \code{same} argument is passed
+    the name of a vertex attribute,
+    only mutual pairs that match on the attribute are counted;
+    separate counts for each unique matching value can be obtained by using
+    \code{diff=TRUE} with \code{same}.  
+    If \code{by} is passed the name of a vertex attribute,
+    then each node is counted separately for each mutual pair in which it 
+    occurs and the counts are tabulated by unique values of the attribute.
+    This means that the sum of the mutual statistics when \code{by} is used
+    will equal twice the standard mutual statistic.  Only one of \code{same}
+    or \code{by} may be used, and only the former is affected by \code{diff};
+    if both \code{same} and \code{by} are passed, \code{by} is ignored.
+    Finally, if \code{keep} is passed a numerical vector, this vector of integers
+    tells which statistics should be kept whenever the \code{mutual} term would
+    ordinarily result in multiple statistics.}
     
     \item{\code{nearsimmelian}}{\emph{Near simmelian triads:} 
     This term adds one statistic to the model equal to the number of near

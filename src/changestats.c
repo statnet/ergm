@@ -3453,8 +3453,8 @@ D_CHANGESTAT_FN(d_mutual) {
   noattr = (N_INPUT_PARAMS == 0);
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
-    h = heads[i];
-    t = tails[i];
+    h = HEAD(i);
+    t = TAIL(i);
     if (IS_OUTEDGE(t,h)) { /* otherwise, no change occurs */
       change = IS_OUTEDGE(h, t) ? -1.0 : 1.0 ;
       if (noattr) { /* "plain vanilla" mutual, without node attributes */
@@ -3477,6 +3477,7 @@ D_CHANGESTAT_FN(d_mutual) {
   }
   UNDO_PREVIOUS_TOGGLES(i);
 }
+
 /*****************
  changestat: d_mutual_by_attr
 *****************/
@@ -3488,8 +3489,8 @@ D_CHANGESTAT_FN(d_mutual_by_attr) {
   ninputs = N_INPUT_PARAMS - N_NODES;
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
-    h = heads[i];
-    t = tails[i];
+    h = HEAD(i);
+    t = TAIL(i);
     if (IS_OUTEDGE(t,h)) { /* otherwise, no change occurs */
       change = IS_OUTEDGE(h, t) ? -1.0 : 1.0 ;
       for (j=0; j<ninputs; j++) {
