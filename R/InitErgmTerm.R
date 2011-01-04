@@ -762,6 +762,8 @@ InitErgmTerm.mutual<-function (nw, arglist, drop=TRUE, ...) {
   if (!is.null(a$same) || !is.null(a$by)) {
     if (!is.null(a$same)) {
      attrname <- a$same
+     if (!is.null(a$by)) 
+       warning("Ignoring 'by' argument to mutual because 'same' exists", call.=FALSE)
     }else{
      attrname <- a$by
     }

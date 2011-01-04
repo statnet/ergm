@@ -3407,13 +3407,16 @@ InitErgm.sociality<-function(nw, m, arglist, drop=FALSE, ...) {
       stop ("Attribute given to sociality() has only one value", call.=FALSE)
   }
   if(drop){
-    if(is.null(attrname)){
-      centattr <- summary(nw ~ sociality, drop=FALSE) == 0
-    }else{
-      centattr <- summary(as.formula(paste('nw ~ sociality(','"',attrname,
-                                           '")',sep="")),
-                          drop=FALSE) == 0
-    }
+    obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
+    centattr <- obsstats == 0
+# Old code, fixed by using check.ErgmTerm.summarystats function:
+#    if(is.null(attrname)){
+#      centattr <- summary(nw ~ sociality, drop=FALSE) == 0
+#    }else{
+#      centattr <- summary(as.formula(paste('nw ~ sociality(','"',attrname,
+#                                           '")',sep="")),
+#                          drop=FALSE) == 0
+#    }
     if(any(centattr)){
       cat(" ")
       cat(paste("Warning: There are no",attrname," ties for the vertex", 
