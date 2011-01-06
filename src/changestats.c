@@ -4669,6 +4669,63 @@ D_CHANGESTAT_FN(d_transitive) {
 }
 
 /*****************
+ changestat: d_transitiveties
+*****************/
+D_CHANGESTAT_FN(d_transitiveties) { 
+  int i;
+  double current;
+
+  (*(mtp->s_func))(mtp, nwp);  /* Call s_??? function */
+  current = mtp->dstats[0];
+  FOR_EACH_TOGGLE(i) { TOGGLE(heads[i],tails[i]); }
+  (*(mtp->s_func))(mtp, nwp);  /* Call s_??? function */
+  mtp->dstats[0] -= current;
+  FOR_EACH_TOGGLE(i) { TOGGLE(heads[i],tails[i]); }
+}
+
+
+/*****************
+ globalstat: s_transitiveties
+*****************/
+S_CHANGESTAT_FN(s_transitiveties) { 
+  Edge e1, e2;
+  Vertex h, t, change, node3;
+  double hattr;
+  int hnottrans;
+  
+  change=0;
+  if(N_INPUT_PARAMS > 0){ /* match on attributes */
+    for (h=1; h <= N_NODES; h++) { 
+      hattr = INPUT_ATTRIB[h-1];
+      STEP_THROUGH_OUTEDGES(h, e1, t) {
+        if(hattr == INPUT_ATTRIB[t-1]) {
+          hnottrans=1;
+          STEP_THROUGH_INEDGES(t, e2, node3) { 
+            if(hnottrans && IS_INEDGE(node3, h) && (hattr == INPUT_ATTRIB[node3-1])){ /* h -> t base forms transitive */
+              hnottrans=0;
+              change++;
+            }
+          }
+        }
+      }
+    }
+  }else{
+    for (h=1; h <= N_NODES; h++) { 
+      STEP_THROUGH_OUTEDGES(h, e1, t) {
+        hnottrans=1;
+        STEP_THROUGH_INEDGES(t, e2, node3) { 
+          if(hnottrans && IS_INEDGE(node3, h)){ /* h -> t base forms transitive */
+            hnottrans=0;
+            change++;
+          }
+        }
+      }
+    }
+  }
+  CHANGE_STAT[0] = change;
+}
+
+/*****************
  changestat: d_triadcensus
 *****************/
 D_CHANGESTAT_FN(d_triadcensus) { 

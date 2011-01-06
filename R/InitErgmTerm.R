@@ -590,7 +590,7 @@ InitErgmTerm.b2concurrent<-function(nw, arglist, drop=TRUE, ...) {
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     ui <- seq(along=u)
-    if(drop){ #   Check for degeneracy
+    if(drop){ #   Check for extreme statistics
       b2concurrentattr <- paste('nw ~ b2concurrent("',byarg,'")',sep="")
       b2concurrentattr <- summary(as.formula(b2concurrentattr),
                                  drop=FALSE) == 0
@@ -885,7 +885,7 @@ InitErgmTerm.balance<-function (nw, arglist, drop=TRUE, ...) {
    if (length(u)==1)
          stop ("Attribute given to balance() has only one value", call.=FALSE)
 #
-#  Check for degeneracy
+#  Check for extreme statistics
 #
    if(drop){
       triattr <- summary(
@@ -897,9 +897,6 @@ InitErgmTerm.balance<-function (nw, arglist, drop=TRUE, ...) {
       cat(" ")
         cat(paste("Warning: The count of", dropterms, "is extreme;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#       cat(paste("To avoid degeneracy the terms",
-#               paste(dropterms,collapse=" and, "),
-#                 "have been dropped.\n"))
         u <- u[!triattr] 
         ui <- ui[!triattr] 
        }
@@ -909,9 +906,6 @@ InitErgmTerm.balance<-function (nw, arglist, drop=TRUE, ...) {
       cat(" ")
          cat(paste("Warning: The count of", dropterms, "is extreme;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#        cat(paste("To avoid degeneracy the term",
-#               paste(dropterms,collapse=" and, "),
-#                  "have been dropped.\n"))
        }
       }
      }
@@ -929,14 +923,14 @@ InitErgmTerm.balance<-function (nw, arglist, drop=TRUE, ...) {
   }else{
 #  No attributes (or diff)
 #
-#   Check for degeneracy
+#   Check for extreme statistics
 #   Can't do this as starts an infinite loop
 #
 #   if(drop){
 #    triattr <- summary(as.formula('nw ~ balance'), drop=FALSE) == 0
 #    if(triattr){
 #       cat(paste("Warning: There are no balanced triads;\n",
-#       cat(paste("To avoid degeneracy the balance term has been dropped.\n"))
+#       cat(paste("The balance term has been dropped.\n"))
 #    }
 #   }
     coef.names <- "balance"
@@ -968,7 +962,7 @@ InitErgmTerm.concurrent<-function(nw, arglist, drop=TRUE, ...) {
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     ui <- seq(along=u)
-    if(drop){ #   Check for degeneracy
+    if(drop){ #   Check for extreme statistics
       concurrentattr <- summary(as.formula
                              (paste('nw ~ concurrent("',byarg,'")',sep="")),
                              drop=FALSE) == 0
@@ -1042,9 +1036,6 @@ InitErgmTerm.ctriple<-InitErgmTerm.ctriad<-function (nw, arglist, drop=TRUE, ...
                 paste(dropterms,collapse=" and, "),
                     "is extreme;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=""))
-#         cat(paste("To avoid degeneracy the terms",
-#               paste(dropterms,collapse=" and, "),
-#                   "have been dropped.\n"))
           u <- u[!triattr] 
           ui <- ui[!triattr] 
         }
@@ -1054,9 +1045,6 @@ InitErgmTerm.ctriple<-InitErgmTerm.ctriad<-function (nw, arglist, drop=TRUE, ...
       cat(" ")
           cat(paste("Warning: The count of", dropterms, "is extreme;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#         cat(paste("To avoid degeneracy the term",
-#               paste(dropterms,collapse=" and, "),
-#                   "have been dropped.\n"))
         }
       }
     }
@@ -1129,7 +1117,7 @@ InitErgmTerm.degree<-function(nw, arglist, drop=TRUE, ...) {
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
-    if(drop){ #   Check for degeneracy
+    if(drop){ #   Check for extreme statistics
       tmp <- paste("c(",paste(d,collapse=","),")")
       degreeattr <- summary(
        as.formula(paste('nw ~ degree(',tmp,',"',byarg,'")',sep="")),
@@ -1234,9 +1222,6 @@ InitErgmTerm.dsp<-function(nw, arglist, drop=TRUE, ...) {
       cat(paste("Warning: There are no dsp", d[mdsp==0],"dyads;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
       dropterms <- paste("dsp", d[mdsp==0],sep="")
-#     cat(paste("To avoid degeneracy the terms",
-#               paste(dropterms,collapse=" and, "),
-#               "have been dropped.\n"))
       d <- d[mdsp!=0] 
     }
   }
@@ -1382,9 +1367,6 @@ InitErgmTerm.esp<-function(nw, arglist, drop=TRUE, ...) {
       cat(paste("Warning: There are no dyads with esp", d[mesp==0],";\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
       dropterms <- paste("esp", d[mesp==0],sep="")
-#     cat(paste("To avoid degeneracy the terms",
-#               paste(dropterms,collapse=" and, "),
-#               "have been dropped.\n"))
       d <- d[mesp!=0] 
     }
   }
@@ -1760,7 +1742,7 @@ InitErgmTerm.gwodegree<-function(nw, arglist, initialfit=FALSE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = c("decay", "fixed", "attrname"),
                       vartypes = c("numeric", "logical", "character"),
-                      defaultvalues = list(0, TRUE, NULL),
+                      defaultvalues = list(0, FALSE, NULL),
                       required = c(TRUE, FALSE, FALSE))
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   d <- 1:(network.size(nw)-1)
@@ -1952,7 +1934,7 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ...) {
     if (length(nodecov)==1)
         stop ("Argument to hammingmix() has only one value", call.=FALSE)
 ##
-##   Check for degeneracy
+##   Check for extreme statistics
 ##
 #    if(drop){
 #     ematch <- mixmat[u]
@@ -1962,7 +1944,7 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ...) {
 #      dropterms <- paste(paste("hammingmix",attrname,sep="."),
 #        apply(u,1,paste,collapse="")[mu],sep="")
 #      cat(paste("Warning: The count of", dropterms, "is extreme.\n"))
-#      cat(paste("To avoid degeneracy the terms",dropterms,"have been dropped.\n"))
+#      cat(paste("The terms",dropterms,"have been dropped.\n"))
 #      u <- u[!mu,]
 #     }
 #    }
@@ -2012,7 +1994,7 @@ InitErgmTerm.idegree<-function(nw, arglist, drop=TRUE, ...) {
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
-    if(drop){ #   Check for degeneracy
+    if(drop){ #   Check for extreme statistics
       tmp <- paste("c(",paste(d,collapse=","),")")
       idegreeattr <- summary(
        as.formula(paste('nw ~ idegree(',tmp,',"',byarg,'")',sep="")),
@@ -2097,14 +2079,12 @@ InitErgmTerm.indegreepopularity<-function (nw, arglist, drop=TRUE, ...) {
       cat(" ")
       cat(paste("Warning: There is no indegree popularity;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#     cat(paste("To avoid degeneracy the 'indegreepopularity' term has been dropped.\n"))
       return(NULL)
     }
     if(network.dyadcount(nw)==network.edgecount(nw)){
       cat(" ")
       cat(paste("Warning: The indegree popularity is maximized!\n",
                  " The corresponding coefficient has been fixed at its MLE of infinity.\n",sep=" "))
-#     cat(paste("To avoid degeneracy the 'indegreepopularity' term has been dropped.\n"))
       return(NULL)
     }
   }
@@ -2126,7 +2106,6 @@ InitErgmTerm.intransitive<-function (nw, arglist, drop=TRUE, ...) {
       cat(" ")
       cat(paste("Warning: There are no intransitive triads;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
- #    cat(paste("To avoid degeneracy the 'intransitive' term has been dropped.\n"))
       return(NULL)
     }
   }
@@ -2188,9 +2167,6 @@ InitErgmTerm.istar<-function(nw, arglist, drop=TRUE, ...) {
       cat(" ")
         cat(paste("Warning: The count of", dropterms, "is extreme;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#       cat(paste("To avoid degeneracy the terms",
-#               paste(dropterms,collapse=" and, "),
-#                 "have been dropped.\n"))
         k <- k[!istarattr] 
       }
     }
@@ -2204,9 +2180,6 @@ InitErgmTerm.istar<-function(nw, arglist, drop=TRUE, ...) {
         cat(paste("Warning: There are no order", k[mistar],"stars;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
         dropterms <- paste("istar", k[mistar],sep="")
-#       cat(paste("To avoid degeneracy the terms",
-#               paste(dropterms,collapse=" and, "),
-#                 "have been dropped.\n"))
         k <- k[!mistar] 
       }
     }
@@ -2254,9 +2227,6 @@ InitErgmTerm.kstar<-function(nw, arglist, drop=TRUE, ...) {
       cat(" ")
         cat(paste("Warning: The count of", dropterms, "is extreme;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#       cat(paste("To avoid degeneracy the terms",
-#               paste(dropterms,collapse=" and, "),
-#                 "have been dropped.\n"))
         k <- k[!kstarattr] 
       }
     }
@@ -2270,9 +2240,6 @@ InitErgmTerm.kstar<-function(nw, arglist, drop=TRUE, ...) {
         cat(paste("Warning: There are no order", k[mkstar],"stars;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
         dropterms <- paste("kstar", k[mkstar],sep="")
-#       cat(paste("To avoid degeneracy the terms",
-#               paste(dropterms,collapse=" and, "),
-#                 "have been dropped.\n"))
         k <- k[!mkstar] 
       }
     }
@@ -2336,7 +2303,6 @@ InitErgmTerm.m2star<-function(nw, arglist, drop=TRUE, ...) {
       cat(" ")
     cat(paste("Warning: The are no mixed 2-stars;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#   cat(paste("To avoid degeneracy the 'm2star' term has been dropped.\n"))
     return(NULL)
    }
   }
@@ -2446,14 +2412,12 @@ InitErgmTerm.nearsimmelian<-function (nw, arglist, drop=TRUE, ...) {
       cat(" ")
       cat(paste("Warning: There are no nearsimmelian triads;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#     cat(paste("To avoid degeneracy the 'nearsimmelian' term has been dropped.\n"))
       return(NULL)
     }
     if(nsimmelian==network.dyadcount(nw)*network.size(nw)*0.5){
       cat(" ")
       cat(paste("Warning: All dyads have nearsimmelian triads!\n",
                  " the corresponding coefficient has been fixed at its MLE of infinity.\n",sep=" "))
-#     cat(paste("To avoid degeneracy the 'nearsimmelian' term has been dropped.\n"))
       return(NULL)
     }
   }
@@ -2803,9 +2767,6 @@ InitErgmTerm.nsp<-function(nw, arglist, drop=TRUE, ...) {
       cat(paste("Warning: There are no dyads with nsp", d[mnsp==0],";\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
       dropterms <- paste("nsp", d[mnsp==0],sep="")
-#     cat(paste("To avoid degeneracy the terms",
-#               paste(dropterms,collapse=" and, "),
-#               "have been dropped.\n"))
       d <- d[mnsp!=0] 
     }
   }
@@ -2859,7 +2820,7 @@ InitErgmTerm.odegree<-function(nw, arglist, drop=TRUE, ...) {
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
-    if(drop){ #   Check for degeneracy
+    if(drop){ #   Check for extreme statistics
       tmp <- paste("c(",paste(d,collapse=","),")")
       odegreeattr <- summary(
        as.formula(paste('nw ~ odegree(',tmp,',"',byarg,'")',sep="")),
@@ -2945,14 +2906,12 @@ InitErgmTerm.outdegreepopularity<-function (nw, arglist, drop=TRUE, ...) {
       cat(" ")
       cat(paste("Warning: There is no outdegree popularity;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#     cat(paste("To avoid degeneracy the 'outdegreepopularity' term has been dropped.\n"))
       return(NULL)
     }
     if(network.dyadcount(nw)==network.edgecount(nw)){
       cat(" ")
       cat(paste("Warning: The outdegree popularity is maximized!\n",
                  " The corresponding coefficient has been fixed at its MLE of infinity.\n",sep=" "))
-#     cat(paste("To avoid degeneracy the 'outdegreepopularity' term has been dropped.\n"))
       return(NULL)
     }
   }
@@ -3042,9 +3001,6 @@ InitErgmTerm.receiver<-function(nw, arglist, drop=FALSE, ...) {
                 d[is.na(mdegrees)],";\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
       dropterms <- paste("receiver", d[is.na(mdegrees)],sep="")
-#     cat(paste("To avoid degeneracy the term",
-#               paste(dropterms,collapse=" and, "),
-#               "have been dropped.\n"))
       d <- degrees[mdegrees[!is.na(mdegrees)]] 
     }
   }
@@ -3077,9 +3033,6 @@ InitErgmTerm.sender<-function(nw, arglist, drop=FALSE, ...) {
                 d[is.na(mdegrees)],";\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
       dropterms <- paste("sender", d[is.na(mdegrees)],sep="")
-#     cat(paste("To avoid degeneracy the term",
-#               paste(dropterms,collapse=" and, "),
-#               "have been dropped.\n"))
       d <- degrees[mdegrees[!is.na(mdegrees)]] 
     }
   }
@@ -3103,14 +3056,12 @@ InitErgmTerm.simmelian<-function (nw, arglist, drop=TRUE, ...) {
       cat(" ")
       cat(paste("Warning: There are no simmelian triads;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#     cat(paste("To avoid degeneracy the 'simmelian' term has been dropped.\n"))
       return(NULL)
     }
     if(nsimmelian==network.edgecount(nw)*network.size(nw)*0.5){
       cat(" ")
       cat(paste("Warning: All triads are simmelian!\n",
                  " The corresponding coefficient has been fixed at its MLE of infinity.\n",sep=" "))
-#     cat(paste("To avoid degeneracy the 'simmelian' term has been dropped.\n"))
       return(NULL)
     }
   }
@@ -3131,14 +3082,12 @@ InitErgmTerm.simmelianties<-function (nw, arglist, drop=TRUE, ...) {
       cat(" ")
       cat(paste("Warning: There are no simmelianties ties;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#     cat(paste("To avoid degeneracy the 'simmelianties' term has been dropped.\n"))
       return(NULL)
     }
     if(nsimmelianties==network.edgecount(nw)){
       cat(" ")
       cat(paste("Warning: All ties have simmelianties ties!\n",
                  " the corresponding coefficient has been fixed at its MLE of infinity.\n",sep=" "))
-#     cat(paste("To avoid degeneracy the 'simmelianties' term has been dropped.\n"))
       return(NULL)
     }
   }
@@ -3206,9 +3155,6 @@ InitErgmTerm.sociality<-function(nw, arglist, drop=FALSE, ...) {
                  " the corresponding coefficient has been fixed at ",
                  "its MLE of negative infinity.\n", sep=""))
       dropterms <- paste("sociality", d[centattr],sep="")
-#     cat(paste("To avoid degeneracy the term",
-#               paste(dropterms,collapse=" and, "),
-#               "have been dropped.\n"))
       d <- d[!centattr] 
     }
   }
@@ -3272,13 +3218,67 @@ InitErgmTerm.transitive<-function (nw, arglist, drop=TRUE, ...) {
       cat(" ")
       cat(paste("Warning: There are no transitive triads;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#     cat(paste("To avoid degeneracy the 'transitive' term has been dropped.\n"))
       return(NULL)
     }
   }
   list(name="transitive", coef.names="transitive")
 }
 
+
+#################################################################################
+InitErgmTerm.transitiveties<-function (nw, arglist, drop=TRUE, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=TRUE,
+                      varnames = c("attrname", "diff"),
+                      vartypes = c("character", "logical"),
+                      defaultvalues = list(NULL, FALSE),
+                      required = c(FALSE, FALSE))
+  attrname <- a$attrname
+  diff <- a$diff
+  if(!is.null(attrname)) {
+    nodecov <- get.node.attr(nw, attrname, "transitiveties")
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+    nodecov <- match(nodecov,u,nomatch=length(u)+1)
+    ui <- seq(along=u)
+    if (length(u)==1)
+      stop ("Attribute given to transitiveties() has only one value", call.=FALSE)
+    if(drop){
+      triattr <- summary(as.formula(paste('nw ~ transitiveties(','"',attrname,
+                                          '",diff=',diff,')',sep="")),
+                         drop=FALSE) == 0
+      if(diff){
+        if(any(triattr)){
+          dropterms <- paste(paste("transitiveties",attrname,sep="."),
+                             u[triattr],sep="")
+      cat(" ")
+          cat(paste("Warning: The count of", dropterms, "is extreme;\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+          u <- u[!triattr] 
+          ui <- ui[!triattr] 
+        }
+      }else{
+        if(triattr){
+          dropterms <- paste(paste("transitiveties",attrname,sep="."),sep="")
+      cat(" ")
+          cat(paste("Warning: The count of", dropterms, "is extreme;\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+        }
+      }
+    }
+    if (!diff) {
+      coef.names <- paste("transitiveties",attrname,sep=".")
+      inputs <- c(nodecov)
+     } else { 
+       coef.names <- paste("transitiveties",attrname, u, sep=".")
+       inputs <- c(ui, nodecov)
+       attr(inputs, "ParamsBeforeCov") <- length(ui)
+     }
+  }else{
+    coef.names <- "transitiveties"
+    inputs <- NULL
+  }
+  list(name="transitiveties", coef.names=coef.names, inputs=inputs)
+}
 
 
 #################################################################################
@@ -3366,9 +3366,6 @@ InitErgmTerm.triangle<-InitErgmTerm.triangles<-function (nw, arglist, drop=TRUE,
       cat(" ")
           cat(paste("Warning: The count of", dropterms, "is extreme;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#         cat(paste("To avoid degeneracy the terms",
-#               paste(dropterms,collapse=" and, "),
-#                   "have been dropped.\n"))
           u <- u[!triattr] 
           ui <- ui[!triattr] 
         }
@@ -3378,9 +3375,6 @@ InitErgmTerm.triangle<-InitErgmTerm.triangles<-function (nw, arglist, drop=TRUE,
       cat(" ")
           cat(paste("Warning: The count of", dropterms, "is extreme;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#         cat(paste("To avoid degeneracy the term",
-#               paste(dropterms,collapse=" and, "),
-#                   "have been dropped.\n"))
         }
       }
     }
@@ -3484,9 +3478,6 @@ InitErgmTerm.ttriple<-InitErgmTerm.ttriad<-function (nw, arglist, drop=TRUE, ...
       cat(" ")
           cat(paste("Warning: The count of", dropterms, "is extreme;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#         cat(paste("To avoid degeneracy the terms",
-#               paste(dropterms,collapse=" and, "),
-#                   "have been dropped.\n"))
           u <- u[!triattr] 
           ui <- ui[!triattr] 
         }
@@ -3496,9 +3487,6 @@ InitErgmTerm.ttriple<-InitErgmTerm.ttriad<-function (nw, arglist, drop=TRUE, ...
       cat(" ")
           cat(paste("Warning: The count of", dropterms, "is extreme;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#         cat(paste("To avoid degeneracy the term",
-#               paste(dropterms,collapse=" and, "),
-#                   "have been dropped.\n"))
         }
       }
     }
@@ -3532,7 +3520,6 @@ InitErgmTerm.twopath<-function(nw, arglist, drop=TRUE, ...) {
       cat(" ")
      cat(paste("Warning: The are no two-paths;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#    cat(paste("To avoid degeneracy the 'twopath' term has been dropped.\n"))
      return(NULL)
     }
    }
@@ -3547,7 +3534,6 @@ InitErgmTerm.twopath<-function(nw, arglist, drop=TRUE, ...) {
       cat(" ")
       cat(paste("Warning: There are no two paths;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#     cat(paste("To avoid degeneracy the twopath term has been dropped.\n"))
       return(NULL)
     }
    }
