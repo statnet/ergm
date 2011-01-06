@@ -7,6 +7,7 @@ InitErgmTerm.transitiveties<-function (nw, arglist, drop=TRUE, ...) {
                       vartypes = c("character", "logical"),
                       defaultvalues = list(NULL, FALSE),
                       required = c(FALSE, FALSE))
+  if (a$diff) stop("diff=TRUE is not currently implemented in transitiveties")
   attrname <- a$attrname
   diff <- a$diff
   if(!is.null(attrname)) {
@@ -28,9 +29,6 @@ InitErgmTerm.transitiveties<-function (nw, arglist, drop=TRUE, ...) {
       cat(" ")
           cat(paste("Warning: The count of", dropterms, "is extreme;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#         cat(paste("To avoid degeneracy the terms",
-#               paste(dropterms,collapse=" and, "),
-#                   "have been dropped.\n"))
           u <- u[!triattr] 
           ui <- ui[!triattr] 
         }
@@ -40,9 +38,6 @@ InitErgmTerm.transitiveties<-function (nw, arglist, drop=TRUE, ...) {
       cat(" ")
           cat(paste("Warning: The count of", dropterms, "is extreme;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#         cat(paste("To avoid degeneracy the term",
-#               paste(dropterms,collapse=" and, "),
-#                   "have been dropped.\n"))
         }
       }
     }
