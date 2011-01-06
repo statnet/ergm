@@ -1004,6 +1004,11 @@ of the degrees of all pairs of nodes in the network which are tied.
     Note the distinction from the \code{ttriple} term. This term can only be
     used with directed networks.}
     
+    \item{\code{transitiveties}}{\emph{Transitive ties:} 
+    This term adds one statistic, equal to the number of nodes that are 
+    part of at least one transitive triad.  See the \code{transitive} term.
+    This term can only be used with directed networks.}
+    
     \item{\code{triadcensus(d)}}{\emph{Triad census:} 
     For a directed network, this term adds one network statistic for each of
     an arbitrary subset of the 16 possible types of triads categorized by
