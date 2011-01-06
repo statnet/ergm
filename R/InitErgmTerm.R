@@ -282,7 +282,6 @@ InitErgmTerm.b1concurrent<-function(nw, arglist, drop=TRUE, ...) {
                       defaultvalues = list(NULL),
                       required = c(FALSE))
   byarg <- a$byarg
-  emptynwstats<-NULL
   nb1 <- get.network.attribute(nw, "bipartite")       
   if(!is.null(byarg)) {
     nodecov <- get.node.attr(nw, byarg, "b1concurrent")
@@ -295,18 +294,9 @@ InitErgmTerm.b1concurrent<-function(nw, arglist, drop=TRUE, ...) {
     lu <- length(u)
     ui <- seq(along=u)
     if(drop){ #   Check for zero statistics
-      #FIXME:  Should use check.ErgmTerm.summarystats function here
-      b1concurrentattr <- paste('nw ~ b1concurrent("',byarg,'")',sep="")
-      b1concurrentattr <- summary(as.formula(b1concurrentattr),
-                                 drop=FALSE) == 0
+      obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
+      b1concurrentattr <- extremewarnings(obsstats)
       if(any(b1concurrentattr)){
-        cat(" ")
-        cat(paste("Warning: There are no b1concurrent", ".", byarg,
-                           u[b1concurrentattr],
-                  "b1s;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-        dropterms <- paste("b1concurrent", ".", byarg,
-                           u[b1concurrentattr], sep="")
         u <- u[-b1concurrentattr]
         ui <- ui[-b1concurrentattr]
       }
@@ -314,11 +304,9 @@ InitErgmTerm.b1concurrent<-function(nw, arglist, drop=TRUE, ...) {
   } else {
     if(is.logical(byarg)){drop <- byarg}
     if(drop){
-      mb1concurrent <- summary(
-                          as.formula(paste('nw ~ b1concurrent',sep="")),
-                          drop=FALSE) == 0
+      obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
+      mb1concurrent <- extremewarnings(obsstats)
       if(any(mb1concurrent)){
-        cat(paste("Warning: There are no concurrent b1s.\n"))
         return(NULL)
       }
     }
@@ -334,13 +322,7 @@ InitErgmTerm.b1concurrent<-function(nw, arglist, drop=TRUE, ...) {
     coef.names<-paste("b1concurrent",sep="")
     inputs <- NULL
   }
-  # emptynwstats will always be null, is this right?
-  if (!is.null(emptynwstats)){
-    list(name=name, coef.names=coef.names, inputs=inputs, 
-         emptynwstats=emptynwstats, dependence=TRUE)
-  }else{
-    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE)
-  }    
+  list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE)
 }
 
 
@@ -410,12 +392,9 @@ InitErgmTerm.b1factor<-function (nw, arglist, drop=TRUE, ...) {
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
   ui <- seq(along=u)
   if(drop){
-    nfc <- summary(as.formula(paste('nw ~ b1factor("',attrname,'",base=0)',sep="")),drop=FALSE) == 0
+    obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
+    nfc <- extremewarnings(obsstats)
     if(any(nfc)){
-      dropterms <- paste(paste("b1factor",attrname,sep="."),u[nfc],sep=".")
-      cat(" ")
-      cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
       u<-u[!nfc]
       ui<-ui[!nfc]
     }
@@ -578,7 +557,6 @@ InitErgmTerm.b2concurrent<-function(nw, arglist, drop=TRUE, ...) {
                       defaultvalues = list(NULL),
                       required = c(FALSE))
   byarg <- a$byarg
-  emptynwstats<-NULL
   nb1 <- get.network.attribute(nw, "bipartite")
   if(!is.null(byarg)) {
     nodecov <- get.node.attr(nw, byarg, "b2concurrent")
@@ -591,15 +569,9 @@ InitErgmTerm.b2concurrent<-function(nw, arglist, drop=TRUE, ...) {
     lu <- length(u)
     ui <- seq(along=u)
     if(drop){ #   Check for extreme statistics
-      b2concurrentattr <- paste('nw ~ b2concurrent("',byarg,'")',sep="")
-      b2concurrentattr <- summary(as.formula(b2concurrentattr),
-                                 drop=FALSE) == 0
+      obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
+      b2concurrentattr <- extremewarnings(obsstats)
       if(any(b2concurrentattr)){
-        cat(" ")
-        cat(paste("Warning: There are no b2concurrent", ".", byarg,
-                           u[b2concurrentattr],
-                  "b2s;\n",
-                 " the corresponding coefficient has been fixed at its MLE of nenegative infinity.\n",sep=" "))
         u <- u[-b2concurrentattr]
         ui <- ui[-b2concurrentattr]
       }
@@ -607,11 +579,9 @@ InitErgmTerm.b2concurrent<-function(nw, arglist, drop=TRUE, ...) {
   } else {
     if(is.logical(byarg)){drop <- byarg}
     if(drop){
-      mb2concurrent <- summary(
-                          as.formula(paste('nw ~ b2concurrent',sep="")),
-                          drop=FALSE) == 0
+      obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
+      mb2concurrent <- extremewarnings(obsstats)
       if(any(mb2concurrent)){
-        cat(paste("Warning: There are no concurrent b2s\n"))
         return(NULL)
       }
     }
@@ -627,12 +597,7 @@ InitErgmTerm.b2concurrent<-function(nw, arglist, drop=TRUE, ...) {
     name <- "b2concurrent"
     inputs <- NULL
   }
-  if (!is.null(emptynwstats)){
-    list(name=name, coef.names=coef.names, inputs=inputs, 
-         emptynwstats=emptynwstats, dependence=TRUE)
-  }else{
-    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE)
-  }    
+  list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE)
 }
 
 
@@ -703,12 +668,9 @@ InitErgmTerm.b2factor<-function (nw, arglist, drop=TRUE, ...) {
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
   ui <- seq(along=u)
   if(drop){
-    nfc <- summary(as.formula(paste('nw ~ b2factor("',attrname,'",base=0)',sep="")),drop=FALSE) == 0
+    obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
+    nfc <- extremewarnings(obsstats)
     if(any(nfc)){
-      dropterms <- paste(paste("b2factor",attrname,sep="."),u[nfc],sep=".")
-      cat(" ")
-      cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
       u<-u[!nfc]
       ui<-ui[!nfc]
     }
@@ -888,54 +850,34 @@ InitErgmTerm.balance<-function (nw, arglist, drop=TRUE, ...) {
 #  Check for extreme statistics
 #
    if(drop){
-      triattr <- summary(
-       as.formula(paste('nw ~ balance(','"',attrname,'",diff=',diff,')',sep="")),
-       drop=FALSE) == 0
-      if(diff){
+     obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
+     triattr <- extremewarnings(obsstats)
+     if(diff){
        if(any(triattr)){
-        dropterms <- paste(paste("balance",attrname,sep="."),u[triattr],sep="")
-      cat(" ")
-        cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-        u <- u[!triattr] 
-        ui <- ui[!triattr] 
+         u <- u[!triattr] 
+         ui <- ui[!triattr] 
        }
-      }else{
+     }else{
        if(triattr){
-         dropterms <- paste(paste("balance",attrname,sep="."),sep="")
-      cat(" ")
-         cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+         return(NULL)
        }
-      }
      }
-     if (!diff) {
-#     No parameters before covariates here, so no need for "ParamsBeforeCov"
-       coef.names <- paste("balance",attrname,sep=".")
-       inputs <- c(nodecov)
-     } else {
-      #  Number of input parameters before covariates equals number of
-      #  unique elements in nodecov, namely length(u)
-      coef.names <- paste("balance",attrname, u, sep=".")
-      inputs <- c(ui, nodecov)
-      attr(inputs, "ParamsBeforeCov") <- length(ui)
-     }
+   }
+   if (!diff) {
+     #     No parameters before covariates here, so no need for "ParamsBeforeCov"
+     coef.names <- paste("balance",attrname,sep=".")
+     inputs <- c(nodecov)
+   } else {
+     #  Number of input parameters before covariates equals number of
+     #  unique elements in nodecov, namely length(u)
+     coef.names <- paste("balance",attrname, u, sep=".")
+     inputs <- c(ui, nodecov)
+     attr(inputs, "ParamsBeforeCov") <- length(ui)
+   }
   }else{
-#  No attributes (or diff)
-#
-#   Check for extreme statistics
-#   Can't do this as starts an infinite loop
-#
-#   if(drop){
-#    triattr <- summary(as.formula('nw ~ balance'), drop=FALSE) == 0
-#    if(triattr){
-#       cat(paste("Warning: There are no balanced triads;\n",
-#       cat(paste("The balance term has been dropped.\n"))
-#    }
-#   }
     coef.names <- "balance"
     inputs <- NULL
-   }
+  }
   list(name="balance", coef.names=coef.names, inputs=inputs, dependence=TRUE)
 }
 
