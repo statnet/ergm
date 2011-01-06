@@ -3453,8 +3453,8 @@ D_CHANGESTAT_FN(d_mutual) {
   noattr = (N_INPUT_PARAMS == 0);
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
-    h = heads[i];
-    t = tails[i];
+    h = HEAD(i);
+    t = TAIL(i);
     if (IS_OUTEDGE(t,h)) { /* otherwise, no change occurs */
       change = IS_OUTEDGE(h, t) ? -1.0 : 1.0 ;
       if (noattr) { /* "plain vanilla" mutual, without node attributes */
@@ -3477,6 +3477,7 @@ D_CHANGESTAT_FN(d_mutual) {
   }
   UNDO_PREVIOUS_TOGGLES(i);
 }
+
 /*****************
  changestat: d_mutual_by_attr
 *****************/
@@ -3488,8 +3489,8 @@ D_CHANGESTAT_FN(d_mutual_by_attr) {
   ninputs = N_INPUT_PARAMS - N_NODES;
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
-    h = heads[i];
-    t = tails[i];
+    h = HEAD(i);
+    t = TAIL(i);
     if (IS_OUTEDGE(t,h)) { /* otherwise, no change occurs */
       change = IS_OUTEDGE(h, t) ? -1.0 : 1.0 ;
       for (j=0; j<ninputs; j++) {
@@ -5000,416 +5001,74 @@ D_CHANGESTAT_FN(d_triangle) {
 /*****************
  changestat: d_tripercent
 *****************/
-D_CHANGESTAT_FN(d_tripercent) { 
-  Edge e;
-  Vertex h, t, change, node3;
-  double hd, td=0.0, numchange;
-  double tripercent=0.0, newtripercent=0.0;
+D_CHANGESTAT_FN(d_tripercent) {
+  Edge e, e2;
+  Vertex h, t, node1, node2, node3;
   int edgeflag, i, j;
-  int nedges, nnodes, nstats;
-  Vertex *head, *tail;
-  double *num2star, *numtri;
-  double *newnumtri, *newnum2star;
-  int ninputs;
-  double hattr, eps=0.00000001;
-  head = (Vertex *) malloc(sizeof(Vertex) * nwp->nedges);
-  tail = (Vertex *) malloc(sizeof(Vertex) * nwp->nedges);
+  Edge triwith, triwithout;
+  Edge degreewith, degreewithout, twostarwith, twostarwithout;
+  int ninputs = N_INPUT_PARAMS - N_NODES;
+  int MatchingOnAttribute = (ninputs>0);
+  double *attr, ratiowith, ratiowithout;
   
-  nstats = N_CHANGE_STATS;
-  ninputs = N_INPUT_PARAMS;
-  nnodes = N_NODES;
-  
-  num2star = (double *) malloc(sizeof(double) * nstats);
-  numtri = (double *) malloc(sizeof(double) * nstats);
-  newnum2star = (double *) malloc(sizeof(double) * nstats);
-  newnumtri = (double *) malloc(sizeof(double) * nstats);
-  for (i=0; i<nstats; i++){
-    num2star[i] = 0.0;
-    numtri[i] = 0.0;
-  }
-  
-  nedges=0;
-  if(ninputs>0){
-    /* match on attributes */
-    for (h=1; h<=nnodes; h++) 
-    {
-      for(e = EdgetreeMinimum(nwp->outedges, h);
-	    (t = nwp->outedges[e].value) != 0;
-	    e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of head */
-      {
-        if(fabs(INPUT_ATTRIB[h-1] - INPUT_ATTRIB[t-1])<eps){
-          head[nedges] = h;
-          tail[nedges] = t;
-          nedges++;
-        }
-      }
-    }
-  }else{
-    /* no attribute matching */
-    for (h=1; h<=nnodes; h++) 
-    {
-      for(e = EdgetreeMinimum(nwp->outedges, h);
-	    (t = nwp->outedges[e].value) != 0;
-	    e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of head */
-      {
-        head[nedges] = h;
-        tail[nedges] = t;
-        nedges++;
-      }
-    }
-  }
-  if(ninputs>0){
-    /* match on attributes */
-    for (i=0; i<nedges; i++) {
-      h=head[i];
-      t=tail[i];
-      hattr = INPUT_ATTRIB[h-1];
-      hd = -1;
-      for(e = EdgetreeMinimum(nwp->outedges, h);
-	    (node3 = nwp->outedges[e].value) != 0;
-	    e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of head */
-      {
-        if(fabs(hattr - INPUT_ATTRIB[node3-1])<eps){++hd;}
-      }
-      if (!DIRECTED){
-        for(e = EdgetreeMinimum(nwp->inedges, h);
-	      (node3 = nwp->inedges[e].value) != 0;
-	      e = EdgetreeSuccessor(nwp->inedges, e)) /* step through inedges of head */
-        {
-          if(hattr == INPUT_ATTRIB[node3-1]){++hd;}
-        }
-        td = -1;
-        for(e = EdgetreeMinimum(nwp->outedges, t);
-	      (node3 = nwp->outedges[e].value) != 0;
-	      e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of tail */
-        {
-          if(hattr == INPUT_ATTRIB[node3-1]){++td;}
-        }
-        for(e = EdgetreeMinimum(nwp->inedges, t);
-	      (node3 = nwp->inedges[e].value) != 0;
-	      e = EdgetreeSuccessor(nwp->inedges, e)) /* step through inedges of tail */
-        {
-          if(hattr == INPUT_ATTRIB[node3-1]){++td;}
-        }
-      }
-      /* calculate the change in the number of 2-stars */
-      if (DIRECTED){
-        numchange = hd;
-      }else{
-        numchange = hd + td;
-      }
-      if(nstats>1){
-        for (j=0; j<nstats; j++){
-          num2star[j] += (hattr==INPUT_PARAM[j]) ? numchange : 0.0;
-        }
-      }else{
-        num2star[0] += numchange;
-      }
-      
-      change = 0;
-      
-      for(e = EdgetreeMinimum(nwp->outedges, t);
-      (node3 = nwp->outedges[e].value) != 0;
-      e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of tail */
-      {
-        if(fabs(hattr - INPUT_ATTRIB[node3-1])<eps){
-          if (DIRECTED)
-          {
-            if (EdgetreeSearch(node3, h, nwp->outedges) != 0)
-              ++change;
-            if (EdgetreeSearch(node3, h, nwp->inedges) != 0)
-              ++change;
-          }
-          else
-          {
-            if (EdgetreeSearch(MIN(node3,h), MAX(node3,h), nwp->outedges) != 0)
-              ++change;
-          }
-        }
-      }
-      
-      for(e = EdgetreeMinimum(nwp->inedges, t); 
-      (node3 = nwp->inedges[e].value) != 0;
-      e = EdgetreeSuccessor(nwp->inedges, e)) /* step through inedges of tail */
-      {
-        if(fabs(hattr - INPUT_ATTRIB[node3-1])<eps){
-          if (DIRECTED)
-          {
-            if (EdgetreeSearch(node3, h, nwp->outedges) != 0)
-              ++change;
-            if (EdgetreeSearch(node3, h,  nwp->inedges) != 0)
-              ++change;
-          }
-          else
-          {
-            if (EdgetreeSearch(MIN(node3,h), MAX(node3,h), nwp->outedges) != 0)
-              ++change;
-          }
-        }
-      }
-      
-      /* diff=T (and more than one category?)  */
-      if(nstats>1){
-        for (j=0; j<nstats; j++){
-          numtri[j] += (hattr==INPUT_PARAM[j]) ? (double)change : 0.0;
-        }
-      }else{
-        numtri[0] += (double)change;
-      }
-      
-      TOGGLE_IF_MORE_TO_COME(i);
-    }
-  }else{
-    /* no attribute matching */
-    for (i=0; i<nedges; i++) 
-    {
-      h=head[i];
-      t=tail[i];
-      /* calculate the change in the number of 2-stars */
-      if (DIRECTED){
-        hd = OUT_DEG[h] - 1; 
-        numchange = hd;
-      }else{
-        hd = OUT_DEG[h] + IN_DEG[h] - 1;
-        td = OUT_DEG[t] + IN_DEG[t] - 1;
-        numchange = hd + td;
-      }
-      num2star[0] += numchange;
-      change = 0;
-      for(e = EdgetreeMinimum(nwp->outedges, t);
-	    (node3 = nwp->outedges[e].value) != 0;
-	    e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of tail */
-      {
-        if (DIRECTED)
-	      {
-          if (EdgetreeSearch(node3, h, nwp->outedges) != 0)
-            ++change;
-          if (EdgetreeSearch(node3, h, nwp->inedges) != 0)
-            ++change;
-	      }
-        else
-	      {
-          if (EdgetreeSearch(MIN(node3,h), MAX(node3,h), nwp->outedges) != 0)
-            ++change;
-	      }
-      }
-      
-      for(e = EdgetreeMinimum(nwp->inedges, t); 
-	    (node3 = nwp->inedges[e].value) != 0;
-	    e = EdgetreeSuccessor(nwp->inedges, e)) /* step through inedges of tail */
-      {
-        if (DIRECTED)
-	      {
-          if (EdgetreeSearch(node3, h, nwp->outedges) != 0)
-            ++change;
-          if (EdgetreeSearch(node3, h,  nwp->inedges) != 0)
-            ++change;
-	      }
-        else
-	      {
-          if (EdgetreeSearch(MIN(node3,h), MAX(node3,h), nwp->outedges) != 0)
-            ++change;
-	      }
-      }
-      numtri[0] += (double)change;
-      TOGGLE_IF_MORE_TO_COME(i);
-    }
-  }
-  
-  i--;
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(head[i], tail[i], nwp); 
-  
-  free(head);
-  free(tail);
-  
-  for (j=0; j<nstats; j++){
-    newnumtri[j]=numtri[j];
-    newnum2star[j]=num2star[j];
-  }
-  
-  if(ninputs>0){
-    /* match on attributes */
-    FOR_EACH_TOGGLE(i) 
-    {
-      edgeflag = IS_OUTEDGE(h = heads[i], t = tails[i]);
-      hattr = INPUT_ATTRIB[h-1];
-      if(fabs(hattr - INPUT_ATTRIB[t-1])<eps){
-        hd = -edgeflag;
-        for(e = EdgetreeMinimum(nwp->outedges, h);
-	      (node3 = nwp->outedges[e].value) != 0;
-	      e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of head */
-        {
-          if(fabs(hattr - INPUT_ATTRIB[node3-1])<eps){++hd;}
-        }
-        if (!DIRECTED){
-          for(e = EdgetreeMinimum(nwp->inedges, h);
-          (node3 = nwp->inedges[e].value) != 0;
-          e = EdgetreeSuccessor(nwp->inedges, e)) /* step through inedges of head */
-          {
-            if(fabs(hattr - INPUT_ATTRIB[node3-1])<eps){++hd;}
-          }
-          td = - edgeflag;
-          for(e = EdgetreeMinimum(nwp->outedges, t);
-          (node3 = nwp->outedges[e].value) != 0;
-          e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of tail */
-          {
-            if(fabs(hattr - INPUT_ATTRIB[node3-1])<eps){++td;}
-          }
-          for(e = EdgetreeMinimum(nwp->inedges, t);
-          (node3 = nwp->inedges[e].value) != 0;
-          e = EdgetreeSuccessor(nwp->inedges, e)) /* step through inedges of tail */
-          {
-            if(fabs(hattr - INPUT_ATTRIB[node3-1])<eps){++td;}
-          }
-        }
-        /* calculate the change in the number of 2-stars */
-        if (DIRECTED){
-          numchange = hd;
-        }else{
-          numchange = hd + td;
-        }
-        /* diff=T (and more than one category?)  */
-        if(nstats>1){
-          for (j=0; j<nstats; j++){
-            newnum2star[j] += (hattr==INPUT_PARAM[j]) ? 
-            (edgeflag ? - numchange : numchange) : 0.0;
-          }
-        }else{
-          newnum2star[0] += (edgeflag ? - numchange : numchange);
-        }
-        
-        change = 0;
-        
-        for(e = EdgetreeMinimum(nwp->outedges, t);
-	      (node3 = nwp->outedges[e].value) != 0;
-	      e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of tail */
-        {
-          if(fabs(hattr - INPUT_ATTRIB[node3-1])<eps){
-            if (DIRECTED)
-            {
-              if (EdgetreeSearch(node3, h, nwp->outedges) != 0)
-                ++change;
-              if (EdgetreeSearch(node3, h, nwp->inedges) != 0)
-                ++change;
+  if (MatchingOnAttribute) 
+    attr = INPUT_PARAM + (ninputs-1); /* ptr to vertex attributes */
+  ZERO_ALL_CHANGESTATS(i);
+  FOR_EACH_TOGGLE(i) {
+    edgeflag = IS_OUTEDGE(h=HEAD(i), t=TAIL(i));
+    if (!edgeflag) TOGGLE(h, t); /* turn on the edge if it's missing */
+    for (j=0; j < MAX(1, ninputs); j++) {
+      /* Count triangles with and without proposed edge */
+      /* Simultaneously, find degree (use matching if necessary) with and without */ 
+      triwith = triwithout = twostarwith = twostarwithout = 0;
+      for (node1 = 1; node1 <= N_NODES; node1++) {
+        degreewith = degreewithout = 0;
+        if (ninputs < 2 || EQUAL(attr[node1],INPUT_PARAM[j])) {
+          STEP_THROUGH_OUTEDGES(node1, e, node2) {
+            /* inside this loop, node1 < node2 always */
+            if (!MatchingOnAttribute || EQUAL(attr[node1],attr[node2])) {
+              /* increment degree counter */
+              ++degreewith;
+              if (node1!=h || node2!=t) ++degreewithout;
+              STEP_THROUGH_OUTEDGES(node2, e2, node3) {
+                /* inside this loop, node1 < node2 < node3 always */
+                if (!MatchingOnAttribute || EQUAL(attr[node2],attr[node3])) {
+                  if (IS_OUTEDGE(node1, node3)) {
+                    ++triwith;
+                    if ((h!=node1||t!=node2)&&(h!=node2||t!=node3)&&(h!=node1||t!=node3))
+                      ++triwithout;
+                  }
+                }
+              }
             }
-            else
-            {
-              if (EdgetreeSearch(MIN(node3,h), MAX(node3,h), nwp->outedges) != 0)
-                ++change;
+          }
+          STEP_THROUGH_INEDGES(node1, e, node2) {
+            /* inside this loop, node2 < node1 always. */
+            /* We only do this to find correct degree for node1; */
+            /* for triangles, node1 < node2 <node3 as above suffices */
+            if (!MatchingOnAttribute || EQUAL(attr[node1],attr[node2])) {
+              /* increment degree counter */
+              ++degreewith;
+              if (node2!=h || node1!=t) ++degreewithout;
             }
           }
         }
-        
-        for(e = EdgetreeMinimum(nwp->inedges, t); 
-	      (node3 = nwp->inedges[e].value) != 0;
-	      e = EdgetreeSuccessor(nwp->inedges, e)) /* step through inedges of tail */
-        {
-          if(fabs(hattr - INPUT_ATTRIB[node3-1])<eps){
-            if (DIRECTED)
-            {
-              if (EdgetreeSearch(node3, h, nwp->outedges) != 0)
-                ++change;
-              if (EdgetreeSearch(node3, h,  nwp->inedges) != 0)
-                ++change;
-            }
-            else
-            {
-              if (EdgetreeSearch(MIN(node3,h), MAX(node3,h), nwp->outedges) != 0)
-                ++change;
-            }
-          }
-        }
-        /* diff=T (and more than one category?)  */
-        if(nstats>1){
-          for (j=0; j<nstats; j++){
-            newnumtri[j] += (hattr==INPUT_PARAM[j]) ? 
-            (edgeflag ? -(double)change : change) : 0.0;
-          }
-        }else{
-          newnumtri[0] += (edgeflag ? -(double)change : change);
-        }
+        /* Now calculate two-star counts (including triangles for now) */
+        twostarwith += (degreewith * (degreewith-1))/2; /* same as d-choose-2*/
+        twostarwithout += (degreewithout * (degreewithout-1))/2; 
       }
-      
-      TOGGLE_IF_MORE_TO_COME(i);
+      /* Correct twostar counts for number of triangles */
+      twostarwith -= 3*triwith;
+      twostarwithout -= 3*triwithout;
+      ratiowith = triwith == 0 ? 0.0 : 
+                            ((float)triwith)/(triwith + twostarwith);
+      ratiowithout = triwith == 0 ? 0.0 :
+                            ((float)triwithout)/(triwithout + twostarwithout);
+      CHANGE_STAT[j] += (ratiowith-ratiowithout)*(edgeflag? -100.0 : 100.0);
     }
-  }else{
-    /* no attribute matching */
-    FOR_EACH_TOGGLE(i) 
-    {
-      edgeflag = IS_OUTEDGE(h = heads[i], t = tails[i]);
-      /* calculate the change in the number of 2-stars */
-      if (DIRECTED){
-        hd = OUT_DEG[h] - edgeflag; 
-        numchange = hd;
-      }else{
-        hd = OUT_DEG[h] + IN_DEG[h] - edgeflag;
-        td = OUT_DEG[t] + IN_DEG[t] - edgeflag;
-        numchange = hd + td;
-      }
-      
-      newnum2star[0] += (edgeflag ? - numchange : numchange);
-      
-      change = 0;
-      
-      for(e = EdgetreeMinimum(nwp->outedges, t);
-	    (node3 = nwp->outedges[e].value) != 0;
-	    e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of tail */
-      {
-        if (DIRECTED)
-	      {
-          if (EdgetreeSearch(node3, h, nwp->outedges) != 0)
-            ++change;
-          if (EdgetreeSearch(node3, h, nwp->inedges) != 0)
-            ++change;
-	      }
-        else
-	      {
-          if (EdgetreeSearch(MIN(node3,h), MAX(node3,h), nwp->outedges) != 0)
-            ++change;
-	      }
-      }
-      
-      for(e = EdgetreeMinimum(nwp->inedges, t); 
-	    (node3 = nwp->inedges[e].value) != 0;
-	    e = EdgetreeSuccessor(nwp->inedges, e)) /* step through inedges of tail */
-      {
-        if (DIRECTED)
-	      {
-          if (EdgetreeSearch(node3, h, nwp->outedges) != 0)
-            ++change;
-          if (EdgetreeSearch(node3, h,  nwp->inedges) != 0)
-            ++change;
-	      }
-        else
-	      {
-          if (EdgetreeSearch(MIN(node3,h), MAX(node3,h), nwp->outedges) != 0)
-            ++change;
-	      }
-      }
-      
-      newnumtri[0] += edgeflag ? -(double)change : change;
-      
-      TOGGLE_IF_MORE_TO_COME(i);
-    }
+    if (!edgeflag) TOGGLE(h, t); /* reset dyad to original state */
+    TOGGLE_IF_MORE_TO_COME(i);
   }
-  
-  for (j=0; j<nstats; j++){
-    tripercent = 0.0;
-    newtripercent = 0.0;
-    if(num2star[j]>0.0){      tripercent =    numtri[j]/num2star[j];}
-    if(newnum2star[j]>0.0){newtripercent = newnumtri[j]/newnum2star[j];}
-    if(nstats>1){
-      CHANGE_STAT[j] = (newtripercent - tripercent)*300.0;
-    }else{
-      CHANGE_STAT[0] = (newtripercent - tripercent)*300.0;
-    }
-  }
-  free(num2star);
-  free(numtri);
-  free(newnum2star);
-  free(newnumtri);
-                                        
   UNDO_PREVIOUS_TOGGLES(i);
 }
 

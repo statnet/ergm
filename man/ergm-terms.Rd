@@ -1042,7 +1042,8 @@ of the degrees of all pairs of nodes in the network which are tied.
     This term adds one statistic to the model equal to 100 times the ratio of
     the number of triangles in the network to the sum of the number of triangles
     and the number of 2-stars not in triangles (the latter is considered a
-    potential but incomplete triangle). For the definition of triangle, see
+    potential but incomplete triangle).  In case the denominator equals zero,
+    the statistic is defined to be zero. For the definition of triangle, see
     \code{triangle}. The optional argument \code{attrname} restricts the counts
     (both numerator and denominator) to those triples of nodes with equal values
     of the vertex attribute specified by \code{attrname}. This is often called
