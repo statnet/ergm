@@ -1004,6 +1004,15 @@ of the degrees of all pairs of nodes in the network which are tied.
     Note the distinction from the \code{ttriple} term. This term can only be
     used with directed networks.}
     
+    \item{\code{transitiveties(attrname=NULL)}}{\emph{Transitive ties:} 
+    This term adds one statistic, equal to the number of ties 
+    \eqn{i\rightarrow j}{i-->j} such that there exists a two-path from
+    \eqn{i} to \eqn{j}.  (Related to the \code{ttriple} term.)
+    When a nodal attribute is passed via \code{attrname}, all three nodes
+    involved (\eqn{i}, \eqn{j}, and the node on the two-path) must match
+    on this attribute in order for \eqn{i\rightarrow j}{i-->j} to be counted.
+    This term can only be used with directed networks.}
+    
     \item{\code{triadcensus(d)}}{\emph{Triad census:} 
     For a directed network, this term adds one network statistic for each of
     an arbitrary subset of the 16 possible types of triads categorized by
