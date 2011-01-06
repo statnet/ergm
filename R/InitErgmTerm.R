@@ -2646,7 +2646,6 @@ InitErgmTerm.nodemix<-function (nw, arglist, drop=TRUE, ...) {
   if (is.bipartite(nw) && is.directed(nw)) {
     stop("Directed bipartite networks are not currently possible")
   }
-  
   nodecov <-
     if(length(a$attrname)==1)
       get.node.attr(nw, a$attrname)
@@ -3430,9 +3429,6 @@ InitErgmTerm.tripercent<-function (nw, arglist, drop=TRUE, ...) {
       cat(" ")
           cat(paste("Warning: The count of", dropterms, "is extreme;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#         cat(paste("To avoid degeneracy the terms",
-#               paste(dropterms,collapse=" and, "),
-#                   "have been dropped.\n"))
           u <- u[!triattr] 
           ui <- ui[!triattr] 
         }else{
@@ -3440,9 +3436,6 @@ InitErgmTerm.tripercent<-function (nw, arglist, drop=TRUE, ...) {
       cat(" ")
           cat(paste("Warning: The count of", dropterms, "is extreme;\n",
                  " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#         cat(paste("To avoid degeneracy the term",
-#               paste(dropterms,collapse=" and, "),
-#                   "have been dropped.\n"))
         }
       }
     }

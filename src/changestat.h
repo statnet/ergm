@@ -18,6 +18,8 @@ typedef struct ModelTermstruct {
 /* binomial coefficient macro: */
 #define CHOOSE(n,r) ((n)<(r) ? (0) : (my_choose((double)(n),(int)(r)))) 
 
+/* Comparison macro for doubles: */
+#define EQUAL(a,b) (fabs((a)-(b))<0.0000001)
 /****************************************************
  Macros to make life easier when writing C code for change statistics:  */
 

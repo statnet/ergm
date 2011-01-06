@@ -390,10 +390,9 @@ if (round(s.0 - 9.77777, 3) != 0 ||
 num.tests=num.tests+1
 s.a <- summary(samplike~nodecov("YearsServed"))
 e.a <- ergm(fmh~nodecov("Grade"), MPLEonly=TRUE)
-t<-function(x) x^2                
-s.at <- summary(samplike~nodecov("YearsServed", t))
-e.at <- ergm(fmh~nodecov("Grade", t), MPLEonly=TRUE)
-s.att <- summary(samplike~nodecov("YearsServed", t, "squared"))
+s.at <- summary(samplike~nodecov("YearsServed", function(x)x^2))
+e.at <- ergm(fmh~nodecov("Grade", function(x)x^2), MPLEonly=TRUE)
+s.att <- summary(samplike~nodecov("YearsServed", function(x)x^2, "squared"))
 if (s.a != 906 || round(e.a$coef + .271, 3) != 0 ||
     s.at != 5036 || round(e.at$coef + .03199, 3) != 0) {
  print(list(s.a=s.a, e.a=e.a, s.at=s.at, e.at=e.at))
@@ -453,29 +452,29 @@ if (s.a != 103 || round(e.a$coef + 1.45725,3)!=0  ||
 # I am still not getting consistent output with this term
 # I get one of 2 things:  (1) correct answers or (2) all 0's
 # except for the 'Grade7.7' term.
-
-#num.tests=num.tests+1
-#s.a <- summary(fmh ~ nodemix("Grade"))
-#e.a <- ergm(samplike ~ nodemix("group"), MPLEonly=TRUE)
-#s.ab <- summary(bipnw ~ nodemix("Letter"), base=0)
-#e.ab <- ergm(bipnw ~ nodemix("Letter", base=2:6))
-#s.ab2 <- summary(fmh ~ nodemix("Race", base=1))
-#e.ab2 <- ergm(samplike ~ nodemix("Trinity", base=3:9))                
-#if (!all(s.a == c(75, 0, 33, 0, 2, 23, 1, 4, 7, 9, 1,
-#                  2, 6, 1, 17, 1, 1, 4, 5, 5, 6)) ||
-#    !all(round(e.a$coef - c(0.1910552, -3.2958369, -2.1747517, -2.5649494,
-#                           1.6094379, -3.2958369, -1.4916549, -1.0986123,
-#                            0.9162907), 3) == 0) ||
-#    !all(s.ab==c(9,8,8,7,7,5,4,6,6)) ||
-#    !all(round(e.ab$coef+c(3.497, 4.431, 3.989, 3.989),3)==0) ||
-#    !all(s.ab2==c(8,53,13,41,46,0,1,0,0,5,22,10,0,4)) ||
-#    !all(round(e.ab2$coef+c(1.0116, .82098),3)==0)) {
-#  print(list(s.a=s.a, e.a=e.a, s.ab=s.ab, e.ab=e.ab, s.ab2=s.ab2, e.ab2=e.ab2))
-#  stop("Failed nodemix term test")
-#} else {
-#  num.passed.tests=num.passed.tests+1
-#  print("Passed nodemix term test")
-#}
+ 
+num.tests=num.tests+1
+s.a <- summary(fmh ~ nodemix("Grade"))
+e.a <- ergm(samplike ~ nodemix("group"), MPLEonly=TRUE)
+s.ab <- summary(bipnw ~ nodemix("Letter"), base=0)
+e.ab <- ergm(bipnw ~ nodemix("Letter", base=2:6))
+s.ab2 <- summary(fmh ~ nodemix("Race", base=1))
+e.ab2 <- ergm(samplike ~ nodemix("Trinity", base=3:9))                
+if (!all(s.a == c(75, 0, 33, 0, 2, 23, 1, 4, 7, 9, 1,
+                  2, 6, 1, 17, 1, 1, 4, 5, 5, 6)) ||
+    !all(round(e.a$coef - c(0.1910552, -3.2958369, -2.1747517, -2.5649494,
+                           1.6094379, -3.2958369, -1.4916549, -1.0986123,
+                            0.9162907), 3) == 0) ||
+    !all(s.ab==c(9,8,8,7,7,5,4,6,6)) ||
+    !all(round(e.ab$coef+c(3.497, 4.431, 3.989, 3.989),3)==0) ||
+    !all(s.ab2==c(8,53,13,41,46,0,1,0,0,5,22,10,0,4)) ||
+    !all(round(e.ab2$coef+c(1.0116, .82098),3)==0)) {
+  print(list(s.a=s.a, e.a=e.a, s.ab=s.ab, e.ab=e.ab, s.ab2=s.ab2, e.ab2=e.ab2))
+  stop("Failed nodemix term test")
+} else {
+  num.passed.tests=num.passed.tests+1
+  print("Passed nodemix term test")
+}
 
 
 

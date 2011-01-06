@@ -267,9 +267,8 @@ if (s.0 != 18 || round(e.0$coef + .4366483, 3) != 0) {
 num.tests=num.tests + 1
 s.a <- summary(samplike~nodeicov("YearsServed"))
 e.a <- ergm(samplike~nodeicov("YearsServed"), MPLEonly=TRUE)
-t<-function(x) x^2                
-s.at <- summary(samplike~nodeicov("YearsServed", t))
-e.at <- ergm(samplike~nodeicov("YearsServed", t), MPLEonly=TRUE)
+s.at <- summary(samplike~nodeicov("YearsServed", function(x)x^2))
+e.at <- ergm(samplike~nodeicov("YearsServed", function(x)x^2), MPLEonly=TRUE)
 if (s.a != 439 || round(e.a$coef + .1739, 3) != 0 ||
     s.at != 2345 || round(e.at$coef + .02805, 3) != 0) {
  print(list(s.a=s.a, e.a=e.a, s.at=s.at, e.at=e.at))
@@ -303,9 +302,8 @@ if (!all(s.a==c(13,46)) ||
 num.tests=num.tests + 1
 s.a <- summary(samplike~nodeocov("YearsServed"))
 e.a <- ergm(samplike~nodeocov("YearsServed"), MPLEonly=TRUE)
-t<-function(x) x^2                
-s.at <- summary(samplike~nodeocov("YearsServed", t))
-e.at <- ergm(samplike~nodeocov("YearsServed", t), MPLEonly=TRUE)
+s.at <- summary(samplike~nodeocov("YearsServed", function(x)x^2))
+e.at <- ergm(samplike~nodeocov("YearsServed", function(x)x^2), MPLEonly=TRUE)
 if (s.a != 467 || round(e.a$coef + .1581, 3) != 0 ||
     s.at != 2691 || round(e.at$coef + .02243, 3) != 0) {
  print(list(s.a=s.a, e.a=e.a, s.at=s.at, e.at=e.at))
