@@ -13,8 +13,8 @@
 #########################################################################
 # The <mcmc.diagnostics.X> functions create diagnostic plots for the
 # MCMC sampled statistics of the ergm X and prints the Raftery-Lewis
-# diagnostics, indicating whether are sufficient or not; if X is not an
-# ergm, execution will halt
+# diagnostics, indicating whether they are sufficient or not; if X is not
+# an ergm, execution will halt
 #
 # --PARAMTERS--
 #   object : an ergm object, that has an MCMC established stats matrix
@@ -39,8 +39,8 @@
 #
 # --RETURNED--
 #   raft: a list containing
-#    params          : 
-#    resmatrix       :
+#    params          : ?? 
+#    resmatrix       : ??
 #    degeneracy.value: the degeneracy.value of 'object', as computed by
 #                      <ergm.degeneracy>
 #    degeneracy.type : the degeneracy.type of 'object', as computed by

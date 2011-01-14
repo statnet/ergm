@@ -1,18 +1,12 @@
 #################################################################################
 # The <anova.ergm> function computes an analysis of variance table for a
-# single linear model fit
+# single model fit
 #
 # --PARAMETERS--
 #   object:  an ergm object
 #   ...   :  additional ergm objects. If this argument is provided,
 #            the <anova.ergmlist> function is used instead
 #
-#
-# --IGNORED PARAMETERS--
-#   scale:  a numeric estimate of the noise variance, sigma^2; default=0,
-#           which estimates sigma^2 from the largest model considered
-#   test :  a character string, "F", "Chisq", or "Cp", specifying which
-#           test statistic to use; default="F"
 #
 # --RETURNED--
 #   an anova object with the analysis of variance table for the given ergm

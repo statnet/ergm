@@ -8,24 +8,32 @@
 #   Clist.miss       : the corresponding 'Clist' for the network of missing
 #                      edges returned by <ergm.design>            
 #   m                : the model, as returned by <ergm.getmodel>
-#   theta0           : either a vector whose first entry is "MPLE" or a vector
-#                      of initail coefficients
-#   theta.offset     : haven't yet found anyone who passes this is ; default=NULL
+#   theta0           : the vector of initial theta coefficients
+#   theta.offset     : a logical vector specifying which of the model
+#                      coefficients are offset, i.e. fixed  
 #   MPLEtype         : the method for MPL estimation as "penalized", "glm" or
 #                      "logitreg"; default="glm"    
 #   family           : the family to use in the R native routine <glm>; only
 #                      applicable if "glm" is the 'MPLEtype'; default="binomial"
 #   maxMPLEsamplesize: the sample size to use for endogenous sampling in the psuedo-
 #                      likelihood computation; default=1e6
-#   save.glm         :
+#   save.glm         : whether the mple fit and the null mple fit should be
+#                      returned (T or F); if false, NULL is returned for both;
+#                      default==TRUE
 #   maxNumDyadTypes  : the maximum number of unique psuedolikelihood change stats
 #                      to be allowed if 'compress'=TRUE; ignored if 
 #                      'compress'!=TRUE; default=1e+6    
-#   thetal           : haven't yet found anyone who passes this is ; default=NULL
+#   thetal           : the independence theta; if specified and non-NULL, this is
+#                      ignored except to return its value in the returned ergm;
+#                      default=NULL, in which case 'theta1' is computed
 #   conddeg          : an indicator of whether the MPLE should be conditional
 #                      on degree; non-NULL values indicate yes, NULL no;
-#                      default=NULL (I haven't yet found a function that passes this)   
-#   MCMCparams       : a list of MCMC related parameters; see X for details
+#                      default=NULL.
+#   MCMCparams       : a list of MCMC related parameters; recognized components
+#                      include:
+#         samplesize : the number of networks to sample
+#         Clist.miss : see 'Clist.miss' above; some of the code uses this Clist.miss,
+#                      some uses the one above, does this seem right?
 #   MHproposal       : an MHproposal object, as returned by <ergm.getMHproposal>
 #   verbose          : whether this and the C routines should be verbose (T or F);
 #                      default=FALSE

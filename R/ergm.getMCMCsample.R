@@ -1,37 +1,36 @@
 ########################################################################################
-# The <ergm.getMCMCsample> function samples a network using an MCMC algorithm via
-# <MCMC_wrapper.C> and returns the network as an edgelist and a stats matrix. Note
-# that the stats will be relative to the original network, i.e., the calling function
-# must shift the statistics if required. The calling function must also attach column
-# names to the statistics matrix if required.
+# The <ergm.getMCMCsample> function samples networks using an MCMC algorithm via
+# <MCMC_wrapper.C> and returns the stats matrix of the sampled networks and a single
+# network as an edgelist. Note that the stats will be relative to the original network,
+# i.e., the calling function must shift the statistics if required. The calling function
+# must also attach column names to the statistics matrix if required.
 #
 # --PARAMETERS--
 #   Clist     :  a list of parameters required by <MCMC_wrapper.C> and the result of
 #                calling <ergm.Cprepare>
 #   MHproposal:  a list of the parameters needed for Metropolis-Hastings proposals and
 #                the result of calling <MHproposal>
-#   eta0      :  the initial eta coefficients (these are passed in as theta coefs by
-#                <simulate.ergm>)
+#   eta0      :  the initial eta coefficients 
 #   verbose   :  whether the C functions should be verbose; default=FALSE 
 #   MCMCparams:  list of MCMC tuning parameters; those recognized include
-#                  maxedges      :  the maximum number of new edges that memory will be
-#                                   allocated for
-#                  samplesize    :  the number of networks to be sampled
-#                  nmatrixentries:  the number of entries the the returned 'statsmatrix'
-#                                   will have??
-#                  interval      :  the number of samples to ignore between sampled networks
-#                  burnin        :  the number of samples to initially ignore for the burn-in
-#                                   period
-#                  Clist.miss    :  a corresponding 'Clist' for the network of missing edges,
-#                                   as returned by <ergm.design>
-#                  Clist.dt      :  a list of ??
+#         maxedges      :  the maximum number of new edges that memory will be
+#                          allocated for
+#         samplesize    :  the number of networks to be sampled
+#         nmatrixentries:  the number of entries the the returned 'statsmatrix'
+#                          will have
+#         interval      :  the number of proposals to ignore between sampled networks
+#         burnin        :  the number of proposals to initially ignore for the burn-in
+#                          period
+#         Clist.miss    :  a corresponding 'Clist' for the network of missing edges,
+#                          as returned by <ergm.design>
+#         Clist.dt      :  yet another Clist, this one for fitting dynamic models 
 #
 #
 # --RETURNED--
-#   the sampled network and its statistics within a list containing:
-#     statsmatrix:  the stats matrix for the sampled network, coerced into the correct
-#                   dimesions and RELATIVE TO THE ORIGINAL NETWORK!
-#     edgelist   :  the edgelist for the sampled network
+#   the sample as a list containing:
+#     statsmatrix:  the stats matrix for the sampled networks, RELATIVE TO THE ORIGINAL
+#                   NETWORK!
+#     edgelist   :  the edgelist of the final?? sampled network
 #
 #########################################################################################
 

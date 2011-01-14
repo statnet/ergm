@@ -7,33 +7,10 @@
 
 
 
-
-###########################################################################
-# The <ergm.geodistdist> function calculates and returns the geodesic
-# distance distribution for a given network via <ergm.geodistn>.
-#
-# --PARAMETERS--
-#   nw      :  a network object
-#   directed:  whether the network nw is directed (T or F)
-#              default=is.directed(nw)
-#
-# --RETURNED--
-#   v: an n-length vector where
-#      v[i], i=1, ..., n-1 is the number of pairs of geodesic length i
-#      v[n] is the number of pairs of geodesic length infinity.
-#
-#
-# author: DH   12/03/2004
-#
-##############################################################################
-
 ergm.geodistdist<-function(nw, directed=is.directed(nw)){
  ergm.geodistn(edgelist=as.matrix.network(nw,matrix.type="edgelist"),
                n=nw$gal$n, directed=directed)/(2-is.directed(nw))
 }
-
-
-
 
 
 ###############################################################################
@@ -97,27 +74,10 @@ ergm.geodistn <- function(edgelist, n=max(edgelist), directed=FALSE) {
 
 
 
-###################################################################################
-# The <ergm.geodesicmatrix> function calculates and returns a matrix of the
-# shorted path lengths between all node for a given network, nw, via
-# <ergm.geodesicmatrix.edgelist>
-#
-# --PARAMETERS--
-#   nw      :  a network object
-#   directed:  whether the network nw is directed (T or F); default=is.directed(nw)
-#
-# --RETURNED--
-#   an n x n matrix, whose i,j entry is the shortest path length between nodes
-#   i and j
-#
-###################################################################################
-
 ergm.geodesicmatrix <- function(nw, directed=is.directed(nw)){
  ergm.geodesicmatrix.edgelist(edgelist=as.matrix.network(nw,matrix.type="edgelist"),
                n=network.size(nw), directed=directed)
 }
-
-
 
 
 

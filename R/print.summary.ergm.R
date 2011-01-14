@@ -12,7 +12,8 @@
 #                 should be printed (T or F); default=FALSE
 #   signif.stars: whether stars are to be printed on summary tables of
 #                 coefficients (T or F); default=getOption("show.signif.stars")
-#   eps         : the tolerance to be passed to the R <printCoefmat> function
+#   eps         : the tolerance to be passed to the R <printCoefmat> function;
+#                 default=.0001
 #   ...         : additional parameters to be passed to <printCoefmat> 
 #
 # --RETURNED--

@@ -11,10 +11,9 @@
 #
 #
 # --RETURNED--
-#   a list of the parameters needed by to ??? and containing
+#   a list of the parameters needed by who?? to do what ?? and containing
 #     parms.curved: a list of the input parameters for each curved term
-#     eta0  : the vector of curved eta 'm.expanded' coefficients mapped
-#             from 'theta0'
+#     eta0  : the vector of canonical eta parameters mapped from 'theta0'
 #     theta0: 'theta0' concatenated with the input parameters of the curved
 #             terms
 #     theta1: a vector of FALSE's for each class of curved terms represented

@@ -3,8 +3,8 @@
 # gradient of eta with a vector v
 #
 # --PARAMETERS--
-#   theta :  the canonical parameters
-#   v     :  a vector of the same length as vector of mapped eta parameters
+#   theta :  the curved model parameters
+#   v     :  a vector of the same length as the vector of mapped eta parameters
 #   etamap:  the list constituting the theta-> eta mapping returned by <ergm.etamap>
 #
 # --RETURNED--

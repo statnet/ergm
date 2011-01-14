@@ -1,5 +1,5 @@
 #===================================================================
-# This file contains the following 3 files for fitting and 
+# This file contains the following 3 files for penalized glm fits
 #             <ergm.pen.glm>
 #             <logistftest>
 #             <model.matrix.pen.glm>
@@ -15,8 +15,8 @@
 # --PARAMETERS--
 #   formula: a formula 'y ~ x + ..', presumably y as the 'zy' returned by 
 #            <ergm.pl> and x as 'xmat' returned by <ergm.pl>
-#   data   : ?? this is passed in as a data.frame, but this code uses this
-#            variable as an enviroment; default=sys.parent()
+#   data   : the dataframe or environment in which to find the variables
+#            contained in 'formula'; default=sys.parent()
 #   alpha  : ??, this code merely returns 'alpha', and no caller provides
 #            an alpha; default=0.05
 #   maxit  : the maximum number of iterations to use in this fitting;
@@ -34,7 +34,7 @@
 # --RETURNED--
 #   fit: a 'pen.glm' object as a list containing:
 #     coefficients     : the theta coefficients maximizing the penalized
-#                        aproach?? 
+#                        log-likelihood
 #     alpha            : the 'alpha' above 
 #     var              : the covariance matrix
 #     df               : the degrees of freedom

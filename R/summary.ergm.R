@@ -7,7 +7,6 @@
 #
 #
 # --IGNORED PARAMETERS--
-#   ...        : used for flexibility
 #   digits     : significant digits for the coefficients;default=
 #                max(3,getOption("digits")-3), but the hard-coded value is 5
 #   correlation: whether the correlation matrix of the estimated parameters

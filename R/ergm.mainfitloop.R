@@ -16,13 +16,11 @@
 #                    by <ergm.initialfit>
 #   MCMCparams     : a list of parameters for controlling the MCMC sampling;
 #                    recognized components include
-#     samplesize   : the number of MCMC sampled networks
-#     maxit        : the maximum number of iterations to use
-#     Clist.miss   : the 'Clist' for the network of missing edges, as
+#       samplesize : the number of MCMC sampled networks
+#       maxit      : the maximum number of iterations to use
+#       Clist.miss : the 'Clist' for the network of missing edges, as
 #                    returned by <ergm.design>
-#     epsilon      : ??, this is passed to <ergm.estimate>, which ignores it;
-#                    also, this is used in place of the 'epsilon' argument for
-#                    function
+#        epsilon   : ??, this is passed to <ergm.estimate>, which ignores it;
 #   MHproposal     : an MHproposal object for 'nw', as returned by
 #                    <getMHproposal>
 #   MHproposal.miss: an MHproposal object for the missing network of'nw',

@@ -3,12 +3,12 @@
 # theta using the etamap object created by <ergm.etamap>.
 #
 # --PARAMETERS--
-#   theta :  the canonical model parameters  
+#   theta :  the curved model parameters  
 #   etamap:  the list of values that constitutes the theta-> eta mapping
 #            and is returned by <ergm.etamap>
 #
 # --RETURNED--
-#   eta:  the curved eta parameters as mapped from theta; infinite parameters
+#   eta:  the canonical eta parameters as mapped from theta; infinite parameters
 #         are replaced by -10000
 #
 ###############################################################################

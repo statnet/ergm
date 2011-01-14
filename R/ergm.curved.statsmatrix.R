@@ -4,7 +4,7 @@
 #
 # --PARAMETERS--
 #   statsmatrix:  the matrix of sampled summary statistics
-#   theta      :  the canonical model parameters producing
+#   theta      :  the  model parameters producing
 #                 'statsmatrix'
 #   etamap     :  the theta-> eta mapping, as returned by <ergm.etamap> 
 #                   

@@ -5,7 +5,7 @@
 # efficient <ergm.etagradmult> is recommended.
 #
 # --PARAMETERS--
-#   theta :  the vector canonical parameters 
+#   theta :  the vector of curved model parameters 
 #   etamap:  the list constituting the theta-> eta mapping that is returned by
 #            <ergm.etamap>
 #
@@ -13,7 +13,6 @@
 #   etagrad: a matrix of the gradient of eta 
 #
 ################################################################################
-
 
 ergm.etagrad <- function(theta, etamap) {
   etagrad <- matrix(0, length(theta), etamap$etalength)

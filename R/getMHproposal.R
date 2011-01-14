@@ -126,9 +126,9 @@ MHproposal.character <- function(object, arguments, nw, model, ...){
 #   nw         :  a network object
 #   model      :  a model object; default=<ergm.getmodel(object$formula,nw,...)>  
 #   constraints:  the constraints as a one sided formula '~ term(s)'
-#   weights    :  the proposal weights component of <control.ergm> as either
-#                 "TNT", "random", "TNT10", or "default"; default="default"
-#                 (this doesn't agree with the prop.weights of <control.ergm>)
+#   weights    :  specifies the method used to allocate probabilities of being proposed
+#                 to dyads; options are "TNT", "TNT10", "random", "nonobserved" and
+#                 "default"; default="default"                                           
 #   class      :  "c", otherwise execution will halt
 #
 ########################################################################################

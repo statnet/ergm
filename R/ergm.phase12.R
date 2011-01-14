@@ -17,17 +17,16 @@
 #               <control.ergm> function header; 'stats' seems to be
 #                used as the mean statistics; 'meanstats' is merely
 #                returned.
-#               
 #   verbose   : whether the C functions should be verbose (T or F)
-#
 #
 # --RETURNED--
 #   a list containing
 #     statsmatrix: the matrix of summary statistics
-#     newnetwork : the ?? network from ?? 
+#     newnetwork : the final network sampled
 #     meanstats  : the 'meanstats' from 'MCMCparams'
 #     maxedges   : the 'maxedges' from 'MCMCparams'
-#     eta        : ??
+#     eta        : the parameters used to produce the sample given
+#                  by 'statsmatrix'
 #
 ###############################################################################
 

@@ -5,8 +5,7 @@
 # 
 # --PARAMETERS--
 #   theta0        :  either a vector whose first entry is "MPLE" or a vector
-#                    of initail coefficients; THIS FUNCTION WILL BREAK IF 
-#                    'theta0' has "MPLE" as any entry but the first
+#                    of initail coefficients
 #   MLestimate    :  whether a MLestimate should be used (T or F); 
 #                       if TRUE, this may be overriden by 'force.MPLE'=TRUE  or
 #                                theta0=c("MPLE", ...)
@@ -26,9 +25,9 @@
 #                    or "MPLE" is an entry into 'theta0'; default=FALSE
 #   verbose       :  whether the MPL estimation should be verbose (T or F); 
 #                    default=FALSE
-#   ...           :  addtional parameters that are used with MPL estimation and
-#                    may be set via <control.ergm>
-#
+#   ...           :  addtional parameters that are used with MPL estimation;
+#                    the only recognized parameeter is 'compressflag' which
+#                    compresses the design matrix used by <ergm.mple>        
 #
 # --RETURNED--
 #    an ergm object as one of the following lists

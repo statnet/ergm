@@ -169,7 +169,7 @@ ergm.checkdirected <- function(fname, nw.directedflag, requirement,
 #
 # --RETURNED--
 #   degen: whether the ergm model is degenerate, in the sense that
-#          their was no varibility in the statsmatrix (T or F)
+#          there was no varibility in the statsmatrix (T or F)
 #
 #################################################################################
 

@@ -1,6 +1,6 @@
 #==========================================================================
-# This file contains the following 4 functions for calculating
-# log likelihoods when missing data is present
+# This file contains the following 14 functions for computing log likelihoods,
+# gradients, hessians, and such for networks with missing data
 #          <llik.fun.miss>         <llik.hessian.miss>
 #          <llik.grad.miss>        <llik.fun.miss.robust>
 #=========================================================================
@@ -10,28 +10,27 @@
 
 
 ###################################################################################
-# Each of the <llik.X.miss> functions computes the log likelihood ratio,
-# l(eta)-l(eta0) for networks that have missing edges; these functions parallel
-# the <llik.X> functions found in <ergm.llik> but are missing-data capable; these
-# are used by the <optim> rountine in <ergm.estimate> 
+# Each of the <llik.X> functions computes either a likelihood function, a gradient
+# function, or a Hessian matrix;  Each takes the same set of input parameters and
+# these are described below; the return values differ however and so these are
+# described above each function.   
 # 
 #
 # --PARAMETERS--
 #   theta      : the vector of theta parameters; this is only used to solidify
-#                offset coefficients for profile likelihood; the not-offset
-#                terms are given by 'theta0' of the 'etamap'
-#   xobs       : the vector of observed statistics (when passed by <ergm.estimate>
-#                these are the negative mean observed stats)
-#   xsim       : the matrix of simulated ?? statistics (when passed by <ergm.estimate>
-#                this is the mean centered stats matrix)
+#                offset coefficients; the not-offset terms are given by 'theta0'
+#                of the 'etamap'
+#   xobs       : the vector of observed statistics
+#   xsim       : the matrix of simulated statistics
 #   probs      : the probability weight for each row of the stats matrix
 #   xsim.miss  : the 'xsim' counterpart for missing observations
 #   probs.miss : the 'probs' counterpart for missing observations
-#   varweight  : the weight by which the variance of the base predictions will scaled;
-#                the name of this param was changed from 'penalty' to better reflect
-#                what this parameter actually is; default=0.5, which is the "true" 
-#                weight, in the sense that the lognormal approximation is given by
-#                               sum(xobs * x) - mb - 0.5*vb 
+#   varweight  : the weight by which the variance of the base predictions will be
+#                scaled; the name of this param was changed from 'penalty' to better
+#                reflect what this parameter actually is; default=0.5, which is the
+#                "true"  weight, in the sense that the lognormal approximation is
+#                given by
+#                           sum(xobs * x) - mb - 0.5*vb
 #   trustregion: the maximum value of the log-likelihood ratio that is trusted;
 #                default=20
 #   eta0       : the initial eta vector
@@ -43,6 +42,15 @@
 #
 ####################################################################################
 
+
+
+
+#####################################################################################
+# --RETURNED--
+#   llr: the log-likelihood ratio of l(eta) - l(eta0) using a lognormal
+#        approximation; i.e., assuming that the network statistics are approximately
+#        normally  distributed so that exp(eta * stats) is lognormal
+#####################################################################################                           
 llik.fun.miss <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
                      varweight=0.5, trustregion=20, eta0, etamap){
   theta.offset <- etamap$theta0
@@ -85,6 +93,10 @@ llik.fun.miss <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=N
 
 
 
+#####################################################################################
+# --RETURNED--
+#   llg: the gradient of the not-offset eta parameters with ??
+#####################################################################################
 
 llik.grad.miss <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=NULL,
                       varweight=0.5, trustregion=20, eta0, etamap){
@@ -126,6 +138,11 @@ llik.grad.miss <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss
 }
 
 
+
+#####################################################################################
+# --RETURNED--
+#   He: the ?? Hessian matrix
+#####################################################################################
 
 llik.hessian.miss <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
                          varweight=0.5, eta0, etamap){
@@ -185,11 +202,11 @@ llik.hessian.miss <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.mi
 
 
 
-
-#
-#  robust missing data code
-#
-
+#####################################################################################
+# --RETURNED--
+#   llr: the log-likelihood ratio of l(eta) - l(eta0) using ??
+#                "robust missing data code"
+#####################################################################################
 
 llik.fun.miss.robust<- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
                      varweight=0.5, trustregion=20, eta0, etamap){

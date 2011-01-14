@@ -18,7 +18,8 @@
 #                      default=lag.max
 #
 # --RETURNED--
-#   mcse: the vector of MCMC lognormal standard error estimates for each theta parameter
+#   mc.se: the vector of MCMC lognormal standard error estimates for each theta
+#          parameter
 #
 ################################################################################
 

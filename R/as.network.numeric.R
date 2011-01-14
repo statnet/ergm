@@ -2,7 +2,6 @@
 # The <as.network.numeric> function creates and returns a bernouli
 # network.
 #
-#
 # --PARAMETERS--
 #   x        : for a non-bipartite network, the number of nodes;
 #              for a bipartite network, the number of events.

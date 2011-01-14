@@ -23,10 +23,10 @@
 #                generator; default=NULL
 #   theta0     : a vector of initial values for the theta coefficients;
 #                default=those returned by <ergm.mple>
-#   tau        : ??;  default=1
-#   invcov     : the covariance matrix?; default=that from the mple
-#                fit if 'theta0'=NULL, else default=the identity matrix
-#                of size 'theta0'
+#   invcov     : the initial inverse covariance matrix used to
+#                calculate the Mahalanobis distance; default=that 
+#                from the mple fit if 'theta0'=NULL, else default=the
+#                identity matrix of size 'theta0'
 #   burnin     : the number of proposal to disregard before sampling
 #                begins; default=1e4
 #   interval   : the number of proposals between sampled statistics;
@@ -43,9 +43,15 @@
 #                the support of the distribution of the networks being
 #                modeled; a list of availabe options is described in the
 #                <ergm> R documentation; default=~.
+#   control    : a control list for tuning the MHproposals and other
+#                elements of the fit; default=<control.san>()
 #   verbose    : whether this and the C program should be verbose;
 #                default=FALSE
 #   ...        : additional parameters that will passed onto <ergm.mple>
+#
+# --IGNORED--
+#   tau:  this is passed along to several C functions; its use in
+#         <SANMetropolisHastings.c> is commented out
 #
 # --RETURNED--
 #   outlist: either a single sampled network if 'nsim'=1, else a

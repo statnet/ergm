@@ -23,7 +23,8 @@
 #                        default=TRUE;
 #      check.uniqueness: whether edges must be unique (T or F);
 #                        default=TRUE;
-#      check.sorted    : ignored parameter
+#      check.sorted    : whether to sort the edgelist (T or F);
+#                        default=TRUE;
 #
 # --RETURNED--
 #   the edge list corresponding to x under the following assumptions about

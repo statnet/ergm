@@ -5,7 +5,7 @@
 #   x     :  an ergm object
 #   digits:  the number of significant digits for the coefficients;
 #            default=max(3, getOption("digits")-3)
-#   ...   :  additional parameters passed form within; these will be ignored
+#   ...   :  additional parameters passed from within; these will be ignored
 #
 # --RETURNED--
 #   x

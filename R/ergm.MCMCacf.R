@@ -1,6 +1,6 @@
 ##########################################################################
 # The <ergm.MCMCacf> function computes and returns the auto correlation
-# matrix of the MCMC smapling
+# matrix of the MCMC sample
 #
 # --PARAMETERS--
 #   statsmatrix:  the matrix of network statistics

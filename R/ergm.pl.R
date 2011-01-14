@@ -1,7 +1,7 @@
 ###############################################################################
 # The <ergm.pl> function prepares many of the components needed by <ergm.mple>
 # for the regression rountines that are used to find the MPLE estimated ergm;
-# this is largely done through <MPLE_wrapper.C>
+# this is largely done through <MPLE_wrapper.C> or <MPLEconddeg_wrapper>
 #
 # --PARAMETERS--
 #   Clist            : a list of parameters used for fitting and returned
@@ -20,12 +20,12 @@
 #                      the correct size; default=1e6
 #   conddeg          : an indicator of whether the MPLE should be conditional
 #                      on degree; non-NULL values indicate yes, NULL no;
-#                      default=NULL (I haven't yet found a function that passes this)
+#                      default=NULL 
 #   MCMCparams       : a list of MCMC related parameters; recognized variables
 #                      include:
-#      samplesize    : the number of networks to sample, which will inform the size
+#         samplesize : the number of networks to sample, which will inform the size
 #                      of the returned 'xmat'
-#      Clist.miss    : see 'Clist.miss' above; some of the code uses this Clist.miss,
+#         Clist.miss : see 'Clist.miss' above; some of the code uses this Clist.miss,
 #                      some uses the one above, does this seem right?
 #   MHproposal       : an MHproposal object, as returned by <ergm.getMHproposal>
 #   verbose          : whether this and the C routines should be verbose (T or F);

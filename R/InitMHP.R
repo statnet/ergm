@@ -1,13 +1,13 @@
 #======================================================================
 # The <InitMHP> file contains the following 14 functions for
-# initializing the MHproposal object.
-#       <InitMHP.randomtoggle>       <InitMHP.CondInDegreeDist>
-#       <InitMHP.TNT>                <InitMHP.CondOutDegreeDist>
-#       <InitMHP.TNT10>              <InitMHP.ConstantEdges>
-#       <InitMHP.CondDegree>         <InitMHP.HammingConstantEdges>
-#       <InitMHP.CondDegreeTetrad>   <InitMHP.HammingTNT>
-#       <InitMHP.CondDegreeHexad>    <InitMHP.randomtoggleNonObserved>      
-#       <InitMHP.CondDegreeDist>     <InitMHP.nobetweengroupties>
+# initializing the MHproposal object; each is prepended with 'InitMHP.'
+#       <randomtoggle>       <CondInDegreeDist>
+#       <TNT>                <CondOutDegreeDist>
+#       <TNT10>              <ConstantEdges>
+#       <CondDegree>         <HammingConstantEdges>
+#       <CondDegreeTetrad>   <HammingTNT>
+#       <CondDegreeHexad>    <randomtoggleNonObserved>      
+#       <CondDegreeDist>     <nobetweengroupties>
 #======================================================================
 
 

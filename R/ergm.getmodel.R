@@ -29,9 +29,7 @@
 #   a 'model.ergm' object as a list containing:
 #     formula       :  the formula inputted to <ergm.getmodel>
 #     coef.names    :  a vector of coefficient names
-#     offset        :  a logical vector of whether each term was "offset", where this
-#                      refers to which terms should be held constant for the profile
-#                      likelihood
+#     offset        :  a logical vector of whether each term was "offset", i.e. fixed
 #     terms         :  a list of terms and 'term components' initialized by the 
 #                      appropriate <InitErgmTerm.X> function.  See the <InitErgm> 
 #                      function header for details about the 'terms' list

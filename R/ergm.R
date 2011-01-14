@@ -11,7 +11,7 @@
 #   MPLEonly      :  whether MPL estimation should be used (T or F); this is
 #                    ignored if 'MLestimate' is set; default=FALSE
 #   MLestimate    :  whether ML estimation should be used (T or F);
-#                    default=!'MPLEonly'
+#                    default='MPLEonly'
 #   seed          :  an integer starting value for the random number generator;
 #                    default=NULL
 #   burnin        :  the number of proposals to ignore before MCMC sampling
@@ -36,13 +36,16 @@
 #
 # --RETURNED--
 #   because an ergm object is the return type of several functions, and
-#   because this is a rather lengthy list, this list represents the return
-#   type for all funtions returning an ergm. The symbol preceding each
-#   component indicates which function returns it:
+#   because this is a rather lengthy list, and because the returned items
+#   of this function borrow from the other ergm.* functions, this list
+#   provides the returned items for all funtions returning an ergm.
+#   The symbol preceding each component indicates which function returns it,
+#   but remember that, <ergm> will additionally return the items from
+#   one of the other ergm functions as well:                               
 #       <ergm>             = $
 #       <ergm.mainfitloop> = *
 #       <ergm.mple>        = !
-#       <ergm.initialfit>  = @
+#       <ergm.stepping>    = @
 #       <ergm.stocapprox>  = %
 #       <ergm.estimate>    = ^
 #       <ergm.robmon>      = &
@@ -50,8 +53,13 @@
 #   the components include:
 #    
 #    $*!@%^&  coef            :  the vector of estimated model coefficients
-#    $*!@%^&  sample          :  the row-binded matrix of network statistics from
-#                                each sample
+#    $* @%^&  sample          :  the row-binded matrix of network statistics from
+#                                each sample; 'sample' will also have 2 attributes:
+#                mcpar        : the following vector taken from MCMCparams:
+#                                     c(burnin+1, endrun, interval)
+#                               where 'endrun' is defined as
+#                                  burnin+interval*(samplesize-1)
+#                class        : "mcmc"
 #    $*!@%^&  iterations      :  the number of Newton-Raphson iterations required
 #                                before convergence
 #    $*!@%^&  MCMCtheta       :  the vector of natural parameters used to produce
@@ -87,7 +95,7 @@
 #    $        offset          :  a vector of whether each model parameter was set at
 #                                a fixed value (not estimated)
 #    $        drop            :  list of dropped terms
-#     * @%^   sample.miss     :  the matrix of sample network statistics for those
+#     * @%^&  sample.miss     :  the matrix of sample network statistics for those
 #                                networks with missing edges
 #     * @     parallel        :  the number of additional threads used when sampling
 #      !      hessian         :  the 
@@ -98,7 +106,8 @@
 #                                returned by <ergm.logitreg>, <ergm.pen.glm> or <glm>
 #                                depending on the 'MPLEtype';
 #      !      theta1          :  the vector of ??
-#         &   rm.coef         :  the vector of estimated model coefficients
+#         &   rm.coef         :  the robmon coefficients used as 'theta0' in the final
+#                                estimation
 #      !      loglikelihoodratio: the log-likelihood corresponding to
 #                                 'coef'
 #

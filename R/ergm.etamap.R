@@ -1,6 +1,6 @@
 ###########################################################################
 # The <ergm.etamap> function takes a model object and creates a mapping
-# from the canonical parameters, theta, to the curved eta parameters;
+# from the model parameters, theta, to the canonical eta parameters;
 # the mapping is carried out by <ergm.eta>
 #
 # --PARAMETERS--
@@ -8,27 +8,27 @@
 #
 # --RETURNED--
 #   etamap: the theta -> eta mapping given by a list of the following:
-#           canonical  : a numeric vector whose ith entry specifies whether
-#                        the ith component of theta is canonical (via non-
-#                        negative integers) or curved (via zeroes)
-#           offsetmap  : a logical vector whose ith entry tells whether the
-#                        ith coefficient for the model was "offset", i.e fixed 
-#           offset     : a logical vector whose ith entry tells whether the
-#                        ith model term was offset/fixed
-#           offsettheta: a logical vector whose ith entry tells whether the
-#                        ith curved coeffient?? was offset/fixed 
-#           curved     : a list with one component per curved EF term in the
-#                        model containing
-#                from    : the indices of the theta parameter that are to be
-#                          mapped from
-#                to      : the indices of the curved eta parameters to be
-#                          mapped to
-#                map     : the map provided by <InitErgmTerm> or <InitErgm>
-#                gradient: the gradient function provided by <InitErgmTerm> or
-#                          <InitErgm>
-#                cov     : the eta covariance ??, possibly always NULL (no
-#                          <Init> function creates such an item)
-#           etalength  : the length of the eta vector
+#     canonical  : a numeric vector whose ith entry specifies whether
+#                  the ith component of theta is canonical (via non-
+#                  negative integers) or curved (via zeroes)
+#     offsetmap  : a logical vector whose ith entry tells whether the
+#                  ith coefficient of the canonical parameterization
+#                  was "offset", i.e fixed 
+#     offset     : a logical vector whose ith entry tells whether the
+#                  ith model term was offset/fixed
+#     offsettheta: a logical vector whose ith entry tells whether the
+#                  ith curved theta coeffient was offset/fixed;
+#     curved     : a list with one component per curved EF term in the
+#                  model containing
+#         from    : the indices of the curved theta parameter that are
+#                   to be mapped from
+#         to      : the indices of the canonical eta parameters to be
+#                   mapped to
+#         map     : the map provided by <InitErgmTerm>
+#         gradient: the gradient function provided by <InitErgmTerm> 
+#         cov     : the eta covariance ??, possibly always NULL (no
+#                   <Init> function creates such an item)
+#     etalength  : the length of the eta vector
 #
 ###############################################################################
 
