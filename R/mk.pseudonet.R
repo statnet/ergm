@@ -1,3 +1,28 @@
+##################################################################################
+# The <mk.pseduonet> function creates a network that has correct or near-correct
+# mean statistics
+#
+# --PARAMETERS--
+#   meanstats: a vector of the mean statistics, from which the network will
+#              created
+#   f        : a formula specifying the statistics which correspond to the
+#              'meanstats'
+#   y        : a network object to serve as the starting network; the size and
+#              directed and bipartite attributes of the returned network will
+#              be determined by 'y'
+#   ntoggles : the maximum number of toggles to try during each iteration
+#              of the main loop; default=length(meanstats)+1
+#   covS     : the number of ?? ; default=length(meanstats)^2*8
+#   verbose  : a numeric verbosity value; 0 prints no additional info; 1 and 2
+#              print similar amounts of info, with 2 printing the additional
+#              summary of 'y' during each iteration of the main loop
+#
+# --RETURNED--
+#   y: a network whose mean statistics agree or closely agree with the
+#      'meanstats' provided
+#
+##################################################################################
+
 mk.pseudonet<-function(meanstats,f,y,ntoggles=length(meanstats)+1,covS=length(meanstats)^2*8,verbose=FALSE){
   if(verbose) cat("Constructing a fake network with correct (or close) meanstats:\n")
   oldwarn<-options()$warn

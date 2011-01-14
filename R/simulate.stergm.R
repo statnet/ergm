@@ -1,3 +1,80 @@
+#========================================================================
+# This file contains the following 2 functions for simulating stergms
+#           <simulate.stergm>
+#           <simulate.formula.stergm>
+#========================================================================
+
+
+########################################################################
+# Each of the <simulate.X> functions collects a given number of networks
+# drawn from the given distribution on the set of all networks; these
+# may be returned as only the vector/matrix of sufficient statistics or
+# as the networks and their statistics
+#
+# --PARAMETERS--
+#   object       : either a stergm or a formation formula of the form
+#                  'nw ~ term(s)'
+#   dissolution  : for a formula 'object', this is the corresponding
+#                  dissolution formula
+#   nsim         : the number of networks to draw; default=1
+#   seed         : an integer at which to set the random generator;
+#                  default=NULL
+#   theta.form   : the initial theta formation coefficients;
+#                  default='object'$coef.form for stergm objects and
+#                  default= a vector of 0's for formula objects
+#   theta.diss   : the initial theta dissolution coefficients;
+#                  default='object'$coef.diss for stergm objects and
+#                  default= a vector of 0's for formula objects
+#   time.burnin  : the number of MCMC steps to disregard before any MCMC
+#                  sampling is done; default=0
+#   time.interval: the number of MCMC steps between sampled networks;
+#                  default=1
+#    MH.burnin   : this is received as 'MH_interval' and determines the
+#                  number of MH proposals used in each MCMC step;
+#                  default='object'$MH.burnin for stergm objects;
+#                  default=1000 for formula objects
+#   constraints  : a one-sided formula specifying the constraints on the
+#                  support of the distribution of networks being simulated;
+#                  default='object'$constraints for stergms, "~." for formulas
+#   stergm.order : the string describing the formation and dissolution order;
+#                  default='object'$stergm.order for stergms, "DissAndForm"
+#                  for formulas
+#   control      : a list of control parameters for algorithm tuning;
+#                  default=<control.simulate.stergm>
+#   toggles      : whether 'changed', the toggle matrix of timestamps and
+#                  toggles, should be included in the return list (T or F);
+#                  'toggles' will be switched to FALSE if either of
+#                  'time.burnin' or 'time.interval' do not have their default
+#                  values; default=TRUE
+#   verbose      : whether to print out information on the status of
+#                  the simulations; default=FALSE
+#
+# --RETURNED--
+#   only 
+#      nw:  the final network from the simulation routine
+#   if 'control$final'=TRUE (the default is FALSE)
+#   otherwise
+#     outlist: a network.series object as a list containing:
+#        formation  : the formation formula
+#        dissolution: the dissolution formula
+#        coef.form  : the passed in or defaulted 'coef.form'
+#        coef.diss  : the passed in or defaulted 'coef.diss'
+#        networks   : the list of simulated networks
+#        constraints: the constraints formula
+#        stats.form : the matrix of sampled statistics for 'model.form'
+#        stats.diss : the matrix of sampled statistics for 'model.form'
+#        changed    : a toggle matrix, where the first column is
+#                     the timestamp of the toggle and the 2nd and 3rd
+#                     columns are the head & tail of the toggle; this
+#                     is only returned if the input param 'toggles'
+#                     ends up being TRUE (see above) 
+#                    'changed' will also have 2 attributes:
+#            start  : 1
+#            end    : the number of simulations
+#        maxchanges : the size of "MCMC Dyn workspace"
+#
+###############################################################################
+
 simulate.stergm<-function(object,
                           nsim=1, seed=NULL,
                           theta.form=object$coef.form,theta.diss=object$coef.diss,
@@ -9,6 +86,9 @@ simulate.stergm<-function(object,
                         verbose=FALSE, ...){
   simulate.formula.stergm(object$formation,object$dissolution,nsim=nsim,seed=seed,theta.form=theta.form, theta.diss=theta.diss,  time.burnin=time.burnin, time.interval=time.interval,MH.burnin=MH.burnin,constraints=constraints,stergm.order=stergm.order,control=control,verbose=verbose,...)
 }
+
+
+
 
 simulate.formula.stergm <- function(object, dissolution, nsim=1, seed=NULL,
                                 theta.form,theta.diss,

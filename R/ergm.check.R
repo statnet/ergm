@@ -1,16 +1,43 @@
+#============================================================================
+# This file contains the following 4 functions for checking ergm arguments
+#          <ergm.checkargs>           <ergm.checkdirected>
+#          <ergm.checkbipartite>      <ergm.checkdegeneracy>
+#============================================================================
+
+
+
+
+
+######################################################################################
+# The <ergm.checkargs> function ensures for the <InitErgm.X> function that the
+# term X:
+#   1) has an appropiate number of arguments
+#   2) has correct argument types if arguments where provieded
+#   3) has default values assigned for non-required arguments
+# by halting execution if either of the first 2 criteria are not met
+#
+# --PARAMETERS--
+#  fname        : the name of the model term as a character string
+#  arglist      : the list of arguments for term X
+#  varnames     : the vector of names of the possible arguments for term X;
+#                 default=NULL 
+#  vartypes     : the vector of types of the possible arguments for term X;
+#                 default=NULL 
+#  defaultvalues: the list of default values for the possible arguments of term X;
+#                 default=list()
+#  required     : the logical vector of whether each possible argument is required;
+#                 default=NULL
+#
+# --RETURNED--
+#   a vector containing the following 2 variables:
+#     .conflicts.OK: always TRUE
+#     out          : a list of the values for each possible argument of term X;
+#                    user provided values are used when given, default values otherwise.
+#
+######################################################################################
+
 ergm.checkargs <- function(fname, arglist, varnames=NULL, vartypes=NULL,
                            defaultvalues=list(), required=NULL) {
-# ergm.checkargs will check to make sure that the inputs to each model
-# term are of the correct type, assign default values if applicable,
-# and then return a list with elements (var1=var1value, var2=var2value, etc.)
-# Note that the list returned will contain the maximum possible number of
-# arguments; any arguments without values are returned as NULL.
-#   Inputs:  fname is a character giving the name of the model term.
-#            arglist is the list of arguments passed from ergm.getmodel
-#            varnames is a vector of variable names
-#            vartypes is a vector of corresponding variable types
-#            defaultvalues is a list of default values (NULL means no default)
-#            required is a vector of logicals:  Is this var required or not?
   sr=sum(required)
   lv=length(varnames)
   la=length(arglist)
@@ -63,6 +90,25 @@ ergm.checkargs <- function(fname, arglist, varnames=NULL, vartypes=NULL,
   c(.conflicts.OK=TRUE,out)
 }
 
+
+
+#################################################################################
+# The <ergm.checkdirected> function halts execution for the <InitErgm> functions
+# with an error message if the given model term cannot be used with the network
+# because of its bipartite state
+#
+# --PARAMETERS--
+#   fname            : the name of the model term as a character string
+#   nw.bipartiteflag : whether the network is bipartite (T or F)
+#   requirement      : whether the term requires a bipartite network (T or F)
+#   extramessage     : additional messages to attach to the warning;
+#                      default value = ""
+#
+# --RETURNED--
+#   NULL
+#
+#################################################################################
+
 ergm.checkbipartite <- function(fname, nw.bipartiteflag, requirement,
                                extramessage="") {
   if (!nw.bipartiteflag && requirement)
@@ -72,6 +118,26 @@ ergm.checkbipartite <- function(fname, nw.bipartiteflag, requirement,
     stop(paste(fname, "model term may not be used with a bipartite network.",
                extramessage), call.=FALSE)
 }
+
+
+
+
+#################################################################################
+# The <ergm.checkdirected> function halts execution for the <InitErgm> functions
+# with an error message if the given model term cannot be used with the network
+# because of its state as (un)directed
+#
+# --PARAMETERS--
+#   fname           : the name of the model term as a character string
+#   nw.directedflag : whether the network is directed (T or F)
+#   requirement     : whether the term requires a directed network (T or F)
+#   extramessage    : additional messages to attach to the warning;
+#                     default value = ""
+#
+# --RETURNED--
+#   NULL
+#
+#################################################################################
 
 ergm.checkdirected <- function(fname, nw.directedflag, requirement,
                                extramessage="") {
@@ -84,8 +150,30 @@ ergm.checkdirected <- function(fname, nw.directedflag, requirement,
 }
 
 
-ergm.checkdegeneracy <- function(statsmatrix, statsmatrix.miss=NULL, verbose=FALSE) {
+
+
+
+#################################################################################
+# The <ergm.checkdegeneracy> function checks for degeneracy by looking for
+# variability in the stats matrix 
 #
+# --PARAMETERS--
+#   statsmatrix :  the matrix of summary sample statistics
+#   verbose     :  whether the degeneracy warning should be printed (T or F)
+#
+#
+# --IGNORED PARAMETERS--
+#   statsmatrix.miss : the matrix of summary sample statistics from the
+#                      network of (possibly) missing edges; default=NULL
+#
+#
+# --RETURNED--
+#   degen: whether the ergm model is degenerate, in the sense that
+#          there was no varibility in the statsmatrix (T or F)
+#
+#################################################################################
+
+ergm.checkdegeneracy <- function(statsmatrix, statsmatrix.miss=NULL, verbose=FALSE) {
  degen <- FALSE
  novar <- apply(statsmatrix,2,var)<1e-6
  if(all(novar)){
@@ -95,7 +183,6 @@ ergm.checkdegeneracy <- function(statsmatrix, statsmatrix.miss=NULL, verbose=FAL
   }
   degen <- TRUE
  }
-# 
 #  ########### from ergm.estimate:
 #   # First, perform simple check to see if observed statistics
 #   # (all zeros) lie outside the range of the MCMC sample statistics.

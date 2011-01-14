@@ -1,3 +1,45 @@
+###############################################################################
+# The <ergm.mapl> function creates an initial fit for a specified formula
+#
+# --PARAMETERS--
+#   formula     :  a formula of the form 'nw ~ model term(s)'
+#   theta0      :  a vector of starting values for estimation, or optionally
+#                  if these are to be estimated, the string "MPLE";
+#                  default="MPLE"
+#   nsim        :  the number of simulations to use in forming the initial
+#                   fit
+#   burnin      :  the number of proposals to ignore before MCMC sampling
+#                  begins; default=10,000
+#   maxit       :  the number of MCMC parameter updates to the value
+#                  maximizing the MCMC likelihood; default=3
+#   constraints :  a one-sided formula of the constraint terms; options are
+#                      bd        degrees        nodegrees
+#                      edges     degreedist     indegreedist
+#                      observed  outdegreedist
+#                  default="~ ."
+#   proposaltype:  presumably the MHproposal type, but this is only used
+#                  in calls to <ergm.san>, which doesn't accept a
+#                  'proposaltype' argument
+#   meanstats   :  a vector of the mean value parameters;
+#                  default=the observed statistic from the 'nw' in formula
+#   control     :  a list of control parameters returned from <control.ergm>;
+#                  default=control.ergm()
+#   tau         :  ??, is passed along to <ergm.san> where it is ignored;
+#                  see the <ergm.san> header for details; default=1
+#   invcov      :  the initial inverse covariance matrix used to calculate
+#                  the Mahalanobis distance; default=NULL
+#   verbose     :  whether ergm should be verbose (T or F); default=FALSE
+#
+# --IGNORED--
+#   MPLEonly   :  ??; default=FALSE
+#   MLestimate :  ??; default=!'MPLEonly'
+#
+# --RETURNED--
+#   v: an ergm object as a list containing several items; for details see
+#      the return list in the <ergm> function header (<ergm.mapl>= #);
+#
+################################################################################
+
 ergm.mapl <- function(formula, theta0="MPLE", 
                  MPLEonly=TRUE, MLestimate=!MPLEonly, nsim=25,
                  burnin=10000,
@@ -8,6 +50,7 @@ ergm.mapl <- function(formula, theta0="MPLE",
                  control=control.ergm(MPLEtype="penalized"),
                  tau=1, invcov=NULL,
                  verbose=FALSE, ...) {
+
   current.warn <- options()$warn
   options(warn=0)
   if (verbose) cat("Evaluating network in model\n")

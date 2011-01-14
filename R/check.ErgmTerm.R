@@ -1,25 +1,46 @@
+#====================================================================================
+# This file contains the following 6 files that help check the validity of ergm terms
+#       <check.ErgmTerm>               <get.InitErgm.fname>
+#       <assignvariables>              <zerowarnings>
+#       <check.ErgmTerm.summarystats>  <extremewarnings>
+#====================================================================================
+
+
+
+
+######################################################################################
+# The <check.ErgmTerm> function ensures for the <InitErgmTerm.X> function that the
+# term X:
+#   1) is applicable given the 'directed' and 'bipartite' attributes of the given
+#      network
+#   2) has an appropiate number of arguments
+#   3) has correct argument types if arguments where provided
+#   4) has default values assigned if defaults are available
+# by halting execution if any of the first 3 criteria are not met
+#
+# --PARAMETERS--
+#  nw           : the network that term X is being checked against  
+#  arglist      : the list of arguments for term X
+#  directed     : whether term X requires a directed network (T or F); default=NULL
+#  bipartite    : whether term X requires a bipartite network (T or F); default=NULL
+#  varnames     : the vector of names of the possible arguments for term X;
+#                 default=NULL 
+#  vartypes     : the vector of types of the possible arguments for term X;
+#                 default=NULL 
+#  defaultvalues: the list of default values for the possible arguments of term X;
+#                 default=list()
+#  required     : the logical vector of whether each possible argument is required;
+#                 default=NULL
+#
+# --RETURNED--
+#   out: a list of the values for each possible argument of term X; user provided 
+#        values are used when given, default values otherwise.
+#
+######################################################################################
+
 check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL,
                            varnames=NULL, vartypes=NULL,
                            defaultvalues=list(), required=NULL) {
-  ## This function (called by InitErgmTerm.xxx functions) will
-  ## (a) check to make sure that the network has the correct "directed"
-  ##     and "bipartite" attributes, if applicable, i.e., if either directed
-  ##     of bipartite is non-NULL.
-  ## (b) check that the inputs to the model term are of the correct type
-  ## (c) assign default values if applicable
-  ## (d) return a list with elements (var1=var1value, var2=var2value, etc.)
-  ## Note that the list returned will contain the maximum possible number of
-  ## arguments; any arguments without values are returned as NULL.
-  ##
-  ##   Inputs:  nw (required) is the network
-  ##            arglist (required) is the list of arguments passed from ergm.getmodel
-  ##            directed is logical if directed=T or F is required, NULL o/w
-  ##            bipartite is logical if bipartite=T or F is required, NULL o/w
-  ##            varnames is a vector of variable names
-  ##            vartypes is a vector of corresponding variable types
-  ##            defaultvalues is a list of default values (NULL means no default)
-  ##            required is a vector of logicals:  Is this var required or not?
-
   fname <- get.InitErgm.fname() # From what InitErgm function was this called?
   fname <- sub('.*[.]', '', fname) # truncate up to last '.'
   message <- NULL
@@ -90,7 +111,10 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL,
   out
 }
 
-######
+
+
+
+############################################################################
 ## As of ergm version 2.2, the assignvariables function is deprecated.
 ## This is so that there are no "mysterious" variable assignments in the
 ## InitErgmTerm functions, which is prehaps better programming style
@@ -98,12 +122,14 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL,
 ## R CMD build.
 ## However, assignvariables will still function so as not to break 
 ## code.  It will simply produce a warning when called.
-######
-# The following short function takes a list as an argument and creates a variable
-# out of each of its elements *in the calling environment*.  In this way, it
+##############################################################################
+# The <assignvariables> function following creates a variable out of each of
+# the elements in the given list *in the calling environment*.  In this way, it
 # sort of works like "attach" but without creating a new environment and
 # without all of the headaches that "attach" can give because the variables
 # it creates are not in the correct frame.
+##############################################################################
+
 assignvariables <- function(a) {
   cat("The assignvariables function has been deprecated.  Please modify\n",
        "the", get.InitErgm.fname(), "function so that it does not rely on\n",
@@ -113,6 +139,7 @@ assignvariables <- function(a) {
     for(i in 1:length(a)) 
       assign(names(a)[i], a[[i]], envir=parent.frame())
 }
+
 
 check.ErgmTerm.summarystats <- function(nw, arglist, ...) {
   fname <- get.InitErgm.fname() # From what InitErgm function was this called?
@@ -140,6 +167,7 @@ get.InitErgm.fname <- function() {
   return(NULL)
 }
 
+
 # zerowarnings is now deprecated; it's been replaced by extremewarnings
 zerowarnings <- function(gs) {
   out <- gs==0
@@ -149,6 +177,27 @@ zerowarnings <- function(gs) {
   }
   out
 }
+
+
+
+####################################################################
+# The <extremewarnings> function checks and returns whether the
+# global statistics are extreme, in terms of being outside the
+# range of 'minval' and 'maxval'; warning messages are printed if
+# any statistic is extreme
+#
+# --PARAMETERS--
+#   gs    : the vector of global statistics returned by
+#           <check.ErgmTerm.summarystats> or <ergm.getglobalstats>
+#   minval: the value at/below which statistics are deemed extreme;
+#           default=0
+#   maxval: the value at/above which statistics are deemed extreme;
+#           default=NULL
+#
+# --RETURNED--
+#   out: a logical vector of whether each statistic was extreme
+#
+####################################################################
 
 extremewarnings <- function(gs, minval=0, maxval=NULL) {
   out <- rep(FALSE, times=length(gs))

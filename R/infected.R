@@ -1,3 +1,22 @@
+###########################################################################
+# The <prevalence> function calculates and returns the prevalence of ?? via
+# <Prevalence.C> 
+#
+# --PARAMETERS--
+#   gsim       : a bipartite network series
+#   nsim       : the number of simulations to use; this is currently ignored
+#                but should surely be passed to <Prevalence.C>; default=1
+#   beta       : the rate of transmission; default=0.1
+#   randomseeds: whether random seeds should be used (T or F); default=FALSE
+#
+# --RETURNED--
+#   the prevalence as a list containing:
+#      prevalence:
+#      infected  :
+#
+#  without the R and C calls matching up, this is hard to determine
+###########################################################################
+
 prevalence <- function(gsim, nsim=1, beta=0.1, randomseeds=FALSE) {
   if (!is.network((g0<-gsim$networks)) || class(gsim) != "network.series") {
     stop("This function requires that the argument be a network.series")

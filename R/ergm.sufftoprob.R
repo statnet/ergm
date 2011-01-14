@@ -1,14 +1,32 @@
-# convert a MCMC matrix of sampled
-# sufficient statistics be "compressed" into a reduced
-# form. In its natural state the matrix has one row for
-# each sampled run. Only the
-# unique values of the vector of sufficient statistics
-# are retained and an additional column is added to
-# the matrix with the proportion of the MCMC runs that
-# returned that value.  The objective is to keep the
-# size of the matrix small for very long runs to save
-# memory, speed calculations and make it easier to read.
+########################################################################
+# The <ergm.sufftoprob> function attaches a probability weight to each
+# row of a given matrix or "mcmc" class; the resultant matrix may be 
+# optionally 'compressed'
 #
+# --PARAMETERS--
+#   suff    : a matrix, presumably the sample of sufficient statistics
+#             returned by MCMC estimation
+#   compress: whether the returned matrix should be compressed; in its
+#             natural state 'suff' has one row for each sampled run;
+#             if 'compress'=TRUE, only the unique values of the vector
+#             of sufficient statistics are retained and the additional
+#             column of probility weights are the proportions of MCMC 
+#             runs that returned that vector (the objective is to keep
+#             the size of the matrix small for very long runs to save
+#             memory, speed calculations and make it easier to read);
+#             default=FALSE
+#   probs   : whether to treat the final column of 'suff' as weights; if
+#             TRUE, the final column of 'suff' will be converted to
+#             probabilities; default=FALSE
+#
+# --RETURNED--
+#   csuff: a matrix of 'suff', compressed or not according to 'compress',
+#          and  bound to a column of probability weights, which are
+#          assumed to be equal before compression, unless otherwise set
+#          in the last column of 'suff' and flagged by 'probs'
+#
+########################################################################
+
 "ergm.sufftoprob"<- function(suff, compress=FALSE, probs=FALSE) {
   cnames <- dimnames(suff)[[2]]
   if(is.null(cnames)){

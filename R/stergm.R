@@ -1,3 +1,120 @@
+################################################################################
+# The <stergm> function fits stergms from a specified formation and dissolution
+# formula returning approximate MLE's based on MCMC estimation.
+#
+# --PARAMETERS--
+#   formation   : the formation formula, as 'nw ~ term(s)'
+#   dissolution : the dissolution formula, as 'nw ~ term(s)'
+#   theta.form0 : the intial theta formation coefficients, or optionally if
+#                 these are to be estimates, the string "MPLE";
+#                 default="MPLE"
+#   theta.diss  : the initial theta dissolution coefficients
+#   seed        : an integer starting value for the random number generator;
+#                 default=NULL
+#   MH.burnin   : the number of proposals used in each MCMC step; this is ignored
+#                 unless 'control$style'="Robbins-Monro"; any other style or
+#                 the default style will not recognize this parameter;
+#                 default=1000
+#   constraints : a one-sided formula of the constraint terms; options are
+#                      bd        degrees        nodegrees
+#                      edges     degreedist     indegreedist
+#                      observed  outdegreedist
+#                default="~ ."; these may not work currently.
+#   meanstats   :  a vector of the mean value parameters;
+#                  default=the observed statistic from the 'nw' in formula
+#   stergm.order:  the order in which the formation and dissolution processes
+#                  should occur, as one of
+#                      "DissThenForm"      "DissAndForm"
+#                      "FormAndDiss"       "FormThenDiss"
+#                      "FormOnly"           "DissOnly"
+#                  default="FormAndDiss"
+#   control     :  a list of control parameters returned from <control.stergm>;
+#                  default=<control.stergm>()
+#   verbose     :  whether ergm should be verbose (T or F); default=FALSE
+#
+# --RETURNED--
+#   because a stergm object is the return type of several functions, and
+#   because this is a rather lengthy list, and because the returned items
+#   of this function borrow from the other stergm.* functions, this list 
+#   provides the returned items for all funtions returning a stergm.
+#   The symbol preceding each component indicates which function returns it,
+#   but remember that, <stergm> will additionally return the items from
+#   one of the other stergm functions as well:
+#       <stergm>             = $
+#       <stergm.mainfitloop> = *
+#       <stergm.RM>          = @
+#       <stergm.SPSA>        = &
+#       <stergm.NM>          = !
+#
+#   the components include:
+#
+#     @   coef.form   : the estimated formation model coefficients
+#     @   coef.diss   : the estimated dissolution model coefficients
+#      &  eta         : the estimated formation ?? coefficients
+#   $     offset      : a logical vector whose ith entry tells whether the
+#                        ith curved theta coeffient was offset/fixed
+#   $     drop        :  a logical vector whose ith entry tells whether the
+#                        ith model term was dropped due to degeneracy problems
+#   $     etamap      :  the list constituting the theta->eta mapping for the
+#                        formation model; for details of its components,
+#                        see <ergm.etamap>
+#   $     MH.burnin   :  the number of proposals made in each MCMC step
+#   $     stergm.order:  the order in which the formation and dissolution processes
+#                        were used, as one of
+#                           "DissThenForm"      "DissAndForm"
+#                           "FormAndDiss"       "FormThenDiss"
+#                           "FormOnly"           "DissOnly"
+#   $     formation   : the formation formula, as 'nw ~ term(s)'
+#   $     dissolution : the dissolution formula, as 'nw ~ term(s)'
+#   $     constraints : the constraints formula
+#    *    coef        :  the vector of estimated model coefficients
+#    *    sample      :  the row-binded matrix of network statistics from
+#                        each sample; if returned by <ergm.PILA> 'sample'
+#                        will also have 2 attributes
+#             mcpar   : the following vector taken from MCMCparams:
+#                              c(burnin+1, endrun, interval)
+#                       where 'endrun' is defined as
+#                             burnin+interval*(samplesize-1)
+#             class   : "mcmc"
+#    *    iterations  :  the number of Newton-Raphson iterations required
+#                        before convergence
+#    *    MCMCtheta   :  the vector of natural parameters used to produce
+#                        the MCMC sample
+#    *    mcmcloglik  :  the mcmc calculated log likelihood evaluated at ??
+#    *    gradient    :  the value of the gradient of the approximated log-
+#                        likelihood function at the maximizing value
+#    *    covar       :  the approximated covariance matrix for the MLE
+#    *    samplesize  :  the size of the MCMC sample
+#    *    failure     :  whether estimation failed (T or F)
+#    *    mc.se       :  the standard error estimates
+#    *@&  newnetwork  :  the final network sampled
+#     @&  network    :  the 'nw' inputted to <ergm> via the 'formula'
+#    *    burnin    :  the 'burnin' value inputted to <ergm>
+#    *    interval :  the 'interval' value inputted to <ergm>
+#    *    mplefit         :  the MPLE fit as a glm object, and returned by
+#                                   <ergm.mple>
+#    *    null.deviance   :  the deviance of the null model
+#    *    mle.lik         :  the approximate log-likelihood for the MLE
+#    *    sample.miss     :  the matrix of sample network statistics for those
+#   $     prop.args.form     :  the MHP formation arguments passed to the
+#                               InitMHP rountines
+#   $     prop.args.diss     :  the MHP dissolution arguments passed to the
+#                               InitMHP rountines
+#   $     prop.weights.form  :  the method used to allocate probabilities of
+#                               being proposed to dyads in the formation stage,
+#                               as "TNT", "random", "nonobserved", or "default"
+#    * &  theta.original     :  the theta values at the start of the MCMC 
+#                               sampling
+#     @   theta.form.original:  the formation theta values at the start of the
+#                               MCMC sampling
+#    *    loglikelihood      :  the estimated change in log-likelihood in the 
+#                               last iteration
+#   $     prop.weights.diss  :  as 'prop.weights.form', but for the dissolution
+#                               model
+#     &   objective.history  :  the number of SPSA iteration used
+#
+################################################################################
+
 stergm <- function(formation, dissolution, theta.form0="MPLE", theta.diss=NULL,
                    seed=NULL,
                    MH.burnin=1000,

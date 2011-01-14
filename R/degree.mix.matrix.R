@@ -1,9 +1,33 @@
+##########################################################################
+# The <degree.mix.matrix> function calculates a degree mixing matrix,
+# via <DegreeMixMatrix.C>,  that shows the patterns of concurrency
+# throughout a network series
+#
+# --PARAMETERS--
+#   gsim: a bipartite network series, as returned by <simulate.stergm>
+#
+# --RETURNED--
+#   degmixmat: an nx4 matrix, where the rows correspond to the n nodes
+#              in each network of 'gsim' and the columns are:
+#      "Deg0"       : the number of networks (time steps) in which the 
+#                     node had no partnerships
+#      "BothMono"   : the number of time steps in which the node was 
+#                     mononogamous and the partner was monongamous
+#      "partnerConc": the number of time steps in which the node was
+#                     monogamous, but the partner had concurrent
+#                     partnerships
+#      "Conc"       : the number of time steps in which the node had 
+#                     concurrent partnerships
+#
+###########################################################################
+
 degree.mix.matrix <- function(gsim) {
   if (!is.network((g0<-gsim$networks)) || class(gsim) != "network.series") {
     stop("This function requires that the argument be a network.series")
   }
   
-  if(!is.bipartite(gsim$networks)) stop("This function only works for bipartite networks at the moment.")
+  if(!is.bipartite(gsim$networks))
+    stop("This function only works for bipartite networks at the moment.")
 
   cha <- gsim$changed[,c(1,3,2)]
   cha <- cha[order(gsim$change[,1]),]

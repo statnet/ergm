@@ -1,40 +1,57 @@
-# overlap.matrix is a wrapper for the OverlapDurations function in C.
-# Its job is to look at a network.series object (of which the only important
-# parts are the original network and a 3-column matrix giving the times
-# and nodes of each edge-toggle starting from the original) and return
-# a summary of all instances of concurrent relationships -- i.e., nodes
-# having two or more edges.  It's assumed that the network is bipartite
-# and that the smaller-numbered nodes are called "females" and the 
-# larger-numbered ones are called "males"
+#############################################################################
+# The <overlap.matrix> function calculates a summary of concurrent
+# partnerships in a bipartite network series ; this includes the overlap
+# durations and is computed via <OverlapsDurations.C> function; it's
+# assumed that the smaller-numbered nodes are "females" and the larger-
+# numbered ones are "males"
 #
-# I do not know what would happen if there were instances of a node having
+# NB: I do not know what would happen if there were instances of a node having
 # three edges --DH
 #
-# The summary is in the form of a 10-column data frame.  Each row describes
-# one instance of overlapping, or concurrent, relationships.
-#   Columns 1, 2, 5:  The female and male node numbers and the start time
-#                     of the edge between them
-#   Columns 3, 4, 6:  Same as 1, 2, 5 for the second edge
-#   Column 7:  The time when the concurrency ended, i.e., the time when one 
-#              of the two edges ended.  If both edges continue past the end of
-#              the simulation, then this value will equal N, where N is
-#              1 more than the largest time observed for any network change.
-#   Column 8:  Which of the two edges (1 or 2) was the first to end.  If they
-#              ended at the same time, this value will be 3.  If the concurrency
-#              continues past the end of the simulation, this value will be 0.
-#   Column 9:  The duration of the concurrency.  Easy to calculate:  Just column
-#              7 minus the larger of columns 5 and 6.                                                
-#   Column 10: The type of the overlap.  There are three types:
-#      transitional: The first relationship to start is also the first to end 
-#      embedded:  The second relationship starts and ends while the first continues.
-#                 Note that any overlaps involving ties are considered embedded
-#                 as long as both the start and the end of the overlap are 
-#                 observed.  If either the start of the end is unobserved, 
-#                 the concurrency is considered truncated even if the observed 
-#                 end is a tie.  Should this be changed?  Should any ties be 
-#                 called embedded, even if the start is 0 or the end is N?
-#      truncated: We can't identify the overlap type due to censoring at either
-#                 the beginning or the end
+# --PARAMETERS--
+#   gsim       : a network series, which is assumed to be bipartite; the elements
+#                of interest are the original network and the 3-column matrix
+#                giving the times and nodes of each edge-toggle starting from
+#                the original
+#   maxoverlaps: the maximum number of overlaps to provide space for; if more
+#                overlaps are observed than space is made for, an error will
+#                be printed and the first 'maxoverlaps' overlaps are returned
+#                
+#
+# --RETURNED--
+#   a 10-column data frame where each row describes one instance of an
+#   overlapping, or concurrent, partner-pair; the columns are:  
+#     1: the female node number of the first partnership
+#     2: the male node number of the first partnership
+#     3: the female nocde number of the second partnership
+#     4: the male node number of the second partnership
+#     5: the start time of the first partnership
+#     6: the start time of the second partnership
+#     7: the time when the concurrency ended, i.e., the time when one 
+#        of the two edges ended.  If both edges continue past the end of
+#        the simulation, then this value will equal N, where N is
+#        1 more than the largest time observed for any network change.
+#     8: an inidicator of which edge ended first, where
+#            0 implies neither, because of truncation
+#            1 implies the first
+#            2 implies the second
+#            3 implies both, because the ended at the same time
+#     9: the duration of the concurrency, as  (column 7 - max(col 5, col 6))
+#    10: the type of the overlap, as one of:
+#            "transitional":  the first relationship to start is also the
+#                             first to end 
+#             "embedded"   :  the second relationship starts and ends while
+#                             the first continues.
+#             "truncated"   : we can't identify the overlap type due to
+#                             censoring at either the beginning or the end
+#         Note that any overlaps involving ties are considered embedded as
+#         long as both the start and the end of the overlap are observed.
+#         If either the start of the end is unobserved, the concurrency is
+#         considered truncated even if the observed end is a tie.
+#         Should this be changed?  
+#         Should any ties be called embedded, even if the start is 0 or the end is N?
+#
+#############################################################################
 
 overlap.matrix <- function(gsim, maxoverlaps=1000000) {
   if (!is.network((g0<-gsim$networks)) || class(gsim) != "network.series") {

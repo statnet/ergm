@@ -1,3 +1,54 @@
+##########################################################################
+# The <ergm.mple> function finds a maximizer to the psuedolikelihood
+# function
+#
+# --PARAMETERS--
+#   Clist            : a list of parameters used for fitting and returned
+#                      by <ergm.Cprepare>
+#   Clist.miss       : the corresponding 'Clist' for the network of missing
+#                      edges returned by <ergm.design>            
+#   m                : the model, as returned by <ergm.getmodel>
+#   theta0           : either a vector whose first entry is "MPLE" or a vector
+#                      of initial theta coefficients
+#   theta.offset     : a logical vector specifying which of the model
+#                      coefficients are offset, i.e. fixed  
+#   MPLEtype         : the method for MPL estimation as "penalized", "glm" or
+#                      "logitreg"; default="glm"    
+#   family           : the family to use in the R native routine <glm>; only
+#                      applicable if "glm" is the 'MPLEtype'; default="binomial"
+#   maxMPLEsamplesize: the sample size to use for endogenous sampling in the psuedo-
+#                      likelihood computation; default=1e6
+#   save.glm         : whether the mple fit and the null mple fit should be
+#                      returned (T or F); if false, NULL is returned for both;
+#                      default==TRUE
+#   maxNumDyadTypes  : the maximum number of unique psuedolikelihood change stats
+#                      to be allowed if 'compress'=TRUE; ignored if 
+#                      'compress'!=TRUE; default=1e+6    
+#   thetal           : the independence theta; if specified and non-NULL, this is
+#                      ignored except to return its value in the returned ergm;
+#                      default=NULL, in which case 'theta1' is computed
+#   conddeg          : an indicator of whether the MPLE should be conditional
+#                      on degree; non-NULL values indicate yes, NULL no;
+#                      default=NULL.
+#   MCMCparams       : a list of MCMC related parameters; recognized components
+#                      include:
+#         samplesize : the number of networks to sample
+#         Clist.miss : see 'Clist.miss' above; some of the code uses this Clist.miss,
+#                      some uses the one above, does this seem right?
+#   MHproposal       : an MHproposal object, as returned by <ergm.getMHproposal>
+#   verbose          : whether this and the C routines should be verbose (T or F);
+#                      default=FALSE
+#   compressflag     : whether to compress the design matrix of change stats by
+#                      tabulating the unique rows (T or F); default=TRUE
+#   ...              : additional parameters passed from within; all will be
+#                      ignored
+#
+# --RETURNED--
+#   an ergm object as a list containing several items; for details see
+#   the return list in the <ergm> function header (<ergm.mple>=!);
+#
+######################################################################################
+
 ergm.mple<-function(Clist, Clist.miss, m, theta0=NULL, theta.offset=NULL,
                     MPLEtype="glm", family="binomial",
                     maxMPLEsamplesize=1e+6,

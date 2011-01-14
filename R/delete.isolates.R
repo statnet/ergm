@@ -1,5 +1,21 @@
-# Remove isolated vertices (and associated edges) from the network.
+#================================================================
+# This file contains the 3 following functions for converting
+# networks into a subgraph of the original graph
+#================================================================
+
+
+##################################################################
+# The <delete.isolates> function deletes the isolate nodes from
+# a given network.
 #
+# --PARAMETERS--
+#   x: a network
+#
+# --RETURNED--
+#   x: the original network x, with its isoloates removed
+#
+###################################################################
+
 delete.isolates<-function(x){
   #Check to be sure we were called with a network
   if(!is.network(x))
@@ -12,8 +28,25 @@ delete.isolates<-function(x){
     invisible(x)
   }
 }
-# Remove isolated vertices (and associated edges) from the network.
+
+
+
+
+##################################################################
+# The <largest.components> function returns a copy of the given
+# network with any components of a size smaller than that specified
+# deleted.
 #
+# --PARAMETERS--
+#   x      : a network
+#   minsize: the smallest component size that will be kept in x
+#
+# --RETURNED--
+#   xd: the original network x, with the components of size <
+#       'minsize' - 1 removed
+#
+###################################################################
+
 largest.components<-function(x, minsize=4){
   #Check to be sure we were called with a network
   if(!is.network(x))
@@ -32,6 +65,21 @@ largest.components<-function(x, minsize=4){
   delete.isolates(xd)
   invisible(xd)
 }
+
+
+
+
+####################################################################
+# The <central.network> function returns an empty graph
+#
+# --PARAMETERS--
+#   x      : a network
+#
+# --RETURNED--
+#   xd: the original network x, with all edges and all nodes removed
+#
+#####################################################################
+
 central.network<-function(x){
   #Check to be sure we were called with a network
   if(!is.network(x))

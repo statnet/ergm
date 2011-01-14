@@ -1,3 +1,46 @@
+#===========================================================================
+# The <InitMHP> file contains the following 24 functions for
+# initializing the MHproposal object; each is prepended with 'InitMHP.'
+#       <randomtoggle>      <CondOutDegreeDist> <dissolutionMLE>
+#       <TNT>               <ConstantEdges>     <formationNonObservedMLE>
+#       <TNT10>             <CondInDegree>      <dissolutionNonObservedMLE>
+#       <CondDegree>        <CondOutDegree>     <HammingTNT>   
+#       <CondDegreeTetrad>  <dissolution>       <HammingConstantEdges>
+#       <CondDegreeHexad>   <formation>         <randomtoggleNonObserved>
+#       <CondDegreeDist>    <formationTNT>      <nobetweengroupties>
+#       <CondInDegreeDist>  <formationMLE>       
+#============================================================================
+
+
+########################################################################
+# Each of the <InitMHP.X> functions initializes and returns a
+# MHproposal list; when appropriate, proposal types are checked against
+# covariates and network types for 1 of 2 side effects: to print warning
+# messages or to halt execution (only <InitMHP.nobetweengroupties> can
+# halt execution)
+#
+# --PARAMETERS--
+#   arguments: is ignored by all but <InitMHP.nobetweengroupties>,
+#              where 'arguments' is used to get the nodal attributes
+#              via <get.node.attr>
+#   nw       : the network given by the model
+#   model    : the model for 'nw', as returned by <ergm.getmodel>
+#
+# --RETURNED--
+#   MHproposal: a list containing:
+#        name   : the name of the proposal
+#        args   : NULL for all but <InitMHP.nobetweengroupties>,
+#                 where 'args' is the vector of 3 concatenated components:
+#                  1) the number of unique attribute values for the
+#                     given attribute, say a1, a2, a3.. aM
+#                  2) the table of attribute value frequencies for a1 - aM
+#                  3) a vector of node id's; those having a1, then those
+#                     having a2, ... then those having aM
+#        package: is "ergm"
+#
+############################################################################
+
+
 InitMHP.randomtoggle <- function(arguments, nw, model) {
   MHproposal <- list(name = "randomtoggle", args=NULL, package="ergm")
   if(is.bipartite(nw)){

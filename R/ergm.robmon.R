@@ -1,18 +1,49 @@
+############################################################################
+# The <ergm.robmon> function provides one of the styles of maximum
+# likelihood estimation that can be used. This one is based on Snijders
+# (2002), J of Social Structure  and Snijders and van Duijn (2002) from
+# A Festscrift for Ove Frank.  Both papers are available from Tom Snijders'
+# web page:           http://stat.gamma.rug.nl/snijders/publ.htm
+# (The other MLE styles are found in functions <ergm.stocapprox>,
+# <ergm.stepping> and <ergm.mainfitloop>
+#
+#
+# --PARAMETERS--
+#   theta0         : the initial theta values
+#   nw             : the network
+#   model          : the model, as returned by <ergm.getmodel>
+#   Clist          : a list of several network and model parameters,
+#                    as returned by <ergm.Cprepare>
+#   Clist.miss     : a 'Clist' for the network of missing edges, as
+#                    returned by <ergm.design>
+#   burnin         : the number of proposals to disregard before sampling
+#                    begins
+#   interval       : the number of proposals between sampled statistics;
+#   initialfit     : an ergm object, as the initial fit
+#   MHproposal     : an MHproposal object for 'nw', as returned by
+#                    <getMHproposal>
+#   verbose        : whether the MCMC sampling should be verbose (T or F);
+#                    default=FALSE
+#   control        : a list of parameters for controlling the fitting
+#                    process, as returned by <control.ergm>; in
+#                    particular, the following components are recognized:
+#                     'phase1_n'      'parallel'    'steplength'
+#                     'initial_gain'  'nsubphases'  'niterations'
+#                     'nr.maxit'      'nr.reltol'   'calc.mcmc.se'
+#                     'hessian'       'method'      'metric'
+#                     'compress'
+#
+#
+# --RETURNED--
+#   v: an ergm object as a list containing several items; for details see
+#      the return list in the <ergm> function header (<ergm.robmon>=&);
+#
+###########################################################################      
+
 ergm.robmon <- function(theta0, nw, model, Clist, Clist.miss,
                         burnin, interval, MHproposal,
                         verbose=FALSE, 
                         control=control.ergm() ){
-  # This is based on Snijders (2002), J of Social Structure
-  # and Snijders and van Duijn (2002) from A Festscrift for Ove Frank
-  # Both papers are available from Tom Snijders' web page: 
-  #          http://stat.gamma.rug.nl/snijders/publ.htm
-  
-  # The 'contol' list could have any of the following elements:
-  #     phase1_n: Sample size for phase 1
-  #     initial_gain:  Initial value of a for phase 2
-  #     nsubphases:  Number of subphases for phase 2
-  #     niterations: Initial number of iterations for first subphase of phase 2
-  #     phase3_n:  Sample size for phase 3
   
   #phase 1:  Estimate diagonal elements of D matrix (covariance matrix for theta0)
   n1 <- control$phase1_n

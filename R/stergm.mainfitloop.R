@@ -1,3 +1,61 @@
+################################################################################
+# The <stergm.mainfitloop> function is the default fitting procedure for
+# method of moments stergm parameter estimation
+#
+# --PARAMETERS--
+#   theta0         : the initial theta formation coefficients
+#   nw             : a network object
+#   model.form     : a formation model, as returnd by <ergm.getmodel>
+#   model.diss     : a dissolution model, as returnd by <ergm.getmodel>
+#   Clist          : the list of parameters to be passed to the C code and 
+#                    returned by <ergm.Cprepare>
+#   gamma          : the initial theta dissolution coefficients
+#   initialfit     : a stergm object??, as the initial fit; this is only used for 
+#                    it's 'mle.lik' component in computing the MLE log-likelihood
+#   MCMCparams     : the list of parameters which adjust the MCMC sampling;
+#                    recognized components include:
+#      samplesize  : the number of MCMC sampled networks to collect
+#      maxit       : the maximum number of iterations to use in the mainfitloop
+#      nr.maxit    : the maximum number of iterations to use for estimation
+#                    in the <ergm.estimate> code
+#      nr.reltol   : the relative tolerance to use in the estimation 
+#      calc.mcmc.se: whether to calculate the standard errors induced by the
+#                    MCMC algorithm (T or F)
+#      hessian     : whether the Hessian matrix of the likelihood function
+#                    be computed (T or F)
+#      trustregion : the maximum value that the log-likelihood can improve by
+#                    in an iteration and still be trusted
+#      method      : the method to be used in the optimization routines, as
+#                    one of "Nelder-Mead", "BFGS", "CG", "L-BFGS-B" or "SANN";
+#                    see the 'optim' man page in R for details
+#      compress    : whether the matrix of statistics should be compressed via
+#                    <ergm.sufftoprob>
+#      burnin      : presumably the number of MCMC steps to disregard for the
+#                    burnin period, but this is ignored by <stergm.getMCMCsample>
+#                    which expects a 'time.burnin'; this is used to create and
+#                    adjust certain return values though
+#      interval    : presumably the number of MCMC steps to disregard between
+#                    sampled networks, but this is ignored by <stergm.getMCMCsample>
+#                    which expects a 'time.interval'; this is used to create and
+#                    adjust certain return values though
+#   MHproposal.form: an MHproposal object for the formation stage, as returned
+#                    by <getMHproposal>
+#   MHporposal.diss: an MHproposal object for the dissolution stage, as returned
+#                    by <getMHproposal>
+#   verbose        : whether this and the subsequently called R and C code should
+#                    be verbose (T or F); default=FALSE
+#   epsilon        : ??, this is ignored other than to possibly print it out if
+#                    'verbose' is T and to pass it on to <ergm.estimate> which
+#                     ignores it; default=1e-10
+#   estimate       : whether the likelihood should be estimated and maximized
+#                    (T or F); default=TRUE
+#
+# --RETURNED--
+#   an ergm object as a list containing several components; for details see
+#   the return list in the <ergm> function header (<stergm.mainfitloop> = ??)
+#
+################################################################################
+
 stergm.mainfitloop <- function(theta0, nw, model.form, model.diss, 
                                  Clist,
                                  gamma, initialfit, 

@@ -1,3 +1,28 @@
+#############################################################################
+# The <ergm.MCMCse.lognormal> function computes and returns the MCMC lognormal
+# standard errors 
+#
+# --PARAMETERS--
+#   theta           :  the vector of theta coefficients
+#   theta0          :  the vector of initial theta coefficients
+#   statsmatrix     :  the matrix of network statistics
+#   statsmatrix.miss:  the matrix of network statistics on the network of
+#                      missing edges
+#   H               :  the Hessian matrix
+#   H.miss          :  the Hessian matrix on the network of missing edges
+#   model           :  the model, as returned by <ergm.getmodel>
+#   lag.max         :  the maximum lag at which to calculate the acf for the
+#                      the network corresponding to 'statsmatrix'; default=10
+#   lag.max.miss    :  the maximum lag at which to calculate the acf for the
+#                      the network corresponding to 'statsmatrix.miss';
+#                      default=lag.max
+#
+# --RETURNED--
+#   mc.se: the vector of MCMC lognormal standard error estimates for each theta
+#          parameter
+#
+################################################################################
+
 ergm.MCMCse.lognormal<-function(theta, theta0, statsmatrix, statsmatrix.miss,
                       H, H.miss, model, 
                       lag.max=10, lag.max.miss=lag.max) {
@@ -117,56 +142,5 @@ ergm.MCMCse.lognormal<-function(theta, theta0, statsmatrix, statsmatrix.miss,
     }
   }
   names(mc.se) <- names(theta)
-
-# DRH:  The Hessian and covar calculations below are redundant.  ergm.estimate
-# appears not to use them at all and it 
-# is the only function that calls ergm.MCMCse.lognormal 
-#
-#  # use the exact Hessian if possible
-#  test.hessian <- try(any(is.na(sqrt(diag(robust.inverse(H))))), silent=TRUE)
-#  if(inherits(test.hessian,"try-error") || test.hessian){
-#    hessian0 <- robust.inverse(var(xsim[,!novar,drop=FALSE]))
-#  }else{
-#    # detna <- function(x){x <- det(x); if(is.na(x)){x <- -40};x}
-#    if(!is.null(statsmatrix.miss)){
-#      test.hessian.miss <- try(any(is.na(sqrt(diag(robust.inverse(H.miss))))), silent=TRUE)
-#      if(inherits(test.hessian.miss,"try-error") || test.hessian.miss){
-#        #                || detna(H.miss)< -25 ){
-#          hessian0 <- - H
-#      }else{
-#        hessian0 <-  H.miss-H
-#        #      hessian0 <- -robust.inverse(var(xsim[,!novar,drop=FALSE]))-robust.inverse(var(xsim.miss[,!novar,drop=FALSE]))
-#        #      hessian0 <- -var(xsim[,!novar])+var(xsim.miss[,!novar])
-#      }
-#    }else{
-#      hessian0 <- - H
-#    }
-#  }
-#  #  hessian0 <- - H
-#  hessian <- matrix(NA, ncol=length(theta), nrow=length(theta))
-#  #  hessian <- hessian[!offsettheta,!offsettheta,drop=FALSE]
-#  #  hessian[!novar, !novar] <- hessian0
-#  #  hessian[!offsettheta,!offsettheta,drop=FALSE][!novar, !novar,drop=FALSE] <- hessian0
-#  if(nrow(H)==1){
-#    hessian[!novar, !novar] <- hessian0
-#  }else{
-#    hessian[!offsettheta,!offsettheta][!novar, !novar] <- hessian0
-#    hessian[!offsettheta,][novar,] <- NA
-#    hessian[,!offsettheta][,novar] <- NA
-#  }
-#  dimnames(hessian) <- list(names(theta),names(theta))
-#  covar <- matrix(NA, ncol=length(theta), nrow=length(theta))
-#  #  covar <- covar[!offsettheta,!offsettheta,drop=FALSE]
-#  #  covar[!novar, !novar] <- robust.inverse(-hessian0)
-#  if(nrow(H)==1){
-#    covar[!novar, !novar] <- robust.inverse(-hessian0)
-#  }else{
-#    covar[!offsettheta,!offsettheta][!novar, !novar] <- robust.inverse(-hessian0)
-#    covar[!offsettheta,][novar,] <- NA
-#    covar[,!offsettheta][,novar] <- NA
-#  }
-#  dimnames(covar) <- list(names(theta),names(theta))
-#  list(mc.se=mc.se, hessian=hessian, covar=covar)
   return(mc.se)
 }
-

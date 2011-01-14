@@ -1,3 +1,18 @@
+################################################################################
+# The <anova.ergm> function computes an analysis of variance table for a
+# single model fit
+#
+# --PARAMETERS--
+#   object:  an ergm object
+#   ...   :  additional ergm objects. If this argument is provided,
+#            the <anova.ergmlist> function is used instead
+#
+#
+# --RETURNED--
+#   an anova object with the analysis of variance table for the given ergm
+#
+#################################################################################
+
 "anova.ergm" <- function (object, ...) 
 {
   if (length(list(object, ...)) > 1) 

@@ -1,3 +1,41 @@
+#===========================================================================
+# This file contains the 2 following functions for ??
+#       <ergm.runPILAsampler>
+#       <ergm.PILAslave>
+#===========================================================================
+
+
+
+
+###########################################################################
+# The <ergm.runPILAsampler> collects and returns a ?? sample 
+#
+# --PARAMETERS--
+#   nw        : a network object
+#   model     : a model for 'nw', as returned by <ergm.getmodel>
+#   MHproposal: an MHproposal object, as returned by <MHproposal>
+#   eta0      : the vector of initial eta coefficients
+#   MCMCparams: a list of control parameters for the MCMC algorithm;
+#               recognized components include:
+#     samplesize     : the size of the sample to collect
+#     interval       : the number of proposals to disregard between
+#                      samples
+#     stats          : ??
+#     burnin         : the number of proposals to initially disregard
+#                      for the burn-in period
+#     PILA.steplength: ??
+#     PILA.gamma     : ??
+#     Clist.miss     : a list of parameters for the missing subgraph
+#                      of 'nw' as returned by <ergm.design>
+#   verbose   : whether the C functions should be verbose (T or F)                  
+#   
+# --RETURNED--
+#   out: the sample as a list containing:
+#     statsmatrix: the stats matrix
+#     etamatrix  : the ??
+#
+###########################################################################
+
 ergm.runPILAsampler <- function(nw, model, MHproposal, eta0, MCMCparams, 
                                verbose) {
 
@@ -21,9 +59,30 @@ ergm.runPILAsampler <- function(nw, model, MHproposal, eta0, MCMCparams,
 
   out
 }
+
+
+
+
+#############################################################################
+# The <ergm.PILAslave> function ?? via <PILA_wrapper.C>
 # Function the slaves will call to perform a validation on the
 # mcmc equal to their slave number.
-# Assumes: Clist MHproposal eta0 MCMCparams maxedges verbose
+#
+# --PARAMETERS--
+#   (same as the function above, but also includes)
+#   Clist: the list of items needed by the C code and returned by
+#          <ergm.Cprepare>
+#   debug: whether to return several of the intermediary data vectors used
+#          by <PILA_wrapper.C> for debugging purposes; default=FALSE
+#
+# --RETURNED--
+#   z: the PILA sample as a list containing:
+#        s  : the stats matrix
+#        eta: the ??
+#      and optionally including the 9 additional debugging vectors
+#
+#############################################################################
+
 ergm.PILAslave <- function(Clist,MHproposal,eta0,MCMCparams,verbose,debug=FALSE) {
   z <- .C("PILA_wrapper",
           as.integer(Clist$heads), as.integer(Clist$tails),

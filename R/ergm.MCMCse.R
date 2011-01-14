@@ -1,3 +1,26 @@
+#############################################################################
+# The <ergm.MCMCse> function computes and returns the MCMC standard errors
+#
+# --PARAMETERS--
+#   theta           :  the vector of theta coefficients
+#   theta0          :  the vector of initial theta coefficients
+#   statsmatrix     :  the matrix of network statistics
+#   statsmatrix.miss:  the matrix of network statistics on the network of
+#                      missing edges
+#   model           :  the model, as returned by <ergm.getmodel>
+#   lag.max         :  the maximum lag at which to calculate the acf for the
+#                      the network corresponding to 'statsmatrix'; default=10
+#   lag.max.miss    :  the maximum lag at which to calculate the acf for the
+#                      the network corresponding to 'statsmatrix.miss';
+#                      default=lag.max
+#
+# --RETURNED--
+#   the variance of the MCMC sampling as a list containing:
+#     mc.se : the vector of MCMC standard error estimates for each theta parameter
+#     mc.cov: the MCMC covariance matrix of the theta parameters
+#
+################################################################################
+
 ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
                       model, 
                       lag.max=10, lag.max.miss=lag.max) {

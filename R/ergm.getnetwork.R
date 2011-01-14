@@ -1,3 +1,19 @@
+#################################################################################
+# The <ergm.getnetwork> function ensures that the network in a given formula
+# is valid; if so, the network is returned; if not, execution is halted with
+# warnings
+#
+# --PARAMETERS--
+#   formula     :  the formula as 'network ~ model.term(s)'
+#   loopswarning:  whether warnings about loops should be printed (T or F);
+#                  default=TRUE
+#
+# --RETURNED--
+#   nw: the network from the formula IF (i) the formula was correctly structured
+#       and (ii) the network is found within the formula's enviornment
+#
+###################################################################################
+
 ergm.getnetwork <- function (formula, loopswarning=TRUE) {
   current.warn <- options()$warn
 # options(warn=0)

@@ -1,11 +1,53 @@
+#=============================================================================
+# This file contains the 2 following function for fitting a stergm, using the
+# Robbins-Monro approach
+#       <stergm.RM>
+#       <stergm.phase12.C>
+#=============================================================================
+
+
+
+
+################################################################################
+# The <stergm.RM> function fits a stergm using the Robbins-Monro style of
+# methods of moments estimation; this style should only be used if it is known
+# a priori that the derivative of each element of the equilibrium expected
+# values of the statistics of interest with respect to the corresponding formation
+# phase parameter is positive.
+#
+# --PARAMETERS--
+#   theta.form0    : the initial theta formation coefficients
+#   nw             : a network object
+#   model.form     : a formation model, as returned by <ergm.getmodel>
+#   model.diss     : a dissolution model, as returned by <ergm.getmodel>
+#   Clist          : the list of inputs that are used by the C code and
+#                    returned by <ergm.Cprepare>
+#   theta.diss     : the initial theta dissolution coefficients
+#   MCMCparams     : the list of parameters which tune the MCMC sampling
+#                    processes; the recognized components of 'MCMCparams'
+#                    are those passed to and used by <stergm.phase12.C>
+#                    and are described in its function header
+#   MHproposal.form: a MHproposal object for the formation process, as
+#                    returned by <getMHproposal>
+#   MHproposal.diss: a MHproposal object for the dissolution process, as
+#                    returned by <getMHproposal>
+#   verbose        : whether this and subsequently called R and C code
+#                    should be verbose (T or F); default=FALSE
+#
+# --RETURNED--
+#   a stergm object as a list containing:
+#    coef.form :   the estimated formation coefficients
+#    coef.diss :   the estimated dissolution coefficients
+#    newnetwork:   the 'nw' inputted into this function
+#    network   :   the 'nw' inputted into this function
+#    theta.form.original: the 'theta.form0' inputted into this function
+#
+################################################################################
+
 stergm.RM <- function(theta.form0, nw, model.form, model.diss, Clist, 
                             theta.diss,
                             MCMCparams, MHproposal.form, MHproposal.diss,
                             verbose=FALSE){
-  # This is based on Snijders (2002), J of Social Structure
-  # and Snijders and van Duijn (2002) from A Festscrift for Ove Frank
-  # Both papers are available from Tom Snijders' web page: 
-  #          http://stat.gamma.rug.nl/snijders/publ.htm
 
 
   cat("Robbins-Monro algorithm with theta_F_0 = (",theta.form0, ") and theta_D = (",theta.diss,")\n" )
@@ -38,6 +80,70 @@ stergm.RM <- function(theta.form0, nw, model.form, model.diss, Clist,
                        network=nw)),
             class="stergm")
 }
+
+
+
+
+
+
+
+################################################################################
+# The <stergm.phase12.C> function is basically a wrapper for <MCMCDynPhase12.c>,
+# which does the Rob-Mon sampling and estimation 
+#
+# --PARAMETERS--
+#   g              : a network object
+#   meanstats      : the mean statistics to be subtracted from the observed
+#                    statistics
+#   model.form     : a formation model, as returned by <ergm.getmodel>
+#   model.diss     : a dissolution model, as returned by <ergm.getmodel>
+#   MHproposal.form: a MHproposal object for the formation process, as
+#                    returned by <getMHproposal>
+#   MHproposal.diss: a MHproposal object for the dissolution process, as
+#                    returned by <getMHproposal>
+#   eta.form0      : the initial and canonical eta formation parameters
+#   eta.diss       : the initial and canonical eta dissolution parameters
+#   MCMCparams     : the list of parameters which tune the MCMC sampling
+#                    processes; recognized components include:
+#       meanstats      : presumably the mean statistics, but this isn't used
+#                        other than to return it
+#       maxchanges     : 5 times the maximum number of changes to allocate 
+#                        space for; this value is ignored if the number of edges 
+#                        in 'g' is greater than 'maxchanges'; this value is 
+#                        divided by 5 before being used to deteremine the max
+#                        number of changes
+#       RM.init_gain   : this is only used to adjust 'aDdiaginv'in phase1,
+#                        in particular:
+#                             aDdiaginv = gain/sqrt(aDdiaginv)
+#       RM.phase1n_base: this helps define the 'phase1n' param, which in turn
+#                        multiplies 'RM.interval' to control the number of
+#                        phase1 iterations; this is the base portion of 'phase1n',
+#                        which is added to 3*(the number of formation coefficients)
+#                        to form 'phase1n'
+#       RM.phase2sub   : phase2 is a 3-deep nested for-loop and 'RM.phase2sub' limits
+#                        the outer loop counter
+#       RM.phase2n_base: this helps define the 'phase2n' param, which in turn
+#                        limits the phase2 middle loop counter; this is the
+#                        base portion of 'phase2n', which is added to 7+(the number
+#                        of formation coefficients) to form 'phase2n'
+#       RM.burnin      : the number of MCMC steps to disregard for the burn-in
+#                        period
+#       RM.interval    : like the SPSA.interval, this seems a little more like
+#                        a sample size, than an interval, it helps control the 
+#                        number of MCMCsteps used in phase1 and phase2; in
+#                        phase2, this limits the innermost loop counter
+#       MH.burnin      : this is received as MH_interval and is used to
+#                        control the number of proposals in each MCMC step
+#   verbose        : whether this and subsequently called R and C code
+#                    should be verbose (T or F); default=FALSE
+#   
+# --RETURNED--
+#   a list with the 2 following components:
+#      meanstats: the 'meanstats' from the 'MCMCparams'; note that this is NOT
+#                 the 'meanstats' inputted directly to this function
+#      eta.form : the estimated? eta formation coefficients
+#
+################################################################################
 
 stergm.phase12.C <- function(g, meanstats, model.form, model.diss, 
                              MHproposal.form, MHproposal.diss, eta.form0, eta.diss,

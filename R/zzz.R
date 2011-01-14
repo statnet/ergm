@@ -1,6 +1,24 @@
+#==============================================================================
+# This file contains the following 2 conventional functions used by R to load
+# and unload packages:
+#             <.First.lib>
+#             <.Last.lib>
+#==============================================================================
+
+
+
+###############################################################################
+# The <.First.lib> function loads the compiled ergm code and prints the
+# copyright information; <.First.lib> is called when ergm is loaded by library()
 #
-# .First.lib is run when the package is loaded.
+# --PARAMETERS--
+#   lib: the name of the library directory where 'pkg' is stored
+#   pkg: the name of the package
 #
+# --RETURNED--
+#   a libraryIQR object
+#
+###############################################################################
 
 .First.lib <- function(lib, pkg){
   library.dynam("ergm", pkg, lib)
@@ -22,6 +40,15 @@
 #   cat('To cite, see citation("ergm")\n')
 #   require(network, quietly=TRUE)
 }
+
+
+
+#############################################################
+# The <.Last.lib> function unloads the compiled ergm code
+#
+# --PARAMETERS--
+#   libpath: the complete path to the package, as a string
+#############################################################
 
 .Last.lib <- function(libpath){
   library.dynam.unload("ergm",libpath)

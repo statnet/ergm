@@ -1,10 +1,61 @@
-ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams, 
-                               verbose) {
+#==============================================================================
+# This file contains the 2 following functions for getting an MCMC sample
+#      <ergm.getMCMCsample.parallel>
+#      <ergm.mcmcslave>
+#==============================================================================
+
+
+
+
+#########################################################################################
+# The <ergm.getMCMCsample.parallel> function samples networks using an MCMC algorithm via
+# <MCMC_wrapper.C>. Unlike its <ergm.getMCMCsample> counterpart, this function is
+# caple of running in multiple threads.  Note that the returned stats will be relative to
+# the original network, i.e., the calling function must shift the statistics if required. 
+# The calling function must also attach column names to the statistics matrix if required.
+#
+# --PARAMETERS--
+#   nw        :  a network object
+#   model     :  a model for the given 'nw' as returned by <ergm.getmodel>
+#   MHproposal:  a list of the parameters needed for Metropolis-Hastings proposals and
+#                the result of calling <MHproposal>
+#   eta0      :  the initial eta coefficients
+#   verbose   :  whether the C functions should be verbose; default=FALSE
+#   MCMCparams:  list of MCMC tuning parameters; those recognized include
+#       parallel    : the number of threads in which to run the sampling
+#       packagenames: names of packages; this is only relevant if "ergm" is given
+#       Clist.dt    : this is a Clist, similar to that returned by
+#                     <ergm.Cprepare>, but this is for fitting dynamic models
+#       Clist.miss  : a corresponding 'Clist' for the network of missing edges,
+#                     as returned by <ergm.design>
+#       samplesize  : the number of networks to be sampled
+#       interval    : the number of proposals to ignore between sampled networks
+#       burnin      : the number of proposals to initially ignore for the burn-in
+#                     period
+#       stats       : ??
+#
 # Note:  In reality, there should be many fewer arguments to this function,
 # since most info should be passed via Clist (this is, after all, what Clist
 # is for:  Holding all arguments required for the .C call).  In particular,
 # the elements of MHproposal, MCMCparams, verbose should certainly
 # be part of Clist.  But this is a project for another day!
+#
+# --RETURNED--
+#   the sample as a list containing:
+#     statsmatrix:  the stats matrix for the sampled networks, RELATIVE TO THE ORIGINAL
+#                   NETWORK!
+#     newnetwork :  the edgelist of the final sampled network
+#     meanstats  :  NULL always (I think - 'meanstats' is taken from Clist, which
+#                   is taken from a call to <ergm.Cprepare> which doesn't return
+#                   a 'meanstats' component. Code to adjust 'meanstats' if null has
+#                   been commented out)
+#     nedges     :  the number of edges in the 'newnetwork' ??
+#
+#########################################################################################
+
+ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams, 
+                               verbose) {
+  
   Clist <- ergm.Cprepare(nw, model)
   if(is.null(MCMCparams$Clist.dt)){
     MCMCparams$Clist.dt <- list(heads=NULL, tails=NULL, nedges=0, dir=is.directed(nw))
@@ -121,9 +172,46 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
   list(statsmatrix=statsmatrix, newnetwork=newnetwork, 
        meanstats=Clist$meanstats, nedges=nedges)
 }
-# Function the slaves will call to perform a validation on the
-# mcmc equal to their slave number.
-# Assumes: Clist MHproposal eta0 MCMCparams maxedges verbose
+
+
+
+
+
+###############################################################################
+# The <ergm.mcmcslave> function is that which the slaves will call to perform
+# a validation on the mcmc equal to their slave number. It also returns an
+# MCMC sample.
+#
+# --PARAMETERS--
+#   Clist     : the list of parameters returned by <ergm.Cprepare>
+#   MHproposal: the MHproposal list as returned by <getMHproposal>
+#   eta0      : the canonical eta parameters
+#   MCMCparams: a list of parameters for controlling the MCMC algorithm;
+#               recognized components include:
+#       Clist.dt    : this is a Clist, similar to that returned by
+#                     <ergm.Cprepare>, but this is for fitting dynamic models
+#       Clist.miss  : a corresponding 'Clist' for the network of missing edges,
+#                     as returned by <ergm.design>
+#       samplesize  : the number of networks to be sampled
+#       stats       : ??
+#       interval    : the number of proposals to ignore between sampled networks
+#       burnin      : the number of proposals to initially ignore for the burn-in
+#                     period
+#   maxedges  : the maximum number of edges?? - this is merely used to indicate
+#               whether the new generated network should be recorded in the C
+#               code to pass back to R;  non-negative integers imply 'yes', 0
+#               implies 'no'
+#   verbose   : whether the C code should be verbose (T or F) 
+#
+# --RETURNED--
+#   the MCMC sample as a list of the following:
+#     s         : the statsmatrix
+#     newnwheads: the vector of heads for the new network- is this the final
+#                 network sampled? - is this the original nw if 'maxedges' is 0
+#     newnwtails: the vector of tails for the new network - same q's
+#
+###############################################################################
+
 ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
   numnetworks <- 0
   nedges <- c(Clist$nedges,0,0)
