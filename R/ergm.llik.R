@@ -247,7 +247,7 @@ llik.hessian.naive <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.m
   # the sake of numberical stability:
   x <- eta-eta0
   x <- x[!etamap$offsettheta]
-vv  basepred <- xsim %*% x
+  basepred <- xsim %*% x
   w <- probs * exp(basepred - max(basepred))
   w <- w/sum(w)
   wtxsim <- sweep(xsim, 1, w, "*")
