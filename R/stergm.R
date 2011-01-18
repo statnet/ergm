@@ -41,7 +41,6 @@
 #   but remember that, <stergm> will additionally return the items from
 #   one of the other stergm functions as well:
 #       <stergm>             = $
-#       <stergm.mainfitloop> = *
 #       <stergm.RM>          = @
 #       <stergm.SPSA>        = &
 #       <stergm.NM>          = !
@@ -67,35 +66,8 @@
 #   $     formation   : the formation formula, as 'nw ~ term(s)'
 #   $     dissolution : the dissolution formula, as 'nw ~ term(s)'
 #   $     constraints : the constraints formula
-#    *    coef        :  the vector of estimated model coefficients
-#    *    sample      :  the row-binded matrix of network statistics from
-#                        each sample; if returned by <ergm.PILA> 'sample'
-#                        will also have 2 attributes
-#             mcpar   : the following vector taken from MCMCparams:
-#                              c(burnin+1, endrun, interval)
-#                       where 'endrun' is defined as
-#                             burnin+interval*(samplesize-1)
-#             class   : "mcmc"
-#    *    iterations  :  the number of Newton-Raphson iterations required
-#                        before convergence
-#    *    MCMCtheta   :  the vector of natural parameters used to produce
-#                        the MCMC sample
-#    *    mcmcloglik  :  the mcmc calculated log likelihood evaluated at ??
-#    *    gradient    :  the value of the gradient of the approximated log-
-#                        likelihood function at the maximizing value
-#    *    covar       :  the approximated covariance matrix for the MLE
-#    *    samplesize  :  the size of the MCMC sample
-#    *    failure     :  whether estimation failed (T or F)
-#    *    mc.se       :  the standard error estimates
 #    *@&  newnetwork  :  the final network sampled
 #     @&  network    :  the 'nw' inputted to <ergm> via the 'formula'
-#    *    burnin    :  the 'burnin' value inputted to <ergm>
-#    *    interval :  the 'interval' value inputted to <ergm>
-#    *    mplefit         :  the MPLE fit as a glm object, and returned by
-#                                   <ergm.mple>
-#    *    null.deviance   :  the deviance of the null model
-#    *    mle.lik         :  the approximate log-likelihood for the MLE
-#    *    sample.miss     :  the matrix of sample network statistics for those
 #   $     prop.args.form     :  the MHP formation arguments passed to the
 #                               InitMHP rountines
 #   $     prop.args.diss     :  the MHP dissolution arguments passed to the
@@ -107,8 +79,6 @@
 #                               sampling
 #     @   theta.form.original:  the formation theta values at the start of the
 #                               MCMC sampling
-#    *    loglikelihood      :  the estimated change in log-likelihood in the 
-#                               last iteration
 #   $     prop.weights.diss  :  as 'prop.weights.form', but for the dissolution
 #                               model
 #     &   objective.history  :  the number of SPSA iteration used
@@ -263,14 +233,7 @@ if (verbose) cat("Fitting Dynamic ERGM.\n")
                   Clist, theta.diss, 
                   MCMCparams=MCMCparams, MHproposal.form=MHproposal.form,
                   MHproposal.diss=MHproposal.diss,
-                  verbose),
-                stergm.mainfitloop(theta.form0, nw,
-                                     model.form=model.form, model.diss=model.diss, Clist,
-                                     theta.diss, initialfit,
-                                     MCMCparams=MCMCparams, 
-                                     MHproposal.form=MHproposal.form, MHproposal.diss=MHproposal.diss,
-                                     verbose=verbose, 
-                                     ...)
+                  verbose)
                 )
 
   v$MH.burnin <- MH.burnin
