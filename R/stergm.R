@@ -66,7 +66,7 @@
 #   $     formation   : the formation formula, as 'nw ~ term(s)'
 #   $     dissolution : the dissolution formula, as 'nw ~ term(s)'
 #   $     constraints : the constraints formula
-#    *@&  newnetwork  :  the final network sampled
+#     @&  newnetwork  :  the final network sampled
 #     @&  network    :  the 'nw' inputted to <ergm> via the 'formula'
 #   $     prop.args.form     :  the MHP formation arguments passed to the
 #                               InitMHP rountines
@@ -75,7 +75,7 @@
 #   $     prop.weights.form  :  the method used to allocate probabilities of
 #                               being proposed to dyads in the formation stage,
 #                               as "TNT", "random", "nonobserved", or "default"
-#    * &  theta.original     :  the theta values at the start of the MCMC 
+#      &  theta.original     :  the theta values at the start of the MCMC 
 #                               sampling
 #     @   theta.form.original:  the formation theta values at the start of the
 #                               MCMC sampling
