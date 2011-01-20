@@ -1,22 +1,38 @@
-ergm.etamap <- function(model) {
-# Take a model object and create a 'mapping' from the parameter of
-# interest, theta, to the canonical parameter, eta.  This 'mapping'
-# is a list with six items:
-#  The first item, canonical, summarizes the
-# one-to-one correspondence between those components of theta that
-# are actually canonical and their counterparts in eta.
-#  The fifth item,
-# curved, is itself a list, with one element per curved EF term in the
-# model.
-#  The sixth item, etalength, is the length of eta.
-# The function ergm.eta actually carries out the mapping.
+###########################################################################
+# The <ergm.etamap> function takes a model object and creates a mapping
+# from the model parameters, theta, to the canonical eta parameters;
+# the mapping is carried out by <ergm.eta>
 #
-# Apparently three more items have been added to the list:
-#  Items 2 through 4 (offsetmap, offset, and offsettheta)
-#  tell which terms to offset.  The first, offsetmap, should be used
-#  to index the parameters and terms in the canonical parameterization,
-#  whereas the last, offsettheta, indexes those of the curved 
-#  parameter theta.
+# --PARAMETERS--
+#   model: a model object, as returned by <ergm.getmodel>
+#
+# --RETURNED--
+#   etamap: the theta -> eta mapping given by a list of the following:
+#     canonical  : a numeric vector whose ith entry specifies whether
+#                  the ith component of theta is canonical (via non-
+#                  negative integers) or curved (via zeroes)
+#     offsetmap  : a logical vector whose ith entry tells whether the
+#                  ith coefficient of the canonical parameterization
+#                  was "offset", i.e fixed 
+#     offset     : a logical vector whose ith entry tells whether the
+#                  ith model term was offset/fixed
+#     offsettheta: a logical vector whose ith entry tells whether the
+#                  ith curved theta coeffient was offset/fixed;
+#     curved     : a list with one component per curved EF term in the
+#                  model containing
+#         from    : the indices of the curved theta parameter that are
+#                   to be mapped from
+#         to      : the indices of the canonical eta parameters to be
+#                   mapped to
+#         map     : the map provided by <InitErgmTerm>
+#         gradient: the gradient function provided by <InitErgmTerm> 
+#         cov     : the eta covariance ??, possibly always NULL (no
+#                   <Init> function creates such an item)
+#     etalength  : the length of the eta vector
+#
+###############################################################################
+
+ergm.etamap <- function(model) {
   etamap <- list(canonical = NULL, offsetmap=NULL, offset=model$offset,
                  offsettheta=NULL, curved=list(), etalength=0)
   from <- 1

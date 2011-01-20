@@ -1006,6 +1006,75 @@ InitErgm.concurrent<-function(nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
+InitErgm.concurrentties<-function(nw, m, arglist, drop=TRUE, ...) {
+  ergm.checkdirected("concurrentties", is.directed(nw), requirement=FALSE)
+  a <- ergm.checkargs("concurrentties", arglist,
+                      varnames = c("byarg"),
+                      vartypes = c("character"),
+                      defaultvalues = list(NULL),
+                      required = c(FALSE))
+  byarg <- a$byarg
+  if(!is.null(byarg)) {
+    nodecov <- get.node.attr(nw, byarg, "concurrentties")
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+    nodecov <- match(nodecov,u) # Recode to numeric
+    if (length(u)==1)
+      stop ("Attribute given to concurrentties() has only one value", call.=FALSE)
+    # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
+    lu <- length(u)
+    ui <- seq(along=u)
+    if(drop){ #   Check for degeneracy
+      concurrentattr <- summary(as.formula
+                             (paste('nw ~ concurrentties(',byarg,'")',sep="")),
+                             drop=FALSE) == 0
+      if(any(concurrentattr)){
+        dropterms <- paste("concurrentties", ".", byarg,
+                           u[concurrentattr], sep="")
+      cat(" ")
+        cat("Warning: These concurrentties terms have extreme counts and will be dropped:\n")
+        cat(dropterms, "", fill=TRUE)
+        cat("  The corresponding coefficients have been fixed at their MLE of negative infinity.\n")
+        u <- u[-concurrentattr]
+        ui <- ui[-concurrentattr]
+      }
+    }
+  } else {
+    if(is.logical(byarg)){drop <- byarg}
+    if(drop){
+      mconcurrent <- summary(
+                          as.formula(paste('nw ~ concurrentties',sep="")),
+                          drop=FALSE) == 0
+      if(any(mconcurrent)){
+      cat(" ")
+        cat(paste("Warning: There are no concurrentties b1s;\n",
+                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+        return(m)
+      }
+    }                                                         
+  }
+  termnumber<-1+length(m$terms)
+  if(!is.null(byarg)) {
+    if(length(u)==0) {return(m)}
+    #  No covariates here, so input component 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="concurrent_ties_by_attr", soname="ergm",
+                                  inputs=c(0, length(u), 
+                                           length(u)+length(nodecov), 
+                                           ui, nodecov),
+                                  dependence=TRUE)
+    # See comment in d_concurrent_ties_by_attr function
+    m$coef.names<-c(m$coef.names, paste("concurrentties",".", byarg,
+                                        u, sep=""))
+  }else{
+    #  No covariates here, so input component 1 is arbitrary
+    m$terms[[termnumber]] <- list(name="concurrent_ties", soname="ergm",
+                                       inputs=c(0, 1, 0),
+                                       dependence=TRUE)
+    m$coef.names<-c(m$coef.names,paste("concurrentties",sep=""))
+  }
+  m
+}
+
 #########################################################
 InitErgm.ctriple<-InitErgm.ctriad<-function (nw, m, arglist, drop=TRUE, ...) {
   ergm.checkdirected("ctriple", is.directed(nw), requirement=TRUE)

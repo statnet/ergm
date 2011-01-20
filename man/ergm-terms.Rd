@@ -21,6 +21,7 @@
 \alias{b2twostar}
 \alias{balance}
 \alias{concurrent}
+\alias{concurrentties}
 \alias{ctriple}
 \alias{cycle}
 \alias{degree}
@@ -367,6 +368,16 @@ network
     it functions just like the \code{by} argument of the \code{degree} term.
     This term can only be used with undirected
     networks. }
+
+    \item{\code{concurrentties(by=NULL)}}{\emph{Concurrent tie count:} 
+    This term adds one network statistic to the model, equal to the number of
+    ties incident on each actor beyond the first. The optional argument
+    \code{by} is a character string giving the name of an attribute in the
+    network's vertex attribute list;
+    it functions just like the \code{by} argument of the \code{degree} term.
+    This term can only be used with undirected
+    networks. }
+
     
     \item{\code{ctriple(attrname=NULL)}}{\emph{Cyclic triples:} This term adds one
     statistic to the model, equal to the number of cyclic triples in the

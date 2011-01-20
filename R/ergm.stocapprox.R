@@ -1,18 +1,44 @@
+############################################################################
+# The <ergm.stocapprox> function provides one of the styles of maximum
+# likelihood estimation that can be used. This one is based on Snijders
+# (2002), J of Social Structure and Snijders and van Duijn (2002) from
+# A Festscrift for Ove Frank.  Both papers are available from Tom Snijders'
+# web page:         http://stat.gamma.rug.nl/snijders/publ.htm
+# The other MLE styles are found in functions <ergm.robmon>, <ergm.stepping>
+# and <ergm.mainfitloop>
+#
+# --PARAMETERS--
+#   theta0    : the initial theta values
+#   nw        : the network
+#   model     : the model, as returned by <ergm.getmodel>
+#   Clist     : a list of several network and model parameters,
+#               as returned by <ergm.Cprepare>
+#   initialfit: an ergm object, as the initial fit
+#   MCMCparams: a list of parameters for controlling the MCMC sampling;
+#               recognized components include
+#                  'phase1_n'      'phase3_n'    'epsilon'
+#                  'initial_gain'  'nsubphases'  'niterations'
+#                  'nr.maxit'      'nr.reltol'   'calc.mcmc.se'
+#                  'hessian'       'method'      'metric'
+#                  'compress'      'trustregion' 'burnin'
+#                  'interval'
+#               the use of these variables is explained in the
+#               <control.ergm> function header
+#   MHproposal: an MHproposal object for 'nw', as returned by
+#               <getMHproposal>
+#   verbose   : whether the MCMC sampling should be verbose (T or F);
+#               default=FALSE
+#
+# --RETURNED--
+#   v: an ergm object as a list containing several items; for details see
+#      the return list in the <ergm> function header (<ergm.stocapprox>=%)
+#
+###########################################################################      
+
 ergm.stocapprox <- function(theta0, nw, model, Clist,
                             MCMCparams, MHproposal,
                             verbose=FALSE){
-  # This is based on Snijders (2002), J of Social Structure
-  # and Snijders and van Duijn (2002) from A Festscrift for Ove Frank
-  # Both papers are available from Tom Snijders' web page: 
-  #          http://stat.gamma.rug.nl/snijders/publ.htm
-  
-  # The 'algorithm.contol' list could have any of the following elements:
-  #     phase1_n: Sample size for phase 1
-  #     initial_gain:  Initial value of a for phase 2
-  #     nsubphases:  Number of subphases for phase 2
-  #     niterations: Initial number of iterations for first subphase of phase 2
-  #     phase3_n:  Sample size for phase 3
-  
+    
   #phase 1:  Estimate diagonal elements of D matrix (covariance matrix for theta0)
   n1 <- MCMCparams$phase1_n
   if(is.null(n1)) {n1 <- max(200,7 + 3 * Clist$nstats)} #default value

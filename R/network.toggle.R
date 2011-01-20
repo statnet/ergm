@@ -1,3 +1,35 @@
+#===========================================================
+# This file contains the 2 following functions for updating
+# networks with a proposed set of changes 
+#     <network.toggle>
+#     <network.accumulate>
+#===========================================================
+
+
+
+################################################################
+# The <network.toggle> and <network.accumulate> functions each
+# realize a set of proposed changes on a given network. The
+# toggle variant toggles the given edges. The accumulate variant
+# adds ?? the given edges
+#
+# --PARAMETERS--
+#   nw      : the network object that will receive the changes
+#   nws     : the edges to be toggled or accumulated, as either 
+#             a network, an edgelist or a network series; if
+#             'timestep' is provided, only a network series is 
+#             valid input; if 'timestep' is not provided, only 
+#             the edgelist and network are valid input
+#   timestep: an indicator of which input types are allowd by
+#             'nws'; NULL allows networks and edgelists;
+#             non-NULL allows network series; default=NULL
+#
+# --RETURNED--
+#   the original 'nw' with the proposed set of edges toggled or
+#   accumulated according to the funtion call
+#
+#################################################################
+
 network.toggle<-function(nw,nws,timestep=NULL)
 {
   if(is.null(timestep)){
@@ -26,6 +58,15 @@ network.toggle<-function(nw,nws,timestep=NULL)
    nw
   }
 }
+
+
+
+
+#############################################################
+# The <network.accumulate> is nearly identical to the
+# <network.toggle> function.  please see its function header
+#############################################################
+
 network.accumulate<-function(nw,nws,timestep=NULL)
 {
   if(is.null(timestep)){

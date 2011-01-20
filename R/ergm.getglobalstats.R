@@ -1,8 +1,19 @@
+###########################################################################
+# The <ergm.getglobalstats> function calculates and returns the global
+# statistics for a given network via <network_stats_wrapper.C>
+#
+# --PARAMETERS--
+#   nw:  a network object
+#   m :  the model in use with network nw, as returned by <ergm.getmodel>
+#
+#
+# --RETURNED--
+#   gs:  a vector of the global statistics
+#
+#############################################################################
+
 ergm.getglobalstats <- function(nw, m, response=NULL) {
   Clist <- ergm.Cprepare(nw, m, response=response)
-  #
-  #    Calculate the global statistics
-  #
   
   gs <- (
          if(is.null(response))
@@ -31,10 +42,8 @@ ergm.getglobalstats <- function(nw, m, response=NULL) {
             )$gs
          )
   names(gs) <- m$coef.names
-  
-  #
+
   # Adjust to global values
-  #
                                                                 
   # New method:  Use $emptynwstats added to m$terms by the InitErgm function
   # Read the comments at the top of InitErgm.R or InitErgmTerm.R for 

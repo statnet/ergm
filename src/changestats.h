@@ -40,6 +40,8 @@ D_CHANGESTAT_FN(d_boundedtriangle);
 /********************  changestats:  C    ***********/
 D_CHANGESTAT_FN(d_concurrent);
 D_CHANGESTAT_FN(d_concurrent_by_attr);
+D_CHANGESTAT_FN(d_concurrent_ties);
+D_CHANGESTAT_FN(d_concurrent_ties_by_attr);
 D_CHANGESTAT_FN(d_ctriple);
 D_CHANGESTAT_FN(d_cycle);
   void edgewise_path_recurse(Network *g, Vertex dest, 

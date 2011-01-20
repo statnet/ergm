@@ -1,7 +1,19 @@
+##############################################################################
+# The <ergm.eta> function calculates and returns eta, mapped from
+# theta using the etamap object created by <ergm.etamap>.
+#
+# --PARAMETERS--
+#   theta :  the curved model parameters  
+#   etamap:  the list of values that constitutes the theta-> eta mapping
+#            and is returned by <ergm.etamap>
+#
+# --RETURNED--
+#   eta:  the canonical eta parameters as mapped from theta; infinite parameters
+#         are replaced by -10000
+#
+###############################################################################
+
 ergm.eta <- function(theta, etamap) {
-# This function maps theta to eta based on the etamap object created
-# by ergm.etamap.
-#eta.cov added by CTB on 1/28/06
   eta <- rep(0,etamap$etalength)
   ec <- etamap$canonical
   eta[ec[ec>0]] <- theta[ec>0]

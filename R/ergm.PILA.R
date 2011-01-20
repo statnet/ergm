@@ -1,3 +1,45 @@
+######################################################################
+# The <ergm.PILA> function estimates an ergm, but uniquely does so by
+# using the PILA sampler to create the initial theta vector, before
+# the usual estimation process continues
+#
+# --PARAMETERS--
+#   theta0    : the initial theta values used to draw a PILA sample
+#               and subsequently find the usual 'theta0'
+#   nw        : the network
+#   model     : the model, as returned by <ergm.getmodel>
+#   Clist     : a list of several network and model parameters,
+#               as returned by <ergm.Cprepare>
+#   MHproposal: an MHproposal object for 'nw', as returned by
+#               <getMHproposal>
+#   MCMCparams: a list of parameters for controlling the MCMC sampling;
+#               recognized components include:
+#     samplesize     : the size of the sample to collect
+#     interval       : the number of proposals to disregard between
+#                      samples
+#     burnin         : the number of proposals to initially disregard
+#                      for the burn-in period
+#     PILA.steplength: ??
+#     PILA.gamma     : ??
+#     parallel       : the number of threads in which to run the sampling
+#     packagenames   : names of packages; this is only relevant if
+#                      "ergm" is given
+#     Clist.dt       : this is a Clist, similar to that returned by
+#                      <ergm.Cprepare>, but this is for fitting dynamic
+#                      models
+#     Clist.miss     : a corresponding 'Clist' for the network of missing 
+#                      edges, as returned by <ergm.design>
+#   control   : a list of control parameters for estimation as
+#               returned by <control.ergm>
+#   verbose   : whether the MCMC sampling should be verbose (T or F);
+#               default=FALSE
+#   
+# --RETURNED--
+#   v: an ergm object as a list containing several items; for details see
+#      the return list in the <ergm> function header (<ergm.PILA>= +);
+#
+######################################################################
+
 ergm.PILA <- function(theta0, nw, model, Clist,
                       MHproposal,MCMCparams, control,
                       verbose=FALSE){

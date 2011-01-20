@@ -57,7 +57,7 @@ typedef struct Dur_Infstruct {
      the smallest index of an edge object not being used.  
    outdegree[] and indegree[] are continually updated to give
      the appropriate degree values for each vertex.  These should
-     point to Vertex-vectors of length nnodes.  
+     point to Vertex-vectors of length nnodes+1.  
    value:  optional value(s) associated with this network 
 */
 typedef struct Networkstruct {

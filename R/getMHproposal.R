@@ -1,3 +1,15 @@
+#=======================================================================================
+# This file contains the following 6 files for creating MHproposal objects
+#          <MHproposal>                <MHproposal.character>
+#          <MHproposal.NULL>           <MHproposal.formula>
+#          <MHproposal.MHproposal>     <MHproposal.ergm>
+#=======================================================================================
+
+
+
+# the MHproposal look-up table: these are the combinations of constraints, weights,
+# and proposals that are supported
+
 MHproposals<-
   #         Class Constraints     Reference              Weights        MHP
   rbind(I(c("c", "",              "Bernoulli",  "default",      "TNT")),
@@ -67,13 +79,53 @@ MHproposals <- data.frame(I(MHproposals[,1]), I(MHproposals[,2]),
                           I(MHproposals[,5]))
 colnames(MHproposals)<-c("Class","Constraints","Reference","Weights","MHP")
 
+
+
+
+
+########################################################################################
+# The <MHproposal> function initializes and returns an MHproposal object via one of the
+# class-specific functions below
+#
+# --PARAMETERS--
+#   (see the class-specific function headers)
+#
+# --RETURNED--
+#   proposal: an MHproposal object as a list containing
+#   name   : the name of the proposal
+#   args   : NULL (I think - the only non-null value returned by the InitMH
+#            is for <nobetweengroupties>, but this isn't included in the
+#            look-up table
+#   package: is "ergm"
+#   bd     : the list of parameters to bound degree in the fitting process
+#            and returned by <ergm.bounddeg>
+#
+########################################################################################
+
 MHproposal<-function(object, ...) UseMethod("MHproposal")
 
-# This could be useful for trapping bugs before they become mysterious
-# segfaults.
+
+# This could be useful for trapping bugs before they become mysterious segfaults.
 MHproposal.NULL<-function(object, ...) stop("NULL passed to MHproposal. This may be due to passing an ergm object from an earlier version. If this is the case, please refit it with the latest version, and try again. If this is not the case, this may be a bug, so please file a bug report.")
 
+
+
 MHproposal.MHproposal<-function(object,...) return(object)
+
+
+
+########################################################################################
+# The <MHproposal.character> function initializes the MHproposal object using the
+# <InitMHP.> function that corresponds to the name given in 'object'
+#
+# --PARAMETERS--
+#   object     :  the name of the proposal, one found in the look-up table
+#   arguments  :  a list of parameters used by the <Init.MHP> routines possibly including
+#                  bd: a list of parameters used to bound degree via <ergm.bounddeg>
+#   nw         :  the network object orginally given to <ergm> via 'formula'
+#   model      :  the initial model object constructed by <ergm>
+#
+########################################################################################
 
 MHproposal.character <- function(object, arguments, nw, model, ...){
   name<-object
@@ -85,6 +137,31 @@ MHproposal.character <- function(object, arguments, nw, model, ...){
   class(proposal)<-"MHproposal"
   proposal
 }
+
+
+
+
+
+########################################################################################
+# The <MHproposal.formula> function verifies that the given constraints exist and
+# are supported in conjuction with the given weights and class by a unique MH proposal;
+# if so the MHproposal object is created via <MHproposal.character> using the
+# MHP type found in the look-up table above.
+#
+# --PARAMETERS--
+#   object     :  a one-sided formula of constraint terms ( ~ term(s))
+#   arguments  :  a list of parameters used by the <Init.MHP> routines  possibly including
+#                  bd: a list of parameters used to bound degree via <ergm.bounddeg>
+#   nw         :  a network object
+#   model      :  a model object; default=<ergm.getmodel(object$formula,nw,...)>
+#   constraints:  the constraints as a one sided formula '~ term(s)'
+#   weights    :  specifies the method used to allocate probabilities of being proposed
+#                 to dyads; options are "TNT", "TNT10", "random", "nonobserved" and
+#                 "default"; default="default"
+#   class      :  the class of the proposal; choices include "c", "f", "d", "fmle"
+#                 and "dmle"; default="c"
+#
+########################################################################################
 
 MHproposal.formula <- function(object, arguments, nw, model, weights="default", class="c", reference="Bernoulli", ...) {
 
@@ -143,6 +220,32 @@ MHproposal.formula <- function(object, arguments, nw, model, weights="default", 
   ## Hand it off to the class character method.
   MHproposal.character(name,arguments,nw,model)
 }
+
+
+
+
+
+########################################################################################
+# The <MHproposal.ergm> function creates the MHproposal object via <MHproposal.formula>
+# after extracting the appropriate parameters from the given ergm object
+#
+# --PARAMETERS--
+#   object     :  an ergm object
+#   ...        :  parameters used to create the model via <ergm.getmodel>;
+#                 only used if 'model' is not specified; these may include
+#                 'silent', 'drop' and 'initialfit'
+#   constraints:  the constraints as a one sided formula '~ term(s)';
+#                 default=object$constraints
+#   arguments  :  a list of parameters used by the <Init.MHP> routines  possibly including
+#                  bd: a list of parameters used to bound degree via <ergm.bounddeg>
+#   nw         :  a network object; default=object.network
+#   model      :  a model object; default=<ergm.getmodel(object$formula,nw,...)>
+#   weights    :  the proposal weights component of <control.ergm> as either
+#                 "TNT", "random", "TNT10", or "default"; default="default"
+#                 (these options don't agree with the prop.weights of <control.ergm>)
+#   class      :  "c", otherwise execution will halt
+#
+########################################################################################
 
 MHproposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NULL, model=NULL,weights=NULL,class="c", reference="Bernoulli"){
   if(is.null(constraints)) constraints<-object$constraints

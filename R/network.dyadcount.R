@@ -1,5 +1,18 @@
-# Retrieve the number of free dyads (i.e., number of non-missing) of network x.
+####################################################################
+# The <network.dyadcount> function counts the number of dyads in a
+# given network; the count may include or exclude missing dyads
 #
+# --PARAMETERS--
+#   x      :  a network
+#   na.omit:  whether to exclude missing dyads from the returned 
+#             count; default=TRUE
+#
+# --RETURNED--
+#   dyads:  the count of non-missing dyads in 'x' if 'na.omit'=TRUE
+#           the count of all dyads in 'x' if 'na.omit'=FALSE
+#
+####################################################################
+
 network.dyadcount<-function(x,na.omit=TRUE){
   if(!is.network(x))
     stop("network.dyadcount requires an argument of class network.")

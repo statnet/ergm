@@ -1,4 +1,26 @@
-#Two-dimensional network visualization based on plot.network.default
+#########################################################################
+# The <plot.network.ergm> function produces a two-dimensional network
+# visualization based on <plot.network.default>; a variety of options are 
+# available to control vertex placement, display details, color, etc; the 
+# function is based on the plotting capabilities of the network package 
+# with additional pre-processing of arguments; some of the capabilites 
+# require the latentnet package; see <plot.network> in the network package
+# for details.
+#
+# --PARAMETERS--
+#   x: a network
+#    : (see the man page for descriptions of the other 52 input params)
+#
+# --RETURNED--
+#   the plot as an invisible list containing:
+#    x        : the x-coordinates used in the plot
+#    y        : the y-coordinates used in the plot
+#    latentfit: the latent fit as a list containing:
+#       Z.mle : ??
+#       beta  : ??
+#
+#########################################################################
+
 "plot.network.ergm"<-function(x,
     attrname=NULL,
     label=network.vertex.names(x),

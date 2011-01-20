@@ -1,12 +1,28 @@
-#  get.node.attr takes the network.and a vertex attribute name, as
-#  well as the name of the function calling get.node.attr, as arguments.
-#  If there is a vertex attribute by that name, it returns the vector
-#  of covariates; otherwise, it aborts and prints an error message.
+###############################################################################
+# The <get.node.attr> function returns the vector of covariates for the given
+# network and specified attribute if the attribute exists - execution will
+# halt if the attribute is not correctly given as a single string or is not 
+# found in the vertex attribute list; optionally <get.node.attr> will also 
+# check that return vector is numeric, halting execution if not
+#
+# --PARAMETERS--
+#   nw          : a network object
+#   attrname    : the name of a nodal attribute, as a character string
+#   functionname: the name of the calling function; this is only used for
+#                 the warning messages that accompany a halt
+#   numeric     : whether to halt execution if the return vector is not
+#                 numeric; default=FALSE
+#   
+# --RETURNED--
+#   out:  the vector of 'attrname' covariates
+#
+###############################################################################
+
+get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {  
 
 # This is a kludge, which has been patched to bring it in line with the
 # corrected class definitions.  -CTB
 
-get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {  
   if (is.null(functionname)) {
     # Assume it's being called from InitErgm.* or InitErgmTerm.*
     # Otherwise,  get.InitErgm.fname() will return NULL

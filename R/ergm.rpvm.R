@@ -1,3 +1,29 @@
+#=================================================================
+# This file contains the 4 following functions for ??
+#      <ergm.rpvm.run>        <ergm.FindFailedSlaves>
+#      <ergm.rpvm.clean>      <ergm.rpvm.setup>
+#=================================================================
+
+
+
+#################################################################
+# The <ergm.rpvm.run> function ??
+#
+# --PARAMETERS--
+#   nsamp       : ?? this determines the length of out
+#   rpvmbasename: ?? but this is defaulted into the slave dir and name 
+#   SLAVEDIR    : the name of the directory dedicated to ??
+#   SLAVENAME   : 
+#   PARTAG1     :
+#   RESTAG2     :
+#   EXITTAG3    :
+#   maxdeg      :
+#
+# --RETURNED--
+#   out: a vector of ??
+#
+#################################################################
+
 "ergm.rpvm.run" <- function(nsamp, rpvmbasename,
    SLAVEDIR=NULL, SLAVENAME=NULL,
    PARTAG=1, RESTAG=2, EXITTAG=3,
@@ -115,6 +141,24 @@
   out
 }
 
+
+
+#################################################################
+# The <ergm.rpvm.clean> function ??
+#
+# --PARAMETERS--
+#   cpy rpvmbasename, slavename and dir from above
+#   all         : whether all files should be unlinked??
+#   Rout        : whether the .Rout files should be unlinked ??
+#   indata      : whether the .in.Rdata files should be unlinked ??
+#   outdata     : whether the .out.Rdata files should be unlinked ??
+#   
+#
+# --RETURNED--
+#   NULL
+#
+#################################################################
+
 "ergm.rpvm.clean" <- function(rpvmbasename,
    SLAVEDIR=NULL, SLAVENAME=NULL,
    all=TRUE, Rout=FALSE, indata=FALSE, outdata=FALSE){
@@ -166,11 +210,42 @@
  invisible()
 }
 
+
+
+
 ergm.FindFailedSlaves <- function (tids) {
   status <- .PVM.pstats(tids)
   tids <- tids[status != "OK"]
   return(tids)
 }
+
+
+
+
+#################################################################
+# The <ergm.rpvm.setup> function ??
+#
+# --PARAMETERS--
+#   rpvmbasename:
+#   and copy dir and name
+#   verbose     : whether the rpvm setup function should be
+#                 verbose (T or F); default=FALSE
+#   packagename : the package name in which ??
+#                 default="ergm"
+#
+# --IGNORED--
+#   aux         : ??; default=FALSE 
+#
+# --RETURNED--
+#   the ?? as a list containging:
+#    mytid      :
+#    SLAVEDIR   : the default 'SLAVEDIR' or that which was inputted 
+#    SLAVENAME  : the default 'SLAVENAME' or that which was inputted 
+#    pvm.PARTAG : the integer 1
+#    pvm.RESTAG : the integer 2
+#    pvm.EXITTAG: the integer 3
+#
+#################################################################
 
 "ergm.rpvm.setup" <- function(rpvmbasename,
    SLAVEDIR=NULL, SLAVENAME=NULL,
@@ -289,6 +364,32 @@ ergm.FindFailedSlaves <- function (tids) {
  list(mytid=mytid, SLAVEDIR=SLAVEDIR, SLAVENAME=SLAVENAME,
        pvm.PARTAG=1, pvm.RESTAG=2, pvm.EXITTAG=3)
 }
+
+
+#################################################################
+# The <ergm.rpvm.setup> function ??
+#
+# --PARAMETERS--
+#   rpvmbasename:
+#   and copy dir and name
+#   verbose     : whether the rpvm setup function should be
+#                 verbose (T or F); default=FALSE
+#   packagename : the package name in which ??
+#                 default="ergm"
+#
+# --IGNORED--
+#   aux         : ??; default=FALSE 
+#
+# --RETURNED--
+#   the ?? as a list containging:
+#    mytid      :
+#    SLAVEDIR   : the default 'SLAVEDIR' or that which was inputted 
+#    SLAVENAME  : the default 'SLAVENAME' or that which was inputted 
+#    pvm.PARTAG : the integer 1
+#    pvm.RESTAG : the integer 2
+#    pvm.EXITTAG: the integer 3
+#
+#################################################################
 
 stergm.rpvm.setup <- function(rpvmbasename,
    SLAVEDIR=NULL, SLAVENAME=NULL,

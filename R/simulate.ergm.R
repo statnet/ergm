@@ -1,3 +1,61 @@
+#========================================================================
+# This file contains the following 2 functions for simulating ergms
+#           <simulate.ergm>
+#           <simulate.formula.ergm>
+#========================================================================                       
+
+
+########################################################################
+# Each of the <simulate.X> functions collects a given number of networks
+# drawn from the given distribution on the set of all networks; these
+# may be returned as only the vector/matrix of sufficient statistics or
+# as the networks and their statistics
+#
+# --PARAMETERS--
+#   object     : either an ergm or a formula of the form 'nw ~ term(s)'
+#   nsim       : the number of networks to draw; default=1
+#   basis      : optionally, a network to start the MCMC algorithm from;
+#                if provided, this overrides the network given in
+#                'object's formula; default=NULL
+#   seed       : an integer at which to set the random generator;
+#                default=NULL
+#   theta0     : the set of parameters from which the sample is to be
+#                drawn; default='object$coef' if 'object' is an ergm or
+#                0 if a formula
+#   burnin     : the number of proposals to disregard before any MCMC
+#                sampling is done; default=1000
+#   interval   : the number of proposals between sampled networks;
+#                default=1000
+#   statsonly  : whether to return only the network statistics;
+#                default=FALSE
+#   sequential : whether subsequent draws should use the prior draw
+#                as the starting network in the MCMC algorithm (T or F);
+#                if FALSE, the initial network is always used as the
+#                starting network; default=TRUE
+#   constraints: a one-sided formula specifying the constraints on the
+#                support of the distribution of networks being simulated;
+#                default=NULL
+#   control    : a list of control parameters for algorithm tuning, as
+#                returned by <control.simulate.ergm> or
+#                <control.simulate.formula>; default=<control.simulate.X>
+#   verbose    : whether to print out information on the status of
+#                the simulations; default=FALSE
+#
+# --RETURNED--
+#   if 'statsonly'=TRUE  -- the vector of summary statistics for the
+#      'nsim'=1             drawn network
+#   if 'statsonly'=TRUE  -- the matrix of summary statistics for each
+#                           drawn network; each row corresponds to a network
+#   if 'statsonly'=FALSE -- the drawn network
+#      'nsim'=1
+#   if 'statsonly'=FALSE -- a list with the following components:
+#      'nsim'>1              formula : 'object'
+#                            networks: the list of drawn networks
+#                            stats   : the matrix of summary stats
+#                            coef    : 'theta0'
+#
+###############################################################################
+
 simulate.ergm <- function(object, nsim=1, seed=NULL, theta0=object$coef,
                           burnin=1000, interval=1000,
                           statsonly=FALSE,
@@ -13,6 +71,8 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, theta0=object$coef,
                    sequential=sequential, constraints=constraints,
                    control=control, verbose=verbose, ...)
 }
+
+
 
 # In CRAN version, the following function is called simulate.formula
 # Here, there is a good reason to call it simulate.formula.ergm:

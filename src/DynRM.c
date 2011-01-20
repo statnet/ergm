@@ -173,6 +173,15 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
     if(fVerbose) Rprintf(" %f", aDdiaginv[j]);
   }
   if(fVerbose) Rprintf("\n");
+
+
+  if(fVerbose){
+    Rprintf("theta0 statistics:");
+    for (j=0; j<F_m->n_stats; j++){
+      Rprintf("%f ",  meandev[j]/(phase1n*RM_interval));
+    }
+    Rprintf("\n");
+  }
   
   /********************
    Phase 2
@@ -200,7 +209,7 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
 	  meandev[k]+=dev[k];
 	  meandev2[k]+=dev[k]*dev[k];
 	}
-	if (fVerbose>1){
+	if (fVerbose>2){
 	  for (unsigned int k=0; k<F_m->n_stats; k++){
 	    Rprintf("j %d theta %f ns %f\n",
 		    k, theta[k], dev[k]);
@@ -209,6 +218,14 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
 	}
       }
       
+      if(fVerbose>1){
+	for (j=0; j<F_m->n_stats; j++){
+	  Rprintf("j %d theta %f ns %f sd %f z %f\n",
+		  j, theta[j], meandev[j], sqrt(meandev2[j]-meandev[j]*meandev[j]), meandev[j]/sqrt((meandev2[j]-meandev[j]*meandev[j]))*RM_interval);
+	}
+	Rprintf("\n");
+      }
+
       /* Update theta0 */
       for (j=0; j<F_m->n_stats; j++){
 	meandev[j]/=RM_interval;
@@ -216,6 +233,7 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
         theta[j] -= aDdiaginv[j] * meandev[j];
       }
     }
+
     phase2n=trunc(2.52*(phase2n-phase2n_base)+phase2n_base);
     for (j=0; j<F_m->n_stats; j++){
       aDdiaginv[j] /= 2.0;
