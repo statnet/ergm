@@ -70,8 +70,10 @@ void MH_CompleteOrdering(WtMHproposal *MHp, WtNetwork *nwp)  {
   
   head = 1 + unif_rand() * nwp->nnodes;
   while((tail1 = 1 + unif_rand() * nwp->nnodes) == head);
-  while((tail2 = 1 + tail1 + unif_rand() * (nwp->nnodes - tail1)) == head);
-
+  do{
+    tail2 = 1 + unif_rand() * nwp->nnodes;
+  }while(tail2 == head || tail2 == tail1);
+  
   Mhead[0] = Mhead[1] = head;
   Mtail[0] = tail1;
   Mtail[1] = tail2;

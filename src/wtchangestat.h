@@ -28,10 +28,10 @@ typedef struct WtModelTermstruct {
    starting from the pointer "e", which points to a node in an edgetree. 
    Mostly, these are utility macros used by the STEP_THROUGH_OUTEDGES 
    and STEP_THROUGH_INEDGES macros. */
-#define MIN_OUTEDGE(a) (EdgetreeMinimum(nwp->outedges, (a)))
-#define MIN_INEDGE(a) (EdgetreeMinimum(nwp->inedges, (a)))
-#define NEXT_OUTEDGE(e) (EdgetreeSuccessor(nwp->outedges,(e)))
-#define NEXT_INEDGE(e) (EdgetreeSuccessor(nwp->inedges,(e)))
+#define MIN_OUTEDGE(a) (WtEdgetreeMinimum(nwp->outedges, (a)))
+#define MIN_INEDGE(a) (WtEdgetreeMinimum(nwp->inedges, (a)))
+#define NEXT_OUTEDGE(e) (WtEdgetreeSuccessor(nwp->outedges,(e)))
+#define NEXT_INEDGE(e) (WtEdgetreeSuccessor(nwp->inedges,(e)))
 
 /* Return each of the out-neighbors or in-neighbors, one at a time,
    of node a.  At each iteration of the loop, the variable v gives the node 
