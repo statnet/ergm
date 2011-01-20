@@ -1441,10 +1441,11 @@ InitErgm.esp<-function(nw, m, arglist, drop=TRUE, ...) {
 InitErgm.gwb1degree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   ergm.checkdirected("gwb1degree", is.directed(nw), requirement=FALSE)
   ergm.checkbipartite("gwb1degree", is.bipartite(nw), requirement=TRUE)
+  # default for 'fixed' should be made 'FALSE' when the function can handle it!                    
   a <- ergm.checkargs("gwb1degree", arglist,
     varnames = c("decay", "fixed", "attrname"),
     vartypes = c("numeric", "logical", "character"),
-    defaultvalues = list(0, FALSE, NULL),
+    defaultvalues = list(0, TRUE, NULL),
     required = c(TRUE, FALSE, FALSE))
   decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
   nb1 <- get.network.attribute(nw,"bipartite")
@@ -1508,10 +1509,11 @@ InitErgm.gwb1degree<-function(nw, m, arglist, initialfit=FALSE, ...) {
 InitErgm.gwb2degree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   ergm.checkdirected("gwb2degree", is.directed(nw), requirement=FALSE)
   ergm.checkbipartite("gwb2degree", is.bipartite(nw), requirement=TRUE)
+  # default for 'fixed' should be made 'FALSE' when the function can handle it!                    
   a <- ergm.checkargs("gwb2degree", arglist,
     varnames = c("decay", "fixed", "attrname"),
     vartypes = c("numeric", "logical", "character"),
-    defaultvalues = list(0, FALSE, NULL),
+    defaultvalues = list(0, TRUE, NULL),
     required = c(TRUE, FALSE, FALSE))
   decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
   nb1 <- get.network.attribute(nw,"bipartite")
@@ -1583,11 +1585,12 @@ InitErgm.gwdegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   termnumber<-1+length(m$terms)
   d <- 1:(network.size(nw)-1)
+  if (!is.null(attrname) && !fixed && !initialfit) {
+    warning("The gwdegree term cannot yet handle a nonfixed decay ",
+            "term with an attribute.  Switching to fixed=TRUE.", call.=FALSE)
+    fixed <- TRUE
+  }
   if(!initialfit && !fixed){ # This is a curved exponential family model
-    if (!is.null(attrname)) {
-      stop("The gwdegree term is not yet able to handle a ",
-           "nonfixed decay term with an attribute.", call.=FALSE)
-    }
     ld<-length(d)
     if(ld==0){return(m)}
     map <- function(x,n,...) {
@@ -1731,11 +1734,12 @@ InitErgm.gwidegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   d <- 1:(network.size(nw)-1)
   termnumber<-1+length(m$terms)
+  if (!is.null(attrname) && !fixed && !initialfit) {
+    warning("The gwidegree term cannot yet handle a nonfixed decay ",
+            "term with an attribute.  Switching to fixed=TRUE.", call.=FALSE)
+    fixed <- TRUE
+  }
   if(!initialfit && !fixed){ # This is a curved exponential family model
-    if (!is.null(attrname)) {
-      stop("The gwidegree term is not yet able to handle a ",
-           "nonfixed decay term with an attribute.", call.=FALSE)
-    }
     ld<-length(d)
     if(ld==0){return(m)}
     map <- function(x,n,...) {
@@ -1839,11 +1843,12 @@ InitErgm.gwodegree<-function(nw, m, arglist, initialfit=FALSE, ...) {
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   termnumber<-1+length(m$terms)
   d <- 1:(network.size(nw)-1)
+  if (!is.null(attrname) && !fixed && !initialfit) {
+    warning("The gwodegree term cannot yet handle a nonfixed decay ",
+            "term with an attribute.  Switching to fixed=TRUE.", call.=FALSE)
+    fixed <- TRUE
+  }
   if(!initialfit && !fixed){ # This is a curved exponential family model
-    if (!is.null(attrname)) {
-      stop("The gwodegree term is not yet able to handle a ",
-           "nonfixed decay term with an attribute.", call.=FALSE)
-    }
     ld<-length(d)
     if(ld==0){return(m)}
     map <- function(x,n,...) {
@@ -3402,13 +3407,16 @@ InitErgm.sociality<-function(nw, m, arglist, drop=FALSE, ...) {
       stop ("Attribute given to sociality() has only one value", call.=FALSE)
   }
   if(drop){
-    if(is.null(attrname)){
-      centattr <- summary(nw ~ sociality, drop=FALSE) == 0
-    }else{
-      centattr <- summary(as.formula(paste('nw ~ sociality(','"',attrname,
-                                           '")',sep="")),
-                          drop=FALSE) == 0
-    }
+    obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
+    centattr <- obsstats == 0
+# Old code, fixed by using check.ErgmTerm.summarystats function:
+#    if(is.null(attrname)){
+#      centattr <- summary(nw ~ sociality, drop=FALSE) == 0
+#    }else{
+#      centattr <- summary(as.formula(paste('nw ~ sociality(','"',attrname,
+#                                           '")',sep="")),
+#                          drop=FALSE) == 0
+#    }
     if(any(centattr)){
       cat(" ")
       cat(paste("Warning: There are no",attrname," ties for the vertex", 
@@ -3720,73 +3728,74 @@ InitErgm.ttriple<-InitErgm.ttriad<-function (nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-#########################################################
-InitErgm.transitiveties<-function (nw, m, arglist, drop=TRUE, ...) {
-  ergm.checkdirected("transitiveties", is.directed(nw), requirement=TRUE)
-  a <- ergm.checkargs("transitiveties", arglist,
-    varnames = c("attrname", "diff"),
-    vartypes = c("character", "logical"),
-    defaultvalues = list(NULL, FALSE),
-    required = c(FALSE, FALSE))
-  attrname <- a$attrname
-  diff <- a$diff
-  termnumber<-1+length(m$terms)
-  if(!is.null(attrname)) {
-    nodecov <- get.node.attr(nw, attrname, "transitiveties")
-    u<-sort(unique(nodecov))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
-    nodecov <- match(nodecov,u,nomatch=length(u)+1)
-    ui <- seq(along=u)
-    if (length(u)==1)
-      stop ("Attribute given to transitiveties() has only one value", call.=FALSE)
-    if(drop){
-      triattr <- summary(as.formula(paste('nw ~ transitiveties(','"',attrname,
-                                          '",diff=',diff,')',sep="")),
-                         drop=FALSE) == 0
-      if(diff){
-        if(any(triattr)){
-          dropterms <- paste(paste("transitiveties",attrname,sep="."),
-                             u[triattr],sep="")
-      cat(" ")
-          cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#         cat(paste("To avoid degeneracy the terms",
-#               paste(dropterms,collapse=" and, "),
-#                   "have been dropped.\n"))
-          u <- u[!triattr] 
-          ui <- ui[!triattr] 
-        }
-      }else{
-        if(triattr){
-          dropterms <- paste(paste("transitiveties",attrname,sep="."),sep="")
-      cat(" ")
-          cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#         cat(paste("To avoid degeneracy the term",
-#               paste(dropterms,collapse=" and, "),
-#                   "have been dropped.\n"))
-        }
-      }
-    }
-    if (!diff) {
-      m$terms[[termnumber]] <- list(name="transitiveties", soname="ergm",
-                                    inputs=c(0,1,length(nodecov),nodecov))
-      m$coef.names<-c(m$coef.names,paste("transitiveties",attrname,sep="."))
-     } else {
-       m$terms[[termnumber]] <- list(name="transitiveties", soname="ergm",
-                                     inputs=c(length(ui), length(ui),
-                                       length(ui)+length(nodecov),
-                                       ui, nodecov))
-       m$coef.names<-c(m$coef.names,paste("transitiveties",
-                                          attrname, u, sep="."))
-     }
-  }else{
-    m$terms[[termnumber]] <- list(name="transitiveties", soname="ergm",
-                                  inputs=c(0,1,0))
-    m$coef.names<-c(m$coef.names,"transitiveties")
-  }
-  m
-}
+# This is commented out because InitErgmTerm.transitiveties now exists.
+##########################################################
+#InitErgm.transitiveties<-function (nw, m, arglist, drop=TRUE, ...) {
+#  ergm.checkdirected("transitiveties", is.directed(nw), requirement=TRUE)
+#  a <- ergm.checkargs("transitiveties", arglist,
+#    varnames = c("attrname", "diff"),
+#    vartypes = c("character", "logical"),
+#    defaultvalues = list(NULL, FALSE),
+#    required = c(FALSE, FALSE))
+#  attrname <- a$attrname
+#  diff <- a$diff
+#  termnumber<-1+length(m$terms)
+#  if(!is.null(attrname)) {
+#    nodecov <- get.node.attr(nw, attrname, "transitiveties")
+#    u<-sort(unique(nodecov))
+#    if(any(is.na(nodecov))){u<-c(u,NA)}
+#    nodecov <- match(nodecov,u,nomatch=length(u)+1)
+#    ui <- seq(along=u)
+#    if (length(u)==1)
+#      stop ("Attribute given to transitiveties() has only one value", call.=FALSE)
+#    if(drop){
+#      triattr <- summary(as.formula(paste('nw ~ transitiveties(','"',attrname,
+#                                          '",diff=',diff,')',sep="")),
+#                         drop=FALSE) == 0
+#      if(diff){
+#        if(any(triattr)){
+#          dropterms <- paste(paste("transitiveties",attrname,sep="."),
+#                             u[triattr],sep="")
+#      cat(" ")
+#          cat(paste("Warning: The count of", dropterms, "is extreme;\n",
+#                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+##         cat(paste("To avoid degeneracy the terms",
+##               paste(dropterms,collapse=" and, "),
+##                   "have been dropped.\n"))
+#          u <- u[!triattr] 
+#          ui <- ui[!triattr] 
+#        }
+#      }else{
+#        if(triattr){
+#          dropterms <- paste(paste("transitiveties",attrname,sep="."),sep="")
+#      cat(" ")
+#          cat(paste("Warning: The count of", dropterms, "is extreme;\n",
+#                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
+##         cat(paste("To avoid degeneracy the term",
+##               paste(dropterms,collapse=" and, "),
+##                   "have been dropped.\n"))
+#        }
+#      }
+#    }
+#    if (!diff) {
+#      m$terms[[termnumber]] <- list(name="transitiveties", soname="ergm",
+#                                    inputs=c(0,1,length(nodecov),nodecov))
+#      m$coef.names<-c(m$coef.names,paste("transitiveties",attrname,sep="."))
+#     } else {
+#       m$terms[[termnumber]] <- list(name="transitiveties", soname="ergm",
+#                                     inputs=c(length(ui), length(ui),
+#                                       length(ui)+length(nodecov),
+#                                       ui, nodecov))
+#       m$coef.names<-c(m$coef.names,paste("transitiveties",
+#                                          attrname, u, sep="."))
+#     }
+#  }else{
+#    m$terms[[termnumber]] <- list(name="transitiveties", soname="ergm",
+#                                  inputs=c(0,1,0))
+#    m$coef.names<-c(m$coef.names,"transitiveties")
+#  }
+#  m
+#}
 
 #########################################################
 InitErgm.transitiveties2<-function (nw, m, arglist, drop=TRUE, ...) {

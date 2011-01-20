@@ -45,6 +45,8 @@ void wt_network_stats_wrapper(int *heads, int *tails, double *weights, int *dned
 *****************/
 void WtSummStats(Edge n_edges, Vertex *heads, Vertex *tails, double *weights,
 WtNetwork *nwp, WtModel *m, double *stats){
+
+  GetRNGstate();  /* R function enabling uniform RNG */
   
   WtShuffleEdges(heads,tails,weights,n_edges); /* Shuffle edgelist. */
   
@@ -78,5 +80,7 @@ WtNetwork *nwp, WtModel *m, double *stats){
         *statspos += mtp->dstats[i];
     }else statspos += mtp->nstats;
   }
+  
+  PutRNGstate();
 }
 
