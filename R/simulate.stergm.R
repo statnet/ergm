@@ -157,7 +157,7 @@ simulate.formula.stergm <- function(object, dissolution, nsim=1, seed=NULL,
   }else{
     changed<-z$changed
     attr(changed,"start")<-time.burnin
-    attr(changed,"end")<-(nsim-1)*time.tinterval+time.burnin
+    attr(changed,"end")<-(nsim-1)*time.interval+time.burnin
     out.list <- list(formation = formation,
                      dissolution = dissolution,
                      networks = nw,
