@@ -43,7 +43,7 @@ void MCMCDynPhase12(// Observed network.
 		      *n_nodes, *dflag, *bipartite, nw,
 		      *order_code, &order,
 		      *F_nterms, *F_funnames, *F_sonames, F_inputs, &F_m,
-		      *D_nterms, *D_funnames, *D_sonames, F_inputs, &D_m,
+		      *D_nterms, *D_funnames, *D_sonames, D_inputs, &D_m,
 		      attribs, maxout, maxin, minout,
 		      minin, *condAllDegExact, *attriblength, &bd,
 		      *F_MHproposaltype, *F_MHproposalpackage, &F_MH,

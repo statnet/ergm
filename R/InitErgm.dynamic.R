@@ -67,19 +67,3 @@ InitErgm.formation<-function (nw, m, arglist, ...) {
    m$coef.names <- c(m$coef.names, cn)
    m
 }
-
-InitErgm.edges.ageinterval<-function(nw, m, arglist, ...) {
-  a <- ergm.checkargs("edges_ageinterval", arglist,
-    varnames = c("from","to"),
-    vartypes = c("numeric","numeric"),
-    defaultvalues = list(NULL, Inf),
-    required = c(TRUE, FALSE))
-  from=a$from
-  to=a$to
-  termnumber<-1+length(m$terms)
-  m$terms[[termnumber]] <- list(name="edges_ageinterval", soname="ergm",
-                                inputs=c(0, 1, 2, from, if(to==Inf) 0 else to),
-                                dependence=FALSE)
-  m$coef.names<-c(m$coef.names,paste("edges","age",from,"to",to,sep="."))
-  m
-}
