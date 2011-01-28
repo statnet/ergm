@@ -7,7 +7,10 @@
  has true global values equal to zero for all statistics, then this
  change gives the true global values for the observed graph.
 *****************/
-void network_stats_wrapper(int *heads, int *tails, int *dnedges, 
+
+/* *** don't forget tail-> head, so this fucntion now accepts tails before heads */
+
+void network_stats_wrapper(int *tails, int *heads, int *dnedges, 
 			   int *dn, int *dflag,  int *bipartite,
 			   int *nterms, char **funnames,
 			   char **sonames, double *inputs,  double *stats)
@@ -42,7 +45,7 @@ void network_stats_wrapper(int *heads, int *tails, int *dnedges,
   }
 
   /* Compute the change statistics and copy them to stats for return to R. */
-  SummStats(n_edges, heads, tails, nw, m,stats);
+  SummStats(n_edges, tails, heads, nw, m,stats);
   
   ModelDestroy(m);
   NetworkDestroy(nw);
@@ -56,12 +59,15 @@ void network_stats_wrapper(int *heads, int *tails, int *dnedges,
  passed an empty network (and a possible discordance network) and 
  passed an empty network
 *****************/
-void SummStats(Edge n_edges, Vertex *heads, Vertex *tails,
+
+/* *** don't forget tail-> head, so this fucntion now accepts tails before heads */
+
+void SummStats(Edge n_edges, Vertex *tails, Vertex *heads,
 Network *nwp, Model *m, double *stats){
   
   GetRNGstate();  /* R function enabling uniform RNG */
   
-  ShuffleEdges(heads,tails,n_edges); /* Shuffle edgelist. */
+  ShuffleEdges(tails,heads,n_edges); /* Shuffle edgelist. */
   
   for (unsigned int termi=0; termi < m->n_terms; termi++)
     m->termarray[termi].dstats = m->workspace;
@@ -73,14 +79,14 @@ Network *nwp, Model *m, double *stats){
     
     for (unsigned int termi=0; termi < m->n_terms; termi++, mtp++){
       if(!mtp->s_func){
-        (*(mtp->d_func))(1, heads+e, tails+e, 
+        (*(mtp->d_func))(1, tails+e, heads+e, 
         mtp, nwp);  /* Call d_??? function */
         for (unsigned int i=0; i < mtp->nstats; i++,statspos++)
           *statspos += mtp->dstats[i];
       }else statspos += mtp->nstats;
     }
     
-    ToggleEdge(heads[e],tails[e],nwp);
+    ToggleEdge(tails[e],heads[e],nwp);
   }
   
   ModelTerm *mtp = m->termarray;

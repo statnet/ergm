@@ -33,7 +33,10 @@ int ModelTermHamming (char *fnames, int n_terms);
 int ModelTermFormation (char *fnames, int n_terms);
 int ModelTermDissolve (char *fnames, int n_terms);
 
-void ChangeStats(unsigned int ntoggles, Vertex *togglehead, Vertex *toggletail, Network *nwp, Model *m);
+
+/* *** don't forget tail-> head, so this function accepts toggletail first, not togglehead  */
+
+void ChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, Network *nwp, Model *m);
 
 #endif
 

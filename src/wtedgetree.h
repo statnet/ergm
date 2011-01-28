@@ -60,7 +60,7 @@ typedef struct WtNetworkstruct {
 } WtNetwork;
 
 /* Initialization and destruction. */
-WtNetwork WtNetworkInitialize(Vertex *heads, Vertex *tails, double *weights, Edge nedges,
+WtNetwork WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights, Edge nedges,
 			      Vertex nnodes, int directed_flag, Vertex bipartite,
 			      int lasttoggle_flag);
 void WtNetworkDestroy(WtNetwork *nwp);
@@ -71,33 +71,37 @@ Edge WtEdgetreeSuccessor (WtTreeNode *edges, Edge x);
 Edge WtEdgetreeMinimum (WtTreeNode *edges, Edge x);
 
 /* Modifiers. */
-int WtToggleEdge (Vertex head, Vertex tail, double weight, WtNetwork *nwp);
-int WtToggleEdgeWithTimestamp (Vertex head, Vertex tail, double weight, WtNetwork *nwp);
-int WtAddEdgeToTrees(Vertex head, Vertex tail, double weight, WtNetwork *nwp);
+
+/* *** don't forget, tail -> head, so these functions now accept tails first, rather than heads */
+
+
+int WtToggleEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp);
+int WtToggleEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwork *nwp);
+int WtAddEdgeToTrees(Vertex tail, Vertex head, double weight, WtNetwork *nwp);
 void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight, WtTreeNode *edges, Edge next_edge);
 void WtUpdateNextedge (WtTreeNode *edges, Edge *nextedge, WtNetwork *nwp);
-int WtDeleteEdgeFromTrees(Vertex head, Vertex tail, WtNetwork *nwp);
+int WtDeleteEdgeFromTrees(Vertex tail, Vertex head, WtNetwork *nwp);
 int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges,
 		     Edge *next_edge);
 
 /* Duration functions. */
-int WtElapsedTime (Vertex head, Vertex tail, WtNetwork *nwp);
-void WtTouchEdge(Vertex head, Vertex tail, WtNetwork *nwp);
+int WtElapsedTime (Vertex tail, Vertex head, WtNetwork *nwp);
+void WtTouchEdge(Vertex tail, Vertex head, WtNetwork *nwp);
 
 /* Utility functions. */
-int WtFindithEdge (Vertex *head, Vertex *tail, Edge i, WtNetwork *nwp);
+int WtFindithEdge (Vertex *tail, Vertex *head, Edge i, WtNetwork *nwp);
 void Wtprintedge(Edge e, WtTreeNode *edges);
 void WtInOrderTreeWalk(WtTreeNode *edges, Edge x);
 void WtNetworkEdgeList(WtNetwork *nwp);
-void WtShuffleEdges(Vertex *heads, Vertex *tails, double *weights, Edge nedges);
+void WtShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge nedges);
 
 /* Others... */
 Edge WtDesignMissing (Vertex a, Vertex b, WtNetwork *mnwp);
-Edge EdgeTree2EdgeList(Vertex *heads, Vertex *tails, Network *nwp, Edge nmax);
+Edge EdgeTree2EdgeList(Vertex *tails, Vertex *heads, Network *nwp, Edge nmax);
 
 /* Below are some functions that only exist for weighted (valued) networks */
 
-double EdgeWeight (Vertex head, Vertex tail, WtNetwork *nwp);
+double EdgeWeight (Vertex tail, Vertex head, WtNetwork *nwp);
 #endif
 
 

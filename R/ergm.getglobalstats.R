@@ -14,8 +14,9 @@
 
 ergm.getglobalstats <- function(nw, m) {
   Clist <- ergm.Cprepare(nw, m)
+  # *** don't forget, tails are passes in first now, notheads
   gs <- .C("network_stats_wrapper",
-           as.integer(Clist$heads), as.integer(Clist$tails), 
+           as.integer(Clist$tails), as.integer(Clist$heads), 
            as.integer(Clist$nedges),
            as.integer(Clist$n),
            as.integer(Clist$dir), as.integer(Clist$bipartite), 

@@ -82,7 +82,7 @@ ergm.stocapprox <- function(theta0, nw, model, Clist,
   z <- ergm.phase12(nw, model, MHproposal, 
                     eta, MCMCparams, verbose=TRUE)
   nw <- z$newnetwork
-# toggle.dyads(nw, tail = z$changed[,2], head = z$changed[,3])
+# toggle.dyads(nw, head = z$changed[,2], tail = z$changed[,3])
 # MCMCparams$maxchanges <- z$maxchanges
   theta <- z$eta
   names(theta) <- names(theta0)

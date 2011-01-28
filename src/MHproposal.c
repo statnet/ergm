@@ -50,8 +50,8 @@ void MH_init(MHproposal *MH,
 
   MH->ntoggles=0;
   (*(MH->func))(MH, bd, nwp); /* Call MH proposal function to initialize */
-  MH->togglehead = (Vertex *)malloc(MH->ntoggles * sizeof(Vertex));
   MH->toggletail = (Vertex *)malloc(MH->ntoggles * sizeof(Vertex));
+  MH->togglehead = (Vertex *)malloc(MH->ntoggles * sizeof(Vertex));
 }
 
 /*********************
@@ -60,8 +60,8 @@ void MH_init(MHproposal *MH,
  A helper function to free memory allocated by MH_init.
 *********************/
 void MH_free(MHproposal *MH){
-  free(MH->togglehead);
   free(MH->toggletail);
+  free(MH->togglehead);
 }
 
 /***********************
@@ -149,14 +149,15 @@ int CheckTogglesValid(MHproposal *MHp, DegreeBound *bd, Network *nwp) {
 
   if(!bd) return 1;
 
-  int *hattr = (int *) malloc(sizeof(int) * bd->attrcount);
-  int *tattr = (int *) malloc(sizeof(int) * bd->attrcount);
+  /* *** don't forget when getting attributes that tail-> head */
+  int *tailattr = (int *) malloc(sizeof(int) * bd->attrcount);
+  int *headattr = (int *) malloc(sizeof(int) * bd->attrcount);
   
   fvalid = 1;
   
   /* Make proposed toggles */
   for (i=0; i<MHp->ntoggles; i++) {
-    ToggleEdge(MHp->togglehead[i], MHp->toggletail[i], nwp);
+    ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
   }
   
   /*  Rprintf("fvalid %d bd->fBoundDegByAttr %d\n", fvalid, bd->fBoundDegByAttr); */
@@ -167,104 +168,104 @@ int CheckTogglesValid(MHproposal *MHp, DegreeBound *bd, Network *nwp) {
     Vertex v;
     int k; 
     if (nwp->directed_flag) {
-      /* for each head and tail pair */
+      /* for each tail and head pair */
       for (i = 0; i < MHp->ntoggles && fvalid; i++) {
         /* work through each attribute for each toggle */
         for (k=0; k < bd->attrcount; k++){
-	        hattr[k] = tattr[k] = 0;
+	        tailattr[k] = headattr[k] = 0;
         }
-        /* calculate head outdegree totals for each attribute
-        for each outedge of the head 	      */
+        /* calculate tail outdegree totals for each attribute
+        for each outedge of the tail 	      */
 	      
-        for(e = EdgetreeMinimum(nwp->outedges, MHp->togglehead[i]); 
+        for(e = EdgetreeMinimum(nwp->outedges, MHp->toggletail[i]); 
         (v = nwp->outedges[e].value) != 0;
         e = EdgetreeSuccessor(nwp->outedges, e)) {
           for (k=0; k < bd->attrcount; k++)
-            if (bd->attribs[v-1 + k*nwp->nnodes]) hattr[k]++;
+            if (bd->attribs[v-1 + k*nwp->nnodes]) tailattr[k]++;
         }
 	      
-        /* calculate tail indegree totals for each attribute
-        for each inedge of the tail */
+        /* calculate head indegree totals for each attribute
+        for each inedge of the head */
 	      
-        for(e = EdgetreeMinimum(nwp->inedges, MHp->toggletail[i]);
+        for(e = EdgetreeMinimum(nwp->inedges, MHp->togglehead[i]);
         (v = nwp->inedges[e].value) != 0;
         e = EdgetreeSuccessor(nwp->inedges, e)) {
           for (k=0; k < bd->attrcount; k++)
-            if (bd->attribs[v-1 + k*nwp->nnodes]) tattr[k]++;
+            if (bd->attribs[v-1 + k*nwp->nnodes]) headattr[k]++;
         }
         
         /* for each attribute */
         
         for (k=0; k < bd->attrcount && fvalid; k++){
-          fvalid=!((hattr[k]>bd->maxout[MHp->togglehead[i]-1+k*nwp->nnodes])||
-          (hattr[k] < bd->minout[MHp->togglehead[i]-1+k*nwp->nnodes]) || 
-          (tattr[k] >  bd->maxin[MHp->toggletail[i]-1+k*nwp->nnodes]) ||
-          (tattr[k] <  bd->minin[MHp->toggletail[i]-1+k*nwp->nnodes]) );
+          fvalid=!((tailattr[k]>bd->maxout[MHp->toggletail[i]-1+k*nwp->nnodes])||
+          (tailattr[k] < bd->minout[MHp->toggletail[i]-1+k*nwp->nnodes]) || 
+          (headattr[k] >  bd->maxin[MHp->togglehead[i]-1+k*nwp->nnodes]) ||
+          (headattr[k] <  bd->minin[MHp->togglehead[i]-1+k*nwp->nnodes]) );
         }
       }
     }
     else { /* ! nwp->directed_flag  */
-      /* for each head and tail pair */
+      /* for each tail and head pair, (in that order: (tail, head)) */
       for (i = 0; i < MHp->ntoggles && fvalid; i++) {
         for (k=0; k < bd->attrcount; k++){
-	        hattr[k] = tattr[k] = 0;
+	        tailattr[k] = headattr[k] = 0;
 	      }
 	      
-	      /* calculate head totals for each attribute
-        for each outedge and inedge of the head  */
-	      
-	      for(e = EdgetreeMinimum(nwp->outedges, MHp->togglehead[i]);
-        (v = nwp->outedges[e].value) != 0;
-        e = EdgetreeSuccessor(nwp->outedges, e)) {
-          for (k=0; k < bd->attrcount; k++)
-            if (bd->attribs[v-1 + k*nwp->nnodes])
-              hattr[k]++;
-        }
-	      for(e = EdgetreeMinimum(nwp->inedges, MHp->togglehead[i]);
-        (v = nwp->inedges[e].value) != 0;
-        e = EdgetreeSuccessor(nwp->inedges, e)) {
-          for (k=0; k < bd->attrcount; k++)
-            if (bd->attribs[v-1 + k*nwp->nnodes])
-              hattr[k]++;
-        }
-	      
 	      /* calculate tail totals for each attribute
-        for each outedge and inedge of the tail */
+        for each outedge and inedge of the tail  */
 	      
 	      for(e = EdgetreeMinimum(nwp->outedges, MHp->toggletail[i]);
         (v = nwp->outedges[e].value) != 0;
         e = EdgetreeSuccessor(nwp->outedges, e)) {
           for (k=0; k < bd->attrcount; k++)
             if (bd->attribs[v-1 + k*nwp->nnodes])
-              tattr[k]++;
+              tailattr[k]++;
         }
 	      for(e = EdgetreeMinimum(nwp->inedges, MHp->toggletail[i]);
         (v = nwp->inedges[e].value) != 0;
         e = EdgetreeSuccessor(nwp->inedges, e)) {
           for (k=0; k < bd->attrcount; k++)
             if (bd->attribs[v-1 + k*nwp->nnodes])
-              tattr[k]++;
+              tailattr[k]++;
+        }
+	      
+	      /* calculate head totals for each attribute
+        for each outedge and inedge of the head */
+	      
+	      for(e = EdgetreeMinimum(nwp->outedges, MHp->togglehead[i]);
+        (v = nwp->outedges[e].value) != 0;
+        e = EdgetreeSuccessor(nwp->outedges, e)) {
+          for (k=0; k < bd->attrcount; k++)
+            if (bd->attribs[v-1 + k*nwp->nnodes])
+              headattr[k]++;
+        }
+	      for(e = EdgetreeMinimum(nwp->inedges, MHp->togglehead[i]);
+        (v = nwp->inedges[e].value) != 0;
+        e = EdgetreeSuccessor(nwp->inedges, e)) {
+          for (k=0; k < bd->attrcount; k++)
+            if (bd->attribs[v-1 + k*nwp->nnodes])
+              headattr[k]++;
         }
         
         
 	      /* for each attribute
-        check heads' and tails' outmax and outmin */
+        check tails' and heads' outmax and outmin */
 	      for (k=0; k < bd->attrcount && fvalid; k++){
-          fvalid=!((hattr[k]>bd->maxout[MHp->togglehead[i]-1+k*nwp->nnodes])|| 
-          (hattr[k] < bd->minout[MHp->togglehead[i]-1+k*nwp->nnodes]) || 
-          (tattr[k] > bd->maxout[MHp->toggletail[i]-1+k*nwp->nnodes]) ||
-          (tattr[k] < bd->minout[MHp->toggletail[i]-1+k*nwp->nnodes]) );
+          fvalid=!((tailattr[k]>bd->maxout[MHp->toggletail[i]-1+k*nwp->nnodes])|| 
+          (tailattr[k] < bd->minout[MHp->toggletail[i]-1+k*nwp->nnodes]) || 
+          (headattr[k] > bd->maxout[MHp->togglehead[i]-1+k*nwp->nnodes]) ||
+          (headattr[k] < bd->minout[MHp->togglehead[i]-1+k*nwp->nnodes]) );
 	      }
 	    }
     }
   }
   
-  free(hattr);
-  free(tattr);
+  free(tailattr);
+  free(headattr);
   
-  /* Undo proposed toggles */
+  /* Undo proposed toggles (of edges(tail, head)) */
   for (i=0; i<MHp->ntoggles; i++) {
-    ToggleEdge(MHp->togglehead[i], MHp->toggletail[i], nwp);
+    ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
   }
   return fvalid;
 }
@@ -278,7 +279,7 @@ int CheckConstrainedTogglesValid(MHproposal *MHp, DegreeBound *bd, Network *nwp)
 
   /* Make proposed toggles */
   for (i=0; i<MHp->ntoggles; i++) {
-    ToggleEdge(MHp->togglehead[i], MHp->toggletail[i], nwp);
+    ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
   }
   
   /* if we're bounding degrees by attribute */
@@ -287,68 +288,87 @@ int CheckConstrainedTogglesValid(MHproposal *MHp, DegreeBound *bd, Network *nwp)
     Edge e;
     Vertex v;
     int k;
-    int *hattr = (int *) malloc(sizeof(int) * bd->attrcount);
-    int *tattr = (int *) malloc(sizeof(int) * bd->attrcount);
+    int *tailattr = (int *) malloc(sizeof(int) * bd->attrcount);
+    int *headattr = (int *) malloc(sizeof(int) * bd->attrcount);
     
     if (nwp->directed_flag)
     {
-      /* for each head and tail pair */
+      /* for each tail and head pair - yes (tail, head), not (head,tail) */
       for (i = 0; i < MHp->ntoggles && fvalid; i++) {
         for (k=0; k < bd->attrcount; k++){
-	        hattr[k] = tattr[k] = 0;
+	        tailattr[k] = headattr[k] = 0;
 	      }
-	      /* calculate head outdegree totals for each attribute
-        for each outedge of the head 	      */
+	      /* calculate tail outdegree totals for each attribute
+        for each outedge of the tail 	      */
 	      
-	      for(e = EdgetreeMinimum(nwp->outedges, MHp->togglehead[i]);
+	      for(e = EdgetreeMinimum(nwp->outedges, MHp->toggletail[i]);
         (v = nwp->outedges[e].value) != 0;
         e = EdgetreeSuccessor(nwp->outedges, e))
         {
           for (k=0; k < bd->attrcount; k++)
             if (bd->attribs[v-1 + k*nwp->nnodes])
-              hattr[k]++;
+              tailattr[k]++;
         }
 	      
-	      /* calculate tail indegree totals for each attribute
-        for each inedge of the tail */
+	      /* calculate head indegree totals for each attribute
+        for each inedge of the head */
 	      
+	      for(e = EdgetreeMinimum(nwp->inedges, MHp->togglehead[i]);
+        (v = nwp->inedges[e].value) != 0;
+        e = EdgetreeSuccessor(nwp->inedges, e))
+        {
+          for (k=0; k < bd->attrcount; k++)
+            if (bd->attribs[v-1 + k*nwp->nnodes])
+              headattr[k]++;
+        }
+
+	      /* for each attribute */
+	      for (k=0; k < bd->attrcount && fvalid; k++){
+          fvalid=!((tailattr[k]>bd->maxout[MHp->toggletail[i]-1+k*nwp->nnodes])||
+          (tailattr[k] < bd->minout[MHp->toggletail[i]-1+k*nwp->nnodes]) || 
+          (headattr[k] >  bd->maxin[MHp->togglehead[i]-1+k*nwp->nnodes]) ||
+          (headattr[k] <  bd->minin[MHp->togglehead[i]-1+k*nwp->nnodes])) ;
+	      }
+	    }
+    }
+    else /* ! nwp->directed_flag */
+    {
+      /* for each tail and head pair */
+      for (i = 0; i < MHp->ntoggles && fvalid; i++)
+	    {
+        for (k=0; k < bd->attrcount; k++){
+	        tailattr[k] = headattr[k] = 0;
+	      }
+	      
+	      /* calculate tail totals for each attribute
+        for each outedge and inedge of the tail  */
+	      
+	      for(e = EdgetreeMinimum(nwp->outedges, MHp->toggletail[i]);
+        (v = nwp->outedges[e].value) != 0;
+        e = EdgetreeSuccessor(nwp->outedges, e))
+        {
+          for (k=0; k < bd->attrcount; k++)
+            if (bd->attribs[v-1 + k*nwp->nnodes])
+              tailattr[k]++;
+        }
 	      for(e = EdgetreeMinimum(nwp->inedges, MHp->toggletail[i]);
         (v = nwp->inedges[e].value) != 0;
         e = EdgetreeSuccessor(nwp->inedges, e))
         {
           for (k=0; k < bd->attrcount; k++)
             if (bd->attribs[v-1 + k*nwp->nnodes])
-              tattr[k]++;
+              tailattr[k]++;
         }
-
-	      /* for each attribute */
-	      for (k=0; k < bd->attrcount && fvalid; k++){
-          fvalid=!((hattr[k]>bd->maxout[MHp->togglehead[i]-1+k*nwp->nnodes])||
-          (hattr[k] < bd->minout[MHp->togglehead[i]-1+k*nwp->nnodes]) || 
-          (tattr[k] >  bd->maxin[MHp->toggletail[i]-1+k*nwp->nnodes]) ||
-          (tattr[k] <  bd->minin[MHp->toggletail[i]-1+k*nwp->nnodes])) ;
-	      }
-	    }
-    }
-    else /* ! nwp->directed_flag */
-    {
-      /* for each head and tail pair */
-      for (i = 0; i < MHp->ntoggles && fvalid; i++)
-	    {
-        for (k=0; k < bd->attrcount; k++){
-	        hattr[k] = tattr[k] = 0;
-	      }
 	      
 	      /* calculate head totals for each attribute
-        for each outedge and inedge of the head  */
-	      
+        for each outedge and inedge of the head */
 	      for(e = EdgetreeMinimum(nwp->outedges, MHp->togglehead[i]);
         (v = nwp->outedges[e].value) != 0;
         e = EdgetreeSuccessor(nwp->outedges, e))
         {
           for (k=0; k < bd->attrcount; k++)
             if (bd->attribs[v-1 + k*nwp->nnodes])
-              hattr[k]++;
+              headattr[k]++;
         }
 	      for(e = EdgetreeMinimum(nwp->inedges, MHp->togglehead[i]);
         (v = nwp->inedges[e].value) != 0;
@@ -356,43 +376,24 @@ int CheckConstrainedTogglesValid(MHproposal *MHp, DegreeBound *bd, Network *nwp)
         {
           for (k=0; k < bd->attrcount; k++)
             if (bd->attribs[v-1 + k*nwp->nnodes])
-              hattr[k]++;
-        }
-	      
-	      /* calculate tail totals for each attribute
-        for each outedge and inedge of the tail */
-	      for(e = EdgetreeMinimum(nwp->outedges, MHp->toggletail[i]);
-        (v = nwp->outedges[e].value) != 0;
-        e = EdgetreeSuccessor(nwp->outedges, e))
-        {
-          for (k=0; k < bd->attrcount; k++)
-            if (bd->attribs[v-1 + k*nwp->nnodes])
-              tattr[k]++;
-        }
-	      for(e = EdgetreeMinimum(nwp->inedges, MHp->toggletail[i]);
-        (v = nwp->inedges[e].value) != 0;
-        e = EdgetreeSuccessor(nwp->inedges, e))
-        {
-          for (k=0; k < bd->attrcount; k++)
-            if (bd->attribs[v-1 + k*nwp->nnodes])
-              tattr[k]++;
+              headattr[k]++;
         }
         
 	      /* for each attribute
-        check heads' and tails' outmax and outmin */
+        check tails' and heads' outmax and outmin */
 	      for (k=0; k < bd->attrcount && fvalid; k++)
-          fvalid=!(hattr[k]>bd->maxout[MHp->togglehead[i]-1+k*nwp->nnodes])||
-        (hattr[k] < bd->minout[MHp->togglehead[i]-1+k*nwp->nnodes]) || 
-        (tattr[k] > bd->maxout[MHp->toggletail[i]-1+k*nwp->nnodes]) ||
-        (tattr[k] < bd->minout[MHp->toggletail[i]-1+k*nwp->nnodes]) ;
+          fvalid=!(tailattr[k]>bd->maxout[MHp->toggletail[i]-1+k*nwp->nnodes])||
+        (tailattr[k] < bd->minout[MHp->toggletail[i]-1+k*nwp->nnodes]) || 
+        (headattr[k] > bd->maxout[MHp->togglehead[i]-1+k*nwp->nnodes]) ||
+        (headattr[k] < bd->minout[MHp->togglehead[i]-1+k*nwp->nnodes]) ;
 	    }
     }
-    free(hattr);
-    free(tattr);
+    free(tailattr);
+    free(headattr);
   }
-  /* Make proposed toggles */
-  for (i=0; i<MHp->ntoggles; i++)
-    ToggleEdge(MHp->togglehead[i], MHp->toggletail[i], nwp);
+  /* Make proposed toggles (of edges (tail, head), not (head, tail) */
+  for (i=0; i<MHp->ntoggles; <i++)
+    ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
   
   return fvalid;
 }

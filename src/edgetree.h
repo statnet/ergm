@@ -76,12 +76,16 @@ typedef struct Networkstruct {
   Edge maxedges;
 } Network;
 
+
+/* *** don't forget,  tails -> heads, so all the functions below using
+   heads & tails, now list tails before heads */
+
 /* Initialization and destruction. */
-Network NetworkInitialize(Vertex *heads, Vertex *tails, Edge nedges,
+Network NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,
 			  Vertex nnodes, int directed_flag, Vertex bipartite,
 			  int lasttoggle_flag);
 void NetworkDestroy(Network *nwp);
-Network NetworkInitializeD(double *heads, double *tails, Edge nedges,
+Network NetworkInitializeD(double *tails, double *heads, Edge nedges,
 			   Vertex nnodes, int directed_flag, Vertex bipartite,
 			   int lasttoggle_flag);
 
@@ -93,28 +97,32 @@ Edge EdgetreeSuccessor (TreeNode *edges, Edge x);
 Edge EdgetreeMinimum (TreeNode *edges, Edge x);
 
 /* Modifiers. */
-int ToggleEdge (Vertex head, Vertex tail, Network *nwp);
-int ToggleEdgeWithTimestamp (Vertex head, Vertex tail, Network *nwp);
-int AddEdgeToTrees(Vertex head, Vertex tail, Network *nwp);
+
+/* *** don't forget,  tails -> heads, so all the functions below using
+   heads & tails, now list tails before heads */
+
+int ToggleEdge (Vertex tail, Vertex head, Network *nwp);
+int ToggleEdgeWithTimestamp (Vertex tail, Vertex head, Network *nwp);
+int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp);
 void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge next_edge);
 void UpdateNextedge (TreeNode *edges, Edge *nextedge, Network *nwp);
-int DeleteEdgeFromTrees(Vertex head, Vertex tail, Network *nwp);
+int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp);
 int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges,
 		     Edge *next_edge);
 
 /* Duration functions. */
-int ElapsedTime(Vertex head, Vertex tail, Network *nwp);
-void TouchEdge(Vertex head, Vertex tail, Network *nwp);
+int ElapsedTime(Vertex tail, Vertex head, Network *nwp);
+void TouchEdge(Vertex tail, Vertex head, Network *nwp);
 
 /* Utility functions. */
-int FindithEdge (Vertex *head, Vertex *tail, Edge i, Network *nwp);
+int FindithEdge (Vertex *tail, Vertex *head, Edge i, Network *nwp);
 void printedge(Edge e, TreeNode *edges);
 void InOrderTreeWalk(TreeNode *edges, Edge x);
 void NetworkEdgeList(Network *nwp);
-void ShuffleEdges(Vertex *heads, Vertex *tails, Edge nedges);
+void ShuffleEdges(Vertex *tails, Vertex *heads, Edge nedges);
 
 /* Others... */
 Edge DesignMissing (Vertex a, Vertex b, Network *mnwp);
-Edge EdgeTree2EdgeList(Vertex *heads, Vertex *tails, Network *nwp, Edge nmax);
+Edge EdgeTree2EdgeList(Vertex *tails, Vertex *heads, Network *nwp, Edge nmax);
 
 #endif

@@ -5,7 +5,7 @@
 # 
 # --PARAMETERS--
 #   theta0        :  either a vector whose first entry is "MPLE" or a vector
-#                    of initail coefficients
+#                    of initial coefficients
 #   MLestimate    :  whether a MLestimate should be used (T or F); 
 #                       if TRUE, this may be overriden by 'force.MPLE'=TRUE  or
 #                                theta0=c("MPLE", ...)

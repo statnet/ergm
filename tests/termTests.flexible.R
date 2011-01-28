@@ -449,10 +449,6 @@ if (s.a != 103 || round(e.a$coef + 1.45725,3)!=0  ||
 
                 
 # nodemix, any
-# I am still not getting consistent output with this term
-# I get one of 2 things:  (1) correct answers or (2) all 0's
-# except for the 'Grade7.7' term.
- 
 num.tests=num.tests+1
 s.a <- summary(fmh ~ nodemix("Grade"))
 e.a <- ergm(samplike ~ nodemix("group"), MPLEonly=TRUE)

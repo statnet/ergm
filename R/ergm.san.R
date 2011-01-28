@@ -178,21 +178,22 @@ san.formula <- function(object, nsim=1, seed=NULL, theta0=NULL,
 #
 #   Check for truncation of the returned edge list
 #
-    z <- list(newnwheads=maxedges+1)
+    z <- list(newnwtails=maxedges+1)
     eta0[is.na(eta0)]<-0
-    while(z$newnwheads[1] > maxedges){
+    while(z$newnwtails[1] > maxedges){
      maxedges <- 10*maxedges
      nedges <- c(Clist$nedges,0)
-     heads <- Clist$heads
      tails <- Clist$tails
+     heads <- Clist$heads
      if(!is.null(MCMCparams$Clist.miss)){
        nedges[2] <- MCMCparams$Clist.miss$nedges
-       heads <- c(heads, MCMCparams$Clist.miss$heads)
        tails <- c(tails, MCMCparams$Clist.miss$tails)
+       heads <- c(heads, MCMCparams$Clist.miss$heads)
      }
+     # *** don't forget to pass in tails before heads now.
      z <- .C("SAN_wrapper",
              as.integer(length(nedges)), as.integer(nedges),
-             as.integer(heads), as.integer(tails),
+             as.integer(tails), as.integer(heads),
              as.integer(Clist$maxpossibleedges),
              as.integer(Clist$n),
              as.integer(Clist$dir), as.integer(Clist$bipartite),
@@ -207,8 +208,8 @@ san.formula <- function(object, nsim=1, seed=NULL, theta0=NULL,
              as.integer(MCMCsamplesize),
              s = as.double(stats),
              as.integer(use.burnin), as.integer(interval), 
-             newnwheads = integer(maxedges),
-             newnwtails = integer(maxedges), 
+             newnwtails = integer(maxedges),
+             newnwheads = integer(maxedges), 
              as.double(invcov),
              as.integer(verb),
              as.integer(MHproposal$bd$attribs), 

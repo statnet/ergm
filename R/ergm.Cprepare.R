@@ -16,8 +16,18 @@
 #            maxpossibleedges:  the maximum number of edges to allocate
 #                               space for
 #            nedges          :  the number of edges in this network  
-#            heads           :  the vector of head nodes
-#            tails           :  the vector of tail nodes
+#       ***  tails           :  the vector of tail nodes; tail nodes are
+#                               the 1st column of the implicit edgelist,
+#                               so either the lower-numbered nodes in an
+#                               undirected graph, or the out nodes of a
+#                               directed graph, or the b1 nodes of a bi-
+#                               partite graph
+#       ***  heads           :  the vector of head nodes; head nodes are
+#                               the 2nd column of the implicit edgelist,
+#                               so either the higher-numbered nodes in an
+#                               undirected graph, or the in nodes of a
+#                               directed graph, or the b2 nodes of a bi-
+#                               partite graph
 #            nterms          :  the number of model terms
 #            nstats          :  the total number of change statistics
 #                               for all model terms
@@ -43,18 +53,19 @@ ergm.Cprepare <- function(nw, m)
   Clist$maxpossibleedges <- min(max(1e+6, 2*nrow(e)), Clist$ndyads)
   if(length(e)==0){
     Clist$nedges<-0
-    Clist$heads<-NULL
     Clist$tails<-NULL
+    Clist$heads<-NULL
   }else{
     if(!is.matrix(e)){e <- matrix(e, ncol=2)}
     Clist$nedges<-dim(e)[1]
-    # Ensure that for undirected networks, head<tail.
+    # *** Ensure that for undirected networks, tail<head.
+    # *** Yes, tails are now less than heads now with the h/t swap.
     if(dir){
-      Clist$heads<-e[,1]
-      Clist$tails<-e[,2]
+      Clist$tails<-e[,1]
+      Clist$heads<-e[,2]
     }else{
-      Clist$heads<-pmin(e[,1],e[,2])
-      Clist$tails<-pmax(e[,1],e[,2])
+      Clist$tails<-pmin(e[,1],e[,2])
+      Clist$heads<-pmax(e[,1],e[,2])
     }
   }
   mo<-m$terms 

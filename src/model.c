@@ -304,7 +304,7 @@ int ModelTermDissolve (char *fnames, int n_terms) {
   A helper's helper function to compute change statistics.
   The vector of changes is written to m->workspace.
 */
-void ChangeStats(unsigned int ntoggles, Vertex *togglehead, Vertex *toggletail,
+void ChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead,
 				 Network *nwp, Model *m){
   ModelTerm *mtp = m->termarray;
   double *dstats = m->workspace;
@@ -312,7 +312,7 @@ void ChangeStats(unsigned int ntoggles, Vertex *togglehead, Vertex *toggletail,
   for (unsigned int i=0; i < m->n_terms; i++){
     /* Calculate change statistics */
     mtp->dstats = dstats; /* Stuck the change statistic here.*/
-    (*(mtp->d_func))(ntoggles, togglehead, toggletail, 
+    (*(mtp->d_func))(ntoggles, toggletail, togglehead, 
 		   mtp, nwp);  /* Call d_??? function */
     dstats += (mtp++)->nstats;
   }

@@ -32,7 +32,7 @@ as.directed<-function(x){
      delete.edges(unw,eid)
      unw %n% "directed" <- FALSE
      if(nrow(newmatrix)>0){
-      add.edges(unw,head=newmatrix[,2],tail=newmatrix[,1])
+      add.edges(unw,tail=newmatrix[,2],head=newmatrix[,1])
      }
      unw
     }else{
