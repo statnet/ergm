@@ -392,7 +392,7 @@ int CheckConstrainedTogglesValid(MHproposal *MHp, DegreeBound *bd, Network *nwp)
     free(headattr);
   }
   /* Make proposed toggles (of edges (tail, head), not (head, tail) */
-  for (i=0; i<MHp->ntoggles; <i++)
+  for (i=0; i<MHp->ntoggles; i++)
     ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
   
   return fvalid;

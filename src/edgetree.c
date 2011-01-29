@@ -537,20 +537,20 @@ Edge DesignMissing (Vertex a, Vertex b, Network *mnwp) {
   value of i is nwp->nedges.
 ******************/
 int FindithEdge (Vertex *tail, Vertex *head, Edge i, Network *nwp) {
-  Vertex head=1;
+  Vertex head1=1;
   Edge e;
 
   if (i > nwp->nedges || i<=0)
     return 0;
-  while (i > nwp->outdegree[head]) {
-    i -= nwp->outdegree[head];
-    head++;
+  while (i > nwp->outdegree[head1]) {
+    i -= nwp->outdegree[head1];
+    head1++;
   }
-  e=EdgetreeMinimum(nwp->outedges,head);
+  e=EdgetreeMinimum(nwp->outedges,head1);
   while (i-- > 1) {
     e=EdgetreeSuccessor(nwp->outedges, e);
   }
-  *tail = head;
+  *tail = head1;
   *head = nwp->outedges[e].value;
   return 1;
 }
