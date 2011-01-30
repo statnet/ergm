@@ -15,6 +15,7 @@
 #                      default=lag.max
 #
 # --RETURNED--
+#   list with one item:
 #   mc.se: the vector of MCMC standard error estimates for each theta parameter
 #
 ################################################################################
@@ -156,5 +157,6 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
     }
   }
   names(mc.se) <- names(theta)
-  return(mc.se)
+#  return(list(mc.se=mc.se, mc.cov=NULL))
+  return(list(mc.se=mc.se))
 }

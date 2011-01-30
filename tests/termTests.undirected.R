@@ -1,6 +1,6 @@
 
 library(ergm)
-library(network)
+#library(network)  This is not necessary; ergm already depends on network
 
 
 # an undirected nw

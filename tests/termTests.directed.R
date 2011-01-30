@@ -1,6 +1,6 @@
 
 library(ergm)
-library(network)
+#library(network)  This is not necessary; ergm already depends on network
 
 # a directed nw
 data(sampson)
@@ -97,7 +97,7 @@ s.da <- summary(samplike~gwodegree(.1, attrname="group"))
 e.da <- ergm(samplike~gwodegree(.1, attrname="group"), MPLEonly=TRUE)
 s.dfa <- summary(samplike~gwodegree(.1, TRUE, "group"))
 e.dfa <- ergm(samplike~gwodegree(.5, TRUE, "group"), MPLEonly=TRUE)
-if (round(s.d - 24.23040, 3) != 0 ||
+if (!all(head(s.d)==c(0,0,1,5,7,5)) ||
     round(e.d$coef + 1.990492, 3) != 0 ||
     round(s.df - 24.23040, 3) != 0 ||
     round(e.df$coef - 43.61801, 3) != 0 ||

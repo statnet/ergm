@@ -43,7 +43,7 @@
 #   an ergm object as a list containing several components; for details
 #   see the return list in the <ergm> function header (<ergm.estimate>=^)
 #
-###################################################################################
+###################################################################################         
 
 ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
                         epsilon=1e-10, nr.maxit=1000, nr.reltol=sqrt(.Machine$double.eps),
@@ -180,7 +180,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     }
     # If there's still an error, use the Matrix package to try to find an 
     # alternative Hessian approximant that has no zero eigenvalues.
-    if(inherits(Lout$par,"try-error") && !is.inherits(try(library(Matrix)), "try-error")){
+    if(inherits(Lout$par,"try-error") && !inherits(try(library(Matrix)), "try-error")){
       if (missingflag) {
         Lout <- list(hessian = -(as.matrix(nearPD(V-V.miss)$mat)))
       }else{

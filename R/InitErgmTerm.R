@@ -3271,7 +3271,7 @@ InitErgmTerm.triadcensus<-function (nw, arglist, drop=FALSE, ...) {
   coef.names <- paste("triadcensus",tcn,sep=".")[d]
   if (!is.null(emptynwstats)){
     list(name="triadcensus", coef.names=coef.names, inputs=c(d),
-         emptynwstats=emtpynwstats, dependence=TRUE)
+         emptynwstats=emptynwstats, dependence=TRUE)
   }else{
     list(name="triadcensus", coef.names=coef.names, inputs=c(d),
          dependence=TRUE)

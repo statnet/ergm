@@ -57,13 +57,13 @@
 #
 ###############################################################################
 
-simulate.ergm <- function(object, nsim=1, theta0=object$coef,
+simulate.ergm <- function(object, nsim=1, seed=NULL, theta0=object$coef,
                           burnin=1000, interval=1000,
-                          statsonly=FALSE, ..., seed=NULL,
+                          statsonly=FALSE,
                           sequential=TRUE,
                           constraints=NULL,
                           control=control.simulate.ergm(),
-                          verbose=FALSE) {
+                          verbose=FALSE, ...) {
   if(is.null(burnin)){burnin <- object$burnin}
   if(is.null(interval)){interval <- object$interval}
   if(is.null(constraints)){constraints <- object$constraints}
