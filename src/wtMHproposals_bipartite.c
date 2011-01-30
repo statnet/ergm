@@ -11,7 +11,7 @@
 *********************/
 void MH_BipartitePoisson(WtMHproposal *MHp, WtNetwork *nwp)  {  
   Vertex head, tail;
-  double oldwt, inc;
+  double oldwt, newwt;
   int fvalid, trytoggle;
   
   if(MHp->ntoggles == 0) { // Initialize Poisson 
@@ -25,7 +25,7 @@ void MH_BipartitePoisson(WtMHproposal *MHp, WtNetwork *nwp)  {
 
   oldwt = WtGetEdge(Mhead[0],Mtail[0],nwp);
 
-  if(oldwt==0){
+  /*  if(oldwt==0){
     // Starting with 0, can only incremement, but must adjust MH ratio.
     inc = +1;
     MHp->ratio *= 0.5;
@@ -41,7 +41,17 @@ void MH_BipartitePoisson(WtMHproposal *MHp, WtNetwork *nwp)  {
   
   // Multiply the acceptance ratio by the ratio of reference measures.
   // This is y!/(y+1)! if incrementing and y!/(y-1)! if decrementing.
-  MHp->ratio *= inc>0 ? 1.0/Mweight[0] : oldwt;  
+  MHp->ratio *= inc>0 ? 1.0/Mweight[0] : oldwt;  */
+
+  const double fudge = 0.5; // Mostly comes in when proposing from 0.
+
+  do{
+    newwt = rpois(oldwt + fudge);    
+  }while(newwt==oldwt);
+    
+  //MHp->ratio *= exp((1+log(newwt + 0.5))*oldwt - (1+log(oldwt + 0.5))*newwt);
+  MHp->ratio *= exp((1 + log(newwt+fudge))*oldwt - (1 + log(oldwt+fudge))*newwt) * (1-dpois(oldwt,oldwt+fudge,0))/(1-dpois(newwt,newwt+fudge,0));
+  Mweight[0]=newwt;
 }
 
 /*********************
@@ -51,7 +61,7 @@ void MH_BipartitePoisson(WtMHproposal *MHp, WtNetwork *nwp)  {
 *********************/
 void MH_CompleteOrderingBipartite(WtMHproposal *MHp, WtNetwork *nwp)  {  
   Vertex head, tail1, tail2;
-  double oldwt, inc;
+  double oldwt;
   int fvalid, trytoggle;
   
   if(MHp->ntoggles == 0) { // Initialize Poisson 
