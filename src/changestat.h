@@ -23,8 +23,8 @@ typedef struct ModelTermstruct {
 /****************************************************
  Macros to make life easier when writing C code for change statistics:  */
 
-/* return number of head and tail node in the directed node pair
-   head -> tail of the selected toggle */
+/* return number of tail and head node in the directed node pair
+   tail -> head of the selected toggle */
 #define TAIL(a) (tails[(a)])
 #define HEAD(a) (heads[(a)])
 

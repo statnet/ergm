@@ -5,18 +5,17 @@
 #========================================================================
 
 
-
 ########################################################################
 # Each of the <simulate.X> functions collects a given number of networks
 # drawn from the given distribution on the set of all networks; these
 # may be returned as only the vector/matrix of sufficient statistics or
-# as the networks and their statistics 
+# as the networks and their statistics
 #
 # --PARAMETERS--
 #   object     : either an ergm or a formula of the form 'nw ~ term(s)'
 #   nsim       : the number of networks to draw; default=1
 #   basis      : optionally, a network to start the MCMC algorithm from;
-#                if provided, this overrides the network given in 
+#                if provided, this overrides the network given in
 #                'object's formula; default=NULL
 #   seed       : an integer at which to set the random generator;
 #                default=NULL
@@ -43,8 +42,8 @@
 #                the simulations; default=FALSE
 #
 # --RETURNED--
-#   if 'statsonly'=TRUE  -- the vector of summary statistics for the 
-#      'nsim'=1             drawn network  
+#   if 'statsonly'=TRUE  -- the vector of summary statistics for the
+#      'nsim'=1             drawn network
 #   if 'statsonly'=TRUE  -- the matrix of summary statistics for each
 #                           drawn network; each row corresponds to a network
 #   if 'statsonly'=FALSE -- the drawn network
@@ -174,7 +173,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, theta0,
   for(i in 1:nsim){
     MCMCparams$burnin <- ifelse(i==1, burnin, interval)
     z <- ergm.getMCMCsample(Clist, MHproposal, theta0, MCMCparams, verbose)
-    
+
     # Create a network object if statsonly==FALSE
     if (!statsonly) {
       nw.list[[i]] <- network.update(nw, z$newedgelist, matrix.type="edgelist",
