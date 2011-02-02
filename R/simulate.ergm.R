@@ -2,7 +2,7 @@
 # This file contains the following 2 functions for simulating ergms
 #           <simulate.ergm>
 #           <simulate.formula.ergm>
-#========================================================================                       
+#========================================================================
 
 
 ########################################################################
@@ -104,10 +104,10 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
   }
 
   # New formula (no longer use 'object'):
-  formula <- ergm.update.formula(object, nw ~ .)
+  form <- ergm.update.formula(object, nw ~ .)
   
   # Prepare inputs to ergm.getMCMCsample
-  m <- ergm.getmodel(formula, nw, drop=FALSE, response=response)
+  m <- ergm.getmodel(form, nw, drop=FALSE, response=response)
   Clist <- ergm.Cprepare(nw, m, response=response)
   MHproposal <- MHproposal(constraints,arguments=control$prop.args,
                            nw=nw, model=m, weights=control$prop.weights, class="c",reference=reference)  
@@ -125,7 +125,7 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
     stop("Illegal value of theta0 passed to simulate.formula")
     
   # Create vector of current statistics
-  curstats<-summary(formula,response=response)
+  curstats<-summary(form,response=response)
   names(curstats) <- m$coef.names
 
   # prepare MCMCparams object
@@ -174,9 +174,9 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
   # MCMC iteration (statsonly=FALSE) or we want to restart each chain
   # at the original network (sequential=FALSE).
   MCMCparams$nmatrixentries <- length(curstats)
-  if(sequential){
-   for(i in 1:nsim){
-    MCMCparams$burnin <- ifelse(i==1 || !sequential, burnin, interval)
+  if (sequential) { # non-parallel method used here
+  for(i in 1:nsim){
+    MCMCparams$burnin <- ifelse(i==1, burnin, interval)
     z <- ergm.getMCMCsample(Clist, MHproposal, theta0, MCMCparams, verbose)
 
     # Create a network object if statsonly==FALSE
@@ -191,8 +191,8 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
       curstats <- curstats + z$statsmatrix
     }
     if(verbose){cat(sprintf("Finished simulation %d of %d.\n",i, nsim))}
-   }
-  }else{
+  }
+  } else {
     MCMCparams.parallel <- MCMCparams
     MCMCparams.parallel$samplesize <- 1
     MCMCparams.parallel$nmatrixentries <- length(curstats)
@@ -248,10 +248,10 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
   if (nsim==1) {
     return(nw.list[[1]])
   } else {  
-  out.list <- list(formula = object, networks = nw.list, 
-                   stats = out.mat, coef=theta0)
-  class(out.list) <- "network.series"
-  return(out.list)
+    out.list <- list(formula = object, networks = nw.list, 
+                     stats = out.mat, coef=theta0)
+    class(out.list) <- "network.series"
+    return(out.list)
   }
 }
 
