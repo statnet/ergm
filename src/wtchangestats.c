@@ -307,7 +307,35 @@ WtD_CHANGESTAT_FN(d_sum){
  stat: transitiveweights(_max)
 *****************/
 
-WtD_FROM_S_FN(d_transitiveweights_max)
+/* WtD_CHANGESTAT_FN(d_transitiveweights_max){ */
+/*   Edge e1, e2; */
+/*   Vertex node3; */
+/*   EXEC_THROUGH_TOGGLES({ */
+/*       /\* Changed dyad as the focus dyad. *\/ */
+/*       double best_path = 0; */
+/*       EXEC_THROUGH_INEDGES(TAIL, e1, node3, {  */
+/* 	best_path = fmax(best_path, fmin(GETWT(HEAD,node3),GETWT(node3,TAIL))); */
+/* 	}) */
+/*       CHANGE_STAT[0] += fmin(best_path, NEWWT) - fmin(best_path, OLDWT); */
+
+/*       /\* Changed dyad as a part of a two-path.  */
+/* 	 A dyad (i,j) is potentially affected by (h,t) iff: */
+/* 	 y(i,j)>0 & (h=i & (t,j)>0 | t=j & (i,h)>0). */
+/*       *\/ */
+/*       /\* For all ties (h=i,j)>0, *\/ */
+/*       EXEC_THROUGH_OUTEDGES(HEAD, e1, node3, { */
+/* 	  double ijwt = GETWT(TAIL,node3); */
+/* 	  /\* If (t,j)>0), (h,t) can affect (i,j). *\/ */
+/* 	  if(ijwt>0){ */
+/* 	    best_path = 0; */
+/* 	    EXEC_THROUGH_INEDGES(TAIL, e1, node3, {  */
+/* 		best_path = fmax(best_path, fmin(GETWT(HEAD,node3),GETWT(node3,TAIL))); */
+/* 	      }) */
+/* 	      CHANGE_STAT[0] += fmin(best_path, NEWWT) - fmin(best_path, OLDWT); */
+/* 	  } */
+/* 	} */
+/*   }); */
+/* } */
 
 WtS_CHANGESTAT_FN(s_transitiveweights_max){ 
   Edge e1, e2;
