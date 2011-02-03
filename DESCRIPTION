@@ -9,8 +9,8 @@ Author: Mark S. Handcock <handcock@stat.ucla.edu>,
         Pavel N. Krivitsky <pavel@stat.cmu.edu>,
         Martina Morris <morrism@u.washington.edu>
 Maintainer: David R. Hunter <dhunter@stat.psu.edu>
-Depends: network (>= 1.5-1)
+Depends: network (>= 1.6)
 Suggests: coda, KernSmooth, sna, Rglpk, robustbase, Matrix, trust
 Description: An integrated set of tools to analyze and simulate networks based on exponential-family random graph models (ERGM). "ergm" is a part of the "statnet" suite of packages for network analysis.  For a list of functions type: help(package='ergm')
-License: file LICENSE
+License: GPL-3 + file LICENSE
 URL: http://statnet.org

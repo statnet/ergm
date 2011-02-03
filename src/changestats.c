@@ -5237,11 +5237,11 @@ D_CHANGESTAT_FN(d_tripercent) {
   Edge degreewith, degreewithout, twostarwith, twostarwithout;
   int ninputs = N_INPUT_PARAMS - N_NODES;
   int MatchingOnAttribute = (ninputs>0);
-  double *attr, ratiowith, ratiowithout;
+  double *attr=INPUT_PARAM, ratiowith, ratiowithout;
   
   if (MatchingOnAttribute) 
     attr = INPUT_PARAM + (ninputs-1); /* ptr to vertex attributes */
-
+ 
   /* *** don't forget tail -> head */    
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
