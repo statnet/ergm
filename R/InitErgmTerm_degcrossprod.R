@@ -6,8 +6,6 @@
 #====================================================================
 
 
-
-
 ##############################################################################
 # The <InitErgmTerm.X> functions initialize each ergm term, X, by
 #   1) checking the validity of X and its arguments via <check.ErgmTerm> and
@@ -52,7 +50,6 @@
 #
 ##############################################################################################
 
-
 InitErgmTerm.degcrossprod<-function (nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE) 
   ### Construct the list to return
@@ -62,7 +59,6 @@ InitErgmTerm.degcrossprod<-function (nw, arglist, drop=TRUE, ...) {
        dependence = TRUE # So we don't use MCMC if not necessary
        )
 }
-
 
 InitErgmTerm.degcor<-function (nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE) 
@@ -81,7 +77,6 @@ InitErgmTerm.degcor<-function (nw, arglist, drop=TRUE, ...) {
        )
 }
 
-
 InitErgmTerm.adegcor<-function (nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE) 
 
@@ -99,7 +94,6 @@ InitErgmTerm.adegcor<-function (nw, arglist, drop=TRUE, ...) {
        )
 }
 
-
 InitErgmTerm.rdegcor<-function (nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE) 
 
@@ -116,3 +110,4 @@ InitErgmTerm.rdegcor<-function (nw, arglist, drop=TRUE, ...) {
        dependence = TRUE # So we don't use MCMC if not necessary
        )
 }
+
