@@ -34,10 +34,7 @@
 #        <transitiveties>   <twopath
 #==========================================================================
 
-
-
-
-##############################################################################
+################################################################################
 # The <InitErgmTerm.X> functions initialize each ergm term, X, by
 #   1) checking the validity of X and its arguments via <check.ErgmTerm> and
 #   2) setting appropiate values for each of the components in the returned list
@@ -114,7 +111,7 @@
 #                element in the vector; note in particular that it is NOT necessary 
 #                to add the number of inputs to 'inputs' since this is done automatically
 #
-##############################################################################################
+################################################################################
 
 
 
@@ -122,7 +119,7 @@
 #=======================InitErgmTerm functions:  A============================#
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.absdiff <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
@@ -142,7 +139,7 @@ InitErgmTerm.absdiff <- function(nw, arglist, ...) {
 
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.absdiffcat <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
@@ -174,7 +171,7 @@ InitErgmTerm.absdiffcat <- function(nw, arglist, ...) {
 
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.altkstar <- function(nw, arglist, initialfit=FALSE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=NULL,
@@ -216,8 +213,7 @@ InitErgmTerm.altkstar <- function(nw, arglist, initialfit=FALSE, ...) {
 
 
 
-
-#################################################################################
+################################################################################
 InitErgmTerm.asymmetric <- function(nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate
   a <- check.ErgmTerm(nw, arglist, directed=TRUE, bipartite=NULL,
@@ -270,11 +266,10 @@ InitErgmTerm.asymmetric <- function(nw, arglist, drop=TRUE, ...) {
 }
 
 
-
 #=======================InitErgmTerm functions:  B============================#
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.b1concurrent<-function(nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
                       varnames = c("byarg"),
@@ -376,7 +371,7 @@ InitErgmTerm.b1degree <- function(nw, arglist, drop=TRUE, ...) {
 }
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.b1factor<-function (nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
                       varnames = c("attrname", "base"),
@@ -451,7 +446,6 @@ InitErgmTerm.b1star <- function(nw, arglist, drop=TRUE, ...) {
        inputs = inputs)
 }
 
-
 ################################################################################
 InitErgmTerm.b1starmix <- function(nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
@@ -506,8 +500,6 @@ InitErgmTerm.b1starmix <- function(nw, arglist, drop=TRUE, ...) {
        inputs = inputs)
 }
 
-
-
 ################################################################################
 InitErgmTerm.b1twostar <- function(nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
@@ -547,9 +539,7 @@ InitErgmTerm.b1twostar <- function(nw, arglist, drop=TRUE, ...) {
        inputs = c(b1nodecov, b2nodecov, u[,1], u[,2], u[,3]) )
 }
 
-
-
-#################################################################################
+################################################################################
 InitErgmTerm.b2concurrent<-function(nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
                       varnames = c("byarg"),
@@ -651,8 +641,7 @@ InitErgmTerm.b2degree <- function(nw, arglist, drop=TRUE, ...) {
        inputs = inputs, emptynwstats=emptynwstats)
 }
 
-
-#################################################################################
+################################################################################
 InitErgmTerm.b2factor<-function (nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
                       varnames = c("attrname", "base"),
@@ -727,8 +716,6 @@ InitErgmTerm.b2star <- function(nw, arglist, drop=TRUE, ...) {
        inputs = inputs)
 }
 
-
-
 ################################################################################
 InitErgmTerm.b2starmix <- function(nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
@@ -783,8 +770,6 @@ InitErgmTerm.b2starmix <- function(nw, arglist, drop=TRUE, ...) {
        inputs = inputs)
 }
 
-
-
 ################################################################################
 InitErgmTerm.b2twostar <- function(nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
@@ -824,8 +809,7 @@ InitErgmTerm.b2twostar <- function(nw, arglist, drop=TRUE, ...) {
        inputs = c(b1nodecov, b2nodecov, u[,1], u[,2], u[,3]) )
 }
 
-
-#################################################################################
+################################################################################
 InitErgmTerm.balance<-function (nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attrname", "diff"),
@@ -886,7 +870,7 @@ InitErgmTerm.balance<-function (nw, arglist, drop=TRUE, ...) {
 #=======================InitErgmTerm functions:  C============================#
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.concurrent<-function(nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE,
                       varnames = c("byarg"),
@@ -949,7 +933,7 @@ InitErgmTerm.concurrent<-function(nw, arglist, drop=TRUE, ...) {
 
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.ctriple<-InitErgmTerm.ctriad<-function (nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = c("attrname","diff"),
@@ -1038,7 +1022,7 @@ InitErgmTerm.cycle <- function(nw, arglist, drop=TRUE, ...) {
 #=======================InitErgmTerm functions:  D============================#
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.degree<-function(nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE,
                       varnames = c("d", "byarg", "homophily"),
@@ -1132,7 +1116,7 @@ InitErgmTerm.degree<-function(nw, arglist, drop=TRUE, ...) {
 }
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.density<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = NULL,
@@ -1144,7 +1128,7 @@ InitErgmTerm.density<-function(nw, arglist, ...) {
 
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.dsp<-function(nw, arglist, drop=TRUE, ...) {
 # the following line was commented out in <InitErgm.dsp>:  
 #   ergm.checkdirected("dsp", is.directed(nw), requirement=FALSE)
@@ -1191,7 +1175,7 @@ InitErgmTerm.dsp<-function(nw, arglist, drop=TRUE, ...) {
 }
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.dyadcov<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("x","attrname"),
@@ -1275,9 +1259,7 @@ InitErgmTerm.edgecov <- function(nw, arglist, ...) {
   list(name="edgecov", coef.names = cn, inputs = inputs, dependence=FALSE)
 }
 
-
-
-#################################################################################
+################################################################################
 InitErgmTerm.edges<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = NULL,
@@ -1289,7 +1271,7 @@ InitErgmTerm.edges<-function(nw, arglist, ...) {
 
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.esp<-function(nw, arglist, drop=TRUE, ...) {
 # the following line was commented out in <InitErgm.esp>:  
 #    ergm.checkdirected("esp", is.directed(nw), requirement=FALSE)
@@ -1323,7 +1305,7 @@ InitErgmTerm.esp<-function(nw, arglist, drop=TRUE, ...) {
 
 #=======================InitErgmTerm functions:  G============================#
 
-#################################################################################
+################################################################################
 InitErgmTerm.gwb1degree<-function(nw, arglist, initialfit=FALSE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
   # default for 'fixed' should be made 'FALSE' when the function can handle it!                    
@@ -1383,7 +1365,7 @@ InitErgmTerm.gwb1degree<-function(nw, arglist, initialfit=FALSE, ...) {
 
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.gwb2degree<-function(nw, arglist, initialfit=FALSE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
   # default for 'fixed' should be made 'FALSE' when the function can handle it!                    
@@ -1443,7 +1425,7 @@ InitErgmTerm.gwb2degree<-function(nw, arglist, initialfit=FALSE, ...) {
 
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.gwdegree<-function(nw, arglist, initialfit=FALSE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE,
                       varnames = c("decay", "fixed", "attrname"),
@@ -1501,7 +1483,7 @@ InitErgmTerm.gwdegree<-function(nw, arglist, initialfit=FALSE, ...) {
 
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.gwdsp<-function(nw, arglist, initialfit=FALSE, ...) {
 # the following line was commented out in <InitErgm.gwdsp>:  
 #   ergm.checkdirected("gwdsp", is.directed(nw), requirement=FALSE)
@@ -1541,7 +1523,7 @@ InitErgmTerm.gwdsp<-function(nw, arglist, initialfit=FALSE, ...) {
 
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.gwesp<-function(nw, arglist, initialfit=FALSE, ...) {
 # the following line was commented out in <InitErgm.gwesp>:
 #   ergm.checkdirected("gwesp", is.directed(nw), requirement=FALSE)
@@ -1582,7 +1564,7 @@ InitErgmTerm.gwesp<-function(nw, arglist, initialfit=FALSE, ...) {
 
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.gwidegree<-function(nw, arglist, initialfit=FALSE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = c("decay", "fixed", "attrname"),
@@ -1639,7 +1621,7 @@ InitErgmTerm.gwidegree<-function(nw, arglist, initialfit=FALSE, ...) {
 }
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.gwnsp<-function(nw, arglist, initialfit=FALSE, ...) {
 # the following line was commented out in <InitErgm.gwnsp>:
 #    ergm.checkdirected("gwnsp", is.directed(nw), requirement=FALSE)
@@ -1679,7 +1661,7 @@ InitErgmTerm.gwnsp<-function(nw, arglist, initialfit=FALSE, ...) {
 }
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.gwodegree<-function(nw, arglist, initialfit=FALSE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = c("decay", "fixed", "attrname"),
@@ -1829,8 +1811,7 @@ InitErgmTerm.hamming<-function (nw, arglist, drop=TRUE, ...) {
        inputs = inputs, emptynwstats = emptynwstats, dependence = FALSE)
 }
 
-
-#################################################################################
+################################################################################
 InitErgmTerm.hammingmix<-function (nw, arglist, ...) {
   # There is no reason hammingmix should be directed-only, but for now
   # the undirected version does not seem to work properly, so:
@@ -1915,7 +1896,7 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ...) {
 #=======================InitErgmTerm functions:  I============================#
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.idegree<-function(nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = c("d", "byarg", "homophily"),
@@ -2008,7 +1989,7 @@ InitErgmTerm.idegree<-function(nw, arglist, drop=TRUE, ...) {
 }
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.indegreepopularity<-function (nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = NULL,
@@ -2035,7 +2016,7 @@ InitErgmTerm.indegreepopularity<-function (nw, arglist, drop=TRUE, ...) {
 
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.intransitive<-function (nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = NULL,
@@ -2079,10 +2060,7 @@ InitErgmTerm.isolates <- function(nw, arglist, drop=TRUE, ...) {
        )                                                               
 }
 
-
-
-
-#################################################################################
+################################################################################
 InitErgmTerm.istar<-function(nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = c("k", "attrname"),
@@ -2143,7 +2121,7 @@ InitErgmTerm.istar<-function(nw, arglist, drop=TRUE, ...) {
 
 #=======================InitErgmTerm functions:  K============================#
 
-#################################################################################
+################################################################################
 InitErgmTerm.kstar<-function(nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE,
                       varnames = c("k", "attrname"),
@@ -2203,7 +2181,7 @@ InitErgmTerm.kstar<-function(nw, arglist, drop=TRUE, ...) {
 
 #=======================InitErgmTerm functions:  L============================#
 
-#################################################################################
+################################################################################
 InitErgmTerm.localtriangle<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("x", "attrname"),
@@ -2232,7 +2210,7 @@ InitErgmTerm.localtriangle<-function (nw, arglist, ...) {
 
 #=======================InitErgmTerm functions:  M============================#
 
-#################################################################################
+################################################################################
 InitErgmTerm.m2star<-function(nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
                       varnames = NULL,
@@ -2252,7 +2230,7 @@ InitErgmTerm.m2star<-function(nw, arglist, drop=TRUE, ...) {
 }
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.meandeg<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = NULL,
@@ -2336,12 +2314,10 @@ InitErgmTerm.mutual<-function (nw, arglist, drop=TRUE, ...) {
        inputs=inputs) 
 }
 
-
-
 #=======================InitErgmTerm functions:  N============================#
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.nearsimmelian<-function (nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = NULL,
@@ -2367,7 +2343,7 @@ InitErgmTerm.nearsimmelian<-function (nw, arglist, drop=TRUE, ...) {
 }
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.nodecov<-InitErgmTerm.nodemain<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attrname","transform","transformname"),
@@ -2428,9 +2404,7 @@ InitErgmTerm.nodefactor<-function (nw, arglist, drop=TRUE, ...) {
        )
 }  
 
-
-
-#################################################################################
+################################################################################
 InitErgmTerm.nodeicov<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = c("attrname","transform","transformname"),
@@ -2491,7 +2465,6 @@ InitErgmTerm.nodeifactor<-function (nw, arglist, drop=TRUE, ...) {
        )
 }
 
-
 ################################################################################
 InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
@@ -2537,8 +2510,6 @@ InitErgmTerm.nodematch<-InitErgmTerm.match<-function (nw, arglist, drop=TRUE, ..
        dependence = FALSE # So we don't use MCMC if not necessary
        )
 }
-
-
 
 ################################################################################
 InitErgmTerm.nodemix<-function (nw, arglist, drop=TRUE, ...) {
@@ -2625,9 +2596,7 @@ InitErgmTerm.nodemix<-function (nw, arglist, drop=TRUE, ...) {
        )
 }
 
-
-
-#################################################################################
+################################################################################
 InitErgmTerm.nodeocov<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE, 
                       varnames = c("attrname","transform","transformname"),
@@ -2687,9 +2656,7 @@ InitErgmTerm.nodeofactor<-function (nw, arglist, drop=TRUE, ...) {
        )
 }  
 
-
-
-#################################################################################
+################################################################################
 InitErgmTerm.nsp<-function(nw, arglist, drop=TRUE, ...) {
 # The following line was commented out in <InitErgm.nsp>
 #   ergm.checkdirected("nsp", is.directed(nw), requirement=FALSE)
@@ -2741,7 +2708,7 @@ InitErgmTerm.nsp<-function(nw, arglist, drop=TRUE, ...) {
 
 #=======================InitErgmTerm functions:  O============================#
 
-#################################################################################
+################################################################################
 InitErgmTerm.odegree<-function(nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = c("d", "byarg", "homophily"),
@@ -2835,7 +2802,7 @@ InitErgmTerm.odegree<-function(nw, arglist, drop=TRUE, ...) {
 }
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.outdegreepopularity<-function (nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = NULL,
@@ -2861,7 +2828,7 @@ InitErgmTerm.outdegreepopularity<-function (nw, arglist, drop=TRUE, ...) {
 }
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.ostar<-function(nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = c("k", "attrname"),
@@ -2923,7 +2890,7 @@ InitErgmTerm.ostar<-function(nw, arglist, drop=TRUE, ...) {
 
 #=======================InitErgmTerm functions:  R============================#
 
-#################################################################################
+################################################################################
 InitErgmTerm.receiver<-function(nw, arglist, drop=FALSE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = c("base"),
@@ -2955,7 +2922,7 @@ InitErgmTerm.receiver<-function(nw, arglist, drop=FALSE, ...) {
 
 #=======================InitErgmTerm functions:  S============================#
 
-#################################################################################
+################################################################################
 InitErgmTerm.sender<-function(nw, arglist, drop=FALSE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = c("base"),
@@ -2985,7 +2952,7 @@ InitErgmTerm.sender<-function(nw, arglist, drop=FALSE, ...) {
 }
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.simmelian<-function (nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = NULL,
@@ -3011,7 +2978,7 @@ InitErgmTerm.simmelian<-function (nw, arglist, drop=TRUE, ...) {
 }
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.simmelianties<-function (nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = NULL,
@@ -3038,7 +3005,7 @@ InitErgmTerm.simmelianties<-function (nw, arglist, drop=TRUE, ...) {
 
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.smalldiff<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attrname", "cutoff"),
@@ -3059,7 +3026,7 @@ InitErgmTerm.smalldiff<-function (nw, arglist, ...) {
 
   
 
-#################################################################################
+################################################################################
 InitErgmTerm.sociality<-function(nw, arglist, drop=FALSE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE,
                       varnames = c("attrname", "base"),
@@ -3145,9 +3112,7 @@ InitErgmTerm.threepath <- function(nw, arglist, drop=TRUE, ...) {
   }
 }
 
-
-
-#################################################################################
+################################################################################
 InitErgmTerm.transitive<-function (nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = NULL,
@@ -3167,7 +3132,7 @@ InitErgmTerm.transitive<-function (nw, arglist, drop=TRUE, ...) {
 }
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.transitiveties<-function (nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = c("attrname"),#, "diff"),
@@ -3223,7 +3188,7 @@ InitErgmTerm.transitiveties<-function (nw, arglist, drop=TRUE, ...) {
 }
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.triadcensus<-function (nw, arglist, drop=FALSE, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("d"),
@@ -3280,7 +3245,7 @@ InitErgmTerm.triadcensus<-function (nw, arglist, drop=FALSE, ...) {
 
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.triangle<-InitErgmTerm.triangles<-function (nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("attrname", "diff"),
@@ -3337,7 +3302,7 @@ InitErgmTerm.triangle<-InitErgmTerm.triangles<-function (nw, arglist, drop=TRUE,
 
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.tripercent<-function (nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE,
                       varnames = c("attrname", "diff"),
@@ -3392,7 +3357,7 @@ InitErgmTerm.tripercent<-function (nw, arglist, drop=TRUE, ...) {
 }
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.ttriple<-InitErgmTerm.ttriad<-function (nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = c("attrname", "diff"),
@@ -3448,7 +3413,7 @@ InitErgmTerm.ttriple<-InitErgmTerm.ttriad<-function (nw, arglist, drop=TRUE, ...
 }
 
 
-#################################################################################
+################################################################################
 InitErgmTerm.twopath<-function(nw, arglist, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = NULL,
