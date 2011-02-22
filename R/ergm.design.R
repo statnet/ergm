@@ -12,13 +12,13 @@
 #      if 'nw' has missing edges, see the return list, 'Clist', from the
 #                                 <ergm.Cprepare> function header
 #      if 'nw' hasn't any missing edges, the list will only contain NULL
-#                                 values for the 'heads' and 'tails' components,
+#                                 values for the 'tails' and 'heads' components,
 #                                 a 0 for 'nedges' and 'dir' appropriately set
 ################################################################################
 
 ergm.design <- function(nw, model, verbose=FALSE){
   if(network.naedgecount(nw)==0){
-    Clist.miss <- list(heads=NULL, tails=NULL, nedges=0, dir=is.directed(nw))
+    Clist.miss <- list(tails=NULL, heads=NULL, nedges=0, dir=is.directed(nw))
   }else{
     Clist.miss <- ergm.Cprepare(is.na(nw), model)
     if(verbose){

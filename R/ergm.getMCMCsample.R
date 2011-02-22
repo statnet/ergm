@@ -37,21 +37,22 @@
 ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALSE) {
   maxedges <- MCMCparams$maxedges
   nedges <- c(Clist$nedges,0,0)
-  heads <- Clist$heads
   tails <- Clist$tails
+  heads <- Clist$heads
   if(!is.null(MCMCparams$Clist.miss)){
     nedges[2] <- MCMCparams$Clist.miss$nedges
-    heads <- c(heads, MCMCparams$Clist.miss$heads)
     tails <- c(tails, MCMCparams$Clist.miss$tails)
+    heads <- c(heads, MCMCparams$Clist.miss$heads)
   }
   if(!is.null(MCMCparams$Clist.dt)){
     nedges[3] <- MCMCparams$Clist.dt$nedges
-    heads <- c(heads, MCMCparams$Clist.dt$heads)
     tails <- c(tails, MCMCparams$Clist.dt$tails)
+    heads <- c(heads, MCMCparams$Clist.dt$heads)
   }
+  # *** don't forget, tails is now passed in before heads.
   z <- .C("MCMC_wrapper",
   as.integer(length(nedges)), as.integer(nedges),
-  as.integer(heads), as.integer(tails),
+  as.integer(tails), as.integer(heads),
   as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
   as.integer(Clist$dir), as.integer(Clist$bipartite),
   as.integer(Clist$nterms),
@@ -71,8 +72,8 @@ ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALS
   #  statsmatrix = as.double(t(MCMCparams$stats)), # By default, as.double goes bycol, not byrow; thus, we use the transpose here.
   as.integer(MCMCparams$burnin),
   as.integer(MCMCparams$interval),
-  newnwheads = integer(MCMCparams$maxedges),
   newnwtails = integer(MCMCparams$maxedges),
+  newnwheads = integer(MCMCparams$maxedges),
   as.integer(verbose), as.integer(MHproposal$bd$attribs),
   as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
   as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
@@ -80,7 +81,7 @@ ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALS
   as.integer(maxedges),
   PACKAGE="ergm")
 
-  nedges <- z$newnwheads[1]  # This tells how many new edges there are
+  nedges <- z$newnwtails[1]  # This tells how many new edges there are
   if (nedges >= maxedges) {
     # The simulation has filled up the available memory for storing edges, 
     # so rerun it with ten times more
@@ -94,9 +95,9 @@ ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALS
   } else if (nedges==0) { 
     newedgelist <- matrix(0, ncol=2, nrow=0)
   } else { 
-    ## Post-processing of z$newnwheads and z$newnwtails: Combine into newedgelist
-    ## The heads are listed starting at z$newnwheads[2], and similarly for tails.
-    newedgelist <- cbind(z$newnwheads[2:(nedges+1)],z$newnwtails[2:(nedges+1)])
+    ## Post-processing of z$newnwtails and z$newnwheads: Combine into newedgelist
+    ## The tails are listed starting at z$newnwtails[2], and similarly for heads.
+    newedgelist <- cbind(z$newnwtails[2:(nedges+1)], z$newnwheads[2:(nedges+1)])
   }
 
   ## Post-processing of z$statsmatrix element: coerce to correct-sized matrix

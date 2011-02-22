@@ -6,6 +6,7 @@
 # --PARAMETERS--
 #   formula: a formula
 #
+#
 # --RETURNED--
 #   trms: the terms object associated with the formula and returned by the 
 #         native R function <terms>. see '?terms.object' for details about

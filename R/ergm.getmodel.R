@@ -6,21 +6,23 @@
 
 
 
+
+
 ###################################################################################
 # The <ergm.getmodel> function parses the given formula, and initiliazes each ergm
 # term via the <InitErgmTerm> functions to create a 'model.ergm' object for the
 # given network
 #
 # --PARAMETERS--
-#   formula    :  a formula of the form 'network ~ model.term(s)'
-#   nw         :  the network of interest
-#   silent     :  whether to print the warning messages from the initialization 
-#                 of each model term (T or F); default=FALSE
-#   ...        :  additional parameters for model formulation;
-#                 recognized parameters include:
-#      drop      : whether to drop degenerate terms (T or F)
-#      initialfit: whether curved exponential terms have been initially fit
-#                  by MPLE (T or F)
+#   formula:  a formula of the form 'network ~ model.term(s)'
+#   nw     :  the network of interest
+#   silent :  whether to print the warning messages from the initialization of each
+#             model term (T or F); default=FALSE
+#   ...    :  additional parameters for model formulation;
+#             recognized parameters include
+#               drop      : whether to drop degenerate terms (T or F)
+#               initialfit: whether curved exponential terms have been initially fit
+#                           by MPLE (T or F)
 #   stergm.order:  a character string indicating which dissolution and formation
 #                  process is to be used; possible options are
 #                          "DissThenForm"
@@ -36,15 +38,15 @@
 #     formula       :  the formula inputted to <ergm.getmodel>
 #     coef.names    :  a vector of coefficient names
 #     offset        :  a logical vector of whether each term was "offset", i.e. fixed
-#     terms         :  a list of terms and 'term components' initialized by the
-#                      appropriate <InitErgmTerm.X> function.  See the <InitErgm>
+#     terms         :  a list of terms and 'term components' initialized by the 
+#                      appropriate <InitErgmTerm.X> function.  See the <InitErgm> 
 #                      function header for details about the 'terms' list
 #     network.stats0:  NULL always??
-#     etamap        :  the theta -> eta mapping as a list returned from <ergm.etamap>
-#     class         :  the character string "model.ergm"
+#     etamap        :  the theta -> eta mapping as a list returned from <ergm.etamap> 
+#     class         :  the character string "model.ergm" 
 #     stergm.order  :  the 'sterm.order' that was passed in or NULL if not specified
 #
-#####################################################################################                   
+#####################################################################################
 
 ergm.getmodel <- function (formula, nw, silent=FALSE, ...,stergm.order=NULL) {
   if ((dc<-data.class(formula)) != "formula")
@@ -141,7 +143,6 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, ...,stergm.order=NULL) {
 
 
 
-
 #######################################################################
 # The <updatemodel.ErgmTerm> function updates an existing model object
 # to include an initialized ergm term, X;
@@ -157,7 +158,8 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, ...,stergm.order=NULL) {
 #            since terms may be eliminated by giving only 0 statistics,
 #            and consequently returning a NULL 'outlist')
 #
-#######################################################################                                 
+#######################################################################
+
 updatemodel.ErgmTerm <- function(model, outlist) { 
   if (!is.null(outlist)) { # Allow for no change if outlist==NULL
     model$coef.names <- c(model$coef.names, outlist$coef.names)

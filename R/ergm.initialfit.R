@@ -1,37 +1,36 @@
 ####################################################################################
 # The <ergm.initialfit> function fits an initial ergm object using either ML or MPL
-# estimation.  If initial parameters are provided in 'theta0' and 'MLestimate' is
+# estimation.  If initial parameters are provided in 'theta0' and 'MLestimate' is 
 # TRUE, the number of parameters in 'theta0' is checked for correctness.
-#
+# 
 # --PARAMETERS--
 #   theta0        :  either a vector whose first entry is "MPLE" or a vector
-#                    of initail coefficients
-#   MLestimate    :  whether a MLestimate should be used (T or F);
+#                    of initial coefficients
+#   MLestimate    :  whether a MLestimate should be used (T or F); 
 #                       if TRUE, this may be overriden by 'force.MPLE'=TRUE  or
 #                                theta0=c("MPLE", ...)
-#                       if FALSE, 'theta0' must have "MPLE" as its 1st entry to
+#                       if FALSE, 'theta0' must have "MPLE" as its 1st entry to 
 #                                  avoid an error
-#   formula       :  a formula of the form (nw ~ term(s))
+#   formula       :  a formula of the form (nw ~ term(s)) 
 #   nw            :  a network object, presumably that of 'formula'
 #   meanstats     :  the mean statistics
 #   m             :  the model as returned by <ergm.getmodel>
 #   MPLEtype      :  the method for MPL estimation as either "glm", "penalized",
 #                    or "logitreg"; this is ignored if ML estimation is used;
-#                    default="glm"
+#                    default="glm" 
 #   initial.loglik:  the initial log likelihood; default=NULL
 #   conddeg       :  a formula for the conditional degree terms
 #   MCMCparams    :  a list of parameters for tuning the MCMC sampling;
 #                    the only recognized component is 'samplesize'
 #   MHproposal    :  an MHproposal object as returned by <getMHproposal>
-#   force.MPLE    :  whether MPL estimation should be forced instead of ML
+#   force.MPLE    :  whether MPL estimation should be forced instead of ML 
 #                    estimation (T or F); this is ignored if 'MLestimate'=FALSE
 #                    or "MPLE" is an entry into 'theta0'; default=FALSE
-#   verbose       :  whether the MPL estimation should be verbose (T or F);
+#   verbose       :  whether the MPL estimation should be verbose (T or F); 
 #                    default=FALSE
 #   ...           :  addtional parameters that are used with MPL estimation;
 #                    the only recognized parameeter is 'compressflag' which
-#                    compresses the design matrix used by <ergm.mple>
-#
+#                    compresses the design matrix used by <ergm.mple>        
 #
 # --RETURNED--
 #    an ergm object as one of the following lists
@@ -44,7 +43,7 @@
 
 ergm.initialfit<-function(theta0, MLestimate, 
                           formula, nw, meanstats,
-			  m, 
+                          m, 
                           MPLEtype="glm", initial.loglik=NULL,
                           conddeg=NULL, MCMCparams=NULL, MHproposal=NULL,
                           force.MPLE=FALSE,
