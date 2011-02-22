@@ -267,7 +267,6 @@
 % These need to be documented!
 %
 
-\alias{as.directed}
 \alias{as.edgelist}
 \alias{ergm.degeneracy} % At least this needs to be documented in summary.ergm and/or mcmc.diagnostics.ergm
 \alias{print.network.series}
