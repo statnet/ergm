@@ -13,7 +13,7 @@
 #
 # --PARAMETERS--
 #   prop.weights  : specifies the method used to allocate probabilities
-#                   if being proposed to dyads; options are "TNT",
+#                  of being proposed to dyads; options are "TNT",
 #                   "random", "nonobserved" and "default"; default=
 #                   NULL if X is an ergm (which then uses the weights
 #                   that the ergm was fit by); default="default" if

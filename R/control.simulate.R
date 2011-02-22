@@ -12,7 +12,7 @@
 #
 # --PARAMETERS--
 #   prop.weights  : specifies the method used to allocate probabilities
-#                   if being proposed to dyads; options are "TNT",
+#                   of being proposed to dyads; options are "TNT",
 #                   "random", "nonobserved" and "default"; default=
 #                   NULL if X is an ergm (which then uses the weights
 #                   that the ergm was fit by); default="default" if
@@ -28,7 +28,6 @@
 #                   options are "network" and "edgelist.compressed"
 #                   (which saves space but only supports networks
 #                    without vertex attributes); default="network"
-
 #
 # --IGNORED--
 #   prop.args     : an alternative, direct way of specifying additional
@@ -44,8 +43,8 @@
 #   summarizestats: whether to print out a summary of the sufficient
 #                   statistics of the generated network (T or F);
 #                   default=FALSE.
-#   maxchanges    : ??; default=1000000
-#   parallel      : number of threads in which to run the sampling;
+#   maxchanges    : ??; default=1000000 
+#   parallel      : number of threads in which to run the sampling
 #                   not implemented in the 2.3 version of <ergm.getMCMCsample>
 #
 #

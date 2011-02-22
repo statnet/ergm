@@ -38,7 +38,9 @@
 #
 ######################################################################################
 
-ergm.initialfit<-function(theta0, MLestimate, Clist, Clist.miss, m, 
+ergm.initialfit<-function(theta0, MLestimate, 
+                          Clist, Clist.miss, 
+                          m, 
                           MPLEtype="glm", initial.loglik=NULL,
                           conddeg=NULL, MCMCparams=NULL, MHproposal=NULL,
                           force.MPLE=FALSE,
@@ -61,7 +63,7 @@ ergm.initialfit<-function(theta0, MLestimate, Clist, Clist.miss, m,
                        verbose=verbose, ...)
     }else{    
       if(!is.null(Clist.miss)){
-        mle.lik <- -log(2)*(Clist$ndyads-Clist.miss$nedges)
+        mle.lik <- -log(2)*(Clist$ndyads-network.naedgecount(nw))
       }else{
         mle.lik <- -log(2)*Clist$ndyads
       }
