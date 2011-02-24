@@ -128,7 +128,7 @@ MHproposal.character <- function(object, arguments, nw, model, ...){
 #   constraints:  the constraints as a one sided formula '~ term(s)'
 #   weights    :  specifies the method used to allocate probabilities of being proposed
 #                 to dyads; options are "TNT", "TNT10", "random", "nonobserved" and
-#                 "default"; default="default"                                           
+#                 "default"; default="default"
 #   class      :  "c", otherwise execution will halt
 #
 ########################################################################################
@@ -208,12 +208,12 @@ MHproposal.formula <- function(object, arguments, nw, model, weights="default", 
 #   arguments  :  a list of parameters used by the <Init.MHP> routines  possibly including
 #                  bd: a list of parameters used to bound degree via <ergm.bounddeg>
 #   nw         :  a network object; default=object.network
-#   model      :  a model object; default=<ergm.getmodel(object$formula,nw,...)>  
+#   model      :  a model object; default=<ergm.getmodel(object$formula,nw,...)>
 #   weights    :  the proposal weights component of <control.ergm> as either
 #                 "TNT", "random", "TNT10", or "default"; default="default"
 #                 (these options don't agree with the prop.weights of <control.ergm>)
 #   class      :  "c", otherwise execution will halt
-#   
+#
 ########################################################################################
 
 MHproposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NULL, model=NULL,weights=NULL,class="c"){

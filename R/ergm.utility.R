@@ -326,6 +326,7 @@ summary.statsmatrix.ergm <- function(object, ...){
 # --IGNORED PARAMETERS--
 #   var.equal : whether the variance of ?? is ??; default=FALSE
 #   conf.level: the confidence level; default=0.95
+#   ...       : ??
 #
 # --RETURNED--
 #   rval: a vetor of the standard error, the t statistic, the p value, and the

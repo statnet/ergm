@@ -20,6 +20,7 @@
 #       maxit      : the maximum number of iterations to use
 #       Clist.miss : the 'Clist' for the network of missing edges, as
 #                    returned by <ergm.design>
+#
 #        epsilon   : ??, this is passed to <ergm.estimate>, which ignores it;
 #   MHproposal     : an MHproposal object for 'nw', as returned by
 #                    <getMHproposal>
@@ -34,7 +35,6 @@
 #                    <ergm.estimate>; default=TRUE
 #   ...            : additional parameters that may be passed from within;
 #                    all are ignored
-#
 #
 # --RETURNED--
 #   v: an ergm object as a list containing several items; for details see

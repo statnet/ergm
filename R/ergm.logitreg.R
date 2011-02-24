@@ -15,7 +15,8 @@
 # --PARAMETERS--
 #   x        : the design matrix
 #   y        : the binary outcomes, presumably the vector of edge values
-#   wt       : a vector of wieghts for each case; default=rep(1,length(y)) 
+#   wt       : a vector of wieghts for each case; default=rep(1,length(y));
+#              this and the two params above are returned by <ergm.pl>
 #   intercept: whether an intercept should be estimated (T or F);
 #              default=FALSE
 #   start    : initial values for the parameters to be optimized over
