@@ -58,14 +58,14 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
   
   Clist <- ergm.Cprepare(nw, model)
   if(is.null(MCMCparams$Clist.dt)){
-    MCMCparams$Clist.dt <- list(heads=NULL, tails=NULL, nedges=0, dir=is.directed(nw))
+    MCMCparams$Clist.dt <- list(tails=NULL, heads=NULL, nedges=0, dir=is.directed(nw))
   }
   maxedges <- max(5000, Clist$nedges)
 #
 #   Check for truncation of the returned edge list
 #
-  z <- list(newnwheads=maxedges+1)
-  while(z$newnwheads[1] >= maxedges){
+  z <- list(newnwtails=maxedges+1)
+  while(z$newnwtails[1] >= maxedges){
    maxedges <- 10*maxedges
 #
 #  Parallel running
@@ -73,7 +73,7 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
    if(MCMCparams$parallel==0){
     flush.console()
     z <- ergm.mcmcslave(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose)
-    nedges <- z$newnwheads[1]
+    nedges <- z$newnwtails[1]
     statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
                           ncol=Clist$nstats,
                           byrow = TRUE)
@@ -139,7 +139,7 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
 #      newedgelist <- rbind(newedgelist,
      #                           matrix(z$newnw[2:z$newnw[1]], ncol=2, byrow=TRUE))
    }
-    nedges <- z$newnwheads[1]
+    nedges <- z$newnwtails[1]
     newnetwork<-newnw.extract(nw,z)
     if(verbose){cat("parallel samplesize=",nrow(statsmatrix),"by",
 	MCMCparams.parallel$samplesize,"\n")}
@@ -206,30 +206,30 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
 # --RETURNED--
 #   the MCMC sample as a list of the following:
 #     s         : the statsmatrix
-#     newnwheads: the vector of heads for the new network- is this the final
+#     newnwtails: the vector of tails for the new network- is this the final
 #                 network sampled? - is this the original nw if 'maxedges' is 0
-#     newnwtails: the vector of tails for the new network - same q's
+#     newnwheads: the vector of heads for the new network - same q's
 #
 ###############################################################################
 
 ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
   numnetworks <- 0
   nedges <- c(Clist$nedges,0,0)
-  heads <- Clist$heads
   tails <- Clist$tails
+  heads <- Clist$heads
   if(!is.null(MCMCparams$Clist.miss)){
     nedges[2] <- MCMCparams$Clist.miss$nedges
-    heads <- c(heads, MCMCparams$Clist.miss$heads)
     tails <- c(tails, MCMCparams$Clist.miss$tails)
+    heads <- c(heads, MCMCparams$Clist.miss$heads)
   }
   if(!is.null(MCMCparams$Clist.dt)){
     nedges[3] <- MCMCparams$Clist.dt$nedges
-    heads <- c(heads, MCMCparams$Clist.dt$heads)
     tails <- c(tails, MCMCparams$Clist.dt$tails)
+    heads <- c(heads, MCMCparams$Clist.dt$heads)
   }
   z <- .C("MCMC_wrapper",
   as.integer(numnetworks), as.integer(nedges),
-  as.integer(heads), as.integer(tails),
+  as.integer(tails), as.integer(heads),
   as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
   as.integer(Clist$dir), as.integer(Clist$bipartite),
   as.integer(Clist$nterms),
@@ -241,8 +241,8 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
   s = as.double(t(MCMCparams$stats)),
   as.integer(MCMCparams$burnin), 
   as.integer(MCMCparams$interval),
-  newnwheads = integer(maxedges),
   newnwtails = integer(maxedges),
+  newnwheads = integer(maxedges),
   as.integer(verbose), as.integer(MHproposal$bd$attribs),
   as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
   as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
@@ -250,5 +250,5 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
   as.integer(maxedges),
   PACKAGE="ergm")
   # save the results
-  list(s=z$s, newnwheads=z$newnwheads, newnwtails=z$newnwtails)
+  list(s=z$s, newnwtails=z$newnwtails, newnwheads=z$newnwheads)
 }

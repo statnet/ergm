@@ -30,7 +30,7 @@ ergm.plinfo<-function(Clist, Clist.miss, m, fix=NULL, theta.offset=NULL)
   numobs <- Clist$ndyads
 
   z <- .C("plinfo_wrapper",
-          as.integer(Clist$heads),    as.integer(Clist$tails),
+          as.integer(Clist$tails),    as.integer(Clist$heads),
           as.integer(Clist$nedges),   as.integer(Clist$maxpossibleedges),
           as.integer(Clist$n), 
           as.integer(Clist$dir),     as.integer(Clist$nstats), 
@@ -53,7 +53,7 @@ ergm.plinfo<-function(Clist, Clist.miss, m, fix=NULL, theta.offset=NULL)
       base <- base[base[, 2] != base[, 1], ]
     }
     ubase <- base[,1] + Clist$n*base[,2]
-    dmiss <- !is.na(match(ubase, Clist.miss$tails+Clist.miss$heads*Clist$n))
+    dmiss <- !is.na(match(ubase, Clist.miss$heads+Clist.miss$tails*Clist$n))
     xmat <- matrix(xmat[!dmiss,], ncol=Clist$nstats, nrow=sum(!dmiss))
     zy <- zy[!dmiss]
   }

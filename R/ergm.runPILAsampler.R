@@ -41,7 +41,7 @@ ergm.runPILAsampler <- function(nw, model, MHproposal, eta0, MCMCparams,
 
   Clist <- ergm.Cprepare(nw, model)
   z <- ergm.PILAslave(Clist,MHproposal,eta0,MCMCparams,verbose,debug=verbose>0)
-  nedges <- z$newnwheads[1]
+  nedges <- z$newnwtails[1]
   out<-list(statsmatrix=matrix(z$s, nrow=MCMCparams$samplesize,
               ncol=Clist$nstats,
               byrow = TRUE),
@@ -85,7 +85,7 @@ ergm.runPILAsampler <- function(nw, model, MHproposal, eta0, MCMCparams,
 
 ergm.PILAslave <- function(Clist,MHproposal,eta0,MCMCparams,verbose,debug=FALSE) {
   z <- .C("PILA_wrapper",
-          as.integer(Clist$heads), as.integer(Clist$tails),
+          as.integer(Clist$tails), as.integer(Clist$heads),
           as.integer(Clist$nedges),
           as.integer(Clist$n), as.integer(Clist$dir), as.integer(Clist$bipartite),
           as.integer(Clist$nterms),
@@ -102,7 +102,7 @@ ergm.PILAslave <- function(Clist,MHproposal,eta0,MCMCparams,verbose,debug=FALSE)
           as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
           as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
           as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)),
-          as.integer(MCMCparams$Clist.miss$heads), as.integer(MCMCparams$Clist.miss$tails),
+          as.integer(MCMCparams$Clist.miss$tails), as.integer(MCMCparams$Clist.miss$heads),
           as.integer(MCMCparams$Clist.miss$nedges),
           theta.mean.save=if(debug)double((MCMCparams$samplesize+1)*(Clist$nterms+1)),
           XtX.save=if(debug)double((MCMCparams$samplesize+1)*(Clist$nterms+1)^2),

@@ -48,14 +48,14 @@ ergm.phase12 <- function(g, model,
   Clist <- ergm.Cprepare(g, model)
   maxedges <- max(MCMCparams$maxedges, Clist$nedges)/5
   MCMCparams$maxedges <- MCMCparams$maxedges/5
-  z <- list(newnwheads=maxedges+1)
-  while(z$newnwheads[1] >= maxedges){
+  z <- list(newnwtails=maxedges+1)
+  while(z$newnwtails[1] >= maxedges){
     maxedges <- 5*maxedges
     MCMCparams$maxedges <- 5*MCMCparams$maxedges
     if(verbose){cat(paste("MCMC workspace is",maxedges,"\n"))}
-#
+    # *** don't forget, pass in tails first now, not heads
     z <- .C("MCMCPhase12",
-            as.integer(Clist$heads), as.integer(Clist$tails), 
+            as.integer(Clist$tails), as.integer(Clist$heads), 
             as.integer(Clist$nedges), as.integer(Clist$maxpossibleedges),
             as.integer(Clist$n),
             as.integer(Clist$dir), as.integer(Clist$bipartite),
@@ -71,8 +71,8 @@ ergm.phase12 <- function(g, model,
             as.integer(MCMCparams$nsub),
             s = double(MCMCparams$samplesize * Clist$nstats),
             as.integer(MCMCparams$burnin), as.integer(MCMCparams$interval),
-            newnwheads = integer(maxedges),
             newnwtails = integer(maxedges),
+            newnwheads = integer(maxedges),
             as.integer(verbose), 
             as.integer(MHproposal$bd$attribs), 
             as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),

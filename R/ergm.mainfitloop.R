@@ -3,33 +3,34 @@
 # likelihood estimation that can be used. This one is the default and uses
 # optimization of an MCMC estimate of the log-likelihood.  (The other
 # MLE styles are found in functions <ergm.robmon>, <ergm.stocapprox>, and
-# <ergm.stepping>
+# <ergm.stepping> 
 #
 #
 # --PARAMETERS--
 #   theta0         : the initial theta values
-#   nw             : the network
+#   nw             : the network 
 #   model          : the model, as returned by <ergm.getmodel>
 #   Clist          : a list of several network and model parameters,
 #                    as returned by <ergm.Cprepare>
 #   initialfit     : an ergm object, as the initial fit, possibly returned
 #                    by <ergm.initialfit>
 #   MCMCparams     : a list of parameters for controlling the MCMC sampling;
-#                    recognized components include:
-#       samplesize  : the number of MCMC sampled networks
-#       maxit       : the maximum number of iterations to use
-#       parallel    : the number of threads in which to run the sampling
+#                    recognized components include
+#       samplesize : the number of MCMC sampled networks
+#       maxit      : the maximum number of iterations to use
+#       parallel   : the number of threads in which to run the sampling
 #       packagenames: names of packages; this is only relevant if "ergm" is given
-#       Clist.dt    : this is a Clist, similar to that returned by
+#       Clist.dt   : this is a Clist, similar to that returned by
 #                     <ergm.Cprepare>, but this is for fitting dynamic models
-#       Clist.miss  : a corresponding 'Clist' for the network of missing edges,
-#                     as returned by <ergm.design>
+#       Clist.miss : the 'Clist' for the network of missing edges, as
+#                    returned by <ergm.design>
 #       interval    : the number of proposals to ignore between sampled networks
 #       burnin      : the number of proposals to initially ignore for the burn-in
 #                     period
-#       epsilon     : ??, this is essentially unused, except to print it if
-#                     'verbose'=T and to pass it along to <ergm.estimate>,
-#                     which ignores it;   
+#
+#       epsilon    : ??, this is essentially unused, except to print it if
+#                    'verbose'=T and to pass it along to <ergm.estimate>,
+#                    which ignores it;   
 #   MHproposal     : an MHproposal object for 'nw', as returned by
 #                    <getMHproposal>
 #   MHproposal.miss: an MHproposal object for the missing network of'nw',

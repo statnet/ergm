@@ -57,8 +57,8 @@ ergm.allstats <- function(formula, zeroobs = TRUE, force = FALSE,
   
   # Calculate the statistics relative to the current network using recursive C code
   z <- .C("AllStatistics",
-          as.integer(Clist$heads),
           as.integer(Clist$tails),
+          as.integer(Clist$heads),
           as.integer(Clist$nedges),
           as.integer(Clist$n),
           as.integer(Clist$dir),
