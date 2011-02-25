@@ -40,7 +40,7 @@
 #
 ##########################################################################
 
-ergm.Cprepare <- function(nw, m, response=NULL) 
+ergm.Cprepare <- function(nw, m, response=NULL)
 {
   # Build an object called Clist that contains all the necessary
   # ingredients to be passed to the C function.
@@ -57,9 +57,10 @@ ergm.Cprepare <- function(nw, m, response=NULL)
     Clist$nedges<-0
     Clist$heads<-NULL
     Clist$tails<-NULL
-    ## Make sure weights is NULL, even if it's empty, since
-    ## it's used to decide whether MCMC or WtMCMC is called.
-    Clist$weights<-NULL
+    ## Make sure weights is not NULL if response!=NULL, even if it's
+    ## empty, since it's used to decide whether MCMC or WtMCMC is
+    ## called.
+    if(!is.null(response)) Clist$weights<-numeric(0)
   }else{
     if(!is.matrix(e)){e <- matrix(e, ncol=2+!is.null(response))}
 
