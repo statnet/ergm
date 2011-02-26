@@ -24,12 +24,12 @@ void WtSAN_wrapper (int * dnumnets, int *nedges,
 
 void WtSANSample (char *MHproposaltype, char *MHproposalpackage,
 		double *theta, double *invcov, double *tau, double *networkstatistics, 
-		long int samplesize, long int burnin, 
-		long int interval, int fVerbose,
+		int samplesize, int burnin, 
+		int interval, int fVerbose,
 		WtNetwork *nwp, WtModel *m);
 void WtSANMetropolisHastings (WtMHproposal *MHp,
 			 double *theta, double *invcov, double *tau, double *statistics, 
-			 long int nsteps, long int *staken,
+			 int nsteps, int *staken,
 			 int fVerbose,
 			 WtNetwork *nwp, WtModel *m);
 #endif

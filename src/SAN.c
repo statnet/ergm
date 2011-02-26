@@ -130,10 +130,10 @@ void SAN_wrapper ( int *dnumnets, int *nedges,
   bd=DegreeBoundInitialize(attribs, maxout, maxin, minout, minin,
 			   *condAllDegExact, *attriblength, nw);
   SANSample (*MHproposaltype, *MHproposalpackage,
-	      theta0, invcov, tau, sample, (long int)*samplesize,
-	      (long int)*burnin, (long int)*interval,
+	      theta0, invcov, tau, sample, *samplesize,
+	      *burnin, *interval,
 	      hammingterm,
-	      (int)*fVerbose, nw, m, bd);
+	      *fVerbose, nw, m, bd);
   
   /* record new generated network to pass back to R */
   if(nmax > 0)
@@ -160,10 +160,10 @@ void SAN_wrapper ( int *dnumnets, int *nedges,
 *********************/
 void SANSample (char *MHproposaltype, char *MHproposalpackage,
   double *theta, double *invcov, double *tau, double *networkstatistics, 
-  long int samplesize, long int burnin, 
-  long int interval, int hammingterm, int fVerbose,
+  int samplesize, int burnin, 
+  int interval, int hammingterm, int fVerbose,
   Network *nwp, Model *m, DegreeBound *bd) {
-  long int staken, tottaken, ptottaken;
+  int staken, tottaken, ptottaken;
   int i, j, components, diam;
   MHproposal MH;
   
@@ -259,11 +259,11 @@ void SANSample (char *MHproposaltype, char *MHproposalpackage,
 void SANMetropolisHastings (MHproposal *MHp,
 			    double *theta, double *invcov, 
 			    double *tau, double *networkstatistics,
-			    long int nsteps, long int *staken,
+			    int nsteps, int *staken,
 			    int hammingterm, int fVerbose,
 			    Network *nwp,
 			    Model *m, DegreeBound *bd) {
-  long int step, taken;
+  int step, taken;
   int i,j;
   double ip,dif;
   double *deltainvsig, *delta;

@@ -116,10 +116,10 @@ void MCMC_wrapper (int *dnumnets, int *nedges,
   bd=DegreeBoundInitialize(attribs, maxout, maxin, minout, minin,
 			   *condAllDegExact, *attriblength, nw);
   MCMCSample (*MHproposaltype, *MHproposalpackage,
-	      theta0, sample, (long int)*samplesize,
-	      (long int)*burnin, (long int)*interval,
+	      theta0, sample, *samplesize,
+	      *burnin, *interval,
 	      hammingterm,
-	      (int)*fVerbose, nw, m, bd);
+	      *fVerbose, nw, m, bd);
 
 /*   int ii;
    double mos=0.0;
@@ -157,10 +157,10 @@ void MCMC_wrapper (int *dnumnets, int *nedges,
 *********************/
 void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
   double *theta, double *networkstatistics, 
-  long int samplesize, long int burnin, 
-  long int interval, int hammingterm, int fVerbose,
+  int samplesize, int burnin, 
+  int interval, int hammingterm, int fVerbose,
   Network *nwp, Model *m, DegreeBound *bd) {
-  long int staken, tottaken, ptottaken, originterval;
+  int staken, tottaken, ptottaken, originterval;
   int i, j, components, diam;
   MHproposal MH;
   
@@ -274,12 +274,12 @@ void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
 *********************/
 void MetropolisHastings (MHproposal *MHp,
 			 double *theta, double *networkstatistics,
-			 long int nsteps, long int *staken,
+			 int nsteps, int *staken,
 			 int hammingterm,
        int fVerbose,
 			 Network *nwp,
 			 Model *m, DegreeBound *bd) {
-  long int step, taken;
+  int step, taken;
   int i;
   double ip, cutoff;
   
@@ -358,20 +358,20 @@ void MCMCPhase12 (int *heads, int *tails, int *dnedges,
 		  int *mheads, int *mtails, int *mdnedges)  {
   int directed_flag, hammingterm, formationterm;
   int nphase1, nsubphases;
-  Vertex n_nodes, nmax, bip, hhead, htail;
-  Edge n_edges, n_medges, nddyads, kedge;
+  Vertex n_nodes, bip, hhead, htail;
+  Edge nmax, n_edges, n_medges, nddyads, kedge;
   Network nw[2];
   DegreeBound *bd;
   Model *m;
   ModelTerm *thisterm;
   
-  nphase1 = (int)*phase1; /* coerce double *dn to type int */
-  nsubphases = (int)*nsub; /* coerce double *dn to type int */
+  nphase1 = *phase1; /* coerce double *dn to type int */
+  nsubphases = *nsub; /* coerce double *dn to type int */
 
   n_nodes = (Vertex)*dn; /* coerce double *dn to type Vertex */
   n_edges = (Edge)*dnedges; /* coerce double *dnedges to type Vertex */
   n_medges = (Edge)*mdnedges; /* coerce double *mdnedges to type Vertex */
-  nmax = (Vertex)*maxedges; /* coerce double *maxedges to type Vertex */
+  nmax = (Edge)*maxedges; /* coerce double *maxedges to type Vertex */
   bip = (Vertex)*bipartite; /* coerce double *bipartite to type Vertex */
   
   GetRNGstate();  /* R function enabling uniform RNG */
@@ -458,10 +458,10 @@ void MCMCPhase12 (int *heads, int *tails, int *dnedges,
   bd=DegreeBoundInitialize(attribs, maxout, maxin, minout, minin,
 			   *condAllDegExact, *attriblength, nw);
   MCMCSamplePhase12 (*MHproposaltype, *MHproposalpackage,
-	      theta0, *gain, meanstats, nphase1, nsubphases, sample, (long int)*samplesize,
-	      (long int)*burnin, (long int)*interval,
+	      theta0, *gain, meanstats, nphase1, nsubphases, sample, *samplesize,
+	      *burnin, *interval,
 	      hammingterm,
-	      (int)*fVerbose, nw, m, bd);
+	      *fVerbose, nw, m, bd);
   
   /* record new generated network to pass back to R */
   if(nmax>0 && newnetworkheads && newnetworktails)
@@ -487,10 +487,10 @@ void MCMCPhase12 (int *heads, int *tails, int *dnedges,
 *********************/
 void MCMCSamplePhase12 (char *MHproposaltype, char *MHproposalpackage,
   double *theta, double gain, double *meanstats, int nphase1, int nsubphases, double *networkstatistics, 
-  long int samplesize, long int burnin, 
-  long int interval, int hammingterm, int fVerbose,
+  int samplesize, int burnin, 
+  int interval, int hammingterm, int fVerbose,
   Network *nwp, Model *m, DegreeBound *bd) {
-  long int staken, tottaken, ptottaken;
+  int staken, tottaken, ptottaken;
   int i, j, components, diam, iter=0;
   MHproposal MH;
   

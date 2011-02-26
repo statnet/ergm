@@ -123,10 +123,10 @@ void MPLEconddeg_wrapper (int *heads, int *tails, int *dnedges,
   bd=DegreeBoundInitialize(attribs, maxout, maxin, minout, minin,
 			   *condAllDegExact, *attriblength, nw);
   CondDegSampler (*MHproposaltype, *MHproposalpackage,
-	      theta0, sample, (long int)*samplesize,
-	      (long int)*burnin, (long int)*interval,
+	      theta0, sample, *samplesize,
+	      *burnin, *interval,
 	      hammingterm,
-	      (int)*fVerbose, nw, m, bd);
+	      *fVerbose, nw, m, bd);
 
 /*   int ii;
    double mos=0.0;
@@ -162,10 +162,10 @@ void MPLEconddeg_wrapper (int *heads, int *tails, int *dnedges,
 *********************/
 void CondDegSampler (char *MHproposaltype, char *MHproposalpackage,
   double *theta, double *networkstatistics, 
-  long int samplesize, long int burnin, 
-  long int interval, int hammingterm, int fVerbose,
+  int samplesize, int burnin, 
+  int interval, int hammingterm, int fVerbose,
   Network *nwp, Model *m, DegreeBound *bd) {
-  long int staken, tottaken, ptottaken, originterval;
+  int staken, tottaken, ptottaken, originterval;
   int i, components, diam;
   MHproposal MH;
   
@@ -264,11 +264,11 @@ void CondDegSampler (char *MHproposaltype, char *MHproposalpackage,
 *********************/
 void CondDegSample (MHproposal *MHp,
 			 double *theta, double *networkstatistics,
-			 long int nsteps, long int *staken,
+			 int nsteps, int *staken,
 			 int hammingterm, int fVerbose,
 			 Network *nwp,
 			 Model *m, DegreeBound *bd) {
-  long int step, taken;
+  int step, taken;
   int i;
   
   step = taken = 0;

@@ -22,12 +22,12 @@ void WtMCMC_wrapper (int *dnumnets, int *nedges,
 		     int *maxedges);
 void WtMCMCSample (char *MHproposaltype, char *MHproposalpackage,
 		 double *theta, double *networkstatistics, 
-		 long int samplesize, long int burnin, 
-		 long int interval, int fVerbose,
+		 int samplesize, int burnin, 
+		 int interval, int fVerbose,
 	       	 WtNetwork *nwp, WtModel *m);
 void WtMetropolisHastings (WtMHproposal *MHp,
 			 double *theta, double *statistics, 
-			 long int nsteps, long int *staken,
+			 int nsteps, int *staken,
 			 int fVerbose,
 			 WtNetwork *nwp, WtModel *m);
 

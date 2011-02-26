@@ -58,9 +58,9 @@ void WtMCMC_wrapper (int *dnumnets, int *nedges,
   }
 
   WtMCMCSample (*MHproposaltype, *MHproposalpackage,
-	      theta0, sample, (long int)*samplesize,
-	      (long int)*burnin, (long int)*interval,
-	      (int)*fVerbose, nw, m);
+	      theta0, sample, *samplesize,
+	      *burnin, *interval,
+	      *fVerbose, nw, m);
 
 /*   int ii;
    double mos=0.0;
@@ -95,10 +95,10 @@ void WtMCMC_wrapper (int *dnumnets, int *nedges,
 *********************/
 void WtMCMCSample (char *MHproposaltype, char *MHproposalpackage,
   double *theta, double *networkstatistics, 
-  long int samplesize, long int burnin, 
-  long int interval, int fVerbose,
+  int samplesize, int burnin, 
+  int interval, int fVerbose,
   WtNetwork *nwp, WtModel *m) {
-  long int staken, tottaken, ptottaken, originterval;
+  int staken, tottaken, ptottaken, originterval;
   int i, j, components, diam;
   WtMHproposal MH;
   
@@ -211,11 +211,11 @@ void WtMCMCSample (char *MHproposaltype, char *MHproposalpackage,
 *********************/
 void WtMetropolisHastings (WtMHproposal *MHp,
 			 double *theta, double *networkstatistics,
-			 long int nsteps, long int *staken,
+			 int nsteps, int *staken,
 			 int fVerbose,
 			 WtNetwork *nwp,
 			 WtModel *m) {
-  long int step, taken;
+  int step, taken;
   int i;
   double ip, cutoff;
   

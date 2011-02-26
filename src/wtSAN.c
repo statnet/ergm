@@ -64,9 +64,9 @@ void WtSAN_wrapper (int *dnumnets, int *nedges,
 
 
   WtSANSample (*MHproposaltype, *MHproposalpackage,
-	      theta0, invcov, tau, sample, (long int)*samplesize,
-	      (long int)*burnin, (long int)*interval,
-	      (int)*fVerbose, nw, m);
+	      theta0, invcov, tau, sample, *samplesize,
+	      *burnin, *interval,
+	      *fVerbose, nw, m);
   
   /* record new generated network to pass back to R */
   newnetworkheads[0]=newnetworktails[0]=WtEdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,newnetworkweights+1,nw,nmax);
@@ -91,10 +91,10 @@ void WtSAN_wrapper (int *dnumnets, int *nedges,
 *********************/
 void WtSANSample (char *MHproposaltype, char *MHproposalpackage,
   double *theta, double *invcov, double *tau, double *networkstatistics, 
-  long int samplesize, long int burnin, 
-  long int interval, int fVerbose,
+  int samplesize, int burnin, 
+  int interval, int fVerbose,
   WtNetwork *nwp, WtModel *m) {
-  long int staken, tottaken, ptottaken;
+  int staken, tottaken, ptottaken;
   int i, j, components, diam;
   WtMHproposal MH;
   
@@ -188,11 +188,11 @@ void WtSANSample (char *MHproposaltype, char *MHproposalpackage,
 void WtSANMetropolisHastings (WtMHproposal *MHp,
 			    double *theta, double *invcov, 
 			    double *tau, double *networkstatistics,
-			    long int nsteps, long int *staken,
+			    int nsteps, int *staken,
 			    int fVerbose,
 			    WtNetwork *nwp,
 			    WtModel *m) {
-  long int step, taken;
+  int step, taken;
   int i,j;
   double ip,dif;
   double *deltainvsig, *delta;
