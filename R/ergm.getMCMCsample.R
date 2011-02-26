@@ -61,7 +61,7 @@ ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALS
   as.character(Clist$fnamestring),
   as.character(Clist$snamestring),
   as.character(MHproposal$name), as.character(MHproposal$package),
-  as.double(Clist$inputs), as.double(eta0),
+  as.double(c(Clist$inputs,MHproposal$inputs)), as.double(eta0),
   as.integer(MCMCparams$samplesize),
   # The line below was changed as of version 2.2-3.  Now, the statsmatrix is 
   # initialized to zero instead of allowing the first row to be nonzero, then 
@@ -92,7 +92,7 @@ ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALS
           as.character(Clist$fnamestring),
           as.character(Clist$snamestring),
           as.character(MHproposal$name), as.character(MHproposal$package),
-          as.double(Clist$inputs), as.double(eta0),
+          as.double(c(Clist$inputs,MHproposal$inputs)), as.double(eta0),
           as.integer(MCMCparams$samplesize),
           statsmatrix = double(MCMCparams$nmatrixentries),
           as.integer(MCMCparams$burnin), 
@@ -121,7 +121,7 @@ ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALS
   } else { 
     ## Post-processing of z$newnwheads and z$newnwtails: Combine into newedgelist
     ## The heads are listed starting at z$newnwheads[2], and similarly for tails.
-    newedgelist <- cbind(z$newnwtails[2:(nedges+1)], z$newnwheads[2:(nedges+1)])
+    newedgelist <- cbind(z$newnwheads[2:(nedges+1)],z$newnwtails[2:(nedges+1)])
     if(!is.null(Clist$weights)) newedgelist<-cbind(newedgelist,z$newnwweights[2:(nedges+1)])
   }
 

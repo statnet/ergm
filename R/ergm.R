@@ -58,7 +58,6 @@
 #       <ergm.robmon>      = &
 #       <ergm.mapl>        = #
 #       <ergm.maple>       = ~
-#       <ergm.PILA>        = +
 #
 #   the components include:
 #
@@ -120,10 +119,6 @@
 #         &      rm.coef         :  the robmon coefficients used as 'theta0' in the final
 #                                   estimation
 #          #~    aic             :  the Akaike information criterion value
-#             +  PILA.coef       :  the theta params chosen by the PILA sampler and
-#                                   used as the initial theta vector in <ergm.getMCMCsample>
-#             + PILA.hist        :  a list with the 'statsmatrix' and 'etamatrix' returned
-#                                   by <ergm.runPILAsampler>
 #      !   #~   loglikelihoodratio: the log-likelihood corresponding to
 #                                   'coef'
 #
@@ -137,7 +132,7 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
                  constraints=~.,
                  meanstats=NULL,
                  control=control.ergm(),
-                 verbose=FALSE, ...) {
+                 verbose=FALSE,...) {
   current.warn <- options()$warn
   options(warn=0)
   if(!is.null(seed))  set.seed(as.integer(seed))
@@ -406,11 +401,7 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
   if (verbose) cat("Fitting ERGM.\n")
   v <- switch(control$style,
     "Robbins-Monro" = ergm.robmon(theta0, nw, model, Clist, burnin, interval,
-                      MHproposal(constraints,weights=control$prop.weights, control$prop.args, nw, model), verbose, control),
-    "PILA" = ergm.PILA(theta0, nw, model, Clist,
-      MHproposal(constraints,weights=control$prop.weights, control$prop.args, nw, model),
-      MCMCparams, control, verbose),
-    #  PILA stuff:  Not in CRAN version
+                      MHproposal(constraints,weights=control$prop.weights, control$prop.args, nw, model, response=response), verbose, control),
     "Stochastic-Approximation" = ergm.stocapprox(theta0, nw, model, 
                                  Clist, 
                                  MCMCparams=MCMCparams, MHproposal=MHproposal,
