@@ -271,6 +271,79 @@ WtD_CHANGESTAT_FN(d_nodefactor_sum){
 }
 
 /*****************
+ stat: nodeifactor (nonzero)
+*****************/
+WtD_CHANGESTAT_FN(d_nodeifactor_nonzero){ 
+  double s, factorval;
+  int j, hattr, tattr;
+  
+  
+  EXEC_THROUGH_TOGGLES({
+      s = (NEWWT!=0) - (OLDWT!=0);
+      hattr = INPUT_ATTRIB[HEAD-1];
+      for (j=0; j < N_CHANGE_STATS; j++){
+	factorval = INPUT_PARAM[j];
+	if (hattr == factorval) CHANGE_STAT[j] += s;
+      }
+    });
+}
+
+/*****************
+ stat: nodeifactor (sum)
+*****************/
+WtD_CHANGESTAT_FN(d_nodeifactor_sum){ 
+  double s, factorval;
+  int j, hattr, tattr;
+  
+  
+  EXEC_THROUGH_TOGGLES({
+    s = NEWWT - OLDWT;
+    hattr = INPUT_ATTRIB[HEAD-1];
+    for (j=0; j < N_CHANGE_STATS; j++){
+      factorval = INPUT_PARAM[j];
+      if (hattr == factorval) CHANGE_STAT[j] += s;
+    }
+  });
+}
+
+/*****************
+ stat: nodeofactor (nonzero)
+*****************/
+WtD_CHANGESTAT_FN(d_nodeofactor_nonzero){ 
+  double s, factorval;
+  int j, hattr, tattr;
+  
+  
+  EXEC_THROUGH_TOGGLES({
+      s = (NEWWT!=0) - (OLDWT!=0);
+      hattr = INPUT_ATTRIB[HEAD-1];
+      for (j=0; j < N_CHANGE_STATS; j++){
+	factorval = INPUT_PARAM[j];
+	if (hattr == factorval) CHANGE_STAT[j] += s;
+      }
+    });
+}
+
+/*****************
+ stat: nodeofactor (sum)
+*****************/
+WtD_CHANGESTAT_FN(d_nodeofactor_sum){ 
+  double s, factorval;
+  int j, hattr, tattr;
+  
+  
+  EXEC_THROUGH_TOGGLES({
+    s = NEWWT - OLDWT;
+    hattr = INPUT_ATTRIB[HEAD-1];
+    for (j=0; j < N_CHANGE_STATS; j++){
+      factorval = INPUT_PARAM[j];
+      if (hattr == factorval) CHANGE_STAT[j] += s;
+    }
+  });
+}
+
+
+/*****************
  stat: nonzero
 *****************/
 WtD_CHANGESTAT_FN(d_nonzero){
@@ -299,6 +372,17 @@ WtD_CHANGESTAT_FN(d_sum){
   EXEC_THROUGH_TOGGLES({
       CHANGE_STAT[0] += NEWWT-OLDWT;
   });
+}
+
+/*****************
+ stat: sum(with power)
+*****************/
+WtD_CHANGESTAT_FN(d_sum_pow){
+  double p = INPUT_ATTRIB[0];
+  
+  EXEC_THROUGH_TOGGLES({
+      CHANGE_STAT[0] += pow(NEWWT,p)-pow(OLDWT,p);
+    });
 }
 
 /********************  changestats:   T    ***********/

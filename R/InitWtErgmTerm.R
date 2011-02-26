@@ -125,20 +125,28 @@ InitWtErgmTerm.greaterthan<-function(nw, arglist, response, drop=TRUE, ...) {
 
 InitWtErgmTerm.sum<-function(nw, arglist, response, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,
-                      varnames = NULL,
-                      vartypes = NULL,
-                      defaultvalues = list(),
-                      required = NULL)
+                      varnames = c("pow"),
+                      vartypes = c("numeric"),
+                      defaultvalues = list(1),
+                      required = c(FALSE))
   if(drop) { # Check for zero statistics, print -Inf messages if applicable
     obsstats <- check.ErgmTerm.summarystats(nw, arglist, response=response, ...)
     if (extremewarnings(obsstats)) {
       return(NULL) # In this case the obs nw has 0 or n(n-1)/2 asymmetric dyads
     } 
   }
-  list(name="sum",
-       coef.names="sum",
-       inputs=NULL,
-       dependence=FALSE)
+
+  if(a$pow==1){
+    list(name="sum",
+         coef.names="sum",
+         inputs=NULL,
+         dependence=FALSE)
+  }else{
+    list(name="sum_pow",
+         coef.names=paste("sum",a$pow,sep=""),
+         inputs=a$pow,
+         dependence=FALSE)
+  }
 }
 
 InitWtErgmTerm.nodefactor<-function (nw, arglist, response, drop=TRUE, ...) {
@@ -180,6 +188,94 @@ InitWtErgmTerm.nodefactor<-function (nw, arglist, response, drop=TRUE, ...) {
   form<-match.arg(a$form,c("sum","nonzero"))
   list(name=paste("nodefactor",form,sep="_"),                                        #required
        coef.names = paste("nodefactor",form, paste(a$attrname,collapse="."), u, sep="."), #required
+       inputs = inputs,
+       dependence = FALSE # So we don't use MCMC if not necessary
+       )
+}
+
+InitWtErgmTerm.nodeofactor<-function (nw, arglist, response, drop=TRUE, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, directed = TRUE,
+                      varnames = c("attrname", "base","form"),
+                      vartypes = c("character", "numeric","character"),
+                      defaultvalues = list(NULL, 1, "sum"),
+                      required = c(TRUE, FALSE, FALSE))
+  ### Process the arguments
+
+  nodecov <-
+    if(length(a$attrname)==1)
+      get.node.attr(nw, a$attrname)
+    else{
+      do.call(paste,c(sapply(a$attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
+    }
+
+  u <- sort(unique(nodecov))
+  if (!is.null(a$base) && !identical(a$base,0)) {
+    u <- u[-a$base]
+    if (length(u)==0) { # Get outta here!  (can happen if user passes attribute with one value)
+      print("Warning:  nodeofactor term deleted because it contributes no statistics")
+      return()
+    }
+  }
+  #   Recode to numeric
+  nodecov <- match(nodecov,u,nomatch=length(u)+1)
+  ui <- seq(along=u)
+  if(drop) { # Check for zero statistics, print -Inf messages if applicable
+    obsstats <- check.ErgmTerm.summarystats(nw, arglist, response=response, ...)
+    ew <- extremewarnings(obsstats)
+    u <- u[!ew]
+    ui <- ui[!ew]
+  }
+  ### Construct the list to return
+  inputs <- c(ui, nodecov)
+  attr(inputs, "ParamsBeforeCov") <- length(ui) # See comment at top of file R/InitErgmTerm.R
+  form<-match.arg(a$form,c("sum","nonzero"))
+  list(name=paste("nodeofactor",form,sep="_"),                                        #required
+       coef.names = paste("nodeofactor",form, paste(a$attrname,collapse="."), u, sep="."), #required
+       inputs = inputs,
+       dependence = FALSE # So we don't use MCMC if not necessary
+       )
+}
+
+InitWtErgmTerm.nodeifactor<-function (nw, arglist, response, drop=TRUE, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, directed = TRUE,
+                      varnames = c("attrname", "base","form"),
+                      vartypes = c("character", "numeric","character"),
+                      defaultvalues = list(NULL, 1, "sum"),
+                      required = c(TRUE, FALSE, FALSE))
+  ### Process the arguments
+
+  nodecov <-
+    if(length(a$attrname)==1)
+      get.node.attr(nw, a$attrname)
+    else{
+      do.call(paste,c(sapply(a$attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
+    }
+
+  u <- sort(unique(nodecov))
+  if (!is.null(a$base) && !identical(a$base,0)) {
+    u <- u[-a$base]
+    if (length(u)==0) { # Get outta here!  (can happen if user passes attribute with one value)
+      print("Warning:  nodeifactor term deleted because it contributes no statistics")
+      return()
+    }
+  }
+  #   Recode to numeric
+  nodecov <- match(nodecov,u,nomatch=length(u)+1)
+  ui <- seq(along=u)
+  if(drop) { # Check for zero statistics, print -Inf messages if applicable
+    obsstats <- check.ErgmTerm.summarystats(nw, arglist, response=response, ...)
+    ew <- extremewarnings(obsstats)
+    u <- u[!ew]
+    ui <- ui[!ew]
+  }
+  ### Construct the list to return
+  inputs <- c(ui, nodecov)
+  attr(inputs, "ParamsBeforeCov") <- length(ui) # See comment at top of file R/InitErgmTerm.R
+  form<-match.arg(a$form,c("sum","nonzero"))
+  list(name=paste("nodeifactor",form,sep="_"),                                        #required
+       coef.names = paste("nodeifactor",form, paste(a$attrname,collapse="."), u, sep="."), #required
        inputs = inputs,
        dependence = FALSE # So we don't use MCMC if not necessary
        )
