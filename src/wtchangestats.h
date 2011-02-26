@@ -37,6 +37,7 @@ WtD_CHANGESTAT_FN(d_nsumlogfactorial);
 
 /********************  changestats:   S    ***********/
 WtD_CHANGESTAT_FN(d_sum);
+WtD_CHANGESTAT_FN(d_sum_pow);
 
 /********************  changestats:   T    ***********/
 WtD_CHANGESTAT_FN(d_transitiveweights_threshold); WtS_CHANGESTAT_FN(s_transitiveweights_threshold);
