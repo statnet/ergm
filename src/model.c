@@ -22,12 +22,13 @@ void ModelDestroy(Model *m)
  Allocate and initialize the ModelTerm structures, each of which contains
  all necessary information about how to compute one term in the model.
 *****************/
-Model* ModelInitialize (char *fnames, char *sonames, double *inputs,
+Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
 			int n_terms) {
   int i, j, k, l, offset;
   ModelTerm *thisterm;
   char *fn,*sn;
   Model *m;
+  double *inputs=*inputsp;
   
   m = (Model *) malloc(sizeof(Model));
   m->n_terms = n_terms;
@@ -141,6 +142,8 @@ Model* ModelInitialize (char *fnames, char *sonames, double *inputs,
   m->workspace = (double *) malloc(sizeof(double) * m->n_stats);
   for(i=0; i < m->n_stats; i++)
     m->workspace[i] = 0.0;
+
+  *inputsp = inputs;
   return m;
 }
 

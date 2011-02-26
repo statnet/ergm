@@ -46,6 +46,8 @@ MHproposals<-
           c("c", "edges+hamming", "Bernoulli", "random",       "HammingConstantEdges"),
           c("c", "observed",      "Bernoulli",      "default",      "randomtoggleNonObserved"),
           c("c", "observed",      "Bernoulli",      "random",       "randomtoggleNonObserved"),
+          c("c", "bd+observed",   "Bernoulli",      "default",      "randomtoggleNonObserved"),
+          c("c", "bd+observed",   "Bernoulli",      "random",       "randomtoggleNonObserved"),
           c("f", "",              "Bernoulli",              "default",      "formationTNT"),
           c("f", "",              "Bernoulli",              "TNT",          "formationTNT"),
           c("f", "",              "Bernoulli",              "random",       "formation"),
@@ -70,8 +72,14 @@ MHproposals<-
           c("dmle", "bd",         "Bernoulli",            "random",       "dissolutionMLE"),
           c("c", "",              "Poisson",  "default",      "Poisson"),
           c("c", "",              "Poisson",  "random",       "Poisson"),
+          c("c", "observed",      "Poisson",  "default",      "PoissonNonObserved"),
+          c("c", "observed",      "Poisson",  "random",       "PoissonNonObserved"),
           c("c", "",              "DescRank",  "default",      "DescRank"),
-          c("c", "",              "DescRank",  "random",       "DescRank")
+          c("c", "",              "DescRank",  "random",       "DescRank"),
+          c("c", "",              "StdNormal",  "default",      "StdNormal"),
+          c("c", "",              "StdNormal",  "random",       "StdNormal"),
+          c("c", "ranks",         "StdNormal",  "default",      "StdNormalRank"),
+          c("c", "ranks",         "StdNormal",  "random",       "StdNormalRank")
 
         )
 MHproposals <- data.frame(I(MHproposals[,1]), I(MHproposals[,2]), 
@@ -127,10 +135,16 @@ MHproposal.MHproposal<-function(object,...) return(object)
 #
 ########################################################################################
 
-MHproposal.character <- function(object, arguments, nw, model, ...){
+MHproposal.character <- function(object, arguments, nw, model, ..., response=NULL){
   name<-object
-  proposal <- eval(call(paste("InitMHP.", name, sep=""),
-                        arguments, nw, model))
+  proposal <- {
+    if(is.null(response))
+      eval(call(paste("InitMHP", name, sep="."),
+                arguments, nw, model))
+    else
+      eval(call(paste("InitWtMHP", name, sep="."),
+                arguments, nw, model, response))
+  }
 
   proposal$bd<-ergm.bounddeg(arguments$bd,nw)
 
@@ -163,30 +177,32 @@ MHproposal.character <- function(object, arguments, nw, model, ...){
 #
 ########################################################################################
 
-MHproposal.formula <- function(object, arguments, nw, model, weights="default", class="c", reference="Bernoulli", ...) {
+MHproposal.formula <- function(object, arguments, nw, model, weights="default", class="c", reference="Bernoulli", response=NULL, ...) {
 
   constraints<-object
   ## Construct a list of constraints and arguments from the formula.
   conlist<-list()
-  constraints<-try(as.list(attr(terms(constraints),"variables"))[-1],silent=TRUE)
-  ## The . in the default formula will break terms(...), signaling no constraints. 
-  if(!inherits(constraints,"try-error")){
-    for(constraint in constraints){
-      if(is.call(constraint)){
-        init.call<-list()
-        init.call<-list(as.name(paste("InitConstraint.", constraint[[1]], sep = "")),
-                        conlist=conlist)
-        
-        init.call<-c(init.call,as.list(constraint)[-1])
-      }else{
-        init.call <- list(as.name(paste("InitConstraint.", constraint, sep = "")),conlist=conlist)
-      }
-      conlist <- try(eval(as.call(init.call), attr(constraints,".Environment")))
-      if(inherits(conlist,"try-error")){
-        stop(paste("The constraint you have selected ('",constraints,"') does not exist in 'ergm'. Are you sure you have not mistyped it?",sep=""))
-      }
+  constraints<-as.list(attr(terms(constraints,allowDotAsName=TRUE),"variables"))[-1]
+  for(constraint in constraints){
+    ## The . in the default formula means no constrains.
+    ## There may be other constraints in the formula, however.
+    if(constraint==".") next
+    
+    if(is.call(constraint)){
+      init.call<-list()
+      init.call<-list(as.name(paste("InitConstraint.", constraint[[1]], sep = "")),
+                      conlist=conlist)
+      
+      init.call<-c(init.call,as.list(constraint)[-1])
+    }else{
+      init.call <- list(as.name(paste("InitConstraint.", constraint, sep = "")),conlist=conlist)
+    }
+    conlist <- try(eval(as.call(init.call), attr(constraints,".Environment")))
+    if(inherits(conlist,"try-error")){
+      stop(paste("The constraint you have selected ('",constraints,"') does not exist in 'ergm'. Are you sure you have not mistyped it?",sep=""))
     }
   }
+  
   ## Remove constraints implied by other constraints.
   for(constr in names(conlist))
     for(impl in ConstraintImplications[[constr]])
@@ -218,7 +234,7 @@ MHproposal.formula <- function(object, arguments, nw, model, weights="default", 
   }
   if(is.null(arguments)) arguments<-conlist
   ## Hand it off to the class character method.
-  MHproposal.character(name,arguments,nw,model)
+  MHproposal.character(name,arguments,nw,model,response=response)
 }
 
 
@@ -247,17 +263,18 @@ MHproposal.formula <- function(object, arguments, nw, model, weights="default", 
 #
 ########################################################################################
 
-MHproposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NULL, model=NULL,weights=NULL,class="c", reference="Bernoulli"){
+MHproposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NULL, model=NULL,weights=NULL,class="c", reference="Bernoulli", response=NULL){
   if(is.null(constraints)) constraints<-object$constraints
   if(is.null(arguments)) arguments<-object$prop.args
   if(is.null(nw)) nw<-object$network
+  if(is.null(response)) response<-object$response
   if(is.null(weights)) weights<-"default"
   if(is.null(model)){
     model<-if(class %in% c("c","f"))
-      ergm.getmodel(object$formula,nw,...)
+      ergm.getmodel(object$formula,nw,response=response,...)
     else
-      ergm.getmodel.dissolve(object$formula,nw,...)
+      ergm.getmodel.dissolve(object$formula,nw,response=response,...)
   }  
-  MHproposal(constraints,arguments=arguments,nw=nw,model=model,weights=weights,class=class,reference=reference)
+  MHproposal(constraints,arguments=arguments,nw=nw,model=model,weights=weights,class=class,reference=reference,response=response)
 }
 

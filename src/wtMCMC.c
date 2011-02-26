@@ -30,6 +30,7 @@ void WtMCMC_wrapper (int *dnumnets, int *nedges,
   Edge n_networks;
   WtNetwork nw[2];
   WtModel *m;
+  WtMHproposal MH;
   
   n_nodes = (Vertex)*dn; /* coerce double *dn to type Vertex */
   n_networks = (Edge)*dnumnets; /* coerce double *dnumnets to type Edge */
@@ -40,7 +41,7 @@ void WtMCMC_wrapper (int *dnumnets, int *nedges,
   
   directed_flag = *dflag;
 
-  m=WtModelInitialize(*funnames, *sonames, inputs, *nterms);
+  m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
 
   /* Form the network */
   nw[0]=WtNetworkInitialize(heads, tails, weights, nedges[0], 
@@ -57,11 +58,22 @@ void WtMCMC_wrapper (int *dnumnets, int *nedges,
    weights -= nedges[0];
   }
 
-  WtMCMCSample (*MHproposaltype, *MHproposalpackage,
+  /*  if (fVerbose) {
+    Rprintf("Simulating %d stats on %ld networks using %s",
+             m->n_stats, burnin + samplesize*interval, WtMHproposaltype);
+  } */
+  WtMH_init(&MH,
+	    *MHproposaltype, *MHproposalpackage,
+	    inputs,
+	    *fVerbose,
+	    nw);
+
+  WtMCMCSample(&MH,
 	      theta0, sample, *samplesize,
 	      *burnin, *interval,
 	      *fVerbose, nw, m);
 
+  WtMH_free(&MH);
 /*   int ii;
    double mos=0.0;
    for(ii=0; ii < bd->attrcount; ii++) 
@@ -93,27 +105,17 @@ void WtMCMC_wrapper (int *dnumnets, int *nedges,
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-void WtMCMCSample (char *MHproposaltype, char *MHproposalpackage,
+void WtMCMCSample (WtMHproposal *MHp,
   double *theta, double *networkstatistics, 
   int samplesize, int burnin, 
   int interval, int fVerbose,
   WtNetwork *nwp, WtModel *m) {
   int staken, tottaken, ptottaken, originterval;
   int i, j, components, diam;
-  WtMHproposal MH;
   
   originterval = interval;
   components = diam = 0;
   
-/*  if (fVerbose) {
-    Rprintf("Simulating %d stats on %ld networks using %s",
-             m->n_stats, burnin + samplesize*interval, WtMHproposaltype);
-  } */
-  WtMH_init(&MH,
-	    MHproposaltype, MHproposalpackage,
-	    fVerbose,
-	    nwp);
-
   /*********************
   networkstatistics are modified in groups of m->n_stats, and they
   reflect the CHANGE in the values of the statistics from the
@@ -136,7 +138,7 @@ void WtMCMCSample (char *MHproposaltype, char *MHproposalpackage,
    *********************/
 /*  Catch massive number of edges caused by degeneracy */
    if(nwp->nedges > (50000-1000)){burnin=1;}
-   WtMetropolisHastings(&MH, theta, networkstatistics, burnin, &staken,
+   WtMetropolisHastings(MHp, theta, networkstatistics, burnin, &staken,
 			fVerbose, nwp, m);  
 /*   if (fVerbose){ 
        Rprintf(".");
@@ -158,7 +160,7 @@ void WtMCMCSample (char *MHproposaltype, char *MHproposalpackage,
       
       /* Catch massive number of edges caused by degeneracy */
       if(nwp->nedges > (50000-1000)){interval=1;}
-      WtMetropolisHastings (&MH, theta, networkstatistics, interval, &staken,
+      WtMetropolisHastings (MHp, theta, networkstatistics, interval, &staken,
                            fVerbose, nwp, m);
       tottaken += staken;
 
@@ -186,16 +188,15 @@ void WtMCMCSample (char *MHproposaltype, char *MHproposalpackage,
     when the chain doesn't accept many of the proposed steps.
     *********************/
     if (fVerbose){
-      Rprintf("%s sampler accepted %6.3f%% of %d proposed steps.\n",
-      MHproposaltype, tottaken*100.0/(1.0*originterval*samplesize), originterval*samplesize); 
+      Rprintf("Sampler accepted %6.3f%% of %d proposed steps.\n",
+      tottaken*100.0/(1.0*originterval*samplesize), originterval*samplesize); 
     }
   }else{
     if (fVerbose){
-      Rprintf("%s sampler accepted %6.3f%% of %d proposed steps.\n",
-      MHproposaltype, staken*100.0/(1.0*burnin), burnin); 
+      Rprintf("Sampler accepted %6.3f%% of %d proposed steps.\n",
+      staken*100.0/(1.0*burnin), burnin); 
     }
   }
-  WtMH_free(&MH);
 }
 
 /*********************

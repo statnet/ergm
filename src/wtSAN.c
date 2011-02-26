@@ -33,7 +33,7 @@ void WtSAN_wrapper (int *dnumnets, int *nedges,
   Edge n_networks;
   WtNetwork nw[2];
   WtModel *m;
-  WtModelTerm *thisterm;
+  WtMHproposal MH;
   
   n_nodes = (Vertex)*dn; /* coerce double *dn to type Vertex */
   n_networks = (Edge)*dnumnets; 
@@ -45,7 +45,7 @@ void WtSAN_wrapper (int *dnumnets, int *nedges,
   directed_flag = *dflag;
 
 
-  m=WtModelInitialize(*funnames, *sonames, inputs, *nterms);
+  m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
 
   /* Form the missing network */
   nw[0]=WtNetworkInitialize(heads, tails, weights, nedges[0],
@@ -62,12 +62,19 @@ void WtSAN_wrapper (int *dnumnets, int *nedges,
    weights -= nedges[0];
   }
 
+  if (fVerbose)
+    Rprintf("Total m->n_stats is %i; total samplesize is %d\n",
+             m->n_stats,samplesize);
 
-  WtSANSample (*MHproposaltype, *MHproposalpackage,
+  WtMH_init(&MH, *MHproposaltype, *MHproposalpackage, inputs, *fVerbose, nw);
+
+  WtSANSample (&MH,
 	      theta0, invcov, tau, sample, *samplesize,
 	      *burnin, *interval,
 	      *fVerbose, nw, m);
   
+  WtMH_free(&MH);
+
   /* record new generated network to pass back to R */
   newnetworkheads[0]=newnetworktails[0]=WtEdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,newnetworkweights+1,nw,nmax);
 
@@ -89,22 +96,15 @@ void WtSAN_wrapper (int *dnumnets, int *nedges,
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-void WtSANSample (char *MHproposaltype, char *MHproposalpackage,
+void WtSANSample (WtMHproposal *MHp,
   double *theta, double *invcov, double *tau, double *networkstatistics, 
   int samplesize, int burnin, 
   int interval, int fVerbose,
   WtNetwork *nwp, WtModel *m) {
   int staken, tottaken, ptottaken;
   int i, j, components, diam;
-  WtMHproposal MH;
   
   components = diam = 0;
-
-  if (fVerbose)
-    Rprintf("Total m->n_stats is %i; total samplesize is %d\n",
-             m->n_stats,samplesize);
-
-  WtMH_init(&MH, MHproposaltype, MHproposalpackage, fVerbose, nwp);
   
   /*********************
   networkstatistics are modified in groups of m->n_stats, and they
@@ -121,7 +121,7 @@ void WtSANSample (char *MHproposaltype, char *MHproposalpackage,
    prepare covariance matrix for Mahalanobis distance calculations 
    in subsequent calls to M-H
    *********************/
-  WtSANMetropolisHastings(&MH, theta, invcov, tau, networkstatistics, burnin, &staken,
+  WtSANMetropolisHastings(MHp, theta, invcov, tau, networkstatistics, burnin, &staken,
 		      fVerbose, nwp, m);
   
   if (fVerbose){
@@ -142,7 +142,7 @@ void WtSANSample (char *MHproposaltype, char *MHproposalpackage,
       networkstatistics += m->n_stats;
       /* This then adds the change statistics to these values */
       
-      WtSANMetropolisHastings (&MH, theta, invcov, tau, networkstatistics, 
+      WtSANMetropolisHastings (MHp, theta, invcov, tau, networkstatistics, 
 		             interval, &staken,
 			     fVerbose, nwp, m);
       tottaken += staken;
@@ -171,7 +171,6 @@ void WtSANSample (char *MHproposaltype, char *MHproposalpackage,
 	      staken*100.0/(1.0*burnin), burnin); 
     }
   }
-  WtMH_free(&MH);
 }
 
 /*********************

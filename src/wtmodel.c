@@ -22,12 +22,13 @@ void WtModelDestroy(WtModel *m)
  Allocate and initialize the WtModelTerm structures, each of which contains
  all necessary information about how to compute one term in the model.
 *****************/
-WtModel* WtModelInitialize (char *fnames, char *sonames, double *inputs,
+WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
 			int n_terms) {
   int i, j, k, l, offset;
   WtModelTerm *thisterm;
   char *fn,*sn;
   WtModel *m;
+  double *inputs=*inputsp;
   
   m = (WtModel *) malloc(sizeof(WtModel));
   m->n_terms = n_terms;
@@ -141,6 +142,8 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double *inputs,
   m->workspace = (double *) malloc(sizeof(double) * m->n_stats);
   for(i=0; i < m->n_stats; i++)
     m->workspace[i] = 0.0;
+
+  *inputsp = inputs;
   return m;
 }
 

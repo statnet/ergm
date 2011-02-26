@@ -44,8 +44,6 @@ double MCMCSampleDynObjective(Network *nwp,
 			      Model *F_m, MHproposal *F_MH, double *F_theta,
 			      // Dissolution terms and proposals.
 			      Model *D_m, MHproposal *D_MH, double *D_theta,
-			      // Degree bounds.
-			      DegreeBound *bd,
 			      double *F_stats, double *D_stats,
 			      unsigned int nmax,
 			      Vertex *difftime, Vertex *diffhead, Vertex *difftail,
@@ -76,8 +74,6 @@ void MCMCDynSPSA(// Observed and discordant network.
 		       Model *D_m, MHproposal *D_MH,
 		       double *D_theta, 
 		       // Dissolution parameter fitting --- to add later? -PK
-		       // Degree bounds.
-		       DegreeBound *bd,
 		       // Space for output.
 		       Edge nmax,
 		       double *obj_history,

@@ -280,7 +280,7 @@ void godfather_wrapper (int *heads, int *tails, int *dnedges,
   tnt = (Edge) *totalntoggles; /* coerce double *totalntoggles to type Edge */ 
   directed_flag = *dflag;
 
-  m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
+  m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
   nw = NetworkInitialize(heads, tails, n_edges,
                          n_nodes, directed_flag, bip, 1);
 

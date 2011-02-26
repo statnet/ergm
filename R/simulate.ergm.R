@@ -110,7 +110,7 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
   m <- ergm.getmodel(form, nw, drop=FALSE, response=response)
   Clist <- ergm.Cprepare(nw, m, response=response)
   MHproposal <- MHproposal(constraints,arguments=control$prop.args,
-                           nw=nw, model=m, weights=control$prop.weights, class="c",reference=reference)  
+                           nw=nw, model=m, weights=control$prop.weights, class="c",reference=reference,response=response)  
 
   # Just in case the user did not give a theta0 value, set it to zero.
   # (probably we could just return an error in this case!)

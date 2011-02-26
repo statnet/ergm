@@ -542,7 +542,7 @@ void WtInOrderTreeWalk(WtTreeNode *edges, Edge x) {
   if (x != 0) {
     WtInOrderTreeWalk(edges, (edges+x)->left);
     /*    printedge(x, edges); */
-    Rprintf(" %d ",(edges+x)->value); 
+    Rprintf(" %d:%f ",(edges+x)->value, (edges+x)->weight); 
     WtInOrderTreeWalk(edges, (edges+x)->right);
   }
 }

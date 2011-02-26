@@ -34,7 +34,6 @@ void MCMCDynSPSA_wrapper(// Observed network.
 		    int *fVerbose){
 
   Network nw[2];
-  DegreeBound *bd;
   Model *F_m, *D_m;
   MHproposal F_MH, D_MH;
   DynamOrder order;
@@ -51,7 +50,7 @@ void MCMCDynSPSA_wrapper(// Observed network.
 		      *F_nterms, *F_funnames, *F_sonames, F_inputs, &F_m,
 		      *D_nterms, *D_funnames, *D_sonames, D_inputs, &D_m,
 		      attribs, maxout, maxin, minout,
-		      minin, *condAllDegExact, *attriblength, &bd,
+		      minin, *condAllDegExact, *attriblength,
 		      *F_MHproposaltype, *F_MHproposalpackage, &F_MH,
 		      *D_MHproposaltype, *D_MHproposalpackage, &D_MH,
 		      *fVerbose);
@@ -63,14 +62,13 @@ void MCMCDynSPSA_wrapper(// Observed network.
 	      
 	      D_m, &D_MH, D_theta0,
 	      
-	      bd,
 	      *maxedges,
 	      obj_history,
 	      difftime, diffhead, difftail,
 	      *burnin, *interval, *dyninterval,
 	      *fVerbose);
   
-  MCMCDyn_finish_common(nw, F_m, D_m, bd, &F_MH, &D_MH);
+  MCMCDyn_finish_common(nw, F_m, D_m, &F_MH, &D_MH);
 
 }
 
@@ -82,8 +80,6 @@ double MCMCSampleDynObjective(Network *nwp,
 			      Model *F_m, MHproposal *F_MH, double *F_theta,
 			      // Dissolution terms and proposals.
 			      Model *D_m, MHproposal *D_MH, double *D_theta,
-			      // Degree bounds.
-			      DegreeBound *bd,
 			      double *F_stats, double *D_stats,
 			      unsigned int nmax,
 			      Vertex *difftime, Vertex *diffhead, Vertex *difftail,
@@ -107,9 +103,9 @@ double MCMCSampleDynObjective(Network *nwp,
   memset(F_stats_acc,0,sizeof(double)*n_stats);			
   if(F_stats2_acc) memset(F_stats2_acc,0,sizeof(double)*n_stats);			
   for(unsigned int s=0; s<burnin; s++)					
-    MCMCDyn1Step(nwp, order, F_m, F_MH, F_theta, D_m, D_MH, D_theta, bd, 0, F_stats, D_stats, nmax, NULL, difftime, diffhead, difftail, dyninterval, 0); 
+    MCMCDyn1Step(nwp, order, F_m, F_MH, F_theta, D_m, D_MH, D_theta, 0, F_stats, D_stats, nmax, NULL, difftime, diffhead, difftail, dyninterval, 0); 
   for(unsigned int s=0; s<S; s++){					
-    MCMCDyn1Step(nwp, order, F_m, F_MH, F_theta, D_m, D_MH, D_theta, bd, 0, F_stats, D_stats, nmax, NULL, difftime, diffhead, difftail, dyninterval, 0); 
+    MCMCDyn1Step(nwp, order, F_m, F_MH, F_theta, D_m, D_MH, D_theta, 0, F_stats, D_stats, nmax, NULL, difftime, diffhead, difftail, dyninterval, 0); 
     for(unsigned int k=0; k<n_stats; k++){				
       F_stats_acc[k]+=F_stats[k];					
       if(F_stats2_acc){
@@ -166,8 +162,6 @@ void MCMCDynSPSA(// Observed and discordant network.
 		       Model *D_m, MHproposal *D_MH,
 		       double *D_theta, 
 		       // Dissolution parameter fitting --- to add later? -PK
-		       // Degree bounds.
-		       DegreeBound *bd,
 		       // Space for output.
 		       Edge nmax,
 		       double *obj_history,
@@ -197,7 +191,7 @@ void MCMCDynSPSA(// Observed and discordant network.
   int use_var=-20;
 
   // Burn-in
-  MCMCSampleDynObjective(nwp, order, F_m, F_MH, F_theta, D_m, D_MH, D_theta, bd, dev, D_stats, nmax, difftime, diffhead, difftail, dyninterval,burnin,interval,F_stats_acc,F_stats2_acc, &use_var, fVerbose);
+  MCMCSampleDynObjective(nwp, order, F_m, F_MH, F_theta, D_m, D_MH, D_theta, dev, D_stats, nmax, difftime, diffhead, difftail, dyninterval,burnin,interval,F_stats_acc,F_stats2_acc, &use_var, fVerbose);
 
   for(unsigned int i=0; i<iterations; i++){
     R_CheckUserInterrupt();
@@ -241,7 +235,7 @@ void MCMCDynSPSA(// Observed and discordant network.
       F_thetaP[k]=F_theta[k]+delta[k];
     }
     // Evaluate the objective function with theta perturbed "up"
-    objPU=MCMCSampleDynObjective(nwp, order, F_m, F_MH, F_thetaP, D_m, D_MH, D_theta, bd, dev, D_stats, nmax, difftime, diffhead, difftail, dyninterval,interval,interval,F_stats_acc,F_stats2_acc, &use_var, fVerbose);
+    objPU=MCMCSampleDynObjective(nwp, order, F_m, F_MH, F_thetaP, D_m, D_MH, D_theta, dev, D_stats, nmax, difftime, diffhead, difftail, dyninterval,interval,interval,F_stats_acc,F_stats2_acc, &use_var, fVerbose);
 
     if(use_var==0){
       if(fVerbose) Rprintf("Switching to variance-normalized objective function!\n");
@@ -253,7 +247,7 @@ void MCMCDynSPSA(// Observed and discordant network.
       F_thetaP[k]=F_theta[k]-delta[k];
     }
     // Evaluate the objective function with theta perturbed "down"
-    objPD=MCMCSampleDynObjective(nwp, order, F_m, F_MH, F_thetaP, D_m, D_MH, D_theta, bd, dev, D_stats, nmax, difftime, diffhead, difftail, dyninterval,interval,interval,F_stats_acc,F_stats2_acc, &use_var, fVerbose);
+    objPD=MCMCSampleDynObjective(nwp, order, F_m, F_MH, F_thetaP, D_m, D_MH, D_theta, dev, D_stats, nmax, difftime, diffhead, difftail, dyninterval,interval,interval,F_stats_acc,F_stats2_acc, &use_var, fVerbose);
 
     if(use_var==0){
       if(fVerbose) Rprintf("Switching to variance-normalized objective function!\n");

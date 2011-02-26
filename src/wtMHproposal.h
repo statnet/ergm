@@ -52,6 +52,7 @@ typedef struct WtMHproposalstruct {
 
 void WtMH_init(WtMHproposal *MH, 
 	     char *MHproposaltype, char *MHproposalpackage, 
+	       double *inputs,
 	     int fVerbose,
 	     WtNetwork *nwp);
 

@@ -6,8 +6,9 @@
 
  A helper function to process the MH_* related initialization.
 *********************/
-void WtMH_init(WtMHproposal *MH, 
+void WtMH_init(WtMHproposal *MHp, 
 	     char *MHproposaltype, char *MHproposalpackage, 
+	       double *inputs,
 	     int fVerbose,
 	     WtNetwork *nwp){
 
@@ -37,22 +38,24 @@ void WtMH_init(WtMHproposal *MH,
   sn[i]='\0';
   
   /* Search for the MH proposal function pointer */
-  MH->func=(void (*)(WtMHproposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
-  if(MH->func==NULL){
+  MHp->func=(void (*)(WtMHproposal*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+  if(MHp->func==NULL){
     error("Error in MH_* initialization: could not find function %s in "
 	  "namespace for package %s."
 	  "Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
-  }      
+  }
+
+  MHp->inputs=inputs;
   
   /*Clean up by freeing sn and fn*/
   free((void *)fn);
   free((void *)sn);
 
-  MH->ntoggles=0;
-  (*(MH->func))(MH, nwp); /* Call MH proposal function to initialize */
-  MH->togglehead = (Vertex *)malloc(MH->ntoggles * sizeof(Vertex));
-  MH->toggletail = (Vertex *)malloc(MH->ntoggles * sizeof(Vertex));
-  MH->toggleweight = (double *)malloc(MH->ntoggles * sizeof(double));
+  MHp->ntoggles=0;
+  (*(MHp->func))(MHp, nwp); /* Call MH proposal function to initialize */
+  MHp->togglehead = (Vertex *)malloc(MHp->ntoggles * sizeof(Vertex));
+  MHp->toggletail = (Vertex *)malloc(MHp->ntoggles * sizeof(Vertex));
+  MHp->toggleweight = (double *)malloc(MHp->ntoggles * sizeof(double));
 }
 
 /*********************
@@ -60,9 +63,9 @@ void WtMH_init(WtMHproposal *MH,
 
  A helper function to free memory allocated by WtMH_init.
 *********************/
-void WtMH_free(WtMHproposal *MH){
-  free(MH->togglehead);
-  free(MH->toggletail);
-  free(MH->toggleweight);
+void WtMH_free(WtMHproposal *MHp){
+  free(MHp->togglehead);
+  free(MHp->toggletail);
+  free(MHp->toggleweight);
 }
 

@@ -246,7 +246,14 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
    MLestimate=!MPLEonly
   }}else{
    nwm <- network.copy(nw)
-   MHproposal.miss <- "randomtoggleNonObserved"
+   # There may be a better way to specify this in the future.
+   if(length(reference)>1){
+     if(tolower(reference[2])=="ranks")
+       MHproposal.miss <- ergm.update.formula(constraints,~.+ranks)
+   }else{
+     # That is, whatever the constraints already imposed, but also only toggle observed.
+     MHproposal.miss <- ergm.update.formula(constraints,~.+observed)
+   }
   }
   # End conditional MLE in dynamic model
   if(!is.null(meanstats)){
@@ -296,9 +303,9 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
   }
   if (verbose) cat("Initializing Metropolis-Hastings proposal.\n")
 
-  MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial,class=proposalclass,reference=reference)
+  MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial,class=proposalclass,reference=reference,response=response)
   # Note:  MHproposal function in CRAN version does not use the "class" argument for now
-  MHproposal.miss <- MHproposal(MHproposal.miss, control$prop.args, nw, model.initial)
+  MHproposal.miss <- try(MHproposal(MHproposal.miss, weights=control$prop.weights, control$prop.args, nw, model.initial, class=proposalclass, reference=reference, response=response))                         
 
   conddeg <- switch(MHproposal$name=="CondDegree",control$drop,NULL)
   MCMCparams=c(control,

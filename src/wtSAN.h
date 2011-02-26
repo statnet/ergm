@@ -22,7 +22,7 @@ void WtSAN_wrapper (int * dnumnets, int *nedges,
 		    int *fVerbose, 
 		    int *maxedges);
 
-void WtSANSample (char *MHproposaltype, char *MHproposalpackage,
+void WtSANSample (WtMHproposal *MHp,
 		double *theta, double *invcov, double *tau, double *networkstatistics, 
 		int samplesize, int burnin, 
 		int interval, int fVerbose,

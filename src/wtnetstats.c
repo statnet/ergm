@@ -26,7 +26,7 @@ void wt_network_stats_wrapper(int *heads, int *tails, double *weights, int *dned
   directed_flag = *dflag;
   bip = (Vertex)*bipartite;
   
-  m=WtModelInitialize(*funnames, *sonames, inputs, *nterms);
+  m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
   nw[0]=WtNetworkInitialize(NULL, NULL, NULL, 0,
 			    n_nodes, directed_flag, bip, 0);
 

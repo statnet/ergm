@@ -141,3 +141,12 @@ InitConstraint.observed <- function(conlist){
   conlist$observed<-list()
   conlist
 }
+
+
+
+InitConstraint.ranks<-function(conlist){
+   if (nargs()>1)
+     stop(paste("Rank constraint does not take arguments at this time."), call.=FALSE)
+   conlist$ranks<-list()
+   conlist
+}

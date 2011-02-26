@@ -15,7 +15,7 @@
 				  int D_nterms, char *D_funnames, char *D_sonames, double *D_inputs, Model **D_m,
 				  
 				  int *attribs, int *maxout, int *maxin, int *minout,
-				  int *minin, int condAllDegExact, int attriblength, DegreeBound **bd,
+				  int *minin, int condAllDegExact, int attriblength,
 
 				  char *F_MHproposaltype, char *F_MHproposalpackage, MHproposal *F_MH,
 				  char *D_MHproposaltype, char *D_MHproposalpackage, MHproposal *D_MH,
@@ -41,20 +41,18 @@
     }
   }
 
-  *F_m=ModelInitialize(F_funnames, F_sonames, F_inputs, F_nterms);
-  *D_m=ModelInitialize(D_funnames, D_sonames, D_inputs, D_nterms);
+  *F_m=ModelInitialize(F_funnames, F_sonames, &F_inputs, F_nterms);
+  *D_m=ModelInitialize(D_funnames, D_sonames, &D_inputs, D_nterms);
 
   nw[0]=NetworkInitialize(heads, tails, n_edges, 
                           n_nodes, dflag, bipartite, 1);
   nw[1]=NetworkInitialize(NULL, NULL, 0,
                           n_nodes, dflag, bipartite, 0);
-
   
-  *bd=DegreeBoundInitialize(attribs, maxout, maxin, minout, minin,
-			    condAllDegExact, attriblength, nw);
-
-  MH_init(F_MH, F_MHproposaltype, F_MHproposalpackage, fVerbose, nw, *bd);
-  MH_init(D_MH, D_MHproposaltype, D_MHproposalpackage, fVerbose, nw, *bd);
+  MH_init(F_MH, F_MHproposaltype, F_MHproposalpackage, F_inputs, fVerbose, nw, attribs, maxout, maxin, minout, minin,
+			    condAllDegExact, attriblength);
+  MH_init(D_MH, D_MHproposaltype, D_MHproposalpackage, D_inputs, fVerbose, nw, attribs, maxout, maxin, minout, minin,
+			    condAllDegExact, attriblength);
 
 }
 
@@ -63,13 +61,10 @@
 				    Model *F_m,
 				    Model *D_m,
 				  
-				    DegreeBound *bd,
-
 				    MHproposal *F_MH,
 				    MHproposal *D_MH){
   MH_free(F_MH);
   MH_free(D_MH);
-  if(bd)DegreeBoundDestroy(bd);
   ModelDestroy(F_m);
   ModelDestroy(D_m);
   NetworkDestroy(nw);
@@ -112,7 +107,6 @@ void MCMCDyn_wrapper(// Starting network.
   int i;
   Edge  nmax;
   Network nw[2];
-  DegreeBound *bd;
   Model *F_m, *D_m;
   MHproposal F_MH, D_MH;
   DynamOrder order;
@@ -141,7 +135,7 @@ void MCMCDyn_wrapper(// Starting network.
 		      *F_nterms, *F_funnames, *F_sonames, F_inputs, &F_m,
 		      *D_nterms, *D_funnames, *D_sonames, D_inputs, &D_m,
 		      attribs, maxout, maxin, minout,
-		      minin, *condAllDegExact, *attriblength, &bd,
+		      minin, *condAllDegExact, *attriblength, 
 		      *F_MHproposaltype, *F_MHproposalpackage, &F_MH,
 		      *D_MHproposaltype, *D_MHproposalpackage, &D_MH,
 		      *fVerbose);
@@ -149,7 +143,6 @@ void MCMCDyn_wrapper(// Starting network.
   MCMCSampleDyn(nw, order,
 		F_m, &F_MH, F_theta,
 		D_m, &D_MH, D_theta,
-		bd,
 		F_sample, D_sample, nmax, difftime, diffhead, difftail,
 		*nsteps, *MH_interval, *burnin, *interval,
 		*fVerbose);
@@ -158,7 +151,7 @@ void MCMCDyn_wrapper(// Starting network.
 
   newnetworktail[0]=newnetworkhead[0]=EdgeTree2EdgeList(newnetworkhead+1,newnetworktail+1,nw,nmax);
 
-  MCMCDyn_finish_common(nw, F_m, D_m, bd, &F_MH, &D_MH);
+  MCMCDyn_finish_common(nw, F_m, D_m, &F_MH, &D_MH);
 
 }
 
@@ -182,8 +175,6 @@ void MCMCSampleDyn(// Observed and discordant network.
 		   // Dissolution terms and proposals.
 		   Model *D_m, MHproposal *D_MH,
 		   double *D_theta,
-		   // Degree bounds.
-		   DegreeBound *bd,
 		   // Space for output.
 		   double *F_stats, double *D_stats, // Do we still need these?
 		   Edge nmax,
@@ -206,7 +197,7 @@ void MCMCSampleDyn(// Observed and discordant network.
 
   for(i=0;i<burnin;i++)
     MCMCDyn1Step(nwp, order, 
-		 F_m, F_MH, F_theta, D_m, D_MH, D_theta, bd,
+		 F_m, F_MH, F_theta, D_m, D_MH, D_theta,
 		 log_toggles, F_stats, D_stats,
 		 nmax, &nextdiffedge, difftime, diffhead, difftail,
 		 MH_interval, fVerbose);
@@ -233,7 +224,7 @@ void MCMCSampleDyn(// Observed and discordant network.
     /* This then adds the change statistics to these values */
     for(j=0;j<interval;j++){
       MCMCDyn1Step(nwp, order, 
-		   F_m, F_MH, F_theta, D_m, D_MH, D_theta, bd,
+		   F_m, F_MH, F_theta, D_m, D_MH, D_theta,
 		   log_toggles, F_stats, D_stats,
 		   nmax, &nextdiffedge, difftime, diffhead, difftail,
 		   MH_interval, fVerbose);
@@ -267,18 +258,18 @@ void MCMCSampleDyn(// Observed and discordant network.
 				  double *par, double *stats,
 				  int MH_interval, 
 				  Network *nwp,
-				  Model *m, DegreeBound *bd){
+				  Model *m){
   Vertex step;
   double cutoff, ip;
   unsigned int i;
   
   MH->ntoggles = 0;
-  (*(MH->func))(MH, bd, nwp); /* Call MH proposal function to initialize */
+  (*(MH->func))(MH, nwp); /* Call MH proposal function to initialize */
   
   for(step = 0; step < MH_interval; step++) {
     
     MH->ratio = 1.0;
-    (*(MH->func))(MH, bd, nwp); /* Call MH function to propose toggles */
+    (*(MH->func))(MH, nwp); /* Call MH function to propose toggles */
     //      Rprintf("Back from proposal; step=%d\n",step);
 
     // Proposal failed.
@@ -381,8 +372,6 @@ void MCMCDyn1Step(// Observed and discordant network.
 		  Model *F_m, MHproposal *F_MH, double *F_theta,
 		  // Dissolution terms and proposals.
 		  Model *D_m, MHproposal *D_MH, double *D_theta,
-		  // Degree bounds.
-		  DegreeBound *bd,
 		  // Space for output.
 		  unsigned log_toggles,
 		  double *F_stats, double *D_stats,
@@ -404,23 +393,23 @@ void MCMCDyn1Step(// Observed and discordant network.
   switch(order){
   case DissThenForm:
     /* Run the dissolution process and commit it. */
-    MCMCDyn1Step_sample(D_MH, D_theta, D_stats, MH_interval, nwp, D_m, bd);
+    MCMCDyn1Step_sample(D_MH, D_theta, D_stats, MH_interval, nwp, D_m);
     ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, &nde);
     MCMCDyn1Step_commit(ntoggles, diffhead+nde-ntoggles, difftail+nde-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
     
     /* Run the formation process and commit it. */
-    MCMCDyn1Step_sample(F_MH, F_theta, F_stats, MH_interval, nwp, F_m, bd);
+    MCMCDyn1Step_sample(F_MH, F_theta, F_stats, MH_interval, nwp, F_m);
     ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, &nde);
     MCMCDyn1Step_commit(ntoggles, diffhead+nde-ntoggles, difftail+nde-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
     
     break;
   case DissAndForm:
     /* Run the dissolution process. */
-    MCMCDyn1Step_sample(D_MH, D_theta, D_stats, MH_interval, nwp, D_m, bd);
+    MCMCDyn1Step_sample(D_MH, D_theta, D_stats, MH_interval, nwp, D_m);
     ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, &nde);
     
     /* Run the formation process. */
-    MCMCDyn1Step_sample(F_MH, F_theta, F_stats, MH_interval, nwp, F_m, bd);
+    MCMCDyn1Step_sample(F_MH, F_theta, F_stats, MH_interval, nwp, F_m);
     ntoggles += MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, &nde);
     
     /* Commit both. */
@@ -428,24 +417,24 @@ void MCMCDyn1Step(// Observed and discordant network.
     break;
   case FormThenDiss:
     /* Run the formation process and commit it. */
-    MCMCDyn1Step_sample(F_MH, F_theta, F_stats, MH_interval, nwp, F_m, bd);
+    MCMCDyn1Step_sample(F_MH, F_theta, F_stats, MH_interval, nwp, F_m);
     ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, &nde);
     MCMCDyn1Step_commit(ntoggles, diffhead+nde-ntoggles, difftail+nde-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
 
     /* Run the dissolution process and commit it. */
-    MCMCDyn1Step_sample(D_MH, D_theta, D_stats, MH_interval, nwp, D_m, bd);
+    MCMCDyn1Step_sample(D_MH, D_theta, D_stats, MH_interval, nwp, D_m);
     ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, &nde);
     MCMCDyn1Step_commit(ntoggles, diffhead+nde-ntoggles, difftail+nde-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
     break;
   case FormOnly:
     /* Run the formation process and commit it. */
-    MCMCDyn1Step_sample(F_MH, F_theta, F_stats, MH_interval, nwp, F_m, bd);
+    MCMCDyn1Step_sample(F_MH, F_theta, F_stats, MH_interval, nwp, F_m);
     ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, &nde);
     MCMCDyn1Step_commit(ntoggles, diffhead+nde-ntoggles, difftail+nde-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
     break;
   case DissOnly:
     /* Run the dissolution process and commit it. */
-    MCMCDyn1Step_sample(D_MH, D_theta, D_stats, MH_interval, nwp, D_m, bd);
+    MCMCDyn1Step_sample(D_MH, D_theta, D_stats, MH_interval, nwp, D_m);
     ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, diffhead, difftail, nwp, &nde);
     MCMCDyn1Step_commit(ntoggles, diffhead+nde-ntoggles, difftail+nde-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
     break;

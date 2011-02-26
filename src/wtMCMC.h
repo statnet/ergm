@@ -20,7 +20,7 @@ void WtMCMC_wrapper (int *dnumnets, int *nedges,
 		     double *newnetworkweights,
 		     int *fVerbose, 
 		     int *maxedges);
-void WtMCMCSample (char *MHproposaltype, char *MHproposalpackage,
+void WtMCMCSample (WtMHproposal *MHp,
 		 double *theta, double *networkstatistics, 
 		 int samplesize, int burnin, 
 		 int interval, int fVerbose,

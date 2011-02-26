@@ -17,7 +17,7 @@ void plinfo_wrapper (int *heads, int *tails, int *dnedges,
 
   GetRNGstate(); /* Necessary for use of R random number generator */
   nw=NetworkInitialize(heads, tails, n_edges, n_nodes, directed_flag, bip, 1);
-  m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
+  m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
   
   plinfoInitialize(responsevec, covmat,(Vertex*)start,(Vertex*)end, &nw, m);
   ModelDestroy(m);
