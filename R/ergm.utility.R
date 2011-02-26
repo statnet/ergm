@@ -430,9 +430,10 @@ newnw.extract<-function(oldnw,z,output="network",response=NULL){
     if(!is.null(response))
        newnwweights<-z$newedgelist[,3]
   }else{
-    nedges<-z$newnwheads[1]
+    nedges<-z$newnwtails[1]
+    # *** don't forget - edgelists are cbind(tails, heads) now
     newedgelist <-
-      if(nedges>0) cbind(z$newnwheads[2:(nedges+1)],z$newnwtails[2:(nedges+1)])
+      if(nedges>0) cbind(z$newnwtails[2:(nedges+1)],z$newnwheads[2:(nedges+1)])
       else matrix(0, ncol=2, nrow=0)
     newnwweights <- z$newnwweights[2:(nedges+1)]
   }

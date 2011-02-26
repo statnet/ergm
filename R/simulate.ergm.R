@@ -140,9 +140,8 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
   
   # Explain how many iterations and steps will ensue if verbose==TRUE
   if (verbose) {
-    cat(paste("Starting ",nsim," MCMC iteration", ifelse(nsim>1,"s",""),
-              " of ", burnin+interval*(MCMCparams$samplesize-1), 
-              " steps", ifelse(nsim>1, " each", ""), ".\n", sep=""))
+    cat (paste ("Starting MCMC iterations to generate ", nsim,
+                " network", ifelse(nsim>1,"s",""), sep=""))
   }
   
   #########################

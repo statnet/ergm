@@ -1,4 +1,4 @@
-##############################################################################
+###############################################################################
 # The <print.summary.ergm> function prints a subset of the information given
 # by <summary.ergm>
 #
@@ -14,12 +14,13 @@
 #                 coefficients (T or F); default=getOption("show.signif.stars")
 #   eps.Pvalue  : the tolerance to be passed to the R <printCoefmat> function;
 #                 default=.0001
-#   ...         : additional parameters to be passed to <printCoefmat>
+#   ...         : additional parameters to be passed to <printCoefmat> 
 #
 # --RETURNED--
 #   x
 #
-###############################################################################                          
+###############################################################################
+
 print.summary.ergm <- function (x, 
               digits = max(3, getOption("digits") - 3),
               correlation=FALSE, covariance=FALSE,

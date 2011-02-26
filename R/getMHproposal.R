@@ -89,8 +89,6 @@ colnames(MHproposals)<-c("Class","Constraints","Reference","Weights","MHP")
 
 
 
-
-
 ########################################################################################
 # The <MHproposal> function initializes and returns an MHproposal object via one of the
 # class-specific functions below
@@ -102,7 +100,7 @@ colnames(MHproposals)<-c("Class","Constraints","Reference","Weights","MHP")
 #   proposal: an MHproposal object as a list containing
 #   name   : the name of the proposal
 #   args   : NULL (I think - the only non-null value returned by the InitMH
-#            is for <nobetweengroupties>, but this isn't included in the
+#            is for <nobetweengroupties>, but this isn't included in the 
 #            look-up table
 #   package: is "ergm"
 #   bd     : the list of parameters to bound degree in the fitting process
@@ -117,8 +115,8 @@ MHproposal<-function(object, ...) UseMethod("MHproposal")
 MHproposal.NULL<-function(object, ...) stop("NULL passed to MHproposal. This may be due to passing an ergm object from an earlier version. If this is the case, please refit it with the latest version, and try again. If this is not the case, this may be a bug, so please file a bug report.")
 
 
-
 MHproposal.MHproposal<-function(object,...) return(object)
+
 
 
 
@@ -159,7 +157,7 @@ MHproposal.character <- function(object, arguments, nw, model, ..., response=NUL
 ########################################################################################
 # The <MHproposal.formula> function verifies that the given constraints exist and
 # are supported in conjuction with the given weights and class by a unique MH proposal;
-# if so the MHproposal object is created via <MHproposal.character> using the
+# if so the MHproposal object is created via <MHproposal.character> using the 
 # MHP type found in the look-up table above.
 #
 # --PARAMETERS--
@@ -167,7 +165,7 @@ MHproposal.character <- function(object, arguments, nw, model, ..., response=NUL
 #   arguments  :  a list of parameters used by the <Init.MHP> routines  possibly including
 #                  bd: a list of parameters used to bound degree via <ergm.bounddeg>
 #   nw         :  a network object
-#   model      :  a model object; default=<ergm.getmodel(object$formula,nw,...)>
+#   model      :  a model object; default=<ergm.getmodel(object$formula,nw,...)>  
 #   constraints:  the constraints as a one sided formula '~ term(s)'
 #   weights    :  specifies the method used to allocate probabilities of being proposed
 #                 to dyads; options are "TNT", "TNT10", "random", "nonobserved" and

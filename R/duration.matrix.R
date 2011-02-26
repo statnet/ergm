@@ -32,7 +32,7 @@ duration.matrix <- function(gsim) {
   Ntot <- g0%n%"n"
   edges <- as.edgelist(g0)
   nedge <- nrow(edges)
-  # Workaround --- if a network is undirected (or bipartite), force heads<tails.
+  # Workaround --- if a network is undirected (or bipartite), force tails<heads.
   if(!is.directed(g0) && nedge) edges<-t(apply(edges,1,sort))
   nchange <- nrow(cha)
 

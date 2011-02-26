@@ -44,7 +44,7 @@
 #      senderreceivercorrelation: 'randomeffects' if this is a matrix;
 #                        otherwise, the correlation between sender and receiver??
 #
-################################################################################                  
+################################################################################
 
 summary.ergm <- function (object, ..., 
                           digits = max(3, getOption("digits") - 3),

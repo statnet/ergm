@@ -81,9 +81,9 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss,
   MCMCparams$maxchanges <- MCMCparams$maxchanges/5
   if(is.null(MCMCparams$meanstats.form)) MCMCparams$meanstats.form<-numeric(length(model.form$coef.names))
   if(is.null(MCMCparams$meanstats.diss)) MCMCparams$meanstats.diss<-numeric(length(model.diss$coef.names))
-  z <- list(newnwheads=maxchanges+1,diffnwheads=maxchanges+1)
-  while(z$newnwheads[1]  >= maxchanges - 10 || 
-        z$diffnwheads[1] >= maxchanges - 10){
+  z <- list(newnwtails=maxchanges+1,diffnwtails=maxchanges+1)
+  while(z$newnwtails[1]  >= maxchanges - 10 || 
+        z$diffnwtails[1] >= maxchanges - 10){
     maxchanges <- 5*maxchanges
     MCMCparams$maxchanges <- 5*MCMCparams$maxchanges
     if(verbose){cat(paste("MCMCDyn workspace is",maxchanges,"\n"))}
@@ -91,7 +91,7 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss,
     if(MCMCparams$parallel==0){
       z <- .C("MCMCDyn_wrapper",
               # Observed network.
-              as.integer(Clist.form$heads), as.integer(Clist.form$tails), 
+              as.integer(Clist.form$tails), as.integer(Clist.form$heads), 
               as.integer(Clist.form$nedges), as.integer(Clist.form$maxpossibleedges),
               as.integer(Clist.form$n),
               as.integer(Clist.form$dir), as.integer(Clist.form$bipartite),
@@ -121,11 +121,11 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss,
               # Space for output.
               s.form = as.double(cbind(MCMCparams$meanstats.form,matrix(0,nrow=length(model.form$coef.names),ncol=MCMCparams$samplesize))),
               s.diss = as.double(cbind(MCMCparams$meanstats.diss,matrix(0,nrow=length(model.diss$coef.names),ncol=MCMCparams$samplesize))),
-              newnwheads = integer(maxchanges), newnwtails = integer(maxchanges), 
+              newnwtails = integer(maxchanges), newnwheads = integer(maxchanges), 
               as.double(maxchanges),
               diffnwtime = integer(maxchanges),
-              diffnwheads = integer(maxchanges),
               diffnwtails = integer(maxchanges),
+              diffnwheads = integer(maxchanges),
               as.integer(verbose), 
               PACKAGE="ergm") 
       statsmatrix.form <- matrix(z$s.form, nrow=MCMCparams$samplesize+1,
@@ -190,16 +190,16 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss,
       ergm.rpvm.clean(rpvmbasename=rpvmbasename)
     }
   }
-#   cat(paste("z$diffnwheads = ",maxchanges,z$diffnwheads[1],"\n"))
-#   cat(paste("z$dissnwheads = ",maxchanges,z$dissnwheads[1],"\n"))
-#   cat(paste("z$newwhead = ",maxchanges,z$newnwheads[1],"\n"))
+#   cat(paste("z$diffnwtails = ",maxchanges,z$diffnwtails[1],"\n"))
+#   cat(paste("z$dissnwtails = ",maxchanges,z$dissnwtails[1],"\n"))
+#   cat(paste("z$newwtail = ",maxchanges,z$newnwtails[1],"\n"))
   newnetwork<-newnw.extract(nw,z)
 #   Next create the network of differences from the origianl one
 
   
   diffedgelist<-if(!is.null(MCMCparams$toggles)) {
-    if(z$diffnwheads[1]>0){
-      cbind(z$diffnwtime[2:(z$diffnwtime[1]+1)],z$diffnwheads[2:(z$diffnwheads[1]+1)],z$diffnwtails[2:(z$diffnwheads[1]+1)])
+    if(z$diffnwtails[1]>0){
+      cbind(z$diffnwtime[2:(z$diffnwtime[1]+1)],z$diffnwtails[2:(z$diffnwheads[1]+1)],z$diffnwheads[2:(z$diffnwtails[1]+1)])
     }else{
       matrix(0, ncol=3, nrow=0)
     }

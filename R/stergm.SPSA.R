@@ -154,7 +154,7 @@ stergm.SPSA.C <- function(g, meanstats, model.form, model.diss,
   
   z <- .C(f,
           # Observed/starting network. 1
-          as.integer(Clist.form$heads), as.integer(Clist.form$tails), 
+          as.integer(Clist.form$tails), as.integer(Clist.form$heads), 
           as.integer(Clist.form$nedges), as.integer(Clist.form$maxpossibleedges),
           as.integer(Clist.form$n),
           as.integer(Clist.form$dir), as.integer(Clist.form$bipartite),

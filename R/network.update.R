@@ -50,7 +50,9 @@ network.update<-function(nw,newmatrix,matrix.type=NULL,output="network")
    delete.edges(unw,eid)
    if(!is.null(newmatrix) && nrow(newmatrix)>0){
 #   unw[newmatrix] <- 1
-    add.edges(unw,head=newmatrix[,2],tail=newmatrix[,1])
+     
+    # *** don't forget - edges are given as tails -> heads now
+    add.edges(unw,tail=newmatrix[,1],head=newmatrix[,2])
    }
   }
   if(!is.null(output) && output=="edgelist.compressed") 

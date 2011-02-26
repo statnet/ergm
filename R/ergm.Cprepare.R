@@ -14,8 +14,18 @@
 #            bipartite   :  whether the network is bipartite (T or F)
 #            ndyads      :  the number of dyads in the network
 #            nedges      :  the number of edges in this network
-#            heads       :  the vector of head nodes
-#            tails       :  the vector of tail nodes
+#            tails       :  the vector of tail nodes; tail nodes are
+#                               the 1st column of the implicit edgelist,
+#                               so either the lower-numbered nodes in an
+#                               undirected graph, or the out nodes of a
+#                               directed graph, or the b1 nodes of a bi-
+#                               partite graph
+#            heads           :  the vector of head nodes; head nodes are
+#                               the 2nd column of the implicit edgelist,
+#                               so either the higher-numbered nodes in an
+#                               undirected graph, or the in nodes of a
+#                               directed graph, or the b2 nodes of a bi-
+#                               partite graph
 #            nterms      :  the number of model terms
 #            nstats      :  the total number of change statistics
 #                           for all model terms
@@ -42,8 +52,6 @@
 
 ergm.Cprepare <- function(nw, m, response=NULL)
 {
-  # Build an object called Clist that contains all the necessary
-  # ingredients to be passed to the C function.
   n <- network.size(nw)
   dir <- is.directed(nw)
   Clist<-list(n=n, dir=dir)
@@ -55,8 +63,8 @@ ergm.Cprepare <- function(nw, m, response=NULL)
   Clist$maxpossibleedges <- min(max(1e+6, 2*nrow(e)), Clist$ndyads)
   if(length(e)==0){
     Clist$nedges<-0
-    Clist$heads<-NULL
     Clist$tails<-NULL
+    Clist$heads<-NULL
     ## Make sure weights is not NULL if response!=NULL, even if it's
     ## empty, since it's used to decide whether MCMC or WtMCMC is
     ## called.
@@ -68,13 +76,13 @@ ergm.Cprepare <- function(nw, m, response=NULL)
     if(!is.null(response)) e<-e[e[,3]!=0,,drop=FALSE]
     
     Clist$nedges<-dim(e)[1]
-    ## Ensure that for undirected networks, head<tail.
+    # *** Ensure that for undirected networks, tail<head.
     if(dir){
-      Clist$heads<-e[,1]
-      Clist$tails<-e[,2]
+      Clist$tails<-e[,1]
+      Clist$heads<-e[,2]
     }else{
-      Clist$heads<-pmin(e[,1],e[,2])
-      Clist$tails<-pmax(e[,1],e[,2])
+      Clist$tails<-pmin(e[,1],e[,2])
+      Clist$heads<-pmax(e[,1],e[,2])
     }
     if(!is.null(response)){
       Clist$weights<-e[,3]
@@ -89,12 +97,19 @@ ergm.Cprepare <- function(nw, m, response=NULL)
   Clist$inputs<-numeric(0)
   if (Clist$nterms>0) {
     for(i in 1:Clist$nterms) {
-      Clist$fnamestring <- paste(Clist$fnamestring, mo[[i]]$name)
+      term_i <- mo[[i]]
+      Clist$fnamestring <- paste(Clist$fnamestring, term_i$name)
+      # This lets "pkgname" play the same role as "soname":
       Clist$snamestring <- paste(Clist$snamestring, 
-                                 ifelse(is.null(mo[[i]]$soname), "ergm",
-                                        mo[[i]]$soname))
-      Clist$inputs <- c(Clist$inputs, mo[[i]]$inputs)
-      Clist$nstats <- Clist$nstats + mo[[i]]$inputs[2]
+                                 if (!is.null(term_i$soname)) {
+                                   term_i$soname
+                                 } else if (!is.null(term_i$pkgname)) {
+                                   term_i$pkgname
+                                 } else {
+                                   "ergm"
+                                 } )
+      Clist$inputs <- c(Clist$inputs, term_i$inputs)
+      Clist$nstats <- Clist$nstats + term_i$inputs[2]
     }
   }
   while (substring(Clist$fnamestring, 1, 1)==" ")

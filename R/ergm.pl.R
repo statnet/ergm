@@ -87,7 +87,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
       base <- matrix(t(base),ncol=2,byrow=TRUE)
     }
     ubase <- base[,1] + n*base[,2]
-    offset <- !is.na(match(ubase, Clist.miss$heads+Clist.miss$tails*n))
+    offset <- !is.na(match(ubase, Clist.miss$tails+Clist.miss$heads*n))
     offset <- 1*offset
     numobs <- Clist$ndyads - sum(offset)
   }else{
@@ -101,8 +101,9 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
   # May have to think harder about what maxNumDyadTypes should be if we 
   # implement a hash-table approach to compression.
   if(is.null(conddeg)){
+  # *** don't forget, pass in tails first now, not heads
   z <- .C("MPLE_wrapper",
-          as.integer(Clist$heads),    as.integer(Clist$tails),
+          as.integer(Clist$tails),    as.integer(Clist$heads),
           as.integer(Clist$nedges),   as.integer(Clist$maxpossibleedges),
           as.integer(n), 
           as.integer(Clist$dir),     as.integer(bip),
@@ -139,8 +140,9 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     MCMCparams$stats <- stats
     maxedges <- max(5000, conddeg$Clist$nedges)
     flush.console()
+    # *** don't forget, pass in tails first now, not heads    
     z <- .C("MPLEconddeg_wrapper",
-            as.integer(conddeg$Clist$heads), as.integer(conddeg$Clist$tails),
+            as.integer(conddeg$Clist$tails), as.integer(conddeg$Clist$heads),
             as.integer(conddeg$Clist$nedges), as.integer(conddeg$Clist$maxpossibleedges), 
             as.integer(conddeg$Clist$n),
             as.integer(conddeg$Clist$dir), as.integer(conddeg$Clist$bipartite),
@@ -153,20 +155,20 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
             s = as.double(t(MCMCparams$stats)),
             as.integer(0), 
             as.integer(1),
-            newnwheads = integer(maxedges),
             newnwtails = integer(maxedges),
+            newnwheads = integer(maxedges),
             as.integer(verbose), as.integer(MHproposal$bd$attribs),
             as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
             as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
             as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)),
             as.integer(maxedges),
-            as.integer(MCMCparams$Clist.miss$heads), as.integer(MCMCparams$Clist.miss$tails),
+            as.integer(MCMCparams$Clist.miss$tails), as.integer(MCMCparams$Clist.miss$heads),
             as.integer(MCMCparams$Clist.miss$nedges),
             PACKAGE="ergm")
     # save the results
-    z <- list(s=z$s, newnwheads=z$newnwheads, newnwtails=z$newnwtails)
+    z <- list(s=z$s, newnwtails=z$newnwtails, newnwheads=z$newnwheads)
     
-    nedges <- z$newnwheads[1]
+    nedges <- z$newnwtails[1]
     statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize+1,
                           ncol=conddeg$Clist$nstats,
                           byrow = TRUE)

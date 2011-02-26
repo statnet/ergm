@@ -14,18 +14,18 @@
 #
 ###################################################################################
 
-ergm.getnetwork <- function (formula, loopswarning=TRUE) {
+ergm.getnetwork <- function (form, loopswarning=TRUE) {
   current.warn <- options()$warn
 # options(warn=0)
-  if ((dc<-data.class(formula)) != "formula")
+  if ((dc<-data.class(form)) != "formula")
     stop (paste("Invalid formula of class ",dc))
-  trms<-terms(formula)
+  trms<-terms(form)
   if (trms[[1]]!="~")
     stop ("Formula must be of the form 'network ~ model'.")
 
-  nw.env<-environment(formula)
+  nw.env<-environment(form)
   if(!exists(x=paste(trms[[2]]),envir=nw.env)){
-    stop(paste("The network in the formula '",capture.output(print(formula)),"' can not be found.",sep=""))
+    stop(paste("The network in the formula '",capture.output(print(form)),"' can not be found.",sep=""))
   }
   nw <- try(as.network(eval(trms[[2]],envir=nw.env), silent = TRUE))  
   if(inherits(nw,"try-error")){

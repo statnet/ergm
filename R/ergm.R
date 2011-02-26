@@ -257,12 +257,13 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
   }
   # End conditional MLE in dynamic model
   if(!is.null(meanstats)){
-   control$drop <- FALSE
    if(!(!is.null(control$SAN.burnin) && is.na(control$SAN.burnin))){
     netsumm<-summary(formula,response=response)
     if(length(netsumm)!=length(meanstats))
       stop("Incorrect length of the meanstats vector: should be ", length(netsumm), " but is ",length(meanstats),".")
     
+    control$drop <- FALSE
+
     if(verbose) cat("Constructing an approximate response network.\n")
     ## If meanstats are given, overwrite the given network and formula
     ## with SAN-ed network and formula.
@@ -288,7 +289,7 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
   if(control$nsubphases=="maxit") control$nsubphases<-maxit
   
   if (verbose) cat("Initializing model.\n")
-    
+
   if(control$drop){
    model.initial <- ergm.getmodel(formula, nw, response=response, drop=FALSE, initialfit=TRUE)
    model.initial.drop <- ergm.getmodel(formula, nw, response=response, drop=TRUE, initialfit=TRUE)
@@ -301,7 +302,7 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
    model.initial <- ergm.getmodel(formula, nw, response=response, drop=control$drop, initialfit=TRUE)
    droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
   }
-  if (verbose) cat("Initializing Metropolis-Hastings proposal.\n")
+  if (verbose) { cat("Initializing Metropolis-Hastings proposal.\n") }
 
   MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial,class=proposalclass,reference=reference,response=response)
   # Note:  MHproposal function in CRAN version does not use the "class" argument for now
@@ -314,7 +315,7 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
 	mcmc.precision=control$mcmc.precision))
 
 
-  if (verbose) cat("Fitting initial model.\n")
+  if (verbose) { cat("Fitting initial model.\n") }
   if(reference!="Bernoulli" && theta0=="MPLE") stop("MPLE initial values are not implemented for weithed network ERGMs. Please specify theta0 manually.")
   theta0copy <- theta0
   initialfit <- ergm.initialfit(theta0=theta0copy, MLestimate=MLestimate, 
@@ -324,7 +325,8 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
                                 initial.loglik=control$initial.loglik,
                                 conddeg=conddeg, MCMCparams=MCMCparams, MHproposal=MHproposal,
                                 force.MPLE=(reference=="Bernoulli" && ergm.independencemodel(model.initial)
-                                            && constraints==(~.) && (!control$force.mcmc)),
+                                            && !control$force.mcmc
+                                            && constraints==(~.)),
                                 verbose=verbose, 
                                 compressflag = control$compress, 
                                 maxNumDyadTypes=control$maxNumDyadTypes,
@@ -400,9 +402,13 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
    }
   }
 
-  MCMCparams=c(control,
-   list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,
-        maxit=maxit,Clist.miss=Clist.miss,Clist.dt=Clist.dt, mcmc.precision=control$mcmc.precision))
+  MCMCparams <- c(control,
+                  list(samplesize=MCMCsamplesize, burnin=burnin,
+                       interval=interval,
+                       maxit=maxit,
+                       Clist.miss=Clist.miss,
+                       Clist.dt=Clist.dt, 
+                       mcmc.precision=control$mcmc.precision))
 
 
   if (verbose) cat("Fitting ERGM.\n")
