@@ -1,5 +1,5 @@
 InitWtMHP.Poisson <- function(arguments, nw, model, response) {
-  MHproposal <- list(name = "Poisson", args=NULL, package="ergm")
+  MHproposal <- list(name = "Poisson", inputs=NULL, package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartitePoisson"
   }
@@ -7,7 +7,7 @@ InitWtMHP.Poisson <- function(arguments, nw, model, response) {
 }
 
 InitWtMHP.PoissonNonObserved <- function(arguments, nw, model, response) {
-  MHproposal <- list(name = "PoissonNonObserved", args=NULL, package="ergm")
+  MHproposal <- list(name = "PoissonNonObserved", inputs=NULL, package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartitePoissonNonObserved"
   }
@@ -15,7 +15,7 @@ InitWtMHP.PoissonNonObserved <- function(arguments, nw, model, response) {
 }
 
 InitWtMHP.DescRank <- function(arguments, nw, model, response) {
-  MHproposal <- list(name = "CompleteOrdering", args=NULL, package="ergm")
+  MHproposal <- list(name = "CompleteOrdering", inputs=NULL, package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "CompleteOrderingBipartite"
   }
@@ -23,7 +23,7 @@ InitWtMHP.DescRank <- function(arguments, nw, model, response) {
 }
 
 InitWtMHP.StdNormal <- function(arguments, nw, model, response) {
-  MHproposal <- list(name = "StdNormal", args=NULL, package="ergm")
+  MHproposal <- list(name = "StdNormal", inputs=NULL, package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartiteStdNormal"
   }
