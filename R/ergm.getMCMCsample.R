@@ -122,7 +122,7 @@ ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALS
   } else { 
     ## Post-processing of z$newnwtails and z$newnwheads: Combine into newedgelist
     ## The tails are listed starting at z$newnwtails[2], and similarly for heads.
-    newedgelist <- cbind(z$newnwheads[2:(nedges+1)],z$newnwtails[2:(nedges+1)])
+    newedgelist <- cbind(z$newnwtails[2:(nedges+1)],z$newnwheads[2:(nedges+1)])
     if(!is.null(Clist$weights)) newedgelist<-cbind(newedgelist,z$newnwweights[2:(nedges+1)])
   }
 
