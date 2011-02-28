@@ -281,7 +281,7 @@ void MetropolisHastings (MHproposal *MHp,
 /*  if (fVerbose)
     Rprintf("Now proposing %d MH steps... ", nsteps); */
   while (step < nsteps) {
-    MHp->ratio = 1.0;
+    MHp->logratio = 0;
     (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
     
     /* Calculate change statistics. */
@@ -294,7 +294,7 @@ void MetropolisHastings (MHproposal *MHp,
     /* The logic is to set exp(cutoff) = exp(ip) * qratio ,
     then let the MH probability equal min{exp(cutoff), 1.0}.
     But we'll do it in log space instead.  */
-    cutoff = ip + log(MHp->ratio);
+    cutoff = ip + MHp->logratio;
       
     /* if we accept the proposed network */
     if (cutoff >= 0.0 || log(unif_rand()) < cutoff) { 

@@ -284,7 +284,7 @@ void SANMetropolisHastings (MHproposal *MHp,
 /*  if (fVerbose)
     Rprintf("Now proposing %d MH steps... ", nsteps); */
   while (step < nsteps) {
-    MHp->ratio = 1.0;
+    MHp->logratio = 0;
     (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
     //      Rprintf("Back from proposal; step=%d\n",step);
 

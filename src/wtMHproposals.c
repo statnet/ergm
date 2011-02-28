@@ -40,7 +40,7 @@ void MH_Poisson(WtMHproposal *MHp, WtNetwork *nwp)  {
     Mweight[0] = rpois(oldwt + fudge);    
   }while(Mweight[0]==oldwt);
     
-  MHp->ratio *= exp((1 + log(Mweight[0]+fudge))*oldwt - (1 + log(oldwt+fudge))*Mweight[0]) * (1-dpois(oldwt,oldwt+fudge,0))/(1-dpois(Mweight[0],Mweight[0]+fudge,0));
+  MHp->logratio += (1 + log(Mweight[0]+fudge))*oldwt - (1 + log(oldwt+fudge))*Mweight[0] + log(1-dpois(oldwt,oldwt+fudge,0)) - log(1-dpois(Mweight[0],Mweight[0]+fudge,0));
 }
 
 /*********************
@@ -73,7 +73,7 @@ void MH_PoissonNonObserved(WtMHproposal *MHp, WtNetwork *nwp)  {
     Mweight[0] = rpois(oldwt + fudge);    
   }while(Mweight[0]==oldwt);
     
-  MHp->ratio *= exp((1 + log(Mweight[0]+fudge))*oldwt - (1 + log(oldwt+fudge))*Mweight[0]) * (1-dpois(oldwt,oldwt+fudge,0))/(1-dpois(Mweight[0],Mweight[0]+fudge,0));
+  MHp->logratio += (1 + log(Mweight[0]+fudge))*oldwt - (1 + log(oldwt+fudge))*Mweight[0] + log(1-dpois(oldwt,oldwt+fudge,0)) - log(1-dpois(Mweight[0],Mweight[0]+fudge,0));
 }
 
 
@@ -140,7 +140,7 @@ void MH_StdNormal(WtMHproposal *MHp, WtNetwork *nwp)  {
   Mweight[0] = rnorm(oldwt, propsd);    
   
   // Symmetric proposal, but depends on the reference measure
-  MHp->ratio *= exp(-(Mweight[0]*Mweight[0]-oldwt*oldwt)/2);
+  MHp->logratio += -(Mweight[0]*Mweight[0]-oldwt*oldwt)/2;
 }
 
 /*********************
@@ -198,19 +198,19 @@ void MH_StdNormalRank(WtMHproposal *MHp, WtNetwork *nwp)  {
     // Only lower bound -> a constrained normal jump
     do{ Mweight[0] = rnorm(oldwt, propsd); }while(Mweight[0]<lb);
       
-    MHp->ratio *= dnorm(oldwt, Mweight[0], propsd, 0) / pnorm(lb, Mweight[0], propsd, 0, 0);
-    MHp->ratio /= dnorm(Mweight[0], oldwt, propsd, 0) / pnorm(lb, oldwt, propsd, 0, 0);
+    MHp->logratio += dnorm(oldwt, Mweight[0], propsd, 1) - pnorm(lb, Mweight[0], propsd, 0, 1);
+    MHp->logratio -= dnorm(Mweight[0], oldwt, propsd, 1) - pnorm(lb, oldwt, propsd, 0, 1);
   }else if(lb==-HUGE_VAL){
     // Only upper bound -> a constrained normal jump
     do{ Mweight[0] = rnorm(oldwt, propsd); }while(Mweight[0]>ub);
       
-    MHp->ratio *= dnorm(oldwt, Mweight[0], propsd, 0) / pnorm(ub, Mweight[0], propsd, 1, 0);
-    MHp->ratio /= dnorm(Mweight[0], oldwt, propsd, 0) / pnorm(ub, oldwt, propsd, 1, 0);
+    MHp->logratio += dnorm(oldwt, Mweight[0], propsd, 1) - pnorm(ub, Mweight[0], propsd, 1, 1);
+    MHp->logratio -= dnorm(Mweight[0], oldwt, propsd, 1) - pnorm(ub, oldwt, propsd, 1, 1);
   }else{
     // Bounded from both sides -> uniform
     Mweight[0] = runif(lb,ub);
   }
 
   // Depends on the reference measure
-  MHp->ratio *= exp(-(Mweight[0]*Mweight[0]-oldwt*oldwt)/2);
+  MHp->logratio += -(Mweight[0]*Mweight[0]-oldwt*oldwt)/2;
 }

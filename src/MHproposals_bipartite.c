@@ -16,7 +16,6 @@ void MH_Bipartiterandomtoggle (MHproposal *MHp, Network *nwp)  {
     MHp->ntoggles=1;
     return;
   }
-  MHp->ratio = 1.0;
   MHp->togglehead[0] = 1 + unif_rand() * nwp->bipartite;
   MHp->toggletail[0] = 1 + nwp->bipartite + 
                        unif_rand() * (nwp->nnodes - nwp->bipartite);
@@ -35,7 +34,6 @@ void MH_BipartiteConstantEdges (MHproposal *MHp, Network *nwp)  {
   } /* Note:  This proposal cannot be used for full or empty observed graphs.
        If desired, we could check for this at initialization phase. 
        (For now, however, no way to easily return an error message and stop.)*/
-  MHp->ratio=1.0;   
   /* First, select edge at random */
   FindithEdge(MHp->togglehead, MHp->toggletail, 1+(nwp->nedges)*unif_rand(), nwp);
   /* Second, select dyad at random until it has no edge */
@@ -88,19 +86,19 @@ void MH_BipartiteTNT (MHproposal *MHp, Network *nwp)
       or vice versa.  Note that this happens extremely rarely unless the 
       network is small or the parameter values lead to extremely sparse 
       networks.  */
-      MHp->ratio = (nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
-                                nedges / (odds*ndyads + nedges));
+      MHp->logratio += log(nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
+			 nedges / (odds*ndyads + nedges));
     }else{ /* Select a dyad at random */
       head = 1 + unif_rand() * nb1;
       tail = 1 + nb1 + unif_rand() * (nnodes - nb1);
       MHp->togglehead[0] = head;
       MHp->toggletail[0] = tail;
       if(EdgetreeSearch(MHp->togglehead[0],MHp->toggletail[0],nwp->outedges)!=0){
-        MHp->ratio = (nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
-                                  nedges / (odds*ndyads + nedges));
+        MHp->logratio += log(nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
+			  nedges / (odds*ndyads + nedges));
       }else{
-        MHp->ratio = (nedges==0 ? comp*ndyads + (1.0-comp) :
-                                  1.0 + (odds*ndyads)/(nedges + 1));
+        MHp->logratio += log(nedges==0 ? comp*ndyads + (1.0-comp) :
+			  1.0 + (odds*ndyads)/(nedges + 1));
       }
     }
     if(CheckTogglesValid(MHp, nwp)) break;
@@ -165,7 +163,7 @@ void MH_BipartiteHammingConstantEdges (MHproposal *MHp, Network *nwp)
     nce = nedges-nde;
     ncn = ndyads-nedges-ndn;
 /*    MHp->ratio = (nddyads*nddyads) / (odds*(nnodes-nddyads-2)*(nnodes-nddyads-2)); */
-    MHp->ratio = (nde*ndn*1.0) / (odds*(nce+1)*(ncn+1));
+    MHp->logratio += log((nde*ndn*1.0) / (odds*(nce+1)*(ncn+1)));
 /*    MHp->ratio = (1.0*(nce-1)*(ncn-1)) / (nde*ndn*odds); */
 /*    MHp->ratio = 1.0; */
 /*   Rprintf("disconcord nde %d nce %d ndn %d ncn %d nddyads %d MHp->ratio %f\n", */
@@ -192,10 +190,10 @@ void MH_BipartiteHammingConstantEdges (MHproposal *MHp, Network *nwp)
     ncn = ndyads-nedges-ndn;
 /*    MHp->ratio = ((nnodes-nddyads)*(nnodes-nddyads)) / (odds*(nddyads+2)*(nddyads+2)); */
     if(nddyads > 4){
-      MHp->ratio = (odds*nce*ncn) / ((nde+1)*(ndn+1)*1.0);
+      MHp->logratio += log((odds*nce*ncn) / ((nde+1)*(ndn+1)*1.0));
 /*    MHp->ratio = ((nde+1)*(ndn+1)*odds) / (1.0*nce*ncn); */
     }else{
-      MHp->ratio = 100000000.0;
+      MHp->logratio += 100000000.0;
     }
 /*   Rprintf("concord nde %d nce %d ndn %d ncn %d nddyads %d MHp->ratio %f\n", */
 /*	    nde, nce, ndn,ncn,nddyads, MHp->ratio); */
@@ -240,7 +238,7 @@ void MH_BipartiteHammingTNT (MHproposal *MHp, Network *nwp)
     nc = ndyads-nd;
     /*  Fixme!  Not sure whether the ratio is calculated correctly here.
         Check out the similar ratio calculations for other TNT proposals. */
-    MHp->ratio = (nd*1.0) / (odds*(nc+1));
+    MHp->logratio += log((nd*1.0) / (odds*(nc+1)));
 /*    MHp->ratio = (1.0*(nce-1)*(ncn-1)) / (nde*ndn*odds); */
 /*    MHp->ratio = 1.0; */
 /*   Rprintf("disconcord nd %d nc %d nddyads %d MHp->ratio %f\n", */
@@ -258,7 +256,7 @@ void MH_BipartiteHammingTNT (MHproposal *MHp, Network *nwp)
     nc = ndyads-nd;
     /*  Fixme!  Not sure whether the ratio is calculated correctly here.
         Check out the similar ratio calculations for other TNT proposals. */
-    MHp->ratio = (odds*nc) / ((nd+1)*1.0);
+    MHp->logratio += log((odds*nc) / ((nd+1)*1.0));
 /*   Rprintf("concord nd %d nc %d nddyads %d MHp->ratio %f\n", */
 /*	    nd, nc, nddyads, MHp->ratio); */
   }
@@ -290,7 +288,7 @@ void MH_BipartiteCondDegreeDist (MHproposal *MHp, Network *nwp) {
     return;
   }
   
-  MHp->ratio = 1.0; /* By symmetry:  P(choosing H,T,A) must equal  */
+  MHp->logratio += 0;  /* By symmetry:  P(choosing H,T,A) must equal  */
   /*                   P(choosing H,A,T after T and A swap roles), */
   /*                   which makes the ratio equal to 1.           */
   
@@ -392,7 +390,6 @@ void MH_BipartiterandomtoggleNonObserved (MHproposal *MHp, Network *nwp)  {
     MHp->ntoggles=1;
     return;
   }
-  MHp->ratio = 1.0;
   rane = 1 + unif_rand() * nwp[1].nedges;
   FindithEdge(MHp->togglehead, MHp->toggletail, rane, &nwp[1]);
 /* Rprintf("bip %d nedges %d h %d t %d\n", nwp[1].bipartite, nwp[1].nedges, MHp->togglehead[0],  MHp->toggletail[0]); */
@@ -418,7 +415,6 @@ void MH_BipartiteCondDegTetradToggles (MHproposal *MHp, Network *nwp)  {
   } /* Note:  This proposal does not make work (well) with 
   directed graphs; however, we haven't yet implemented a way
   to warn the user about this.  */
-  MHp->ratio=1.0;
   /* First, select edge at random */
   FindithEdge(&A, &B, 1+nwp->nedges*unif_rand(), nwp);
    Rprintf("nb1 %d nb2 %d A %d B %d\n",nb1,nb2,A,B);
@@ -468,7 +464,6 @@ void MH_BipartiteCondDegTetradToggles (MHproposal *MHp, Network *nwp)  {
 }  
   
 void MH_BipartiteCondDegree (MHproposal *MHp, Network *nwp)  {  
-  MHp->ratio=1.0;
   
   if(MHp->ntoggles == 0) { /* Initialize CondDeg by */
 	                   /* Choosing Hexad or Tetrad */
@@ -504,7 +499,6 @@ void MH_BipartiteCondDegHexadToggles (MHproposal *MHp, Network *nwp)  {
     nb2 = nnodes-nb1;
     return;
   }
-  MHp->ratio=1.0;
   
   x1 = -1;
   x2 = -1;

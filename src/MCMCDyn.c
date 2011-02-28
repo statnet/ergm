@@ -268,7 +268,7 @@ void MCMCSampleDyn(// Observed and discordant network.
   
   for(step = 0; step < MH_interval; step++) {
     
-    MH->ratio = 1.0;
+    MH->logratio = 0;
     (*(MH->func))(MH, nwp); /* Call MH function to propose toggles */
     //      Rprintf("Back from proposal; step=%d\n",step);
 
@@ -291,7 +291,7 @@ void MCMCSampleDyn(// Observed and discordant network.
     /* The logic is to set exp(cutoff) = exp(ip) * qratio ,
        then let the MH probability equal min{exp(cutoff), 1.0}.
        But we'll do it in log space instead.  */
-    cutoff = ip + log(MH->ratio);
+    cutoff = ip + MH->logratio;
     
     /* if we accept the proposed network */
     if (cutoff >= 0.0 || log(unif_rand()) < cutoff) { 

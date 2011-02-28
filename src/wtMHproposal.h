@@ -42,7 +42,7 @@ typedef struct WtMHproposalstruct {
   Vertex *togglehead;
   Vertex *toggletail;
   double *toggleweight;
-  double ratio;
+  double logratio;
   int status;
   double *inputs; /* may be used if needed, ignored if not. */
   /* int multiplicity; Is this needed? I removed all references to

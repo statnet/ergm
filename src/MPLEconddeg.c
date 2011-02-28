@@ -266,7 +266,7 @@ void CondDegSample (MHproposal *MHp,
   
   step = taken = 0;
   while (step < nsteps) {
-    MHp->ratio = 1.0;
+    MHp->logratio = 0;
     (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
     
     /* Calculate change statistics. */

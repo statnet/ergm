@@ -58,7 +58,7 @@ typedef struct MHproposalstruct {
   Edge ntoggles;
   Vertex *togglehead;
   Vertex *toggletail;
-  double ratio;
+  double logratio;
   int status;
   DegreeBound *bd;
   double *inputs; /* may be used if needed, ignored if not. */

@@ -16,7 +16,6 @@ void MH_BipartitePoisson(WtMHproposal *MHp, WtNetwork *nwp)  {
     MHp->ntoggles=1;
     return;
   }
-  MHp->ratio = 1.0;
   
   Mhead[0] = 1 + unif_rand() * nwp->bipartite;
   Mtail[0] = 1 + nwp->bipartite + unif_rand() * (nwp->nnodes - nwp->bipartite);
@@ -29,7 +28,7 @@ void MH_BipartitePoisson(WtMHproposal *MHp, WtNetwork *nwp)  {
     Mweight[0] = rpois(oldwt + fudge);    
   }while(Mweight[0]==oldwt);
     
-  MHp->ratio *= exp((1 + log(Mweight[0]+fudge))*oldwt - (1 + log(oldwt+fudge))*Mweight[0]) * (1-dpois(oldwt,oldwt+fudge,0))/(1-dpois(Mweight[0],Mweight[0]+fudge,0));
+  MHp->logratio += (1 + log(Mweight[0]+fudge))*oldwt - (1 + log(oldwt+fudge))*Mweight[0] + log(1-dpois(oldwt,oldwt+fudge,0)) - log(1-dpois(Mweight[0],Mweight[0]+fudge,0));
 }
 
 /*********************
@@ -76,7 +75,6 @@ void MH_BipartiteStdNormal(WtMHproposal *MHp, WtNetwork *nwp)  {
     MHp->ntoggles=1;
     return;
   }
-  MHp->ratio = 1.0;
   
   Mhead[0] = 1 + unif_rand() * nwp->bipartite;
   Mtail[0] = 1 + nwp->bipartite + unif_rand() * (nwp->nnodes - nwp->bipartite);
@@ -88,5 +86,5 @@ void MH_BipartiteStdNormal(WtMHproposal *MHp, WtNetwork *nwp)  {
   Mweight[0] = rnorm(oldwt, propsd); // This ought to be tunable.  
   
   // Symmetric proposal, but depends on the reference measure
-  MHp->ratio *= exp(-(Mweight[0]*Mweight[0]-oldwt*oldwt)/2);
+  MHp->logratio += -(Mweight[0]*Mweight[0]-oldwt*oldwt)/2;
 }

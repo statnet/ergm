@@ -317,7 +317,7 @@ void MH_FormationTNT (MHproposal *MHp, Network *nwp)
       rane = 1 + unif_rand() * ndedges;
       FindithEdge(&head, &tail, rane, nwp+1);
       
-      MHp->ratio = ndedges / ((double)nempty + 1)/comp * ((ndedges==1)? 1 : (1-comp));
+      MHp->logratio += log(ndedges / ((double)nempty + 1)/comp * ((ndedges==1)? 1 : (1-comp)));
     }else{ /* select an empty dyad in nwp[0] at random */
       do{ /* Keep trying dyads as long as it's an edge in nwp[0]. */
 	tail = 1 + unif_rand() * nnodes;
@@ -335,9 +335,9 @@ void MH_FormationTNT (MHproposal *MHp, Network *nwp)
       }
       
       if(ndedges==0){
-	MHp->ratio = nempty*comp;
+	MHp->logratio += log(nempty*comp);
       }else{
-	MHp->ratio = ((double)nempty)/(ndedges+1) *odds;
+	MHp->logratio += log(((double)nempty)/(ndedges+1) *odds);
       }
     }
     
@@ -398,9 +398,6 @@ void MH_Dissolution (MHproposal *MHp, Network *nwp)
     Mtail[0]=MH_UNSUCCESSFUL;
     return;
   }
-
-    
-  MHp->ratio = 1.0;
 }
 
 /********************
@@ -446,7 +443,6 @@ void MH_BipartiteFormation (MHproposal *MHp, Network *nwp)
     Mtail[0]=MH_UNSUCCESSFUL;
   }
 
-  MHp->ratio = 1.0;
 /*   Rprintf("reference nddyads %d MHp->ratio %f\n", */
 /*	    nwp[1].nedges, MHp->ratio); */
 }
@@ -493,7 +489,7 @@ void MH_BipartiteFormationTNT (MHproposal *MHp, Network *nwp)
       rane = 1 + unif_rand() * ndedges;
       FindithEdge(&head, &tail, rane, nwp+1);
       
-      MHp->ratio = ndedges  / ((double)nempty+1)/comp *((ndedges==1)? 1 : (1-comp));
+      MHp->logratio += log(ndedges  / ((double)nempty+1)/comp *((ndedges==1)? 1 : (1-comp)));
     }else{ /* select an empty dyad in nwp[0] at random */
       do{ /* Keep trying dyads as long as it's an edge in nwp[0]. */
 	head = 1 + unif_rand() * nb1;
@@ -509,9 +505,9 @@ void MH_BipartiteFormationTNT (MHproposal *MHp, Network *nwp)
       }
       
       if(ndedges==0){
-	MHp->ratio = nempty*comp;
+	MHp->logratio += log(nempty*comp);
       }else{
-	MHp->ratio = ((double)nempty)/(ndedges+1) *odds;
+	MHp->logratio += log(((double)nempty)/(ndedges+1) *odds);
       } 
       
     }

@@ -17,7 +17,6 @@ void MH_randomtoggle (MHproposal *MHp, Network *nwp)  {
     MHp->ntoggles=1;
     return;
   }
-  MHp->ratio = 1.0;
   
   fvalid = 0;
   trytoggle = 0;
@@ -66,8 +65,8 @@ void MH_TNT (MHproposal *MHp, Network *nwp)
       or vice versa.  Note that this happens extremely rarely unless the 
       network is small or the parameter values lead to extremely sparse 
       networks.  */
-      MHp->ratio = (nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
-                                nedges / (odds*ndyads + nedges));
+      MHp->logratio += log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
+			nedges / (odds*ndyads + nedges)));
     }else{ /* Select a dyad at random */
       do{
         head = 1 + unif_rand() * nwp->nnodes;
@@ -80,11 +79,11 @@ void MH_TNT (MHproposal *MHp, Network *nwp)
         MHp->toggletail[0] = tail;
       }
       if(EdgetreeSearch(MHp->togglehead[0],MHp->toggletail[0],nwp->outedges)!=0){
-        MHp->ratio = (nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
-                                  nedges / (odds*ndyads + nedges));
+        MHp->logratio += log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
+			   nedges / (odds*ndyads + nedges)));
       }else{
-        MHp->ratio = (nedges==0 ? comp*ndyads + (1.0-comp) :
-                                  1.0 + (odds*ndyads)/(nedges + 1));
+        MHp->logratio += log((nedges==0 ? comp*ndyads + (1.0-comp) :
+			   1.0 + (odds*ndyads)/(nedges + 1)));
       }
     }
     if(CheckTogglesValid(MHp,nwp)) break;
@@ -107,7 +106,6 @@ void MH_TNT10 (MHproposal *MHp, Network *nwp)
   
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=10;
-    MHp->ratio = 1.0;
     odds = comp/(1.0-comp);
     ndyads = (nwp->nnodes-1)*nwp->nnodes / (nwp->directed_flag? 1:2);  
     return;
@@ -118,7 +116,7 @@ void MH_TNT10 (MHproposal *MHp, Network *nwp)
     if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
       rane = 1 + unif_rand() * nedges;
       FindithEdge(MHp->togglehead, MHp->toggletail, rane, nwp);
-      MHp->ratio *= nedges  / (odds*ndyads + nedges);
+      MHp->logratio += log(nedges  / (odds*ndyads + nedges));
     }else{ /* Select a dyad at random */
       do{
         head = 1 + unif_rand() * nwp->nnodes;
@@ -131,11 +129,11 @@ void MH_TNT10 (MHproposal *MHp, Network *nwp)
         MHp->toggletail[n] = tail;
       }
       if(EdgetreeSearch(MHp->togglehead[n],MHp->toggletail[n],nwp->outedges)!=0){
-        MHp->ratio *= (nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
-                                  nedges / (odds*ndyads + nedges));
+        MHp->logratio += log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
+			   nedges / (odds*ndyads + nedges)));
       }else{
-        MHp->ratio *= (nedges==0 ? comp*ndyads + (1.0-comp) :
-                                  1.0 + (odds*ndyads)/(nedges + 1));
+        MHp->logratio += log((nedges==0 ? comp*ndyads + (1.0-comp) :
+			   1.0 + (odds*ndyads)/(nedges + 1)));
       }
     } 
    }
@@ -159,7 +157,6 @@ void MH_ConstantEdges (MHproposal *MHp, Network *nwp)  {
   
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=2;    
-    MHp->ratio=1.0;   
     return;
   } /* Note:  This proposal cannot be used for full or empty observed graphs.
        If desired, we could check for this at initialization phase. 
@@ -211,7 +208,6 @@ void MH_CondDegreeTetrad (MHproposal *MHp, Network *nwp)  {
   } /* Note:  This proposal does not make work (well) with 
   directed graphs; however, we haven't yet implemented a way
   to warn the user about this.  */
-  MHp->ratio=1.0;
   /* First, select edge at random */
   FindithEdge(&A, &B, 1+nwp->nedges*unif_rand(), nwp);
   /* Second, select a non-neighbor C of B and a random neighbor
@@ -256,7 +252,7 @@ void MH_CondDegreeTetrad (MHproposal *MHp, Network *nwp)  {
   2.  Should we have a special function to find the ith edge 
       incident to a given node?
   3.  Does this algorithm introduce any selection bias that should
-      be corrected by MHp->ratio?  In other words, is it really true
+      be corrected by MHp->logratio?  In other words, is it really true
       that this algorithm gives the same chance for the reverse change
       as for the forward change?
 */
@@ -271,7 +267,6 @@ void MH_CondDegreeDist (MHproposal *MHp, Network *nwp) {
   int j0h, j1h;
   int trynode;
   Vertex e, alter, head=0, tail, tail1;
-  MHp->ratio=1.0;
   
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=2;    
@@ -402,7 +397,6 @@ void MH_CondOutDegreeDist (MHproposal *MHp, Network *nwp) {
   int k0, k1;
   int trynode;
   Vertex e, alter, head=0, tail, tail1;
-  MHp->ratio=1.0;
   
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=2;    
@@ -468,7 +462,6 @@ void MH_CondInDegreeDist (MHproposal *MHp, Network *nwp) {
   int k0, k1;
   int trynode;
   Vertex e, alter, head=0, tail, tail1;
-  MHp->ratio=1.0;
   
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=2;    
@@ -529,7 +522,6 @@ void MH_CondInDegreeDist (MHproposal *MHp, Network *nwp) {
  void MH_CondDegree
 *********************/
 void MH_CondDegree (MHproposal *MHp, Network *nwp)  {  
-  MHp->ratio=1.0;
   
   if(MHp->ntoggles == 0) { /* Initialize CondDeg by */
 	                   /* Choosing Hexad or Tetrad */
@@ -555,7 +547,6 @@ void MH_CondDegreeHexadToggles (MHproposal *MHp, Network *nwp)  {
   int x1, x2, x3, x4, x5, x6;
   int fvalid, trynode;
   Vertex head1, head2, head3, tail1, tail2, tail3;
-  MHp->ratio=1.0;
   
   x1 = -1;
   x2 = -1;
@@ -714,7 +705,6 @@ void MH_CondDegreeTetradToggles (MHproposal *MHp, Network *nwp) {
   int x1, x2, x3, x4;
   int fvalid, trynode;
   Vertex head1, head2, tail1, tail2;
-  MHp->ratio=1.0;
   
   fvalid = 0;
   trynode = 0;
@@ -821,7 +811,6 @@ void MH_TwoRandomToggles (MHproposal *MHp, Network *nwp) {
     MHp->ntoggles=2;
     return;
   }
-  MHp->ratio = 1.0;
 
   for (i = 0; i < 2; i++){
    head = 1 + unif_rand() * nwp->nnodes;
@@ -848,7 +837,6 @@ void MH_randomnode (MHproposal *MHp, Network *nwp) {
     MHp->ntoggles= nwp->nnodes - 1;
     return;
   }
-  MHp->ratio = 1.0;
 
   root = 1 + unif_rand() * nwp->nnodes;
   
@@ -876,7 +864,6 @@ void MH_randomtoggleNonObserved (MHproposal *MHp, Network *nwp)  {
     MHp->ntoggles=1;
     return;
   }
-  MHp->ratio = 1.0;
 
   if(nmissing==0){
     *MHp->togglehead = MH_FAILED;
@@ -896,7 +883,6 @@ void MH_ConstrainedCondOutDegDist (MHproposal *MHp, Network *nwp){
   int noutedge=0, k, fvalid=0;
   int k0, k1;
   Vertex e, alter, head, tail, tail1;
-  MHp->ratio=1.0;
   
   while(noutedge==0){
     /* select a node at random */
@@ -953,7 +939,6 @@ void MH_NodePairedTiesToggles (MHproposal *MHp, Network *nwp) {
   int nedge=0,j,k;
   int fvalid = 1;
   Vertex e, head, prop;
-  MHp->ratio=1.0;
   
   /* double to integer coercion */
   head = 1 + unif_rand() * nwp->nnodes; 
@@ -1064,7 +1049,7 @@ void MH_OneRandomTnTNode (MHproposal *MHp, Network *nwp) {
 	    MHp->toggletail[0] = tail;
 	  }
 	
-	MHp->ratio = ((noutedge+ninedge)*1.0)/(nwp->nnodes-1-noutedge-ninedge-1);
+	MHp->logratio += log(((noutedge+ninedge)*1.0)/(nwp->nnodes-1-noutedge-ninedge-1));
 	fvalid =1;
       }else{
 	/* Choose random non-tie */
@@ -1108,9 +1093,9 @@ void MH_OneRandomTnTNode (MHproposal *MHp, Network *nwp) {
 	
         if ( nwp->directed_flag )
 	  {
-	    MHp->ratio = (nwp->nnodes-1-noutedge-ninedge)/(noutedge+ninedge+1.0);
+	    MHp->logratio += log((nwp->nnodes-1-noutedge-ninedge)/(noutedge+ninedge+1.0));
 	  }else{
-	    MHp->ratio = (nwp->nnodes-1-noutedge-ninedge)/(noutedge+ninedge+1.0);
+	    MHp->logratio += log((nwp->nnodes-1-noutedge-ninedge)/(noutedge+ninedge+1.0));
 	  }
       }
   }
@@ -1125,7 +1110,6 @@ void MH_ReallocateWithReplacement (MHproposal *MHp, Network *nwp) {
   Vertex* edges;
   int edgecount = 0;
   
-  MHp->ratio=1.0;
   /* select a node at random */
   root = 1 + unif_rand() * nwp->nnodes;
 
@@ -1197,7 +1181,6 @@ void MH_AllTogglesForOneNode (MHproposal *MHp, Network *nwp) {
   int j;
   int root;
   
-  MHp->ratio=1.0;
   root = 1 + unif_rand() * nwp->nnodes;
   
   j = 0;
@@ -1232,7 +1215,6 @@ void MH_SwitchLabelTwoNodesToggles (MHproposal *MHp, Network *nwp) {
   int nedge1=0, nedge2=0, k, ntoggles;
   Vertex *edges1, *edges2;
   Vertex e, head2, tail2, head1, tail1;
-  MHp->ratio=1.0;
   
   /* select a node at random */
   edges1 = (Vertex *) malloc(sizeof(Vertex) * (nwp->nnodes+1));
@@ -1340,7 +1322,6 @@ void MH_ConstrainedCondDegDist (MHproposal *MHp, Network *nwp)  {
   int j0h, j1h;
   Vertex *outedges, *inedges;
   Vertex e, alter, head=0, tail;
-  MHp->ratio=1.0;
   
   /* select a node at random */
   outedges = (Vertex *) malloc(sizeof(Vertex) * (nwp->nnodes+1));
@@ -1478,7 +1459,6 @@ void MH_ConstrainedNodePairedTiesToggles (MHproposal *MHp,
   int nedge=0,j,k;
   int fvalid = 1;
   Vertex e, head, prop;
-  MHp->ratio=1.0;
   
   /* double to integer coercion */
   head = 1 + unif_rand() * nwp->nnodes; 
@@ -1546,7 +1526,6 @@ void MH_ConstrainedReallocateWithReplacement (MHproposal *MHp,
   Vertex* edges;
   int edgecount = 0;
   
-  MHp->ratio=1.0;
   /* select a node at random */
   root = 1 + unif_rand() * nwp->nnodes;
 
@@ -1619,7 +1598,6 @@ void MH_ConstrainedAllTogglesForOneNode (MHproposal *MHp,
   int j;
   int root;
   
-  MHp->ratio=1.0;
   root = 1 + unif_rand() * nwp->nnodes;
   
   j = 0;
@@ -1652,7 +1630,6 @@ void MH_ConstrainedAllTogglesForOneNode (MHproposal *MHp,
 void MH_ConstrainedTwoRandomToggles (MHproposal *MHp,
 				 Network *nwp) {  
   int i;
-  MHp->ratio=1.0;
   
   for (i = 0; i < 2; i++)
     {
@@ -1689,7 +1666,6 @@ void MH_ConstrainedCondDeg (MHproposal *MHp,
   int nedge1=0, nedge2=0, k, toomany, fvalid=0;
   Vertex *edges1, *edges2;
   Vertex e, head2=0, tail2, head1, tail1;
-  MHp->ratio=1.0;
   
   /* select a node at random */
   edges1 = (Vertex *) malloc(sizeof(Vertex) * (nwp->nnodes+1));
@@ -1793,7 +1769,6 @@ void MH_ConstrainedSwitchLabelTwoNodesToggles (MHproposal *MHp,
   int nedge1=0, nedge2=0, k, ntoggles;
   Vertex *edges1, *edges2;
   Vertex e, head2, tail2, head1, tail1;
-  MHp->ratio=1.0;
   
   /* select a node at random */
 
@@ -1899,7 +1874,6 @@ void MH_ConstantEdgesToggles (MHproposal *MHp, Network *nwp)  {
   int noutedge=0, ninedge=0, k, fvalid=0;
   int k0, k1;
   Vertex e, alter, head, tail, tail1;
-  MHp->ratio=1.0;
   
   while(noutedge+ninedge==0){
     /* select a node at random */
@@ -1980,7 +1954,6 @@ void MH_CondDegSwitchToggles (MHproposal *MHp, Network *nwp)  {
   int noutedge, ninedge, i;
   int k, k0, toomany;
   Vertex e, head, tail;
-  MHp->ratio=1.0;
   
   /* select a node at random */
   for (i = 0; i < 2; i++){
