@@ -54,27 +54,32 @@ void DegreeBoundDestroy(DegreeBound *bd);
    required, so that this amount of memory can be allocated.
 */
 typedef struct MHproposalstruct {
-  void (*func)(struct MHproposalstruct*, DegreeBound*, Network*);
+  void (*func)(struct MHproposalstruct*, Network*);
   Edge ntoggles;
   Vertex *togglehead;
   Vertex *toggletail;
   double ratio;
   int status;
+  DegreeBound *bd;
   double *inputs; /* may be used if needed, ignored if not. */
   /* int multiplicity; Is this needed? I removed all references to
        'multiplicity' everywhere */
 } MHproposal;
 
 
-void MH_init(MHproposal *MH, 
+void MH_init(MHproposal *MHp, 
 	     char *MHproposaltype, char *MHproposalpackage, 
+	     double *inputs,
 	     int fVerbose,
-	     Network *nwp, DegreeBound *bd);
+	     Network *nwp, 
+	     int *attribs, int *maxout, int *maxin, 
+	     int *minout, int *minin, int condAllDegExact, 
+	     int attriblength);
 
-void MH_free(MHproposal *MH);
+void MH_free(MHproposal *MHp);
 
-int CheckTogglesValid(MHproposal *MHp, DegreeBound *bd, Network *nwp);
-int CheckConstrainedTogglesValid(MHproposal *MHp, DegreeBound *bd, Network *nwp);
+int CheckTogglesValid(MHproposal *MHp, Network *nwp);
+int CheckConstrainedTogglesValid(MHproposal *MHp, Network *nwp);
 #endif 
 
 

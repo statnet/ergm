@@ -57,7 +57,8 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
                              MHproposal, MHproposal.miss,
                              verbose=FALSE,
                              sequential=MCMCparams$sequential,
-                             estimate=TRUE, ...) {
+                             estimate=TRUE,
+                             response=NULL, ...) {
   # Store information about original network, which will be returned at end
   null.deviance <- 2*network.dyadcount(nw)*log(2)
   nw.orig <- network.copy(nw)
@@ -101,7 +102,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
 
     # Obtain MCMC sample
     mcmc.eta0 <- ergm.eta(mcmc.theta0, model$etamap)
-    z <- ergm.getMCMCsample.parallel(nw, model, MHproposal, mcmc.eta0, MCMCparams, verbose)
+    z <- ergm.getMCMCsample.parallel(nw, model, MHproposal, mcmc.eta0, MCMCparams, verbose, response=response)
     
     # post-processing of sample statistics:  Shift each row by the
     # matrix Clist$obs - Clist$meanstats, store returned nw
@@ -110,7 +111,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
 
     ##  Does the same, if missing edges:
     if(network.naedgecount(nw) > 0){
-      z.miss <- ergm.getMCMCsample.parallel(nw, model, MHproposal.miss, mcmc.eta0, MCMCparams.miss, verbose)
+      z.miss <- ergm.getMCMCsample.parallel(nw, model, MHproposal.miss, mcmc.eta0, MCMCparams.miss, verbose, response=response)
       statsmatrix.miss <- sweep(z.miss$statsmatrix, 2, statshift, "+")
       nw.miss.returned <- network.copy(z.miss$newnetwork)
       if(verbose){cat("Back from constrained MCMC...\n")}
@@ -119,7 +120,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
       if(verbose){cat("Back from unconstrained MCMC...\n")}
       if(sequential) {
         nw <- nw.returned
-        nw.obs <- summary(model$formula, basis=nw)
+        nw.obs <- summary(model$formula, basis=nw, response=response)
         namesmatch <- match(names(MCMCparams$meanstats), names(nw.obs))
         statshift <- nw.obs[namesmatch]-Clist$meanstats
       }

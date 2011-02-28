@@ -50,7 +50,7 @@
 #
 ##########################################################################
 
-ergm.Cprepare <- function(nw, m) 
+ergm.Cprepare <- function(nw, m, response=NULL)
 {
   n <- network.size(nw)
   dir <- is.directed(nw)
@@ -59,14 +59,22 @@ ergm.Cprepare <- function(nw, m)
   if (is.null(bip)) bip <- 0
   Clist$bipartite <- bip
   Clist$ndyads <- n * (n-1) / (2-dir)
-  e<-as.matrix.network(nw,matrix.type="edgelist")
+  e<-as.matrix.network(nw,matrix.type="edgelist",attrname=response)
   Clist$maxpossibleedges <- min(max(1e+6, 2*nrow(e)), Clist$ndyads)
   if(length(e)==0){
     Clist$nedges<-0
     Clist$tails<-NULL
     Clist$heads<-NULL
+    ## Make sure weights is not NULL if response!=NULL, even if it's
+    ## empty, since it's used to decide whether MCMC or WtMCMC is
+    ## called.
+    if(!is.null(response)) Clist$weights<-numeric(0)
   }else{
-    if(!is.matrix(e)){e <- matrix(e, ncol=2)}
+    if(!is.matrix(e)){e <- matrix(e, ncol=2+!is.null(response))}
+
+    ## Delete 0 edges.
+    if(!is.null(response)) e<-e[e[,3]!=0,,drop=FALSE]
+    
     Clist$nedges<-dim(e)[1]
     # *** Ensure that for undirected networks, tail<head.
     if(dir){
@@ -75,6 +83,9 @@ ergm.Cprepare <- function(nw, m)
     }else{
       Clist$tails<-pmin(e[,1],e[,2])
       Clist$heads<-pmax(e[,1],e[,2])
+    }
+    if(!is.null(response)){
+      Clist$weights<-e[,3]
     }
   }
   mo<-m$terms 

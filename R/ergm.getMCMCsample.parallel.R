@@ -54,9 +54,9 @@
 #########################################################################################
 
 ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams, 
-                               verbose) {
+                               verbose, response=NULL) {
   
-  Clist <- ergm.Cprepare(nw, model)
+  Clist <- ergm.Cprepare(nw, model, response=response)
   if(is.null(MCMCparams$Clist.dt)){
     MCMCparams$Clist.dt <- list(tails=NULL, heads=NULL, nedges=0, dir=is.directed(nw))
   }
@@ -77,7 +77,7 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
     statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
                           ncol=Clist$nstats,
                           byrow = TRUE)
-    newnetwork <- newnw.extract(nw,z)
+    newnetwork <- newnw.extract(nw,z,response=response)
     if(nedges >= 50000-1){
       cat("\n Warning:")
       cat("\n   The network has more than 50000 edges, and the model is likely to be degenerate.\n")
@@ -140,7 +140,7 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
      #                           matrix(z$newnw[2:z$newnw[1]], ncol=2, byrow=TRUE))
    }
     nedges <- z$newnwtails[1]
-    newnetwork<-newnw.extract(nw,z)
+    newnetwork<-newnw.extract(nw,z,response=response)
     if(verbose){cat("parallel samplesize=",nrow(statsmatrix),"by",
 	MCMCparams.parallel$samplesize,"\n")}
 
@@ -217,16 +217,19 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
   nedges <- c(Clist$nedges,0,0)
   tails <- Clist$tails
   heads <- Clist$heads
+  weights <- Clist$weights
   if(!is.null(MCMCparams$Clist.miss)){
     nedges[2] <- MCMCparams$Clist.miss$nedges
     tails <- c(tails, MCMCparams$Clist.miss$tails)
     heads <- c(heads, MCMCparams$Clist.miss$heads)
+    weights <- c(weights, rep(1,nedges[1]))
   }
   if(!is.null(MCMCparams$Clist.dt)){
     nedges[3] <- MCMCparams$Clist.dt$nedges
     tails <- c(tails, MCMCparams$Clist.dt$tails)
     heads <- c(heads, MCMCparams$Clist.dt$heads)
   }
+  if(is.null(Clist$weights)){
   z <- .C("MCMC_wrapper",
   as.integer(numnetworks), as.integer(nedges),
   as.integer(tails), as.integer(heads),
@@ -236,7 +239,7 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
   as.character(Clist$fnamestring),
   as.character(Clist$snamestring),
   as.character(MHproposal$name), as.character(MHproposal$package),
-  as.double(Clist$inputs), as.double(eta0),
+  as.double(c(Clist$inputs,MHproposal$inputs)), as.double(eta0),
   as.integer(MCMCparams$samplesize),
   s = as.double(t(MCMCparams$stats)),
   as.integer(MCMCparams$burnin), 
@@ -249,6 +252,31 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
   as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)),
   as.integer(maxedges),
   PACKAGE="ergm")
+
   # save the results
   list(s=z$s, newnwtails=z$newnwtails, newnwheads=z$newnwheads)
+  }else{
+    z <- .C("WtMCMC_wrapper",
+            as.integer(length(nedges)), as.integer(nedges),
+            as.integer(tails), as.integer(heads), as.double(weights),
+            as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
+            as.integer(Clist$dir), as.integer(Clist$bipartite),
+            as.integer(Clist$nterms),
+            as.character(Clist$fnamestring),
+            as.character(Clist$snamestring),
+            as.character(MHproposal$name), as.character(MHproposal$package),
+            as.double(c(Clist$inputs,MHproposal$inputs)), as.double(eta0),
+            as.integer(MCMCparams$samplesize),
+            s = as.double(t(MCMCparams$stats)),
+            as.integer(MCMCparams$burnin), 
+            as.integer(MCMCparams$interval),
+            newnwtails = integer(maxedges),
+            newnwheads = integer(maxedges),
+            newnwweights = double(maxedges),
+            as.integer(verbose), 
+            as.integer(maxedges),
+            PACKAGE="ergm")
+    # save the results
+    list(s=z$s, newnwtails=z$newnwtails, newnwheads=z$newnwheads, newnwweights=z$newnwweights)
+  }
 }

@@ -28,7 +28,6 @@ void MCMCDynPhase12(// Observed network.
 		    int *fVerbose){
 
   Network nw[2];
-  DegreeBound *bd;
   Model *F_m, *D_m;
   MHproposal F_MH, D_MH;
   DynamOrder order;
@@ -45,7 +44,7 @@ void MCMCDynPhase12(// Observed network.
 		      *F_nterms, *F_funnames, *F_sonames, F_inputs, &F_m,
 		      *D_nterms, *D_funnames, *D_sonames, D_inputs, &D_m,
 		      attribs, maxout, maxin, minout,
-		      minin, *condAllDegExact, *attriblength, &bd,
+		      minin, *condAllDegExact, *attriblength,
 		      *F_MHproposaltype, *F_MHproposalpackage, &F_MH,
 		      *D_MHproposaltype, *D_MHproposalpackage, &D_MH,
 		      *fVerbose);
@@ -58,13 +57,12 @@ void MCMCDynPhase12(// Observed network.
 		       
 		       D_m, &D_MH, gamma0,
 		       
-		       bd,
 		       *maxedges,
 		       difftime, diffhead, difftail,
 		       *RM_burnin, *RM_interval, *MH_interval,
 		       *fVerbose);
 
-  MCMCDyn_finish_common(nw, F_m, D_m, bd, &F_MH, &D_MH);
+  MCMCDyn_finish_common(nw, F_m, D_m, &F_MH, &D_MH);
 
 }
 
@@ -87,8 +85,6 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
 			  Model *D_m, MHproposal *D_MH,
 			  double *gamma, 
 			  // Dissolution parameter fitting --- to add later? -PK
-			  // Degree bounds.
-			  DegreeBound *bd,
 			  // Space for output.
 			  Edge nmax,
 			  Vertex *difftime, Vertex *diffhead, Vertex *difftail,
@@ -114,7 +110,6 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
     MCMCDyn1Step(nwp, order,
 		 F_m, F_MH, theta,
 		 D_m, D_MH, gamma,
-		 bd,
 		 0,
 		 dev, D_stats,
 		 nmax, &nextdiffedge,
@@ -143,7 +138,6 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
     MCMCDyn1Step(nwp, order,
 		 F_m, F_MH, theta,
 		 D_m, D_MH, gamma,
-		 bd,
 		 0,
 		 dev, D_stats,
 		 nmax, &nextdiffedge,
@@ -198,7 +192,6 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
 	MCMCDyn1Step(nwp, order,
 		     F_m, F_MH, theta,
 		     D_m, D_MH, gamma,
-		     bd,
 		     0,
 		     dev, D_stats,
 		     nmax, &nextdiffedge,

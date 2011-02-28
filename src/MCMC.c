@@ -30,20 +30,20 @@ void MCMC_wrapper (int *dnumnets, int *nedges,
   Vertex n_nodes, nmax, bip, hhead, htail;
   Edge n_networks, nddyads, kedge;
   Network nw[3];
-  DegreeBound *bd;
   Model *m;
   ModelTerm *thisterm;
+  MHproposal MH;
   
-  n_nodes = (Vertex)*dn; /* coerce double *dn to type Vertex */
-  n_networks = (Edge)*dnumnets; /* coerce double *dnumnets to type Edge */
-  nmax = (Edge)*maxedges; /* coerce double *maxedges to type Edge */
-  bip = (Vertex)*bipartite; /* coerce double *bipartite to type Vertex */
+  n_nodes = (Vertex)*dn; 
+  n_networks = (Edge)*dnumnets; 
+  nmax = (Edge)*maxedges; 
+  bip = (Vertex)*bipartite; 
   
   GetRNGstate();  /* R function enabling uniform RNG */
   
   directed_flag = *dflag;
 
-  m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
+  m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
 
   //Rprintf("Init: 0 edges %d yplus edges %d\n",nedges[0],nedges[1]); 
   /* Form the network */
@@ -113,20 +113,20 @@ void MCMC_wrapper (int *dnumnets, int *nedges,
      Rprintf("dissolution: y0 edges %d yplus edges %d\n",nedges[1],nedges[0]); 
   }
   
-  bd=DegreeBoundInitialize(attribs, maxout, maxin, minout, minin,
-			   *condAllDegExact, *attriblength, nw);
-  MCMCSample (*MHproposaltype, *MHproposalpackage,
-	      theta0, sample, (long int)*samplesize,
-	      (long int)*burnin, (long int)*interval,
-	      hammingterm,
-	      (int)*fVerbose, nw, m, bd);
+  MH_init(&MH,
+	  *MHproposaltype, *MHproposalpackage,
+	  inputs,
+	  *fVerbose,
+	  nw, attribs, maxout, maxin, minout, minin,
+	  *condAllDegExact, *attriblength);
 
-/*   int ii;
-   double mos=0.0;
-   for(ii=0; ii < bd->attrcount; ii++) 
-     mos += bd->maxout[ii];
-   Rprintf("bd -> attrcount = %d, sum = %f\n", ii, mos); */
-        
+  MCMCSample (&MH,
+	      theta0, sample, *samplesize,
+	      *burnin, *interval,
+	      hammingterm,
+	      *fVerbose, nw, m);
+
+  MH_free(&MH);
         
 /* Rprintf("Back! %d %d\n",nw[0].nedges, nmax); */
 
@@ -135,7 +135,7 @@ void MCMC_wrapper (int *dnumnets, int *nedges,
     newnetworkheads[0]=newnetworktails[0]=EdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,nw,nmax-1);
   
   ModelDestroy(m);
-  if(bd)DegreeBoundDestroy(bd);
+
   NetworkDestroy(nw);
   if (nedges[1]>0 || hammingterm > 0)
     NetworkDestroy(&nw[1]);
@@ -155,14 +155,13 @@ void MCMC_wrapper (int *dnumnets, int *nedges,
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
+void MCMCSample (MHproposal *MHp,
   double *theta, double *networkstatistics, 
-  long int samplesize, long int burnin, 
-  long int interval, int hammingterm, int fVerbose,
-  Network *nwp, Model *m, DegreeBound *bd) {
-  long int staken, tottaken, ptottaken, originterval;
+  int samplesize, int burnin, 
+  int interval, int hammingterm, int fVerbose,
+  Network *nwp, Model *m) {
+  int staken, tottaken, ptottaken, originterval;
   int i, j, components, diam;
-  MHproposal MH;
   
   originterval = interval;
   components = diam = 0;
@@ -172,10 +171,6 @@ void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
     Rprintf("Simulating %d stats on %ld networks using %s",
              m->n_stats, burnin + samplesize*interval, MHproposaltype);
   } */
-  MH_init(&MH,
-	  MHproposaltype, MHproposalpackage,
-	  fVerbose,
-	  nwp, bd);
 
   /*********************
   networkstatistics are modified in groups of m->n_stats, and they
@@ -199,8 +194,8 @@ void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
    *********************/
 /*  Catch massive number of edges caused by degeneracy */
    if(nwp->nedges > (50000-1000)){burnin=1;}
-   MetropolisHastings(&MH, theta, networkstatistics, burnin, &staken,
-		      hammingterm, fVerbose, nwp, m, bd);  
+   MetropolisHastings(MHp, theta, networkstatistics, burnin, &staken,
+		      hammingterm, fVerbose, nwp, m);  
 /*   if (fVerbose){ 
        Rprintf(".");
      } */
@@ -221,8 +216,8 @@ void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
       
       /* Catch massive number of edges caused by degeneracy */
       if(nwp->nedges > (50000-1000)){interval=1;}
-      MetropolisHastings (&MH, theta, networkstatistics, interval, &staken,
-                           hammingterm, fVerbose, nwp, m, bd);
+      MetropolisHastings (MHp, theta, networkstatistics, interval, &staken,
+                           hammingterm, fVerbose, nwp, m);
       tottaken += staken;
 
 #ifdef Win32
@@ -249,16 +244,15 @@ void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
     when the chain doesn't accept many of the proposed steps.
     *********************/
     if (fVerbose){
-      Rprintf("%s sampler accepted %6.3f%% of %d proposed steps.\n",
-      MHproposaltype, tottaken*100.0/(1.0*originterval*samplesize), originterval*samplesize); 
+      Rprintf("sampler accepted %6.3f%% of %d proposed steps.\n",
+      tottaken*100.0/(1.0*originterval*samplesize), originterval*samplesize); 
     }
   }else{
     if (fVerbose){
-      Rprintf("%s sampler accepted %6.3f%% of %d proposed steps.\n",
-      MHproposaltype, staken*100.0/(1.0*burnin), burnin); 
+      Rprintf("sampler accepted %6.3f%% of %d proposed steps.\n",
+      staken*100.0/(1.0*burnin), burnin); 
     }
   }
-  MH_free(&MH);
 }
 
 /*********************
@@ -274,12 +268,12 @@ void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
 *********************/
 void MetropolisHastings (MHproposal *MHp,
 			 double *theta, double *networkstatistics,
-			 long int nsteps, long int *staken,
+			 int nsteps, int *staken,
 			 int hammingterm,
        int fVerbose,
 			 Network *nwp,
-			 Model *m, DegreeBound *bd) {
-  long int step, taken;
+			 Model *m) {
+  int step, taken;
   int i;
   double ip, cutoff;
   
@@ -288,7 +282,7 @@ void MetropolisHastings (MHproposal *MHp,
     Rprintf("Now proposing %d MH steps... ", nsteps); */
   while (step < nsteps) {
     MHp->ratio = 1.0;
-    (*(MHp->func))(MHp, bd, nwp); /* Call MH function to propose toggles */
+    (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
     
     /* Calculate change statistics. */
     ChangeStats(MHp->ntoggles, MHp->togglehead, MHp->toggletail, nwp, m);
@@ -358,27 +352,27 @@ void MCMCPhase12 (int *heads, int *tails, int *dnedges,
 		  int *mheads, int *mtails, int *mdnedges)  {
   int directed_flag, hammingterm, formationterm;
   int nphase1, nsubphases;
-  Vertex n_nodes, nmax, bip, hhead, htail;
-  Edge n_edges, n_medges, nddyads, kedge;
+  Vertex n_nodes, bip, hhead, htail;
+  Edge n_edges, n_medges, nddyads, kedge, nmax;
   Network nw[2];
-  DegreeBound *bd;
   Model *m;
   ModelTerm *thisterm;
+  MHproposal MH;
   
-  nphase1 = (int)*phase1; /* coerce double *dn to type int */
-  nsubphases = (int)*nsub; /* coerce double *dn to type int */
+  nphase1 = *phase1; 
+  nsubphases = *nsub;
 
-  n_nodes = (Vertex)*dn; /* coerce double *dn to type Vertex */
-  n_edges = (Edge)*dnedges; /* coerce double *dnedges to type Vertex */
-  n_medges = (Edge)*mdnedges; /* coerce double *mdnedges to type Vertex */
-  nmax = (Vertex)*maxedges; /* coerce double *maxedges to type Vertex */
-  bip = (Vertex)*bipartite; /* coerce double *bipartite to type Vertex */
+  n_nodes = (Vertex)*dn; 
+  n_edges = (Edge)*dnedges; 
+  n_medges = (Edge)*mdnedges; 
+  nmax = (Edge)*maxedges; 
+  bip = (Vertex)*bipartite; 
   
   GetRNGstate();  /* R function enabling uniform RNG */
   
   directed_flag = *dflag;
 
-  m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
+  m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
 
   /* Form the missing network */
   nw[0]=NetworkInitialize(heads, tails, n_edges,
@@ -455,20 +449,27 @@ void MCMCPhase12 (int *heads, int *tails, int *dnedges,
 /*   Rprintf("Initial number (discord) from reference %d Number of original %d\n",nw[1].nedges,nw[0].nedges); */
   }
   
-  bd=DegreeBoundInitialize(attribs, maxout, maxin, minout, minin,
-			   *condAllDegExact, *attriblength, nw);
-  MCMCSamplePhase12 (*MHproposaltype, *MHproposalpackage,
-	      theta0, *gain, meanstats, nphase1, nsubphases, sample, (long int)*samplesize,
-	      (long int)*burnin, (long int)*interval,
+  MH_init(&MH,
+	  *MHproposaltype, *MHproposalpackage,
+	  inputs,
+	  *fVerbose,
+	  nw, attribs, maxout, maxin, minout, minin,
+	  *condAllDegExact, *attriblength);
+  
+  MCMCSamplePhase12 (&MH,
+	      theta0, *gain, meanstats, nphase1, nsubphases, sample, *samplesize,
+	      *burnin, *interval,
 	      hammingterm,
-	      (int)*fVerbose, nw, m, bd);
+	      (int)*fVerbose, nw, m);
+
+  MH_free(&MH);
   
   /* record new generated network to pass back to R */
   if(nmax>0 && newnetworkheads && newnetworktails)
     newnetworkheads[0]=newnetworktails[0]=EdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,nw,nmax);
 
   ModelDestroy(m);
-  if(bd)DegreeBoundDestroy(bd);
+
   NetworkDestroy(nw);
   if (n_medges>0 || hammingterm > 0  || formationterm > 0)
     NetworkDestroy(&nw[1]);
@@ -485,14 +486,13 @@ void MCMCPhase12 (int *heads, int *tails, int *dnedges,
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-void MCMCSamplePhase12 (char *MHproposaltype, char *MHproposalpackage,
+void MCMCSamplePhase12 (MHproposal *MHp,
   double *theta, double gain, double *meanstats, int nphase1, int nsubphases, double *networkstatistics, 
-  long int samplesize, long int burnin, 
-  long int interval, int hammingterm, int fVerbose,
-  Network *nwp, Model *m, DegreeBound *bd) {
-  long int staken, tottaken, ptottaken;
+  int samplesize, int burnin, 
+  int interval, int hammingterm, int fVerbose,
+  Network *nwp, Model *m) {
+  int staken, tottaken, ptottaken;
   int i, j, components, diam, iter=0;
-  MHproposal MH;
   
 /*Rprintf("nsubphases %d\n", nsubphases); */
 
@@ -504,11 +504,6 @@ void MCMCSamplePhase12 (char *MHproposaltype, char *MHproposalpackage,
     Rprintf("The number of statistics is %i and the total samplesize is %d\n",
              m->n_stats,samplesize);
 
-  MH_init(&MH,
-	  MHproposaltype,MHproposalpackage,
-	  fVerbose,
-	  nwp, bd);
-  
   /*********************
   networkstatistics are modified in groups of m->n_stats, and they
   reflect the CHANGE in the values of the statistics from the
@@ -535,19 +530,19 @@ void MCMCSamplePhase12 (char *MHproposaltype, char *MHproposalpackage,
   
     staken = 0;
     Rprintf("Starting burnin of %d steps\n", burnin);
-    MetropolisHastings (&MH, theta,
+    MetropolisHastings (MHp, theta,
 		  networkstatistics, burnin, &staken,
       hammingterm,
       fVerbose,
-		  nwp, m, bd);
+		  nwp, m);
     Rprintf("Phase 1: %d steps (interval = %d)\n", nphase1,interval);
     /* Now sample networks */
     for (i=0; i <= nphase1; i++){
-      MetropolisHastings (&MH, theta,
+      MetropolisHastings (MHp, theta,
 		  networkstatistics, interval, &staken,
       hammingterm,
       fVerbose,
-		  nwp, m, bd);
+		  nwp, m);
       if(i > 0){
        for (j=0; j<m->n_stats; j++){
         ubar[j]  += networkstatistics[j];
@@ -582,11 +577,11 @@ void MCMCSamplePhase12 (char *MHproposaltype, char *MHproposalpackage,
     /* Now sample networks */
     for (i=1; i < samplesize; i++){
       
-      MetropolisHastings (&MH, theta,
+      MetropolisHastings (MHp, theta,
 		  networkstatistics, interval, &staken,
       hammingterm,
       fVerbose,
-		  nwp, m, bd);
+		  nwp, m);
     /* Update theta0 */
 /*Rprintf("initial:\n"); */
       for (j=0; j<m->n_stats; j++){
@@ -662,6 +657,5 @@ void MCMCSamplePhase12 (char *MHproposaltype, char *MHproposalpackage,
 
   free(ubar);
   free(u2bar);
-  MH_free(&MH);
 }
 

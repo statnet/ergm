@@ -65,7 +65,7 @@ summary.statistics.ergm <- function(object, ..., drop=FALSE, basis=NULL)
 
 summary.statistics.default <-
 summary.statistics.matrix <- 
-summary.statistics.network <- function(object,...,drop=FALSE, basis=NULL) {
+summary.statistics.network <- function(object, response=NULL,...,drop=FALSE, basis=NULL) {
   current.warn <- options()$warn
   options(warn=0)
   if(is.network(basis)){
@@ -89,8 +89,8 @@ summary.statistics.network <- function(object,...,drop=FALSE, basis=NULL) {
       stop("Must specify a network object")
     }
   }
-  m <- ergm.getmodel(formula, nw, drop=drop)
-  gs <- ergm.getglobalstats(nw, m)
+  m <- ergm.getmodel(formula, nw, drop=drop, response=response)
+  gs <- ergm.getglobalstats(nw, m, response=response)
   options(warn=current.warn)
   gs
 }

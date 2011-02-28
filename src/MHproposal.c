@@ -6,10 +6,14 @@
 
  A helper function to process the MH_* related initialization.
 *********************/
-void MH_init(MHproposal *MH, 
-	     char *MHproposaltype, char *MHproposalpackage, 
+void MH_init(MHproposal *MHp, 
+	     char *MHproposaltype, char *MHproposalpackage,
+	     double *inputs,
 	     int fVerbose,
-	     Network *nwp, DegreeBound *bd){
+	     Network *nwp,
+	     int *attribs, int *maxout, int *maxin, 
+	     int *minout, int *minin, int condAllDegExact, 
+	     int attriblength){
 
   char *fn, *sn;
   int i;
@@ -37,21 +41,26 @@ void MH_init(MHproposal *MH,
   sn[i]='\0';
   
   /* Search for the MH proposal function pointer */
-  MH->func=(void (*)(MHproposal*, DegreeBound*, Network*)) R_FindSymbol(fn,sn,NULL);
-  if(MH->func==NULL){
+  MHp->func=(void (*)(MHproposal*, Network*)) R_FindSymbol(fn,sn,NULL);
+  if(MHp->func==NULL){
     error("Error in MH_* initialization: could not find function %s in "
 	  "namespace for package %s."
 	  "Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
-  }      
+  }
+
+  MHp->inputs=inputs;
+
+  MHp->bd=DegreeBoundInitialize(attribs, maxout, maxin, minout, minin,
+			       condAllDegExact, attriblength, nwp);
   
   /*Clean up by freeing sn and fn*/
   free((void *)fn);
   free((void *)sn);
 
-  MH->ntoggles=0;
-  (*(MH->func))(MH, bd, nwp); /* Call MH proposal function to initialize */
-  MH->togglehead = (Vertex *)malloc(MH->ntoggles * sizeof(Vertex));
-  MH->toggletail = (Vertex *)malloc(MH->ntoggles * sizeof(Vertex));
+  MHp->ntoggles=0;
+  (*(MHp->func))(MHp, nwp); /* Call MH proposal function to initialize */
+  MHp->togglehead = (Vertex *)malloc(MHp->ntoggles * sizeof(Vertex));
+  MHp->toggletail = (Vertex *)malloc(MHp->ntoggles * sizeof(Vertex));
 }
 
 /*********************
@@ -59,9 +68,10 @@ void MH_init(MHproposal *MH,
 
  A helper function to free memory allocated by MH_init.
 *********************/
-void MH_free(MHproposal *MH){
-  free(MH->togglehead);
-  free(MH->toggletail);
+void MH_free(MHproposal *MHp){
+  if(MHp->bd)DegreeBoundDestroy(MHp->bd);
+  free(MHp->togglehead);
+  free(MHp->toggletail);
 }
 
 /***********************
@@ -143,9 +153,10 @@ void DegreeBoundDestroy(DegreeBound *bd)
 /********************
  int CheckTogglesValid
 ********************/
-int CheckTogglesValid(MHproposal *MHp, DegreeBound *bd, Network *nwp) {
+int CheckTogglesValid(MHproposal *MHp, Network *nwp) {
   int fvalid;
   int i;
+  DegreeBound *bd=MHp->bd;
 
   if(!bd) return 1;
 
@@ -269,10 +280,11 @@ int CheckTogglesValid(MHproposal *MHp, DegreeBound *bd, Network *nwp) {
   return fvalid;
 }
 
-int CheckConstrainedTogglesValid(MHproposal *MHp, DegreeBound *bd, Network *nwp)
+int CheckConstrainedTogglesValid(MHproposal *MHp, Network *nwp)
 {
   int fvalid = 1;
   int i;
+  DegreeBound *bd=MHp->bd;
 
   if(!bd) return 1;
 

@@ -8,7 +8,7 @@
    void MH_Formation
    Propose ONLY edges not in the reference graph
 ***********************/
-void MH_Formation (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
+void MH_Formation (MHproposal *MHp, Network *nwp) 
 {  
   static Vertex nnodes;
   unsigned int trytoggle;
@@ -45,7 +45,7 @@ void MH_Formation (MHproposal *MHp, DegreeBound *bd, Network *nwp)
       
     if(XNOR(EdgetreeSearch(Mhead[0],Mtail[0],nwp[0].outedges),
      EdgetreeSearch(Mhead[0],Mtail[0],nwp[1].outedges)) &&
-     CheckTogglesValid(MHp, bd, nwp)) break;
+     CheckTogglesValid(MHp, nwp)) break;
   }
 
   /* If no valid proposal found, signal a failed proposal. */
@@ -59,7 +59,7 @@ void MH_Formation (MHproposal *MHp, DegreeBound *bd, Network *nwp)
    void MH_FormationMLE
    Propose ONLY edges not in the reference graph
 ***********************/
-void MH_FormationMLE (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
+void MH_FormationMLE (MHproposal *MHp, Network *nwp) 
 {  
   static Vertex nnodes;
   unsigned int trytoggle;
@@ -99,7 +99,7 @@ void MH_FormationMLE (MHproposal *MHp, DegreeBound *bd, Network *nwp)
       
     if((!EdgetreeSearch(Mhead[0],Mtail[0],nwp[0].outedges)|
         !EdgetreeSearch(Mhead[0],Mtail[0],nwp[2].outedges)) &&
-	    CheckTogglesValid(MHp, bd, nwp)) break;
+	    CheckTogglesValid(MHp, nwp)) break;
   }
 
   /* If no valid proposal found, signal a failed proposal. */
@@ -113,7 +113,7 @@ void MH_FormationMLE (MHproposal *MHp, DegreeBound *bd, Network *nwp)
    void MH_DissolutionMLE
    Propose ONLY edges not in the reference graph
 ***********************/
-void MH_DissolutionMLE (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
+void MH_DissolutionMLE (MHproposal *MHp, Network *nwp) 
 {  
   static Vertex nnodes;
   unsigned int trytoggle;
@@ -153,7 +153,7 @@ void MH_DissolutionMLE (MHproposal *MHp, DegreeBound *bd, Network *nwp)
       
     if(( EdgetreeSearch(Mhead[0],Mtail[0],nwp[0].outedges)|
          EdgetreeSearch(Mhead[0],Mtail[0],nwp[2].outedges)) &&
-	    CheckTogglesValid(MHp, bd, nwp)) break;
+	    CheckTogglesValid(MHp, nwp)) break;
   }
 
   /* If no valid proposal found, signal a failed proposal. */
@@ -167,7 +167,7 @@ void MH_DissolutionMLE (MHproposal *MHp, DegreeBound *bd, Network *nwp)
    void MH_FormationNonObservedMLE
    Propose ONLY edges not in the reference graph
 ***********************/
-void MH_FormationNonObservedMLE (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
+void MH_FormationNonObservedMLE (MHproposal *MHp, Network *nwp) 
 {  
   static Vertex nnodes;
   unsigned int trytoggle;
@@ -210,7 +210,7 @@ void MH_FormationNonObservedMLE (MHproposal *MHp, DegreeBound *bd, Network *nwp)
       
     if((!EdgetreeSearch(Mhead[0],Mtail[0],nwp[0].outedges)|
         !EdgetreeSearch(Mhead[0],Mtail[0],nwp[2].outedges)) &&
-	    CheckTogglesValid(MHp, bd, nwp)) break;
+	    CheckTogglesValid(MHp, nwp)) break;
   }
 
   /* If no valid proposal found, signal a failed proposal. */
@@ -224,7 +224,7 @@ void MH_FormationNonObservedMLE (MHproposal *MHp, DegreeBound *bd, Network *nwp)
    void MH_DissolutionNonObservedMLE
    Propose ONLY edges not in the reference graph
 ***********************/
-void MH_DissolutionNonObservedMLE (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
+void MH_DissolutionNonObservedMLE (MHproposal *MHp, Network *nwp) 
 {  
   static Vertex nnodes;
   unsigned int trytoggle;
@@ -267,7 +267,7 @@ void MH_DissolutionNonObservedMLE (MHproposal *MHp, DegreeBound *bd, Network *nw
       
     if(( EdgetreeSearch(Mhead[0],Mtail[0],nwp[0].outedges)|
          EdgetreeSearch(Mhead[0],Mtail[0],nwp[2].outedges)) &&
-	    CheckTogglesValid(MHp, bd, nwp)) break;
+	    CheckTogglesValid(MHp, nwp)) break;
   }
 
   /* If no valid proposal found, signal a failed proposal. */
@@ -285,7 +285,7 @@ void MH_DissolutionNonObservedMLE (MHproposal *MHp, DegreeBound *bd, Network *nw
    networks
    Propose ONLY edges not in the reference graph
 ***********************/
-void MH_FormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
+void MH_FormationTNT (MHproposal *MHp, Network *nwp) 
 {  
   unsigned int trytoggle;
   Vertex head, tail;
@@ -344,7 +344,7 @@ void MH_FormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
     Mhead[0]=head;
     Mtail[0]=tail;
     
-    if(CheckTogglesValid(MHp, bd, nwp)) break;
+    if(CheckTogglesValid(MHp, nwp)) break;
   }
 //   Rprintf("nedges %d reference nddyads %d h %d t %d MHp->ratio %f\n", 
 //	    nwp[0].nedges, nwp[1].nedges, head, tail, MHp->ratio); 
@@ -363,7 +363,7 @@ void MH_FormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
    Any candidate edge must be either in nwp[0] or in nwp[1]. This makes
    proposing easy.
 ***********************/
-void MH_Dissolution (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
+void MH_Dissolution (MHproposal *MHp, Network *nwp) 
 {  
   Edge rane, nedges=nwp[0].nedges, ndedges=nwp[1].nedges;
   unsigned int trytoggle;
@@ -385,10 +385,10 @@ void MH_Dissolution (MHproposal *MHp, DegreeBound *bd, Network *nwp)
     rane = 1 + unif_rand() * (nedges+ndedges);
     if(rane<=nedges){
       FindithEdge(Mhead, Mtail, rane, nwp);
-      if(EdgetreeSearch(Mhead[0],Mtail[0],nwp[1].outedges)==0 && CheckTogglesValid(MHp, bd, nwp)) break;
+      if(EdgetreeSearch(Mhead[0],Mtail[0],nwp[1].outedges)==0 && CheckTogglesValid(MHp, nwp)) break;
     }else{
       FindithEdge(Mhead, Mtail, rane-nedges, nwp+1);
-      if(EdgetreeSearch(Mhead[0],Mtail[0],nwp[0].outedges)==0 && CheckTogglesValid(MHp, bd, nwp)) break;
+      if(EdgetreeSearch(Mhead[0],Mtail[0],nwp[0].outedges)==0 && CheckTogglesValid(MHp, nwp)) break;
     }
   }
 
@@ -407,7 +407,7 @@ void MH_Dissolution (MHproposal *MHp, DegreeBound *bd, Network *nwp)
    void MH_BipartiteFormation
    Propose ONLY edges not in the reference graph
 ***********************/
-void MH_BipartiteFormation (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
+void MH_BipartiteFormation (MHproposal *MHp, Network *nwp) 
 {  
   static Edge nnodes;
   static Edge nb1;
@@ -437,7 +437,7 @@ void MH_BipartiteFormation (MHproposal *MHp, DegreeBound *bd, Network *nwp)
     Mtail[0] = 1 + nb1 + unif_rand() * (nnodes - nb1);
     if(XNOR(EdgetreeSearch(Mhead[0],Mtail[0],nwp[0].outedges),
 	    EdgetreeSearch(Mhead[0],Mtail[0],nwp[1].outedges)) &&
-       CheckTogglesValid(MHp, bd, nwp)) break;
+       CheckTogglesValid(MHp, nwp)) break;
   }
   
   /* If no valid proposal found, signal a failed proposal. */
@@ -459,7 +459,7 @@ void MH_BipartiteFormation (MHproposal *MHp, DegreeBound *bd, Network *nwp)
    networks
    Propose ONLY edges not in the reference graph
 ***********************/
-void MH_BipartiteFormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
+void MH_BipartiteFormationTNT (MHproposal *MHp, Network *nwp) 
 {  
   unsigned int trytoggle;
   Vertex head, tail;
@@ -519,7 +519,7 @@ void MH_BipartiteFormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
     Mhead[0] = head;
     Mtail[0] = tail;
     
-    if(CheckTogglesValid(MHp, bd, nwp)) break;
+    if(CheckTogglesValid(MHp, nwp)) break;
   }
   
   /* If no valid proposal found, signal a failed proposal. */
@@ -534,8 +534,8 @@ void MH_BipartiteFormationTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
    Propose ONLY edges in the reference graph
    See MH_Dissolution --- the code turns out to be identical.
 ***********************/
-void MH_BipartiteDissolution (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
+void MH_BipartiteDissolution (MHproposal *MHp, Network *nwp) 
 {  
-  MH_Dissolution(MHp,bd,nwp);
+  MH_Dissolution(MHp, nwp);
   return;
 }

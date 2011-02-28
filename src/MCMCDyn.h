@@ -24,7 +24,7 @@ void MCMCDyn_init_common(int *heads, int *tails, int n_edges,
 				  int D_nterms, char *D_funnames, char *D_sonames, double *D_inputs, Model **D_m,
 				  
 				  int *attribs, int *maxout, int *maxin, int *minout,
-				  int *minin, int condAllDegExact, int attriblength, DegreeBound **bd,
+				  int *minin, int condAllDegExact, int attriblength, 
 
 				  char *F_MHproposaltype, char *F_MHproposalpackage, MHproposal *F_MH,
 				  char *D_MHproposaltype, char *D_MHproposalpackage, MHproposal *D_MH,
@@ -32,13 +32,9 @@ void MCMCDyn_init_common(int *heads, int *tails, int n_edges,
 
 
 void MCMCDyn_finish_common(Network *nw,
-
-				    Model *F_m,
-				    Model *D_m,
-				  
-				    DegreeBound *bd,
-
-				    MHproposal *F_MH,
+			   Model *F_m,
+			   Model *D_m,
+			   MHproposal *F_MH,
 			   MHproposal *D_MH);
 
 void MCMCDyn_wrapper(// Starting network.
@@ -76,8 +72,6 @@ void MCMCSampleDyn(// Observed and discordant network.
 		   Model *F_m, MHproposal *F_MH, double *theta,
 		   // Dissolution terms and proposals.
 		   Model *D_m, MHproposal *D_MH, double *gamma,
-		   // Degree bounds.
-		   DegreeBound *bd,
 		   // Space for output.
 		   double *F_stats, double *D_stats,// Do we still need these?
 		   Edge nmax,
@@ -92,7 +86,6 @@ void MCMCDyn1Step(Network *nwp,
 		  DynamOrder order,
 		  Model *F_m, MHproposal *F_MH, double *theta,
 		  Model *D_m, MHproposal *D_MH, double *gamma,
-		  DegreeBound *bd,
 		  unsigned log_toggles,
 		  double *F_stats, double *D_stats,
 		  unsigned int nmax, Edge *nextdiffedge,

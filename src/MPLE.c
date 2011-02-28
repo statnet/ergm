@@ -44,7 +44,7 @@ void MPLE_wrapper (int *heads, int *tails, int *dnedges,
   GetRNGstate(); /* Necessary for R random number generator */
   nw[0]=NetworkInitialize(heads, tails, n_edges,
                           n_nodes, directed_flag, bip, 0);
-  m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
+  m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
   
   hammingterm=ModelTermHamming (*funnames, *nterms);
   if(hammingterm>0){

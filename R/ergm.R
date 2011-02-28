@@ -58,7 +58,6 @@
 #       <ergm.robmon>      = &
 #       <ergm.mapl>        = #
 #       <ergm.maple>       = ~
-#       <ergm.PILA>        = +
 #
 #   the components include:
 #
@@ -120,23 +119,20 @@
 #         &      rm.coef         :  the robmon coefficients used as 'theta0' in the final
 #                                   estimation
 #          #~    aic             :  the Akaike information criterion value
-#             +  PILA.coef       :  the theta params chosen by the PILA sampler and
-#                                   used as the initial theta vector in <ergm.getMCMCsample>
-#             + PILA.hist        :  a list with the 'statsmatrix' and 'etamatrix' returned
-#                                   by <ergm.runPILAsampler>
 #      !   #~   loglikelihoodratio: the log-likelihood corresponding to
 #                                   'coef'
 #
 #####################################################################################    
 
-ergm <- function(formula, theta0="MPLE",
+ergm <- function(formula, response=NULL, theta0="MPLE",
                  MPLEonly=FALSE, MLestimate=!MPLEonly, seed=NULL,
                  burnin=10000, MCMCsamplesize=10000, interval=100,
                  maxit=3,
+                 reference="Bernoulli",
                  constraints=~.,
                  meanstats=NULL,
                  control=control.ergm(),
-                 verbose=FALSE, ...) {
+                 verbose=FALSE,...) {
   current.warn <- options()$warn
   options(warn=0)
   if(!is.null(seed))  set.seed(as.integer(seed))
@@ -250,12 +246,19 @@ ergm <- function(formula, theta0="MPLE",
    MLestimate=!MPLEonly
   }}else{
    nwm <- network.copy(nw)
-   MHproposal.miss <- "randomtoggleNonObserved"
+   # There may be a better way to specify this in the future.
+   if(length(reference)>1){
+     if(tolower(reference[2])=="ranks")
+       MHproposal.miss <- ergm.update.formula(constraints,~.+ranks)
+   }else{
+     # That is, whatever the constraints already imposed, but also only toggle observed.
+     MHproposal.miss <- ergm.update.formula(constraints,~.+observed)
+   }
   }
   # End conditional MLE in dynamic model
   if(!is.null(meanstats)){
    if(!(!is.null(control$SAN.burnin) && is.na(control$SAN.burnin))){
-    netsumm<-summary(formula)
+    netsumm<-summary(formula,response=response)
     if(length(netsumm)!=length(meanstats))
       stop("Incorrect length of the meanstats vector: should be ", length(netsumm), " but is ",length(meanstats),".")
     
@@ -265,7 +268,9 @@ ergm <- function(formula, theta0="MPLE",
     ## If meanstats are given, overwrite the given network and formula
     ## with SAN-ed network and formula.
     nw<-san(formula, meanstats=meanstats,
-            theta0=if(is.numeric(theta0)) theta0, 
+            theta0=if(is.numeric(theta0)) theta0,
+            response=response,
+            reference=reference,
             constraints=constraints,
             verbose=verbose,
             burnin=
@@ -277,7 +282,7 @@ ergm <- function(formula, theta0="MPLE",
      cat("Original meanstats:\n")
      print(meanstats)
      cat("SAN meanstats - Original meanstats:\n")
-     print(summary(formula, basis=nw)-meanstats)
+     print(summary(formula,response=response, basis=nw)-meanstats)
     }
    }
   }
@@ -286,22 +291,22 @@ ergm <- function(formula, theta0="MPLE",
   if (verbose) cat("Initializing model.\n")
 
   if(control$drop){
-    model.initial <- ergm.getmodel(formula, nw, drop=FALSE, initialfit=TRUE)
-    model.initial.drop <- ergm.getmodel(formula, nw, drop=TRUE, initialfit=TRUE)
-    namesmatch <- match(model.initial$coef.names, model.initial.drop$coef.names)
-    droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
-    droppedterms[is.na(namesmatch)] <- TRUE
-    model.initial$etamap$offsettheta[is.na(namesmatch)] <- TRUE
-    model.initial$etamap$offsetmap[model.initial$etamap$canonical[droppedterms & (model.initial$etamap$canonical>0)]] <- TRUE
+   model.initial <- ergm.getmodel(formula, nw, response=response, drop=FALSE, initialfit=TRUE)
+   model.initial.drop <- ergm.getmodel(formula, nw, response=response, drop=TRUE, initialfit=TRUE)
+   namesmatch <- match(model.initial$coef.names, model.initial.drop$coef.names)
+   droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
+   droppedterms[is.na(namesmatch)] <- TRUE
+   model.initial$etamap$offsettheta[is.na(namesmatch)] <- TRUE
+   model.initial$etamap$offsetmap[model.initial$etamap$canonical[droppedterms & (model.initial$etamap$canonical>0)]] <- TRUE
   }else{
-    model.initial <- ergm.getmodel(formula, nw, drop=control$drop, initialfit=TRUE)
-    droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
+   model.initial <- ergm.getmodel(formula, nw, response=response, drop=control$drop, initialfit=TRUE)
+   droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
   }
   if (verbose) { cat("Initializing Metropolis-Hastings proposal.\n") }
 
-  MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial,class=proposalclass)
+  MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial,class=proposalclass,reference=reference,response=response)
   # Note:  MHproposal function in CRAN version does not use the "class" argument for now
-  MHproposal.miss <- MHproposal(MHproposal.miss, control$prop.args, nw, model.initial)
+  MHproposal.miss <- try(MHproposal(MHproposal.miss, weights=control$prop.weights, control$prop.args, nw, model.initial, class=proposalclass, reference=reference, response=response))                         
 
   conddeg <- switch(MHproposal$name=="CondDegree",control$drop,NULL)
   MCMCparams=c(control,
@@ -311,6 +316,7 @@ ergm <- function(formula, theta0="MPLE",
 
 
   if (verbose) { cat("Fitting initial model.\n") }
+  if(reference!="Bernoulli" && theta0=="MPLE") stop("MPLE initial values are not implemented for weithed network ERGMs. Please specify theta0 manually.")
   theta0copy <- theta0
   initialfit <- ergm.initialfit(theta0=theta0copy, MLestimate=MLestimate, 
                                 formula=formula, nw=nwm, meanstats=meanstats,
@@ -318,7 +324,7 @@ ergm <- function(formula, theta0="MPLE",
                                 MPLEtype=control$MPLEtype, 
                                 initial.loglik=control$initial.loglik,
                                 conddeg=conddeg, MCMCparams=MCMCparams, MHproposal=MHproposal,
-                                force.MPLE=(ergm.independencemodel(model.initial)
+                                force.MPLE=(reference=="Bernoulli" && ergm.independencemodel(model.initial)
                                             && !control$force.mcmc
                                             && constraints==(~.)),
                                 verbose=verbose, 
@@ -328,7 +334,7 @@ ergm <- function(formula, theta0="MPLE",
   MCMCflag <- ((MLestimate && (!ergm.independencemodel(model.initial)
                                || !is.null(meanstats)
                                || constraints!=(~.)))
-                || control$force.mcmc)
+                || control$force.mcmc || reference!="Bernoulli")
   if (MCMCflag) {
     theta0 <- initialfit$coef
     names(theta0) <- model.initial$coef.names
@@ -337,6 +343,7 @@ ergm <- function(formula, theta0="MPLE",
     initialfit$offset <- model.initial$etamap$offsettheta
     initialfit$drop <- droppedterms
     initialfit$network <- nw
+    initialfit$reference <- reference
     initialfit$newnetwork <- nw
     initialfit$formula <- formula
     initialfit$constraints <- constraints
@@ -345,10 +352,10 @@ ergm <- function(formula, theta0="MPLE",
     return(initialfit)
   } 
   if(control$drop){
-   model <- ergm.getmodel(formula, nw, drop=FALSE, expanded=TRUE, silent=TRUE)
+   model <- ergm.getmodel(formula, nw, response=response, drop=FALSE, expanded=TRUE, silent=TRUE)
    # revise theta0 to reflect additional parameters
    theta0 <- ergm.revisetheta0(model, theta0)
-   model.drop <- ergm.getmodel(formula, nw, drop=TRUE, expanded=TRUE, silent=TRUE)
+   model.drop <- ergm.getmodel(formula, nw, response=response, drop=TRUE, expanded=TRUE, silent=TRUE)
 #            silent="MPLE" %in% theta0copy)
    eta0 <- ergm.eta(theta0, model$etamap)
    namesdrop <- model$coef.names[is.na(match(model$coef.names, model.drop$coef.names))]
@@ -359,22 +366,23 @@ ergm <- function(formula, theta0="MPLE",
    model$etamap$offsettheta[names(model$etamap$offsettheta) %in% namesdrop] <- TRUE
    model$etamap$offsetmap[model$etamap$canonical[droppedterms & (model$etamap$canonical>0)]] <- TRUE
   }else{
-   model <- ergm.getmodel(formula, nw, drop=control$drop, expanded=TRUE)
+   model <- ergm.getmodel(formula, nw, response=response, drop=control$drop, expanded=TRUE)
    # revise theta0 to reflect additional parameters
    theta0 <- ergm.revisetheta0(model, theta0)
    names(model$etamap$offsettheta) <- names(theta0)
    droppedterms <- rep(FALSE, length=length(model$etamap$offsettheta))
   }
 
-  Clist <- ergm.Cprepare(nw, model)
+  Clist <- ergm.Cprepare(nw, model, response=response)
+  Clist.miss <- ergm.design(nw, model, verbose=FALSE)
   Clist.miss <- ergm.design(nw, model, verbose=FALSE)
   if((MHproposal$name!="FormationMLE")&(MHproposal$name!="DissolutionMLE")){
     Clist.dt <- list(heads=NULL, tails=NULL, nedges=0, dir=is.directed(nw))
   }else{
     Clist.dt <- ergm.Cprepare(y0, model)
   }
-  Clist$obs <- summary(model$formula, drop=FALSE)
-# Clist$obs <- summary(model$formula, drop=control$drop)
+  Clist$obs <- summary(model$formula, drop=FALSE, response=response)
+
   Clist$meanstats <- Clist$obs
   if(!is.null(meanstats)){
    if (is.null(names(meanstats))){
@@ -382,7 +390,7 @@ ergm <- function(formula, theta0="MPLE",
      names(meanstats) <- names(Clist$obs)
      Clist$meanstats <- meanstats
     }else{
-     namesmatch <- names(summary(model$formula, drop=FALSE))
+     namesmatch <- names(summary(model$formula, drop=FALSE, response=response))
      if(length(meanstats) == length(namesmatch)){
        namesmatch <- match(names(meanstats), namesmatch)
        Clist$meanstats <- meanstats[namesmatch]
@@ -402,16 +410,11 @@ ergm <- function(formula, theta0="MPLE",
                        Clist.dt=Clist.dt, 
                        mcmc.precision=control$mcmc.precision))
 
-   if (verbose) cat("Fitting ERGM.\n")
-   v <- switch(control$style,
-    "Robbins-Monro" = ergm.robmon(theta0, nw, model, Clist, 
-                                  burnin, interval,
-                      MHproposal(constraints,weights=control$prop.weights, 
-                                 control$prop.args, nw, model), verbose, control),
-    "PILA" = ergm.PILA(theta0, nw, model, Clist,
-      MHproposal(constraints,weights=control$prop.weights, control$prop.args, nw, model),
-      MCMCparams, control, verbose),
-    #  PILA stuff:  Not in CRAN version
+
+  if (verbose) cat("Fitting ERGM.\n")
+  v <- switch(control$style,
+    "Robbins-Monro" = ergm.robmon(theta0, nw, model, Clist, burnin, interval,
+                      MHproposal(constraints,weights=control$prop.weights, control$prop.args, nw, model, response=response), verbose, control),
     "Stochastic-Approximation" = ergm.stocapprox(theta0, nw, model, 
                                  Clist, 
                                  MCMCparams=MCMCparams, MHproposal=MHproposal,
@@ -429,7 +432,8 @@ ergm <- function(formula, theta0="MPLE",
                           initialfit,
                           MCMCparams=MCMCparams, MHproposal=MHproposal,
                           MHproposal.miss=MHproposal.miss,
-                          verbose=verbose, 
+                          verbose=verbose,
+                      response=response,
                           ...)
               )
 
@@ -451,6 +455,9 @@ ergm <- function(formula, theta0="MPLE",
   v$constraints <- constraints
   v$prop.args <- control$prop.args
   v$prop.weights <- control$prop.weights
+
+  v$response<-response
+  v$reference<-reference
 
   v$offset <- model$etamap$offsettheta
   v$drop <- droppedterms

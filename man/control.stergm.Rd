@@ -6,7 +6,7 @@
 
 }
 \usage{
-control.stergm(prop.weights.form = "default", prop.args.form = NULL, prop.weights.diss = "default", prop.args.diss = NULL, compress = FALSE, SAN.burnin = 10000, SAN.interval = 1000, maxNumDyadTypes = 1e+06, maxedges = 20000, maxchanges = 1e+06, maxMPLEsamplesize = 1e+05, MPLEtype = c("glm", "penalized"), trace = 0, sequential = TRUE, drop = TRUE, style = c("Robbins-Monro", "SPSA", "SPSA2", "Nelder-Mead"), RM.phase1n_base = 7, RM.phase2n_base = 100, RM.phase2sub = 4, RM.init_gain = 0.5, RM.interval = 100, RM.burnin = 1000, PILA.gamma = 0.99, PILA.steplength = 0.1, SPSA.a = 1, SPSA.alpha = 0.602, SPSA.A = 100, SPSA.c = 1, SPSA.gamma = 0.101, SPSA.iterations = 1000, SPSA.interval = 1000, SPSA.burnin = 1000, NM.abstol = 0, NM.reltol = sqrt(.Machine$double.eps), NM.alpha = 1, NM.beta = 0.5, NM.gamma = 2, NM.maxit = 500, NM.interval = 1000, NM.burnin = 1000, packagenames = "ergm", parallel = 0)
+control.stergm(prop.weights.form = "default", prop.args.form = NULL, prop.weights.diss = "default", prop.args.diss = NULL, compress = FALSE, SAN.burnin = 10000, SAN.interval = 1000, maxNumDyadTypes = 1e+06, maxedges = 20000, maxchanges = 1e+06, maxMPLEsamplesize = 1e+05, MPLEtype = c("glm", "penalized"), trace = 0, sequential = TRUE, drop = TRUE, style = c("Robbins-Monro", "SPSA", "SPSA2", "Nelder-Mead"), RM.phase1n_base = 7, RM.phase2n_base = 100, RM.phase2sub = 4, RM.init_gain = 0.5, RM.interval = 100, RM.burnin = 1000, SPSA.a = 1, SPSA.alpha = 0.602, SPSA.A = 100, SPSA.c = 1, SPSA.gamma = 0.101, SPSA.iterations = 1000, SPSA.interval = 1000, SPSA.burnin = 1000, NM.abstol = 0, NM.reltol = sqrt(.Machine$double.eps), NM.alpha = 1, NM.beta = 0.5, NM.gamma = 2, NM.maxit = 500, NM.interval = 1000, NM.burnin = 1000, packagenames = "ergm", parallel = 0)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -115,11 +115,6 @@ control.stergm(prop.weights.form = "default", prop.args.form = NULL, prop.weight
   \item{RM.burnin}{the number of MCMC steps to disregard for the burn-in
                       period; default=1000
 }
-  \item{PILA.gamma}{??
-}
-  \item{PILA.steplength}{
-??
-}
   \item{SPSA.a,SPSA.alpha,SPSA.A,SPSA.c,SPSA.gamma}{ Controls the rate
                       of decay of SPSA gain as
                            SPSA.c/(i+1)^(SPSA.gamma)
@@ -220,7 +215,7 @@ function (prop.weights.form = "default", prop.args.form = NULL,
     drop = TRUE, style = c("Robbins-Monro", "SPSA", "SPSA2", 
         "Nelder-Mead"), RM.phase1n_base = 7, RM.phase2n_base = 100, 
     RM.phase2sub = 4, RM.init_gain = 0.5, RM.interval = 100, 
-    RM.burnin = 1000, PILA.gamma = 0.99, PILA.steplength = 0.1, 
+    RM.burnin = 1000, 
     SPSA.a = 1, SPSA.alpha = 0.602, SPSA.A = 100, SPSA.c = 1, 
     SPSA.gamma = 0.101, SPSA.iterations = 1000, SPSA.interval = 1000, 
     SPSA.burnin = 1000, NM.abstol = 0, NM.reltol = sqrt(.Machine$double.eps), 

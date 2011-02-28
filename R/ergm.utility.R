@@ -424,16 +424,25 @@ function(x, alternative = c("two.sided", "less", "greater"),
 #  out
 #}
 
-
-
-newnw.extract<-function(oldnw,z,output="network"){
-  nedges<-z$newnwtails[1]
-  # *** don't forget - edgelists are cbind(tails, heads) now
-  newedgelist <-
-    if(nedges>0) cbind(z$newnwtails[2:(nedges+1)],z$newnwheads[2:(nedges+1)])
-    else matrix(0, ncol=2, nrow=0)
+newnw.extract<-function(oldnw,z,output="network",response=NULL){
+  if("newedgelist" %in% names(z)){
+    newedgelist<-z$newedgelist[,1:2,drop=FALSE]
+    if(!is.null(response))
+       newnwweights<-z$newedgelist[,3]
+  }else{
+    nedges<-z$newnwtails[1]
+    # *** don't forget - edgelists are cbind(tails, heads) now
+    newedgelist <-
+      if(nedges>0) cbind(z$newnwtails[2:(nedges+1)],z$newnwheads[2:(nedges+1)])
+      else matrix(0, ncol=2, nrow=0)
+    newnwweights <- z$newnwweights[2:(nedges+1)]
+  }
   
-  network.update(oldnw,newedgelist,"edgelist",output=output)
+  newnw<-network.update(oldnw,newedgelist,"edgelist",output=output)
+  if(!is.null(response)){
+    newnw<-set.edge.attribute(newnw,attrname=response,newnwweights)
+  }
+  newnw
 }
 
 

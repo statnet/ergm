@@ -64,7 +64,7 @@
 #   initial.loglik   : an initial value for the log-likelihood; default=NULL
 #   initial.network  : an initial network for the MCMC procedure; default=NULL
 #   style            : the style of ML estimation to use, as one of "Newton-Raphson",
-#                      "Robbins-Monro", "Stochastic-Approximation","Stepping" or "PILA";
+#                      "Robbins-Monro", "Stochastic-Approximation","Stepping";
 #                      default="Robbins-Monro"
 #   style.dyn        : the style of method of moments estimation to use, as "Robbins-Monro",
 #                      "SPSA" or "SPSA2"; "Robbins-Monro" should only be used if it is
@@ -99,8 +99,6 @@
 #                      base portion of 'phase2n', which is added to 7+(the number
 #                      of formation coefficients) to form 'phase2n'; default=100
 #   RobMon.phase3n   :  ??, i couldn't find this used anywhere; default=500
-#   PILA.gamma       :  ?? ; default=.99
-#   PILA.steplength  :  ?? ; default=.1
 #   SPSA.iterations  : the number of iterations to use in the SPSA sampling
 #   SPSA.a           : see the next 2 params; default=1
 #   SPSA.alpha       : see the next 2 params; default=.602
@@ -163,7 +161,7 @@ control.ergm<-function(prop.weights="default",prop.args=NULL,
                        initial.loglik=NULL,
                        initial.network=NULL,
                        style=c("Newton-Raphson","Robbins-Monro",
-                               "Stochastic-Approximation","Stepping","PILA"),
+                               "Stochastic-Approximation","Stepping"),
                        style.dyn=c("Robbins-Monro","SPSA", "SPSA2"),
                        phase1_n=NULL, initial_gain=NULL, 
                        nsubphases="maxit", niterations=NULL, phase3_n=NULL,
@@ -172,8 +170,6 @@ control.ergm<-function(prop.weights="default",prop.args=NULL,
                        RobMon.phase2sub=7,
                        RobMon.init_gain=0.5,
                        RobMon.phase3n=500,
-                       PILA.gamma=.99,
-                       PILA.steplength=.1,
                        SPSA.a=1,
                        SPSA.alpha=0.602,
                        SPSA.A=100,

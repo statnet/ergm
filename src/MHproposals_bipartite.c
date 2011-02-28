@@ -10,7 +10,7 @@
 
  Default MH algorithm for bipartite networks
 *********************/
-void MH_Bipartiterandomtoggle (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {  
+void MH_Bipartiterandomtoggle (MHproposal *MHp, Network *nwp)  {  
   
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
@@ -26,7 +26,7 @@ void MH_Bipartiterandomtoggle (MHproposal *MHp, DegreeBound *bd, Network *nwp)  
    void MH_BipartiteConstantEdges
    Chooses a pair of toggles - one a tie and one not. 
 ***********************/
-void MH_BipartiteConstantEdges (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {  
+void MH_BipartiteConstantEdges (MHproposal *MHp, Network *nwp)  {  
   Vertex head, tail;
   
   if(MHp->ntoggles == 0) { /* Initialize */
@@ -59,7 +59,7 @@ void MH_BipartiteConstantEdges (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
    to simple random toggles that rarely do so in sparse 
    networks
 ***********************/
-void MH_BipartiteTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
+void MH_BipartiteTNT (MHproposal *MHp, Network *nwp) 
 {  
   Vertex head, tail;
   Edge rane, nedges=nwp->nedges;
@@ -103,7 +103,7 @@ void MH_BipartiteTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
                                   1.0 + (odds*ndyads)/(nedges + 1));
       }
     }
-    if(CheckTogglesValid(MHp, bd, nwp)) break;
+    if(CheckTogglesValid(MHp, nwp)) break;
   }
   
   /* If tries ran out, return failure code. */
@@ -120,7 +120,7 @@ void MH_BipartiteTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
    MSH: The name Hamming is a hack for the Hamming proposals
         It is no different the MH_BipartiteConstantEdges
 ***********************/
-void MH_BipartiteHammingConstantEdges (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
+void MH_BipartiteHammingConstantEdges (MHproposal *MHp, Network *nwp) 
 {  
   Vertex head, tail;
   Edge rane, nedges=nwp[0].nedges, nddyads=nwp[1].nedges;
@@ -213,7 +213,7 @@ void MH_BipartiteHammingConstantEdges (MHproposal *MHp, DegreeBound *bd, Network
    MSH: The name Hamming is a hack for the Hamming proposals
         It is no different the MH_BipartiteTNT
 ***********************/
-void MH_BipartiteHammingTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
+void MH_BipartiteHammingTNT (MHproposal *MHp, Network *nwp) 
 {  
   Vertex head, tail;
   Edge rane, nddyads=nwp[1].nedges;
@@ -277,7 +277,7 @@ void MH_BipartiteHammingTNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
  deg(H) stays the same while deg(T) and deg(A) swap
  with one another.
 *********************/
-void MH_BipartiteCondDegreeDist (MHproposal *MHp, DegreeBound *bd, Network *nwp) {  
+void MH_BipartiteCondDegreeDist (MHproposal *MHp, Network *nwp) {  
   int valid, count;
   Edge e;
   Vertex H, T, A, Hin, Hout, Tdeg, Adeg, minA, maxA, i, k;
@@ -385,7 +385,7 @@ void MH_BipartiteCondDegreeDist (MHproposal *MHp, DegreeBound *bd, Network *nwp)
 }
 
 
-void MH_BipartiterandomtoggleNonObserved (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {  
+void MH_BipartiterandomtoggleNonObserved (MHproposal *MHp, Network *nwp)  {  
   Edge rane;
 
   if(MHp->ntoggles == 0) { /* Initialize */
@@ -399,7 +399,7 @@ void MH_BipartiterandomtoggleNonObserved (MHproposal *MHp, DegreeBound *bd, Netw
 }
 
 /* CondDegree */
-void MH_BipartiteCondDegTetradToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {  
+void MH_BipartiteCondDegTetradToggles (MHproposal *MHp, Network *nwp)  {  
   Vertex A, B, C, D=0;
   Vertex tmpA=0, tmpB, tmpC, tmpD=0;
   int valid, n_C_nbrs, i;
@@ -467,13 +467,13 @@ void MH_BipartiteCondDegTetradToggles (MHproposal *MHp, DegreeBound *bd, Network
    Rprintf("h0 %d t1 %d\n",MHp->togglehead[3], MHp->toggletail[3]);
 }  
   
-void MH_BipartiteCondDegree (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {  
+void MH_BipartiteCondDegree (MHproposal *MHp, Network *nwp)  {  
   MHp->ratio=1.0;
   
   if(MHp->ntoggles == 0) { /* Initialize CondDeg by */
 	                   /* Choosing Hexad or Tetrad */
-    MH_BipartiteCondDegHexadToggles (MHp, bd, nwp);
-    MH_BipartiteCondDegTetradToggles (MHp, bd, nwp);
+    MH_BipartiteCondDegHexadToggles (MHp, nwp);
+    MH_BipartiteCondDegTetradToggles (MHp, nwp);
     MHp->ntoggles=4;
     return;
   }
@@ -485,12 +485,12 @@ void MH_BipartiteCondDegree (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {
   }
 
   if(MHp->ntoggles == 6) { /* Call Hexad */
-    MH_BipartiteCondDegHexadToggles (MHp, bd, nwp);
+    MH_BipartiteCondDegHexadToggles (MHp, nwp);
   }else{ /* call Tetrad */
-    MH_BipartiteCondDegTetradToggles (MHp, bd, nwp);
+    MH_BipartiteCondDegTetradToggles (MHp, nwp);
   }
 }
-void MH_BipartiteCondDegHexadToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {  
+void MH_BipartiteCondDegHexadToggles (MHproposal *MHp, Network *nwp)  {  
   int x1, x2, x3, x4, x5, x6;
   int fvalid, trynode;
   Vertex head1, head2, head3, tail1, tail2, tail3;

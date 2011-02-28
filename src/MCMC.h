@@ -21,17 +21,17 @@ void MCMC_wrapper (int *dnumnets, int *dnedges,
                    int *attribs, int *maxout, int *maxin, int *minout,
                    int *minin, int *condAllDegExact, int *attriblength, 
                    int *maxedges);
-void MCMCSample (char *MHproposaltype, char *MHproposalpackage,
+void MCMCSample (MHproposal *MH,
 		 double *theta, double *networkstatistics, 
-		 long int samplesize, long int burnin, 
-		 long int interval, int hammingterm, int fVerbose,
-	       	 Network *nwp, Model *m, DegreeBound *bd);
+		 int samplesize, int burnin, 
+		 int interval, int hammingterm, int fVerbose,
+	       	 Network *nwp, Model *m);
 void MetropolisHastings (MHproposal *MHp,
 			 double *theta, double *statistics, 
-			 long int nsteps, long int *staken,
-       int hammingterm,
-       int fVerbose,
-			 Network *nwp, Model *m, DegreeBound *bd);
+			 int nsteps, int *staken,
+			 int hammingterm,
+			 int fVerbose,
+			 Network *nwp, Model *m);
 void MCMCPhase12 (int *heads, int *tails, int *dnedges,
       int *maxpossibleedges,
 		  int *dn, int *dflag, int *bipartite, 
@@ -50,11 +50,11 @@ void MCMCPhase12 (int *heads, int *tails, int *dnedges,
 		  int *maxedges,
 		  int *mheads, int *mtails, int *mdnedges);
 
-void MCMCSamplePhase12 (char *MHproposaltype, char *MHproposalpackage,
+void MCMCSamplePhase12 (MHproposal *MH,
   double *theta, double gain, double *meanstats,
   int nphase1, int nsubphases, double *networkstatistics, 
-  long int samplesize, long int burnin, 
-  long int interval, int hammingterm, int fVerbose,
-  Network *nwp, Model *m, DegreeBound *bd);
+  int samplesize, int burnin, 
+  int interval, int hammingterm, int fVerbose,
+  Network *nwp, Model *m);
 
 #endif

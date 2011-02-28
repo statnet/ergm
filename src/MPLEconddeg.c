@@ -30,9 +30,9 @@ void MPLEconddeg_wrapper (int *heads, int *tails, int *dnedges,
   Vertex n_nodes, nmax, bip, hhead, htail;
   Edge n_edges, n_medges, nddyads, kedge;
   Network nw[2];
-  DegreeBound *bd;
   Model *m;
   ModelTerm *thisterm;
+  MHproposal MH;
   
   n_nodes = (Vertex)*dn; /* coerce double *dn to type Vertex */
   n_edges = (Edge)*dnedges; /* coerce double *dnedges to type Edge */
@@ -44,7 +44,7 @@ void MPLEconddeg_wrapper (int *heads, int *tails, int *dnedges,
   
   directed_flag = *dflag;
 
-  m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
+  m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
 
   /* Form the missing network */
   nw[0]=NetworkInitialize(heads, tails, n_edges, 
@@ -120,20 +120,20 @@ void MPLEconddeg_wrapper (int *heads, int *tails, int *dnedges,
 /*   Rprintf("Initial number (discord) from reference %d Number of original %d\n",nw[1].nedges,nw[0].nedges); */
   }
   
-  bd=DegreeBoundInitialize(attribs, maxout, maxin, minout, minin,
-			   *condAllDegExact, *attriblength, nw);
-  CondDegSampler (*MHproposaltype, *MHproposalpackage,
-	      theta0, sample, (long int)*samplesize,
-	      (long int)*burnin, (long int)*interval,
-	      hammingterm,
-	      (int)*fVerbose, nw, m, bd);
+  MH_init(&MH,
+	  *MHproposaltype, *MHproposalpackage,
+	  inputs,
+	  *fVerbose,
+	  nw, attribs, maxout, maxin, minout, minin,
+	  *condAllDegExact, *attriblength);
 
-/*   int ii;
-   double mos=0.0;
-   for(ii=0; ii < bd->attrcount; ii++) 
-     mos += bd->maxout[ii];
-   Rprintf("bd -> attrcount = %d, sum = %f\n", ii, mos); */
-        
+  CondDegSampler (&MH,
+	      theta0, sample, *samplesize,
+	      *burnin, *interval,
+	      hammingterm,
+	      *fVerbose, nw, m);
+
+  MH_free(&MH);
         
 /* Rprintf("Back! %d %d\n",nw[0].nedges, nmax); */
 
@@ -142,7 +142,7 @@ void MPLEconddeg_wrapper (int *heads, int *tails, int *dnedges,
     newnetworkheads[0]=newnetworktails[0]=EdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,nw,nmax-1);
   
   ModelDestroy(m);
-  if(bd)DegreeBoundDestroy(bd);
+
   NetworkDestroy(nw);
   if (n_medges>0 || hammingterm > 0  || formationterm > 0)
     NetworkDestroy(&nw[1]);
@@ -160,24 +160,18 @@ void MPLEconddeg_wrapper (int *heads, int *tails, int *dnedges,
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-void CondDegSampler (char *MHproposaltype, char *MHproposalpackage,
+void CondDegSampler (MHproposal *MHp,
   double *theta, double *networkstatistics, 
-  long int samplesize, long int burnin, 
-  long int interval, int hammingterm, int fVerbose,
-  Network *nwp, Model *m, DegreeBound *bd) {
-  long int staken, tottaken, ptottaken, originterval;
+  int samplesize, int burnin, 
+  int interval, int hammingterm, int fVerbose,
+  Network *nwp, Model *m) {
+  int staken, tottaken, ptottaken, originterval;
   int i, components, diam;
-  MHproposal MH;
   
   originterval = interval;
   components = diam = 0;
   nwp->duration_info.MCMCtimer=0;
   
-  MH_init(&MH,
-	  MHproposaltype, MHproposalpackage,
-	  fVerbose,
-	  nwp, bd);
-
   /*********************
   networkstatistics are modified in groups of m->n_stats, and they
   reflect the CHANGE in the values of the statistics from the
@@ -193,8 +187,8 @@ void CondDegSampler (char *MHproposaltype, char *MHproposalpackage,
    *********************/
 /*  Catch massive number of edges caused by degeneracy */
    if(nwp->nedges > (50000-1000)){burnin=1;}
-   CondDegSample(&MH, theta, networkstatistics, burnin, &staken,
-		      hammingterm, fVerbose, nwp, m, bd);  
+   CondDegSample(MHp, theta, networkstatistics, burnin, &staken,
+		      hammingterm, fVerbose, nwp, m);  
 /*   if (fVerbose){ 
        Rprintf(".");
      } */
@@ -211,8 +205,8 @@ void CondDegSampler (char *MHproposaltype, char *MHproposalpackage,
       
       /* Catch massive number of edges caused by degeneracy */
       if(nwp->nedges > (50000-1000)){interval=1;}
-      CondDegSample (&MH, theta, networkstatistics, interval, &staken,
-                           hammingterm, fVerbose, nwp, m, bd);
+      CondDegSample (MHp, theta, networkstatistics, interval, &staken,
+                           hammingterm, fVerbose, nwp, m);
       tottaken += staken;
 
 #ifdef Win32
@@ -239,16 +233,15 @@ void CondDegSampler (char *MHproposaltype, char *MHproposalpackage,
     when the chain doesn't accept many of the proposed steps.
     *********************/
     if (fVerbose){
-      Rprintf("%s sampler accepted %6.3f%% of %d proposed steps.\n",
-      MHproposaltype, tottaken*100.0/(1.0*originterval*samplesize), originterval*samplesize); 
+      Rprintf("sampler accepted %6.3f%% of %d proposed steps.\n",
+      tottaken*100.0/(1.0*originterval*samplesize), originterval*samplesize); 
     }
   }else{
     if (fVerbose){
-      Rprintf("%s sampler accepted %6.3f%% of %d proposed steps.\n",
-      MHproposaltype, staken*100.0/(1.0*burnin), burnin); 
+      Rprintf("sampler accepted %6.3f%% of %d proposed steps.\n",
+      staken*100.0/(1.0*burnin), burnin); 
     }
   }
-  MH_free(&MH);
 }
 
 /*********************
@@ -264,17 +257,17 @@ void CondDegSampler (char *MHproposaltype, char *MHproposalpackage,
 *********************/
 void CondDegSample (MHproposal *MHp,
 			 double *theta, double *networkstatistics,
-			 long int nsteps, long int *staken,
+			 int nsteps, int *staken,
 			 int hammingterm, int fVerbose,
 			 Network *nwp,
-			 Model *m, DegreeBound *bd) {
-  long int step, taken;
+			 Model *m) {
+  int step, taken;
   int i;
   
   step = taken = 0;
   while (step < nsteps) {
     MHp->ratio = 1.0;
-    (*(MHp->func))(MHp, bd, nwp); /* Call MH function to propose toggles */
+    (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
     
     /* Calculate change statistics. */
     ChangeStats(MHp->ntoggles, MHp->togglehead, MHp->toggletail, nwp, m);

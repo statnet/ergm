@@ -29,20 +29,14 @@
 # --RETURNED--
 #   MHproposal: a list containing:
 #        name   : the name of the proposal
-#        args   : NULL for all but <InitMHP.nobetweengroupties>,
-#                 where 'args' is the vector of 3 concatenated components:
-#                  1) the number of unique attribute values for the
-#                     given attribute, say a1, a2, a3.. aM
-#                  2) the table of attribute value frequencies for a1 - aM
-#                  3) a vector of node id's; those having a1, then those
-#                     having a2, ... then those having aM
+#        inputs : a vector to be passed to the proposal
 #        package: is "ergm"
 #
 ############################################################################
 
 
 InitMHP.randomtoggle <- function(arguments, nw, model) {
-  MHproposal <- list(name = "randomtoggle", args=NULL, package="ergm")
+  MHproposal <- list(name = "randomtoggle", inputs=NULL, package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "Bipartiterandomtoggle"
   }
@@ -50,7 +44,7 @@ InitMHP.randomtoggle <- function(arguments, nw, model) {
 }
 
 InitMHP.TNT <- function(arguments, nw, model) {
-  MHproposal <- list(name = "TNT", args=NULL, package="ergm")
+  MHproposal <- list(name = "TNT", inputs=NULL, package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartiteTNT"
   }
@@ -58,7 +52,7 @@ InitMHP.TNT <- function(arguments, nw, model) {
 }
 
 InitMHP.TNT10 <- function(arguments, nw, model) {
-  MHproposal <- list(name = "TNT10", args=NULL, package="ergm")
+  MHproposal <- list(name = "TNT10", inputs=NULL, package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartiteTNT"
   }
@@ -66,7 +60,7 @@ InitMHP.TNT10 <- function(arguments, nw, model) {
 }
 
 InitMHP.CondDegree <- function(arguments, nw, model) {
-  MHproposal <- list(name = "CondDegree", args=NULL, package="ergm")
+  MHproposal <- list(name = "CondDegree", inputs=NULL, package="ergm")
   if (is.directed(nw)) {
     cat("Warning:  Using the 'degree' constraint with a directed network\n",
           "is currently perilous.  We recommend that you use 'outdegree' or\n",
@@ -79,7 +73,7 @@ InitMHP.CondDegree <- function(arguments, nw, model) {
 }
 
 InitMHP.CondDegreeTetrad <- function(arguments, nw, model) {
-  MHproposal <- list(name = "CondDegreeTetradToggles", args=NULL, package="ergm")
+  MHproposal <- list(name = "CondDegreeTetradToggles", inputs=NULL, package="ergm")
   if (is.directed(nw)) {
     cat("Warning:  Using the 'degree' constraint with a directed network\n",
           "is currently perilous.  We recommend that you use 'outdegree' or\n",
@@ -92,7 +86,7 @@ InitMHP.CondDegreeTetrad <- function(arguments, nw, model) {
 }
 
 InitMHP.CondDegreeHexad <- function(arguments, nw, model) {
-  MHproposal <- list(name = "CondDegreeHexadToggles", args=NULL, package="ergm")
+  MHproposal <- list(name = "CondDegreeHexadToggles", inputs=NULL, package="ergm")
   if (is.directed(nw)) {
     cat("Warning:  Using the 'degree' constraint with a directed network\n",
           "is currently perilous.  We recommend that you use 'outdegree' or\n",
@@ -105,7 +99,7 @@ InitMHP.CondDegreeHexad <- function(arguments, nw, model) {
 }
 
 InitMHP.CondDegreeDist <- function(arguments, nw, model) {
-  MHproposal <- list(name = "CondDegreeDist", args=NULL, package="ergm")
+  MHproposal <- list(name = "CondDegreeDist", inputs=NULL, package="ergm")
   if (is.directed(nw)) {
     cat("Warning:  Using the 'degreedist' constraint with a directed network\n",
           "is currently perilous.  We recommend that you use 'outdegree' or\n",
@@ -118,7 +112,7 @@ InitMHP.CondDegreeDist <- function(arguments, nw, model) {
 }
 
 InitMHP.CondInDegreeDist <- function(arguments, nw, model) {
-  MHproposal <- list(name = "CondInDegreeDist", args=NULL, package="ergm")
+  MHproposal <- list(name = "CondInDegreeDist", inputs=NULL, package="ergm")
   if (!is.directed(nw)) {
     cat("Warning:  Using the 'indegreedist' constraint with an undirected network\n",
           "is currently perilous.  We recommend that you use 'degreedist'\n",
@@ -131,7 +125,7 @@ InitMHP.CondInDegreeDist <- function(arguments, nw, model) {
 }
 
 InitMHP.CondOutDegreeDist <- function(arguments, nw, model) {
-  MHproposal <- list(name = "CondOutDegreeDist", args=NULL, package="ergm")
+  MHproposal <- list(name = "CondOutDegreeDist", inputs=NULL, package="ergm")
   if (!is.directed(nw)) {
     cat("Warning:  Using the 'outdegreedist' constraint with an undirected network\n",
           "is currently perilous.  We recommend that you use 'degreedist'\n",
@@ -144,7 +138,7 @@ InitMHP.CondOutDegreeDist <- function(arguments, nw, model) {
 }
 
 #InitMHP.CondOutDegree <- function(arguments, nw, model) {
-#  MHproposal <- list(name = "CondOutDegree", args=NULL, package="ergm")
+#  MHproposal <- list(name = "CondOutDegree", inputs=NULL, package="ergm")
 #  if (!is.directed(nw)) {
 #    cat("Warning:  The 'outdegree' constraint does not work with an\n",
 #          "undirected network.  Switching to 'degree' constraint.\n")
@@ -154,7 +148,7 @@ InitMHP.CondOutDegreeDist <- function(arguments, nw, model) {
 #}
 
 #InitMHP.CondInDegree <- function(arguments, nw, model) {
-#  MHproposal <- list(name = "CondInDegree", args=NULL, package="ergm")
+#  MHproposal <- list(name = "CondInDegree", inputs=NULL, package="ergm")
 #  if (!is.directed(nw)) {
 #    cat("Warning:  The 'indegree' constraint does not work with an\n",
 #          "undirected network.  Switching to 'degree' constraint.\n")
@@ -164,7 +158,7 @@ InitMHP.CondOutDegreeDist <- function(arguments, nw, model) {
 #}
 
 InitMHP.ConstantEdges <- function(arguments, nw, model) {
-  MHproposal <- list(name = "ConstantEdges", args=NULL, package="ergm")
+  MHproposal <- list(name = "ConstantEdges", inputs=NULL, package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartiteConstantEdges"
   }
@@ -179,7 +173,7 @@ InitMHP.ConstantEdges <- function(arguments, nw, model) {
 }
 
 InitMHP.HammingConstantEdges <- function(arguments, nw, model) {
-  MHproposal <- list(name = "HammingConstantEdges", args=NULL, package="ergm")
+  MHproposal <- list(name = "HammingConstantEdges", inputs=NULL, package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartiteHammingConstantEdges"
   }
@@ -187,7 +181,7 @@ InitMHP.HammingConstantEdges <- function(arguments, nw, model) {
 }
 
 InitMHP.HammingTNT <- function(arguments, nw, model) {
-  MHproposal <- list(name = "HammingTNT", args=NULL, package="ergm")
+  MHproposal <- list(name = "HammingTNT", inputs=NULL, package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartiteHammingTNT"
   }
@@ -195,7 +189,7 @@ InitMHP.HammingTNT <- function(arguments, nw, model) {
 }
 
 InitMHP.formation <- function(arguments, nw, model) {
-  MHproposal <- list(name = "Formation", args=NULL, package="ergm")
+  MHproposal <- list(name = "Formation", inputs=NULL, package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartiteFormation"
   }
@@ -203,24 +197,24 @@ InitMHP.formation <- function(arguments, nw, model) {
 }
 
 InitMHP.formationMLE <- function(arguments, nw, model) {
-  MHproposal <- list(name = "FormationMLE", args=NULL, package="ergm")
+  MHproposal <- list(name = "FormationMLE", inputs=NULL, package="ergm")
   MHproposal
 }
 InitMHP.dissolutionMLE <- function(arguments, nw, model) {
-  MHproposal <- list(name = "DissolutionMLE", args=NULL, package="ergm")
+  MHproposal <- list(name = "DissolutionMLE", inputs=NULL, package="ergm")
   MHproposal
 }
 InitMHP.formationNonObservedMLE <- function(arguments, nw, model) {
-  MHproposal <- list(name = "FormationNonObservedMLE", args=NULL, package="ergm")
+  MHproposal <- list(name = "FormationNonObservedMLE", inputs=NULL, package="ergm")
   MHproposal
 }
 InitMHP.dissolutionNonObservedMLE <- function(arguments, nw, model) {
-  MHproposal <- list(name = "DissolutionNonObservedMLE", args=NULL, package="ergm")
+  MHproposal <- list(name = "DissolutionNonObservedMLE", inputs=NULL, package="ergm")
   MHproposal
 }
 
 InitMHP.formationTNT <- function(arguments, nw, model) {
-  MHproposal <- list(name = "FormationTNT", args=NULL, package="ergm")
+  MHproposal <- list(name = "FormationTNT", inputs=NULL, package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartiteFormationTNT"
   }
@@ -228,7 +222,7 @@ InitMHP.formationTNT <- function(arguments, nw, model) {
 }
 
 InitMHP.dissolution <- function(arguments, nw, model) {
-  MHproposal <- list(name = "Dissolution", args=NULL, package="ergm")
+  MHproposal <- list(name = "Dissolution", inputs=NULL, package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartiteDissolution"
   }
@@ -236,13 +230,15 @@ InitMHP.dissolution <- function(arguments, nw, model) {
 }
 
 InitMHP.randomtoggleNonObserved <- function(arguments, nw, model) {
-  MHproposal <- list(name = "randomtoggleNonObserved", args=NULL, package="ergm")
+  MHproposal <- list(name = "randomtoggleNonObserved", inputs=NULL, package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartiterandomtoggleNonObserved"
   }
   MHproposal
 }
 
+
+# This one does not have a C function.
 InitMHP.nobetweengroupties <- function(arguments, nw, model) {
   x <- get.node.attr(nw, arguments, "InitMHP.nobetweengroupties")
   if(any(is.na(x)) || any(table(x)==1)) {
@@ -254,8 +250,8 @@ InitMHP.nobetweengroupties <- function(arguments, nw, model) {
   d <- unique(a)
   e <- unlist(sapply(d, grep, x))
   f <- b*(b-1)
-  args <- c(length(b), b, e)
-  MHproposal <- list(name="nobetweengroupties", args = args, package="ergm")
+  inputs <- c(length(b), b, e)
+  MHproposal <- list(name="nobetweengroupties", inputs = inputs, package="ergm")
   MHproposal
 }
 

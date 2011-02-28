@@ -43,7 +43,7 @@
 #   drop             : whether degenerate terms should be dropped from the fit (T or F);
 #                      default=TRUE
 #   style            : the style of ML estimation to use, as one of "Newton-Raphson",
-#                      "Robbins-Monro", "Stochastic-Approximation","Stepping" or "PILA";
+#                      "Robbins-Monro", "Stochastic-Approximation", or "Stepping";
 #                      default="Robbins-Monro"
 #   RM.init_gain     : this is only used to adjust 'aDdiaginv'in phase1,
 #                      in particular:
@@ -66,8 +66,6 @@
 #                      a sample size, than an interval, it helps control the
 #                      number of MCMCsteps used in phase1 and phase2; in
 #                      phase2, this limits the innermost loop counter; default=100
-#   PILA.gamma       : ??    ; default=.99
-#   PILA.steplength  : ??    ; default=.1
 #   SPSA.iterations  : the number of iterations to use in the SPSA sampling;
 #                      default=1000
 #   SPSA.a           : see the next 2 params; default=1
@@ -124,8 +122,6 @@ control.stergm<-function(prop.weights.form="default",prop.args.form=NULL,
                          RM.init_gain=0.5,
                          RM.interval=100,
                          RM.burnin=1000,
-                         PILA.gamma=.99,
-                         PILA.steplength=.1,
                          SPSA.a=1,
                          SPSA.alpha=0.602,
                          SPSA.A=100,

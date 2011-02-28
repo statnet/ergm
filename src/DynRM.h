@@ -46,8 +46,6 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
 			  Model *D_m, MHproposal *D_MH,
 			  double *gamma, 
 			  // Dissolution parameter fitting --- to add later? -PK
-			  // Degree bounds.
-			  DegreeBound *bd,
 			  // Space for output.
 			  Edge nmax,
 			  Vertex *difftime, Vertex *diffhead, Vertex *difftail,

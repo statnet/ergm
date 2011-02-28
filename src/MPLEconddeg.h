@@ -21,14 +21,14 @@ void MPLEconddeg_wrapper (int *heads, int *tails, int *dnedges,
                    int *minin, int *condAllDegExact, int *attriblength, 
                    int *maxedges,
                    int *mheads, int *mtails, int *mdnedges);
-void CondDegSampler (char *MHproposaltype, char *MHproposalpackage,
+void CondDegSampler (MHproposal *MHp,
 		 double *theta, double *networkstatistics, 
-		 long int samplesize, long int burnin, 
-		 long int interval, int hammingterm, int fVerbose,
-	       	 Network *nwp, Model *m, DegreeBound *bd);
+		 int samplesize, int burnin, 
+		 int interval, int hammingterm, int fVerbose,
+	       	 Network *nwp, Model *m);
 void CondDegSample (MHproposal *MHp,
 			 double *theta, double *statistics, 
-			 long int nsteps, long int *staken,
+			 int nsteps, int *staken,
 			 int hammingterm, int fVerbose,
-			 Network *nwp, Model *m, DegreeBound *bd);
+			 Network *nwp, Model *m);
 #endif

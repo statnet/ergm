@@ -33,9 +33,9 @@ void SAN_wrapper ( int *dnumnets, int *nedges,
   Vertex n_nodes, nmax, bip, hhead, htail;
   Edge n_networks, nddyads, kedge;
   Network nw[2];
-  DegreeBound *bd;
   Model *m;
   ModelTerm *thisterm;
+  MHproposal MH;
   
   n_nodes = (Vertex)*dn; /* coerce double *dn to type Vertex */
   n_networks = (Edge)*dnumnets; 
@@ -46,7 +46,7 @@ void SAN_wrapper ( int *dnumnets, int *nedges,
   
   directed_flag = *dflag;
 
-  m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
+  m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
 
   /* Form the network */
   nw[0]=NetworkInitialize(heads, tails, nedges[0],
@@ -127,20 +127,25 @@ void SAN_wrapper ( int *dnumnets, int *nedges,
 //   Rprintf("Initial number (discord) from reference %d Number of original %d\n",nw[1].nedges,nw[0].nedges);
   }
   
-  bd=DegreeBoundInitialize(attribs, maxout, maxin, minout, minin,
-			   *condAllDegExact, *attriblength, nw);
-  SANSample (*MHproposaltype, *MHproposalpackage,
-	      theta0, invcov, tau, sample, (long int)*samplesize,
-	      (long int)*burnin, (long int)*interval,
+  MH_init(&MH, *MHproposaltype, *MHproposalpackage, 
+	  inputs, *fVerbose, nw,
+	     attribs, maxout, maxin, minout, minin,
+	     *condAllDegExact, *attriblength );
+
+  SANSample (&MH,
+	     theta0, invcov, tau, sample, *samplesize,
+	     *burnin, *interval,
 	      hammingterm,
-	      (int)*fVerbose, nw, m, bd);
+	     *fVerbose, nw, m);
+
+  MH_free(&MH);
   
   /* record new generated network to pass back to R */
   if(nmax > 0)
   newnetworkheads[0]=newnetworktails[0]=EdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,nw,nmax-1);
 
   ModelDestroy(m);
-  if(bd)DegreeBoundDestroy(bd);
+
   NetworkDestroy(nw);
   if (nedges[1]>0 || hammingterm > 0  || formationterm > 0)
     NetworkDestroy(&nw[1]);
@@ -158,14 +163,13 @@ void SAN_wrapper ( int *dnumnets, int *nedges,
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-void SANSample (char *MHproposaltype, char *MHproposalpackage,
+void SANSample (MHproposal *MHp,
   double *theta, double *invcov, double *tau, double *networkstatistics, 
-  long int samplesize, long int burnin, 
-  long int interval, int hammingterm, int fVerbose,
-  Network *nwp, Model *m, DegreeBound *bd) {
-  long int staken, tottaken, ptottaken;
+  int samplesize, int burnin, 
+  int interval, int hammingterm, int fVerbose,
+  Network *nwp, Model *m) {
+  int staken, tottaken, ptottaken;
   int i, j, components, diam;
-  MHproposal MH;
   
   components = diam = 0;
   nwp->duration_info.MCMCtimer=0;
@@ -175,7 +179,7 @@ void SANSample (char *MHproposaltype, char *MHproposalpackage,
     Rprintf("Total m->n_stats is %i; total samplesize is %d\n",
              m->n_stats,samplesize);
 
-  MH_init(&MH, MHproposaltype, MHproposalpackage, fVerbose, nwp, bd);
+
   
   /*********************
   networkstatistics are modified in groups of m->n_stats, and they
@@ -192,8 +196,8 @@ void SANSample (char *MHproposaltype, char *MHproposalpackage,
    prepare covariance matrix for Mahalanobis distance calculations 
    in subsequent calls to M-H
    *********************/
-  SANMetropolisHastings(&MH, theta, invcov, tau, networkstatistics, burnin, &staken,
-		     hammingterm, fVerbose, nwp, m, bd);
+  SANMetropolisHastings(MHp, theta, invcov, tau, networkstatistics, burnin, &staken,
+		     hammingterm, fVerbose, nwp, m);
   
   if (fVerbose){
     Rprintf("Returned from SAN Metropolis-Hastings burnin\n");
@@ -213,9 +217,9 @@ void SANSample (char *MHproposaltype, char *MHproposalpackage,
       networkstatistics += m->n_stats;
       /* This then adds the change statistics to these values */
       
-      SANMetropolisHastings (&MH, theta, invcov, tau, networkstatistics, 
+      SANMetropolisHastings (MHp, theta, invcov, tau, networkstatistics, 
 		             interval, &staken,
-			     hammingterm, fVerbose, nwp, m, bd);
+			     hammingterm, fVerbose, nwp, m);
       tottaken += staken;
       if (fVerbose){
         if( ((3*i) % samplesize)==0 && samplesize > 500){
@@ -242,7 +246,6 @@ void SANSample (char *MHproposaltype, char *MHproposalpackage,
 	      staken*100.0/(1.0*burnin), burnin); 
     }
   }
-  MH_free(&MH);
 }
 
 /*********************
@@ -259,11 +262,11 @@ void SANSample (char *MHproposaltype, char *MHproposalpackage,
 void SANMetropolisHastings (MHproposal *MHp,
 			    double *theta, double *invcov, 
 			    double *tau, double *networkstatistics,
-			    long int nsteps, long int *staken,
+			    int nsteps, int *staken,
 			    int hammingterm, int fVerbose,
 			    Network *nwp,
-			    Model *m, DegreeBound *bd) {
-  long int step, taken;
+			    Model *m) {
+  int step, taken;
   int i,j;
   double ip,dif;
   double *deltainvsig, *delta;
@@ -282,7 +285,7 @@ void SANMetropolisHastings (MHproposal *MHp,
     Rprintf("Now proposing %d MH steps... ", nsteps); */
   while (step < nsteps) {
     MHp->ratio = 1.0;
-    (*(MHp->func))(MHp, bd, nwp); /* Call MH function to propose toggles */
+    (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
     //      Rprintf("Back from proposal; step=%d\n",step);
 
     ChangeStats(MHp->ntoggles, MHp->togglehead, MHp->toggletail, nwp, m);

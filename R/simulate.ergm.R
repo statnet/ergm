@@ -66,7 +66,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, theta0=object$coef,
   if(is.null(burnin)){burnin <- object$burnin}
   if(is.null(interval)){interval <- object$interval}
   if(is.null(constraints)){constraints <- object$constraints}
-  simulate.formula(object$formula, nsim=nsim, seed=seed, theta0=theta0,
+  simulate.formula(object$formula, nsim=nsim, seed=seed, theta0=theta0, response=object$response, reference=if(is.null(object$reference)) "Bernoulli" else object$reference,
                    burnin=burnin, interval=interval, statsonly=statsonly,
                    sequential=sequential, constraints=constraints,
                    control=control, verbose=verbose, ...)
@@ -77,7 +77,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, theta0=object$coef,
 # In CRAN version, the following function is called simulate.formula
 # Here, there is a good reason to call it simulate.formula.ergm:
 # see simulate.formula.R
-simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0,
+simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NULL, reference="Bernoulli",
                              burnin=1000, interval=1000,
                              basis=NULL,
                              statsonly=FALSE,
@@ -107,10 +107,10 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0,
   form <- ergm.update.formula(object, nw ~ .)
   
   # Prepare inputs to ergm.getMCMCsample
-  m <- ergm.getmodel(form, nw, drop=FALSE)
-  Clist <- ergm.Cprepare(nw, m)
+  m <- ergm.getmodel(form, nw, drop=FALSE, response=response)
+  Clist <- ergm.Cprepare(nw, m, response=response)
   MHproposal <- MHproposal(constraints,arguments=control$prop.args,
-                           nw=nw, model=m, weights=control$prop.weights, class="c")  
+                           nw=nw, model=m, weights=control$prop.weights, class="c",reference=reference,response=response)  
 
   # Just in case the user did not give a theta0 value, set it to zero.
   # (probably we could just return an error in this case!)
@@ -125,7 +125,7 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0,
     stop("Illegal value of theta0 passed to simulate.formula")
     
   # Create vector of current statistics
-  curstats<-summary(form)
+  curstats<-summary(form,response=response)
   names(curstats) <- m$coef.names
 
   # prepare MCMCparams object
@@ -180,14 +180,13 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0,
 
     # Create a network object if statsonly==FALSE
     if (!statsonly) {
-      nw.list[[i]] <- network.update(nw, z$newedgelist, matrix.type="edgelist",
-                                     output=control$network.output)
+      nw.list[[i]] <- newnw.extract(nw, z, output=control$network.output, response=response)
     }
     out.mat[i,] <- curstats + z$statsmatrix
     if (sequential){ 
       # If we get here, statsonly must be FALSE
       nw <- as.network.uncompressed(nw.list[[i]])
-      Clist <- ergm.Cprepare(nw, m)
+      Clist <- ergm.Cprepare(nw, m, response=response)
       curstats <- curstats + z$statsmatrix
     }
     if(verbose){cat(sprintf("Finished simulation %d of %d.\n",i, nsim))}
@@ -234,8 +233,7 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0,
      nedges <- z$newnwheads[1]
      # Create a network object if statsonly==FALSE
      if (!statsonly) {
-      nw.list[[i]] <- network.update(nw, z$newedgelist, matrix.type="edgelist",
-                                     output=control$network.output)
+      nw.list[[i]] <- newnw.extract(nw, z, output=control$network.output, response=response)
      }
      nw <- as.network.uncompressed(nw.list[[i]])
      out.mat[i,] <- summary(formula)
