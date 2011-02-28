@@ -151,7 +151,6 @@ void MH_StdNormal(WtMHproposal *MHp, WtNetwork *nwp)  {
  each ego is preserved.
 *********************/
 void MH_StdNormalRank(WtMHproposal *MHp, WtNetwork *nwp)  {  
-  Vertex head, tail;
   double oldwt;
   int fvalid;
   
@@ -162,38 +161,34 @@ void MH_StdNormalRank(WtMHproposal *MHp, WtNetwork *nwp)  {
   
   fvalid = 0;
   
-  head = 1 + unif_rand() * nwp->nnodes;
-  while ((tail = 1 + unif_rand() * nwp->nnodes) == head);
+  Mhead[0] = 1 + unif_rand() * nwp->nnodes;
+  while ((Mtail[0] = 1 + unif_rand() * nwp->nnodes) == Mhead[0]);
  
   // Note that undirected networks do not make sense for this proposal.
 
-  oldwt = WtGetEdge(head,tail,nwp);
+  oldwt = WtGetEdge(Mhead[0],Mtail[0],nwp);
 
   // Evaluate rank constraints for this dyad.
   double ub = +HUGE_VAL, lb = -HUGE_VAL;
-  int tail_class = MHp->inputs[(head-1)*nwp->nnodes + (tail-1)];
+  int tail_class = MHp->inputs[(Mhead[0]-1)*nwp->nnodes + (Mtail[0]-1)];
 
   for(unsigned int t=1;t<=nwp->nnodes; t++){
-    if(t==head || t==tail) continue;
-    unsigned int t_class=MHp->inputs[(head-1)*nwp->nnodes + (t-1)];
+    if(t==Mhead[0] || t==Mtail[0]) continue;
+    unsigned int t_class=MHp->inputs[(Mhead[0]-1)*nwp->nnodes + (t-1)];
 
     if(t_class){
       if(t_class==tail_class+1){
 	// If this alter bounds the current alter from above...
-	double b = WtGetEdge(head,t,nwp);
+	double b = WtGetEdge(Mhead[0],t,nwp);
 	if(b<ub) ub=b;
       }else if(t_class==tail_class-1){
 	// If this alter bounds the current alter from below...
-	double b = WtGetEdge(head,t,nwp);
+	double b = WtGetEdge(Mhead[0],t,nwp);
 	if(b>lb) lb=b;
       }
     }
   }
 
-
-  Mhead[0] = head;
-  Mtail[0] = tail;
-  
   const double propsd = 1; // This ought to be tunable.
   // Note that for a given dyad, which branch gets taken here is always the same.
   if(ub==+HUGE_VAL && lb==-HUGE_VAL){
@@ -201,16 +196,16 @@ void MH_StdNormalRank(WtMHproposal *MHp, WtNetwork *nwp)  {
     Mweight[0] = rnorm(oldwt, propsd);
   }else if(ub==+HUGE_VAL){
     // Only lower bound -> a constrained normal jump
-    do{ Mweight[0] = rnorm(oldwt, propsd); }while(Mweight[0]>=lb);
+    do{ Mweight[0] = rnorm(oldwt, propsd); }while(Mweight[0]<lb);
       
-    MHp->ratio *= dnorm(oldwt, Mweight[0], propsd, 0) / pnorm(lb, Mweight[0], propsd, 1, 0);
-    MHp->ratio /= dnorm(Mweight[0], oldwt, propsd, 0) / pnorm(lb, oldwt, propsd, 1, 0);
+    MHp->ratio *= dnorm(oldwt, Mweight[0], propsd, 0) / pnorm(lb, Mweight[0], propsd, 0, 0);
+    MHp->ratio /= dnorm(Mweight[0], oldwt, propsd, 0) / pnorm(lb, oldwt, propsd, 0, 0);
   }else if(lb==-HUGE_VAL){
     // Only upper bound -> a constrained normal jump
-    do{ Mweight[0] = rnorm(oldwt, propsd); }while(Mweight[0]<=ub);
+    do{ Mweight[0] = rnorm(oldwt, propsd); }while(Mweight[0]>ub);
       
-    MHp->ratio *= dnorm(oldwt, Mweight[0], propsd, 0) / pnorm(ub, Mweight[0], propsd, 0, 0);
-    MHp->ratio /= dnorm(Mweight[0], oldwt, propsd, 0) / pnorm(ub, oldwt, propsd, 0, 0);
+    MHp->ratio *= dnorm(oldwt, Mweight[0], propsd, 0) / pnorm(ub, Mweight[0], propsd, 1, 0);
+    MHp->ratio /= dnorm(Mweight[0], oldwt, propsd, 0) / pnorm(ub, oldwt, propsd, 1, 0);
   }else{
     // Bounded from both sides -> uniform
     Mweight[0] = runif(lb,ub);
