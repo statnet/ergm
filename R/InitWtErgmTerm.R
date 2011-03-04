@@ -326,19 +326,19 @@ InitWtErgmTerm.mutual<-function (nw, arglist, response, drop=TRUE, ...) {
                       defaultvalues = list("min",0),
                       required = c(FALSE,FALSE))
 
-  form <- match.arg(a$form,c("min","nabsdiff","threshold"))
+  form <- match.arg(a$form,c("min","nabsdiff","threshold","product","geometric"))
   
   if(drop) { # Check for zero statistics, print -Inf messages if applicable
     obsstats <- check.ErgmTerm.summarystats(nw, arglist, response=response, ...)
     if (extremewarnings(obsstats,
-                        minval=switch(form,min=0,nabsdiff=NULL,threshold=0),
-                        maxval=switch(form,min=NULL,nabsdiff=0,threshold=NULL))
+                        minval=switch(form,min=0,nabsdiff=NULL,threshold=0,product=NULL,geometric=0),
+                        maxval=switch(form,min=NULL,nabsdiff=0,threshold=NULL,product=NULL,geometric=NULL))
         ) {
       return(NULL) # In this case the obs nw has 0 or n(n-1)/2 asymmetric dyads
     }
   }
-  list(name=switch(form,min="mutual_wt_min",nabsdiff="mutual_wt_nabsdiff",threshold="mutual_wt_threshold"),
-       coef.names=switch(form,min="mutual.min",nabsdiff="mutual.nabsdiff",threshold=paste("mutual",a$threshold,sep=".")),
+  list(name=switch(form,min="mutual_wt_min",nabsdiff="mutual_wt_nabsdiff",threshold="mutual_wt_threshold",product="mutual_wt_product",geometric="mutual_wt_geom_mean"),
+       coef.names=switch(form,min="mutual.min",nabsdiff="mutual.nabsdiff",threshold=paste("mutual",a$threshold,sep="."),product="mutual.product",geometric="mutual.geom.mean"),
        inputs=if(form=="threshold") threshold,
        dependence=TRUE)
 }

@@ -189,6 +189,26 @@ WtD_CHANGESTAT_FN(d_ininterval){
 /********************  changestats:   M    ***********/
 
 /*****************
+ stat: mutual (product a.k.a. correlation)
+*****************/
+WtD_CHANGESTAT_FN(d_mutual_wt_product){
+  EXEC_THROUGH_TOGGLES({
+      double thweight = GETWT(TAIL,HEAD);
+      CHANGE_STAT[0] += (NEWWT*thweight) - (OLDWT*thweight);
+    });
+}
+
+/*****************
+ stat: mutual (geometric mean)
+*****************/
+WtD_CHANGESTAT_FN(d_mutual_wt_geom_mean){
+  EXEC_THROUGH_TOGGLES({
+      double thweight = GETWT(TAIL,HEAD);
+      CHANGE_STAT[0] += sqrt(NEWWT*thweight) - sqrt(OLDWT*thweight);
+    });
+}
+
+/*****************
  stat: mutual (minimum)
 *****************/
 WtD_CHANGESTAT_FN(d_mutual_wt_min){

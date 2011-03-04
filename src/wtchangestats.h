@@ -19,6 +19,8 @@ WtD_CHANGESTAT_FN(d_greaterthan);
 WtD_CHANGESTAT_FN(d_ininterval);
 
 /********************  changestats:   M    ***********/
+WtD_CHANGESTAT_FN(d_mutual_wt_product);
+WtD_CHANGESTAT_FN(d_mutual_wt_geom_mean);
 WtD_CHANGESTAT_FN(d_mutual_wt_min); 
 WtD_CHANGESTAT_FN(d_mutual_wt_nabsdiff);
 WtD_CHANGESTAT_FN(d_mutual_wt_threshold);
