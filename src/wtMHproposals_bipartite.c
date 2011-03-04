@@ -46,8 +46,6 @@ void MH_BipartitePoissonNonObserved(WtMHproposal *MHp, WtNetwork *nwp){ MH_Poiss
 *********************/
 void MH_CompleteOrderingBipartite(WtMHproposal *MHp, WtNetwork *nwp)  {  
   Vertex head, tail1, tail2;
-  double oldwt;
-  int fvalid, trytoggle;
   
   if(MHp->ntoggles == 0) { // Initialize Poisson 
     MHp->ntoggles=2;

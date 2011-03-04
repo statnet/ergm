@@ -21,8 +21,6 @@
 #         interval      :  the number of proposals to ignore between sampled networks
 #         burnin        :  the number of proposals to initially ignore for the burn-in
 #                          period
-#         Clist.miss    :  a corresponding 'Clist' for the network of missing edges,
-#                          as returned by <ergm.design>
 #         Clist.dt      :  yet another Clist, this one for fitting dynamic models 
 #
 #
@@ -40,12 +38,6 @@ ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALS
   tails <- Clist$tails
   heads <- Clist$heads
   weights <- Clist$weights
-  if(!is.null(MCMCparams$Clist.miss)){
-    nedges[2] <- MCMCparams$Clist.miss$nedges
-    tails <- c(tails, MCMCparams$Clist.miss$tails)
-    heads <- c(heads, MCMCparams$Clist.miss$heads)
-    weights <- c(weights, rep(1,nedges[1]))
-  }
   if(!is.null(MCMCparams$Clist.dt)){
     nedges[3] <- MCMCparams$Clist.dt$nedges
     tails <- c(tails, MCMCparams$Clist.dt$tails)

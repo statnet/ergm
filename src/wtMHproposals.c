@@ -49,7 +49,7 @@ void MH_Poisson(WtMHproposal *MHp, WtNetwork *nwp)  {
  Missing data MH algorithm for Poisson-reference ERGM on bipartite networks.
 *********************/
 void MH_PoissonNonObserved(WtMHproposal *MHp, WtNetwork *nwp)  {  
-  Edge rane, nmissing = nwp[1].nedges;
+  Edge rane, nmissing = MHp->inputs[0];
   double oldwt;
   
   if(MHp->ntoggles == 0) { /* Initialize */
@@ -62,8 +62,13 @@ void MH_PoissonNonObserved(WtMHproposal *MHp, WtNetwork *nwp)  {
     *Mtail = MH_IMPOSSIBLE;
   }
 
+
+  // Note that missing edgelist is indexed from 0 but the first
+  // element of MHp->inputs is the number of missing edges.
   rane = 1 + unif_rand() * nmissing;
-  WtFindithEdge(Mhead, Mtail, NULL, rane, &nwp[1]);
+
+  Mhead[0]=MHp->inputs[rane];
+  Mtail[1]=MHp->inputs[nmissing+rane];
 
   oldwt = WtGetEdge(Mhead[0],Mtail[0],nwp);
 
@@ -84,8 +89,6 @@ void MH_PoissonNonObserved(WtMHproposal *MHp, WtNetwork *nwp)  {
 *********************/
 void MH_CompleteOrdering(WtMHproposal *MHp, WtNetwork *nwp)  {  
   Vertex head, tail1, tail2;
-  double oldwt, inc;
-  int fvalid;
   
   if(MHp->ntoggles == 0) { // Initialize Poisson 
     MHp->ntoggles=2;

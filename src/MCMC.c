@@ -49,15 +49,6 @@ void MCMC_wrapper (int *dnumnets, int *nedges,
   /* Form the network */
   nw[0]=NetworkInitialize(heads, tails, nedges[0], 
                           n_nodes, directed_flag, bip, 0);
-  /* Form the missing network */
-  if (nedges[1]>0) {
-   heads += nedges[0];
-   tails += nedges[0];
-   nw[1]=NetworkInitialize(heads, tails, nedges[1],
-                           n_nodes, directed_flag, bip, 0);
-   heads -= nedges[0];
-   tails -= nedges[0];
-  }
   /* Form the DTERGM network */
   if (nedges[2]>0) {
    heads += nedges[0]+nedges[1];
@@ -137,7 +128,7 @@ void MCMC_wrapper (int *dnumnets, int *nedges,
   ModelDestroy(m);
 
   NetworkDestroy(nw);
-  if (nedges[1]>0 || hammingterm > 0)
+  if (hammingterm > 0)
     NetworkDestroy(&nw[1]);
   if (nedges[2]>0)
     NetworkDestroy(&nw[2]);
@@ -377,10 +368,6 @@ void MCMCPhase12 (int *heads, int *tails, int *dnedges,
   /* Form the missing network */
   nw[0]=NetworkInitialize(heads, tails, n_edges,
                           n_nodes, directed_flag, bip,0);
-  if (n_medges>0) {
-   nw[1]=NetworkInitialize(mheads, mtails, n_medges,
-                           n_nodes, directed_flag, bip,0);
-  }
 
   hammingterm=ModelTermHamming (*funnames, *nterms);
   if(hammingterm>0){
@@ -471,7 +458,7 @@ void MCMCPhase12 (int *heads, int *tails, int *dnedges,
   ModelDestroy(m);
 
   NetworkDestroy(nw);
-  if (n_medges>0 || hammingterm > 0  || formationterm > 0)
+  if (hammingterm > 0  || formationterm > 0)
     NetworkDestroy(&nw[1]);
   PutRNGstate();  /* Disable RNG before returning */
 }

@@ -7,7 +7,7 @@ InitWtMHP.Poisson <- function(arguments, nw, model, response) {
 }
 
 InitWtMHP.PoissonNonObserved <- function(arguments, nw, model, response) {
-  MHproposal <- list(name = "PoissonNonObserved", inputs=NULL, package="ergm")
+  MHproposal <- list(name = "PoissonNonObserved", inputs=ergm.Cprepare.miss(nw), package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartitePoissonNonObserved"
   }

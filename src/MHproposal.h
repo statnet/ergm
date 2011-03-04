@@ -80,6 +80,7 @@ void MH_free(MHproposal *MHp);
 
 int CheckTogglesValid(MHproposal *MHp, Network *nwp);
 int CheckConstrainedTogglesValid(MHproposal *MHp, Network *nwp);
+unsigned int dEdgeListSearch(Vertex head, Vertex tail, double *el);
 #endif 
 
 

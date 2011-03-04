@@ -128,7 +128,7 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
                  MPLEonly=FALSE, MLestimate=!MPLEonly, seed=NULL,
                  burnin=10000, MCMCsamplesize=10000, interval=100,
                  maxit=3,
-                 reference="Bernoulli",
+                 reference="Bernoulli",obs=NA,
                  constraints=~.,
                  meanstats=NULL,
                  control=control.ergm(),
@@ -247,13 +247,16 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
   }}else{
    nwm <- network.copy(nw)
    # There may be a better way to specify this in the future.
-   if(length(reference)>1){
-     if(tolower(reference[2])=="ranks")
-       MHproposal.miss <- ergm.update.formula(constraints,~.+ranks)
-   }else{
-     # That is, whatever the constraints already imposed, but also only toggle observed.
-     MHproposal.miss <- ergm.update.formula(constraints,~.+observed)
-   }
+
+   MHproposal.miss<-constraints
+   
+   MHproposal.miss<-switch(tolower(obs),
+                          detrank=ergm.update.formula(MHproposal.obs,~.+ranks),
+                          MHproposal.miss)
+   
+   if(network.naedgecount(nw)) MHproposal.miss<-ergm.update.formula(MHproposal.miss,~.+observed)
+
+   if(constraints==MHproposal.miss) MHproposal.miss<-NULL
   }
   # End conditional MLE in dynamic model
   if(!is.null(meanstats)){
@@ -306,7 +309,7 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
 
   MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial,class=proposalclass,reference=reference,response=response)
   # Note:  MHproposal function in CRAN version does not use the "class" argument for now
-  MHproposal.miss <- try(MHproposal(MHproposal.miss, weights=control$prop.weights, control$prop.args, nw, model.initial, class=proposalclass, reference=reference, response=response))                         
+  if(!is.null(MHproposal.miss)) MHproposal.miss <- MHproposal(MHproposal.miss, weights=control$prop.weights, control$prop.args, nw, model.initial, class=proposalclass, reference=reference, response=response)
 
   conddeg <- switch(MHproposal$name=="CondDegree",control$drop,NULL)
   MCMCparams=c(control,
@@ -374,7 +377,6 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
   }
 
   Clist <- ergm.Cprepare(nw, model, response=response)
-  Clist.miss <- ergm.design(nw, model, verbose=FALSE)
   Clist.miss <- ergm.design(nw, model, verbose=FALSE)
   if((MHproposal$name!="FormationMLE")&(MHproposal$name!="DissolutionMLE")){
     Clist.dt <- list(heads=NULL, tails=NULL, nedges=0, dir=is.directed(nw))

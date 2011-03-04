@@ -16,8 +16,8 @@ void MH_Bipartiterandomtoggle (MHproposal *MHp, Network *nwp)  {
     MHp->ntoggles=1;
     return;
   }
-  MHp->togglehead[0] = 1 + unif_rand() * nwp->bipartite;
-  MHp->toggletail[0] = 1 + nwp->bipartite + 
+  Mhead[0] = 1 + unif_rand() * nwp->bipartite;
+  Mtail[0] = 1 + nwp->bipartite + 
                        unif_rand() * (nwp->nnodes - nwp->bipartite);
 }
 
@@ -35,7 +35,7 @@ void MH_BipartiteConstantEdges (MHproposal *MHp, Network *nwp)  {
        If desired, we could check for this at initialization phase. 
        (For now, however, no way to easily return an error message and stop.)*/
   /* First, select edge at random */
-  FindithEdge(MHp->togglehead, MHp->toggletail, 1+(nwp->nedges)*unif_rand(), nwp);
+  FindithEdge(Mhead, Mtail, 1+(nwp->nedges)*unif_rand(), nwp);
   /* Second, select dyad at random until it has no edge */
 
   do{
@@ -46,8 +46,8 @@ void MH_BipartiteConstantEdges (MHproposal *MHp, Network *nwp)  {
       unif_rand() * (nwp->nnodes - nwp->bipartite);
   }while(EdgetreeSearch(head, tail, nwp->outedges) != 0);
       
-  MHp->togglehead[1]=head;
-  MHp->toggletail[1]=tail;
+  Mhead[1]=head;
+  Mtail[1]=tail;
 }
 
 /********************
@@ -80,7 +80,7 @@ void MH_BipartiteTNT (MHproposal *MHp, Network *nwp)
   for(trytoggle = 0; trytoggle < MAX_TRIES; trytoggle++){
     if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
       rane = 1 + unif_rand() * nedges;
-      FindithEdge(MHp->togglehead, MHp->toggletail, rane, nwp);
+      FindithEdge(Mhead, Mtail, rane, nwp);
       /* Thanks to Robert Goudie for pointing out an error in the previous 
       version of this sampler when proposing to go from nedges==0 to nedges==1 
       or vice versa.  Note that this happens extremely rarely unless the 
@@ -91,9 +91,9 @@ void MH_BipartiteTNT (MHproposal *MHp, Network *nwp)
     }else{ /* Select a dyad at random */
       head = 1 + unif_rand() * nb1;
       tail = 1 + nb1 + unif_rand() * (nnodes - nb1);
-      MHp->togglehead[0] = head;
-      MHp->toggletail[0] = tail;
-      if(EdgetreeSearch(MHp->togglehead[0],MHp->toggletail[0],nwp->outedges)!=0){
+      Mhead[0] = head;
+      Mtail[0] = tail;
+      if(EdgetreeSearch(Mhead[0],Mtail[0],nwp->outedges)!=0){
         MHp->logratio += log(nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
 			  nedges / (odds*ndyads + nedges));
       }else{
@@ -106,8 +106,8 @@ void MH_BipartiteTNT (MHproposal *MHp, Network *nwp)
   
   /* If tries ran out, return failure code. */
   if(trytoggle >= MAX_TRIES){
-    MHp->togglehead[0]=MH_FAILED;
-    MHp->toggletail[0]=MH_UNSUCCESSFUL; 
+    Mhead[0]=MH_FAILED;
+    Mtail[0]=MH_UNSUCCESSFUL; 
     return;
   }
 }
@@ -142,22 +142,22 @@ void MH_BipartiteHammingConstantEdges (MHproposal *MHp, Network *nwp)
     /* First, select discord edge at random */
     do{
       rane = 1 + unif_rand() * nddyads;
-      FindithEdge(MHp->togglehead, MHp->toggletail, rane, &nwp[1]);
-    }while(EdgetreeSearch(MHp->togglehead[0], MHp->toggletail[0], nwp[0].outedges) == 0);
+      FindithEdge(Mhead, Mtail, rane, &nwp[1]);
+    }while(EdgetreeSearch(Mhead[0], Mtail[0], nwp[0].outedges) == 0);
 
-    head=MHp->togglehead[0];
-    tail=MHp->toggletail[0];
+    head=Mhead[0];
+    tail=Mtail[0];
     /* Next, select discord non-edge at random */
 
     do{
       rane = 1 + unif_rand() * nddyads;
-      FindithEdge(MHp->togglehead, MHp->toggletail, rane, &nwp[1]);
-    }while(EdgetreeSearch(MHp->togglehead[0], MHp->toggletail[0], nwp[0].outedges) != 0);
+      FindithEdge(Mhead, Mtail, rane, &nwp[1]);
+    }while(EdgetreeSearch(Mhead[0], Mtail[0], nwp[0].outedges) != 0);
 
-      MHp->togglehead[1]=MHp->togglehead[0];
-    MHp->toggletail[1]=MHp->toggletail[0];
-    MHp->togglehead[0]=head;
-    MHp->toggletail[0]=tail;
+      Mhead[1]=Mhead[0];
+    Mtail[1]=Mtail[0];
+    Mhead[0]=head;
+    Mtail[0]=tail;
     nde = nddyads / 2;
     ndn = nddyads / 2;
     nce = nedges-nde;
@@ -172,8 +172,8 @@ void MH_BipartiteHammingConstantEdges (MHproposal *MHp, Network *nwp)
     /* First, select concordant edge at random */
     do{
       rane = 1 + unif_rand() * nedges;
-      FindithEdge(MHp->togglehead, MHp->toggletail, rane, &nwp[0]);
-    }while(EdgetreeSearch(MHp->togglehead[0], MHp->toggletail[0], nwp[1].outedges) == 0);
+      FindithEdge(Mhead, Mtail, rane, &nwp[0]);
+    }while(EdgetreeSearch(Mhead[0], Mtail[0], nwp[1].outedges) == 0);
        
     /* Next, select concord non-edge at random */
     do{
@@ -182,8 +182,8 @@ void MH_BipartiteHammingConstantEdges (MHproposal *MHp, Network *nwp)
     }while((EdgetreeSearch(head,tail,nwp[0].outedges)!=0) ||
 	     (EdgetreeSearch(head,tail,nwp[1].outedges)!=0));
 
-    MHp->togglehead[1]=head;
-    MHp->toggletail[1]=tail;
+    Mhead[1]=head;
+    Mtail[1]=tail;
     nde = nddyads / 2;
     ndn = nddyads / 2;
     nce = nedges-nde;
@@ -198,8 +198,8 @@ void MH_BipartiteHammingConstantEdges (MHproposal *MHp, Network *nwp)
 /*   Rprintf("concord nde %d nce %d ndn %d ncn %d nddyads %d MHp->ratio %f\n", */
 /*	    nde, nce, ndn,ncn,nddyads, MHp->ratio); */
   }
-/*   Rprintf("h0 %d t0 %d h1 %d t1 %d\n", MHp->togglehead[0],  MHp->toggletail[0],  */
-/*                                        MHp->togglehead[1],  MHp->toggletail[1]);  */
+/*   Rprintf("h0 %d t0 %d h1 %d t1 %d\n", Mhead[0],  Mtail[0],  */
+/*                                        Mhead[1],  Mtail[1]);  */
 }
 
 /********************
@@ -233,7 +233,7 @@ void MH_BipartiteHammingTNT (MHproposal *MHp, Network *nwp)
   
   if (unif_rand() < comp && nddyads > 0) { /* Select a discordant dyad at random */
     rane = 1 + unif_rand() * nddyads;
-    FindithEdge(MHp->togglehead, MHp->toggletail, rane, &nwp[1]);
+    FindithEdge(Mhead, Mtail, rane, &nwp[1]);
     nd = nddyads;
     nc = ndyads-nd;
     /*  Fixme!  Not sure whether the ratio is calculated correctly here.
@@ -250,8 +250,8 @@ void MH_BipartiteHammingTNT (MHproposal *MHp, Network *nwp)
       tail = 1 + nb1 + unif_rand() * (nnodes - nb1);
     }while(EdgetreeSearch(head,tail,nwp[1].outedges)!=0);
 
-    MHp->togglehead[0]=head;
-    MHp->toggletail[0]=tail;
+    Mhead[0]=head;
+    Mtail[0]=tail;
     nd = nddyads;
     nc = ndyads-nd;
     /*  Fixme!  Not sure whether the ratio is calculated correctly here.
@@ -260,8 +260,8 @@ void MH_BipartiteHammingTNT (MHproposal *MHp, Network *nwp)
 /*   Rprintf("concord nd %d nc %d nddyads %d MHp->ratio %f\n", */
 /*	    nd, nc, nddyads, MHp->ratio); */
   }
-/*   Rprintf("h0 %d t0 %d h1 %d t1 %d\n", MHp->togglehead[0],  MHp->toggletail[0],  */
-/*                                        MHp->togglehead[1],  MHp->toggletail[1]);  */
+/*   Rprintf("h0 %d t0 %d h1 %d t1 %d\n", Mhead[0],  Mtail[0],  */
+/*                                        Mhead[1],  Mtail[1]);  */
 }
 
 
@@ -359,40 +359,44 @@ void MH_BipartiteCondDegreeDist (MHproposal *MHp, Network *nwp) {
   if ( (!nwp->directed_flag && H > T) ||
     (nwp->directed_flag && k < Hout) )
   {
-    MHp->togglehead[0] = T;
-    MHp->toggletail[0] = H;
+    Mhead[0] = T;
+    Mtail[0] = H;
   }else{
-    MHp->togglehead[0] = H;
-    MHp->toggletail[0] = T;
+    Mhead[0] = H;
+    Mtail[0] = T;
   }
 
   if(!valid) {
-    MHp->togglehead[1] = MHp->togglehead[0];
-    MHp->toggletail[1] = MHp->togglehead[0];
+    Mhead[1] = Mhead[0];
+    Mtail[1] = Mhead[0];
   } else {
     if ( (!nwp->directed_flag && H > A) ||
       (nwp->directed_flag && k < Hout) )
     {
-      MHp->togglehead[0] = A;
-      MHp->toggletail[0] = H;
+      Mhead[0] = A;
+      Mtail[0] = H;
     }else{
-      MHp->togglehead[0] = H;
-      MHp->toggletail[0] = A;
+      Mhead[0] = H;
+      Mtail[0] = A;
     }
   }
 }
 
 
 void MH_BipartiterandomtoggleNonObserved (MHproposal *MHp, Network *nwp)  {  
-  Edge rane;
+  Edge rane, nmissing = MHp->inputs[0];
 
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
     return;
   }
-  rane = 1 + unif_rand() * nwp[1].nedges;
-  FindithEdge(MHp->togglehead, MHp->toggletail, rane, &nwp[1]);
-/* Rprintf("bip %d nedges %d h %d t %d\n", nwp[1].bipartite, nwp[1].nedges, MHp->togglehead[0],  MHp->toggletail[0]); */
+
+  // Note that missing edgelist is indexed from 0 but the first
+  // element of MHp->inputs is the number of missing edges.
+  rane = 1 + unif_rand() * nmissing;
+  
+  Mhead[0]=MHp->inputs[rane];
+  Mtail[0]=MHp->inputs[nmissing+rane];
 }
 
 /* CondDegree */
@@ -453,14 +457,14 @@ void MH_BipartiteCondDegTetradToggles (MHproposal *MHp, Network *nwp)  {
       }
     }
   }
-  MHp->togglehead[0]=A; MHp->toggletail[0]=B;
-  MHp->togglehead[1]=tmpA; MHp->toggletail[1]=tmpC;
-  MHp->togglehead[2]=tmpD; MHp->toggletail[2]=tmpB;
-  MHp->togglehead[3]=MIN(C,D); MHp->toggletail[3]=MAX(C,D);
-   Rprintf("h0 %d t1 %d\n",MHp->togglehead[0], MHp->toggletail[0]);
-   Rprintf("h0 %d t1 %d\n",MHp->togglehead[1], MHp->toggletail[1]);
-   Rprintf("h0 %d t1 %d\n",MHp->togglehead[2], MHp->toggletail[2]);
-   Rprintf("h0 %d t1 %d\n",MHp->togglehead[3], MHp->toggletail[3]);
+  Mhead[0]=A; Mtail[0]=B;
+  Mhead[1]=tmpA; Mtail[1]=tmpC;
+  Mhead[2]=tmpD; Mtail[2]=tmpB;
+  Mhead[3]=MIN(C,D); Mtail[3]=MAX(C,D);
+   Rprintf("h0 %d t1 %d\n",Mhead[0], Mtail[0]);
+   Rprintf("h0 %d t1 %d\n",Mhead[1], Mtail[1]);
+   Rprintf("h0 %d t1 %d\n",Mhead[2], Mtail[2]);
+   Rprintf("h0 %d t1 %d\n",Mhead[3], Mtail[3]);
 }  
   
 void MH_BipartiteCondDegree (MHproposal *MHp, Network *nwp)  {  
@@ -572,60 +576,60 @@ void MH_BipartiteCondDegHexadToggles (MHproposal *MHp, Network *nwp)  {
 	  if (x6 == x2){
 	    if ( (!nwp->directed_flag) ){
 	      if ( head1 > tail2 ){
-		MHp->togglehead[0] = tail2;
-		MHp->toggletail[0] = head1;
+		Mhead[0] = tail2;
+		Mtail[0] = head1;
 	      }else{
-		MHp->togglehead[0] = head1;
-		MHp->toggletail[0] = tail2;
+		Mhead[0] = head1;
+		Mtail[0] = tail2;
 	      }
 	      if ( head1 > tail3 ){
-		MHp->togglehead[1] = tail3;
-		MHp->toggletail[1] = head1;
+		Mhead[1] = tail3;
+		Mtail[1] = head1;
 	      }else{
-		MHp->togglehead[1] = head1;
-		MHp->toggletail[1] = tail3;
+		Mhead[1] = head1;
+		Mtail[1] = tail3;
 	      }
 	      if ( head2 > tail1 ){
-		MHp->togglehead[2] = tail1;
-		MHp->toggletail[2] = head2;
+		Mhead[2] = tail1;
+		Mtail[2] = head2;
 	      }else{
-		MHp->togglehead[2] = head2;
-		MHp->toggletail[2] = tail1;
+		Mhead[2] = head2;
+		Mtail[2] = tail1;
 	      }
 	      if ( head2 > tail3 ){
-		MHp->togglehead[3] = tail3;
-		MHp->toggletail[3] = head2;
+		Mhead[3] = tail3;
+		Mtail[3] = head2;
 	      }else{
-		MHp->togglehead[3] = head2;
-		MHp->toggletail[3] = tail3;
+		Mhead[3] = head2;
+		Mtail[3] = tail3;
 	      }
 	      if ( head3 > tail1 ){
-		MHp->togglehead[4] = tail1;
-		MHp->toggletail[4] = head3;
+		Mhead[4] = tail1;
+		Mtail[4] = head3;
 	      }else{
-		MHp->togglehead[4] = head3;
-		MHp->toggletail[4] = tail1;
+		Mhead[4] = head3;
+		Mtail[4] = tail1;
 	      }
 	      if ( head3 > tail2 ){
-		MHp->togglehead[5] = tail2;
-		MHp->toggletail[5] = head3;
+		Mhead[5] = tail2;
+		Mtail[5] = head3;
 	      }else{
-		MHp->togglehead[5] = head3;
-		MHp->toggletail[5] = tail2;
+		Mhead[5] = head3;
+		Mtail[5] = tail2;
 	      }
 	    }else{
-	      MHp->togglehead[0] = head1;
-	      MHp->toggletail[0] = tail2;
-	      MHp->togglehead[1] = head1;
-	      MHp->toggletail[1] = tail3;
-	      MHp->togglehead[2] = head2;
-	      MHp->toggletail[2] = tail1;
-	      MHp->togglehead[3] = head2;
-	      MHp->toggletail[3] = tail3;
-	      MHp->togglehead[4] = head3;
-	      MHp->toggletail[4] = tail1;
-	      MHp->togglehead[5] = head3;
-	      MHp->toggletail[5] = tail2;
+	      Mhead[0] = head1;
+	      Mtail[0] = tail2;
+	      Mhead[1] = head1;
+	      Mtail[1] = tail3;
+	      Mhead[2] = head2;
+	      Mtail[2] = tail1;
+	      Mhead[3] = head2;
+	      Mtail[3] = tail3;
+	      Mhead[4] = head3;
+	      Mtail[4] = tail1;
+	      Mhead[5] = head3;
+	      Mtail[5] = tail2;
 	    }
 	    fvalid = 1;
 	  }
@@ -636,17 +640,17 @@ void MH_BipartiteCondDegHexadToggles (MHproposal *MHp, Network *nwp)  {
   }
 
   if(trynode==5000){
-      MHp->togglehead[0] = 1;
-      MHp->toggletail[0] = 2;
-      MHp->togglehead[1] = 1;
-      MHp->toggletail[1] = 2;
-      MHp->togglehead[2] = 1;
-      MHp->toggletail[2] = 2;
-      MHp->togglehead[3] = 1;
-      MHp->toggletail[3] = 2;
-      MHp->togglehead[4] = 1;
-      MHp->toggletail[4] = 2;
-      MHp->togglehead[5] = 1;
-      MHp->toggletail[5] = 2;
+      Mhead[0] = 1;
+      Mtail[0] = 2;
+      Mhead[1] = 1;
+      Mtail[1] = 2;
+      Mhead[2] = 1;
+      Mtail[2] = 2;
+      Mhead[3] = 1;
+      Mtail[3] = 2;
+      Mhead[4] = 1;
+      Mtail[4] = 2;
+      Mhead[5] = 1;
+      Mtail[5] = 2;
   }
 }

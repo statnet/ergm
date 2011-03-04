@@ -14,6 +14,16 @@
 #      if 'nw' hasn't any missing edges, the list will only contain NULL
 #                                 values for the 'tails' and 'heads' components,
 #                                 a 0 for 'nedges' and 'dir' appropriately set
+#
+# The <ergm.Cprepare.miss> function functions constructs a static edgelist for
+# the proposals that need it.
+#
+# --PARAMETERS--
+#   nw     : the network
+#
+# --RETURNED--
+#      a vector of length 1+Nmissing*2. The first element is the number of
+#      missing edges, and the remainder a column-major edgelist
 ################################################################################
 
 ergm.design <- function(nw, model, verbose=FALSE){
@@ -27,4 +37,8 @@ ergm.design <- function(nw, model, verbose=FALSE){
     }
   }
   Clist.miss
+}
+
+ergm.Cprepare.miss <- function(nw){
+  c(network.naedgecount(nw),as.matrix(is.na(nw),matrix.type="edgelist"))
 }

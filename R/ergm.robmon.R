@@ -14,8 +14,6 @@
 #   model          : the model, as returned by <ergm.getmodel>
 #   Clist          : a list of several network and model parameters,
 #                    as returned by <ergm.Cprepare>
-#   Clist.miss     : a 'Clist' for the network of missing edges, as
-#                    returned by <ergm.design>
 #   burnin         : the number of proposals to disregard before sampling
 #                    begins
 #   interval       : the number of proposals between sampled statistics;
@@ -40,7 +38,7 @@
 #
 ###########################################################################      
 
-ergm.robmon <- function(theta0, nw, model, Clist, Clist.miss,
+ergm.robmon <- function(theta0, nw, model, Clist,
                         burnin, interval, MHproposal,
                         verbose=FALSE, 
                         control=control.ergm() ){
@@ -58,7 +56,7 @@ ergm.robmon <- function(theta0, nw, model, Clist, Clist.miss,
   MCMCparams <- c(control, 
                   list(samplesize=n1, burnin=burnin, interval=interval,
                        nmatrixentries = n1* Clist$nstats, #stats=stats, 
-                       parallel=control$parallel, Clist.miss=Clist.miss))
+                       parallel=control$parallel))
   cat(paste("Phase 1: ",n1,"iterations"))
   cat(paste(" (interval=",MCMCparams$interval,")\n",sep=""))
   z <- ergm.getMCMCsample(Clist, MHproposal, eta0, MCMCparams, verbose)

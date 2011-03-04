@@ -47,21 +47,6 @@ void WtSAN_wrapper (int *dnumnets, int *nedges,
 
   m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
 
-  /* Form the missing network */
-  nw[0]=WtNetworkInitialize(heads, tails, weights, nedges[0],
-			    n_nodes, directed_flag, bip, 0);
-  /* Form the missing network */
-  if (nedges[1]>0) {
-   heads += nedges[0];
-   tails += nedges[0];
-   weights += nedges[0];
-   nw[1]=WtNetworkInitialize(heads, tails, weights, nedges[1],
-                           n_nodes, directed_flag, bip, 0);
-   heads -= nedges[0];
-   tails -= nedges[0];
-   weights -= nedges[0];
-  }
-
   if (fVerbose)
     Rprintf("Total m->n_stats is %i; total samplesize is %d\n",
              m->n_stats,samplesize);
@@ -80,8 +65,6 @@ void WtSAN_wrapper (int *dnumnets, int *nedges,
 
   WtModelDestroy(m);
   WtNetworkDestroy(nw);
-  if (nedges[1]>0)
-    WtNetworkDestroy(&nw[1]);
   PutRNGstate();  /* Disable RNG before returning */
 }
 

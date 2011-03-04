@@ -135,8 +135,7 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
                      burnin=burnin,
                      interval=interval,
                      parallel=control$parallel,
-                     packagenames=control$packagenames,
-                     Clist.miss=ergm.design(nw, m, verbose=verbose))
+                     packagenames=control$packagenames)
   
   # Explain how many iterations and steps will ensue if verbose==TRUE
   if (verbose) {

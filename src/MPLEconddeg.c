@@ -49,10 +49,6 @@ void MPLEconddeg_wrapper (int *heads, int *tails, int *dnedges,
   /* Form the missing network */
   nw[0]=NetworkInitialize(heads, tails, n_edges, 
                           n_nodes, directed_flag, bip, 0);
-  if (n_medges>0) {
-   nw[1]=NetworkInitialize(mheads, mtails, n_medges,
-                           n_nodes, directed_flag, bip, 0);
-  }
 
   hammingterm=ModelTermHamming (*funnames, *nterms);
   if(hammingterm>0){
@@ -144,7 +140,7 @@ void MPLEconddeg_wrapper (int *heads, int *tails, int *dnedges,
   ModelDestroy(m);
 
   NetworkDestroy(nw);
-  if (n_medges>0 || hammingterm > 0  || formationterm > 0)
+  if (hammingterm > 0  || formationterm > 0)
     NetworkDestroy(&nw[1]);
   PutRNGstate();  /* Disable RNG before returning */
 }

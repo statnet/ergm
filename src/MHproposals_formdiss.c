@@ -83,12 +83,10 @@ void MH_FormationMLE (MHproposal *MHp, Network *nwp)
        the selected dyad. (That is, that dyad originally did not have an edge
        (which may have been toggled.) */
     /* Generate. */
-    Mtail[0] = 1 + unif_rand() * nnodes;
-    Mhead[0] = 1 + unif_rand() * nnodes;
-    while(Mhead[0]==Mtail[0]){
-     Mtail[0] = 1 + unif_rand() * nnodes;
-     Mhead[0] = 1 + unif_rand() * nnodes;
-    }
+    do{
+      Mtail[0] = 1 + unif_rand() * nnodes;
+      Mhead[0] = 1 + unif_rand() * nnodes;
+    }while(Mhead[0]==Mtail[0]);
     
     /* If undirected, reorder. */
     if(!nwp->directed_flag && Mtail[0]<Mhead[0]){
@@ -137,12 +135,10 @@ void MH_DissolutionMLE (MHproposal *MHp, Network *nwp)
        the selected dyad. (That is, that dyad originally did not have an edge
        (which may have been toggled.) */
     /* Generate. */
-    Mtail[0] = 1 + unif_rand() * nnodes;
-    Mhead[0] = 1 + unif_rand() * nnodes;
-    while(Mhead[0]==Mtail[0]){
+    do{
      Mtail[0] = 1 + unif_rand() * nnodes;
      Mhead[0] = 1 + unif_rand() * nnodes;
-    }
+    }while(Mhead[0]==Mtail[0]);
     
     /* If undirected, reorder. */
     if(!nwp->directed_flag && Mtail[0]<Mhead[0]){
@@ -172,13 +168,12 @@ void MH_FormationNonObservedMLE (MHproposal *MHp, Network *nwp)
   static Vertex nnodes;
   unsigned int trytoggle;
   static Edge ndyads;
-  static Edge rane, nmissing;
+  Edge nmissing = MHp->inputs[0];
 
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
     nnodes = nwp[0].nnodes;
     ndyads = (nnodes-1)*nnodes / (nwp[0].directed_flag? 1:2);
-    nmissing = nwp[1].nedges;
     if(nmissing==0){
       *MHp->togglehead = MH_FAILED;
       *MHp->toggletail = MH_IMPOSSIBLE;
@@ -198,17 +193,13 @@ void MH_FormationNonObservedMLE (MHproposal *MHp, Network *nwp)
        (which may have been toggled.) */
     /* Generate. */
   
-    rane = 1 + unif_rand() * nmissing;
-    FindithEdge(Mhead, Mtail, rane, &nwp[1]);
-
-    /* If undirected, reorder. */
-    if(!nwp->directed_flag && Mtail[0]<Mhead[0]){
-      Vertex tmp=Mtail[0];
-      Mtail[0]=Mhead[0];
-      Mhead[0]=tmp;
-    }
+    // Note that missing edgelist is indexed from 0 but the first
+    // element of MHp->inputs is the number of missing edges.
+    Edge rane = 1 + unif_rand() * nmissing;
+    Mhead[0]=MHp->inputs[rane];
+    Mtail[0]=MHp->inputs[nmissing+rane];
       
-    if((!EdgetreeSearch(Mhead[0],Mtail[0],nwp[0].outedges)|
+    if((!EdgetreeSearch(Mhead[0],Mtail[0],nwp[0].outedges)||
         !EdgetreeSearch(Mhead[0],Mtail[0],nwp[2].outedges)) &&
 	    CheckTogglesValid(MHp, nwp)) break;
   }
@@ -229,13 +220,12 @@ void MH_DissolutionNonObservedMLE (MHproposal *MHp, Network *nwp)
   static Vertex nnodes;
   unsigned int trytoggle;
   static Edge ndyads;
-  static Edge rane, nmissing;
+  Edge nmissing=MHp->inputs[0];
 
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
     nnodes = nwp[0].nnodes;
     ndyads = (nnodes-1)*nnodes / (nwp[0].directed_flag? 1:2);
-    nmissing = nwp[1].nedges;
     if(nmissing==0){
       *MHp->togglehead = MH_FAILED;
       *MHp->toggletail = MH_IMPOSSIBLE;
@@ -255,17 +245,13 @@ void MH_DissolutionNonObservedMLE (MHproposal *MHp, Network *nwp)
        (which may have been toggled.) */
     /* Generate. */
   
-    rane = 1 + unif_rand() * nmissing;
-    FindithEdge(Mhead, Mtail, rane, &nwp[1]);
-
-    /* If undirected, reorder. */
-    if(!nwp->directed_flag && Mtail[0]<Mhead[0]){
-      Vertex tmp=Mtail[0];
-      Mtail[0]=Mhead[0];
-      Mhead[0]=tmp;
-    }
+    // Note that missing edgelist is indexed from 0 but the first
+    // element of MHp->inputs is the number of missing edges.
+    Edge rane = 1 + unif_rand() * nmissing;
+    Mhead[0]=MHp->inputs[rane];
+    Mtail[0]=MHp->inputs[nmissing+rane];
       
-    if(( EdgetreeSearch(Mhead[0],Mtail[0],nwp[0].outedges)|
+    if(( EdgetreeSearch(Mhead[0],Mtail[0],nwp[0].outedges)||
          EdgetreeSearch(Mhead[0],Mtail[0],nwp[2].outedges)) &&
 	    CheckTogglesValid(MHp, nwp)) break;
   }

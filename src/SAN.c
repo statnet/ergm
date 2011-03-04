@@ -51,15 +51,6 @@ void SAN_wrapper ( int *dnumnets, int *nedges,
   /* Form the network */
   nw[0]=NetworkInitialize(heads, tails, nedges[0],
                           n_nodes, directed_flag, bip, 0);
-  /* Form the missing network */
-  if (nedges[1]>0) {
-   heads += nedges[0];
-   tails += nedges[0];
-   nw[1]=NetworkInitialize(heads, tails, nedges[1],
-                           n_nodes, directed_flag, bip, 0);
-   heads -= nedges[0];
-   tails -= nedges[0];
-  }
 
   hammingterm=ModelTermHamming (*funnames, *nterms);
   if(hammingterm>0){
@@ -147,7 +138,7 @@ void SAN_wrapper ( int *dnumnets, int *nedges,
   ModelDestroy(m);
 
   NetworkDestroy(nw);
-  if (nedges[1]>0 || hammingterm > 0  || formationterm > 0)
+  if ( hammingterm > 0  || formationterm > 0)
     NetworkDestroy(&nw[1]);
   PutRNGstate();  /* Disable RNG before returning */
 }

@@ -205,11 +205,11 @@ InitMHP.dissolutionMLE <- function(arguments, nw, model) {
   MHproposal
 }
 InitMHP.formationNonObservedMLE <- function(arguments, nw, model) {
-  MHproposal <- list(name = "FormationNonObservedMLE", inputs=NULL, package="ergm")
+  MHproposal <- list(name = "FormationNonObservedMLE", inputs=ergm.Cprepare.miss(nw), package="ergm")
   MHproposal
 }
 InitMHP.dissolutionNonObservedMLE <- function(arguments, nw, model) {
-  MHproposal <- list(name = "DissolutionNonObservedMLE", inputs=NULL, package="ergm")
+  MHproposal <- list(name = "DissolutionNonObservedMLE", inputs=ergm.Cprepare.miss(nw), package="ergm")
   MHproposal
 }
 
@@ -230,7 +230,7 @@ InitMHP.dissolution <- function(arguments, nw, model) {
 }
 
 InitMHP.randomtoggleNonObserved <- function(arguments, nw, model) {
-  MHproposal <- list(name = "randomtoggleNonObserved", inputs=NULL, package="ergm")
+  MHproposal <- list(name = "randomtoggleNonObserved", inputs=ergm.Cprepare.miss(nw), package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartiterandomtoggleNonObserved"
   }

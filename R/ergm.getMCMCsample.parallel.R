@@ -26,8 +26,6 @@
 #       packagenames: names of packages; this is only relevant if "ergm" is given
 #       Clist.dt    : this is a Clist, similar to that returned by
 #                     <ergm.Cprepare>, but this is for fitting dynamic models
-#       Clist.miss  : a corresponding 'Clist' for the network of missing edges,
-#                     as returned by <ergm.design>
 #       samplesize  : the number of networks to be sampled
 #       interval    : the number of proposals to ignore between sampled networks
 #       burnin      : the number of proposals to initially ignore for the burn-in
@@ -190,8 +188,6 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
 #               recognized components include:
 #       Clist.dt    : this is a Clist, similar to that returned by
 #                     <ergm.Cprepare>, but this is for fitting dynamic models
-#       Clist.miss  : a corresponding 'Clist' for the network of missing edges,
-#                     as returned by <ergm.design>
 #       samplesize  : the number of networks to be sampled
 #       stats       : ??
 #       interval    : the number of proposals to ignore between sampled networks
@@ -218,12 +214,6 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
   tails <- Clist$tails
   heads <- Clist$heads
   weights <- Clist$weights
-  if(!is.null(MCMCparams$Clist.miss)){
-    nedges[2] <- MCMCparams$Clist.miss$nedges
-    tails <- c(tails, MCMCparams$Clist.miss$tails)
-    heads <- c(heads, MCMCparams$Clist.miss$heads)
-    weights <- c(weights, rep(1,nedges[1]))
-  }
   if(!is.null(MCMCparams$Clist.dt)){
     nedges[3] <- MCMCparams$Clist.dt$nedges
     tails <- c(tails, MCMCparams$Clist.dt$tails)
