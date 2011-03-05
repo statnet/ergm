@@ -176,8 +176,9 @@ MHproposal.character <- function(object, arguments, nw, model, ..., response=NUL
 ########################################################################################
 
 MHproposal.formula <- function(object, arguments, nw, model, weights="default", class="c", reference="Bernoulli", response=NULL, ...) {
-
   constraints<-object
+  reference<-match.arg(reference,unique(MHproposals$Reference))
+  
   ## Construct a list of constraints and arguments from the formula.
   conlist<-list()
   constraints<-as.list(attr(terms(constraints,allowDotAsName=TRUE),"variables"))[-1]
@@ -216,19 +217,10 @@ MHproposal.formula <- function(object, arguments, nw, model, weights="default", 
   if(length(name)>1) stop("Multiple matching proposals in the lookup table.",
                           "This Should Not Be Happening (tm). Unless you have",
                           "been messing with the table, please file a bug report.")
-  ## TODO: Get intelligent error messages for reference mismatches as well.
+
   if(length(name)<1){
-    constraints<-with(MHproposals,Constraints[Class==class & Weights==weights])
-    weightings<-with(MHproposals,Weights[Class==class & Constraints==constraints])
-    stop("This combination of model constraint and proposal weighting is not implemented. ",
-         "Check your arguments for typos. \n",
-         if(length(constraints)) paste("Constraints that go with your selected weighting are as follows: ",
-                                       paste(constraints,collapse=", "),".\n",sep="")
-         else "The supplied weighting is not recognized/implemented.\n ",
-         if(length(weightings)) paste("Weightings that go with your selected constraint are as follows: ",
-                                      paste(weightings,collapse=", "),".\n",sep="")
-         else "The supplied constraint is not recognized/implemented.\n "
-         )
+    commonalities<-(MHproposals$Class==class)+(MHproposals$Weights==weights)+(MHproposals$Reference==reference)+(MHproposals$Constraints==constraints)
+    stop("The combination of class (",class,"), model constraints (",constraints,"), reference measure (",reference,"), and proposal weighting (",weights,") is not implemented. ", "Check your arguments for typos. ", if(any(commonalities>=3)) paste("Nearest matching proposals: (",paste(apply(MHproposals[commonalities==3,-5],1,paste, sep="), (",collapse=", "),collapse="), ("),")",sep="",".") else "")
   }
   if(is.null(arguments)) arguments<-conlist
   ## Hand it off to the class character method.
