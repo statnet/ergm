@@ -241,11 +241,47 @@ WtD_CHANGESTAT_FN(d_nodecov_nonzero){
 }
 
 /*****************
- stat: d_nodecov
+ stat: nodecov (sum)
 *****************/
 WtD_CHANGESTAT_FN(d_nodecov_sum){ 
   EXEC_THROUGH_TOGGLES({
       CHANGE_STAT[0] += (INPUT_ATTRIB[HEAD-1] + INPUT_ATTRIB[TAIL-1])*(NEWWT-OLDWT);
+  });
+}
+
+/*****************
+ stat: nodeicov (nonzero)
+*****************/
+WtD_CHANGESTAT_FN(d_nodeicov_nonzero){ 
+  EXEC_THROUGH_TOGGLES({
+      CHANGE_STAT[0] += INPUT_ATTRIB[TAIL-1]*((NEWWT!=0)-(OLDWT!=0));
+  });
+}
+
+/*****************
+ stat: nodeicov (sum)
+*****************/
+WtD_CHANGESTAT_FN(d_nodeicov_sum){ 
+  EXEC_THROUGH_TOGGLES({
+      CHANGE_STAT[0] += INPUT_ATTRIB[TAIL-1]*(NEWWT-OLDWT);
+  });
+}
+
+/*****************
+ stat: nodeocov (nonzero)
+*****************/
+WtD_CHANGESTAT_FN(d_nodeocov_nonzero){ 
+  EXEC_THROUGH_TOGGLES({
+      CHANGE_STAT[0] += INPUT_ATTRIB[HEAD-1]*((NEWWT!=0)-(OLDWT!=0));
+  });
+}
+
+/*****************
+ stat: nodeocov (sum)
+*****************/
+WtD_CHANGESTAT_FN(d_nodeocov_sum){ 
+  EXEC_THROUGH_TOGGLES({
+      CHANGE_STAT[0] += INPUT_ATTRIB[HEAD-1]*(NEWWT-OLDWT);
   });
 }
 
@@ -464,6 +500,8 @@ WtD_CHANGESTAT_FN(d_sum_pow){
 /* 	} */
 /*   }); */
 /* } */
+
+WtD_FROM_S_FN(d_transitiveweights_max)
 
 WtS_CHANGESTAT_FN(s_transitiveweights_max){ 
   Edge e1, e2;

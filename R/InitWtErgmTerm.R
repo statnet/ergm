@@ -329,6 +329,43 @@ InitWtErgmTerm.nodecov<-InitWtErgmTerm.nodemain<-function (nw, arglist, response
        dependence=FALSE)
 }
 
+InitWtErgmTerm.nodeicov<-function (nw, arglist, response, drop=TRUE, ...) {
+  a <- ergm.ErgmTerm(nw, arglist, directed=TRUE,
+                     varnames = c("attrname","transform","transformname","form"),
+                     vartypes = c("character","function","character","character"),
+                     defaultvalues = list(NULL,identity,"","sum"),
+                     required = c(TRUE,FALSE,FALSE,FALSE))
+  attrname<-a$attrname
+  f<-a$transform
+  f.name<-a$transformname
+  inputs <- f(get.node.attr(nw, attrname, "nodeicov", numeric=TRUE))
+  attr(inputs, "ParamsBeforeCov")<-length(inputs)
+  form<-match.arg(a$form,c("sum","nonzero","rank"))
+  list(name=paste("nodeocov",form,sep="_"), soname="ergm",
+       coef.names = paste("nodeocov",form,f.name,attrname,sep="."),
+       inputs=inputs,
+       dependence=(form=="rank"))
+}
+
+
+InitWtErgmTerm.nodeocov<-function (nw, arglist, response, drop=TRUE, ...) {
+  a <- ergm.ErgmTerm(nw, arglist, directed=TRUE,
+                     varnames = c("attrname","transform","transformname","form"),
+                     vartypes = c("character","function","character","character"),
+                     defaultvalues = list(NULL,identity,"","sum"),
+                     required = c(TRUE,FALSE,FALSE,FALSE))
+  attrname<-a$attrname
+  f<-a$transform
+  f.name<-a$transformname
+  inputs <- f(get.node.attr(nw, attrname, "nodeocov", numeric=TRUE))
+  attr(inputs, "ParamsBeforeCov")<-length(inputs)
+  form<-match.arg(a$form,c("sum","nonzero"))
+  list(name=paste("nodeocov",form,sep="_"), soname="ergm",
+       coef.names = paste("nodeocov",form,f.name,attrname,sep="."),
+       inputs=inputs,
+       dependence=FALSE)
+}
+
 InitWtErgmTerm.nonzero<-function(nw, arglist, response, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = NULL,
