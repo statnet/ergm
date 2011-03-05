@@ -193,6 +193,21 @@ InitWtErgmTerm.nodefactor<-function (nw, arglist, response, drop=TRUE, ...) {
        )
 }
 
+InitWtErgmTerm.nodeocorr<-function (nw, arglist, response, drop=TRUE, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, directed = TRUE,
+                      varnames = NULL,
+                      vartypes = NULL,
+                      defaultvalues = NULL,
+                      required = NULL)
+  ### Process the arguments
+
+  list(name="nodeocorr",
+       coef.names = "nodeocorr"
+       dependence = TRUE
+       )
+}
+
 InitWtErgmTerm.nodeofactor<-function (nw, arglist, response, drop=TRUE, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed = TRUE,
@@ -234,6 +249,21 @@ InitWtErgmTerm.nodeofactor<-function (nw, arglist, response, drop=TRUE, ...) {
        coef.names = paste("nodeofactor",form, paste(a$attrname,collapse="."), u, sep="."), #required
        inputs = inputs,
        dependence = FALSE # So we don't use MCMC if not necessary
+       )
+}
+
+InitWtErgmTerm.nodeicorr<-function (nw, arglist, response, drop=TRUE, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, directed = TRUE,
+                      varnames = NULL,
+                      vartypes = NULL,
+                      defaultvalues = NULL,
+                      required = NULL)
+  ### Process the arguments
+
+  list(name="nodeicorr",
+       coef.names = "nodeicorr"
+       dependence = TRUE
        )
 }
 
@@ -326,7 +356,7 @@ InitWtErgmTerm.mutual<-function (nw, arglist, response, drop=TRUE, ...) {
                       defaultvalues = list("min",0),
                       required = c(FALSE,FALSE))
 
-  form <- match.arg(a$form,c("min","nabsdiff","threshold","product","geometric"))
+  form <- match.arg(a$form,c("min","nabsdiff","threshold","product","geometric","correlation"))
   
   if(drop) { # Check for zero statistics, print -Inf messages if applicable
     obsstats <- check.ErgmTerm.summarystats(nw, arglist, response=response, ...)
@@ -337,8 +367,8 @@ InitWtErgmTerm.mutual<-function (nw, arglist, response, drop=TRUE, ...) {
       return(NULL) # In this case the obs nw has 0 or n(n-1)/2 asymmetric dyads
     }
   }
-  list(name=switch(form,min="mutual_wt_min",nabsdiff="mutual_wt_nabsdiff",threshold="mutual_wt_threshold",product="mutual_wt_product",geometric="mutual_wt_geom_mean"),
-       coef.names=switch(form,min="mutual.min",nabsdiff="mutual.nabsdiff",threshold=paste("mutual",a$threshold,sep="."),product="mutual.product",geometric="mutual.geom.mean"),
+  list(name=switch(form,min="mutual_wt_min",nabsdiff="mutual_wt_nabsdiff",threshold="mutual_wt_threshold",product="mutual_wt_product", correlation=, geometric="mutual_wt_geom_mean"),
+       coef.names=switch(form,min="mutual.min",nabsdiff="mutual.nabsdiff",threshold=paste("mutual",a$threshold,sep="."), correlation="mutual.cor", product="mutual.product",geometric="mutual.geom.mean"),
        inputs=if(form=="threshold") threshold,
        dependence=TRUE)
 }
