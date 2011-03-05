@@ -203,7 +203,7 @@ InitWtErgmTerm.nodeocorr<-function (nw, arglist, response, drop=TRUE, ...) {
   ### Process the arguments
 
   list(name="nodeocorr",
-       coef.names = "nodeocorr"
+       coef.names = "nodeocorr",
        dependence = TRUE
        )
 }
@@ -262,7 +262,7 @@ InitWtErgmTerm.nodeicorr<-function (nw, arglist, response, drop=TRUE, ...) {
   ### Process the arguments
 
   list(name="nodeicorr",
-       coef.names = "nodeicorr"
+       coef.names = "nodeicorr",
        dependence = TRUE
        )
 }
