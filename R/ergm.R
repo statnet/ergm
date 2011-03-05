@@ -106,8 +106,8 @@
 #    $      #    offset          :  a vector of whether each model parameter was set at
 #                                  a fixed value (not estimated)
 #    $      #    drop            :  list of dropped terms
-#     * @%^&  +  sample.miss     :  the matrix of sample network statistics for those
-#                                   networks with missing edges
+#     * @%^&  +  sample.obs      :  the matrix of sample network statistics for observed
+#                                   data
 #     * @        parallel        :  the number of additional threads used when sampling
 #      !    #~   glm             :  the fit established by MPL estimation and returned
 #                                   by <ergm.logitreg>, <ergm.pen.glm> or <glm>
@@ -180,7 +180,7 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
       nwm[y0edges[i,1],y0edges[i,2]] <- NA
      }
     }
-    MHproposal.miss <- "formationNonObservedMLE"
+    MHproposal.obs <- "formationNonObservedMLE"
    }
    if(MLestimate=="dissolution"){
     proposalclass <- "dmle"
@@ -239,7 +239,7 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
       y0[yminusedges[i,1],yminusedges[i,2]] <- 0
      }
     }
-    MHproposal.miss <- "dissolutionNonObservedMLE"
+    MHproposal.obs <- "dissolutionNonObservedMLE"
    }
    formula.passed<-formula
    formula<-ergm.update.formula(formula,nw~.)
@@ -248,15 +248,15 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
    nwm <- network.copy(nw)
    # There may be a better way to specify this in the future.
 
-   MHproposal.miss<-constraints
+   MHproposal.obs<-constraints
    
-   MHproposal.miss<-switch(tolower(obs),
+   MHproposal.obs<-switch(tolower(obs),
                           detrank=ergm.update.formula(MHproposal.obs,~.+ranks),
-                          MHproposal.miss)
+                          MHproposal.obs)
    
-   if(network.naedgecount(nw)) MHproposal.miss<-ergm.update.formula(MHproposal.miss,~.+observed)
+   if(network.naedgecount(nw)) MHproposal.obs<-ergm.update.formula(MHproposal.obs,~.+observed)
 
-   if(constraints==MHproposal.miss) MHproposal.miss<-NULL
+   if(constraints==MHproposal.obs) MHproposal.obs<-NULL
   }
   # End conditional MLE in dynamic model
   if(!is.null(meanstats)){
@@ -309,12 +309,12 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
 
   MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial,class=proposalclass,reference=reference,response=response)
   # Note:  MHproposal function in CRAN version does not use the "class" argument for now
-  if(!is.null(MHproposal.miss)) MHproposal.miss <- MHproposal(MHproposal.miss, weights=control$prop.weights, control$prop.args, nw, model.initial, class=proposalclass, reference=reference, response=response)
+  if(!is.null(MHproposal.obs)) MHproposal.obs <- MHproposal(MHproposal.obs, weights=control$prop.weights, control$prop.args, nw, model.initial, class=proposalclass, reference=reference, response=response)
 
   conddeg <- switch(MHproposal$name=="CondDegree",control$drop,NULL)
   MCMCparams=c(control,
    list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,
-        maxit=maxit, Clist.miss=NULL, Clist.dt=NULL,
+        maxit=maxit, Clist.dt=NULL,
 	mcmc.precision=control$mcmc.precision))
 
 
@@ -377,7 +377,6 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
   }
 
   Clist <- ergm.Cprepare(nw, model, response=response)
-  Clist.miss <- ergm.design(nw, model, verbose=FALSE)
   if((MHproposal$name!="FormationMLE")&(MHproposal$name!="DissolutionMLE")){
     Clist.dt <- list(heads=NULL, tails=NULL, nedges=0, dir=is.directed(nw))
   }else{
@@ -408,7 +407,6 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
                   list(samplesize=MCMCsamplesize, burnin=burnin,
                        interval=interval,
                        maxit=maxit,
-                       Clist.miss=Clist.miss,
                        Clist.dt=Clist.dt, 
                        mcmc.precision=control$mcmc.precision))
 
@@ -427,13 +425,13 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
 				#control=control.ergm(nsim1=100, nsim2=1000, gridsize=100),  # simulation parameters
 				#plots=FALSE,  # currently useless, but plots can be reimplemented
 				MCMCparams=MCMCparams, 
-				MHproposal=MHproposal, MHproposal.miss=MHproposal.miss, 
+				MHproposal=MHproposal, MHproposal.obs=MHproposal.obs, 
 				verbose=verbose,...),
      ergm.mainfitloop(theta0, nw,
                           model, Clist, 
                           initialfit,
                           MCMCparams=MCMCparams, MHproposal=MHproposal,
-                          MHproposal.miss=MHproposal.miss,
+                          MHproposal.obs=MHproposal.obs,
                           verbose=verbose,
                       response=response,
                           ...)

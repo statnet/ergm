@@ -1,6 +1,6 @@
-ergm.MCMCse.old<-function(theta, theta0, statsmatrix, statsmatrix.miss,
+ergm.MCMCse.old<-function(theta, theta0, statsmatrix, statsmatrix.obs,
                       model, 
-                      lag.max=10, lag.max.miss=lag.max) {
+                      lag.max=10, lag.max.obs=lag.max) {
 #
   offsettheta <- model$etamap$offsettheta
   offsetmap <- model$etamap$offsetmap
@@ -11,11 +11,11 @@ ergm.MCMCse.old<-function(theta, theta0, statsmatrix, statsmatrix.miss,
 # av <- apply(statsmatrix,2,median)
   xsim <- sweep(statsmatrix, 2, av, "-")
   xobs <- -av
-  if(!is.null(statsmatrix.miss)){
-   av.miss <- apply(statsmatrix.miss, 2, mean)
-#  av.miss <- apply(statsmatrix.miss, 2, median)
-   xsim.miss <- sweep(statsmatrix.miss, 2, av.miss,"-")
-   xobs <- av.miss-av
+  if(!is.null(statsmatrix.obs)){
+   av.obs <- apply(statsmatrix.obs, 2, mean)
+#  av.obs <- apply(statsmatrix.obs, 2, median)
+   xsim.obs <- sweep(statsmatrix.obs, 2, av.obs,"-")
+   xobs <- av.obs-av
   }
   theta.offset <- etamap$theta0
   theta.offset[!offsettheta] <- theta
@@ -31,8 +31,8 @@ ergm.MCMCse.old<-function(theta, theta0, statsmatrix, statsmatrix.miss,
 # etagrad <- etagrad[!offsettheta,,drop=FALSE]
   xobs <- xobs[!offsetmap]
   xsim <- xsim[,!offsetmap, drop=FALSE]
-  if(!is.null(statsmatrix.miss)){
-   xsim.miss <- xsim.miss[,!offsetmap, drop=FALSE]
+  if(!is.null(statsmatrix.obs)){
+   xsim.obs <- xsim.obs[,!offsetmap, drop=FALSE]
   }
 #
 # names(theta) <- dimnames(statsmatrix)[[2]]
@@ -95,42 +95,42 @@ ergm.MCMCse.old<-function(theta, theta0, statsmatrix, statsmatrix.miss,
 #  Calculate the auto-covariance of the Conditional MCMC suff. stats.
 #  and hence the Conditional MCMC s.e.
 #
-   E.miss <- 0
-   lag.max.miss <- lag.max
-   if(!is.null(statsmatrix.miss)){
-#   z <- sweep(xsim.miss, 2, xobs, "-")
-    z <- xsim.miss
-    R <- acf(z, lag.max = lag.max.miss,
+   E.obs <- 0
+   lag.max.obs <- lag.max
+   if(!is.null(statsmatrix.obs)){
+#   z <- sweep(xsim.obs, 2, xobs, "-")
+    z <- xsim.obs
+    R <- acf(z, lag.max = lag.max.obs,
      type = "covariance", plot = FALSE)$acf
     if(dim(R)[2] > 1){
      part <- apply(R[-1,  ,  ,drop=FALSE], c(2, 3), sum)
     }else{
      part <- matrix(sum(R[-1,  ,  , drop=FALSE]))
     }
-    cov.zbar.miss <- (R[1,  ,  ] + part + t(part))/nrow(xsim.miss)
-    misspred <- xsim.miss %*% etaparam
-    prob.miss <- max(misspred)
-    prob.miss <- exp(misspred - prob.miss)
-    prob.miss <- prob.miss/sum(prob.miss)
-    E.miss <- apply(sweep(xsim.miss, 1, prob.miss, "*"), 2, sum)
-#   E.miss <- apply(xsim.miss,2,wtd.median,weight=prob.miss)
-    htmp <- sweep(sweep(xsim.miss, 2, E.miss, "-"), 1, sqrt(prob.miss), "*")
+    cov.zbar.obs <- (R[1,  ,  ] + part + t(part))/nrow(xsim.obs)
+    obspred <- xsim.obs %*% etaparam
+    prob.obs <- max(obspred)
+    prob.obs <- exp(obspred - prob.obs)
+    prob.obs <- prob.obs/sum(prob.obs)
+    E.obs <- apply(sweep(xsim.obs, 1, prob.obs, "*"), 2, sum)
+#   E.obs <- apply(xsim.obs,2,wtd.median,weight=prob.obs)
+    htmp <- sweep(sweep(xsim.obs, 2, E.obs, "-"), 1, sqrt(prob.obs), "*")
 #   htmp <- htmp %*% t(etagrad)
-#   H.miss <- t(htmp) %*% htmp
+#   H.obs <- t(htmp) %*% htmp
     htmp.offset[,!offsetmap] <- htmp
     htmp.offset <- t(ergm.etagradmult(theta.offset, t(htmp.offset), etamap))
-    H.miss <- crossprod(htmp.offset, htmp.offset)
+    H.obs <- crossprod(htmp.offset, htmp.offset)
 #   htmp <- crossprod(htmp, htmp)
 #   H <- crossprod(t(etagrad),crossprod(htmp, t(etagrad)))
-#   gradient.miss <- (xobs-E.miss) %*% t(etagrad)
-    llg.offset[!offsetmap] <- xobs-E.miss
-    gradient.miss <- ergm.etagradmult(theta.offset, llg.offset, etamap)
-#   gradient.miss <- tcrossprod(xobs-E.miss, etagrad)
-    cov.zbar.miss <- suppressWarnings(chol(cov.zbar.miss, pivot=TRUE))
-    cov.zbar.offset[!offsetmap,!offsetmap] <- cov.zbar.miss
+#   gradient.obs <- (xobs-E.obs) %*% t(etagrad)
+    llg.offset[!offsetmap] <- xobs-E.obs
+    gradient.obs <- ergm.etagradmult(theta.offset, llg.offset, etamap)
+#   gradient.obs <- tcrossprod(xobs-E.obs, etagrad)
+    cov.zbar.obs <- suppressWarnings(chol(cov.zbar.obs, pivot=TRUE))
+    cov.zbar.offset[!offsetmap,!offsetmap] <- cov.zbar.obs
     cov.zbar.offset <- t(ergm.etagradmult(theta.offset, t(cov.zbar.offset), etamap))
-    cov.zbar.miss <- crossprod(cov.zbar.offset, cov.zbar.offset)
-#   cov.zbar.miss <- as.matrix(etagrad %*% cov.zbar.miss %*% t(etagrad))
+    cov.zbar.obs <- crossprod(cov.zbar.offset, cov.zbar.offset)
+#   cov.zbar.obs <- as.matrix(etagrad %*% cov.zbar.obs %*% t(etagrad))
 #   if(any(!offsettheta)){
 #    H <- as.matrix(H[!offsettheta,])
 #    H <- as.matrix(H[,!offsettheta])
@@ -139,12 +139,12 @@ ergm.MCMCse.old<-function(theta, theta0, statsmatrix, statsmatrix.miss,
 #   }
 #   cov.zbar <- cov.zbar[!offsettheta,,drop=FALSE]
 #   cov.zbar <- cov.zbar[,!offsettheta,drop=FALSE]
-    novar <- novar | (diag(H.miss)==0)
-    H.miss <- H.miss[!novar,,drop=FALSE] 
-    H.miss <- H.miss[,!novar,drop=FALSE] 
-    cov.zbar.miss <- cov.zbar.miss[!novar,,drop=FALSE] 
-    cov.zbar.miss <- cov.zbar.miss[,!novar,drop=FALSE] 
-    gradient.miss <- gradient.miss[!novar] 
+    novar <- novar | (diag(H.obs)==0)
+    H.obs <- H.obs[!novar,,drop=FALSE] 
+    H.obs <- H.obs[,!novar,drop=FALSE] 
+    cov.zbar.obs <- cov.zbar.obs[!novar,,drop=FALSE] 
+    cov.zbar.obs <- cov.zbar.obs[,!novar,drop=FALSE] 
+    gradient.obs <- gradient.obs[!novar] 
    }
    detna <- function(x){x <- det(x); if(is.na(x)){x <- -40};x}
    if(nrow(H)==1){
@@ -163,8 +163,8 @@ ergm.MCMCse.old<-function(theta, theta0, statsmatrix, statsmatrix.miss,
    cov.zbar <- cov.zbar[,!novar,drop=FALSE] 
    gradient <- gradient[!novar] 
    gradient.full <- rep(NA,length=length(theta))
-   if(!is.null(statsmatrix.miss)){
-     gradient.full[!offsettheta][!novar] <- gradient - gradient.miss 
+   if(!is.null(statsmatrix.obs)){
+     gradient.full[!offsettheta][!novar] <- gradient - gradient.obs 
    }else{
      gradient.full[!offsettheta][!novar] <- gradient
    }
@@ -173,12 +173,12 @@ ergm.MCMCse.old<-function(theta, theta0, statsmatrix, statsmatrix.miss,
    if(!(inherits(mc.se0,"try-error"))){
     mc.se0 <- try(diag(solve(H, t(mc.se0))), silent=TRUE)
     if(!(inherits(mc.se0,"try-error"))){
-     if(!is.null(statsmatrix.miss)){
-      mc.se.miss0 <- try(solve(H.miss, cov.zbar.miss), silent=TRUE)
-      if(!(inherits(mc.se.miss0,"try-error"))){
-       mc.se.miss0 <- try(diag(solve(H.miss, t(mc.se.miss0))), silent=TRUE)
-       if(!inherits(mc.se.miss0,"try-error")){
-        mc.se[!offsettheta][!novar] <- sqrt(mc.se0 + mc.se.miss0)
+     if(!is.null(statsmatrix.obs)){
+      mc.se.obs0 <- try(solve(H.obs, cov.zbar.obs), silent=TRUE)
+      if(!(inherits(mc.se.obs0,"try-error"))){
+       mc.se.obs0 <- try(diag(solve(H.obs, t(mc.se.obs0))), silent=TRUE)
+       if(!inherits(mc.se.obs0,"try-error")){
+        mc.se[!offsettheta][!novar] <- sqrt(mc.se0 + mc.se.obs0)
        }else{
         mc.se[!offsettheta][!novar] <- sqrt(mc.se0)
        }
@@ -198,15 +198,15 @@ ergm.MCMCse.old<-function(theta, theta0, statsmatrix, statsmatrix.miss,
    if(inherits(test.hessian,"try-error") || test.hessian){
     hessian0 <- robust.inverse(var(xsim[,!novar,drop=FALSE]))
    }else{
-    if(!is.null(statsmatrix.miss)){
-     test.hessian.miss <- try(any(is.na(sqrt(diag(robust.inverse(H.miss))))), silent=TRUE)
-     if(inherits(test.hessian.miss,"try-error") || test.hessian.miss){
-#                || detna(H.miss)< -25 ){
+    if(!is.null(statsmatrix.obs)){
+     test.hessian.obs <- try(any(is.na(sqrt(diag(robust.inverse(H.obs))))), silent=TRUE)
+     if(inherits(test.hessian.obs,"try-error") || test.hessian.obs){
+#                || detna(H.obs)< -25 ){
        hessian0 <- - H
      }else{
-       hessian0 <-  H.miss-H
-#      hessian0 <- -robust.inverse(var(xsim[,!novar,drop=FALSE]))-robust.inverse(var(xsim.miss[,!novar,drop=FALSE]))
-#      hessian0 <- -var(xsim[,!novar])+var(xsim.miss[,!novar])
+       hessian0 <-  H.obs-H
+#      hessian0 <- -robust.inverse(var(xsim[,!novar,drop=FALSE]))-robust.inverse(var(xsim.obs[,!novar,drop=FALSE]))
+#      hessian0 <- -var(xsim[,!novar])+var(xsim.obs[,!novar])
      }
     }else{
      hessian0 <- - H

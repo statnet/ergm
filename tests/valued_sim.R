@@ -29,7 +29,7 @@ rho<-.3
 # We ought to be able to specify them in a more interpretable way.
 denom<--2*(1-rho^2)*sig^2
 xx.coef<-1/denom+1/2 # 1/2 is from the reference measure
-x.coef<-2*(-mu+rho*mu)/denom
+x.coef<-2*(-1+rho)*mu/denom
 xy.coef<--2*rho/denom
 
 theta<-c(x.coef,xy.coef,xx.coef)

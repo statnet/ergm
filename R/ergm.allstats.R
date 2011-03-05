@@ -43,7 +43,6 @@ ergm.allstats <- function(formula, zeroobs = TRUE, force = FALSE,
   nw <- ergm.getnetwork(formula)
   model <- ergm.getmodel(formula, nw, drop=FALSE, initialfit=TRUE)
   Clist <- ergm.Cprepare(nw, model)
-  Clist.miss <- ergm.design(nw, model, verbose=verbose)
 
   # Check for networks that are too large.  Pretty unsophisticated check for now.
   if ((Clist$n > 8 && !Clist$dir) || (Clist$n > 6 && Clist$dir)) {

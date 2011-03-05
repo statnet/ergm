@@ -19,7 +19,7 @@
 # --PARAMTERS--
 #   object : an ergm object, that has an MCMC established stats matrix
 #   sample : the name of the component in 'object' to base the diagnosis
-#            on; recognized strings are "missing", "sample", and
+#            on; recognized strings are "observed", "sample", and
 #            "thetasample"; default="sample"
 #   smooth : whether to draw a smooth line through the trace plots;
 #            default=TRUE
@@ -72,9 +72,9 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
    degeneracy.type <- NULL
   }
 
-  if(sample=="missing"){
+  if(sample=="observed"){
     component <- "sample"
-    statsmatrix.miss <- object[["sample.miss"]]
+    statsmatrix.obs <- object[["sample.obs"]]
     if(missing(main)){mcmc.title <- "Summary of the Conditional Samples"} 
   }else{
     component <- sample
@@ -102,8 +102,8 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
      x0 <- rep(0,ncol(statsmatrix))
     }else{
 #     if(!is.latent(object) ){
-      if(sample=="missing"){
-        x0 <- apply(statsmatrix.miss,2,mean)
+      if(sample=="observed"){
+        x0 <- apply(statsmatrix.obs,2,mean)
 #        print(x0)
       }else{
         x0 <- rep(0,ncol(statsmatrix))
@@ -116,7 +116,7 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
         x0 <- rep(0,ncol(statsmatrix))
        }
       }else{
-       if(sample=="missing"){
+       if(sample=="observed"){
 #         print(x0)
 #         print(apply(statsmatrix,2,mean))
          statsmatrix <- sweep(statsmatrix,2,x0,"-")

@@ -188,12 +188,12 @@ ergm.compute.degeneracy<-function(xobs, theta0, etamap, statsmatrix,
   samplesize <- dim(statsmatrix)[1]
   statsmatrix0 <- statsmatrix
   probs <- rep(1/nrow(statsmatrix0),nrow(statsmatrix0))
-  statsmatrix0.miss <- NULL
-  probs.miss <- NULL
+  statsmatrix0.obs <- NULL
+  probs.obs <- NULL
   av <- apply(sweep(statsmatrix0,1,probs,"*"), 2, sum)
   xsim <- sweep(statsmatrix0, 2, av,"-")
-  xsim.miss <- NULL
-  probs.miss <- NULL
+  xsim.obs <- NULL
+  probs.obs <- NULL
 # xobs0 <- summary(model$formula)
   xobs <- -xobs - av
 #
@@ -215,7 +215,7 @@ ergm.compute.degeneracy<-function(xobs, theta0, etamap, statsmatrix,
                                  maxit=nr.maxit),
                     xobs=xobs,
                     xsim=xsim, probs=probs,
-                    xsim.miss=xsim.miss, probs.miss=probs.miss,
+                    xsim.obs=xsim.obs, probs.obs=probs.obs,
                     varweight=varweight, trustregion=trustregion,
                     eta0=eta0, etamap=etamap),silent=TRUE)
   if(verbose){cat("the change in the log-likelihood is", Lout$value,"\n")}
@@ -231,7 +231,7 @@ ergm.compute.degeneracy<-function(xobs, theta0, etamap, statsmatrix,
   names(theta) <- names(theta0)
 # c0  <- llik.fun(theta=Lout$par, xobs=xobs,
 #                 xsim=xsim, probs=probs,
-#                 xsim.miss=xsim.miss, probs.miss=probs.miss,
+#                 xsim.obs=xsim.obs, probs.obs=probs.obs,
 #                 varweight=0.5, eta0=eta0, etamap=etamap)
   loglikelihood <- Lout$value
   names(loglikelihood) <- "delta.log.lik"

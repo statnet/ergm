@@ -119,7 +119,7 @@ ergm.stocapprox <- function(theta0, nw, model, Clist,
 
   ve<-ergm.estimate(theta0=theta, model=model,
                    statsmatrix=statsmatrix,
-                   statsmatrix.miss=NULL,
+                   statsmatrix.obs=NULL,
                    epsilon=MCMCparams$epsilon, 
                    nr.maxit=MCMCparams$nr.maxit, 
                    nr.reltol=MCMCparams$nr.reltol,

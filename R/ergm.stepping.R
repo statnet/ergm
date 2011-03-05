@@ -13,9 +13,9 @@
 #   initialfit     : an ergm object, as the initial fit
 #   MCMCparams     : a list of parameters for controlling the MCMC sampling
 #   MHproposal     : an MHproposal object for 'nw', as returned by
-#                    <getMHproposal>
-#   MHproposal.miss: an MHproposal object for the missing network of'nw',
-#                    as returned by <getMHproposal>
+#                    <MHproposal>
+#   MHproposal.obs: an MHproposal object for the observed network of'nw',
+#                    as returned by <MHproposal>
 #   verbose        : whether the MCMC sampling should be verbose AND
 #                    the diagnostic plots should be printed ; default=FALSE
 #   ...            : additional paramters that are passed onto
@@ -28,7 +28,7 @@
 ###########################################################################      
 
 ergm.stepping = function(theta0, nw, model, Clist, initialfit, 
-                         MCMCparams, MHproposal, MHproposal.miss, 
+                         MCMCparams, MHproposal, MHproposal.obs, 
                          verbose=FALSE, ...){
 
   #   preliminary, to set up structure. 
@@ -155,7 +155,7 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
                      verbose=verbose,
                      trace=0,  # suppress 'optim' output
                      estimateonly=TRUE, 
-                     #statsmatrix.miss=statsmatrix.miss, 
+                     #statsmatrix.obs=statsmatrix.obs, 
                      #epsilon=MCMCparams$epsilon,
                      # nr.reltol=MCMCparams$nr.reltol,
                      #calc.mcmc.se=MCMCparams$calc.mcmc.se, hessianflag=MCMCparams$hessian,
@@ -181,7 +181,7 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
 									 verbose=verbose,
                    trace=0,  # suppress 'optim' output
 									 #estimateonly=TRUE,
-                   #statsmatrix.miss=statsmatrix.miss, 
+                   #statsmatrix.obs=statsmatrix.obs, 
                    epsilon=MCMCparams$epsilon,
                     nr.reltol=MCMCparams$nr.reltol,
                    calc.mcmc.se=MCMCparams$calc.mcmc.se, hessianflag=MCMCparams$hessian,
@@ -231,7 +231,7 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
 #  # "observed statistics" equal obsstats.
 #	v<-ergm.estimate(theta0=eta[[iter]], model=model, 
 #                   statsmatrix=sweep(finalsample2, 2, obsstats, '-'),
-#                   #statsmatrix.miss=statsmatrix.miss, 
+#                   #statsmatrix.obs=statsmatrix.obs, 
 #                   epsilon=MCMCparams$epsilon,
 #                   nr.maxit=MCMCparams$nr.maxit,
 #                   nr.reltol=MCMCparams$nr.reltol,

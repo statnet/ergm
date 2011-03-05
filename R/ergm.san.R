@@ -185,11 +185,6 @@ san.formula <- function(object, nsim=1, seed=NULL, theta0=NULL,
      nedges <- c(Clist$nedges,0)
      tails <- Clist$tails
      heads <- Clist$heads
-     if(!is.null(MCMCparams$Clist.miss)){
-       nedges[2] <- MCMCparams$Clist.miss$nedges
-       tails <- c(tails, MCMCparams$Clist.miss$tails)
-       heads <- c(heads, MCMCparams$Clist.miss$heads)
-     }
      # *** don't forget to pass in tails before heads now.
      z <- .C("SAN_wrapper",
              as.integer(length(nedges)), as.integer(nedges),

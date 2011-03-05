@@ -41,7 +41,7 @@
 #   a stergm object as a list containing:
 #    eta        : the estimated? eta formation?? coefficients
 #    sample     : NULL
-#    sample.miss: NULL
+#    sample.obs: NULL
 #    newnetwork : the 'nw' inputted into this function
 #    network    : the 'nw' inputted into this function
 #    theta.original   : the 'theta0' inputted into this function
@@ -64,7 +64,7 @@ stergm.SPSA <- function(theta0, nw, model.form, model.diss, Clist,
   z <- stergm.SPSA.C(nw, Clist$meanstats, model.form, model.diss, MHproposal.form, MHproposal.diss,
                         eta0, gamma0, MCMCparams, MT=MT, verbose=verbose)
 
-  ve<-with(z,list(coef=eta,sample=NULL,sample.miss=NULL,objective.history=objective.history))
+  ve<-with(z,list(coef=eta,sample=NULL,sample.obs=NULL,objective.history=objective.history))
     
   structure(c(ve, list(newnetwork=nw, 
                        theta.original=theta0,

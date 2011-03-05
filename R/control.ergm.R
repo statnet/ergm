@@ -31,9 +31,9 @@
 #                      which to allocate space; default=1000000
 #   maxMPLEsamplesize: the sample size to use for endogenous sampling in the psuedo-
 #                      likelihood computation; default=100000
-#   miss.MCMCsamplesize:            ; default= NULL,
-#   miss.interval    :              ; default= NULL,
-#   miss.burnin      :              ; default= NULL,
+#   obs.MCMCsamplesize:            ; default= NULL,
+#   obs.interval    :              ; default= NULL,
+#   obs.burnin      :              ; default= NULL,
 #   MPLEtype         : the method for MPL estimation as "penalized", "glm" or
 #                      "logitreg"; default="glm"
 #   trace            : the number of levels of tracing information to produce during
@@ -141,9 +141,9 @@ control.ergm<-function(prop.weights="default",prop.args=NULL,
                        maxedges=20000,
                        maxchanges=1000000,
                        maxMPLEsamplesize=100000,
-                       miss.MCMCsamplesize=NULL,
-                       miss.interval=NULL,
-                       miss.burnin=NULL,
+                       obs.MCMCsamplesize=NULL,
+                       obs.interval=NULL,
+                       obs.burnin=NULL,
                        MPLEtype=c("glm", "penalized"),
                        trace=0,
                        steplength=0.5,

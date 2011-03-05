@@ -67,7 +67,7 @@ stergm.RM <- function(theta.form0, nw, model.form, model.diss, Clist,
   #                           MHproposal.form, MHproposal.diss, z$eta.form, theta.diss,
   #                           MCMCparams, verbose)
   
-  #ve<-with(z,list(coef=eta,sample=s$statsmatrix.form,sample.miss=NULL))
+  #ve<-with(z,list(coef=eta,sample=s$statsmatrix.form,sample.obs=NULL))
   ve<-with(z,list(coef.form=eta.form,coef.diss=theta.diss))
   
   #endrun <- MCMCparams$burnin+MCMCparams$interval*(ve$samplesize-1)

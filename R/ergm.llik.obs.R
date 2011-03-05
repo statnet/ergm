@@ -1,8 +1,8 @@
 #==========================================================================
 # This file contains the following 14 functions for computing log likelihoods,
-# gradients, hessians, and such for networks with missing data
-#          <llik.fun.miss>         <llik.hessian.miss>
-#          <llik.grad.miss>        <llik.fun.miss.robust>
+# gradients, hessians, and such for networks with observation process
+#          <llik.fun.obs>         <llik.hessian.obs>
+#          <llik.grad.obs>        <llik.fun.obs.robust>
 #=========================================================================
 
 
@@ -23,8 +23,8 @@
 #   xobs       : the vector of observed statistics
 #   xsim       : the matrix of simulated statistics
 #   probs      : the probability weight for each row of the stats matrix
-#   xsim.miss  : the 'xsim' counterpart for missing observations
-#   probs.miss : the 'probs' counterpart for missing observations
+#   xsim.obs  : the 'xsim' counterpart for observation process
+#   probs.obs : the 'probs' counterpart for observation process
 #   varweight  : the weight by which the variance of the base predictions will be
 #                scaled; the name of this param was changed from 'penalty' to better
 #                reflect what this parameter actually is; default=0.5, which is the
@@ -51,7 +51,7 @@
 #        approximation; i.e., assuming that the network statistics are approximately
 #        normally  distributed so that exp(eta * stats) is lognormal
 #####################################################################################                           
-llik.fun.miss <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
+llik.fun.obs <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
                      varweight=0.5, trustregion=20, eta0, etamap){
   theta.offset <- etamap$theta0
   theta.offset[!etamap$offsettheta] <- theta
@@ -60,13 +60,13 @@ llik.fun.miss <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=N
 # MSH: Is this robust?
   x <- x[!etamap$offsetmap]
   xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
-  xsim.miss <- xsim.miss[,!etamap$offsetmap, drop=FALSE]
+  xsim.obs <- xsim.obs[,!etamap$offsetmap, drop=FALSE]
   xobs <- xobs[!etamap$offsetmap]
 # The next line is right!
 # aaa <- sum(xobs * x) - log(sum(probs*exp(xsim %*% x)))
 # These lines standardize:
   basepred <- xsim %*% x
-  misspred <- xsim.miss %*% x
+  obspred <- xsim.obs %*% x
 #
 # maxbase <- max(basepred)
 # llr <- sum(xobs * x) - maxbase - log(sum(probs*exp(basepred-maxbase)))
@@ -74,8 +74,8 @@ llik.fun.miss <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=N
 # alternative based on log-normal approximation
   mb <- sum(basepred*probs)
   vb <- sum(basepred*basepred*probs) - mb*mb
-  mm <- sum(misspred*probs.miss)
-  vm <- sum(misspred*misspred*probs.miss) - mm*mm
+  mm <- sum(obspred*probs.obs)
+  vm <- sum(obspred*obspred*probs.obs) - mm*mm
 # 
 # This is the log-likelihood ratio (and not its negative)
 #
@@ -98,7 +98,7 @@ llik.fun.miss <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=N
 #   llg: the gradient of the not-offset eta parameters with ??
 #####################################################################################
 
-llik.grad.miss <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss=NULL,
+llik.grad.obs <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NULL,
                       varweight=0.5, trustregion=20, eta0, etamap){
   theta.offset <- etamap$theta0
   theta.offset[!etamap$offsettheta] <- theta
@@ -107,19 +107,19 @@ llik.grad.miss <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss
 # MSH: Is this robust?
   x <- x[!etamap$offsetmap]
   xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
-  xsim.miss <- xsim.miss[,!etamap$offsetmap, drop=FALSE]
+  xsim.obs <- xsim.obs[,!etamap$offsetmap, drop=FALSE]
   xobs <- xobs[!etamap$offsetmap]
   basepred <- xsim %*% x
   prob <- max(basepred)
   prob <- probs*exp(basepred - prob)
   prob <- prob/sum(prob)
   E <- apply(sweep(xsim, 1, prob, "*"), 2, sum)
-  misspred <- xsim.miss %*% x
-  prob.miss <- max(misspred)
-  prob.miss <- probs.miss*exp(misspred - prob.miss)
-  prob.miss <- prob.miss/sum(prob.miss)
-  E.miss <- apply(sweep(xsim.miss, 1, prob.miss, "*"), 2, sum)
-  llg <- xobs + E.miss-E
+  obspred <- xsim.obs %*% x
+  prob.obs <- max(obspred)
+  prob.obs <- probs.obs*exp(obspred - prob.obs)
+  prob.obs <- prob.obs/sum(prob.obs)
+  E.obs <- apply(sweep(xsim.obs, 1, prob.obs, "*"), 2, sum)
+  llg <- xobs + E.obs-E
   llg[is.na(llg) | is.infinite(llg)] <- 0
 #
 # Penalize changes to trustregion
@@ -144,7 +144,7 @@ llik.grad.miss <- function(theta, xobs, xsim, probs,  xsim.miss=NULL, probs.miss
 #   He: the ?? Hessian matrix
 #####################################################################################
 
-llik.hessian.miss <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
+llik.hessian.obs <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
                          varweight=0.5, eta0, etamap){
   theta.offset <- etamap$theta0
   theta.offset[!etamap$offsettheta] <- theta
@@ -158,7 +158,7 @@ llik.hessian.miss <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.mi
 # MSH: Is this robust?
   x <- x[!etamap$offsetmap]
   xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
-  xsim.miss <- xsim.miss[,!etamap$offsetmap, drop=FALSE]
+  xsim.obs <- xsim.obs[,!etamap$offsetmap, drop=FALSE]
   xobs <- xobs[!etamap$offsetmap]
 # etagrad <- etagrad[,!etamap$offsetmap,drop=FALSE]
 # etagrad <- etagrad[!etamap$offsettheta,,drop=FALSE]
@@ -168,12 +168,12 @@ llik.hessian.miss <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.mi
   prob <- probs*exp(basepred - prob)
   prob <- prob/sum(prob)
   E <- apply(sweep(xsim, 1, prob, "*"), 2, sum)
-  misspred <- xsim.miss %*% x
-  prob.miss <- max(misspred)
-  prob.miss <- probs.miss*exp(misspred - prob.miss)
-  prob.miss <- prob.miss/sum(prob.miss)
-  E.miss <- apply(sweep(xsim.miss, 1, prob.miss, "*"), 2, sum)
-  llg <- xobs + E.miss - E
+  obspred <- xsim.obs %*% x
+  prob.obs <- max(obspred)
+  prob.obs <- probs.obs*exp(obspred - prob.obs)
+  prob.obs <- prob.obs/sum(prob.obs)
+  E.obs <- apply(sweep(xsim.obs, 1, prob.obs, "*"), 2, sum)
+  llg <- xobs + E.obs - E
 # 
   htmp <- sweep(sweep(xsim, 2, E, "-"), 1, sqrt(prob), "*")
 # htmp <- htmp %*% t(etagrad)
@@ -183,14 +183,14 @@ llik.hessian.miss <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.mi
   htmp.offset <- t(ergm.etagradmult(theta.offset, t(htmp.offset), etamap))
   H <- crossprod(htmp.offset, htmp.offset)
 ##H <- etagrad %*% H %*% t(etagrad)
-  htmp <- sweep(sweep(xsim.miss, 2, E.miss, "-"), 1, sqrt(prob.miss), "*")
+  htmp <- sweep(sweep(xsim.obs, 2, E.obs, "-"), 1, sqrt(prob.obs), "*")
 # htmp <- htmp %*% t(etagrad)
-# H.miss <- t(htmp) %*% htmp
-##H.miss <- etagrad %*% H.miss %*% t(etagrad)
+# H.obs <- t(htmp) %*% htmp
+##H.obs <- etagrad %*% H.obs %*% t(etagrad)
   htmp.offset[,!etamap$offsetmap] <- htmp
   htmp.offset <- t(ergm.etagradmult(theta.offset, t(htmp.offset), etamap))
-  H.miss <- crossprod(htmp.offset, htmp.offset)
-  H <- H.miss-H
+  H.obs <- crossprod(htmp.offset, htmp.offset)
+  H <- H.obs-H
 # He <- matrix(NA, ncol = length(theta), nrow = length(theta))
 # He[!etamap$offsettheta, !etamap$offsettheta] <- H
 # dimnames(He) <- list(namesx, namesx)
@@ -205,10 +205,10 @@ llik.hessian.miss <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.mi
 #####################################################################################
 # --RETURNED--
 #   llr: the log-likelihood ratio of l(eta) - l(eta0) using ??
-#                "robust missing data code"
+#                "robust obsing data code"
 #####################################################################################
 
-llik.fun.miss.robust<- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NULL,
+llik.fun.obs.robust<- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
                      varweight=0.5, trustregion=20, eta0, etamap){
   theta.offset <- etamap$theta0
   theta.offset[!etamap$offsettheta] <- theta
@@ -217,12 +217,12 @@ llik.fun.miss.robust<- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.
 # MSH: Is this robust?
   x <- x[!etamap$offsetmap]
   xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
-  xsim.miss <- xsim.miss[,!etamap$offsetmap, drop=FALSE]
+  xsim.obs <- xsim.obs[,!etamap$offsetmap, drop=FALSE]
   xobs <- xobs[!etamap$offsetmap]
 # aaa <- sum(xobs * x) - log(sum(probs*exp(xsim %*% x)))
 # These lines standardize:
   basepred <- xsim %*% x
-  misspred <- xsim.miss %*% x
+  obspred <- xsim.obs %*% x
 #
 # maxbase <- max(basepred)
 # llr <- sum(xobs * x) - maxbase - log(sum(probs*exp(basepred-maxbase)))
@@ -230,9 +230,9 @@ llik.fun.miss.robust<- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.
 # alternative based on log-normal approximation
   mb <- wtd.median(basepred, weight=probs)
   vb <- 1.4826*wtd.median(abs(basepred-mb), weight=probs)
-# print(c(mean(probs),mean(probs.miss),var(probs),var(probs.miss)))
-  mm <- wtd.median(misspred, weight=probs.miss)
-  vm <- 1.4826*wtd.median(abs(misspred-mm), weight=probs.miss)
+# print(c(mean(probs),mean(probs.obs),var(probs),var(probs.obs)))
+  mm <- wtd.median(obspred, weight=probs.obs)
+  vm <- 1.4826*wtd.median(abs(obspred-mm), weight=probs.obs)
 # 
 # This is the log-likelihood ratio (and not its negative)
 #
@@ -248,4 +248,4 @@ llik.fun.miss.robust<- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.
   }
 }
 
-llik.fun.miss.robust<- llik.fun.miss 
+llik.fun.obs.robust<- llik.fun.obs 

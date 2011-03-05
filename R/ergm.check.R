@@ -163,8 +163,8 @@ ergm.checkdirected <- function(fname, nw.directedflag, requirement,
 #
 #
 # --IGNORED PARAMETERS--
-#   statsmatrix.miss : the matrix of summary sample statistics from the
-#                      network of (possibly) missing edges; default=NULL
+#   statsmatrix.obs : the matrix of summary sample statistics from the
+#                      observation process network; default=NULL
 #
 #
 # --RETURNED--
@@ -173,7 +173,7 @@ ergm.checkdirected <- function(fname, nw.directedflag, requirement,
 #
 #################################################################################
 
-ergm.checkdegeneracy <- function(statsmatrix, statsmatrix.miss=NULL, verbose=FALSE) {
+ergm.checkdegeneracy <- function(statsmatrix, statsmatrix.obs=NULL, verbose=FALSE) {
  degen <- FALSE
  novar <- apply(statsmatrix,2,var)<1e-6
  if(all(novar)){

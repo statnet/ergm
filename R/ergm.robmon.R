@@ -158,7 +158,7 @@ cat(paste("theta new:",theta,"\n"))
 
   ve<-ergm.estimate(theta0=theta, model=model,
                    statsmatrix=statsmatrix,
-                   statsmatrix.miss=NULL,
+                   statsmatrix.obs=NULL,
                    nr.maxit=control$nr.maxit, 
                    nr.reltol=control$nr.reltol,
                    calc.mcmc.se=control$calc.mcmc.se,
