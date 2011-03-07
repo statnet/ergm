@@ -3,4 +3,12 @@
 
 	Non-Bernoulli-Reference ERGMs implemented.
 
+        Commented out most functions in old InitErgm.R file; replaced them with InitErgmTerm functions.
+
+        Removed counterintuitive "as.directed" function
+
+        Switched all instances of heads->tails to tails->heads in R code.
+ 
+        Added Ayn's tests (developed for v. 2.3) of the change statistics.
+
 	Will look through svn log and fill in the other changes later.
