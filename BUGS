@@ -1,0 +1,7 @@
+Known bugs and issues
+
+* Sampling conditional on degree (~degree constraint) is not
+  implemented for directed networks.
+* Sampling conditional on degree (~degree constraint) fails to use a
+  hexad proposal, and thus does not completely explore the sample
+  space.
