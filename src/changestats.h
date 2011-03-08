@@ -40,8 +40,6 @@ D_CHANGESTAT_FN(d_boundedtriangle);
 /********************  changestats:  C    ***********/
 D_CHANGESTAT_FN(d_concurrent);
 D_CHANGESTAT_FN(d_concurrent_by_attr);
-D_CHANGESTAT_FN(d_concurrent_ties);
-D_CHANGESTAT_FN(d_concurrent_ties_by_attr);
 D_CHANGESTAT_FN(d_ctriple);
 D_CHANGESTAT_FN(d_cycle);
   void edgewise_path_recurse(Network *g, Vertex dest, 
@@ -131,19 +129,12 @@ D_CHANGESTAT_FN(d_tesp);
 D_CHANGESTAT_FN(d_threepath);
 D_CHANGESTAT_FN(d_tnsp);
 D_CHANGESTAT_FN(d_transitive);
+D_CHANGESTAT_FN(d_transitiveties); S_CHANGESTAT_FN(s_transitiveties);
 D_CHANGESTAT_FN(d_triadcensus);
 D_CHANGESTAT_FN(d_triangle);
 D_CHANGESTAT_FN(d_tripercent);
 D_CHANGESTAT_FN(d_ttriple);
 D_CHANGESTAT_FN(d_transitiveties);
-
-/********************  changestats: internal ***********/
-D_CHANGESTAT_FN(d_b1degree_edgecov);
-D_CHANGESTAT_FN(d_b2degree_edgecov);
-D_CHANGESTAT_FN(d_b1mindegree);
-D_CHANGESTAT_FN(d_b2mindegree);
-D_CHANGESTAT_FN(d_b1mindegree_edgecov);
-D_CHANGESTAT_FN(d_b2mindegree_edgecov);
 
 
 

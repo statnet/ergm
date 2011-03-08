@@ -91,18 +91,25 @@ typedef struct ModelTermstruct {
 /* Cycle through all toggles proposed for the current step, then
    make the current toggle in case of more than one proposed toggle, then
    undo all of the toggles to reset the original network state.  */
+
+
+/* *** don't forget tail-> head, so these functions now toggle (tails, heads), instead of (heads, tails) */
+
 #define FOR_EACH_TOGGLE(a) for((a)=0; (a)<ntoggles; (a)++)
-#define TOGGLE_IF_MORE_TO_COME(a) if((a)+1<ntoggles) TOGGLE(heads[(a)],tails[(a)])
-#define TOGGLE_DISCORD_IF_MORE_TO_COME(a) if((a)+1<ntoggles) TOGGLE_DISCORD(heads[(a)],tails[(a)])
-#define UNDO_PREVIOUS_TOGGLES(a) (a)--; while(--(a)>=0) TOGGLE(heads[(a)],tails[(a)])
-#define UNDO_PREVIOUS_DISCORD_TOGGLES(a) (a)--; while(--(a)>=0) {TOGGLE(heads[(a)],tails[(a)]); TOGGLE_DISCORD(heads[(a)],tails[(a)])}
+#define TOGGLE_IF_MORE_TO_COME(a) if((a)+1<ntoggles) TOGGLE(tails[(a)],heads[(a)])
+#define TOGGLE_DISCORD_IF_MORE_TO_COME(a) if((a)+1<ntoggles) TOGGLE_DISCORD(tails[(a)],heads[(a)])
+#define UNDO_PREVIOUS_TOGGLES(a) (a)--; while(--(a)>=0) TOGGLE(tails[(a)],heads[(a)])
+#define UNDO_PREVIOUS_DISCORD_TOGGLES(a) (a)--; while(--(a)>=0) {TOGGLE(tails[(a)],heads[(a)]); TOGGLE_DISCORD(tails[(a)],heads[(a)])}
 
 /****************************************************/
 /* changestat function prototypes */
-#define CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *heads, Vertex *tails, ModelTerm *mtp, Network *nwp)
+
+/* *** don't forget tail -> head, so this prototype now accepts tails first, not heads first */
+
+#define CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp)
 
 /* NB:  CHANGESTAT_FN is now deprecated (replaced by D_CHANGESTAT_FN) */
-#define D_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *heads, Vertex *tails, ModelTerm *mtp, Network *nwp)
+#define D_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp)
 #define T_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)
 #define S_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)
 
