@@ -1,8 +1,8 @@
 #include "MHproposals_bipartite.h" 
 
 /* Shorthand. */
-#define Mhead (MHp->togglehead)
 #define Mtail (MHp->toggletail)
+#define Mhead (MHp->togglehead)
 
 
 /*********************
@@ -16,8 +16,11 @@ void MH_Bipartiterandomtoggle (MHproposal *MHp, Network *nwp)  {
     MHp->ntoggles=1;
     return;
   }
-  Mhead[0] = 1 + unif_rand() * nwp->bipartite;
-  Mtail[0] = 1 + nwp->bipartite + 
+
+  /* *** don't forget, edges are (tail, head) now */
+
+  Mtail[0] = 1 + unif_rand() * nwp->bipartite;
+  Mhead[0] = 1 + nwp->bipartite + 
                        unif_rand() * (nwp->nnodes - nwp->bipartite);
 }
 
@@ -26,7 +29,7 @@ void MH_Bipartiterandomtoggle (MHproposal *MHp, Network *nwp)  {
    Chooses a pair of toggles - one a tie and one not. 
 ***********************/
 void MH_BipartiteConstantEdges (MHproposal *MHp, Network *nwp)  {  
-  Vertex head, tail;
+  Vertex tail, head;
   
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=2;    
@@ -35,19 +38,22 @@ void MH_BipartiteConstantEdges (MHproposal *MHp, Network *nwp)  {
        If desired, we could check for this at initialization phase. 
        (For now, however, no way to easily return an error message and stop.)*/
   /* First, select edge at random */
-  FindithEdge(Mhead, Mtail, 1+(nwp->nedges)*unif_rand(), nwp);
+  FindithEdge(Mtail, Mhead, 1+(nwp->nedges)*unif_rand(), nwp);
   /* Second, select dyad at random until it has no edge */
 
   do{
-/*    head = 1 + unif_rand() * nwp->nnodes; */
 /*    tail = 1 + unif_rand() * nwp->nnodes; */
-    head = 1 + unif_rand() * nwp->bipartite;
-    tail = 1 + nwp->bipartite + 
+/*    head = 1 + unif_rand() * nwp->nnodes; */
+
+  /* *** don't forget, edges are (tail, head) now */
+
+    tail = 1 + unif_rand() * nwp->bipartite;
+    head = 1 + nwp->bipartite + 
       unif_rand() * (nwp->nnodes - nwp->bipartite);
-  }while(EdgetreeSearch(head, tail, nwp->outedges) != 0);
+  }while(EdgetreeSearch(tail, head, nwp->outedges) != 0);
       
-  Mhead[1]=head;
   Mtail[1]=tail;
+  Mhead[1]=head;
 }
 
 /********************
@@ -58,8 +64,9 @@ void MH_BipartiteConstantEdges (MHproposal *MHp, Network *nwp)  {
    networks
 ***********************/
 void MH_BipartiteTNT (MHproposal *MHp, Network *nwp) 
-{  
-  Vertex head, tail;
+{
+  /* *** don't forget, edges are (tail, head) now */
+  Vertex tail, head;
   Edge rane, nedges=nwp->nedges;
   unsigned trytoggle;
   static double comp=0.5;
@@ -80,7 +87,7 @@ void MH_BipartiteTNT (MHproposal *MHp, Network *nwp)
   for(trytoggle = 0; trytoggle < MAX_TRIES; trytoggle++){
     if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
       rane = 1 + unif_rand() * nedges;
-      FindithEdge(Mhead, Mtail, rane, nwp);
+      FindithEdge(Mtail, Mhead, rane, nwp);
       /* Thanks to Robert Goudie for pointing out an error in the previous 
       version of this sampler when proposing to go from nedges==0 to nedges==1 
       or vice versa.  Note that this happens extremely rarely unless the 
@@ -88,12 +95,12 @@ void MH_BipartiteTNT (MHproposal *MHp, Network *nwp)
       networks.  */
       MHp->logratio += log(nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
 			 nedges / (odds*ndyads + nedges));
-    }else{ /* Select a dyad at random */
-      head = 1 + unif_rand() * nb1;
-      tail = 1 + nb1 + unif_rand() * (nnodes - nb1);
-      Mhead[0] = head;
+    }else{ /* Select a (tail, head) dyad at random */
+      tail = 1 + unif_rand() * nb1;
+      head = 1 + nb1 + unif_rand() * (nnodes - nb1);
       Mtail[0] = tail;
-      if(EdgetreeSearch(Mhead[0],Mtail[0],nwp->outedges)!=0){
+      Mhead[0] = head;
+      if(EdgetreeSearch(Mtail[0],Mhead[0],nwp->outedges)!=0){
         MHp->logratio += log(nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
 			  nedges / (odds*ndyads + nedges));
       }else{
@@ -106,8 +113,8 @@ void MH_BipartiteTNT (MHproposal *MHp, Network *nwp)
   
   /* If tries ran out, return failure code. */
   if(trytoggle >= MAX_TRIES){
-    Mhead[0]=MH_FAILED;
-    Mtail[0]=MH_UNSUCCESSFUL; 
+    Mtail[0]=MH_FAILED;
+    Mhead[0]=MH_UNSUCCESSFUL; 
     return;
   }
 }
@@ -119,8 +126,10 @@ void MH_BipartiteTNT (MHproposal *MHp, Network *nwp)
         It is no different the MH_BipartiteConstantEdges
 ***********************/
 void MH_BipartiteHammingConstantEdges (MHproposal *MHp, Network *nwp) 
-{  
-  Vertex head, tail;
+{
+  /* *** don't forget, edges are (tail, head) now */
+
+  Vertex tail, head;
   Edge rane, nedges=nwp[0].nedges, nddyads=nwp[1].nedges;
   int nde, ndn, nce, ncn;
   static double comp=0.5;
@@ -142,22 +151,23 @@ void MH_BipartiteHammingConstantEdges (MHproposal *MHp, Network *nwp)
     /* First, select discord edge at random */
     do{
       rane = 1 + unif_rand() * nddyads;
-      FindithEdge(Mhead, Mtail, rane, &nwp[1]);
-    }while(EdgetreeSearch(Mhead[0], Mtail[0], nwp[0].outedges) == 0);
+      FindithEdge(Mtail, Mhead, rane, &nwp[1]);
+    }while(EdgetreeSearch(Mtail[0], Mhead[0], nwp[0].outedges) == 0);
 
-    head=Mhead[0];
     tail=Mtail[0];
+    head=Mhead[0];
     /* Next, select discord non-edge at random */
+  /* *** don't forget, edges are (tail, head) now */
 
     do{
       rane = 1 + unif_rand() * nddyads;
-      FindithEdge(Mhead, Mtail, rane, &nwp[1]);
-    }while(EdgetreeSearch(Mhead[0], Mtail[0], nwp[0].outedges) != 0);
+      FindithEdge(Mtail, Mhead, rane, &nwp[1]);
+    }while(EdgetreeSearch(Mtail[0], Mhead[0], nwp[0].outedges) != 0);
 
-      Mhead[1]=Mhead[0];
     Mtail[1]=Mtail[0];
-    Mhead[0]=head;
+    Mhead[1]=Mhead[0];
     Mtail[0]=tail;
+    Mhead[0]=head;
     nde = nddyads / 2;
     ndn = nddyads / 2;
     nce = nedges-nde;
@@ -172,18 +182,18 @@ void MH_BipartiteHammingConstantEdges (MHproposal *MHp, Network *nwp)
     /* First, select concordant edge at random */
     do{
       rane = 1 + unif_rand() * nedges;
-      FindithEdge(Mhead, Mtail, rane, &nwp[0]);
-    }while(EdgetreeSearch(Mhead[0], Mtail[0], nwp[1].outedges) == 0);
+      FindithEdge(Mtail, Mhead, rane, &nwp[0]);
+    }while(EdgetreeSearch(Mtail[0], Mhead[0], nwp[1].outedges) == 0);
        
     /* Next, select concord non-edge at random */
     do{
-      head = 1 + unif_rand() * nb1;
-      tail = 1 + nb1 + unif_rand() * (nnodes - nb1);
-    }while((EdgetreeSearch(head,tail,nwp[0].outedges)!=0) ||
-	     (EdgetreeSearch(head,tail,nwp[1].outedges)!=0));
+      tail = 1 + unif_rand() * nb1;
+      head = 1 + nb1 + unif_rand() * (nnodes - nb1);
+    }while((EdgetreeSearch(tail,head,nwp[0].outedges)!=0) ||
+	     (EdgetreeSearch(tail,head,nwp[1].outedges)!=0));
 
-    Mhead[1]=head;
     Mtail[1]=tail;
+    Mhead[1]=head;
     nde = nddyads / 2;
     ndn = nddyads / 2;
     nce = nedges-nde;
@@ -198,8 +208,8 @@ void MH_BipartiteHammingConstantEdges (MHproposal *MHp, Network *nwp)
 /*   Rprintf("concord nde %d nce %d ndn %d ncn %d nddyads %d MHp->ratio %f\n", */
 /*	    nde, nce, ndn,ncn,nddyads, MHp->ratio); */
   }
-/*   Rprintf("h0 %d t0 %d h1 %d t1 %d\n", Mhead[0],  Mtail[0],  */
-/*                                        Mhead[1],  Mtail[1]);  */
+/*   Rprintf("h0 %d t0 %d h1 %d t1 %d\n", Mtail[0],  Mhead[0],  */
+/*                                        Mtail[1],  Mhead[1]);  */
 }
 
 /********************
@@ -212,8 +222,9 @@ void MH_BipartiteHammingConstantEdges (MHproposal *MHp, Network *nwp)
         It is no different the MH_BipartiteTNT
 ***********************/
 void MH_BipartiteHammingTNT (MHproposal *MHp, Network *nwp) 
-{  
-  Vertex head, tail;
+{
+  /* *** don't forget, edges are (tail, head) now */  
+  Vertex tail, head;
   Edge rane, nddyads=nwp[1].nedges;
   int nd, nc;
   static double comp=0.5;
@@ -233,7 +244,7 @@ void MH_BipartiteHammingTNT (MHproposal *MHp, Network *nwp)
   
   if (unif_rand() < comp && nddyads > 0) { /* Select a discordant dyad at random */
     rane = 1 + unif_rand() * nddyads;
-    FindithEdge(Mhead, Mtail, rane, &nwp[1]);
+    FindithEdge(Mtail, Mhead, rane, &nwp[1]);
     nd = nddyads;
     nc = ndyads-nd;
     /*  Fixme!  Not sure whether the ratio is calculated correctly here.
@@ -246,12 +257,12 @@ void MH_BipartiteHammingTNT (MHproposal *MHp, Network *nwp)
   }else{
     /* select a concordant dyad at random */
     do{
-      head = 1 + unif_rand() * nb1;
-      tail = 1 + nb1 + unif_rand() * (nnodes - nb1);
-    }while(EdgetreeSearch(head,tail,nwp[1].outedges)!=0);
+      tail = 1 + unif_rand() * nb1;
+      head = 1 + nb1 + unif_rand() * (nnodes - nb1);
+    }while(EdgetreeSearch(tail,head,nwp[1].outedges)!=0);
 
-    Mhead[0]=head;
     Mtail[0]=tail;
+    Mhead[0]=head;
     nd = nddyads;
     nc = ndyads-nd;
     /*  Fixme!  Not sure whether the ratio is calculated correctly here.
@@ -260,70 +271,72 @@ void MH_BipartiteHammingTNT (MHproposal *MHp, Network *nwp)
 /*   Rprintf("concord nd %d nc %d nddyads %d MHp->ratio %f\n", */
 /*	    nd, nc, nddyads, MHp->ratio); */
   }
-/*   Rprintf("h0 %d t0 %d h1 %d t1 %d\n", Mhead[0],  Mtail[0],  */
-/*                                        Mhead[1],  Mtail[1]);  */
+/*   Rprintf("h0 %d t0 %d h1 %d t1 %d\n", Mtail[0],  Mhead[0],  */
+/*                                        Mtail[1],  Mhead[1]);  */
 }
 
 
 /*********************
  void MH_BipartiteCondDegreeDist
- Pick three nodes -- head, tail, alter -- such that
-   * H shares an edge with T
-   * H does not share an edge with A
-   * deg(T) = deg(A) + 1
- Then, propose swapping the (H,T) edge for a (H,A) edge so that
- deg(H) stays the same while deg(T) and deg(A) swap
+ Pick three nodes -- tail, head, alter -- such that
+   * tail shares an edge with head
+   * tail does not share an edge with A
+   * deg(head) = deg(A) + 1
+ Then, propose swapping the (tail,head) edge for a (tail,A) edge so that
+ deg(tail) stays the same while deg(head) and deg(A) swap
  with one another.
 *********************/
 void MH_BipartiteCondDegreeDist (MHproposal *MHp, Network *nwp) {  
   int valid, count;
   Edge e;
-  Vertex H, T, A, Hin, Hout, Tdeg, Adeg, minA, maxA, i, k;
+  Vertex tail, head, A, tailin, tailout, headdeg, Adeg, minA, maxA, i, k;
   double u;
-  TreeNode *H_edges;
-  Vertex *TA_degrees; 
+  TreeNode *tail_edges;
+  Vertex *headA_degrees; 
+
+  /* *** don't forget, edges are (tail, head) now */
 
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=2;    
     return;
   }
   
-  MHp->logratio += 0;  /* By symmetry:  P(choosing H,T,A) must equal  */
-  /*                   P(choosing H,A,T after T and A swap roles), */
+  MHp->logratio += 0;  /* By symmetry:  P(choosing tail,head,A) must equal  */
+  /*                   P(choosing tail,A,head after head and A swap roles), */
   /*                   which makes the ratio equal to 1.           */
   
   for(valid = count = 0; valid == 0 && count<MAX_TRIES/10; count++) {
-    Hin = Hout = 0;  
+    tailin = tailout = 0;  
     /* choose a node at random; ensure it has some edges */
-    while (Hin + Hout == 0) {
+    while (tailin + tailout == 0) {
       u = unif_rand();
       if (u < .5) { /* Pick "male" and "female" nodes with equal prob */
-        H = 1 + unif_rand() * nwp->bipartite;
+        tail = 1 + unif_rand() * nwp->bipartite;
       } else {
-        H = 1 + nwp->bipartite + unif_rand() * (nwp->nnodes - nwp->bipartite);
+        tail = 1 + nwp->bipartite + unif_rand() * (nwp->nnodes - nwp->bipartite);
       }
-      Hin = nwp->indegree[H];
-      Hout = nwp->outdegree[H];
+      tailin = nwp->indegree[tail];
+      tailout = nwp->outdegree[tail];
     }
     
-    /* select an edge to/from H at random */
-    k = (int)(unif_rand() * (Hout + Hin));  
-    if (k < Hout) { /* we chose an outedge */
-      H_edges = nwp->outedges;
+    /* select an edge to/from tail at random */
+    k = (int)(unif_rand() * (tailout + tailin));  
+    if (k < tailout) { /* we chose an outedge */
+      tail_edges = nwp->outedges;
       i = k;
-      TA_degrees = nwp->indegree;
+      headA_degrees = nwp->indegree;
     } else { /* we chose an inedge */
-      H_edges = nwp->inedges;
-      i = k - Hout;
-      TA_degrees = nwp->outdegree;
+      tail_edges = nwp->inedges;
+      i = k - tailout;
+      headA_degrees = nwp->outdegree;
     }
-    /* Find ith edge in correct edgetree for H; this will be (H,T) or (T,H) */
-    e=EdgetreeMinimum(H_edges, H);
+    /* Find ith edge in correct edgetree for tail; this will be (tail,head) or (head,tail) */
+    e=EdgetreeMinimum(tail_edges, tail);
     while (i-- > 0) {
-      e=EdgetreeSuccessor(H_edges, e);
+      e=EdgetreeSuccessor(tail_edges, e);
     } 
-    T = H_edges[e].value; 
-    Tdeg = nwp->directed_flag ? TA_degrees[T] : nwp->indegree[T] + nwp->outdegree[T];
+    head = tail_edges[e].value; 
+    headdeg = nwp->directed_flag ? headA_degrees[head] : nwp->indegree[head] + nwp->outdegree[head];
     
     /* Now choose alter at random */
     /* Now search for eligible alters */
@@ -331,11 +344,11 @@ void MH_BipartiteCondDegreeDist (MHproposal *MHp, Network *nwp) {
     maxA = (u<.5) ? nwp->nnodes : nwp->bipartite;    
     i=0;
     for (A=minA; A<=maxA; A++) {
-      Adeg = nwp->directed_flag ? TA_degrees[A] : nwp->indegree[A] + nwp->outdegree[A];
-      /* To be a valid choice, alter (A) must not be tied to H and it must have */
-      /* a degree one less than the tail (T) */
-      if (Tdeg == Adeg + 1 && EdgetreeSearch(H, A, H_edges) == 0) {
-        if (nwp->directed_flag || EdgetreeSearch(A, H, H_edges) ==0) {
+      Adeg = nwp->directed_flag ? headA_degrees[A] : nwp->indegree[A] + nwp->outdegree[A];
+      /* To be a valid choice, alter (A) must not be tied to tail and it must have */
+      /* a degree one less than the head */
+      if (headdeg == Adeg + 1 && EdgetreeSearch(tail, A, tail_edges) == 0) {
+        if (nwp->directed_flag || EdgetreeSearch(A, tail, tail_edges) ==0) {
           i++;
         }
       }
@@ -344,11 +357,11 @@ void MH_BipartiteCondDegreeDist (MHproposal *MHp, Network *nwp) {
       valid = 1;
       i = 1 + unif_rand()*i; /* Pick an eligible alter at random */
       for (A=minA; i>0; A++) {
-        Adeg = nwp->directed_flag ? TA_degrees[A] : nwp->indegree[A] + nwp->outdegree[A];
-        /* To be a valid choice, alter (A) must not be tied to H and it must have */
-        /* a degree one less than the tail (T) */
-        if (Tdeg == Adeg + 1 && EdgetreeSearch(H, A, H_edges) == 0) {
-          if (nwp->directed_flag || EdgetreeSearch(A, H, H_edges) ==0) {
+        Adeg = nwp->directed_flag ? headA_degrees[A] : nwp->indegree[A] + nwp->outdegree[A];
+        /* To be a valid choice, alter (A) must not be tied to tail and it must have */
+        /* a degree one less than the head */
+        if (headdeg == Adeg + 1 && EdgetreeSearch(tail, A, tail_edges) == 0) {
+          if (nwp->directed_flag || EdgetreeSearch(A, tail, tail_edges) ==0) {
             i--; /* By counting down, when i==0 we have the selected A. */
           }
         }
@@ -356,28 +369,28 @@ void MH_BipartiteCondDegreeDist (MHproposal *MHp, Network *nwp) {
     }    
   }
       
-  if ( (!nwp->directed_flag && H > T) ||
-    (nwp->directed_flag && k < Hout) )
+  if ( (!nwp->directed_flag && tail > head) ||
+    (nwp->directed_flag && k < tailout) )
   {
-    Mhead[0] = T;
-    Mtail[0] = H;
+    Mtail[0] = head;
+    Mhead[0] = tail;
   }else{
-    Mhead[0] = H;
-    Mtail[0] = T;
+    Mtail[0] = tail;
+    Mhead[0] = head;
   }
 
   if(!valid) {
-    Mhead[1] = Mhead[0];
-    Mtail[1] = Mhead[0];
+    Mtail[1] = Mtail[0];
+    Mhead[1] = Mtail[0];
   } else {
-    if ( (!nwp->directed_flag && H > A) ||
-      (nwp->directed_flag && k < Hout) )
+    if ( (!nwp->directed_flag && tail > A) ||
+      (nwp->directed_flag && k < tailout) )
     {
-      Mhead[0] = A;
-      Mtail[0] = H;
-    }else{
-      Mhead[0] = H;
       Mtail[0] = A;
+      Mhead[0] = tail;
+    }else{
+      Mtail[0] = tail;
+      Mhead[0] = A;
     }
   }
 }
@@ -395,8 +408,8 @@ void MH_BipartiterandomtoggleNonObserved (MHproposal *MHp, Network *nwp)  {
   // element of MHp->inputs is the number of missing edges.
   rane = 1 + unif_rand() * nmissing;
   
-  Mhead[0]=MHp->inputs[rane];
-  Mtail[0]=MHp->inputs[nmissing+rane];
+  Mtail[0]=MHp->inputs[rane];
+  Mhead[0]=MHp->inputs[nmissing+rane];
 }
 
 /* CondDegree */
@@ -457,14 +470,14 @@ void MH_BipartiteCondDegTetradToggles (MHproposal *MHp, Network *nwp)  {
       }
     }
   }
-  Mhead[0]=A; Mtail[0]=B;
-  Mhead[1]=tmpA; Mtail[1]=tmpC;
-  Mhead[2]=tmpD; Mtail[2]=tmpB;
-  Mhead[3]=MIN(C,D); Mtail[3]=MAX(C,D);
-   Rprintf("h0 %d t1 %d\n",Mhead[0], Mtail[0]);
-   Rprintf("h0 %d t1 %d\n",Mhead[1], Mtail[1]);
-   Rprintf("h0 %d t1 %d\n",Mhead[2], Mtail[2]);
-   Rprintf("h0 %d t1 %d\n",Mhead[3], Mtail[3]);
+  Mtail[0]=A; Mhead[0]=B;
+  Mtail[1]=tmpA; Mhead[1]=tmpC;
+  Mtail[2]=tmpD; Mhead[2]=tmpB;
+  Mtail[3]=MIN(C,D); Mhead[3]=MAX(C,D);
+   Rprintf("tail0 %d head1 %d\n",Mtail[0], Mhead[0]);
+   Rprintf("tail0 %d head1 %d\n",Mtail[1], Mhead[1]);
+   Rprintf("tail0 %d head1 %d\n",Mtail[2], Mhead[2]);
+   Rprintf("tail0 %d head1 %d\n",Mtail[3], Mhead[3]);
 }  
   
 void MH_BipartiteCondDegree (MHproposal *MHp, Network *nwp)  {  
@@ -492,7 +505,7 @@ void MH_BipartiteCondDegree (MHproposal *MHp, Network *nwp)  {
 void MH_BipartiteCondDegHexadToggles (MHproposal *MHp, Network *nwp)  {  
   int x1, x2, x3, x4, x5, x6;
   int fvalid, trynode;
-  Vertex head1, head2, head3, tail1, tail2, tail3;
+  Vertex tail1, tail2, tail3, head1, head2, head3;
   static Edge nnodes;
   static Edge nb1, nb2;
   
@@ -518,118 +531,118 @@ void MH_BipartiteCondDegHexadToggles (MHproposal *MHp, Network *nwp)  {
   trynode++;
   /* select a node at random */
   
-  head1 = 1 + nb1 + unif_rand() * nb2;
-  tail2 = 1 + unif_rand() * nb1;
-  tail2 = 1 + unif_rand() * nb1;
-  tail3 = 1 + unif_rand() * nb1;
-  while(tail3 == tail2){
-    tail3 = 1 + unif_rand() * nb1;
+  tail1 = 1 + nb1 + unif_rand() * nb2;
+  head2 = 1 + unif_rand() * nb1;
+  head2 = 1 + unif_rand() * nb1;
+  head3 = 1 + unif_rand() * nb1;
+  while(head3 == head2){
+    head3 = 1 + unif_rand() * nb1;
   }
-  if ((!nwp->directed_flag) && head1 > tail2){
-    x1 = EdgetreeSearch(tail2, head1, nwp->outedges) > 0;
+  if ((!nwp->directed_flag) && tail1 > head2){
+    x1 = EdgetreeSearch(head2, tail1, nwp->outedges) > 0;
   }else{
-    x1 = EdgetreeSearch(head1, tail2, nwp->outedges) > 0;
+    x1 = EdgetreeSearch(tail1, head2, nwp->outedges) > 0;
   }
-  if ((!nwp->directed_flag) && head1 > tail3){
-    x2 = EdgetreeSearch(tail3, head1, nwp->outedges) > 0;
+  if ((!nwp->directed_flag) && tail1 > head3){
+    x2 = EdgetreeSearch(head3, tail1, nwp->outedges) > 0;
   }else{
-    x2 = EdgetreeSearch(head1, tail3, nwp->outedges) > 0;
+    x2 = EdgetreeSearch(tail1, head3, nwp->outedges) > 0;
   }
   if (x1 != x2){
-    tail1 = 1 + unif_rand() * nb1;
-    while(tail1 == tail2 || tail1 == tail3 || tail1 == head1){
-      tail1 = 1 + unif_rand() * nb1;
+    head1 = 1 + unif_rand() * nb1;
+    while(head1 == head2 || head1 == head3 || head1 == tail1){
+      head1 = 1 + unif_rand() * nb1;
     }
-    head2 = 1 + nb1 + unif_rand() * nb2;
-    while(head2 == tail2 || head2 == tail3 || head2 == head1 ||
-	  head2 == tail1 ){
-      head2 = 1 + nb1 + unif_rand() * nb2;
+    tail2 = 1 + nb1 + unif_rand() * nb2;
+    while(tail2 == head2 || tail2 == head3 || tail2 == tail1 ||
+	  tail2 == head1 ){
+      tail2 = 1 + nb1 + unif_rand() * nb2;
     }
-    if ((!nwp->directed_flag) && head2 > tail1){
-      x3 = EdgetreeSearch(tail1, head2, nwp->outedges) > 0;
+    if ((!nwp->directed_flag) && tail2 > head1){
+      x3 = EdgetreeSearch(head1, tail2, nwp->outedges) > 0;
     }else{
-      x3 = EdgetreeSearch(head2, tail1, nwp->outedges) > 0;
+      x3 = EdgetreeSearch(tail2, head1, nwp->outedges) > 0;
     }
     if (x2 == x3){
-      if ((!nwp->directed_flag) && head2 > tail3){
-	x4 = EdgetreeSearch(tail3, head2, nwp->outedges) > 0;
+      if ((!nwp->directed_flag) && tail2 > head3){
+	x4 = EdgetreeSearch(head3, tail2, nwp->outedges) > 0;
       }else{
-	x4 = EdgetreeSearch(head2, tail3, nwp->outedges) > 0;
+	x4 = EdgetreeSearch(tail2, head3, nwp->outedges) > 0;
       }
       if (x4 == x1){
-	head3 = 1 + unif_rand() * nb2;
-	while(head3 == tail2 || head3 == tail3 || head3 == head1 ||
-	      head3 == tail1 || head3 == head2 ){
-	  head3 = 1 + nb1 + unif_rand() * nb2;
+	tail3 = 1 + unif_rand() * nb2;
+	while(tail3 == head2 || tail3 == head3 || tail3 == tail1 ||
+	      tail3 == head1 || tail3 == tail2 ){
+	  tail3 = 1 + nb1 + unif_rand() * nb2;
 	}
-	if ((!nwp->directed_flag) && head3 > tail1){
-	  x5 = EdgetreeSearch(tail1, head3, nwp->outedges) > 0;
+	if ((!nwp->directed_flag) && tail3 > head1){
+	  x5 = EdgetreeSearch(head1, tail3, nwp->outedges) > 0;
 	}else{
-	  x5 = EdgetreeSearch(head3, tail1, nwp->outedges) > 0;
+	  x5 = EdgetreeSearch(tail3, head1, nwp->outedges) > 0;
 	}
 	if (x5 == x1){
-	  if ((!nwp->directed_flag) && head3 > tail2){
-	    x6 = EdgetreeSearch(tail2, head3, nwp->outedges) > 0;
+	  if ((!nwp->directed_flag) && tail3 > head2){
+	    x6 = EdgetreeSearch(head2, tail3, nwp->outedges) > 0;
 	  }else{
-	    x6 = EdgetreeSearch(head3, tail2, nwp->outedges) > 0;
+	    x6 = EdgetreeSearch(tail3, head2, nwp->outedges) > 0;
 	  }
 	  if (x6 == x2){
 	    if ( (!nwp->directed_flag) ){
-	      if ( head1 > tail2 ){
-		Mhead[0] = tail2;
-		Mtail[0] = head1;
+	      if ( tail1 > head2 ){
+		Mtail[0] = head2;
+		Mhead[0] = tail1;
 	      }else{
-		Mhead[0] = head1;
-		Mtail[0] = tail2;
+		Mtail[0] = tail1;
+		Mhead[0] = head2;
 	      }
-	      if ( head1 > tail3 ){
-		Mhead[1] = tail3;
-		Mtail[1] = head1;
+	      if ( tail1 > head3 ){
+		Mtail[1] = head3;
+		Mhead[1] = tail1;
 	      }else{
-		Mhead[1] = head1;
-		Mtail[1] = tail3;
+		Mtail[1] = tail1;
+		Mhead[1] = head3;
 	      }
-	      if ( head2 > tail1 ){
-		Mhead[2] = tail1;
-		Mtail[2] = head2;
+	      if ( tail2 > head1 ){
+		Mtail[2] = head1;
+		Mhead[2] = tail2;
 	      }else{
-		Mhead[2] = head2;
-		Mtail[2] = tail1;
+		Mtail[2] = tail2;
+		Mhead[2] = head1;
 	      }
-	      if ( head2 > tail3 ){
-		Mhead[3] = tail3;
-		Mtail[3] = head2;
+	      if ( tail2 > head3 ){
+		Mtail[3] = head3;
+		Mhead[3] = tail2;
 	      }else{
-		Mhead[3] = head2;
-		Mtail[3] = tail3;
+		Mtail[3] = tail2;
+		Mhead[3] = head3;
 	      }
-	      if ( head3 > tail1 ){
-		Mhead[4] = tail1;
-		Mtail[4] = head3;
+	      if ( tail3 > head1 ){
+		Mtail[4] = head1;
+		Mhead[4] = tail3;
 	      }else{
-		Mhead[4] = head3;
-		Mtail[4] = tail1;
+		Mtail[4] = tail3;
+		Mhead[4] = head1;
 	      }
-	      if ( head3 > tail2 ){
-		Mhead[5] = tail2;
-		Mtail[5] = head3;
+	      if ( tail3 > head2 ){
+		Mtail[5] = head2;
+		Mhead[5] = tail3;
 	      }else{
-		Mhead[5] = head3;
-		Mtail[5] = tail2;
+		Mtail[5] = tail3;
+		Mhead[5] = head2;
 	      }
 	    }else{
-	      Mhead[0] = head1;
-	      Mtail[0] = tail2;
-	      Mhead[1] = head1;
-	      Mtail[1] = tail3;
-	      Mhead[2] = head2;
-	      Mtail[2] = tail1;
-	      Mhead[3] = head2;
-	      Mtail[3] = tail3;
-	      Mhead[4] = head3;
-	      Mtail[4] = tail1;
-	      Mhead[5] = head3;
-	      Mtail[5] = tail2;
+	      Mtail[0] = tail1;
+	      Mhead[0] = head2;
+	      Mtail[1] = tail1;
+	      Mhead[1] = head3;
+	      Mtail[2] = tail2;
+	      Mhead[2] = head1;
+	      Mtail[3] = tail2;
+	      Mhead[3] = head3;
+	      Mtail[4] = tail3;
+	      Mhead[4] = head1;
+	      Mtail[5] = tail3;
+	      Mhead[5] = head2;
 	    }
 	    fvalid = 1;
 	  }
@@ -640,17 +653,17 @@ void MH_BipartiteCondDegHexadToggles (MHproposal *MHp, Network *nwp)  {
   }
 
   if(trynode==5000){
-      Mhead[0] = 1;
-      Mtail[0] = 2;
-      Mhead[1] = 1;
-      Mtail[1] = 2;
-      Mhead[2] = 1;
-      Mtail[2] = 2;
-      Mhead[3] = 1;
-      Mtail[3] = 2;
-      Mhead[4] = 1;
-      Mtail[4] = 2;
-      Mhead[5] = 1;
-      Mtail[5] = 2;
+      Mtail[0] = 1;
+      Mhead[0] = 2;
+      Mtail[1] = 1;
+      Mhead[1] = 2;
+      Mtail[2] = 1;
+      Mhead[2] = 2;
+      Mtail[3] = 1;
+      Mhead[3] = 2;
+      Mtail[4] = 1;
+      Mhead[4] = 2;
+      Mtail[5] = 1;
+      Mhead[5] = 2;
   }
 }

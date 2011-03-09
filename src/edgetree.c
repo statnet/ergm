@@ -1,5 +1,10 @@
 #include "edgetree.h"
 
+/* *** don't forget, edges are now given by tails -> heads, and as
+       such, the function definitions now require tails to be passed
+       in before heads */
+
+
 /*******************
  Network NetworkInitialize
 
@@ -7,9 +12,12 @@
  that the 0th TreeNode in the array is unused and should 
  have all its values set to zero
 *******************/
-Network NetworkInitialize(Vertex *heads, Vertex *tails, Edge nedges, 
+Network NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges, 
 			  Vertex nnodes, int directed_flag, Vertex bipartite,
 			  int lasttoggle_flag) {
+
+  /* *** don't forget, tail -> head */
+
   Network nw;
 
   nw.next_inedge = nw.next_outedge = (Edge)nnodes+1;
@@ -35,36 +43,43 @@ Network NetworkInitialize(Vertex *heads, Vertex *tails, Edge nedges,
   nw.directed_flag=directed_flag;
   nw.bipartite=bipartite;
 
-  ShuffleEdges(heads,tails,nedges); /* shuffle to avoid worst-case performance */
+  ShuffleEdges(tails,heads,nedges); /* shuffle to avoid worst-case performance */
 
   for(Edge i = 0; i < nedges; i++) {
-    Vertex h=heads[i], t=tails[i];
-    if (!directed_flag && h > t) 
-      AddEdgeToTrees(t,h,&nw); /* Undir edges always have head < tail */ 
+    Vertex tail=tails[i], head=heads[i];
+    if (!directed_flag && tail > head) 
+      AddEdgeToTrees(head,tail,&nw); /* Undir edges always have tail < head */ 
     else 
-      AddEdgeToTrees(h,t,&nw);
+      AddEdgeToTrees(tail,head,&nw);
   }
   PutRNGstate();
   return nw;
 }
 
+
+/* *** don't forget, edges are now given by tails -> heads, and as
+       such, the function definitions now require tails to be passed
+       in before heads */
+
 /*Takes vectors of doubles for edges; used only when constructing from inputparams. */
-Network NetworkInitializeD(double *heads, double *tails, Edge nedges,
+Network NetworkInitializeD(double *tails, double *heads, Edge nedges,
 			  Vertex nnodes, int directed_flag, Vertex bipartite,
 			  int lasttoggle_flag) {
 
-  Vertex *iheads=(Vertex*)malloc(sizeof(Vertex)*nedges);
+  /* *** don't forget, tail -> head */
+
   Vertex *itails=(Vertex*)malloc(sizeof(Vertex)*nedges);
+  Vertex *iheads=(Vertex*)malloc(sizeof(Vertex)*nedges);
   
   for(Edge i=0; i<nedges; i++){
-    iheads[i]=heads[i];
     itails[i]=tails[i];
+    iheads[i]=heads[i];
   }
 
-  Network nw=NetworkInitialize(iheads,itails,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag);
+  Network nw=NetworkInitialize(itails,iheads,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag);
 
-  free(iheads);
   free(itails);
+  free(iheads);
   return nw;
 }
 
@@ -173,25 +188,41 @@ Edge EdgetreeMinimum (TreeNode *edges, Edge x) {
   return x;
 }
 
+
+
+/* *** don't forget, edges are now given by tails -> heads, and as
+       such, the function definitions now require tails to be passed
+       in before heads */
+
+
+
 /*****************
  Edge ToggleEdge
 
  Toggle an edge:  Set it to the opposite of its current
  value.  Return 1 if edge added, 0 if deleted.
 *****************/
-int ToggleEdge (Vertex head, Vertex tail, Network *nwp) 
+int ToggleEdge (Vertex tail, Vertex head, Network *nwp) 
 {
-  if (!(nwp->directed_flag) && head > tail) {
+  /* don't forget tails < heads now for undirected networks */
+  if (!(nwp->directed_flag) && tail > head) {
     Vertex temp;
-    temp = head; /*  Make sure head<tail always for undirected edges */
-    head = tail;
-    tail = temp;
+    temp = tail; /*  Make sure tail<head always for undirected edges */
+    tail = head;
+    head = temp;
   }
-  if (AddEdgeToTrees(head,tail,nwp))
+  if (AddEdgeToTrees(tail,head,nwp))
     return 1;
   else 
-    return 1 - DeleteEdgeFromTrees(head,tail,nwp);
+    return 1 - DeleteEdgeFromTrees(tail,head,nwp);
 }
+
+
+
+/* *** don't forget, edges are now given by tails -> heads, and as
+       such, the function definitions now require tails to be passed
+       in before heads */
+
 
 /*****************
  Edge ToggleEdgeWithTimestamp
@@ -200,56 +231,73 @@ int ToggleEdge (Vertex head, Vertex tail, Network *nwp)
  Same as ToggleEdge, but this time with the additional
  step of updating the matrix of 'lasttoggle' times
  *****************/
-int ToggleEdgeWithTimestamp(Vertex head, Vertex tail, Network *nwp){
+int ToggleEdgeWithTimestamp(Vertex tail, Vertex head, Network *nwp){
   Edge k;
 
-  if (!(nwp->directed_flag) && head > tail) {
+  /* don't forget, tails < heads in undirected networks now  */
+  if (!(nwp->directed_flag) && tail > head) {
     Vertex temp;
-    temp = head; /*  Make sure head<tail always for undirected edges */
-    head = tail;
-    tail = temp;
+    temp = tail; /*  Make sure tail<head always for undirected edges */
+    tail = head;
+    head = temp;
   }
   
   if(nwp->duration_info.lasttoggle){ /* Skip timestamps if no duration info. */
     if (nwp->directed_flag) 
-      k = (tail-1)*(nwp->nnodes-1) + head - ((head>tail) ? 1:0) - 1; 
+      k = (head-1)*(nwp->nnodes-1) + tail - ((tail>head) ? 1:0) - 1; 
     else
-      k = (tail-1)*(tail-2)/2 + head - 1;    
+      k = (head-1)*(head-2)/2 + tail - 1;    
     nwp->duration_info.lasttoggle[k] = nwp->duration_info.MCMCtimer;
   }
   
-  if (AddEdgeToTrees(head,tail,nwp))
+  if (AddEdgeToTrees(tail,head,nwp))
     return 1;
   else 
-    return 1 - DeleteEdgeFromTrees(head,tail,nwp);
+    return 1 - DeleteEdgeFromTrees(tail,head,nwp);
 }
+
+
+
+/* *** don't forget, edges are now given by tails -> heads, and as
+       such, the function definitions now require tails to be passed
+       in before heads */
+
+
 
 /*****************
  long int ElapsedTime
 
- Return time since given (head,tail) was last toggled using
+ Return time since given (tail,head) was last toggled using
  ToggleEdgeWithTimestamp function
 *****************/
-int ElapsedTime(Vertex head, Vertex tail, Network *nwp){
+int ElapsedTime(Vertex tail, Vertex head, Network *nwp){
   Edge k;
-  if (!(nwp->directed_flag) && head > tail) {
+  /* don't forget, tails < heads now in undirected networks */
+  if (!(nwp->directed_flag) && tail > head) {
     Vertex temp;
-    temp = head; /*  Make sure head<tail always for undirected edges */
-    head = tail;
-    tail = temp;
+    temp = tail; /*  Make sure tail<head always for undirected edges */
+    tail = head;
+    head = temp;
   }
 
   if(nwp->duration_info.lasttoggle){ /* Return 0 if no duration info. */
     if (nwp->directed_flag) 
-      k = (tail-1)*(nwp->nnodes-1) + head - ((head>tail) ? 1:0) - 1; 
+      k = (head-1)*(nwp->nnodes-1) + tail - ((tail>head) ? 1:0) - 1; 
     else
-      k = (tail-1)*(tail-2)/2 + head - 1;    
+      k = (head-1)*(head-2)/2 + tail - 1;    
     return nwp->duration_info.MCMCtimer - nwp->duration_info.lasttoggle[k];
   }
   else return 0; 
   /* Should maybe return an error code of some sort, since 0 elapsed time
      is valid output. Need to think about it. */
 }
+
+
+
+/* *** don't forget, edges are now given by tails -> heads, and as
+       such, the function definitions now require tails to be passed
+       in before heads */
+
 
 /*****************
  void TouchEdge
@@ -258,32 +306,38 @@ int ElapsedTime(Vertex head, Vertex tail, Network *nwp){
  Set an edge's time-stamp to the current MCMC time.
  *****************/
 
-void TouchEdge(Vertex head, Vertex tail, Network *nwp){
+void TouchEdge(Vertex tail, Vertex head, Network *nwp){
   unsigned int k;
   if(nwp->duration_info.lasttoggle){ /* Skip timestamps if no duration info. */
     if (nwp->directed_flag) 
-      k = (tail-1)*(nwp->nnodes-1) + head - ((head>tail) ? 1:0) - 1; 
+      k = (head-1)*(nwp->nnodes-1) + tail - ((tail>head) ? 1:0) - 1; 
     else
-      k = (tail-1)*(tail-2)/2 + head - 1;    
+      k = (head-1)*(head-2)/2 + tail - 1;    
     nwp->duration_info.lasttoggle[k] = nwp->duration_info.MCMCtimer;
   }
 }
 
+
+
+/* *** don't forget, edges are now given by tails -> heads, and as
+       such, the function definitions now require tails to be passed
+       in before heads */
+
 /*****************
  Edge AddEdgeToTrees
 
- Add an edge from head to tail after checking to see
+ Add an edge from tail to head after checking to see
  if it's legal. Return 1 if edge added, 0 otherwise.  Since each
  "edge" should be added to both the list of outedges and the list of 
  inedges, this actually involves two calls to AddHalfedgeToTree (hence
  "Trees" instead of "Tree" in the name of this function).
 *****************/
-int AddEdgeToTrees(Vertex head, Vertex tail, Network *nwp){
-  if (EdgetreeSearch(head, tail, nwp->outedges) == 0) {
-    AddHalfedgeToTree(head, tail, nwp->outedges, nwp->next_outedge);
-    AddHalfedgeToTree(tail, head, nwp->inedges, nwp->next_inedge);
-    ++nwp->outdegree[head];
-    ++nwp->indegree[tail];
+int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp){
+  if (EdgetreeSearch(tail, head, nwp->outedges) == 0) {
+    AddHalfedgeToTree(tail, head, nwp->outedges, nwp->next_outedge);
+    AddHalfedgeToTree(head, tail, nwp->inedges, nwp->next_inedge);
+    ++nwp->outdegree[tail];
+    ++nwp->indegree[head];
     ++nwp->nedges;
     UpdateNextedge (nwp->inedges, &(nwp->next_inedge), nwp); 
     UpdateNextedge (nwp->outedges, &(nwp->next_outedge), nwp);
@@ -338,18 +392,24 @@ void UpdateNextedge (TreeNode *edges, Edge *nextedge, Network *nwp) {
   memset(nwp->outedges+*nextedge,0,sizeof(TreeNode) * (nwp->maxedges-*nextedge));
 }
 
+
+/* *** don't forget, edges are now given by tails -> heads, and as
+       such, the function definitions now require tails to be passed
+       in before heads */
+
+
 /*****************
  int DeleteEdgeFromTrees
 
- Find and delete the edge from head to tail.  
+ Find and delete the edge from tail to head.  
  Return 1 if successful, 0 otherwise.  As with AddEdgeToTrees, this must
  be done once for outedges and once for inedges.
 *****************/
-int DeleteEdgeFromTrees(Vertex head, Vertex tail, Network *nwp){
-  if (DeleteHalfedgeFromTree(head, tail, nwp->outedges,&(nwp->next_outedge))&&
-      DeleteHalfedgeFromTree(tail, head, nwp->inedges, &(nwp->next_inedge))) {
-    --nwp->outdegree[head];
-    --nwp->indegree[tail];
+int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp){
+  if (DeleteHalfedgeFromTree(tail, head, nwp->outedges,&(nwp->next_outedge))&&
+      DeleteHalfedgeFromTree(head, tail, nwp->inedges, &(nwp->next_inedge))) {
+    --nwp->outdegree[tail];
+    --nwp->indegree[head];
     --nwp->nedges;
     return 1;
   }
@@ -461,31 +521,37 @@ Edge DesignMissing (Vertex a, Vertex b, Network *mnwp) {
   return(miss);
 }
 
+
+/* *** don't forget, edges are now given by tails -> heads, and as
+       such, the function definitions now require tails to be passed
+       in before heads */
+
+
 /*****************
   int FindithEdge
 
   Find the ith edge in the Network *nwp and
-  update the values of head and tail appropriately.  Return
+  update the values of tail and head appropriately.  Return
   1 if successful, 0 otherwise.  
   Note that i is numbered from 1, not 0.  Thus, the maximum possible
   value of i is nwp->nedges.
 ******************/
-int FindithEdge (Vertex *head, Vertex *tail, Edge i, Network *nwp) {
-  Vertex h=1;
+int FindithEdge (Vertex *tail, Vertex *head, Edge i, Network *nwp) {
+  Vertex head1=1;
   Edge e;
 
   if (i > nwp->nedges || i<=0)
     return 0;
-  while (i > nwp->outdegree[h]) {
-    i -= nwp->outdegree[h];
-    h++;
+  while (i > nwp->outdegree[head1]) {
+    i -= nwp->outdegree[head1];
+    head1++;
   }
-  e=EdgetreeMinimum(nwp->outedges,h);
+  e=EdgetreeMinimum(nwp->outedges,head1);
   while (i-- > 1) {
     e=EdgetreeSuccessor(nwp->outedges, e);
   }
-  *head = h;
-  *tail = nwp->outedges[e].value;
+  *tail = head1;
+  *head = nwp->outedges[e].value;
   return 1;
 }
 
@@ -493,7 +559,7 @@ int FindithEdge (Vertex *head, Vertex *tail, Edge i, Network *nwp) {
   int FindithnonEdge
 
   Find the ith nonedge in the Network *nwp and
-  update the values of head and tail appropriately.  Return
+  update the values of tail and head appropriately.  Return
   1 if successful, 0 otherwise.  
   Note that i is numbered from 1, not 0.  Thus, the maximum possible
   value of i is (ndyads - nwp->nedges).
@@ -502,25 +568,32 @@ int FindithEdge (Vertex *head, Vertex *tail, Edge i, Network *nwp) {
 /* This function is not yet written.  It's not clear whether it'll
    be needed. */      
 
-/* int FindithnonEdge (Vertex *head, Vertex *tail, Edge i, Network *nwp) {
+/* int FindithnonEdge (Vertex *tail, Vertex *head, Edge i, Network *nwp) {
 } */
+
+
+
+
+/* *** don't forget, edges are now given by tails -> heads, and as
+       such, the function definitions now require tails to be passed
+       in before heads */
 
 
 /****************
  Edge EdgeTree2EdgeList
 
- Write the edgelist of a network into head and tail arrays.
+ Write the edgelist of a network into tail and head arrays.
  Returns the number of edges in the network.
 ****************/
-Edge EdgeTree2EdgeList(Vertex *heads, Vertex *tails, Network *nwp, Edge nmax){
+Edge EdgeTree2EdgeList(Vertex *tails, Vertex *heads, Network *nwp, Edge nmax){
   Edge nextedge=0;
   if (nwp->directed_flag) {
     for (Vertex v=1; v<=nwp->nnodes; v++){
       for(Vertex e = EdgetreeMinimum(nwp->outedges, v);
       nwp->outedges[e].value != 0 && nextedge < nmax;
       e = EdgetreeSuccessor(nwp->outedges, e)){
-        heads[nextedge] = v;
-        tails[nextedge] = nwp->outedges[e].value;
+        tails[nextedge] = v;
+        heads[nextedge] = nwp->outedges[e].value;
         nextedge++;
       }
     }
@@ -531,12 +604,12 @@ Edge EdgeTree2EdgeList(Vertex *heads, Vertex *tails, Network *nwp, Edge nmax){
       e = EdgetreeSuccessor(nwp->outedges, e)){
         Vertex k = nwp->outedges[e].value;
         if(v < k){
-          heads[nextedge] = k;
-          tails[nextedge] = v;
+          tails[nextedge] = k;
+          heads[nextedge] = v;
           nextedge++;
         }else{
-          heads[nextedge] = v;
-          tails[nextedge] = k;
+          tails[nextedge] = v;
+          heads[nextedge] = k;
           nextedge++;
         }
       }
@@ -545,14 +618,20 @@ Edge EdgeTree2EdgeList(Vertex *heads, Vertex *tails, Network *nwp, Edge nmax){
   return nextedge;
 }
 
-void ShuffleEdges(Vertex *heads, Vertex *tails, Edge nedges){
+
+/* *** don't forget, edges are now given by tails -> heads, and as
+       such, the function definitions now require tails to be passed
+       in before heads */
+
+
+void ShuffleEdges(Vertex *tails, Vertex *heads, Edge nedges){
   for(Edge i = nedges; i > 0; i--) {
     Edge j = (double) i * unif_rand();  /* shuffle to avoid worst-case performance */
-    Vertex h = heads[j];
-    Vertex t = tails[j];
-    heads[j] = heads[i-1];
+    Vertex tail = tails[j];
+    Vertex head = heads[j];
     tails[j] = tails[i-1];
-    heads[i-1] = h;
-    tails[i-1] = t;
+    heads[j] = heads[i-1];
+    tails[i-1] = tail;
+    heads[i-1] = head;
   }
 }

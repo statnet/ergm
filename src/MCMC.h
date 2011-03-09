@@ -6,8 +6,10 @@
 #include "MHproposal.h"
 #include "model.h"
 
+/* *** don't forget tail-> head, so this function accepts tails first, not heads  */
+
 void MCMC_wrapper (int *dnumnets, int *dnedges,
-		   int *heads, int *tails,
+		   int *tails, int *heads,
                    int *maxpossibleedges,
                    int *dn, int *dflag, int *bipartite, 
                    int *nterms, char **funnames,
@@ -15,8 +17,8 @@ void MCMC_wrapper (int *dnumnets, int *dnedges,
                    char **MHproposaltype, char **MHproposalpackage,
                    double *inputs, double *theta0, int *samplesize, 
                    double *sample, int *burnin, int *interval,  
-                   int *newnetworkheads, 
                    int *newnetworktails, 
+                   int *newnetworkheads, 
                    int *fVerbose, 
                    int *attribs, int *maxout, int *maxin, int *minout,
                    int *minin, int *condAllDegExact, int *attriblength, 
@@ -32,7 +34,7 @@ void MetropolisHastings (MHproposal *MHp,
 			 int hammingterm,
 			 int fVerbose,
 			 Network *nwp, Model *m);
-void MCMCPhase12 (int *heads, int *tails, int *dnedges,
+void MCMCPhase12 (int *tails, int *heads, int *dnedges,
       int *maxpossibleedges,
 		  int *dn, int *dflag, int *bipartite, 
 		  int *nterms, char **funnames,
@@ -42,13 +44,13 @@ void MCMCPhase12 (int *heads, int *tails, int *dnedges,
 		  double *theta0, int *samplesize,
 		  double *gain, double *meanstats, int *phase1, int *nsub,
 		  double *sample, int *burnin, int *interval,  
-		  int *newnetworkheads, 
 		  int *newnetworktails, 
+		  int *newnetworkheads, 
 		  int *fVerbose, 
 		  int *attribs, int *maxout, int *maxin, int *minout,
 		  int *minin, int *condAllDegExact, int *attriblength, 
 		  int *maxedges,
-		  int *mheads, int *mtails, int *mdnedges);
+		  int *mtails, int *mheads, int *mdnedges);
 
 void MCMCSamplePhase12 (MHproposal *MH,
   double *theta, double gain, double *meanstats,

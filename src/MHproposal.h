@@ -53,11 +53,15 @@ void DegreeBoundDestroy(DegreeBound *bd);
    the value of ntoggles to be the largest possible number of toggles
    required, so that this amount of memory can be allocated.
 */
+
+
+/* *** don't forget tail-> head */
+
 typedef struct MHproposalstruct {
   void (*func)(struct MHproposalstruct*, Network*);
   Edge ntoggles;
-  Vertex *togglehead;
   Vertex *toggletail;
+  Vertex *togglehead;
   double logratio;
   int status;
   DegreeBound *bd;
@@ -80,7 +84,7 @@ void MH_free(MHproposal *MHp);
 
 int CheckTogglesValid(MHproposal *MHp, Network *nwp);
 int CheckConstrainedTogglesValid(MHproposal *MHp, Network *nwp);
-unsigned int dEdgeListSearch(Vertex head, Vertex tail, double *el);
+unsigned int dEdgeListSearch(Vertex tail, Vertex head, double *el);
 #endif 
 
 

@@ -10,9 +10,11 @@
  void MCMC_wrapper
 
  Wrapper for a call from R.
+
+ and don't forget that tail -> head
 *****************/
 void MCMC_wrapper (int *dnumnets, int *nedges,
-		   int *heads, int *tails,
+		   int *tails, int *heads,
                    int *maxpossibleedges,
                    int *dn, int *dflag, int *bipartite, 
                    int *nterms, char **funnames,
@@ -20,14 +22,14 @@ void MCMC_wrapper (int *dnumnets, int *nedges,
                    char **MHproposaltype, char **MHproposalpackage,
                    double *inputs, double *theta0, int *samplesize, 
                    double *sample, int *burnin, int *interval,  
-                   int *newnetworkheads, 
                    int *newnetworktails, 
+                   int *newnetworkheads, 
                    int *fVerbose, 
                    int *attribs, int *maxout, int *maxin, int *minout,
                    int *minin, int *condAllDegExact, int *attriblength, 
                    int *maxedges){
   int directed_flag, hammingterm;
-  Vertex n_nodes, nmax, bip, hhead, htail;
+  Vertex n_nodes, nmax, bip, htail, hhead;
   Edge n_networks, nddyads, kedge;
   Network nw[3];
   Model *m;
@@ -47,16 +49,16 @@ void MCMC_wrapper (int *dnumnets, int *nedges,
 
   //Rprintf("Init: 0 edges %d yplus edges %d\n",nedges[0],nedges[1]); 
   /* Form the network */
-  nw[0]=NetworkInitialize(heads, tails, nedges[0], 
+  nw[0]=NetworkInitialize(tails, heads, nedges[0], 
                           n_nodes, directed_flag, bip, 0);
   /* Form the DTERGM network */
   if (nedges[2]>0) {
-   heads += nedges[0]+nedges[1];
    tails += nedges[0]+nedges[1];
-   nw[2]=NetworkInitialize(heads, tails, nedges[2],
+   heads += nedges[0]+nedges[1];
+   nw[2]=NetworkInitialize(tails, heads, nedges[2],
                            n_nodes, directed_flag, bip, 0);
-   heads -= nedges[0]+nedges[1];
    tails -= nedges[0]+nedges[1];
+   heads -= nedges[0]+nedges[1];
   }
 
   hammingterm=ModelTermHamming (*funnames, *nterms);
@@ -74,17 +76,17 @@ void MCMC_wrapper (int *dnumnets, int *nedges,
          n_nodes, directed_flag, bip,0);
 /*	     Rprintf("made hw[1]\n"); */
    for (kedge=1; kedge <= nwhamming.nedges; kedge++) {
-     FindithEdge(&hhead, &htail, kedge, &nwhamming);
-     if(EdgetreeSearch(hhead, htail, nw[0].outedges) == 0){
-/*	     Rprintf(" in g0 not g hhead %d htail %d\n",hhead, htail); */
-       ToggleEdge(hhead, htail, &nw[1]);
+     FindithEdge(&htail, &hhead, kedge, &nwhamming);
+     if(EdgetreeSearch(htail, hhead, nw[0].outedges) == 0){
+/*	     Rprintf(" in g0 not g htail %d hhead %d\n",htail, hhead); */
+       ToggleEdge(htail, hhead, &nw[1]);
      }
    }
    for (kedge=1; kedge <= nw[0].nedges; kedge++) {
-     FindithEdge(&hhead, &htail, kedge, &nw[0]);
-     if(EdgetreeSearch(hhead, htail, nwhamming.outedges) == 0){
-/*	     Rprintf("not g0  in g hhead %d htail %d\n",hhead, htail); */
-       ToggleEdge(hhead, htail, &nw[1]);
+     FindithEdge(&htail, &hhead, kedge, &nw[0]);
+     if(EdgetreeSearch(htail, hhead, nwhamming.outedges) == 0){
+/*	     Rprintf("not g0  in g htail %d hhead %d\n",htail, hhead); */
+       ToggleEdge(htail, hhead, &nw[1]);
      }
    }
 /*   Rprintf("Initial number of discordant %d Number of g0 ties %d Number of ties in g %d\n",nw[1].nedges, nwhamming.nedges,nw[0].nedges); */
@@ -97,7 +99,7 @@ void MCMC_wrapper (int *dnumnets, int *nedges,
   if(!strncmp(*MHproposaltype,"FormationMLE",12)){
      Rprintf("formation: y0 edges %d yplus edges %d\n",nedges[1],nedges[0]); 
 //   Rprintf("proposal %d\n",strncmp(*MHproposaltype,"FormationMLE",12)); 
-// nw[1]=NetworkInitialize(heads, tails, nedges[0], 
+// nw[1]=NetworkInitialize(tails, heads, nedges[0], 
 //                         n_nodes, directed_flag, bip, 0);
   }
   if(!strncmp(*MHproposaltype,"DissolutionMLE",14)){
@@ -122,8 +124,8 @@ void MCMC_wrapper (int *dnumnets, int *nedges,
 /* Rprintf("Back! %d %d\n",nw[0].nedges, nmax); */
 
   /* record new generated network to pass back to R */
-  if(nmax>0 && newnetworkheads && newnetworktails)
-    newnetworkheads[0]=newnetworktails[0]=EdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,nw,nmax-1);
+  if(nmax>0 && newnetworktails && newnetworkheads)
+    newnetworktails[0]=newnetworkheads[0]=EdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,nw,nmax-1);
   
   ModelDestroy(m);
 
@@ -275,8 +277,9 @@ void MetropolisHastings (MHproposal *MHp,
     MHp->logratio = 0;
     (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
     
-    /* Calculate change statistics. */
-    ChangeStats(MHp->ntoggles, MHp->togglehead, MHp->toggletail, nwp, m);
+    /* Calculate change statistics,
+     remembering that tail -> head */
+    ChangeStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, nwp, m);
       
     /* Calculate inner product */
     for (i=0, ip=0.0; i<m->n_stats; i++){
@@ -291,7 +294,7 @@ void MetropolisHastings (MHproposal *MHp,
     if (cutoff >= 0.0 || log(unif_rand()) < cutoff) { 
       /* Make proposed toggles (updating timestamps--i.e., for real this time) */
       for (i=0; i < MHp->ntoggles; i++){
-        ToggleEdgeWithTimestamp(MHp->togglehead[i], MHp->toggletail[i], nwp);
+        ToggleEdgeWithTimestamp(MHp->toggletail[i], MHp->togglehead[i], nwp);
       }
       //    if(!strncmp(MHproposaltype,"FormationMLE",12) |
       //       !strncmp(MHproposaltype,"DissolutionMLE",14) |
@@ -299,8 +302,8 @@ void MetropolisHastings (MHproposal *MHp,
       if(hammingterm
       ){
         for (i=0; i < MHp->ntoggles; i++){
-          Rprintf("Toggle Discord: h %d t %d\n",MHp->togglehead[i],  MHp->toggletail[i]); 
-          ToggleEdge(MHp->togglehead[i],  MHp->toggletail[i], &nwp[1]);  /* Toggle the discord for this edge */
+          Rprintf("Toggle Discord: tail %d head %d\n",MHp->toggletail[i],  MHp->togglehead[i]); 
+          ToggleEdge(MHp->toggletail[i],  MHp->togglehead[i], &nwp[1]);  /* Toggle the discord for this edge */
         }
       }
       /* record network statistics for posterity */
@@ -324,7 +327,9 @@ void MetropolisHastings (MHproposal *MHp,
   *staken = taken;
 }
 
-void MCMCPhase12 (int *heads, int *tails, int *dnedges, 
+/* *** don't forget tail -> head */
+
+void MCMCPhase12 (int *tails, int *heads, int *dnedges, 
       int *maxpossibleedges,
 		  int *dn, int *dflag, int *bipartite, 
 		  int *nterms, char **funnames,
@@ -334,16 +339,16 @@ void MCMCPhase12 (int *heads, int *tails, int *dnedges,
 		  double *theta0, int *samplesize,
 		  double *gain, double *meanstats, int *phase1, int *nsub,
 		  double *sample, int *burnin, int *interval,  
-		  int *newnetworkheads, 
 		  int *newnetworktails, 
+		  int *newnetworkheads, 
 		  int *fVerbose, 
 		  int *attribs, int *maxout, int *maxin, int *minout,
 		  int *minin, int *condAllDegExact, int *attriblength, 
 		  int *maxedges,
-		  int *mheads, int *mtails, int *mdnedges)  {
+		  int *mtails, int *mheads, int *mdnedges)  {
   int directed_flag, hammingterm, formationterm;
   int nphase1, nsubphases;
-  Vertex n_nodes, bip, hhead, htail;
+  Vertex n_nodes, bip, htail, hhead;
   Edge n_edges, n_medges, nddyads, kedge, nmax;
   Network nw[2];
   Model *m;
@@ -366,7 +371,7 @@ void MCMCPhase12 (int *heads, int *tails, int *dnedges,
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
 
   /* Form the missing network */
-  nw[0]=NetworkInitialize(heads, tails, n_edges,
+  nw[0]=NetworkInitialize(tails, heads, n_edges,
                           n_nodes, directed_flag, bip,0);
 
   hammingterm=ModelTermHamming (*funnames, *nterms);
@@ -385,17 +390,17 @@ void MCMCPhase12 (int *heads, int *tails, int *dnedges,
          n_nodes, directed_flag, bip,0);
 /*	     Rprintf("made hw[1]\n"); */
    for (kedge=1; kedge <= nwhamming.nedges; kedge++) {
-     FindithEdge(&hhead, &htail, kedge, &nwhamming);
-     if(EdgetreeSearch(hhead, htail, nw[0].outedges) == 0){
-/*	     Rprintf(" in g0 not g hhead %d htail %d\n",hhead, htail); */
-       ToggleEdge(hhead, htail, &nw[1]);
+     FindithEdge(&htail, &hhead, kedge, &nwhamming);
+     if(EdgetreeSearch(htail, hhead, nw[0].outedges) == 0){
+/*	     Rprintf(" in g0 not g htail %d hhead %d\n",htail, hhead); */
+       ToggleEdge(htail, hhead, &nw[1]);
      }
    }
    for (kedge=1; kedge <= nw[0].nedges; kedge++) {
-     FindithEdge(&hhead, &htail, kedge, &nw[0]);
-     if(EdgetreeSearch(hhead, htail, nwhamming.outedges) == 0){
-/*	     Rprintf("not g0  in g hhead %d htail %d\n",hhead, htail); */
-       ToggleEdge(hhead, htail, &nw[1]);
+     FindithEdge(&htail, &hhead, kedge, &nw[0]);
+     if(EdgetreeSearch(htail, hhead, nwhamming.outedges) == 0){
+/*	     Rprintf("not g0  in g htail %d hhead %d\n",htail, hhead); */
+       ToggleEdge(htail, hhead, &nw[1]);
      }
    }
 /*   Rprintf("Initial number of discordant %d Number of g0 ties %d Number of ties in g %d\n",nw[1].nedges, nwhamming.nedges,nw[0].nedges); */
@@ -417,17 +422,17 @@ void MCMCPhase12 (int *heads, int *tails, int *dnedges,
          n_nodes, directed_flag, bip,0);
 /*	     Rprintf("made hw[1]\n"); */
    for (kedge=1; kedge <= nwformation.nedges; kedge++) {
-     FindithEdge(&hhead, &htail, kedge, &nwformation);
-     if(EdgetreeSearch(hhead, htail, nw[0].outedges) == 0){
-/*	     Rprintf(" in g0 not g hhead %d htail %d\n",hhead, htail); */
-       ToggleEdge(hhead, htail, &nw[0]);
+     FindithEdge(&htail, &hhead, kedge, &nwformation);
+     if(EdgetreeSearch(htail, hhead, nw[0].outedges) == 0){
+/*	     Rprintf(" in g0 not g htail %d hhead %d\n",htail, hhead); */
+       ToggleEdge(htail, hhead, &nw[0]);
      }
    }
    for (kedge=1; kedge <= nw[0].nedges; kedge++) {
-     FindithEdge(&hhead, &htail, kedge, &nw[0]);
-     if(EdgetreeSearch(hhead, htail, nwformation.outedges) == 0){
-/*	     Rprintf("not g0  in g hhead %d htail %d\n",hhead, htail); */
-       ToggleEdge(hhead, htail, &nw[1]);
+     FindithEdge(&htail, &hhead, kedge, &nw[0]);
+     if(EdgetreeSearch(htail, hhead, nwformation.outedges) == 0){
+/*	     Rprintf("not g0  in g htail %d hhead %d\n",htail, hhead); */
+       ToggleEdge(htail, hhead, &nw[1]);
      }
    }
 /*   Rprintf("Initial number of discordant %d Number of g0 ties %d Number of ties in g %d\n",nw[1].nedges, nwformation.nedges,nw[0].nedges); */
@@ -452,8 +457,8 @@ void MCMCPhase12 (int *heads, int *tails, int *dnedges,
   MH_free(&MH);
   
   /* record new generated network to pass back to R */
-  if(nmax>0 && newnetworkheads && newnetworktails)
-    newnetworkheads[0]=newnetworktails[0]=EdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,nw,nmax);
+  if(nmax>0 && newnetworktails && newnetworkheads)
+    newnetworktails[0]=newnetworkheads[0]=EdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,nw,nmax);
 
   ModelDestroy(m);
 

@@ -6,8 +6,11 @@
 #include "MHproposal.h"
 #include "model.h"
 
+/* *** don't forget tail -> head, so this function accepts tails first, not heads  */
+
+
 void SAN_wrapper (int *dnumnets, int *nedges,
-		  int *heads, int *tails,
+		  int *tails, int *heads,
 		  int *maxpossibleedges,
 		  int *dn, int *dflag, int *bipartite, 
 		  int *nterms, char **funnames,
@@ -15,8 +18,8 @@ void SAN_wrapper (int *dnumnets, int *nedges,
 		  char **MHproposaltype, char **MHproposalpackage,
 		  double *inputs, double *theta0, double *tau, int *samplesize, 
 		  double *sample, int *burnin, int *interval,  
-		  int *newnetworkheads, 
 		  int *newnetworktails, 
+		  int *newnetworkheads, 
 		  double *invcov,
 		  int *fVerbose, 
 		  int *attribs, int *maxout, int *maxin, int *minout,

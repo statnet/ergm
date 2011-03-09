@@ -21,7 +21,10 @@
  Re-rewritten by Pavel Krivitsky to make compression fast. ;)
  *****************/
 
-void MPLE_wrapper (int *heads, int *tails, int *dnedges,
+/* *** don't forget tail -> head, and so this function accepts
+   tails before heads now */
+
+void MPLE_wrapper (int *tails, int *heads, int *dnedges,
        int *maxpossibleedges,
 		   int *dn, int *dflag, int *bipartite, int *nterms, 
 		   char **funnames, char **sonames, double *inputs,  
@@ -36,13 +39,13 @@ void MPLE_wrapper (int *heads, int *tails, int *dnedges,
   int hammingterm;
   Vertex bip = (Vertex) *bipartite;
   Edge maxMPLE = (Edge) *maxMPLEsamplesize;
-  Vertex hhead, htail;
+  Vertex htail, hhead;
   Edge  nddyads, kedge;
   Model *m;
   ModelTerm *thisterm;
 
   GetRNGstate(); /* Necessary for R random number generator */
-  nw[0]=NetworkInitialize(heads, tails, n_edges,
+  nw[0]=NetworkInitialize(tails, heads, n_edges,
                           n_nodes, directed_flag, bip, 0);
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
   
@@ -59,15 +62,15 @@ void MPLE_wrapper (int *heads, int *tails, int *dnedges,
 			   thisterm->inputparams+1+nddyads, nddyads,
          n_nodes, directed_flag, bip,0);
    for (kedge=1; kedge <= nwhamming.nedges; kedge++) {
-     FindithEdge(&hhead, &htail, kedge, &nwhamming);
-     if(EdgetreeSearch(hhead, htail, nw[0].outedges) == 0){
-       ToggleEdge(hhead, htail, &nw[1]);
+     FindithEdge(&htail, &hhead, kedge, &nwhamming);
+     if(EdgetreeSearch(htail, hhead, nw[0].outedges) == 0){
+       ToggleEdge(htail, hhead, &nw[1]);
      }
    }
    for (kedge=1; kedge <= nw[0].nedges; kedge++) {
-     FindithEdge(&hhead, &htail, kedge, &nw[0]);
-     if(EdgetreeSearch(hhead, htail, nwhamming.outedges) == 0){
-       ToggleEdge(hhead, htail, &nw[1]);
+     FindithEdge(&htail, &hhead, kedge, &nw[0]);
+     if(EdgetreeSearch(htail, hhead, nwhamming.outedges) == 0){
+       ToggleEdge(htail, hhead, &nw[1]);
      }
    }
 /*   Rprintf("Initial number of discordant %d Number of g0 ties %d Number of ties in g %d\n",nw[1].nedges, nwhamming.nedges,nw[0].nedges); */
@@ -275,9 +278,9 @@ void MpleInit_hash(int *responsevec, double *covmat, int *weightsvector,
             totalStats += mtp->nstats; 
           }
           if(!insCovMatRow(newRow, covmat, m->n_stats,
-			   maxNumDyadTypes, response, 
-			   responsevec, offset ? offset[dyadNum++]:0, 
-			   compressedOffset, weightsvector)) {
+            maxNumDyadTypes, response, 
+            responsevec, offset ? offset[dyadNum++]:0, 
+            compressedOffset, weightsvector)) {
             error("Too many unique dyads!");
           }
         }
