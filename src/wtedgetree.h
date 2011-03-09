@@ -54,7 +54,7 @@ typedef struct WtNetworkstruct {
   Edge next_outedge;
   Vertex *indegree;
   Vertex *outdegree;
-  double *value;  
+  double *value;
   Dur_Inf duration_info;
   Edge maxedges;
 } WtNetwork;
@@ -100,7 +100,6 @@ Edge WtDesignMissing (Vertex a, Vertex b, WtNetwork *mnwp);
 Edge EdgeTree2EdgeList(Vertex *tails, Vertex *heads, Network *nwp, Edge nmax);
 
 /* Below are some functions that only exist for weighted (valued) networks */
-
 double EdgeWeight (Vertex tail, Vertex head, WtNetwork *nwp);
 #endif
 

@@ -28,11 +28,11 @@ void MH_randomtoggle (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {
     tail = 1 + unif_rand() * nwp->nnodes;
     while ((head = 1 + unif_rand() * nwp->nnodes) == tail);
     if (!nwp->directed_flag && tail > head) {
-      MHp->toggletail[0] = head;
-      MHp->togglehead[0] = tail;
+      Mtail[0] = head;
+      Mhead[0] = tail;
     }else{
-      MHp->toggletail[0] = tail;
-      MHp->togglehead[0] = head;
+      Mtail[0] = tail;
+      Mhead[0] = head;
     }
     fvalid=CheckTogglesValid(MHp, bd, nwp);
   }
@@ -65,7 +65,7 @@ void MH_TNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
   for(int trytoggle = 0; trytoggle < MAX_TRIES; trytoggle++){
     if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
       rane = 1 + unif_rand() * nedges;
-      FindithEdge(MHp->toggletail, MHp->togglehead, rane, nwp);
+      FindithEdge(Mtail, Mhead, rane, nwp);
       /* Thanks to Robert Goudie for pointing out an error in the previous 
       version of this sampler when proposing to go from nedges==0 to nedges==1 
       or vice versa.  Note that this happens extremely rarely unless the 
@@ -78,13 +78,13 @@ void MH_TNT (MHproposal *MHp, DegreeBound *bd, Network *nwp)
         tail = 1 + unif_rand() * nwp->nnodes;
       }while ((head = 1 + unif_rand() * nwp->nnodes) == tail);
       if (tail > head && !nwp->directed_flag)  {
-        MHp->toggletail[0] = head;
-        MHp->togglehead[0] = tail;
+        Mtail[0] = head;
+        Mhead[0] = tail;
       }else{
-        MHp->toggletail[0] = tail;
-        MHp->togglehead[0] = head;
+        Mtail[0] = tail;
+        Mhead[0] = head;
       }
-      if(EdgetreeSearch(MHp->toggletail[0],MHp->togglehead[0],nwp->outedges)!=0){
+      if(EdgetreeSearch(Mtail[0],Mhead[0],nwp->outedges)!=0){
         MHp->ratio = (nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
                                   nedges / (odds*ndyads + nedges));
       }else{
@@ -124,20 +124,20 @@ void MH_TNT10 (MHproposal *MHp, DegreeBound *bd, Network *nwp)
    for(int n = 0; n < 10; n++){
     if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
       rane = 1 + unif_rand() * nedges;
-      FindithEdge(MHp->toggletail, MHp->togglehead, rane, nwp);
+      FindithEdge(Mtail, Mhead, rane, nwp);
       MHp->ratio *= nedges  / (odds*ndyads + nedges);
     }else{ /* Select a dyad at random */
       do{
         tail = 1 + unif_rand() * nwp->nnodes;
       }while ((head = 1 + unif_rand() * nwp->nnodes) == tail);
       if (tail > head && !nwp->directed_flag)  {
-        MHp->toggletail[n] = head;
-        MHp->togglehead[n] = tail;
+        Mtail[n] = head;
+        Mhead[n] = tail;
       }else{
-        MHp->toggletail[n] = tail;
-        MHp->togglehead[n] = head;
+        Mtail[n] = tail;
+        Mhead[n] = head;
       }
-      if(EdgetreeSearch(MHp->toggletail[n],MHp->togglehead[n],nwp->outedges)!=0){
+      if(EdgetreeSearch(Mtail[n],Mhead[n],nwp->outedges)!=0){
         MHp->ratio *= (nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
                                   nedges / (odds*ndyads + nedges));
       }else{
@@ -175,7 +175,7 @@ void MH_ConstantEdges (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {
        (For now, however, no way to easily return an error message and stop.)*/
   for(int trytoggle = 0; trytoggle < MAX_TRIES; trytoggle++){
     /* First, select edge at random */
-    FindithEdge(MHp->toggletail, MHp->togglehead, 1+nwp->nedges*unif_rand(), nwp);
+    FindithEdge(Mtail, Mhead, 1+nwp->nedges*unif_rand(), nwp);
     /* Second, select dyad at random until it has no edge */
     do{
       tail = 1 + unif_rand() * nwp->nnodes;
@@ -185,8 +185,8 @@ void MH_ConstantEdges (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {
       }
     }while (EdgetreeSearch(tail, head, nwp->outedges) != 0 || tail == head);
     
-    MHp->toggletail[1]=tail;
-    MHp->togglehead[1]=head;
+    Mtail[1]=tail;
+    Mhead[1]=head;
     
     if(CheckTogglesValid(MHp,bd,nwp)) break; 
   }
@@ -254,10 +254,10 @@ void MH_CondDegreeTetrad (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {
       }
     }
   }
-  MHp->toggletail[0]=A; MHp->togglehead[0]=B;
-  MHp->toggletail[1]=tmpA; MHp->togglehead[1]=tmpD;
-  MHp->toggletail[2]=tmpB; MHp->togglehead[2]=tmpC;
-  MHp->toggletail[3]=MIN(C,D); MHp->togglehead[1]=MAX(C,D);
+  Mtail[0]=A; Mhead[0]=B;
+  Mtail[1]=tmpA; Mhead[1]=tmpD;
+  Mtail[2]=tmpB; Mhead[2]=tmpC;
+  Mtail[3]=MIN(C,D); Mhead[1]=MAX(C,D);
 }  
 /*  I still have some questions about the MH_conddeg routine:
   
@@ -318,11 +318,11 @@ void MH_CondDegreeDist (MHproposal *MHp, DegreeBound *bd, Network *nwp) {
 
   if ( (!nwp->directed_flag && tail > head) ||
   (nwp->directed_flag && k0 >= noutedge) ) {
-    MHp->toggletail[0] = head;
-    MHp->togglehead[0] = tail;
+    Mtail[0] = head;
+    Mhead[0] = tail;
   }else{
-    MHp->toggletail[0] = tail;
-    MHp->togglehead[0] = head;
+    Mtail[0] = tail;
+    Mhead[0] = head;
   }
   
   k1=0;
@@ -354,11 +354,11 @@ void MH_CondDegreeDist (MHproposal *MHp, DegreeBound *bd, Network *nwp) {
   if ( (!nwp->directed_flag && alter > tail) ||
        (nwp->directed_flag && k0 < noutedge) )
     {
-      MHp->toggletail[1] = tail;
-      MHp->togglehead[1] = alter;
+      Mtail[1] = tail;
+      Mhead[1] = alter;
     }else{
-      MHp->toggletail[1] = alter;
-      MHp->togglehead[1] = tail;
+      Mtail[1] = alter;
+      Mhead[1] = tail;
     }
   
   if (!nwp->directed_flag){
@@ -399,8 +399,8 @@ void MH_CondDegreeDist (MHproposal *MHp, DegreeBound *bd, Network *nwp) {
   }
 
   if (trynode==500){
-    MHp->toggletail[1] = MHp->toggletail[0];
-    MHp->togglehead[1] = MHp->togglehead[0];
+    Mtail[1] = Mtail[0];
+    Mhead[1] = Mhead[0];
   }
 }
 
@@ -439,8 +439,8 @@ void MH_CondOutDegreeDist (MHproposal *MHp, DegreeBound *bd, Network *nwp) {
   for(e = EdgetreeMinimum(nwp->outedges, tail);
       ((head = nwp->outedges[e].value) != 0 && k<k0);
       e = EdgetreeSuccessor(nwp->outedges, e)){++k;}
-  MHp->toggletail[0] = tail;
-  MHp->togglehead[0] = head;
+  Mtail[0] = tail;
+  Mhead[0] = head;
   
   k1=0;
   fvalid=0;
@@ -459,15 +459,15 @@ void MH_CondOutDegreeDist (MHproposal *MHp, DegreeBound *bd, Network *nwp) {
     continue;
   }
   
-  MHp->toggletail[1] = tail;
-  MHp->togglehead[1] = alter;
+  Mtail[1] = tail;
+  Mhead[1] = alter;
   }
   
   if(trynode==1500 || !CheckTogglesValid(MHp, bd, nwp)){
-      MHp->toggletail[0] = 1;
-      MHp->togglehead[0] = 2;
-      MHp->toggletail[1] = 1;
-      MHp->togglehead[1] = 2;
+      Mtail[0] = 1;
+      Mhead[0] = 2;
+      Mtail[1] = 1;
+      Mhead[1] = 2;
   }
   
 
@@ -508,8 +508,8 @@ void MH_CondInDegreeDist (MHproposal *MHp, DegreeBound *bd, Network *nwp) {
   for(e = EdgetreeMinimum(nwp->inedges, tail);
       ((head = nwp->inedges[e].value) != 0 && k<k0);
       e = EdgetreeSuccessor(nwp->inedges, e)){++k;}
-  MHp->toggletail[0] = head;
-  MHp->togglehead[0] = tail;
+  Mtail[0] = head;
+  Mhead[0] = tail;
   
   k1=0;
   fvalid=0;
@@ -528,16 +528,16 @@ void MH_CondInDegreeDist (MHproposal *MHp, DegreeBound *bd, Network *nwp) {
     continue;
   }
   
-  MHp->toggletail[1] = alter;
-  MHp->togglehead[1] = tail;
+  Mtail[1] = alter;
+  Mhead[1] = tail;
   
   }
   
   if(trynode==1500){
-      MHp->toggletail[0] = 1;
-      MHp->togglehead[0] = 2;
-      MHp->toggletail[1] = 1;
-      MHp->togglehead[1] = 2;
+      Mtail[0] = 1;
+      Mhead[0] = 2;
+      Mtail[1] = 1;
+      Mhead[1] = 2;
   }
 }
 
@@ -647,60 +647,60 @@ void MH_CondDegreeHexadToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
 	  if (x6 == x2){
 	    if ( (!nwp->directed_flag) ){
 	      if ( tail1 > head2 ){
-		MHp->toggletail[0] = head2;
-		MHp->togglehead[0] = tail1;
+		Mtail[0] = head2;
+		Mhead[0] = tail1;
 	      }else{
-		MHp->toggletail[0] = tail1;
-		MHp->togglehead[0] = head2;
+		Mtail[0] = tail1;
+		Mhead[0] = head2;
 	      }
 	      if ( tail1 > head3 ){
-		MHp->toggletail[1] = head3;
-		MHp->togglehead[1] = tail1;
+		Mtail[1] = head3;
+		Mhead[1] = tail1;
 	      }else{
-		MHp->toggletail[1] = tail1;
-		MHp->togglehead[1] = head3;
+		Mtail[1] = tail1;
+		Mhead[1] = head3;
 	      }
 	      if ( tail2 > head1 ){
-		MHp->toggletail[2] = head1;
-		MHp->togglehead[2] = tail2;
+		Mtail[2] = head1;
+		Mhead[2] = tail2;
 	      }else{
-		MHp->toggletail[2] = tail2;
-		MHp->togglehead[2] = head1;
+		Mtail[2] = tail2;
+		Mhead[2] = head1;
 	      }
 	      if ( tail2 > head3 ){
-		MHp->toggletail[3] = head3;
-		MHp->togglehead[3] = tail2;
+		Mtail[3] = head3;
+		Mhead[3] = tail2;
 	      }else{
-		MHp->toggletail[3] = tail2;
-		MHp->togglehead[3] = head3;
+		Mtail[3] = tail2;
+		Mhead[3] = head3;
 	      }
 	      if ( tail3 > head1 ){
-		MHp->toggletail[4] = head1;
-		MHp->togglehead[4] = tail3;
+		Mtail[4] = head1;
+		Mhead[4] = tail3;
 	      }else{
-		MHp->toggletail[4] = tail3;
-		MHp->togglehead[4] = head1;
+		Mtail[4] = tail3;
+		Mhead[4] = head1;
 	      }
 	      if ( tail3 > head2 ){
-		MHp->toggletail[5] = head2;
-		MHp->togglehead[5] = tail3;
+		Mtail[5] = head2;
+		Mhead[5] = tail3;
 	      }else{
-		MHp->toggletail[5] = tail3;
-		MHp->togglehead[5] = head2;
+		Mtail[5] = tail3;
+		Mhead[5] = head2;
 	      }
 	    }else{
-	      MHp->toggletail[0] = tail1;
-	      MHp->togglehead[0] = head2;
-	      MHp->toggletail[1] = tail1;
-	      MHp->togglehead[1] = head3;
-	      MHp->toggletail[2] = tail2;
-	      MHp->togglehead[2] = head1;
-	      MHp->toggletail[3] = tail2;
-	      MHp->togglehead[3] = head3;
-	      MHp->toggletail[4] = tail3;
-	      MHp->togglehead[4] = head1;
-	      MHp->toggletail[5] = tail3;
-	      MHp->togglehead[5] = head2;
+	      Mtail[0] = tail1;
+	      Mhead[0] = head2;
+	      Mtail[1] = tail1;
+	      Mhead[1] = head3;
+	      Mtail[2] = tail2;
+	      Mhead[2] = head1;
+	      Mtail[3] = tail2;
+	      Mhead[3] = head3;
+	      Mtail[4] = tail3;
+	      Mhead[4] = head1;
+	      Mtail[5] = tail3;
+	      Mhead[5] = head2;
 	    }
 	    fvalid = 1;
 	  }
@@ -711,18 +711,18 @@ void MH_CondDegreeHexadToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
   }
 
   if(trynode==5000){
-      MHp->toggletail[0] = 1;
-      MHp->togglehead[0] = 2;
-      MHp->toggletail[1] = 1;
-      MHp->togglehead[1] = 2;
-      MHp->toggletail[2] = 1;
-      MHp->togglehead[2] = 2;
-      MHp->toggletail[3] = 1;
-      MHp->togglehead[3] = 2;
-      MHp->toggletail[4] = 1;
-      MHp->togglehead[4] = 2;
-      MHp->toggletail[5] = 1;
-      MHp->togglehead[5] = 2;
+      Mtail[0] = 1;
+      Mhead[0] = 2;
+      Mtail[1] = 1;
+      Mhead[1] = 2;
+      Mtail[2] = 1;
+      Mhead[2] = 2;
+      Mtail[3] = 1;
+      Mhead[3] = 2;
+      Mtail[4] = 1;
+      Mhead[4] = 2;
+      Mtail[5] = 1;
+      Mhead[5] = 2;
   }
 }
 
@@ -779,42 +779,42 @@ void MH_CondDegreeTetradToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp)
       if (x4 == x1){
 	if ( (!nwp->directed_flag) ){
 	  if ( tail1 > head1 ){
-	    MHp->toggletail[0] = head1;
-	    MHp->togglehead[0] = tail1;
+	    Mtail[0] = head1;
+	    Mhead[0] = tail1;
 	  }else{
-	    MHp->toggletail[0] = tail1;
-	    MHp->togglehead[0] = head1;
+	    Mtail[0] = tail1;
+	    Mhead[0] = head1;
 	  }
 	  if ( tail1 > head2 ){
-	    MHp->toggletail[1] = head2;
-	    MHp->togglehead[1] = tail1;
+	    Mtail[1] = head2;
+	    Mhead[1] = tail1;
 	  }else{
-	    MHp->toggletail[1] = tail1;
-	    MHp->togglehead[1] = head2;
+	    Mtail[1] = tail1;
+	    Mhead[1] = head2;
 	  }
 	  if ( tail2 > head1 ){
-	    MHp->toggletail[2] = head1;
-	    MHp->togglehead[2] = tail2;
+	    Mtail[2] = head1;
+	    Mhead[2] = tail2;
 	  }else{
-	    MHp->toggletail[2] = tail2;
-	    MHp->togglehead[2] = head1;
+	    Mtail[2] = tail2;
+	    Mhead[2] = head1;
 	  }
 	  if ( tail2 > head2 ){
-	    MHp->toggletail[3] = head2;
-	    MHp->togglehead[3] = tail2;
+	    Mtail[3] = head2;
+	    Mhead[3] = tail2;
 	  }else{
-	    MHp->toggletail[3] = tail2;
-	    MHp->togglehead[3] = head2;
+	    Mtail[3] = tail2;
+	    Mhead[3] = head2;
 	  }
 	}else{
-	  MHp->toggletail[0] = tail1;
-	  MHp->togglehead[0] = head1;
-	  MHp->toggletail[1] = tail1;
-	  MHp->togglehead[1] = head2;
-	  MHp->toggletail[2] = tail2;
-	  MHp->togglehead[2] = head1;
-	  MHp->toggletail[3] = tail2;
-	  MHp->togglehead[3] = head2;
+	  Mtail[0] = tail1;
+	  Mhead[0] = head1;
+	  Mtail[1] = tail1;
+	  Mhead[1] = head2;
+	  Mtail[2] = tail2;
+	  Mhead[2] = head1;
+	  Mtail[3] = tail2;
+	  Mhead[3] = head2;
 	}
 	fvalid=1;
       }
@@ -822,14 +822,14 @@ void MH_CondDegreeTetradToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp)
   }
   }
   if(trynode==5000){
-      MHp->toggletail[0] = 1;
-      MHp->togglehead[0] = 2;
-      MHp->toggletail[1] = 1;
-      MHp->togglehead[1] = 2;
-      MHp->toggletail[2] = 1;
-      MHp->togglehead[2] = 2;
-      MHp->toggletail[3] = 1;
-      MHp->togglehead[3] = 2;
+      Mtail[0] = 1;
+      Mhead[0] = 2;
+      Mtail[1] = 1;
+      Mhead[1] = 2;
+      Mtail[2] = 1;
+      Mhead[2] = 2;
+      Mtail[3] = 1;
+      Mhead[3] = 2;
   }
 }
 /*********************
@@ -851,11 +851,11 @@ void MH_TwoRandomToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp) {
    tail = 1 + unif_rand() * nwp->nnodes;
    while ((head = 1 + unif_rand() * nwp->nnodes) == tail);
    if (!nwp->directed_flag && tail > head) {
-     MHp->toggletail[i] = head;
-     MHp->togglehead[i] = tail;
+     Mtail[i] = head;
+     Mhead[i] = tail;
    }else{
-     MHp->toggletail[i] = tail;
-     MHp->togglehead[i] = head;
+     Mtail[i] = tail;
+     Mhead[i] = head;
    }
   }
 }
@@ -882,11 +882,11 @@ void MH_randomnode (MHproposal *MHp, DegreeBound *bd, Network *nwp) {
       /* there is never an edge (root, root) */
       if (alter != root) {
        if (!nwp->directed_flag && root > alter) {
-        MHp->toggletail[j] = alter;
-        MHp->togglehead[j] = root;
+        Mtail[j] = alter;
+        Mhead[j] = root;
        }else{
-        MHp->toggletail[j] = root;
-        MHp->togglehead[j] = alter;
+        Mtail[j] = root;
+        Mhead[j] = alter;
        }
        j++;
       }
@@ -903,12 +903,12 @@ void MH_randomtoggleNonObserved (MHproposal *MHp, DegreeBound *bd, Network *nwp)
   MHp->ratio = 1.0;
 
   if(nmissing==0){
-    *MHp->toggletail = MH_FAILED;
-    *MHp->togglehead = MH_IMPOSSIBLE;
+    *Mtail = MH_FAILED;
+    *Mhead = MH_IMPOSSIBLE;
   }
 
   rane = 1 + unif_rand() * nmissing;
-  FindithEdge(MHp->toggletail, MHp->togglehead, rane, &nwp[1]);
+  FindithEdge(Mtail, Mhead, rane, &nwp[1]);
 }
 
 /* The ones below have not been tested */
@@ -936,8 +936,8 @@ void MH_ConstrainedCondOutDegDist (MHproposal *MHp, DegreeBound *bd, Network *nw
   for(e = EdgetreeMinimum(nwp->outedges, tail);
       ((head = nwp->outedges[e].value) != 0 && k<k0);
       e = EdgetreeSuccessor(nwp->outedges, e)){++k;}
-  MHp->toggletail[0] = tail;
-  MHp->togglehead[0] = head;
+  Mtail[0] = tail;
+  Mhead[0] = head;
   
   k1=0;
   fvalid=0;
@@ -952,22 +952,22 @@ void MH_ConstrainedCondOutDegDist (MHproposal *MHp, DegreeBound *bd, Network *nw
     k1++;
   }
   if (k1 == 100){
-    MHp->toggletail[0] = MHp->togglehead[0] = 0;
-    MHp->toggletail[1] = MHp->togglehead[1] = 0;
+    Mtail[0] = Mhead[0] = 0;
+    Mtail[1] = Mhead[1] = 0;
   }
   
-  MHp->toggletail[1] = tail;
-  MHp->togglehead[1] = alter;
+  Mtail[1] = tail;
+  Mhead[1] = alter;
   
   if (!fvalid){
-    MHp->toggletail[0] = MHp->togglehead[0] = 0;
-    MHp->toggletail[1] = MHp->togglehead[1] = 0;
+    Mtail[0] = Mhead[0] = 0;
+    Mtail[1] = Mhead[1] = 0;
   }
   
   for(k=0; k < 2; k++){
-    if (DesignMissing(MHp->toggletail[k], MHp->togglehead[k], &nwp[1])==0){
-      MHp->toggletail[0] = MHp->togglehead[0] = 0;
-      MHp->toggletail[1] = MHp->togglehead[1] = 0;
+    if (DesignMissing(Mtail[k], Mhead[k], &nwp[1])==0){
+      Mtail[0] = Mhead[0] = 0;
+      Mtail[1] = Mhead[1] = 0;
     }
   }
 }
@@ -992,22 +992,22 @@ void MH_NodePairedTiesToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp) {
       (prop = nwp->outedges[e].value) != 0; /* loop if */
       e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of tail */
     {
-      MHp->toggletail[nedge] = tail;
-      MHp->togglehead[nedge] = prop;
+      Mtail[nedge] = tail;
+      Mhead[nedge] = prop;
       ++nedge;
     }
   for(e = EdgetreeMinimum(nwp->inedges, tail);
       (prop = nwp->inedges[e].value) != 0; /* loop if */
       e = EdgetreeSuccessor(nwp->inedges, e)) /* step through inedges of tail */
     {
-      MHp->togglehead[nedge] = tail;
-      MHp->toggletail[nedge] = prop;
+      Mhead[nedge] = tail;
+      Mtail[nedge] = prop;
       ++nedge;
     }
   
   if(nedge > nwp->nnodes-nedge){
-    MHp->toggletail[0] = MHp->togglehead[0] = 0;
-    MHp->toggletail[1] = MHp->togglehead[1] = 0;
+    Mtail[0] = Mhead[0] = 0;
+    Mtail[1] = Mhead[1] = 0;
   }  
   j = 0;
   while (j <=nedge)
@@ -1016,21 +1016,21 @@ void MH_NodePairedTiesToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp) {
       k=0;
       fvalid=1;
       while(fvalid==1 && k<nedge+j){
-	if(EdgetreeSearch( MIN(prop,MHp->toggletail[k]),
-			   MAX(prop,MHp->toggletail[k]), nwp->outedges) +
-	   EdgetreeSearch( MIN(prop,MHp->togglehead[k]),
-			   MAX(prop,MHp->togglehead[k]), nwp->outedges)==0
+	if(EdgetreeSearch( MIN(prop,Mtail[k]),
+			   MAX(prop,Mtail[k]), nwp->outedges) +
+	   EdgetreeSearch( MIN(prop,Mhead[k]),
+			   MAX(prop,Mhead[k]), nwp->outedges)==0
 	   ){++k;
 	}else{
 	  fvalid=0;
 	}
       }
       if(prop>tail){
-	MHp->toggletail[j+nedge] = tail;
-	MHp->togglehead[j+nedge] = prop;
+	Mtail[j+nedge] = tail;
+	Mhead[j+nedge] = prop;
       }else{
-	MHp->toggletail[j+nedge] = prop;
-	MHp->togglehead[j+nedge] = tail;
+	Mtail[j+nedge] = prop;
+	Mhead[j+nedge] = tail;
       }
       ++j;
     }
@@ -1038,7 +1038,7 @@ void MH_NodePairedTiesToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp) {
   j = 2*nedge;
   if (!CheckTogglesValid(MHp, bd, nwp))
     {
-      *MHp->toggletail = *MHp->togglehead = 0;
+      *Mtail = *Mhead = 0;
     }
 }
 
@@ -1089,11 +1089,11 @@ void MH_OneRandomTnTNode (MHproposal *MHp, DegreeBound *bd, Network *nwp) {
 	if ( (!nwp->directed_flag && tail > head) ||
 	     (nwp->directed_flag && k0 >= noutedge) )
 	  {
-	    MHp->toggletail[0] = head;
-	    MHp->togglehead[0] = tail;
+	    Mtail[0] = head;
+	    Mhead[0] = tail;
 	  }else{
-	    MHp->toggletail[0] = tail;
-	    MHp->togglehead[0] = head;
+	    Mtail[0] = tail;
+	    Mhead[0] = head;
 	  }
 	
 	MHp->ratio = ((noutedge+ninedge)*1.0)/(nwp->nnodes-1-noutedge-ninedge-1);
@@ -1131,11 +1131,11 @@ void MH_OneRandomTnTNode (MHproposal *MHp, DegreeBound *bd, Network *nwp) {
 	if ( (!nwp->directed_flag && tail > head) ||
 	     (nwp->directed_flag && k0 >= noutedge) )
 	  {
-	    MHp->toggletail[0] = head;
-	    MHp->togglehead[0] = tail;
+	    Mtail[0] = head;
+	    Mhead[0] = tail;
 	  }else{
-	    MHp->toggletail[0] = tail;
-	    MHp->togglehead[0] = head;
+	    Mtail[0] = tail;
+	    Mhead[0] = head;
 	  }
 	
         if ( nwp->directed_flag )
@@ -1195,7 +1195,7 @@ void MH_ReallocateWithReplacement (MHproposal *MHp, DegreeBound *bd, Network *nw
       edges[newhead] = edges[newhead] | NEW_EDGE;
     }
   
-  /* index into MHp->toggletail/MHp->togglehead is  */
+  /* index into Mtail/Mhead is  */
   edgecount = 0;
   
   /* add to toggle list:  anything that is non zero in edges array
@@ -1205,15 +1205,15 @@ void MH_ReallocateWithReplacement (MHproposal *MHp, DegreeBound *bd, Network *nw
       if (edges[i] == NO_EDGE || edges[i] == CAN_IGNORE) continue;
       
       /* double to integer coercion */
-      MHp->toggletail[edgecount] = root;
-      MHp->togglehead[edgecount] = i;
+      Mtail[edgecount] = root;
+      Mhead[edgecount] = i;
       
-      if (!nwp->directed_flag && (MHp->toggletail[edgecount] > MHp->togglehead[edgecount]))
+      if (!nwp->directed_flag && (Mtail[edgecount] > Mhead[edgecount]))
 	{
 	  Vertex temp;
-	  temp = MHp->toggletail[edgecount];
-	  MHp->toggletail[edgecount] = MHp->togglehead[edgecount];
-	  MHp->togglehead[edgecount] = temp;
+	  temp = Mtail[edgecount];
+	  Mtail[edgecount] = Mhead[edgecount];
+	  Mhead[edgecount] = temp;
 	}
       edgecount++;
     }
@@ -1242,15 +1242,15 @@ void MH_AllTogglesForOneNode (MHproposal *MHp, DegreeBound *bd, Network *nwp) {
 	continue;
       
       /* double to integer coercion */
-      MHp->toggletail[j] = root;
-      MHp->togglehead[j] = i;
+      Mtail[j] = root;
+      Mhead[j] = i;
       
-      if (!nwp->directed_flag && (MHp->toggletail[j] > MHp->togglehead[j]))
+      if (!nwp->directed_flag && (Mtail[j] > Mhead[j]))
 	{
 	  Vertex temp;
-	  temp = MHp->toggletail[j];
-	  MHp->toggletail[j] = MHp->togglehead[j];
-	  MHp->togglehead[j] = temp;
+	  temp = Mtail[j];
+	  Mtail[j] = Mhead[j];
+	  Mhead[j] = temp;
 	}
       j++;
     }
@@ -1313,12 +1313,12 @@ void MH_SwitchLabelTwoNodesToggles (MHproposal *MHp, DegreeBound *bd, Network *n
   for(k=0; k < nedge1; k++){
     if (tail1 > edges1[k])
       {
-	MHp->toggletail[ntoggles] = edges1[k];
-	MHp->togglehead[ntoggles] = tail1;
+	Mtail[ntoggles] = edges1[k];
+	Mhead[ntoggles] = tail1;
       }
     if (tail1 < edges1[k]){
-      MHp->toggletail[ntoggles] = tail1;
-      MHp->togglehead[ntoggles] = edges1[k];
+      Mtail[ntoggles] = tail1;
+      Mhead[ntoggles] = edges1[k];
     }
     if(tail1 != edges1[k]) ntoggles++;
   }
@@ -1326,12 +1326,12 @@ void MH_SwitchLabelTwoNodesToggles (MHproposal *MHp, DegreeBound *bd, Network *n
   for(k=0; k < nedge2; k++){
     if (tail1 > edges2[k])
       {
-	MHp->toggletail[ntoggles] = edges2[k];
-	MHp->togglehead[ntoggles] = tail1;
+	Mtail[ntoggles] = edges2[k];
+	Mhead[ntoggles] = tail1;
       }
     if (tail1 < edges2[k]){
-      MHp->toggletail[ntoggles] = tail1;
-      MHp->togglehead[ntoggles] = edges2[k];
+      Mtail[ntoggles] = tail1;
+      Mhead[ntoggles] = edges2[k];
     }
     if(tail1 != edges2[k]) ntoggles++;
   }
@@ -1339,12 +1339,12 @@ void MH_SwitchLabelTwoNodesToggles (MHproposal *MHp, DegreeBound *bd, Network *n
   for(k=0; k < nedge2; k++){
     if (tail2 > edges2[k])
       {
-	MHp->toggletail[ntoggles] = edges2[k];
-	MHp->togglehead[ntoggles] = tail2;
+	Mtail[ntoggles] = edges2[k];
+	Mhead[ntoggles] = tail2;
       }
     if (tail2 < edges2[k]){
-      MHp->toggletail[ntoggles] = tail2;
-      MHp->togglehead[ntoggles] = edges2[k];
+      Mtail[ntoggles] = tail2;
+      Mhead[ntoggles] = edges2[k];
     }
     if(tail2 != edges2[k]) ntoggles++;
   }
@@ -1352,12 +1352,12 @@ void MH_SwitchLabelTwoNodesToggles (MHproposal *MHp, DegreeBound *bd, Network *n
   for(k=0; k < nedge1; k++){
     if (tail2 > edges1[k])
       {
-	MHp->toggletail[ntoggles] = edges1[k];
-	MHp->togglehead[ntoggles] = tail2;
+	Mtail[ntoggles] = edges1[k];
+	Mhead[ntoggles] = tail2;
       }
     if (tail2 < edges1[k]){
-      MHp->toggletail[ntoggles] = tail2;
-      MHp->togglehead[ntoggles] = edges1[k];
+      Mtail[ntoggles] = tail2;
+      Mhead[ntoggles] = edges1[k];
     }
     if(tail2 != edges1[k]) ntoggles++;
   }
@@ -1412,16 +1412,16 @@ void MH_ConstrainedCondDegDist (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
   if ( (!nwp->directed_flag && tail > head) ||
        (  nwp->directed_flag  && k0 >= noutedge) )
     {
-      MHp->toggletail[0] = head;
-      MHp->togglehead[0] = tail;
+      Mtail[0] = head;
+      Mhead[0] = tail;
     }else{
-      MHp->toggletail[0] = tail;
-      MHp->togglehead[0] = head;
+      Mtail[0] = tail;
+      Mhead[0] = head;
     }
   
-  if (DesignMissing(MHp->toggletail[0], MHp->togglehead[0], &nwp[1])==0){
-    MHp->toggletail[0] = MHp->togglehead[0] = 0;
-    MHp->toggletail[1] = MHp->togglehead[1] = 0;
+  if (DesignMissing(Mtail[0], Mhead[0], &nwp[1])==0){
+    Mtail[0] = Mhead[0] = 0;
+    Mtail[1] = Mhead[1] = 0;
   }
   
   fvalid=0;
@@ -1446,23 +1446,23 @@ void MH_ConstrainedCondDegDist (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
   }
   
   if (k1 == 100){
-    MHp->toggletail[0] = MHp->togglehead[0] = 0;
-    MHp->toggletail[1] = MHp->togglehead[1] = 0;
+    Mtail[0] = Mhead[0] = 0;
+    Mtail[1] = Mhead[1] = 0;
   }
   
   if ( (!nwp->directed_flag && alter > tail) ||
        (nwp->directed_flag && k0 < noutedge) )
     {
-      MHp->toggletail[1] = tail;
-      MHp->togglehead[1] = alter;
+      Mtail[1] = tail;
+      Mhead[1] = alter;
     }else{
-      MHp->toggletail[1] = alter;
-      MHp->togglehead[1] = tail;
+      Mtail[1] = alter;
+      Mhead[1] = tail;
     }
   
-  if (DesignMissing(MHp->toggletail[1], MHp->togglehead[1], &nwp[1])==0){
-    MHp->toggletail[0] = MHp->togglehead[0] = 0;
-    MHp->toggletail[1] = MHp->togglehead[1] = 0;
+  if (DesignMissing(Mtail[1], Mhead[1], &nwp[1])==0){
+    Mtail[0] = Mhead[0] = 0;
+    Mtail[1] = Mhead[1] = 0;
   }
   
   free(outedges);
@@ -1506,8 +1506,8 @@ void MH_ConstrainedCondDegDist (MHproposal *MHp, DegreeBound *bd, Network *nwp) 
   }
   
   if (!fvalid){
-    MHp->toggletail[0] = MHp->togglehead[0] = 0;
-    MHp->toggletail[1] = MHp->togglehead[1] = 0;
+    Mtail[0] = Mhead[0] = 0;
+    Mtail[1] = Mhead[1] = 0;
   }
 }
 
@@ -1531,22 +1531,22 @@ void MH_ConstrainedNodePairedTiesToggles (MHproposal *MHp,
       (prop = nwp->outedges[e].value) != 0; /* loop if */
       e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of tail */
     {
-      MHp->toggletail[nedge] = tail;
-      MHp->togglehead[nedge] = prop;
+      Mtail[nedge] = tail;
+      Mhead[nedge] = prop;
       ++nedge;
     }
   for(e = EdgetreeMinimum(nwp->inedges, tail);
       (prop = nwp->inedges[e].value) != 0; /* loop if */
       e = EdgetreeSuccessor(nwp->inedges, e)) /* step through inedges of tail */
     {
-      MHp->togglehead[nedge] = tail;
-      MHp->toggletail[nedge] = prop;
+      Mhead[nedge] = tail;
+      Mtail[nedge] = prop;
       ++nedge;
     }
   
   if(nedge > nwp->nnodes-nedge){
-    MHp->toggletail[0] = MHp->togglehead[0] = 0;
-    MHp->toggletail[1] = MHp->togglehead[1] = 0;
+    Mtail[0] = Mhead[0] = 0;
+    Mtail[1] = Mhead[1] = 0;
   }  
   j = 0;
   while (j <=nedge)
@@ -1555,20 +1555,20 @@ void MH_ConstrainedNodePairedTiesToggles (MHproposal *MHp,
       k=0;
       fvalid=1;
       while(fvalid==1 && k<nedge+j){
-	if(EdgetreeSearch( MIN(prop,MHp->toggletail[k]),
-			   MAX(prop,MHp->toggletail[k]), nwp->outedges) +
-	   EdgetreeSearch( MIN(prop,MHp->togglehead[k]),
-			   MAX(prop,MHp->togglehead[k]), nwp->outedges)==0
+	if(EdgetreeSearch( MIN(prop,Mtail[k]),
+			   MAX(prop,Mtail[k]), nwp->outedges) +
+	   EdgetreeSearch( MIN(prop,Mhead[k]),
+			   MAX(prop,Mhead[k]), nwp->outedges)==0
 	   ){++k;
 	}else{
 	  fvalid=0;}
       }
       if(prop>tail){
-	MHp->toggletail[j+nedge] = tail;
-	MHp->togglehead[j+nedge] = prop;
+	Mtail[j+nedge] = tail;
+	Mhead[j+nedge] = prop;
       }else{
-	MHp->toggletail[j+nedge] = prop;
-	MHp->togglehead[j+nedge] = tail;
+	Mtail[j+nedge] = prop;
+	Mhead[j+nedge] = tail;
       }
       ++j;
     }
@@ -1576,7 +1576,7 @@ void MH_ConstrainedNodePairedTiesToggles (MHproposal *MHp,
   j = 2*nedge;
   if (!CheckConstrainedTogglesValid(MHp, bd, nwp))
     {
-      *MHp->toggletail = *MHp->togglehead = 0;
+      *Mtail = *Mhead = 0;
     }
 }
 
@@ -1629,7 +1629,7 @@ void MH_ConstrainedReallocateWithReplacement (MHproposal *MHp,
       edges[newhead] = edges[newhead] | NEW_EDGE;
     }
   
-  /* index into MHp->toggletail/MHp->togglehead is  */
+  /* index into Mtail/Mhead is  */
   edgecount = 0;
   
   /* add to toggle list:  anything that is non zero in edges array
@@ -1639,15 +1639,15 @@ void MH_ConstrainedReallocateWithReplacement (MHproposal *MHp,
       if (edges[i] == NO_EDGE || edges[i] == CAN_IGNORE) continue;
       
       /* double to integer coercion */
-      MHp->toggletail[edgecount] = root;
-      MHp->togglehead[edgecount] = i;
+      Mtail[edgecount] = root;
+      Mhead[edgecount] = i;
       
-      if (!nwp->directed_flag && (MHp->toggletail[edgecount] > MHp->togglehead[edgecount]))
+      if (!nwp->directed_flag && (Mtail[edgecount] > Mhead[edgecount]))
 	{
 	  Vertex temp;
-	  temp = MHp->toggletail[edgecount];
-	  MHp->toggletail[edgecount] = MHp->togglehead[edgecount];
-	  MHp->togglehead[edgecount] = temp;
+	  temp = Mtail[edgecount];
+	  Mtail[edgecount] = Mhead[edgecount];
+	  Mhead[edgecount] = temp;
 	}
       edgecount++;
     }
@@ -1676,15 +1676,15 @@ void MH_ConstrainedAllTogglesForOneNode (MHproposal *MHp,
 	continue;
       
       /* double to integer coercion */
-      MHp->toggletail[j] = root;
-      MHp->togglehead[j] = i;
+      Mtail[j] = root;
+      Mhead[j] = i;
       
-      if (!nwp->directed_flag && (MHp->toggletail[j] > MHp->togglehead[j]))
+      if (!nwp->directed_flag && (Mtail[j] > Mhead[j]))
 	{
 	  Vertex temp;
-	  temp = MHp->toggletail[j];
-	  MHp->toggletail[j] = MHp->togglehead[j];
-	  MHp->togglehead[j] = temp;
+	  temp = Mtail[j];
+	  Mtail[j] = Mhead[j];
+	  Mhead[j] = temp;
 	}
       j++;
     }
@@ -1701,26 +1701,26 @@ void MH_ConstrainedTwoRandomToggles (MHproposal *MHp,
   for (i = 0; i < 2; i++)
     {
       /* double to integer coercion */
-      MHp->toggletail[i] = 1 + unif_rand() * nwp->nnodes; 
-      while ((MHp->togglehead[i] = 1 + unif_rand() * nwp->nnodes) == MHp->toggletail[i]);
+      Mtail[i] = 1 + unif_rand() * nwp->nnodes; 
+      while ((Mhead[i] = 1 + unif_rand() * nwp->nnodes) == Mtail[i]);
       
-      while(DesignMissing(MHp->toggletail[i], MHp->togglehead[i], &nwp[1])==0){
-	MHp->toggletail[i] = 1 + unif_rand() * nwp->nnodes; 
-	while ((MHp->togglehead[i] = 1 + unif_rand() * nwp->nnodes) == MHp->toggletail[i]);
+      while(DesignMissing(Mtail[i], Mhead[i], &nwp[1])==0){
+	Mtail[i] = 1 + unif_rand() * nwp->nnodes; 
+	while ((Mhead[i] = 1 + unif_rand() * nwp->nnodes) == Mtail[i]);
       }
-      if (!nwp->directed_flag && MHp->toggletail[i] > MHp->togglehead[i]) 
+      if (!nwp->directed_flag && Mtail[i] > Mhead[i]) 
 	{
 	  Vertex temp;
-	  temp = MHp->toggletail[i];
-	  MHp->toggletail[i] = MHp->togglehead[i];
-	  MHp->togglehead[i] = temp;
+	  temp = Mtail[i];
+	  Mtail[i] = Mhead[i];
+	  Mhead[i] = temp;
 	}
     }
   
   if (!CheckConstrainedTogglesValid(MHp, bd, nwp))
     {
-      MHp->toggletail[0] = MHp->togglehead[0] = 0;
-      MHp->toggletail[1] = MHp->togglehead[1] = 0;
+      Mtail[0] = Mhead[0] = 0;
+      Mtail[1] = Mhead[1] = 0;
     }  
 }
 
@@ -1761,11 +1761,11 @@ void MH_ConstrainedCondDeg (MHproposal *MHp,
   head1 = edges1[(int)(unif_rand() * nedge1)]; 
   if (tail1 > head1)
     {
-      MHp->toggletail[0] = head1;
-      MHp->togglehead[0] = tail1;
+      Mtail[0] = head1;
+      Mhead[0] = tail1;
     }else{
-      MHp->toggletail[0] = tail1;
-      MHp->togglehead[0] = head1;
+      Mtail[0] = tail1;
+      Mhead[0] = head1;
     }
    
   toomany = 0;
@@ -1797,8 +1797,8 @@ void MH_ConstrainedCondDeg (MHproposal *MHp,
     ++toomany;
   }
   if (toomany==100){
-    MHp->toggletail[0] = MHp->togglehead[0] = 0;
-    MHp->toggletail[1] = MHp->togglehead[1] = 0;
+    Mtail[0] = Mhead[0] = 0;
+    Mtail[1] = Mhead[1] = 0;
   }
   toomany=0;
   fvalid=0;
@@ -1812,18 +1812,18 @@ void MH_ConstrainedCondDeg (MHproposal *MHp,
     ++toomany;
   }
   if (!fvalid || toomany==10){
-    MHp->toggletail[0] = MHp->togglehead[0] = 0;
-    MHp->toggletail[1] = MHp->togglehead[1] = 0;
+    Mtail[0] = Mhead[0] = 0;
+    Mtail[1] = Mhead[1] = 0;
     free(edges1);
     free(edges2);
       }
   if (tail2 > head2)
     {
-      MHp->toggletail[1] = head2;
-      MHp->togglehead[1] = tail2;
+      Mtail[1] = head2;
+      Mhead[1] = tail2;
     }else{
-      MHp->toggletail[1] = tail2;
-      MHp->togglehead[1] = head2;
+      Mtail[1] = tail2;
+      Mhead[1] = head2;
     }
   free(edges1);
   free(edges2);
@@ -1887,12 +1887,12 @@ void MH_ConstrainedSwitchLabelTwoNodesToggles (MHproposal *MHp,
   for(k=0; k < nedge1; k++){
     if (tail1 > edges1[k])
       {
-	MHp->toggletail[ntoggles] = edges1[k];
-	MHp->togglehead[ntoggles] = tail1;
+	Mtail[ntoggles] = edges1[k];
+	Mhead[ntoggles] = tail1;
       }
     if (tail1 < edges1[k]){
-      MHp->toggletail[ntoggles] = tail1;
-      MHp->togglehead[ntoggles] = edges1[k];
+      Mtail[ntoggles] = tail1;
+      Mhead[ntoggles] = edges1[k];
     }
     if(tail1 != edges1[k]) ntoggles++;
   }
@@ -1900,12 +1900,12 @@ void MH_ConstrainedSwitchLabelTwoNodesToggles (MHproposal *MHp,
   for(k=0; k < nedge2; k++){
     if (tail1 > edges2[k])
       {
-	MHp->toggletail[ntoggles] = edges2[k];
-	MHp->togglehead[ntoggles] = tail1;
+	Mtail[ntoggles] = edges2[k];
+	Mhead[ntoggles] = tail1;
       }
     if (tail1 < edges2[k]){
-      MHp->toggletail[ntoggles] = tail1;
-      MHp->togglehead[ntoggles] = edges2[k];
+      Mtail[ntoggles] = tail1;
+      Mhead[ntoggles] = edges2[k];
     }
     if(tail1 != edges2[k]) ntoggles++;
   }
@@ -1913,12 +1913,12 @@ void MH_ConstrainedSwitchLabelTwoNodesToggles (MHproposal *MHp,
   for(k=0; k < nedge2; k++){
     if (tail2 > edges2[k])
       {
-	MHp->toggletail[ntoggles] = edges2[k];
-	MHp->togglehead[ntoggles] = tail2;
+	Mtail[ntoggles] = edges2[k];
+	Mhead[ntoggles] = tail2;
       }
     if (tail2 < edges2[k]){
-      MHp->toggletail[ntoggles] = tail2;
-      MHp->togglehead[ntoggles] = edges2[k];
+      Mtail[ntoggles] = tail2;
+      Mhead[ntoggles] = edges2[k];
     }
     if(tail2 != edges2[k]) ntoggles++;
   }
@@ -1926,12 +1926,12 @@ void MH_ConstrainedSwitchLabelTwoNodesToggles (MHproposal *MHp,
   for(k=0; k < nedge1; k++){
     if (tail2 > edges1[k])
       {
-	MHp->toggletail[ntoggles] = edges1[k];
-	MHp->togglehead[ntoggles] = tail2;
+	Mtail[ntoggles] = edges1[k];
+	Mhead[ntoggles] = tail2;
       }
     if (tail2 < edges1[k]){
-      MHp->toggletail[ntoggles] = tail2;
-      MHp->togglehead[ntoggles] = edges1[k];
+      Mtail[ntoggles] = tail2;
+      Mhead[ntoggles] = edges1[k];
     }
     if(tail2 != edges1[k]) ntoggles++;
   }
@@ -1974,11 +1974,11 @@ void MH_ConstantEdgesToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {
   if ( (!nwp->directed_flag && tail > head) ||
        (nwp->directed_flag && k0 >= noutedge) )
     {
-      MHp->toggletail[0] = head;
-      MHp->togglehead[0] = tail;
+      Mtail[0] = head;
+      Mhead[0] = tail;
     }else{
-      MHp->toggletail[0] = tail;
-      MHp->togglehead[0] = head;
+      Mtail[0] = tail;
+      Mhead[0] = head;
     }
   
   k1=0;
@@ -2002,23 +2002,23 @@ void MH_ConstantEdgesToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {
     k1++;
   }
   if (k1 == 100){
-    MHp->toggletail[0] = MHp->togglehead[0] = 0;
-    MHp->toggletail[1] = MHp->togglehead[1] = 0;
+    Mtail[0] = Mhead[0] = 0;
+    Mtail[1] = Mhead[1] = 0;
   }
   
   if ( (!nwp->directed_flag && alter > tail) ||
        (nwp->directed_flag && k0 < noutedge) )
     {
-      MHp->toggletail[1] = tail;
-      MHp->togglehead[1] = alter;
+      Mtail[1] = tail;
+      Mhead[1] = alter;
     }else{
-      MHp->toggletail[1] = alter;
-      MHp->togglehead[1] = tail;
+      Mtail[1] = alter;
+      Mhead[1] = tail;
     }
   
   if (!fvalid){
-    MHp->toggletail[0] = MHp->togglehead[0] = 0;
-    MHp->toggletail[1] = MHp->togglehead[1] = 0;
+    Mtail[0] = Mhead[0] = 0;
+    Mtail[1] = Mhead[1] = 0;
   }else{  
   }
 }
@@ -2054,8 +2054,8 @@ void MH_CondDegSwitchToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {
     }
     
     if (toomany == 100){
-      MHp->toggletail[0] = MHp->togglehead[0] = 0;
-      MHp->toggletail[1] = MHp->togglehead[1] = 0;
+      Mtail[0] = Mhead[0] = 0;
+      Mtail[1] = Mhead[1] = 0;
     }
     
     k0 = (int)(unif_rand() * (noutedge+ninedge)); 
@@ -2073,36 +2073,36 @@ void MH_CondDegSwitchToggles (MHproposal *MHp, DegreeBound *bd, Network *nwp)  {
     if ( (!nwp->directed_flag && tail > head) ||
 	 (nwp->directed_flag && k0 >= noutedge) )
       {
-	MHp->toggletail[i] = head;
-	MHp->togglehead[i] = tail;
+	Mtail[i] = head;
+	Mhead[i] = tail;
       }else{
-	MHp->toggletail[i] = tail;
-	MHp->togglehead[i] = head;
+	Mtail[i] = tail;
+	Mhead[i] = head;
       }
   }
   
-  if (EdgetreeSearch( MHp->toggletail[0],MHp->togglehead[1], nwp->outedges) ||
-      EdgetreeSearch( MHp->toggletail[1],MHp->togglehead[0], nwp->outedges) ){
-    MHp->toggletail[0] = MHp->togglehead[0] = 0;
-    MHp->toggletail[1] = MHp->togglehead[1] = 0;
+  if (EdgetreeSearch( Mtail[0],Mhead[1], nwp->outedges) ||
+      EdgetreeSearch( Mtail[1],Mhead[0], nwp->outedges) ){
+    Mtail[0] = Mhead[0] = 0;
+    Mtail[1] = Mhead[1] = 0;
   }
   
-  if ( (!nwp->directed_flag && MHp->toggletail[0] > MHp->togglehead[1]) )
+  if ( (!nwp->directed_flag && Mtail[0] > Mhead[1]) )
     {
-      MHp->toggletail[2] = MHp->togglehead[1];
-      MHp->togglehead[2] = MHp->toggletail[0];
+      Mtail[2] = Mhead[1];
+      Mhead[2] = Mtail[0];
     }else{
-      MHp->toggletail[2] = MHp->toggletail[0];
-      MHp->togglehead[2] = MHp->togglehead[1];
+      Mtail[2] = Mtail[0];
+      Mhead[2] = Mhead[1];
     }
   
-  if ( (!nwp->directed_flag && MHp->toggletail[1] > MHp->togglehead[0]) )
+  if ( (!nwp->directed_flag && Mtail[1] > Mhead[0]) )
     {
-      MHp->toggletail[3] = MHp->togglehead[0];
-      MHp->togglehead[3] = MHp->toggletail[1];
+      Mtail[3] = Mhead[0];
+      Mhead[3] = Mtail[1];
     }else{
-      MHp->toggletail[3] = MHp->toggletail[1];
-      MHp->togglehead[3] = MHp->togglehead[0];
+      Mtail[3] = Mtail[1];
+      Mhead[3] = Mhead[0];
     }
 }
 
