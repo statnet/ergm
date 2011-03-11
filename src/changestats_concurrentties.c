@@ -5,27 +5,27 @@
 *****************/
 D_CHANGESTAT_FN(d_concurrent_ties) { 
   int i, echange;
-  Vertex h, t, hdeg, tdeg;
+  Vertex tail, head, taildeg, headdeg;
 
   CHANGE_STAT[0] = 0.0;  
   FOR_EACH_TOGGLE(i) {
-    h = heads[i];
-    t = tails[i];
-    echange = IS_OUTEDGE(h, t) ? -1 : 1;
-    hdeg = OUT_DEG[h];
-    tdeg = IN_DEG[t];
+    tail = TAILS(i);
+    head = HEADS(i);
+    echange = IS_OUTEDGE(tail, head) ? -1 : 1;
+    taildeg = OUT_DEG[tail];
+    headdeg = IN_DEG[head];
     if(!DIRECTED){
-      hdeg += IN_DEG[h];
-      tdeg += OUT_DEG[t];
+      taildeg += IN_DEG[tail];
+      headdeg += OUT_DEG[head];
     }
     if(echange>0){
       // When adding ties, only count those beyond the node's first.
-      if(hdeg>=1) CHANGE_STAT[0]++;
-      if(tdeg>=1) CHANGE_STAT[0]++;
+      if(taildeg>=1) CHANGE_STAT[0]++;
+      if(headdeg>=1) CHANGE_STAT[0]++;
     }else{
       // When removing ties, only count if the second tie or beyond is removed.
-      if(hdeg>=2) CHANGE_STAT[0]--;
-      if(tdeg>=2) CHANGE_STAT[0]--;
+      if(taildeg>=2) CHANGE_STAT[0]--;
+      if(headdeg>=2) CHANGE_STAT[0]--;
     }
     TOGGLE_IF_MORE_TO_COME(i);
   }
@@ -40,31 +40,31 @@ D_CHANGESTAT_FN(d_concurrent_ties_by_attr) {
     The first 2*nstats values are in pairs:  (degree, attrvalue)
     The values following the first 2*nstats values are the nodal attributes.
   */
-  int i, j, echange, hattr, tattr;
-  Vertex h, t, hdeg, tdeg;
+  int i, j, echange, tailattr, headattr;
+  Vertex tail, head, taildeg, headdeg;
 
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
-    h = heads[i];
-    t = tails[i];
-    echange = IS_OUTEDGE(h, t) ? -1 : 1;
-    hdeg = OUT_DEG[h];
-    tdeg = IN_DEG[t];
+    tail = TAILS(i);
+    head = HEADS(i);
+    echange = IS_OUTEDGE(tail, head) ? -1 : 1;
+    taildeg = OUT_DEG[tail];
+    headdeg = IN_DEG[head];
     if(!DIRECTED){
-      hdeg += IN_DEG[h];
-      tdeg += OUT_DEG[t];
+      taildeg += IN_DEG[tail];
+      headdeg += OUT_DEG[head];
     }
-    hattr = INPUT_PARAM[N_CHANGE_STATS + h - 1]; 
-    tattr = INPUT_PARAM[N_CHANGE_STATS + t - 1];
+    tailattr = INPUT_PARAM[N_CHANGE_STATS + tail - 1]; 
+    headattr = INPUT_PARAM[N_CHANGE_STATS + head - 1];
     for(j = 0; j < N_CHANGE_STATS; j++) {
       if(echange>0){
-	// When adding ties, only count those beyond the node's first.
-	if(hattr == INPUT_PARAM[j] && hdeg>=1) CHANGE_STAT[j]++;
-	if(tattr == INPUT_PARAM[j] && tdeg>=1) CHANGE_STAT[j]++;
+        // When adding ties, only count those beyond the node's first.
+        if(tailattr == INPUT_PARAM[j] && taildeg>=1) CHANGE_STAT[j]++;
+        if(headattr == INPUT_PARAM[j] && headdeg>=1) CHANGE_STAT[j]++;
       }else{
-	// When removing ties, only count if the second tie or beyond is removed.
-	if(hattr == INPUT_PARAM[j] && hdeg>=2) CHANGE_STAT[j]--;
-	if(tattr == INPUT_PARAM[j] && tdeg>=2) CHANGE_STAT[j]--;
+        // When removing ties, only count if the second tie or beyond is removed.
+        if(tailattr == INPUT_PARAM[j] && taildeg>=2) CHANGE_STAT[j]--;
+        if(headattr == INPUT_PARAM[j] && headdeg>=2) CHANGE_STAT[j]--;
       }
     }
     TOGGLE_IF_MORE_TO_COME(i);

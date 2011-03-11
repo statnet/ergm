@@ -5,22 +5,14 @@
  This gives the change in mean off-duration for all non-existant edges
  (It does not yet work.)
 *****************/
-void d_D_off (int ntoggles, Vertex *heads, Vertex *tails, 
-	           ModelTerm *mtp, Network *nwp) 
-{
+D_CHANGESTAT_FN(d_D_off) {
   int i;
   
-  *(mtp->dstats) = 0.0;
-  for (i=0; i < ntoggles; i++)
-  {
-    
-    
-    if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  ZERO_ALL_CHANGESTATS(i); 
+  FOR_EACH_TOGGLE(i) {
+    TOGGLE_IF_MORE_TO_COME(i); 
   }
-  i--;                                                          
-  while (--i >= 0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
@@ -28,65 +20,50 @@ void d_D_off (int ntoggles, Vertex *heads, Vertex *tails,
  This gives the change in mean duration for all dyads (where dyads without
  an edge are considered to have duration zero)
 *****************/
-void d_D_dyad (int ntoggles, Vertex *heads, Vertex *tails, 
-	           ModelTerm *mtp, Network *nwp) 
-{
+D_CHANGESTAT_FN(d_D_dyad) {
   int edgeflag, i;
-  Vertex ii, jj;
-  double ndyads;
+  Vertex tail, head;
   long int elapsed;
 
-  *(mtp->dstats) = 0.0;
-  ndyads = nwp->nnodes * (nwp->nnodes - 1);
-  if (!nwp->directed_flag) ndyads /= 2;
-  for (i=0; i < ntoggles; i++)
-  {
-    edgeflag = (EdgetreeSearch(ii=heads[i], jj=tails[i], nwp->outedges) != 0);
+  ZERO_ALL_CHANGESTATS(i); 
+  FOR_EACH_TOGGLE(i) {
+    edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
     if (edgeflag) {
-      elapsed = ElapsedTime(ii,jj,nwp);
-      *(mtp->dstats) += (double) (nwp->nedges - 1.0 - elapsed) / ndyads;
+      elapsed = ElapsedTime(tail,head,nwp);
+      CHANGE_STAT[0] += (double) (N_EDGES - 1.0 - elapsed) / N_DYADS;
     } else {
       /* If we gain an edge, the change is always negative */
-      *(mtp->dstats) += (double)(nwp->nedges + 1.0) / ndyads;
+      CHANGE_STAT[0] += (double)(N_EDGES + 1.0) / N_DYADS;
     }
-    if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    TOGGLE_IF_MORE_TO_COME(i); 
   }
-  i--; 
-  while (--i >= 0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
  void d_D_edge
  This gives the change in mean duration for existant edges
 *****************/
-void d_D_edge (int ntoggles, Vertex *heads, Vertex *tails, 
-	           ModelTerm *mtp, Network *nwp) 
-{
+D_CHANGESTAT_FN(d_D_edge) {
   int edgeflag, i;
-  Vertex ii, jj;
+  Vertex tail, head;
   Edge e=nwp->nedges;
   long int elapsed;
   double md = mean_duration(nwp);
 
-  *(mtp->dstats) = 0.0;
-  for (i=0; i < ntoggles; i++)
-  {
-    edgeflag = (EdgetreeSearch(ii=heads[i], jj=tails[i], nwp->outedges) != 0);
+  ZERO_ALL_CHANGESTATS(i); 
+  FOR_EACH_TOGGLE(i) {
+    edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
     if (edgeflag) {
-      elapsed = ElapsedTime(ii,jj,nwp);
+      elapsed = ElapsedTime(tail, head, nwp);
       /* Make sure to prevent division by zero */
-      *(mtp->dstats) += e==1 ? -(double)elapsed : (md - elapsed)/(e-1.0);      
+      CHANGE_STAT[0] += e==1 ? -(double)elapsed : (md - elapsed)/(e-1.0);      
     } else {
-      *(mtp->dstats) += (1.0-md)/(e+1.0);
+      CHANGE_STAT[0] += (1.0-md)/(e+1.0);
     }
-    if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    TOGGLE_IF_MORE_TO_COME(i); 
   }
-  i--; 
-  while (--i >= 0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 double mean_duration(Network *nwp) 
@@ -113,22 +90,19 @@ double mean_duration(Network *nwp)
 *****************/
 D_CHANGESTAT_FN(d_edges_ageinterval){
   int edgeflag, i;
-  Vertex h, t;
+  Vertex tail, head;
   int from=mtp->inputparams[0], to=mtp->inputparams[1];
   
-  *(mtp->dstats) = 0.0;
-  for (i=0; i < ntoggles; i++){
-    int age = ElapsedTime(h=heads[i],t=tails[i],nwp);
+  ZERO_ALL_CHANGESTATS(i); 
+  FOR_EACH_TOGGLE(i) {
+    int age = ElapsedTime(tail=TAIL(i),head=HEAD(i),nwp);
     // Only count if the age is in [from,to). ( to=0 ==> to=Inf )
     if(from<=age && (to==0 || age<to)){
-      edgeflag = (EdgetreeSearch(h, t, nwp->outedges) != 0);
-      *(mtp->dstats) += edgeflag ? - 1 : 1;
+      edgeflag = IS_OUTEDGE(tail, head);
+      CHANGE_STAT[0] += edgeflag ? - 1 : 1;
     }
-
-    if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    TOGGLE_IF_MORE_TO_COME(i); 
   }
-  i--; 
-  while (--i >= 0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+  UNDO_PREVIOUS_TOGGLES(i);
 }
+

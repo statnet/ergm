@@ -4,10 +4,8 @@
 #include "edgetree.h"
 #include "changestat.h"
 
-void d_D_on (int ntoggles, Vertex *heads, Vertex *tail, 
-                ModelTerm *mtp, Network *nwp);
-void d_D_off (int ntoggles, Vertex *heads, Vertex *tail, 
-                ModelTerm *mtp, Network *nwp);
+D_CHANGESTAT_FN(d_D_on);
+D_CHANGESTAT_FN(d_D_off);
 double mean_duration(Network *nwp);
 D_CHANGESTAT_FN(d_edges_ageinterval);
 #endif
