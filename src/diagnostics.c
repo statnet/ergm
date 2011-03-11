@@ -18,9 +18,9 @@
 
 /* Helper functions defined inline. */
 
-R_INLINE void AddNewDurationRow (int *dmatrix, int row, int h, int t, int time, int offset) {
-  DMATRIX(row, 0) = h;    /* head node number */
-  DMATRIX(row, 1) = t;    /* tail node number */
+R_INLINE void AddNewDurationRow (int *dmatrix, int row, int t, int h, int time, int offset) {
+  DMATRIX(row, 0) = t;    /* tail node number */
+  DMATRIX(row, 1) = h;    /* head node number */
   DMATRIX(row, 2) = time; /* timestamp: edge begins */
   DMATRIX(row, 3) = -1;   /* timestamp:  edge ends or -1 if not yet known */
   DMATRIX(row, 4) = 0;    /* non-censoring indicator:  0=censored, 1=not */
@@ -46,10 +46,10 @@ int f2, int m2, int time1, int time2, int maxo) {
 void DurationMatrix (int *nedge, int *edge, int *ntimestep,
       int *ntotal, int *nchange, int *change,
       int *dmatrix) {
-  int row, j, k, h, t, time, offset = *nedge + *nchange;
+  int row, j, k, t, h, time, offset = *nedge + *nchange;
 
   /* Note:  This code assumes always that edges are listed in
-     (head, tail) order, where, for bipartite and underected networks, head < tail.  */
+     (tail, head) order, where, for bipartite and underected networks, tail < head.  */
   
   /* First, initialize dmatrix by putting in time-zero network */
   for (row=0; row<*nedge; row++) {
@@ -59,21 +59,21 @@ void DurationMatrix (int *nedge, int *edge, int *ntimestep,
   /* Next, step through time one click at a time */
   for (time=1,j=0; time<=*ntimestep; time++) {
     for(; CHANGE(j,0) == time && j<*nchange; j++) {
-      h = CHANGE(j,1);
-      t = CHANGE(j,2);
-      for(k=row; !(DMATRIX(k, 0)==h && DMATRIX(k, 1)==t) && k>=0; k--);
+      t = CHANGE(j,1);
+      h = CHANGE(j,2);
+      for(k=row; !(DMATRIX(k, 0)==t && DMATRIX(k, 1)==h) && k>=0; k--);
       if (k>=0 && DMATRIX(k,3) == -1) { 
-        /* We found a match for the (h, t) edge that must be ended */
+        /* We found a match for the (t, h) edge that must be ended */
         DMATRIX(k, 3) = time;
         DMATRIX(k, 4) = 1; /* non-Censored indicator */
         /* int i;
-        for(i = *ndissolve; DISSOLVE(i, 1)!=h && DISSOLVE(i,2)!=t && i>=0; i--);
+        for(i = *ndissolve; DISSOLVE(i, 1)!=t && DISSOLVE(i,2)!=h && i>=0; i--);
         if (i<0) {
           Rprintf("Warning:  Dissolved edge (%d, %d) at time %d not contained in dissolve list\n",
-          h,t,time);
+          t,h,time);
         } */
       } else {
-        AddNewDurationRow(dmatrix, row++, h, t, time, offset);
+        AddNewDurationRow(dmatrix, row++, t, h, time, offset);
       }
     }
   }
@@ -251,18 +251,18 @@ void DegreeMixMatrix (int *nnodes,
  find the changestats that result from starting from an empty network
  and then adding all of the edges to make up an observed network of interest.
 *****************/
-void godfather_wrapper (int *heads, int *tails, int *dnedges,
+void godfather_wrapper (int *tails, int *heads, int *dnedges,
       int *maxpossibleedges,
 			int *dn, int *dflag, int *bipartite, 
 			int *nterms, char **funnames,
 			char **sonames, 
 			int *totalntoggles, int *timestamps, 
-			int *toggleheads, int *toggletails,
+			int *toggletails, int *toggleheads,
 			int *dstart, int *dend,
 			double *inputs, 
 			double *changestats, 
-			int *newnetworkheads, 
 			int *newnetworktails, 
+			int *newnetworkheads, 
 			int *accumulate, 
 			int *fVerbose, 
 			int *maxedges) {
@@ -281,7 +281,7 @@ void godfather_wrapper (int *heads, int *tails, int *dnedges,
   directed_flag = *dflag;
 
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
-  nw = NetworkInitialize(heads, tails, n_edges,
+  nw = NetworkInitialize(tails, heads, n_edges,
                          n_nodes, directed_flag, bip, 1);
 
   if (*fVerbose) {
@@ -309,25 +309,25 @@ void godfather_wrapper (int *heads, int *tails, int *dnedges,
       changestats[j] = changestats[j-m->n_stats];
     }
     for(;pos<tnt && timestamps[pos]==t;pos++){
-      ChangeStats(1, toggleheads+pos, toggletails+pos, &nw, m);
+      ChangeStats(1, toggletails+pos, toggleheads+pos, &nw, m);
       /* Accumulate change statistics */
       for (j=0; j<m->n_stats; j++){
-	changestats[j] += m->workspace[j];
+        changestats[j] += m->workspace[j];
       }
 	
       /* Make proposed toggles (for real this time) */
       //Obvious bug in next line, since i is uninitialized and j just finished loop:
-      //if (!(*accumulate) || EdgetreeSearch(toggleheads[i-j], toggletails[i-j], nw.outedges) == 0) { 
+      //if (!(*accumulate) || EdgetreeSearch(toggletails[i-j], toggleheads[i-j], nw.outedges) == 0) { 
       if (!(*accumulate)) { 
-	ToggleEdgeWithTimestamp(toggleheads[pos], toggletails[pos], &nw);
+        ToggleEdgeWithTimestamp(toggletails[pos], toggleheads[pos], &nw);
       }
     }
   }
 
   if (nmax>0) {
     /* record new generated network to pass back to R */
-    newnetworkheads[0]=newnetworktails[0]=EdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,&nw,nmax);
-    if (newnetworkheads[0]>=nmax) { 
+    newnetworktails[0]=newnetworkheads[0]=EdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,&nw,nmax);
+    if (newnetworktails[0]>=nmax) { 
       Rprintf("Error!  The value of maxedges was not set high enough in ergm.godfather\n");
     }
   }

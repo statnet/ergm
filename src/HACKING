@@ -36,7 +36,7 @@ yet been fully applied everywhere where they should be applied.
 
 When an MH_* function finds that it cannot come up with a valid
 proposal for some reason, it should signal a failure to propose by
-setting MHp->togglehead[0] to 0 and setting MHp->toggletail[0] to one
+setting MHp->toggletail[0] to 0 and setting MHp->togglehead[0] to one
 of the codes listed below, describing the reason for the failure and
 the recommended behavior for the caller (which the caller is free to
 ignore at its own peril).

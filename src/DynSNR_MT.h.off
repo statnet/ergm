@@ -7,7 +7,7 @@
 
 
 void MCMCDynSNR_MT_wrapper(// Observed network.
-		    int *heads, int *tails, int *n_edges,
+		    int *tails, int *heads, int *n_edges,
 		    int *maxpossibleedges,
 		    int *n_nodes, int *dflag, int *bipartite, 
 		    // Ordering of formation and dissolution.

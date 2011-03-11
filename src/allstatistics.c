@@ -1,17 +1,16 @@
 #include "MPLE.h"
 #include "changestat.h"
 
-void RecurseOffOn(int *nodelist1,int *nodelist2, int nodelistlength, int currentnodes,
-       double *changeStats,
-       double *cumulativeStats,
-double *covmat, int *weightsvector,
-          int maxNumDyadTypes, Network *nwp, Model *m);
+void RecurseOffOn(int *nodelist1,int *nodelist2, int nodelistlength, 
+       int currentnodes, double *changeStats, double *cumulativeStats,
+       double *covmat, int *weightsvector,
+       int maxNumDyadTypes, Network *nwp, Model *m);
 
 unsigned int InsNetStatRow(double *newRow, double *matrix, int rowLength, 
-        int numRows, int *weights );
+       int numRows, int *weights );
 
 unsigned int hashNetStatRow(double *newRow, int rowLength, 
-  int numRows);
+       int numRows);
 
         
 /* *****************
@@ -25,8 +24,8 @@ unsigned int hashNetStatRow(double *newRow, int rowLength,
  *****************/
 
 void AllStatistics (
-       int *heads, 
-       int *tails,
+       int *tails, 
+       int *heads,
        int *dnedges,
 		   int *dn, /* Number of nodes */
        int *dflag, /* directed flag */
@@ -46,11 +45,11 @@ void AllStatistics (
   Vertex bip = (Vertex) *bipartite;
   Model *m;
   ModelTerm *mtp;
-  int *noheadsnotails=NULL;
+  int *notailsnoheads=NULL;
 
   /* Step 1:  Initialize empty network and initialize model */
   GetRNGstate(); /* Necessary for R random number generator */
-  nw=NetworkInitialize(heads, tails, *dnedges,
+  nw=NetworkInitialize(tails, heads, *dnedges,
                           n_nodes, directed_flag, bip, 0);
   nwp = &nw;
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
@@ -86,7 +85,7 @@ void AllStatistics (
   unsigned int totalStats = 0;
   for (mtp=m->termarray; mtp < m->termarray + m->n_terms; mtp++){
     mtp->dstats = changeStats + totalStats;
-    /* Update mtp->dstats pointer to skip ahead by mtp->nstats */
+    /* Update mtp->dstats pointer to skip atail by mtp->nstats */
     totalStats += mtp->nstats; 
   }
   if (totalStats != m->n_stats) {
@@ -104,7 +103,11 @@ void AllStatistics (
   PutRNGstate(); /* Must be called after GetRNGstate before returning to R */
 }
 
-void RecurseOffOn(int *nodelist1, int *nodelist2, int nodelistlength, int currentnodes,
+void RecurseOffOn(
+       int *nodelist1, 
+       int *nodelist2, 
+       int nodelistlength, 
+       int currentnodes, 
        double *changeStats,
        double *cumulativeStats,
        double *covmat,
@@ -139,8 +142,12 @@ void RecurseOffOn(int *nodelist1, int *nodelist2, int nodelistlength, int curren
   }
 }
 
-unsigned int InsNetStatRow(double *newRow, double *matrix, int rowLength, 
-        int numRows, int *weights ){
+unsigned int InsNetStatRow(
+                     double *newRow, 
+                     double *matrix, 
+                     int rowLength, 
+                     int numRows, 
+                     int *weights ){
   unsigned int pos, round;
   unsigned int hash_pos = hashNetStatRow(newRow, rowLength, numRows);
   
@@ -164,7 +171,7 @@ unsigned int InsNetStatRow(double *newRow, double *matrix, int rowLength,
 Hashes the covariates, offset, and response onto an unsigned integer in the interval [0,numRows).
 Uses Jenkins One-at-a-Time hash.
 
-numRows should, ideally, be a power of 2, but doesn't have to be.
+numRows should, ideally, be a power of 2, but it doesn't have to be.
 **************/
 unsigned int hashNetStatRow(double *newRow, int rowLength, int numRows) {
   /* Cast all pointers to unsigned char pointers, since data need to 

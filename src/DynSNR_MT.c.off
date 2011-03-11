@@ -3,7 +3,7 @@
 #include "DynSPSA_MT.h"
 
 void MCMCDynSNR_MT_wrapper(// Observed network.
-		    int *heads, int *tails, int *n_edges,
+		    int *tails, int *heads, int *n_edges,
 		    int *maxpossibleedges,
 		    int *n_nodes, int *dflag, int *bipartite, 
 		    // Ordering of formation and dissolution.
@@ -41,15 +41,15 @@ void MCMCDynSNR_MT_wrapper(// Observed network.
   DynamOrder order;
   double *D_stats[2];
   
-  Vertex *difftime[2], *diffhead[2], *difftail[2];
+  Vertex *difftime[2], *difftail[2], *diffhead[2];
   difftime[0] = (Vertex *) calloc(*maxedges,sizeof(Vertex));
-  diffhead[0] = (Vertex *) calloc(*maxedges,sizeof(Vertex));
   difftail[0] = (Vertex *) calloc(*maxedges,sizeof(Vertex));
+  diffhead[0] = (Vertex *) calloc(*maxedges,sizeof(Vertex));
   difftime[1] = (Vertex *) calloc(*maxedges,sizeof(Vertex));
-  diffhead[1] = (Vertex *) calloc(*maxedges,sizeof(Vertex));
   difftail[1] = (Vertex *) calloc(*maxedges,sizeof(Vertex));
+  diffhead[1] = (Vertex *) calloc(*maxedges,sizeof(Vertex));
   
-  MCMCDyn_init_common(heads, tails, *n_edges, *maxpossibleedges,
+  MCMCDyn_init_common(tails, heads, *n_edges, *maxpossibleedges,
 		      *n_nodes, *dflag, *bipartite, nwp,
 		      *order_code, &order,
 		      *F_nterms, *F_funnames, *F_sonames, F_inputs, F_m,
@@ -63,12 +63,12 @@ void MCMCDynSNR_MT_wrapper(// Observed network.
   D_stats[0]=calloc(D_m[0]->n_stats,sizeof(double));
   D_stats[1]=calloc(D_m[0]->n_stats,sizeof(double));
   
-  MCMCSampleDynObjective_args t1args={nwp,order,F_m[0],F_MH,NULL,D_m[0],D_MH,D_theta0,bd[0],init_dev,D_stats[0],*maxedges,difftime[0],diffhead[0],difftail[0],*dyninterval,0,0,NULL,NULL,NULL,NULL};
+  MCMCSampleDynObjective_args t1args={nwp,order,F_m[0],F_MH,NULL,D_m[0],D_MH,D_theta0,bd[0],init_dev,D_stats[0],*maxedges,difftime[0],difftail[0],diffhead[0],*dyninterval,0,0,NULL,NULL,NULL,NULL};
 
   double *dev2=calloc(F_m[0]->n_stats,sizeof(double));
   memcpy(dev2,init_dev,F_m[0]->n_stats*sizeof(double));
 
-  MCMCDyn_init_common(heads, tails, *n_edges, *maxpossibleedges,
+  MCMCDyn_init_common(tails, heads, *n_edges, *maxpossibleedges,
 		      *n_nodes, *dflag, *bipartite, nwp+2,
 		      *order_code, &order,
 		      *F_nterms, *F_funnames, *F_sonames, F_inputs, F_m+1,
@@ -79,7 +79,7 @@ void MCMCDynSNR_MT_wrapper(// Observed network.
 		      *D_MHproposaltype, *D_MHproposalpackage, D_MH+1,
 		      *fVerbose);
 
-  MCMCSampleDynObjective_args t2args={nwp+2,order,F_m[1],F_MH+1,NULL,D_m[1],D_MH+1,D_theta0,bd[1],dev2,D_stats[1],*maxedges,difftime[1],diffhead[1],difftail[1],*dyninterval,0,0,NULL,NULL,NULL,NULL};
+  MCMCSampleDynObjective_args t2args={nwp+2,order,F_m[1],F_MH+1,NULL,D_m[1],D_MH+1,D_theta0,bd[1],dev2,D_stats[1],*maxedges,difftime[1],difftail[1],diffhead[1],*dyninterval,0,0,NULL,NULL,NULL,NULL};
   
   MCMCDynSNR_MT(&t1args,&t2args,F_theta0, 
 		 *a, *alpha, *A, *c, *gamma, *iterations,
@@ -91,10 +91,10 @@ void MCMCDynSNR_MT_wrapper(// Observed network.
 
   free(difftime[0]);
   free(difftime[1]);
-  free(diffhead[0]);
-  free(diffhead[1]);
   free(difftail[0]);
   free(difftail[1]);
+  free(diffhead[0]);
+  free(diffhead[1]);
   free(D_stats[0]);
   free(D_stats[1]);
   free(dev2);

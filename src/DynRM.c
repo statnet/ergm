@@ -1,7 +1,7 @@
 #include "DynRM.h"
 
 void MCMCDynPhase12(// Observed network.
-		    int *heads, int *tails, int *n_edges,
+		    int *tails, int *heads, int *n_edges,
 		    int *maxpossibleedges,
 		    int *n_nodes, int *dflag, int *bipartite, 
 		    // Ordering of formation and dissolution.
@@ -33,12 +33,12 @@ void MCMCDynPhase12(// Observed network.
   DynamOrder order;
   
   
-  Vertex *difftime, *diffhead, *difftail;
+  Vertex *difftime, *difftail, *diffhead;
   difftime = (Vertex *) calloc(*maxedges,sizeof(Vertex));
-  diffhead = (Vertex *) calloc(*maxedges,sizeof(Vertex));
   difftail = (Vertex *) calloc(*maxedges,sizeof(Vertex));
+  diffhead = (Vertex *) calloc(*maxedges,sizeof(Vertex));
   
-  MCMCDyn_init_common(heads, tails, *n_edges, *maxpossibleedges,
+  MCMCDyn_init_common(tails, heads, *n_edges, *maxpossibleedges,
 		      *n_nodes, *dflag, *bipartite, nw,
 		      *order_code, &order,
 		      *F_nterms, *F_funnames, *F_sonames, F_inputs, &F_m,
@@ -58,7 +58,7 @@ void MCMCDynPhase12(// Observed network.
 		       D_m, &D_MH, gamma0,
 		       
 		       *maxedges,
-		       difftime, diffhead, difftail,
+		       difftime, difftail, diffhead,
 		       *RM_burnin, *RM_interval, *MH_interval,
 		       *fVerbose);
 
@@ -87,7 +87,7 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
 			  // Dissolution parameter fitting --- to add later? -PK
 			  // Space for output.
 			  Edge nmax,
-			  Vertex *difftime, Vertex *diffhead, Vertex *difftail,
+			  Vertex *difftime, Vertex *difftail, Vertex *diffhead,
 			  // MCMC settings.
 			  unsigned int RM_burnin, unsigned int RM_interval, unsigned int MH_interval,
 			  // Verbosity.
@@ -113,7 +113,7 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
 		 0,
 		 dev, D_stats,
 		 nmax, &nextdiffedge,
-		 difftime, diffhead, difftail,
+		 difftime, difftail, diffhead,
 		 MH_interval,
 		 fVerbose);
 
@@ -122,123 +122,122 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
 
     redo=FALSE;
 
-  /********************
-   Phase 1
-   ********************/
+    /********************
+    Phase 1
+    ********************/
   
-  Rprintf("Phase 1: %d steps (RM_interval = %d)\n", phase1n,RM_interval);
+    Rprintf("Phase 1: %d steps (RM_interval = %d)\n", phase1n,RM_interval);
   
-  for (j=0; j < F_m->n_stats; j++){
-    meandev[j] = 0.0;
-    meandev2[j] = 0.0;
-    Rprintf("j %d %f\n",j,theta[j]);
-  }
-
-  for (i=0; i < phase1n*RM_interval; i++){
-    MCMCDyn1Step(nwp, order,
-		 F_m, F_MH, theta,
-		 D_m, D_MH, gamma,
-		 0,
-		 dev, D_stats,
-		 nmax, &nextdiffedge,
-		 difftime, diffhead, difftail,
-		 MH_interval,
-		 fVerbose);
-    for (j=0; j<F_m->n_stats; j++){
-      meandev[j]  += dev[j];
-      meandev2[j] += dev[j]*dev[j];
+    for (j=0; j < F_m->n_stats; j++){
+      meandev[j] = 0.0;
+      meandev2[j] = 0.0;
+      Rprintf("j %d %f\n",j,theta[j]);
     }
-  }
-  
-  if (fVerbose){
-    Rprintf("Returned from Phase 1\n");
-    Rprintf("gain times inverse variances:\n");
-  }
-  
-  for (j=0; j<F_m->n_stats; j++){
-    aDdiaginv[j] = (meandev2[j]-meandev[j]*meandev[j]/(1.0*phase1n*RM_interval))/(phase1n*RM_interval);
-    if( aDdiaginv[j] > 0.0){
-      aDdiaginv[j] = gain/sqrt(aDdiaginv[j]);
-    }else{
-      aDdiaginv[j]=0.0001;
-      redos--;
-      if(redos>0) redo=TRUE;
-    }
-    if(fVerbose) Rprintf(" %f", aDdiaginv[j]);
-  }
-  if(fVerbose) Rprintf("\n");
 
-
-  if(fVerbose){
-    Rprintf("theta0 statistics:");
-    for (j=0; j<F_m->n_stats; j++){
-      Rprintf("%f ",  meandev[j]/(phase1n*RM_interval));
-    }
-    Rprintf("\n");
-  }
-  
-  /********************
-   Phase 2
-   ********************/
-  unsigned int phase2n=F_m->n_stats+7+phase2n_base;
-  for(unsigned int subphase=0; subphase<phase2sub; subphase++){
-
-    for (i=0; i < phase2n; i++){
-      for(j=0; j<F_m->n_stats; j++){
-	meandev[j]=0;
-	meandev2[j]=0;
+    for (i=0; i < phase1n*RM_interval; i++){
+      MCMCDyn1Step(nwp, order,
+        F_m, F_MH, theta,
+        D_m, D_MH, gamma,
+        0,
+        dev, D_stats,
+        nmax, &nextdiffedge,
+        difftime, difftail, diffhead,
+        MH_interval,
+        fVerbose);
+      for (j=0; j<F_m->n_stats; j++){
+        meandev[j]  += dev[j];
+        meandev2[j] += dev[j]*dev[j];
       }
-      for(j=0;j < RM_interval;j++){
-	MCMCDyn1Step(nwp, order,
-		     F_m, F_MH, theta,
-		     D_m, D_MH, gamma,
-		     0,
-		     dev, D_stats,
-		     nmax, &nextdiffedge,
-		     difftime, diffhead, difftail,
-		     MH_interval,
-		     fVerbose);
-	for(unsigned int k=0;k<F_m->n_stats; k++){
-	  meandev[k]+=dev[k];
-	  meandev2[k]+=dev[k]*dev[k];
-	}
-	if (fVerbose>2){
-	  for (unsigned int k=0; k<F_m->n_stats; k++){
-	    Rprintf("j %d theta %f ns %f\n",
-		    k, theta[k], dev[k]);
-	  }
-	  Rprintf("\n");
-	}
+    }
+  
+    if (fVerbose){
+      Rprintf("Returned from Phase 1\n");
+      Rprintf("gain times inverse variances:\n");
+    }
+  
+    for (j=0; j<F_m->n_stats; j++){
+      aDdiaginv[j] = (meandev2[j]-meandev[j]*meandev[j]/(1.0*phase1n*RM_interval))/(phase1n*RM_interval);
+      if( aDdiaginv[j] > 0.0){
+        aDdiaginv[j] = gain/sqrt(aDdiaginv[j]);
+      }else{
+        aDdiaginv[j]=0.0001;
+        redos--;
+        if(redos>0) redo=TRUE;
+      }
+      if(fVerbose) Rprintf(" %f", aDdiaginv[j]);
+    }
+    if(fVerbose) Rprintf("\n");
+
+    if(fVerbose){
+      Rprintf("theta0 statistics:");
+      for (j=0; j<F_m->n_stats; j++){
+        Rprintf("%f ",  meandev[j]/(phase1n*RM_interval));
+      }
+      Rprintf("\n");
+    }
+    
+    /********************
+    Phase 2
+    ********************/
+    unsigned int phase2n=F_m->n_stats+7+phase2n_base;
+    for(unsigned int subphase=0; subphase<phase2sub; subphase++){
+      
+      for (i=0; i < phase2n; i++){
+        for(j=0; j<F_m->n_stats; j++){
+          meandev[j]=0;
+          meandev2[j]=0;
+        }
+        for(j=0;j < RM_interval;j++){
+          MCMCDyn1Step(nwp, order,
+            F_m, F_MH, theta,
+            D_m, D_MH, gamma,
+            0,
+            dev, D_stats,
+            nmax, &nextdiffedge,
+            difftime, difftail, diffhead,
+            MH_interval,
+            fVerbose);
+          for(unsigned int k=0;k<F_m->n_stats; k++){
+            meandev[k]+=dev[k];
+            meandev2[k]+=dev[k]*dev[k];
+          }
+          if (fVerbose>2){
+            for (unsigned int k=0; k<F_m->n_stats; k++){
+              Rprintf("j %d theta %f ns %f\n",
+              k, theta[k], dev[k]);
+            }
+            Rprintf("\n");
+          }
+        }
+        
+        if(fVerbose>1){
+          for (j=0; j<F_m->n_stats; j++){
+            Rprintf("j %d theta %f ns %f sd %f z %f\n",
+            j, theta[j], meandev[j], sqrt(meandev2[j]-meandev[j]*meandev[j]), meandev[j]/sqrt((meandev2[j]-meandev[j]*meandev[j]))*RM_interval);
+          }
+          Rprintf("\n");
+        }
+        
+        /* Update theta0 */
+        for (j=0; j<F_m->n_stats; j++){
+          meandev[j]/=RM_interval;
+          meandev2[j]/=RM_interval;
+          theta[j] -= aDdiaginv[j] * meandev[j];
+        }
       }
       
-      if(fVerbose>1){
-	for (j=0; j<F_m->n_stats; j++){
-	  Rprintf("j %d theta %f ns %f sd %f z %f\n",
-		  j, theta[j], meandev[j], sqrt(meandev2[j]-meandev[j]*meandev[j]), meandev[j]/sqrt((meandev2[j]-meandev[j]*meandev[j]))*RM_interval);
-	}
-	Rprintf("\n");
-      }
-
-      /* Update theta0 */
+      phase2n=trunc(2.52*(phase2n-phase2n_base)+phase2n_base);
       for (j=0; j<F_m->n_stats; j++){
-	meandev[j]/=RM_interval;
-	meandev2[j]/=RM_interval;
-        theta[j] -= aDdiaginv[j] * meandev[j];
+        aDdiaginv[j] /= 2.0;
+        if (fVerbose)Rprintf("j %d theta %f ns %f sd %f z %f\n",
+          j, theta[j], meandev[j], sqrt(meandev2[j]-meandev[j]*meandev[j]), meandev[j]/sqrt((meandev2[j]-meandev[j]*meandev[j]))*RM_interval);
       }
+      Rprintf("\n");
     }
-
-    phase2n=trunc(2.52*(phase2n-phase2n_base)+phase2n_base);
-    for (j=0; j<F_m->n_stats; j++){
-      aDdiaginv[j] /= 2.0;
-      if (fVerbose)Rprintf("j %d theta %f ns %f sd %f z %f\n",
-			   j, theta[j], meandev[j], sqrt(meandev2[j]-meandev[j]*meandev[j]), meandev[j]/sqrt((meandev2[j]-meandev[j]*meandev[j]))*RM_interval);
-    }
-    Rprintf("\n");
     
-  }
-
   }while(redo);
   
   free(meandev);
   free(meandev2);
 }
+

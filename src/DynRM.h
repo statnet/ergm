@@ -5,7 +5,7 @@
 #include "MHproposals.h"
 
 void MCMCDynPhase12(// Observed network.
-		    int *heads, int *tails, int *n_edges,
+		    int *tails, int *heads, int *n_edges,
         int *maxpossibleedges,
 		    int *n_nodes, int *dflag, int *bipartite, 
 		    // Ordering of formation and dissolution.
@@ -48,7 +48,7 @@ void MCMCSampleDynPhase12(// Observed and discordant network.
 			  // Dissolution parameter fitting --- to add later? -PK
 			  // Space for output.
 			  Edge nmax,
-			  Vertex *difftime, Vertex *diffhead, Vertex *difftail,
+			  Vertex *difftime, Vertex *difftail, Vertex *diffhead,
 			  // MCMC settings.
 			  unsigned int burnin, unsigned int interval, unsigned int dyninterval,
 			  // Verbosity.

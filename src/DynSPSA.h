@@ -5,7 +5,7 @@
 #include "MHproposals.h"
 
 void MCMCDynSPSA_wrapper(// Observed network.
-		    int *heads, int *tails, int *n_edges,
+		    int *tails, int *heads, int *n_edges,
 		    int *maxpossibleedges,
 		    int *n_nodes, int *dflag, int *bipartite, 
 		    // Ordering of formation and dissolution.
@@ -46,7 +46,7 @@ double MCMCSampleDynObjective(Network *nwp,
 			      Model *D_m, MHproposal *D_MH, double *D_theta,
 			      double *F_stats, double *D_stats,
 			      unsigned int nmax,
-			      Vertex *difftime, Vertex *diffhead, Vertex *difftail,
+			      Vertex *difftime, Vertex *difftail, Vertex *diffhead,
 			      // MCMC settings.
 			      unsigned int dyninterval,
 			      unsigned int burnin,
@@ -77,7 +77,7 @@ void MCMCDynSPSA(// Observed and discordant network.
 		       // Space for output.
 		       Edge nmax,
 		       double *obj_history,
-		       Vertex *difftime, Vertex *diffhead, Vertex *difftail,
+		       Vertex *difftime, Vertex *difftail, Vertex *diffhead,
 		       // MCMC settings.
 		       unsigned int burnin, unsigned int interval, unsigned int dyninterval,
 		       // Verbosity.

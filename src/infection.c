@@ -29,8 +29,8 @@ void Prevalence (int *nnodes,
   Network nw;
   
   sinfected = (int *) malloc(sizeof(int) * (*nnodes));
-//    Rprintf("initial bipartite %d edges %d heads[i] %f tails[i] %f\n", bipartite,ne,
-//		           heads[i-1],tails[i-1]);
+//    Rprintf("initial bipartite %d edges %d tails[i] %f heads[i] %f\n", bipartite,ne,
+//		           tails[i-1],heads[i-1]);
 
   for (k=0; k < *nsim; k++) {
     /* R's serialization of matrixes is column-major, so this works: */
@@ -117,7 +117,7 @@ void Prevalence (int *nnodes,
 //   Rprintf("k %d edges %d prev %d \n",k,nw.nedges,prev[k]);
 // if (k < *nsim) {
 //  NetworkDestroy (&nw);
-//  nw = NetworkInitialize(heads, tails, ne, maxedges, *nnodes, 0, bipartite);
+//  nw = NetworkInitialize(tails, heads, ne, maxedges, *nnodes, 0, bipartite);
 //  id=nw.indegree;
 //  od=nw.outdegree;
 // }
@@ -139,14 +139,14 @@ void PrevalenceWithBernoulliOption(int *nnodes,
   Edge i, j, ne = *nedge, nwedge;
   int k, time, ndyads, rane;
   int bipartite = *nfem;
-  Vertex *bheads, *btails;
+  Vertex *btails, *bheads;
   int *sinfected, *bsort;
   double beta=*betarate;
   Network nw, nws;
   
   sinfected = (int *) malloc(sizeof(int) * (*nnodes));
-//    Rprintf("initial bipartite %d edges %d heads[i] %f tails[i] %f\n", bipartite,ne,
-//		           heads[i-1],tails[i-1]);
+//    Rprintf("initial bipartite %d edges %d tails[i] %f heads[i] %f\n", bipartite,ne,
+//		           tails[i-1],heads[i-1]);
   nws = NetworkInitialize(edge, edge+*nedge, ne,
                           *nnodes, 0, bipartite,0);
   if(*bernoulli){
@@ -207,33 +207,33 @@ void PrevalenceWithBernoulliOption(int *nnodes,
      if(*bernoulli){
       // Sample numdissolved edges without replacement
       ndyads = bipartite*(nws.nnodes-bipartite);
-      bheads = (Vertex *) malloc(sizeof(Vertex) * nws.nedges);
       btails = (Vertex *) malloc(sizeof(Vertex) * nws.nedges);
+      bheads = (Vertex *) malloc(sizeof(Vertex) * nws.nedges);
       for (i = 0; i < ndyads; i++){bsort[i] = i;}
       for (i = 0; i < nws.nedges; i++) {
 	rane = ndyads * unif_rand();
-	btails[i] = bsort[rane] + 1;
+	bheads[i] = bsort[rane] + 1;
 	bsort[rane] = bsort[--ndyads];
       }
       for (i=0; i < nws.nedges; i++) {
-//    Rprintf("i %d sort[i] %f ",i, btails[i]);
-	rane = (double)(((Vertex)(btails[i]/bipartite)));
-	bheads[i] = btails[i] - bipartite*rane;
-	btails[i] = rane + bipartite;
-//    Rprintf("i %d bheads[i] %f btails[i] %f\n",i, bheads[i],btails[i]);
+//    Rprintf("i %d sort[i] %f ",i, bheads[i]);
+	rane = (double)(((Vertex)(bheads[i]/bipartite)));
+	btails[i] = bheads[i] - bipartite*rane;
+	bheads[i] = rane + bipartite;
+//    Rprintf("i %d btails[i] %f bheads[i] %f\n",i, btails[i],bheads[i]);
       }
-//    Rprintf("final k %d time %d bipartite %d edges %d bheads[i] %f btails[i] %f\n",k, time, bipartite,nws.nedges,
-//		           bheads[i-1],btails[i-1]);
+//    Rprintf("final k %d time %d bipartite %d edges %d btails[i] %f bheads[i] %f\n",k, time, bipartite,nws.nedges,
+//		           btails[i-1],bheads[i-1]);
       NetworkDestroy (&nw);
       nwedge=nws.nedges;
       Network nw;
-      nw = NetworkInitialize(bheads, btails, nwedge,
+      nw = NetworkInitialize(btails, bheads, nwedge,
                              *nnodes, 0, bipartite,0);
 //    Rprintf("network reinitalized for Bernoulli bipartite %d edges %d\n", bipartite,nw.nedges);
       id=nw.indegree;
       od=nw.outdegree;
-      free (bheads);
       free (btails);
+      free (bheads);
      }
      // End time step toggle
     }
