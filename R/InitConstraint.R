@@ -52,7 +52,12 @@ InitConstraint.degrees<-InitConstraint.nodedegrees<-function(conlist){
    conlist
 }
 
-
+InitConstraint.degreessimple<-function(conlist){
+   if (nargs()>1)
+     stop(paste("Vertex degrees constraint does not take arguments at this time."), call.=FALSE)
+   conlist$degreessimple<-list()
+   conlist
+}
 
 InitConstraint.degreesTetrad<-function(conlist){
    if (nargs()>1)

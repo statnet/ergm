@@ -59,6 +59,11 @@ InitMHP.TNT10 <- function(arguments, nw, model) {
   MHproposal
 }
 
+InitMHP.CondDegreeSimple <- function(arguments, nw, model) {
+  MHproposal <- list(name = "CondDegreeSimple", inputs=NULL, package="ergm")
+  MHproposal
+}
+
 InitMHP.CondDegree <- function(arguments, nw, model) {
   MHproposal <- list(name = "CondDegree", inputs=NULL, package="ergm")
   if (is.directed(nw)) {
@@ -71,6 +76,7 @@ InitMHP.CondDegree <- function(arguments, nw, model) {
   }
   MHproposal
 }
+
 
 InitMHP.CondDegreeTetrad <- function(arguments, nw, model) {
   MHproposal <- list(name = "CondDegreeTetradToggles", inputs=NULL, package="ergm")
