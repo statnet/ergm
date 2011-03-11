@@ -15,7 +15,7 @@ typedef enum {
   DissOnly=5
 } DynamOrder;
 
-void MCMCDyn_init_common(int *heads, int *tails, int n_edges,
+void MCMCDyn_init_common(int *tails, int *heads, int n_edges,
           int maxedges,
 				  int n_nodes, int dflag, int bipartite, Network *nw,
 
@@ -38,7 +38,7 @@ void MCMCDyn_finish_common(Network *nw,
 			   MHproposal *D_MH);
 
 void MCMCDyn_wrapper(// Starting network.
-		     int *heads, int *tails, int *n_edges, int *maxpossibleedges,
+		     int *tails, int *heads, int *n_edges, int *maxpossibleedges,
 		     int *dn, int *dflag, int *bipartite,
 		     // Ordering of formation and dissolution.
 		     int *order_code,
@@ -58,9 +58,9 @@ void MCMCDyn_wrapper(// Starting network.
 		     double *burnin, double *interval,  
 		     // Space for output.
 		     double *F_sample, double *D_sample, 
-		     int *newnetworkhead, int *newnetworktail, 
+		     int *newnetworktail, int *newnetworkhead, 
 		     double *maxedges,
-		     int *diffnetworktime, int *diffnetworkhead, int *diffnetworktail, 
+		     int *diffnetworktime, int *diffnetworktail, int *diffnetworkhead, 
 		     // Verbosity.
 		     int *fVerbose);
 
@@ -75,7 +75,7 @@ void MCMCSampleDyn(// Observed and discordant network.
 		   // Space for output.
 		   double *F_stats, double *D_stats,// Do we still need these?
 		   Edge nmax,
-		   Vertex *difftime, Vertex *diffhead, Vertex *difftail,		    
+		   Vertex *difftime, Vertex *difftail, Vertex *diffhead,		    
 		   // MCMC settings.
 		   unsigned int nsteps, unsigned int MH_interval,
 		   unsigned int burnin, unsigned int interval, 
@@ -89,7 +89,7 @@ void MCMCDyn1Step(Network *nwp,
 		  unsigned log_toggles,
 		  double *F_stats, double *D_stats,
 		  unsigned int nmax, Edge *nextdiffedge,
-		  Vertex *difftime, Vertex *diffhead, Vertex *difftail,
+		  Vertex *difftime, Vertex *difftail, Vertex *diffhead,
 		  unsigned int MH_interval,
 		  int fVerbose);
 #endif

@@ -1,8 +1,8 @@
 #include "MHproposals_formdiss.h"
 
 /* Shorthand. */
-#define Mhead (MHp->togglehead)
 #define Mtail (MHp->toggletail)
+#define Mhead (MHp->togglehead)
 
 /********************
    void MH_Formation
@@ -22,8 +22,8 @@ void MH_Formation (MHproposal *MHp, Network *nwp)
   }
   
   if(nwp[0].nedges==ndyads && nwp[1].nedges==0){ /* Attempting formation on a complete graph. */
-    Mhead[0]=MH_FAILED;
-    Mtail[0]=MH_IMPOSSIBLE;
+    Mtail[0]=MH_FAILED;
+    Mhead[0]=MH_IMPOSSIBLE;
     return;
   }
 
@@ -32,26 +32,26 @@ void MH_Formation (MHproposal *MHp, Network *nwp)
        the selected dyad. (That is, that dyad originally did not have an edge
        (which may have been toggled.) */
     /* Generate. */
-    Mtail[0] = 1 + unif_rand() * nnodes;
-    Mhead[0] = 1 + unif_rand() * (nnodes-1);
-    if(Mhead[0]>=Mtail[0]) Mhead[0]++;
+    Mhead[0] = 1 + unif_rand() * nnodes;
+    Mtail[0] = 1 + unif_rand() * (nnodes-1);
+    if(Mtail[0]>=Mhead[0]) Mtail[0]++;
     
     /* If undirected, reorder. */
-    if(!nwp->directed_flag && Mtail[0]<Mhead[0]){
-      Vertex tmp=Mtail[0];
-      Mtail[0]=Mhead[0];
-      Mhead[0]=tmp;
+    if(!nwp->directed_flag && Mhead[0]<Mtail[0]){
+      Vertex tmp=Mhead[0];
+      Mhead[0]=Mtail[0];
+      Mtail[0]=tmp;
     }
       
-    if(XNOR(EdgetreeSearch(Mhead[0],Mtail[0],nwp[0].outedges),
-     EdgetreeSearch(Mhead[0],Mtail[0],nwp[1].outedges)) &&
+    if(XNOR(EdgetreeSearch(Mtail[0],Mhead[0],nwp[0].outedges),
+     EdgetreeSearch(Mtail[0],Mhead[0],nwp[1].outedges)) &&
      CheckTogglesValid(MHp, nwp)) break;
   }
 
   /* If no valid proposal found, signal a failed proposal. */
   if(trytoggle>=MAX_TRIES) {
-    Mhead[0]=MH_FAILED;
-    Mtail[0]=MH_UNSUCCESSFUL;
+    Mtail[0]=MH_FAILED;
+    Mhead[0]=MH_UNSUCCESSFUL;
   }
 }
 
@@ -73,8 +73,8 @@ void MH_FormationMLE (MHproposal *MHp, Network *nwp)
   }
   
   if(nwp[2].nedges==ndyads){ /* Attempting formation on a complete graph. */
-    Mhead[0]=MH_FAILED;
-    Mtail[0]=MH_IMPOSSIBLE;
+    Mtail[0]=MH_FAILED;
+    Mhead[0]=MH_IMPOSSIBLE;
     return;
   }
 
@@ -84,26 +84,26 @@ void MH_FormationMLE (MHproposal *MHp, Network *nwp)
        (which may have been toggled.) */
     /* Generate. */
     do{
-      Mtail[0] = 1 + unif_rand() * nnodes;
       Mhead[0] = 1 + unif_rand() * nnodes;
-    }while(Mhead[0]==Mtail[0]);
+      Mtail[0] = 1 + unif_rand() * nnodes;
+    }while(Mtail[0]==Mhead[0]);
     
     /* If undirected, reorder. */
-    if(!nwp->directed_flag && Mtail[0]<Mhead[0]){
-      Vertex tmp=Mtail[0];
-      Mtail[0]=Mhead[0];
-      Mhead[0]=tmp;
+    if(!nwp->directed_flag && Mhead[0]<Mtail[0]){
+      Vertex tmp=Mhead[0];
+      Mhead[0]=Mtail[0];
+      Mtail[0]=tmp;
     }
       
-    if((!EdgetreeSearch(Mhead[0],Mtail[0],nwp[0].outedges)|
-        !EdgetreeSearch(Mhead[0],Mtail[0],nwp[2].outedges)) &&
+    if((!EdgetreeSearch(Mtail[0],Mhead[0],nwp[0].outedges)|
+        !EdgetreeSearch(Mtail[0],Mhead[0],nwp[2].outedges)) &&
 	    CheckTogglesValid(MHp, nwp)) break;
   }
 
   /* If no valid proposal found, signal a failed proposal. */
   if(trytoggle>=MAX_TRIES) {
-    Mhead[0]=MH_FAILED;
-    Mtail[0]=MH_UNSUCCESSFUL;
+    Mtail[0]=MH_FAILED;
+    Mhead[0]=MH_UNSUCCESSFUL;
   }
 }
 
@@ -125,8 +125,8 @@ void MH_DissolutionMLE (MHproposal *MHp, Network *nwp)
   }
   
   if(nwp[2].nedges==0){ /* Attempting dissolution on a complete graph. */
-    Mhead[0]=MH_FAILED;
-    Mtail[0]=MH_IMPOSSIBLE;
+    Mtail[0]=MH_FAILED;
+    Mhead[0]=MH_IMPOSSIBLE;
     return;
   }
 
@@ -136,26 +136,26 @@ void MH_DissolutionMLE (MHproposal *MHp, Network *nwp)
        (which may have been toggled.) */
     /* Generate. */
     do{
-     Mtail[0] = 1 + unif_rand() * nnodes;
      Mhead[0] = 1 + unif_rand() * nnodes;
-    }while(Mhead[0]==Mtail[0]);
+     Mtail[0] = 1 + unif_rand() * nnodes;
+    }while(Mtail[0]==Mhead[0]);
     
     /* If undirected, reorder. */
-    if(!nwp->directed_flag && Mtail[0]<Mhead[0]){
-      Vertex tmp=Mtail[0];
-      Mtail[0]=Mhead[0];
-      Mhead[0]=tmp;
+    if(!nwp->directed_flag && Mhead[0]<Mtail[0]){
+      Vertex tmp=Mhead[0];
+      Mhead[0]=Mtail[0];
+      Mtail[0]=tmp;
     }
       
-    if(( EdgetreeSearch(Mhead[0],Mtail[0],nwp[0].outedges)|
-         EdgetreeSearch(Mhead[0],Mtail[0],nwp[2].outedges)) &&
+    if(( EdgetreeSearch(Mtail[0],Mhead[0],nwp[0].outedges)|
+         EdgetreeSearch(Mtail[0],Mhead[0],nwp[2].outedges)) &&
 	    CheckTogglesValid(MHp, nwp)) break;
   }
 
   /* If no valid proposal found, signal a failed proposal. */
   if(trytoggle>=MAX_TRIES) {
-    Mhead[0]=MH_FAILED;
-    Mtail[0]=MH_UNSUCCESSFUL;
+    Mtail[0]=MH_FAILED;
+    Mhead[0]=MH_UNSUCCESSFUL;
   }
 }
 
@@ -175,15 +175,15 @@ void MH_FormationNonObservedMLE (MHproposal *MHp, Network *nwp)
     nnodes = nwp[0].nnodes;
     ndyads = (nnodes-1)*nnodes / (nwp[0].directed_flag? 1:2);
     if(nmissing==0){
-      *MHp->togglehead = MH_FAILED;
-      *MHp->toggletail = MH_IMPOSSIBLE;
+      *MHp->toggletail = MH_FAILED;
+      *MHp->togglehead = MH_IMPOSSIBLE;
     }
     return;
   }
   
   if(nwp[2].nedges==ndyads){ /* Attempting formation on a complete graph. */
-    Mhead[0]=MH_FAILED;
-    Mtail[0]=MH_IMPOSSIBLE;
+    Mtail[0]=MH_FAILED;
+    Mhead[0]=MH_IMPOSSIBLE;
     return;
   }
 
@@ -196,18 +196,18 @@ void MH_FormationNonObservedMLE (MHproposal *MHp, Network *nwp)
     // Note that missing edgelist is indexed from 0 but the first
     // element of MHp->inputs is the number of missing edges.
     Edge rane = 1 + unif_rand() * nmissing;
-    Mhead[0]=MHp->inputs[rane];
-    Mtail[0]=MHp->inputs[nmissing+rane];
+    Mtail[0]=MHp->inputs[rane];
+    Mhead[0]=MHp->inputs[nmissing+rane];
       
-    if((!EdgetreeSearch(Mhead[0],Mtail[0],nwp[0].outedges)||
-        !EdgetreeSearch(Mhead[0],Mtail[0],nwp[2].outedges)) &&
+    if((!EdgetreeSearch(Mtail[0],Mhead[0],nwp[0].outedges)||
+        !EdgetreeSearch(Mtail[0],Mhead[0],nwp[2].outedges)) &&
 	    CheckTogglesValid(MHp, nwp)) break;
   }
 
   /* If no valid proposal found, signal a failed proposal. */
   if(trytoggle>=MAX_TRIES) {
-    Mhead[0]=MH_FAILED;
-    Mtail[0]=MH_UNSUCCESSFUL;
+    Mtail[0]=MH_FAILED;
+    Mhead[0]=MH_UNSUCCESSFUL;
   }
 }
 
@@ -227,15 +227,15 @@ void MH_DissolutionNonObservedMLE (MHproposal *MHp, Network *nwp)
     nnodes = nwp[0].nnodes;
     ndyads = (nnodes-1)*nnodes / (nwp[0].directed_flag? 1:2);
     if(nmissing==0){
-      *MHp->togglehead = MH_FAILED;
-      *MHp->toggletail = MH_IMPOSSIBLE;
+      *MHp->toggletail = MH_FAILED;
+      *MHp->togglehead = MH_IMPOSSIBLE;
     }
     return;
   }
   
   if(nwp[2].nedges==0){ /* Attempting dissolution on a empty graph. */
-    Mhead[0]=MH_FAILED;
-    Mtail[0]=MH_IMPOSSIBLE;
+    Mtail[0]=MH_FAILED;
+    Mhead[0]=MH_IMPOSSIBLE;
     return;
   }
 
@@ -248,18 +248,18 @@ void MH_DissolutionNonObservedMLE (MHproposal *MHp, Network *nwp)
     // Note that missing edgelist is indexed from 0 but the first
     // element of MHp->inputs is the number of missing edges.
     Edge rane = 1 + unif_rand() * nmissing;
-    Mhead[0]=MHp->inputs[rane];
-    Mtail[0]=MHp->inputs[nmissing+rane];
+    Mtail[0]=MHp->inputs[rane];
+    Mhead[0]=MHp->inputs[nmissing+rane];
       
-    if(( EdgetreeSearch(Mhead[0],Mtail[0],nwp[0].outedges)||
-         EdgetreeSearch(Mhead[0],Mtail[0],nwp[2].outedges)) &&
+    if(( EdgetreeSearch(Mtail[0],Mhead[0],nwp[0].outedges)||
+         EdgetreeSearch(Mtail[0],Mhead[0],nwp[2].outedges)) &&
 	    CheckTogglesValid(MHp, nwp)) break;
   }
 
   /* If no valid proposal found, signal a failed proposal. */
   if(trytoggle>=MAX_TRIES) {
-    Mhead[0]=MH_FAILED;
-    Mtail[0]=MH_UNSUCCESSFUL;
+    Mtail[0]=MH_FAILED;
+    Mhead[0]=MH_UNSUCCESSFUL;
   }
 }
 
@@ -274,7 +274,7 @@ void MH_DissolutionNonObservedMLE (MHproposal *MHp, Network *nwp)
 void MH_FormationTNT (MHproposal *MHp, Network *nwp) 
 {  
   unsigned int trytoggle;
-  Vertex head, tail;
+  Vertex tail, head;
   Edge rane, nedges, ndedges, nempty;
   static double comp=0.5, odds;
   static Edge ndyads;
@@ -293,52 +293,52 @@ void MH_FormationTNT (MHproposal *MHp, Network *nwp)
   nempty = ndyads-nedges;
 
   if(nempty==0 && ndedges==0){  /* Attempting formation on a complete graph. */
-    Mhead[0]=MH_FAILED;
-    Mtail[0]=MH_IMPOSSIBLE;
+    Mtail[0]=MH_FAILED;
+    Mhead[0]=MH_IMPOSSIBLE;
     return;
   }
   
   for(trytoggle = 0; trytoggle < MAX_TRIES*2; trytoggle++){
     if(ndedges != 0 && unif_rand() < comp) { /* Select a discordant dyad at random */
       rane = 1 + unif_rand() * ndedges;
-      FindithEdge(&head, &tail, rane, nwp+1);
+      FindithEdge(&tail, &head, rane, nwp+1);
       
       MHp->logratio += log(ndedges / ((double)nempty + 1)/comp * ((ndedges==1)? 1 : (1-comp)));
     }else{ /* select an empty dyad in nwp[0] at random */
       do{ /* Keep trying dyads as long as it's an edge in nwp[0]. */
-	tail = 1 + unif_rand() * nnodes;
-	head = 1 + unif_rand() * (nnodes-1);
-	if(head>=tail) head++;
-	trytoggle++;
-      }while(((head > tail && !nwp->directed_flag) || 
-	      EdgetreeSearch(head,tail,nwp[0].outedges)) && trytoggle<MAX_TRIES);
+        head = 1 + unif_rand() * nnodes;
+        tail = 1 + unif_rand() * (nnodes-1);
+        if(tail>=head) tail++;
+        trytoggle++;
+      }while(((tail > head && !nwp->directed_flag) || 
+          EdgetreeSearch(tail,head,nwp[0].outedges)) && trytoggle<MAX_TRIES);
       
       /* Proposal failed after trying */
       if(trytoggle >= MAX_TRIES*2){
-	Mhead[0]=MH_FAILED;
-	Mtail[0]=MH_UNSUCCESSFUL; 
-	return;
+        Mtail[0]=MH_FAILED;
+        Mhead[0]=MH_UNSUCCESSFUL; 
+        return;
       }
       
       if(ndedges==0){
-	MHp->logratio += log(nempty*comp);
+        MHp->logratio += log(nempty*comp);
       }else{
-	MHp->logratio += log(((double)nempty)/(ndedges+1) *odds);
+        MHp->logratio += log(((double)nempty)/(ndedges+1) *odds);
       }
     }
     
-    Mhead[0]=head;
     Mtail[0]=tail;
+    Mhead[0]=head;
     
     if(CheckTogglesValid(MHp, nwp)) break;
   }
 //   Rprintf("nedges %d reference nddyads %d h %d t %d MHp->ratio %f\n", 
-//	    nwp[0].nedges, nwp[1].nedges, head, tail, MHp->ratio); 
+//	    nwp[0].nedges, nwp[1].nedges, tail, head, MHp->ratio); 
   
   /* If tries ran out, return failure code. */
   if(trytoggle >= MAX_TRIES*2){
-    Mhead[0]=MH_FAILED;
-    Mtail[0]=MH_UNSUCCESSFUL; 
+    Mtail[0]=MH_FAILED;
+    Mhead[0]=MH_UNSUCCESSFUL; 
     return;
   }
 }
@@ -360,8 +360,8 @@ void MH_Dissolution (MHproposal *MHp, Network *nwp)
   }
   
   if(nedges==0 && ndedges==0){ /* Attempting dissolution on an empty network. */
-    Mhead[0]=MH_FAILED;
-    Mtail[0]=MH_IMPOSSIBLE;
+    Mtail[0]=MH_FAILED;
+    Mhead[0]=MH_IMPOSSIBLE;
     return;
   }
   
@@ -370,18 +370,18 @@ void MH_Dissolution (MHproposal *MHp, Network *nwp)
   for(trytoggle=0; trytoggle<MAX_TRIES; trytoggle++){
     rane = 1 + unif_rand() * (nedges+ndedges);
     if(rane<=nedges){
-      FindithEdge(Mhead, Mtail, rane, nwp);
-      if(EdgetreeSearch(Mhead[0],Mtail[0],nwp[1].outedges)==0 && CheckTogglesValid(MHp, nwp)) break;
+      FindithEdge(Mtail, Mhead, rane, nwp);
+      if(EdgetreeSearch(Mtail[0],Mhead[0],nwp[1].outedges)==0 && CheckTogglesValid(MHp, nwp)) break;
     }else{
-      FindithEdge(Mhead, Mtail, rane-nedges, nwp+1);
-      if(EdgetreeSearch(Mhead[0],Mtail[0],nwp[0].outedges)==0 && CheckTogglesValid(MHp, nwp)) break;
+      FindithEdge(Mtail, Mhead, rane-nedges, nwp+1);
+      if(EdgetreeSearch(Mtail[0],Mhead[0],nwp[0].outedges)==0 && CheckTogglesValid(MHp, nwp)) break;
     }
   }
 
   /* Proposal failed after trying. */
   if(trytoggle>=MAX_TRIES){ 
-    Mhead[0]=MH_FAILED;
-    Mtail[0]=MH_UNSUCCESSFUL;
+    Mtail[0]=MH_FAILED;
+    Mhead[0]=MH_UNSUCCESSFUL;
     return;
   }
 }
@@ -406,8 +406,8 @@ void MH_BipartiteFormation (MHproposal *MHp, Network *nwp)
   }
 
   if(nwp[0].nedges==ndyads && nwp[1].nedges==0){ /* Attempting formation on a complete graph. */
-    Mhead[0]=MH_FAILED;
-    Mtail[0]=MH_IMPOSSIBLE;
+    Mtail[0]=MH_FAILED;
+    Mhead[0]=MH_IMPOSSIBLE;
     return;
   }
   
@@ -416,17 +416,17 @@ void MH_BipartiteFormation (MHproposal *MHp, Network *nwp)
     /* Keep trying dyads until either neither or both nwp[0] and nwp[1] have
 	the selected dyad and the toggle satisfies degree constraints.
 	(That is, that dyad originally had no edge (but	may have been toggled.) */
-    Mhead[0] = 1 + unif_rand() * nb1;
-    Mtail[0] = 1 + nb1 + unif_rand() * (nnodes - nb1);
-    if(XNOR(EdgetreeSearch(Mhead[0],Mtail[0],nwp[0].outedges),
-	    EdgetreeSearch(Mhead[0],Mtail[0],nwp[1].outedges)) &&
+    Mtail[0] = 1 + unif_rand() * nb1;
+    Mhead[0] = 1 + nb1 + unif_rand() * (nnodes - nb1);
+    if(XNOR(EdgetreeSearch(Mtail[0],Mhead[0],nwp[0].outedges),
+	    EdgetreeSearch(Mtail[0],Mhead[0],nwp[1].outedges)) &&
        CheckTogglesValid(MHp, nwp)) break;
   }
   
   /* If no valid proposal found, signal a failed proposal. */
   if(trytoggle>=MAX_TRIES) {
-    Mhead[0]=MH_FAILED;
-    Mtail[0]=MH_UNSUCCESSFUL;
+    Mtail[0]=MH_FAILED;
+    Mhead[0]=MH_UNSUCCESSFUL;
   }
 
 /*   Rprintf("reference nddyads %d MHp->ratio %f\n", */
@@ -444,7 +444,7 @@ void MH_BipartiteFormation (MHproposal *MHp, Network *nwp)
 void MH_BipartiteFormationTNT (MHproposal *MHp, Network *nwp) 
 {  
   unsigned int trytoggle;
-  Vertex head, tail;
+  Vertex tail, head;
   Edge rane, nedges, ndedges, nempty;
   static double comp=0.5, odds;
   static Edge ndyads;
@@ -465,49 +465,48 @@ void MH_BipartiteFormationTNT (MHproposal *MHp, Network *nwp)
   nempty = ndyads-nedges;
   
   if(nempty==0 && ndedges==0){ /* Attempting formation on a complete graph. */
-    Mhead[0]=MH_FAILED;
-    Mtail[0]=MH_IMPOSSIBLE;
+    Mtail[0]=MH_FAILED;
+    Mhead[0]=MH_IMPOSSIBLE;
     return;
   }
   
   for(trytoggle=0; trytoggle < MAX_TRIES*2; trytoggle++){
     if(ndedges > 0 && unif_rand() < comp) { /* Select a discordant dyad at random */
       rane = 1 + unif_rand() * ndedges;
-      FindithEdge(&head, &tail, rane, nwp+1);
+      FindithEdge(&tail, &head, rane, nwp+1);
       
       MHp->logratio += log(ndedges  / ((double)nempty+1)/comp *((ndedges==1)? 1 : (1-comp)));
     }else{ /* select an empty dyad in nwp[0] at random */
       do{ /* Keep trying dyads as long as it's an edge in nwp[0]. */
-	head = 1 + unif_rand() * nb1;
-	tail = 1 + nb1 + unif_rand() * (nnodes - nb1);
-	trytoggle++;
-      }while(EdgetreeSearch(head,tail,nwp[0].outedges) && trytoggle<MAX_TRIES);
+        tail = 1 + unif_rand() * nb1;
+        head = 1 + nb1 + unif_rand() * (nnodes - nb1);
+        trytoggle++;
+      }while(EdgetreeSearch(tail,head,nwp[0].outedges) && trytoggle<MAX_TRIES);
       
       /* Proposal failed after trying */
       if(trytoggle >= MAX_TRIES*2){
-	Mhead[0]=MH_FAILED;
-	Mtail[0]=MH_UNSUCCESSFUL; 
-	return;
+        Mtail[0]=MH_FAILED;
+        Mhead[0]=MH_UNSUCCESSFUL; 
+        return;
       }
       
       if(ndedges==0){
-	MHp->logratio += log(nempty*comp);
+        MHp->logratio += log(nempty*comp);
       }else{
-	MHp->logratio += log(((double)nempty)/(ndedges+1) *odds);
+        MHp->logratio += log(((double)nempty)/(ndedges+1) *odds);
       } 
-      
     }
     
-    Mhead[0] = head;
     Mtail[0] = tail;
+    Mhead[0] = head;
     
     if(CheckTogglesValid(MHp, nwp)) break;
   }
   
   /* If no valid proposal found, signal a failed proposal. */
   if(trytoggle>=MAX_TRIES*2) {
-    Mhead[0]=MH_FAILED;
-    Mtail[0]=MH_UNSUCCESSFUL;
+    Mtail[0]=MH_FAILED;
+    Mhead[0]=MH_UNSUCCESSFUL;
   }
 }
 

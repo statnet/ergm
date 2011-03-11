@@ -5,7 +5,7 @@
 #include "model.h"
 #include "MPLE.h"
 
-void plinfo_wrapper (int *heads, int *tails, int *dnedges,
+void plinfo_wrapper (int *tails, int *heads, int *dnedges,
          int *maxpossibleedges,
 		     int *dn, int *dflag, int *nterms, char **funnames,
 		     char **sonames, double *inputs,  

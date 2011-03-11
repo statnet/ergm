@@ -6,7 +6,7 @@
 #include "MHproposal.h"
 #include "model.h"
 
-void MPLEconddeg_wrapper (int *heads, int *tails, int *dnedges,
+void MPLEconddeg_wrapper (int *tails, int *heads, int *dnedges,
                    int *maxpossibleedges,
                    int *dn, int *dflag, int *bipartite, 
                    int *nterms, char **funnames,
@@ -14,13 +14,13 @@ void MPLEconddeg_wrapper (int *heads, int *tails, int *dnedges,
                    char **MHproposaltype, char **MHproposalpackage,
                    double *inputs, double *theta0, int *samplesize, 
                    double *sample, int *burnin, int *interval,  
-                   int *newnetworkheads, 
                    int *newnetworktails, 
+                   int *newnetworkheads, 
                    int *fVerbose, 
                    int *attribs, int *maxout, int *maxin, int *minout,
                    int *minin, int *condAllDegExact, int *attriblength, 
                    int *maxedges,
-                   int *mheads, int *mtails, int *mdnedges);
+                   int *mtails, int *mheads, int *mdnedges);
 void CondDegSampler (MHproposal *MHp,
 		 double *theta, double *networkstatistics, 
 		 int samplesize, int burnin, 
