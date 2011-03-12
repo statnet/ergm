@@ -1,7 +1,10 @@
 Known bugs and issues
 
-* Sampling conditional on degree (~degree constraint) is not
-  implemented for directed networks.
-* Sampling conditional on degree (~degree constraint) fails to use a
-  hexad proposal, and thus does not completely explore the sample
-  space.
+# Degree-constrained proposals #
+
+Degree-constrained sampling presently has three implementations: 
+CondDegreeTetrad, CondDegree (using CondDegreeTetradToggles and 
+CondDegreeHexadToggles), and CondDegreeSimple (using 
+CondDegreeSimpleTetrad and CondDegreeSingleHexad). It is not clear which 
+of them are correct / faster / more efficient. We should, ideally, 
+reduce them to one.
