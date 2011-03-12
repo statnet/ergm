@@ -8,8 +8,10 @@ void WtModelDestroy(WtModel *m)
 {  
   int i;
 
-  for(i=0; i < m->n_terms; i++)
+  for(i=0; i < m->n_terms; i++){
     free(m->dstatarray[i]);
+    free(m->termarray[i].statcache);
+  }
   free(m->dstatarray);
   free(m->termarray);
   free(m->workspace); 
@@ -123,6 +125,8 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
 					       memory, since thisterm->dstats
 					       can be modified but 
 					       m->dstatarray[l] cannot be.  */
+      thisterm->statcache = (double *) malloc(sizeof(double) * thisterm->nstats);
+
       thisterm->ninputparams = (int) *inputs++; /* Set # of inputs */
       /* thisterm->inputparams is a ptr to inputs */
       thisterm->inputparams = (thisterm->ninputparams ==0) ? 0 : inputs; 
