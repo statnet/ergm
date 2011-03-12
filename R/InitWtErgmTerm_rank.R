@@ -54,13 +54,29 @@ InitWtErgmTerm.inconsistency<-function (nw, arglist, response, drop=TRUE, ...) {
 
 InitWtErgmTerm.nonconformity<-function(nw, arglist, response, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                      varnames = NULL,
-                      vartypes = NULL,
-                      defaultvalues = list(),
-                      required = NULL)
+                      varnames = c("par","form"),
+                      vartypes = c("numeric","character"),
+                      defaultvalues = list(NULL,"all"),
+                      required = c(FALSE,FALSE))
 
-  list(name="nonconformity",
-       coef.names="nonconformity",
-       inputs=NULL,
+  form<-match.arg(a$form,c("all","thresholds","geometric"))
+
+  if(form=="all"){
+    inputs <- NULL
+    coef.names <- "nonconformity"
+    name <- "nonconformity"
+  }else if(form=="thresholds"){
+    inputs <- sort(as.numeric(a$par),decreasing=TRUE)
+    coef.names <- paste("nonconformity.over",inputs,sep=".")
+    name <- "nonconformity_thresholds"
+  }else if(form=="geometric"){
+    inputs <- c(a$par,max(nw %e% response))
+    coef.names <- paste("nonconformity.gw.",a$par,sep=".")
+    name <- "nonconformity_decay"
+  }
+  
+  list(name=name,
+       coef.names=coef.names,
+       inputs=inputs,
        dependence=TRUE)
 }
