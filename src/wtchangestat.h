@@ -95,17 +95,17 @@ typedef struct WtModelTermstruct {
 /* The idea here is to essentially swap the contents of the proposed
    weights with the current weights, and then swap them back when
    done. */
-#define HEAD head
 #define TAIL tail
+#define HEAD head
 #define NEWWT newwt
 #define OLDWT oldwt
 
-#define GETOLDTOGGLEINFO() Vertex HEAD=heads[TOGGLEIND], TAIL=tails[TOGGLEIND]; double OLDWT=GETWT(HEAD,TAIL);
+#define GETOLDTOGGLEINFO() Vertex TAIL=tails[TOGGLEIND], HEAD=heads[TOGGLEIND]; double OLDWT=GETWT(TAIL,HEAD);
 #define GETTOGGLEINFO() GETOLDTOGGLEINFO(); double NEWWT=weights[TOGGLEIND];
 
 /* SETWT_WITH_BACKUP(a) must be called _after_ GETTOGGLEINFO! */
-#define SETWT_WITH_BACKUP() {SETWT(HEAD,TAIL,NEWWT); weights[TOGGLEIND]=OLDWT;}
-#define UNDO_SETWT() {GETOLDTOGGLEINFO(); SETWT(HEAD,TAIL,weights[TOGGLEIND]); weights[TOGGLEIND]=OLDWT;}
+#define SETWT_WITH_BACKUP() {SETWT(TAIL,HEAD,NEWWT); weights[TOGGLEIND]=OLDWT;}
+#define UNDO_SETWT() {GETOLDTOGGLEINFO(); SETWT(TAIL,HEAD,weights[TOGGLEIND]); weights[TOGGLEIND]=OLDWT;}
 #define SETWT_IF_MORE_TO_COME() {if(TOGGLEIND+1<ntoggles) {SETWT_WITH_BACKUP()}}
 #define UNDO_PREVIOUS_SETWTS() for(unsigned int TOGGLEIND=0; TOGGLEIND+1<ntoggles; TOGGLEIND++){UNDO_SETWT()}
 /* Brings together the above operations:
@@ -120,7 +120,7 @@ typedef struct WtModelTermstruct {
 /****************************************************/
 /* changestat function prototypes, 
    plus a few supporting function prototypes */
-#define WtD_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *heads, Vertex *tails, double *weights, WtModelTerm *mtp, WtNetwork *nwp)
+#define WtD_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *tails, Vertex *heads, double *weights, WtModelTerm *mtp, WtNetwork *nwp)
 #define WtT_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
 #define WtS_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
 
@@ -131,7 +131,7 @@ WtD_CHANGESTAT_FN(d_from_s);
    However, it looks like it might confuse the function finding routines.
    In the future, it might be a good idea to have the initialization
    code autodetect when D_ function is not found, but S_ function is, and set it properly. */
-#define WtD_FROM_S_FN(a) WtD_CHANGESTAT_FN(a){ d_from_s(ntoggles, heads, tails, weights, mtp, nwp); }
+#define WtD_FROM_S_FN(a) WtD_CHANGESTAT_FN(a){ d_from_s(ntoggles, tails, heads, weights, mtp, nwp); }
 
 /* Not often used */
 #define INPUT_ATTRIB (mtp->attrib)

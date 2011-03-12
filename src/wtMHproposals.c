@@ -1,8 +1,8 @@
 #include "wtMHproposals.h"
 
 /* Shorthand. */
-#define Mhead (MHp->togglehead)
 #define Mtail (MHp->toggletail)
+#define Mhead (MHp->togglehead)
 #define Mweight (MHp->toggleweight)
 
 /*********************
@@ -11,7 +11,7 @@
  Default MH algorithm for Poisson-reference ERGM
 *********************/
 void MH_Poisson(WtMHproposal *MHp, WtNetwork *nwp)  {  
-  Vertex head, tail;
+  Vertex tail, head;
   double oldwt;
   int fvalid;
   
@@ -22,17 +22,17 @@ void MH_Poisson(WtMHproposal *MHp, WtNetwork *nwp)  {
   
   fvalid = 0;
   
-  head = 1 + unif_rand() * nwp->nnodes;
-  while ((tail = 1 + unif_rand() * nwp->nnodes) == head);
-  if (!nwp->directed_flag && head > tail) {
-    Mhead[0] = tail;
+  tail = 1 + unif_rand() * nwp->nnodes;
+  while ((head = 1 + unif_rand() * nwp->nnodes) == tail);
+  if (!nwp->directed_flag && tail > head) {
     Mtail[0] = head;
+    Mhead[0] = tail;
   }else{
-    Mhead[0] = head;
     Mtail[0] = tail;
+    Mhead[0] = head;
   }
   
-  oldwt = WtGetEdge(Mhead[0],Mtail[0],nwp);
+  oldwt = WtGetEdge(Mtail[0],Mhead[0],nwp);
 
   const double fudge = 0.5; // Mostly comes in when proposing from 0.
 
@@ -58,8 +58,8 @@ void MH_PoissonNonObserved(WtMHproposal *MHp, WtNetwork *nwp)  {
   }
 
   if(nmissing==0){
-    *Mhead = MH_FAILED;
-    *Mtail = MH_IMPOSSIBLE;
+    *Mtail = MH_FAILED;
+    *Mhead = MH_IMPOSSIBLE;
   }
 
 
@@ -67,10 +67,10 @@ void MH_PoissonNonObserved(WtMHproposal *MHp, WtNetwork *nwp)  {
   // element of MHp->inputs is the number of missing edges.
   rane = 1 + unif_rand() * nmissing;
 
-  Mhead[0]=MHp->inputs[rane];
-  Mtail[1]=MHp->inputs[nmissing+rane];
+  Mtail[0]=MHp->inputs[rane];
+  Mhead[1]=MHp->inputs[nmissing+rane];
 
-  oldwt = WtGetEdge(Mhead[0],Mtail[0],nwp);
+  oldwt = WtGetEdge(Mtail[0],Mhead[0],nwp);
 
   const double fudge = 0.5; // Mostly comes in when proposing from 0.
 
@@ -88,25 +88,25 @@ void MH_PoissonNonObserved(WtMHproposal *MHp, WtNetwork *nwp)  {
  Default MH algorithm for ERGM over complete orderings
 *********************/
 void MH_CompleteOrdering(WtMHproposal *MHp, WtNetwork *nwp)  {  
-  Vertex head, tail1, tail2;
+  Vertex tail, head1, head2;
   
   if(MHp->ntoggles == 0) { // Initialize Poisson 
     MHp->ntoggles=2;
     return;
   }
   
-  head = 1 + unif_rand() * nwp->nnodes;
-  while((tail1 = 1 + unif_rand() * nwp->nnodes) == head);
+  tail = 1 + unif_rand() * nwp->nnodes;
+  while((head1 = 1 + unif_rand() * nwp->nnodes) == tail);
   do{
-    tail2 = 1 + unif_rand() * nwp->nnodes;
-  }while(tail2 == head || tail2 == tail1);
+    head2 = 1 + unif_rand() * nwp->nnodes;
+  }while(head2 == tail || head2 == head1);
   
-  Mhead[0] = Mhead[1] = head;
-  Mtail[0] = tail1;
-  Mtail[1] = tail2;
+  Mtail[0] = Mtail[1] = tail;
+  Mhead[0] = head1;
+  Mhead[1] = head2;
   
-  Mweight[1] = WtGetEdge(Mhead[0],Mtail[0],nwp);
-  Mweight[0] = WtGetEdge(Mhead[1],Mtail[1],nwp);
+  Mweight[1] = WtGetEdge(Mtail[0],Mhead[0],nwp);
+  Mweight[0] = WtGetEdge(Mtail[1],Mhead[1],nwp);
 }
 
 /*********************
@@ -115,7 +115,7 @@ void MH_CompleteOrdering(WtMHproposal *MHp, WtNetwork *nwp)  {
  Default MH algorithm for a standard-normal-reference ERGM
 *********************/
 void MH_StdNormal(WtMHproposal *MHp, WtNetwork *nwp)  {  
-  Vertex head, tail;
+  Vertex tail, head;
   double oldwt;
   int fvalid;
   
@@ -126,17 +126,17 @@ void MH_StdNormal(WtMHproposal *MHp, WtNetwork *nwp)  {
   
   fvalid = 0;
   
-  head = 1 + unif_rand() * nwp->nnodes;
-  while ((tail = 1 + unif_rand() * nwp->nnodes) == head);
-  if (!nwp->directed_flag && head > tail) {
-    Mhead[0] = tail;
+  tail = 1 + unif_rand() * nwp->nnodes;
+  while ((head = 1 + unif_rand() * nwp->nnodes) == tail);
+  if (!nwp->directed_flag && tail > head) {
     Mtail[0] = head;
+    Mhead[0] = tail;
   }else{
-    Mhead[0] = head;
     Mtail[0] = tail;
+    Mhead[0] = head;
   }
   
-  oldwt = WtGetEdge(Mhead[0],Mtail[0],nwp);
+  oldwt = WtGetEdge(Mtail[0],Mhead[0],nwp);
 
   const double propsd = 0.2; // This ought to be tunable.
 
@@ -164,29 +164,29 @@ void MH_StdNormalRank(WtMHproposal *MHp, WtNetwork *nwp)  {
   
   fvalid = 0;
   
-  Mhead[0] = 1 + unif_rand() * nwp->nnodes;
-  while ((Mtail[0] = 1 + unif_rand() * nwp->nnodes) == Mhead[0]);
+  Mtail[0] = 1 + unif_rand() * nwp->nnodes;
+  while ((Mhead[0] = 1 + unif_rand() * nwp->nnodes) == Mtail[0]);
  
   // Note that undirected networks do not make sense for this proposal.
 
-  oldwt = WtGetEdge(Mhead[0],Mtail[0],nwp);
+  oldwt = WtGetEdge(Mtail[0],Mhead[0],nwp);
 
   // Evaluate rank constraints for this dyad.
   double ub = +HUGE_VAL, lb = -HUGE_VAL;
-  int tail_class = MHp->inputs[(Mhead[0]-1)*nwp->nnodes + (Mtail[0]-1)];
+  int head_class = MHp->inputs[(Mtail[0]-1)*nwp->nnodes + (Mhead[0]-1)];
 
-  for(unsigned int t=1;t<=nwp->nnodes; t++){
-    if(t==Mhead[0] || t==Mtail[0]) continue;
-    unsigned int t_class=MHp->inputs[(Mhead[0]-1)*nwp->nnodes + (t-1)];
+  for(unsigned int h=1;h<=nwp->nnodes; h++){
+    if(h==Mtail[0] || h==Mhead[0]) continue;
+    unsigned int h_class=MHp->inputs[(Mtail[0]-1)*nwp->nnodes + (h-1)];
 
-    if(t_class){
-      if(t_class==tail_class+1){
+    if(h_class){
+      if(h_class==head_class+1){
 	// If this alter bounds the current alter from above...
-	double b = WtGetEdge(Mhead[0],t,nwp);
+	double b = WtGetEdge(Mtail[0],h,nwp);
 	if(b<ub) ub=b;
-      }else if(t_class==tail_class-1){
+      }else if(h_class==head_class-1){
 	// If this alter bounds the current alter from below...
-	double b = WtGetEdge(Mhead[0],t,nwp);
+	double b = WtGetEdge(Mtail[0],h,nwp);
 	if(b>lb) lb=b;
       }
     }

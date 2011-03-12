@@ -53,8 +53,8 @@ void WtMH_init(WtMHproposal *MHp,
 
   MHp->ntoggles=0;
   (*(MHp->func))(MHp, nwp); /* Call MH proposal function to initialize */
-  MHp->togglehead = (Vertex *)malloc(MHp->ntoggles * sizeof(Vertex));
   MHp->toggletail = (Vertex *)malloc(MHp->ntoggles * sizeof(Vertex));
+  MHp->togglehead = (Vertex *)malloc(MHp->ntoggles * sizeof(Vertex));
   MHp->toggleweight = (double *)malloc(MHp->ntoggles * sizeof(double));
 }
 
@@ -64,8 +64,8 @@ void WtMH_init(WtMHproposal *MHp,
  A helper function to free memory allocated by WtMH_init.
 *********************/
 void WtMH_free(WtMHproposal *MHp){
-  free(MHp->togglehead);
   free(MHp->toggletail);
+  free(MHp->togglehead);
   free(MHp->toggleweight);
 }
 

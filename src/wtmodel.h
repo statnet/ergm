@@ -28,7 +28,7 @@ void WtModelDestroy(WtModel *m);
    total numbers of terms, parameters, and statistics along with a pointer
    to an array of WtModelTerm structures.  */
 
-void WtChangeStats(unsigned int ntoggles, Vertex *togglehead, Vertex *toggletail, double *toggleweight, WtNetwork *nwp, WtModel *m);
+void WtChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, double *toggleweight, WtNetwork *nwp, WtModel *m);
 
 #endif
 

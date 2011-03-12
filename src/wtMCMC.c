@@ -12,7 +12,7 @@
  Wrapper for a call from R.
 *****************/
 void WtMCMC_wrapper (int *dnumnets, int *nedges,
-		     int *heads, int *tails, double *weights, 
+		     int *tails, int *heads, double *weights, 
 		     int *maxpossibleedges,
 		     int *dn, int *dflag, int *bipartite, 
 		     int *nterms, char **funnames,
@@ -20,8 +20,8 @@ void WtMCMC_wrapper (int *dnumnets, int *nedges,
 		     char **MHproposaltype, char **MHproposalpackage,
 		     double *inputs, double *theta0, int *samplesize, 
 		     double *sample, int *burnin, int *interval,  
-		     int *newnetworkheads, 
 		     int *newnetworktails, 
+		     int *newnetworkheads, 
 		     double *newnetworkweights,
 		     int *fVerbose, 
 		     int *maxedges) {
@@ -44,7 +44,7 @@ void WtMCMC_wrapper (int *dnumnets, int *nedges,
   m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
 
   /* Form the network */
-  nw[0]=WtNetworkInitialize(heads, tails, weights, nedges[0], 
+  nw[0]=WtNetworkInitialize(tails, heads, weights, nedges[0], 
 			    n_nodes, directed_flag, bip, 0);
 
   /*  if (fVerbose) {
@@ -73,8 +73,8 @@ void WtMCMC_wrapper (int *dnumnets, int *nedges,
 /* Rprintf("Back! %d %d\n",nw[0].nedges, nmax); */
 
   /* record new generated network to pass back to R */
-  if(nmax>0 && newnetworkheads && newnetworktails)
-    newnetworkheads[0]=newnetworktails[0]=WtEdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,newnetworkweights+1,nw,nmax-1);
+  if(nmax>0 && newnetworktails && newnetworkheads)
+    newnetworktails[0]=newnetworkheads[0]=WtEdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,newnetworkweights+1,nw,nmax-1);
   
   WtModelDestroy(m);
   WtNetworkDestroy(nw);
@@ -215,9 +215,9 @@ void WtMetropolisHastings (WtMHproposal *MHp,
     (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
     
     // If the proposal failed, skip it.
-    if(*MHp->togglehead!=MH_FAILED){
+    if(*MHp->toggletail!=MH_FAILED){
       /* Calculate change statistics. */
-      WtChangeStats(MHp->ntoggles, MHp->togglehead, MHp->toggletail, MHp->toggleweight, nwp, m);
+      WtChangeStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, MHp->toggleweight, nwp, m);
 
       /* Calculate inner product */
       for (i=0, ip=0.0; i<m->n_stats; i++){
@@ -232,7 +232,7 @@ void WtMetropolisHastings (WtMHproposal *MHp,
       if (cutoff >= 0.0 || log(unif_rand()) < cutoff) { 
 	/* Make proposed toggles (updating timestamps--i.e., for real this time) */
 	for (i=0; i < MHp->ntoggles; i++){
-	  WtSetEdge(MHp->togglehead[i], MHp->toggletail[i], MHp->toggleweight[i], nwp);
+	  WtSetEdge(MHp->toggletail[i], MHp->togglehead[i], MHp->toggleweight[i], nwp);
 	}
 	/* record network statistics for posterity */
 	for (i = 0; i < m->n_stats; i++){
@@ -242,7 +242,7 @@ void WtMetropolisHastings (WtMHproposal *MHp,
       }
     }else{
       // For the moment, just break.
-      if(*MHp->toggletail==MH_IMPOSSIBLE || *MHp->toggletail==MH_UNRECOVERABLE) break;
+      if(*MHp->togglehead==MH_IMPOSSIBLE || *MHp->togglehead==MH_UNRECOVERABLE) break;
     }
 
 /*  Catch massive number of edges caused by degeneracy */

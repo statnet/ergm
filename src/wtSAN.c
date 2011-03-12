@@ -13,7 +13,7 @@
  Wrapper for a call from R.
 *****************/
 void WtSAN_wrapper (int *dnumnets, int *nedges,
-		    int *heads, int *tails, double *weights, 
+		    int *tails, int *heads, double *weights, 
 		    int *maxpossibleedges,
 		    int *dn, int *dflag, int *bipartite, 
 		    int *nterms, char **funnames,
@@ -22,8 +22,8 @@ void WtSAN_wrapper (int *dnumnets, int *nedges,
 		    double *inputs, double *theta0, double *tau, 
 		    int *samplesize, 
 		    double *sample, int *burnin, int *interval,  
-		    int *newnetworkheads, 
 		    int *newnetworktails, 
+		    int *newnetworkheads, 
 		    double *newnetworkweights,
 		    double *invcov, 
 		    int *fVerbose, 
@@ -61,7 +61,7 @@ void WtSAN_wrapper (int *dnumnets, int *nedges,
   WtMH_free(&MH);
 
   /* record new generated network to pass back to R */
-  newnetworkheads[0]=newnetworktails[0]=WtEdgeTree2EdgeList(newnetworkheads+1,newnetworktails+1,newnetworkweights+1,nw,nmax);
+  newnetworktails[0]=newnetworkheads[0]=WtEdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,newnetworkweights+1,nw,nmax);
 
   WtModelDestroy(m);
   WtNetworkDestroy(nw);
@@ -126,8 +126,7 @@ void WtSANSample (WtMHproposal *MHp,
       /* This then adds the change statistics to these values */
       
       WtSANMetropolisHastings (MHp, theta, invcov, tau, networkstatistics, 
-		             interval, &staken,
-			     fVerbose, nwp, m);
+		             interval, &staken, fVerbose, nwp, m);
       tottaken += staken;
       if (fVerbose){
         if( ((3*i) % samplesize)==0 && samplesize > 500){
@@ -196,7 +195,7 @@ void WtSANMetropolisHastings (WtMHproposal *MHp,
     (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
     //      Rprintf("Back from proposal; step=%d\n",step);
 
-    WtChangeStats(MHp->ntoggles, MHp->togglehead, MHp->toggletail, MHp->toggleweight, nwp, m);
+    WtChangeStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, MHp->toggleweight, nwp, m);
       
     dif=0.0;
     ip=0.0;
@@ -228,7 +227,7 @@ void WtSANMetropolisHastings (WtMHproposal *MHp,
 //  if (ip > tau[0]*(m->n_stats)*unif_rand()) { 
       /* Make proposed toggles (updating timestamps--i.e., for real this time) */
       for (i=0; i < MHp->ntoggles; i++){
-        WtSetEdge(MHp->togglehead[i], MHp->toggletail[i], MHp->toggleweight[i], nwp);
+        WtSetEdge(MHp->toggletail[i], MHp->togglehead[i], MHp->toggleweight[i], nwp);
       }
       /* record network statistics for posterity */
       for (i = 0; i < m->n_stats; i++){

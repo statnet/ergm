@@ -45,7 +45,6 @@ void AllStatistics (
   Vertex bip = (Vertex) *bipartite;
   Model *m;
   ModelTerm *mtp;
-  int *notailsnoheads=NULL;
 
   /* Step 1:  Initialize empty network and initialize model */
   GetRNGstate(); /* Necessary for R random number generator */

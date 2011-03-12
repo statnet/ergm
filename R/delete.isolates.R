@@ -5,14 +5,14 @@
 
 
 ##################################################################
-# The <delete.isolates> function deletes the isolate nodes from
+# The <delete.isolates> function deletes the isolated nodes from
 # a given network.
 #
 # --PARAMETERS--
 #   x: a network
 #
 # --RETURNED--
-#   x: the original network x, with its isoloates removed
+#   x: the original network x, with its isolates removed
 #
 ###################################################################
 
@@ -21,7 +21,7 @@ delete.isolates<-function(x){
   if(!is.network(x))
     stop("delete.isolates requires an argument of class network.")
 
-  isolates <- (1:network.size(x))[is.isolated(x)]
+  isolates <- (1:network.size(x))[is.isolate(x)]
   if(length(isolates)>0){
     invisible(delete.vertices(x,isolates))
   }else{

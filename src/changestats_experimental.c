@@ -8,37 +8,32 @@
 D_CHANGESTAT_FN(d_b1kappa){
   int i, j, echange=0;
   double nedges, change, iar0, far0;
-  Vertex h, t, hd, iak2, fak2, nnodes, *od;
+  Vertex tail, head, taild, iak2, fak2, nnodes, *od;
   Vertex nb1;
 
-  od=nwp->outdegree;
-  nnodes = nwp->nnodes;
-  nb1 = nwp->bipartite;
+  od=OUT_DEG;
+  nnodes = N_NODES;
+  nb1 = BIPARTITE;
   change = 0.0;
-  for (i=0; i<ntoggles; i++) {      
-    echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
+  FOR_EACH_TOGGLE(i) {
+    echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
     iak2=0;
     for (j=1; j<=nb1; j++) {      
       fak2 = od[j];
       iak2 += fak2*(fak2-1);
     }
-    hd = od[h] + (echange-1)/2;
-    fak2 = iak2 + echange*2*hd;
-    nedges = (double)(nwp->nedges);
-    iar0 = (nwp->nedges==0) ? 0.0 : (iak2*1.0/nedges);
-    far0 = (((nwp->nedges)+echange)==0) ? 0.0 : (fak2*1.0/(nedges+echange));
+    taild = od[tail] + (echange-1)/2;
+    fak2 = iak2 + echange*2*taild;
+    nedges = (double)(N_EDGES);
+    iar0 = (N_EDGES==0) ? 0.0 : (iak2*1.0/nedges);
+    far0 = (((N_EDGES)+echange)==0) ? 0.0 : (fak2*1.0/(nedges+echange));
     change += far0 - iar0;
-//   Rprintf("h %d t %d nnodes %d nedges %f iak2 %d fak2 %d iar0 %f far0 %f change %f\n",h,t, nnodes,  nedges, iak2, fak2, iar0, far0, change);
-//   Rprintf("h %d t %d nnodes %d nedges %f iek2 %d fek2 %d ier0 %f fer0 %f change %f\n",h,t, nnodes,  nedges, iek2, fek2, ier0, fer0, change);
-      
-    if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-  }                                         
-  *(mtp->dstats) = change;
-  
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    // Rprintf("tail %d head %d nnodes %d nedges %f iak2 %d fak2 %d iar0 %f far0 %f change %f\n",tail,head, nnodes,  nedges, iak2, fak2, iar0, far0, change);
+    // Rprintf("tail %d head %d nnodes %d nedges %f iek2 %d fek2 %d ier0 %f fer0 %f change %f\n",tail,head, nnodes,  nedges, iek2, fek2, ier0, fer0, change);
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  CHANGE_STAT[0] = change;
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
@@ -47,29 +42,23 @@ D_CHANGESTAT_FN(d_b1kappa){
 D_CHANGESTAT_FN(d_altistar) {
   int i, echange=0;
   double lambda, oneexpl, change;
-  Vertex h, t, td=0, *id;
+  Vertex tail, head, headd=0, *id;
   
-  id=nwp->indegree;
+  id=IN_DEG;
   change = 0.0;
-  lambda = mtp->inputparams[0];
+  lambda = INPUT_PARAM[0];
   oneexpl = 1.0-1.0/lambda;
   
-  for (i=0; i<ntoggles; i++)
-    {      
-      echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
-      td = id[t] + (echange - 1)/2;
-      if(td!=0){
-        change += echange*(1.0-pow(oneexpl,(double)td));
-      }
-      
-      if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  FOR_EACH_TOGGLE(i) {
+    echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
+    headd = id[head] + (echange - 1)/2;
+    if(headd!=0){
+      change += echange*(1.0-pow(oneexpl,(double)headd));
     }
-  *(mtp->dstats) = change*lambda;
-  
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  CHANGE_STAT[0] = change*lambda;
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
@@ -78,29 +67,23 @@ D_CHANGESTAT_FN(d_altistar) {
 D_CHANGESTAT_FN(d_altostar) {
   int i, echange=0;
   double lambda, oneexpl, change;
-  Vertex h, t, hd=0, *od;
+  Vertex tail, head, taild=0, *od;
   
-  od=nwp->outdegree;
+  od=OUT_DEG;
   change = 0.0;
-  lambda = mtp->inputparams[0];
+  lambda = INPUT_PARAM[0];
   oneexpl = 1.0-1.0/lambda;
   
-  for (i=0; i<ntoggles; i++)
-    {      
-      echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
-      hd = od[h] + (echange - 1)/2;
-      if(hd!=0){
-        change += echange*(1.0-pow(oneexpl,(double)hd));
-      }
-      
-      if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  FOR_EACH_TOGGLE(i) {
+    echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
+    taild = od[tail] + (echange - 1)/2;
+    if(taild!=0){
+      change += echange*(1.0-pow(oneexpl,(double)taild));
     }
-  *(mtp->dstats) = change*lambda;
-  
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  CHANGE_STAT[0] = change*lambda;
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /********************  changestats:  B    ***********/
@@ -108,31 +91,22 @@ D_CHANGESTAT_FN(d_altostar) {
  changestat: d_berninhom
  Changescores for inhomogeneous Bernoulli graphs
 *****************/
-D_CHANGESTAT_FN(d_berninhom)
-{
-  int edgeflag, i, nstats;                         
-  Vertex h, t, n;
+D_CHANGESTAT_FN(d_berninhom) {
+  int edgeflag, i;
+  Vertex tail, head, n;
 
-  nstats=(int)mtp->nstats;
-  n=nwp->nnodes;
-  for(i=0;i<nstats;i++)
-    mtp->dstats[i] = 0.0;
-    
-  for (i=0; i < ntoggles; i++)
-    {
-      edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
-      /*Lower trianglization of adjacency matrix implies ith element corresponds
-      to (row-1) + (col-1)*(n-1) - choose(col,2).*/
-      /*Rprintf("t=%ld, h=%ld, cell=%ld, nstats=%d, state=%d\n",t,h, (t-1)+(h-1)*(n-1)-h*(h-1)/2-1, nstats, edgeflag);
-      Rprintf("\tdstats content=%f\n",mtp->dstats[(t-1)+(h-1)*(n-1)-h*(h-1)/2-1]);*/
-      mtp->dstats[(t-1)+(h-1)*(n-1)-h*(h-1)/2-1] += edgeflag ? - 1 : 1;
-
-      if (i+1 < ntoggles)
-        ToggleEdge(h, t, nwp);  /* Toggle this edge if more to come */
-    }
-  i--;
-  while (--i >= 0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp);
+  n=N_NODES;
+  ZERO_ALL_CHANGESTATS(i);
+  FOR_EACH_TOGGLE(i) {
+    edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
+    /*Lower trianglization of adjacency matrix implies ith element corresponds
+    to (row-1) + (col-1)*(n-1) - choose(col,2).*/
+    /*Rprintf("head=%ld, tail=%ld, cell=%ld, nstats=%d, state=%d\n",head,tail, (head-1)+(tail-1)*(n-1)-tail*(tail-1)/2-1, nstats, edgeflag);
+    Rprintf("\tdstats content=%f\n",CHANGE_STAT[(head-1)+(tail-1)*(n-1)-tail*(tail-1)/2-1]);*/
+    CHANGE_STAT[(head-1)+(tail-1)*(n-1)-tail*(tail-1)/2-1] += edgeflag ? - 1 : 1;
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
@@ -140,89 +114,83 @@ D_CHANGESTAT_FN(d_berninhom)
 *****************/
 D_CHANGESTAT_FN(d_biduration)
 {
-  Vertex h, t, hh, ht;
+  Vertex tail, head, tailtail, tailhead;
   int i, k, nprevedge, edgeflag, discord, lookmore;
   Vertex nb2, nb1;
   double change=0.0;
 
-  nprevedge = (int)((mtp->inputparams[0]));
-  nb1 = (int)((mtp->inputparams[1]));
-//  nb1 = nwp->bipartite;
-//  nb2 = nwp->nnodes - nwp->bipartite;
-  nb2 = nwp->nnodes - nb1;
-
-//  Rprintf("nprevedge %d\n", nprevedge);
-//  Rprintf("nwp->bipartite %d nb2 %f\n", nwp->bipartite, nwp->bipartite);
-//  Rprintf("nb1 %d nb2 %d\n", nb1, nb2);
-//  for (k=1; k<=nprevedge; k++) {
-//      Rprintf("k %d x0.h %d x0.t %d\n", k,
-//	      (Vertex)(mtp->attrib[          k]),
-//	      (Vertex)(mtp->attrib[nprevedge+k]));
-//  }
-
-  *(mtp->dstats) = 0.0;
-
-  for (i=0; i<ntoggles; i++) 
-    {
-      /*Get the initial state of the edge and its reflection*/
-      edgeflag=(EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
-      if(h > t){
-        hh = t;
-        ht = h;
+  nprevedge = (int)((INPUT_PARAM[0]));
+  nb1 = (int)((INPUT_PARAM[1]));
+  // nb1 = BIPARTITE;
+  // nb2 = N_NODES - BIPARTITE;
+  nb2 = N_NODES - nb1;
+  
+  // Rprintf("nprevedge %d\n", nprevedge);
+  // Rprintf("BIPARTITE %d nb2 %f\n", BIPARTITE, BIPARTITE);
+  // Rprintf("nb1 %d nb2 %d\n", nb1, nb2);
+  // for (k=1; k<=nprevedge; k++) {
+    // Rprintf("k %d x0.tail %d x0.head %d\n", k,
+    //	      (Vertex)(mtp->attrib[          k]),
+    //	      (Vertex)(mtp->attrib[nprevedge+k]));
+  // }
+  
+  CHANGE_STAT[0] = 0.0;
+  
+  FOR_EACH_TOGGLE(i) {
+    /*Get the initial state of the edge and its reflection*/
+    edgeflag=IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
+    if(tail > head){
+      tailtail = head;
+      tailhead = tail;
+    }else{
+      tailtail = tail;
+      tailhead = head;
+    }
+    // 1 = edge removed -1 = edge added
+    discord = edgeflag ? 1 : -1;
+    
+    // Rprintf("nprevedge %d\n", nprevedge);    
+    k=1;
+    lookmore=1;
+    while(lookmore && k <= nprevedge){
+      // Rprintf("tail %d head %d tailtail %d tailhead %d\n",
+      //	      tail,head,tailtail,tailhead);
+      // Rprintf("tail %d head %d tailtail %d tailhead %d\n",
+      //	      tailhead,tailtail,(Vertex)(mtp->attrib[            k]),
+      //	            (Vertex)(mtp->attrib[nprevedge + k]));
+      if(tailhead == (Vertex)(mtp->attrib[            k]) &&
+        tailtail == (Vertex)(mtp->attrib[nprevedge + k])
+      ){
+        // Rprintf("tail %d head %d tailtail %d tailhead %d\n",
+        //	      tail,head,(Vertex)(mtp->attrib[            k]),
+        //	          (Vertex)(mtp->attrib[nprevedge + k]));
+        
+        /*If the proposed edge existed in x0, get dissolution rate */
+        /* lookmore is location of (tailtail, tailhead) in the dissolve matrix */
+        // lookmore=2*nprevedge+(tailtail-1)+(tailhead-1-nb2)*nb1+1;
+        lookmore=2*nprevedge+(tailtail-1)+(tailhead-1-nb1)*nb1+1;
+        /* change is NEGATIVE the dissolve rate if an edge exists */
+        // Rprintf("tailtail %d tailhead %d lookmore %d att %f\n",tailtail, tailhead, lookmore, (double)(mtp->attrib[lookmore]));
+        // change=-discord*(double)(mtp->attrib[lookmore]);
+        change=-discord;
+        // Rprintf("lookmore %d change %f discord %d \n",lookmore, change, discord);
+        lookmore=0;
+        /*Update the change statistics, as appropriate*/
+        /*change is the number of edges dissolved*/
+        CHANGE_STAT[0] += (double)change;
+        // if(change!=0){
+          // Rprintf("tail %d head %d tailtail %d tailhead %d edgeflag %d beta %f\n",
+          //	      tail,head,tailtail,tailhead, edgeflag, (double)(mtp->attrib[lookmore]));
+          // Rprintf("edgeflag %d change %f discord %d\n",
+          //	      edgeflag, change, discord);
+        // }
       }else{
-        hh = h;
-        ht = t;
+        ++k;
       }
-      // 1 = edge removed -1 = edge added
-      discord = edgeflag ? 1 : -1;
-
-// Rprintf("nprevedge %d\n", nprevedge);
-
-      k=1;
-      lookmore=1;
-      while(lookmore && k <= nprevedge){
-//       Rprintf("h %d t %d hh %d ht %d\n",
-//	      h,t,hh,ht);
-//       Rprintf("h %d t %d hh %d ht %d\n",
-//	      ht,hh,(Vertex)(mtp->attrib[            k]),
-//	            (Vertex)(mtp->attrib[nprevedge + k]));
-       if(ht == (Vertex)(mtp->attrib[            k]) &&
-          hh == (Vertex)(mtp->attrib[nprevedge + k])
-	 ){
-//       Rprintf("h %d t %d hh %d ht %d\n",
-//	      h,t,(Vertex)(mtp->attrib[            k]),
-//	          (Vertex)(mtp->attrib[nprevedge + k]));
-
-           /*If the proposed edge existed in x0, get dissolution rate */
-	   /* lookmore is location of (hh, ht) in the dissolve matrix */
-//           lookmore=2*nprevedge+(hh-1)+(ht-1-nb2)*nb1+1;
-           lookmore=2*nprevedge+(hh-1)+(ht-1-nb1)*nb1+1;
-	   /* change is NEGATIVE the dissolve rate if an edge exists */
-//       Rprintf("hh %d ht %d lookmore %d att %f\n",hh, ht, lookmore, (double)(mtp->attrib[lookmore]));
-//           change=-discord*(double)(mtp->attrib[lookmore]);
-           change=-discord;
-//       Rprintf("lookmore %d change %f discord %d \n",lookmore, change, discord);
-	   lookmore=0;
-           /*Update the change statistics, as appropriate*/
-	   /*change is the number of edges dissolved*/
-           *(mtp->dstats) += (double)change;
-//      if(change!=0){
-//       Rprintf("h %d t %d hh %d ht %d edgeflag %d beta %f\n",
-//	      h,t,hh,ht, edgeflag, (double)(mtp->attrib[lookmore]));
-//       Rprintf("edgeflag %d change %f discord %d\n",
-//	      edgeflag, change, discord);
-//      }
-          }else{
-		   ++k;
-	  }
-      }
-
-      if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-    }                              
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    }
+    TOGGLE_IF_MORE_TO_COME(i);
+  }                              
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
@@ -230,49 +198,42 @@ D_CHANGESTAT_FN(d_biduration)
 *****************/
 D_CHANGESTAT_FN(d_bimix){
 
-  int matchvalh, matchvalt;
-  Vertex h, t, nnodes, nstats;
+  int matchvaltail, matchvalhead;
+  Vertex tail, head, nnodes, nstats;
   int i, j, edgeflag=0;
 
-  nstats = mtp->nstats;
-  nnodes = (mtp->ninputparams)-2*nstats;
-//  Rprintf("ninput %d nstats %d\n", mtp->ninputparams, mtp->nstats);
-//  Rprintf("nodes %d\n", nnodes);
-// for (h=0; h<nnodes; h++){
-//   Rprintf("match h %d att h %f\n", 
-//	    h, mtp->attrib[h+nstats]);
-// }
-// for (h=0; h<nstats; h++){
-//   Rprintf("match h %d in h %f in t %f\n", 
-//	    h, mtp->inputparams[h], mtp->inputparams[h+nstats]);
-// }
-  for (i=0; i < nstats; i++) 
-    mtp->dstats[i] = 0.0;
-
-  for (i=0; i<ntoggles; i++) 
-    {
-      h=heads[i];
-      t=tails[i];
-      matchvalh = mtp->attrib[h-1+nstats];
-      matchvalt = mtp->attrib[t-1+nstats];
-//     if(matchvalt < matchvalh){
-//       matchswap = matchvalh;
-//       matchvalh = matchvalt;
-//       matchvalt = matchswap;
-//      }       
-      edgeflag=(EdgetreeSearch(h, t, nwp->outedges) != 0);
-      for (j=0; j<nstats; j++) 
-	  {
-           if(matchvalh==mtp->inputparams[nstats+j] &&
-	      matchvalt==mtp->inputparams[       j]
-	     ){mtp->dstats[j] += edgeflag ? -1.0 : 1.0;}
+  nstats = N_CHANGE_STATS;
+  nnodes = (N_INPUT_PARAMS)-2*nstats;
+  // Rprintf("ninput %d nstats %d\n", N_INPUT_PARAMS, mtp->nstats);
+  // Rprintf("nodes %d\n", nnodes);
+  // for (tail=0; tail<nnodes; tail++){
+    // Rprintf("match tail %d att tail %f\n", 
+    //	    tail, mtp->attrib[tail+nstats]);
+  // }
+  // for (tail=0; tail<nstats; tail++){
+    // Rprintf("match tail %d in tail %f in head %f\n", 
+    //	    tail, INPUT_PARAM[tail], INPUT_PARAM[tail+nstats]);
+  // }
+  ZERO_ALL_CHANGESTATS(i);
+  FOR_EACH_TOGGLE(i) {
+    tail=TAIL(i);
+    head=HEAD(i);
+    matchvaltail = mtp->attrib[tail-1+nstats];
+    matchvalhead = mtp->attrib[head-1+nstats];
+    // if(matchvalhead < matchvaltail){
+      // matchswap = matchvaltail;
+      // matchvaltail = matchvalhead;
+      // matchvalhead = matchswap;
+    // }       
+    edgeflag=IS_OUTEDGE(tail, head);
+    for (j=0; j<nstats; j++) {
+      if(matchvaltail==INPUT_PARAM[nstats+j] &&
+	      matchvalhead==INPUT_PARAM[       j]
+      ){CHANGE_STAT[j] += edgeflag ? -1.0 : 1.0;}
 	  }
-      if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-    }
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
@@ -281,18 +242,18 @@ D_CHANGESTAT_FN(d_bimix){
 D_CHANGESTAT_FN(d_bkappa)  {
   int i, j, echange=0;
   double nedges, change, iar0, far0, ier0, fer0;
-  Vertex h, t, hd, td=0, iak2, fak2, iek2, fek2, nnodes, *id, *od;
+  Vertex tail, head, taild, headd=0, iak2, fak2, iek2, fek2, nnodes, *id, *od;
   Vertex nb2, nb1;
   
-  id=nwp->indegree;
-  od=nwp->outdegree;
-  nnodes = nwp->nnodes;
-  nb1 = nwp->bipartite;
+  id=IN_DEG;
+  od=OUT_DEG;
+  nnodes = N_NODES;
+  nb1 = BIPARTITE;
   nb2 = nnodes - nb1;
   
   change = 0.0;
-  for (i=0; i<ntoggles; i++) {      
-    echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
+  FOR_EACH_TOGGLE(i) {
+    echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
     iak2=0;
     for (j=1; j<=nb1; j++) {      
       fak2 = od[j];
@@ -303,27 +264,22 @@ D_CHANGESTAT_FN(d_bkappa)  {
       fek2 = id[j];
       iek2 += fek2*(fek2-1);
     }
-    hd = od[h] + (echange-1)/2;
-    td = id[t] + (echange-1)/2;
-    fak2 = iak2 + echange*2*hd;
-    fek2 = iek2 + echange*2*td;
-    nedges = (double)(nwp->nedges);
-    iar0 = (nwp->nedges==0) ? 0.0 : (iak2*1.0/nedges);
-    far0 = (((nwp->nedges)+echange)==0) ? 0.0 : (fak2*1.0/(nedges+echange));
-    ier0 = (nwp->nedges==0) ? 0.0 : (iek2*1.0/nedges);
-    fer0 = (((nwp->nedges)+echange)==0) ? 0.0 : (fek2*1.0/(nedges+echange));
+    taild = od[tail] + (echange-1)/2;
+    headd = id[head] + (echange-1)/2;
+    fak2 = iak2 + echange*2*taild;
+    fek2 = iek2 + echange*2*headd;
+    nedges = (double)(N_EDGES);
+    iar0 = (N_EDGES==0) ? 0.0 : (iak2*1.0/nedges);
+    far0 = (((N_EDGES)+echange)==0) ? 0.0 : (fak2*1.0/(nedges+echange));
+    ier0 = (N_EDGES==0) ? 0.0 : (iek2*1.0/nedges);
+    fer0 = (((N_EDGES)+echange)==0) ? 0.0 : (fek2*1.0/(nedges+echange));
     change += sqrt(far0*fer0) - sqrt(iar0*ier0);
-//   Rprintf("h %d t %d nnodes %d nedges %f iar0 %f far0 %f change %f\n",h,t, nnodes,  nedges, iar0, far0, change);
-//   Rprintf("h %d t %d nnodes %d nedges %f ier0 %f fer0 %f change %f\n",h,t, nnodes,  nedges, ier0, fer0, change);
-      
-    if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    // Rprintf("tail %d head %d nnodes %d nedges %f iar0 %f far0 %f change %f\n",tail,head, nnodes,  nedges, iar0, far0, change);
+    // Rprintf("tail %d head %d nnodes %d nedges %f ier0 %f fer0 %f change %f\n",tail,head, nnodes,  nedges, ier0, fer0, change);
+    TOGGLE_IF_MORE_TO_COME(i);
   }
-  *(mtp->dstats) = change;
-  
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+  CHANGE_STAT[0] = change;
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
@@ -332,27 +288,23 @@ D_CHANGESTAT_FN(d_bkappa)  {
 D_CHANGESTAT_FN(d_degreep) 
 {
   int i, j, echange;
-  Vertex head, tail, headdeg, taildeg, deg, *id, *od;
+  Vertex tail, head, taildeg, headdeg, deg, *id, *od;
 
-  id=nwp->indegree;
-  od=nwp->outdegree;
-  for (i=0; i < mtp->nstats; i++) 
-    mtp->dstats[i] = 0.0;  
-  for (i=0; i<ntoggles; i++) {      
-    echange=(EdgetreeSearch(head=heads[i], tail=tails[i], nwp->outedges)==0)? 1:-1;
-    headdeg = od[head] + id[head];
+  id=IN_DEG;
+  od=OUT_DEG;
+  ZERO_ALL_CHANGESTATS(i);
+  FOR_EACH_TOGGLE(i) {
+    echange=(EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp->outedges)==0)? 1:-1;
     taildeg = od[tail] + id[tail];
+    headdeg = od[head] + id[head];
     for(j = 0; j < mtp->nstats; j++) {
-      deg = (Vertex)mtp->inputparams[j];
-      mtp->dstats[j] += ((headdeg + echange == deg) - (headdeg == deg))/(double)nwp->nnodes;
-      mtp->dstats[j] += ((taildeg + echange == deg) - (taildeg == deg))/(double)nwp->nnodes;
+      deg = (Vertex)INPUT_PARAM[j];
+      CHANGE_STAT[j] += ((taildeg + echange == deg) - (taildeg == deg))/(double)N_NODES;
+      CHANGE_STAT[j] += ((headdeg + echange == deg) - (headdeg == deg))/(double)N_NODES;
     }
-    if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    TOGGLE_IF_MORE_TO_COME(i);
   }
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
@@ -364,33 +316,29 @@ D_CHANGESTAT_FN(d_degreep_by_attr)
   The first 2*nstats values are in pairs:  (degree, attrvalue)
   The values following the first 2*nstats values are the nodal attributes.
   */
-  int i, j, echange, headattr, tailattr, testattr;
-  Vertex head, tail, headdeg, taildeg, d, *id, *od;
+  int i, j, echange, tailattr, headattr, testattr;
+  Vertex tail, head, taildeg, headdeg, d, *id, *od;
   
-  id=nwp->indegree;
-  od=nwp->outdegree;
-  for (i=0; i < mtp->nstats; i++) 
-    mtp->dstats[i] = 0.0;
-  for (i=0; i<ntoggles; i++) {
-    echange=(EdgetreeSearch(head=heads[i], tail=tails[i], nwp->outedges)==0)? 1:-1;
-    headdeg = od[head] + id[head];
+  id=IN_DEG;
+  od=OUT_DEG;
+  ZERO_ALL_CHANGESTATS(i);
+  FOR_EACH_TOGGLE(i) {
+    echange=(EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp->outedges)==0)? 1:-1;
     taildeg = od[tail] + id[tail];
-    headattr = mtp->inputparams[2*mtp->nstats + head - 1]; 
-    tailattr = mtp->inputparams[2*mtp->nstats + tail - 1]; 
+    headdeg = od[head] + id[head];
+    tailattr = INPUT_PARAM[2*mtp->nstats + tail - 1]; 
+    headattr = INPUT_PARAM[2*mtp->nstats + head - 1]; 
     for(j = 0; j < mtp->nstats; j++) {
-      d = (Vertex)mtp->inputparams[2*j];
-      testattr = mtp->inputparams[2*j + 1]; 
-      if (headattr == testattr)  /* we have head attr match */
-        mtp->dstats[j] += ((headdeg + echange == d) - (headdeg == d))/(double)nwp->nnodes;
+      d = (Vertex)INPUT_PARAM[2*j];
+      testattr = INPUT_PARAM[2*j + 1]; 
       if (tailattr == testattr)  /* we have tail attr match */
-        mtp->dstats[j] += ((taildeg + echange == d) - (taildeg == d))/(double)nwp->nnodes;
+        CHANGE_STAT[j] += ((taildeg + echange == d) - (taildeg == d))/(double)N_NODES;
+      if (headattr == testattr)  /* we have head attr match */
+        CHANGE_STAT[j] += ((headdeg + echange == d) - (headdeg == d))/(double)N_NODES;
     }
-    if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    TOGGLE_IF_MORE_TO_COME(i);
   }
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
@@ -402,32 +350,21 @@ D_CHANGESTAT_FN(d_degreep_w_homophily)
   The first nstats values are the values of degree
   The values following the first nstats values are the nodal attributes.
   */
-  int i, j, echange, headattr, tailattr;
-  Vertex head, tail, headdeg, taildeg, deg, tmp;
+  int i, j, echange, tailattr, headattr;
+  Vertex tail, head, taildeg, headdeg, deg, tmp;
   double *nodeattr;
   Edge e;
 
-  nodeattr = mtp->inputparams + mtp->nstats - 1;  
-  for (i=0; i < mtp->nstats; i++) 
-    mtp->dstats[i] = 0.0;
-  for (i=0; i<ntoggles; i++) {
-    head=heads[i];
-    tail=tails[i];
-    headattr = (int)nodeattr[head];
-    tailattr = (int)nodeattr[tail];    
-    if (headattr == tailattr) { /* They match; otherwise don't bother */
-      echange=(EdgetreeSearch(head, tail, nwp->outedges)==0)? 1:-1;
-      headdeg=taildeg=0;
-      for(e = EdgetreeMinimum(nwp->outedges, head);
-      (tmp = nwp->outedges[e].value) != 0;
-      e = EdgetreeSuccessor(nwp->outedges, e)) {
-        headdeg += (nodeattr[tmp]==headattr);
-      }
-      for(e = EdgetreeMinimum(nwp->inedges, head);
-      (tmp = nwp->inedges[e].value) != 0;
-      e = EdgetreeSuccessor(nwp->inedges, e)) {
-        headdeg += (nodeattr[tmp]==headattr);
-      }
+  nodeattr = INPUT_PARAM + mtp->nstats - 1;  
+  ZERO_ALL_CHANGESTATS(i);
+  FOR_EACH_TOGGLE(i) {
+    tail=TAIL(i);
+    head=HEAD(i);
+    tailattr = (int)nodeattr[tail];
+    headattr = (int)nodeattr[head];    
+    if (tailattr == headattr) { /* They match; otherwise don't bother */
+      echange=(EdgetreeSearch(tail, head, nwp->outedges)==0)? 1:-1;
+      taildeg=headdeg=0;
       for(e = EdgetreeMinimum(nwp->outedges, tail);
       (tmp = nwp->outedges[e].value) != 0;
       e = EdgetreeSuccessor(nwp->outedges, e)) {
@@ -438,18 +375,25 @@ D_CHANGESTAT_FN(d_degreep_w_homophily)
       e = EdgetreeSuccessor(nwp->inedges, e)) {
         taildeg += (nodeattr[tmp]==tailattr);
       }
+      for(e = EdgetreeMinimum(nwp->outedges, head);
+      (tmp = nwp->outedges[e].value) != 0;
+      e = EdgetreeSuccessor(nwp->outedges, e)) {
+        headdeg += (nodeattr[tmp]==headattr);
+      }
+      for(e = EdgetreeMinimum(nwp->inedges, head);
+      (tmp = nwp->inedges[e].value) != 0;
+      e = EdgetreeSuccessor(nwp->inedges, e)) {
+        headdeg += (nodeattr[tmp]==headattr);
+      }
       for(j = 0; j < mtp->nstats; j++) {
-        deg = (Vertex)mtp->inputparams[j];
-        mtp->dstats[j] += ((headdeg + echange == deg) - (headdeg == deg))/(double)nwp->nnodes;
-	mtp->dstats[j] += ((taildeg + echange == deg) - (taildeg == deg))/(double)nwp->nnodes;
+        deg = (Vertex)INPUT_PARAM[j];
+        CHANGE_STAT[j] += ((taildeg + echange == deg) - (taildeg == deg))/(double)N_NODES;
+	CHANGE_STAT[j] += ((headdeg + echange == deg) - (headdeg == deg))/(double)N_NODES;
       }
     }
-    if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    TOGGLE_IF_MORE_TO_COME(i);
   }
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
@@ -457,56 +401,51 @@ D_CHANGESTAT_FN(d_degreep_w_homophily)
 *****************/
 D_CHANGESTAT_FN(d_dissolve) {
   int edgeflag, i;
-  Vertex h, t;
+  Vertex tail, head;
   
-  *(mtp->dstats) = 0.0;
-  for (i=0; i < ntoggles; i++)
-    {
-      edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
-      *(mtp->dstats) += edgeflag ? - 1 : 1;
-      if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  CHANGE_STAT[0] = 0.0;
+  FOR_EACH_TOGGLE(i) {
+      edgeflag = (EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp->outedges) != 0);
+      CHANGE_STAT[0] += edgeflag ? - 1 : 1;
+    TOGGLE_IF_MORE_TO_COME(i);
     }
-  i--; 
-  while (--i >= 0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
  changestat: d_duration
 *****************/
 D_CHANGESTAT_FN(d_duration) {
-  Vertex h, t, hh, ht;
-  int i, k, nhedge, edgeflag, discord, lookmore;
+  Vertex tail, head, tailtail, tailhead;
+  int i, k, ntailedge, edgeflag, discord, lookmore;
   int ndyads, nnodes;
   double change=0.0;
   
-  nhedge = (int)((mtp->inputparams[0]));
-  nnodes = nwp->nnodes;
-  ndyads = nwp->nnodes * nwp->nnodes;
+  ntailedge = (int)((INPUT_PARAM[0]));
+  nnodes = N_NODES;
+  ndyads = N_NODES * N_NODES;
   
-  *(mtp->dstats) = 0.0;
-  for (i=0; i<ntoggles; i++) 
-  {
+  CHANGE_STAT[0] = 0.0;
+  FOR_EACH_TOGGLE(i) {
     /*Get the initial state of the edge and its reflection*/
-    edgeflag=(EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
-    if(!nwp->directed_flag && h < t){
-      hh = t;
-      ht = h;
+    edgeflag=(EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp->outedges) != 0);
+    if(!nwp->directed_flag && tail < head){
+      tailtail = head;
+      tailhead = tail;
     }else{
-      hh = h;
-      ht = t;
+      tailtail = tail;
+      tailhead = head;
     }
     discord = edgeflag ? 1 : -1;
     
     k=0;
     lookmore=1;
-    while(lookmore && k < nhedge){
-      if(hh == (Vertex)(mtp->attrib[         k]) &&
-        ht == (Vertex)(mtp->attrib[nhedge + k])
+    while(lookmore && k < ntailedge){
+      if(tailtail == (Vertex)(mtp->attrib[         k]) &&
+        tailhead == (Vertex)(mtp->attrib[ntailedge + k])
       ){
         /*Get dissolution rate */
-        lookmore=2*nhedge+ndyads+(hh-1)+(ht-1)*nnodes;
+        lookmore=2*ntailedge+ndyads+(tailtail-1)+(tailhead-1)*nnodes;
         change=discord*(double)(mtp->attrib[lookmore]);
         lookmore=0;
       }else{
@@ -515,17 +454,14 @@ D_CHANGESTAT_FN(d_duration) {
     }
     if(lookmore){
       /* Get formation rate */
-      lookmore=2*nhedge+(hh-1)+(ht-1)*nnodes;
+      lookmore=2*ntailedge+(tailtail-1)+(tailhead-1)*nnodes;
       change=-discord*(double)(mtp->attrib[lookmore]);
     }
     /*Update the change statistics, as appropriate*/
-    *(mtp->dstats) += change;
-    if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    CHANGE_STAT[0] += change;
+    TOGGLE_IF_MORE_TO_COME(i);
   }
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /********************  changestats:  C    ***********/
@@ -539,121 +475,106 @@ D_CHANGESTAT_FN(d_duration) {
 D_CHANGESTAT_FN(d_b2kappa)  {
   int i, j, echange=0;
   double nedges, change, ier0, fer0;
-  Vertex h, t, td=0, iek2, fek2, nnodes, *id;
+  Vertex tail, head, headd=0, iek2, fek2, nnodes, *id;
   Vertex nb1;
 
-  id=nwp->indegree;
-  nnodes = nwp->nnodes;
-  nb1 = nwp->bipartite;
+  id=IN_DEG;
+  nnodes = N_NODES;
+  nb1 = BIPARTITE;
   
   change = 0.0;
-  for (i=0; i<ntoggles; i++) {      
-    echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
+  FOR_EACH_TOGGLE(i) {
+    echange = (EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp->outedges) == 0) ? 1 : -1;
     iek2=0;
     for (j=nb1+1; j<=nnodes; j++) {      
       fek2 = id[j];
       iek2 += fek2*(fek2-1);
     }
-    td = id[t] + (echange-1)/2;
-    fek2 = iek2 + echange*2*td;
-    nedges = (double)(nwp->nedges);
-    ier0 = (nwp->nedges==0) ? 0.0 : (iek2*1.0/nedges);
-    fer0 = (((nwp->nedges)+echange)==0) ? 0.0 : (fek2*1.0/(nedges+echange));
+    headd = id[head] + (echange-1)/2;
+    fek2 = iek2 + echange*2*headd;
+    nedges = (double)(N_EDGES);
+    ier0 = (N_EDGES==0) ? 0.0 : (iek2*1.0/nedges);
+    fer0 = (((N_EDGES)+echange)==0) ? 0.0 : (fek2*1.0/(nedges+echange));
     change += fer0 - ier0;
-//   Rprintf("h %d t %d nnodes %d nedges %f iak2 %d fak2 %d iar0 %f far0 %f change %f\n",h,t, nnodes,  nedges, iak2, fak2, iar0, far0, change);
-//   Rprintf("h %d t %d nnodes %d nedges %f iek2 %d fek2 %d ier0 %f fer0 %f change %f\n",h,t, nnodes,  nedges, iek2, fek2, ier0, fer0, change);
-      
-    if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    // Rprintf("tail %d t %d nnodes %d nedges %f iak2 %d fak2 %d iar0 %f far0 %f change %f\n",tail,t, nnodes,  nedges, iak2, fak2, iar0, far0, change);
+    // Rprintf("tail %d t %d nnodes %d nedges %f iek2 %d fek2 %d ier0 %f fer0 %f change %f\n",tail,t, nnodes,  nedges, iek2, fek2, ier0, fer0, change);
+    TOGGLE_IF_MORE_TO_COME(i);
   }
-  *(mtp->dstats) = change;
-  
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+  CHANGE_STAT[0] = change;
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /********************  changestats:  F    ***********/
 /*****************
  changestat: d_factor
 *****************/
-D_CHANGESTAT_FN(d_factor)  {         
+D_CHANGESTAT_FN(d_factor)  {
   double val, s;
-  Vertex h, t;
+  Vertex tail, head;
   long int nlevels;
   int i, j;
   
-  nlevels = (long int)(mtp->inputparams[0]);
+  nlevels = (long int)(INPUT_PARAM[0]);
 
-  for (i=0; i < mtp->nstats; i++){
-    mtp->dstats[i] = 0.0;
-  }
-
-  for (i=0; i<ntoggles; i++) 
-  {
-    s = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0) ? -1.0 : 1.0;
-    for (j=0; j<(mtp->nstats); j++) 
-    {
+  ZERO_ALL_CHANGESTATS(i);
+  FOR_EACH_TOGGLE(i) {
+    s = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1.0 : 1.0;
+    for (j=0; j<(mtp->nstats); j++) {
       /*Get the covariate value*/
-      val = mtp->inputparams[1+j+(h-1)*nlevels];
-//          + mtp->inputparams[1+j+(t-1)*nlevels];
-      mtp->dstats[j] += s*val;
+      val = INPUT_PARAM[1+j+(tail-1)*nlevels];
+      // + INPUT_PARAM[1+j+(head-1)*nlevels];
+      CHANGE_STAT[j] += s*val;
     }
-    if (i+1 < ntoggles) 
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    TOGGLE_IF_MORE_TO_COME(i);
   }
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
  changestat: d_formation
 *****************/
 D_CHANGESTAT_FN(d_formation) { 
-  Vertex h, t;
-  int i, nhedge, discord;
+  Vertex tail, head;
+  int i, ntailedge, discord;
   
-  nhedge = nwp[1].nedges;
-/*Rprintf("nhedge %d\n",nhedge); */
+  ntailedge = nwp[1].nedges;
+  /*Rprintf("ntailedge %d\n",ntailedge); */
   CHANGE_STAT[0] = 0.0;
   FOR_EACH_TOGGLE(i) {
     /*Get the initial state of the edge and its alter in x0*/
-/*  edgeflag =(EdgetreeSearch(h=heads[i], t=tails[i], nwp[0].outedges) != 0); */
-    discord=(EdgetreeSearch(h=heads[i], t=tails[i], nwp[1].outedges) != 0);
-/*    if(!nwp[0].directed_flag && h < t){
-      hh = t;
-      ht = h;
+    /*  edgeflag =(EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp[0].outedges) != 0); */
+    discord=IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
+    /*    if(!nwp[0].directed_flag && tail < head){
+      tailtail = head;
+      tailhead = tail;
     }else{
-      hh = h;
-      ht = t;
+      tailtail = tail;
+      tailhead = head;
     }
-     if we will dissolve an edge discord=-1
-     discord = edgeflag ? -1 : 1;
+    if we will dissolve an edge discord=-1
+    discord = edgeflag ? -1 : 1;
     
-
-  so moving away one step
+    
+    so moving away one step
     discord = (edgeflag0!=edgeflag) ? -1 : 1;
-
-Rprintf("h %d t %d discord %d\n",h, t, discord);
-  if(nhedge>0)
-  Rprintf("h %d t %d discord %d nhedge %d\n",h, t, discord, nhedge); */
-
+    
+    Rprintf("tail %d head %d discord %d\n",tail, head, discord);
+    if(ntailedge>0)
+      Rprintf("tail %d head %d discord %d ntailedge %d\n",tail, head, discord, ntailedge); */
+    
     /*Update the change statistics, as appropriate*/
-/*    CHANGE_STAT[0] += ((edgeflag0!=edgeflag) ? -1.0 : 1.0); */
-
+    /*    CHANGE_STAT[0] += ((edgeflag0!=edgeflag) ? -1.0 : 1.0); */
+    
     CHANGE_STAT[0] += (discord ? -1.0 : 1.0);
-
-
     if (i+1 < ntoggles){
-      ToggleEdge(heads[i], tails[i], &nwp[0]);  /* Toggle this edge if more to come */
-      ToggleEdge(heads[i], tails[i], &nwp[1]);  /* Toggle the discord for this edge */
+      ToggleEdge(TAIL(i), HEAD(i), &nwp[0]);  /* Toggle this edge if more to come */
+      ToggleEdge(TAIL(i), HEAD(i), &nwp[1]);  /* Toggle the discord for this edge */
     }
   }
   i--;
   while (--i>=0){  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], &nwp[0]);
-    ToggleEdge(heads[i], tails[i], &nwp[1]);  /* Toggle the discord for this edge */
+    ToggleEdge(TAIL(i), HEAD(i), &nwp[0]);
+    ToggleEdge(TAIL(i), HEAD(i), &nwp[1]);  /* Toggle the discord for this edge */
   }
 }
 
@@ -664,29 +585,22 @@ Rprintf("h %d t %d discord %d\n",h, t, discord);
 D_CHANGESTAT_FN(d_geodegree) {
   int i, echange;
   double alpha;
-  Vertex h, t, hd, td=0, *id, *od;
+  Vertex tail, head, taild, headd=0, *id, *od;
                                                
-  id=nwp->indegree;
-  od=nwp->outdegree;
-  *(mtp->dstats) = 0.0;
-  alpha = mtp->inputparams[0];
+  id=IN_DEG;
+  od=OUT_DEG;
+  CHANGE_STAT[0] = 0.0;
+  alpha = INPUT_PARAM[0];
   
-  for (i=0; i<ntoggles; i++)
-    {      
-      echange = 
-	(EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
-      hd = od[h] + id[h] + (echange - 1)/2;
-      td = od[t] + id[t] + (echange - 1)/2;
-      *(mtp->dstats) += echange*(exp(-alpha*hd)+exp(-alpha*td));
-      
-      if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-    }
-  
-  *(mtp->dstats) = (*(mtp->dstats))*(exp(-alpha)-1.0);
-  i--;           
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+  FOR_EACH_TOGGLE(i) {
+    echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
+    taild = od[tail] + id[tail] + (echange - 1)/2;
+    headd = od[head] + id[head] + (echange - 1)/2;
+    CHANGE_STAT[0] += echange*(exp(-alpha*taild)+exp(-alpha*headd));
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  CHANGE_STAT[0] = (CHANGE_STAT[0])*(exp(-alpha)-1.0);
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
@@ -696,115 +610,84 @@ D_CHANGESTAT_FN(d_geospartner) {
   Edge e, f;
   int i, echange;
   int L2ht, L2hu, L2ut;
-  Vertex h, t, u, v;
+  Vertex tail, head, u, v;
   double alpha, cumchange;
   
-  *(mtp->dstats) = 0.0;
-  alpha = mtp->inputparams[0];
-  
-  for (i=0; i<ntoggles; i++){      
+  CHANGE_STAT[0] = 0.0;
+  alpha = INPUT_PARAM[0];
+  FOR_EACH_TOGGLE(i) {
     cumchange=0.0;
     L2ht=0;
-    echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
-    /* step through outedges of t */
-    for(e = EdgetreeMinimum(nwp->outedges, t);
-	(u = nwp->outedges[e].value) != 0;
-	e = EdgetreeSuccessor(nwp->outedges, e)){
-      if (EdgetreeSearch(MIN(u,h), MAX(u,h), nwp->outedges) != 0){
-	L2ht++;
-	L2hu=0;
-	L2ut=0;
-	/* step through outedges of u */
-	for(f = EdgetreeMinimum(nwp->outedges, u);
-	    (v = nwp->outedges[f].value) != 0;
-	    f = EdgetreeSuccessor(nwp->outedges, f)){
-	  if(EdgetreeSearch(MIN(v,t),MAX(v,t),nwp->outedges)!= 0) L2ut++;
-	  if(EdgetreeSearch(MIN(v,h),MAX(v,h),nwp->outedges)!= 0) L2hu++;
-	}
-	/* step through inedges of u */
-	for(f = EdgetreeMinimum(nwp->inedges, u); 
-	    (v = nwp->inedges[f].value) != 0;
-	    f = EdgetreeSuccessor(nwp->inedges, f)){
-	  if(EdgetreeSearch(MIN(v,t),MAX(v,t),nwp->outedges)!= 0) L2ut++;
-	  if(EdgetreeSearch(MIN(v,h),MAX(v,h),nwp->outedges)!= 0) L2hu++;
-	}
-	cumchange += exp(-alpha*L2hu)+exp(-alpha*L2ut);
+    echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
+    STEP_THROUGH_OUTEDGES(head, e, u) {
+      if (IS_OUTEDGE(MIN(u,tail), MAX(u,tail))) {
+        L2ht++;
+        L2hu=0;
+        L2ut=0;
+        STEP_THROUGH_OUTEDGES(u, f, v) {
+          if(IS_OUTEDGE(MIN(v,head),MAX(v,head))) L2ut++;
+          if(IS_OUTEDGE(MIN(v,tail),MAX(v,tail))) L2hu++;
+        }
+        STEP_THROUGH_INEDGES(u, f, v) {
+          if(IS_OUTEDGE(MIN(v,head),MAX(v,head))) L2ut++;
+          if(IS_OUTEDGE(MIN(v,tail),MAX(v,tail))) L2hu++;
+        }
+        cumchange += exp(-alpha*L2hu)+exp(-alpha*L2ut);
       }
     }
-    /* step through inedges of t */
-    for(e = EdgetreeMinimum(nwp->inedges, t);
-	(u = nwp->inedges[e].value) != 0;
-	e = EdgetreeSuccessor(nwp->inedges, e)){
-      if (EdgetreeSearch(MIN(u,h), MAX(u,h), nwp->outedges) != 0){
-	L2ht++;
-	L2hu=0;
-	L2ut=0;
-	/* step through outedges of u */
-	for(f = EdgetreeMinimum(nwp->outedges, u);
-	    (v = nwp->outedges[f].value) != 0;
-	    f = EdgetreeSuccessor(nwp->outedges, f)){
-	  if(EdgetreeSearch(MIN(v,t),MAX(v,t),nwp->outedges)!= 0) L2ut++;
-	  if(EdgetreeSearch(MIN(v,h),MAX(v,h),nwp->outedges)!= 0) L2hu++;
-	}
-	/* step through inedges of u */
-	for(f = EdgetreeMinimum(nwp->inedges, u); 
-	    (v = nwp->inedges[f].value) != 0;
-	    f = EdgetreeSuccessor(nwp->inedges, f)){
-	  if(EdgetreeSearch(MIN(v,t),MAX(v,t),nwp->outedges)!= 0) L2ut++;
-	  if(EdgetreeSearch(MIN(v,h),MAX(v,h),nwp->outedges)!= 0) L2hu++;
-	}
-	cumchange += exp(-alpha*L2hu)+exp(-alpha*L2ut);
+    STEP_THROUGH_INEDGES(head, e, u) {
+      if (IS_OUTEDGE(MIN(u,tail), MAX(u,tail))) {
+        L2ht++;
+        L2hu=0;
+        L2ut=0;
+        STEP_THROUGH_OUTEDGES(u, f, v) {
+          if(IS_OUTEDGE(MIN(v,head),MAX(v,head))) L2ut++;
+          if(IS_OUTEDGE(MIN(v,tail),MAX(v,tail))) L2hu++;
+        }
+        STEP_THROUGH_INEDGES(u, f, v) {
+          if(IS_OUTEDGE(MIN(v,head),MAX(v,head))) L2ut++;
+          if(IS_OUTEDGE(MIN(v,tail),MAX(v,tail))) L2hu++;
+        }
+        cumchange += exp(-alpha*L2hu)+exp(-alpha*L2ut);
       }
     }
     cumchange  = cumchange*(exp(-alpha*echange)-1.0);
     cumchange += echange*(exp(-alpha*L2ht)-1.0);
-    *(mtp->dstats) -= cumchange;
-    if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    CHANGE_STAT[0] -= cumchange;
+    TOGGLE_IF_MORE_TO_COME(i);
   }
-  
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
  changestat: d_gwb1
 *****************/
-D_CHANGESTAT_FN(d_gwb1)
-{
+D_CHANGESTAT_FN(d_gwb1) {
   int i, echange=0;
   double alpha, oneexpa, change;
-  Vertex h, t, hd=0, *od;
+  Vertex tail, head, taild=0, *od;
   int nb1, nb2;
 
-  nb1 = (int)mtp->inputparams[0];
-  nb2 = (nwp->nnodes) - nb1;
-
-//id=nwp->indegree;
-  od=nwp->outdegree;
+  nb1 = (int)INPUT_PARAM[0];
+  nb2 = (N_NODES) - nb1;
+  
+  //id=IN_DEG;
+  od=OUT_DEG;
   change = 0.0;
-  alpha = mtp->inputparams[1];
+  alpha = INPUT_PARAM[1];
   oneexpa = 1.0-exp(-alpha);
   
-  *(mtp->dstats) = 0.0;
-  for (i=0; i<ntoggles; i++) 
-    {
-      echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
-      hd = od[h] + (echange - 1)/2;
-      if(hd!=0){
-        change += echange*(1.0-pow(oneexpa,(double)hd));
-      }
-      
-      if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  CHANGE_STAT[0] = 0.0;
+  FOR_EACH_TOGGLE(i) {
+    echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
+    taild = od[tail] + (echange - 1)/2;
+    if(taild!=0){
+      change += echange*(1.0-pow(oneexpa,(double)taild));
     }
-
-  *(mtp->dstats) = change*exp(alpha);
-
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  CHANGE_STAT[0] = change*exp(alpha);
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
@@ -813,63 +696,53 @@ D_CHANGESTAT_FN(d_gwb1)
 D_CHANGESTAT_FN(d_gwd) {
   int i, echange;
   double alpha;
-  Vertex h, t, hd, td=0, *id, *od;
+  Vertex tail, head, taild, headd=0, *id, *od;
   
-  id=nwp->indegree;
-  od=nwp->outdegree;
-  *(mtp->dstats) = 0.0;
-  alpha = mtp->inputparams[0];
+  id=IN_DEG;
+  od=OUT_DEG;
+  CHANGE_STAT[0] = 0.0;
+  alpha = INPUT_PARAM[0];
   
-  for (i=0; i<ntoggles; i++)
-    {      
-      echange = 
-	(EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
-      hd = od[h] + id[h] + (echange - 1)/2;
-      td = od[t] + id[t] + (echange - 1)/2;
-      *(mtp->dstats) += echange*(exp(-alpha*hd)+exp(-alpha*td)); 
-      if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-    }
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+  FOR_EACH_TOGGLE(i) {
+    echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
+    taild = od[tail] + id[tail] + (echange - 1)/2;
+    headd = od[head] + id[head] + (echange - 1)/2;
+    CHANGE_STAT[0] += echange*(exp(-alpha*taild)+exp(-alpha*headd)); 
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
  changestat: d_gwdegree706
 *****************/
 D_CHANGESTAT_FN(d_gwdegree706)  {
-        /* Slight modification to the parameterization in d_gwdegree */
+  /* Slight modification to the parameterization in d_gwdegree */
   int i, echange=0;
   double decay, oneexpd, change;
-  Vertex h, t, hd, td=0, *id, *od;
+  Vertex tail, head, taild, headd=0, *id, *od;
   
-  id=nwp->indegree;
-  od=nwp->outdegree;
-  decay = mtp->inputparams[0];
+  id=IN_DEG;
+  od=OUT_DEG;
+  decay = INPUT_PARAM[0];
   oneexpd = 1.0-exp(-decay);
   
   change = 0.0;
-  for (i=0; i<ntoggles; i++) {      
-    echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
+  FOR_EACH_TOGGLE(i) {
+    echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
     change += 4.0*echange;
-    hd = od[h] + id[h] + (echange - 1)/2;
-    td = od[t] + id[t] + (echange - 1)/2;
-    if(hd!=0){
-      change -= echange*(1.0-pow(oneexpd,(double)hd));
+    taild = od[tail] + id[tail] + (echange - 1)/2;
+    headd = od[head] + id[head] + (echange - 1)/2;
+    if(taild!=0){
+      change -= echange*(1.0-pow(oneexpd,(double)taild));
     }
-    if(td!=0){
-      change -= echange*(1.0-pow(oneexpd,(double)td));
+    if(headd!=0){
+      change -= echange*(1.0-pow(oneexpd,(double)headd));
     }
-    
-    if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    TOGGLE_IF_MORE_TO_COME(i);
   }
-  *(mtp->dstats) = change;
-  
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+  CHANGE_STAT[0] = change;
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
@@ -878,34 +751,28 @@ D_CHANGESTAT_FN(d_gwdegree706)  {
 D_CHANGESTAT_FN(d_gwdegreealpha)  {
   int i, echange=0;
   double alpha, oneexpa, change;
-  Vertex h, t, hd, td=0, *id, *od;
+  Vertex tail, head, taild, headd=0, *id, *od;
   
-  id=nwp->indegree;
-  od=nwp->outdegree;
+  id=IN_DEG;
+  od=OUT_DEG;
   change = 0.0;
-  alpha = mtp->inputparams[0];
+  alpha = INPUT_PARAM[0];
   oneexpa = 1.0-exp(-alpha);
   
-  for (i=0; i<ntoggles; i++)
-    {      
-      echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
-      hd = od[h] + id[h] + (echange - 1)/2;
-      td = od[t] + id[t] + (echange - 1)/2;
-      if(hd!=0){
-        change += echange*(1.0-pow(oneexpa,(double)hd));
-      }
-      if(td!=0){
-        change += echange*(1.0-pow(oneexpa,(double)td));
-      }
-      
-      if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  FOR_EACH_TOGGLE(i) {
+    echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
+    taild = od[tail] + id[tail] + (echange - 1)/2;
+    headd = od[head] + id[head] + (echange - 1)/2;
+    if(taild!=0){
+      change += echange*(1.0-pow(oneexpa,(double)taild));
     }
-  *(mtp->dstats) = change*exp(alpha);
-  
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    if(headd!=0){
+      change += echange*(1.0-pow(oneexpa,(double)headd));
+    }
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  CHANGE_STAT[0] = change*exp(alpha);
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
@@ -914,36 +781,30 @@ D_CHANGESTAT_FN(d_gwdegreealpha)  {
 D_CHANGESTAT_FN(d_gwdegreelambda)  {
   int i, echange=0;
   double lambda, oneexpl, change;
-  Vertex h, t, hd, td=0, *id, *od;
+  Vertex tail, head, taild, headd=0, *id, *od;
   
-  id=nwp->indegree;
-  od=nwp->outdegree;
-  lambda = mtp->inputparams[0];
+  id=IN_DEG;
+  od=OUT_DEG;
+  lambda = INPUT_PARAM[0];
   oneexpl = 1.0-1.0/lambda;
   
   change = 0.0;
-  for (i=0; i<ntoggles; i++)
-    {      
-      echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
-      change += 4.0*echange;
-      /* The above line may be an error -- should it be 2.0*echange? */
-      hd = od[h] + id[h] + (echange - 1)/2;
-      td = od[t] + id[t] + (echange - 1)/2;
-      if(hd!=0){
-        change -= echange*(1.0-pow(oneexpl,(double)hd));
-      }
-      if(td!=0){
-        change -= echange*(1.0-pow(oneexpl,(double)td));
-      }
-      
-      if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  FOR_EACH_TOGGLE(i) {
+    echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
+    change += 4.0*echange;
+    /* The above line may be an error -- should it be 2.0*echange? */
+    taild = od[tail] + id[tail] + (echange - 1)/2;
+    headd = od[head] + id[head] + (echange - 1)/2;
+    if(taild!=0){
+      change -= echange*(1.0-pow(oneexpl,(double)taild));
     }
-  *(mtp->dstats) = change;
-  
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    if(headd!=0){
+      change -= echange*(1.0-pow(oneexpl,(double)headd));
+    }
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  CHANGE_STAT[0] = change;
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
@@ -952,44 +813,36 @@ D_CHANGESTAT_FN(d_gwdegreelambda)  {
 D_CHANGESTAT_FN(d_gwb2){
   int i, echange=0;
   double alpha, oneexpa, change;
-  Vertex h, t, td=0, *id;
+  Vertex tail, head, headd=0, *id;
   int nb1, nb2;
 
-  nb2 = (int)mtp->inputparams[0];
-  nb1 = nwp->nnodes - nb2;
+  nb2 = (int)INPUT_PARAM[0];
+  nb1 = N_NODES - nb2;
 
-  id=nwp->indegree;
-//od=nwp->outdegree;
+  id=IN_DEG;
+  //od=OUT_DEG;
   change = 0.0;
-  alpha = mtp->inputparams[1];
+  alpha = INPUT_PARAM[1];
   oneexpa = 1.0-exp(-alpha);
   
-  for (i=0; i<ntoggles; i++) 
-    {
-      echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
- //   hd = od[h] + id[t] + (echange - 1)/2;
-      td = id[t] + (echange - 1)/2;
-//      if(hd!=0){
-//        change += echange*(1.0-pow(oneexpa,(double)hd));
-//      }
-      if(td!=0){
-        change += echange*(1.0-pow(oneexpa,(double)td));
-      }
-//Rprintf("h %d t %d td %d echange %d change %f\n", h, t, td, echange,change);
-//  Rprintf(" h %d t %d hd %d echange %d change %f\n", h, t, hd, echange,change);
-//  Rprintf(" od[h] %d id[h] %d od[t] %d id[t] %d\n", od[h], id[h], od[t], id[t]);
-      
-      if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+  FOR_EACH_TOGGLE(i) {
+    echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
+    // taild = od[tail] + id[head] + (echange - 1)/2;
+    headd = id[head] + (echange - 1)/2;
+    // if(taild!=0){
+      // change += echange*(1.0-pow(oneexpa,(double)taild));
+    // }
+    if(headd!=0){
+      change += echange*(1.0-pow(oneexpa,(double)headd));
     }
-
-  *(mtp->dstats) = change*exp(alpha);
-
-//  Rprintf("alpha  %f hd %d td %d change %f\n", alpha, hd, td, *(mtp->dstats));
-  
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    //Rprintf("tail %d head %d headd %d echange %d change %f\n", tail, head, headd, echange,change);
+    // Rprintf(" tail %d head %d taild %d echange %d change %f\n", tail, head, taild, echange,change);
+    // Rprintf(" od[tail] %d id[tail] %d od[head] %d id[head] %d\n", od[tail], id[tail], od[head], id[head]);
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  CHANGE_STAT[0] = change*exp(alpha);  
+  // Rprintf("alpha  %f taild %d headd %d change %f\n", alpha, taild, headd, CHANGE_STAT[0]);
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /********************  changestats:  H    ***********/
@@ -998,45 +851,39 @@ D_CHANGESTAT_FN(d_gwb2){
 *****************/
 D_CHANGESTAT_FN(d_heideriandynamic)  {
   long int nnodes;
-  Vertex h, t;
-  int i, edgeflag, edgeflagth;
-  int edgeflagp, edgeflagthp;
+  Vertex tail, head;
+  int i, edgeflag, edgeflagheadtail;
+  int edgeflagp, edgeflagheadtailp;
   
-  nnodes = ((long int)(mtp->inputparams[0]));
-  *(mtp->dstats) = 0.0;
-  for (i=0; i<ntoggles; i++) 
-    {
-      /*Get the initial edge state*/
-      edgeflag=(EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
-      edgeflagth = (EdgetreeSearch(t, h, nwp->outedges) != 0);
-      /*Get the prior edge state*/
-      edgeflagp  =(int)(mtp->inputparams[1+(h-1)+(t-1)*nnodes]);
-      edgeflagthp=(int)(mtp->inputparams[1+(t-1)+(h-1)*nnodes]);
+  nnodes = ((long int)(INPUT_PARAM[0]));
+  CHANGE_STAT[0] = 0.0;
+  FOR_EACH_TOGGLE(i) {
+    /*Get the initial edge state*/
+    edgeflag=IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
+    edgeflagheadtail = IS_OUTEDGE(head, tail);
+    /*Get the prior edge state*/
+    edgeflagp  =(int)(INPUT_PARAM[1+(tail-1)+(head-1)*nnodes]);
+    edgeflagheadtailp=(int)(INPUT_PARAM[1+(head-1)+(tail-1)*nnodes]);
 
-//      if(edgeflagp != edgeflagthp){
-//        if(edgeflagth!=edgeflag){ *(mtp->dstats) += 1.0; }
-//      }else{
-//        if(edgeflagth==edgeflag){ *(mtp->dstats) -= 1.0; }
-
-      if(edgeflagp != edgeflagthp){
-        if(edgeflag != edgeflagth){ 
-	 *(mtp->dstats) += 1.0;
-        }else{
-         *(mtp->dstats) -= 1.0;
-	}
+    // if(edgeflagp != edgeflagheadtailp){
+      // if(edgeflagheadtail!=edgeflag){ CHANGE_STAT[0] += 1.0; }
+    // }else{
+      // if(edgeflagheadtail==edgeflag){ CHANGE_STAT[0] -= 1.0; }
+    // }      
+    if(edgeflagp != edgeflagheadtailp){
+      if(edgeflag != edgeflagheadtail){ 
+        CHANGE_STAT[0] += 1.0;
+      }else{
+        CHANGE_STAT[0] -= 1.0;
       }
-
-//      Rprintf("h %d t %d edgeflagp %d  edgeflagthp %d edgeflag %d edgeflagth %d dstats %f\n",h,t,edgeflagp,edgeflagthp, edgeflag, edgeflagth,  *(mtp->dstats) );
-      if (i+1 < ntoggles)
-        ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
     }
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
-
-//  *(mtp->dstats) = 0.0;
-//  Rprintf("nedges %d\n", nwp->nedges );
-//  Rprintf("dstats %f\n", *(mtp->dstats) );
+    // Rprintf("tail %d head %d edgeflagp %d  edgeflagheadtailp %d edgeflag %d edgeflagheadtail %d dstats %f\n",tail,head,edgeflagp,edgeflagheadtailp, edgeflag, edgeflagheadtail,  CHANGE_STAT[0] );
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
+  // CHANGE_STAT[0] = 0.0;
+  // Rprintf("nedges %d\n", N_EDGES );
+  // Rprintf("dstats %f\n", CHANGE_STAT[0] );
 }
 
 /*****************
@@ -1044,45 +891,36 @@ D_CHANGESTAT_FN(d_heideriandynamic)  {
 *****************/
 D_CHANGESTAT_FN(d_hiertriad) {
   Edge e;
-  Vertex h, t, node3;
+  Vertex tail, head, node3;
   double pos3;
   int edgeflag, i;
   
-  *(mtp->dstats) = 0.0;
-  for (i=0; i<ntoggles; i++) 
-  {
-    edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
+  CHANGE_STAT[0] = 0.0;
+  FOR_EACH_TOGGLE(i) {
+    edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
     
-//           Rprintf("h %d t %d edgeflag %d\n",h,t, edgeflag);
-    for(e = EdgetreeMinimum(nwp->outedges, t);
-	    (node3 = nwp->outedges[e].value) != 0;
-	    e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of tail */
-    {
-      if (EdgetreeSearch(h, node3, nwp->outedges) != 0){
+    // Rprintf("tail %d head %d edgeflag %d\n",tail,head, edgeflag);
+    STEP_THROUGH_OUTEDGES(head, e, node3) {
+      if (IS_OUTEDGE(tail, node3)){
         pos3 = numposthree (node3, nwp);
-        *(mtp->dstats) -= pos3;
-        ToggleEdge(h, t, nwp);
+        CHANGE_STAT[0] -= pos3;
+        TOGGLE(tail, head);
         pos3 = numposthree (node3, nwp);
-        *(mtp->dstats) += pos3;
-        ToggleEdge(h, t, nwp);
+        CHANGE_STAT[0] += pos3;
+        TOGGLE(tail, head);
       }
     }
     
-    pos3 = numposthree (t, nwp);
-    *(mtp->dstats) -= pos3;
-    ToggleEdge(h, t, nwp);
-    pos3 = numposthree (t, nwp);
-    *(mtp->dstats) += pos3;
-    ToggleEdge(h, t, nwp);
-// Rprintf("h %d t %d pos3 %f ideg %d\n",h,t, pos3, ideg);
-
-    if (i+1 < ntoggles) 
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    pos3 = numposthree (head, nwp);
+    CHANGE_STAT[0] -= pos3;
+    TOGGLE(tail, head);
+    pos3 = numposthree (head, nwp);
+    CHANGE_STAT[0] += pos3;
+    TOGGLE(tail, head);
+    // Rprintf("tail %d head %d pos3 %f ideg %d\n",tail,head, pos3, ideg);
+    TOGGLE_IF_MORE_TO_COME(i);
   }
-  
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
@@ -1090,73 +928,59 @@ D_CHANGESTAT_FN(d_hiertriad) {
 *****************/
 D_CHANGESTAT_FN(d_hiertriaddegree) {
   Edge e;
-  Vertex h, t, node3, ideg;
+  Vertex tail, head, node3, ideg;
   double pos3;
   int edgeflag, i;
   
-  *(mtp->dstats) = 0.0;
-  for (i=0; i<ntoggles; i++) 
-  {
-    edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
+  CHANGE_STAT[0] = 0.0;
+  FOR_EACH_TOGGLE(i) {
+    edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
     
-//           Rprintf("h %d t %d edgeflag %d\n",h,t, edgeflag);
-    for(e = EdgetreeMinimum(nwp->outedges, t);
-	    (node3 = nwp->outedges[e].value) != 0;
-	    e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of tail */
-    {
-      if (EdgetreeSearch(h, node3, nwp->outedges) != 0){
-        ideg = nwp->indegree[node3];
+    // Rprintf("tail %d head %d edgeflag %d\n",tail,head, edgeflag);
+    STEP_THROUGH_OUTEDGES(head, e, node3) {
+      if (IS_OUTEDGE(tail, node3)){
+        ideg = IN_DEG[node3];
         pos3 = numposthree (node3, nwp);
-        *(mtp->dstats) -= pos3*ideg;
-        ToggleEdge(h, t, nwp);
-        ideg = nwp->indegree[node3];
+        CHANGE_STAT[0] -= pos3*ideg;
+        TOGGLE(tail, head);
+        ideg = IN_DEG[node3];
         pos3 = numposthree (node3, nwp);
-        *(mtp->dstats) += pos3*ideg;
-        ToggleEdge(h, t, nwp);
+        CHANGE_STAT[0] += pos3*ideg;
+        TOGGLE(tail, head);
       }
     }
     
-    ideg = nwp->indegree[t];
-    pos3 = numposthree (t, nwp);
-    *(mtp->dstats) -= pos3*ideg;
-    ToggleEdge(h, t, nwp);
-    ideg = nwp->indegree[t];
-    pos3 = numposthree (t, nwp);
-    *(mtp->dstats) += pos3*ideg;
-    ToggleEdge(h, t, nwp);
-// Rprintf("h %d t %d pos3 %f ideg %d\n",h,t, pos3, ideg);
-
-    if (i+1 < ntoggles) 
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    ideg = IN_DEG[head];
+    pos3 = numposthree (head, nwp);
+    CHANGE_STAT[0] -= pos3*ideg;
+    TOGGLE(tail, head);
+    ideg = IN_DEG[head];
+    pos3 = numposthree (head, nwp);
+    CHANGE_STAT[0] += pos3*ideg;
+    TOGGLE(tail, head);    
+    // Rprintf("tail %d head %d pos3 %f ideg %d\n",tail,head, pos3, ideg);
+    TOGGLE_IF_MORE_TO_COME(i);
   }
-  
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
   numposthree:  called by d_hiertriad*
 *****************/
-double numposthree (Vertex t, Network *nwp) {
+double numposthree (Vertex head, Network *nwp) {
   Edge e, f;
   Vertex pos, node2, node3;
   double dpos;
   
   pos = 0;
-  for(e = EdgetreeMinimum(nwp->inedges, t); 
-   (node2 = nwp->inedges[e].value) != 0;
-    e = EdgetreeSuccessor(nwp->inedges, e)) /* step through inedges of tail */
-    {
-     for(f = EdgetreeMinimum(nwp->inedges, node2); 
-	    (node3 = nwp->inedges[f].value) != 0;
-	    f = EdgetreeSuccessor(nwp->inedges, f)) /* step through inedges of node2 */
-      { if (EdgetreeSearch(node3, t, nwp->outedges) != 0){++pos;} }
-     for(f = EdgetreeMinimum(nwp->outedges, node2); 
-	    (node3 = nwp->outedges[f].value) != 0;
-	    f = EdgetreeSuccessor(nwp->outedges, f)) /* step through inedges of node2 */
-      { if (EdgetreeSearch(node3, t, nwp->outedges) != 0){++pos;} }
+  STEP_THROUGH_INEDGES(head, e, node2) {
+    STEP_THROUGH_INEDGES(node2, f, node3) {
+      if (IS_OUTEDGE(node3, head)) {++pos;} 
     }
+    STEP_THROUGH_INEDGES(node2, f, node3) {
+      if (IS_OUTEDGE(node3, head)) {++pos;} 
+    }
+  }
   dpos = pos / 2.0;
   return dpos;
 }
@@ -1167,32 +991,26 @@ double numposthree (Vertex t, Network *nwp) {
 *****************/
 D_CHANGESTAT_FN(d_icvar)  {
   int i, edgeflag, ichange, change;
-  Vertex nnodes, h, t, *id;
+  Vertex nnodes, tail, head, *id;
   
-  id=nwp->indegree;
-  nnodes = nwp->nnodes;
+  id=IN_DEG;
+  nnodes = N_NODES;
   
   change = 0;
-  for (i=0; i<ntoggles; i++)
-    {      
-      edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
+  FOR_EACH_TOGGLE(i) {
+      edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
       if(edgeflag){
-        ichange = -(2*(nnodes*(id[t]-1) - nwp->nedges+1) + nnodes - 1);
+        ichange = -(2*(nnodes*(id[head]-1) - N_EDGES+1) + nnodes - 1);
       }else{
-        ichange =   2*(nnodes* id[t]    - nwp->nedges  ) + nnodes - 1;
+        ichange =   2*(nnodes* id[head]    - N_EDGES  ) + nnodes - 1;
       }
-//   Rprintf("h %d t %d nnodes %d  nwp->nedges %d id[t] %d  ic %d\n",h,t, nnodes,  nwp->nedges, id[t], ichange);
-//      change += edgeflag ? (-ichange) : ichange;
+      // Rprintf("tail %d head %d nnodes %d  N_EDGES %d id[head] %d  ic %d\n",tail,head, nnodes,  N_EDGES, id[head], ichange);
+      // change += edgeflag ? (-ichange) : ichange;
       change += ichange;
-      
-      if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-    }
-  *(mtp->dstats) = change*1.0/(nnodes*(nnodes-1));
-  
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+      TOGGLE_IF_MORE_TO_COME(i);
+  }
+  CHANGE_STAT[0] = change*1.0/(nnodes*(nnodes-1));
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
@@ -1201,43 +1019,37 @@ D_CHANGESTAT_FN(d_icvar)  {
 D_CHANGESTAT_FN(d_idc)  {
   int i, edgeflag, ichange, change;
   Vertex k, nnodes, maxidegree0, maxidegree1;
-  Vertex h, t, *id;
+  Vertex tail, head, *id;
   
-  id=nwp->indegree;
-  nnodes = nwp->nnodes;
+  id=IN_DEG;
+  nnodes = N_NODES;
   
   change = 0;
-  for (i=0; i<ntoggles; i++)
-    {      
-      edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
+  FOR_EACH_TOGGLE(i) {
+      edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
       if(edgeflag){
-	maxidegree0 = id[t];
-	maxidegree1 = id[t]-1;
+        maxidegree0 = id[head];
+        maxidegree1 = id[head]-1;
         for (k=1; k<=nnodes; k++){
-	 if(id[k] > maxidegree0) {maxidegree0=id[k];}
-	 if(k != t && id[k] > maxidegree1) {maxidegree1=id[k];}
-	}
+          if(id[k] > maxidegree0) {maxidegree0=id[k];}
+          if(k != head && id[k] > maxidegree1) {maxidegree1=id[k];}
+        }
         ichange = nnodes*(maxidegree1-maxidegree0) + 1;
       }else{
-	maxidegree0 = 0;
-	maxidegree1 = id[t]+1;
+        maxidegree0 = 0;
+        maxidegree1 = id[head]+1;
         for (k=1; k<=nnodes; k++){
-	 if(id[k] > maxidegree0) {maxidegree0=id[k];}
-	 if(id[k] > maxidegree1) {maxidegree1=id[k];}
-	}
+          if(id[k] > maxidegree0) {maxidegree0=id[k];}
+          if(id[k] > maxidegree1) {maxidegree1=id[k];}
+        }
         ichange = nnodes*(maxidegree1-maxidegree0) - 1;
       }
-//   Rprintf("h %d t %d nnodes %d  nwp->nedges %d id[t] %d  ic %d\n",h,t, nnodes,  nwp->nedges, id[t], ichange);
+      // Rprintf("tail %d head %d nnodes %d  N_EDGES %d id[head] %d  ic %d\n",tail,head, nnodes,  N_EDGES, id[head], ichange);
       change += ichange;
-      
-      if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-    }
-  *(mtp->dstats) = change*1.0/((nnodes-1)*(nnodes-1));
-  
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+      TOGGLE_IF_MORE_TO_COME(i);
+  }
+  CHANGE_STAT[0] = change*1.0/((nnodes-1)*(nnodes-1));
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
@@ -1246,341 +1058,276 @@ D_CHANGESTAT_FN(d_idc)  {
 D_CHANGESTAT_FN(d_intransitivedynamic)  {
   Edge e;
   long int nnodes;
-  Vertex h, t, node3;
+  Vertex tail, head, node3;
   double change;
   int i, edgeflag;
   
-  nnodes = ((long int)(mtp->inputparams[0]));
-  *(mtp->dstats) = 0.0;
-  for (i=0; i<ntoggles; i++) 
-    {
-    edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
+  nnodes = ((long int)(INPUT_PARAM[0]));
+  CHANGE_STAT[0] = 0.0;
+  FOR_EACH_TOGGLE(i) {
+    edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
     change = 0.0;
-    
-    for(e = EdgetreeMinimum(nwp->outedges, t);
-	    (node3 = nwp->outedges[e].value) != 0;
-	    e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of tail */
-    {
-      if (node3 != h){
-       if (EdgetreeSearch(h, node3, nwp->outedges) == 0){
-       /* So form a h -> t -> node3 intransitive triad */
-       /* Check to see if a prior intransitive triad existed */
-         if( mtp->inputparams[1+(h-1)+(t-1)*nnodes]==1 &&
-          mtp->inputparams[1+(t-1)+(node3-1)*nnodes]==1 &&
-          mtp->inputparams[1+(h-1)+(node3-1)*nnodes]==0
-	 ){
-//           Rprintf("h %d t %d node3 %d nnodes %d\n",h,t, node3, nnodes);
-          change = change - 1.0;
-	 }
-       }
+    STEP_THROUGH_OUTEDGES(head, e, node3) {
+      if (node3 != tail){
+        if (!IS_OUTEDGE(tail, node3)) {
+          /* So form a tail -> head -> node3 intransitive triad */
+          /* Check to see if a prior intransitive triad existed */
+          if( INPUT_PARAM[1+(tail-1)+(head-1)*nnodes]==1 &&
+            INPUT_PARAM[1+(head-1)+(node3-1)*nnodes]==1 &&
+          INPUT_PARAM[1+(tail-1)+(node3-1)*nnodes]==0) {
+            // Rprintf("tail %d head %d node3 %d nnodes %d\n",tail,head, node3, nnodes);
+            change = change - 1.0;
+          }
+        }
       }
     }
-    for(e = EdgetreeMinimum(nwp->inedges, t);
-	    (node3 = nwp->inedges[e].value) != 0;
-	    e = EdgetreeSuccessor(nwp->inedges, e)) /* step through inedges of tail */
-    {
-      if (node3 != h){
-       if (EdgetreeSearch(h, node3, nwp->outedges) != 0){
-       /* So dissolve a h -> node3 -> t intransitive triad */
-       /*Check to see if a prior intransitive triad existed */
-         if( mtp->inputparams[1+(h-1)+(t-1)*nnodes]==0 &&
-          mtp->inputparams[1+(h-1)+(node3-1)*nnodes]==1 &&
-          mtp->inputparams[1+(node3-1)+(t-1)*nnodes]==1
-	 ){
-          change = change + 1.0;
-	 }
-       }
+    STEP_THROUGH_INEDGES(head, e, node3) {
+      if (node3 != tail){
+        if (IS_OUTEDGE(tail, node3)){
+          /* So dissolve a tail -> node3 -> head intransitive triad */
+          /*Check to see if a prior intransitive triad existed */
+          if( INPUT_PARAM[1+(tail-1)+(head-1)*nnodes]==0 &&
+            INPUT_PARAM[1+(tail-1)+(node3-1)*nnodes]==1 &&
+          INPUT_PARAM[1+(node3-1)+(head-1)*nnodes]==1){
+            change = change + 1.0;
+          }
+        }
       }
     }
-    for(e = EdgetreeMinimum(nwp->inedges, h);
-	    (node3 = nwp->inedges[e].value) != 0;
-	    e = EdgetreeSuccessor(nwp->inedges, e)) /* step through inedges of hail */
-    {
-      if (node3 != t){
-       if (EdgetreeSearch(node3, t, nwp->outedges) == 0){
-       /* So form a node3 -> h -> t intransitive triad */
-       /*Check to see if a prior intransitive triad existed */
-         if( mtp->inputparams[1+(h-1)+(t-1)*nnodes]==1 &&
-          mtp->inputparams[1+(node3-1)+(h-1)*nnodes]==1 &&
-          mtp->inputparams[1+(node3-1)+(t-1)*nnodes]==0
-	 ){
-          change = change - 1.0;
-	 }
-       }
+    STEP_THROUGH_INEDGES(tail, e, node3) {
+      if (node3 != head){
+        if (IS_OUTEDGE(node3, head)) {
+          /* So form a node3 -> tail -> head intransitive triad */
+          /*Check to see if a prior intransitive triad existed */
+          if( INPUT_PARAM[1+(tail-1)+(head-1)*nnodes]==1 &&
+            INPUT_PARAM[1+(node3-1)+(tail-1)*nnodes]==1 &&
+          INPUT_PARAM[1+(node3-1)+(head-1)*nnodes]==0) {
+            change = change - 1.0;
+          }
+        }
       }
     }
-    
-    *(mtp->dstats) += edgeflag ? -change : change;
-//  Rprintf("h %d t %d edgeflag %d change %f\n",h,t, edgeflag, change);
-      if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-    }
-
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    CHANGE_STAT[0] += edgeflag ? -change : change;
+    // Rprintf("tail %d head %d edgeflag %d change %f\n",tail,head, edgeflag, change);
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
  changestat: d_intransitivity
 *****************/
-D_CHANGESTAT_FN(d_intransitivity) 
-{
+D_CHANGESTAT_FN(d_intransitivity) {
   int i, edgeflag, a, b, c, d, e, edgecount, t300, 
   t210, t120C, t120U, t120D, t201, t030C, t030T, t111U, 
   t111D, t021C, t021U, t021D, t102, t012, t003;
-  Vertex node3, h, t;
+  Vertex node3, tail, head;
 
-  *(mtp->dstats) = 0.0;
-
+  CHANGE_STAT[0] = 0.0;
   if (nwp->directed_flag) {
-// directed version
-   for (i=0; i<ntoggles; i++) 
-    {      
-      edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
+    // directed version
+    FOR_EACH_TOGGLE(i) {
+      edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
       t300 = 0;
       t210 = 0;
       t120C = 0;  t120U = 0;   t120D = 0;  t201 = 0;
       t030C = 0;  t030T = 0;   t111U = 0;  t111D = 0;
       t021C = 0;  t021U = 0;   t021D = 0;  t102 = 0;
       t012 = 0;
-
-      if ((EdgetreeMinimum(nwp->outedges, t) != 0) || 
-          (EdgetreeMinimum(nwp->inedges, t) != 0) || 
-          (EdgetreeMinimum(nwp->outedges, h) != 0) ||
-          (EdgetreeMinimum(nwp->inedges, h) != 0)) {      
-
-          /* ****** loop through node3 ****** */
-          for (node3=1; node3 <= nwp->nnodes; node3++)
-             { 
-             if (node3 != h && node3 != t)
-               {   
-               a = (EdgetreeSearch(t, h, nwp->outedges) != 0); 
-               b = (EdgetreeSearch(t, node3, nwp->outedges) != 0);
-               c = (EdgetreeSearch(node3, t, nwp->outedges) != 0);
-               d = (EdgetreeSearch(node3, h, nwp->outedges) != 0);
-               e = (EdgetreeSearch(h, node3, nwp->outedges) != 0);
-               edgecount = (a + b + c + d + e);
-
-               switch(edgecount)
-               {  
-               case 0:   /* 012 */
-                 ++t012;
-
-               case 1:   /* 021C, 021U, 021D, 102 */
-                 {
-                     if ((b == 1) || (d == 1))
-                       ++t021C;
-                     if (c == 1)
-                       ++t021U;
-                     if (e == 1)
-                       ++t021D;
-                     if (a == 1)
-                       ++t102;
-                 }
-                 break;
-          
-               case 2:   /* 030C, 030T, 111U, 111D */
-                 {
-                     if ((b + d) == 2)       
-                       ++t030C;
-                     if (((b + e) == 2) || ((c + d) == 2) || ((c + e) == 2))
-                       ++t030T;
-                     if (((a + b) == 2) || ((a + e) == 2) || ((d + e) == 2))
-                       ++t111U;
-                     if (((a + c) == 2) || ((a + d) == 2) || ((b + c) == 2))
-                       ++t111D;
-                 }
-                 break;
+      
+      if (MIN_OUTEDGE(head) != 0 || MIN_INEDGE(head) != 0 ||
+      MIN_OUTEDGE(tail) != 0 || MIN_INEDGE(tail) != 0) {
+        
+        /* ****** loop through node3 ****** */
+        for (node3=1; node3 <= N_NODES; node3++) { 
+          if (node3 != tail && node3 != head) {
+            a = IS_OUTEDGE(head, tail); 
+            b = IS_OUTEDGE(head, node3);
+            c = IS_OUTEDGE(node3, head);
+            d = IS_OUTEDGE(node3, tail);
+            e = IS_OUTEDGE(tail, node3);
+            edgecount = (a + b + c + d + e);
             
-               case 3:   /* 120C, 120U, 120D, 201 */
-                 {
-                     if (a == 1)
-                         {
-                            if (((b + d) == 2) || ((c + e) == 2))
-                              ++t120C;
-                            if ((b + e) == 2)
-                              ++t120U;
-                            if ((c + d) == 2)
-                              ++t120D;
-                            if (((b + c) == 2) || ((d + e) == 2))
-                              ++t201;
-                         }
-                     else 
-                         {
-                            if (b == 1)
-                                {
-                                    if (((c + d) == 2) || ((d + e) == 2))
-                                      ++t120C;
-                                    if ((c + e) == 2)
-                                      ++t120D;
-                                } 
-                            else 
-                                {
-                                    ++t120U;
-                                }
-                         } 
-                 }
-                 break;
-             
-               case 4:   /* 210 */
-                 ++t210;
-                 break;
-             
-               case 5:   /* 300 */            
-                 ++t300;
-                 break;
-               }
+            switch(edgecount) {  
+              case 0:   /* 012 */
+              ++t012;
 
-               switch(edgecount)
-               {  
-               case 1:   /* 102, 021D, 021U, 021C */
-                 --t012;
-                 break;
-           
-               case 2:   /* 030C, 030T, 111U, 111D */ 
-                 {
-                     if (((a + c) == 2) || ((a + e) == 2) || ((b + d) == 2) || 
-                        ((c + e) == 2)) 
-                       --t021C;
-                     if (((a + d) == 2) || ((b + e) == 2))
-                       --t021U;
-                     if (((a + b) == 2) || ((c + d) == 2))
-                       --t021D;
-                     if (((b + c) == 2) || ((d + e) == 2))
-                       --t102;
-                 } 
-                 break;
-
-               case 3:   /* 201, 120D, 120U, 120C */
-                 {
-                     if (a == 1)
-	    	           {
-	    	           if ((c + e) == 2)       
-                             --t030C;
-                           if (((c + d) == 2) || ((b + e) == 2) || ((b + d) == 2))
-                             --t030T;
-                           if ((b + c) == 2)
-                             --t111U;
-                           if ((d + e) == 2)
-	                      --t111D;
-	 	               }
- 		             else
- 		               {
- 		                   if (b == 1)
- 		 	                 {
- 		 	                   if ((c + d) == 2)
- 			                     --t111U;
- 			                   if (((c + e) == 2) || ((d + e) == 2))
-			                     --t111D;
- 		 	                 }
-    	    	                   else
-		    	                 --t111U;
-    		               }
-                   }
-                   break;
-          
-               case 4:   /* 210 */
-                 {
-                     if (a == 1)
-                         {
-                            if (((b + c + e) == 3) || ((c + d + e) == 3))
-                              --t120C;
-                            if ((b + c + d) == 3)
-                              --t120U;
-                            if ((b + d + e) == 3)
-                              --t120D;
-                         }
-                     else 
-                         {
-                            if ((b + c + d + e) == 4)
-                              --t201;
-                         } 
-                 }
-                 break;
+              case 1:  { /* 021C, 021U, 021D, 102 */
+                if ((b == 1) || (d == 1))
+                  ++t021C;
+                if (c == 1)
+                  ++t021U;
+                if (e == 1)
+                  ++t021D;
+                if (a == 1)
+                  ++t102;
+              }
+              break;
               
-               case 5:   /* 300 */            
-                 --t210;
-                 break;
-               }
-               }
-             }    /* ******  move to next node3 ******** */
-        }
-        else 
-          t012 = t012 + (nwp->nnodes - 2);  
+              case 2: {   /* 030C, 030T, 111U, 111D */
+                if ((b + d) == 2)       
+                  ++t030C;
+                if (((b + e) == 2) || ((c + d) == 2) || ((c + e) == 2))
+                  ++t030T;
+                if (((a + b) == 2) || ((a + e) == 2) || ((d + e) == 2))
+                  ++t111U;
+                if (((a + c) == 2) || ((a + d) == 2) || ((b + c) == 2))
+                  ++t111D;
+              }
+              break;
+              
+              case 3: {  /* 120C, 120U, 120D, 201 */
+                if (a == 1) {
+                  if (((b + d) == 2) || ((c + e) == 2))
+                    ++t120C;
+                  if ((b + e) == 2)
+                    ++t120U;
+                  if ((c + d) == 2)
+                    ++t120D;
+                  if (((b + c) == 2) || ((d + e) == 2))
+                    ++t201;
+                } else {
+                  if (b == 1) {
+                    if (((c + d) == 2) || ((d + e) == 2))
+                      ++t120C;
+                    if ((c + e) == 2)
+                      ++t120D;
+                  } else {
+                    ++t120U;
+                  }
+                } 
+              }
+              break;
+              
+              case 4:   /* 210 */
+              ++t210;
+              break;
+              
+              case 5:   /* 300 */            
+              ++t300;
+              break;
+            }
 
-//        t003 = -(t300+t210+t120C+t120U+t120D+t201+t030C+t030T);
-//        t003 = t003-(t111U+t111D+t021C+t021U+t021D+t102+t012);
-	b = t021C+t030C+t111D+t111U+t120C+t201+t210;
-	*(mtp->dstats) += edgeflag ? -(double)b : (double)b;
-
-      if (i+1 < ntoggles)
-	  ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */ 
+            switch(edgecount) {  
+              case 1:   /* 102, 021D, 021U, 021C */
+              --t012;
+              break;
+              
+              case 2:  { /* 030C, 030T, 111U, 111D */ 
+                if (((a + c) == 2) || ((a + e) == 2) || ((b + d) == 2) || 
+                  ((c + e) == 2)) 
+                --t021C;
+                if (((a + d) == 2) || ((b + e) == 2))
+                  --t021U;
+                if (((a + b) == 2) || ((c + d) == 2))
+                  --t021D;
+                if (((b + c) == 2) || ((d + e) == 2))
+                  --t102;
+              } 
+              break;
+              
+              case 3: {  /* 201, 120D, 120U, 120C */
+                if (a == 1)
+                {
+                  if ((c + e) == 2)       
+                    --t030C;
+                  if (((c + d) == 2) || ((b + e) == 2) || ((b + d) == 2))
+                    --t030T;
+                  if ((b + c) == 2)
+                    --t111U;
+                  if ((d + e) == 2)
+                    --t111D;
+                } else {
+                  if (b == 1) {
+                    if ((c + d) == 2)
+                      --t111U;
+                    if (((c + e) == 2) || ((d + e) == 2))
+                      --t111D;
+                  } else
+                  --t111U;
+                }
+              }
+              break;
+          
+              case 4: {  /* 210 */
+                if (a == 1) {
+                  if (((b + c + e) == 3) || ((c + d + e) == 3))
+                    --t120C;
+                  if ((b + c + d) == 3)
+                    --t120U;
+                  if ((b + d + e) == 3)
+                    --t120D;
+                } else {
+                  if ((b + c + d + e) == 4)
+                    --t201;
+                } 
+              }
+              break;
+              
+              case 5:   /* 300 */            
+              --t210;
+              break;
+            }
+          }
+        }    /* ******  move to next node3 ******** */
+      }
+      else 
+        t012 = t012 + (N_NODES - 2);  
+      
+      // t003 = -(t300+t210+t120C+t120U+t120D+t201+t030C+t030T);
+      // t003 = t003-(t111U+t111D+t021C+t021U+t021D+t102+t012);
+      b = t021C+t030C+t111D+t111U+t120C+t201+t210;
+      CHANGE_STAT[0] += edgeflag ? -(double)b : (double)b;
+      TOGGLE_IF_MORE_TO_COME(i);
     }
-    }else{
-//  undirected
-    for (i=0; i<ntoggles; i++) 
-     {      
-      edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
+  }else{
+    // undirected
+    FOR_EACH_TOGGLE(i) {
+      edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
       t300 = 0; t201 = 0; t102 = 0; t012 = 0;
 
-      if ((EdgetreeMinimum(nwp->outedges, t) != 0) || 
-          (EdgetreeMinimum(nwp->inedges, t) != 0) || 
-          (EdgetreeMinimum(nwp->outedges, h) != 0) ||
-          (EdgetreeMinimum(nwp->inedges, h) != 0)) {      
-
-          /* ****** loop through node3 ****** */
-          for (node3=1; node3 <= nwp->nnodes; node3++)
-             { 
-             if (node3 != h && node3 != t)
-               {   
-               a = (EdgetreeSearch(MIN(node3,t), MAX(node3,t), nwp->outedges) != 0);
-               b = (EdgetreeSearch(MIN(node3,h), MAX(node3,h), nwp->outedges) != 0);
-               edgecount = (a + b);
-
-               switch(edgecount)
-               {  
-               case 0:   /* 012 */
-		{
-                 ++t102;
-                 --t012;
-		}
-                break;
-
-               case 1:   /* 021C, 021U, 021D, 102 */
-		{
-                 ++t201;
-                 --t102;
-		}
-                break;
-          
-               case 2:   /* 030C, 030T, 111U, 111D */
-		{
-                 ++t300;
-                 --t201;
-		}
-                break;
+      if (MIN_OUTEDGE(head) != 0 || MIN_INEDGE(head) != 0 ||
+      MIN_OUTEDGE(tail) != 0 || MIN_INEDGE(tail) != 0 ) {
+        
+        /* ****** loop through node3 ****** */
+        for (node3=1; node3 <= N_NODES; node3++) { 
+          if (node3 != tail && node3 != head) {
+            a = IS_OUTEDGE(MIN(node3,head), MAX(node3,head));
+            b = IS_OUTEDGE(MIN(node3,tail), MAX(node3,tail));
+            edgecount = (a + b);
             
-               }
-	       }
-
-             }    /* ******  move to next node3 ******** */
-        }
-        else 
-          t102 = t102 + (nwp->nnodes - 2);  
-
-        t003 = -(t102+t201+t300);
-	b = t300; 
-	*(mtp->dstats) += edgeflag ? -(double)b : (double)b;
-  
-     if (i+1 < ntoggles)
-	  ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */ 
-     } // i loop
-    }
-    
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+            switch(edgecount) {
+              case 0: {  /* 012 */
+                ++t102;
+                --t012;
+              }
+              break;
+              
+              case 1: {  /* 021C, 021U, 021D, 102 */
+                ++t201;
+                --t102;
+              }
+              break;
+              
+              case 2:  { /* 030C, 030T, 111U, 111D */
+                ++t300;
+                --t201;
+              }
+              break;
+              
+            }
+          }  
+        }    /* ******  move to next node3 ******** */
+      } else 
+      t102 = t102 + (N_NODES - 2);  
+      
+      t003 = -(t102+t201+t300);
+      b = t300;
+      CHANGE_STAT[0] += edgeflag ? -(double)b : (double)b;
+      TOGGLE_IF_MORE_TO_COME(i);
+    } // i loop
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /********************  changestats:  K    ***********/
@@ -1590,37 +1337,32 @@ D_CHANGESTAT_FN(d_intransitivity)
 D_CHANGESTAT_FN(d_kappa)  {
   int i, j, echange=0;
   double nedges, change, ir0, fr0;
-  Vertex h, t, hd, td=0, ik2, fk2, nnodes, *id, *od;
+  Vertex tail, head, taild, headd=0, ik2, fk2, nnodes, *id, *od;
   
-  id=nwp->indegree;
-  od=nwp->outdegree;
-  nnodes = nwp->nnodes;
+  id=IN_DEG;
+  od=OUT_DEG;
+  nnodes = N_NODES;
   
   change = 0.0;
-  for (i=0; i<ntoggles; i++) {      
-    echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
+  FOR_EACH_TOGGLE(i) {
+    echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
     ik2=0;
     for (j=1; j<=nnodes; j++) {      
       fk2 = od[j] + id[j];
       ik2 += fk2*(fk2-1);
     }
-    hd = od[h] + id[h] + (echange-1)/2;
-    td = od[t] + id[t] + (echange-1)/2;
-    fk2 = ik2 + echange*2*(hd+td);
-    nedges = (double)(nwp->nedges);
-    ir0 = (nwp->nedges==0) ? 0.0 : (ik2*0.5/nedges);
-    fr0 = (((nwp->nedges)+echange)==0) ? 0.0 : (fk2*0.5/(nedges+echange));
+    taild = od[tail] + id[tail] + (echange-1)/2;
+    headd = od[head] + id[head] + (echange-1)/2;
+    fk2 = ik2 + echange*2*(taild+headd);
+    nedges = (double)(N_EDGES);
+    ir0 = (N_EDGES==0) ? 0.0 : (ik2*0.5/nedges);
+    fr0 = (((N_EDGES)+echange)==0) ? 0.0 : (fk2*0.5/(nedges+echange));
     change += fr0 - ir0;
-//   Rprintf("h %d t %d nnodes %d nedges %f ik2 %d fk2 %d ir0 %f fr0 %f change %f\n",h,t, nnodes,  nedges, ik2, fk2, ir0, fr0, change);
-      
-    if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    // Rprintf("tail %d head %d nnodes %d nedges %f ik2 %d fk2 %d ir0 %f fr0 %f change %f\n",tail,head, nnodes,  nedges, ik2, fk2, ir0, fr0, change);
+    TOGGLE_IF_MORE_TO_COME(i);
   }
-  *(mtp->dstats) = change;
-  
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+  CHANGE_STAT[0] = change;
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
@@ -1631,25 +1373,25 @@ D_CHANGESTAT_FN(d_kappa)  {
 D_CHANGESTAT_FN(d_monopolymixmat) {
   int edgeflag, i;
   Edge e;
-  Vertex h, t, Fdeg, Mdeg, otherF, otherM;
+  Vertex tail, head, Fdeg, Mdeg, otherF, otherM;
   /* m/p means monogamous/polygamous; F/M means female/male */
   int mFmM, mFpM, pFmM;   
   /* NB: pFpM would be redundant since the total of all 4 is #edges */
-  Vertex *od=nwp->outdegree, *id=nwp->indegree;
+  Vertex *od=OUT_DEG, *id=IN_DEG;
 
-  mtp->dstats[0] = mtp->dstats[1] = mtp->dstats[2] = 0.0;
-  for (i=0; i < ntoggles; i++) {
-    edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
-    Fdeg = od[h];
-    Mdeg = id[t];
+  CHANGE_STAT[0] = CHANGE_STAT[1] = CHANGE_STAT[2] = 0.0;
+  FOR_EACH_TOGGLE(i) {
+    edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
+    Fdeg = od[tail];
+    Mdeg = id[head];
     /* Calculate contribution from change of (F,M) edge only */
     mFmM = (Fdeg==0 && Mdeg==0) - (Fdeg==1 && Mdeg==1 && edgeflag);
     mFpM = (Fdeg==0 && Mdeg>0) - (Fdeg==1 && Mdeg>1 && edgeflag); 
     pFmM = (Mdeg==0 && Fdeg>0) - (Mdeg==1 && Fdeg>1 && edgeflag);
     /* Now calculate contribution from other partners of F or M */
     if(Fdeg - edgeflag == 1) {/* Only case that concerns us */
-      for(e = EdgetreeMinimum(nwp->outedges, h);
-      (otherM = nwp->outedges[e].value) != 0 && otherM == t;
+      for(e = EdgetreeMinimum(nwp->outedges, tail);
+      (otherM = nwp->outedges[e].value) != 0 && otherM == head;
       e = EdgetreeSuccessor(nwp->outedges, e)); /* This finds otherM */
       if (id[otherM] > 1) {
         mFpM += (Fdeg==1 ? -1 : 1);
@@ -1659,8 +1401,8 @@ D_CHANGESTAT_FN(d_monopolymixmat) {
       }
     }
     if(Mdeg - edgeflag == 1) {/* Similarly for Mdeg */
-      for(e = EdgetreeMinimum(nwp->inedges, t);
-      (otherF = nwp->inedges[e].value) != 0 && otherF == h;
+      for(e = EdgetreeMinimum(nwp->inedges, head);
+      (otherF = nwp->inedges[e].value) != 0 && otherF == tail;
       e = EdgetreeSuccessor(nwp->inedges, e)); /* This finds otherF */
       if (od[otherF] > 1) { /* otherF is poly */
         pFmM += (Mdeg==1 ? -1 : 1);
@@ -1669,15 +1411,12 @@ D_CHANGESTAT_FN(d_monopolymixmat) {
         mFpM += (Mdeg==1 ? 1 : -1);
       }
     }
-    mtp->dstats[0] += (double) mFmM;
-    mtp->dstats[1] += (double) mFpM;
-    mtp->dstats[2] += (double) pFmM;    
-    if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    CHANGE_STAT[0] += (double) mFmM;
+    CHANGE_STAT[1] += (double) mFpM;
+    CHANGE_STAT[2] += (double) pFmM;    
+    TOGGLE_IF_MORE_TO_COME(i);
   }
-  i--; 
-  while (--i >= 0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /********************  changestats:  L    ***********/
@@ -1697,87 +1436,67 @@ D_CHANGESTAT_FN(d_monopolymixmat) {
 D_CHANGESTAT_FN(d_simmeliandynamic)  {
   Edge e;
   long int nnodes;
-  Vertex h, t, node3, change;
-  int i, edgeflag, edgeflagth;
+  Vertex tail, head, node3, change;
+  int i, edgeflag, edgeflagheadtail;
   
-  nnodes = ((long int)(mtp->inputparams[0]));
-  *(mtp->dstats) = 0.0;
-  for (i=0; i<ntoggles; i++) 
-    {
-      /*Get the initial edge state*/
-      edgeflag=(EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
-      edgeflagth = (EdgetreeSearch(t, h, nwp->outedges) == 0);
-
-      if(!edgeflagth){
-       /*Check to see if this will form a Simmelian */
-       change = 0;
-   
-       for(e = EdgetreeMinimum(nwp->outedges, t);
-           (node3 = nwp->outedges[e].value) != 0;
-           e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of tail */
-       {
-         if (EdgetreeSearch(node3, h, nwp->outedges) != 0 
-          && EdgetreeSearch(h, node3, nwp->outedges) != 0 
-          && EdgetreeSearch(node3, t, nwp->outedges) != 0 
-            ){
-          /*So this will form a h,t,node3 Simmelian */
+  nnodes = ((long int)(INPUT_PARAM[0]));
+  CHANGE_STAT[0] = 0.0;
+  FOR_EACH_TOGGLE(i) {
+    /*Get the initial edge state*/
+    edgeflag=IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
+    edgeflagheadtail =  !IS_OUTEDGE(head, tail);
+    
+    if(!edgeflagheadtail){
+      /*Check to see if this will form a Simmelian */
+      change = 0;
+      STEP_THROUGH_OUTEDGES(head, e, node3) {
+        if (IS_OUTEDGE(node3, tail) 
+          && IS_OUTEDGE(tail, node3) 
+        && IS_OUTEDGE(node3, head)){
+          /*So this will form a tail,t,node3 Simmelian */
           /*Check to see if a prior Simmelian existed */
-          if( mtp->inputparams[1+(t-1)+(node3-1)*nnodes]==1 &&
-            mtp->inputparams[1+(h-1)+(node3-1)*nnodes]==1 &&
-            mtp->inputparams[1+(node3-1)+(h-1)*nnodes]==1 &&
-            mtp->inputparams[1+(t-1)+(h-1)*nnodes]==1 &&
-            mtp->inputparams[1+(h-1)+(t-1)*nnodes]==1 &&
-            mtp->inputparams[1+(node3-1)+(t-1)*nnodes]==1 
-	    ){
-		++change;
-	     }
-	 }
-       }
-      
-       change = 6*change;
-       *(mtp->dstats) += edgeflag ? -(double)change : (double)change;
+          if( INPUT_PARAM[1+(head-1)+(node3-1)*nnodes]==1 &&
+            INPUT_PARAM[1+(tail-1)+(node3-1)*nnodes]==1 &&
+          INPUT_PARAM[1+(node3-1)+(tail-1)*nnodes]==1 &&
+          INPUT_PARAM[1+(head-1)+(tail-1)*nnodes]==1 &&
+          INPUT_PARAM[1+(tail-1)+(head-1)*nnodes]==1 &&
+          INPUT_PARAM[1+(node3-1)+(head-1)*nnodes]==1 ){
+            ++change;
+          }
+        }
       }
-      if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+      
+      change = 6*change;
+      CHANGE_STAT[0] += edgeflag ? -(double)change : (double)change;
     }
-
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
  changestat: d_spatial
   Changescores for inhomogeneous Bernoulli graphs
-*****************/                            
-D_CHANGESTAT_FN(d_spatial)
-{
-  int edgeflag, i, nstats;
-  Vertex h, t, n;
+*****************/
+D_CHANGESTAT_FN(d_spatial) {
+  int edgeflag, i;
+  Vertex tail, head, n;
   double llr,pb,alpha,gamma;
 
-  nstats=(int)mtp->nstats;
-  n=nwp->nnodes;
-  pb=mtp->inputparams[0];
-  alpha=mtp->inputparams[1];
-  gamma=mtp->inputparams[2];
-  for(i=0;i<nstats;i++)
-    mtp->dstats[i] = 0.0;
-    
-  for (i=0; i < ntoggles; i++)
-    {
-      edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
-      /*Lower trianglization of adjacency matrix implies ith element corresponds
-      to (row-1) + (col-1)*(n-1) - choose(col,2).*/
-      llr = -log(((1+exp(pb))*pow(1+exp(alpha)*(mtp->inputparams[2+(t-1)+(h-1)*(n-1)-h*(h-1)/2]),exp(gamma)))/exp(pb)-1);
-      *(mtp->dstats) += edgeflag ? - llr : llr;
-
-      if (i+1 < ntoggles)
-        ToggleEdge(h, t, nwp);  /* Toggle this edge if more to come */
-    }
-  i--;
-  while (--i >= 0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp);
+  n=N_NODES;
+  pb=INPUT_PARAM[0];
+  alpha=INPUT_PARAM[1];
+  gamma=INPUT_PARAM[2];
+  ZERO_ALL_CHANGESTATS(i);
+  FOR_EACH_TOGGLE(i) {
+    edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
+    /*Lower trianglization of adjacency matrix implies ith element corresponds
+    to (row-1) + (col-1)*(n-1) - choose(col,2).*/
+    llr = -log(((1+exp(pb))*pow(1+exp(alpha)*(INPUT_PARAM[2+(head-1)+(tail-1)*(n-1)-tail*(tail-1)/2]),exp(gamma)))/exp(pb)-1);
+    CHANGE_STAT[0] += edgeflag ? - llr : llr;
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /********************  changestats:  T    ***********/
@@ -1787,79 +1506,61 @@ D_CHANGESTAT_FN(d_spatial)
 D_CHANGESTAT_FN(d_transitivedynamic)  {
   Edge e;
   long int nnodes;
-  Vertex h, t, node3;
+  Vertex tail, head, node3;
   double change;
   int i, edgeflag;
   
-  nnodes = ((long int)(mtp->inputparams[0]));
-  *(mtp->dstats) = 0.0;
-  for (i=0; i<ntoggles; i++) 
-    {
-    edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
+  nnodes = ((long int)(INPUT_PARAM[0]));
+  CHANGE_STAT[0] = 0.0;
+  FOR_EACH_TOGGLE(i) {
+    edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
     change = 0.0;
-    
-    for(e = EdgetreeMinimum(nwp->outedges, t);
-	    (node3 = nwp->outedges[e].value) != 0;
-	    e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of tail */
-    {
-      if (node3 != h){
-       if (EdgetreeSearch(h, node3, nwp->outedges) == 0){
-       /* So form a h -> t -> node3 intransitive triad */
-       /* Check to see if a prior intransitive triad existed */
-         if( !(mtp->inputparams[1+(h-1)+(t-1)*nnodes]==1 &&
-          mtp->inputparams[1+(t-1)+(node3-1)*nnodes]==1 &&
-          mtp->inputparams[1+(h-1)+(node3-1)*nnodes]==0)
-	 ){
-//           Rprintf("h %d t %d node3 %d nnodes %d\n",h,t, node3, nnodes);
-          change = change - 1.0;
-	 }
-       }
+    STEP_THROUGH_OUTEDGES(head, e, node3) {
+      if (node3 != tail) {
+        if (IS_OUTEDGE(tail, node3)) {
+          /* So form a tail -> head -> node3 intransitive triad */
+          /* Check to see if a prior intransitive triad existed */
+          if( !(INPUT_PARAM[1+(tail-1)+(head-1)*nnodes]==1 &&
+            INPUT_PARAM[1+(head-1)+(node3-1)*nnodes]==1 &&
+          INPUT_PARAM[1+(tail-1)+(node3-1)*nnodes]==0)) {
+            // Rprintf("tail %d head %d node3 %d nnodes %d\n",tail,head, node3, nnodes);
+            change = change - 1.0;
+          }
+        }
       }
     }
-    for(e = EdgetreeMinimum(nwp->inedges, t);
-	    (node3 = nwp->inedges[e].value) != 0;
-	    e = EdgetreeSuccessor(nwp->inedges, e)) /* step through inedges of tail */
-    {
-      if (node3 != h){
-       if (EdgetreeSearch(h, node3, nwp->outedges) != 0){
-       /* So dissolve a h -> node3 -> t intransitive triad */
-       /*Check to see if a prior transitive triad existed */
-         if( !(mtp->inputparams[1+(h-1)+(t-1)*nnodes]==0 &&
-          mtp->inputparams[1+(h-1)+(node3-1)*nnodes]==1 &&
-          mtp->inputparams[1+(node3-1)+(t-1)*nnodes]==1)
-	 ){
-          change = change + 1.0;
-	 }
-       }
+    STEP_THROUGH_INEDGES(head, e, node3) {
+      if (node3 != tail) {
+        if (IS_OUTEDGE(tail, node3)) {
+          /* So dissolve a tail -> node3 -> head intransitive triad */
+          /*Check to see if a prior transitive triad existed */
+          if( !(INPUT_PARAM[1+(tail-1)+(head-1)*nnodes]==0 &&
+            INPUT_PARAM[1+(tail-1)+(node3-1)*nnodes]==1 &&
+          INPUT_PARAM[1+(node3-1)+(head-1)*nnodes]==1)) {
+            change = change + 1.0;
+          }
+        }
       }
     }
-    for(e = EdgetreeMinimum(nwp->inedges, h);
-	    (node3 = nwp->inedges[e].value) != 0;
-	    e = EdgetreeSuccessor(nwp->inedges, e)) /* step through inedges of hail */
-    {
-      if (node3 != t){
-       if (EdgetreeSearch(node3, t, nwp->outedges) == 0){
-       /* So form a node3 -> h -> t intransitive triad */
-       /*Check to see if a prior transitive triad existed */
-         if( !(mtp->inputparams[1+(h-1)+(t-1)*nnodes]==1 &&
-          mtp->inputparams[1+(node3-1)+(h-1)*nnodes]==1 &&
-          mtp->inputparams[1+(node3-1)+(t-1)*nnodes]==0)
-	 ){
-          change = change - 1.0;
-	 }
-       }
+    STEP_THROUGH_INEDGES(tail, e, node3) {
+      if (node3 != head){
+        if (!IS_OUTEDGE(node3, head)){
+          /* So form a node3 -> tail -> head intransitive triad */
+          /*Check to see if a prior transitive triad existed */
+          if( !(INPUT_PARAM[1+(tail-1)+(head-1)*nnodes]==1 &&
+            INPUT_PARAM[1+(node3-1)+(tail-1)*nnodes]==1 &&
+          INPUT_PARAM[1+(node3-1)+(head-1)*nnodes]==0)){
+            change = change - 1.0;
+          }
+        }
       }
     }
     
-    *(mtp->dstats) += edgeflag ? -change : change;
-//  Rprintf("h %d t %d edgeflag %d change %f\n",h,t, edgeflag, change);
-      if (i+1 < ntoggles)
-	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-    }
-
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+    CHANGE_STAT[0] += edgeflag ? -change : change;
+    // Rprintf("tail %d head %d edgeflag %d change %f\n",tail,head, edgeflag, change);
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
@@ -1870,464 +1571,214 @@ D_CHANGESTAT_FN(d_transitivity)
   int i, edgeflag, a, b, c, d, e, edgecount, t300, 
   t210, t120C, t120U, t120D, t201, t030C, t030T, t111U, 
   t111D, t021C, t021U, t021D, t102, t012, t003;
-  Vertex node3, h, t;
+  Vertex node3, tail, head;
 
-  *(mtp->dstats) = 0.0;
+  CHANGE_STAT[0] = 0.0;
 
   if (nwp->directed_flag) {
-// directed version
-   for (i=0; i<ntoggles; i++) 
-    {      
-      edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
+    // directed version
+    FOR_EACH_TOGGLE(i) {
+      edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
       t300 = 0;
       t210 = 0;
       t120C = 0;  t120U = 0;   t120D = 0;  t201 = 0;
       t030C = 0;  t030T = 0;   t111U = 0;  t111D = 0;
       t021C = 0;  t021U = 0;   t021D = 0;  t102 = 0;
       t012 = 0;
-
-      if ((EdgetreeMinimum(nwp->outedges, t) != 0) || 
-          (EdgetreeMinimum(nwp->inedges, t) != 0) || 
-          (EdgetreeMinimum(nwp->outedges, h) != 0) ||
-          (EdgetreeMinimum(nwp->inedges, h) != 0)) {      
-
-          /* ****** loop through node3 ****** */
-          for (node3=1; node3 <= nwp->nnodes; node3++)
-             { 
-             if (node3 != h && node3 != t)
-               {   
-               a = (EdgetreeSearch(t, h, nwp->outedges) != 0); 
-               b = (EdgetreeSearch(t, node3, nwp->outedges) != 0);
-               c = (EdgetreeSearch(node3, t, nwp->outedges) != 0);
-               d = (EdgetreeSearch(node3, h, nwp->outedges) != 0);
-               e = (EdgetreeSearch(h, node3, nwp->outedges) != 0);
+      
+      if (MIN_OUTEDGE(head) != 0 || MIN_INEDGE(head) != 0 || 
+      MIN_OUTEDGE(tail) != 0 || MIN_INEDGE(tail) != 0) {
+        
+        /* ****** loop through node3 ****** */
+        for (node3=1; node3 <= N_NODES; node3++) {
+          if (node3 != tail && node3 != head) {
+               a = IS_OUTEDGE(head, tail);
+               b = IS_OUTEDGE(head, node3);
+               c = IS_OUTEDGE(node3, head);
+               d = IS_OUTEDGE(node3, tail);
+               e = IS_OUTEDGE(tail, node3);
                edgecount = (a + b + c + d + e);
 
-               switch(edgecount)
-               {  
-               case 0:   /* 012 */
+               switch(edgecount) {  
+                 case 0:   /* 012 */
                  ++t012;
-
-               case 1:   /* 021C, 021U, 021D, 102 */
-                 {
-                     if ((b == 1) || (d == 1))
-                       ++t021C;
-                     if (c == 1)
-                       ++t021U;
-                     if (e == 1)
-                       ++t021D;
-                     if (a == 1)
-                       ++t102;
+                 
+                 case 1: {  /* 021C, 021U, 021D, 102 */
+                   if ((b == 1) || (d == 1))
+                     ++t021C;
+                   if (c == 1)
+                     ++t021U;
+                   if (e == 1)
+                     ++t021D;
+                   if (a == 1)
+                     ++t102;
                  }
                  break;
-          
-               case 2:   /* 030C, 030T, 111U, 111D */
-                 {
-                     if ((b + d) == 2)       
-                       ++t030C;
-                     if (((b + e) == 2) || ((c + d) == 2) || ((c + e) == 2))
-                       ++t030T;
-                     if (((a + b) == 2) || ((a + e) == 2) || ((d + e) == 2))
-                       ++t111U;
-                     if (((a + c) == 2) || ((a + d) == 2) || ((b + c) == 2))
-                       ++t111D;
+                 
+                 case 2: {  /* 030C, 030T, 111U, 111D */
+                   if ((b + d) == 2)       
+                     ++t030C;
+                   if (((b + e) == 2) || ((c + d) == 2) || ((c + e) == 2))
+                     ++t030T;
+                   if (((a + b) == 2) || ((a + e) == 2) || ((d + e) == 2))
+                     ++t111U;
+                   if (((a + c) == 2) || ((a + d) == 2) || ((b + c) == 2))
+                     ++t111D;
                  }
                  break;
-            
-               case 3:   /* 120C, 120U, 120D, 201 */
-                 {
-                     if (a == 1)
-                         {
-                            if (((b + d) == 2) || ((c + e) == 2))
-                              ++t120C;
-                            if ((b + e) == 2)
-                              ++t120U;
-                            if ((c + d) == 2)
-                              ++t120D;
-                            if (((b + c) == 2) || ((d + e) == 2))
-                              ++t201;
-                         }
-                     else 
-                         {
-                            if (b == 1)
-                                {
-                                    if (((c + d) == 2) || ((d + e) == 2))
-                                      ++t120C;
-                                    if ((c + e) == 2)
-                                      ++t120D;
-                                } 
-                            else 
-                                {
-                                    ++t120U;
-                                }
-                         } 
+                 
+                 case 3: {  /* 120C, 120U, 120D, 201 */
+                   if (a == 1) {
+                     if (((b + d) == 2) || ((c + e) == 2))
+                       ++t120C;
+                     if ((b + e) == 2)
+                       ++t120U;
+                     if ((c + d) == 2)
+                       ++t120D;
+                     if (((b + c) == 2) || ((d + e) == 2))
+                       ++t201;
+                   } else {
+                     if (b == 1) {
+                       if (((c + d) == 2) || ((d + e) == 2))
+                         ++t120C;
+                       if ((c + e) == 2)
+                         ++t120D;
+                     } else  {
+                       ++t120U;
+                     }
+                   } 
                  }
                  break;
-             
-               case 4:   /* 210 */
+                 
+                 case 4:   /* 210 */
                  ++t210;
                  break;
-             
-               case 5:   /* 300 */            
+                 
+                 case 5:   /* 300 */            
                  ++t300;
                  break;
                }
-
-               switch(edgecount)
-               {  
-               case 1:   /* 102, 021D, 021U, 021C */
+               
+               switch(edgecount) {  
+                 case 1:   /* 102, 021D, 021U, 021C */
                  --t012;
                  break;
-           
-               case 2:   /* 030C, 030T, 111U, 111D */ 
-                 {
-                     if (((a + c) == 2) || ((a + e) == 2) || ((b + d) == 2) || 
-                        ((c + e) == 2)) 
-                       --t021C;
-                     if (((a + d) == 2) || ((b + e) == 2))
-                       --t021U;
-                     if (((a + b) == 2) || ((c + d) == 2))
-                       --t021D;
-                     if (((b + c) == 2) || ((d + e) == 2))
-                       --t102;
+                 
+                 case 2: {  /* 030C, 030T, 111U, 111D */ 
+                   if (((a + c) == 2) || ((a + e) == 2) || ((b + d) == 2) || 
+                     ((c + e) == 2)) 
+                   --t021C;
+                   if (((a + d) == 2) || ((b + e) == 2))
+                     --t021U;
+                   if (((a + b) == 2) || ((c + d) == 2))
+                     --t021D;
+                   if (((b + c) == 2) || ((d + e) == 2))
+                     --t102;
                  } 
                  break;
 
-               case 3:   /* 201, 120D, 120U, 120C */
-                 {
-                     if (a == 1)
-	    	           {
-	    	           if ((c + e) == 2)       
-                             --t030C;
-                           if (((c + d) == 2) || ((b + e) == 2) || ((b + d) == 2))
-                             --t030T;
-                           if ((b + c) == 2)
-                             --t111U;
-                           if ((d + e) == 2)
-	                      --t111D;
-	 	               }
- 		             else
- 		               {
- 		                   if (b == 1)
- 		 	                 {
- 		 	                   if ((c + d) == 2)
- 			                     --t111U;
- 			                   if (((c + e) == 2) || ((d + e) == 2))
-			                     --t111D;
- 		 	                 }
-    	    	                   else
-		    	                 --t111U;
-    		               }
+                 case 3:  { /* 201, 120D, 120U, 120C */
+                   if (a == 1) {
+                     if ((c + e) == 2)       
+                       --t030C;
+                     if (((c + d) == 2) || ((b + e) == 2) || ((b + d) == 2))
+                       --t030T;
+                     if ((b + c) == 2)
+                       --t111U;
+                     if ((d + e) == 2)
+                       --t111D;
+	 	               } else {
+                     if (b == 1) {
+                       if ((c + d) == 2)
+                         --t111U;
+                       if (((c + e) == 2) || ((d + e) == 2))
+                         --t111D;
+                     } else
+                     --t111U;
                    }
-                   break;
-          
-               case 4:   /* 210 */
-                 {
-                     if (a == 1)
-                         {
-                            if (((b + c + e) == 3) || ((c + d + e) == 3))
-                              --t120C;
-                            if ((b + c + d) == 3)
-                              --t120U;
-                            if ((b + d + e) == 3)
-                              --t120D;
-                         }
-                     else 
-                         {
-                            if ((b + c + d + e) == 4)
-                              --t201;
-                         } 
                  }
                  break;
-              
-               case 5:   /* 300 */            
+                 
+                 case 4: {  /* 210 */
+                   if (a == 1) {
+                     if (((b + c + e) == 3) || ((c + d + e) == 3))
+                       --t120C;
+                     if ((b + c + d) == 3)
+                       --t120U;
+                     if ((b + d + e) == 3)
+                       --t120D;
+                   } else {
+                     if ((b + c + d + e) == 4)
+                       --t201;
+                   } 
+                 }
+                 break;
+                 
+                 case 5:   /* 300 */            
                  --t210;
                  break;
                }
-               }
-             }    /* ******  move to next node3 ******** */
-        }
-        else 
-          t012 = t012 + (nwp->nnodes - 2);  
-
-        t003 = -(t300+t210+t120C+t120U+t120D+t201+t030C+t030T);
-        t003 = t003-(t111U+t111D+t021C+t021U+t021D+t102+t012);
-	b = t003+t012+t021U+t021D+t102+t030T+t120U+t120D+t300;
-	*(mtp->dstats) += edgeflag ? -(double)b : (double)b;
-
-      if (i+1 < ntoggles)
-	  ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */ 
+          }
+        }    /* ******  move to next node3 ******** */
+      } else 
+      t012 = t012 + (N_NODES - 2);  
+      
+      t003 = -(t300+t210+t120C+t120U+t120D+t201+t030C+t030T);
+      t003 = t003-(t111U+t111D+t021C+t021U+t021D+t102+t012);
+      b = t003+t012+t021U+t021D+t102+t030T+t120U+t120D+t300;
+      CHANGE_STAT[0] += edgeflag ? -(double)b : (double)b;
+      TOGGLE_IF_MORE_TO_COME(i);
     }
-    }else{
-//  undirected
-    for (i=0; i<ntoggles; i++) 
-     {      
-      edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
+  } else {
+    // undirected
+    FOR_EACH_TOGGLE(i) {
+      edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
       t300 = 0; t201 = 0; t102 = 0; t012 = 0;
 
-      if ((EdgetreeMinimum(nwp->outedges, t) != 0) || 
-          (EdgetreeMinimum(nwp->inedges, t) != 0) || 
-          (EdgetreeMinimum(nwp->outedges, h) != 0) ||
-          (EdgetreeMinimum(nwp->inedges, h) != 0)) {      
-
-          /* ****** loop through node3 ****** */
-          for (node3=1; node3 <= nwp->nnodes; node3++)
-             { 
-             if (node3 != h && node3 != t)
-               {   
-               a = (EdgetreeSearch(MIN(node3,t), MAX(node3,t), nwp->outedges) != 0);
-               b = (EdgetreeSearch(MIN(node3,h), MAX(node3,h), nwp->outedges) != 0);
-               edgecount = (a + b);
-
-               switch(edgecount)
-               {  
-               case 0:   /* 012 */
-		{
-                 ++t102;
-                 --t012;
-		}
-                break;
-
-               case 1:   /* 021C, 021U, 021D, 102 */
-		{
-                 ++t201;
-                 --t102;
-		}
-                break;
-          
-               case 2:   /* 030C, 030T, 111U, 111D */
-		{
-                 ++t300;
-                 --t201;
-		}
-                break;
+      if (MIN_OUTEDGE(head) != 0 || MIN_INEDGE(head) != 0 ||
+      MIN_OUTEDGE(tail) != 0 || MIN_INEDGE(tail) != 0 ) {
+        
+        /* ****** loop through node3 ****** */
+        for (node3=1; node3 <= N_NODES; node3++) { 
+          if (node3 != tail && node3 != head) {
+            a = IS_OUTEDGE(MIN(node3,head), MAX(node3,head));
+            b = IS_OUTEDGE(MIN(node3,tail), MAX(node3,tail));
+            edgecount = (a + b);
             
-               }
-	       }
+            switch(edgecount)  {  
+              case 0: {  /* 012 */
+                ++t102;
+                --t012;
+              }
+              break;
+              
+              case 1: {  /* 021C, 021U, 021D, 102 */
+                ++t201;
+                --t102;
+              }
+              break;
+              
+              case 2: {  /* 030C, 030T, 111U, 111D */
+                ++t300;
+                --t201;
+              }
+              break;
+              
+            }
+          }
+        }    /* ******  move to next node3 ******** */
+      } else 
+      t102 = t102 + (N_NODES - 2);  
 
-             }    /* ******  move to next node3 ******** */
-        }
-        else 
-          t102 = t102 + (nwp->nnodes - 2);  
-
-        t003 = (t102+t201+t300);
-	b = -t300; 
-	*(mtp->dstats) += edgeflag ? -(double)b : (double)b;
-  
-     if (i+1 < ntoggles)
-	  ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */ 
-     } // i loop
-    }
-    
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+      t003 = (t102+t201+t300);
+      b = -t300; 
+      CHANGE_STAT[0] += edgeflag ? -(double)b : (double)b;
+      TOGGLE_IF_MORE_TO_COME(i);
+    } // i loop
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
-///*****************
-// changestat: d_nearsimmelian
-//*****************/
-//D_CHANGESTAT_FN(d_nearsimmelian) {
-//  Edge e;
-//  long int n;
-//  Vertex h, t, change, node3;
-//  int edgeflag, i;
-//
-//  n=g->nnodes;
-//  
-// *(mtp->dstats) = 0.0;
-// for (i=0; i<ntoggles; i++) 
-// {
-//  edgeflag = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
-//   
-//  sc = edgeflag;
-//  change = 0;
-//   
-//  for(i=1;i<=n;i++)
-//    if((i!=h)&&(i!=t)){
-//
-//   for(e = EdgetreeMinimum(nwp->outedges, t);
-//       (node3 = nwp->outedges[e].value) != 0;
-//       e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of tail */
-//   {
-//     sc = edgeflag + 1;
-//     sc += EdgetreeSearch(t, h, nwp->outedges) != 0;
-//     sc += EdgetreeSearch(node3, h, nwp->outedges) != 0 ;
-//     sc += EdgetreeSearch(h, node3, nwp->outedges) != 0 ;
-//     sc += EdgetreeSearch(node3, t, nwp->outedges) != 0 ;
-//
-//     if (sc == 6 ){--change} /* so edgeflag==1 and we distroy a simmelian */
-//     if (sc == 5 && edgeflag == 0 ){--change}
-//     if (sc == 5 && edgeflag == 1 ){++change}
-//     if (sc == 4 && edgeflag == 0 ){++change}
-//   }
-//      
-//   *(mtp->dstats) += edgeflag ? -(double)change : (double)change;
-//   }
-//   
-//   if (i+1 < ntoggles) 
-//     ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-//  }
-//  
-//  i--; 
-//  while (--i>=0)  /*  Undo all previous toggles. */
-//    ToggleEdge(heads[i], tails[i], nwp); 
-//}
-
-
-// *****************
-// changestat: d_b1
-// *****************
-//D_CHANGESTAT_FN(d_b1) 
-//{
-//  int i, j, echange;
-//  Vertex h, t, deg, nb2, nb1;
-//  
-//  nb1 = (Vertex)inp->inputparams[0];
-//  nb2 = (nwp->nnodes) - nb1;
-////  Rprintf("nb2 %d\n", nb2);
-////  Rprintf("nb1 %d\n", nb1);
-////  Rprintf("inp->nstats %d\n", inp->nstats);
-////  Rprintf("ntggles %d\n", ntoggles);
-//
-//  for (i=0; i < inp->nstats; i++) 
-//    inp->dstats[i] = 0.0;
-//  
-//  for (i=0; i<ntoggles; i++)
-//    {      
-//      echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
-//      j=0;
-//      deg = (Vertex)inp->inputparams[j+1];
-//      while(deg != h && j < inp->nstats){
-//       j++;
-//       deg = (Vertex)inp->inputparams[j+1];
-//      }
-////  Rprintf("deg %d j %d\n", deg, j);
-//      if(j < inp->nstats){inp->dstats[j] += echange;}
-////  Rprintf("heads[i] %d tails[i] %d echange %d j %d deg %d\n", heads[i], tails[i], echange,j,inp->dstats[j]);
-//
-//      if (i+1 < ntoggles)
-//	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-//    }
-//
-//  i--; 
-//  while (--i>=0)  /*  Undo all previous toggles. */
-//    ToggleEdge(heads[i], tails[i], nwp); 
-//}
-//
-// *****************
-// changestat: d_b2
-// *****************
-//D_CHANGESTAT_FN(d_b2) 
-//{
-//  int i, j, echange;
-//  Vertex h, t, deg, nb2, nb1;
-//  
-//  nb1 = (Vertex)inp->inputparams[0];
-//  nb2 = (nwp->nnodes) - nb1;
-////  Rprintf("nb2 %d\n", nb2);
-////  Rprintf("nb1 %d\n", nb1);
-//  
-//  for (i=0; i < inp->nstats; i++) 
-//    inp->dstats[i] = 0.0;
-//  
-//  for (i=0; i<ntoggles; i++)
-//    {      
-//      echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
-//      j=0;
-//      deg = (Vertex)inp->inputparams[j+1];
-//      while(deg != t && j < inp->nstats){
-//       j++;
-//       deg = (Vertex)inp->inputparams[j+1];
-//      }
-//      if(j < inp->nstats){inp->dstats[j] += echange;}
-//
-//      if (i+1 < ntoggles)
-//	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-//    }
-//
-//  i--; 
-//  while (--i>=0)  /*  Undo all previous toggles. */
-//    ToggleEdge(heads[i], tails[i], nwp); 
-//}
-//
-
-
-
-///*****************
-// changestat: d_esa
-//*****************/
-//D_CHANGESTAT_FN(d_esa) 
-//{
-//  Edge e, f;
-//  int i, j, echange;
-//  int L2hu, L2ut;
-//  Vertex deg;
-//  Vertex h, t, u, v;
-//  int nb2, nb1;
-//
-//  nb1 = (int)inp->inputparams[0];
-//  nb2 = (nwp->nnodes) - nb1;
-//
-//  for (i=0; i < inp->nstats; i++) 
-//    inp->dstats[i] = 0.0;
-//  
-//    for (i=0; i<ntoggles; i++){      
-//     echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
-//     //
-//     // Next for b1 shared b2 counts
-//     //
-////   // step through inedges of t
-////   for(e = EdgetreeMinimum(nwp->inedges, t);
-////       (u = nwp->inedges[e].value) != 0;
-////       e = EdgetreeSuccessor(nwp->inedges, e)){
-////	 if (u != h){
-////          L2hu=0;
-////          // step through outedges of u
-////          for(f = EdgetreeMinimum(nwp->outedges, u);
-////	      (v = nwp->outedges[f].value) != 0;
-////           f = EdgetreeSuccessor(nwp->outedges, f)){
-////               if(EdgetreeSearch(h,v,nwp->outedges)!= 0) L2hu++;
-////	  }
-////          for(j = 0; j < inp->nstats; j++){
-////	    deg = (Vertex)inp->inputparams[j+1];
-////            inp->dstats[j] += ((L2hu + echange == deg)
-////			     - (L2hu == deg));
-////	  }
-////         }
-////   }
-////
-////   Next for b2 shared b1 counts
-////
-//   // step through outedges of h 
-//   for(e = EdgetreeMinimum(nwp->outedges, h);
-//       (u = nwp->outedges[e].value) != 0;
-//       e = EdgetreeSuccessor(nwp->outedges, e)){
-//	 if (u != t){
-//          L2ut=0;
-//          // step through inedges of u
-//          for(f = EdgetreeMinimum(nwp->inedges, u); 
-//	   (v = nwp->inedges[f].value) != 0;
-//           f = EdgetreeSuccessor(nwp->inedges, f)){
-//            if(EdgetreeSearch(v,t,nwp->outedges)!= 0) L2ut++;
-//	  }
-//          for(j = 0; j < inp->nstats; j++){
-//	    deg = (Vertex)inp->inputparams[j+1];
-//            inp->dstats[j] += ((L2ut + echange == deg)
-//			     - (L2ut == deg));
-//	  }
-//         }
-//   }
-//     
-//   if (i+1 < ntoggles)
-//     ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-//  }
-//
-//  i--; 
-//  while (--i>=0)  /*  Undo all previous toggles. */
-//    ToggleEdge(heads[i], tails[i], nwp); 
-//}
-//
 /*****************
  changestat: d_b1share
 *****************/
@@ -2336,48 +1787,34 @@ D_CHANGESTAT_FN(d_b1share)  {
   int i, j, echange;
   int L2hu;
   Vertex deg;
-  Vertex h, t, u, v;
+  Vertex tail, head, u, v;
   int nb2, nb1;
 
-//  nb1 = nwp->bipartite;
-  nb1 = (int)mtp->inputparams[0];
-  nb2 = (nwp->nnodes) - nb1;
+  // nb1 = BIPARTITE;
+  nb1 = (int)INPUT_PARAM[0];
+  nb2 = (N_NODES) - nb1;
 
-  for (i=0; i < mtp->nstats; i++) 
-    mtp->dstats[i] = 0.0;
-  
-    for (i=0; i<ntoggles; i++){      
-     echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
-     //
-     // Next for b1 shared b2 counts
-     //
-     // step through inedges of t
-     for(e = EdgetreeMinimum(nwp->inedges, t);
-         (u = nwp->inedges[e].value) != 0;
-         e = EdgetreeSuccessor(nwp->inedges, e)){
-  	 if (u != h){
-            L2hu=0;
-            // step through outedges of u
-            for(f = EdgetreeMinimum(nwp->outedges, u);
-  	      (v = nwp->outedges[f].value) != 0;
-             f = EdgetreeSuccessor(nwp->outedges, f)){
-                 if(EdgetreeSearch(h,v,nwp->outedges)!= 0) L2hu++;
+  ZERO_ALL_CHANGESTATS(i);  
+  FOR_EACH_TOGGLE(i) {
+    echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
+    //
+    // Next for b1 shared b2 counts
+    STEP_THROUGH_INEDGES(head, e, u) {
+      if (u != tail){
+        L2hu=0;
+        STEP_THROUGH_OUTEDGES(u, f, v) {
+          if(IS_OUTEDGE(tail,v)) L2hu++;
   	    }
-            for(j = 0; j < mtp->nstats; j++){
-  	      deg = (Vertex)mtp->inputparams[j+1];
-              mtp->dstats[j] += ((L2hu + echange == deg)
-  			     - (L2hu == deg));
+        for(j = 0; j < mtp->nstats; j++){
+  	      deg = (Vertex)INPUT_PARAM[j+1];
+          CHANGE_STAT[j] += ((L2hu + echange == deg)
+          - (L2hu == deg));
   	    }
-         }
+      }
     }
-     
-   if (i+1 < ntoggles)
-     ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    TOGGLE_IF_MORE_TO_COME(i);
   }
-
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
@@ -2388,674 +1825,35 @@ D_CHANGESTAT_FN(d_b2share)  {
   int i, j, echange;
   int L2hu;
   Vertex deg;
-  Vertex h, t, u, v;
+  Vertex tail, head, u, v;
   int nb2, nb1;
 
-  nb1 = (int)mtp->inputparams[0];
-  nb2 = (nwp->nnodes) - nb1;
+  nb1 = (int)INPUT_PARAM[0];
+  nb2 = (N_NODES) - nb1;
 
-  for (i=0; i < mtp->nstats; i++) 
-    mtp->dstats[i] = 0.0;
-  
-    for (i=0; i<ntoggles; i++){      
-     echange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 1 : -1;
+  ZERO_ALL_CHANGESTATS(i);
+  FOR_EACH_TOGGLE(i) {
+     echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
      //
      // Next for b2 shared b1 counts
-     //
-     // step through inedges of t
-     for(e = EdgetreeMinimum(nwp->inedges, t);
-         (u = nwp->inedges[e].value) != 0;
-         e = EdgetreeSuccessor(nwp->inedges, e)){
-  	 if (u != h){
-            L2hu=0;
-            // step through outedges of u
-            for(f = EdgetreeMinimum(nwp->outedges, u);
-  	      (v = nwp->outedges[f].value) != 0;
-             f = EdgetreeSuccessor(nwp->outedges, f)){
-                 if(EdgetreeSearch(h,v,nwp->outedges)!= 0) L2hu++;
-  	    }
-            for(j = 0; j < mtp->nstats; j++){
-  	      deg = (Vertex)mtp->inputparams[j+1];
-              mtp->dstats[j] += ((L2hu + echange == deg)
-  			     - (L2hu == deg));
-  	    }
+     STEP_THROUGH_INEDGES(head, e, u) {
+       if (u != tail){
+         L2hu=0;
+         STEP_THROUGH_OUTEDGES(u, v, f) {
+           if(IS_OUTEDGE(tail,v)) L2hu++;
          }
-    }
-     
-   if (i+1 < ntoggles)
-     ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+         for(j = 0; j < mtp->nstats; j++){
+           deg = (Vertex)INPUT_PARAM[j+1];
+           CHANGE_STAT[j] += ((L2hu + echange == deg)
+           - (L2hu == deg));
+         }
+       }
+     }
+     TOGGLE_IF_MORE_TO_COME(i);
   }
-
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
-///*****************
-// changestat: d_bimix
-//*****************/
-//D_CHANGESTAT_FN(d_bimix) {
-//
-//  int matchvalh, matchvalt, matchswap;
-//  Vertex h, t, nnodes, nstats;
-//  int i, j, edgeflag=0;
-//
-//  nstats = inp->nstats;
-//  nnodes = (inp->ninputparams)-2*nstats;
-////  Rprintf("ninput %d nstats %d\n", inp->ninputparams, inp->nstats);
-////  Rprintf("nodes %d\n", nnodes);
-//// for (h=0; h<nnodes; h++){
-////   Rprintf("match h %d att h %f\n", 
-////	    h, inp->attrib[h+nstats]);
-//// }
-//// for (h=0; h<nstats; h++){
-////   Rprintf("match h %d in h %f in t %f\n", 
-////	    h, inp->inputparams[h], inp->inputparams[h+nstats]);
-//// }
-//  for (i=0; i < nstats; i++) 
-//    inp->dstats[i] = 0.0;
-//
-//  for (i=0; i<ntoggles; i++) 
-//    {
-//      h=heads[i];
-//      t=tails[i];
-//      matchvalh = inp->attrib[h-1+nstats];
-//      matchvalt = inp->attrib[t-1+nstats];
-////     if(matchvalt < matchvalh){
-////       matchswap = matchvalh;
-////       matchvalh = matchvalt;
-////       matchvalt = matchswap;
-////      }       
-//      edgeflag=(EdgetreeSearch(h, t, nwp->outedges) != 0);
-//      for (j=0; j<nstats; j++) 
-//	  {
-//           if(matchvalh==inp->inputparams[nstats+j] &&
-//	      matchvalt==inp->inputparams[       j]
-//	     ){inp->dstats[j] += edgeflag ? -1.0 : 1.0;}
-//	  }
-//      if (i+1 < ntoggles)
-//	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-//    }
-//  i--; 
-//  while (--i>=0)  /*  Undo all previous toggles. */
-//    ToggleEdge(heads[i], tails[i], nwp); 
-//}
-//
-///*****************
-// changestat: d_dynamic
-//*****************/
-//D_CHANGESTAT_FN(d_dynamic) 
-//{
-//  Vertex h, t, hh, ht;
-//  int i, k, nprevedge, edgeflag, discord, lookmore;
-//  int nb2, nb1;
-//  int nmat, nnodes;
-//  double change=0.0;
-//
-//  nprevedge = (int)((inp->inputparams[0]));
-//  nnodes = (nwp->nnodes);
-//  nb1 = (int)(inp->inputparams[1]);
-//  nb2 = nnodes - nb1;
-//
-//  nmat = nb2*nb1;
-//
-////  Rprintf("nprevedge %d\n", nprevedge);
-////  Rprintf("nb1 %d nb2 %d\n", nb1, nb2);
-////  for (k=1; k<=nprevedge; k++) {
-////      Rprintf("k %d x0.h %d x0.t %d\n", k,
-////	      (Vertex)(inp->attrib[          k]),
-////	      (Vertex)(inp->attrib[nprevedge+k]));
-////  }
-//
-//  for (i=0; i < inp->nstats; i++)
-//   inp->dstats[i] = 0.0;
-//
-//  for (i=0; i<ntoggles; i++) 
-//    {
-//      /*Get the initial state of the edge and its reflection*/
-//      edgeflag=(EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
-//      if(h > t){
-//	hh = t;
-//	ht = h;
-//      }else{
-//	hh = h;
-//	ht = t;
-//      }
-//      discord = edgeflag ? 1 : -1;
-//
-//      k=1;
-//      lookmore=1;
-//      while(lookmore && k <= nprevedge){
-////       Rprintf("h %d t %d hh %d ht %d\n",
-////	      h,t,hh,ht);
-////       Rprintf("h %d t %d hh %d ht %d\n",
-////	      hh,ht,(Vertex)(inp->attrib[            k]),
-////	          (Vertex)(inp->attrib[nprevedge + k]));
-//       if(ht == (Vertex)(inp->attrib[            k]) &&
-//          hh == (Vertex)(inp->attrib[nprevedge + k])
-//	 ){
-////       Rprintf("h %d t %d hh %d ht %d\n",
-////	      h,t,(Vertex)(inp->attrib[            k]),
-////	          (Vertex)(inp->attrib[nprevedge + k]));
-//
-//           /*If the proposed edge existed in x0, get dissolution rate */
-//	   /* lookmore is location of (hh, ht) in the dissolve matrix */
-//           lookmore=2*nprevedge+nmat+(hh-1)+(ht-1-nb1)*nb2;
-//	   /* change is NEGATIVE the dissolve rate if an edge exists */
-////       Rprintf("hh %d ht %d lookmore %d att %f\n",hh, ht, lookmore, (double)(inp->attrib[lookmore]));
-//           change=-discord*(double)(inp->attrib[lookmore]);
-////       Rprintf("lookmore %d change %f\n",lookmore, change);
-//	   lookmore=0;
-//           /*Update the change statistics, as appropriate*/
-//	   /*change is the number of edges dissolved*/
-//           inp->dstats[0] += change;
-////      if(change!=0){
-////       Rprintf("h %d t %d hh %d ht %d edgeflag %d beta %f\n",
-////	      h,t,hh,ht, edgeflag, (double)(inp->attrib[lookmore]));
-////       Rprintf("edgeflag %d change %f discord %d\n",
-////	      edgeflag, change, discord);
-////      }
-//          }else{
-//		   ++k;
-//	  }
-//      }
-//
-//      if(lookmore && nprevedge > 0){
-//       /*If the proposed edge existed in x0, get dissolution rate */
-//       /* lookmore, so no edge exisited in x0, Get formation rate */
-//       /* lookmore is location of (hh, ht) in the form matrix */
-//       lookmore=2*nprevedge+(hh-1-nb1)+(ht-1)*nb2;
-//       /* change is the form number of formed edges */
-//       change=-discord*(double)(inp->attrib[lookmore]);
-//       /*Update the change statistics, as appropriate*/
-//       inp->dstats[1] += change;
-//      }
-//
-////      if(lookmore && change>0){
-////       Rprintf("h %d t %d hh %d ht %d edgeflag %d alpha\n",
-////	      h,t,hh,ht,edgeflag);
-////       Rprintf("edgeflag %d change %f discord %d\n",
-////	      edgeflag, change, discord);
-////      }
-////      /*Update the change statistics, as appropriate*/
-////      *(inp->dstats) += change;
-//
-////  Rprintf("heads[i] %d tails[i] %d change %f \n", 
-////		      heads[i], tails[i], change);
-//      
-//      if (i+1 < ntoggles)
-//	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-//    }
-//  i--; 
-//  while (--i>=0)  /*  Undo all previous toggles. */
-//    ToggleEdge(heads[i], tails[i], nwp); 
-//}
-//
-///*****************
-// changestat: d_biduration
-//*****************/
-//D_CHANGESTAT_FN(d_biduration) {
-//
-//  int matchvalh, matchvalt;
-//  int k, nprevedge, discord, lookmore;
-//  Vertex h, t, nnodes, nstats;
-//  Vertex hh, ht;
-//  int i, j, edgeflag=0;
-//
-//  nstats = inp->nstats;
-////  nnodes = (inp->ninputparams)-2*nstats;
-//  nnodes = (nwp->nnodes);
-//  nprevedge = (int)(inp->inputparams[0]);
-//  Rprintf("ninput %d nstats %d\n", inp->ninputparams, inp->nstats);
-//  Rprintf("nodes %d nprevedge %d\n", nnodes, nprevedge);
-//// for (h=1; h<=nnodes; h++){
-////   Rprintf("match h %d att h %f\n", 
-////	    h, inp->attrib[h+nstats]);
-//// }
-//// for (h=0; h<nstats; h++){
-////   Rprintf("match h %d in h %f in t %f\n", 
-////	    h, inp->inputparams[h], inp->inputparams[h+nstats]);
-//// }
-//  for (i=0; i < nstats; i++) 
-//    inp->dstats[i] = 0.0;
-//
-//  for (i=0; i<ntoggles; i++) 
-//    {
-//      h=heads[i];
-//      t=tails[i];
-//      matchvalh = inp->attrib[h+nstats];
-//      matchvalt = inp->attrib[t+nstats];
-////     if(matchvalt < matchvalh){
-////       matchswap = matchvalh;
-////       matchvalh = matchvalt;
-////       matchvalt = matchswap;
-////      }       
-//      edgeflag=(EdgetreeSearch(h, t, nwp->outedges) != 0);
-//      // 1 = edge removed -1 = edge added
-//      discord = edgeflag ? 1 : -1;
-//      k=1;
-//      lookmore=1;
-//      while(lookmore && k <= nprevedge){
-////       Rprintf("h %d t %d h %d t %d\n",
-////	        h,t,h,t);
-////       Rprintf("h %d t %d h %d t %d\n",
-////	      t,h,(Vertex)(inp->attrib[            k]),
-////	            (Vertex)(inp->attrib[nprevedge + k]));
-////     Check to see if it was a previous edge
-//       if(t == (Vertex)(inp->attrib[nstats+nnodes           + k]) &&
-//          h == (Vertex)(inp->attrib[nstats+nnodes+nprevedge + k])
-//	 ){
-////        Rprintf("h %d t %d h attr %d t attr %d\n",
-////	           h,t,(Vertex)(inp->attrib[nstats+nnodes+nprevedge +   k]),
-////	          (Vertex)(inp->attrib[nstats+nnodes+ k]));
-////        Check to see which mixing group it is in
-//          j=0;
-//          while(lookmore && j < nstats){
-//            if(matchvalh==inp->inputparams[nstats+j+1] &&
-//	       matchvalt==inp->inputparams[      +j+1]
-//	      ){
-//
-//              /*If the proposed edge existed in x0, get dissolution rate */
-//	      /* lookmore is location of (h, t) in the dissolve matrix */
-////            lookmore=2*nprevedge+(h-1)+(t-1-nb1)*nb2;
-//	      /* change is NEGATIVE the dissolve rate if an edge exists */
-////          Rprintf("h %d t %d lookmore %d att %f\n",h, t, lookmore, (double)(inp->attrib[lookmore]));
-////              change=-discord*(double)(inp->attrib[lookmore]);
-//           /*Update the change statistics, as appropriate*/
-//	   /*change is the number of edges dissolved*/
-//	        inp->dstats[j] -= discord;
-//	        lookmore=0;
-//	       }
-//	       j++;
-//	  }
-//	  lookmore=0;
-//       }
-//       k++;
-//      }
-//
-//      if (i+1 < ntoggles)
-//	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-//    }
-//  i--; 
-//  while (--i>=0)  /*  Undo all previous toggles. */
-//    ToggleEdge(heads[i], tails[i], nwp); 
-//}
-//
-///*****************
-// changestat: d_endure
-//*****************/
-//D_CHANGESTAT_FN(d_endure) 
-//{
-//  Vertex h, t, hh, ht;
-//  int i, k, nprevedge, edgeflag, discord, lookmore;
-//  int nb2, nb1;
-//  int nnodes;
-//  double change=0.0;
-//
-//  nprevedge = (int)((inp->inputparams[0]));
-//  nnodes = (nwp->nnodes);
-//  nb1 = (int)(inp->inputparams[1]);
-//  nb2 = nnodes - nb1;
-//
-////  Rprintf("nprevedge %d\n", nprevedge);
-////  Rprintf("nb1 %d nb2 %d\n", nb1, nb2);
-////  for (k=1; k<=nprevedge; k++) {
-////      Rprintf("k %d x0.h %d x0.t %d\n", k,
-////	      (Vertex)(inp->attrib[          k]),
-////	      (Vertex)(inp->attrib[nprevedge+k]));
-////  }
-//
-//  *(inp->dstats) = 0.0;
-//
-//  for (i=0; i<ntoggles; i++) 
-//    {
-//      /*Get the initial state of the edge and its reflection*/
-//      edgeflag=(EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
-//      if(h > t){
-//	hh = t;
-//	ht = h;
-//      }else{
-//	hh = h;
-//	ht = t;
-//      }
-//      // 1 = edge removed -1 = edge added
-//      discord = edgeflag ? 1 : -1;
-//
-//// Rprintf("nprevedge %d\n", nprevedge);
-//
-//      k=1;
-//      lookmore=1;
-//      while(lookmore && k <= nprevedge){
-////       Rprintf("h %d t %d hh %d ht %d\n",
-////	      h,t,hh,ht);
-////       Rprintf("h %d t %d hh %d ht %d\n",
-////	      ht,hh,(Vertex)(inp->attrib[            k]),
-////	            (Vertex)(inp->attrib[nprevedge + k]));
-//       if(ht == (Vertex)(inp->attrib[            k]) &&
-//          hh == (Vertex)(inp->attrib[nprevedge + k])
-//	 ){
-////       Rprintf("h %d t %d hh %d ht %d\n",
-////	      h,t,(Vertex)(inp->attrib[            k]),
-////	          (Vertex)(inp->attrib[nprevedge + k]));
-//
-//           /*If the proposed edge existed in x0, get dissolution rate */
-//	   /* lookmore is location of (hh, ht) in the dissolve matrix */
-//	   /* change is NEGATIVE the dissolve rate if an edge exists */
-////       Rprintf("hh %d ht %d lookmore %d att %f\n",hh, ht, lookmore, (double)(inp->attrib[lookmore]));
-////           change=-discord*(double)(inp->attrib[lookmore]);
-//           change=-discord;
-////       Rprintf("lookmore %d change %f discord %d \n",lookmore, change, discord);
-//	   lookmore=0;
-//           /*Update the change statistics, as appropriate*/
-//	   /*change is the number of edges dissolved*/
-//           *(inp->dstats) += change;
-////      if(change!=0){
-////       Rprintf("h %d t %d hh %d ht %d edgeflag %d beta %f\n",
-////	      h,t,hh,ht, edgeflag, (double)(inp->attrib[lookmore]));
-////       Rprintf("edgeflag %d change %f discord %d\n",
-////	      edgeflag, change, discord);
-////      }
-//          }else{
-//		   ++k;
-//	  }
-//      }
-//
-//      if (i+1 < ntoggles)
-//	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-//    }
-//  i--; 
-//  while (--i>=0)  /*  Undo all previous toggles. */
-//    ToggleEdge(heads[i], tails[i], nwp); 
-//}
-//
-///*****************
-// changestat: d_bichange
-//*****************/
-//D_CHANGESTAT_FN(d_bichange) 
-//{
-//  Vertex h, t, hh, ht;
-//  int i, k, nprevedge, edgeflag, discord, lookmore;
-//  int nb2, nb1;
-//  int nnodes;
-//  double change=0.0;
-//
-//  nprevedge = (int)((inp->inputparams[0]));
-//  nnodes = (nwp->nnodes);
-//  nb1 = (int)(inp->inputparams[1]);
-//  nb2 = nnodes - nb1;
-//
-////  Rprintf("nprevedge %d\n", nprevedge);
-////  Rprintf("nb1 %d nb2 %d\n", nb1, nb2);
-////  for (k=1; k<=nprevedge; k++) {
-////      Rprintf("k %d x0.h %d x0.t %d\n", k,
-////	      (Vertex)(inp->attrib[          k]),
-////	      (Vertex)(inp->attrib[nprevedge+k]));
-////  }
-//
-//  *(inp->dstats) = 0.0;
-//
-//  for (i=0; i<ntoggles; i++) 
-//    {
-//      /*Get the initial state of the edge and its reflection*/
-//      edgeflag=(EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
-//      if(h > t){
-//	hh = t;
-//	ht = h;
-//      }else{
-//	hh = h;
-//	ht = t;
-//      }
-//
-//      k=1;
-//      lookmore=1;
-//      change=0.0;
-//      while(lookmore && k <= nprevedge){
-////       Rprintf("h %d t %d hh %d ht %d\n",
-////	      h,t,hh,ht);
-////       Rprintf("h %d t %d hh %d ht %d\n",
-////	      hh,ht,(Vertex)(inp->attrib[            k]),
-////	          (Vertex)(inp->attrib[nprevedge + k]));
-//       if(ht == (Vertex)(inp->attrib[            k]) &&
-//          hh == (Vertex)(inp->attrib[nprevedge + k])
-//	 ){
-////       Rprintf("h %d t %d hh %d ht %d\n",
-////	      h,t,(Vertex)(inp->attrib[            k]),
-////	          (Vertex)(inp->attrib[nprevedge + k]));
-//
-//           /*If the proposed edge existed in x0, get dissolution rate */
-//	   /* lookmore is location of (hh, ht) in the dissolve matrix */
-//           lookmore=2*nprevedge+(hh-1)+(ht-1-nb1)*nb2;
-//	   /* change is NEGATIVE the dissolve rate if an edge exists */
-////       Rprintf("hh %d ht %d lookmore %d att %f\n",hh, ht, lookmore, (double)(inp->attrib[lookmore]));
-//           change+=edgeflag*(double)(inp->attrib[lookmore]);
-////       Rprintf("lookmore %d change %f\n",lookmore, change);
-//	   lookmore=0;
-////      if(change!=0){
-////       Rprintf("h %d t %d hh %d ht %d edgeflag %d beta %f\n",
-////	      h,t,hh,ht, edgeflag, (double)(inp->attrib[lookmore]));
-////       Rprintf("edgeflag %d change %f discord %d\n",
-////	      edgeflag, change, discord);
-////      }
-//          }else{
-//		   ++k;
-//	  }
-//
-//      if(lookmore && edgeflag){
-//       /* lookmore, so no edge exisited in x0, Get formation rate */
-//       /* lookmore is location of (hh, ht) in the form matrix */
-//       lookmore=2*nprevedge+(hh-1)+(ht-1-nb1)*nb2;
-//       /* change is the form number of formed edges */
-//       change+=(1-edgeflag)*(double)(inp->attrib[lookmore]);
-//      }
-//      /*Update the change statistics, as appropriate*/
-//      /*change is the number of edges dissolved*/
-//      *(inp->dstats) -= change;
-//      }
-//
-//      if (i+1 < ntoggles)
-//	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-//    }
-//  i--; 
-//  while (--i>=0)  /*  Undo all previous toggles. */
-//    ToggleEdge(heads[i], tails[i], nwp); 
-//}
-//
-///*****************
-// changestat: d_step
-//*****************/
-//D_CHANGESTAT_FN(d_step) {
-//
-//  int matchvalh, matchvalt;
-//  int k, nprevedge, discord, lookmore;
-//  Vertex h, t, nnodes, nstats;
-//  Vertex hh, ht;
-//  Vertex ch, ct, cv, ph, pt, pv;
-//  int i, j, edgeflag=0;
-//
-//  nstats = inp->nstats;
-////  nnodes = (inp->ninputparams)-2*nstats;
-//  ph1 = *(nwp->ph1);
-//  pt1 = *(nwp->pt1);
-//  pv1 = *(nwp->pv1);
-//  ph2 = *(nwp->ph2);
-//  pt2 = *(nwp->pt2);
-//  pv2 = *(nwp->pv2);
-//  if(pv1 != (EdgetreeSearch(ph1, pt1, nwp->outedges) != 0)
-//  && pv1 != (EdgetreeSearch(ph1, pt1, nwp->outedges) != 0)){
-//	  // Proposal made so update current
-//   *(nwp->ch1) = ph1;
-//   *(nwp->ct1) = pt1;
-//   *(nwp->cv1) = pv1;
-//   *(nwp->ch2) = ph2;
-//   *(nwp->ct2) = pt2;
-//   *(nwp->cv2) = pv2;
-//  }
-//  ch1 = *(nwp->ch1);
-//  ct1 = *(nwp->ct1);
-//  cv1 = *(nwp->cv1);
-//  ch2 = *(nwp->ch2);
-//  ct2 = *(nwp->ct2);
-//  cv2 = *(nwp->cv2);
-//
-//  nnodes = (nwp->nnodes);
-//  nprevedge = (int)(inp->inputparams[0]);
-//  Rprintf("ninput %d nstats %d\n", inp->ninputparams, inp->nstats);
-//  Rprintf("nodes %d nprevedge %d\n", nnodes, nprevedge);
-//// for (h=1; h<=nnodes; h++){
-////   Rprintf("match h %d att h %f\n", 
-////	    h, inp->attrib[h+nstats]);
-//// }
-//// for (h=0; h<nstats; h++){
-////   Rprintf("match h %d in h %f in t %f\n", 
-////	    h, inp->inputparams[h], inp->inputparams[h+nstats]);
-//// }
-//  for (i=0; i < nstats; i++) 
-//    inp->dstats[i] = 0.0;
-//
-//  for (i=0; i<ntoggles; i++) 
-//    {
-//      h=heads[i];
-//      t=tails[i];
-//      edgeflag=(EdgetreeSearch(h, t, nwp->outedges) != 0);
-//      // 1 = edge removed -1 = edge added
-//      discord = edgeflag ? 1 : -1;
-//      k=1;
-//      lookmore=1;
-//      while(lookmore && k <= nprevedge){
-////       Rprintf("h %d t %d h %d t %d\n",
-////	        h,t,h,t);
-////       Rprintf("h %d t %d h %d t %d\n",
-////	      t,h,(Vertex)(inp->attrib[            k]),
-////	            (Vertex)(inp->attrib[nprevedge + k]));
-////     Check to see if it was a previous edge
-//       if(t == (Vertex)(inp->attrib[nstats+nnodes           + k]) &&
-//          h == (Vertex)(inp->attrib[nstats+nnodes+nprevedge + k])
-//	 ){
-////        Rprintf("h %d t %d h attr %d t attr %d\n",
-////	           h,t,(Vertex)(inp->attrib[nstats+nnodes+nprevedge +   k]),
-////	          (Vertex)(inp->attrib[nstats+nnodes+ k]));
-////        Check to see which mixing group it is in
-//          j=0;
-//          while(lookmore && j < nstats){
-//            if(matchvalh==inp->inputparams[nstats+j+1] &&
-//	       matchvalt==inp->inputparams[      +j+1]
-//	      ){
-//
-//              /*If the proposed edge existed in x0, get dissolution rate */
-//	      /* lookmore is location of (h, t) in the dissolve matrix */
-////            lookmore=2*nprevedge+(h-1)+(t-1-nb1)*nb2;
-//	      /* change is NEGATIVE the dissolve rate if an edge exists */
-////          Rprintf("h %d t %d lookmore %d att %f\n",h, t, lookmore, (double)(inp->attrib[lookmore]));
-////              change=-discord*(double)(inp->attrib[lookmore]);
-//           /*Update the change statistics, as appropriate*/
-//	   /*change is the number of edges dissolved*/
-//	        inp->dstats[j] -= discord;
-//	        lookmore=0;
-//	       }
-//	       j++;
-//	  }
-//	  lookmore=0;
-//       }
-//       k++;
-//      }
-//
-//      if (i+1 < ntoggles)
-//	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-//    }
-//  i--; 
-//  while (--i>=0)  /*  Undo all previous toggles. */
-//    ToggleEdge(heads[i], tails[i], nwp); 
-//}
-//
-///*****************
-// changestat: d_biduration_old
-//*****************/
-//D_CHANGESTAT_FN(d_biduration_old) 
-//{
-//  Vertex h, t, hh, ht;
-//  int i, k, nprevedge, edgeflag, discord, lookmore;
-//  int nb2, nb1;
-//  int nnodes;
-//  double change=0.0;
-//
-//  nprevedge = (int)((inp->inputparams[0]));
-//  nnodes = (nwp->nnodes);
-//  nb1 = (int)(inp->inputparams[1]);
-//  nb2 = nnodes - nb1;
-//
-////  Rprintf("nprevedge %d\n", nprevedge);
-////  Rprintf("nb1 %d nb2 %d\n", nb1, nb2);
-////  for (k=1; k<=nprevedge; k++) {
-////      Rprintf("k %d x0.h %d x0.t %d\n", k,
-////	      (Vertex)(inp->attrib[          k]),
-////	      (Vertex)(inp->attrib[nprevedge+k]));
-////  }
-//
-//  *(inp->dstats) = 0.0;
-//
-//  for (i=0; i<ntoggles; i++) 
-//    {
-//      /*Get the initial state of the edge and its reflection*/
-//      edgeflag=(EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) != 0);
-//      if(h > t){
-//	hh = t;
-//	ht = h;
-//      }else{
-//	hh = h;
-//	ht = t;
-//      }
-//      // 1 = edge removed -1 = edge added
-//      discord = edgeflag ? 1 : -1;
-//
-//// Rprintf("nprevedge %d\n", nprevedge);
-//
-//      k=1;
-//      lookmore=1;
-//      while(lookmore && k <= nprevedge){
-////       Rprintf("h %d t %d hh %d ht %d\n",
-////	      h,t,hh,ht);
-////       Rprintf("h %d t %d hh %d ht %d\n",
-////	      ht,hh,(Vertex)(inp->attrib[            k]),
-////	            (Vertex)(inp->attrib[nprevedge + k]));
-//       if(ht == (Vertex)(inp->attrib[            k]) &&
-//          hh == (Vertex)(inp->attrib[nprevedge + k])
-//	 ){
-////       Rprintf("h %d t %d hh %d ht %d\n",
-////	      h,t,(Vertex)(inp->attrib[            k]),
-////	          (Vertex)(inp->attrib[nprevedge + k]));
-//
-//           /*If the proposed edge existed in x0, get dissolution rate */
-//	   /* lookmore is location of (hh, ht) in the dissolve matrix */
-//           lookmore=2*nprevedge+(hh-1)+(ht-1-nb1)*nb2;
-//	   /* change is NEGATIVE the dissolve rate if an edge exists */
-////       Rprintf("hh %d ht %d lookmore %d att %f\n",hh, ht, lookmore, (double)(inp->attrib[lookmore]));
-////           change=-discord*(double)(inp->attrib[lookmore]);
-//           change=-discord;
-////       Rprintf("lookmore %d change %f discord %d \n",lookmore, change, discord);
-//	   lookmore=0;
-//           /*Update the change statistics, as appropriate*/
-//	   /*change is the number of edges dissolved*/
-//           *(inp->dstats) += change;
-////      if(change!=0){
-////       Rprintf("h %d t %d hh %d ht %d edgeflag %d beta %f\n",
-////	      h,t,hh,ht, edgeflag, (double)(inp->attrib[lookmore]));
-////       Rprintf("edgeflag %d change %f discord %d\n",
-////	      edgeflag, change, discord);
-////      }
-//          }else{
-//		   ++k;
-//	  }
-//      }
-//
-//      if (i+1 < ntoggles)
-//	ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
-//    }
-//  i--; 
-//  while (--i>=0)  /*  Undo all previous toggles. */
-//    ToggleEdge(heads[i], tails[i], nwp); 
-//}
-//
- 
 /*****************
  changestat: d_gwb2share
 ****************/
@@ -3063,43 +1861,31 @@ D_CHANGESTAT_FN(d_gwb2share) {
   Edge e, f;
   int i, echange, ochange;
   int L2ut;
-  Vertex h, t, u, v;
+  Vertex tail, head, u, v;
   double alpha, oneexpa, cumchange;
   
-  *(mtp->dstats) = 0.0;
-  alpha = mtp->inputparams[0];
+  CHANGE_STAT[0] = 0.0;
+  alpha = INPUT_PARAM[0];
   oneexpa = 1.0-exp(-alpha);
   
-  for (i=0; i<ntoggles; i++){      
+  FOR_EACH_TOGGLE(i) {
     cumchange=0.0;
-    ochange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 0 : -1;
+    ochange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 0;
     echange = 2*ochange + 1;
-    
-    /* step through outedges of h (type 1) */
-    for(e = EdgetreeMinimum(nwp->outedges, h);
-    (u = nwp->outedges[e].value) != 0;
-    e = EdgetreeSuccessor(nwp->outedges, e)){
-      if (u != t){
+    STEP_THROUGH_OUTEDGES(tail, e, u) {
+      if (u != head){
         L2ut=ochange;
-        /* step through inedges of u (type 2)*/
-        for(f = EdgetreeMinimum(nwp->inedges, u); 
-        (v = nwp->inedges[f].value) != 0;
-        f = EdgetreeSuccessor(nwp->inedges, f)){
-          if(EdgetreeSearch(MIN(v,t),MAX(v,t),nwp->outedges)!= 0) L2ut++;
+        STEP_THROUGH_INEDGES(u, v, f) {
+          if(IS_OUTEDGE(MIN(v,head),MAX(v,head))) L2ut++;
         }
         cumchange += pow(oneexpa,(double)L2ut);
       }
     }
-    
     cumchange  = echange*cumchange;
-    (*(mtp->dstats)) += cumchange;
-    if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    (CHANGE_STAT[0]) += cumchange;
+    TOGGLE_IF_MORE_TO_COME(i);
   }
-  
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
@@ -3109,41 +1895,30 @@ D_CHANGESTAT_FN(d_gwb1share) {
   Edge e, f;
   int i, echange, ochange;
   int L2hu;
-  Vertex h, t, u, v;
+  Vertex tail, head, u, v;
   double alpha, oneexpa, cumchange;
   
-  *(mtp->dstats) = 0.0;
-  alpha = mtp->inputparams[0];
+  CHANGE_STAT[0] = 0.0;
+  alpha = INPUT_PARAM[0];
   oneexpa = 1.0-exp(-alpha);
   
-  for (i=0; i<ntoggles; i++){      
+  FOR_EACH_TOGGLE(i) {
     cumchange=0.0;
-    ochange = (EdgetreeSearch(h=heads[i], t=tails[i], nwp->outedges) == 0) ? 0 : -1;
+    ochange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 0;
     echange = 2*ochange + 1;
-    /* step through inedges of t (a type 2) */
-    for(e = EdgetreeMinimum(nwp->inedges, t);
-    (u = nwp->inedges[e].value) != 0;
-    e = EdgetreeSuccessor(nwp->inedges, e)){
-      if (u != h){
+    STEP_THROUGH_INEDGES(head, e, u) {
+      if (u != tail){
         L2hu=ochange;
-        /* step through outedges of u (a type 1) */
-        for(f = EdgetreeMinimum(nwp->outedges, u);
-        (v = nwp->outedges[f].value) != 0;
-        f = EdgetreeSuccessor(nwp->outedges, f)){
-          if(EdgetreeSearch(MIN(v,h),MAX(v,h),nwp->outedges)!= 0) L2hu++;
+        STEP_THROUGH_OUTEDGES(u, v, f) {
+          if(IS_OUTEDGE(MIN(v,tail),MAX(v,tail))) L2hu++;
         }
         cumchange += pow(oneexpa,(double)L2hu);
       }
     }
-    
     cumchange  = echange*cumchange;
-    (*(mtp->dstats)) += cumchange;
-    if (i+1 < ntoggles)
-      ToggleEdge(heads[i], tails[i], nwp);  /* Toggle this edge if more to come */
+    (CHANGE_STAT[0]) += cumchange;
+    TOGGLE_IF_MORE_TO_COME(i);
   }
-  
-  i--; 
-  while (--i>=0)  /*  Undo all previous toggles. */
-    ToggleEdge(heads[i], tails[i], nwp); 
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 

@@ -62,7 +62,7 @@ typedef struct ModelTermstruct {
 #define TOGGLE_DISCORD(a,b) (ToggleEdge((a),(b),nwp+1));
 
 #define N_NODES (nwp->nnodes) /* Total number of nodes in the network */
-#define N_DYADS (nwp->directed_flag?(nnodes*(nnodes-1)):nwp->bipartite?nwp->bipartite*(nnodes-nwp->bipartite):(nnodes*(nnodes-1)/2))
+#define N_DYADS (nwp->directed_flag?(nwp->nnodes*(nwp->nnodes-1)):nwp->bipartite?nwp->bipartite*(nwp->nnodes-nwp->bipartite):(nwp->nnodes*(nwp->nnodes-1)/2))
 #define OUT_DEG (nwp->outdegree) /* Vector of length N_NODES giving current outdegrees */
 #define IN_DEG (nwp->indegree) /* Vector of length N_NODES giving current indegrees */
 #define DIRECTED (nwp->directed_flag) /* 0 if network is undirected, 1 if directed */

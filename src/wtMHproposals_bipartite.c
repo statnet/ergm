@@ -1,7 +1,7 @@
 #include "wtMHproposals.h"
 /* Shorthand. */
-#define Mhead (MHp->togglehead)
 #define Mtail (MHp->toggletail)
+#define Mhead (MHp->togglehead)
 #define Mweight (MHp->toggleweight)
 
 /*********************
@@ -17,10 +17,10 @@ void MH_BipartitePoisson(WtMHproposal *MHp, WtNetwork *nwp)  {
     return;
   }
   
-  Mhead[0] = 1 + unif_rand() * nwp->bipartite;
-  Mtail[0] = 1 + nwp->bipartite + unif_rand() * (nwp->nnodes - nwp->bipartite);
+  Mtail[0] = 1 + unif_rand() * nwp->bipartite;
+  Mhead[0] = 1 + nwp->bipartite + unif_rand() * (nwp->nnodes - nwp->bipartite);
 
-  oldwt = WtGetEdge(Mhead[0],Mtail[0],nwp);
+  oldwt = WtGetEdge(Mtail[0],Mhead[0],nwp);
 
   const double fudge = 0.5; // Mostly comes in when proposing from 0.
 
@@ -45,7 +45,6 @@ void MH_BipartitePoissonNonObserved(WtMHproposal *MHp, WtNetwork *nwp){ MH_Poiss
  Default MH algorithm for ERGM over complete orderings
 *********************/
 void MH_CompleteOrderingBipartite(WtMHproposal *MHp, WtNetwork *nwp)  {  
-  Vertex head, tail1, tail2;
   
   if(MHp->ntoggles == 0) { // Initialize Poisson 
     MHp->ntoggles=2;
@@ -53,12 +52,12 @@ void MH_CompleteOrderingBipartite(WtMHproposal *MHp, WtNetwork *nwp)  {
   }
     
   
-  Mhead[0] = Mhead[1] = 1 + unif_rand() * nwp->bipartite;
-  Mtail[0] = 1 + nwp->bipartite + unif_rand() * (nwp->nnodes - nwp->bipartite);
-  Mtail[1] = 1 + Mtail[0] + unif_rand() * (nwp->nnodes - Mtail[0]);
+  Mtail[0] = Mtail[1] = 1 + unif_rand() * nwp->bipartite;
+  Mhead[0] = 1 + nwp->bipartite + unif_rand() * (nwp->nnodes - nwp->bipartite);
+  Mhead[1] = 1 + Mhead[0] + unif_rand() * (nwp->nnodes - Mhead[0]);
   
-  Mweight[1] = WtGetEdge(Mhead[0],Mtail[0],nwp);
-  Mweight[0] = WtGetEdge(Mhead[1],Mtail[1],nwp);
+  Mweight[1] = WtGetEdge(Mtail[0],Mhead[0],nwp);
+  Mweight[0] = WtGetEdge(Mtail[1],Mhead[1],nwp);
 }
 
 /*********************
@@ -74,10 +73,10 @@ void MH_BipartiteStdNormal(WtMHproposal *MHp, WtNetwork *nwp)  {
     return;
   }
   
-  Mhead[0] = 1 + unif_rand() * nwp->bipartite;
-  Mtail[0] = 1 + nwp->bipartite + unif_rand() * (nwp->nnodes - nwp->bipartite);
+  Mtail[0] = 1 + unif_rand() * nwp->bipartite;
+  Mhead[0] = 1 + nwp->bipartite + unif_rand() * (nwp->nnodes - nwp->bipartite);
 
-  oldwt = WtGetEdge(Mhead[0],Mtail[0],nwp);
+  oldwt = WtGetEdge(Mtail[0],Mhead[0],nwp);
 
   const double propsd = 0.2;
 

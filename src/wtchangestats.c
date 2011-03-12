@@ -10,9 +10,9 @@ WtD_CHANGESTAT_FN(d_absdiff_nonzero){
   
   EXEC_THROUGH_TOGGLES({
       if(p==1.0){
-	CHANGE_STAT[0] += fabs(INPUT_ATTRIB[HEAD] - INPUT_ATTRIB[TAIL])*((NEWWT!=0)-(OLDWT!=0));
+	CHANGE_STAT[0] += fabs(INPUT_ATTRIB[TAIL] - INPUT_ATTRIB[HEAD])*((NEWWT!=0)-(OLDWT!=0));
       } else {
-	CHANGE_STAT[0] += pow(fabs(INPUT_ATTRIB[HEAD] - INPUT_ATTRIB[TAIL]), p)*((NEWWT!=0)-(OLDWT!=0));
+	CHANGE_STAT[0] += pow(fabs(INPUT_ATTRIB[TAIL] - INPUT_ATTRIB[HEAD]), p)*((NEWWT!=0)-(OLDWT!=0));
       }
     });
 }
@@ -25,9 +25,9 @@ WtD_CHANGESTAT_FN(d_absdiff_sum){
   
   EXEC_THROUGH_TOGGLES({
       if(p==1.0){
-	CHANGE_STAT[0] += fabs(INPUT_ATTRIB[HEAD] - INPUT_ATTRIB[TAIL])*(NEWWT-OLDWT);
+	CHANGE_STAT[0] += fabs(INPUT_ATTRIB[TAIL] - INPUT_ATTRIB[HEAD])*(NEWWT-OLDWT);
       } else {
-	CHANGE_STAT[0] += pow(fabs(INPUT_ATTRIB[HEAD] - INPUT_ATTRIB[TAIL]), p)*(NEWWT-OLDWT);
+	CHANGE_STAT[0] += pow(fabs(INPUT_ATTRIB[TAIL] - INPUT_ATTRIB[HEAD]), p)*(NEWWT-OLDWT);
       }
     });
 }
@@ -36,7 +36,7 @@ WtD_CHANGESTAT_FN(d_absdiff_sum){
  stat: absdiffcat(_nonzero)
 *****************/
 WtD_CHANGESTAT_FN(d_absdiffcat_nonzero){ 
-  double change, absdiff, NAsubstitute, hval, tval;
+  double change, absdiff, NAsubstitute, tailval, headval;
   Vertex ninputs;
   int j;
   
@@ -45,10 +45,10 @@ WtD_CHANGESTAT_FN(d_absdiffcat_nonzero){
   
   EXEC_THROUGH_TOGGLES({
       change = (NEWWT!=0)-(OLDWT!=0);
-      hval = INPUT_ATTRIB[HEAD-1];
-      tval = INPUT_ATTRIB[TAIL-1];
-      if (hval == NAsubstitute ||  tval == NAsubstitute) absdiff = NAsubstitute;
-      else absdiff = fabs(hval - tval);
+      tailval = INPUT_ATTRIB[TAIL-1];
+      headval = INPUT_ATTRIB[HEAD-1];
+      if (tailval == NAsubstitute ||  headval == NAsubstitute) absdiff = NAsubstitute;
+      else absdiff = fabs(tailval - headval);
       if (absdiff>0){
 	for (j=0; j<N_CHANGE_STATS; j++){
 	  CHANGE_STAT[j] += (absdiff==INPUT_PARAM[j]) ? change : 0.0;
@@ -61,7 +61,7 @@ WtD_CHANGESTAT_FN(d_absdiffcat_nonzero){
  stat: absdiffcat(_sum)
 *****************/
 WtD_CHANGESTAT_FN(d_absdiffcat_sum){ 
-  double change, absdiff, NAsubstitute, hval, tval;
+  double change, absdiff, NAsubstitute, tailval, headval;
   Vertex ninputs;
   int j;
   
@@ -70,10 +70,10 @@ WtD_CHANGESTAT_FN(d_absdiffcat_sum){
   
   EXEC_THROUGH_TOGGLES({
       change = NEWWT-OLDWT;
-      hval = INPUT_ATTRIB[HEAD-1];
-      tval = INPUT_ATTRIB[TAIL-1];
-      if (hval == NAsubstitute ||  tval == NAsubstitute) absdiff = NAsubstitute;
-      else absdiff = fabs(hval - tval);
+      tailval = INPUT_ATTRIB[TAIL-1];
+      headval = INPUT_ATTRIB[HEAD-1];
+      if (tailval == NAsubstitute ||  headval == NAsubstitute) absdiff = NAsubstitute;
+      else absdiff = fabs(tailval - headval);
       if (absdiff>0){
 	for (j=0; j<N_CHANGE_STATS; j++){
 	  CHANGE_STAT[j] += (absdiff==INPUT_PARAM[j]) ? change : 0.0;
@@ -102,16 +102,16 @@ WtD_FROM_S_FN(d_cyclicweights_max)
 
 WtS_CHANGESTAT_FN(s_cyclicweights_max){ 
   Edge e1, e2;
-  Vertex h, t, node3;
+  Vertex tail, head, node3;
   
   CHANGE_STAT[0]=0;
-  for (h=1; h <= N_NODES; h++){
-    EXEC_THROUGH_FOUTEDGES(h, e1, t, {
+  for (tail=1; tail <= N_NODES; tail++){
+    EXEC_THROUGH_FOUTEDGES(tail, e1, head, {
       double best_path = 0;
-      EXEC_THROUGH_OUTEDGES(t, e2, node3, { 
-	best_path = fmax(best_path, fmin(GETWT(node3,h),GETWT(t,node3)));
+      EXEC_THROUGH_OUTEDGES(head, e2, node3, { 
+	best_path = fmax(best_path, fmin(GETWT(node3,tail),GETWT(head,node3)));
 	})
-      CHANGE_STAT[0] += fmin(best_path, GETWT(h,t));
+      CHANGE_STAT[0] += fmin(best_path, GETWT(tail,head));
       })
   }
 }
@@ -124,16 +124,16 @@ WtD_FROM_S_FN(d_cyclicweights_sum)
 
 WtS_CHANGESTAT_FN(s_cyclicweights_sum){ 
   Edge e1, e2;
-  Vertex h, t, node3;
+  Vertex tail, head, node3;
   
   CHANGE_STAT[0]=0;
-  for (h=1; h <= N_NODES; h++){
-    EXEC_THROUGH_FOUTEDGES(h, e1, t, {
+  for (tail=1; tail <= N_NODES; tail++){
+    EXEC_THROUGH_FOUTEDGES(tail, e1, head, {
       double path_strength = 0;
-      EXEC_THROUGH_OUTEDGES(t, e2, node3, { 
-	path_strength += fmin(GETWT(node3,h),GETWT(t,node3));
+      EXEC_THROUGH_OUTEDGES(head, e2, node3, { 
+	path_strength += fmin(GETWT(node3,tail),GETWT(head,node3));
 	})
-      CHANGE_STAT[0] += fmin(path_strength, GETWT(h,t));
+      CHANGE_STAT[0] += fmin(path_strength, GETWT(tail,head));
       })
   }
 }
@@ -146,14 +146,14 @@ WtD_FROM_S_FN(d_cyclicweights_threshold)
 
 WtS_CHANGESTAT_FN(s_cyclicweights_threshold){ 
   Edge e1, e2;
-  Vertex h, t, node3;
+  Vertex tail, head, node3;
   
   CHANGE_STAT[0]=0;
-  for (h=1; h <= N_NODES; h++){
-    EXEC_THROUGH_FOUTEDGES(h, e1, t, {
-	if(GETWT(h,t)<=INPUT_ATTRIB[0]) break;
-	EXEC_THROUGH_OUTEDGES(t, e2, node3, { 
-	    if(GETWT(node3,h)>INPUT_ATTRIB[0] && GETWT(t,node3)>INPUT_ATTRIB[0]){
+  for (tail=1; tail <= N_NODES; tail++){
+    EXEC_THROUGH_FOUTEDGES(tail, e1, head, {
+	if(GETWT(tail,head)<=INPUT_ATTRIB[0]) break;
+	EXEC_THROUGH_OUTEDGES(head, e2, node3, { 
+	    if(GETWT(node3,tail)>INPUT_ATTRIB[0] && GETWT(head,node3)>INPUT_ATTRIB[0]){
 	      CHANGE_STAT[0]++; 
 	      break;
 	    }
@@ -193,8 +193,8 @@ WtD_CHANGESTAT_FN(d_ininterval){
 *****************/
 WtD_CHANGESTAT_FN(d_mutual_wt_product){
   EXEC_THROUGH_TOGGLES({
-      double thweight = GETWT(TAIL,HEAD);
-      CHANGE_STAT[0] += (NEWWT*thweight) - (OLDWT*thweight);
+      double htweight = GETWT(HEAD,TAIL);
+      CHANGE_STAT[0] += (NEWWT*htweight) - (OLDWT*htweight);
     });
 }
 
@@ -203,8 +203,8 @@ WtD_CHANGESTAT_FN(d_mutual_wt_product){
 *****************/
 WtD_CHANGESTAT_FN(d_mutual_wt_geom_mean){
   EXEC_THROUGH_TOGGLES({
-      double thweight = GETWT(TAIL,HEAD);
-      CHANGE_STAT[0] += sqrt(NEWWT*thweight) - sqrt(OLDWT*thweight);
+      double htweight = GETWT(HEAD,TAIL);
+      CHANGE_STAT[0] += sqrt(NEWWT*htweight) - sqrt(OLDWT*htweight);
     });
 }
 
@@ -213,8 +213,8 @@ WtD_CHANGESTAT_FN(d_mutual_wt_geom_mean){
 *****************/
 WtD_CHANGESTAT_FN(d_mutual_wt_min){
   EXEC_THROUGH_TOGGLES({
-      double thweight = GETWT(TAIL,HEAD);
-      CHANGE_STAT[0] += fmin(NEWWT,thweight) - fmin(OLDWT,thweight);
+      double htweight = GETWT(HEAD,TAIL);
+      CHANGE_STAT[0] += fmin(NEWWT,htweight) - fmin(OLDWT,htweight);
     });
 }
 
@@ -224,8 +224,8 @@ WtD_CHANGESTAT_FN(d_mutual_wt_min){
 *****************/
 WtD_CHANGESTAT_FN(d_mutual_wt_nabsdiff){
   EXEC_THROUGH_TOGGLES({
-      double thweight = GETWT(TAIL,HEAD);
-      CHANGE_STAT[0] -= fabs(NEWWT-thweight) - fabs(OLDWT-thweight);
+      double htweight = GETWT(HEAD,TAIL);
+      CHANGE_STAT[0] -= fabs(NEWWT-htweight) - fabs(OLDWT-htweight);
   });
 }
 
@@ -236,7 +236,7 @@ WtD_CHANGESTAT_FN(d_mutual_wt_nabsdiff){
 *****************/
 WtD_CHANGESTAT_FN(d_nodecov_nonzero){ 
   EXEC_THROUGH_TOGGLES({
-      CHANGE_STAT[0] += (INPUT_ATTRIB[HEAD-1] + INPUT_ATTRIB[TAIL-1])*((NEWWT!=0)-(OLDWT!=0));
+      CHANGE_STAT[0] += (INPUT_ATTRIB[TAIL-1] + INPUT_ATTRIB[HEAD-1])*((NEWWT!=0)-(OLDWT!=0));
   });
 }
 
@@ -245,7 +245,7 @@ WtD_CHANGESTAT_FN(d_nodecov_nonzero){
 *****************/
 WtD_CHANGESTAT_FN(d_nodecov_sum){ 
   EXEC_THROUGH_TOGGLES({
-      CHANGE_STAT[0] += (INPUT_ATTRIB[HEAD-1] + INPUT_ATTRIB[TAIL-1])*(NEWWT-OLDWT);
+      CHANGE_STAT[0] += (INPUT_ATTRIB[TAIL-1] + INPUT_ATTRIB[HEAD-1])*(NEWWT-OLDWT);
   });
 }
 
@@ -254,7 +254,7 @@ WtD_CHANGESTAT_FN(d_nodecov_sum){
 *****************/
 WtD_CHANGESTAT_FN(d_nodeicov_nonzero){ 
   EXEC_THROUGH_TOGGLES({
-      CHANGE_STAT[0] += INPUT_ATTRIB[TAIL-1]*((NEWWT!=0)-(OLDWT!=0));
+      CHANGE_STAT[0] += INPUT_ATTRIB[HEAD-1]*((NEWWT!=0)-(OLDWT!=0));
   });
 }
 
@@ -263,7 +263,7 @@ WtD_CHANGESTAT_FN(d_nodeicov_nonzero){
 *****************/
 WtD_CHANGESTAT_FN(d_nodeicov_sum){ 
   EXEC_THROUGH_TOGGLES({
-      CHANGE_STAT[0] += INPUT_ATTRIB[TAIL-1]*(NEWWT-OLDWT);
+      CHANGE_STAT[0] += INPUT_ATTRIB[HEAD-1]*(NEWWT-OLDWT);
   });
 }
 
@@ -272,7 +272,7 @@ WtD_CHANGESTAT_FN(d_nodeicov_sum){
 *****************/
 WtD_CHANGESTAT_FN(d_nodeocov_nonzero){ 
   EXEC_THROUGH_TOGGLES({
-      CHANGE_STAT[0] += INPUT_ATTRIB[HEAD-1]*((NEWWT!=0)-(OLDWT!=0));
+      CHANGE_STAT[0] += INPUT_ATTRIB[TAIL-1]*((NEWWT!=0)-(OLDWT!=0));
   });
 }
 
@@ -281,7 +281,7 @@ WtD_CHANGESTAT_FN(d_nodeocov_nonzero){
 *****************/
 WtD_CHANGESTAT_FN(d_nodeocov_sum){ 
   EXEC_THROUGH_TOGGLES({
-      CHANGE_STAT[0] += INPUT_ATTRIB[HEAD-1]*(NEWWT-OLDWT);
+      CHANGE_STAT[0] += INPUT_ATTRIB[TAIL-1]*(NEWWT-OLDWT);
   });
 }
 
@@ -290,17 +290,17 @@ WtD_CHANGESTAT_FN(d_nodeocov_sum){
 *****************/
 WtD_CHANGESTAT_FN(d_nodefactor_nonzero){ 
   double s, factorval;
-  int j, hattr, tattr;
+  int j, tailattr, headattr;
   
   
   EXEC_THROUGH_TOGGLES({
       s = (NEWWT!=0) - (OLDWT!=0);
-      hattr = INPUT_ATTRIB[HEAD-1];
-      tattr = INPUT_ATTRIB[TAIL-1];
+      tailattr = INPUT_ATTRIB[TAIL-1];
+      headattr = INPUT_ATTRIB[HEAD-1];
       for (j=0; j < N_CHANGE_STATS; j++){
 	factorval = INPUT_PARAM[j];
-	if (hattr == factorval) CHANGE_STAT[j] += s;
-	if (tattr == factorval) CHANGE_STAT[j] += s;
+	if (tailattr == factorval) CHANGE_STAT[j] += s;
+	if (headattr == factorval) CHANGE_STAT[j] += s;
       }
     });
 }
@@ -310,17 +310,17 @@ WtD_CHANGESTAT_FN(d_nodefactor_nonzero){
 *****************/
 WtD_CHANGESTAT_FN(d_nodefactor_sum){ 
   double s, factorval;
-  int j, hattr, tattr;
+  int j, tailattr, headattr;
   
   
   EXEC_THROUGH_TOGGLES({
     s = NEWWT - OLDWT;
-    hattr = INPUT_ATTRIB[HEAD-1];
-    tattr = INPUT_ATTRIB[TAIL-1];
+    tailattr = INPUT_ATTRIB[TAIL-1];
+    headattr = INPUT_ATTRIB[HEAD-1];
     for (j=0; j < N_CHANGE_STATS; j++){
       factorval = INPUT_PARAM[j];
-      if (hattr == factorval) CHANGE_STAT[j] += s;
-      if (tattr == factorval) CHANGE_STAT[j] += s;
+      if (tailattr == factorval) CHANGE_STAT[j] += s;
+      if (headattr == factorval) CHANGE_STAT[j] += s;
     }
   });
 }
@@ -331,9 +331,9 @@ WtD_CHANGESTAT_FN(d_nodefactor_sum){
 WtD_CHANGESTAT_FN(d_nodeicorr){
   EXEC_THROUGH_TOGGLES({
       for(Vertex i=1; i<=N_NODES; i++){
-	if(i==HEAD) continue;
-	double yit = GETWT(i,TAIL);
-	CHANGE_STAT[0] += (NEWWT*yit) - (OLDWT*yit);
+	if(i==TAIL) continue;
+	double yih = GETWT(i,HEAD);
+	CHANGE_STAT[0] += (NEWWT*yih) - (OLDWT*yih);
       }
     });
 }
@@ -343,15 +343,15 @@ WtD_CHANGESTAT_FN(d_nodeicorr){
 *****************/
 WtD_CHANGESTAT_FN(d_nodeifactor_nonzero){ 
   double s, factorval;
-  int j, tattr;
+  int j, headattr;
   
   
   EXEC_THROUGH_TOGGLES({
       s = (NEWWT!=0) - (OLDWT!=0);
-      tattr = INPUT_ATTRIB[HEAD-1];
+      headattr = INPUT_ATTRIB[TAIL-1];
       for (j=0; j < N_CHANGE_STATS; j++){
 	factorval = INPUT_PARAM[j];
-	if (tattr == factorval) CHANGE_STAT[j] += s;
+	if (headattr == factorval) CHANGE_STAT[j] += s;
       }
     });
 }
@@ -361,15 +361,15 @@ WtD_CHANGESTAT_FN(d_nodeifactor_nonzero){
 *****************/
 WtD_CHANGESTAT_FN(d_nodeifactor_sum){ 
   double s, factorval;
-  int j, tattr;
+  int j, headattr;
   
   
   EXEC_THROUGH_TOGGLES({
     s = NEWWT - OLDWT;
-    tattr = INPUT_ATTRIB[HEAD-1];
+    headattr = INPUT_ATTRIB[TAIL-1];
     for (j=0; j < N_CHANGE_STATS; j++){
       factorval = INPUT_PARAM[j];
-      if (tattr == factorval) CHANGE_STAT[j] += s;
+      if (headattr == factorval) CHANGE_STAT[j] += s;
     }
   });
 }
@@ -380,9 +380,9 @@ WtD_CHANGESTAT_FN(d_nodeifactor_sum){
 WtD_CHANGESTAT_FN(d_nodeocorr){
   EXEC_THROUGH_TOGGLES({
       for(Vertex j=1; j<=N_NODES; j++){
-	if(j==TAIL) continue;
-	double yhj = GETWT(HEAD,j);
-	CHANGE_STAT[0] += (NEWWT*yhj) - (OLDWT*yhj);
+	if(j==HEAD) continue;
+	double ytj = GETWT(TAIL,j);
+	CHANGE_STAT[0] += (NEWWT*ytj) - (OLDWT*ytj);
       }
     });
 }
@@ -392,15 +392,15 @@ WtD_CHANGESTAT_FN(d_nodeocorr){
 *****************/
 WtD_CHANGESTAT_FN(d_nodeofactor_nonzero){ 
   double s, factorval;
-  int j, hattr;
+  int j, tailattr;
   
   
   EXEC_THROUGH_TOGGLES({
       s = (NEWWT!=0) - (OLDWT!=0);
-      hattr = INPUT_ATTRIB[HEAD-1];
+      tailattr = INPUT_ATTRIB[TAIL-1];
       for (j=0; j < N_CHANGE_STATS; j++){
 	factorval = INPUT_PARAM[j];
-	if (hattr == factorval) CHANGE_STAT[j] += s;
+	if (tailattr == factorval) CHANGE_STAT[j] += s;
       }
     });
 }
@@ -410,15 +410,15 @@ WtD_CHANGESTAT_FN(d_nodeofactor_nonzero){
 *****************/
 WtD_CHANGESTAT_FN(d_nodeofactor_sum){ 
   double s, factorval;
-  int j, hattr;
+  int j, tailattr;
   
   
   EXEC_THROUGH_TOGGLES({
     s = NEWWT - OLDWT;
-    hattr = INPUT_ATTRIB[HEAD-1];
+    tailattr = INPUT_ATTRIB[TAIL-1];
     for (j=0; j < N_CHANGE_STATS; j++){
       factorval = INPUT_PARAM[j];
-      if (hattr == factorval) CHANGE_STAT[j] += s;
+      if (tailattr == factorval) CHANGE_STAT[j] += s;
     }
   });
 }
@@ -477,23 +477,23 @@ WtD_CHANGESTAT_FN(d_sum_pow){
 /*   EXEC_THROUGH_TOGGLES({ */
 /*       /\* Changed dyad as the focus dyad. *\/ */
 /*       double best_path = 0; */
-/*       EXEC_THROUGH_INEDGES(TAIL, e1, node3, {  */
-/* 	best_path = fmax(best_path, fmin(GETWT(HEAD,node3),GETWT(node3,TAIL))); */
+/*       EXEC_THROUGH_INEDGES(HEAD, e1, node3, {  */
+/* 	best_path = fmax(best_path, fmin(GETWT(TAIL,node3),GETWT(node3,HEAD))); */
 /* 	}) */
 /*       CHANGE_STAT[0] += fmin(best_path, NEWWT) - fmin(best_path, OLDWT); */
 
 /*       /\* Changed dyad as a part of a two-path.  */
-/* 	 A dyad (i,j) is potentially affected by (h,t) iff: */
-/* 	 y(i,j)>0 & (h=i & (t,j)>0 | t=j & (i,h)>0). */
+/* 	 A dyad (i,j) is potentially affected by (tail,head) iff: */
+/* 	 y(i,j)>0 & (tail=i & (head,j)>0 | head=j & (i,tail)>0). */
 /*       *\/ */
-/*       /\* For all ties (h=i,j)>0, *\/ */
-/*       EXEC_THROUGH_OUTEDGES(HEAD, e1, node3, { */
-/* 	  double ijwt = GETWT(TAIL,node3); */
-/* 	  /\* If (t,j)>0), (h,t) can affect (i,j). *\/ */
+/*       /\* For all ties (tail=i,j)>0, *\/ */
+/*       EXEC_THROUGH_OUTEDGES(TAIL, e1, node3, { */
+/* 	  double ijwt = GETWT(HEAD,node3); */
+/* 	  /\* If (head,j)>0), (tail,head) can affect (i,j). *\/ */
 /* 	  if(ijwt>0){ */
 /* 	    best_path = 0; */
-/* 	    EXEC_THROUGH_INEDGES(TAIL, e1, node3, {  */
-/* 		best_path = fmax(best_path, fmin(GETWT(HEAD,node3),GETWT(node3,TAIL))); */
+/* 	    EXEC_THROUGH_INEDGES(HEAD, e1, node3, {  */
+/* 		best_path = fmax(best_path, fmin(GETWT(TAIL,node3),GETWT(node3,HEAD))); */
 /* 	      }) */
 /* 	      CHANGE_STAT[0] += fmin(best_path, NEWWT) - fmin(best_path, OLDWT); */
 /* 	  } */
@@ -505,16 +505,16 @@ WtD_FROM_S_FN(d_transitiveweights_max)
 
 WtS_CHANGESTAT_FN(s_transitiveweights_max){ 
   Edge e1, e2;
-  Vertex h, t, node3;
+  Vertex tail, head, node3;
   
   CHANGE_STAT[0]=0;
-  for (h=1; h <= N_NODES; h++){
-    EXEC_THROUGH_FOUTEDGES(h, e1, t, {
+  for (tail=1; tail <= N_NODES; tail++){
+    EXEC_THROUGH_FOUTEDGES(tail, e1, head, {
       double best_path = 0;
-      EXEC_THROUGH_INEDGES(t, e2, node3, { 
-	best_path = fmax(best_path, fmin(GETWT(h,node3),GETWT(node3,t)));
+      EXEC_THROUGH_INEDGES(head, e2, node3, { 
+	best_path = fmax(best_path, fmin(GETWT(tail,node3),GETWT(node3,head)));
 	})
-      CHANGE_STAT[0] += fmin(best_path, GETWT(h,t));
+      CHANGE_STAT[0] += fmin(best_path, GETWT(tail,head));
       })
   }
 }
@@ -527,16 +527,16 @@ WtD_FROM_S_FN(d_transitiveweights_sum)
 
 WtS_CHANGESTAT_FN(s_transitiveweights_sum){ 
   Edge e1, e2;
-  Vertex h, t, node3;
+  Vertex tail, head, node3;
   
   CHANGE_STAT[0]=0;
-  for (h=1; h <= N_NODES; h++){
-    EXEC_THROUGH_FOUTEDGES(h, e1, t, {
+  for (tail=1; tail <= N_NODES; tail++){
+    EXEC_THROUGH_FOUTEDGES(tail, e1, head, {
       double path_strength = 0;
-      EXEC_THROUGH_INEDGES(t, e2, node3, { 
-	path_strength += fmin(GETWT(h,node3),GETWT(node3,t));
+      EXEC_THROUGH_INEDGES(head, e2, node3, { 
+	path_strength += fmin(GETWT(tail,node3),GETWT(node3,head));
 	})
-      CHANGE_STAT[0] += fmin(path_strength, GETWT(h,t));
+      CHANGE_STAT[0] += fmin(path_strength, GETWT(tail,head));
       })
   }
 }
@@ -549,14 +549,14 @@ WtD_FROM_S_FN(d_transitiveweights_threshold)
 
 WtS_CHANGESTAT_FN(s_transitiveweights_threshold){ 
   Edge e1, e2;
-  Vertex h, t, node3;
+  Vertex tail, head, node3;
   
   CHANGE_STAT[0]=0;
-  for (h=1; h <= N_NODES; h++){
-    EXEC_THROUGH_FOUTEDGES(h, e1, t, {
-	if(GETWT(h,t)<=INPUT_ATTRIB[0]) break;
-	EXEC_THROUGH_INEDGES(t, e2, node3, { 
-	    if(GETWT(h,node3)>INPUT_ATTRIB[0] && GETWT(node3,t)>INPUT_ATTRIB[0]){
+  for (tail=1; tail <= N_NODES; tail++){
+    EXEC_THROUGH_FOUTEDGES(tail, e1, head, {
+	if(GETWT(tail,head)<=INPUT_ATTRIB[0]) break;
+	EXEC_THROUGH_INEDGES(head, e2, node3, { 
+	    if(GETWT(tail,node3)>INPUT_ATTRIB[0] && GETWT(node3,head)>INPUT_ATTRIB[0]){
 	      CHANGE_STAT[0]++; 
 	      break;
 	    }

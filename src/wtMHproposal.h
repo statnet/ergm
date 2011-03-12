@@ -39,8 +39,8 @@
 typedef struct WtMHproposalstruct {
   void (*func)(struct WtMHproposalstruct*, WtNetwork*);
   Edge ntoggles;
-  Vertex *togglehead;
   Vertex *toggletail;
+  Vertex *togglehead;
   double *toggleweight;
   double logratio;
   int status;

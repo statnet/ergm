@@ -9,8 +9,8 @@ D_CHANGESTAT_FN(d_concurrent_ties) {
 
   CHANGE_STAT[0] = 0.0;  
   FOR_EACH_TOGGLE(i) {
-    tail = TAILS(i);
-    head = HEADS(i);
+    tail = TAIL(i);
+    head = HEAD(i);
     echange = IS_OUTEDGE(tail, head) ? -1 : 1;
     taildeg = OUT_DEG[tail];
     headdeg = IN_DEG[head];
@@ -45,8 +45,8 @@ D_CHANGESTAT_FN(d_concurrent_ties_by_attr) {
 
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
-    tail = TAILS(i);
-    head = HEADS(i);
+    tail = TAIL(i);
+    head = HEAD(i);
     echange = IS_OUTEDGE(tail, head) ? -1 : 1;
     taildeg = OUT_DEG[tail];
     headdeg = IN_DEG[head];

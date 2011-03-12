@@ -103,7 +103,7 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
       free((void *)sn);
 
       /*  Now process the values in model$option[[optionnumber]]$inputs;
-          See comments in InitErgm.r for details.    */
+          See comments in InitErgm.r for deheads.    */
       offset = (int) *inputs++;  /* Set offset for attr vector */
 /*      Rprintf("offsets: %f %f %f %f %f\n",inputs[0],inputs[1],inputs[2], */
 /*		         inputs[3],inputs[4],inputs[5]); */
@@ -307,7 +307,7 @@ int WtModelTermDissolve (char *fnames, int n_terms) {
   A helper's helper function to compute change statistics.
   The vector of changes is written to m->workspace.
 */
-void WtChangeStats(unsigned int ntoggles, Vertex *togglehead, Vertex *toggletail, double *toggleweight,
+void WtChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, double *toggleweight,
 				 WtNetwork *nwp, WtModel *m){
   WtModelTerm *mtp = m->termarray;
   double *dstats = m->workspace;
@@ -315,7 +315,7 @@ void WtChangeStats(unsigned int ntoggles, Vertex *togglehead, Vertex *toggletail
   for (unsigned int i=0; i < m->n_terms; i++){
     /* Calculate change statistics */
     mtp->dstats = dstats; /* Stuck the change statistic here.*/
-    (*(mtp->d_func))(ntoggles, togglehead, toggletail, toggleweight,
+    (*(mtp->d_func))(ntoggles, toggletail, togglehead, toggleweight,
 		   mtp, nwp);  /* Call d_??? function */
     dstats += (mtp++)->nstats;
   }

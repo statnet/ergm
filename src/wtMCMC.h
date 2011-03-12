@@ -7,7 +7,7 @@
 #include "wtmodel.h"
 
 void WtMCMC_wrapper (int *dnumnets, int *nedges, 
-		     int *heads, int *tails, double *weights,
+		     int *tails, int *heads, double *weights,
 		     int *maxpossibleedges,
 		     int *dn, int *dflag, int *bipartite, 
 		     int *nterms, char **funnames,
@@ -15,8 +15,8 @@ void WtMCMC_wrapper (int *dnumnets, int *nedges,
 		     char **MHproposaltype, char **MHproposalpackage,
 		     double *inputs, double *theta0, int *samplesize, 
 		     double *sample, int *burnin, int *interval,  
-		     int *newnetworkheads, 
 		     int *newnetworktails, 
+		     int *newnetworkheads, 
 		     double *newnetworkweights,
 		     int *fVerbose, 
 		     int *maxedges);

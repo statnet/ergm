@@ -5,7 +5,7 @@ D_CHANGESTAT_FN(d_homoproportion) {
   int i;
   double multfactor;
   int edgeflag, num01ties, num11ties;
-  Vertex ninputs, t, h;
+  Vertex ninputs, tail, head;
   Edge e;
   
   ninputs = N_INPUT_PARAMS - N_NODES - 1;
