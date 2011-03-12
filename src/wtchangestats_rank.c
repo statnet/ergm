@@ -7,11 +7,12 @@ WtS_CHANGESTAT_FN(s_inconsistency_rank){
   for(Vertex v1=1; v1 <= N_NODES; v1++){
     for(Vertex v2=1; v2 <= N_NODES; v2++){
       if(v2==v1) continue;
+      double v12 = GETWT(v1,v2), v12_ref = INPUT_PARAM[(v1-1)*N_NODES+(v2-1)];
       for(Vertex v3=1; v3 <= N_NODES; v3++){
 	if(v3==v2 || v3==v1) continue;
 	unsigned int 
-	  v123 = GETWT(v1,v2)>GETWT(v1,v3),
-	  v123_ref = INPUT_PARAM[(v1-1)*N_NODES+(v2-1)]>INPUT_PARAM[(v1-1)*N_NODES+(v3-1)];
+	  v123 = v12>GETWT(v1,v3),
+	  v123_ref = v12_ref>INPUT_PARAM[(v1-1)*N_NODES+(v3-1)];
 	if(v123!=v123_ref) CHANGE_STAT[0]++;
       }
     }
@@ -23,11 +24,12 @@ WtD_FROM_S_FN(d_deference)
 WtS_CHANGESTAT_FN(s_deference){ 
   CHANGE_STAT[0]=0;
   for(Vertex v1=1; v1 <= N_NODES; v1++){
-    for(Vertex v2=1; v2 <= N_NODES; v2++){
-      if(v2==v1) continue;
-      for(Vertex v3=1; v3 <= N_NODES; v3++){
-	if(v3==v2 || v3==v1) continue;
-	if(GETWT(v3,v2)>GETWT(v3,v1) && GETWT(v1,v3)>GETWT(v1,v2)) 
+    for(Vertex v3=1; v3 <= N_NODES; v3++){
+      if(v3==v1) continue;
+      double v31 = GETWT(v3,v1), v13 = GETWT(v1,v3);
+      for(Vertex v2=1; v2 <= N_NODES; v2++){
+	if(v2==v1 || v3==v2) continue;
+	if(GETWT(v3,v2)>v31 && v13>GETWT(v1,v2)) 
 	  CHANGE_STAT[0]++;
       }
     }
@@ -41,16 +43,56 @@ WtS_CHANGESTAT_FN(s_nodeicov_rank){
   for (Vertex v1=1; v1 <= N_NODES; v1++){
     for (Vertex v2=1; v2 <= N_NODES; v2++){
       if(v2==v1) continue;
+      double v12=GETWT(v1,v2);
       for (Vertex v3=1; v3 <= N_NODES; v3++){
 	if(v3==v2 || v3==v1) continue;
-	if(GETWT(v1,v2)>GETWT(v1,v3)) 
+	if(v12>GETWT(v1,v3)) 
 	  CHANGE_STAT[0] += INPUT_PARAM[v2] - INPUT_PARAM[v3];
       }
     }
   }
 }
 
-WtD_FROM_S_FN(d_nonconformity)
+//WtD_FROM_S_FN(d_nonconformity)
+
+
+WtD_CHANGESTAT_FN(d_nonconformity){
+  if(ntoggles==2 && tails[0]==tails[1]){
+    
+    CHANGE_STAT[0]=0;
+    Vertex t=tails[0], h1=heads[0], h2=heads[1];
+    
+    for(Vertex v1=1; v1 <= N_NODES; v1++){
+      for(Vertex v2=1; v2 < v1; v2++){
+	for(Vertex v3=1; v3 <= N_NODES; v3++){
+	  if(v3==v2 || v3==v1) continue;
+	  double v13_old=GETWT(v1,v3), v23_old=GETWT(v2,v3);
+	  double
+	    v13_new = (v1!=t || (v3!=h1 && v3!=h2)) ? v13_old :
+	    ( v3==h1 ? weights[0] : weights[1] ),
+	    v23_new = (v2!=t || (v3!=h1 && v3!=h2)) ? v23_old :
+	    ( v3==h1 ? weights[0] : weights[1] );
+	  
+	  for(Vertex v4=1; v4 <= N_NODES; v4++){
+	    if(v4==v3 || v4==v2 || v4==v1) continue;
+	    
+	    double v14_old=GETWT(v1,v4), v24_old=GETWT(v2,v4);
+	    double 
+	      v14_new = (v1!=t || (v4!=h1 && v4!=h2)) ? v14_old :
+	      ( v4==h1 ? weights[0] : weights[1] ),
+	      v24_new = (v2!=t || (v4!=h1 && v4!=h2)) ? v24_old :
+	      ( v4==h1 ? weights[0] : weights[1] );
+
+	    if((v13_old>v14_old)!=(v23_old>v24_old)) CHANGE_STAT[0]-=2;
+	    if((v13_new>v14_new)!=(v23_new>v24_new)) CHANGE_STAT[0]+=2;
+	  }
+	}
+      }
+    }
+  }
+  else
+    d_from_s(ntoggles, tails, heads, weights, mtp, nwp);
+}
 
 WtS_CHANGESTAT_FN(s_nonconformity){ 
   CHANGE_STAT[0]=0;
@@ -58,11 +100,12 @@ WtS_CHANGESTAT_FN(s_nonconformity){
     for(Vertex v2=1; v2 < v1; v2++){
       for(Vertex v3=1; v3 <= N_NODES; v3++){
 	if(v3==v2 || v3==v1) continue;
+	double v13=GETWT(v1,v3), v23=GETWT(v2,v3);
 	for(Vertex v4=1; v4 <= N_NODES; v4++){
 	  if(v4==v3 || v4==v2 || v4==v1) continue;
 	  unsigned int
-	    v134 = GETWT(v1,v3)>GETWT(v1,v4),
-	    v234 = GETWT(v2,v3)>GETWT(v2,v4);
+	    v134 = v13>GETWT(v1,v4),
+	    v234 = v23>GETWT(v2,v4);
 	  if(v134!=v234) CHANGE_STAT[0]+=2;
 	}
       }
@@ -80,11 +123,12 @@ WtS_CHANGESTAT_FN(s_nonconformity_decay){
       double e = pow(INPUT_PARAM[1],INPUT_PARAM[0]-GETWT(v1,v2));
       for(Vertex v3=1; v3 <= N_NODES; v3++){
 	if(v3==v2 || v3==v1) continue;
+	double v13=GETWT(v1,v3), v23=GETWT(v2,v3);
 	for(Vertex v4=1; v4 <= N_NODES; v4++){
 	  if(v4==v3 || v4==v2 || v4==v1) continue;
 	  unsigned int
-	    v134 = GETWT(v1,v3)>GETWT(v1,v4),
-	    v234 = GETWT(v2,v3)>GETWT(v2,v4);
+	    v134 = v13>GETWT(v1,v4),
+	    v234 = v23>GETWT(v2,v4);
 	  if(v134!=v234) CHANGE_STAT[0]+=e;
 	}
       }
@@ -105,11 +149,12 @@ WtS_CHANGESTAT_FN(s_nonconformity_thresholds){
       if(i==N_CHANGE_STATS) continue;
       for(Vertex v3=1; v3 <= N_NODES; v3++){
 	if(v3==v2 || v3==v1) continue;
+	double v13=GETWT(v1,v3), v23=GETWT(v2,v3);
 	for(Vertex v4=1; v4 <= N_NODES; v4++){
 	  if(v4==v3 || v4==v2 || v4==v1) continue;
 	  unsigned int
-	    v134 = GETWT(v1,v3)>GETWT(v1,v4),
-	    v234 = GETWT(v2,v3)>GETWT(v2,v4);
+	    v134 = v13>GETWT(v1,v4),
+	    v234 = v23>GETWT(v2,v4);
 	  if(v134!=v234) CHANGE_STAT[i]+=1;
 	}
       }
