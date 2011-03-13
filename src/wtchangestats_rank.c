@@ -1,6 +1,29 @@
 #include "wtchangestats_rank.h"
 
-WtD_FROM_S_FN(d_inconsistency_rank)
+WtD_CHANGESTAT_FN(d_inconsistency_rank){
+  IF_1_EGO_SWAPS_2_ALTERS({
+      Vertex v1=t;
+      for(Vertex v2=1; v2 <= N_NODES; v2++){
+	if(v2==v1) continue;
+
+	// For some reason completely beyond me, CPP complains if I
+	// declare more than one variable in a line while inside a
+	// macro.
+	double v12_old = GETWT(v1,v2);
+	double v12_ref = INPUT_PARAM[(v1-1)*N_NODES+(v2-1)];
+	double v12_new = (v2!=h1 && v2!=h2) ? v12_old : ( v2==h1 ? weights[0] : weights[1] );
+	for(Vertex v3=1; v3 <= N_NODES; v3++){
+	  if(v3==v2 || v3==v1 || 
+	     (h1!=v2 && h1!=v3 && h2!=v2 && h2!=v3)) continue;
+	  double v13_old=GETWT(v1,v3);
+	  double v13_ref=INPUT_PARAM[(v1-1)*N_NODES+(v3-1)];
+	  double v13_new=(v3!=h1 && v3!=h2) ? v13_old : ( v3==h1 ? weights[0] : weights[1] );
+	  if((v12_old>v13_old)!=(v12_ref>v13_ref)) CHANGE_STAT[0]--;
+	  if((v12_new>v13_new)!=(v12_ref>v13_ref)) CHANGE_STAT[0]++;
+	}
+      }
+    });
+}
 
 WtS_CHANGESTAT_FN(s_inconsistency_rank){ 
   CHANGE_STAT[0]=0;
@@ -19,7 +42,38 @@ WtS_CHANGESTAT_FN(s_inconsistency_rank){
   }
 }
 
-WtD_FROM_S_FN(d_deference)
+WtD_CHANGESTAT_FN(d_deference){
+  IF_1_EGO_SWAPS_2_ALTERS({
+      for(Vertex v1=1; v1 <= N_NODES; v1++){
+	for(Vertex v3=1; v3 <= N_NODES; v3++){
+	  if(v3==v1) continue;
+	  double v31_old = GETWT(v3,v1);
+	  double v13_old = GETWT(v1,v3);
+	  double v31_new = (v3!=t || (v1!=h1 && v1!=h2)) ? v31_old :
+	    ( v1==h1 ? weights[0] : weights[1] );
+	  double v13_new = (v1!=t || (v3!=h1 && v3!=h2)) ? v13_old :
+	    ( v3==h1 ? weights[0] : weights[1] );
+
+	  for(Vertex v2=1; v2 <= N_NODES; v2++){
+	    if(v2==v1 || v3==v2 || 
+	       (t!=v1 && t!=v3 && 
+		h1!=v1 && h1!=v2 && h1!=v3 &&
+		h2!=v1 && h2!=v2 && h2!=v3)) continue;
+	    double v32_old = GETWT(v3,v2);
+	    double v12_old = GETWT(v1,v2);
+	    double v32_new = (v3!=t || (v2!=h1 && v2!=h2)) ? v32_old :
+	      ( v2==h1 ? weights[0] : weights[1] );
+	    double v12_new = (v1!=t || (v2!=h1 && v2!=h2)) ? v12_old :
+	      ( v2==h1 ? weights[0] : weights[1] );
+	    if(v32_old>v31_old && v13_old>v12_old) 
+	      CHANGE_STAT[0]--;
+	    if(v32_new>v31_new && v13_new>v12_new) 
+	      CHANGE_STAT[0]++;
+	  }
+	}
+      }
+    });
+}
 
 WtS_CHANGESTAT_FN(s_deference){ 
   CHANGE_STAT[0]=0;
@@ -57,41 +111,35 @@ WtS_CHANGESTAT_FN(s_nodeicov_rank){
 
 
 WtD_CHANGESTAT_FN(d_nonconformity){
-  if(ntoggles==2 && tails[0]==tails[1]){
-    
-    CHANGE_STAT[0]=0;
-    Vertex t=tails[0], h1=heads[0], h2=heads[1];
-    
-    for(Vertex v1=1; v1 <= N_NODES; v1++){
-      for(Vertex v2=1; v2 < v1; v2++){
+  IF_1_EGO_SWAPS_2_ALTERS({
+      Vertex v1=t;
+      
+      for(Vertex v2=1; v2 <= N_NODES; v2++){
+	if(v2==v1) continue;
+	
 	for(Vertex v3=1; v3 <= N_NODES; v3++){
 	  if(v3==v2 || v3==v1) continue;
-	  double v13_old=GETWT(v1,v3), v23_old=GETWT(v2,v3);
-	  double
-	    v13_new = (v1!=t || (v3!=h1 && v3!=h2)) ? v13_old :
-	    ( v3==h1 ? weights[0] : weights[1] ),
-	    v23_new = (v2!=t || (v3!=h1 && v3!=h2)) ? v23_old :
+	  
+	  double v13_old=GETWT(v1,v3);
+	  double v23=GETWT(v2,v3);
+	  double v13_new = (v3!=h1 && v3!=h2) ? v13_old :
 	    ( v3==h1 ? weights[0] : weights[1] );
 	  
 	  for(Vertex v4=1; v4 <= N_NODES; v4++){
-	    if(v4==v3 || v4==v2 || v4==v1) continue;
+	    if(v4==v3 || v4==v2 || v4==v1 || 
+	       (h1!=v3 && h1!=v4 && h2!=v3 && h2!=v4)) continue;
 	    
-	    double v14_old=GETWT(v1,v4), v24_old=GETWT(v2,v4);
-	    double 
-	      v14_new = (v1!=t || (v4!=h1 && v4!=h2)) ? v14_old :
-	      ( v4==h1 ? weights[0] : weights[1] ),
-	      v24_new = (v2!=t || (v4!=h1 && v4!=h2)) ? v24_old :
+	    double v14_old=GETWT(v1,v4);
+	    double v24=GETWT(v2,v4);
+	    double v14_new = (v4!=h1 && v4!=h2) ? v14_old :
 	      ( v4==h1 ? weights[0] : weights[1] );
-
-	    if((v13_old>v14_old)!=(v23_old>v24_old)) CHANGE_STAT[0]-=2;
-	    if((v13_new>v14_new)!=(v23_new>v24_new)) CHANGE_STAT[0]+=2;
+	    
+	    if((v13_old>v14_old)!=(v23>v24)) CHANGE_STAT[0]-=2;
+	    if((v13_new>v14_new)!=(v23>v24)) CHANGE_STAT[0]+=2;
 	  }
 	}
       }
-    }
-  }
-  else
-    d_from_s(ntoggles, tails, heads, weights, mtp, nwp);
+    });
 }
 
 WtS_CHANGESTAT_FN(s_nonconformity){ 
