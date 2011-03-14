@@ -1,28 +1,9 @@
 #include "wtedgetree.h"
 
-/*######################################################################
-#
-# copyright (c) 2003, Mark S. Handcock, University of Washington
-#                     David R. Hunter, Penn State University
-#                     Carter T. Butts, University of California - Irvine
-#                     Martina Morris, University of Washington
-# 
-# For license information see http://statnetproject.org/license
-#
-# We have invested a lot of time and effort in creating 'statnet',
-# for use by other researchers. We require that the attributions
-# in the software are retained (even if only pieces of it are used),
-# and that there is attribution when the package is loaded (e.g., via
-# "library" or "require"). This is to stop
-# "rebadging" of the software. 
-#
-# Cite us!
-#
-# To cite see http://statnetproject.org/cite
-#
-# .First.lib is run when the package is loaded.
-#
-###################################################################### */
+/* *** don't forget, edges are now given by tails -> heads, and as
+       such, the function definitions now require tails to be passed
+       in before heads */
+
 
 /*******************
  WtNetwork WtNetworkInitialize
@@ -31,16 +12,12 @@
  that the 0th WtTreeNode in the array is unused and should 
  have all its values set to zero
 *******************/
-
-/* *** don't forget tail->head, so this function now accepts tails before heads */
+/* *** don't forget, tail -> head */
 
 WtNetwork WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
 			      Edge nedges, Vertex nnodes, int directed_flag, Vertex bipartite,
 			      int lasttoggle_flag) {
-  Edge i;
   WtNetwork nw;
-
-  GetRNGstate();  /* R function enabling uniform RNG */
 
   nw.next_inedge = nw.next_outedge = (Edge)nnodes+1;
   /* Calloc will zero the allocated memory for us, probably a lot
@@ -51,10 +28,11 @@ WtNetwork WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
   nw.inedges = (WtTreeNode *) calloc(nw.maxedges,sizeof(WtTreeNode));
   nw.outedges = (WtTreeNode *) calloc(nw.maxedges,sizeof(WtTreeNode));
 
+  GetRNGstate();  /* R function enabling uniform RNG */
+
   if(lasttoggle_flag){
     nw.duration_info.MCMCtimer=0;
-    i = directed_flag? nnodes*(nnodes-1) : (nnodes*(nnodes-1))/2;
-    nw.duration_info.lasttoggle = (int *) calloc(i, sizeof(int));
+    nw.duration_info.lasttoggle = (int *) calloc(directed_flag? nnodes*(nnodes-1) : (nnodes*(nnodes-1))/2, sizeof(int));
   }
   else nw.duration_info.lasttoggle = NULL;
 
@@ -66,7 +44,7 @@ WtNetwork WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
 
   WtShuffleEdges(tails,heads,weights,nedges); /* shuffle to avoid worst-case performance */
 
-  for(i = 0; i < nedges; i++) {
+  for(Edge i = 0; i < nedges; i++) {
     Vertex tail=tails[i], head=heads[i];
     double w=weights[i];
     if (!directed_flag && tail > head) 
@@ -78,16 +56,20 @@ WtNetwork WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
   return nw;
 }
 
+
+/* *** don't forget, edges are now given by tails -> heads, and as
+       such, the function definitions now require tails to be passed
+       in before heads */
+
 /*Takes vectors of doubles for edges; used only when constructing from inputparams. */
-
-/* *** don't forget tail->head, so this function now accepts tails before heads */
-
 WtNetwork WtNetworkInitializeD(double *tails, double *heads, double *weights, Edge nedges,
            Vertex nnodes, int directed_flag, Vertex bipartite,
            int lasttoggle_flag) {
 
-  Vertex *itails=malloc(sizeof(Vertex)*nedges);
-  Vertex *iheads=malloc(sizeof(Vertex)*nedges);
+  /* *** don't forget, tail -> head */
+
+  Vertex *itails=(Vertex*)malloc(sizeof(Vertex)*nedges);
+  Vertex *iheads=(Vertex*)malloc(sizeof(Vertex)*nedges);
   
   for(Edge i=0; i<nedges; i++){
     itails[i]=tails[i];
@@ -113,6 +95,41 @@ void WtNetworkDestroy(WtNetwork *nwp) {
     free (nwp->duration_info.lasttoggle);
     nwp->duration_info.lasttoggle=NULL;
   }
+}
+
+/******************
+ Network WtNetworkCopy
+*****************/
+Network *WtNetworkCopy(WtNetwork *dest, WtNetwork *src){
+  Vertex nnodes = dest->nnodes = src->nnodes;
+  dest->next_inedge = src->next_inedge;
+  dest->next_outedge = src->next_outedge;
+
+  dest->outdegree = (Vertex *) malloc((nnodes+1)*sizeof(Vertex));
+  memcpy(dest->outdegree, src->outdegree, (nnodes+1)*sizeof(Vertex));
+  dest->indegree = (Vertex *) malloc((nnodes+1)*sizeof(Vertex));
+  memcpy(dest->indegree, src->indegree, (nnodes+1)*sizeof(Vertex));
+
+  Vertex maxedges = dest->maxedges = src->maxedges;
+
+  dest->inedges = (WtTreeNode *) malloc(maxedges*sizeof(WtTreeNode));
+  memcpy(dest->inedges, src->inedges, maxedges*sizeof(WtTreeNode));
+  dest->outedges = (WtTreeNode *) malloc(maxedges*sizeof(WtTreeNode));
+  memcpy(dest->outedges, src->outedges, maxedges*sizeof(WtTreeNode));
+
+  int directed_flag = dest->directed_flag = src->directed_flag;
+
+  if(src->duration_info.lasttoggle){
+    dest->duration_info.MCMCtimer=src->duration_info.MCMCtimer;
+    dest->duration_info.lasttoggle = (int *) calloc(directed_flag? nnodes*(nnodes-1) : (nnodes*(nnodes-1))/2, sizeof(int));
+    memcpy(dest->duration_info.lasttoggle, src->duration_info.lasttoggle,(directed_flag? nnodes*(nnodes-1) : (nnodes*(nnodes-1))/2) * sizeof(int));
+  }
+  else dest->duration_info.lasttoggle = NULL;
+
+  dest->nedges = src->nedges;
+  dest->bipartite = src->bipartite;
+
+  return dest;
 }
 
 /*****************
@@ -157,7 +174,26 @@ Edge WtEdgetreeSuccessor (WtTreeNode *edges, Edge x) {
 }   
 
 /*****************
- Edge EdgetreeMinimum
+ Edge WtEdgetreePredecessor
+
+ Return the index of the WtTreeNode with the smallest value
+ greater than edges[x].value in the same edge tree, or 0
+ if none.  This is used by (for instance)
+ the WtDeleteHalfedgeFromTree function.
+*****************/
+Edge WtEdgetreePredecessor (WtTreeNode *edges, Edge x) {
+  WtTreeNode *ptr;
+  Edge y;
+
+  if ((y=(ptr=edges+x)->left) != 0) 
+    return WtEdgetreeMaximum (edges, y);
+  while ((y=ptr->parent)!=0 && x==(ptr=edges+y)->left) 
+    x=y;
+  return y; 
+}   
+
+/*****************
+ Edge WtEdgetreeMinimum
 
  Return the index of the WtTreeNode with the
  smallest value in the subtree rooted at x
@@ -170,18 +206,25 @@ Edge WtEdgetreeMinimum (WtTreeNode *edges, Edge x) {
   return x;
 }
 
+/*****************
+ Edge WtEdgetreeMaximum
 
-Edge DaveWtEdgetreeMinimum (WtTreeNode *edges, Edge x) {
+ Return the index of the WtTreeNode with the
+ greatest value in the subtree rooted at x
+*****************/
+Edge WtEdgetreeMaximum (WtTreeNode *edges, Edge x) {
   Edge y;
-Rprintf("Here we go!\n");
 
-Wtprintedge(x, edges);
-  while ((y=(edges+x)->left) != 0) {
+  while ((y=(edges+x)->right) != 0)
     x=y;
-Wtprintedge(x, edges);
-  }
   return x;
 }
+
+/* *** don't forget, edges are now given by tails -> heads, and as
+       such, the function definitions now require tails to be passed
+       in before heads */
+
+
 
 /*****************
  int WtToggleEdge
@@ -194,6 +237,7 @@ Wtprintedge(x, edges);
 
 int WtToggleEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp) 
 {
+  /* don't forget tails < heads now for undirected networks */
   if (!(nwp->directed_flag) && tail > head) {
     Vertex temp;
     temp = tail; /*  Make sure tail<head always for undirected edges */
@@ -205,6 +249,13 @@ int WtToggleEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp)
   else 
     return 1 - WtDeleteEdgeFromTrees(tail,head,nwp);
 }
+
+
+
+/* *** don't forget, edges are now given by tails -> heads, and as
+       such, the function definitions now require tails to be passed
+       in before heads */
+
 
 /*****************
  Edge ToggleEdgeWithTimestamp
@@ -220,6 +271,7 @@ int WtToggleEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwor
 {
   Edge k;
 
+  /* don't forget, tails < heads in undirected networks now  */
   if (!(nwp->directed_flag) && tail > head) {
     Vertex temp;
     temp = tail; /*  Make sure tail<head always for undirected edges */
@@ -241,6 +293,9 @@ int WtToggleEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwor
     return 1 - WtDeleteEdgeFromTrees(tail,head,nwp);
 }
 
+/* *** don't forget, edges are now given by tails -> heads, and as
+       such, the function definitions now require tails to be passed
+       in before heads */
 
 /*****************
  int WtSetEdge
@@ -331,13 +386,13 @@ void WtSetEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwork 
 
  Return time since given (tail,head) was last toggled using
  ToggleEdgeWithTimestamp function
- *****************/
+*****************/
 
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
-int WtElapsedTime (Vertex tail, Vertex head, WtNetwork *nwp) 
-{
+int WtElapsedTime (Vertex tail, Vertex head, WtNetwork *nwp){
   Edge k;
+  /* don't forget, tails < heads now in undirected networks */
   if (!(nwp->directed_flag) && tail > head) {
     Vertex temp;
     temp = tail; /*  Make sure tail<head always for undirected edges */
@@ -356,6 +411,13 @@ int WtElapsedTime (Vertex tail, Vertex head, WtNetwork *nwp)
   /* Should maybe return an error code of some sort, since 0 elapsed time
      is valid output. Need to think about it. */
 }
+
+
+
+/* *** don't forget, edges are now given by tails -> heads, and as
+       such, the function definitions now require tails to be passed
+       in before heads */
+
 
 /*****************
  void TouchEdge
@@ -376,6 +438,12 @@ void WtTouchEdge(Vertex tail, Vertex head, WtNetwork *nwp){
     nwp->duration_info.lasttoggle[k] = nwp->duration_info.MCMCtimer;
   }
 }
+
+
+
+/* *** don't forget, edges are now given by tails -> heads, and as
+       such, the function definitions now require tails to be passed
+       in before heads */
 
 /*****************
  Edge AddEdgeToTrees
@@ -450,6 +518,12 @@ void WtUpdateNextedge (WtTreeNode *edges, Edge *nextedge, WtNetwork *nwp) {
   memset(nwp->outedges+*nextedge,0,sizeof(WtTreeNode) * (nwp->maxedges-*nextedge));
 }
 
+
+/* *** don't forget, edges are now given by tails -> heads, and as
+       such, the function definitions now require tails to be passed
+       in before heads */
+
+
 /*****************
  int WtDeleteEdgeFromTrees
 
@@ -488,7 +562,10 @@ int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges,
   /* First, determine which node to splice out; this is z.  If the current
      z has two children, then we'll actually splice out its successor. */
   if ((zptr=edges+z)->left != 0 && zptr->right != 0) {
-    z=WtEdgetreeSuccessor(edges, z);
+    if(unif_rand()<0.5)
+      z=WtEdgetreeSuccessor(edges, z);  
+    else
+      z=WtEdgetreePredecessor(edges, z);  
     zptr->value = (ptr=edges+z)->value;
     zptr->weight = ptr->weight;
     zptr=ptr;
@@ -580,6 +657,12 @@ Edge WtDesignMissing (Vertex a, Vertex b, WtNetwork *mnwp) {
   return(miss);
 }
 
+
+/* *** don't forget, edges are now given by tails -> heads, and as
+       such, the function definitions now require tails to be passed
+       in before heads */
+
+
 /*****************
   int WtFindithEdge
 
@@ -631,6 +714,13 @@ int WtFindithEdge (Vertex *tail, Vertex *head, double *weight, Edge i, WtNetwork
 } */
 
 
+
+
+/* *** don't forget, edges are now given by tails -> heads, and as
+       such, the function definitions now require tails to be passed
+       in before heads */
+
+
 /****************
  Edge EdgeTree2EdgeList
 
@@ -675,10 +765,16 @@ Edge WtEdgeTree2EdgeList(Vertex *tails, Vertex *heads, double *weights, WtNetwor
   return nextedge;
 }
 
+
+/* *** don't forget, edges are now given by tails -> heads, and as
+       such, the function definitions now require tails to be passed
+       in before heads */
+
+
 void WtShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge nedges){
   /* *** don't forget,  tail -> head */
   for(Edge i = nedges; i > 0; i--) {
-    Edge j = i * unif_rand();  /* shuffle to avoid worst-case performance */
+    Edge j = i * unif_rand();
     Vertex tail = tails[j];
     Vertex head = heads[j];
     double w = weights[j];

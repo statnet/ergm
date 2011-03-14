@@ -7,8 +7,6 @@
 #include <Rmath.h>
 #include "edgetree.h"
 
-
-
 /* WtTreeNode is just like TreeNode but with an extra field for a
    weight, or value, that might be associated with the node */
 typedef struct WtTreeNodestruct {
@@ -37,7 +35,7 @@ typedef struct WtTreeNodestruct {
      the smallest index of an edge object not being used.  
    outdegree[] and indegree[] are continually updated to give
      the appropriate degree values for each vertex.  These should
-     point to Vertex-vectors of length nnodes.  
+     point to Vertex-vectors of length nnodes+1.  
    value:  optional value(s) associated with this network 
    Dur_Inf:  See typedef for Dur_Infstruct above
 */
@@ -54,7 +52,7 @@ typedef struct WtNetworkstruct {
   Edge next_outedge;
   Vertex *indegree;
   Vertex *outdegree;
-  double *value;
+  double *value;  
   Dur_Inf duration_info;
   Edge maxedges;
 } WtNetwork;
@@ -63,21 +61,23 @@ typedef struct WtNetworkstruct {
 WtNetwork WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights, Edge nedges,
 			      Vertex nnodes, int directed_flag, Vertex bipartite,
 			      int lasttoggle_flag);
+void WtNetworkDestroy(WtNetwork *nwp);
 WtNetwork WtNetworkInitializeD(double *tails, double *heads, double *weights, Edge nedges,
 			       Vertex nnodes, int directed_flag, Vertex bipartite,
 			      int lasttoggle_flag);
-
-void WtNetworkDestroy(WtNetwork *nwp);
 
 /* Accessors. */
 Edge WtEdgetreeSearch (Vertex a, Vertex b, WtTreeNode *edges);
 double WtGetEdge (Vertex tail, Vertex head, WtNetwork *nwp);
 Edge WtEdgetreeSuccessor (WtTreeNode *edges, Edge x);
+Edge WtEdgetreePredecessor (WtTreeNode *edges, Edge x);
 Edge WtEdgetreeMinimum (WtTreeNode *edges, Edge x);
+Edge WtEdgetreeMaximum (WtTreeNode *edges, Edge x);
 
 /* Modifiers. */
 
-/* *** don't forget, tail -> head, so these functions now accept tails first, rather than heads */
+/* *** don't forget,  tails -> heads, so all the functions below using
+   heads & tails, now list tails before heads */
 
 
 void WtSetEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp);
@@ -106,14 +106,4 @@ void WtShuffleEdges(Vertex *tails, Vertex *heads, double *weights, Edge nedges);
 Edge WtDesignMissing (Vertex a, Vertex b, WtNetwork *mnwp);
 Edge WtEdgeTree2EdgeList(Vertex *tails, Vertex *heads, double *weights, WtNetwork *nwp, Edge nmax);
 
-
 #endif
-
-
-
-
-
-
-
-
-

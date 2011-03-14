@@ -12,11 +12,11 @@
  that the 0th TreeNode in the array is unused and should 
  have all its values set to zero
 *******************/
+/* *** don't forget, tail -> head */
+
 Network NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges, 
 			  Vertex nnodes, int directed_flag, Vertex bipartite,
 			  int lasttoggle_flag) {
-
-  /* *** don't forget, tail -> head */
 
   Network nw;
 
@@ -146,8 +146,7 @@ Edge EdgetreeSearch (Vertex a, Vertex b, TreeNode *edges) {
 
   es = edges + e;
   v = es->value;
-  while(e != 0 && b != v)
-    {
+  while(e != 0 && b != v)  {
       e = (b<v)?  es->left : es->right;
       es = edges + e;
       v = es->value;
@@ -175,6 +174,25 @@ Edge EdgetreeSuccessor (TreeNode *edges, Edge x) {
 }   
 
 /*****************
+ Edge EdgetreePredecessor
+
+ Return the index of the TreeNode with the smallest value
+ greater than edges[x].value in the same edge tree, or 0
+ if none.  This is used by (for instance)
+ the DeleteHalfedgeFromTree function.
+*****************/
+Edge EdgetreePredecessor (TreeNode *edges, Edge x) {
+  TreeNode *ptr;
+  Edge y;
+
+  if ((y=(ptr=edges+x)->left) != 0) 
+    return EdgetreeMaximum (edges, y);
+  while ((y=ptr->parent)!=0 && x==(ptr=edges+y)->left) 
+    x=y;
+  return y; 
+}   
+
+/*****************
  Edge EdgetreeMinimum
 
  Return the index of the TreeNode with the
@@ -188,7 +206,19 @@ Edge EdgetreeMinimum (TreeNode *edges, Edge x) {
   return x;
 }
 
+/*****************
+ Edge EdgetreeMaximum
 
+ Return the index of the TreeNode with the
+ greatest value in the subtree rooted at x
+*****************/
+Edge EdgetreeMaximum (TreeNode *edges, Edge x) {
+  Edge y;
+
+  while ((y=(edges+x)->right) != 0)
+    x=y;
+  return x;
+}
 
 /* *** don't forget, edges are now given by tails -> heads, and as
        such, the function definitions now require tails to be passed
@@ -202,6 +232,9 @@ Edge EdgetreeMinimum (TreeNode *edges, Edge x) {
  Toggle an edge:  Set it to the opposite of its current
  value.  Return 1 if edge added, 0 if deleted.
 *****************/
+
+/* *** don't forget tail->head, so this function now accepts tail before head */
+
 int ToggleEdge (Vertex tail, Vertex head, Network *nwp) 
 {
   /* don't forget tails < heads now for undirected networks */
@@ -231,6 +264,9 @@ int ToggleEdge (Vertex tail, Vertex head, Network *nwp)
  Same as ToggleEdge, but this time with the additional
  step of updating the matrix of 'lasttoggle' times
  *****************/
+
+/* *** don't forget tail->head, so this function now accepts tail before head */
+
 int ToggleEdgeWithTimestamp(Vertex tail, Vertex head, Network *nwp){
   Edge k;
 
@@ -270,6 +306,9 @@ int ToggleEdgeWithTimestamp(Vertex tail, Vertex head, Network *nwp){
  Return time since given (tail,head) was last toggled using
  ToggleEdgeWithTimestamp function
 *****************/
+
+/* *** don't forget tail->head, so this function now accepts tail before head */
+
 int ElapsedTime(Vertex tail, Vertex head, Network *nwp){
   Edge k;
   /* don't forget, tails < heads now in undirected networks */
@@ -306,6 +345,8 @@ int ElapsedTime(Vertex tail, Vertex head, Network *nwp){
  Set an edge's time-stamp to the current MCMC time.
  *****************/
 
+/* *** don't forget tail->head, so this function now accepts tail before head */
+
 void TouchEdge(Vertex tail, Vertex head, Network *nwp){
   unsigned int k;
   if(nwp->duration_info.lasttoggle){ /* Skip timestamps if no duration info. */
@@ -332,6 +373,9 @@ void TouchEdge(Vertex tail, Vertex head, Network *nwp){
  inedges, this actually involves two calls to AddHalfedgeToTree (hence
  "Trees" instead of "Tree" in the name of this function).
 *****************/
+
+/* *** don't forget tail->head, so this function now accepts tail before head */
+
 int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp){
   if (EdgetreeSearch(tail, head, nwp->outedges) == 0) {
     AddHalfedgeToTree(tail, head, nwp->outedges, nwp->next_outedge);
@@ -372,8 +416,7 @@ void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge next_edge){
 void UpdateNextedge
 *****************/
 void UpdateNextedge (TreeNode *edges, Edge *nextedge, Network *nwp) {
-  int mult=2;
-  /*TreeNode *tmp_in, *tmp_out; */
+  const unsigned int mult=2;
   
   while (++*nextedge < nwp->maxedges) {
     if (edges[*nextedge].value==0) return;
@@ -405,6 +448,9 @@ void UpdateNextedge (TreeNode *edges, Edge *nextedge, Network *nwp) {
  Return 1 if successful, 0 otherwise.  As with AddEdgeToTrees, this must
  be done once for outedges and once for inedges.
 *****************/
+
+/* *** don't forget tail->head, so this function now accepts tail before head */
+
 int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp){
   if (DeleteHalfedgeFromTree(tail, head, nwp->outedges,&(nwp->next_outedge))&&
       DeleteHalfedgeFromTree(head, tail, nwp->inedges, &(nwp->next_inedge))) {
@@ -433,7 +479,10 @@ int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges,
   /* First, determine which node to splice out; this is z.  If the current
      z has two children, then we'll actually splice out its successor. */
   if ((zptr=edges+z)->left != 0 && zptr->right != 0) {
-    z=EdgetreeSuccessor(edges, z);  
+    if(unif_rand()<0.5)
+      z=EdgetreeSuccessor(edges, z);  
+    else
+      z=EdgetreePredecessor(edges, z);  
     zptr->value = (ptr=edges+z)->value;
     zptr=ptr;
   }
@@ -536,21 +585,24 @@ Edge DesignMissing (Vertex a, Vertex b, Network *mnwp) {
   Note that i is numbered from 1, not 0.  Thus, the maximum possible
   value of i is nwp->nedges.
 ******************/
+
+/* *** don't forget tail->head, so this function now accepts tail before head */
+
 int FindithEdge (Vertex *tail, Vertex *head, Edge i, Network *nwp) {
-  Vertex head1=1;
+  Vertex taili=1;
   Edge e;
 
   if (i > nwp->nedges || i<=0)
     return 0;
-  while (i > nwp->outdegree[head1]) {
-    i -= nwp->outdegree[head1];
-    head1++;
+  while (i > nwp->outdegree[taili]) {
+    i -= nwp->outdegree[taili];
+    taili++;
   }
-  e=EdgetreeMinimum(nwp->outedges,head1);
+  e=EdgetreeMinimum(nwp->outedges,taili);
   while (i-- > 1) {
     e=EdgetreeSuccessor(nwp->outedges, e);
   }
-  *tail = head1;
+  *tail = taili;
   *head = nwp->outedges[e].value;
   return 1;
 }
@@ -567,6 +619,7 @@ int FindithEdge (Vertex *tail, Vertex *head, Edge i, Network *nwp) {
 
 /* This function is not yet written.  It's not clear whether it'll
    be needed. */      
+  /* *** but if it is needed, don't forget,  tail -> head */
 
 /* int FindithnonEdge (Vertex *tail, Vertex *head, Edge i, Network *nwp) {
 } */
@@ -587,6 +640,8 @@ int FindithEdge (Vertex *tail, Vertex *head, Edge i, Network *nwp) {
 ****************/
 Edge EdgeTree2EdgeList(Vertex *tails, Vertex *heads, Network *nwp, Edge nmax){
   Edge nextedge=0;
+
+  /* *** don't forget,  tail -> head */
   if (nwp->directed_flag) {
     for (Vertex v=1; v<=nwp->nnodes; v++){
       for(Vertex e = EdgetreeMinimum(nwp->outedges, v);
@@ -625,8 +680,9 @@ Edge EdgeTree2EdgeList(Vertex *tails, Vertex *heads, Network *nwp, Edge nmax){
 
 
 void ShuffleEdges(Vertex *tails, Vertex *heads, Edge nedges){
+  /* *** don't forget,  tail -> head */
   for(Edge i = nedges; i > 0; i--) {
-    Edge j = (double) i * unif_rand();  /* shuffle to avoid worst-case performance */
+    Edge j = i * unif_rand();
     Vertex tail = tails[j];
     Vertex head = heads[j];
     tails[j] = tails[i-1];

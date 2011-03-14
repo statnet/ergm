@@ -107,9 +107,6 @@ WtS_CHANGESTAT_FN(s_nodeicov_rank){
   }
 }
 
-//WtD_FROM_S_FN(d_nonconformity)
-
-
 WtD_CHANGESTAT_FN(d_nonconformity){
   IF_1_EGO_SWAPS_2_ALTERS({
       Vertex v1=t;

@@ -94,7 +94,9 @@ Network *NetworkCopy(Network *dest, Network *src);
 /* Accessors. */
 Edge EdgetreeSearch (Vertex a, Vertex b, TreeNode *edges);
 Edge EdgetreeSuccessor (TreeNode *edges, Edge x);
+Edge EdgetreePredecessor (TreeNode *edges, Edge x);
 Edge EdgetreeMinimum (TreeNode *edges, Edge x);
+Edge EdgetreeMaximum (TreeNode *edges, Edge x);
 
 /* Modifiers. */
 
