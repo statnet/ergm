@@ -608,6 +608,47 @@ int FindithEdge (Vertex *tail, Vertex *head, Edge i, Network *nwp) {
 }
 
 /*****************
+  int GetRandEdge
+
+  Select an edge in the Network *nwp at random and update the values
+  of tail and head appropriately. Return 1 if successful, 0 otherwise.
+******************/
+
+/* *** don't forget tail->head, so this function now accepts tail before head */
+
+int GetRandEdge(Vertex *tail, Vertex *head, Network *nwp) {
+  if(nwp->nedges==0) return(0);
+  const unsigned int maxEattempts=10;
+  unsigned int Eattempts = (nwp->maxedges-1)/nwp->nedges;
+  Edge rane;
+  
+  if(Eattempts>maxEattempts){
+    // If the outedges is too sparse, revert to the old algorithm.
+    rane=1 + unif_rand() * nwp->nedges;
+    FindithEdge(tail, head, rane, nwp);
+  }else{
+    // Otherwise, find a TreeNode which has a head.
+    do{
+      // Note that the outedges array has maxedges elements, but the
+      // 0th one is always blank, so there is actually space for
+      // maxedges-1 nodes.
+      rane = 1 + unif_rand() * (nwp->maxedges-1);
+    }while(nwp->outedges[rane].value==0);
+
+    // Form the head.
+    *head=nwp->outedges[rane].value;
+    
+    // Ascend the edgetree as long as we can.
+    // Note that it will stop as soon as rane no longer has a parent,
+    // _before_ overwriting it.
+    while(nwp->outedges[rane].parent) rane=nwp->outedges[rane].parent;
+    // Then, the position of the root is the tail of edge.
+    *tail=rane;
+  }
+  return 1;
+}
+
+/*****************
   int FindithnonEdge
 
   Find the ith nonedge in the Network *nwp and

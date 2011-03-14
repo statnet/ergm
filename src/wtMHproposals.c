@@ -49,9 +49,8 @@ void MH_Poisson(WtMHproposal *MHp, WtNetwork *nwp)  {
  Missing data MH algorithm for Poisson-reference ERGM on bipartite networks.
 *********************/
 void MH_PoissonNonObserved(WtMHproposal *MHp, WtNetwork *nwp)  {  
-  Edge rane, nmissing = MHp->inputs[0];
-  double oldwt;
-  
+  Edge nmissing = MHp->inputs[0];
+
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
     return;
@@ -65,12 +64,12 @@ void MH_PoissonNonObserved(WtMHproposal *MHp, WtNetwork *nwp)  {
 
   // Note that missing edgelist is indexed from 0 but the first
   // element of MHp->inputs is the number of missing edges.
-  rane = 1 + unif_rand() * nmissing;
+  Edge rane = 1 + unif_rand() * nmissing;
 
   Mtail[0]=MHp->inputs[rane];
   Mhead[1]=MHp->inputs[nmissing+rane];
 
-  oldwt = WtGetEdge(Mtail[0],Mhead[0],nwp);
+  double oldwt = WtGetEdge(Mtail[0],Mhead[0],nwp);
 
   const double fudge = 0.5; // Mostly comes in when proposing from 0.
 

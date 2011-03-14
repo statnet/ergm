@@ -275,7 +275,7 @@ void MH_FormationTNT (MHproposal *MHp, Network *nwp)
 {  
   unsigned int trytoggle;
   Vertex tail, head;
-  Edge rane, nedges, ndedges, nempty;
+  Edge nedges, ndedges, nempty;
   static double comp=0.5, odds;
   static Edge ndyads;
   static Edge nnodes;
@@ -300,8 +300,7 @@ void MH_FormationTNT (MHproposal *MHp, Network *nwp)
   
   for(trytoggle = 0; trytoggle < MAX_TRIES*2; trytoggle++){
     if(ndedges != 0 && unif_rand() < comp) { /* Select a discordant dyad at random */
-      rane = 1 + unif_rand() * ndedges;
-      FindithEdge(&tail, &head, rane, nwp+1);
+      GetRandEdge(&tail, &head, nwp+1);
       
       MHp->logratio += log(ndedges / ((double)nempty + 1)/comp * ((ndedges==1)? 1 : (1-comp)));
     }else{ /* select an empty dyad in nwp[0] at random */
@@ -351,7 +350,7 @@ void MH_FormationTNT (MHproposal *MHp, Network *nwp)
 ***********************/
 void MH_Dissolution (MHproposal *MHp, Network *nwp) 
 {  
-  Edge rane, nedges=nwp[0].nedges, ndedges=nwp[1].nedges;
+  Edge nedges=nwp[0].nedges, ndedges=nwp[1].nedges;
   unsigned int trytoggle;
   
   if(MHp->ntoggles == 0) { /* Initialize */
@@ -368,12 +367,12 @@ void MH_Dissolution (MHproposal *MHp, Network *nwp)
   /* Make sure the edge is not in nwp[0] and nwp[1], which shouldn't
      happen anyway, but better safe than sorry. */
   for(trytoggle=0; trytoggle<MAX_TRIES; trytoggle++){
-    rane = 1 + unif_rand() * (nedges+ndedges);
+    Edge rane = 1 + unif_rand() * (nedges+ndedges);
     if(rane<=nedges){
-      FindithEdge(Mtail, Mhead, rane, nwp);
+      GetRandEdge(Mtail, Mhead, nwp);
       if(EdgetreeSearch(Mtail[0],Mhead[0],nwp[1].outedges)==0 && CheckTogglesValid(MHp, nwp)) break;
     }else{
-      FindithEdge(Mtail, Mhead, rane-nedges, nwp+1);
+      GetRandEdge(Mtail, Mhead, nwp+1);
       if(EdgetreeSearch(Mtail[0],Mhead[0],nwp[0].outedges)==0 && CheckTogglesValid(MHp, nwp)) break;
     }
   }
@@ -445,7 +444,7 @@ void MH_BipartiteFormationTNT (MHproposal *MHp, Network *nwp)
 {  
   unsigned int trytoggle;
   Vertex tail, head;
-  Edge rane, nedges, ndedges, nempty;
+  Edge nedges, ndedges, nempty;
   static double comp=0.5, odds;
   static Edge ndyads;
   static Edge nnodes;
@@ -472,8 +471,7 @@ void MH_BipartiteFormationTNT (MHproposal *MHp, Network *nwp)
   
   for(trytoggle=0; trytoggle < MAX_TRIES*2; trytoggle++){
     if(ndedges > 0 && unif_rand() < comp) { /* Select a discordant dyad at random */
-      rane = 1 + unif_rand() * ndedges;
-      FindithEdge(&tail, &head, rane, nwp+1);
+      GetRandEdge(&tail, &head, nwp+1);
       
       MHp->logratio += log(ndedges  / ((double)nempty+1)/comp *((ndedges==1)? 1 : (1-comp)));
     }else{ /* select an empty dyad in nwp[0] at random */

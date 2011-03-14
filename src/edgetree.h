@@ -118,6 +118,7 @@ void TouchEdge(Vertex tail, Vertex head, Network *nwp);
 
 /* Utility functions. */
 int FindithEdge (Vertex *tail, Vertex *head, Edge i, Network *nwp);
+int GetRandEdge(Vertex *tail, Vertex *head, Network *nwp);
 void printedge(Edge e, TreeNode *edges);
 void InOrderTreeWalk(TreeNode *edges, Edge x);
 void NetworkEdgeList(Network *nwp);

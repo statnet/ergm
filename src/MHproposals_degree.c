@@ -11,9 +11,9 @@ void MH_CondDegreeSimpleTetrad(MHproposal *MHp, Network *nwp)  {
     MHp->ntoggles=4;    
     return;
   }
-  FindithEdge(&A1, &A2, 1+nwp->nedges*unif_rand(), nwp);
+  GetRandEdge(&A1, &A2, nwp);
   do{
-    FindithEdge(&B1, &B2, 1+nwp->nedges*unif_rand(), nwp);
+    GetRandEdge(&B1, &B2, nwp);
   }while(A1==B1 || A1==B2 || A2==B1 || A2==B2 || EdgetreeSearch(A1, B2, nwp->outedges) || EdgetreeSearch(B1, A2, nwp->outedges));
   Mhead[0]=A1; Mtail[0]=A2;
   Mhead[1]=A1; Mtail[1]=B2;
@@ -40,14 +40,14 @@ void MH_CondDegreeSimpleHexad(MHproposal *MHp, Network *nwp)  {
     return;
   }
 
-  FindithEdge(&A1, &A2, 1+nwp->nedges*unif_rand(), nwp);
+  GetRandEdge(&A1, &A2, nwp);
 
   do{
-    FindithEdge(&B1, &B2, 1+nwp->nedges*unif_rand(), nwp);
+    GetRandEdge(&B1, &B2, nwp);
   }while(B1==A1 || B2==A1 || B2==A2 || EdgetreeSearch(A1, B2, nwp->outedges));
 
   do{
-    FindithEdge(&C1, &C2, 1+nwp->nedges*unif_rand(), nwp);
+    GetRandEdge(&C1, &C2, nwp);
   }while(C1==A1 || C1==B1 || C1==A2 || C2==A2 || C2==B2 || C2==B1 || EdgetreeSearch(B1, C2, nwp->outedges) || EdgetreeSearch(C1, A2, nwp->outedges));
 
   Mhead[0]=A1; Mtail[0]=A2;

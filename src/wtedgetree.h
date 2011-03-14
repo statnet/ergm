@@ -66,6 +66,8 @@ WtNetwork WtNetworkInitializeD(double *tails, double *heads, double *weights, Ed
 			       Vertex nnodes, int directed_flag, Vertex bipartite,
 			      int lasttoggle_flag);
 
+WtNetwork *WtNetworkCopy(WtNetwork *dest, WtNetwork *src);
+
 /* Accessors. */
 Edge WtEdgetreeSearch (Vertex a, Vertex b, WtTreeNode *edges);
 double WtGetEdge (Vertex tail, Vertex head, WtNetwork *nwp);
@@ -97,6 +99,7 @@ void WtTouchEdge(Vertex tail, Vertex head, WtNetwork *nwp);
 
 /* Utility functions. */
 int WtFindithEdge (Vertex *tail, Vertex *head, double *weight, Edge i, WtNetwork *nwp);
+int WtGetRandEdge(Vertex *tail, Vertex *head, double *weight, WtNetwork *nwp);
 void Wtprintedge(Edge e, WtTreeNode *edges);
 void WtInOrderTreeWalk(WtTreeNode *edges, Edge x);
 void WtNetworkEdgeList(WtNetwork *nwp);

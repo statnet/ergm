@@ -50,7 +50,7 @@ void MH_TNT (MHproposal *MHp, Network *nwp)
   /* *** don't forget tail-> head now */
   
   Vertex tail, head;
-  Edge rane, nedges=nwp->nedges;
+  Edge nedges=nwp->nedges;
   static double comp=0.5;
   static double odds;
   static Edge ndyads;
@@ -64,8 +64,7 @@ void MH_TNT (MHproposal *MHp, Network *nwp)
   
   for(int trytoggle = 0; trytoggle < MAX_TRIES; trytoggle++){
     if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
-      rane = 1 + unif_rand() * nedges;
-      FindithEdge(Mtail, Mhead, rane, nwp);
+      GetRandEdge(Mtail, Mhead, nwp);
       /* Thanks to Robert Goudie for pointing out an error in the previous 
       version of this sampler when proposing to go from nedges==0 to nedges==1 
       or vice versa.  Note that this happens extremely rarely unless the 
@@ -107,7 +106,7 @@ void MH_TNT10 (MHproposal *MHp, Network *nwp)
   /* *** don't forget tail-> head now */
   
   Vertex tail, head;
-  Edge rane, nedges=nwp->nedges;
+  Edge nedges=nwp->nedges;
   static double comp=0.5;
   static double odds;
   static Edge ndyads;
@@ -122,8 +121,7 @@ void MH_TNT10 (MHproposal *MHp, Network *nwp)
   for(int trytoggle = 0; trytoggle < MAX_TRIES; trytoggle++){
    for(int n = 0; n < 10; n++){
     if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
-      rane = 1 + unif_rand() * nedges;
-      FindithEdge(Mtail, Mhead, rane, nwp);
+      GetRandEdge(Mtail, Mhead, nwp);
       MHp->logratio += log(nedges  / (odds*ndyads + nedges));
     }else{ /* Select a dyad at random */
       do{
@@ -173,7 +171,7 @@ void MH_ConstantEdges (MHproposal *MHp, Network *nwp)  {
        (For now, however, no way to easily return an error message and stop.)*/
   for(int trytoggle = 0; trytoggle < MAX_TRIES; trytoggle++){
     /* First, select edge at random */
-    FindithEdge(Mtail, Mhead, 1+nwp->nedges*unif_rand(), nwp);
+    GetRandEdge(Mtail, Mhead, nwp);
     /* Second, select dyad at random until it has no edge */
     do{
       tail = 1 + unif_rand() * nwp->nnodes;
@@ -219,7 +217,7 @@ void MH_CondDegreeTetrad (MHproposal *MHp, Network *nwp)  {
   directed graphs; however, we haven't yet implemented a way
   to warn the user about this.  */
   /* First, select edge at random */
-  FindithEdge(&A, &B, 1+nwp->nedges*unif_rand(), nwp);
+  GetRandEdge(&A, &B, nwp);
   /* Second, select a non-neighbor C of B and a random neighbor
   D of C such that D is not a neighbor of A.  */
   valid=0;

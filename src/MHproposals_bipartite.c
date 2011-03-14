@@ -38,7 +38,7 @@ void MH_BipartiteConstantEdges (MHproposal *MHp, Network *nwp)  {
        If desired, we could check for this at initialization phase. 
        (For now, however, no way to easily return an error message and stop.)*/
   /* First, select edge at random */
-  FindithEdge(Mtail, Mhead, 1+(nwp->nedges)*unif_rand(), nwp);
+  GetRandEdge(Mtail, Mhead, nwp);
   /* Second, select dyad at random until it has no edge */
 
   do{
@@ -67,7 +67,7 @@ void MH_BipartiteTNT (MHproposal *MHp, Network *nwp)
 {
   /* *** don't forget, edges are (tail, head) now */
   Vertex tail, head;
-  Edge rane, nedges=nwp->nedges;
+  Edge nedges=nwp->nedges;
   unsigned trytoggle;
   static double comp=0.5;
   static double odds;
@@ -86,8 +86,7 @@ void MH_BipartiteTNT (MHproposal *MHp, Network *nwp)
   
   for(trytoggle = 0; trytoggle < MAX_TRIES; trytoggle++){
     if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
-      rane = 1 + unif_rand() * nedges;
-      FindithEdge(Mtail, Mhead, rane, nwp);
+      GetRandEdge(Mtail, Mhead, nwp);
       /* Thanks to Robert Goudie for pointing out an error in the previous 
       version of this sampler when proposing to go from nedges==0 to nedges==1 
       or vice versa.  Note that this happens extremely rarely unless the 
@@ -130,7 +129,7 @@ void MH_BipartiteHammingConstantEdges (MHproposal *MHp, Network *nwp)
   /* *** don't forget, edges are (tail, head) now */
 
   Vertex tail, head;
-  Edge rane, nedges=nwp[0].nedges, nddyads=nwp[1].nedges;
+  Edge nedges=nwp[0].nedges, nddyads=nwp[1].nedges;
   int nde, ndn, nce, ncn;
   static double comp=0.5;
   static double odds;
@@ -150,8 +149,7 @@ void MH_BipartiteHammingConstantEdges (MHproposal *MHp, Network *nwp)
   if (unif_rand() < comp && nddyads > 0) { /* Select a discordant pair of tie/nontie at random */
     /* First, select discord edge at random */
     do{
-      rane = 1 + unif_rand() * nddyads;
-      FindithEdge(Mtail, Mhead, rane, &nwp[1]);
+      GetRandEdge(Mtail, Mhead, &nwp[1]);
     }while(EdgetreeSearch(Mtail[0], Mhead[0], nwp[0].outedges) == 0);
 
     tail=Mtail[0];
@@ -160,8 +158,7 @@ void MH_BipartiteHammingConstantEdges (MHproposal *MHp, Network *nwp)
   /* *** don't forget, edges are (tail, head) now */
 
     do{
-      rane = 1 + unif_rand() * nddyads;
-      FindithEdge(Mtail, Mhead, rane, &nwp[1]);
+      GetRandEdge(Mtail, Mhead, &nwp[1]);
     }while(EdgetreeSearch(Mtail[0], Mhead[0], nwp[0].outedges) != 0);
 
     Mtail[1]=Mtail[0];
@@ -181,8 +178,7 @@ void MH_BipartiteHammingConstantEdges (MHproposal *MHp, Network *nwp)
   }else{
     /* First, select concordant edge at random */
     do{
-      rane = 1 + unif_rand() * nedges;
-      FindithEdge(Mtail, Mhead, rane, &nwp[0]);
+      GetRandEdge(Mtail, Mhead, &nwp[0]);
     }while(EdgetreeSearch(Mtail[0], Mhead[0], nwp[1].outedges) == 0);
        
     /* Next, select concord non-edge at random */
@@ -225,7 +221,7 @@ void MH_BipartiteHammingTNT (MHproposal *MHp, Network *nwp)
 {
   /* *** don't forget, edges are (tail, head) now */  
   Vertex tail, head;
-  Edge rane, nddyads=nwp[1].nedges;
+  Edge nddyads=nwp[1].nedges;
   int nd, nc;
   static double comp=0.5;
   static double odds;
@@ -243,8 +239,7 @@ void MH_BipartiteHammingTNT (MHproposal *MHp, Network *nwp)
   }
   
   if (unif_rand() < comp && nddyads > 0) { /* Select a discordant dyad at random */
-    rane = 1 + unif_rand() * nddyads;
-    FindithEdge(Mtail, Mhead, rane, &nwp[1]);
+    GetRandEdge(Mtail, Mhead, &nwp[1]);
     nd = nddyads;
     nc = ndyads-nd;
     /*  Fixme!  Not sure whether the ratio is calculated correctly here.
@@ -433,7 +428,7 @@ void MH_BipartiteCondDegTetradToggles (MHproposal *MHp, Network *nwp)  {
   directed graphs; however, we haven't yet implemented a way
   to warn the user about this.  */
   /* First, select edge at random */
-  FindithEdge(&A, &B, 1+nwp->nedges*unif_rand(), nwp);
+  GetRandEdge(&A, &B, nwp);
    Rprintf("nb1 %d nb2 %d A %d B %d\n",nb1,nb2,A,B);
   /* Second, select a non-neighbor C of B and a random neighbor
   D of C such that D is not a neighbor of A.  */
