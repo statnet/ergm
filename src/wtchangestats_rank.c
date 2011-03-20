@@ -157,6 +157,142 @@ WtS_CHANGESTAT_FN(s_nonconformity){
     }
   }
 }
+/*
+WtD_CHANGESTAT_FN(d_local_nonconformity){
+  IF_1_EGO_SWAPS_2_ALTERS({
+      for(Vertex v1=1; v1 <= N_NODES; v1++){
+	for(Vertex v2=1; v2 <= N_NODES; v2++){
+	  if(v2==v1) continue;
+	  double v12_old=GETWT(v1,v2);
+	  double v12_new=(v1!=t || (v2!=h1 && v2!=h2)) ? v12_old :
+	    ( v2==h1 ? weights[0] : weights[1] );
+	  for(Vertex v3=1; v3 <= N_NODES; v3++){
+	    if(v3==v2 || v3==v1) continue;
+	    double v13_old=GETWT(v1,v3);
+	    double v13_new=(v1!=t || (v3!=h1 && v3!=h2)) ? v13_old :
+	      ( v3==h1 ? weights[0] : weights[1] );
+	    
+	    if(v13_old<=v12_old && v13_new<=v12_new) continue;
+
+	    double v32_old=GETWT(v3,v2);
+	    double v32_new=(v3!=t || (v2!=h1 && v2!=h2)) ? v32_old :
+	      ( v2==h1 ? weights[0] : weights[1] );
+
+	    for(Vertex v4=1; v4 <= N_NODES; v4++){
+	      if(v4==v3 || v4==v2 || v4==v1) continue;
+	      double v14_old=GETWT(v1,v4);
+	      double v14_new=(v1!=t || (v4!=h1 && v4!=h2)) ? v14_old :
+		( v4==h1 ? weights[0] : weights[1] );
+	      double v34_old=GETWT(v3,v4);
+	      double v34_new=(v3!=t || (v4!=h1 && v4!=h2)) ? v34_old :
+		( v4==h1 ? weights[0] : weights[1] );
+
+	      if(v13_old>v12_old && v14_old<=v12_old && v34_old>v32_old) CHANGE_STAT[0]--;
+      	      if(v13_new>v12_new && v14_new<=v12_new && v34_new>v32_new) CHANGE_STAT[0]++;
+	    }
+	  }
+	}
+      }
+    });
+}
+*/
+
+WtD_CHANGESTAT_FN(d_local_nonconformity){
+  IF_1_EGO_SWAPS_2_ALTERS({
+      Vertex v1=t;
+      for(Vertex v2=1; v2 <= N_NODES; v2++){
+	if(v2==v1  ||
+	   (h1!=v2 && h2!=v2)) continue;
+	double v12_old=GETWT(v1,v2);
+	double v12_new=(v1!=t || (v2!=h1 && v2!=h2)) ? v12_old :
+	  ( v2==h1 ? weights[0] : weights[1] );
+	for(Vertex v3=1; v3 <= N_NODES; v3++){
+	  if(v3==v2 || v3==v1) continue;
+	  double v13_old=GETWT(v1,v3);
+	  double v13_new=(v1!=t || (v3!=h1 && v3!=h2)) ? v13_old :
+	    ( v3==h1 ? weights[0] : weights[1] );
+	  
+	  if(v13_old<=v12_old && v13_new<=v12_new) continue;
+	  
+	  double v32_old=GETWT(v3,v2);
+	  double v32_new=(v3!=t || (v2!=h1 && v2!=h2)) ? v32_old :
+	    ( v2==h1 ? weights[0] : weights[1] );
+	  
+	  for(Vertex v4=1; v4 <= N_NODES; v4++){
+	    if(v4==v3 || v4==v2 || v4==v1 ||
+	       (h1!=v4 && h2!=v4)) continue;
+	    double v14_old=GETWT(v1,v4);
+	    double v14_new=(v1!=t || (v4!=h1 && v4!=h2)) ? v14_old :
+	      ( v4==h1 ? weights[0] : weights[1] );
+	    double v34_old=GETWT(v3,v4);
+	    double v34_new=(v3!=t || (v4!=h1 && v4!=h2)) ? v34_old :
+	      ( v4==h1 ? weights[0] : weights[1] );
+	    
+	    if(v13_old>v12_old && v14_old<=v12_old && v34_old>v32_old) CHANGE_STAT[0]--;
+	    if(v13_new>v12_new && v14_new<=v12_new && v34_new>v32_new) CHANGE_STAT[0]++;
+	  }
+	}
+      }
+    
+      for(Vertex v1=1; v1 <= N_NODES; v1++){
+	for(Vertex v2=1; v2 <= N_NODES; v2++){
+	  if(v2==v1  ||
+	     (h1!=v2 && h2!=v2)) continue;
+	  double v12_old=GETWT(v1,v2);
+	  double v12_new=(v1!=t || (v2!=h1 && v2!=h2)) ? v12_old :
+	    ( v2==h1 ? weights[0] : weights[1] );
+	  Vertex v3=t;
+	  if(v3==v2 || v3==v1) continue;
+	  double v13_old=GETWT(v1,v3);
+	  double v13_new=(v1!=t || (v3!=h1 && v3!=h2)) ? v13_old :
+	    ( v3==h1 ? weights[0] : weights[1] );
+	  
+	  if(v13_old<=v12_old && v13_new<=v12_new) continue;
+	  
+	  double v32_old=GETWT(v3,v2);
+	  double v32_new=(v3!=t || (v2!=h1 && v2!=h2)) ? v32_old :
+	    ( v2==h1 ? weights[0] : weights[1] );
+	  
+	  for(Vertex v4=1; v4 <= N_NODES; v4++){
+	    if(v4==v3 || v4==v2 || v4==v1 ||
+	       (h1!=v4 && h2!=v4)) continue;
+	    double v14_old=GETWT(v1,v4);
+	    double v14_new=(v1!=t || (v4!=h1 && v4!=h2)) ? v14_old :
+	      ( v4==h1 ? weights[0] : weights[1] );
+	    double v34_old=GETWT(v3,v4);
+	    double v34_new=(v3!=t || (v4!=h1 && v4!=h2)) ? v34_old :
+		( v4==h1 ? weights[0] : weights[1] );
+	    
+	    if(v13_old>v12_old && v14_old<=v12_old && v34_old>v32_old) CHANGE_STAT[0]--;
+	    if(v13_new>v12_new && v14_new<=v12_new && v34_new>v32_new) CHANGE_STAT[0]++;
+	  }
+	}
+      }
+    });
+}
+
+WtS_CHANGESTAT_FN(s_local_nonconformity){ 
+  CHANGE_STAT[0]=0;
+  for(Vertex v1=1; v1 <= N_NODES; v1++){
+    for(Vertex v2=1; v2 <= N_NODES; v2++){
+      if(v2==v1) continue;
+      double v12=GETWT(v1,v2);
+      for(Vertex v3=1; v3 <= N_NODES; v3++){
+	if(v3==v2 || v3==v1) continue;
+	double v13=GETWT(v1,v3);
+	if(v13<=v12) continue;
+
+	for(Vertex v4=1; v4 <= N_NODES; v4++){
+	  if(v4==v3 || v4==v2 || v4==v1) continue;
+	  double v14=GETWT(v1,v4);
+	  double v32=GETWT(v3,v2);
+	  double v34=GETWT(v3,v4);
+	  if(v14<=v12 && v34>v32) CHANGE_STAT[0]++;
+	}
+      }
+    }
+  }
+}
 
 WtD_FROM_S_FN(d_nonconformity_decay)
 
