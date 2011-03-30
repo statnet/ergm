@@ -83,6 +83,38 @@ InitWtErgmTerm.CMP<-function(nw, arglist, response, drop=TRUE, ...) {
        dependence=FALSE)
 }
 
+InitWtErgmTerm.edgecov <- function(nw, arglist, response, drop=TRUE, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, 
+                      varnames = c("x", "attrname", "form"),
+                      vartypes = c("matrixnetwork", "character", "character"),
+                      defaultvalues = list(NULL, NULL, "sum"),
+                      required = c(TRUE, FALSE, FALSE))
+  ### Process the arguments
+  if(is.network(a$x))
+    xm<-as.matrix.network(a$x,matrix.type="adjacency",a$attrname)
+  else if(is.character(a$x))
+    xm<-get.network.attribute(nw,a$x)
+  else
+    xm<-as.matrix(a$x)
+  ### Construct the list to return
+  if(!is.null(a$attrname)) {
+    # Note: the sys.call business grabs the name of the x object from the 
+    # user's call.  Not elegant, but it works as long as the user doesn't
+    # pass anything complicated.
+    cn<-paste("edgecov", as.character(sys.call(0)[[3]][2]), 
+              as.character(a$attrname), sep = ".")
+  } else {
+    cn<-paste("edgecov", as.character(sys.call(0)[[3]][2]), sep = ".")
+  }
+
+  form<-match.arg(a$form,c("rank"))
+  
+  inputs <- c(as.double(xm))
+  list(name=paste("edgecov",form,sep="_"), coef.names = paste(cn,form,sep="."), inputs = inputs, dependence=form=="rank")
+}
+
+
 InitWtErgmTerm.ininterval<-function(nw, arglist, response, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("lower","upper","open"),

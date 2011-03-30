@@ -1,5 +1,43 @@
 #include "wtchangestats_rank.h"
 
+WtD_CHANGESTAT_FN(d_edgecov_rank){
+  IF_1_EGO_SWAPS_2_ALTERS({
+      Vertex v1=t;
+      for (Vertex v2=1; v2 <= N_NODES; v2++){
+	if(v2==v1) continue;
+	double v12_old=GETWT(v1,v2);
+	double v12_new=(v2!=h1 && v2!=h2) ? v12_old : ( v2==h1 ? weights[0] : weights[1] );
+	for (Vertex v3=1; v3 <= N_NODES; v3++){
+	  if(v3==v2 || v3==v1 || 
+	     (h1!=v2 && h1!=v3 && h2!=v2 && h2!=v3)) continue;
+	  double v13_old=GETWT(v1,v3);
+	  double v13_new=(v3!=h1 && v3!=h2) ? v13_old : ( v3==h1 ? weights[0] : weights[1] );
+	  double v123_covdiff=INPUT_PARAM[(v1-1)*N_NODES + (v2-1)] - INPUT_PARAM[(v1-1)*N_NODES + (v3-1)];
+	  if(v12_old>v13_old)
+	    CHANGE_STAT[0] -= v123_covdiff;
+	  if(v12_new>v13_new)
+	    CHANGE_STAT[0] += v123_covdiff;
+	}
+      }
+    });
+} 
+
+WtS_CHANGESTAT_FN(s_edgecov_rank){
+  CHANGE_STAT[0]=0;
+  for (Vertex v1=1; v1 <= N_NODES; v1++){
+    for (Vertex v2=1; v2 <= N_NODES; v2++){
+      if(v2==v1) continue;
+      double v12=GETWT(v1,v2);
+      for (Vertex v3=1; v3 <= N_NODES; v3++){
+	if(v3==v2 || v3==v1) continue;
+	if(v12>GETWT(v1,v3))
+	  CHANGE_STAT[0] += INPUT_PARAM[(v1-1)*N_NODES + (v2-1)] - INPUT_PARAM[(v1-1)*N_NODES + (v3-1)];
+      }
+    }
+  }
+}
+
+
 WtD_CHANGESTAT_FN(d_inconsistency_rank){
   IF_1_EGO_SWAPS_2_ALTERS({
       Vertex v1=t;
@@ -240,11 +278,10 @@ WtS_CHANGESTAT_FN(s_local_nonconformity){
 	if(v3==v2 || v3==v1) continue;
 	double v13=GETWT(v1,v3);
 	if(v13<=v12) continue;
-
+	double v32=GETWT(v3,v2);
 	for(Vertex v4=1; v4 <= N_NODES; v4++){
 	  if(v4==v3 || v4==v2 || v4==v1) continue;
 	  double v14=GETWT(v1,v4);
-	  double v32=GETWT(v3,v2);
 	  double v34=GETWT(v3,v4);
 	  if(v14<=v12 && v34>v32) CHANGE_STAT[0]++;
 	}

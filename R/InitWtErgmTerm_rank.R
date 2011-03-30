@@ -1,4 +1,4 @@
-
+##### edgecov for ranks is implemented in InitWtErgmTerm.R #####
 
 InitWtErgmTerm.deference<-function(nw, arglist, response, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
