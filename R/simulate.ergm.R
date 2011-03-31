@@ -227,7 +227,7 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
 #
 #   Process the results
 #
-    for(i in (1:MCMCparams$parallel)){
+    for(i in (1:nsim)){
      z <- outlist[[i]]
      nedges <- z$newnwheads[1]
      # Create a network object if statsonly==FALSE
