@@ -235,7 +235,7 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
       nw.list[[i]] <- newnw.extract(nw, z, output=control$network.output, response=response)
      }
      nw <- as.network.uncompressed(nw.list[[i]])
-     out.mat[i,] <- summary(formula)
+     out.mat[i,] <- summary(form)
     }
   }
   
