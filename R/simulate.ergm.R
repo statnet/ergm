@@ -140,7 +140,7 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
   # Explain how many iterations and steps will ensue if verbose==TRUE
   if (verbose) {
     cat (paste ("Starting MCMC iterations to generate ", nsim,
-                " network", ifelse(nsim>1,"s",""), sep=""))
+                " network", ifelse(nsim>1,"s\n","\n"), sep=""))
   }
   
   #########################
@@ -182,15 +182,14 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
       nw.list[[i]] <- newnw.extract(nw, z, output=control$network.output, response=response)
     }
     out.mat[i,] <- curstats + z$statsmatrix
-    if (sequential){ 
-      # If we get here, statsonly must be FALSE
-      nw <- as.network.uncompressed(nw.list[[i]])
-      Clist <- ergm.Cprepare(nw, m, response=response)
-      curstats <- curstats + z$statsmatrix
-    }
+    # If we get here, statsonly must be FALSE
+    nw <- as.network.uncompressed(nw.list[[i]])
+    Clist <- ergm.Cprepare(nw, m, response=response)
+    curstats <- curstats + z$statsmatrix
     if(verbose){cat(sprintf("Finished simulation %d of %d.\n",i, nsim))}
   }
   } else {
+    # non-sequential
     MCMCparams.parallel <- MCMCparams
     MCMCparams.parallel$samplesize <- 1
     MCMCparams.parallel$nmatrixentries <- length(curstats)
@@ -222,8 +221,14 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
 #   Run the jobs with rpvm or Rmpi
 #
     flush.console()
-    outlist <- clusterCall(cl,ergm.getMCMCsample,
-     Clist,MHproposal,theta0,MCMCparams.parallel,verbose)
+    data <- list(Clist=Clist, MHproposal=MHproposal, theta0=theta0,
+        MCMCparams=MCMCparams)
+    simfn <- function(i, data){
+     ergm.getMCMCsample(Clist=data$Clist, MHproposal=data$MHproposal, 
+            eta0=data$theta0, MCMCparams=data$MCMCparams)
+    }
+#
+    outlist <- clusterApplyLB(cl, as.list(1:nsim), simfn, data)
 #
 #   Process the results
 #
@@ -232,10 +237,11 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
      nedges <- z$newnwheads[1]
      # Create a network object if statsonly==FALSE
      if (!statsonly) {
-      nw.list[[i]] <- newnw.extract(nw, z, output=control$network.output, response=response)
+      nw.list[[i]] <- newnw.extract(old=nw, z=z, 
+           output=control$network.output,
+           response=response)
      }
-     nw <- as.network.uncompressed(nw.list[[i]])
-     out.mat[i,] <- summary(form)
+     out.mat[i,] <- curstats + z$statsmatrix
     }
   }
   

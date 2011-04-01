@@ -438,7 +438,7 @@ newnw.extract<-function(oldnw,z,output="network",response=NULL){
     newnwweights <- z$newnwweights[2:(nedges+1)]
   }
   
-  newnw<-network.update(oldnw,newedgelist,"edgelist",output=output)
+  newnw<-network.update(oldnw,newedgelist,matrix.type="edgelist",output=output)
   if(!is.null(response)){
     newnw<-set.edge.attribute(newnw,attrname=response,newnwweights)
   }
