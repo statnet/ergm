@@ -21,6 +21,8 @@
 ###############################################################################
 
 .First.lib <- function(lib, pkg){
+  ops <- options(warn = -1)
+  on.exit(options(ops))
   library.dynam("ergm", pkg, lib)
   DESCpath <- file.path(system.file(package="ergm"), "DESCRIPTION")
   info <- read.dcf(DESCpath)
