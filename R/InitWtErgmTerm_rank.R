@@ -15,11 +15,13 @@ InitWtErgmTerm.deference<-function(nw, arglist, response, drop=TRUE, ...) {
 
 InitWtErgmTerm.inconsistency<-function (nw, arglist, response, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                     varnames = c("x","attrname"),
-                     vartypes = c("matrixnetwork","character"),
-                     defaultvalues = list(nw,NULL),
-                     required = c(FALSE,FALSE))
+                     varnames = c("x","attrname","weights","wtname"),
+                     vartypes = c("matrixnetwork","character","array","character"),
+                     defaultvalues = list(nw,NULL,NULL,NULL),
+                     required = c(FALSE,FALSE,FALSE,FALSE))
 
+  name<-"inconsistency_rank"
+  
     ## Process hamming network ##
   if(is.network(a$x)){ # Arg to hamming is a network
     xm<-as.matrix.network(a$x,matrix.type="adjacency",a$attrname)
@@ -46,7 +48,13 @@ InitWtErgmTerm.inconsistency<-function (nw, arglist, response, drop=TRUE, ...) {
   # A column-major matrix of choices.
   inputs <- c(t(xm))
 
-  list(name="inconsistency_rank", coef.names=coef.names, #name and coef.names: required 
+  if(!is.null(a$weights)){
+    name<-"inconsistency_cov_rank"
+    if(!is.null(a$wtname)) coef.names<-paste(coef.names,"by",a$wtname,sep=".")
+    inputs<-c(inputs,aperm(a$weights,c(3,2,1)))
+  }
+  
+  list(name=name, coef.names=coef.names, #name and coef.names: required 
        inputs = inputs, dependence = FALSE)
 }
 

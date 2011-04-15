@@ -80,6 +80,51 @@ WtS_CHANGESTAT_FN(s_inconsistency_rank){
   }
 }
 
+WtD_CHANGESTAT_FN(d_inconsistency_cov_rank){
+  IF_1_EGO_SWAPS_2_ALTERS({
+      unsigned int cov_start = N_NODES*N_NODES;
+      Vertex v1=t;
+      for(Vertex v2=1; v2 <= N_NODES; v2++){
+	if(v2==v1) continue;
+
+	// For some reason completely beyond me, CPP complains if I
+	// declare more than one variable in a line while inside a
+	// macro.
+	double v12_old = GETWT(v1,v2);
+	double v12_ref = INPUT_PARAM[(v1-1)*N_NODES+(v2-1)];
+	double v12_new = (v2!=h1 && v2!=h2) ? v12_old : ( v2==h1 ? weights[0] : weights[1] );
+	for(Vertex v3=1; v3 <= N_NODES; v3++){
+	  if(v3==v2 || v3==v1 || 
+	     (h1!=v2 && h1!=v3 && h2!=v2 && h2!=v3)) continue;
+	  double v13_old=GETWT(v1,v3);
+	  double v13_ref=INPUT_PARAM[(v1-1)*N_NODES+(v3-1)];
+	  double v13_new=(v3!=h1 && v3!=h2) ? v13_old : ( v3==h1 ? weights[0] : weights[1] );
+	  if((v12_old>v13_old)!=(v12_ref>v13_ref)) CHANGE_STAT[0]-=INPUT_PARAM[cov_start + (v1-1)*N_NODES*N_NODES + (v2-1)*N_NODES + (v3-1)];
+	  if((v12_new>v13_new)!=(v12_ref>v13_ref)) CHANGE_STAT[0]+=INPUT_PARAM[cov_start + (v1-1)*N_NODES*N_NODES + (v2-1)*N_NODES + (v3-1)];
+	}
+      }
+    });
+}
+
+WtS_CHANGESTAT_FN(s_inconsistency_cov_rank){ 
+  unsigned int cov_start = N_NODES*N_NODES;
+  CHANGE_STAT[0]=0;
+  for(Vertex v1=1; v1 <= N_NODES; v1++){
+    for(Vertex v2=1; v2 <= N_NODES; v2++){
+      if(v2==v1) continue;
+      double v12 = GETWT(v1,v2), v12_ref = INPUT_PARAM[(v1-1)*N_NODES+(v2-1)];
+      for(Vertex v3=1; v3 <= N_NODES; v3++){
+	if(v3==v2 || v3==v1) continue;
+	unsigned int 
+	  v123 = v12>GETWT(v1,v3),
+	  v123_ref = v12_ref>INPUT_PARAM[(v1-1)*N_NODES+(v3-1)];
+	if(v123!=v123_ref) 
+	  CHANGE_STAT[0]+=INPUT_PARAM[cov_start + (v1-1)*N_NODES*N_NODES + (v2-1)*N_NODES + (v3-1)];
+      }
+    }
+  }
+}
+
 WtD_CHANGESTAT_FN(d_deference){
   IF_1_EGO_SWAPS_2_ALTERS({
       for(Vertex v1=1; v1 <= N_NODES; v1++){
