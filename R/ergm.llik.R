@@ -204,7 +204,7 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL
 # htmp <- etagrad %*% t(htmp)
 # H <- - htmp %*% t(htmp)
 # htmp <- tcrossprod(etagrad, htmp)
-  htmp.offset <- matrix(0, ncol = length(etamap$offsetmap), nrow = nrow(htmp))
+  htmp.offset <- matrix(0, ncol = length(etamap$offsettheta), nrow = nrow(htmp))
   htmp.offset[,!etamap$offsetmap] <- htmp
   htmp.offset <- t(ergm.etagradmult(theta.offset, t(htmp.offset), etamap))
 # Notice the negative sign!
@@ -214,9 +214,10 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL
 # htmp <- tcrossprod(htmp, etagrad)
 # H <- crossprod(htmp, htmp)
 # H <- crossprod(t(etagrad),crossprod(H, t(etagrad)))
-  He <- matrix(NA, ncol = length(etamap$offsettheta), 
-                   nrow = length(etamap$offsettheta))
-  He[!etamap$offsettheta, !etamap$offsettheta] <- H
+# He <- matrix(NA, ncol = length(etamap$offsettheta), 
+#                  nrow = length(etamap$offsettheta))
+# He[!etamap$offsettheta, !etamap$offsettheta] <- H
+  He <- H[!etamap$offsettheta, !etamap$offsettheta]
   dimnames(He) <- list(names(namesx), names(namesx))
 # H
   He

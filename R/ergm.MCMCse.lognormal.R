@@ -52,7 +52,7 @@ ergm.MCMCse.lognormal<-function(theta, theta0, statsmatrix, statsmatrix.obs,
 
   # Take any theta offsets (values fixed at theta0) into consideration
   theta.offset <- etamap$theta0
-  theta.offset[!offsettheta] <- theta
+  theta.offset[!offsettheta] <- theta[!offsettheta]
 
   #  Calculate the auto-covariance of the MCMC suff. stats.
   #  and hence the MCMC s.e.
