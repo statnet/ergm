@@ -98,7 +98,7 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL,
           stop(paste("unnamed argument follows named argument in",
                      fname,"model term"), call.=FALSE)
         }
-        if (!eval(call(paste("is.",vartypes[i],sep=""),arglist[[i]]))) {
+        if (all(sapply(strsplit(vartypes[i],",",fixed=TRUE)[[1]], function(vartype) !eval(call(paste("is.",vartype,sep=""),arglist[[i]]))))) {
           # Wrong type
           stop(paste("argument number", i, "to", fname, "model term is not",
                      "of the expected", vartypes[i], "type"), call.=FALSE)
