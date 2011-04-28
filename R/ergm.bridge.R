@@ -31,7 +31,7 @@ ergm.bridge.llr<-function(object, response=NULL, from, to, nsteps, sample.size=1
 
   obs<-summary(form,response=response)
   
-  stats<-t(rbind(apply(path,1,function(theta) apply(simulate(form, theta0=theta, nsim=ceiling(sample.size/nsteps), response=response, basis=basis, statsonly=TRUE, verbose=verbose, ...),2,mean)-obs)))
+  stats<-t(rbind(apply(path,1,function(theta) {if(verbose) cat("Running theta=[",paste(theta,collapse=","),"].",sep="");apply(simulate(form, theta0=theta, nsim=ceiling(sample.size/nsteps), response=response, basis=basis, statsonly=TRUE, verbose=verbose, ...),2,mean)-obs})))
   
   Dtheta.Du<-to-from
 
@@ -50,6 +50,20 @@ ergm.bridge.0.llk<-function(object, response=response, theta, nsteps, llkonly=TR
   if(llkonly) br$llr
   else br
 }
+
+logLik.ergm<-function(object,nsteps,llkonly=TRUE,...){
+  out<-with(object,
+            if(!is.null(object$response)) ergm.bridge.0.llk(formula,response=response,reference=reference,constraints=constraints,theta=coef(object),nsteps=nsteps,llkonly=llkonly,...)
+            else ergm.bridge.dindstart.llk(formula,reference=reference,constraints=constraints,theta=coef(object),nsteps=nsteps,llkonly=llkonly,...)
+            )
+  if(llkonly) out
+  else{
+    llk<-out$llk
+    attr(llk,"br")<-out
+    llk
+  }
+}
+                                 
 
 ## A wrapper around ergm.bridge.llr that uses a specified
 ## dyad-independence model `dind` (specified as RHS-only formula),
