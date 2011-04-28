@@ -16,7 +16,7 @@ InitWtErgmTerm.deference<-function(nw, arglist, response, drop=TRUE, ...) {
 InitWtErgmTerm.inconsistency<-function (nw, arglist, response, drop=TRUE, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                      varnames = c("x","attrname","weights","wtname"),
-                     vartypes = c("matrixnetwork","character","array","character"),
+                     vartypes = c("matrixnetwork","character","array,function","character"),
                      defaultvalues = list(nw,NULL,NULL,NULL),
                      required = c(FALSE,FALSE,FALSE,FALSE))
 
@@ -50,7 +50,13 @@ InitWtErgmTerm.inconsistency<-function (nw, arglist, response, drop=TRUE, ...) {
 
   if(!is.null(a$weights)){
     name<-"inconsistency_cov_rank"
-    if(!is.null(a$wtname)) coef.names<-paste(coef.names,"by",a$wtname,sep=".")
+    if(!is.null(a$wtname)) coef.names<-paste(coef.names,"*",a$wtname,sep=".")
+
+    if(is.function(a$weights)){
+      mk.inconsist.cov<-function(n,FUN) aperm(array(unlist(sapply(seq_len(n),function(i) sapply(seq_len(n), function(j1) sapply(seq_len(n), function(j2) FUN(i,j1,j2,...),simplify=FALSE),simplify=FALSE),simplify=FALSE)),c(n,n,n)),3:1)
+      a$weights<-mk.inconsist.cov(network.size(nw),a$weights)
+    }
+    
     inputs<-c(inputs,aperm(a$weights,c(3,2,1)))
   }
   
