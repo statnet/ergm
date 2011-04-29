@@ -136,6 +136,11 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
   cov.zbar <- cov.zbar[,!novar,drop=FALSE] 
   mc.se <- rep(NA,length=length(theta))
   mc.se0 <- try(solve(H, cov.zbar), silent=TRUE)
+  if(length(novar)==length(offsettheta)){
+   novar <- novar | offsettheta
+  }else{
+   novar <- novar[!offsettheta]
+  }
   if(!(inherits(mc.se0,"try-error"))){
     mc.se0 <- try(diag(solve(H, t(mc.se0))), silent=TRUE)
     if(!(inherits(mc.se0,"try-error"))){
@@ -144,15 +149,15 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
         if(!(inherits(mc.se.miss0,"try-error"))){
           mc.se.miss0 <- try(diag(solve(H.miss, t(mc.se.miss0))), silent=TRUE)
           if(!inherits(mc.se.miss0,"try-error")){
-            mc.se[!offsettheta][!novar] <- sqrt(mc.se0 + mc.se.miss0)
+            mc.se[!novar] <- sqrt(mc.se0 + mc.se.miss0)
           }else{
-            mc.se[!offsettheta][!novar] <- sqrt(mc.se0)
+            mc.se[!novar] <- sqrt(mc.se0)
           }
         }else{
-          mc.se[!offsettheta][!novar] <- sqrt(mc.se0)
+          mc.se[!novar] <- sqrt(mc.se0)
         }
       }else{
-        mc.se[!offsettheta][!novar] <- sqrt(mc.se0)
+        mc.se[!novar] <- sqrt(mc.se0)
       }
     }
   }
