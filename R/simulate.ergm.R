@@ -121,6 +121,9 @@ simulate.formula <- function(object, nsim=1, seed=NULL, theta0,
   if (any(is.nan(theta0) | is.na(theta0)))
     stop("Illegal value of theta0 passed to simulate.formula")
     
+  # Create eta0 from theta0
+  eta0 <- ergm.eta(theta0, m$etamap)
+
   # Create vector of current statistics
   curstats<-summary(form)
   names(curstats) <- m$coef.names
@@ -148,7 +151,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL, theta0,
     # matrix of network statistics.
     MCMCparams$samplesize <- nsim
     MCMCparams$nmatrixentries <- nsim * length(curstats)
-    z <- ergm.getMCMCsample(Clist, MHproposal, theta0, MCMCparams, verbose=verbose)
+    z <- ergm.getMCMCsample(Clist, MHproposal, eta0, MCMCparams, verbose=verbose)
     
     # Post-processing:  Add term names to columns and shift each row by
     # observed statistics.
