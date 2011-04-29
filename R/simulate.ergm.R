@@ -123,6 +123,9 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
   }
   if (any(is.nan(theta0) | is.na(theta0)))
     stop("Illegal value of theta0 passed to simulate.formula")
+  
+  # Create eta0 from theta0
+  eta0 <- ergm.eta(theta0, m$etamap)
     
   # Create vector of current statistics
   curstats<-summary(form,response=response)
@@ -150,7 +153,7 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
     # matrix of network statistics.
     MCMCparams$samplesize <- nsim
     MCMCparams$nmatrixentries <- nsim * length(curstats)
-    z <- ergm.getMCMCsample(Clist, MHproposal, theta0, MCMCparams, verbose=verbose)
+    z <- ergm.getMCMCsample(Clist,MHproposal,eta0,MCMCparams,verbose=verbose)
     
     # Post-processing:  Add term names to columns and shift each row by
     # observed statistics.
@@ -175,7 +178,7 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
   if (sequential) { # non-parallel method used here
   for(i in 1:nsim){
     MCMCparams$burnin <- ifelse(i==1, burnin, interval)
-    z <- ergm.getMCMCsample(Clist, MHproposal, theta0, MCMCparams, verbose)
+    z <- ergm.getMCMCsample(Clist, MHproposal, eta0, MCMCparams, verbose)
 
     # Create a network object if statsonly==FALSE
     if (!statsonly) {
@@ -221,11 +224,11 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
 #   Run the jobs with rpvm or Rmpi
 #
     flush.console()
-    data <- list(Clist=Clist, MHproposal=MHproposal, theta0=theta0,
+    data <- list(Clist=Clist, MHproposal=MHproposal, eta0=eta0,
         MCMCparams=MCMCparams)
     simfn <- function(i, data){
      ergm.getMCMCsample(Clist=data$Clist, MHproposal=data$MHproposal, 
-            eta0=data$theta0, MCMCparams=data$MCMCparams)
+            eta0=data$eta0, MCMCparams=data$MCMCparams)
     }
 #
     outlist <- clusterApplyLB(cl, as.list(1:nsim), simfn, data)
