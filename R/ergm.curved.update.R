@@ -58,7 +58,14 @@
         }
         if(any(gwespf)){
          parms.curved$gwesp.alpha <- theta0["gwesp.alpha"]
-         iseq <- (1:(network.size(g)-2))
+#        iseq <- (1:(network.size(g)-2))
+         maxesp <- network.size(g)-2
+         if(maxesp > 30){
+          maxesp <- summary(g ~ esp(1:maxsp))
+          maxesp <- 2*max(seq(along=maxesp)[maxesp>0])
+          maxesp <- min(max(maxesp,30),network.size(g)-2)
+         }
+         iseq <- 1:maxesp
          eta0[gwespf] <- theta0["gwesp"]*
           exp(theta0["gwesp.alpha"])*(1-(1-exp(-theta0["gwesp.alpha"]))^iseq)
         }

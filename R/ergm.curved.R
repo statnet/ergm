@@ -137,12 +137,23 @@
     for(i in 1:length(m$terms)){
       if(m$terms[[i]]$name=="gwesp"){
         parms.curved$gwesp.alpha <-  m$terms[[i]]$inputs[4] 
+#  MSH: I am not sure the next line correctly connect up with the components
+#       of m$terms
+browser()
+        parms.curved$gwesp.cutoff <-  m$terms[[i]]$inputs[5] 
       }
     }
     names(parms.curved$gwesp.alpha) <- "gwesp.alpha"
     theta0 <- c(theta0, parms.curved$gwesp.alpha)
     theta1 <- c(theta1, FALSE)
-    iseq <- (1:(network.size(nw)-2))
+#   iseq <- (1:(network.size(nw)-2))
+    maxesp <- network.size(nw)-2
+    if(maxesp > m$terms[[i]]$cutoff){
+     maxesp <- summary(nw ~ esp(1:maxesp))
+     maxesp <- 2*max(seq(along=maxesp)[maxesp>0])
+     maxesp <- min(max(maxesp,m$terms[[i]]$cutoff),network.size(nw)-2)
+    }
+    iseq <- 1:maxesp
     eta0[gwespf] <- theta0["gwesp"]*
       exp(theta0["gwesp.alpha"])*(1-(1-exp(-theta0["gwesp.alpha"]))^iseq)
   }
