@@ -49,9 +49,9 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.obs,
   xobs <- xobs[!offsetmap]
   xsim <- xsim[,!offsetmap, drop=FALSE]
 
-  # Take any theta offsets (values fixed at theta0) into consideration
+  # Take any theta offsets (values fixed at theta-1) into consideration
   theta.offset <- etamap$theta0
-  theta.offset[!offsettheta] <- theta
+  theta.offset[!offsettheta] <- theta[!offsettheta]
 
   #  Calculate the auto-covariance of the MCMC suff. stats.
   #  and hence the MCMC s.e.
@@ -134,6 +134,11 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.obs,
   }
   cov.zbar <- cov.zbar[!novar,,drop=FALSE] 
   cov.zbar <- cov.zbar[,!novar,drop=FALSE] 
+  if(length(novar)==length(offsettheta)){
+   novar <- novar | offsettheta
+  }else{
+   novar <- novar[!offsettheta]
+  }
   mc.se <- rep(NA,length=length(theta))
   mc.se0 <- try(solve(H, cov.zbar), silent=TRUE)
   if(!(inherits(mc.se0,"try-error"))){
@@ -144,15 +149,15 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.obs,
         if(!(inherits(mc.se.obs0,"try-error"))){
           mc.se.obs0 <- try(diag(solve(H.obs, t(mc.se.obs0))), silent=TRUE)
           if(!inherits(mc.se.obs0,"try-error")){
-            mc.se[!offsettheta][!novar] <- sqrt(mc.se0 + mc.se.obs0)
+            mc.se[!novar] <- sqrt(mc.se0 + mc.se.obs0)
           }else{
-            mc.se[!offsettheta][!novar] <- sqrt(mc.se0)
+            mc.se[!novar] <- sqrt(mc.se0)
           }
         }else{
-          mc.se[!offsettheta][!novar] <- sqrt(mc.se0)
+          mc.se[!novar] <- sqrt(mc.se0)
         }
       }else{
-        mc.se[!offsettheta][!novar] <- sqrt(mc.se0)
+        mc.se[!novar] <- sqrt(mc.se0)
       }
     }
   }
@@ -167,15 +172,15 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.obs,
         if(!(inherits(mc.cov.obs0,"try-error"))){
           mc.cov.obs0 <- try(solve(H.obs, t(mc.cov.obs0)), silent=TRUE)
           if(!inherits(mc.cov.obs0,"try-error")){
-            mc.cov[!offsettheta,!offsettheta][!novar,!novar] <- mc.cov0 + mc.cov.obs0
+            mc.cov[!novar,!novar] <- mc.cov0 + mc.cov.obs0
           }else{
-            mc.cov[!offsettheta,!offsettheta][!novar,!novar] <- mc.cov0
+            mc.cov[!novar,!novar] <- mc.cov0
           }
         }else{
-          mc.cov[!offsettheta,!offsettheta][!novar,!novar] <- mc.cov0
+          mc.cov[!novar,!novar] <- mc.cov0
         }
       }else{
-        mc.cov[!offsettheta,!offsettheta][!novar,!novar] <- mc.cov0
+        mc.cov[!novar,!novar] <- mc.cov0
       }
     }
   }
