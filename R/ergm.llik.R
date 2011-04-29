@@ -129,15 +129,15 @@ llik.grad <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NULL,
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
 # etagrad <- ergm.etagrad(theta.offset, etamap)
-  x <- eta-eta0
+  etaparam <- eta-eta0
 # MSH: Is this robust?
-  x <- x[!etamap$offsetmap]
+  etaparam <- etaparam[!etamap$offsetmap]
   xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
   xobs <- xobs[!etamap$offsetmap]
 # etagrad <- etagrad[,!etamap$offsetmap,drop=FALSE]
 # etagrad <- etagrad[!etamap$offsettheta,,drop=FALSE]
 #
-  basepred <- xsim %*% x
+  basepred <- xsim %*% etaparam
   prob <- max(basepred)
   prob <- probs*exp(basepred - prob)
   prob <- prob/sum(prob)
@@ -183,16 +183,16 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL
 #
   eta <- ergm.eta(theta.offset, etamap)
 # etagrad <- ergm.etagrad(theta.offset, etamap)
-  x <- eta-eta0
+  etaparam <- eta-eta0
 # MSH: Is this robust?
-  x <- x[!etamap$offsetmap]
+  etaparam <- etaparam[!etamap$offsetmap]
   xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
   xobs <- xobs[!etamap$offsetmap]
 # etagrad <- etagrad[,!etamap$offsetmap,drop=FALSE]
 # etagrad <- etagrad[!etamap$offsettheta,,drop=FALSE]
 #
 # x <- x[!etamap$offsettheta]
-  basepred <- xsim %*% x
+  basepred <- xsim %*% etaparam
   prob <- max(basepred)
   prob <- probs*exp(basepred - prob)
   prob <- prob/sum(prob)
@@ -204,7 +204,8 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL
 # htmp <- etagrad %*% t(htmp)
 # H <- - htmp %*% t(htmp)
 # htmp <- tcrossprod(etagrad, htmp)
-  htmp.offset <- matrix(0, ncol = length(etamap$offsettheta), nrow = nrow(htmp))
+  htmp.offset <- matrix(0, ncol = length(etamap$offsetmap), nrow = nrow(htmp))
+# htmp.offset[,!etamap$offsetmap] <- htmp
   htmp.offset[,!etamap$offsetmap] <- htmp
   htmp.offset <- t(ergm.etagradmult(theta.offset, t(htmp.offset), etamap))
 # Notice the negative sign!
