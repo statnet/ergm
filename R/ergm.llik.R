@@ -61,16 +61,16 @@ llik.fun <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
   eta <- ergm.eta(theta.offset, etamap)
 
   # Calculate approximation to l(eta) - l(eta0) using a lognormal approximation
-  x <- eta-eta0
+  etaparam <- eta-eta0
 # MSH: Is this robust?
-  x <- x[!etamap$offsetmap]
+  etaparam <- etaparam[!etamap$offsetmap]
   xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
   xobs <- xobs[!etamap$offsetmap]
   #
-  basepred <- xsim %*% x
+  basepred <- xsim %*% etaparam
   mb <- sum(basepred*probs)
   vb <- sum(basepred*basepred*probs) - mb*mb
-  llr <- sum(xobs * x) - mb - varweight*vb
+  llr <- sum(xobs * etaparam) - mb - varweight*vb
   #
 
   # Simplistic error control;  -800 is effectively like -Inf:
@@ -92,9 +92,9 @@ llik.fun <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
 #  theta.offset <- etamap$theta0
 #  theta.offset[!etamap$offsettheta] <- theta
 #  eta <- ergm.eta(theta.offset, etamap)
-#  x <- eta-eta0
+#  etaparam <- eta-eta0
 #  xsim[,etamap$offsetmap] <- 0
-#  basepred <- xsim %*% x
+#  basepred <- xsim %*% etaparam
 #  prob <- max(basepred)
 #  prob <- probs*exp(basepred - prob)
 #  prob <- prob/sum(prob)
@@ -176,7 +176,7 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL
                          varweight=0.5, trustregion=20, eta0, etamap){
   theta.offset <- etamap$theta0
   theta.offset[!etamap$offsettheta] <- theta
-  namesx <- names(theta)
+  namestheta <- names(theta)
 # xsim[,etamap$offsettheta] <- 0
 #
 #    eta transformation
@@ -191,7 +191,7 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL
 # etagrad <- etagrad[,!etamap$offsetmap,drop=FALSE]
 # etagrad <- etagrad[!etamap$offsettheta,,drop=FALSE]
 #
-# x <- x[!etamap$offsettheta]
+# etaparam <- etaparam[!etamap$offsettheta]
   basepred <- xsim %*% etaparam
   prob <- max(basepred)
   prob <- probs*exp(basepred - prob)
@@ -219,7 +219,7 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL
 #                  nrow = length(etamap$offsettheta))
 # He[!etamap$offsettheta, !etamap$offsettheta] <- H
   He <- H[!etamap$offsettheta, !etamap$offsettheta]
-  dimnames(He) <- list(names(namesx), names(namesx))
+  dimnames(He) <- list(names(namestheta), names(namestheta))
 # H
   He
 }
@@ -239,7 +239,7 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL
 
 llik.hessian.naive <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
                                varweight=0.5, eta0, etamap){
-  namesx <- names(theta)
+  namestheta <- names(theta)
   xsim <- xsim[,!etamap$offsettheta, drop=FALSE]
   eta <- ergm.eta(theta, etamap)
   etagrad <- ergm.etagrad(theta, etamap)
@@ -247,8 +247,8 @@ llik.hessian.naive <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.ob
   # It does not matter if we subtract a constant from the (eta-eta0)^t g vector
   # prior to exponentiation.  So subtract to make maximum value = 0 for 
   # the sake of numberical stability:
-  x <- eta-eta0
-  x <- x[!etamap$offsettheta]
+  etaparam <- eta-eta0
+  etaparam <- etaparam[!etamap$offsettheta]
   basepred <- xsim %*% x
   w <- probs * exp(basepred - max(basepred))
   w <- w/sum(w)
@@ -261,7 +261,7 @@ llik.hessian.naive <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.ob
   H <- - crossprod(etagrad, crossprod(H, etagrad))
   He <- matrix(NA, ncol = length(theta), nrow = length(theta))
   He[!etamap$offsettheta, !etamap$offsettheta] <- H
-  dimnames(He) <- list(names(namesx), names(namesx))
+  dimnames(He) <- list(names(namestheta), names(namestheta))
   He
 }
 
@@ -272,9 +272,9 @@ llik.hessian.naive <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.ob
 # llik.exp <- function(theta, xobs, xsim, probs, 
 #                      varweight=0.5, eta0, etamap){
 #   eta <- ergm.eta(theta, etamap)
-#   x <- eta-eta0
+#   etaparam <- eta-eta0
 #   vb <- var(xsim)
-#   llr <- -sum(xobs * x) + varweight*(t(x) %*% vb %*% x)
+#   llr <- -sum(xobs * etaparam) + varweight*(t(etaparam) %*% vb %*% etaparam)
 #   if(is.infinite(llr) | is.na(llr)){llr <- -800}
 #   llr
 # }
@@ -291,14 +291,14 @@ llik.fun.EF <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
   theta.offset <- etamap$theta0
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
-  x <- eta-eta0
+  etaparam <- eta-eta0
 # The next line is right!
-# aaa <- sum(xobs * x) - log(sum(probs*exp(xsim %*% x)))
+# aaa <- sum(xobs * etaparam) - log(sum(probs*exp(xsim %*% etaparam)))
 # These lines standardize:
-  basepred <- xsim %*% x
+  basepred <- xsim %*% etaparam
 #
   maxbase <- max(basepred)
-  llr <- sum(xobs * x) - maxbase - log(sum(probs*exp(basepred-maxbase)))
+  llr <- sum(xobs * etaparam) - maxbase - log(sum(probs*exp(basepred-maxbase)))
   if(is.infinite(llr) | is.na(llr)){llr <- -800}
 #
 # Penalize changes to trustregion
@@ -306,7 +306,7 @@ llik.fun.EF <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
   llr <- llr - 2*(llr-trustregion)*(llr>trustregion)
 #
 # cat(paste("max, log-lik",maxbase,llr,"\n"))
-# aaa <- sum(xobs * x) - log(sum(probs*exp(xsim %*% x)))
+# aaa <- sum(xobs * etaparam) - log(sum(probs*exp(xsim %*% etaparam)))
 # cat(paste("log-lik",llr,aaa,"\n"))
 # aaa
   llr
@@ -324,10 +324,10 @@ llik.fun.EF <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
 llik.fun2 <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL, 
                       varweight=0.5, trustregion=20, eta0, etamap){
   eta <- ergm.eta(theta, etamap)
-  x <- eta-eta0
-  basepred <- xsim %*% x
+  etaparam <- eta-eta0
+  basepred <- xsim %*% etaparam
   maxbase <- max(basepred)
-  llr <- sum(xobs * x) - maxbase - log(sum(probs*exp(basepred-maxbase)))
+  llr <- sum(xobs * etaparam) - maxbase - log(sum(probs*exp(basepred-maxbase)))
   llr
 }
 
@@ -342,8 +342,8 @@ llik.fun2 <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
 llik.grad2 <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
                        varweight=0.5, trustregion=20, eta0, etamap){
   eta <- ergm.eta(theta, etamap)
-  x <- eta-eta0
-  basepred <- xsim %*% x
+  etaparam <- eta-eta0
+  basepred <- xsim %*% etaparam
   prob <- max(basepred)
   prob <- probs*exp(basepred - prob)
   prob <- prob/sum(prob)
@@ -451,18 +451,18 @@ llik.fun.median <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=N
   # Calculate approximation to l(eta) - l(eta0) using a lognormal approximation
   # i.e., assuming that the network statistics are approximately normally 
   # distributed so that exp(eta * stats) is lognormal
-  x <- eta-eta0
+  etaparam <- eta-eta0
 # MSH: Is this robust?
-  x <- x[!etamap$offsetmap]
+  etaparam <- etaparam[!etamap$offsetmap]
   xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
   xobs <- xobs[!etamap$offsetmap]
 # The next line is right!
-# aaa <- sum(xobs * x) - log(sum(probs*exp(xsim %*% x)))
+# aaa <- sum(xobs * etaparam) - log(sum(probs*exp(xsim %*% etaparam)))
 # These lines standardize:
-  basepred <- xsim %*% x
+  basepred <- xsim %*% etaparam
 #
 # maxbase <- max(basepred)
-# llr <- sum(xobs * x) - maxbase - log(sum(probs*exp(basepred-maxbase)))
+# llr <- sum(xobs * etaparam) - maxbase - log(sum(probs*exp(basepred-maxbase)))
 #
 # alternative based on log-normal approximation
   mb <- wtd.median(basepred, weight=probs)
@@ -470,7 +470,7 @@ llik.fun.median <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=N
 # 
 # This is the log-likelihood ratio (and not its negative)
 #
-  llr <- sum(xobs * x) - (mb + varweight*sdb*sdb)
+  llr <- sum(xobs * etaparam) - (mb + varweight*sdb*sdb)
   if(is.infinite(llr) | is.na(llr)){llr <- -800}
 #
 # Penalize changes to trustregion
@@ -478,7 +478,7 @@ llik.fun.median <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=N
   llr <- llr - 2*(llr-trustregion)*(llr>trustregion)
 #
 # cat(paste("max, log-lik",maxbase,llr,"\n"))
-# aaa <- sum(xobs * x) - log(sum(probs*exp(xsim %*% x)))
+# aaa <- sum(xobs * etaparam) - log(sum(probs*exp(xsim %*% etaparam)))
 # cat(paste("log-lik",llr,aaa,"\n"))
 # aaa
   llr
