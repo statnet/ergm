@@ -139,7 +139,6 @@
         parms.curved$gwesp.alpha <-  m$terms[[i]]$inputs[4] 
 #  MSH: I am not sure the next line correctly connect up with the components
 #       of m$terms
-browser()
         parms.curved$gwesp.cutoff <-  m$terms[[i]]$inputs[5] 
       }
     }
@@ -148,10 +147,10 @@ browser()
     theta1 <- c(theta1, FALSE)
 #   iseq <- (1:(network.size(nw)-2))
     maxesp <- network.size(nw)-2
-    if(maxesp > m$terms[[i]]$cutoff){
+    if(maxesp > m$terms[[i]]$inputs[5]){
      maxesp <- summary(nw ~ esp(1:maxesp))
      maxesp <- 2*max(seq(along=maxesp)[maxesp>0])
-     maxesp <- min(max(maxesp,m$terms[[i]]$cutoff),network.size(nw)-2)
+     maxesp <- min(max(maxesp,m$terms[[i]]$inputs[5]),network.size(nw)-2)
     }
     iseq <- 1:maxesp
     eta0[gwespf] <- theta0["gwesp"]*
