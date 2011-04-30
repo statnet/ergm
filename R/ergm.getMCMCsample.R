@@ -120,6 +120,7 @@ ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALS
 
   ## Post-processing of z$statsmatrix element: coerce to correct-sized matrix
   statsmatrix <- matrix(z$statsmatrix, nrow = MCMCparams$samplesize, byrow=TRUE)
+  statsmatrix[is.na(statsmatrix)] <- 0
 
   ## outta here:  Return list with "statsmatrix" and "newedgelist"
   return(list(statsmatrix = statsmatrix, newedgelist = newedgelist))

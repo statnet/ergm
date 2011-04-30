@@ -120,7 +120,8 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
         nw <- nw.returned
         nw.obs <- summary(model$formula, basis=nw, response=response)
         namesmatch <- match(names(MCMCparams$meanstats), names(nw.obs))
-        statshift <- nw.obs[namesmatch]-Clist$meanstats
+        statshift <- Clist$meanstats
+        statshift[!is.na(namesmatch)] <- statshift[!is.na(namesmatch)] - nw.obs[namesmatch[!is.na(namesmatch)]]
       }
     }
     

@@ -146,6 +146,8 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
   }
   }
   colnames(statsmatrix) <- model$coef.names
+#
+  statsmatrix[is.na(statsmatrix)] <- 0
 
 ##
 ## recenter statsmatrix by mean statistics if necessary
