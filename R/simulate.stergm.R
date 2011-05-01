@@ -90,14 +90,14 @@ simulate.stergm<-function(object,
 
 
 
-simulate.formula.stergm <- function(object, dissolution, nsim=1, seed=NULL,
+simulate.formula.stergm <- function(object, nsim=1, seed=NULL, ..., dissolution,
                                 theta.form,theta.diss,
                         time.burnin=0, time.interval=1, MH.burnin=1000,
                         constraints=~.,
                         stergm.order="DissAndForm",
                         control=control.simulate.stergm(),
                         toggles=TRUE,
-                        verbose=FALSE, ...) {
+                        verbose=FALSE) {
 
   formation <- object
   
