@@ -1,11 +1,7 @@
-## The workhorse function: Uses bridge sampling to estimate the
-## log-likelihood-ratio between two configurations `to' and `from' for
-## a model `object', using `nsteps' MCMC samples. If llronly==TRUE,
-## returns only the estimate. Otherwise, returns a list with more
-## details. Other parameters are same as simulate.ergm.
-ergm.bridge.llr<-function(object, response=NULL, from, to, nsteps, sample.size=10000, basis=NULL, verbose=FALSE, llronly=FALSE, ...){
 
-  ## Here, we need to get the model object to get the likelihood and gradient functions.
+## This is a helper function that constructs and returns the network
+## object to be used and the model object.
+ergm.bridge.preproc<-function(object, basis, response){
 
   # If basis is not null, replace network in formula by basis.
   # In either case, let nw be network object from formula.
@@ -18,12 +14,24 @@ ergm.bridge.llr<-function(object, response=NULL, from, to, nsteps, sample.size=1
     stop("A network object on the LHS of the formula or via",
          " the 'basis' argument must be given")
   }
-
+  
   # New formula (no longer use 'object'):
   form <- ergm.update.formula(object, nw ~ .)
   
-  m <- ergm.getmodel(form, nw, drop=FALSE, response=response)
+  list(nw=nw, form=form, model=ergm.getmodel(form, nw, drop=FALSE, response=response))
+}
 
+
+## The workhorse function: Uses bridge sampling to estimate the
+## log-likelihood-ratio between two configurations `to' and `from' for
+## a model `object', using `nsteps' MCMC samples. If llronly==TRUE,
+## returns only the estimate. Otherwise, returns a list with more
+## details. Other parameters are same as simulate.ergm.
+ergm.bridge.llr<-function(object, response=NULL, from, to, nsteps=10, sample.size=10000, basis=NULL, verbose=FALSE, llronly=FALSE, ...){
+
+  ## Here, we need to get the model object to get the likelihood and gradient functions.
+  tmp<-ergm.bridge.preproc(object,basis,response)
+  nw<-tmp$nw; m<-tmp$model; form<-tmp$form; rm(tmp)
 
   ## Generate the path.
 
@@ -31,7 +39,7 @@ ergm.bridge.llr<-function(object, response=NULL, from, to, nsteps, sample.size=1
 
   obs<-summary(form,response=response)
   
-  stats<-t(rbind(apply(path,1,function(theta) {if(verbose) cat("Running theta=[",paste(theta,collapse=","),"].",sep="");apply(simulate(form, theta0=theta, nsim=ceiling(sample.size/nsteps), response=response, basis=basis, statsonly=TRUE, verbose=max(verbose-1,0), ...),2,mean)-obs})))
+  stats<-t(rbind(apply(path,1,function(theta) {if(verbose) cat("Running theta=[",paste(format(theta),collapse=","),"].\n",sep="");apply(simulate(form, theta0=theta, nsim=ceiling(sample.size/nsteps), response=response, basis=basis, statsonly=TRUE, verbose=max(verbose-1,0), ...),2,mean)-obs})))
   
   Dtheta.Du<-to-from
 
@@ -45,25 +53,11 @@ ergm.bridge.llr<-function(object, response=NULL, from, to, nsteps, sample.size=1
 ## log-likelihood of configuration `theta' *relative to the reference
 ## measure*. That is, the configuration with theta=0 is defined as
 ## having log-likelihood of 0.
-ergm.bridge.0.llk<-function(object, response=response, theta, nsteps, llkonly=TRUE, ...){
+ergm.bridge.0.llk<-function(object, response=response, theta, nsteps=10, llkonly=TRUE, ...){
   br<-ergm.bridge.llr(object, from=rep(0,length(theta)), to=theta, nsteps=nsteps, response=response, ...)
   if(llkonly) br$llr
   else c(br,llk=br$llr)
 }
-
-logLik.ergm<-function(object,nsteps,llkonly=TRUE,...){
-  out<-with(object,
-            if(!is.null(object$response)) ergm.bridge.0.llk(formula,response=response,reference=reference,constraints=constraints,theta=coef(object),nsteps=nsteps,llkonly=llkonly,...)
-            else ergm.bridge.dindstart.llk(formula,reference=reference,constraints=constraints,theta=coef(object),nsteps=nsteps,llkonly=llkonly,...)
-            )
-  if(llkonly) out
-  else{
-    llk<-out$llk
-    attr(llk,"br")<-out
-    llk
-  }
-}
-                                 
 
 ## A wrapper around ergm.bridge.llr that uses a specified
 ## dyad-independence model `dind` (specified as RHS-only formula),
@@ -71,24 +65,55 @@ logLik.ergm<-function(object,nsteps,llkonly=TRUE,...){
 ## theta.dind, as a starting point for the bridge sampling. The terms
 ## in the dyad-independent model may overlap with the terms in the
 ## model whose likelihood is being evaluated, but don't have to.
-ergm.bridge.dindstart.llk<-function(object, response=NULL, theta, nsteps, dind=~edges, theta.dind=NULL,  basis=NULL, llkonly=TRUE, ...){
+ergm.bridge.dindstart.llk<-function(object, response=NULL, theta, nsteps, dind=NULL, theta.dind=NULL,  basis=NULL, llkonly=TRUE, ...){
   if(!is.null(response)) stop("Only binary ERGMs are supported at this time.")
-  # If basis is not null, replace network in formula by basis.
-  # In either case, let nw be network object from formula.
-  if(is.null(nw <- basis)) {
-    nw <- ergm.getnetwork(object)
+
+  ## Here, we need to get the model object to get the list of
+  ## dyad-independent terms.
+  tmp<-ergm.bridge.preproc(object,basis,response)
+  nw<-tmp$nw; m<-tmp$model; form<-tmp$form; rm(tmp)
+
+  ## This is an internal function that appends a list of terms to the RHS of a
+  ## formula. If the formula is one-sided, the RHS becomes the LHS.
+  ## For example,
+  ## append.rhs.formula(y~x,list(as.name("z1"),as.name("z2"))) -> y~x+z1+z2
+  ## append.rhs.formula(~y,list(as.name("z"))) -> y~z
+  ## append.rhs.formula(~y+x,list(as.name("z"))) -> y+x~z
+  append.rhs.formula<-function(object,newterms){
+    for(newterm in newterms){
+      if(length(object)==3)
+        object[[3]]<-call("+",object[[3]],newterm)
+      else
+        object[[3]]<-newterm
+    }
+    object
   }
   
-  nw <- as.network(nw)
-  if(!is.network(nw)){
-    stop("A network object on the LHS of the formula or via",
-         " the 'basis' argument must be given")
-  }
-
-  dind<-ergm.update.formula(dind,nw~.)  
-  ergm.dind<-ergm(dind,MPLEonly=TRUE)
-
-  if(is.null(ergm.dind$theta1$independent) || any(!ergm.dind$theta1$independent))
+  ## By default, take dyad-independent terms in the formula, fit a
+  ## model with these terms and "edges", then drop the terms that get
+  ## NAs (i.e. are redundant).
+   if(is.null(dind)){
+    dind<-nw~edges
+    terms.full<-term.list.formula(form[[3]])
+    for(i in seq_along(terms.full))
+      if(!is.null(m$terms[[i]]$dependence) && m$terms[[i]]$dependence==FALSE)
+        dind<-append.rhs.formula(dind,list(terms.full[[i]]))
+    ergm.dind<-ergm(dind,MPLEonly=TRUE)
+    ## If any terms are redundant...
+    if(any(is.na(coef(ergm.dind)))){
+      dind<-~nw
+      terms.dind<-term.list.formula(ergm.dind$formula[[3]])
+      for(i in seq_along(terms.dind))
+        if(!is.na(coef(ergm.dind)[i]))
+          dind<-append.rhs.formula(dind,list(terms.dind[[i]]))
+      ergm.dind<-ergm(dind,MPLEonly=TRUE)
+    }
+  }else{
+    dind<-ergm.update.formula(dind,nw~.)  
+    ergm.dind<-ergm(dind,MPLEonly=TRUE)
+  }  
+  
+  if(!is.dyad.independent(dind))
     stop("Reference model `dind' must be dyad-independent!")
 
   if(is.null(theta.dind)){
@@ -100,16 +125,12 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, theta, nsteps, dind=~
     llk.dind<- crossprod(lin.pred,ergm.dind$glm$y*ergm.dind$glm$prior.weights)-sum(log1p(exp(lin.pred))*ergm.dind$glm$prior.weights)
   }
   
-  
-  ## Replace the LHS with a . and append a . to RHS.
-  dind.template<-dind
-  dind.template[[2]]<-as.name(".")
-  dind.template[[3]]<-call("+",dind.template[[3]],as.name("."))
-  ## Construct the augmented formula.
-  form.aug<-ergm.update.formula(object, dind.template)
 
-  from<-c(coef.dind,rep(0,length(theta)))
-  to<-c(rep(0,length(coef.dind)),theta)
+  ## Construct the augmented formula.
+  form.aug<-append.rhs.formula(object, term.list.formula(dind[[3]]))
+
+  from<-c(rep(0,length(theta)),coef.dind)
+  to<-c(theta,rep(0,length(coef.dind)))
 
   br<-ergm.bridge.llr(form.aug, response=response, from=from, to=to, basis=basis, nsteps=nsteps, ...)
   
