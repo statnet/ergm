@@ -196,13 +196,13 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
     MCMCparams.parallel <- MCMCparams
     MCMCparams.parallel$samplesize <- 1
     MCMCparams.parallel$nmatrixentries <- length(curstats)
-    require(snow)
+    capture.output(require(snow, quietly=TRUE, warn.conflicts = FALSE))
 #
 # Start PVM if necessary
 #
     if(getClusterOption("type")=="PVM"){
      if(verbose){cat("Engaging warp drive using PVM ...\n")}
-     require(rpvm)
+     capture.output(require(rpvm, quietly=TRUE, warn.conflicts = FALSE))
      PVM.running <- try(.PVM.config(), silent=TRUE)
      if(inherits(PVM.running,"try-error")){
       hostfile <- paste(Sys.getenv("HOME"),"/.xpvm_hosts",sep="")

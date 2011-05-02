@@ -88,13 +88,13 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
     MCMCparams.parallel <- MCMCparams
     MCMCparams.parallel$samplesize <- round(MCMCparams$samplesize / MCMCparams$parallel)
     MCMCparams.parallel$stats <- MCMCparams$stats[1:MCMCparams.parallel$samplesize,]
-    require(snow)
+    capture.output(require(snow, quietly=TRUE, warn.conflicts = FALSE))
 #
 # Start PVM if necessary
 #
     if(getClusterOption("type")=="PVM"){
      if(verbose){cat("Engaging warp drive using PVM ...\n")}
-     require(rpvm)
+     capture.output(require(rpvm, quietly=TRUE, warn.conflicts = FALSE))
      PVM.running <- try(.PVM.config(), silent=TRUE)
      if(inherits(PVM.running,"try-error")){
       hostfile <- paste(Sys.getenv("HOME"),"/.xpvm_hosts",sep="")
