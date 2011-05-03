@@ -105,6 +105,11 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
 
   # New formula (no longer use 'object'):
   form <- ergm.update.formula(object, nw ~ .)
+  for(i in seq(along=form[[3]])){
+    if("fixed" %in% names(form[[3]][[i]])){
+        form[[3]][[i]][[match("fixed",names(form[[3]][[i]]))]] <- FALSE
+    }
+  }
   
   # Prepare inputs to ergm.getMCMCsample
   m <- ergm.getmodel(form, nw, drop=FALSE, response=response)
