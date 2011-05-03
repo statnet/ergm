@@ -58,7 +58,8 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
   if(is.null(MCMCparams$Clist.dt)){
     MCMCparams$Clist.dt <- list(tails=NULL, heads=NULL, nedges=0, dir=is.directed(nw))
   }
-  maxedges <- max(5000, Clist$nedges)
+# maxedges <- max(5000, Clist$nedges)
+  maxedges <- MCMCparams$maxedges
 #
 #   Check for truncation of the returned edge list
 #
