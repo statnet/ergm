@@ -64,7 +64,6 @@ is.ergm <- function(object)
     class(object)=="ergm"
 }
 
-
 is.matrixnetwork<-function(x){
  is.matrix(x)|is.network(x)
 }
@@ -472,7 +471,14 @@ ergm.update.formula<-function (object, new, ...){
   return(tmp)
 }
 
-
+theta.length.model<-function(m){
+  sum(sapply(m$terms, function(term){
+    ## curved term
+    if(!is.null(term$params)) length(term$params)
+    ## linear term
+    else length(term$coef.names)
+  }))
+}
 
 term.list.formula<-function(rhs){
   if(length(rhs)==1) list(rhs)
@@ -480,7 +486,6 @@ term.list.formula<-function(rhs){
   else if(rhs[[1]]=="(") term.list.formula(rhs[[2]])
   else list(rhs)
 }
-
 
 
 copy.named<-function(x){

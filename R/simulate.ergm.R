@@ -108,7 +108,7 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
   
   # Prepare inputs to ergm.getMCMCsample
   m <- ergm.getmodel(form, nw, drop=FALSE, response=response)
-  if(!missing(theta0) && length(m$coef.names)!=length(theta0)) stop("theta0 has ", length(theta0), " elements, while the model requires ",length(m$coef.names)," parameters.")
+  if(!missing(theta0) && theta.length.model(m)!=length(theta0)) stop("theta0 has ", length(theta0), " elements, while the model requires ",theta.length.model(m)," parameters.")
   
   Clist <- ergm.Cprepare(nw, m, response=response)
   MHproposal <- MHproposal(constraints,arguments=control$prop.args,
