@@ -105,14 +105,11 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
 
   # New formula (no longer use 'object'):
   form <- ergm.update.formula(object, nw ~ .)
-  for(i in seq(along=form[[3]])){
-    if("fixed" %in% names(form[[3]][[i]])){
-        form[[3]][[i]][[match("fixed",names(form[[3]][[i]]))]] <- FALSE
-    }
-  }
   
   # Prepare inputs to ergm.getMCMCsample
   m <- ergm.getmodel(form, nw, drop=FALSE, response=response)
+  if(!missing(theta0) && length(m$coef.names)!=length(theta0)) stop("theta0 has ", length(theta0), " elements, while the model requires ",length(m$coef.names)," parameters.")
+  
   Clist <- ergm.Cprepare(nw, m, response=response)
   MHproposal <- MHproposal(constraints,arguments=control$prop.args,
                            nw=nw, model=m, weights=control$prop.weights, class="c",reference=reference,response=response)  
