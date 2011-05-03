@@ -416,44 +416,6 @@ function(x, alternative = c("two.sided", "less", "greater"),
     return(rval)
 }
 
-
-
-
-##
-## Return TRUE iff object x is a latentfit object
-## or a latent model
-##
-#is.latent<-function(x){
-#  out <- is.list(x)
-#  if(out){
-#   out <- is.logical(x$latent)
-#   if(out){
-#    out <- x$latent
-#   }
-#  }
-#  out
-#}
-
-
-
-##
-## Return TRUE iff object x is a latentfit object
-## or a latent model and a "latentcluster" model or fit
-##
-#is.latent.cluster<-function(x){
-#  out <- FALSE
-#  if(is.latent(x)){
-#   out <- is.list(x)
-#   if(out){
-#    out <- is.logical(x$cluster)
-#    if(out){
-#     out <- x$cluster
-#    }
-#   }
-#  }
-#  out
-#}
-
 newnw.extract<-function(oldnw,z,output="network",response=NULL){
   if("newedgelist" %in% names(z)){
     newedgelist<-z$newedgelist[,1:2,drop=FALSE]

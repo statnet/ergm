@@ -35,27 +35,12 @@ anova.ergmlist <- function (object, ..., scale = 0, test = "F")
     return(anova.ergm(object))
   n <- network.size(object$newnetwork)
   logl <- df <- Rdf <- rep(0, nmodels)
-  pmodemean2 <- rep(NA, nmodels)
   for (i in 1:nmodels) {
-    if (!is.null(objects[[i]]$Z.mkl)) {
-      Z.use <- objects[[i]]$Z.mkl
-      if(!is.null(objects[[i]]$cluster))
-        Z.use <- Z.use * apply(objects[[i]]$Beta,2,mean)[ncol(objects[[i]]$Beta)]
-      z.pmode.mean <- apply(Z.use, 2, mean)
-      Z.pmode <- sweep(Z.use, 2, z.pmode.mean)
-      normnorm <- function(x) sum(x^2)
-      pmodemean2[i] <- mean(apply(Z.pmode, 1, normnorm))
-      p <- ncol(objects[[i]]$Z.mkl)
-    }else {
-      p <- 0
-    }
     nodes<- network.size(objects[[i]]$newnetwork)
     n <- network.dyadcount(objects[[i]]$newnetwork)
-    df[i] <- length(objects[[i]]$coef) + (nodes -  (p + 1)/2)*p
-    if(!is.null(objects[[i]]$cluster))
-      df[i] <- length(objects[[i]]$coef) + objects[[i]]$ngroups*(p+2) - 1 # ng-1 + ng *p + ng
+    df[i] <- length(objects[[i]]$coef) 
     Rdf[i] <- n - df[i]
-    logl[i] <- objects[[i]]$mle.lik
+    logl[i] <- logLik(objects[[i]])
   }
   k <- nmodels
 # k <- 1 + length(objects[[i]]$glm$coef)
@@ -95,15 +80,13 @@ anova.ergmlist <- function (object, ..., scale = 0, test = "F")
     Rdf <- c(n, Rdf)
     logl <- c(-n*log(2), logl)
 #  }
-  var.ex <- 1 - pmodemean2[-1]/pmodemean2[-length(pmodemean2)]
   pv <- pchisq(abs(2 * diff(logl)), abs(diff(df)), lower.tail = FALSE)
 
-  table <- data.frame(c(NA, pmodemean2), c(rep(NA, 2), var.ex),
-                      c(NA, -diff(Rdf)), c(NA, diff(2 * logl)), 
+  table <- data.frame(c(NA, -diff(Rdf)), c(NA, diff(2 * logl)), 
                       Rdf, -2 * logl, c(NA, pv))
   variables <- lapply(objects, function(x) paste(deparse(formula(x)), 
                                                  collapse = "\n"))
-  colnames(table) <- c("RSS", "R^2","Df","Deviance", "Resid. Df",
+  colnames(table) <- c("Df","Deviance", "Resid. Df",
                               "Resid. Dev", "Pr(>|Chisq|)")
   if (k > 2) 
     rownames(table) <- c("NULL", object$glm.names,1:nmodels)

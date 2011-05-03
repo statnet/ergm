@@ -54,7 +54,7 @@ summary.ergm <- function (object, ...,
 {
 # separates out summary and print fns: MSH
   pseudolikelihood <- is.null(object$samplesize) || is.na(object$samplesize)
-  independence <- !is.null(object$theta1$independent) && all(object$theta1$independent)
+  independence <- is.dyad.independent(object)
   if(any(is.na(object$coef)) & !is.null(object$mplefit)){
      object$coef[is.na(object$coef)] <-
      object$mplefit$coef[is.na(object$coef)]
@@ -141,16 +141,8 @@ summary.ergm <- function (object, ...,
 
   nodes<- network.size(object$network)
   dyads<- network.dyadcount(object$network)
-  if(!is.null(object$Z.mkl)){
-    p <- ncol(object$Z.mkl)
-  }else{
-    p <- 0
-  }
-  if(!is.null(object$cluster)){
-    df <- length(object$coef) + object$ngroups*(p+2) - 1 # ng-1 + ng *p + ng
-  }else{
-    df <- length(object$coef) + (nodes - (p + 1)/2) * p
-  }
+  df <- length(object$coef)
+
   rdf <- dyads - df
   tval <- object$coef / asyse
   pval <- 2 * pt(q=abs(tval), df=rdf, lower.tail=FALSE)
