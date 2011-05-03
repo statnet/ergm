@@ -84,7 +84,7 @@ simulate.stergm<-function(object,
                         control=control.simulate.stergm(),
                         toggles=TRUE,
                         verbose=FALSE, ...){
-  simulate.formula.stergm(object$formation,object$dissolution,nsim=nsim,seed=seed,theta.form=theta.form, theta.diss=theta.diss,  time.burnin=time.burnin, time.interval=time.interval,MH.burnin=MH.burnin,constraints=constraints,stergm.order=stergm.order,control=control,verbose=verbose,...)
+  simulate.formula.stergm(object$formation,dissolution=object$dissolution,nsim=nsim,seed=seed,theta.form=theta.form, theta.diss=theta.diss,  time.burnin=time.burnin, time.interval=time.interval,MH.burnin=MH.burnin,constraints=constraints,stergm.order=stergm.order,control=control,verbose=verbose,...)
 }
 
 
@@ -114,8 +114,13 @@ simulate.formula.stergm <- function(object, nsim=1, seed=NULL, ..., dissolution,
   dissolution<-ergm.update.formula(dissolution,nw~.)
   
   model.form <- ergm.getmodel(formation, nw, drop=control$drop)
-  model.diss <- ergm.getmodel(dissolution, nw, stergm.order=stergm.order,drop=control$drop)
+  if(!missing(theta.form) && length(model.form$coef.names)!=length(theta.form)) stop("theta.form has", length(theta.form), "elements, while the model requires",length(model.form$coef.names),"parameters.")
 
+  model.diss <- ergm.getmodel(dissolution, nw, stergm.order=stergm.order,drop=control$drop)
+  if(!missing(theta.diss) && length(model.diss$coef.names)!=length(theta.diss)) stop("theta.diss has", length(theta.diss), "elements, while the model requires",length(model.diss$coef.names),"parameters.")
+
+
+  
   verbose <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
   if(missing(theta.form)) {
