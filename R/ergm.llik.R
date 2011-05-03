@@ -249,7 +249,7 @@ llik.hessian.naive <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.ob
   # the sake of numberical stability:
   etaparam <- eta-eta0
   etaparam <- etaparam[!etamap$offsettheta]
-  basepred <- xsim %*% x
+  basepred <- xsim %*% etaparam
   w <- probs * exp(basepred - max(basepred))
   w <- w/sum(w)
   wtxsim <- sweep(xsim, 1, w, "*")
