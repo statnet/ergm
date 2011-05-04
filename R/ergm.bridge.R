@@ -73,22 +73,6 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, theta, nsteps, dind=N
   tmp<-ergm.bridge.preproc(object,basis,response)
   nw<-tmp$nw; m<-tmp$model; form<-tmp$form; rm(tmp)
 
-  ## This is an internal function that appends a list of terms to the RHS of a
-  ## formula. If the formula is one-sided, the RHS becomes the LHS.
-  ## For example,
-  ## append.rhs.formula(y~x,list(as.name("z1"),as.name("z2"))) -> y~x+z1+z2
-  ## append.rhs.formula(~y,list(as.name("z"))) -> y~z
-  ## append.rhs.formula(~y+x,list(as.name("z"))) -> y+x~z
-  append.rhs.formula<-function(object,newterms){
-    for(newterm in newterms){
-      if(length(object)==3)
-        object[[3]]<-call("+",object[[3]],newterm)
-      else
-        object[[3]]<-newterm
-    }
-    object
-  }
-  
   ## By default, take dyad-independent terms in the formula, fit a
   ## model with these terms and "edges", then drop the terms that get
   ## NAs (i.e. are redundant).

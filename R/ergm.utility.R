@@ -458,6 +458,21 @@ statnet.edit <- function(name,package=c("statnet","ergm","network")){
   invisible(filepath)
 }
 
+## This function appends a list of terms to the RHS of a
+## formula. If the formula is one-sided, the RHS becomes the LHS.
+## For example,
+## append.rhs.formula(y~x,list(as.name("z1"),as.name("z2"))) -> y~x+z1+z2
+## append.rhs.formula(~y,list(as.name("z"))) -> y~z
+## append.rhs.formula(~y+x,list(as.name("z"))) -> y+x~z
+append.rhs.formula<-function(object,newterms){
+  for(newterm in newterms){
+    if(length(object)==3)
+      object[[3]]<-call("+",object[[3]],newterm)
+    else
+      object[[3]]<-newterm
+  }
+  object
+}
 
 
 ergm.update.formula<-function (object, new, ...){
@@ -471,13 +486,17 @@ ergm.update.formula<-function (object, new, ...){
   return(tmp)
 }
 
-theta.length.model<-function(m){
-  sum(sapply(m$terms, function(term){
+theta.sublength.model<-function(m){
+  sapply(m$terms, function(term){
     ## curved term
     if(!is.null(term$params)) length(term$params)
     ## linear term
     else length(term$coef.names)
-  }))
+  })
+}
+
+theta.length.model<-function(m){
+  sum(theta.sublength.model(m))
 }
 
 term.list.formula<-function(rhs){
