@@ -8,3 +8,10 @@ CondDegreeHexadToggles), and CondDegreeSimple (using
 CondDegreeSimpleTetrad and CondDegreeSingleHexad). It is not clear which 
 of them are correct / faster / more efficient. We should, ideally, 
 reduce them to one.
+
+# Curved term cutoff #
+
+For now, the cutoff= in gw* functions is a hard bound, not adaptive in 
+any way, even if there exist values above it, to keep things simple and 
+stable. We may want to improve this later, or at least have the 
+initialization functions check if there are values above it.
