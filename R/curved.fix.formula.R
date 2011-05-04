@@ -10,9 +10,16 @@ curved.fix.ergm <- function(object,...){
 }
 
 curved.fix.formula <- function(object, theta, response=NULL, ...){
-  recipes<-list(gwesp=list(filter=function(a) is.null(a$fixed) || a$fixed==FALSE ,coef=1,theta=list(alpha=2),constant=list(fixed=TRUE)),
-                gwdsp=list(filter=function(a) is.null(a$fixed) || a$fixed==FALSE ,coef=1,theta=list(alpha=2),constant=list(fixed=TRUE)),
-                gwnsp=list(filter=function(a) is.null(a$fixed) || a$fixed==FALSE ,coef=1,theta=list(alpha=2),constant=list(fixed=TRUE)))
+  ## Construct the recipes.
+  recipes<-list()
+  is.fixed.1<-function(a) is.null(a$fixed) || a$fixed==FALSE
+  recipes$gwdsp<-recipes$gwesp<-recipes$gwnsp<-
+    list(filter=is.fixed.1, coef=1, theta=list(alpha=2), constant=list(fixed=TRUE))
+  recipes$altkstar<-
+    list(filter=is.fixed.1, coef=1, theta=list(lambda=2), constant=list(fixed=TRUE))
+  recipes$gwb1degree<-recipes$gwb2degree<-recipes$gwdegree<-recipes$gwidegree<-recipes$gwodegree<-
+    list(filter=is.fixed.1, coef=1, theta=list(decay=2), constant=list(fixed=TRUE))
+
   m <- ergm.getmodel(object, ergm.getnetwork(object), drop=FALSE, response=response)
   theta.inds<-cumsum(c(1,theta.sublength.model(m)))
   terms<-term.list.formula(object[[3]])
@@ -25,10 +32,9 @@ curved.fix.formula <- function(object, theta, response=NULL, ...){
        !(as.character(terms[[i]][[1]]) %in% names(recipes)) ||
        (!is.null(recipes[[as.character(terms[[i]][[1]])]]$filter) &&
         !recipes[[as.character(terms[[i]][[1]])]]$filter(as.list(terms[[i]])[-1]))){
-      ## If it's not a call (e.g. gwesp(alpha=2,fixed=TRUE)) OR is a
-      ## call but is not in the fix map OR is in the fix map but the
-      ## filter function says it should be skipped (e.g. it's already
-      ## fixed), then just append it.
+      ## If it's not a call OR is a call but does not have a recipe OR
+      ## does have a recipe, but the filter function says it should be
+      ## skipped (e.g. it's already fixed), then just append it.
       form<-append.rhs.formula(form,list(terms[[i]]))
       newtheta<-c(newtheta,theta[theta.inds[i]:(theta.inds[i+1]-1)])
     }else{
