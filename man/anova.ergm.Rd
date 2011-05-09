@@ -1,8 +1,8 @@
 \name{anova.ergm}
 \title{ANOVA for Linear Model Fits}
 \usage{
-\method{anova}{ergm}(object, \dots)
-\method{anova}{ergmlist}(object, \dots, scale = 0, test = "F")
+\method{anova}{ergm}(object, \dots, eval.loglik = FALSE)
+\method{anova}{ergmlist}(object, \dots, eval.loglik = FALSE, scale = 0, test = "F")
 }
 \alias{anova.ergm}
 %\alias{anova.ergm.null}
@@ -13,6 +13,8 @@
 \arguments{
   \item{object, \dots}{objects of class \code{\link{ergm}}, usually, a result of a
     call to \code{\link{ergm}}.}
+  \item{eval.loglik}{a logical specifying whether the log-likelihood will be
+    evaluated if missing.}
   \item{test}{a character string specifying the test statistic to be
     used. Can be one of \code{"F"}, \code{"Chisq"} or \code{"Cp"},
     with partial matching allowed, or \code{NULL} for no test.}
@@ -42,7 +44,11 @@
   row to the residual sum of squares for the largest model considered.
   If \code{scale} is specified chi-squared tests can be used. Mallows'
   \eqn{C_p}{Cp} statistic is the residual sum of squares plus twice the
-  estimate of \eqn{\sigma^2}{sigma^2} times the residual degrees of freedom.
+  estimate of \eqn{\sigma^2}{sigma^2} times the residual degrees of
+  freedom.
+
+  If any of the objects do not have estimated log-likelihoods, produces
+  an error, unless \code{eval.loglik=TRUE}.
 }
 \value{
   An object of class \code{"anova"} inheriting from class \code{"data.frame"}.
@@ -65,7 +71,9 @@
 %  eds J. M. Chambers and T. J. Hastie, Wadsworth \& Brooks/Cole.
 %}
 \seealso{
-  The model fitting function \code{\link{ergm}}, \code{\link{anova}}.
+  The model fitting function \code{\link{ergm}}, \code{\link{anova}},
+  \code{\link{logLik.ergm}} for adding the log-likelihood to an existing
+  \code{\link[=ergm.object]{ergm}} object.
 }
 \examples{
 data(molecule)
@@ -74,7 +82,8 @@ fit0 <- ergm(molecule ~ edges)
 anova(fit0)
 fit1 <- ergm(molecule ~ edges + nodefactor("atomic type"))
 anova(fit1)
-fit2 <- ergm(molecule ~ edges + nodefactor("atomic type") +  gwesp(0.5, fixed=TRUE))
+fit2 <- ergm(molecule ~ edges + nodefactor("atomic type") +  gwesp(0.5,
+  fixed=TRUE), eval.loglik=TRUE) # Note the eval.loglik argument.
 anova(fit0, fit1)
 anova(fit0, fit1, fit2)
 }

@@ -53,7 +53,9 @@ ergm.initialfit<-function(theta0, MLestimate,
         length(theta0)!=length(m$coef.names)) {
       cat("theta0 is", theta0, "\n", "Clist$nstats is",Clist$nstats, "\n")
       stop(paste("Invalid starting parameter vector theta0;",
-                 "unrecognized option or wrong number of parameters."))
+                 "unrecognized option or wrong number of parameters.",
+                 "If you are passing output from another ergm run as theta0,",
+                 "in a model with curved terms, see help(enformulate.curved)."))
     }
 
     if(force.MPLE){
@@ -63,7 +65,7 @@ ergm.initialfit<-function(theta0, MLestimate,
                        verbose=verbose, ...)
     }else{    
       if(!is.null(Clist.miss)){
-        mle.lik <- -log(2)*(Clist$ndyads-network.naedgecount(nw))
+        mle.lik <- -log(2)*(Clist$ndyads-Clist.miss$nedges)
       }else{
         mle.lik <- -log(2)*Clist$ndyads
       }

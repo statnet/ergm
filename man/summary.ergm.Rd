@@ -18,7 +18,7 @@
   \item{covariance}{logical; if \code{TRUE}, the covariance matrix of
     the estimated parameters is returned and printed.}
   \item{eps}{number; indicates the smallest p-value. See \code{\link{printCoefmat}}.}
-  \item{\dots}{further arguments passed to or from other methods.}
+  \item{\dots}{Arguments to \code{\link{logLik.ergm}}}
 }
 \description{
 \code{\link[base]{summary}} method for class \code{"ergm"}.

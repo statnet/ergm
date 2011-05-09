@@ -114,6 +114,12 @@
 \alias{copy.named}
 \alias{ergm.update.formula}
 \alias{term.list.formula}
+\alias{append.rhs.formula}
+\alias{ergm.bridge.preproc}
+\alias{nologLik.message}
+\alias{theta.length.model}
+\alias{theta.sublength.model}
+\alias{model.transform.formula}
 \alias{model.matrix.pen.glm}
 \alias{zerowarnings}
 \alias{extremewarnings}

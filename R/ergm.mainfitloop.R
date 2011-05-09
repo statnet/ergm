@@ -53,7 +53,6 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
                              sequential=MCMCparams$sequential,
                              estimate=TRUE, ...) {
   # Store information about original network, which will be returned at end
-  null.deviance <- 2*network.dyadcount(nw)*log(2)
   nw.orig <- network.copy(nw)
 
   # Calculate the amount by which all of the MCMC statistics should be adjusted
@@ -130,7 +129,6 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
                 sample=statsmatrix, sample.miss=statsmatrix.miss,
                 iterations=1, MCMCtheta=mcmc.theta0,
                 loglikelihood=NA, #mcmcloglik=NULL, 
-                mle.lik=NULL,
                 gradient=rep(NA,length=length(mcmc.theta0)), #acf=NULL,
                 samplesize=MCMCparams$samplesize, failure=TRUE,
                 newnetwork = nw.returned)
@@ -194,7 +192,6 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
   attr(v$sample, "mcpar") <- c(MCMCparams$burnin+1, endrun, MCMCparams$interval)
   attr(v$sample, "class") <- "mcmc"
   v$null.deviance <- 2*network.dyadcount(nw.orig)*log(2)
-  v$mle.lik <- initialfit$mle.lik + abs(v$loglikelihood)
   v$etamap <- model$etamap
   v
 }

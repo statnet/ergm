@@ -52,7 +52,7 @@ summary.ergm <- function (object, ...,
 {
 # separates out summary and print fns: MSH
   pseudolikelihood <- is.null(object$samplesize) || is.na(object$samplesize)
-  independence <- !is.null(object$theta1$independent) && all(object$theta1$independent)
+  independence <- is.dyad.independent(object)
   if(any(is.na(object$coef)) & !is.null(object$mplefit)){
      object$coef[is.na(object$coef)] <-
      object$mplefit$coef[is.na(object$coef)]
@@ -201,19 +201,24 @@ summary.ergm <- function (object, ...,
   } else {
     ans$message <- "\nFor this model, the pseudolikelihood is the same as the likelihood.\n"
   }
-  ans$devtable <- c("",apply(cbind(paste(format(c("   Null", 
-            "Residual", ""), width = 8), devtext), 
-            format(c(object$null.deviance,
-                     -2*object$mle.lik, 
-                     object$null.deviance+2*object$mle.lik),
-                digits = 5), " on",
-            format(c(dyads, rdf, df),
-                digits = 5)," degrees of freedom\n"), 
-            1, paste, collapse = " "),"\n")
+  llk<-try(logLik(object,...), silent=TRUE)
 
+  if(!inherits(llk,"try-error")){
   
-  ans$aic <- -2*object$mle.lik + 2*df
-  ans$bic <- -2*object$mle.lik + log(dyads)*df
+    ans$devtable <- c("",apply(cbind(paste(format(c("   Null", 
+                                                    "Residual", ""), width = 8), devtext), 
+                                     format(c(object$null.deviance,
+                                              -2*llk, 
+                                              object$null.deviance+2*llk),
+                                            digits = 5), " on",
+                                     format(c(dyads, rdf, df),
+                                            digits = 5)," degrees of freedom\n"), 
+                               1, paste, collapse = " "),"\n")
+    
+    
+    ans$aic <- AIC(llk)
+    ans$bic <- BIC(llk)
+  }else ans$objname<-deparse(substitute(object))
   
   ans$coefs <- as.data.frame(tempmatrix)
   ans$asycov <- asycov
