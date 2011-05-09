@@ -42,7 +42,11 @@
   row to the residual sum of squares for the largest model considered.
   If \code{scale} is specified chi-squared tests can be used. Mallows'
   \eqn{C_p}{Cp} statistic is the residual sum of squares plus twice the
-  estimate of \eqn{\sigma^2}{sigma^2} times the residual degrees of freedom.
+  estimate of \eqn{\sigma^2}{sigma^2} times the residual degrees of
+  freedom.
+
+  If any of the objects do not have estimated log-likelihoods, produces
+  an error.
 }
 \value{
   An object of class \code{"anova"} inheriting from class \code{"data.frame"}.
@@ -65,7 +69,9 @@
 %  eds J. M. Chambers and T. J. Hastie, Wadsworth \& Brooks/Cole.
 %}
 \seealso{
-  The model fitting function \code{\link{ergm}}, \code{\link{anova}}.
+  The model fitting function \code{\link{ergm}}, \code{\link{anova}},
+  \code{\link{logLik.ergm}} for adding the log-likelihood to an existing
+  \code{\link[=ergm.object]{ergm}} object.
 }
 \examples{
 data(molecule)
@@ -75,7 +81,7 @@ anova(fit0)
 fit1 <- ergm(molecule ~ edges + nodefactor("atomic type"))
 anova(fit1)
 fit2 <- ergm(molecule ~ edges + nodefactor("atomic type") +  gwesp(0.5,
-  fixed=TRUE), eval.loglik=TRUE)
+  fixed=TRUE), eval.loglik=TRUE) # Note the eval.loglik argument.
 anova(fit0, fit1)
 anova(fit0, fit1, fit2)
 }

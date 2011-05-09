@@ -19,6 +19,7 @@ ergm(formula, theta0="MPLE",
      constraints=~.,
      meanstats = NULL,
      control=control.ergm(),
+     eval.logLik=FALSE,
      verbose=FALSE, \dots)
 }
 \arguments{
@@ -117,7 +118,11 @@ Hunter (2008).  To create a
   \item{seed}{integer; random number integer seed.  Defaults to
    \code{NULL} to use whatever the state of the random number
    generator is at the time of the call.
-  }
+ }
+   \item{eval.loglik}{For dyad-dependent models, whether to use bridge
+    sampling to evaluate the log-likelihoood associated with the
+    fit. Has no effect for dyad-independent models. Defaults to
+    \code{FALSE} because bridge sampling takes additional time.}
   \item{verbose}{logical; if this is
     \code{TRUE}, the program will print out additional
     information, including goodness of fit statistics.
