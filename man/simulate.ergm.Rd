@@ -1,6 +1,7 @@
 \name{simulate.ergm}
 \alias{simulate.ergm}
 \alias{simulate.formula}
+\alias{simulate.formula.ergm}
 \title{Draw from the distribution of an Exponential Family Random Graph Model}
 \usage{
 \method{simulate}{formula}(object, nsim=1, seed=NULL, theta0,

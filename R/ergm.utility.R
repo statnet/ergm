@@ -68,36 +68,6 @@ is.matrixnetwork<-function(x){
  is.matrix(x)|is.network(x)
 }
 
-is.dyad.independent<-function(object,...) UseMethod("is.dyad.independent")
-
-is.dyad.independent.formula<-function(object,response=NULL,basis=NULL,constraints=~.,...){
-  if(constraints!=~.) FALSE
-  else{    
-    # If basis is not null, replace network in formula by basis.
-    # In either case, let nw be network object from formula.
-    if(is.null(nw <- basis)) {
-      nw <- ergm.getnetwork(object)
-    }
-    
-    nw <- as.network(nw)
-    if(!is.network(nw)){
-      stop("A network object on the LHS of the formula or via",
-           " the 'basis' argument must be given")
-    }
-    
-    # New formula (no longer use 'object'):
-    form <- ergm.update.formula(object, nw ~ .)
-    
-    m<-ergm.getmodel(form, nw, drop=FALSE, response=response)
-    if(any(sapply(m$terms, function(term) is.null(term$dependence) || term$dependence==TRUE))) FALSE
-    else TRUE
-  }
-}
-
-is.dyad.independent.ergm<-function(object,...){
-  with(object,is.dyad.independent(formula,object$response,network,constraints))
-}
-
 
 ###############################################################################
 # The <degreedist> function computes and returns the degree distribution for
@@ -458,57 +428,3 @@ statnet.edit <- function(name,package=c("statnet","ergm","network")){
   invisible(filepath)
 }
 
-## This function appends a list of terms to the RHS of a
-## formula. If the formula is one-sided, the RHS becomes the LHS.
-## For example,
-## append.rhs.formula(y~x,list(as.name("z1"),as.name("z2"))) -> y~x+z1+z2
-## append.rhs.formula(~y,list(as.name("z"))) -> y~z
-## append.rhs.formula(~y+x,list(as.name("z"))) -> y+x~z
-append.rhs.formula<-function(object,newterms){
-  for(newterm in newterms){
-    if(length(object)==3)
-      object[[3]]<-call("+",object[[3]],newterm)
-    else
-      object[[3]]<-newterm
-  }
-  object
-}
-
-
-ergm.update.formula<-function (object, new, ...){
-  tmp <- as.formula(.Internal(update.formula(as.formula(object), as.formula(new))))
-  # Ensure that the formula's environment gets set to the network's
-  # environment.
-  if(new[[2]]==".")
-    environment(tmp)<-environment(object)
-  else
-    environment(tmp)<-environment(new)
-  return(tmp)
-}
-
-theta.sublength.model<-function(m){
-  sapply(m$terms, function(term){
-    ## curved term
-    if(!is.null(term$params)) length(term$params)
-    ## linear term
-    else length(term$coef.names)
-  })
-}
-
-theta.length.model<-function(m){
-  sum(theta.sublength.model(m))
-}
-
-term.list.formula<-function(rhs){
-  if(length(rhs)==1) list(rhs)
-  else if(rhs[[1]]=="+") c(term.list.formula(rhs[[2]]),term.list.formula(rhs[[3]]))
-  else if(rhs[[1]]=="(") term.list.formula(rhs[[2]])
-  else list(rhs)
-}
-
-
-copy.named<-function(x){
-  y<-list()
-  for(name in names(x)) y[[name]]<-x[[name]]
-  y
-}

@@ -7,7 +7,7 @@ log-likelihood-ratio between two ERGM configurations
 \description{
 This function uses bridge sampling with geometric spacing to estimate the difference between the log-likelihoods of
 two parameter configurations for an ERGM via repeated calls to
-\code{\link{{simulate.formula.ergm}}}.
+\code{\link{simulate.formula.ergm}}.
 }
 \usage{
 ergm.bridge.llr(object, response = NULL, from, to, nsteps = 10, sample.size = 10000, basis = NULL, verbose = FALSE, llronly = FALSE, ...)
@@ -62,7 +62,7 @@ Hunter, D. R. and Handcock, M. S. (2006)
 Pavel N. Krivitsky
 }
 \seealso{
-\code{\link{simulate.ergm}}
+\code{\link{simulate.formula.ergm}}
 }
 \keyword{ model }
 

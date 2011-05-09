@@ -1,16 +1,96 @@
-## Converts a fitted curved ERGM (or its formula + theta) into a
-## linear (fixed=TRUE) model with the curved parameters in theta
-## substituted into the formula according to a set of recipes. Returns
-## the new formula and the appropriate parameter vector.
+###################################################################
+## This file has utilities whose primary purpose is examining or ##
+## manipulating ERGM formulas.                                   ##
+###################################################################
 
-fix.curved <- function(object, ...) UseMethod("fix.curved")
+is.dyad.independent<-function(object,...) UseMethod("is.dyad.independent")
 
-fix.curved.ergm <- function(object,...){
-  fix.curved.formula(object$formula, coef(object), response=object$response, ...)
+is.dyad.independent.formula<-function(object,response=NULL,basis=NULL,constraints=~.,...){
+  if(constraints!=~.) FALSE
+  else{    
+    # If basis is not null, replace network in formula by basis.
+    # In either case, let nw be network object from formula.
+    if(is.null(nw <- basis)) {
+      nw <- ergm.getnetwork(object)
+    }
+    
+    nw <- as.network(nw)
+    if(!is.network(nw)){
+      stop("A network object on the LHS of the formula or via",
+           " the 'basis' argument must be given")
+    }
+    
+    # New formula (no longer use 'object'):
+    form <- ergm.update.formula(object, nw ~ .)
+    
+    m<-ergm.getmodel(form, nw, drop=FALSE, response=response)
+    if(any(sapply(m$terms, function(term) is.null(term$dependence) || term$dependence==TRUE))) FALSE
+    else TRUE
+  }
 }
 
-fix.curved.formula <- function(object, theta, response=NULL, ...){
-  ## Construct the recipes.
+is.dyad.independent.ergm<-function(object,...){
+  with(object,is.dyad.independent(formula,object$response,network,constraints))
+}
+
+## This function appends a list of terms to the RHS of a
+## formula. If the formula is one-sided, the RHS becomes the LHS.
+## For example,
+## append.rhs.formula(y~x,list(as.name("z1"),as.name("z2"))) -> y~x+z1+z2
+## append.rhs.formula(~y,list(as.name("z"))) -> y~z
+## append.rhs.formula(~y+x,list(as.name("z"))) -> y+x~z
+append.rhs.formula<-function(object,newterms){
+  for(newterm in newterms){
+    if(length(object)==3)
+      object[[3]]<-call("+",object[[3]],newterm)
+    else
+      object[[3]]<-newterm
+  }
+  object
+}
+
+
+ergm.update.formula<-function (object, new, ...){
+  tmp <- as.formula(.Internal(update.formula(as.formula(object), as.formula(new))))
+  # Ensure that the formula's environment gets set to the network's
+  # environment.
+  if(new[[2]]==".")
+    environment(tmp)<-environment(object)
+  else
+    environment(tmp)<-environment(new)
+  return(tmp)
+}
+
+theta.sublength.model<-function(m){
+  sapply(m$terms, function(term){
+    ## curved term
+    if(!is.null(term$params)) length(term$params)
+    ## linear term
+    else length(term$coef.names)
+  })
+}
+
+theta.length.model<-function(m){
+  sum(theta.sublength.model(m))
+}
+
+term.list.formula<-function(rhs){
+  if(length(rhs)==1) list(rhs)
+  else if(rhs[[1]]=="+") c(term.list.formula(rhs[[2]]),term.list.formula(rhs[[3]]))
+  else if(rhs[[1]]=="(") term.list.formula(rhs[[2]])
+  else list(rhs)
+}
+
+
+copy.named<-function(x){
+  y<-list()
+  for(name in names(x)) y[[name]]<-x[[name]]
+  y
+}
+
+
+model.transform.formula <- function(object, theta, response=NULL, recipes, ...){
+  ## Recipe syntax:
   ##
   ## Recipes are a named list with the names representing a map from
   ## term name to recipe. Each recipe is a list with instructions
@@ -61,15 +141,6 @@ fix.curved.formula <- function(object, theta, response=NULL, ...){
   ## arguments of the term are set to the values in the list. This is
   ## a simple special case of toarg, if it were given a function that
   ## returned a constant value.
-
-  recipes<-list()
-  is.fixed.1<-function(a) is.null(a$fixed) || a$fixed==FALSE
-  recipes$gwdsp<-recipes$gwesp<-recipes$gwnsp<-
-    list(filter=is.fixed.1, tocoef=1, toarg=list(alpha=2), constant=list(fixed=TRUE))
-  recipes$altkstar<-
-    list(filter=is.fixed.1, tocoef=1, toarg=list(lambda=2), constant=list(fixed=TRUE))
-  recipes$gwb1degree<-recipes$gwb2degree<-recipes$gwdegree<-recipes$gwidegree<-recipes$gwodegree<-
-    list(filter=is.fixed.1, tocoef=1, toarg=list(decay=2), constant=list(fixed=TRUE))
 
   m <- ergm.getmodel(object, ergm.getnetwork(object), drop=FALSE, response=response)
   theta.inds<-cumsum(c(1,theta.sublength.model(m)))
@@ -132,4 +203,53 @@ fix.curved.formula <- function(object, theta, response=NULL, ...){
     }
   }
   list(formula=form,theta=newtheta)
+}
+
+
+## Convert a fitted curved ERGM (or its formula + theta) into a linear
+## (fixed=TRUE) model with the curved parameters in theta substituted
+## into the formula according to a set of recipes. Returns the new
+## formula and the appropriate parameter vector.
+
+fix.curved <- function(object, ...) UseMethod("fix.curved")
+
+fix.curved.ergm <- function(object,...){
+  fix.curved.formula(object$formula, coef(object), response=object$response, ...)
+}
+
+fix.curved.formula <- function(object, theta, response=NULL, ...){
+  recipes<-list()
+  is.fixed.1<-function(a) is.null(a$fixed) || a$fixed==FALSE
+  recipes$gwdsp<-recipes$gwesp<-recipes$gwnsp<-
+    list(filter=is.fixed.1, tocoef=1, toarg=list(alpha=2), constant=list(fixed=TRUE))
+  recipes$altkstar<-
+    list(filter=is.fixed.1, tocoef=1, toarg=list(lambda=2), constant=list(fixed=TRUE))
+  recipes$gwb1degree<-recipes$gwb2degree<-recipes$gwdegree<-recipes$gwidegree<-recipes$gwodegree<-
+    list(filter=is.fixed.1, tocoef=1, toarg=list(decay=2), constant=list(fixed=TRUE))
+
+  model.transform.formula(object, theta, response=response, recipes, ...)
+}
+
+
+## Convert a fitted curved ERGM (or its formula + theta) into a curved
+## model suitable for use as input to ergm().  This is a workaround
+## around a current issue in ERGM and may be eliminated in the future.
+
+enformulate.curved <- function(object, ...) UseMethod("enformulate.curved")
+
+enformulate.curved.ergm <- function(object,...){
+  fix.curved.formula(object$formula, coef(object), response=object$response, ...)
+}
+
+enformulate.curved.formula <- function(object, theta, response=NULL, ...){
+  recipes<-list()
+  is.fixed.1<-function(a) is.null(a$fixed) || a$fixed==FALSE
+  recipes$gwdsp<-recipes$gwesp<-recipes$gwnsp<-
+    list(filter=is.fixed.1, tocoef=1, toarg=list(alpha=2))
+  recipes$altkstar<-
+    list(filter=is.fixed.1, tocoef=1, toarg=list(lambda=2))
+  recipes$gwb1degree<-recipes$gwb2degree<-recipes$gwdegree<-recipes$gwidegree<-recipes$gwodegree<-
+    list(filter=is.fixed.1, tocoef=1, toarg=list(decay=2))
+
+  model.transform.formula(object, theta, response=response, recipes, ...) 
 }

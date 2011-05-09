@@ -1,0 +1,68 @@
+\name{enformulate.curved}
+\alias{enformulate.curved.formula}
+\alias{enformulate.curved.ergm}
+\alias{enformulate.curved}
+\title{
+Convert a curved ERGM into a form suitable as initial values for the
+same ergm.
+}
+\description{
+The generic \code{enformulate.curved} converts and \code{\link{ergm}} object or
+formula of a model with curved terms to the variant in which the curved
+parameters embedded into the formula and are removed from the parameter
+vector. This is the form required by \code{\link{ergm}} calls.
+}
+\usage{
+\method{enformulate.curved}{ergm}(object, ...)
+\method{enformulate.curved}{formula}(object, theta, response = NULL, ...)
+}
+\arguments{
+  \item{object}{
+    An \code{\link{ergm}} object or an ERGM formula. The curved terms of
+    the given formula (or the formula used in the fit) must have all of their arguments passed by name.
+}
+  \item{theta}{
+    Curved model parameter configuration.
+}
+  \item{response}{
+    For valued ERGM, an edge attribute used as the response variable.
+}
+  \item{\dots}{
+    Unused at this time.
+}
+}
+\details{
+  Because of a current kludge in \code{\link{ergm}}, output from one
+  run cannot be directly passed as initial values (\code{theta0}) for
+  the next run if any of the terms are curved. One workaround is to
+  embed the curved parameters into the formula (while keeping
+  \code{fixed=FALSE}) and remove them from \code{theta0}.
+  
+  This function automates this process.
+}
+\value{
+  A list with the following components:
+  \item{formula}{The formula with curved parameter estimates incorporated.}
+  \item{theta}{The coefficient vector with curved parameter estimates removed.}
+}
+\author{
+  Pavel N. Krivitsky
+}
+
+\seealso{
+  \code{\link{ergm}},   \code{\link{simulate.ergm}}
+}
+\examples{
+data(sampson)
+gest<-ergm(samplike~edges+gwesp(alpha=.5,fixed=FALSE),maxit=1)
+# Error:
+gest2<-try(ergm(gest$formula,theta0=coef(gest),maxit=2))
+print(gest2)
+
+# Works:
+tmp<-enformulate.curved(gest)
+tmp
+gest2<-try(ergm(tmp$formula,theta0=tmp$theta,maxit=2))
+summary(gest2)
+}
+\keyword{ model }
