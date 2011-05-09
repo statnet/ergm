@@ -1,8 +1,8 @@
 \name{anova.ergm}
 \title{ANOVA for Linear Model Fits}
 \usage{
-\method{anova}{ergm}(object, \dots)
-\method{anova}{ergmlist}(object, \dots, scale = 0, test = "F")
+\method{anova}{ergm}(object, \dots, eval.loglik = FALSE)
+\method{anova}{ergmlist}(object, \dots, eval.loglik = FALSE, scale = 0, test = "F")
 }
 \alias{anova.ergm}
 %\alias{anova.ergm.null}
@@ -13,6 +13,8 @@
 \arguments{
   \item{object, \dots}{objects of class \code{\link{ergm}}, usually, a result of a
     call to \code{\link{ergm}}.}
+  \item{eval.loglik}{a logical specifying whether the log-likelihood will be
+    evaluated if missing.}
   \item{test}{a character string specifying the test statistic to be
     used. Can be one of \code{"F"}, \code{"Chisq"} or \code{"Cp"},
     with partial matching allowed, or \code{NULL} for no test.}
@@ -46,7 +48,7 @@
   freedom.
 
   If any of the objects do not have estimated log-likelihoods, produces
-  an error.
+  an error, unless \code{eval.loglik=TRUE}.
 }
 \value{
   An object of class \code{"anova"} inheriting from class \code{"data.frame"}.
