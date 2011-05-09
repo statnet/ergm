@@ -30,7 +30,6 @@
 #       interval    : the number of proposals to ignore between sampled networks
 #       burnin      : the number of proposals to initially ignore for the burn-in
 #                     period
-#       stats       : ??
 #
 # Note:  In reality, there should be many fewer arguments to this function,
 # since most info should be passed via Clist (this is, after all, what Clist
@@ -88,7 +87,6 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
   }else{
     MCMCparams.parallel <- MCMCparams
     MCMCparams.parallel$samplesize <- round(MCMCparams$samplesize / MCMCparams$parallel)
-    MCMCparams.parallel$stats <- MCMCparams$stats[1:MCMCparams.parallel$samplesize,]
     capture.output(require(snow, quietly=TRUE, warn.conflicts = FALSE))
 #
 # Start PVM if necessary
@@ -234,7 +232,7 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
   as.character(MHproposal$name), as.character(MHproposal$package),
   as.double(c(Clist$inputs,MHproposal$inputs)), as.double(eta0),
   as.integer(MCMCparams$samplesize),
-  s = as.double(t(MCMCparams$stats)),
+  s = double(MCMCparams$samplesize * Clist$nstats),
   as.integer(MCMCparams$burnin), 
   as.integer(MCMCparams$interval),
   newnwtails = integer(maxedges),
@@ -260,7 +258,7 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
             as.character(MHproposal$name), as.character(MHproposal$package),
             as.double(c(Clist$inputs,MHproposal$inputs)), as.double(eta0),
             as.integer(MCMCparams$samplesize),
-            s = as.double(t(MCMCparams$stats)),
+            s = double(MCMCparams$samplesize * Clist$nstats),
             as.integer(MCMCparams$burnin), 
             as.integer(MCMCparams$interval),
             newnwtails = integer(maxedges),

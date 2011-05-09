@@ -60,11 +60,13 @@ ergm.bridge.0.llk<-function(object, response=response, theta, nsteps=10, llkonly
 }
 
 ## A wrapper around ergm.bridge.llr that uses a specified
-## dyad-independence model `dind` (specified as RHS-only formula),
+## dyad-independence model `dind' (specified as RHS-only formula),
 ## either at the its MLE (the default) or at a value specified by
 ## theta.dind, as a starting point for the bridge sampling. The terms
 ## in the dyad-independent model may overlap with the terms in the
 ## model whose likelihood is being evaluated, but don't have to.
+## `dind' defaults to the dyad-independent terms of the `object'
+## formula with an edges term added unless redundant.
 ergm.bridge.dindstart.llk<-function(object, response=NULL, theta, nsteps, dind=NULL, theta.dind=NULL,  basis=NULL, llkonly=TRUE, ...){
   if(!is.null(response)) stop("Only binary ERGMs are supported at this time.")
 
@@ -98,7 +100,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, theta, nsteps, dind=N
   }  
   
   if(!is.dyad.independent(dind))
-    stop("Reference model `dind' must be dyad-independent!")
+    stop("Reference model `dind' must be dyad-independent.")
 
   if(is.null(theta.dind)){
     coef.dind<-coef(ergm.dind)

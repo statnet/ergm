@@ -52,7 +52,7 @@ ergm.initialfit<-function(theta0, MLestimate,
   if(is.na(fitmethod) && any(m$offset)) { # theta0 has an offset
    force.MPLE <- TRUE
    force.MPLE <- FALSE
-  }
+  } 
 #
   if(!is.null(conddeg)){
    formula.conddegmple <- ergm.update.formula(formula, ~ conddegmple + .)

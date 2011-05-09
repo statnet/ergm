@@ -13,11 +13,12 @@
 #
 #################################################################################
 
-"anova.ergm" <- function (object, ...) 
+anova.ergm <- function (object, ...) 
 {
   if (length(list(object, ...)) > 1) 
     return(anova.ergmlist(object, ...))
-  logl <- object$mle.lik
+  
+  logl <- logLik(object)
   nodes<- network.size(object$newnetwork)
   n<- network.dyadcount(object$network)
   df <- length(object$coef)

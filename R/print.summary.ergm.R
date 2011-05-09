@@ -72,11 +72,12 @@ print.summary.ergm <- function (x,
   }
 
   cat("\n")
-  cat(x$devtable)
+  if(!is.null(x$devtable)){
+    cat(x$devtable)
 
-  cat(paste("AIC:", format(x$aic, digits = 5), "  ", 
-            "BIC:", format(x$bic, digits = 5), "\n", sep=" "))
-  
+    cat(paste("AIC:", format(x$aic, digits = 5), "  ", 
+              "BIC:", format(x$bic, digits = 5), "\n", sep=" "))
+  } else cat(nologLik.message(x$objname))
 
   if(any(x$drop)){
     cat("\n Warning: The following terms have infinite coefficient estimates:\n  ")

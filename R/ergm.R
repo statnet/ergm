@@ -132,6 +132,7 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
                  constraints=~.,
                  meanstats=NULL,
                  control=control.ergm(),
+                 eval.loglik=FALSE,
                  verbose=FALSE,...) {
   current.warn <- options()$warn
   options(warn=0)
@@ -352,6 +353,7 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
     initialfit$constraints <- constraints
     initialfit$prop.args <- control$prop.args
     initialfit$prop.weights <- control$prop.weights
+    initialfit<-logLik.ergm(initialfit, nsteps=loglik.nsteps, add=TRUE)
     return(initialfit)
   } 
   if(control$drop){
@@ -469,5 +471,7 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
     cat("\nThis model was fit using MCMC.  To examine model diagnostics", 
         "and check for degeneracy, use the mcmc.diagnostics() function.\n")
   }
+  if(eval.loglik)
+    v<-logLik.ergm(v, nsteps=control$loglik.nsteps, add=TRUE)
   v
 }

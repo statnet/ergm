@@ -66,7 +66,6 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
   # is simply the observed statistics, which means statshift equals zero
   # most of the time.
   statshift <- Clist$obs - Clist$meanstats
-  MCMCparams$stats <- matrix(0,ncol=Clist$nstats,nrow=MCMCparams$samplesize)
   MCMCparams$meanstats <- Clist$meanstats
 
   # Initialize MCMCparams.obs in case there is observation structure

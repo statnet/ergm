@@ -59,12 +59,7 @@ ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALS
   # The line below was changed as of version 2.2-3.  Now, the statsmatrix is 
   # initialized to zero instead of allowing the first row to be nonzero, then 
   # adding this first row to each row within MCMC_wrapper.
-  # Any unmodified old function trying to use the new version will generate an 
-  # error because the MCMCparams$nmatrixentries object is new and will not yet 
-  # exist in an unmodified function.  This is worth it:  There is no reason
-  # that MCMCparams should include a huge matrix.
-            statsmatrix = double(MCMCparams$nmatrixentries),
-  #  statsmatrix = as.double(t(MCMCparams$stats)), # By default, as.double goes bycol, not byrow; thus, we use the transpose here.
+          statsmatrix = double(MCMCparams$samplesize * Clist$nstats),
   as.integer(MCMCparams$burnin),
   as.integer(MCMCparams$interval),
   newnwtails = integer(MCMCparams$maxedges),
@@ -87,7 +82,7 @@ ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALS
           as.character(MHproposal$name), as.character(MHproposal$package),
           as.double(c(Clist$inputs,MHproposal$inputs)), as.double(eta0),
           as.integer(MCMCparams$samplesize),
-          statsmatrix = double(MCMCparams$nmatrixentries),
+          statsmatrix = double(MCMCparams$samplesize * Clist$nstats),
           as.integer(MCMCparams$burnin), 
           as.integer(MCMCparams$interval),
           newnwtails = integer(maxedges),
