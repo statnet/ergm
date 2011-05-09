@@ -8,7 +8,7 @@ A function to return the log-likelihood associated with an
 \code{\link[=ergm.object]{ergm}} fit, evaluating it if necessary.
 }
 \usage{
-\method{logLik}{ergm}(object, nsteps = 10, add = FALSE, eval.loglik = add, ...)
+\method{logLik}{ergm}(object, nsteps = 20, add = FALSE, eval.loglik = add, force.reeval = FALSE, ...)
 }
 \arguments{
   \item{object}{
@@ -23,6 +23,10 @@ log-likelihood value set.
 }
   \item{eval.loglik}{
 Evaluate the log-likelihood if not set on \code{object}.
+}
+  \item{force.reeval}{
+Whether to reestimate the log-likelihood even if \code{object} already
+has an estiamte. Defaults to \code{FALSE}.
 }
   \item{\dots}{
 Other arguments to the bridge sampling functions.

@@ -27,7 +27,7 @@ ergm.bridge.preproc<-function(object, basis, response){
 ## a model `object', using `nsteps' MCMC samples. If llronly==TRUE,
 ## returns only the estimate. Otherwise, returns a list with more
 ## details. Other parameters are same as simulate.ergm.
-ergm.bridge.llr<-function(object, response=NULL, from, to, nsteps=10, sample.size=10000, basis=NULL, verbose=FALSE, llronly=FALSE, ...){
+ergm.bridge.llr<-function(object, response=NULL, from, to, nsteps=20, sample.size=10000, burnin=10000, basis=NULL, verbose=FALSE, llronly=FALSE, ...){
 
   ## Here, we need to get the model object to get the likelihood and gradient functions.
   tmp<-ergm.bridge.preproc(object,basis,response)
@@ -38,9 +38,20 @@ ergm.bridge.llr<-function(object, response=NULL, from, to, nsteps=10, sample.siz
   path<-t(rbind(sapply(seq(from=0+1/2/(nsteps+1),to=1-1/2/(nsteps+1),length.out=nsteps),function(u) cbind(to*u + from*(1-u)))))
 
   obs<-summary(form,response=response)
-  
-  stats<-t(rbind(apply(path,1,function(theta) {if(verbose) cat("Running theta=[",paste(format(theta),collapse=","),"].\n",sep="");apply(simulate(form, theta0=theta, nsim=ceiling(sample.size/nsteps), response=response, basis=basis, statsonly=TRUE, verbose=max(verbose-1,0), ...),2,mean)-obs})))
-  
+
+  stats<-matrix(NA,nsteps,length(obs))
+
+
+  for(i in seq_len(nsteps)){
+    theta<-path[i,]
+    if(verbose) cat("Running theta=[",paste(format(theta),collapse=","),"].\n",sep="")
+    if(verbose>1) cat("Burning in...\n",sep="")
+    ## First burn-in has to be longer, but those thereafter should be shorter if the bridges are closer together.
+    nw.state<-simulate(form, theta0=theta, nsim=1, response=response, basis=basis, statsonly=FALSE, verbose=max(verbose-1,0), burnin=if(i==1) burnin else ceiling(burnin/sqrt(nsteps)), interval=1, ...)
+    ergm.update.formula(form,nw.state~.)
+    stats[i,]<-apply(simulate(form, theta0=theta, response=response, basis=basis, statsonly=TRUE, verbose=max(verbose-1,0), burnin=0, nsim=ceiling(sample.size/nsteps), ...),2,mean)-obs
+  }
+    
   Dtheta.Du<-to-from
 
   llrs<--sapply(seq_len(nsteps), function(i) crossprod(Dtheta.Du,ergm.etagradmult(path[i,],stats[i,],m$etamap)))/nsteps
@@ -53,7 +64,7 @@ ergm.bridge.llr<-function(object, response=NULL, from, to, nsteps=10, sample.siz
 ## log-likelihood of configuration `theta' *relative to the reference
 ## measure*. That is, the configuration with theta=0 is defined as
 ## having log-likelihood of 0.
-ergm.bridge.0.llk<-function(object, response=response, theta, nsteps=10, llkonly=TRUE, ...){
+ergm.bridge.0.llk<-function(object, response=response, theta, nsteps=20, llkonly=TRUE, ...){
   br<-ergm.bridge.llr(object, from=rep(0,length(theta)), to=theta, nsteps=nsteps, response=response, ...)
   if(llkonly) br$llr
   else c(br,llk=br$llr)

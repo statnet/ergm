@@ -1,7 +1,7 @@
 ## A function to compute and return the log-likelihood of an ERGM MLE.
-logLik.ergm<-function(object,nsteps=10,add=FALSE,eval.loglik=add,...){
+logLik.ergm<-function(object, nsteps=20, add=FALSE, force.reeval=FALSE, eval.loglik=add || force.reeval, ...){
   out<-with(object,
-            if(!is.null(object$mle.lik)) mle.lik
+            if(!force.reeval && !is.null(object$mle.lik)) mle.lik
             else{
               if(!eval.loglik) stop(nologLik.message(deparse(substitute(object))))
               ## If valued, compute a path sample from reference measure.
