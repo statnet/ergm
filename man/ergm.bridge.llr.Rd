@@ -10,7 +10,8 @@ two parameter configurations for an ERGM via repeated calls to
 \code{\link{simulate.formula.ergm}}.
 }
 \usage{
-ergm.bridge.llr(object, response = NULL, from, to, nsteps = 10, sample.size = 10000, basis = NULL, verbose = FALSE, llronly = FALSE, ...)
+ergm.bridge.llr(object, response = NULL, from, to, nsteps = 20,
+sample.size = 10000, burnin = 10000, basis = NULL, verbose = FALSE, llronly = FALSE, ...)
 }
 \arguments{
   \item{object}{
@@ -30,8 +31,13 @@ ergm.bridge.llr(object, response = NULL, from, to, nsteps = 10, sample.size = 10
 }
   \item{sample.size}{
   Total number of MCMC draws to use (to be divided up among the bridges, so
-  each bridge gets \code{sample.size/nsteps} draws, after a full (not divided) burn-in.
+  each bridge gets \code{sample.size/nsteps} draws.
 }
+  \item{sample.size}{
+  Total number of steps draws to discart for each bridge (to be divided up among the bridges, so
+  each bridge after the first gets \code{sample.size/sqrt(nsteps)}.
+}
+
 \item{llronly}{
   Whether only the estiamted log-ratio should be returned. (Defaults to \code{FALSE}.)
 }

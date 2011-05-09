@@ -78,7 +78,7 @@ ergm.bridge.0.llk<-function(object, response=response, theta, nsteps=20, llkonly
 ## model whose likelihood is being evaluated, but don't have to.
 ## `dind' defaults to the dyad-independent terms of the `object'
 ## formula with an edges term added unless redundant.
-ergm.bridge.dindstart.llk<-function(object, response=NULL, theta, nsteps, dind=NULL, theta.dind=NULL,  basis=NULL, llkonly=TRUE, ...){
+ergm.bridge.dindstart.llk<-function(object, response=NULL, theta, nsteps=20, dind=NULL, theta.dind=NULL,  basis=NULL, llkonly=TRUE, ...){
   if(!is.null(response)) stop("Only binary ERGMs are supported at this time.")
 
   ## Here, we need to get the model object to get the list of

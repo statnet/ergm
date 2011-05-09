@@ -12,7 +12,7 @@
   or can be chosen adaptively.
 }
 \usage{
-ergm.bridge.dindstart.llk(object, response = NULL, theta, nsteps, dind = NULL, theta.dind = NULL, basis = NULL, llkonly = TRUE, ...)
+ergm.bridge.dindstart.llk(object, response = NULL, theta, nsteps = 20, dind = NULL, theta.dind = NULL, basis = NULL, llkonly = TRUE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

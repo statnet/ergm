@@ -11,6 +11,6 @@
 
 	Added Ayn's tests (developed for v. 2.3) of the change statistics.
 
-	Changed src/changestats.c to new tails->heads standard by using Ayn's v. 2.3 
+	Changed src/changestats.c to new tails->heads standard by using Ayn's v. 2.3
 
 	Will look through svn log and fill in the other changes later.

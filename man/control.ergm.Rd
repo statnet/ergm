@@ -18,7 +18,9 @@ control.ergm(prop.weights = "default", prop.args = NULL,
              metric = c("lognormal", "Median.Likelihood",
              "EF.Likelihood", "naive"),
              method = c("BFGS", "Nelder-Mead"),
-             trustregion = 20, initial.loglik = NULL, initial.network = NULL,
+             trustregion = 20, initial.loglik = NULL, loglik.nsteps =
+20,
+             initial.network = NULL,
              style = c("Newton-Raphson", "Robbins-Monro",
              "Stochastic-Approximation", "Stepping"),
              style.dyn = c("Robbins-Monro", "SPSA", "SPSA2"),
@@ -128,6 +130,8 @@ control.ergm(prop.weights = "default", prop.args = NULL,
     Defaults to 20.
     See Snijders (2002) for details.}
   \item{initial.loglik}{Initial value of loglikelihood, if known.}
+  \item{loglik.nsteps}{Number of bridges to use to evaluate
+    dyad-dependent log-likelihood if \code{eval.loglik=TRUE}.}
   \item{initial.network}{Initial network for MCMC, if different from observed
   network.}
   \item{style}{character; The style of maximum 
