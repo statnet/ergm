@@ -20,7 +20,7 @@
 #
 #################################################################################
 
-anova.ergmlist <- function (object, ..., scale = 0, test = "F") 
+anova.ergmlist <- function (object, ..., eval.loglik=FALSE, scale = 0, test = "F") 
 {
   objects <- list(object, ...)
   responses <- as.character(lapply(objects, function(x) deparse(x$formula[[2]])))
@@ -40,7 +40,7 @@ anova.ergmlist <- function (object, ..., scale = 0, test = "F")
     n <- network.dyadcount(objects[[i]]$newnetwork)
     df[i] <- length(objects[[i]]$coef) 
     Rdf[i] <- n - df[i]
-    logl[i] <- logLik(objects[[i]])
+    logl[i] <- logLik(objects[[i]],eval.loglik=eval.loglik)
   }
   k <- nmodels
 # k <- 1 + length(objects[[i]]$glm$coef)

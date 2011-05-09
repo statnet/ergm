@@ -13,12 +13,15 @@
 #
 #################################################################################
 
-anova.ergm <- function (object, ...) 
+anova.ergm <- function (object, ..., eval.loglik=FALSE) 
 {
   if (length(list(object, ...)) > 1) 
-    return(anova.ergmlist(object, ...))
+    return(anova.ergmlist(object, ...,eval.loglik=eval.loglik))
   
-  logl <- logLik(object)
+  logl <- try(logLik(object,eval.loglik=eval.loglik), silent=TRUE)
+  if(inherits(logl,"try-error"))
+    stop(nologLik.message(deparse(substitute(object))))
+
   nodes<- network.size(object$newnetwork)
   n<- network.dyadcount(object$network)
   df <- length(object$coef)

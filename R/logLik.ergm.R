@@ -32,5 +32,5 @@ logLik.ergm<-function(object,nsteps=10,add=FALSE,eval.loglik=add,...){
 }
 
 nologLik.message<-function(objname){
-  paste("Log-likelihood was not estimated for this fit.\nTo get deviances, AIC, and/or BIC, run \n  > ",objname,"<-logLik.ergm(",objname,", add=TRUE)\nto add it to the object or rerun this function with eval.loglik=TRUE.\n",sep="")
+  paste("Log-likelihood was not estimated for this fit.\nTo get deviances, AIC, and/or BIC from fit `",objname,"` run \n  > ",objname,"<-logLik(",objname,", add=TRUE)\nto add it to the object or rerun this function with eval.loglik=TRUE.\n",sep="")
 }
