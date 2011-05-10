@@ -101,7 +101,6 @@ ergm.stocapprox <- function(theta0, nw, model, Clist,
 #cat(paste(" eta=",eta,")\n",sep=""))
 
   # Obtain MCMC sample
-  MCMCparams$nmatrixentries <- Clist$nstats * MCMCparams$samplesize #Unnecessary?
   z <- ergm.getMCMCsample(Clist, MHproposal, eta0, MCMCparams, verbose)
   
   # post-processing of sample statistics:  Shift each row,

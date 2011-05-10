@@ -152,7 +152,6 @@ simulate.formula <- function(object, nsim=1, seed=NULL, theta0,
     # Call ergm.getMCMCsample only one time, using the C function to generate the whole
     # matrix of network statistics.
     MCMCparams$samplesize <- nsim
-    MCMCparams$nmatrixentries <- nsim * length(curstats)
     z <- ergm.getMCMCsample(Clist, MHproposal, eta0, MCMCparams, verbose=verbose)
     
     # Post-processing:  Add term names to columns and shift each row by
@@ -174,7 +173,6 @@ simulate.formula <- function(object, nsim=1, seed=NULL, theta0,
   # more complicated situation:  Either we want a network for each
   # MCMC iteration (statsonly=FALSE) or we want to restart each chain
   # at the original network (sequential=FALSE).
-  MCMCparams$nmatrixentries <- length(curstats)
   for(i in 1:nsim){
     MCMCparams$burnin <- ifelse(i==1, burnin, interval)
     z <- ergm.getMCMCsample(Clist, MHproposal, theta0, MCMCparams, verbose)

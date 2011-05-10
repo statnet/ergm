@@ -16,8 +16,6 @@
 #         maxedges      :  the maximum number of new edges that memory will be
 #                          allocated for
 #         samplesize    :  the number of networks to be sampled
-#         nmatrixentries:  the number of entries the the returned 'statsmatrix'
-#                          will have
 #         interval      :  the number of proposals to ignore between sampled networks
 #         burnin        :  the number of proposals to initially ignore for the burn-in
 #                          period
@@ -64,11 +62,9 @@ ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALS
   # The line below was changed as of version 2.2-3.  Now, the statsmatrix is 
   # initialized to zero instead of allowing the first row to be nonzero, then 
   # adding this first row to each row within MCMC_wrapper.
-  # Any unmodified old function trying to use the new version will generate an 
-  # error because the MCMCparams$nmatrixentries object is new and will not yet 
-  # exist in an unmodified function.  This is worth it:  There is no reason
+  # This is worth it:  There is no reason
   # that MCMCparams should include a huge matrix.
-  statsmatrix = double(MCMCparams$nmatrixentries),
+  statsmatrix = double(MCMCparams$samplesize * Clist$nstats),
   #  statsmatrix = as.double(t(MCMCparams$stats)), # By default, as.double goes bycol, not byrow; thus, we use the transpose here.
   as.integer(MCMCparams$burnin),
   as.integer(MCMCparams$interval),
