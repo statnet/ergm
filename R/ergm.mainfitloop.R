@@ -223,7 +223,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
   # object returned by ergm.estimate.  Instead, it is more transparent
   # if we build the output object (v) from scratch, of course using 
   # some of the info returned from ergm.estimate.
-  v$sample <- statsmatrix
+  v$sample <- statsmatrix.0
   v$burnin <- MCMCparams$burnin
   v$samplesize <- MCMCparams$samplesize
   v$interval <- MCMCparams$interval
