@@ -213,6 +213,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     zy <- zy[!shouldoffset]
     wend <- wend[!shouldoffset]
     foffset <- foffset[!shouldoffset]
+    dmiss <- dmiss[!shouldoffset]
 #   theta.offset <- theta.offset[!m$etamap$offsettheta]
   }else{
     foffset <- rep(0, length=length(zy))
