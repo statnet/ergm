@@ -4205,23 +4205,13 @@ D_CHANGESTAT_FN(d_receiver) {
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {      
     echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
-    if(head == 1){
-      echange = -echange;
-      for (j=0; j < N_CHANGE_STATS; j++){ 
-        deg = (Vertex)INPUT_PARAM[j];
-        if(deg != 1)
-          CHANGE_STAT[j] += echange;
-      }
-    }else{
-      j=0;
+    j=0;
+    deg = (Vertex)INPUT_PARAM[j];
+    while((deg != head) && (j < (N_CHANGE_STATS-1))){
+      j++;
       deg = (Vertex)INPUT_PARAM[j];
-      while(deg != head && j < N_CHANGE_STATS){
-        j++;
-        deg = (Vertex)INPUT_PARAM[j];
-      }
-      if(j < N_CHANGE_STATS)
-        CHANGE_STAT[j] += echange;
     }
+    if(deg==head){CHANGE_STAT[j] += echange;}
     TOGGLE_IF_MORE_TO_COME(i);
   }
   UNDO_PREVIOUS_TOGGLES(i);
@@ -4239,23 +4229,15 @@ D_CHANGESTAT_FN(d_sender) {
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
     echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
-      if(tail == 1){
-       echange = -echange;
-       for (j=0; j < N_CHANGE_STATS; j++){
-         deg = (Vertex)INPUT_PARAM[j];
-         if(deg != 1){CHANGE_STAT[j] += echange;}
-       }
-      }else{
-       j=0;
-       deg = (Vertex)INPUT_PARAM[j];
-       while(deg != tail && j < N_CHANGE_STATS){
-	j++;
-	deg = (Vertex)INPUT_PARAM[j];
-       }
-       if(j < N_CHANGE_STATS){CHANGE_STAT[j] += echange;}
-      }
-      TOGGLE_IF_MORE_TO_COME(i);
+    j=0;
+    deg = (Vertex)INPUT_PARAM[j];
+    while((deg != tail) && (j < (N_CHANGE_STATS-1))){
+      j++;
+      deg = (Vertex)INPUT_PARAM[j];
     }
+    if(deg==tail){CHANGE_STAT[j] += echange;}
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
   UNDO_PREVIOUS_TOGGLES(i);
 }
 

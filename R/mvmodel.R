@@ -36,18 +36,10 @@ mvmodel.default <- function(object,...)
 #   constraints   : a one-sided formula specifying the constraints on the
 #                   support of the distribution of networks being simulated;
 #                   default=NULL
-#   prop.weights  : specifies the method used to allocate probabilities
-#                   if being proposed to dyads; options are "TNT",
-#                   "random", "nonobserved" and "default"; default=
-#                   NULL if X is an ergm (which then uses the weights
-#                   that the ergm was fit by); default="default" if
-#                   X is a formula (which picks a reasonable default
-#                   considering any constraints)
-#   prop.args     : an alternative, direct way of specifying additional
-#                   arguments to proposal
+#   control       : a list of control parameters for algorithm tuning, as
+#                   returned by <control.simulate.ergm> or
+#                   <control.simulate.formula>; default=<control.simulate.X>
 #   seed          : an integer at which to set the random number generator
-#   drop          : whether degenerate terms should be dropped from the
-#                   fit (T or F); default=TRUE                             
 #   statistic     : this parameter may have one of two forms - either
 #                   a function that accepts a network 'nw' as input and
 #                   as output gives a summary statistic, or this may be
@@ -67,9 +59,10 @@ mvmodel.default <- function(object,...)
 ########################################################################
 
 mvmodel.formula <- function (formula, ..., theta0, nsim=100,
-                             burnin=100, interval=100,
-                             constraints=~., prop.weights="default", prop.args=NULL,
-                             seed=NULL,  drop=FALSE,
+                             burnin=10000, interval=1000,
+                             constraints=NULL,
+                             control=control.simulate.formula(),
+                             seed=NULL, 
                              statistic=NULL
 		      ) {
   trms <- ergm.getterms(formula)
@@ -83,7 +76,7 @@ mvmodel.formula <- function (formula, ..., theta0, nsim=100,
     stop("A network object on the RHS of the formula must be given")
   }
 
-  m <- ergm.getmodel(formula, g, drop=drop)
+  m <- ergm.getmodel(formula, g, drop=FALSE)
   Clist <- ergm.Cprepare(g, m)
 
   if(missing(theta0)){
@@ -108,9 +101,7 @@ mvmodel.formula <- function (formula, ..., theta0, nsim=100,
 
   SimGraphSeriesObj <- simulate(formula, burnin=burnin, interval=interval,
                                 constraints=constraints,
-                                control=control.simulate.ergm(prop.args=prop.args,
-                                  prop.weights=prop.weights,
-                                  drop=drop),
+                                control=control,
                                 theta0=theta0,
                                 n=nsim, seed=seed)
   
@@ -143,7 +134,7 @@ mvmodel.formula <- function (formula, ..., theta0, nsim=100,
     return(list(mean=simcentrality,
                    sim=sim.mvmodel))
   }else{
-    return(sim.mvmodel / nsim)
+    return(list(mean=sim.mvmodel / nsim))
   }
 }
 
@@ -157,9 +148,10 @@ mvmodel.formula <- function (formula, ..., theta0, nsim=100,
 ########################################################################
 
 mvmodel.ergm <- function (object, ..., nsim=100,
-                          burnin=100, interval=100,
-                          constraints=NULL, prop.weights="default", prop.args=NULL,
-                          seed=NULL, drop=FALSE,
+                          burnin=10000, interval=1000,
+                          constraints=NULL,
+                          seed=NULL,
+                          control=control.simulate.ergm(),
                           statistic=NULL) {
 
 # trms <- ergm.getterms(object$formula)
@@ -171,9 +163,7 @@ mvmodel.ergm <- function (object, ..., nsim=100,
   }
   n <- network.size(g)
   if(is.null(seed)){seed <- sample(10000000, size=1)}
-  constraints <-
-    if(is.null(constraints)) object
-    else constraints
+  if(is.null(constraints)) {constraints <- object$constraints}
 
   probabilites <- FALSE
   if(!is.function(statistic)){
@@ -189,9 +179,7 @@ mvmodel.ergm <- function (object, ..., nsim=100,
 
   SimGraphSeriesObj <- simulate(object, burnin=burnin, interval=interval,
                                 constraints=constraints,
-                                control=control.simulate.ergm(prop.args=prop.args,
-                                  prop.weights=prop.weights,
-                                  drop=drop),
+                                control=control,
                              n=nsim, seed=seed)
 
   # cat("\nCollating simulations\n")

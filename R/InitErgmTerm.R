@@ -2941,7 +2941,7 @@ InitErgmTerm.receiver<-function(nw, arglist, drop=FALSE, ...) {
   ld<-length(d)
   if(ld==0){return(NULL)}
   list(name="receiver", coef.names=paste("receiver",d,sep=""),
-       inputs=c(d), emptynwstats=sum(nw[,1]), dependence=FALSE)
+       inputs=c(d), emptynwstats=rep(0,length(d)), dependence=FALSE)
 }
 
 
@@ -2973,7 +2973,7 @@ InitErgmTerm.sender<-function(nw, arglist, drop=FALSE, ...) {
   ld<-length(d)
   if(ld==0){return(NULL)}
   list(name="sender", coef.names=paste("sender",d,sep=""),
-       inputs=c(d), emptynwstats=sum(nw[1,]), dependence=FALSE)
+       inputs=c(d), emptynwstats=rep(0,length(d)), dependence=FALSE)
 }
 
 
