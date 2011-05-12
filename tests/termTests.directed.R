@@ -68,15 +68,12 @@ s.d <- summary(samplike~gwidegree(.3))
 e.d <- ergm(samplike~gwidegree(.4), MPLEonly=TRUE)
 s.df <- summary(samplike~gwidegree(.3, fixed=TRUE))
 e.df <- ergm(samplike~gwidegree(.2, fixed=TRUE), MPLEonly=TRUE)
-s.da <- summary(samplike~gwidegree(.1, attrname="group"))
-e.da <- ergm(samplike~gwidegree(.1, attrname="group"), MPLEonly=TRUE)
 s.dfa <- summary(samplike~gwidegree(.1, TRUE, "group"))
 e.dfa <- ergm(samplike~gwidegree(.5, TRUE, "group"), MPLEonly=TRUE)
 if (!all(head(s.d)==c(0,3,5,1,3,2)) ||
     round(e.d$coef + 5.783202, 3) != 0 ||
     round(s.df - 23.89614, 3) != 0 ||
     round(e.df$coef + 2.247936, 3) != 0 ||
-    !all(round(e.da$coef-c(6.732820, 9.036432, 131.059764),3)==0) ||
     !all(round(s.dfa-c(7.715119, 4.408762, 7.734290),3)==0) ||
     !all(round(e.dfa$coef+c(5.460448, 5.754111, 6.144961),3)==0)) {
  print(list(s.d=head(s.d), e.d=e.d, s.df=s.df, e.df=e.df, e.da=e.da, s.dfa=s.dfa, e.dfa=e.dfa))
@@ -93,15 +90,12 @@ s.d <- summary(samplike~gwodegree(.3))
 e.d <- ergm(samplike~gwodegree(.4), MPLEonly=TRUE)
 s.df <- summary(samplike~gwodegree(.3, fixed=TRUE))
 e.df <- ergm(samplike~gwodegree(.2, fixed=TRUE), MPLEonly=TRUE)
-s.da <- summary(samplike~gwodegree(.1, attrname="group"))
-e.da <- ergm(samplike~gwodegree(.1, attrname="group"), MPLEonly=TRUE)
 s.dfa <- summary(samplike~gwodegree(.1, TRUE, "group"))
 e.dfa <- ergm(samplike~gwodegree(.5, TRUE, "group"), MPLEonly=TRUE)
 if (!all(head(s.d)==c(0,0,1,5,7,5)) ||
     round(e.d$coef + 1.990492, 3) != 0 ||
     round(s.df - 24.23040, 3) != 0 ||
     round(e.df$coef - 43.61801, 3) != 0 ||
-    !all(round(e.da$coef-c(2132.0563, 159.1074, 4152.4532),3)==0) ||
     !all(round(s.dfa-c(7.735906, 4.419631, 7.736070),3)==0) ||
     !all(round(e.dfa$coef+c(4.1860720, 5.9706455, 0.4921623),3)==0)) {
  print(list(s.d=s.d, e.d=e.d, s.df=s.df, e.df=e.df, e.da=e.da, s.dfa=s.dfa, e.dfa=e.dfa))
@@ -393,11 +387,11 @@ e.0 <- ergm(samplike~receiver, MPLEonly=TRUE)
 s.b <- summary(samplike~receiver(base=2:16))
 e.b <- ergm(samplike~receiver(base=3:18), MPLEonly=TRUE)
 if (!all(s.0==c(8, 4, 2, 5, 3, 5, 7, 11, 10, 6, 3, 6, 3, 5, 3, 2, 3)) ||
-    !all(round(e.0$coef -c(0.740350, -0.233948, -0.734851,  0.002407, -0.477026, 0.002407,
-                           0.482122,  1.762664,  1.353611,  0.238830, -0.477026, 0.238830,
-                          -0.477026,  0.002407, -0.477026, -0.734851, -0.477026), 3) == 0) ||
+    !all(round(e.0$coef-c(-0.1178,-1.1787,-2.0149,-0.8755,-1.5404,-0.8755,
+                          -0.3567, 0.6061, 0.3567,-0.6061,-1.5404,-0.6061,
+                          -1.5404,-0.8755,-1.5404,-2.0149,-1.5404),3) == 0) ||
     !all(s.b==c(2,2,3)) ||
-    round(e.b$coef[!is.na(e.b$coef)]-.7376,3)!=0) {
+    !all(round(e.b$coef- c(-2.0149, -0.1178),3)==0)) {
  print(list(s.0=s.0, e.0=e.0, s.b=s.b, e.b=e.b))
  stop("Failed receiver term test")
 } else {
@@ -414,12 +408,11 @@ e.0 <- ergm(samplike~sender, MPLEonly=TRUE)
 s.b <- summary(samplike~sender(base=2:16))
 e.b <- ergm(samplike~sender(base=3:18), MPLEonly=TRUE)
 if (!all(s.0==c(5, 4, 4, 4, 5, 6, 4, 6, 5, 5, 6, 5, 5, 3, 5, 4, 6)) ||
-    !all(round(e.0$coef -c(0.02636, -0.20970, -0.20970, -0.20970, 0.02636,
-                           0.26316, -0.20970,  0.26316,  0.02636, 0.02636,
-                           0.26316,  0.02636,  0.02636, -0.45176, 0.02636,
-                          -0.20970,  0.26316), 3) == 0) ||
+    !all(round(e.0$coef+c(0.8755,1.1787,1.1787,1.1787,0.8755,0.6061,1.1787,
+                          0.6061,0.8755,0.8755,0.6061,0.8755,0.8755,1.5404,
+                          0.8755,1.1787,0.6061), 3) == 0) ||
     !all(s.b==c(6,4,6)) ||
-    round(e.b$coef[!is.na(e.b$coef)]+.1178,3)!=0) {
+    !all(round(e.b$coef+c(.6061, .8755),3)==0)) {
  print(list(s.0=s.0, e.0=e.0, s.b=s.b, e.b=e.b))
  stop("Failed sender term test")
 } else {
