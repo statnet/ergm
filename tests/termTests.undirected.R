@@ -87,15 +87,12 @@ s.d <- summary(fmh~gwdegree(.3))
 e.d <- ergm(fmh~gwdegree(.4), MPLEonly=TRUE)
 s.df <- summary(fmh~gwdegree(.3, fixed=TRUE))
 e.df <- ergm(fmh~gwdegree(.2, fixed=TRUE), MPLEonly=TRUE)
-s.da <- summary(fmh~gwdegree(.1, attrname="Grade"))
-e.da <- ergm(fmh~gwdegree(.1, attrname="Grade"), MPLEonly=TRUE)
 s.dfa <- summary(fmh~gwdegree(.1, fixed=TRUE, attrname="Grade"))
 e.dfa <- ergm(fmh~gwdegree(.1, fixed=TRUE, attrname="Grade"), MPLEonly=TRUE)
 if (!all(head(s.d)==c(51,30,28,18,10,2)) ||
     round(e.d$coef + 13.59067, 3) != 0 ||
     round(s.df - 178.4312, 3) != 0 ||
     round(e.df$coef + 18.2508, 3) != 0 ||
-    !all(round(e.da$coef+c(23.94060, 23.30646, 23.51430, 23.31140, 25.11103, 26.88088),3)==0) ||
     !all(round(s.dfa-c(53.58148, 25.53534, 30.83418, 17.79934, 19.31326, 10.80933 ),3)==0) ||
     !all(round(e.dfa$coef+c(23.94060, 23.30646, 23.51430, 23.31140, 25.11103, 26.88088),3)==0)) {
  print(list(s.d=s.d, e.d=e.d, s.df=s.df, e.df=e.df, e.da=e.da, s.dfa=s.dfa, e.dfa=e.dfa))
