@@ -35,7 +35,7 @@ autoboot.ergm<-function(object, S=nrow(object$sample), control=control.ergm()){
   samp<-object$sample
   if(S>nrow(samp))stop("Bootstrap sample size cannot be greater than the ERGM sample size.")
 
-  theta0<-coef(object)
+  theta0<-object$MCMCtheta
   theta.boot<-apply(samp[sample(seq_len(nrow(samp)),S),],1,function(stat){
     v<-ergm.estimate(theta0=theta0,model=m,statsmatrix=sweep(samp,2,stat),statsmatrix.obs=NULL,
                      epsilon=control$epsilon,
