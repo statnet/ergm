@@ -1,7 +1,7 @@
 \name{logLik.ergm}
 \alias{logLik.ergm}
 \title{
-  A \code{\link{logLik}} method for \code{\link[=ergm.object]{ergm}}.
+  A logLik method for ergm
 }
 \description{
 A function to return the log-likelihood associated with an
