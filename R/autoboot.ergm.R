@@ -1,9 +1,9 @@
 ## An experimental routine to compute bootstrap-like distribution of
 ## parameter estimates for a fitted ergm.
 ##
-## It takes a dyad-dependent ERGM object, `object`, a bootstrap
-## resample size `R` that defaults to MCMCsamplesize of the ergm
-## object, and an optional control.ergm list.  Note that the
+## It takes an ERGM object estimated using MCMC MLE, `object`, a
+## bootstrap resample size `R` that defaults to MCMCsamplesize of the
+## ergm object, and an optional control.ergm list.  Note that the
 ## optimization step takes a fair amount of time (linear in `R` and
 ## otherwise depending on MCMCsamplesize and number of canonical
 ## statistics), so `R` should probably be smaller than the default for
@@ -26,13 +26,22 @@
 ## for models that have been drop-ed.
 
 autoboot.ergm<-function(object, R, control=control.ergm()){
-  
-  if(is.dyad.independent(object))
-    stop(paste("ERGM fit `",deparse(substitute(object)),"` is dyad-independent. Standard errors returned by the object are exact.",sep=""))
+
+  if(is.null(object$sample)){
+    if(is.dyad.independent(object))
+      stop(paste("ERGM fit `",deparse(substitute(object)),"` is dyad-independent. Standard errors returned by the object are exact.",sep=""))
+    else stop(paste("ERGM fit `",deparse(substitute(object)),"` is missing the sample.",sep=""))
+  }
 
   m<-ergm.getmodel(object$formula, ergm.getnetwork(object$formula), drop=FALSE, response=object$response)
 
   samp<-object$sample
+
+  ## "Compress" duplicate statistics:
+  library(coda)
+  samp<-compress.data.frame(as.data.frame(samp))
+  samp.fr<-samp$frequencies
+  samp<-as.matrix(samp$rows)
   S<-nrow(samp)
   
   ## Because the MCMC sample that came with the ergm is drawn not from
@@ -46,15 +55,15 @@ autoboot.ergm<-function(object, R, control=control.ergm()){
 
   eta.diff<-eta.mle-eta.samp
 
-  samp.w<-exp(samp %*% cbind(eta.diff))
+  samp.w<-exp(samp %*% cbind(eta.diff))*samp.fr
   samp.w<-samp.w/sum(samp.w)
 
   ## Now, the expensive part of this procedure is the many
   ## optimization steps, so resample and compress:
 
   resamp<-sample.int(S,R,replace=TRUE,prob=samp.w)
-  resamp.wt<-tabulate(resamp, S)
-  resamp.l<-which(resamp.wt!=0)
+  resamp.w<-tabulate(resamp, S)
+  resamp.l<-which(resamp.w!=0)
     
   theta.boot<-apply(samp[resamp.l,],1,function(stat){
     v<-ergm.estimate(theta0=theta.samp,model=m,statsmatrix=sweep(samp,2,stat),statsmatrix.obs=NULL,
@@ -69,6 +78,21 @@ autoboot.ergm<-function(object, R, control=control.ergm()){
     v$coef
   })
 
-  resamp.ind<-rep(seq_along(resamp.l),resamp.wt[resamp.wt!=0])
-  as.data.frame(t(theta.boot)[resamp.ind,])
+  resamp.ind<-rep(seq_along(resamp.l),resamp.w[resamp.w!=0])
+  t(theta.boot)[resamp.ind,]
+}
+
+## Compress a data frame by eliminating duplicate rows while keeping
+## track of their frequency.
+compress.data.frame<-function(x){
+  x<-sort(x)
+  firsts<-which(!duplicated(x))
+  freqs<-diff(c(firsts,nrow(x)+1))
+  x<-x[firsts,]
+  list(rows=x,frequencies=freqs)
+}
+
+## Sorts rows of a data frame in lexicographic order.
+sort.data.frame<-function(x){
+  x[do.call(order,sapply(seq_along(x),function(i)x[[i]],simplify=FALSE)),]
 }
