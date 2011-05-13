@@ -86,6 +86,7 @@
 \alias{InitErgmTerm.odegree}
 \alias{InitErgmTerm.ostar}
 \alias{InitErgmTerm.outdegreepopularity}
+\alias{InitErgmTerm.pdegcor}
 \alias{InitErgmTerm.rdegcor}
 \alias{InitErgmTerm.receiver}
 \alias{InitErgmTerm.sender}

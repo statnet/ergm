@@ -192,7 +192,7 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NU
 # etagrad <- etagrad[!etamap$offsettheta,,drop=FALSE]
 #
 # etaparam <- etaparam[!etamap$offsettheta]
-  basepred <- xsim %*% etaparam
+  basepred <- xsim %*% x
   prob <- max(basepred)
   prob <- probs*exp(basepred - prob)
   prob <- prob/sum(prob)

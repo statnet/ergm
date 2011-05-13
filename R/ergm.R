@@ -301,11 +301,16 @@ ergm <- function(formula, theta0="MPLE",
   }
   v$degeneracy.value <- degeneracy$degeneracy.value
   v$degeneracy.type <- degeneracy$degeneracy.type
-  if(exists("formula.passed")){
-    v$formula <- formula.passed
-  }else{
+  # formula.passed is created in trunk, but not in the public release
+  # so the following lines have been commented out since they are unnecessary
+  # and make R CMD check complain
+  
+  #if(exists("formula.passed")){
+  #  v$formula <- formula.passed
+  #}else{
     v$formula <- formula
-  }
+  #}
+  
   v$constraints <- constraints
   v$prop.args <- control$prop.args
   v$prop.weights <- control$prop.weights
