@@ -27,7 +27,7 @@
 
 autoboot.ergm<-function(object, R, control=control.ergm()){
 
-  if(is.null(object$sample)){
+  if(is.null(object$sample) || any(is.na(object$sample))){
     if(is.dyad.independent(object))
       stop(paste("ERGM fit `",deparse(substitute(object)),"` is dyad-independent. Standard errors returned by the object are exact.",sep=""))
     else stop(paste("ERGM fit `",deparse(substitute(object)),"` is missing the sample.",sep=""))
