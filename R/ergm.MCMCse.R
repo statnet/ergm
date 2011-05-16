@@ -130,7 +130,7 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
   if(all(dim(H)==c(0,0))){
     hessian <- matrix(NA, ncol=length(theta), nrow=length(theta))
     mc.se <- rep(NA,length=length(theta))
-    return(mc.se)
+    return(list(mc.se=mc.se))
   }
   cov.zbar <- cov.zbar[!novar,,drop=FALSE] 
   cov.zbar <- cov.zbar[,!novar,drop=FALSE] 
