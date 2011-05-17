@@ -42,7 +42,9 @@ parameters are fixed. Note that each term has to be treated as a special case.
   statistic.
 
   This function thus takes in a fit or a formula and performs this
-  mapping, returning a ``fixed'' model and parameter specification.
+  mapping, returning a ``fixed'' model and parameter specification.  It
+  only works for curved ERGM terms included with the \code{\link[=ergm-package]{ergm}}
+  package. It does not work with curved terms not included in ergm.
 }
 \value{
   A list with the following components:

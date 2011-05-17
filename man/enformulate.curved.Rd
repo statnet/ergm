@@ -14,7 +14,7 @@ vector. This is the form required by \code{\link{ergm}} calls.
 }
 \usage{
 \method{enformulate.curved}{ergm}(object, ...)
-\method{enformulate.curved}{formula}(object, theta, response = NULL, ...)
+\method{enformulate.curved}{formula}(object, theta, ...)
 }
 \arguments{
   \item{object}{
@@ -24,9 +24,7 @@ vector. This is the form required by \code{\link{ergm}} calls.
   \item{theta}{
     Curved model parameter configuration.
 }
-  \item{response}{
-    For valued ERGM, an edge attribute used as the response variable.
-}
+
   \item{\dots}{
     Unused at this time.
 }
@@ -38,7 +36,9 @@ vector. This is the form required by \code{\link{ergm}} calls.
   embed the curved parameters into the formula (while keeping
   \code{fixed=FALSE}) and remove them from \code{theta0}.
   
-  This function automates this process.
+  This function automates this process for curved ERGM terms included
+  with the \code{\link[=ergm-package]{ergm}} package. It does not work with curved terms not
+  included in ergm.
 }
 \value{
   A list with the following components:
