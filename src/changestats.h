@@ -7,6 +7,7 @@
 /********************  changestats:  A    ***********/
 D_CHANGESTAT_FN(d_absdiff);
 D_CHANGESTAT_FN(d_absdiffcat);
+D_CHANGESTAT_FN(d_adegcor); S_CHANGESTAT_FN(s_adegcor);
 D_CHANGESTAT_FN(d_altkstar);
 D_CHANGESTAT_FN(d_asymmetric);
 /********************  changestats:  B    ***********/
@@ -55,6 +56,8 @@ D_CHANGESTAT_FN(d_cycle);
   void edgewise_cycle_census(Network *g, Vertex tail, Vertex head, 
      double *countv, long int maxlen);
 /********************  changestats:  D    ***********/
+D_CHANGESTAT_FN(d_degcor); S_CHANGESTAT_FN(s_degcor);
+D_CHANGESTAT_FN(d_degcrossprod);
 D_CHANGESTAT_FN(d_degree);
 D_CHANGESTAT_FN(d_degree_by_attr);
 D_CHANGESTAT_FN(d_degree_w_homophily);
@@ -122,7 +125,10 @@ D_CHANGESTAT_FN(d_odegree_by_attr);
 D_CHANGESTAT_FN(d_odegree_w_homophily);
 D_CHANGESTAT_FN(d_ostar);
 D_CHANGESTAT_FN(d_outdegreepopularity);
+/********************  changestats:   P    ***********/
+D_CHANGESTAT_FN(d_pdegcor); S_CHANGESTAT_FN(s_pdegcor);
 /********************  changestats:   R    ***********/
+D_CHANGESTAT_FN(d_rdegcor); S_CHANGESTAT_FN(s_rdegcor);
 D_CHANGESTAT_FN(d_receiver);
 /********************  changestats:   S    ***********/
 D_CHANGESTAT_FN(d_sender);
