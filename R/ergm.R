@@ -301,11 +301,8 @@ ergm <- function(formula, theta0="MPLE",
   }
   v$degeneracy.value <- degeneracy$degeneracy.value
   v$degeneracy.type <- degeneracy$degeneracy.type
-  # formula.passed is created in trunk, but not in the public release
-  # so the following lines have been commented out since they are unnecessary
-  # and make R CMD check complain
-  
-  #if(exists("formula.passed")){
+
+  #if(exists("formula.passed")){ # deprecated
   #  v$formula <- formula.passed
   #}else{
     v$formula <- formula
