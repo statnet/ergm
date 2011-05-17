@@ -47,6 +47,7 @@
 \alias{InitErgmTerm.nodematch}
 \alias{InitErgmTerm.nodemix}
 \alias{InitErgmTerm.nodeofactor}
+\alias{InitErgmTerm.pdegcor}
 \alias{InitErgmTerm.rdegcor}
 \alias{InitErgmTerm.threepath}
 \alias{check.ErgmTerm.summarystats}
