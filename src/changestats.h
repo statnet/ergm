@@ -20,6 +20,8 @@ D_CHANGESTAT_FN(d_b1starmixhomophily);
 D_CHANGESTAT_FN(d_b1twostar);
 D_CHANGESTAT_FN(d_b2concurrent);
 D_CHANGESTAT_FN(d_b2concurrent_by_attr);
+D_CHANGESTAT_FN(d_b2degcor);
+D_CHANGESTAT_FN(d_b2degcrossprod);
 D_CHANGESTAT_FN(d_b2degree);
 D_CHANGESTAT_FN(d_b2degree_by_attr);
 D_CHANGESTAT_FN(d_b2factor);
