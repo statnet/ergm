@@ -909,9 +909,7 @@ InitErgmTerm.concurrent<-function(nw, arglist, drop=TRUE, ...) {
     lu <- length(u)
     ui <- seq(along=u)
     if(drop){ #   Check for extreme statistics
-      concurrentattr <- summary(as.formula
-                             (paste('nw ~ concurrent("',byarg,'")',sep="")),
-                             drop=FALSE) == 0
+      concurrentattr <- summary(nw ~ concurrent(byarg), drop=FALSE) == 0
       if(any(concurrentattr)){
         dropterms <- paste("concurrent", ".", byarg,
                            u[concurrentattr], sep="")
@@ -926,9 +924,7 @@ InitErgmTerm.concurrent<-function(nw, arglist, drop=TRUE, ...) {
   } else {
     if(is.logical(byarg)){drop <- byarg}
     if(drop){
-      mconcurrent <- summary(
-                          as.formula(paste('nw ~ concurrent',sep="")),
-                          drop=FALSE) == 0
+      mconcurrent <- summary(nw ~ concurrent, drop=FALSE) == 0
       if(any(mconcurrent)){
       cat(" ")
         cat(paste("Warning: There are no concurrent b1s;\n",
@@ -970,9 +966,7 @@ InitErgmTerm.ctriple<-InitErgmTerm.ctriad<-function (nw, arglist, drop=TRUE, ...
     if (length(u)==1)
       stop ("Attribute given to ctriple() has only one value", call.=FALSE)
     if(drop){
-      triattr <- summary(as.formula(paste('nw ~ ctriple(','"',attrname,
-                                          '",diff=',diff,')',sep="")),
-                         drop=FALSE) == 0
+      triattr <- summary(nw ~ ctriple(attrname,diff=diff), drop=FALSE) == 0
       if(diff){
         if(any(triattr)){
           dropterms <- paste(paste("ctriple",attrname,sep="."),
@@ -1093,10 +1087,7 @@ InitErgmTerm.degree<-function(nw, arglist, drop=TRUE, ...) {
     lu <- length(u)
     du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
     if(drop){ #   Check for extreme statistics
-      tmp <- paste("c(",paste(d,collapse=","),")")
-      degreeattr <- summary(
-       as.formula(paste('nw ~ degree(',tmp,',"',byarg,'")',sep="")),
-       drop=FALSE) == 0
+      degreeattr <- summary(nw ~ degree(d,byarg), drop=FALSE) == 0
       if(any(degreeattr)){
         dropterms <- paste("deg", du[1,degreeattr], ".", byarg,
                            u[du[2,degreeattr]], sep="")
@@ -1115,14 +1106,10 @@ InitErgmTerm.degree<-function(nw, arglist, drop=TRUE, ...) {
     }
   } else {
     if(drop){
-      tmp <- paste("c(",paste(d,collapse=","),")",sep="")
       if(!homophily) {
-        mdegree <- summary(as.formula(paste('nw ~ degree(',tmp,')',
-                                            sep="")), drop=FALSE) == 0
+        mdegree <- summary(nw ~ degree(d), drop=FALSE) == 0
       } else {
-        mdegree <- summary(as.formula(paste('nw ~ degree(',tmp,',"',byarg,
-                                                         '", TRUE)', sep="")), 
-                                             drop = FALSE) == 0
+        mdegree <- summary(nw ~ degree(d,byarg, TRUE),  drop=FALSE) == 0
       }
       if(any(mdegree)){
       cat(" ")
@@ -1189,9 +1176,7 @@ InitErgmTerm.dsp<-function(nw, arglist, drop=TRUE, ...) {
                       required = c(TRUE))
   d <- a$d
   if(drop){
-    mdsp <- paste("c(",paste(d,collapse=","),")",sep="")
-    mdsp <- summary(as.formula(paste('nw ~ dsp(',mdsp,')',sep="")),
-                    drop=FALSE)
+    mdsp <- summary(nw ~ dsp(d), drop=FALSE)
     if(any(mdsp==0)){
       cat(" ")
       cat(paste("Warning: There are no dsp", d[mdsp==0],"dyads;\n",
@@ -1332,9 +1317,7 @@ InitErgmTerm.esp<-function(nw, arglist, drop=TRUE, ...) {
                       required = c(TRUE))
   d<-a$d
   if(drop){
-    mesp <- paste("c(",paste(d,collapse=","),")",sep="")
-    mesp <- summary(as.formula(paste('nw ~ esp(',mesp,')',sep="")),
-                    drop=FALSE)
+    mesp <- summary(nw ~ esp(d), drop=FALSE)
     if(any(mesp==0)){
       cat(" ")
       cat(paste("Warning: There are no dyads with esp", d[mesp==0],";\n",
@@ -1992,10 +1975,7 @@ InitErgmTerm.idegree<-function(nw, arglist, drop=TRUE, ...) {
     lu <- length(u)
     du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
     if(drop){ #   Check for extreme statistics
-      tmp <- paste("c(",paste(d,collapse=","),")")
-      idegreeattr <- summary(
-       as.formula(paste('nw ~ idegree(',tmp,',"',byarg,'")',sep="")),
-       drop=FALSE) == 0
+      idegreeattr <- summary(nw ~ idegree(d,byarg), drop=FALSE) == 0
       if(any(idegreeattr)){
         dropterms <- paste("ideg", du[1,idegreeattr], ".", byarg,
                            u[du[2,idegreeattr]], sep="")
@@ -2014,14 +1994,10 @@ InitErgmTerm.idegree<-function(nw, arglist, drop=TRUE, ...) {
     }
   } else {
     if(drop){
-      tmp <- paste("c(",paste(d,collapse=","),")",sep="")
       if(!homophily) {
-        midegree <- summary(as.formula(paste('nw ~ idegree(',tmp,')',
-                                            sep="")), drop=FALSE) == 0
+        midegree <- summary(nw ~ idegree(d), drop=FALSE) == 0
       } else {
-        midegree <- summary(as.formula(paste('nw ~ idegree(',tmp,',"',byarg,
-                                                         '", TRUE)', sep="")), 
-                                             drop = FALSE) == 0
+        midegree <- summary(nw ~ idegree(d,byarg,TRUE), drop=FALSE) == 0
       }
       if(any(midegree)){
       cat(" ")
@@ -2071,7 +2047,7 @@ InitErgmTerm.indegreepopularity<-function (nw, arglist, drop=TRUE, ...) {
                       defaultvalues = list(),
                       required = NULL)
   if(drop){
-    nindegreepopularity <- summary(as.formula('nw ~ indegreepopularity'), drop=FALSE)
+    nindegreepopularity <- summary(nw ~ indegreepopularity, drop=FALSE)
     if(nindegreepopularity==0){
       cat(" ")
       cat(paste("Warning: There is no indegree popularity;\n",
@@ -2098,7 +2074,7 @@ InitErgmTerm.intransitive<-function (nw, arglist, drop=TRUE, ...) {
                       defaultvalues = list(),
                       required = NULL)
   if(drop){
-    nintransitive <- summary(as.formula('nw ~ intransitive'), drop=FALSE)
+    nintransitive <- summary(nw ~ intransitive, drop=FALSE)
     if(nintransitive==0){
       cat(" ")
       cat(paste("Warning: There are no intransitive triads;\n",
@@ -2152,10 +2128,7 @@ InitErgmTerm.istar<-function(nw, arglist, drop=TRUE, ...) {
     if (length(u)==1)
       stop ("Attribute given to istar() has only one value", call.=FALSE)
     if(drop){
-      istarattr <- paste("c(",paste(k,collapse=","),")",sep="")
-      istarattr <- summary(as.formula(paste('nw ~ istar(',istarattr,',"',
-                                            attrname,'")',sep="")),
-                           drop=FALSE) == 0
+      istarattr <- summary(nw ~ istar(k,attrname), drop=FALSE) == 0
       if(any(istarattr)){
         dropterms <- paste(paste("istar",attrname,sep="."),k[istarattr],sep="")
       cat(" ")
@@ -2166,9 +2139,7 @@ InitErgmTerm.istar<-function(nw, arglist, drop=TRUE, ...) {
     }
   }else{
     if(drop){
-      mistar <- paste("c(",paste(k,collapse=","),")",sep="")
-      mistar <- summary(as.formula(paste('nw ~ istar(',mistar,')',sep="")),
-                        drop=FALSE) == 0
+      mistar <- summary(nw ~ istar(k), drop=FALSE) == 0
       if(any(mistar)){
       cat(" ")
         cat(paste("Warning: There are no order", k[mistar],"stars;\n",
@@ -2212,10 +2183,7 @@ InitErgmTerm.kstar<-function(nw, arglist, drop=TRUE, ...) {
     if (length(u)==1)
       stop ("Attribute given to kstar() has only one value", call.=FALSE)
     if(drop){
-      kstarattr <- paste("c(",paste(k,collapse=","),")",sep="")
-      kstarattr <- summary(as.formula(paste('nw ~ kstar(',kstarattr,
-                                            ',"',attrname,'")',sep="")),
-                           drop=FALSE) == 0
+      kstarattr <- summary(nw ~ kstar(k,attrname), drop=FALSE) == 0
       if(any(kstarattr)){
         dropterms <- paste(paste("kstar",attrname,sep="."),k[kstarattr],sep="")
       cat(" ")
@@ -2226,9 +2194,7 @@ InitErgmTerm.kstar<-function(nw, arglist, drop=TRUE, ...) {
     }
   }else{
     if(drop){
-      mkstar <- paste("c(",paste(k,collapse=","),")",sep="")
-      mkstar <- summary(as.formula(paste('nw ~ kstar(',mkstar,')',sep="")),
-                        drop=FALSE) == 0
+      mkstar <- summary(nw ~ kstar(k), drop=FALSE) == 0
       if(any(mkstar)){
       cat(" ")
         cat(paste("Warning: There are no order", k[mkstar],"stars;\n",
@@ -2399,7 +2365,7 @@ InitErgmTerm.nearsimmelian<-function (nw, arglist, drop=TRUE, ...) {
                       defaultvalues = list(),
                       required = NULL)
   if(drop){
-    nsimmelian <- summary(as.formula('nw ~ nearsimmelian'), drop=FALSE)
+    nsimmelian <- summary(nw ~ nearsimmelian, drop=FALSE)
     if(nsimmelian==0){
       cat(" ")
       cat(paste("Warning: There are no nearsimmelian triads;\n",
@@ -2742,9 +2708,7 @@ InitErgmTerm.nsp<-function(nw, arglist, drop=TRUE, ...) {
                       required = c(TRUE))
   d<-a$d
   if(drop){
-    mnsp <- paste("c(",paste(d,collapse=","),")",sep="")
-    mnsp <- summary(as.formula(paste('nw ~ nsp(',mnsp,')',sep="")),
-                    drop=FALSE)
+    mnsp <- summary(nw ~ nsp(d), drop=FALSE)
     if(any(mnsp==0)){
       cat(" ")
       cat(paste("Warning: There are no dyads with nsp", d[mnsp==0],";\n",
@@ -2804,10 +2768,7 @@ InitErgmTerm.odegree<-function(nw, arglist, drop=TRUE, ...) {
     lu <- length(u)
     du <- rbind(rep(d,lu), rep(1:lu, rep(length(d), lu)))
     if(drop){ #   Check for extreme statistics
-      tmp <- paste("c(",paste(d,collapse=","),")")
-      odegreeattr <- summary(
-       as.formula(paste('nw ~ odegree(',tmp,',"',byarg,'")',sep="")),
-       drop=FALSE) == 0
+      odegreeattr <- summary(nw ~ odegree(d,byarg), drop=FALSE) == 0
       if(any(odegreeattr)){
         dropterms <- paste("odeg", du[1,odegreeattr], ".", byarg,
                            u[du[2,odegreeattr]], sep="")
@@ -2826,14 +2787,10 @@ InitErgmTerm.odegree<-function(nw, arglist, drop=TRUE, ...) {
     }
   } else {
     if(drop){
-      tmp <- paste("c(",paste(d,collapse=","),")",sep="")
       if(!homophily) {
-        modegree <- summary(as.formula(paste('nw ~ odegree(',tmp,')',
-                                            sep="")), drop=FALSE) == 0
+        modegree <- summary(nw ~ odegree(d), drop=FALSE) == 0
       } else {
-        modegree <- summary(as.formula(paste('nw ~ odegree(',tmp,',"',byarg,
-                                                         '", TRUE)', sep="")), 
-                                             drop = FALSE) == 0
+        modegree <- summary(nw ~ odegree(d,byarg, TRUE), drop=FALSE) == 0
       }
       if(any(modegree)){
       cat(" ")
@@ -2884,7 +2841,7 @@ InitErgmTerm.outdegreepopularity<-function (nw, arglist, drop=TRUE, ...) {
                       defaultvalues = list(),
                       required = NULL)
   if(drop){
-    noutdegreepopularity <- summary(as.formula('nw ~ outdegreepopularity'), drop=FALSE)
+    noutdegreepopularity <- summary(nw ~ outdegreepopularity, drop=FALSE)
     if(noutdegreepopularity==0){
       cat(" ")
       cat(paste("Warning: There is no outdegree popularity;\n",
@@ -2920,10 +2877,7 @@ InitErgmTerm.ostar<-function(nw, arglist, drop=TRUE, ...) {
     if (length(u)==1)
       stop ("Attribute given to ostar() has only one value", call.=FALSE)
     if(drop){
-      ostarattr <- paste("c(",paste(k,collapse=","),")",sep="")
-      ostarattr <- summary(as.formula(paste('nw ~ ostar(',ostarattr,',"',
-                                            attrname,'")',sep="")),
-                           drop=FALSE) == 0
+      ostarattr <- summary(nw ~ ostar(k,attrname), drop=FALSE) == 0
       if(any(ostarattr)){
         dropterms <- paste(paste("ostar",attrname,sep="."),k[ostarattr],sep="")
         cat(" ")
@@ -2934,9 +2888,7 @@ InitErgmTerm.ostar<-function(nw, arglist, drop=TRUE, ...) {
     }
   }else{
     if(drop){
-      mostar <- paste("c(",paste(k,collapse=","),")",sep="")
-      mostar <- summary(as.formula(paste('nw ~ ostar(',mostar,')',sep="")),
-                        drop=FALSE) == 0
+      mostar <- summary(nw ~ ostar(k), drop=FALSE) == 0
       if(any(mostar)){
       cat(" ")
         cat(paste("Warning: There are no order", k[mostar],"stars;\n",
@@ -3076,7 +3028,7 @@ InitErgmTerm.simmelian<-function (nw, arglist, drop=TRUE, ...) {
                       defaultvalues = list(),
                       required = NULL)
   if(drop){
-    nsimmelian <- summary(as.formula('nw ~ simmelian'), drop=FALSE)
+    nsimmelian <- summary(nw ~ simmelian, drop=FALSE)
     if(nsimmelian==0){
       cat(" ")
       cat(paste("Warning: There are no simmelian triads;\n",
@@ -3102,7 +3054,7 @@ InitErgmTerm.simmelianties<-function (nw, arglist, drop=TRUE, ...) {
                       defaultvalues = list(),
                       required = NULL)
   if(drop){
-    nsimmelianties <- summary(as.formula('nw ~ simmelianties'), drop=FALSE)
+    nsimmelianties <- summary(nw ~ simmelianties, drop=FALSE)
     if(nsimmelianties==0){
       cat(" ")
       cat(paste("Warning: There are no simmelianties ties;\n",
@@ -3170,7 +3122,7 @@ InitErgmTerm.sociality<-function(nw, arglist, drop=FALSE, ...) {
 #    if(is.null(attrname)){
 #      centattr <- summary(nw ~ sociality, drop=FALSE) == 0
 #    }else{
-#      centattr <- summary(as.formula(paste('nw ~ sociality(','"',attrname,
+#      centattr <- summary(nw ~ sociality(','"',attrname,
 #                                           '")',sep="")),
 #                          drop=FALSE) == 0
 #    }
@@ -3236,7 +3188,7 @@ InitErgmTerm.transitive<-function (nw, arglist, drop=TRUE, ...) {
                       defaultvalues = list(),
                       required = NULL)
   if(drop){
-    ntransitive <- summary(as.formula('nw ~ transitive'), drop=FALSE)
+    ntransitive <- summary(nw ~ transitive, drop=FALSE)
     if(ntransitive==0){
       cat(" ")
       cat(paste("Warning: There are no transitive triads;\n",
@@ -3266,9 +3218,7 @@ InitErgmTerm.transitiveties<-function (nw, arglist, drop=TRUE, ...) {
     if (length(u)==1)
       stop ("Attribute given to transitiveties() has only one value", call.=FALSE)
     if(drop){
-      triattr <- summary(as.formula(paste('nw ~ transitiveties(','"',attrname,
-                                                               '",diff=',diff,')',sep="")),
-                              drop=FALSE) == 0
+      triattr <- summary(nw ~ transitiveties(attrname,diff=diff), drop=FALSE) == 0
 #      if(diff){
 #        if(any(triattr)){
 #          dropterms <- paste(paste("transitiveties",attrname,sep="."),
@@ -3326,10 +3276,7 @@ InitErgmTerm.triadcensus<-function (nw, arglist, drop=FALSE, ...) {
    if(is.character(d)){d <- match(d, tcn)-1}
   }
   if(drop){
-    mdegree <- paste("c(",paste(d,collapse=","),")",sep="")
-    mdegree <- summary(
-     as.formula(paste('nw ~ triadcensus(',mdegree,')',sep="")),
-     drop=FALSE) == 0
+    mdegree <- summary(nw ~ triadcensus(d), drop=FALSE) == 0
     if(any(mdegree)){
      dropterms <- tcn[d[mdegree]]
      cat(" ")
@@ -3379,9 +3326,7 @@ InitErgmTerm.triangle<-InitErgmTerm.triangles<-function (nw, arglist, drop=TRUE,
     if (length(u)==1)
       stop ("Attribute given to triangle() has only one value", call.=FALSE)
     if(drop){
-      triattr <- summary(as.formula(paste('nw ~ triangle(','"', attrname,
-                                          '",diff=',diff,')',sep="")),
-                         drop=FALSE) == 0
+      triattr <- summary(nw ~ triangle(attrname,diff=diff), drop=FALSE) == 0
       if(diff){
         if(any(triattr)){
           dropterms <- paste(paste("triangle",attrname,sep="."),
@@ -3436,9 +3381,7 @@ InitErgmTerm.tripercent<-function (nw, arglist, drop=TRUE, ...) {
     if (length(u)==1)
       stop ("Attribute given to tripercent() has only one value", call.=FALSE)
     if(drop){
-      triattr <- summary(as.formula(paste('nw ~ tripercent(','"',attrname,
-                                          '",diff=',diff,')',sep="")),
-                         drop=FALSE) == 0
+      triattr <- summary(nw ~ tripercent(attrname,diff=diff), drop=FALSE) == 0
       if(any(triattr)){
         if(diff){
           dropterms <- paste(paste("tripercent",attrname,sep="."),
@@ -3491,9 +3434,7 @@ InitErgmTerm.ttriple<-InitErgmTerm.ttriad<-function (nw, arglist, drop=TRUE, ...
     if (length(u)==1)
       stop ("Attribute given to ttriple() has only one value", call.=FALSE)
     if(drop){
-      triattr <- summary(as.formula(paste('nw ~ ttriple(','"',attrname,
-                                          '",diff=',diff,')',sep="")),
-                         drop=FALSE) == 0
+      triattr <- summary(nw ~ ttriple(attrname,diff=diff), drop=FALSE) == 0
       if(diff){
         if(any(triattr)){
           dropterms <- paste(paste("ttriple",attrname,sep="."),
@@ -3550,9 +3491,7 @@ InitErgmTerm.twopath<-function(nw, arglist, drop=TRUE, ...) {
   }else{
    k<-2
    if(drop){
-    mkstar <- paste("c(",paste(k,collapse=","),")",sep="")
-    mkstar <- summary(as.formula(paste('nw ~ kstar(',mkstar,')',sep="")),
-                      drop=FALSE) == 0
+    mkstar <- summary(nw ~ kstar(k), drop=FALSE) == 0
     if(any(mkstar)){
       cat(" ")
       cat(paste("Warning: There are no two paths;\n",
