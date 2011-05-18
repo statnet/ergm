@@ -58,9 +58,7 @@ ergm.bridge.dindstart.llk(object, theta, nsteps = 20, dind = NULL, theta.dind = 
     \emph{Inference in curved exponential family models for networks},
    Journal of Computational and Graphical Statistics.
 }
-\author{
-Pavel N. Krivitsky
-}
+
 \seealso{
 \code{\link{ergm.bridge.llr}}, \code{\link{simulate.formula.ergm}}
 }

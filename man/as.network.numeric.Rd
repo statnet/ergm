@@ -1,6 +1,6 @@
 \name{as.network.numeric}
 \alias{as.network.numeric}
-%- Also NEED an '\alias' for EACH other topic documented here.
+
 \title{ Create a Simple Random network of a Given Size }
 \description{
   \code{\link{as.network.numeric}} creates a random Bernoulli network of the given size as an object of class \code{\link[network]{network}}.
@@ -12,7 +12,7 @@
     edge.check = FALSE,
     density=NULL, theta0=NULL, numedges=NULL, ...)
 }
-%- maybe also 'usage' for other objects documented here.
+
 \arguments{
   \item{x}{count; the number of nodes in the network. If \code{bipartite=TRUE}, it is the number of events in the network.}
   \item{directed}{logical; should edges be interpreted as directed?}
@@ -39,10 +39,6 @@ divided by the number of dyads (so the expected number of ties is the same as th
   An object of class \code{\link[network]{network}}
 }
 \references{ Butts, C.T.  2002.  ``Memory Structures for Relational Data in R: Classes and Interfaces''  Working Paper. }
-\author{ Carter T. Butts \email{buttsc@uci.edu} and Mark S. Handcock \email{handcock@stat.ucla.edu} }
-%\note{ ~~further notes~~ }
-%
-% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{ \code{\link[network]{network}} }
 \examples{
@@ -53,5 +49,5 @@ g<-network(25, directed=FALSE, density=0.1)
 #Draw a random bipartite network with 10 events and 5 actors and density 0.1
 g<-network(5, bipartite=10, density=0.1)
 }
-\keyword{ classes }% at least one, from doc/KEYWORDS
-\keyword{ graphs }% __ONLY ONE__ keyword per line
+\keyword{ classes }
+\keyword{ graphs }
