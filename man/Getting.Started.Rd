@@ -54,7 +54,7 @@ A tutorial, support newsgroup, references and links to further resources are pro
 Mark S. Handcock \email{handcock@stat.ucla.edu},\cr
 David R. Hunter \email{dhunter@stat.psu.edu},\cr
 Carter T. Butts \email{buttsc@uci.edu},\cr
-Steven M. Goodreau \email{goodreau@u.washington.edu}
+Steven M. Goodreau \email{goodreau@u.washington.edu},\cr
 Pavel N. Krivitsky \email{pavel@stat.cmu.edu}, and\cr
 Martina Morris \email{morrism@u.washington.edu}
 

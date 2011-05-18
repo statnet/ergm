@@ -64,9 +64,7 @@ Hunter, D. R. and Handcock, M. S. (2006)
    Journal of Computational and Graphical Statistics.
 
 }
-\author{
-Pavel N. Krivitsky
-}
+
 \seealso{
 \code{\link{simulate.formula.ergm}}
 }

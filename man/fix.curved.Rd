@@ -51,9 +51,6 @@ parameters are fixed. Note that each term has to be treated as a special case.
   \item{formula}{The ``fixed'' formula.}
   \item{theta}{The ``fixed'' parameter vector.}
 }
-\author{
-  Pavel N. Krivitsky
-}
 
 \seealso{
   \code{\link{ergm}},   \code{\link{simulate.ergm}}

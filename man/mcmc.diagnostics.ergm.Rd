@@ -75,16 +75,14 @@ More information can be found by looking at the documentation of
   convergence diagnostics and generic Metropolis algorithms.  In
   Practical Markov Chain Monte Carlo (W.R. Gilks, D.J. Spiegelhalter and
   S. Richardson, eds.). London, U.K.: Chapman and Hall.
+
+  This package is based on the \code{coda} package and also ideas from
+  \code{mcgibbsit} by Gregory R. Warnes
+  \email{gregory\_r\_warnes@groton.pfizer.com}.  It is based on the the
+  R function \code{raftery.diag} in \code{coda}.  \code{raftery.diag},
+  in turn, is based on the FORTRAN program \code{gibbsit} written by
+  Steven Lewis which is available from the Statlib archive.
 }
-\author{Mark S. Handcock, \email{handcock@stat.ucla.edu}
-  based on the \code{coda} package and also ideas
-  from \code{mcgibbsit} by 
-  Gregory R. Warnes \email{gregory\_r\_warnes@groton.pfizer.com}.
-  It is based on the the R function 
-  \code{raftery.diag} in \code{coda}.
-  \code{raftery.diag}, in turn, is based on the
-  FORTRAN program \code{gibbsit} written by Steven Lewis which is available
-  from the Statlib archive.  }
 
 \value{\code{\link{mcmc.diagnostics.ergm}} returns a matrix of 
        Raftery-Lewis diagnostics.

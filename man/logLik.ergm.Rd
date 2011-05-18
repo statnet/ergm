@@ -46,9 +46,6 @@ Hunter, D. R. and Handcock, M. S. (2006)
    Journal of Computational and Graphical Statistics.
 
 }
-\author{
-Pavel N. Krivitsky
-}
 
 \seealso{
 \code{\link{logLik}}, \code{\link{ergm.bridge.llr}}, \code{\link{ergm.bridge.dindstart.llk}}

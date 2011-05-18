@@ -45,9 +45,6 @@ vector. This is the form required by \code{\link{ergm}} calls.
   \item{formula}{The formula with curved parameter estimates incorporated.}
   \item{theta}{The coefficient vector with curved parameter estimates removed.}
 }
-\author{
-  Pavel N. Krivitsky
-}
 
 \seealso{
   \code{\link{ergm}},   \code{\link{simulate.ergm}}

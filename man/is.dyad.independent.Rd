@@ -27,7 +27,5 @@ These functions test whether an ERGM fit or formula is dyad-independent.
   \code{TRUE} if the model fit or one implied by the formula is
   dyad-independent; \code{FALSE} otherwise.
 }
-\author{
-  Pavel N. Krivitsky
-}
+
 \keyword{ model }
