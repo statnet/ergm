@@ -86,9 +86,10 @@ simulate.formula <- function(object, nsim=1, seed=NULL, theta0,
 
   # If basis is not null, replace network in formula by basis.
   # In either case, let nw be network object from formula.
-  if(is.null(nw <- basis)) {
-    nw <- ergm.getnetwork(object)
+  if(!is.null(basis)) {
+    nw <- basis
   }
+  nw <- ergm.getnetwork(object)
   
   # Do some error-checking on the nw object
   if(class(nw) =="network.series"){
@@ -99,15 +100,18 @@ simulate.formula <- function(object, nsim=1, seed=NULL, theta0,
     stop("A network object on the LHS of the formula or via",
          " the 'basis' argument must be given")
   }
+  if(is.null(basis)) {
+    basis <- nw
+  }
 
   # New formula (no longer use 'object'):
-  form <- ergm.update.formula(object, nw ~ .)
+  form <- ergm.update.formula(object, basis ~ .)
   
   # Prepare inputs to ergm.getMCMCsample
-  m <- ergm.getmodel(form, nw, drop=FALSE)
+  m <- ergm.getmodel(form, basis, drop=FALSE)
   if(!missing(theta0) && theta.length.model(m)!=length(theta0)) stop("theta0 has ", length(theta0), " elements, while the model requires ",theta.length.model(m)," parameters.")
   
-  Clist <- ergm.Cprepare(nw, m)
+  Clist <- ergm.Cprepare(basis, m)
   MHproposal <- MHproposal(constraints,arguments=control$prop.args,
                            nw=nw, model=m, weights=control$prop.weights, class="c")  
 
