@@ -87,12 +87,10 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
                              verbose=FALSE, ...) {
   if(!is.null(seed)) {set.seed(as.integer(seed))}
 
-  # If basis is not null, replace network in formula by basis.
-  # In either case, let nw be network object from formula.
-  if(!is.null(basis)) {
-    nw <- basis
+  # define nw as either the basis argument or (if NULL) the LHS of the formula
+  if (is.null(nw <- basis)) {
+    nw <- ergm.getnetwork(object)    
   }
-  nw <- ergm.getnetwork(object)
   
   # Do some error-checking on the nw object
   if(class(nw) =="network.series"){
