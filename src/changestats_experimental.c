@@ -609,7 +609,7 @@ D_CHANGESTAT_FN(d_geodegree) {
 D_CHANGESTAT_FN(d_geospartner) {
   Edge e, f;
   int i, echange;
-  int L2ht, L2hu, L2ut;
+  int L2th, L2tu, L2uh;
   Vertex tail, head, u, v;
   double alpha, cumchange;
   
@@ -617,42 +617,42 @@ D_CHANGESTAT_FN(d_geospartner) {
   alpha = INPUT_PARAM[0];
   FOR_EACH_TOGGLE(i) {
     cumchange=0.0;
-    L2ht=0;
+    L2th=0;
     echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
     STEP_THROUGH_OUTEDGES(head, e, u) {
       if (IS_OUTEDGE(MIN(u,tail), MAX(u,tail))) {
-        L2ht++;
-        L2hu=0;
-        L2ut=0;
+        L2th++;
+        L2tu=0;
+        L2uh=0;
         STEP_THROUGH_OUTEDGES(u, f, v) {
-          if(IS_OUTEDGE(MIN(v,head),MAX(v,head))) L2ut++;
-          if(IS_OUTEDGE(MIN(v,tail),MAX(v,tail))) L2hu++;
+          if(IS_OUTEDGE(MIN(v,head),MAX(v,head))) L2uh++;
+          if(IS_OUTEDGE(MIN(v,tail),MAX(v,tail))) L2tu++;
         }
         STEP_THROUGH_INEDGES(u, f, v) {
-          if(IS_OUTEDGE(MIN(v,head),MAX(v,head))) L2ut++;
-          if(IS_OUTEDGE(MIN(v,tail),MAX(v,tail))) L2hu++;
+          if(IS_OUTEDGE(MIN(v,head),MAX(v,head))) L2uh++;
+          if(IS_OUTEDGE(MIN(v,tail),MAX(v,tail))) L2tu++;
         }
-        cumchange += exp(-alpha*L2hu)+exp(-alpha*L2ut);
+        cumchange += exp(-alpha*L2tu)+exp(-alpha*L2uh);
       }
     }
     STEP_THROUGH_INEDGES(head, e, u) {
       if (IS_OUTEDGE(MIN(u,tail), MAX(u,tail))) {
-        L2ht++;
-        L2hu=0;
-        L2ut=0;
+        L2th++;
+        L2tu=0;
+        L2uh=0;
         STEP_THROUGH_OUTEDGES(u, f, v) {
-          if(IS_OUTEDGE(MIN(v,head),MAX(v,head))) L2ut++;
-          if(IS_OUTEDGE(MIN(v,tail),MAX(v,tail))) L2hu++;
+          if(IS_OUTEDGE(MIN(v,head),MAX(v,head))) L2uh++;
+          if(IS_OUTEDGE(MIN(v,tail),MAX(v,tail))) L2tu++;
         }
         STEP_THROUGH_INEDGES(u, f, v) {
-          if(IS_OUTEDGE(MIN(v,head),MAX(v,head))) L2ut++;
-          if(IS_OUTEDGE(MIN(v,tail),MAX(v,tail))) L2hu++;
+          if(IS_OUTEDGE(MIN(v,head),MAX(v,head))) L2uh++;
+          if(IS_OUTEDGE(MIN(v,tail),MAX(v,tail))) L2tu++;
         }
-        cumchange += exp(-alpha*L2hu)+exp(-alpha*L2ut);
+        cumchange += exp(-alpha*L2tu)+exp(-alpha*L2uh);
       }
     }
     cumchange  = cumchange*(exp(-alpha*echange)-1.0);
-    cumchange += echange*(exp(-alpha*L2ht)-1.0);
+    cumchange += echange*(exp(-alpha*L2th)-1.0);
     CHANGE_STAT[0] -= cumchange;
     TOGGLE_IF_MORE_TO_COME(i);
   }
@@ -1785,7 +1785,7 @@ D_CHANGESTAT_FN(d_transitivity)
 D_CHANGESTAT_FN(d_b1share)  {
   Edge e, f;
   int i, j, echange;
-  int L2hu;
+  int L2tu;
   Vertex deg;
   Vertex tail, head, u, v;
   int nb2, nb1;
@@ -1801,14 +1801,14 @@ D_CHANGESTAT_FN(d_b1share)  {
     // Next for b1 shared b2 counts
     STEP_THROUGH_INEDGES(head, e, u) {
       if (u != tail){
-        L2hu=0;
+        L2tu=0;
         STEP_THROUGH_OUTEDGES(u, f, v) {
-          if(IS_OUTEDGE(tail,v)) L2hu++;
+          if(IS_OUTEDGE(tail,v)) L2tu++;
   	    }
         for(j = 0; j < mtp->nstats; j++){
   	      deg = (Vertex)INPUT_PARAM[j+1];
-          CHANGE_STAT[j] += ((L2hu + echange == deg)
-          - (L2hu == deg));
+          CHANGE_STAT[j] += ((L2tu + echange == deg)
+          - (L2tu == deg));
   	    }
       }
     }
@@ -1823,7 +1823,7 @@ D_CHANGESTAT_FN(d_b1share)  {
 D_CHANGESTAT_FN(d_b2share)  {
   Edge e, f;
   int i, j, echange;
-  int L2hu;
+  int L2tu;
   Vertex deg;
   Vertex tail, head, u, v;
   int nb2, nb1;
@@ -1838,14 +1838,14 @@ D_CHANGESTAT_FN(d_b2share)  {
      // Next for b2 shared b1 counts
      STEP_THROUGH_INEDGES(head, e, u) {
        if (u != tail){
-         L2hu=0;
+         L2tu=0;
          STEP_THROUGH_OUTEDGES(u, v, f) {
-           if(IS_OUTEDGE(tail,v)) L2hu++;
+           if(IS_OUTEDGE(tail,v)) L2tu++;
          }
          for(j = 0; j < mtp->nstats; j++){
            deg = (Vertex)INPUT_PARAM[j+1];
-           CHANGE_STAT[j] += ((L2hu + echange == deg)
-           - (L2hu == deg));
+           CHANGE_STAT[j] += ((L2tu + echange == deg)
+           - (L2tu == deg));
          }
        }
      }
@@ -1860,7 +1860,7 @@ D_CHANGESTAT_FN(d_b2share)  {
 D_CHANGESTAT_FN(d_gwb2share) {
   Edge e, f;
   int i, echange, ochange;
-  int L2ut;
+  int L2uh;
   Vertex tail, head, u, v;
   double alpha, oneexpa, cumchange;
   
@@ -1874,11 +1874,11 @@ D_CHANGESTAT_FN(d_gwb2share) {
     echange = 2*ochange + 1;
     STEP_THROUGH_OUTEDGES(tail, e, u) {
       if (u != head){
-        L2ut=ochange;
+        L2uh=ochange;
         STEP_THROUGH_INEDGES(u, v, f) {
-          if(IS_OUTEDGE(MIN(v,head),MAX(v,head))) L2ut++;
+          if(IS_OUTEDGE(MIN(v,head),MAX(v,head))) L2uh++;
         }
-        cumchange += pow(oneexpa,(double)L2ut);
+        cumchange += pow(oneexpa,(double)L2uh);
       }
     }
     cumchange  = echange*cumchange;
@@ -1894,7 +1894,7 @@ D_CHANGESTAT_FN(d_gwb2share) {
 D_CHANGESTAT_FN(d_gwb1share) {
   Edge e, f;
   int i, echange, ochange;
-  int L2hu;
+  int L2tu;
   Vertex tail, head, u, v;
   double alpha, oneexpa, cumchange;
   
@@ -1908,11 +1908,11 @@ D_CHANGESTAT_FN(d_gwb1share) {
     echange = 2*ochange + 1;
     STEP_THROUGH_INEDGES(head, e, u) {
       if (u != tail){
-        L2hu=ochange;
+        L2tu=ochange;
         STEP_THROUGH_OUTEDGES(u, v, f) {
-          if(IS_OUTEDGE(MIN(v,tail),MAX(v,tail))) L2hu++;
+          if(IS_OUTEDGE(MIN(v,tail),MAX(v,tail))) L2tu++;
         }
-        cumchange += pow(oneexpa,(double)L2hu);
+        cumchange += pow(oneexpa,(double)L2tu);
       }
     }
     cumchange  = echange*cumchange;
