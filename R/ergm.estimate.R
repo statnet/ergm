@@ -200,19 +200,26 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.miss=NULL,
     guess <- theta0[!model$etamap$offsettheta]
     model$etamap$theta0 <- theta0
     
+    loglikelihoodfn.trust<-function(trustregion=20, ...){
+      value<-loglikelihoodfn(trustregion=trustregion, ...)
+      grad<-gradientfn(trustregion=trustregion, ...)
+      hess<-Hessianfn(...)
+      hess[upper.tri(hess)]<-t(hess)[upper.tri(hess)]
+      list(value=value,gradient=as.vector(grad),hessian=hess)
+    }
+
     if (verbose) { cat("Optimizing loglikelihood\n") }
-    Lout <- try(optim(par=guess,
-                      fn=loglikelihoodfn,   gr=gradientfn,
-                      hessian=hessianflag,
-                      method=method,
-                      control=list(trace=trace, fnscale=-1,
-                                   maxit=nr.maxit,reltol=nr.reltol),
+    Lout <- try(trust(objfun=loglikelihoodfn.trust, parinit=guess,
+                      rinit=1, 
+                      rmax=100, 
+                      parscale=rep(1,length(guess)), minimize=FALSE,
                       xobs=xobs,
                       xsim=xsim, probs=probs,
                       xsim.miss=xsim.miss, probs.miss=probs.miss,
                       varweight=varweight, trustregion=trustregion,
                       eta0=eta0, etamap=model$etamap),
             silent=FALSE)
+    Lout$par<-Lout$argument
 #   if(Lout$value < trustregion-0.001){
 #     current.scipen <- options()$scipen
 #     options(scipen=3)
