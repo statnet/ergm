@@ -62,7 +62,8 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
                                   r=0.0125, digits=6,
                                   maxplot=1000, verbose=TRUE, center=TRUE,
                                   main="Summary of MCMC samples",  
-                                  xlab = "Iterations", ylab = "", ...) {
+                                  xlab = "Iterations", ylab = "", 
+                                  curved=TRUE, ...) {
 #
   if(!is.null(object$degeneracy.value) && !is.na(object$degeneracy.value)){
    degeneracy.value <- object$degeneracy.value
@@ -84,7 +85,11 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
         "Quitting mcmc.diagnostics.\n")
     return()
   }
-  statsmatrix <- object[[component]]
+  if(curved){
+    statsmatrix <- object[[component]]
+  }else{
+    statsmatrix <- ergm.theta.sample(object$coef,object$model$etamap,object[[component]])
+  }
   if(!is.matrix(statsmatrix) || length(dim(statsmatrix))==0){
     cat("There is no",component,"component of the object.\n",
         "Quitting mcmc.diagnostics.\n")

@@ -177,8 +177,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
   # if we build the output object (v) from scratch, of course using 
   # some of the info returned from ergm.estimate.
   #
-  # Convert for curved models
-  v$sample <- ergm.theta.sample(v$coef,model$etamap,statsmatrix.0)
+  v$sample <- statsmatrix.0
   v$burnin <- MCMCparams$burnin
   v$samplesize <- MCMCparams$samplesize
   v$interval <- MCMCparams$interval
