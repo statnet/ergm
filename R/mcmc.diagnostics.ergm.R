@@ -90,6 +90,8 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
   }else{
     statsmatrix <- ergm.theta.sample(object$coef,object$model$etamap,object[[component]])
   }
+  attr.mcpar <- attr(object[[component]], "mcpar")
+
   if(!is.matrix(statsmatrix) || length(dim(statsmatrix))==0){
     cat("There is no",component,"component of the object.\n",
         "Quitting mcmc.diagnostics.\n")
@@ -141,9 +143,10 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
      print(apply(statsmatrix,2,summary.statsmatrix.ergm),scipen=6)
      return(invisible())
   }else{
+    attr.names <- colnames(statsmatrix)
     statsmatrix <- as.matrix(statsmatrix[,!novar,drop=FALSE])
     x0 <- x0[!novar]
-    colnames(statsmatrix) <- colnames(object[[component]])[!novar]
+    colnames(statsmatrix) <- attr.names[!novar]
 
     if(verbose){
      cat("\nCorrelations of sample statistics:\n")
@@ -154,7 +157,7 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
      }
     }
 
-    attr(statsmatrix, "mcpar") <- attr(object[[component]], "mcpar")
+    attr(statsmatrix, "mcpar") <- attr.mcpar
     if(is.null(attr(statsmatrix, "mcpar"))){
       attr(statsmatrix, "mcpar") <- c(1,nrow(statsmatrix),1)
     }

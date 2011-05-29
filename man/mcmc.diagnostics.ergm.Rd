@@ -12,7 +12,7 @@
 \method{mcmc.diagnostics}{ergm} (object, sample = "sample", smooth = TRUE, 
                  r = 0.0125, digits = 6, maxplot = 1000, verbose = TRUE, 
                  center = TRUE, main = "Summary of MCMC samples", xlab =
-                 "Iterations", ylab = "", \dots)
+                 "Iterations", ylab = "", curved=TRUE, \dots)
 }
 \arguments{
   \item{object}{An object.  See documentation for \code{\link{ergm}}.}
@@ -29,6 +29,7 @@
   \item{main}{Figure title for the diagnostic plots.}
   \item{xlab}{X-axis label for diagnostic plots}
   \item{ylab}{Y-axis label for diagnostic plots}
+  \item{curved}{If this is \code{TRUE}, summarize the curved statistics (evaluated at the MLE of any non-linear parameters), rather than the raw components of the curved statistics.}
   \item{\dots}{Additional arguments, to be passed to lower-level functions
   in the future.}
 }
