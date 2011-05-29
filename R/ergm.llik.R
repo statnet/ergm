@@ -29,7 +29,7 @@
 #                reflect what this parameter actually is; default=0.5, which is the 
 #                "true"  weight, in the sense that the lognormal approximation is
 #                given by
-#                           sum(xobs * x) - mb - 0.5*vb 
+#                           sum(xobs * etaparam) - mb - 0.5*vb 
 #   trustregion: the maximum value of the log-likelihood ratio that is trusted;
 #                default=20
 #   eta0       : the initial eta vector
@@ -183,16 +183,16 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NU
 #
   eta <- ergm.eta(theta.offset, etamap)
 # etagrad <- ergm.etagrad(theta.offset, etamap)
-  x <- eta-eta0
+  etaparam <- eta-eta0
 # MSH: Is this robust?
-  x <- x[!etamap$offsetmap]
+  etaparam <- etaparam[!etamap$offsetmap]
   xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
   xobs <- xobs[!etamap$offsetmap]
 # etagrad <- etagrad[,!etamap$offsetmap,drop=FALSE]
 # etagrad <- etagrad[!etamap$offsettheta,,drop=FALSE]
 #
 # etaparam <- etaparam[!etamap$offsettheta]
-  basepred <- xsim %*% x
+  basepred <- xsim %*% etaparam
   prob <- max(basepred)
   prob <- probs*exp(basepred - prob)
   prob <- prob/sum(prob)
@@ -290,14 +290,14 @@ llik.fun.EF <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.miss=NUL
   theta.offset <- etamap$theta0
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
-  x <- eta-eta0
+  etaparam <- eta-eta0
 # The next line is right!
-# aaa <- sum(xobs * x) - log(sum(probs*exp(xsim %*% x)))
+# aaa <- sum(xobs * etaparam) - log(sum(probs*exp(xsim %*% etaparam)))
 # These lines standardize:
-  basepred <- xsim %*% x
+  basepred <- xsim %*% etaparam
 #
   maxbase <- max(basepred)
-  llr <- sum(xobs * x) - maxbase - log(sum(probs*exp(basepred-maxbase)))
+  llr <- sum(xobs * etaparam) - maxbase - log(sum(probs*exp(basepred-maxbase)))
   if(is.infinite(llr) | is.na(llr)){llr <- -800}
 #
 # Penalize changes to trustregion
