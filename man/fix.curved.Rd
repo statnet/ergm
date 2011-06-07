@@ -6,7 +6,7 @@
 Convert a curved ERGM into a corresponding ``fixed'' ERGM.
 }
 \description{
-The generic \code{fix.curved} converts and \code{\link{ergm}} object or
+The generic \code{fix.curved} converts an \code{\link{ergm}} object or
 formula of a model with curved terms to the variant in which the curved
 parameters are fixed. Note that each term has to be treated as a special case.
 }

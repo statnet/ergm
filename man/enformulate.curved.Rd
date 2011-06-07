@@ -7,7 +7,7 @@ Convert a curved ERGM into a form suitable as initial values for the
 same ergm.
 }
 \description{
-The generic \code{enformulate.curved} converts and \code{\link{ergm}} object or
+The generic \code{enformulate.curved} converts an \code{\link{ergm}} object or
 formula of a model with curved terms to the variant in which the curved
 parameters embedded into the formula and are removed from the parameter
 vector. This is the form required by \code{\link{ergm}} calls.
