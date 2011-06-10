@@ -3,8 +3,7 @@
 # prepended with 'InitMHP.'  All of these functions may also be
 # found in the <InitMHP> file.
 #      <formation>       <formationTNT>
-#      <formationMLE>    <dissolution>
-#      <dissolutionMLE>
+#      <dissolution>
 #===================================================================
 
 
@@ -15,19 +14,6 @@ InitMHP.formation <- function(arguments, nw, model) {
   }
   MHproposal
 }
-
-
-InitMHP.formationMLE <- function(arguments, nw, model) {
-  MHproposal <- list(name = "FormationMLE", inputs=NULL, package="ergm")
-  MHproposal
-}
-
-
-InitMHP.dissolutionMLE <- function(arguments, nw, model) {
-  MHproposal <- list(name = "DissolutionMLE", inputs=NULL, package="ergm")
-  MHproposal
-}
-
 
 InitMHP.formationTNT <- function(arguments, nw, model) {
   MHproposal <- list(name = "FormationTNT", inputs=NULL, package="ergm")
@@ -45,6 +31,3 @@ InitMHP.dissolution <- function(arguments, nw, model) {
   }
   MHproposal
 }
-
-
-
