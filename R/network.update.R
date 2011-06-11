@@ -35,8 +35,7 @@ network.update<-function(nw,newmatrix,matrix.type=NULL,output="network")
     matrix.type <- which.matrix.type(newmatrix)
     if(nrow(newmatrix)==0){matrix.type <- "edgelist"}
   }
-  if(matrix.type=="adjacency" 
-     && max(abs(newmatrix))==1 && max(abs(newmatrix-as.integer(newmatrix)))==0){
+  if(matrix.type=="adjacency" && all(newmatrix%in%c(0,1))){
     unw[,] <- newmatrix
   }else if(matrix.type=="edgelist"){
 #  cnw <- as.matrix.network(nw,matrix.type="edgelist")
