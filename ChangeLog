@@ -1,5 +1,7 @@
 2.5
 
+	ergm was failing with constraints=~bd when attributes were set (and was not tabulating degrees correctly in all cases without attributes).
+
 	gof.formula and gof.ergm now set GOF=NULL by default, internally substituting to ~degree + espartners + distance or ~idegree + odegree + espartners + distance depending on the directedness of the associated network.  This fixed a long-standing bug, in which gof.ergm would fail by default when called on a digraph model.
 
 2.4

@@ -47,7 +47,7 @@ ergm.bounddeg <- function(bounddeg,nw){
     maxin <- bounddeg$maxin
     minout <- bounddeg$minout
     minin <- bounddeg$minin
-    if (is.null(attribs) || attribs==0){ 
+    if (is.null(attribs) || all(attribs==0)){ 
       if(any(!is.null(c(minin,minout,maxout,maxin)))){ 
         attribs <- matrix(1,ncol=1,nrow=nnodes)
         # Get degree for each node
@@ -60,6 +60,15 @@ ergm.bounddeg <- function(bounddeg,nw){
         }
       }else{
         attribs <- 0
+      }
+    }else{   #Tabulate degrees by attributes
+      el <- as.matrix.network.edgelist(nw)
+      if(!is.directed(nw)){
+        el<-rbind(el[,1:2],el[,2:1])    #Need edges going both directions
+        outdeg<-apply(attribs,2,function(z){tabulate(el[z[el[,2]],1], nbins=nnodes)})
+      }else{
+        outdeg<-apply(attribs,2,function(z){tabulate(el[z[el[,2]],1], nbins=nnodes)})
+        indeg<-apply(attribs,2,function(z){tabulate(el[z[el[,1]],2], nbins=nnodes)})
       }
     }
     if(is.null(minin )) minin <- matrix(0,ncol=ncol(attribs),nrow=nnodes)
