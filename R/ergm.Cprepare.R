@@ -138,7 +138,7 @@ ergm.Cprepare.el<-function(x, attrname=NULL, directed=if(is.network(x)) is.direc
   
   if(nrow(xm)){
     if(!directed){
-      xm[,1:2] <- t(apply(xm[,1:2],1,sort))
+      xm[,1:2] <- t(apply(xm[,1:2,drop=FALSE],1,sort))
     }
     
     # Sort.

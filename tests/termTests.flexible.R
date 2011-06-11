@@ -330,8 +330,9 @@ s.xcd<- summary(samplike~hamming(mat.d, cov=cov.d, defaultweight=.5))
 # 0 & NA
 #s.xcad<- summary(samplike~hamming(mat.d, samplike, "YearsTrusted", .5))
 #e.xcad<- ergm(samplike~hamming(mat.d, samplike, "YearsTrusted", .5), MPLEonly=TRUE)
-if (s.0 != 0 || s.x != 88 || s.xc != 87 || s.xd != 26.4 || s.xca != 183 || s.xcd != 103) {
- print(list(s.0=s.0, s.x=s.x, s.xc=s.xc, s.xd, s.xca, s.xcd))
+if (!all.equal(as.vector(c(s.0, s.x, s.xc, s.xd, s.xca, s.xcd)),
+               as.vector(c(  0,  88,   87, 26.4,   183,   103)))) {
+ print(list(s.0=s.0, s.x=s.x, s.xc=s.xc, s.xd=s.xd, s.xca=s.xca, s.xcd=s.xcd))
  stop("Failed hamming term test")
 } else {
   num.passed.tests=num.passed.tests+1

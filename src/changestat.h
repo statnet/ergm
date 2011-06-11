@@ -13,7 +13,6 @@ typedef struct ModelTermstruct {
 	double *dstats; /* ptr to change statistics returned */
 	int ninputparams; /* Number of input parameters passed to function */
 	double *inputparams; /* ptr to input parameters passed */
-        Network **discord; /* ptr to list of discordance networks to keep track of */
 } ModelTerm;
 
 

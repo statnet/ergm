@@ -28,7 +28,6 @@ D_CHANGESTAT_FN(d_duration);
 D_CHANGESTAT_FN(d_b2kappa);
 /********************  changestats:  F    ***********/
 D_CHANGESTAT_FN(d_factor);
-D_CHANGESTAT_FN(d_formation);
 /********************  changestats:  G    ***********/
 D_CHANGESTAT_FN(d_geodegree);
 D_CHANGESTAT_FN(d_geospartner);

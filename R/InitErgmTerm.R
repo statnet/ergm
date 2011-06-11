@@ -1811,7 +1811,6 @@ InitErgmTerm.hamming<-function (nw, arglist, drop=TRUE, ...) {
       if (extremewarnings(obsstats))
         return(NULL) # In this case the observed Hamming distance is zero.
     }
-#    name <- "hamhamming_weighted"
     if (length(sc03)>1) 
       coef.names <- paste("hamming", as.character(sc03[[2]]), sep=".")
     covm <- NULL
@@ -1837,7 +1836,6 @@ InitErgmTerm.hamming<-function (nw, arglist, drop=TRUE, ...) {
     if (is.null(covm) || !is.matrix(covm) || NCOL(covm)!=3){
       stop("Improper dyadic covariate passed to hamming()", call.=FALSE)
     }
-    #    name = "hamhamming_weighted"
     emptynwstats <- sum(apply(xm, 1, function(a,b) sum(b[(a[1]==b[,1] & a[2]==b[,2]),3]), covm))
     if (is.null(a$defaultweight))
       a$defaultweight <- 0
@@ -1857,7 +1855,6 @@ InitErgmTerm.hamming<-function (nw, arglist, drop=TRUE, ...) {
     covm <- ergm.Cprepare.el(covm, directed=is.directed(nw))
   }
   inputs <- c(xm, a$defaultweight, covm)
- # is the name really "hamhamming", and not "hamming"?
   list(name="hamming", coef.names=coef.names, #name and coef.names: required 
        inputs = inputs, emptynwstats = emptynwstats, dependence = FALSE)
 }
@@ -1930,7 +1927,7 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ...) {
                       sep=".")
   #  Number of input parameters before covariates equals twice the number
   #  of used matrix cells, namely 2*length(uui),
-  inputs=c(nrow(xm),as.integer(xm), u[,1], u[,2],nodecov)
+  inputs=c(ergm.Cprepare.el(xm,directed=is.directed(nw)), u[,1], u[,2],nodecov)
   attr(inputs, "ParamsBeforeCov") <- nrow(u)
   # The emptynwstats code below does not work right for
   # undirected networks, mostly since hammingmix doesn't work 

@@ -2944,7 +2944,7 @@ D_CHANGESTAT_FN(d_hamming) {
     discord = XOR(dEdgeListSearch(tail, head, INPUT_PARAM), IS_OUTEDGE(tail, head));
 
     /* Second, search second network to see if the weight is different from
-       different from defaultval.  In unweighted case, this */
+       defaultval.  In unweighted case, this network is empty. */
 
     Edge wt_pos = dEdgeListSearch(tail, head, wt_net);
     double val = wt_pos ? wt_net[wt_pos+2*(unsigned int)wt_net[0]] : defaultval;
@@ -2953,54 +2953,6 @@ D_CHANGESTAT_FN(d_hamming) {
     TOGGLE_IF_MORE_TO_COME(i);
   }
   UNDO_PREVIOUS_TOGGLES(i);  
-}
-
-/*****************
- changestat: d_hamming_weighted
-*****************/
-D_CHANGESTAT_FN(d_hamming_weighted) { 
-  Vertex tail, head;
-  double val;
-  long int nnodes, nb1, nb2, n0edge;
-  int i, discord;
-
-  n0edge =  INPUT_PARAM[0];
-  nnodes = nwp[0].nnodes;
-  nb1 = nwp[0].bipartite;
-  nb2 = nwp[0].nnodes - nb1;
-/*  Rprintf("nb1 %d i0 %f i1 %f i2 %f i3 %f\n", nb1,
-                                 INPUT_PARAM[0],
-                                 INPUT_PARAM[1],
-                                 INPUT_PARAM[2],
-                                 INPUT_PARAM[3]
-		  );
-  for (i=0; i<1000; i++) {
-  Rprintf("i %d inp %f\n", i, INPUT_PARAM[i]);
-  } */
-
-
-  /* *** don't forget tail -> head */    
-  CHANGE_STAT[0] = 0.0;
-  FOR_EACH_TOGGLE(i) 
-    {
-      /*Get the initial discord state*/
-/*    edgeflag=(EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp[0].outedges) != 0); */
-      discord=(EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp[1].outedges) != 0);
-      /*Get the covariate value*/
-      val = INPUT_PARAM[1+(head-nb1-1)*nb1+(tail-1)+2*n0edge];
-      /*Update the change statistic, based on the toggle type*/
-      CHANGE_STAT[0] += discord ? -val : val;
- /* Rprintf("nnodes %d n0edge %d tail %d head %d discord %d val %f\n",nnodes, n0edge, tail, head-nb1, discord, val); */
-      if (i+1 < ntoggles){
-        ToggleEdge(TAIL(i), HEAD(i), &nwp[0]);  /* Toggle this edge if more to come */
-        ToggleEdge(TAIL(i), HEAD(i), &nwp[1]);  /* Toggle the discord for this edge */
-      }
-  }
-  i--;
-  while (--i>=0){  /*  Undo all previous toggles. */
-    ToggleEdge(TAIL(i), HEAD(i), &nwp[0]);
-    ToggleEdge(TAIL(i), HEAD(i), &nwp[1]);  /* Toggle the discord for this edge */
-  }
 }
 
 /*****************
@@ -3034,18 +2986,16 @@ D_CHANGESTAT_FN(d_hammingmix_constant) {
   /* *** don't forget tail -> head */    
   FOR_EACH_TOGGLE(i)
     {
-      discord=(EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp[1].outedges) != 0);
+      discord=XOR(dEdgeListSearch(TAIL(i), HEAD(i), INPUT_PARAM), IS_OUTEDGE(TAIL(i), HEAD(i)));
       CHANGE_STAT[0] += (discord ? -1.0 : 1.0);
 
     if (i+1 < ntoggles){
       ToggleEdge(TAIL(i), HEAD(i), &nwp[0]);  /* Toggle this edge if more to come */
-      ToggleEdge(TAIL(i), HEAD(i), &nwp[1]);  /* Toggle the discord for this edge */
     }
   }
   i--;
   while (--i>=0){  /*  Undo all previous toggles. */
     ToggleEdge(TAIL(i), HEAD(i), &nwp[0]);
-    ToggleEdge(TAIL(i), HEAD(i), &nwp[1]);  /* Toggle the discord for this edge */
   }
 }
 
@@ -3053,13 +3003,9 @@ D_CHANGESTAT_FN(d_hammingmix_constant) {
  changestat: d_hammingmix
 *****************/
 D_CHANGESTAT_FN(d_hammingmix) { 
-  Vertex tail, head;
-  int i, j, nhedge, edgeflag, discord;
-  int matchvaltail, matchvalhead;
-  int nstats;
+  int i;
   
-  nhedge =  INPUT_PARAM[0];
-  nstats = N_CHANGE_STATS;
+  Edge nhedge =  INPUT_PARAM[0];
 /*  Rprintf("nstats %d nhedge %d i0 %f i1 %f i2 %f i3 %f\n",nstats, nhedge, INPUT_PARAM[0],
                                  INPUT_PARAM[1],
                                  INPUT_PARAM[2],
@@ -3069,33 +3015,25 @@ D_CHANGESTAT_FN(d_hammingmix) {
 
   /* *** don't forget tail -> head */    
   ZERO_ALL_CHANGESTATS(i);
-  FOR_EACH_TOGGLE(i)
-    {
-      tail=TAIL(i);
-      head=HEAD(i);
-      matchvaltail = INPUT_PARAM[tail+2*nstats+2*nhedge];
-      matchvalhead = INPUT_PARAM[head+2*nstats+2*nhedge];
-      edgeflag=(EdgetreeSearch(tail, head, nwp[0].outedges) != 0); /*Get edge state*/
-      discord=(EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp[1].outedges) != 0);
-      for (j=0; j<nstats; j++) 
-	  {
-/*   Rprintf("tail %d head %d matchvaltail %d matchvalhead %d edgeflag %d discord %d j %d p0 %f p1 %f\n",tail,head,matchvaltail,matchvalhead,edgeflag,discord,j,INPUT_PARAM[2*nhedge+  j], INPUT_PARAM[2*nhedge+ nstats+j]); */
-           if(matchvaltail==INPUT_PARAM[2*nhedge+1+       j] &&
-	      matchvalhead==INPUT_PARAM[2*nhedge+1+nstats+j]
-	     ){
-		CHANGE_STAT[j] += (discord ? -1.0 : 1.0);
-	      }
-	  }
-
-    if (i+1 < ntoggles){
-      ToggleEdge(TAIL(i), HEAD(i), &nwp[0]);  /* Toggle this edge if more to come */
-      ToggleEdge(TAIL(i), HEAD(i), &nwp[1]);  /* Toggle the discord for this edge */
-    }
+  FOR_EACH_TOGGLE(i){
+    Vertex tail=TAIL(i), head=HEAD(i);
+    int matchvaltail = INPUT_PARAM[tail+2*N_CHANGE_STATS+2*nhedge];
+    int matchvalhead = INPUT_PARAM[head+2*N_CHANGE_STATS+2*nhedge];
+    unsigned int discord = XOR(dEdgeListSearch(tail, head, INPUT_PARAM), IS_OUTEDGE(tail, head));
+      for (unsigned int j=0; j<N_CHANGE_STATS; j++){
+	if(matchvaltail==INPUT_PARAM[2*nhedge+1+j] &&
+	   matchvalhead==INPUT_PARAM[2*nhedge+1+N_CHANGE_STATS+j]){
+	  CHANGE_STAT[j] += (discord ? -1.0 : 1.0);
+	}
+      }
+      
+      if (i+1 < ntoggles){
+	ToggleEdge(TAIL(i), HEAD(i), &nwp[0]);  /* Toggle this edge if more to come */
+      }
   }
   i--;
   while (--i>=0){  /*  Undo all previous toggles. */
     ToggleEdge(TAIL(i), HEAD(i), &nwp[0]);
-    ToggleEdge(TAIL(i), HEAD(i), &nwp[1]);  /* Toggle the discord for this edge */
   }
 }
 

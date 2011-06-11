@@ -12,11 +12,14 @@ unsigned int dEdgeListSearch(Vertex tail, Vertex head, double *el){
   unsigned int nedges=el[0];
   unsigned int u=nedges,l=1,m;
 
+  if(nedges==0) return(0);
+
   do{
     m = l + (u-l)/2;
-    if(head>el[nedges+m] || (head==el[nedges+m] && tail>el[m])) l = m+1;
+    if(tail==el[m] && head==el[nedges+m]) break;
+    if(tail>el[m] || (tail==el[m] && head>el[nedges+m])) l = m+1;
     else u = m-1;
-  }while(!(head==el[nedges+m] && tail==el[m]) && l<=u);
+  }while(l<=u);
 
   if(l>u) return(0);
   else return(m);
@@ -35,11 +38,13 @@ unsigned int iEdgeListSearch(Vertex tail, Vertex head, int *el){
   unsigned int nedges=el[0];
   unsigned int u=nedges,l=1,m;
 
+  if(nedges==0) return(0);
+
   do{
     m = l + (u-l)/2;
-    if(head>el[nedges+m] || (head==el[nedges+m] && tail>el[m])) l = m+1;
+    if(tail>el[m] || (tail==el[m] && head>el[nedges+m])) l = m+1;
     else u = m-1;
-  }while(!(head==el[nedges+m] && tail==el[m]) && l<=u);
+  }while(!(tail==el[m] && head==el[nedges+m]) && l<=u);
 
   if(l>u) return(0);
   else return(m);

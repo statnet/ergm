@@ -530,54 +530,6 @@ D_CHANGESTAT_FN(d_factor)  {
   UNDO_PREVIOUS_TOGGLES(i);
 }
 
-/*****************
- changestat: d_formation
-*****************/
-D_CHANGESTAT_FN(d_formation) { 
-  Vertex tail, head;
-  int i, ntailedge, discord;
-  
-  ntailedge = nwp[1].nedges;
-  /*Rprintf("ntailedge %d\n",ntailedge); */
-  CHANGE_STAT[0] = 0.0;
-  FOR_EACH_TOGGLE(i) {
-    /*Get the initial state of the edge and its alter in x0*/
-    /*  edgeflag =(EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp[0].outedges) != 0); */
-    discord=IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
-    /*    if(!nwp[0].directed_flag && tail < head){
-      tailtail = head;
-      tailhead = tail;
-    }else{
-      tailtail = tail;
-      tailhead = head;
-    }
-    if we will dissolve an edge discord=-1
-    discord = edgeflag ? -1 : 1;
-    
-    
-    so moving away one step
-    discord = (edgeflag0!=edgeflag) ? -1 : 1;
-    
-    Rprintf("tail %d head %d discord %d\n",tail, head, discord);
-    if(ntailedge>0)
-      Rprintf("tail %d head %d discord %d ntailedge %d\n",tail, head, discord, ntailedge); */
-    
-    /*Update the change statistics, as appropriate*/
-    /*    CHANGE_STAT[0] += ((edgeflag0!=edgeflag) ? -1.0 : 1.0); */
-    
-    CHANGE_STAT[0] += (discord ? -1.0 : 1.0);
-    if (i+1 < ntoggles){
-      ToggleEdge(TAIL(i), HEAD(i), &nwp[0]);  /* Toggle this edge if more to come */
-      ToggleEdge(TAIL(i), HEAD(i), &nwp[1]);  /* Toggle the discord for this edge */
-    }
-  }
-  i--;
-  while (--i>=0){  /*  Undo all previous toggles. */
-    ToggleEdge(TAIL(i), HEAD(i), &nwp[0]);
-    ToggleEdge(TAIL(i), HEAD(i), &nwp[1]);  /* Toggle the discord for this edge */
-  }
-}
-
 /********************  changestats:  G    ***********/
 /*****************
  changestat: d_geodegree
