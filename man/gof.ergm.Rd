@@ -15,14 +15,14 @@
 \method{gof}{default}(object,\dots)
 \method{gof}{formula}(formula, \dots, theta0=NULL,
          nsim=100, burnin=10000, interval=1000,
-         GOF=~degree+espartners+distance,
+         GOF=NULL,
          constraints=~.,
          control=control.gof.formula(),
          seed=NULL,
          verbose=FALSE)
 \method{gof}{ergm}(object, \dots,
          nsim=100,
-         GOF=~degree+espartners+distance,
+         GOF=NULL,
          burnin=10000, interval=1000,
          constraints=NULL,
          control=control.gof.ergm(),
@@ -57,11 +57,12 @@
    statistics to use to diagnosis the goodness-of-fit of the model. 
    They do not need to be in the model formula specified in
    \code{formula}, and typically are not.
-   Examples are the degree distribution ("degree"), 
-   minimum geodesic distances ("dist"), and shared partner distributions
-   ("espartners" and "dspartners").
-   For the details on the possible
-   \code{<model terms>}, see \code{\link{ergm-terms}}.}
+   Currently supported terms are the degree distribution (\dQuote{degree}
+   for undirected graphs, or \dQuote{idegree} and/or \dQuote{odegree} for 
+   directed graphs), geodesic distances (\dQuote{distance}), shared partner 
+   distributions (\dQuote{espartners} and \dQuote{dspartners}), the triad
+   census (\dQuote{triadcensus}), and the terms of the original model 
+   (\dQuote{model}).}
   \item{burnin}{Number of proposed edge toggles before any
     MCMC sampling is done. If the model is correct this can be 0.
     Currently, there is no support for any check
@@ -99,6 +100,12 @@
   A plot of the summary measures is plotted.
   More information can be found by looking at the documentation of
   \code{\link{ergm}}.
+  
+  For \code{gof.ergm} and \code{gof.formula}, default behavior depends on
+  the directedness of the network involved; if undirected then degree,
+  espartners, and distance are used as default properties to examine.  If
+  the network in question is directed, \dQuote{degree} in the above is replaced
+  by idegree and odegree.
 }
 \value{\code{\link{gof}}, \code{\link{gof.ergm}}, and \code{\link{gof.formula}}
          return an object of class \code{gofobject}.

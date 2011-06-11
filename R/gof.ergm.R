@@ -31,7 +31,9 @@
 #                       distance      espartners    dspartners
 #                       odegree       idegree       degree
 #                       triadcensus   model
-#                   default=~degree+espartners+distance
+#                   default=NULL; is internally mapped to 
+#                   ~degree+espartners+distance if nw is undirected, and
+#                   ~idegree+odegree+espartners+distance otherwise
 #   constraints   : a one-sided formula of the constraint terms; options are
 #                         bd        degrees        nodegrees
 #                         edges     degreedist     indegreedist
@@ -80,7 +82,7 @@ gof.default <- function(object,...) {
 
 
 gof.ergm <- function (object, ..., nsim=100,
-                      GOF=~degree+espartners+distance, 
+                      GOF=NULL, 
                       burnin=10000, interval=1000,
                       constraints=NULL,
                       control=control.gof.ergm(),
@@ -89,6 +91,14 @@ gof.ergm <- function (object, ..., nsim=100,
                       verbose=FALSE) {
   
   nw <- as.network(object$network)
+
+  #Set up the defaults, if called with GOF==NULL
+  if(is.null(GOF)){
+    if(is.directed(nw))
+      GOF<- ~idegree + odegree + espartners + distance
+    else
+      GOF<- ~degree + espartners + distance
+  }
 
   ## FIXME: Need to do this differently. This approach will (probably)
   ## break if any of the terms in the formula have non-constant
@@ -122,7 +132,7 @@ gof.ergm <- function (object, ..., nsim=100,
 
 gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
                         burnin=10000, interval=1000,
-                        GOF=~degree+espartners+distance,
+                        GOF=NULL,
                         constraints=~.,
                         control=control.gof.formula(),
                         seed=NULL,
@@ -150,6 +160,16 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
       stop("A network object on the RHS of the formula argument must be given")
     }
   }else{
+    nw <- as.network(nw)
+    if(!is.network(nw)){
+      stop("A network object on the RHS of the formula argument must be given")
+    }
+    if(is.null(GOF)){
+      if(is.directed(nw))
+        GOF<- ~idegree + odegree + espartners + distance
+      else
+        GOF<- ~degree + espartners + distance
+    }
     all.gof.vars <- ergm.rhs.formula(GOF)
   }
 
