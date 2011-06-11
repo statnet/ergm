@@ -2,6 +2,7 @@
 #define CHANGESTAT_H
 
 #include "edgetree.h"
+#include "edgelist.h"
 
 typedef struct ModelTermstruct {
 	void (*d_func)(Edge, Vertex*, Vertex*, struct ModelTermstruct*, Network*);
@@ -12,6 +13,7 @@ typedef struct ModelTermstruct {
 	double *dstats; /* ptr to change statistics returned */
 	int ninputparams; /* Number of input parameters passed to function */
 	double *inputparams; /* ptr to input parameters passed */
+        Network **discord; /* ptr to list of discordance networks to keep track of */
 } ModelTerm;
 
 
@@ -20,6 +22,11 @@ typedef struct ModelTermstruct {
 
 /* Comparison macro for doubles: */
 #define EQUAL(a,b) (fabs((a)-(b))<0.0000001)
+
+/* Macros to test for logical inequality (XOR) and logical equality (XNOR). */
+#define XOR(a,b) (((a)==0) != ((b)==0))
+#define XNOR(a,b) (((a)==0) == ((b)==0))
+
 /****************************************************
  Macros to make life easier when writing C code for change statistics:  */
 

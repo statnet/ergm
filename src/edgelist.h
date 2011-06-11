@@ -12,16 +12,15 @@ metadata, having the form
                                tail[1], tail[2], ..., tail[nedges],
                                head[1], head[2], ..., head[nedges]}
 
-Optionally, it may also include weights
+Optionally, it may also include weights:
 
 <type> wtedgelist[1+3*nedges] = {nedges,
                                  tail[1], tail[2], ..., tail[nedges],
                                  head[1], head[2], ..., head[nedges],
                                  weight[1], weight[2], ..., weight[nedges]}
 
-At this time, we shall require that the list shall be sorted by heads
-(second column), with ties broken by tails. (Note that
-as.matrix.network outputs edgelists sorted thus.)
+It doesn't affect the search functions. The list shall be sorted by
+tails (first column), with ties broken by heads.
 
 */
 

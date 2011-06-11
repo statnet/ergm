@@ -1795,6 +1795,8 @@ InitErgmTerm.hamming<-function (nw, arglist, drop=TRUE, ...) {
     xm<-as.matrix.network(xm,matrix.type="edgelist")
   }else if(is.null(a$x)){
     xm<-as.matrix.network(nw,matrix.type="edgelist")								# Arg to hamming does not exist; uses nw
+  }else if(is.matrix(a$x) && ncol(a$x)!=2){
+    xm<-as.matrix(network.update(network.copy(nw),a$x,matrix.type="adjacency"),matrix.type="edgelist")
   }else{
     xm<-as.matrix(a$x)													# Arg to hamming is anything else; attempts to coerce
   }
@@ -1849,22 +1851,14 @@ InitErgmTerm.hamming<-function (nw, arglist, drop=TRUE, ...) {
   }
   ## Return ##
   if (!is.null(xm)) {
-    if (!is.directed(nw)) {
-      tmp <- apply(xm, 1, function(a) a[1]>a[2])
-      xm[tmp,] <- xm[tmp,2:1]
-    }
-    xm <- xm[order(xm[,1], xm[,2]), , drop=FALSE]
+    xm <- ergm.Cprepare.el(xm, directed=is.directed(nw))
   }
   if (!is.null(covm)) {
-    if (!is.directed(nw)) {
-      tmp <- apply(covm, 1, function(a) a[1]>a[2])
-      covm[tmp,] <- covm[tmp,c(2,1,3)]
-    }
-   covm <- covm[order(covm[,1], covm[,2]), , drop=FALSE]
+    covm <- ergm.Cprepare.el(covm, directed=is.directed(nw))
   }
-  inputs <- c(NROW(xm), as.vector(xm), a$defaultweight, NROW(covm), as.vector(covm))
+  inputs <- c(xm, a$defaultweight, covm)
  # is the name really "hamhamming", and not "hamming"?
-  list(name="hamhamming", coef.names=coef.names, #name and coef.names: required 
+  list(name="hamming", coef.names=coef.names, #name and coef.names: required 
        inputs = inputs, emptynwstats = emptynwstats, dependence = FALSE)
 }
 

@@ -19,6 +19,10 @@ typedef struct WtModelTermstruct {
 /* binomial coefficient macro: */
 #define CHOOSE(n,r) ((n)<(r) ? (0) : (my_choose((double)(n),(int)(r)))) 
 
+/* Macros to test for logical inequality (XOR) and logical equality (XNOR). */
+#define XOR(a,b) (((a)==0) != ((b)==0))
+#define XNOR(a,b) (((a)==0) == ((b)==0))
+
 /* macros that tell whether a particular edge exists */
 #define IS_OUTEDGE(a,b) (WtEdgetreeSearch((a),(b),nwp->outedges)!=0?1:0)
 #define IS_INEDGE(a,b) (WtEdgetreeSearch((a),(b),nwp->inedges)!=0?1:0)

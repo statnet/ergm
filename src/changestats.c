@@ -2920,7 +2920,7 @@ D_CHANGESTAT_FN(d_gwtnsp) {
 
 /********************  changestats:  H    ***********/
 /*****************
- changestat: d_hamhamming
+ changestat: d_hamming
 *****************/
 /* This function must be passed two networks in the forms of edgelists:
    One is the network from which hamming distances are calculated and the
@@ -2929,121 +2929,30 @@ D_CHANGESTAT_FN(d_gwtnsp) {
    will have the value given by defaultval; thus, the "unweighted" hamming
    distance is obtained when the default is 1.0 and the second network is
    empty. */
-D_CHANGESTAT_FN(d_hamhamming) { 
-  /* FIXME:  When all of the old "hamming" code is eliminated, we can 
-     replace "hamhamming" by "hamming" */
+D_CHANGESTAT_FN(d_hamming) { 
   int i, discord;
-  Edge nedges, start2, nedges2, max, min, mid;
-  Vertex tail, head, tail1, head1;
-  double defaultval, val;
   
   ZERO_ALL_CHANGESTATS(i);
-  nedges = INPUT_PARAM[0];
-  start2 = nedges*2+2;
-  defaultval = INPUT_PARAM[start2-1]; /* Hamming wt for non-edges in cov nw */
-  nedges2 = INPUT_PARAM[start2];      /* # edges in the covariate (2nd) network */
-  /* This code searches for (tail,head) in both networks, relying on them being passed 
-     as edgelists in "dictionary order" (i.e. sorted by 1st column then by 2nd) */
-
+  Edge wt_net_start= INPUT_PARAM[0]*2+2;
+  double defaultval = INPUT_PARAM[wt_net_start-1]; /* Hamming wt for non-edges in cov nw */
+  double *wt_net = INPUT_PARAM+wt_net_start;
 
   /* *** don't forget tail -> head */    
   FOR_EACH_TOGGLE(i) {
-    discord=IS_OUTEDGE(tail = TAIL(i), head = HEAD(i));
-    /* First, search first network to see whether hamming stat goes up or down */
-    min=1;
-    max=nedges;
-    while (max >= min) {
-      mid = (min + max)/2;
-      tail1 = INPUT_PARAM[mid];
-      head1 = INPUT_PARAM[mid+nedges];
-      if (tail<tail1 || ((tail==tail1)&&(head<head1))) { /* Move search window down */
-        max = mid-1;
-      }
-      else if (tail>tail1 || ((tail==tail1)&&(head>head1))) { /* Move search window up */
-        min = mid+1;
-      }
-      else {
-        discord=1-discord;
-        break;
-      }
-    }
+    Vertex tail=TAIL(i), head=HEAD(i);
+    
+    discord = XOR(dEdgeListSearch(tail, head, INPUT_PARAM), IS_OUTEDGE(tail, head));
+
     /* Second, search second network to see if the weight is different from
        different from defaultval.  In unweighted case, this */
-    min=1;
-    max=nedges2;
-    val = defaultval;
-    while (max >= min) {
-      mid = (min + max)/2;
-      tail1 = INPUT_PARAM[start2 + mid];
-      head1 = INPUT_PARAM[start2 + mid + nedges2];
-      if (tail<tail1 || ((tail==tail1)&&(head<head1))) { /* Move search window down */
-        max = mid-1;
-      }
-      else if (tail>tail1 || ((tail==tail1)&&(head>head1))) { /* Move search window up */
-        min=mid+1;
-      }
-      else {
-        val = INPUT_PARAM[start2 + mid + nedges2 + nedges2];
-        break;
-      }
-    }
+
+    Edge wt_pos = dEdgeListSearch(tail, head, wt_net);
+    double val = wt_pos ? wt_net[wt_pos+2*(unsigned int)wt_net[0]] : defaultval;
+
     CHANGE_STAT[0] += (discord ? -val : val);
     TOGGLE_IF_MORE_TO_COME(i);
   }
   UNDO_PREVIOUS_TOGGLES(i);  
-}
-
-/*****************
- changestat: d_hamming
-*****************/
-D_CHANGESTAT_FN(d_hamming) { 
-  Vertex tail, head;
-  int i, nhedge, discord;
-  
-  nhedge = nwp[1].nedges;
-/*Rprintf("nhedge %d\n",nhedge); */
-
-
-  /* *** don't forget tail -> head */    
-  CHANGE_STAT[0] = 0.0;
-  FOR_EACH_TOGGLE(i) {
-    /*Get the initial state of the edge and its alter in x0*/
-/*  edgeflag =(EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp[0].outedges) != 0); */
-    discord=(EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp[1].outedges) != 0);
-/*    if(!nwp[0].directed_flag && tail < head){
-      hh = head;
-      ht = tail;
-    }else{
-      hh = tail;
-      ht = head;
-    }
-     if we will dissolve an edge discord=-1
-     discord = edgeflag ? -1 : 1;
-    
-
-  so moving away one step
-    discord = (edgeflag0!=edgeflag) ? -1 : 1;
-
-Rprintf("tail %d head %d discord %d\n",tail, head, discord);
-  if(nhedge>0)
-  Rprintf("tail %d head %d discord %d nhedge %d\n",tail, head, discord, nhedge); */
-
-    /*Update the change statistics, as appropriate*/
-/*    CHANGE_STAT[0] += ((edgeflag0!=edgeflag) ? -1.0 : 1.0); */
-
-    CHANGE_STAT[0] += (discord ? -1.0 : 1.0);
-
-
-    if (i+1 < ntoggles){
-      ToggleEdge(TAIL(i), HEAD(i), &nwp[0]);  /* Toggle this edge if more to come */
-      ToggleEdge(TAIL(i), HEAD(i), &nwp[1]);  /* Toggle the discord for this edge */
-    }
-  }
-  i--;
-  while (--i>=0){  /*  Undo all previous toggles. */
-    ToggleEdge(TAIL(i), HEAD(i), &nwp[0]);
-    ToggleEdge(TAIL(i), HEAD(i), &nwp[1]);  /* Toggle the discord for this edge */
-  }
 }
 
 /*****************

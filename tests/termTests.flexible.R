@@ -295,7 +295,8 @@ num.tests=num.tests+1
 mat.d <- matrix(0,18,18)
 mat.u <- matrix(0, 205, 205)
 set.seed(456)
-cov.d <- cbind(as.edgelist(samplike), rbinom(88, 3, .5))
+# Using a covariate matrix that matches the edges exactly is too easy.
+cov.d <- cbind(as.edgelist(samplike)[,2:1], rbinom(88, 3, .5))
 set.seed(145)
 cov.u <- cbind(as.edgelist(fmh), rbinom(203, 3, .5))
 
@@ -310,27 +311,27 @@ s.x <- summary(samplike~hamming(mat.d))
 
 # should this really be NA
 #e.x <- ergm(fmh~hamming(mat.u), MPLEonly=TRUE)
-# surely, this shouldn't be 0
-#s.xc <- summary(samplike~hamming(mat.d, cov=cov.d))
+## OK
+s.xc <- summary(samplike~hamming(mat.d, cov=cov.d))
 # NA
 #e.xc <- ergm(fmh~hamming(mat.u, cov=cov.u), MPLEonly=TRUE)
 # OK
-#s.xd <- summary(samplike~hamming(mat.d, defaultweight=.3))
+s.xd <- summary(samplike~hamming(mat.d, defaultweight=.3))
 # NA value
 #e.xd <- ergm(samplike~hamming(mat.d, defaultweight=.3), MPLEonly=TRUE)
-# 0
-#s.xca <- summary(samplike~hamming(mat.d, cov=samplike, attrname="YearsTrusted"))
+# OK
+s.xca <- summary(samplike~hamming(mat.d, cov=samplike, attrname="YearsTrusted"))
 # NA
 #e.xca <- ergm(fmh~hamming(mat.u, cov=fmh, attrname="Grade"), MPLEonly=TRUE)
-#0
-#s.xcd<- summary(samplike~hamming(mat.d, cov=cov.d, defaultweight=.5))
+# OK
+s.xcd<- summary(samplike~hamming(mat.d, cov=cov.d, defaultweight=.5))
 # NA
 #e.xcd<- ergm(samplike~hamming(mat.d, cov=cov.d, defaultweight=.5), MPLEonly=TRUE)
 # 0 & NA
-#s.xcad<- summary(samplike~hamming(mat.d, samplike, "YearsServed", .5))
-#e.xcad<- ergm(samplike~hamming(mat.d, samplike, "YearsServed", .5), MPLEonly=TRUE)
-if (s.0 != 0 || s.x != 18) {
- print(list(s.0=s.0, s.x=s.x))
+#s.xcad<- summary(samplike~hamming(mat.d, samplike, "YearsTrusted", .5))
+#e.xcad<- ergm(samplike~hamming(mat.d, samplike, "YearsTrusted", .5), MPLEonly=TRUE)
+if (s.0 != 0 || s.x != 88 || s.xc != 87 || s.xd != 26.4 || s.xca != 183 || s.xcd != 103) {
+ print(list(s.0=s.0, s.x=s.x, s.xc=s.xc, s.xd, s.xca, s.xcd))
  stop("Failed hamming term test")
 } else {
   num.passed.tests=num.passed.tests+1

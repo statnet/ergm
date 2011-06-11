@@ -39,6 +39,6 @@ ergm.design <- function(nw, model, verbose=FALSE){
   Clist.miss
 }
 
-ergm.Cprepare.miss <- function(nw){
-  c(network.naedgecount(nw),as.matrix(is.na(nw),matrix.type="edgelist"))
-}
+ergm.Cprepare.miss <- function(nw)
+  ergm.Cprepare.el(is.na(nw))
+
