@@ -129,15 +129,18 @@ MHproposal.formula <- function(object, arguments, nw, model, weights="default", 
   } else {
     constraints <- paste(sort(tolower(names(conlist))),collapse="+")
   }
-  name<-with(MHproposals,MHP[Class==class & Constraints==constraints & Reference==reference & Weights==weights])
-  if(length(name)>1) stop("Multiple matching proposals in the lookup table.",
-                          "This Should Not Be Happening (tm). Unless you have",
-                          "been messing with the table, please file a bug report.")
+  MHqualifying<-with(MHproposals,MHproposals[Class==class & Constraints==constraints & Reference==reference & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
 
-  if(length(name)<1){
+  if(nrow(MHqualifying)<1){
     commonalities<-(MHproposals$Class==class)+(MHproposals$Weights==weights)+(MHproposals$Reference==reference)+(MHproposals$Constraints==constraints)
     stop("The combination of class (",class,"), model constraints (",constraints,"), reference measure (",reference,"), and proposal weighting (",weights,") is not implemented. ", "Check your arguments for typos. ", if(any(commonalities>=3)) paste("Nearest matching proposals: (",paste(apply(MHproposals[commonalities==3,-5],1,paste, sep="), (",collapse=", "),collapse="), ("),")",sep="",".") else "")
   }
+
+  if(nrow(MHqualifying)==1)
+    name<-MHqualifying$MHP
+  else
+    name<-MHP[which.max(MHqualifying$Priority)]
+  
   if(is.null(arguments)) arguments<-conlist
   ## Hand it off to the class character method.
   MHproposal.character(name,arguments,nw,model,response=response)
