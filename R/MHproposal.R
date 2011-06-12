@@ -139,7 +139,7 @@ MHproposal.formula <- function(object, arguments, nw, model, weights="default", 
   if(nrow(MHqualifying)==1)
     name<-MHqualifying$MHP
   else
-    name<-MHP[which.max(MHqualifying$Priority)]
+    name<-with(MHqualifying,MHP[which.max(Priority)])
   
   if(is.null(arguments)) arguments<-conlist
   ## Hand it off to the class character method.
