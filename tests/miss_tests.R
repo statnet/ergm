@@ -1,8 +1,15 @@
 library(ergm)
 
-n<-100
-d<-.1
-m<-0
+theta0err<--1 # Perturbation in the initial values
+maxit<-20 # Maximum number of iterations
+tolerance<-0.01 # Result must be within 1% of truth.
+
+n<-20 # Number of nodes
+b<-3 # Bipartite split
+
+d<-.1 # Density
+m<-.1 # Missingness rate
+
 logit<-function(p) log(p/(1-p))
 
 cat("n=",n,", density=",d,", missing=",m,"\n",sep="")
@@ -21,36 +28,37 @@ correct.edges.theta<-function(y){
   d<-network.dyadcount(y)
   m<-network.naedgecount(y)
 
-  logit(e/(d-m))
+  logit(e/d)
+}
+
+
+run.miss.test<-function(y){
+  truth<-correct.edges.theta(y)
+  cat("Correct estimate =",truth,"\n")
+  
+  mplefit<-ergm(y~edges)
+  mpleOK<-all.equal(truth,coef(mplefit),check.attributes=FALSE,tolerance=tolerance)
+  cat("MPLE estimate =",coef(mplefit),if(isTRUE(mpleOK)) "OK" else mpleOK,"\n")
+
+  mcmcfit<-ergm(y~edges,control=control.ergm(force.mcmc=TRUE),theta0=truth+theta0err,interval=ceiling(n^(3/2)),maxit=maxit)
+  mcmcOK<-all.equal(truth,coef(mcmcfit),check.attributes=FALSE,tolerance=tolerance)
+  cat("MCMCMLE estimate =",coef(mcmcfit),if(isTRUE(mcmcOK)) "OK" else mcmcOK,"\n")
+  
+  return(isTRUE(mpleOK) && isTRUE(mcmcOK))
 }
 
 # Directed
+cat("\n\nDirected Network\n")
 y<-mk.missnet(n,d,m,TRUE,0)
-truth<-correct.edges.theta(y)
-cat("Directed test. Correct coefficient=",truth,".\n",sep="")
-
-mplefit<-ergm(y~edges)
-print(mplefit)
-mcmcfit<-ergm(y~edges,control=control.ergm(force.mcmc=TRUE),theta0=truth+sample(c(-1,1),1),interval=ceiling(n^(3/2)),maxit=20)
-print(mcmcfit)
+stopifnot(run.miss.test(y))
 
 # Undirected
+cat("\n\nUndirected Network\n")
 y<-mk.missnet(n,d,m,FALSE,0)
-truth<-correct.edges.theta(y)
-cat("Undirected test. Correct coefficient=",truth,".\n",sep="")
-
-mplefit<-ergm(y~edges)
-print(mplefit)
-mcmcfit<-ergm(y~edges,control=control.ergm(force.mcmc=TRUE),theta0=truth+sample(c(-1,1),1),interval=ceiling(n^(3/2)),maxit=20)
-print(mcmcfit)
+stopifnot(run.miss.test(y))
 
 # Bipartite Undirected
-y<-mk.missnet(n,d,m,FALSE,3)
-truth<-correct.edges.theta(y)
-cat("Bipartite undirected test. Correct coefficient=",truth,".\n",sep="")
-
-mplefit<-ergm(y~edges)
-print(mplefit)
-mcmcfit<-ergm(y~edges,control=control.ergm(force.mcmc=TRUE),theta0=truth+sample(c(-1,1),1),interval=ceiling(n^(3/2)),maxit=20)
-print(mcmcfit)
+cat("\n\nBipartite Undirected Network\n")
+y<-mk.missnet(n,d,m,FALSE,b)
+stopifnot(run.miss.test(y))
 
