@@ -52,6 +52,8 @@ void MH_init(MHproposal *MHp,
 
   MHp->bd=DegreeBoundInitialize(attribs, maxout, maxin, minout, minin,
 			       condAllDegExact, attriblength, nwp);
+  MHp->discord=NULL;
+
   
   /*Clean up by freeing sn and fn*/
   free((void *)fn);
@@ -70,6 +72,12 @@ void MH_init(MHproposal *MHp,
 *********************/
 void MH_free(MHproposal *MHp){
   if(MHp->bd)DegreeBoundDestroy(MHp->bd);
+  if(MHp->discord){
+    for(Network **nwp=MHp->discord; *nwp!=NULL; nwp++){
+      NetworkDestroy(*nwp);
+    }
+    free(MHp->discord);
+  }
   free(MHp->toggletail);
   free(MHp->togglehead);
 }

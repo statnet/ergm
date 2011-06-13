@@ -36,47 +36,15 @@ void MPLE_wrapper (int *tails, int *heads, int *dnedges,
   Vertex n_nodes = (Vertex) *dn; 
   Edge n_edges = (Edge) *dnedges;
   int directed_flag = *dflag;
-  int hammingterm;
   Vertex bip = (Vertex) *bipartite;
   Edge maxMPLE = (Edge) *maxMPLEsamplesize;
-  Vertex htail, hhead;
-  Edge  nddyads, kedge;
   Model *m;
-  ModelTerm *thisterm;
 
   GetRNGstate(); /* Necessary for R random number generator */
   nw[0]=NetworkInitialize(tails, heads, n_edges,
                           n_nodes, directed_flag, bip, 0);
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
   
-  hammingterm=ModelTermHamming (*funnames, *nterms);
-  if(hammingterm>0){
-   Network nwhamming;
-   thisterm = m->termarray + hammingterm - 1;
-   nddyads = (Edge)(thisterm->inputparams[0]);
-   nwhamming=NetworkInitializeD(thisterm->inputparams+1, 
-				thisterm->inputparams+1+nddyads,
-			       	nddyads, n_nodes, directed_flag, bip,0);
-   nddyads=0;
-   nw[1]=NetworkInitializeD(thisterm->inputparams+1, 
-			   thisterm->inputparams+1+nddyads, nddyads,
-         n_nodes, directed_flag, bip,0);
-   for (kedge=1; kedge <= nwhamming.nedges; kedge++) {
-     FindithEdge(&htail, &hhead, kedge, &nwhamming);
-     if(EdgetreeSearch(htail, hhead, nw[0].outedges) == 0){
-       ToggleEdge(htail, hhead, &nw[1]);
-     }
-   }
-   for (kedge=1; kedge <= nw[0].nedges; kedge++) {
-     FindithEdge(&htail, &hhead, kedge, &nw[0]);
-     if(EdgetreeSearch(htail, hhead, nwhamming.outedges) == 0){
-       ToggleEdge(htail, hhead, &nw[1]);
-     }
-   }
-/*   Rprintf("Initial number of discordant %d Number of g0 ties %d Number of ties in g %d\n",nw[1].nedges, nwhamming.nedges,nw[0].nedges); */
-   NetworkDestroy(&nwhamming);
-  }
-
   if (*compressflag) 
     MpleInit_hash(responsevec, covmat, weightsvector, offset, 
 		  compressedOffset, *maxNumDyadTypes, maxMPLE, nw, m); 

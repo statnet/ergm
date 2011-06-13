@@ -15,12 +15,11 @@ void network_stats_wrapper(int *tails, int *heads, int *dnedges,
 			   int *nterms, char **funnames,
 			   char **sonames, double *inputs,  double *stats)
 {
-  int directed_flag, hammingterm;
+  int directed_flag;
   Vertex n_nodes;
-  Edge n_edges, nddyads;
+  Edge n_edges;
   Network nw[2];
   Model *m;
-  ModelTerm *thisterm;
   Vertex bip;
 
 /*	     Rprintf("prestart with setup\n"); */
@@ -33,24 +32,11 @@ void network_stats_wrapper(int *tails, int *heads, int *dnedges,
   nw[0]=NetworkInitialize(NULL, NULL, 0,
                           n_nodes, directed_flag, bip, 0);
 
-  hammingterm=ModelTermHamming (*funnames, *nterms);
-/*	     Rprintf("start with setup\n"); */
-  if(hammingterm>0){
-    thisterm = m->termarray + hammingterm - 1;
-    nddyads = (Edge)(thisterm->inputparams[0]);
-    /* Initialize discordance network to the reference network. */
-    nw[1]=NetworkInitializeD(thisterm->inputparams+1, 
-			     thisterm->inputparams+1+nddyads, nddyads,
-			     n_nodes, directed_flag, bip, 0);
-  }
-
   /* Compute the change statistics and copy them to stats for return to R. */
   SummStats(n_edges, tails, heads, nw, m,stats);
   
   ModelDestroy(m);
   NetworkDestroy(nw);
-  if (hammingterm > 0)
-    NetworkDestroy(&nw[1]);
 }
 
 

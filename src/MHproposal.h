@@ -65,6 +65,7 @@ typedef struct MHproposalstruct {
   double logratio;
   int status;
   DegreeBound *bd;
+  Network **discord;
   double *inputs; /* may be used if needed, ignored if not. */
   /* int multiplicity; Is this needed? I removed all references to
        'multiplicity' everywhere */

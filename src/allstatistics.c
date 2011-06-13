@@ -51,7 +51,7 @@ void AllStatistics (
   nw=NetworkInitialize(tails, heads, *dnedges,
                           n_nodes, directed_flag, bip, 0);
   nwp = &nw;
-  m=ModelInitialize(*funnames, *sonames, inputs, *nterms);
+  m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
   
   /* Step 2:  Build nodelist1 and nodelist2, which together give all of the
   dyads in the network. */

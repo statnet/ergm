@@ -29,11 +29,11 @@ void SAN_wrapper (int *dnumnets, int *nedges,
 void SANSample (MHproposal *MHp,
 		double *theta, double *invcov, double *tau, double *networkstatistics, 
 		int samplesize, int burnin, 
-		int interval, int hammingterm, int fVerbose,
+		int interval, int fVerbose,
 		Network *nwp, Model *m);
 void SANMetropolisHastings (MHproposal *MHp,
 			 double *theta, double *invcov, double *tau, double *statistics, 
 			 int nsteps, int *staken,
-			 int hammingterm, int fVerbose,
+			 int fVerbose,
 			 Network *nwp, Model *m);
 #endif

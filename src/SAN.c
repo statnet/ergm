@@ -32,12 +32,11 @@ void SAN_wrapper ( int *dnumnets, int *nedges,
                    int *attribs, int *maxout, int *maxin, int *minout,
                    int *minin, int *condAllDegExact, int *attriblength, 
                    int *maxedges){
-  int directed_flag, hammingterm, formationterm;
-  Vertex n_nodes, nmax, bip, htail, hhead;
-  Edge n_networks, nddyads, kedge;
+  int directed_flag;
+  Vertex n_nodes, nmax, bip;
+  Edge n_networks;
   Network nw[2];
   Model *m;
-  ModelTerm *thisterm;
   MHproposal MH;
 
 
@@ -59,72 +58,6 @@ void SAN_wrapper ( int *dnumnets, int *nedges,
   nw[0]=NetworkInitialize(tails, heads, nedges[0],
                           n_nodes, directed_flag, bip, 0);
 
-  hammingterm=ModelTermHamming (*funnames, *nterms);
-  if(hammingterm>0){
-//	     Rprintf("start with setup\n");
-   Network nwhamming;
-   thisterm = m->termarray + hammingterm - 1;
-   nddyads = (Edge)(thisterm->inputparams[0]);
-   nwhamming=NetworkInitializeD(thisterm->inputparams+1,
-			       thisterm->inputparams+1+nddyads, nddyads,
-             n_nodes, directed_flag, bip, 0);
-   nddyads=0;
-   nw[1]=NetworkInitializeD(thisterm->inputparams+1,
-			   thisterm->inputparams+1+nddyads, nddyads,
-         n_nodes, directed_flag, bip, 0);
-//	     Rprintf("made hw[1]\n");
-   for (kedge=1; kedge <= nwhamming.nedges; kedge++) {
-     FindithEdge(&htail, &hhead, kedge, &nwhamming);
-     if(EdgetreeSearch(htail, hhead, nw[0].outedges) == 0){
-//	     Rprintf(" in g0 not g htail %d hhead %d\n",htail, hhead);
-       ToggleEdge(htail, hhead, &nw[1]);
-     }
-   }
-   for (kedge=1; kedge <= nw[0].nedges; kedge++) {
-     FindithEdge(&htail, &hhead, kedge, &nw[0]);
-     if(EdgetreeSearch(htail, hhead, nwhamming.outedges) == 0){
-//	     Rprintf("not g0  in g htail %d hhead %d\n",htail, hhead);
-       ToggleEdge(htail, hhead, &nw[1]);
-     }
-   }
-//   Rprintf("Initial number of discordant %d Number of g0 ties %d Number of ties in g %d\n",nw[1].nedges, nwhamming.nedges,nw[0].nedges);
-   NetworkDestroy(&nwhamming);
-  }
-
-// Really this is a formation term
-  formationterm=ModelTermFormation (*funnames, *nterms);
-  if(formationterm>0){
-   Network nwformation;
-   thisterm = m->termarray + formationterm - 1;
-   nddyads = (Edge)(thisterm->inputparams[0]);
-   nwformation=NetworkInitializeD(thisterm->inputparams+1,
-				thisterm->inputparams+1+nddyads, nddyads,
-        n_nodes, directed_flag, bip, 0);
-   nddyads=0;
-   nw[1]=NetworkInitializeD(thisterm->inputparams+1,
-			   thisterm->inputparams+1+nddyads, nddyads,
-         n_nodes, directed_flag, bip, 0);
-//	     Rprintf("made hw[1]\n");
-   for (kedge=1; kedge <= nwformation.nedges; kedge++) {
-     FindithEdge(&htail, &hhead, kedge, &nwformation);
-     if(EdgetreeSearch(htail, hhead, nw[0].outedges) == 0){
-//	     Rprintf(" in g0 not g htail %d hhead %d\n",htail, hhead);
-       ToggleEdge(htail, hhead, &nw[0]);
-     }
-   }
-   for (kedge=1; kedge <= nw[0].nedges; kedge++) {
-     FindithEdge(&htail, &hhead, kedge, &nw[0]);
-     if(EdgetreeSearch(htail, hhead, nwformation.outedges) == 0){
-//	     Rprintf("not g0  in g htail %d hhead %d\n",htail, hhead);
-       ToggleEdge(htail, hhead, &nw[1]);
-     }
-   }
-//   Rprintf("Initial number of discordant %d Number of g0 ties %d Number of ties in g %d\n",nw[1].nedges, nwformation.nedges,nw[0].nedges);
-   hammingterm=1;
-   NetworkDestroy(&nwformation);
-//   Rprintf("Initial number (discord) from reference %d Number of original %d\n",nw[1].nedges,nw[0].nedges);
-  }
-  
   MH_init(&MH, *MHproposaltype, *MHproposalpackage, 
 	  inputs, *fVerbose, nw,
 	     attribs, maxout, maxin, minout, minin,
@@ -133,7 +66,6 @@ void SAN_wrapper ( int *dnumnets, int *nedges,
   SANSample (&MH,
 	     theta0, invcov, tau, sample, *samplesize,
 	     *burnin, *interval,
-	      hammingterm,
 	     *fVerbose, nw, m);
 
   MH_free(&MH);
@@ -146,8 +78,6 @@ void SAN_wrapper ( int *dnumnets, int *nedges,
   ModelDestroy(m);
 
   NetworkDestroy(nw);
-  if ( hammingterm > 0  || formationterm > 0)
-    NetworkDestroy(&nw[1]);
   PutRNGstate();  /* Disable RNG before returning */
 }
 
@@ -165,7 +95,7 @@ void SAN_wrapper ( int *dnumnets, int *nedges,
 void SANSample (MHproposal *MHp,
   double *theta, double *invcov, double *tau, double *networkstatistics, 
   int samplesize, int burnin, 
-  int interval, int hammingterm, int fVerbose,
+  int interval, int fVerbose,
   Network *nwp, Model *m) {
   int staken, tottaken, ptottaken;
   int i, j, components, diam;
@@ -195,7 +125,7 @@ void SANSample (MHproposal *MHp,
    in subsequent calls to M-H
    *********************/
   SANMetropolisHastings(MHp, theta, invcov, tau, networkstatistics, burnin, &staken,
-		     hammingterm, fVerbose, nwp, m);
+		     fVerbose, nwp, m);
   
   if (fVerbose){
     Rprintf("Returned from SAN Metropolis-Hastings burnin\n");
@@ -217,7 +147,7 @@ void SANSample (MHproposal *MHp,
       
       SANMetropolisHastings (MHp, theta, invcov, tau, networkstatistics, 
 		             interval, &staken,
-			     hammingterm, fVerbose, nwp, m);
+			     fVerbose, nwp, m);
       tottaken += staken;
       if (fVerbose){
         if( ((3*i) % samplesize)==0 && samplesize > 500){
@@ -261,7 +191,7 @@ void SANMetropolisHastings (MHproposal *MHp,
 			    double *theta, double *invcov, 
 			    double *tau, double *networkstatistics,
 			    int nsteps, int *staken,
-			    int hammingterm, int fVerbose,
+			    int fVerbose,
 			    Network *nwp,
 			    Model *m) {
   int step, taken;
@@ -271,21 +201,16 @@ void SANMetropolisHastings (MHproposal *MHp,
   deltainvsig = (double *)malloc( m->n_stats * sizeof(double));
   delta = (double *)malloc( m->n_stats * sizeof(double));
   
-//  div=0.0;
-//    Rprintf("\n");
-//for (i=0; i<m->n_stats; i++){
-//  div += (networkstatistics[i])*(networkstatistics[i]);
-//  Rprintf("i %d %f\n",i,networkstatistics[i]);
-//}
-
   step = taken = 0;
 /*  if (fVerbose)
     Rprintf("Now proposing %d MH steps... ", nsteps); */
   while (step < nsteps) {
     MHp->logratio = 0;
     (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
-    //      Rprintf("Back from proposal; step=%d\n",step);
+    
 
+    /* Calculate change statistics,
+     remembering that tail -> head */
     ChangeStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, nwp, m);
       
     dif=0.0;
@@ -301,13 +226,6 @@ void SANMetropolisHastings (MHproposal *MHp,
      ip+=deltainvsig[i]*((m->workspace[i])+2.0*networkstatistics[i]);
      dif+=delta[i]*networkstatistics[i];
     }
-//Rprintf("i %d j %d ic %f\n",i,j,invcov[i+(m->n_stats)*j]);
-//if(i<=1){Rprintf("i %d %f %f\n",i,div,div*div*dif/(tau[i]*asig2[i]));}
-//Rprintf(" ip %f dif %f\n",ip,dif);
-//Rprintf("ip %f div %f networkstatistics[0] %f networkstatistics[1] %f\n",
-//	 ip,div,networkstatistics[0],networkstatistics[1]);
-//  Rprintf("ip %f m->workspace[i] %f ns %f asig2[0] %f div %f \n",ip, m->workspace[0],networkstatistics[0],asig2[0],div);
-// Rprintf("step %d tau[0] %f tau[1] %f div %f \n",step, tau[0],tau[1],div);
       
     /* if we accept the proposed network */
     if (ip <= 0.0) { 
@@ -316,25 +234,23 @@ void SANMetropolisHastings (MHproposal *MHp,
 // if (ip <= 0.0 || (ip/dif) < (nsteps-step)*0.001*tau[0]/(1.0*nsteps)) { 
 //  if (ip > exp(theta[0])*(m->n_stats)*unif_rand()/(1.0+exp(theta[0])) { 
 //  if (ip > tau[0]*(m->n_stats)*unif_rand()) { 
+
       /* Make proposed toggles (updating timestamps--i.e., for real this time) */
       for (i=0; i < MHp->ntoggles; i++){
         ToggleEdgeWithTimestamp(MHp->toggletail[i], MHp->togglehead[i], nwp);
-        if(hammingterm){
-	 ToggleEdge(MHp->toggletail[i],  MHp->togglehead[i], &nwp[1]);  /* Toggle the discord for this edge */
-	}
+
+	if(MHp->discord)
+	  for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
+	    ToggleEdge(MHp->toggletail[i],  MHp->togglehead[i], *nwd);
+	  }
       }
       /* record network statistics for posterity */
       for (i = 0; i < m->n_stats; i++){
         networkstatistics[i] += m->workspace[i];
       }
-//  div=0.0;
-//    for (i=0; i<m->n_stats; i++){
-//      div += (networkstatistics[i])*(networkstatistics[i]);
-//    }
       taken++;
     }
     step++;
-    nwp->duration_info.MCMCtimer++;
   }
 
 /*  if (fVerbose)

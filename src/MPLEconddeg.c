@@ -26,12 +26,11 @@ void MPLEconddeg_wrapper (int *tails, int *heads, int *dnedges,
                    int *minin, int *condAllDegExact, int *attriblength, 
                    int *maxedges,
                    int *mtails, int *mheads, int *mdnedges) {
-  int directed_flag, hammingterm, formationterm;
-  Vertex n_nodes, nmax, bip, htail, hhead;
-  Edge n_edges, n_medges, nddyads, kedge;
+  int directed_flag;
+  Vertex n_nodes, nmax, bip;
+  Edge n_edges, n_medges;
   Network nw[2];
   Model *m;
-  ModelTerm *thisterm;
   MHproposal MH;
   
   n_nodes = (Vertex)*dn; /* coerce double *dn to type Vertex */
@@ -49,73 +48,7 @@ void MPLEconddeg_wrapper (int *tails, int *heads, int *dnedges,
   /* Form the missing network */
   nw[0]=NetworkInitialize(tails, heads, n_edges, 
                           n_nodes, directed_flag, bip, 0);
-
-  hammingterm=ModelTermHamming (*funnames, *nterms);
-  if(hammingterm>0){
-/*	     Rprintf("start with setup\n"); */
-   Network nwhamming;
-   thisterm = m->termarray + hammingterm - 1;
-   nddyads = (Edge)(thisterm->inputparams[0]);
-   nwhamming=NetworkInitializeD(thisterm->inputparams+1, 
-				thisterm->inputparams+1+nddyads, nddyads, 
-        n_nodes, directed_flag, bip,0);
-   nddyads=0;
-   nw[1]=NetworkInitializeD(thisterm->inputparams+1, 
-			   thisterm->inputparams+1+nddyads, nddyads,
-         n_nodes, directed_flag, bip,0);
-/*	     Rprintf("made hw[1]\n"); */
-   for (kedge=1; kedge <= nwhamming.nedges; kedge++) {
-     FindithEdge(&htail, &hhead, kedge, &nwhamming);
-     if(EdgetreeSearch(htail, hhead, nw[0].outedges) == 0){
-/*	     Rprintf(" in g0 not g htail %d hhead %d\n",htail, hhead); */
-       ToggleEdge(htail, hhead, &nw[1]);
-     }
-   }
-   for (kedge=1; kedge <= nw[0].nedges; kedge++) {
-     FindithEdge(&htail, &hhead, kedge, &nw[0]);
-     if(EdgetreeSearch(htail, hhead, nwhamming.outedges) == 0){
-/*	     Rprintf("not g0  in g htail %d hhead %d\n",htail, hhead); */
-       ToggleEdge(htail, hhead, &nw[1]);
-     }
-   }
-/*   Rprintf("Initial number of discordant %d Number of g0 ties %d Number of ties in g %d\n",nw[1].nedges, nwhamming.nedges,nw[0].nedges); */
-   NetworkDestroy(&nwhamming);
-  }
-
-/* Really this is a formation term */
-  formationterm=ModelTermFormation (*funnames, *nterms);
-  if(formationterm>0){
-   Network nwformation;
-   thisterm = m->termarray + formationterm - 1;
-   nddyads = (Edge)(thisterm->inputparams[0]);
-   nwformation=NetworkInitializeD(thisterm->inputparams+1,
-				  thisterm->inputparams+1+nddyads, nddyads,
-          n_nodes, directed_flag, bip,0);
-   nddyads=0;
-   nw[1]=NetworkInitializeD(thisterm->inputparams+1,
-			    thisterm->inputparams+1+nddyads, nddyads,
-          n_nodes, directed_flag, bip,0);
-/*	     Rprintf("made hw[1]\n"); */
-   for (kedge=1; kedge <= nwformation.nedges; kedge++) {
-     FindithEdge(&htail, &hhead, kedge, &nwformation);
-     if(EdgetreeSearch(htail, hhead, nw[0].outedges) == 0){
-/*	     Rprintf(" in g0 not g htail %d hhead %d\n",htail, hhead); */
-       ToggleEdge(htail, hhead, &nw[0]);
-     }
-   }
-   for (kedge=1; kedge <= nw[0].nedges; kedge++) {
-     FindithEdge(&htail, &hhead, kedge, &nw[0]);
-     if(EdgetreeSearch(htail, hhead, nwformation.outedges) == 0){
-/*	     Rprintf("not g0  in g htail %d hhead %d\n",htail, hhead); */
-       ToggleEdge(htail, hhead, &nw[1]);
-     }
-   }
-/*   Rprintf("Initial number of discordant %d Number of g0 ties %d Number of ties in g %d\n",nw[1].nedges, nwformation.nedges,nw[0].nedges); */
-   hammingterm=1;
-   NetworkDestroy(&nwformation);
-/*   Rprintf("Initial number (discord) from reference %d Number of original %d\n",nw[1].nedges,nw[0].nedges); */
-  }
-  
+ 
   MH_init(&MH,
 	  *MHproposaltype, *MHproposalpackage,
 	  inputs,
@@ -126,7 +59,6 @@ void MPLEconddeg_wrapper (int *tails, int *heads, int *dnedges,
   CondDegSampler (&MH,
 	      theta0, sample, *samplesize,
 	      *burnin, *interval,
-	      hammingterm,
 	      *fVerbose, nw, m);
 
   MH_free(&MH);
@@ -140,8 +72,6 @@ void MPLEconddeg_wrapper (int *tails, int *heads, int *dnedges,
   ModelDestroy(m);
 
   NetworkDestroy(nw);
-  if (hammingterm > 0  || formationterm > 0)
-    NetworkDestroy(&nw[1]);
   PutRNGstate();  /* Disable RNG before returning */
 }
 
@@ -159,14 +89,13 @@ void MPLEconddeg_wrapper (int *tails, int *heads, int *dnedges,
 void CondDegSampler (MHproposal *MHp,
   double *theta, double *networkstatistics, 
   int samplesize, int burnin, 
-  int interval, int hammingterm, int fVerbose,
+  int interval, int fVerbose,
   Network *nwp, Model *m) {
   int staken, tottaken, ptottaken, originterval;
   int i, components, diam;
   
   originterval = interval;
   components = diam = 0;
-  nwp->duration_info.MCMCtimer=0;
   
   /*********************
   networkstatistics are modified in groups of m->n_stats, and they
@@ -184,7 +113,7 @@ void CondDegSampler (MHproposal *MHp,
 /*  Catch massive number of edges caused by degeneracy */
    if(nwp->nedges > (50000-1000)){burnin=1;}
    CondDegSample(MHp, theta, networkstatistics, burnin, &staken,
-		      hammingterm, fVerbose, nwp, m);  
+		      fVerbose, nwp, m);  
 /*   if (fVerbose){ 
        Rprintf(".");
      } */
@@ -202,7 +131,7 @@ void CondDegSampler (MHproposal *MHp,
       /* Catch massive number of edges caused by degeneracy */
       if(nwp->nedges > (50000-1000)){interval=1;}
       CondDegSample (MHp, theta, networkstatistics, interval, &staken,
-                           hammingterm, fVerbose, nwp, m);
+                           fVerbose, nwp, m);
       tottaken += staken;
 
 #ifdef Win32
@@ -254,7 +183,7 @@ void CondDegSampler (MHproposal *MHp,
 void CondDegSample (MHproposal *MHp,
 			 double *theta, double *networkstatistics,
 			 int nsteps, int *staken,
-			 int hammingterm, int fVerbose,
+			 int fVerbose,
 			 Network *nwp,
 			 Model *m) {
   int step, taken;
@@ -274,7 +203,6 @@ void CondDegSample (MHproposal *MHp,
     }
     taken++;
     step++;
-    nwp->duration_info.MCMCtimer++;
   }
   *staken = taken;
 }

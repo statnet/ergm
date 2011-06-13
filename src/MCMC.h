@@ -26,12 +26,11 @@ void MCMC_wrapper (int *dnumnets, int *dnedges,
 void MCMCSample (MHproposal *MH,
 		 double *theta, double *networkstatistics, 
 		 int samplesize, int burnin, 
-		 int interval, int hammingterm, int fVerbose,
+		 int interval, int fVerbose,
 	       	 Network *nwp, Model *m);
 void MetropolisHastings (MHproposal *MHp,
 			 double *theta, double *statistics, 
 			 int nsteps, int *staken,
-			 int hammingterm,
 			 int fVerbose,
 			 Network *nwp, Model *m);
 void MCMCPhase12 (int *tails, int *heads, int *dnedges,
@@ -56,7 +55,7 @@ void MCMCSamplePhase12 (MHproposal *MH,
   double *theta, double gain, double *meanstats,
   int nphase1, int nsubphases, double *networkstatistics, 
   int samplesize, int burnin, 
-  int interval, int hammingterm, int fVerbose,
+  int interval, int fVerbose,
   Network *nwp, Model *m);
 
 #endif
