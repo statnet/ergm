@@ -168,11 +168,13 @@ llik.hessian.obs <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=
   prob <- probs*exp(basepred - prob)
   prob <- prob/sum(prob)
   E <- apply(sweep(xsim, 1, prob, "*"), 2, sum)
+
   obspred <- xsim.obs %*% x
   prob.obs <- max(obspred)
   prob.obs <- probs.obs*exp(obspred - prob.obs)
   prob.obs <- prob.obs/sum(prob.obs)
   E.obs <- apply(sweep(xsim.obs, 1, prob.obs, "*"), 2, sum)
+
   llg <- xobs + E.obs - E
 # 
   htmp <- sweep(sweep(xsim, 2, E, "-"), 1, sqrt(prob), "*")
@@ -183,19 +185,21 @@ llik.hessian.obs <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=
   htmp.offset <- t(ergm.etagradmult(theta.offset, t(htmp.offset), etamap))
   H <- crossprod(htmp.offset, htmp.offset)
 ##H <- etagrad %*% H %*% t(etagrad)
-  htmp <- sweep(sweep(xsim.obs, 2, E.obs, "-"), 1, sqrt(prob.obs), "*")
+  
+  htmp.obs <- sweep(sweep(xsim.obs, 2, E.obs, "-"), 1, sqrt(prob.obs), "*")
 # htmp <- htmp %*% t(etagrad)
 # H.obs <- t(htmp) %*% htmp
 ##H.obs <- etagrad %*% H.obs %*% t(etagrad)
-  htmp.offset[,!etamap$offsetmap] <- htmp
-  htmp.offset <- t(ergm.etagradmult(theta.offset, t(htmp.offset), etamap))
-  H.obs <- crossprod(htmp.offset, htmp.offset)
-  H <- H.obs-H
+  htmp.obs.offset <- matrix(0, ncol = length(etamap$offsetmap), nrow = nrow(htmp.obs))
+  htmp.obs.offset[,!etamap$offsetmap] <- htmp.obs
+  htmp.obs.offset <- t(ergm.etagradmult(theta.offset, t(htmp.obs.offset), etamap))
+  H.obs <- crossprod(htmp.obs.offset, htmp.obs.offset)
+  
+  H.obs-H
 # He <- matrix(NA, ncol = length(theta), nrow = length(theta))
 # He[!etamap$offsettheta, !etamap$offsettheta] <- H
 # dimnames(He) <- list(namesx, namesx)
 # He
-  H
 }
 
 

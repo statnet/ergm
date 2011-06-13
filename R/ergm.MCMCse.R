@@ -106,14 +106,17 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.obs,
     prob.obs <- exp(obspred - max(obspred))
     prob.obs <- prob.obs/sum(prob.obs)
     E.obs <- apply(sweep(xsim.obs, 1, prob.obs, "*"), 2, sum)
-    htmp <- sweep(sweep(xsim.obs, 2, E.obs, "-"), 1, sqrt(prob.obs), "*")
-    htmp.offset[,!offsetmap] <- htmp
-    htmp.offset <- t(ergm.etagradmult(theta.offset, t(htmp.offset), etamap))
-    H.obs <- crossprod(htmp.offset, htmp.offset)
+    htmp.obs <- sweep(sweep(xsim.obs, 2, E.obs, "-"), 1, sqrt(prob.obs), "*")
+    htmp.obs.offset <- matrix(0, ncol = length(offsetmap), nrow = nrow(htmp.obs))
+    htmp.obs.offset[,!offsetmap] <- htmp.obs
+    htmp.obs.offset <- t(ergm.etagradmult(theta.offset, t(htmp.obs.offset), etamap))
+    H.obs <- crossprod(htmp.obs.offset, htmp.obs.offset)
+    cov.zbar.obs.offset <- matrix(0, ncol = length(offsetmap), 
+                                  nrow = length(offsetmap))
     cov.zbar.obs <- suppressWarnings(chol(cov.zbar.obs, pivot=TRUE))
-    cov.zbar.offset[!offsetmap,!offsetmap] <- cov.zbar.obs
-    cov.zbar.offset <- t(ergm.etagradmult(theta.offset, t(cov.zbar.offset), etamap))
-    cov.zbar.obs <- crossprod(cov.zbar.offset, cov.zbar.offset)
+    cov.zbar.obs.offset[!offsetmap,!offsetmap] <- cov.zbar.obs
+    cov.zbar.obs.offset <- t(ergm.etagradmult(theta.offset, t(cov.zbar.obs.offset), etamap))
+    cov.zbar.obs <- crossprod(cov.zbar.obs.offset, cov.zbar.obs.offset)
     novar <- novar | (diag(H.obs)==0)
     H.obs <- H.obs[!novar,,drop=FALSE] 
     H.obs <- H.obs[,!novar,drop=FALSE] 
