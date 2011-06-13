@@ -19,7 +19,7 @@ ergm(formula, theta0="MPLE",
      constraints=~.,
      meanstats = NULL,
      control=control.ergm(),
-     eval.logLik=FALSE,
+     eval.loglik=FALSE,
      verbose=FALSE, \dots)
 }
 \arguments{

@@ -5,6 +5,7 @@
 \alias{ergm.checkdirected}
 \alias{ergm.checkdegeneracy}
 \alias{ergm.checkbipartite}
+\alias{ergm.theta.sample}
 %
 \alias{ConstraintImplications}
 \alias{InitConstraint.bd}
