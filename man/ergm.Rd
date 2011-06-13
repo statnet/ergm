@@ -399,11 +399,11 @@ in this case.
 %        	         minout=matrix(NA,ncol=1,nrow=71),
 %        	         minin=matrix(NA,ncol=1,nrow=71))}
 
-\preformatted{
-attribs[n][0] = 1 # just the ego values
-maxout[n][0] = minout[n][0] = observed outdegree of n in network
-maxin[n][0] = minin[n][0] = observed indegree of n in network
-  }
+%\preformatted{
+%attribs[n][0] = 1 # just the ego values
+%maxout[n][0] = minout[n][0] = observed outdegree of n in network
+%maxin[n][0] = minin[n][0] = observed indegree of n in network
+%  }
 }
  
 %\section{Dealing with degeneracy}{
