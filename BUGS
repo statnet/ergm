@@ -29,6 +29,11 @@ inputs, but a more consistent solution is desirable.
 R >= 2.12:  nlme package should be removable from depends line
 R >= 2.12:  man page titles can handle markup (example:  logLik.ergm.Rd)
 
+# Missing data MPLE for bipartite networks#
+
+Missing data MPLE code produces incorrect estimates for some bipartite
+networks.
+
 # Missing documentation #
 The terms adegcor, rdegcor, and pdegcor lack documentation
 
