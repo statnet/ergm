@@ -187,6 +187,9 @@ llik.hessian.miss <- function(theta, xobs, xsim, probs, xsim.miss=NULL, probs.mi
 # htmp <- htmp %*% t(etagrad)
 # H.miss <- t(htmp) %*% htmp
 ##H.miss <- etagrad %*% H.miss %*% t(etagrad)
+  #LINE ADDED by CTB>
+  htmp.offset <- matrix(0, ncol = length(etamap$offsetmap), nrow = nrow(htmp))
+  #LINE ADDED by CTB<
   htmp.offset[,!etamap$offsetmap] <- htmp
   htmp.offset <- t(ergm.etagradmult(theta.offset, t(htmp.offset), etamap))
   H.miss <- crossprod(htmp.offset, htmp.offset)

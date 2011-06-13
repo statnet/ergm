@@ -107,10 +107,17 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.miss,
     prob.miss <- prob.miss/sum(prob.miss)
     E.miss <- apply(sweep(xsim.miss, 1, prob.miss, "*"), 2, sum)
     htmp <- sweep(sweep(xsim.miss, 2, E.miss, "-"), 1, sqrt(prob.miss), "*")
+    #LINE ADDED BY CTB>
+    htmp.offset <- matrix(0, ncol = length(offsetmap), nrow = nrow(htmp))
+    #LINE ADDED BY CTB<
     htmp.offset[,!offsetmap] <- htmp
     htmp.offset <- t(ergm.etagradmult(theta.offset, t(htmp.offset), etamap))
     H.miss <- crossprod(htmp.offset, htmp.offset)
     cov.zbar.miss <- suppressWarnings(chol(cov.zbar.miss, pivot=TRUE))
+    #LINE ADDED BY CTB>
+  cov.zbar.offset <- matrix(0, ncol = length(offsetmap), 
+                            nrow = length(offsetmap))
+    #LINE ADDED BY CTB<
     cov.zbar.offset[!offsetmap,!offsetmap] <- cov.zbar.miss
     cov.zbar.offset <- t(ergm.etagradmult(theta.offset, t(cov.zbar.offset), etamap))
     cov.zbar.miss <- crossprod(cov.zbar.offset, cov.zbar.offset)
