@@ -81,18 +81,3 @@ autoboot.ergm<-function(object, R, control=control.ergm()){
   resamp.ind<-rep(seq_along(resamp.l),resamp.w[resamp.w!=0])
   t(theta.boot)[resamp.ind,]
 }
-
-## Compress a data frame by eliminating duplicate rows while keeping
-## track of their frequency.
-compress.data.frame<-function(x){
-  x<-sort(x)
-  firsts<-which(!duplicated(x))
-  freqs<-diff(c(firsts,nrow(x)+1))
-  x<-x[firsts,]
-  list(rows=x,frequencies=freqs)
-}
-
-## Sorts rows of a data frame in lexicographic order.
-sort.data.frame<-function(x){
-  x[do.call(order,sapply(seq_along(x),function(i)x[[i]],simplify=FALSE)),]
-}

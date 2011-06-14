@@ -66,12 +66,6 @@
 #   style            : the style of ML estimation to use, as one of "Newton-Raphson",
 #                      "Robbins-Monro", "Stochastic-Approximation","Stepping";
 #                      default="Robbins-Monro"
-#   style.dyn        : the style of method of moments estimation to use, as "Robbins-Monro",
-#                      "SPSA" or "SPSA2"; "Robbins-Monro" should only be used if it is
-#                      known a priori that the derivative of each element of the equilibrium
-#                      expected values of statistics of interest with respect to the
-#                      corresponding formation phase parameter is positive;
-#                      default="Robbins-Monro"
 #   phase1_n         : the number of MCMC samples to draw in Phase 1 of the stochastic
 #                      approximation algorithm; default=7 + 3*(# of model terms) if
 #                      relevant, otherwise NULL
@@ -99,27 +93,11 @@
 #                      base portion of 'phase2n', which is added to 7+(the number
 #                      of formation coefficients) to form 'phase2n'; default=100
 #   RobMon.phase3n   :  ??, i couldn't find this used anywhere; default=500
-#   SPSA.iterations  : the number of iterations to use in the SPSA sampling
-#   SPSA.a           : see the next 2 params; default=1
-#   SPSA.alpha       : see the next 2 params; default=.602
-#   SPSA.A           : this and the 2 params above help to define the
-#                        'gain' paramater as
-#                            SPSA.a/(SPSA.A +i +1)^(SPSA.alpha)
-#                        where i is indexed from 0 to SPSA.iterations;
-#                      default=100
-#   SPSA.c           : see the next param; default=1
-#   SPSA.gamma       : this and the param above help to define the 'diff'
-#                      parameter as
-#                             SPSA.c/(i+1)^(SPSA.gamma)
-#                      where i is indexed from 0 to SPSA.iterations;
-#                      default=1000
 #   stepMCMCsize       : MCMC sample size for the preliminary steps of the "Stepping"
 #                        optimization style; default=100
 #   gridsize           : a integer N such that the "Stepping" style of optimization
 #                        chooses a step length equal to the largest possible multiple
 #                        of 1/N;  default=100
-#   dyninterval        : number of MH proposals for each phase in the dynamic network
-#                        simulation; default=1000
 #   packagenames       : the packages in which change statistics are found; default="ergm"
 #   parallel           : the number of threads in which to run sampling; default=0
 #   returnMCMCstats    : whether the matrix of change stats from the MCMC should be returned as
@@ -131,7 +109,6 @@
 ######################################################################################################
 
 control.ergm<-function(prop.weights="default",prop.args=NULL,
-                       prop.weights.diss="default",prop.args.diss=NULL,
                        nr.maxit=100,
                        nr.reltol=sqrt(.Machine$double.eps),
                        calc.mcmc.se=TRUE, hessian=TRUE,
@@ -163,7 +140,6 @@ control.ergm<-function(prop.weights="default",prop.args=NULL,
                        initial.network=NULL,
                        style=c("Newton-Raphson","Robbins-Monro",
                                "Stochastic-Approximation","Stepping"),
-                       style.dyn=c("Robbins-Monro","SPSA", "SPSA2"),
                        phase1_n=NULL, initial_gain=NULL, 
                        nsubphases="maxit", niterations=NULL, phase3_n=NULL,
                        RobMon.phase1n_base=7,
@@ -171,15 +147,8 @@ control.ergm<-function(prop.weights="default",prop.args=NULL,
                        RobMon.phase2sub=7,
                        RobMon.init_gain=0.5,
                        RobMon.phase3n=500,
-                       SPSA.a=1,
-                       SPSA.alpha=0.602,
-                       SPSA.A=100,
-                       SPSA.c=1,
-                       SPSA.gamma=0.101,
-                       SPSA.iterations=1000,
                        stepMCMCsize=100,
                        gridsize=100,
-                       dyninterval=1000,
                        packagenames="ergm",
                        parallel=0,
                        returnMCMCstats=TRUE){
@@ -191,7 +160,6 @@ control.ergm<-function(prop.weights="default",prop.args=NULL,
   control$metric<-match.arg(metric)
   control$method<-match.arg(method)
   control$style<-match.arg(style)
-  control$style.dyn<-match.arg(style.dyn)
   control$nsubphases<-match.arg(nsubphases)
   if(missing(trustregion) & control$style=="Stochastic-Approximation"){
    control$trustregion <- 0.5
