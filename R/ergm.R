@@ -10,10 +10,8 @@
 #                    default="MPLE"
 #   MPLEonly      :  whether MPL estimation should be used (T or F); this is
 #                    ignored if 'MLestimate' is set; default=FALSE
-#   MLestimate    :  this can be either a logical indicating whether ML
-#                    estimation should be used (T or F) or this may be a
-#                    one of the character strings "formation" or "dissolution"
-#                    indicating which process ??
+#   MLestimate    :  this is a logical indicating whether ML
+#                    estimation should be used (TRUE or FALSE)
 #                    default='!MPLEonly'
 #   seed          :  an integer starting value for the random number generator;
 #                    default=NULL
@@ -141,124 +139,20 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
 
   nw <- ergm.getnetwork(formula)
   proposalclass <- "c"
-  # Next for conditional MLE in dynamic model 
-  if(is.character(MLestimate) && 
-     (MLestimate=="formation") | (MLestimate=="dissolution")){
-   lhs <- terms(formula)[[2]]
-   if( is.call(lhs) && (lhs[[1]]=="|")){
-   if(MLestimate=="formation"){
-    proposalclass <- "fmle"
-    y0 <- ergm.getnetwork(as.formula(paste("~",lhs[[3]])))
-    y1 <- ergm.getnetwork(as.formula(paste("~",lhs[[2]])))
-    #
-    # nw contents:
-    # y0 y1  nw  nw[2] initial
-    #  0  0   0    0    0
-    #  0  1   1    0    1
-    #  0 NA  NA    0    NA
-    #  1  0   1    1    NA
-    #  1  1   1    1    NA
-    #  1 NA   1    1    NA
-    # NA  0  NA    0    NA
-    # NA  1   1    0    NA
-    # NA NA  NA    0    NA
-    #
-    nw <- network.copy(y1)
-    y0edges <- as.sociomatrix(y0)
-    y0edges[is.na(y0edges)] <- 0
-    y1edges <- as.sociomatrix(y1)
-    y1edges[is.na(y1edges)] <- 0
-    ydiscordantedges <- as.matrix(network((!y1edges)&y0edges,
-      directed=is.directed(y0)),matrix.type="edgelist")
-    add.edges(nw,ydiscordantedges[,1],ydiscordantedges[,2])
-    nwm <- network.copy(y1)
-    y0edges <- as.sociomatrix(y0)
-    y0edges[is.na(y0edges)] <- 1
-    y0edges <- as.matrix(network(y0edges,directed=is.directed(y0)),
-                         matrix.type="edgelist")
-    if(nrow(y0edges)>0){
-     for(i in 1:nrow(y0edges)){
-      nwm[y0edges[i,1],y0edges[i,2]] <- NA
-     }
-    }
-    MHproposal.obs <- "formationNonObservedMLE"
-   }
-   if(MLestimate=="dissolution"){
-    proposalclass <- "dmle"
-    y0 <- ergm.getnetwork(as.formula(paste("~",lhs[[3]])))
-    y1 <- ergm.getnetwork(as.formula(paste("~",lhs[[2]])))
-    # nw contents:
-    # y0 y1  nw  nw[2] initial
-    #  0  0   0    0    NA
-    #  0  1   0    0    NA
-    #  0 NA   0    0    NA
-    #  1  0   0    1     0
-    #  1  1   1    1     1
-    #  1 NA  NA    1    NA
-    # NA  0   0    0    NA
-    # NA  1  NA    0    NA
-    # NA  NA NA    0    NA
-    nw <- network.copy(y1)
-    y0edges <- as.sociomatrix(y0)
-    y0edges[is.na(y0edges)] <- 1
-    y1edges <- as.sociomatrix(y1)
-    y1edges[is.na(y1edges)] <- 1
-    yminusedges <- as.matrix(network((!y0edges)&y1edges,directed=is.directed(y0)),matrix.type="edgelist")
-    y1edges <- cbind(unlist(lapply(y1$mel, "[[", "outl")),unlist(lapply(y1$mel, "[[", "inl")))
-    y1delete <- match(yminusedges[,1]+yminusedges[,2]*network.size(y1),
-                      y1edges[,1]+y1edges[,2]*network.size(y1))
-    delete.edges(nw,y1delete)
-    #
-    y0edges <- as.sociomatrix(is.na(y0))
-    y1edges <- as.sociomatrix(y1)
-    y1edges[is.na(y1edges)] <- 1
-    yminusedges <- as.matrix(network(y0edges&y1edges,directed=is.directed(y0)),matrix.type="edgelist")
-    if(nrow(yminusedges)>0){
-     for(i in 1:nrow(yminusedges)){
-      nw[yminusedges[i,1],yminusedges[i,2]] <- NA
-     }
-    }
-    #
-    y0edges <- as.sociomatrix(is.na(y0))
-    y1edges <- as.sociomatrix(y1)
-    y1edges[is.na(y1edges)] <- 0
-#   yminusedges <- as.matrix(network(y0edges&(!y1edges),directed=is.directed(y0)),matrix.type="edgelist")
-    yminusedges <- as.matrix(network(y0edges,directed=is.directed(y0)),matrix.type="edgelist")
-    set.edge.attribute(y0,attrname="na",value=FALSE)
-    nwm <- network.copy(y1)
-    y0edges <- as.sociomatrix(y0)
-    y0edges[is.na(y0edges)] <- 0
-    y0edges <- as.matrix(network(!y0edges,directed=is.directed(y0)),
-                         matrix.type="edgelist")
-    if(nrow(y0edges)>0){
-     for(i in 1:nrow(y0edges)){
-      nwm[y0edges[i,1],y0edges[i,2]] <- NA
-     }
-    }
-    if(nrow(yminusedges)>0){
-     for(i in 1:nrow(yminusedges)){
-      y0[yminusedges[i,1],yminusedges[i,2]] <- 0
-     }
-    }
-    MHproposal.obs <- "dissolutionNonObservedMLE"
-   }
-   formula.passed<-formula
-   formula<-ergm.update.formula(formula,nw~.)
-   MLestimate=!MPLEonly
-  }}else{
-   nwm <- network.copy(nw)
-   # There may be a better way to specify this in the future.
 
-   MHproposal.obs<-constraints
-   
-   MHproposal.obs<-switch(tolower(obs),
-                          detrank=ergm.update.formula(MHproposal.obs,~.+ranks),
-                          MHproposal.obs)
-   
-   if(network.naedgecount(nw)) MHproposal.obs<-ergm.update.formula(MHproposal.obs,~.+observed)
-
-   if(constraints==MHproposal.obs) MHproposal.obs<-NULL
-  }
+  # Construct the constraint for the observation process.
+  # There may be a better way to specify this in the future.
+  
+  MHproposal.obs<-constraints
+  
+  MHproposal.obs<-switch(tolower(obs),
+                         detrank=ergm.update.formula(MHproposal.obs,~.+ranks),
+                         MHproposal.obs)
+  
+  if(network.naedgecount(nw)) MHproposal.obs<-ergm.update.formula(MHproposal.obs,~.+observed)
+  
+  if(constraints==MHproposal.obs) MHproposal.obs<-NULL
+  
   # End conditional MLE in dynamic model
   if(!is.null(meanstats)){
    if(!(!is.null(control$SAN.burnin) && is.na(control$SAN.burnin))){
@@ -315,7 +209,7 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
   conddeg <- switch(MHproposal$name=="CondDegree",control$drop,NULL)
   MCMCparams=c(control,
    list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,
-        maxit=maxit, Clist.dt=NULL,
+        maxit=maxit,
 	mcmc.precision=control$mcmc.precision))
 
 
@@ -323,7 +217,7 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
   if(reference!="Bernoulli" && theta0=="MPLE") stop("MPLE initial values are not implemented for weithed network ERGMs. Please specify theta0 manually.")
   theta0copy <- theta0
   initialfit <- ergm.initialfit(theta0=theta0copy, MLestimate=MLestimate, 
-                                formula=formula, nw=nwm, meanstats=meanstats,
+                                formula=formula, nw=nw, meanstats=meanstats,
                                 m=model.initial,
                                 MPLEtype=control$MPLEtype, 
                                 initial.loglik=control$initial.loglik,
@@ -379,11 +273,6 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
   }
 
   Clist <- ergm.Cprepare(nw, model, response=response)
-  if((MHproposal$name!="FormationMLE")&(MHproposal$name!="DissolutionMLE")){
-    Clist.dt <- list(heads=NULL, tails=NULL, nedges=0, dir=is.directed(nw))
-  }else{
-    Clist.dt <- ergm.Cprepare(y0, model)
-  }
   Clist$obs <- summary(model$formula, drop=FALSE, response=response)
 
   Clist$meanstats <- Clist$obs
@@ -409,7 +298,6 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
                   list(samplesize=MCMCsamplesize, burnin=burnin,
                        interval=interval,
                        maxit=maxit,
-                       Clist.dt=Clist.dt, 
                        mcmc.precision=control$mcmc.precision))
 
 

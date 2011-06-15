@@ -24,8 +24,6 @@
 #   MCMCparams:  list of MCMC tuning parameters; those recognized include
 #       parallel    : the number of threads in which to run the sampling
 #       packagenames: names of packages; this is only relevant if "ergm" is given
-#       Clist.dt    : this is a Clist, similar to that returned by
-#                     <ergm.Cprepare>, but this is for fitting dynamic models
 #       samplesize  : the number of networks to be sampled
 #       interval    : the number of proposals to ignore between sampled networks
 #       burnin      : the number of proposals to initially ignore for the burn-in
@@ -54,9 +52,6 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
                                verbose, response=NULL) {
   
   Clist <- ergm.Cprepare(nw, model, response=response)
-  if(is.null(MCMCparams$Clist.dt)){
-    MCMCparams$Clist.dt <- list(tails=NULL, heads=NULL, nedges=0, dir=is.directed(nw))
-  }
 # maxedges <- max(5000, Clist$nedges)
   maxedges <- MCMCparams$maxedges
 #
@@ -187,8 +182,6 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
 #   eta0      : the canonical eta parameters
 #   MCMCparams: a list of parameters for controlling the MCMC algorithm;
 #               recognized components include:
-#       Clist.dt    : this is a Clist, similar to that returned by
-#                     <ergm.Cprepare>, but this is for fitting dynamic models
 #       samplesize  : the number of networks to be sampled
 #       stats       : ??
 #       interval    : the number of proposals to ignore between sampled networks
@@ -215,11 +208,6 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
   tails <- Clist$tails
   heads <- Clist$heads
   weights <- Clist$weights
-  if(!is.null(MCMCparams$Clist.dt)){
-    nedges[3] <- MCMCparams$Clist.dt$nedges
-    tails <- c(tails, MCMCparams$Clist.dt$tails)
-    heads <- c(heads, MCMCparams$Clist.dt$heads)
-  }
   if(is.null(Clist$weights)){
   z <- .C("MCMC_wrapper",
   as.integer(numnetworks), as.integer(nedges),

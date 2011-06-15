@@ -20,7 +20,9 @@ ConstraintImplications<-list(edges=character(0),
                              indegrees=c("edges"),
                              outdegrees=c("edges"),
                              hamming=character(0),
-                             observed=character(0))
+                             observed=character(0),
+                             atleast=character(0),
+                             atmost=character(0))
 
 
 
@@ -111,8 +113,6 @@ InitConstraint.bd<-function(conlist, attribs=0, maxout=0, maxin=0, minout=0, min
    conlist
 }
 
-
-
 #InitConstraint.indegrees<-function(conlist){
 #   if (nargs()>1)
 #     stop(paste("Vertex indegrees constraint does not take arguments at this time."), call.=FALSE)
@@ -154,4 +154,16 @@ InitConstraint.ranks<-function(conlist){
      stop(paste("Rank constraint does not take arguments at this time."), call.=FALSE)
    conlist$ranks<-list()
    conlist
+}
+
+InitConstraint.atleast<-function(conlist,nw=NULL){
+  if(is.null(nw)) stop("Formation constraint ``atleast'' requires a baseline network.",call.=FALSE)
+  conlist$atleast<-list(nw=nw)
+  conlist
+}
+
+InitConstraint.atmost<-function(conlist,nw=NULL){
+  if(is.null(nw)) stop("Dissolution constraint ``atmost'' requires a baseline network.",call.=FALSE)
+  conlist$atmost<-list(nw=nw)
+  conlist
 }

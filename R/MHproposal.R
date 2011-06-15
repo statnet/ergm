@@ -86,8 +86,8 @@ MHproposal.character <- function(object, arguments, nw, model, ..., response=NUL
 #   weights    :  specifies the method used to allocate probabilities of being proposed
 #                 to dyads; options are "TNT", "TNT10", "random", "nonobserved" and
 #                 "default"; default="default"
-#   class      :  the class of the proposal; choices include "c", "f", "d", "fmle"
-#                 and "dmle"; default="c"
+#   class      :  the class of the proposal; choices include "c", "f", and "d"
+#                 default="c"
 #
 ########################################################################################
 

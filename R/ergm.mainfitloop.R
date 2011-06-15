@@ -20,8 +20,6 @@
 #       maxit      : the maximum number of iterations to use
 #       parallel   : the number of threads in which to run the sampling
 #       packagenames: names of packages; this is only relevant if "ergm" is given
-#       Clist.dt   : this is a Clist, similar to that returned by
-#                     <ergm.Cprepare>, but this is for fitting dynamic models
 #       interval    : the number of proposals to ignore between sampled networks
 #       burnin      : the number of proposals to initially ignore for the burn-in
 #                     period

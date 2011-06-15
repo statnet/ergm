@@ -8,7 +8,7 @@
 #============================================================================
 
 
-########################################################################
+##########################################2##############################
 # Each of the <InitMHP.X> functions initializes and returns a
 # MHproposal list; when appropriate, proposal types are checked against
 # covariates and network types for 1 of 2 side effects: to print warning
@@ -33,19 +33,39 @@
 
 
 InitMHP.formationMLE <- function(arguments, nw, model) {
-  MHproposal <- list(name = "FormationMLE", inputs=NULL, package="ergm")
+  MHproposal <- list(name = "FormationMLE", inputs=ergm.Cprepare.el(arguments$atleast$nw), package="ergm")
   MHproposal
 }
+
 InitMHP.dissolutionMLE <- function(arguments, nw, model) {
-  MHproposal <- list(name = "DissolutionMLE", inputs=NULL, package="ergm")
+  MHproposal <- list(name = "DissolutionMLE", inputs=ergm.Cprepare.el(arguments$atmost$nw), package="ergm")
   MHproposal
 }
 InitMHP.formationNonObservedMLE <- function(arguments, nw, model) {
-  MHproposal <- list(name = "FormationNonObservedMLE", inputs=ergm.Cprepare.miss(nw), package="ergm")
+  ## Precalculate toggleable dyads: dyads which
+  ## * are unobserved in y[t]
+  ## * are non-ties in y[t-1]
+
+  
+  
+  y0<-arguments$atleast$nw
+  y.miss<-is.na(nw)
+
+  ## Given the list of toggleable dyads, no formation-specific proposal function is needed:
+  MHproposal <- list(name = "randomtoggleNonObserved", inputs=ergm.Cprepare.el(y.miss-y0), package="ergm")
   MHproposal
 }
+
 InitMHP.dissolutionNonObservedMLE <- function(arguments, nw, model) {
-  MHproposal <- list(name = "DissolutionNonObservedMLE", inputs=ergm.Cprepare.miss(nw), package="ergm")
+  ## Precalculate toggleable dyads: dyads which
+  ## * are unobserved in y[t]
+  ## * are ties in y[t-1]
+
+  y0<-arguments$atmost$nw
+  y.miss<-is.na(nw)
+
+  ## Given the list of toggleable dyads, no formation-specific proposal function is needed:
+  MHproposal <- list(name = "randomtoggleNonObserved", inputs=ergm.Cprepare.el(y.miss & y0), package="ergm")
   MHproposal
 }
 
