@@ -13,12 +13,15 @@
 #define MAX_TRIES 5000
 
 /* MH_* proposal failed codes. */
-/* Heads: */
-#define MH_FAILED 0
 /* Tails: */
+#define MH_FAILED 0
+/* Heads: */
 #define MH_UNRECOVERABLE 0
 #define MH_IMPOSSIBLE 1
 #define MH_UNSUCCESSFUL 2
+
+/* "Quit" threshold for unsuccessful proposals as a fraction of steps. */
+#define MH_QUIT_UNSUCCESSFUL 0.05
 
 
 /* Macros to test for logical inequality (XOR) and logical equality (XNOR). */
@@ -36,6 +39,10 @@
    the value of ntoggles to be the largest possible number of toggles
    required, so that this amount of memory can be allocated.
 */
+
+
+/* *** don't forget tail-> head */
+
 typedef struct WtMHproposalstruct {
   void (*func)(struct WtMHproposalstruct*, WtNetwork*);
   Edge ntoggles;
@@ -44,6 +51,7 @@ typedef struct WtMHproposalstruct {
   double *toggleweight;
   double logratio;
   int status;
+  WtNetwork **discord;
   double *inputs; /* may be used if needed, ignored if not. */
   /* int multiplicity; Is this needed? I removed all references to
        'multiplicity' everywhere */

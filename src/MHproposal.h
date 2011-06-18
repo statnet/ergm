@@ -30,12 +30,15 @@ void DegreeBoundDestroy(DegreeBound *bd);
 #define MAX_TRIES 5000
 
 /* MH_* proposal failed codes. */
-/* Heads: */
-#define MH_FAILED 0
 /* Tails: */
+#define MH_FAILED 0
+/* Heads: */
 #define MH_UNRECOVERABLE 0
 #define MH_IMPOSSIBLE 1
 #define MH_UNSUCCESSFUL 2
+
+/* "Quit" threshold for unsuccessful proposals as a fraction of steps. */
+#define MH_QUIT_UNSUCCESSFUL 0.05
 
 
 /* Macros to test for logical inequality (XOR) and logical equality (XNOR). */

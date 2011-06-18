@@ -37,16 +37,20 @@ InitMHP.formationMLE <- function(arguments, nw, model) {
   MHproposal
 }
 
+InitMHP.formationMLETNT <- function(arguments, nw, model) {
+  MHproposal <- list(name = "FormationMLETNT", inputs=ergm.Cprepare.el(arguments$atleast$nw), package="ergm")
+  MHproposal
+}
+
 InitMHP.dissolutionMLE <- function(arguments, nw, model) {
   MHproposal <- list(name = "DissolutionMLE", inputs=ergm.Cprepare.el(arguments$atmost$nw), package="ergm")
   MHproposal
 }
+
 InitMHP.formationNonObservedMLE <- function(arguments, nw, model) {
   ## Precalculate toggleable dyads: dyads which
   ## * are unobserved in y[t]
   ## * are non-ties in y[t-1]
-
-  
   
   y0<-arguments$atleast$nw
   y.miss<-is.na(nw)

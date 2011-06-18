@@ -54,7 +54,6 @@ void MH_init(MHproposal *MHp,
 			       condAllDegExact, attriblength, nwp);
   MHp->discord=NULL;
 
-  
   /*Clean up by freeing sn and fn*/
   free((void *)fn);
   free((void *)sn);

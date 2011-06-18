@@ -47,6 +47,8 @@ void WtMH_init(WtMHproposal *MHp,
 
   MHp->inputs=inputs;
   
+  MHp->discord=NULL;
+
   /*Clean up by freeing sn and fn*/
   free((void *)fn);
   free((void *)sn);
@@ -64,6 +66,12 @@ void WtMH_init(WtMHproposal *MHp,
  A helper function to free memory allocated by WtMH_init.
 *********************/
 void WtMH_free(WtMHproposal *MHp){
+  if(MHp->discord){
+    for(WtNetwork **nwp=MHp->discord; *nwp!=NULL; nwp++){
+      WtNetworkDestroy(*nwp);
+    }
+    free(MHp->discord);
+  }
   free(MHp->toggletail);
   free(MHp->togglehead);
   free(MHp->toggleweight);

@@ -31,7 +31,7 @@ void WtSAN_wrapper (int *dnumnets, int *nedges,
   int directed_flag;
   Vertex n_nodes, nmax, bip;
   Edge n_networks;
-  WtNetwork nw[2];
+  WtNetwork nw[1];
   WtModel *m;
   WtMHproposal MH;
   
@@ -44,12 +44,11 @@ void WtSAN_wrapper (int *dnumnets, int *nedges,
   
   directed_flag = *dflag;
 
-
   m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
 
-  if (fVerbose)
-    Rprintf("Total m->n_stats is %i; total samplesize is %d\n",
-             m->n_stats,samplesize);
+  /* Form the network */
+  nw[0]=WtNetworkInitialize(tails, heads, weights, nedges[0],
+			    n_nodes, directed_flag, bip, 0);
 
   WtMH_init(&MH, *MHproposaltype, *MHproposalpackage, inputs, *fVerbose, nw);
 
@@ -61,7 +60,9 @@ void WtSAN_wrapper (int *dnumnets, int *nedges,
   WtMH_free(&MH);
 
   /* record new generated network to pass back to R */
-  newnetworktails[0]=newnetworkheads[0]=WtEdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,newnetworkweights+1,nw,nmax);
+  /* *** and don't forget edges are (tail, head) */
+  if(nmax > 0)
+    newnetworktails[0]=newnetworkheads[0]=WtEdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,newnetworkweights+1,nw,nmax-1);
 
   WtModelDestroy(m);
   WtNetworkDestroy(nw);
@@ -89,6 +90,11 @@ void WtSANSample (WtMHproposal *MHp,
   
   components = diam = 0;
   
+
+  if (fVerbose)
+    Rprintf("Total m->n_stats is %i; total samplesize is %d\n",
+             m->n_stats,samplesize);
+
   /*********************
   networkstatistics are modified in groups of m->n_stats, and they
   reflect the CHANGE in the values of the statistics from the
@@ -180,21 +186,15 @@ void WtSANMetropolisHastings (WtMHproposal *MHp,
   deltainvsig = (double *)malloc( m->n_stats * sizeof(double));
   delta = (double *)malloc( m->n_stats * sizeof(double));
   
-//  div=0.0;
-//    Rprintf("\n");
-//for (i=0; i<m->n_stats; i++){
-//  div += (networkstatistics[i])*(networkstatistics[i]);
-//  Rprintf("i %d %f\n",i,networkstatistics[i]);
-//}
-
   step = taken = 0;
 /*  if (fVerbose)
     Rprintf("Now proposing %d WtMH steps... ", nsteps); */
   while (step < nsteps) {
     MHp->logratio = 0;
     (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
-    //      Rprintf("Back from proposal; step=%d\n",step);
-
+    
+    /* Calculate change statistics,
+     remembering that tail -> head */
     WtChangeStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, MHp->toggleweight, nwp, m);
       
     dif=0.0;
@@ -210,13 +210,6 @@ void WtSANMetropolisHastings (WtMHproposal *MHp,
      ip+=deltainvsig[i]*((m->workspace[i])+2.0*networkstatistics[i]);
      dif+=delta[i]*networkstatistics[i];
     }
-//Rprintf("i %d j %d ic %f\n",i,j,invcov[i+(m->n_stats)*j]);
-//if(i<=1){Rprintf("i %d %f %f\n",i,div,div*div*dif/(tau[i]*asig2[i]));}
-//Rprintf(" ip %f dif %f\n",ip,dif);
-//Rprintf("ip %f div %f networkstatistics[0] %f networkstatistics[1] %f\n",
-//	 ip,div,networkstatistics[0],networkstatistics[1]);
-//  Rprintf("ip %f m->workspace[i] %f ns %f asig2[0] %f div %f \n",ip, m->workspace[0],networkstatistics[0],asig2[0],div);
-// Rprintf("step %d tau[0] %f tau[1] %f div %f \n",step, tau[0],tau[1],div);
       
     /* if we accept the proposed network */
     if (ip <= 0.0) { 
@@ -225,22 +218,26 @@ void WtSANMetropolisHastings (WtMHproposal *MHp,
 // if (ip <= 0.0 || (ip/dif) < (nsteps-step)*0.001*tau[0]/(1.0*nsteps)) { 
 //  if (ip > exp(theta[0])*(m->n_stats)*unif_rand()/(1.0+exp(theta[0])) { 
 //  if (ip > tau[0]*(m->n_stats)*unif_rand()) { 
+
       /* Make proposed toggles (updating timestamps--i.e., for real this time) */
       for (i=0; i < MHp->ntoggles; i++){
         WtSetEdge(MHp->toggletail[i], MHp->togglehead[i], MHp->toggleweight[i], nwp);
+
+	if(MHp->discord)
+	  for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
+	    // This could be speeded up by implementing an "incrementation" function.
+	    WtSetEdge(MHp->toggletail[i],  MHp->togglehead[i], MHp->toggleweight[i]-WtGetEdge(MHp->toggletail[i],  MHp->togglehead[i], *nwd)+ MHp->toggleweight[i]-WtGetEdge(MHp->toggletail[i],  MHp->togglehead[i], nwp), *nwd);
+	  }
       }
       /* record network statistics for posterity */
       for (i = 0; i < m->n_stats; i++){
         networkstatistics[i] += m->workspace[i];
       }
-//  div=0.0;
-//    for (i=0; i<m->n_stats; i++){
-//      div += (networkstatistics[i])*(networkstatistics[i]);
-//    }
       taken++;
     }
     step++;
   }
+
 /*  if (fVerbose)
     Rprintf("%d taken (MCMCtimer=%d)\n", taken, nwp->duration_info.MCMCtimer); */
 

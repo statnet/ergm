@@ -352,7 +352,6 @@ double WtGetEdge (Vertex tail, Vertex head, WtNetwork *nwp)
   else return 0;
 }
 
-
 /*****************
  Edge WtSetEdgeWithTimestamp
 

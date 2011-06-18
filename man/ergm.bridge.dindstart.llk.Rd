@@ -5,7 +5,7 @@
   dyad-independent ERGM as a staring point.
 }
 \description{
-  This function is a wrapper around \code{\link{bergm.bridge.llr}} that uses a
+  This function is a wrapper around \code{\link{ergm.bridge.llr}} that uses a
   dyad-independent ERGM as a starting point for bridge sampling to
   estimate the log-likelihood for a given dyad-dependent model and
   parameter configuration. The dyad-independent model may be specified

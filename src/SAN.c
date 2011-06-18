@@ -35,7 +35,7 @@ void SAN_wrapper ( int *dnumnets, int *nedges,
   int directed_flag;
   Vertex n_nodes, nmax, bip;
   Edge n_networks;
-  Network nw[2];
+  Network nw[1];
   Model *m;
   MHproposal MH;
 
@@ -73,10 +73,9 @@ void SAN_wrapper ( int *dnumnets, int *nedges,
   /* record new generated network to pass back to R */
   /* *** and don't forget edges are (tail, head) */
   if(nmax > 0)
-  newnetworktails[0]=newnetworkheads[0]=EdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,nw,nmax-1);
+    newnetworktails[0]=newnetworkheads[0]=EdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,nw,nmax-1);
 
   ModelDestroy(m);
-
   NetworkDestroy(nw);
   PutRNGstate();  /* Disable RNG before returning */
 }
@@ -101,14 +100,12 @@ void SANSample (MHproposal *MHp,
   int i, j, components, diam;
   
   components = diam = 0;
-  nwp->duration_info.MCMCtimer=0;
   
 
   if (fVerbose)
     Rprintf("Total m->n_stats is %i; total samplesize is %d\n",
              m->n_stats,samplesize);
 
-  
   /*********************
   networkstatistics are modified in groups of m->n_stats, and they
   reflect the CHANGE in the values of the statistics from the
@@ -208,7 +205,6 @@ void SANMetropolisHastings (MHproposal *MHp,
     MHp->logratio = 0;
     (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
     
-
     /* Calculate change statistics,
      remembering that tail -> head */
     ChangeStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, nwp, m);
@@ -237,7 +233,7 @@ void SANMetropolisHastings (MHproposal *MHp,
 
       /* Make proposed toggles (updating timestamps--i.e., for real this time) */
       for (i=0; i < MHp->ntoggles; i++){
-        ToggleEdgeWithTimestamp(MHp->toggletail[i], MHp->togglehead[i], nwp);
+        ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
 
 	if(MHp->discord)
 	  for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){

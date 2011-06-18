@@ -28,7 +28,7 @@ void WtMCMC_wrapper (int *dnumnets, int *nedges,
   int directed_flag;
   Vertex n_nodes, nmax, bip;
   Edge n_networks;
-  WtNetwork nw[2];
+  WtNetwork nw[1];
   WtModel *m;
   WtMHproposal MH;
   
@@ -63,12 +63,6 @@ void WtMCMC_wrapper (int *dnumnets, int *nedges,
 	      *fVerbose, nw, m);
 
   WtMH_free(&MH);
-/*   int ii;
-   double mos=0.0;
-   for(ii=0; ii < bd->attrcount; ii++) 
-     mos += bd->maxout[ii];
-   Rprintf("bd -> attrcount = %d, sum = %f\n", ii, mos); */
-        
         
 /* Rprintf("Back! %d %d\n",nw[0].nedges, nmax); */
 
@@ -145,8 +139,6 @@ void WtMCMCSample (WtMHproposal *MHp,
       networkstatistics += m->n_stats;
       /* This then adds the change statistics to these values */
       
-      /* Catch massive number of edges caused by degeneracy */
-      if(nwp->nedges > (50000-1000)){interval=1;}
       WtMetropolisHastings (MHp, theta, networkstatistics, interval, &staken,
                            fVerbose, nwp, m);
       tottaken += staken;
@@ -203,47 +195,64 @@ void WtMetropolisHastings (WtMHproposal *MHp,
 			 int fVerbose,
 			 WtNetwork *nwp,
 			 WtModel *m) {
-  int step, taken;
-  int i;
-  double ip, cutoff;
-  
-  step = taken = 0;
-  /*  if (fVerbose)
+
+  unsigned int taken=0, unsuccessful=0;
+/*  if (fVerbose)
     Rprintf("Now proposing %d MH steps... ", nsteps); */
-  while (step < nsteps) {
+  for(unsigned int step=0; step < nsteps; step++) {
     MHp->logratio = 0;
     (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
-    
-    // If the proposal failed, skip it.
-    if(*MHp->toggletail!=MH_FAILED){
-      /* Calculate change statistics. */
-      WtChangeStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, MHp->toggleweight, nwp, m);
 
-      /* Calculate inner product */
-      for (i=0, ip=0.0; i<m->n_stats; i++){
-	ip += theta[i] * m->workspace[i];
+    if(MHp->toggletail[0]==MH_FAILED){
+      if(MHp->togglehead[0]==MH_UNRECOVERABLE) 
+	error("Something very bad happened during proposal. Memory has not been deallocated, so restart R soon.");
+      if(MHp->togglehead[0]==MH_IMPOSSIBLE) 
+	// TODO: We need a way to gracefully return from C code,
+	// deallocating the memory.
+	error("MH Proposal function encountered a configuration from which no toggle(s) can be proposed. Memory has not been deallocated, so restart R soon.");
+      if(MHp->togglehead[0]==MH_UNSUCCESSFUL){
+	warning("MH Proposal function failed to find a valid proposal.");
+	unsuccessful++;
+	if(unsuccessful>taken*MH_QUIT_UNSUCCESSFUL)
+	  error("Too many MH Proposal function failures. Memory has not been deallocated, so restart R soon.");
+
+	continue;
       }
-      /* The logic is to set exp(cutoff) = exp(ip) * qratio ,
-	 then let the MH probability equal min{exp(cutoff), 1.0}.
-	 But we'll do it in log space instead.  */
-      cutoff = ip + MHp->logratio;
-      
-      /* if we accept the proposed network */    
-      if (cutoff >= 0.0 || log(unif_rand()) < cutoff) { 
-	/* Make proposed toggles (updating timestamps--i.e., for real this time) */
-	for (i=0; i < MHp->ntoggles; i++){
-	  WtSetEdge(MHp->toggletail[i], MHp->togglehead[i], MHp->toggleweight[i], nwp);
-	}
-	/* record network statistics for posterity */
-	for (i = 0; i < m->n_stats; i++){
-	  networkstatistics[i] += m->workspace[i];	  
-	}
-	taken++;
-      }
-    }else{
-      // For the moment, just break.
-      if(*MHp->togglehead==MH_IMPOSSIBLE || *MHp->togglehead==MH_UNRECOVERABLE) break;
     }
+    
+    /* Calculate change statistics,
+       remembering that tail -> head */
+    WtChangeStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, MHp->toggleweight, nwp, m);
+    
+    /* Calculate inner product */
+    double ip=0;
+    for (unsigned int i=0; i<m->n_stats; i++){
+      ip += theta[i] * m->workspace[i];
+    }
+    /* The logic is to set cutoff = ip+logratio ,
+       then let the MH probability equal min{exp(cutoff), 1.0}.
+       But we'll do it in log space instead.  */
+    double cutoff = ip + MHp->logratio;
+    
+    /* if we accept the proposed network */
+    if (cutoff >= 0.0 || log(unif_rand()) < cutoff) { 
+      /* Make proposed toggles (updating timestamps--i.e., for real this time) */
+      for(unsigned int i=0; i < MHp->ntoggles; i++){
+	WtSetEdge(MHp->toggletail[i], MHp->togglehead[i], MHp->toggleweight[i], nwp);
+	
+	if(MHp->discord)
+	  for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
+	    // This could be speeded up by implementing an "incrementation" function.
+	    WtSetEdge(MHp->toggletail[i],  MHp->togglehead[i], MHp->toggleweight[i]-WtGetEdge(MHp->toggletail[i],  MHp->togglehead[i], *nwd)+ MHp->toggleweight[i]-WtGetEdge(MHp->toggletail[i],  MHp->togglehead[i], nwp), *nwd);
+	  }
+      }
+      /* record network statistics for posterity */
+      for (unsigned int i = 0; i < m->n_stats; i++){
+	networkstatistics[i] += m->workspace[i];
+      }
+      taken++;
+    }
+
 
 /*  Catch massive number of edges caused by degeneracy */
 /*  if(nwp->nedges > (100000-1000)){step=nsteps;} */

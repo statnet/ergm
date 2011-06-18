@@ -31,7 +31,7 @@ void MCMC_wrapper (int *dnumnets, int *nedges,
   int directed_flag;
   Vertex n_nodes, nmax, bip;
   Edge n_networks;
-  Network nw[3];
+  Network nw[1];
   Model *m;
   MHproposal MH;
   
@@ -97,7 +97,6 @@ void MCMCSample (MHproposal *MHp,
   
   originterval = interval;
   components = diam = 0;
-  nwp->duration_info.MCMCtimer=0;
   
 /*  if (fVerbose) {
     Rprintf("Simulating %d stats on %ld networks using %s",
@@ -201,55 +200,69 @@ void MCMCSample (MHproposal *MHp,
 void MetropolisHastings (MHproposal *MHp,
 			 double *theta, double *networkstatistics,
 			 int nsteps, int *staken,
-       int fVerbose,
+			 int fVerbose,
 			 Network *nwp,
 			 Model *m) {
-  int step, taken;
-  int i;
-  double ip, cutoff;
-  
-  step = taken = 0;
+
+  unsigned int taken=0, unsuccessful=0;
 /*  if (fVerbose)
     Rprintf("Now proposing %d MH steps... ", nsteps); */
-  while (step < nsteps) {
+  for(unsigned int step=0; step < nsteps; step++) {
     MHp->logratio = 0;
     (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
+
+    if(MHp->toggletail[0]==MH_FAILED){
+      if(MHp->togglehead[0]==MH_UNRECOVERABLE) 
+	error("Something very bad happened during proposal. Memory has not been deallocated, so restart R soon.");
+      if(MHp->togglehead[0]==MH_IMPOSSIBLE) 
+	// TODO: We need a way to gracefully return from C code,
+	// deallocating the memory.
+	error("MH Proposal function encountered a configuration from which no toggle(s) can be proposed. Memory has not been deallocated, so restart R soon.");
+      if(MHp->togglehead[0]==MH_UNSUCCESSFUL){
+	warning("MH Proposal function failed to find a valid proposal.");
+	unsuccessful++;
+	if(unsuccessful>taken*MH_QUIT_UNSUCCESSFUL)
+	  error("Too many MH Proposal function failures. Memory has not been deallocated, so restart R soon.");
+
+	continue;
+      }
+    }
     
     /* Calculate change statistics,
-     remembering that tail -> head */
+       remembering that tail -> head */
     ChangeStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, nwp, m);
-      
+    
     /* Calculate inner product */
-    for (i=0, ip=0.0; i<m->n_stats; i++){
+    double ip=0;
+    for (unsigned int i=0; i<m->n_stats; i++){
       ip += theta[i] * m->workspace[i];
     }
     /* The logic is to set cutoff = ip+logratio ,
-    then let the MH probability equal min{exp(cutoff), 1.0}.
-    But we'll do it in log space instead.  */
-    cutoff = ip + MHp->logratio;
-      
+       then let the MH probability equal min{exp(cutoff), 1.0}.
+       But we'll do it in log space instead.  */
+    double cutoff = ip + MHp->logratio;
+    
     /* if we accept the proposed network */
     if (cutoff >= 0.0 || log(unif_rand()) < cutoff) { 
       /* Make proposed toggles (updating timestamps--i.e., for real this time) */
-      for(i=0; i < MHp->ntoggles; i++){
-        ToggleEdgeWithTimestamp(MHp->toggletail[i], MHp->togglehead[i], nwp);
-      
+      for(unsigned int i=0; i < MHp->ntoggles; i++){
+	ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
+	
 	if(MHp->discord)
 	  for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
 	    ToggleEdge(MHp->toggletail[i],  MHp->togglehead[i], *nwd);
 	  }
       }
       /* record network statistics for posterity */
-      for (i = 0; i < m->n_stats; i++){
-        networkstatistics[i] += m->workspace[i];
+      for (unsigned int i = 0; i < m->n_stats; i++){
+	networkstatistics[i] += m->workspace[i];
       }
       taken++;
     }
-    step++;
   }
-/*  if (fVerbose)
-    Rprintf("%d taken (MCMCtimer=%d)\n", taken, nwp->duration_info.MCMCtimer); */
-
+  /*  if (fVerbose)
+      Rprintf("%d taken (MCMCtimer=%d)\n", taken, nwp->duration_info.MCMCtimer); */
+  
   *staken = taken;
 }
 
