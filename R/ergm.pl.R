@@ -71,8 +71,10 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
   # number of observed (numobs) and also "turn off" the missing edges by
   # setting offset to 1 in the corresponding rows.
   if(Clist.miss$nedges>0){
-    temp <- matrix(0,ncol=n,nrow=n)
-    base <- cbind(as.vector(col(temp)), as.vector(row(temp)))
+    nrows <- ifelse(bip>0, bip, n)
+    ncolumns <- ifelse(bip>0, n-bip, n)
+    base <- cbind(rep(1:nrows, rep(ncolumns, nrows)),
+                  rep((1+bip):(ncolumns+bip), nrows))
     base <- base[base[, 2] > base[, 1], ]
     # At this point, the rows of base are in dictionary order
     if(Clist.miss$dir){
