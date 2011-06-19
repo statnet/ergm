@@ -218,6 +218,9 @@ void MpleInit_hash(int *responsevec, double *covmat, int *weightsvector,
             /* Update mtp->dstats pointer to skip ahead by mtp->nstats */
             totalStats += mtp->nstats; 
           }
+          /* In next command, if there is an offset vector then its total
+             number of entries should match the number of times through the 
+             inner loop (i.e., the number of dyads in the network) */          
           if(!insCovMatRow(newRow, covmat, m->n_stats,
             maxNumDyadTypes, response, 
             responsevec, offset ? offset[dyadNum++]:0, 
