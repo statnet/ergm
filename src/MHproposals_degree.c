@@ -12,9 +12,11 @@ void MH_CondDegreeSimpleTetrad(MHproposal *MHp, Network *nwp)  {
     return;
   }
   GetRandEdge(&A1, &A2, nwp);
-  do{
+  GetRandEdge(&B1, &B2, nwp);
+  while(A1==B1 || A1==B2 || A2==B1 || A2==B2 || EdgetreeSearch(A1, B2, nwp->outedges) || EdgetreeSearch(B1, A2, nwp->outedges)){
+    GetRandEdge(&A1, &A2, nwp);
     GetRandEdge(&B1, &B2, nwp);
-  }while(A1==B1 || A1==B2 || A2==B1 || A2==B2 || EdgetreeSearch(A1, B2, nwp->outedges) || EdgetreeSearch(B1, A2, nwp->outedges));
+  }
   Mhead[0]=A1; Mtail[0]=A2;
   Mhead[1]=A1; Mtail[1]=B2;
   Mhead[2]=B1; Mtail[2]=B2;

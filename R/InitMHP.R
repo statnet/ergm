@@ -72,7 +72,7 @@ InitMHP.CondDegree <- function(arguments, nw, model) {
           "'indegree' instead.\n")
   }
   if(is.bipartite(nw)){
-    MHproposal$name <- "BipartiteCondDegHexadToggles"
+    MHproposal$name <- "CondDegreeSimpleTetrad"
   }
   MHproposal
 }

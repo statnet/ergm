@@ -165,22 +165,33 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
     if(verbose) cat("Constructing an approximate response network.\n")
     ## If meanstats are given, overwrite the given network and formula
     ## with SAN-ed network and formula.
-    nw<-san(formula, meanstats=meanstats,
-            theta0=if(is.numeric(theta0)) theta0,
-            response=response,
-            reference=reference,
-            constraints=constraints,
-            verbose=verbose,
-            burnin=
-            if(is.null(control$SAN.burnin)) burnin
-            else control$SAN.burnin,
-            interval=interval)
-    formula<-ergm.update.formula(formula,nw~.)
-    if (verbose) {
-     cat("Original meanstats:\n")
-     print(meanstats)
-     cat("SAN meanstats - Original meanstats:\n")
-     print(summary(formula,response=response, basis=nw)-meanstats)
+    srun <- 0
+    obs <- meanstats-meanstats
+    while(sum((obs-meanstats)^2) > 5){
+     nw<-san(formula, meanstats=meanstats,
+             theta0=if(is.numeric(theta0)) theta0,
+             response=response,
+             reference=reference,
+             constraints=constraints,
+             verbose=verbose,
+             burnin=
+             if(is.null(control$SAN.burnin)) burnin
+             else control$SAN.burnin,
+             interval=interval)
+     formula<-ergm.update.formula(formula,nw~.)
+     obs <- summary(formula,response=response, basis=nw)
+     srun <- srun + 1
+     if(verbose){
+      cat(paste("Finished SAN run",srun,"\n"))
+     }
+    if(verbose){
+      cat("SAN summary statistics:\n")
+      print(obs)
+      cat("Meanstats Goal:\n")
+      print(meanstats)
+      cat("Difference: SAN meanstats - Goal meanstats =\n")
+      print(round(obs-meanstats,0))
+    }
     }
    }
   }
@@ -206,7 +217,7 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
   # Note:  MHproposal function in CRAN version does not use the "class" argument for now
   if(!is.null(MHproposal.obs)) MHproposal.obs <- MHproposal(MHproposal.obs, weights=control$prop.weights, control$prop.args, nw, model.initial, class=proposalclass, reference=reference, response=response)
 
-  conddeg <- switch(MHproposal$name=="CondDegree",control$drop,NULL)
+  conddeg <- switch(MHproposal$name %in% c("CondDegree","CondDegreeSimpleTetrad","BipartiteCondDegHexadToggles","BipartiteCondDegTetradToggles"),control$drop,NULL)
   MCMCparams=c(control,
    list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,
         maxit=maxit,
