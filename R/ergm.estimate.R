@@ -74,6 +74,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.obs=NULL,
   # nonunique rows.  After compression, rows should be unique and each row
   # has a 'prob' weight telling what proportion of the original rows match it.
   if(compress){
+    if (verbose) { cat("Compressing the matrix of sampled sufficient statistcs.\n") }
     statsmatrix0 <- ergm.sufftoprob(statsmatrix,compress=TRUE)
     probs <- statsmatrix0[,ncol(statsmatrix0)]
     statsmatrix0 <- statsmatrix0[,-ncol(statsmatrix0), drop=FALSE]
