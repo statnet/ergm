@@ -459,7 +459,6 @@ D_CHANGESTAT_FN(d_b2degree) {
   int i, j, echange;
   Vertex b2, b2deg, d;
 
-
   /* *** don't forget tail -> head */    
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {

@@ -265,7 +265,7 @@ network
     created when \code{base=NULL}) are left out.}
 
     \item{\code{b1twostar(b1attrname, b2attrname, base=NULL)}}{\emph{ Two-star
-    census for central nodes ceneterd on the first mode of a bipartite network:}
+    census for central nodes centered on the first mode of a bipartite network:}
     This term takes two nodal attribute names, one for b1 nodes (actors in some
     contexts) and one for b2 nodes (events in some contexts). Only
     \code{b1attrname} is required; if \code{b2attrname} is not passed, it is
@@ -347,7 +347,7 @@ network
     b1 and b2 are reversed.}
     
     \item{\code{b2twostar(b1attrname, b2attrname, base=NULL)}}{\emph{ Two-star
-    census for central nodes ceneterd on the second mode of a bipartite
+    census for central nodes centered on the second mode of a bipartite
     network:} This term is exactly the same as \code{b1twostar} except that the
     roles of b1 and b2 are reversed.}    
 
@@ -359,6 +359,16 @@ network
     \code{?triad.classify} in the \code{{sna}} package. For an undirected
     network, the balanced triads are those with an even number of ties (i.e., 0
     and 2).}
+    
+    \item{\code{coincidence(d=NULL,active=0)}}{\emph{Coincident node count for the
+    second mode in a bipartite (aka two-mode) network:} By default this term adds one
+    network statistic to the model for each pair of nodes of mode two. It is
+equal to the number of (first mode) mutual partners of that pair.
+    The first mode of a bipartite
+    network object is sometimes known as the "actor" mode and the seconds as the "event" mode. So this is the number of actors going to both events in the pair. The optional argument
+    \code{d} is a two-column matrix of (row-wise) pairs indices where the first row is less than the second row. The second optional argument, \code{active}, selects pairs for which the observed count is at least \code{active}.
+    This term can only be
+    used with undirected bipartite networks. }
     
     \item{\code{concurrent(by=NULL)}}{\emph{Concurrent node count:} 
     This term adds one network statistic to the model, equal to the number of
