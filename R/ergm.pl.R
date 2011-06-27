@@ -138,54 +138,110 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     # Conditional on degree version
     eta0 <- ergm.eta(rep(0,length(conddeg$m$coef.names)), conddeg$m$etamap)
     
-    stats <- matrix(0,ncol=conddeg$Clist$nstats,nrow=MCMCparams$samplesize+1)
-    MCMCparams$stats <- stats
     maxedges <- max(5000, conddeg$Clist$nedges)
+    nsim <- 1
+    if(MCMCparams$MPLEsamplesize > 50000){
+     nsim <- ceiling(MCMCparams$MPLEsamplesize / 50000)
+     MCMCparams$MPLEsamplesize <- 50000
+     capture.output(require(snow, quietly=TRUE, warn.conflicts = FALSE))
+#
+#    Start PVM if necessary
+#
+     if(getClusterOption("type")=="PVM"){
+      if(verbose){cat("Engaging warp drive using PVM ...\n")}
+      capture.output(require(rpvm, quietly=TRUE, warn.conflicts = FALSE))
+      PVM.running <- try(.PVM.config(), silent=TRUE)
+      if(inherits(PVM.running,"try-error")){
+       hostfile <- paste(Sys.getenv("HOME"),"/.xpvm_hosts",sep="")
+       .PVM.start.pvmd(hostfile)
+       cat("no problem... PVM started by ergm...\n")
+      }
+     }else{
+      if(verbose){cat("Engaging warp drive using MPI ...\n")}
+     }
+#
+#    Start Cluster
+#
+     cl<-makeCluster(MCMCparams$parallel)
+     clusterSetupRNG(cl)
+     if("ergm" %in% MCMCparams$packagenames){
+      clusterEvalQ(cl,library(ergm))
+     }
+    }
     flush.console()
-    # *** don't forget, pass in tails first now, not heads    
-    z <- .C("MPLEconddeg_wrapper",
-            as.integer(conddeg$Clist$tails), as.integer(conddeg$Clist$heads),
-            as.integer(conddeg$Clist$nedges), as.integer(conddeg$Clist$maxpossibleedges), 
-            as.integer(conddeg$Clist$n),
-            as.integer(conddeg$Clist$dir), as.integer(conddeg$Clist$bipartite),
-            as.integer(conddeg$Clist$nterms),
-            as.character(conddeg$Clist$fnamestring),
-            as.character(conddeg$Clist$snamestring),
-            as.character(MHproposal$name), as.character(MHproposal$package),
-            as.double(conddeg$Clist$inputs), as.double(eta0),
-            as.integer(MCMCparams$samplesize+1),
-            s = as.double(t(MCMCparams$stats)),
+#
+    MCMCparams$stats <- matrix(0,ncol=conddeg$Clist$nstats,nrow=MCMCparams$MPLEsamplesize+1)
+    data <- list(conddeg=conddeg,Clist=Clist, MHproposal=MHproposal, eta0=eta0,
+         MCMCparams=MCMCparams,maxedges=maxedges,verbose=verbose)
+    simfn <- function(i, data){
+     # *** don't forget, pass in tails first now, not heads    
+     z <- .C("MPLEconddeg_wrapper",
+            as.integer(data$conddeg$Clist$tails), as.integer(data$conddeg$Clist$heads),
+            as.integer(data$conddeg$Clist$nedges), as.integer(data$conddeg$Clist$maxpossibleedges), 
+            as.integer(data$conddeg$Clist$n),
+            as.integer(data$conddeg$Clist$dir), as.integer(data$conddeg$Clist$bipartite),
+            as.integer(data$conddeg$Clist$nterms),
+            as.character(data$conddeg$Clist$fnamestring),
+            as.character(data$conddeg$Clist$snamestring),
+            as.character(data$MHproposal$name), as.character(data$MHproposal$package),
+            as.double(data$conddeg$Clist$inputs), as.double(data$eta0),
+            as.integer(data$MCMCparams$MPLEsamplesize+1),
+            s = as.double(t(data$MCMCparams$stats)),
             as.integer(0), 
             as.integer(1),
-            newnwtails = integer(maxedges),
-            newnwheads = integer(maxedges),
-            as.integer(verbose), as.integer(MHproposal$bd$attribs),
-            as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
-            as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
-            as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)),
-            as.integer(maxedges),
-            as.integer(MCMCparams$Clist.miss$tails), as.integer(MCMCparams$Clist.miss$heads),
-            as.integer(MCMCparams$Clist.miss$nedges),
+            newnwtails = integer(data$maxedges),
+            newnwheads = integer(data$maxedges),
+            as.integer(data$verbose), as.integer(data$MHproposal$bd$attribs),
+            as.integer(data$MHproposal$bd$maxout), as.integer(data$MHproposal$bd$maxin),
+            as.integer(data$MHproposal$bd$minout), as.integer(data$MHproposal$bd$minin),
+            as.integer(data$MHproposal$bd$condAllDegExact),
+as.integer(length(data$MHproposal$bd$attribs)),
+            as.integer(data$maxedges),
+            as.integer(data$MCMCparams$Clist.miss$tails), as.integer(data$MCMCparams$Clist.miss$heads),
+            as.integer(data$MCMCparams$Clist.miss$nedges),
             PACKAGE="ergm")
     # save the results
     z <- list(s=z$s, newnwtails=z$newnwtails, newnwheads=z$newnwheads)
     
     nedges <- z$newnwtails[1]
-    statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize+1,
-                          ncol=conddeg$Clist$nstats,
+    statsmatrix <- matrix(z$s, nrow=data$MCMCparams$MPLEsamplesize+1,
+                          ncol=data$conddeg$Clist$nstats,
                           byrow = TRUE)
-    colnames(statsmatrix) <- conddeg$m$coef.names
-    # xb <- apply(statsmatrix,2,diff)
-    xb <- statsmatrix[-1,]
+    colnames(statsmatrix) <- data$conddeg$m$coef.names
+    xb <- ergm.sufftoprob(statsmatrix[-1,],compress=TRUE)
+# if (verbose) {cat("Finished compression.\n")}
+    xmat <- xb[,-c(1,ncol(xb)),drop=FALSE]
+    wend <- xb[,ncol(xb)]
+#   xb <- statsmatrix[-1,]
     zy <- round(xb[,1]-1)
-    xmat <- xb[,-1,drop=FALSE]
     xmat[zy==1,] <- -xmat[zy==1,]
-    wend <- zy-zy+1
-    #
-    #foffset <- NULL
-    #foffset.full <- NULL
-    #xmat.full <- xmat
-    #zy.full <- zy
+#   wend <- zy-zy+1
+    return(list(zy=zy,xmat=xmat,wend=wend))
+    }
+#
+    if(nsim >1){
+      outlist <- clusterApplyLB(cl, as.list(1:nsim), simfn, data)
+#
+#     Process the results
+#
+      zy <- NULL
+      xmat <- NULL
+      wend <- NULL
+      for(i in (1:nsim)){
+       z <- outlist[[i]]
+       zy <- c(zy, z$zy)
+       xmat <- rbind(xmat, z$xmat)
+       wend <- c(wend, z$wend)
+      }
+      rm(outlist)
+      stopCluster(cl)
+     }else{
+      z <- simfn(1, data)
+      zy <- z$zy
+      xmat <- z$xmat
+      wend <- z$wend
+      rm(z)
+     }
   }
 
   #
