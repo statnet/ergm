@@ -16,11 +16,13 @@ void MH_CondDegreeSimpleTetrad(MHproposal *MHp, Network *nwp)  {
   while(A1==B1 || A1==B2 || A2==B1 || A2==B2 || EdgetreeSearch(A1, B2, nwp->outedges) || EdgetreeSearch(B1, A2, nwp->outedges)){
     GetRandEdge(&A1, &A2, nwp);
     GetRandEdge(&B1, &B2, nwp);
+//Rprintf("A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
   }
-  Mhead[0]=A1; Mtail[0]=A2;
-  Mhead[1]=A1; Mtail[1]=B2;
-  Mhead[2]=B1; Mtail[2]=B2;
-  Mhead[3]=B1; Mtail[3]=A2;
+//Rprintf("in A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
+  Mtail[0]=A1; Mhead[0]=A2;
+  Mtail[1]=A1; Mhead[1]=B2;
+  Mtail[2]=B1; Mhead[2]=B2;
+  Mtail[3]=B1; Mhead[3]=A2;
 }
 
 /* 
@@ -52,12 +54,12 @@ void MH_CondDegreeSimpleHexad(MHproposal *MHp, Network *nwp)  {
     GetRandEdge(&C1, &C2, nwp);
   }while(C1==A1 || C1==B1 || C1==A2 || C2==A2 || C2==B2 || C2==B1 || EdgetreeSearch(B1, C2, nwp->outedges) || EdgetreeSearch(C1, A2, nwp->outedges));
 
-  Mhead[0]=A1; Mtail[0]=A2;
-  Mhead[1]=A1; Mtail[1]=B2;
-  Mhead[2]=B1; Mtail[2]=B2;
-  Mhead[3]=B1; Mtail[3]=C2;
-  Mhead[4]=C1; Mtail[4]=C2;
-  Mhead[5]=C1; Mtail[5]=A2;
+  Mtail[0]=A1; Mhead[0]=A2;
+  Mtail[1]=A1; Mhead[1]=B2;
+  Mtail[2]=B1; Mhead[2]=B2;
+  Mtail[3]=B1; Mhead[3]=C2;
+  Mtail[4]=C1; Mhead[4]=C2;
+  Mtail[5]=C1; Mhead[5]=A2;
 }
 
 void MH_CondDegreeSimple (MHproposal *MHp, Network *nwp)  {  
