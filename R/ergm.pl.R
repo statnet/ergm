@@ -140,9 +140,9 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     
     maxedges <- max(5000, conddeg$Clist$nedges)
     nsim <- 1
-    if(MCMCparams$MPLEsamplesize > 50000){
-     nsim <- ceiling(MCMCparams$MPLEsamplesize / 50000)
-     MCMCparams$MPLEsamplesize <- 50000
+    if(MCMCparams$samplesize > 50000){
+     nsim <- ceiling(MCMCparams$samplesize / 50000)
+     MCMCparams$samplesize <- 50000
      capture.output(require(snow, quietly=TRUE, warn.conflicts = FALSE))
 #
 #    Start PVM if necessary
@@ -170,7 +170,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     }
     flush.console()
 #
-    MCMCparams$stats <- matrix(0,ncol=conddeg$Clist$nstats,nrow=MCMCparams$MPLEsamplesize+1)
+    MCMCparams$stats <- matrix(0,ncol=conddeg$Clist$nstats,nrow=MCMCparams$samplesize+1)
     data <- list(conddeg=conddeg,Clist=Clist, MHproposal=MHproposal, eta0=eta0,
          MCMCparams=MCMCparams,maxedges=maxedges,verbose=verbose)
     simfn <- function(i, data){
@@ -185,7 +185,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
             as.character(data$conddeg$Clist$snamestring),
             as.character(data$MHproposal$name), as.character(data$MHproposal$package),
             as.double(data$conddeg$Clist$inputs), as.double(data$eta0),
-            as.integer(data$MCMCparams$MPLEsamplesize+1),
+            as.integer(data$MCMCparams$samplesize+1),
             s = as.double(t(data$MCMCparams$stats)),
             as.integer(0), 
             as.integer(1),
@@ -204,7 +204,7 @@ as.integer(length(data$MHproposal$bd$attribs)),
     z <- list(s=z$s, newnwtails=z$newnwtails, newnwheads=z$newnwheads)
     
     nedges <- z$newnwtails[1]
-    statsmatrix <- matrix(z$s, nrow=data$MCMCparams$MPLEsamplesize+1,
+    statsmatrix <- matrix(z$s, nrow=data$MCMCparams$samplesize+1,
                           ncol=data$conddeg$Clist$nstats,
                           byrow = TRUE)
     colnames(statsmatrix) <- data$conddeg$m$coef.names
