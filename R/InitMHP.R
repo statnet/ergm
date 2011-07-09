@@ -195,6 +195,9 @@ InitMHP.HammingTNT <- function(arguments, nw, model) {
 }
 
 InitMHP.randomtoggleNonObserved <- function(arguments, nw, model) {
+  if(network.naedgecount(nw)==0){
+   stop("The passed network does not have any non-observed dyads.\n Hence constraining to the observed will hold the network fixed at this network.\n Either the network or the constraint need to be altered.")
+  }
   MHproposal <- list(name = "randomtoggleNonObserved", inputs=ergm.Cprepare.miss(nw), package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartiterandomtoggleNonObserved"
