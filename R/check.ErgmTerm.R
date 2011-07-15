@@ -13,6 +13,7 @@
 # term X:
 #   1) is applicable given the 'directed' and 'bipartite' attributes of the given
 #      network
+#   1.5) is not applied to a directed bipartite network
 #   2) has an appropiate number of arguments
 #   3) has correct argument types if arguments where provided
 #   4) has default values assigned if defaults are available
@@ -54,7 +55,9 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL,
     message <- paste("networks with bipartite", 
                      ifelse(bnw>0, " > 0", "==FALSE"), sep="")
   }
-
+  if (is.directed(nw) && bnw > 0) {
+    message <- "directed bipartite networks"
+  }
   if (!is.null(message)) {
     stop(paste("The ERGM term",fname,"may not be used with",message))
   }
