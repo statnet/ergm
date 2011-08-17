@@ -54,6 +54,8 @@
 
       \item Some errors in estimating parameters in curved exponential
     family models have been fixed.
+      
+      \item Bug in is.inCH in 2.4-2 fixed in 2.4-3.
     }
   }
 }
