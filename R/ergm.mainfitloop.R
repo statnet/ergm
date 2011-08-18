@@ -18,14 +18,14 @@
 #                    recognized components include
 #       samplesize : the number of MCMC sampled networks
 #       maxit      : the maximum number of iterations to use
-#       Clist.miss : the 'Clist' for the network of missing edges, as
+#       Clist.obs : the 'Clist' for the network of missing edges, as
 #                    returned by <ergm.design>
 #
 #        epsilon   : ??, this is passed to <ergm.estimate>, which ignores it;
 #   MHproposal     : an MHproposal object for 'nw', as returned by
-#                    <getMHproposal>
-#   MHproposal.miss: an MHproposal object for the missing network of'nw',
-#                    as returned by <getMHproposal>
+#                    <MHproposal>
+#   MHproposal.obs : an MHproposal object for the observed network of'nw',
+#                    as returned by <MHproposal>
 #   verbose        : whether the MCMC sampling should be verbose (T or F);
 #                    default=FALSE
 #   sequential     : whether to update the network returned in
@@ -43,15 +43,16 @@
 #      returned; if 'estimate'=FALSE, the MCMC and se variables will be
 #      NA or NULL
 #
-###########################################################################
+#############################################################################
 
 ergm.mainfitloop <- function(theta0, nw, model, Clist,
                              initialfit, 
                              MCMCparams, 
-                             MHproposal, MHproposal.miss,
+                             MHproposal, MHproposal.obs,
                              verbose=FALSE,
                              sequential=MCMCparams$sequential,
-                             estimate=TRUE, ...) {
+                             estimate=TRUE,
+                             ...) {
   # Store information about original network, which will be returned at end
   nw.orig <- network.copy(nw)
 
@@ -63,17 +64,17 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
   statshift <- Clist$obs - Clist$meanstats
   MCMCparams$meanstats <- Clist$meanstats
 
-  # Initialize MCMCparams.miss in case there are missing edges
-  if(network.naedgecount(nw) > 0){
-    MCMCparams.miss <- MCMCparams
-    if(!is.null(MCMCparams$miss.MCMCsamplesize)){
-      MCMCparams.miss$MCMCsamplesize <- MCMCparams$miss.MCMCsamplesize
+  # Initialize MCMCparams.obs in case there is observation structure
+  if(!is.null(MHproposal.obs)){
+    MCMCparams.obs <- MCMCparams
+    if(!is.null(MCMCparams$obs.MCMCsamplesize)){
+      MCMCparams.obs$MCMCsamplesize <- MCMCparams$obs.MCMCsamplesize
     }
-    if(!is.null(MCMCparams$miss.interval)){
-      MCMCparams.miss$interval <- MCMCparams$miss.interval
+    if(!is.null(MCMCparams$obs.interval)){
+      MCMCparams.obs$interval <- MCMCparams$obs.interval
     }
-    if(!is.null(MCMCparams$miss.burnin)){
-      MCMCparams.miss$burnin <- MCMCparams$miss.burnin
+    if(!is.null(MCMCparams$obs.burnin)){
+      MCMCparams.obs$burnin <- MCMCparams$obs.burnin
     }
   }
   iteration <- 0
@@ -81,6 +82,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
   # mcmc.theta0 will change at each iteration.  It is the value that is used
   # to generate the MCMC samples.  theta0 will never change.
   mcmc.theta0 <- theta0
+  parametervalues <- theta0 # Keep track of all parameter values
   while(!finished){
 	  iteration <- iteration + 1
     if(verbose){
@@ -96,20 +98,24 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     z <- ergm.getMCMCsample(Clist, MHproposal, mcmc.eta0, MCMCparams, verbose)
     
     # post-processing of sample statistics:  Shift each row by the
-    # matrix Clist$obs - Clist$meanstats, store returned nw
+    # vector Clist$obs - Clist$meanstats, store returned nw
+    # The statistics in statsmatrix should all be relative to either the
+    # observed statistics or, if given, the alternative meanstats
+    # (i.e., the estimation goal is to use the statsmatrix to find 
+    # parameters that will give a mean vector of zero)
     statsmatrix <- sweep(z$statsmatrix, 2, statshift, "+")
     colnames(statsmatrix) <- model$coef.names
     nw.returned <- network.update(nw, z$newedgelist, "edgelist")
 
-    ##  Does the same, if missing edges:
-    if(network.naedgecount(nw) > 0){
-      z.miss <- ergm.getMCMCsample(Clist, MHproposal.miss, mcmc.eta0, MCMCparams.miss, verbose)
-      statsmatrix.miss <- sweep(z.miss$statsmatrix, 2, statshift, "+")
-      colnames(statsmatrix.miss) <- model$coef.names
-      nw.miss.returned <- network.update(nw, z.miss$newedgelist, "edgelist")
+    ##  Does the same, if observation process:
+    if(!is.null(MHproposal.obs)){
+      z.obs <- ergm.getMCMCsample(Clist, MHproposal.obs, mcmc.eta0, MCMCparams.obs, verbose)
+      statsmatrix.obs <- sweep(z.obs$statsmatrix, 2, statshift, "+")
+      colnames(statsmatrix.obs) <- model$coef.names
+      nw.obs.returned <- network.update(nw, z.miss$newedgelist, "edgelist")
       if(verbose){cat("Back from constrained MCMC...\n")}
     }else{
-      statsmatrix.miss <- NULL
+      statsmatrix.obs <- NULL
       if(verbose){cat("Back from unconstrained MCMC...\n")}
       if(sequential) {
         nw <- nw.returned
@@ -125,9 +131,10 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     if(!estimate){
       if(verbose){cat("Skipping optimization routines...\n")}
       l <- list(coef=mcmc.theta0, mc.se=rep(NA,length=length(mcmc.theta0)),
-                sample=statsmatrix, sample.miss=statsmatrix.miss,
+                sample=statsmatrix, sample.obs=statsmatrix.obs,
                 iterations=1, MCMCtheta=mcmc.theta0,
                 loglikelihood=NA, #mcmcloglik=NULL, 
+                mle.lik=NULL,
                 gradient=rep(NA,length=length(mcmc.theta0)), #acf=NULL,
                 samplesize=MCMCparams$samplesize, failure=TRUE,
                 newnetwork = nw.returned)
@@ -135,11 +142,11 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     } 
 
     statsmatrix.0 <- statsmatrix
-    statsmatrix.0.miss <- statsmatrix.miss
+    statsmatrix.0.obs <- statsmatrix.obs
       if(verbose){cat("Calling MCMLE Optimization...\n")}
       statsmean <- apply(statsmatrix.0,2,mean)
-      if(!is.null(statsmatrix.0.miss)){
-        statsmatrix.miss <- statsmatrix.0.miss*MCMCparams$steplength+statsmatrix.0*(1-MCMCparams$steplength)
+      if(!is.null(statsmatrix.0.obs)){
+        statsmatrix.obs <- statsmatrix.0.obs*MCMCparams$steplength+statsmatrix.0*(1-MCMCparams$steplength)
       }else{
         statsmatrix <- sweep(statsmatrix.0,2,(1-MCMCparams$steplength)*statsmean,"-")
       }
@@ -148,7 +155,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
       # Use estimateonly=TRUE if this is not the last iteration.
       v<-ergm.estimate(theta0=mcmc.theta0, model=model,
                        statsmatrix=statsmatrix, 
-                       statsmatrix.miss=statsmatrix.miss, 
+                       statsmatrix.obs=statsmatrix.obs, 
                        epsilon=MCMCparams$epsilon,
                        nr.maxit=MCMCparams$nr.maxit,
                        nr.reltol=MCMCparams$nr.reltol,
@@ -170,13 +177,13 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
       }
       if((MCMCparams$steplength==1) && (v$loglikelihood < MCMCparams$adaptive.epsilon) ){break}
     mcmc.theta0 <- v$coef
+    parametervalues <- rbind(parametervalues, mcmc.theta0)
   } # end of main loop
 
   # FIXME:  We should not be "tacking on" extra list items to the 
   # object returned by ergm.estimate.  Instead, it is more transparent
   # if we build the output object (v) from scratch, of course using 
   # some of the info returned from ergm.estimate.
-  #
   v$sample <- statsmatrix.0
   v$burnin <- MCMCparams$burnin
   v$samplesize <- MCMCparams$samplesize
@@ -187,6 +194,9 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
   v$theta.original <- theta0
   v$mplefit <- initialfit
   v$parallel <- MCMCparams$parallel
+  # The following output is sometimes helpful.  It's the total history
+  # of all eta values, from the initial eta0 to the final estimate
+  # v$allparamvals <- parametervalues
 
   endrun <- MCMCparams$burnin+MCMCparams$interval*(MCMCparams$samplesize-1)
   attr(v$sample, "mcpar") <- c(MCMCparams$burnin+1, endrun, MCMCparams$interval)
@@ -200,7 +210,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
 # Block of code A removed from above:
 
 ##  Check for degeneracy if new network has fewer than 49999 edges
-#    if(z$nedges >= 50000-1 || ergm.checkdegeneracy(statsmatrix, statsmatrix.miss, verbose=verbose)){
+#    if(z$nedges >= 50000-1 || ergm.checkdegeneracy(statsmatrix, statsmatrix.obs, verbose=verbose)){
 #      if(iteration <= MCMCparams$maxit){
 #        cat(paste("The MCMC sampler is producing degenerate samples.\n",
 #                  "Try starting the algorithm at an alternative model\n",
