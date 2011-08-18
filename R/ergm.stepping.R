@@ -14,7 +14,7 @@
 #   MCMCparams     : a list of parameters for controlling the MCMC sampling
 #   MHproposal     : an MHproposal object for 'nw', as returned by
 #                    <MHproposal>
-#   MHproposal.obs: an MHproposal object for the observed network of'nw',
+#   MHproposal.miss: an MHproposal object for the observed network of'nw',
 #                    as returned by <MHproposal>
 #   verbose        : whether the MCMC sampling should be verbose AND
 #                    the diagnostic plots should be printed ; default=FALSE
@@ -28,7 +28,7 @@
 ###########################################################################      
 
 ergm.stepping = function(theta0, nw, model, Clist, initialfit, 
-                         MCMCparams, MHproposal, MHproposal.obs, 
+                         MCMCparams, MHproposal, MHproposal.miss, 
                          verbose=FALSE, ...){
 
   #   preliminary, to set up structure. 
@@ -135,7 +135,7 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
                      verbose=verbose,
                      trace=0,  # suppress 'optim' output
                      estimateonly=TRUE, 
-                     #statsmatrix.obs=statsmatrix.obs, 
+                     #statsmatrix.miss=statsmatrix.miss, 
                      #epsilon=MCMCparams$epsilon,
                      # nr.reltol=MCMCparams$nr.reltol,
                      #calc.mcmc.se=MCMCparams$calc.mcmc.se, hessianflag=MCMCparams$hessian,
@@ -160,7 +160,7 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
 									 verbose=verbose,
                    trace=0,  # suppress 'optim' output
 									 #estimateonly=TRUE,
-                   #statsmatrix.obs=statsmatrix.obs, 
+                   #statsmatrix.miss=statsmatrix.miss, 
                    epsilon=MCMCparams$epsilon,
                     nr.reltol=MCMCparams$nr.reltol,
                    calc.mcmc.se=MCMCparams$calc.mcmc.se, hessianflag=MCMCparams$hessian,
