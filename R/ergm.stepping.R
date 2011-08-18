@@ -72,11 +72,13 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
       gamm<-ceiling((hi+lo)/2)
 			gamma[[iter]] = gamm/MCMCparams$gridsize
 			xi[[iter]] = gamma[[iter]]*obsstats  + (1-gamma[[iter]])*sampmeans[[iter]]
-			inCH=is.inCH(xi[[iter]], samples[[iter]])
+			inCH=is.inCH(1.05*gamma[[iter]]*obsstats  + 
+                   (1 - 1.05*gamma[[iter]])*sampmeans[[iter]],
+                   samples[[iter]])
 			if (inCH) {
         lo <-gamm
         # If 1/gridsize is not small enough, function gives warning message
-      } else { 
+      } else {
         hi <- gamm
         if (gamm==1) {
           warning("gamma=", 1/MCMCparams$gridsize, " still not small enough to ",
@@ -91,60 +93,38 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
 			xi[[iter]] <- gamma[[iter]]*obsstats  + (1-gamma[[iter]])*sampmeans[[iter]]
 		}
 	
-    # Now we have found a gamm that moves xi inside the convex hull, but very 
-    # close to the boundary.
-    # As in Hummel, Hunter, Handcock, we replace gamm by C*gamm for some 
-    # constant C (the paper uses 0.95) and update the xi[[iter]] value prior 
-    # to use, for the MCMC MLE step, a xi that we are certain is not on the 
-    # edge of the convex hull (except when gamma=1):
-    if (gamm == MCMCparams$gridsize && 
-        is.inCH((1/.95)*obsstats + (1-1/.95)*sampmeans[[iter]], samples[[iter]]) ) {
+    # Now we have found a gamm that moves xi inside the convex hull, 
+    # a bit away from the boundary.  This is described 
+    # in Hummel, Hunter, Handcock (2011, JCGS).
+    if (gamm == MCMCparams$gridsize) {
       if (verbose) 
         cat("Observed stats are well inside the convex hull.\n")
-      C <- 1
       countdown <- countdown - 1
     } else {
-      C <- .95
       countdown <- 2 #  Reset countdown
     }
     # We'd like to have gamma==1 for 2 consecutive iterations before
     # we declare that we're finished.
     finished = (countdown==0)
     
-    xi[[iter]] <- C*gamma[[iter]]*obsstats  + (1-C*gamma[[iter]])*sampmeans[[iter]]
     # When the stepped xi is in the convex hull (but not on the boundary), find the MLE for gyobs=xi
-    #		cat("  Trying gamma=", gamm,"/", MCMCparams$gridsize,"\n") #Only if C=1
-		cat("  Trying gamma=", round(C*gamma[[iter]],3),"\n")  
+		cat("  Trying gamma=", gamma[[iter]],"\n")  
 		flush.console()
     
-############# PLOTS print if VERBOSE=TRUE #################
-  if(verbose){
-#  Take a look at obsstats (in red dot) and the "new obsstats" (in green triangle):
-##		par(mgp = c(2,.8,0), mar = .1+c(3,3,3,1)) ## How do I put more margin at the top?
-    par(ask=TRUE)
-		pairs(rbind(samples[[iter]], obsstats, xi[[iter]], sampmeans[[iter]]), 
-			  col=c(rep(1, nrow(samples[[iter]])), 2, 2, 2),#2, 7, 3), 
-			  pch=c(rep(46, nrow(samples[[iter]])), 4, 20, 4),
-#			  main=paste("Iteration ", iter, ":", "\n",
-#						 "Stepped stats = ", round(C*gamma[[iter]],3), 
-#						 "(Observed stats) + ", round(1-C*gamma[[iter]],3), "(Sample Mean)", sep=""),
-			  main=paste("Iteration ", iter, ": ",
-                   "gamma = ", round(C*gamma[[iter]], 3), sep=""),
-			  cex.main=1.5, cex.axis=1.5, cex.lab=1.5)
-    
-#		if (!is.null(filename.prefix)) {
-#			pdf(paste(filename.prefix, ".iter",iter,".pdf",sep=""))
-#			pairs(rbind(samples[[iter]], obsstats, xi[[iter]], sampmeans[[iter]]), 
-#				  col=c(rep(1, nrow(samples[[iter]])), 2, 7, 3), 
-#				  pch=c(rep(20, nrow(samples[[iter]])),8 ,8 ,8 ),
-#				  main=paste("Iteration ", iter, ":  Yellow = ", round(gamma[[iter]],3), 
-#							 "(Red) + ", round(1-gamma[[iter]],3), "(Green)", sep=""),
-#				  cex.main=1.5, cex.axis=1.5, cex.lab=1.5)
-#			dev.off()    
-#		}
-		} #ends if(verbose)
-############# END PLOTS #################		
-		
+    ############# PLOTS print if VERBOSE=TRUE #################
+    if(verbose){
+      # Take a look at obsstats (in red dot) and the "new obsstats" (in green triangle):
+      # par(mgp = c(2,.8,0), mar = .1+c(3,3,3,1)) ## How do I put more margin at the top?
+      par(ask=TRUE)
+      pairs(rbind(samples[[iter]], obsstats, xi[[iter]], sampmeans[[iter]]), 
+            col=c(rep(1, nrow(samples[[iter]])), 2, 7, 3), # all black used for JCGS article 
+            pch=c(rep(46, nrow(samples[[iter]])), 3, 16, 4),
+            cex=c(rep(1, nrow(samples[[iter]])), 1.4, 1, 1.4),
+            main=paste("Iteration ", iter, ": ",
+                       "gamma = ", gamma[[iter]], sep=""),
+            cex.main=1.5, cex.axis=1.5, cex.lab=1.5)
+    } #ends if(verbose)
+    ############# END PLOTS #################
     # ergm.estimate requires that the simulated stats be "centered" in the sense that the
     # observed statistics would be exactly zero on the same scale.  In this case, the
     # "observed statistics" equal xi[[iter]].
@@ -166,14 +146,13 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
 	}
 	cat("Now ending with one large sample for MLE. \n")
 	flush.console()
-	iter=iter+1
-    finalsample=simulate.formula(formula, nsim=MCMCparams$samplesize,
-                                     theta0=eta[[iter]], burnin=MCMCparams$burnin, 
-                                     interval=MCMCparams$interval, statsonly=TRUE, 
-                                     ...)
-	sampmeans[[iter]]=colMeans(finalsample)
-  # Using the large sample from xi=.95*obsstats+.05*sampmeans we now find the MLE for the original problem:		
-	xi[[iter]] = obsstats
+	iter <- iter+1
+  finalsample <- simulate.formula(formula, nsim=MCMCparams$samplesize,
+                                  theta0=eta[[iter]], burnin=MCMCparams$burnin, 
+                                  interval=MCMCparams$interval, statsonly=TRUE, 
+                                  ...)
+  sampmeans[[iter]] <- colMeans(finalsample)
+  xi[[iter]] <- obsstats
 	v<-ergm.estimate(theta0=eta[[iter]], model=model, 
 									 statsmatrix=sweep(finalsample, 2, xi[[iter]], '-'), 
 									 nr.maxit=MCMCparams$nr.maxit,
@@ -188,61 +167,18 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
                     trustregion=MCMCparams$trustregion, method=MCMCparams$method, 
                    compress=MCMCparams$compress, 
 									 ...)
-	eta[[iter+1]]<-v$coef 
+  eta[[iter+1]] <- v$coef
 	
-############# FINAL PLOT 1 prints if VERBOSE=TRUE #################
-	if(verbose){		
-	pairs(rbind(finalsample, obsstats, sampmeans[[iter]]), 
-		  col=c(rep(1, nrow(finalsample)), 7, 3), 
-		  pch=c(rep(46, nrow(finalsample)),4 ,4 ),
-		  main=paste("Final Stepping Iteration (#", iter, ")"),# "\n",
-#					 "Green = mean, Yellow=observed", sep=""),
+  ############# FINAL PLOT 1 prints if VERBOSE=TRUE #################
+  if(verbose){
+    pairs(rbind(finalsample, obsstats, sampmeans[[iter]]), 
+          col=c(rep(1, nrow(finalsample)), 2, 3),# all black used for JCGS article 
+          pch=c(rep(46, nrow(finalsample)),3 ,4 ),
+          cex=c(rep(1, nrow(finalsample)), 1.4, 1.4),
+          main=paste("Final Stepping Iteration (#", iter, ")", sep=""),# "\n",
           cex.main=1.5, cex.axis=1.5, cex.lab=1.5)
 	} #ends if(verbose)
-############## END PLOT #################		
-#					
-#  # Here is the second "larger sample size" loop, using the new (true) MLE as eta0.  The idea is
-#  # to both get a slightly better MLE and to get a much better Hessian.
-#
-#	iter=iter+1
-#	finalsample2=simulate.formula(formula, nsim=MCMCparams$samplesize,
-#									 theta0=eta[[iter]], burnin=MCMCparams$burnin, 
-#									 interval=MCMCparams$interval, statsonly=TRUE, ...)
-#					
-#	sampmeans[[iter]]=colMeans(finalsample2)
-#
-############## FINAL PLOT 2 prints if VERBOSE=TRUE #################
-#		if(verbose){		
-#	pairs(rbind(finalsample2, obsstats, sampmeans[[iter]]), 
-#		  col=c(rep(1, nrow(finalsample2)), 7, 3), 
-#		  pch=c(rep(46, nrow(finalsample2)),4 ,4 ),
-#		  main=paste("Final Estimation"),#:  Green = mean, Yellow=observed", sep=""),
-#          cex.main=1.5, cex.axis=1.5, cex.lab=1.5)
-#		} #ends if(verbose)
-############## END PLOT #################		
-#
-#  inCH=is.inCH(obsstats, finalsample2)
-#	if (!inCH) {
-#    stop("Observed statistics are not in final sample convex hull.")
-#  }
-#
-#  # ergm.estimate requires that the simulated stats be "centered" in the sense that the
-#  # observed statistics would be exactly zero on the same scale.  In this case, the
-#  # "observed statistics" equal obsstats.
-#	v<-ergm.estimate(theta0=eta[[iter]], model=model, 
-#                   statsmatrix=sweep(finalsample2, 2, obsstats, '-'),
-#                   #statsmatrix.obs=statsmatrix.obs, 
-#                   epsilon=MCMCparams$epsilon,
-#                   nr.maxit=MCMCparams$nr.maxit,
-#                   nr.reltol=MCMCparams$nr.reltol,
-#                   calc.mcmc.se=MCMCparams$calc.mcmc.se, hessianflag=MCMCparams$hessian,
-#                   trustregion=MCMCparams$trustregion, method=MCMCparams$method, 
-#                   metric=MCMCparams$metric,
-#                   compress=MCMCparams$compress, 
-#                   verbose=verbose, 
-#                   trace=0,  # suppress 'optim' output
-#                   ...)
-
+  ############## END PLOT #################		
   #####	final.mle
 	mle.lik <- mle.lik + abs(v$loglikelihood)
 	v$newnetwork <- nw
@@ -255,6 +191,11 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
 	v$theta.original <- theta.original
 	v$mplefit <- initialfit
 	v$parallel <- MCMCparams$parallel
+  # The following output is sometimes helpful.  It's the 
+  # total history of all eta values along with all of the corresponding
+  # mean value parameter estimates:
+  # v$allmeanvals <- t(sapply(sampmeans, function(a)a))
+  # v$allparamvals <- t(sapply(eta, function(a)a))
 	
 	if(!v$failure & !any(is.na(v$coef))){
 		asyse <- mc.se
@@ -273,6 +214,7 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
 	v$null.deviance <- 2*network.dyadcount(nw.orig)*log(2)
 	v$mle.lik <- mle.lik
 	v$etamap <- model$etamap
+  v$iterations <- iter
 
 	v
 }  # Ends the whole function
