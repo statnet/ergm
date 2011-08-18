@@ -33,6 +33,9 @@
 #                    as returned by <MHproposal>
 #   verbose        : whether the MCMC sampling should be verbose (T or F);
 #                    default=FALSE
+#   sequential     : whether to update the network returned in
+#                    'v$newnetwork'; if the network has missing edges,
+#                    this is ignored; default=MCMCparams$sequential
 #   estimate       : whether to optimize the theta0 coefficients via
 #                    <ergm.estimate>; default=TRUE
 #   ...            : additional parameters that may be passed from within;
@@ -45,7 +48,7 @@
 #      returned; if 'estimate'=FALSE, the MCMC and se variables will be
 #      NA or NULL
 #
-#############################################################################              
+#############################################################################
 
 ergm.mainfitloop <- function(theta0, nw, model, Clist,
                              initialfit, 
@@ -84,6 +87,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
   # mcmc.theta0 will change at each iteration.  It is the value that is used
   # to generate the MCMC samples.  theta0 will never change.
   mcmc.theta0 <- theta0
+  parametervalues <- theta0 # Keep track of all parameter values
   while(!finished){
 	  iteration <- iteration + 1
     if(verbose){
@@ -99,14 +103,20 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     z <- ergm.getMCMCsample.parallel(nw, model, MHproposal, mcmc.eta0, MCMCparams, verbose, response=response)
     
     # post-processing of sample statistics:  Shift each row by the
-    # matrix Clist$obs - Clist$meanstats, store returned nw
+    # vector Clist$obs - Clist$meanstats, store returned nw
+    # The statistics in statsmatrix should all be relative to either the
+    # observed statistics or, if given, the alternative meanstats
+    # (i.e., the estimation goal is to use the statsmatrix to find 
+    # parameters that will give a mean vector of zero)
     statsmatrix <- sweep(z$statsmatrix, 2, statshift, "+")
+    colnames(statsmatrix) <- model$coef.names
     nw.returned <- network.copy(z$newnetwork)
 
     ##  Does the same, if observation process:
     if(!is.null(MHproposal.obs)){
       z.obs <- ergm.getMCMCsample.parallel(nw, model, MHproposal.obs, mcmc.eta0, MCMCparams.obs, verbose, response=response)
       statsmatrix.obs <- sweep(z.obs$statsmatrix, 2, statshift, "+")
+      colnames(statsmatrix.obs) <- model$coef.names
       nw.obs.returned <- network.copy(z.obs$newnetwork)
       if(verbose){cat("Back from constrained MCMC...\n")}
     }else{
@@ -215,6 +225,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     }
     finished <- iteration >= MCMCparams$maxit
     mcmc.theta0 <- v$coef
+    parametervalues <- rbind(parametervalues, mcmc.theta0)
   } # end of main loop
 
   # FIXME:  We should not be "tacking on" extra list items to the 
@@ -231,6 +242,9 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
   v$theta.original <- theta0
   v$mplefit <- initialfit
   v$parallel <- MCMCparams$parallel
+  # The following output is sometimes helpful.  It's the total history
+  # of all eta values, from the initial eta0 to the final estimate
+  # v$allparamvals <- parametervalues
 
   endrun <- MCMCparams$burnin+MCMCparams$interval*(MCMCparams$samplesize-1)
   attr(v$sample, "mcpar") <- c(MCMCparams$burnin+1, endrun, MCMCparams$interval)
