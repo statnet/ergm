@@ -4839,65 +4839,270 @@ D_CHANGESTAT_FN(d_transitive) {
   UNDO_PREVIOUS_TOGGLES(i);
 }
 
-/*****************
- changestat: d_transitiveties
-*****************/
 D_CHANGESTAT_FN(d_transitiveties) { 
-  int i;
-  double current;
-
-  (*(mtp->s_func))(mtp, nwp);  /* Call s_??? function */
-  current = mtp->dstats[0];
-
-  /* *** don't forget tail -> head */    
-  FOR_EACH_TOGGLE(i) { TOGGLE(TAIL(i), HEAD(i)); }
-  (*(mtp->s_func))(mtp, nwp);  /* Call s_??? function */
-  mtp->dstats[0] -= current;
-  FOR_EACH_TOGGLE(i) { TOGGLE(TAIL(i), HEAD(i)); }
-}
-
-
-/*****************
- globalstat: s_transitiveties
-*****************/
-S_CHANGESTAT_FN(s_transitiveties) { 
-  Edge e1, e2;
-  Vertex tail, head, change, node3;
+  Edge e, f;
+  int i, echange, ochange;
+  int L2th, L2tu, L2uh;
+  int base=1;
+  Vertex tail, head, u, v;
+  double cumchange;
   double tailattr;
-  int hnottrans;
+  
+  CHANGE_STAT[0] = 0.0;
   
   /* *** don't forget tail -> head */    
-  change=0;
-  if(N_INPUT_PARAMS > 0){ /* match on attributes */
-    for (tail=1; tail <= N_NODES; tail++) { 
+  FOR_EACH_TOGGLE(i){      
+    cumchange=0.0;
+    L2th=0;
+    ochange = (EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp->outedges) == 0) ? 0 : -1;
+    echange = 2*ochange + 1;
+    if(N_INPUT_PARAMS>0){ /* match on attributes */
       tailattr = INPUT_ATTRIB[tail-1];
-      STEP_THROUGH_OUTEDGES(tail, e1, head) {
-        if(tailattr == INPUT_ATTRIB[head-1]) {
-          hnottrans=1;
-          STEP_THROUGH_INEDGES(head, e2, node3) { 
-            if(hnottrans && IS_INEDGE(node3, tail) && (tailattr == INPUT_ATTRIB[node3-1])){ /* tail -> head base forms transitive */
-              hnottrans=0;
-              change++;
-            }
-          }
-        }
+      if(tailattr == INPUT_ATTRIB[head-1]){
+       /* step through outedges of head  */
+       for(e = EdgetreeMinimum(nwp->outedges, head);
+	   (u = nwp->outedges[e].value) != 0;
+	   e = EdgetreeSuccessor(nwp->outedges, e)){
+         if (EdgetreeSearch(tail, u, nwp->outedges) != 0 && (tailattr == INPUT_ATTRIB[u-1])){
+	   L2tu=ochange;
+	   /* step through inedges of u */
+	   for(f = EdgetreeMinimum(nwp->inedges, u); 
+	       (v = nwp->inedges[f].value) != 0;
+	       f = EdgetreeSuccessor(nwp->inedges, f)){
+	     if(EdgetreeSearch(tail,v,nwp->outedges)!= 0 && (tailattr == INPUT_ATTRIB[v-1])){
+	       L2tu++;
+	       if(L2tu>0) {break;}
+	     }
+	   }
+	   cumchange += (L2tu==0);
+         }
+       }
+       /* step through inedges of head */
+       
+       for(e = EdgetreeMinimum(nwp->inedges, head);
+	   (u = nwp->inedges[e].value) != 0;
+	   e = EdgetreeSuccessor(nwp->inedges, e)){
+         if (EdgetreeSearch(tail, u, nwp->outedges) != 0 && (tailattr == INPUT_ATTRIB[u-1])){
+	   L2th++;
+         }
+         if (EdgetreeSearch(u, tail, nwp->outedges) != 0 && (tailattr == INPUT_ATTRIB[u-1])){
+	   L2uh=ochange;
+	   /* step through outedges of u */
+	   for(f = EdgetreeMinimum(nwp->outedges, u);
+	       (v = nwp->outedges[f].value) != 0;
+	       f = EdgetreeSuccessor(nwp->outedges, f)){
+	     if(EdgetreeSearch(v,head,nwp->outedges)!= 0 && (tailattr == INPUT_ATTRIB[v-1])){
+	       L2uh++;
+	       if(L2uh>0) {break;}
+	     }
+	   }
+	   cumchange += (L2uh==0) ;
+         }
+       }}
+      }else{ /* no attributes */
+    /* step through outedges of head  */
+    for(e = EdgetreeMinimum(nwp->outedges, head);
+	(u = nwp->outedges[e].value) != 0;
+	e = EdgetreeSuccessor(nwp->outedges, e)){
+      if (EdgetreeSearch(tail, u, nwp->outedges) != 0){
+	L2tu=ochange;
+	/* step through inedges of u */
+	for(f = EdgetreeMinimum(nwp->inedges, u); 
+	    (v = nwp->inedges[f].value) != 0;
+	    f = EdgetreeSuccessor(nwp->inedges, f)){
+	  if(EdgetreeSearch(tail,v,nwp->outedges)!= 0){
+	    L2tu++;
+	    if(L2tu>=base) {break;}
+	  }
+	}
+	cumchange += (L2tu<base);
       }
     }
-  }else{
-    /* *** don't forget tail -> head */    
-    for (tail=1; tail <= N_NODES; tail++) { 
-      STEP_THROUGH_OUTEDGES(tail, e1, head) {
-        hnottrans=1;
-        STEP_THROUGH_INEDGES(head, e2, node3) { 
-          if(hnottrans && IS_INEDGE(node3, tail)){ /* tail -> head base forms transitive */
-            hnottrans=0;
-            change++;
-          }
-        }
+    /* step through inedges of head */
+    
+    for(e = EdgetreeMinimum(nwp->inedges, head);
+	(u = nwp->inedges[e].value) != 0;
+	e = EdgetreeSuccessor(nwp->inedges, e)){
+      if (EdgetreeSearch(tail, u, nwp->outedges) != 0){
+	L2th++;
+      }
+      if (EdgetreeSearch(u, tail, nwp->outedges) != 0){
+	L2uh=ochange;
+	/* step through outedges of u */
+	for(f = EdgetreeMinimum(nwp->outedges, u);
+	    (v = nwp->outedges[f].value) != 0;
+	    f = EdgetreeSuccessor(nwp->outedges, f)){
+	  if(EdgetreeSearch(v,head,nwp->outedges)!= 0){
+	    L2uh++;
+	    if(L2uh>=base) {break;}
+	  }
+	}
+	cumchange += (L2uh<base) ;
       }
     }
+    }
+    
+    cumchange += (L2th>=base) ;
+//  Rprintf("L2th %d echange %d cumchange %f tail %d head %d\n", L2th, echange, cumchange,tail,head);
+    cumchange  = echange*cumchange;
+    (CHANGE_STAT[0]) += cumchange;
+    TOGGLE_IF_MORE_TO_COME(i);
   }
-  CHANGE_STAT[0] = change;
+  UNDO_PREVIOUS_TOGGLES(i);
+}
+///*****************
+// globalstat: s_transitiveties
+//*****************/
+//S_CHANGESTAT_FN(s_transitiveties) { 
+//  Edge e1, e2;
+//  Vertex tail, head, change, node3;
+//  double tailattr;
+//  int hnottrans;
+//  
+//  /* *** don't forget tail -> head */    
+//  change=0;
+//  if(N_INPUT_PARAMS > 0){ /* match on attributes */
+//    for (tail=1; tail <= N_NODES; tail++) { 
+//      tailattr = INPUT_ATTRIB[tail-1];
+//      STEP_THROUGH_OUTEDGES(tail, e1, head) {
+//        if(tailattr == INPUT_ATTRIB[head-1]) {
+//          hnottrans=1;
+//          STEP_THROUGH_INEDGES(head, e2, node3) { 
+//            if(hnottrans && IS_INEDGE(node3, tail) && (tailattr == INPUT_ATTRIB[node3-1])){ /* tail -> head base forms transitive */
+//              hnottrans=0;
+//              change++;
+//            }
+//          }
+//        }
+//      }
+//    }
+//  }else{
+//    /* *** don't forget tail -> head */    
+//    for (tail=1; tail <= N_NODES; tail++) { 
+//      STEP_THROUGH_OUTEDGES(tail, e1, head) {
+//        hnottrans=1;
+//        STEP_THROUGH_INEDGES(head, e2, node3) { 
+//          if(hnottrans && IS_INEDGE(node3, tail)){ /* tail -> head base forms transitive */
+//            hnottrans=0;
+//            change++;
+//          }
+//        }
+//      }
+//    }
+//  }
+//  CHANGE_STAT[0] = change;
+//}
+
+D_CHANGESTAT_FN(d_cyclicalties) { 
+  Edge e, f;
+  int i, echange, ochange;
+  int L2th, L2tu, L2uh;
+  int base=1;
+  Vertex tail, head, u, v;
+  double cumchange;
+  double tailattr;
+  
+  CHANGE_STAT[0] = 0.0;
+  
+  /* *** don't forget tail -> head */    
+  FOR_EACH_TOGGLE(i){      
+    cumchange=0.0;
+    L2th=0;
+    ochange = (EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp->outedges) == 0) ? 0 : -1;
+    echange = 2*ochange + 1;
+    if(N_INPUT_PARAMS>0){ /* match on attributes */
+      tailattr = INPUT_ATTRIB[tail-1];
+      if(tailattr == INPUT_ATTRIB[head-1]){
+       /* step through outedges of head  */
+       for(e = EdgetreeMinimum(nwp->outedges, head);
+	   (u = nwp->outedges[e].value) != 0;
+	   e = EdgetreeSuccessor(nwp->outedges, e)){
+         if (EdgetreeSearch(tail, u, nwp->outedges) != 0 && (tailattr == INPUT_ATTRIB[u-1])){
+	   L2tu=ochange;
+	   /* step through inedges of u */
+	   for(f = EdgetreeMinimum(nwp->inedges, u); 
+	       (v = nwp->inedges[f].value) != 0;
+	       f = EdgetreeSuccessor(nwp->inedges, f)){
+	     if(EdgetreeSearch(tail,v,nwp->outedges)!= 0 && (tailattr == INPUT_ATTRIB[v-1])){
+	       L2tu++;
+	       if(L2tu>0) {break;}
+	     }
+	   }
+	   cumchange += (L2tu==0);
+         }
+       }
+       /* step through inedges of head */
+       
+       for(e = EdgetreeMinimum(nwp->inedges, head);
+	   (u = nwp->inedges[e].value) != 0;
+	   e = EdgetreeSuccessor(nwp->inedges, e)){
+         if (EdgetreeSearch(tail, u, nwp->outedges) != 0 && (tailattr == INPUT_ATTRIB[u-1])){
+	   L2th++;
+         }
+         if (EdgetreeSearch(u, tail, nwp->outedges) != 0 && (tailattr == INPUT_ATTRIB[u-1])){
+	   L2uh=ochange;
+	   /* step through outedges of u */
+	   for(f = EdgetreeMinimum(nwp->outedges, u);
+	       (v = nwp->outedges[f].value) != 0;
+	       f = EdgetreeSuccessor(nwp->outedges, f)){
+	     if(EdgetreeSearch(v,head,nwp->outedges)!= 0 && (tailattr == INPUT_ATTRIB[v-1])){
+	       L2uh++;
+	       if(L2uh>0) {break;}
+	     }
+	   }
+	   cumchange += (L2uh==0) ;
+         }
+       }}
+      }else{ /* no attributes */
+    /* step through outedges of head  */
+    for(e = EdgetreeMinimum(nwp->outedges, head);
+	(u = nwp->outedges[e].value) != 0;
+	e = EdgetreeSuccessor(nwp->outedges, e)){
+      if (EdgetreeSearch(tail, u, nwp->inedges) != 0){
+	L2tu=ochange;
+	/* step through inedges of u */
+	for(f = EdgetreeMinimum(nwp->inedges, u); 
+	    (v = nwp->inedges[f].value) != 0;
+	    f = EdgetreeSuccessor(nwp->inedges, f)){
+	  if(EdgetreeSearch(tail,v,nwp->outedges)!= 0){
+	    L2tu++;
+	    if(L2tu>=base) {break;}
+	  }
+	}
+	cumchange += (L2tu<base);
+      }
+    }
+    /* step through outedges of head */
+    
+    for(e = EdgetreeMinimum(nwp->outedges, head);
+	(u = nwp->outedges[e].value) != 0;
+	e = EdgetreeSuccessor(nwp->outedges, e)){
+      if (EdgetreeSearch(tail, u, nwp->inedges) != 0){
+	L2th++;
+      }
+      if (EdgetreeSearch(u, tail, nwp->outedges) != 0){
+	L2uh=ochange;
+	/* step through outedges of u */
+	for(f = EdgetreeMinimum(nwp->outedges, u);
+	    (v = nwp->outedges[f].value) != 0;
+	    f = EdgetreeSuccessor(nwp->outedges, f)){
+	  if(EdgetreeSearch(v,head,nwp->outedges)!= 0){
+	    L2uh++;
+	    if(L2uh>=base) {break;}
+	  }
+	}
+	cumchange += (L2uh<base) ;
+      }
+    }
+    }
+    
+    cumchange += (L2th>=base) ;
+//  Rprintf("L2th %d echange %d cumchange %f tail %d head %d\n", L2th, echange, cumchange,tail,head);
+    cumchange  = echange*cumchange;
+    (CHANGE_STAT[0]) += cumchange;
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
