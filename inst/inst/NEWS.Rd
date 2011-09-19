@@ -44,6 +44,9 @@
       scenarios.
 
       \item The following new models terms have been added:  \code{\link{degcrossprod}} and \code{\link{degcor}}.
+  
+      \item For version 2.4-3, a new dataset has been added:  \code{\link{kapferer}}, the well-known
+      tailor shop network dataset of Kapferer (1972).
     }
   }
 
