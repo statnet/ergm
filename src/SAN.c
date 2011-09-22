@@ -97,11 +97,8 @@ void SANSample (MHproposal *MHp,
   int interval, int fVerbose,
   Network *nwp, Model *m) {
   int staken, tottaken, ptottaken;
-  int i, j, components, diam;
+  int i, j;
   
-  components = diam = 0;
-  
-
   if (fVerbose)
     Rprintf("Total m->n_stats is %i; total samplesize is %d\n",
              m->n_stats,samplesize);

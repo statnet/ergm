@@ -224,7 +224,7 @@ void WtSANMetropolisHastings (WtMHproposal *MHp,
         WtSetEdge(MHp->toggletail[i], MHp->togglehead[i], MHp->toggleweight[i], nwp);
 
 	if(MHp->discord)
-	  for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
+	  for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){
 	    // This could be speeded up by implementing an "incrementation" function.
 	    WtSetEdge(MHp->toggletail[i],  MHp->togglehead[i], MHp->toggleweight[i]-WtGetEdge(MHp->toggletail[i],  MHp->togglehead[i], *nwd)+ MHp->toggleweight[i]-WtGetEdge(MHp->toggletail[i],  MHp->togglehead[i], nwp), *nwd);
 	  }

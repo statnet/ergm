@@ -13,14 +13,11 @@
 void MH_Poisson(WtMHproposal *MHp, WtNetwork *nwp)  {  
   Vertex tail, head;
   double oldwt;
-  int fvalid;
   
   if(MHp->ntoggles == 0) { // Initialize Poisson 
     MHp->ntoggles=1;
     return;
   }
-  
-  fvalid = 0;
   
   tail = 1 + unif_rand() * nwp->nnodes;
   while ((head = 1 + unif_rand() * nwp->nnodes) == tail);
@@ -116,14 +113,11 @@ void MH_CompleteOrdering(WtMHproposal *MHp, WtNetwork *nwp)  {
 void MH_StdNormal(WtMHproposal *MHp, WtNetwork *nwp)  {  
   Vertex tail, head;
   double oldwt;
-  int fvalid;
   
   if(MHp->ntoggles == 0) { // Initialize Poisson 
     MHp->ntoggles=1;
     return;
   }
-  
-  fvalid = 0;
   
   tail = 1 + unif_rand() * nwp->nnodes;
   while ((head = 1 + unif_rand() * nwp->nnodes) == tail);
@@ -154,14 +148,11 @@ void MH_StdNormal(WtMHproposal *MHp, WtNetwork *nwp)  {
 *********************/
 void MH_StdNormalRank(WtMHproposal *MHp, WtNetwork *nwp)  {  
   double oldwt;
-  int fvalid;
   
   if(MHp->ntoggles == 0) { // Initialize StdNormalRank
     MHp->ntoggles=1;
     return;
   }
-  
-  fvalid = 0;
   
   Mtail[0] = 1 + unif_rand() * nwp->nnodes;
   while ((Mhead[0] = 1 + unif_rand() * nwp->nnodes) == Mtail[0]);

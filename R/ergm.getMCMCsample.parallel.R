@@ -49,37 +49,35 @@
 #########################################################################################
 
 ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams, 
-                               verbose, response=NULL) {
+                                        verbose, response=NULL) {
   
   Clist <- ergm.Cprepare(nw, model, response=response)
-# maxedges <- max(5000, Clist$nedges)
-  maxedges <- MCMCparams$maxedges
-#
-#   Check for truncation of the returned edge list
-#
-  z <- list(newnwtails=maxedges+1)
-  while(z$newnwtails[1] >= maxedges){
-   maxedges <- 10*maxedges
-#
-#  Parallel running
-#
-   if(MCMCparams$parallel==0){
-    flush.console()
-    z <- ergm.mcmcslave(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose)
-    nedges <- z$newnwtails[1]
-    statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
-                          ncol=Clist$nstats,
-                          byrow = TRUE)
-    newnetwork <- newnw.extract(nw,z,response=response)
-    if(nedges >= 50000-1){
-      cat("\n Warning:")
-      cat("\n   The network has more than 50000 edges, and the model is likely to be degenerate.\n")
-#  THE FOLLOWING THREE LINES ARE COMMENTED OUT IN branches/2.2:
-      statsmatrix <- matrix(0, nrow=MCMCparams$samplesize,
-                            ncol=Clist$nstats)
-      newnetwork <- network.copy(nw)
-    }      
-  }else{
+  # maxedges <- max(5000, Clist$nedges)
+  maxedges <- MCMCparams$maxedges/10
+
+  # Run the first time, or as long as we have too many edges
+  z <- NULL
+  while(is.null(z) || z$status==1){
+    maxedges <- 10*maxedges
+    #
+    #  Parallel running
+    #
+    if(MCMCparams$parallel==0){
+      flush.console()
+      z <- ergm.mcmcslave(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose)
+      if(z$status == 1){ # MCMC_TOO_MANY_EDGES
+        warning("Sampled network has more edges than can be returned.")
+        next
+      }
+      else if(z$status == 2){ # MCMC_MH_FAILED
+        # MH proposal failed somewhere. Throw an error.
+        error("Sampling failed due to a Metropolis-Hastings proposal failing.")
+      }
+      statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
+                            ncol=Clist$nstats,
+                            byrow = TRUE)
+      newnetwork <- newnw.extract(nw,z,response=response)
+    }else{
     MCMCparams.parallel <- MCMCparams
     MCMCparams.parallel$samplesize <- round(MCMCparams$samplesize / MCMCparams$parallel)
     capture.output(require(snow, quietly=TRUE, warn.conflicts = FALSE))
@@ -123,6 +121,14 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
 #   newedgelist <- matrix(0, ncol=2, nrow=0)
     for(i in (1:MCMCparams$parallel)){
      z <- outlist[[i]]
+     if(z$status == 1){ # MCMC_TOO_MANY_EDGES
+       warning("Sampled network has more edges than can be returned.")
+       next
+     }
+     else if(z$status == 2){ # MCMC_MH_FAILED
+       # MH proposal failed somewhere. Throw an error.
+       error("Sampling failed due to a Metropolis-Hastings proposal failing.")
+     }
      statsmatrix <- rbind(statsmatrix,
        matrix(z$s, nrow=MCMCparams.parallel$samplesize,
        ncol=Clist$nstats,
@@ -131,7 +137,10 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
 #      newedgelist <- rbind(newedgelist,
      #                           matrix(z$newnw[2:z$newnw[1]], ncol=2, byrow=TRUE))
    }
-    nedges <- z$newnwtails[1]
+    if(z$status == 1){ # MCMC_TOO_MANY_EDGES
+      warning("Sampled network has more edges than can be returned.")
+      next
+    }
     newnetwork<-newnw.extract(nw,z,response=response)
     if(verbose){cat("parallel samplesize=",nrow(statsmatrix),"by",
 	MCMCparams.parallel$samplesize,"\n")}
@@ -164,7 +173,7 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
 #     }
 #   }
   list(statsmatrix=statsmatrix, newnetwork=newnetwork, 
-       meanstats=Clist$meanstats, nedges=nedges)
+       meanstats=Clist$meanstats, nedges=network.edgecount(newnetwork))
 }
 
 
@@ -209,31 +218,32 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
   heads <- Clist$heads
   weights <- Clist$weights
   if(is.null(Clist$weights)){
-  z <- .C("MCMC_wrapper",
-  as.integer(numnetworks), as.integer(nedges),
-  as.integer(tails), as.integer(heads),
-  as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
-  as.integer(Clist$dir), as.integer(Clist$bipartite),
-  as.integer(Clist$nterms),
-  as.character(Clist$fnamestring),
-  as.character(Clist$snamestring),
-  as.character(MHproposal$name), as.character(MHproposal$package),
-  as.double(c(Clist$inputs,MHproposal$inputs)), as.double(eta0),
-  as.integer(MCMCparams$samplesize),
-  s = double(MCMCparams$samplesize * Clist$nstats),
-  as.integer(MCMCparams$burnin), 
-  as.integer(MCMCparams$interval),
-  newnwtails = integer(maxedges),
-  newnwheads = integer(maxedges),
-  as.integer(verbose), as.integer(MHproposal$bd$attribs),
-  as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
-  as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
-  as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)),
-  as.integer(maxedges),
-  PACKAGE="ergm")
+    z <- .C("MCMC_wrapper",
+            as.integer(numnetworks), as.integer(nedges),
+            as.integer(tails), as.integer(heads),
+            as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
+            as.integer(Clist$dir), as.integer(Clist$bipartite),
+            as.integer(Clist$nterms),
+            as.character(Clist$fnamestring),
+            as.character(Clist$snamestring),
+            as.character(MHproposal$name), as.character(MHproposal$package),
+            as.double(c(Clist$inputs,MHproposal$inputs)), as.double(eta0),
+            as.integer(MCMCparams$samplesize),
+            s = double(MCMCparams$samplesize * Clist$nstats),
+            as.integer(MCMCparams$burnin), 
+            as.integer(MCMCparams$interval),
+            newnwtails = integer(maxedges),
+            newnwheads = integer(maxedges),
+            as.integer(verbose), as.integer(MHproposal$bd$attribs),
+            as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
+            as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
+            as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)),
+            as.integer(maxedges),
+            status = integer(1),
+            PACKAGE="ergm")
 
   # save the results
-  list(s=z$s, newnwtails=z$newnwtails, newnwheads=z$newnwheads)
+    list(s=z$s, newnwtails=z$newnwtails, newnwheads=z$newnwheads, status=z$status)
   }else{
     z <- .C("WtMCMC_wrapper",
             as.integer(length(nedges)), as.integer(nedges),
@@ -254,8 +264,9 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
             newnwweights = double(maxedges),
             as.integer(verbose), 
             as.integer(maxedges),
+            status = integer(1),
             PACKAGE="ergm")
     # save the results
-    list(s=z$s, newnwtails=z$newnwtails, newnwheads=z$newnwheads, newnwweights=z$newnwweights)
+    list(s=z$s, newnwtails=z$newnwtails, newnwheads=z$newnwheads, newnwweights=z$newnwweights, status=z$status)
   }
 }
