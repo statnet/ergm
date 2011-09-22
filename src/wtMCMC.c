@@ -115,7 +115,7 @@ WtMCMCStatus WtMCMCSample(WtMHproposal *MHp,
   if(WtMetropolisHastings(MHp, theta, networkstatistics, burnin, &staken,
 			fVerbose, nwp, m)!=WtMCMC_OK)
     return WtMCMC_MH_FAILED;
-  if(nwp->nedges >=nmax-1){
+  if(nmax!=0 && nwp->nedges >= nmax-1){
     return WtMCMC_TOO_MANY_EDGES;
   }
   
@@ -141,7 +141,7 @@ WtMCMCStatus WtMCMCSample(WtMHproposal *MHp,
       if(WtMetropolisHastings(MHp, theta, networkstatistics, interval, &staken,
 			    fVerbose, nwp, m)!=WtMCMC_OK)
 	return WtMCMC_MH_FAILED;
-      if(nwp->nedges >=nmax-1){
+      if(nmax!=0 && nwp->nedges >= nmax-1){
 	return WtMCMC_TOO_MANY_EDGES;
       }
       tottaken += staken;

@@ -119,7 +119,7 @@ MCMCStatus MCMCSample(MHproposal *MHp,
   if(MetropolisHastings(MHp, theta, networkstatistics, burnin, &staken,
 			fVerbose, nwp, m)!=MCMC_OK)
     return MCMC_MH_FAILED;
-  if(nwp->nedges >=nmax-1){
+  if(nmax!=0 && nwp->nedges >= nmax-1){
     return MCMC_TOO_MANY_EDGES;
   }
   
@@ -144,7 +144,7 @@ MCMCStatus MCMCSample(MHproposal *MHp,
       if(MetropolisHastings(MHp, theta, networkstatistics, interval, &staken,
 			    fVerbose, nwp, m)!=MCMC_OK)
 	return MCMC_MH_FAILED;
-      if(nwp->nedges >=nmax-1){
+      if(nmax!=0 && nwp->nedges >= nmax-1){
 	return MCMC_TOO_MANY_EDGES;
       }
       tottaken += staken;
