@@ -63,7 +63,7 @@ dynsim<-simulate(g1~edges,dissolution=~edges,stergm.order="FormAndDiss",theta.fo
 
 print.sim.stats(dynsim,meanstats,duration)
 
-### Bipartite
+### Bipartite undirected
 
 dyads<-(n-m)*m
 density<-edges/dyads
@@ -71,7 +71,7 @@ theta.form<-theta.form.f(theta.diss,density)
 
 cat("\nBipartite:\n")
 
-g0<-network.initialize(n,bipartite=m)
+g0<-network.initialize(n,bipartite=m,directed=FALSE)
 
 # Get a reasonably close starting network.
 g1<-san(g0~edges,meanstats=meanstats,verbose=TRUE)
