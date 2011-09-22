@@ -66,7 +66,7 @@ void WtMCMC_wrapper(int *dnumnets, int *nedges,
 /* Rprintf("Back! %d %d\n",nw[0].nedges, nmax); */
 
   /* record new generated network to pass back to R */
-  if(*status == WtMCMC_OK && nmax>0 && newnetworktails && newnetworkheads)
+  if(*status == WtMCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads)
     newnetworktails[0]=newnetworkheads[0]=WtEdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,newnetworkweights+1,nw,nmax-1);
   
   WtModelDestroy(m);
