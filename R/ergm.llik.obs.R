@@ -195,7 +195,12 @@ llik.hessian.obs <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=
   htmp.obs.offset <- t(ergm.etagradmult(theta.offset, t(htmp.obs.offset), etamap))
   H.obs <- crossprod(htmp.obs.offset, htmp.obs.offset)
   
-  H.obs-H
+  He <- H[!etamap$offsettheta, !etamap$offsettheta]
+  dimnames(He) <- list(names(namestheta), names(namestheta))
+  He.obs <- H.obs[!etamap$offsettheta, !etamap$offsettheta]
+  dimnames(He.obs) <- list(names(namestheta), names(namestheta))
+
+  He.obs-He
 # He <- matrix(NA, ncol = length(theta), nrow = length(theta))
 # He[!etamap$offsettheta, !etamap$offsettheta] <- H
 # dimnames(He) <- list(namesx, namesx)
