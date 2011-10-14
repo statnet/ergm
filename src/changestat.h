@@ -16,7 +16,8 @@ typedef struct ModelTermstruct {
 } ModelTerm;
 
 
-/* binomial coefficient macro: */
+/* binomial coefficient function and macro: */
+double my_choose(double n, int r);
 #define CHOOSE(n,r) ((n)<(r) ? (0) : (my_choose((double)(n),(int)(r)))) 
 
 /* Comparison macro for doubles: */

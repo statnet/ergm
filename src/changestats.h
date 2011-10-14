@@ -32,7 +32,6 @@ D_CHANGESTAT_FN(d_boundeddegree);
 D_CHANGESTAT_FN(d_boundedidegree);
 D_CHANGESTAT_FN(d_boundedodegree);
 D_CHANGESTAT_FN(d_boundedistar);
-  double my_choose(double n, int r);
 D_CHANGESTAT_FN(d_boundedkstar);
 D_CHANGESTAT_FN(d_boundedostar);
 D_CHANGESTAT_FN(d_boundedtriangle);
