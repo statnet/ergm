@@ -25,7 +25,8 @@
 #        <nodeicov>         <nodeifactor>     <nodematch>=<match>
 #        <nodemix>          <nodeocov>        <nodeofactor>       
 #        <nsp>
-#   O:   <odegree>          <ostar>           <outdegreepopularity>  
+#   O:   <odegree>          <opentriad>       <ostar>
+#        <outdegreepopularity>  
 #   P:   <pdegcor>
 #   R:   <receiver>         <rdegcor>
 #   S:   <sender>           <simmelian>       <simmelianties>
@@ -2847,6 +2848,17 @@ InitErgmTerm.outdegreepopularity<-function (nw, arglist, drop=TRUE, ...) {
     }
   }
   list(name="outdegreepopularity", coef.names="outdegreepopularity")
+}
+
+
+################################################################################
+InitErgmTerm.opentriad<-function (nw, arglist, drop=TRUE, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=FALSE,
+                      varnames = c(),
+                      vartypes = c(),
+                      defaultvalues = list(),
+                      required = c())
+  list(name="opentriad", coef.names="opentriad", inputs=NULL)
 }
 
 

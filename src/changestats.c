@@ -4103,6 +4103,44 @@ D_CHANGESTAT_FN(d_odegree_w_homophily) {
 }
 
 /*****************
+ changestat: d_opentriad
+*****************/
+D_CHANGESTAT_FN(d_opentriad) { 
+  int i;
+  
+  /* *** don't forget tail -> head */    
+  ZERO_ALL_CHANGESTATS(i);
+  FOR_EACH_TOGGLE(i) {
+    Vertex tail = TAIL(i), head = HEAD(i), node3;
+    Edge change = 0, e;
+    /* edgeflag is 1 if edge exists and will disappear
+       edgeflag is 0 if edge DNE and will appear */
+    unsigned int edgeflag = IS_OUTEDGE(tail, head);
+
+    // +3 * triangles
+
+    STEP_THROUGH_OUTEDGES(head, e, node3) { /* step through outedges of head */
+      change += IS_UNDIRECTED_EDGE(node3,tail);
+    }
+    STEP_THROUGH_INEDGES(head, e, node3) { /* step through inedges of head */
+      change += IS_UNDIRECTED_EDGE(node3,tail);
+    }
+    CHANGE_STAT[0] += change * (edgeflag ? -3.0 : 3.0);
+    
+
+    // -1 * 2-stars
+    
+    Vertex taild = OUT_DEG[tail] + IN_DEG[tail] - edgeflag; 
+    Vertex headd = OUT_DEG[head] + IN_DEG[head] - edgeflag;
+    change = taild + headd; 
+    CHANGE_STAT[0] += (edgeflag ?  change : -change); 
+
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+  UNDO_PREVIOUS_TOGGLES(i);
+}
+
+/*****************
  changestat: d_ostar
 *****************/
 D_CHANGESTAT_FN(d_ostar) { 

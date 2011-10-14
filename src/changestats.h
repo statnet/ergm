@@ -121,6 +121,7 @@ D_CHANGESTAT_FN(d_nsp);
 D_CHANGESTAT_FN(d_odegree);
 D_CHANGESTAT_FN(d_odegree_by_attr);
 D_CHANGESTAT_FN(d_odegree_w_homophily);
+D_CHANGESTAT_FN(d_opentriad);
 D_CHANGESTAT_FN(d_ostar);
 D_CHANGESTAT_FN(d_outdegreepopularity);
 /********************  changestats:   P    ***********/
