@@ -61,6 +61,16 @@ void MH_CompleteOrderingBipartite(WtMHproposal *MHp, WtNetwork *nwp)  {
 }
 
 /*********************
+ void MH_CompleteOrderingEquivalentBipartite
+
+Completely identical to non-bipartite
+*********************/
+
+void MH_CompleteOrderingEquivalentBipartite(WtMHproposal *MHp, WtNetwork *nwp)  {  
+  MH_CompleteOrderingEquivalent(MHp, nwp);
+}
+
+/*********************
  void MH_BipartiteStdNormal
 
  Default MH algorithm for standard-normal-reference ERGM

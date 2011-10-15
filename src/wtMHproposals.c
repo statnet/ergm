@@ -106,6 +106,65 @@ void MH_CompleteOrdering(WtMHproposal *MHp, WtNetwork *nwp)  {
 }
 
 /*********************
+ void MH_CompleteOrdering
+
+ Default MH algorithm for ERGM over complete orderings
+*********************/
+void MH_CompleteOrderingEquivalent(WtMHproposal *MHp, WtNetwork *nwp)  {  
+  Vertex tail, head1, head2;
+  static Vertex negos;
+  
+  // Initialize
+  if(MHp->ntoggles == 0) { 
+    negos = nwp->bipartite ? nwp->bipartite : nwp->nnodes;
+    MHp->ntoggles=2;
+
+    // This really needs to be moved into R code somewhere.
+    // The proposal requires that there be no ties, but at the same
+    // time, the dyad values must not violate constraints implied by
+    // the data.
+    // Therefore, these values must somehow be made unique; the order
+    // within the equivalence class doesn't matter, but values in
+    // different classes must not cross.
+    // The way I am doing this is very simple but very dangerous,
+    // since it assumes that we will never ever encounter two values
+    // that are legitimately different but sufficiently close to each other.
+
+    const double MAX_JITTER = 0.00001;
+
+    for(tail=1;tail<=negos;tail++){
+      for(head1=nwp->bipartite? negos+1 : 1; head1<=nwp->nnodes; head1++){
+	if(tail==head1) continue;
+	WtSetEdge(tail, head1, WtGetEdge(tail, head1, nwp) + unif_rand()*MAX_JITTER, nwp);
+      }
+    }
+    return;
+  }
+  
+  double *clist;
+
+  do{
+     tail = 1 + unif_rand() * negos;
+    clist = MHp->inputs + (unsigned int) MHp->inputs[Mtail[0]-1]; // List of equivalence classes for that i, preceded by their number.
+  }while(*clist==0);
+
+  unsigned int c = 1 + (unsigned int) (unif_rand() * (*clist)); // Select an equivalence class. TODO: Oversample bigger classes.
+  unsigned int jstart = clist[c], jend = clist[c+1]; // Locate the start and the end of the list of j's within this class.
+  head1 = clist[(int)(jstart + unif_rand()*(jend-jstart))]; // Select a j1 at random from this class.
+  do{
+    head2 = clist[(int)(jstart + unif_rand()*(jend-jstart))]; // Keep trying until you get a new j2.
+  }while(head2 == head1);
+  
+  Mtail[0] = Mtail[1] = tail;
+  Mhead[0] = head1;
+  Mhead[1] = head2;
+  
+  Mweight[1] = WtGetEdge(Mtail[0],Mhead[0],nwp);
+  Mweight[0] = WtGetEdge(Mtail[1],Mhead[1],nwp);
+}
+
+
+/*********************
  void MH_StdNormal
 
  Default MH algorithm for a standard-normal-reference ERGM

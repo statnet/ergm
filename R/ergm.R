@@ -146,14 +146,13 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
   MHproposal.obs<-constraints
   
   MHproposal.obs<-switch(tolower(obs),
-                         detrank=ergm.update.formula(MHproposal.obs,~.+ranks),
+                         detrank = ergm.update.formula(MHproposal.obs,~.+ranks),
                          MHproposal.obs)
   
   if(network.naedgecount(nw)) MHproposal.obs<-ergm.update.formula(MHproposal.obs,~.+observed)
   
   if(constraints==MHproposal.obs) MHproposal.obs<-NULL
-  
-  # End conditional MLE in dynamic model
+
   if(!is.null(meanstats)){
    if(!(!is.null(control$SAN.burnin) && is.na(control$SAN.burnin))){
     netsumm<-summary(formula,response=response)

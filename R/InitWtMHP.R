@@ -22,6 +22,42 @@ InitWtMHP.DescRank <- function(arguments, nw, model, response) {
   MHproposal
 }
 
+InitWtMHP.DescRankEquivalent <- function(arguments, nw, model, response) {
+  MHproposal <- list(name = "CompleteOrderingEquivalent", package="ergm")
+  if(is.bipartite(nw)){
+    MHproposal$name <- "CompleteOrderingEquivalentBipartite"
+  }
+  
+  # Construct the data structure for not-too-inefficient sampling
+  n <- if(is.bipartite(nw)) nw %n% "bipartite" else network.size(nw)
+  m <- as.matrix(nw, matrix.type = "adjacency", attrname = response)
+  diag(m)<-NA
+
+  m<-apply(m, 1,
+        function(x){
+          cs<-js<-c()
+          for(c in sort(unique(x))){ # For each equivalence class
+            j<-which(x==c)
+            njs<-length(j)
+            if(njs<2) next
+            cs<-c(cs,njs)
+            js<-c(js,j)
+          }
+          cs<-c(0,cumsum(cs))+1
+          cs<-cs+length(cs)
+          c(length(cs)-1,cs,js)
+        }
+        )
+
+  is<-c(0,cumsum(sapply(m,length))[-length(m)])
+  is<-is+length(is)
+
+  MHproposal$inputs<-c(is,unlist(m))
+  
+  MHproposal
+}
+
+
 InitWtMHP.StdNormal <- function(arguments, nw, model, response) {
   MHproposal <- list(name = "StdNormal", inputs=NULL, package="ergm")
   if(is.bipartite(nw)){
