@@ -145,7 +145,7 @@ void MH_CompleteOrderingEquivalent(WtMHproposal *MHp, WtNetwork *nwp)  {
 
   do{
      tail = 1 + unif_rand() * negos;
-    clist = MHp->inputs + (unsigned int) MHp->inputs[Mtail[0]-1]; // List of equivalence classes for that i, preceded by their number.
+     clist = MHp->inputs + (unsigned int) MHp->inputs[tail-1]; // List of equivalence classes for that i, preceded by their number.
   }while(*clist==0);
 
   unsigned int c = 1 + (unsigned int) (unif_rand() * (*clist)); // Select an equivalence class. TODO: Oversample bigger classes.
