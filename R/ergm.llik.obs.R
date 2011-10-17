@@ -148,7 +148,7 @@ llik.hessian.obs <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=
                          varweight=0.5, eta0, etamap){
   theta.offset <- etamap$theta0
   theta.offset[!etamap$offsettheta] <- theta
-  namesx <- names(theta)
+  namestheta <- names(theta)
 #
 #    eta transformation
 #
@@ -203,7 +203,7 @@ llik.hessian.obs <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=
   He.obs-He
 # He <- matrix(NA, ncol = length(theta), nrow = length(theta))
 # He[!etamap$offsettheta, !etamap$offsettheta] <- H
-# dimnames(He) <- list(namesx, namesx)
+# dimnames(He) <- list(namestheta, namestheta)
 # He
 }
 
