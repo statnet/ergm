@@ -1,8 +1,5 @@
 library(ergm)
 #
-# Use 'data(package = "ergm")' to list the data sets in a
-data(package="ergm")
-#
 # Load a graph object of the Florentine data
 #
 data(florentine)

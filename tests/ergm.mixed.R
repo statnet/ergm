@@ -1,6 +1,4 @@
 library(ergm)                                        #
-# Use 'data(package = "ergm")' to list the data sets in a
-data(package="ergm")
 
 # import synthetic network that looks like a molecule
 data(molecule)
