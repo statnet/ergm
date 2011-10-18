@@ -9,7 +9,7 @@
 #
 # --RETURNED--
 #   eta:  the canonical eta parameters as mapped from theta; infinite parameters
-#         are replaced by -10000
+#         are replaced by appropriately signed 1000
 #
 ###############################################################################
 
@@ -23,7 +23,7 @@ ergm.eta <- function(theta, etamap) {
       eta[cm$to] <- cm$map(theta[cm$from],length(cm$to),cm$cov)
     }
   }
-  eta[is.infinite(eta)] <- -10000
+  eta[is.infinite(eta)] <- sign(eta[is.infinite(eta)])*1000
   eta
 }
 
