@@ -176,7 +176,6 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL
                          varweight=0.5, trustregion=20, eta0, etamap){
   theta.offset <- etamap$theta0
   theta.offset[!etamap$offsettheta] <- theta
-  namestheta <- names(theta)
 # xsim[,etamap$offsettheta] <- 0
 #
 #    eta transformation
@@ -218,8 +217,8 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL
 # He <- matrix(NA, ncol = length(etamap$offsettheta), 
 #                  nrow = length(etamap$offsettheta))
 # He[!etamap$offsettheta, !etamap$offsettheta] <- H
-  He <- H[!etamap$offsettheta, !etamap$offsettheta]
-  dimnames(He) <- list(names(namestheta), names(namestheta))
+  He <- H[!etamap$offsettheta, !etamap$offsettheta, drop=FALSE]
+  dimnames(He) <- list(names(theta), names(theta))
 # H
   He
 }
@@ -239,7 +238,6 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL
 
 llik.hessian.naive <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
                                varweight=0.5, eta0, etamap){
-  namestheta <- names(theta)
   xsim <- xsim[,!etamap$offsettheta, drop=FALSE]
   eta <- ergm.eta(theta, etamap)
   etagrad <- ergm.etagrad(theta, etamap)
@@ -261,7 +259,7 @@ llik.hessian.naive <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.ob
   H <- - crossprod(etagrad, crossprod(H, etagrad))
   He <- matrix(NA, ncol = length(theta), nrow = length(theta))
   He[!etamap$offsettheta, !etamap$offsettheta] <- H
-  dimnames(He) <- list(names(namestheta), names(namestheta))
+  dimnames(He) <- list(names(theta), names(theta))
   He
 }
 
