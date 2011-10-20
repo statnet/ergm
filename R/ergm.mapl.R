@@ -56,22 +56,19 @@ ergm.mapl <- function(formula, theta0="MPLE",
   if (verbose) cat("Evaluating network in model\n")
 
   nw <- ergm.getnetwork(formula)
-  if(!is.null(meanstats)){ control$drop <- FALSE }
   
   if (verbose) cat("Fitting initial model.\n")
 
   proposalclass <- "c"
     
   if(control$drop){
-   model.initial <- ergm.getmodel(formula, nw, drop=FALSE, initialfit=TRUE)
-   model.initial.drop <- ergm.getmodel(formula, nw, drop=TRUE, initialfit=TRUE)
-   namesmatch <- match(model.initial$coef.names, model.initial.drop$coef.names)
-   droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
-   droppedterms[is.na(namesmatch)] <- TRUE
-   model.initial$etamap$offsettheta[is.na(namesmatch)] <- TRUE
+   model.initial <- ergm.getmodel(formula, nw, initialfit=TRUE)
+   obs.stats <- if(!is.null(meanstats)) meanstats else summary(formula,response=response)
+   extremeval <- +(model.initial$maxval==obs.stats)-(model.initial$minval==obs.stats)
+   model.initial$etamap$offsettheta[extremeval!=0] <- TRUE
   }else{
-   model.initial <- ergm.getmodel(formula, nw, drop=control$drop, initialfit=TRUE)
-   droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
+    model.initial <- ergm.getmodel(formula, nw, response=response, initialfit=TRUE)
+    extremeval <- rep(0, length=length(model.initial$etamap$offsettheta))
   }
 
   # MPLE & Meanstats -> need fake network
@@ -89,7 +86,7 @@ ergm.mapl <- function(formula, theta0="MPLE",
   theta0copy <- theta0
   
   pl <- ergm.pl(Clist=Clist.initial, Clist.miss=Clist.miss.initial,
-                m=model.initial,
+                m=model.initial,theta.offset=ifelse(extremeval!=0,extremval*Inf,NA),
                 verbose=verbose)
   initialfit <- ergm.maple(pl=pl, model.initial,
                            MPLEtype=control$MPLEtype, 
@@ -120,7 +117,7 @@ ergm.mapl <- function(formula, theta0="MPLE",
     Clist.miss.initial <- ergm.design(sim, model.initial, verbose=verbose)
     Clist.initial$meanstats=meanstats
     sim.pl <- ergm.pl(Clist=Clist.initial, Clist.miss=Clist.miss.initial,
-                      m=model.initial,
+                      m=model.initial,theta.offset=ifelse(extremeval!=0,extremval*Inf,NA),
                       verbose=verbose)
     pl$zy <- c(pl$zy,sim.pl$zy)
     pl$foffset <- c(pl$foffset,sim.pl$foffset)
@@ -139,7 +136,7 @@ ergm.mapl <- function(formula, theta0="MPLE",
   }
 
   initialfit$offset <- model.initial$etamap$offsettheta
-  initialfit$drop <- droppedterms
+  initialfit$drop <- extremeval
   initialfit$network <- nw
   initialfit$newnetwork <- nw
   initialfit$formula <- formula

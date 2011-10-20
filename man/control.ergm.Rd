@@ -6,11 +6,12 @@
 }
 \usage{
 control.ergm(prop.weights = "default", prop.args = NULL,
-             prop.weights.diss = "default", prop.args.diss = NULL, 
              nr.maxit = 100,
              calc.mcmc.se = TRUE, hessian = TRUE, compress = FALSE,
              SAN.burnin=NULL,
-             maxNumDyadTypes = 1e+06, maxedges = 20000, maxchanges = 1e+06,
+             maxNumDyadTypes = 1e+06, maxedges = 20000, maxchanges =
+1e+06,
+             initialfit="MPLE",
              maxMPLEsamplesize = 1e+05, MPLEtype=c("glm", "penalized"), trace = 0,
              steplength = 0.5, sequential=TRUE,
              drop = TRUE, force.mcmc = FALSE, check.degeneracy=FALSE, 
@@ -23,12 +24,11 @@ control.ergm(prop.weights = "default", prop.args = NULL,
              initial.network = NULL,
              style = c("Newton-Raphson", "Robbins-Monro",
              "Stochastic-Approximation", "Stepping"),
-             style.dyn = c("Robbins-Monro", "SPSA", "SPSA2"),
              phase1_n = NULL, initial_gain = NULL,
              nsubphases = "maxit", niterations = NULL, phase3_n = NULL,
              RobMon.phase1n_base = 7, RobMon.phase2n_base = 100, RobMon.phase2sub
              = 7, RobMon.init_gain = 0.5, RobMon.phase3n = 500, 
-             stepMCMCsize=100, gridsize=100, dyninterval=1000, 
+             stepMCMCsize=100, gridsize=100,
              packagenames="ergm", parallel = 0, returnMCMCstats = TRUE)
              }
 \details{
@@ -78,6 +78,8 @@ control.ergm(prop.weights = "default", prop.args = NULL,
   \item{maxedges}{ Maximum number of edges for which to allocate space. }
   \item{maxchanges}{ Maximum number of changes in dynamic network
     simulation for which to allocate space. }
+  \item{initialfit}{Method used to find the initial configuration
+  parameter. Defaults to \code{"MPLE"}. }
   \item{maxMPLEsamplesize}{count; the sample size to use for endogenous
     sampling in the pseudolikelihood computation.
     Default is \code{10^11}.}

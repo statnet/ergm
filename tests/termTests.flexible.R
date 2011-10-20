@@ -181,7 +181,7 @@ e.x <- ergm(samplike ~ edgecov(cov))
 s.xa <- summary(samplike~edgecov(samplike, "YearsTrusted"))
 e.xa <- ergm(samplike ~ edgecov(samplike, "YearsTrusted"))
 if (s.x!=134 || round(e.x$coef + .5022,3)!=0  ||
-    s.xa!=183 || round(e.xa$coef - 17.76194,3)!=0 ) {
+    s.xa!=183 || e.xa$coef!=+Inf ) {
  print(list(s.x=s.x,e.x=e.x,s.xa=s.xa,e.xa=e.xa))
  stop("Failed edgecov test")
 }else{

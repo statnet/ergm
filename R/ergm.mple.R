@@ -8,8 +8,7 @@
 #   Clist.miss       : the corresponding 'Clist' for the network of missing
 #                      edges returned by <ergm.design>            
 #   m                : the model, as returned by <ergm.getmodel>
-#   theta0           : either a vector whose first entry is "MPLE" or a vector
-#                      of initial theta coefficients
+#   theta0           : a vector a vector of initial theta coefficients
 #   theta.offset     : a logical vector specifying which of the model
 #                      coefficients are offset, i.e. fixed  
 #   MPLEtype         : the method for MPL estimation as "penalized", "glm" or

@@ -1,7 +1,7 @@
 # This new InitErgmTerm function still needs to be tested:
 
 #################################################################################
-InitErgmTerm.transitiveties<-function (nw, arglist, drop=TRUE, ...) {
+InitErgmTerm.transitiveties<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = c("attrname", "diff"),
                       vartypes = c("character", "logical"),
@@ -18,29 +18,6 @@ InitErgmTerm.transitiveties<-function (nw, arglist, drop=TRUE, ...) {
     ui <- seq(along=u)
     if (length(u)==1)
       stop ("Attribute given to transitiveties() has only one value", call.=FALSE)
-    if(drop){
-      triattr <- summary(as.formula(paste('nw ~ transitiveties(','"',attrname,
-                                          '",diff=',diff,')',sep="")),
-                         drop=FALSE) == 0
-      if(diff){
-        if(any(triattr)){
-          dropterms <- paste(paste("transitiveties",attrname,sep="."),
-                             u[triattr],sep="")
-      cat(" ")
-          cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-          u <- u[!triattr] 
-          ui <- ui[!triattr] 
-        }
-      }else{
-        if(triattr){
-          dropterms <- paste(paste("transitiveties",attrname,sep="."),sep="")
-      cat(" ")
-          cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-        }
-      }
-    }
     if (!diff) {
       coef.names <- paste("transitiveties",attrname,sep=".")
       inputs <- c(nodecov)
@@ -53,11 +30,11 @@ InitErgmTerm.transitiveties<-function (nw, arglist, drop=TRUE, ...) {
     coef.names <- "transitiveties"
     inputs <- NULL
   }
-  list(name="transitiveties", coef.names=coef.names, inputs=inputs)
+  list(name="transitiveties", coef.names=coef.names, inputs=inputs, minval=0)
 }
 
 #################################################################################
-InitErgmTerm.cyclicalties<-function (nw, arglist, drop=TRUE, ...) {
+InitErgmTerm.cyclicalties<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = c("attrname", "diff"),
                       vartypes = c("character", "logical"),
@@ -74,29 +51,6 @@ InitErgmTerm.cyclicalties<-function (nw, arglist, drop=TRUE, ...) {
     ui <- seq(along=u)
     if (length(u)==1)
       stop ("Attribute given to cyclicalties() has only one value", call.=FALSE)
-    if(drop){
-      triattr <- summary(as.formula(paste('nw ~ cyclicalties(','"',attrname,
-                                          '",diff=',diff,')',sep="")),
-                         drop=FALSE) == 0
-      if(diff){
-        if(any(triattr)){
-          dropterms <- paste(paste("cyclicalties",attrname,sep="."),
-                             u[triattr],sep="")
-      cat(" ")
-          cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-          u <- u[!triattr] 
-          ui <- ui[!triattr] 
-        }
-      }else{
-        if(triattr){
-          dropterms <- paste(paste("cyclicalties",attrname,sep="."),sep="")
-      cat(" ")
-          cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-        }
-      }
-    }
     if (!diff) {
       coef.names <- paste("cyclicalties",attrname,sep=".")
       inputs <- c(nodecov)
@@ -109,6 +63,6 @@ InitErgmTerm.cyclicalties<-function (nw, arglist, drop=TRUE, ...) {
     coef.names <- "cyclicalties"
     inputs <- NULL
   }
-  list(name="cyclicalties", coef.names=coef.names, inputs=inputs)
+  list(name="cyclicalties", coef.names=coef.names, inputs=inputs, minval=0)
 }
 

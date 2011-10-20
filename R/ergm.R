@@ -5,9 +5,8 @@
 #
 # --PARAMETERS--
 #   formula       :  a formula of the form 'nw ~ model term(s)'
-#   theta0        :  a vector of starting values for estimation, or optionally
-#                    if these are to be estimated, the string "MPLE";
-#                    default="MPLE"
+#   theta0        :  a vector of starting values for estimation or offset values, or optionally
+#                    if these are to be estimated, NULL (the default);
 #   MPLEonly      :  whether MPL estimation should be used (T or F); this is
 #                    ignored if 'MLestimate' is set; default=FALSE
 #   MLestimate    :  this is a logical indicating whether ML
@@ -88,7 +87,7 @@
 #    $* @        mplefit         :  the MPLE fit as a glm object, and returned by
 #                                   <ergm.mple>
 #    $*!@% &#~+  null.deviance   :  the deviance of the null model
-#    $*!@% &#~+  mle.lik         :  the approximate log-likelihood for the MLE
+#    $*!@% &#~+  mle.lik         :  the approximate log-likelihood for the MLE, if computed
 #    $* @        etamap          :  the set of function mapping theta -> eta;
 #                                   see <etamap>? for the components of this list
 #    $           degeneracy.value:  the degeneracy value assigned by <ergm.degeneracy>
@@ -122,7 +121,7 @@
 #
 #####################################################################################    
 
-ergm <- function(formula, response=NULL, theta0="MPLE",
+ergm <- function(formula, response=NULL, theta0=NULL,
                  MPLEonly=FALSE, MLestimate=!MPLEonly, seed=NULL,
                  burnin=10000, MCMCsamplesize=10000, interval=100,
                  maxit=3,
@@ -136,7 +135,7 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
   options(warn=0)
   if(!is.null(seed))  set.seed(as.integer(seed))
   if (verbose) cat("Evaluating network in model\n")
-
+  
   nw <- ergm.getnetwork(formula)
   proposalclass <- "c"
 
@@ -159,8 +158,6 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
     if(length(netsumm)!=length(meanstats))
       stop("Incorrect length of the meanstats vector: should be ", length(netsumm), " but is ",length(meanstats),".")
     
-    control$drop <- FALSE
-
     if(verbose) cat("Constructing an approximate response network.\n")
     ## If meanstats are given, overwrite the given network and formula
     ## with SAN-ed network and formula.
@@ -197,19 +194,28 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
   if(control$nsubphases=="maxit") control$nsubphases<-maxit
   
   if (verbose) cat("Initializing model.\n")
+  
+  # Construct the initial mode.
+  model.initial <- ergm.getmodel(formula, nw, response=response, initialfit=TRUE)
+  # If some theta0 is specified...
+  if(!is.null(theta0)){
+    # Check length of theta0.
+    if (length(theta0)!=length(model.initial$etamap$offsettheta)) {
+      if(verbose) cat("theta0 is", theta0, "\n", "number of statistics is",model.initial$coef.names, "\n")
+      stop(paste("Invalid starting parameter vector theta0:",
+                 "wrong number of parameters.",
+                 "If you are passing output from another ergm run as theta0,",
+                 "in a model with curved terms, see help(enformulate.curved)."))
+    }
 
-  if(control$drop){
-   model.initial <- ergm.getmodel(formula, nw, response=response, drop=FALSE, initialfit=TRUE)
-   model.initial.drop <- ergm.getmodel(formula, nw, response=response, drop=TRUE, initialfit=TRUE)
-   namesmatch <- match(model.initial$coef.names, model.initial.drop$coef.names)
-   droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
-   droppedterms[is.na(namesmatch)] <- TRUE
-   model.initial$etamap$offsettheta[is.na(namesmatch)] <- TRUE
-   model.initial$etamap$offsetmap[model.initial$etamap$canonical[droppedterms & (model.initial$etamap$canonical>0)]] <- TRUE
-  }else{
-   model.initial <- ergm.getmodel(formula, nw, response=response, drop=control$drop, initialfit=TRUE)
-   droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
-  }
+    # Make sure any offset elements are given in theta0.
+    if(any(is.na(theta0) & model.initial$etamap$offsettheta)) stop("The model contains offset terms whose parameter values have not been specified:", paste(model.initial$coef.names[is.na(theta0)|model.initial$offsettheta], collapse=", "), ".", sep="")
+  }else theta0 <- rep(NA, length(model.initial$etamap$offsettheta)) # Set the default value of theta0.
+
+  # Check if any terms are at their extremes and handle them depending on control$drop.
+  extremecheck <- ergm.checkextreme.model(model=model.initial, nw=nw, theta0=theta0, response=response, meanstats=meanstats, drop=control$drop)
+  model.initial <- extremecheck$model; theta0 <- extremecheck$theta0
+  
   if (verbose) { cat("Initializing Metropolis-Hastings proposal.\n") }
 
   MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial,class=proposalclass,reference=reference,response=response)
@@ -224,32 +230,46 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
 
 
   if (verbose) { cat("Fitting initial model.\n") }
-  if(reference!="Bernoulli" && theta0=="MPLE") stop("MPLE initial values are not implemented for weithed network ERGMs. Please specify theta0 manually.")
-  theta0copy <- theta0
-  initialfit <- ergm.initialfit(theta0=theta0copy, MLestimate=MLestimate, 
+  if(reference!="Bernoulli" && is.null(theta0)) stop("MPLE initial values are not implemented for weithed network ERGMs. Please specify theta0 manually.")
+
+  MPLE.is.MLE <- (reference=="Bernoulli"
+                  && ergm.independencemodel(model.initial)
+                  && !control$force.mcmc
+                  && constraints==(~.))
+
+  # If all other criteria for MPLE=MLE are met, _and_ SAN network matches meanstats directly, we can get away with MPLE.
+  MCMCflag <- (MLestimate && (!MPLE.is.MLE
+                               || (!is.null(meanstats) && !isTRUE(all.equal(meanstats,obs)))
+                              )
+               || control$force.mcmc)
+
+  # Short-circuit the optimization if all terms are either offsets or dropped.
+  if(MCMCflag && all(model.initial$etamap$offsettheta)){
+    # Note that this cannot be overridden with control$force.mcmc.
+    MCMCflag <- FALSE
+    warning("All terms are either offsets or extreme values. Skipping MCMC.")
+  }
+  
+  initialfit <- ergm.initialfit(theta0=theta0, initial.is.final=!MCMCflag,
                                 formula=formula, nw=nw, meanstats=meanstats,
-                                m=model.initial,
+                                m=model.initial, method=control$initialfit,
                                 MPLEtype=control$MPLEtype, 
-                                initial.loglik=control$initial.loglik,
                                 conddeg=conddeg, MCMCparams=MCMCparams, MHproposal=MHproposal,
-                                force.MPLE=(reference=="Bernoulli" && ergm.independencemodel(model.initial)
-                                            && !control$force.mcmc
-                                            && constraints==(~.)),
                                 verbose=verbose, 
                                 compressflag = control$compress, 
                                 maxNumDyadTypes=control$maxNumDyadTypes,
                                 ...)
-  MCMCflag <- ((MLestimate && (!ergm.independencemodel(model.initial)
-                               || !is.null(meanstats)
-                               || constraints!=(~.)))
-                || control$force.mcmc || reference!="Bernoulli")
+  
+  
+
+
   if (MCMCflag) {
     theta0 <- initialfit$coef
     names(theta0) <- model.initial$coef.names
     theta0[is.na(theta0)] <- 0
   } else { # Just return initial (non-MLE) fit and exit.
     initialfit$offset <- model.initial$etamap$offsettheta
-    initialfit$drop <- droppedterms
+    initialfit$drop <- if(control$drop) extremecheck$extremeval.theta
     initialfit$network <- nw
     initialfit$reference <- reference
     initialfit$newnetwork <- nw
@@ -257,33 +277,22 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
     initialfit$constraints <- constraints
     initialfit$prop.args <- control$prop.args
     initialfit$prop.weights <- control$prop.weights
-    initialfit<-logLik.ergm(initialfit, nsteps=loglik.nsteps, add=TRUE)
+    if(any(!model.initial$etamap$offsettheta))
+      initialfit<-logLik.ergm(initialfit, nsteps=loglik.nsteps, add=TRUE)
     return(initialfit)
-  } 
-  if(control$drop){
-   model <- ergm.getmodel(formula, nw, response=response, drop=FALSE, expanded=TRUE, silent=TRUE)
-   # revise theta0 to reflect additional parameters
-   theta0 <- ergm.revisetheta0(model, theta0)
-   model.drop <- ergm.getmodel(formula, nw, response=response, drop=TRUE, expanded=TRUE, silent=TRUE)
-#            silent="MPLE" %in% theta0copy)
-   eta0 <- ergm.eta(theta0, model$etamap)
-   namesdrop <- model$coef.names[is.na(match(model$coef.names, model.drop$coef.names))]
-   names(model$etamap$offsettheta) <- names(theta0)
-   droppedterms <- rep(FALSE, length=length(model$etamap$offsettheta))
-   droppedterms[is.na(namesmatch)] <- TRUE
-   theta0[droppedterms] <- -Inf
-   model$etamap$offsettheta[names(model$etamap$offsettheta) %in% namesdrop] <- TRUE
-   model$etamap$offsetmap[model$etamap$canonical[droppedterms & (model$etamap$canonical>0)]] <- TRUE
-  }else{
-   model <- ergm.getmodel(formula, nw, response=response, drop=control$drop, expanded=TRUE)
-   # revise theta0 to reflect additional parameters
-   theta0 <- ergm.revisetheta0(model, theta0)
-   names(model$etamap$offsettheta) <- names(theta0)
-   droppedterms <- rep(FALSE, length=length(model$etamap$offsettheta))
   }
+  
+  # Construct the curved model
+  model <- ergm.getmodel(formula, nw, response=response, expanded=TRUE, silent=TRUE)
+  # revise theta0 to reflect additional parameters
+  theta0 <- ergm.revisetheta0(model, theta0)
+
+  extremecheck <- ergm.checkextreme.model(model=model, nw=nw, theta0=theta0, response=response, meanstats=meanstats, drop=control$drop, silent=TRUE)
+  model <- extremecheck$model
+  theta0 <- extremecheck$theta0
 
   Clist <- ergm.Cprepare(nw, model, response=response)
-  Clist$obs <- summary(model$formula, drop=FALSE, response=response)
+  Clist$obs <- summary(model$formula, response=response)
 
   Clist$meanstats <- Clist$obs
   if(!is.null(meanstats)){
@@ -292,7 +301,7 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
      names(meanstats) <- names(Clist$obs)
      Clist$meanstats <- meanstats
     }else{
-     namesmatch <- names(summary(model$formula, drop=FALSE, response=response))
+     namesmatch <- names(summary(model$formula, response=response))
      if(length(meanstats) == length(namesmatch)){
        namesmatch <- match(names(meanstats), namesmatch)
        Clist$meanstats <- meanstats[namesmatch]
@@ -360,7 +369,7 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
   v$reference<-reference
 
   v$offset <- model$etamap$offsettheta
-  v$drop <- droppedterms
+  v$drop <- if(control$drop) extremecheck$extremeval.theta
   v$etamap <- model$etamap
   if (!control$returnMCMCstats)
     v$sample <- NULL
@@ -372,4 +381,56 @@ ergm <- function(formula, response=NULL, theta0="MPLE",
   if(eval.loglik)
     v<-logLik.ergm(v, nsteps=control$loglik.nsteps, add=TRUE)
   v
+}
+
+# A helper function to check for extreme statistics and inform the user.
+ergm.checkextreme.model <- function(model, nw, theta0, response, meanstats, drop, silent=FALSE){
+  eta0 <- ergm.eta(theta0, model$etamap)
+  
+  # Check if any terms are at their extremes.
+  obs.stats.eta <- if(!is.null(meanstats)){
+    if(is.null(names(meanstats))) names(meanstats) <- names(ergm.getglobalstats(nw, model, response=response))
+    meanstats
+  }else ergm.getglobalstats(nw, model, response=response)
+
+  extremeval.eta <- +(model$maxval==obs.stats.eta)-(model$minval==obs.stats.eta)
+  names.eta<-names(obs.stats.eta)      
+  
+  # Drop only works for canonical terms, so extremeval.theta has 0s
+  # (no action) for all elements of theta that go into a curved term,
+  # and only the elements of extremeval.eta corresponding to
+  # canonical terms get copied into it.
+  extremeval.theta <- rep(0, length(theta0))
+  extremeval.theta[model$etamap$canonical!=0]<-extremeval.eta[model$etamap$canonical]
+  names.theta <- rep(NA, length(length(theta0)))
+  names.theta[model$etamap$canonical!=0]<-names.eta[model$etamap$canonical]
+  
+  # The offsettheta is there to prevent dropping of offset terms.
+  low.drop.theta <- extremeval.theta<0 & !model$etamap$offsettheta
+  high.drop.theta <- extremeval.theta>0 & !model$etamap$offsettheta
+  
+  # drop only affects the action taken.
+  if(drop){
+
+    if(!silent){
+      # Inform the user what's getting dropped.
+      if(any(low.drop.theta)) cat(paste("Observed statistic(s)", paste(names.theta[low.drop.theta],collapse=", "), "are at their smallest attainable values. Their coefficients will be fixed at -Inf.\n", sep=" "))
+      if(any(high.drop.theta)) cat(paste("Observed statistic(s)", paste(names.theta[high.drop.theta],collapse=", "), "are at their greatest attainable values. Their coefficients will be fixed at +Inf.\n", sep=" "))
+    }
+    
+    # If the user specified a non-fixed element of theta0, and that element is getting dropped, warn the user.
+    if(any(is.finite(theta0[low.drop.theta|high.drop.theta]))) warning("Overriding user-specified initial theta0 coefficient", paste(names.theta[is.na(theta0[low.drop.theta|high.drop.theta])], collapse=", "), ". To preserve, enclose in an offset() function.", sep="")
+
+    theta0[low.drop.theta|high.drop.theta] <- extremeval.theta[low.drop.theta|high.drop.theta]*Inf
+    model$etamap$offsettheta[low.drop.theta|high.drop.theta] <- TRUE
+    model$etamap$offsetmap[model$etamap$canonical[low.drop.theta|high.drop.theta & (model$etamap$canonical>0)]] <- TRUE
+  }else{
+    if(!silent){
+      # If no drop, warn the user anyway.
+      if(any(low.drop.theta)) warning(paste("Observed statistic(s)", paste(names.theta[low.drop.theta],collapse=", "), "are at their smallest attainable values and drop=FALSE. The MLE is poorly defined.", sep=" "))
+      if(any(high.drop.theta)) warning(paste("Observed statistic(s)", paste(names.theta[high.drop.theta],collapse=", "), "are at their greatest attainable values and drop=FALSE. The MLE is poorly defined.", sep=" "))
+    }
+  }
+
+  list(model=model, theta0=theta0, extremeval.theta=extremeval.theta)
 }

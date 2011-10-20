@@ -248,31 +248,20 @@ as.integer(length(data$MHproposal$bd$attribs)),
   # Adjust for the offset
   #
   if(any(m$etamap$offsettheta)){
-    if(is.null(theta.offset)){
-      theta.offset <- rep(0, length=Clist$nstats)
-      names(theta.offset) <- m$coef.names
-      theta.offset[m$etamap$offsettheta] <- -Inf
-#     theta.offset[m$etamap$offsettheta] <- -10000
+    if(any(is.na(theta.offset[m$etamap$offsettheta]))){
+      stop("Offset terms without offset coefficients specified!")
     }
-    # Commenting out recent version of this section that does not work;
-    #foffset <- xmat[,m$etamap$offsettheta,drop=FALSE]%*%theta.offset[m$etamap$offsettheta]
-    #foffset[is.nan(foffset)] <- 0 # zero times +-Inf should be zero in this context
-    #foffset <- xmat[,m$etamap$offsettheta,drop=FALSE]%*%theta.offset[m$etamap$offsettheta]
-    #xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE]
-    #colnames(xmat) <- m$coef.names[!m$etamap$offsettheta]
-    
-    # Returning to the version from CRAN ergm v. 2.1:
-    foffset <- xmat[,!m$etamap$offsettheta,drop=FALSE] %*%
-               theta.offset[!m$etamap$offsettheta]
-    shouldoffset <- apply(abs(xmat[,m$etamap$offsettheta,drop=FALSE])>1e-8,1,any)
-    xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE]
+    foffset <- xmat[,m$etamap$offsettheta,drop=FALSE] %*% cbind(theta.offset[m$etamap$offsettheta]) # Compute the offset's effect.
+    foffset[is.nan(foffset)] <- 0 # 0*Inf==0 in this case.
+    # Remove offset covariate columns.
+    xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE] 
     colnames(xmat) <- m$coef.names[!m$etamap$offsettheta]
-    xmat <- xmat[!shouldoffset,,drop=FALSE]
-    zy <- zy[!shouldoffset]
-    wend <- wend[!shouldoffset]
-    foffset <- foffset[!shouldoffset]
-    dmiss <- dmiss[!shouldoffset]
-#   theta.offset <- theta.offset[!m$etamap$offsettheta]
+    # Now, iff a row's offset effect is infinite, then it carries no
+    # further information whatsoever, so it should be dropped.
+    xmat <- xmat[is.finite(foffset),,drop=FALSE]
+    zy <- zy[is.finite(foffset)]
+    wend <- wend[is.finite(foffset)]
+    foffset <- foffset[is.finite(foffset)]
   }else{
     foffset <- rep(0, length=length(zy))
     theta.offset <- rep(0, length=Clist$nstats)

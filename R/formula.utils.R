@@ -23,7 +23,7 @@ is.dyad.independent.formula<-function(object,response=NULL,basis=NULL,constraint
     # New formula (no longer use 'object'):
     form <- ergm.update.formula(object, nw ~ .)
     
-    m<-ergm.getmodel(form, nw, drop=FALSE, response=response)
+    m<-ergm.getmodel(form, nw, response=response)
     if(any(sapply(m$terms, function(term) is.null(term$dependence) || term$dependence==TRUE))) FALSE
     else TRUE
   }
@@ -142,7 +142,7 @@ model.transform.formula <- function(object, theta, response=NULL, recipes, ...){
   ## a simple special case of toarg, if it were given a function that
   ## returned a constant value.
 
-  m <- ergm.getmodel(object, ergm.getnetwork(object), drop=FALSE, response=response)
+  m <- ergm.getmodel(object, ergm.getnetwork(object), response=response)
   theta.inds<-cumsum(c(1,theta.sublength.model(m)))
   terms<-term.list.formula(object[[3]])
   form<-object

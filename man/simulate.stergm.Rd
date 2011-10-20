@@ -9,7 +9,7 @@ Draw from the distribution of an Separable Temporal Exponential Family Random Gr
   See \code{\link{stergm}} for more information on these models.
 }
 \usage{
-simulate.stergm(object, nsim = 1, seed = NULL, theta.form = object$coef.form, theta.diss = object$coef.diss, time.burnin = 0, time.interval = 1, MH.burnin = 1000, constraints = ~., stergm.order = "DissAndForm", control = control.simulate.stergm(), toggles = TRUE, verbose = FALSE, ...)
+simulate.stergm(object, nsim = 1, seed = NULL, theta.form = object$coef.form, theta.diss = object$coef.diss, time.burnin = 0, time.interval = 1, MH.burnin = object$MH.burnin, constraints = object$constraints, stergm.order = object$stergm.order, control = control.simulate.stergm(), toggles = TRUE, verbose = FALSE, ...)
 }
 \arguments{
   \item{object}{an \R object. Either

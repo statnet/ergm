@@ -1,4 +1,4 @@
-InitErgmTerm.conddegmple<-function (nw, arglist, drop=TRUE, ...) {
+InitErgmTerm.conddegmple<-function (nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, 
                       varnames = c("type"),

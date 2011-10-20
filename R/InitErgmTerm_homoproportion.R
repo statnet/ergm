@@ -1,5 +1,5 @@
 #########################################################
-InitErgmTerm.homoproportion<-function (nw, arglist, drop=TRUE, ...) {
+InitErgmTerm.homoproportion<-function (nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, 
                       varnames = c("attrname", "keep"),
@@ -23,13 +23,6 @@ InitErgmTerm.homoproportion<-function (nw, arglist, drop=TRUE, ...) {
   dontmatch <- nodecov==(length(u)+1)
   nodecov[dontmatch] <- length(u) + (1:sum(dontmatch))
   ui <- seq(along=u)
-  if(drop) { # Check for zero statistics, print -Inf messages if applicable
-    obsstats <- check.ErgmTerm.summarystats(nw, arglist, ...)
-    print(obsstats)
-    ew <- extremewarnings(obsstats)
-    u <- u[!ew]
-    ui <- ui[!ew]
-  }
   ## Extract
   ng <- tabulate(nodecov)
   nn <- sum(ng)
@@ -41,6 +34,7 @@ InitErgmTerm.homoproportion<-function (nw, arglist, drop=TRUE, ...) {
        coef.names = coef.names,                          #coef.names: required
        inputs =  inputs,
        emptynwstats=0,
-       dependence = TRUE # So we don't use MCMC if not necessary
+       dependence = TRUE, # So we don't use MCMC if not necessary
+       minval = 0
        )
 }

@@ -158,7 +158,7 @@ MHproposal.formula <- function(object, arguments, nw, model, weights="default", 
 #   object     :  an ergm object
 #   ...        :  parameters used to create the model via <ergm.getmodel>;
 #                 only used if 'model' is not specified; these may include
-#                 'silent', 'drop' and 'initialfit'
+#                 'silent' and 'initialfit'
 #   constraints:  the constraints as a one sided formula '~ term(s)';
 #                 default=object$constraints
 #   arguments  :  a list of parameters used by the <Init.MHP> routines  possibly including

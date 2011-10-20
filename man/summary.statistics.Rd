@@ -11,8 +11,8 @@
 \usage{
 %summary(object, \dots)
 %\method{summary.statistics}{default}(object,\dots, m=NULL)
-\method{summary.statistics}{formula}(object, \dots, drop=FALSE, basis=NULL)
-\method{summary.statistics}{ergm}(object, \dots, drop=FALSE, basis=NULL)
+\method{summary.statistics}{formula}(object, \dots, basis=NULL)
+\method{summary.statistics}{ergm}(object, \dots, basis=NULL)
 }
 \description{
   Used to calculate the specified 
@@ -46,9 +46,6 @@
     }
 % \item{m}{A model component produced by \code{ergm.getmodel}. Only the 
 %   \code{m$coef.names} component is used to set the names of the statistics.}
-  \item{drop}{logical:  Should terms whose observed statistics are extreme
-  among the set of all possible network statistics
-  (which result in nonexistent MLEs) be dropped?}
   \item{basis}{An optional \code{\link[network]{network}} object relative to which
   the global statistics should be calculated.}
   \item{\dots}{further arguments passed to or used by methods.}

@@ -1,7 +1,7 @@
 # These are InitErgm functions that were never included in the public release.
 
 #########################################################
-InitErgmTerm.cyclicalties<-function (nw, arglist, drop=TRUE, ...) {
+InitErgmTerm.cyclicalties<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,bipartite=NULL,
     varnames = c("attrname", "diff"),
     vartypes = c("character", "logical"),
@@ -20,35 +20,6 @@ InitErgmTerm.cyclicalties<-function (nw, arglist, drop=TRUE, ...) {
     ui <- seq(along=u)
     if (length(u)==1)
       stop ("Attribute given to cyclicalties() has only one value", call.=FALSE)
-    if(drop){ # Check for zero statistics, print -Inf messages if applicable
-      triattr <- summary(as.formula(paste('nw ~ cyclicalties(','"',a$attrname,
-                                          '",diff=',a$diff,')',sep="")),
-                         drop=FALSE) == 0
-      if(a$diff){
-        if(any(triattr)){
-          dropterms <- paste(paste("cyclicalties",a$attrname,sep="."),
-                             u[triattr],sep="")
-      cat(" ")
-          cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#         cat(paste("To avoid degeneracy the terms",
-#               paste(dropterms,collapse=" and, "),
-#                   "have been dropped.\n"))
-          u <- u[!triattr] 
-          ui <- ui[!triattr] 
-        }
-      }else{
-        if(triattr){
-          dropterms <- paste(paste("cyclicalties",a$attrname,sep="."),sep="")
-      cat(" ")
-          cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#         cat(paste("To avoid degeneracy the term",
-#               paste(dropterms,collapse=" and, "),
-#                   "have been dropped.\n"))
-        }
-      }
-    }
     if (!a$diff) {
       out$coef.names <- paste("cyclicalties", a$attrname, sep=".")
       out$inputs <- c(0,1,length(nodecov),nodecov)
@@ -62,11 +33,12 @@ InitErgmTerm.cyclicalties<-function (nw, arglist, drop=TRUE, ...) {
     out$coef.names <- "cyclicalties"
     out$inputs <- c(0,1,0)
   }
+  out$minval <- 0
   out
 }
 
 #########################################################
-InitErgmTerm.cyclicalties2<-function (nw, arglist, drop=TRUE, ...) {
+InitErgmTerm.cyclicalties2<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,bipartite=NULL,
     varnames = c("attrname", "diff"),
     vartypes = c("character", "logical"),
@@ -85,35 +57,7 @@ InitErgmTerm.cyclicalties2<-function (nw, arglist, drop=TRUE, ...) {
     ui <- seq(along=u)
     if (length(u)==1)
       stop ("Attribute given to cyclicalties2() has only one value", call.=FALSE)
-    if(drop){ # Check for zero statistics, print -Inf messages if applicable
-      triattr <- summary(as.formula(paste('nw ~ cyclicalties2(','"',a$attrname,
-                                          '",diff=',a$diff,')',sep="")),
-                         drop=FALSE) == 0
-      if(a$diff){
-        if(any(triattr)){
-          dropterms <- paste(paste("cyclicalties2",a$attrname,sep="."),
-                             u[triattr],sep="")
-      cat(" ")
-          cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#         cat(paste("To avoid degeneracy the terms",
-#               paste(dropterms,collapse=" and, "),
-#                   "have been dropped.\n"))
-          u <- u[!triattr] 
-          ui <- ui[!triattr] 
-        }
-      }else{
-        if(triattr){
-          dropterms <- paste(paste("cyclicalties2",a$attrname,sep="."),sep="")
-      cat(" ")
-          cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#         cat(paste("To avoid degeneracy the term",
-#               paste(dropterms,collapse=" and, "),
-#                   "have been dropped.\n"))
-        }
-      }
-    }
+
     if (!a$diff) {
       out$coef.names <- paste("cyclicalties2", a$attrname, sep=".")
       out$inputs <- c(0,1,length(nodecov),nodecov)
@@ -127,10 +71,11 @@ InitErgmTerm.cyclicalties2<-function (nw, arglist, drop=TRUE, ...) {
     out$coef.names <- "cyclicalties2"
     out$inputs <- c(0,1,0)
   }
+  out$minval <- 0
   out
 }
 
-InitErgmTerm.concurrentties<-function(nw, arglist, drop=TRUE, ...) {
+InitErgmTerm.concurrentties<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,bipartite=NULL,
                       varnames = c("byarg"),
                       vartypes = c("character"),
@@ -146,21 +91,6 @@ InitErgmTerm.concurrentties<-function(nw, arglist, drop=TRUE, ...) {
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     ui <- seq(along=u)
-    if(drop){ #   Check for degeneracy
-      concurrentattr <- summary(as.formula
-                             (paste('nw ~ concurrentties(',a$byarg,'")',sep="")),
-                             drop=FALSE) == 0
-      if(any(concurrentattr)){
-        dropterms <- paste("concurrentties", ".", a$byarg,
-                           u[concurrentattr], sep="")
-      cat(" ")
-        cat("Warning: These concurrentties terms have extreme counts and will be dropped:\n")
-        cat(dropterms, "", fill=TRUE)
-        cat("  The corresponding coefficients have been fixed at their MLE of negative infinity.\n")
-        u <- u[-concurrentattr]
-        ui <- ui[-concurrentattr]
-      }
-    }
   } else {
     if(is.logical(a$byarg)){drop <- a$byarg}
     if(drop){
@@ -176,7 +106,8 @@ InitErgmTerm.concurrentties<-function(nw, arglist, drop=TRUE, ...) {
     }                                                         
   }
   out <- list(name="concurrentties",                      #name: required
-              coef.names = "concurrentties"               #coef.names: required
+              coef.names = "concurrentties",               #coef.names: required
+              minval = 0
               ) 
   if(!is.null(a$byarg)) {
     #  No covariates here, so input component 1 is arbitrary
@@ -193,7 +124,7 @@ InitErgmTerm.concurrentties<-function(nw, arglist, drop=TRUE, ...) {
 }
 
 #########################################################
-InitErgmTerm.transitiveties2<-function (nw, arglist, drop=TRUE, ...) {
+InitErgmTerm.transitiveties2<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,bipartite=NULL,
     varnames = c("attrname", "diff"),
     vartypes = c("character", "logical"),
@@ -210,35 +141,7 @@ InitErgmTerm.transitiveties2<-function (nw, arglist, drop=TRUE, ...) {
     ui <- seq(along=u)
     if (length(u)==1)
       stop ("Attribute given to transitiveties2() has only one value", call.=FALSE)
-    if(drop){
-      triattr <- summary(as.formula(paste('nw ~ transitiveties2(','"',a$attrname,
-                                          '",diff=',a$diff,')',sep="")),
-                         drop=FALSE) == 0
-      if(a$diff){
-        if(any(triattr)){
-          dropterms <- paste(paste("transitiveties2",a$attrname,sep="."),
-                             u[triattr],sep="")
-      cat(" ")
-          cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#         cat(paste("To avoid degeneracy the terms",
-#               paste(dropterms,collapse=" and, "),
-#                   "have been dropped.\n"))
-          u <- u[!triattr] 
-          ui <- ui[!triattr] 
-        }
-      }else{
-        if(triattr){
-          dropterms <- paste(paste("transitiveties2",a$attrname,sep="."),sep="")
-      cat(" ")
-          cat(paste("Warning: The count of", dropterms, "is extreme;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-#         cat(paste("To avoid degeneracy the term",
-#               paste(dropterms,collapse=" and, "),
-#                   "have been dropped.\n"))
-        }
-      }
-    }
+
     if (!a$diff) {
       out$coef.names <- paste("transitiveties2", a$attrname, sep=".")
       out$inputs <- c(0,1,length(nodecov),nodecov)
@@ -252,10 +155,11 @@ InitErgmTerm.transitiveties2<-function (nw, arglist, drop=TRUE, ...) {
     out$coef.names <- "transitiveties2"
     out$inputs <- c(0,1,0)
   }
+  out$minval <- 0
   out
 }
 
-InitErgmTerm.concurrentties2<-function(nw, m, arglist, drop=TRUE, ...) {
+InitErgmTerm.concurrentties2<-function(nw, m, arglist, ...) {
   ergm.checkdirected("concurrentties2", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("concurrentties2", arglist,
                       varnames = c("byarg"),
@@ -263,7 +167,8 @@ InitErgmTerm.concurrentties2<-function(nw, m, arglist, drop=TRUE, ...) {
                       defaultvalues = list(NULL),
                       required = c(FALSE))
   out <- list(name="cyclicalties",                      #name: required
-              coef.names = "cyclicalties"               #coef.names: required
+              coef.names = "cyclicalties",              #coef.names: required
+              minval = 0
               ) 
   if(!is.null(a$byarg)) {
     nodecov <- get.node.attr(nw, a$byarg, "concurrentties2")
@@ -275,37 +180,12 @@ InitErgmTerm.concurrentties2<-function(nw, m, arglist, drop=TRUE, ...) {
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     ui <- seq(along=u)
-    if(drop){ #   Check for degeneracy
-      concurrentattr <- summary(as.formula
-                             (paste('nw ~ concurrentties2(',a$byarg,'")',sep="")),
-                             drop=FALSE) == 0
-      if(any(concurrentattr)){
-        dropterms <- paste("concurrentties2", ".", a$byarg,
-                           u[concurrentattr], sep="")
-      cat(" ")
-        cat("Warning: These concurrentties2 terms have extreme counts and will be dropped:\n")
-        cat(dropterms, "", fill=TRUE)
-        cat("  The corresponding coefficients have been fixed at their MLE of negative infinity.\n")
-        u <- u[-concurrentattr]
-        ui <- ui[-concurrentattr]
-      }
-    }
-  } else {
-    if(is.logical(a$byarg)){drop <- a$byarg}
-    if(drop){
-      mconcurrent <- summary(
-                          as.formula(paste('nw ~ concurrentties2',sep="")),
-                          drop=FALSE) == 0
-      if(any(mconcurrent)){
-      cat(" ")
-        cat(paste("Warning: There are no concurrentties2 b1s;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-        return(m)
-      }
-    }                                                         
+
   }
+  
   out <- list(name="concurrentties2",                      #name: required
-              coef.names = "concurrentties2"               #coef.names: required
+              coef.names = "concurrentties2",              #coef.names: required
+              minval = 0
               ) 
   if(!is.null(a$byarg)) {
     #  No covariates here, so input component 1 is arbitrary

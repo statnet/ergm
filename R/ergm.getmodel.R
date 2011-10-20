@@ -20,7 +20,6 @@
 #             model term (T or F); default=FALSE
 #   ...    :  additional parameters for model formulation;
 #             recognized parameters include
-#               drop      : whether to drop degenerate terms (T or F)
 #               initialfit: whether curved exponential terms have been initially fit
 #                           by MPLE (T or F)
 #   stergm.order:  a character string indicating which dissolution and formation
@@ -86,8 +85,8 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, ...,stergm.
       args[[1]] = as.name("list")
       fname <- paste(termroot,"Term.", v[[i]][[1]], sep = "")
       newInitErgm <- exists(fname, env=formula.env, mode="function")
-      v[[i]][[1]] <- as.name(ifelse (newInitErgm, fname, 
-                                     paste(termroot,".", v[[i]][[1]], sep = "")))
+      v[[i]] <- call(ifelse (newInitErgm, fname, 
+                             paste(termroot,".", v[[i]][[1]], sep = "")))
     } else { # This term has no arguments
       fname <- paste(termroot,"Term.", v[[i]], sep = "")
       newInitErgm <- exists(fname, env=formula.env, mode="function")
@@ -170,6 +169,12 @@ updatemodel.ErgmTerm <- function(model, outlist) {
     outlist$inputs <- c(ifelse(is.null(tmp), 0, tmp),
                         length(outlist$coef.names), 
                         length(outlist$inputs), outlist$inputs)
+    model$minval <- c(model$minval,
+                      rep(if(!is.null(outlist$minval)) outlist$minval else -Inf,
+                          length.out=length(outlist$coef.names)))
+    model$maxval <- c(model$maxval,
+                      rep(if(!is.null(outlist$maxval)) outlist$maxval else +Inf,
+                          length.out=length(outlist$coef.names)))
     model$terms[[termnumber]] <- outlist
   }
   model

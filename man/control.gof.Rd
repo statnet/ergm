@@ -8,10 +8,9 @@
   Goodness-of-Fit Evaluation.
 }
 \usage{
-control.gof.formula(prop.weights = "default", prop.args = NULL, drop =
-TRUE, summarizestats = FALSE, maxchanges = 1e+06)
+control.gof.formula(prop.weights = "default", prop.args = NULL, summarizestats = FALSE, maxchanges = 1e+06)
 
-control.gof.ergm(prop.weights = NULL, prop.args = NULL, drop = TRUE, summarizestats = FALSE, maxchanges = 1e+06)
+control.gof.ergm(prop.weights = NULL, prop.args = NULL, summarizestats = FALSE, maxchanges = 1e+06)
 }
 \details{
     This function is only used within a call to the \code{\link{gof}} function.
@@ -29,11 +28,6 @@ control.gof.ergm(prop.weights = NULL, prop.args = NULL, drop = TRUE, summarizest
     all values may be used
     with all possible constraints.}
   \item{prop.args}{An alternative, direct way of specifying additional arguments to proposal.}
-  \item{drop}{logical; Should the degenerate terms in the model be
-    dropped from the fit?
-    If statistics occur on the extreme of their range they
-    correspond to infinite parameter estimates.
-    Default is \code{TRUE}.}
   \item{summarizestats}{logical; Print out a summary of 
     the sufficient statistics of the generated network. This is useful 
     as a diagnostic. Default is \code{FALSE}.}

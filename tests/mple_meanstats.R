@@ -5,7 +5,7 @@ base.net <- network.initialize(n=n,directed=FALSE)
 norm.stats<-c(.7,.1,.5)
 meanstats<-norm.stats*n
 print(meanstats)
-cat("Structural check:")
+cat("Structural check:\n")
 cat("Mean degree:", norm.stats[1]*2,".\n")
 cat("Average degree among nodes with degree 2 or higher:", (2*norm.stats[1]-norm.stats[3])/(1-norm.stats[2]-norm.stats[3]),".\n")
 

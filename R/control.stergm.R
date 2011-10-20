@@ -40,8 +40,6 @@
 #   sequential       : whether the next iteration of the fit should use the last network
 #                      sampled as the starting point; the alternative is to always begin
 #                      from the orginial network; default=TRUE
-#   drop             : whether degenerate terms should be dropped from the fit (T or F);
-#                      default=TRUE
 #   style            : the style of ML estimation to use, as one of "Newton-Raphson",
 #                      "Robbins-Monro", "Stochastic-Approximation", or "Stepping";
 #                      default="Robbins-Monro"
@@ -110,11 +108,11 @@ control.stergm<-function(prop.weights.form="default",prop.args.form=NULL,
                          maxNumDyadTypes=1e+6, 
                          maxedges=20000,
                          maxchanges=1000000,
+                         initialfit="MPLE",
                          maxMPLEsamplesize=100000,
                          MPLEtype=c("glm", "penalized"),
                          trace=0,
                          sequential=TRUE,
-                         drop=TRUE,
                          style=c("Robbins-Monro","SPSA", "SPSA2", "Nelder-Mead"),
                          RM.phase1n_base=7,
                          RM.phase2n_base=100,

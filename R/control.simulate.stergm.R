@@ -9,8 +9,6 @@
 #                     solution processes; options are "TNT",
 #                     "random", and "default"; default="default" which
 #                      picks a reasonable default considering any constraints
-#   drop            : whether degenerate terms should be dropped;
-#                     default=TRUE
 #   final           : whether only the final network of the simulation
 #                     process should be returned (T or F); default= FALSE
 #                     in which case, models, coefficients, stats matrices,
@@ -41,7 +39,6 @@ control.simulate.stergm<-control.simulate.stergm<-function(prop.weights.form="de
                                                         prop.args.form=NULL,
                                                         prop.weights.diss="default",
                                                         prop.args.diss=NULL,
-                                                        drop=FALSE,
                                                         summarizestats=FALSE,final=FALSE,
                                                         maxchanges=1000000){
     control<-list()

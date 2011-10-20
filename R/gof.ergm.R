@@ -196,7 +196,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
 #   termnames <- ergm.gettermnames(trms)
 # }
 
-  m <- ergm.getmodel(formula, nw, drop=control$drop)
+  m <- ergm.getmodel(formula, nw)
   Clist <- ergm.Cprepare(nw, m)
 
   if(is.null(theta0)){
@@ -242,7 +242,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
   
   if ('model' %in% all.gof.vars) {
    if(is.null(nw$gal$design) | !unconditional){
-    obs.model <- summary(formula, drop=control$drop)
+    obs.model <- summary(formula)
    }else{
     obs.model <- SimCond$obs.model
    }
@@ -264,7 +264,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
   if ('odegree' %in% all.gof.vars) {
    if(is.null(nw$gal$design) | !unconditional){
     mesp <- paste("c(",paste(0:(n-1),collapse=","),")",sep="")
-    obs.odeg <- summary(as.formula(paste('nw ~ odegree(',mesp,')',sep="")),drop=FALSE)
+    obs.odeg <- summary(as.formula(paste('nw ~ odegree(',mesp,')',sep="")))
    }else{
     obs.odeg <- SimCond$summary.odeg[,"mean"]
    }
@@ -277,7 +277,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
   if ('idegree' %in% all.gof.vars) {
    if(is.null(nw$gal$design) | !unconditional){
     mesp <- paste("c(",paste(0:(n-1),collapse=","),")",sep="")
-    obs.ideg <- summary(as.formula(paste('nw ~ idegree(',mesp,')',sep="")),drop=FALSE)
+    obs.ideg <- summary(as.formula(paste('nw ~ idegree(',mesp,')',sep="")))
    }else{
     obs.ideg <- SimCond$summary.ideg[,"mean"]
    }
@@ -294,7 +294,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
      obs.deg <- c(obs.deg,rep(0,n-length(obs.deg)))
     }else{
      mesp <- paste("c(",paste(0:(n-1),collapse=","),")",sep="")
-     obs.deg <- summary(as.formula(paste('nw ~ degree(',mesp,')',sep="")),drop=FALSE)
+     obs.deg <- summary(as.formula(paste('nw ~ degree(',mesp,')',sep="")))
     }
    }else{
     obs.deg <- SimCond$summary.deg[,"mean"]
@@ -308,7 +308,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
 #  obs.espart <- espartnerdist(nw, print=verbose)
    if(is.null(nw$gal$design) | !unconditional){
     mesp <- paste("c(",paste(0:(network.size(nw)-2),collapse=","),")",sep="")
-    obs.espart <- summary(as.formula(paste('nw ~ esp(',mesp,')',sep="")), drop=FALSE)
+    obs.espart <- summary(as.formula(paste('nw ~ esp(',mesp,')',sep="")))
    }else{
     obs.espart <- SimCond$summary.espart[,"mean"]
    }
@@ -320,7 +320,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
    if(is.null(nw$gal$design) | !unconditional){
 #   obs.dspart <- dspartnerdist(nw, print=verbose)
     mesp <- paste("c(",paste(0:(network.size(nw)-2),collapse=","),")",sep="")
-    obs.dspart <- summary(as.formula(paste('nw ~ dsp(',mesp,')',sep="")), drop=FALSE)
+    obs.dspart <- summary(as.formula(paste('nw ~ dsp(',mesp,')',sep="")))
    }else{
     obs.dspart <- SimCond$summary.dspart[,"mean"]
    }
@@ -341,7 +341,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
     triadcensus.formula <- "~ triadcensus(0:3)"
    }
    if(is.null(nw$gal$design) | !unconditional){
-    obs.triadcensus <- summary(as.formula(paste('nw',triadcensus.formula,sep="")), drop=FALSE)
+    obs.triadcensus <- summary(as.formula(paste('nw',triadcensus.formula,sep="")))
    }else{
     obs.triadcensus <- SimCond$summary.triadcensus[,"mean"]
    }
@@ -378,8 +378,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
                         control=control.simulate.formula(
                             prop.args=control$prop.args,
                             prop.weights=control$prop.weights,
-                            summarizestats=control$summarizestats,
-                            drop=control$drop),
+                            summarizestats=control$summarizestats),
                         verbose=verbose, basis=tempnet)
     seed <- NULL # Don't re-seed after first iteration   
     burnin <- interval # starting with iteration 2
@@ -396,14 +395,14 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
     if ('idegree' %in% all.gof.vars) {
      mesp <- paste("c(",paste(0:(n-1),collapse=","),")",sep="")
      gi <- tempnet
-     sim.ideg[i,] <- summary(as.formula(paste('gi ~ idegree(',mesp,')',sep="")),drop=FALSE)
+     sim.ideg[i,] <- summary(as.formula(paste('gi ~ idegree(',mesp,')',sep="")))
 #    temp <- table(degreedist(tempnet, print=verbose)[1,])
 #    sim.ideg[i,] <- c(temp, rep(0, n-length(temp)))
     }
     if ('odegree' %in% all.gof.vars) {
      mesp <- paste("c(",paste(0:(n-1),collapse=","),")",sep="")
      gi <- tempnet
-     sim.odeg[i,] <- summary(as.formula(paste('gi ~ odegree(',mesp,')',sep="")),drop=FALSE)
+     sim.odeg[i,] <- summary(as.formula(paste('gi ~ odegree(',mesp,')',sep="")))
 #    temp <- table(degreedist(tempnet, print=verbose)[2,])
 #    sim.odeg[i,] <- c(temp, rep(0, n-length(temp)))
     }
@@ -414,7 +413,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
       sim.deg[i,] <- c(temp,rep(0,n-length(temp)))
      }else{                                                
       mesp <- paste("c(",paste(0:(n-1),collapse=","),")",sep="")
-      sim.deg[i,] <- summary(as.formula(paste('gi ~ degree(',mesp,')',sep="")),drop=FALSE)
+      sim.deg[i,] <- summary(as.formula(paste('gi ~ degree(',mesp,')',sep="")))
      }
 #    temp <- table(degreedist(tempnet, print=verbose))
 #    sim.deg[i,] <- c(temp, rep(0, n-length(temp)))
@@ -424,18 +423,18 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
 #                                   print=verbose)
      gi <- tempnet
      mesp <- paste("c(",paste(0:(network.size(gi)-2),collapse=","),")",sep="")
-     sim.espart[i,] <- summary(as.formula(paste('gi ~ esp(',mesp,')',sep="")), drop=FALSE)
+     sim.espart[i,] <- summary(as.formula(paste('gi ~ esp(',mesp,')',sep="")))
     }
     if ('dspartners' %in% all.gof.vars) {
 #    sim.espart[i,] <- dspartnerdist(tempnet,
 #                                   print=verbose)
      gi <- tempnet
      mesp <- paste("c(",paste(0:(network.size(gi)-2),collapse=","),")",sep="")
-     sim.dspart[i,] <- summary(as.formula(paste('gi ~ dsp(',mesp,')',sep="")), drop=FALSE)
+     sim.dspart[i,] <- summary(as.formula(paste('gi ~ dsp(',mesp,')',sep="")))
     }
     if ('triadcensus' %in% all.gof.vars) {
      gi <- tempnet
-     sim.triadcensus[i,] <- summary(as.formula(paste('gi',triadcensus.formula,sep="")), drop=FALSE)
+     sim.triadcensus[i,] <- summary(as.formula(paste('gi',triadcensus.formula,sep="")))
     }
   }
   if(verbose){

@@ -1,6 +1,6 @@
 ##### edgecov for ranks is implemented in InitWtErgmTerm.R #####
 
-InitWtErgmTerm.deference<-function(nw, arglist, response, drop=TRUE, ...) {
+InitWtErgmTerm.deference<-function(nw, arglist, response, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = NULL,
                       vartypes = NULL,
@@ -13,7 +13,7 @@ InitWtErgmTerm.deference<-function(nw, arglist, response, drop=TRUE, ...) {
        dependence=TRUE)
 }
 
-InitWtErgmTerm.inconsistency<-function (nw, arglist, response, drop=TRUE, ...) {
+InitWtErgmTerm.inconsistency<-function (nw, arglist, response, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                      varnames = c("x","attrname","weights","wtname"),
                      vartypes = c("matrixnetwork","character","array,function","character"),
@@ -66,7 +66,7 @@ InitWtErgmTerm.inconsistency<-function (nw, arglist, response, drop=TRUE, ...) {
 
 ##### nodeicov for ranks is implemented in InitWtErgmTerm.R #####
 
-InitWtErgmTerm.nonconformity<-function(nw, arglist, response, drop=TRUE, ...) {
+InitWtErgmTerm.nonconformity<-function(nw, arglist, response, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = c("form","par"),
                       vartypes = c("character","numeric"),

@@ -76,7 +76,7 @@ mvmodel.formula <- function (formula, ..., theta0, nsim=100,
     stop("A network object on the RHS of the formula must be given")
   }
 
-  m <- ergm.getmodel(formula, g, drop=FALSE)
+  m <- ergm.getmodel(formula, g)
   Clist <- ergm.Cprepare(g, m)
 
   if(missing(theta0)){

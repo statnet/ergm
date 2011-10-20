@@ -95,8 +95,8 @@ degreedist <- function(g, print=TRUE)
  }
  if(is.directed(g)){                                      
    mesp <- paste("c(",paste(0:(network.size(g)-1),collapse=","),")",sep="")
-   outdegrees <- summary(as.formula(paste('g ~ odegree(',mesp,')',sep="")),drop=FALSE)
-   indegrees <- summary(as.formula(paste('g ~ idegree(',mesp,')',sep="")),drop=FALSE)
+   outdegrees <- summary(as.formula(paste('g ~ odegree(',mesp,')',sep="")))
+   indegrees <- summary(as.formula(paste('g ~ idegree(',mesp,')',sep="")))
    temp <- outdegrees > 0 | indegrees > 0
    outdegrees <- outdegrees[temp]
    indegrees <- indegrees[temp]
@@ -108,9 +108,9 @@ degreedist <- function(g, print=TRUE)
    nb1 <- get.network.attribute(g,"bipartite")
    nb2 <- network.size(g) - nb1
    mesp <- paste("c(",paste(0:nb2,collapse=","),")",sep="")
-   b1degrees <- summary(as.formula(paste('g ~ b1degree(',mesp,')',sep="")),drop=FALSE)
+   b1degrees <- summary(as.formula(paste('g ~ b1degree(',mesp,')',sep="")))
    mesp <- paste("c(",paste(0:nb1,collapse=","),")",sep="")
-   b2degrees <- summary(as.formula(paste('g ~ b2degree(',mesp,')',sep="")),drop=FALSE)
+   b2degrees <- summary(as.formula(paste('g ~ b2degree(',mesp,')',sep="")))
    names(b2degrees) <- 0:nb1
    if(!is.null(b2degrees) & print){
     cat("Bipartite mode 2 degree distribution:\n")
@@ -124,7 +124,7 @@ degreedist <- function(g, print=TRUE)
    degrees <- list(b2=b2degrees, b1=b1degrees)
   }else{              
    mesp <- paste("c(",paste(0:(network.size(g)-1),collapse=","),")",sep="")
-   degrees <- summary(as.formula(paste('g ~ degree(',mesp,')',sep="")),drop=FALSE)
+   degrees <- summary(as.formula(paste('g ~ degree(',mesp,')',sep="")))
    degrees <- degrees[degrees > 0]
    if(!is.null(degrees) & print){print(degrees)}
   }
@@ -211,7 +211,7 @@ espartnerdist <- function(g, print=TRUE)
   stop("espartnerdist() requires a network object")
  }
  mesp <- paste("c(",paste(0:(network.size(g)-2),collapse=","),")",sep="")
- degrees <- summary(as.formula(paste('g ~ esp(',mesp,')',sep="")),drop=FALSE)
+ degrees <- summary(as.formula(paste('g ~ esp(',mesp,')',sep="")))
 #names(degrees) <- paste(0:(network.size(g)-2))
  if(print){
   cat("ESP (edgewise shared partner) distribution:\n")
@@ -249,7 +249,7 @@ dspartnerdist <- function(g, print=TRUE)
   stop("dspartnerdist() requires a network object")
  }
  mesp <- paste("c(",paste(0:(network.size(g)-2),collapse=","),")",sep="")
- degrees <- summary(as.formula(paste('g ~ dsp(',mesp,')',sep="")),drop=FALSE)
+ degrees <- summary(as.formula(paste('g ~ dsp(',mesp,')',sep="")))
 #names(degrees) <- paste(0:(network.size(g)-2))
  if(print){
   cat("DSP (dyadwise shared partner) distribution:\n")

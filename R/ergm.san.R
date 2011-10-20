@@ -108,7 +108,7 @@ san.formula <- function(object, nsim=1, seed=NULL, theta0=NULL,
   }
 
 # model <- ergm.getmodel(formula, nw, drop=control$drop)
-  model <- ergm.getmodel(formula, nw, drop=FALSE)
+  model <- ergm.getmodel(formula, nw)
   Clist <- ergm.Cprepare(nw, model)
   Clist.miss <- ergm.design(nw, model, verbose=verbose)
   
@@ -125,7 +125,7 @@ san.formula <- function(object, nsim=1, seed=NULL, theta0=NULL,
 
   if(MHproposal$name=="CondDegree"){ 
    formula.conddegmple <- ergm.update.formula(formula, ~ conddegmple + .)
-   m.conddeg <- ergm.getmodel(formula.conddegmple, nw, drop=FALSE, initialfit=TRUE)
+   m.conddeg <- ergm.getmodel(formula.conddegmple, nw, initialfit=TRUE)
    Clist.conddegmple <- ergm.Cprepare(nw, m.conddeg)
    Clist.conddegmple$meanstats=c(1,meanstats)
    conddeg <- list(m=m.conddeg, Clist=Clist.conddegmple, Clist.miss=ergm.Cprepare(nw, m.conddeg))

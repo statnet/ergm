@@ -109,7 +109,7 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
   form <- ergm.update.formula(object, basis ~ .)
   
   # Prepare inputs to ergm.getMCMCsample
-  m <- ergm.getmodel(form, basis, drop=FALSE, response=response)
+  m <- ergm.getmodel(form, basis, response=response)
   if(!missing(theta0) && theta.length.model(m)!=length(theta0)) stop("theta0 has ", length(theta0), " elements, while the model requires ",theta.length.model(m)," parameters.")
   
   Clist <- ergm.Cprepare(basis, m, response=response)

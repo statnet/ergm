@@ -41,7 +41,7 @@ ergm.allstats <- function(formula, zeroobs = TRUE, force = FALSE,
 {
   # Initialization stuff
   nw <- ergm.getnetwork(formula)
-  model <- ergm.getmodel(formula, nw, drop=FALSE, initialfit=TRUE)
+  model <- ergm.getmodel(formula, nw, initialfit=TRUE)
   Clist <- ergm.Cprepare(nw, model)
 
   # Check for networks that are too large.  Pretty unsophisticated check for now.

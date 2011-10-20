@@ -47,43 +47,33 @@ InitWtErgmTerm.absdiffcat <- function(nw, arglist, response, ...) {
 }
 
 
-InitWtErgmTerm.atleast<-function(nw, arglist, response, drop=TRUE, ...) {
+InitWtErgmTerm.atleast<-function(nw, arglist, response, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("threshold"),
                       vartypes = c("numeric"),
                       defaultvalues = list(0),
                       required = c(FALSE))
-  if(drop) { # Check for zero statistics, print -Inf messages if applicable
-    obsstats <- check.ErgmTerm.summarystats(nw, arglist, response=response, ...)
-    if (extremewarnings(obsstats,minval=0,maxval=network.dyadcount(nw,TRUE))) {
-      return(NULL) # In this case the obs nw has 0 or n(n-1)/2 asymmetric dyads
-    } 
-  }
   list(name="atleast",
        coef.names=paste("atleast",a$threshold,sep="."),
        inputs=a$threshold,
-       dependence=FALSE)
+       dependence=FALSE,
+       minval=0, maxval=network.dyadcount(nw,TRUE))
 }
 
-InitWtErgmTerm.CMP<-function(nw, arglist, response, drop=TRUE, ...) {
+InitWtErgmTerm.CMP<-function(nw, arglist, response, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = NULL,
                       vartypes = NULL,
                       defaultvalues = list(),
                       required = NULL)
-  if(drop) { # Check for zero statistics, print -Inf messages if applicable
-    obsstats <- check.ErgmTerm.summarystats(nw, arglist, response=response, ...)
-    if (extremewarnings(obsstats,minval=NULL,maxval=0)) {
-      return(NULL) # In this case the obs nw has 0 or n(n-1)/2 asymmetric dyads
-    } 
-  }
   list(name="nsumlogfactorial",
        coef.names="CMP",
        inputs=NULL,
-       dependence=FALSE)
+       dependence=FALSE,
+       maxval=0)
 }
 
-InitWtErgmTerm.edgecov <- function(nw, arglist, response, drop=TRUE, ...) {
+InitWtErgmTerm.edgecov <- function(nw, arglist, response, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, 
                       varnames = c("x", "attrname", "form"),
@@ -115,7 +105,7 @@ InitWtErgmTerm.edgecov <- function(nw, arglist, response, drop=TRUE, ...) {
 }
 
 
-InitWtErgmTerm.ininterval<-function(nw, arglist, response, drop=TRUE, ...) {
+InitWtErgmTerm.ininterval<-function(nw, arglist, response, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("lower","upper","open"),
                       vartypes = c("numeric","numeric","logical"),
@@ -123,51 +113,34 @@ InitWtErgmTerm.ininterval<-function(nw, arglist, response, drop=TRUE, ...) {
                       required = c(FALSE,FALSE,FALSE))
 
   a$open<-rep(a$open,length.out=2)
-  if(drop) { # Check for zero statistics, print -Inf messages if applicable
-    obsstats <- check.ErgmTerm.summarystats(nw, arglist, response=response, ...)
-    if (extremewarnings(obsstats,minval=0,maxval=network.dyadcount(nw,TRUE))) {
-      return(NULL) # In this case the obs nw has 0 or n(n-1)/2 asymmetric dyads
-    } 
-  }
   list(name="ininterval",
        coef.names=paste("ininterval",if(a$open[0]) "(" else "[", a$lower,",",a$upper, if(a$open[1]) ")" else "]",sep=""),
        inputs=c(a$lower,a$upper,a$open),
-       dependence=FALSE)
+       dependence=FALSE,
+       minval=0, maxval=network.dyadcount(nw,TRUE))
 }
 
-InitWtErgmTerm.greaterthan<-function(nw, arglist, response, drop=TRUE, ...) {
+InitWtErgmTerm.greaterthan<-function(nw, arglist, response, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("threshold"),
                       vartypes = c("numeric"),
                       defaultvalues = list(0),
                       required = c(FALSE))
-  if(drop) { # Check for zero statistics, print -Inf messages if applicable
-    obsstats <- check.ErgmTerm.summarystats(nw, arglist, response=response, ...)
-    if (extremewarnings(obsstats,minval=0,maxval=network.dyadcount(nw,TRUE))) {
-      return(NULL) # In this case the obs nw has 0 or n(n-1)/2 asymmetric dyads
-    } 
-  }
   list(name="atleast",
        coef.names=paste("greaterthan",a$threshold,sep="."),
        inputs=a$threshold,
-       dependence=FALSE)
+       dependence=FALSE,
+       minval=0, maxval=network.dyadcount(nw,TRUE))
 }
 
 
 
-InitWtErgmTerm.sum<-function(nw, arglist, response, drop=TRUE, ...) {
+InitWtErgmTerm.sum<-function(nw, arglist, response, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("pow"),
                       vartypes = c("numeric"),
                       defaultvalues = list(1),
                       required = c(FALSE))
-  if(drop) { # Check for zero statistics, print -Inf messages if applicable
-    obsstats <- check.ErgmTerm.summarystats(nw, arglist, response=response, ...)
-    if (extremewarnings(obsstats)) {
-      return(NULL) # In this case the obs nw has 0 or n(n-1)/2 asymmetric dyads
-    } 
-  }
-
   if(a$pow==1){
     list(name="sum",
          coef.names="sum",
@@ -181,7 +154,7 @@ InitWtErgmTerm.sum<-function(nw, arglist, response, drop=TRUE, ...) {
   }
 }
 
-InitWtErgmTerm.nodefactor<-function (nw, arglist, response, drop=TRUE, ...) {
+InitWtErgmTerm.nodefactor<-function (nw, arglist, response, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, 
                       varnames = c("attrname", "base","form"),
@@ -208,12 +181,6 @@ InitWtErgmTerm.nodefactor<-function (nw, arglist, response, drop=TRUE, ...) {
   #   Recode to numeric
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
   ui <- seq(along=u)
-  if(drop) { # Check for zero statistics, print -Inf messages if applicable
-    obsstats <- check.ErgmTerm.summarystats(nw, arglist, response=response, ...)
-    ew <- extremewarnings(obsstats)
-    u <- u[!ew]
-    ui <- ui[!ew]
-  }
   ### Construct the list to return
   inputs <- c(ui, nodecov)
   attr(inputs, "ParamsBeforeCov") <- length(ui) # See comment at top of file R/InitErgmTerm.R
@@ -225,7 +192,7 @@ InitWtErgmTerm.nodefactor<-function (nw, arglist, response, drop=TRUE, ...) {
        )
 }
 
-InitWtErgmTerm.nodeocorr<-function (nw, arglist, response, drop=TRUE, ...) {
+InitWtErgmTerm.nodeocorr<-function (nw, arglist, response, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed = TRUE,
                       varnames = NULL,
@@ -240,7 +207,7 @@ InitWtErgmTerm.nodeocorr<-function (nw, arglist, response, drop=TRUE, ...) {
        )
 }
 
-InitWtErgmTerm.nodeofactor<-function (nw, arglist, response, drop=TRUE, ...) {
+InitWtErgmTerm.nodeofactor<-function (nw, arglist, response, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed = TRUE,
                       varnames = c("attrname", "base","form"),
@@ -267,12 +234,6 @@ InitWtErgmTerm.nodeofactor<-function (nw, arglist, response, drop=TRUE, ...) {
   #   Recode to numeric
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
   ui <- seq(along=u)
-  if(drop) { # Check for zero statistics, print -Inf messages if applicable
-    obsstats <- check.ErgmTerm.summarystats(nw, arglist, response=response, ...)
-    ew <- extremewarnings(obsstats)
-    u <- u[!ew]
-    ui <- ui[!ew]
-  }
   ### Construct the list to return
   inputs <- c(ui, nodecov)
   attr(inputs, "ParamsBeforeCov") <- length(ui) # See comment at top of file R/InitErgmTerm.R
@@ -284,7 +245,7 @@ InitWtErgmTerm.nodeofactor<-function (nw, arglist, response, drop=TRUE, ...) {
        )
 }
 
-InitWtErgmTerm.nodeicorr<-function (nw, arglist, response, drop=TRUE, ...) {
+InitWtErgmTerm.nodeicorr<-function (nw, arglist, response, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed = TRUE,
                       varnames = NULL,
@@ -299,7 +260,7 @@ InitWtErgmTerm.nodeicorr<-function (nw, arglist, response, drop=TRUE, ...) {
        )
 }
 
-InitWtErgmTerm.nodeifactor<-function (nw, arglist, response, drop=TRUE, ...) {
+InitWtErgmTerm.nodeifactor<-function (nw, arglist, response, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed = TRUE,
                       varnames = c("attrname", "base","form"),
@@ -326,12 +287,7 @@ InitWtErgmTerm.nodeifactor<-function (nw, arglist, response, drop=TRUE, ...) {
   #   Recode to numeric
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
   ui <- seq(along=u)
-  if(drop) { # Check for zero statistics, print -Inf messages if applicable
-    obsstats <- check.ErgmTerm.summarystats(nw, arglist, response=response, ...)
-    ew <- extremewarnings(obsstats)
-    u <- u[!ew]
-    ui <- ui[!ew]
-  }
+
   ### Construct the list to return
   inputs <- c(ui, nodecov)
   attr(inputs, "ParamsBeforeCov") <- length(ui) # See comment at top of file R/InitErgmTerm.R
@@ -343,7 +299,7 @@ InitWtErgmTerm.nodeifactor<-function (nw, arglist, response, drop=TRUE, ...) {
        )
 }
 
-InitWtErgmTerm.nodecov<-InitWtErgmTerm.nodemain<-function (nw, arglist, response, drop=TRUE, ...) {
+InitWtErgmTerm.nodecov<-InitWtErgmTerm.nodemain<-function (nw, arglist, response, ...) {
   a <- ergm.ErgmTerm(nw, arglist,
                      varnames = c("attrname","transform","transformname","form"),
                      vartypes = c("character","function","character","character"),
@@ -361,7 +317,7 @@ InitWtErgmTerm.nodecov<-InitWtErgmTerm.nodemain<-function (nw, arglist, response
        dependence=FALSE)
 }
 
-InitWtErgmTerm.nodeicov<-function (nw, arglist, response, drop=TRUE, ...) {
+InitWtErgmTerm.nodeicov<-function (nw, arglist, response, ...) {
   a <- ergm.ErgmTerm(nw, arglist, directed=TRUE,
                      varnames = c("attrname","transform","transformname","form"),
                      vartypes = c("character","function","character","character"),
@@ -380,7 +336,7 @@ InitWtErgmTerm.nodeicov<-function (nw, arglist, response, drop=TRUE, ...) {
 }
 
 
-InitWtErgmTerm.nodeocov<-function (nw, arglist, response, drop=TRUE, ...) {
+InitWtErgmTerm.nodeocov<-function (nw, arglist, response, ...) {
   a <- ergm.ErgmTerm(nw, arglist, directed=TRUE,
                      varnames = c("attrname","transform","transformname","form"),
                      vartypes = c("character","function","character","character"),
@@ -398,26 +354,20 @@ InitWtErgmTerm.nodeocov<-function (nw, arglist, response, drop=TRUE, ...) {
        dependence=FALSE)
 }
 
-InitWtErgmTerm.nonzero<-function(nw, arglist, response, drop=TRUE, ...) {
+InitWtErgmTerm.nonzero<-function(nw, arglist, response, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = NULL,
                       vartypes = NULL,
                       defaultvalues = list(),
                       required = NULL)
-  if(drop) { # Check for zero statistics, print -Inf messages if applicable
-    obsstats <- check.ErgmTerm.summarystats(nw, arglist, response=response, ...)
-    if (extremewarnings(obsstats,minval=0,maxval=network.dyadcount(nw,TRUE))) {
-      return(NULL) # In this case the obs nw has 0 or n(n-1)/2 asymmetric dyads
-    } 
-  }
-
   list(name="nonzero",
        coef.names="nonzero",
        inputs=NULL,
-       dependence=FALSE)
+       dependence=FALSE,
+       minval=0, maxval=network.dyadcount(nw,TRUE))
 }
 
-InitWtErgmTerm.mutual<-function (nw, arglist, response, drop=TRUE, ...) {
+InitWtErgmTerm.mutual<-function (nw, arglist, response, ...) {
 ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=TRUE, bipartite=NULL,
                       varnames = c("form","threshold"),
@@ -427,22 +377,16 @@ InitWtErgmTerm.mutual<-function (nw, arglist, response, drop=TRUE, ...) {
 
   form <- match.arg(a$form,c("min","nabsdiff","threshold","product","geometric","correlation"))
   
-  if(drop) { # Check for zero statistics, print -Inf messages if applicable
-    obsstats <- check.ErgmTerm.summarystats(nw, arglist, response=response, ...)
-    if (extremewarnings(obsstats,
-                        minval=switch(form,min=0,nabsdiff=NULL,threshold=0,product=NULL,geometric=0),
-                        maxval=switch(form,min=NULL,nabsdiff=0,threshold=NULL,product=NULL,geometric=NULL))
-        ) {
-      return(NULL) # In this case the obs nw has 0 or n(n-1)/2 asymmetric dyads
-    }
-  }
   list(name=switch(form,min="mutual_wt_min",nabsdiff="mutual_wt_nabsdiff",threshold="mutual_wt_threshold",product="mutual_wt_product", correlation=, geometric="mutual_wt_geom_mean"),
        coef.names=switch(form,min="mutual.min",nabsdiff="mutual.nabsdiff",threshold=paste("mutual",a$threshold,sep="."), correlation="mutual.cor", product="mutual.product",geometric="mutual.geom.mean"),
        inputs=if(form=="threshold") threshold,
-       dependence=TRUE)
+       dependence=TRUE,
+       minval=switch(form,min=NULL,nabsdiff=NULL,threshold=0,product=NULL,geometric=0),
+       maxval=switch(form,min=NULL,nabsdiff=0,threshold=NULL,product=NULL,geometric=NULL)
+       )
 }
 
-InitWtErgmTerm.transitiveties<-function (nw, arglist, response, drop=TRUE, ...) {
+InitWtErgmTerm.transitiveties<-function (nw, arglist, response, ...) {
 ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, bipartite=NULL,
                       varnames = c("threshold"),
@@ -450,63 +394,45 @@ InitWtErgmTerm.transitiveties<-function (nw, arglist, response, drop=TRUE, ...) 
                       defaultvalues = list(0),
                       required = c(FALSE))
   
-  if(drop) { # Check for zero statistics, print -Inf messages if applicable
-    obsstats <- check.ErgmTerm.summarystats(nw, arglist, response=response, ...)
-    if (extremewarnings(obsstats,minval=0,maxval=network.dyadcount(nw,TRUE))) {
-      return(NULL) # In this case the obs nw has 0 or n(n-1)/2 asymmetric dyads
-    } 
-  }
   list(name="transitiveweights_threshold",
        coef.names="transitiveties",
        inputs=c(a$threshold),
-       dependence=TRUE)
+       dependence=TRUE,
+       minval=0, maxval=network.dyadcount(nw,TRUE))
   
 }
 
-InitWtErgmTerm.transitiveweights<-function (nw, arglist, response, drop=TRUE, ...) {
+InitWtErgmTerm.transitiveweights<-function (nw, arglist, response, ...) {
 ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, bipartite=NULL,
                       varnames = c("form","threshold"),
                       vartypes = c("character","numeric"),
                       defaultvalues = list("max",0),
                       required = c(FALSE,FALSE))
-  
-  if(drop) { # Check for zero statistics, print -Inf messages if applicable
-    obsstats <- check.ErgmTerm.summarystats(nw, arglist, response=response, ...)
-    if (extremewarnings(obsstats)) {
-      return(NULL) # In this case the obs nw has 0 or n(n-1)/2 asymmetric dyads
-    } 
-  }
   form<-match.arg(a$form,c("max","sum","threshold"))
   list(name=switch(form,max="transitiveweights_max",sum="transitiveweights_sum",threshold="transitiveweights_threshold"),
        coef.names=switch(form,max="transitiveweights.max",sum="transitiveweights.sum",threshold=paste("transitiveweights",a$threshold,sep=".")),
        inputs=if(form=="threshold") threshold,
-       dependence=TRUE)
-  
+       dependence=TRUE,
+       minval = if(form=="threshold") 0)
 }
 
-InitWtErgmTerm.cyclicalties<-function (nw, arglist, response, drop=TRUE, ...) {
+InitWtErgmTerm.cyclicalties<-function (nw, arglist, response, ...) {
 ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, bipartite=NULL,
                       varnames = c("threshold"),
                       vartypes = c("numeric"),
                       defaultvalues = list(0),
                       required = c(FALSE))
-  
-  if(drop) { # Check for zero statistics, print -Inf messages if applicable
-    obsstats <- check.ErgmTerm.summarystats(nw, arglist, response=response, ...)
-    if (extremewarnings(obsstats,minval=0,maxval=network.dyadcount(nw,TRUE))) {
-      return(NULL) # In this case the obs nw has 0 or n(n-1)/2 asymmetric dyads
-    } 
-  }
   list(name="cyclicweights_threshold",
        coef.names="cyclicalties",
        inputs=c(a$threshold),
-       dependence=TRUE)
+       dependence=TRUE,
+       minval=0, maxval=network.dyadcount(nw,TRUE))
   
 }
 
-InitWtErgmTerm.cyclicweights<-function (nw, arglist, response, drop=TRUE, ...) {
+InitWtErgmTerm.cyclicweights<-function (nw, arglist, response, ...) {
 ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, bipartite=NULL,
                       varnames = c("form","threshold"),
@@ -514,16 +440,10 @@ InitWtErgmTerm.cyclicweights<-function (nw, arglist, response, drop=TRUE, ...) {
                       defaultvalues = list("max",0),
                       required = c(FALSE,FALSE))
   
-  if(drop) { # Check for zero statistics, print -Inf messages if applicable
-    obsstats <- check.ErgmTerm.summarystats(nw, arglist, response=response, ...)
-    if (extremewarnings(obsstats)) {
-      return(NULL) # In this case the obs nw has 0 or n(n-1)/2 asymmetric dyads
-    } 
-  }
   form<-match.arg(a$form,c("max","sum","threshold"))
   list(name=switch(form,max="cyclicweights_max",sum="cyclicweights_sum",threshold="cyclicweights_threshold"),
        coef.names=switch(form,max="cyclicweights.max",sum="cyclicweights.sum",threshold=paste("cyclicweights",a$threshold,sep=".")),
        inputs=if(form=="threshold") threshold,
-       dependence=TRUE)
-  
+       dependence=TRUE,
+       minval=if(form=="threshold") 0)
 }

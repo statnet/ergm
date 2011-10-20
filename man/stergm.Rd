@@ -8,7 +8,7 @@
   described by Krivitsky (2009)  A number of methods is possible, with a
   very limited Robbins-Monro being the default.
 }
-\usage{stergm(formation, dissolution, theta.form0 = "MPLE", theta.diss = NULL, seed = NULL, MH.burnin = 1000, constraints = ~., meanstats = NULL, stergm.order = "FormAndDiss", control = control.stergm(), verbose = FALSE, \dots)
+\usage{stergm(formation, dissolution, theta.form0 = NULL, theta.diss = NULL, seed = NULL, MH.burnin = 1000, constraints = ~., meanstats = NULL, stergm.order = "FormAndDiss", control = control.stergm(), verbose = FALSE, \dots)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -23,7 +23,8 @@
 }
   \item{theta.form0}{
     vector; the starting vector of formation phase parameters for the estimation.
-    By default the MPLE is used (\code{theta0="MPLE"}).
+    By default (\code{NULL}), it's estimated using the method specified
+    in \code{\link[=control.stergm]{control$initialfit}}.
 }
   \item{theta.diss}{
     vector; the dissolution phase parameters. Currently, assumed fixed
@@ -88,8 +89,6 @@
  (part of the \code{\link{control.stergm}} function output).}
  \item{offset}{vector of logical telling which model parameters are to be set
  at a fixed value (i.e., not estimated).}
- \item{drop}{list of terms that were dropped due to extreme values of the
- corresponding statistics on the observed network.}
   See the method \code{\link{print.stergm}} for details on how
   an \code{\link{stergm}} object is printed.  Note that the
   method \code{\link{summary.stergm}} returns a summary of the

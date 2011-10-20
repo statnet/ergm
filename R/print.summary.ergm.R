@@ -79,14 +79,14 @@ print.summary.ergm <- function (x,
               "BIC:", format(x$bic, digits = 5), "\n", sep=" "))
   } else cat(nologLik.message(x$objname))
 
-  if(any(x$drop)){
+  if(any(x$drop!=0)){
     cat("\n Warning: The following terms have infinite coefficient estimates:\n  ")
-    cat(rownames(x$coefs)[x$drop], "\n\n")
+    cat(rownames(x$coefs)[x$drop!=0], "\n\n")
   }
 
-  if(any(x$offset&!x$drop)){
+  if(any(x$offset&!x$drop!=0)){
     cat("\n Warning: The following terms are fixed by offset and are not estimated:\n  ")
-    cat(rownames(x$coefs)[x$offset & !x$drop], "\n\n")
+    cat(rownames(x$coefs)[x$offset & !x$drop!=0], "\n\n")
   }
 
   if(!is.null(x$degeneracy.value) && !is.na(x$degeneracy.value)){

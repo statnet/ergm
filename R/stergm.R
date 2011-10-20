@@ -52,8 +52,6 @@
 #      &  eta         : the estimated formation ?? coefficients
 #   $     offset      : a logical vector whose ith entry tells whether the
 #                        ith curved theta coeffient was offset/fixed
-#   $     drop        :  a logical vector whose ith entry tells whether the
-#                        ith model term was dropped due to degeneracy problems
 #   $     etamap      :  the list constituting the theta->eta mapping for the
 #                        formation model; for details of its components,
 #                        see <ergm.etamap>
@@ -85,7 +83,7 @@
 #
 ################################################################################
 
-stergm <- function(formation, dissolution, theta.form0="MPLE", theta.diss=NULL,
+stergm <- function(formation, dissolution, theta.form0=NULL, theta.diss=NULL,
                    seed=NULL,
                    MH.burnin=1000,
                    constraints=~., # May not work.
@@ -100,7 +98,6 @@ stergm <- function(formation, dissolution, theta.form0="MPLE", theta.diss=NULL,
 
   nw <- ergm.getnetwork(formation)
   if(!is.null(meanstats)){
-   control$drop <- FALSE
    netsumm<-summary(formation)
    if(length(netsumm)!=length(meanstats))
      stop("Incorrect length of the meanstats vector: should be ", length(netsumm), " but is ",length(meanstats),".")
@@ -125,36 +122,22 @@ stergm <- function(formation, dissolution, theta.form0="MPLE", theta.diss=NULL,
   
   if (verbose) cat("Initializing model.\n")
 
-  # Note: I am not sure whether this works:
-  if(control$drop){
-   model.initial <- ergm.getmodel(formation, nw, drop=FALSE, initialfit=TRUE)
-   model.initial.drop <- ergm.getmodel(formation, nw, drop=TRUE, initialfit=TRUE)
-   namesmatch <- match(model.initial$coef.names, model.initial.drop$coef.names)
-   droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
-   droppedterms[is.na(namesmatch)] <- TRUE
-   model.initial$etamap$offsettheta[is.na(namesmatch)] <- TRUE
-  }else{
-   model.initial <- ergm.getmodel(formation, nw, drop=control$drop, initialfit=TRUE)
-   droppedterms <- rep(FALSE, length=length(model.initial$etamap$offsettheta))
-  }
+  model.initial <- ergm.getmodel(formation, nw, initialfit=TRUE)
+  if(is.null(theta.form0)) theta.form0 <- rep(NA, length(model.initial$etamap$offsettheta))
   
   if (verbose) cat("Initializing Metropolis-Hastings proposal.\n")
   MHproposal.form <- MHproposal(constraints, weights=control$prop.weights.form, control$prop.args.form, nw, model.initial,class="f")
 
-  conddeg <- switch(MHproposal.form$name=="CondDegree",control$drop,NULL)
   MCMCparams=c(control,
    list(MH.burnin=MH.burnin))
 
 
   if (verbose) cat("Fitting initial model.\n")
-  theta0copy <- theta.form0
-  initialfit <- ergm.initialfit(theta0=theta0copy, MLestimate=TRUE, 
+  initialfit <- ergm.initialfit(theta0=theta.form0, initial.is.final=FALSE, 
                                 formula=formation, nw=nw, meanstats=meanstats,
-                                m=model.initial,
+                                m=model.initial, method=control$initialfit,
                                 MPLEtype=control$MPLEtype, 
-                                initial.loglik=control$initial.loglik,
-                                conddeg=conddeg, MCMCparams=MCMCparams, MHproposal=MHproposal.form,
-                                force.MPLE=FALSE,
+                                MCMCparams=MCMCparams, MHproposal=MHproposal.form,
                                 verbose=verbose, 
                                 compressflag = control$compress, 
                                 maxNumDyadTypes=control$maxNumDyadTypes,
@@ -165,28 +148,13 @@ stergm <- function(formation, dissolution, theta.form0="MPLE", theta.diss=NULL,
   theta.form0[is.na(theta.form0)] <- 0
 
   
-  if(control$drop){
-   model.form <- ergm.getmodel(formation, nw, drop=FALSE, expanded=TRUE, silent=TRUE)
-   # revise theta.form0 to reflect additional parameters
-   theta.form0 <- ergm.revisetheta0(model.form, theta.form0)
-   model.drop <- ergm.getmodel(formation, nw, drop=TRUE, expanded=TRUE, silent=TRUE)
-#            silent="MPLE" %in% theta.form0copy)
-   namesdrop <- model.form$coef.names[is.na(match(model.form$coef.names, model.drop$coef.names))]
-   names(model.form$etamap$offsettheta) <- names(theta.form0)
-   droppedterms <- rep(FALSE, length=length(model.form$etamap$offsettheta))
-   droppedterms[is.na(namesmatch)] <- TRUE
-   theta.form0[droppedterms] <- -Inf
-   model.form$etamap$offsettheta[names(model.form$etamap$offsettheta) %in% namesdrop] <- TRUE
-  }else{
-   model.form <- ergm.getmodel(formation, nw, drop=control$drop, expanded=TRUE)
+   model.form <- ergm.getmodel(formation, nw, expanded=TRUE)
    # revise theta.form0 to reflect additional parameters
    theta.form0 <- ergm.revisetheta0(model.form, theta.form0)
    names(model.form$etamap$offsettheta) <- names(theta.form0)
-   droppedterms <- rep(FALSE, length=length(model.form$etamap$offsettheta))
-  }
 
   Clist <- ergm.Cprepare(nw, model.form)
-  Clist$obs <- summary(model.form$formula, drop=FALSE)
+  Clist$obs <- summary(model.form$formula)
   Clist$meanstats <- Clist$obs
   if(!is.null(meanstats)){
    if (is.null(names(meanstats))){
@@ -194,7 +162,7 @@ stergm <- function(formation, dissolution, theta.form0="MPLE", theta.diss=NULL,
      names(meanstats) <- names(Clist$obs)
      Clist$meanstats <- meanstats
     }else{
-     namesmatch <- names(summary(model.form$formula, drop=FALSE))
+     namesmatch <- names(summary(model.form$formula))
      if(length(meanstats) == length(namesmatch)){
        namesmatch <- match(names(meanstats), namesmatch)
        Clist$meanstats <- meanstats[namesmatch]
@@ -247,7 +215,6 @@ if (verbose) cat("Fitting Dynamic ERGM.\n")
   v$prop.weights.diss <- control$prop.weights.diss
 
   v$offset <- model.form$etamap$offsettheta
-  v$drop <- droppedterms
   v$etamap <- model.form$etamap
   options(warn=current.warn)
   v

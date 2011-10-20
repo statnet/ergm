@@ -33,7 +33,7 @@ autoboot.ergm<-function(object, R, verbose=FALSE, control=control.ergm()){
     else stop(paste("ERGM fit `",deparse(substitute(object)),"` is missing the sample.",sep=""))
   }
 
-  m<-ergm.getmodel(object$formula, ergm.getnetwork(object$formula), drop=FALSE, response=object$response)
+  m<-ergm.getmodel(object$formula, ergm.getnetwork(object$formula), response=object$response)
 
   samp<-object$sample
 

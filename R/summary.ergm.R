@@ -194,7 +194,7 @@ summary.ergm <- function (object, ...,
   rownames(tempmatrix) <- names(object$coef)
 
   devtext <- "Deviance:"
-  if (!independence) {
+  if (!independence || object$reference!="Bernoulli") {
     if (pseudolikelihood) {
       devtext <- "Pseudo-deviance:"
       ans$message <- "\nWarning:  The standard errors are based on naive pseudolikelihood and are suspect.\n"

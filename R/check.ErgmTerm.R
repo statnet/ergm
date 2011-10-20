@@ -144,15 +144,6 @@ assignvariables <- function(a) {
       assign(names(a)[i], a[[i]], envir=parent.frame())
 }
 
-
-check.ErgmTerm.summarystats <- function(nw, arglist, ...) {
-  fname <- get.InitErgm.fname() # From what InitErgm function was this called?
-  Initfn <- get(fname,envir=.GlobalEnv)
-  outlist <- Initfn(nw, arglist, drop=FALSE, ...)
-  m <- updatemodel.ErgmTerm(list(), outlist)
-  gs <- ergm.getglobalstats(nw, m, response=list(...)[["response"]])
-}
-
 # Search back in time through sys.calls() to find the name of the last
 # function whose name begins with "InitErgm"
 get.InitErgm.fname <- function() {
@@ -170,58 +161,3 @@ get.InitErgm.fname <- function() {
   # Didn't find Init[Wt]Ergm... in the list of functions
   return(NULL)
 }
-
-
-# zerowarnings is now deprecated; it's been replaced by extremewarnings
-zerowarnings <- function(gs) {
-  out <- gs==0
-  if(any(out)) {
-    cat(" Warning:  These coefs set to -Inf due to obs val=0:\n ")
-    cat(paste(names(gs)[out], collapse=", "), "\n")
-  }
-  out
-}
-
-
-
-####################################################################
-# The <extremewarnings> function checks and returns whether the
-# global statistics are extreme, in terms of being outside the
-# range of 'minval' and 'maxval'; warning messages are printed if
-# any statistic is extreme
-#
-# --PARAMETERS--
-#   gs    : the vector of global statistics returned by
-#           <check.ErgmTerm.summarystats> or <ergm.getglobalstats>
-#   minval: the value at/below which statistics are deemed extreme;
-#           default=0
-#   maxval: the value at/above which statistics are deemed extreme;
-#           default=NULL
-#
-# --RETURNED--
-#   out: a logical vector of whether each statistic was extreme
-#
-####################################################################
-
-extremewarnings <- function(gs, minval=0, maxval=NULL) {
-  out <- rep(FALSE, times=length(gs))
-  if (!is.null(minval))  {
-    tmp <- (gs <= minval)
-    if (any(tmp)) {
-      out <- out | tmp
-      cat(" Warning:  These coefficients will be -Inf:\n")
-      cat(paste(names(gs)[tmp], collapse=", "), "\n")
-    }
-  }
-  if (!is.null(minval))  {
-    tmp <- (gs >= maxval)
-    if (any(tmp)) {
-      out <- out | tmp
-      cat(" Warning:  These coefficients will be +Inf:\n")
-      cat(paste(names(gs)[tmp], collapse=", "), "\n")
-    }
-  }
-  out
-}
-
-

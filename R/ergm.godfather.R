@@ -78,7 +78,7 @@ ergm.godfather <- function(formula, timestamps=NULL, toggles=NULL, sim=NULL,
   }
 
   nw <- ergm.getnetwork(formula)
-  m <- ergm.getmodel(formula, nw, drop=FALSE, initialfit=TRUE)
+  m <- ergm.getmodel(formula, nw, initialfit=TRUE)
   Clist <- ergm.Cprepare(nw, m)
   Clist$obs <- summary(m$formula)
   ots <- order(timestamps)

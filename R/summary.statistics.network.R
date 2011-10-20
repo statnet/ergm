@@ -16,8 +16,6 @@
 #
 # --PARAMETERS--
 #   object:  a formula, matrix, ergm, or network, as appropriate
-#   drop  :  whether to drop degenerate terms when the model is
-#            constructed from the formula (T or F); default=FALSE
 #   basis :  optionally, the network from the formula; if a network
 #            is passed to 'basis', it is assumed that 'object' is the
 #            formula
@@ -26,7 +24,7 @@
 #   gs: the vector of global stats, as returned by <ergm.getglobalstats>
 #############################################################################
 
-summary.statistics <- function(object, ..., drop=FALSE, basis=NULL) {
+summary.statistics <- function(object, ..., basis=NULL) {
   UseMethod("summary.statistics")
 }
 
@@ -50,22 +48,22 @@ summary.formula <- function(object, ...){
 
 
 
-summary.statistics.formula <- function(object, ..., drop=FALSE, basis=NULL) {
-  summary.statistics.network(object, ..., drop=drop, basis=basis)
+summary.statistics.formula <- function(object, ..., basis=NULL) {
+  summary.statistics.network(object, ..., basis=basis)
 }
 
 
 
-summary.statistics.ergm <- function(object, ..., drop=FALSE, basis=NULL)
+summary.statistics.ergm <- function(object, ..., basis=NULL)
 {
-  summary.statistics.network(object$formula, ..., drop=drop, basis=basis)
+  summary.statistics.network(object$formula, ..., basis=basis)
 }
 
 
 
 summary.statistics.default <-
 summary.statistics.matrix <- 
-summary.statistics.network <- function(object, response=NULL,...,drop=FALSE, basis=NULL) {
+summary.statistics.network <- function(object, response=NULL,...,basis=NULL) {
   current.warn <- options()$warn
   options(warn=0)
   if(is.network(basis)){
@@ -89,7 +87,7 @@ summary.statistics.network <- function(object, response=NULL,...,drop=FALSE, bas
       stop("Must specify a network object")
     }
   }
-  m <- ergm.getmodel(formula, nw, drop=drop, response=response)
+  m <- ergm.getmodel(formula, nw, response=response,...)
   gs <- ergm.getglobalstats(nw, m, response=response)
   options(warn=current.warn)
   gs

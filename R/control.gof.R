@@ -19,8 +19,6 @@
 #                   that the ergm was fit by); default="default" if
 #                   X is a formula (which picks a reasonable default
 #                   considering any constraints)
-#   drop          : whether degenerate terms should be dropped from the
-#                   fit (T or F); default=TRUE
 #   summarizestats: whether to print out a summary of the sufficient
 #                   statistics of the generated network (T or F);
 #                   default=FALSE
@@ -42,7 +40,6 @@
 #########################################################################
 
 control.gof.ergm<-function(prop.weights=NULL,prop.args=NULL,
-                           drop=TRUE,
                            summarizestats=FALSE,
                            maxchanges=1000000){
   control<-list()
@@ -53,7 +50,6 @@ control.gof.ergm<-function(prop.weights=NULL,prop.args=NULL,
 
 
 control.gof.formula<-function(prop.weights="default",prop.args=NULL,
-                              drop=TRUE,
                               summarizestats=FALSE,
                               maxchanges=1000000){
   control<-list()

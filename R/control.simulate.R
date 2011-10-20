@@ -39,8 +39,6 @@
 #                   function will never be called in the path from
 #                   <ergm.san> which is the only code using this
 #                   control list.
-#   drop          : whether degenerate terms should be dropped from the
-#                   fit (T or F); default=TRUE
 #   summarizestats: whether to print out a summary of the sufficient
 #                   statistics of the generated network (T or F);
 #                   default=FALSE.
@@ -54,7 +52,6 @@
 
 control.simulate<-control.simulate.formula<-function(prop.weights="default",
                                                      prop.args=NULL,
-                                                     drop=FALSE,
                                                      summarizestats=FALSE,
                                                      maxedges=20000,
                                                      maxchanges=1000000,
@@ -69,7 +66,6 @@ control.simulate<-control.simulate.formula<-function(prop.weights="default",
 
 control.simulate.ergm<-function(prop.weights="default",
                                 prop.args=NULL,
-                                drop=FALSE,
                                 summarizestats=FALSE,
                                 maxchanges=1000000,
                                 maxedges=20000,

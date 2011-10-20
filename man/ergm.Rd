@@ -13,13 +13,13 @@
   estimate or an approximate maximum likelihood estimator based on a Monte Carlo scheme.
 }
 \usage{
-ergm(formula, theta0="MPLE",
+ergm(formula, theta0=NULL,
      MPLEonly=FALSE, MLestimate=!MPLEonly, seed=NULL,
      burnin=10000, MCMCsamplesize=10000, interval=100, maxit=3,
      constraints=~.,
      meanstats = NULL,
      control=control.ergm(),
-     eval.logLik=FALSE,
+     eval.loglik=FALSE,
      verbose=FALSE, \dots)
 }
 \arguments{
@@ -31,10 +31,29 @@ ergm(formula, theta0="MPLE",
 Hunter (2008).  To create a
     \code{\link[network]{network}} object in \R, use the \code{network()} function,
     then add nodal attributes to it using the \code{\%v\%}
-    operator if necessary.}
-  \item{theta0}{vector; the parameter value used to generate
-    the MCMC sample and as a starting value for the estimation.
-    By default the MPLE is used (\code{theta0="MPLE"}).}
+    operator if necessary. Enclosing a model term in \code{offset()}
+    fixes its value to one specified in \code{theta0}.}
+  \item{theta0}{numeric or \code{NA} vector equal in length to the number of
+    parameters in the model or \code{NULL} (the default); the initial
+    values for the estimation and coefficients offset terms. If \code{NULL}
+    is passed, all of the initial values are computed using the method specified by
+    \code{\link[=control.ergm]{control$initialfit}}.
+    If a numeric vector is given, the elements of the vector are interpreted as follows:
+    \itemize{
+      \item{Elements corresponding to
+	terms enclosed in \code{offset()} are used as the fixed offset
+	coefficients.}
+      \item{Elements that do not correspond to offset terms and are not
+	\code{NA} are used as starting values in the estimation. }
+      \item{Initial values for the elements that are \code{NA} are fit
+	using the method specified by
+	\code{\link[=control.ergm]{control$initialfit}}.
+      }
+    }
+    Note that passing \code{theta0=coef(prev.fit)} can be used to ``resume''
+    an uncoverged \code{\link{ergm}} run, but see
+    \code{\link{enformulate.curved}}.
+  }
   \item{MPLEonly}{logical; \code{TRUE} if the maximum
     pseudo-likelihood estimate is to be computed and returned.
     Note that \code{MPLEonly=TRUE} will render moot most other parameters in this list.
@@ -196,8 +215,16 @@ for internal use.}
  (part of the \code{\link{control.ergm}} function output).}
  \item{offset}{vector of logical telling which model parameters are to be set
  at a fixed value (i.e., not estimated).}
- \item{drop}{list of terms that were dropped due to extreme values of the
- corresponding statistics on the observed network.}
+ \item{drop}{If \code{\link[=control.ergm]{control$drop}=TRUE}, a numeric vector indicating which terms were dropped due to to extreme values of the
+   corresponding statistics on the observed network, and how:
+   \describe{
+     \item{\code{0}}{The term was not dropped.}
+     \item{\code{-1}}{The term was at its minimum and the coefficient was fixed at
+       \code{-Inf}.}
+     \item{\code{+1}}{The term was at its maximum and the coefficient was fixed at
+       \code{+Inf}.}
+   }
+ }
   See the method \code{\link{print.ergm}} for details on how
   an \code{\link{ergm}} object is printed.  Note that the
   method \code{\link{summary.ergm}} returns a summary of the

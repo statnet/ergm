@@ -29,9 +29,8 @@ ergm.degenerate <- function(formula, ...)
      stop("Invalid graph. Is the left-hand-side of the formula correct?")
     }
 #   Check for degenerate specifications
-    m.all <- ergm.getmodel(trms, g, drop=FALSE)
-    m <- ergm.getmodel(trms, g, drop=TRUE)
-    degenerate <- is.na(match(m.all$coef.names, m$coef.names))
+    m.all <- ergm.getmodel(trms, g)
+    degenerate <- +(m.all$maxval==obs.stats)-(m.all$minval==obs.stats)
     names(degenerate) <- m.all$coef.names
     degenerate
 }

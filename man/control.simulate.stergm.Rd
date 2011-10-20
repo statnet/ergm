@@ -5,9 +5,9 @@
   Auxiliary function as user interface for fine-tuning STERGM simulation.
 }
 \usage{
-control.simulate.stergm(prop.weights = "default", prop.args = NULL, drop = FALSE, 
+control.simulate.stergm(prop.weights = "default", prop.args = NULL, 
 summarizestats = FALSE, 
-network.output="network",
+output.network="network",
 maxchanges = 1e+06, 
 packagenames="ergm", 
 parallel=0)
@@ -28,11 +28,6 @@ parallel=0)
     all values may be used
     with all possible constraints.}
   \item{prop.args}{An alternative, direct way of specifying additional arguments to proposal.}
-  \item{drop}{logical; Should the degenerate terms in the model be
-    dropped from the fit?
-    If statistics occur on the extreme of their range they
-    correspond to infinite parameter estimates.
-    Default is \code{FALSE}.}
   \item{summarizestats}{logical; Print out a summary of 
     the sufficient statistics of the generated network. This is useful 
     as a diagnostic. Default is \code{FALSE}.}

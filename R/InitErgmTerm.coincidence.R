@@ -1,4 +1,4 @@
-InitErgmTerm.coincidence<-function(nw, arglist, drop=TRUE, ...) {
+InitErgmTerm.coincidence<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
                       varnames = c("d","active"),
                       vartypes = c("numeric","numeric"),

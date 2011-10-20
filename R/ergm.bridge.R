@@ -18,7 +18,7 @@ ergm.bridge.preproc<-function(object, basis, response){
   # New formula (no longer use 'object'):
   form <- ergm.update.formula(object, nw ~ .)
   
-  list(nw=nw, form=form, model=ergm.getmodel(form, nw, drop=FALSE, response=response))
+  list(nw=nw, form=form, model=ergm.getmodel(form, nw, response=response))
 }
 
 

@@ -34,7 +34,7 @@ ergmMPLE <- function(formula, fitmodel=FALSE, control=control.ergm(),
     return(ergm(formula, MPLEonly=TRUE, control=control, verbose=verbose, ...))
   }
   nw <- ergm.getnetwork(formula)
-  model <- ergm.getmodel(formula, nw, drop=FALSE, initialfit=TRUE)
+  model <- ergm.getmodel(formula, nw, initialfit=TRUE)
   Clist <- ergm.Cprepare(nw, model)
   Clist.miss <- ergm.design(nw, model, verbose=verbose)
   MPLEsetup <- ergm.pl(Clist, Clist.miss, model, verbose=verbose, ...)

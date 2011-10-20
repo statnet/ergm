@@ -113,10 +113,10 @@ simulate.formula.stergm <- function(object, nsim=1, seed=NULL, ..., dissolution,
 
   dissolution<-ergm.update.formula(dissolution,nw~.)
   
-  model.form <- ergm.getmodel(formation, nw, drop=control$drop)
+  model.form <- ergm.getmodel(formation, nw)
   if(!missing(theta.form) && theta.length.model(model.form)!=length(theta.form)) stop("theta.form has ", length(theta.form), " elements, while the model requires ",theta.length.model(model.form)," parameters.")
 
-  model.diss <- ergm.getmodel(dissolution, nw, stergm.order=stergm.order,drop=control$drop)
+  model.diss <- ergm.getmodel(dissolution, nw, stergm.order=stergm.order)
   if(!missing(theta.diss) && theta.length.model(model.diss)!=length(theta.diss)) stop("theta.diss has ", length(theta.diss), " elements, while the model requires ",theta.length.model(model.diss)," parameters.")
 
 

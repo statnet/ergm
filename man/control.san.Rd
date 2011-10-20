@@ -7,7 +7,7 @@
 }
 \usage{
 control.san(prop.weights = "default", prop.args = NULL,
-            drop = FALSE, maxedges=20000, maxchanges=1000000,
+            maxedges=20000, maxchanges=1000000,
             packagenames="ergm", network.output="network",
             parallel = 0)
 }
@@ -25,11 +25,6 @@ control.san(prop.weights = "default", prop.args = NULL,
     with all possible constraints.}
   \item{prop.args}{An alternative, direct way of specifying additional 
     arguments to proposal.}
-  \item{drop}{logical; Should the degenerate terms in the model be
-    dropped from the fit?
-    If statistics occur on the extreme of their range they
-    correspond to infinite parameter estimates.
-    Default is \code{FALSE}.}
   \item{maxedges}{maximum number of edges expected in network}
   \item{packagenames}{Names of packages in which changestatistics are found. Currently unused as \code{ergm} is presumed.}
   \item{network.output}{character: R class with which to output 

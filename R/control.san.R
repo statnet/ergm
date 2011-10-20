@@ -25,9 +25,6 @@
 #                   function will never be called in the path from
 #                   <ergm.san> which is the only code using this
 #                   control list.
-#   drop          : whether degenerate terms should be dropped from the
-#                   fit (T or F); default=TRUE;  this was used in
-#                   <ergm.san>, but is now commented out
 #   packagenames  : the names of packages in which changestatistics
 #                   are found; currently ignored as ‘ergm’ is presumed;
 #                   default="ergm"
@@ -43,7 +40,6 @@
 
 control.san<-function(prop.weights="default",
                       prop.args=NULL,
-                      drop=FALSE,
                       maxedges=20000,
                       maxchanges=1000000,
                       packagenames="ergm",
