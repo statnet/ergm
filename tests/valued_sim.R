@@ -16,6 +16,24 @@ s.full<-simulate(testnet3u~sum,reference="Poisson",response="w",theta0=theta,bur
 cat("Simulated mean (full, computed):",mean(sapply(s.full$networks,function(x) sum(x%e%"w")))/3,"\n",sep="")
 cat("Simulated mean (full, stats):",mean(s.full$stats)/3,"\n",sep="")
 
+## Poisson-reference, zero-inflated
+cat("Poisson-reference ERGM with zero-inflation\n")
+
+theta<-1
+cat("Target mean:",exp(theta),"\n",sep="")
+
+s<-simulate(testnet3u~sum,reference="Poisson",response="w",theta0=theta,burnin=10000,nsim=1000,statsonly=TRUE,
+            control=control.simulate.ergm(prop.weights="0inflated"))
+
+cat("Simulated mean (statsonly):",mean(s)/3,"\n",sep="")
+
+s.full<-simulate(testnet3u~sum,reference="Poisson",response="w",theta0=theta,burnin=10000,nsim=1000,statsonly=FALSE,
+                 control=control.simulate.ergm(prop.weights="0inflated"))
+
+cat("Simulated mean (full, computed):",mean(sapply(s.full$networks,function(x) sum(x%e%"w")))/3,"\n",sep="")
+cat("Simulated mean (full, stats):",mean(s.full$stats)/3,"\n",sep="")
+
+
 ## StdNormal-reference
 cat("Standard-normal-reference ERGM with mutuality by correlation\n")
 load("testnet3d.RData")
