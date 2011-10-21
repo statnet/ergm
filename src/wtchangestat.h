@@ -88,7 +88,7 @@ typedef struct WtModelTermstruct {
 #define INPUT_PARAM (mtp->inputparams)
 #define N_INPUT_PARAMS (mtp->ninputparams) /* Number of inputs passed */
 
-#define TOGGLEIND toggleind
+#define TOGGLEIND toggleind_var
 
 /* macro to set all changestats to zero at start of function */
 #define ZERO_ALL_CHANGESTATS() for(unsigned int TOGGLEIND=0; TOGGLEIND<N_CHANGE_STATS; TOGGLEIND++) CHANGE_STAT[TOGGLEIND]=0.0
@@ -100,10 +100,10 @@ typedef struct WtModelTermstruct {
 /* The idea here is to essentially swap the contents of the proposed
    weights with the current weights, and then swap them back when
    done. */
-#define TAIL tail
-#define HEAD head
-#define NEWWT newwt
-#define OLDWT oldwt
+#define TAIL tail_var
+#define HEAD head_var
+#define NEWWT newwt_var
+#define OLDWT oldwt_var
 
 #define GETOLDTOGGLEINFO() Vertex TAIL=tails[TOGGLEIND], HEAD=heads[TOGGLEIND]; double OLDWT=GETWT(TAIL,HEAD);
 #define GETTOGGLEINFO() GETOLDTOGGLEINFO(); double NEWWT=weights[TOGGLEIND];
