@@ -6,10 +6,7 @@
 #   prop.weights     : the method to allocate probabilities of being proposed
 #                      to dyads as "TNT", "random", "nonobserved", or "default"
 #                      default="default", which is based upon the ergm constraints
-#   prop.args        : an alternative, direct way of specifying additional
-#                      arguments to proposal
-#   prop.weights.diss: as 'prop.weights', but for the dissolution model
-#   prop.args.diss   : as 'prop.args', but for the dissoultion model
+#   prop.args        : a direct way of specifying additional arguments to proposal
 #   nr.maxit         : the maximum number of Newton-Raphson iterations to use;
 #                      default=100
 #   nr.reltol        : the relative tolerance passed to the native R routine
@@ -108,7 +105,7 @@
 #
 ######################################################################################################
 
-control.ergm<-function(prop.weights="default",prop.args=NULL,
+control.ergm<-function(prop.weights="default",prop.args=list(),
                        nr.maxit=100,
                        nr.reltol=sqrt(.Machine$double.eps),
                        calc.mcmc.se=TRUE, hessian=TRUE,
@@ -117,7 +114,7 @@ control.ergm<-function(prop.weights="default",prop.args=NULL,
                        maxNumDyadTypes=1e+6, 
                        maxedges=20000,
                        maxchanges=1000000,
-                       initialfit="MPLE",
+                       initialfit=NULL,
                        maxMPLEsamplesize=100000,
                        MPLEsamplesize=50000,
                        obs.MCMCsamplesize=NULL,

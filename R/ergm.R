@@ -230,7 +230,6 @@ ergm <- function(formula, response=NULL, theta0=NULL,
 
 
   if (verbose) { cat("Fitting initial model.\n") }
-  if(reference!="Bernoulli" && is.null(theta0)) stop("MPLE initial values are not implemented for weithed network ERGMs. Please specify theta0 manually.")
 
   MPLE.is.MLE <- (reference=="Bernoulli"
                   && ergm.independencemodel(model.initial)
@@ -251,7 +250,7 @@ ergm <- function(formula, response=NULL, theta0=NULL,
   }
   
   initialfit <- ergm.initialfit(theta0=theta0, initial.is.final=!MCMCflag,
-                                formula=formula, nw=nw, meanstats=meanstats,
+                                formula=formula, nw=nw, reference=reference, meanstats=meanstats,
                                 m=model.initial, method=control$initialfit,
                                 MPLEtype=control$MPLEtype, 
                                 conddeg=conddeg, MCMCparams=MCMCparams, MHproposal=MHproposal,

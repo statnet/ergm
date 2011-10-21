@@ -43,11 +43,11 @@
 
 ergm.initialfit<-function(theta0, initial.is.final,
                           formula, nw, meanstats,
-                          m, method = "MPLE",
+                          m, reference="Bernoulli", method = NULL,
                           MPLEtype="glm",
                           conddeg=NULL, MCMCparams=NULL, MHproposal=NULL,
                           verbose=FALSE, ...) {
-  method <- match.arg(method)
+  method <- match.arg(method, initialfit.methods[[reference]])
  
   # conddeg, whatever it does.
   if(!is.null(conddeg)){
@@ -79,6 +79,7 @@ ergm.initialfit<-function(theta0, initial.is.final,
                     theta0=theta0, conddeg=conddeg, 
                     MCMCparams=MCMCparams, MHproposal=MHproposal,
                     verbose=verbose, ...),
+                  zeros = structure(list(coef=ifelse(is.na(theta0),0,theta0)),class="ergm"),
                   error(paste("Invalid method specified for initial parameter calculation. Available methods are ",paste(formals()$method,collapse=","),".",sep=""))
                   )
   }else{
