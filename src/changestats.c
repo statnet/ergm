@@ -4117,7 +4117,7 @@ D_CHANGESTAT_FN(d_opentriad) {
        edgeflag is 0 if edge DNE and will appear */
     unsigned int edgeflag = IS_OUTEDGE(tail, head);
 
-    // +3 * triangles
+    // -3 * triangles
 
     STEP_THROUGH_OUTEDGES(head, e, node3) { /* step through outedges of head */
       change += IS_UNDIRECTED_EDGE(node3,tail);
@@ -4125,15 +4125,15 @@ D_CHANGESTAT_FN(d_opentriad) {
     STEP_THROUGH_INEDGES(head, e, node3) { /* step through inedges of head */
       change += IS_UNDIRECTED_EDGE(node3,tail);
     }
-    CHANGE_STAT[0] += change * (edgeflag ? -3.0 : 3.0);
+    CHANGE_STAT[0] += change * (edgeflag ? 3.0 : -3.0);
     
 
-    // -1 * 2-stars
+    // +1 * 2-stars
     
     Vertex taild = OUT_DEG[tail] + IN_DEG[tail] - edgeflag; 
     Vertex headd = OUT_DEG[head] + IN_DEG[head] - edgeflag;
     change = taild + headd; 
-    CHANGE_STAT[0] += (edgeflag ?  change : -change); 
+    CHANGE_STAT[0] += (edgeflag ?  -change : change); 
 
     TOGGLE_IF_MORE_TO_COME(i);
   }
