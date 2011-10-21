@@ -95,12 +95,12 @@ WtD_CHANGESTAT_FN(d_atleast){
 /********************  changestats:   C    ***********/
 
 /*****************
- stat: cyclicweights(_max)
+ stat: cyclicalweights(_max)
 *****************/
 
-WtD_FROM_S_FN(d_cyclicweights_max)
+WtD_FROM_S_FN(d_cyclicalweights_max)
 
-WtS_CHANGESTAT_FN(s_cyclicweights_max){ 
+WtS_CHANGESTAT_FN(s_cyclicalweights_max){ 
   Edge e1, e2;
   Vertex tail, head, node3;
   
@@ -117,12 +117,12 @@ WtS_CHANGESTAT_FN(s_cyclicweights_max){
 }
 
 /*****************
- stat: cyclicweights(_sum)
+ stat: cyclicalweights(_sum)
 *****************/
 
-WtD_FROM_S_FN(d_cyclicweights_sum)
+WtD_FROM_S_FN(d_cyclicalweights_sum)
 
-WtS_CHANGESTAT_FN(s_cyclicweights_sum){ 
+WtS_CHANGESTAT_FN(s_cyclicalweights_sum){ 
   Edge e1, e2;
   Vertex tail, head, node3;
   
@@ -139,12 +139,12 @@ WtS_CHANGESTAT_FN(s_cyclicweights_sum){
 }
 
 /*****************
- stat: cyclicweights(_threshold)
+ stat: cyclicalweights(_threshold)
 *****************/
 
-WtD_FROM_S_FN(d_cyclicweights_threshold)
+WtD_FROM_S_FN(d_cyclicalweights_threshold)
 
-WtS_CHANGESTAT_FN(s_cyclicweights_threshold){ 
+WtS_CHANGESTAT_FN(s_cyclicalweights_threshold){ 
   Edge e1, e2;
   Vertex tail, head, node3;
   
@@ -162,6 +162,45 @@ WtS_CHANGESTAT_FN(s_cyclicweights_threshold){
       }
 }
 
+/********************  changestats:   G    ***********/
+
+/*****************
+ changestat: d_edgecov(_nonzero)
+*****************/
+WtD_CHANGESTAT_FN(d_edgecov_nonzero) {
+  Vertex nrow, noffset;
+  
+  noffset = BIPARTITE;
+  if(noffset > 0){
+    nrow = noffset;
+  }else{
+    nrow = N_NODES;
+  }
+  
+  EXEC_THROUGH_TOGGLES({
+      double val = INPUT_ATTRIB[(HEAD-1-noffset)*nrow+(TAIL-1)];  
+      CHANGE_STAT[0] += val*((NEWWT!=0)-(OLDWT!=0));
+    });
+}
+
+/*****************
+ changestat: d_edgecov(_sum)
+*****************/
+WtD_CHANGESTAT_FN(d_edgecov_sum) {
+  Vertex nrow, noffset;
+  
+  noffset = BIPARTITE;
+  if(noffset > 0){
+    nrow = noffset;
+  }else{
+    nrow = N_NODES;
+  }
+  
+  EXEC_THROUGH_TOGGLES({
+      double val = INPUT_ATTRIB[(HEAD-1-noffset)*nrow+(TAIL-1)];  
+      CHANGE_STAT[0] += val*(NEWWT-OLDWT);
+    });
+}
 
 /********************  changestats:   G    ***********/
 

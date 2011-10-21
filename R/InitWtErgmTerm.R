@@ -98,7 +98,7 @@ InitWtErgmTerm.edgecov <- function(nw, arglist, response, ...) {
     cn<-paste("edgecov", as.character(sys.call(0)[[3]][2]), sep = ".")
   }
 
-  form<-match.arg(a$form,c("rank"))
+  form<-match.arg(a$form,c("sum","nonzero","rank"))
   
   inputs <- c(as.double(xm))
   list(name=paste("edgecov",form,sep="_"), coef.names = paste(cn,form,sep="."), inputs = inputs, dependence=form=="rank")
@@ -300,7 +300,7 @@ InitWtErgmTerm.nodeifactor<-function (nw, arglist, response, ...) {
 }
 
 InitWtErgmTerm.nodecov<-InitWtErgmTerm.nodemain<-function (nw, arglist, response, ...) {
-  a <- ergm.ErgmTerm(nw, arglist,
+  a <- check.ErgmTerm(nw, arglist,
                      varnames = c("attrname","transform","transformname","form"),
                      vartypes = c("character","function","character","character"),
                      defaultvalues = list(NULL,identity,"","sum"),
@@ -318,7 +318,7 @@ InitWtErgmTerm.nodecov<-InitWtErgmTerm.nodemain<-function (nw, arglist, response
 }
 
 InitWtErgmTerm.nodeicov<-function (nw, arglist, response, ...) {
-  a <- ergm.ErgmTerm(nw, arglist, directed=TRUE,
+  a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                      varnames = c("attrname","transform","transformname","form"),
                      vartypes = c("character","function","character","character"),
                      defaultvalues = list(NULL,identity,"","sum"),
@@ -337,7 +337,7 @@ InitWtErgmTerm.nodeicov<-function (nw, arglist, response, ...) {
 
 
 InitWtErgmTerm.nodeocov<-function (nw, arglist, response, ...) {
-  a <- ergm.ErgmTerm(nw, arglist, directed=TRUE,
+  a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                      varnames = c("attrname","transform","transformname","form"),
                      vartypes = c("character","function","character","character"),
                      defaultvalues = list(NULL,identity,"","sum"),
@@ -398,18 +398,18 @@ InitWtErgmTerm.transitiveties<-function (nw, arglist, response, ...) {
        coef.names="transitiveties",
        inputs=c(a$threshold),
        dependence=TRUE,
-       minval=0, maxval=network.dyadcount(nw,TRUE))
-  
+       minval=0, maxval=network.dyadcount(nw,TRUE))  
 }
 
 InitWtErgmTerm.transitiveweights<-function (nw, arglist, response, ...) {
 ### Check the network and arguments to make sure they are appropriate.
-  a <- check.ErgmTerm(nw, arglist, bipartite=NULL,
+  a <- check.ErgmTerm(nw, arglist, bipartite=NULL, nonnegative=TRUE,
                       varnames = c("form","threshold"),
                       vartypes = c("character","numeric"),
                       defaultvalues = list("max",0),
-                      required = c(FALSE,FALSE))
+                      required = c(FALSE,FALSE), response=response)
   form<-match.arg(a$form,c("max","sum","threshold"))
+
   list(name=switch(form,max="transitiveweights_max",sum="transitiveweights_sum",threshold="transitiveweights_threshold"),
        coef.names=switch(form,max="transitiveweights.max",sum="transitiveweights.sum",threshold=paste("transitiveweights",a$threshold,sep=".")),
        inputs=if(form=="threshold") threshold,
@@ -432,17 +432,17 @@ InitWtErgmTerm.cyclicalties<-function (nw, arglist, response, ...) {
   
 }
 
-InitWtErgmTerm.cyclicweights<-function (nw, arglist, response, ...) {
+InitWtErgmTerm.cyclicalweights<-function (nw, arglist, response, ...) {
 ### Check the network and arguments to make sure they are appropriate.
-  a <- check.ErgmTerm(nw, arglist, bipartite=NULL,
+  a <- check.ErgmTerm(nw, arglist, bipartite=NULL, nonnegative=FALSE,
                       varnames = c("form","threshold"),
                       vartypes = c("character","numeric"),
                       defaultvalues = list("max",0),
-                      required = c(FALSE,FALSE))
+                      required = c(FALSE,FALSE), response=NULL)
   
   form<-match.arg(a$form,c("max","sum","threshold"))
-  list(name=switch(form,max="cyclicweights_max",sum="cyclicweights_sum",threshold="cyclicweights_threshold"),
-       coef.names=switch(form,max="cyclicweights.max",sum="cyclicweights.sum",threshold=paste("cyclicweights",a$threshold,sep=".")),
+  list(name=switch(form,max="cyclicalweights_max",sum="cyclicalweights_sum",threshold="cyclicalweights_threshold"),
+       coef.names=switch(form,max="cyclicalweights.max",sum="cyclicalweights.sum",threshold=paste("cyclicalweights",a$threshold,sep=".")),
        inputs=if(form=="threshold") threshold,
        dependence=TRUE,
        minval=if(form=="threshold") 0)

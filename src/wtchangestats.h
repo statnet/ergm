@@ -8,9 +8,12 @@
 WtD_CHANGESTAT_FN(d_atleast);
 
 /********************  changestats:   C    ***********/
-WtD_CHANGESTAT_FN(d_cyclicweighs_max); WtS_CHANGESTAT_FN(s_cyclicweights_max);
-WtD_CHANGESTAT_FN(d_cyclicweighs_sum); WtS_CHANGESTAT_FN(s_cyclicweights_sum);
-WtD_CHANGESTAT_FN(d_cyclicweights_threshold); WtS_CHANGESTAT_FN(s_cyclicweights_threshold);
+WtD_CHANGESTAT_FN(d_cyclicalweighs_max); WtS_CHANGESTAT_FN(s_cyclicalweights_max);
+WtD_CHANGESTAT_FN(d_cyclicalweighs_sum); WtS_CHANGESTAT_FN(s_cyclicalweights_sum);
+WtD_CHANGESTAT_FN(d_cyclicalweights_threshold); WtS_CHANGESTAT_FN(s_cyclicalweights_threshold);
+
+/********************  changestats:   E    ***********/
+WtD_CHANGESTAT_FN(d_edgecov_nonzero); WtD_CHANGESTAT_FN(d_edgecov_sum);
 
 /********************  changestats:   G    ***********/
 WtD_CHANGESTAT_FN(d_greaterthan);
