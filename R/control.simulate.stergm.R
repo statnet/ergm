@@ -36,7 +36,7 @@
 #########################################################################
 
 control.simulate.stergm<-control.simulate.stergm<-function(prop.weights.form="default",
-                                                        prop.args.form=NULL,
+                                                        prop.args.form=list(),
                                                         prop.weights.diss="default",
                                                         prop.args.diss=NULL,
                                                         summarizestats=FALSE,final=FALSE,

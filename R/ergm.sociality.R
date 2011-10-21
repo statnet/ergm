@@ -118,7 +118,7 @@ sociality.formula <- function (formula, ..., theta0, nsim=100,
                                burnin=100, interval=100,
                                constraints=~.,
                                prop.weights="default",
-                               prop.args = NULL,
+                               prop.args=list(),
                                seed=NULL,  drop=FALSE,
                                statistics=NULL
                                ) {
@@ -230,7 +230,7 @@ sociality.formula <- function (formula, ..., theta0, nsim=100,
 
 sociality.ergm <- function (object, ..., nsim=100,
                             burnin=100, interval=100,
-                            constraints=NULL, prop.weights="default", prop.args = NULL,
+                            constraints=NULL, prop.weights="default", prop.args =list(),
                             seed=NULL, drop=FALSE,
                             statistics=NULL) {
 

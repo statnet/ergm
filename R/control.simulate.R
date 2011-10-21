@@ -51,7 +51,7 @@
 #########################################################################
 
 control.simulate<-control.simulate.formula<-function(prop.weights="default",
-                                                     prop.args=NULL,
+                                                     prop.args=list(),
                                                      summarizestats=FALSE,
                                                      maxedges=20000,
                                                      maxchanges=1000000,
@@ -65,7 +65,7 @@ control.simulate<-control.simulate.formula<-function(prop.weights="default",
 }
 
 control.simulate.ergm<-function(prop.weights="default",
-                                prop.args=NULL,
+                                prop.args=list(),
                                 summarizestats=FALSE,
                                 maxchanges=1000000,
                                 maxedges=20000,

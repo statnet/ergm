@@ -140,8 +140,9 @@ MHproposal.formula <- function(object, arguments, nw, model, weights="default", 
     name<-MHqualifying$MHP
   else
     name<-with(MHqualifying,MHP[which.max(Priority)])
-  
-  if(is.null(arguments)) arguments<-conlist
+
+  for(constraint in names(conlist))
+    if(! constraint %in% arguments) arguments[[constraint]]<-conlist[[constraint]]
   ## Hand it off to the class character method.
   MHproposal.character(name,arguments,nw,model,response=response)
 }

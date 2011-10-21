@@ -39,7 +39,7 @@
 #########################################################################
 
 control.san<-function(prop.weights="default",
-                      prop.args=NULL,
+                      prop.args=list(),
                       maxedges=20000,
                       maxchanges=1000000,
                       packagenames="ergm",
