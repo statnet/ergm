@@ -24,6 +24,7 @@
 #  arglist      : the list of arguments for term X
 #  directed     : whether term X requires a directed network (T or F); default=NULL
 #  bipartite    : whether term X requires a bipartite network (T or F); default=NULL
+#  nonnegative  : whether term X requires a network with only nonnegative weights; default=FALSE
 #  varnames     : the vector of names of the possible arguments for term X;
 #                 default=NULL 
 #  vartypes     : the vector of types of the possible arguments for term X;
@@ -39,9 +40,9 @@
 #
 ######################################################################################
 
-check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL,
+check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegative=FALSE,
                            varnames=NULL, vartypes=NULL,
-                           defaultvalues=list(), required=NULL) {
+                           defaultvalues=list(), required=NULL, response=NULL) {
   fname <- get.InitErgm.fname() # From what InitErgm function was this called?
   fname <- sub('.*[.]', '', fname) # truncate up to last '.'
   message <- NULL
@@ -57,6 +58,9 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL,
   }
   if (is.directed(nw) && bnw > 0) {
     message <- "directed bipartite networks"
+  }
+  if (is.null(message) && nonnegative && any(nw %e% response < 0)){
+    message <- "networks with negative dyad weights"
   }
   if (!is.null(message)) {
     stop(paste("The ERGM term",fname,"may not be used with",message))
