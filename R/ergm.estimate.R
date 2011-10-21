@@ -254,7 +254,8 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.obs=NULL,
 #   }else{
 #     cat("the log-likelihood did not improve.\n")
 #   }
-    if(inherits(Lout,"try-error") || Lout$value > 199 || Lout$value < -790) {
+    if(inherits(Lout,"try-error") || Lout$value > max(199, trustregion) || Lout$value < -790) {
+      if(!inherits(Lout,"try-error")) cat("Apparent likelihood improvement:", Lout$value, ".\n")
       cat("MLE could not be found. Trying Nelder-Mead...\n")
       Lout <- try(optim(par=guess, 
                         fn=llik.fun.median,
@@ -268,7 +269,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.obs=NULL,
                         varweight=varweight, trustregion=trustregion,
                         eta0=eta0, etamap=model$etamap),
               silent=FALSE)
-      if(inherits(Lout,"try-error") || Lout$value > 500 ){
+      if(inherits(Lout,"try-error") || Lout$value > max(500, trustregion) ){
         cat(paste("No direct MLE exists!\n"))
       }
       if(Lout$convergence != 0 ){
