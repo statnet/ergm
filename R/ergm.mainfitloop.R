@@ -58,6 +58,11 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
                              sequential=MCMCparams$sequential,
                              estimate=TRUE,
                              response=NULL, ...) {
+  # Initialize the history of parameters and statistics.
+  theta.hist <- rbind(theta0)
+  stats.hist <- matrix(NA, 0, length(Clist$obs))
+  stats.obs.hist <- matrix(NA, 0, length(Clist$obs))
+  
   # Store information about original network, which will be returned at end
   nw.orig <- network.copy(nw)
 
@@ -223,8 +228,12 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
       }
       if((MCMCparams$steplength==1) && (v$loglikelihood < MCMCparams$adaptive.epsilon) ){break}
     }
+          
     finished <- iteration >= MCMCparams$maxit
     mcmc.theta0 <- v$coef
+    theta.hist <- rbind(theta.hist, mcmc.theta0)
+    stats.obs.hist <- if(!is.null(statsmatrix.obs)) rbind(stats.obs.hist, apply(statsmatrix.obs, 2, mean)) else NULL
+    stats.hist <- rbind(stats.hist, apply(statsmatrix, 2, mean))
     parametervalues <- rbind(parametervalues, mcmc.theta0)
   } # end of main loop
 
@@ -242,6 +251,10 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
   v$theta.original <- theta0
   v$mplefit <- initialfit
   v$parallel <- MCMCparams$parallel
+  
+  v$theta.hist <- theta.hist
+  v$stats.hist <- stats.hist
+  v$stats.obs.hist <- stats.obs.hist
   # The following output is sometimes helpful.  It's the total history
   # of all eta values, from the initial eta0 to the final estimate
   # v$allparamvals <- parametervalues
