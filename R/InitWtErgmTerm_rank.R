@@ -16,7 +16,7 @@ InitWtErgmTerm.deference<-function(nw, arglist, response, ...) {
 InitWtErgmTerm.inconsistency<-function (nw, arglist, response, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                      varnames = c("x","attrname","weights","wtname"),
-                     vartypes = c("matrixnetwork","character","array,function","character"),
+                     vartypes = c("matrix,network","character","array,function","character"),
                      defaultvalues = list(nw,NULL,NULL,NULL),
                      required = c(FALSE,FALSE,FALSE,FALSE))
 

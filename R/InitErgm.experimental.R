@@ -435,7 +435,7 @@ InitErgm.degreep<-function(nw, m, arglist, drop=TRUE, ...) {
 InitErgm.duration<-function (nw, m, arglist, ...) {
   a <- ergm.checkargs("duration", arglist,
     varnames = c("form", "dissolve", "x"),
-    vartypes = c("matrixnetwork", "matrixnetwork", "matrixnetwork"),
+    vartypes = c("matrix,network", "matrix,network", "matrix,network"),
     defaultvalues = list(NULL, NULL, NULL),
     required = c(TRUE, TRUE, FALSE))
   x<-a$x;form<-a$form;dissolve<-a$dissolve
@@ -714,7 +714,7 @@ InitErgm.hamming.weighted<-function (nw, m, arglist, ...) {
 # ergm.checkdirected("hamming.weighted", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("hamming.weighted", arglist=arglist,
     varnames = c("cov","x","attrname"),
-    vartypes = c("matrixnetwork","matrixnetwork","character"),
+    vartypes = c("matrix,network","matrix,network","character"),
     defaultvalues = list(NULL,nw,NULL),
     required = c(TRUE,FALSE,FALSE))
   attrname<-a$attrname
@@ -795,7 +795,7 @@ InitErgm.hammingmix.constant<-function (nw, m, arglist, ...) {
 # ergm.checkdirected("hammingconstantmix", is.directed(nw), requirement=FALSE)
   a <- ergm.checkargs("hammingmix.constant", arglist=arglist,
     varnames = c("attrname","x","base", "contrast"),
-    vartypes = c("character","matrixnetwork","numeric","logical"),
+    vartypes = c("character","matrix,network","numeric","logical"),
     defaultvalues = list(NULL,nw,0,FALSE),
     required = c(TRUE,FALSE,FALSE,FALSE))
   attrname<-a$attrname
@@ -868,7 +868,7 @@ InitErgm.heideriandynamic<-function (nw, m, arglist, ...) {
   ergm.checkdirected("heideriandynamic", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("heideriandynamic", arglist,
     varnames = c("x","attrname"),
-    vartypes = c("matrixnetwork","character"),
+    vartypes = c("matrix,network","character"),
     defaultvalues = list(NULL,NULL),
     required = c(TRUE,FALSE))
   x<-a$x;attrname<-a$attrname
@@ -986,7 +986,7 @@ InitErgm.intransitivedynamic<-function (nw, m, arglist, ...) {
   ergm.checkdirected("intransitivedynamic", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("intransitivedynamic", arglist,
     varnames = c("x","attrname"),
-    vartypes = c("matrixnetwork","character"),
+    vartypes = c("matrix,network","character"),
     defaultvalues = list(NULL,NULL),
     required = c(TRUE,FALSE))
   x<-a$x;attrname<-a$attrname
@@ -1081,7 +1081,7 @@ InitErgm.simmeliandynamic<-function (nw, m, arglist, ...) {
   ergm.checkdirected("simmeliandynamic", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("simmeliandynamic", arglist,
     varnames = c("x","attrname"),
-    vartypes = c("matrixnetwork","character"),
+    vartypes = c("matrix,network","character"),
     defaultvalues = list(NULL,NULL),
     required = c(TRUE,FALSE))
   x<-a$x;attrname<-a$attrname
@@ -1163,7 +1163,7 @@ InitErgm.transitivedynamic<-function (nw, m, arglist, ...) {
   ergm.checkdirected("transitivedynamic", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("transitivedynamic", arglist,
     varnames = c("x","attrname"),
-    vartypes = c("matrixnetwork","character"),
+    vartypes = c("matrix,network","character"),
     defaultvalues = list(NULL,NULL),
     required = c(TRUE,FALSE))
   x<-a$x;attrname<-a$attrname

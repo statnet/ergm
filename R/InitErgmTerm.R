@@ -997,7 +997,7 @@ InitErgmTerm.dsp<-function(nw, arglist, ...) {
 InitErgmTerm.dyadcov<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("x","attrname"),
-                      vartypes = c("matrixnetwork","character"),
+                      vartypes = c("matrix,network","character"),
                       defaultvalues = list(NULL,NULL),
                       required = c(TRUE,FALSE))
   x<-a$x;attrname<-a$attrname
@@ -1052,7 +1052,7 @@ InitErgmTerm.edgecov <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, 
                       varnames = c("x", "attrname"),
-                      vartypes = c("matrixnetwork", "character"),
+                      vartypes = c("matrix,network", "character"),
                       defaultvalues = list(NULL, NULL),
                       required = c(TRUE, FALSE))
   ### Process the arguments
@@ -1561,7 +1561,7 @@ InitErgmTerm.gwodegree<-function(nw, arglist, initialfit=FALSE, ...) {
 InitErgmTerm.hamming<-function (nw, arglist, ...) {
   a <- check.ErgmTerm (nw, arglist,
 	    varnames = c("x","cov","attrname","defaultweight"),
-	    vartypes = c("matrixnetwork","matrixnetwork","character","numeric"),
+	    vartypes = c("matrix,network","matrix,network","character","numeric"),
 	    defaultvalues = list(nw, NULL, NULL, NULL),
 	    required = c(FALSE, FALSE, FALSE, FALSE))
 
@@ -1643,7 +1643,7 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ...) {
   # the undirected version does not seem to work properly, so:
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = c("attrname","x","base","contrast"),
-                      vartypes = c("character","matrixnetwork","numeric","logical"),
+                      vartypes = c("character","matrix,network","numeric","logical"),
                       defaultvalues = list(NULL,nw,0,FALSE),
                       required = c(TRUE,FALSE,FALSE,FALSE))
   attrname<-a$attrname
@@ -1883,7 +1883,7 @@ InitErgmTerm.kstar<-function(nw, arglist, ...) {
 InitErgmTerm.localtriangle<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("x", "attrname"),
-                      vartypes = c("matrixnetwork", "character"),
+                      vartypes = c("matrix,network", "character"),
                       defaultvalues = list(NULL, NULL),
                       required = c(TRUE, FALSE))
   x<-a$x;attrname<-a$attrname

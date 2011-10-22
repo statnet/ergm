@@ -77,7 +77,7 @@ InitWtErgmTerm.edgecov <- function(nw, arglist, response, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, 
                       varnames = c("x", "attrname", "form"),
-                      vartypes = c("matrixnetwork", "character", "character"),
+                      vartypes = c("matrix,network,character", "character", "character"),
                       defaultvalues = list(NULL, NULL, "sum"),
                       required = c(TRUE, FALSE, FALSE))
   ### Process the arguments

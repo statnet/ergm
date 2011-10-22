@@ -3,7 +3,7 @@
 InitErgm.dissolve<-function (nw, m, arglist, ...) {
   a <- ergm.checkargs("dissolve", arglist=arglist,
     varnames = c("x"),
-    vartypes = c("matrixnetwork"),
+    vartypes = c("matrix,network"),
     defaultvalues = list(nw),
     required = c(FALSE))
   attach(a)
@@ -31,7 +31,7 @@ InitErgm.dissolve<-function (nw, m, arglist, ...) {
 InitErgm.formation<-function (nw, m, arglist, ...) {
   a <- ergm.checkargs("formation", arglist=arglist,
     varnames = c("x"),
-    vartypes = c("matrixnetwork"),
+    vartypes = c("matrix,network"),
     defaultvalues = list(nw),
     required = c(FALSE))
   attach(a)

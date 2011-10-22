@@ -387,7 +387,7 @@ InitErgm.bichange<-function (g, model, form=NULL, x=NULL, drop=TRUE, ...)
 #  ergm.checkdirected("biduration", is.directed(nw), requirement=TRUE)
 #  a <- ergm.checkargs("biduration", arglist,
 #    varnames = c("form", "dissolve", "x"),
-#    vartypes = c("matrixnetwork", "matrixnetwork", "matrixnetwork"),
+#    vartypes = c("matrix,network", "matrix,network", "matrix,network"),
 #    defaultvalues = list(NULL, NULL, NULL),
 #    required = c(TRUE, TRUE, FALSE))
 #  attach(a)
@@ -497,7 +497,7 @@ InitErgm.biduration<-function (nw, m, arglist, ...) {
   ergm.checkdirected("biduration", is.directed(nw), requirement=TRUE)
   a <- ergm.checkargs("biduration", arglist,
     varnames = c("dissolve", "x"),
-    vartypes = c("matrixnetwork", "matrixnetwork"),
+    vartypes = c("matrix,network", "matrix,network"),
     defaultvalues = list(NULL, NULL),
     required = c(TRUE, FALSE))
   attach(a)

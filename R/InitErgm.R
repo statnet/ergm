@@ -1352,7 +1352,7 @@
 #InitErgm.dyadcov<-function (nw, m, arglist, ...) {
 #  a <- ergm.checkargs("dyadcov", arglist,
 #    varnames = c("x","attrname"),
-#    vartypes = c("matrixnetwork","character"),
+#    vartypes = c("matrix,network","character"),
 #    defaultvalues = list(NULL,NULL),
 #    required = c(TRUE,FALSE))
 #  x<-a$x;attrname<-a$attrname
@@ -1419,7 +1419,7 @@
 #InitErgm.edgecov<-function (nw, m, arglist, ...) {
 #  a <- ergm.checkargs("edgecov", arglist,
 #    varnames = c("x", "attrname"),
-#    vartypes = c("matrixnetwork", "character"),
+#    vartypes = c("matrix,network", "character"),
 #    defaultvalues = list(NULL, NULL),
 #    required = c(TRUE, FALSE))
 #  x<-a$x;attrname<-a$attrname
@@ -1981,7 +1981,7 @@
 #InitErgm.hamming<-function (nw, m, arglist, drop=TRUE, ...) {
 #  a <- ergm.checkargs("hamming", arglist=arglist,
 #    varnames = c("x","cov","attrname"),
-#    vartypes = c("matrixnetwork","matrixnetwork","character"),
+#    vartypes = c("matrix,network","matrix,network","character"),
 #    defaultvalues = list(nw,NULL,NULL),
 #    required = c(FALSE,FALSE,FALSE))
 #  attrname<-a$attrname
@@ -2085,7 +2085,7 @@
 #  ergm.checkdirected("hammingmix", is.directed(nw), requirement=TRUE)
 #  a <- ergm.checkargs("hammingmix", arglist=arglist,
 #    varnames = c("attrname","x","base","contrast"),
-#    vartypes = c("character","matrixnetwork","numeric","logical"),
+#    vartypes = c("character","matrix,network","numeric","logical"),
 #    defaultvalues = list(NULL,nw,0,FALSE),
 #    required = c(TRUE,FALSE,FALSE,FALSE))
 #  attrname<-a$attrname
@@ -2506,7 +2506,7 @@
 #InitErgm.localtriangle<-function (nw, m, arglist, ...) {
 #  a <- ergm.checkargs("localtriangle", arglist,
 #    varnames = c("x", "attrname"),
-#    vartypes = c("matrixnetwork", "character"),
+#    vartypes = c("matrix,network", "character"),
 #    defaultvalues = list(NULL, NULL),
 #    required = c(TRUE, FALSE))
 #  x<-a$x;attrname<-a$attrname

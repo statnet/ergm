@@ -3,7 +3,7 @@
 #      <ostar2deg>                  
 #      <is.invertible>          <summary.statsmatrix.ergm>
 #      <is.ergm>                <ergm.t.summary>
-#      <is.matrixnetwork>       <is.latent>
+#      <is.latent>
 #      <degreedist>             <is.latent.cluster>
 #      <degreedistfactor>       <newnw.extract>
 #      <espartnerdist>          <statnet.edit>
@@ -64,11 +64,6 @@ is.ergm <- function(object)
 {
     class(object)=="ergm"
 }
-
-is.matrixnetwork<-function(x){
- is.matrix(x)|is.network(x)
-}
-
 
 ###############################################################################
 # The <degreedist> function computes and returns the degree distribution for
