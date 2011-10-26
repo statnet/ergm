@@ -99,6 +99,9 @@
 #   parallel           : the number of threads in which to run sampling; default=0
 #   returnMCMCstats    : whether the matrix of change stats from the MCMC should be returned as
 #                        the mcmc object 'sample'; default=TRUE
+#   burnin.retry       : maximum number of times to retry burning in before giving up
+#   burnin.check.last  : last what fraction of burnin to check for trending
+#   burnin.check.alpha : the alpha for the test
 #
 # --RETURNED--
 #   a list of the above parameters
@@ -149,7 +152,12 @@ control.ergm<-function(prop.weights="default",prop.args=list(),
                        gridsize=100,
                        packagenames="ergm",
                        parallel=0,
-                       returnMCMCstats=TRUE){
+                       returnMCMCstats=TRUE,
+                       burnin.retry=0,
+                       burnin.check.last=1/2,
+                       burnin.check.alpha=0.01,
+                       runtime.traceplot=FALSE
+                       ){
   control<-list()
   for(arg in names(formals(sys.function())))
     control[[arg]]<-get(arg)

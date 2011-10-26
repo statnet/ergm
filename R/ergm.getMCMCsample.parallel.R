@@ -212,61 +212,162 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
 ###############################################################################
 
 ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
-  numnetworks <- 0
-  nedges <- c(Clist$nedges,0,0)
-  tails <- Clist$tails
-  heads <- Clist$heads
-  weights <- Clist$weights
-  if(is.null(Clist$weights)){
-    z <- .C("MCMC_wrapper",
-            as.integer(numnetworks), as.integer(nedges),
-            as.integer(tails), as.integer(heads),
-            as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
-            as.integer(Clist$dir), as.integer(Clist$bipartite),
-            as.integer(Clist$nterms),
-            as.character(Clist$fnamestring),
-            as.character(Clist$snamestring),
-            as.character(MHproposal$name), as.character(MHproposal$package),
-            as.double(c(Clist$inputs,MHproposal$inputs)), as.double(eta0),
-            as.integer(MCMCparams$samplesize),
-            s = double(MCMCparams$samplesize * Clist$nstats),
-            as.integer(MCMCparams$burnin), 
-            as.integer(MCMCparams$interval),
-            newnwtails = integer(maxedges),
-            newnwheads = integer(maxedges),
-            as.integer(verbose), as.integer(MHproposal$bd$attribs),
-            as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
-            as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
-            as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)),
-            as.integer(maxedges),
-            status = integer(1),
-            PACKAGE="ergm")
+  # A subroutine to allow caller to override some settings or resume
+  # from a pervious run.
+  dorun <- function(prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL){
+    
+    numnetworks <- 0
 
-  # save the results
-    list(s=z$s, newnwtails=z$newnwtails, newnwheads=z$newnwheads, status=z$status)
-  }else{
-    z <- .C("WtMCMC_wrapper",
-            as.integer(length(nedges)), as.integer(nedges),
-            as.integer(tails), as.integer(heads), as.double(weights),
-            as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
-            as.integer(Clist$dir), as.integer(Clist$bipartite),
-            as.integer(Clist$nterms),
-            as.character(Clist$fnamestring),
-            as.character(Clist$snamestring),
-            as.character(MHproposal$name), as.character(MHproposal$package),
-            as.double(c(Clist$inputs,MHproposal$inputs)), as.double(eta0),
-            as.integer(MCMCparams$samplesize),
-            s = double(MCMCparams$samplesize * Clist$nstats),
-            as.integer(MCMCparams$burnin), 
-            as.integer(MCMCparams$interval),
-            newnwtails = integer(maxedges),
-            newnwheads = integer(maxedges),
-            newnwweights = double(maxedges),
-            as.integer(verbose), 
-            as.integer(maxedges),
-            status = integer(1),
-            PACKAGE="ergm")
-    # save the results
-    list(s=z$s, newnwtails=z$newnwtails, newnwheads=z$newnwheads, newnwweights=z$newnwweights, status=z$status)
+    if(is.null(prev.run)){ # Start from Clist
+      nedges <- c(Clist$nedges,0,0)
+      tails <- Clist$tails
+      heads <- Clist$heads
+      weights <- Clist$weights
+      stats <- rep(0, Clist$nstats)
+    }else{ # Pick up where we left off
+      nedges <- prev.run$newnwtails[1]
+      tails <- prev.run$newnwtails[2:(nedges+1)]
+      heads <- prev.run$newnwheads[2:(nedges+1)]
+      weights <- prev.run$newnwweights[2:(nedges+1)]
+      nedges <- c(nedges,0,0)
+      stats <- matrix(prev.run$s,
+                      ncol=Clist$nstats,
+                      byrow = TRUE)
+      stats <- stats[nrow(stats),]
+    }
+
+    if(is.null(burnin)) burnin <- MCMCparams$burnin
+    if(is.null(samplesize)) samplesize <- MCMCparams$samplesize
+    if(is.null(interval)) interval <- MCMCparams$interval
+    
+    if(is.null(Clist$weights)){
+      z <- .C("MCMC_wrapper",
+              as.integer(numnetworks), as.integer(nedges),
+              as.integer(tails), as.integer(heads),
+              as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
+              as.integer(Clist$dir), as.integer(Clist$bipartite),
+              as.integer(Clist$nterms),
+              as.character(Clist$fnamestring),
+              as.character(Clist$snamestring),
+              as.character(MHproposal$name), as.character(MHproposal$package),
+              as.double(c(Clist$inputs,MHproposal$inputs)), as.double(eta0),
+              as.integer(samplesize),
+              s = as.double(rep(stats, samplesize)),
+              as.integer(burnin), 
+              as.integer(interval),
+              newnwtails = integer(maxedges),
+              newnwheads = integer(maxedges),
+              as.integer(verbose), as.integer(MHproposal$bd$attribs),
+              as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
+              as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
+              as.integer(MHproposal$bd$condAllDegExact), as.integer(length(MHproposal$bd$attribs)),
+              as.integer(maxedges),
+              status = integer(1),
+              PACKAGE="ergm")
+      
+      # save the results
+      list(s=z$s, newnwtails=z$newnwtails, newnwheads=z$newnwheads, status=z$status)
+    }else{
+      z <- .C("WtMCMC_wrapper",
+              as.integer(length(nedges)), as.integer(nedges),
+              as.integer(tails), as.integer(heads), as.double(weights),
+              as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
+              as.integer(Clist$dir), as.integer(Clist$bipartite),
+              as.integer(Clist$nterms),
+              as.character(Clist$fnamestring),
+              as.character(Clist$snamestring),
+              as.character(MHproposal$name), as.character(MHproposal$package),
+              as.double(c(Clist$inputs,MHproposal$inputs)), as.double(eta0),
+              as.integer(samplesize),
+              s = as.double(rep(stats, samplesize)),
+              as.integer(burnin), 
+              as.integer(interval),
+              newnwtails = integer(maxedges),
+              newnwheads = integer(maxedges),
+              newnwweights = double(maxedges),
+              as.integer(verbose), 
+              as.integer(maxedges),
+              status = integer(1),
+              PACKAGE="ergm")
+      # save the results
+      list(s=z$s, newnwtails=z$newnwtails, newnwheads=z$newnwheads, newnwweights=z$newnwweights, status=z$status)
+    }
+  }
+  
+  if(!is.null(MCMCparams$burnin.retry) && MCMCparams$burnin.retry>0){
+    library(coda)
+
+    out <- NULL
+    for(try in seq_len(MCMCparams$burnin.retry+1)){
+      samplesize <- min(MCMCparams$samplesize,MCMCparams$burnin*MCMCparams$burnin.check.last)
+      burnin <- ceiling(MCMCparams$burnin*(1-MCMCparams$burnin.check.last))
+      interval <- ceiling(MCMCparams$burnin*MCMCparams$burnin.check.last/samplesize)
+      out<-dorun(prev.run=out,
+                 burnin = burnin,
+                 samplesize = samplesize,
+                 interval = interval)
+      # Stop if something went wrong.
+      if(out$status!=0) return(out)
+      
+      # Get the vector of the last burnin draws.
+      burnin.stats <- matrix(out$s, nrow=samplesize,
+                             ncol=Clist$nstats,
+                             byrow = TRUE)[,Clist$diagnosable,drop=FALSE]
+      colnames(burnin.stats) <- names(Clist$diagnosable)[Clist$diagnosable==TRUE]
+
+      if(MCMCparams$runtime.traceplot) plot(mcmc(burnin.stats,start=burnin+1,burnin+samplesize*interval,thin=interval),ask=FALSE,smooth=TRUE,density=FALSE)
+      
+      # There is almost certainly a better diagnostic available. Coda
+      # has a few, but they aren't very robust, as far as I've tried.
+
+      # Coda's implementation uses spectrum0, which is not robust enough.
+      my.geweke.diag<-function (x, frac1 = 0.1, frac2 = 0.5){
+        x <- as.mcmc(x)
+        xstart <- c(start(x), end(x) - frac2 * (end(x) - start(x)))
+        xend <- c(start(x) + frac1 * (end(x) - start(x)), end(x))
+        y.variance <- y.mean <- vector("list", 2)
+        for (i in 1:2) {
+          y <- window(x, start = xstart[i], end = xend[i])
+          y.mean[[i]] <- apply(as.matrix(y), 2, mean)
+          y.variance[[i]] <- spectrum0.ar(y)$spec/niter(y)
+        }
+        z <- (y.mean[[1]] - y.mean[[2]])/sqrt(y.variance[[1]] + y.variance[[2]])
+
+        # Output 2-sided P-value, rather than Z score.
+        pnorm(abs(z),0,1,lower.tail=FALSE)*2
+               
+      }
+
+      # Bonferroni adjustment
+      failed <- my.geweke.diag(burnin.stats) < MCMCparams$burnin.check.alpha/ncol(burnin.stats)
+      if(any(failed)){
+        cat("Burn-in failed to converge or mixed very poorly for statistics", paste(names(Clist$diagnosable[Clist$diagnosable])[failed],collapse=", "), ". Rerunning.\n")
+        if(try == MCMCparams$burnin.retry+1) warning("Burn-in failed to converge after retries.")
+      }
+      else break
+    }
+
+    # Do the actual sampling run. Note that we've already done the burnin.
+    out <- dorun(prev.run=out, burnin=0)
+    if(MCMCparams$runtime.traceplot) {
+      stats <- matrix(out$s, nrow=MCMCparams$samplesize,
+                      ncol=Clist$nstats,
+                      byrow = TRUE)[,Clist$diagnosable,drop=FALSE]
+      colnames(stats) <- names(Clist$diagnosable)[Clist$diagnosable==TRUE]
+      
+      plot(mcmc(stats,start=1,end=MCMCparams$samplesize*MCMCparams$interval,thin=MCMCparams$interval),ask=FALSE,smooth=TRUE,density=FALSE)
+    }
+    out
+  } else {
+    out <- dorun()
+    if(MCMCparams$runtime.traceplot) {
+      stats <- matrix(out$s, nrow=MCMCparams$samplesize,
+                      ncol=Clist$nstats,
+                      byrow = TRUE)[,Clist$diagnosable,drop=FALSE]
+      colnames(stats) <- names(Clist$diagnosable)[Clist$diagnosable==TRUE]
+      
+      plot(mcmc(stats,start=MCMCparams$burnin+1,MCMCparams$burnin+MCMCparams$samplesize*MCMCparams$interval,thin=MCMCparams$interval),ask=FALSE,smooth=TRUE,density=FALSE)
+    }
+    out
   }
 }

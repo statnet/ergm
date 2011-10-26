@@ -117,6 +117,11 @@ ergm.Cprepare <- function(nw, m, response=NULL)
   while (substring(Clist$snamestring, 1, 1)==" ")
     Clist$snamestring <- substring(Clist$snamestring, 2)
 
+  # We don't care about diagnostics for terms that are not being
+  # estimated.
+  Clist$diagnosable <- ! m$etamap$offsetmap
+  names(Clist$diagnosable) <- m$coef.names[!m$etamap$offsetmap]
+  
   if("stergm.order" %in% names(m)) Clist$stergm.order.code <- switch(m$stergm.order,
                                                               DissThenForm=1,
                                                               DissAndForm=2,
