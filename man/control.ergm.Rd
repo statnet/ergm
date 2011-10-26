@@ -29,7 +29,9 @@ control.ergm(prop.weights = "default", prop.args = NULL,
              RobMon.phase1n_base = 7, RobMon.phase2n_base = 100, RobMon.phase2sub
              = 7, RobMon.init_gain = 0.5, RobMon.phase3n = 500, 
              stepMCMCsize=100, gridsize=100,
-             packagenames="ergm", parallel = 0, returnMCMCstats = TRUE)
+             packagenames="ergm", parallel = 0, returnMCMCstats = TRUE,
+             burnin.retries=0, burnin.check.alpha=0.01,
+             runtime.traceplot=FALSE)
              }
 \details{
     This function is only used within a call to the \code{\link{ergm}} function.
@@ -196,6 +198,15 @@ control.ergm(prop.weights = "default", prop.args = NULL,
     phase in the dynamic network simulation. }
   \item{packagenames}{Names of packages in which changestatistics are found.}
   \item{parallel}{ Number of threads in which to run the sampling. }
+  \item{burnin.retries}{Maximum number of times to rerun the burn-in phase if a failure to
+    converge is detected. Defaults to 0 for no checks.}
+  \item{burnin.check.last}{What fraction at the end of the burn-in phase
+    to use for detecting non-convergence. Defaults to half.}
+  \item{burnin.check.alpha}{Maximum Bonferroni-adjusted P-value under the
+    Geweke test for a statistic to be considered unconverged. Defaults
+    to 0.01.}
+  \item{runtime.traceplots}{Whether to plot traceplots of the MCMC
+    sample after every MCMC MLE iteration.}
 }
 \value{
   A list with arguments as components.

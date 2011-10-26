@@ -294,11 +294,11 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
     }
   }
   
-  if(!is.null(MCMCparams$burnin.retry) && MCMCparams$burnin.retry>0){
+  if(!is.null(MCMCparams$burnin.retries) && MCMCparams$burnin.retries>0){
     library(coda)
 
     out <- NULL
-    for(try in seq_len(MCMCparams$burnin.retry+1)){
+    for(try in seq_len(MCMCparams$burnin.retries+1)){
       samplesize <- min(MCMCparams$samplesize,MCMCparams$burnin*MCMCparams$burnin.check.last)
       burnin <- ceiling(MCMCparams$burnin*(1-MCMCparams$burnin.check.last))
       interval <- ceiling(MCMCparams$burnin*MCMCparams$burnin.check.last/samplesize)
@@ -342,7 +342,7 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
       failed <- my.geweke.diag(burnin.stats) < MCMCparams$burnin.check.alpha/ncol(burnin.stats)
       if(any(failed)){
         cat("Burn-in failed to converge or mixed very poorly for statistics", paste(names(Clist$diagnosable[Clist$diagnosable])[failed],collapse=", "), ". Rerunning.\n")
-        if(try == MCMCparams$burnin.retry+1) warning("Burn-in failed to converge after retries.")
+        if(try == MCMCparams$burnin.retries+1) warning("Burn-in failed to converge after retries.")
       }
       else break
     }

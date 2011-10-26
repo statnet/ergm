@@ -153,7 +153,7 @@ control.ergm<-function(prop.weights="default",prop.args=list(),
                        packagenames="ergm",
                        parallel=0,
                        returnMCMCstats=TRUE,
-                       burnin.retry=0,
+                       burnin.retries=0,
                        burnin.check.last=1/2,
                        burnin.check.alpha=0.01,
                        runtime.traceplot=FALSE
