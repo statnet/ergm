@@ -197,30 +197,8 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
     # non-sequential
     MCMCparams.parallel <- MCMCparams
     MCMCparams.parallel$samplesize <- 1
-    capture.output(require(snow, quietly=TRUE, warn.conflicts = FALSE))
-#
-# Start PVM if necessary
-#
-    if(getClusterOption("type")=="PVM"){
-     if(verbose){cat("Engaging warp drive using PVM ...\n")}
-     capture.output(require(rpvm, quietly=TRUE, warn.conflicts = FALSE))
-     PVM.running <- try(.PVM.config(), silent=TRUE)
-     if(inherits(PVM.running,"try-error")){
-      hostfile <- paste(Sys.getenv("HOME"),"/.xpvm_hosts",sep="")
-      .PVM.start.pvmd(hostfile)
-      cat("no problem... PVM started by ergm...\n")
-     }
-    }else{
-     if(verbose){cat("Engaging warp drive using MPI ...\n")}
-    }
-#
-#   Start Cluster
-#
-    cl<-makeCluster(MCMCparams$parallel)
-    clusterSetupRNG(cl)
-    if("ergm" %in% MCMCparams$packagenames){
-     clusterEvalQ(cl,library(ergm))
-    }
+    
+    cl <- ergm.getCluster(MCMCparams, verbose)
 #
 #   Run the jobs with rpvm or Rmpi
 #
