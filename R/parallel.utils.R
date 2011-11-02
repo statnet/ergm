@@ -2,7 +2,7 @@
 ergm.getCluster <- function(control, verbose=FALSE){
   capture.output(require(snow, quietly=TRUE, warn.conflicts = FALSE))
 
-  reqs<-list("PVM"="rpvm", "MPI"="rmpi")
+  reqs<-list("PVM"="rpvm", "MPI"="Rmpi")
     
   for(type in unique(c(getClusterOption("type"),"PVM","MPI","SOCK"))){
     if(verbose) cat("Attempting ",type,"... ", sep="")
