@@ -198,10 +198,14 @@ control.ergm(prop.weights = "default", prop.args = NULL,
     phase in the dynamic network simulation. }
   \item{packagenames}{Names of packages in which changestatistics are found.}
   \item{parallel}{ Number of threads in which to run the
-    sampling. Defaults to 0 (no parallelism). }
-  \item{parallel.type}{ Mechanism to use for parallel
+    sampling. Defaults to 0 (no parallelism). See the entry on
+    \link[=ergm-parallel]{parallel processing} for
+    details and troubleshooting. }
+  \item{parallel.type}{ API to use for parallel
     processing. Supported values are \code{"PVM"}, \code{"MPI"}, and
-    \code{"SOCK"}. Defaults to using the \code{\link{snow}} package default. }
+    \code{"SOCK"}. Defaults to using the \code{\link{snow}} package
+    default.
+  }
   \item{burnin.retries}{Maximum number of times to rerun the burn-in phase if a failure to
     converge is detected. Defaults to 0 for no checks.}
   \item{burnin.check.last}{What fraction at the end of the burn-in phase

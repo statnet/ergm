@@ -5,7 +5,7 @@
 Fit, Simulate and Diagnose Exponential-Family Models for Networks
 }
 \description{
-\code{\link{ergm}} is a collection of functions to plot, fit, diagnose, and simulate from random 
+\code{\link[=ergm-package]{ergm}} is a collection of functions to plot, fit, diagnose, and simulate from random 
 graph models. For a list of functions type: \code{help(package='ergm')}
 
 For a complete list of the functions, use \code{library(help="ergm")} 
