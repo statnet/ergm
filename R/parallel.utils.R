@@ -1,3 +1,6 @@
+# Set up a flag for whether we are in charge of MPI cluster.
+ergm.MPIcluster.started <- FALSE
+
 # Acquires a cluster of specified type.
 ergm.getCluster <- function(control, verbose=FALSE){
   capture.output(require(snow, quietly=TRUE, warn.conflicts = FALSE))
@@ -19,9 +22,11 @@ ergm.getCluster <- function(control, verbose=FALSE){
                },
                MPI={
                  # See if a preexisting cluster exists.
-                 if(is.null(getMPIcluster()))
+                 if(is.null(getMPIcluster())){
+                   # Remember that we are responsible for it.
+                   assign("ergm.MPIcluster.started", TRUE, "package:ergm")
                    makeCluster(control$parallel,type="MPI")
-                 else
+                 }else
                    getMPIcluster()
                },
                SOCK={
@@ -38,14 +43,14 @@ ergm.getCluster <- function(control, verbose=FALSE){
 }
 
 
-# Shuts down clusters. MPI cannot be stopped reliably and restarted
-# without closing R.
+# Shuts down clusters.
 ergm.stopCluster <- function(object, ...)
   UseMethod("ergm.stopCluster")
 
-#ergm.stopCluster.MPIcluster <- function(object, ...){
-#  # Don't stop MPI clusters!
-#}
+# Only stop the MPI cluster if we were the ones who had started it.
+ergm.stopCluster.MPIcluster <- function(object, ...){
+  if(ergm.MPIcluster.started) stopCluster(object)
+}
 
 ergm.stopCluster.default <- function(object, ...){
   stopCluster(object)
