@@ -208,10 +208,8 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
 		options(warn=0)
 	}
 	
-	endrun <- MCMCparams$burnin+MCMCparams$interval*(MCMCparams$samplesize-1)
-	attr(v$sample, "mcpar") <- c(MCMCparams$burnin+1, endrun, MCMCparams$interval)
-	attr(v$sample, "class") <- "mcmc"
-	v$null.deviance <- 2*network.dyadcount(nw.orig)*log(2)
+  v$sample <- ergm.sample.tomcmc(v$sample, MCMCparams)
+  v$null.deviance <- 2*network.dyadcount(nw.orig)*log(2)
 	v$mle.lik <- mle.lik
 	v$etamap <- model$etamap
   v$iterations <- iter

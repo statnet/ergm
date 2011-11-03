@@ -259,9 +259,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
   # of all eta values, from the initial eta0 to the final estimate
   # v$allparamvals <- parametervalues
 
-  endrun <- MCMCparams$burnin+MCMCparams$interval*(MCMCparams$samplesize-1)
-  attr(v$sample, "mcpar") <- c(MCMCparams$burnin+1, endrun, MCMCparams$interval)
-  attr(v$sample, "class") <- "mcmc"
+  v$sample <- ergm.sample.tomcmc(v$sample, MCMCparams)
   v$null.deviance <- 2*network.dyadcount(nw.orig)*log(2)
   v$etamap <- model$etamap
   v

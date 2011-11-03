@@ -167,9 +167,7 @@ cat(paste("theta new:",theta,"\n"))
                    metric=control$metric,
                    compress=control$compress, verbose=verbose)
 
-  endrun <- burnin+interval*(ve$samplesize-1)
-  attr(ve$sample, "mcpar") <- c(burnin+1, endrun, interval)
-  attr(ve$sample, "class") <- "mcmc"
+  ve$sample <- ergm.sample.tomcmc(ve$sample, MCMCparams)
   ve$null.deviance <- 2*network.dyadcount(nw)*log(2)
   ve$mle.lik <- -ve$null.deviance/2 + ve$loglikelihood
 # The next is the right one to uncomment

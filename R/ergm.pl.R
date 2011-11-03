@@ -212,7 +212,7 @@ as.integer(length(data$MHproposal$bd$attribs)),
        wend <- c(wend, z$wend)
       }
       rm(outlist)
-      stopCluster(cl)
+      ergm.stopCluster(cl)
      }else{
       z <- simfn(1, data)
       zy <- z$zy

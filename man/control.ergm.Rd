@@ -29,7 +29,7 @@ control.ergm(prop.weights = "default", prop.args = NULL,
              RobMon.phase1n_base = 7, RobMon.phase2n_base = 100, RobMon.phase2sub
              = 7, RobMon.init_gain = 0.5, RobMon.phase3n = 500, 
              stepMCMCsize=100, gridsize=100,
-             packagenames="ergm", parallel = 0, returnMCMCstats = TRUE,
+             packagenames="ergm", parallel = 0, parallel.type = NULL, returnMCMCstats = TRUE,
              burnin.retries=0, burnin.check.alpha=0.01,
              runtime.traceplot=FALSE)
              }
@@ -197,7 +197,11 @@ control.ergm(prop.weights = "default", prop.args = NULL,
   \item{dyninterval}{ Number of Metropolis-Hastings proposal for each
     phase in the dynamic network simulation. }
   \item{packagenames}{Names of packages in which changestatistics are found.}
-  \item{parallel}{ Number of threads in which to run the sampling. }
+  \item{parallel}{ Number of threads in which to run the
+    sampling. Defaults to 0 (no parallelism). }
+  \item{parallel.type}{ Mechanism to use for parallel
+    processing. Supported values are \code{"PVM"}, \code{"MPI"}, and
+    \code{"SOCK"}. Defaults to using the \code{\link{snow}} package default. }
   \item{burnin.retries}{Maximum number of times to rerun the burn-in phase if a failure to
     converge is detected. Defaults to 0 for no checks.}
   \item{burnin.check.last}{What fraction at the end of the burn-in phase

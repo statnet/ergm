@@ -119,7 +119,7 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
     if(verbose){cat("parallel samplesize=",nrow(statsmatrix),"by",
 	MCMCparams.parallel$samplesize,"\n")}
 
-    stopCluster(cl)
+    ergm.stopCluster(cl)
   }
   }
   colnames(statsmatrix) <- model$coef.names
@@ -291,9 +291,6 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
 
       if(MCMCparams$runtime.traceplot) plot(mcmc(burnin.stats,start=burnin+1,burnin+samplesize*interval,thin=interval),ask=FALSE,smooth=TRUE,density=FALSE)
       
-      # There is almost certainly a better diagnostic available. Coda
-      # has a few, but they aren't very robust, as far as I've tried.
-
       # Coda's implementation uses spectrum0, which is not robust enough.
       my.geweke.diag<-function (x, frac1 = 0.1, frac2 = 0.5){
         x <- as.mcmc(x)

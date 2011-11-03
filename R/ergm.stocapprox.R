@@ -133,9 +133,7 @@ ergm.stocapprox <- function(theta0, nw, model, Clist,
 # Important: Keep R-M (pre-NR) theta
 # ve$coef <- theta
 #
-  endrun <- MCMCparams$burnin+MCMCparams$interval*(ve$samplesize-1)
-  attr(ve$sample, "mcpar") <- c(MCMCparams$burnin+1, endrun, MCMCparams$interval)
-  attr(ve$sample, "class") <- "mcmc"
+  ve$sample <- ergm.sample.tomcmc(ve$sample, MCMCparams)
   ve$null.deviance <- 2*network.dyadcount(nw)*log(2)
   ve$mle.lik <- -ve$null.deviance/2 + ve$loglikelihood
 # The next is the right one to uncomment

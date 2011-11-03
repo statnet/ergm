@@ -225,7 +225,7 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
      }
      out.mat[i,] <- curstats + z$statsmatrix
     }
-    stopCluster(cl)
+    ergm.stopCluster(cl)
   }
   
   if (statsonly)
