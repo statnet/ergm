@@ -74,8 +74,12 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
   statshift <- Clist$obs - Clist$meanstats
   MCMCparams$meanstats <- Clist$meanstats
 
+  # Is there observational structure?
+  obs <- ! is.null(MHproposal.obs)
+  
   # Initialize MCMCparams.obs in case there is observation structure
-  if(!is.null(MHproposal.obs)){
+  
+  if(obs){
     MCMCparams.obs <- MCMCparams
     if(!is.null(MCMCparams$obs.MCMCsamplesize)){
       MCMCparams.obs$MCMCsamplesize <- MCMCparams$obs.MCMCsamplesize
@@ -118,7 +122,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     nw.returned <- network.copy(z$newnetwork)
 
     ##  Does the same, if observation process:
-    if(!is.null(MHproposal.obs)){
+    if(obs){
       z.obs <- ergm.getMCMCsample.parallel(nw, model, MHproposal.obs, mcmc.eta0, MCMCparams.obs, verbose, response=response)
       statsmatrix.obs <- sweep(z.obs$statsmatrix, 2, statshift, "+")
       colnames(statsmatrix.obs) <- model$coef.names
@@ -241,7 +245,9 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
   # object returned by ergm.estimate.  Instead, it is more transparent
   # if we build the output object (v) from scratch, of course using 
   # some of the info returned from ergm.estimate.
-  v$sample <- statsmatrix.0
+  v$sample <- ergm.sample.tomcmc(statsmatrix.0, MCMCparams) 
+  if(obs) v$sample.obs <- ergm.sample.tomcmc(statsmatrix.0.obs, MCMCparams)
+  
   v$burnin <- MCMCparams$burnin
   v$samplesize <- MCMCparams$samplesize
   v$interval <- MCMCparams$interval
@@ -259,7 +265,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
   # of all eta values, from the initial eta0 to the final estimate
   # v$allparamvals <- parametervalues
 
-  v$sample <- ergm.sample.tomcmc(v$sample, MCMCparams)
+
   v$null.deviance <- 2*network.dyadcount(nw.orig)*log(2)
   v$etamap <- model$etamap
   v
