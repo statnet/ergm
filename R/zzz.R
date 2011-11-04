@@ -41,6 +41,10 @@
 #   cat('Please cite it when you use it!\n')
 #   cat('To cite, see citation("ergm")\n')
 #   require(network, quietly=TRUE)
+  
+  # Remember where this package is located, to later make sure we load
+  # the same version on a cluster node.
+  assign("myLibLoc",lib,pos="package:ergm")
 }
 
 

@@ -57,7 +57,9 @@ control.simulate<-control.simulate.formula<-function(prop.weights="default",
                                                      maxchanges=1000000,
                                                      packagenames="ergm",
                                                      network.output="network",
-                                                     parallel=0){
+                                                     parallel=0,
+                                                     parallel.type=NULL,
+                                                     parallel.version.check=TRUE){
   control<-list()
   for(arg in names(formals(sys.function())))
     control[[arg]]<-get(arg)
@@ -71,7 +73,9 @@ control.simulate.ergm<-function(prop.weights="default",
                                 maxedges=20000,
                                 packagenames="ergm",
                                 network.output="network",
-                                parallel=0){
+                                parallel=0,
+                                parallel.type=NULL,
+                                parallel.version.check=TRUE){
   control<-list()
   for(arg in names(formals(sys.function())))
     control[[arg]]<-get(arg)

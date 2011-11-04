@@ -136,13 +136,11 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
   names(curstats) <- m$coef.names
 
   # prepare MCMCparams object
-  MCMCparams <- list(samplesize=1,
-                     maxedges = 1+max(control$maxedges, Clist$nedges),
-#                     stats=curstats, # deprecated as of version 2.2-3
-                     burnin=burnin,
-                     interval=interval,
-                     parallel=control$parallel,
-                     packagenames=control$packagenames)
+  MCMCparams <- c(control,
+                  list(samplesize=1,
+                       burnin=burnin,
+                       interval=interval))
+  MCMCparams$maxedges <- 1+max(control$maxedges, Clist$nedges)
   
   # Explain how many iterations and steps will ensue if verbose==TRUE
   if (verbose) {

@@ -137,7 +137,9 @@ control.stergm<-function(prop.weights.form="default",prop.args.form=NULL,
                          NM.interval=1000,
                          NM.burnin=1000,
                          packagenames="ergm",
-                         parallel=0){
+                         parallel=0,
+                         parallel.type=NULL,
+                         parallel.version.check=TRUE){
   control<-list()
   for(arg in names(formals(sys.function())))
     control[[arg]]<-get(arg)

@@ -29,7 +29,9 @@ control.ergm(prop.weights = "default", prop.args = NULL,
              RobMon.phase1n_base = 7, RobMon.phase2n_base = 100, RobMon.phase2sub
              = 7, RobMon.init_gain = 0.5, RobMon.phase3n = 500, 
              stepMCMCsize=100, gridsize=100,
-             packagenames="ergm", parallel = 0, parallel.type = NULL, returnMCMCstats = TRUE,
+             packagenames="ergm",
+             parallel = 0, parallel.type = NULL, parallel.version.check=TRUE,
+             returnMCMCstats = TRUE,
              burnin.retries=0, burnin.check.alpha=0.01,
              runtime.traceplot=FALSE)
              }
@@ -204,8 +206,10 @@ control.ergm(prop.weights = "default", prop.args = NULL,
   \item{parallel.type}{ API to use for parallel
     processing. Supported values are \code{"PVM"}, \code{"MPI"}, and
     \code{"SOCK"}. Defaults to using the \code{\link{snow}} package
-    default.
-  }
+    default. }
+  \item{parallel.version.check}{ Whether to check that the version of
+    \code{\link[=ergm-package]{ergm}} running on the slave nodes is the
+    same as that running on the master node. Defaults to \code{TRUE}. }
   \item{burnin.retries}{Maximum number of times to rerun the burn-in phase if a failure to
     converge is detected. Defaults to 0 for no checks.}
   \item{burnin.check.last}{What fraction at the end of the burn-in phase
