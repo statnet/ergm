@@ -29,12 +29,15 @@ WtD_CHANGESTAT_FN(d_mutual_wt_nabsdiff);
 WtD_CHANGESTAT_FN(d_mutual_wt_threshold);
 
 /********************  changestats:   N    ***********/
+WtD_CHANGESTAT_FN(d_nodecorr);
 WtD_CHANGESTAT_FN(d_nodecov_nonzero);
 WtD_CHANGESTAT_FN(d_nodecov_sum);
 WtD_CHANGESTAT_FN(d_nodefactor_nonzero);
 WtD_CHANGESTAT_FN(d_nodefactor_sum);
+WtD_CHANGESTAT_FN(d_nodeicorr);
 WtD_CHANGESTAT_FN(d_nodeifactor_nonzero);
 WtD_CHANGESTAT_FN(d_nodeifactor_sum);
+WtD_CHANGESTAT_FN(d_nodeocorr);
 WtD_CHANGESTAT_FN(d_nodeofactor_nonzero);
 WtD_CHANGESTAT_FN(d_nodeofactor_sum);
 WtD_CHANGESTAT_FN(d_nonzero);

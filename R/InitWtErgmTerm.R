@@ -154,6 +154,69 @@ InitWtErgmTerm.sum<-function(nw, arglist, response, ...) {
   }
 }
 
+InitWtErgmTerm.nodecorr<-function (nw, arglist, response, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, bipartite = FALSE,
+                      varnames = NULL,
+                      vartypes = NULL,
+                      defaultvalues = NULL,
+                      required = NULL)
+  ### Process the arguments
+
+  list(name="nodecorr",
+       coef.names = "nodecorr",
+       dependence = TRUE
+       )
+}
+
+InitWtErgmTerm.nodesqrtcorr<-function (nw, arglist, response, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, bipartite = FALSE, nonnegative=TRUE, response=response,
+                      varnames = NULL,
+                      vartypes = NULL,
+                      defaultvalues = NULL,
+                      required = NULL)
+  ### Process the arguments
+
+  list(name="nodesqrtcorr",
+       coef.names = "nodesqrtcorr",
+       dependence = TRUE,
+       minval = 0
+       )
+}
+
+InitWtErgmTerm.nodeosqrtcorr<-function (nw, arglist, response, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, bipartite = FALSE, nonnegative=TRUE, response=response,
+                      varnames = NULL,
+                      vartypes = NULL,
+                      defaultvalues = NULL,
+                      required = NULL)
+  ### Process the arguments
+
+  list(name="nodeosqrtcorr",
+       coef.names = "nodeosqrtcorr",
+       dependence = TRUE,
+       minval = 0
+       )
+}
+
+InitWtErgmTerm.nodeisqrtcorr<-function (nw, arglist, response, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, bipartite = FALSE, nonnegative=TRUE, response=response,
+                      varnames = NULL,
+                      vartypes = NULL,
+                      defaultvalues = NULL,
+                      required = NULL)
+  ### Process the arguments
+
+  list(name="nodeisqrtcorr",
+       coef.names = "nodeisqrtcorr",
+       dependence = TRUE,
+       minval = 0
+       )
+}
+
 InitWtErgmTerm.nodefactor<-function (nw, arglist, response, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, 

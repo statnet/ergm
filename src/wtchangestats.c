@@ -280,6 +280,25 @@ WtD_CHANGESTAT_FN(d_nodecov_nonzero){
 }
 
 /*****************
+ stat: node corr 
+*****************/
+WtD_CHANGESTAT_FN(d_nodecorr){
+  EXEC_THROUGH_TOGGLES({
+      for(Vertex j=1; j<=N_NODES; j++){
+	if(j==HEAD || j==TAIL) continue;
+	double ytj = GETWT(TAIL,j);
+	CHANGE_STAT[0] += (NEWWT*ytj) - (OLDWT*ytj);
+      }
+
+      for(Vertex i=1; i<=N_NODES; i++){
+	if(i==TAIL || i==HEAD) continue;
+	double yih = GETWT(i,HEAD);
+	CHANGE_STAT[0] += (NEWWT*yih) - (OLDWT*yih);
+      }
+    });
+}
+
+/*****************
  stat: nodecov (sum)
 *****************/
 WtD_CHANGESTAT_FN(d_nodecov_sum){ 
@@ -370,9 +389,22 @@ WtD_CHANGESTAT_FN(d_nodefactor_sum){
 WtD_CHANGESTAT_FN(d_nodeicorr){
   EXEC_THROUGH_TOGGLES({
       for(Vertex i=1; i<=N_NODES; i++){
-	if(i==TAIL) continue;
+	if(i==TAIL || i==HEAD) continue;
 	double yih = GETWT(i,HEAD);
 	CHANGE_STAT[0] += (NEWWT*yih) - (OLDWT*yih);
+      }
+    });
+}
+
+/*****************
+ stat: node i[n] sq[uare] r[oo]t corr 
+*****************/
+WtD_CHANGESTAT_FN(d_nodeisqrtcorr){
+  EXEC_THROUGH_TOGGLES({
+      for(Vertex i=1; i<=N_NODES; i++){
+	if(i==TAIL || i==HEAD) continue;
+	double yih = GETWT(i,HEAD);
+	CHANGE_STAT[0] += sqrt(NEWWT*yih) - sqrt(OLDWT*yih);
       }
     });
 }
@@ -419,9 +451,22 @@ WtD_CHANGESTAT_FN(d_nodeifactor_sum){
 WtD_CHANGESTAT_FN(d_nodeocorr){
   EXEC_THROUGH_TOGGLES({
       for(Vertex j=1; j<=N_NODES; j++){
-	if(j==HEAD) continue;
+	if(j==HEAD || j==TAIL) continue;
 	double ytj = GETWT(TAIL,j);
 	CHANGE_STAT[0] += (NEWWT*ytj) - (OLDWT*ytj);
+      }
+    });
+}
+
+/*****************
+ stat: node o[ut] sq[uare]r[oo]t corr 
+*****************/
+WtD_CHANGESTAT_FN(d_nodeosqrtcorr){
+  EXEC_THROUGH_TOGGLES({
+      for(Vertex j=1; j<=N_NODES; j++){
+	if(j==HEAD || j==TAIL) continue;
+	double ytj = GETWT(TAIL,j);
+	CHANGE_STAT[0] += sqrt(NEWWT*ytj) - sqrt(OLDWT*ytj);
       }
     });
 }
@@ -460,6 +505,25 @@ WtD_CHANGESTAT_FN(d_nodeofactor_sum){
       if (tailattr == factorval) CHANGE_STAT[j] += s;
     }
   });
+}
+
+/*****************
+ stat: node sq[uare]r[oo]t corr 
+*****************/
+WtD_CHANGESTAT_FN(d_nodesqrtcorr){
+  EXEC_THROUGH_TOGGLES({
+      for(Vertex j=1; j<=N_NODES; j++){
+	if(j==HEAD || j==TAIL) continue;
+	double ytj = GETWT(TAIL,j);
+	CHANGE_STAT[0] += sqrt(NEWWT*ytj) - sqrt(OLDWT*ytj);
+      }
+
+      for(Vertex i=1; i<=N_NODES; i++){
+	if(i==TAIL || i==HEAD) continue;
+	double yih = GETWT(i,HEAD);
+	CHANGE_STAT[0] += sqrt(NEWWT*yih) - sqrt(OLDWT*yih);
+      }
+    });
 }
 
 
