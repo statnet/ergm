@@ -311,6 +311,8 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
 
       # Bonferroni adjustment
       failed <- my.geweke.diag(burnin.stats) < MCMCparams$burnin.check.alpha/ncol(burnin.stats)
+      # If a statistic didn't mix at all, fail it as well.
+      failed[is.na(failed)] <- TRUE
       if(any(failed)){
         cat("Burn-in failed to converge or mixed very poorly for statistics", paste(names(Clist$diagnosable[Clist$diagnosable])[failed],collapse=", "), ". Rerunning.\n")
         if(try == MCMCparams$burnin.retries+1) warning("Burn-in failed to converge after retries.")
