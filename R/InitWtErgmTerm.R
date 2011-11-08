@@ -172,48 +172,54 @@ InitWtErgmTerm.nodecorr<-function (nw, arglist, response, ...) {
 InitWtErgmTerm.nodesqrtcorr<-function (nw, arglist, response, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, bipartite = FALSE, nonnegative=TRUE, response=response,
-                      varnames = NULL,
-                      vartypes = NULL,
-                      defaultvalues = NULL,
-                      required = NULL)
+                      varnames = c("demean", "norm"),
+                      vartypes = c("logical", "logical"),
+                      defaultvalues = list(FALSE, FALSE),
+                      required = c(FALSE, FALSE))
   ### Process the arguments
 
-  list(name="nodesqrtcorr",
-       coef.names = "nodesqrtcorr",
+  list(name=if(a$demean) "nodesqrtcorr_demeaned" else if(a$norm) "nodesqrtcorr_normed" else "nodesqrtcorr",
+       coef.names = if(a$demean) "nodesqrtcorr.demeaned" else if(a$norm) "nodesqrtcorr.normed" else "nodesqrtcorr",
        dependence = TRUE,
-       minval = 0
+       # arithmetic mean >= geometric mean
+       minval = if(a$demean) NULL else 0,
+       maxval = if(a$demean) 0 else NULL
        )
 }
 
 InitWtErgmTerm.nodeosqrtcorr<-function (nw, arglist, response, ...) {
   ### Check the network and arguments to make sure they are appropriate.
-  a <- check.ErgmTerm(nw, arglist, bipartite = FALSE, nonnegative=TRUE, response=response,
-                      varnames = NULL,
-                      vartypes = NULL,
-                      defaultvalues = NULL,
-                      required = NULL)
+  a <- check.ErgmTerm(nw, arglist, directed = TRUE, nonnegative=TRUE, response=response,
+                      varnames = c("demean", "norm"),
+                      vartypes = c("logical", "logical"),
+                      defaultvalues = list(FALSE, FALSE),
+                      required = c(FALSE, FALSE))
   ### Process the arguments
 
-  list(name="nodeosqrtcorr",
-       coef.names = "nodeosqrtcorr",
+  list(name=if(a$demean) "nodeosqrtcorr_demeaned" else if(a$norm) "nodeosqrtcorr_normed" else "nodeosqrtcorr",
+       coef.names = if(a$demean) "nodeosqrtcorr.demeaned" else if(a$norm) "nodeosqrtcorr.normed" else "nodeosqrtcorr",
        dependence = TRUE,
-       minval = 0
+       # arithmetic mean >= geometric mean
+       minval = if(a$demean) NULL else 0,
+       maxval = if(a$demean) 0 else NULL
        )
 }
 
 InitWtErgmTerm.nodeisqrtcorr<-function (nw, arglist, response, ...) {
   ### Check the network and arguments to make sure they are appropriate.
-  a <- check.ErgmTerm(nw, arglist, bipartite = FALSE, nonnegative=TRUE, response=response,
-                      varnames = NULL,
-                      vartypes = NULL,
-                      defaultvalues = NULL,
-                      required = NULL)
+  a <- check.ErgmTerm(nw, arglist, directed = TRUE, nonnegative=TRUE, response=response,
+                      varnames = c("demean", "norm"),
+                      vartypes = c("logical", "logical"),
+                      defaultvalues = list(FALSE, FALSE),
+                      required = c(FALSE, FALSE))
   ### Process the arguments
 
-  list(name="nodeisqrtcorr",
-       coef.names = "nodeisqrtcorr",
+  list(name=if(a$demean) "nodeisqrtcorr_demeaned" else if(a$norm) "nodeisqrtcorr_normed" else "nodeisqrtcorr",
+       coef.names = if(a$demean) "nodeisqrtcorr.demeaned" else if(a$norm) "nodeisqrtcorr.normed" else "nodeisqrtcorr",
        dependence = TRUE,
-       minval = 0
+       # arithmetic mean >= geometric mean
+       minval = if(a$demean) NULL else 0,
+       maxval = if(a$demean) 0 else NULL
        )
 }
 

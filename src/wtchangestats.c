@@ -410,12 +410,45 @@ WtD_CHANGESTAT_FN(d_nodeisqrtcorr){
 }
 
 /*****************
+ stat: node i[n] sq[uare] r[oo]t corr "demeaned"
+*****************/
+WtD_CHANGESTAT_FN(d_nodeisqrtcorr_demeaned){
+  EXEC_THROUGH_TOGGLES({
+      for(Vertex i=1; i<=N_NODES; i++){
+	if(i==TAIL || i==HEAD) continue;
+	double yih = GETWT(i,HEAD);
+	CHANGE_STAT[0] += sqrt(NEWWT*yih) - sqrt(OLDWT*yih);
+      }
+
+      // The idea is to subtract the arithmetic mean from the
+      // geometric mean. Each dyad's change affects (N_NODES-2)
+      // other dyad's "correlations". Since dyads other than
+      // (TAIL,HEAD) are fixed, we can simply combine (N_NODES-2) *
+      // (NEWWT/2-OLDWT/2) and simplify:
+      CHANGE_STAT[0] -= (N_NODES-2)*(NEWWT - OLDWT)/2;
+    });
+}
+
+/*****************
+ stat: node i[n] sq[uare] r[oo]t corr "normed"
+*****************/
+WtD_CHANGESTAT_FN(d_nodeisqrtcorr_normed){
+  EXEC_THROUGH_TOGGLES({
+      for(Vertex i=1; i<=N_NODES; i++){
+	if(i==TAIL || i==HEAD) continue;
+	double yih = GETWT(i,HEAD);
+	CHANGE_STAT[0] += (sqrt(NEWWT*yih) - sqrt(OLDWT*yih))/(N_NODES-2);
+      }
+    });
+}
+
+
+/*****************
  stat: nodeifactor (nonzero)
 *****************/
 WtD_CHANGESTAT_FN(d_nodeifactor_nonzero){ 
   double s, factorval;
   int j, headattr;
-  
   
   EXEC_THROUGH_TOGGLES({
       s = (NEWWT!=0) - (OLDWT!=0);
@@ -433,7 +466,6 @@ WtD_CHANGESTAT_FN(d_nodeifactor_nonzero){
 WtD_CHANGESTAT_FN(d_nodeifactor_sum){ 
   double s, factorval;
   int j, headattr;
-  
   
   EXEC_THROUGH_TOGGLES({
     s = NEWWT - OLDWT;
@@ -467,6 +499,39 @@ WtD_CHANGESTAT_FN(d_nodeosqrtcorr){
 	if(j==HEAD || j==TAIL) continue;
 	double ytj = GETWT(TAIL,j);
 	CHANGE_STAT[0] += sqrt(NEWWT*ytj) - sqrt(OLDWT*ytj);
+      }
+    });
+}
+
+/*****************
+ stat: node o[ut] sq[uare]r[oo]t corr "demeaned"
+*****************/
+WtD_CHANGESTAT_FN(d_nodeosqrtcorr_demeaned){
+  EXEC_THROUGH_TOGGLES({
+      for(Vertex j=1; j<=N_NODES; j++){
+	if(j==HEAD || j==TAIL) continue;
+	double ytj = GETWT(TAIL,j);
+	CHANGE_STAT[0] += sqrt(NEWWT*ytj) - sqrt(OLDWT*ytj);
+      }
+
+      // The idea is to subtract the arithmetic mean from the
+      // geometric mean. Each dyad's change affects (N_NODES-2)
+      // other dyad's "correlations". Since dyads other than
+      // (TAIL,HEAD) are fixed, we can simply combine (N_NODES-2) *
+      // (NEWWT/2-OLDWT/2) and simplify:
+      CHANGE_STAT[0] -= (N_NODES-2)*(NEWWT - OLDWT)/2;
+    });
+}
+
+/*****************
+ stat: node o[ut] sq[uare]r[oo]t corr "normed"
+*****************/
+WtD_CHANGESTAT_FN(d_nodeosqrtcorr_normed){
+  EXEC_THROUGH_TOGGLES({
+      for(Vertex j=1; j<=N_NODES; j++){
+	if(j==HEAD || j==TAIL) continue;
+	double ytj = GETWT(TAIL,j);
+	CHANGE_STAT[0] += (sqrt(NEWWT*ytj) - sqrt(OLDWT*ytj))/(N_NODES-2);
       }
     });
 }
@@ -526,6 +591,50 @@ WtD_CHANGESTAT_FN(d_nodesqrtcorr){
     });
 }
 
+/*****************
+ stat: node sq[uare]r[oo]t corr "demeaned"
+*****************/
+WtD_CHANGESTAT_FN(d_nodesqrtcorr_demeaned){
+  EXEC_THROUGH_TOGGLES({
+      for(Vertex j=1; j<=N_NODES; j++){
+	if(j==HEAD || j==TAIL) continue;
+	double ytj = GETWT(TAIL,j);
+	CHANGE_STAT[0] += sqrt(NEWWT*ytj) - sqrt(OLDWT*ytj);
+      }
+
+      for(Vertex i=1; i<=N_NODES; i++){
+	if(i==TAIL || i==HEAD) continue;
+	double yih = GETWT(i,HEAD);
+	CHANGE_STAT[0] += sqrt(NEWWT*yih) - sqrt(OLDWT*yih);
+      }
+
+      // The idea is to subtract the arithmetic mean from the
+      // geometric mean. Each dyad's change affects 2*(N_NODES-2)
+      // other dyad's "correlations". Since dyads other than
+      // (TAIL,HEAD) are fixed, we can simply combine 2*(N_NODES-2) *
+      // (NEWWT/2-OLDWT/2) and simplify:
+      CHANGE_STAT[0] -= (NEWWT - OLDWT)*(N_NODES-2);
+    });
+}
+
+/*****************
+ stat: node sq[uare]r[oo]t corr "normed"
+*****************/
+WtD_CHANGESTAT_FN(d_nodesqrtcorr_normed){
+  EXEC_THROUGH_TOGGLES({
+      for(Vertex j=1; j<=N_NODES; j++){
+	if(j==HEAD || j==TAIL) continue;
+	double ytj = GETWT(TAIL,j);
+	CHANGE_STAT[0] += (sqrt(NEWWT*ytj) - sqrt(OLDWT*ytj))/(N_NODES-2);
+      }
+
+      for(Vertex i=1; i<=N_NODES; i++){
+	if(i==TAIL || i==HEAD) continue;
+	double yih = GETWT(i,HEAD);
+	CHANGE_STAT[0] += (sqrt(NEWWT*yih) - sqrt(OLDWT*yih))/(N_NODES-2);
+      }
+    });
+}
 
 /*****************
  stat: nonzero
