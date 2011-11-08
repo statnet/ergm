@@ -98,7 +98,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
   mcmc.theta0 <- theta0
   parametervalues <- theta0 # Keep track of all parameter values
   while(!finished){
-	  iteration <- iteration + 1
+    iteration <- iteration + 1
     if(verbose){
       cat("Iteration ",iteration," of at most ", MCMCparams$maxit,
           " with parameter: \n", sep="")
@@ -121,16 +121,24 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     colnames(statsmatrix) <- model$coef.names
     nw.returned <- network.copy(z$newnetwork)
 
+    if(verbose){
+      cat("Back from unconstrained MCMC. Average statistics:\n")
+      print(apply(statsmatrix, 2, mean))
+    }
+    
     ##  Does the same, if observation process:
     if(obs){
       z.obs <- ergm.getMCMCsample.parallel(nw, model, MHproposal.obs, mcmc.eta0, MCMCparams.obs, verbose, response=response)
       statsmatrix.obs <- sweep(z.obs$statsmatrix, 2, statshift, "+")
       colnames(statsmatrix.obs) <- model$coef.names
       nw.obs.returned <- network.copy(z.obs$newnetwork)
-      if(verbose){cat("Back from constrained MCMC...\n")}
+      
+      if(verbose){
+        cat("Back from constrained MCMC. Average statistics:\n")
+        print(apply(statsmatrix.obs, 2, mean))
+      }
     }else{
       statsmatrix.obs <- NULL
-      if(verbose){cat("Back from unconstrained MCMC...\n")}
       if(sequential) {
         nw <- nw.returned
         nw.obs <- summary(model$formula, basis=nw, response=response)
