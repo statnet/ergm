@@ -397,7 +397,9 @@ newnw.extract<-function(oldnw,z,output="network",response=NULL){
   
   newnw<-network.update(oldnw,newedgelist,matrix.type="edgelist",output=output)
   if(!is.null(response)){
-    newnw<-set.edge.attribute(newnw,attrname=response,newnwweights)
+    # It's very important that the order of weights here is the same
+    # as the one that network accepts.
+    newnw<-set.edge.attribute(newnw,attrname=response,newnwweights,e=apply(newedgelist,1,function(e) get.edgeIDs(newnw,e[1],e[2])))
   }
   newnw
 }
