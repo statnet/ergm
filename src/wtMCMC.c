@@ -90,7 +90,7 @@ WtMCMCStatus WtMCMCSample(WtMHproposal *MHp,
 			  int samplesize, int burnin, 
 			  int interval, int fVerbose, int nmax,
 			  WtNetwork *nwp, WtModel *m) {
-  int staken, tottaken, ptottaken;
+  int staken, tottaken;
   int i, j;
     
   /*********************
@@ -126,7 +126,6 @@ WtMCMCStatus WtMCMCSample(WtMHproposal *MHp,
   if (samplesize>1){
     staken = 0;
     tottaken = 0;
-    ptottaken = 0;
     
     /* Now sample networks */
     for (i=1; i < samplesize; i++){

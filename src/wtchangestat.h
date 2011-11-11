@@ -28,6 +28,19 @@ typedef struct WtModelTermstruct {
 #define IS_INEDGE(a,b) (WtEdgetreeSearch((a),(b),nwp->inedges)!=0?1:0)
 #define IS_UNDIRECTED_EDGE(a,b) IS_OUTEDGE(MIN(a,b), MAX(a,b))
 
+/* The OUTVAL and INVAL macros give the "other endnode" of edge e, depending
+   on whether it is an in-edge or an out-edge.  Presumably the first endnode
+   of the edge is already known in this context. */
+#define OUTVAL(e) (nwp->outedges[(e)].value)
+#define INVAL(e) (nwp->inedges[(e)].value)
+
+/* The OUTWT and INWT macros give the weight of edge e, depending
+   on whether it is an in-edge or an out-edge.  Presumably the first endnode
+   of the edge is already known in this context. */
+#define OUTWT(e) (nwp->outedges[(e)].weight)
+#define INWT(e) (nwp->inedges[(e)].weight)
+
+
 /* Return the Edge number of the smallest-labelled neighbor of the node 
    labelled "a".  Or, return the Edge number of the next-largest neighbor 
    starting from the pointer "e", which points to a node in an edgetree. 
@@ -44,21 +57,29 @@ typedef struct WtModelTermstruct {
    initialized as type Edge, is merely the looping variable. */
 #define STEP_THROUGH_OUTEDGES(a,e,v) for((e)=MIN_OUTEDGE(a);((v)=OUTVAL(e))!=0;(e)=NEXT_OUTEDGE(e))
 #define STEP_THROUGH_INEDGES(a,e,v) for((e)=MIN_INEDGE(a);((v)=INVAL(e))!=0;(e)=NEXT_INEDGE(e))
+
+// These are "declaring" versions of the above, optimized for use in EXEC_TROUGH_*EDGES macros.
+#define STEP_THROUGH_OUTEDGES_DECL(a,e,v) for(Edge e=MIN_OUTEDGE(a);OUTVAL(e)!=0;e=NEXT_OUTEDGE(e))
+#define STEP_THROUGH_INEDGES_DECL(a,e,v) for(Edge e=MIN_INEDGE(a);INVAL(e)!=0;e=NEXT_INEDGE(e))
+
 /* Instead of stepping through execute "subroutine" for each neighbor
-   automatically adapting to undirected networks. */
-#define EXEC_THROUGH_OUTEDGES(a,e,v,subroutine) if(DIRECTED){ STEP_THROUGH_OUTEDGES(a,e,v) {subroutine} } else { EXEC_THROUGH_EDGES(a,e,v,subroutine) }
-#define EXEC_THROUGH_INEDGES(a,e,v,subroutine) if(DIRECTED){ STEP_THROUGH_INEDGES(a,e,v) {subroutine} } else { EXEC_THROUGH_EDGES(a,e,v,subroutine) }
-#define EXEC_THROUGH_EDGES(a,e,v,subroutine) { STEP_THROUGH_OUTEDGES(a,e,v) {subroutine}  STEP_THROUGH_INEDGES(a,e,v) {subroutine} }
+   automatically adapting to undirected networks. w gets the weight of
+   the edge in question. */
+/* NOTE: For some reason, GCC complains when it encounters multiple
+   declaration in a single statement inside the subroutine, so
+   double v1, v2;
+   might fail, while
+   double v1;
+   double v2;
+   works.*/
+#define EXEC_THROUGH_OUTEDGES(a,e,v,w,subroutine) if(DIRECTED){ STEP_THROUGH_OUTEDGES_DECL(a,e,v) {Vertex v=OUTVAL(e); double w=OUTWT(e); subroutine} } else { EXEC_THROUGH_EDGES(a,e,v,w,subroutine) }
+#define EXEC_THROUGH_INEDGES(a,e,v,w,subroutine) if(DIRECTED){ STEP_THROUGH_INEDGES_DECL(a,e,v) {Vertex v=INVAL(e); double w=INWT(e); subroutine} } else { EXEC_THROUGH_EDGES(a,e,v,w,subroutine) }
+#define EXEC_THROUGH_EDGES(a,e,v,w,subroutine) { STEP_THROUGH_OUTEDGES_DECL(a,e,v) {Vertex v=OUTVAL(e); double w=OUTWT(e); subroutine}  STEP_THROUGH_INEDGES_DECL(a,e,v) {Vertex v=INVAL(e); double w=INWT(e); subroutine} }
 
 /* Non-adaptive versions of the above. (I.e. ForceOUT/INEDGES.) */
-#define EXEC_THROUGH_FOUTEDGES(a,e,v,subroutine) STEP_THROUGH_OUTEDGES(a,e,v) {subroutine}
-#define EXEC_THROUGH_FINEDGES(a,e,v,subroutine) STEP_THROUGH_INEDGES(a,e,v) {subroutine}
+#define EXEC_THROUGH_FOUTEDGES(a,e,v,w,subroutine) STEP_THROUGH_OUTEDGES_DECL(a,e,v) {Vertex v=OUTVAL(e); double w=OUTWT(e); subroutine}
+#define EXEC_THROUGH_FINEDGES(a,e,v,w,subroutine) STEP_THROUGH_INEDGES_DECL(a,e,v) {Vertex v=INVAL(e); double w=INWT(e); subroutine}
 
-/* The OUTVAL and INVAL macros give the "other endnode" of edge e, depending
-   on whether it is an in-edge or an out-edge.  Presumably the first endnode
-   of the edge is already known in this context. */
-#define OUTVAL(e) (nwp->outedges[(e)].value)
-#define INVAL(e) (nwp->inedges[(e)].value)
 
 /* Get and set the weight of the (a,b) edge. */
 #define GETWT(a,b) (WtGetEdge(a,b,nwp))

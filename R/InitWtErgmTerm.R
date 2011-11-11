@@ -154,7 +154,7 @@ InitWtErgmTerm.sum<-function(nw, arglist, response, ...) {
   }
 }
 
-InitWtErgmTerm.nodecorr<-function (nw, arglist, response, ...) {
+InitWtErgmTerm.nodecovar<-function (nw, arglist, response, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, bipartite = FALSE,
                       varnames = NULL,
@@ -163,63 +163,65 @@ InitWtErgmTerm.nodecorr<-function (nw, arglist, response, ...) {
                       required = NULL)
   ### Process the arguments
 
-  list(name="nodecorr",
-       coef.names = "nodecorr",
+  list(name="nodecovar",
+       coef.names = "nodecovar",
        dependence = TRUE
        )
 }
 
-InitWtErgmTerm.nodesqrtcorr<-function (nw, arglist, response, ...) {
+InitWtErgmTerm.nodesqrtcovar<-function (nw, arglist, response, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, bipartite = FALSE, nonnegative=TRUE, response=response,
-                      varnames = c("demean", "norm"),
-                      vartypes = c("logical", "logical"),
-                      defaultvalues = list(FALSE, FALSE),
-                      required = c(FALSE, FALSE))
+                      varnames = c("center"),
+                      vartypes = c("logical"),
+                      defaultvalues = list(TRUE),
+                      required = c(TRUE))
   ### Process the arguments
 
-  list(name=if(a$demean) "nodesqrtcorr_demeaned" else if(a$norm) "nodesqrtcorr_normed" else "nodesqrtcorr",
-       coef.names = if(a$demean) "nodesqrtcorr.demeaned" else if(a$norm) "nodesqrtcorr.normed" else "nodesqrtcorr",
+  name <- "nodesqrtcovar"
+
+  if(a$center) name <- paste(name,"centered",sep="_")
+
+  coef.name <- gsub("_",".",name)
+  
+  list(name=name,
+       coef.names = coef.name,
        dependence = TRUE,
-       # arithmetic mean >= geometric mean
-       minval = if(a$demean) NULL else 0,
-       maxval = if(a$demean) 0 else NULL
+       minval = if(a$center) NULL else 0
        )
 }
 
-InitWtErgmTerm.nodeosqrtcorr<-function (nw, arglist, response, ...) {
+InitWtErgmTerm.nodeosqrtcovar<-function (nw, arglist, response, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed = TRUE, nonnegative=TRUE, response=response,
-                      varnames = c("demean", "norm"),
-                      vartypes = c("logical", "logical"),
-                      defaultvalues = list(FALSE, FALSE),
-                      required = c(FALSE, FALSE))
+                      varnames = c(),
+                      vartypes = c(),
+                      defaultvalues = list(),
+                      required = c())
   ### Process the arguments
 
-  list(name=if(a$demean) "nodeosqrtcorr_demeaned" else if(a$norm) "nodeosqrtcorr_normed" else "nodeosqrtcorr",
-       coef.names = if(a$demean) "nodeosqrtcorr.demeaned" else if(a$norm) "nodeosqrtcorr.normed" else "nodeosqrtcorr",
+  list(name="nodeosqrtcovar",
+       coef.names = "nodeosqrtcovar",
        dependence = TRUE,
        # arithmetic mean >= geometric mean
-       minval = if(a$demean) NULL else 0,
-       maxval = if(a$demean) 0 else NULL
+       minval = 0
        )
 }
 
-InitWtErgmTerm.nodeisqrtcorr<-function (nw, arglist, response, ...) {
+InitWtErgmTerm.nodeisqrtcovar<-function (nw, arglist, response, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed = TRUE, nonnegative=TRUE, response=response,
-                      varnames = c("demean", "norm"),
-                      vartypes = c("logical", "logical"),
-                      defaultvalues = list(FALSE, FALSE),
-                      required = c(FALSE, FALSE))
+                      varnames = c(),
+                      vartypes = c(),
+                      defaultvalues = list(FALSE),
+                      required = c(FALSE))
   ### Process the arguments
 
-  list(name=if(a$demean) "nodeisqrtcorr_demeaned" else if(a$norm) "nodeisqrtcorr_normed" else "nodeisqrtcorr",
-       coef.names = if(a$demean) "nodeisqrtcorr.demeaned" else if(a$norm) "nodeisqrtcorr.normed" else "nodeisqrtcorr",
+  list(name="nodeisqrtcovar",
+       coef.names = "nodeisqrtcovar",
        dependence = TRUE,
        # arithmetic mean >= geometric mean
-       minval = if(a$demean) NULL else 0,
-       maxval = if(a$demean) 0 else NULL
+       minval = 0
        )
 }
 
@@ -261,7 +263,7 @@ InitWtErgmTerm.nodefactor<-function (nw, arglist, response, ...) {
        )
 }
 
-InitWtErgmTerm.nodeocorr<-function (nw, arglist, response, ...) {
+InitWtErgmTerm.nodeocovar<-function (nw, arglist, response, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed = TRUE,
                       varnames = NULL,
@@ -270,8 +272,8 @@ InitWtErgmTerm.nodeocorr<-function (nw, arglist, response, ...) {
                       required = NULL)
   ### Process the arguments
 
-  list(name="nodeocorr",
-       coef.names = "nodeocorr",
+  list(name="nodeocovar",
+       coef.names = "nodeocovar",
        dependence = TRUE
        )
 }
@@ -314,7 +316,7 @@ InitWtErgmTerm.nodeofactor<-function (nw, arglist, response, ...) {
        )
 }
 
-InitWtErgmTerm.nodeicorr<-function (nw, arglist, response, ...) {
+InitWtErgmTerm.nodeicovar<-function (nw, arglist, response, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed = TRUE,
                       varnames = NULL,
@@ -323,8 +325,8 @@ InitWtErgmTerm.nodeicorr<-function (nw, arglist, response, ...) {
                       required = NULL)
   ### Process the arguments
 
-  list(name="nodeicorr",
-       coef.names = "nodeicorr",
+  list(name="nodeicovar",
+       coef.names = "nodeicovar",
        dependence = TRUE
        )
 }
@@ -444,10 +446,10 @@ InitWtErgmTerm.mutual<-function (nw, arglist, response, ...) {
                       defaultvalues = list("min",0),
                       required = c(FALSE,FALSE))
 
-  form <- match.arg(a$form,c("min","nabsdiff","threshold","product","geometric","correlation"))
+  form <- match.arg(a$form,c("min","nabsdiff","threshold","product","geometric","product"))
   
-  list(name=switch(form,min="mutual_wt_min",nabsdiff="mutual_wt_nabsdiff",threshold="mutual_wt_threshold",product="mutual_wt_product", correlation=, geometric="mutual_wt_geom_mean"),
-       coef.names=switch(form,min="mutual.min",nabsdiff="mutual.nabsdiff",threshold=paste("mutual",a$threshold,sep="."), correlation="mutual.cor", product="mutual.product",geometric="mutual.geom.mean"),
+  list(name=switch(form,min="mutual_wt_min",nabsdiff="mutual_wt_nabsdiff",threshold="mutual_wt_threshold",product="mutual_wt_product", geometric="mutual_wt_geom_mean"),
+       coef.names=switch(form,min="mutual.min",nabsdiff="mutual.nabsdiff",threshold=paste("mutual",a$threshold,sep="."), product="mutual.product",geometric="mutual.geom.mean"),
        inputs=if(form=="threshold") threshold,
        dependence=TRUE,
        minval=switch(form,min=NULL,nabsdiff=NULL,threshold=0,product=NULL,geometric=0),
@@ -481,7 +483,7 @@ InitWtErgmTerm.transitiveweights<-function (nw, arglist, response, ...) {
 
   list(name=switch(form,max="transitiveweights_max",sum="transitiveweights_sum",threshold="transitiveweights_threshold"),
        coef.names=switch(form,max="transitiveweights.max",sum="transitiveweights.sum",threshold=paste("transitiveweights",a$threshold,sep=".")),
-       inputs=if(form=="threshold") threshold,
+       inputs=if(form=="threshold") a$threshold,
        dependence=TRUE,
        minval = if(form=="threshold") 0)
 }

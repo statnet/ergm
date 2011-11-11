@@ -98,21 +98,74 @@ WtD_CHANGESTAT_FN(d_atleast){
  stat: cyclicalweights(_max)
 *****************/
 
-WtD_FROM_S_FN(d_cyclicalweights_max)
+WtD_CHANGESTAT_FN(d_cyclicalweights_max){ 
+  CHANGE_STAT[0]=0;
+
+  EXEC_THROUGH_TOGGLES({
+      // (TAIL,HEAD) as the focus dyad
+      // This means that the strongest 2-path doesn't change.
+      double best_path = 0;
+      EXEC_THROUGH_OUTEDGES(HEAD, e1, k, yhk, {
+	  // If the first leg of the 2-path is less than the best
+	  // path so far, we can skip the rest of this and save a
+	  // GETWT() call.
+	  if(yhk > best_path)
+	    best_path = fmax(best_path, fmin(GETWT(k,TAIL), yhk));
+	});
+      CHANGE_STAT[0] += fmin(best_path, NEWWT) - fmin(best_path, OLDWT);
+
+      // (TAIL,HEAD) as the first link in the 2-path
+      // This means that only the strongest 2-path may change.
+      EXEC_THROUGH_INEDGES(TAIL, e1, j, yjt, {
+	  if(j==HEAD) continue;
+	  
+	  double old_best_path = 0;
+	  double new_best_path = 0;
+
+	  EXEC_THROUGH_INEDGES(j, e2, k, ykj, {
+	      double old_ytk = (k==HEAD) ? OLDWT : GETWT(TAIL, k);
+	      double new_ytk = (k==HEAD) ? NEWWT : old_ytk; 
+
+	      old_best_path = fmax(old_best_path, fmin(old_ytk, ykj));
+	      new_best_path = fmax(new_best_path, fmin(new_ytk, ykj));
+	    });
+	  CHANGE_STAT[0] += fmin(new_best_path, yjt) - fmin(old_best_path, yjt);
+	});
+
+      // (TAIL,HEAD) as the second link of the 2-path
+      // This means that only the strongest 2-path may change.
+      EXEC_THROUGH_OUTEDGES(HEAD, e1, i, yhi, {
+	  if(i==TAIL) continue;
+	  
+	  double old_best_path = 0;
+	  double new_best_path = 0;
+
+	  EXEC_THROUGH_OUTEDGES(i, e2, k, yik, {
+	      double old_ykh = (k==TAIL) ? OLDWT : GETWT(k,HEAD);
+	      double new_ykh = (k==TAIL) ? NEWWT : old_ykh; 
+
+	      old_best_path = fmax(old_best_path, fmin(old_ykh, yik));
+	      new_best_path = fmax(new_best_path, fmin(new_ykh, yik));
+	    });
+	  CHANGE_STAT[0] += fmin(new_best_path, yhi) - fmin(old_best_path, yhi);
+	});
+    });
+}
 
 WtS_CHANGESTAT_FN(s_cyclicalweights_max){ 
-  Edge e1, e2;
-  Vertex tail, head, node3;
-  
   CHANGE_STAT[0]=0;
-  for (tail=1; tail <= N_NODES; tail++){
-    EXEC_THROUGH_FOUTEDGES(tail, e1, head, {
+  for (Vertex tail=1; tail <= N_NODES; tail++){
+    EXEC_THROUGH_FOUTEDGES(tail, e1, head, yth, {
       double best_path = 0;
-      EXEC_THROUGH_OUTEDGES(head, e2, node3, { 
-	best_path = fmax(best_path, fmin(GETWT(node3,tail),GETWT(head,node3)));
-	})
-      CHANGE_STAT[0] += fmin(best_path, GETWT(tail,head));
-      })
+      EXEC_THROUGH_OUTEDGES(head, e2, node3, yh3, { 
+	  // If the second leg of the 2-path is less than the best
+	  // path so far, we can skip the rest of this and save a
+	  // GETWT() call.
+	  if(yh3 > best_path)
+	    best_path = fmax(best_path, fmin(GETWT(node3,tail),yh3));
+	});
+      CHANGE_STAT[0] += fmin(best_path, yth);
+      });
   }
 }
 
@@ -123,17 +176,14 @@ WtS_CHANGESTAT_FN(s_cyclicalweights_max){
 WtD_FROM_S_FN(d_cyclicalweights_sum)
 
 WtS_CHANGESTAT_FN(s_cyclicalweights_sum){ 
-  Edge e1, e2;
-  Vertex tail, head, node3;
-  
   CHANGE_STAT[0]=0;
-  for (tail=1; tail <= N_NODES; tail++){
-    EXEC_THROUGH_FOUTEDGES(tail, e1, head, {
+  for (Vertex tail=1; tail <= N_NODES; tail++){
+    EXEC_THROUGH_FOUTEDGES(tail, e1, head, yth, {
       double path_strength = 0;
-      EXEC_THROUGH_OUTEDGES(head, e2, node3, { 
-	path_strength += fmin(GETWT(node3,tail),GETWT(head,node3));
+      EXEC_THROUGH_OUTEDGES(head, e2, node3, yh3, { 
+	path_strength += fmin(GETWT(node3,tail),yh3);
 	})
-      CHANGE_STAT[0] += fmin(path_strength, GETWT(tail,head));
+      CHANGE_STAT[0] += fmin(path_strength, yth);
       })
   }
 }
@@ -145,15 +195,12 @@ WtS_CHANGESTAT_FN(s_cyclicalweights_sum){
 WtD_FROM_S_FN(d_cyclicalweights_threshold)
 
 WtS_CHANGESTAT_FN(s_cyclicalweights_threshold){ 
-  Edge e1, e2;
-  Vertex tail, head, node3;
-  
   CHANGE_STAT[0]=0;
-  for (tail=1; tail <= N_NODES; tail++){
-    EXEC_THROUGH_FOUTEDGES(tail, e1, head, {
-	if(GETWT(tail,head)<=INPUT_ATTRIB[0]) break;
-	EXEC_THROUGH_OUTEDGES(head, e2, node3, { 
-	    if(GETWT(node3,tail)>INPUT_ATTRIB[0] && GETWT(head,node3)>INPUT_ATTRIB[0]){
+  for (Vertex tail=1; tail <= N_NODES; tail++){
+    EXEC_THROUGH_FOUTEDGES(tail, e1, head, yth, {
+	if(yth<=INPUT_ATTRIB[0]) break;
+	EXEC_THROUGH_OUTEDGES(head, e2, node3, yh3, { 
+	    if(yh3>INPUT_ATTRIB[0] && GETWT(node3,tail)>INPUT_ATTRIB[0]){
 	      CHANGE_STAT[0]++; 
 	      break;
 	    }
@@ -228,7 +275,7 @@ WtD_CHANGESTAT_FN(d_ininterval){
 /********************  changestats:   M    ***********/
 
 /*****************
- stat: mutual (product a.k.a. correlation)
+ stat: mutual (product a.k.a. covariance)
 *****************/
 WtD_CHANGESTAT_FN(d_mutual_wt_product){
   EXEC_THROUGH_TOGGLES({
@@ -280,9 +327,9 @@ WtD_CHANGESTAT_FN(d_nodecov_nonzero){
 }
 
 /*****************
- stat: node corr 
+ stat: node covar 
 *****************/
-WtD_CHANGESTAT_FN(d_nodecorr){
+WtD_CHANGESTAT_FN(d_nodecovar){
   EXEC_THROUGH_TOGGLES({
       for(Vertex j=1; j<=N_NODES; j++){
 	if(j==HEAD || j==TAIL) continue;
@@ -384,9 +431,9 @@ WtD_CHANGESTAT_FN(d_nodefactor_sum){
 }
 
 /*****************
- stat: node i[n] corr 
+ stat: node i[n] covar 
 *****************/
-WtD_CHANGESTAT_FN(d_nodeicorr){
+WtD_CHANGESTAT_FN(d_nodeicovar){
   EXEC_THROUGH_TOGGLES({
       for(Vertex i=1; i<=N_NODES; i++){
 	if(i==TAIL || i==HEAD) continue;
@@ -397,51 +444,17 @@ WtD_CHANGESTAT_FN(d_nodeicorr){
 }
 
 /*****************
- stat: node i[n] sq[uare] r[oo]t corr 
+ stat: node i[n] sq[uare]r[oo]t covar[iance] 
 *****************/
-WtD_CHANGESTAT_FN(d_nodeisqrtcorr){
+WtD_CHANGESTAT_FN(d_nodeisqrtcovar){
   EXEC_THROUGH_TOGGLES({
-      for(Vertex i=1; i<=N_NODES; i++){
-	if(i==TAIL || i==HEAD) continue;
-	double yih = GETWT(i,HEAD);
-	CHANGE_STAT[0] += sqrt(NEWWT*yih) - sqrt(OLDWT*yih);
-      }
+      double sqrtdiff = (sqrt(NEWWT)-sqrt(OLDWT))/(N_NODES-2);
+      EXEC_THROUGH_INEDGES(HEAD, e, i, yih, {
+	  if(i!=TAIL) 
+	    CHANGE_STAT[0] += sqrtdiff*sqrt(yih);
+	});
     });
 }
-
-/*****************
- stat: node i[n] sq[uare] r[oo]t corr "demeaned"
-*****************/
-WtD_CHANGESTAT_FN(d_nodeisqrtcorr_demeaned){
-  EXEC_THROUGH_TOGGLES({
-      for(Vertex i=1; i<=N_NODES; i++){
-	if(i==TAIL || i==HEAD) continue;
-	double yih = GETWT(i,HEAD);
-	CHANGE_STAT[0] += sqrt(NEWWT*yih) - sqrt(OLDWT*yih);
-      }
-
-      // The idea is to subtract the arithmetic mean from the
-      // geometric mean. Each dyad's change affects (N_NODES-2)
-      // other dyad's "correlations". Since dyads other than
-      // (TAIL,HEAD) are fixed, we can simply combine (N_NODES-2) *
-      // (NEWWT/2-OLDWT/2) and simplify:
-      CHANGE_STAT[0] -= (N_NODES-2)*(NEWWT - OLDWT)/2;
-    });
-}
-
-/*****************
- stat: node i[n] sq[uare] r[oo]t corr "normed"
-*****************/
-WtD_CHANGESTAT_FN(d_nodeisqrtcorr_normed){
-  EXEC_THROUGH_TOGGLES({
-      for(Vertex i=1; i<=N_NODES; i++){
-	if(i==TAIL || i==HEAD) continue;
-	double yih = GETWT(i,HEAD);
-	CHANGE_STAT[0] += (sqrt(NEWWT*yih) - sqrt(OLDWT*yih))/(N_NODES-2);
-      }
-    });
-}
-
 
 /*****************
  stat: nodeifactor (nonzero)
@@ -478,9 +491,9 @@ WtD_CHANGESTAT_FN(d_nodeifactor_sum){
 }
 
 /*****************
- stat: node o[ut] corr 
+ stat: node o[ut] covar 
 *****************/
-WtD_CHANGESTAT_FN(d_nodeocorr){
+WtD_CHANGESTAT_FN(d_nodeocovar){
   EXEC_THROUGH_TOGGLES({
       for(Vertex j=1; j<=N_NODES; j++){
 	if(j==HEAD || j==TAIL) continue;
@@ -491,48 +504,15 @@ WtD_CHANGESTAT_FN(d_nodeocorr){
 }
 
 /*****************
- stat: node o[ut] sq[uare]r[oo]t corr 
+ stat: node o[ut] sq[uare]r[oo]t covar 
 *****************/
-WtD_CHANGESTAT_FN(d_nodeosqrtcorr){
+WtD_CHANGESTAT_FN(d_nodeosqrtcovar){
   EXEC_THROUGH_TOGGLES({
-      for(Vertex j=1; j<=N_NODES; j++){
-	if(j==HEAD || j==TAIL) continue;
-	double ytj = GETWT(TAIL,j);
-	CHANGE_STAT[0] += sqrt(NEWWT*ytj) - sqrt(OLDWT*ytj);
-      }
-    });
-}
-
-/*****************
- stat: node o[ut] sq[uare]r[oo]t corr "demeaned"
-*****************/
-WtD_CHANGESTAT_FN(d_nodeosqrtcorr_demeaned){
-  EXEC_THROUGH_TOGGLES({
-      for(Vertex j=1; j<=N_NODES; j++){
-	if(j==HEAD || j==TAIL) continue;
-	double ytj = GETWT(TAIL,j);
-	CHANGE_STAT[0] += sqrt(NEWWT*ytj) - sqrt(OLDWT*ytj);
-      }
-
-      // The idea is to subtract the arithmetic mean from the
-      // geometric mean. Each dyad's change affects (N_NODES-2)
-      // other dyad's "correlations". Since dyads other than
-      // (TAIL,HEAD) are fixed, we can simply combine (N_NODES-2) *
-      // (NEWWT/2-OLDWT/2) and simplify:
-      CHANGE_STAT[0] -= (N_NODES-2)*(NEWWT - OLDWT)/2;
-    });
-}
-
-/*****************
- stat: node o[ut] sq[uare]r[oo]t corr "normed"
-*****************/
-WtD_CHANGESTAT_FN(d_nodeosqrtcorr_normed){
-  EXEC_THROUGH_TOGGLES({
-      for(Vertex j=1; j<=N_NODES; j++){
-	if(j==HEAD || j==TAIL) continue;
-	double ytj = GETWT(TAIL,j);
-	CHANGE_STAT[0] += (sqrt(NEWWT*ytj) - sqrt(OLDWT*ytj))/(N_NODES-2);
-      }
+      double sqrtdiff = (sqrt(NEWWT)-sqrt(OLDWT))/(N_NODES-2);
+      EXEC_THROUGH_OUTEDGES(TAIL, e, j, ytj, {
+	  if(j!=HEAD) 
+	    CHANGE_STAT[0] += sqrtdiff*sqrt(ytj);
+	});
     });
 }
 
@@ -573,66 +553,81 @@ WtD_CHANGESTAT_FN(d_nodeofactor_sum){
 }
 
 /*****************
- stat: node sq[uare]r[oo]t corr 
+ stat: node sq[uare]r[oo]t covar[iance] "centered"
 *****************/
-WtD_CHANGESTAT_FN(d_nodesqrtcorr){
-  EXEC_THROUGH_TOGGLES({
-      for(Vertex j=1; j<=N_NODES; j++){
-	if(j==HEAD || j==TAIL) continue;
-	double ytj = GETWT(TAIL,j);
-	CHANGE_STAT[0] += sqrt(NEWWT*ytj) - sqrt(OLDWT*ytj);
-      }
 
-      for(Vertex i=1; i<=N_NODES; i++){
-	if(i==TAIL || i==HEAD) continue;
-	double yih = GETWT(i,HEAD);
-	CHANGE_STAT[0] += sqrt(NEWWT*yih) - sqrt(OLDWT*yih);
-      }
+WtD_CHANGESTAT_FN(d_nodesqrtcovar_centered){
+  // Compute sum(sqrt(y)) (directed) or twice that (undirected). We can update it for each toggle.
+  double ssq = 0;
+  if(DIRECTED){
+    for(Vertex i=1; i<=N_NODES; i++){
+      EXEC_THROUGH_EDGES(i, e, j, yij, {
+	  ssq += sqrt(yij);
+	});
+    }
+  }else{
+    for(Vertex i=1; i<=N_NODES; i++){
+      EXEC_THROUGH_FOUTEDGES(i, e, j, yij, {
+	  ssq += sqrt(yij);
+	});
+    }
+    ssq*=2;
+  }
+
+  EXEC_THROUGH_TOGGLES({
+      double change = 0;
+      double sqrtdiff = sqrt(NEWWT)-sqrt(OLDWT);
+      double new_ssq = ssq + sqrtdiff*(DIRECTED? 1 : 2);
+      
+      EXEC_THROUGH_EDGES(TAIL, e, j, ytj, {
+	  if(j!=HEAD) change += sqrtdiff*sqrt(ytj);
+	});
+      
+      EXEC_THROUGH_EDGES(HEAD, e, i, yih, {
+	  if(i!=TAIL) change += sqrtdiff*sqrt(yih);
+	});
+
+      CHANGE_STAT[0] += change/(N_NODES-2);
+      CHANGE_STAT[0] -= (new_ssq*new_ssq-ssq*ssq) / (N_NODES*(N_NODES-1)) / 2;
+
+      ssq = new_ssq;
     });
 }
 
-/*****************
- stat: node sq[uare]r[oo]t corr "demeaned"
-*****************/
-WtD_CHANGESTAT_FN(d_nodesqrtcorr_demeaned){
-  EXEC_THROUGH_TOGGLES({
-      for(Vertex j=1; j<=N_NODES; j++){
-	if(j==HEAD || j==TAIL) continue;
-	double ytj = GETWT(TAIL,j);
-	CHANGE_STAT[0] += sqrt(NEWWT*ytj) - sqrt(OLDWT*ytj);
-      }
-
-      for(Vertex i=1; i<=N_NODES; i++){
-	if(i==TAIL || i==HEAD) continue;
-	double yih = GETWT(i,HEAD);
-	CHANGE_STAT[0] += sqrt(NEWWT*yih) - sqrt(OLDWT*yih);
-      }
-
-      // The idea is to subtract the arithmetic mean from the
-      // geometric mean. Each dyad's change affects 2*(N_NODES-2)
-      // other dyad's "correlations". Since dyads other than
-      // (TAIL,HEAD) are fixed, we can simply combine 2*(N_NODES-2) *
-      // (NEWWT/2-OLDWT/2) and simplify:
-      CHANGE_STAT[0] -= (NEWWT - OLDWT)*(N_NODES-2);
-    });
+WtS_CHANGESTAT_FN(s_nodesqrtcovar_centered){
+  CHANGE_STAT[0] = 0;
+  double ssq = 0;
+  for(Vertex i=1; i<=N_NODES; i++){
+    EXEC_THROUGH_EDGES(i, e1, j, yij, {
+	double sqrtyij = sqrt(yij);
+	ssq += sqrtyij;
+	EXEC_THROUGH_EDGES(i, e2, k, yik, {
+	    if(k>=j) break; // sqrt(yij)*sqrt(yik)==sqrt(yik)*sqrt(yij)
+	    CHANGE_STAT[0] += sqrtyij*sqrt(yik);
+	  });
+      });
+  }
+  CHANGE_STAT[0] /= N_NODES-2;
+  CHANGE_STAT[0] -= ssq*ssq / (N_NODES*(N_NODES-1)) / 2; // (The /2 is because of k<j.)
 }
 
 /*****************
- stat: node sq[uare]r[oo]t corr "normed"
+ stat: node sq[uare]r[oo]t covar[iance]
 *****************/
-WtD_CHANGESTAT_FN(d_nodesqrtcorr_normed){
+WtD_CHANGESTAT_FN(d_nodesqrtcovar){
   EXEC_THROUGH_TOGGLES({
-      for(Vertex j=1; j<=N_NODES; j++){
-	if(j==HEAD || j==TAIL) continue;
-	double ytj = GETWT(TAIL,j);
-	CHANGE_STAT[0] += (sqrt(NEWWT*ytj) - sqrt(OLDWT*ytj))/(N_NODES-2);
-      }
+      double change = 0;
+      double sqrtdiff = sqrt(NEWWT)-sqrt(OLDWT);
+      
+      EXEC_THROUGH_EDGES(TAIL, e, j, ytj, {
+	  if(j!=HEAD) change += sqrtdiff*sqrt(ytj);
+	});
+      
+      EXEC_THROUGH_EDGES(HEAD, e, i, yih, {
+	  if(i!=TAIL) change += sqrtdiff*sqrt(yih);
+	});
 
-      for(Vertex i=1; i<=N_NODES; i++){
-	if(i==TAIL || i==HEAD) continue;
-	double yih = GETWT(i,HEAD);
-	CHANGE_STAT[0] += (sqrt(NEWWT*yih) - sqrt(OLDWT*yih))/(N_NODES-2);
-      }
+      CHANGE_STAT[0] += change/(N_NODES-2);
     });
 }
 
@@ -683,51 +678,74 @@ WtD_CHANGESTAT_FN(d_sum_pow){
  stat: transitiveweights(_max)
 *****************/
 
-/* WtD_CHANGESTAT_FN(d_transitiveweights_max){ */
-/*   Edge e1, e2; */
-/*   Vertex node3; */
-/*   EXEC_THROUGH_TOGGLES({ */
-/*       /\* Changed dyad as the focus dyad. *\/ */
-/*       double best_path = 0; */
-/*       EXEC_THROUGH_INEDGES(HEAD, e1, node3, {  */
-/* 	best_path = fmax(best_path, fmin(GETWT(TAIL,node3),GETWT(node3,HEAD))); */
-/* 	}) */
-/*       CHANGE_STAT[0] += fmin(best_path, NEWWT) - fmin(best_path, OLDWT); */
+WtD_CHANGESTAT_FN(d_transitiveweights_max){ 
+  CHANGE_STAT[0]=0;
 
-/*       /\* Changed dyad as a part of a two-path.  */
-/* 	 A dyad (i,j) is potentially affected by (tail,head) iff: */
-/* 	 y(i,j)>0 & (tail=i & (head,j)>0 | head=j & (i,tail)>0). */
-/*       *\/ */
-/*       /\* For all ties (tail=i,j)>0, *\/ */
-/*       EXEC_THROUGH_OUTEDGES(TAIL, e1, node3, { */
-/* 	  double ijwt = GETWT(HEAD,node3); */
-/* 	  /\* If (head,j)>0), (tail,head) can affect (i,j). *\/ */
-/* 	  if(ijwt>0){ */
-/* 	    best_path = 0; */
-/* 	    EXEC_THROUGH_INEDGES(HEAD, e1, node3, {  */
-/* 		best_path = fmax(best_path, fmin(GETWT(TAIL,node3),GETWT(node3,HEAD))); */
-/* 	      }) */
-/* 	      CHANGE_STAT[0] += fmin(best_path, NEWWT) - fmin(best_path, OLDWT); */
-/* 	  } */
-/* 	} */
-/*   }); */
-/* } */
+  EXEC_THROUGH_TOGGLES({
+      // (TAIL,HEAD) as the focus dyad
+      // This means that the strongest 2-path doesn't change.
+      double best_path = 0;
+      EXEC_THROUGH_INEDGES(HEAD, e1, k, ykh, {
+	  // If the second leg of the 2-path is less than the best
+	  // path so far, we can skip the rest of this and save a
+	  // GETWT() call.
+	  if(ykh > best_path)
+	    best_path = fmax(best_path, fmin(GETWT(TAIL,k), ykh));
+	});
+      CHANGE_STAT[0] += fmin(best_path, NEWWT) - fmin(best_path, OLDWT);
 
-WtD_FROM_S_FN(d_transitiveweights_max)
+      // (TAIL,HEAD) as the first link of the 2-path
+      // This means that only the strongest 2-path may change.
+      EXEC_THROUGH_OUTEDGES(TAIL, e1, j, ytj, {
+	  if(j==HEAD) continue;
+	  
+	  double old_best_path = 0;
+	  double new_best_path = 0;
+
+	  EXEC_THROUGH_INEDGES(j, e2, k, ykj, {
+	      double old_ytk = (k==HEAD) ? OLDWT : GETWT(TAIL, k);
+	      double new_ytk = (k==HEAD) ? NEWWT : old_ytk; 
+
+	      old_best_path = fmax(old_best_path, fmin(old_ytk, ykj));
+	      new_best_path = fmax(new_best_path, fmin(new_ytk, ykj));
+	    });
+	  CHANGE_STAT[0] += fmin(new_best_path, ytj) - fmin(old_best_path, ytj);
+	});
+
+      // (TAIL,HEAD) as the second link of the 2-path
+      // This means that only the strongest 2-path may change.
+      EXEC_THROUGH_INEDGES(HEAD, e1, i, yih, {
+	  if(i==TAIL) continue;
+	  
+	  double old_best_path = 0;
+	  double new_best_path = 0;
+
+	  EXEC_THROUGH_OUTEDGES(i, e2, k, yik, {
+	      double old_ykh = (k==TAIL) ? OLDWT : GETWT(k,HEAD);
+	      double new_ykh = (k==TAIL) ? NEWWT : old_ykh; 
+
+	      old_best_path = fmax(old_best_path, fmin(old_ykh, yik));
+	      new_best_path = fmax(new_best_path, fmin(new_ykh, yik));
+	    });
+	  CHANGE_STAT[0] += fmin(new_best_path, yih) - fmin(old_best_path, yih);
+	});
+    });
+}
 
 WtS_CHANGESTAT_FN(s_transitiveweights_max){ 
-  Edge e1, e2;
-  Vertex tail, head, node3;
-  
   CHANGE_STAT[0]=0;
-  for (tail=1; tail <= N_NODES; tail++){
-    EXEC_THROUGH_FOUTEDGES(tail, e1, head, {
+  for (Vertex tail=1; tail <= N_NODES; tail++){
+    EXEC_THROUGH_FOUTEDGES(tail, e1, head, yth, {
       double best_path = 0;
-      EXEC_THROUGH_INEDGES(head, e2, node3, { 
-	best_path = fmax(best_path, fmin(GETWT(tail,node3),GETWT(node3,head)));
-	})
-      CHANGE_STAT[0] += fmin(best_path, GETWT(tail,head));
-      })
+      EXEC_THROUGH_INEDGES(head, e2, node3, y3h, {
+	  // If the second leg of the 2-path is less than the best
+	  // path so far, we can skip the rest of this and save a
+	  // GETWT() call.
+	  if(y3h > best_path)
+	    best_path = fmax(best_path, fmin(GETWT(tail,node3), y3h));
+	});
+      CHANGE_STAT[0] += fmin(best_path, yth);
+      });
   }
 }
 
@@ -738,17 +756,14 @@ WtS_CHANGESTAT_FN(s_transitiveweights_max){
 WtD_FROM_S_FN(d_transitiveweights_sum)
 
 WtS_CHANGESTAT_FN(s_transitiveweights_sum){ 
-  Edge e1, e2;
-  Vertex tail, head, node3;
-  
   CHANGE_STAT[0]=0;
-  for (tail=1; tail <= N_NODES; tail++){
-    EXEC_THROUGH_FOUTEDGES(tail, e1, head, {
+  for (Vertex tail=1; tail <= N_NODES; tail++){
+    EXEC_THROUGH_FOUTEDGES(tail, e1, head, yth, {
       double path_strength = 0;
-      EXEC_THROUGH_INEDGES(head, e2, node3, { 
-	path_strength += fmin(GETWT(tail,node3),GETWT(node3,head));
+      EXEC_THROUGH_INEDGES(head, e2, node3, y3h, { 
+	path_strength += fmin(GETWT(tail,node3),y3h);
 	})
-      CHANGE_STAT[0] += fmin(path_strength, GETWT(tail,head));
+      CHANGE_STAT[0] += fmin(path_strength, yth);
       })
   }
 }
@@ -760,20 +775,17 @@ WtS_CHANGESTAT_FN(s_transitiveweights_sum){
 WtD_FROM_S_FN(d_transitiveweights_threshold)
 
 WtS_CHANGESTAT_FN(s_transitiveweights_threshold){ 
-  Edge e1, e2;
-  Vertex tail, head, node3;
-  
   CHANGE_STAT[0]=0;
-  for (tail=1; tail <= N_NODES; tail++){
-    EXEC_THROUGH_FOUTEDGES(tail, e1, head, {
-	if(GETWT(tail,head)<=INPUT_ATTRIB[0]) break;
-	EXEC_THROUGH_INEDGES(head, e2, node3, { 
-	    if(GETWT(tail,node3)>INPUT_ATTRIB[0] && GETWT(node3,head)>INPUT_ATTRIB[0]){
+  for (Vertex tail=1; tail <= N_NODES; tail++){
+    EXEC_THROUGH_FOUTEDGES(tail, e1, head, yth, {
+	if(yth<=INPUT_ATTRIB[0]) continue;
+	EXEC_THROUGH_INEDGES(head, e2, node3, y3h, { 
+	    if(y3h>INPUT_ATTRIB[0] && GETWT(tail,node3)>INPUT_ATTRIB[0]){
 	      CHANGE_STAT[0]++; 
 	      break;
 	    }
-	  })
-	  })
-      }
+	  });
+      });
+  }
 }
 
