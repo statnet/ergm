@@ -1,6 +1,6 @@
 library(ergm)
 
-tolerance<-0.01
+tolerance<-0.05
 n<-10
 theta<--1.5
 
