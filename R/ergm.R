@@ -201,7 +201,7 @@ ergm <- function(formula, response=NULL, theta0=NULL,
   if(!is.null(theta0)){
     # Check length of theta0.
     if (length(theta0)!=length(model.initial$etamap$offsettheta)) {
-      if(verbose) cat("theta0 is", theta0, "\n", "number of statistics is",model.initial$coef.names, "\n")
+      if(verbose) cat("theta0 is", theta0, "\n", "number of statistics is",length(model.initial$coef.names), "\n")
       stop(paste("Invalid starting parameter vector theta0:",
                  "wrong number of parameters.",
                  "If you are passing output from another ergm run as theta0,",
