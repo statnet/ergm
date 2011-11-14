@@ -166,13 +166,13 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.obs=NULL,
                          lognormal=llik.grad,
                          Median.Likelihood=llik.grad,
                          EF.Likelihood=llik.grad,
-                         llik.grad2)
+                         llik.grad)
     Hessianfn <- switch(metric,
                         Likelihood=llik.hessian,
                         lognormal=llik.hessian,
                         Median.Likelihood=llik.hessian,
                         EF.Likelihood=llik.hessian,
-                        llik.hessian2)
+                        llik.hessian)
   }
   
   # Now find maximizer of approximate loglikelihood ratio l(eta) - l(eta0).
