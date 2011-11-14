@@ -239,7 +239,7 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL
 llik.hessian.naive <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
                                varweight=0.5, eta0, etamap){
   xsim <- xsim[,!etamap$offsettheta, drop=FALSE]
-  eta <- ergm.eta(theta, etamap)
+  eta <- ergm.eta(theta.offset, etamap)
   etagrad <- ergm.etagrad(theta, etamap)
 
   # It does not matter if we subtract a constant from the (eta-eta0)^t g vector
@@ -269,7 +269,7 @@ llik.hessian.naive <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.ob
 # MSH: Yep, just another idea based on exp. family theory
 # llik.exp <- function(theta, xobs, xsim, probs, 
 #                      varweight=0.5, eta0, etamap){
-#   eta <- ergm.eta(theta, etamap)
+#   eta <- ergm.eta(theta.offset, etamap)
 #   etaparam <- eta-eta0
 #   vb <- var(xsim)
 #   llr <- -sum(xobs * etaparam) + varweight*(t(etaparam) %*% vb %*% etaparam)
@@ -321,7 +321,9 @@ llik.fun.EF <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
 
 llik.fun2 <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL, 
                       varweight=0.5, trustregion=20, eta0, etamap){
-  eta <- ergm.eta(theta, etamap)
+  theta.offset <- etamap$theta0
+  theta.offset[!etamap$offsettheta] <- theta
+  eta <- ergm.eta(theta.offset, etamap)
   etaparam <- eta-eta0
   basepred <- xsim %*% etaparam
   maxbase <- max(basepred)
@@ -339,7 +341,9 @@ llik.fun2 <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
 
 llik.grad2 <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
                        varweight=0.5, trustregion=20, eta0, etamap){
-  eta <- ergm.eta(theta, etamap)
+  theta.offset <- etamap$theta0
+  theta.offset[!etamap$offsettheta] <- theta
+  eta <- ergm.eta(theta.offset, etamap)
   etaparam <- eta-eta0
   basepred <- xsim %*% etaparam
   prob <- max(basepred)
@@ -352,7 +356,7 @@ llik.grad2 <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
 #    vtmp <- (xsim-E)*sqrt(prob)
 #    V <- vtmp * vtmp
 #    list(gradient=xobs-E,hessian=V)
-  ergm.etagradmult(theta, xobs-E, etamap)
+  ergm.etagradmult(theta.offset, xobs-E, etamap)
 }
 
 llik.hessian2 <- llik.hessian
@@ -368,8 +372,10 @@ llik.hessian2 <- llik.hessian
 #####################################################################################
 
 llik.fun3 <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL, 
-                      varweight=0.5, trustregion=20, eta0, etamap){ # eqn (5) 
-  eta <- ergm.eta(theta, etamap)
+                      varweight=0.5, trustregion=20, eta0, etamap){ # eqn (5)
+  theta.offset <- etamap$theta0
+  theta.offset[!etamap$offsettheta] <- theta
+  eta <- ergm.eta(theta.offset, etamap)
   deta <- matrix(eta-eta0,ncol=1) #px1
   basepred <- as.vector(xsim %*% deta) #nx1
   maxbase <- max(basepred)
@@ -385,7 +391,9 @@ llik.fun3 <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
 
 llik.grad3 <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NULL,
                        varweight=0.5, trustregion=20, eta0, etamap){ #eqn (11)
-  eta <- ergm.eta(theta, etamap)
+  theta.offset <- etamap$theta0
+  theta.offset[!etamap$offsettheta] <- theta
+  eta <- ergm.eta(theta.offset, etamap)
   deta <- matrix(eta-eta0,ncol=1)
   basepred <- as.vector(xsim %*% deta)
   maxbase <- max(basepred)
