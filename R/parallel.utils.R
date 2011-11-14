@@ -24,7 +24,9 @@ ergm.getCluster <- function(control, verbose=FALSE){
                  # See if a preexisting cluster exists.
                  if(is.null(getMPIcluster())){
                    # Remember that we are responsible for it.
-                   assign("ergm.MPIcluster.started", TRUE, "package:ergm")
+                   unlockBinding("ergm.MPIcluster.started", environment(ergm.getCluster))                  
+                   assign("ergm.MPIcluster.started", TRUE, environment(ergm.getCluster))
+                   lockBinding("ergm.MPIcluster.started", environment(ergm.getCluster))
                    makeCluster(control$parallel,type="MPI")
                  }else
                    getMPIcluster()

@@ -20,6 +20,10 @@
 #
 ###############################################################################
 
+# "Declare" myLibLoc
+
+myLibLoc <- NULL
+
 .First.lib <- function(lib, pkg){
   ops <- options(warn = -1)
   on.exit(options(ops))
@@ -44,7 +48,8 @@
   
   # Remember where this package is located, to later make sure we load
   # the same version on a cluster node.
-  assign("myLibLoc",lib,pos="package:ergm")
+  unlockBinding("myLibLoc", environment(ergm.getCluster))
+  assign("myLibLoc",lib,envir=environment(.First.lib))
 }
 
 
