@@ -95,41 +95,78 @@ WtD_CHANGESTAT_FN(d_atleast){
 /********************  changestats:   C    ***********/
 
 /*****************
- stat: cyclicalweights(_max)
+ stat: cyclicalweights
 *****************/
 
-WtD_CHANGESTAT_FN(d_cyclicalweights_max){ 
+WtD_CHANGESTAT_FN(d_cyclicalweights){ 
+  unsigned int path = INPUT_ATTRIB[0], combine = INPUT_ATTRIB[1], compare =  INPUT_ATTRIB[2];
   CHANGE_STAT[0]=0;
 
   EXEC_THROUGH_TOGGLES({
       // (TAIL,HEAD) as the focus dyad
       // This means that the strongest 2-path doesn't change.
-      double best_path = 0;
+      double two_paths = 0;
       EXEC_THROUGH_OUTEDGES(HEAD, e1, k, yhk, {
-	  // If the first leg of the 2-path is less than the best
-	  // path so far, we can skip the rest of this and save a
-	  // GETWT() call.
-	  if(yhk > best_path)
-	    best_path = fmax(best_path, fmin(GETWT(k,TAIL), yhk));
+	  double two_path;
+
+	  switch(path){
+	  case 1: two_path = fmin(GETWT(k,TAIL), yhk); break; // min
+	  case 2: two_path = sqrt(GETWT(k,TAIL) * yhk); break; // geomean
+	  }
+	  
+	  switch(combine){
+	  case 1: two_paths = fmax(two_paths, two_path); break; // max
+	  case 2: two_paths += two_path; break; // sum
+	  }
 	});
-      CHANGE_STAT[0] += fmin(best_path, NEWWT) - fmin(best_path, OLDWT);
+
+      switch(compare){
+      case 1: CHANGE_STAT[0] += fmin(two_paths, NEWWT) - fmin(two_paths, OLDWT); break; // min
+      case 2: CHANGE_STAT[0] += sqrt(two_paths * NEWWT) - sqrt(two_paths * OLDWT); break; // geomean
+      }
 
       // (TAIL,HEAD) as the first link in the 2-path
       // This means that only the strongest 2-path may change.
       EXEC_THROUGH_INEDGES(TAIL, e1, j, yjt, {
 	  if(j==HEAD) continue;
 	  
-	  double old_best_path = 0;
-	  double new_best_path = 0;
+	  double old_two_paths = 0;
+	  double new_two_paths = 0;
 
 	  EXEC_THROUGH_INEDGES(j, e2, k, ykj, {
 	      double old_ytk = (k==HEAD) ? OLDWT : GETWT(TAIL, k);
 	      double new_ytk = (k==HEAD) ? NEWWT : old_ytk; 
+	      double old_two_path;
+	      double new_two_path;
 
-	      old_best_path = fmax(old_best_path, fmin(old_ytk, ykj));
-	      new_best_path = fmax(new_best_path, fmin(new_ytk, ykj));
+	      switch(path){
+	      case 1: // min
+		old_two_path = fmin(old_ytk, ykj);
+		new_two_path = fmin(new_ytk, ykj);
+		break;
+	      case 2: // geomean
+		old_two_path = sqrt(old_ytk * ykj);
+		new_two_path = sqrt(new_ytk * ykj);
+		break;
+	      }
+	  
+	      switch(combine){
+	      case 1:
+		old_two_paths = fmax(old_two_paths, old_two_path);// max
+		new_two_paths = fmax(new_two_paths, new_two_path);
+		break; // max
+	      case 2:
+		old_two_paths += old_two_path;
+		new_two_paths += new_two_path;
+		break; // sum
+	      }
+
 	    });
-	  CHANGE_STAT[0] += fmin(new_best_path, yjt) - fmin(old_best_path, yjt);
+
+	  switch(compare){
+	  case 1: CHANGE_STAT[0] += fmin(new_two_paths, yjt) - fmin(old_two_paths, yjt); break; // min
+	  case 2: CHANGE_STAT[0] += sqrt(new_two_paths * yjt) - sqrt(old_two_paths * yjt); break; // geomean
+	  }
 	});
 
       // (TAIL,HEAD) as the second link of the 2-path
@@ -137,54 +174,74 @@ WtD_CHANGESTAT_FN(d_cyclicalweights_max){
       EXEC_THROUGH_OUTEDGES(HEAD, e1, i, yhi, {
 	  if(i==TAIL) continue;
 	  
-	  double old_best_path = 0;
-	  double new_best_path = 0;
+	  double old_two_paths = 0;
+	  double new_two_paths = 0;
 
 	  EXEC_THROUGH_OUTEDGES(i, e2, k, yik, {
 	      double old_ykh = (k==TAIL) ? OLDWT : GETWT(k,HEAD);
 	      double new_ykh = (k==TAIL) ? NEWWT : old_ykh; 
+	      double old_two_path;
+	      double new_two_path;
 
-	      old_best_path = fmax(old_best_path, fmin(old_ykh, yik));
-	      new_best_path = fmax(new_best_path, fmin(new_ykh, yik));
+	      switch(path){
+	      case 1: // min
+		old_two_path = fmin(old_ykh, yik);
+		new_two_path = fmin(new_ykh, yik);
+		break;
+	      case 2: // geomean
+		old_two_path = sqrt(old_ykh * yik);
+		new_two_path = sqrt(new_ykh * yik);
+		break;
+	      }
+	  
+	      switch(combine){
+	      case 1:
+		old_two_paths = fmax(old_two_paths, old_two_path);// max
+		new_two_paths = fmax(new_two_paths, new_two_path);
+		break; // max
+	      case 2:
+		old_two_paths += old_two_path;
+		new_two_paths += new_two_path;
+		break; // sum
+	      }
 	    });
-	  CHANGE_STAT[0] += fmin(new_best_path, yhi) - fmin(old_best_path, yhi);
+	  
+	  switch(compare){
+	  case 1: CHANGE_STAT[0] += fmin(new_two_paths, yhi) - fmin(old_two_paths, yhi); break; // min
+	  case 2: CHANGE_STAT[0] += sqrt(new_two_paths * yhi) - sqrt(old_two_paths * yhi); break; // geomean
+	  }
 	});
     });
 }
 
-WtS_CHANGESTAT_FN(s_cyclicalweights_max){ 
+WtS_CHANGESTAT_FN(s_cyclicalweights){ 
+  unsigned int path = INPUT_ATTRIB[0], combine = INPUT_ATTRIB[1], compare =  INPUT_ATTRIB[2], threshold = INPUT_ATTRIB[3];
+
   CHANGE_STAT[0]=0;
   for (Vertex tail=1; tail <= N_NODES; tail++){
     EXEC_THROUGH_FOUTEDGES(tail, e1, head, yth, {
-      double best_path = 0;
+      double two_paths = 0;
       EXEC_THROUGH_OUTEDGES(head, e2, node3, yh3, { 
-	  // If the second leg of the 2-path is less than the best
-	  // path so far, we can skip the rest of this and save a
-	  // GETWT() call.
-	  if(yh3 > best_path)
-	    best_path = fmax(best_path, fmin(GETWT(node3,tail),yh3));
+	  double two_path;
+	  
+	  switch(path){
+	  case 1: two_path = fmin(GETWT(node3,tail), yh3); break; // min
+	  case 2: two_path = sqrt(GETWT(node3,tail) * yh3); break; // geomean
+	  }
+	  
+	  switch(combine){
+	  case 1: two_paths = fmax(two_paths, two_path); break; // max
+	  case 2: two_paths += two_path; break; // sum
+	  }
+
 	});
-      CHANGE_STAT[0] += fmin(best_path, yth);
+    
+      switch(compare){
+      case 1: CHANGE_STAT[0] += fmin(two_paths, yth); break; // min
+      case 2: CHANGE_STAT[0] += sqrt(two_paths * yth); break; // geomean
+      }
+      
       });
-  }
-}
-
-/*****************
- stat: cyclicalweights(_sum)
-*****************/
-
-WtD_FROM_S_FN(d_cyclicalweights_sum)
-
-WtS_CHANGESTAT_FN(s_cyclicalweights_sum){ 
-  CHANGE_STAT[0]=0;
-  for (Vertex tail=1; tail <= N_NODES; tail++){
-    EXEC_THROUGH_FOUTEDGES(tail, e1, head, yth, {
-      double path_strength = 0;
-      EXEC_THROUGH_OUTEDGES(head, e2, node3, yh3, { 
-	path_strength += fmin(GETWT(node3,tail),yh3);
-	})
-      CHANGE_STAT[0] += fmin(path_strength, yth);
-      })
   }
 }
 
@@ -675,96 +732,154 @@ WtD_CHANGESTAT_FN(d_sum_pow){
 /********************  changestats:   T    ***********/
 
 /*****************
- stat: transitiveweights(_max)
+ stat: transitiveweights
 *****************/
 
-WtD_CHANGESTAT_FN(d_transitiveweights_max){ 
+WtD_CHANGESTAT_FN(d_transitiveweights){ 
   CHANGE_STAT[0]=0;
-
+  unsigned int path = INPUT_ATTRIB[0], combine = INPUT_ATTRIB[1], compare =  INPUT_ATTRIB[2];
+  
   EXEC_THROUGH_TOGGLES({
       // (TAIL,HEAD) as the focus dyad
-      // This means that the strongest 2-path doesn't change.
-      double best_path = 0;
+      // This means that the combined 2-path value doesn't change.
+      double two_paths = 0;
       EXEC_THROUGH_INEDGES(HEAD, e1, k, ykh, {
-	  // If the second leg of the 2-path is less than the best
-	  // path so far, we can skip the rest of this and save a
-	  // GETWT() call.
-	  if(ykh > best_path)
-	    best_path = fmax(best_path, fmin(GETWT(TAIL,k), ykh));
+	  double two_path;
+
+	  switch(path){
+	  case 1: two_path = fmin(GETWT(TAIL,k), ykh); break; // min
+	  case 2: two_path = sqrt(GETWT(TAIL,k) * ykh); break; // geomean
+	  }
+	  
+	  switch(combine){
+	  case 1: two_paths = fmax(two_paths, two_path); break; // max
+	  case 2: two_paths += two_path; break; // sum
+	  }
+
 	});
-      CHANGE_STAT[0] += fmin(best_path, NEWWT) - fmin(best_path, OLDWT);
+
+      switch(compare){
+      case 1: CHANGE_STAT[0] += fmin(two_paths, NEWWT) - fmin(two_paths, OLDWT); break; // min
+      case 2: CHANGE_STAT[0] += sqrt(two_paths * NEWWT) - sqrt(two_paths * OLDWT); break; // geomean
+      }
 
       // (TAIL,HEAD) as the first link of the 2-path
-      // This means that only the strongest 2-path may change.
+      // This means that only the combined 2-path value may change.
       EXEC_THROUGH_OUTEDGES(TAIL, e1, j, ytj, {
 	  if(j==HEAD) continue;
 	  
-	  double old_best_path = 0;
-	  double new_best_path = 0;
+	  double old_two_paths = 0;
+	  double new_two_paths = 0;
 
 	  EXEC_THROUGH_INEDGES(j, e2, k, ykj, {
 	      double old_ytk = (k==HEAD) ? OLDWT : GETWT(TAIL, k);
 	      double new_ytk = (k==HEAD) ? NEWWT : old_ytk; 
+	      double old_two_path;
+	      double new_two_path;
 
-	      old_best_path = fmax(old_best_path, fmin(old_ytk, ykj));
-	      new_best_path = fmax(new_best_path, fmin(new_ytk, ykj));
+	      switch(path){
+	      case 1: // min
+		old_two_path = fmin(old_ytk, ykj);
+		new_two_path = fmin(new_ytk, ykj);
+		break;
+	      case 2: // geomean
+		old_two_path = sqrt(old_ytk * ykj);
+		new_two_path = sqrt(new_ytk * ykj);
+		break;
+	      }
+	  
+	      switch(combine){
+	      case 1:
+		old_two_paths = fmax(old_two_paths, old_two_path);// max
+		new_two_paths = fmax(new_two_paths, new_two_path);
+		break; // max
+	      case 2:
+		old_two_paths += old_two_path;
+		new_two_paths += new_two_path;
+		break; // sum
+	      }
+	      
 	    });
-	  CHANGE_STAT[0] += fmin(new_best_path, ytj) - fmin(old_best_path, ytj);
+
+	  switch(compare){
+	  case 1: CHANGE_STAT[0] += fmin(new_two_paths, ytj) - fmin(old_two_paths, ytj); break; // min
+	  case 2: CHANGE_STAT[0] += sqrt(new_two_paths * ytj) - sqrt(old_two_paths * ytj); break; // geomean
+	  }
 	});
 
       // (TAIL,HEAD) as the second link of the 2-path
-      // This means that only the strongest 2-path may change.
+      // This means that only the combined 2-path value may change.
       EXEC_THROUGH_INEDGES(HEAD, e1, i, yih, {
 	  if(i==TAIL) continue;
 	  
-	  double old_best_path = 0;
-	  double new_best_path = 0;
+	  double old_two_paths = 0;
+	  double new_two_paths = 0;
 
 	  EXEC_THROUGH_OUTEDGES(i, e2, k, yik, {
 	      double old_ykh = (k==TAIL) ? OLDWT : GETWT(k,HEAD);
 	      double new_ykh = (k==TAIL) ? NEWWT : old_ykh; 
+	      double old_two_path;
+	      double new_two_path;
 
-	      old_best_path = fmax(old_best_path, fmin(old_ykh, yik));
-	      new_best_path = fmax(new_best_path, fmin(new_ykh, yik));
+	      switch(path){
+	      case 1: // min
+		old_two_path = fmin(old_ykh, yik);
+		new_two_path = fmin(new_ykh, yik);
+		break;
+	      case 2: // geomean
+		old_two_path = sqrt(old_ykh * yik);
+		new_two_path = sqrt(new_ykh * yik);
+		break;
+	      }
+	  
+	      switch(combine){
+	      case 1:
+		old_two_paths = fmax(old_two_paths, old_two_path);// max
+		new_two_paths = fmax(new_two_paths, new_two_path);
+		break; // max
+	      case 2:
+		old_two_paths += old_two_path;
+		new_two_paths += new_two_path;
+		break; // sum
+	      }
 	    });
-	  CHANGE_STAT[0] += fmin(new_best_path, yih) - fmin(old_best_path, yih);
+
+	  switch(compare){
+	  case 1: CHANGE_STAT[0] += fmin(new_two_paths, yih) - fmin(old_two_paths, yih); break; // min
+	  case 2: CHANGE_STAT[0] += sqrt(new_two_paths * yih) - sqrt(old_two_paths * yih); break; // geomean
+	  }
 	});
     });
 }
 
-WtS_CHANGESTAT_FN(s_transitiveweights_max){ 
+WtS_CHANGESTAT_FN(s_transitiveweights){ 
+  unsigned int path = INPUT_ATTRIB[0], combine = INPUT_ATTRIB[1], compare =  INPUT_ATTRIB[2];
+
   CHANGE_STAT[0]=0;
   for (Vertex tail=1; tail <= N_NODES; tail++){
     EXEC_THROUGH_FOUTEDGES(tail, e1, head, yth, {
-      double best_path = 0;
+      double two_paths = 0;
       EXEC_THROUGH_INEDGES(head, e2, node3, y3h, {
-	  // If the second leg of the 2-path is less than the best
-	  // path so far, we can skip the rest of this and save a
-	  // GETWT() call.
-	  if(y3h > best_path)
-	    best_path = fmax(best_path, fmin(GETWT(tail,node3), y3h));
+	  double two_path;
+
+	  switch(path){
+	  case 1: two_path = fmin(GETWT(tail,node3), y3h); break; // min
+	  case 2: two_path = sqrt(GETWT(tail,node3) * y3h); break; // geomean
+	  }
+	  
+	  switch(combine){
+	  case 1: two_paths = fmax(two_paths, two_path); break; // max
+	  case 2: two_paths += two_path; break; // sum
+	  }
+
 	});
-      CHANGE_STAT[0] += fmin(best_path, yth);
+
+      switch(compare){
+      case 1: CHANGE_STAT[0] += fmin(two_paths, yth); break; // min
+      case 2: CHANGE_STAT[0] += sqrt(two_paths * yth); break; // geomean
+      }
+
       });
-  }
-}
-
-/*****************
- stat: transitiveweights(_sum)
-*****************/
-
-WtD_FROM_S_FN(d_transitiveweights_sum)
-
-WtS_CHANGESTAT_FN(s_transitiveweights_sum){ 
-  CHANGE_STAT[0]=0;
-  for (Vertex tail=1; tail <= N_NODES; tail++){
-    EXEC_THROUGH_FOUTEDGES(tail, e1, head, yth, {
-      double path_strength = 0;
-      EXEC_THROUGH_INEDGES(head, e2, node3, y3h, { 
-	path_strength += fmin(GETWT(tail,node3),y3h);
-	})
-      CHANGE_STAT[0] += fmin(path_strength, yth);
-      })
   }
 }
 

@@ -475,17 +475,26 @@ InitWtErgmTerm.transitiveties<-function (nw, arglist, response, ...) {
 InitWtErgmTerm.transitiveweights<-function (nw, arglist, response, ...) {
 ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, bipartite=NULL, nonnegative=TRUE,
-                      varnames = c("form","threshold"),
-                      vartypes = c("character","numeric"),
-                      defaultvalues = list("max",0),
+                      varnames = c("path","combine","compare"),
+                      vartypes = c("character","character","character"),
+                      defaultvalues = list("min","max","min"),
                       required = c(FALSE,FALSE), response=response)
-  form<-match.arg(a$form,c("max","sum","threshold"))
+  paths<-c("min","geomean")
+  path<-match.arg(a$path,paths)
+  combines<-c("max","sum")
+  combine<-match.arg(a$combine,combines)
+  compares<-c("min","geomean")
+  compare<-match.arg(a$compare,compares)
 
-  list(name=switch(form,max="transitiveweights_max",sum="transitiveweights_sum",threshold="transitiveweights_threshold"),
-       coef.names=switch(form,max="transitiveweights.max",sum="transitiveweights.sum",threshold=paste("transitiveweights",a$threshold,sep=".")),
-       inputs=if(form=="threshold") a$threshold,
+  list(name="transitiveweights",
+       coef.names=paste("transitiveweights",path,combine,compare,sep="."),
+       inputs=c(
+         which(paths==path),
+         which(combines==combine),
+         which(compares==compare)
+         ),
        dependence=TRUE,
-       minval = if(form=="threshold") 0)
+       minval = 0)
 }
 
 InitWtErgmTerm.cyclicalties<-function (nw, arglist, response, ...) {
@@ -505,16 +514,26 @@ InitWtErgmTerm.cyclicalties<-function (nw, arglist, response, ...) {
 
 InitWtErgmTerm.cyclicalweights<-function (nw, arglist, response, ...) {
 ### Check the network and arguments to make sure they are appropriate.
-  a <- check.ErgmTerm(nw, arglist, bipartite=NULL, nonnegative=FALSE,
-                      varnames = c("form","threshold"),
-                      vartypes = c("character","numeric"),
-                      defaultvalues = list("max",0),
-                      required = c(FALSE,FALSE), response=NULL)
-  
-  form<-match.arg(a$form,c("max","sum","threshold"))
-  list(name=switch(form,max="cyclicalweights_max",sum="cyclicalweights_sum",threshold="cyclicalweights_threshold"),
-       coef.names=switch(form,max="cyclicalweights.max",sum="cyclicalweights.sum",threshold=paste("cyclicalweights",a$threshold,sep=".")),
-       inputs=if(form=="threshold") threshold,
+  a <- check.ErgmTerm(nw, arglist, bipartite=NULL, nonnegative=TRUE,
+                      varnames = c("path","combine","compare"),
+                      vartypes = c("character","character","character"),
+                      defaultvalues = list("min","max","min"),
+                      required = c(FALSE,FALSE), response=response)
+  paths<-c("min","geomean")
+  path<-match.arg(a$path,paths)
+  combines<-c("max","sum")
+  combine<-match.arg(a$combine,combines)
+  compares<-c("min","geomean")
+  compare<-match.arg(a$compare,compares)
+
+  list(name="cyclicalweights",
+       coef.names=paste("cyclicalweights",path,combine,compare,sep="."),
+       inputs=c(
+         which(paths==path),
+         which(combines==combine),
+         which(compares==compare)
+         ),
        dependence=TRUE,
-       minval=if(form=="threshold") 0)
+       minval = 0)
 }
+
