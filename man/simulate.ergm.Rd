@@ -10,6 +10,7 @@
                           statsonly=FALSE,
                           sequential=TRUE,
                           constraints = ~.,
+                          monitor = NULL,
                           control = control.simulate.formula(),
                           verbose=FALSE, \dots)
 \method{simulate}{ergm}(object, nsim=1, seed=NULL, theta0=object$coef,
@@ -17,6 +18,7 @@
                        statsonly=FALSE,
                        sequential=TRUE,
                        constraints = NULL,
+                       monitor = NULL,
                        control = control.simulate.ergm(),
                        verbose=FALSE, \dots)
 }
@@ -65,6 +67,9 @@
     \code{simulate.formula}, defaults to no constraints. For
     \code{simulate.ergm}, defaults to using the same constraints as
     those with which \code{object} was fitted.}
+  \item{monitor}{A one-sided formula specifying one or more terms whose
+    value is to be monitored. These terms are appeneded to the model, along
+    with a coefficient of 0, so their statistics are returned.}
  \item{control}{A list of control parameters for algorithm
    tuning. Constructed using \code{\link{control.simulate.ergm}} or
    \code{\link{control.simulate.formula}}, which have different defaults.}
@@ -178,9 +183,10 @@ data(florentine)
 gest <- ergm(flomarriage ~ edges + kstar(2))
 summary(gest)
 #
-# Draw from the fitted model
+# Draw from the fitted model (satatistics only), and observe the number
+# of triangles as well.
 #
-g.sim <- simulate(gest,nsim=100,burnin=1000,interval=1000)
-g.sim
+g.sim <- simulate(gest,nsim=100,burnin=1000,interval=1000,monitor=~triangles,statsonly=TRUE)
+head(g.sim)
 }
 \keyword{models}

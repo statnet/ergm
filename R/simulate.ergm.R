@@ -61,14 +61,17 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, theta0=object$coef,
                           statsonly=FALSE,
                           sequential=TRUE,
                           constraints=NULL,
+                          monitor=NULL,
                           control=control.simulate.ergm(),
                           verbose=FALSE, ...) {
   if(is.null(burnin)){burnin <- object$burnin}
   if(is.null(interval)){interval <- object$interval}
   if(is.null(constraints)){constraints <- object$constraints}
+
   simulate.formula(object$formula, nsim=nsim, seed=seed, theta0=theta0, response=object$response, reference=if(is.null(object$reference)) "Bernoulli" else object$reference,
                    burnin=burnin, interval=interval, statsonly=statsonly,
                    sequential=sequential, constraints=constraints,
+                   monitor=monitor,
                    control=control, verbose=verbose, ...)
 }
 
@@ -78,15 +81,16 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, theta0=object$coef,
 # Here, there is a good reason to call it simulate.formula.ergm:
 # see simulate.formula.R
 simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NULL, reference="Bernoulli",
-                             burnin=1000, interval=1000,
-                             basis=NULL,
-                             statsonly=FALSE,
-                             sequential=TRUE,
-                             constraints=~.,
-                             control=control.simulate.formula(),
-                             verbose=FALSE, ...) {
+                                  burnin=1000, interval=1000,
+                                  basis=NULL,
+                                  statsonly=FALSE,
+                                  sequential=TRUE,
+                                  constraints=~.,
+                                  monitor=NULL,
+                                  control=control.simulate.formula(),
+                                  verbose=FALSE, ...) {
   if(!is.null(seed)) {set.seed(as.integer(seed))}
-
+  
   # define nw as either the basis argument or (if NULL) the LHS of the formula
   if (is.null(nw <- basis)) {
     nw <- ergm.getnetwork(object)    
@@ -107,21 +111,36 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
 
   # New formula (no longer use 'object'):
   form <- ergm.update.formula(object, basis ~ .)
-  
+
+  if(!is.null(monitor)){
+    # Construct a model to get the number of parameters monitor requires.
+    monitor <- ergm.update.formula(monitor, nw~.)
+    monitor.m <- ergm.getmodel(monitor, basis, response=response)
+    monitored.length <- theta.length.model(monitor.m)
+    
+    monitor <- term.list.formula(monitor[[3]])
+    form<-append.rhs.formula(form, monitor)
+  }else{
+    monitored.length <- 0
+  }
+
   # Prepare inputs to ergm.getMCMCsample
   m <- ergm.getmodel(form, basis, response=response)
-  if(!missing(theta0) && theta.length.model(m)!=length(theta0)) stop("theta0 has ", length(theta0), " elements, while the model requires ",theta.length.model(m)," parameters.")
+  # Just in case the user did not give a theta0 value, set it to zero.
+  # (probably we could just return an error in this case!)
+  if(missing(theta0)) {
+    theta0 <- c(rep(0, theta.length.model(m)))
+    warning("No parameter values given, using Bernouli network\n\t")
+  }
+
+  theta0 <- c(theta0, rep(0, monitored.length))
   
+  if(theta.length.model(m)!=length(theta0)) stop("theta0 has ", length(theta0) - monitored.length, " elements, while the model requires ",theta.length.model(m) - monitored.length," parameters.")
+
   Clist <- ergm.Cprepare(basis, m, response=response)
   MHproposal <- MHproposal(constraints,arguments=control$prop.args,
                            nw=nw, model=m, weights=control$prop.weights, class="c",reference=reference,response=response)  
 
-  # Just in case the user did not give a theta0 value, set it to zero.
-  # (probably we could just return an error in this case!)
-  if(missing(theta0)) {
-    theta0 <- rep(0,Clist$nstats)
-    warning("No parameter values given, using Bernouli network\n\t")
-  }
   if (any(is.infinite(theta0))){
    theta0[is.infinite(theta0)] <- sign(theta0[is.infinite(theta0)])*10000 
   }
