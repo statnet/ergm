@@ -73,6 +73,9 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
         # MH proposal failed somewhere. Throw an error.
         error("Sampling failed due to a Metropolis-Hastings proposal failing.")
       }
+
+      if(!is.null(z$burnin.failed) && z$burnin.failed) warning("Burn-in failed to converge after retries.")
+      
       statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
                             ncol=Clist$nstats,
                             byrow = TRUE)
@@ -103,6 +106,9 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
        # MH proposal failed somewhere. Throw an error.
        error("Sampling failed due to a Metropolis-Hastings proposal failing.")
      }
+
+     if(!is.null(z$burnin.failed) && z$burnin.failed) warning("Burn-in failed to converge after retries.")
+     
      statsmatrix <- rbind(statsmatrix,
        matrix(z$s, nrow=MCMCparams.parallel$samplesize,
        ncol=Clist$nstats,
@@ -272,6 +278,7 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
     library(coda)
 
     out <- NULL
+
     for(try in seq_len(MCMCparams$burnin.retries+1)){
       samplesize <- min(MCMCparams$samplesize,MCMCparams$burnin*MCMCparams$burnin.check.last)
       burnin <- ceiling(MCMCparams$burnin*(1-MCMCparams$burnin.check.last))
@@ -282,7 +289,7 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
                  interval = interval)
       # Stop if something went wrong.
       if(out$status!=0) return(out)
-      
+
       # Get the vector of the last burnin draws.
       burnin.stats <- matrix(out$s, nrow=samplesize,
                              ncol=Clist$nstats,
@@ -315,9 +322,12 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
       failed[is.na(failed)] <- TRUE
       if(any(failed)){
         cat("Burn-in failed to converge or mixed very poorly for statistics", paste(names(Clist$diagnosable[Clist$diagnosable])[failed],collapse=", "), ". Rerunning.\n")
-        if(try == MCMCparams$burnin.retries+1) warning("Burn-in failed to converge after retries.")
+        if(try == MCMCparams$burnin.retries+1) burnin.failed <- TRUE
       }
-      else break
+      else{
+        burnin.failed <- FALSE
+        break
+      }
     }
 
     # Do the actual sampling run. Note that we've already done the burnin.
@@ -330,6 +340,7 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,MCMCparams,maxedges,verbose) {
       
       plot(mcmc(stats,start=1,end=MCMCparams$samplesize*MCMCparams$interval,thin=MCMCparams$interval),ask=FALSE,smooth=TRUE,density=FALSE)
     }
+    out$burnin.failed <- burnin.failed
     out
   } else {
     out <- dorun()
