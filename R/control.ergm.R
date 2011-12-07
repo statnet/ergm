@@ -18,6 +18,8 @@
 #   compress         : whether the stats matrix should be compressed to the set
 #                      of unique statistics with a column of probability weights
 #                      post-pended; default=FALSE
+#   SAN.maxit        : the maximum number of re-runs used to create the 
+#                      SAN-ed network and formula; default=10
 #   SAN.burnin       : the burnin value used to create the SAN-ed network and
 #                      formula; default=NULL
 #   maxNumDyadTypes  : the maximum number of unique psuedolikelihood change stats
@@ -113,6 +115,7 @@ control.ergm<-function(prop.weights="default",prop.args=list(),
                        nr.reltol=sqrt(.Machine$double.eps),
                        calc.mcmc.se=TRUE, hessian=TRUE,
                        compress=FALSE,
+                       SAN.maxit=10,
                        SAN.burnin=NULL,
                        maxNumDyadTypes=1e+6, 
                        maxedges=20000,

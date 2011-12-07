@@ -163,7 +163,7 @@ ergm <- function(formula, response=NULL, theta0=NULL,
     ## with SAN-ed network and formula.
     srun <- 0
     obs <- meanstats-meanstats
-    while(sum((obs-meanstats)^2) > 5){
+    while((srun < control$SAN.maxit) & (sum((obs-meanstats)^2) > 5)){
      nw<-san(formula, meanstats=meanstats,
              theta0=if(is.numeric(theta0)) theta0,
              response=response,
