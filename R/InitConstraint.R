@@ -12,19 +12,17 @@
 
 ## List of which constraints make which constraints redundant.
 ConstraintImplications<-list(edges=character(0),
-                             degrees=c("edges","indegrees","outdegrees","degreedist","bd"),
-                             degreedist=c("edges","indegrees"),
+                             degrees=c("edges","indegrees","outdegrees","indegreedist","outdegreedist","degreedist","bd"),
+                             degreedist=c("edges","indegreedist","outdegreedist"),
                              indegreedist=c("edges"),
                              outdegreedist=c("edges"),
                              bd=character(0),
-                             indegrees=c("edges"),
-                             outdegrees=c("edges"),
+                             indegrees=c("edges","indegreedist"),
+                             outdegrees=c("edges","outdegreedist"),
                              hamming=character(0),
                              observed=character(0),
                              atleast=character(0),
                              atmost=character(0))
-
-
 
 ##########################################################################################
 # Each of the <InitConstraint.X> functions accepts an existing constraint list, 'conlist',

@@ -32,27 +32,27 @@
 
 
 
-InitMHP.formationMLE <- function(arguments, nw, model) {
-  MHproposal <- list(name = "FormationMLE", inputs=ergm.Cprepare.el(arguments$atleast$nw), package="ergm")
+InitMHP.formationMLE <- function(arguments, nw) {
+  MHproposal <- list(name = "FormationMLE", inputs=ergm.Cprepare.el(arguments$constraints$atleast$nw), package="ergm")
   MHproposal
 }
 
-InitMHP.formationMLETNT <- function(arguments, nw, model) {
-  MHproposal <- list(name = "FormationMLETNT", inputs=ergm.Cprepare.el(arguments$atleast$nw), package="ergm")
+InitMHP.formationMLETNT <- function(arguments, nw) {
+  MHproposal <- list(name = "FormationMLETNT", inputs=ergm.Cprepare.el(arguments$constraints$atleast$nw), package="ergm")
   MHproposal
 }
 
-InitMHP.dissolutionMLE <- function(arguments, nw, model) {
-  MHproposal <- list(name = "DissolutionMLE", inputs=ergm.Cprepare.el(arguments$atmost$nw), package="ergm")
+InitMHP.dissolutionMLE <- function(arguments, nw) {
+  MHproposal <- list(name = "DissolutionMLE", inputs=ergm.Cprepare.el(arguments$constraints$atmost$nw), package="ergm")
   MHproposal
 }
 
-InitMHP.formationNonObservedMLE <- function(arguments, nw, model) {
+InitMHP.formationNonObservedMLE <- function(arguments, nw) {
   ## Precalculate toggleable dyads: dyads which
   ## * are unobserved in y[t]
   ## * are non-ties in y[t-1]
   
-  y0<-arguments$atleast$nw
+  y0<-arguments$costraints$atleast$nw
   y.miss<-is.na(nw)
 
   ## Given the list of toggleable dyads, no formation-specific proposal function is needed:
@@ -60,12 +60,12 @@ InitMHP.formationNonObservedMLE <- function(arguments, nw, model) {
   MHproposal
 }
 
-InitMHP.dissolutionNonObservedMLE <- function(arguments, nw, model) {
+InitMHP.dissolutionNonObservedMLE <- function(arguments, nw) {
   ## Precalculate toggleable dyads: dyads which
   ## * are unobserved in y[t]
   ## * are ties in y[t-1]
 
-  y0<-arguments$atmost$nw
+  y0<-arguments$constraints$atmost$nw
   y.miss<-is.na(nw)
 
   ## Given the list of toggleable dyads, no formation-specific proposal function is needed:

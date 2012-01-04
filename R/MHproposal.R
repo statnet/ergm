@@ -13,14 +13,16 @@
 #   (see the class-specific function headers)
 #
 # --RETURNED--
-#   proposal: an MHproposal object as a list containing
-#   name   : the name of the proposal
-#   args   : NULL (I think - the only non-null value returned by the InitMH
-#            is for <nobetweengroupties>, but this isn't included in the 
-#            look-up table
-#   package: is "ergm"
-#   bd     : the list of parameters to bound degree in the fitting process
-#            and returned by <ergm.bounddeg>
+#   proposal: an MHproposal object as a list containing the following:
+#     name   : the C name of the proposal
+#     inputs : NULL (I think - the only non-null value returned by the InitMH
+#              is for <nobetweengroupties>, but this isn't included in the 
+#              look-up table
+#     package: shared library name where the proposal can be found (usually "ergm")
+#     arguments: list of arguments passed to the InitMHP function; in particular,
+#       constraints: list of constraints
+#       constraints$bd: the list of parameters to bound degree in the fitting process
+#              and returned by <ergm.bounddeg>
 #
 ########################################################################################
 
@@ -45,23 +47,24 @@ MHproposal.MHproposal<-function(object,...) return(object)
 #   arguments  :  a list of parameters used by the <Init.MHP> routines possibly including
 #                  bd: a list of parameters used to bound degree via <ergm.bounddeg>
 #   nw         :  the network object orginally given to <ergm> via 'formula'
-#   model      :  the initial model object constructed by <ergm>
 #
 ########################################################################################
 
-MHproposal.character <- function(object, arguments, nw, model, ..., response=NULL){
+MHproposal.character <- function(object, arguments, nw, ..., response=NULL){
   name<-object
   proposal <- {
     if(is.null(response))
       eval(call(paste("InitMHP", name, sep="."),
-                arguments, nw, model))
+                arguments, nw))
     else
       eval(call(paste("InitWtMHP", name, sep="."),
-                arguments, nw, model, response))
+                arguments, nw, response))
   }
 
-  proposal$bd<-ergm.bounddeg(arguments$bd,nw)
+  proposal$arguments <- arguments
 
+  proposal$arguments$constraints$bd <- ergm.bounddeg(arguments$bd,nw)
+  
   class(proposal)<-"MHproposal"
   proposal
 }
@@ -81,7 +84,6 @@ MHproposal.character <- function(object, arguments, nw, model, ..., response=NUL
 #   arguments  :  a list of parameters used by the <Init.MHP> routines  possibly including
 #                  bd: a list of parameters used to bound degree via <ergm.bounddeg>
 #   nw         :  a network object
-#   model      :  a model object; default=<ergm.getmodel(object$formula,nw,...)>  
 #   constraints:  the constraints as a one sided formula '~ term(s)'
 #   weights    :  specifies the method used to allocate probabilities of being proposed
 #                 to dyads; options are "TNT", "TNT10", "random", "nonobserved" and
@@ -91,30 +93,34 @@ MHproposal.character <- function(object, arguments, nw, model, ..., response=NUL
 #
 ########################################################################################
 
-MHproposal.formula <- function(object, arguments, nw, model, weights="default", class="c", reference="Bernoulli", response=NULL, ...) {
+MHproposal.formula <- function(object, arguments, nw, weights="default", class="c", reference="Bernoulli", response=NULL, ...) {
   constraints<-object
   reference<-match.arg(reference,unique(MHproposals$Reference))
-  
-  ## Construct a list of constraints and arguments from the formula.
-  conlist<-list()
-  constraints<-as.list(attr(terms(constraints,allowDotAsName=TRUE),"variables"))[-1]
-  for(constraint in constraints){
-    ## The . in the default formula means no constrains.
-    ## There may be other constraints in the formula, however.
-    if(constraint==".") next
-    
-    if(is.call(constraint)){
-      init.call<-list()
-      init.call<-list(as.name(paste("InitConstraint.", constraint[[1]], sep = "")),
-                      conlist=conlist)
+
+  if("constraints" %in% names(arguments)){
+    conlist <- arguments$constraints
+  }else{
+    ## Construct a list of constraints and arguments from the formula.
+    conlist<-list()
+    constraints<-as.list(attr(terms(constraints,allowDotAsName=TRUE),"variables"))[-1]
+    for(constraint in constraints){
+      ## The . in the default formula means no constrains.
+      ## There may be other constraints in the formula, however.
+      if(constraint==".") next
       
-      init.call<-c(init.call,as.list(constraint)[-1])
-    }else{
-      init.call <- list(as.name(paste("InitConstraint.", constraint, sep = "")),conlist=conlist)
-    }
-    conlist <- try(eval(as.call(init.call), environment(object)))
-    if(inherits(conlist,"try-error")){
-      stop(paste("The constraint you have selected ('",constraints,"') does not exist in 'ergm'. Are you sure you have not mistyped it?",sep=""))
+      if(is.call(constraint)){
+        init.call<-list()
+        init.call<-list(as.name(paste("InitConstraint.", constraint[[1]], sep = "")),
+                        conlist=conlist)
+        
+        init.call<-c(init.call,as.list(constraint)[-1])
+      }else{
+        init.call <- list(as.name(paste("InitConstraint.", constraint, sep = "")),conlist=conlist)
+      }
+      conlist <- try(eval(as.call(init.call), environment(object)))
+      if(inherits(conlist,"try-error")){
+        stop(paste("The constraint you have selected ('",constraints,"') does not exist in 'ergm'. Are you sure you have not mistyped it?",sep=""))
+      }
     }
   }
   
@@ -122,14 +128,14 @@ MHproposal.formula <- function(object, arguments, nw, model, weights="default", 
   for(constr in names(conlist))
     for(impl in ConstraintImplications[[constr]])
       conlist[[impl]]<-NULL
-
+  
   ## Convert vector of constraints to a "standard form".
   if(is.null(names(conlist))) {
     constraints <- ""
   } else {
     constraints <- paste(sort(tolower(names(conlist))),collapse="+")
   }
-  MHqualifying<-with(MHproposals,MHproposals[Class==class & Constraints==constraints & Reference==reference & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
+    MHqualifying<-with(MHproposals,MHproposals[Class==class & Constraints==constraints & Reference==reference & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
 
   if(nrow(MHqualifying)<1){
     commonalities<-(MHproposals$Class==class)+(MHproposals$Weights==weights)+(MHproposals$Reference==reference)+(MHproposals$Constraints==constraints)
@@ -141,10 +147,9 @@ MHproposal.formula <- function(object, arguments, nw, model, weights="default", 
   else
     name<-with(MHqualifying,MHP[which.max(Priority)])
 
-  for(constraint in names(conlist))
-    if(! constraint %in% arguments) arguments[[constraint]]<-conlist[[constraint]]
+  arguments$constraints<-conlist
   ## Hand it off to the class character method.
-  MHproposal.character(name,arguments,nw,model,response=response)
+  MHproposal.character(name,arguments,nw,response=response)
 }
 
 
@@ -157,15 +162,11 @@ MHproposal.formula <- function(object, arguments, nw, model, weights="default", 
 #
 # --PARAMETERS--
 #   object     :  an ergm object
-#   ...        :  parameters used to create the model via <ergm.getmodel>;
-#                 only used if 'model' is not specified; these may include
-#                 'silent' and 'initialfit'
 #   constraints:  the constraints as a one sided formula '~ term(s)';
 #                 default=object$constraints
 #   arguments  :  a list of parameters used by the <Init.MHP> routines  possibly including
 #                  bd: a list of parameters used to bound degree via <ergm.bounddeg>
 #   nw         :  a network object; default=object.network
-#   model      :  a model object; default=<ergm.getmodel(object$formula,nw,...)>
 #   weights    :  the proposal weights component of <control.ergm> as either
 #                 "TNT", "random", "TNT10", or "default"; default="default"
 #                 (these options don't agree with the prop.weights of <control.ergm>)
@@ -173,18 +174,13 @@ MHproposal.formula <- function(object, arguments, nw, model, weights="default", 
 #
 ########################################################################################
 
-MHproposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NULL, model=NULL,weights=NULL,class="c", reference="Bernoulli", response=NULL){
+MHproposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NULL, weights=NULL,class="c", reference="Bernoulli", response=NULL){
   if(is.null(constraints)) constraints<-object$constraints
   if(is.null(arguments)) arguments<-object$prop.args
   if(is.null(nw)) nw<-object$network
   if(is.null(response)) response<-object$response
   if(is.null(weights)) weights<-"default"
-  if(is.null(model)){
-    model<-if(class %in% c("c","f"))
-      ergm.getmodel(object$formula,nw,response=response,...)
-    else
-      ergm.getmodel.dissolve(object$formula,nw,response=response,...)
-  }  
-  MHproposal(constraints,arguments=arguments,nw=nw,model=model,weights=weights,class=class,reference=reference,response=response)
+  
+  MHproposal(constraints,arguments=arguments,nw=nw,weights=weights,class=class,reference=reference,response=response)
 }
 

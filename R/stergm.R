@@ -119,14 +119,15 @@ stergm <- function(formation, dissolution, theta.form0=NULL, theta.diss=NULL,
      print(summary(formation, basis=nw)-meanstats)
    }
   }
+
+  if (verbose) cat("Initializing Metropolis-Hastings proposal.\n")
+  MHproposal.form <- MHproposal(constraints, weights=control$prop.weights.form, control$prop.args.form, nw, class="f")
   
   if (verbose) cat("Initializing model.\n")
 
-  model.initial <- ergm.getmodel(formation, nw, initialfit=TRUE)
+  model.initial <- ergm.getmodel(formation, nw, initialfit=TRUE, MHp=MHproposal.form)
   if(is.null(theta.form0)) theta.form0 <- rep(NA, length(model.initial$etamap$offsettheta))
   
-  if (verbose) cat("Initializing Metropolis-Hastings proposal.\n")
-  MHproposal.form <- MHproposal(constraints, weights=control$prop.weights.form, control$prop.args.form, nw, model.initial,class="f")
 
   MCMCparams=c(control,
    list(MH.burnin=MH.burnin))
@@ -148,7 +149,7 @@ stergm <- function(formation, dissolution, theta.form0=NULL, theta.diss=NULL,
   theta.form0[is.na(theta.form0)] <- 0
 
   
-   model.form <- ergm.getmodel(formation, nw, expanded=TRUE)
+   model.form <- ergm.getmodel(formation, nw, expanded=TRUE, MHp=MHproposal.form)
    # revise theta.form0 to reflect additional parameters
    theta.form0 <- ergm.revisetheta0(model.form, theta.form0)
    names(model.form$etamap$offsettheta) <- names(theta.form0)
@@ -178,9 +179,9 @@ stergm <- function(formation, dissolution, theta.form0=NULL, theta.diss=NULL,
    list(MH.burnin=MH.burnin))
 
 if (verbose) cat("Fitting Dynamic ERGM.\n")
-    dissolution<-ergm.update.formula(dissolution,nw~.)
-    model.diss <- ergm.getmodel(dissolution, nw, stergm.order=stergm.order)
-    MHproposal.diss <- MHproposal(constraints, weights=control$prop.weights.diss, control$prop.args.diss, nw, model.diss,class="d")
+  dissolution<-ergm.update.formula(dissolution,nw~.)
+  MHproposal.diss <- MHproposal(constraints, weights=control$prop.weights.diss, control$prop.args.diss, nw, class="d")
+  model.diss <- ergm.getmodel(dissolution, nw, stergm.order=stergm.order, MHp=MHproposal.diss)
     v <- switch(control$style,
                 "SPSA" = stergm.SPSA(theta.form0, nw, model.form, model.diss,
                   Clist, theta.diss, 

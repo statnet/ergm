@@ -141,9 +141,9 @@ simulate.formula.stergm <- function(object, nsim=1, seed=NULL, ..., dissolution,
   if(!is.null(seed)) set.seed(as.integer(seed))
     
   MHproposal.form <- MHproposal(constraints,control$prop.args.form,nw,
-                                                    model.form,weights=control$prop.weights.form,class="f")
+                                                    weights=control$prop.weights.form,class="f")
   MHproposal.diss <- MHproposal(constraints,control$prop.args.diss,nw,
-                                                    model.diss,weights=control$prop.weights.diss,class="d")
+                                                    weights=control$prop.weights.diss,class="d")
   MCMCparams <- c(control,list(samplesize=nsim, time.interval=time.interval,
                                time.burnin=time.burnin,
                                MH.burnin=MH.burnin,

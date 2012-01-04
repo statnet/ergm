@@ -152,6 +152,8 @@ ergm <- function(formula, response=NULL, theta0=NULL,
   
   if(constraints==MHproposal.obs) MHproposal.obs<-NULL
 
+  ## Construct approximate response network if meanstats are given.
+  
   if(!is.null(meanstats)){
    if(!(!is.null(control$SAN.burnin) && is.na(control$SAN.burnin))){
     netsumm<-summary(formula,response=response)
@@ -192,6 +194,14 @@ ergm <- function(formula, response=NULL, theta0=NULL,
    }
   }
   if(control$nsubphases=="maxit") control$nsubphases<-maxit
+
+  if (verbose) { cat("Initializing Metropolis-Hastings proposal.\n") }
+  
+  MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, class=proposalclass,reference=reference,response=response)
+  # Note:  MHproposal function in CRAN version does not use the "class" argument for now
+  if(!is.null(MHproposal.obs)) MHproposal.obs <- MHproposal(MHproposal.obs, weights=control$prop.weights, control$prop.args, nw, class=proposalclass, reference=reference, response=response)
+  
+  conddeg <- switch(MHproposal$name %in% c("CondDegree","CondDegreeSimpleTetrad","BipartiteCondDegHexadToggles","BipartiteCondDegTetradToggles"),control$drop,NULL)
   
   if (verbose) cat("Initializing model.\n")
   
@@ -215,14 +225,11 @@ ergm <- function(formula, response=NULL, theta0=NULL,
   # Check if any terms are at their extremes and handle them depending on control$drop.
   extremecheck <- ergm.checkextreme.model(model=model.initial, nw=nw, theta0=theta0, response=response, meanstats=meanstats, drop=control$drop)
   model.initial <- extremecheck$model; theta0 <- extremecheck$theta0
+
+  # Check if any terms are constrained to a constant and issue a warning.
+  ergm.checkconstraints.model(model.initial, MHproposal)
+
   
-  if (verbose) { cat("Initializing Metropolis-Hastings proposal.\n") }
-
-  MHproposal <- MHproposal(constraints, weights=control$prop.weights, control$prop.args, nw, model.initial,class=proposalclass,reference=reference,response=response)
-  # Note:  MHproposal function in CRAN version does not use the "class" argument for now
-  if(!is.null(MHproposal.obs)) MHproposal.obs <- MHproposal(MHproposal.obs, weights=control$prop.weights, control$prop.args, nw, model.initial, class=proposalclass, reference=reference, response=response)
-
-  conddeg <- switch(MHproposal$name %in% c("CondDegree","CondDegreeSimpleTetrad","BipartiteCondDegHexadToggles","BipartiteCondDegTetradToggles"),control$drop,NULL)
   MCMCparams=c(control,
    list(samplesize=MCMCsamplesize, burnin=burnin, interval=interval,
         maxit=maxit,
@@ -287,8 +294,7 @@ ergm <- function(formula, response=NULL, theta0=NULL,
   theta0 <- ergm.revisetheta0(model, theta0)
 
   extremecheck <- ergm.checkextreme.model(model=model, nw=nw, theta0=theta0, response=response, meanstats=meanstats, drop=control$drop, silent=TRUE)
-  model <- extremecheck$model
-  theta0 <- extremecheck$theta0
+  model <- extremecheck$model; theta0 <- extremecheck$theta0
 
   Clist <- ergm.Cprepare(nw, model, response=response)
   Clist$obs <- summary(model$formula, response=response)
@@ -322,7 +328,7 @@ ergm <- function(formula, response=NULL, theta0=NULL,
   if (verbose) cat("Fitting ERGM.\n")
   v <- switch(control$style,
     "Robbins-Monro" = ergm.robmon(theta0, nw, model, Clist, burnin, interval,
-                      MHproposal(constraints,weights=control$prop.weights, control$prop.args, nw, model, response=response), verbose, control),
+                      MHproposal(constraints,weights=control$prop.weights, control$prop.args, nw, response=response), verbose, control),
     "Stochastic-Approximation" = ergm.stocapprox(theta0, nw, model, 
                                  Clist, 
                                  MCMCparams=MCMCparams, MHproposal=MHproposal,
@@ -432,4 +438,26 @@ ergm.checkextreme.model <- function(model, nw, theta0, response, meanstats, drop
   }
 
   list(model=model, theta0=theta0, extremeval.theta=extremeval.theta)
+}
+
+## Check for conflicts between model terms and constraints.
+
+ergm.checkconstraints.model <- function(model, MHproposal){
+  # Get the list of all the constraints that the proposal imposes on the sample space.
+  constraints.old<-names(MHproposal$arguments$constraints)
+  repeat{
+    constraints <- unique(sort(c(constraints.old, unlist(ConstraintImplications[constraints.old]))))
+    if(all(constraints==constraints.old)) break
+    else constraints.old <- constraints
+  }
+
+  conflict.coefs <- c()
+  
+  for(term in model$terms){
+    if(any(term$conflicts.constraints %in% constraints))
+      conflict.coefs <- c(conflict.coefs, term$coef.names)
+  }
+
+  if(length(conflict.coefs))
+    warning(paste("The specified model's sample space constraint holds statistic(s)", paste(conflict.coefs, collapse=", "), " constant. They will be ignored.", sep=" "))
 }

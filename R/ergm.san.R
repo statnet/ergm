@@ -115,7 +115,7 @@ san.formula <- function(object, nsim=1, seed=NULL, theta0=NULL,
   MCMCsamplesize <- 1
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
-  MHproposal<-MHproposal(constraints,control$prop.args,nw,model,weights=control$prop.weights)
+  MHproposal<-MHproposal(constraints,control$prop.args,nw,weights=control$prop.weights)
 # if(is.null(theta0)) {
 #   warning("No parameter values given, using the MPLE for the passed network.\n\t")
 # }
@@ -207,11 +207,11 @@ san.formula <- function(object, nsim=1, seed=NULL, theta0=NULL,
              newnwheads = integer(maxedges), 
              as.double(invcov),
              as.integer(verb),
-             as.integer(MHproposal$bd$attribs), 
-             as.integer(MHproposal$bd$maxout), as.integer(MHproposal$bd$maxin),
-             as.integer(MHproposal$bd$minout), as.integer(MHproposal$bd$minin),
-             as.integer(MHproposal$bd$condAllDegExact),
-             as.integer(length(MHproposal$bd$attribs)), 
+             as.integer(MHproposal$arguments$constraints$bd$attribs), 
+             as.integer(MHproposal$arguments$constraints$bd$maxout), as.integer(MHproposal$arguments$constraints$bd$maxin),
+             as.integer(MHproposal$arguments$constraints$bd$minout), as.integer(MHproposal$arguments$constraints$bd$minin),
+             as.integer(MHproposal$arguments$constraints$bd$condAllDegExact),
+             as.integer(length(MHproposal$arguments$constraints$bd$attribs)), 
              as.integer(maxedges), 
              PACKAGE="ergm")
     }

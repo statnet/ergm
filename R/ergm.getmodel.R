@@ -47,7 +47,7 @@
 #
 #####################################################################################
 
-ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, ...,stergm.order=NULL) {
+ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, ..., stergm.order=NULL) {
   if ((dc<-data.class(formula)) != "formula")
     stop (paste("Invalid formula of class ",dc), call.=FALSE)
 
@@ -126,7 +126,7 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, ...,stergm.
       names(v[[i]])[2] <-  ""
       v[[i]][[3]] <- args
       names(v[[i]])[3] <- ""
-      dotdotdot <- c(if(!is.null(response)) list(response=response),list(...))
+      dotdotdot <- c(if(!is.null(response)) list(response=response), list(...))
       for(j in seq_along(dotdotdot)) {
         if(is.null(dotdotdot[[j]])) next
         v[[i]][[3+j]] <- dotdotdot[[j]]

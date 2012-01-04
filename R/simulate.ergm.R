@@ -139,7 +139,7 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
 
   Clist <- ergm.Cprepare(basis, m, response=response)
   MHproposal <- MHproposal(constraints,arguments=control$prop.args,
-                           nw=nw, model=m, weights=control$prop.weights, class="c",reference=reference,response=response)  
+                           nw=nw, weights=control$prop.weights, class="c",reference=reference,response=response)  
 
   if (any(is.infinite(theta0))){
    theta0[is.infinite(theta0)] <- sign(theta0[is.infinite(theta0)])*10000 

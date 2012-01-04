@@ -1,4 +1,4 @@
-InitWtMHP.Poisson <- function(arguments, nw, model, response) {
+InitWtMHP.Poisson <- function(arguments, nw, response) {
   MHproposal <- list(name = "Poisson", inputs=NULL, package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartitePoisson"
@@ -6,7 +6,7 @@ InitWtMHP.Poisson <- function(arguments, nw, model, response) {
   MHproposal
 }
 
-InitWtMHP.ZIPoisson <- function(arguments, nw, model, response) {
+InitWtMHP.ZIPoisson <- function(arguments, nw, response) {
   if(! "p0" %in% names(arguments)){
     arguments$p0 <- max(sum(nw %e% response > 0)/network.dyadcount(nw) - exp(-sum(nw %e% response)/network.dyadcount(nw)),0)
     if(arguments$p0==0) warning("The data do not appear to zero-inflated and are likely to be zero-deflated.")
@@ -21,7 +21,7 @@ InitWtMHP.ZIPoisson <- function(arguments, nw, model, response) {
   MHproposal
 }
 
-InitWtMHP.PoissonNonObserved <- function(arguments, nw, model, response) {
+InitWtMHP.PoissonNonObserved <- function(arguments, nw, response) {
   MHproposal <- list(name = "PoissonNonObserved", inputs=ergm.Cprepare.miss(nw), package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartitePoissonNonObserved"
@@ -29,7 +29,7 @@ InitWtMHP.PoissonNonObserved <- function(arguments, nw, model, response) {
   MHproposal
 }
 
-InitWtMHP.DescRank <- function(arguments, nw, model, response) {
+InitWtMHP.DescRank <- function(arguments, nw, response) {
   MHproposal <- list(name = "CompleteOrdering", inputs=NULL, package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "CompleteOrderingBipartite"
@@ -37,7 +37,7 @@ InitWtMHP.DescRank <- function(arguments, nw, model, response) {
   MHproposal
 }
 
-InitWtMHP.DescRankEquivalent <- function(arguments, nw, model, response) {
+InitWtMHP.DescRankEquivalent <- function(arguments, nw, response) {
   MHproposal <- list(name = "CompleteOrderingEquivalent", package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "CompleteOrderingEquivalentBipartite"
@@ -73,7 +73,7 @@ InitWtMHP.DescRankEquivalent <- function(arguments, nw, model, response) {
 }
 
 
-InitWtMHP.StdNormal <- function(arguments, nw, model, response) {
+InitWtMHP.StdNormal <- function(arguments, nw, response) {
   MHproposal <- list(name = "StdNormal", inputs=NULL, package="ergm")
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartiteStdNormal"
@@ -81,7 +81,7 @@ InitWtMHP.StdNormal <- function(arguments, nw, model, response) {
   MHproposal
 }
 
-InitWtMHP.StdNormalRank <- function(arguments, nw, model, response) {
+InitWtMHP.StdNormalRank <- function(arguments, nw, response) {
   if(!is.directed(nw) && !is.bipartite(nw)) stop("StdNormRank: The Standard Normal proposal with rank-constraint only works with directed or bipartite networks.")
 
   if(is.bipartite(nw)){
