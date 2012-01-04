@@ -126,14 +126,16 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss,
             diffnwtails = integer(maxchanges),
             diffnwheads = integer(maxchanges),
             as.integer(verbose), 
-            PACKAGE="ergm") 
-    statsmatrix.form <- matrix(z$s.form, nrow=MCMCparams$samplesize+1,
-                               ncol=Clist.form$nstats,
-                               byrow = TRUE)[-1,,drop=FALSE]
-    statsmatrix.diss <- matrix(z$s.diss, nrow=MCMCparams$samplesize+1,
-                               ncol=Clist.diss$nstats,
-                               byrow = TRUE)[-1,,drop=FALSE]
-
+            PACKAGE="ergm")
+  }
+  
+  statsmatrix.form <- matrix(z$s.form, nrow=MCMCparams$samplesize+1,
+                             ncol=Clist.form$nstats,
+                             byrow = TRUE)[-1,,drop=FALSE]
+  statsmatrix.diss <- matrix(z$s.diss, nrow=MCMCparams$samplesize+1,
+                             ncol=Clist.diss$nstats,
+                             byrow = TRUE)[-1,,drop=FALSE]
+  
   newnetwork<-newnw.extract(nw,z)
 #   Next create the network of differences from the origianl one
 
