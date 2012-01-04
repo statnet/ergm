@@ -88,111 +88,52 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss,
     MCMCparams$maxchanges <- 5*MCMCparams$maxchanges
     if(verbose){cat(paste("MCMCDyn workspace is",maxchanges,"\n"))}
     
-    if(MCMCparams$parallel==0){
-      z <- .C("MCMCDyn_wrapper",
-              # Observed network.
-              as.integer(Clist.form$tails), as.integer(Clist.form$heads), 
-              as.integer(Clist.form$nedges), as.integer(Clist.form$maxpossibleedges),
-              as.integer(Clist.form$n),
-              as.integer(Clist.form$dir), as.integer(Clist.form$bipartite),
-              # Ordering of formation and dissolution.
-              as.integer(Clist.diss$stergm.order.code),
-              # Formation terms and proposals.
-              as.integer(Clist.form$nterms), 
-              as.character(Clist.form$fnamestring),
-              as.character(Clist.form$snamestring),
-              as.character(MHproposal.form$name), as.character(MHproposal.form$package),
-              as.double(Clist.form$inputs), as.double(theta.form0),
-              #?  Add:  as.double(length(MHproposal.form$args)), as.double(MHproposal.form$args),
-              # Dissolution terms and proposals.
-              as.integer(Clist.diss$nterms), 
-              as.character(Clist.diss$fnamestring),
-              as.character(Clist.diss$snamestring),
-              as.character(MHproposal.diss$name), as.character(MHproposal.diss$package),
+    z <- .C("MCMCDyn_wrapper",
+            # Observed network.
+            as.integer(Clist.form$tails), as.integer(Clist.form$heads), 
+            as.integer(Clist.form$nedges), as.integer(Clist.form$maxpossibleedges),
+            as.integer(Clist.form$n),
+            as.integer(Clist.form$dir), as.integer(Clist.form$bipartite),
+            # Ordering of formation and dissolution.
+            as.integer(Clist.diss$stergm.order.code),
+            # Formation terms and proposals.
+            as.integer(Clist.form$nterms), 
+            as.character(Clist.form$fnamestring),
+            as.character(Clist.form$snamestring),
+            as.character(MHproposal.form$name), as.character(MHproposal.form$package),
+            as.double(Clist.form$inputs), as.double(theta.form0),
+            #?  Add:  as.double(length(MHproposal.form$args)), as.double(MHproposal.form$args),
+            # Dissolution terms and proposals.
+            as.integer(Clist.diss$nterms), 
+            as.character(Clist.diss$fnamestring),
+            as.character(Clist.diss$snamestring),
+            as.character(MHproposal.diss$name), as.character(MHproposal.diss$package),
               as.double(Clist.diss$inputs), as.double(theta.diss0),
-              # Degree bounds.
-              as.integer(MHproposal.form$bd$attribs), 
-              as.integer(MHproposal.form$bd$maxout), as.integer(MHproposal.form$bd$maxin),
-              as.integer(MHproposal.form$bd$minout), as.integer(MHproposal.form$bd$minin),
-              as.integer(MHproposal.form$bd$condAllDegExact), as.integer(length(MHproposal.form$bd$attribs)),
-              # MCMC settings.
-              as.double(MCMCparams$samplesize), as.integer(MCMCparams$MH.burnin),
-              as.double(MCMCparams$time.burnin), as.double(MCMCparams$time.interval),
-              # Space for output.
-              s.form = as.double(cbind(MCMCparams$meanstats.form,matrix(0,nrow=length(model.form$coef.names),ncol=MCMCparams$samplesize))),
-              s.diss = as.double(cbind(MCMCparams$meanstats.diss,matrix(0,nrow=length(model.diss$coef.names),ncol=MCMCparams$samplesize))),
-              newnwtails = integer(maxchanges), newnwheads = integer(maxchanges), 
-              as.double(maxchanges),
-              diffnwtime = integer(maxchanges),
-              diffnwtails = integer(maxchanges),
-              diffnwheads = integer(maxchanges),
-              as.integer(verbose), 
-              PACKAGE="ergm") 
-      statsmatrix.form <- matrix(z$s.form, nrow=MCMCparams$samplesize+1,
-                                 ncol=Clist.form$nstats,
-                                 byrow = TRUE)[-1,,drop=FALSE]
-      statsmatrix.diss <- matrix(z$s.diss, nrow=MCMCparams$samplesize+1,
-                                 ncol=Clist.diss$nstats,
-                                 byrow = TRUE)[-1,,drop=FALSE]
-    }else{
-      rpvmbasename <- paste("ergm.parallel.",Sys.getpid(),sep="")
-      MCMCparams.parallel <- MCMCparams
-      MCMCparams.parallel$samplesize <- round(MCMCparams$samplesize / MCMCparams$parallel)
-      MCMCparams.parallel$stats <- MCMCparams$stats[1:MCMCparams.parallel$samplesize,]
-      require(rpvm)
-      require(MASS) # needed by rpvm
-#
-#   Write the slave file
-#
-      outsetuppvm <- stergm.rpvm.setup(rpvmbasename, verbose=verbose,
-                                       packagename=packagename)
-#
-#   Saving the common variables
-#
-      save(Clist.form,
-           Clist.diss,
-           MHproposal.form,
-           MHproposal.diss,
-           theta.form0,
-           theta.diss0,
-           MCMCparams.parallel,
-           maxchanges, 
-           verbose,
-           file=paste(outsetuppvm$SLAVEDIR,"/",rpvmbasename,".common.RData",sep=""))
-#
-#   Run the jobs with PVM
-#
-      outlist <- ergm.rpvm.run(MCMCparams$parallel, rpvmbasename)
-#
-#   Process the results
-#
-      statsmatrix.form <- NULL
-      statsmatrix.diss <- NULL
-#   newedgelist <- matrix(0, ncol=2, nrow=0)
-      for(i in (1:MCMCparams$parallel)){
-        load(file=paste(outsetuppvm$SLAVEDIR,"/",rpvmbasename,".out.",i,".RData",sep=""))
-# NOTE: rbind is S-L-O-W for large structures, so it might be quicker to "allocate" a
-# statsmatrix, and copy into it. -- PK
-        statsmatrix.form <- rbind(statsmatrix.form,
-                                  matrix(z$s, nrow=MCMCparams.parallel$samplesize,
-                                         ncol=Clist.form$nstats,
-                                         byrow = TRUE))
-        statsmatrix.diss <- rbind(statsmatrix.diss,
-                                      matrix(z$s, nrow=MCMCparams.parallel$samplesize,
-                                             ncol=Clist.diss$nstats,
-                                             byrow = TRUE))
-#    if(z$newnw[1]>1){
-#      newedgelist <- rbind(newedgelist,
-#                           matrix(z$newnw[2:z$newnw[1]], ncol=2, byrow=TRUE))
-      }
-      cat("parallel samplesize=",nrow(statsmatrix),"by",
-          MCMCparams.parallel$samplesize,"\n")
-      ergm.rpvm.clean(rpvmbasename=rpvmbasename)
-    }
-  }
-#   cat(paste("z$diffnwtails = ",maxchanges,z$diffnwtails[1],"\n"))
-#   cat(paste("z$dissnwtails = ",maxchanges,z$dissnwtails[1],"\n"))
-#   cat(paste("z$newwtail = ",maxchanges,z$newnwtails[1],"\n"))
+            # Degree bounds.
+            as.integer(MHproposal.form$arguments$constraints$bd$attribs), 
+            as.integer(MHproposal.form$arguments$constraints$bd$maxout), as.integer(MHproposal.form$arguments$constraints$bd$maxin),
+            as.integer(MHproposal.form$arguments$constraints$bd$minout), as.integer(MHproposal.form$arguments$constraints$bd$minin),
+            as.integer(MHproposal.form$arguments$constraints$bd$condAllDegExact), as.integer(length(MHproposal.form$arguments$constraints$bd$attribs)),
+            # MCMC settings.
+            as.double(MCMCparams$samplesize), as.integer(MCMCparams$MH.burnin),
+            as.double(MCMCparams$time.burnin), as.double(MCMCparams$time.interval),
+            # Space for output.
+            s.form = as.double(cbind(MCMCparams$meanstats.form,matrix(0,nrow=length(model.form$coef.names),ncol=MCMCparams$samplesize))),
+            s.diss = as.double(cbind(MCMCparams$meanstats.diss,matrix(0,nrow=length(model.diss$coef.names),ncol=MCMCparams$samplesize))),
+            newnwtails = integer(maxchanges), newnwheads = integer(maxchanges), 
+            as.double(maxchanges),
+            diffnwtime = integer(maxchanges),
+            diffnwtails = integer(maxchanges),
+            diffnwheads = integer(maxchanges),
+            as.integer(verbose), 
+            PACKAGE="ergm") 
+    statsmatrix.form <- matrix(z$s.form, nrow=MCMCparams$samplesize+1,
+                               ncol=Clist.form$nstats,
+                               byrow = TRUE)[-1,,drop=FALSE]
+    statsmatrix.diss <- matrix(z$s.diss, nrow=MCMCparams$samplesize+1,
+                               ncol=Clist.diss$nstats,
+                               byrow = TRUE)[-1,,drop=FALSE]
+
   newnetwork<-newnw.extract(nw,z)
 #   Next create the network of differences from the origianl one
 
@@ -209,31 +150,6 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss,
 
   colnames(statsmatrix.form) <- model.form$coef.names
   colnames(statsmatrix.diss) <- model.diss$coef.names
-  
-#
-# recenter statsmatrix by mean statistics if necessary
-#
-# ms <- MCMCparams$meanstats
-# print(statsmatrix[nrow(statsmatrix),])
-# print(apply(statsmatrix,2,mean))
-# print(ms)
-# if(!is.null(ms)) {
-#   if (is.null(names(ms)) && length(ms) == length(model.form$coef.names))
-#     names(ms) <- model.form$coef.names
-#   obs <- MCMCparams$orig.obs
-#   obs <- obs[match(colnames(statsmatrix), names(obs))]
-# print("adjusting:\n")
-# print(obs)
-#   ms  <-  ms[match(names(obs), names(ms))]
-#   matchcols <- match(names(ms), names(obs))
-#   if (any(!is.na(matchcols))) {
-#     ms[!is.na(matchcols)] <- ms[!is.na(matchcols)] - obs[matchcols[!is.na(matchcols)]]
-#     statsmatrix[,!is.na(matchcols)] <- sweep(as.matrix(
-#        statsmatrix[,!is.na(matchcols)]), 2, ms[!is.na(matchcols)], "-")
-#   }
-# }
-# print(statsmatrix[nrow(statsmatrix),])
-# print(apply(statsmatrix,2,mean))
 
   list(statsmatrix.form=statsmatrix.form, statsmatrix.diss=statsmatrix.diss,
        newnetwork=newnetwork,
