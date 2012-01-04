@@ -54,9 +54,8 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
       sonames[j] = 0;
       /* Extract the required string information from the relevant sources */
       if((fn=(char *)malloc(sizeof(char)*(i+3)))==NULL){
-        Rprintf("Error in WtModelInitialize: Can't allocate %d bytes for fn.\n",
+        error("Error in WtModelInitialize: Can't allocate %d bytes for fn. Memory has not been deallocated, so restart R sometime soon.\n",
 		sizeof(char)*(i+3));
-	exit(0);
       }
       fn[0]='d';
       fn[1]='_';
@@ -66,9 +65,8 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
       /* fn is now the string 'd_[name]', where [name] is fname */
 /*      Rprintf("fn: %s\n",fn); */
       if((sn=(char *)malloc(sizeof(char)*(j+1)))==NULL){
-        Rprintf("Error in WtModelInitialize: Can't allocate %d bytes for sn.\n",
+        error("Error in WtModelInitialize: Can't allocate %d bytes for sn. Memory has not been deallocated, so restart R sometime soon.\n",
 		sizeof(char)*(j+1));
-	exit(0);
       }
       sn=strncpy(sn,sonames,j);
       sn[j]='\0';
@@ -82,9 +80,8 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
 	(void (*)(int, Vertex*, Vertex*, double *, WtModelTerm*, WtNetwork*))
 	R_FindSymbol(fn,sn,NULL);
       if(thisterm->d_func==NULL){
-        Rprintf("Error in WtModelInitialize: could not find function %s in "
-                "namespace for package %s.\n",fn,sn);
-	exit(0);
+        error("Error in WtModelInitialize: could not find function %s in "
+                "namespace for package %s. Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
       }      
 
       /* Optional function to compute the statistic of interest for
@@ -105,7 +102,7 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
       free((void *)sn);
 
       /*  Now process the values in model$option[[optionnumber]]$inputs;
-          See comments in InitErgm.r for deheads.    */
+          See comments in InitErgm.r for details.    */
       offset = (int) *inputs++;  /* Set offset for attr vector */
 /*      Rprintf("offsets: %f %f %f %f %f\n",inputs[0],inputs[1],inputs[2], */
 /*		         inputs[3],inputs[4],inputs[5]); */

@@ -53,9 +53,8 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
       sonames[j] = 0;
       /* Extract the required string information from the relevant sources */
       if((fn=(char *)malloc(sizeof(char)*(i+3)))==NULL){
-        Rprintf("Error in ModelInitialize: Can't allocate %d bytes for fn.\n",
+        error("Error in ModelInitialize: Can't allocate %d bytes for fn. Memory has not been deallocated, so restart R sometime soon.\n",
 		sizeof(char)*(i+3));
-	exit(0);
       }
       fn[0]='d';
       fn[1]='_';
@@ -65,9 +64,8 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
       /* fn is now the string 'd_[name]', where [name] is fname */
 /*      Rprintf("fn: %s\n",fn); */
       if((sn=(char *)malloc(sizeof(char)*(j+1)))==NULL){
-        Rprintf("Error in ModelInitialize: Can't allocate %d bytes for sn.\n",
+        error("Error in ModelInitialize: Can't allocate %d bytes for sn. Memory has not been deallocated, so restart R sometime soon.\n",
 		sizeof(char)*(j+1));
-	exit(0);
       }
       sn=strncpy(sn,sonames,j);
       sn[j]='\0';
@@ -81,9 +79,8 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
 	(void (*)(int, Vertex*, Vertex*, ModelTerm*, Network*))
 	R_FindSymbol(fn,sn,NULL);
       if(thisterm->d_func==NULL){
-        Rprintf("Error in ModelInitialize: could not find function %s in "
-                "namespace for package %s.\n",fn,sn);
-	exit(0);
+        error("Error in ModelInitialize: could not find function %s in "
+                "namespace for package %s. Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
       }      
 
       /* Optional function to compute the statistic of interest for
