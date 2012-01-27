@@ -148,8 +148,8 @@ simulate.formula.stergm <- function(object, nsim=1, seed=NULL, ..., dissolution,
                                time.burnin=time.burnin,
                                MH.burnin=MH.burnin,
                                parallel=0,
-                               meanstats.form=summary(model.form$formula),
-                               meanstats.diss=summary(model.diss$formula),
+                               target.stats.form=summary(model.form$formula),
+                               target.stats.diss=summary(model.diss$formula),
                                toggles=toggles))
   
   z <- stergm.getMCMCsample(nw, model.form, model.diss,

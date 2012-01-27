@@ -3,28 +3,28 @@
 # mean statistics
 #
 # --PARAMETERS--
-#   meanstats: a vector of the mean statistics, from which the network will
+#   target.stats: a vector of the mean statistics, from which the network will
 #              created
 #   f        : a formula specifying the statistics which correspond to the
-#              'meanstats'
+#              'target.stats'
 #   y        : a network object to serve as the starting network; the size and
 #              directed and bipartite attributes of the returned network will
 #              be determined by 'y'
 #   ntoggles : the maximum number of toggles to try during each iteration
-#              of the main loop; default=length(meanstats)+1
-#   covS     : the number of ?? ; default=length(meanstats)^2*8
+#              of the main loop; default=length(target.stats)+1
+#   covS     : the number of ?? ; default=length(target.stats)^2*8
 #   verbose  : a numeric verbosity value; 0 prints no additional info; 1 and 2
 #              print similar amounts of info, with 2 printing the additional
 #              summary of 'y' during each iteration of the main loop
 #
 # --RETURNED--
 #   y: a network whose mean statistics agree or closely agree with the
-#      'meanstats' provided
+#      'target.stats' provided
 #
 ##################################################################################
 
-mk.pseudonet<-function(meanstats,f,y,ntoggles=length(meanstats)+1,covS=length(meanstats)^2*8,verbose=FALSE){
-  if(verbose) cat("Constructing a fake network with correct (or close) meanstats:\n")
+mk.pseudonet<-function(target.stats,f,y,ntoggles=length(target.stats)+1,covS=length(target.stats)^2*8,verbose=FALSE){
+  if(verbose) cat("Constructing a fake network with correct (or close) target.stats:\n")
   oldwarn<-options()$warn
   on.exit(options(warn=oldwarn))
   options(warn=-1)
@@ -62,7 +62,7 @@ mk.pseudonet<-function(meanstats,f,y,ntoggles=length(meanstats)+1,covS=length(me
     print(wt)
   }
   
-  start.density<-(which.min(mahalanobis(dens.stats,meanstats,wt,inverted=TRUE))-1)/(covS-1)
+  start.density<-(which.min(mahalanobis(dens.stats,target.stats,wt,inverted=TRUE))-1)/(covS-1)
 
   if(verbose) cat("Starting density:",start.density,"\n")
   
@@ -80,7 +80,7 @@ mk.pseudonet<-function(meanstats,f,y,ntoggles=length(meanstats)+1,covS=length(me
   while(t<max.edges && (t<=n || t/2>=(t-last.acc))){
     if(verbose>=2) {print(summary(y))}
     
-    if(all(ms==meanstats)){
+    if(all(ms==target.stats)){
       if(verbose) cat("\nNetwork with right statistics found.\n")
       return(y)
     }
@@ -106,7 +106,7 @@ mk.pseudonet<-function(meanstats,f,y,ntoggles=length(meanstats)+1,covS=length(me
       
       if(verbose) cat(":",ms.prop-ms)
       
-      if(decider(meanstats,ms,ms.prop,wt)){
+      if(decider(target.stats,ms,ms.prop,wt)){
         y<-network.copy(y.prop)
         ms<-ms.prop
         last.acc<-t

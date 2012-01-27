@@ -26,8 +26,8 @@
 #                       if the computed Clist.form$nedges is > than the original
 #                       'maxchanges', 'maxchanges' is ignored and this odd little
 #                       process occurs to the 'nedeges'
-#      meanstats.form:  the mean value parameters for 'model.form'
-#      meanstats.diss:  the mean value parameters for 'model.diss'
+#      target.stats.form:  the mean value parameters for 'model.form'
+#      target.stats.diss:  the mean value parameters for 'model.diss'
 #      parallel      :  the number of threads in which to run sampling
 #      samplesize    :  the desired MCMC sample size
 #      toggles       :  whether to return the toggle matrix; non-NULL values
@@ -52,8 +52,8 @@
 #     statsmatrix.form: the matrix of sampled statistics for 'model.form'
 #     statsmatrix.diss: the matrix of sampled statistics for 'model.form'
 #     newnetwork      : the final network from the sampling process
-#     meanstats.form  : the 'meanstats.form' passed in via 'MCMCparams' 
-#     meanstats.diss  : the 'meanstats.diss' passed in via 'MCMCparams' 
+#     target.stats.form  : the 'target.stats.form' passed in via 'MCMCparams' 
+#     target.stats.diss  : the 'target.stats.diss' passed in via 'MCMCparams' 
 #     changed         : a toggle matrix, where the first column is
 #                       the timestamp of the toggle and the 2nd and 3rd
 #                       columns are the head & tail of the toggle; this
@@ -79,8 +79,8 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss,
   
   maxchanges <- max(MCMCparams$maxchanges, Clist.form$nedges)/5
   MCMCparams$maxchanges <- MCMCparams$maxchanges/5
-  if(is.null(MCMCparams$meanstats.form)) MCMCparams$meanstats.form<-numeric(length(model.form$coef.names))
-  if(is.null(MCMCparams$meanstats.diss)) MCMCparams$meanstats.diss<-numeric(length(model.diss$coef.names))
+  if(is.null(MCMCparams$target.stats.form)) MCMCparams$target.stats.form<-numeric(length(model.form$coef.names))
+  if(is.null(MCMCparams$target.stats.diss)) MCMCparams$target.stats.diss<-numeric(length(model.diss$coef.names))
   z <- list(newnwtails=maxchanges+1,diffnwtails=maxchanges+1)
   while(z$newnwtails[1]  >= maxchanges - 10 || 
         z$diffnwtails[1] >= maxchanges - 10){
@@ -118,8 +118,8 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss,
             as.double(MCMCparams$samplesize), as.integer(MCMCparams$MH.burnin),
             as.double(MCMCparams$time.burnin), as.double(MCMCparams$time.interval),
             # Space for output.
-            s.form = as.double(cbind(MCMCparams$meanstats.form,matrix(0,nrow=length(model.form$coef.names),ncol=MCMCparams$samplesize))),
-            s.diss = as.double(cbind(MCMCparams$meanstats.diss,matrix(0,nrow=length(model.diss$coef.names),ncol=MCMCparams$samplesize))),
+            s.form = as.double(cbind(MCMCparams$target.stats.form,matrix(0,nrow=length(model.form$coef.names),ncol=MCMCparams$samplesize))),
+            s.diss = as.double(cbind(MCMCparams$target.stats.diss,matrix(0,nrow=length(model.diss$coef.names),ncol=MCMCparams$samplesize))),
             newnwtails = integer(maxchanges), newnwheads = integer(maxchanges), 
             as.double(maxchanges),
             diffnwtime = integer(maxchanges),
@@ -155,8 +155,8 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss,
 
   list(statsmatrix.form=statsmatrix.form, statsmatrix.diss=statsmatrix.diss,
        newnetwork=newnetwork,
-       meanstats.form=MCMCparams$meanstats.form,
-       meanstats.diss=MCMCparams$meanstats.diss,
+       target.stats.form=MCMCparams$target.stats.form,
+       target.stats.diss=MCMCparams$target.stats.diss,
        changed=diffedgelist,
        maxchanges=MCMCparams$maxchanges)
 }

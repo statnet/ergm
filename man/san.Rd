@@ -9,7 +9,7 @@ of mean statistics}
 \method{san}{formula}(object, nsim=1, seed=NULL, theta0=NULL,
                       tau=1, invcov=NULL,
                       burnin=10000, interval=10000,
-                      meanstats=NULL,
+                      target.stats=NULL,
                       basis=NULL,
                       sequential=TRUE,
                       constraints = ~.,
@@ -17,7 +17,7 @@ of mean statistics}
                       verbose=FALSE, \dots)
 \method{san}{ergm}(object, nsim=1, seed=NULL, theta0=object$coef,
                       burnin=10000, interval=10000, 
-                      meanstats=NULL,
+                      target.stats=NULL,
                       basis=NULL,
                       sequential=TRUE,
                       constraints = NULL,
@@ -27,7 +27,7 @@ of mean statistics}
 \description{
   This function attempts to find a network or networks
   whose statistics match those passed
-  in via the \code{meanstats} vector.
+  in via the \code{target.stats} vector.
 }
 \arguments{
  \item{object}{an \R object. Either
@@ -47,13 +47,13 @@ of mean statistics}
  \item{tau}{Currently unused.}
  \item{invcov}{Initial inverse covariance matrix used to calculate
     Mahalanobis distance in determining how far a proposed MCMC move is from
-    the \code{meanstats} vector.  If NULL, taken to be the covariance
+    the \code{target.stats} vector.  If NULL, taken to be the covariance
     matrix returned when fitting the MPLE (if \code{theta0==NULL}) or the
     identity (otherwise).}
  \item{burnin}{Number of MCMC steps prior to recording first vector of 
     network statistics.}
  \item{interval}{Number of MCMC steps between recordings of network statistics}
- \item{meanstats}{A vector of the same length as the number of terms implied by
+ \item{target.stats}{A vector of the same length as the number of terms implied by
     the formula, which is either \code{object} itself in the case of
     \code{san.formula} or \code{object$formula} in the case of \code{san.ergm}.}
  \item{basis}{If not NULL, a network that forms the beginning of the
@@ -81,7 +81,7 @@ of mean statistics}
 
 \value{
   A network or list of networks that hopefully have network statistics close
-  to the \code{meanstats} vector.
+  to the \code{target.stats} vector.
 }
 %\seealso{}
 %\examples{}

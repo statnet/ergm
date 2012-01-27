@@ -8,14 +8,14 @@
   described by Krivitsky (2009)  A number of methods is possible, with a
   very limited Robbins-Monro being the default.
 }
-\usage{stergm(formation, dissolution, theta.form0 = NULL, theta.diss = NULL, seed = NULL, MH.burnin = 1000, constraints = ~., meanstats = NULL, stergm.order = "FormAndDiss", control = control.stergm(), verbose = FALSE, \dots)
+\usage{stergm(formation, dissolution, theta.form0 = NULL, theta.diss = NULL, seed = NULL, MH.burnin = 1000, constraints = ~., target.stats = NULL, stergm.order = "FormAndDiss", control = control.stergm(), verbose = FALSE, \dots)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
     \item{formation}{
     An \code{\link{ergm}}-style formula for the formation phase, with
     the LHS network being the observed network or a "template" for it if
-    meanstats are used.
+    target.stats are used.
 }
   \item{dissolution}{
     An \code{\link{ergm}}-style formula for the dissolution phase. The
@@ -45,7 +45,7 @@
   networks. See help for \code{\link{ergm}}. \emph{Might not work at
   this time, and have a weird interpretation.}
 }
-  \item{meanstats}{
+  \item{target.stats}{
     vector; The target equilibrium mean for the network statistics of
   interest (only \code{formation} statistics at this time).
     If it is missing then mean-value parameter used are the observed

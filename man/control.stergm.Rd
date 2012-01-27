@@ -78,7 +78,7 @@ maxedges = 20000, maxchanges = 1e+06, initialfit = "MPLE", maxMPLEsamplesize = 1
   \item{sequential}{Should the next iteration of the fit use the last network 
     sampled as the starting network or always use the initially passed network?
     The results should be similar (stochastically), but the
-    \code{sequential=TRUE} option if \code{meanstats} is far from the
+    \code{sequential=TRUE} option if \code{target.stats} is far from the
     passed network.
 }
   \item{style}{character; The style of method of moments estimation

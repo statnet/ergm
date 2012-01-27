@@ -106,7 +106,7 @@ control.ergm(prop.weights = "default", prop.args = NULL,
   \item{sequential}{Should the next iteration of the fit use the last network 
     sampled as the starting network or always use the initially passed network?
     The results should be similar (stochastically), but the
-    \code{sequential=TRUE} option if \code{meanstats} is far from the
+    \code{sequential=TRUE} option if \code{target.stats} is far from the
     passed network.
    }
   \item{drop}{logical; Should the degenerate terms in the model be

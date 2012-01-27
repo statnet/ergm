@@ -20,7 +20,7 @@
 #   proposaltype:  presumably the MHproposal type, but this is only used
 #                  in calls to <ergm.san>, which doesn't accept a
 #                  'proposaltype' argument
-#   meanstats   :  a vector of the mean value parameters;
+#   target.stats   :  a vector of the mean value parameters;
 #                  default=the observed statistic from the 'nw' in formula
 #   control     :  a list of control parameters returned from <control.ergm>;
 #                  default=control.ergm()
@@ -46,7 +46,7 @@ ergm.mapl <- function(formula, theta0="MPLE",
                  maxit=3,
                  constraints=~.,
                  proposaltype="TNT10",
-                 meanstats=NULL,
+                 target.stats=NULL,
                  control=control.ergm(MPLEtype="penalized"),
                  tau=1, invcov=NULL,
                  verbose=FALSE, ...) {
@@ -63,7 +63,7 @@ ergm.mapl <- function(formula, theta0="MPLE",
     
   if(control$drop){
    model.initial <- ergm.getmodel(formula, nw, initialfit=TRUE)
-   obs.stats <- if(!is.null(meanstats)) meanstats else summary(formula,response=response)
+   obs.stats <- if(!is.null(target.stats)) target.stats else summary(formula,response=response)
    extremeval <- +(model.initial$maxval==obs.stats)-(model.initial$minval==obs.stats)
    model.initial$etamap$offsettheta[extremeval!=0] <- TRUE
   }else{
@@ -72,17 +72,17 @@ ergm.mapl <- function(formula, theta0="MPLE",
   }
 
   # MPLE & Meanstats -> need fake network
-  if(!missing(meanstats)){
-    nw<-san(formula, meanstats=meanstats, 
+  if(!missing(target.stats)){
+    nw<-san(formula, target.stats=target.stats, 
             constraints=~., #constraints=constraints,
             proposaltype=proposaltype,
             tau=tau, invcov=invcov, burnin=10*burnin, verbose=verbose)
-    if(verbose){print(summary(formula, basis=nw)-meanstats)}
+    if(verbose){print(summary(formula, basis=nw)-target.stats)}
   }
   
   Clist.initial <- ergm.Cprepare(nw, model.initial)
   Clist.miss.initial <- ergm.design(nw, model.initial, verbose=verbose)
-  Clist.initial$meanstats=meanstats
+  Clist.initial$target.stats=target.stats
   theta0copy <- theta0
   
   pl <- ergm.pl(Clist=Clist.initial, Clist.miss=Clist.miss.initial,
@@ -94,8 +94,8 @@ ergm.mapl <- function(formula, theta0="MPLE",
   if("MPLE" %in% theta0){theta0 <- initialfit$coef}
 
   if(nsim>0){
-   if(missing(meanstats)){
-    meanstats <- summary(formula, basis=nw)
+   if(missing(target.stats)){
+    target.stats <- summary(formula, basis=nw)
     sim<-simulate(formula, constraints=constraints,
                   theta0=theta0, burnin=burnin,
                   verbose=verbose)
@@ -107,15 +107,15 @@ ergm.mapl <- function(formula, theta0="MPLE",
     sim<-simulate(formula, constraints=constraints,
                   theta0=theta0, burnin=burnin,
                   verbose=verbose)
-    sim <- san(formula, meanstats=meanstats, verbose=verbose,
+    sim <- san(formula, target.stats=target.stats, verbose=verbose,
                proposaltype=proposaltype,
                tau=tau, invcov=invcov, burnin=burnin, 
                constraints=constraints, basis=sim)
-    if(verbose){print(summary(formula, basis=sim)-meanstats)}
+    if(verbose){print(summary(formula, basis=sim)-target.stats)}
     if(verbose){print(sum(sim[,] != nw[,]))}
     Clist.initial <- ergm.Cprepare(sim, model.initial)
     Clist.miss.initial <- ergm.design(sim, model.initial, verbose=verbose)
-    Clist.initial$meanstats=meanstats
+    Clist.initial$target.stats=target.stats
     sim.pl <- ergm.pl(Clist=Clist.initial, Clist.miss=Clist.miss.initial,
                       m=model.initial,theta.offset=ifelse(extremeval!=0,extremval*Inf,NA),
                       verbose=verbose)

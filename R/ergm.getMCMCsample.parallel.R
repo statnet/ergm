@@ -40,9 +40,9 @@
 #     statsmatrix:  the stats matrix for the sampled networks, RELATIVE TO THE ORIGINAL
 #                   NETWORK!
 #     newnetwork :  the edgelist of the final sampled network
-#     meanstats  :  NULL always (I think - 'meanstats' is taken from Clist, which
+#     target.stats  :  NULL always (I think - 'target.stats' is taken from Clist, which
 #                   is taken from a call to <ergm.Cprepare> which doesn't return
-#                   a 'meanstats' component. Code to adjust 'meanstats' if null has
+#                   a 'target.stats' component. Code to adjust 'target.stats' if null has
 #                   been commented out)
 #     nedges     :  the number of edges in the 'newnetwork' ??
 #
@@ -135,7 +135,7 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
 ##
 ## recenter statsmatrix by mean statistics if necessary
 ##
-#   ms <- Clist$meanstats
+#   ms <- Clist$target.stats
 #   if(!is.null(ms)) {
 #     if (is.null(names(ms)) && length(ms) == length(model$coef.names))
 #       names(ms) <- model$coef.names
@@ -153,7 +153,7 @@ ergm.getMCMCsample.parallel <- function(nw, model, MHproposal, eta0, MCMCparams,
 #     }
 #   }
   list(statsmatrix=statsmatrix, newnetwork=newnetwork, 
-       meanstats=Clist$meanstats, nedges=network.edgecount(newnetwork))
+       target.stats=Clist$target.stats, nedges=network.edgecount(newnetwork))
 }
 
 

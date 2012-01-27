@@ -68,11 +68,11 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
 
   # Calculate the amount by which all of the MCMC statistics should be adjusted
   # to account for the fact that they are all calculated relative to the
-  # observed network.  Unless otherwise specified, the value of meanstats
+  # observed network.  Unless otherwise specified, the value of target.stats
   # is simply the observed statistics, which means statshift equals zero
   # most of the time.
-  statshift <- Clist$obs - Clist$meanstats
-  MCMCparams$meanstats <- Clist$meanstats
+  statshift <- Clist$obs - Clist$target.stats
+  MCMCparams$target.stats <- Clist$target.stats
 
   # Is there observational structure?
   obs <- ! is.null(MHproposal.obs)
@@ -112,9 +112,9 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     z <- ergm.getMCMCsample.parallel(nw, model, MHproposal, mcmc.eta0, MCMCparams, verbose, response=response)
     
     # post-processing of sample statistics:  Shift each row by the
-    # vector Clist$obs - Clist$meanstats, store returned nw
+    # vector Clist$obs - Clist$target.stats, store returned nw
     # The statistics in statsmatrix should all be relative to either the
-    # observed statistics or, if given, the alternative meanstats
+    # observed statistics or, if given, the alternative target.stats
     # (i.e., the estimation goal is to use the statsmatrix to find 
     # parameters that will give a mean vector of zero)
     statsmatrix <- sweep(z$statsmatrix, 2, statshift, "+")
@@ -142,8 +142,8 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
       if(sequential) {
         nw <- nw.returned
         nw.obs <- summary(model$formula, basis=nw, response=response)
-        namesmatch <- match(names(MCMCparams$meanstats), names(nw.obs))
-        statshift <- -Clist$meanstats
+        namesmatch <- match(names(MCMCparams$target.stats), names(nw.obs))
+        statshift <- -Clist$target.stats
         statshift[!is.na(namesmatch)] <- statshift[!is.na(namesmatch)] + nw.obs[namesmatch[!is.na(namesmatch)]]
       }
     }
@@ -312,7 +312,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
 #      print(apply(statsmatrix,2,summary.statsmatrix.ergm),scipen=6)
 #      degreedist(nw.returned)
 #      cat("Meanstats of simulation, relative to observed network:\n")
-#      print(summary(model$formula, basis=nw.returned)-Clist$meanstats)
+#      print(summary(model$formula, basis=nw.returned)-Clist$target.stats)
 #      if(network.naedgecount(nw) > 0){
 #        cat("Summary of simulation, relative to missing network:\n")
 #        a = apply(statsmatrix.miss,2,summary.statsmatrix.ergm)[4,]
@@ -320,7 +320,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
 #        print(b,scipen=6)
 #        degreedist(nw.miss.returned)
 #        cat("Meanstats of simulation, relative to missing network:\n")
-#        print(summary(model$formula, basis=nw.miss.returned)-Clist$meanstats)
+#        print(summary(model$formula, basis=nw.miss.returned)-Clist$target.stats)
 #        nw.returned <- network.copy(nw.miss.returned)
 #      }
 #    }

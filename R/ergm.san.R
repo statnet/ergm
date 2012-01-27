@@ -31,7 +31,7 @@
 #                begins; default=1e4
 #   interval   : the number of proposals between sampled statistics;
 #                default=1e4
-#   meanstats  : a vector of the mean statistics for each model
+#   target.stats  : a vector of the mean statistics for each model
 #                coefficient; default=NULL (which will halt execution)
 #   basis      : optionally, a network can be provided in 'basis' and
 #                this replaces that given by 'object'; default=NULL
@@ -76,7 +76,7 @@ san.default <- function(object,...)
 san.formula <- function(object, nsim=1, seed=NULL, theta0=NULL,
                         tau=1, invcov=NULL,
                         burnin=10000, interval=10000,
-                        meanstats=NULL,
+                        target.stats=NULL,
                         basis=NULL,
                         sequential=TRUE,
                         constraints=~.,
@@ -98,9 +98,9 @@ san.formula <- function(object, nsim=1, seed=NULL, theta0=NULL,
     nw <- nw$networks[[1]]
   }
   nw <- as.network(nw)
-  if(is.null(meanstats)){
+  if(is.null(target.stats)){
     stop("You need to specify target statistic via",
-         " the 'meanstats' argument")
+         " the 'target.stats' argument")
   }
   if(!is.network(nw)){
     stop("A network object on the LHS of the formula ",
@@ -127,7 +127,7 @@ san.formula <- function(object, nsim=1, seed=NULL, theta0=NULL,
    formula.conddegmple <- ergm.update.formula(formula, ~ conddegmple + .)
    m.conddeg <- ergm.getmodel(formula.conddegmple, nw, initialfit=TRUE)
    Clist.conddegmple <- ergm.Cprepare(nw, m.conddeg)
-   Clist.conddegmple$meanstats=c(1,meanstats)
+   Clist.conddegmple$target.stats=c(1,target.stats)
    conddeg <- list(m=m.conddeg, Clist=Clist.conddegmple, Clist.miss=ergm.Cprepare(nw, m.conddeg))
   }else{
    conddeg <- NULL
@@ -169,10 +169,10 @@ san.formula <- function(object, nsim=1, seed=NULL, theta0=NULL,
     eta0 <- ergm.eta(theta0, model$etamap)
     
     netsumm<-summary(model$formula)
-    if(length(netsumm)!=length(meanstats))
-      stop("Incorrect length of the meanstats vector: should be ", length(netsumm), " but is ",length(meanstats),".")
+    if(length(netsumm)!=length(target.stats))
+      stop("Incorrect length of the target.stats vector: should be ", length(netsumm), " but is ",length(target.stats),".")
 
-    stats <- matrix(netsumm-meanstats,
+    stats <- matrix(netsumm-target.stats,
                     ncol=Clist$nstats,byrow=TRUE,nrow=MCMCsamplesize)
     tau <- rep(tau,length=length(eta0))
 #
@@ -238,7 +238,7 @@ san.formula <- function(object, nsim=1, seed=NULL, theta0=NULL,
 
 san.ergm <- function(object, nsim=1, seed=NULL, theta0=object$coef,
                        burnin=10000, interval=10000, 
-                       meanstats=NULL,
+                       target.stats=NULL,
                        basis=NULL,
                        sequential=TRUE, 
                        constraints=NULL,
@@ -246,7 +246,7 @@ san.ergm <- function(object, nsim=1, seed=NULL, theta0=object$coef,
                        verbose=FALSE, ...) {
   san.formula(object$formula, nsim=nsim, seed=seed, theta0=theta0,
               burnin=burnin, interval=interval,
-              meanstats=meanstats,
+              target.stats=target.stats,
               basis=basis,
               sequential=sequential,
               constraints=constraints,

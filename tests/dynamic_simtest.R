@@ -5,9 +5,9 @@ logit<-function(p)log(p/(1-p))
 
 print.sim.stats<-function(dynsim,m,d){
   t.score<-function(x,m) (mean(x)-m)/sqrt(apply(cbind(x),2,var)/effectiveSize(mcmc(x)))
-  meanstats.sim<-apply(dynsim$stats.form,2,mean)
+  target.stats.sim<-apply(dynsim$stats.form,2,mean)
   durations<-duration.matrix(dynsim)$duration
-  cat('Edge count:\n   Target:',m,', Simulated:',meanstats.sim,', t:', t.score(dynsim$stats.form,m) ,'\n')
+  cat('Edge count:\n   Target:',m,', Simulated:',target.stats.sim,', t:', t.score(dynsim$stats.form,m) ,'\n')
   cat('Duration:\n   Target:',d,', Simulated:',mean(durations),', t:', t.score(durations,d) ,'\n')
 }
 
@@ -17,7 +17,7 @@ S<-100000
 
 n<-200
 m<-100
-meanstats<-edges<-100
+target.stats<-edges<-100
 duration<-1000
 theta.diss<-logit(1-1/duration)
 
@@ -32,7 +32,7 @@ cat("\nUndirected:\n")
 g0<-network.initialize(n,dir=FALSE)
 
 # Get a reasonably close starting network.
-g1<-san(g0~edges,meanstats=meanstats,verbose=TRUE)
+g1<-san(g0~edges,target.stats=target.stats,verbose=TRUE)
 
 print(theta.form)
 print(theta.diss)
@@ -40,7 +40,7 @@ print(theta.diss)
 # Simulate from the fit.
 dynsim<-simulate(g1~edges,dissolution=~edges,stergm.order="FormAndDiss",theta.form=theta.form,theta.diss=theta.diss,nsim=S,verbose=TRUE)
 
-print.sim.stats(dynsim,meanstats,duration)
+print.sim.stats(dynsim,target.stats,duration)
 
 ### Directed
 
@@ -53,7 +53,7 @@ cat("\nDirected:\n")
 g0<-network.initialize(n,dir=TRUE)
 
 # Get a reasonably close starting network.
-g1<-san(g0~edges,meanstats=meanstats,verbose=TRUE)
+g1<-san(g0~edges,target.stats=target.stats,verbose=TRUE)
 
 print(theta.form)
 print(theta.diss)
@@ -61,7 +61,7 @@ print(theta.diss)
 # Simulate from the fit.
 dynsim<-simulate(g1~edges,dissolution=~edges,stergm.order="FormAndDiss",theta.form=theta.form,theta.diss=theta.diss,nsim=S,verbose=TRUE)
 
-print.sim.stats(dynsim,meanstats,duration)
+print.sim.stats(dynsim,target.stats,duration)
 
 ### Bipartite undirected
 
@@ -74,7 +74,7 @@ cat("\nBipartite:\n")
 g0<-network.initialize(n,bipartite=m,directed=FALSE)
 
 # Get a reasonably close starting network.
-g1<-san(g0~edges,meanstats=meanstats,verbose=TRUE)
+g1<-san(g0~edges,target.stats=target.stats,verbose=TRUE)
 
 print(theta.form)
 print(theta.diss)
@@ -82,6 +82,6 @@ print(theta.diss)
 # Simulate from the fit.
 dynsim<-simulate(g1~edges,dissolution=~edges,stergm.order="FormAndDiss",theta.form=theta.form,theta.diss=theta.diss,nsim=S,verbose=TRUE)
 
-print.sim.stats(dynsim,meanstats,duration)
+print.sim.stats(dynsim,target.stats,duration)
 
 

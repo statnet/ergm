@@ -27,7 +27,7 @@
 #                         edges     degreedist     indegreedist
 #                         observed  outdegreedist
 #                    default="~ ."
-#   meanstats     :  a vector of the mean value parameters;
+#   target.stats     :  a vector of the mean value parameters;
 #                    default=the observed statistic from the 'nw' in formula
 #   control       :  a list of control parameters returned from <control.ergm>;
 #                    default=control.ergm()
@@ -127,7 +127,7 @@ ergm <- function(formula, response=NULL, theta0=NULL,
                  maxit=3,
                  reference="Bernoulli",obs=NA,
                  constraints=~.,
-                 meanstats=NULL,
+                 target.stats=NULL,
                  control=control.ergm(),
                  eval.loglik=FALSE,
                  verbose=FALSE,...) {
@@ -152,21 +152,21 @@ ergm <- function(formula, response=NULL, theta0=NULL,
   
   if(constraints==MHproposal.obs) MHproposal.obs<-NULL
 
-  ## Construct approximate response network if meanstats are given.
+  ## Construct approximate response network if target.stats are given.
   
-  if(!is.null(meanstats)){
+  if(!is.null(target.stats)){
    if(!(!is.null(control$SAN.burnin) && is.na(control$SAN.burnin))){
     netsumm<-summary(formula,response=response)
-    if(length(netsumm)!=length(meanstats))
-      stop("Incorrect length of the meanstats vector: should be ", length(netsumm), " but is ",length(meanstats),".")
+    if(length(netsumm)!=length(target.stats))
+      stop("Incorrect length of the target.stats vector: should be ", length(netsumm), " but is ",length(target.stats),".")
     
     if(verbose) cat("Constructing an approximate response network.\n")
-    ## If meanstats are given, overwrite the given network and formula
+    ## If target.stats are given, overwrite the given network and formula
     ## with SAN-ed network and formula.
     srun <- 0
-    obs <- meanstats-meanstats
-    while((srun < control$SAN.maxit) & (sum((obs-meanstats)^2) > 5)){
-     nw<-san(formula, meanstats=meanstats,
+    obs <- target.stats-target.stats
+    while((srun < control$SAN.maxit) & (sum((obs-target.stats)^2) > 5)){
+     nw<-san(formula, target.stats=target.stats,
              theta0=if(is.numeric(theta0)) theta0,
              response=response,
              reference=reference,
@@ -186,9 +186,9 @@ ergm <- function(formula, response=NULL, theta0=NULL,
       cat("SAN summary statistics:\n")
       print(obs)
       cat("Meanstats Goal:\n")
-      print(meanstats)
-      cat("Difference: SAN meanstats - Goal meanstats =\n")
-      print(round(obs-meanstats,0))
+      print(target.stats)
+      cat("Difference: SAN target.stats - Goal target.stats =\n")
+      print(round(obs-target.stats,0))
     }
     }
    }
@@ -223,7 +223,7 @@ ergm <- function(formula, response=NULL, theta0=NULL,
   }else theta0 <- rep(NA, length(model.initial$etamap$offsettheta)) # Set the default value of theta0.
 
   # Check if any terms are at their extremes and handle them depending on control$drop.
-  extremecheck <- ergm.checkextreme.model(model=model.initial, nw=nw, theta0=theta0, response=response, meanstats=meanstats, drop=control$drop)
+  extremecheck <- ergm.checkextreme.model(model=model.initial, nw=nw, theta0=theta0, response=response, target.stats=target.stats, drop=control$drop)
   model.initial <- extremecheck$model; theta0 <- extremecheck$theta0
 
   # Check if any terms are constrained to a constant and issue a warning.
@@ -243,9 +243,9 @@ ergm <- function(formula, response=NULL, theta0=NULL,
                   && !control$force.mcmc
                   && constraints==(~.))
 
-  # If all other criteria for MPLE=MLE are met, _and_ SAN network matches meanstats directly, we can get away with MPLE.
+  # If all other criteria for MPLE=MLE are met, _and_ SAN network matches target.stats directly, we can get away with MPLE.
   MCMCflag <- (MLestimate && (!MPLE.is.MLE
-                               || (!is.null(meanstats) && !isTRUE(all.equal(meanstats,obs)))
+                               || (!is.null(target.stats) && !isTRUE(all.equal(target.stats,obs)))
                               )
                || control$force.mcmc)
 
@@ -257,7 +257,7 @@ ergm <- function(formula, response=NULL, theta0=NULL,
   }
   
   initialfit <- ergm.initialfit(theta0=theta0, initial.is.final=!MCMCflag,
-                                formula=formula, nw=nw, reference=reference, meanstats=meanstats,
+                                formula=formula, nw=nw, reference=reference, target.stats=target.stats,
                                 m=model.initial, method=control$initialfit,
                                 MPLEtype=control$MPLEtype, 
                                 conddeg=conddeg, MCMCparams=MCMCparams, MHproposal=MHproposal,
@@ -293,28 +293,28 @@ ergm <- function(formula, response=NULL, theta0=NULL,
   # revise theta0 to reflect additional parameters
   theta0 <- ergm.revisetheta0(model, theta0)
 
-  extremecheck <- ergm.checkextreme.model(model=model, nw=nw, theta0=theta0, response=response, meanstats=meanstats, drop=control$drop, silent=TRUE)
+  extremecheck <- ergm.checkextreme.model(model=model, nw=nw, theta0=theta0, response=response, target.stats=target.stats, drop=control$drop, silent=TRUE)
   model <- extremecheck$model; theta0 <- extremecheck$theta0
 
   Clist <- ergm.Cprepare(nw, model, response=response)
   Clist$obs <- summary(model$formula, response=response)
 
-  Clist$meanstats <- Clist$obs
-  if(!is.null(meanstats)){
-   if (is.null(names(meanstats))){
-    if(length(meanstats) == length(Clist$obs)){
-     names(meanstats) <- names(Clist$obs)
-     Clist$meanstats <- meanstats
+  Clist$target.stats <- Clist$obs
+  if(!is.null(target.stats)){
+   if (is.null(names(target.stats))){
+    if(length(target.stats) == length(Clist$obs)){
+     names(target.stats) <- names(Clist$obs)
+     Clist$target.stats <- target.stats
     }else{
      namesmatch <- names(summary(model$formula, response=response))
-     if(length(meanstats) == length(namesmatch)){
-       namesmatch <- match(names(meanstats), namesmatch)
-       Clist$meanstats <- meanstats[namesmatch]
+     if(length(target.stats) == length(namesmatch)){
+       namesmatch <- match(names(target.stats), namesmatch)
+       Clist$target.stats <- target.stats[namesmatch]
      }
     }
    }else{
-    namesmatch <- match(names(Clist$obs), names(meanstats))
-    Clist$meanstats[!is.na(namesmatch)] <- meanstats[namesmatch[!is.na(namesmatch)]]
+    namesmatch <- match(names(Clist$obs), names(target.stats))
+    Clist$target.stats[!is.na(namesmatch)] <- target.stats[namesmatch[!is.na(namesmatch)]]
    }
   }
 
@@ -389,13 +389,13 @@ ergm <- function(formula, response=NULL, theta0=NULL,
 }
 
 # A helper function to check for extreme statistics and inform the user.
-ergm.checkextreme.model <- function(model, nw, theta0, response, meanstats, drop, silent=FALSE){
+ergm.checkextreme.model <- function(model, nw, theta0, response, target.stats, drop, silent=FALSE){
   eta0 <- ergm.eta(theta0, model$etamap)
   
   # Check if any terms are at their extremes.
-  obs.stats.eta <- if(!is.null(meanstats)){
-    if(is.null(names(meanstats))) names(meanstats) <- names(ergm.getglobalstats(nw, model, response=response))
-    meanstats
+  obs.stats.eta <- if(!is.null(target.stats)){
+    if(is.null(names(target.stats))) names(target.stats) <- names(ergm.getglobalstats(nw, model, response=response))
+    target.stats
   }else ergm.getglobalstats(nw, model, response=response)
 
   extremeval.eta <- +(model$maxval==obs.stats.eta)-(model$minval==obs.stats.eta)

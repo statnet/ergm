@@ -20,7 +20,7 @@
 #                      edges     degreedist     indegreedist
 #                      observed  outdegreedist
 #                default="~ ."; these may not work currently.
-#   meanstats   :  a vector of the mean value parameters;
+#   target.stats   :  a vector of the mean value parameters;
 #                  default=the observed statistic from the 'nw' in formula
 #   stergm.order:  the order in which the formation and dissolution processes
 #                  should occur, as one of
@@ -87,7 +87,7 @@ stergm <- function(formation, dissolution, theta.form0=NULL, theta.diss=NULL,
                    seed=NULL,
                    MH.burnin=1000,
                    constraints=~., # May not work.
-                   meanstats=NULL,
+                   target.stats=NULL,
                    stergm.order="FormAndDiss",
                  control=control.stergm(),
                  verbose=FALSE, ...) {
@@ -97,15 +97,15 @@ stergm <- function(formation, dissolution, theta.form0=NULL, theta.diss=NULL,
   if (verbose) cat("Evaluating network in model.form\n")
 
   nw <- ergm.getnetwork(formation)
-  if(!is.null(meanstats)){
+  if(!is.null(target.stats)){
    netsumm<-summary(formation)
-   if(length(netsumm)!=length(meanstats))
-     stop("Incorrect length of the meanstats vector: should be ", length(netsumm), " but is ",length(meanstats),".")
+   if(length(netsumm)!=length(target.stats))
+     stop("Incorrect length of the target.stats vector: should be ", length(netsumm), " but is ",length(target.stats),".")
    
    if(verbose) cat("Constructing an approximate response network.\n")
-   ## If meanstats are given, overwrite the given network and formation
+   ## If target.stats are given, overwrite the given network and formation
    ## with SAN-ed network and formation.
-   nw<-san(formation, meanstats=meanstats,
+   nw<-san(formation, target.stats=target.stats,
            theta0=if(is.numeric(theta.form0)) theta.form0, 
            constraints=constraints,
            verbose=verbose,
@@ -113,10 +113,10 @@ stergm <- function(formation, dissolution, theta.form0=NULL, theta.diss=NULL,
            interval=control$SAN.interval)
    formation<-ergm.update.formula(formation,nw~.)
    if (verbose) {
-     cat("Original meanstats:\n")
-     print(meanstats)
-     cat("SAN meanstats - Original meanstats:\n")
-     print(summary(formation, basis=nw)-meanstats)
+     cat("Original target.stats:\n")
+     print(target.stats)
+     cat("SAN target.stats - Original target.stats:\n")
+     print(summary(formation, basis=nw)-target.stats)
    }
   }
 
@@ -135,7 +135,7 @@ stergm <- function(formation, dissolution, theta.form0=NULL, theta.diss=NULL,
 
   if (verbose) cat("Fitting initial model.\n")
   initialfit <- ergm.initialfit(theta0=theta.form0, initial.is.final=FALSE, 
-                                formula=formation, nw=nw, meanstats=meanstats,
+                                formula=formation, nw=nw, target.stats=target.stats,
                                 m=model.initial, method=control$initialfit,
                                 MPLEtype=control$MPLEtype, 
                                 MCMCparams=MCMCparams, MHproposal=MHproposal.form,
@@ -156,22 +156,22 @@ stergm <- function(formation, dissolution, theta.form0=NULL, theta.diss=NULL,
 
   Clist <- ergm.Cprepare(nw, model.form)
   Clist$obs <- summary(model.form$formula)
-  Clist$meanstats <- Clist$obs
-  if(!is.null(meanstats)){
-   if (is.null(names(meanstats))){
-    if(length(meanstats) == length(Clist$obs)){
-     names(meanstats) <- names(Clist$obs)
-     Clist$meanstats <- meanstats
+  Clist$target.stats <- Clist$obs
+  if(!is.null(target.stats)){
+   if (is.null(names(target.stats))){
+    if(length(target.stats) == length(Clist$obs)){
+     names(target.stats) <- names(Clist$obs)
+     Clist$target.stats <- target.stats
     }else{
      namesmatch <- names(summary(model.form$formula))
-     if(length(meanstats) == length(namesmatch)){
-       namesmatch <- match(names(meanstats), namesmatch)
-       Clist$meanstats <- meanstats[namesmatch]
+     if(length(target.stats) == length(namesmatch)){
+       namesmatch <- match(names(target.stats), namesmatch)
+       Clist$target.stats <- target.stats[namesmatch]
      }
     }
    }else{
-    namesmatch <- match(names(Clist$obs), names(meanstats))
-    Clist$meanstats[!is.na(namesmatch)] <- meanstats[namesmatch[!is.na(namesmatch)]]
+    namesmatch <- match(names(Clist$obs), names(target.stats))
+    Clist$target.stats[!is.na(namesmatch)] <- target.stats[namesmatch[!is.na(namesmatch)]]
    }
   }
 

@@ -61,7 +61,7 @@ stergm.SPSA <- function(theta0, nw, model.form, model.diss, Clist,
   }
   eta0 <- ergm.eta(theta0, model.form$etamap)
 
-  z <- stergm.SPSA.C(nw, Clist$meanstats, model.form, model.diss, MHproposal.form, MHproposal.diss,
+  z <- stergm.SPSA.C(nw, Clist$target.stats, model.form, model.diss, MHproposal.form, MHproposal.diss,
                         eta0, gamma0, MCMCparams, MT=MT, verbose=verbose)
 
   ve<-with(z,list(coef=eta,sample=NULL,sample.obs=NULL,objective.history=objective.history))
@@ -84,7 +84,7 @@ stergm.SPSA <- function(theta0, nw, model.form, model.diss, Clist,
 #
 # --PARAMETERS--
 #   g              : a network object
-#   meanstats      : the mean statistics to be subtracted from the observed
+#   target.stats      : the mean statistics to be subtracted from the observed
 #                    statistics
 #   model.form     : a formation model, as returned by <ergm.getmodel>
 #   model.diss     : a dissolution model, as returned by <ergm.getmodel>
@@ -116,7 +116,7 @@ stergm.SPSA <- function(theta0, nw, model.form, model.diss, Clist,
 #       burnin         : this is received as 'dyninterval' by the C code and
 #                        eventually used as 'MH_interval' to control the number
 #                        of proposals between sampled networks
-#       meanstats      : the mean statistics presumably; these are ignored
+#       target.stats      : the mean statistics presumably; these are ignored
 #                        except to use them in the returned list
 #   MT             : whether to use a multithreaded or single threaded
 #                    SPSA implementation (T or F); TRUE uses multiple
@@ -126,14 +126,14 @@ stergm.SPSA <- function(theta0, nw, model.form, model.diss, Clist,
 #   
 # --RETURNED--
 #   a list with the 3 following components:
-#      meanstats: the 'meanstats' from the 'MCMCparams'; note that this is NOT
-#                 the 'meanstats' inputted directly to this function
+#      target.stats: the 'target.stats' from the 'MCMCparams'; note that this is NOT
+#                 the 'target.stats' inputted directly to this function
 #      eta      : the estimated? eta formation?? coefficients
 #      objective.history: the number of SPSA iterations used
 #
 ################################################################################
 
-stergm.SPSA.C <- function(g, meanstats, model.form, model.diss, 
+stergm.SPSA.C <- function(g, target.stats, model.form, model.diss, 
                           MHproposal.form, MHproposal.diss, eta0, gamma0,
                           MCMCparams, MT, verbose) {
 
@@ -165,7 +165,7 @@ stergm.SPSA.C <- function(g, meanstats, model.form, model.diss,
           as.character(MHproposal.form$name), as.character(MHproposal.form$package),
           as.double(Clist.form$inputs), eta=as.double(eta0),
           # Formation parameter fitting. 16
-          as.double(summary(model.form$formula)-meanstats),
+          as.double(summary(model.form$formula)-target.stats),
           # Initial deviation. 17
           as.double(MCMCparams$SPSA.a),
           as.double(MCMCparams$SPSA.alpha),
@@ -196,7 +196,7 @@ stergm.SPSA.C <- function(g, meanstats, model.form, model.diss,
   eta <- z$eta
   names(eta) <- names(eta0)
 
-  list(meanstats=MCMCparams$meanstats,
+  list(target.stats=MCMCparams$target.stats,
        eta=eta,
        objective.history=z$objective.history)
 }

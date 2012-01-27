@@ -50,8 +50,8 @@ ergm.robmon <- function(theta0, nw, model, Clist,
   cat("Robbins-Monro algorithm with theta_0 equal to:\n")
   print(theta0)
 #  stats <- matrix(0,ncol=Clist$nstats,nrow=n1)
-#  stats[1,] <- Clist$obs - Clist$meanstats
-## stats[,]<-  rep(Clist$obs - Clist$meanstats,rep(nrow(stats),Clist$nstats))
+#  stats[1,] <- Clist$obs - Clist$target.stats
+## stats[,]<-  rep(Clist$obs - Clist$target.stats,rep(nrow(stats),Clist$nstats))
 ## MCMCparams$stats <- stats
   MCMCparams <- c(control, 
                   list(samplesize=n1, burnin=burnin, interval=interval,
@@ -62,8 +62,8 @@ ergm.robmon <- function(theta0, nw, model, Clist,
   z <- ergm.getMCMCsample(Clist, MHproposal, eta0, MCMCparams, verbose)
   steplength <- control$steplength
   # post-processing of sample statistics:  Shift each row by the
-  # matrix Clist$obs - Clist$meanstats, attach column names
-  statsmatrix <- sweep(z$statsmatrix, 2, Clist$obs - Clist$meanstats, "+")
+  # matrix Clist$obs - Clist$target.stats, attach column names
+  statsmatrix <- sweep(z$statsmatrix, 2, Clist$obs - Clist$target.stats, "+")
   colnames(statsmatrix) <- model$coef.names
 
   if(steplength<1){
@@ -113,8 +113,8 @@ ergm.robmon <- function(theta0, nw, model, Clist,
       MCMCparams$nmatrixentries = MCMCparams$samplesize * Clist$nstats
       z <- ergm.getMCMCsample(Clist, MHproposal, eta, MCMCparams, verbose=FALSE)
       # post-processing of sample statistics:  Shift each row by the
-      # matrix Clist$obs - Clist$meanstats, attach column names
-      statsmatrix <- sweep(z$statsmatrix, 2, Clist$obs - Clist$meanstats, "+")
+      # matrix Clist$obs - Clist$target.stats, attach column names
+      statsmatrix <- sweep(z$statsmatrix, 2, Clist$obs - Clist$target.stats, "+")
       colnames(statsmatrix) <- model$coef.names
 
       thetamatrix <- rbind(thetamatrix,theta)
@@ -145,8 +145,8 @@ cat(paste("theta new:",theta,"\n"))
   MCMCparams$nmatrixentries = MCMCparams$samplesize * Clist$nstats
   z <- ergm.getMCMCsample(Clist, MHproposal, eta, MCMCparams, verbose=FALSE)
   # post-processing of sample statistics:  Shift each row by the
-  # matrix Clist$obs - Clist$meanstats, attach column names
-  statsmatrix <- sweep(z$statsmatrix, 2, Clist$obs - Clist$meanstats, "+")
+  # matrix Clist$obs - Clist$target.stats, attach column names
+  statsmatrix <- sweep(z$statsmatrix, 2, Clist$obs - Clist$target.stats, "+")
   colnames(statsmatrix) <- model$coef.names
 
 # ubar <- apply(z$statsmatrix, 2, mean)

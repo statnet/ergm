@@ -46,10 +46,10 @@ ergm.stocapprox <- function(theta0, nw, model, Clist,
   cat("Stochastic approximation algorithm with theta_0 equal to:\n")
   print(theta0)
   names(Clist$obs) <- names(theta0)
-  if(is.null(Clist$meanstats)){Clist$meanstats <- Clist$obs}
+  if(is.null(Clist$target.stats)){Clist$target.stats <- Clist$obs}
   MCMCparams <- c(MCMCparams, list(phase1=n1,
-                  stats=summary.statistics.network(model$formula, basis=nw)-Clist$meanstats,
-                  meanstats=Clist$meanstats)
+                  stats=summary.statistics.network(model$formula, basis=nw)-Clist$target.stats,
+                  target.stats=Clist$target.stats)
                  )
 # cat(paste("Phase 1: ",n1,"iterations"))
 # cat(paste(" (interval=",MCMCparams$interval,")\n",sep=""))
@@ -106,7 +106,7 @@ ergm.stocapprox <- function(theta0, nw, model, Clist,
   
   # post-processing of sample statistics:  Shift each row,
   # attach column names
-  statshift <- summary.statistics.network(model$formula, basis=nw) - Clist$meanstats
+  statshift <- summary.statistics.network(model$formula, basis=nw) - Clist$target.stats
   statsmatrix <- sweep(z$statsmatrix, 2, statshift, "+")
   colnames(statsmatrix) <- model$coef.names
   v$sample <- statsmatrix

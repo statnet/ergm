@@ -13,7 +13,7 @@
 #                                  avoid an error
 #   formula       :  a formula of the form (nw ~ term(s)) 
 #   nw            :  a network object, presumably that of 'formula'
-#   meanstats     :  the mean statistics
+#   target.stats     :  the mean statistics
 #   m             :  the model as returned by <ergm.getmodel>
 #   MPLEtype      :  the method for MPL estimation as either "glm", "penalized",
 #                    or "logitreg"; this is ignored if ML estimation is used;
@@ -42,7 +42,7 @@
 ######################################################################################
 
 ergm.initialfit<-function(theta0, initial.is.final,
-                          formula, nw, meanstats,
+                          formula, nw, target.stats,
                           m, reference="Bernoulli", method = NULL,
                           MPLEtype="glm",
                           conddeg=NULL, MCMCparams=NULL, MHproposal=NULL,
@@ -56,13 +56,13 @@ ergm.initialfit<-function(theta0, initial.is.final,
    method <- "MPLE"
    Clist <- ergm.Cprepare(nw, m.conddeg)
    Clist.miss <- ergm.design(nw, m.conddeg, verbose=FALSE)
-   Clist$meanstats=c(1,meanstats)
+   Clist$target.stats=c(1,target.stats)
    conddeg <- list(m=m.conddeg, Clist=Clist, Clist.miss=Clist.miss)
   }
   
   Clist <- ergm.Cprepare(nw, m)
   Clist.miss <- ergm.design(nw, m, verbose=FALSE)
-  Clist$meanstats=meanstats
+  Clist$target.stats=target.stats
   MCMCparams$Clist.miss=Clist.miss
 
   # Respect theta0 elements that are not offsets if it's only a starting value.

@@ -12,10 +12,10 @@
 #               recognized components include:
 #                     'maxedges'     'samplesize'     'gain'
 #                     'stats'        'phase1'         'nsub'
-#                     'burnin'       'interval'       'meanstats'
+#                     'burnin'       'interval'       'target.stats'
 #               the purpose of most of these variables is given in the
 #               <control.ergm> function header; 'stats' seems to be
-#                used as the mean statistics; 'meanstats' is merely
+#                used as the mean statistics; 'target.stats' is merely
 #                returned.
 #   verbose   : whether the C functions should be verbose (T or F)
 #
@@ -23,7 +23,7 @@
 #   a list containing
 #     statsmatrix: the matrix of summary statistics
 #     newnetwork : the final network sampled
-#     meanstats  : the 'meanstats' from 'MCMCparams'
+#     target.stats  : the 'target.stats' from 'MCMCparams'
 #     maxedges   : the 'maxedges' from 'MCMCparams'
 #     eta        : the parameters used to produce the sample given
 #                  by 'statsmatrix'
@@ -33,7 +33,7 @@
 ergm.phase12 <- function(g, model,
                         MHproposal, eta0,
                         MCMCparams, verbose) {
-# ms <- MCMCparams$meanstats
+# ms <- MCMCparams$target.stats
 # if(!is.null(ms)) {
 #   if (is.null(names(ms)) && length(ms) == length(model$coef.names))
 #     names(ms) <- model$coef.names
@@ -92,7 +92,7 @@ ergm.phase12 <- function(g, model,
   newnetwork<-newnw.extract(g,z)
   
   colnames(statsmatrix) <- model$coef.names
-  list(statsmatrix=statsmatrix, newnetwork=newnetwork, meanstats=MCMCparams$meanstats,
+  list(statsmatrix=statsmatrix, newnetwork=newnetwork, target.stats=MCMCparams$target.stats,
        maxedges=MCMCparams$maxedges,
        eta=eta)
 }

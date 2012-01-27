@@ -3,10 +3,10 @@ library(ergm)
 while(exists("test.network"))
   rm(test.network)
 
-lhs.subst.san <- function(rhs,meanstats) {
+lhs.subst.san <- function(rhs,target.stats) {
         test.network <- network.initialize(n=10,directed=F)
         form <- ergm.update.formula(rhs,test.network~.)
-        san(form,meanstats=meanstats)
+        san(form,target.stats=target.stats)
         }
 
 

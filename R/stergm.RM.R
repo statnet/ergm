@@ -55,7 +55,7 @@ stergm.RM <- function(theta.form0, nw, model.form, model.diss, Clist,
   eta.diss <- ergm.eta(theta.diss, model.diss$etamap)
 
 
-  z <- stergm.phase12.C(nw, Clist$meanstats, model.form, model.diss, MHproposal.form, MHproposal.diss,
+  z <- stergm.phase12.C(nw, Clist$target.stats, model.form, model.diss, MHproposal.form, MHproposal.diss,
                         eta.form0, eta.diss, MCMCparams, verbose=verbose)
   ## Phase 3 doesn't give us anything at the moment...
   #MCMCparams$samplesize<-MCMCparams$RM.phase3n
@@ -93,7 +93,7 @@ stergm.RM <- function(theta.form0, nw, model.form, model.diss, Clist,
 #
 # --PARAMETERS--
 #   g              : a network object
-#   meanstats      : the mean statistics to be subtracted from the observed
+#   target.stats      : the mean statistics to be subtracted from the observed
 #                    statistics
 #   model.form     : a formation model, as returned by <ergm.getmodel>
 #   model.diss     : a dissolution model, as returned by <ergm.getmodel>
@@ -105,7 +105,7 @@ stergm.RM <- function(theta.form0, nw, model.form, model.diss, Clist,
 #   eta.diss       : the initial and canonical eta dissolution parameters
 #   MCMCparams     : the list of parameters which tune the MCMC sampling
 #                    processes; recognized components include:
-#       meanstats      : presumably the mean statistics, but this isn't used
+#       target.stats      : presumably the mean statistics, but this isn't used
 #                        other than to return it
 #       maxchanges     : 5 times the maximum number of changes to allocate 
 #                        space for; this value is ignored if the number of edges 
@@ -139,16 +139,16 @@ stergm.RM <- function(theta.form0, nw, model.form, model.diss, Clist,
 #   
 # --RETURNED--
 #   a list with the 2 following components:
-#      meanstats: the 'meanstats' from the 'MCMCparams'; note that this is NOT
-#                 the 'meanstats' inputted directly to this function
+#      target.stats: the 'target.stats' from the 'MCMCparams'; note that this is NOT
+#                 the 'target.stats' inputted directly to this function
 #      eta.form : the estimated? eta formation coefficients
 #
 ################################################################################
 
-stergm.phase12.C <- function(g, meanstats, model.form, model.diss, 
+stergm.phase12.C <- function(g, target.stats, model.form, model.diss, 
                              MHproposal.form, MHproposal.diss, eta.form0, eta.diss,
                              MCMCparams, verbose) {
-  # ms <- MCMCparams$meanstats
+  # ms <- MCMCparams$target.stats
   # if(!is.null(ms)) {
   #   if (is.null(names(ms)) && length(ms) == length(model.form$coef.names))
   #     names(ms) <- model.form$coef.names
@@ -179,7 +179,7 @@ stergm.phase12.C <- function(g, meanstats, model.form, model.diss,
           as.character(MHproposal.form$name), as.character(MHproposal.form$package),
           as.double(Clist.form$inputs), eta.form=as.double(eta.form0),
           # Formation parameter fitting. 16
-          as.double(summary(model.form$formula)-meanstats),
+          as.double(summary(model.form$formula)-target.stats),
           as.double(MCMCparams$RM.init_gain),
           as.integer(MCMCparams$RM.phase1n_base),
           as.integer(MCMCparams$RM.phase2n_base),
@@ -206,6 +206,6 @@ stergm.phase12.C <- function(g, meanstats, model.form, model.diss,
   eta.form <- z$eta
   names(eta.form) <- names(eta.form0)
 
-  list(meanstats=MCMCparams$meanstats,
+  list(target.stats=MCMCparams$target.stats,
        eta.form=eta.form)
 }

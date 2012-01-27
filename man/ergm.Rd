@@ -17,7 +17,7 @@ ergm(formula, theta0=NULL,
      MPLEonly=FALSE, MLestimate=!MPLEonly, seed=NULL,
      burnin=10000, MCMCsamplesize=10000, interval=100, maxit=3,
      constraints=~.,
-     meanstats = NULL,
+     target.stats = NULL,
      control=control.ergm(),
      eval.loglik=FALSE,
      verbose=FALSE, \dots)
@@ -127,7 +127,7 @@ Hunter (2008).  To create a
     }
     Not all combinations of the above are supported.
   }
-  \item{meanstats}{vector; the mean-value parameter value for the
+  \item{target.stats}{vector; the mean-value parameter value for the
     model.  If this is given, the algorithm finds the natural
     parameter value corresponding to this mean-value parameter.
     If it is missing, the mean-value parameters used are the observed
