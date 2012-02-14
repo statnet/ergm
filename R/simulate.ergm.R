@@ -82,14 +82,15 @@ simulate.ergm <- function(object, nsim=1, coef=object$coef,
 # In CRAN version, the following function is called simulate.formula
 # Here, there is a good reason to call it simulate.formula.ergm:
 # see simulate.formula.R
-simulate.formula.ergm <- function(object, nsim=1, coef, response=NULL, reference="Bernoulli",
-                                  constraints=~.,
-                                  monitor=NULL,
-                                  basis=NULL,
-                                  statsonly=FALSE,
-                                  sequential=TRUE,
-                                  control=control.simulate.formula(),
-                                  verbose=FALSE, ...) {
+simulate.formula.ergm <-
+  simulate.formula <- function(object, nsim=1, coef, response=NULL, reference="Bernoulli",
+                               constraints=~.,
+                               monitor=NULL,
+                               basis=NULL,
+                               statsonly=FALSE,
+                               sequential=TRUE,
+                               control=control.simulate.formula(),
+                               verbose=FALSE, ...) {
   # Backwards-compatibility code:
   if("theta0" %in% names(list(...))){
     warning("Passing the parameter vector as theta0= is depcrecated. Use coef= instead.")

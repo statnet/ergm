@@ -38,8 +38,10 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
   attr(llk,"nobs")<-{
     # FIXME: We need a more general framework for handling constrained
     # and partially observed network "degrees of freedom".
+    #
+    # Note that bd is always going to be in there.
     constr <- names(object$constrained)
-    if(length(constr)==0){
+    if(length(constr)==1){
       network.dyadcount(object$network)-network.naedgecount(object$network)
     }else if(length(constr)>=2){
       warning("The number of observed dyads in this network is ill-defined due to complex constraints on the sample space.")    
