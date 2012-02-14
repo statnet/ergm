@@ -9,7 +9,7 @@
 #
 #
 # --PARAMETERS--
-#   theta0         : the initial theta values
+#   init         : the initial theta values
 #   nw             : the network
 #   model          : the model, as returned by <ergm.getmodel>
 #   Clist          : a list of several network and model parameters,
@@ -38,32 +38,32 @@
 #
 ###########################################################################      
 
-ergm.robmon <- function(theta0, nw, model, Clist,
+ergm.robmon <- function(init, nw, model,
                         burnin, interval, MHproposal,
                         verbose=FALSE, 
                         control=control.ergm() ){
   
-  #phase 1:  Estimate diagonal elements of D matrix (covariance matrix for theta0)
-  n1 <- control$phase1_n
-  if(is.null(n1)) {n1 <- 7 + 3 * Clist$nstats} #default value
-  eta0 <- ergm.eta(theta0, model$etamap)
+  #phase 1:  Estimate diagonal elements of D matrix (covariance matrix for init)
+  n1 <- control$SA.phase1_n
+  if(is.null(n1)) {n1 <- 7 + 3 * model$etamap$etalength} #default value
+  eta0 <- ergm.eta(init, model$etamap)
   cat("Robbins-Monro algorithm with theta_0 equal to:\n")
-  print(theta0)
-#  stats <- matrix(0,ncol=Clist$nstats,nrow=n1)
-#  stats[1,] <- Clist$obs - Clist$target.stats
-## stats[,]<-  rep(Clist$obs - Clist$target.stats,rep(nrow(stats),Clist$nstats))
-## MCMCparams$stats <- stats
-  MCMCparams <- c(control, 
+  print(init)
+#  stats <- matrix(0,ncol=model$etamap$etalength,nrow=n1)
+#  stats[1,] <- model$obs - model$target.stats
+## stats[,]<-  rep(model$obs - model$target.stats,rep(nrow(stats),model$etamap$etalength))
+## control$stats <- stats
+  control <- c(control, 
                   list(samplesize=n1, burnin=burnin, interval=interval,
-                       nmatrixentries = n1* Clist$nstats, #stats=stats, 
+                       nmatrixentries = n1* model$etamap$etalength, #stats=stats, 
                        parallel=control$parallel))
   cat(paste("Phase 1: ",n1,"iterations"))
-  cat(paste(" (interval=",MCMCparams$interval,")\n",sep=""))
-  z <- ergm.getMCMCsample(Clist, MHproposal, eta0, MCMCparams, verbose)
-  steplength <- control$steplength
+  cat(paste(" (interval=",control$MCMC.interval,")\n",sep=""))
+  z <- ergm.getMCMCsample(nw, model, MHproposal, eta0, control, verbose)
+  steplength <- control$MCMLE.steplength
   # post-processing of sample statistics:  Shift each row by the
-  # matrix Clist$obs - Clist$target.stats, attach column names
-  statsmatrix <- sweep(z$statsmatrix, 2, Clist$obs - Clist$target.stats, "+")
+  # matrix model$obs - model$target.stats, attach column names
+  statsmatrix <- sweep(z$statsmatrix, 2, model$obs - model$target.stats, "+")
   colnames(statsmatrix) <- model$coef.names
 
   if(steplength<1){
@@ -82,39 +82,39 @@ ergm.robmon <- function(theta0, nw, model, Clist,
 # require(covRobust)
 # Ddiag <- diag(cov.nnve(z$statsmatrix))
   #phase 2:  Main phase
-  a <- control$initial_gain
-  if(is.null(a)) {a <- 0.1/control$steplength} #default value
-  n_sub <- control$nsubphases
+  a <- control$SA.initial_gain
+  if(is.null(a)) {a <- 0.1/control$MCMLE.steplength} #default value
+  n_sub <- control$SA.nsubphases
   if(is.null(n_sub)) {n_sub <- 4} #default value
-  n_iter <- control$niterations
-  if(is.null(n_iter)) {n_iter <- 7 + Clist$nstats} #default value
+  n_iter <- control$SA.niterations
+  if(is.null(n_iter)) {n_iter <- 7 + model$etamap$etalength} #default value
   # This default value is very simplistic; Snijders would use a minimum of
-  # 7 + Clist$nstats and a maximum of 207+Clist$nstats, with the actual 
+  # 7 + model$etamap$etalength and a maximum of 207+model$etamap$etalength, with the actual 
   # number determined by the autocorrelation in the samples.
   # Thus, our default value assumes independence (for now!)
-  theta <- theta0
+  theta <- init
   oldthetas <- NULL 
-  MCMCparams$samplesize <- 10 # With samplesize=1, interval is irrelevant and burnin is crucial.
-  if(MCMCparams$parallel>0){
-   MCMCparams$samplesize <- MCMCparams$samplesize*MCMCparams$parallel
+  control$MCMC.samplesize <- 10 # With samplesize=1, interval is irrelevant and burnin is crucial.
+  if(control$parallel>0){
+   control$MCMC.samplesize <- control$MCMC.samplesize*control$parallel
   }
   for(subphase in 1:n_sub) {
     thetamatrix <- NULL # Will hold matrix of all theta values for this subphase
     cat(paste("Phase 2, subphase",subphase,": a=",a,",",n_iter,"iterations"))
-    cat(paste(" (burnin=",MCMCparams$burnin,")\n",sep=""))
+    cat(paste(" (burnin=",control$MCMC.burnin,")\n",sep=""))
     for(iteration in 1:n_iter) {
 #cat(paste("theta:",theta,"\n"))
       eta <- ergm.eta(theta, model$etamap)
 #cat(paste("eta:",eta,"\n"))
 
-      # MCMCparams$burnin should perhaps be increased here, since
+      # control$MCMC.burnin should perhaps be increased here, since
       # each iteration begins from the observed network, which must be 
       # "forgotten".
-      MCMCparams$nmatrixentries = MCMCparams$samplesize * Clist$nstats
-      z <- ergm.getMCMCsample(Clist, MHproposal, eta, MCMCparams, verbose=FALSE)
+      control$nmatrixentries = control$MCMC.samplesize * model$etamap$etalength
+      z <- ergm.getMCMCsample(nw, model, MHproposal, eta, control, verbose=FALSE)
       # post-processing of sample statistics:  Shift each row by the
-      # matrix Clist$obs - Clist$target.stats, attach column names
-      statsmatrix <- sweep(z$statsmatrix, 2, Clist$obs - Clist$target.stats, "+")
+      # matrix model$obs - model$target.stats, attach column names
+      statsmatrix <- sweep(z$statsmatrix, 2, model$obs - model$target.stats, "+")
       colnames(statsmatrix) <- model$coef.names
 
       thetamatrix <- rbind(thetamatrix,theta)
@@ -136,17 +136,17 @@ cat(paste("theta new:",theta,"\n"))
   }
   
   #phase 3:  Estimate covariance matrix for final theta
-  n3 <- control$phase3_n
+  n3 <- control$SA.phase3_n
   if(is.null(n3)) {n3 <- 20} #default
-  MCMCparams$samplesize <- n3
+  control$MCMC.samplesize <- n3
   cat(paste("Phase 3: ",n3,"iterations"))
-  cat(paste(" (interval=",MCMCparams$interval,")\n",sep=""))
+  cat(paste(" (interval=",control$MCMC.interval,")\n",sep=""))
   eta <- ergm.eta(theta, model$etamap)
-  MCMCparams$nmatrixentries = MCMCparams$samplesize * Clist$nstats
-  z <- ergm.getMCMCsample(Clist, MHproposal, eta, MCMCparams, verbose=FALSE)
+  control$nmatrixentries = control$MCMC.samplesize * model$etamap$etalength
+  z <- ergm.getMCMCsample(nw, model, MHproposal, eta, control, verbose=FALSE)
   # post-processing of sample statistics:  Shift each row by the
-  # matrix Clist$obs - Clist$target.stats, attach column names
-  statsmatrix <- sweep(z$statsmatrix, 2, Clist$obs - Clist$target.stats, "+")
+  # matrix model$obs - model$target.stats, attach column names
+  statsmatrix <- sweep(z$statsmatrix, 2, model$obs - model$target.stats, "+")
   colnames(statsmatrix) <- model$coef.names
 
 # ubar <- apply(z$statsmatrix, 2, mean)
@@ -156,18 +156,18 @@ cat(paste("theta new:",theta,"\n"))
   if(verbose){cat("Calling MCMLE Optimization...\n")}
   if(verbose){cat("Using Newton-Raphson Step ...\n")}
 
-  ve<-ergm.estimate(theta0=theta, model=model,
+  ve<-ergm.estimate(init=theta, model=model,
                    statsmatrix=statsmatrix,
                    statsmatrix.obs=NULL,
-                   nr.maxit=control$nr.maxit, 
-                   nr.reltol=control$nr.reltol,
-                   calc.mcmc.se=control$calc.mcmc.se,
-                   hessianflag=control$hessian,
-                   method=control$method,
-                   metric=control$metric,
-                   compress=control$compress, verbose=verbose)
+                   nr.maxit=control$MCMLE.NR.maxit, 
+                   nr.reltol=control$MCMLE.NR.reltol,
+                   calc.mcmc.se=control$MCMC.addto.se,
+                   hessianflag=control$main.hessian,
+                   method=control$MCMLE.method,
+                   metric=control$MCMLE.metric,
+                   compress=control$MCMC.compress, verbose=verbose)
 
-  ve$sample <- ergm.sample.tomcmc(ve$sample, MCMCparams)
+  ve$sample <- ergm.sample.tomcmc(ve$sample, control)
   ve$null.deviance <- 2*network.dyadcount(nw)*log(2)
   ve$mle.lik <- -ve$null.deviance/2 + ve$loglikelihood
 # The next is the right one to uncomment
@@ -176,14 +176,14 @@ cat(paste("theta new:",theta,"\n"))
   # From ergm.estimate:
   #    structure(list(coef=theta, sample=statsmatrix, 
                       # iterations=iteration, mcmcloglik=mcmcloglik,
-                      # MCMCtheta=theta0, 
+                      # MCMCtheta=init, 
                       # loglikelihood=loglikelihood, gradient=gradient,
                       # covar=covar, samplesize=samplesize, failure=FALSE,
                       # mc.se=mc.se, acf=mcmcacf,
                       # fullsample=statsmatrix.all),
                   # class="ergm") 
   structure(c(ve, list(newnetwork=nw, 
-                 theta.original=theta0,
+                 theta.original=init,
                  rm.coef=theta,
                  interval=interval, burnin=burnin, 
                  network=nw)),

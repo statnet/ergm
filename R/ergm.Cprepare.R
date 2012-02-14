@@ -38,15 +38,6 @@
 #                           for each fname in fnamestring
 #            maxpossibleedges :  the maximum number of edges to allocate
 #                                space for
-#            stergm.order.code:  a numeric code indicating which dissolution
-#                                and formation process is to be used, where
-#                                    1 = DissThenForm
-#                                    2 = DissAndForm or FormAndDiss
-#                                    3 = FormThenDiss
-#                                    4 = FormOnly
-#                                    5 = DissOnly
-#                                the default is 0, which will lead to an
-#                                error in the C code
 #
 ##########################################################################
 
@@ -121,16 +112,7 @@ ergm.Cprepare <- function(nw, m, response=NULL)
   # estimated.
   Clist$diagnosable <- ! m$etamap$offsetmap
   names(Clist$diagnosable) <- m$coef.names[!m$etamap$offsetmap]
-  
-  if("stergm.order" %in% names(m)) Clist$stergm.order.code <- switch(m$stergm.order,
-                                                              DissThenForm=1,
-                                                              DissAndForm=2,
-                                                              FormAndDiss=2,
-                                                              FormThenDiss=3,
-                                                              FormOnly=4,
-                                                              DissOnly=5,
-                                                              0)
-  
+    
   Clist
 }
 

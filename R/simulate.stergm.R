@@ -29,16 +29,9 @@
 #                  sampling is done; default=0
 #   time.interval: the number of MCMC steps between sampled networks;
 #                  default=1
-#    MH.burnin   : this is received as 'MH_interval' and determines the
-#                  number of MH proposals used in each MCMC step;
-#                  default='object'$MH.burnin for stergm objects;
-#                  default=1000 for formula objects
 #   constraints  : a one-sided formula specifying the constraints on the
 #                  support of the distribution of networks being simulated;
 #                  default='object'$constraints for stergms, "~." for formulas
-#   stergm.order : the string describing the formation and dissolution order;
-#                  default='object'$stergm.order for stergms, "DissAndForm"
-#                  for formulas
 #   control      : a list of control parameters for algorithm tuning;
 #                  default=<control.simulate.stergm>
 #   toggles      : whether 'changed', the toggle matrix of timestamps and
@@ -76,102 +69,96 @@
 ###############################################################################
 
 simulate.stergm<-function(object,
-                          nsim=1, seed=NULL,
-                          theta.form=object$coef.form,theta.diss=object$coef.diss,
-                        time.burnin=0, time.interval=1, MH.burnin=object$MH.burnin,
-                        constraints=object$constraints,
-                        stergm.order=object$stergm.order,
-                        control=control.simulate.stergm(),
-                        toggles=TRUE,
-                        verbose=FALSE, ...){
-  simulate.formula.stergm(object$formation,dissolution=object$dissolution,nsim=nsim,seed=seed,theta.form=theta.form, theta.diss=theta.diss,  time.burnin=time.burnin, time.interval=time.interval,MH.burnin=MH.burnin,constraints=constraints,stergm.order=stergm.order,control=control,verbose=verbose,...)
+                          nsim=1,
+                          coef.form=object$formation.fit$coef,coef.diss=object$dissolution.fit$coef,
+                          time.burnin=0, time.interval=1,
+                          control=control.simulate.stergm(),
+                          statsonly=FALSE,
+                          toggles=!statsonly,
+                          verbose=FALSE, ...){
+  simulate.formula.stergm(object$formation,dissolution=object$dissolution,nsim=nsim,coef.form=coef.form, coef.diss=coef.diss,  time.burnin=time.burnin, time.interval=time.interval,control=control,toggles=toggles,verbose=verbose,...)
 }
 
 
 
-
-simulate.formula.stergm <- function(object, nsim=1, seed=NULL, ..., dissolution,
-                                theta.form,theta.diss,
-                        time.burnin=0, time.interval=1, MH.burnin=1000,
-                        constraints=~.,
-                        stergm.order="DissAndForm",
-                        control=control.simulate.stergm(),
-                        toggles=TRUE,
-                        verbose=FALSE) {
-
-  formation <- object
+# Note that we are overriding simulate.network here, since the first argument is a network.
+simulate.network<-simulate.formula.stergm <- function(object, nsim=1,
+                                                      formation, dissolution,
+                                                      coef.form,coef.diss,
+                                                      time.burnin=0, time.interval=1,
+                                                      control=control.simulate.stergm(),
+                                                      toggles = TRUE,
+                                                      verbose=FALSE) {
   
-  if(!is.null(seed)) set.seed(as.integer(seed))
-  nw <- ergm.getnetwork(formation)
-  if(class(nw) =="network.series"){
-    nw <- nw$networks[[1]]
-  }
-  nw <- as.network(nw)
+  if(!is.null(control$seed)) set.seed(as.integer(control$seed))
+  # Toggles is a "main call" parameter, since it affects what to
+  # compute rather than just how to compute it, but it's convenient to
+  # have it as a part of the control data structure.
+  control$toggles <- toggles
+  
+  nw <- as.network(object)
   if(!is.network(nw)){
     stop("A network object on the LHS of the formation must be given")
   }
 
+  formation<-ergm.update.formula(formation,nw~.)
   dissolution<-ergm.update.formula(dissolution,nw~.)
   
   model.form <- ergm.getmodel(formation, nw)
-  if(!missing(theta.form) && theta.length.model(model.form)!=length(theta.form)) stop("theta.form has ", length(theta.form), " elements, while the model requires ",theta.length.model(model.form)," parameters.")
+  if(!missing(coef.form) && coef.length.model(model.form)!=length(coef.form)) stop("coef.form has ", length(coef.form), " elements, while the model requires ",coef.length.model(model.form)," parameters.")
 
-  model.diss <- ergm.getmodel(dissolution, nw, stergm.order=stergm.order)
-  if(!missing(theta.diss) && theta.length.model(model.diss)!=length(theta.diss)) stop("theta.diss has ", length(theta.diss), " elements, while the model requires ",theta.length.model(model.diss)," parameters.")
+  model.diss <- ergm.getmodel(dissolution, nw)
+  if(!missing(coef.diss) && coef.length.model(model.diss)!=length(coef.diss)) stop("coef.diss has ", length(coef.diss), " elements, while the model requires ",coef.length.model(model.diss)," parameters.")
 
 
   
   verbose <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
-  if(missing(theta.form)) {
-    theta.form <- rep(0,length(model.form$coef.names))
+  if(missing(coef.form)) {
+    coef.form <- rep(0,length(model.form$coef.names))
     warning("No parameter values given, using Bernouli network.\n\t")
   }
 
-  if(missing(theta.diss)) {
-    theta.diss <- rep(0,length(model.diss$coef.names))
+  if(missing(coef.diss)) {
+    coef.diss <- rep(0,length(model.diss$coef.names))
     warning("No parameter values given, using Bernoulli dissolution.\nThis means that every time step, half the ties get dissolved!\n\t")
   }
 
-  if((time.burnin!=0 || time.interval!=1) && toggles){
+  if((time.burnin!=0 || time.interval!=1) && control$toggles){
     warning("Burnin is present or interval isn't 1. Toggle list will not be returned.")
-    toggles<-FALSE
+    control$toggles<-FALSE
   }
-  
-  if(!is.null(seed)) set.seed(as.integer(seed))
     
-  MHproposal.form <- MHproposal(constraints,control$prop.args.form,nw,
-                                                    weights=control$prop.weights.form,class="f")
-  MHproposal.diss <- MHproposal(constraints,control$prop.args.diss,nw,
-                                                    weights=control$prop.weights.diss,class="d")
-  MCMCparams <- c(control,list(samplesize=nsim, time.interval=time.interval,
-                               time.burnin=time.burnin,
-                               MH.burnin=MH.burnin,
-                               parallel=0,
-                               target.stats.form=summary(model.form$formula),
-                               target.stats.diss=summary(model.diss$formula),
-                               toggles=toggles))
+  MHproposal.form <- MHproposal(~.,control$form$MCMC.prop.args,nw,
+                                weights=control$form$MCMC.prop.weights,class="f")
+  MHproposal.diss <- MHproposal(~.,control$diss$MCMC.prop.args,nw,
+                                weights=control$diss$MCMC.prop.weights,class="d")
+
+  eta.form <- ergm.eta(coef.form, model.form$etamap)
+  eta.diss <- ergm.eta(coef.diss, model.diss$etamap)
+
+  control$time.burnin <- time.burnin
+  control$time.interval <- time.interval
+  control$time.samplesize <- nsim
   
   z <- stergm.getMCMCsample(nw, model.form, model.diss,
-                             MHproposal.form, MHproposal.diss,
-                             theta.form, theta.diss, MCMCparams, verbose)
+                            MHproposal.form, MHproposal.diss,
+                            eta.form, eta.diss, control, verbose)
+  
 
-  if(control$final){
-   nw <- z$newnetwork
-   return(nw)
-  }else{
+  # FIXME: Standardize output format once the conversion function is available.
+  if(toggles){
     changed<-z$changed
     attr(changed,"start")<-time.burnin+1
     attr(changed,"end")<-(nsim-1)*time.interval+time.burnin+1
     out.list <- list(formation = formation,
                      dissolution = dissolution,
                      networks = nw,
-                     constraints=constraints,
                      changed=changed, 
                      maxchanges=z$maxchanges,
                      stats.form = z$statsmatrix.form,stats.diss = z$statsmatrix.diss,
-                     coef.form=theta.form,coef.diss=theta.diss)
+                     coef.form=coef.form,coef.diss=coef.diss)
     class(out.list) <- "network.series"
-    return(out.list)
-  }
+  }else{out.list<-list(stats.form = z$statsmatrix.form,stats.diss = z$statsmatrix.diss)}
+  return(out.list)
 }

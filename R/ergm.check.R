@@ -194,10 +194,10 @@ ergm.checkdegeneracy <- function(statsmatrix, statsmatrix.obs=NULL, verbose=FALS
 #
 #  ############# from ergm.statseval:  CHECK FOR NO VARIANCE
 #  # below is what was done; not necessarily something to keep
-#  novar=rep(FALSE,length(theta0)) # This is a hack
-#  theta0[!novar] <- l$coef
-#  l$coef <- theta0
-#  theta0[!novar] <- l$MCMCtheta
+#  novar=rep(FALSE,length(init)) # This is a hack
+#  init[!novar] <- l$coef
+#  l$coef <- init
+#  init[!novar] <- l$MCMCtheta
 #  covar <- 0*diag(length(l$coef)) # initialize to zero matrix
 #  covar[!novar,!novar] <- l$covar
 #

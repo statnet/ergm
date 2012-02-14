@@ -4,7 +4,9 @@
 
 
 # A lookup table for methods for initial fits; the default is the first one.
-initialfit.methods<-list(
-                         Bernoulli=c("MPLE","zeros"),
-                         Poisson=c("zeros")
-                         )
+init.methods<-list(
+                   Bernoulli=c("MPLE","zeros"),
+                   Poisson=c("zeros"),
+                   DescRank=c("zeros"),
+                   StdNormal=c("zeros")
+                   )

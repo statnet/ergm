@@ -21,7 +21,7 @@
 #   conddeg          : an indicator of whether the MPLE should be conditional
 #                      on degree; non-NULL values indicate yes, NULL no;
 #                      default=NULL 
-#   MCMCparams       : a list of MCMC related parameters; recognized variables
+#   control       : a list of MCMC related parameters; recognized variables
 #                      include:
 #         samplesize : the number of networks to sample, which will inform the size
 #                      of the returned 'xmat'
@@ -62,7 +62,7 @@
 ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
                     maxMPLEsamplesize=1e+6,
                     maxNumDyadTypes=1e+6,
-                    conddeg=NULL, MCMCparams, MHproposal,
+                    conddeg=NULL, control, MHproposal,
                     verbose=FALSE, compressflag=TRUE) {
   bip <- Clist$bipartite
   n <- Clist$n
@@ -140,17 +140,17 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     
     maxedges <- max(5000, conddeg$Clist$nedges)
     nsim <- 1
-    if(MCMCparams$samplesize > 50000){
-     nsim <- ceiling(MCMCparams$samplesize / 50000)
-     MCMCparams$samplesize <- 50000
+    if(control$MPLE.samplesize > 50000){
+     nsim <- ceiling(control$MPLE.samplesize / 50000)
+     control$MPLE.samplesize <- 50000
 
-     cl <- ergm.getCluster(MCMCparams, verbose)
+     cl <- ergm.getCluster(control, verbose)
     }
     flush.console()
 #
-    MCMCparams$stats <- matrix(0,ncol=conddeg$Clist$nstats,nrow=MCMCparams$samplesize+1)
+    control$stats <- matrix(0,ncol=conddeg$Clist$nstats,nrow=control$MPLE.samplesize+1)
     data <- list(conddeg=conddeg,Clist=Clist, MHproposal=MHproposal, eta0=eta0,
-         MCMCparams=MCMCparams,maxedges=maxedges,verbose=verbose)
+         control=control,maxedges=maxedges,verbose=verbose)
     simfn <- function(i, data){
      # *** don't forget, pass in tails first now, not heads    
      z <- .C("MPLEconddeg_wrapper",
@@ -163,8 +163,8 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
             as.character(data$conddeg$Clist$snamestring),
             as.character(data$MHproposal$name), as.character(data$MHproposal$package),
             as.double(data$conddeg$Clist$inputs), as.double(data$eta0),
-            as.integer(data$MCMCparams$samplesize+1),
-            s = as.double(t(data$MCMCparams$stats)),
+            as.integer(data$control$MPLE.samplesize+1),
+            s = as.double(t(data$control$stats)),
             as.integer(0), 
             as.integer(1),
             newnwtails = integer(data$maxedges),
@@ -175,14 +175,14 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
             as.integer(data$MHproposal$arguments$constraints$bd$condAllDegExact),
 as.integer(length(data$MHproposal$arguments$constraints$bd$attribs)),
             as.integer(data$maxedges),
-            as.integer(data$MCMCparams$Clist.miss$tails), as.integer(data$MCMCparams$Clist.miss$heads),
-            as.integer(data$MCMCparams$Clist.miss$nedges),
+            as.integer(data$control$Clist.miss$tails), as.integer(data$control$Clist.miss$heads),
+            as.integer(data$control$Clist.miss$nedges),
             PACKAGE="ergm")
     # save the results
     z <- list(s=z$s, newnwtails=z$newnwtails, newnwheads=z$newnwheads)
     
     nedges <- z$newnwtails[1]
-    statsmatrix <- matrix(z$s, nrow=data$MCMCparams$samplesize+1,
+    statsmatrix <- matrix(z$s, nrow=data$control$MPLE.samplesize+1,
                           ncol=data$conddeg$Clist$nstats,
                           byrow = TRUE)
     colnames(statsmatrix) <- data$conddeg$m$coef.names

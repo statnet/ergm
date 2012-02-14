@@ -8,7 +8,7 @@
 #   Clist.miss       : the corresponding 'Clist' for the network of missing
 #                      edges returned by <ergm.design>            
 #   m                : the model, as returned by <ergm.getmodel>
-#   theta0           : a vector a vector of initial theta coefficients
+#   init           : a vector a vector of initial theta coefficients
 #   theta.offset     : a logical vector specifying which of the model
 #                      coefficients are offset, i.e. fixed  
 #   MPLEtype         : the method for MPL estimation as "penalized", "glm" or
@@ -29,7 +29,7 @@
 #   conddeg          : an indicator of whether the MPLE should be conditional
 #                      on degree; non-NULL values indicate yes, NULL no;
 #                      default=NULL.
-#   MCMCparams       : a list of MCMC related parameters; recognized components
+#   control       : a list of MCMC related parameters; recognized components
 #                      include:
 #         samplesize : the number of networks to sample
 #         Clist.miss : see 'Clist.miss' above; some of the code uses this Clist.miss,
@@ -48,22 +48,22 @@
 #
 ######################################################################################
 
-ergm.mple<-function(Clist, Clist.miss, m, theta0=NULL, theta.offset=NULL,
+ergm.mple<-function(Clist, Clist.miss, m, init=NULL, theta.offset=NULL,
                     MPLEtype="glm", family="binomial",
                     maxMPLEsamplesize=1e+6,
                     save.glm=TRUE,
                     maxNumDyadTypes=1e+6,
                     theta1=NULL, 
-		    conddeg=NULL, MCMCparams=NULL, MHproposal=NULL,
+		    conddeg=NULL, control=NULL, MHproposal=NULL,
         verbose=FALSE, compressflag=TRUE,
                     ...) {
-  if(is.numeric(theta0)){theta.offset <- theta0}
+  if(is.numeric(init)){theta.offset <- init}
   pl <- ergm.pl(Clist=Clist, Clist.miss=Clist.miss, m=m,
                 theta.offset=theta.offset,
                 maxMPLEsamplesize=maxMPLEsamplesize,
                 maxNumDyadTypes=maxNumDyadTypes,
                 conddeg=conddeg, 
-		MCMCparams=MCMCparams, MHproposal=MHproposal,
+		control=control, MHproposal=MHproposal,
                 verbose=verbose, compressflag=compressflag)
 
   if(MPLEtype=="penalized"){
@@ -71,7 +71,7 @@ ergm.mple<-function(Clist, Clist.miss, m, theta0=NULL, theta.offset=NULL,
    mplefit <- ergm.pen.glm(
                   pl$zy ~ pl$xmat -1 + offset(pl$foffset),
                   data=data.frame(pl$xmat), weights=pl$wend,
-                  start=theta0[!m$etamap$offsettheta])
+                  start=init[!m$etamap$offsettheta])
 #  mple$deviance <- 2 * (mplefit$loglik-mplefit$loglik[1])[-1]
    mplefit$deviance <- -2*mplefit$loglik
    mplefit$cov.unscaled <- mplefit$var
@@ -83,14 +83,14 @@ ergm.mple<-function(Clist, Clist.miss, m, theta0=NULL, theta.offset=NULL,
     mplefit <- model.matrix(terms(pl$zy ~ .-1,data=data.frame(pl$xmat)),
                            data=data.frame(pl$xmat))
     mplefit <- ergm.logitreg(x=mplefit, y=pl$zy, offset=pl$foffset, wt=pl$wend,
-                             start=theta0[!m$etamap$offsettheta])
+                             start=init[!m$etamap$offsettheta])
     mplefit.summary <- list(cov.unscaled=mplefit$cov.unscaled)
    }else{
     mplefit <- try(
           glm(pl$zy ~ .-1 + offset(pl$foffset), data=data.frame(pl$xmat),
                weights=pl$wend, family=family),
 # Note:  It appears that specifying a starting vector can lead to problems!
-#               start=theta0[!m$etamap$offsettheta]),
+#               start=init[!m$etamap$offsettheta]),
                     silent = TRUE)
     if (inherits(mplefit, "try-error")) {
       mplefit <- list(coef=pl$theta.offset, deviance=0,

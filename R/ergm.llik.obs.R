@@ -18,7 +18,7 @@
 #
 # --PARAMETERS--
 #   theta      : the vector of theta parameters; this is only used to solidify
-#                offset coefficients; the not-offset terms are given by 'theta0'
+#                offset coefficients; the not-offset terms are given by 'init'
 #                of the 'etamap'
 #   xobs       : the vector of observed statistics
 #   xsim       : the matrix of simulated statistics
@@ -53,7 +53,7 @@
 #####################################################################################                           
 llik.fun.obs <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
                      varweight=0.5, trustregion=20, eta0, etamap){
-  theta.offset <- etamap$theta0
+  theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
   x <- eta-eta0
@@ -100,7 +100,7 @@ llik.fun.obs <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL
 
 llik.grad.obs <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NULL,
                       varweight=0.5, trustregion=20, eta0, etamap){
-  theta.offset <- etamap$theta0
+  theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
   x <- eta-eta0
@@ -146,7 +146,7 @@ llik.grad.obs <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NU
 
 llik.hessian.obs <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
                          varweight=0.5, eta0, etamap){
-  theta.offset <- etamap$theta0
+  theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
 #
 #    eta transformation
@@ -218,7 +218,7 @@ llik.hessian.obs <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=
 
 llik.fun.obs.robust<- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
                      varweight=0.5, trustregion=20, eta0, etamap){
-  theta.offset <- etamap$theta0
+  theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
   x <- eta-eta0

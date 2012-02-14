@@ -6,20 +6,10 @@
 #include "changestat.h"
 #include "model.h"
 
-typedef enum {
-  DissThenForm=1,
-  DissAndForm=2,
-  FormThenDiss=3,
-  // These modes are used in debugging:
-  FormOnly=4,
-  DissOnly=5
-} DynamOrder;
-
 void MCMCDyn_init_common(int *tails, int *heads, int n_edges,
           int maxedges,
 				  int n_nodes, int dflag, int bipartite, Network *nw,
 
-				  int order_code, DynamOrder *order,
 				  int F_nterms, char *F_funnames, char *F_sonames, double *F_inputs, Model **F_m,
 				  int D_nterms, char *D_funnames, char *D_sonames, double *D_inputs, Model **D_m,
 				  
@@ -40,8 +30,6 @@ void MCMCDyn_finish_common(Network *nw,
 void MCMCDyn_wrapper(// Starting network.
 		     int *tails, int *heads, int *n_edges, int *maxpossibleedges,
 		     int *dn, int *dflag, int *bipartite,
-		     // Ordering of formation and dissolution.
-		     int *order_code,
 		     // Formation terms and proposals.
 		     int *F_nterms, char **F_funnames, char **F_sonames, 
 		     char **F_MHproposaltype, char **F_MHproposalpackage,
@@ -66,8 +54,6 @@ void MCMCDyn_wrapper(// Starting network.
 
 void MCMCSampleDyn(// Observed and discordant network.
 		   Network *nwp,
-		   // Ordering of formation and dissolution.
-		   DynamOrder order,
 		   // Formation terms and proposals.
 		   Model *F_m, MHproposal *F_MH, double *theta,
 		   // Dissolution terms and proposals.
@@ -83,7 +69,6 @@ void MCMCSampleDyn(// Observed and discordant network.
 		   int fVerbose);
 
 void MCMCDyn1Step(Network *nwp,
-		  DynamOrder order,
 		  Model *F_m, MHproposal *F_MH, double *theta,
 		  Model *D_m, MHproposal *D_MH, double *gamma,
 		  unsigned log_toggles,

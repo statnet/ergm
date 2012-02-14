@@ -78,14 +78,14 @@ autoboot.ergm<-function(object, R, verbose=FALSE, control=control.ergm()){
   if(verbose) cat("Running estimation:\n")
   
   theta.boot<-apply(samp[resamp.l,],1,function(stat){
-    v<-ergm.estimate(theta0=theta.samp,model=m,statsmatrix=sweep(samp,2,stat),statsmatrix.obs=NULL,
+    v<-ergm.estimate(init=theta.samp,model=m,statsmatrix=sweep(samp,2,stat),statsmatrix.obs=NULL,
                      epsilon=control$epsilon,
-                     nr.maxit=control$nr.maxit,
-                     nr.reltol=control$nr.reltol,
+                     nr.maxit=control$MCMLE.NR.maxit,
+                     nr.reltol=control$MCMLE.NR.reltol,
                      calc.mcmc.se=FALSE, hessianflag=FALSE,
-                     trustregion=+Inf, method=control$method,
-                     metric=control$metric,
-                     compress=control$compress, verbose=max(verbose-2,0),
+                     trustregion=+Inf, method=control$MCMLE.method,
+                     metric=control$MCMLE.metric,
+                     compress=control$MCMC.compress, verbose=max(verbose-2,0),
                      estimateonly=TRUE)
     v$coef
   })

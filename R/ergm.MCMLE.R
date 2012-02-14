@@ -1,5 +1,5 @@
 ############################################################################
-# The <ergm.mainfitloop> function provides one of the styles of maximum
+# The <ergm.MCMLE> function provides one of the styles of maximum
 # likelihood estimation that can be used. This one is the default and uses
 # optimization of an MCMC estimate of the log-likelihood.  (The other
 # MLE styles are found in functions <ergm.robmon>, <ergm.stocapprox>, and
@@ -7,14 +7,12 @@
 #
 #
 # --PARAMETERS--
-#   theta0         : the initial theta values
+#   init         : the initial theta values
 #   nw             : the network 
 #   model          : the model, as returned by <ergm.getmodel>
-#   Clist          : a list of several network and model parameters,
-#                    as returned by <ergm.Cprepare>
 #   initialfit     : an ergm object, as the initial fit, possibly returned
 #                    by <ergm.initialfit>
-#   MCMCparams     : a list of parameters for controlling the MCMC sampling;
+#   control     : a list of parameters for controlling the MCMC sampling;
 #                    recognized components include
 #       samplesize : the number of MCMC sampled networks
 #       maxit      : the maximum number of iterations to use
@@ -35,84 +33,76 @@
 #                    default=FALSE
 #   sequential     : whether to update the network returned in
 #                    'v$newnetwork'; if the network has missing edges,
-#                    this is ignored; default=MCMCparams$sequential
-#   estimate       : whether to optimize the theta0 coefficients via
+#                    this is ignored; default=control$MCMLE.sequential
+#   estimate       : whether to optimize the init coefficients via
 #                    <ergm.estimate>; default=TRUE
 #   ...            : additional parameters that may be passed from within;
 #                    all are ignored
 #
 # --RETURNED--
 #   v: an ergm object as a list containing several items; for details see
-#      the return list in the <ergm> function header (<ergm.mainfitloop>=*);
+#      the return list in the <ergm> function header (<ergm.MCMLE>=*);
 #      note that if the model is degenerate, only 'coef' and 'sample' are
 #      returned; if 'estimate'=FALSE, the MCMC and se variables will be
 #      NA or NULL
 #
 #############################################################################
 
-ergm.mainfitloop <- function(theta0, nw, model, Clist,
+ergm.MCMLE <- function(init, nw, model,
                              initialfit, 
-                             MCMCparams, 
+                             control, 
                              MHproposal, MHproposal.obs,
                              verbose=FALSE,
-                             sequential=MCMCparams$sequential,
+                             sequential=control$MCMLE.sequential,
                              estimate=TRUE,
                              response=NULL, ...) {
   # Initialize the history of parameters and statistics.
-  theta.hist <- rbind(theta0)
-  stats.hist <- matrix(NA, 0, length(Clist$obs))
-  stats.obs.hist <- matrix(NA, 0, length(Clist$obs))
+  coef.hist <- rbind(init)
+  stats.hist <- matrix(NA, 0, length(model$obs))
+  stats.obs.hist <- matrix(NA, 0, length(model$obs))
   
   # Store information about original network, which will be returned at end
   nw.orig <- network.copy(nw)
 
-  # Calculate the amount by which all of the MCMC statistics should be adjusted
-  # to account for the fact that they are all calculated relative to the
-  # observed network.  Unless otherwise specified, the value of target.stats
-  # is simply the observed statistics, which means statshift equals zero
-  # most of the time.
-  statshift <- Clist$obs - Clist$target.stats
-  MCMCparams$target.stats <- Clist$target.stats
+  # statshift is the difference between the target.stats (if
+  # specified) and the statistics of the networks in the LHS of the
+  # formula or produced by SAN. If target.stats is not speficied
+  # explicitly, they are computed from this network, so statshift==0.
+  statshift <- model$obs - model$target.stats
 
   # Is there observational structure?
   obs <- ! is.null(MHproposal.obs)
   
-  # Initialize MCMCparams.obs in case there is observation structure
+  # Initialize control.obs in case there is observation structure
   
   if(obs){
-    MCMCparams.obs <- MCMCparams
-    if(!is.null(MCMCparams$obs.MCMCsamplesize)){
-      MCMCparams.obs$MCMCsamplesize <- MCMCparams$obs.MCMCsamplesize
-    }
-    if(!is.null(MCMCparams$obs.interval)){
-      MCMCparams.obs$interval <- MCMCparams$obs.interval
-    }
-    if(!is.null(MCMCparams$obs.burnin)){
-      MCMCparams.obs$burnin <- MCMCparams$obs.burnin
-    }
+    control.obs <- control
+    control.obs$MCMC.samplesize <- control$MCMLE.obs.MCMC.samplesize
+    control.obs$MCMC.interval <- control$MCMLE.obs.MCMC.interval
+    control.obs$MCMC.burnin <- control$MCMLE.obs.MCMC.burnin
   }
   iteration <- 0
   finished <- FALSE
-  # mcmc.theta0 will change at each iteration.  It is the value that is used
-  # to generate the MCMC samples.  theta0 will never change.
-  mcmc.theta0 <- theta0
-  parametervalues <- theta0 # Keep track of all parameter values
+  # mcmc.init will change at each iteration.  It is the value that is used
+  # to generate the MCMC samples.  init will never change.
+  mcmc.init <- init
+  parametervalues <- init # Keep track of all parameter values
   while(!finished){
     iteration <- iteration + 1
     if(verbose){
-      cat("Iteration ",iteration," of at most ", MCMCparams$maxit,
+      cat("Iteration ",iteration," of at most ", control$MCMLE.maxit,
           " with parameter: \n", sep="")
-      print(mcmc.theta0)
+      print(mcmc.init)
     }else{
-      cat("Iteration ",iteration," of at most ", MCMCparams$maxit,": \n",sep="")
+      cat("Iteration ",iteration," of at most ", control$MCMLE.maxit,": \n",sep="")
     }
 
     # Obtain MCMC sample
-    mcmc.eta0 <- ergm.eta(mcmc.theta0, model$etamap)
-    z <- ergm.getMCMCsample.parallel(nw, model, MHproposal, mcmc.eta0, MCMCparams, verbose, response=response)
+    mcmc.eta0 <- ergm.eta(mcmc.init, model$etamap)
+    z <- ergm.getMCMCsample(nw, model, MHproposal, mcmc.eta0, control, verbose, response=response)
     
     # post-processing of sample statistics:  Shift each row by the
-    # vector Clist$obs - Clist$target.stats, store returned nw
+    # vector model$obs - model$target.stats, store returned nw
     # The statistics in statsmatrix should all be relative to either the
     # observed statistics or, if given, the alternative target.stats
     # (i.e., the estimation goal is to use the statsmatrix to find 
@@ -128,7 +118,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     
     ##  Does the same, if observation process:
     if(obs){
-      z.obs <- ergm.getMCMCsample.parallel(nw, model, MHproposal.obs, mcmc.eta0, MCMCparams.obs, verbose, response=response)
+      z.obs <- ergm.getMCMCsample(nw, model, MHproposal.obs, mcmc.eta0, control.obs, verbose, response=response)
       statsmatrix.obs <- sweep(z.obs$statsmatrix, 2, statshift, "+")
       colnames(statsmatrix.obs) <- model$coef.names
       nw.obs.returned <- network.copy(z.obs$newnetwork)
@@ -142,8 +132,8 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
       if(sequential) {
         nw <- nw.returned
         nw.obs <- summary(model$formula, basis=nw, response=response)
-        namesmatch <- match(names(MCMCparams$target.stats), names(nw.obs))
-        statshift <- -Clist$target.stats
+        namesmatch <- match(names(model$target.stats), names(nw.obs))
+        statshift <- -model$target.stats
         statshift[!is.na(namesmatch)] <- statshift[!is.na(namesmatch)] + nw.obs[namesmatch[!is.na(namesmatch)]]
       }
     }
@@ -152,25 +142,25 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
     
     if(!estimate){
       if(verbose){cat("Skipping optimization routines...\n")}
-      l <- list(coef=mcmc.theta0, mc.se=rep(NA,length=length(mcmc.theta0)),
+      l <- list(coef=mcmc.init, mc.se=rep(NA,length=length(mcmc.init)),
                 sample=statsmatrix, sample.obs=statsmatrix.obs,
-                iterations=1, MCMCtheta=mcmc.theta0,
+                iterations=1, MCMCtheta=mcmc.init,
                 loglikelihood=NA, #mcmcloglik=NULL, 
                 mle.lik=NULL,
-                gradient=rep(NA,length=length(mcmc.theta0)), #acf=NULL,
-                samplesize=MCMCparams$samplesize, failure=TRUE,
+                gradient=rep(NA,length=length(mcmc.init)), #acf=NULL,
+                samplesize=control$MCMC.samplesize, failure=TRUE,
                 newnetwork = nw.returned)
       return(structure (l, class="ergm"))
     } 
 
     statsmatrix.0 <- statsmatrix
     statsmatrix.0.obs <- statsmatrix.obs
-    if(MCMCparams$steplength=="adaptive"){
+    if(control$MCMLE.steplength=="adaptive"){
       if(verbose){cat("Calling adaptive MCMLE Optimization...\n")}
       adaptive.steplength <- 2
       statsmean <- apply(statsmatrix.0,2,mean)
-      v <- list(loglikelihood=MCMCparams$adaptive.trustregion*2)
-      while(v$loglikelihood > MCMCparams$adaptive.trustregion){
+      v <- list(loglikelihood=control$MCMC.adaptive.trustregion*2)
+      while(v$loglikelihood > control$MCMC.adaptive.trustregion){
         adaptive.steplength <- adaptive.steplength / 2
         if(!is.null(statsmatrix.0.obs)){
           statsmatrix.obs <- statsmatrix.0.obs*adaptive.steplength+statsmatrix.0*(1-adaptive.steplength)
@@ -182,19 +172,19 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
         #   If not the last iteration do not compute all the extraneous
         #   statistics that are not needed until output
         #
-        v<-ergm.estimate(theta0=mcmc.theta0, model=model,
+        v<-ergm.estimate(init=mcmc.init, model=model,
                          statsmatrix=statsmatrix, 
                          statsmatrix.obs=statsmatrix.obs, 
-                         epsilon=MCMCparams$epsilon,
-                         nr.maxit=MCMCparams$nr.maxit,
-                         nr.reltol=MCMCparams$nr.reltol,
-                         calc.mcmc.se=MCMCparams$calc.mcmc.se, hessianflag=MCMCparams$hessian,
-                         trustregion=MCMCparams$trustregion, method=MCMCparams$method,
-                         metric=MCMCparams$metric,
-                         compress=MCMCparams$compress, verbose=verbose,
+                         epsilon=control$epsilon,
+                         nr.maxit=control$MCMLE.NR.maxit,
+                         nr.reltol=control$MCMLE.NR.reltol,
+                         calc.mcmc.se=control$MCMC.addto.se, hessianflag=control$main.hessian,
+                         trustregion=control$MCMLE.trustregion, method=control$MCMLE.method,
+                         metric=control$MCMLE.metric,
+                         compress=control$MCMC.compress, verbose=verbose,
                          estimateonly=TRUE)
       }
-      if(v$loglikelihood < MCMCparams$trustregion-0.001){
+      if(v$loglikelihood < control$MCMLE.trustregion-0.001){
         current.scipen <- options()$scipen
         options(scipen=3)
         cat("the log-likelihood improved by",
@@ -203,33 +193,33 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
       }else{
         cat("the log-likelihood did not improve.\n")
       }
-      if((adaptive.steplength==1) && (v$loglikelihood < MCMCparams$adaptive.epsilon) ){break}
+      if((adaptive.steplength==1) && (v$loglikelihood < control$MCMC.adaptive.epsilon) ){break}
     }else{
 
       if(verbose){cat("Calling MCMLE Optimization...\n")}
       statsmean <- apply(statsmatrix.0,2,mean)
       if(!is.null(statsmatrix.0.obs)){
-        statsmatrix.obs <- statsmatrix.0.obs*MCMCparams$steplength+statsmatrix.0*(1-MCMCparams$steplength)
+        statsmatrix.obs <- statsmatrix.0.obs*control$MCMLE.steplength+statsmatrix.0*(1-control$MCMLE.steplength)
       }else{
-        statsmatrix <- sweep(statsmatrix.0,2,(1-MCMCparams$steplength)*statsmean,"-")
+        statsmatrix <- sweep(statsmatrix.0,2,(1-control$MCMLE.steplength)*statsmean,"-")
       }
-      if(verbose){cat(paste("Using Newton-Raphson Step with step length ",MCMCparams$steplength," ...\n"))}
-      finished <- iteration >= MCMCparams$maxit
+      if(verbose){cat(paste("Using Newton-Raphson Step with step length ",control$MCMLE.steplength," ...\n"))}
+      finished <- iteration >= control$MCMLE.maxit
       # Use estimateonly=TRUE if this is not the last iteration.
-      v<-ergm.estimate(theta0=mcmc.theta0, model=model,
+      v<-ergm.estimate(init=mcmc.init, model=model,
                        statsmatrix=statsmatrix, 
                        statsmatrix.obs=statsmatrix.obs, 
-                       epsilon=MCMCparams$epsilon,
-                       nr.maxit=MCMCparams$nr.maxit,
-                       nr.reltol=MCMCparams$nr.reltol,
-                       calc.mcmc.se=MCMCparams$calc.mcmc.se, 
-                       hessianflag=MCMCparams$hessian,
-                       trustregion=MCMCparams$trustregion, 
-                       method=MCMCparams$method,
-                       metric=MCMCparams$metric,
-                       compress=MCMCparams$compress, verbose=verbose,
+                       epsilon=control$epsilon,
+                       nr.maxit=control$MCMLE.NR.maxit,
+                       nr.reltol=control$MCMLE.NR.reltol,
+                       calc.mcmc.se=control$MCMC.addto.se, 
+                       hessianflag=control$main.hessian,
+                       trustregion=control$MCMLE.trustregion, 
+                       method=control$MCMLE.method,
+                       metric=control$MCMLE.metric,
+                       compress=control$MCMC.compress, verbose=verbose,
                        estimateonly=!finished)
-      if(v$loglikelihood < MCMCparams$trustregion-0.001){
+      if(v$loglikelihood < control$MCMLE.trustregion-0.001){
         current.scipen <- options()$scipen
         options(scipen=3)
         cat("the log-likelihood improved by",
@@ -238,35 +228,30 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
       }else{
         cat("the log-likelihood did not improve.\n")
       }
-      if((MCMCparams$steplength==1) && (v$loglikelihood < MCMCparams$adaptive.epsilon) ){break}
+      if((control$MCMLE.steplength==1) && (v$loglikelihood < control$MCMC.adaptive.epsilon) ){break}
     }
           
-    finished <- iteration >= MCMCparams$maxit
-    mcmc.theta0 <- v$coef
-    theta.hist <- rbind(theta.hist, mcmc.theta0)
+    finished <- iteration >= control$MCMLE.maxit
+    mcmc.init <- v$coef
+    coef.hist <- rbind(coef.hist, mcmc.init)
     stats.obs.hist <- if(!is.null(statsmatrix.obs)) rbind(stats.obs.hist, apply(statsmatrix.obs, 2, mean)) else NULL
     stats.hist <- rbind(stats.hist, apply(statsmatrix, 2, mean))
-    parametervalues <- rbind(parametervalues, mcmc.theta0)
+    parametervalues <- rbind(parametervalues, mcmc.init)
   } # end of main loop
 
   # FIXME:  We should not be "tacking on" extra list items to the 
   # object returned by ergm.estimate.  Instead, it is more transparent
   # if we build the output object (v) from scratch, of course using 
   # some of the info returned from ergm.estimate.
-  v$sample <- ergm.sample.tomcmc(statsmatrix.0, MCMCparams) 
-  if(obs) v$sample.obs <- ergm.sample.tomcmc(statsmatrix.0.obs, MCMCparams)
+  v$sample <- ergm.sample.tomcmc(statsmatrix.0, control) 
+  if(obs) v$sample.obs <- ergm.sample.tomcmc(statsmatrix.0.obs, control)
   
-  v$burnin <- MCMCparams$burnin
-  v$samplesize <- MCMCparams$samplesize
-  v$interval <- MCMCparams$interval
   v$network <- nw.orig
   v$newnetwork <- nw.returned
-  v$interval <- MCMCparams$interval
-  v$theta.original <- theta0
-  v$mplefit <- initialfit
-  v$parallel <- MCMCparams$parallel
+  v$coef.init <- init
+  v$initialfit <- initialfit
   
-  v$theta.hist <- theta.hist
+  v$coef.hist <- coef.hist
   v$stats.hist <- stats.hist
   v$stats.obs.hist <- stats.obs.hist
   # The following output is sometimes helpful.  It's the total history
@@ -284,22 +269,22 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
 
 ##  Check for degeneracy if new network has fewer than 49999 edges
 #    if(z$nedges >= 50000-1 || ergm.checkdegeneracy(statsmatrix, statsmatrix.obs, verbose=verbose)){
-#      if(iteration <= MCMCparams$maxit){
+#      if(iteration <= control$MCMLE.maxit){
 #        cat(paste("The MCMC sampler is producing degenerate samples.\n",
 #                  "Try starting the algorithm at an alternative model\n",
-#                  "(That is, changing the 'theta0' argument).\n",
+#                  "(That is, changing the 'init' argument).\n",
 #                  "I am trying something simple...\n",
-#                  "The current theta0 is:\n"))
-#        print(mcmc.theta0)
-#        mcmc.theta0 <- 0.9*mcmc.theta0
+#                  "The current init is:\n"))
+#        print(mcmc.init)
+#        mcmc.init <- 0.9*mcmc.init
 #        next
 #      }else{
 #        cat(paste("The MCMC sampler is producing degenerate samples.\n",
 #                  "Try starting the algorithm at an alternative model\n",
-#                  "(That is, changing the 'theta0' argument).\n",
-#                  "The current theta0 is:\n"))
-#        print(mcmc.theta0)
-#        v$coef <- mcmc.theta0
+#                  "(That is, changing the 'init' argument).\n",
+#                  "The current init is:\n"))
+#        print(mcmc.init)
+#        v$coef <- mcmc.init
 #        return(structure (v, class="ergm"))
 #      }
 #    }
@@ -312,7 +297,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
 #      print(apply(statsmatrix,2,summary.statsmatrix.ergm),scipen=6)
 #      degreedist(nw.returned)
 #      cat("Meanstats of simulation, relative to observed network:\n")
-#      print(summary(model$formula, basis=nw.returned)-Clist$target.stats)
+#      print(summary(model$formula, basis=nw.returned)-model$target.stats)
 #      if(network.naedgecount(nw) > 0){
 #        cat("Summary of simulation, relative to missing network:\n")
 #        a = apply(statsmatrix.miss,2,summary.statsmatrix.ergm)[4,]
@@ -320,7 +305,7 @@ ergm.mainfitloop <- function(theta0, nw, model, Clist,
 #        print(b,scipen=6)
 #        degreedist(nw.miss.returned)
 #        cat("Meanstats of simulation, relative to missing network:\n")
-#        print(summary(model$formula, basis=nw.miss.returned)-Clist$target.stats)
+#        print(summary(model$formula, basis=nw.miss.returned)-model$target.stats)
 #        nw.returned <- network.copy(nw.miss.returned)
 #      }
 #    }

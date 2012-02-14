@@ -8,10 +8,8 @@ void MCMCDynSPSA_wrapper(// Observed network.
 		    int *tails, int *heads, int *n_edges,
 		    int *maxpossibleedges,
 		    int *n_nodes, int *dflag, int *bipartite, 
-		    // Ordering of formation and dissolution.
-		    int *order_code, 
 		    // Formation terms and proposals.
-		    int *F_nterms, char **F_funnames, char **F_sonames, 
+		    int *F_nterms, char **F_funnames, char **F_sonames, int *F_offset,
 		    char **F_MHproposaltype, char **F_MHproposalpackage,
 		    double *F_inputs, double *F_theta0, 
 		    double *init_dev,
@@ -38,8 +36,6 @@ void MCMCDynSPSA_wrapper(// Observed network.
 		    int *fVerbose);
 
 double MCMCSampleDynObjective(Network *nwp,
-			      // Ordering of formation and dissolution.
-			      DynamOrder order,
 			      // Formation terms and proposals.
 			      Model *F_m, MHproposal *F_MH, double *F_theta,
 			      // Dissolution terms and proposals.
@@ -56,10 +52,8 @@ double MCMCSampleDynObjective(Network *nwp,
 
 void MCMCDynSPSA(// Observed and discordant network.
 		       Network *nwp,
-		       // Ordering of formation and dissolution.
-		       DynamOrder order,
 		       // Formation terms and proposals.
-		       Model *F_m, MHproposal *F_MH,
+		       Model *F_m, int *F_offset, MHproposal *F_MH,
 		       double *F_theta, 
 		       // Formation parameter fitting.
 		       double *dev, // DEViation of the current network's formation statistics from the target statistics.

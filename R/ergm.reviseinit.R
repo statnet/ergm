@@ -1,41 +1,41 @@
 ###############################################################################
-# The <ergm.revisetheta0> function revises 'theta0' to reflect additional
+# The <ergm.reviseinit> function revises 'init' to reflect additional
 # parameters introduced by curved model terms
 #
 # --PARAMETERS--
 #   m     :  the model, as returned by <ergm.getmodel>
-#   theta0:  the vector of initial theta parameters
+#   init:  the vector of initial theta parameters
 #
 #
 # --RETURNED--
-#   theta0:  the revised 'theta0'; it is assumed for each term that the
-#            parameters in 'm$terms[[j]]$params' matches the terms in 'theta0'
-#            only in a contiguous region of 'theta0'; this region of overlap
+#   init:  the revised 'init'; it is assumed for each term that the
+#            parameters in 'm$terms[[j]]$params' matches the terms in 'init'
+#            only in a contiguous region of 'init'; this region of overlap
 #            is expanded to include any new terms in 'm$terms[[j]]$params',
 #            along with their values; for details about 'm$terms', see the
 #            <InitErgm> function header
 #
 ###############################################################################
 
-ergm.revisetheta0 <- function(m, theta0) {
+ergm.reviseinit <- function(m, init) {
   for(i in 1:length(m$terms)) {
     if (!is.null(m$terms[[i]]$params)) {
       n1=names(m$terms[[i]]$params)
-      n2=names(theta0)
+      n2=names(init)
       overlap = (n2 %in% n1)
       if (length(n1)>sum(overlap)) {
         before = (cumsum(overlap)==0)
         after = (!before & overlap==0)
-        newoverlap=c(theta0[overlap],rep(0,length(n1)-sum(overlap)))
+        newoverlap=c(init[overlap],rep(0,length(n1)-sum(overlap)))
         names(newoverlap)=n1
         for (j in (1+sum(overlap)):length(n1)) {
           newoverlap[j] = m$terms[[i]]$params[[j]]
         }
-        theta0=c(theta0[before],newoverlap,theta0[after])
+        init=c(init[before],newoverlap,init[after])
       }
     }
   }
-  theta0
+  init
 }
       
 

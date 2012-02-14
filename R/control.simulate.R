@@ -50,34 +50,92 @@
 #
 #########################################################################
 
-control.simulate<-control.simulate.formula<-function(prop.weights="default",
-                                                     prop.args=list(),
+control.simulate<-control.simulate.formula<-function(MCMC.burnin=1000,
+                                                     MCMC.interval=1000,
+                                                     MCMC.prop.weights="default",
+                                                     MCMC.prop.args=list(),
+
+                                                     MCMC.init.maxedges=20000,
+                                                     MCMC.packagenames="ergm",
+
+                                                     MCMC.runtime.traceplot=FALSE,  
                                                      summarizestats=FALSE,
-                                                     maxedges=20000,
-                                                     maxchanges=1000000,
-                                                     packagenames="ergm",
                                                      network.output="network",
+                                                     
+                                                     seed=NULL,
                                                      parallel=0,
                                                      parallel.type=NULL,
-                                                     parallel.version.check=TRUE){
+                                                     parallel.version.check=TRUE,
+                                                     ...){
+  old.controls <- list(
+                       maxedges="MCMC.init.maxedges",
+                       prop.weights="MCMC.prop.weights",
+                       prop.args="MCMC.prop.args",
+                       packagenames="MCMC.packagenames"
+                       )
+
   control<-list()
-  for(arg in names(formals(sys.function())))
+  formal.args<-formals(sys.function())
+  formal.args[["..."]]<-NULL
+  for(arg in names(formal.args))
     control[[arg]]<-get(arg)
+
+  for(arg in names(list(...)))
+    if(!is.null(old.controls[[arg]])){
+      warning("Passing ",arg," to ergm(...) is deprecated and may be removed in a future version. Specify it as control.simulate.formula(",old.controls[[arg]],"=...) instead.")
+      control[[old.controls[[arg]]]]<-list(...)[[arg]]
+    }
+  
   control
 }
 
-control.simulate.ergm<-function(prop.weights="default",
-                                prop.args=list(),
+control.simulate.ergm<-function(MCMC.burnin=NULL,
+                                MCMC.interval=NULL,
+                                MCMC.prop.weights=NULL,
+                                MCMC.prop.args=NULL,
+
+                                MCMC.init.maxedges=NULL,
+                                MCMC.packagenames=NULL,
+                                
+                                MCMC.runtime.traceplot=FALSE,
                                 summarizestats=FALSE,
-                                maxchanges=1000000,
-                                maxedges=20000,
-                                packagenames="ergm",
                                 network.output="network",
+
+                                seed=NULL,
                                 parallel=0,
                                 parallel.type=NULL,
-                                parallel.version.check=TRUE){
+                                parallel.version.check=TRUE,
+                                ...){
+ old.controls <- list(
+                       maxedges="MCMC.init.maxedges",
+                       prop.weights="MCMC.prop.weights",
+                       prop.args="MCMC.prop.args",
+                       packagenames="MCMC.packagenames"
+                       )
+
   control<-list()
-  for(arg in names(formals(sys.function())))
+  formal.args<-formals(sys.function())
+  formal.args[["..."]]<-NULL
+  for(arg in names(formal.args))
     control[[arg]]<-get(arg)
+
+  for(arg in names(list(...)))
+    if(!is.null(old.controls[[arg]])){
+      warning("Passing ",arg," to control.simulate.ergm(...) is deprecated and may be removed in a future version. Specify it as control.simulate.ergm(",old.controls[[arg]],"=...) instead.")
+      control[[old.controls[[arg]]]]<-list(...)[[arg]]
+    }
+  
+  control
+}
+
+control.simulate.ergm.toplevel<-function(control,...){
+  ergm.simulate.args<-list(...)
+  old.controls<-list(burnin="MCMC.burnin",MCMCsamplesize="MCMLE.samplesize",interval="MCMC.interval",seed="seed")
+  for(arg in names(old.controls))
+    if(arg %in% names(ergm.simulate.args)){
+      warning("Passing ",arg," to simulate.ergm(...) is deprecated and may be removed in a future version. Specify it as control.ergm(",old.controls[[arg]],"=...) instead.")
+      control[[old.controls[[arg]]]]<-ergm.simulate.args[[arg]]
+    }
+  
   control
 }

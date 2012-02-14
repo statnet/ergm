@@ -359,7 +359,7 @@
 
      Y <- d[use,use]
      g <- nrow(Y)
-     if(is.null(latent.control$maxit)){latent.control$maxit <- 40}
+     if(is.null(latent.control$MCMLE.maxit)){latent.control$MCMLE.maxit <- 40}
      if(is.null(latent.control$trace)){latent.control$trace <-6}
      if(is.null(latent.control$dyadsample)){latent.control$dyadsample <- 1000}
      if(is.null(latent.control$penalty.sigma)){latent.control$penalty.sigma <- c(10,0.5)}
@@ -389,7 +389,7 @@
      MLE.fit <- try(
                 optim(par=abvZ,fn=mlpY.plot,gr=mlpY.grad.plot,
                  method="BFGS",
-                 control=list(fnscale=-1, maxit=latent.control$maxit, 
+                 control=list(fnscale=-1, maxit=latent.control$MCMLE.maxit, 
                               trace=latent.control$trace),
                  abz.list=abz.list)
                  )

@@ -45,7 +45,7 @@ summary(efit)
 efit <- ergm(flomarriage ~ edges + kstar(2), MCMCsamplesize=1000, interval=1000)
 summary(efit)
 
-efit <- ergm(flomarriage ~ edges + kstar(2), theta=c(-1.6,0),startatMPLE=F)
+efit <- ergm(flomarriage ~ edges + kstar(2), theta0=c(-1.6,0),startatMPLE=F)
 
 #
 # edges  -1.6     -1.74242 0.8557   0.044   0.041373 

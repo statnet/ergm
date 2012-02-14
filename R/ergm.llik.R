@@ -19,7 +19,7 @@
 #
 # --PARAMETERS--
 #   theta      : the vector of theta parameters; this is only used to solidify
-#                offset coefficients; the not-offset terms are given by 'theta0'
+#                offset coefficients; the not-offset terms are given by 'init'
 #                of the 'etamap'
 #   xobs       : the vector of observed statistics 
 #   xsim       : the matrix of simulated statistics 
@@ -55,7 +55,7 @@
 
 llik.fun <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
                      varweight=0.5, trustregion=20, eta0, etamap){
-  theta.offset <- etamap$theta0
+  theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
   # Convert theta to eta
   eta <- ergm.eta(theta.offset, etamap)
@@ -89,7 +89,7 @@ llik.fun <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
 
 #llik.grad <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NULL,
 #                      varweight=0.5, trustregion=20, eta0, etamap){
-#  theta.offset <- etamap$theta0
+#  theta.offset <- etamap$init
 #  theta.offset[!etamap$offsettheta] <- theta
 #  eta <- ergm.eta(theta.offset, etamap)
 #  etaparam <- eta-eta0
@@ -125,7 +125,7 @@ llik.fun <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
 
 llik.grad <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NULL,
                       varweight=0.5, trustregion=20, eta0, etamap){
-  theta.offset <- etamap$theta0
+  theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
 # etagrad <- ergm.etagrad(theta.offset, etamap)
@@ -174,7 +174,7 @@ llik.grad <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NULL,
 
 llik.hessian <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
                          varweight=0.5, trustregion=20, eta0, etamap){
-  theta.offset <- etamap$theta0
+  theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
 # xsim[,etamap$offsettheta] <- 0
 #
@@ -286,7 +286,7 @@ llik.hessian.naive <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.ob
 
 llik.fun.EF <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
                      varweight=0.5, trustregion=20, eta0, etamap){
-  theta.offset <- etamap$theta0
+  theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
   etaparam <- eta-eta0
@@ -321,7 +321,7 @@ llik.fun.EF <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
 
 llik.fun2 <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL, 
                       varweight=0.5, trustregion=20, eta0, etamap){
-  theta.offset <- etamap$theta0
+  theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
   etaparam <- eta-eta0
@@ -341,7 +341,7 @@ llik.fun2 <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
 
 llik.grad2 <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
                        varweight=0.5, trustregion=20, eta0, etamap){
-  theta.offset <- etamap$theta0
+  theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
   etaparam <- eta-eta0
@@ -373,7 +373,7 @@ llik.hessian2 <- llik.hessian
 
 llik.fun3 <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL, 
                       varweight=0.5, trustregion=20, eta0, etamap){ # eqn (5)
-  theta.offset <- etamap$theta0
+  theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
   deta <- matrix(eta-eta0,ncol=1) #px1
@@ -391,7 +391,7 @@ llik.fun3 <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
 
 llik.grad3 <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NULL,
                        varweight=0.5, trustregion=20, eta0, etamap){ #eqn (11)
-  theta.offset <- etamap$theta0
+  theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
   deta <- matrix(eta-eta0,ncol=1)
@@ -449,7 +449,7 @@ llik.mcmcvar3 <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NU
 
 llik.fun.median <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
                      varweight=0.5, trustregion=20, eta0, etamap){
-  theta.offset <- etamap$theta0
+  theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
   # Convert theta to eta
   eta <- ergm.eta(theta.offset, etamap)

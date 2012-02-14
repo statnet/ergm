@@ -62,7 +62,7 @@ ergm.coefficient.degeneracy <- function(object,
     }
    }
    # So a MCMC fit
-   if(object$loglikelihood>control$trustregion-0.1){
+   if(object$loglikelihood>control$MCMLE.trustregion-0.1){
     object$degeneracy.value <- Inf
    }else{
     changeobs <- object$MCMCtheta-object$MCMCtheta
@@ -74,9 +74,9 @@ ergm.coefficient.degeneracy <- function(object,
      etamapi$offsettheta[-i] <- TRUE
      degeneracy.value <- try(
       ergm.compute.degeneracy(changeobs,
-      theta0=object$MCMCtheta, etamap=etamapi, 
+      init=object$MCMCtheta, etamap=etamapi, 
       statsmatrix=object$sample[,!object$etamap$offsettheta,drop=FALSE],
-      trustregion=control$trustregion, guess=object$MCMCtheta[i]),silent=TRUE)
+      trustregion=control$MCMLE.trustregion, guess=object$MCMCtheta[i]),silent=TRUE)
      if(!inherits(degeneracy.value,"try-error")){
       object$degeneracy.type[i] <- degeneracy.value[1]
      }
@@ -112,8 +112,8 @@ ergm.coefficient.degeneracy <- function(object,
     object$degeneracy.type <- NULL
    }
   }
-  if(any(object$degeneracy.type>control$trustregion-0.1)){
-   object$degeneracy.type[object$degeneracy.type>control$trustregion-0.1] <- Inf
+  if(any(object$degeneracy.type>control$MCMLE.trustregion-0.1)){
+   object$degeneracy.type[object$degeneracy.type>control$MCMLE.trustregion-0.1] <- Inf
   }
   if(!is.null(object$degeneracy.type)){
    object$degeneracy.value <- max(object$degeneracy.type,na.rm=TRUE)

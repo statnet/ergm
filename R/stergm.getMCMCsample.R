@@ -12,9 +12,9 @@
 #                    formations
 #   MHproposal.diss: a list of parameters needed for MHproposals of the
 #                    dissolutions
-#   theta0.form    : the initial model coefficients for 'model.form'
-#   theta0.diss    : the initial model coefficients for 'model.diss'
-#   MCMCparams     : the list of parameters controlling the MCMC algorithm;
+#   init.form    : the initial model coefficients for 'model.form'
+#   init.diss    : the initial model coefficients for 'model.diss'
+#   control     : the list of parameters controlling the MCMC algorithm;
 #                    recognized components include:
 #      maxchanges    :  this ends up defining the "MCMCDyn workspace", but
 #                       in a peculiar way: the 'maxchanges' you give, let's
@@ -44,7 +44,7 @@
 # Note:  In reality, there should be many fewer arguments to this function,
 # since most info should be passed via Clist (this is, after all, what Clist
 # is for:  Holding all arguments required for the .C call).  In particular,
-# the elements of MHproposal.form, MCMCparams, verbose, should certainly
+# the elements of MHproposal.form, control, verbose, should certainly
 # be part of Clist.  But this is a project for another day!
 #
 # --RETURNED--
@@ -52,74 +52,68 @@
 #     statsmatrix.form: the matrix of sampled statistics for 'model.form'
 #     statsmatrix.diss: the matrix of sampled statistics for 'model.form'
 #     newnetwork      : the final network from the sampling process
-#     target.stats.form  : the 'target.stats.form' passed in via 'MCMCparams' 
-#     target.stats.diss  : the 'target.stats.diss' passed in via 'MCMCparams' 
+#     target.stats.form  : the 'target.stats.form' passed in via 'control' 
+#     target.stats.diss  : the 'target.stats.diss' passed in via 'control' 
 #     changed         : a toggle matrix, where the first column is
 #                       the timestamp of the toggle and the 2nd and 3rd
 #                       columns are the head & tail of the toggle; this
-#                       is only returned if 'MCMCparams'$toggles is not NULL
+#                       is only returned if 'control'$toggles is not NULL
 #     maxchanges      : the "MCMC Dyn workspace"; see 'maxchanges' in the
 #                       input param list
 #
 ############################################################################
   
 stergm.getMCMCsample <- function(nw, model.form, model.diss,
-                                  MHproposal.form, MHproposal.diss, theta.form0, theta.diss0, MCMCparams, 
+                                  MHproposal.form, MHproposal.diss, eta.form, eta.diss, control, 
                                   verbose){
-#
-#   Check for truncation of the returned edge list
-#
+
+
+  #
+  #   Check for truncation of the returned edge list
+  #
   Clist.form <- ergm.Cprepare(nw, model.form)
   Clist.diss <- ergm.Cprepare(nw, model.diss)
 
   ## Sanity check: parameter vectors are as long as they are supposed to be:
 
-  if(length(theta.form0)!=model.form$etamap$etalength) stop("Wrong number of formation parameters for the model: ",length(theta.form0), ", but should be ", model.form$etamap$etalength)
-  if(length(theta.diss0)!=model.diss$etamap$etalength) stop("Wrong number of dissolution parameters for the model: ",length(theta.diss0), ", but should be ", model.diss$etamap$etalength)
+  if(is.null(model.form$target.stats)) model.form$target.stats<-numeric(length(model.form$coef.names))
+  if(is.null(model.diss$target.stats)) model.diss$target.stats<-numeric(length(model.diss$coef.names))
+
+  maxchanges <- control$MCMC.init.maxchanges
   
-  maxchanges <- max(MCMCparams$maxchanges, Clist.form$nedges)/5
-  MCMCparams$maxchanges <- MCMCparams$maxchanges/5
-  if(is.null(MCMCparams$target.stats.form)) MCMCparams$target.stats.form<-numeric(length(model.form$coef.names))
-  if(is.null(MCMCparams$target.stats.diss)) MCMCparams$target.stats.diss<-numeric(length(model.diss$coef.names))
-  z <- list(newnwtails=maxchanges+1,diffnwtails=maxchanges+1)
-  while(z$newnwtails[1]  >= maxchanges - 10 || 
-        z$diffnwtails[1] >= maxchanges - 10){
-    maxchanges <- 5*maxchanges
-    MCMCparams$maxchanges <- 5*MCMCparams$maxchanges
+  repeat{
     if(verbose){cat(paste("MCMCDyn workspace is",maxchanges,"\n"))}
-    
+    #FIXME: Separate MCMC control parameters and properly attach them.
     z <- .C("MCMCDyn_wrapper",
             # Observed network.
             as.integer(Clist.form$tails), as.integer(Clist.form$heads), 
             as.integer(Clist.form$nedges), as.integer(Clist.form$maxpossibleedges),
             as.integer(Clist.form$n),
             as.integer(Clist.form$dir), as.integer(Clist.form$bipartite),
-            # Ordering of formation and dissolution.
-            as.integer(Clist.diss$stergm.order.code),
             # Formation terms and proposals.
             as.integer(Clist.form$nterms), 
             as.character(Clist.form$fnamestring),
             as.character(Clist.form$snamestring),
             as.character(MHproposal.form$name), as.character(MHproposal.form$package),
-            as.double(Clist.form$inputs), as.double(theta.form0),
+            as.double(Clist.form$inputs), as.double(eta.form),
             #?  Add:  as.double(length(MHproposal.form$args)), as.double(MHproposal.form$args),
             # Dissolution terms and proposals.
             as.integer(Clist.diss$nterms), 
             as.character(Clist.diss$fnamestring),
             as.character(Clist.diss$snamestring),
             as.character(MHproposal.diss$name), as.character(MHproposal.diss$package),
-              as.double(Clist.diss$inputs), as.double(theta.diss0),
+              as.double(Clist.diss$inputs), as.double(eta.diss),
             # Degree bounds.
             as.integer(MHproposal.form$arguments$constraints$bd$attribs), 
             as.integer(MHproposal.form$arguments$constraints$bd$maxout), as.integer(MHproposal.form$arguments$constraints$bd$maxin),
             as.integer(MHproposal.form$arguments$constraints$bd$minout), as.integer(MHproposal.form$arguments$constraints$bd$minin),
             as.integer(MHproposal.form$arguments$constraints$bd$condAllDegExact), as.integer(length(MHproposal.form$arguments$constraints$bd$attribs)),
             # MCMC settings.
-            as.double(MCMCparams$samplesize), as.integer(MCMCparams$MH.burnin),
-            as.double(MCMCparams$time.burnin), as.double(MCMCparams$time.interval),
+            as.double(control$time.samplesize), as.integer(control$MCMC.burnin),
+            as.double(control$time.burnin), as.double(control$time.interval),
             # Space for output.
-            s.form = as.double(cbind(MCMCparams$target.stats.form,matrix(0,nrow=length(model.form$coef.names),ncol=MCMCparams$samplesize))),
-            s.diss = as.double(cbind(MCMCparams$target.stats.diss,matrix(0,nrow=length(model.diss$coef.names),ncol=MCMCparams$samplesize))),
+            s.form = as.double(cbind(model.form$target.stats,matrix(0,nrow=length(model.form$coef.names),ncol=control$time.samplesize))),
+            s.diss = as.double(cbind(model.diss$target.stats,matrix(0,nrow=length(model.diss$coef.names),ncol=control$time.samplesize))),
             newnwtails = integer(maxchanges), newnwheads = integer(maxchanges), 
             as.double(maxchanges),
             diffnwtime = integer(maxchanges),
@@ -127,12 +121,15 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss,
             diffnwheads = integer(maxchanges),
             as.integer(verbose), 
             PACKAGE="ergm")
+
+    if(z$newnwtails[1]  < maxchanges - 10 && z$diffnwtails[1] < maxchanges - 10) break
+    maxchanges <- 5*maxchanges
   }
   
-  statsmatrix.form <- matrix(z$s.form, nrow=MCMCparams$samplesize+1,
+  statsmatrix.form <- matrix(z$s.form, nrow=control$time.samplesize+1,
                              ncol=Clist.form$nstats,
                              byrow = TRUE)[-1,,drop=FALSE]
-  statsmatrix.diss <- matrix(z$s.diss, nrow=MCMCparams$samplesize+1,
+  statsmatrix.diss <- matrix(z$s.diss, nrow=control$time.samplesize+1,
                              ncol=Clist.diss$nstats,
                              byrow = TRUE)[-1,,drop=FALSE]
   
@@ -140,7 +137,7 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss,
 #   Next create the network of differences from the origianl one
 
   
-  diffedgelist<-if(!is.null(MCMCparams$toggles)) {
+  diffedgelist<-if(!is.null(control$toggles)) {
     if(z$diffnwtails[1]>0){
       cbind(z$diffnwtime[2:(z$diffnwtime[1]+1)],z$diffnwtails[2:(z$diffnwheads[1]+1)],z$diffnwheads[2:(z$diffnwtails[1]+1)])
     }else{
@@ -155,8 +152,8 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss,
 
   list(statsmatrix.form=statsmatrix.form, statsmatrix.diss=statsmatrix.diss,
        newnetwork=newnetwork,
-       target.stats.form=MCMCparams$target.stats.form,
-       target.stats.diss=MCMCparams$target.stats.diss,
+       target.stats.form=model.form$target.stats,
+       target.stats.diss=model.diss$target.stats,
        changed=diffedgelist,
-       maxchanges=MCMCparams$maxchanges)
+       maxchanges=control$MCMC.maxchanges)
 }

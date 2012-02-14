@@ -20,11 +20,9 @@
 #   nw             : a network object
 #   model.form     : a formation model, as returned by <ergm.getmodel>
 #   model.diss     : a dissolution model, as returned by <ergm.getmodel>
-#   Clist          : the list of inputs that are used by the C code and
-#                    returned by <ergm.Cprepare>
 #   theta.diss     : the initial theta dissolution coefficients
-#   MCMCparams     : the list of parameters which tune the MCMC sampling
-#                    processes; the recognized components of 'MCMCparams'
+#   control     : the list of parameters which tune the MCMC sampling
+#                    processes; the recognized components of 'control'
 #                    are those passed to and used by <stergm.phase12.C>
 #                    and are described in its function header
 #   MHproposal.form: a MHproposal object for the formation process, as
@@ -44,41 +42,33 @@
 #
 ################################################################################
 
-stergm.RM <- function(theta.form0, nw, model.form, model.diss, Clist, 
+stergm.RM <- function(theta.form0, nw, model.form, model.diss, 
                             theta.diss,
-                            MCMCparams, MHproposal.form, MHproposal.diss,
+                            control, MHproposal.form, MHproposal.diss,
                             verbose=FALSE){
 
 
-  cat("Robbins-Monro algorithm with theta_F_0 = (",theta.form0, ") and theta_D = (",theta.diss,")\n" )
+  if(verbose) cat("Robbins-Monro algorithm with coef_F_0 = (",theta.form0, ") and coef_D = (",theta.diss,")\n" )
   eta.form0 <- ergm.eta(theta.form0, model.form$etamap)
   eta.diss <- ergm.eta(theta.diss, model.diss$etamap)
 
 
-  z <- stergm.phase12.C(nw, Clist$target.stats, model.form, model.diss, MHproposal.form, MHproposal.diss,
-                        eta.form0, eta.diss, MCMCparams, verbose=verbose)
-  ## Phase 3 doesn't give us anything at the moment...
-  #MCMCparams$samplesize<-MCMCparams$RM.phase3n
-  # Skip burnin this time: if we haven't converged yet, there ain't
-  # much anyone can do.
-  #MCMCparams$RM.burnin->MCMCparams$time.burnin
-  #MCMCparams$RM.interval->MCMCparams$time.interval
-  #s <- stergm.getMCMCsample(nw, model.form, model.diss, 
-  #                           MHproposal.form, MHproposal.diss, z$eta.form, theta.diss,
-  #                           MCMCparams, verbose)
+  z <- stergm.phase12.C(nw, model.form$target.stats, model.form, model.diss, MHproposal.form, MHproposal.diss,
+                        eta.form0, eta.diss, control, verbose=verbose)
   
   #ve<-with(z,list(coef=eta,sample=s$statsmatrix.form,sample.obs=NULL))
-  ve<-with(z,list(coef.form=eta.form,coef.diss=theta.diss))
+  ve<-with(z,list(coef.form=coef.form,coef.diss=theta.diss))
+  names(ve$coef.form)<-model.form$coef.names
   
-  #endrun <- MCMCparams$burnin+MCMCparams$interval*(ve$samplesize-1)
-  #attr(ve$sample, "mcpar") <- c(MCMCparams$burnin+1, endrun, MCMCparams$interval)
+  #endrun <- control$MCMC.burnin+control$MCMC.interval*(ve$samplesize-1)
+  #attr(ve$sample, "mcpar") <- c(control$MCMC.burnin+1, endrun, control$MCMC.interval)
   #attr(ve$sample, "class") <- "mcmc"
   
-  structure(c(ve, list(newnetwork=nw, 
-                       theta.form.original=theta.form0,
-                       #interval=MCMCparams$interval, burnin=MCMCparams$burnin, 
-                       network=nw)),
-            class="stergm")
+  c(ve, list(newnetwork=nw, 
+                       init.form=theta.form0,
+                       #interval=control$MCMC.interval, burnin=control$MCMC.burnin, 
+                       network=nw))
+            
 }
 
 
@@ -103,7 +93,7 @@ stergm.RM <- function(theta.form0, nw, model.form, model.diss, Clist,
 #                    returned by <getMHproposal>
 #   eta.form0      : the initial and canonical eta formation parameters
 #   eta.diss       : the initial and canonical eta dissolution parameters
-#   MCMCparams     : the list of parameters which tune the MCMC sampling
+#   control     : the list of parameters which tune the MCMC sampling
 #                    processes; recognized components include:
 #       target.stats      : presumably the mean statistics, but this isn't used
 #                        other than to return it
@@ -139,7 +129,7 @@ stergm.RM <- function(theta.form0, nw, model.form, model.diss, Clist,
 #   
 # --RETURNED--
 #   a list with the 2 following components:
-#      target.stats: the 'target.stats' from the 'MCMCparams'; note that this is NOT
+#      target.stats: the 'target.stats' from the 'control'; note that this is NOT
 #                 the 'target.stats' inputted directly to this function
 #      eta.form : the estimated? eta formation coefficients
 #
@@ -147,12 +137,12 @@ stergm.RM <- function(theta.form0, nw, model.form, model.diss, Clist,
 
 stergm.phase12.C <- function(g, target.stats, model.form, model.diss, 
                              MHproposal.form, MHproposal.diss, eta.form0, eta.diss,
-                             MCMCparams, verbose) {
-  # ms <- MCMCparams$target.stats
+                             control, verbose) {
+  # ms <- model$target.stats
   # if(!is.null(ms)) {
   #   if (is.null(names(ms)) && length(ms) == length(model.form$coef.names))
   #     names(ms) <- model.form$coef.names
-  #   obs <- MCMCparams$orig.obs
+  #   obs <- control$orig.obs
   #   obs <- obs[match(names(ms), names(obs))]
   #   ms  <-  ms[match(names(obs), names(ms))]
   #   matchcols <- match(names(ms), names(obs))
@@ -162,9 +152,8 @@ stergm.phase12.C <- function(g, target.stats, model.form, model.diss,
   # }
   Clist.form <- ergm.Cprepare(g, model.form)
   Clist.diss <- ergm.Cprepare(g, model.diss)
-  maxchanges <- max(MCMCparams$maxchanges, Clist.form$nedges)/5
-  MCMCparams$maxchanges <- MCMCparams$maxchanges/5
-  if(verbose){cat(paste("MCMCDyn workspace is",maxchanges,"\n"))}
+  maxedges <- max(control$MCMC.init.maxedges, Clist.form$nedges)
+  if(verbose){cat(paste("MCMCDyn workspace is",maxedges,"\n"))}
   
   z <- .C("MCMCDynPhase12",
           # Observed/starting network. 1
@@ -172,18 +161,16 @@ stergm.phase12.C <- function(g, target.stats, model.form, model.diss,
           as.integer(Clist.form$nedges), as.integer(Clist.form$maxpossibleedges),
           as.integer(Clist.form$n),
           as.integer(Clist.form$dir), as.integer(Clist.form$bipartite),
-          # Order code. 8
-          as.integer(Clist.diss$stergm.order.code),
-          # Formation terms and proposals. 9
-          as.integer(Clist.form$nterms), as.character(Clist.form$fnamestring), as.character(Clist.form$snamestring),
+          # Formation terms and proposals. 8
+          as.integer(Clist.form$nterms), as.character(Clist.form$fnamestring), as.character(Clist.form$snamestring), as.integer(model.form$offset),
           as.character(MHproposal.form$name), as.character(MHproposal.form$package),
           as.double(Clist.form$inputs), eta.form=as.double(eta.form0),
           # Formation parameter fitting. 16
           as.double(summary(model.form$formula)-target.stats),
-          as.double(MCMCparams$RM.init_gain),
-          as.integer(MCMCparams$RM.phase1n_base),
-          as.integer(MCMCparams$RM.phase2n_base),
-          as.integer(MCMCparams$RM.phase2sub),              
+          as.double(control$RM.init_gain),
+          as.integer(control$RM.phase1n_base),
+          as.integer(control$RM.phase2n_base),
+          as.integer(control$RM.phase2sub),              
           # Dissolution terms and proposals. 21
           as.integer(Clist.diss$nterms), as.character(Clist.diss$fnamestring), as.character(Clist.diss$snamestring),
           as.character(MHproposal.diss$name), as.character(MHproposal.diss$package),
@@ -194,11 +181,11 @@ stergm.phase12.C <- function(g, target.stats, model.form, model.diss,
           as.integer(MHproposal.form$arguments$constraints$bd$minout), as.integer(MHproposal.form$arguments$constraints$bd$minin),
           as.integer(MHproposal.form$arguments$constraints$bd$condAllDegExact), as.integer(length(MHproposal.form$arguments$constraints$bd$attribs)), 
           # MCMC settings.              
-          as.integer(MCMCparams$RM.burnin),
-          as.integer(MCMCparams$RM.interval),
-          as.integer(MCMCparams$MH.burnin),
+          as.integer(control$RM.burnin),
+          as.integer(control$RM.interval),
+          as.integer(control$EGMoME.MCMC.burnin),
           # Space for output.
-          as.integer(maxchanges),
+          as.integer(maxedges),
           # Verbosity.
           as.integer(verbose), 
           PACKAGE="ergm") 
@@ -206,6 +193,6 @@ stergm.phase12.C <- function(g, target.stats, model.form, model.diss,
   eta.form <- z$eta
   names(eta.form) <- names(eta.form0)
 
-  list(target.stats=MCMCparams$target.stats,
-       eta.form=eta.form)
+  list(target.stats=model.form$target.stats,
+       coef.form=eta.form)
 }

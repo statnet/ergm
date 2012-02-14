@@ -12,14 +12,14 @@
 # as the networks and their statistics
 #
 # --PARAMETERS--
-#   object     : either an ergm or a formula of the form 'nw ~ term(s)'
+#   object     : either aern ergm or a formula of the form 'nw ~ term(s)'
 #   nsim       : the number of networks to draw; default=1
 #   basis      : optionally, a network to start the MCMC algorithm from;
 #                if provided, this overrides the network given in
 #                'object's formula; default=NULL
 #   seed       : an integer at which to set the random generator;
 #                default=NULL
-#   theta0     : the set of parameters from which the sample is to be
+#   coef     : the set of parameters from which the sample is to be
 #                drawn; default='object$coef' if 'object' is an ergm or
 #                0 if a formula
 #   burnin     : the number of proposals to disregard before any MCMC
@@ -52,24 +52,26 @@
 #      'nsim'>1              formula : 'object'
 #                            networks: the list of drawn networks
 #                            stats   : the matrix of summary stats
-#                            coef    : 'theta0'
+#                            coef    : 'init'
 #
 ###############################################################################
 
-simulate.ergm <- function(object, nsim=1, seed=NULL, theta0=object$coef,
-                          burnin=1000, interval=1000,
+simulate.ergm <- function(object, nsim=1, coef=object$coef,
+                          response=object$response,
+                          reference=object$reference,
+                          constraints=object$constraints,
+                          monitor=NULL,
                           statsonly=FALSE,
                           sequential=TRUE,
-                          constraints=NULL,
-                          monitor=NULL,
                           control=control.simulate.ergm(),
                           verbose=FALSE, ...) {
-  if(is.null(burnin)){burnin <- object$burnin}
-  if(is.null(interval)){interval <- object$interval}
-  if(is.null(constraints)){constraints <- object$constraints}
+  control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges")
+  for(arg in control.transfer)
+    if(is.null(control[[arg]]))
+      control[[arg]] <- object$control[[arg]]
 
-  simulate.formula(object$formula, nsim=nsim, seed=seed, theta0=theta0, response=object$response, reference=if(is.null(object$reference)) "Bernoulli" else object$reference,
-                   burnin=burnin, interval=interval, statsonly=statsonly,
+  simulate.formula(object$formula, nsim=nsim, coef=coef, response=object$response, reference=if(is.null(reference)) "Bernoulli" else object$reference,
+                   statsonly=statsonly,
                    sequential=sequential, constraints=constraints,
                    monitor=monitor,
                    control=control, verbose=verbose, ...)
@@ -80,16 +82,22 @@ simulate.ergm <- function(object, nsim=1, seed=NULL, theta0=object$coef,
 # In CRAN version, the following function is called simulate.formula
 # Here, there is a good reason to call it simulate.formula.ergm:
 # see simulate.formula.R
-simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NULL, reference="Bernoulli",
-                                  burnin=1000, interval=1000,
+simulate.formula.ergm <- function(object, nsim=1, coef, response=NULL, reference="Bernoulli",
+                                  constraints=~.,
+                                  monitor=NULL,
                                   basis=NULL,
                                   statsonly=FALSE,
                                   sequential=TRUE,
-                                  constraints=~.,
-                                  monitor=NULL,
                                   control=control.simulate.formula(),
                                   verbose=FALSE, ...) {
-  if(!is.null(seed)) {set.seed(as.integer(seed))}
+  # Backwards-compatibility code:
+  if("theta0" %in% names(list(...))){
+    warning("Passing the parameter vector as theta0= is depcrecated. Use coef= instead.")
+    coef<-list(...)$theta0
+  }
+  control <- control.simulate.ergm.toplevel(control,...)
+  
+  if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
   
   # define nw as either the basis argument or (if NULL) the LHS of the formula
   if (is.null(nw <- basis)) {
@@ -97,9 +105,6 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
   }
   
   # Do some error-checking on the nw object
-  if(class(nw) =="network.series"){
-    nw <- nw$networks[[1]]
-  }
   nw <- as.network(nw)
   if(!is.network(nw)){
     stop("A network object on the LHS of the formula or via",
@@ -116,7 +121,7 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
     # Construct a model to get the number of parameters monitor requires.
     monitor <- ergm.update.formula(monitor, nw~.)
     monitor.m <- ergm.getmodel(monitor, basis, response=response)
-    monitored.length <- theta.length.model(monitor.m)
+    monitored.length <- coef.length.model(monitor.m)
     
     monitor <- term.list.formula(monitor[[3]])
     form<-append.rhs.formula(form, monitor)
@@ -126,40 +131,35 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
 
   # Prepare inputs to ergm.getMCMCsample
   m <- ergm.getmodel(form, basis, response=response)
-  # Just in case the user did not give a theta0 value, set it to zero.
+  # Just in case the user did not give a coef value, set it to zero.
   # (probably we could just return an error in this case!)
-  if(missing(theta0)) {
-    theta0 <- c(rep(0, theta.length.model(m)))
+  if(missing(coef)) {
+    coef <- c(rep(0, coef.length.model(m)))
     warning("No parameter values given, using Bernouli network\n\t")
   }
 
-  theta0 <- c(theta0, rep(0, monitored.length))
+  coef <- c(coef, rep(0, monitored.length))
   
-  if(theta.length.model(m)!=length(theta0)) stop("theta0 has ", length(theta0) - monitored.length, " elements, while the model requires ",theta.length.model(m) - monitored.length," parameters.")
+  if(coef.length.model(m)!=length(coef)) stop("coef has ", length(coef) - monitored.length, " elements, while the model requires ",coef.length.model(m) - monitored.length," parameters.")
 
-  Clist <- ergm.Cprepare(basis, m, response=response)
-  MHproposal <- MHproposal(constraints,arguments=control$prop.args,
-                           nw=nw, weights=control$prop.weights, class="c",reference=reference,response=response)  
+  MHproposal <- MHproposal(constraints,arguments=control$MCMC.prop.args,
+                           nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)  
 
-  if (any(is.infinite(theta0))){
-   theta0[is.infinite(theta0)] <- sign(theta0[is.infinite(theta0)])*10000 
+  if (any(is.infinite(coef))){
+   coef[is.infinite(coef)] <- sign(coef[is.infinite(coef)])*10000 
   }
-  if (any(is.nan(theta0) | is.na(theta0)))
-    stop("Illegal value of theta0 passed to simulate.formula")
+  if (any(is.nan(coef) | is.na(coef)))
+    stop("Illegal value of coef passed to simulate.formula")
   
-  # Create eta0 from theta0
-  eta0 <- ergm.eta(theta0, m$etamap)
+  # Create eta0 from coef
+  eta0 <- ergm.eta(coef, m$etamap)
     
   # Create vector of current statistics
   curstats<-summary(form,response=response)
   names(curstats) <- m$coef.names
 
-  # prepare MCMCparams object
-  MCMCparams <- c(control,
-                  list(samplesize=1,
-                       burnin=burnin,
-                       interval=interval))
-  MCMCparams$maxedges <- 1+max(control$maxedges, Clist$nedges)
+  # prepare control object
+  control$MCMC.init.maxedges <- 1+max(control$MCMC.init.maxedges, network.edgecount(nw))
   
   # Explain how many iterations and steps will ensue if verbose==TRUE
   if (verbose) {
@@ -172,8 +172,8 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
   if(sequential && statsonly){ 
     # Call ergm.getMCMCsample only one time, using the C function to generate the whole
     # matrix of network statistics.
-    MCMCparams$samplesize <- nsim
-    z <- ergm.getMCMCsample(Clist,MHproposal,eta0,MCMCparams,verbose=verbose)
+    control$MCMC.samplesize <- nsim
+    z <- ergm.getMCMCsample(nw, m, MHproposal, eta0, control, verbose=verbose, response=response)
     
     # Post-processing:  Add term names to columns and shift each row by
     # observed statistics.
@@ -195,54 +195,28 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
   # MCMC iteration (statsonly=FALSE) or we want to restart each chain
   # at the original network (sequential=FALSE).
   if (sequential) { # non-parallel method used here
-  for(i in 1:nsim){
-    MCMCparams$burnin <- ifelse(i==1, burnin, interval)
-    z <- ergm.getMCMCsample(Clist, MHproposal, eta0, MCMCparams, verbose)
-
-    # Create a network object if statsonly==FALSE
-    if (!statsonly) {
-      nw.list[[i]] <- newnw.extract(nw, z, output=control$network.output, response=response)
+    for(i in 1:nsim){
+      control$MCMC.samplesize <- 1
+      control$MCMC.burnin <- ifelse(i==1, control$MCMC.burnin, control$MCMC.interval)
+      z <- ergm.getMCMCsample(nw, m, MHproposal, eta0, control, verbose=verbose, response=response)
+      
+      # Create a network object if statsonly==FALSE
+      if (!statsonly) {
+        nw <- nw.list[[i]] <- z$newnetwork
+      }
+      out.mat[i,] <- curstats + z$statsmatrix
+      # If we get here, statsonly must be FALSE
+      curstats <- curstats + z$statsmatrix
+      if(verbose){cat(sprintf("Finished simulation %d of %d.\n",i, nsim))}
     }
-    out.mat[i,] <- curstats + z$statsmatrix
-    # If we get here, statsonly must be FALSE
-    nw <- as.network.uncompressed(nw.list[[i]])
-    Clist <- ergm.Cprepare(nw, m, response=response)
-    curstats <- curstats + z$statsmatrix
-    if(verbose){cat(sprintf("Finished simulation %d of %d.\n",i, nsim))}
-  }
   } else {
     # non-sequential
-    MCMCparams.parallel <- MCMCparams
-    MCMCparams.parallel$samplesize <- 1
-    
-    cl <- ergm.getCluster(MCMCparams, verbose)
-#
-#   Run the jobs with rpvm or Rmpi
-#
-    flush.console()
-    data <- list(Clist=Clist, MHproposal=MHproposal, eta0=eta0,
-        MCMCparams=MCMCparams)
-    simfn <- function(i, data){
-     ergm.getMCMCsample(Clist=data$Clist, MHproposal=data$MHproposal, 
-            eta0=data$eta0, MCMCparams=data$MCMCparams)
+    control$MCMC.samplesize <- 1
+    z <- ergm.getMCMCsample(nw, m, MHproposal, eta0, control, verbose=verbose, response=response)
+    if (!statsonly) {
+      nw.list <- z$newnetworks
     }
-#
-    outlist <- clusterApplyLB(cl, as.list(1:nsim), simfn, data)
-#
-#   Process the results
-#
-    for(i in (1:nsim)){
-     z <- outlist[[i]]
-     nedges <- z$newnwheads[1]
-     # Create a network object if statsonly==FALSE
-     if (!statsonly) {
-      nw.list[[i]] <- newnw.extract(old=nw, z=z, 
-           output=control$network.output,
-           response=response)
-     }
-     out.mat[i,] <- curstats + z$statsmatrix
-    }
-    ergm.stopCluster(cl)
+
   }
   
   if (statsonly)
@@ -251,11 +225,13 @@ simulate.formula.ergm <- function(object, nsim=1, seed=NULL, theta0, response=NU
   # If we get here, statsonly==FALSE.
   if (nsim==1) {
     return(nw.list[[1]])
-  } else {  
-    out.list <- list(formula = object, networks = nw.list, 
-                     stats = out.mat, coef=theta0)
-    class(out.list) <- "network.series"
-    return(out.list)
+  } else {
+    attributes(nw.list) <- list(formula=object, stats=out.mat, coef=coef,
+                                constraints=constraints, reference=reference,
+                                 monitor=monitor, response=response)
+
+    class(nw.list) <- "network.series"
+    return(nw.list)
   }
 }
 

@@ -23,8 +23,8 @@
 #   Clist          : the list of inputs that are used by the C code and
 #                    returned by <ergm.Cprepare>
 #   gamma0         : the intial theta dissolution coefficients
-#   MCMCparams     : the list of parameters which tune the MCMC sampling
-#                    processes; the recognized components of 'MCMCparams'
+#   control     : the list of parameters which tune the MCMC sampling
+#                    processes; the recognized components of 'control'
 #                    are those passed to and used by the <stergm.phase12.C>
 #                    function below and are described in its function header
 #   MHproposal.form: a MHproposal object for the formation process, as
@@ -44,32 +44,29 @@
 #    sample.obs: NULL
 #    newnetwork : the 'nw' inputted into this function
 #    network    : the 'nw' inputted into this function
-#    theta.original   : the 'theta0' inputted into this function
+#    theta.original   : the 'init' inputted into this function
 #    objective.history: the number of SPSA iterations used
 #
 ################################################################################
 
-stergm.SPSA <- function(theta0, nw, model.form, model.diss, Clist, 
+stergm.SPSA <- function(init, nw, model.form, model.diss,
                       gamma0,
-                      MCMCparams, MHproposal.form, MHproposal.diss, MT=FALSE,
+                      control, MHproposal.form, MHproposal.diss, MT=FALSE,
                       verbose=FALSE){
-  eta0 <- ergm.eta(theta0, model.form$etamap)
+  eta0 <- ergm.eta(init, model.form$etamap)
 
   if(verbose){
     cat("SPSA algorithm with theta_0 equal to\n")
-    print(theta0)
+    print(init)
   }
-  eta0 <- ergm.eta(theta0, model.form$etamap)
+  eta0 <- ergm.eta(init, model.form$etamap)
 
-  z <- stergm.SPSA.C(nw, Clist$target.stats, model.form, model.diss, MHproposal.form, MHproposal.diss,
-                        eta0, gamma0, MCMCparams, MT=MT, verbose=verbose)
+  z <- stergm.SPSA.C(nw, model$target.stats, model.form, model.diss, MHproposal.form, MHproposal.diss,
+                        eta0, gamma0, control, MT=MT, verbose=verbose)
 
-  ve<-with(z,list(coef=eta,sample=NULL,sample.obs=NULL,objective.history=objective.history))
-    
-  structure(c(ve, list(newnetwork=nw, 
-                       theta.original=theta0,
-                       network=nw)),
-            class="stergm")
+  ve<-with(z,list(coef=eta,sample=NULL,sample.obs=NULL,objective.history=objective.history, newnetwork=nw, 
+                       init=init.form,
+                       network=nw))
 }
 
 
@@ -94,7 +91,7 @@ stergm.SPSA <- function(theta0, nw, model.form, model.diss, Clist,
 #                    returned by <getMHproposal>
 #   eta0           : the initial and canonical eta formation parameters
 #   gamma0         : the intial theta dissolution coefficients
-#   MCMCparams     : the list of parameters which tune the MCMC sampling
+#   control     : the list of parameters which tune the MCMC sampling
 #                    processes; recognized components include:
 #       SPSA.iterations: the number of iterations to use in the SPSA sampling
 #       SPSA.a         : see the next 2 params
@@ -126,7 +123,7 @@ stergm.SPSA <- function(theta0, nw, model.form, model.diss, Clist,
 #   
 # --RETURNED--
 #   a list with the 3 following components:
-#      target.stats: the 'target.stats' from the 'MCMCparams'; note that this is NOT
+#      target.stats: the 'target.stats' from the 'control'; note that this is NOT
 #                 the 'target.stats' inputted directly to this function
 #      eta      : the estimated? eta formation?? coefficients
 #      objective.history: the number of SPSA iterations used
@@ -135,12 +132,12 @@ stergm.SPSA <- function(theta0, nw, model.form, model.diss, Clist,
 
 stergm.SPSA.C <- function(g, target.stats, model.form, model.diss, 
                           MHproposal.form, MHproposal.diss, eta0, gamma0,
-                          MCMCparams, MT, verbose) {
+                          control, MT, verbose) {
 
   Clist.form <- ergm.Cprepare(g, model.form)
   Clist.diss <- ergm.Cprepare(g, model.diss)
-  maxchanges <- max(MCMCparams$maxchanges, Clist.form$nedges)/5
-  MCMCparams$maxchanges <- MCMCparams$maxchanges/5
+  maxchanges <- max(control$maxchanges, Clist.form$nedges)/5
+  control$maxchanges <- control$maxchanges/5
   if(verbose){cat(paste("MCMCDyn workspace is",maxchanges,"\n"))}
 
   if(MT){
@@ -158,21 +155,19 @@ stergm.SPSA.C <- function(g, target.stats, model.form, model.diss,
           as.integer(Clist.form$nedges), as.integer(Clist.form$maxpossibleedges),
           as.integer(Clist.form$n),
           as.integer(Clist.form$dir), as.integer(Clist.form$bipartite),
-          # Order code. 8
-          as.integer(Clist.diss$order.code),
-          # Formation terms and proposals. 9
-          as.integer(Clist.form$nterms), as.character(Clist.form$fnamestring), as.character(Clist.form$snamestring),
+          # Formation terms and proposals. 8
+          as.integer(Clist.form$nterms), as.character(Clist.form$fnamestring), as.character(Clist.form$snamestring), as.integer(model.form$offset),
           as.character(MHproposal.form$name), as.character(MHproposal.form$package),
           as.double(Clist.form$inputs), eta=as.double(eta0),
           # Formation parameter fitting. 16
           as.double(summary(model.form$formula)-target.stats),
           # Initial deviation. 17
-          as.double(MCMCparams$SPSA.a),
-          as.double(MCMCparams$SPSA.alpha),
-          as.double(MCMCparams$SPSA.A),
-          as.double(MCMCparams$SPSA.c),
-          as.double(MCMCparams$SPSA.gamma),
-          as.integer(MCMCparams$SPSA.iterations),              
+          as.double(control$SPSA.a),
+          as.double(control$SPSA.alpha),
+          as.double(control$SPSA.A),
+          as.double(control$SPSA.c),
+          as.double(control$SPSA.gamma),
+          as.integer(control$SPSA.iterations),              
           # Dissolution terms and proposals. 21
           as.integer(Clist.diss$nterms), as.character(Clist.diss$fnamestring), as.character(Clist.diss$snamestring),
           as.character(MHproposal.diss$name), as.character(MHproposal.diss$package),
@@ -183,12 +178,12 @@ stergm.SPSA.C <- function(g, target.stats, model.form, model.diss,
           as.integer(MHproposal.form$arguments$constraints$bd$minout), as.integer(MHproposal.form$arguments$constraints$bd$minin),
           as.integer(MHproposal.form$arguments$constraints$bd$condAllDegExact), as.integer(length(MHproposal.form$arguments$constraints$bd$attribs)), 
           # MCMC settings.              
-          as.integer(MCMCparams$SPSA.burnin),
-          as.integer(MCMCparams$SPSA.interval),
-          as.integer(MCMCparams$burnin),
+          as.integer(control$SPSA.burnin),
+          as.integer(control$SPSA.interval),
+          as.integer(control$MCMC.burnin),
           # Space for output.
           as.integer(maxchanges),
-          objective.history=double(MCMCparams$SPSA.iterations),
+          objective.history=double(control$SPSA.iterations),
           # Verbosity.
           as.integer(verbose), 
           PACKAGE="ergm") 
@@ -196,7 +191,7 @@ stergm.SPSA.C <- function(g, target.stats, model.form, model.diss,
   eta <- z$eta
   names(eta) <- names(eta0)
 
-  list(target.stats=MCMCparams$target.stats,
-       eta=eta,
+  list(target.stats=model.form$target.stats,
+       coef.form=eta,
        objective.history=z$objective.history)
 }

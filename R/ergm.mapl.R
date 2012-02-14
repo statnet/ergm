@@ -3,7 +3,7 @@
 #
 # --PARAMETERS--
 #   formula     :  a formula of the form 'nw ~ model term(s)'
-#   theta0      :  a vector of starting values for estimation, or optionally
+#   init      :  a vector of starting values for estimation, or optionally
 #                  if these are to be estimated, the string "MPLE";
 #                  default="MPLE"
 #   nsim        :  the number of simulations to use in forming the initial
@@ -40,7 +40,7 @@
 #
 ################################################################################
 
-ergm.mapl <- function(formula, theta0="MPLE", 
+ergm.mapl <- function(formula, init="MPLE", 
                  MPLEonly=TRUE, MLestimate=!MPLEonly, nsim=25,
                  burnin=10000,
                  maxit=3,
@@ -83,21 +83,21 @@ ergm.mapl <- function(formula, theta0="MPLE",
   Clist.initial <- ergm.Cprepare(nw, model.initial)
   Clist.miss.initial <- ergm.design(nw, model.initial, verbose=verbose)
   Clist.initial$target.stats=target.stats
-  theta0copy <- theta0
+  initcopy <- init
   
   pl <- ergm.pl(Clist=Clist.initial, Clist.miss=Clist.miss.initial,
                 m=model.initial,theta.offset=ifelse(extremeval!=0,extremval*Inf,NA),
                 verbose=verbose)
   initialfit <- ergm.maple(pl=pl, model.initial,
-                           MPLEtype=control$MPLEtype, 
+                           MPLEtype=control$MPLE.type, 
                            verbose=verbose, ...)
-  if("MPLE" %in% theta0){theta0 <- initialfit$coef}
+  if("MPLE" %in% init){init <- initialfit$coef}
 
   if(nsim>0){
    if(missing(target.stats)){
     target.stats <- summary(formula, basis=nw)
     sim<-simulate(formula, constraints=constraints,
-                  theta0=theta0, burnin=burnin,
+                  init=init, burnin=burnin,
                   verbose=verbose)
    }else{
     sim <- nw
@@ -105,7 +105,7 @@ ergm.mapl <- function(formula, theta0="MPLE",
 
    for(i in 1:nsim){
     sim<-simulate(formula, constraints=constraints,
-                  theta0=theta0, burnin=burnin,
+                  init=init, burnin=burnin,
                   verbose=verbose)
     sim <- san(formula, target.stats=target.stats, verbose=verbose,
                proposaltype=proposaltype,
@@ -131,7 +131,7 @@ ergm.mapl <- function(formula, theta0="MPLE",
    pl$wend <- pl$wend / nsim
    pl$wend.full <- pl$wend.full / nsim
    initialfit <- ergm.maple(pl=pl, model.initial,
-                            MPLEtype=control$MPLEtype, 
+                            MPLEtype=control$MPLE.type, 
                             verbose=verbose, ...)
   }
 
@@ -141,7 +141,7 @@ ergm.mapl <- function(formula, theta0="MPLE",
   initialfit$newnetwork <- nw
   initialfit$formula <- formula
   initialfit$constraints <- constraints
-  initialfit$prop.args <- control$prop.args
-  initialfit$prop.weights <- control$prop.weights
+  initialfit$prop.args <- control$MCMC.prop.args
+  initialfit$prop.weights <- control$MCMC.prop.weights
   initialfit
 }

@@ -35,12 +35,16 @@
 #
 #########################################################################
 
-control.simulate.stergm<-control.simulate.stergm<-function(prop.weights.form="default",
-                                                        prop.args.form=list(),
-                                                        prop.weights.diss="default",
-                                                        prop.args.diss=NULL,
-                                                        summarizestats=FALSE,final=FALSE,
-                                                        maxchanges=1000000){
+control.simulate.stergm<-function(MCMC.burnin=1000,
+                                  MCMC.prop.weights="default",
+                                  MCMC.prop.args=list(),
+                                  
+                                  MCMC.init.maxedges=20000,
+                                  MCMC.packagenames="ergm",
+
+                                  seed=NULL,
+                                  summarizestats=FALSE,
+                                  MCMC.init.maxchanges=1000000){
     control<-list()
     for(arg in names(formals(sys.function())))
       control[[arg]]<-get(arg)

@@ -10,15 +10,15 @@
 
 ###############################################################################
 # Each of the <gof.X> functions assesses the goodness of fit of X by comparison
-# with 'nsim' ergm simulations of X
+# with 'control$nsim' ergm simulations of X
 #
 # --PARAMETERS--
 #   object/formula: either an ergm object or a formula
 #   ...           : additional parameters passed from within the program;
 #                   these are ignored
-#   theta0        : the parameters from which the simulations will be drawn;
+#   init        : the parameters from which the simulations will be drawn;
 #                   default=NULL;
-#   nsim          : the number of simulated ergms, with which to compare X;
+#   control$nsim          : the number of simulated ergms, with which to compare X;
 #                   default=100
 #   burnin        : the number of proposals to disregard before any MCMC
 #                   sampling is done; this is passed along to the simulation
@@ -81,13 +81,11 @@ gof.default <- function(object,...) {
 }
 
 
-gof.ergm <- function (object, ..., nsim=100,
+gof.ergm <- function (object, ..., 
                       GOF=NULL, 
-                      burnin=10000, interval=1000,
                       constraints=NULL,
                       control=control.gof.ergm(),
-                      seed=NULL,
-                      theta0=NULL,
+                      coef=NULL,
                       verbose=FALSE) {
   
   nw <- as.network(object$network)
@@ -110,37 +108,37 @@ gof.ergm <- function (object, ..., nsim=100,
     stop("A network must be given as part of the network object.")
   }
 
-  if(missing(theta0)){theta0 <- object$coef}
+  if(missing(coef)){coef <- object$coef}
 
   ## If a different constraint was specified, use it; otherwise, copy
   ## from the ERGM.
+
+  control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges")
+  for(arg in control.transfer)
+    if(is.null(control[[arg]]))
+      control[[arg]] <- object$control[[arg]]
   
-  if(is.null(constraints)) constraints<-object$constraints
-  if(is.null(control$prop.args)) control$prop.args<-object$prop.args
-  if(is.null(control$prop.weights)) control$prop.weights<-object$prop.weights
+  if(is.null(constraints)) constraints <- object$constraints
   
-  gof.formula(formula=formula, theta0=theta0, nsim=nsim,
+  gof.formula(formula=formula, coef=coef,
               GOF=GOF,
-              burnin=burnin, interval=interval,
               constraints=constraints,
               control=control,
-              seed=seed,
               verbose=verbose, ...)
 }
 
 
 
-gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
-                        burnin=10000, interval=1000,
+gof.formula <- function(formula, ..., coef=NULL,
                         GOF=NULL,
                         constraints=~.,
                         control=control.gof.formula(),
-                        seed=NULL,
                         verbose=FALSE) {
+  if(!is.null(control$seed)) {set.seed(as.integer(seed))}
   if (verbose) 
     cat("Starting GOF for the given ERGM formula.\n")
   # Unused code
-  theta0missing <- NULL
+  coefmissing <- NULL
   unconditional <- TRUE
   # get network
   trms <- ergm.getterms(formula)
@@ -152,7 +150,7 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
   if(is.ergm(nw)){
     all.gof.vars <- ergm.rhs.formula(formula)
     formula <- nw$formula
-    if(missing(theta0)){theta0 <- nw$coef}
+    if(missing(coef)){coef <- nw$coef}
     trms <- ergm.getterms(formula)
     if(length(trms)>2){
       nw <- eval(trms[[2]], sys.parent())
@@ -199,25 +197,24 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
   m <- ergm.getmodel(formula, nw)
   Clist <- ergm.Cprepare(nw, m)
 
-  if(is.null(theta0)){
-      theta0 <- rep(0,Clist$nstats)
+  if(is.null(coef)){
+      coef <- rep(0,Clist$nstats)
       warning("No parameter values given, using 0\n\t")
   }
 # if(is.bipartite(nw)){
-#     theta0 <- c(theta0,-1)
+#     coef <- c(coef,-1)
 # }
 
   # If missing simulate from the conditional model
   if(!is.null(nw$gal$design) & unconditional){
    if(verbose){cat("Conditional simulations for missing fit\n")}
-   if(is.null(theta0missing)){theta0missing <- theta0}
-   SimCond <- gof(formula=formula, theta0=theta0missing,
-                  GOF=GOF, nsim=nsim,
-                  burnin=burnin, interval=interval,
+   if(is.null(coefmissing)){coefmissing <- coef}
+   SimCond <- gof(formula=formula, coef=coefmissing,
+                  GOF=GOF, 
                   constraints=constraints,
                   control=control,
                   unconditional=FALSE,
-                  seed=seed, verbose=verbose)
+                  verbose=verbose)
   }
 
 # test to see which of these is/are necessary
@@ -246,8 +243,8 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
    }else{
     obs.model <- SimCond$obs.model
    }
-   sim.model <- array(0,dim=c(nsim,length(obs.model)))
-   dimnames(sim.model) <- list(paste(c(1:nsim)),names(obs.model))
+   sim.model <- array(0,dim=c(control$nsim,length(obs.model)))
+   dimnames(sim.model) <- list(paste(c(1:control$nsim)),names(obs.model))
   }
 
   if ('distance' %in% all.gof.vars) {
@@ -257,8 +254,8 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
    }else{
     obs.dist <- SimCond$summary.dist[,"mean"]
    }
-   sim.dist <-array(0,dim=c(nsim,n))
-   dimnames(sim.dist)  <- list(paste(c(1:nsim)),paste(1:n))
+   sim.dist <-array(0,dim=c(control$nsim,n))
+   dimnames(sim.dist)  <- list(paste(c(1:control$nsim)),paste(1:n))
   }
 
   if ('odegree' %in% all.gof.vars) {
@@ -268,9 +265,9 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
    }else{
     obs.odeg <- SimCond$summary.odeg[,"mean"]
    }
-   sim.odeg <- array(0,dim=c(nsim,n))
+   sim.odeg <- array(0,dim=c(control$nsim,n))
 #  obs.odeg <- c(obs.odeg,rep(0,n-length(obs.odeg)))
-   dimnames(sim.odeg)   <- list(paste(c(1:nsim)),paste(0:(n-1)))
+   dimnames(sim.odeg)   <- list(paste(c(1:control$nsim)),paste(0:(n-1)))
    names(obs.odeg) <- dimnames(sim.odeg)[[2]]
   }
 
@@ -281,9 +278,9 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
    }else{
     obs.ideg <- SimCond$summary.ideg[,"mean"]
    }
-   sim.ideg <- array(0,dim=c(nsim,n))
+   sim.ideg <- array(0,dim=c(control$nsim,n))
 #  obs.ideg <- c(obs.ideg,rep(0,n-length(obs.ideg)))
-   dimnames(sim.ideg)   <- list(paste(c(1:nsim)),paste(0:(n-1)))
+   dimnames(sim.ideg)   <- list(paste(c(1:control$nsim)),paste(0:(n-1)))
    names(obs.ideg) <- dimnames(sim.ideg)[[2]]
   }
 
@@ -299,8 +296,8 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
    }else{
     obs.deg <- SimCond$summary.deg[,"mean"]
    }
-   sim.deg <- array(0,dim=c(nsim,n))
-   dimnames(sim.deg)   <- list(paste(c(1:nsim)),paste(0:(n-1)))
+   sim.deg <- array(0,dim=c(control$nsim,n))
+   dimnames(sim.deg)   <- list(paste(c(1:control$nsim)),paste(0:(n-1)))
    names(obs.deg) <- dimnames(sim.deg)[[2]]
   }
  
@@ -312,8 +309,8 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
    }else{
     obs.espart <- SimCond$summary.espart[,"mean"]
    }
-   sim.espart <- array(0,dim=c(nsim,n-1))
-   dimnames(sim.espart) <- list(paste(c(1:nsim)),paste(0:(n-2)))
+   sim.espart <- array(0,dim=c(control$nsim,n-1))
+   dimnames(sim.espart) <- list(paste(c(1:control$nsim)),paste(0:(n-2)))
   }
  
   if ('dspartners' %in% all.gof.vars) {
@@ -324,8 +321,8 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
    }else{
     obs.dspart <- SimCond$summary.dspart[,"mean"]
    }
-   sim.dspart <- array(0,dim=c(nsim,n-1))
-   dimnames(sim.dspart) <- list(paste(c(1:nsim)),paste(0:(n-2)))
+   sim.dspart <- array(0,dim=c(control$nsim,n-1))
+   dimnames(sim.dspart) <- list(paste(c(1:control$nsim)),paste(0:(n-2)))
   }
 
   if ('triadcensus' %in% all.gof.vars) {
@@ -345,20 +342,20 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
    }else{
     obs.triadcensus <- SimCond$summary.triadcensus[,"mean"]
    }
-   sim.triadcensus <- array(0,dim=c(nsim,length(triadcensus)))
-   dimnames(sim.triadcensus) <- list(paste(c(1:nsim)), namestriadcensus)
+   sim.triadcensus <- array(0,dim=c(control$nsim,length(triadcensus)))
+   dimnames(sim.triadcensus) <- list(paste(c(1:control$nsim)), namestriadcensus)
    names(obs.triadcensus) <- namestriadcensus
   }
  
   # Simulate an exponential family random graph model
 
-#  SimNetworkSeriesObj <- simulate(formula, nsim=nsim, seed=seed,
-#                                  theta0=theta0,
+#  SimNetworkSeriesObj <- simulate(formula, control$nsim=control$nsim, seed=seed,
+#                                  coef=coef,
 #                                  burnin=burnin, interval=interval,
 #                                  constraints=constraints,
 #                                  control=control.simulate.formula(
-#                                   prop.args=control$prop.args,
-#                                   prop.weights=control$prop.weights,
+#                                   prop.args=control$MCMC.prop.args,
+#                                   prop.weights=control$MCMC.prop.weights,
 #                                   summarizestats=control$summarizestats,
 #                                   drop=control$drop),
 #                                  verbose=verbose, basis=nw)
@@ -369,22 +366,18 @@ gof.formula <- function(formula, ..., theta0=NULL, nsim=100,
     cat("Starting simulations.\n")
 
   tempnet <- nw
-  for (i in 1:nsim) {
+  for (i in 1:control$nsim) {
     if(verbose){
-      cat("Sim",i,"of",nsim,": ")
+      cat("Sim",i,"of",control$nsim,": ")
     }
-    tempnet <- simulate(formula, nsim=1, seed=seed, theta0=theta0,
-                        burnin=burnin, constraints=constraints, 
-                        control=control.simulate.formula(
-                            prop.args=control$prop.args,
-                            prop.weights=control$prop.weights,
-                            summarizestats=control$summarizestats),
+    tempnet <- simulate(formula, nsim=1, coef=coef,
+                        constraints=constraints, 
+                        control=control,
                         verbose=verbose, basis=tempnet)
     seed <- NULL # Don't re-seed after first iteration   
-    burnin <- interval # starting with iteration 2
 #    if(verbose){
 #     cat(paste("...",i,sep=""))
-#     if ((i %% 10 == 0) || (i==nsim)) cat("\n")
+#     if ((i %% 10 == 0) || (i==control$nsim)) cat("\n")
 #    }
     if ('model' %in% all.gof.vars) {
      sim.model[i,] <- summary(ergm.update.formula(formula,tempnet ~ .))

@@ -7,7 +7,7 @@
 #             <ergm.pl>.  Note that <ergm.plinfo> does not
 #             return all the needed components.
 #   m       : the model, as returned by <ergm.getmodel>
-#   theta0  : the vector of initial theta coefficients
+#   init  : the vector of initial theta coefficients
 #   MPLEtype: the method for MPL estimation as "penalized", "glm"
 #             or "logitreg"; default="glm"
 #   family  : the family to use in the R native routine <glm>; 
@@ -31,7 +31,7 @@
 #
 ##################################################################
 
-ergm.maple<-function(pl, m, theta0=NULL,
+ergm.maple<-function(pl, m, init=NULL,
                     MPLEtype="glm", family="binomial",
                     save.glm=TRUE,
                     theta1=NULL, verbose=FALSE, ...) {
@@ -40,7 +40,7 @@ ergm.maple<-function(pl, m, theta0=NULL,
    mplefit <- ergm.pen.glm(
                   pl$zy ~ pl$xmat -1 + offset(pl$foffset),
                   data=data.frame(pl$xmat), weights=pl$wend,
-                           start=theta0)
+                           start=init)
 #  mple$deviance <- 2 * (mplefit$loglik-mplefit$loglik[1])[-1]
    mplefit$deviance <- -2*mplefit$loglik
    mplefit$cov.unscaled <- mplefit$var
@@ -52,12 +52,12 @@ ergm.maple<-function(pl, m, theta0=NULL,
     mplefit <- model.matrix(terms(pl$zy ~ .-1,data=data.frame(pl$xmat)),
                            data=data.frame(pl$xmat))
     mplefit <- ergm.logitreg(x=mplefit, y=pl$zy, offset=pl$foffset, wt=pl$wend,
-                             start=theta0)
+                             start=init)
     mplefit.summary <- list(cov.unscaled=mplefit$cov.unscaled)
    }else{
     mplefit <- try(
           glm(pl$zy ~ .-1 + offset(pl$foffset), data=data.frame(pl$xmat),
-                    weights=pl$wend, family=family, start=theta0),
+                    weights=pl$wend, family=family, start=init),
                     silent = TRUE)
     if (inherits(mplefit, "try-error")) {
       mplefit <- list(coef=pl$theta.offset, deviance=0,
@@ -69,7 +69,7 @@ ergm.maple<-function(pl, m, theta0=NULL,
    }
 #
 #  Determine the independence theta and MLE
-#  Note that the term "match" is depreciated.
+#  Note that the term "match" is deprecated.
 #
    if(is.null(theta1)){
     independent.terms <- 

@@ -113,7 +113,7 @@ summary.ergm <- function (object, ...,
 #   original <- format(object$MCMCtheta, digits = digits)
 #   original <- format(object$theta.original, digits = digits)
 
-  ans <- list(formula=object$formula, randomeffects=object$re,
+  ans <- list(formula=object$formula,
               digits=digits, correlation=correlation,
               degeneracy.value = object$degeneracy.value,
               offset = object$offset,
@@ -129,16 +129,6 @@ summary.ergm <- function (object, ...,
     ans$samplesize <-  object$samplesize
   }
     
-  if(!is.null(ans$randomeffects)){ 
-   if(!is.matrix(ans$randomeffects)){
-    ans$senderreceivercorrelation<-ans$randomeffects
-   }else{
-    corr <- ans$randomeffects[1,2]/sqrt(ans$randomeffects[1,1]*ans$randomeffects[2,2])
-    corr <- max(min(1,corr),-1)
-    ans$senderreceivercorrelation<-corr
-   }
-  }
-
   nodes<- network.size(object$network)
   dyads<- network.dyadcount(object$network)
   df <- length(object$coef)

@@ -100,20 +100,34 @@
 #
 ######################################################################################################
 
-control.stergm<-function(prop.weights.form="default",prop.args.form=NULL,
-                         prop.weights.diss="default",prop.args.diss=NULL,
-                         compress=FALSE,
-                         SAN.burnin=10000,
-                         SAN.interval=1000,
-                         maxNumDyadTypes=1e+6, 
-                         maxedges=20000,
-                         maxchanges=1000000,
-                         initialfit="MPLE",
-                         maxMPLEsamplesize=100000,
-                         MPLEtype=c("glm", "penalized"),
-                         trace=0,
-                         sequential=TRUE,
-                         style=c("Robbins-Monro","SPSA", "SPSA2", "Nelder-Mead"),
+control.stergm<-function(init.form=NULL,
+                         init.diss=NULL,
+                         init.method=NULL,
+
+                         MCMC.prop.weights.form="default",MCMC.prop.args.form=NULL,
+                         MCMC.prop.weights.diss="default",MCMC.prop.args.diss=NULL,
+                         MCMC.init.maxedges=20000,
+                         MCMC.packagenames="ergm",
+
+                         CMLE.control.form=control.ergm(init=init.form, MCMC.prop.weights=MCMC.prop.weights.form, MCMC.prop.args=MCMC.prop.args.form, MCMC.init.maxedges=MCMC.init.maxedges, MCMC.packagenames=MCMC.packagenames),
+                         CMLE.control.diss=control.ergm(init=init.diss, MCMC.prop.weights=MCMC.prop.weights.diss, MCMC.prop.args=MCMC.prop.args.diss, MCMC.init.maxedges=MCMC.init.maxedges, MCMC.packagenames=MCMC.packagenames),
+
+                         EGMoME.main.method=c("Robbins-Monro","SPSA", "SPSA2"),
+                         EGMoME.MCMC.burnin=100,
+                         
+                         SAN.maxit=10,
+                         SAN.control=control.san(coef=init.form,
+                           SAN.prop.weights=MCMC.prop.weights.form,
+                           SAN.prop.args=MCMC.prop.args.form,
+                           SAN.init.maxedges=MCMC.init.maxedges,
+                           
+                           SAN.burnin=EGMoME.MCMC.burnin,
+                           SAN.packagenames=MCMC.packagenames,
+                           
+                           parallel=parallel,
+                           parallel.type=parallel.type,
+                           parallel.version.check=parallel.version.check),
+
                          RM.phase1n_base=7,
                          RM.phase2n_base=100,
                          RM.phase2sub=4,
@@ -136,15 +150,21 @@ control.stergm<-function(prop.weights.form="default",prop.args.form=NULL,
                          NM.maxit=500,
                          NM.interval=1000,
                          NM.burnin=1000,
-                         packagenames="ergm",
+
+                         seed=NULL,
                          parallel=0,
                          parallel.type=NULL,
                          parallel.version.check=TRUE){
-  control<-list()
-  for(arg in names(formals(sys.function())))
-    control[[arg]]<-get(arg)
   
-  control$MPLEtype<-match.arg(MPLEtype)
-  control$style<-match.arg(style)
+  match.arg.pars=c("MPLE.type","EGMoME.main.method")
+  
+  control<-list()
+  formal.args<-formals(sys.function())
+  for(arg in names(formal.args))
+    control[[arg]]<-get(arg)
+
+  for(arg in match.arg.pars)
+    control[[arg]]<-match.arg(control[[arg]][1],eval(formal.args[[arg]]))
+  
   control
 }

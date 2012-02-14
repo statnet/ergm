@@ -252,7 +252,6 @@ void DegreeMixMatrix (int *nnodes,
  and then adding all of the edges to make up an observed network of interest.
 *****************/
 void godfather_wrapper (int *tails, int *heads, int *dnedges,
-      int *maxpossibleedges,
 			int *dn, int *dflag, int *bipartite, 
 			int *nterms, char **funnames,
 			char **sonames, 

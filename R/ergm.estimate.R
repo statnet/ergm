@@ -3,7 +3,7 @@
 # log-likelihood function. This function is observation-process capable.
 #
 # --PARAMETERS--
-#   theta0          : the vector of theta parameters that produced 'statsmatrix'
+#   init          : the vector of theta parameters that produced 'statsmatrix'
 #   model           : the model, as returned by <ergm.getmodel>
 #   statsmatrix     : the matrix of observed statistics that has already had the
 #                     "observed statistics" vector subtracted out (i.e., the
@@ -45,7 +45,7 @@
 #
 ###################################################################################         
 
-ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.obs=NULL,
+ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                         epsilon=1e-10, nr.maxit=1000, nr.reltol=sqrt(.Machine$double.eps),
                         metric="lognormal",
                         method="Nelder-Mead", compress=FALSE,
@@ -126,8 +126,8 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.obs=NULL,
     xobs <- av.obs-av
   }
   
-  # Convert theta0 (possibly "curved" parameters) to eta0 (canonical parameters)
-  eta0 <- ergm.eta(theta0, model$etamap)
+  # Convert init (possibly "curved" parameters) to eta0 (canonical parameters)
+  eta0 <- ergm.eta(init, model$etamap)
 
   # Choose appropriate loglikelihood, gradient, and Hessian functions
   # depending on metric chosen and also whether obsprocess==TRUE
@@ -217,10 +217,10 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.obs=NULL,
   } else {
     # "guess" will be the starting point for the optim search algorithm.
     # But only the non-offset values are relevant; the others will be
-    # passed to the likelihood functions by way of the etamap$theta0 element
+    # passed to the likelihood functions by way of the etamap$init element
     # of the model object.  NB:  This is a really ugly way to do this!  Change it?
-    guess <- theta0[!model$etamap$offsettheta]
-    model$etamap$theta0 <- theta0
+    guess <- init[!model$etamap$offsettheta]
+    model$etamap$init <- init
     
     loglikelihoodfn.trust<-function(trustregion=20, ...){
       value<-loglikelihoodfn(trustregion=trustregion, ...)
@@ -279,13 +279,13 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.obs=NULL,
     }
   }
 
-  theta <- theta0
+  theta <- init
   theta[!model$etamap$offsettheta] <- Lout$par
-  names(theta) <- names(theta0)
+  names(theta) <- names(init)
   if (estimateonly) {
     # Output results as ergm-class object
     return(structure(list(coef=theta,
-                          MCMCtheta=theta0,
+                          MCMCtheta=init,
                           samplesize=NROW(statsmatrix),
                           loglikelihood=Lout$value, 
                           failure=FALSE),
@@ -295,7 +295,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.obs=NULL,
                           probs=probs, 
                           xsim.obs=xsim.obs, probs.obs=probs.obs,
                           varweight=varweight, eta0=eta0, etamap=model$etamap)
-    gradient <- rep(NA, length=length(theta0))
+    gradient <- rep(NA, length=length(init))
     gradient[!model$etamap$offsettheta] <- gradienttheta
     #
     #  Calculate the auto-covariance of the MCMC suff. stats.
@@ -328,13 +328,13 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.obs=NULL,
       if (verbose) { cat("Starting MCMC s.e. computation.\n") }
       if ((metric=="lognormal" || metric=="Likelihood")
           && length(model$etamap$curved)==0) {
-        mc.se <- ergm.MCMCse.lognormal(theta=theta, theta0=theta0, 
+        mc.se <- ergm.MCMCse.lognormal(theta=theta, init=init, 
                                        statsmatrix=statsmatrix0, 
                                        statsmatrix.obs=statsmatrix.obs,
                                        H=V, H.obs=V.obs,
                                        model=model)
       } else {
-        MCMCse <- ergm.MCMCse(theta=theta,theta0=theta0, 
+        MCMCse <- ergm.MCMCse(theta=theta,init=init, 
                              statsmatrix=statsmatrix0,
                              statsmatrix.obs=statsmatrix.obs,
                              model=model)
@@ -355,7 +355,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.obs=NULL,
                            xsim.obs=xsim.obs, probs.obs=probs.obs,
                            varweight=0.5, eta0=eta0, etamap=model$etamap)
     #
-    # This is the log-likelihood calc from theta0=0
+    # This is the log-likelihood calc from init=0
     #
     mcmcloglik <- -abs(c0 - c01)
     
@@ -369,7 +369,7 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.obs=NULL,
     #
     iteration <- Lout$counts[1]
     #
-    names(theta) <- names(theta0)
+    names(theta) <- names(init)
     
     ############################
     #
@@ -396,9 +396,9 @@ ergm.estimate<-function(theta0, model, statsmatrix, statsmatrix.obs=NULL,
     # Output results as ergm-class object
     return(structure(list(coef=theta, sample=statsmatrix, sample.obs=statsmatrix.obs, 
                           iterations=iteration, #mcmcloglik=mcmcloglik,
-                          MCMCtheta=theta0, 
+                          MCMCtheta=init, 
                           loglikelihood=loglikelihood, gradient=gradient,
-                          covar=covar, samplesize=NROW(statsmatrix), failure=FALSE,
+                          covar=covar, failure=FALSE,
                           mc.se=mc.se#, #acf=mcmcacf,
                           #fullsample=statsmatrix.all
                           ),

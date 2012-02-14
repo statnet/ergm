@@ -39,7 +39,7 @@ ergm.getCluster <- function(control, verbose=FALSE){
   
   # Set things up. 
   clusterSetupRNG(cl)
-  if("ergm" %in% control$packagenames){
+  if("ergm" %in% control$MCMC.packagenames){
 
     # Try loading from the same location as the master.
     attached <- unlist(clusterCall(cl, require,
@@ -84,19 +84,20 @@ ergm.stopCluster.default <- function(object, ...){
 
 ergm.sample.tomcmc<-function(sample, params){
   library(coda)
+  samplesize <- nrow(sample)
   if(params$parallel){
 
-    samplesize<-round(params$samplesize / params$parallel)
+    samplesize<-round(samplesize / params$parallel)
 
     sample<-sapply(seq_len(params$parallel),function(i) {
       # Let mcmc() figure out the "end" from dimensions.
-      mcmc(sample[(samplesize*(i-1)+1):(samplesize*i),], start = params$burnin, thin = params$interval)
+      mcmc(sample[(samplesize*(i-1)+1):(samplesize*i),], start = params$MCMC.burnin, thin = params$MCMC.interval)
     }, simplify=FALSE)
 
     do.call("mcmc.list",sample)
 
   }else{
     # Let mcmc() figure out the "end" from dimensions.
-    mcmc(sample, start = params$burnin, thin = params$interval)
+    mcmc(sample, start = params$MCMC.burnin, thin = params$MCMC.interval)
   }
 }

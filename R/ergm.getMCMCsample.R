@@ -1,129 +1,321 @@
-########################################################################################
+#==============================================================================
+# This file contains the 2 following functions for getting an MCMC sample
+#      <ergm.getMCMCsample>
+#      <ergm.mcmcslave>
+#==============================================================================
+
+
+
+
+#########################################################################################
 # The <ergm.getMCMCsample> function samples networks using an MCMC algorithm via
-# <MCMC_wrapper.C> and returns the stats matrix of the sampled networks and a single
-# network as an edgelist. Note that the stats will be relative to the original network,
-# i.e., the calling function must shift the statistics if required. The calling function
-# must also attach column names to the statistics matrix if required.
+# <MCMC_wrapper.C>. Unlike its <ergm.getMCMCsample> counterpart, this function is
+# caple of running in multiple threads.  Note that the returned stats will be relative to
+# the original network, i.e., the calling function must shift the statistics if required. 
+# The calling function must also attach column names to the statistics matrix if required.
 #
 # --PARAMETERS--
-#   Clist     :  a list of parameters required by <MCMC_wrapper.C> and the result of
-#                calling <ergm.Cprepare>
+#   nw        :  a network object
+#   model     :  a model for the given 'nw' as returned by <ergm.getmodel>
 #   MHproposal:  a list of the parameters needed for Metropolis-Hastings proposals and
 #                the result of calling <MHproposal>
-#   eta0      :  the initial eta coefficients 
-#   verbose   :  whether the C functions should be verbose; default=FALSE 
-#   MCMCparams:  list of MCMC tuning parameters; those recognized include
-#         maxedges      :  the maximum number of new edges that memory will be
-#                          allocated for
-#         samplesize    :  the number of networks to be sampled
-#         nmatrixentries:  the number of entries the the returned 'statsmatrix'
-#                          will have
-#         interval      :  the number of proposals to ignore between sampled networks
-#         burnin        :  the number of proposals to initially ignore for the burn-in
-#                          period
+#   eta0      :  the initial eta coefficients
+#   verbose   :  whether the C functions should be verbose; default=FALSE
+#   control:  list of MCMC tuning parameters; those recognized include
+#       parallel    : the number of threads in which to run the sampling
+#       packagenames: names of packages; this is only relevant if "ergm" is given
+#       samplesize  : the number of networks to be sampled
+#       interval    : the number of proposals to ignore between sampled networks
+#       burnin      : the number of proposals to initially ignore for the burn-in
+#                     period
 #
+# Note:  In reality, there should be many fewer arguments to this function,
+# since most info should be passed via Clist (this is, after all, what Clist
+# is for:  Holding all arguments required for the .C call).  In particular,
+# the elements of MHproposal, control, verbose should certainly
+# be part of Clist.  But this is a project for another day!
 #
 # --RETURNED--
 #   the sample as a list containing:
 #     statsmatrix:  the stats matrix for the sampled networks, RELATIVE TO THE ORIGINAL
 #                   NETWORK!
-#     edgelist   :  the edgelist of the final?? sampled network
+#     newnetwork :  the edgelist of the final sampled network
+#     nedges     :  the number of edges in the 'newnetwork' ??
 #
 #########################################################################################
 
-ergm.getMCMCsample <- function(Clist, MHproposal, eta0, MCMCparams, verbose=FALSE){
-  maxedges <- MCMCparams$maxedges
-  nedges <- c(Clist$nedges,0,0)
-  tails <- Clist$tails
-  heads <- Clist$heads
-  weights <- Clist$weights
-  if(is.null(Clist$weights)){
-    # *** don't forget, tails is now passed in before heads.
-    z <- .C("MCMC_wrapper",
-            as.integer(length(nedges)), as.integer(nedges),
-            as.integer(tails), as.integer(heads),
-            as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
-            as.integer(Clist$dir), as.integer(Clist$bipartite),
-            as.integer(Clist$nterms),
-            as.character(Clist$fnamestring),
-            as.character(Clist$snamestring),
-            as.character(MHproposal$name), as.character(MHproposal$package),
-            as.double(c(Clist$inputs,MHproposal$inputs)), as.double(eta0),
-            as.integer(MCMCparams$samplesize),
-            # The line below was changed as of version 2.2-3.  Now,
-            # the statsmatrix is initialized to zero instead of
-            # allowing the first row to be nonzero, then adding this
-            # first row to each row within MCMC_wrapper.
-            statsmatrix = double(MCMCparams$samplesize * Clist$nstats),
-            as.integer(MCMCparams$burnin),
-            as.integer(MCMCparams$interval),
-            newnwtails = integer(MCMCparams$maxedges),
-            newnwheads = integer(MCMCparams$maxedges),
-            as.integer(verbose), as.integer(MHproposal$arguments$constraints$bd$attribs),
-            as.integer(MHproposal$arguments$constraints$bd$maxout), as.integer(MHproposal$arguments$constraints$bd$maxin),
-            as.integer(MHproposal$arguments$constraints$bd$minout), as.integer(MHproposal$arguments$constraints$bd$minin),
-            as.integer(MHproposal$arguments$constraints$bd$condAllDegExact), as.integer(length(MHproposal$arguments$constraints$bd$attribs)),
-            as.integer(maxedges),
-            status = integer(1),
-            PACKAGE="ergm")
-  }else{
-    z <- .C("WtMCMC_wrapper",
-            as.integer(length(nedges)), as.integer(nedges),
-            as.integer(tails), as.integer(heads), as.double(weights),
-            as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
-            as.integer(Clist$dir), as.integer(Clist$bipartite),
-            as.integer(Clist$nterms),
-            as.character(Clist$fnamestring),
-            as.character(Clist$snamestring),
-            as.character(MHproposal$name), as.character(MHproposal$package),
-            as.double(c(Clist$inputs,MHproposal$inputs)), as.double(eta0),
-            as.integer(MCMCparams$samplesize),
-            statsmatrix = double(MCMCparams$samplesize * Clist$nstats),
-            as.integer(MCMCparams$burnin), 
-            as.integer(MCMCparams$interval),
-            newnwtails = integer(maxedges),
-            newnwheads = integer(maxedges),
-            newnwweights = double(maxedges),
-            as.integer(verbose), 
-            as.integer(maxedges),
-            status = integer(1),
-            PACKAGE="ergm")
-  }
+ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control, 
+                                        verbose, response=NULL) {
+  
+  Clist <- ergm.Cprepare(nw, model, response=response)
 
-  status <- z$status
+  z <- NULL
 
-  if(status == 0 ){ # MCMC_OK
-    nedges <- z$newnwtails[1]  # This tells how many new edges there are
-    if(nedges==0){ 
-      newedgelist <- matrix(0, ncol=2+(!is.null(Clist$weights)), nrow=0)
-    }else{ 
-      # Post-processing of z$newnwtails and z$newnwheads: Combine into
-      # newedgelist The tails are listed starting at z$newnwtails[2],
-      # and similarly for heads.
-      newedgelist <- cbind(z$newnwtails[2:(nedges+1)],z$newnwheads[2:(nedges+1)])
-      if(!is.null(Clist$weights)) newedgelist<-cbind(newedgelist,z$newnwweights[2:(nedges+1)])
+  if(control$parallel==0){
+    flush.console()
+    z <- ergm.mcmcslave(Clist,MHproposal,eta0,control,verbose)
+    
+    # Note that status code 1 (MCMC_TOO_MANY_EDGES) is handled in ergm.mcmcslave.
+    
+    if(z$status == 2){ # MCMC_MH_FAILED
+      # MH proposal failed somewhere. Throw an error.
+      error("Sampling failed due to a Metropolis-Hastings proposal failing.")
     }
-  }else if(status == 1){ # MCMC_TOO_MANY_EDGES
-    # The simulation has filled up the available memory for storing edges, 
-    # so rerun it with ten times more
-    # To do:  Check to see whether it is possible to pass a "statsonly"
-    # argument to the C code, thus avoiding the need to store the final network
-    # and eliminating the need to make this particular check.
-    warning("Sampled network has more edges than can be returned.")
-    MCMCparams$maxedges <- maxedges * 10
-    if (verbose) cat("Increasing possible number of newedges to ", 
-                     MCMCparams$maxedges, "\n")
-    return(ergm.getMCMCsample(Clist, MHproposal, eta0, MCMCparams, verbose=FALSE))
-  }else if(status == 2){ # MCMC_MH_FAILED
-    # MH proposal failed somewhere. Throw an error.
-    error("Sampling failed due to a Metropolis-Hastings proposal failing.")
+    
+    if(!is.null(z$burnin.failed) && z$burnin.failed) warning("Burn-in failed to converge after retries.")
+    
+    statsmatrix <- matrix(z$s, nrow=control$MCMC.samplesize,
+                          ncol=Clist$nstats,
+                          byrow = TRUE)
+    newnetwork <- newnw.extract(nw,z,response=response)
+    newnetworks <- list(newnetwork)
+  }else{
+    control.parallel <- control
+    control.parallel$samplesize <- round(control$MCMC.samplesize / control$parallel)
+    
+    cl <- ergm.getCluster(control, verbose)
+    #
+    #   Run the jobs with rpvm or Rmpi
+    #
+    flush.console()
+    outlist <- clusterCall(cl,ergm.mcmcslave,
+                           Clist,MHproposal,eta0,control.parallel,verbose)
+    #
+    #   Process the results
+    #
+    statsmatrix <- NULL
+    newnetworks <- list()
+    for(i in (1:control$parallel)){
+      z <- outlist[[i]]
+      # Note that status code 1 (MCMC_TOO_MANY_EDGES) is handled in ergm.mcmcslave.
+
+      if(z$status == 2){ # MCMC_MH_FAILED
+        # MH proposal failed somewhere. Throw an error.
+        error("Sampling failed due to a Metropolis-Hastings proposal failing.")
+      }
+      
+      if(!is.null(z$burnin.failed) && z$burnin.failed) warning("Burn-in failed to converge after retries.")
+      
+      statsmatrix <- rbind(statsmatrix,
+                           matrix(z$s, nrow=control.parallel$samplesize,
+                                  ncol=Clist$nstats,
+                                  byrow = TRUE))
+    }
+
+    newnetworks[[i]]<-newnetwork<-newnw.extract(nw,z,response=response)
+    if(verbose){cat("parallel samplesize=",nrow(statsmatrix),"by",
+                    control.parallel$samplesize,"\n")}
+    
+    ergm.stopCluster(cl)
   }
 
-  ## Post-processing of z$statsmatrix element: coerce to correct-sized matrix
-  statsmatrix <- matrix(z$statsmatrix, nrow = MCMCparams$samplesize, byrow=TRUE)
-  statsmatrix[is.na(statsmatrix)] <- 0
+  colnames(statsmatrix) <- model$coef.names
 
-  ## outta here:  Return list with "statsmatrix" and "newedgelist"
-  return(list(statsmatrix = statsmatrix, newedgelist = newedgelist))
+  statsmatrix[is.na(statsmatrix)] <- 0
+  list(statsmatrix=statsmatrix, newnetwork=newnetwork, newnetworks=newnetworks)
 }
 
+
+
+
+
+###############################################################################
+# The <ergm.mcmcslave> function is that which the slaves will call to perform
+# a validation on the mcmc equal to their slave number. It also returns an
+# MCMC sample.
+#
+# --PARAMETERS--
+#   Clist     : the list of parameters returned by <ergm.Cprepare>
+#   MHproposal: the MHproposal list as returned by <getMHproposal>
+#   eta0      : the canonical eta parameters
+#   control: a list of parameters for controlling the MCMC algorithm;
+#               recognized components include:
+#       samplesize  : the number of networks to be sampled
+#       interval    : the number of proposals to ignore between sampled networks
+#       burnin      : the number of proposals to initially ignore for the burn-in
+#                     period
+#   verbose   : whether the C code should be verbose (T or F) 
+#
+# --RETURNED--
+#   the MCMC sample as a list of the following:
+#     s         : the statsmatrix
+#     newnwtails: the vector of tails for the new network- is this the final
+#                 network sampled? - is this the original nw if 'maxedges' is 0
+#     newnwheads: the vector of heads for the new network - same q's
+#
+###############################################################################
+
+ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose) {
+  # A subroutine to allow caller to override some settings or resume
+  # from a pervious run.
+  dorun <- function(prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL){
+    
+    numnetworks <- 0
+
+    if(is.null(prev.run)){ # Start from Clist
+      nedges <- c(Clist$nedges,0,0)
+      tails <- Clist$tails
+      heads <- Clist$heads
+      weights <- Clist$weights
+      stats <- rep(0, Clist$nstats)
+    }else{ # Pick up where we left off
+      nedges <- prev.run$newnwtails[1]
+      tails <- prev.run$newnwtails[2:(nedges+1)]
+      heads <- prev.run$newnwheads[2:(nedges+1)]
+      weights <- prev.run$newnwweights[2:(nedges+1)]
+      nedges <- c(nedges,0,0)
+      stats <- matrix(prev.run$s,
+                      ncol=Clist$nstats,
+                      byrow = TRUE)
+      stats <- stats[nrow(stats),]
+    }
+
+    if(is.null(burnin)) burnin <- control$MCMC.burnin
+    if(is.null(samplesize)) samplesize <- control$MCMC.samplesize
+    if(is.null(interval)) interval <- control$MCMC.interval
+    if(is.null(maxedges)) maxedges <- control$MCMC.init.maxedges
+
+    repeat{
+      if(is.null(Clist$weights)){
+        z <- .C("MCMC_wrapper",
+                as.integer(numnetworks), as.integer(nedges),
+                as.integer(tails), as.integer(heads),
+                as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
+                as.integer(Clist$dir), as.integer(Clist$bipartite),
+                as.integer(Clist$nterms),
+                as.character(Clist$fnamestring),
+                as.character(Clist$snamestring),
+                as.character(MHproposal$name), as.character(MHproposal$package),
+                as.double(c(Clist$inputs,MHproposal$inputs)), as.double(eta0),
+                as.integer(samplesize),
+                s = as.double(rep(stats, samplesize)),
+                as.integer(burnin), 
+                as.integer(interval),
+                newnwtails = integer(maxedges),
+                newnwheads = integer(maxedges),
+                as.integer(verbose), as.integer(MHproposal$arguments$constraints$bd$attribs),
+                as.integer(MHproposal$arguments$constraints$bd$maxout), as.integer(MHproposal$arguments$constraints$bd$maxin),
+                as.integer(MHproposal$arguments$constraints$bd$minout), as.integer(MHproposal$arguments$constraints$bd$minin),
+                as.integer(MHproposal$arguments$constraints$bd$condAllDegExact), as.integer(length(MHproposal$arguments$constraints$bd$attribs)),
+                as.integer(maxedges),
+                status = integer(1),
+                PACKAGE="ergm")
+        
+        # save the results
+        z<-list(s=z$s, newnwtails=z$newnwtails, newnwheads=z$newnwheads, status=z$status, maxedges=maxedges)
+      }else{
+        z <- .C("WtMCMC_wrapper",
+                as.integer(length(nedges)), as.integer(nedges),
+                as.integer(tails), as.integer(heads), as.double(weights),
+                as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
+                as.integer(Clist$dir), as.integer(Clist$bipartite),
+                as.integer(Clist$nterms),
+                as.character(Clist$fnamestring),
+                as.character(Clist$snamestring),
+                as.character(MHproposal$name), as.character(MHproposal$package),
+                as.double(c(Clist$inputs,MHproposal$inputs)), as.double(eta0),
+                as.integer(samplesize),
+                s = as.double(rep(stats, samplesize)),
+                as.integer(burnin), 
+                as.integer(interval),
+                newnwtails = integer(maxedges),
+                newnwheads = integer(maxedges),
+                newnwweights = double(maxedges),
+                as.integer(verbose), 
+                as.integer(maxedges),
+                status = integer(1),
+                PACKAGE="ergm")
+        # save the results
+        z<-list(s=z$s, newnwtails=z$newnwtails, newnwheads=z$newnwheads, newnwweights=z$newnwweights, status=z$status, maxedges=maxedges)
+      }
+      if(z$status!=1) return(z) # Handle everything except for MCMC_TOO_MANY_EDGES elsewhere.
+
+      # The following is only executed (and the loop continued) if too many edges.
+      maxedges <- maxedges * 10
+
+    }
+  }
+  
+  if(!is.null(control$MCMC.burnin.retries) && control$MCMC.burnin.retries>0){
+    library(coda)
+
+    out <- NULL
+
+    for(try in seq_len(control$MCMC.burnin.retries+1)){
+      samplesize <- min(control$MCMC.samplesize,control$MCMC.burnin*control$MCMC.burnin.check.last)
+      burnin <- ceiling(control$MCMC.burnin*(1-control$MCMC.burnin.check.last))
+      interval <- ceiling(control$MCMC.burnin*control$MCMC.burnin.check.last/samplesize)
+      out<-dorun(prev.run=out,
+                 burnin = burnin,
+                 samplesize = samplesize,
+                 interval = interval,
+                 maxedges = out$maxedges # note that the first time through, maxedges=NULL$maxedges, which is NULL.
+                 )
+      # Stop if something went wrong.
+      if(out$status!=0) return(out)
+
+      # Get the vector of the last burnin draws.
+      burnin.stats <- matrix(out$s, nrow=samplesize,
+                             ncol=Clist$nstats,
+                             byrow = TRUE)[,Clist$diagnosable,drop=FALSE]
+      colnames(burnin.stats) <- names(Clist$diagnosable)[Clist$diagnosable==TRUE]
+
+      if(control$MCMC.runtime.traceplot) plot(mcmc(burnin.stats,start=burnin+1,burnin+samplesize*interval,thin=interval),ask=FALSE,smooth=TRUE,density=FALSE)
+      
+      # Coda's implementation uses spectrum0, which is not robust enough.
+      my.geweke.diag<-function (x, frac1 = 0.1, frac2 = 0.5){
+        x <- as.mcmc(x)
+        xstart <- c(start(x), end(x) - frac2 * (end(x) - start(x)))
+        xend <- c(start(x) + frac1 * (end(x) - start(x)), end(x))
+        y.variance <- y.mean <- vector("list", 2)
+        for (i in 1:2) {
+          y <- window(x, start = xstart[i], end = xend[i])
+          y.mean[[i]] <- apply(as.matrix(y), 2, mean)
+          y.variance[[i]] <- spectrum0.ar(y)$spec/niter(y)
+        }
+        z <- (y.mean[[1]] - y.mean[[2]])/sqrt(y.variance[[1]] + y.variance[[2]])
+
+        # Output 2-sided P-value, rather than Z score.
+        pnorm(abs(z),0,1,lower.tail=FALSE)*2
+               
+      }
+
+      # Bonferroni adjustment
+      failed <- my.geweke.diag(burnin.stats) < control$MCMC.burnin.check.alpha/ncol(burnin.stats)
+      # If a statistic didn't mix at all, fail it as well.
+      failed[is.na(failed)] <- TRUE
+      if(any(failed)){
+        cat("Burn-in failed to converge or mixed very poorly for statistics", paste(names(Clist$diagnosable[Clist$diagnosable])[failed],collapse=", "), ". Rerunning.\n")
+        if(try == control$MCMC.burnin.retries+1) burnin.failed <- TRUE
+      }
+      else{
+        burnin.failed <- FALSE
+        break
+      }
+    }
+
+    # Do the actual sampling run. Note that we've already done the burnin.
+    out <- dorun(prev.run=out, burnin=0, maxedges=out$maxedges)
+    if(control$MCMC.runtime.traceplot) {
+      stats <- matrix(out$s, nrow=control$MCMC.samplesize,
+                      ncol=Clist$nstats,
+                      byrow = TRUE)[,Clist$diagnosable,drop=FALSE]
+      colnames(stats) <- names(Clist$diagnosable)[Clist$diagnosable==TRUE]
+      
+      plot(mcmc(stats,start=1,end=control$MCMC.samplesize*control$MCMC.interval,thin=control$MCMC.interval),ask=FALSE,smooth=TRUE,density=FALSE)
+    }
+    out$burnin.failed <- burnin.failed
+    out
+  } else {
+    out <- dorun()
+    if(control$MCMC.runtime.traceplot) {
+      stats <- matrix(out$s, nrow=control$MCMC.samplesize,
+                      ncol=Clist$nstats,
+                      byrow = TRUE)[,Clist$diagnosable,drop=FALSE]
+      colnames(stats) <- names(Clist$diagnosable)[Clist$diagnosable==TRUE]
+      
+      plot(mcmc(stats,start=control$MCMC.burnin+1,control$MCMC.burnin+control$MCMC.samplesize*control$MCMC.interval,thin=control$MCMC.interval),ask=FALSE,smooth=TRUE,density=FALSE)
+    }
+    out
+  }
+}

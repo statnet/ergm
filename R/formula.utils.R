@@ -61,19 +61,6 @@ ergm.update.formula<-function (object, new, ...){
   return(tmp)
 }
 
-theta.sublength.model<-function(m){
-  sapply(m$terms, function(term){
-    ## curved term
-    if(!is.null(term$params)) length(term$params)
-    ## linear term
-    else length(term$coef.names)
-  })
-}
-
-theta.length.model<-function(m){
-  sum(theta.sublength.model(m))
-}
-
 term.list.formula<-function(rhs){
   if(length(rhs)==1) list(rhs)
   else if(rhs[[1]]=="+") c(term.list.formula(rhs[[2]]),term.list.formula(rhs[[3]]))
@@ -143,7 +130,7 @@ model.transform.formula <- function(object, theta, response=NULL, recipes, ...){
   ## returned a constant value.
 
   m <- ergm.getmodel(object, ergm.getnetwork(object), response=response)
-  theta.inds<-cumsum(c(1,theta.sublength.model(m)))
+  theta.inds<-cumsum(c(1,coef.sublength.model(m)))
   terms<-term.list.formula(object[[3]])
   form<-object
   ## This deletes the formula's RHS, and LHS becomes RHS (for the moment).

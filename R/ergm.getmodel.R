@@ -22,15 +22,6 @@
 #             recognized parameters include
 #               initialfit: whether curved exponential terms have been initially fit
 #                           by MPLE (T or F)
-#   stergm.order:  a character string indicating which dissolution and formation
-#                  process is to be used; possible options are
-#                          "DissThenForm"
-#                          "DissAndForm" or "FormAndDiss"
-#                          "FormThenDiss"
-#                          "FormOnly"
-#                          "DissOnly"
-#                  the default is NULL, which will lead to an error in the C code
-#
 #
 # --RETURNED--
 #   a 'model.ergm' object as a list containing:
@@ -43,11 +34,10 @@
 #     network.stats0:  NULL always??
 #     etamap        :  the theta -> eta mapping as a list returned from <ergm.etamap> 
 #     class         :  the character string "model.ergm" 
-#     stergm.order  :  the 'sterm.order' that was passed in or NULL if not specified
 #
 #####################################################################################
 
-ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, ..., stergm.order=NULL) {
+ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, ...) {
   if ((dc<-data.class(formula)) != "formula")
     stop (paste("Invalid formula of class ",dc), call.=FALSE)
 
@@ -138,7 +128,6 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, ..., stergm
     }
   } 
   model$etamap <- ergm.etamap(model)
-  model$stergm.order <- stergm.order
   model
 }
 

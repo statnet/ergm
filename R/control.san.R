@@ -38,12 +38,21 @@
 #
 #########################################################################
 
-control.san<-function(prop.weights="default",
-                      prop.args=list(),
-                      maxedges=20000,
-                      maxchanges=1000000,
-                      packagenames="ergm",
+control.san<-function(coef=NULL,
+
+                      SAN.tau=1,
+                      SAN.invcov=NULL,
+                      SAN.burnin=10000,
+                      SAN.interval=10000,
+                      SAN.init.maxedges=20000,
+                      
+                      SAN.prop.weights="default",
+                      SAN.prop.args=list(),
+                      SAN.packagenames="ergm",
+
                       network.output="network",
+
+                      seed=NULL,
                       parallel=0,
                       parallel.type=NULL,
                       parallel.version.check=TRUE){

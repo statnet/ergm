@@ -3,7 +3,7 @@
 #
 # --PARAMETERS--
 #   theta           :  the vector of theta coefficients
-#   theta0          :  the vector of initial theta coefficients
+#   init          :  the vector of initial theta coefficients
 #   statsmatrix     :  the matrix of network statistics
 #   statsmatrix.obs :  the matrix of network statistics on the constrained network
 #   model           :  the model, as returned by <ergm.getmodel>
@@ -20,15 +20,15 @@
 #
 ################################################################################
 
-ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.obs,
+ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
                       model, 
                       lag.max=10, lag.max.obs=lag.max) {
   # Not sure why this is necessary, but:
-  names(theta) <- names(theta0)
+  names(theta) <- names(init)
 
   # Transform theta to eta
   etamap <- model$etamap
-  eta0 <- ergm.eta(theta0, etamap)
+  eta0 <- ergm.eta(init, etamap)
   eta <-  ergm.eta(theta, etamap)
   offsettheta <- model$etamap$offsettheta
   offsetmap <- model$etamap$offsetmap
@@ -50,7 +50,7 @@ ergm.MCMCse<-function(theta, theta0, statsmatrix, statsmatrix.obs,
   xsim <- xsim[,!offsetmap, drop=FALSE]
 
   # Take any theta offsets (values fixed at theta-1) into consideration
-  theta.offset <- etamap$theta0
+  theta.offset <- etamap$init
   theta.offset[!offsettheta] <- theta[!offsettheta]
 
   #  Calculate the auto-covariance of the MCMC suff. stats.

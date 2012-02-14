@@ -39,9 +39,23 @@
 #
 #########################################################################
 
-control.gof.ergm<-function(prop.weights=NULL,prop.args=NULL,
+control.gof.ergm<-function(nsim=100,
+                           MCMC.burnin=NULL,
+                           MCMC.interval=NULL,
+                           MCMC.prop.weights=NULL,
+                           MCMC.prop.args=NULL,
+                           
+                           MCMC.init.maxedges=NULL,
+                           MCMC.packagenames=NULL,
+
+                           MCMC.runtime.traceplot=FALSE,
                            summarizestats=FALSE,
-                           maxchanges=1000000){
+                           network.output="network",
+
+                           seed=NULL,
+                           parallel=0,
+                           parallel.type=NULL,
+                           parallel.version.check=TRUE){
   control<-list()
   for(arg in names(formals(sys.function())))
     control[[arg]]<-get(arg)
@@ -49,9 +63,23 @@ control.gof.ergm<-function(prop.weights=NULL,prop.args=NULL,
 }
 
 
-control.gof.formula<-function(prop.weights="default",prop.args=list(),
+control.gof.formula<-function(nsim=100,
+                              MCMC.burnin=1000,
+                              MCMC.interval=1000,
+                              MCMC.prop.weights="default",
+                              MCMC.prop.args=list(),
+                              
+                              MCMC.init.maxedges=20000,
+                              MCMC.packagenames="ergm",
+                              
+                              MCMC.runtime.traceplot=FALSE,          
                               summarizestats=FALSE,
-                              maxchanges=1000000){
+                              network.output="network",
+                                                     
+                              seed=NULL,
+                              parallel=0,
+                              parallel.type=NULL,
+                              parallel.version.check=TRUE){
   control<-list()
   for(arg in names(formals(sys.function())))
     control[[arg]]<-get(arg)

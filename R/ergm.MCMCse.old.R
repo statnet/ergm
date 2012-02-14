@@ -1,4 +1,4 @@
-ergm.MCMCse.old<-function(theta, theta0, statsmatrix, statsmatrix.obs,
+ergm.MCMCse.old<-function(theta, init, statsmatrix, statsmatrix.obs,
                       model, 
                       lag.max=10, lag.max.obs=lag.max) {
 #
@@ -17,12 +17,12 @@ ergm.MCMCse.old<-function(theta, theta0, statsmatrix, statsmatrix.obs,
    xsim.obs <- sweep(statsmatrix.obs, 2, av.obs,"-")
    xobs <- av.obs-av
   }
-  theta.offset <- etamap$theta0
+  theta.offset <- etamap$init
   theta.offset[!offsettheta] <- theta
 #
 # eta transformation
 #
-  eta0 <- ergm.eta(theta0, etamap)
+  eta0 <- ergm.eta(init, etamap)
   eta <-  ergm.eta(theta, etamap)
 # etagrad <- ergm.etagrad(theta, etamap)
   etaparam <- eta-eta0
@@ -36,7 +36,7 @@ ergm.MCMCse.old<-function(theta, theta0, statsmatrix, statsmatrix.obs,
   }
 #
 # names(theta) <- dimnames(statsmatrix)[[2]]
-  names(theta) <- names(theta0)
+  names(theta) <- names(init)
 #
 #  Calculate the auto-covariance of the MCMC suff. stats.
 #  and hence the MCMC s.e.

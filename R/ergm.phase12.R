@@ -8,7 +8,7 @@
 #   model     : a model for 'g', as returned by <ergm.getmodel>
 #   MHproposal: an MHproposal object, as returned by <MHproposal>
 #   eta0      : the vector of initial eta coefficients
-#   MCMCparams: a list of control parameters for the MCMC algorithm;
+#   control: a list of control parameters for the MCMC algorithm;
 #               recognized components include:
 #                     'maxedges'     'samplesize'     'gain'
 #                     'stats'        'phase1'         'nsub'
@@ -23,8 +23,8 @@
 #   a list containing
 #     statsmatrix: the matrix of summary statistics
 #     newnetwork : the final network sampled
-#     target.stats  : the 'target.stats' from 'MCMCparams'
-#     maxedges   : the 'maxedges' from 'MCMCparams'
+#     target.stats  : the 'target.stats' from 'control'
+#     maxedges   : the 'maxedges' from 'control'
 #     eta        : the parameters used to produce the sample given
 #                  by 'statsmatrix'
 #
@@ -32,12 +32,12 @@
 
 ergm.phase12 <- function(g, model,
                         MHproposal, eta0,
-                        MCMCparams, verbose) {
-# ms <- MCMCparams$target.stats
+                        control, verbose) {
+# ms <- model$target.stats
 # if(!is.null(ms)) {
 #   if (is.null(names(ms)) && length(ms) == length(model$coef.names))
 #     names(ms) <- model$coef.names
-#   obs <- MCMCparams$orig.obs
+#   obs <- control$orig.obs
 #   obs <- obs[match(names(ms), names(obs))]
 #   ms  <-  ms[match(names(obs), names(ms))]
 #   matchcols <- match(names(ms), names(obs))
@@ -46,12 +46,12 @@ ergm.phase12 <- function(g, model,
 #   }
 # }
   Clist <- ergm.Cprepare(g, model)
-  maxedges <- max(MCMCparams$maxedges, Clist$nedges)/5
-  MCMCparams$maxedges <- MCMCparams$maxedges/5
+  maxedges <- max(control$MCMC.init.maxedges, Clist$nedges)/5
+  control$MCMC.init.maxedges <- control$MCMC.init.maxedges/5
   z <- list(newnwtails=maxedges+1)
   while(z$newnwtails[1] >= maxedges){
     maxedges <- 5*maxedges
-    MCMCparams$maxedges <- 5*MCMCparams$maxedges
+    control$MCMC.init.maxedges <- 5*control$MCMC.init.maxedges
     if(verbose){cat(paste("MCMC workspace is",maxedges,"\n"))}
     # *** don't forget, pass in tails first now, not heads
     z <- .C("MCMCPhase12",
@@ -65,12 +65,12 @@ ergm.phase12 <- function(g, model,
             as.character(MHproposal$name), as.character(MHproposal$package),
             as.double(Clist$inputs),
             eta=as.double(eta0),
-            as.integer(MCMCparams$samplesize),
-            as.double(MCMCparams$gain), as.double(MCMCparams$stats),
-            as.integer(MCMCparams$phase1),
-            as.integer(MCMCparams$nsub),
-            s = double(MCMCparams$samplesize * Clist$nstats),
-            as.integer(MCMCparams$burnin), as.integer(MCMCparams$interval),
+            as.integer(control$MCMC.samplesize),
+            as.double(control$gain), as.double(control$stats),
+            as.integer(control$phase1),
+            as.integer(control$nsub),
+            s = double(control$MCMC.samplesize * Clist$nstats),
+            as.integer(control$MCMC.burnin), as.integer(control$MCMC.interval),
             newnwtails = integer(maxedges),
             newnwheads = integer(maxedges),
             as.integer(verbose), 
@@ -83,7 +83,7 @@ ergm.phase12 <- function(g, model,
             as.integer(0),
             PACKAGE="ergm") 
   }
-  statsmatrix <- matrix(z$s, nrow=MCMCparams$samplesize,
+  statsmatrix <- matrix(z$s, nrow=control$MCMC.samplesize,
                         ncol=Clist$nstats,
                         byrow = TRUE)
    eta <- z$eta
@@ -92,7 +92,7 @@ ergm.phase12 <- function(g, model,
   newnetwork<-newnw.extract(g,z)
   
   colnames(statsmatrix) <- model$coef.names
-  list(statsmatrix=statsmatrix, newnetwork=newnetwork, target.stats=MCMCparams$target.stats,
-       maxedges=MCMCparams$maxedges,
+  list(statsmatrix=statsmatrix, newnetwork=newnetwork, target.stats=model$target.stats,
+       maxedges=control$MCMC.init.maxedges,
        eta=eta)
 }

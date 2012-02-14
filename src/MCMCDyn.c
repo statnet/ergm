@@ -10,7 +10,6 @@
           int maxedges,
 				  int n_nodes, int dflag, int bipartite, Network *nw,
 
-				  int order_code, DynamOrder *order,
 				  int F_nterms, char *F_funnames, char *F_sonames, double *F_inputs, Model **F_m,
 				  int D_nterms, char *D_funnames, char *D_sonames, double *D_inputs, Model **D_m,
 				  
@@ -22,25 +21,6 @@
 				  int fVerbose){
   GetRNGstate();  /* R function enabling uniform RNG */
   
-  switch(order_code){
-  case 1: *order=DissThenForm; break;
-  case 2: *order=DissAndForm; break;
-  case 3: *order=FormThenDiss; break;
-  case 4: *order=FormOnly; break;
-  case 5: *order=DissOnly; break;
-  default: error("Unsupported dynamic model code %d.", order_code);
-  }
-  if(fVerbose){
-    switch(order_code){
-    case 1: Rprintf("Using dissolve then form dynamic model code.\n"); break;
-    case 2: Rprintf("Using simultaneous dissolve and form dynamic model code.\n"); break;
-    case 3: Rprintf("Using form then dissolve dynamic model code.\n"); break;
-    case 4: Rprintf("Using only formation dynamic model code.\n"); break;
-    case 5: Rprintf("Using only dissolution dynamic model code.\n"); break;
-    default: error("Unsupported dynamic model code %d.", order_code);
-    }
-  }
-
   *F_m=ModelInitialize(F_funnames, F_sonames, &F_inputs, F_nterms);
   *D_m=ModelInitialize(D_funnames, D_sonames, &D_inputs, D_nterms);
 
@@ -81,8 +61,6 @@
 void MCMCDyn_wrapper(// Starting network.
 		     int *tails, int *heads, int *n_edges, int *maxpossibleedges,
 		     int *n_nodes, int *dflag, int *bipartite,
-		     // Ordering of formation and dissolution.
-		     int *order_code,
 		     // Formation terms and proposals.
 		     int *F_nterms, char **F_funnames, char **F_sonames, 
 		     char **F_MHproposaltype, char **F_MHproposalpackage,
@@ -109,7 +87,6 @@ void MCMCDyn_wrapper(// Starting network.
   Network nw[2];
   Model *F_m, *D_m;
   MHproposal F_MH, D_MH;
-  DynamOrder order;
 
   nmax = (Edge)*maxedges; /* coerce double *maxedges to type Edge */
   
@@ -131,7 +108,6 @@ void MCMCDyn_wrapper(// Starting network.
 
   MCMCDyn_init_common(tails, heads, *n_edges, *maxpossibleedges,
 		      *n_nodes, *dflag, *bipartite, nw,
-		      *order_code, &order,
 		      *F_nterms, *F_funnames, *F_sonames, F_inputs, &F_m,
 		      *D_nterms, *D_funnames, *D_sonames, D_inputs, &D_m,
 		      attribs, maxout, maxin, minout,
@@ -140,7 +116,7 @@ void MCMCDyn_wrapper(// Starting network.
 		      *D_MHproposaltype, *D_MHproposalpackage, &D_MH,
 		      *fVerbose);
 
-  MCMCSampleDyn(nw, order,
+  MCMCSampleDyn(nw,
 		F_m, &F_MH, F_theta,
 		D_m, &D_MH, D_theta,
 		F_sample, D_sample, nmax, difftime, difftail, diffhead,
@@ -167,8 +143,6 @@ void MCMCDyn_wrapper(// Starting network.
 *********************/
 void MCMCSampleDyn(// Observed and discordant network.
 		   Network *nwp,
-		   // Ordering of formation and dissolution.
-		   DynamOrder order,
 		   // Formation terms and proposals.
 		   Model *F_m, MHproposal *F_MH,
 		   double *F_theta,
@@ -196,7 +170,7 @@ void MCMCSampleDyn(// Observed and discordant network.
   /* Burn in step. */
 
   for(i=0;i<burnin;i++)
-    MCMCDyn1Step(nwp, order, 
+    MCMCDyn1Step(nwp,
 		 F_m, F_MH, F_theta, D_m, D_MH, D_theta,
 		 log_toggles, F_stats, D_stats,
 		 nmax, &nextdiffedge, difftime, difftail, diffhead,
@@ -223,7 +197,7 @@ void MCMCSampleDyn(// Observed and discordant network.
 
     /* This then adds the change statistics to these values */
     for(j=0;j<interval;j++){
-      MCMCDyn1Step(nwp, order, 
+      MCMCDyn1Step(nwp,
 		   F_m, F_MH, F_theta, D_m, D_MH, D_theta,
 		   log_toggles, F_stats, D_stats,
 		   nmax, &nextdiffedge, difftime, difftail, diffhead,
@@ -366,8 +340,6 @@ void MCMCSampleDyn(// Observed and discordant network.
 *********************/
 void MCMCDyn1Step(// Observed and discordant network.
 		  Network *nwp,
-		  // Ordering of formation and dissolution.
-		  DynamOrder order,
 		  // Formation terms and proposals.
 		  Model *F_m, MHproposal *F_MH, double *F_theta,
 		  // Dissolution terms and proposals.
@@ -390,57 +362,16 @@ void MCMCDyn1Step(// Observed and discordant network.
   /* Increment the MCMC timer. */
   nwp->duration_info.MCMCtimer++;
 
-  switch(order){
-  case DissThenForm:
-    /* Run the dissolution process and commit it. */
-    MCMCDyn1Step_sample(D_MH, D_theta, D_stats, MH_interval, nwp, D_m);
-    ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, difftail, diffhead, nwp, &nde);
-    MCMCDyn1Step_commit(ntoggles, difftail+nde-ntoggles, diffhead+nde-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
-    
-    /* Run the formation process and commit it. */
-    MCMCDyn1Step_sample(F_MH, F_theta, F_stats, MH_interval, nwp, F_m);
-    ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, difftail, diffhead, nwp, &nde);
-    MCMCDyn1Step_commit(ntoggles, difftail+nde-ntoggles, diffhead+nde-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
-    
-    break;
-  case DissAndForm:
-    /* Run the dissolution process. */
-    MCMCDyn1Step_sample(D_MH, D_theta, D_stats, MH_interval, nwp, D_m);
-    ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, difftail, diffhead, nwp, &nde);
-    
-    /* Run the formation process. */
-    MCMCDyn1Step_sample(F_MH, F_theta, F_stats, MH_interval, nwp, F_m);
-    ntoggles += MCMCDyn1Step_record_reset(nmax, difftime, difftail, diffhead, nwp, &nde);
-    
-    /* Commit both. */
-    MCMCDyn1Step_commit(ntoggles, difftail+nde-ntoggles, diffhead+nde-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
-    break;
-  case FormThenDiss:
-    /* Run the formation process and commit it. */
-    MCMCDyn1Step_sample(F_MH, F_theta, F_stats, MH_interval, nwp, F_m);
-    ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, difftail, diffhead, nwp, &nde);
-    MCMCDyn1Step_commit(ntoggles, difftail+nde-ntoggles, diffhead+nde-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
-
-    /* Run the dissolution process and commit it. */
-    MCMCDyn1Step_sample(D_MH, D_theta, D_stats, MH_interval, nwp, D_m);
-    ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, difftail, diffhead, nwp, &nde);
-    MCMCDyn1Step_commit(ntoggles, difftail+nde-ntoggles, diffhead+nde-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
-    break;
-  case FormOnly:
-    /* Run the formation process and commit it. */
-    MCMCDyn1Step_sample(F_MH, F_theta, F_stats, MH_interval, nwp, F_m);
-    ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, difftail, diffhead, nwp, &nde);
-    MCMCDyn1Step_commit(ntoggles, difftail+nde-ntoggles, diffhead+nde-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
-    break;
-  case DissOnly:
-    /* Run the dissolution process and commit it. */
-    MCMCDyn1Step_sample(D_MH, D_theta, D_stats, MH_interval, nwp, D_m);
-    ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, difftail, diffhead, nwp, &nde);
-    MCMCDyn1Step_commit(ntoggles, difftail+nde-ntoggles, diffhead+nde-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
-    break;
-  default: 
-    error("Unsupported dynamic model code %d. Memory has not been deallocated so restart R sometime soon.",order);
-  }
+  /* Run the dissolution process. */
+  MCMCDyn1Step_sample(D_MH, D_theta, D_stats, MH_interval, nwp, D_m);
+  ntoggles = MCMCDyn1Step_record_reset(nmax, difftime, difftail, diffhead, nwp, &nde);
+  
+  /* Run the formation process. */
+  MCMCDyn1Step_sample(F_MH, F_theta, F_stats, MH_interval, nwp, F_m);
+  ntoggles += MCMCDyn1Step_record_reset(nmax, difftime, difftail, diffhead, nwp, &nde);
+  
+  /* Commit both. */
+  MCMCDyn1Step_commit(ntoggles, difftail+nde-ntoggles, diffhead+nde-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
 
   // If we don't keep a log of toggles, reset the position to save space.
   if(log_toggles)

@@ -26,7 +26,7 @@ mvmodel.default <- function(object,...)
 # --PARAMETERS--
 #   formula/object: X, either a formula or ergm
 #   ...           : any parameters passed via ... are ignored
-#   theta0        : the vector of initial theta values to use when
+#   init        : the vector of initial theta values to use when
 #                   simulating networks
 #   nsim          : the number of simulations to draw
 #   burnin        : the number of proposals to disregard for the initial
@@ -58,7 +58,7 @@ mvmodel.default <- function(object,...)
 #
 ########################################################################
 
-mvmodel.formula <- function (formula, ..., theta0, nsim=100,
+mvmodel.formula <- function (formula, ..., init, nsim=100,
                              burnin=10000, interval=1000,
                              constraints=NULL,
                              control=control.simulate.formula(),
@@ -79,8 +79,8 @@ mvmodel.formula <- function (formula, ..., theta0, nsim=100,
   m <- ergm.getmodel(formula, g)
   Clist <- ergm.Cprepare(g, m)
 
-  if(missing(theta0)){
-      theta0 <- rep(0,Clist$nstats)
+  if(missing(init)){
+      init <- rep(0,Clist$nstats)
       warning("No parameter values given, using 0\n\t")
   }
 
@@ -102,7 +102,7 @@ mvmodel.formula <- function (formula, ..., theta0, nsim=100,
   SimGraphSeriesObj <- simulate(formula, burnin=burnin, interval=interval,
                                 constraints=constraints,
                                 control=control,
-                                theta0=theta0,
+                                init=init,
                                 n=nsim, seed=seed)
   
 # cat("\nCollating simulations\n")

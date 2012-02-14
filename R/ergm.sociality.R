@@ -84,7 +84,7 @@ sociality.network <- function (object, ...,
 # --PARAMETERS--
 #   formula     :  a formula of the form 'nw ~ model term(s)'
 #   ...         : any parameters passed via ... are ignored
-#   theta0      : the vector of initial theta values
+#   init      : the vector of initial theta values
 #   nsim        : the number of simulations to gather for the
 #                 returned 'sim.sociality' vector
 #   burnin      : the number of proposals to ignore before MCMC sampling
@@ -114,7 +114,7 @@ sociality.network <- function (object, ...,
 #
 ###############################################################################
 
-sociality.formula <- function (formula, ..., theta0, nsim=100,
+sociality.formula <- function (formula, ..., init, nsim=100,
                                burnin=100, interval=100,
                                constraints=~.,
                                prop.weights="default",
@@ -136,8 +136,8 @@ sociality.formula <- function (formula, ..., theta0, nsim=100,
   m <- ergm.getmodel(trms, g, drop=drop)
   Clist <- ergm.Cprepare(g, m)
 
-  if(missing(theta0)){
-      theta0 <- rep(0,Clist$nstats)
+  if(missing(init)){
+      init <- rep(0,Clist$nstats)
       warning("No parameter values given, using 0\n\t")
   }
 
@@ -170,7 +170,7 @@ sociality.formula <- function (formula, ..., theta0, nsim=100,
                                 constraints=constraints, 
                                 control=control.simulate.ergm(prop.args=prop.args,
                                   prop.weights=prop.weights,drop=drop),
-                                theta0=theta0,
+                                init=init,
                                 n=nsim, seed=seed)
 
 # cat("\nCollating simulations\n")

@@ -61,7 +61,7 @@ ergm.degeneracy <- function(object,
     }
    }
    # So a MCMC fit
-   if(object$loglikelihood>control$trustregion-0.1){
+   if(object$loglikelihood>control$MCMLE.trustregion-0.1){
     object$degeneracy.value <- Inf
    }else{
     changeobs <- (-2*object$mplefit$glm$y+1)*model.matrix(object$mplefit$glm)
@@ -77,9 +77,9 @@ ergm.degeneracy <- function(object,
     }
     object$degeneracy.type <- try(
       apply(changeobs, 1, ergm.compute.degeneracy,
-      theta0=object$MCMCtheta, etamap=object$etamap, 
+      init=object$MCMCtheta, etamap=object$etamap, 
       statsmatrix=object$sample[,!object$etamap$offsettheta,drop=FALSE],
-      trustregion=control$trustregion),silent=TRUE)
+      trustregion=control$MCMLE.trustregion),silent=TRUE)
     if(inherits(object$degeneracy.type,"try-error")){
      object$degeneracy.value <- Inf
      object$degeneracy.type <- NULL
@@ -118,7 +118,7 @@ ergm.degeneracy <- function(object,
     object$degeneracy.type <- NULL
    }
   }
-  if(object$degeneracy.value>control$trustregion-0.1){
+  if(object$degeneracy.value>control$MCMLE.trustregion-0.1){
    object$degeneracy.value <- Inf
   }
   if(is.infinite(object$degeneracy.value)){
@@ -148,7 +148,7 @@ ergm.degeneracy <- function(object,
 #
 # --PARAMETERS--
 #   xobs       : the changeobs
-#   theta0     : the initial model parameters
+#   init     : the initial model parameters
 #   etamap     : the theta-> eta mapping, as returned by <ergm.etamap>
 #   statsmatrix: the sample summary statistics
 #   nr.maxit   : the maximum number of iterations to be used by the native R
@@ -180,10 +180,10 @@ ergm.degeneracy <- function(object,
 #
 ##########################################################################################
 
-ergm.compute.degeneracy<-function(xobs, theta0, etamap, statsmatrix,
+ergm.compute.degeneracy<-function(xobs, init, etamap, statsmatrix,
                         epsilon=1e-10, nr.maxit=100, nr.reltol=0.01,
                         verbose=FALSE, trace=6*verbose,
-                        hessian=FALSE, guess=theta0,
+                        hessian=FALSE, guess=init,
                         trustregion=20, ...) {
   samplesize <- dim(statsmatrix)[1]
   statsmatrix0 <- statsmatrix
@@ -199,9 +199,9 @@ ergm.compute.degeneracy<-function(xobs, theta0, etamap, statsmatrix,
 #
 # Set up the initial estimate
 #
-  if (verbose) cat("Converting theta0 to eta0\n")
-  eta0 <- ergm.eta(theta0, etamap) #unsure about this
-  etamap$theta0 <- theta0
+  if (verbose) cat("Converting init to eta0\n")
+  eta0 <- ergm.eta(init, etamap) #unsure about this
+  etamap$init <- init
 #
 # Log-Likelihood and gradient functions
 #
@@ -228,7 +228,7 @@ ergm.compute.degeneracy<-function(xobs, theta0, etamap, statsmatrix,
     return(c(Inf, guess))
   }
   theta <- Lout$par
-  names(theta) <- names(theta0)
+  names(theta) <- names(init)
 # c0  <- llik.fun(theta=Lout$par, xobs=xobs,
 #                 xsim=xsim, probs=probs,
 #                 xsim.obs=xsim.obs, probs.obs=probs.obs,

@@ -57,6 +57,7 @@
 ergm.godfather <- function(formula, timestamps=NULL, toggles=NULL, sim=NULL,
                            start=NULL, end=NULL,
                            accumulate=FALSE,
+                           final.network=FALSE,
                            verbose=FALSE,
                            control=control.godfather()) {
   if(is.null(sim)){
@@ -80,17 +81,17 @@ ergm.godfather <- function(formula, timestamps=NULL, toggles=NULL, sim=NULL,
   nw <- ergm.getnetwork(formula)
   m <- ergm.getmodel(formula, nw, initialfit=TRUE)
   Clist <- ergm.Cprepare(nw, m)
-  Clist$obs <- summary(m$formula)
+  model$obs <- summary(m$formula)
   ots <- order(timestamps)
   toggles <- matrix(toggles[ots,],ncol=2)
   timestamps <- timestamps[ots]
   mincol = apply(toggles,1,which.min)
   toggles[mincol==2,] <- toggles[mincol==2,2:1] # make sure col1 < col2
-  maxedges <- control$return_new_network * max(control$maxedges, 5*Clist$nedges)
+  maxedges <- final.network * max(control$GF.init.maxedges, 5*Clist$nedges)
   obsstat <- summary(formula)  
   z <- .C("godfather_wrapper",
           as.integer(Clist$tails), as.integer(Clist$heads), 
-          as.integer(Clist$nedges), as.integer(Clist$maxpossibleedges),
+          as.integer(Clist$nedges),
           as.integer(Clist$n),
           as.integer(Clist$dir), as.integer(Clist$bipartite),
           as.integer(Clist$nterms), 
@@ -111,7 +112,7 @@ ergm.godfather <- function(formula, timestamps=NULL, toggles=NULL, sim=NULL,
   colnames(stats) <- m$coef.names
 
   out <- list(stats = stats, timestamps = c(NA, start:end))
-  if (control$return_new_network) { 
+  if (final.network) { 
     cat("Creating new network...\n")
     out$newnetwork <- newnw.extract(nw,z)
   }
@@ -131,26 +132,15 @@ ergm.godfather <- function(formula, timestamps=NULL, toggles=NULL, sim=NULL,
 #                       if 5*Clist$nedges is greater; this is also
 #                       ignored if 'return_new_network' is FALSE;
 #                       default=100000
-#   return_new_network: whether to return the final network (T or F)
-#                       default=FALSE
 #
-# --IGNORED--
-#   summarizestats    : ??; default=FALSE
-#   final             : ??; default=FALSE
-#   maxchanges        : ??; default=1000000
-#   assume_consecutive_timesteps: ??; default=TRUE
 #
 # --RETURNED--
 #   a list of the above parameters
 #
 ####################################################################
 
-control.godfather<-function(maxedges=100000,
-              assume_consecutive_timestamps=TRUE,
-              return_new_network=FALSE,
-              summarizestats=FALSE,
-              final=FALSE,
-              maxchanges=1000000){
+control.godfather<-function(GF.init.maxedges=100000
+              ){
     control<-list()
     for(arg in names(formals(sys.function())))
       control[[arg]]<-get(arg)

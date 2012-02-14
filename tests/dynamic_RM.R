@@ -6,24 +6,24 @@ n<-50
 g0<-network.initialize(n,dir=FALSE)
 
 #            meandeg, degree(1)
-target.stats<-c(      1,    n*0.6)
+target.stats<-c(      n*1/2,    n*0.6)
 
 # Get a reasonably close starting network.
 g1<-san(g0~meandeg+degree(1),target.stats=target.stats,verbose=TRUE)
 
 # Fit the model.
-dynfit<-stergm(g1~meandeg+degree(1),dissolution=~edges,stergm.order="FormAndDiss",theta.diss=log(.95/.05),target.stats=target.stats,verbose=TRUE,control=control.stergm(RM.interval=100))
+dynfit<-stergm(g1,formation=~edges+degree(1),dissolution=~offset(edges), targets="formation", estimate="EGMoME", offset.coef.diss=log(.95/.05),target.stats=target.stats,verbose=TRUE,control=control.stergm(RM.interval=100))
 
-theta.form<-dynfit$coef.form
-print(theta.form)
+coef.form<-dynfit$formation.fit$coef
+print(coef.form)
 
-theta.diss<-log(.95/.05)
-print(theta.diss)
+coef.diss<-log(.95/.05)
+print(coef.diss)
 
 # Simulate from the fit.
 dynsim<-simulate(dynfit,nsim=1000,verbose=TRUE)
 
-dynsim.gf<-ergm.godfather(g1~meandeg+degree(1),sim=dynsim,verbose=TRUE)
+dynsim.gf<-ergm.godfather(g1~edges+degree(1),sim=dynsim,verbose=TRUE)
 
 # Compare each time point's network statistics as returned by
 # simulation and as returned by a "replay" of the simulation using the
@@ -45,7 +45,7 @@ print((target.stats.sim-target.stats)/sqrt(apply(dynsim$stats.form,2,var)/effect
 print(mean(duration.matrix(dynsim)$duration))
 
 # Simulate from an equivalent fit.
-dynsim<-simulate(g1~meandeg+degree(1),dissolution=~dyadcov(matrix(1,n,n))+edges,theta.form=theta.form,theta.diss=c(1,theta.diss-1),nsim=1000,verbose=TRUE)
+dynsim<-simulate(g1,~edges+degree(1),dissolution=~dyadcov(matrix(1,n,n))+edges,coef.form=coef.form,coef.diss=c(1,coef.diss-1),nsim=1000,verbose=TRUE)
 
 print(mean(duration.matrix(dynsim)$duration))
 

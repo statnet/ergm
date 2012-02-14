@@ -10,9 +10,9 @@
 #   bipartite: the count of actors if the network should be bipartite; 0
 #              if 'x' is not bipartite; default=FALSE
 #   density  : the probability of a tie; default=the number of nodes divided
-#              by the number of possible dyad IF theta0 isn't provided, NULL
+#              by the number of possible dyad IF init isn't provided, NULL
 #              otherwise
-#   theta0   : the log-odds of a tie, this parameter is ignored if density
+#   init   : the log-odds of a tie, this parameter is ignored if density
 #              is given; default=the number of nodes divided by the number of
 #              possible dyad IF density isn't provided, NULL otherwise
 #   numedges : the number of edges that the returned network must have;
@@ -47,7 +47,7 @@ as.network.numeric<-function(x,
     hyper = FALSE, loops = FALSE, multiple = FALSE, bipartite = FALSE,
     ignore.eval = TRUE, names.eval = NULL,
     edge.check = FALSE,
-    density=NULL, theta0=NULL, numedges=NULL, ...){
+    density=NULL, init=NULL, numedges=NULL, ...){
   #returns a bernouli network.
   if(bipartite){
    nb2 <- x
@@ -65,12 +65,12 @@ as.network.numeric<-function(x,
     ndyads <- nb1*(nb1-1)/2
   
   if(missing(density)){
-    if(missing(theta0)){
+    if(missing(init)){
       #     So the expected number of ties is the same as
       #     the number of nodes
       density <- nb1/ndyads
     }else{
-      density <- exp(theta0)/(1+exp(theta0))
+      density <- exp(init)/(1+exp(init))
     }
   }
   nw.mat <- matrix(0,nrow=nb1,ncol=nb2)
