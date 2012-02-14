@@ -4,7 +4,7 @@ ergm.MPIcluster.started <- FALSE
 # Acquires a cluster of specified type.
 ergm.getCluster <- function(control, verbose=FALSE){
   capture.output(require(snow, quietly=TRUE, warn.conflicts = FALSE))
-  capture.output(require(rpvm, quietly=TRUE, warn.conflicts = FALSE))
+#  capture.output(require(rpvm, quietly=TRUE, warn.conflicts = FALSE))
 
   type <- if(is.null(control$parallel.type)) getClusterOption("type") else control$parallel.type
 
