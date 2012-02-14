@@ -56,9 +56,9 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 		iter=iter+1
     ## Generate an mcmc sample from the probability distribution determined by orig.mle
 		samples[[iter]]=simulate.formula(formula, nsim=control$Step.MCMC.samplesize,
-                                     init=eta[[iter]], burnin=control$MCMC.burnin, 
-                                     interval=control$MCMC.interval, statsonly=TRUE,
-                                     constraints=constraints, ...)
+                                     coef=eta[[iter]], statsonly=TRUE,
+                                     constraints=constraints, 
+                                     control=control, ...)
 		sampmeans[[iter]]=colMeans(samples[[iter]])
 		
 		hi <- control$Step.gridsize  # Goal: Let gamma be largest possible multiple of .01
@@ -148,9 +148,9 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 	flush.console()
 	iter <- iter+1
   finalsample <- simulate.formula(formula, nsim=control$MCMC.samplesize,
-                                  init=eta[[iter]], burnin=control$MCMC.burnin, 
-                                  interval=control$MCMC.interval, statsonly=TRUE, 
-                                  constraints=constraints, ...)
+                                  coef=eta[[iter]], statsonly=TRUE, 
+                                  constraints=constraints, 
+                                  control=control, ...)
   sampmeans[[iter]] <- colMeans(finalsample)
   xi[[iter]] <- obsstats
 	v<-ergm.estimate(init=eta[[iter]], model=model, 

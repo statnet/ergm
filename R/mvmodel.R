@@ -99,11 +99,10 @@ mvmodel.formula <- function (formula, ..., init, nsim=100,
 
   # Simulate an exponential family random network model
 
-  SimGraphSeriesObj <- simulate(formula, burnin=burnin, interval=interval,
+  SimGraphSeriesObj <- simulate(formula, nsim=nsim, seed=seed,
                                 constraints=constraints,
                                 control=control,
-                                init=init,
-                                n=nsim, seed=seed)
+                                coef=init)
   
 # cat("\nCollating simulations\n")
 
@@ -177,10 +176,9 @@ mvmodel.ergm <- function (object, ..., nsim=100,
 
   # Simulate an exponential family random network model
 
-  SimGraphSeriesObj <- simulate(object, burnin=burnin, interval=interval,
+  SimGraphSeriesObj <- simulate(object, nsim=nsim, seed=seed,
                                 constraints=constraints,
-                                control=control,
-                             n=nsim, seed=seed)
+                                control=control)
 
   # cat("\nCollating simulations\n")
 

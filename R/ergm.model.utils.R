@@ -92,8 +92,8 @@ ergm.checkconstraints.model <- function(model, MHproposal){
     warning(paste("The specified model's sample space constraint holds statistic(s)", paste(conflict.coefs, collapse=", "), " constant. They will be ignored.", sep=" "))
 }
 
-coef.sublength.model<-function(m){
-  sapply(m$terms, function(term){
+coef.sublength.model<-function(object, ...){
+  sapply(object$terms, function(term){
     ## curved term
     if(!is.null(term$params)) length(term$params)
     ## linear term
@@ -101,6 +101,6 @@ coef.sublength.model<-function(m){
   })
 }
 
-coef.length.model<-function(m){
-  sum(coef.sublength.model(m))
+coef.length.model<-function(object, ...){
+  sum(coef.sublength.model(object))
 }

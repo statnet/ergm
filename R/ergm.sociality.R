@@ -166,12 +166,14 @@ sociality.formula <- function (formula, ..., init, nsim=100,
 
   # Simulate an exponential family random network model
 
-  SimGraphSeriesObj <- simulate(formula, burnin=burnin, interval=interval,
-                                constraints=constraints, 
-                                control=control.simulate.ergm(prop.args=prop.args,
-                                  prop.weights=prop.weights,drop=drop),
-                                init=init,
-                                n=nsim, seed=seed)
+  SimGraphSeriesObj <- simulate(formula, nsim=nsim, seed=seed,
+                                burnin=burnin, interval=interval,
+                                constraints=constraints, coef=init,
+                                control=control.simulate.ergm(
+                                  MCMC.burnin=burnin,
+                                  MCMC.interval=interval,
+                                  MCMC.prop.args=prop.args,
+                                  MCMC.prop.weights=prop.weights))
 
 # cat("\nCollating simulations\n")
 
@@ -266,12 +268,13 @@ sociality.ergm <- function (object, ..., nsim=100,
 
   # Simulate an exponential family random network model
 
-  SimGraphSeriesObj <- simulate(object, burnin=burnin, interval=interval,
+  SimGraphSeriesObj <- simulate(object, nsim=nsim, seed=seed,
                                 constraints=constraints,
-                                control=control.simulate.ergm(prop.weights=prop.weights,
-                                  prop.args=prop.args,
-                                  drop=drop),
-                             n=nsim, seed=seed)
+                                control=control.simulate.ergm(
+                                   MCMC.burnin=burnin,
+                                   MCMC.interval=interval,
+                                   MCMC.prop.weights=prop.weights,
+                                   MCMC.prop.args=prop.args))
 
 # cat("\nCollating simulations\n")
 

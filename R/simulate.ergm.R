@@ -56,7 +56,8 @@
 #
 ###############################################################################
 
-simulate.ergm <- function(object, nsim=1, coef=object$coef,
+simulate.ergm <- function(object, nsim=1, seed=NULL, 
+                          coef=object$coef,
                           response=object$response,
                           reference=object$reference,
                           constraints=object$constraints,
@@ -83,7 +84,8 @@ simulate.ergm <- function(object, nsim=1, coef=object$coef,
 # Here, there is a good reason to call it simulate.formula.ergm:
 # see simulate.formula.R
 simulate.formula.ergm <-
-  simulate.formula <- function(object, nsim=1, coef, response=NULL, reference="Bernoulli",
+  simulate.formula <- function(object, nsim=1, seed=NULL,
+                               coef, response=NULL, reference="Bernoulli",
                                constraints=~.,
                                monitor=NULL,
                                basis=NULL,

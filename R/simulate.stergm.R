@@ -70,6 +70,7 @@
 
 simulate.stergm<-function(object,
                           nsim=1,
+                          seed=NULL,
                           coef.form=object$formation.fit$coef,coef.diss=object$dissolution.fit$coef,
                           time.burnin=0, time.interval=1,
                           control=control.simulate.stergm(),
@@ -82,13 +83,13 @@ simulate.stergm<-function(object,
 
 
 # Note that we are overriding simulate.network here, since the first argument is a network.
-simulate.network<-simulate.formula.stergm <- function(object, nsim=1,
+simulate.network<-simulate.formula.stergm <- function(object, nsim=1, seed=NULL,
                                                       formation, dissolution,
                                                       coef.form,coef.diss,
                                                       time.burnin=0, time.interval=1,
                                                       control=control.simulate.stergm(),
                                                       toggles = TRUE,
-                                                      verbose=FALSE) {
+                                                      verbose=FALSE, ...) {
   
   if(!is.null(control$seed)) set.seed(as.integer(control$seed))
   # Toggles is a "main call" parameter, since it affects what to
