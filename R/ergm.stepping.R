@@ -27,7 +27,7 @@
 #
 ###########################################################################      
 
-ergm.stepping = function(init, nw, model, initialfit, 
+ergm.stepping = function(init, nw, model, initialfit, constraints,
                          control, MHproposal, MHproposal.obs, 
                          verbose=FALSE, ...){
 
@@ -58,7 +58,7 @@ ergm.stepping = function(init, nw, model, initialfit,
 		samples[[iter]]=simulate.formula(formula, nsim=control$Step.MCMC.samplesize,
                                      init=eta[[iter]], burnin=control$MCMC.burnin, 
                                      interval=control$MCMC.interval, statsonly=TRUE,
-                                     ...)
+                                     constraints=constraints, ...)
 		sampmeans[[iter]]=colMeans(samples[[iter]])
 		
 		hi <- control$Step.gridsize  # Goal: Let gamma be largest possible multiple of .01
@@ -105,7 +105,7 @@ ergm.stepping = function(init, nw, model, initialfit,
     }
     # We'd like to have gamma==1 for 2 consecutive iterations before
     # we declare that we're finished.
-    finished = (countdown==0)
+    finished = (countdown==0) || (iter >= control$Step.maxit)
     
     # When the stepped xi is in the convex hull (but not on the boundary), find the MLE for gyobs=xi
 		cat("  Trying gamma=", gamma[[iter]],"\n")  
@@ -150,7 +150,7 @@ ergm.stepping = function(init, nw, model, initialfit,
   finalsample <- simulate.formula(formula, nsim=control$MCMC.samplesize,
                                   init=eta[[iter]], burnin=control$MCMC.burnin, 
                                   interval=control$MCMC.interval, statsonly=TRUE, 
-                                  ...)
+                                  constraints=constraints, ...)
   sampmeans[[iter]] <- colMeans(finalsample)
   xi[[iter]] <- obsstats
 	v<-ergm.estimate(init=eta[[iter]], model=model, 
@@ -194,8 +194,8 @@ ergm.stepping = function(init, nw, model, initialfit,
   # The following output is sometimes helpful.  It's the 
   # total history of all eta values along with all of the corresponding
   # mean value parameter estimates:
-  # v$allmeanvals <- t(sapply(sampmeans, function(a)a))
-  # v$allparamvals <- t(sapply(eta, function(a)a))
+  v$allmeanvals <- t(sapply(sampmeans, function(a)a))
+  v$allparamvals <- t(sapply(eta, function(a)a))
 	
 	if(!v$failure & !any(is.na(v$coef))){
 		asyse <- mc.se

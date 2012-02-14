@@ -301,7 +301,7 @@ ergm <- function(formula, response=NULL,
     "Stochastic-Approximation" = ergm.stocapprox(init, nw, model, 
                                  control=control, MHproposal=MHproposal,
                                  verbose),
-    "Stepping" = ergm.stepping(init, nw, model, initialfit, 
+    "Stepping" = ergm.stepping(init, nw, model, initialfit, constraints,
 				#nstats=nstats, 
 				#approx=lognormapprox, filename.prefix=NULL, 
 				#control=control.ergm(nsim1=100, nsim2=1000, gridsize=100),  # simulation parameters
