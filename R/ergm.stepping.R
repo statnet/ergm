@@ -37,6 +37,7 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
   mc.se=1+0.05*asyse
   mle.lik=initialfit$mle.lik
   theta.original=theta0
+  steppingmaxit<-MCMCparams$steppingmaxit
   
   ## Prepare the output structure:
   formula <- model$formula  # formula for this model
@@ -105,7 +106,7 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
     }
     # We'd like to have gamma==1 for 2 consecutive iterations before
     # we declare that we're finished.
-    finished = (countdown==0)
+    finished = (countdown==0) || (iter >= steppingmaxit)
     
     # When the stepped xi is in the convex hull (but not on the boundary), find the MLE for gyobs=xi
 		cat("  Trying gamma=", gamma[[iter]],"\n")  
@@ -194,8 +195,8 @@ ergm.stepping = function(theta0, nw, model, Clist, initialfit,
   # The following output is sometimes helpful.  It's the 
   # total history of all eta values along with all of the corresponding
   # mean value parameter estimates:
-  # v$allmeanvals <- t(sapply(sampmeans, function(a)a))
-  # v$allparamvals <- t(sapply(eta, function(a)a))
+  v$allmeanvals <- t(sapply(sampmeans, function(a)a))
+  v$allparamvals <- t(sapply(eta, function(a)a))
 	
 	if(!v$failure & !any(is.na(v$coef))){
 		asyse <- mc.se

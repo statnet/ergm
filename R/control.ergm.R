@@ -140,7 +140,8 @@ control.ergm<-function(prop.weights="default",prop.args=NULL,
                        dyninterval=1000,
                        packagenames="ergm",
                        parallel=0,
-                       returnMCMCstats=TRUE){
+                       returnMCMCstats=TRUE,
+                       steppingmaxit=50){
   control<-list()
   for(arg in names(formals(sys.function())))
     control[[arg]]<-get(arg)
