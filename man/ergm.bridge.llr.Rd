@@ -33,11 +33,12 @@ sample.size = 10000, burnin = 10000, basis = NULL, verbose = FALSE, llronly = FA
   Total number of MCMC draws to use (to be divided up among the bridges, so
   each bridge gets \code{sample.size/nsteps} draws.
 }
-  \item{sample.size}{
-  Total number of steps draws to discart for each bridge (to be divided up among the bridges, so
-  each bridge after the first gets \code{sample.size/sqrt(nsteps)}.
+  \item{burnin}{
+  Number of MCMC burnin steps to use.
 }
-
+  \item{verbose}{
+  Logical:  Print detailed information?
+}
 \item{llronly}{
   Whether only the estiamted log-ratio should be returned. (Defaults to \code{FALSE}.)
 }

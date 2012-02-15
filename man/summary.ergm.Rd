@@ -6,7 +6,9 @@
 \usage{
 \method{summary}{ergm}(object, \dots,
                digits = max(3, getOption("digits") - 3),
-               correlation = FALSE, covariance = FALSE, eps = 1e-04)
+               correlation = FALSE, covariance = FALSE, 
+               total.variation=TRUE,
+               eps = 1e-04)
 
 }
 \arguments{

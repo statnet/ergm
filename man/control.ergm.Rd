@@ -32,8 +32,10 @@ control.ergm(prop.weights = "default", prop.args = NULL,
              packagenames="ergm",
              parallel = 0, parallel.type = NULL, parallel.version.check=TRUE,
              returnMCMCstats = TRUE,
-             burnin.retries=0, burnin.check.alpha=0.01,
-             runtime.traceplot=FALSE)
+             burnin.retries=0, 
+             burnin.check.last=1/2,
+             burnin.check.alpha=0.01,
+             runtime.traceplots=FALSE)
              }
 \details{
     This function is only used within a call to the \code{\link{ergm}} function.
@@ -55,8 +57,6 @@ control.ergm(prop.weights = "default", prop.args = NULL,
   low edge density, as is typical of many realistic social networks.
     }
   \item{prop.args}{ An alternative, direct way of specifying additional arguments to proposal. }
-  \item{prop.weights.diss}{ As \code{prop.weights}, for dissolution model. }
-  \item{prop.args.diss}{ As \code{prop.args}, for dissolution model. }
   \item{nr.maxit}{ count; The maximum number of iterations in the
     Newton-Raphson optimization.  Defaults to \code{1000}.
     \code{maxit} gives the total number of likelihood
@@ -150,15 +150,6 @@ control.ergm(prop.weights = "default", prop.args = NULL,
     advantages over stochastic approximation, but the choice will
     depend on the model and data being fit. See Handcock (2000) and 
     Hunter and Handcock (2006) for details.}
-  \item{style.dyn}{character; The style of method of moments estimation
-    to use. The default is a form of stochastic approximation
-    (\code{"Robbins-Monro"}), but it should only be used if it is known
-    a priori that the derivative of each element of the equilibrium
-    expected values of statistics of interest with respect to the
-    corresponding formation phase parameter is positive. The other
-    option, (\code{"SPSA"}) is less precise but does not make this
-    assumption. \code{"SPSA2"} is multithreaded, but runs slower for
-    some reason.}
   \item{phase1_n}{count; The number of MCMC samples to draw
     in Phase 1 of the stochastic approximation algorithm.
     Defaults to 7 plus 3 times the number of terms in the model.
@@ -196,8 +187,6 @@ control.ergm(prop.weights = "default", prop.args = NULL,
   \item{gridsize}{Integer \eqn{N} such that the "Stepping" style of
   optimization chooses a step length equal to the largest possible multiple
   of \eqn{1/N}; see Hummel et al. (2010) for details.}
-  \item{dyninterval}{ Number of Metropolis-Hastings proposal for each
-    phase in the dynamic network simulation. }
   \item{packagenames}{Names of packages in which changestatistics are found.}
   \item{parallel}{ Number of threads in which to run the
     sampling. Defaults to 0 (no parallelism). See the entry on

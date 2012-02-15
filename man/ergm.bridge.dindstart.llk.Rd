@@ -19,8 +19,7 @@ ergm.bridge.dindstart.llk(object, response = NULL, theta, nsteps = 20, dind = NU
   \item{object}{
     A model formula. See \code{\link{ergm}} for details.
     }
-  \item{response, basis, \dots}{
-    
+  \item{response, basis}{
   See \code{\link{simulate.ergm}}.
 }
   \item{theta}{
