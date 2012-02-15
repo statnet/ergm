@@ -450,7 +450,7 @@ InitWtErgmTerm.mutual<-function (nw, arglist, response, ...) {
   
   list(name=switch(form,min="mutual_wt_min",nabsdiff="mutual_wt_nabsdiff",threshold="mutual_wt_threshold",product="mutual_wt_product", geometric="mutual_wt_geom_mean"),
        coef.names=switch(form,min="mutual.min",nabsdiff="mutual.nabsdiff",threshold=paste("mutual",a$threshold,sep="."), product="mutual.product",geometric="mutual.geom.mean"),
-       inputs=if(form=="threshold") threshold,
+       inputs=if(form=="threshold") a$threshold,
        dependence=TRUE,
        minval=switch(form,min=NULL,nabsdiff=NULL,threshold=0,product=NULL,geometric=0),
        maxval=switch(form,min=NULL,nabsdiff=0,threshold=NULL,product=NULL,geometric=NULL)

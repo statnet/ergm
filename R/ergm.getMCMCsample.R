@@ -59,7 +59,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
     
     if(z$status == 2){ # MCMC_MH_FAILED
       # MH proposal failed somewhere. Throw an error.
-      error("Sampling failed due to a Metropolis-Hastings proposal failing.")
+      stop("Sampling failed due to a Metropolis-Hastings proposal failing.")
     }
     
     if(!is.null(z$burnin.failed) && z$burnin.failed) warning("Burn-in failed to converge after retries.")

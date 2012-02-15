@@ -63,11 +63,13 @@ ergm.mapl <- function(formula, init="MPLE",
     
   if(control$drop){
    model.initial <- ergm.getmodel(formula, nw, initialfit=TRUE)
-   obs.stats <- if(!is.null(target.stats)) target.stats else summary(formula,response=response)
+#   obs.stats <- if(!is.null(target.stats)) target.stats else summary(formula,response=response)
+   obs.stats <- if(!is.null(target.stats)) target.stats else summary(formula)
    extremeval <- +(model.initial$maxval==obs.stats)-(model.initial$minval==obs.stats)
    model.initial$etamap$offsettheta[extremeval!=0] <- TRUE
   }else{
-    model.initial <- ergm.getmodel(formula, nw, response=response, initialfit=TRUE)
+#    model.initial <- ergm.getmodel(formula, nw, response=response, initialfit=TRUE)
+    model.initial <- ergm.getmodel(formula, nw)
     extremeval <- rep(0, length=length(model.initial$etamap$offsettheta))
   }
 
@@ -86,7 +88,7 @@ ergm.mapl <- function(formula, init="MPLE",
   initcopy <- init
   
   pl <- ergm.pl(Clist=Clist.initial, Clist.miss=Clist.miss.initial,
-                m=model.initial,theta.offset=ifelse(extremeval!=0,extremval*Inf,NA),
+                m=model.initial,theta.offset=ifelse(extremeval!=0,extremeval*Inf,NA),
                 verbose=verbose)
   initialfit <- ergm.maple(pl=pl, model.initial,
                            MPLEtype=control$MPLE.type, 
@@ -117,7 +119,7 @@ ergm.mapl <- function(formula, init="MPLE",
     Clist.miss.initial <- ergm.design(sim, model.initial, verbose=verbose)
     Clist.initial$target.stats=target.stats
     sim.pl <- ergm.pl(Clist=Clist.initial, Clist.miss=Clist.miss.initial,
-                      m=model.initial,theta.offset=ifelse(extremeval!=0,extremval*Inf,NA),
+                      m=model.initial,theta.offset=ifelse(extremeval!=0,extremeval*Inf,NA),
                       verbose=verbose)
     pl$zy <- c(pl$zy,sim.pl$zy)
     pl$foffset <- c(pl$foffset,sim.pl$foffset)

@@ -85,11 +85,13 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
         "Quitting mcmc.diagnostics.\n")
     return()
   }
-  if(curved){
+#  Commented out by DH because
+#  the ergm.theta.sample function evidently no longer exists:
+#  if(curved){
     statsmatrix <- object[[component]]
-  }else{
-    statsmatrix <- ergm.theta.sample(object$coef,object$model$etamap,object[[component]])
-  }
+#  }else{
+#    statsmatrix <- ergm.theta.sample(object$coef,object$model$etamap,object[[component]])
+#  }
   attr.mcpar <- attr(object[[component]], "mcpar")
   if(!is.matrix(statsmatrix) || length(dim(statsmatrix))==0){
     cat("There is no",component,"component of the object.\n",

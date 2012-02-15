@@ -239,6 +239,8 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL
 llik.hessian.naive <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
                                varweight=0.5, eta0, etamap){
   xsim <- xsim[,!etamap$offsettheta, drop=FALSE]
+  theta.offset <- etamap$init
+  theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
   etagrad <- ergm.etagrad(theta, etamap)
 

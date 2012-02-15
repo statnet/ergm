@@ -317,7 +317,7 @@ ergm <- function(formula, response=NULL,
                           verbose=verbose,
                       response=response,
                           ...),
-              error("Method ", control$main.method, " is not implemented.")
+              stop("Method ", control$main.method, " is not implemented.")
               )
 
   if(!is.null(control$MCMLE.check.degeneracy) && control$MCMLE.check.degeneracy && (is.null(mainfit$theta1$independent) || !all(mainfit$theta1$independent))){
@@ -330,11 +330,13 @@ ergm <- function(formula, response=NULL,
   }
   mainfit$degeneracy.value <- degeneracy$degeneracy.value
   mainfit$degeneracy.type <- degeneracy$degeneracy.type
-  if(exists("formula.passed")){
-    mainfit$formula <- formula.passed
-  }else{
+#  Commented out by DH because it does not appear that "formula.passed" 
+#  has any binding in the ergm function:
+#  if(exists("formula.passed")){
+#    mainfit$formula <- formula.passed
+#  }else{
     mainfit$formula <- formula
-  }
+#  }
 
   mainfit$constrained <- MHproposal$arguments$constraints
   mainfit$constraints <- constraints

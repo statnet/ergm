@@ -181,7 +181,6 @@
 \alias{ergm.curved}
 \alias{ergm.curved.statsmatrix}
 \alias{ergm.curved.update}
-\alias{ergm.degenerate}
 \alias{ergm.design}
 \alias{ergm.estimate}
 \alias{ergm.estimate.only}

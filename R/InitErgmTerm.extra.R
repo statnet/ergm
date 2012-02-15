@@ -91,19 +91,6 @@ InitErgmTerm.concurrentties<-function(nw, arglist, ...) {
     # Combine degree and u into 2xk matrix, where k=length(d)*length(u)
     lu <- length(u)
     ui <- seq(along=u)
-  } else {
-    if(is.logical(a$byarg)){drop <- a$byarg}
-    if(drop){
-      mconcurrent <- summary(
-                          as.formula(paste('nw ~ concurrentties',sep="")),
-                          drop=FALSE) == 0
-      if(any(mconcurrent)){
-      cat(" ")
-        cat(paste("Warning: There are no concurrentties b1s;\n",
-                 " the corresponding coefficient has been fixed at its MLE of negative infinity.\n",sep=" "))
-        return(m)
-      }
-    }                                                         
   }
   out <- list(name="concurrentties",                      #name: required
               coef.names = "concurrentties",               #coef.names: required

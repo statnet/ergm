@@ -217,7 +217,7 @@
        ucols <- sort(unique(as.vector(trycol)))
        edge.col <- matrix(0,n,n)
        if(missing(colornames)){
-         edgecol <- rainbow(length(ucol))
+         edgecol <- rainbow(length(ucols))
        }else{
          edgecol <- colornames
        }
@@ -386,18 +386,19 @@
                       reach=samreach[use,use],directed=is.directed(x),
 		      Ydesign=Ydesign[use,use])  
      if(verbose) cat("Calling latent MLE fit\n")
-     MLE.fit <- try(
-                optim(par=abvZ,fn=mlpY.plot,gr=mlpY.grad.plot,
-                 method="BFGS",
-                 control=list(fnscale=-1, maxit=latent.control$MCMLE.maxit, 
-                              trace=latent.control$trace),
-                 abz.list=abz.list)
-                 )
-     if(inherits(MLE.fit,"try-error")){
+# Commented out by DH because mlpY.plot and mlpY.grad.plot do not exist.
+#     MLE.fit <- try(
+#                optim(par=abvZ,fn=mlpY.plot,gr=mlpY.grad.plot,
+#                 method="BFGS",
+#                 control=list(fnscale=-1, maxit=latent.control$MCMLE.maxit, 
+#                              trace=latent.control$trace),
+#                 abz.list=abz.list)
+#                 )
+#     if(inherits(MLE.fit,"try-error")){
       stop("MLE could not be found.")
-     }else{
-      abvZ <- MLE.fit$par
-     }
+#     }else{
+#      abvZ <- MLE.fit$par
+#     }
      Z.mle <- matrix(abvZ[-1],nrow=g,ncol=dimSpace)
      latentfit <- list(Z.mle=Z.mle, beta=abvZ[1])
      coord[use,1]<-Z.mle[,1]

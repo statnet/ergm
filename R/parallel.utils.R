@@ -4,6 +4,7 @@ ergm.MPIcluster.started <- FALSE
 # Acquires a cluster of specified type.
 ergm.getCluster <- function(control, verbose=FALSE){
   capture.output(require(snow, quietly=TRUE, warn.conflicts = FALSE))
+# The rpvm package is apparently not being maintained.
 #  capture.output(require(rpvm, quietly=TRUE, warn.conflicts = FALSE))
 
   type <- if(is.null(control$parallel.type)) getClusterOption("type") else control$parallel.type
@@ -12,15 +13,16 @@ ergm.getCluster <- function(control, verbose=FALSE){
     #   Start Cluster
 
   cl <- switch(type,
-               PVM={              
-                 PVM.running <- try(.PVM.config(), silent=TRUE)
-                 if(inherits(PVM.running,"try-error")){
-                   hostfile <- paste(Sys.getenv("HOME"),"/.xpvm_hosts",sep="")
-                   .PVM.start.pvmd(hostfile)
-                   cat("PVM not running. Attempting to start.\n")
-                 }
-                 makeCluster(control$parallel,type="PVM")
-               },
+# The rpvm package is apparently not being maintained.
+#               PVM={              
+#                 PVM.running <- try(.PVM.config(), silent=TRUE)
+#                 if(inherits(PVM.running,"try-error")){
+#                   hostfile <- paste(Sys.getenv("HOME"),"/.xpvm_hosts",sep="")
+#                   .PVM.start.pvmd(hostfile)
+#                   cat("PVM not running. Attempting to start.\n")
+#                 }
+#                 makeCluster(control$parallel,type="PVM")
+#               },
                MPI={
                  # See if a preexisting cluster exists.
                  if(is.null(getMPIcluster())){
