@@ -66,8 +66,7 @@ A one-sided formula specifying one or more constraints
 }
   \item{control}{
 A list of control parameters for algorithm
-   tuning. Constructed using \code{\link{control.simulate.stergm}} or
-   \code{\link{control.simulate.formula.stergm}}, which have different defaults.
+   tuning. Constructed using \code{\link{control.simulate.stergm}}.
 }
 \item{toggles}{
   Whether or not to return a list of time-stamped toggles. Defaults to

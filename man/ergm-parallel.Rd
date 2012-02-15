@@ -16,20 +16,21 @@
   and workarounds associated with parallel processing in \code{\link[=ergm-package]{ergm}}.
 }
 
-\section{PVM}{
-  To use PVM to accellerate ERGM sampling, pass the control parameter
-  \code{parallel.type="PVM"}.
-  \code{\link[=ergm-package]{ergm}} and \code{\link[snow]{snow}} use
-  \code{\link[rpvm]{rpvm}} package to communicate with a PVM
-  cluster. \code{\link{ergm}} will check if an PVM daemon is already
-  running and will attempt to start one if not.
-}
+% rpvm package is currently not maintained.
+%\section{PVM}{
+%  To use PVM to accelerate ERGM sampling, pass the control parameter
+%  \code{parallel.type="PVM"}.
+%  \code{\link[=ergm-package]{ergm}} and \code{\link[snow]{snow}} use
+%  \code{\link[rpvm]{rpvm}} package to communicate with a PVM
+%  cluster. \code{\link{ergm}} will check if an PVM daemon is already
+%  running and will attempt to start one if not.
+%}
 
 \section{MPI}{
   To use MPI to accellerate ERGM sampling, pass the control parameter
   \code{parallel.type="MPI"}.
-  \code{\link[=ergm-package]{ergm}} and \code{\link[snow]{snow}} use
-  \code{\link[Rmpi]{Rmpi}} package to communicate with an MPI
+  \code{\link[=ergm-package]{ergm}} and \code{snow} use
+  \code{Rmpi} package to communicate with an MPI
   cluster. \code{\link{ergm}} will check if an MPI cluster already
   exists and will create one if one doesn't.
 

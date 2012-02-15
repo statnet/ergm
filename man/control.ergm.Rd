@@ -204,8 +204,8 @@ control.ergm(prop.weights = "default", prop.args = NULL,
     \link[=ergm-parallel]{parallel processing} for
     details and troubleshooting. }
   \item{parallel.type}{ API to use for parallel
-    processing. Supported values are \code{"PVM"}, \code{"MPI"}, and
-    \code{"SOCK"}. Defaults to using the \code{\link{snow}} package
+    processing. Supported values are \code{"MPI"} and
+    \code{"SOCK"}. Defaults to using the \code{snow} package
     default. }
   \item{parallel.version.check}{ Whether to check that the version of
     \code{\link[=ergm-package]{ergm}} running on the slave nodes is the

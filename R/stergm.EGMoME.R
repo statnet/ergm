@@ -146,7 +146,7 @@ stergm.EGMoME <- function(nw, formation, dissolution,  offset.coef.form, offset.
   if(!is.null(control$init.form)){
     # Check length of control$init.form.
     if (length(control$init.form)!=length(model.form$etamap$offsettheta)) {
-      if(verbose) cat("control$init.form is", control$init, "\n", "number of statistics is",length(model.initial$coef.names), "\n")
+      if(verbose) cat("control$init.form is", control$init.form, "\n", "number of statistics is",length(model.form$coef.names), "\n")
       stop(paste("Invalid starting formation parameter vector control$init.form:",
                  "wrong number of parameters."))
     }
@@ -157,7 +157,7 @@ stergm.EGMoME <- function(nw, formation, dissolution,  offset.coef.form, offset.
   if(!is.null(control$init.diss)){
     # Check length of control$init.diss.
     if (length(control$init.diss)!=length(model.diss$etamap$offsettheta)) {
-      if(verbose) cat("control$init.diss is", control$init, "\n", "number of statistics is",length(model.initial$coef.names), "\n")
+      if(verbose) cat("control$init.diss is", control$init.diss, "\n", "number of statistics is",length(model.diss$coef.names), "\n")
       stop(paste("Invalid starting dissolution parameter vector control$init.diss:",
                  "wrong number of parameters."))
     }

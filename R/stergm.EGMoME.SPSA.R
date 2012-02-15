@@ -61,7 +61,7 @@ stergm.SPSA <- function(init, nw, model.form, model.diss,
   }
   eta0 <- ergm.eta(init, model.form$etamap)
 
-  z <- stergm.SPSA.C(nw, model$target.stats, model.form, model.diss, MHproposal.form, MHproposal.diss,
+  z <- stergm.SPSA.C(nw, model.form$target.stats, model.form, model.diss, MHproposal.form, MHproposal.diss,
                         eta0, gamma0, control, MT=MT, verbose=verbose)
 
   ve<-with(z,list(coef=eta,sample=NULL,sample.obs=NULL,objective.history=objective.history, newnetwork=nw, 

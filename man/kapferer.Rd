@@ -1,5 +1,6 @@
 \name{kapferer}
 \alias{kapferer}
+\alias{kapferer2}
 \alias{tailor}
 \docType{data}
 \title{Kapferer's tailor shop data}

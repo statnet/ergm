@@ -132,28 +132,28 @@ maxedges = 20000, maxchanges = 1e+06, initialfit = "MPLE", maxMPLEsamplesize = 1
                       period; default=1000
 }
   \item{NM.abstol}{
-??
+???
 }
   \item{NM.reltol}{
-??
+???
 }
   \item{NM.alpha}{
-    ??
+    ???
   }
   \item{NM.beta}{
-??
+???
 }
   \item{NM.gamma}{
-??
+???
 }
   \item{NM.maxit}{
-??
+???
 }
   \item{NM.interval}{
-??
+???
 }
   \item{NM.burnin}{
-??
+???
 }
   \item{packagenames}{the packages in which change statistics are found; default="ergm"
 }
@@ -187,12 +187,12 @@ maxedges = 20000, maxchanges = 1e+06, initialfit = "MPLE", maxMPLEsamplesize = 1
     of Statistics Technical Report.
   }
 }
-\author{
+%\author{
 %%  ~~who you are~~
-}
-\note{
+%}
+%\note{
 %%  ~~further notes~~
-}
+%}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
