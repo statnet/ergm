@@ -86,6 +86,7 @@ stergm.CMLE <- function(nw, formation, dissolution, times, offset.coef.form, off
   if(length(times)<2) stop("Time points at which the network were not specified.")
   if(length(times)>2) stop("Only two time points (one transition) are supported at this time.")
 
+  require(networkDynamic) # This is needed for the "%t%.network" function
   y0 <- nw %t% times[1]
   y1 <- nw %t% times[2]
   

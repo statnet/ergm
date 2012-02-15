@@ -12,7 +12,9 @@ do.test<-function(type){
   cat("Finished",type,".\n")
 }
 
-if(require(Rmpi)) do.test("MPI") else cat("Skipping MPI.\n")
-try({if(require(rpvm)) do.test("PVM") else cat("Skipping PVM.\n")})
+# Commented out because neither Rmpi nor rpvm is in the suggests list
+# for the ergm package.  (Also, rpvm is not currently maintained.)
+#if(require(Rmpi)) do.test("MPI") else cat("Skipping MPI.\n")
+#try({if(require(rpvm)) do.test("PVM") else cat("Skipping PVM.\n")})
 do.test("SOCK")
 
