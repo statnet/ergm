@@ -6,7 +6,7 @@ Author: Mark S. Handcock <handcock@stat.ucla.edu>,
         David R. Hunter <dhunter@stat.psu.edu>,
         Carter T. Butts <buttsc@uci.edu>,
         Steven M. Goodreau <goodreau@u.washington.edu>,
-        Pavel N. Krivitsky <pavel@stat.cmu.edu>,
+        Pavel N. Krivitsky <pavel@psu.edu>,
         Martina Morris <morrism@u.washington.edu>
 Maintainer: David R. Hunter <dhunter@stat.psu.edu>
 Depends: network, robustbase, Matrix, trust, nlme

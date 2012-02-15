@@ -24,32 +24,30 @@
 
 myLibLoc <- NULL
 
-.First.lib <- function(lib, pkg){
+.onAttach <- function(lib, pkg){
   ops <- options(warn = -1)
   on.exit(options(ops))
   library.dynam("ergm", pkg, lib)
   DESCpath <- file.path(system.file(package="ergm"), "DESCRIPTION")
   info <- read.dcf(DESCpath)
-  cat('\nergm:', info[,"Title"], 
-      '\nVersion', info[,"Version"], 'created on', info[,"Date"], '\n') 
-  cat(paste("copyright (c) 2003, Mark S. Handcock, University of California-Los Angeles\n",
-"                    David R. Hunter, Penn State University\n",
-"                    Carter T. Butts, University of California-Irvine\n",
-"                    Steven M. Goodreau, University of Washington\n",
-"                    Pavel N. Krivitsky, Carnegie Mellon University\n",
-"                    Martina Morris, University of Washington\n",sep=""))
-  cat('Type help(package="ergm") to get started.\n\n')
-  cat('Based on "statnet" project software (http://statnetproject.org).\n',
-      'For license and citation information see http://statnetproject.org/attribution\n',
-      'or type citation("ergm").\n')
-#   cat('Please cite it when you use it!\n')
-#   cat('To cite, see citation("ergm")\n')
-#   require(network, quietly=TRUE)
-  
+  packageStartupMessage(
+    paste('\nergm: ', info[,"Title"], 
+          '\nVersion ', info[,"Version"], ' created on ', info[,"Date"], '\n',
+          "copyright (c) 2003, Mark S. Handcock, University of California-Los Angeles\n",
+          "                    David R. Hunter, Penn State University\n",
+          "                    Carter T. Butts, University of California-Irvine\n",
+          "                    Steven M. Goodreau, University of Washington\n",
+          "                    Pavel N. Krivitsky, Penn State University\n",
+          "                    Martina Morris, University of Washington\n",
+          'Type help(package="ergm") to get started.\n\n',
+          'Based on "statnet" project software (http://statnet.org).\n',
+          'For license and citation information see http://statnet.org/attribution\n',
+          'or type citation("ergm").\n', sep="")
+ ) 
   # Remember where this package is located, to later make sure we load
   # the same version on a cluster node.
   unlockBinding("myLibLoc", environment(ergm.getCluster))
-  assign("myLibLoc",lib,envir=environment(.First.lib))
+  assign("myLibLoc",lib,envir=environment(.onAttach))
 }
 
 

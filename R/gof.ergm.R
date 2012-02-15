@@ -373,7 +373,8 @@ gof.formula <- function(formula, ..., coef=NULL,
     tempnet <- simulate(formula, nsim=1, coef=coef,
                         constraints=constraints, 
                         control=control,
-                        verbose=verbose, reference=tempnet)
+                        basis=tempnet,
+                        verbose=verbose)
     seed <- NULL # Don't re-seed after first iteration   
 #    if(verbose){
 #     cat(paste("...",i,sep=""))

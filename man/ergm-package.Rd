@@ -55,7 +55,7 @@ Mark S. Handcock \email{handcock@stat.ucla.edu},\cr
 David R. Hunter \email{dhunter@stat.psu.edu},\cr
 Carter T. Butts \email{buttsc@uci.edu},\cr
 Steven M. Goodreau \email{goodreau@u.washington.edu},\cr
-Pavel N. Krivitsky \email{pavel@stat.cmu.edu}, and\cr
+Pavel N. Krivitsky \email{pavel@psu.edu}, and\cr
 Martina Morris \email{morrism@u.washington.edu}
 
 Maintainer: David R. Hunter \email{dhunter@stat.psu.edu}

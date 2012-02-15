@@ -79,12 +79,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
 }
 
 
-
-# In CRAN version, the following function is called simulate.formula
-# Here, there is a good reason to call it simulate.formula.ergm:
-# see simulate.formula.R
-simulate.formula.ergm <-
-  simulate.formula <- function(object, nsim=1, seed=NULL,
+simulate.formula <- function(object, nsim=1, seed=NULL,
                                coef, response=NULL, reference="Bernoulli",
                                constraints=~.,
                                monitor=NULL,
