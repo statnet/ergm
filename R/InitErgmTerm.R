@@ -308,7 +308,7 @@ InitErgmTerm.b1concurrent<-function(nw, arglist, ...) {
     coef.names<-paste("b1concurrent",sep="")
     inputs <- NULL
   }
-  list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, minval=0)
+  list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, minval=0, maxval=nb1)
 }
 
 
@@ -351,7 +351,7 @@ InitErgmTerm.b1degree <- function(nw, arglist, ...) {
     }
   }
   list(name=name, coef.names=coef.names, #name and coef.names: required
-       inputs = inputs, emptynwstats=emptynwstats, minval=0)
+       inputs = inputs, emptynwstats=emptynwstats, minval=0, maxval=nb1)
 }
 
 
@@ -528,7 +528,7 @@ InitErgmTerm.b2concurrent<-function(nw, arglist, ...) {
     name <- "b2concurrent"
     inputs <- NULL
   }
-  list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, minval = 0)
+  list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, minval = 0, maxval=network.size(nw)-nb1)
 }
 
 
@@ -572,7 +572,7 @@ InitErgmTerm.b2degree <- function(nw, arglist, ...) {
     }
   }
   list(name=name, coef.names=coef.names, #name and coef.names: required
-       inputs = inputs, emptynwstats=emptynwstats, minval=0)
+       inputs = inputs, emptynwstats=emptynwstats, minval=0, maxval=network.size(nw)-nb1)
 }
 
 ################################################################################
@@ -792,7 +792,7 @@ InitErgmTerm.concurrent<-function(nw, arglist, ...) {
     name <- "concurrent"
     inputs <- NULL
   }
-  list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, minval = 0)
+  list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, minval = 0, maxval=network.size(nw))
 }
 
 
@@ -941,7 +941,7 @@ InitErgmTerm.degree<-function(nw, arglist, ...) {
     list(name=name,coef.names=coef.names, inputs=inputs,
          emptynwstats=emptynwstats, dependence=TRUE, minval = 0)
   }else{
-    list(name=name,coef.names=coef.names, inputs=inputs, dependence=TRUE, minval = 0, conflicts.constraints="degreedist")
+    list(name=name,coef.names=coef.names, inputs=inputs, dependence=TRUE, minval = 0, maxval=network.size(nw), conflicts.constraints="degreedist")
   }
 }
 
@@ -1762,7 +1762,7 @@ InitErgmTerm.idegree<-function(nw, arglist, ...) {
     list(name=name, coef.names=coef.names, inputs=inputs,
          emptynwstats=emptynwstats, dependence=TRUE)
   }else{
-    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, minval = 0, conflicts.constraints="indegreedist")
+    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, minval = 0, maxval=network.size(nw), conflicts.constraints="indegreedist")
   }
 }
 
@@ -2389,7 +2389,7 @@ InitErgmTerm.odegree<-function(nw, arglist, ...) {
     list(name=name, coef.names=coef.names, inputs=inputs,
          emptynwstats=emptynwstats, dependence=TRUE, minval=0)
   }else{
-    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, minval=0, conflicts.constraints="outdegreedist")
+    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, minval=0, maxval=network.size(nw), conflicts.constraints="outdegreedist")
   }
 }
 
@@ -2509,7 +2509,7 @@ InitErgmTerm.receiver<-function(nw, arglist, ...) {
   ld<-length(d)
   if(ld==0){return(NULL)}
   list(name="receiver", coef.names=paste("receiver",d,sep=""),
-       inputs=c(d), emptynwstats=rep(0,length(d)), dependence=FALSE, minval=0, conflicts.constraints="indegrees")
+       inputs=c(d), emptynwstats=rep(0,length(d)), dependence=FALSE, minval=0, maxval=network.size(nw)-1, conflicts.constraints="indegrees")
 }
 
 
@@ -2529,7 +2529,7 @@ InitErgmTerm.sender<-function(nw, arglist, ...) {
   ld<-length(d)
   if(ld==0){return(NULL)}
   list(name="sender", coef.names=paste("sender",d,sep=""),
-       inputs=c(d), emptynwstats=rep(0,length(d)), dependence=FALSE, minval=0, conflicts.constraints="outdegrees")
+       inputs=c(d), emptynwstats=rep(0,length(d)), dependence=FALSE, minval=0, maxval=network.size(nw)-1, conflicts.constraints="outdegrees")
 }
 
 
@@ -2607,7 +2607,7 @@ InitErgmTerm.sociality<-function(nw, arglist, ...) {
     coef.names <- paste("sociality",d,sep="")
     inputs <- c(d)
   }
-  list(name="sociality", coef.names=coef.names, inputs=inputs, minval=0, conflicts.constraints="degrees")
+  list(name="sociality", coef.names=coef.names, inputs=inputs, minval=0, maxval=network.size(nw)-1, conflicts.constraints="degrees")
 }
 
 
