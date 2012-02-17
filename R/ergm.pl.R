@@ -106,7 +106,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
   # *** don't forget, pass in tails first now, not heads
   z <- .C("MPLE_wrapper",
           as.integer(Clist$tails),    as.integer(Clist$heads),
-          as.integer(Clist$nedges),   as.integer(Clist$maxpossibleedges),
+          as.integer(Clist$nedges),   
           as.integer(n), 
           as.integer(Clist$dir),     as.integer(bip),
           as.integer(Clist$nterms), 

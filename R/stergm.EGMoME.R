@@ -187,8 +187,8 @@ stergm.EGMoME <- function(nw, formation, dissolution,  offset.coef.form, offset.
                   verbose)
                 )
 
-  out <- list(network = nw, formation = formation, dissolution = dissolution, targets = targets, target.stats=target.stats, estimate=estimate,
-              formation.fit = with(Cout, list(coef=coef.form, sample=NULL, sample.obs=NULL, objective.history=Cout$objective.history, etamap = model.form$etamap, offset = model.form$etamap$offsettheta)),
+  out <- list(network = nw, formation = formation, dissolution = dissolution, targets = targets, target.stats=target.stats, estimate=estimate, coef.history=Cout$objective.history, sample=NULL, sample.obs=NULL,
+              formation.fit = with(Cout, list(coef=coef.form, etamap = model.form$etamap, offset = model.form$etamap$offsettheta)),
               dissolution.fit = list(coef = initialfit$dissolution.fit$coef, sample=NULL, sample.obs=NULL, etamap = model.diss$etamap, offset = model.diss$etamap$offsettheta))
   class(out$formation.fit)<-class(out$dissolution.fit)<-"ergm"
   

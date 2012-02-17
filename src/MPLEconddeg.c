@@ -12,7 +12,6 @@
  Wrapper for a call from R.
 *****************/
 void MPLEconddeg_wrapper (int *tails, int *heads, int *dnedges,
-                   int *maxpossibleedges,
                    int *dn, int *dflag, int *bipartite, 
                    int *nterms, char **funnames,
                    char **sonames, 

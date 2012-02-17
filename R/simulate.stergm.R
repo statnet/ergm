@@ -77,13 +77,13 @@ simulate.stergm<-function(object,
                           statsonly=FALSE,
                           toggles=!statsonly,
                           verbose=FALSE, ...){
-  simulate.formula.stergm(object$formation,dissolution=object$dissolution,nsim=nsim,coef.form=coef.form, coef.diss=coef.diss,  time.burnin=time.burnin, time.interval=time.interval,control=control,toggles=toggles,verbose=verbose,...)
+  simulate.network(object$network,formation=object$formation,dissolution=object$dissolution,nsim=nsim,coef.form=coef.form, coef.diss=coef.diss,  time.burnin=time.burnin, time.interval=time.interval,control=control,toggles=toggles,verbose=verbose,...)
 }
 
 
 
 # Note that we are overriding simulate.network here, since the first argument is a network.
-simulate.network<-simulate.formula.stergm <- function(object, nsim=1, seed=NULL,
+simulate.network <- function(object, nsim=1, seed=NULL,
                                                       formation, dissolution,
                                                       coef.form,coef.diss,
                                                       time.burnin=0, time.interval=1,
@@ -157,7 +157,8 @@ simulate.network<-simulate.formula.stergm <- function(object, nsim=1, seed=NULL,
                      networks = nw,
                      changed=changed, 
                      maxchanges=z$maxchanges,
-                     stats.form = z$statsmatrix.form,stats.diss = z$statsmatrix.diss,
+                     stats.form = sweep(z$statsmatrix.form,2,summary(formation),"+"),
+                     stats.diss = sweep(z$statsmatrix.diss,2,summary(dissolution),"+"),
                      coef.form=coef.form,coef.diss=coef.diss)
     class(out.list) <- "network.series"
   }else{out.list<-list(stats.form = z$statsmatrix.form,stats.diss = z$statsmatrix.diss)}

@@ -107,13 +107,19 @@ control.stergm<-function(init.form=NULL,
                          MCMC.prop.weights.form="default",MCMC.prop.args.form=NULL,
                          MCMC.prop.weights.diss="default",MCMC.prop.args.diss=NULL,
                          MCMC.init.maxedges=20000,
+                         MCMC.init.maxchanges=20000,
                          MCMC.packagenames="ergm",
+                         # Number of proposals within each time step.
+                         MCMC.burnin=100,
 
-                         CMLE.control.form=control.ergm(init=init.form, MCMC.prop.weights=MCMC.prop.weights.form, MCMC.prop.args=MCMC.prop.args.form, MCMC.init.maxedges=MCMC.init.maxedges, MCMC.packagenames=MCMC.packagenames),
-                         CMLE.control.diss=control.ergm(init=init.diss, MCMC.prop.weights=MCMC.prop.weights.diss, MCMC.prop.args=MCMC.prop.args.diss, MCMC.init.maxedges=MCMC.init.maxedges, MCMC.packagenames=MCMC.packagenames),
+                         # The reason MCMC.interval=MCMC.burnin is
+                         # that both represent the number of MH
+                         # proposals between approximately independent
+                         # draws.
+                         CMLE.control.form=control.ergm(init=init.form, MCMC.prop.weights=MCMC.prop.weights.form, MCMC.prop.args=MCMC.prop.args.form, MCMC.init.maxedges=MCMC.init.maxedges, MCMC.packagenames=MCMC.packagenames, MCMC.interval=MCMC.burnin),
+                         CMLE.control.diss=control.ergm(init=init.diss, MCMC.prop.weights=MCMC.prop.weights.diss, MCMC.prop.args=MCMC.prop.args.diss, MCMC.init.maxedges=MCMC.init.maxedges, MCMC.packagenames=MCMC.packagenames, MCMC.interval=MCMC.burnin),
 
                          EGMoME.main.method=c("Robbins-Monro","SPSA", "SPSA2"),
-                         EGMoME.MCMC.burnin=100,
                          
                          SAN.maxit=10,
                          SAN.control=control.san(coef=init.form,
@@ -121,7 +127,7 @@ control.stergm<-function(init.form=NULL,
                            SAN.prop.args=MCMC.prop.args.form,
                            SAN.init.maxedges=MCMC.init.maxedges,
                            
-                           SAN.burnin=EGMoME.MCMC.burnin,
+                           SAN.burnin=MCMC.burnin,
                            SAN.packagenames=MCMC.packagenames,
                            
                            parallel=parallel,

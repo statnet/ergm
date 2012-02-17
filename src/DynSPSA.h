@@ -6,7 +6,6 @@
 
 void MCMCDynSPSA_wrapper(// Observed network.
 		    int *tails, int *heads, int *n_edges,
-		    int *maxpossibleedges,
 		    int *n_nodes, int *dflag, int *bipartite, 
 		    // Formation terms and proposals.
 		    int *F_nterms, char **F_funnames, char **F_sonames, int *F_offset,

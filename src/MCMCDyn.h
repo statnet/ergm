@@ -1,13 +1,21 @@
 #ifndef MCMCDYN_H
 #define MCMCDYN_H
-
+#include<string.h>
 #include "edgetree.h"
 #include "MHproposal.h"
 #include "changestat.h"
 #include "model.h"
 
+// TODO: This might be worth moving into a common "constants.h".
+typedef enum MCMCDynStatus_enum {
+  MCMCDyn_OK = 0,
+  MCMCDyn_TOO_MANY_EDGES = 1,
+  MCMCDyn_MH_FAILED = 2,
+  MCMCDyn_TOO_MANY_CHANGES = 3
+} MCMCDynStatus;
+
+
 void MCMCDyn_init_common(int *tails, int *heads, int n_edges,
-          int maxedges,
 				  int n_nodes, int dflag, int bipartite, Network *nw,
 
 				  int F_nterms, char *F_funnames, char *F_sonames, double *F_inputs, Model **F_m,
@@ -28,16 +36,16 @@ void MCMCDyn_finish_common(Network *nw,
 			   MHproposal *D_MH);
 
 void MCMCDyn_wrapper(// Starting network.
-		     int *tails, int *heads, int *n_edges, int *maxpossibleedges,
-		     int *dn, int *dflag, int *bipartite,
+		     int *tails, int *heads, int *n_edges,
+		     int *n_nodes, int *dflag, int *bipartite,
 		     // Formation terms and proposals.
 		     int *F_nterms, char **F_funnames, char **F_sonames, 
 		     char **F_MHproposaltype, char **F_MHproposalpackage,
-		     double *F_inputs, double *theta, 
+		     double *F_inputs, double *F_theta, 
 		     // Dissolution terms and proposals.
 		     int *D_nterms, char **D_funnames, char **D_sonames,
 		     char **D_MHproposaltype, char **D_MHproposalpackage,
-		     double *D_inputs, double *gamma0,
+		     double *D_inputs, double *D_theta,
 		     // Degree bounds.
 		     int *attribs, int *maxout, int *maxin, int *minout,
 		     int *minin, int *condAllDegExact, int *attriblength, 
@@ -46,34 +54,37 @@ void MCMCDyn_wrapper(// Starting network.
 		     double *burnin, double *interval,  
 		     // Space for output.
 		     double *F_sample, double *D_sample, 
+		     int *maxedges,
 		     int *newnetworktail, int *newnetworkhead, 
-		     double *maxedges,
+		     int *maxchanges,
 		     int *diffnetworktime, int *diffnetworktail, int *diffnetworkhead, 
 		     // Verbosity.
-		     int *fVerbose);
+		     int *fVerbose,
+		     int *status);
 
-void MCMCSampleDyn(// Observed and discordant network.
-		   Network *nwp,
-		   // Formation terms and proposals.
-		   Model *F_m, MHproposal *F_MH, double *theta,
-		   // Dissolution terms and proposals.
-		   Model *D_m, MHproposal *D_MH, double *gamma,
-		   // Space for output.
-		   double *F_stats, double *D_stats,// Do we still need these?
-		   Edge nmax,
-		   Vertex *difftime, Vertex *difftail, Vertex *diffhead,		    
-		   // MCMC settings.
-		   unsigned int nsteps, unsigned int MH_interval,
-		   unsigned int burnin, unsigned int interval, 
-		   // Verbosity.
-		   int fVerbose);
+MCMCDynStatus MCMCSampleDyn(// Observed and discordant network.
+			    Network *nwp,
+			    // Formation terms and proposals.
+			    Model *F_m, MHproposal *F_MH, double *theta,
+			    // Dissolution terms and proposals.
+			    Model *D_m, MHproposal *D_MH, double *gamma,
+			    // Space for output.
+			    double *F_stats, double *D_stats,// Do we still need these?
+			    Edge maxedges,
+			    Edge maxchanges,
+			    Vertex *difftime, Vertex *difftail, Vertex *diffhead,		    
+			    // MCMC settings.
+			    unsigned int nsteps, unsigned int MH_interval,
+			    unsigned int burnin, unsigned int interval, 
+			    // Verbosity.
+			    int fVerbose);
 
 void MCMCDyn1Step(Network *nwp,
 		  Model *F_m, MHproposal *F_MH, double *theta,
 		  Model *D_m, MHproposal *D_MH, double *gamma,
 		  unsigned log_toggles,
 		  double *F_stats, double *D_stats,
-		  unsigned int nmax, Edge *nextdiffedge,
+		  unsigned int maxchanges, Edge *nextdiffedge,
 		  Vertex *difftime, Vertex *difftail, Vertex *diffhead,
 		  unsigned int MH_interval,
 		  int fVerbose);

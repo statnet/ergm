@@ -1,27 +1,29 @@
 #include "DynRM.h"
 
-void MCMCDynPhase12(// Observed network.
+void MCMCDynRMPhase2_wrapper(// Observed network.
 		    int *tails, int *heads, int *n_edges,
-		    int *maxpossibleedges,
 		    int *n_nodes, int *dflag, int *bipartite, 
 		    // Formation terms and proposals.
 		    int *F_nterms, char **F_funnames, char **F_sonames, int *F_offset,
 		    char **F_MHproposaltype, char **F_MHproposalpackage,
-		    double *F_inputs, double *theta0, 
+		    double *F_inputs, double *F_theta0, 
 		    // Formation parameter fitting.
-		    double *init_dev, double *gain,
-		    int *phase1n_base, int *phase2n_base, int *phase2sub,
+		    double *init_dev,
+		    int *phase2n,
 		    // Dissolution terms and proposals.
 		    int *D_nterms, char **D_funnames, char **D_sonames, 
 		    char **D_MHproposaltype, char **D_MHproposalpackage,
-		    double *D_inputs, double *gamma0,
+		    double *D_inputs, double *D_theta0,
 		    // Degree bounds.
 		    int *attribs, int *maxout, int *maxin, int *minout,
 		    int *minin, int *condAllDegExact, int *attriblength,
 		    // MCMC settings.
 		    int *RM_burnin, int *RM_interval, int *MH_interval,
+		    double *invGradient,
 		    // Space for output.
 		    int *maxedges,
+		    int *newnetworktail, int *newnetworkhead, 
+		    double *obj_history,
 		    // Verbosity.
 		    int *fVerbose){
 
@@ -33,8 +35,11 @@ void MCMCDynPhase12(// Observed network.
   difftime = (Vertex *) calloc(*maxedges,sizeof(Vertex));
   difftail = (Vertex *) calloc(*maxedges,sizeof(Vertex));
   diffhead = (Vertex *) calloc(*maxedges,sizeof(Vertex));
-  
-  MCMCDyn_init_common(tails, heads, *n_edges, *maxpossibleedges,
+
+  memset(newnetworktail,0,*maxedges*sizeof(int));
+  memset(newnetworkhead,0,*maxedges*sizeof(int));
+
+  MCMCDyn_init_common(tails, heads, *n_edges,
 		      *n_nodes, *dflag, *bipartite, nw,
 		      *F_nterms, *F_funnames, *F_sonames, F_inputs, &F_m,
 		      *D_nterms, *D_funnames, *D_sonames, D_inputs, &D_m,
@@ -44,18 +49,24 @@ void MCMCDynPhase12(// Observed network.
 		      *D_MHproposaltype, *D_MHproposalpackage, &D_MH,
 		      *fVerbose);
 
-  MCMCSampleDynPhase12(nw,
+  MCMCDynRMPhase2(nw,
 
-		       F_m, F_offset, &F_MH, theta0, 
-		       init_dev, *gain,
-		       *phase1n_base, *phase2n_base, *phase2sub,
+		       F_m, F_offset, &F_MH, F_theta0, 
+		       init_dev, 
+		       *phase2n,
 		       
-		       D_m, &D_MH, gamma0,
+		       D_m, &D_MH, D_theta0,
 		       
 		       *maxedges,
 		       difftime, difftail, diffhead,
-		       *RM_burnin, *RM_interval, *MH_interval,
+		       obj_history,
+		       *RM_burnin, *RM_interval, *MH_interval, invGradient,
 		       *fVerbose);
+
+  /* record the final network to pass back to R */
+
+  newnetworktail[0]=newnetworkhead[0]=EdgeTree2EdgeList(newnetworktail+1,newnetworkhead+1,nw,*maxedges);
+
 
   MCMCDyn_finish_common(nw, F_m, D_m, &F_MH, &D_MH);
 
@@ -65,172 +76,87 @@ void MCMCDynPhase12(// Observed network.
 /*********************
  void MCMCSampleDynPhase12
 *********************/
-void MCMCSampleDynPhase12(// Observed and discordant network.
+void MCMCDynRMPhase2(// Observed and discordant network.
 			  Network *nwp,
 			  // Formation terms and proposals.
 			  Model *F_m, int *F_offset, MHproposal *F_MH,
-			  double *theta, 
+			  double *F_theta, 
 			  // Formation parameter fitting.
 			  double *dev, // DEViation of the current network's formation statistics from the target statistics.
-			  double gain,
-			  int phase1n_base, int phase2n_base, int phase2sub,
+			  int phase2n,
 			  // Dissolution terms and proposals.
 			  Model *D_m, MHproposal *D_MH,
-			  double *gamma, 
+			  double *D_theta, 
 			  // Dissolution parameter fitting --- to add later? -PK
 			  // Space for output.
 			  Edge nmax,
 			  Vertex *difftime, Vertex *difftail, Vertex *diffhead,
+			  double *obj_history,
 			  // MCMC settings.
-			  unsigned int RM_burnin, unsigned int RM_interval, unsigned int MH_interval,
+			  unsigned int RM_burnin, unsigned int RM_interval, unsigned int MH_interval, double *invGradient,
 			  // Verbosity.
 			  int fVerbose){
-  int i, j;
   Edge nextdiffedge=1;
-  unsigned int phase1n=phase1n_base+3*F_m->n_stats;
-  double *meandev=(double*)calloc(F_m->n_stats,sizeof(double)), *meandev2=(double *)calloc( F_m->n_stats,sizeof(double)), *aDdiaginv, *D_stats;
+  double *meandev=(double*)calloc(F_m->n_stats,sizeof(double)), *meandev2=(double *)calloc( F_m->n_stats,sizeof(double)), *D_stats;
+  unsigned int hist_pos=0;
   
-  aDdiaginv = (double *)calloc( F_m->n_stats, sizeof(double));
   D_stats = (double *)calloc( D_m->n_stats, sizeof(double));
 
-
-  /*********************
-   Burn in step. 
-   *********************/
-  
-  if(fVerbose) Rprintf("Starting burnin of %d steps\n", RM_burnin);
-  for(i=0;i<RM_burnin;i++)
-    MCMCDyn1Step(nwp,
-		 F_m, F_MH, theta,
-		 D_m, D_MH, gamma,
-		 0,
-		 dev, D_stats,
-		 nmax, &nextdiffedge,
-		 difftime, difftail, diffhead,
-		 MH_interval,
-		 fVerbose);
-
-  unsigned int redo, redos=3;
-  do{
-
-    redo=FALSE;
-
-    /********************
-    Phase 1
-    ********************/
-  
-    Rprintf("Phase 1: %d steps (RM_interval = %d)\n", phase1n,RM_interval);
-  
-    for (j=0; j < F_m->n_stats; j++){
-      meandev[j] = 0.0;
-      meandev2[j] = 0.0;
-      Rprintf("j %d %f\n",j,theta[j]);
+  for (unsigned int i=0; i < phase2n; i++){
+    for(unsigned int j=0; j<F_m->n_stats; j++){
+      meandev[j]=0;
+      meandev2[j]=0;
     }
-
-    for (i=0; i < phase1n*RM_interval; i++){
+    for(unsigned int j=0;j < RM_interval;j++){
       MCMCDyn1Step(nwp,
-        F_m, F_MH, theta,
-        D_m, D_MH, gamma,
-        0,
-        dev, D_stats,
-        nmax, &nextdiffedge,
-        difftime, difftail, diffhead,
-        MH_interval,
-        fVerbose);
-      for (j=0; j<F_m->n_stats; j++){
-        meandev[j]  += dev[j];
-        meandev2[j] += dev[j]*dev[j];
+		   F_m, F_MH, F_theta,
+		   D_m, D_MH, D_theta,
+		   0,
+		   dev, D_stats,
+		   nmax, &nextdiffedge,
+		   difftime, difftail, diffhead,
+		   MH_interval,
+		   fVerbose);
+      for(unsigned int k=0;k<F_m->n_stats; k++){
+	meandev[k]+=dev[k];
+	meandev2[k]+=dev[k]*dev[k];
       }
-    }
-  
-    if (fVerbose){
-      Rprintf("Returned from Phase 1\n");
-      Rprintf("gain times inverse variances:\n");
-    }
-  
-    for (j=0; j<F_m->n_stats; j++){
-      aDdiaginv[j] = (meandev2[j]-meandev[j]*meandev[j]/(1.0*phase1n*RM_interval))/(phase1n*RM_interval);
-      if(!F_offset[j]){
-	if( aDdiaginv[j] > 0.0){
-	  aDdiaginv[j] = gain/sqrt(aDdiaginv[j]);
-	}else{
-	  aDdiaginv[j]=0.0001;
-	  redos--;
-	  if(redos>0) redo=TRUE;
-	}
-      }
-      if(fVerbose) Rprintf(" %f", aDdiaginv[j]);
-    }
-    if(fVerbose) Rprintf("\n");
-
-    if(fVerbose){
-      Rprintf("theta0 statistics:");
-      for (j=0; j<F_m->n_stats; j++){
-        Rprintf("%f ",  meandev[j]/(phase1n*RM_interval));
-      }
-      Rprintf("\n");
-    }
-    
-    /********************
-    Phase 2
-    ********************/
-    unsigned int phase2n=F_m->n_stats+7+phase2n_base;
-    for(unsigned int subphase=0; subphase<phase2sub; subphase++){
-      
-      for (i=0; i < phase2n; i++){
-        for(j=0; j<F_m->n_stats; j++){
-          meandev[j]=0;
-          meandev2[j]=0;
-        }
-        for(j=0;j < RM_interval;j++){
-          MCMCDyn1Step(nwp,
-            F_m, F_MH, theta,
-            D_m, D_MH, gamma,
-            0,
-            dev, D_stats,
-            nmax, &nextdiffedge,
-            difftime, difftail, diffhead,
-            MH_interval,
-            fVerbose);
-          for(unsigned int k=0;k<F_m->n_stats; k++){
-            meandev[k]+=dev[k];
-            meandev2[k]+=dev[k]*dev[k];
-          }
-          if (fVerbose>2){
-            for (unsigned int k=0; k<F_m->n_stats; k++){
-              Rprintf("j %d theta %f ns %f\n",
-              k, theta[k], dev[k]);
+      if (fVerbose>2){
+	for(unsigned int k=0; k<F_m->n_stats; k++){
+	  Rprintf("j %d F_theta %f ns %f\n",
+		  k, F_theta[k], dev[k]);
             }
-            Rprintf("\n");
-          }
-        }
-        
-        if(fVerbose>1){
-          for (j=0; j<F_m->n_stats; j++){
-            Rprintf("j %d theta %f ns %f sd %f z %f\n",
-            j, theta[j], meandev[j], sqrt(meandev2[j]-meandev[j]*meandev[j]), meandev[j]/sqrt((meandev2[j]-meandev[j]*meandev[j]))*RM_interval);
-          }
-          Rprintf("\n");
-        }
-        
-        /* Update theta0 */
-        for (j=0; j<F_m->n_stats; j++){
-          meandev[j]/=RM_interval;
-          meandev2[j]/=RM_interval;
-          theta[j] -= aDdiaginv[j] * meandev[j];
-        }
+	Rprintf("\n");
       }
-      
-      phase2n=trunc(2.52*(phase2n-phase2n_base)+phase2n_base);
-      for (j=0; j<F_m->n_stats; j++){
-        aDdiaginv[j] /= 2.0;
-        if (fVerbose)Rprintf("j %d theta %f ns %f sd %f z %f\n",
-          j, theta[j], meandev[j], sqrt(meandev2[j]-meandev[j]*meandev[j]), meandev[j]/sqrt((meandev2[j]-meandev[j]*meandev[j]))*RM_interval);
+    }
+    
+    if(fVerbose>1){
+      for (unsigned int j=0; j<F_m->n_stats; j++){
+	Rprintf("j %d F_theta %f ns %f sd %f z %f\n",
+            j, F_theta[j], meandev[j], sqrt(meandev2[j]-meandev[j]*meandev[j]), meandev[j]/sqrt((meandev2[j]-meandev[j]*meandev[j]))*RM_interval);
       }
       Rprintf("\n");
     }
     
-  }while(redo);
+    /* Record configurations and estimating equation values. */
+    if(obj_history){
+      for (unsigned int j=0; j<F_m->n_stats; j++){
+	obj_history[hist_pos*2*F_m->n_stats+j] = F_theta[j];
+	obj_history[hist_pos*2*F_m->n_stats+j+F_m->n_stats] = meandev[j]/RM_interval;
+      }
+      hist_pos++;
+    }
+    
+    /* Update F_theta */
+    for (unsigned int j=0; j<F_m->n_stats; j++){
+      meandev[j]/=RM_interval;
+      meandev2[j]/=RM_interval;
+    }
+    for (unsigned int j=0; j<F_m->n_stats; j++){
+      for(unsigned int k=0; k<F_m->n_stats; k++)
+	F_theta[j] -= invGradient[j*F_m->n_stats+k] * meandev[k]; // This may need to have k and j in invGradient switched.
+    }
+  }
   
   free(meandev);
   free(meandev2);

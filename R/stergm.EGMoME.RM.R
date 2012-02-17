@@ -47,17 +47,48 @@ stergm.RM <- function(theta.form0, nw, model.form, model.diss,
                             control, MHproposal.form, MHproposal.diss,
                             verbose=FALSE){
 
+  control$nw.diff <- model.form$obs - model.form$target.stats # nw.diff keeps track of the difference between the current network and the target statistics.
 
   if(verbose) cat("Robbins-Monro algorithm with coef_F_0 = (",theta.form0, ") and coef_D = (",theta.diss,")\n" )
-  eta.form0 <- ergm.eta(theta.form0, model.form$etamap)
+  eta.form <- ergm.eta(theta.form0, model.form$etamap)
   eta.diss <- ergm.eta(theta.diss, model.diss$etamap)
 
+  control.phase1<-control
+  control.phase1$time.samplesize <- (control$RM.phase1n_base + 3 * length(eta.form))*control$RM.interval
+  control.phase1$time.burnin <- control$RM.burnin
+  control.phase1$time.interval <- 1
 
-  z <- stergm.phase12.C(nw, model.form$target.stats, model.form, model.diss, MHproposal.form, MHproposal.diss,
-                        eta.form0, eta.diss, control, verbose=verbose)
+  # Run Phase 1.
+  z <- stergm.getMCMCsample(nw, model.form, model.diss, MHproposal.form, MHproposal.diss, eta.form, eta.diss, control.phase1, verbose)
+
+  nw <- z$newnetwork
+  burnin.stats <- sweep(z$statsmatrix.form, 2, control$nw.diff, "+")
+  control$nw.diff <- control$nw.diff + z$statsmatrix.form[NROW(z$statsmatrix.form),]
+ 
+
+  # First subphase -- "gradient" matrix is just the covariance matrix.
+  control$invGradient <-
+    if(length(eta.form)==1) 1/sqrt(var(burnin.stats)) * control$RM.init_gain
+    else diag(1/sqrt(diag(cov(burnin.stats)))) * control$RM.init_gain
+  control$phase2n <- length(eta.form)+7+control$phase2n_base
+
+  for(subphase in 1:control$RM.phase2sub){
+    z <- stergm.EGMoME.RM.Phase2.C(nw, model.form, model.diss, MHproposal.form, MHproposal.diss,
+                                   eta.form, eta.diss, control, verbose=verbose)
+    nw <- z$newnetwork
+    control$nw.diff<-z$nw.diff
+    eta.form <- z$coef.form
+    oh <- z$objective.history
+    control$phase2n <- round(2.52*(control$phase2n-control$phase2n_base)+control$phase2n_base);
+
+    # Regress statistics on parameters.
+    # First row is the intercept.
+    oh.fit <- coef(lm(oh[,-(1:length(eta.form))]~oh[,1:length(eta.form)]))
+    control$invGradient <- robust.inverse(oh.fit[-1,]) * control$RM.init_gain * 2^-subphase
+  }
   
   #ve<-with(z,list(coef=eta,sample=s$statsmatrix.form,sample.obs=NULL))
-  ve<-with(z,list(coef.form=coef.form,coef.diss=theta.diss))
+  ve<-with(z,list(coef.form=coef.form,coef.diss=theta.diss,objective.history=objective.history))
   names(ve$coef.form)<-model.form$coef.names
   
   #endrun <- control$MCMC.burnin+control$MCMC.interval*(ve$samplesize-1)
@@ -135,30 +166,18 @@ stergm.RM <- function(theta.form0, nw, model.form, model.diss,
 #
 ################################################################################
 
-stergm.phase12.C <- function(g, target.stats, model.form, model.diss, 
+stergm.EGMoME.RM.Phase2.C <- function(nw, model.form, model.diss, 
                              MHproposal.form, MHproposal.diss, eta.form0, eta.diss,
                              control, verbose) {
-  # ms <- model$target.stats
-  # if(!is.null(ms)) {
-  #   if (is.null(names(ms)) && length(ms) == length(model.form$coef.names))
-  #     names(ms) <- model.form$coef.names
-  #   obs <- control$orig.obs
-  #   obs <- obs[match(names(ms), names(obs))]
-  #   ms  <-  ms[match(names(obs), names(ms))]
-  #   matchcols <- match(names(ms), names(obs))
-  #   if (any(!is.na(matchcols))) {
-  #     ms[!is.na(matchcols)] <- ms[!is.na(matchcols)] - obs[matchcols[!is.na(matchcols)]]
-  #   }
-  # }
-  Clist.form <- ergm.Cprepare(g, model.form)
-  Clist.diss <- ergm.Cprepare(g, model.diss)
+  Clist.form <- ergm.Cprepare(nw, model.form)
+  Clist.diss <- ergm.Cprepare(nw, model.diss)
   maxedges <- max(control$MCMC.init.maxedges, Clist.form$nedges)
   if(verbose){cat(paste("MCMCDyn workspace is",maxedges,"\n"))}
   
-  z <- .C("MCMCDynPhase12",
+  z <- .C("MCMCDynRMPhase2_wrapper",
           # Observed/starting network. 1
           as.integer(Clist.form$tails), as.integer(Clist.form$heads), 
-          as.integer(Clist.form$nedges), as.integer(Clist.form$maxpossibleedges),
+          as.integer(Clist.form$nedges),
           as.integer(Clist.form$n),
           as.integer(Clist.form$dir), as.integer(Clist.form$bipartite),
           # Formation terms and proposals. 8
@@ -166,11 +185,8 @@ stergm.phase12.C <- function(g, target.stats, model.form, model.diss,
           as.character(MHproposal.form$name), as.character(MHproposal.form$package),
           as.double(Clist.form$inputs), eta.form=as.double(eta.form0),
           # Formation parameter fitting. 16
-          as.double(summary(model.form$formula)-target.stats),
-          as.double(control$RM.init_gain),
-          as.integer(control$RM.phase1n_base),
-          as.integer(control$RM.phase2n_base),
-          as.integer(control$RM.phase2sub),              
+          nw.diff=as.double(control$nw.diff),
+          as.integer(control$RM.phase2n),
           # Dissolution terms and proposals. 21
           as.integer(Clist.diss$nterms), as.character(Clist.diss$fnamestring), as.character(Clist.diss$snamestring),
           as.character(MHproposal.diss$name), as.character(MHproposal.diss$package),
@@ -183,16 +199,25 @@ stergm.phase12.C <- function(g, target.stats, model.form, model.diss,
           # MCMC settings.              
           as.integer(control$RM.burnin),
           as.integer(control$RM.interval),
-          as.integer(control$EGMoME.MCMC.burnin),
+          as.integer(control$MCMC.burnin),
+          as.double(control$invGradient),
           # Space for output.
           as.integer(maxedges),
+          newnwtails = integer(maxedges), newnwheads = integer(maxedges), 
+          objective.history=double(length(eta.form0)*2*100000), #FIXME: Figure out how much space is needed.
           # Verbosity.
           as.integer(verbose), 
           PACKAGE="ergm") 
 
-  eta.form <- z$eta
+  eta.form <- z$eta.form
   names(eta.form) <- names(eta.form0)
 
-  list(target.stats=model.form$target.stats,
-       coef.form=eta.form)
+  newnetwork<-newnw.extract(nw,z)
+  
+  oh <-  matrix(z$objective.history,ncol=length(eta.form0)*2,byrow=TRUE)
+  
+  list(nw.diff=z$nw.diff,
+       newnetwork=newnetwork,
+       coef.form=eta.form,
+       objective.history=oh[apply(oh,1,any),])
 }

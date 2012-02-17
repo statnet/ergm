@@ -26,8 +26,6 @@
 #                       if the computed Clist.form$nedges is > than the original
 #                       'maxchanges', 'maxchanges' is ignored and this odd little
 #                       process occurs to the 'nedeges'
-#      target.stats.form:  the mean value parameters for 'model.form'
-#      target.stats.diss:  the mean value parameters for 'model.diss'
 #      parallel      :  the number of threads in which to run sampling
 #      samplesize    :  the desired MCMC sample size
 #      toggles       :  whether to return the toggle matrix; non-NULL values
@@ -49,11 +47,9 @@
 #
 # --RETURNED--
 #   the MCMC sample as a list containing:
-#     statsmatrix.form: the matrix of sampled statistics for 'model.form'
-#     statsmatrix.diss: the matrix of sampled statistics for 'model.form'
+#     statsmatrix.form: the matrix of sampled statistics for 'model.form' RELATIVE TO INITIAL NETWORK
+#     statsmatrix.diss: the matrix of sampled statistics for 'model.form' RELATIVE TO INITIAL NETWORK
 #     newnetwork      : the final network from the sampling process
-#     target.stats.form  : the 'target.stats.form' passed in via 'control' 
-#     target.stats.diss  : the 'target.stats.diss' passed in via 'control' 
 #     changed         : a toggle matrix, where the first column is
 #                       the timestamp of the toggle and the 2nd and 3rd
 #                       columns are the head & tail of the toggle; this
@@ -74,11 +70,8 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss,
   Clist.form <- ergm.Cprepare(nw, model.form)
   Clist.diss <- ergm.Cprepare(nw, model.diss)
 
-  ## Sanity check: parameter vectors are as long as they are supposed to be:
 
-  if(is.null(model.form$target.stats)) model.form$target.stats<-numeric(length(model.form$coef.names))
-  if(is.null(model.diss$target.stats)) model.diss$target.stats<-numeric(length(model.diss$coef.names))
-
+  maxedges <- control$MCMC.init.maxedges
   maxchanges <- control$MCMC.init.maxchanges
   
   repeat{
@@ -87,7 +80,7 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss,
     z <- .C("MCMCDyn_wrapper",
             # Observed network.
             as.integer(Clist.form$tails), as.integer(Clist.form$heads), 
-            as.integer(Clist.form$nedges), as.integer(Clist.form$maxpossibleedges),
+            as.integer(Clist.form$nedges),
             as.integer(Clist.form$n),
             as.integer(Clist.form$dir), as.integer(Clist.form$bipartite),
             # Formation terms and proposals.
@@ -112,18 +105,21 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss,
             as.double(control$time.samplesize), as.integer(control$MCMC.burnin),
             as.double(control$time.burnin), as.double(control$time.interval),
             # Space for output.
-            s.form = as.double(cbind(model.form$target.stats,matrix(0,nrow=length(model.form$coef.names),ncol=control$time.samplesize))),
-            s.diss = as.double(cbind(model.diss$target.stats,matrix(0,nrow=length(model.diss$coef.names),ncol=control$time.samplesize))),
+            s.form = as.double(matrix(0,nrow=length(model.form$coef.names),ncol=control$time.samplesize+1)),
+            s.diss = as.double(matrix(0,nrow=length(model.diss$coef.names),ncol=control$time.samplesize+1)),
+            as.integer(maxedges),
             newnwtails = integer(maxchanges), newnwheads = integer(maxchanges), 
-            as.double(maxchanges),
+            as.integer(maxchanges),
             diffnwtime = integer(maxchanges),
             diffnwtails = integer(maxchanges),
             diffnwheads = integer(maxchanges),
-            as.integer(verbose), 
+            as.integer(verbose),
+            status = integer(1), # 0 = OK, MCMCDyn_TOO_MANY_EDGES = 1, MCMCDyn_MH_FAILED = 2, MCMCDyn_TOO_MANY_CHANGES = 3
             PACKAGE="ergm")
 
-    if(z$newnwtails[1]  < maxchanges - 10 && z$diffnwtails[1] < maxchanges - 10) break
-    maxchanges <- 5*maxchanges
+    if(z$status==0) break;
+    if(z$status==1) maxedges <- 5*maxedges
+    if(z$status==3) maxchanges <- 5*maxchanges
   }
   
   statsmatrix.form <- matrix(z$s.form, nrow=control$time.samplesize+1,

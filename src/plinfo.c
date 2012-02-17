@@ -1,7 +1,6 @@
 #include "plinfo.h"
 
 void plinfo_wrapper (int *tails, int *heads, int *dnedges,
-         int *maxpossibleedges,
 		     int *dn, int *dflag, int *nterms, char **funnames,
 		     char **sonames, double *inputs,  
 		     double *responsevec, double *covmat,
@@ -10,7 +9,6 @@ void plinfo_wrapper (int *tails, int *heads, int *dnedges,
   Network nw;
   Vertex n_nodes = (Vertex) *dn; 
   Edge n_edges = (Edge) *dnedges;
-//  Edge maxedges=*maxpossibleedges;
   int directed_flag = *dflag;
   Model *m;
   Vertex bip=0;  /* Assumes bipartite is irrelevant; is this true? */

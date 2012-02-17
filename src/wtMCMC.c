@@ -15,7 +15,6 @@
 *****************/
 void WtMCMC_wrapper(int *dnumnets, int *nedges,
 		    int *tails, int *heads, double *weights, 
-		    int *maxpossibleedges,
 		    int *dn, int *dflag, int *bipartite, 
 		    int *nterms, char **funnames,
 		    char **sonames, 

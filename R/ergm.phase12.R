@@ -56,7 +56,7 @@ ergm.phase12 <- function(g, model,
     # *** don't forget, pass in tails first now, not heads
     z <- .C("MCMCPhase12",
             as.integer(Clist$tails), as.integer(Clist$heads), 
-            as.integer(Clist$nedges), as.integer(Clist$maxpossibleedges),
+            as.integer(Clist$nedges), 
             as.integer(Clist$n),
             as.integer(Clist$dir), as.integer(Clist$bipartite),
             as.integer(Clist$nterms), 

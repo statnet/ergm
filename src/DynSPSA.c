@@ -2,7 +2,6 @@
 
 void MCMCDynSPSA_wrapper(// Observed network.
 		    int *tails, int *heads, int *n_edges,
-		    int *maxpossibleedges,
 		    int *n_nodes, int *dflag, int *bipartite, 
 		    // Formation terms and proposals.
 		    int *F_nterms, char **F_funnames, char **F_sonames, int *F_offset,
@@ -40,7 +39,7 @@ void MCMCDynSPSA_wrapper(// Observed network.
   difftail = (Vertex *) calloc(*maxedges,sizeof(Vertex));
   diffhead = (Vertex *) calloc(*maxedges,sizeof(Vertex));
   
-  MCMCDyn_init_common(tails, heads, *n_edges, *maxpossibleedges,
+  MCMCDyn_init_common(tails, heads, *n_edges,
 		      *n_nodes, *dflag, *bipartite, nw,
 		      *F_nterms, *F_funnames, *F_sonames, F_inputs, &F_m,
 		      *D_nterms, *D_funnames, *D_sonames, D_inputs, &D_m,

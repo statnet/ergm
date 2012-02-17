@@ -15,7 +15,6 @@
 *****************/
 void MCMC_wrapper(int *dnumnets, int *nedges,
 		  int *tails, int *heads,
-		  int *maxpossibleedges,
 		  int *dn, int *dflag, int *bipartite, 
 		  int *nterms, char **funnames,
 		  char **sonames, 
@@ -257,7 +256,6 @@ MCMCStatus MetropolisHastings(MHproposal *MHp,
 /* *** don't forget tail -> head */
 
 void MCMCPhase12 (int *tails, int *heads, int *dnedges, 
-      int *maxpossibleedges,
 		  int *dn, int *dflag, int *bipartite, 
 		  int *nterms, char **funnames,
 		  char **sonames, 

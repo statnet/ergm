@@ -31,7 +31,7 @@ ergm.plinfo<-function(Clist, Clist.miss, m, fix=NULL, theta.offset=NULL)
 
   z <- .C("plinfo_wrapper",
           as.integer(Clist$tails),    as.integer(Clist$heads),
-          as.integer(Clist$nedges),   as.integer(Clist$maxpossibleedges),
+          as.integer(Clist$nedges), 
           as.integer(Clist$n), 
           as.integer(Clist$dir),     as.integer(Clist$nstats), 
           as.character(Clist$fnamestring),as.character(Clist$snamestring),

@@ -25,7 +25,6 @@
    tails before heads now */
 
 void MPLE_wrapper (int *tails, int *heads, int *dnedges,
-       int *maxpossibleedges,
 		   int *dn, int *dflag, int *bipartite, int *nterms, 
 		   char **funnames, char **sonames, double *inputs,  
 		   int *responsevec, double *covmat,

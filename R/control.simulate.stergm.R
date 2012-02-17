@@ -35,7 +35,7 @@
 #
 #########################################################################
 
-control.simulate.stergm<-function(MCMC.burnin=1000,
+control.simulate.stergm<-control.simulate.network<-function(MCMC.burnin=1000,
                                   MCMC.prop.weights="default",
                                   MCMC.prop.args=list(),
                                   

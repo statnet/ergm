@@ -16,7 +16,6 @@ typedef enum WtMCMCStatus_enum {
 /* *** don't forget tail-> head, so this function accepts tails first, not heads  */
 void WtMCMC_wrapper(int *dnumnets, int *nedges, 
 		    int *tails, int *heads, double *weights,
-		    int *maxpossibleedges,
 		    int *dn, int *dflag, int *bipartite, 
 		    int *nterms, char **funnames,
 		    char **sonames, 

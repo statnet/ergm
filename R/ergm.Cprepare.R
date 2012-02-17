@@ -36,8 +36,6 @@
 #            snamestring :  the concatenated string of package names that
 #                           contain the C function 'd_fname'; default="ergm"
 #                           for each fname in fnamestring
-#            maxpossibleedges :  the maximum number of edges to allocate
-#                                space for
 #
 ##########################################################################
 
@@ -51,7 +49,6 @@ ergm.Cprepare <- function(nw, m, response=NULL)
   Clist$bipartite <- bip
   Clist$ndyads <- n * (n-1) / (2-dir)
   e<-as.matrix.network(nw,matrix.type="edgelist",attrname=response)
-  Clist$maxpossibleedges <- min(max(1e+6, 2*nrow(e)), Clist$ndyads)
   if(length(e)==0){
     Clist$nedges<-0
     Clist$tails<-NULL

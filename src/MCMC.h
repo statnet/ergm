@@ -17,7 +17,6 @@ typedef enum MCMCStatus_enum {
 
 void MCMC_wrapper(int *dnumnets, int *dnedges,
 		  int *tails, int *heads,
-		  int *maxpossibleedges,
 		  int *dn, int *dflag, int *bipartite, 
 		  int *nterms, char **funnames,
 		  char **sonames, 
@@ -42,7 +41,6 @@ MCMCStatus MetropolisHastings(MHproposal *MHp,
 			      int fVerbose,
 			      Network *nwp, Model *m);
 void MCMCPhase12 (int *tails, int *heads, int *dnedges,
-      int *maxpossibleedges,
 		  int *dn, int *dflag, int *bipartite, 
 		  int *nterms, char **funnames,
 		  char **sonames, 
