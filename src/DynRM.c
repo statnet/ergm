@@ -4,7 +4,7 @@ void MCMCDynRMPhase2_wrapper(// Observed network.
 		    int *tails, int *heads, int *n_edges,
 		    int *n_nodes, int *dflag, int *bipartite, 
 		    // Formation terms and proposals.
-		    int *F_nterms, char **F_funnames, char **F_sonames, int *F_offset,
+		    int *F_nterms, char **F_funnames, char **F_sonames,
 		    char **F_MHproposaltype, char **F_MHproposalpackage,
 		    double *F_inputs, double *F_theta0, 
 		    // Formation parameter fitting.
@@ -20,6 +20,7 @@ void MCMCDynRMPhase2_wrapper(// Observed network.
 		    // MCMC settings.
 		    int *RM_burnin, int *RM_interval, int *MH_interval,
 		    double *invGradient,
+		    double *jitter,
 		    // Space for output.
 		    int *maxedges,
 		    int *newnetworktail, int *newnetworkhead, 
@@ -51,17 +52,17 @@ void MCMCDynRMPhase2_wrapper(// Observed network.
 
   MCMCDynRMPhase2(nw,
 
-		       F_m, F_offset, &F_MH, F_theta0, 
-		       init_dev, 
-		       *phase2n,
-		       
-		       D_m, &D_MH, D_theta0,
-		       
-		       *maxedges,
-		       difftime, difftail, diffhead,
-		       obj_history,
-		       *RM_burnin, *RM_interval, *MH_interval, invGradient,
-		       *fVerbose);
+		  F_m, &F_MH, F_theta0, 
+		  init_dev, 
+		  *phase2n,
+		  
+		  D_m, &D_MH, D_theta0,
+		  
+		  *maxedges,
+		  difftime, difftail, diffhead,
+		  obj_history,
+		  *RM_burnin, *RM_interval, *MH_interval, invGradient, jitter,
+		  *fVerbose);
 
   /* record the final network to pass back to R */
 
@@ -79,7 +80,7 @@ void MCMCDynRMPhase2_wrapper(// Observed network.
 void MCMCDynRMPhase2(// Observed and discordant network.
 			  Network *nwp,
 			  // Formation terms and proposals.
-			  Model *F_m, int *F_offset, MHproposal *F_MH,
+			  Model *F_m, MHproposal *F_MH,
 			  double *F_theta, 
 			  // Formation parameter fitting.
 			  double *dev, // DEViation of the current network's formation statistics from the target statistics.
@@ -93,7 +94,7 @@ void MCMCDynRMPhase2(// Observed and discordant network.
 			  Vertex *difftime, Vertex *difftail, Vertex *diffhead,
 			  double *obj_history,
 			  // MCMC settings.
-			  unsigned int RM_burnin, unsigned int RM_interval, unsigned int MH_interval, double *invGradient,
+			  unsigned int RM_burnin, unsigned int RM_interval, unsigned int MH_interval, double *invGradient, double *jitter,
 			  // Verbosity.
 			  int fVerbose){
   Edge nextdiffedge=1;
@@ -155,6 +156,7 @@ void MCMCDynRMPhase2(// Observed and discordant network.
     for (unsigned int j=0; j<F_m->n_stats; j++){
       for(unsigned int k=0; k<F_m->n_stats; k++)
 	F_theta[j] -= invGradient[j*F_m->n_stats+k] * meandev[k]; // This may need to have k and j in invGradient switched.
+      if(jitter[j]!=0) F_theta[j]+=rnorm(0,jitter[j]);
     }
   }
   

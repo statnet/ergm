@@ -8,7 +8,7 @@ void MCMCDynRMPhase2_wrapper(// Observed network.
 		    int *tails, int *heads, int *n_edges,
 		    int *n_nodes, int *dflag, int *bipartite, 
 		    // Formation terms and proposals.
-		    int *F_nterms, char **F_funnames, char **F_sonames, int *F_offset,
+		    int *F_nterms, char **F_funnames, char **F_sonames,
 		    char **F_MHproposaltype, char **F_MHproposalpackage,
 		    double *F_inputs, double *F_theta0, 
 		    // Formation parameter fitting.
@@ -23,7 +23,7 @@ void MCMCDynRMPhase2_wrapper(// Observed network.
 		    int *minin, int *condAllDegExact, int *attriblength,
 		    // MCMC settings.
 		    int *RM_burnin, int *RM_interval, int *MH_interval,
-		    double *invGradient,
+		    double *invGradient, double *jitter,
 		    // Space for output.
 		    int *maxedges,
 		    int *newnetworktail, int *newnetworkhead, 
@@ -33,7 +33,7 @@ void MCMCDynRMPhase2_wrapper(// Observed network.
 void MCMCDynRMPhase2(// Observed and discordant network.
 			  Network *nwp,
 			  // Formation terms and proposals.
-			  Model *F_m, int *F_offset, MHproposal *F_MH,
+			  Model *F_m, MHproposal *F_MH,
 			  double *F_theta, 
 			  // Formation parameter fitting.
 			  double *dev, // DEViation of the current network's formation statistics from the target statistics.
@@ -47,7 +47,7 @@ void MCMCDynRMPhase2(// Observed and discordant network.
 			  Vertex *difftime, Vertex *difftail, Vertex *diffhead,
 			  double *obj_history,
 			  // MCMC settings.
-			  unsigned int RM_burnin, unsigned int RM_interval, unsigned int MH_interval, double *invGradient,
+			  unsigned int RM_burnin, unsigned int RM_interval, unsigned int MH_interval, double *invGradient, double *jitter,
 			  // Verbosity.
 			  int fVerbose);
 #endif
