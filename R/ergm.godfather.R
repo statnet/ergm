@@ -81,7 +81,7 @@ ergm.godfather <- function(formula, timestamps=NULL, toggles=NULL, sim=NULL,
   nw <- ergm.getnetwork(formula)
   m <- ergm.getmodel(formula, nw, initialfit=TRUE)
   Clist <- ergm.Cprepare(nw, m)
-  model$obs <- summary(m$formula)
+  m$obs <- summary(m$formula)
   ots <- order(timestamps)
   toggles <- matrix(toggles[ots,],ncol=2)
   timestamps <- timestamps[ots]
