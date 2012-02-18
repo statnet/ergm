@@ -36,7 +36,6 @@
 #   one of the other stergm functions as well:
 #       <stergm>             = $
 #       <stergm.RM>          = @
-#       <stergm.SPSA>        = &
 #       <stergm.NM>          = !
 #
 #   the components include:
@@ -68,7 +67,6 @@
 #                               MCMC sampling
 #   $     prop.weights.diss  :  as 'prop.weights.form', but for the dissolution
 #                               model
-#     &   objective.history  :  the number of SPSA iteration used
 #
 ################################################################################
 

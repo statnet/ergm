@@ -68,7 +68,7 @@ stergm.RM2 <- function(theta.form0, nw, model.form, model.diss,
   control$nw.diff <- control$nw.diff + z$statsmatrix.form[NROW(z$statsmatrix.form),]
  
 
-  # Not assuming any relationship between parameters and statistics.
+  # Not assuming any relationship between parameters and statistics -> pure jittering at first.
 
   control$invGradient <- matrix(0,p,p)
   
@@ -87,49 +87,75 @@ stergm.RM2 <- function(theta.form0, nw, model.form, model.diss,
       nw <- z$newnetwork
       control$nw.diff<-z$nw.diff
       eta.form <- z$coef.form
-      oh <- rbind(oh,z$objective.history) # Pool the history.
-      
+      oh <- rbind(oh,z$opt.history) # Pool the history.
+
+      # Figure out if any statistics are trapped.
+      stats.min <- apply(oh[,-(1:p)],2,min)
+      stats.max <- apply(oh[,-(1:p)],2,max)
+      extreme.oh <- (sweep(oh[,-(1:p)],2,stats.min,"-")==0) | (sweep(oh[,-(1:p)],2,stats.max,"-")==0)
+      oh.trustworthy <- apply(!extreme.oh,2,mean) > control$RM.prop.var.grad.OK
+
       # Regress statistics on parameters.
       # This uses GLS to account for serial correlation in statistics, and more recent are weighted higher.
       # First row is the intercept.
 
-    oh.wt <- exp(control$RM.grad_decay*seq_len(NROW(oh)))
-    x<-oh[,1:p] # #$%^$ gls() doesn't respect I()...
-    oh.fit <- apply(oh[,-(1:p)],2,function(y){
-      a<-try(coef(gls(y~x,weight=varFixed(~1/oh.wt),correlation=corAR1())))
-      if(inherits(a,"try-error")) rep(NA,p+1) else a
-    }
-                    )
-      grad.OK <- !any(is.na(oh.fit))
+      oh.wt <- exp(control$RM.grad_decay*seq_len(NROW(oh)))
+      x<-oh[,1:p] # #$%^$ gls() doesn't respect I()...
+      oh.fit <- sapply(1:p,
+                       function(i){
+                         y<-oh[,-(1:p)][,i]
+                         a<-try(coef(gls(y~x,subset=!extreme.oh[,i],weight=varFixed(~1/oh.wt),correlation=corAR1())))
+                         if(inherits(a,"try-error")) rep(NA,p+1) else a
+                       }
+                       )
+      
       if(all(is.na(oh.fit))) error("The search is trapped. Try a different starting value.")
       
-      oh.fit[is.na(oh.fit)] <- 0    
+      oh.fit[is.na(oh.fit)] <- 0
+      oh.fit[,!oh.trustworthy] <- 0
       control$invGradient <- robust.inverse(oh.fit[-1,]) * control$RM.init_gain * 2^-subphase
 
-      control$jitter<-rep(0,p)
-      if(!grad.OK){
+      #control$jitter<-rep(0,p)
+      if(!all(oh.trustworthy)){
         message("Only partial gradient matrix computed. Redoing the subphase.")
                     
- }else break
+      }else break
     }
     
     control$phase2n <- round(2.52*(control$phase2n-control$phase2n_base)+control$phase2n_base);
 
   }
+
+  if(control$RM.refine) coef.form <- -solve(t(oh.fit[-1,]),oh.fit[1,])
+
+  if(control$RM.se){
+    control.phase3<-control
+    control.phase3$time.burnin <- control$RM.burnin
+    control.phase3$time.samplesize <- control$RM.phase3n*control$RM.interval
+    control.phase3$time.interval <- 1
+    
+    # Run Phase 3.
+    z <- stergm.getMCMCsample(nw, model.form, model.diss, MHproposal.form, MHproposal.diss, eta.form, eta.diss, control.phase3, verbose)
+    G <- t(oh.fit[-1,])
+    V.stat<-cov(z$statsmatrix.form)
+    V.par<-solve(t(G)%*%G)%*%t(G)%*%V.stat%*%G%*%solve(t(G)%*%G)
+  }else V.par <- NULL
   
   #ve<-with(z,list(coef=eta,sample=s$statsmatrix.form,sample.obs=NULL))
-  ve<-with(z,list(coef.form=coef.form,coef.diss=theta.diss,objective.history=oh))
-  names(ve$coef.form)<-model.form$coef.names
+  names(coef.form)<-model.form$coef.names
   
   #endrun <- control$MCMC.burnin+control$MCMC.interval*(ve$samplesize-1)
   #attr(ve$sample, "mcpar") <- c(control$MCMC.burnin+1, endrun, control$MCMC.interval)
   #attr(ve$sample, "class") <- "mcmc"
   
-  c(ve, list(newnetwork=nw, 
-                       init.form=theta.form0,
-                       #interval=control$MCMC.interval, burnin=control$MCMC.burnin, 
-                       network=nw))
-            
+  list(newnetwork=nw, 
+       init.form=theta.form0,
+       covar=V.par,
+       coef.form=coef.form,
+       coef.diss=theta.diss,
+       opt.history=oh,
+       sample=z$statsmatrix.form,
+       network=nw)            
 }
 
 

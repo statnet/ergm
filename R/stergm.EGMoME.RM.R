@@ -95,7 +95,7 @@ stergm.RM <- function(theta.form0, nw, model.form, model.diss,
       nw <- z$newnetwork
       control$nw.diff<-z$nw.diff
       eta.form <- z$coef.form
-      oh <- rbind(oh,z$objective.history) # Pool the history.
+      oh <- rbind(oh,z$opt.history) # Pool the history.
       
       # Figure out if any statistics should be downweighted due to extremeness.
       stats.min <- apply(oh[,-(1:p)],2,min)
@@ -128,20 +128,38 @@ stergm.RM <- function(theta.form0, nw, model.form, model.diss,
     control$jitter<-rep(0,p)
     #control$jitter[bad.par]<-min(1/apply(oh[,1:p,drop=FALSE][,!bad.par,drop=FALSE],2,sd))/sqrt(control$phase2n)
   }
+
+  if(control$RM.refine) coef.form <- -solve(t(oh.fit[-1,]),oh.fit[1,])
+
+  if(control$RM.se){
+    control.phase3<-control
+    control.phase3$time.burnin <- control$RM.burnin
+    control.phase3$time.samplesize <- control$RM.phase3n*control$RM.interval
+    control.phase3$time.interval <- 1
+    
+    # Run Phase 3.
+    z <- stergm.getMCMCsample(nw, model.form, model.diss, MHproposal.form, MHproposal.diss, eta.form, eta.diss, control.phase3, verbose)
+    G <- t(oh.fit[-1,])
+    V.stat<-cov(z$statsmatrix.form)
+    V.par<-solve(t(G)%*%G)%*%t(G)%*%V.stat%*%G%*%solve(t(G)%*%G)
+  }else V.par <- NULL
   
   #ve<-with(z,list(coef=eta,sample=s$statsmatrix.form,sample.obs=NULL))
-  ve<-with(z,list(coef.form=coef.form,coef.diss=theta.diss,objective.history=oh))
-  names(ve$coef.form)<-model.form$coef.names
+  names(coef.form)<-model.form$coef.names
   
   #endrun <- control$MCMC.burnin+control$MCMC.interval*(ve$samplesize-1)
   #attr(ve$sample, "mcpar") <- c(control$MCMC.burnin+1, endrun, control$MCMC.interval)
   #attr(ve$sample, "class") <- "mcmc"
   
-  c(ve, list(newnetwork=nw, 
-                       init.form=theta.form0,
-                       #interval=control$MCMC.interval, burnin=control$MCMC.burnin, 
-                       network=nw))
-            
+  list(newnetwork=nw, 
+       init.form=theta.form0,
+       covar=V.par,
+       coef.form=coef.form,
+       coef.diss=theta.diss,
+       opt.history=oh,
+       sample=z$statsmatrix.form,
+       network=nw)
+  
 }
 
 ################################################################################
@@ -241,7 +259,7 @@ stergm.EGMoME.RM.Phase2.C <- function(nw, model.form, model.diss,
           # Space for output.
           as.integer(maxedges),
           newnwtails = integer(maxedges), newnwheads = integer(maxedges), 
-          objective.history=double(length(eta.form0)*2*control$RM.phase2n),
+          opt.history=double(length(eta.form0)*2*control$RM.phase2n),
           # Verbosity.
           as.integer(verbose), 
           PACKAGE="ergm") 
@@ -254,5 +272,5 @@ stergm.EGMoME.RM.Phase2.C <- function(nw, model.form, model.diss,
   list(nw.diff=z$nw.diff,
        newnetwork=newnetwork,
        coef.form=eta.form,
-       objective.history=matrix(z$objective.history,ncol=length(eta.form0)*2,byrow=TRUE))
+       opt.history=matrix(z$opt.history,ncol=length(eta.form0)*2,byrow=TRUE))
 }

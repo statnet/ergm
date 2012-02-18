@@ -36,8 +36,6 @@
 #   one of the other stergm functions as well:
 #       <stergm>             = $
 #       <stergm.RM>          = @
-#       <stergm.SPSA>        = &
-#       <stergm.NM>          = !
 #
 #   the components include:
 #
@@ -68,7 +66,6 @@
 #                               MCMC sampling
 #   $     prop.weights.diss  :  as 'prop.weights.form', but for the dissolution
 #                               model
-#     &   objective.history  :  the number of SPSA iteration used
 #
 ################################################################################
 
@@ -170,16 +167,6 @@ stergm.EGMoME <- function(nw, formation, dissolution,  offset.coef.form, offset.
   if(verbose) cat("Fitting Dynamic ERGM.\n")
 
   Cout <- switch(control$EGMoME.main.method,
-                "SPSA" = stergm.SPSA(initialfit$formation.fit$coef, nw, model.form, model.diss,
-                  initialfit$dissolution.fit$coef, 
-                  control=control, MHproposal.form=MHproposal.form,
-                  MHproposal.diss=MHproposal.diss,MT=FALSE,
-                  verbose),
-                "SPSA2" = stergm.SPSA(initialfit$formation.fit$coef, nw, model.form, model.diss,
-                  initialfit$dissolution.fit$coef, 
-                  control=control, MHproposal.form=MHproposal.form,
-                  MHproposal.diss=MHproposal.diss,MT=TRUE,
-                  verbose),
                 "Robbins-Monro" = stergm.RM(initialfit$formation.fit$coef, nw, model.form, model.diss,
                   initialfit$dissolution.fit$coef, 
                   control=control, MHproposal.form=MHproposal.form,
@@ -193,9 +180,9 @@ stergm.EGMoME <- function(nw, formation, dissolution,  offset.coef.form, offset.
 
                 )
 
-  out <- list(network = nw, formation = formation, dissolution = dissolution, targets = targets, target.stats=target.stats, estimate=estimate, coef.history=Cout$objective.history, sample=NULL, sample.obs=NULL,
-              formation.fit = with(Cout, list(coef=coef.form, etamap = model.form$etamap, offset = model.form$etamap$offsettheta)),
-              dissolution.fit = list(coef = initialfit$dissolution.fit$coef, sample=NULL, sample.obs=NULL, etamap = model.diss$etamap, offset = model.diss$etamap$offsettheta))
+  out <- list(network = nw, formation = formation, dissolution = dissolution, targets = targets, target.stats=target.stats, estimate=estimate, opt.history=Cout$opt.history, sample=Cout$sample, sample.obs=NULL,
+              formation.fit = with(Cout, list(formula=formation, coef=coef.form, covar=covar, etamap = model.form$etamap, offset = model.form$etamap$offsettheta)),
+              dissolution.fit = list(formula=dissolution, coef = initialfit$dissolution.fit$coef, sample=NULL, sample.obs=NULL, etamap = model.diss$etamap, offset = model.diss$etamap$offsettheta))
   class(out$formation.fit)<-class(out$dissolution.fit)<-"ergm"
   
   out

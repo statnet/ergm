@@ -64,34 +64,6 @@
 #                      a sample size, than an interval, it helps control the
 #                      number of MCMCsteps used in phase1 and phase2; in
 #                      phase2, this limits the innermost loop counter; default=100
-#   SPSA.iterations  : the number of iterations to use in the SPSA sampling;
-#                      default=1000
-#   SPSA.a           : see the next 2 params; default=1
-#   SPSA.alpha       : see the next 2 params; default=.602
-#   SPSA.A           : this and the 2 params above help to define the
-#                      'gain' paramater as
-#                          SPSA.a/(SPSA.A +i +1)^(SPSA.alpha)
-#                      where i is indexed from 0 to SPSA.iterations;
-#                      default=100
-#   SPSA.c           : see the next param; default=1
-#   SPSA.gamma       : this and the param above help to define the 'diff'
-#                      parameter as
-#                           SPSA.c/(i+1)^(SPSA.gamma)
-#                      where i is indexed from 0 to SPSA.iterations;
-#                      default=.101
-#   SPSA.burnin      : the number of MCMC steps to disregard for the burnin
-#                      period; default=1000
-#   SPSA.interval    : this is eventually received as 'S' and looks like a
-#                      a sample size, rather than an interval, since 'S' controls
-#                      the number of MCMC steps that contribute to the stats vector
-#   NM.abstol        : ??    ; default==0,
-#   NM.reltol        : ??    ; default==sqrt(.Machine$double.eps),
-#   NM.alpha         : ??    ; default==1,
-#   NM.beta          : ??    ; default==.5,
-#   NM.gamma         : ??    ; default==2,
-#   NM.maxit         : ??    ; default==500,
-#   NM.interval      : ??    ; default==1000,
-#   NM.burnin        : ??    ; default==1000,
 #   packagenames     : the packages in which change statistics are found; default="ergm"
 #   parallel         : the number of threads in which to run sampling; default=0
 #
@@ -119,7 +91,7 @@ control.stergm<-function(init.form=NULL,
                          CMLE.control.form=control.ergm(init=init.form, MCMC.prop.weights=MCMC.prop.weights.form, MCMC.prop.args=MCMC.prop.args.form, MCMC.init.maxedges=MCMC.init.maxedges, MCMC.packagenames=MCMC.packagenames, MCMC.interval=MCMC.burnin),
                          CMLE.control.diss=control.ergm(init=init.diss, MCMC.prop.weights=MCMC.prop.weights.diss, MCMC.prop.args=MCMC.prop.args.diss, MCMC.init.maxedges=MCMC.init.maxedges, MCMC.packagenames=MCMC.packagenames, MCMC.interval=MCMC.burnin),
 
-                         EGMoME.main.method=c("Robbins-Monro","Robbins-Monro2","SPSA", "SPSA2"),
+                         EGMoME.main.method=c("Robbins-Monro","Robbins-Monro2"),
                          
                          SAN.maxit=10,
                          SAN.control=control.san(coef=init.form,
@@ -138,27 +110,14 @@ control.stergm<-function(init.form=NULL,
                          RM.phase2n_base=100,
                          RM.phase2sub=4,
                          RM.phase2sub_retries=4,
+                         RM.phase3n=100,
                          RM.grad_decay=0.05,
                          RM.init_gain=0.5,
                          RM.interval=100,
                          RM.burnin=1000,
                          RM.prop.var.grad.OK=0.5,
-                         SPSA.a=1,
-                         SPSA.alpha=0.602,
-                         SPSA.A=100,
-                         SPSA.c=1,
-                         SPSA.gamma=0.101,
-                         SPSA.iterations=1000,
-                         SPSA.interval=1000,
-                         SPSA.burnin=1000,
-                         NM.abstol=0,
-                         NM.reltol=sqrt(.Machine$double.eps),
-                         NM.alpha=1,
-                         NM.beta=.5,
-                         NM.gamma=2,
-                         NM.maxit=500,
-                         NM.interval=1000,
-                         NM.burnin=1000,
+                         RM.refine=FALSE,
+                         RM.se=FALSE,
 
                          seed=NULL,
                          parallel=0,
