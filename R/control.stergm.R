@@ -119,7 +119,7 @@ control.stergm<-function(init.form=NULL,
                          CMLE.control.form=control.ergm(init=init.form, MCMC.prop.weights=MCMC.prop.weights.form, MCMC.prop.args=MCMC.prop.args.form, MCMC.init.maxedges=MCMC.init.maxedges, MCMC.packagenames=MCMC.packagenames, MCMC.interval=MCMC.burnin),
                          CMLE.control.diss=control.ergm(init=init.diss, MCMC.prop.weights=MCMC.prop.weights.diss, MCMC.prop.args=MCMC.prop.args.diss, MCMC.init.maxedges=MCMC.init.maxedges, MCMC.packagenames=MCMC.packagenames, MCMC.interval=MCMC.burnin),
 
-                         EGMoME.main.method=c("Robbins-Monro","SPSA", "SPSA2"),
+                         EGMoME.main.method=c("Robbins-Monro","Robbins-Monro2","SPSA", "SPSA2"),
                          
                          SAN.maxit=10,
                          SAN.control=control.san(coef=init.form,

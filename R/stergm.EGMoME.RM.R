@@ -96,7 +96,6 @@ stergm.RM <- function(theta.form0, nw, model.form, model.diss,
       control$nw.diff<-z$nw.diff
       eta.form <- z$coef.form
       oh <- rbind(oh,z$objective.history) # Pool the history.
-      control$phase2n <- round(2.52*(control$phase2n-control$phase2n_base)+control$phase2n_base);
       
       # Figure out if any statistics should be downweighted due to extremeness.
       stats.min <- apply(oh[,-(1:p)],2,min)
@@ -107,7 +106,9 @@ stergm.RM <- function(theta.form0, nw, model.form, model.diss,
       if(mean(oh.subset) < control$RM.prop.var.grad.OK) message("One or more statistics are not mixing. Rerunning the subphase.")
       else break
     }
-        
+
+    control$phase2n <- round(2.52*(control$phase2n-control$phase2n_base)+control$phase2n_base);
+    
     # Regress statistics on parameters.
     # This uses GLS to account for serial correlation in statistics, and more recent are weighted higher.
     # First row is the intercept.
@@ -142,12 +143,6 @@ stergm.RM <- function(theta.form0, nw, model.form, model.diss,
                        network=nw))
             
 }
-
-
-
-
-
-
 
 ################################################################################
 # The <stergm.phase12.C> function is basically a wrapper for <MCMCDynPhase12.c>,

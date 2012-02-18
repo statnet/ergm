@@ -184,7 +184,13 @@ stergm.EGMoME <- function(nw, formation, dissolution,  offset.coef.form, offset.
                   initialfit$dissolution.fit$coef, 
                   control=control, MHproposal.form=MHproposal.form,
                   MHproposal.diss=MHproposal.diss,
+                  verbose),
+                 "Robbins-Monro2" = stergm.RM2(initialfit$formation.fit$coef, nw, model.form, model.diss,
+                  initialfit$dissolution.fit$coef, 
+                  control=control, MHproposal.form=MHproposal.form,
+                  MHproposal.diss=MHproposal.diss,
                   verbose)
+
                 )
 
   out <- list(network = nw, formation = formation, dissolution = dissolution, targets = targets, target.stats=target.stats, estimate=estimate, coef.history=Cout$objective.history, sample=NULL, sample.obs=NULL,
