@@ -240,3 +240,14 @@ enformulate.curved.formula <- function(object, theta, response=NULL, ...){
 
   model.transform.formula(object, theta, response=response, recipes, ...) 
 }
+
+set.offset.formula <- function(object, which, response=NULL){
+  nw <- ergm.getnetwork(object)
+  m<-ergm.getmodel(object, nw, response=response)
+  to_offset <-unique(rep(seq_along(m$terms),coef.sublength.model(m))[which]) # Figure out which terms correspond to the coefficients to be offset.
+  terms <- term.list.formula(object[[3]])
+  for(i in to_offset)
+    if(!inherits(terms[[i]],"call") || terms[[i]][[1]]!="offset") # Don't offset terms already offset.
+      terms[[i]]<-call("offset", terms[[i]]) # Enclose the term in an offset.
+  ergm.update.formula(object, append.rhs.formula(~.,l)) # append.rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
+}
