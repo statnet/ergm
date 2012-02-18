@@ -58,8 +58,8 @@ ergm.MCMLE <- function(init, nw, model,
                              response=NULL, ...) {
   # Initialize the history of parameters and statistics.
   coef.hist <- rbind(init)
-  stats.hist <- matrix(NA, 0, length(model$obs))
-  stats.obs.hist <- matrix(NA, 0, length(model$obs))
+  stats.hist <- matrix(NA, 0, length(model$nw.stats))
+  stats.obs.hist <- matrix(NA, 0, length(model$nw.stats))
   
   # Store information about original network, which will be returned at end
   nw.orig <- network.copy(nw)
@@ -68,7 +68,7 @@ ergm.MCMLE <- function(init, nw, model,
   # specified) and the statistics of the networks in the LHS of the
   # formula or produced by SAN. If target.stats is not speficied
   # explicitly, they are computed from this network, so statshift==0.
-  statshift <- model$obs - model$target.stats
+  statshift <- model$nw.stats - model$target.stats
 
   # Is there observational structure?
   obs <- ! is.null(MHproposal.obs)
@@ -102,7 +102,7 @@ ergm.MCMLE <- function(init, nw, model,
     z <- ergm.getMCMCsample(nw, model, MHproposal, mcmc.eta0, control, verbose, response=response)
     
     # post-processing of sample statistics:  Shift each row by the
-    # vector model$obs - model$target.stats, store returned nw
+    # vector model$nw.stats - model$target.stats, store returned nw
     # The statistics in statsmatrix should all be relative to either the
     # observed statistics or, if given, the alternative target.stats
     # (i.e., the estimation goal is to use the statsmatrix to find 

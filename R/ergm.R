@@ -164,29 +164,28 @@ ergm <- function(formula, response=NULL,
     if(verbose) cat("Constructing an approximate response network.\n")
     ## If target.stats are given, overwrite the given network and formula
     ## with SAN-ed network and formula.
-    srun <- 0
-    obs <- target.stats-target.stats
-    while((srun < control$SAN.maxit) & (sum((obs-target.stats)^2) > 5)){
-     nw<-san(formula, target.stats=target.stats,
-             response=response,
-             reference=reference,
-             constraints=constraints,
-             control=control$SAN.control,
-             verbose=verbose)
-     formula<-ergm.update.formula(formula,nw~.)
-     obs <- summary(formula,response=response, basis=nw)
-     srun <- srun + 1
+    for(srun in 1:control$SAN.maxit){
+      nw<-san(formula, target.stats=target.stats,
+              response=response,
+              reference=reference,
+              constraints=constraints,
+              control=control$SAN.control,
+              verbose=verbose)
+      formula<-ergm.update.formula(formula,nw~.)
+      nw.stats <- summary(formula,response=response, basis=nw)
+      srun <- srun + 1
      if(verbose){
       cat(paste("Finished SAN run",srun,"\n"))
      }
     if(verbose){
       cat("SAN summary statistics:\n")
-      print(obs)
+      print(nw.stats)
       cat("Meanstats Goal:\n")
       print(target.stats)
       cat("Difference: SAN target.stats - Goal target.stats =\n")
-      print(round(obs-target.stats,0))
+      print(round(nw.stats-target.stats,0))
     }
+     if(sum((nw.stats-target.stats)^2) > 5) break
     }
    }
   }
@@ -238,7 +237,7 @@ ergm <- function(formula, response=NULL,
 
   # If all other criteria for MPLE=MLE are met, _and_ SAN network matches target.stats directly, we can get away with MPLE.
   MCMCflag <- (estimate=="MLE" && (!MPLE.is.MLE
-                               || (!is.null(target.stats) && !isTRUE(all.equal(target.stats,obs)))
+                               || (!is.null(target.stats) && !isTRUE(all.equal(target.stats,nw.stats)))
                               )
                || control$force.main)
 
@@ -275,6 +274,7 @@ ergm <- function(formula, response=NULL,
     initialfit$formula <- formula
     initialfit$constrained <- MHproposal$arguments$constraints
     initialfit$constraints <- constraints
+    initialfit$target.stats <- model.initial$target.stats
 
     initialfit$control<-control
     
@@ -291,8 +291,8 @@ ergm <- function(formula, response=NULL,
   extremecheck <- ergm.checkextreme.model(model=model, nw=nw, init=init, response=response, target.stats=target.stats, drop=control$drop, silent=TRUE)
   model <- extremecheck$model; init <- extremecheck$init
 
-  model$obs <- summary(model$formula, response=response)
-  model$target.stats <- if(!is.null(target.stats)) vector.namesmatch(target.stats, names(model$obs)) else model$obs
+  model$nw.stats <- summary(model$formula, response=response)
+  model$target.stats <- if(!is.null(target.stats)) vector.namesmatch(target.stats, names(model$nw.stats)) else model$nw.stats
 
   if (verbose) cat("Fitting ERGM.\n")
   mainfit <- switch(control$main.method,
@@ -330,13 +330,9 @@ ergm <- function(formula, response=NULL,
   }
   mainfit$degeneracy.value <- degeneracy$degeneracy.value
   mainfit$degeneracy.type <- degeneracy$degeneracy.type
-#  Commented out by DH because it does not appear that "formula.passed" 
-#  has any binding in the ergm function:
-#  if(exists("formula.passed")){
-#    mainfit$formula <- formula.passed
-#  }else{
-    mainfit$formula <- formula
-#  }
+
+  mainfit$formula <- formula
+  mainfit$target.stats <- model$target.stats
 
   mainfit$constrained <- MHproposal$arguments$constraints
   mainfit$constraints <- constraints

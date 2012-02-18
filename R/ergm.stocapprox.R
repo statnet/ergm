@@ -45,8 +45,6 @@ ergm.stocapprox <- function(init, nw, model, Clist,
   eta0 <- ergm.eta(init, model$etamap)
   cat("Stochastic approximation algorithm with theta_0 equal to:\n")
   print(init)
-  names(model$obs) <- names(init)
-  if(is.null(model$target.stats)){model$target.stats <- model$obs}
   control <- c(control, list(phase1=n1,
                   stats=summary.statistics.network(model$formula, basis=nw)-model$target.stats,
                   target.stats=model$target.stats)

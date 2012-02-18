@@ -50,8 +50,8 @@ ergm.robmon <- function(init, nw, model,
   cat("Robbins-Monro algorithm with theta_0 equal to:\n")
   print(init)
 #  stats <- matrix(0,ncol=model$etamap$etalength,nrow=n1)
-#  stats[1,] <- model$obs - model$target.stats
-## stats[,]<-  rep(model$obs - model$target.stats,rep(nrow(stats),model$etamap$etalength))
+#  stats[1,] <- model$nw.stats - model$target.stats
+## stats[,]<-  rep(model$nw.stats - model$target.stats,rep(nrow(stats),model$etamap$etalength))
 ## control$stats <- stats
   control <- c(control, 
                   list(samplesize=n1, burnin=burnin, interval=interval,
@@ -62,8 +62,8 @@ ergm.robmon <- function(init, nw, model,
   z <- ergm.getMCMCsample(nw, model, MHproposal, eta0, control, verbose)
   steplength <- control$MCMLE.steplength
   # post-processing of sample statistics:  Shift each row by the
-  # matrix model$obs - model$target.stats, attach column names
-  statsmatrix <- sweep(z$statsmatrix, 2, model$obs - model$target.stats, "+")
+  # matrix model$nw.stats - model$target.stats, attach column names
+  statsmatrix <- sweep(z$statsmatrix, 2, model$nw.stats - model$target.stats, "+")
   colnames(statsmatrix) <- model$coef.names
 
   if(steplength<1){
@@ -113,8 +113,8 @@ ergm.robmon <- function(init, nw, model,
       control$nmatrixentries = control$MCMC.samplesize * model$etamap$etalength
       z <- ergm.getMCMCsample(nw, model, MHproposal, eta, control, verbose=FALSE)
       # post-processing of sample statistics:  Shift each row by the
-      # matrix model$obs - model$target.stats, attach column names
-      statsmatrix <- sweep(z$statsmatrix, 2, model$obs - model$target.stats, "+")
+      # matrix model$nw.stats - model$target.stats, attach column names
+      statsmatrix <- sweep(z$statsmatrix, 2, model$nw.stats - model$target.stats, "+")
       colnames(statsmatrix) <- model$coef.names
 
       thetamatrix <- rbind(thetamatrix,theta)
@@ -145,8 +145,8 @@ cat(paste("theta new:",theta,"\n"))
   control$nmatrixentries = control$MCMC.samplesize * model$etamap$etalength
   z <- ergm.getMCMCsample(nw, model, MHproposal, eta, control, verbose=FALSE)
   # post-processing of sample statistics:  Shift each row by the
-  # matrix model$obs - model$target.stats, attach column names
-  statsmatrix <- sweep(z$statsmatrix, 2, model$obs - model$target.stats, "+")
+  # matrix model$nw.stats - model$target.stats, attach column names
+  statsmatrix <- sweep(z$statsmatrix, 2, model$nw.stats - model$target.stats, "+")
   colnames(statsmatrix) <- model$coef.names
 
 # ubar <- apply(z$statsmatrix, 2, mean)
