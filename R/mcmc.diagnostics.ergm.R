@@ -94,6 +94,11 @@ mcmc.diagnostics.ergm <- function(object,
     }
   }
 
+  if(curved){
+    sm <- do.call(mcmc.list, lapply(sm, ergm.sample.eta2theta, coef=object$coef, etamap=object$etamap))
+    if(!is.null(sm.obs)) sm.obs <- do.call(mcmc.list, lapply(sm.obs, ergm.sample.eta2theta, coef=object$coef, etamap=object$etamap))
+  }
+
   cat("Sample statistics summary:\n")
   print(summary(sm))
   if(!is.null(sm.obs)){
@@ -217,6 +222,7 @@ plot.mcmc.list.ergm <- function(x, main=NULL, vars.per.page=3,...){
 
 # Some utility functions:
 colMeans.mcmc.list<-function(x,...) colMeans(as.matrix(x),...)
+
 sweep.mcmc.list<-function(x, STATS, FUN="-", check.margin=TRUE, ...){
   for(chain in seq_along(x)){
     x[[chain]] <- sweep(x[[chain]], 2, STATS, FUN, check.margin, ...)
