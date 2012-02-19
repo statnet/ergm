@@ -57,13 +57,10 @@ mcmc.diagnostics.default <- function(object, ...) {
   stop("An object must be given as an argument ")
 }
 
-mcmc.diagnostics.ergm <- function(object, sample="sample",
-                                  smooth=TRUE,
-                                  r=0.0125, digits=6,
-                                  maxplot=1000, verbose=TRUE, center=TRUE,
-                                  main="Summary of MCMC samples",  
-                                  xlab = "Iterations", ylab = "", 
-                                  curved=TRUE, ...) {
+mcmc.diagnostics.ergm <- function(object,
+                                  center=TRUE,
+                                  curved=TRUE,
+                                  vars.per.page=3,...) {
 #
   if(!is.null(object$degeneracy.value) && !is.na(object$degeneracy.value)){
    degeneracy.value <- object$degeneracy.value
@@ -73,571 +70,156 @@ mcmc.diagnostics.ergm <- function(object, sample="sample",
    degeneracy.type <- NULL
   }
 
-  if(sample=="observed"){
-    component <- "sample"
-    statsmatrix.obs <- object[["sample.obs"]]
-    if(missing(main)){mcmc.title <- "Summary of the Conditional Samples"} 
+  # Coerce sample objects to mcmc.list. This allows all subsequent
+  # operations to assume mcmc.list. The reason [["sample"]] is being
+  # used here rather than $sample is because there is an unlikely
+  # posibility that $sample doesn't exist but $sample.obs does.
+  sm <- if(is.null(object[["sample"]])) NULL else as.mcmc.list(object[["sample"]])
+  sm.obs <- if(is.null(object[["sample.obs"]])) NULL else as.mcmc.list(object[["sample.obs"]])
+
+  if(is.null(sm)) stop("MCMC was not run or MCMC sample was not stored.")
+
+  if(!center){
+    sm <- sweep.mcmc.list(sm, object$target.stats, "+")
+    if(!is.null(sm.obs)) sm.obs <- sweep.mcmc.list(sm.obs, object$target.stats, "+")
   }else{
-    component <- sample
-  }
-  if(component=="sample"&&is.null(object$sample)){
-    cat("There is no MCMC sample associated with the object.\n",
-        "Quitting mcmc.diagnostics.\n")
-    return()
-  }
-#  Commented out by DH because
-#  the ergm.theta.sample function evidently no longer exists:
-#  if(curved){
-    statsmatrix <- object[[component]]
-#  }else{
-#    statsmatrix <- ergm.theta.sample(object$coef,object$model$etamap,object[[component]])
-#  }
-  attr.mcpar <- attr(object[[component]], "mcpar")
-  if(!is.matrix(statsmatrix) || length(dim(statsmatrix))==0){
-    cat("There is no",component,"component of the object.\n",
-        "Quitting mcmc.diagnostics.\n")
-    return()
-  }
-  if(component=="thetasample"){
-    if(is.null(object$MCMCtheta)){
-     x0 <- rep(0,ncol(statsmatrix))
-    }else{
-     x0 <- object$MCMCtheta
+    # Then sm is already centered, *unless* there is missing data.  In
+    # that case, center sm relative to sm.obs and center sm.obs to
+    # 0. (The reason sm.obs is used as the reference is that it yields
+    # the same result as if the whole network were observed.)
+    if(!is.null(sm.obs)){
+      sm.obs.mean <- colMeans.mcmc.list(sm.obs)
+      sm <- sweep.mcmc.list(sm, sm.obs.mean, "-")
+      sm.obs <- sweep.mcmc.list(sm.obs, sm.obs.mean, "-")
     }
-#   statsmatrix <- sweep(statsmatrix,2,x0,"-")
+  }
+
+  cat("Sample statistics summary:\n")
+  print(summary(sm))
+  if(!is.null(sm.obs)){
+    cat("Constrained sample statistics summary:\n")
+    print(summary(sm.obs))
+  }
+
+  mycov<-function(x,m){
+    crossprod(sweep(x,2,m))
+  }
+  
+  # This can probably be improved.
+  if(is.null(sm.obs)){
+    cat("\nAre sample statistics significantly different from observed?\n")
+    ds <- colMeans.mcmc.list(sm) - if(!center) object$target.stats else 0
+    sds <- apply(as.matrix(sm),2,sd)
+    ns <- effectiveSize(sm)
+
+    cv <-  t(mycov(as.matrix(sm),if(!center) object$target.stats else 0)/sqrt(ns))/sqrt(ns)
+    
+    z <- ds/sds*sqrt(ns)
+    chi2<-t(sqrt(ns)*ds)%*%solve(cv)%*%(ds*sqrt(ns))
   }else{
-    if(is.null(object$formula) ){
-     x0 <- rep(0,ncol(statsmatrix))
-    }else{
-#     if(!is.latent(object) ){
-      if(sample=="observed"){
-        x0 <- apply(statsmatrix.obs,2,mean)
-#        print(x0)
-      }else{
-        x0 <- rep(0,ncol(statsmatrix))
+    cat("\nAre unconstrained sample statistics significantly different from constrained?\n")
+    ds <- colMeans.mcmc.list(sm) - if(!center) colMeans.mcmc.list(sm.obs) else 0
+    sds <- apply(as.matrix(sm),2,sd)
+    sds.obs <- apply(as.matrix(sm.obs),2,sd)
+    ns <- effectiveSize(sm)
+    ns.obs <- effectiveSize(sm.obs)
+
+    cv <-  t(mycov(as.matrix(sm),if(!center) colMeans.mcmc.list(sm.obs) else 0)/sqrt(ns))/sqrt(ns)
+    cv.obs <-  t(mycov(as.matrix(sm.obs),if(!center) colMeans.mcmc.list(sm.obs) else 0)/sqrt(ns.obs))/sqrt(ns.obs)
+
+    
+    z <- ds/sqrt(sds^2/ns+sds.obs^2/ns.obs)
+    chi2<-t(ds)%*%solve(cv+cv.obs)%*%(ds)
+  }
+  p.z <- pnorm(abs(z),lower.tail=FALSE)
+  p.chi2 <- pchisq(chi2,nvar(sm),lower.tail=FALSE)
+  
+  m <- rbind(c(ds,NA),c(z,chi2),c(p.z,p.chi2))
+  rownames(m) <- c("diff.","test stat.","P-val.")
+  colnames(m) <- c(varnames(sm),"Overall (Chi^2)")
+  print(m)
+
+  # End simulated vs. observed test.
+  
+  cat("\nSample statistics cross-correlations:\n")
+  print(crosscorr(sm))
+  if(!is.null(sm.obs)){
+    cat("Constrained sample statistics cross-correlations:\n")
+    print(crosscorr(sm.obs))
+  }
+
+  cat("\nSample statistics auto-correlation:\n")
+  for(chain in seq_along(sm)){
+    ac<-autocorr(sm[[chain]],0:5)
+    ac<-sapply(seq_len(ncol(sm[[chain]])),
+               function(i) ac[,i,i])
+    colnames(ac)<-varnames(sm)
+    cat("Chain", chain, "\n")
+    print(ac)
+  }
+  if(!is.null(sm.obs)){
+    cat("Constrained sample statistics auto-correlation:\n")
+      for(chain in seq_along(sm.obs)){
+        ac<-autocorr(sm.obs[[chain]],0:5)
+        ac<-sapply(seq_len(ncol(sm.obs[[chain]])),
+                   function(i) ac[,i,i])
+        colnames(ac)<-varnames(sm.obs)
+        cat("Chain", chain, "\n")
+        print(ac)
       }
-      if(!center){
-       x0 <- try(summary(object$formula), silent=TRUE)
-       if(!inherits(x0,"try-error")){
-        statsmatrix <- sweep(statsmatrix,2,x0,"+")
-       }else{
-        x0 <- rep(0,ncol(statsmatrix))
-       }
-      }else{
-       if(sample=="observed"){
-#         print(x0)
-#         print(apply(statsmatrix,2,mean))
-         statsmatrix <- sweep(statsmatrix,2,x0,"-")
-         x0 <- rep(0,ncol(statsmatrix))
-       }
-      }
-      if(ncol(statsmatrix) < length(x0)){
-       x0 <- x0[-c(1:(length(x0)-ncol(statsmatrix)))]
-      }
-#     }
+  }
+
+  cat("\nSample statistics burn-in diagnostic (Geweke):\n")
+  sm.gw<-geweke.diag(sm)
+  for(i in seq_along(sm.gw)){
+    cat("Chain", chain, "\n")
+    print(sm.gw[[i]])
+    cat("P-values (lower = worse):\n")
+    print(pnorm(abs(sm.gw[[i]]$z),lower.tail=FALSE))
+  }
+  if(!is.null(sm.obs)){
+    cat("Sample statistics burn-in diagnostic (Geweke):\n")
+    sm.obs.gw<-geweke.diag(sm.obs)
+    for(i in seq_along(sm.obs.gw)){
+      cat("Chain", chain, "\n")
+      print(sm.obs.gw[[i]])
+      cat("P-values (lower = worse):\n")
+      print(pnorm(abs(sm.obs.gw[[i]]$z),lower.tail=FALSE))
     }
   }
-  attributes(statsmatrix)$class <- NULL
-  novar <- apply(statsmatrix,2,var)<1e-6
-  if(all(novar)){
-     warning("All the statistics are the same.\n")
-     print(apply(statsmatrix,2,summary.statsmatrix.ergm),scipen=6)
-     return(invisible())
+  
+  if(require(latticeExtra)){  
+    plot.mcmc.list.ergm(sm,main="Sample statistics",vars.per.page=vars.per.page,...)
+    if(!is.null(sm.obs)) plot.mcmc.list.ergm(sm.obs,main="Constrained sample statistics",vars.per.page=vars.per.page,...)
   }else{
-    attr.names <- colnames(statsmatrix)
-    statsmatrix <- as.matrix(statsmatrix[,!novar,drop=FALSE])
-    x0 <- x0[!novar]
-    colnames(statsmatrix) <- attr.names[!novar]
-
-    if(verbose){
-     cat("\nCorrelations of sample statistics:\n")
-     if(is.null(object$acf)){
-      print(ergm.MCMCacf(statsmatrix))
-     }else{
-      print(object$acf)
-     }
-    }
-
-    attr(statsmatrix, "mcpar") <- attr.mcpar
-    if(is.null(attr(statsmatrix, "mcpar"))){
-      attr(statsmatrix, "mcpar") <- c(1,nrow(statsmatrix),1)
-    }
-    attr(statsmatrix, "class") <- "mcmc"
-    if(require("coda", quietly = TRUE)) {
-     plot.mcmc.ergm(statsmatrix, ask=FALSE, smooth=smooth, 
-                    maxplot=maxplot, parallel=object$parallel,
-                    x0=x0, 
-                    xlab=xlab, ylab=ylab, mcmc.title=main, ...)
-    }else{
-     warning("For all MCMC diagnostics you need the 'coda' package.")
-     return(invisible())
-    }
-    if(is.null(degeneracy.value) || !is.infinite(degeneracy.value)){
-     cat("\nr=0.0125 and 0.9875:\n")
-     raft9875 <- ergm.raftery.diag(statsmatrix, r=0.9875, ...)
-     raft     <- ergm.raftery.diag(statsmatrix, r=0.0125, ...)
-     aaa <- raft9875$resmatrix > raft$resmatrix
-     aaa[is.na(aaa)] <- FALSE
-     raft$resmatrix[aaa] <- raft9875$resmatrix[aaa]
-     simvalues <- attr(statsmatrix, "mcpar")
-     if(is.null(simvalues)){
-       simvalues <- c(2, nrow(statsmatrix), 1)
-     }
-     raft$degeneracy.value <- degeneracy.value
-     raft$degeneracy.type <- degeneracy.type
-     if(verbose){
-      print(raft, simvalues=simvalues)
-     }
-    }else{
-     raft <- list(simvalues=NULL,
-                  degeneracy.value=degeneracy.value,
-                  degeneracy.type=degeneracy.type)
-    }
-    return(invisible(raft))
+    message("Package latticeExtra is not installed. Falling back on coda's default MCMC diagnostic plots.")
+    plot(sm,...)
+    if(!is.null(sm.obs)) plot(sm.obs,...)
   }
+
+  invisible(list(degeneracy.value=degeneracy.value,
+                 degeneracy.type=degeneracy.type))
+}
+
+plot.mcmc.list.ergm <- function(x, main=NULL, vars.per.page=3,...){
+  dp <- update(densityplot(x, panel=function(...){panel.densityplot(...);panel.abline(v=0)}),xlab=NULL,ylab=NULL)
+  tp <- update(xyplot(x, panel=function(...){panel.xyplot(...);panel.loess(...);panel.abline(0,0)}),xlab=NULL,ylab=NULL)
+
+  library(latticeExtra)
+
+  pages <- ceiling(nvar(x)/vars.per.page)
+  
+  reordering <- c(rbind(seq_len(nvar(x)),nvar(x)+seq_len(nvar(x))))
+  
+  print(update(c(tp,dp)[reordering],layout=c(2,vars.per.page),as.table=TRUE,main=main))
 }
 
 
-
-###############################################################
-# The <ergm.raftery.diag> function computes and returns
-# values associated with the Raftery and Lewis diagnostics.
-#
-# --PARAMETERS--
-#   data        : the matrix of summary statistics or an mcmc
-#                 object or list thereof
-#   q           : the quantile to be estimated; default=.025
-#   r           : the desired margin of error of the estimate;
-#                 default=.005
-#   s           : the probability of obtaining an estimate in
-#                 the interval (q-r, q+r); default=.95
-#   converge.eps: the precision required for convergence;
-#                 default=.001
-#
-# --RETURN--
-#   if 'data' is a single matrix or mcmc object, a list containing
-#      params   : the vector of input parameters c('r', 's', 'q')
-#      resmatrix: the
-#   is returned;  if 'data' is a list, then a list of the lists
-#   above, with the additional components
-#      tspar    : the time series parameters of 'data'
-#      Niters   : the number of iterations in 'data'
-#
-##################################################################
-
-"ergm.raftery.diag" <-
-function (data, q = 0.025, r = 0.005, s = 0.95, converge.eps = 0.001) 
-{
-    if (is.mcmc.list(data)) 
-        return(lapply(data, raftery.diag, q, r, s, converge.eps))
-#   data <- as.mcmc(data)
-    resmatrix <- matrix(nrow = nvar(data), ncol = 4,
-        dimnames = list(varnames(data, 
-        allow.null = TRUE), c("M", "N", "Nmin", "I")))
-    phi <- qnorm(0.5 * (1 + s))
-    nmin <- as.integer(ceiling((q * (1 - q) * phi^2)/r^2))
-    if (nmin > nrow(data)) 
-      resmatrix <- c("Error", nmin)
-    else for (i in 1:nvar(data)) {
-      #          First need to find the thinning parameter kthin 
-      # 
-      if (is.matrix(data)) {
-        quant <- quantile(data[, i, drop = TRUE], probs = q)
-        dichot <- mcmc(data[, i, drop = TRUE] <= quant,
-                       start = 1, end = nrow(data), thin = 1)
-      }
-      else {
-          quant <- quantile(data, probs = q)
-          dichot <- mcmc(data <= quant, start = 1,
-                         end = nrow(data), thin = 1)
-      }
-      attr(dichot, "mcpar") <- attr(data, "mcpar")
-      kthin <- 0
-      bic <- 1
-      use <- 1:nrow(data)
-      while (bic >= 0) {
-        kthin <- kthin + 1
-#       testres <- as.vector(ergm.window.mcmc(dichot, thin = kthin))
-        testres <- dichot[use <= trunc((length(dichot) - 1)/kthin + 1.5)]
-        newdim <- length(testres)
-#       testtran <- table(testres[1:(newdim - 2)],
-#                         testres[2:(newdim - 1)],
-#                         testres[3:newdim])
-        aaa <- testres[1:(newdim - 2)] + testres[2:(newdim - 1)]*2 +testres[3:newdim]*4 + 1
-        testtran <- array(tabulate(aaa, nbin=9), dim=c(2,2,2),
-            dimnames=list(c(TRUE,FALSE), c(TRUE,FALSE),c(TRUE,FALSE)))
-        testtran <- array(as.double(testtran), dim = dim(testtran))
-        g2 <- 0
-        for (i1 in 1:2) {
-          for (i2 in 1:2) {
-            for (i3 in 1:2) {
-              if (testtran[i1, i2, i3] != 0) {
-                fitted <- (sum(testtran[i1, i2, 1:2]) * 
-                  sum(testtran[1:2, i2, i3]))/(sum(testtran[1:2, i2, 1:2]))
-                g2 <- g2 + testtran[i1, i2, i3] * log(testtran[i1, 
-                  i2, i3]/fitted) * 2
-              }
-            }
-          }
-        }
-        bic <- g2 - log(newdim - 2) * 2
-      }
-      #
-      # then need to find length of burn-in and No of iterations 
-      # for required precision 
-      # 
-#     finaltran <- table(testres[1:(newdim - 1)], testres[2:newdim])
-      aaa <- testres[1:(newdim - 1)] + testres[2:newdim]*2 + 1
-      finaltran <- array(tabulate(aaa, nbin=4), dim=c(2,2),
-            dimnames=list(c(TRUE,FALSE), c(TRUE,FALSE)))
-      alpha <- finaltran[1, 2]/(finaltran[1, 1] + finaltran[1, 2])
-      beta <- finaltran[2, 1]/(finaltran[2, 1] + finaltran[2, 2])
-      tempburn <- log((converge.eps * (alpha + beta))/max(alpha, 
-          beta))/(log(abs(1 - alpha - beta)))
-      tempburn[is.na(tempburn)] <- 0 
-      nburn <- as.integer(ceiling(tempburn) * kthin * thin(data))
-      tempprec <- ((2 - alpha - beta) * alpha * beta * phi^2)/(((alpha + 
-          beta)^3) * r^2)
-      tempprec[is.na(tempprec)] <- 0 
-      nkeep <- as.integer(ceiling(tempprec) * kthin * thin(data))
-      iratio <- (nburn + nkeep)/nmin
-      resmatrix[i, 1] <- nburn
-      resmatrix[i, 2] <- nkeep + nburn
-      resmatrix[i, 3] <- nmin
-      resmatrix[i, 4] <- signif(iratio, digits = 3)
-    }
-    resmatrix[is.na(resmatrix)] <- 0
-    y <- list(params = c(r = r, s = s, q = q), resmatrix = resmatrix)
-    class(y) <- "raftery.diag.ergm"
-    return(y)
-}
-
-
-#######################################################################
-# The <print.raftery.diag.ergm> function prints out the results of
-# the Raftery-Lewis diagnostics
-#
-# --PARAMETERS--
-#   x        :  a raftery.diag or rafter.diag.ergm object
-#   digits   :  the number of digits to print; default=3
-#   simvalues:  ??; default=NULL
-#
-# --RETURNED--
-#   'x' as inputted
-########################################################################
-
-print.raftery.diag.ergm <- function (x, digits = 3, simvalues=NULL, ...) 
-{
-    if(is.null(simvalues)){
-      simvalues <- c(2, nrow(x$resmatrix), 1)
-    }
-    cat("\nQuantile (q) =", x$params["q"])
-    cat("\nAccuracy (r) = +/-", x$params["r"])
-    cat("\nProbability (s) =", x$params["s"], "\n")
-    if (!is.na(x$resmatrix[1]) && x$resmatrix[1] == "Error") 
-        cat("\nYou need a sample size of at least", x$resmatrix[2], 
-            "with these values of q, r and s\n")
-    else {
-        out <- cbind(x$resmatrix, 
-          sweep(matrix(x$resmatrix[,1:2],nrow=nrow(x$resmatrix)),2,simvalues[1:2],"<"))
-        for (i in ncol(out)) out[, i] <- format(out[, i], digits = digits)
-        out <- rbind(matrix(c("Burn-in ", "Total", "Lower bound ", 
-            "Dependence", "enough", "enough", "(M)", "(N)", "(Nmin)",
-            "factor (I)", "burn-in?", "samples?"), 
-            byrow = TRUE, nrow = 2), out)
-        if (!is.null(rownames(x$resmatrix))){ 
-            out <- cbind(c("", "", rownames(x$resmatrix)), out)
-        }else{
-            out <- cbind("", out)
-        }
-        dimnames(out) <- list(rep("", nrow(out)), rep("", ncol(out)))
-        if(ncol(out)>6){
-         out[out[,7]=="1",7] <- "yes"
-         out[out[,7]=="0",7] <- " no"
-         out[out[,2]=="0",7] <- " no"
-         out[out[,3]=="0",7] <- " no"
-         out[out[,5]=="0",7] <- " no"
-        }
-        if(ncol(out)>6){
-         out[out[,6]=="1",6] <- "yes"
-         out[out[,6]=="0",6] <- " no"
-         out[out[,2]=="0",6] <- " no"
-         out[out[,3]=="0",6] <- " no"
-         out[out[,5]=="0",6] <- " no"
-        }
-        print.default(out, quote = FALSE, ...)
-        cat("\n")
-    }
-    invisible(x)
-}
-
-
-##################################################################
-# The <plot.mcmc.ergm> function plots a choice of trace plots
-# and density plots for each of the variables in the given
-# mcmc object or statsmatrix 'x'
-#
-# --PARAMETERS--
-#   x          : a matrix of summary statistics or an mcmc object
-#   trace      : whether to produce a trace plot via
-#                <trace.plot.ergm> (T or F); default=TRUE
-#   density    : whether to print a plot of the density estimate
-#                for each variable in 'x' (T or F); default=TRUE
-#   smooth     : whether to draw a smooth line through the trace
-#                plot (T or F); this is passed to <trace.plot.ergm>;
-#                default=TRUE
-#   bwf        : a function for calculating the bandwidth that 
-#                is passed to the R coda function <densplot>;
-#                default=1.06*the min of the sd and IQ range 
-#                divided by 1.34*the sample size to the negative
-#                1/5 power
-#   auto.layout: whether to use the <set.mfrow> function to
-#                layout the plots (T or F); default=TRUE
-#   ask        : whether the user should be asked before
-#                printing each plot (T or F); default=TRUE
-#   maxplot    : the maximum number of trace plots to print;
-#                default=1000
-#   parallel   : the number of vertical parallel lines to print
-#                on the trace plots; default=0 
-#   x0         : a vector of positions at which to draw horizontal
-#                lines on the traceplots and vertical lines on
-#                the density plots
-#   mcmc.title : the title to position over the plots; default=""
-#   xlab, ylab : have their usual par-like meanings
-#   ...        : additional parameters, all of which will be
-#                ignored
-#
-# --RETURNED--
-#   NULL
-###################################################################
-
-"plot.mcmc.ergm" <- function(x, trace = TRUE, density = TRUE, 
-                         smooth = TRUE, bwf, 
-                         auto.layout = TRUE, ask = TRUE,
-                         xlab = "Iterations", ylab = "",
-                         maxplot=1000, parallel=0, x0, mcmc.title="", ...) 
-{
-  oldpar <- NULL
-  on.exit(par(oldpar))
-  if (auto.layout) {
-    mfrow <- set.mfrow(Nchains = nchain(x), Nparms = nvar(x), 
-                       nplots = trace + density)
-    oldpar <- par(mfrow = mfrow)
+# Some utility functions:
+colMeans.mcmc.list<-function(x,...) colMeans(as.matrix(x),...)
+sweep.mcmc.list<-function(x, STATS, FUN="-", check.margin=TRUE, ...){
+  for(chain in seq_along(x)){
+    x[[chain]] <- sweep(x[[chain]], 2, STATS, FUN, check.margin, ...)
   }
-  oldpar <- c(oldpar, par(ask = ask))
-  for (i in 1:nvar(x)) {
-    y <- x[, i, drop = FALSE]
-    attr(y, "class") <- "mcmc"
-    if (trace){ 
-      traceplot.ergm(y, smooth = smooth, maxplot=maxplot, parallel=parallel,
-                     xlab=xlab, ylab=ylab)
-      abline(h=x0[i],lty=3, lwd=2)
-    }
-    if (density){
-      if (missing(bwf)) 
-        densplot(y)
-      else{densplot(y, bwf = bwf)}
-      abline(v=x0[i],lty=3, lwd=2)
-    }
-    if(i==1){mtext(text=mcmc.title, outer=TRUE, line = -1.5)}
-  }
+  x
 }
-
-
-
-####################################################################
-# The <traceplot.ergm> function plots a trace plot for each of the
-# variables in an mcmc object or stats matrix 'x'
-#
-# --PARAMETERS--
-#   x       : a matrix of summary statistics or an mcmc object
-#   smooth  : whether to draw a smooth line through the trace
-#             plot (T or F); default=TRUE
-#   maxplot : the maximum number of trace plots to print;
-#             default=1000
-#   parallel: the number of vertical parallel lines to print
-#             on the trace plots; default=0 
-#   col, type, xlab, and ylab take on their usual par-like meanings
-#
-# --RETURNED--
-#   NULL
-#
-######################################################################
-
-"traceplot.ergm" <-
-function (x, smooth = TRUE, col = 1:6, type = "l",
-          xlab = "Iterations", ylab = "", maxplot=1000, parallel=0, ...) 
-{
-# x <- mcmc.list(x)
-# xmcpar <- c(start(x), end(x), thin(x))
-  args <- list(...)
-  for (j in 1:nvar(x)) {
-    xp <- seq(start(x), end(x), thin(x))
-    yp <- x
-    if(length(yp) > maxplot){
-     yp <- as.matrix(yp[seq(1,length(yp),length=maxplot),])
-     xp <- xp[seq(1,length(xp),length=maxplot)]
-    }
-    matplot(xp, yp, xlab = xlab, ylab = ylab, type = type, 
-         col = col, ...)
-    if(!is.null(parallel) && parallel>0){
-     abline(v=xp[round(seq(from=1,to=length(xp),length=parallel+1))],lty=2)
-    }
-    if (!is.null(varnames(x)) && is.null(list(...)$main)) 
-      title(paste("Trace of", varnames(x)[j]))
-    if (smooth) {
-      scol <- rep(col, length = nchain(x))
-      for (k in 1:nchain(x)) lines(lowess(xp, yp[, k]), 
-                                   col = scol[k])
-    }
-  }
-}
-
-
-
-
-###################################################################
-# The <set.mfrow> functions sets the par mfrow variable to
-# accomodate the mcmc diagnostic plots
-#
-# --PARAMETERS--
-#   Nchains: the number of chains; default=1
-#   Nparms : the number of theta coefficients?? ;default=1
-#   nplots : how many plots there will be per variable;
-#            default=1
-#   sepplot: whether there will be separate plots per chain;
-#            default=FALSE
-#
-# --RETURNED--
-#   mfrow: the par 'mfrow' vector c(nr, nc) used to set up the
-#          dimensions of the graphics window; the values nr x nc
-#          are:
-#     if only density plots OR trace plots are requested, dimensions are: 
-#	1 x 1	if Nparms = 1 
-#	1 X 2 	if Nparms = 2 
-#	2 X 2 	if Nparms = 3 or 4 
-#	3 X 2 	if Nparms = 5 or 6 or 10 - 12 
-#	3 X 3 	if Nparms = 7 - 9 or >= 13 
-#     if both density plots AND trace plots are requested, dimensions are: 
-#	1 x 2	if Nparms = 1 
-#	2 X 2 	if Nparms = 2 
-#	3 X 2 	if Nparms = 3, 5, 6, 10, 11, or 12 
-#	4 x 2	if Nparms otherwise 
-#     if separate plots are requested for each chain, dimensions are: 
-#	1 x 2	if Nparms = 1 & Nchains = 2 
-#	2 X 2 	if Nparms = 2 & Nchains = 2 OR Nparms = 1 & Nchains = 3 or 4 
-#	3 x 2	if Nparms = 3 or >= 5 & Nchains = 2  
-#		   OR Nchains = 5 or 6 or 10 - 12 (and any Nparms) 
-#	2 x 3	if Nparms = 2 or 4 & Nchains = 3 
-#	4 x 2   if Nparms = 4 & Nchains = 2  
-#		   OR Nchains = 4 & Nparms > 1 
-#	3 x 3	if Nparms = 3 or >= 5  & Nchains = 3  
-#		   OR Nchains = 7 - 9 or >= 13 (and any Nparms)
-############################################################################
-
-"set.mfrow" <-
-function (Nchains = 1, Nparms = 1, nplots = 1, sepplot = FALSE) 
-{
-  mfrow <- if (sepplot && Nchains > 1 && nplots == 1) {
-    ## Separate plots per chain
-    ## Only one plot per variable
-    if (Nchains == 2) {
-      switch(min(Nparms, 5),
-             c(1,2),
-             c(2,2),
-             c(3,2),
-             c(4,2),
-             c(3,2))
-    }
-    else if (Nchains == 3) {
-      switch(min(Nparms, 5),
-             c(2,2),
-             c(2,3),
-             c(3,3),
-             c(2,3),
-             c(3,3))
-    }
-    else if (Nchains == 4) {
-      if (Nparms == 1)
-        c(2,2)
-      else
-        c(4,2)
-    }
-    else if (any(Nchains == c(5,6,10,11,12)))
-      c(3,2)
-    else if (any(Nchains == c(7,8,9)) || Nchains >=13)
-      c(3,3)
-      
-  }
-  else {
-    if (nplots==1) {
-      ## One plot per variable
-      mfrow <- switch(min(Nparms,13),
-                      c(1,1),
-                      c(1,2),
-                      c(2,2),
-                      c(2,2),
-                      c(3,2),
-                      c(3,2),
-                      c(3,3),
-                      c(3,3),
-                      c(3,3),
-                      c(3,2),
-                      c(3,2),
-                      c(3,2),
-                      c(3,3))
-    }
-    else {
-      ## Two plot per variable
-      ##
-      mfrow <- switch(min(Nparms, 13),
-                      c(1,2),
-                      c(2,2),
-                      c(3,2),
-                      c(4,2),
-                      c(3,2),
-                      c(3,2),
-                      c(4,2),
-                      c(4,2),
-                      c(4,2),
-                      c(3,2),
-                      c(3,2),
-                      c(3,2),
-                      c(4,2))
-    }
-  }
-  return(mfrow)
-}
-
-
-
-#"nvar.mcmc" <- function (x) {
-#  if (is.mcmc.object(x)) {
-#    if (is.matrix(x)){ncol(x)}else{1}
-#  }
-#  else if (is.mcmc.list(x)) {
-#    if (is.matrix(x[[1]])){ncol(x[[1]])}else{1}
-#  }
-#  else NULL
-#}
-##
-#"is.mcmc.object" <- function (x){
-#  inherits(x, "mcmc")
-#}
-#
-#"is.mcmc.list.object" <- function (x){
-#  inherits(x, "mcmc.list")
-#}
-#
-#"varnames.mcmc" <- function (x, allow.null = TRUE)
-#{
-#  if (!is.mcmc.object(x) && !is.mcmc.list.object(x))
-#    return(NULL)
-#  y <- if (is.mcmc.object(x))
-#    dimnames(x)[[2]]
-#  else if (is.mcmc.list.object(x))
-#    dimnames(x[[1]])[[2]]
-#  if (is.null(y) && !allow.null)
-#    y <- paste("var", 1:nvar(x), sep = "")
-#  return(y)
-#}
