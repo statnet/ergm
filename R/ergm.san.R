@@ -106,7 +106,7 @@ san.formula <- function(object, response=NULL, reference="Bernoulli", constraint
 # model <- ergm.getmodel(formula, nw, drop=control$drop)
   model <- ergm.getmodel(formula, nw, response=response)
   Clist <- ergm.Cprepare(nw, model, response=response)
-  Clist.miss <- ergm.design(nw, model, response=response, verbose=verbose)
+  Clist.miss <- ergm.design(nw, model, verbose=verbose)
   
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
