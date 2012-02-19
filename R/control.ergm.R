@@ -244,11 +244,14 @@ control.ergm<-function(drop=TRUE,
   for(arg in names(formal.args))
     control[[arg]]<-get(arg)
 
-  for(arg in names(list(...)))
+  for(arg in names(list(...))){
     if(!is.null(old.controls[[arg]])){
       warning("Passing ",arg," to control.ergm(...) is deprecated and may be removed in a future version. Specify it as control.ergm(",old.controls[[arg]],"=...) instead.")
       control[[old.controls[[arg]]]]<-list(...)[[arg]]
+    }else{
+      stop("Unrecognized control parameter: ",arg,".")
     }
+  }
 
   for(arg in match.arg.pars)
     control[[arg]]<-match.arg(control[[arg]][1],eval(formal.args[[arg]]))

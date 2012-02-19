@@ -80,11 +80,15 @@ control.simulate<-control.simulate.formula<-control.simulate.formula.ergm<-funct
   for(arg in names(formal.args))
     control[[arg]]<-get(arg)
 
-  for(arg in names(list(...)))
+  for(arg in names(list(...))){
     if(!is.null(old.controls[[arg]])){
       warning("Passing ",arg," to ergm(...) is deprecated and may be removed in a future version. Specify it as control.simulate.formula(",old.controls[[arg]],"=...) instead.")
       control[[old.controls[[arg]]]]<-list(...)[[arg]]
+    }else{
+      stop("Unrecognized control parameter: ",arg,".")
     }
+  }
+
   
   control
 }
