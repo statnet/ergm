@@ -126,7 +126,7 @@ stergm.RM2 <- function(theta.form0, nw, model.form, model.diss,
 
   }
 
-  if(control$RM.refine) coef.form <- -solve(t(oh.fit[-1,]),oh.fit[1,])
+  if(control$RM.refine) eta.form <- -solve(t(oh.fit[-1,]),oh.fit[1,])
 
   if(control$RM.se){
     control.phase3<-control
@@ -142,7 +142,7 @@ stergm.RM2 <- function(theta.form0, nw, model.form, model.diss,
   }else V.par <- NULL
   
   #ve<-with(z,list(coef=eta,sample=s$statsmatrix.form,sample.obs=NULL))
-  names(coef.form)<-model.form$coef.names
+  names(eta.form)<-model.form$coef.names
   
   #endrun <- control$MCMC.burnin+control$MCMC.interval*(ve$samplesize-1)
   #attr(ve$sample, "mcpar") <- c(control$MCMC.burnin+1, endrun, control$MCMC.interval)
@@ -151,7 +151,7 @@ stergm.RM2 <- function(theta.form0, nw, model.form, model.diss,
   list(newnetwork=nw, 
        init.form=theta.form0,
        covar=V.par,
-       coef.form=coef.form,
+       coef.form=eta.form,
        coef.diss=theta.diss,
        opt.history=oh,
        sample=z$statsmatrix.form,
