@@ -27,7 +27,7 @@ void wt_network_stats_wrapper(int *tails, int *heads, double *weights, int *dned
   
   m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
   nw[0]=WtNetworkInitialize(NULL, NULL, NULL, 0,
-			    n_nodes, directed_flag, bip, 0);
+			    n_nodes, directed_flag, bip, 0, 0, NULL);
 
   /* Compute the change statistics and copy them to stats for return to R. */
   WtSummStats(n_edges, tails, heads, weights, nw, m,stats);

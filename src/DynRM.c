@@ -1,7 +1,7 @@
 #include "DynRM.h"
 
 void MCMCDynRMPhase2_wrapper(// Observed network.
-			     int *tails, int *heads, int *n_edges,
+			     int *tails, int *heads, int *time, int *lasttoggle, int *n_edges,
 			     int *n_nodes, int *dflag, int *bipartite, 
 			     // Formation terms and proposals.
 			     int *F_nterms, char **F_funnames, char **F_sonames,
@@ -42,7 +42,7 @@ void MCMCDynRMPhase2_wrapper(// Observed network.
   memset(newnetworktail,0,*maxedges*sizeof(int));
   memset(newnetworkhead,0,*maxedges*sizeof(int));
 
-  MCMCDyn_init_common(tails, heads, *n_edges,
+  MCMCDyn_init_common(tails, heads, *time, lasttoggle, *n_edges,
 		      *n_nodes, *dflag, *bipartite, nw,
 		      *F_nterms, *F_funnames, *F_sonames, F_inputs, &F_m,
 		      *D_nterms, *D_funnames, *D_sonames, D_inputs, &D_m,
@@ -72,8 +72,11 @@ void MCMCDynRMPhase2_wrapper(// Observed network.
 
   /* record the final network to pass back to R */
 
-  if(*status==MCMCDyn_OK)
+  if(*status==MCMCDyn_OK){
     newnetworktail[0]=newnetworkhead[0]=EdgeTree2EdgeList(newnetworktail+1,newnetworkhead+1,nw,*maxedges);
+    *time = nw->duration_info.MCMCtimer;
+    memcpy(lasttoggle, nw->duration_info.lasttoggle, sizeof(int)*(*dflag? *n_nodes*(*n_nodes-1) : (*n_nodes*(*n_nodes-1))/2));
+  }
 
   MCMCDyn_finish_common(nw, F_m, D_m, M_m, &F_MH, &D_MH);
   free(difftime);

@@ -14,7 +14,7 @@ void plinfo_wrapper (int *tails, int *heads, int *dnedges,
   Vertex bip=0;  /* Assumes bipartite is irrelevant; is this true? */
 
   GetRNGstate(); /* Necessary for use of R random number generator */
-  nw=NetworkInitialize(tails, heads, n_edges, n_nodes, directed_flag, bip, 1);
+  nw=NetworkInitialize(tails, heads, n_edges, n_nodes, directed_flag, bip, 1, 0, NULL);
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
   
   plinfoInitialize(responsevec, covmat,(Vertex*)start,(Vertex*)end, &nw, m);

@@ -76,6 +76,10 @@ ergm.Cprepare <- function(nw, m, response=NULL)
       Clist$weights<-e[,3]
     }
   }
+
+  Clist$lasttoggle <- nw %n% "lasttoggle"
+  Clist$time <- nw %n% "time"
+  
   mo<-m$terms 
   
   Clist$nterms<-length(mo)

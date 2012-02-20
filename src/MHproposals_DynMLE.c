@@ -63,12 +63,11 @@ void MH_DissolutionMLE (MHproposal *MHp, Network *nwp)
 {  
   static Vertex nnodes;
   unsigned int trytoggle;
-  static Edge ndyads, nedges0;
+  static Edge nedges0;
 
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
     nnodes = nwp[0].nnodes;
-    ndyads = (nnodes-1)*nnodes / (nwp[0].directed_flag? 1:2);
     nedges0 = MHp->inputs[0];
     return;
   }
@@ -119,7 +118,7 @@ void MH_FormationMLETNT(MHproposal *MHp, Network *nwp)
     Edge nedges0 = MHp->inputs[0];
     MHp->discord = (Network**) calloc(2,sizeof(Network*)); // A space for the sentinel NULL pointer.
     MHp->discord[0] = &discord;
-    discord = NetworkInitializeD(MHp->inputs+1, MHp->inputs+1+nedges0, nedges0, nnodes, nwp->directed_flag, nwp->bipartite, 0);
+    discord = NetworkInitializeD(MHp->inputs+1, MHp->inputs+1+nedges0, nedges0, nnodes, nwp->directed_flag, nwp->bipartite, 0, 0, NULL);
    
     for(Edge i=0; i<nwp->nedges; i++){
       FindithEdge(&tail, &head, i+1, nwp);

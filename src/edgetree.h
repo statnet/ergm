@@ -38,7 +38,6 @@ edges in a network structure.
 typedef struct Dur_Infstruct {
   int MCMCtimer;
   int *lasttoggle;
-/*  double mean_edge_duration; This is probably not a good idea */
 } Dur_Inf;
 
 
@@ -83,11 +82,11 @@ typedef struct Networkstruct {
 /* Initialization and destruction. */
 Network NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,
 			  Vertex nnodes, int directed_flag, Vertex bipartite,
-			  int lasttoggle_flag);
+			  int lasttoggle_flag, int time, int *lasttoggle);
 void NetworkDestroy(Network *nwp);
 Network NetworkInitializeD(double *tails, double *heads, Edge nedges,
 			   Vertex nnodes, int directed_flag, Vertex bipartite,
-			   int lasttoggle_flag);
+			   int lasttoggle_flag, int time, int *lasttoggle);
 
 Network *NetworkCopy(Network *dest, Network *src);
 

@@ -47,7 +47,7 @@ void WtMCMC_wrapper(int *dnumnets, int *nedges,
 
   /* Form the network */
   nw[0]=WtNetworkInitialize(tails, heads, weights, nedges[0], 
-			    n_nodes, directed_flag, bip, 0);
+			    n_nodes, directed_flag, bip, 0, 0, NULL);
 
   WtMH_init(&MH,
 	    *MHproposaltype, *MHproposalpackage,

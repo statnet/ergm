@@ -109,7 +109,7 @@ void OverlapDurations (int *nnodes,
 
   /* R's serialization of matrices is column-major, so this works: */
   nw = WtNetworkInitialize(edge, edge+ne, starttimes, ne,
-                           *nnodes, 0, bipartite,0);
+                           *nnodes, 0, bipartite, 0, 0, NULL);
   free (starttimes);
 
   /* Step through time one click at a time */
@@ -188,7 +188,6 @@ void DegreeMixMatrix (int *nnodes,
       int *ntotal, int *nchange, int *change,
       int *degmixmat) {
   Vertex m;
-  Edge e;
   Edge i, j, ne = *nedge;
   int time;
   int bipartite = *nfem;
@@ -196,7 +195,7 @@ void DegreeMixMatrix (int *nnodes,
 
   /* R's serialization of matrices is column-major, so this works: */
   nw = NetworkInitialize(edge, edge+*nedge, ne,
-                         *nnodes, 0, bipartite, 1);
+                         *nnodes, 0, bipartite, 1, 0, NULL);
   /* Step through time one click at a time */
   for (time=j=0; time <= *ntimestep; time++) {
     /* Update the DEGMIXMAT */
@@ -206,7 +205,6 @@ void DegreeMixMatrix (int *nnodes,
         break;
         case 1: /*if (nw.indegree[nw.outedges[i+1].value] == 1) { */
           m = nw.outedges[i+1].value;
-          e=EdgetreeMinimum(nw.outedges, i+1);
           if (nw.indegree[m]==1) {
             ++DEGMIXMAT(i, 1);
           } else {
@@ -281,7 +279,7 @@ void godfather_wrapper (int *tails, int *heads, int *dnedges,
 
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
   nw = NetworkInitialize(tails, heads, n_edges,
-                         n_nodes, directed_flag, bip, 1);
+                         n_nodes, directed_flag, bip, 1, 0, NULL);
 
   if (*fVerbose) {
     Rprintf("Total m->n_stats is %i.\n",

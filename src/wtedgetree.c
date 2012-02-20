@@ -16,7 +16,7 @@
 
 WtNetwork WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
 			      Edge nedges, Vertex nnodes, int directed_flag, Vertex bipartite,
-			      int lasttoggle_flag) {
+			      int lasttoggle_flag, int time, int *lasttoggle) {
   WtNetwork nw;
 
   nw.next_inedge = nw.next_outedge = (Edge)nnodes+1;
@@ -31,8 +31,11 @@ WtNetwork WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
   GetRNGstate();  /* R function enabling uniform RNG */
 
   if(lasttoggle_flag){
-    nw.duration_info.MCMCtimer=0;
-    nw.duration_info.lasttoggle = (int *) calloc(directed_flag? nnodes*(nnodes-1) : (nnodes*(nnodes-1))/2, sizeof(int));
+    unsigned int ndyads = directed_flag? nnodes*(nnodes-1) : (nnodes*(nnodes-1))/2;
+    nw.duration_info.MCMCtimer=time;
+    nw.duration_info.lasttoggle = (int *) calloc(ndyads, sizeof(int));
+    if(lasttoggle)
+      memcpy(nw.duration_info.lasttoggle, lasttoggle, ndyads * sizeof(int));
   }
   else nw.duration_info.lasttoggle = NULL;
 
@@ -64,7 +67,7 @@ WtNetwork WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
 /*Takes vectors of doubles for edges; used only when constructing from inputparams. */
 WtNetwork WtNetworkInitializeD(double *tails, double *heads, double *weights, Edge nedges,
            Vertex nnodes, int directed_flag, Vertex bipartite,
-           int lasttoggle_flag) {
+           int lasttoggle_flag, int time, int *lasttoggle) {
 
   /* *** don't forget, tail -> head */
 
@@ -76,7 +79,7 @@ WtNetwork WtNetworkInitializeD(double *tails, double *heads, double *weights, Ed
     iheads[i]=heads[i];
   }
 
-  WtNetwork nw=WtNetworkInitialize(itails,iheads,weights,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag);
+  WtNetwork nw=WtNetworkInitialize(itails,iheads,weights,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag, time, lasttoggle);
 
   free(itails);
   free(iheads);

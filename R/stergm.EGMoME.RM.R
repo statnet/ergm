@@ -68,6 +68,9 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
   control.phase1$time.samplesize <- 1
   control.phase1$time.burnin <- control$RM.burnin
   control.phase1$time.interval <- 1
+  
+  nw %n% "lasttoggle" <- rep(0, network.dyadcount(nw))
+  nw %n% "time" <- 0
 
   # Run burn-in.
   z <- stergm.getMCMCsample(nw, model.form, model.diss, model.mon, MHproposal.form, MHproposal.diss, eta.form, eta.diss, control.phase1, verbose)
@@ -282,7 +285,9 @@ stergm.EGMoME.RM.Phase2.C <- function(nw, model.form, model.diss, model.mon,
   repeat{
     z <- .C("MCMCDynRMPhase2_wrapper",
             # Observed/starting network. 
-            as.integer(Clist.form$tails), as.integer(Clist.form$heads), 
+            as.integer(Clist.form$tails), as.integer(Clist.form$heads),
+            time = if(is.null(Clist.form$time)) as.integer(0) else as.integer(Clist.form$time),
+            lasttoggle = if(is.null(Clist.form$time)) integer(network.dyadcount(nw)) else as.integer(Clist.form$lasttoggle),
             as.integer(Clist.form$nedges),
             as.integer(Clist.form$n),
             as.integer(Clist.form$dir), as.integer(Clist.form$bipartite),
@@ -336,6 +341,8 @@ stergm.EGMoME.RM.Phase2.C <- function(nw, model.form, model.diss, model.mon,
   names(eta.diss) <- names(eta.diss0)
 
   newnetwork<-newnw.extract(nw,z)
+  newnetwork %n% "time" <- z$time
+  newnetwork %n% "lasttoggle" <- z$lasttoggle
   
   list(nw.diff=z$nw.diff,
        newnetwork=newnetwork,

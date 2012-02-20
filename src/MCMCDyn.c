@@ -6,7 +6,7 @@
  should have (k,j) with k>j.
 *****************/
 
-void MCMCDyn_init_common(int *tails, int *heads, int n_edges,
+void MCMCDyn_init_common(int *tails, int *heads, int time, int *lasttoggle, int n_edges,
 			 int n_nodes, int dflag, int bipartite, Network *nw,
 			 
 			 int F_nterms, char *F_funnames, char *F_sonames, double *F_inputs, Model **F_m,
@@ -19,21 +19,22 @@ void MCMCDyn_init_common(int *tails, int *heads, int n_edges,
 			 char *F_MHproposaltype, char *F_MHproposalpackage, MHproposal *F_MH,
 			 char *D_MHproposaltype, char *D_MHproposalpackage, MHproposal *D_MH,
 			 int fVerbose){
-  GetRNGstate();  /* R function enabling uniform RNG */
   
   *F_m=ModelInitialize(F_funnames, F_sonames, &F_inputs, F_nterms);
   *D_m=ModelInitialize(D_funnames, D_sonames, &D_inputs, D_nterms);
   if(M_nterms) *M_m=ModelInitialize(M_funnames, M_sonames, &M_inputs, M_nterms); else *M_m=NULL;
 
   nw[0]=NetworkInitialize(tails, heads, n_edges, 
-                          n_nodes, dflag, bipartite, 1);
+                          n_nodes, dflag, bipartite, 1, time, lasttoggle);
   nw[1]=NetworkInitialize(NULL, NULL, 0,
-                          n_nodes, dflag, bipartite, 0);
-  
+                          n_nodes, dflag, bipartite, 0, 0, NULL);
+
   MH_init(F_MH, F_MHproposaltype, F_MHproposalpackage, F_inputs, fVerbose, nw, attribs, maxout, maxin, minout, minin,
 			    condAllDegExact, attriblength);
   MH_init(D_MH, D_MHproposaltype, D_MHproposalpackage, D_inputs, fVerbose, nw, attribs, maxout, maxin, minout, minin,
 			    condAllDegExact, attriblength);
+
+  GetRNGstate();  /* R function enabling uniform RNG. It needs to come after NetworkInitialize and MH_init, since they may call GetRNGstate as well. */  
 
 }
 
@@ -60,7 +61,7 @@ void MCMCDyn_finish_common(Network *nw,
  Wrapper for a call from R.
 *****************/
 void MCMCDyn_wrapper(// Starting network.
-		     int *tails, int *heads, int *n_edges,
+		     int *tails, int *heads, int *time, int *lasttoggle, int *n_edges,
 		     int *n_nodes, int *dflag, int *bipartite,
 		     // Formation terms and proposals.
 		     int *F_nterms, char **F_funnames, char **F_sonames, 
@@ -109,7 +110,7 @@ void MCMCDyn_wrapper(// Starting network.
     memset(diffhead,0,*maxchanges*sizeof(Vertex));
   }
 
-  MCMCDyn_init_common(tails, heads, *n_edges,
+  MCMCDyn_init_common(tails, heads, *time, lasttoggle, *n_edges,
 		      *n_nodes, *dflag, *bipartite, nw,
 		      *F_nterms, *F_funnames, *F_sonames, F_inputs, &F_m,
 		      *D_nterms, *D_funnames, *D_sonames, D_inputs, &D_m,
@@ -130,8 +131,11 @@ void MCMCDyn_wrapper(// Starting network.
    
   /* record new generated network to pass back to R */
 
-  if(*status == MCMCDyn_OK && *maxedges>0 && newnetworktails && newnetworkheads)
+  if(*status == MCMCDyn_OK && *maxedges>0 && newnetworktails && newnetworkheads){
     newnetworktails[0]=newnetworkheads[0]=EdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,nw,*maxedges-1);
+    *time = nw->duration_info.MCMCtimer;
+    if(lasttoggle) memcpy(lasttoggle, nw->duration_info.lasttoggle, sizeof(int)*(*dflag? *n_nodes*(*n_nodes-1) : (*n_nodes*(*n_nodes-1))/2));
+  }
 
   if(diffnetworktime==NULL){
     free(difftime);

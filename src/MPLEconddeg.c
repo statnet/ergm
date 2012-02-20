@@ -46,7 +46,7 @@ void MPLEconddeg_wrapper (int *tails, int *heads, int *dnedges,
 
   /* Form the missing network */
   nw[0]=NetworkInitialize(tails, heads, n_edges, 
-                          n_nodes, directed_flag, bip, 0);
+                          n_nodes, directed_flag, bip, 0, 0, NULL);
  
   MH_init(&MH,
 	  *MHproposaltype, *MHproposalpackage,
@@ -90,11 +90,10 @@ void CondDegSampler (MHproposal *MHp,
   int samplesize, int burnin, 
   int interval, int fVerbose,
   Network *nwp, Model *m) {
-  int staken, tottaken, ptottaken, originterval;
-  int i, components, diam;
+  int staken, tottaken, originterval;
+  int i;
   
   originterval = interval;
-  components = diam = 0;
   
   /*********************
   networkstatistics are modified in groups of m->n_stats, and they
@@ -120,7 +119,6 @@ void CondDegSampler (MHproposal *MHp,
   if (samplesize>1){
     staken = 0;
     tottaken = 0;
-    ptottaken = 0;
     
     /* Now sample networks */
     for (i=1; i < samplesize; i++){

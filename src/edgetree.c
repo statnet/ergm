@@ -16,7 +16,7 @@
 
 Network NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges, 
 			  Vertex nnodes, int directed_flag, Vertex bipartite,
-			  int lasttoggle_flag) {
+			  int lasttoggle_flag, int time, int *lasttoggle) {
 
   Network nw;
 
@@ -32,8 +32,11 @@ Network NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,
   GetRNGstate();  /* R function enabling uniform RNG */
 
   if(lasttoggle_flag){
-    nw.duration_info.MCMCtimer=0;
-    nw.duration_info.lasttoggle = (int *) calloc(directed_flag? nnodes*(nnodes-1) : (nnodes*(nnodes-1))/2, sizeof(int));
+    unsigned int ndyads = directed_flag? nnodes*(nnodes-1) : (nnodes*(nnodes-1))/2;
+    nw.duration_info.MCMCtimer=time;
+    nw.duration_info.lasttoggle = (int *) calloc(ndyads, sizeof(int));
+    if(lasttoggle)
+      memcpy(nw.duration_info.lasttoggle, lasttoggle, ndyads * sizeof(int));
   }
   else nw.duration_info.lasttoggle = NULL;
 
@@ -64,7 +67,7 @@ Network NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,
 /*Takes vectors of doubles for edges; used only when constructing from inputparams. */
 Network NetworkInitializeD(double *tails, double *heads, Edge nedges,
 			  Vertex nnodes, int directed_flag, Vertex bipartite,
-			  int lasttoggle_flag) {
+			  int lasttoggle_flag, int time, int *lasttoggle) {
 
   /* *** don't forget, tail -> head */
 
@@ -76,7 +79,7 @@ Network NetworkInitializeD(double *tails, double *heads, Edge nedges,
     iheads[i]=heads[i];
   }
 
-  Network nw=NetworkInitialize(itails,iheads,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag);
+  Network nw=NetworkInitialize(itails,iheads,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag, time, lasttoggle);
 
   free(itails);
   free(iheads);
@@ -618,6 +621,7 @@ int FindithEdge (Vertex *tail, Vertex *head, Edge i, Network *nwp) {
 
 int GetRandEdge(Vertex *tail, Vertex *head, Network *nwp) {
   if(nwp->nedges==0) return(0);
+  // FIXME: The constant maxEattempts needs to be tuned.
   const unsigned int maxEattempts=10;
   unsigned int Eattempts = (nwp->maxedges-1)/nwp->nedges;
   Edge rane;

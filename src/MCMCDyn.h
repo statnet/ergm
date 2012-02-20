@@ -15,7 +15,7 @@ typedef enum MCMCDynStatus_enum {
 } MCMCDynStatus;
 
 
-void MCMCDyn_init_common(int *tails, int *heads, int n_edges,
+void MCMCDyn_init_common(int *tails, int *heads, int time, int *lasttoggle, int n_edges,
 			 int n_nodes, int dflag, int bipartite, Network *nw,
 			 
 			 int F_nterms, char *F_funnames, char *F_sonames, double *F_inputs, Model **F_m,
@@ -38,7 +38,7 @@ void MCMCDyn_finish_common(Network *nw,
 			   MHproposal *D_MH);
 
 void MCMCDyn_wrapper(// Starting network.
-		     int *tails, int *heads, int *n_edges,
+		     int *tails, int *heads, int *time, int *lasttoggle, int *n_edges,
 		     int *n_nodes, int *dflag, int *bipartite,
 		     // Formation terms and proposals.
 		     int *F_nterms, char **F_funnames, char **F_sonames, 

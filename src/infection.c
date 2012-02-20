@@ -35,7 +35,7 @@ void Prevalence (int *nnodes,
   for (k=0; k < *nsim; k++) {
     /* R's serialization of matrixes is column-major, so this works: */
    nw = NetworkInitialize(edge, edge+*nedge, ne,
-                          *nnodes, 0, bipartite, 0);
+                          *nnodes, 0, bipartite, 0, 0, NULL);
    id=nw.indegree;
    od=nw.outdegree;
    ndyads = bipartite*(*nnodes-bipartite);
@@ -148,10 +148,10 @@ void PrevalenceWithBernoulliOption(int *nnodes,
 //    Rprintf("initial bipartite %d edges %d tails[i] %f heads[i] %f\n", bipartite,ne,
 //		           tails[i-1],heads[i-1]);
   nws = NetworkInitialize(edge, edge+*nedge, ne,
-                          *nnodes, 0, bipartite,0);
+                          *nnodes, 0, bipartite, 0, 0, NULL);
   if(*bernoulli){
     nw = NetworkInitialize(edge, edge+*nedge, ne,
-                           *nnodes, 0, bipartite,0);
+                           *nnodes, 0, bipartite, 0, 0, NULL);
   }else{
     nw = nws;
   }
@@ -228,7 +228,7 @@ void PrevalenceWithBernoulliOption(int *nnodes,
       nwedge=nws.nedges;
       Network nw;
       nw = NetworkInitialize(btails, bheads, nwedge,
-                             *nnodes, 0, bipartite,0);
+                             *nnodes, 0, bipartite, 0, 0, NULL);
 //    Rprintf("network reinitalized for Bernoulli bipartite %d edges %d\n", bipartite,nw.nedges);
       id=nw.indegree;
       od=nw.outdegree;
@@ -247,7 +247,7 @@ void PrevalenceWithBernoulliOption(int *nnodes,
    if (k < *nsim) {
     NetworkDestroy (&nw);
     nw = NetworkInitialize(edge, edge+*nedge, ne,
-                           *nnodes, 0, bipartite,0);
+                           *nnodes, 0, bipartite, 0, 0, NULL);
     id=nw.indegree;
     od=nw.outdegree;
    }

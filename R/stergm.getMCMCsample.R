@@ -81,7 +81,9 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss, model.mon,
     #FIXME: Separate MCMC control parameters and properly attach them.
     z <- .C("MCMCDyn_wrapper",
             # Observed network.
-            as.integer(Clist.form$tails), as.integer(Clist.form$heads), 
+            as.integer(Clist.form$tails), as.integer(Clist.form$heads),
+            time = if(is.null(Clist.form$time)) as.integer(0) else as.integer(Clist.form$time),
+            lasttoggle = if(is.null(Clist.form$time)) as.integer(NULL) else as.integer(Clist.form$lasttoggle), 
             as.integer(Clist.form$nedges),
             as.integer(Clist.form$n),
             as.integer(Clist.form$dir), as.integer(Clist.form$bipartite),
@@ -159,9 +161,9 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss, model.mon,
   
 
   newnetwork<-newnw.extract(nw,z)
-#   Next create the network of differences from the origianl one
+  newnetwork %n% "time" <- z$time
+  newnetwork %n% "lasttoggle" <- z$lasttoggle
 
-  
   diffedgelist<-if(!is.null(control$toggles)) {
     if(z$diffnwtails[1]>0){
       cbind(z$diffnwtime[2:(z$diffnwtime[1]+1)],z$diffnwtails[2:(z$diffnwheads[1]+1)],z$diffnwheads[2:(z$diffnwtails[1]+1)])
