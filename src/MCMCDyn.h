@@ -16,22 +16,24 @@ typedef enum MCMCDynStatus_enum {
 
 
 void MCMCDyn_init_common(int *tails, int *heads, int n_edges,
-				  int n_nodes, int dflag, int bipartite, Network *nw,
-
-				  int F_nterms, char *F_funnames, char *F_sonames, double *F_inputs, Model **F_m,
-				  int D_nterms, char *D_funnames, char *D_sonames, double *D_inputs, Model **D_m,
-				  
-				  int *attribs, int *maxout, int *maxin, int *minout,
-				  int *minin, int condAllDegExact, int attriblength, 
-
-				  char *F_MHproposaltype, char *F_MHproposalpackage, MHproposal *F_MH,
-				  char *D_MHproposaltype, char *D_MHproposalpackage, MHproposal *D_MH,
+			 int n_nodes, int dflag, int bipartite, Network *nw,
+			 
+			 int F_nterms, char *F_funnames, char *F_sonames, double *F_inputs, Model **F_m,
+			 int D_nterms, char *D_funnames, char *D_sonames, double *D_inputs, Model **D_m,
+			 int M_nterms, char *M_funnames, char *M_sonames, double *M_inputs, Model **M_m,
+			 
+			 int *attribs, int *maxout, int *maxin, int *minout,
+			 int *minin, int condAllDegExact, int attriblength,
+			 
+			 char *F_MHproposaltype, char *F_MHproposalpackage, MHproposal *F_MH,
+			 char *D_MHproposaltype, char *D_MHproposalpackage, MHproposal *D_MH,
 			 int fVerbose);
 
 
 void MCMCDyn_finish_common(Network *nw,
 			   Model *F_m,
 			   Model *D_m,
+			   Model *M_m,
 			   MHproposal *F_MH,
 			   MHproposal *D_MH);
 
@@ -41,11 +43,13 @@ void MCMCDyn_wrapper(// Starting network.
 		     // Formation terms and proposals.
 		     int *F_nterms, char **F_funnames, char **F_sonames, 
 		     char **F_MHproposaltype, char **F_MHproposalpackage,
-		     double *F_inputs, double *F_theta, 
+		     double *F_inputs, double *F_eta, 
 		     // Dissolution terms and proposals.
 		     int *D_nterms, char **D_funnames, char **D_sonames,
 		     char **D_MHproposaltype, char **D_MHproposalpackage,
-		     double *D_inputs, double *D_theta,
+		     double *D_inputs, double *D_eta,
+		     // Monitored terms.
+		     int *M_nterms, char **M_funnames, char **M_sonames,  double *M_inputs,
 		     // Degree bounds.
 		     int *attribs, int *maxout, int *maxin, int *minout,
 		     int *minin, int *condAllDegExact, int *attriblength, 
@@ -53,9 +57,9 @@ void MCMCDyn_wrapper(// Starting network.
 		     double *nsteps,  int *MH_interval,
 		     double *burnin, double *interval,  
 		     // Space for output.
-		     double *F_sample, double *D_sample, 
+		     double *F_sample, double *D_sample, double *M_sample,
 		     int *maxedges,
-		     int *newnetworktail, int *newnetworkhead, 
+		     int *newnetworktails, int *newnetworkheads, 
 		     int *maxchanges,
 		     int *diffnetworktime, int *diffnetworktail, int *diffnetworkhead, 
 		     // Verbosity.
@@ -65,11 +69,15 @@ void MCMCDyn_wrapper(// Starting network.
 MCMCDynStatus MCMCSampleDyn(// Observed and discordant network.
 			    Network *nwp,
 			    // Formation terms and proposals.
-			    Model *F_m, MHproposal *F_MH, double *theta,
+			    Model *F_m, MHproposal *F_MH,
+			    double *F_eta,
 			    // Dissolution terms and proposals.
-			    Model *D_m, MHproposal *D_MH, double *gamma,
+			    Model *D_m, MHproposal *D_MH,
+			    double *D_eta,
+			    // Monitored terms.
+			    Model *M_m,
 			    // Space for output.
-			    double *F_stats, double *D_stats,// Do we still need these?
+			    double *F_stats, double *D_stats, double *M_stats,
 			    Edge maxedges,
 			    Edge maxchanges,
 			    Vertex *difftime, Vertex *difftail, Vertex *diffhead,		    
@@ -79,13 +87,21 @@ MCMCDynStatus MCMCSampleDyn(// Observed and discordant network.
 			    // Verbosity.
 			    int fVerbose);
 
-void MCMCDyn1Step(Network *nwp,
-		  Model *F_m, MHproposal *F_MH, double *theta,
-		  Model *D_m, MHproposal *D_MH, double *gamma,
+void MCMCDyn1Step(// Observed and discordant network.
+		  Network *nwp,
+		  // Formation terms and proposals.
+		  Model *F_m, MHproposal *F_MH, double *F_eta,
+		  // Dissolution terms and proposals.
+		  Model *D_m, MHproposal *D_MH, double *D_eta,
+		  // Monitored statistics.
+		  Model *M_m,
+		  // Space for output.
 		  unsigned log_toggles,
-		  double *F_stats, double *D_stats,
+		  double *F_stats, double *D_stats, double *M_stats,
 		  unsigned int maxchanges, Edge *nextdiffedge,
 		  Vertex *difftime, Vertex *difftail, Vertex *diffhead,
+		  // MCMC settings.
 		  unsigned int MH_interval,
+		  // Verbosity.
 		  int fVerbose);
 #endif

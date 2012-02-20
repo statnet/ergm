@@ -42,7 +42,6 @@ control.simulate.stergm<-control.simulate.network<-function(MCMC.burnin=1000,
                                   MCMC.init.maxedges=20000,
                                   MCMC.packagenames="ergm",
 
-                                  seed=NULL,
                                   summarizestats=FALSE,
                                   MCMC.init.maxchanges=1000000){
     control<-list()

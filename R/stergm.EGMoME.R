@@ -86,43 +86,41 @@ stergm.EGMoME <- function(nw, formation, dissolution,  offset.coef.form, offset.
     targets <- targets[c(1,3)] # in a formula f<-y~x, f[1]=~, f[2]=y, and f[3]=x
   }
 
-  # FIXME: Offsets in formation are not handled.
-  if(formation!=targets) stop("Fitting equillibrium GMoME with targets different from formation terms is not supported at this time.")
-
   targets <- ergm.update.formula(targets,nw~.)
   formation <- ergm.update.formula(formation,nw~.)
   dissolution <- ergm.update.formula(dissolution,nw~.)
   
   if(!is.null(target.stats)){
-    netsumm<-summary(targets)
-    if(length(netsumm)!=length(target.stats))
-      stop("Incorrect length of the target.stats vector: should be ", length(netsumm), " but is ",length(target.stats),".")
+    nw.stats<-summary(targets)
+    if(length(nw.stats)!=length(target.stats))
+      stop("Incorrect length of the target.stats vector: should be ", length(nw.stats), " but is ",length(target.stats),".")
     
     if(verbose) cat("Constructing an approximate response network.\n")
     ## If target.stats are given, overwrite the given network and targets
     ## with SAN-ed network and targets.
-    srun <- 0
-    obs <- target.stats-target.stats
-    while((srun < control$SAN.maxit) & (sum((obs-target.stats)^2) > 5)){
+    for(srun in 1:control$SAN.maxit){
       nw<-san(targets, target.stats=target.stats,
-              constraints=~.,
               control=control$SAN.control,
               verbose=verbose)
       targets<-ergm.update.formula(targets,nw~.)
-      obs <- summary(targets, basis=nw)
+      nw.stats <- summary(targets)
       srun <- srun + 1
       if(verbose){
         cat(paste("Finished SAN run",srun,"\n"))
       }
       if(verbose){
         cat("SAN summary statistics:\n")
-        print(obs)
+        print(nw.stats)
         cat("Meanstats Goal:\n")
         print(target.stats)
         cat("Difference: SAN target.stats - Goal target.stats =\n")
-        print(round(obs-target.stats,0))
+        print(round(nw.stats-target.stats,0))
       }
+      if(sum((nw.stats-target.stats)^2) <= 5) break
     }
+    
+    formation <- ergm.update.formula(formation,nw~.)
+    dissolution <- ergm.update.formula(dissolution,nw~.)
   }
 
   if (verbose) cat("Initializing Metropolis-Hastings proposals.\n")
@@ -131,18 +129,23 @@ stergm.EGMoME <- function(nw, formation, dissolution,  offset.coef.form, offset.
   
   model.form <- ergm.getmodel(formation, nw, expanded=TRUE, MHp=MHproposal.form)
   model.diss <- ergm.getmodel(dissolution, nw, expanded=TRUE, MHp=MHproposal.diss)
+  model.mon <- ergm.getmodel(targets, nw, expanded=TRUE, MHp=MHproposal.diss)
 
   if(any(model.form$etamap$canonical==0) && any(model.form$etamap$canonical==0)) stop("Equilibrium GMoME for curved ERGMs is not supported at this time.")
-  if(!all(model.diss$offset)) stop("Equilibrium GMoME to estimate dissolution parameters is not supported at this time. All dissolution parameters must be offset().")
 
-  model.form$obs <- summary(model.form$formula)
-  model.form$target.stats <- if(!is.null(target.stats)) vector.namesmatch(target.stats, names(model.form$obs)) else model.form$obs
+  p.free<-sum(!model.form$etamap$offsettheta)+sum(!model.diss$etamap$offsettheta)
+  q<-length(model.mon$etamap$offsettheta)
+  if(p.free<q) stop("Fitting ",p.free," free parameters on ",q," target statistics. Overidentified specifications are not supported at this time.")
+  if(p.free>q) stop("Fitting ",p.free," free parameters on ",q," target statistics. The specification is underidentified.")
+
+  model.mon$nw.stats <- summary(model.mon$formula)
+  model.mon$target.stats <- if(!is.null(target.stats)) vector.namesmatch(target.stats, names(model.mon$nw.stats)) else model.mon$nw.stats
 
   # If some control$init is specified...
   
   if(!is.null(control$init.form)){
     # Check length of control$init.form.
-    if (length(control$init.form)!=length(model.form$etamap$offsettheta)) {
+    if(length(control$init.form)!=length(model.form$etamap$offsettheta)) {
       if(verbose) cat("control$init.form is", control$init.form, "\n", "number of statistics is",length(model.form$coef.names), "\n")
       stop(paste("Invalid starting formation parameter vector control$init.form:",
                  "wrong number of parameters."))
@@ -153,7 +156,7 @@ stergm.EGMoME <- function(nw, formation, dissolution,  offset.coef.form, offset.
 
   if(!is.null(control$init.diss)){
     # Check length of control$init.diss.
-    if (length(control$init.diss)!=length(model.diss$etamap$offsettheta)) {
+    if(length(control$init.diss)!=length(model.diss$etamap$offsettheta)) {
       if(verbose) cat("control$init.diss is", control$init.diss, "\n", "number of statistics is",length(model.diss$coef.names), "\n")
       stop(paste("Invalid starting dissolution parameter vector control$init.diss:",
                  "wrong number of parameters."))
@@ -162,27 +165,23 @@ stergm.EGMoME <- function(nw, formation, dissolution,  offset.coef.form, offset.
   if(!is.null(offset.coef.diss)) control$init.diss[model.diss$etamap$offsettheta]<-offset.coef.diss
   names(control$init.diss) <- model.diss$coef.names
 
-  initialfit <- stergm.EGMoME.initialfit(control$init.form, control$init.diss, nw, formation, dissolution, targets, target.stats, model.form, model.diss, control, verbose)
+  initialfit <- stergm.EGMoME.initialfit(control$init.form, control$init.diss, nw, model.form, model.diss, model.mon, control, verbose)
   
   if(verbose) cat("Fitting Dynamic ERGM.\n")
 
   Cout <- switch(control$EGMoME.main.method,
-                "Robbins-Monro" = stergm.RM(initialfit$formation.fit$coef, nw, model.form, model.diss,
-                  initialfit$dissolution.fit$coef, 
-                  control=control, MHproposal.form=MHproposal.form,
+                 "Robbins-Monro" = stergm.RM(initialfit$formation.fit$coef,
+                   initialfit$dissolution.fit$coef, nw, model.form, model.diss, model.mon,
+                   control=control, MHproposal.form=MHproposal.form,
                   MHproposal.diss=MHproposal.diss,
                   verbose),
-                 "Robbins-Monro2" = stergm.RM2(initialfit$formation.fit$coef, nw, model.form, model.diss,
-                  initialfit$dissolution.fit$coef, 
-                  control=control, MHproposal.form=MHproposal.form,
-                  MHproposal.diss=MHproposal.diss,
-                  verbose)
-
+                 stop("Method ", control$EGMoME.main.method, " is not implemented.")
                 )
 
-  out <- list(network = nw, formation = formation, dissolution = dissolution, targets = targets, target.stats=target.stats, estimate=estimate, opt.history=Cout$opt.history, sample=Cout$sample, sample.obs=NULL,
-              formation.fit = with(Cout, list(formula=formation, coef=coef.form, covar=covar, etamap = model.form$etamap, offset = model.form$etamap$offsettheta)),
-              dissolution.fit = list(formula=dissolution, coef = initialfit$dissolution.fit$coef, sample=NULL, sample.obs=NULL, etamap = model.diss$etamap, offset = model.diss$etamap$offsettheta))
+  out <- list(network = nw, formation = formation, dissolution = dissolution, targets = targets, target.stats=target.stats, estimate=estimate, covar = Cout$covar, opt.history=Cout$opt.history, sample=Cout$sample, sample.obs=NULL,
+              formation.fit = with(Cout, list(formula=formation, coef = eta.form, covar=covar.form, etamap = model.form$etamap, offset = model.form$etamap$offsettheta)),
+              dissolution.fit = with(Cout, list(formula=dissolution, coef = eta.diss, covar=covar.diss, etamap = model.diss$etamap, offset = model.diss$etamap$offsettheta))
+              )
   class(out$formation.fit)<-class(out$dissolution.fit)<-"ergm"
   
   out

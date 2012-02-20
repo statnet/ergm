@@ -42,94 +42,111 @@
 #
 ################################################################################
 
-stergm.RM <- function(theta.form0, nw, model.form, model.diss, 
-                            theta.diss,
+stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, model.mon,
                             control, MHproposal.form, MHproposal.diss,
                             verbose=FALSE){
 
-  control$nw.diff <- model.form$obs - model.form$target.stats # nw.diff keeps track of the difference between the current network and the target statistics.
+  control$nw.diff <- model.mon$nw.stats - model.mon$target.stats # nw.diff keeps track of the difference between the current network and the target statistics.
 
-  if(verbose) cat("Robbins-Monro algorithm with coef_F_0 = (",theta.form0, ") and coef_D = (",theta.diss,")\n" )
+  if(verbose) cat("Robbins-Monro algorithm with coef_F_0 = (",theta.form0, ") and coef_D = (",theta.diss0,")\n" )
   eta.form <- ergm.eta(theta.form0, model.form$etamap)
-  eta.diss <- ergm.eta(theta.diss, model.diss$etamap)
+  eta.diss <- ergm.eta(theta.diss0, model.diss$etamap)
 
-  p <- length(eta.form)
+  offsets <- c(model.form$offset, model.diss$offset) # which parameters are offsets?
+  p.form.free <- sum(!model.form$offset) # number of free formation parameters
+  p.form <- length(model.form$offset) # total number of formation parameters
+  p.diss.free <- sum(!model.diss$offset) # number of free dissolution parameters
+  p.diss <- length(model.diss$offset) # total number of dissolution parameters
+  p.free <- p.form.free+p.diss.free  # number of free parameters (formation and dissolution)
+  p <- p.form+p.diss # total number of parameters (free and offset)
+  
+  q <- length(model.mon$offset) # number of target statistics/estimating equations --- may change when/if overspecified/weighted fitting is introduced
+
+  control$collect.form <- control$collect.diss <- FALSE
   
   control.phase1<-control
-  control.phase1$time.samplesize <- (control$RM.phase1n_base + 3 * p)*control$RM.interval
+  control.phase1$time.samplesize <- 1
   control.phase1$time.burnin <- control$RM.burnin
   control.phase1$time.interval <- 1
 
-  # Run Phase 1.
-  z <- stergm.getMCMCsample(nw, model.form, model.diss, MHproposal.form, MHproposal.diss, eta.form, eta.diss, control.phase1, verbose)
+  # Run burn-in.
+  z <- stergm.getMCMCsample(nw, model.form, model.diss, model.mon, MHproposal.form, MHproposal.diss, eta.form, eta.diss, control.phase1, verbose)
 
   nw <- z$newnetwork
-  burnin.stats <- sweep(z$statsmatrix.form, 2, control$nw.diff, "+")
-  control$nw.diff <- control$nw.diff + z$statsmatrix.form[NROW(z$statsmatrix.form),]
- 
+  control$nw.diff <- control$nw.diff + z$statsmatrix.mon[NROW(z$statsmatrix.mon),]
 
-  # First subphase -- "gradient" matrix is just the covariance matrix.
-  control$invGradient <-
-    if(p==1) 1/sqrt(var(burnin.stats)) * control$RM.init_gain
-    else diag(1/sqrt(diag(cov(burnin.stats)))) * control$RM.init_gain
-  control$invGradient[!is.finite(control$invGradient)]<-0
-
+  # Not assuming any relationship between parameters and statistics -> pure jittering at first.
+  control$invGradient <- matrix(0, nrow=q, ncol=p)
+  
   control$phase2n <- p+7+control$RM.phase2n_base
-  # If a statistic is not moving around, add a jitter its
-  # corresponding parameter for the next iteration. We won't be able
-  # to refine it, but we'll at least get a gradient for the time after
-  # that.
-  bad.stats <- apply(diff(burnin.stats),2,function(x) mean(x!=0)) < control$RM.prop.var.grad.OK
-    
-  control$jitter<-rep(0,p)
-  control$jitter[bad.stats]<-min(1/apply(burnin.stats[,!bad.stats,drop=FALSE],2,sd))/sqrt(control$phase2n)
 
+  control$jitter<-rep(0,p)
 
   oh <- NULL
   
   for(subphase in 1:control$RM.phase2sub){
+    control$phase2n <- round(2.52*(control$phase2n-control$phase2n_base)+control$phase2n_base)
+    control$jitter[!offsets]<- control$RM.init.jitter / subphase
+    control$gain <- control$RM.init_gain / subphase
+    
+    
     for(retry in 1:control$RM.phase2sub_retries){
       
-      z <- stergm.EGMoME.RM.Phase2.C(nw, model.form, model.diss, MHproposal.form, MHproposal.diss,
+      z <- stergm.EGMoME.RM.Phase2.C(nw, model.form, model.diss, model.mon, MHproposal.form, MHproposal.diss,
                                      eta.form, eta.diss, control, verbose=verbose)
       nw <- z$newnetwork
       control$nw.diff<-z$nw.diff
-      eta.form <- z$coef.form
+      eta.form <- z$eta.form
+      eta.diss <- z$eta.diss
       oh <- rbind(oh,z$opt.history) # Pool the history.
+
+      # Figure out if any statistics are trapped.
+      stats.min <- apply(oh[,-(1:p),drop=FALSE],2,min)
+      stats.max <- apply(oh[,-(1:p),drop=FALSE],2,max)
+      extreme.oh <- (sweep(oh[,-(1:p),drop=FALSE],2,stats.min,"-")==0) | (sweep(oh[,-(1:p),drop=FALSE],2,stats.max,"-")==0)
+      oh.trustworthy <- apply(!extreme.oh,2,mean) > control$RM.prop.var.grad.OK
+
+      # Regress statistics on parameters.
+      # This uses GLS to account for serial correlation in statistics, and more recent are weighted higher.
+      # First row is the intercept.
+
+      oh.wt <- exp(control$RM.grad_decay*seq_len(NROW(oh)))
+      x<-oh[,1:p,drop=FALSE] # #$%^$ gls() doesn't respect I()...
+      x<-x[,!offsets,drop=FALSE]
+      oh.fit <- sapply(1:q,
+                       function(i){
+                         y<-oh[,-(1:p),drop=FALSE][,i]
+                         a<-try(coef(gls(y~x,subset=!extreme.oh[,i],weight=varFixed(~1/oh.wt),correlation=corAR1())))
+                         if(inherits(a,"try-error")) rep(NA,p.free+1) else a
+                       }
+                       )
       
-      # Figure out if any statistics should be downweighted due to extremeness.
-      stats.min <- apply(oh[,-(1:p)],2,min)
-      stats.max <- apply(oh[,-(1:p)],2,max)
-      extreme.oh <- (sweep(oh[,-(1:p)],2,stats.min,"-")==0) | (sweep(oh[,-(1:p)],2,stats.max,"-")==0)
-      oh.subset <- !apply(extreme.oh,1,any)
+      if(all(is.na(oh.fit))) stop("The search is trapped. Try a different starting value, longer RM.interval, etc..")
+      if(verbose){
+        cat("Estimated gradient:\n")
+        gr <- oh.fit[-1,]
+        rownames(gr)<-c(paste("f.(",model.form$coef.names,")",sep=""),paste("d.(",model.diss$coef.names,")",sep=""))[!offsets]
+        colnames(gr)<-model.mon$coef.names
+        print(t(gr))
+      }
+      oh.fit[is.na(oh.fit)] <- 0
+      oh.fit[,!oh.trustworthy] <- 0
+      control$invGradient <- matrix(0, nrow=q, ncol=p)
+      control$invGradient[,!offsets] <- robust.inverse(oh.fit[-1,]) * control$gain
 
-      if(mean(oh.subset) < control$RM.prop.var.grad.OK) message("One or more statistics are not mixing. Rerunning the subphase.")
-      else break
+      #control$jitter<-rep(0,p)
+      if(!all(oh.trustworthy)){
+        message("Only partial gradient matrix computed. Redoing the subphase.")
+                    
+      }else break
     }
-
-    control$phase2n <- round(2.52*(control$phase2n-control$phase2n_base)+control$phase2n_base);
-    
-    # Regress statistics on parameters.
-    # This uses GLS to account for serial correlation in statistics, and more recent are weighted higher.
-    # First row is the intercept.
-
-    oh.wt <- exp(control$RM.grad_decay*seq_len(NROW(oh)))
-    x<-oh[,1:p] # #$%^$ gls() doesn't respect I()...
-    oh.fit <- apply(oh[,-(1:p)],2,function(y)
-                    coef(gls(y~x,subset=oh.subset,weight=varFixed(~1/oh.wt),correlation=corAR1())))
-    oh.fit[is.na(oh.fit)] <- 0    
-    control$invGradient <- robust.inverse(oh.fit[-1,]) * control$RM.init_gain * 2^-subphase
-
-    # If a parameter is not moving around, add a jitter for the next
-    # iteration. We won't be able to refine it, but we'll at least get
-    # a gradient for the time after that.
-    #bad.par <- apply(diff(oh[,1:p,drop=FALSE]),2,function(x) mean(x!=0)) < control$RM.prop.var.grad.OK
-    
-    control$jitter<-rep(0,p)
-    #control$jitter[bad.par]<-min(1/apply(oh[,1:p,drop=FALSE][,!bad.par,drop=FALSE],2,sd))/sqrt(control$phase2n)
   }
 
-  if(control$RM.refine) eta.form <- -solve(t(oh.fit[-1,]),oh.fit[1,])
+  if(control$RM.refine){
+    eta.free <- -solve(t(oh.fit[-1,]),oh.fit[1,])
+    if(p.form.free) eta.form[!model.form$offset] <- eta.free[seq_len(p.form.free)]
+    if(p.diss.free) eta.diss[!model.diss$offset] <- eta.free[p.form.free+seq_len(p.diss.free)]
+  }
 
   if(control$RM.se){
     control.phase3<-control
@@ -140,12 +157,14 @@ stergm.RM <- function(theta.form0, nw, model.form, model.diss,
     # Run Phase 3.
     z <- stergm.getMCMCsample(nw, model.form, model.diss, MHproposal.form, MHproposal.diss, eta.form, eta.diss, control.phase3, verbose)
     G <- t(oh.fit[-1,])
-    V.stat<-cov(z$statsmatrix.form)
-    V.par<-solve(t(G)%*%G)%*%t(G)%*%V.stat%*%G%*%solve(t(G)%*%G)
+    V.stat<-cov(z$statsmatrix.mon)
+    V.par<-matrix(NA,p,p)
+    V.par[!offsets,!offsets]<-solve(t(G)%*%G)%*%t(G)%*%V.stat%*%G%*%solve(t(G)%*%G)
   }else V.par <- NULL
   
   #ve<-with(z,list(coef=eta,sample=s$statsmatrix.form,sample.obs=NULL))
   names(eta.form)<-model.form$coef.names
+  names(eta.diss)<-model.diss$coef.names
   
   #endrun <- control$MCMC.burnin+control$MCMC.interval*(ve$samplesize-1)
   #attr(ve$sample, "mcpar") <- c(control$MCMC.burnin+1, endrun, control$MCMC.interval)
@@ -153,13 +172,15 @@ stergm.RM <- function(theta.form0, nw, model.form, model.diss,
   
   list(newnetwork=nw, 
        init.form=theta.form0,
+       init.diss=theta.diss0,
        covar=V.par,
-       coef.form=eta.form,
-       coef.diss=theta.diss,
+       covar.form=V.par[seq_len(p.form),seq_len(p.form)],
+       covar.diss=V.par[p.form+seq_len(p.diss),p.form+seq_len(p.diss)],
+       eta.form=eta.form,
+       eta.diss=eta.diss,
        opt.history=oh,
-       sample=z$statsmatrix.form,
-       network=nw)
-  
+       sample=z$statsmatrix.mon,
+       network=nw)            
 }
 
 ################################################################################
@@ -220,11 +241,12 @@ stergm.RM <- function(theta.form0, nw, model.form, model.diss,
 #
 ################################################################################
 
-stergm.EGMoME.RM.Phase2.C <- function(nw, model.form, model.diss, 
-                             MHproposal.form, MHproposal.diss, eta.form0, eta.diss,
+stergm.EGMoME.RM.Phase2.C <- function(nw, model.form, model.diss, model.mon,
+                             MHproposal.form, MHproposal.diss, eta.form0, eta.diss0,
                              control, verbose) {
   Clist.form <- ergm.Cprepare(nw, model.form)
   Clist.diss <- ergm.Cprepare(nw, model.diss)
+  Clist.mon <- ergm.Cprepare(nw, model.mon)
   maxedges <- max(control$MCMC.init.maxedges, Clist.form$nedges)
   if(verbose){cat(paste("MCMCDyn workspace is",maxedges,"\n"))}
   
@@ -238,13 +260,17 @@ stergm.EGMoME.RM.Phase2.C <- function(nw, model.form, model.diss,
           as.integer(Clist.form$nterms), as.character(Clist.form$fnamestring), as.character(Clist.form$snamestring),
           as.character(MHproposal.form$name), as.character(MHproposal.form$package),
           as.double(Clist.form$inputs), eta.form=as.double(eta.form0),
-          # Formation parameter fitting. 
-          nw.diff=as.double(control$nw.diff),
-          as.integer(control$RM.phase2n),
           # Dissolution terms and proposals. 
           as.integer(Clist.diss$nterms), as.character(Clist.diss$fnamestring), as.character(Clist.diss$snamestring),
           as.character(MHproposal.diss$name), as.character(MHproposal.diss$package),
-          as.double(Clist.diss$inputs), as.double(eta.diss),
+          as.double(Clist.diss$inputs), eta.diss=as.double(eta.diss0),
+          # Parameter fitting.
+          as.integer(Clist.mon$nterms), as.character(Clist.mon$fnamestring), as.character(Clist.mon$snamestring),
+          as.double(Clist.mon$inputs), 
+          nw.diff=as.double(control$nw.diff),
+          as.integer(control$RM.phase2n),
+          as.double(control$invGradient),
+          as.double(control$jitter), # Add a little bit of noise to parameter guesses.
           # Degree bounds.
           as.integer(MHproposal.form$arguments$constraints$bd$attribs), 
           as.integer(MHproposal.form$arguments$constraints$bd$maxout), as.integer(MHproposal.form$arguments$constraints$bd$maxin),
@@ -254,23 +280,24 @@ stergm.EGMoME.RM.Phase2.C <- function(nw, model.form, model.diss,
           as.integer(control$RM.burnin),
           as.integer(control$RM.interval),
           as.integer(control$MCMC.burnin),
-          as.double(control$invGradient),
-          as.double(control$jitter), # Add a little bit of noise to parameter guesses.
           # Space for output.
           as.integer(maxedges),
           newnwtails = integer(maxedges), newnwheads = integer(maxedges), 
-          opt.history=double(length(eta.form0)*2*control$RM.phase2n),
+          opt.history=double((Clist.form$nstats+Clist.diss$nstats+Clist.mon$nstats)*control$RM.phase2n),
           # Verbosity.
           as.integer(verbose), 
           PACKAGE="ergm") 
 
   eta.form <- z$eta.form
   names(eta.form) <- names(eta.form0)
+  eta.diss <- z$eta.diss
+  names(eta.diss) <- names(eta.diss0)
 
   newnetwork<-newnw.extract(nw,z)
   
   list(nw.diff=z$nw.diff,
        newnetwork=newnetwork,
-       coef.form=eta.form,
-       opt.history=matrix(z$opt.history,ncol=length(eta.form0)*2,byrow=TRUE))
+       eta.form=eta.form,
+       eta.diss=eta.diss,
+       opt.history=matrix(z$opt.history,ncol=Clist.form$nstats+Clist.diss$nstats+Clist.mon$nstats,byrow=TRUE))
 }

@@ -6,22 +6,24 @@
  should have (k,j) with k>j.
 *****************/
 
-/*R_INLINE*/ void MCMCDyn_init_common(int *tails, int *heads, int n_edges,
-				  int n_nodes, int dflag, int bipartite, Network *nw,
-
-				  int F_nterms, char *F_funnames, char *F_sonames, double *F_inputs, Model **F_m,
-				  int D_nterms, char *D_funnames, char *D_sonames, double *D_inputs, Model **D_m,
-				  
-				  int *attribs, int *maxout, int *maxin, int *minout,
-				  int *minin, int condAllDegExact, int attriblength,
-
-				  char *F_MHproposaltype, char *F_MHproposalpackage, MHproposal *F_MH,
-				  char *D_MHproposaltype, char *D_MHproposalpackage, MHproposal *D_MH,
-				  int fVerbose){
+void MCMCDyn_init_common(int *tails, int *heads, int n_edges,
+			 int n_nodes, int dflag, int bipartite, Network *nw,
+			 
+			 int F_nterms, char *F_funnames, char *F_sonames, double *F_inputs, Model **F_m,
+			 int D_nterms, char *D_funnames, char *D_sonames, double *D_inputs, Model **D_m,
+			 int M_nterms, char *M_funnames, char *M_sonames, double *M_inputs, Model **M_m,
+			 
+			 int *attribs, int *maxout, int *maxin, int *minout,
+			 int *minin, int condAllDegExact, int attriblength,
+			 
+			 char *F_MHproposaltype, char *F_MHproposalpackage, MHproposal *F_MH,
+			 char *D_MHproposaltype, char *D_MHproposalpackage, MHproposal *D_MH,
+			 int fVerbose){
   GetRNGstate();  /* R function enabling uniform RNG */
   
   *F_m=ModelInitialize(F_funnames, F_sonames, &F_inputs, F_nterms);
   *D_m=ModelInitialize(D_funnames, D_sonames, &D_inputs, D_nterms);
+  if(M_nterms) *M_m=ModelInitialize(M_funnames, M_sonames, &M_inputs, M_nterms); else *M_m=NULL;
 
   nw[0]=NetworkInitialize(tails, heads, n_edges, 
                           n_nodes, dflag, bipartite, 1);
@@ -35,17 +37,17 @@
 
 }
 
-/*R_INLINE*/ void MCMCDyn_finish_common(Network *nw,
-
-				    Model *F_m,
-				    Model *D_m,
-				  
-				    MHproposal *F_MH,
-				    MHproposal *D_MH){
+void MCMCDyn_finish_common(Network *nw,
+			   Model *F_m,
+			   Model *D_m,
+			   Model *M_m,
+			   MHproposal *F_MH,
+			   MHproposal *D_MH){
   MH_free(F_MH);
   MH_free(D_MH);
   ModelDestroy(F_m);
   ModelDestroy(D_m);
+  if(M_m) ModelDestroy(M_m);
   NetworkDestroy(nw);
   NetworkDestroy(&nw[1]);
   PutRNGstate();  /* Disable RNG before returning */
@@ -63,11 +65,13 @@ void MCMCDyn_wrapper(// Starting network.
 		     // Formation terms and proposals.
 		     int *F_nterms, char **F_funnames, char **F_sonames, 
 		     char **F_MHproposaltype, char **F_MHproposalpackage,
-		     double *F_inputs, double *F_theta, 
+		     double *F_inputs, double *F_eta, 
 		     // Dissolution terms and proposals.
 		     int *D_nterms, char **D_funnames, char **D_sonames,
 		     char **D_MHproposaltype, char **D_MHproposalpackage,
-		     double *D_inputs, double *D_theta,
+		     double *D_inputs, double *D_eta,
+		     // Monitored terms.
+		     int *M_nterms, char **M_funnames, char **M_sonames,  double *M_inputs,
 		     // Degree bounds.
 		     int *attribs, int *maxout, int *maxin, int *minout,
 		     int *minin, int *condAllDegExact, int *attriblength, 
@@ -75,7 +79,7 @@ void MCMCDyn_wrapper(// Starting network.
 		     double *nsteps,  int *MH_interval,
 		     double *burnin, double *interval,  
 		     // Space for output.
-		     double *F_sample, double *D_sample, 
+		     double *F_sample, double *D_sample, double *M_sample,
 		     int *maxedges,
 		     int *newnetworktails, int *newnetworkheads, 
 		     int *maxchanges,
@@ -84,7 +88,7 @@ void MCMCDyn_wrapper(// Starting network.
 		     int *fVerbose,
 		     int *status){
   Network nw[2];
-  Model *F_m, *D_m;
+  Model *F_m, *D_m, *M_m;
   MHproposal F_MH, D_MH;
 
   Vertex *difftime, *difftail, *diffhead;
@@ -109,6 +113,7 @@ void MCMCDyn_wrapper(// Starting network.
 		      *n_nodes, *dflag, *bipartite, nw,
 		      *F_nterms, *F_funnames, *F_sonames, F_inputs, &F_m,
 		      *D_nterms, *D_funnames, *D_sonames, D_inputs, &D_m,
+		      *M_nterms, *M_nterms ? *M_funnames : NULL, *M_nterms ? *M_sonames : NULL, M_inputs, &M_m,   // I am not sure  whether the ?:s are necessary here, but if it keeps us from dereferencing a NULL pointer...
 		      attribs, maxout, maxin, minout,
 		      minin, *condAllDegExact, *attriblength, 
 		      *F_MHproposaltype, *F_MHproposalpackage, &F_MH,
@@ -116,11 +121,12 @@ void MCMCDyn_wrapper(// Starting network.
 		      *fVerbose);
 
   *status = MCMCSampleDyn(nw,
-			 F_m, &F_MH, F_theta,
-			 D_m, &D_MH, D_theta,
-			 F_sample, D_sample, *maxedges, *maxchanges, difftime, difftail, diffhead,
-			 *nsteps, *MH_interval, *burnin, *interval,
-			 *fVerbose);
+			  F_m, &F_MH, F_eta,
+			  D_m, &D_MH, D_eta,
+			  M_m,
+			  F_sample, D_sample, M_sample, *maxedges, *maxchanges, difftime, difftail, diffhead,
+			  *nsteps, *MH_interval, *burnin, *interval,
+			  *fVerbose);
    
   /* record new generated network to pass back to R */
 
@@ -133,14 +139,14 @@ void MCMCDyn_wrapper(// Starting network.
     free(diffhead);
   }
 
-  MCMCDyn_finish_common(nw, F_m, D_m, &F_MH, &D_MH);
+  MCMCDyn_finish_common(nw, F_m, D_m, M_m, &F_MH, &D_MH);
 
 }
 
 /*********************
  MCMCDynStatus MCMCSampleDyn
 
- Using the parameters contained in the array F_theta, obtain the
+ Using the parameters contained in the array F_eta, obtain the
  network statistics for a sample of size nsteps.  burnin is the
  initial number of Markov chain steps before sampling anything
  and interval is the number of MC steps between successive 
@@ -148,23 +154,25 @@ void MCMCDyn_wrapper(// Starting network.
  the F_statistics array. 
 *********************/
 MCMCDynStatus MCMCSampleDyn(// Observed and discordant network.
-		   Network *nwp,
-		   // Formation terms and proposals.
-		   Model *F_m, MHproposal *F_MH,
-		   double *F_theta,
-		   // Dissolution terms and proposals.
-		   Model *D_m, MHproposal *D_MH,
-		   double *D_theta,
-		   // Space for output.
-		   double *F_stats, double *D_stats, // Do we still need these?
-		   Edge maxedges,
-		   Edge maxchanges,
-		   Vertex *difftime, Vertex *difftail, Vertex *diffhead,		    
-		   // MCMC settings.
-		   unsigned int nsteps, unsigned int MH_interval,
-		   unsigned int burnin, unsigned int interval, 
-		   // Verbosity.
-		   int fVerbose){
+			    Network *nwp,
+			    // Formation terms and proposals.
+			    Model *F_m, MHproposal *F_MH,
+			    double *F_eta,
+			    // Dissolution terms and proposals.
+			    Model *D_m, MHproposal *D_MH,
+			    double *D_eta,
+			    // Monitored terms.
+			    Model *M_m,
+			    // Space for output.
+			    double *F_stats, double *D_stats, double *M_stats,
+			    Edge maxedges,
+			    Edge maxchanges,
+			    Vertex *difftime, Vertex *difftail, Vertex *diffhead,		    
+			    // MCMC settings.
+			    unsigned int nsteps, unsigned int MH_interval,
+			    unsigned int burnin, unsigned int interval, 
+			    // Verbosity.
+			    int fVerbose){
 
   int i, j, log_toggles = (burnin==0 && interval==1);
   Edge nextdiffedge=1;
@@ -178,8 +186,8 @@ MCMCDynStatus MCMCSampleDyn(// Observed and discordant network.
 
   for(i=0;i<burnin;i++)
     MCMCDyn1Step(nwp,
-		 F_m, F_MH, F_theta, D_m, D_MH, D_theta,
-		 log_toggles, F_stats, D_stats,
+		 F_m, F_MH, F_eta, D_m, D_MH, D_eta, M_m,
+		 log_toggles, F_stats, D_stats, M_stats,
 		 maxchanges, &nextdiffedge, difftime, difftail, diffhead,
 		 MH_interval, fVerbose);
   
@@ -196,21 +204,33 @@ MCMCDynStatus MCMCSampleDyn(// Observed and discordant network.
   /* Now sample networks */
   for (i=0; i < nsteps; i++){
     /* Set current vector of stats equal to previous vector */
-    for (j=0; j<F_m->n_stats; j++){
-      F_stats[j+F_m->n_stats] = F_stats[j];
+    if(F_stats){
+      for (j=0; j<F_m->n_stats; j++){
+	F_stats[j+F_m->n_stats] = F_stats[j];
+      }
+      F_stats += F_m->n_stats;
     }
-    F_stats += F_m->n_stats;
 
-    for (j=0; j<D_m->n_stats; j++){
-      D_stats[j+D_m->n_stats] = D_stats[j];
+    if(D_stats){
+      for (j=0; j<D_m->n_stats; j++){
+	D_stats[j+D_m->n_stats] = D_stats[j];
+      }
+      D_stats += D_m->n_stats;
     }
-    D_stats += D_m->n_stats;
+    
+    if(M_stats){
+      for (j=0; j<M_m->n_stats; j++){
+	M_stats[j+M_m->n_stats] = M_stats[j];
+      }
+      M_stats += M_m->n_stats;
+    }
+
 
     /* This then adds the change statistics to these values */
     for(j=0;j<interval;j++){
       MCMCDyn1Step(nwp,
-		   F_m, F_MH, F_theta, D_m, D_MH, D_theta,
-		   log_toggles, F_stats, D_stats,
+		   F_m, F_MH, F_eta, D_m, D_MH, D_eta, M_m,
+		   log_toggles, F_stats, D_stats, M_stats,
 		   maxchanges, &nextdiffedge, difftime, difftail, diffhead,
 		   MH_interval, fVerbose);
 
@@ -243,8 +263,8 @@ MCMCDynStatus MCMCSampleDyn(// Observed and discordant network.
    in this phase, while "O_stats" and "O_m" are for the other process (whose
    statistcs are still affected and need to be updated).
 */
-/*R_INLINE*/ void MCMCDyn1Step_sample(MHproposal *MH,
-				  double *par, double *stats,
+ void MCMCDyn1Step_sample(MHproposal *MH,
+				  double *par,
 				  int MH_interval, 
 				  Network *nwp,
 				  Model *m){
@@ -299,17 +319,30 @@ MCMCDynStatus MCMCSampleDyn(// Observed and discordant network.
   MCMCDyn1Step_commit
   Applies a list of toggles to a network, updating change statistics and time stamps.
 */
-/*R_INLINE*/ void MCMCDyn1Step_commit(unsigned int ntoggles,
-				  Vertex *difftail, Vertex *diffhead,
-				  Network *nwp,
-				  Model *F_m, double *F_stats,
-				  Model *D_m, double *D_stats){
-  ChangeStats(ntoggles,difftail,diffhead,nwp,F_m);
-  ChangeStats(ntoggles,difftail,diffhead,nwp,D_m);
-  for (unsigned int i = 0; i < F_m->n_stats; i++)
-    F_stats[i] += F_m->workspace[i];
-  for (unsigned int i = 0; i < D_m->n_stats; i++)
-    D_stats[i] += D_m->workspace[i];
+ void MCMCDyn1Step_commit(unsigned int ntoggles,
+				      Vertex *difftail, Vertex *diffhead,
+				      Network *nwp,
+				      Model *F_m, double *F_stats,
+				      Model *D_m, double *D_stats,
+				      Model *M_m, double *M_stats){
+  
+  if(F_stats){
+    ChangeStats(ntoggles,difftail,diffhead,nwp,F_m);
+    for (unsigned int i = 0; i < F_m->n_stats; i++)
+      F_stats[i] += F_m->workspace[i];
+  }
+  
+  if(D_stats){
+    ChangeStats(ntoggles,difftail,diffhead,nwp,D_m);
+    for (unsigned int i = 0; i < D_m->n_stats; i++)
+      D_stats[i] += D_m->workspace[i];
+  }
+  
+  if(M_stats){
+    ChangeStats(ntoggles,difftail,diffhead,nwp,M_m);
+    for (unsigned int i = 0; i < M_m->n_stats; i++)
+      M_stats[i] += M_m->workspace[i];
+  }
 
   for(Edge i=0;i<ntoggles;i++){
     ToggleEdgeWithTimestamp(difftail[i],diffhead[i],nwp);
@@ -324,10 +357,10 @@ MCMCDynStatus MCMCSampleDyn(// Observed and discordant network.
    * empty the discordant network (nwp[1])
    * return the number of edges toggled
 */
-/*R_INLINE*/ unsigned int MCMCDyn1Step_record_reset(Edge maxchanges,
-						Vertex *difftime, Vertex *difftail, Vertex *diffhead,
-						Network *nwp, 
-						Edge *nextdiffedge){
+unsigned int MCMCDyn1Step_record_reset(Edge maxchanges,
+				       Vertex *difftime, Vertex *difftail, Vertex *diffhead,
+				       Network *nwp, 
+				       Edge *nextdiffedge){
   Vertex tail, head;
   const unsigned int t=nwp->duration_info.MCMCtimer;
   Edge ntoggles = nwp[1].nedges;
@@ -354,20 +387,22 @@ MCMCDynStatus MCMCSampleDyn(// Observed and discordant network.
  Simulate evolution of a dynamic network for nsteps steps.
 *********************/
 void MCMCDyn1Step(// Observed and discordant network.
-			   Network *nwp,
-			   // Formation terms and proposals.
-			   Model *F_m, MHproposal *F_MH, double *F_theta,
-			   // Dissolution terms and proposals.
-			   Model *D_m, MHproposal *D_MH, double *D_theta,
-			   // Space for output.
-			   unsigned log_toggles,
-			   double *F_stats, double *D_stats,
-			   unsigned int maxchanges, Edge *nextdiffedge,
-			   Vertex *difftime, Vertex *difftail, Vertex *diffhead,
-			   // MCMC settings.
-			   unsigned int MH_interval,
-			   // Verbosity.
-			   int fVerbose){
+		  Network *nwp,
+		  // Formation terms and proposals.
+		  Model *F_m, MHproposal *F_MH, double *F_eta,
+		  // Dissolution terms and proposals.
+		  Model *D_m, MHproposal *D_MH, double *D_eta,
+		  // Monitored statistics.
+		  Model *M_m,
+		  // Space for output.
+		  unsigned log_toggles,
+		  double *F_stats, double *D_stats, double *M_stats,
+		  unsigned int maxchanges, Edge *nextdiffedge,
+		  Vertex *difftime, Vertex *difftail, Vertex *diffhead,
+		  // MCMC settings.
+		  unsigned int MH_interval,
+		  // Verbosity.
+		  int fVerbose){
   
   Edge ntoggles;
 
@@ -378,15 +413,15 @@ void MCMCDyn1Step(// Observed and discordant network.
   nwp->duration_info.MCMCtimer++;
 
   /* Run the dissolution process. */
-  MCMCDyn1Step_sample(D_MH, D_theta, D_stats, MH_interval, nwp, D_m);
+  MCMCDyn1Step_sample(D_MH, D_eta, MH_interval, nwp, D_m);
   ntoggles = MCMCDyn1Step_record_reset(maxchanges, difftime, difftail, diffhead, nwp, &nde);
   
   /* Run the formation process. */
-  MCMCDyn1Step_sample(F_MH, F_theta, F_stats, MH_interval, nwp, F_m);
+  MCMCDyn1Step_sample(F_MH, F_eta, MH_interval, nwp, F_m);
   ntoggles += MCMCDyn1Step_record_reset(maxchanges, difftime, difftail, diffhead, nwp, &nde);
   
   /* Commit both. */
-  MCMCDyn1Step_commit(ntoggles, difftail+nde-ntoggles, diffhead+nde-ntoggles, nwp, F_m, F_stats, D_m, D_stats);
+  MCMCDyn1Step_commit(ntoggles, difftail+nde-ntoggles, diffhead+nde-ntoggles, nwp, F_m, F_stats, D_m, D_stats, M_m, M_stats);
   
   // If we don't keep a log of toggles, reset the position to save space.
   if(log_toggles)

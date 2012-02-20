@@ -72,26 +72,28 @@ simulate.stergm<-function(object,
                           nsim=1,
                           seed=NULL,
                           coef.form=object$formation.fit$coef,coef.diss=object$dissolution.fit$coef,
+                          monitor = NULL,
                           time.burnin=0, time.interval=1,
                           control=control.simulate.stergm(),
                           statsonly=FALSE,
                           toggles=!statsonly,
                           verbose=FALSE, ...){
-  simulate.network(object$network,formation=object$formation,dissolution=object$dissolution,nsim=nsim,coef.form=coef.form, coef.diss=coef.diss,  time.burnin=time.burnin, time.interval=time.interval,control=control,toggles=toggles,verbose=verbose,...)
+  simulate.network(object$network,formation=object$formation,dissolution=object$dissolution,nsim=nsim,coef.form=coef.form, coef.diss=coef.diss, monitor=monitor, time.burnin=time.burnin, time.interval=time.interval,control=control,toggles=toggles,verbose=verbose,...)
 }
 
 
 
 # Note that we are overriding simulate.network here, since the first argument is a network.
 simulate.network <- function(object, nsim=1, seed=NULL,
-                                                      formation, dissolution,
-                                                      coef.form,coef.diss,
-                                                      time.burnin=0, time.interval=1,
-                                                      control=control.simulate.stergm(),
-                                                      toggles = TRUE,
-                                                      verbose=FALSE, ...) {
+                             formation, dissolution,
+                             coef.form,coef.diss,
+                             monitor = NULL,
+                             time.burnin=0, time.interval=1,
+                             control=control.simulate.stergm(),
+                             toggles = TRUE,
+                             verbose=FALSE, ...) {
   
-  if(!is.null(control$seed)) set.seed(as.integer(control$seed))
+  if(!is.null(seed)) set.seed(as.integer(seed))
   # Toggles is a "main call" parameter, since it affects what to
   # compute rather than just how to compute it, but it's convenient to
   # have it as a part of the control data structure.
@@ -104,6 +106,7 @@ simulate.network <- function(object, nsim=1, seed=NULL,
 
   formation<-ergm.update.formula(formation,nw~.)
   dissolution<-ergm.update.formula(dissolution,nw~.)
+  if(!is.null(monitor)) monitor<-ergm.update.formula(monitor,nw~.)
   
   model.form <- ergm.getmodel(formation, nw)
   if(!missing(coef.form) && coef.length.model(model.form)!=length(coef.form)) stop("coef.form has ", length(coef.form), " elements, while the model requires ",coef.length.model(model.form)," parameters.")
@@ -111,18 +114,18 @@ simulate.network <- function(object, nsim=1, seed=NULL,
   model.diss <- ergm.getmodel(dissolution, nw)
   if(!missing(coef.diss) && coef.length.model(model.diss)!=length(coef.diss)) stop("coef.diss has ", length(coef.diss), " elements, while the model requires ",coef.length.model(model.diss)," parameters.")
 
-
+  model.mon <- if(!is.null(monitor)) ergm.getmodel(monitor, nw) else NULL
   
   verbose <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
   if(missing(coef.form)) {
     coef.form <- rep(0,length(model.form$coef.names))
-    warning("No parameter values given, using Bernouli network.\n\t")
+    warning("No parameter values given, using Bernouli formation.\nThis means that every time step, half the non-tie dyads will gain a tie!")
   }
 
   if(missing(coef.diss)) {
     coef.diss <- rep(0,length(model.diss$coef.names))
-    warning("No parameter values given, using Bernoulli dissolution.\nThis means that every time step, half the ties get dissolved!\n\t")
+    warning("No parameter values given, using Bernoulli dissolution.\nThis means that every time step, half the ties get dissolved!\n")
   }
 
   if((time.burnin!=0 || time.interval!=1) && control$toggles){
@@ -142,12 +145,17 @@ simulate.network <- function(object, nsim=1, seed=NULL,
   control$time.interval <- time.interval
   control$time.samplesize <- nsim
   
-  z <- stergm.getMCMCsample(nw, model.form, model.diss,
+  z <- stergm.getMCMCsample(nw, model.form, model.diss, model.mon,
                             MHproposal.form, MHproposal.diss,
                             eta.form, eta.diss, control, verbose)
   
 
   # FIXME: Standardize output format once the conversion function is available.
+
+  stats.form <- sweep(z$statsmatrix.form,2,summary(formation),"+")
+  stats.diss <- sweep(z$statsmatrix.diss,2,summary(dissolution),"+")
+  stats.mon <- if(!is.null(model.mon)) sweep(z$statsmatrix.mon,2,summary(monitor),"+")
+  
   if(toggles){
     changed<-z$changed
     attr(changed,"start")<-time.burnin+1
@@ -157,10 +165,11 @@ simulate.network <- function(object, nsim=1, seed=NULL,
                      networks = nw,
                      changed=changed, 
                      maxchanges=z$maxchanges,
-                     stats.form = sweep(z$statsmatrix.form,2,summary(formation),"+"),
-                     stats.diss = sweep(z$statsmatrix.diss,2,summary(dissolution),"+"),
+                     stats.form = stats.form,
+                     stats.diss = stats.diss,
+                     stats.mon = stats.mon,
                      coef.form=coef.form,coef.diss=coef.diss)
     class(out.list) <- "network.series"
-  }else{out.list<-list(stats.form = z$statsmatrix.form,stats.diss = z$statsmatrix.diss)}
+  }else{out.list<-list(stats.form = stats.form,stats.diss = stats.diss, stats.mon = stats.mon)}
   return(out.list)
 }

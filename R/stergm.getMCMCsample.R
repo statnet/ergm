@@ -59,7 +59,7 @@
 #
 ############################################################################
   
-stergm.getMCMCsample <- function(nw, model.form, model.diss,
+stergm.getMCMCsample <- function(nw, model.form, model.diss, model.mon,
                                   MHproposal.form, MHproposal.diss, eta.form, eta.diss, control, 
                                   verbose){
 
@@ -69,7 +69,10 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss,
   #
   Clist.form <- ergm.Cprepare(nw, model.form)
   Clist.diss <- ergm.Cprepare(nw, model.diss)
+  if(!is.null(model.mon)) Clist.mon <- ergm.Cprepare(nw, model.mon)
 
+  collect.form<-if(!is.null(control$collect.form)) control$collect.form else TRUE
+  collect.diss<-if(!is.null(control$collect.diss)) control$collect.diss else TRUE
 
   maxedges <- control$MCMC.init.maxedges
   maxchanges <- control$MCMC.init.maxchanges
@@ -89,13 +92,17 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss,
             as.character(Clist.form$snamestring),
             as.character(MHproposal.form$name), as.character(MHproposal.form$package),
             as.double(Clist.form$inputs), as.double(eta.form),
-            #?  Add:  as.double(length(MHproposal.form$args)), as.double(MHproposal.form$args),
             # Dissolution terms and proposals.
             as.integer(Clist.diss$nterms), 
             as.character(Clist.diss$fnamestring),
             as.character(Clist.diss$snamestring),
             as.character(MHproposal.diss$name), as.character(MHproposal.diss$package),
-              as.double(Clist.diss$inputs), as.double(eta.diss),
+            as.double(Clist.diss$inputs), as.double(eta.diss),
+            # Monitored terms.
+            if(!is.null(model.mon)) as.integer(Clist.mon$nterms) else as.integer(0), 
+            if(!is.null(model.mon)) as.character(Clist.mon$fnamestring),
+            if(!is.null(model.mon)) as.character(Clist.mon$snamestring),
+            if(!is.null(model.mon)) as.double(Clist.mon$inputs),
             # Degree bounds.
             as.integer(MHproposal.form$arguments$constraints$bd$attribs), 
             as.integer(MHproposal.form$arguments$constraints$bd$maxout), as.integer(MHproposal.form$arguments$constraints$bd$maxin),
@@ -105,8 +112,9 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss,
             as.double(control$time.samplesize), as.integer(control$MCMC.burnin),
             as.double(control$time.burnin), as.double(control$time.interval),
             # Space for output.
-            s.form = as.double(matrix(0,nrow=length(model.form$coef.names),ncol=control$time.samplesize+1)),
-            s.diss = as.double(matrix(0,nrow=length(model.diss$coef.names),ncol=control$time.samplesize+1)),
+            s.form = if(collect.form) double(Clist.form$nstats*(control$time.samplesize+1)) else double(0),
+            s.diss = if(collect.diss) double(Clist.diss$nstats*(control$time.samplesize+1)) else double(0),
+            s.mon = if(!is.null(model.mon)) double(Clist.mon$nstats*(control$time.samplesize+1)) else double(0),
             as.integer(maxedges),
             newnwtails = integer(maxchanges), newnwheads = integer(maxchanges), 
             as.integer(maxchanges),
@@ -122,13 +130,29 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss,
     if(z$status==3) maxchanges <- 5*maxchanges
   }
   
-  statsmatrix.form <- matrix(z$s.form, nrow=control$time.samplesize+1,
-                             ncol=Clist.form$nstats,
-                             byrow = TRUE)[-1,,drop=FALSE]
-  statsmatrix.diss <- matrix(z$s.diss, nrow=control$time.samplesize+1,
-                             ncol=Clist.diss$nstats,
-                             byrow = TRUE)[-1,,drop=FALSE]
+  statsmatrix.form <-
+    if(collect.form) matrix(z$s.form, nrow=control$time.samplesize+1,
+                            ncol=Clist.form$nstats,
+                            byrow = TRUE)[-1,,drop=FALSE]
+    else
+      NULL
   
+  statsmatrix.diss <-
+    if(collect.diss) matrix(z$s.diss, nrow=control$time.samplesize+1,
+                            ncol=Clist.diss$nstats,
+                            byrow = TRUE)[-1,,drop=FALSE]
+  else
+    NULL
+
+  statsmatrix.mon <-
+    if(!is.null(model.mon))
+      matrix(z$s.mon, nrow=control$time.samplesize+1,
+             ncol=Clist.mon$nstats,
+             byrow = TRUE)[-1,,drop=FALSE]
+    else
+      NULL
+  
+
   newnetwork<-newnw.extract(nw,z)
 #   Next create the network of differences from the origianl one
 
@@ -143,13 +167,12 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss,
     NULL
   }
 
-  colnames(statsmatrix.form) <- model.form$coef.names
-  colnames(statsmatrix.diss) <- model.diss$coef.names
+  if(!is.null(statsmatrix.form)) colnames(statsmatrix.form) <- model.form$coef.names
+  if(!is.null(statsmatrix.diss)) colnames(statsmatrix.diss) <- model.diss$coef.names
+  if(!is.null(model.mon)) colnames(statsmatrix.mon) <- model.mon$coef.names
 
-  list(statsmatrix.form=statsmatrix.form, statsmatrix.diss=statsmatrix.diss,
+  list(statsmatrix.form=statsmatrix.form, statsmatrix.diss=statsmatrix.diss, statsmatrix.mon=statsmatrix.mon,
        newnetwork=newnetwork,
-       target.stats.form=model.form$target.stats,
-       target.stats.diss=model.diss$target.stats,
        changed=diffedgelist,
        maxchanges=control$MCMC.maxchanges)
 }
