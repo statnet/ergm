@@ -87,21 +87,21 @@ MCMCDynStatus MCMCSampleDyn(// Observed and discordant network.
 			    // Verbosity.
 			    int fVerbose);
 
-void MCMCDyn1Step(// Observed and discordant network.
-		  Network *nwp,
-		  // Formation terms and proposals.
-		  Model *F_m, MHproposal *F_MH, double *F_eta,
-		  // Dissolution terms and proposals.
-		  Model *D_m, MHproposal *D_MH, double *D_eta,
-		  // Monitored statistics.
-		  Model *M_m,
-		  // Space for output.
-		  unsigned log_toggles,
-		  double *F_stats, double *D_stats, double *M_stats,
-		  unsigned int maxchanges, Edge *nextdiffedge,
-		  Vertex *difftime, Vertex *difftail, Vertex *diffhead,
-		  // MCMC settings.
-		  unsigned int MH_interval,
-		  // Verbosity.
-		  int fVerbose);
+MCMCDynStatus MCMCDyn1Step(// Observed and discordant network.
+			   Network *nwp,
+			   // Formation terms and proposals.
+			   Model *F_m, MHproposal *F_MH, double *F_eta,
+			   // Dissolution terms and proposals.
+			   Model *D_m, MHproposal *D_MH, double *D_eta,
+			   // Monitored statistics.
+			   Model *M_m,
+			   // Space for output.
+			   unsigned log_toggles,
+			   double *F_stats, double *D_stats, double *M_stats,
+			   unsigned int maxchanges, Edge *nextdiffedge,
+			   Vertex *difftime, Vertex *difftail, Vertex *diffhead,
+			   // MCMC settings.
+			   unsigned int MH_interval,
+			   // Verbosity.
+			   int fVerbose);
 #endif

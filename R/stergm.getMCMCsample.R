@@ -78,7 +78,6 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss, model.mon,
   maxchanges <- control$MCMC.init.maxchanges
   
   repeat{
-    if(verbose){cat(paste("MCMCDyn workspace is",maxchanges,"\n"))}
     #FIXME: Separate MCMC control parameters and properly attach them.
     z <- .C("MCMCDyn_wrapper",
             # Observed network.
@@ -126,8 +125,14 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss, model.mon,
             PACKAGE="ergm")
 
     if(z$status==0) break;
-    if(z$status==1) maxedges <- 5*maxedges
-    if(z$status==3) maxchanges <- 5*maxchanges
+    if(z$status==1){
+      maxedges <- 5*maxedges
+      message("Too many edges encountered in the simulation. Increasing capacity to ", maxedges)
+    }
+    if(z$status==3){
+      maxchanges <- 5*maxchanges
+      message("Too many changes elapsed in the simulation. Increasing capacity to ", maxchanges)
+    }
   }
   
   statsmatrix.form <-

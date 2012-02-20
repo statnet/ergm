@@ -135,7 +135,6 @@ stergm.EGMoME <- function(nw, formation, dissolution,  offset.coef.form, offset.
 
   p.free<-sum(!model.form$etamap$offsettheta)+sum(!model.diss$etamap$offsettheta)
   q<-length(model.mon$etamap$offsettheta)
-  if(p.free<q) stop("Fitting ",p.free," free parameters on ",q," target statistics. Overidentified specifications are not supported at this time.")
   if(p.free>q) stop("Fitting ",p.free," free parameters on ",q," target statistics. The specification is underidentified.")
 
   model.mon$nw.stats <- summary(model.mon$formula)
@@ -179,8 +178,8 @@ stergm.EGMoME <- function(nw, formation, dissolution,  offset.coef.form, offset.
                 )
 
   out <- list(network = nw, formation = formation, dissolution = dissolution, targets = targets, target.stats=target.stats, estimate=estimate, covar = Cout$covar, opt.history=Cout$opt.history, sample=Cout$sample, sample.obs=NULL,
-              formation.fit = with(Cout, list(formula=formation, coef = eta.form, covar=covar.form, etamap = model.form$etamap, offset = model.form$etamap$offsettheta)),
-              dissolution.fit = with(Cout, list(formula=dissolution, coef = eta.diss, covar=covar.diss, etamap = model.diss$etamap, offset = model.diss$etamap$offsettheta))
+              formation.fit = with(Cout, list(network=nw, formula=formation, coef = eta.form, covar=covar.form, etamap = model.form$etamap, offset = model.form$etamap$offsettheta, constraints=~.)),
+              dissolution.fit = with(Cout, list(network=nw, formula=dissolution, coef = eta.diss, covar=covar.diss, etamap = model.diss$etamap, offset = model.diss$etamap$offsettheta, constraints=~.))
               )
   class(out$formation.fit)<-class(out$dissolution.fit)<-"ergm"
   

@@ -177,6 +177,7 @@ MCMCDynStatus MCMCSampleDyn(// Observed and discordant network.
   int i, j, log_toggles = (burnin==0 && interval==1);
   Edge nextdiffedge=1;
 
+
   if (fVerbose)
     Rprintf("Total m->n_stats is %i; total nsteps is %d\n",
 	    F_m->n_stats,nsteps);
@@ -184,21 +185,25 @@ MCMCDynStatus MCMCSampleDyn(// Observed and discordant network.
   
   /* Burn in step. */
 
-  for(i=0;i<burnin;i++)
-    MCMCDyn1Step(nwp,
-		 F_m, F_MH, F_eta, D_m, D_MH, D_eta, M_m,
-		 log_toggles, F_stats, D_stats, M_stats,
-		 maxchanges, &nextdiffedge, difftime, difftail, diffhead,
-		 MH_interval, fVerbose);
+  for(i=0;i<burnin;i++){
+    MCMCDynStatus status = MCMCDyn1Step(nwp,
+					F_m, F_MH, F_eta, D_m, D_MH, D_eta, M_m,
+					log_toggles, F_stats, D_stats, M_stats,
+					maxchanges, &nextdiffedge, difftime, difftail, diffhead,
+					MH_interval, fVerbose);
+    // Check that we didn't run out of log space.
+    if(status==MCMCDyn_TOO_MANY_CHANGES)
+      return MCMCDyn_TOO_MANY_CHANGES;
   
-  // If we need to return a network, then stop right there, since the network is too big to return, so stop early.
-  if(maxedges!=0 && nwp->nedges >= maxedges-1)
-    return MCMCDyn_TOO_MANY_EDGES;
+    // If we need to return a network, then stop right there, since the network is too big to return, so stop early.
+    if(maxedges!=0 && nwp->nedges >= maxedges-1)
+      return MCMCDyn_TOO_MANY_EDGES;
+  }
   
   //Rprintf("MCMCSampleDyn post burnin numdissolve %d\n", *numdissolve);
   
   if (fVerbose){
-    Rprintf("Returned from Metropolis-Hastings burnin\n");
+    Rprintf("Returned from STERGM burnin\n");
   }
   
   /* Now sample networks */
@@ -228,14 +233,14 @@ MCMCDynStatus MCMCSampleDyn(// Observed and discordant network.
 
     /* This then adds the change statistics to these values */
     for(j=0;j<interval;j++){
-      MCMCDyn1Step(nwp,
-		   F_m, F_MH, F_eta, D_m, D_MH, D_eta, M_m,
-		   log_toggles, F_stats, D_stats, M_stats,
-		   maxchanges, &nextdiffedge, difftime, difftail, diffhead,
-		   MH_interval, fVerbose);
-
+      MCMCDynStatus status = MCMCDyn1Step(nwp,
+					  F_m, F_MH, F_eta, D_m, D_MH, D_eta, M_m,
+					  log_toggles, F_stats, D_stats, M_stats,
+					  maxchanges, &nextdiffedge, difftime, difftail, diffhead,
+					  MH_interval, fVerbose);
+      
       // Check that we didn't run out of log space.
-      if(log_toggles && nextdiffedge >= maxchanges) 
+      if(status==MCMCDyn_TOO_MANY_CHANGES)
         return MCMCDyn_TOO_MANY_CHANGES;
       
       // If we need to return a network, then stop right there, since the network is too big to return, so stop early.
@@ -264,10 +269,10 @@ MCMCDynStatus MCMCSampleDyn(// Observed and discordant network.
    statistcs are still affected and need to be updated).
 */
  void MCMCDyn1Step_sample(MHproposal *MH,
-				  double *par,
-				  int MH_interval, 
-				  Network *nwp,
-				  Model *m){
+			  double *par,
+			  int MH_interval, 
+			  Network *nwp,
+			  Model *m){
   Vertex step;
   double cutoff, ip;
   unsigned int i;
@@ -357,10 +362,10 @@ MCMCDynStatus MCMCSampleDyn(// Observed and discordant network.
    * empty the discordant network (nwp[1])
    * return the number of edges toggled
 */
-unsigned int MCMCDyn1Step_record_reset(Edge maxchanges,
-				       Vertex *difftime, Vertex *difftail, Vertex *diffhead,
-				       Network *nwp, 
-				       Edge *nextdiffedge){
+int MCMCDyn1Step_record_reset(Edge maxchanges,
+			      Vertex *difftime, Vertex *difftail, Vertex *diffhead,
+			      Network *nwp, 
+			      Edge *nextdiffedge){
   Vertex tail, head;
   const unsigned int t=nwp->duration_info.MCMCtimer;
   Edge ntoggles = nwp[1].nedges;
@@ -376,6 +381,8 @@ unsigned int MCMCDyn1Step_record_reset(Edge maxchanges,
       difftail[*nextdiffedge] = tail;
       diffhead[*nextdiffedge] = head;
       (*nextdiffedge)++;
+    }else{
+      return(-1);
     }
   }
   return(ntoggles);
@@ -386,7 +393,7 @@ unsigned int MCMCDyn1Step_record_reset(Edge maxchanges,
 
  Simulate evolution of a dynamic network for nsteps steps.
 *********************/
-void MCMCDyn1Step(// Observed and discordant network.
+MCMCDynStatus MCMCDyn1Step(// Observed and discordant network.
 		  Network *nwp,
 		  // Formation terms and proposals.
 		  Model *F_m, MHproposal *F_MH, double *F_eta,
@@ -405,6 +412,7 @@ void MCMCDyn1Step(// Observed and discordant network.
 		  int fVerbose){
   
   Edge ntoggles;
+  int ntoggles_status;
 
   Edge nde=1;
   if(nextdiffedge) nde=*nextdiffedge;
@@ -414,11 +422,15 @@ void MCMCDyn1Step(// Observed and discordant network.
 
   /* Run the dissolution process. */
   MCMCDyn1Step_sample(D_MH, D_eta, MH_interval, nwp, D_m);
-  ntoggles = MCMCDyn1Step_record_reset(maxchanges, difftime, difftail, diffhead, nwp, &nde);
+  ntoggles_status = MCMCDyn1Step_record_reset(maxchanges, difftime, difftail, diffhead, nwp, &nde);
+  if(ntoggles_status<0) return MCMCDyn_TOO_MANY_CHANGES;
+  ntoggles = ntoggles_status;
   
   /* Run the formation process. */
   MCMCDyn1Step_sample(F_MH, F_eta, MH_interval, nwp, F_m);
-  ntoggles += MCMCDyn1Step_record_reset(maxchanges, difftime, difftail, diffhead, nwp, &nde);
+  ntoggles_status = MCMCDyn1Step_record_reset(maxchanges, difftime, difftail, diffhead, nwp, &nde);
+  if(ntoggles_status<0) return MCMCDyn_TOO_MANY_CHANGES;
+  ntoggles += ntoggles_status;
   
   /* Commit both. */
   MCMCDyn1Step_commit(ntoggles, difftail+nde-ntoggles, diffhead+nde-ntoggles, nwp, F_m, F_stats, D_m, D_stats, M_m, M_stats);
@@ -426,4 +438,5 @@ void MCMCDyn1Step(// Observed and discordant network.
   // If we don't keep a log of toggles, reset the position to save space.
   if(log_toggles)
     *nextdiffedge=nde;
+  return MCMCDyn_OK;
 }
