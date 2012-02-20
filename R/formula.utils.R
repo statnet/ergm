@@ -249,5 +249,5 @@ set.offset.formula <- function(object, which, response=NULL){
   for(i in to_offset)
     if(!inherits(terms[[i]],"call") || terms[[i]][[1]]!="offset") # Don't offset terms already offset.
       terms[[i]]<-call("offset", terms[[i]]) # Enclose the term in an offset.
-  ergm.update.formula(object, append.rhs.formula(~.,l)) # append.rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
+  ergm.update.formula(object, append.rhs.formula(~.,terms)) # append.rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
 }

@@ -332,6 +332,16 @@
 \alias{stergm.getMCMCsample}
 \alias{stergm.phase12.C}
 \alias{vector.namesmatch}
+\alias{colMeans.mcmc.list}
+\alias{control.simulate.formula.ergm}
+\alias{control.simulate.network}
+\alias{ergm.sample.eta2theta}
+\alias{plot.mcmc.list.ergm}
+\alias{set.offset.formula}
+\alias{stergm.EGMoME.RM.Phase2.C}
+\alias{stergm.RM2}
+\alias{sweep.mcmc.list}
+
 
 
 
