@@ -95,7 +95,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   }
   control <- control.simulate.ergm.toplevel(control,...)
   
-  if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
+  if(!is.null(seed)) {set.seed(as.integer(seed))}
   
   # define nw as either the basis argument or (if NULL) the LHS of the formula
   if (is.null(nw <- basis)) {

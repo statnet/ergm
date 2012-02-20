@@ -62,7 +62,6 @@ control.simulate<-control.simulate.formula<-control.simulate.formula.ergm<-funct
                                                      summarizestats=FALSE,
                                                      network.output="network",
                                                      
-                                                     seed=NULL,
                                                      parallel=0,
                                                      parallel.type=NULL,
                                                      parallel.version.check=TRUE,
