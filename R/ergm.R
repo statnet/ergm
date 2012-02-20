@@ -156,10 +156,9 @@ ergm <- function(formula, response=NULL,
   ## Construct approximate response network if target.stats are given.
   
   if(!is.null(target.stats)){
-   if(!(!is.null(control$SAN.burnin) && is.na(control$SAN.burnin))){
-    netsumm<-summary(formula,response=response)
-    if(length(netsumm)!=length(target.stats))
-      stop("Incorrect length of the target.stats vector: should be ", length(netsumm), " but is ",length(target.stats),".")
+    nw.stats<-summary(formula,response=response)
+    if(length(nw.stats)!=length(target.stats))
+      stop("Incorrect length of the target.stats vector: should be ", length(nw.stats), " but is ",length(target.stats),".")
     
     if(verbose) cat("Constructing an approximate response network.\n")
     ## If target.stats are given, overwrite the given network and formula
@@ -174,22 +173,21 @@ ergm <- function(formula, response=NULL,
       formula<-ergm.update.formula(formula,nw~.)
       nw.stats <- summary(formula,response=response, basis=nw)
       srun <- srun + 1
-     if(verbose){
-      cat(paste("Finished SAN run",srun,"\n"))
-     }
-    if(verbose){
-      cat("SAN summary statistics:\n")
-      print(nw.stats)
-      cat("Meanstats Goal:\n")
-      print(target.stats)
-      cat("Difference: SAN target.stats - Goal target.stats =\n")
-      print(round(nw.stats-target.stats,0))
+      if(verbose){
+        cat(paste("Finished SAN run",srun,"\n"))
+      }
+      if(verbose){
+        cat("SAN summary statistics:\n")
+        print(nw.stats)
+        cat("Meanstats Goal:\n")
+        print(target.stats)
+        cat("Difference: SAN target.stats - Goal target.stats =\n")
+        print(round(nw.stats-target.stats,0))
+      }
+      if(sum((nw.stats-target.stats)^2) <= 5) break
     }
-     if(sum((nw.stats-target.stats)^2) > 5) break
-    }
-   }
   }
-
+  
   if (verbose) { cat("Initializing Metropolis-Hastings proposal.\n") }
   
   MHproposal <- MHproposal(constraints, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference,response=response)
