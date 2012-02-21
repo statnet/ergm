@@ -262,7 +262,16 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose) {
 
       if(control$MCMC.runtime.traceplot) plot(mcmc(burnin.stats,start=burnin+1,burnin+samplesize*interval,thin=interval),ask=FALSE,smooth=TRUE,density=FALSE)
       
-      # Coda's implementation uses spectrum0, which is not robust enough.
+      ## The following function is a modified version of geweke.diag
+      ## from the coda R package. The original code is Copyright (C)
+      ## 2005-2011 Martyn Plummer, Nicky Best, Kate Cowles, Karen
+      ## Vines
+      ##
+      ## It is incorporated into the ergm package under the terms of
+      ## the GPL v3 license.
+      ##
+      ## coda's implementation uses spectrum0, which is not robust
+      ## enough.
       my.geweke.diag<-function (x, frac1 = 0.1, frac2 = 0.5){
         x <- as.mcmc(x)
         xstart <- c(start(x), end(x) - frac2 * (end(x) - start(x)))
