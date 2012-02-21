@@ -31,10 +31,10 @@ vector. This is the form required by \code{\link{ergm}} calls.
 }
 \details{
   Because of a current kludge in \code{\link{ergm}}, output from one
-  run cannot be directly passed as initial values (\code{theta0}) for
+  run cannot be directly passed as initial values (\code{coef}) for
   the next run if any of the terms are curved. One workaround is to
   embed the curved parameters into the formula (while keeping
-  \code{fixed=FALSE}) and remove them from \code{theta0}.
+  \code{fixed=FALSE}) and remove them from \code{coef}.
   
   This function automates this process for curved ERGM terms included
   with the \code{\link[=ergm-package]{ergm}} package. It does not work with curved terms not
@@ -51,15 +51,18 @@ vector. This is the form required by \code{\link{ergm}} calls.
 }
 \examples{
 data(sampson)
-gest<-ergm(samplike~edges+gwesp(alpha=.5,fixed=FALSE),maxit=1)
+gest<-ergm(samplike~edges+gwesp(alpha=.5, fixed=FALSE), 
+    control=control.ergm(MCMLE.maxit=1))
 # Error:
-gest2<-try(ergm(gest$formula,theta0=coef(gest),maxit=2))
+gest2<-try(ergm(gest$formula, coef=coef(gest), 
+    control=control.ergm(MCMLE.maxit=2)))
 print(gest2)
 
 # Works:
 tmp<-enformulate.curved(gest)
 tmp
-gest2<-try(ergm(tmp$formula,theta0=tmp$theta,maxit=2))
+gest2<-try(ergm(tmp$formula, coef=tmp$theta, 
+     control=control.ergm(MCMLE.maxit=2)))
 summary(gest2)
 }
 \keyword{ model }

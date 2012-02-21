@@ -4,7 +4,7 @@
 \alias{simulate.formula.ergm}
 \title{Draw from the distribution of an Exponential Family Random Graph Model}
 \usage{
-\method{simulate}{formula}(object, nsim=1, seed=NULL, theta0,
+\method{simulate}{formula}(object, nsim=1, seed=NULL, coef,
                           burnin=1000, interval=1000,
                           basis=NULL,
                           statsonly=FALSE,
@@ -13,7 +13,7 @@
                           monitor = NULL,
                           control = control.simulate.formula(),
                           verbose=FALSE, \dots)
-\method{simulate}{ergm}(object, nsim=1, seed=NULL, theta0=object$coef,
+\method{simulate}{ergm}(object, nsim=1, seed=NULL, coef=object$coef,
                        burnin=1000, interval=1000, 
                        statsonly=FALSE,
                        sequential=TRUE,
@@ -44,7 +44,7 @@
     returned by the Metropolis-Hastings algorithm.}
  \item{seed}{Random number integer seed.
    The default is \code{sample(10000000, size=1)}.}
- \item{theta0}{Vector of parameters for the model from which the sample is
+ \item{coef}{Vector of parameters for the model from which the sample is
    to be drawn.  If \code{object} is of class \code{ergm}, the default value
    is the vector of estimated coefficients.}
  \item{burnin}{The number of proposals before any MCMC sampling
@@ -118,11 +118,11 @@
   the first argument is a \code{\link{formula}} then this defines 
   the model.  If the
   first argument is the output of a call to \code{\link{ergm}} then the model
-  used for that call is the one fit - and unless \code{theta0} is specified,
+  used for that call is the one fit - and unless \code{coef} is specified,
   the sample is from the MLE of the parameters.  
   If neither of those are given as the
   first argument then a Bernoulli network is generated with the probability
-  of ties defined by \code{prob} or \code{theta0}.
+  of ties defined by \code{prob} or \code{coef}.
 
   Note that the first network is sampled after \code{burnin} + \code{interval}
   steps, and any subsequent networks are sampled each
@@ -145,9 +145,9 @@ class \code{network}.  If \code{nsim>1}, it returns an object of class
 \examples{
 #
 # Let's draw from a Bernoulli model with 16 nodes
-# and density 0.5 (i.e., theta0 = c(0,0))
+# and density 0.5 (i.e., coef = c(0,0))
 #
-g.sim <- simulate(network(16) ~ edges + mutual)
+g.sim <- simulate(network(16) ~ edges + mutual, coef=c(0, 0))
 #
 # What are the statistics like?
 #
@@ -155,9 +155,9 @@ summary(g.sim ~ edges + mutual)
 #
 # Now simulate a network with higher mutuality
 #
-g.sim <- simulate(network(16) ~ edges + mutual, theta0=c(0,2))
+g.sim <- simulate(network(16) ~ edges + mutual, coef=c(0,2))
 #
-# How do the statistics like?
+# How do the statistics look?
 #
 summary(g.sim ~ edges + mutual)
 #
@@ -169,9 +169,10 @@ g.use <- network(16,density=0.1,directed=FALSE)
 # Starting from this network let's draw 5 realizations
 # of a edges and 2-star network
 #
-g.sim <- simulate(~edges+kstar(2),nsim=5,theta0=c(-1.8,0.03),
-               basis=g.use,
-               burnin=100000,interval=1000)
+g.sim <- simulate(~edges+kstar(2), nsim=5, coef=c(-1.8,0.03),
+               basis=g.use, control=control.simulate(
+                 MCMC.burnin=100000,
+                 MCMC.interval=1000))
 g.sim
 #
 # attach the Florentine Marriage data
@@ -186,7 +187,9 @@ summary(gest)
 # Draw from the fitted model (satatistics only), and observe the number
 # of triangles as well.
 #
-g.sim <- simulate(gest,nsim=100,burnin=1000,interval=1000,monitor=~triangles,statsonly=TRUE)
+g.sim <- simulate(gest, nsim=100, 
+            monitor=~triangles, statsonly=TRUE,
+            control=control.simulate(MCMC.burnin=1000, MCMC.interval=1000))
 head(g.sim)
 }
 \keyword{models}

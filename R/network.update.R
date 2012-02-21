@@ -26,7 +26,7 @@
 #
 ###############################################################################
 
-network.update<-function(nw,newmatrix,matrix.type=NULL,output="network")
+network.update<-function(nw, newmatrix, matrix.type=NULL, output="network")
 {
 #  print(paste("old:",network.edgecount(nw)," new:", nrow(newmatrix),collapse=" "))
   unw <- network.copy(as.network.uncompressed(nw))

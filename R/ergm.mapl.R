@@ -30,9 +30,6 @@
 #                  the Mahalanobis distance; default=NULL
 #   verbose     :  whether ergm should be verbose (T or F); default=FALSE
 #
-# --IGNORED--
-#   MPLEonly   :  ??; default=FALSE
-#   MLestimate :  ??; default=!'MPLEonly'
 #
 # --RETURNED--
 #   v: an ergm object as a list containing several items; for details see
@@ -41,7 +38,7 @@
 ################################################################################
 
 ergm.mapl <- function(formula, init="MPLE", 
-                 MPLEonly=TRUE, MLestimate=!MPLEonly, nsim=25,
+                 nsim=25,
                  burnin=10000,
                  maxit=3,
                  constraints=~.,

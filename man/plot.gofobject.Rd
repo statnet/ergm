@@ -64,6 +64,6 @@ plot(gofflo, plotlogodds=TRUE)
 #
 # Use the formula version
 #
-gof(flomarriage ~ edges + kstar(2), theta0=c(-1.6339, 0.0049))
+gof(flomarriage ~ edges + kstar(2), coef=c(-1.6339, 0.0049))
 }
 \keyword{graphs}

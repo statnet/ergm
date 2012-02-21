@@ -6,7 +6,7 @@
 \title{Use Simulated Annealing to attempt to match a network to a vector
 of mean statistics}
 \usage{
-\method{san}{formula}(object, nsim=1, seed=NULL, theta0=NULL,
+\method{san}{formula}(object, nsim=1, seed=NULL, coef=NULL,
                       tau=1, invcov=NULL,
                       burnin=10000, interval=10000,
                       target.stats=NULL,
@@ -15,7 +15,7 @@ of mean statistics}
                       constraints = ~.,
                       control = control.san(),
                       verbose=FALSE, \dots)
-\method{san}{ergm}(object, nsim=1, seed=NULL, theta0=object$coef,
+\method{san}{ergm}(object, nsim=1, seed=NULL, coef=object$coef,
                       burnin=10000, interval=10000, 
                       target.stats=NULL,
                       basis=NULL,
@@ -43,12 +43,12 @@ of mean statistics}
     operator if necessary.}
  \item{nsim}{Number of desired networks.}
  \item{seed}{Random number integer seed.}
- \item{theta0}{Parameter values used for MCMC simulations.}
+ \item{coef}{Parameter values used for MCMC simulations.}
  \item{tau}{Currently unused.}
  \item{invcov}{Initial inverse covariance matrix used to calculate
     Mahalanobis distance in determining how far a proposed MCMC move is from
     the \code{target.stats} vector.  If NULL, taken to be the covariance
-    matrix returned when fitting the MPLE (if \code{theta0==NULL}) or the
+    matrix returned when fitting the MPLE (if \code{coef==NULL}) or the
     identity (otherwise).}
  \item{burnin}{Number of MCMC steps prior to recording first vector of 
     network statistics.}

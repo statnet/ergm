@@ -13,7 +13,7 @@
   estimate or an approximate maximum likelihood estimator based on a Monte Carlo scheme.
 }
 \usage{
-ergm(formula, theta0=NULL,
+ergm(formula, coef=NULL,
      MPLEonly=FALSE, MLestimate=!MPLEonly, seed=NULL,
      burnin=10000, MCMCsamplesize=10000, interval=100, maxit=3,
      constraints=~.,
@@ -32,8 +32,8 @@ Hunter (2008).  To create a
     \code{\link[network]{network}} object in \R, use the \code{network()} function,
     then add nodal attributes to it using the \code{\%v\%}
     operator if necessary. Enclosing a model term in \code{offset()}
-    fixes its value to one specified in \code{theta0}.}
-  \item{theta0}{numeric or \code{NA} vector equal in length to the number of
+    fixes its value to one specified in \code{coef}.}
+  \item{coef}{numeric or \code{NA} vector equal in length to the number of
     parameters in the model or \code{NULL} (the default); the initial
     values for the estimation and coefficients offset terms. If \code{NULL}
     is passed, all of the initial values are computed using the method specified by
@@ -50,7 +50,7 @@ Hunter (2008).  To create a
 	\code{\link[=control.ergm]{control$initialfit}}.
       }
     }
-    Note that passing \code{theta0=coef(prev.fit)} can be used to ``resume''
+    Note that passing \code{coef=coef(prev.fit)} can be used to ``resume''
     an uncoverged \code{\link{ergm}} run, but see
     \code{\link{enformulate.curved}}.
   }
@@ -196,7 +196,7 @@ Hunter (2008).  To create a
  \item{burnin}{If included, the burnin used for the MCMC simulation}
  \item{interval}{If included, the interval used for the MCMC simulation}
  \item{network}{Original network}
- \item{theta.original}{The first value of theta0}
+ \item{theta.original}{The first value of coef}
  \item{mplefit}{The MPLE fit as a \code{glm} object.}
  \item{null.deviance}{Deviance of the null model.}
  \item{mle.lik}{The approximate log-likelihood for the MLE.
@@ -644,13 +644,13 @@ plot(molecule, vertex.col="atomic type",vertex.cex=3)
 
 # measure tendency to match within each atomic type
 gest <- ergm(molecule ~ edges + kstar(2) + triangle + nodematch("atomic type"),
-  MCMCsamplesize=10000)
+  control=control.ergm(MCMC.samplesize=10000))
 summary(gest)
 
 # compare it to differential homophily by atomic type
 gest <- ergm(molecule ~ edges + kstar(2) + triangle
                               + nodematch("atomic type",diff=TRUE),
-  MCMCsamplesize=10000)
+  control=control.ergm(MCMC.samplesize=10000))
 summary(gest)
 }
 \keyword{models}

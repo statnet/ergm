@@ -36,9 +36,9 @@ rand.net <- network(network.size(flomarriage))
 # store the sociomatrix 
 rand.mat <- rand.net[,]
 # Update the network
-network.update(flomarriage, rand.mat)
+network.update(flomarriage, rand.mat, matrix.type="adjacency")
 # Try this with an edgelist
 rand.mat <- as.matrix.network.edgelist(flomarriage)[1:5,]
-network.update(flomarriage, rand.mat)
+network.update(flomarriage, rand.mat, matrix.type="edgelist")
 }
 \keyword{models}

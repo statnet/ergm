@@ -18,7 +18,8 @@ Steve Goodreau
 \seealso{florentine, network, plot.network, ergm}
 \examples{
 data(g4)
-summary(ergm(g4 ~ odegree(3), MPLEonly=TRUE))
-summary(ergm(g4 ~ odegree(3), theta0=0))
+summary(ergm(g4 ~ odegree(3), estimate="MPLE"))
+summary(ergm(g4 ~ odegree(3), coef=0))
 }
 \keyword{datasets}
+

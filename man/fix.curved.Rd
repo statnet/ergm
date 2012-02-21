@@ -65,6 +65,6 @@ simulate(gest,statsonly=TRUE)
 tmp<-fix.curved(gest)
 tmp
 # A gwesp() statistic only
-simulate(tmp$formula,theta0=tmp$theta,statsonly=TRUE) 
+simulate(tmp$formula, coef=tmp$theta, statsonly=TRUE) 
 }
 \keyword{ model }

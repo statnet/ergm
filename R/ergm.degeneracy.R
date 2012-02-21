@@ -47,7 +47,7 @@ ergm.degeneracy <- function(object,
    if(is.null(object$mplefit$glm)){
     current.warn <- options()$warn
     options(warn=-1)
-    fit <- try(ergm(object$formula, MPLEonly=TRUE, Mlestimate=FALSE),silent=TRUE)
+    fit <- try(ergm(object$formula, estimate="MPLE"),silent=TRUE)
     options(warn=current.warn)
     if(inherits(fit,"try-error")){
      object$degeneracy.value <- NA

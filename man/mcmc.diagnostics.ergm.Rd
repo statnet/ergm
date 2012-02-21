@@ -138,7 +138,6 @@ mcmc.diagnostics(gest)
 library(coda)
 #
 plot(gest$sample, ask=FALSE)
-ergm.raftery.diag(gest$sample, r=0.1)
 #
 # A full range of diagnostics is available 
 # using codamenu()

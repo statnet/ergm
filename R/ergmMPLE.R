@@ -31,7 +31,7 @@ ergmMPLE <- function(formula, fitmodel=FALSE, control=control.ergm(),
                      verbose=FALSE, ...) 
 {
   if (fitmodel) {
-    return(ergm(formula, MPLEonly=TRUE, control=control, verbose=verbose, ...))
+    return(ergm(formula, estimate="MPLE", control=control, verbose=verbose, ...))
   }
   nw <- ergm.getnetwork(formula)
   model <- ergm.getmodel(formula, nw, initialfit=TRUE)

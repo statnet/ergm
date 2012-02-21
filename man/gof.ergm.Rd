@@ -13,7 +13,7 @@
 }
 \usage{
 \method{gof}{default}(object,\dots)
-\method{gof}{formula}(formula, \dots, theta0=NULL,
+\method{gof}{formula}(formula, \dots, coef=NULL,
          nsim=100, burnin=10000, interval=1000,
          GOF=NULL,
          constraints=~.,
@@ -27,7 +27,7 @@
          constraints=NULL,
          control=control.gof.ergm(),
          seed=NULL, 
-         theta0=NULL, verbose=FALSE)
+         coef=NULL, verbose=FALSE)
 }
 \arguments{
  \item{object}{an \R object. Either a formula or an \code{\link{ergm}} object. 
@@ -41,13 +41,10 @@
   network object in \R, use the \code{network()} function,
   then add nodal attributes to it using the \code{\%v\%}
   operator if necessary.}
- \item{theta0}{
+ \item{coef}{
     When given either
-    a formula or an object of class ergm, theta0 are the parameters
+    a formula or an object of class ergm, \code{coef} are the parameters
     from which the sample is drawn. By default set to a vector of 0.}
-%\item{theta0missing}{
-%   Optional parameters from which the missing data
-%   sample is drawn. By default set to \code{theta0}.}
   \item{nsim}{The number of simulations to use for the MCMC \eqn{p}-values.
    This is the size of the sample of graphs to be randomly drawn
    from the distribution specified by the object on the set of all graphs.
@@ -134,7 +131,7 @@ plot(gofflo)
 plot(gofflo, plotlogodds=TRUE)
 
 # Use the formula version of gof
-gofflo2 <-gof(flomarriage ~ edges + kstar(2), theta0=c(-1.6339, 0.0049))
+gofflo2 <-gof(flomarriage ~ edges + kstar(2), coef=c(-1.6339, 0.0049))
 plot(gofflo2)
 }
 \keyword{models}

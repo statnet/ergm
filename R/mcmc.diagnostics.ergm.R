@@ -1,10 +1,10 @@
 #=================================================================================
-# This file contains the following 12 diagnostic tools and their helper functions
+# This file contains the following 10 diagnostic tools and their helper functions
 #      <mcmc.diagnostics>            <traceplot.ergm>
 #      <mcmc.diagnostics.default>    <set.mfrow>
 #      <mcmc.diagnostics.ergm>       <nvar.mcmc>
-#      <ergm.raftery.diag>           <is.mcmc.object>
-#      <print.raftery.diag.ergm>     <is.mcmc.list.object>
+#      <is.mcmc.object>
+#      <is.mcmc.list.object>
 #      <plot.mcmc.ergm>              <varnames.mcmc>
 #=================================================================================
 
