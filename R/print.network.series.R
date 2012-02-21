@@ -15,8 +15,10 @@
 ###############################################################################
 
 "print.network.series" <-
-  function (x, ..., wmt = which.matrix.type(x$networks[[1]])) 
-{
+  function (x, ..., wmt = which.matrix.type(g)) 
+{ 
+  # FIXME once the network.series format is standardized.
+  if (is.null(x$networks)) {tmp <- x; x <- attributes(x); x$networks <- tmp}
   g <- x$networks[[1]]
   cat("Number of Networks:",length(x$networks),"\n")
   f.out <- lapply(x$formula,as.character)
