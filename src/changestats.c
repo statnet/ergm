@@ -3242,6 +3242,21 @@ D_CHANGESTAT_FN(d_isolates) {
   UNDO_PREVIOUS_TOGGLES(i);
 }
 
+S_CHANGESTAT_FN(s_isolates) { 
+  int i, echange;
+  Vertex tail, head, taild, headd=0, *id, *od;
+
+  id=IN_DEG;
+  od=OUT_DEG;
+  
+  /* *** don't forget tail -> head */    
+  CHANGE_STAT[0] = 0.0;
+  for(Vertex tail=1; tail <= N_NODES; tail++){
+    if(od[tail] + id[tail] == 0)
+      CHANGE_STAT[0] ++;
+  }
+}
+
 /*****************
  changestat: d_istar
 *****************/

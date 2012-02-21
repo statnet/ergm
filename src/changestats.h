@@ -95,6 +95,7 @@ D_CHANGESTAT_FN(d_idegree_by_attr);
 D_CHANGESTAT_FN(d_idegree_w_homophily);
 D_CHANGESTAT_FN(d_intransitive);
 D_CHANGESTAT_FN(d_isolates);
+S_CHANGESTAT_FN(s_isolates);
 D_CHANGESTAT_FN(d_istar);
 /********************  changestats:   K    ***********/
 D_CHANGESTAT_FN(d_kstar);

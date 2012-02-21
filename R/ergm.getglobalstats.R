@@ -33,8 +33,7 @@ ergm.getglobalstats <- function(nw, m, response=NULL) {
   }
   
   # *** don't forget, tails are passes in first now, notheads  
-  gs <- gs + (
-         if(is.null(response))
+  gs <- if(is.null(response))
          .C("network_stats_wrapper",
             as.integer(Clist$tails), as.integer(Clist$heads), 
             as.integer(Clist$nedges),
@@ -43,7 +42,7 @@ ergm.getglobalstats <- function(nw, m, response=NULL) {
             as.integer(Clist$nterms), 
             as.character(Clist$fnamestring), as.character(Clist$snamestring), 
             as.double(Clist$inputs),
-            gs = double(Clist$nstats),
+            gs = as.double(gs),
             PACKAGE="ergm"
             )$gs
          else
@@ -58,7 +57,6 @@ ergm.getglobalstats <- function(nw, m, response=NULL) {
             gs = as.double(gs),
             PACKAGE="ergm"
             )$gs
-         )
   names(gs) <- m$coef.names
 
   gs
