@@ -620,13 +620,13 @@ WtD_CHANGESTAT_FN(d_nodesqrtcovar_centered){
   if(DIRECTED){
     for(Vertex i=1; i<=N_NODES; i++){
       EXEC_THROUGH_EDGES(i, e, j, yij, {
-	  ssq += sqrt(yij);
+	  ssq += sqrt(yij); j=j; /* j=j is silly, just to prevent compiler warnings */
 	});
     }
   }else{
     for(Vertex i=1; i<=N_NODES; i++){
       EXEC_THROUGH_FOUTEDGES(i, e, j, yij, {
-	  ssq += sqrt(yij);
+	  ssq += sqrt(yij); j=j; /* j=j is silly, just to prevent compiler warnings */
 	});
     }
     ssq*=2;
