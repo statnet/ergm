@@ -2935,7 +2935,6 @@ D_CHANGESTAT_FN(d_hamming) {
  changestat: d_hammingmix_constant
 *****************/
 D_CHANGESTAT_FN(d_hammingmix_constant) { 
-  Vertex tail, head;
   int i, nhedge, discord;
   int matchvaltail, matchvalhead;
   
@@ -3243,8 +3242,9 @@ D_CHANGESTAT_FN(d_isolates) {
 }
 
 S_CHANGESTAT_FN(s_isolates) { 
-  int i, echange;
-  Vertex tail, head, taild, headd=0, *id, *od;
+  /* int i, echange;
+     Vertex tail, head, taild, headd=0, *id, *od; */
+  Vertex *id, *od;
 
   id=IN_DEG;
   od=OUT_DEG;

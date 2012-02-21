@@ -215,7 +215,8 @@ WtD_CHANGESTAT_FN(d_cyclicalweights){
 }
 
 WtS_CHANGESTAT_FN(s_cyclicalweights){ 
-  unsigned int path = INPUT_ATTRIB[0], combine = INPUT_ATTRIB[1], compare =  INPUT_ATTRIB[2], threshold = INPUT_ATTRIB[3];
+  unsigned int path = INPUT_ATTRIB[0], combine = INPUT_ATTRIB[1], compare = INPUT_ATTRIB[2];
+  /* unsigned int threshold = INPUT_ATTRIB[3]; */
 
   CHANGE_STAT[0]=0;
   for (Vertex tail=1; tail <= N_NODES; tail++){
