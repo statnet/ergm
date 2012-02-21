@@ -19,7 +19,7 @@ Steve Goodreau
 \examples{
 data(g4)
 summary(ergm(g4 ~ odegree(3), estimate="MPLE"))
-summary(ergm(g4 ~ odegree(3), coef=0))
+summary(ergm(g4 ~ odegree(3), control=control.ergm(init=0)))
 }
 \keyword{datasets}
 

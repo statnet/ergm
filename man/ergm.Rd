@@ -32,7 +32,7 @@ Hunter (2008).  To create a
     \code{\link[network]{network}} object in \R, use the \code{network()} function,
     then add nodal attributes to it using the \code{\%v\%}
     operator if necessary. Enclosing a model term in \code{offset()}
-    fixes its value to one specified in \code{coef}.}
+    fixes its value to one specified in \code{offset.coef}.}
   \item{coef}{numeric or \code{NA} vector equal in length to the number of
     parameters in the model or \code{NULL} (the default); the initial
     values for the estimation and coefficients offset terms. If \code{NULL}
@@ -50,7 +50,7 @@ Hunter (2008).  To create a
 	\code{\link[=control.ergm]{control$initialfit}}.
       }
     }
-    Note that passing \code{coef=coef(prev.fit)} can be used to ``resume''
+    Note that passing \code{control.ergm(init=coef(prev.fit))} can be used to ``resume''
     an uncoverged \code{\link{ergm}} run, but see
     \code{\link{enformulate.curved}}.
   }

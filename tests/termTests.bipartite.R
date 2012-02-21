@@ -32,9 +32,9 @@ num.tests=0
 #b1concurrent, bipartite, undirected
 num.tests=num.tests+1
 s.0 <- summary(bipnw~b1concurrent)
-e.0 <- ergm(bipnw~b1concurrent, MPLEonly=TRUE)
+e.0 <- ergm(bipnw~b1concurrent, estimate="MPLE")
 s.b <- summary(bipnw~b1concurrent("Letter"))
-e.b <- ergm(bipnw~b1concurrent("Letter"), MPLEonly=TRUE)
+e.b <- ergm(bipnw~b1concurrent("Letter"), estimate="MPLE")
 if (s.0 != 12 || round(e.0$coef + 3.961, 3) != 0 ||
     !all(s.b==c(4,5,3)) ||
     !all(round(e.b$coef+c(4.143, 3.62, 4.105),3)==0)) {
@@ -49,9 +49,9 @@ if (s.0 != 12 || round(e.0$coef + 3.961, 3) != 0 ||
 #b1degree, bipartite, undirected
 num.tests=num.tests+1
 s.d <- summary(bipnw~b1degree(1:3))
-e.d <- ergm(bipnw~b1degree(1:3), MPLEonly=TRUE)
+e.d <- ergm(bipnw~b1degree(1:3), estimate="MPLE")
 s.db <- summary(bipnw~b1degree(2:4, by="Letter"))
-e.db <- ergm(bipnw~b1degree(2, by="Letter"), MPLEonly=TRUE)
+e.db <- ergm(bipnw~b1degree(2, by="Letter"), estimate="MPLE")
 if (!all(s.d==c(30,8,2)) ||
     !all(round(e.d$coef+c(2.991, 5.442, 6.484),3)==0) ||
     !all(s.db==c(2,1,1,3,1,1,3,0,0)) ||
@@ -69,9 +69,9 @@ if (!all(s.d==c(30,8,2)) ||
 #b1factor, bipartite, undirected
 num.tests=num.tests+1
 s.a <- summary(bipnw~b1factor("Letter"))
-e.a <- ergm(bipnw~b1factor("Letter"), MPLEonly=TRUE)
+e.a <- ergm(bipnw~b1factor("Letter"), estimate="MPLE")
 s.ab <- summary(bipnw~b1factor("Letter", base=3))
-e.ab <- ergm(bipnw~b1factor("Letter", base=2), MPLEonly=TRUE)
+e.ab <- ergm(bipnw~b1factor("Letter", base=2), estimate="MPLE")
 if (!all(s.a==c(21,19)) ||
     !all(round(e.a$coef+c(3.797, 3.899),3)==0) ||
     !all(s.ab==c(20,21)) ||
@@ -88,9 +88,9 @@ if (!all(s.a==c(21,19)) ||
 #b1star, bipartite, undirected
 num.tests=num.tests+1
 s.k <- summary(bipnw~b1star(1:2))
-e.k <- ergm(bipnw~b1star(1:2), MPLEonly=TRUE)
+e.k <- ergm(bipnw~b1star(1:2), estimate="MPLE")
 s.ka <- summary(bipnw~b1star(2:3, "Letter"))
-e.ka <- ergm(bipnw~b1star(2:2, "Letter"), MPLEonly=TRUE)
+e.ka <- ergm(bipnw~b1star(2:2, "Letter"), estimate="MPLE")
 if (!all(s.k==c(60,26)) ||
     !all(round(e.k$coef+c(4.0823, -.3179),3)==0) ||
     !all(s.ka==c(3,0)) ||
@@ -108,13 +108,13 @@ if (!all(s.k==c(60,26)) ||
 #b1starmix, bipartite, undirected
 num.tests=num.tests+1
 s.ka <- summary(bipnw2~b1starmix(2, "Letter"))
-e.ka <- ergm(bipnw2~b1starmix(2, "Letter"), MPLEonly=TRUE)
+e.ka <- ergm(bipnw2~b1starmix(2, "Letter"), estimate="MPLE")
 s.kab <- summary(bipnw2~b1starmix(1, "Letter", base=2))
-e.kab <- ergm(bipnw2~b1starmix(1, "Letter", base=2:3), MPLEonly=TRUE)
+e.kab <- ergm(bipnw2~b1starmix(1, "Letter", base=2:3), estimate="MPLE")
 s.kad <- summary(bipnw2~b1starmix(1, "Letter", diff=FALSE))
-e.kad <- ergm(bipnw2~b1starmix(1, "Letter", diff=FALSE), MPLEonly=TRUE)
+e.kad <- ergm(bipnw2~b1starmix(1, "Letter", diff=FALSE), estimate="MPLE")
 s.kabd <- summary(bipnw2~b1starmix(1, "Letter", base=2, diff=FALSE))
-e.kabd <- ergm(bipnw2~b1starmix(1, "Letter", base=2:3, diff=FALSE), MPLEonly=TRUE)
+e.kabd <- ergm(bipnw2~b1starmix(1, "Letter", base=2:3, diff=FALSE), estimate="MPLE")
 if (!all(s.ka==c(2,2,5,2)) ||
     !all(round(e.ka$coef+c(5.915, 6.445, 5.084, 6.244),3)==0) ||
     !all(s.kab==c(14,18,18)) ||
@@ -135,13 +135,13 @@ if (!all(s.ka==c(2,2,5,2)) ||
 #b1twostar, bipartite, undirected
 num.tests=num.tests+1
 s.a <- summary(bipnw2~b1twostar("Letter"))
-e.a <- ergm(bipnw2~b1twostar("Letter"), MPLEonly=TRUE)
+e.a <- ergm(bipnw2~b1twostar("Letter"), estimate="MPLE")
 s.aa <- summary(bipnw2~b1twostar("Letter", "Color"))
-e.aa <- ergm(bipnw2~b1twostar("Letter", "Color"), MPLEonly=TRUE)
+e.aa <- ergm(bipnw2~b1twostar("Letter", "Color"), estimate="MPLE")
 s.ab <- summary(bipnw2~b1twostar("Letter", base=2:4))
-e.ab <- ergm(bipnw2~b1twostar("Letter", base=c(1,3,5)), MPLEonly=TRUE)
+e.ab <- ergm(bipnw2~b1twostar("Letter", base=c(1,3,5)), estimate="MPLE")
 s.aab <- summary(bipnw2~b1twostar("Letter", "Color", base=2:4))
-e.aab <- ergm(bipnw2~b1twostar("Letter", "Color", base=c(1,3,5)), MPLEonly=TRUE)
+e.aab <- ergm(bipnw2~b1twostar("Letter", "Color", base=c(1,3,5)), estimate="MPLE")
 if (!all(s.a==c(9,4,15,17,7,4)) ||
     !all(round(e.a$coef+c(5.688, 6.012, 5.223, 5.463, 4.635, 5.688),3)==0) ||
     !all(s.aa==c(12,3,18,10,8,5)) ||
@@ -163,9 +163,9 @@ if (!all(s.a==c(9,4,15,17,7,4)) ||
 #b2concurrent, bipartite, undirected
 num.tests=num.tests+1
 s.0 <- summary(bipnw~b2concurrent)
-e.0 <- ergm(bipnw~b2concurrent, MPLEonly=TRUE)
+e.0 <- ergm(bipnw~b2concurrent, estimate="MPLE")
 s.b <- summary(bipnw~b2concurrent("Letter"))
-e.b <- ergm(bipnw~b2concurrent("Letter"), MPLEonly=TRUE)
+e.b <- ergm(bipnw~b2concurrent("Letter"), estimate="MPLE")
 if (s.0 != 20 || round(e.0$coef + 3.497, 3) != 0 ||
     !all(s.b==c(8,6,6)) ||
     !all(round(e.b$coef+c(2.803, 4.190, 2.803),3)==0)) {
@@ -180,9 +180,9 @@ if (s.0 != 20 || round(e.0$coef + 3.497, 3) != 0 ||
 #b2degree, bipartite, undirected
 num.tests=num.tests+1
 s.d <- summary(bipnw~b2degree(1:3))
-e.d <- ergm(bipnw~b2degree(1:3), MPLEonly=TRUE)
+e.d <- ergm(bipnw~b2degree(1:3), estimate="MPLE")
 s.db <- summary(bipnw~b2degree(2:4, by="Letter"))
-e.db <- ergm(bipnw~b2degree(2, by="Letter"), MPLEonly=TRUE)
+e.db <- ergm(bipnw~b2degree(2, by="Letter"), estimate="MPLE")
 if (!all(s.d==c(6,9,8)) ||
     !all(round(e.d$coef-c(1.7203, 1.4941, .6768),3)==0) ||
     !all(s.db==c(3,2,3,3,3,0,3,3,0)) ||
@@ -200,9 +200,9 @@ if (!all(s.d==c(6,9,8)) ||
 #b2factor, bipartite, undirected
 num.tests=num.tests+1
 s.a <- summary(bipnw~b2factor("Letter"))
-e.a <- ergm(bipnw~b2factor("Letter"), MPLEonly=TRUE)
+e.a <- ergm(bipnw~b2factor("Letter"), estimate="MPLE")
 s.ab <- summary(bipnw~b2factor("Letter", base=3))
-e.ab <- ergm(bipnw~b2factor("Letter", base=2), MPLEonly=TRUE)
+e.ab <- ergm(bipnw~b2factor("Letter", base=2), estimate="MPLE")
 if (!all(s.a==c(19,16)) ||
     !all(round(e.a$coef+c(3.944, 4.119),3)==0) ||
     !all(s.ab==c(25,19)) ||
@@ -219,9 +219,9 @@ if (!all(s.a==c(19,16)) ||
 #b2star, bipartite, undirected
 num.tests=num.tests+1
 s.k <- summary(bipnw~b2star(1:2))
-e.k <- ergm(bipnw~b2star(1:2), MPLEonly=TRUE)
+e.k <- ergm(bipnw~b2star(1:2), estimate="MPLE")
 s.ka <- summary(bipnw~b2star(2:3, "Letter"))
-e.ka <- ergm(bipnw~b2star(2:2, "Letter"), MPLEonly=TRUE)
+e.ka <- ergm(bipnw~b2star(2:2, "Letter"), estimate="MPLE")
 if (!all(s.k==c(60,51)) ||
     !all(round(e.k$coef+c(3.3457, .2724),3)==0) ||
     !all(s.ka==c(3,0)) ||
@@ -239,13 +239,13 @@ if (!all(s.k==c(60,51)) ||
 #b2starmix, bipartite, undirected
 num.tests=num.tests+1
 s.ka <- summary(bipnw2~b2starmix(2, "Letter"))
-e.ka <- ergm(bipnw2~b2starmix(1, "Letter"), MPLEonly=TRUE)
+e.ka <- ergm(bipnw2~b2starmix(1, "Letter"), estimate="MPLE")
 s.kab <- summary(bipnw2~b2starmix(1, "Letter", base=2))
-e.kab <- ergm(bipnw2~b2starmix(1, "Letter", base=2:3), MPLEonly=TRUE)
+e.kab <- ergm(bipnw2~b2starmix(1, "Letter", base=2:3), estimate="MPLE")
 s.kad <- summary(bipnw2~b2starmix(1, "Letter", diff=FALSE))
-e.kad <- ergm(bipnw2~b2starmix(1, "Letter", diff=FALSE), MPLEonly=TRUE)
+e.kad <- ergm(bipnw2~b2starmix(1, "Letter", diff=FALSE), estimate="MPLE")
 s.kabd <- summary(bipnw2~b2starmix(1, "Letter", base=2, diff=FALSE))
-e.kabd <- ergm(bipnw2~b2starmix(1, "Letter", base=2:3, diff=FALSE), MPLEonly=TRUE)
+e.kabd <- ergm(bipnw2~b2starmix(1, "Letter", base=2:3, diff=FALSE), estimate="MPLE")
 if (!all(s.ka==c(1,4,0,2)) ||
     !all(round(e.ka$coef+c(6.275, 5.869, 6.016, 6.016),3)==0) ||
     !all(s.kab==c(14,18,18)) ||
@@ -266,13 +266,13 @@ if (!all(s.ka==c(1,4,0,2)) ||
 #b2twostar, bipartite, undirected
 num.tests=num.tests+1
 s.a <- summary(bipnw2~b2twostar("Letter"))
-e.a <- ergm(bipnw2~b2twostar("Letter"), MPLEonly=TRUE)
+e.a <- ergm(bipnw2~b2twostar("Letter"), estimate="MPLE")
 s.aa <- summary(bipnw2~b2twostar("Letter", "Color"))
-e.aa <- ergm(bipnw2~b2twostar("Letter", "Color"), MPLEonly=TRUE)
+e.aa <- ergm(bipnw2~b2twostar("Letter", "Color"), estimate="MPLE")
 s.ab <- summary(bipnw2~b2twostar("Letter", base=2:4))
-e.ab <- ergm(bipnw2~b2twostar("Letter", base=c(1,3,5)), MPLEonly=TRUE)
+e.ab <- ergm(bipnw2~b2twostar("Letter", base=c(1,3,5)), estimate="MPLE")
 s.aab <- summary(bipnw2~b2twostar("Letter", "Color", base=2:4))
-e.aab <- ergm(bipnw2~b2twostar("Letter", "Color", base=c(1,3,5)), MPLEonly=TRUE)
+e.aab <- ergm(bipnw2~b2twostar("Letter", "Color", base=c(1,3,5)), estimate="MPLE")
 if (!all(s.a==c(6,3,16,16,8,6)) ||
     !all(round(e.a$coef+c(5.185, 6.158, 4.892, 4.844, 4.142, 4.901),3)==0) ||
     !all(s.aa==c(10,6,16,11,3,9)) ||
@@ -293,13 +293,13 @@ if (!all(s.a==c(6,3,16,16,8,6)) ||
 # gwb1degree, bipartite
 num.tests=num.tests+1
 s.d <- summary(bipnw~gwb1degree(.3))
-e.d <- ergm(bipnw~gwb1degree(.4), MPLEonly=TRUE)
+e.d <- ergm(bipnw~gwb1degree(.4), estimate="MPLE")
 s.df <- summary(bipnw~gwb1degree(.3, fixed=TRUE))
-e.df <- ergm(bipnw~gwb1degree(.2, fixed=TRUE), MPLEonly=TRUE)
+e.df <- ergm(bipnw~gwb1degree(.2, fixed=TRUE), estimate="MPLE")
 s.da <- summary(bipnw~gwb1degree(.1, attrname="Letter"))
-e.da <- ergm(bipnw~gwb1degree(.1, attrname="Letter"), MPLEonly=TRUE)
+e.da <- ergm(bipnw~gwb1degree(.1, attrname="Letter"), estimate="MPLE")
 s.dfa <- summary(bipnw~gwb1degree(.1, TRUE, "Letter"))
-e.dfa <- ergm(bipnw~gwb1degree(.1, TRUE, "Letter"), MPLEonly=TRUE)
+e.dfa <- ergm(bipnw~gwb1degree(.1, TRUE, "Letter"), estimate="MPLE")
 if (round(e.d$coef + 6.979, 3) != 0 ||
     round(s.df -45.4137, 3) != 0 ||
     round(e.df$coef + 8.057, 3) != 0 ||
@@ -317,13 +317,13 @@ if (round(e.d$coef + 6.979, 3) != 0 ||
 # gwb2degree, bipartite
 num.tests=num.tests+1
 s.d <- summary(bipnw~gwb2degree(.3))
-e.d <- ergm(bipnw~gwb2degree(.4), MPLEonly=TRUE)
+e.d <- ergm(bipnw~gwb2degree(.4), estimate="MPLE")
 s.df <- summary(bipnw~gwb2degree(.3, fixed=TRUE))
-e.df <- ergm(bipnw~gwb2degree(.2, fixed=TRUE), MPLEonly=TRUE)
+e.df <- ergm(bipnw~gwb2degree(.2, fixed=TRUE), estimate="MPLE")
 s.da <- summary(bipnw~gwb2degree(.1, attrname="Letter"))
-e.da <- ergm(bipnw~gwb2degree(.1, attrname="Letter"), MPLEonly=TRUE)
+e.da <- ergm(bipnw~gwb2degree(.1, attrname="Letter"), estimate="MPLE")
 s.dfa <- summary(bipnw~gwb2degree(.1, TRUE, "Letter"))
-e.dfa <- ergm(bipnw~gwb2degree(.1, TRUE, "Letter"), MPLEonly=TRUE)
+e.dfa <- ergm(bipnw~gwb2degree(.1, TRUE, "Letter"), estimate="MPLE")
 if (round(e.d$coef + 25.99385, 3) != 0 ||
     round(s.df -31.97479, 3) != 0 ||
     round(e.df$coef + 32.78813, 3) != 0 ||

@@ -27,10 +27,10 @@ num.tests=0
 #altkstar, undirected, 
 num.tests=num.tests+1
 s.0 <- summary(fmh~altkstar)
-e.0 <- ergm(fmh~altkstar, MPLEonly=TRUE)
-e.l <- ergm(fmh~altkstar(.5), MPLEonly=TRUE)
+e.0 <- ergm(fmh~altkstar, estimate="MPLE")
+e.l <- ergm(fmh~altkstar(.5), estimate="MPLE")
 s.f <- summary(fmh~altkstar(fixed=TRUE))
-e.lf <- ergm(fmh~altkstar(.9, fixed=TRUE), MPLEonly=TRUE)
+e.lf <- ergm(fmh~altkstar(.9, fixed=TRUE), estimate="MPLE")
 if (!all(s.0[1:10]==c(51,30,28,18,10,2,4,1,2,1)) ||
     round(e.0$coef+ 3.234, 3) !=0 ||
     round(e.l$coef+ 4.166, 3) !=0 ||
@@ -47,9 +47,9 @@ if (!all(s.0[1:10]==c(51,30,28,18,10,2,4,1,2,1)) ||
 # concurrent, undirected
 num.tests=num.tests+1
 s.0 <- summary(fmh~concurrent)
-e.0 <- ergm(fmh~concurrent, MPLEonly=TRUE)
+e.0 <- ergm(fmh~concurrent, estimate="MPLE")
 s.b <- summary(fmh~concurrent(by="Grade"))
-e.b <- ergm(fmh~concurrent(by="Sex"), MPLEonly=TRUE)
+e.b <- ergm(fmh~concurrent(by="Sex"), estimate="MPLE")
 if (s.0 != 97 || round(e.0$coef + 4.871, 3) != 0 ||
     !all(s.b==c(35,15,18,8,13,8)) ||
     !all(round(e.b$coef + c(5.17301, 4.67697), 3) == 0)) {
@@ -64,11 +64,11 @@ if (s.0 != 97 || round(e.0$coef + 4.871, 3) != 0 ||
 # degree, undirected
 num.tests=num.tests+1
 s.d <- summary(fmh~degree(2:3))
-e.d <- ergm(fmh~degree(0), MPLEonly=TRUE)
+e.d <- ergm(fmh~degree(0), estimate="MPLE")
 s.db <- summary(fmh~degree(1:3, "Grade"))
-e.db <- ergm(fmh~degree(4, "Sex"), MPLEonly=TRUE)
+e.db <- ergm(fmh~degree(4, "Sex"), estimate="MPLE")
 s.dbh <- summary(fmh~degree(4:5, by="Sex", homophily=TRUE))
-e.dbh <- ergm(fmh~degree(2, by="Grade", homophily=TRUE), MPLEonly=TRUE)
+e.dbh <- ergm(fmh~degree(2, by="Grade", homophily=TRUE), estimate="MPLE")
 if (!all(s.d==c(30,28)) || round(e.d$coef - 5.11, 3) != 0 ||
     !all(s.db==c(15,9,9,9,4,2,11,5,9,9,4,2,5,5,4,2,3,2)) ||
     !all(round(e.db$coef+c(.345, .6005),3)==0) ||
@@ -84,11 +84,11 @@ if (!all(s.d==c(30,28)) || round(e.d$coef - 5.11, 3) != 0 ||
 # gwdegree, undirected
 num.tests=num.tests+1
 s.d <- summary(fmh~gwdegree(.3))
-e.d <- ergm(fmh~gwdegree(.4), MPLEonly=TRUE)
+e.d <- ergm(fmh~gwdegree(.4), estimate="MPLE")
 s.df <- summary(fmh~gwdegree(.3, fixed=TRUE))
-e.df <- ergm(fmh~gwdegree(.2, fixed=TRUE), MPLEonly=TRUE)
+e.df <- ergm(fmh~gwdegree(.2, fixed=TRUE), estimate="MPLE")
 s.dfa <- summary(fmh~gwdegree(.1, fixed=TRUE, attrname="Grade"))
-e.dfa <- ergm(fmh~gwdegree(.1, fixed=TRUE, attrname="Grade"), MPLEonly=TRUE)
+e.dfa <- ergm(fmh~gwdegree(.1, fixed=TRUE, attrname="Grade"), estimate="MPLE")
 if (!all(head(s.d)==c(51,30,28,18,10,2)) ||
     round(e.d$coef + 13.59067, 3) != 0 ||
     round(s.df - 178.4312, 3) != 0 ||
@@ -107,9 +107,9 @@ if (!all(head(s.d)==c(51,30,28,18,10,2)) ||
 # kstar, undirected
 num.tests=num.tests+1
 s.k <- summary(fmh~kstar(1:3))
-e.k <- ergm(fmh~kstar(c(2,4)), MPLEonly=TRUE)
+e.k <- ergm(fmh~kstar(c(2,4)), estimate="MPLE")
 s.ka <- summary(fmh~kstar(2, "Grade"))
-e.ka <- ergm(fmh~kstar(2, "Sex"), MPLEonly=TRUE)
+e.ka <- ergm(fmh~kstar(2, "Sex"), estimate="MPLE")
 if (!all(s.k == c(406, 659, 1010)) ||
     round(e.k$coef - c(-1.45086, .06255), 3) != 0 ||
     s.ka != 466 || round(e.ka$coef + 1.535175, 3) != 0) {
@@ -126,7 +126,7 @@ s.0 <- summary(fmh~sociality)
 s.a <- summary(fmh~sociality("Race"))
 s.b <- summary(fmh~sociality(base=2:203))
 s.ab <- summary(fmh~sociality("Race", base=3:200))
-e.ab <- ergm(fmh~sociality("Race", base=3:205), MPLEonly=TRUE)
+e.ab <- ergm(fmh~sociality("Race", base=3:205), estimate="MPLE")
 if (!all(head(s.0)==c(4,0,0,1,0,0)) ||
     !all(s.a[45:50]==c(0,8,0,0,0,3)) ||
     !all(s.b==c(13,3,1)) ||
@@ -144,11 +144,11 @@ if (!all(head(s.0)==c(4,0,0,1,0,0)) ||
 # num.tests=num.tests+1
 # all of these are turning out 0 or NA                
 #s.0 <- summary(unnw~tripercent)
-#e.0 <- ergm(unnw~tripercent, MPLEonly=TRUE)
+#e.0 <- ergm(unnw~tripercent, estimate="MPLE")
 #s.a <- summary(unnw~tripercent("Pet"))
-#e.a <- ergm(unnw~tripercent("Pet"), MPLEonly=TRUE)                
+#e.a <- ergm(unnw~tripercent("Pet"), estimate="MPLE")                
 #s.ad <- summary(unnw~tripercent("Race", diff=TRUE))
-#e.ad <- ergm(unnw~tripercent("Race", diff=TRUE), MPLEonly=TRUE)   
+#e.ad <- ergm(unnw~tripercent("Race", diff=TRUE), estimate="MPLE")   
 #if (s.0 != 62 || round(e.0$coef + .06997, 3) != 0 ||
 #    s.a != 18 || round(e.a$coef - .06354, 3) != 0 ||
 #    !all(s.ad==c(2,0,0)) ||

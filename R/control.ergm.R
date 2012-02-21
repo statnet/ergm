@@ -261,7 +261,7 @@ control.ergm<-function(drop=TRUE,
 
 control.ergm.toplevel<-function(control,...){
   ergm.args<-list(...)
-  old.controls<-list(burnin="MCMC.burnin",MCMCsamplesize="MCMC.samplesize",interval="MCMC.interval",maxit="MCMLE.maxit",seed="seed",theta0="init")
+  old.controls<-list(burnin="MCMC.burnin",MCMCsamplesize="MCMC.samplesize",interval="MCMC.interval",maxit="MCMLE.maxit",seed="seed",theta0="init",coef="init")
   for(arg in names(old.controls))
     if(arg %in% names(ergm.args)){
       warning("Passing ",arg," to ergm(...) is deprecated and may be removed in a future version. Specify it as control.ergm(",old.controls[[arg]],"=...) instead.")

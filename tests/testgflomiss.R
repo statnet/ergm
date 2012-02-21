@@ -31,21 +31,21 @@ respondent
 #sociomatrix(mflomarriage)
 #flomarriage <- set.graph.attribute(flomarriage, "design", mflomarriage)
 
-#efit <- ergm(flomarriage ~ edges + kstar(2), MCMCsamplesize=1000, interval=1000)
-efit <- ergm(flomarriage ~ edges + kstar(2), MPLEonly=TRUE)
+#efit <- ergm(flomarriage ~ edges + kstar(2), control=control.ergm(MCMC.samplesize=1000, MCMC.interval=1000))
+efit <- ergm(flomarriage ~ edges + kstar(2), estimate="MPLE")
 summary(efit)
 
 flomarriage <- set.vertex.attribute(flomarriage, "respondent", respondent)
 rm(respondent)
 summary(flomarriage)
 
-efit <- ergm(flomarriage ~ edges + kstar(2), MPLEonly=T)
+efit <- ergm(flomarriage ~ edges + kstar(2), estimate="MPLE")
 summary(efit)
 
-efit <- ergm(flomarriage ~ edges + kstar(2), MCMCsamplesize=1000, interval=1000)
+efit <- ergm(flomarriage ~ edges + kstar(2), control=control.ergm(MCMC.samplesize=1000, MCMC.interval=1000))
 summary(efit)
 
-efit <- ergm(flomarriage ~ edges + kstar(2), theta0=c(-1.6,0),startatMPLE=F)
+efit <- ergm(flomarriage ~ edges + kstar(2), coef=c(-1.6,0), startatMPLE=F)
 
 #
 # edges  -1.6     -1.74242 0.8557   0.044   0.041373 

@@ -17,15 +17,15 @@ num.tests=0
 #asymmetric, directed
 num.tests=num.tests + 1
 s.0 <- summary(samplike~asymmetric)
-e.0 <- ergm(samplike~asymmetric, MPLEonly=TRUE)
+e.0 <- ergm(samplike~asymmetric, estimate="MPLE")
 s.a <- summary(samplike~asymmetric("group"))
-e.a <- ergm(samplike~asymmetric("group"), MPLEonly=TRUE)
+e.a <- ergm(samplike~asymmetric("group"), estimate="MPLE")
 s.ad <- summary(samplike~asymmetric("group", diff=TRUE))
-e.ad <- ergm(samplike~asymmetric("group", diff=TRUE), MPLEonly=TRUE)
+e.ad <- ergm(samplike~asymmetric("group", diff=TRUE), estimate="MPLE")
 s.ak <- summary(samplike~asymmetric("group", keep=3))
-e.ak <- ergm(samplike~asymmetric("group", keep=3), MPLEonly=TRUE)
+e.ak <- ergm(samplike~asymmetric("group", keep=3), estimate="MPLE")
 s.adk <- summary(samplike~asymmetric("group", diff=TRUE, keep=1:2))
-e.adk <- ergm(samplike~asymmetric("group", diff=TRUE, keep=c(1,3)), MPLEonly=TRUE)
+e.adk <- ergm(samplike~asymmetric("group", diff=TRUE, keep=c(1,3)), estimate="MPLE")
 if (s.0 != 32 || round(e.0$coef+1.33,3)!=0 ||
     s.a != 17 || round(e.a$coef+.6008,3)!=0  ||
     !all(s.ad==c(7,2,8)) ||
@@ -45,11 +45,11 @@ if (s.0 != 32 || round(e.0$coef+1.33,3)!=0 ||
 # ctripe=ctriad, directed
 num.tests=num.tests + 1
 s.0 <- summary(samplike~ctriple)
-e.0 <- ergm(samplike~ctriad, MPLEonly=TRUE)
+e.0 <- ergm(samplike~ctriad, estimate="MPLE")
 s.a <- summary(samplike~ctriple("group"))
-e.a <- ergm(samplike~ctriple("group"), MPLEonly=TRUE)
+e.a <- ergm(samplike~ctriple("group"), estimate="MPLE")
 s.ad <- summary(samplike~ctriad("group", diff=TRUE))
-e.ad <- ergm(samplike~ctriple("group", diff=TRUE), MPLEonly=TRUE)
+e.ad <- ergm(samplike~ctriple("group", diff=TRUE), estimate="MPLE")
 if (s.0 != 39 || round(e.0$coef + .3522, 3) != 0 ||
     s.a != 34 || round(e.a$coef - .1217, 3) != 0 ||
     !all(s.ad==c(8,4,22)) ||
@@ -65,11 +65,11 @@ if (s.0 != 39 || round(e.0$coef + .3522, 3) != 0 ||
 # gwidegree, directed
 num.tests=num.tests + 1
 s.d <- summary(samplike~gwidegree(.3))
-e.d <- ergm(samplike~gwidegree(.4), MPLEonly=TRUE)
+e.d <- ergm(samplike~gwidegree(.4), estimate="MPLE")
 s.df <- summary(samplike~gwidegree(.3, fixed=TRUE))
-e.df <- ergm(samplike~gwidegree(.2, fixed=TRUE), MPLEonly=TRUE)
+e.df <- ergm(samplike~gwidegree(.2, fixed=TRUE), estimate="MPLE")
 s.dfa <- summary(samplike~gwidegree(.1, TRUE, "group"))
-e.dfa <- ergm(samplike~gwidegree(.5, TRUE, "group"), MPLEonly=TRUE)
+e.dfa <- ergm(samplike~gwidegree(.5, TRUE, "group"), estimate="MPLE")
 if (!all(head(s.d)==c(0,3,5,1,3,2)) ||
     round(e.d$coef + 5.783202, 3) != 0 ||
     round(s.df - 23.89614, 3) != 0 ||
@@ -87,11 +87,11 @@ if (!all(head(s.d)==c(0,3,5,1,3,2)) ||
 # gwodegree, directed
 num.tests=num.tests + 1
 s.d <- summary(samplike~gwodegree(.3))
-e.d <- ergm(samplike~gwodegree(.4), MPLEonly=TRUE)
+e.d <- ergm(samplike~gwodegree(.4), estimate="MPLE")
 s.df <- summary(samplike~gwodegree(.3, fixed=TRUE))
-e.df <- ergm(samplike~gwodegree(.2, fixed=TRUE), MPLEonly=TRUE)
+e.df <- ergm(samplike~gwodegree(.2, fixed=TRUE), estimate="MPLE")
 s.dfa <- summary(samplike~gwodegree(.1, TRUE, "group"))
-e.dfa <- ergm(samplike~gwodegree(.5, TRUE, "group"), MPLEonly=TRUE)
+e.dfa <- ergm(samplike~gwodegree(.5, TRUE, "group"), estimate="MPLE")
 if (!all(head(s.d)==c(0,0,1,5,7,5)) ||
     round(e.d$coef + 1.990492, 3) != 0 ||
     round(s.df - 24.23040, 3) != 0 ||
@@ -118,9 +118,9 @@ el[46,1] <- 3
 # if x is not specified, summaries should be 0
 s.a <- summary(samplike~hammingmix("group"))
 s.ax <- summary(samplike~hammingmix("group", x=el))
-e.ax <- ergm(samplike~hammingmix("group", x=el), MPLEonly=TRUE)
+e.ax <- ergm(samplike~hammingmix("group", x=el), estimate="MPLE")
 s.axb <- summary(samplike~hammingmix("group", el, 2:6))
-e.axb <- ergm(samplike~hammingmix("group", el, c(1,2,5,6,8,9)), MPLEonly=TRUE)
+e.axb <- ergm(samplike~hammingmix("group", el, c(1,2,5,6,8,9)), estimate="MPLE")
 if (!all(s.a == 0) ||
     !all(s.ax==c(36, 0, 8, 4, 18, 2, 16, 12, 50)) ||
     !all(round(e.ax$coef[2:4]+c(1.0986, .2876, 2.5649),3)==0) ||
@@ -137,11 +137,11 @@ if (!all(s.a == 0) ||
 # idegree, directed
 num.tests=num.tests + 1
 s.d <- summary(samplike~idegree(2:3))
-e.d <- ergm(samplike~idegree(2), MPLEonly=TRUE)
+e.d <- ergm(samplike~idegree(2), estimate="MPLE")
 s.db <- summary(samplike~idegree(1:3, "group"))
-e.db <- ergm(samplike~idegree(3, "group"), MPLEonly=TRUE)
+e.db <- ergm(samplike~idegree(3, "group"), estimate="MPLE")
 s.dbh <- summary(samplike~idegree(4:5, "group", TRUE))
-e.dbh <- ergm(samplike~idegree(2, "group", TRUE), MPLEonly=TRUE)
+e.dbh <- ergm(samplike~idegree(2, "group", TRUE), estimate="MPLE")
 if (!all(s.d==c(3,5)) || round(e.d$coef - 1.223775, 3) != 0 ||
     !all(s.db==c(0,2,1,0,1,2,0,0,2)) ||
     !all(round(e.db$coef-c(-0.6931472, 0.8183103, 17.4324836),3)==0) ||
@@ -157,7 +157,7 @@ if (!all(s.d==c(3,5)) || round(e.d$coef - 1.223775, 3) != 0 ||
 # intransitive, directed
 num.tests=num.tests + 1
 s.0 <- summary(samplike~intransitive)
-e.0 <- ergm(samplike~intransitive, MPLEonly=TRUE)
+e.0 <- ergm(samplike~intransitive, estimate="MPLE")
 if (s.0 != 224 || round(e.0$coef + .21, 3) != 0) {
  print(list(s.0=s.0, e.0=e.0))
  stop("Failed intransitive term test")
@@ -171,7 +171,7 @@ if (s.0 != 224 || round(e.0$coef + .21, 3) != 0) {
 # indegreepopularity, directed
 num.tests=num.tests + 1
 s.0 <- summary(samplike~indegreepopularity)
-e.0 <- ergm(samplike~indegreepopularity, MPLEonly=TRUE)
+e.0 <- ergm(samplike~indegreepopularity, estimate="MPLE")
 if (round(s.0-214.6543,3) != 0 || round(e.0$coef + .2387, 3) != 0) {
  print(list(s.0=s.0, e.0=e.0))
  stop("Failed indegreepopularity term test")
@@ -184,9 +184,9 @@ if (round(s.0-214.6543,3) != 0 || round(e.0$coef + .2387, 3) != 0) {
 # istar, directed
 num.tests=num.tests + 1
 s.k <- summary(samplike~istar(1:3))
-e.k <- ergm(samplike~istar(c(2,4)), MPLEonly=TRUE)
+e.k <- ergm(samplike~istar(c(2,4)), estimate="MPLE")
 s.ka <- summary(samplike~istar(2, "group"))
-e.ka <- ergm(samplike~istar(2, "group"), MPLEonly=TRUE)
+e.ka <- ergm(samplike~istar(2, "group"), estimate="MPLE")
 if (!all(s.k == c(88,233,455)) ||
     round(e.k$coef - c(-.28615, .02477), 3) != 0 ||
     s.ka != 100 || round(e.ka$coef - .2401, 3) != 0) {
@@ -201,7 +201,7 @@ if (!all(s.k == c(88,233,455)) ||
 # m2star, directed
 num.tests=num.tests + 1
 s.0 <- summary(samplike~m2star)
-e.0 <- ergm(samplike~m2star, MPLEonly=TRUE)
+e.0 <- ergm(samplike~m2star, estimate="MPLE")
 if (s.0 != 378 || round(e.0$coef + .1028, 3) != 0) {
  print(list(s.0=s.0, e.0=e.0))
  stop("Failed m2star term test")
@@ -215,17 +215,17 @@ if (s.0 != 378 || round(e.0$coef + .1028, 3) != 0) {
 # mutual, directed
 num.tests=num.tests + 1
 s.0 <- summary(samplike~mutual)
-e.0 <- ergm(samplike~mutual, MPLEonly=TRUE)
+e.0 <- ergm(samplike~mutual, estimate="MPLE")
 s.s <- summary(samplike~mutual(same="group"))
-e.s <- ergm(samplike~mutual(same="group"), MPLEonly=TRUE)
+e.s <- ergm(samplike~mutual(same="group"), estimate="MPLE")
 s.b <- summary(samplike~mutual(by="Trinity"))
-e.b <- ergm(samplike~mutual(by="Trinity"), MPLEonly=TRUE)
+e.b <- ergm(samplike~mutual(by="Trinity"), estimate="MPLE")
 s.sd <- summary(samplike~mutual(same="group", diff=TRUE))
-e.sd <- ergm(samplike~mutual(same="group", diff=TRUE), MPLEonly=TRUE)
+e.sd <- ergm(samplike~mutual(same="group", diff=TRUE), estimate="MPLE")
 s.sk <- summary(samplike~mutual(same="group", keep=2))
-e.sk <- ergm(samplike~mutual(same="group", keep=1), MPLEonly=TRUE)
+e.sk <- ergm(samplike~mutual(same="group", keep=1), estimate="MPLE")
 s.bk <- summary(samplike~mutual(by="Trinity", keep=2))
-e.bk <- ergm(samplike~mutual(by="Trinity", keep=2:3), MPLEonly=TRUE)
+e.bk <- ergm(samplike~mutual(by="Trinity", keep=2:3), estimate="MPLE")
 if (s.0 != 28 || round(e.0$coef - .5596, 3) != 0 ||
     s.s != 23 || round(e.s$coef - .9954, 3) != 0 ||
     !all(s.b==c(17,18,21)) ||
@@ -247,7 +247,7 @@ if (s.0 != 28 || round(e.0$coef - .5596, 3) != 0 ||
 # nearsimmelian, directed
 num.tests=num.tests + 1
 s.0 <- summary(samplike~nearsimmelian)
-e.0 <- ergm(samplike~nearsimmelian, MPLEonly=TRUE)
+e.0 <- ergm(samplike~nearsimmelian, estimate="MPLE")
 if (s.0 != 18 || round(e.0$coef + .4366483, 3) != 0) {
  print(list(s.0=s.0, e.0=e.0))
  stop("Failed nearsimmelian term test")
@@ -260,9 +260,9 @@ if (s.0 != 18 || round(e.0$coef + .4366483, 3) != 0) {
 #nodeicov, directed
 num.tests=num.tests + 1
 s.a <- summary(samplike~nodeicov("YearsServed"))
-e.a <- ergm(samplike~nodeicov("YearsServed"), MPLEonly=TRUE)
+e.a <- ergm(samplike~nodeicov("YearsServed"), estimate="MPLE")
 s.at <- summary(samplike~nodeicov("YearsServed", function(x)x^2))
-e.at <- ergm(samplike~nodeicov("YearsServed", function(x)x^2), MPLEonly=TRUE)
+e.at <- ergm(samplike~nodeicov("YearsServed", function(x)x^2), estimate="MPLE")
 if (s.a != 439 || round(e.a$coef + .1739, 3) != 0 ||
     s.at != 2345 || round(e.at$coef + .02805, 3) != 0) {
  print(list(s.a=s.a, e.a=e.a, s.at=s.at, e.at=e.at))
@@ -276,9 +276,9 @@ if (s.a != 439 || round(e.a$coef + .1739, 3) != 0 ||
 #nodeifactor, directed
 num.tests=num.tests + 1
 s.a <- summary(samplike~nodeifactor("group"))
-e.a <- ergm(samplike~nodeifactor("group"), MPLEonly=TRUE)
+e.a <- ergm(samplike~nodeifactor("group"), estimate="MPLE")
 s.ab <- summary(samplike~nodeifactor("Trinity", base=0))
-e.ab <- ergm(samplike~nodeifactor("Trinity", base=2:3), MPLEonly=TRUE)
+e.ab <- ergm(samplike~nodeifactor("Trinity", base=2:3), estimate="MPLE")
 if (!all(s.a==c(13,46)) ||
     !all(round(e.a$coef+c(1.4424, .4618),3)==0) ||
     !all(s.ab==c(28, 29, 31)) ||
@@ -295,9 +295,9 @@ if (!all(s.a==c(13,46)) ||
 #nodeocov, directed
 num.tests=num.tests + 1
 s.a <- summary(samplike~nodeocov("YearsServed"))
-e.a <- ergm(samplike~nodeocov("YearsServed"), MPLEonly=TRUE)
+e.a <- ergm(samplike~nodeocov("YearsServed"), estimate="MPLE")
 s.at <- summary(samplike~nodeocov("YearsServed", function(x)x^2))
-e.at <- ergm(samplike~nodeocov("YearsServed", function(x)x^2), MPLEonly=TRUE)
+e.at <- ergm(samplike~nodeocov("YearsServed", function(x)x^2), estimate="MPLE")
 if (s.a != 467 || round(e.a$coef + .1581, 3) != 0 ||
     s.at != 2691 || round(e.at$coef + .02243, 3) != 0) {
  print(list(s.a=s.a, e.a=e.a, s.at=s.at, e.at=e.at))
@@ -311,9 +311,9 @@ if (s.a != 467 || round(e.a$coef + .1581, 3) != 0 ||
 #nodeofactor, directed
 num.tests=num.tests + 1
 s.a <- summary(samplike~nodeofactor("group"))
-e.a <- ergm(samplike~nodeofactor("group"), MPLEonly=TRUE)
+e.a <- ergm(samplike~nodeofactor("group"), estimate="MPLE")
 s.ab <- summary(samplike~nodeofactor("Trinity", base=0))
-e.ab <- ergm(samplike~nodeofactor("Trinity", base=2:3), MPLEonly=TRUE)
+e.ab <- ergm(samplike~nodeofactor("Trinity", base=2:3), estimate="MPLE")
 if (!all(s.a==c(18,36)) ||
     !all(round(e.a$coef+c(1.0217, .8353),3)==0) ||
     !all(s.ab==c(31,30,27)) ||
@@ -329,11 +329,11 @@ if (!all(s.a==c(18,36)) ||
 # odegree, directed
 num.tests=num.tests + 1
 s.d <- summary(samplike~odegree(2:3))
-e.d <- ergm(samplike~odegree(3), MPLEonly=TRUE)
+e.d <- ergm(samplike~odegree(3), estimate="MPLE")
 s.db <- summary(samplike~odegree(1:3, "group"))
-e.db <- ergm(samplike~odegree(4, "group"), MPLEonly=TRUE)
+e.db <- ergm(samplike~odegree(4, "group"), estimate="MPLE")
 s.dbh <- summary(samplike~odegree(4:5, "group", TRUE))
-e.dbh <- ergm(samplike~odegree(2, "group", TRUE), MPLEonly=TRUE)
+e.dbh <- ergm(samplike~odegree(2, "group", TRUE), estimate="MPLE")
 if (!all(s.d==c(0,1)) || round(e.d$coef + .1625189, 3) != 0 ||
     !all(s.db==c(0,0,0,0,0,1,0,0,0)) ||
     !all(round(e.db$coef+c(-1.6292, 0.1112, 0.1625),3)==0) ||
@@ -351,9 +351,9 @@ if (!all(s.d==c(0,1)) || round(e.d$coef + .1625189, 3) != 0 ||
 # ostar, directed
 num.tests=num.tests + 1
 s.k <- summary(samplike~ostar(1:3))
-e.k <- ergm(samplike~ostar(c(2,4)), MPLEonly=TRUE)
+e.k <- ergm(samplike~ostar(c(2,4)), estimate="MPLE")
 s.ka <- summary(samplike~ostar(2, "group"))
-e.ka <- ergm(samplike~ostar(2, "group"), MPLEonly=TRUE)
+e.ka <- ergm(samplike~ostar(2, "group"), estimate="MPLE")
 if (!all(s.k == c(88,178, 191)) ||
     round(e.k$coef - c(.1224, -.1986), 3) != 0 ||
     s.ka != 88 || round(e.ka$coef - .1466, 3) != 0) {
@@ -370,7 +370,7 @@ if (!all(s.k == c(88,178, 191)) ||
 # outdegreepopularity, directed
 num.tests=num.tests + 1
 s.0 <- summary(samplike~outdegreepopularity)
-e.0 <- ergm(samplike~outdegreepopularity, MPLEonly=TRUE)
+e.0 <- ergm(samplike~outdegreepopularity, estimate="MPLE")
 if (round(s.0-194.6547,3) != 0 || round(e.0$coef + .2571, 3) != 0) {
  print(list(s.0=s.0, e.0=e.0))
  stop("Failed outdegreepopularity term test")
@@ -383,9 +383,9 @@ if (round(s.0-194.6547,3) != 0 || round(e.0$coef + .2571, 3) != 0) {
 # receiver, directed
 num.tests=num.tests + 1
 s.0 <- summary(samplike~receiver)
-e.0 <- ergm(samplike~receiver, MPLEonly=TRUE)
+e.0 <- ergm(samplike~receiver, estimate="MPLE")
 s.b <- summary(samplike~receiver(base=2:16))
-e.b <- ergm(samplike~receiver(base=3:18), MPLEonly=TRUE)
+e.b <- ergm(samplike~receiver(base=3:18), estimate="MPLE")
 if (!all(s.0==c(8, 4, 2, 5, 3, 5, 7, 11, 10, 6, 3, 6, 3, 5, 3, 2, 3)) ||
     !all(round(e.0$coef-c(-0.1178,-1.1787,-2.0149,-0.8755,-1.5404,-0.8755,
                           -0.3567, 0.6061, 0.3567,-0.6061,-1.5404,-0.6061,
@@ -404,9 +404,9 @@ if (!all(s.0==c(8, 4, 2, 5, 3, 5, 7, 11, 10, 6, 3, 6, 3, 5, 3, 2, 3)) ||
 # sender, directed
 num.tests=num.tests + 1
 s.0 <- summary(samplike~sender)
-e.0 <- ergm(samplike~sender, MPLEonly=TRUE)
+e.0 <- ergm(samplike~sender, estimate="MPLE")
 s.b <- summary(samplike~sender(base=2:16))
-e.b <- ergm(samplike~sender(base=3:18), MPLEonly=TRUE)
+e.b <- ergm(samplike~sender(base=3:18), estimate="MPLE")
 if (!all(s.0==c(5, 4, 4, 4, 5, 6, 4, 6, 5, 5, 6, 5, 5, 3, 5, 4, 6)) ||
     !all(round(e.0$coef+c(0.8755,1.1787,1.1787,1.1787,0.8755,0.6061,1.1787,
                           0.6061,0.8755,0.8755,0.6061,0.8755,0.8755,1.5404,
@@ -426,7 +426,7 @@ if (!all(s.0==c(5, 4, 4, 4, 5, 6, 4, 6, 5, 5, 6, 5, 5, 3, 5, 4, 6)) ||
 # simmelian, directed
 num.tests=num.tests + 1
 s.0 <- summary(samplike~simmelian)
-e.0 <- ergm(samplike~simmelian, MPLEonly=TRUE)
+e.0 <- ergm(samplike~simmelian, estimate="MPLE")
 if (s.0 != 8 || round(e.0$coef - .6069, 3) != 0) {
   print(list(s.0=s.0, e.0=e.0))
   stop("Failed simmelian term test")
@@ -439,7 +439,7 @@ if (s.0 != 8 || round(e.0$coef - .6069, 3) != 0) {
 # simmelianties, directed
 num.tests=num.tests + 1
 s.0 <- summary(samplike~simmelianties)
-e.0 <- ergm(samplike~simmelianties, MPLEonly=TRUE)
+e.0 <- ergm(samplike~simmelianties, estimate="MPLE")
 if (s.0 != 32 || round(e.0$coef - .1984, 3) != 0) {
   print(list(s.0=s.0, e.0=e.0))
   stop("Failed simmelianties term test")
@@ -453,7 +453,7 @@ if (s.0 != 32 || round(e.0$coef - .1984, 3) != 0) {
 # transitive, directed
 num.tests=num.tests + 1
 s.0 <- summary(samplike~transitive)
-e.0 <- ergm(samplike~transitive, MPLEonly=TRUE)
+e.0 <- ergm(samplike~transitive, estimate="MPLE")
 if (s.0 != 154 || round(e.0$coef + .07745, 3) != 0) {
  print(list(s.0=s.0, e.0=e.0))
  stop("Failed transitive term test")
@@ -467,11 +467,11 @@ if (s.0 != 154 || round(e.0$coef + .07745, 3) != 0) {
 # ttriple=ttriad, directed
 num.tests=num.tests + 1
 s.0 <- summary(samplike~ttriple)
-e.0 <- ergm(samplike~ttriad, MPLEonly=TRUE)
+e.0 <- ergm(samplike~ttriad, estimate="MPLE")
 s.a <- summary(samplike~ttriple("group"))
-e.a <- ergm(samplike~ttriple("group"), MPLEonly=TRUE)
+e.a <- ergm(samplike~ttriple("group"), estimate="MPLE")
 s.ad <- summary(samplike~ttriad("group", diff=TRUE))
-e.ad <- ergm(samplike~ttriple("group", diff=TRUE), MPLEonly=TRUE)
+e.ad <- ergm(samplike~ttriple("group", diff=TRUE), estimate="MPLE")
 if (s.0 != 154 || round(e.0$coef + .07745, 3) != 0 ||
     s.a != 121 || round(e.a$coef - .09518, 3) != 0 ||
     !all(s.ad==c(26,14,81)) ||

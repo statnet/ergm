@@ -24,7 +24,7 @@ ergm.getglobalstats <- function(nw, m, response=NULL) {
   gs <- rep(0, Clist$nstats)
   i <- 1
   for (j in 1:length(m$terms)) {
-    tmp <- m$term[[j]]
+    tmp <- m$terms[[j]]
     k <- tmp$inputs[2] # Number of statistics for this model term
     if (!is.null(tmp$emptynwstats)) {
       gs[i:(i+k-1)] <- gs[i:(i+k-1)] + tmp$emptynwstats
@@ -33,7 +33,7 @@ ergm.getglobalstats <- function(nw, m, response=NULL) {
   }
   
   # *** don't forget, tails are passes in first now, notheads  
-  gs <- (
+  gs <- gs + (
          if(is.null(response))
          .C("network_stats_wrapper",
             as.integer(Clist$tails), as.integer(Clist$heads), 

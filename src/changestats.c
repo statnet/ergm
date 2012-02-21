@@ -2996,16 +2996,16 @@ D_CHANGESTAT_FN(d_hammingmix) {
     int matchvaltail = INPUT_PARAM[tail+2*N_CHANGE_STATS+2*nhedge];
     int matchvalhead = INPUT_PARAM[head+2*N_CHANGE_STATS+2*nhedge];
     unsigned int discord = XOR(dEdgeListSearch(tail, head, INPUT_PARAM), IS_OUTEDGE(tail, head));
-      for (unsigned int j=0; j<N_CHANGE_STATS; j++){
-	if(matchvaltail==INPUT_PARAM[2*nhedge+1+j] &&
-	   matchvalhead==INPUT_PARAM[2*nhedge+1+N_CHANGE_STATS+j]){
-	  CHANGE_STAT[j] += (discord ? -1.0 : 1.0);
-	}
+    for (unsigned int j=0; j<N_CHANGE_STATS; j++){
+      if(matchvaltail==INPUT_PARAM[2*nhedge+1+j] &&
+        matchvalhead==INPUT_PARAM[2*nhedge+1+N_CHANGE_STATS+j]){
+          CHANGE_STAT[j] += (discord ? -1.0 : 1.0);
       }
+    }
       
-      if (i+1 < ntoggles){
-	ToggleEdge(TAIL(i), HEAD(i), &nwp[0]);  /* Toggle this edge if more to come */
-      }
+    if (i+1 < ntoggles){
+      ToggleEdge(TAIL(i), HEAD(i), &nwp[0]);  /* Toggle this edge if more to come */
+    }
   }
   i--;
   while (--i>=0){  /*  Undo all previous toggles. */
