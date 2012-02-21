@@ -294,10 +294,9 @@ D_CHANGESTAT_FN(d_b1starmix) {
   int edgeflag, i, j, kmo;
   Edge e;
   Vertex tail, head, node3, nnodes, taild;
-  int ninputs, nstats;
+  int nstats;
   double tailattr, headattr;
   
-  ninputs = (int)N_INPUT_PARAMS;
   nstats  = (int)N_CHANGE_STATS;
   nnodes = N_NODES;
   kmo = (int)INPUT_PARAM[0] - 1;
@@ -335,11 +334,8 @@ D_CHANGESTAT_FN(d_b1starmixhomophily) {
   int edgeflag, i, j, kmo;
   Edge e;
   Vertex tail, head, node3, nnodes, taild;
-  int ninputs, nstats;
   double tailattr, headattr;
   
-  ninputs = (int)N_INPUT_PARAMS;
-  nstats  = (int)N_CHANGE_STATS;
   nnodes = N_NODES;
   kmo = (int)INPUT_PARAM[0] - 1;
   
@@ -376,10 +372,9 @@ D_CHANGESTAT_FN(d_b1twostar) {
   int i, j;
   Edge e;
   Vertex tail, head, node3, nnodes;
-  int ninputs, nstats;
+  int nstats;
   double tailattr, headattr, n3attr;
   
-  ninputs = (int)N_INPUT_PARAMS;
   nstats  = (int)N_CHANGE_STATS;
   nnodes = N_NODES;
   
@@ -535,10 +530,9 @@ D_CHANGESTAT_FN(d_b2starmix) {
   int edgeflag, i, j, kmo;
   Edge e;
   Vertex tail, head, node3, nnodes, headd;
-  int ninputs, nstats;
+  int nstats;
   double tailattr, headattr;
   
-  ninputs = (int)N_INPUT_PARAMS;
   nstats  = (int)N_CHANGE_STATS;
   nnodes = N_NODES;
   kmo = (int)INPUT_PARAM[0] - 1;
@@ -577,11 +571,8 @@ D_CHANGESTAT_FN(d_b2starmixhomophily) {
   int edgeflag, i, j, kmo;
   Edge e;
   Vertex tail, head, node3, nnodes, headd;
-  int ninputs, nstats;
   double tailattr, headattr;
   
-  ninputs = (int)N_INPUT_PARAMS;
-  nstats  = (int)N_CHANGE_STATS;
   nnodes = N_NODES;
   kmo = (int)INPUT_PARAM[0] - 1;
   
@@ -618,10 +609,9 @@ D_CHANGESTAT_FN(d_b2twostar) {
   int i, j;
   Edge e;
   Vertex tail, head, node3, nnodes;
-  int ninputs, nstats;
+  int nstats;
   double tailattr, headattr, n3attr;
   
-  ninputs = (int)N_INPUT_PARAMS;
   nstats  = (int)N_CHANGE_STATS;
   nnodes = N_NODES;
   
@@ -1049,7 +1039,6 @@ D_CHANGESTAT_FN(d_boundedostar) {
 D_CHANGESTAT_FN(d_boundedtriangle) { 
   Edge e;
   Vertex tail, head, node3;
-  Vertex change;
   double boundedchange, htcount;
   Vertex tailtri, headtri;
   int edgeflag, i;
@@ -1061,7 +1050,6 @@ D_CHANGESTAT_FN(d_boundedtriangle) {
     tail = TAIL(i);
     head = HEAD(i);
     edgeflag = IS_OUTEDGE(tail, head);
-    change=0;
     tailtri=0;
     headtri=0;
     STEP_THROUGH_OUTEDGES(tail, e, node3) {
@@ -1234,14 +1222,13 @@ D_CHANGESTAT_FN(d_ctriple) {
  changestat: d_cycle
 *****************/
 D_CHANGESTAT_FN(d_cycle) { 
-  int i,j,k,nstats;
+  int i,j,k;
   Vertex tail, head;
   long int maxlen;
   double *countv,emult;
   
   /*Perform initial setup*/
   maxlen=(long int)(INPUT_PARAM[0]);
-  nstats=(int)N_CHANGE_STATS;
   countv=(double *)R_alloc(sizeof(double),maxlen-1);
 
   /* *** don't forget tail -> head */    
@@ -3400,11 +3387,8 @@ D_CHANGESTAT_FN(d_localtriangle) {
   Edge e;
   Vertex tail, head, change, node3;
   int edgeflag, i;
-  int ninputs, nstats;
   long int nmat;
   
-  ninputs = N_INPUT_PARAMS;
-  nstats = N_CHANGE_STATS;
   nmat = (long int)(INPUT_PARAM[0]);
   
   /* *** don't forget tail -> head */    

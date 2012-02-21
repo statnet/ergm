@@ -112,6 +112,8 @@ WtD_CHANGESTAT_FN(d_cyclicalweights){
 	  switch(path){
 	  case 1: two_path = fmin(GETWT(k,TAIL), yhk); break; // min
 	  case 2: two_path = sqrt(GETWT(k,TAIL) * yhk); break; // geomean
+	  default: // never reached, but prevents a warning
+	    two_path = 0;
 	  }
 	  
 	  switch(combine){
@@ -148,6 +150,9 @@ WtD_CHANGESTAT_FN(d_cyclicalweights){
 		old_two_path = sqrt(old_ytk * ykj);
 		new_two_path = sqrt(new_ytk * ykj);
 		break;
+	      default: // never reached, but prevents a warning
+		old_two_path = 0;
+		new_two_path = 0;
 	      }
 	  
 	      switch(combine){
@@ -228,6 +233,8 @@ WtS_CHANGESTAT_FN(s_cyclicalweights){
 	  switch(path){
 	  case 1: two_path = fmin(GETWT(node3,tail), yh3); break; // min
 	  case 2: two_path = sqrt(GETWT(node3,tail) * yh3); break; // geomean
+	  default: // never reached, but prevents a warning
+	    two_path = 0;
 	  }
 	  
 	  switch(combine){
@@ -750,6 +757,8 @@ WtD_CHANGESTAT_FN(d_transitiveweights){
 	  switch(path){
 	  case 1: two_path = fmin(GETWT(TAIL,k), ykh); break; // min
 	  case 2: two_path = sqrt(GETWT(TAIL,k) * ykh); break; // geomean
+	  default: // never reached, but prevents a warning
+	    two_path = 0;    
 	  }
 	  
 	  switch(combine){
@@ -787,6 +796,9 @@ WtD_CHANGESTAT_FN(d_transitiveweights){
 		old_two_path = sqrt(old_ytk * ykj);
 		new_two_path = sqrt(new_ytk * ykj);
 		break;
+	      default: // never reached, but prevents a warning
+		old_two_path = 0;
+		new_two_path = 0;
 	      }
 	  
 	      switch(combine){
@@ -866,6 +878,8 @@ WtS_CHANGESTAT_FN(s_transitiveweights){
 	  switch(path){
 	  case 1: two_path = fmin(GETWT(tail,node3), y3h); break; // min
 	  case 2: two_path = sqrt(GETWT(tail,node3) * y3h); break; // geomean
+	  default: // never reached, but prevents a warning
+	    two_path = 0;    
 	  }
 	  
 	  switch(combine){
