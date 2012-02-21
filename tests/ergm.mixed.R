@@ -12,11 +12,11 @@ plot(molecule, vertex.col=molecule %v% "atomic type",vertex.cex=3)
 # measure tendency to match within each atomic type
 gest <- ergm(molecule ~ edges + kstar(2) + triangle + nodematch("atomic type"),
 # mixed=TRUE,
-             MCMCsamplesize=10000)
+             control=control.ergm(MCMC.samplesize=10000))
 summary(gest)
 
 # compare it to differential homophily
 gest <- ergm(molecule ~ edges + kstar(2) + triangle + nodematch("atomic type",diff=TRUE),
 # mixed=TRUE,
-             MCMCsamplesize=10000)
+             control=control.ergm(MCMC.samplesize=10000))
 summary(gest)

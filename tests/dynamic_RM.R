@@ -30,6 +30,7 @@ dynsim.gf<-ergm.godfather(g1~edges+degree(1),sim=dynsim,verbose=TRUE)
 # Godfather Proposal.
 # If they don't match, it's a bug.
 # Note that the first row of the Godfather stats is the initial network.
+
 if(!isTRUE(all.equal(dynsim$stats.form,dynsim.gf$stats[-1,])))
   stop("Formation statistics returned by simulate differ from those returned",
        "by ergm.godfather. This is a bug.")
@@ -45,7 +46,8 @@ print((target.stats.sim-target.stats)/sqrt(apply(dynsim$stats.form,2,var)/effect
 print(mean(duration.matrix(dynsim)$duration))
 
 # Simulate from an equivalent fit.
-dynsim<-simulate(g1,~edges+degree(1),dissolution=~dyadcov(matrix(1,n,n))+edges,coef.form=coef.form,coef.diss=c(1,coef.diss-1),nsim=1000,verbose=TRUE)
+dynsim<-simulate(g1, nsim=1000, formation=~edges+degree(1), dissolution=~dyadcov(matrix(1,n,n))+edges,
+    coef.form=coef.form, coef.diss=c(1,coef.diss-1), verbose=TRUE)
 
 print(mean(duration.matrix(dynsim)$duration))
 

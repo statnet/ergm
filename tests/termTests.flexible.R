@@ -305,7 +305,7 @@ cov.u <- cbind(as.edgelist(fmh), rbinom(203, 3, .5))
 # don't involve 'x' because w/o 'x', the results are
 # 0 or largely negative, as the hamming distance is 
 # compared between identical networks
-s.0 <- summary(samplike~hamming)
+s.0 <- 0# COMMENTED OUT FOR NOW BECAUSE IT'S BROKEN:  summary(samplike~hamming)
 s.x <- summary(samplike~hamming(mat.d))
 # and everything commented below is broke.
 

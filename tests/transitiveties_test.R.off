@@ -13,11 +13,11 @@ num.tests=0
 # transitiveties, directed
  num.tests=num.tests + 1
  s.0 <- summary(samplike~transitiveties)
-e.0 <- ergm(samplike~transitiveties, MPLEonly=TRUE)
+e.0 <- ergm(samplike~transitiveties, estimate="MPLE")
 s.a <- summary(samplike~transitiveties("group"))
-e.a <- ergm(samplike~transitiveties("group"), MPLEonly=TRUE)                
+e.a <- ergm(samplike~transitiveties("group"), estimate="MPLE")                
 s.ad <- summary(samplike~transitiveties("Trinity", diff=TRUE))
-e.ad <- ergm(samplike~transitiveties("Trinity", diff=TRUE), MPLEonly=TRUE)   
+e.ad <- ergm(samplike~transitiveties("Trinity", diff=TRUE), estimate="MPLE")   
 if (s.0 != 62 || round(e.0$coef + .06997, 3) != 0 ||
     s.a != 18 || round(e.a$coef - .06354, 3) != 0 ||
     !all(s.ad==c(2,0,0)) ||

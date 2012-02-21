@@ -1,8 +1,7 @@
 library(ergm)
 data(florentine)
 # a markov graph fit to the Florentine data
-gest <- ergm(flomarriage ~ edges + kstar(2), 
-	seed=16124)
+gest <- ergm(flomarriage ~ edges + kstar(2), control=control.ergm(seed=16124))
 gest
 summary(gest)
 #anova(gest)
@@ -17,7 +16,9 @@ summary(gest)
 #-1.622292   0.006467
 
 # While we are at it, test the constrainted version.
-gest <- ergm(flomarriage ~ edges + kstar(2), constraints=~edges, 
-	seed=16124)
+# (The edges term will be ignored because the constraint makes it irrelevant.)
+# XXX uncomment:
+#gest <- ergm(flomarriage ~ edges + kstar(2), constraints=~edges, control=control.ergm(seed=16124))
+gest <- ergm(flomarriage ~ kstar(2), constraints=~edges, control=control.ergm(seed=16124))
 gest
 summary(gest)

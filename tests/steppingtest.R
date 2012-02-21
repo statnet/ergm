@@ -5,9 +5,9 @@ library(Rglpk)
 data(ecoli)
 form <- ecoli2 ~ edges + degree(2:5) + gwdegree(0.25, fixed = T)
 
-m2<-ergm(formula=form, seed=12345, 
-        control=control.ergm(style="Stepping", stepMCMCsize=100, gridsize=10000,
-        metric="lognormal"), 
-        maxit=1, MCMCsamplesize=1000, burnin=1e+4, interval=1000, verb=FALSE)
+m2<-ergm(formula=form, verbose=FALSE, 
+        control=control.ergm(main.method="Stepping", Step.MCMC.samplesize=100, Step.gridsize=10000,
+        MCMLE.metric="lognormal", MCMC.samplesize=1000, MCMC.burnin=1e+4, MCMC.interval=1000, 
+        seed=12345))
 if (m2$iterations <5 || m2$iterations > 25) stop("Something fishy in stepping test: Iterations = ", m2$iterations)
 
