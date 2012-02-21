@@ -14,7 +14,25 @@
 
 ergm.getglobalstats <- function(nw, m, response=NULL) {
   Clist <- ergm.Cprepare(nw, m, response=response)
-  # *** don't forget, tails are passes in first now, notheads
+
+  # Adjust to global values. This needs to happen before the C call,
+  # so that an s_function, if exists could override.
+                                                                
+  # New method:  Use $emptynwstats added to m$terms by the InitErgm function
+  # Read the comments at the top of InitErgm.R or InitErgmTerm.R for 
+  # an explanation of the $emptynwstats mechanism
+  gs <- rep(0, Clist$nstats)
+  i <- 1
+  for (j in 1:length(m$terms)) {
+    tmp <- m$term[[j]]
+    k <- tmp$inputs[2] # Number of statistics for this model term
+    if (!is.null(tmp$emptynwstats)) {
+      gs[i:(i+k-1)] <- gs[i:(i+k-1)] + tmp$emptynwstats
+    }
+    i <- i + k
+  }
+  
+  # *** don't forget, tails are passes in first now, notheads  
   gs <- (
          if(is.null(response))
          .C("network_stats_wrapper",
@@ -37,31 +55,11 @@ ergm.getglobalstats <- function(nw, m, response=NULL) {
             as.integer(Clist$nterms), 
             as.character(Clist$fnamestring), as.character(Clist$snamestring), 
             as.double(Clist$inputs),
-            gs = double(Clist$nstats),
+            gs = as.double(gs),
             PACKAGE="ergm"
             )$gs
          )
   names(gs) <- m$coef.names
-
-  # Adjust to global values
-                                                                
-  # New method:  Use $emptynwstats added to m$terms by the InitErgm function
-  # Read the comments at the top of InitErgm.R or InitErgmTerm.R for 
-  # an explanation of the $emptynwstats mechanism
-  i <- 1
-  for (j in 1:length(m$terms)) {
-    tmp <- m$term[[j]]
-    k <- tmp$inputs[2] # Number of statistics for this model term
-    if (!is.null(tmp$emptynwstats)) {
-      gs[i:(i+k-1)] <- gs[i:(i+k-1)] + tmp$emptynwstats
-    }
-    i <- i + k
-  }
-
-  tase <- grep("duration",names(gs)) # not currently part of CRAN version
-  if(length(tase) >0){
-    gs[tase] <- -gs[tase]
-  }
 
   gs
 }

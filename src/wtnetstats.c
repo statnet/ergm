@@ -75,7 +75,7 @@ WtNetwork *nwp, WtModel *m, double *stats){
     if(mtp->s_func){
       (*(mtp->s_func))(mtp, nwp);  /* Call s_??? function */
       for (unsigned int i=0; i < mtp->nstats; i++,statspos++)
-        *statspos += mtp->dstats[i];
+        *statspos = mtp->dstats[i];
     }else statspos += mtp->nstats;
   }
   PutRNGstate();
