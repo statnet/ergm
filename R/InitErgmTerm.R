@@ -1631,7 +1631,7 @@ InitErgmTerm.hamming<-function (nw, arglist, ...) {
   }
   if (!is.null(covm)) {
     covm <- ergm.Cprepare.el(covm, directed=is.directed(nw))
-  }
+  }else covm <- 0
   inputs <- c(xm, a$defaultweight, covm)
   list(name="hamming", coef.names=coef.names, #name and coef.names: required 
        inputs = inputs, emptynwstats = emptynwstats, dependence = FALSE,
