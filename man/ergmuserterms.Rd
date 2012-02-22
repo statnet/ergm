@@ -39,7 +39,7 @@
 
 \details{
     The \code{ergmuserterms} package is available from the \code{statnet}
-    website (\url{http://statnetproject.org}).
+    website (\url{http://statnet.org}).
 
     The code contains some simple examples and templates.
     These include:

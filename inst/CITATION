@@ -1,6 +1,6 @@
 authors <- c("Mark S. Handcock", "David R. Hunter", "Carter T. Butts",
              "Steven M. Goodreau", "Martina Morris")
-projhomepage <- "http://statnetproject.org"
+projhomepage <- "http://statnet.org"
 
 statnettitle <- "statnet: Software Tools for the Statistical Modeling of Network Data"
 statnetversion <- "2.0"
