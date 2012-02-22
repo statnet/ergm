@@ -152,7 +152,7 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
           oh.resid[!extreme.oh[,i],i] <- resid(oh.fits[[i]])
       
       oh.r.na <- apply(oh.resid[,!bad.fits,drop=FALSE],1,function(x) any(is.na(x)))
-      v <- crossprod(sweep(oh.resid[!oh.r.na,],1,sqrt(oh.wt[!oh.r.na]),"*"))/sum(oh.wt[!oh.r.na])
+      v <- crossprod(sweep(oh.resid[!oh.r.na,,drop=FALSE],1,sqrt(oh.wt[!oh.r.na]),"*"))/sum(oh.wt[!oh.r.na])
       v[is.na(v)] <- 0
       
       w <- if(q==1) 1/v else robust.inverse(v) #robust.inverse(diag(diag(v)))
