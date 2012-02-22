@@ -378,7 +378,6 @@
 \alias{overlap.matrix}
 \alias{plot.mcmc.list.ergm}
 \alias{prevalence}
-\alias{print.network.series}
 \alias{print.summary.ergm}
 \alias{print.summary.stergm}
 \alias{robust.inverse}
