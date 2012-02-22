@@ -10,12 +10,13 @@ void MCMCDynRMPhase2_wrapper(// Observed network.
 			     // Formation terms and proposals.
 			     int *F_nterms, char **F_funnames, char **F_sonames,
 			     char **F_MHproposaltype, char **F_MHproposalpackage,
-			     double *F_inputs, double *F_eta0, 
+			     double *F_inputs,
 			     // Dissolution terms and proposals.
 			     int *D_nterms, char **D_funnames, char **D_sonames, 
 			     char **D_MHproposaltype, char **D_MHproposalpackage,
-			     double *D_inputs, double *D_eta0, 
+			     double *D_inputs,
 			     // Parameter fitting.
+			     double *eta0,
 			     int *M_nterms, char **M_funnames, char **M_sonames, double *M_inputs,
 			     double *init_dev,
 			     int *phase2n,
@@ -37,11 +38,10 @@ MCMCDynStatus MCMCDynRMPhase2(// Observed and discordant network.
 			      Network *nwp,
 			      // Formation terms and proposals.
 			      Model *F_m, MHproposal *F_MH,
-			      double *F_eta, 
 			      // Dissolution terms and proposals.
 			      Model *D_m, MHproposal *D_MH,
-			      double *D_eta, 
-			      // Monitored terms.
+			      // Model fitting.
+			      double *eta, 
 			      Model *M_m,
 			      double *dev, // DEViation of the current network's targeted statistics from the target statistics.
 			      int phase2n,

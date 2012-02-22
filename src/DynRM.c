@@ -6,12 +6,13 @@ void MCMCDynRMPhase2_wrapper(// Observed network.
 			     // Formation terms and proposals.
 			     int *F_nterms, char **F_funnames, char **F_sonames,
 			     char **F_MHproposaltype, char **F_MHproposalpackage,
-			     double *F_inputs, double *F_eta0, 
+			     double *F_inputs, 
 			     // Dissolution terms and proposals.
 			     int *D_nterms, char **D_funnames, char **D_sonames, 
 			     char **D_MHproposaltype, char **D_MHproposalpackage,
-			     double *D_inputs, double *D_eta0, 
-			     // Parameter fitting.
+			     double *D_inputs,
+			     // Parameter fittig.
+			     double *eta0, 
 			     int *M_nterms, char **M_funnames, char **M_sonames, double *M_inputs,
 			     double *init_dev,
 			     int *phase2n,
@@ -54,13 +55,13 @@ void MCMCDynRMPhase2_wrapper(// Observed network.
 		      *fVerbose);
 
   *status = MCMCDynRMPhase2(nw,
+			    
+			    F_m, &F_MH,
+			    D_m, &D_MH,
 
-		  F_m, &F_MH, F_eta0,  
-		  D_m, &D_MH, D_eta0,
-
-		  M_m,
-		  init_dev, 
-		  *phase2n,
+			    eta0, M_m,
+			    init_dev, 
+			    *phase2n,
 			    WinvGradient, jitter, dejitter,
 
 		  *maxedges, *maxchanges,
@@ -92,11 +93,10 @@ MCMCDynStatus MCMCDynRMPhase2(// Observed and discordant network.
 			      Network *nwp,
 			      // Formation terms and proposals.
 			      Model *F_m, MHproposal *F_MH,
-			      double *F_eta, 
 			      // Dissolution terms and proposals.
 			      Model *D_m, MHproposal *D_MH,
-			      double *D_eta, 
-			      // Monitored terms.
+			      // Model fitting.
+			      double *eta, 
 			      Model *M_m,
 			      double *dev, // DEViation of the current network's targeted statistics from the target statistics.
 			      int phase2n,
@@ -111,33 +111,28 @@ MCMCDynStatus MCMCDynRMPhase2(// Observed and discordant network.
 			      // Verbosity.
 			      int fVerbose){
   Edge nextdiffedge=1;
-  double *meandev=(double*)calloc(M_m->n_stats,sizeof(double)), *meandev2=(double *)calloc( M_m->n_stats,sizeof(double)), *last_jitter=(double*)calloc(F_m->n_stats+D_m->n_stats,sizeof(double));
-  unsigned int hist_pos=0;
+  unsigned int hist_pos=0, p=F_m->n_stats+D_m->n_stats, n, rowsize = p*2 + M_m->n_stats;
+  double *meandev=(double*)calloc(M_m->n_stats,sizeof(double)), *last_jitter=(double*)calloc(p,sizeof(double));
+
 
   for (unsigned int i=0; i < phase2n; i++){
     for(unsigned int j=0; j<M_m->n_stats; j++){
       meandev[j]=0;
-      meandev2[j]=0;
+      n = 0;
     }
 
     // Jitter parameters
-    for (unsigned int j=0; j<F_m->n_stats; j++){
+    for (unsigned int j=0; j<p; j++){
       if(jitter[j]!=0){
 	last_jitter[j] = rnorm(0,jitter[j]);
-	F_eta[j] += last_jitter[j];
-      }
-    }
-    for (unsigned int j=0; j<D_m->n_stats; j++){
-      if(jitter[F_m->n_stats+j]!=0){
-	last_jitter[F_m->n_stats+j] = rnorm(0,jitter[F_m->n_stats+j]);
-	D_eta[j] += last_jitter[j];
+	eta[j] += last_jitter[j];
       }
     }
 
     for(unsigned int j=0;j < RM_interval;j++){
       MCMCDynStatus status = MCMCDyn1Step(nwp,
-					  F_m, F_MH, F_eta,
-					  D_m, D_MH, D_eta,
+					  F_m, F_MH, eta,
+					  D_m, D_MH, eta+F_m->n_stats,
 					  M_m,
 					  0,
 					  NULL, NULL, dev,
@@ -152,15 +147,12 @@ MCMCDynStatus MCMCDynRMPhase2(// Observed and discordant network.
 	return MCMCDyn_TOO_MANY_EDGES;
 
       for(unsigned int k=0;k<M_m->n_stats; k++){
-	meandev[k]+=dev[k];
-	meandev2[k]+=dev[k]*dev[k];
+	meandev[k]+=dev[k]*j;
+	n+=j;
       }
       if (fVerbose>2){
-	for(unsigned int k=0; k<F_m->n_stats; k++){
-	  Rprintf("F_eta[%d] = %f\n", k, F_eta[k]);
-	}
-	for(unsigned int k=0; k<D_m->n_stats; k++){
-	  Rprintf("D_eta[%d] = %f\n", k, D_eta[k]);
+	for(unsigned int k=0; k<p; k++){
+	  Rprintf("eta[%d] = %f\n", k, eta[k]);
 	}
 	for(unsigned int k=0; k<M_m->n_stats; k++){
 	  Rprintf("M_dev[%d] = %f\n", k, dev[k]);
@@ -171,14 +163,11 @@ MCMCDynStatus MCMCDynRMPhase2(// Observed and discordant network.
     }
     
     if(fVerbose>1){
-      for(unsigned int k=0; k<F_m->n_stats; k++){
-	Rprintf("F_eta[%d] = %f\n", k, F_eta[k]);
-      }
-      for(unsigned int k=0; k<D_m->n_stats; k++){
-	Rprintf("D_eta[%d] = %f\n", k, D_eta[k]);
+      for(unsigned int k=0; k<p; k++){
+	Rprintf("eta[%d] = %f\n", k, eta[k]);
       }
       for(unsigned int k=0; k<M_m->n_stats; k++){
-	Rprintf("meandev[%d] = %f, sd[%d] = %f, z[%d] = %f\n", k, meandev[k], k, sqrt(meandev2[k]-meandev[k]*meandev[k]), k, meandev[k]/sqrt((meandev2[k]-meandev[k]*meandev[k]))*RM_interval);
+	Rprintf("meandev[%d] = %f\n", k, meandev[k]/n);
       }
       
       Rprintf("\n");
@@ -186,54 +175,46 @@ MCMCDynStatus MCMCDynRMPhase2(// Observed and discordant network.
 
     // Evaluate mean deviations.
     for (unsigned int j=0; j<M_m->n_stats; j++){
-      meandev[j]/=RM_interval;
-      meandev2[j]/=RM_interval;
+      meandev[j]/=n;
     }
-
     
     // Record configurations and estimating equation values.
-    unsigned int rowsize = F_m->n_stats + D_m->n_stats + M_m->n_stats;
+ 
     
-    for(unsigned int j=0; j<F_m->n_stats; j++){
-      opt_history[hist_pos*rowsize+j] = F_eta[j];
+    for(unsigned int j=0; j<p; j++){
+      opt_history[hist_pos*rowsize+j] = eta[j];
     }
-    for(unsigned int j=0; j<D_m->n_stats; j++){
-      opt_history[hist_pos*rowsize+F_m->n_stats+j] = D_eta[j];
+    for(unsigned int j=0; j<p; j++){
+      opt_history[hist_pos*rowsize+p+j] = last_jitter[j];
     }
     for(unsigned int j=0; j<M_m->n_stats; j++){
-      opt_history[hist_pos*rowsize+F_m->n_stats+D_m->n_stats+j] = meandev[j];
+      opt_history[hist_pos*rowsize+p+p+j] = meandev[j];
     }
     hist_pos++;
   
-    unsigned int all_par = F_m->n_stats + D_m->n_stats;
-    // Update formation and dissolution parameters, canceling the effect of jitter:
+    // Update formation and dissolution parameters, and cancel the effect of jitter.
     // eta[t+1] = eta[t] - a*(G^-1)*W*(d[t] - G*jit[t])
     //          = eta[t] - a*(G^-1)*W*d[t] + a*(G^-1)*W*G*jit[t]
     for(unsigned int k=0; k<M_m->n_stats; k++){
-      for (unsigned int j=0; j<F_m->n_stats; j++){
-	F_eta[j] -= WinvGradient[k*all_par+j] * meandev[k] - dejitter[j*all_par+k] * last_jitter[j];;
+      for (unsigned int j=0; j<p; j++){
+	eta[j] -= WinvGradient[k*p+j] * meandev[k];
       }
-      for (unsigned int j=0; j<D_m->n_stats; j++){
-	D_eta[j] -= WinvGradient[k*all_par+F_m->n_stats+j] * meandev[k] - dejitter[(F_m->n_stats+j)*all_par+k] * last_jitter[F_m->n_stats+j];
+    }
+    for(unsigned int k=0; k<p; k++){
+      for (unsigned int j=0; j<p; j++){
+	eta[j] += dejitter[k*p+j] * last_jitter[k];
       }
     }
 
     // Undo jitter
-    for (unsigned int j=0; j<F_m->n_stats; j++){
+    for (unsigned int j=0; j<p; j++){
       if(jitter[j]!=0){
-	F_eta[j] -= last_jitter[j];
+	eta[j] -= last_jitter[j];
       }
     }
-    for (unsigned int j=0; j<D_m->n_stats; j++){
-      if(jitter[F_m->n_stats+j]!=0){
-	D_eta[j] -= last_jitter[F_m->n_stats+j];
-      }
-    }
-
   }
 
   free(meandev);
-  free(meandev2);
   free(last_jitter);
   return MCMCDyn_OK;
 }
