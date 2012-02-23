@@ -46,12 +46,9 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
                             control, MHproposal.form, MHproposal.diss,
                             verbose=FALSE){
 
-  control$nw.diff <- model.mon$nw.stats - model.mon$target.stats # nw.diff keeps track of the difference between the current network and the target statistics.
-
-  if(verbose) cat("Robbins-Monro algorithm with coef_F_0 = (",theta.form0, ") and coef_D_0 = (",theta.diss0,")\n" )
-  eta.form <- ergm.eta(theta.form0, model.form$etamap)
-  eta.diss <- ergm.eta(theta.diss0, model.diss$etamap)
-
+  if(verbose) cat("Starting optimization with with coef_F_0 = (",theta.form0, ") and coef_D_0 = (",theta.diss0,")\n" )
+  
+  ###### Set the constants and convenience variables. ######
   offsets <- c(model.form$offset, model.diss$offset) # which parameters are offsets?
   p.form.free <- sum(!model.form$offset) # number of free formation parameters
   p.form <- length(model.form$offset) # total number of formation parameters
@@ -59,233 +56,303 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
   p.diss <- length(model.diss$offset) # total number of dissolution parameters
   p.free <- p.form.free+p.diss.free  # number of free parameters (formation and dissolution)
   p <- p.form+p.diss # total number of parameters (free and offset)
+  p.names<-c(paste("f.(",model.form$coef.names,")",sep=""),paste("d.(",model.diss$coef.names,")",sep=""))
   
-  q <- length(model.mon$offset) # number of target statistics/estimating equations --- may change when/if overspecified/weighted fitting is introduced
+  q <- length(model.mon$offset) # number of target statistics
+  q.names<-model.mon$coef.names
 
-  control$collect.form <- control$collect.diss <- FALSE
+  ###### Define the optimization run function. ######
   
-  control.phase1<-control
-  control.phase1$time.samplesize <- 1
-  control.phase1$time.burnin <- control$RM.burnin
-  control.phase1$time.interval <- 1
-  
-  nw %n% "lasttoggle" <- rep(0, network.dyadcount(nw))
-  nw %n% "time" <- 0
+  do.optimization<-function(state, control){
+    oh.all <- get("oh.all",parent.frame())
+    jitters.all <- get("jitters.all",parent.frame())
 
-  # Run burn-in.
-  z <- stergm.getMCMCsample(nw, model.form, model.diss, model.mon, MHproposal.form, MHproposal.diss, eta.form, eta.diss, control.phase1, verbose)
-
-  nw <- z$newnetwork
-  control$nw.diff <- control$nw.diff + z$statsmatrix.mon[NROW(z$statsmatrix.mon),]
-
-  # Not assuming any relationship between parameters and statistics -> pure jittering at first.
-  control$WinvGradient <- matrix(0, nrow=p, ncol=q)
-  control$dejitter <- matrix(0, nrow=p, ncol=p) # Dejitter tries to cancel the effect of jitter on the optimizer.
-  
-  control$jitter<-rep(0,p)
-  control$jitter[!offsets]<- control$RM.init.jitter
-  oh.all <- NULL
-  jitters.all <- NULL
-  
-  for(subphase in 1:control$RM.phase2sub){
-    if(verbose) cat('======== Subphase ',subphase,' ========\n',sep="")
-    control$gain <- control$RM.init.gain / subphase
-
-    for(regain in 1:control$RM.phase2regain){
+    if(verbose) cat("Running stochastic optimization... ")
+    z<-stergm.EGMoME.RM.Phase2.C(state, model.form, model.diss, model.mon, MHproposal.form, MHproposal.diss,
+                                 control, verbose=verbose)
+    if(verbose) cat("Finished. Extracting.\n")
     
-    for(retry in 1:control$RM.phase2sub_retries){
-      if(verbose) cat("Running stochastic optimization... ")
-      z <- stergm.EGMoME.RM.Phase2.C(nw, model.form, model.diss, model.mon, MHproposal.form, MHproposal.diss,
-                                     eta.form, eta.diss, control, verbose=verbose)
-      if(verbose) cat("Finished.\n")
+    # Extract and store the history of jitters.
+    jitters.all <- rbind(jitters.all,z$opt.history[,p+1:p,drop=FALSE])
+    colnames(jitters.all) <- p.names
+    assign("jitters.all",jitters.all,envir=parent.frame())
+    z$opt.history <- z$opt.history[,-(p+1:p),drop=FALSE]
 
-      # Extract the history of jitters.
-      jitters.all <- rbind(jitters.all,z$opt.history[,p+1:p,drop=FALSE])
-      z$opt.history <- z$opt.history[,-(p+1:p),drop=FALSE]
-      
-      oh.all <- rbind(oh.all,z$opt.history) # Pool the history.
-      colnames(oh.all) <- c(paste("f.(",model.form$coef.names,")",sep=""),paste("d.(",model.diss$coef.names,")",sep=""),model.mon$coef.names)
+    # Extract and store histroy of trials.
+    oh.all <- rbind(oh.all,z$opt.history)
+    colnames(oh.all) <- c(p.names,q.names)
+    assign("oh.all",oh.all,envir=parent.frame())
 
-      oh <- oh.all[nrow(oh.all)+1 - max(nrow(oh.all)*control$RM.keep.oh,min(control$RM.phase2n*2,nrow(oh.all))):1,,drop=FALSE]
-      jitters <- jitters.all[nrow(jitters.all)+1 - max(nrow(jitters.all)*control$RM.keep.oh,min(control$RM.phase2n*2,nrow(jitters.all))):1,,drop=FALSE]
-      
-      if(control$RM.plot.progress){library(lattice); print(xyplot(mcmc(oh,start=nrow(oh.all)-nrow(oh)+1)))}
+    
+    inds.last <- nrow(oh.all) + 1 - control$RM.runlength:1
+    inds.keep <- nrow(oh.all) + 1 - max(nrow(oh.all)*control$RM.keep.oh,min(control$RM.runlength*2,nrow(oh.all))):1
 
-      # Figure out if any statistics are trapped.
-      stats.min <- apply(oh.all[,-(1:p),drop=FALSE],2,min)
-      stats.max <- apply(oh.all[,-(1:p),drop=FALSE],2,max)
-      extreme.oh <- (sweep(oh[,-(1:p),drop=FALSE],2,stats.min,"-")==0) | (sweep(oh[,-(1:p),drop=FALSE],2,stats.max,"-")==0)
-      oh.trustworthy <- apply(!extreme.oh,2,mean) > control$RM.prop.var.grad.OK
+    # Extract and store subhistories of interest.
+    assign("oh",oh.all[inds.keep,,drop=FALSE],envir=parent.frame())
+    assign("oh.last",oh.all[inds.last,,drop=FALSE],envir=parent.frame())
+    assign("jitters",jitters.all[inds.keep,,drop=FALSE],envir=parent.frame())
+    assign("jitters.last",jitters.all[inds.last,,drop=FALSE],envir=parent.frame())
 
-      if(mean(!apply(extreme.oh,1,any))>control$RM.prop.var.grad.OK.ignore){
-        # If vast majority are OK, include everything.
-        extreme.oh[]<-FALSE
-        oh.trustworthy[]<-TRUE
-      }
-        
+    # Plot if requested.
+    if(control$RM.plot.progress){library(lattice); print(xyplot(mcmc(oh),as.table=TRUE))}
+    
+    # Extract and return the "state".
+    list(nw = z$newnetwork,
+         nw.diff = z$nw.diff,
+         eta.form = z$eta.form,
+         eta.diss = z$eta.diss)
+  }
 
-      # Regress statistics on parameters.
-      # This uses GLS to account for serial correlation in statistics, and more recent are weighted higher.
-      # First row is the intercept.
+  eval.optpars <- function(test.G=TRUE,window=TRUE,update.jitter=TRUE){
 
-      oh.wt <- rep(1,NROW(oh))#seq_len(NROW(oh)) #exp(control$RM.grad_decay*seq_len(NROW(oh)))
-      x<-oh[,1:p,drop=FALSE][,!offsets,drop=FALSE] # #$%^$ gls() doesn't respect I()...
+     ## Regress statistics on parameters.
+    # This uses GLS to account for serial correlation in statistics,
+    # since we want p-values. First row is the intercept.
 
-      ys <- oh[,-(1:p),drop=FALSE]
-      oh.fits <- sapply(1:q,
-                       function(i){
-                         y<-ys[,i]
-                         #try(gls(y~x,subset=!extreme.oh[,i],weight=varFixed(~1/oh.wt),correlation=corAR1()))
-                         try(lm(y~x,subset=!extreme.oh[,i],weight=oh.wt))
-                       },simplify=FALSE)
+    h <- get(if(window) "oh" else "oh.all",parent.frame())
+    control <- get("control",parent.frame())
+    
+    x<-h[,1:p,drop=FALSE][,!offsets,drop=FALSE] # #$%^$ gls() doesn't respect I()...
+    ys <- h[,-(1:p),drop=FALSE]
 
-      bad.fits <- sapply(oh.fits, inherits, "try-error")
+    h.fits <-
+      if(test.G)
+        sapply(1:q,
+               function(i){
+                 y<-ys[,i]
+                 try(gls(y~x, correlation=corAR1()))
+               },simplify=FALSE)
+      else
+        sapply(1:q,
+             function(i){
+               y<-ys[,i]
+               try(lm(y~x))
+             },simplify=FALSE)
+    
+    bad.fits <- sapply(h.fits, inherits, "try-error")
 
-      oh.fit <- t.vals <- matrix(NA, nrow=p.free+1,ncol=q)
-      t.vals[,!bad.fits] <- sapply(oh.fits[!bad.fits], function(a) summary(a)$coefficients[,3]) # sapply(oh.fits[!bad.fits], function(a) summary(a)$tTable[,3])
-      oh.fit[,!bad.fits] <- sapply(oh.fits[!bad.fits], coef)
-      
-      if(all(is.na(oh.fit))) stop("The search is trapped. Try a different starting value, longer RM.interval, etc..")
-      oh.resid <- matrix(NA, nrow=NROW(oh),ncol=q)
-      for(i in seq_along(oh.fits))
-        if(!bad.fits[i])
-          oh.resid[!extreme.oh[,i],i] <- resid(oh.fits[[i]])
-      
-      oh.r.na <- apply(oh.resid[,!bad.fits,drop=FALSE],1,function(x) any(is.na(x)))
-      v <- crossprod(sweep(oh.resid[!oh.r.na,,drop=FALSE],1,sqrt(oh.wt[!oh.r.na]),"*"))/sum(oh.wt[!oh.r.na])
-      v[is.na(v)] <- 0
-      
-      w <- if(q==1) 1/v else robust.inverse(v) #robust.inverse(diag(diag(v)))
-      rownames(v)<-colnames(v)<-rownames(w)<-colnames(w)<-model.mon$coef.names
-      
-      G <- t(oh.fit[-1,,drop=FALSE])
-      colnames(G)<-c(paste("f.(",model.form$coef.names,")",sep=""),paste("d.(",model.diss$coef.names,")",sep=""))[!offsets]
-      rownames(G)<-model.mon$coef.names
-      if(verbose){
-        cat("Most recent parameters:\n")
-        cat("Formation:\n")
-        print(z$eta.form)
-        cat("Dissolution:\n")
-        print(z$eta.diss)
-        cat("Target differences:\n")
-        print(z$nw.diff)
-        cat("Approximate objective function:\n")
-        print(mahalanobis(oh[nrow(oh),-(1:p),drop=FALSE],0,cov=w,inverted=TRUE))
-        cat("Estimated gradient:\n")
-        print(G)
-        cat("Estimated covariance of statistics:\n")
-        print(v)
-      }
+    ## Grabd the coefficients, t-values, and residuals.
+    
+    h.fit <- h.pvals <- matrix(NA, nrow=p.free+1,ncol=q)
+    
+    h.pvals[,!bad.fits] <- if(test.G) sapply(h.fits[!bad.fits],function(fit) summary(fit)$tTable[,4]) else 0
+    h.fit[,!bad.fits] <- sapply(h.fits[!bad.fits], coef)
 
-      redo.subphase <- FALSE
+    h.resid <- matrix(NA, nrow=nrow(h), ncol=q)
+    h.resid[,!bad.fits] <- sapply(h.fits[!bad.fits], resid)
+    
+    G.signif <- t(h.pvals[-1,,drop=FALSE] < 1-(1-control$RM.phase1.max.p)^(p*q))
+    G.signif[is.na(G.signif)] <- FALSE
 
-      oh.obj <- mahalanobis(oh[,-(1:p),drop=FALSE], 0, w, inverted=TRUE)
-      oh.obj.sub <- oh.obj[length(oh.obj) - control$RM.phase2n:1 + 1]
-      oh.obj.prev <- oh.obj[-(length(oh.obj) - control$RM.phase2n:1 + 1)]
-      if(length(oh.obj.prev) && t.test(oh.obj.sub,oh.obj.prev,alternative="greater")$p.value<control$RM.revert.threshold.p){
-        message("Objective function did not improve.")
-        redo.subphase <- TRUE
-      }
-      
-      if(!all(oh.trustworthy)){
-        message("Only partial gradient matrix computed reliably.")
-        redo.subphase <- TRUE
-      }
-      
-      G[is.na(G)] <- 0
-      G[!oh.trustworthy,] <- 0
-      # Better fail to update at all than to update in the wrong direction.
-      G[abs(t(t.vals[-1,]))<control$RM.gls.min.t] <- 0
+    ## Compute the variances and the statistic weights.
+    
+    v <- matrix(NA, q,q)
+    v[!bad.fits,!bad.fits] <- crossprod(h.resid[,!bad.fits])/nrow(h.resid)
+    v[is.na(v)] <- 0
 
-      ineffectual <- apply(G==0, 2, all)
-      if(any(ineffectual)){
-        message("Unable to reliably estimate the effect some parameters.")
-        control$jitter[!offsets] <- control$jitter[!offsets]*(1+ineffectual)/mean(1+ineffectual)
-        redo.subphase<-TRUE
-      }
+    w <- robust.inverse(v)
 
-      control$WinvGradient <- matrix(0, nrow=p, ncol=q)
-      control$WinvGradient[!offsets,] <- robust.inverse(G) %*% chol(w,pivot=TRUE) #%*%cw0
-      control$WinvGradient[!offsets,] <- control$WinvGradient[!offsets,]/sum(abs(control$WinvGradient[!offsets,])) * control$gain
-      control$dejitter <- matrix(0, nrow=p, ncol=p)
-      control$dejitter[!offsets,!offsets] <- control$WinvGradient[!offsets,]%*%G
-      
-      rownames(control$WinvGradient) <- rownames(control$dejitter) <- colnames(control$dejitter) <- c(paste("f.(",model.form$coef.names,")",sep=""),paste("d.(",model.diss$coef.names,")",sep=""))
-      colnames(control$WinvGradient) <- model.mon$coef.names
-
-      if(verbose){
-        cat("New deviation -> coefficient map:\n")
-        print(control$WinvGradient)
-        cat("New jitter cancelation matrix:\n")
-        print(control$dejitter)
-      }
-     
-      if(!redo.subphase){
-        nw <- z$newnetwork
-        control$nw.diff<-z$nw.diff
-        eta.form <- z$eta.form
-        eta.diss <- z$eta.diss
-        names(eta.form)<-model.form$coef.names
-        names(eta.diss)<-model.diss$coef.names
-        break
-      }else{message("Redoing subphase.")}
+    ## Adjust the number of time steps between jumps.
+    
+    stat.ac <- rep(NA,q)
+    inds <- max(NROW(h)-control$RM.runlength+1,1):NROW(h)
+    stat.ac[!bad.fits] <- diag(as.matrix(autocorr(mcmc(h.resid[inds,!bad.fits,drop=FALSE]),lags=1)[1,,]))
+    if(verbose){
+      cat("Lag-1 autocorrelation:\n")
+      print(stat.ac)
+    }
+    control$RM.interval<-max(round(control$RM.interval*(1+sqrt(max(stat.ac,0,na.rm=TRUE))-sqrt(control$RM.target.ac))),control$RM.min.interval)
+    if(verbose){
+      cat("New interval:",control$RM.interval ,"\n")
     }
 
-    control$jitter[!offsets] <- apply(oh[,1:p,drop=FALSE][,!offsets,drop=FALSE]-jitters[,!offsets,drop=FALSE],2,sd)*control$RM.jitter.mul
     
-    names(control$jitter) <- c(paste("f.(",model.form$coef.names,")",sep=""),paste("d.(",model.diss$coef.names,")",sep=""))
+    ## Detect parameters whose effect we aren't able to reliably detect.
+    ineffectual.pars <- !apply(G.signif,2,any)
+
+    if(any(ineffectual.pars)){
+      cat("Parameters ",paste(p.names[!offsets][ineffectual.pars])," do not have a detectable effect. Shifting jitter to them." ,sep="")
+      control$jitter[!offsets] <- control$jitter[!offsets] * (ineffectual.pars+1/2)/mean(ineffectual.pars+1/2)
+    }
+
+    ## Evaluate the dstat/dpar gradient matrix.
+    G <- t(h.fit[-1,,drop=FALSE])
+    G[!G.signif] <- 0
+    G[is.na(G)] <- 0
+
+    rownames(v)<-colnames(v)<-rownames(w)<-colnames(w)<-q.names
+    
+    colnames(G)<-p.names[!offsets]
+    rownames(G)<-q.names
+    if(verbose){
+      cat("Most recent parameters:\n")
+      cat("Formation:\n")
+      print(state$eta.form)
+      cat("Dissolution:\n")
+      print(state$eta.diss)
+      cat("Target differences:\n")
+      print(state$nw.diff)
+      cat("Approximate objective function:\n")
+      print(mahalanobis(oh[nrow(oh),-(1:p),drop=FALSE],0,cov=w,inverted=TRUE))
+      cat("Estimated gradient:\n")
+      print(G)
+      cat("Estimated covariance of statistics:\n")
+      print(v)
+    }
+          
+    control$WinvGradient <- matrix(0, nrow=p, ncol=q)
+    control$WinvGradient[!offsets,] <- robust.inverse(G) %*% chol(w,pivot=TRUE) * control$gain
+    control$dejitter <- matrix(0, nrow=p, ncol=p)
+    control$dejitter[!offsets,!offsets] <- control$WinvGradient[!offsets,]%*%G
+    
+    rownames(control$WinvGradient) <- rownames(control$dejitter) <- colnames(control$dejitter) <- p.names
+    colnames(control$WinvGradient) <- q.names
+    
+    if(verbose){
+      cat("New deviation -> coefficient map:\n")
+      print(control$WinvGradient)
+      cat("New jitter cancelation matrix:\n")
+      print(control$dejitter)
+    }
+
+    if(update.jitter){
+      control$jitter[!offsets] <- apply(oh[,1:p,drop=FALSE][,!offsets,drop=FALSE]-jitters[,!offsets,drop=FALSE],2,sd)*control$RM.jitter.mul
+      names(control$jitter) <- p.names
+    }
     
     if(verbose){
       cat("New jitter values:\n")
       print(control$jitter)
     }
 
+    list(control=control,
+         G=G, w=w, v=v, oh.fit=h.fit, ineffectual.pars=ineffectual.pars, bad.fits=bad.fits)
+  }
 
-    ys <- oh[,(1:p),drop=FALSE][,!offsets,drop=FALSE]
-    x <- 1:NROW(oh)
-    
-    eta.trend.ps <- apply(ys,2,
-                          function(y)
-                          summary(gls(y~x,correlation=corAR1(),
-                                      subset=max(NROW(oh)-control$RM.stepdown.phases*control$RM.phase2n+1,1):NROW(oh)))$tTable[2,4])
-    cat("Parameter trend p-values:\n")
-    names(eta.trend.ps)<-c(paste("f.(",model.form$coef.names,")",sep=""),paste("d.(",model.diss$coef.names,")",sep=""))[!offsets]
-    print(eta.trend.ps)
-    eta.trend.p <- pchisq(-2 * sum(log(eta.trend.ps)),length(eta.trend.ps)*2,lower.tail=FALSE)
-    if(eta.trend.p>control$RM.stepdown.p){
-      cat("No trend in parameters detected. Reducing gain.\n")
+
+  
+  ##### Construct the initial state. ######
+
+  nw %n% "lasttoggle" <- rep(0, network.dyadcount(nw))
+  nw %n% "time" <- 0
+  
+  state <- list(nw=nw,
+                eta.form = ergm.eta(theta.form0, model.form$etamap),
+                eta.diss = ergm.eta(theta.diss0, model.diss$etamap),
+                nw.diff  = model.mon$nw.stats - model.mon$target.stats) # nw.diff keeps track of the difference between the current network and the target statistics.
+
+  oh.all <- NULL
+  jitters.all <- NULL
+
+  ###### Set up and run the burn-in. ######
+  
+  control$collect.form <- control$collect.diss <- FALSE
+  control.phase1<-control
+  control.phase1$time.samplesize <- 1
+  control.phase1$time.burnin <- control$RM.burnin
+  control.phase1$time.interval <- 1
+  
+  z <- stergm.getMCMCsample(state$nw, model.form, model.diss, model.mon, MHproposal.form, MHproposal.diss, state$eta.form, state$eta.diss, control.phase1, verbose)
+
+  # Update the state with burn-in results.
+  state$nw <- z$newnetwork
+  state$nw.diff <- state$nw.diff + z$statsmatrix.mon[NROW(z$statsmatrix.mon),]
+
+  ###### Gradient estimation and getting to a decent configuration. ######
+
+  ## Here, "decent configuration" is defined as one where all target
+  ## statistics have some variability --- none are stuck.
+
+  # Start with jitter-only.
+
+  control$WinvGradient <- matrix(0, nrow=p, ncol=q)
+  control$dejitter <- matrix(0, nrow=p, ncol=p) # Dejitter tries to cancel the effect of jitter on the optimizer.
+  
+  control$jitter<-rep(0,p)
+  control$jitter[!offsets]<- control$RM.phase1.jitter
+
+  control$RM.interval <- control$RM.init.interval
+  
+  if(verbose) cat('========  Phase 1: Get initial gradient values and find a configuration under which all targets very. ========\n',sep="")
+  
+  for(try in 1:control$RM.phase1.tries){
+    if(verbose) cat('======== Attempt ',try,' ========\n',sep="")
+    state <- do.optimization(state, control)
+    control$gain <- control$RM.init.gain
+    out <- eval.optpars(TRUE,FALSE,FALSE)
+    control <- out$control
+    if(all(!out$ineffectual.pars) && all(!out$bad.fits)){
+      cat("Gradients estimated and all statistics are moving. Moving on to Phase 2.\n")
       break
-    }else{
-      cat("Trend in parameters detected. Continuing with current gain.\n")
     }
-    
-    
-    
-  }
-    
   }
 
-  if(control$RM.refine){
-    last.inds <- nrow(oh) + 1 - control$RM.refine:1
-    eta.free <- colSums(sweep(oh[last.inds,1:p,drop=FALSE][,!offsets,drop=FALSE],1,oh.wt[last.inds],"*"))/sum(oh.wt[last.inds])
-    if(p.form.free) eta.form[!model.form$offset] <- eta.free[seq_len(p.form.free)]
-    if(p.diss.free) eta.diss[!model.diss$offset] <- eta.free[p.form.free+seq_len(p.diss.free)]
-    if(verbose){
-      cat("Pooling optimization history to refine the estimate. New estimate:\n")
-      cat("Formation:\n")
-      print(eta.form)
-      cat("Dissolution:\n")
-      print(eta.diss)
+  ###### Main optimization run. ######
+  
+  for(subphase in 1:control$RM.phase2sub){
+    if(verbose) cat('======== Subphase ',subphase,' ========\n',sep="")
+    control$gain <- control$RM.init.gain*control$RM.gain.decay^(subphase-1)
+    for(regain in 1:control$RM.phase2regain){
+      state <-do.optimization(state, control)
+      out <- eval.optpars(FALSE,TRUE,TRUE)
+      control <- out$control
+
+      ## If the optimization appears to be "going somewhere", keep
+      ## going, without reducing the gain.
+
+      ys <- oh[,(1:p),drop=FALSE][,!offsets,drop=FALSE]
+      x <- 1:NROW(oh)
+      
+      eta.trend.ps <- apply(ys,2,
+                            function(y)
+                            summary(gls(y~x,correlation=corAR1(),
+                                        subset=max(NROW(oh)-control$RM.stepdown.subphases*control$RM.runlength+1,1):NROW(oh)))$tTable[2,4])
+      cat("Parameter trend p-values:\n")
+      names(eta.trend.ps)<-c(paste("f.(",model.form$coef.names,")",sep=""),paste("d.(",model.diss$coef.names,")",sep=""))[!offsets]
+      print(eta.trend.ps)
+      eta.trend.p <- pchisq(-2 * sum(log(eta.trend.ps)),length(eta.trend.ps)*2,lower.tail=FALSE)
+      if(eta.trend.p>control$RM.stepdown.p){
+        cat("No trend in parameters detected. Reducing gain.\n")
+        break
+      }else{
+        cat("Trend in parameters detected. Continuing with current gain.\n")
+      }
     }
   }
+
+  ## Refine the estimate.
+  
+  eta.form <- state$eta.form
+  eta.diss <- state$eta.diss
+
+  eta.free <- switch(control$RM.refine,
+                     mean = colMeans(oh[,1:p,drop=FALSE][,!offsets,drop=FALSE]),
+                     linear =
+                       if(p.free==q) solve(t(out$oh.fit[-1,,drop=FALSE]),-out$oh.fit[1,])
+                       else{x<-t(out$oh.fit[-1,,drop=FALSE]); y<--cbind(out$oh.fit[1,]) ;solve(t(x)%*%out$w%*%x)%*%t(x)%*%out$w%*%y},
+                     none = c(eta.form,eta.diss)[!offsets])
+  if(p.form.free) eta.form[!model.form$offset] <- eta.free[seq_len(p.form.free)]
+  if(p.diss.free) eta.diss[!model.diss$offset] <- eta.free[p.form.free+seq_len(p.diss.free)]
+
+  if(verbose){
+    cat("Refining the estimate using the", control$RM.refine,"method. New estimate:\n")
+    cat("Formation:\n")
+    print(eta.form)
+    cat("Dissolution:\n")
+    print(eta.diss)
+  }
+
 
   if(control$RM.se){
+    G <- out$G
+    w <- out$w
+    
     control.phase3<-control
     control.phase3$time.burnin <- control$RM.burnin
     control.phase3$time.samplesize <- control$RM.phase3n*control$RM.interval
     control.phase3$time.interval <- 1
     
-    # Run Phase 3.
+    ## Estimate standard errors.
     if(verbose)cat("Simulating to estimate standard errors... ")
     z <- stergm.getMCMCsample(nw, model.form, model.diss, model.mon, MHproposal.form, MHproposal.diss, eta.form, eta.diss, control.phase3, verbose)
     if(verbose)cat("Finished.\n")
@@ -313,70 +380,11 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
        network=nw)            
 }
 
-################################################################################
-# The <stergm.phase12.C> function is basically a wrapper for <MCMCDynPhase12.c>,
-# which does the Rob-Mon sampling and estimation 
-#
-# --PARAMETERS--
-#   g              : a network object
-#   target.stats      : the mean statistics to be subtracted from the observed
-#                    statistics
-#   model.form     : a formation model, as returned by <ergm.getmodel>
-#   model.diss     : a dissolution model, as returned by <ergm.getmodel>
-#   MHproposal.form: a MHproposal object for the formation process, as
-#                    returned by <getMHproposal>
-#   MHproposal.diss: a MHproposal object for the dissolution process, as
-#                    returned by <getMHproposal>
-#   eta.form0      : the initial and canonical eta formation parameters
-#   eta.diss       : the initial and canonical eta dissolution parameters
-#   control     : the list of parameters which tune the MCMC sampling
-#                    processes; recognized components include:
-#       target.stats      : presumably the mean statistics, but this isn't used
-#                        other than to return it
-#       maxchanges     : 5 times the maximum number of changes to allocate 
-#                        space for; this value is ignored if the number of edges 
-#                        in 'g' is greater than 'maxchanges'; this value is 
-#                        divided by 5 before being used to deteremine the max
-#                        number of changes
-#       RM.init_gain   : this is only used to adjust 'aDdiaginv'in phase1,
-#                        in particular:
-#                             aDdiaginv = gain/sqrt(aDdiaginv)
-#       RM.phase1n_base: this helps define the 'phase1n' param, which in turn
-#                        multiplies 'RM.interval' to control the number of
-#                        phase1 iterations; this is the base portion of 'phase1n',
-#                        which is added to 3*(the number of formation coefficients)
-#                        to form 'phase1n'
-#       RM.phase2sub   : phase2 is a 3-deep nested for-loop and 'RM.phase2sub' limits
-#                        the outer loop counter
-#       RM.phase2n_base: this helps define the 'phase2n' param, which in turn
-#                        limits the phase2 middle loop counter; this is the
-#                        base portion of 'phase2n', which is added to 7+(the number
-#                        of formation coefficients) to form 'phase2n'
-#       RM.burnin      : the number of MCMC steps to disregard for the burn-in
-#                        period
-#       RM.interval    : like the SPSA.interval, this seems a little more like
-#                        a sample size, than an interval, it helps control the 
-#                        number of MCMCsteps used in phase1 and phase2; in
-#                        phase2, this limits the innermost loop counter
-#       MH.burnin      : this is received as MH_interval and is used to
-#                        control the number of proposals in each MCMC step
-#   verbose        : whether this and subsequently called R and C code
-#                    should be verbose (T or F); default=FALSE
-#   
-# --RETURNED--
-#   a list with the 2 following components:
-#      target.stats: the 'target.stats' from the 'control'; note that this is NOT
-#                 the 'target.stats' inputted directly to this function
-#      eta.form : the estimated? eta formation coefficients
-#
-################################################################################
-
-stergm.EGMoME.RM.Phase2.C <- function(nw, model.form, model.diss, model.mon,
-                             MHproposal.form, MHproposal.diss, eta.form0, eta.diss0,
-                             control, verbose) {
-  Clist.form <- ergm.Cprepare(nw, model.form)
-  Clist.diss <- ergm.Cprepare(nw, model.diss)
-  Clist.mon <- ergm.Cprepare(nw, model.mon)
+stergm.EGMoME.RM.Phase2.C <- function(state, model.form, model.diss, model.mon,
+                             MHproposal.form, MHproposal.diss, control, verbose) {
+  Clist.form <- ergm.Cprepare(state$nw, model.form)
+  Clist.diss <- ergm.Cprepare(state$nw, model.diss)
+  Clist.mon <- ergm.Cprepare(state$nw, model.mon)
   maxedges <- max(control$MCMC.init.maxedges, Clist.mon$nedges)
   maxchanges <- max(control$MCMC.init.maxchanges, Clist.mon$nedges)
 
@@ -398,11 +406,11 @@ stergm.EGMoME.RM.Phase2.C <- function(nw, model.form, model.diss, model.mon,
             as.character(MHproposal.diss$name), as.character(MHproposal.diss$package),
             as.double(Clist.diss$inputs),
             # Parameter fitting.
-            eta=as.double(c(eta.form0,eta.diss0)),
+            eta=as.double(c(state$eta.form,state$eta.diss)),
             as.integer(Clist.mon$nterms), as.character(Clist.mon$fnamestring), as.character(Clist.mon$snamestring),
             as.double(Clist.mon$inputs), 
-            nw.diff=as.double(control$nw.diff),
-            as.integer(control$RM.phase2n),
+            nw.diff=as.double(state$nw.diff),
+            as.integer(control$RM.runlength),
             as.double(control$WinvGradient),
             as.double(control$jitter), as.double(control$dejitter), # Add a little bit of noise to parameter guesses.
             # Degree bounds.
@@ -418,7 +426,7 @@ stergm.EGMoME.RM.Phase2.C <- function(nw, model.form, model.diss, model.mon,
             as.integer(maxedges),
             as.integer(maxchanges),
             newnwtails = integer(maxedges), newnwheads = integer(maxedges), 
-            opt.history=double(((Clist.form$nstats+Clist.diss$nstats)*2+Clist.mon$nstats)*control$RM.phase2n),
+            opt.history=double(((Clist.form$nstats+Clist.diss$nstats)*2+Clist.mon$nstats)*control$RM.runlength),
             # Verbosity.
             as.integer(verbose),
             status = integer(1), # 0 = OK, MCMCDyn_TOO_MANY_EDGES = 1, MCMCDyn_MH_FAILED = 2, MCMCDyn_TOO_MANY_CHANGES = 3
@@ -435,11 +443,11 @@ stergm.EGMoME.RM.Phase2.C <- function(nw, model.form, model.diss, model.mon,
   }
 
   eta.form <- z$eta[seq_len(Clist.form$nstats)]
-  names(eta.form) <- names(eta.form0)
+  names(eta.form) <- model.form$coef.names
   eta.diss <- z$eta[-seq_len(Clist.form$nstats)]
-  names(eta.diss) <- names(eta.diss0)
+  names(eta.diss) <- model.diss$coef.names
 
-  newnetwork<-newnw.extract(nw,z)
+  newnetwork<-newnw.extract(state$nw,z)
   newnetwork %n% "time" <- z$time
   newnetwork %n% "lasttoggle" <- z$lasttoggle
   

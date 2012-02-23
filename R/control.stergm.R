@@ -107,34 +107,50 @@ control.stergm<-function(init.form=NULL,
                            parallel.version.check=parallel.version.check),
 
                          RM.burnin=100,
-                         RM.phase2n=25,
-                         RM.phase2sub=40,
-                         RM.phase2sub_retries=5,
-                         RM.phase3n=100,
-                         RM.grad_decay=0.05,
-                         RM.init.gain=0.05,
-                         RM.phase2regain=10,
-                         
-                         RM.interval=100,
-                         RM.keep.oh=0.5,
-                         RM.prop.var.grad.OK=0.5,
-                         RM.prop.var.grad.OK.ignore=0.9,
-                         RM.refine=200,
-                         RM.se=FALSE,
-                         RM.init.jitter=0.1,
-                         RM.jitter.mul=0.2,
+
+                         # Plot the progress of the optimization.
                          RM.plot.progress=FALSE,
-                         RM.gls.min.t=0,
-                         RM.revert.threshold.p=0.1,
-                         RM.stepdown.p=0.2,
-                         RM.stepdown.phases=10,
+                         
+                         # Initial gain --- if the process initially goes
+                         # crazy beyond recovery, lower this.
+                         RM.init.gain=0.1,                         
+                         
+                         RM.runlength=25, # Number of jumps per .C call.
+
+                         # Interval --- number of steps between
+                         # successive jumps --- is computed
+                         # adaptively.
+                         RM.target.ac=0.5, # Target serial autocorrelation.
+                         RM.init.interval=500, # Strting interval.
+                         RM.min.interval=20, # The lowest it can go.
+
+                        
+                         RM.phase1.tries=20, # Number of iterations of trying to find a reasonable configuration. FIXME: nothing happens if it's exceeded.
+                         RM.phase1.jitter=0.1, # Initial jitter sd of each parameter..
+                         RM.phase1.min.nonextreme=0.5, # Fraction of realizations of a statistic that are not at an extrme before it's considered "unstuck".
+                         RM.phase1.max.p=0.01, # P-value that a gradient estimate must obtain before it's accepted (since sign is what's important).
+
+                         RM.phase2sub=40, # Number of gain levels to go through.
+                         RM.phase2regain=100, # Number of times gain a subphase can be repeated if the optimization is "going somewhere".
+                         RM.stepdown.subphases=10, # Number of subphases to use to see whether the optimization is going somewhere.
+                         RM.stepdown.p=0.5, # If the combined p-value for the trend in the parameters is less than this, repeat the subphase.
+                         RM.gain.decay=0.9, # Gain decay factor.
+                         RM.keep.oh=0.5, # Fraction of optimization history that is used for gradient and covariance calculation.
+                         RM.jitter.mul=0.2, # The jitter standard deviation of each parameter is this times its standard deviation sans jitter.
+
+                         
+
+                         RM.refine=c("linear","mean","none"), # Method, if any, used to refine the point estimate: linear interpolation, average, and none for the last value.
+                         
+                         RM.se=FALSE, # Whether to run Phase 3 to compute the standard errors.
+                         RM.phase3n=1000, # This times the interval is the number of steps to estimate the standard errors.
 
                          seed=NULL,
                          parallel=0,
                          parallel.type=NULL,
                          parallel.version.check=TRUE){
   
-  match.arg.pars=c("MPLE.type","EGMoME.main.method")
+  match.arg.pars=c("EGMoME.main.method","RM.refine")
   
   control<-list()
   formal.args<-formals(sys.function())
