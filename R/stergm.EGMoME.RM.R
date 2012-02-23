@@ -172,7 +172,7 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
     ineffectual.pars <- !apply(G.signif,2,any)
 
     if(any(ineffectual.pars)){
-      cat("Parameters ",paste(p.names[!offsets][ineffectual.pars])," do not have a detectable effect. Shifting jitter to them." ,sep="")
+      cat("Parameters ",paste(p.names[!offsets][ineffectual.pars],sep=", ")," do not have a detectable effect. Shifting jitter to them." ,sep="")
       control$jitter[!offsets] <- control$jitter[!offsets] * (ineffectual.pars+1/2)/mean(ineffectual.pars+1/2)
     }
 
@@ -309,11 +309,14 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
         ## Interpolate the estimate.
         eta.int <- try(interpolate.par(out$oh.fit,out$w),silent=TRUE)
         if(!inherits(eta.int,"try-error")){
-          eta.means <- colMeans(oh[1:p,])[!offsets]
+          eta.last <- c(state$eta.form[!model.form$offset],state$eta.diss[!model.diss$offset])
+          eta.int <- eta.last*(1-control$gain) + eta.int*control$gain
+
           eta.sds <- apply(oh[1:p,],2,sd)[!offsets]
-          eta.zs <- (eta.int - eta.means)/eta.sds
+          eta.zs <- (eta.int - eta.last)/eta.sds
           eta.zs <- pmax(pmin(eta.zs, control$RM.phase2.refine.maxjump), -control$RM.phase2.refine.maxjump)
-          eta.int <- eta.zs*eta.sds + eta.means
+          eta.int <- eta.zs*eta.sds + eta.last
+
           if(p.form.free) state$eta.form[!model.form$offset] <- eta.int[seq_len(p.form.free)]
           if(p.diss.free) state$eta.diss[!model.diss$offset] <- eta.int[p.form.free+seq_len(p.diss.free)]
           if(verbose){
