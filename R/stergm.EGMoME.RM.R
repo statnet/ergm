@@ -103,7 +103,7 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
          eta.diss = z$eta.diss)
   }
 
-  eval.optpars <- function(test.G=TRUE,window=TRUE,update.jitter=TRUE){
+  eval.optpars <- function(test.G,window,update.jitter){
 
      ## Regress statistics on parameters.
     # This uses GLS to account for serial correlation in statistics,
@@ -111,6 +111,7 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
 
     h <- get(if(window) "oh" else "oh.all",parent.frame())
     control <- get("control",parent.frame())
+    state <- get("state",parent.frame())
     
     x<-h[,1:p,drop=FALSE][,!offsets,drop=FALSE] # #$%^$ gls() doesn't respect I()...
     ys <- h[,-(1:p),drop=FALSE]
@@ -120,7 +121,7 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
         sapply(1:q,
                function(i){
                  y<-ys[,i]
-                 try(gls(y~x, correlation=corAR1()))
+                 try(gls(y~x, correlation=corAR1()),silent=TRUE)
                },simplify=FALSE)
       else
         sapply(1:q,
@@ -131,12 +132,12 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
     
     bad.fits <- sapply(h.fits, inherits, "try-error")
 
-    ## Grabd the coefficients, t-values, and residuals.
+    ## Grab the coefficients, t-values, and residuals.
     
     h.fit <- h.pvals <- matrix(NA, nrow=p.free+1,ncol=q)
     
     h.pvals[,!bad.fits] <- if(test.G) sapply(h.fits[!bad.fits],function(fit) summary(fit)$tTable[,4]) else 0
-    h.fit[,!bad.fits] <- sapply(h.fits[!bad.fits], coef)
+    h.fit[,!bad.fits] <- sapply(h.fits[!bad.fits], coef)      
 
     h.resid <- matrix(NA, nrow=nrow(h), ncol=q)
     h.resid[,!bad.fits] <- sapply(h.fits[!bad.fits], resid)
@@ -229,6 +230,13 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
          G=G, w=w, v=v, oh.fit=h.fit, ineffectual.pars=ineffectual.pars, bad.fits=bad.fits)
   }
 
+  interpolate.par <- function(h.fit, w=diag(1,nrow=ncol(h.fit))){
+    x <- t(h.fit[-1,,drop=FALSE])
+    y <- -cbind(h.fit[1,])
+
+    c(solve(t(x)%*%w%*%x)%*%t(x)%*%w%*%y)
+  }
+
 
   
   ##### Construct the initial state. ######
@@ -297,6 +305,22 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
       out <- eval.optpars(FALSE,TRUE,TRUE)
       control <- out$control
 
+      if(control$phase2.refine){
+        ## Interpolate the estimate.
+        eta.int <- try(interpolate.par(out$oh.fit,out$w),silent=TRUE)
+        if(!inherits(eta.int,"try-error")){
+          if(p.form.free) state$eta.form[!model.form$offset] <- eta.int[seq_len(p.form.free)]
+          if(p.diss.free) state$eta.diss[!model.diss$offset] <- eta.int[p.form.free+seq_len(p.diss.free)]
+          if(verbose){
+            cat("Interpolated parameters:\n")
+            cat("Formation:\n")
+            print(state$eta.form)
+            cat("Dissolution:\n")
+            print(state$eta.diss)
+          }
+        }
+      }
+
       ## If the optimization appears to be "going somewhere", keep
       ## going, without reducing the gain.
 
@@ -329,7 +353,7 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
                      mean = colMeans(oh[,1:p,drop=FALSE][,!offsets,drop=FALSE]),
                      linear =
                        if(p.free==q) solve(t(out$oh.fit[-1,,drop=FALSE]),-out$oh.fit[1,])
-                       else{x<-t(out$oh.fit[-1,,drop=FALSE]); y<--cbind(out$oh.fit[1,]) ;solve(t(x)%*%out$w%*%x)%*%t(x)%*%out$w%*%y},
+                       else interpolate.par(out$oh.fit,out$w),
                      none = c(eta.form,eta.diss)[!offsets])
   if(p.form.free) eta.form[!model.form$offset] <- eta.free[seq_len(p.form.free)]
   if(p.diss.free) eta.diss[!model.diss$offset] <- eta.free[p.form.free+seq_len(p.diss.free)]

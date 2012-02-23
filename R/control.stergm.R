@@ -137,6 +137,7 @@ control.stergm<-function(init.form=NULL,
                          RM.gain.decay=0.9, # Gain decay factor.
                          RM.keep.oh=0.5, # Fraction of optimization history that is used for gradient and covariance calculation.
                          RM.jitter.mul=0.2, # The jitter standard deviation of each parameter is this times its standard deviation sans jitter.
+                         RM.phase2.refine=TRUE, # Whether to use linear interpolation to refine the estimate after every run.
 
                          
 
