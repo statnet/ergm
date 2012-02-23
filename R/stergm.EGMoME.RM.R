@@ -172,8 +172,8 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
     ineffectual.pars <- !apply(G.signif,2,any)
 
     if(any(ineffectual.pars)){
-      cat("Parameters ",paste(p.names[!offsets][ineffectual.pars],sep=", ")," do not have a detectable effect. Shifting jitter to them." ,sep="")
-      control$jitter[!offsets] <- control$jitter[!offsets] * (ineffectual.pars+1/2)/mean(ineffectual.pars+1/2)
+      cat("Parameters ",paste(p.names[!offsets][ineffectual.pars],sep=", ")," do not have a detectable effect. Shifting jitter to them.\n" ,sep="")
+      control$jitter[!offsets] <- control$jitter[!offsets] * (ineffectual.pars+1/2) / mean(control$jitter[!offsets] * (ineffectual.pars+1/2))
     }
 
     ## Evaluate the dstat/dpar gradient matrix.
