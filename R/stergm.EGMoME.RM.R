@@ -305,10 +305,15 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
       out <- eval.optpars(FALSE,TRUE,TRUE)
       control <- out$control
 
-      if(control$phase2.refine){
+      if(control$RM.phase2.refine){
         ## Interpolate the estimate.
         eta.int <- try(interpolate.par(out$oh.fit,out$w),silent=TRUE)
         if(!inherits(eta.int,"try-error")){
+          eta.means <- colMeans(oh[1:p,])[!offsets]
+          eta.sds <- apply(oh[1:p,],2,sd)[!offsets]
+          eta.zs <- (eta.int - eta.means)/eta.sds
+          eta.zs <- pmax(pmin(eta.zs, control$RM.phase2.refine.maxjump), -control$RM.phase2.refine.maxjump)
+          eta.int <- eta.zs*eta.sds + eta.means
           if(p.form.free) state$eta.form[!model.form$offset] <- eta.int[seq_len(p.form.free)]
           if(p.diss.free) state$eta.diss[!model.diss$offset] <- eta.int[p.form.free+seq_len(p.diss.free)]
           if(verbose){

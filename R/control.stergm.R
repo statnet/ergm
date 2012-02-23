@@ -130,14 +130,15 @@ control.stergm<-function(init.form=NULL,
                          RM.phase1.min.nonextreme=0.5, # Fraction of realizations of a statistic that are not at an extrme before it's considered "unstuck".
                          RM.phase1.max.p=0.01, # P-value that a gradient estimate must obtain before it's accepted (since sign is what's important).
 
-                         RM.phase2sub=40, # Number of gain levels to go through.
+                         RM.phase2sub=20, # Number of gain levels to go through.
                          RM.phase2regain=100, # Number of times gain a subphase can be repeated if the optimization is "going somewhere".
                          RM.stepdown.subphases=10, # Number of subphases to use to see whether the optimization is going somewhere.
                          RM.stepdown.p=0.5, # If the combined p-value for the trend in the parameters is less than this, repeat the subphase.
-                         RM.gain.decay=0.9, # Gain decay factor.
+                         RM.gain.decay=0.7, # Gain decay factor.
                          RM.keep.oh=0.5, # Fraction of optimization history that is used for gradient and covariance calculation.
                          RM.jitter.mul=0.2, # The jitter standard deviation of each parameter is this times its standard deviation sans jitter.
                          RM.phase2.refine=TRUE, # Whether to use linear interpolation to refine the estimate after every run.
+                         RM.phase2.refine.maxjump=3, # Maximum linear interpolator jump magnitude (in standard deviations of the parameter from the current mean).
 
                          
 
