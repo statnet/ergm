@@ -386,12 +386,16 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
     
     ## Estimate standard errors.
     if(verbose)cat("Simulating to estimate standard errors... ")
-    z <- stergm.getMCMCsample(nw, model.form, model.diss, model.mon, MHproposal.form, MHproposal.diss, eta.form, eta.diss, control.phase3, verbose)
+    z <- stergm.getMCMCsample(state$nw, model.form, model.diss, model.mon, MHproposal.form, MHproposal.diss, eta.form, eta.diss, control.phase3, verbose)
+    sm.mon <- sweep(z$statsmatrix.mon,2,state$nw.diff,"+")
     if(verbose)cat("Finished.\n")
-    V.stat<-cov(z$statsmatrix.mon)
+    V.stat<-cov(sm.mon)
     V.par<-matrix(NA,p,p)
     V.par[!offsets,!offsets]<-solve(t(G)%*%w%*%G)%*%t(G)%*%w%*%V.stat%*%w%*%G%*%solve(t(G)%*%w%*%G)
-  }else V.par <- NULL
+  }else{
+    V.par <- NULL
+    sm.mon <- NULL
+  }
   
   #ve<-with(z,list(coef=eta,sample=s$statsmatrix.form,sample.obs=NULL))
   
@@ -399,7 +403,7 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
   #attr(ve$sample, "mcpar") <- c(control$MCMC.burnin+1, endrun, control$MCMC.interval)
   #attr(ve$sample, "class") <- "mcmc"
   
-  list(newnetwork=nw, 
+  list(newnetwork=if(control$RM.se) z$newnetwork else state$nw,
        init.form=theta.form0,
        init.diss=theta.diss0,
        covar=V.par,
@@ -408,7 +412,7 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
        eta.form=eta.form,
        eta.diss=eta.diss,
        opt.history=oh.all,
-       sample=z$statsmatrix.mon,
+       sample=sm.mon,
        network=nw)            
 }
 

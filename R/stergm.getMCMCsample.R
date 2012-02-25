@@ -49,6 +49,7 @@
 #   the MCMC sample as a list containing:
 #     statsmatrix.form: the matrix of sampled statistics for 'model.form' RELATIVE TO INITIAL NETWORK
 #     statsmatrix.diss: the matrix of sampled statistics for 'model.form' RELATIVE TO INITIAL NETWORK
+#     statsmatrix.mon: the matrix of sampled statistics for 'model.mon' RELATIVE TO INITIAL NETWORK
 #     newnetwork      : the final network from the sampling process
 #     changed         : a toggle matrix, where the first column is
 #                       the timestamp of the toggle and the 2nd and 3rd
