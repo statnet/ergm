@@ -2,10 +2,9 @@
 # stergm --- fit Separable Temporal ERGMs.
 ################################################################################
 
-stergm <- function(nw, formation, dissolution,  times=NULL, offset.coef.form=NULL, offset.coef.diss=NULL,
+stergm <- function(nw, formation, dissolution, estimate, times=NULL, offset.coef.form=NULL, offset.coef.diss=NULL,
                    targets=NULL, target.stats=NULL,
                    eval.loglik=FALSE,
-                   estimate=c("CMLE","CMPLE","EGMoME"),
                  control=control.stergm(),
                  verbose=FALSE, ...) {
   current.warn <- options()$warn
@@ -13,7 +12,7 @@ stergm <- function(nw, formation, dissolution,  times=NULL, offset.coef.form=NUL
   options(warn=0)
   if(!is.null(control$seed))  set.seed(as.integer(control$seed))
 
-  estimate <- match.arg(estimate)
+  estimate <- match.arg(estimate,c("CMLE","CMPLE","EGMoME"))
   
   if(!is.network(nw)) stop("Argument nw must be a network or networkDynamic.")
   
