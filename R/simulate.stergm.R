@@ -101,7 +101,7 @@ simulate.network <- function(object, nsim=1, seed=NULL,
   
   nw <- as.network(object)
   if(!is.network(nw)){
-    stop("A network object on the LHS of the formation must be given")
+    stop("A network object must be given")
   }
 
   formation<-ergm.update.formula(formation,nw~.)
