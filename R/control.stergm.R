@@ -82,7 +82,7 @@ control.stergm<-function(init.form=NULL,
                          MCMC.init.maxchanges=20000,
                          MCMC.packagenames="ergm",
                          # Number of proposals within each time step.
-                         MCMC.burnin=100,
+                         MCMC.burnin=1000,
 
                          # The reason MCMC.interval=MCMC.burnin is
                          # that both represent the number of MH
@@ -106,7 +106,7 @@ control.stergm<-function(init.form=NULL,
                            parallel.type=parallel.type,
                            parallel.version.check=parallel.version.check),
 
-                         RM.burnin=100,
+                         RM.burnin=1000,
 
                          # Plot the progress of the optimization.
                          RM.plot.progress=FALSE,
