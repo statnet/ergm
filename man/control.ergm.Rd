@@ -5,151 +5,351 @@
   Auxiliary function as user interface for fine-tuning 'ergm' fitting.
 }
 \usage{
-control.ergm(prop.weights = "default", prop.args = NULL,
-             nr.maxit = 100,
-             calc.mcmc.se = TRUE, hessian = TRUE, compress = FALSE,
-             SAN.burnin=NULL,
-             maxNumDyadTypes = 1e+06, maxedges = 20000, maxchanges =
-1e+06,
-             initialfit="MPLE",
-             maxMPLEsamplesize = 1e+05, MPLEtype=c("glm", "penalized"), trace = 0,
-             steplength = 0.5, sequential=TRUE,
-             drop = TRUE, force.mcmc = FALSE, check.degeneracy=FALSE, 
-             mcmc.precision = 0.05, 
-             metric = c("lognormal", "Median.Likelihood",
-             "EF.Likelihood", "naive"),
-             method = c("BFGS", "Nelder-Mead"),
-             trustregion = 20, initial.loglik = NULL, loglik.nsteps =
-20,
-             initial.network = NULL,
-             style = c("Newton-Raphson", "Robbins-Monro",
-             "Stochastic-Approximation", "Stepping"),
-             phase1_n = NULL, initial_gain = NULL,
-             nsubphases = "maxit", niterations = NULL, phase3_n = NULL,
-             RobMon.phase1n_base = 7, RobMon.phase2n_base = 100, RobMon.phase2sub
-             = 7, RobMon.init_gain = 0.5, RobMon.phase3n = 500, 
-             stepMCMCsize=100, gridsize=100,
-             packagenames="ergm",
-             parallel = 0, parallel.type = NULL, parallel.version.check=TRUE,
-             returnMCMCstats = TRUE,
-             burnin.retries=0, 
-             burnin.check.last=1/2,
-             burnin.check.alpha=0.01,
-             runtime.traceplots=FALSE)
-             }
+control.ergm(drop=TRUE,
+
+             init=NULL,
+             init.method=NULL,
+                       
+             main.method=c("MCMLE","Robbins-Monro",
+               "Stochastic-Approximation","Stepping"),
+             force.main=FALSE,
+             main.hessian=TRUE,
+
+             MPLE.max.dyad.types=1e+6, 
+             MPLE.max.samplesize=100000,
+             MPLE.samplesize=50000,                       
+             MPLE.type=c("glm", "penalized"),
+                      
+             MCMC.prop.weights="default", 
+             MCMC.prop.args=list(),
+             MCMC.burnin=10000,
+             MCMC.interval=100,
+             MCMC.samplesize=10000,
+             MCMC.return.stats=TRUE,
+             MCMC.burnin.retries=0,
+             MCMC.burnin.check.last=1/2,
+             MCMC.burnin.check.alpha=0.01,
+             MCMC.runtime.traceplot=FALSE,
+             MCMC.init.maxedges=20000,
+             MCMC.addto.se=TRUE,
+             MCMC.compress=FALSE,
+             MCMC.packagenames="ergm",
+
+             SAN.maxit=10,
+             SAN.control=control.san(coef=init,
+                         SAN.prop.weights=MCMC.prop.weights,
+                         SAN.prop.args=MCMC.prop.args,
+                         SAN.init.maxedges=MCMC.init.maxedges,
+                         
+                         SAN.burnin=MCMC.burnin,
+                         SAN.interval=MCMC.interval,
+                         SAN.packagenames=MCMC.packagenames,
+
+                         parallel=parallel,
+                         parallel.type=parallel.type,
+                         parallel.version.check=parallel.version.check),
+
+             MCMLE.maxit=3,
+             MCMLE.NR.maxit=100,
+             MCMLE.NR.reltol=sqrt(.Machine$double.eps),
+             MCMLE.obs.MCMC.samplesize=MCMC.samplesize,
+             MCMLE.obs.MCMC.interval=MCMC.interval,
+             MCMLE.obs.MCMC.burnin=MCMC.burnin,
+             MCMLE.check.degeneracy=FALSE,
+             MCMLE.MCMC.precision=0.05,
+             MCMLE.metric=c("lognormal", "Median.Likelihood",
+               "EF.Likelihood", "naive"),
+             MCMLE.method=c("BFGS","Nelder-Mead"),
+             MCMLE.trustregion=20,
+             MCMLE.steplength=0.5,
+             MCMLE.adaptive.trustregion=3,
+             MCMLE.adaptive.epsilon=0.01,
+             MCMLE.sequential=TRUE,
+                                           
+             SA.phase1_n=NULL, 
+             SA.initial_gain=NULL, 
+             SA.nsubphases=3, 
+             SA.niterations=NULL, 
+             SA.phase3_n=NULL,
+             SA.trustregion=0.5,
+
+             RM.phase1n_base=7,
+             RM.phase2n_base=100,
+             RM.phase2sub=7,
+             RM.init_gain=0.5,
+             RM.phase3n=500,
+
+             Step.MCMC.samplesize=100,
+             Step.maxit=50,
+             Step.gridsize=100,
+
+             loglik.control=control.ergm.bridge(MCMC.burnin=MCMC.burnin,
+                         MCMC.interval=MCMC.interval,
+                         MCMC.samplesize=MCMC.samplesize,
+                         MCMC.prop.weights=MCMC.prop.weights,
+                         MCMC.prop.args=MCMC.prop.args,
+                         MCMC.init.maxedges=MCMC.init.maxedges,
+                         MCMC.packagenames=MCMC.packagenames),
+
+             seed=NULL,
+             parallel=0,
+             parallel.type=NULL,
+             parallel.version.check=TRUE,
+             
+             \dots)
+}
 \details{
     This function is only used within a call to the \code{\link{ergm}} function.
     See the \code{usage} section in \code{\link{ergm}} for details.
 }
 \arguments{
-  \item{prop.weights}{Specifies the proposal distribution used in the MCMC
-  Metropolis-Hastings algorithm.  Possible choices are \code{"TNT"} or 
-  \code{"random"}; the \code{"default"} is one of these two, depending on the
-  constraints in place (as defined by the \code{constraints}
-  argument of the \code{\link{ergm}} function), though not all weights
-  may be used with all constraints.  
-  The \code{TNT} (tie / no tie) option puts roughly equal weight on selecting a
-  dyad with or without a tie as a candidate for toggling, whereas the
-  \code{random} option puts equal weight on all possible dyads (though the
-  interpretation of \code{random} may change according to the constraints in
-  place).  When no constraints are in place, the default is TNT, which 
-  appears to improve Markov chain mixing particularly for networks with a
-  low edge density, as is typical of many realistic social networks.
+  \item{init}{numeric or \code{NA} vector equal in length to the number of
+    parameters in the model or \code{NULL} (the default); the initial
+    values for the estimation and coefficients offset terms. If \code{NULL}
+    is passed, all of the initial values are computed using the method specified by
+    \code{\link[=control.ergm]{control$init.method}}.
+    If a numeric vector is given, the elements of the vector are interpreted as follows:
+    \itemize{
+      \item{Elements corresponding to
+        terms enclosed in \code{offset()} are used as the fixed offset
+        coefficients.
+      }
+      \item{Elements that do not correspond to offset terms and are not
+        \code{NA} are used as starting values in the estimation. 
+      }
+      \item{Initial values for the elements that are \code{NA} are fit
+        using the method specified by
+        \code{\link[=control.ergm]{control$init.method}}.
+      }
     }
-  \item{prop.args}{ An alternative, direct way of specifying additional arguments to proposal. }
-  \item{nr.maxit}{ count; The maximum number of iterations in the
-    Newton-Raphson optimization.  Defaults to \code{1000}.
-    \code{maxit} gives the total number of likelihood
-    function evaluations. }
-  \item{calc.mcmc.se}{logical; should the contribution to the 
-    standard errors of the estimator incurred by the MCMC sampling
-    be computed. Default is \code{TRUE}.}
-  \item{hessian}{logical; Should the Hessian matrix
-    of the likelihood function be computed. 
-    Default is \code{TRUE}.}
-  \item{compress}{logical; Should the matrix of sample statistics
-    returned be compressed to the set of unique statistics with a 
-    column of frequencies post-pended.  This also uses a compression
-    algorithm in the computation of the maximum psuedo-likelihood
-    estimate that will dramatically speed it for large networks.
-    Default is \code{FALSE}.}
-  \item{SAN.burnin}{Burnin used for calling SAN routine.  If NULL,
-  \code{burnin} is used.}
-  \item{maxNumDyadTypes}{count; The maximum number of unique
-    pseudolikelihood change statistics to be allowed if \code{compress=TRUE}.
-    It is only relevant in that case.
-    Default is \code{10000}.}
-  \item{maxedges}{ Maximum number of edges for which to allocate space. }
-  \item{maxchanges}{ Maximum number of changes in dynamic network
-    simulation for which to allocate space. }
-  \item{initialfit}{Method used to find the initial configuration
-  parameter. Defaults to \code{"MPLE"}. }
-  \item{maxMPLEsamplesize}{count; the sample size to use for endogenous
+    Passing \code{control.ergm(init=coef(prev.fit))} can be used to ``resume''
+    an uncoverged \code{\link{ergm}} run, but see
+    \code{\link{enformulate.curved}}.
+  }
+  \item{init.method}{Unused for now.  The default method for finding the
+    starting coefficient values (if \code{init} is not specified) is 
+    maximum pseudo-likelihood estimation (MPLE).
+  }
+  \item{main.method}{One of "MCMLE","Robbins-Monro",
+    "Stochastic-Approximation", or "Stepping".  Chooses
+    the estimation method used to find the MLE.
+    \code{MCMLE} attempts to maximize an approximation to the
+    log-likelihood function.  \code{Robbins-Monro} and
+    \code{Stochastic-Approximation} are both 
+    stochastic approximation algorithms that try to 
+    solve the method of moments equation that yields the
+    MLE in the case of an exponential family model.
+    Another alternative is a partial stepping algorithm
+    (\code{Stepping}) as in Hummel et al. (2012).
+    The direct use of the likelihood function has many theoretical
+    advantages over stochastic approximation, but the choice will
+    depend on the model and data being fit. See Handcock (2000) and 
+    Hunter and Handcock (2006) for details.
+  }
+  \item{force.main}{Logical:  If TRUE, then force MCMC-based estimation
+    method, even if the exact MLE can be computed via maximum pseudolikelihood
+    estimation.
+  }
+  \item{main.hessian}{Logical:  If TRUE, then an approximate Hessian
+    matrix is used in the MCMC-based estimation method.
+  }
+  \item{MPLE.max.dyad.types}{Maximum number of unique values of 
+    change statistic vectors, which are the predictors in a logistic
+    regression used to calculate the MPLE.  This calculation uses 
+    a compression algorithm that allocates space based on 
+    \code{MPLE.max.dyad.types}.
+  }
+  \item{MPLE.max.samplesize}{Not currently used.
+    Was the sample size to use for endogenous
     sampling in the pseudolikelihood computation.
-    Default is \code{10^11}.}
-  \item{MPLEtype}{one of "glm" or "penalized"; method to use
-    for psuedolikelihood. "glm" is the usual
-    formal logistic regression. "penalized" uses the bias-reduced method
+  }
+  \item{MPLE.samplesize}{Not currently documented; used in 
+    conditional-on-degree version of MPLE.
+  }
+  \item{MPLE.type}{One of "glm" or "penalized".  Chooses method of
+    calculating MPLE.  "glm" is the usual
+    formal logistic regression, whereas "penalized" uses the 
+    bias-reduced method
     of Firth (1993) as originally implemented by 
     Meinhard Ploner, Daniela Dunkler, Harry
-    Southworth, and Georg Heinze in the "logistf" package. 
-    Default is "glm".}
-  \item{trace}{non-negative integer; If positive,
-    tracing information on the
-    progress of the optimization is produced. Higher values may
-    produce more tracing information: for method \code{"L-BFGS-B"}
-    there are six levels of tracing.  (To understand exactly what
-    these do see the source code for \code{\link[stats]{optim}}: higher levels 
-    give more detail.)}
-  \item{steplength}{ Multiplier for step length, to make fitting more
-    stable at the cost of efficiency. }
-  \item{sequential}{Should the next iteration of the fit use the last network 
-    sampled as the starting network or always use the initially passed network?
-    The results should be similar (stochastically), but the
-    \code{sequential=TRUE} option if \code{target.stats} is far from the
-    passed network.
-   }
-  \item{drop}{logical; Should the degenerate terms in the model be
-    dropped from the fit?
-    If statistics occur on the extreme of their range they
-    correspond to infinite parameter estimates.
-    Default is \code{TRUE}.}
-  \item{force.mcmc}{logical; should MCMC maximum likelihood be used?  Only 
-    relevant for dyadic independent networks, in which the MLE could be found
-    using MPLE instead.}
-  \item{check.degeneracy}{Logical:  Should the diagnostics include a 
-  check for model degeneracy?}
-  \item{mcmc.precision}{vector; upper bounds on the precision of the 
-    standard errors induced by the MCMC algorithm.
-    Defaults to \code{0.05}.}
-  \item{metric}{character; The name of the optimization metric
-    to use. Defaults to \code{"Median.Likelihood"}.  See Hummel et al (2010)
-    for an explanation of "lognormal" and "naive".}
-  \item{method}{character; The name of the optimization method
-    to use. See \code{\link[stats]{optim}} for the options. The default method
+    Southworth, and Georg Heinze in the "logistf" package.
+  }
+  \item{MCMC.prop.weights}{Specifies the proposal distribution used in the MCMC
+    Metropolis-Hastings algorithm.  Possible choices are \code{"TNT"} or 
+    \code{"random"}; the \code{"default"} is one of these two, depending on the
+    constraints in place (as defined by the \code{constraints}
+    argument of the \code{\link{ergm}} function), though not all weights
+    may be used with all constraints.  
+    The \code{TNT} (tie / no tie) option puts roughly equal weight on selecting a
+    dyad with or without a tie as a candidate for toggling, whereas the
+    \code{random} option puts equal weight on all possible dyads, though the
+    interpretation of \code{random} may change according to the constraints in
+    place.  When no constraints are in place, the default is TNT, which 
+    appears to improve Markov chain mixing particularly for networks with a
+    low edge density, as is typical of many realistic social networks.
+  }
+  \item{MCMC.prop.args}{ An alternative, direct way of specifying additional arguments to proposal. 
+  }
+  \item{MCMC.burnin}{Number of proposals before any MCMC sampling
+    is done. It typically is set to a fairly large number.
+  }
+  \item{MCMC.interval}{count; the number of proposals between sampled statistics.
+  }
+  \item{MCMC.samplesize}{Number of network statistics,
+    randomly drawn from a given distribution on the set of all networks,
+    returned by the Metropolis-Hastings algorithm.
+  }
+  \item{MCMC.return.stats}{Logical:  If TRUE, return the matrix
+    of MCMC-sampled network statistics.  This matrix should have
+    \code{MCMC.samplesize} rows.
+  }
+  \item{MCMC.burnin.retries}{Maximum number of times to rerun the burn-in phase if a failure to
+    converge is detected. Defaults to 0 for no checks.
+  }
+  \item{MCMC.burnin.check.last}{What fraction at the end of the burn-in phase
+    to use for detecting non-convergence. Defaults to one half.
+  }
+  \item{MCMC.burnin.check.alpha}{Maximum Bonferroni-adjusted P-value under the
+    Geweke test for a statistic to be considered unconverged. Defaults
+    to 0.01.
+  }
+  \item{MCMC.runtime.traceplot}{Logical:  If TRUE, plot traceplots of 
+    the MCMC sample after every MCMC MLE iteration.
+  }
+  \item{MCMC.init.maxedges}{Not yet documented.
+  }
+  \item{MCMC.addto}{Not yet documented.
+  }
+  \item{MCMC.compress}{Logical:  If TRUE, the matrix of sample statistics
+    returned is compressed to the set of unique statistics with a 
+    column of frequencies post-pended.
+  }
+  \item{MCMC.packagenames}{Names of packages in which change statistic
+    functions are found.
+  }
+
+  \item{SAN.maxit}{Not yet documented.
+  }
+  \item{SAN.control}{Not yet documented.  
+    See \code{\link{control.san}}.
+  }
+
+  \item{MCMLE.maxit}{Number of times the parameter for the MCMC
+    should be updated by maximizing the MCMC likelihood. At each
+    step the parameter is changed to the values that maximizes
+    the MCMC likelihood based on the current sample.
+  }
+  \item{MCMLE.NR.maxit}{Maximum number of iterations in the
+    Newton-Raphson optimization.
+  }
+  \item{MCMLE.NR.reltol}{Not yet documented.
+  }
+  \item{MCMLE.obs.MCMC.samplesize}{Not yet documented.
+  }
+  \item{MCMLE.obs.MCMC.interval}{Not yet documented.
+  }
+  \item{MCMLE.obs.MCMC.burnin}{Not yet documented.
+  }
+  \item{MCMLE.check.degeneracy}{Logical:  If TRUE, employ
+    a check for model degeneracy.
+  }
+  \item{MCMLE.MCMC.precision}{Vector of upper bounds on the precisions 
+    of the standard errors induced by the MCMC algorithm.
+  }
+  \item{MCMLE.metric}{Method to calculate the loglikelihood approximation.
+    See Hummel et al (2010)
+    for an explanation of "lognormal" and "naive".
+  }
+  \item{MCMLE.method}{Name of the optimization method
+    to use. See \code{\link[stats]{optim}} for the options. 
+    The default method
     \code{"BFGS"} is a quasi-Newton method (also known as a variable
     metric algorithm). It is attributed to
     Broyden, Fletcher, Goldfarb and Shanno. This uses function values
-    and gradients to build up a picture of the surface to be optimized.}
-  \item{trustregion}{numeric; The maximum amount the algorithm will
-    allow the approximated likelihood to be increased at a given iteration.
-    Defaults to 20.
-    See Snijders (2002) for details.}
+    and gradients to build up a picture of the surface to be optimized.
+  }
+  \item{MCMLE.trustregion}{Maximum increase the algorithm will
+    allow for the approximated likelihood at a given iteration.
+    See Snijders (2002) for details.
+  }
+  \item{MCMLE.steplength}{Multiplier for step length, which may 
+    (for values less than one) 
+    make fitting more stable at the cost of efficiency.
+  }
+  \item{MCMLE.adaptive.trustregion}{Not yet documented.
+  }
+  \item{MCMLE.adaptive.epsilon}{Not yet documented.
+  }
+  \item{MCMLE.sequential}{Logical:  If TRUE,
+    the next iteration of the fit uses the last network 
+    sampled as the starting network.  If FALSE, always use the 
+    initially passed network.
+    The results should be similar (stochastically), but the
+    TRUE option may help if the \code{target.stats} 
+    in the \code{\link{ergm}} function are far from the
+    initial network.
+  }
+
+  
+  \item{SA.phase1_n}{Not yet documented.
+  }
+  \item{SA.initial_gain}{Not yet documented.
+  }
+  \item{SA.nsubphases}{Not yet documented.
+  }
+  \item{SA.niterations}{Not yet documented.
+  }
+  \item{SA.phase3_n}{Not yet documented.
+  }
+  \item{SA.trustregion}{Not yet documented.
+  }
+
+  \item{RM.phase1n_base}{Not yet documented.
+  }
+  \item{RM.phase2n_base}{Not yet documented.
+  }
+  \item{RM.phase2sub}{Not yet documented.
+  }
+  \item{RM.init_gain}{Not yet documented.
+  }
+  \item{RM.phase3n}{Not yet documented.
+  }
+
+  \item{Step.MCMC.samplesize}{Not yet documented.
+  }
+  \item{Step.maxit}{Not yet documented.
+  }
+  \item{Step.gridsize}{Not yet documented.
+  }
+
+  \item{loglik.control}{See \code{\link{control.ergm.bridge}}
+  }
+
+  \item{seed}{Not yet documented.
+  }
+  \item{parallel}{Not yet documented.
+  }
+  \item{parallel.type}{Not yet documented.
+  }
+  \item{parallel.version.check}{Not yet documented.
+  }
+
+  \item{\dots}{Not yet documented.
+  }
+
+
+
+
+  \item{calc.mcmc.se}{logical; should the contribution to the 
+    standard errors of the estimator incurred by the MCMC sampling
+    be computed. Default is \code{TRUE}.}
+  \item{SAN.burnin}{Burnin used for calling SAN routine.  If NULL,
+  \code{burnin} is used.}
   \item{initial.loglik}{Initial value of loglikelihood, if known.}
   \item{loglik.nsteps}{Number of bridges to use to evaluate
     dyad-dependent log-likelihood if \code{eval.loglik=TRUE}.}
   \item{initial.network}{Initial network for MCMC, if different from observed
   network.}
-  \item{style}{character; The style of maximum 
-    likelihood estimation to use. The default is optimization of an
-    MCMC estimate of the log-likelihood. An alternative is to use 
-    a form of stochastic approximation (\code{"Robbins-Monro"}).
-    Another alternative is a partial stepping algorithm
-    (\code{"Stepping"}) as in Hummel et al. (2010).
-    The direct use of the likelihood function has many theoretical
-    advantages over stochastic approximation, but the choice will
-    depend on the model and data being fit. See Handcock (2000) and 
-    Hunter and Handcock (2006) for details.}
   \item{phase1_n}{count; The number of MCMC samples to draw
     in Phase 1 of the stochastic approximation algorithm.
     Defaults to 7 plus 3 times the number of terms in the model.
@@ -187,7 +387,8 @@ control.ergm(prop.weights = "default", prop.args = NULL,
   \item{gridsize}{Integer \eqn{N} such that the "Stepping" style of
   optimization chooses a step length equal to the largest possible multiple
   of \eqn{1/N}; see Hummel et al. (2010) for details.}
-  \item{packagenames}{Names of packages in which changestatistics are found.}
+
+
   \item{parallel}{ Number of threads in which to run the
     sampling. Defaults to 0 (no parallelism). See the entry on
     \link[=ergm-parallel]{parallel processing} for
@@ -199,15 +400,6 @@ control.ergm(prop.weights = "default", prop.args = NULL,
   \item{parallel.version.check}{ Whether to check that the version of
     \code{\link[=ergm-package]{ergm}} running on the slave nodes is the
     same as that running on the master node. Defaults to \code{TRUE}. }
-  \item{burnin.retries}{Maximum number of times to rerun the burn-in phase if a failure to
-    converge is detected. Defaults to 0 for no checks.}
-  \item{burnin.check.last}{What fraction at the end of the burn-in phase
-    to use for detecting non-convergence. Defaults to half.}
-  \item{burnin.check.alpha}{Maximum Bonferroni-adjusted P-value under the
-    Geweke test for a statistic to be considered unconverged. Defaults
-    to 0.01.}
-  \item{runtime.traceplots}{Whether to plot traceplots of the MCMC
-    sample after every MCMC MLE iteration.}
 }
 \value{
   A list with arguments as components.
@@ -236,9 +428,9 @@ similar function for \code{\link{gof}}.   }
     exponential family models for networks. Journal of Computational
     and Graphical Statistics, 15: 565-583.
     
-    \item Hummel, R. M., Hunter, D. R., and Handcock, M. S. (2010),
-    A Steplength Algorithm for Fitting ERGMs, Penn State Department
-    of Statistics Technical Report.
+    \item Hummel, R. M., Hunter, D. R., and Handcock, M. S. (2012),
+    Improving Simulation-Based Algorithms for Fitting ERGMs,
+    Journal of Computational and Graphical Statistics, to appear.
   }
 }
 \keyword{ models }

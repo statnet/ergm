@@ -33,27 +33,6 @@ Hunter (2008).  To create a
     then add nodal attributes to it using the \code{\%v\%}
     operator if necessary. Enclosing a model term in \code{offset()}
     fixes its value to one specified in \code{offset.coef}.}
-  \item{coef}{numeric or \code{NA} vector equal in length to the number of
-    parameters in the model or \code{NULL} (the default); the initial
-    values for the estimation and coefficients offset terms. If \code{NULL}
-    is passed, all of the initial values are computed using the method specified by
-    \code{\link[=control.ergm]{control$initialfit}}.
-    If a numeric vector is given, the elements of the vector are interpreted as follows:
-    \itemize{
-      \item{Elements corresponding to
-	terms enclosed in \code{offset()} are used as the fixed offset
-	coefficients.}
-      \item{Elements that do not correspond to offset terms and are not
-	\code{NA} are used as starting values in the estimation. }
-      \item{Initial values for the elements that are \code{NA} are fit
-	using the method specified by
-	\code{\link[=control.ergm]{control$initialfit}}.
-      }
-    }
-    Note that passing \code{control.ergm(init=coef(prev.fit))} can be used to ``resume''
-    an uncoverged \code{\link{ergm}} run, but see
-    \code{\link{enformulate.curved}}.
-  }
   \item{MPLEonly}{logical; \code{TRUE} if the maximum
     pseudo-likelihood estimate is to be computed and returned.
     Note that \code{MPLEonly=TRUE} will render moot most other parameters in this list.
@@ -61,17 +40,6 @@ Hunter (2008).  To create a
     needed to calculate the MPLE.}
   \item{MLestimate}{logical; \code{TRUE} if only the Monte Carlo maximum likelihood estimate
     is to be computed and returned.}
-  \item{burnin}{count; the number of proposals before any MCMC sampling
-    is done. It typically is set to a fairly large number.}
-  \item{MCMCsamplesize}{count; the number of network statistics,
-    randomly drawn from a given distribution on the set of all networks,
-    returned by the Metropolis-Hastings algorithm.}
-  \item{interval}{count; the number of proposals between sampled statistics.
-  }
-  \item{maxit}{count; the number of times the parameter for the MCMC
-    should be updated by maximizing the MCMC likelihood. At each
-    step the parameter is changed to the values that maximizes
-    the MCMC likelihood based on the current sample.}
   \item{constraints}{A one-sided formula specifying one or more constraints
     on the support of the distribution of the networks being modeled,
     using syntax similar to the \code{formula} argument. Multiple constraints
