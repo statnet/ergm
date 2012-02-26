@@ -15,13 +15,20 @@
 # 
 ###############################################################################
 
-"summary.network.list" <-
+summary.network.list <-
   function (object, ..., wmt = which.matrix.type(objects$networks[[1]])) 
 {
-  a <- attr(object)
-  g <- object[[1]]
+  if(is.null(object$form)) { # NOTE:  "$form" here could be either "formula" or "formation".
+                             # This is very sloppy and should be changed after the
+                             # networkDynamic objects are working.
+    a <- attributes(object)
+    g <- object[[1]]
+  } else {
+    a <- object
+    g <- object$networks
+  }
   cat("Number of Networks:",length(object),"\n")
-  f.out <- lapply(a$formula,as.character)
+  f.out <- lapply(a$form,as.character)
   if(length(f.out)>2)
     {
       if(length(f.out[[3]])>2)

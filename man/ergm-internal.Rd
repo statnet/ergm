@@ -260,14 +260,12 @@
 \alias{control.simulate.formula.ergm}
 \alias{control.simulate.network}
 \alias{copy.named}
-\alias{degree.mix.matrix}
 \alias{degreedist}
 \alias{degreedistfactor}
 \alias{delete.isolates}
 \alias{drawcircle}
 \alias{drawpie}
 \alias{dspartnerdist}
-\alias{duration.matrix}
 \alias{ergm.Cprepare}
 \alias{ergm.Cprepare.el}
 \alias{ergm.Cprepare.miss}
@@ -375,9 +373,7 @@
 \alias{newnw.extract}
 \alias{nologLik.message}
 \alias{ostar2deg}
-\alias{overlap.matrix}
 \alias{plot.mcmc.list.ergm}
-\alias{prevalence}
 \alias{print.summary.ergm}
 \alias{print.summary.stergm}
 \alias{robust.inverse}
@@ -398,7 +394,6 @@
 \alias{stergm.EGMoME.initialfit}
 \alias{stergm.RM}
 \alias{stergm.getMCMCsample}
-\alias{summary.network.list}
 \alias{summary.statsmatrix.ergm}
 \alias{sweep.mcmc.list}
 \alias{term.list.formula}

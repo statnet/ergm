@@ -12,7 +12,7 @@ target.stats<-c(      n*1/2,    n*0.6)
 g1<-san(g0~meandeg+degree(1),target.stats=target.stats,verbose=TRUE)
 
 # Fit the model.
-dynfit<-stergm(g1,formation=~edges+degree(1),dissolution=~offset(edges), targets="formation", estimate="EGMoME", offset.coef.diss=log(.95/.05),target.stats=target.stats,verbose=TRUE,control=control.stergm(RM.interval=100))
+dynfit<-stergm(g1,formation=~edges+degree(1),dissolution=~offset(edges), targets="formation", estimate="EGMoME", offset.coef.diss=log(.95/.05),target.stats=target.stats,verbose=TRUE,control=control.stergm(RM.init.interval=100))
 
 coef.form<-dynfit$formation.fit$coef
 print(coef.form)

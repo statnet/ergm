@@ -166,10 +166,10 @@ summary(g.sim ~ edges + mutual)
 #
 g.use <- network(16,density=0.1,directed=FALSE)
 #
-# Starting from this network let's draw 5 realizations
+# Starting from this network let's draw 3 realizations
 # of a edges and 2-star network
 #
-g.sim <- simulate(~edges+kstar(2), nsim=5, coef=c(-1.8,0.03),
+g.sim <- simulate(~edges+kstar(2), nsim=3, coef=c(-1.8,0.03),
                basis=g.use, control=control.simulate(
                  MCMC.burnin=100000,
                  MCMC.interval=1000))
