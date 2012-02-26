@@ -1,6 +1,5 @@
 \name{plot.network.ergm}
 \alias{plot.network.ergm}
-\alias{plot.network.series}
 %- Also NEED an `\alias' for EACH other topic documented here.
 \title{Two-Dimensional Visualization of Networks }
 \description{

@@ -78,9 +78,9 @@ summary.statistics.network <- function(object, response=NULL,...,basis=NULL) {
       parent <- sys.parent()
       nw <- ergm.getnetwork(formula)
       if (inherits(nw, "try-error")) {
-        stop(trms[[2]], " is not a network or network.series object")
+        stop(trms[[2]], " is not a network or network.list object")
       }
-      if(class(nw) =="network.series")
+      if(class(nw) =="network.list")
         nw <- nw$networks[[1]]
       nw <- as.network(nw, ...)
     }else{

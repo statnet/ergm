@@ -87,6 +87,6 @@ A list of control parameters for algorithm
 }
 \value{
   If control parameter \code{final=TRUE}, returns the final
-  network. Otherwise, returns an object of class \code{network.series}
+  network. Otherwise, returns an object of class \code{network.list}
   containing the initial network and the list of toggles.
 }

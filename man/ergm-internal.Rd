@@ -398,7 +398,7 @@
 \alias{stergm.EGMoME.initialfit}
 \alias{stergm.RM}
 \alias{stergm.getMCMCsample}
-\alias{summary.network.series}
+\alias{summary.network.list}
 \alias{summary.statsmatrix.ergm}
 \alias{sweep.mcmc.list}
 \alias{term.list.formula}

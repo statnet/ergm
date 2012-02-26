@@ -360,7 +360,7 @@ gof.formula <- function(formula, ..., coef=NULL,
 #                                   drop=control$drop),
 #                                  verbose=verbose, basis=nw)
 # New approach below avoids having to store gigantic unnecessary
-# network.series object
+# network.list object
 
   if(verbose)
     cat("Starting simulations.\n")

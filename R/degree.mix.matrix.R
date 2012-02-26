@@ -1,10 +1,10 @@
 ##########################################################################
 # The <degree.mix.matrix> function calculates a degree mixing matrix,
 # via <DegreeMixMatrix.C>,  that shows the patterns of concurrency
-# throughout a network series
+# throughout a network list
 #
 # --PARAMETERS--
-#   gsim: a bipartite network series, as returned by <simulate.stergm>
+#   gsim: a bipartite network list, as returned by <simulate.stergm>
 #
 # --RETURNED--
 #   degmixmat: an nx4 matrix, where the rows correspond to the n nodes
@@ -22,8 +22,8 @@
 ###########################################################################
 
 degree.mix.matrix <- function(gsim) {
-  if (!is.network((g0<-gsim$networks)) || class(gsim) != "network.series") {
-    stop("This function requires that the argument be a network.series")
+  if (!is.network((g0<-gsim$networks)) || class(gsim) != "network.list") {
+    stop("This function requires that the argument be a network.list")
   }
   
   if(!is.bipartite(gsim$networks))

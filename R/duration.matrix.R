@@ -1,9 +1,9 @@
 #############################################################################
 # The <duration.matrix> function computes and returns a duration matrix, via
-# <DurationMatrix.C>, for a given network series.
+# <DurationMatrix.C>, for a given network list.
 #
 # --PARAMETERS--
-#   gsim: a network series, as returned by <simulate.stergm>
+#   gsim: a network list, as returned by <simulate.stergm>
 #
 # --RETURNED --
 #   allties: the duration matrix as a dataframe, with rows as the ties  and
@@ -21,9 +21,11 @@
 #
 #############################################################################
 
+## FIXME:  gsim object is currently an obsolete version of network.list but
+## it should be a networkDynamic object
 duration.matrix <- function(gsim) {
-  if (!is.network((g0<-gsim$networks)) || class(gsim) != "network.series") {
-    stop("This function requires that the argument be a network.series")
+  if (!is.network((g0<-gsim$networks)) || class(gsim) != "network.list") {
+    stop("This function requires that the argument be a network.list")
   }
   cha <- gsim$changed[,c(1,2,3)]
   N <- max(cha[,1])+1

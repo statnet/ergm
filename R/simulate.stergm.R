@@ -47,7 +47,7 @@
 #      nw:  the final network from the simulation routine
 #   if 'control$final'=TRUE (the default is FALSE)
 #   otherwise
-#     outlist: a network.series object as a list containing:
+#     outlist: a network.list object as a list containing:
 #        formation  : the formation formula
 #        dissolution: the dissolution formula
 #        coef.form  : the passed in or defaulted 'coef.form'
@@ -169,7 +169,7 @@ simulate.network <- function(object, nsim=1, seed=NULL,
                      stats.diss = stats.diss,
                      stats.mon = stats.mon,
                      coef.form=coef.form,coef.diss=coef.diss)
-    class(out.list) <- "network.series"
+    class(out.list) <- "network.list"
   }else{out.list<-list(stats.form = stats.form,stats.diss = stats.diss, stats.mon = stats.mon)}
   return(out.list)
 }

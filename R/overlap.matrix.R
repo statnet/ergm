@@ -1,6 +1,6 @@
 #############################################################################
 # The <overlap.matrix> function calculates a summary of concurrent
-# partnerships in a bipartite network series ; this includes the overlap
+# partnerships in a bipartite network list ; this includes the overlap
 # durations and is computed via <OverlapsDurations.C> function; it's
 # assumed that the smaller-numbered nodes are "females" and the larger-
 # numbered ones are "males"
@@ -9,7 +9,7 @@
 # three edges --DH
 #
 # --PARAMETERS--
-#   gsim       : a network series, which is assumed to be bipartite; the elements
+#   gsim       : a network list, which is assumed to be bipartite; the elements
 #                of interest are the original network and the 3-column matrix
 #                giving the times and nodes of each edge-toggle starting from
 #                the original
@@ -54,8 +54,8 @@
 #############################################################################
 
 overlap.matrix <- function(gsim, maxoverlaps=1000000) {
-  if (!is.network((g0<-gsim$networks)) || class(gsim) != "network.series") {
-    stop("This function requires that the argument be a network.series")
+  if (!is.network((g0<-gsim$networks)) || class(gsim) != "network.list") {
+    stop("This function requires that the argument be a network.list")
   }
   if(!is.bipartite(gsim$networks)) stop("This function only works for bipartite networks at the moment.")
   cha <- gsim$changed

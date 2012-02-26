@@ -225,10 +225,11 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     return(nw.list[[1]])
   } else {
     attributes(nw.list) <- list(formula=object, stats=out.mat, coef=coef,
+                                control=control,
                                 constraints=constraints, reference=reference,
-                                 monitor=monitor, response=response)
+                                monitor=monitor, response=response)
 
-    class(nw.list) <- "network.series"
+    class(nw.list) <- "network.list"
     return(nw.list)
   }
 }

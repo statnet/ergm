@@ -134,7 +134,7 @@
 
 \value{If \code{nsim==1}, \code{simulate.ergm} returns an object of 
 class \code{network}.  If \code{nsim>1}, it returns an object of class
-\code{network.series} that is a list with the following elements:
+\code{network.list} that is a list with the following elements:
   \item{formula}{The \code{\link{formula}} used to generate the sample.}
   \item{networks}{A list of the generated networks.}
   \item{stats}{The \eqn{n\times p}  matrix of network change statistics, 
@@ -174,6 +174,7 @@ g.sim <- simulate(~edges+kstar(2), nsim=5, coef=c(-1.8,0.03),
                  MCMC.burnin=100000,
                  MCMC.interval=1000))
 g.sim
+summary(g.sim)
 #
 # attach the Florentine Marriage data
 #

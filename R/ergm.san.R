@@ -55,7 +55,7 @@
 #
 # --RETURNED--
 #   outlist: either a single sampled network if 'nsim'=1, else a
-#            network.series object as list containing
+#            network.list object as list containing
 #              formula :  the formula given by 'object'
 #              networks:  the list of sampled networks
 #              stats   :  the summary statistics of the sampled networks
@@ -90,7 +90,7 @@ san.formula <- function(object, response=NULL, reference="Bernoulli", constraint
   } else {
     nw <- ergm.getnetwork(formula)
   }
-  if(class(nw) =="network.series"){
+  if(class(nw) =="network.list"){
     nw <- nw$networks[[1]]
   }
   nw <- as.network(nw)
@@ -249,7 +249,7 @@ san.formula <- function(object, response=NULL, reference="Bernoulli", constraint
   if(nsim > 1){
     out.list <- list(formula = formula, networks = out.list, 
                      stats = out.mat, coef=control$coef)
-    class(out.list) <- "network.series"
+    class(out.list) <- "network.list"
   }else{
     out.list <- out.list[[1]]
   }

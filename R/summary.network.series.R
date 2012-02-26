@@ -1,9 +1,9 @@
 ###############################################################################
-# The <summary.network.series> function provides a summary of the first
-# network in the given series
+# The <summary.network.list> function provides a summary of the first
+# network in the given list
 #
 # --PARAMETERS--
-#   object: a network.series object
+#   object: a network.list object
 #
 # --IGNORED PARAMETERS--
 #   ...:  additional parameters passed from within
@@ -11,16 +11,17 @@
 #         default=which.matrix.type(objects$networks[[1]])) 
 #
 # --RETURNED--
-#   the summary of the first network in the series    
+#   the summary of the first network in the list    
 # 
 ###############################################################################
 
-"summary.network.series" <-
+"summary.network.list" <-
   function (object, ..., wmt = which.matrix.type(objects$networks[[1]])) 
 {
-  g <- object$networks[[1]]
-  cat("Number of Networks:",length(object$networks),"\n")
-  f.out <- lapply(object$formula,as.character)
+  a <- attr(object)
+  g <- object[[1]]
+  cat("Number of Networks:",length(object),"\n")
+  f.out <- lapply(a$formula,as.character)
   if(length(f.out)>2)
     {
       if(length(f.out[[3]])>2)
@@ -36,7 +37,7 @@
         f.output <- paste(f.out[[1]],f.out[[2]])
     }
   cat("From:",f.output,"\n")
-  cat("parameter values:",object$coef,"\n")
+  cat("parameter values:",a$coef,"\n")
 
   summary(g)
 }
