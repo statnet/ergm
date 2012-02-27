@@ -26,12 +26,13 @@ print.summary.ergm <- function (x,
               correlation=FALSE, covariance=FALSE,
               signif.stars= getOption("show.signif.stars"),
               eps.Pvalue=0.0001, print.header=TRUE, print.formula=TRUE, print.fitinfo=TRUE, print.coefmat=TRUE, print.message=TRUE, print.deviances=TRUE, print.drop=TRUE, print.offset=TRUE, print.degeneracy=TRUE,...){
+  control <- x$control
   if(print.header){
     cat("\n==========================\n")
     cat("Summary of model fit\n")
     cat("==========================\n\n")
   }
-
+  
   if(print.formula){
     cat("Formula:   ")
     print(x$formula)
@@ -40,19 +41,26 @@ print.summary.ergm <- function (x,
 
   if(print.fitinfo){
     if (!is.null(x$iterations)) {
-      cat("Newton-Raphson iterations: ", x$iterations, "\n")
+      cat("Iterations: ", x$iterations, "\n")
     }
-  
-    if(x$pseudolikelihood){
-      if (x$independence) {
-        cat ("\nMaximum Likelihood Results:\n")
-      } else {
-        cat ("\nMaximum Pseudolikelihood Results:\n")
-      }
-    }else{
-      cat ("MCMC sample of size", x$samplesize, "\n")
-      cat ("\nMonte Carlo MLE Results:\n")
-    }
+
+    switch(x$estimate,
+           MPLE = if (x$independence) {
+             cat("\nMaximum Likelihood Results:\n")
+           } else {
+             cat("\nMaximum Pseudolikelihood Results:\n")
+           },
+           MLE = if(!is.null(control$main.method)) switch(control$main.method,
+             MCMLE = cat("\nMonte Carlo MLE Results:\n"),
+             `Stochastic-Approximation`=cat("\nMonte Carlo MLE Results:\n"),
+             `Robbins-Monro`=cat("\nRobbins-Monro MLE Results:\n"),
+             `Stepping`=cat("\n Stepping MLE Results:\n"),
+             stop("Unknown estimation method. This is a bug.")),
+           EGMoME = if(!is.null(control$EGMoME.main.method))  switch(control$EGMoME.main.method,
+             `Robbins-Monro`=cat("\nEquilibrium Generalized Method of Moments Results:\n"),
+             stop("Unknown estimation method. This is a bug.")),
+           stop("Unknown estimate type. This is a bug.")
+           )
   }
 
   if(print.coefmat){
@@ -86,7 +94,7 @@ print.summary.ergm <- function (x,
 
   if(print.offset){
     if(any(x$offset&!x$drop!=0)){
-      cat("\n Warning: The following terms are fixed by offset and are not estimated:\n  ")
+      cat("\n The following terms are fixed by offset and are not estimated:\n  ")
       cat(rownames(x$coefs)[x$offset & !x$drop!=0], "\n\n")
     }
   }

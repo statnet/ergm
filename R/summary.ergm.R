@@ -52,42 +52,36 @@ summary.ergm <- function (object, ...,
                           total.variation=TRUE,
                           eps=0.0001)
 {
-# separates out summary and print fns: MSH
-  pseudolikelihood <- is.null(object$samplesize) || is.na(object$samplesize)
+  control <- object$control
+  pseudolikelihood <- object$estimate=="MPLE"
   independence <- is.dyad.independent(object)
+  
   if(any(is.na(object$coef)) & !is.null(object$mplefit)){
      object$coef[is.na(object$coef)] <-
      object$mplefit$coef[is.na(object$coef)]
   }
+
   if(is.null(object$hessian) && is.null(object$covar)){
-   return()
+    object$covar <- diag(NA, nrow=length(object$coef))
   }
+  
   nodes<- network.size(object$network)
   dyads<- network.dyadcount(object$network)
-  mc.se<- object$mc.se
+  mc.se<- if(is.null(object$mc.se)) rep(NA, length(object$coef)) else object$mc.se
+  
+
   if(is.null(object$covar)){
-   asycov <- try(robust.inverse(-object$hessian), silent=TRUE)
-   if(inherits(asycov,"try-error")){
-    asycov <- diag(1/diag(-object$hessian))
-   }
-  }else{
-   asycov <- object$covar
-   if(FALSE & !pseudolikelihood & !independence){
-    if(is.directed(object$network)){
-     mdyads <- nodes * (nodes-1)
-    }else{
-     mdyads <- nodes * (nodes-1) / 2
+    asycov <- try(robust.inverse(-object$hessian), silent=TRUE)
+    if(inherits(asycov,"try-error")){
+      asycov <- diag(1/diag(-object$hessian))
     }
-    # Adjust for missing dyads
-    asycov <- asycov*mdyads/dyads
-    mc.se <- mc.se*sqrt(mdyads/dyads)
-   }
+  }else{
+    asycov <- object$covar
   }
-  rownames(asycov) <- names(object$coef)
-  colnames(asycov) <- rownames(asycov)
+  colnames(asycov) <- rownames(asycov) <- names(object$coef)
   
   asyse <- diag(asycov)
-  if(total.variation & any(!is.na(mc.se))){
+  if(total.variation && any(!is.na(mc.se))){
    asyse[!is.na(mc.se)] <- asyse[!is.na(mc.se)]+mc.se[!is.na(mc.se)]^2
   }
   asyse[asyse<0|is.infinite(object$coef)|object$offset] <- NA
@@ -108,10 +102,6 @@ summary.ergm <- function (object, ...,
   }
   asyse <- matrix(asyse, ncol=length(asyse))
   colnames(asyse) <- colnames(asycov)
-  
-#   MSH changed to make clearer
-#   original <- format(object$MCMCtheta, digits = digits)
-#   original <- format(object$theta.original, digits = digits)
 
   ans <- list(formula=object$formula,
               digits=digits, correlation=correlation,
@@ -121,14 +111,38 @@ summary.ergm <- function (object, ...,
               covariance=covariance,
               pseudolikelihood=pseudolikelihood,
               independence=independence,
-              iterations=object$iterations[1])
+              estimate=object$estimate,
+              control=object$control)
+  
+  ans$samplesize <- switch(object$estimate,
+                           EGMoME = if(!is.null(control$EGMoME.main.method)) switch(control$EGMoME.main.method,
+                             `Robbins-Monro`=control$RM.phase3n,
+                             stop("Unknown estimation method. This is a bug.")),
+                           MPLE = NA,
+                           MLE = if(!is.null(control$main.method)) switch(control$main.method,
+                             `Stochastic-Approximation`=,
+                             MCMLE=control$MCMC.samplesize,
+                             `Robbins-Monro`=control$RM.phase3n,
+                             `Stepping`=control$Step.MCMC.samplesize,
+                             stop("Unknown estimation method. This is a bug.")),
+                           stop("Unknown estimate type. This is a bug.")
+                           )
+                              
 
-  if(ans$pseudolikelihood){
-    ans$samplesize <- NA
-  }else{
-    ans$samplesize <-  object$samplesize
-  }
-    
+  ans$iterations <- switch(object$estimate,
+                           EGMoME = if(!is.null(control$EGMoME.main.method)) switch(control$EGMoME.main.method,
+                             `Robbins-Monro`=NA,
+                             stop("Unknown estimation method. This is a bug.")),
+                           MPLE = NA,
+                           MLE = if(!is.null(control$main.method)) switch(control$main.method,
+                             `Stochastic-Approximation`=NA,
+                             MCMLE=control$MCMLE.maxit,
+                             `Robbins-Monro`=NA,
+                             `Stepping`=NA,
+                             stop("Unknown estimation method. This is a bug.")),
+                           stop("Unknown estimate type. This is a bug.")
+                           )
+  
   nodes<- network.size(object$network)
   dyads<- network.dyadcount(object$network)
   df <- length(object$coef)
@@ -139,36 +153,8 @@ summary.ergm <- function (object, ...,
 
 # Convert to % error
   if(any(!is.na(mc.se))){
-#  mc.se[!is.na(mc.se)] <- formatC(round(100*mc.se[!is.na(mc.se)]*mc.se[!is.na(mc.se)]/(asyse[!is.na(mc.se)]*asyse[!is.na(mc.se)])),digits=0,width=5,format="d")
    mc.se[!is.na(mc.se)] <- round(100*mc.se[!is.na(mc.se)]*mc.se[!is.na(mc.se)]/(asyse[!is.na(mc.se)]*asyse[!is.na(mc.se)]))
   }
-
-# values <- format(object$coef,digits=digits)
-# names <- names(values)
-# names(values) <- NULL
-# casyse<-format(asyse, digits=digits)
-# cpval<-format(pval, digits=digits)
-# cmc.se <- format(mc.se,digits=digits)
-
-# cmc.se[object$offset] <- NA
-# cpval[object$offset]  <- NA
-# casyse[object$offset] <- NA
-
-#  count <- 1
-#  templist <- NULL
-#  while (count <= length(names))
-#   {
-#    templist <- append(templist,c(values[count],
-#         casyse[count],cpval[count],cmc.se[count]))
-#    count <- count+1
-#   }
-#
-#   tempmatrix <- matrix(templist, ncol=4,byrow=TRUE)
-#   tempmatrix[,c(1:2,4)] <- format(tempmatrix[,c(1:2,4)], digits=digits, 
-#                                   print.gap=2)
-#   tempmatrix[,3] <- format.pval(as.numeric(tempmatrix[,3]), digits = 3, eps= 1e-4)
-#   colnames(tempmatrix) <- c("estimate","s.e.","p-value","MCMC s.e.")
-#   rownames(tempmatrix) <- names
 
   count <- 1
   templist <- NULL
@@ -184,13 +170,15 @@ summary.ergm <- function (object, ...,
   rownames(tempmatrix) <- names(object$coef)
 
   devtext <- "Deviance:"
-  if (!independence || object$reference!="Bernoulli") {
+  if (object$estimate!="MPLE" || !independence || object$reference!="Bernoulli") {
     if (pseudolikelihood) {
       devtext <- "Pseudo-deviance:"
       ans$message <- "\nWarning:  The standard errors are based on naive pseudolikelihood and are suspect.\n"
     } 
-    else if(any(is.na(mc.se))) {
+    else if(object$estimate == "MLE" && any(is.na(mc.se))) {
       ans$message <- "\nWarning:  The standard errors are suspect due to possible poor convergence.\n"
+    }else if(object$estimate == "EGMoME"){
+      ans$message <- "\nWarning:  The standard errors do not incorporate uncertainty due to the \"noisy\" estimation procedure.\n"
     }
   } else {
     ans$message <- "\nFor this model, the pseudolikelihood is the same as the likelihood.\n"

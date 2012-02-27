@@ -158,12 +158,12 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
     stat.ac <- rep(NA,q)
     inds <- max(NROW(h)-control$RM.runlength+1,1):NROW(h)
     stat.ac[!bad.fits] <- diag(as.matrix(autocorr(mcmc(h.resid[inds,!bad.fits,drop=FALSE]),lags=1)[1,,]))
-    if(verbose){
+    if(verbose>1){
       cat("Lag-1 autocorrelation:\n")
       print(stat.ac)
     }
     control$RM.interval<-max(round(control$RM.interval*(1+sqrt(max(stat.ac,0,na.rm=TRUE))-sqrt(control$RM.target.ac))),control$RM.min.interval)
-    if(verbose){
+    if(verbose>1){
       cat("New interval:",control$RM.interval ,"\n")
     }
 
@@ -185,7 +185,7 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
     
     colnames(G)<-p.names[!offsets]
     rownames(G)<-q.names
-    if(verbose){
+    if(verbose>1){
       cat("Most recent parameters:\n")
       cat("Formation:\n")
       print(state$eta.form)
@@ -209,7 +209,7 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
     rownames(control$WinvGradient) <- rownames(control$dejitter) <- colnames(control$dejitter) <- p.names
     colnames(control$WinvGradient) <- q.names
     
-    if(verbose){
+    if(verbose>1){
       cat("New deviation -> coefficient map:\n")
       print(control$WinvGradient)
       cat("New jitter cancelation matrix:\n")
@@ -221,7 +221,7 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
       names(control$jitter) <- p.names
     }
     
-    if(verbose){
+    if(verbose>1){
       cat("New jitter values:\n")
       print(control$jitter)
     }
@@ -281,7 +281,7 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
 
   control$RM.interval <- control$RM.init.interval
   
-  if(verbose) cat('========  Phase 1: Get initial gradient values and find a configuration under which all targets very. ========\n',sep="")
+  if(verbose) cat('========  Phase 1: Get initial gradient values and find a configuration under which all targets vary. ========\n',sep="")
   
   for(try in 1:control$RM.phase1.tries){
     if(verbose) cat('======== Attempt ',try,' ========\n',sep="")
@@ -290,7 +290,7 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
     out <- eval.optpars(TRUE,FALSE,FALSE)
     control <- out$control
     if(all(!out$ineffectual.pars) && all(!out$bad.fits)){
-      cat("Gradients estimated and all statistics are moving. Moving on to Phase 2.\n")
+      if(verbose) cat("Gradients estimated and all statistics are moving. Moving on to Phase 2.\n")
       break
     }
   }
@@ -339,9 +339,11 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
                             function(y)
                             summary(gls(y~x,correlation=corAR1(),
                                         subset=max(NROW(oh)-control$RM.stepdown.subphases*control$RM.runlength+1,1):NROW(oh)))$tTable[2,4])
-      cat("Parameter trend p-values:\n")
       names(eta.trend.ps)<-c(paste("f.(",model.form$coef.names,")",sep=""),paste("d.(",model.diss$coef.names,")",sep=""))[!offsets]
-      print(eta.trend.ps)
+      if(verbose>1){
+        cat("Parameter trend p-values:\n")
+        print(eta.trend.ps)
+      }
       eta.trend.p <- pchisq(-2 * sum(log(eta.trend.ps)),length(eta.trend.ps)*2,lower.tail=FALSE)
       if(eta.trend.p>control$RM.stepdown.p){
         cat("No trend in parameters detected. Reducing gain.\n")
@@ -381,8 +383,8 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
     
     control.phase3<-control
     control.phase3$time.burnin <- control$RM.burnin
-    control.phase3$time.samplesize <- control$RM.phase3n*control$RM.interval
-    control.phase3$time.interval <- 1
+    control.phase3$time.samplesize <- control$RM.phase3n
+    control.phase3$time.interval <- control$RM.interval
     
     ## Estimate standard errors.
     if(verbose)cat("Simulating to estimate standard errors... ")
@@ -407,8 +409,8 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
        init.form=theta.form0,
        init.diss=theta.diss0,
        covar=V.par,
-       covar.form=V.par[seq_len(p.form),seq_len(p.form)],
-       covar.diss=V.par[p.form+seq_len(p.diss),p.form+seq_len(p.diss)],
+       covar.form=V.par[seq_len(p.form),seq_len(p.form),drop=FALSE],
+       covar.diss=V.par[p.form+seq_len(p.diss),p.form+seq_len(p.diss),drop=FALSE],
        eta.form=eta.form,
        eta.diss=eta.diss,
        opt.history=oh.all,

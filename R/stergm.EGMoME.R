@@ -166,7 +166,7 @@ stergm.EGMoME <- function(nw, formation, dissolution,  offset.coef.form, offset.
 
   initialfit <- stergm.EGMoME.initialfit(control$init.form, control$init.diss, nw, model.form, model.diss, model.mon, control, verbose)
   
-  if(verbose) cat("Fitting Dynamic ERGM.\n")
+  if(verbose) cat("Fitting STERGM Equilibrium GMoME.\n")
 
   Cout <- switch(control$EGMoME.main.method,
                  "Robbins-Monro" = stergm.RM(initialfit$formation.fit$coef,
@@ -177,9 +177,9 @@ stergm.EGMoME <- function(nw, formation, dissolution,  offset.coef.form, offset.
                  stop("Method ", control$EGMoME.main.method, " is not implemented.")
                 )
 
-  out <- list(network = nw, formation = formation, dissolution = dissolution, targets = targets, target.stats=target.stats, estimate=estimate, covar = Cout$covar, opt.history=Cout$opt.history, sample=Cout$sample, sample.obs=NULL,
-              formation.fit = with(Cout, list(network=nw, formula=formation, coef = eta.form, covar=covar.form, etamap = model.form$etamap, offset = model.form$etamap$offsettheta, constraints=~.)),
-              dissolution.fit = with(Cout, list(network=nw, formula=dissolution, coef = eta.diss, covar=covar.diss, etamap = model.diss$etamap, offset = model.diss$etamap$offsettheta, constraints=~.))
+  out <- list(network = nw, formation = formation, dissolution = dissolution, targets = targets, target.stats=target.stats, estimate=estimate, covar = Cout$covar, opt.history=Cout$opt.history, sample=Cout$sample, sample.obs=NULL, control=control, reference = "Bernoulli",
+              formation.fit = with(Cout, list(network=nw, formula=formation, coef = eta.form, covar=covar.form, etamap = model.form$etamap, offset = model.form$etamap$offsettheta, constraints=~., estimate=estimate, control=control, reference = "Bernoulli")),
+              dissolution.fit = with(Cout, list(network=nw, formula=dissolution, coef = eta.diss, covar=covar.diss, etamap = model.diss$etamap, offset = model.diss$etamap$offsettheta, constraints=~., estimate=estimate, control=control, reference = "Bernoulli"))
               )
   class(out$formation.fit)<-class(out$dissolution.fit)<-"ergm"
   

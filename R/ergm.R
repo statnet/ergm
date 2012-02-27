@@ -273,6 +273,7 @@ ergm <- function(formula, response=NULL,
     initialfit$constrained <- MHproposal$arguments$constraints
     initialfit$constraints <- constraints
     initialfit$target.stats <- model.initial$target.stats
+    initialfit$estimate <- estimate
 
     initialfit$control<-control
     
@@ -339,6 +340,7 @@ ergm <- function(formula, response=NULL,
 
   mainfit$response<-response
   mainfit$reference<-reference
+  mainfit$estimate <- estimate
 
   mainfit$offset <- model$etamap$offsettheta
   mainfit$drop <- if(control$drop) extremecheck$extremeval.theta
