@@ -104,7 +104,7 @@ control.ergm(drop=TRUE,
 \arguments{
   \item{init}{numeric or \code{NA} vector equal in length to the number of
     parameters in the model or \code{NULL} (the default); the initial
-    values for the estimation and coefficients offset terms. If \code{NULL}
+    values for the estimation and coefficient offset terms. If \code{NULL}
     is passed, all of the initial values are computed using the method specified by
     \code{\link[=control.ergm]{control$init.method}}.
     If a numeric vector is given, the elements of the vector are interpreted as follows:
@@ -187,12 +187,12 @@ control.ergm(drop=TRUE,
     appears to improve Markov chain mixing particularly for networks with a
     low edge density, as is typical of many realistic social networks.
   }
-  \item{MCMC.prop.args}{ An alternative, direct way of specifying additional arguments to proposal. 
+  \item{MCMC.prop.args}{An alternative, direct way of specifying additional arguments to proposal. 
   }
   \item{MCMC.burnin}{Number of proposals before any MCMC sampling
     is done. It typically is set to a fairly large number.
   }
-  \item{MCMC.interval}{count; the number of proposals between sampled statistics.
+  \item{MCMC.interval}{Number of proposals between sampled statistics.
   }
   \item{MCMC.samplesize}{Number of network statistics,
     randomly drawn from a given distribution on the set of all networks,
@@ -218,7 +218,7 @@ control.ergm(drop=TRUE,
   \item{MCMC.runtime.traceplot}{Logical:  If TRUE, plot traceplots of 
     the MCMC sample after every MCMC MLE iteration.
   }
-  \item{MCMC.init.maxedges}{Not yet documented.
+  \item{MCMC.init.maxedges}{Maximum number of edges expected in network.
   }
   \item{MCMC.addto}{Not yet documented.
   }
@@ -344,11 +344,10 @@ control.ergm(drop=TRUE,
     of \eqn{1/N}.
     See Hummel et al. (2012) for details.
   }
-
   \item{loglik.control}{See \code{\link{control.ergm.bridge}}
   }
-
-  \item{seed}{Not yet documented.
+  \item{seed}{Seed value (integer) for the random number generator.  
+    See \code{\link[base]{set.seed}}
   }
   \item{parallel}{Number of threads in which to run the
     sampling. Defaults to 0 (no parallelism). See the entry on
@@ -364,7 +363,6 @@ control.ergm(drop=TRUE,
     \code{\link[=ergm-package]{ergm}} running on the slave nodes is the
     same as that running on the master node.
   }
-
   \item{\dots}{Additional arguments, passed to other functions    
     This argument is helpful because it collects any control 
     parameters that have been deprecated; a warning message is

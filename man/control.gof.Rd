@@ -9,28 +9,29 @@
 }
 \usage{
 control.gof.formula(nsim=100,
-                              MCMC.burnin=1000,
-                              MCMC.interval=1000,
-                              MCMC.prop.weights="default",
-                              MCMC.prop.args=list(),
+                    MCMC.burnin=1000,
+                    MCMC.interval=1000,
+                    MCMC.prop.weights="default",
+                    MCMC.prop.args=list(),
 
-                              MCMC.init.maxedges=20000,
-                              MCMC.packagenames="ergm",
+                    MCMC.init.maxedges=20000,
+                    MCMC.packagenames="ergm",
 
-                              MCMC.runtime.traceplot=FALSE,          
-                              summarizestats=FALSE,
-                              network.output="network",
+                    MCMC.runtime.traceplot=FALSE,          
+                    summarizestats=FALSE,
+                    network.output="network",
 
-                              seed=NULL,
-                              parallel=0,
-                              parallel.type=NULL,
-                              parallel.version.check=TRUE)
+                    seed=NULL,
+                    parallel=0,
+                    parallel.type=NULL,
+                    parallel.version.check=TRUE)
 
 control.gof.ergm(nsim=100,
                  MCMC.burnin=NULL,
                  MCMC.interval=NULL,
                  MCMC.prop.weights=NULL,
                  MCMC.prop.args=NULL,
+
                  MCMC.init.maxedges=NULL,
                  MCMC.packagenames=NULL,
 
@@ -48,25 +49,60 @@ control.gof.ergm(nsim=100,
     See the \code{usage} section in \code{\link{gof}} for details.
 }
 \arguments{
-  \item{MCMC.prop.weights}{Specifies the method to allocate probabilities of
-    being proposed to dyads. For the \code{\link{simulate.formula}}
-    variant, defaults to \code{"default"}, which picks a
-    reasonable default for the specified constraint. For
-    \code{\link{simulate.ergm}} variant, defaults to \code{NULL}, to
-    reuse the weights with which the given \code{\link{ergm.object}} was
-    fitted. Other possible values are
-    \code{"TNT"}, \code{"random"}, and \code{"nonobserved"}, though not
-    all values may be used
-    with all possible constraints.}
-  \item{MCMC.prop.args}{An alternative, direct way of specifying additional arguments to proposal.}
+  \item{MCMC.burnin}{Number of proposals before any MCMC sampling
+    is done. It typically is set to a fairly large number.
+  }
+  \item{MCMC.interval}{Number of proposals between sampled statistics.
+  }
+  \item{MCMC.prop.weights}{Specifies the proposal distribution used in the MCMC
+    Metropolis-Hastings algorithm.  Possible choices are \code{"TNT"} or 
+    \code{"random"}; the \code{"default"} is one of these two, depending on the
+    constraints in place (as defined by the \code{constraints}
+    argument of the \code{\link{ergm}} function), though not all weights
+    may be used with all constraints.  
+    The \code{TNT} (tie / no tie) option puts roughly equal weight on selecting a
+    dyad with or without a tie as a candidate for toggling, whereas the
+    \code{random} option puts equal weight on all possible dyads, though the
+    interpretation of \code{random} may change according to the constraints in
+    place.  When no constraints are in place, the default is TNT, which 
+    appears to improve Markov chain mixing particularly for networks with a
+    low edge density, as is typical of many realistic social networks.
+  }
+  \item{MCMC.prop.args}{An alternative, direct way of specifying additional arguments to proposal.
+  }
+  \item{MCMC.init.maxedges}{Maximum number of edges expected in network.
+  }
+  \item{MCMC.packagenames}{Names of packages in which change statistic
+    functions are found.
+  }
+  \item{MCMC.runtime.traceplot}{Logical:  If TRUE, plot traceplots of 
+    the MCMC sample after every MCMC MLE iteration.
+  }
   \item{summarizestats}{logical; Print out a summary of 
     the sufficient statistics of the generated network. This is useful 
-    as a diagnostic. Default is \code{FALSE}.}
-  \item{maxchanges}{
-    %FIXME: I am not sure this is accurate.
-    %Maximum number of changes in dynamic network
-    %simulation for which to allocate space. 
-    Currently unused.}
+    as a diagnostic.
+  }
+  \item{network.output}{R class with which to output 
+    networks. The options are "network" (default) and "edgelist.compressed" 
+    (which saves space but only supports networks without vertex attributes)
+  }
+  \item{seed}{Seed value (integer) for the random number generator.  
+    See \code{\link[base]{set.seed}}
+  }
+  \item{parallel}{Number of threads in which to run the
+    sampling. Defaults to 0 (no parallelism). See the entry on
+    \link[=ergm-parallel]{parallel processing} for
+    details and troubleshooting.
+  }
+  \item{parallel.type}{API to use for parallel
+    processing. Supported values are \code{"MPI"} and
+    \code{"SOCK"}. Defaults to using the \code{snow} package
+    default.
+  }
+  \item{parallel.version.check}{Logical:  If TRUE, check that the version of
+    \code{\link[=ergm-package]{ergm}} running on the slave nodes is the
+    same as that running on the master node.
+  }
 }
 \value{
   A list with arguments as components.

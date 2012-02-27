@@ -257,8 +257,6 @@
 \alias{control.logLik.ergm}
 \alias{control.logLik.stergm}
 \alias{control.simulate.ergm.toplevel}
-\alias{control.simulate.formula.ergm}
-\alias{control.simulate.network}
 \alias{copy.named}
 \alias{degreedist}
 \alias{degreedistfactor}
