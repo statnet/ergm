@@ -43,12 +43,12 @@ void godfather_wrapper (int *tails, int *heads, int *dnedges,
   nw = NetworkInitialize(tails, heads, n_edges,
                          n_nodes, directed_flag, bip, 1, 0, NULL);
 
-  if (*fVerbose) {
+  /*  if (*fVerbose) {
     Rprintf("Total m->n_stats is %i.\n",
     m->n_stats);
     Rprintf("maxedges = %ld, totalntoggles = %ld\n",
     nmax, tnt);
-  }
+    }*/
   
   /*********************
   changestats are modified in groups of m->n_stats, and they

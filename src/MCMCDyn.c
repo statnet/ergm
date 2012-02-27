@@ -182,9 +182,9 @@ MCMCDynStatus MCMCSampleDyn(// Observed and discordant network.
   Edge nextdiffedge=1;
 
 
-  if (fVerbose)
+  /*if (fVerbose)
     Rprintf("Total m->n_stats is %i; total nsteps is %d\n",
-	    F_m->n_stats,nsteps);
+    F_m->n_stats,nsteps);*/
   
   
   /* Burn in step. */

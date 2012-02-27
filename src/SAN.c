@@ -98,9 +98,9 @@ void SANSample (MHproposal *MHp,
   int staken, tottaken, ptottaken;
   int i, j;
   
-  if (fVerbose)
+  /*if (fVerbose)
     Rprintf("Total m->n_stats is %i; total samplesize is %d\n",
-             m->n_stats,samplesize);
+    m->n_stats,samplesize);*/
 
   /*********************
   networkstatistics are modified in groups of m->n_stats, and they

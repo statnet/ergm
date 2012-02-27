@@ -344,10 +344,9 @@ void MCMCSamplePhase12(MHproposal *MHp,
 
   nwp->duration_info.MCMCtimer=0;
   
-  if (fVerbose)
-/*  Rprintf("Total m->n_stats is %i; total samplesize is %d\n", */
+  /*if (fVerbose)
     Rprintf("The number of statistics is %i and the total samplesize is %d\n",
-             m->n_stats,samplesize);
+    m->n_stats,samplesize);*/
 
   /*********************
   networkstatistics are modified in groups of m->n_stats, and they
