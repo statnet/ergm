@@ -165,9 +165,11 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.adaptive.trustregion=3,
                        MCMLE.adaptive.epsilon=0.01,
                        MCMLE.sequential=TRUE,
-                                           
+
                        SA.phase1_n=NULL, SA.initial_gain=NULL, 
-                       SA.nsubphases=3, SA.niterations=NULL, SA.phase3_n=NULL,
+                       SA.nsubphases=MCMLE.maxit,
+                       SA.niterations=NULL, 
+                       SA.phase3_n=NULL,
                        SA.trustregion=0.5,
 
                        RM.phase1n_base=7,

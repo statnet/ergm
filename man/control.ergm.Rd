@@ -36,15 +36,14 @@ control.ergm(drop=TRUE,
              MCMC.packagenames="ergm",
 
              SAN.maxit=10,
-             SAN.control=control.san(coef=init,
+             SAN.control=control.san(
+                         coef=init,
                          SAN.prop.weights=MCMC.prop.weights,
                          SAN.prop.args=MCMC.prop.args,
                          SAN.init.maxedges=MCMC.init.maxedges,
-                         
                          SAN.burnin=MCMC.burnin,
                          SAN.interval=MCMC.interval,
                          SAN.packagenames=MCMC.packagenames,
-
                          parallel=parallel,
                          parallel.type=parallel.type,
                          parallel.version.check=parallel.version.check),
@@ -65,10 +64,10 @@ control.ergm(drop=TRUE,
              MCMLE.adaptive.trustregion=3,
              MCMLE.adaptive.epsilon=0.01,
              MCMLE.sequential=TRUE,
-                                           
+
              SA.phase1_n=NULL, 
              SA.initial_gain=NULL, 
-             SA.nsubphases=3, 
+             SA.nsubphases=MCMLE.maxit, 
              SA.niterations=NULL, 
              SA.phase3_n=NULL,
              SA.trustregion=0.5,
@@ -202,6 +201,9 @@ control.ergm(drop=TRUE,
   \item{MCMC.return.stats}{Logical:  If TRUE, return the matrix
     of MCMC-sampled network statistics.  This matrix should have
     \code{MCMC.samplesize} rows.
+    This matrix can be 
+    used directly by the \code{coda} package to assess MCMC
+    convergence.
   }
   \item{MCMC.burnin.retries}{Maximum number of times to rerun the burn-in phase if a failure to
     converge is detected. Defaults to 0 for no checks.
@@ -291,20 +293,34 @@ control.ergm(drop=TRUE,
   }
 
   
-  \item{SA.phase1_n}{Not yet documented.
+  \item{SA.phase1_n}{Number of MCMC samples to draw
+    in Phase 1 of the stochastic approximation algorithm.
+    Defaults to 7 plus 3 times the number of terms in the model.
+    See Snijders (2002) for details.
   }
-  \item{SA.initial_gain}{Not yet documented.
+  \item{SA.initial_gain}{Initial gain to
+    Phase 2 of the stochastic approximation algorithm.
+    See Snijders (2002) for details.
   }
-  \item{SA.nsubphases}{Not yet documented.
+  \item{SA.nsubphases}{Number of sub-phases 
+    in Phase 2 of the stochastic approximation algorithm.
+    Defaults to \code{MCMC.maxit}.
+    See Snijders (2002) for details.
   }
-  \item{SA.niterations}{Not yet documented.
+  \item{SA.niterations}{Number of MCMC samples to draw
+    in Phase 2 of the stochastic approximation algorithm.
+    Defaults to 7 plus the number of terms in the model.
+    See Snijders (2002) for details.
   }
-  \item{SA.phase3_n}{Not yet documented.
+  \item{SA.phase3_n}{ample size for the MCMC sample
+    in Phase 3 of the stochastic approximation algorithm.
+    See Snijders (2002) for details.
   }
   \item{SA.trustregion}{Not yet documented.
   }
 
-  \item{RM.phase1n_base}{Not yet documented.
+  \item{RM.phase1n_base}{The Robbins-Monro control
+    parameters are not yet documented.
   }
   \item{RM.phase2n_base}{Not yet documented.
   }
@@ -315,11 +331,18 @@ control.ergm(drop=TRUE,
   \item{RM.phase3n}{Not yet documented.
   }
 
-  \item{Step.MCMC.samplesize}{Not yet documented.
+  \item{Step.MCMC.samplesize}{MCMC sample size for the preliminary steps of the
+    "Stepping" method of optimization.  This is usually chosen to be smaller
+    than the final MCMC sample size (which equals \code{MCMC.samplesize}).
+    See Hummel et al. (2012) for details.
   }
-  \item{Step.maxit}{Not yet documented.
+  \item{Step.maxit}{Maximum number of iterations (steps) allowed by the
+    "Stepping" method.  
   }
-  \item{Step.gridsize}{Not yet documented.
+  \item{Step.gridsize}{Integer \eqn{N} such that the "Stepping" style of
+    optimization chooses a step length equal to the largest possible multiple
+    of \eqn{1/N}.
+    See Hummel et al. (2012) for details.
   }
 
   \item{loglik.control}{See \code{\link{control.ergm.bridge}}
@@ -327,79 +350,26 @@ control.ergm(drop=TRUE,
 
   \item{seed}{Not yet documented.
   }
-  \item{parallel}{Not yet documented.
-  }
-  \item{parallel.type}{Not yet documented.
-  }
-  \item{parallel.version.check}{Not yet documented.
-  }
-
-  \item{\dots}{Not yet documented.
-  }
-
-
-
-
-  \item{calc.mcmc.se}{logical; should the contribution to the 
-    standard errors of the estimator incurred by the MCMC sampling
-    be computed. Default is \code{TRUE}.}
-  \item{SAN.burnin}{Burnin used for calling SAN routine.  If NULL,
-  \code{burnin} is used.}
-  \item{initial.loglik}{Initial value of loglikelihood, if known.}
-  \item{loglik.nsteps}{Number of bridges to use to evaluate
-    dyad-dependent log-likelihood if \code{eval.loglik=TRUE}.}
-  \item{initial.network}{Initial network for MCMC, if different from observed
-  network.}
-  \item{phase1_n}{count; The number of MCMC samples to draw
-    in Phase 1 of the stochastic approximation algorithm.
-    Defaults to 7 plus 3 times the number of terms in the model.
-    See Snijders (2002) for details.}
-  \item{initial_gain}{numeric; The initial gain to
-    Phase 2 of the stochastic approximation algorithm.
-    Defaults to 0.1.
-    See Snijders (2002) for details.}
-  \item{nsubphases}{count; The number of sub-phases 
-    in Phase 2 of the stochastic approximation algorithm.
-    Defaults to \code{maxit}.
-    See Snijders (2002) for details.}
-  \item{niterations}{count; The number of MCMC samples to draw
-    in Phase 2 of the stochastic approximation algorithm.
-    Defaults to 7 plus the number of terms in the model.
-    See Snijders (2002) for details.}
-  \item{phase3_n}{count; The sample size for the MCMC sample
-    in Phase 3 of the stochastic approximation algorithm.
-    Defaults to 1000.
-    See Snijders (2002) for details.}
-  \item{RobMon.phase1n_base}{Robbins-Monro control parameter}
-  \item{RobMon.phase2n_base}{Robbins-Monro control parameter}
-  \item{RobMon.phase2sub}{Robbins-Monro control parameter}
-  \item{RobMon.init_gain}{Robbins-Monro control parameter}
-  \item{RobMon.phase3n}{Robbins-Monro control parameter}
-  \item{returnMCMCstats}{logical; If this is \code{TRUE} (the
-    default) the matrix of change 
-    statistics from the MCMC run is returned as component \code{sample}.
-    This matrix is actually an object of class \code{mcmc} and can be 
-    used directly in the \code{CODA} package to assess MCMC
-    convergence.}
-  \item{stepMCMCsize}{MCMC sample size for the preliminary steps of the
-  "Stepping" style of optimization.  This is usually chosen to be smaller
-  than the final MCMC sample size (which equals \code{MCMCsamplesize}).}
-  \item{gridsize}{Integer \eqn{N} such that the "Stepping" style of
-  optimization chooses a step length equal to the largest possible multiple
-  of \eqn{1/N}; see Hummel et al. (2010) for details.}
-
-
-  \item{parallel}{ Number of threads in which to run the
+  \item{parallel}{Number of threads in which to run the
     sampling. Defaults to 0 (no parallelism). See the entry on
     \link[=ergm-parallel]{parallel processing} for
-    details and troubleshooting. }
-  \item{parallel.type}{ API to use for parallel
+    details and troubleshooting.
+  }
+  \item{parallel.type}{API to use for parallel
     processing. Supported values are \code{"MPI"} and
     \code{"SOCK"}. Defaults to using the \code{snow} package
-    default. }
-  \item{parallel.version.check}{ Whether to check that the version of
+    default.
+  }
+  \item{parallel.version.check}{Logical:  If TRUE, check that the version of
     \code{\link[=ergm-package]{ergm}} running on the slave nodes is the
-    same as that running on the master node. Defaults to \code{TRUE}. }
+    same as that running on the master node.
+  }
+
+  \item{\dots}{Additional arguments, passed to other functions    
+    This argument is helpful because it collects any control 
+    parameters that have been deprecated; a warning message is
+    printed in case of deprecated arguments.
+  }
 }
 \value{
   A list with arguments as components.

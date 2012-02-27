@@ -16,7 +16,8 @@
 ###############################################################################
 
 summary.network.list <-
-  function (object, ..., wmt = which.matrix.type(objects$networks[[1]])) 
+  function (object, ..., 
+  wmt = which.matrix.type(g)) 
 {
   if(is.null(object$form)) { # NOTE:  "$form" here could be either "formula" or "formation".
                              # This is very sloppy and should be changed after the

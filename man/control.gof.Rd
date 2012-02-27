@@ -8,16 +8,47 @@
   Goodness-of-Fit Evaluation.
 }
 \usage{
-control.gof.formula(prop.weights = "default", prop.args = NULL, summarizestats = FALSE, maxchanges = 1e+06)
+control.gof.formula(nsim=100,
+                              MCMC.burnin=1000,
+                              MCMC.interval=1000,
+                              MCMC.prop.weights="default",
+                              MCMC.prop.args=list(),
 
-control.gof.ergm(prop.weights = NULL, prop.args = NULL, summarizestats = FALSE, maxchanges = 1e+06)
+                              MCMC.init.maxedges=20000,
+                              MCMC.packagenames="ergm",
+
+                              MCMC.runtime.traceplot=FALSE,          
+                              summarizestats=FALSE,
+                              network.output="network",
+
+                              seed=NULL,
+                              parallel=0,
+                              parallel.type=NULL,
+                              parallel.version.check=TRUE)
+
+control.gof.ergm(nsim=100,
+                 MCMC.burnin=NULL,
+                 MCMC.interval=NULL,
+                 MCMC.prop.weights=NULL,
+                 MCMC.prop.args=NULL,
+                 MCMC.init.maxedges=NULL,
+                 MCMC.packagenames=NULL,
+
+                 MCMC.runtime.traceplot=FALSE,
+                 summarizestats=FALSE,
+                 network.output="network",
+
+                 seed=NULL,
+                 parallel=0,
+                 parallel.type=NULL,
+                 parallel.version.check=TRUE)
 }
 \details{
     This function is only used within a call to the \code{\link{gof}} function.
     See the \code{usage} section in \code{\link{gof}} for details.
 }
 \arguments{
-  \item{prop.weights}{Specifies the method to allocate probabilities of
+  \item{MCMC.prop.weights}{Specifies the method to allocate probabilities of
     being proposed to dyads. For the \code{\link{simulate.formula}}
     variant, defaults to \code{"default"}, which picks a
     reasonable default for the specified constraint. For
@@ -27,7 +58,7 @@ control.gof.ergm(prop.weights = NULL, prop.args = NULL, summarizestats = FALSE, 
     \code{"TNT"}, \code{"random"}, and \code{"nonobserved"}, though not
     all values may be used
     with all possible constraints.}
-  \item{prop.args}{An alternative, direct way of specifying additional arguments to proposal.}
+  \item{MCMC.prop.args}{An alternative, direct way of specifying additional arguments to proposal.}
   \item{summarizestats}{logical; Print out a summary of 
     the sufficient statistics of the generated network. This is useful 
     as a diagnostic. Default is \code{FALSE}.}

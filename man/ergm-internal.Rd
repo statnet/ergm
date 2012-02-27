@@ -400,7 +400,7 @@
 \alias{twopathdist}
 \alias{updatemodel.ErgmTerm}
 \alias{vector.namesmatch}
-
+\alias{xyplot.mcmc.list.ergm}
 
 \description{
 Internal ergm functions.}

@@ -10,7 +10,7 @@
     hyper = FALSE, loops = FALSE, multiple = FALSE, bipartite = FALSE,
     ignore.eval = TRUE, names.eval = NULL,
     edge.check = FALSE,
-    density=NULL, coef=NULL, numedges=NULL, ...)
+    density=NULL, init=NULL, numedges=NULL, ...)
 }
 
 \arguments{
@@ -24,9 +24,9 @@
   \item{names.eval}{ optionally, the name of the attribute in which edge values should be stored. Currently ignored. }
   \item{edge.check}{ logical; perform consistency checks on new edges? }
   \item{density}{numeric; the probability of a tie for Bernoulli networks. If neither density nor 
-     \code{coef} is given, it defaults to the number of nodes
+     \code{init} is given, it defaults to the number of nodes
 divided by the number of dyads (so the expected number of ties is the same as the number of nodes.)}
-  \item{coef}{numeric; the log-odds of a tie for Bernoulli networks. 
+  \item{init}{numeric; the log-odds of a tie for Bernoulli networks. 
     It is only used if density is not specified.}
   \item{numedges}{count; if present, sample the Bernoulli network conditional on this number of edges (rather than independently with the specified probability).}
   \item{...}{additional arguments}
