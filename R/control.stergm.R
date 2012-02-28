@@ -88,6 +88,7 @@ control.stergm<-function(init.form=NULL,
                          # that both represent the number of MH
                          # proposals between approximately independent
                          # draws.
+                         CMLE.control=NULL,
                          CMLE.control.form=control.ergm(init=init.form, MCMC.prop.weights=MCMC.prop.weights.form, MCMC.prop.args=MCMC.prop.args.form, MCMC.init.maxedges=MCMC.init.maxedges, MCMC.packagenames=MCMC.packagenames, MCMC.interval=MCMC.burnin),
                          CMLE.control.diss=control.ergm(init=init.diss, MCMC.prop.weights=MCMC.prop.weights.diss, MCMC.prop.args=MCMC.prop.args.diss, MCMC.init.maxedges=MCMC.init.maxedges, MCMC.packagenames=MCMC.packagenames, MCMC.interval=MCMC.burnin),
 
@@ -153,6 +154,8 @@ control.stergm<-function(init.form=NULL,
                          parallel.version.check=TRUE){
   
   match.arg.pars=c("EGMoME.main.method","RM.refine")
+
+  if(!is.null(CMLE.control)) CMLE.control.form <- CMLE.control.diss <- CMLE.control
   
   control<-list()
   formal.args<-formals(sys.function())
