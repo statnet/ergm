@@ -340,8 +340,8 @@ function performs a
 similar function for
 \code{\link{simulate.stergm}}.  
 }
-\examples{
-}
+%\examples{
+%}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{ ~kwd1 }

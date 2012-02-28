@@ -88,10 +88,10 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
     inds.keep <- nrow(oh.all) + 1 - max(nrow(oh.all)*control$RM.keep.oh,min(control$RM.runlength*2,nrow(oh.all))):1
 
     # Extract and store subhistories of interest.
-    assign("oh",oh.all[inds.keep,,drop=FALSE],envir=parent.frame())
-    assign("oh.last",oh.all[inds.last,,drop=FALSE],envir=parent.frame())
-    assign("jitters",jitters.all[inds.keep,,drop=FALSE],envir=parent.frame())
-    assign("jitters.last",jitters.all[inds.last,,drop=FALSE],envir=parent.frame())
+    assign("oh",oh<-oh.all[inds.keep,,drop=FALSE],envir=parent.frame())
+    assign("oh.last",oh.last<-oh.all[inds.last,,drop=FALSE],envir=parent.frame())
+    assign("jitters",jitters<-jitters.all[inds.keep,,drop=FALSE],envir=parent.frame())
+    assign("jitters.last",jitters.last<-jitters.all[inds.last,,drop=FALSE],envir=parent.frame())
 
     # Plot if requested.
     if(control$RM.plot.progress){library(lattice); print(xyplot(mcmc(oh),as.table=TRUE))}
@@ -431,7 +431,7 @@ stergm.EGMoME.RM.Phase2.C <- function(state, model.form, model.diss, model.mon,
             # Observed/starting network. 
             as.integer(Clist.form$tails), as.integer(Clist.form$heads),
             time = if(is.null(Clist.form$time)) as.integer(0) else as.integer(Clist.form$time),
-            lasttoggle = if(is.null(Clist.form$time)) integer(network.dyadcount(nw)) else as.integer(Clist.form$lasttoggle),
+            lasttoggle = if(is.null(Clist.form$time)) integer(network.dyadcount(state$nw)) else as.integer(Clist.form$lasttoggle),
             as.integer(Clist.form$nedges),
             as.integer(Clist.form$n),
             as.integer(Clist.form$dir), as.integer(Clist.form$bipartite),

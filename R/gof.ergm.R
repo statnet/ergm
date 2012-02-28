@@ -120,7 +120,7 @@ gof.ergm <- function (object, ...,
   
   if(is.null(constraints)) constraints <- object$constraints
   
-  gof.formula(formula=formula, coef=coef,
+  gof.formula(object=formula, coef=coef,
               GOF=GOF,
               constraints=constraints,
               control=control,
@@ -210,7 +210,7 @@ gof.formula <- function(object, ...,
   if(!is.null(nw$gal$design) & unconditional){
    if(verbose){cat("Conditional simulations for missing fit\n")}
    if(is.null(coefmissing)){coefmissing <- coef}
-   SimCond <- gof(formula=object, coef=coefmissing,
+   SimCond <- gof(object=object, coef=coefmissing,
                   GOF=GOF, 
                   constraints=constraints,
                   control=control,

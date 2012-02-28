@@ -106,5 +106,7 @@
   Krivitsky PN (2009). Statistical Models for Social Network Data and
   Processes. PhD Thesis. University of Washington.
 }
+%\examples{
+%}
 
 \seealso{network, \%v\%, \%n\%, \code{\link{ergm-terms}}}
