@@ -105,10 +105,6 @@ mcmc.diagnostics.ergm <- function(object,
     cat("Constrained sample statistics summary:\n")
     print(summary(sm.obs))
   }
-
-  mycov<-function(x,m){
-    crossprod(sweep(x,2,m))
-  }
   
   # This can probably be improved.
   if(is.null(sm.obs)){
@@ -117,7 +113,7 @@ mcmc.diagnostics.ergm <- function(object,
     sds <- apply(as.matrix(sm),2,sd)
     ns <- effectiveSize(sm)
 
-    cv <-  t(mycov(as.matrix(sm),if(!center) object$target.stats else 0)/sqrt(ns))/sqrt(ns)
+    cv <-  cov(as.matrix(sm))
     
     z <- ds/sds*sqrt(ns)
     chi2<-t(sqrt(ns)*ds)%*%solve(cv)%*%(ds*sqrt(ns))
@@ -129,14 +125,14 @@ mcmc.diagnostics.ergm <- function(object,
     ns <- effectiveSize(sm)
     ns.obs <- effectiveSize(sm.obs)
 
-    cv <-  t(mycov(as.matrix(sm),if(!center) colMeans.mcmc.list(sm.obs) else 0)/sqrt(ns))/sqrt(ns)
-    cv.obs <-  t(mycov(as.matrix(sm.obs),if(!center) colMeans.mcmc.list(sm.obs) else 0)/sqrt(ns.obs))/sqrt(ns.obs)
+    cv <-  cov(as.matrix(sm))
+    cv.obs <-  cov(as.matrix(sm.obs))
 
     
     z <- ds/sqrt(sds^2/ns+sds.obs^2/ns.obs)
-    chi2<-t(ds)%*%solve(cv+cv.obs)%*%(ds)
+    chi2<-t(ds)%*%solve(t(cv/sqrt(ns))/sqrt(ns)+t(cv.obs/sqrt(ns.obs))/sqrt(ns.obs))%*%(ds)
   }
-  p.z <- pnorm(abs(z),lower.tail=FALSE)
+  p.z <- pnorm(abs(z),lower.tail=FALSE)*2
   p.chi2 <- pchisq(chi2,nvar(sm),lower.tail=FALSE)
   
   m <- rbind(c(ds,NA),c(z,chi2),c(p.z,p.chi2))
