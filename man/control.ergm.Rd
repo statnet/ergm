@@ -48,7 +48,8 @@ control.ergm(drop=TRUE,
                          parallel.type=parallel.type,
                          parallel.version.check=parallel.version.check),
 
-             MCMLE.maxit=3,
+             MCMLE.maxit=20,
+             MCMLE.conv.min.pval=0.5,
              MCMLE.NR.maxit=100,
              MCMLE.NR.reltol=sqrt(.Machine$double.eps),
              MCMLE.obs.MCMC.samplesize=MCMC.samplesize,
@@ -111,7 +112,10 @@ control.ergm(drop=TRUE,
     \itemize{
       \item{Elements corresponding to
         terms enclosed in \code{offset()} are used as the fixed offset
-        coefficients.
+        coefficients. Note that offset coefficients alone can be more conveniently specified
+	using  \code{\link{ergm}} argument \code{offset.coef}. If both
+	\code{offset.coef} and \code{init} arguments are given,
+	values in \code{offset.coef} will take precedence.
       }
       \item{Elements that do not correspond to offset terms and are not
         \code{NA} are used as starting values in the estimation. 
@@ -125,9 +129,10 @@ control.ergm(drop=TRUE,
     an uncoverged \code{\link{ergm}} run, but see
     \code{\link{enformulate.curved}}.
   }
-  \item{init.method}{Unused for now.  The default method for finding the
+  \item{init.method}{A chatacter vector or \value{NULL}. The default method for finding the
     starting coefficient values (if \code{init} is not specified) is 
-    maximum pseudo-likelihood estimation (MPLE).
+    maximum pseudo-likelihood estimation (MPLE). Another valid value is
+    \value{"zeros"} for a vector of \value{0} of appropriate length.
   }
   \item{main.method}{One of "MCMLE","Robbins-Monro",
     "Stochastic-Approximation", or "Stepping".  Chooses
@@ -230,17 +235,29 @@ control.ergm(drop=TRUE,
     functions are found.
   }
 
-  \item{SAN.maxit}{Not yet documented.
-  }
-  \item{SAN.control}{Not yet documented.  
-    See \code{\link{control.san}}.
+  \item{SAN.maxit}{When \code{target.stats} argument is passed to
+  \code{\link{ergm}}, the maximum number of attempts to use
+  \code{\link{san}} to obtain a network with statistics close to those
+  specified.}  
+
+  \item{SAN.control}{Control arguments to \code{\link{san}}.
+    See \code{\link{control.san}} for details.
   }
 
-  \item{MCMLE.maxit}{Number of times the parameter for the MCMC
+  \item{MCMLE.maxit}{Maximum number of times the parameter for the MCMC
     should be updated by maximizing the MCMC likelihood. At each
     step the parameter is changed to the values that maximizes
     the MCMC likelihood based on the current sample.
   }
+
+  \item{MCMLE.conv.min.pval}{ After every MCMC sample, a Hotelling's T^2
+    test for equality of MCMC-simulated network statistics to observed
+    is conducted, and if its P-value exceeds this setting, the
+    estimation is considered to have converged and finishes. To turn
+    this off and perform all
+    \code{\link[=control.ergm]{control$MCMLE.maxit}} iterations, set
+    \code{MCMLE.conv.min.pval=1}.  }
+  
   \item{MCMLE.NR.maxit}{Maximum number of iterations in the
     Newton-Raphson optimization.
   }
@@ -304,7 +321,7 @@ control.ergm(drop=TRUE,
   }
   \item{SA.nsubphases}{Number of sub-phases 
     in Phase 2 of the stochastic approximation algorithm.
-    Defaults to \code{MCMC.maxit}.
+    Defaults to \code{MCMLE.maxit}.
     See Snijders (2002) for details.
   }
   \item{SA.niterations}{Number of MCMC samples to draw

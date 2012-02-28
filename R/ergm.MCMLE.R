@@ -81,14 +81,13 @@ ergm.MCMLE <- function(init, nw, model,
     control.obs$MCMC.interval <- control$MCMLE.obs.MCMC.interval
     control.obs$MCMC.burnin <- control$MCMLE.obs.MCMC.burnin
   }
-  iteration <- 0
   finished <- FALSE
   # mcmc.init will change at each iteration.  It is the value that is used
   # to generate the MCMC samples.  init will never change.
   mcmc.init <- init
   parametervalues <- init # Keep track of all parameter values
-  while(!finished){
-    iteration <- iteration + 1
+  for(iteration in 1:control$MCMLE.maxit){
+    if(iteration == control$MCMLE.maxit) finished <- TRUE
     if(verbose){
       cat("Iteration ",iteration," of at most ", control$MCMLE.maxit,
           " with parameter: \n", sep="")
@@ -136,6 +135,23 @@ ergm.MCMLE <- function(init, nw, model,
         statshift <- -model$target.stats
         statshift[!is.na(namesmatch)] <- statshift[!is.na(namesmatch)] + nw.obs[namesmatch[!is.na(namesmatch)]]
       }
+    }
+
+    # If the model is linear, all non-offset statistics are passed. If
+    # the model is curved, the (likelihood) estimating equations (3.1)
+    # by Hunter and Handcock (2006) are given instead.
+    conv.pval <- approx.hotelling.diff.test(t(ergm.etagradmult(mcmc.init,t(statsmatrix),model$etamap))[,!model$etamap$offsettheta,drop=FALSE],
+
+                                            if(obs) t(ergm.etagradmult(mcmc.init,t(statsmatrix.obs),model$etamap))[,!model$etamap$offsettheta,drop=FALSE])
+    # We can either pretty-print the p-value here, or we can print the
+    # full thing. What the latter gives us is a nice "progress report"
+    # on whether the estimation is getting better..
+
+    # if(verbose) cat("P-value for equality of observed and simulated statistics:",format.pval(conv.pval,digits=4,eps=1e-4),"\n")
+    if(verbose) cat("P-value for equality of observed and simulated statistics:",conv.pval,"\n")
+    if(conv.pval>control$MCMLE.conv.min.pval){
+      cat("Convergence detected. Stopping early.\n")
+      finished <- TRUE
     }
     
     # Removed block A of code here.  (See end of file.)
@@ -204,7 +220,6 @@ ergm.MCMLE <- function(init, nw, model,
         statsmatrix <- sweep(statsmatrix.0,2,(1-control$MCMLE.steplength)*statsmean,"-")
       }
       if(verbose){cat(paste("Using Newton-Raphson Step with step length ",control$MCMLE.steplength," ...\n"))}
-      finished <- iteration >= control$MCMLE.maxit
       # Use estimateonly=TRUE if this is not the last iteration.
       v<-ergm.estimate(init=mcmc.init, model=model,
                        statsmatrix=statsmatrix, 
@@ -231,12 +246,12 @@ ergm.MCMLE <- function(init, nw, model,
       if((control$MCMLE.steplength==1) && (v$loglikelihood < control$MCMC.adaptive.epsilon) ){break}
     }
           
-    finished <- iteration >= control$MCMLE.maxit
     mcmc.init <- v$coef
     coef.hist <- rbind(coef.hist, mcmc.init)
     stats.obs.hist <- if(!is.null(statsmatrix.obs)) rbind(stats.obs.hist, apply(statsmatrix.obs, 2, mean)) else NULL
     stats.hist <- rbind(stats.hist, apply(statsmatrix, 2, mean))
     parametervalues <- rbind(parametervalues, mcmc.init)
+    if(finished) break # This allows premature termination.
   } # end of main loop
 
   # FIXME:  We should not be "tacking on" extra list items to the 
@@ -262,6 +277,34 @@ ergm.MCMLE <- function(init, nw, model,
   v$null.deviance <- 2*network.dyadcount(nw.orig)*log(2)
   v$etamap <- model$etamap
   v
+}
+
+approx.hotelling.diff.test<-function(x,y=NULL){
+  d <-  colMeans(x)
+  if(!is.null(y)) d <- d - colMeans(y)
+
+  # If a statistic doesn't vary and doesn't match, don't terminate.
+  x.n <- effectiveSize(x)
+  if(any(d[x.n==0]!=0)) return(0)
+
+  # If it doesn't vary and matches, ignore it.
+  d <- d[x.n!=0]
+  x <- x[,x.n!=0,drop=FALSE]
+
+  if(!is.null(y)){
+    y <- y[,x.n!=0,drop=FALSE]
+    # y, if it's given, is the constrained sample, so it's OK if it
+    # doesn't vary. (E.g, the extreme case --- completely observed
+    # network --- is just one configuration of statistics.)
+    y.n <- effectiveSize(y)
+    y.n[y.n==0] <- 1 # The actual number is irrelevant, since the cov. mat. will be 0.
+  }
+  x.n <- x.n[x.n!=0]
+  
+  v <- t(cov(x)/sqrt(x.n))/sqrt(x.n)
+  if(!is.null(y)) v <- v + t(cov(y)/sqrt(y.n))/sqrt(y.n)
+  chi2 <- t(d)%*%solve(v)%*%d
+  pchisq(chi2,ncol(x),lower.tail=FALSE)
 }
 
 #################
