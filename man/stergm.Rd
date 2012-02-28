@@ -8,54 +8,61 @@
   described by Krivitsky (2009)  A number of methods is possible, with a
   very limited Robbins-Monro being the default.
 }
-\usage{stergm(formation, dissolution, theta.form0 = NULL, theta.diss = NULL, seed = NULL, MH.burnin = 1000, constraints = ~., target.stats = NULL, stergm.order = "FormAndDiss", control = control.stergm(), verbose = FALSE, \dots)
+\usage{
+  stergm (nw, 
+          formation, 
+          dissolution, 
+          estimate, 
+          times=NULL, 
+          offset.coef.form=NULL, 
+          offset.coef.diss=NULL,
+          targets=NULL, 
+          target.stats=NULL,
+          eval.loglik=FALSE,
+          control=control.stergm(),
+          verbose=FALSE, 
+          \dots)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
-    \item{formation}{
+  \item{nw}{A \code{\link[network]{network}} object giving the
+    properties of the sample space of networks, such as the size,
+    directedness, and covariates.
+  }
+  \item{formation}{
     An \code{\link{ergm}}-style formula for the formation phase, with
-    the LHS network being the observed network or a "template" for it if
-    target.stats are used.
-}
+    the left-hand-side network being the observed network or a 
+    "template" for it if target.stats are used.
+  }
   \item{dissolution}{
     An \code{\link{ergm}}-style formula for the dissolution phase. The
-    LHS is not used.
-}
-  \item{theta.form0}{
-    vector; the starting vector of formation phase parameters for the estimation.
-    By default (\code{NULL}), it's estimated using the method specified
-    in \code{\link[=control.stergm]{control$initialfit}}.
-}
-  \item{theta.diss}{
-    vector; the dissolution phase parameters. Currently, assumed fixed
-    and known.
-}
-  \item{seed}{
-    integer; random number integer seed.  Defaults to
-   \code{NULL} to use whatever the state of the random number
-   generator is at the time of the call.
-}
-  \item{MH.burnin}{
-    Number of Metropolis-Hastings (one-toggle) steps within each
-  formation/dissoution phase. That is, there are \code{2*MH.interval}
-  proposals per dynamic time step.
-}
-  \item{constraints}{
-    Constraints for the post-formation and post-dissolution
-  networks. See help for \code{\link{ergm}}. \emph{Might not work at
-  this time, and have a weird interpretation.}
-}
+    left-hand-side is not used.
+  }
+  \item{estimate}{Not yet documented.
+  }
+  \item{times}{Not yet documented.
+  }
+  \item{offset.coef.form}{Not yet documented.
+  }
+  \item{offset.coef.diss}{Not yet documented.
+  }
+  \item{targets}{Not yet documented.
+  }
+%  \item{theta.form0}{
+%    vector; the starting vector of formation phase parameters for the estimation.
+%    By default (\code{NULL}), it's estimated using the method specified
+%    in \code{\link[=control.stergm]{control$initialfit}}.
+%  }
+%  \item{theta.diss}{
+%    vector; the dissolution phase parameters. Currently, assumed fixed
+%    and known.
+%  }
   \item{target.stats}{
     vector; The target equilibrium mean for the network statistics of
-  interest (only \code{formation} statistics at this time).
+    interest (only \code{formation} statistics at this time).
     If it is missing then mean-value parameter used are the observed
     statistics of the network in the formula.
   }
-    \item{stergm.order}{
-    The "order" in which formation and dissolution phases occur:
-    "FormThenDiss" and "DissThenForm" for sequential models, "FormAndDiss"
-    for the simultaneous model (the default), and "FormOnly" and
-    "DissOnly" for debugging.
+  \item{eval.loglik}{Not yet documented.
   }
   \item{control}{
     A list of control parameters for algorithm
@@ -65,9 +72,8 @@
     logical or integer; if positive, the program will print out progress
     information. Higher values result in more output.
   }
-  \item{\dots}{
-    Additional
-    arguments, to be passed to lower-level functions in the future.
+  \item{\dots}{Additional arguments, to be passed to lower-level 
+    functions.
   }  
 }
 \section{Model Terms}{

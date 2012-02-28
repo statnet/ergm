@@ -103,6 +103,14 @@ control.ergm(drop=TRUE,
     See the \code{usage} section in \code{\link{ergm}} for details.
 }
 \arguments{
+  \item{drop}{Logical:  If TRUE, terms whose observed statistic values
+    are at the extremes of their possible ranges are dropped from the
+    fit and their corresponding parameter estimates are set to
+    plus or minus infinity, as appropriate.  This is done because 
+    maximum likelihood estimates cannot exist when the vector of
+    observed statistic lies on the boundary of the convex hull of
+    possible statistic values.
+  }
   \item{init}{numeric or \code{NA} vector equal in length to the number of
     parameters in the model or \code{NULL} (the default); the initial
     values for the estimation and coefficient offset terms. If \code{NULL}
@@ -129,10 +137,10 @@ control.ergm(drop=TRUE,
     an uncoverged \code{\link{ergm}} run, but see
     \code{\link{enformulate.curved}}.
   }
-  \item{init.method}{A chatacter vector or \value{NULL}. The default method for finding the
-    starting coefficient values (if \code{init} is not specified) is 
+  \item{init.method}{A chatacter vector or \code{NULL}. The default method for 
+    finding the starting coefficient values, if \code{init} is not specified, is
     maximum pseudo-likelihood estimation (MPLE). Another valid value is
-    \value{"zeros"} for a vector of \value{0} of appropriate length.
+    \code{"zeros"} for a vector of \code{0} of appropriate length.
   }
   \item{main.method}{One of "MCMLE","Robbins-Monro",
     "Stochastic-Approximation", or "Stepping".  Chooses
@@ -225,7 +233,7 @@ control.ergm(drop=TRUE,
   }
   \item{MCMC.init.maxedges}{Maximum number of edges expected in network.
   }
-  \item{MCMC.addto}{Not yet documented.
+  \item{MCMC.addto.se}{Not yet documented.
   }
   \item{MCMC.compress}{Logical:  If TRUE, the matrix of sample statistics
     returned is compressed to the set of unique statistics with a 
@@ -308,8 +316,6 @@ control.ergm(drop=TRUE,
     in the \code{\link{ergm}} function are far from the
     initial network.
   }
-
-  
   \item{SA.phase1_n}{Number of MCMC samples to draw
     in Phase 1 of the stochastic approximation algorithm.
     Defaults to 7 plus 3 times the number of terms in the model.
@@ -347,7 +353,6 @@ control.ergm(drop=TRUE,
   }
   \item{RM.phase3n}{Not yet documented.
   }
-
   \item{Step.MCMC.samplesize}{MCMC sample size for the preliminary steps of the
     "Stepping" method of optimization.  This is usually chosen to be smaller
     than the final MCMC sample size (which equals \code{MCMC.samplesize}).
@@ -390,11 +395,12 @@ control.ergm(drop=TRUE,
   A list with arguments as components.
 }
 \seealso{ \code{\link{ergm}}. The \code{\link{control.simulate}} 
-function performs a 
-similar function for
-\code{\link{simulate.ergm}}; 
-\code{\link{control.gof}} performs a
-similar function for \code{\link{gof}}.   }
+  function performs a 
+  similar function for
+  \code{\link{simulate.ergm}}; 
+  \code{\link{control.gof}} performs a
+  similar function for \code{\link{gof}}.   
+}
 \references{
   \itemize{
     \item

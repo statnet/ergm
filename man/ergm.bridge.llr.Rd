@@ -26,11 +26,22 @@ two parameter vectors for an ERGM via repeated calls to
   \item{object}{
     A model formula. See \code{\link{ergm}} for details.
   }
-  \item{response, basis}{
-    See \code{\link{simulate.ergm}}.
+  \item{response}{Not yet documented.
   }
+  \item{constraints}{A one-sided formula specifying one or more constraints
+    on the support of the distribution of the networks being
+    simulated. See the documentation for a similar argument for
+    \code{\link{ergm}} for more information. For
+    \code{simulate.formula}, defaults to no constraints. For
+    \code{simulate.ergm}, defaults to using the same constraints as
+    those with which \code{object} was fitted.
+  }  
   \item{from, to}{
     The initial and final parameter vectors.
+  }
+  \item{basis}{An optional \code{\link[network]{network}} object to start
+    the Markov chain.  If omitted, the default is the left-hand-side of 
+    the \code{object}.
   }
   \item{verbose}{Logical:  If TRUE, print detailed information.
   }

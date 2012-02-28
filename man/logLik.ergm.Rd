@@ -23,12 +23,16 @@ A function to return the log-likelihood associated with an
     returning the log-likelihood, return \code{object} with
     log-likelihood value set.
   }
-  \item{eval.loglik}{Logical:  If TRUE,
-    evaluate the log-likelihood if not set on \code{object}.
-  }
   \item{force.reeval}{Logical:  If TRUE,
     reestimate the log-likelihood even if \code{object} already
     has an estiamte. 
+  }
+  \item{eval.loglik}{Logical:  If TRUE,
+    evaluate the log-likelihood if not set on \code{object}.
+  }
+  \item{control}{
+    A list of control parameters for algorithm
+    tuning. Constructed using \code{\link{control.logLik.ergm}}. 
   }
   \item{\dots}{
     Other arguments to the likelihood functions.

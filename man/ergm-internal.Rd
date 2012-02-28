@@ -238,6 +238,7 @@
 \alias{MHproposal.formula}
 \alias{MHproposals}
 
+\alias{approx.hotelling.diff.test}
 \alias{append.rhs.formula}
 \alias{as.edgelist}
 \alias{as.edgelist.compressed}

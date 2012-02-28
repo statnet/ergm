@@ -54,7 +54,7 @@ mcmc.diagnostics <- function(object, ...) {
 }
 
 mcmc.diagnostics.default <- function(object, ...) {
-  stop("An object must be given as an argument ")
+  stop("An ergm object must be given as an argument ")
 }
 
 mcmc.diagnostics.ergm <- function(object,

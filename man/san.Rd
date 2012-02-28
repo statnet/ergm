@@ -6,23 +6,27 @@
 \title{Use Simulated Annealing to attempt to match a network to a vector
 of mean statistics}
 \usage{
-\method{san}{formula}(object, nsim=1, seed=NULL, coef=NULL,
-                      tau=1, invcov=NULL,
-                      burnin=10000, interval=10000,
+\method{san}{formula}(object, 
+                      response=NULL, 
+                      reference="Bernoulli", 
+                      constraints=~., 
                       target.stats=NULL,
+                      nsim=1, 
                       basis=NULL,
                       sequential=TRUE,
-                      constraints = ~.,
-                      control = control.san(),
-                      verbose=FALSE, \dots)
-\method{san}{ergm}(object, nsim=1, seed=NULL, coef=object$coef,
-                      burnin=10000, interval=10000, 
-                      target.stats=NULL,
-                      basis=NULL,
-                      sequential=TRUE,
-                      constraints = NULL,
-                      control = control.san(),
-                      verbose=FALSE, \dots)
+                      control=control.san(),
+                      verbose=FALSE, 
+                      \dots)
+\method{san}{ergm}(object, 
+                   formula=object$formula, 
+                   constraints=object$constraints, 
+                   target.stats=object$target.stats,
+                   nsim=1, 
+                   basis=NULL,
+                   sequential=TRUE, 
+                   control=object$SAN.control,
+                   verbose=FALSE, 
+                   \dots)
 }
 \description{
   This function attempts to find a network or networks
@@ -30,7 +34,7 @@ of mean statistics}
   in via the \code{target.stats} vector.
 }
 \arguments{
- \item{object}{an \R object. Either
+  \item{object}{Either
     a \code{\link{formula}} or an \code{\link{ergm}} object.
     The \code{\link{formula}} should be of the form \code{y ~ <model terms>},
     where \code{y} is a network object or a matrix that can be
@@ -40,41 +44,45 @@ of mean statistics}
     \code{\link[network]{network}} object in \R, use the 
     \code{network()} function,
     then add nodal attributes to it using the \code{\%v\%}
-    operator if necessary.}
- \item{nsim}{Number of desired networks.}
- \item{seed}{Random number integer seed.}
- \item{coef}{Parameter values used for MCMC simulations.}
- \item{tau}{Currently unused.}
- \item{invcov}{Initial inverse covariance matrix used to calculate
-    Mahalanobis distance in determining how far a proposed MCMC move is from
-    the \code{target.stats} vector.  If NULL, taken to be the covariance
-    matrix returned when fitting the MPLE (if \code{coef==NULL}) or the
-    identity (otherwise).}
- \item{burnin}{Number of MCMC steps prior to recording first vector of 
-    network statistics.}
- \item{interval}{Number of MCMC steps between recordings of network statistics}
- \item{target.stats}{A vector of the same length as the number of terms implied by
-    the formula, which is either \code{object} itself in the case of
-    \code{san.formula} or \code{object$formula} in the case of \code{san.ergm}.}
- \item{basis}{If not NULL, a network that forms the beginning of the
-    Markov chain.  If NULL, this is taken to be the network named in the
-    formula.}
- \item{sequential}{Logical:  Should the returned draws use the prior draw 
-   as the starting network or always use the initially passed network?
-   }
- \item{constraints}{A one-sided formula specifying one or more constraints
+    operator if necessary.
+  }
+  \item{response, reference}{Not yet documented.
+  }
+  \item{formula}{(By default, the \code{formula}
+    is taken from the \code{ergm} object.
+    If a different \code{formula} object is wanted, specify it here.
+  }
+  \item{constraints}{A one-sided formula specifying one or more constraints
     on the support of the distribution of the networks being
     simulated. See the documentation for a similar argument for
     \code{\link{ergm}} for more information. For
     \code{simulate.formula}, defaults to no constraints. For
     \code{simulate.ergm}, defaults to using the same constraints as
-    those with which \code{object} was fitted.}
- \item{control}{A list of control parameters for algorithm
-   tuning. Constructed using \code{\link{control.san}}.}
- \item{verbose}{If this is \code{TRUE}, we will print out more information as 
-  we run the program, including (currently) some goodness of fit 
-  statistics.}
- \item{\dots}{Further arguments passed to or used by methods.}
+    those with which \code{object} was fitted.
+  }
+  \item{target.stats}{A vector of the same length as the number of terms 
+    implied by the formula, which is either \code{object} itself in the 
+    case of \code{san.formula} or \code{object$formula} in the case 
+    of \code{san.ergm}.
+  }
+  \item{nsim}{Number of desired networks.
+  }
+  \item{basis}{If not NULL, a \code{network} object used to start  
+    the Markov chain.  If NULL, this is taken to be the network named 
+    in the formula.
+  }
+  \item{sequential}{Logical: If TRUE, the returned draws always use 
+    the prior draw as the starting network; if FALSE, 
+    they always use the original network.
+  }
+  \item{control}{A list of control parameters for algorithm
+    tuning; see \code{\link{control.san}}.
+  }
+  \item{verbose}{Logical:  If TRUE, print out more detailed information 
+    as the simulation runs.
+  }
+  \item{\dots}{Further arguments passed to other functions.
+  }
 }
 
 %\details{}

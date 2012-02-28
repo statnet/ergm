@@ -26,7 +26,7 @@
   \item{object}{
     A model formula. See \code{\link{ergm}} for details.
   }
-  \item{response, basis}{Not yet documented.
+  \item{response}{Not yet documented.
   }
   \item{coef}{
     A vector of coefficients for the configuration of interest.
@@ -40,6 +40,10 @@
   \item{coef.dind}{
     Parameter configuration for the dyad-independent starting
     point. Defaults to the MLE of \code{dind}. 
+  }
+  \item{basis}{An optional \code{\link[network]{network}} object to start
+    the Markov chain.  If omitted, the default is the left-hand-side of 
+    the \code{object}.
   }
   \item{\dots}{
     Further arguments to \code{\link{ergm.bridge.llr}} and \code{\link{simulate.formula.ergm}}.

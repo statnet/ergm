@@ -48,6 +48,9 @@ control.simulate.network(MCMC.burnin=1000,
   }
   \item{MCMC.prop.args}{An alternative, direct way of specifying additional arguments to proposal. 
   }
+  \item{MCMC.init.maxchanges}{Maximum number 
+    of changes for which to allocate space.
+  }
   \item{MCMC.packagenames}{Names of packages in which change statistic
     functions are found.
   }

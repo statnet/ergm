@@ -100,10 +100,6 @@ control.simulate.ergm(MCMC.burnin=NULL,
   }
   \item{MCMC.interval}{Number of proposals between sampled statistics.
   }
-  \item{MCMC.samplesize}{Number of network statistics,
-    randomly drawn from a given distribution on the set of all networks,
-    returned by the Metropolis-Hastings algorithm.
-  }
   \item{MCMC.init.maxedges}{Maximum number of edges expected in network.
   }
   \item{MCMC.packagenames}{Names of packages in which change statistic

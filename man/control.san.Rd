@@ -31,11 +31,18 @@ control.san(coef=NULL,
 }
 \arguments{
   \item{coef}{
-    Vector of model coefficients, one for each model term.
+    Vector of model coefficients used for MCMC simulations, 
+    one for each model term.
   }
-  \item{SAN.tau}{ Not yet documented.
+  \item{SAN.tau}{ Currently unused.
   }
-  \item{SAN.invcov}{ Not yet documented.
+  \item{SAN.invcov}{ 
+    Initial inverse covariance matrix used to calculate
+    Mahalanobis distance in determining how far a proposed MCMC 
+    move is from the \code{target.stats} vector.  
+    If NULL, taken to be the covariance
+    matrix returned when fitting the MPLE if \code{coef==NULL},
+    or the identity matrix otherwise.
   }
   \item{SAN.burnin}{Number of MCMC proposals before any sampling
     is done.

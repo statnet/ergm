@@ -129,7 +129,8 @@
   \item{MCMC.init.maxchanges}{Maximum number of changes in dynamic network
     simulation for which to allocate space.
   }
-  \item{MCMC.packagenames="ergm",}{ Not yet documented. 
+  \item{MCMC.packagenames}{Names of packages in which change statistic
+    functions are found.
   }
   \item{MCMC.burnin}{Number of proposals within each time step.
     This number functions as both \code{MCMC.burnin} and
@@ -213,7 +214,7 @@
     magnitude (in standard deviations of the parameter from the 
     current mean).
   }
-  \item{RM.refine=c("linear","mean","none"), }{Method, if any, used to 
+  \item{RM.refine}{Method, if any, used to 
     refine the point estimate: "linear" for linear interpolation, 
     "mean" for average, and "none" for the last value.
   }

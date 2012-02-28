@@ -256,7 +256,9 @@ san.formula <- function(object, response=NULL, reference="Bernoulli", constraint
   return(out.list)
 }
 
-san.ergm <- function(object, formula=object$formula, constraints=object$constraints, target.stats=object$target.stats,
+san.ergm <- function(object, formula=object$formula, 
+                     constraints=object$constraints, 
+                     target.stats=object$target.stats,
                      nsim=1, basis=NULL,
                      sequential=TRUE, 
                      control=object$SAN.control,

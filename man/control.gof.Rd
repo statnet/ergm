@@ -49,6 +49,10 @@ control.gof.ergm(nsim=100,
     See the \code{usage} section in \code{\link{gof}} for details.
 }
 \arguments{
+  \item{nsim}{Number of networks to be randomly drawn using Markov
+    chain Monte Carlo.  This sample of networks provides the
+    basis for comparing the model to the observed network.
+  }
   \item{MCMC.burnin}{Number of proposals before any MCMC sampling
     is done. It typically is set to a fairly large number.
   }
