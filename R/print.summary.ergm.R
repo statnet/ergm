@@ -88,14 +88,18 @@ print.summary.ergm <- function (x,
   if(print.drop){
     if(any(x$drop!=0)){
       cat("\n Warning: The following terms have infinite coefficient estimates:\n  ")
-      cat(rownames(x$coefs)[x$drop!=0], "\n\n")
+      cat(rownames(x$coefs)[x$drop!=0], "\n")
+    }
+    if(any(!x$estimable)){
+      cat("\n Warning: The following terms could not be estimated because they conflicted with the sample space constraint:\n  ")
+      cat(rownames(x$coefs)[!x$estimable], "\n")
     }
   }
 
   if(print.offset){
-    if(any(x$offset&!x$drop!=0)){
+    if(any(x$offset & x$drop==0 & x$estimable)){
       cat("\n The following terms are fixed by offset and are not estimated:\n  ")
-      cat(rownames(x$coefs)[x$offset & !x$drop!=0], "\n\n")
+      cat(rownames(x$coefs)[x$offset & x$drop==0 & x$estimable], "\n\n")
     }
   }
 

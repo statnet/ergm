@@ -303,7 +303,7 @@ approx.hotelling.diff.test<-function(x,y=NULL){
   
   v <- t(cov(x)/sqrt(x.n))/sqrt(x.n)
   if(!is.null(y)) v <- v + t(cov(y)/sqrt(y.n))/sqrt(y.n)
-  chi2 <- t(d)%*%solve(v)%*%d
+  chi2 <- t(d)%*%robust.inverse(v)%*%d
   pchisq(chi2,ncol(x),lower.tail=FALSE)
 }
 

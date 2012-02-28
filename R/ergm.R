@@ -216,15 +216,15 @@ ergm <- function(formula, response=NULL,
   if(!is.null(offset.coef)) control$init[model.initial$etamap$offsettheta]<-offset.coef
   
   # Make sure any offset elements are given in control$init.
-  if(any(is.na(control$init) & model.initial$etamap$offsettheta)) stop("The model contains offset terms whose parameter values have not been specified:", paste(model.initial$coef.names[is.na(control$init)|model.initial$offsettheta], collapse=", "), ".", sep="")
-  
+  if(any(is.na(control$init) & model.initial$etamap$offsettheta)) stop("The model contains offset terms whose parameter values have not been specified:", paste.and(model.initial$coef.names[is.na(control$init)|model.initial$offsettheta]), ".", sep="")
+
+  # Check if any terms are constrained to a constant and issue a warning.
+  constrcheck <- ergm.checkconstraints.model(model.initial, MHproposal, control$init)
+  model.initial <- constrcheck$model; control$init <- constrcheck$init
 
   # Check if any terms are at their extremes and handle them depending on control$drop.
   extremecheck <- ergm.checkextreme.model(model=model.initial, nw=nw, init=control$init, response=response, target.stats=target.stats, drop=control$drop)
   model.initial <- extremecheck$model; control$init <- extremecheck$init
-
-  # Check if any terms are constrained to a constant and issue a warning.
-  ergm.checkconstraints.model(model.initial, MHproposal)
 
   if (verbose) { cat("Fitting initial model.\n") }
 
@@ -266,6 +266,7 @@ ergm <- function(formula, response=NULL,
   } else { # Just return initial (non-MLE) fit and exit.
     initialfit$offset <- model.initial$etamap$offsettheta
     initialfit$drop <- if(control$drop) extremecheck$extremeval.theta
+    initialfit$estimable <- constrcheck$estimable
     initialfit$network <- nw
     initialfit$reference <- reference
     initialfit$newnetwork <- nw
@@ -287,6 +288,11 @@ ergm <- function(formula, response=NULL,
   # revise init to reflect additional parameters
   init <- ergm.reviseinit(model, init)
 
+  # Check if any terms are constrained to a constant and issue a warning.
+  constrcheck <- ergm.checkconstraints.model(model, MHproposal, init=init, silent=TRUE)
+  model <- constrcheck$model; control$init <- constrcheck$init
+  
+  # Check if any terms are at their extremes and handle them depending on control$drop.
   extremecheck <- ergm.checkextreme.model(model=model, nw=nw, init=init, response=response, target.stats=target.stats, drop=control$drop, silent=TRUE)
   model <- extremecheck$model; init <- extremecheck$init
 
@@ -344,6 +350,7 @@ ergm <- function(formula, response=NULL,
 
   mainfit$offset <- model$etamap$offsettheta
   mainfit$drop <- if(control$drop) extremecheck$extremeval.theta
+  mainfit$estimable <- constrcheck$estimable
   mainfit$etamap <- model$etamap
   if (!control$MCMC.return.stats)
     mainfit$sample <- NULL

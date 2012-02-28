@@ -49,12 +49,12 @@ ergm.checkextreme.model <- function(model, nw, init, response, target.stats, dro
 
     if(!silent){
       # Inform the user what's getting dropped.
-      if(any(low.drop.theta)) cat(paste("Observed statistic(s)", paste(names.theta[low.drop.theta],collapse=", "), "are at their smallest attainable values. Their coefficients will be fixed at -Inf.\n", sep=" "))
-      if(any(high.drop.theta)) cat(paste("Observed statistic(s)", paste(names.theta[high.drop.theta],collapse=", "), "are at their greatest attainable values. Their coefficients will be fixed at +Inf.\n", sep=" "))
+      if(any(low.drop.theta)) cat(paste("Observed statistic(s)", paste.and(names.theta[low.drop.theta]), "are at their smallest attainable values. Their coefficients will be fixed at -Inf.\n", sep=" "))
+      if(any(high.drop.theta)) cat(paste("Observed statistic(s)", paste.and(names.theta[high.drop.theta]), "are at their greatest attainable values. Their coefficients will be fixed at +Inf.\n", sep=" "))
     }
     
     # If the user specified a non-fixed element of init, and that element is getting dropped, warn the user.
-    if(any(is.finite(init[low.drop.theta|high.drop.theta]))) warning("Overriding user-specified initial init coefficient", paste(names.theta[is.na(init[low.drop.theta|high.drop.theta])], collapse=", "), ". To preserve, enclose in an offset() function.", sep="")
+    if(any(is.finite(init[low.drop.theta|high.drop.theta]))) warning("Overriding user-specified initial init coefficient", paste.and(names.theta[is.na(init[low.drop.theta|high.drop.theta])]), ". To preserve, enclose in an offset() function.", sep="")
 
     init[low.drop.theta|high.drop.theta] <- extremeval.theta[low.drop.theta|high.drop.theta]*Inf
     model$etamap$offsettheta[low.drop.theta|high.drop.theta] <- TRUE
@@ -62,8 +62,8 @@ ergm.checkextreme.model <- function(model, nw, init, response, target.stats, dro
   }else{
     if(!silent){
       # If no drop, warn the user anyway.
-      if(any(low.drop.theta)) warning(paste("Observed statistic(s)", paste(names.theta[low.drop.theta],collapse=", "), "are at their smallest attainable values and drop=FALSE. The MLE is poorly defined.", sep=" "))
-      if(any(high.drop.theta)) warning(paste("Observed statistic(s)", paste(names.theta[high.drop.theta],collapse=", "), "are at their greatest attainable values and drop=FALSE. The MLE is poorly defined.", sep=" "))
+      if(any(low.drop.theta)) warning(paste("Observed statistic(s)", paste.and(names.theta[low.drop.theta]), "are at their smallest attainable values and drop=FALSE. The MLE is poorly defined.", sep=" "))
+      if(any(high.drop.theta)) warning(paste("Observed statistic(s)", paste.and(names.theta[high.drop.theta]), "are at their greatest attainable values and drop=FALSE. The MLE is poorly defined.", sep=" "))
     }
   }
 
@@ -72,7 +72,7 @@ ergm.checkextreme.model <- function(model, nw, init, response, target.stats, dro
 
 ## Check for conflicts between model terms and constraints.
 
-ergm.checkconstraints.model <- function(model, MHproposal){
+ergm.checkconstraints.model <- function(model, MHproposal, init, silent=FALSE){
   # Get the list of all the constraints that the proposal imposes on the sample space.
   constraints.old<-names(MHproposal$arguments$constraints)
   repeat{
@@ -81,15 +81,25 @@ ergm.checkconstraints.model <- function(model, MHproposal){
     else constraints.old <- constraints
   }
 
+  coef.counts <- coef.sublength.model(model)
   conflict.coefs <- c()
   
-  for(term in model$terms){
-    if(any(term$conflicts.constraints %in% constraints))
-      conflict.coefs <- c(conflict.coefs, term$coef.names)
-  }
+  for(i in seq_along(model$terms))
+    conflict.coefs <- c(conflict.coefs, rep(any(model$terms[[i]]$conflicts.constraints %in% constraints), # Is there a conflict?
+                                            coef.counts[i])) # How many coefficients are affected?
 
-  if(length(conflict.coefs))
-    warning(paste("The specified model's sample space constraint holds statistic(s)", paste(conflict.coefs, collapse=", "), " constant. They will be ignored.", sep=" "))
+  conflict.coefs[model$offsettheta] <- FALSE # No conflict if it's already an offset.
+  
+  if(any(conflict.coefs)){
+    if(!silent){
+      warning(paste("The specified model's sample space constraint holds statistic(s)", paste.and(model$coef.names[conflict.coefs]), " constant. They will be ignored.", sep=" "))
+    }
+    init[conflict.coefs] <- 0
+    model$etamap$offsettheta[conflict.coefs] <- TRUE
+    model$etamap$offsetmap[model$etamap$canonical[conflict.coefs & (model$etamap$canonical>0)]] <- TRUE    
+  }
+  
+  list(model=model, init=init, estimable=!conflict.coefs)
 }
 
 coef.sublength.model<-function(object, ...){
