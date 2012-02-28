@@ -82,10 +82,10 @@ gof.default <- function(object,...) {
 
 
 gof.ergm <- function (object, ..., 
+                      coef=NULL,
                       GOF=NULL, 
                       constraints=NULL,
                       control=control.gof.ergm(),
-                      coef=NULL,
                       verbose=FALSE) {
   
   nw <- as.network(object$network)
@@ -129,29 +129,30 @@ gof.ergm <- function (object, ...,
 
 
 
-gof.formula <- function(formula, ..., coef=NULL,
+gof.formula <- function(object, ..., 
+                        coef=NULL,
                         GOF=NULL,
                         constraints=~.,
                         control=control.gof.formula(),
                         verbose=FALSE) {
-  if(!is.null(control$seed)) {set.seed(as.integer(seed))}
+  if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
   if (verbose) 
     cat("Starting GOF for the given ERGM formula.\n")
   # Unused code
   coefmissing <- NULL
   unconditional <- TRUE
   # get network
-  trms <- ergm.getterms(formula)
+  trms <- ergm.getterms(object)
   if(length(trms)>2){
     nw <- eval(trms[[2]], sys.parent())
   }else{
     stop("A network object on the RHS of the formula argument must be given")
   }
   if(is.ergm(nw)){
-    all.gof.vars <- ergm.rhs.formula(formula)
-    formula <- nw$formula
+    all.gof.vars <- ergm.rhs.formula(object)
+    object <- nw$formula
     if(missing(coef)){coef <- nw$coef}
-    trms <- ergm.getterms(formula)
+    trms <- ergm.getterms(object)
     if(length(trms)>2){
       nw <- eval(trms[[2]], sys.parent())
     }else{
@@ -189,12 +190,12 @@ gof.formula <- function(formula, ..., coef=NULL,
   }
 
 # if(is.bipartite(nw)){
-#   formula <- ergm.update.formula(formula, ~ . + bipartite)
-#   trms <- ergm.getterms(formula)
+#   object <- ergm.update.formula(object, ~ . + bipartite)
+#   trms <- ergm.getterms(object)
 #   termnames <- ergm.gettermnames(trms)
 # }
 
-  m <- ergm.getmodel(formula, nw)
+  m <- ergm.getmodel(object, nw)
   Clist <- ergm.Cprepare(nw, m)
 
   if(is.null(coef)){
@@ -209,7 +210,7 @@ gof.formula <- function(formula, ..., coef=NULL,
   if(!is.null(nw$gal$design) & unconditional){
    if(verbose){cat("Conditional simulations for missing fit\n")}
    if(is.null(coefmissing)){coefmissing <- coef}
-   SimCond <- gof(formula=formula, coef=coefmissing,
+   SimCond <- gof(formula=object, coef=coefmissing,
                   GOF=GOF, 
                   constraints=constraints,
                   control=control,
@@ -239,7 +240,7 @@ gof.formula <- function(formula, ..., coef=NULL,
   
   if ('model' %in% all.gof.vars) {
    if(is.null(nw$gal$design) | !unconditional){
-    obs.model <- summary(formula)
+    obs.model <- summary(object)
    }else{
     obs.model <- SimCond$obs.model
    }
@@ -349,7 +350,7 @@ gof.formula <- function(formula, ..., coef=NULL,
  
   # Simulate an exponential family random graph model
 
-#  SimNetworkSeriesObj <- simulate(formula, control$nsim=control$nsim, seed=seed,
+#  SimNetworkSeriesObj <- simulate(object, control$nsim=control$nsim, seed=seed,
 #                                  coef=coef,
 #                                  burnin=burnin, interval=interval,
 #                                  constraints=constraints,
@@ -370,7 +371,7 @@ gof.formula <- function(formula, ..., coef=NULL,
     if(verbose){
       cat("Sim",i,"of",control$nsim,": ")
     }
-    tempnet <- simulate(formula, nsim=1, coef=coef,
+    tempnet <- simulate(object, nsim=1, coef=coef,
                         constraints=constraints, 
                         control=control,
                         basis=tempnet,
@@ -381,7 +382,7 @@ gof.formula <- function(formula, ..., coef=NULL,
 #     if ((i %% 10 == 0) || (i==control$nsim)) cat("\n")
 #    }
     if ('model' %in% all.gof.vars) {
-     sim.model[i,] <- summary(ergm.update.formula(formula,tempnet ~ .))
+     sim.model[i,] <- summary(ergm.update.formula(object,tempnet ~ .))
     }
     if ('distance' %in% all.gof.vars) {
      sim.dist[i,] <- ergm.geodistdist(tempnet)

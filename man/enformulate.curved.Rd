@@ -14,20 +14,21 @@ vector. This is the form required by \code{\link{ergm}} calls.
 }
 \usage{
 \method{enformulate.curved}{ergm}(object, ...)
-\method{enformulate.curved}{formula}(object, theta, ...)
+\method{enformulate.curved}{formula}(object, theta, response=NULL, ...)
 }
 \arguments{
   \item{object}{
     An \code{\link{ergm}} object or an ERGM formula. The curved terms of
     the given formula (or the formula used in the fit) must have all of their arguments passed by name.
-}
+  }
   \item{theta}{
     Curved model parameter configuration.
-}
-
+  }
+  \item{response}{Not yet documented.
+  }
   \item{\dots}{
     Unused at this time.
-}
+  }
 }
 \details{
   Because of a current kludge in \code{\link{ergm}}, output from one

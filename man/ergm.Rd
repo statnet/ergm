@@ -13,33 +13,37 @@
   estimate or an approximate maximum likelihood estimator based on a Monte Carlo scheme.
 }
 \usage{
-ergm(formula, coef=NULL,
-     MPLEonly=FALSE, MLestimate=!MPLEonly, seed=NULL,
-     burnin=10000, MCMCsamplesize=10000, interval=100, maxit=3,
-     constraints=~.,
-     target.stats = NULL,
-     control=control.ergm(),
-     eval.loglik=FALSE,
-     verbose=FALSE, \dots)
+ergm (formula,
+      response=NULL,
+      reference="Bernoulli",
+      obs=NA,
+      constraints=~.,
+      offset.coef=NULL,
+      target.stats=NULL,
+      eval.loglik=FALSE,
+      estimate=c("MLE", "MPLE"),
+      control=control.ergm(),
+      verbose=FALSE,
+      \dots)
 }
 \arguments{
-  \item{formula}{formula; an \R \code{\link{formula}} object, of the form
+  \item{formula}{An \R \code{\link{formula}} object, of the form
     \code{y ~ <model terms>},
     where \code{y} is a \code{\link[network]{network}} object or a matrix that can be
     coerced to a \code{\link[network]{network}}  object.  For the details on the possible
     \code{<model terms>}, see \code{\link{ergm-terms}} and Morris, Handcock and
-Hunter (2008).  To create a
+    Hunter (2008).  To create a
     \code{\link[network]{network}} object in \R, use the \code{network()} function,
     then add nodal attributes to it using the \code{\%v\%}
     operator if necessary. Enclosing a model term in \code{offset()}
-    fixes its value to one specified in \code{offset.coef}.}
-  \item{MPLEonly}{logical; \code{TRUE} if the maximum
-    pseudo-likelihood estimate is to be computed and returned.
-    Note that \code{MPLEonly=TRUE} will render moot most other parameters in this list.
-    See \code{\link{ergmMPLE}} to obtain the vector of change statistics,
-    needed to calculate the MPLE.}
-  \item{MLestimate}{logical; \code{TRUE} if only the Monte Carlo maximum likelihood estimate
-    is to be computed and returned.}
+    fixes its value to one specified in \code{offset.coef}.
+  }
+  \item{response}{Not yet documented.
+  }
+  \item{reference}{Not yet documented.
+  }
+  \item{obs}{Not yet documented.
+  }
   \item{constraints}{A one-sided formula specifying one or more constraints
     on the support of the distribution of the networks being modeled,
     using syntax similar to the \code{formula} argument. Multiple constraints
@@ -54,68 +58,76 @@ Hunter (2008).  To create a
 
     The default is \code{~.}, for an unconstrained model.
 
-    The constraint terms currently implemented are \describe{
+    The constraint terms currently implemented are 
+    \describe{
       \item{\code{.} or \code{NULL}}{
-	A placeholder for no constraints: all networks of a
-  particular size and type have non-zero probability.
-  Cannot be combined with other constraints.
+        A placeholder for no constraints: all networks of a
+        particular size and type have non-zero probability.
+        Cannot be combined with other constraints.
       }
       \item{\code{bd(attribs,maxout,maxin,minout,minin)}}{
-  Constrain maximum and minimum vertex degree. See
-  \dQuote{Placing Bounds
-    on Degrees} section for more information.
+        Constrain maximum and minimum vertex degree. See
+        \dQuote{Placing Bounds
+        on Degrees} section for more information.
       }
       \item{\code{degrees} and \code{nodedegrees}}{
-	Preserve the degree of each vertex of the given network: only networks
-	whose vertex degrees are the same as those in the network passed
-	in the model formula have non-zero probability.
+        Preserve the degree of each vertex of the given network: only networks
+        whose vertex degrees are the same as those in the network passed
+        in the model formula have non-zero probability.
       }
       \item{\code{degreedist}}{
-	Preserve the degree distribution of the given network: only networks
-	whose degree distributions are the same as those in the network passed
-	in the model formula have non-zero probability.
+        Preserve the degree distribution of the given network: only networks
+        whose degree distributions are the same as those in the network passed
+        in the model formula have non-zero probability.
       }
       \item{\code{indegreedist} and \code{outdegreedist}}{
-	Preserve the (respectively) indegree or outdegree distribution of 
+        Preserve the (respectively) indegree or outdegree distribution of 
         the given network.
       }
       \item{\code{edges}}{
-	Preserve the edge count of the given network: only networks
-	having the same number of edges as the network passed
-	in the model formula have non-zero probability.
+        Preserve the edge count of the given network: only networks
+        having the same number of edges as the network passed
+        in the model formula have non-zero probability.
       }
-      
       \item{\code{observed}}{
-	Preserve the observed dyads of the given network.
+        Preserve the observed dyads of the given network.
       }
-      
-%      \item{\code{hamming}}{
-%	No clue.
-%      }
     }
     Not all combinations of the above are supported.
   }
-  \item{target.stats}{vector; the mean-value parameter value for the
+  \item{offset.coef}{Not yet documented.
+  }
+  \item{target.stats}{vector of "observed network statistics,"
+    if these statistics are for some reason different than the 
+    actual statistics of the network on the left-hand side of
+    \code{formula}.
+    Equivalently, this vector is the mean-value parameter values for the
     model.  If this is given, the algorithm finds the natural
-    parameter value corresponding to this mean-value parameter.
-    If it is missing, the mean-value parameters used are the observed
-    statistics of the network in the formula.}
-  \item{control}{A list of control parameters for algorithm
-    tuning. Constructed using \code{\link{control.ergm}}. }
-  \item{seed}{integer; random number integer seed.  Defaults to
-   \code{NULL} to use whatever the state of the random number
-   generator is at the time of the call.
- }
-   \item{eval.loglik}{For dyad-dependent models, whether to use bridge
+    parameter values corresponding to these mean-value parameters.
+    If \code{NULL}, the mean-value parameters used are the observed
+    statistics of the network in the formula.
+  }
+  \item{eval.loglik}{For dyad-dependent models, whether to use bridge
     sampling to evaluate the log-likelihoood associated with the
     fit. Has no effect for dyad-independent models. Defaults to
-    \code{FALSE} because bridge sampling takes additional time.}
+    \code{FALSE} because bridge sampling takes additional time.
+  }
+  \item{estimate}{If "MPLE," then the maximum pseudolikelihood estimator
+    is returned.  If "MLE" (the default), then an approximate maximum likelihood
+    estimator is returned.  For certain models, the MPLE and MLE are equivalent,
+    in which case this argument is ignored.  (To force MCMC-based approximate
+    likelihood calculation even when the MLE and MPLE are the same, see the
+    \code{force.main} argument of \code{\link{control.ergm}}.)
+  }
+  \item{control}{A list of control parameters for algorithm
+    tuning. Constructed using \code{\link{control.ergm}}. 
+  }
   \item{verbose}{logical; if this is
     \code{TRUE}, the program will print out additional
     information, including goodness of fit statistics.
   }
   \item{\dots}{Additional
-    arguments, to be passed to lower-level functions in the future.
+    arguments, to be passed to lower-level functions.
   }
 }
 

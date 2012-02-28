@@ -11,18 +11,18 @@ control.simulate.stergm(MCMC.burnin=1000,
                         MCMC.prop.args=list(),
                         MCMC.init.maxedges=20000,
                         MCMC.packagenames="ergm",
-                        MCMC.init.maxchanges=1000000,
 
-                        summarizestats=FALSE)
+                        summarizestats=FALSE,
+                        MCMC.init.maxchanges=1000000)
 
 control.simulate.network(MCMC.burnin=1000,
                          MCMC.prop.weights="default",
                          MCMC.prop.args=list(),
                          MCMC.init.maxedges=20000,
                          MCMC.packagenames="ergm",
-                         MCMC.init.maxchanges=1000000,
 
-                         summarizestats=FALSE)
+                         summarizestats=FALSE,
+                         MCMC.init.maxchanges=1000000)
 }
 \details{
     This function is only used within a call to the \code{\link{simulate}} function.

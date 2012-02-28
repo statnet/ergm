@@ -23,13 +23,16 @@ control.san(coef=NULL,
             seed=NULL,
             parallel=0,
             parallel.type=NULL,
-            parallel.version.check=TRUE
+            parallel.version.check=TRUE)
 }
 \details{
     This function is only used within a call to the \code{\link{san}} function.
     See the \code{usage} section in \code{\link{san}} for details.
 }
 \arguments{
+  \item{coef}{
+    Vector of model coefficients, one for each model term.
+  }
   \item{SAN.tau}{ Not yet documented.
   }
   \item{SAN.invcov}{ Not yet documented.

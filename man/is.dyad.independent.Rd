@@ -10,18 +10,22 @@ These functions test whether an ERGM fit or formula is dyad-independent.
 }
 \usage{
 \method{is.dyad.independent}{ergm}(object, ...)
-\method{is.dyad.independent}{formula}(object, basis = NULL, constraints = ~., ...)
+\method{is.dyad.independent}{formula}(object, 
+                                      response=NULL,
+                                      basis=NULL,
+                                      constraints=~.,
+                                      \dots)
 }
 \arguments{
   \item{object}{
     An \code{\link{ergm}} object or an ERGM formula.
   }
-  \item{basis, constraints}{
+  \item{response, basis, constraints}{
     See \code{\link{ergm}}.
   }
   \item{\dots}{
     Unused at this time.
-}
+  }
 }
 \value{
   \code{TRUE} if the model fit or one implied by the formula is

@@ -12,41 +12,46 @@
   or can be chosen adaptively.
 }
 \usage{
-ergm.bridge.dindstart.llk(object, response = NULL, theta, nsteps = 20, dind = NULL, theta.dind = NULL, basis = NULL, llkonly = TRUE, ...)
+  ergm.bridge.dindstart.llk(object, 
+                            response=NULL, 
+                            coef, 
+                            dind=NULL, 
+                            coef.dind=NULL,  
+                            basis=NULL, 
+                            \dots, 
+                            llkonly=TRUE, 
+                            control=control.ergm.bridge())
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{object}{
     A model formula. See \code{\link{ergm}} for details.
-    }
-  \item{response, basis}{
-  See \code{\link{simulate.ergm}}.
-}
-  \item{theta}{
+  }
+  \item{response, basis}{Not yet documented.
+  }
+  \item{coef}{
     A vector of coefficients for the configuration of interest.
-}
-  \item{nsteps}{
-    Number of geometric bridges to use.
-}
+  }
   \item{dind}{
     A one-sided formula with the dyad-independent model to use as a
     starting point. Defaults to the dyad-independent terms found in the
     formula \code{object} with an overal density term (\code{edges})
     added if not redundant.
-}
-  \item{theta.dind}{
+  }
+  \item{coef.dind}{
     Parameter configuration for the dyad-independent starting
     point. Defaults to the MLE of \code{dind}. 
-}
+  }
+  \item{\dots}{
+    Further arguments to \code{\link{ergm.bridge.llr}} and \code{\link{simulate.formula.ergm}}.
+  }
   \item{llkonly}{
-      Whether only the estiamted log-likelihood should be returned. (Defaults to \code{TRUE}.)
-    }
-    \item{\dots}{
-      Further arguments to \code{\link{ergm.bridge.llr}} and \code{\link{simulate.formula.ergm}}.
-    }
+    Whether only the estiamted log-likelihood should be returned. (Defaults to \code{TRUE}.)
+  }
+  \item{control}{Control parameters.  See \code{\link{control.ergm.bridge}}.
+  }
 }
 \value{
-    If \code{llkonly=TRUE}, returns the scalar
+  If \code{llkonly=TRUE}, returns the scalar
   log-likelihood. Otherwise, returns a copy of the list returned by
   \code{\link{ergm.bridge.llr}} in addition to the following components:
   \item{llk.dind}{The log-likelihood of the dyad-independence model.}
@@ -54,11 +59,11 @@ ergm.bridge.dindstart.llk(object, response = NULL, theta, nsteps = 20, dind = NU
 }
 \references{
   Hunter, D. R. and Handcock, M. S. (2006)
-    \emph{Inference in curved exponential family models for networks},
-   Journal of Computational and Graphical Statistics.
+  \emph{Inference in curved exponential family models for networks},
+  Journal of Computational and Graphical Statistics.
 }
 
 \seealso{
-\code{\link{ergm.bridge.llr}}, \code{\link{simulate.formula.ergm}}
+  \code{\link{ergm.bridge.llr}}, \code{\link{simulate.formula.ergm}}
 }
 \keyword{ model }

@@ -6,78 +6,77 @@
 
 }
 \usage{
-control.stergm<-function(init.form=NULL,
-                         init.diss=NULL,
-                         init.method=NULL,
+ control.stergm (init.form=NULL,
+                 init.diss=NULL,
+                 init.method=NULL,
 
-                         MCMC.prop.weights.form="default",
-                         MCMC.prop.args.form=NULL,
-                         MCMC.prop.weights.diss="default",
-                         MCMC.prop.args.diss=NULL,
-                         MCMC.init.maxedges=20000,
-                         MCMC.init.maxchanges=20000,
-                         MCMC.packagenames="ergm",
-                         MCMC.burnin=1000,
+                 MCMC.prop.weights.form="default",
+                 MCMC.prop.args.form=NULL,
+                 MCMC.prop.weights.diss="default",
+                 MCMC.prop.args.diss=NULL,
+                 MCMC.init.maxedges=20000,
+                 MCMC.init.maxchanges=20000,
+                 MCMC.packagenames="ergm",
+                 MCMC.burnin=1000,
 
-                         CMLE.control.form=control.ergm(init=init.form,
-                                             MCMC.prop.weights=MCMC.prop.weights.form, 
-                                             MCMC.prop.args=MCMC.prop.args.form, 
-                                             MCMC.init.maxedges=MCMC.init.maxedges, 
-                                             MCMC.packagenames=MCMC.packagenames, 
-                                             MCMC.interval=MCMC.burnin),
-                         CMLE.control.diss=control.ergm(init=init.diss, 
-                                             MCMC.prop.weights=MCMC.prop.weights.diss, 
-                                             MCMC.prop.args=MCMC.prop.args.diss, 
-                                             MCMC.init.maxedges=MCMC.init.maxedges, 
-                                             MCMC.packagenames=MCMC.packagenames, 
-                                             MCMC.interval=MCMC.burnin),
+                 CMLE.control=NULL,
+                 CMLE.control.form=control.ergm(init=init.form,
+                             MCMC.prop.weights=MCMC.prop.weights.form, 
+                             MCMC.prop.args=MCMC.prop.args.form, 
+                             MCMC.init.maxedges=MCMC.init.maxedges, 
+                             MCMC.packagenames=MCMC.packagenames, 
+                             MCMC.interval=MCMC.burnin),
+                 CMLE.control.diss=control.ergm(init=init.diss, 
+                             MCMC.prop.weights=MCMC.prop.weights.diss, 
+                             MCMC.prop.args=MCMC.prop.args.diss, 
+                             MCMC.init.maxedges=MCMC.init.maxedges, 
+                             MCMC.packagenames=MCMC.packagenames, 
+                             MCMC.interval=MCMC.burnin),
 
-                         EGMoME.main.method=c("Robbins-Monro"),
+                 EGMoME.main.method=c("Robbins-Monro"),
                          
-                         SAN.maxit=10,
-                         SAN.control=control.san(coef=init.form,
-                                       SAN.prop.weights=MCMC.prop.weights.form,
-                                       SAN.prop.args=MCMC.prop.args.form,
-                                       SAN.init.maxedges=MCMC.init.maxedges,
-                                       SAN.burnin=MCMC.burnin,
-                                       SAN.packagenames=MCMC.packagenames,
-                                       parallel=parallel,
-                                       parallel.type=parallel.type,
-                                       parallel.version.check=parallel.version.check),
+                 SAN.maxit=10,
+                 SAN.control=control.san(coef=init.form,
+                             SAN.prop.weights=MCMC.prop.weights.form,
+                             SAN.prop.args=MCMC.prop.args.form,
+                             SAN.init.maxedges=MCMC.init.maxedges,
+                             SAN.burnin=MCMC.burnin,
+                             SAN.packagenames=MCMC.packagenames,
+                             parallel=parallel,
+                             parallel.type=parallel.type,
+                             parallel.version.check=parallel.version.check),
 
-                         RM.burnin=1000,
-                         RM.plot.progress=FALSE,
-                         RM.init.gain=0.1,                         
-                         RM.runlength=25, 
-                         RM.target.ac=0.5, 
-                         RM.init.interval=500,
-                         RM.min.interval=20,
-                         RM.phase1.tries=20,
-                         RM.phase1.jitter=0.1,
-                         RM.phase1.min.nonextreme=0.5,
-                         RM.phase1.max.p=0.01,
-                         RM.phase2sub=20,
-                         RM.phase2regain=100,
-                         RM.stepdown.subphases=10,
-                         RM.stepdown.p=0.5,
-                         RM.gain.decay=0.7,
-                         RM.keep.oh=0.5,
-                         RM.jitter.mul=0.2,
-                         RM.phase2.refine=TRUE,
-                         RM.phase2.refine.maxjump=3,
-                         RM.refine=c("linear","mean","none"),
-                         RM.se=FALSE,
-                         RM.phase3n=1000,
+                 RM.burnin=1000,
+                 RM.plot.progress=FALSE,
+                 RM.init.gain=0.1,                         
+                 RM.runlength=25, 
+                 RM.target.ac=0.5, 
+                 RM.init.interval=500,
+                 RM.min.interval=20,
+                 RM.phase1.tries=20,
+                 RM.phase1.jitter=0.1,
+                 RM.phase1.min.nonextreme=0.5,
+                 RM.phase1.max.p=0.01,
+                 RM.phase2sub=20,
+                 RM.phase2regain=100,
+                 RM.stepdown.subphases=10,
+                 RM.stepdown.p=0.5,
+                 RM.gain.decay=0.7,
+                 RM.keep.oh=0.5,
+                 RM.jitter.mul=0.2,
+                 RM.phase2.refine=TRUE,
+                 RM.phase2.refine.maxjump=3,
+                 RM.refine=c("linear","mean","none"),
+                 RM.se=FALSE,
+                 RM.phase3n=1000,
 
-                         seed=NULL,
-                         parallel=0,
-                         parallel.type=NULL,
-                         parallel.version.check=TRUE)
+                 seed=NULL,
+                 parallel=0,
+                 parallel.type=NULL,
+                 parallel.version.check=TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-
-  
   \item{init.form}{numeric or \code{NA} vector equal in length to the number of
     parameters in the formation model or \code{NULL} (the default); the initial
     values for the estimation and coefficient offset terms. If \code{NULL}
@@ -124,10 +123,10 @@ control.stergm<-function(init.form=NULL,
   \item{MCMC.prop.args.diss}{As \code{MCMC.prop.args.form}, 
     for the dissolution phase.
   }
-  \item{MCMC.maxedges}{Maximum number 
+  \item{MCMC.init.maxedges}{Maximum number 
     of edges for which to allocate space.
   }
-  \item{MCMC.maxchanges}{Maximum number of changes in dynamic network
+  \item{MCMC.init.maxchanges}{Maximum number of changes in dynamic network
     simulation for which to allocate space.
   }
   \item{MCMC.packagenames="ergm",}{ Not yet documented. 
@@ -137,6 +136,8 @@ control.stergm<-function(init.form=NULL,
     \code{MCMC.interval}.  They are the same because each
     represents the number of MH proposals between approximately
     independent draws.
+  }
+  \item{CMLE.control}{Not yet documented.
   }
   \item{CMLE.control.form}{Control parameters used to fit 
     cross-sectional ERGMs using the formation model.  See

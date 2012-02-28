@@ -251,10 +251,8 @@
 \alias{coef.sublength.model}
 \alias{colMeans.mcmc.list}
 \alias{compress.data.frame}
-\alias{control.ergm.bridge}
 \alias{control.ergm.toplevel}
 \alias{control.godfather}
-\alias{control.logLik.ergm}
 \alias{control.logLik.stergm}
 \alias{control.simulate.ergm.toplevel}
 \alias{copy.named}

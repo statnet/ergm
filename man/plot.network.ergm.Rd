@@ -1,6 +1,5 @@
 \name{plot.network.ergm}
 \alias{plot.network.ergm}
-%- Also NEED an `\alias' for EACH other topic documented here.
 \title{Two-Dimensional Visualization of Networks }
 \description{
   \code{\link{plot.network.ergm}} produces a simple two-dimensional plot of
@@ -23,7 +22,7 @@
     mode="fruchtermanreingold",
     displayisolates=TRUE,
     interactive=FALSE,
-    xlab=NULL,
+    xlab=NULL,                                      
     ylab=NULL,
     xlim=NULL,
     ylim=NULL,
@@ -62,11 +61,16 @@
     layout.par=NULL,
     cex.main=par("cex.main"), 
     cex.sub=par("cex.sub"),
-    latent.control=list(maxit=500,trace=0,dyadsample=10000,
-                        penalty.sigma=c(5,0.5), nsubsample=200),
-    colornames=colors(),
-    verbose=FALSE, latent=FALSE, 
-       \dots)
+    seed=NULL,
+    latent.control=list(maxit=500,
+                        trace=0,
+                        dyadsample=10000,
+                        penalty.sigma=c(5,0.5), 
+                        nsubsample=200),
+    colornames="rainbow",
+    verbose=FALSE, 
+    latent=FALSE, 
+    \dots)
 }
 %- maybe also `usage' for other objects documented here.
 \arguments{
@@ -123,6 +127,7 @@
   \item{layout.par}{ parameters to the \code{network.layout} function specified in \code{mode}. }
   \item{cex.main}{ Character expansion for the plot title.}
   \item{cex.sub}{ Character expansion for the plot sub-title.}
+  \item{seed}{ Integer for seeding random number generator.  See \code{\link[base]{set.seed}}.}
   \item{latent.control}{A list of parameters to control the \code{latent} and \code{latentPrior} models, \code{dyadsample} determines the size above which to sample the latent dyads; see \code{\link{ergm}} and \code{\link[stats]{optim}} for details.}
   \item{colornames}{A vector of color names that can be selected by index for
 the plot. By default it is \code{colors()}.}

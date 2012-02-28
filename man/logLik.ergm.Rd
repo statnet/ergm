@@ -8,47 +8,48 @@ A function to return the log-likelihood associated with an
 \code{\link[=ergm.object]{ergm}} fit, evaluating it if necessary.
 }
 \usage{
-\method{logLik}{ergm}(object, nsteps = 20, add = FALSE, eval.loglik = add, force.reeval = FALSE, ...)
+\method{logLik}{ergm}(object, 
+                      add=FALSE, 
+                      force.reeval=FALSE, 
+                      eval.loglik=add || force.reeval, 
+                      control=control.logLik.ergm(), 
+                      \dots)
 }
 \arguments{
   \item{object}{
-An \code{\link[=ergm.object]{ergm}} fit, returned by \code{\link{ergm}}.
-}
-  \item{nsteps}{
-Number of bridges for bridge sampling estimation.
-}
-  \item{add}{
-Instead of returning the log-likelihood, return \code{object} with
-log-likelihood value set.
-}
-  \item{eval.loglik}{
-Evaluate the log-likelihood if not set on \code{object}.
-}
-  \item{force.reeval}{
-Whether to reestimate the log-likelihood even if \code{object} already
-has an estiamte. Defaults to \code{FALSE}.
-}
+    An \code{\link[=ergm.object]{ergm}} fit, returned by \code{\link{ergm}}.
+  }
+  \item{add}{Logical:  If TRUE, instead of 
+    returning the log-likelihood, return \code{object} with
+    log-likelihood value set.
+  }
+  \item{eval.loglik}{Logical:  If TRUE,
+    evaluate the log-likelihood if not set on \code{object}.
+  }
+  \item{force.reeval}{Logical:  If TRUE,
+    reestimate the log-likelihood even if \code{object} already
+    has an estiamte. 
+  }
   \item{\dots}{
-Other arguments to the bridge sampling functions.
-}
+    Other arguments to the likelihood functions.
+  }
 }
 \details{If the log-likelihood was not computed for \code{object},
   produces an error unless \code{eval.loglik=TRUE}
 }
 \value{
-If \code{add=FALSE} (the default), a \code{\link{logLik}} object. If
-\code{add=TRUE} (the default), an \code{\link[=ergm.object]{ergm}}
-object with the log-likelihood set.
+  If \code{add=FALSE} (the default), a \code{\link{logLik}} object. If
+  \code{add=TRUE} (the default), an \code{\link[=ergm.object]{ergm}}
+  object with the log-likelihood set.
 }
 \references{
-Hunter, D. R. and Handcock, M. S. (2006)
-    \emph{Inference in curved exponential family models for networks},
-   Journal of Computational and Graphical Statistics.
-
+  Hunter, D. R. and Handcock, M. S. (2006)
+  \emph{Inference in curved exponential family models for networks},
+  Journal of Computational and Graphical Statistics.
 }
 
 \seealso{
-\code{\link{logLik}}, \code{\link{ergm.bridge.llr}}, \code{\link{ergm.bridge.dindstart.llk}}
+  \code{\link{logLik}}, \code{\link{ergm.bridge.llr}}, \code{\link{ergm.bridge.dindstart.llk}}
 }
 \examples{
 # See help(ergm) for a description of this model:
