@@ -31,19 +31,12 @@ summary.statistics <- function(object, ..., basis=NULL) {
 
 summary.formula <- function(object, ...){
   current.warn <- options()$warn
+  on.exit(options(warn=current.warn))
   options(warn=0)
-  trms<-terms(object)
-  if (trms[[1]]!="~")
+  if(length(object)!=3 || object[[1]]!="~")
     stop ("Formula must be of form 'y ~ model'.")
-  if(length(trms)<3){return(object)}
-  parent <- sys.parent()
-  rhs <- try(eval(trms[[2]],parent), silent = TRUE)
-  while(inherits(rhs,"try-error") & parent > 1){                      
-    parent <- parent - 1
-    rhs <- try(eval(trms[[2]],parent), silent = TRUE)
-  }
-  options(warn=current.warn)
-  UseMethod("summary.statistics",object=rhs)
+  lhs <- eval(object[[2]], envir = environment(object))
+  UseMethod("summary.statistics",object=lhs)
 }
 
 
@@ -59,12 +52,22 @@ summary.statistics.ergm <- function(object, ..., basis=NULL)
   summary.statistics.network(object$formula, ..., basis=basis)
 }
 
-
+summary.statistics.network.list <- function(object, response=NULL, ..., basis=NULL){
+  if(!is.null(basis)){
+    if(inherits(basis,'network.list'))
+      object[[2]] <- basis
+    else stop('basis, if specified, should be the same type as the LHS of the formula (network.list, in this case).')
+  }
+  nwl <- eval(object[[2]], envir=environment(object))
+  out<-lapply(nwl, function(nw) summary.statistics.network(object, response=response, ..., basis=nw))
+  do.call(rbind,out)
+}
 
 summary.statistics.default <-
 summary.statistics.matrix <- 
 summary.statistics.network <- function(object, response=NULL,...,basis=NULL) {
   current.warn <- options()$warn
+  on.exit(options(warn=current.warn))
   options(warn=0)
   if(is.network(basis)){
     nw <- basis
@@ -73,23 +76,10 @@ summary.statistics.network <- function(object, response=NULL,...,basis=NULL) {
                                      # not needed by ergm.getmodel
   }else{
     formula <- object
-    trms <- terms(formula)
-    if(length(trms)>2){
-      parent <- sys.parent()
-      nw <- ergm.getnetwork(formula)
-      if (inherits(nw, "try-error")) {
-        stop(trms[[2]], " is not a network or network.list object")
-      }
-      if(class(nw) =="network.list")
-        nw <- nw$networks[[1]]
-      nw <- as.network(nw, ...)
-    }else{
-      stop("Must specify a network object")
-    }
+    nw <- ergm.getnetwork(formula)
   }
   m <- ergm.getmodel(formula, nw, response=response,...)
   gs <- ergm.getglobalstats(nw, m, response=response)
-  options(warn=current.warn)
   gs
 }
 
