@@ -139,13 +139,14 @@ control.stergm<-function(init.form=NULL,
                          RM.keep.oh=0.5, # Fraction of optimization history that is used for gradient and covariance calculation.
                          RM.jitter.mul=0.2, # The jitter standard deviation of each parameter is this times its standard deviation sans jitter.
                          RM.phase2.refine=TRUE, # Whether to use linear interpolation to refine the estimate after every run.
-                         RM.phase2.refine.maxjump=3, # Maximum linear interpolator jump magnitude (in standard deviations of the parameter from the current mean).
+                         RM.phase2.refine.maxjump=3, # Maximum linear interpolator jump magnitude (in standard deviations of the parameter from the current value).
+                         RM.phase2.backoff.rat=1.05, # If the an run produces this relative increase in the objective function, it will be backed off.
 
                          
 
                          RM.refine=c("linear","mean","none"), # Method, if any, used to refine the point estimate: linear interpolation, average, and none for the last value.
                          
-                         RM.se=FALSE, # Whether to run Phase 3 to compute the standard errors.
+                         RM.se=TRUE, # Whether to run Phase 3 to compute the standard errors.
                          RM.phase3n=1000, # This times the interval is the number of steps to estimate the standard errors.
 
                          seed=NULL,
