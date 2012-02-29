@@ -55,7 +55,7 @@
     sample is to be drawn.  If \code{object} is of class \code{ergm}, the 
     default value is the vector of estimated coefficients.
   }
-  \item{response, reference}{Not yet documented.
+  \item{response, reference}{Not for release.
   }
   \item{constraints}{A one-sided formula specifying one or more constraints
     on the support of the distribution of the networks being

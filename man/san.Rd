@@ -46,7 +46,7 @@ of mean statistics}
     then add nodal attributes to it using the \code{\%v\%}
     operator if necessary.
   }
-  \item{response, reference}{Not yet documented.
+  \item{response, reference}{Not for release.
   }
   \item{formula}{(By default, the \code{formula}
     is taken from the \code{ergm} object.

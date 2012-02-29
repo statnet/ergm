@@ -271,11 +271,9 @@ control.ergm(drop=TRUE,
   }
   \item{MCMLE.NR.reltol}{Not yet documented.
   }
-  \item{MCMLE.obs.MCMC.samplesize}{Not yet documented.
-  }
-  \item{MCMLE.obs.MCMC.interval}{Not yet documented.
-  }
-  \item{MCMLE.obs.MCMC.burnin}{Not yet documented.
+  \item{MCMLE.obs.MCMC.samplesize,MCMLE.obs.MCMC.burnin,MCMLE.obs.MCMC.interval}{
+    Sample size, burnin, and interval parameters for the MCMC sampling used
+    when unobserved data are present in the estimation routine.    
   }
   \item{MCMLE.check.degeneracy}{Logical:  If TRUE, employ
     a check for model degeneracy.
@@ -302,10 +300,20 @@ control.ergm(drop=TRUE,
   \item{MCMLE.steplength}{Multiplier for step length, which may 
     (for values less than one) 
     make fitting more stable at the cost of efficiency.
+    Can be set to "adaptive"; see 
+    \code{MCMLE.adaptive.trustregion} and 
+    \code{MCMLE.adaptive.epsilon}.
   }
-  \item{MCMLE.adaptive.trustregion}{Not yet documented.
+  \item{MCMLE.adaptive.trustregion}{Maximum increase the algorithm
+    will allow for the approximated loglikelihood at a given
+    iteration when \code{MCMLE.steplength="adaptive"}.
   }
-  \item{MCMLE.adaptive.epsilon}{Not yet documented.
+  \item{MCMLE.adaptive.epsilon}{convergence tolerance:  If
+    the change in loglikelihood value 
+    when \code{MCMLE.steplength="adaptive"} is smaller than this
+    tolerance (and the adaptive steplength equals 1), 
+    stop even if we haven't yet reached \code{MCMLE.maxit}
+    iterations.
   }
   \item{MCMLE.sequential}{Logical:  If TRUE,
     the next iteration of the fit uses the last network 

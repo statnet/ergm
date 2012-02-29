@@ -24,7 +24,7 @@ vector. This is the form required by \code{\link{ergm}} calls.
   \item{theta}{
     Curved model parameter configuration.
   }
-  \item{response}{Not yet documented.
+  \item{response}{Not for release.
   }
   \item{\dots}{
     Unused at this time.

@@ -120,34 +120,6 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
 }
 
 
-
-
-############################################################################
-## As of ergm version 2.2, the assignvariables function is deprecated.
-## This is so that there are no "mysterious" variable assignments in the
-## InitErgmTerm functions, which is prehaps better programming style
-## and which also prevents a whole raft of warnings when using
-## R CMD build.
-## However, assignvariables will still function so as not to break 
-## code.  It will simply produce a warning when called.
-##############################################################################
-# The <assignvariables> function following creates a variable out of each of
-# the elements in the given list *in the calling environment*.  In this way, it
-# sort of works like "attach" but without creating a new environment and
-# without all of the headaches that "attach" can give because the variables
-# it creates are not in the correct frame.
-##############################################################################
-
-assignvariables <- function(a) {
-  cat("The assignvariables function has been deprecated.  Please modify\n",
-       "the", get.InitErgm.fname(), "function so that it does not rely on\n",
-       "this function.  For instance, instead of 'assignvariables(a)'\n",
-       "followed by using 'attrname' throughout, use 'a$attrname' throughout.\n ")
-  if(length(a)>0)
-    for(i in 1:length(a)) 
-      assign(names(a)[i], a[[i]], envir=parent.frame())
-}
-
 # Search back in time through sys.calls() to find the name of the last
 # function whose name begins with "InitErgm"
 get.InitErgm.fname <- function() {

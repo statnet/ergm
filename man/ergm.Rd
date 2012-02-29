@@ -38,11 +38,7 @@ ergm (formula,
     operator if necessary. Enclosing a model term in \code{offset()}
     fixes its value to one specified in \code{offset.coef}.
   }
-  \item{response}{Not yet documented.
-  }
-  \item{reference}{Not yet documented.
-  }
-  \item{obs}{Not yet documented.
+  \item{response, reference, obs}{Not for release.
   }
   \item{constraints}{A one-sided formula specifying one or more constraints
     on the support of the distribution of the networks being modeled,
