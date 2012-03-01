@@ -58,7 +58,7 @@
                  RM.phase1.min.nonextreme=0.5,
                  RM.phase1.max.p=0.01,
                  RM.phase2sub=20,
-                 RM.phase2regain=100,
+                 RM.phase2regain=400,
                  RM.stepdown.subphases=10,
                  RM.stepdown.p=0.5,
                  RM.gain.decay=0.7,
