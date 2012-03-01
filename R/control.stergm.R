@@ -132,7 +132,7 @@ control.stergm<-function(init.form=NULL,
                          RM.phase1.max.p=0.01, # P-value that a gradient estimate must obtain before it's accepted (since sign is what's important).
 
                          RM.phase2sub=20, # Number of gain levels to go through.
-                         RM.phase2regain=100, # Number of times gain a subphase can be repeated if the optimization is "going somewhere".
+                         RM.phase2regain=400, # Maximum number of times gain a subphase can be repeated if the optimization is "going somewhere".
                          RM.stepdown.subphases=10, # Number of subphases to use to see whether the optimization is going somewhere.
                          RM.stepdown.p=0.5, # If the combined p-value for the trend in the parameters is less than this, repeat the subphase.
                          RM.gain.decay=0.7, # Gain decay factor.

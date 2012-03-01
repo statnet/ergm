@@ -94,7 +94,7 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
     assign("jitters.last",jitters.all[inds.last,,drop=FALSE],envir=parent.frame())
 
     # Plot if requested.
-    if(control$RM.plot.progress){library(lattice); print(xyplot(mcmc(oh),as.table=TRUE))}
+    if(control$RM.plot.progress){library(lattice); print(xyplot(mcmc(oh),panel=function(...){panel.xyplot(...);panel.abline(0,0)},as.table=TRUE))}
     
     # Extract and return the "state".
     list(nw = z$newnetwork,
