@@ -37,15 +37,21 @@
     An \code{\link{ergm}}-style formula for the dissolution phase. The
     left-hand-side is not used.
   }
-  \item{estimate}{Not yet documented.
+  \item{estimate}{One of "EGMoME" (Equilibrium generalized method
+    of moments estimator), "CMLE" 
+    (conditional maximum likelihood estimator), or
+    "CMPLE" (conditional maximum pseudolikelihood estimator).
+    For details, see Krivitsky (2009).
   }
-  \item{times}{Not yet documented.
+  \item{times}{Times at which the network is observed.
   }
-  \item{offset.coef.form}{Not yet documented.
+  \item{offset.coef.form}{Numeric vector to specify offset formation
+    parameters.
   }
-  \item{offset.coef.diss}{Not yet documented.
+  \item{offset.coef.diss}{Numeric vector to specify offset dissolution
+    parameters.
   }
-  \item{targets}{Not yet documented.
+  \item{targets}{Statistics to watch.
   }
 %  \item{theta.form0}{
 %    vector; the starting vector of formation phase parameters for the estimation.
