@@ -49,8 +49,8 @@ stopifnot(all.equal(y.summ[1], transitiveweights(y.m, pmin, max, min)/2, check.a
 
 y.sim <- simulate.call(y)
 
-s_results <- t(sapply(y.sim$networks, summary.call))
-d_results <- y.sim$stats
+s_results <- t(sapply(y.sim, summary.call))
+d_results <- attr(y.sim,"stats")
 
 stopifnot(all.equal(s_results,d_results))
 
@@ -74,8 +74,8 @@ stopifnot(all.equal(y.summ[1], transitiveweights(y.m, pmin, max, min), check.att
 
 y.sim <- simulate.call(y)
 
-s_results <- t(sapply(y.sim$networks, summary.call))
-d_results <- y.sim$stats
+s_results <- t(sapply(y.sim, summary.call))
+d_results <- attr(y.sim,"stats")
 
 stopifnot(all.equal(s_results,d_results))
 

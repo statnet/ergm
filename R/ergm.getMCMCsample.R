@@ -207,7 +207,7 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose) {
         z <- .C("WtMCMC_wrapper",
                 as.integer(length(nedges)), as.integer(nedges),
                 as.integer(tails), as.integer(heads), as.double(weights),
-                as.integer(Clist$maxpossibleedges), as.integer(Clist$n),
+                as.integer(Clist$n),
                 as.integer(Clist$dir), as.integer(Clist$bipartite),
                 as.integer(Clist$nterms),
                 as.character(Clist$fnamestring),
