@@ -66,8 +66,9 @@
                  RM.jitter.mul=0.2,
                  RM.phase2.refine=TRUE,
                  RM.phase2.refine.maxjump=3,
+                 RM.phase2.backoff.rat=1.05, 
                  RM.refine=c("linear","mean","none"),
-                 RM.se=FALSE,
+                 RM.se=TRUE,
                  RM.phase3n=1000,
 
                  seed=NULL,
@@ -213,6 +214,9 @@
   \item{RM.phase2.refine.maxjump}{Maximum linear interpolator jump 
     magnitude (in standard deviations of the parameter from the 
     current mean).
+  }
+  \item{RM.phase2.backoff.rat}{If the run produces this 
+    relative increase in the objective function, it will be backed off.
   }
   \item{RM.refine}{Method, if any, used to 
     refine the point estimate: "linear" for linear interpolation, 
