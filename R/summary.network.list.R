@@ -1,4 +1,5 @@
-summary.network.list <- function (object, stats.print=TRUE, net.print=FALSE, net.summary=FALSE, ...){
+summary.network.list <- function (object, stats.print=TRUE, 
+                       net.print=FALSE, net.summary=FALSE, ...){
 
   cat("Number of Networks:",length(object),"\n")
   attrmap<-list(formula="Model: ",
@@ -31,6 +32,4 @@ summary.network.list <- function (object, stats.print=TRUE, net.print=FALSE, net
   }
 }
 
-print.network.list <- function(object, stats.print=FALSE, net.print=FALSE, net.summary=FALSE, ...){
-  summary.network.list(object, stats.print=stats.print, net.print=net.print, net.summary=net.summary, ...)
-}
+

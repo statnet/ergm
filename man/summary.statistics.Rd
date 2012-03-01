@@ -2,6 +2,7 @@
 \alias{summary.statistics}
 \alias{summary.statistics.matrix}
 \alias{summary.statistics.network}
+\alias{summary.statistics.network.list}
 \alias{summary.statistics.default}
 \alias{summary.statistics.formula}
 \alias{summary.statistics.ergm}
@@ -9,8 +10,10 @@
 \alias{summary}
 \title{Calculation of network or graph statistics}
 \usage{
-%summary(object, \dots)
-%\method{summary.statistics}{default}(object,\dots, m=NULL)
+\method{summary.statistics}{default}(object, response=NULL, \dots, basis=NULL)
+\method{summary.statistics}{matrix}(object, response=NULL, \dots, basis=NULL)
+\method{summary.statistics}{network}(object, response=NULL, \dots, basis=NULL)
+\method{summary.statistics}{network.list}(object, response=NULL, \dots, basis=NULL)
 \method{summary.statistics}{formula}(object, \dots, basis=NULL)
 \method{summary.statistics}{ergm}(object, \dots, basis=NULL)
 }
@@ -30,7 +33,7 @@
 %    \code{\link[network]{network}} object in \R, use the \code{network()} function,
 %    then add nodal attributes to it using the \code{\%v\%}
 %    operator if necessary.}
-  \item{object}{an \R object. It is either an \R \code{\link{formula}} object
+  \item{object}{Either an \R \code{\link{formula}} object
     (see above) or an 
     \code{\link{ergm}} model object.  
     In the latter case, \code{summary.statistics} is called for the
@@ -43,7 +46,9 @@
     \code{\link[network]{network}} object in \R, use the \code{network()} function,
     then add nodal attributes to it using the \code{\%v\%}
     operator if necessary.
-    }
+  }
+  \item{response}{Not for release.
+  }
 % \item{m}{A model component produced by \code{ergm.getmodel}. Only the 
 %   \code{m$coef.names} component is used to set the names of the statistics.}
   \item{basis}{An optional \code{\link[network]{network}} object relative to which

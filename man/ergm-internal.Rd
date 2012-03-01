@@ -370,6 +370,7 @@
 \alias{newnw.extract}
 \alias{nologLik.message}
 \alias{ostar2deg}
+\alias{paste.and}
 \alias{plot.mcmc.list.ergm}
 \alias{print.summary.ergm}
 \alias{print.summary.stergm}
