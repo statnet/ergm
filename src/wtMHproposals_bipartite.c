@@ -1,4 +1,5 @@
 #include "wtMHproposals.h"
+#include "wtMHproposals_bipartite.h"
 /* Shorthand. */
 #define Mtail (MHp->toggletail)
 #define Mhead (MHp->togglehead)

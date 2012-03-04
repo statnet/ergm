@@ -369,6 +369,7 @@
 \alias{myLibLoc}
 \alias{newnw.extract}
 \alias{nologLik.message}
+\alias{nvattr.copy.network}
 \alias{ostar2deg}
 \alias{paste.and}
 \alias{plot.mcmc.list.ergm}

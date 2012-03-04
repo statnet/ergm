@@ -46,8 +46,10 @@ ergm.getCluster <- function(control, verbose=FALSE){
     # Try loading from the same location as the master.
     attached <- unlist(clusterCall(cl, require,
                                  package="ergm",
-                                 character.only=TRUE,
-                                 lib.loc=myLibLoc))
+                                 character.only=TRUE))
+## FIXME:  setting binding for myLibLoc in the .onLoad function
+## is broken; did not have time to fix this.
+#                                 ,lib.loc=myLibLoc))
     # If something failed, warn and try loading from anywhere.
     if(!all(attached)){
       if(verbose) cat("Failed to attach ergm on the slave nodes from the same location as the master node. Will try to load from anywhere in the library path.\n")
