@@ -80,6 +80,7 @@ stergm.CMLE <- function(nw, formation, dissolution, times, offset.coef.form, off
   estimate <- switch(estimate,
                      CMLE = "MLE",
                      CMPLE = "MPLE")
+  if(estimate=="MPLE") warning("MPLE for stergm() is extremely imprecise at this time!")
 
   if(is.null(times)){
     if(inherits(nw, "network.list") || is.list(nw)){
@@ -102,18 +103,20 @@ stergm.CMLE <- function(nw, formation, dissolution, times, offset.coef.form, off
     y0 <- nw %t% times[1]
     y1 <- nw %t% times[2]
   }
+
+  if(!is.network(y0) || !is.network(y1)) stop("nw must be a networkDynamic, a network.list, or a list of networks.")
   
   
   # Construct the formation and dissolution networks; the
-  # network.update is there to copy attributes from y0 to y.form and
-  # y.diss.
+  # network.update cannot be used to copy attributes from y0 to y.form and
+  # y.diss, since NA edges will be lost.
   
   y.form <- y0 | y1
-  y.form <- network.update(y0, as.matrix(y.form, matrix.type="edgelist"), matrix.type="edgelist")
+  y.form <- nvattr.copy.network(y.form, y0)
   formation <- ergm.update.formula(formation, y.form~.)
 
   y.diss <- y0 & y1
-  y.diss <- network.update(y0, as.matrix(y.diss, matrix.type="edgelist"), matrix.type="edgelist")
+  y.diss <- nvattr.copy.network(y.diss, y0)
   dissolution <- ergm.update.formula(dissolution, y.diss~.)
 
   # Apply initial values passed to control.stergm() the separate controls, if necessary.
@@ -121,9 +124,9 @@ stergm.CMLE <- function(nw, formation, dissolution, times, offset.coef.form, off
   if(is.null(control$CMLE.control.diss$init)) control$CMLE.control.diss$init <- control$init.diss
   
   # Now, call the ergm()s:
-  
+  cat("Fitting formation:\n")
   fit.form <- ergm(formation, constraints=~atleast(y0), offset.coef=offset.coef.form, eval.loglik=eval.loglik, estimate=estimate, control=control$CMLE.control.form, verbose=verbose)
-
+  cat("Fitting dissolution:\n")
   fit.diss <- ergm(dissolution, constraints=~atmost(y0), offset.coef=offset.coef.diss, eval.loglik=eval.loglik, estimate=estimate, control=control$CMLE.control.diss, verbose=verbose)
 
   # Construct the output list. Conveniently, this is mainly a list consisting of two ergms.

@@ -14,8 +14,6 @@ stergm <- function(nw, formation, dissolution, estimate, times=NULL, offset.coef
 
   estimate <- match.arg(estimate,c("CMLE","CMPLE","EGMoME"))
   
-  if(!is.network(nw)) stop("Argument nw must be a network or networkDynamic.")
-  
   if(!inherits(formation,"formula") || !inherits(dissolution,"formula"))
     stop("Arguments formation and dissolution must be formulas.")
 

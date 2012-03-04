@@ -404,6 +404,17 @@ newnw.extract<-function(oldnw,z,output="network",response=NULL){
   newnw
 }
 
+nvattr.copy.network <- function(to, from, ignore=c("bipartite","directed","hyper","loops","mnext","multiple","n")){
+  for(a in list.vertex.attributes(from)){
+    if(! a%in%ignore)
+      to <- set.vertex.attribute(to, a, get.vertex.attribute(from, a, unlist=FALSE))
+  }
+  for(a in list.network.attributes(from)){
+    if(! a%in%ignore)
+      to <- set.network.attribute(to, a, get.network.attribute(from, a, unlist=FALSE))
+  }
+  to
+}
 
 
 statnet.edit <- function(name,package=c("statnet","ergm","network")){
@@ -441,6 +452,7 @@ sort.data.frame<-function(x, decreasing=FALSE, ...){
   x[do.call(order,c(sapply(seq_along(x),function(i)x[[i]],simplify=FALSE), decreasing=decreasing)),]
 }
 
+## Concatenate a character list with commas and ands in the right places.
 paste.and <- function(x, oq='', cq=''){
   x <- paste(oq, x, cq, sep='')
   if(length(x)==0) return('')
