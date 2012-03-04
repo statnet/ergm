@@ -1,6 +1,6 @@
 authors <- c("Mark S. Handcock", "David R. Hunter", "Carter T. Butts",
              "Steven M. Goodreau", "Martina Morris")
-projhomepage <- "http://statnet.org"
+projhomepage <- "statnet.org"
 
 statnettitle <- "statnet: Software Tools for the Statistical Modeling of Network Data"
 statnetversion <- "2.0"
@@ -27,7 +27,7 @@ citEntry(entry = "Manual",
          textVersion = paste(paste(authors, collapse=", "), " (", statnetyear,
                              "). ", statnettitle, ". Version ", statnetversion,
                              ". Project home page at ", projhomepage, 
-                             ". URL http://CRAN.R-project.org/package=statnet.",
+                             ". URL CRAN.R-project.org/package=statnet.",
                              sep=""),
          title = statnettitle, 
          author = authors, 
@@ -35,7 +35,7 @@ citEntry(entry = "Manual",
          note = paste("Version ", statnetversion, ". Project home page at ",
                       "\\ url{", projhomepage, "}", sep=""),
          address = "Seattle, WA",
-         url = "http://CRAN.R-project.org/package=statnet")
+         url = "CRAN.R-project.org/package=statnet")
 
 citEntry(entry="Manual",
          author = ergmauthors,
@@ -45,11 +45,11 @@ citEntry(entry="Manual",
                         ".  Project home page at \\ url{", projhomepage, "}", 
                         sep=""),
          address      = "Seattle, WA",
-         url          = "http://CRAN.R-project.org/package=ergm",
+         url          = "CRAN.R-project.org/package=ergm",
          textVersion = paste(paste(ergmauthors, collapse=", "), " (", ergmyear,
                "), ", ergmtitle, ". Version ", ergmversion,
                ". Project home page at ", projhomepage,
-               ". URL http://CRAN.R-project.org/package=ergm.",
+               ". URL CRAN.R-project.org/package=ergm.",
                sep="")
          )
 

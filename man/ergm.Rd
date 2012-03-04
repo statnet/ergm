@@ -462,7 +462,7 @@ Admiraal R, Handcock MS (2007).
  \pkg{networksis}: Simulate bipartite graphs with fixed
   marginals through sequential importance sampling.
  Statnet Project, Seattle, WA.
- Version 1. \url{http://statnet.org}.
+ Version 1. \url{statnet.org}.
 
 Bender-deMoll S, Morris M, Moody J (2008).
  Prototype Packages for Managing and Animating Longitudinal
@@ -508,19 +508,19 @@ Handcock MS (2003b).
  \pkg{degreenet}: Models for Skewed Count Distributions Relevant
   to Networks.
  Statnet Project, Seattle, WA.
- Version 1.0, \url{http://statnet.org}.
+ Version 1.0, \url{statnet.org}.
 
 Handcock MS, Hunter DR, Butts CT, Goodreau SM, Morris M (2003a).
  \pkg{ergm}: A Package to Fit, Simulate and Diagnose
   Exponential-Family Models for Networks.
  Statnet Project, Seattle, WA.
- Version 2, \url{http://statnet.org}.
+ Version 2, \url{statnet.org}.
 
 Handcock MS, Hunter DR, Butts CT, Goodreau SM, Morris M (2003b).
  \pkg{statnet}: Software Tools for the Statistical Modeling of
   Network Data.
  Statnet Project, Seattle, WA.
- Version 2, \url{http://statnet.org}.
+ Version 2, \url{statnet.org}.
 
 Hunter, D. R. and Handcock, M. S. (2006)
     \emph{Inference in curved exponential family models for networks},
@@ -536,7 +536,7 @@ Krivitsky PN, Handcock MS (2007).
  \pkg{latentnet}: Latent position and cluster models for
   statistical networks.
  Seattle, WA.
- Version 2, \url{http://statnet.org}.
+ Version 2, \url{statnet.org}.
 
 Morris M, Handcock MS, Hunter DR (2008).
  Specification of Exponential-Family Random Graph Models:

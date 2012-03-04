@@ -19,7 +19,7 @@ Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau,
 and Martina Morris. 2003 
 \emph{statnet: Software tools for the Statistical Modeling of Network Data}
 \cr
-\url{http://statnet.org}.
+\url{statnet.org}.
 
 All programs derived from this package must cite it.
 For complete citation information, use\cr
@@ -47,7 +47,7 @@ networks and assessing model goodness-of-fit.
 
 For detailed information on how to download and install the software,
 go to the \code{\link{ergm}} website:
-\url{http://statnet.org}.
+\url{statnet.org}.
 A tutorial, support newsgroup, references and links to further resources are provided there.
 }
 \author{
@@ -65,7 +65,7 @@ Admiraal R, Handcock MS (2007).
  \pkg{networksis}: Simulate bipartite graphs with fixed
   marginals through sequential importance sampling.
  Statnet Project, Seattle, WA.
- Version 1, \url{http://statnet.org}.
+ Version 1, \url{statnet.org}.
 
 Bender-deMoll S, Morris M, Moody J (2008).
  Prototype Packages for Managing and Animating Longitudinal
@@ -123,19 +123,19 @@ Handcock MS (2003b).
  \pkg{degreenet}: Models for Skewed Count Distributions Relevant
   to Networks.
  Statnet Project, Seattle, WA.
- Version 1.0, \url{http://statnet.org}.
+ Version 1.0, \url{statnet.org}.
 
 Handcock MS, Hunter DR, Butts CT, Goodreau SM, Morris M (2003a).
  \pkg{ergm}: A Package to Fit, Simulate and Diagnose
   Exponential-Family Models for Networks.
  Statnet Project, Seattle, WA.
- Version 2, \url{http://statnet.org}.
+ Version 2, \url{statnet.org}.
 
 Handcock MS, Hunter DR, Butts CT, Goodreau SM, Morris M (2003b).
  \pkg{statnet}: Software Tools for the Statistical Modeling of
   Network Data.
  Statnet Project, Seattle, WA.
- Version 2, \url{http://statnet.org}.
+ Version 2, \url{statnet.org}.
 
 Hunter, D. R. and Handcock, M. S. (2006)
    Inference in curved exponential family models for networks,

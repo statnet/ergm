@@ -19,8 +19,8 @@
           "                    Steven M. Goodreau, University of Washington\n",
           "                    Pavel N. Krivitsky, Penn State University\n",
           "                    Martina Morris, University of Washington\n",
-          'Based on "statnet" project software (http://statnet.org).\n',
-          'For license and citation information see http://statnet.org/attribution\n',
+          'Based on "statnet" project software (statnet.org).\n',
+          'For license and citation information see statnet.org/attribution\n',
           'or type citation("ergm").\n', sep="")
  )
 }

@@ -13,4 +13,4 @@ Depends: network, robustbase, Matrix, trust, nlme, coda
 Suggests: lattice, latticeExtra, sna, Rglpk, snow, latentnet, networkDynamic
 Description: An integrated set of tools to analyze and simulate networks based on exponential-family random graph models (ERGM). "ergm" is a part of the "statnet" suite of packages for network analysis.  For a list of functions type: help(package='ergm')
 License: file LICENSE
-URL: http://statnet.org
+URL: statnet.org
