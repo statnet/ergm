@@ -175,8 +175,8 @@ ergm.MCMLE <- function(init, nw, model,
       if(verbose){cat("Calling adaptive MCMLE Optimization...\n")}
       adaptive.steplength <- 2
       statsmean <- apply(statsmatrix.0,2,mean)
-      v <- list(loglikelihood=control$MCMC.adaptive.trustregion*2)
-      while(v$loglikelihood > control$MCMC.adaptive.trustregion){
+      v <- list(loglikelihood=control$MCMLE.adaptive.trustregion*2)
+      while(v$loglikelihood > control$MCMLE.adaptive.trustregion){
         adaptive.steplength <- adaptive.steplength / 2
         if(!is.null(statsmatrix.0.obs)){
           statsmatrix.obs <- statsmatrix.0.obs*adaptive.steplength+statsmatrix.0*(1-adaptive.steplength)
@@ -209,7 +209,7 @@ ergm.MCMLE <- function(init, nw, model,
       }else{
         cat("the log-likelihood did not improve.\n")
       }
-      if((adaptive.steplength==1) && (v$loglikelihood < control$MCMC.adaptive.epsilon) ){break}
+      if((adaptive.steplength==1) && (v$loglikelihood < control$MCMLE.adaptive.epsilon) ){break}
     }else{
 
       if(verbose){cat("Calling MCMLE Optimization...\n")}
@@ -243,7 +243,7 @@ ergm.MCMLE <- function(init, nw, model,
       }else{
         cat("the log-likelihood did not improve.\n")
       }
-      if((control$MCMLE.steplength==1) && (v$loglikelihood < control$MCMC.adaptive.epsilon) ){break}
+      if((control$MCMLE.steplength==1) && (v$loglikelihood < control$MCMLE.adaptive.epsilon) ){break}
     }
           
     mcmc.init <- v$coef
