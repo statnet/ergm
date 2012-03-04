@@ -80,13 +80,29 @@ stergm.CMLE <- function(nw, formation, dissolution, times, offset.coef.form, off
   estimate <- switch(estimate,
                      CMLE = "MLE",
                      CMPLE = "MPLE")
+
+  if(is.null(times)){
+    if(inherits(nw, "network.list") || is.list(nw)){
+      times  <- c(1,2)
+      warning("Time points not specified for a list. Modeling transition from the first to the second network. This behavior may change in the future.")
+    }else if(inherits(nw,"networkDynamic")){
+      times  <- c(0,1)
+      warning("Time points not specified for a networkDynamic. Modeling transition from time 0 to 1.")
+    }
+  }
   
-  if(length(times)<2) stop("Time points at which the network were not specified.")
+  if(length(times)<2) stop("Time points whose transition is to be modeled was not specified.")
   if(length(times)>2) stop("Only two time points (one transition) are supported at this time.")
 
-  require(networkDynamic) # This is needed for the "%t%.network" function
-  y0 <- nw %t% times[1]
-  y1 <- nw %t% times[2]
+  if(inherits(nw, "network.list") || is.list(nw)){
+    y0 <- nw[[times[1]]]
+    y1 <- nw[[times[2]]]
+  }else if(inherits(nw,"networkDynamic")){
+    require(networkDynamic) # This is needed for the "%t%.network" function
+    y0 <- nw %t% times[1]
+    y1 <- nw %t% times[2]
+  }
+  
   
   # Construct the formation and dissolution networks; the
   # network.update is there to copy attributes from y0 to y.form and
