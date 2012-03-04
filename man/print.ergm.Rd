@@ -15,8 +15,9 @@
   in the future.}
 }
 \details{Automatically called when an object of class \code{\link{ergm}} is printed.
-  Currently, \code{\link{print.ergm}} summarizes the number of Newton-Raphson
-  iterations required, the size of the MCMC sample, the theta vector
+  Currently, \code{\link{print.ergm}} summarizes 
+%  the number of Newton-Raphson iterations required, 
+  the size of the MCMC sample, the theta vector
   governing the selection of the sample, and the Monte Carlo MLE.
 }
 \value{The value returned is the \code{\link{ergm}} object itself.}

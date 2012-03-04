@@ -16,9 +16,9 @@ print.ergm <- function (x, digits = max(3, getOption("digits") - 3), ...) {
 #  if(!is.latent(x) || is.null(x$Z.mle)) {                             
   if(is.null(x$Z.mle)) {
    if(is.matrix(x$sample)){
-    if(!is.matrix(x$thetasample) && !is.null(x$iterations)){
-     cat("Newton-Raphson iterations: ", x$iterations[1], "\n")
-    }
+#    if(!is.matrix(x$thetasample) && !is.null(x$iterations)){
+#     cat("Newton-Raphson iterations: ", x$iterations[1], "\n")
+#    }
     cat("MCMC sample of size", x$samplesize, "based on: \n")
     print.default(format(x$MCMCtheta, digits = digits), print.gap = 2, 
         quote = FALSE)
@@ -26,9 +26,9 @@ print.ergm <- function (x, digits = max(3, getOption("digits") - 3), ...) {
     print.default(format(x$coef, digits = digits), print.gap = 2, 
         quote = FALSE)
    }else{
-    if (!is.null(x$iterations)) {
-      cat("Newton-Raphson iterations: ", x$iterations[1], "\n")
-    }
+#    if (!is.null(x$iterations)) {
+#      cat("Newton-Raphson iterations: ", x$iterations[1], "\n")
+#    }
     if(!all(x$theta1$independent)){
      cat("\nMPLE Coefficients:\n")
      print.default(format(x$coef, digits = digits), print.gap = 2, 
@@ -41,9 +41,9 @@ print.ergm <- function (x, digits = max(3, getOption("digits") - 3), ...) {
    }
   }
   else {
-    if (!is.null(x$iterations)) {
-      cat("Newton-Raphson iterations: ", x$iterations[1], "\n")
-    }
+#    if (!is.null(x$iterations)) {
+#      cat("Newton-Raphson iterations: ", x$iterations[1], "\n")
+#    }
     cat("MLE and Posterior Mean of Coefficients:\n")
     temp <- cbind(x$MCMCtheta,x$coef)
     colnames(temp) <- c("MLE","MAP")
