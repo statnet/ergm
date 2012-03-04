@@ -37,7 +37,7 @@
 #
 #####################################################################################
 
-ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, ...) {
+ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="static",...) {
   if ((dc<-data.class(formula)) != "formula")
     stop (paste("Invalid formula of class ",dc), call.=FALSE)
 
@@ -91,7 +91,7 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, ...) {
       v[[i]][[3]] <- model
       names(v[[i]])[3] <- ""
       v[[i]][[4]] <- args
-      dotdotdot <- c(if(!is.null(response)) list(response=response), list(...))
+      dotdotdot <- c(if(!is.null(response)) list(response=response), list(role=role), list(...))
       for(j in seq_along(dotdotdot)) {
         if(is.null(dotdotdot[[j]])) next
         v[[i]][[4+j]] <- dotdotdot[[j]]
@@ -116,7 +116,7 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, ...) {
       names(v[[i]])[2] <-  ""
       v[[i]][[3]] <- args
       names(v[[i]])[3] <- ""
-      dotdotdot <- c(if(!is.null(response)) list(response=response), list(...))
+      dotdotdot <- c(if(!is.null(response)) list(response=response), list(role=role), list(...))
       for(j in seq_along(dotdotdot)) {
         if(is.null(dotdotdot[[j]])) next
         v[[i]][[3+j]] <- dotdotdot[[j]]

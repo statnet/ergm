@@ -167,9 +167,13 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss, model.mon,
 
   diffedgelist<-if(!is.null(control$toggles)) {
     if(z$diffnwtails[1]>0){
-      cbind(z$diffnwtime[2:(z$diffnwtime[1]+1)],z$diffnwtails[2:(z$diffnwheads[1]+1)],z$diffnwheads[2:(z$diffnwtails[1]+1)])
+      tmp <- cbind(z$diffnwtime[2:(z$diffnwtime[1]+1)],z$diffnwtails[2:(z$diffnwheads[1]+1)],z$diffnwheads[2:(z$diffnwtails[1]+1)])
+      colnames(tmp) <- c("time","tail","head")
+      tmp
     }else{
-      matrix(0, ncol=3, nrow=0)
+      tmp <- matrix(0, ncol=3, nrow=0)
+      colnames(tmp) <- c("time","tail","head")
+      tmp
     }
   }else{
     NULL

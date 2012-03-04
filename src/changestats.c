@@ -1834,7 +1834,7 @@ D_CHANGESTAT_FN(d_dyadcov) {
 D_CHANGESTAT_FN(d_edgecov) {
   double val;
   Vertex tail, head;
-  long int nrow, noffset;
+  int nrow, noffset;
   int i, edgeflag;
   
   noffset = BIPARTITE;

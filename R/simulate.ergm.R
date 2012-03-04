@@ -128,7 +128,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   }
 
   # Prepare inputs to ergm.getMCMCsample
-  m <- ergm.getmodel(form, basis, response=response)
+  m <- ergm.getmodel(form, basis, response=response, role="static")
   # Just in case the user did not give a coef value, set it to zero.
   # (probably we could just return an error in this case!)
   if(missing(coef)) {

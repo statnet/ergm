@@ -324,17 +324,46 @@ MCMCDynStatus MCMCSampleDyn(// Observed and discordant network.
   }
 }
 
+
+/*
+  MCMCDyn1Step_advance
+  Increment the timer and update time-sensitive statistics.
+*/
+void MCMCDyn1Step_advance(Network *nwp,
+			  Model *F_m, double *F_stats,
+			  Model *D_m, double *D_stats,
+			  Model *M_m, double *M_stats){
+ 
+  if(F_stats){
+    ChangeStatsT(nwp,F_m);
+    for (unsigned int i = 0; i < F_m->n_stats; i++)
+      F_stats[i] += F_m->workspace[i];
+  }
+  
+  if(D_stats){
+    ChangeStatsT(nwp,D_m);
+    for (unsigned int i = 0; i < D_m->n_stats; i++)
+      D_stats[i] += D_m->workspace[i];
+  }
+  
+  if(M_stats){
+    ChangeStatsT(nwp,M_m);
+    for (unsigned int i = 0; i < M_m->n_stats; i++)
+      M_stats[i] += M_m->workspace[i];
+  } 
+}
+
 /*
   MCMCDyn1Step_commit
   Applies a list of toggles to a network, updating change statistics and time stamps.
 */
- void MCMCDyn1Step_commit(unsigned int ntoggles,
-				      Vertex *difftail, Vertex *diffhead,
-				      Network *nwp,
-				      Model *F_m, double *F_stats,
-				      Model *D_m, double *D_stats,
-				      Model *M_m, double *M_stats){
-  
+void MCMCDyn1Step_commit(unsigned int ntoggles,
+			 Vertex *difftail, Vertex *diffhead,
+			 Network *nwp,
+			 Model *F_m, double *F_stats,
+			 Model *D_m, double *D_stats,
+			 Model *M_m, double *M_stats){
+
   if(F_stats){
     ChangeStats(ntoggles,difftail,diffhead,nwp,F_m);
     for (unsigned int i = 0; i < F_m->n_stats; i++)
@@ -355,7 +384,7 @@ MCMCDynStatus MCMCSampleDyn(// Observed and discordant network.
 
   for(Edge i=0;i<ntoggles;i++){
     ToggleEdgeWithTimestamp(difftail[i],diffhead[i],nwp);
-  }
+  }  
 }
 
 /* 
@@ -420,9 +449,9 @@ MCMCDynStatus MCMCDyn1Step(// Observed and discordant network.
 
   Edge nde=1;
   if(nextdiffedge) nde=*nextdiffedge;
-  
-  /* Increment the MCMC timer. */
-  nwp->duration_info.MCMCtimer++;
+
+  /* Update timer. */
+  nwp->duration_info.MCMCtimer++;  
 
   /* Run the dissolution process. */
   MCMCDyn1Step_sample(D_MH, D_eta, MH_interval, nwp, D_m);
@@ -438,9 +467,11 @@ MCMCDynStatus MCMCDyn1Step(// Observed and discordant network.
   
   /* Commit both. */
   MCMCDyn1Step_commit(ntoggles, difftail+nde-ntoggles, diffhead+nde-ntoggles, nwp, F_m, F_stats, D_m, D_stats, M_m, M_stats);
+  MCMCDyn1Step_advance(nwp, F_m, F_stats, D_m, D_stats, M_m, M_stats);
   
   // If we don't keep a log of toggles, reset the position to save space.
   if(log_toggles)
     *nextdiffedge=nde;
   return MCMCDyn_OK;
 }
+

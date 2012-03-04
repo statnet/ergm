@@ -164,3 +164,25 @@ void ChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead,
     dstats += (mtp++)->nstats;
   }
 }
+
+
+/*
+  MCMCChangeStatsT
+  A helper's helper function to compute change statistics associated with advancing the clock by 1 unit.
+  The vector of changes is written to m->workspace.
+*/
+void ChangeStatsT(Network *nwp, Model *m){
+  ModelTerm *mtp = m->termarray;
+  double *dstats = m->workspace;
+  
+  for (unsigned int i=0; i < m->n_terms; i++){
+    /* Calculate change statistics */
+    mtp->dstats = dstats; /* Stuck the change statistic here.*/
+    if(mtp->t_func){
+      (*(mtp->t_func))(mtp, nwp);  /* Call t_??? function */
+    }else{
+      memset(mtp->dstats, 0, mtp->nstats*sizeof(double)); /* If none exists, zero changes. */
+    }
+    dstats += (mtp++)->nstats;
+  }
+}

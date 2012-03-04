@@ -78,7 +78,7 @@ summary.statistics.network <- function(object, response=NULL,...,basis=NULL) {
     formula <- object
     nw <- ergm.getnetwork(formula)
   }
-  m <- ergm.getmodel(formula, nw, response=response,...)
+  m <- ergm.getmodel(formula, nw, response=response, role="target",...)
   gs <- ergm.getglobalstats(nw, m, response=response)
   gs
 }

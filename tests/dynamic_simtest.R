@@ -14,12 +14,12 @@ logit<-function(p)log(p/(1-p))
 
 coef.form.f<-function(coef.diss,density) -log(((1+exp(coef.diss))/(density/(1-density)))-1)
 
-S<-100000
+S<-1000
 
 n<-200
 m<-100
 target.stats<-edges<-100
-duration<-1000
+duration<-100
 coef.diss<-logit(1-1/duration)
 
 ### Undirected
@@ -39,7 +39,7 @@ print(coef.form)
 print(coef.diss)
 
 # Simulate from the fit.
-dynsim<-simulate(g1,formation=~edges,dissolution=~edges,coef.form=coef.form,coef.diss=coef.diss,nsim=S,verbose=TRUE)
+dynsim<-simulate(g1,formation=~edges,dissolution=~edges,coef.form=coef.form,coef.diss=coef.diss,time.points=S,verbose=TRUE)
 
 #print.sim.stats(dynsim,target.stats,duration)
 
@@ -60,7 +60,7 @@ print(coef.form)
 print(coef.diss)
 
 # Simulate from the fit.
-dynsim<-simulate(g1,formation=~edges,dissolution=~edges,coef.form=coef.form,coef.diss=coef.diss,nsim=S,verbose=TRUE)
+dynsim<-simulate(g1,formation=~edges,dissolution=~edges,coef.form=coef.form,coef.diss=coef.diss,time.points=S,verbose=TRUE)
 
 #print.sim.stats(dynsim,target.stats,duration)
 
@@ -81,7 +81,7 @@ print(coef.form)
 print(coef.diss)
 
 # Simulate from the fit.
-dynsim<-simulate(g1,formation=~edges,dissolution=~edges,coef.form=coef.form,coef.diss=coef.diss,nsim=S,verbose=TRUE)
+dynsim<-simulate(g1,formation=~edges,dissolution=~edges,coef.form=coef.form,coef.diss=coef.diss,time.points=S,verbose=TRUE)
 
 #print.sim.stats(dynsim,target.stats,duration)
 

@@ -72,13 +72,14 @@ simulate.stergm<-function(object,
                           nsim=1,
                           seed=NULL,
                           coef.form=object$formation.fit$coef,coef.diss=object$dissolution.fit$coef,
-                          monitor = NULL,
-                          time.burnin=0, time.interval=1,
+                          monitor = object$targets,
+                          time.points, time.burnin=0, time.interval=1,
                           control=control.simulate.stergm(),
-                          statsonly=FALSE,
-                          toggles=!statsonly,
+                          statsonly=time.burnin>0||time.interval>1,
+                          stats.form = FALSE,
+                          stats.diss = FALSE,
                           verbose=FALSE, ...){
-  simulate.network(object$network,formation=object$formation,dissolution=object$dissolution,nsim=nsim,coef.form=coef.form, coef.diss=coef.diss, monitor=monitor, time.burnin=time.burnin, time.interval=time.interval,control=control,toggles=toggles,verbose=verbose,...)
+  simulate.network(object$network,formation=object$formation,dissolution=object$dissolution,nsim=nsim,coef.form=coef.form, coef.diss=coef.diss, monitor=monitor, time.points=time.points, time.burnin=time.burnin, time.interval=time.interval,control=control,toggles=toggles, stats.form = stats.form, stats.diss = stats.diss, verbose=verbose,...)
 }
 
 
@@ -88,17 +89,19 @@ simulate.network <- function(object, nsim=1, seed=NULL,
                              formation, dissolution,
                              coef.form,coef.diss,
                              monitor = NULL,
-                             time.burnin=0, time.interval=1,
+                             time.points, time.burnin=0, time.interval=1,
                              control=control.simulate.stergm(),
-                             toggles = TRUE,
-                             verbose=FALSE, ...) {
+                             statsonly=time.burnin>0||time.interval>1,
+                             stats.form = FALSE,
+                             stats.diss = FALSE,
+                             verbose=FALSE) {
   
   if(!is.null(seed)) set.seed(as.integer(seed))
   # Toggles is a "main call" parameter, since it affects what to
   # compute rather than just how to compute it, but it's convenient to
   # have it as a part of the control data structure.
-  control$toggles <- toggles
-  
+  control$toggles <- !statsonly
+
   nw <- as.network(object)
   if(!is.network(nw)){
     stop("A network object must be given")
@@ -106,15 +109,24 @@ simulate.network <- function(object, nsim=1, seed=NULL,
 
   formation<-ergm.update.formula(formation,nw~.)
   dissolution<-ergm.update.formula(dissolution,nw~.)
+
+  if(is.character(monitor)){
+    monitor <- switch(monitor,
+                      formation = formation,
+                      dissolution = dissolution,
+                      all = append.rhs.formula(~nw, unique(c(term.list.formula(formation[[3]]),term.list.formula(dissolution[[3]]))))
+                      )
+  }
+  
   if(!is.null(monitor)) monitor<-ergm.update.formula(monitor,nw~.)
   
-  model.form <- ergm.getmodel(formation, nw)
+  model.form <- ergm.getmodel(formation, nw, role="formation")
   if(!missing(coef.form) && coef.length.model(model.form)!=length(coef.form)) stop("coef.form has ", length(coef.form), " elements, while the model requires ",coef.length.model(model.form)," parameters.")
 
-  model.diss <- ergm.getmodel(dissolution, nw)
+  model.diss <- ergm.getmodel(dissolution, nw, role="dissolution")
   if(!missing(coef.diss) && coef.length.model(model.diss)!=length(coef.diss)) stop("coef.diss has ", length(coef.diss), " elements, while the model requires ",coef.length.model(model.diss)," parameters.")
 
-  model.mon <- if(!is.null(monitor)) ergm.getmodel(monitor, nw) else NULL
+  model.mon <- if(!is.null(monitor)) ergm.getmodel(monitor, nw, role="target") else NULL
   
   verbose <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
@@ -133,43 +145,67 @@ simulate.network <- function(object, nsim=1, seed=NULL,
     control$toggles<-FALSE
   }
     
-  MHproposal.form <- MHproposal(~.,control$form$MCMC.prop.args,nw,
-                                weights=control$form$MCMC.prop.weights,class="f")
-  MHproposal.diss <- MHproposal(~.,control$diss$MCMC.prop.args,nw,
-                                weights=control$diss$MCMC.prop.weights,class="d")
+  MHproposal.form <- MHproposal(~.,control$MCMC.prop.args.form,nw,
+                                weights=control$MCMC.prop.weights.form,class="f")
+  MHproposal.diss <- MHproposal(~.,control$MCMC.prop.args.diss,nw,
+                                weights=control$MCMC.prop.weights.diss,class="d")
 
   eta.form <- ergm.eta(coef.form, model.form$etamap)
   eta.diss <- ergm.eta(coef.diss, model.diss$etamap)
-
+  
   control$time.burnin <- time.burnin
   control$time.interval <- time.interval
-  control$time.samplesize <- nsim
-  
-  z <- stergm.getMCMCsample(nw, model.form, model.diss, model.mon,
-                            MHproposal.form, MHproposal.diss,
-                            eta.form, eta.diss, control, verbose)
-  
+  control$time.samplesize <- time.points
+  control$collect.form <- stats.form
+  control$collect.diss <- stats.diss
 
-  # FIXME: Standardize output format once the conversion function is available.
-
-  stats.form <- sweep(z$statsmatrix.form,2,summary(formation),"+")
-  stats.diss <- sweep(z$statsmatrix.diss,2,summary(dissolution),"+")
-  stats.mon <- if(!is.null(model.mon)) sweep(z$statsmatrix.mon,2,summary(monitor),"+")
-  
-  if(toggles){
-    changed<-z$changed
-    attr(changed,"start")<-time.burnin+1
-    attr(changed,"end")<-(nsim-1)*time.interval+time.burnin+1
-    out.list <- list(formation = formation,
-                     dissolution = dissolution,
-                     networks = nw,
-                     changed=changed, 
-                     maxchanges=z$maxchanges,
-                     stats.form = stats.form,
-                     stats.diss = stats.diss,
-                     stats.mon = stats.mon,
-                     coef.form=coef.form,coef.diss=coef.diss)
-    class(out.list) <- "network.list"
-  }else{out.list<-list(stats.form = stats.form,stats.diss = stats.diss, stats.mon = stats.mon)}
-  return(out.list)
+  out <- replicate(nsim, {
+    if(is.null(nw %n% "lasttoggle")) nw %n% "lasttoggle" <- rep(0, network.dyadcount(nw))
+    if(is.null(nw %n% "time")) nw %n% "time" <- 0
+    
+    z <- stergm.getMCMCsample(nw, model.form, model.diss, model.mon,
+                              MHproposal.form, MHproposal.diss,
+                              eta.form, eta.diss, control, verbose)
+    
+    stats.form <- if(control$collect.form) mcmc(sweep(z$statsmatrix.form,2,summary(formation),"+"),start=time.burnin+1,thin=time.interval)
+    stats.diss <- if(control$collect.diss) mcmc(sweep(z$statsmatrix.diss,2,summary(dissolution),"+"),start=time.burnin+1,thin=time.interval)
+    stats.mon <- if(!is.null(model.mon)) mcmc(sweep(z$statsmatrix.mon,2,summary(monitor),"+"),start=time.burnin+1,thin=time.interval)
+    
+    if(control$toggles){
+      library(networkDynamic)
+      nwd <- as.networkDynamic(nw, toggles = z$changed, start = nw%n%"time" + 0, end = nw%n%"time" + time.points)
+      nwd<-delete.network.attribute(nwd, "time")
+      nwd<-delete.network.attribute(nwd, "lasttoggle")
+      attributes(nwd) <- c(attributes(nwd), # Don't clobber existing attributes!
+                           list(formation = formation,
+                                dissolution = dissolution,
+                                stats.form = stats.form,
+                                stats.diss = stats.diss,
+                                stats.mon = stats.mon,
+                                coef.form=coef.form,
+                                coef.diss=coef.diss,
+                                toggles=z$changed))
+      nwd
+    }else
+    list(stats.form = stats.form,stats.diss = stats.diss, stats.mon = stats.mon)
+  },
+                   simplify = FALSE)
+  if(nsim==1){
+    out<-out[[1]]
+    out
+  }else{
+    if(control$toggles){
+      # If we've returned a list of networkDynamics, then it's a network list.
+      class(out) <- "network.list"
+      out
+    }else{
+      # Otherwise, we can combine the simulation into mcmc.lists.
+      outl <- list()
+      for(name in names(out[[1]])){
+        if(!is.null(out[[1]][[name]]))
+          outl[[name]] <- do.call(mcmc.list, lapply(out, "[[", name))
+      }
+      outl
+    }
+  }
 }

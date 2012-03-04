@@ -261,8 +261,8 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
   
   ##### Construct the initial state. ######
 
-  nw %n% "lasttoggle" <- rep(0, network.dyadcount(nw))
-  nw %n% "time" <- 0
+  if(is.null(nw %n% "lasttoggle")) nw %n% "lasttoggle" <- rep(0, network.dyadcount(nw))
+  if(is.null(nw %n% "time")) nw %n% "time" <- 0
   
   state <- list(nw=nw,
                 eta.form = ergm.eta(theta.form0, model.form$etamap),

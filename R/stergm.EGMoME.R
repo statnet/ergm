@@ -74,6 +74,8 @@ stergm.EGMoME <- function(nw, formation, dissolution,  offset.coef.form, offset.
                  control,
                  verbose) {
 
+  if(!is.network(nw)) stop("Argument nw must be a network.")
+   
   # Allow the user to specify targets as copied from formation or dissolution formula.
   if(is.character(targets)){
     targets <- switch(targets,
@@ -98,27 +100,32 @@ stergm.EGMoME <- function(nw, formation, dissolution,  offset.coef.form, offset.
     if(verbose) cat("Constructing an approximate response network.\n")
     ## If target.stats are given, overwrite the given network and targets
     ## with SAN-ed network and targets.
-    for(srun in 1:control$SAN.maxit){
-      nw<-san(targets, target.stats=target.stats,
-              control=control$SAN.control,
-              verbose=verbose)
-      targets<-ergm.update.formula(targets,nw~.)
-      nw.stats <- summary(targets)
-      srun <- srun + 1
-      if(verbose){
-        cat(paste("Finished SAN run",srun,"\n"))
+    newnw <- try({
+      for(srun in seq_len(control$SAN.maxit)){
+        nw<-san(targets, target.stats=target.stats,
+                control=control$SAN.control,
+                verbose=verbose)
+        targets<-ergm.update.formula(targets,nw~.)
+        nw.stats <- summary(targets)
+        srun <- srun + 1
+        if(verbose){
+          cat(paste("Finished SAN run",srun,"\n"))
+        }
+        if(verbose){
+          cat("SAN summary statistics:\n")
+          print(nw.stats)
+          cat("Meanstats Goal:\n")
+          print(target.stats)
+          cat("Difference: SAN target.stats - Goal target.stats =\n")
+          print(round(nw.stats-target.stats,0))
+        }
+        if(sum((nw.stats-target.stats)^2) <= 5) break
       }
-      if(verbose){
-        cat("SAN summary statistics:\n")
-        print(nw.stats)
-        cat("Meanstats Goal:\n")
-        print(target.stats)
-        cat("Difference: SAN target.stats - Goal target.stats =\n")
-        print(round(nw.stats-target.stats,0))
-      }
-      if(sum((nw.stats-target.stats)^2) <= 5) break
-    }
-    
+      nw
+    })
+    if(inherits(newnw,"try-error")){
+      cat("SAN failed or is not applicable. Increse burn-in if there are problems.\n")
+    }else nw <- newnw
     formation <- ergm.update.formula(formation,nw~.)
     dissolution <- ergm.update.formula(dissolution,nw~.)
   }
@@ -127,11 +134,11 @@ stergm.EGMoME <- function(nw, formation, dissolution,  offset.coef.form, offset.
   MHproposal.form <- MHproposal(~., weights=control$MCMC.prop.weights.form, control$MCMC.prop.args.form, nw, class="f")
   MHproposal.diss <- MHproposal(~., weights=control$MCMC.prop.weights.diss, control$MCMC.prop.args.diss, nw, class="d")
   
-  model.form <- ergm.getmodel(formation, nw, expanded=TRUE, MHp=MHproposal.form)
-  model.diss <- ergm.getmodel(dissolution, nw, expanded=TRUE, MHp=MHproposal.diss)
-  model.mon <- ergm.getmodel(targets, nw, expanded=TRUE, MHp=MHproposal.diss)
+  model.form <- ergm.getmodel(formation, nw, expanded=TRUE, role="formation")
+  model.diss <- ergm.getmodel(dissolution, nw, expanded=TRUE, role="dissolution")
+  model.mon <- ergm.getmodel(targets, nw, expanded=TRUE, role="target")
 
-  if(any(model.form$etamap$canonical==0) && any(model.form$etamap$canonical==0)) stop("Equilibrium GMoME for curved ERGMs is not supported at this time.")
+  if(any(model.form$etamap$canonical==0) || any(model.diss$etamap$canonical==0) || any(model.mon$etamap$canonical==0)) stop("Equilibrium GMoME for models based on curved ERGMs is not supported at this time.")
 
   p.free<-sum(!model.form$etamap$offsettheta)+sum(!model.diss$etamap$offsettheta)
   q<-length(model.mon$etamap$offsettheta)
