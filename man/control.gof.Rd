@@ -18,7 +18,6 @@ control.gof.formula(nsim=100,
                     MCMC.packagenames="ergm",
 
                     MCMC.runtime.traceplot=FALSE,          
-                    summarizestats=FALSE,
                     network.output="network",
 
                     seed=NULL,
@@ -36,7 +35,6 @@ control.gof.ergm(nsim=100,
                  MCMC.packagenames=NULL,
 
                  MCMC.runtime.traceplot=FALSE,
-                 summarizestats=FALSE,
                  network.output="network",
 
                  seed=NULL,
@@ -81,10 +79,6 @@ control.gof.ergm(nsim=100,
   }
   \item{MCMC.runtime.traceplot}{Logical:  If TRUE, plot traceplots of 
     the MCMC sample after every MCMC MLE iteration.
-  }
-  \item{summarizestats}{logical; Print out a summary of 
-    the sufficient statistics of the generated network. This is useful 
-    as a diagnostic.
   }
   \item{network.output}{R class with which to output 
     networks. The options are "network" (default) and "edgelist.compressed" 

@@ -89,10 +89,10 @@ control.stergm<-function(init.form=NULL,
                          # proposals between approximately independent
                          # draws.
                          CMLE.control=NULL,
-                         CMLE.control.form=control.ergm(init=init.form, MCMC.prop.weights=MCMC.prop.weights.form, MCMC.prop.args=MCMC.prop.args.form, MCMC.init.maxedges=MCMC.init.maxedges, MCMC.packagenames=MCMC.packagenames, MCMC.interval=MCMC.burnin),
-                         CMLE.control.diss=control.ergm(init=init.diss, MCMC.prop.weights=MCMC.prop.weights.diss, MCMC.prop.args=MCMC.prop.args.diss, MCMC.init.maxedges=MCMC.init.maxedges, MCMC.packagenames=MCMC.packagenames, MCMC.interval=MCMC.burnin),
+                         CMLE.control.form=control.ergm(init=init.form, MCMC.prop.weights=MCMC.prop.weights.form, MCMC.prop.args=MCMC.prop.args.form, MCMC.init.maxedges=MCMC.init.maxedges, MCMC.packagenames=MCMC.packagenames, MCMC.interval=MCMC.burnin, parallel=parallel, parallel.type=parallel.type, parallel.version.check=parallel.version.check),
+                         CMLE.control.diss=control.ergm(init=init.diss, MCMC.prop.weights=MCMC.prop.weights.diss, MCMC.prop.args=MCMC.prop.args.diss, MCMC.init.maxedges=MCMC.init.maxedges, MCMC.packagenames=MCMC.packagenames, MCMC.interval=MCMC.burnin, parallel=parallel, parallel.type=parallel.type, parallel.version.check=parallel.version.check),
 
-                         EGMoME.main.method=c("Robbins-Monro"),
+                         EGMME.main.method=c("Robbins-Monro"),
                          
                          SAN.maxit=10,
                          SAN.control=control.san(coef=init.form,
@@ -111,10 +111,11 @@ control.stergm<-function(init.form=NULL,
 
                          # Plot the progress of the optimization.
                          RM.plot.progress=FALSE,
+                         RM.max.plot.points=400,
                          
                          # Initial gain --- if the process initially goes
                          # crazy beyond recovery, lower this.
-                         RM.init.gain=0.1,                         
+                         RM.init.gain=0.01,                         
                          
                          RM.runlength=25, # Number of jumps per .C call.
 
@@ -122,39 +123,41 @@ control.stergm<-function(init.form=NULL,
                          # successive jumps --- is computed
                          # adaptively.
                          RM.target.ac=0.5, # Target serial autocorrelation.
-                         RM.init.interval=500, # Strting interval.
+                         RM.init.interval=500, # Starting interval.
                          RM.min.interval=20, # The lowest it can go.
 
                         
                          RM.phase1.tries=20, # Number of iterations of trying to find a reasonable configuration. FIXME: nothing happens if it's exceeded.
                          RM.phase1.jitter=0.1, # Initial jitter sd of each parameter..
-                         RM.phase1.min.nonextreme=0.5, # Fraction of realizations of a statistic that are not at an extrme before it's considered "unstuck".
                          RM.phase1.max.p=0.01, # P-value that a gradient estimate must obtain before it's accepted (since sign is what's important).
-
-                         RM.phase2sub=20, # Number of gain levels to go through.
-                         RM.phase2regain=400, # Maximum number of times gain a subphase can be repeated if the optimization is "going somewhere".
-                         RM.stepdown.subphases=10, # Number of subphases to use to see whether the optimization is going somewhere.
-                         RM.stepdown.p=0.5, # If the combined p-value for the trend in the parameters is less than this, repeat the subphase.
+                         RM.phase1.backoff.rat=1.05, # If a run produces this relative increase in the objective function, it will be backed off.
+                         
+                         RM.phase2.levels=20, # Number of gain levels to go through.
+                         RM.phase2.repeats=400, # Maximum number of times gain a subphase can be repeated if the optimization is "going somewhere".
+                         RM.stepdown.runs=40, # Number of subphases to use to see whether the optimization is going somewhere.
+                         RM.stepdown.thin=10, # Thin the draws for trend detection.
+                         RM.stepdown.p=0.01, # If the combined p-value for the trend in the parameters is less than this, reset the subphase counter.
+                         RM.stepdown.ct=5, # Number of times in a row the p-value must be above RM.stepdown.p to reduce gain.
                          RM.gain.decay=0.7, # Gain decay factor.
-                         RM.keep.oh=0.5, # Fraction of optimization history that is used for gradient and covariance calculation.
-                         RM.jitter.mul=0.2, # The jitter standard deviation of each parameter is this times its standard deviation sans jitter.
+                         RM.keep.oh=0.75, # Fraction of optimization history that is used for gradient and covariance calculation.
+                         RM.phase2.jitter.mul=0.2, # The jitter standard deviation of each parameter is this times its standard deviation sans jitter.
+                         RM.phase2.maxreljump=16, # Maximum jump per run, relative to the magnitude of other jumps in the history.
                          RM.phase2.refine=TRUE, # Whether to use linear interpolation to refine the estimate after every run.
-                         RM.phase2.refine.maxjump=3, # Maximum linear interpolator jump magnitude (in standard deviations of the parameter from the current value).
-                         RM.phase2.backoff.rat=1.05, # If the an run produces this relative increase in the objective function, it will be backed off.
+                         
 
                          
 
                          RM.refine=c("linear","mean","none"), # Method, if any, used to refine the point estimate: linear interpolation, average, and none for the last value.
                          
                          RM.se=TRUE, # Whether to run Phase 3 to compute the standard errors.
-                         RM.phase3n=1000, # This times the interval is the number of steps to estimate the standard errors.
+                         RM.phase3.samplesize=1000, # This times the interval is the number of steps to estimate the standard errors.
 
                          seed=NULL,
                          parallel=0,
                          parallel.type=NULL,
                          parallel.version.check=TRUE){
   
-  match.arg.pars=c("EGMoME.main.method","RM.refine")
+  match.arg.pars=c("EGMME.main.method","RM.refine")
 
   if(!is.null(CMLE.control)) CMLE.control.form <- CMLE.control.diss <- CMLE.control
   

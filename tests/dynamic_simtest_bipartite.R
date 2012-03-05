@@ -22,48 +22,6 @@ target.stats<-edges<-100
 duration<-100
 coef.diss<-logit(1-1/duration)
 
-### Undirected
-
-dyads<-n*(n-1)/2
-density<-edges/dyads
-coef.form<-coef.form.f(coef.diss,density)
-
-cat("\nUndirected:\n")
-
-g0<-network.initialize(n,dir=FALSE)
-
-# Get a reasonably close starting network.
-g1<-san(g0~edges,target.stats=target.stats,verbose=TRUE)
-
-print(coef.form)
-print(coef.diss)
-
-# Simulate from the fit.
-dynsim<-simulate(g1,formation=~edges,dissolution=~edges,coef.form=coef.form,coef.diss=coef.diss,time.points=S,verbose=TRUE)
-
-#print.sim.stats(dynsim,target.stats,duration)
-
-### Directed
-
-dyads<-n*(n-1)
-density<-edges/dyads
-coef.form<-coef.form.f(coef.diss,density)
-
-cat("\nDirected:\n")
-
-g0<-network.initialize(n,dir=TRUE)
-
-# Get a reasonably close starting network.
-g1<-san(g0~edges,target.stats=target.stats,verbose=TRUE)
-
-print(coef.form)
-print(coef.diss)
-
-# Simulate from the fit.
-dynsim<-simulate(g1,formation=~edges,dissolution=~edges,coef.form=coef.form,coef.diss=coef.diss,time.points=S,verbose=TRUE)
-
-#print.sim.stats(dynsim,target.stats,duration)
-
 ### Bipartite undirected
 
 dyads<-(n-m)*m
@@ -81,7 +39,7 @@ print(coef.form)
 print(coef.diss)
 
 # Simulate from the fit.
-dynsim<-simulate(g1,formation=~edges,dissolution=~edges,coef.form=coef.form,coef.diss=coef.diss,time.points=S,verbose=TRUE)
+dynsim<-simulate(g1,formation=~edges,dissolution=~edges,coef.form=coef.form,coef.diss=coef.diss,time.slices=S,verbose=TRUE)
 
 #print.sim.stats(dynsim,target.stats,duration)
 

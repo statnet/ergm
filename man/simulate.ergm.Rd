@@ -2,6 +2,7 @@
 \alias{simulate.ergm}
 \alias{simulate.formula}
 \alias{simulate.formula.ergm}
+
 \title{Draw from the distribution of an Exponential Family Random Graph Model}
 \usage{
 \method{simulate}{formula}(object, nsim=1, seed=NULL,
@@ -144,13 +145,19 @@
 
 \value{If \code{nsim==1}, \code{simulate.ergm} returns an object of 
   class \code{network}.  If \code{nsim>1}, it returns an object of class
-  \code{network.list} that is a list with the following elements:
+  \code{\link{network.list}}: a list of networks with the following
+  \code{\link{attr}}-style attributes on the list:
   \item{formula}{The \code{\link{formula}} used to generate the sample.}
-  \item{networks}{A list of the generated networks.}
-  \item{stats}{The \eqn{n\times p}  matrix of network change statistics, 
-    where \eqn{n} is the sample size and \eqn{p} is the number
-    of network change statistics specified in the model.
-  }
+  \item{stats}{The \eqn{\code{nsim}\times p}  matrix of network statistics, 
+    where \eqn{p} is the number
+    of network statistics specified in the model.}
+  \item{control}{Control parameters used to generate the sample.}
+  \item{constraints}{Constraints used to generate the sample.}
+  \item{reference}{The reference measure for the sample.}
+  \item{monitor}{The monitoring formula.}
+  \item{response}{The edge attribute used as a response.}
+  
+  This object has summary and print methods.
 }
 \seealso{\code{\link{ergm}}, \code{\link[network]{network}}}
 \examples{

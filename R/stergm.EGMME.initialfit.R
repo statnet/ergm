@@ -1,4 +1,4 @@
-stergm.EGMoME.initialfit<-function(init.form, init.diss, nw, model.form, model.diss, model.mon, control, verbose=FALSE){
+stergm.EGMME.initialfit<-function(init.form, init.diss, nw, model.form, model.diss, model.mon, control, verbose=FALSE){
   if(!is.null(control$init.method) && control$init.method == "zeros"){
     init.form[is.na(init.form)]<-0
     init.diss[is.na(init.diss)]<-0

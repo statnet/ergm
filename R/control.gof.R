@@ -19,9 +19,6 @@
 #                   that the ergm was fit by); default="default" if
 #                   X is a formula (which picks a reasonable default
 #                   considering any constraints)
-#   summarizestats: whether to print out a summary of the sufficient
-#                   statistics of the generated network (T or F);
-#                   default=FALSE
 #
 # --IGNORED--
 #   prop.args     : an alternative, direct way of specifying additional
@@ -49,7 +46,6 @@ control.gof.ergm<-function(nsim=100,
                            MCMC.packagenames=NULL,
 
                            MCMC.runtime.traceplot=FALSE,
-                           summarizestats=FALSE,
                            network.output="network",
 
                            seed=NULL,
@@ -73,7 +69,6 @@ control.gof.formula<-function(nsim=100,
                               MCMC.packagenames="ergm",
                               
                               MCMC.runtime.traceplot=FALSE,          
-                              summarizestats=FALSE,
                               network.output="network",
                                                      
                               seed=NULL,

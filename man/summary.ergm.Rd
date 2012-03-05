@@ -1,5 +1,6 @@
 \name{summary.ergm}
 \alias{summary.ergm}
+\alias{print.summary.ergm}
 %\alias{print.summary.lm}
 % \alias{print.summary.lm.null}
 \title{Summarizing ERGM Model Fits}

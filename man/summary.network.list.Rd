@@ -1,6 +1,7 @@
 \name{summary.network.list}
 \alias{summary.network.list}
 \alias{print.network.list}
+\alias{network.list} 
 \title{Summarizing network.list objects}
 \usage{
   \method{summary}{network.list}(object, 

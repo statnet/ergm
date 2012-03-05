@@ -1,12 +1,11 @@
-\name{mcmc.diagnostics.ergm}
+\name{mcmc.diagnostics}
 \alias{mcmc.diagnostics.ergm}
+\alias{mcmc.diagnostics.stergm}
 \alias{mcmc.diagnostics}
-\title{Conduct MCMC diagnostics on an ergm fit}
+\title{Conduct MCMC diagnostics on an ergm or stergm fit}
 \description{
-  This function creates simple diagnostic plots for the MCMC sampled
-  statistics produced from a fit. It also prints the Raftery-Lewis 
-  diagnostics, indicates if they are sufficient,
-  and suggests the run length required.
+  This function prints diagnistic information and creates simple diagnostic plots for the MCMC sampled
+  statistics produced from a fit.
 }
 \usage{
 \method{mcmc.diagnostics}{ergm} (object, 
@@ -14,9 +13,15 @@
                                   curved=TRUE,
                                   vars.per.page=3,
                                   \dots) 
+\method{mcmc.diagnostics}{stergm} (object,  
+                                  center=TRUE,
+                                  curved=TRUE,
+                                  vars.per.page=3,
+                                  \dots) 
 }
 \arguments{
-  \item{object}{An ergm object.  See documentation for \code{\link{ergm}}.
+  \item{object}{An ergm or stergm object.  See documentation for
+    \code{\link{ergm}} or \code{\link{stergm}}, respectively.
   }
   \item{center}{Logical:  If TRUE, ; center the samples
     on the observed statistics.
@@ -33,18 +38,10 @@
   }
 }
 
-\details{
-  The plots produced are a trace of the sampled output
-  and a density estimate for each variable in the chain.
+\details{ The plots produced are a trace of the sampled output and a
+  density estimate for each variable in the chain.  The diagnostics
+  printed include correlations and convergence diagnostics.
   
-  The Raftery-Lewis diagnostic is a run length control diagnostic based on a
-  criterion of accuracy of estimation of the quantile q. It
-  is intended for use on a short pilot run of a Markov chain.
-  The number of iterations required to estimate the quantile
-  q to within an accuracy of +/- r with probability p is
-  calculated. Separate calculations are performed for each
-  variable within each chain.
-
   In fact, an \code{object} contains the matrix of
   statistics from the MCMC run as component \code{$sample}.
   This matrix is actually an object of class \code{mcmc} and
@@ -54,17 +51,8 @@
   \url{http://www.mrc-bsu.cam.ac.uk/bugs/classic/coda04/readme.shtml}.
 
   More information can be found by looking at the documentation of
-  \code{\link{ergm}}.
+  \code{\link{ergm}} and \code{\link{stergm}}.
   
-% \code{mcgibbsit} computes the minimum run length \eqn{N_{min}}{Nmin},
-% required burn in \eqn{M}, total run length \eqn{N}, run length
-% inflation due to \emph{auto-correlation}, \eqn{I}, and the run length
-% inflation due to \emph{between-chain} correlation, \eqn{R} for a set of
-% exchangeable MCMC simulations which need not be independent.
-%
-%  and also ideas from
-%  \code{mcgibbsit} by Gregory R. Warnes
-%  \email{gregory\_r\_warnes@groton.pfizer.com}.  
 }
 \references{
 %  Warnes, G.W. (2000).  Multi-Chain and Parallel Algorithms for Markov
@@ -92,35 +80,8 @@
   object.  The function is mainly used for its side effect, which is
   to produce plots and summary output based on those plots.
 }
-%\section{Details of output}{
-%    \describe{
-%      \item{M}{The number of \code{burn in} iterations to be discarded
-%        (total over all chains).}
-%      \item{N}{The number of iterations after burn in required to
-%        estimate the quantile q to within an accuracy of
-%        +/- r with probability p (total over all chains).
-%        The overall number of iterations required (M + N).}
-%      \item{Total}{Overall number of iterations required (M + N).}
-%      \item{Nmin}{The minimum required sample size for a chain with no 
-%        correlation between consecutive samples. Positive 
-%        autocorrelation will increase the required sample
-%        size above this minimum value.}
-%       \item{I}{An estimate (the \code{dependence factor}) of the extent to
-%         which auto-correlation inflates the required sample
-%         size.  Values of \code{I} larger than 5 indicate strong
-%         autocorrelation which may be due to a poor choice of
-%         starting value, high posterior correlations, or
-%         \code{stickiness} of the MCMC algorithm.}
-%    }
-%     \item{R}{An estimate of the extent to which between-chain
-%        correlation inflates the required sample size.  Large
-%        values of \code{R} indicate that there is significant
-%        correlation between the chains and may be indicative
-%        of a lack of convergence or a poor multi-chain
-%        algorithm.}
-%}
-\seealso{\code{\link{ergm}}, \code{network} package,
-         \code{coda} package, \code{mcgibbsit} package, 
+\seealso{\code{\link{ergm}}, \code{\link{stergm}},\code{network} package,
+         \code{coda} package, 
          \code{\link{summary.ergm}}
         }
 \examples{

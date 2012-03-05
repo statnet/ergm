@@ -1,5 +1,6 @@
 \name{print.stergm}
 \alias{print.stergm}
+\alias{print.summary.stergm}
 \alias{summary.stergm}
 \title{Separable Temporal Exponential Random Graph Models}
 \description{

@@ -1,12 +1,12 @@
 \name{stergm}
 \alias{stergm}
 \alias{stergm.object}
-\title{Separable Transition Exponential Family Random Graph Models
+\title{Separable Temporal Exponential Family Random Graph Models
 }
 \description{
-  \code{\link{stergm}} is used for finding equilibrium GMoME of Separable Transition ERGMs,
-  described by Krivitsky (2009)  A number of methods is possible, with a
-  very limited Robbins-Monro being the default.
+  \code{\link{stergm}} is used for finding Equilibrium Generalized
+  Method of Moments Estimator (EGMME) or Conditional MLE (CMLE) of Separable Temporal ERGMs (STERGMs),
+  described by Krivitsky (2009).
 }
 \usage{
   stergm (nw, 
@@ -24,26 +24,32 @@
           \dots)
 }
 \arguments{
-  \item{nw}{A \code{\link[network]{network}} object giving the
-    properties of the sample space of networks, such as the size,
-    directedness, and covariates.
+  \item{nw}{A \code{\link[network]{network}} object (for EGMME); or
+    \code{\link[networkDynamic]{networkDynamic}} object, a
+    \code{\link{network.list}} object, or a \code{\link{list}}
+    containing networks (for CMLE and CMPLE).
   }
-  \item{formation}{
-    An \code{\link{ergm}}-style formula for the formation phase, with
-    the left-hand-side network being the observed network or a 
-    "template" for it if target.stats are used.
+  \item{formation, dissolution}{
+    One-sided \code{\link{ergm}}-style formulas for the formation and
+    dissolution models, respectively.
   }
-  \item{dissolution}{
-    An \code{\link{ergm}}-style formula for the dissolution phase. The
-    left-hand-side is not used.
+  
+  \item{estimate}{One of "EGMME" for Equilibrium Generalized Method
+    of Moments Estimation, based on a single network with some temporal
+    information and making an assumption that it is a product of a
+    STERGM process running to its stationary (equilibrium) distribution; "CMLE" 
+    for Conditional Maximum Likelihood Estimation, modeling a transition
+    between two networks, or
+    "CMPLE" for Conditional Maximum PseudoLikelihood Estimation, using
+    MPLE instead of MLE.
+    CMPLE is extremely inaccurate at this time.
   }
-  \item{estimate}{One of "EGMoME" (Equilibrium generalized method
-    of moments estimator), "CMLE" 
-    (conditional maximum likelihood estimator), or
-    "CMPLE" (conditional maximum pseudolikelihood estimator).
-    For details, see Krivitsky (2009).
-  }
-  \item{times}{Times at which the network is observed.
+  \item{times}{For CMLE and CMPLE estimation, times or indexes at which
+    the networks whose transition is to be modeled are
+    observed. Default to \code{c(0,1)} if \code{nw} is a
+    \code{\link[networkDynamic]{networkDynamic}} and to \code{c(1:2)}
+    (first two elements) if \code{nw} is a \code{\link{network.list}} or
+    a \code{\link{list}}. Unused for EGMME.
   }
   \item{offset.coef.form}{Numeric vector to specify offset formation
     parameters.
@@ -51,31 +57,24 @@
   \item{offset.coef.diss}{Numeric vector to specify offset dissolution
     parameters.
   }
-  \item{targets}{Statistics to watch.
+  \item{targets}{One-sided \code{\link{ergm}}-style formula specifying statistics whose
+    moments are used for the EGMME. Unused for CMLE and CMPLE.
   }
-%  \item{theta.form0}{
-%    vector; the starting vector of formation phase parameters for the estimation.
-%    By default (\code{NULL}), it's estimated using the method specified
-%    in \code{\link[=control.stergm]{control$initialfit}}.
-%  }
-%  \item{theta.diss}{
-%    vector; the dissolution phase parameters. Currently, assumed fixed
-%    and known.
-%  }
+
   \item{target.stats}{
-    vector; The target equilibrium mean for the network statistics of
-    interest (only \code{formation} statistics at this time).
-    If it is missing then mean-value parameter used are the observed
-    statistics of the network in the formula.
+    A vector specifying the values of the \code{targets} statistics that
+    EGMME will try to match. 
+    Defaults to the
+    statistics of \code{nw}. Unused for CMLE and CMPLE.
   }
-  \item{eval.loglik}{Not yet documented.
-  }
+  \item{eval.loglik}{Whether or not to calculate the log-likelihood of
+    a CMLE STERGM fit. See \code{\link{ergm}} for details.}
   \item{control}{
     A list of control parameters for algorithm
     tuning. Constructed using \code{\link{control.stergm}}. 
   }
   \item{verbose}{
-    logical or integer; if positive, the program will print out progress
+    logical or integer; if TRUE or positive, the program will print out progress
     information. Higher values result in more output.
   }
   \item{\dots}{Additional arguments, to be passed to lower-level 
@@ -88,19 +87,27 @@
 }
 \value{\code{\link{stergm}} returns an object of class \code{\link{stergm}} that is a list
   consisting of the following elements:
-  \item{coef.form, coef.diss}{GMoMEs for formation and dissolution.}
-  \item{MH.burnin}{Number of Metropolis-Hastings step during each phase.}
-  \item{network}{Original network}
-  \item{theta.original,theta.form.original}{The first value of theta.}
- \item{etamap}{The set of functions mapping the true parameter theta
- to the canonical parameter eta (irrelevant except in a curved exponential
- family model)}
- \item{formation, dissolution}{The original \code{\link{formula}}s entered into the \code{\link{stergm}} function.}
- \item{constraints}{Constraints used by original \code{ergm} call}
- \item{prop.weights.form, prop.weights.diss}{MCMC proposal weights used by original \code{stergm} call
- (part of the \code{\link{control.stergm}} function output).}
- \item{offset}{vector of logical telling which model parameters are to be set
- at a fixed value (i.e., not estimated).}
+  \item{formation, dissolution}{Formation and dissolution formulas,
+    respectively.}
+  \item{targets}{The targets formula.}
+  \item{target.stats}{The target statistics.}
+  \item{estimate}{The type of estimate.}
+  \item{opt.history}{A matrix containing the full trace of the EGMME
+    optimization process: coefficients tried and target statistics
+    simulated.}
+  \item{sample}{An \code{\link{mcmc}} object containing target
+    statistics sampled at the estimate.}
+  \item{covar}{The full estimated variance-covariance matrix of the
+    parameter estimates for EGMME. (Note that although the CMLE
+    formation parameter estimates are independent of the dissolution
+    parameter estimates due to the separability assumption, this is not
+    necessarily the case for EGMME.) }
+  \item{formation.fit, dissolution.fit}{For CMLE and CMPLE,
+    \code{\link{ergm}} objects from fitting formation and dissolution,
+    respectively. For EGMME, stripped down \code{\link{ergm}}-like lists.}
+  \item{network}{The original network.}
+  \item{control}{The control parameters used to fit the model.}
+  
   See the method \code{\link{print.stergm}} for details on how
   an \code{\link{stergm}} object is printed.  Note that the
   method \code{\link{summary.stergm}} returns a summary of the
@@ -112,7 +119,5 @@
   Krivitsky PN (2009). Statistical Models for Social Network Data and
   Processes. PhD Thesis. University of Washington.
 }
-%\examples{
-%}
 
 \seealso{network, \%v\%, \%n\%, \code{\link{ergm-terms}}}

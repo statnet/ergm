@@ -16,7 +16,6 @@ control.simulate(MCMC.burnin=1000,
                  MCMC.packagenames="ergm",
                  MCMC.runtime.traceplot=FALSE,  
 
-                 summarizestats=FALSE,
                  network.output="network",
                                                      
                  parallel=0,
@@ -32,7 +31,6 @@ control.simulate.formula(MCMC.burnin=1000,
                          MCMC.packagenames="ergm",
                          MCMC.runtime.traceplot=FALSE,  
 
-                         summarizestats=FALSE,
                          network.output="network",
                                                      
                          parallel=0,
@@ -48,7 +46,6 @@ control.simulate.formula.ergm(MCMC.burnin=1000,
                               MCMC.packagenames="ergm",
                               MCMC.runtime.traceplot=FALSE,  
 
-                              summarizestats=FALSE,
                               network.output="network",
                                                      
                               parallel=0,
@@ -65,7 +62,6 @@ control.simulate.ergm(MCMC.burnin=NULL,
                       MCMC.packagenames=NULL,
                       MCMC.runtime.traceplot=FALSE,
 
-                      summarizestats=FALSE,
                       network.output="network",
 
                       seed=NULL,
@@ -107,10 +103,6 @@ control.simulate.ergm(MCMC.burnin=NULL,
   }
   \item{MCMC.runtime.traceplot}{Logical:  If TRUE, plot traceplots of 
     the MCMC sample after every MCMC MLE iteration.
-  }
-  \item{summarizestats}{logical; Print out a summary of 
-    the sufficient statistics of the generated network. This is useful 
-    as a diagnostic.
   }
   \item{network.output}{R class with which to output 
     networks. The options are "network" (default) and "edgelist.compressed" 

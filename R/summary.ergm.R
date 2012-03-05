@@ -116,7 +116,7 @@ summary.ergm <- function (object, ...,
               control=object$control)
   
   ans$samplesize <- switch(object$estimate,
-                           EGMoME = if(!is.null(control$EGMoME.main.method)) switch(control$EGMoME.main.method,
+                           EGMME = if(!is.null(control$EGMME.main.method)) switch(control$EGMME.main.method,
                              `Robbins-Monro`=control$RM.phase3n,
                              stop("Unknown estimation method. This is a bug.")),
                            MPLE = NA,
@@ -131,7 +131,7 @@ summary.ergm <- function (object, ...,
                               
 
   ans$iterations <- switch(object$estimate,
-                           EGMoME = if(!is.null(control$EGMoME.main.method)) switch(control$EGMoME.main.method,
+                           EGMME = if(!is.null(control$EGMME.main.method)) switch(control$EGMME.main.method,
                              `Robbins-Monro`=NA,
                              stop("Unknown estimation method. This is a bug.")),
                            MPLE = NA,
@@ -179,7 +179,7 @@ summary.ergm <- function (object, ...,
     else if(object$estimate == "MLE" && any(is.na(mc.se)) && 
                       (!independence || control$force.main) ) {
       ans$message <- "\nWarning:  The standard errors are suspect due to possible poor convergence.\n"
-    }else if(object$estimate == "EGMoME"){
+    }else if(object$estimate == "EGMME"){
       ans$message <- "\nWarning:  The standard errors do not incorporate uncertainty due to the \"noisy\" estimation procedure.\n"
     }
   } else {

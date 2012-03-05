@@ -84,7 +84,7 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss, model.mon,
             # Observed network.
             as.integer(Clist.form$tails), as.integer(Clist.form$heads),
             time = if(is.null(Clist.form$time)) as.integer(0) else as.integer(Clist.form$time),
-            lasttoggle = if(is.null(Clist.form$time)) as.integer(NULL) else as.integer(Clist.form$lasttoggle), 
+            lasttoggle = if(is.null(Clist.form$lasttoggle)) as.integer(NULL) else as.integer(Clist.form$lasttoggle), 
             as.integer(Clist.form$nedges),
             as.integer(Clist.form$n),
             as.integer(Clist.form$dir), as.integer(Clist.form$bipartite),

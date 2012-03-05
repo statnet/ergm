@@ -68,18 +68,16 @@
 #
 ###############################################################################
 
-simulate.stergm<-function(object,
-                          nsim=1,
-                          seed=NULL,
+simulate.stergm<-function(object, nsim=1, seed=NULL,
                           coef.form=object$formation.fit$coef,coef.diss=object$dissolution.fit$coef,
                           monitor = object$targets,
-                          time.points, time.burnin=0, time.interval=1,
+                          time.slices, time.burnin=0, time.interval=1,
                           control=control.simulate.stergm(),
                           statsonly=time.burnin>0||time.interval>1,
                           stats.form = FALSE,
                           stats.diss = FALSE,
                           verbose=FALSE, ...){
-  simulate.network(object$network,formation=object$formation,dissolution=object$dissolution,nsim=nsim,coef.form=coef.form, coef.diss=coef.diss, monitor=monitor, time.points=time.points, time.burnin=time.burnin, time.interval=time.interval,control=control,toggles=toggles, stats.form = stats.form, stats.diss = stats.diss, verbose=verbose,...)
+  simulate.network(object$network,formation=object$formation,dissolution=object$dissolution,nsim=nsim,coef.form=coef.form, coef.diss=coef.diss, monitor=monitor, time.slices=time.slices, time.burnin=time.burnin, time.interval=time.interval,control=control, statsonly=statsonly, stats.form = stats.form, stats.diss = stats.diss, verbose=verbose,...)
 }
 
 
@@ -89,12 +87,13 @@ simulate.network <- function(object, nsim=1, seed=NULL,
                              formation, dissolution,
                              coef.form,coef.diss,
                              monitor = NULL,
-                             time.points, time.burnin=0, time.interval=1,
+                             time.slices, time.burnin=0, time.interval=1,
                              control=control.simulate.stergm(),
                              statsonly=time.burnin>0||time.interval>1,
                              stats.form = FALSE,
                              stats.diss = FALSE,
-                             verbose=FALSE) {
+                             verbose=FALSE, ...) {
+  if(length(list(...))) stop("Unknown arguments: ",names(list(...)))
   
   if(!is.null(seed)) set.seed(as.integer(seed))
   # Toggles is a "main call" parameter, since it affects what to
@@ -110,11 +109,18 @@ simulate.network <- function(object, nsim=1, seed=NULL,
   formation<-ergm.update.formula(formation,nw~.)
   dissolution<-ergm.update.formula(dissolution,nw~.)
 
+  unset.offset.call <- function(object){
+    if(inherits(object,"call") && object[[1]]=="offset")
+      object[[2]]
+    else
+      object
+  }
+  
   if(is.character(monitor)){
     monitor <- switch(monitor,
                       formation = formation,
                       dissolution = dissolution,
-                      all = append.rhs.formula(~nw, unique(c(term.list.formula(formation[[3]]),term.list.formula(dissolution[[3]]))))
+                      all = append.rhs.formula(~nw, unique(lapply(c(term.list.formula(formation[[3]]),term.list.formula(dissolution[[3]])), unset.offset.call)))
                       )
   }
   
@@ -155,7 +161,7 @@ simulate.network <- function(object, nsim=1, seed=NULL,
   
   control$time.burnin <- time.burnin
   control$time.interval <- time.interval
-  control$time.samplesize <- time.points
+  control$time.samplesize <- time.slices
   control$collect.form <- stats.form
   control$collect.diss <- stats.diss
 
@@ -169,11 +175,11 @@ simulate.network <- function(object, nsim=1, seed=NULL,
     
     stats.form <- if(control$collect.form) mcmc(sweep(z$statsmatrix.form,2,summary(formation),"+"),start=time.burnin+1,thin=time.interval)
     stats.diss <- if(control$collect.diss) mcmc(sweep(z$statsmatrix.diss,2,summary(dissolution),"+"),start=time.burnin+1,thin=time.interval)
-    stats.mon <- if(!is.null(model.mon)) mcmc(sweep(z$statsmatrix.mon,2,summary(monitor),"+"),start=time.burnin+1,thin=time.interval)
+    stats <- if(!is.null(model.mon)) mcmc(sweep(z$statsmatrix.mon,2,summary(monitor),"+"),start=time.burnin+1,thin=time.interval)
     
     if(control$toggles){
       library(networkDynamic)
-      nwd <- as.networkDynamic(nw, toggles = z$changed, start = nw%n%"time" + 0, end = nw%n%"time" + time.points)
+      nwd <- as.networkDynamic(nw, toggles = z$changed, start = nw%n%"time" + 0, end = nw%n%"time" + time.slices)
       nwd<-delete.network.attribute(nwd, "time")
       nwd<-delete.network.attribute(nwd, "lasttoggle")
       attributes(nwd) <- c(attributes(nwd), # Don't clobber existing attributes!
@@ -181,17 +187,24 @@ simulate.network <- function(object, nsim=1, seed=NULL,
                                 dissolution = dissolution,
                                 stats.form = stats.form,
                                 stats.diss = stats.diss,
-                                stats.mon = stats.mon,
+                                stats = stats,
                                 coef.form=coef.form,
                                 coef.diss=coef.diss,
-                                toggles=z$changed))
+                                toggles = z$changed))
       nwd
     }else
-    list(stats.form = stats.form,stats.diss = stats.diss, stats.mon = stats.mon)
+    list(stats.form = stats.form,stats.diss = stats.diss, stats = stats)
   },
                    simplify = FALSE)
   if(nsim==1){
     out<-out[[1]]
+    if(!control$toggles){
+      for(name in names(out)) # Strip the unreturned stats matrices.
+        if(is.null(out[[name]]))
+          out[[name]] <- NULL
+      if(length(out))
+        out <- out[[1]] # If there is only one, just return it.
+    }
     out
   }else{
     if(control$toggles){
@@ -205,6 +218,8 @@ simulate.network <- function(object, nsim=1, seed=NULL,
         if(!is.null(out[[1]][[name]]))
           outl[[name]] <- do.call(mcmc.list, lapply(out, "[[", name))
       }
+      if(length(outl))
+         outl <- outl[[1]] # If there is only one, just return it.
       outl
     }
   }

@@ -39,9 +39,6 @@
 #                   function will never be called in the path from
 #                   <ergm.san> which is the only code using this
 #                   control list.
-#   summarizestats: whether to print out a summary of the sufficient
-#                   statistics of the generated network (T or F);
-#                   default=FALSE.
 #   maxchanges    : ??; default=1000000 
 #
 #
@@ -59,7 +56,6 @@ control.simulate<-control.simulate.formula<-control.simulate.formula.ergm<-funct
                                                      MCMC.packagenames="ergm",
 
                                                      MCMC.runtime.traceplot=FALSE,  
-                                                     summarizestats=FALSE,
                                                      network.output="network",
                                                      
                                                      parallel=0,
@@ -101,7 +97,6 @@ control.simulate.ergm<-function(MCMC.burnin=NULL,
                                 MCMC.packagenames=NULL,
                                 
                                 MCMC.runtime.traceplot=FALSE,
-                                summarizestats=FALSE,
                                 network.output="network",
 
                                 seed=NULL,

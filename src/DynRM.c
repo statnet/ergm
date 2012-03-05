@@ -116,9 +116,9 @@ MCMCDynStatus MCMCDynRMPhase2(// Observed and discordant network.
 
 
   for (unsigned int i=0; i < phase2n; i++){
+    n = 0;
     for(unsigned int j=0; j<M_m->n_stats; j++){
       meandev[j]=0;
-      n = 0;
     }
 
     // Jitter parameters

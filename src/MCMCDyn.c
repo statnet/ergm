@@ -134,7 +134,7 @@ void MCMCDyn_wrapper(// Starting network.
   if(*status == MCMCDyn_OK && *maxedges>0 && newnetworktails && newnetworkheads){
     newnetworktails[0]=newnetworkheads[0]=EdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,nw,*maxedges-1);
     *time = nw->duration_info.MCMCtimer;
-    if(lasttoggle) memcpy(lasttoggle, nw->duration_info.lasttoggle, sizeof(int)*(*dflag? *n_nodes*(*n_nodes-1) : (*n_nodes*(*n_nodes-1))/2));
+    if(lasttoggle) memcpy(lasttoggle, nw->duration_info.lasttoggle, sizeof(int)*(*bipartite? (*n_nodes-*bipartite)**bipartite : (*dflag? *n_nodes*(*n_nodes-1) : (*n_nodes*(*n_nodes-1))/2)));
   }
 
   if(diffnetworktime==NULL){

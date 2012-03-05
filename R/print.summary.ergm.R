@@ -56,7 +56,7 @@ print.summary.ergm <- function (x,
              `Robbins-Monro`=cat("\nRobbins-Monro MLE Results:\n"),
              `Stepping`=cat("\n Stepping MLE Results:\n"),
              stop("Unknown estimation method. This is a bug.")),
-           EGMoME = if(!is.null(control$EGMoME.main.method))  switch(control$EGMoME.main.method,
+           EGMME = if(!is.null(control$EGMME.main.method))  switch(control$EGMME.main.method,
              `Robbins-Monro`=cat("\nEquilibrium Generalized Method of Moments Results:\n"),
              stop("Unknown estimation method. This is a bug.")),
            stop("Unknown estimate type. This is a bug.")

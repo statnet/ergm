@@ -7,79 +7,94 @@
 }
 \usage{
  control.stergm (init.form=NULL,
-                 init.diss=NULL,
-                 init.method=NULL,
+                         init.diss=NULL,
+                         init.method=NULL,
 
-                 MCMC.prop.weights.form="default",
-                 MCMC.prop.args.form=NULL,
-                 MCMC.prop.weights.diss="default",
-                 MCMC.prop.args.diss=NULL,
-                 MCMC.init.maxedges=20000,
-                 MCMC.init.maxchanges=20000,
-                 MCMC.packagenames="ergm",
-                 MCMC.burnin=1000,
+                         MCMC.prop.weights.form="default",MCMC.prop.args.form=NULL,
+                         MCMC.prop.weights.diss="default",MCMC.prop.args.diss=NULL,
+                         MCMC.init.maxedges=20000,
+                         MCMC.init.maxchanges=20000,
+                         MCMC.packagenames="ergm",
+                         # Number of proposals within each time step.
+                         MCMC.burnin=1000,
 
-                 CMLE.control=NULL,
-                 CMLE.control.form=control.ergm(init=init.form,
-                             MCMC.prop.weights=MCMC.prop.weights.form, 
-                             MCMC.prop.args=MCMC.prop.args.form, 
-                             MCMC.init.maxedges=MCMC.init.maxedges, 
-                             MCMC.packagenames=MCMC.packagenames, 
-                             MCMC.interval=MCMC.burnin),
-                 CMLE.control.diss=control.ergm(init=init.diss, 
-                             MCMC.prop.weights=MCMC.prop.weights.diss, 
-                             MCMC.prop.args=MCMC.prop.args.diss, 
-                             MCMC.init.maxedges=MCMC.init.maxedges, 
-                             MCMC.packagenames=MCMC.packagenames, 
-                             MCMC.interval=MCMC.burnin),
+                         # The reason MCMC.interval=MCMC.burnin is
+                         # that both represent the number of MH
+                         # proposals between approximately independent
+                         # draws.
+                         CMLE.control=NULL,
+                         CMLE.control.form=control.ergm(init=init.form, MCMC.prop.weights=MCMC.prop.weights.form, MCMC.prop.args=MCMC.prop.args.form, MCMC.init.maxedges=MCMC.init.maxedges, MCMC.packagenames=MCMC.packagenames, MCMC.interval=MCMC.burnin, parallel=parallel, parallel.type=parallel.type, parallel.version.check=parallel.version.check),
+                         CMLE.control.diss=control.ergm(init=init.diss, MCMC.prop.weights=MCMC.prop.weights.diss, MCMC.prop.args=MCMC.prop.args.diss, MCMC.init.maxedges=MCMC.init.maxedges, MCMC.packagenames=MCMC.packagenames, MCMC.interval=MCMC.burnin, parallel=parallel, parallel.type=parallel.type, parallel.version.check=parallel.version.check),
 
-                 EGMoME.main.method=c("Robbins-Monro"),
+                         EGMME.main.method=c("Robbins-Monro"),
                          
-                 SAN.maxit=10,
-                 SAN.control=control.san(coef=init.form,
-                             SAN.prop.weights=MCMC.prop.weights.form,
-                             SAN.prop.args=MCMC.prop.args.form,
-                             SAN.init.maxedges=MCMC.init.maxedges,
-                             SAN.burnin=MCMC.burnin,
-                             SAN.packagenames=MCMC.packagenames,
-                             parallel=parallel,
-                             parallel.type=parallel.type,
-                             parallel.version.check=parallel.version.check),
+                         SAN.maxit=10,
+                         SAN.control=control.san(coef=init.form,
+                           SAN.prop.weights=MCMC.prop.weights.form,
+                           SAN.prop.args=MCMC.prop.args.form,
+                           SAN.init.maxedges=MCMC.init.maxedges,
+                           
+                           SAN.burnin=MCMC.burnin,
+                           SAN.packagenames=MCMC.packagenames,
+                           
+                           parallel=parallel,
+                           parallel.type=parallel.type,
+                           parallel.version.check=parallel.version.check),
 
-                 RM.burnin=1000,
-                 RM.plot.progress=FALSE,
-                 RM.init.gain=0.1,                         
-                 RM.runlength=25, 
-                 RM.target.ac=0.5, 
-                 RM.init.interval=500,
-                 RM.min.interval=20,
-                 RM.phase1.tries=20,
-                 RM.phase1.jitter=0.1,
-                 RM.phase1.min.nonextreme=0.5,
-                 RM.phase1.max.p=0.01,
-                 RM.phase2sub=20,
-                 RM.phase2regain=400,
-                 RM.stepdown.subphases=10,
-                 RM.stepdown.p=0.5,
-                 RM.gain.decay=0.7,
-                 RM.keep.oh=0.5,
-                 RM.jitter.mul=0.2,
-                 RM.phase2.refine=TRUE,
-                 RM.phase2.refine.maxjump=3,
-                 RM.phase2.backoff.rat=1.05, 
-                 RM.refine=c("linear","mean","none"),
-                 RM.se=TRUE,
-                 RM.phase3n=1000,
+                         RM.burnin=1000,
 
-                 seed=NULL,
-                 parallel=0,
-                 parallel.type=NULL,
-                 parallel.version.check=TRUE)
+                         # Plot the progress of the optimization.
+                         RM.plot.progress=FALSE,
+                         RM.max.plot.points=400,
+                         
+                         # Initial gain --- if the process initially goes
+                         # crazy beyond recovery, lower this.
+                         RM.init.gain=0.01,                         
+                         
+                         RM.runlength=25, # Number of jumps per .C call.
+
+                         # Interval --- number of steps between
+                         # successive jumps --- is computed
+                         # adaptively.
+                         RM.target.ac=0.5, # Target serial autocorrelation.
+                         RM.init.interval=500, # Starting interval.
+                         RM.min.interval=20, # The lowest it can go.
+
+                        
+                         RM.phase1.tries=20, # Number of iterations of trying to find a reasonable configuration. FIXME: nothing happens if it's exceeded.
+                         RM.phase1.jitter=0.1, # Initial jitter sd of each parameter..
+                         RM.phase1.max.p=0.01, # P-value that a gradient estimate must obtain before it's accepted (since sign is what's important).
+                         RM.phase1.backoff.rat=1.05, # If a run produces this relative increase in the objective function, it will be backed off.
+                         
+                         RM.phase2.levels=20, # Number of gain levels to go through.
+                         RM.phase2.repeats=400, # Maximum number of times gain a subphase can be repeated if the optimization is "going somewhere".
+                         RM.stepdown.runs=40, # Number of subphases to use to see whether the optimization is going somewhere.
+                         RM.stepdown.thin=10, # Thin the draws for trend detection.
+                         RM.stepdown.p=0.01, # If the combined p-value for the trend in the parameters is less than this, reset the subphase counter.
+                         RM.stepdown.ct=5, # Number of times in a row the p-value must be above RM.stepdown.p to reduce gain.
+                         RM.gain.decay=0.7, # Gain decay factor.
+                         RM.keep.oh=0.75, # Fraction of optimization history that is used for gradient and covariance calculation.
+                         RM.phase2.jitter.mul=0.2, # The jitter standard deviation of each parameter is this times its standard deviation sans jitter.
+                         RM.phase2.maxreljump=16, # Maximum jump per run, relative to the magnitude of other jumps in the history.
+                         RM.phase2.refine=TRUE, # Whether to use linear interpolation to refine the estimate after every run.
+                         
+
+                         
+
+                         RM.refine=c("linear","mean","none"), # Method, if any, used to refine the point estimate: linear interpolation, average, and none for the last value.
+                         
+                         RM.se=TRUE, # Whether to run Phase 3 to compute the standard errors.
+                         RM.phase3.samplesize=1000, # This times the interval is the number of steps to estimate the standard errors.
+
+                         seed=NULL,
+                         parallel=0,
+                         parallel.type=NULL,
+                         parallel.version.check=TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{init.form}{numeric or \code{NA} vector equal in length to the number of
-    parameters in the formation model or \code{NULL} (the default); the initial
+  \item{init.form, init.diss}{numeric or \code{NA} vector equal in length to the number of
+    parameters in the formation/dissolution model or \code{NULL} (the default); the initial
     values for the estimation and coefficient offset terms. If \code{NULL}
     is passed, all of the initial values are computed using the method specified by
     \code{\link[=control.ergm]{control$init.method}}.
@@ -101,28 +116,19 @@
     an uncoverged \code{\link{ergm}} run, but see
     \code{\link{enformulate.curved}}.
   }
-  \item{init.diss}{As \code{init.diss} for the dissolution model.
-  }
-  \item{init.method}{Unused for now.  The default method for finding the
-    starting coefficient values (if \code{init} is not specified) is 
-    maximum pseudo-likelihood estimation (MPLE).
-  }
-  \item{MCMC.prop.weights.form}{Specifies the method to allocate probabilities of
-    being proposed to dyads in the formation phase. Defaults to \code{"default"}, which picks a
-    reasonable default for the specified constraint. Possible values are
-    \code{"TNT"}, \code{"random"}, and \code{"nonobserved"}, though not
+  \item{init.method}{Estimation method
+    used to acquire initial values for estimation. Unused at this time.
+    }
+  \item{MCMC.prop.weights.form, MCMC.prop.weights.diss}{Specifies the method to allocate probabilities of
+    being proposed to dyads in the formation/dissolution phase. Defaults to \code{"default"}, which picks a
+    reasonable default for the specified constraint. Possible values include
+    \code{"TNT"}, \code{"random"}, though not
     all values may be used
-    with all possible constraints (in the \code{\link{ergm}} function).
+    with all possible constraints.
   }
-  \item{MCMC.prop.args.form}{
+  \item{MCMC.prop.args.form, MCMC.prop.args.diss}{
     An alternative, direct way of specifying additional arguments to
-    the proposal in the formation phase.
-  }
-  \item{MCMC.prop.weights.diss}{As \code{MCMC.prop.weights.form}, 
-    for the dissolution phase.
-  }
-  \item{MCMC.prop.args.diss}{As \code{MCMC.prop.args.form}, 
-    for the dissolution phase.
+    the proposal in the formation/dissolution phase.
   }
   \item{MCMC.init.maxedges}{Maximum number 
     of edges for which to allocate space.
@@ -133,99 +139,117 @@
   \item{MCMC.packagenames}{Names of packages in which change statistic
     functions are found.
   }
-  \item{MCMC.burnin}{Number of proposals within each time step.
-    This number functions as both \code{MCMC.burnin} and
-    \code{MCMC.interval}.  They are the same because each
-    represents the number of MH proposals between approximately
-    independent draws.
+  \item{MCMC.burnin}{Number of Metropolis-Hastings steps per phase
+                        (formation and dissolution) per time step.
   }
-  \item{CMLE.control}{Not yet documented.
-  }
-  \item{CMLE.control.form}{Control parameters used to fit 
-    cross-sectional ERGMs using the formation model.  See
+  \item{CMLE.control}{A convenience argument for specifying both
+    \code{CMLE.control.form} and \code{CMLE.control.diss} at once.  See
     \code{\link{control.ergm}}.
   }
-  \item{CMLE.control.diss}{Control parameters used to fit 
-    cross-sectional ERGMs using the dissolution model.  See
+  \item{CMLE.control.form, CMLE.control.diss}{Control parameters used to
+                         fit the CMLE for the formation/dissolution ERGM.  See
     \code{\link{control.ergm}}.
   }
-  \item{EGMoME.main.method}{Estimation method
+  \item{EGMME.main.method}{Estimation method
     used to find the Equilibrium Generalized Method of Moments
     estimator.  Currently only "Robbins-Monro" is implemented.
   }
-  \item{SAN.maxit}{ Not yet documented. 
+  \item{SAN.maxit}{ When \code{target.stats} argument is passed to
+  \code{\link{ergm}}, the maximum number of attempts to use
+  \code{\link{san}} to obtain a network with statistics close to those
+  specified.
   }
   \item{SAN.control}{SAN control parameters.  See
     \code{\link{control.san}}
   }
-  \item{RM.burnin}{Not yet documented. 
+  \item{RM.burnin}{Number of time steps to advance the starting network
+    before beginning the optimization.
   }
-  \item{RM.plot.progress}{Logical: If TRUE, plot the progress of
-    the optimization.
+  \item{RM.plot.progress}{Logical: If TRUE, plot the trajectories of the
+                         parameters and target statistics as the
+                         optimization progresses. Do NOT use with non-interactive plotting devices
+    like \code{\link{pdf}}.
   }
-  \item{RM.init.gain}{Initial gain.  If the process initially goes
+
+  \item{RM.max.plot.points}{
+    If \code{RM.plot.progress==TRUE}, the maximum number of time points
+    to be plotted. Defaults to 400. If more iterations elapse, they will
+    be thinned to at most 400 before plotting.
+    }
+  \item{RM.init.gain}{Initial gain, the multiplier for the parameter update size.  If the process initially goes
     crazy beyond recovery, lower this value.
   }
-  \item{RM.runlength}{Number of jumps per .C call.
+  \item{RM.runlength}{Number of parameter trials and updates per C run.
   }
-  \item{RM.target.ac}{Target serial autocorrelation.
+  \item{RM.target.ac}{Target serial autocorrelation. The number of time
+    steps between updates of the parameters will be increased and
+    decreased to target this value.
   }
-  \item{RM.init.interval}{Strating interval.  The interval,
-    or number of steps between successive jumps,
-    is computed adaptively.
+  \item{RM.init.interval}{Initial number of time steps between updates
+    of the parameters.
   }
-  \item{RM.min.interval}{The lowest the interval can go.
+  \item{RM.min.interval}{The lowest the number of time steps between updates
+    of the parameters can go.
   }
-  \item{RM.phase1.tries}{Number of iterations of trying to find a 
-    reasonable configuration. (Currently not used;
-    nothing happens if it's exceeded.)
+  
+  \item{RM.phase1.tries}{Number of runs trying to find a 
+    reasonable parameter and network configuration.
   }
   \item{RM.phase1.jitter}{Initial jitter standard deviation
     of each parameter.
   }
-  \item{RM.phase1.min.nonextreme}{Fraction of realizations of a 
-    statistic that are not at an extrme before it's considered "unstuck".
-  }
   \item{RM.phase1.max.p}{P-value that a gradient estimate must 
     obtain before it is accepted (since sign is what is important).
   }
-  \item{RM.phase2sub}{Number of gain levels to go through.
+
+  \item{RM.phase1.backoff.rat}{If the run produces this 
+    relative increase in the approximate objective function, it will be backed off.
   }
-  \item{RM.phase2regain}{Number of times gain a subphase can be 
-    repeated if the optimization is "going somewhere".
+  \item{RM.phase2.levels}{Number of gain levels (subphases) to go through.
   }
-  \item{RM.stepdown.subphases}{Number of subphases to use to see 
-    whether the optimization is going somewhere.
-  }
-  \item{RM.stepdown.p}{If the combined p-value for the trend in 
-    the parameters is less than this value, repeat the subphase.
+  \item{RM.phase2.repeats, RM.stepdown.runs, RM.stepdown.thin,
+    RM.stepdown.p, RM.stepdown.ct}{A gain level may be repeated multiple times (up to
+    \code{RM.phase2.repeats}) if the optimizer detects that the
+    parameters are "going somewhere": moving in a clear direction, so
+    slowing them down at that point is counterproductive. To detect this
+    trend, it looks at parameter values up to \code{RM.phase2.stepdown.runs} back, thinning them
+    by \code{RM.stepdown.thin}, and fitting a GLS model for a linear trend, with AR(2)
+    autocorrelation for each variable, combining the p-values. If this
+    combined p-value for the trend in at least one parameter is greater
+    than \code{RM.stepdown.p} \code{RM.stepdown.ct} runs in a row, the
+    gain level (subphase) is allowed to end. Otherwise, the process
+    continues at the same gain level.
   }
   \item{RM.gain.decay}{Gain decay factor.
   }
   \item{RM.keep.oh}{Fraction of optimization history
-    used for gradient and covariance calculation.
+    used for gradient and covariance estimation.
   }
-  \item{RM.jitter.mul}{Jitter standard deviation of each 
+  \item{RM.phase2.jitter.mul}{Jitter standard deviation of each 
     parameter is this value times its standard deviation without jitter.
   }
   \item{RM.phase2.refine}{Logical: If TRUE, use linear 
     interpolation to refine the estimate after every run.
   }
-  \item{RM.phase2.refine.maxjump}{Maximum linear interpolator jump 
-    magnitude (in standard deviations of the parameter from the 
-    current mean).
-  }
-  \item{RM.phase2.backoff.rat}{If the run produces this 
-    relative increase in the objective function, it will be backed off.
-  }
+
+  \item{RM.phase2.maxreljump}{To keep the optimization from "running
+  away" due to, say, a poor gradient estimate building on itself, if a
+  magnitude of change (Mahalanobis distance) in parameters over the course of a run divided by
+  average magnitude of change for recent runs exceeds this, the change
+  is truncated to this amount times the average for recent runs.}
+  
+
   \item{RM.refine}{Method, if any, used to 
-    refine the point estimate: "linear" for linear interpolation, 
-    "mean" for average, and "none" for the last value.
+    refine the point estimate at the end: "linear" for linear interpolation, 
+    "mean" for average, and "none" to use the last value.
   }
-  \item{RM.se}{Logical:  If TRUE, run Phase 3 to compute the 
-    standard errors.
+  \item{RM.se}{Logical:  If TRUE (the default), get an MCMC sample of statistics at
+    the final estimate and compute the 
+    covariance matrix (and hence standard errors) of the
+    parameters. This sample is stored and can also be used by
+    \code{\link{mcmc.diagnostics.stergm}} to assess convergence.
   }
-  \item{RM.phase3n}{This multiplied by the interval is the 
+  \item{RM.phase3.samplesize}{This multiplied by the interval is the 
     number of steps to estimate the standard errors.
   }
   \item{seed}{Seed value (integer) for the random number generator.  
@@ -245,62 +269,6 @@
     \code{\link[=ergm-package]{ergm}} running on the slave nodes is the
     same as that running on the master node.
   }
-  
-  
-
-% Below is some old documentation that may be helpful to augment what is
-% currently given:
-%
-%  \item{style}{character; The style of method of moments estimation
-%    to use. The default is a form of stochastic approximation
-%    (\code{"Robbins-Monro"}), but it should only be used if it is known
-%    a priori that the derivative of each element of the equilibrium
-%    expected values of statistics of interest with respect to the
-%    corresponding formation phase parameter is positive. The other
-%    option, (\code{"SPSA"}) is less precise but does not make this
-%    assumption. \code{"SPSA2"} is multithreaded, but has more overhead,
-%    and may give wrong results, since \R's routines are not threadsafe.
-%}
-%  \item{RM.phase1n_base}{this helps define the 'phase1n' param, which in turn
-%                     multiplies 'RM.interval' to control the number of
-%                     phase1 iterations; this is the base portion of 'phase1n',
-%                     which is added to 3*(the number of formation coefficients)
-%}
-%  \item{RM.phase2n_base}{phase2 is a 3-deep nested for-loop and 'RM.phase2sub' limits
-%}
-%\item{RM.phase2sub}{
-%  phase2 is a 3-deep nested for-loop and 'RM.phase2sub' limits
-%}
-%\item{RM.init_gain}{
-%  this is only used to adjust 'aDdiaginv'in phase1,
-%                      in particular:
-%                             aDdiaginv = gain/sqrt(aDdiaginv)
-%                      default=0.5
-%}
-%
-%  \item{RM.interval}{like the SPSA.interval, this seems a little more like
-%                      a sample size, than an interval, it helps control the
-%                      number of MCMCsteps used in phase1 and phase2; in
-%                      phase2, this limits the innermost loop counter; default=100
-%}
-%  \item{RM.burnin}{the number of MCMC steps to disregard for the burn-in
-%                      period; default=1000
-%}
-%  \item{SPSA.a,SPSA.alpha,SPSA.A,SPSA.c,SPSA.gamma}{ Controls the rate
-%                      of decay of SPSA gain as
-%                           SPSA.c/(i+1)^(SPSA.gamma)
-%                      where i is indexed from 0 to SPSA.iterations
-%}
-%  \item{SPSA.iterations}{the number of iterations to use in the SPSA optimization;
-%                      default=1000
-%}
-%  \item{SPSA.interval}{this is eventually received as 'S' and looks like a
-%                      a sample size, rather than an interval, since 'S' controls
-%                      the number of MCMC steps that contribute to the stats vector
-%}
-%  \item{SPSA.burnin}{the number of MCMC steps to disregard for the burnin
-%                      period; default=1000
-%}
 }
 \details{
       This function is only used within a call to the \code{\link{stergm}} function.

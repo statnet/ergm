@@ -42,7 +42,7 @@
 #
 ################################################################################
 
-stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, model.mon,
+stergm.EGMME.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, model.mon,
                             control, MHproposal.form, MHproposal.diss,
                             verbose=FALSE){
 
@@ -68,7 +68,7 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
     jitters.all <- get("jitters.all",parent.frame())
 
     if(verbose) cat("Running stochastic optimization... ")
-    z<-stergm.EGMoME.RM.Phase2.C(state, model.form, model.diss, model.mon, MHproposal.form, MHproposal.diss,
+    z<-stergm.EGMME.RM.Phase2.C(state, model.form, model.diss, model.mon, MHproposal.form, MHproposal.diss,
                                  control, verbose=verbose)
     if(verbose) cat("Finished. Extracting.\n")
     
@@ -94,7 +94,11 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
     assign("jitters.last",jitters.all[inds.last,,drop=FALSE],envir=parent.frame())
 
     # Plot if requested.
-    if(control$RM.plot.progress){library(lattice); print(xyplot(mcmc(oh),panel=function(...){panel.xyplot(...);panel.abline(0,0)},as.table=TRUE))}
+    if(control$RM.plot.progress){
+      library(lattice)
+      thin <- (nrow(oh)-1)%/%control$RM.max.plot.points + 1
+      print(xyplot(mcmc(oh),panel=function(...){panel.xyplot(...);panel.abline(0,0)},thin=thin,as.table=TRUE))
+    }
     
     # Extract and return the "state".
     list(nw = z$newnetwork,
@@ -122,13 +126,13 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
         sapply(1:q,
                function(i){
                  y<-ys[,i]
-                 try(gls(y~x, correlation=corAR1()),silent=TRUE)
+                 try(gls(y~x, correlation=corARMA(p=2)),silent=TRUE)
                },simplify=FALSE)
       else
         sapply(1:q,
              function(i){
                y<-ys[,i]
-               try(lmrob(y~x), silent=TRUE)
+               suppressWarnings(try(lmrob(y~x), silent=TRUE))
              },simplify=FALSE)
     
     bad.fits <- sapply(h.fits, inherits, "try-error")
@@ -153,7 +157,7 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
     v[is.na(v)] <- 0
 
     w <- robust.inverse(v)
-
+    
     ## Adjust the number of time steps between jumps.
     
     stat.ac <- rep(NA,q)
@@ -182,7 +186,7 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
     G[!G.signif] <- 0
     G[is.na(G)] <- 0
 
-    rownames(v)<-colnames(v)<-rownames(w)<-colnames(w)<-q.names
+    rownames(w)<-colnames(w)<-rownames(v)<-colnames(v)<-q.names
     
     colnames(G)<-p.names[!offsets]
     rownames(G)<-q.names
@@ -201,11 +205,15 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
       cat("Estimated covariance of statistics:\n")
       print(v)
     }
-          
+
+    
     control$WinvGradient <- matrix(0, nrow=p, ncol=q)
-    control$WinvGradient[!offsets,] <- robust.inverse(G) %*% chol(w,pivot=TRUE) * control$gain
+    #control$WinvGradient[!offsets,] <- robust.inverse(G) %*% chol(w,pivot=TRUE) * control$gain
+    control$WinvGradient[!offsets,] <- robust.inverse(G) %*% w
+    wscale <- sqrt(mean(diag(control$WinvGradient[!offsets,,drop=FALSE]%*%v%*%t(control$WinvGradient[!offsets,,drop=FALSE]))))
+    control$WinvGradient[!offsets,] <- control$WinvGradient[!offsets,]  * control$gain / if(wscale==0) 1 else wscale
     control$dejitter <- matrix(0, nrow=p, ncol=p)
-    control$dejitter[!offsets,!offsets] <- control$WinvGradient[!offsets,]%*%G
+    control$dejitter[!offsets,!offsets] <- control$WinvGradient[!offsets,,drop=FALSE]%*%G
     
     rownames(control$WinvGradient) <- rownames(control$dejitter) <- colnames(control$dejitter) <- p.names
     colnames(control$WinvGradient) <- q.names
@@ -218,7 +226,7 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
     }
 
     if(update.jitter){
-      control$jitter[!offsets] <- apply(oh[,1:p,drop=FALSE][,!offsets,drop=FALSE]-jitters[,!offsets,drop=FALSE],2,sd)*control$RM.jitter.mul
+      control$jitter[!offsets] <- apply(oh[,1:p,drop=FALSE][,!offsets,drop=FALSE]-jitters[,!offsets,drop=FALSE],2,sd)*control$RM.phase2.jitter.mul
       names(control$jitter) <- p.names
     }
     
@@ -243,11 +251,37 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
     m.last3 <- mahalanobis(stats.last3, 0, w, inverted=TRUE)
 
     if(verbose) cat("Scaled objective function",mean(m.last3),"->",mean(m.last),"\n")
-    if(mean(m.last)/mean(m.last3)>control$RM.phase2.backoff.rat^(if(is.null(state.bak$backoffs)) 1 else state.bak$backoffs)){
+    if(mean(m.last)/mean(m.last3)>control$RM.phase1.backoff.rat^(if(is.null(state.bak$backoffs)) 1 else state.bak$backoffs)){
       cat("Objective function got significantly worse. Backing off.\n")
       state.bak$backoffs <- if(is.null(state.bak$backoffs)) 1 else state.bak$backoffs+1
       state.bak
     }else state
+  }
+
+  accel.brake <- function(state,state.bak){
+    
+    
+    ph <- oh[-nrow(oh),1:p,drop=FALSE][,!offsets,drop=FALSE]
+    ph.jumps <- ph[seq(from=1+control$RM.runlength,to=nrow(ph),by=control$RM.runlength),,drop=FALSE]-ph[seq(from=1,to=nrow(oh)-control$RM.runlength,by=control$RM.runlength),,drop=FALSE]
+
+    last.jump <- c(state$eta.form,state$eta.diss)[!offsets] - c(state.bak$eta.form,state.bak$eta.diss)[!offsets]
+
+    if(nrow(ph.jumps)<3) return(state)
+
+    jump.w<-robust.inverse(cov(ph.jumps)/sum(diag(cov(ph.jumps))))
+    
+    jump.sizes <- mahalanobis(ph.jumps, 0, jump.w, inverted=TRUE)
+    last.jump.size <- mahalanobis(rbind(last.jump), 0, jump.w, inverted=TRUE)
+
+    if(verbose) cat("Most recent jump size relative to average is",last.jump.size/mean(jump.sizes),", with average being",mean(jump.sizes),"\n")
+    
+    if(last.jump.size>mean(jump.sizes)*control$RM.phase2.maxreljump){
+      cat("Jumps accelerating too fast. Truncating.\n")
+      par <- c(state.bak$eta.form,state.bak$eta.diss)[!offsets] + last.jump/(last.jump.size/(mean(jump.sizes)*control$RM.phase2.maxreljump))
+      if(p.form.free) state$eta.form[!model.form$offset] <- par[seq_len(p.form.free)]
+      if(p.diss.free) state$eta.diss[!model.diss$offset] <- par[p.form.free+seq_len(p.diss.free)]
+    }
+    state
   }
   
   interpolate.par <- function(h.fit, w=diag(1,nrow=ncol(h.fit))){
@@ -272,6 +306,8 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
   oh.all <- NULL
   jitters.all <- NULL
 
+  cat('========  Phase 1: Burn in, get initial gradient values, and find a configuration under which all targets vary. ========\n',sep="")
+  
   ###### Set up and run the burn-in. ######
   
   control$collect.form <- control$collect.diss <- FALSE
@@ -279,8 +315,12 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
   control.phase1$time.samplesize <- 1
   control.phase1$time.burnin <- control$RM.burnin
   control.phase1$time.interval <- 1
+
+  cat("Burning in... ")
   
   z <- stergm.getMCMCsample(state$nw, model.form, model.diss, model.mon, MHproposal.form, MHproposal.diss, state$eta.form, state$eta.diss, control.phase1, verbose)
+
+  cat("Done.\n")
 
   # Update the state with burn-in results.
   state$nw <- z$newnetwork
@@ -304,10 +344,9 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
 
   control$RM.interval <- control$RM.init.interval
 
-  if(verbose) cat('========  Phase 1: Get initial gradient values and find a configuration under which all targets vary. ========\n',sep="")
   
   for(try in 1:control$RM.phase1.tries){
-    if(verbose) cat('======== Attempt ',try,' ========\n',sep="")
+    if(verbose) cat('======== Attempt ',try,' ========\n',sep="") else cat('Attempt',try,'\n')
     state <- do.optimization(state, control)
 
     # Perform backoff test and update backup
@@ -318,23 +357,35 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
     out <- eval.optpars(TRUE,FALSE,FALSE)
     control <- out$control
     if(all(!out$ineffectual.pars) && all(!out$bad.fits)){
-      if(verbose) cat("Gradients estimated and all statistics are moving. Moving on to Phase 2.\n")
+      cat("Gradients estimated and all statistics are moving. Proceeding to Phase 2.\n")
       break
     }
+    if(try==control$RM.phase1.tries) stop("The optimizer was unable to find a reasonable configuration: one or more statistics are still stuck after multiple tries, and one or more parameters do not appear to have any robust effect.")
   }
 
   ###### Main optimization run. ######
+
+  cat('========  Phase 2: Find and refine the estimate. ========\n',sep="")
+
+  stepdown.count <- control$RM.stepdown.ct
   
-  for(subphase in 1:control$RM.phase2sub){
-    if(verbose) cat('======== Subphase ',subphase,' ========\n',sep="")
+  for(subphase in 1:control$RM.phase2.levels){
+    if(verbose) cat('======== Subphase ',subphase,' ========\n',sep="") else cat('Subphase 2.',subphase,' ',sep="")
     control$gain <- control$RM.init.gain*control$RM.gain.decay^(subphase-1)
-    for(regain in 1:control$RM.phase2regain){
+    for(regain in 1:control$RM.phase2.repeats){
+      if(verbose==0) cat(".")
       state <-do.optimization(state, control)
-      
+
+      if(verbose){
+        cat("New parameters:\n")
+        cat("Formation:\n")
+        print(state$eta.form)
+        cat("Dissolution:\n")
+        print(state$eta.diss)
+      }
       
       # Perform backoff test and update backup
-      state <- backoff.test(state, state.bak)
-      state.bak <- state
+      ## state <- backoff.test(state, state.bak)
       
       out <- eval.optpars(FALSE,TRUE,TRUE)
       control <- out$control
@@ -343,16 +394,8 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
         ## Interpolate the estimate.
         eta.int <- try(interpolate.par(out$oh.fit,out$w),silent=TRUE)
         if(!inherits(eta.int,"try-error")){
-          eta.last <- c(state$eta.form[!model.form$offset],state$eta.diss[!model.diss$offset])
-          eta.int <- eta.last*(1-control$gain) + eta.int*control$gain
-
-          eta.sds <- apply(oh[1:p,],2,sd)[!offsets]
-          eta.zs <- (eta.int - eta.last)/eta.sds
-          eta.zs <- pmax(pmin(eta.zs, control$RM.phase2.refine.maxjump), -control$RM.phase2.refine.maxjump)
-          eta.int <- eta.zs*eta.sds + eta.last
-
-          if(p.form.free) state$eta.form[!model.form$offset] <- eta.int[seq_len(p.form.free)]
-          if(p.diss.free) state$eta.diss[!model.diss$offset] <- eta.int[p.form.free+seq_len(p.diss.free)]
+          if(p.form.free) state$eta.form[!model.form$offset] <- state$eta.form[!model.form$offset]*(1-min(control$gain*control$RM.runlength,1)) + eta.int[seq_len(p.form.free)]*min(control$gain*control$RM.runlength,1)
+          if(p.diss.free) state$eta.diss[!model.diss$offset] <- state$eta.diss[!model.diss$offset]*(1-min(control$gain*control$RM.runlength,1)) + eta.int[p.form.free+seq_len(p.diss.free)]*min(control$gain*control$RM.runlength,1)
           if(verbose){
             cat("Interpolated parameters:\n")
             cat("Formation:\n")
@@ -363,31 +406,43 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
         }
       }
 
+      state <- accel.brake(state,state.bak)
+      state.bak <- state
+
       ## If the optimization appears to be "going somewhere", keep
       ## going, without reducing the gain.
 
       ys <- oh[,(1:p),drop=FALSE][,!offsets,drop=FALSE]
       x <- 1:NROW(oh)
-      
+      gls.subset <- round(seq(from=NROW(oh), by=-control$RM.stepdown.thin, length.out=control$RM.stepdown.runs*control$RM.runlength/control$RM.stepdown.thin))
+      gls.subset <- gls.subset[gls.subset>=1]
       eta.trend.ps <- try(apply(ys,2,
-                            function(y)
-                            summary(gls(y~x,correlation=corAR1(),
-                                        subset=max(NROW(oh)-control$RM.stepdown.subphases*control$RM.runlength+1,1):NROW(oh)))$tTable[2,4]), silent=TRUE)
+                                function(y)
+                                summary(gls(y~x,correlation=corARMA(p=2),
+                                            subset=gls.subset))$tTable[2,4]), silent=TRUE)
       if(!inherits(eta.trend.ps, "try-error")){
         names(eta.trend.ps)<-c(paste("f.(",model.form$coef.names,")",sep=""),paste("d.(",model.diss$coef.names,")",sep=""))[!offsets]
+        eta.trend.p <- pchisq(-2 * sum(log(eta.trend.ps)),length(eta.trend.ps)*2,lower.tail=FALSE)
         if(verbose>1){
           cat("Parameter trend p-values:\n")
           print(eta.trend.ps)
+        }else if(verbose){
+          cat("Parameter trend combined p-value:",eta.trend.p,". ")
         }
-        eta.trend.p <- pchisq(-2 * sum(log(eta.trend.ps)),length(eta.trend.ps)*2,lower.tail=FALSE)
         if(eta.trend.p>control$RM.stepdown.p){
-          cat("No trend in parameters detected. Reducing gain.\n")
-          break
+          stepdown.count <- stepdown.count - 1
+          if(stepdown.count<=0){
+            if(verbose) cat("No trend in parameters detected. Reducing gain.\n")
+            stepdown.count <- control$RM.stepdown.ct
+            if(!verbose) cat("\n")
+            break
+          }else if(verbose) cat("No trend in parameters detected.",stepdown.count,"to go.\n")
         }else{
-          cat("Trend in parameters detected. Continuing with current gain.\n")
+            stepdown.count <- control$RM.stepdown.ct
+            if(verbose) cat("Trend in parameters detected. Continuing with current gain. Resetting counter.\n")
         }
       }else{
-        cat("Problem testing trend in parameters detected. Continuing with current gain.\n")
+        if(verbose) cat("Problem testing trend in parameters detected. Continuing with current gain.\n")
       }
     }
   }
@@ -421,11 +476,11 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
     
     control.phase3<-control
     control.phase3$time.burnin <- control$RM.burnin
-    control.phase3$time.samplesize <- control$RM.phase3n
+    control.phase3$time.samplesize <- control$RM.phase3.samplesize
     control.phase3$time.interval <- control$RM.interval
     
     ## Estimate standard errors.
-    if(verbose)cat("Simulating to estimate standard errors... ")
+    cat('========  Phase 3: Simulate from the fit and estimate standard errors. ========\n',sep="")
     z <- stergm.getMCMCsample(state$nw, model.form, model.diss, model.mon, MHproposal.form, MHproposal.diss, eta.form, eta.diss, control.phase3, verbose)
     sm.mon <- sweep(z$statsmatrix.mon,2,state$nw.diff,"+")
     if(verbose)cat("Finished.\n")
@@ -457,7 +512,7 @@ stergm.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss, mode
        network=nw)            
 }
 
-stergm.EGMoME.RM.Phase2.C <- function(state, model.form, model.diss, model.mon,
+stergm.EGMME.RM.Phase2.C <- function(state, model.form, model.diss, model.mon,
                              MHproposal.form, MHproposal.diss, control, verbose) {
   Clist.form <- ergm.Cprepare(state$nw, model.form)
   Clist.diss <- ergm.Cprepare(state$nw, model.diss)

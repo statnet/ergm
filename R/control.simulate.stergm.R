@@ -26,9 +26,6 @@
 #                   function will never be called in the path from
 #                   <simulate.stergm> which is the only code using this
 #                   control list.
-#   summarizestats: whether to print out a summary of the sufficient
-#                   statistics of the generated network (T or F);
-#                   default=FALSE.
 #
 # --RETURNED--
 #   a list of the above parameters
@@ -41,7 +38,6 @@ control.simulate.stergm<-control.simulate.network<-function(MCMC.burnin=1000,
                                   MCMC.init.maxedges=20000,
                                   MCMC.packagenames="ergm",
 
-                                  summarizestats=FALSE,
                                   MCMC.init.maxchanges=1000000){
     control<-list()
     for(arg in names(formals(sys.function())))

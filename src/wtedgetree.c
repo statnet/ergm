@@ -31,7 +31,7 @@ WtNetwork WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
   GetRNGstate();  /* R function enabling uniform RNG */
 
   if(lasttoggle_flag){
-    unsigned int ndyads = directed_flag? nnodes*(nnodes-1) : (nnodes*(nnodes-1))/2;
+    unsigned int ndyads = bipartite? (nnodes-bipartite)*bipartite : (directed_flag? nnodes*(nnodes-1) : (nnodes*(nnodes-1))/2);
     nw.duration_info.MCMCtimer=time;
     nw.duration_info.lasttoggle = (int *) calloc(ndyads, sizeof(int));
     if(lasttoggle)
@@ -283,10 +283,14 @@ int WtToggleEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwor
   }
   
   if(nwp->duration_info.lasttoggle){ /* Skip timestamps if no duration info. */
-    if (nwp->directed_flag) 
-      k = (head-1)*(nwp->nnodes-1) + tail - ((tail>head) ? 1:0) - 1; 
-    else
-      k = (head-1)*(head-2)/2 + tail - 1;    
+    if(nwp->bipartite){
+      k = (head-nwp->bipartite-1)*(nwp->bipartite) + tail - 1;
+    }else{
+      if (nwp->directed_flag) 
+	k = (head-1)*(nwp->nnodes-1) + tail - ((tail>head) ? 1:0) - 1; 
+      else
+	k = (head-1)*(head-2)/2 + tail - 1;    
+    }
     nwp->duration_info.lasttoggle[k] = nwp->duration_info.MCMCtimer;
   }
 
@@ -373,10 +377,14 @@ void WtSetEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwork 
   }
   
   if(nwp->duration_info.lasttoggle){ /* Skip timestamps if no duration info. */
-    if (nwp->directed_flag) 
-      k = (head-1)*(nwp->nnodes-1) + tail - ((tail>head) ? 1:0) - 1; 
-    else
-      k = (head-1)*(head-2)/2 + tail - 1;    
+    if(nwp->bipartite){
+      k = (head-nwp->bipartite-1)*(nwp->bipartite) + tail - 1;
+    }else{
+      if (nwp->directed_flag) 
+	k = (head-1)*(nwp->nnodes-1) + tail - ((tail>head) ? 1:0) - 1; 
+      else
+	k = (head-1)*(head-2)/2 + tail - 1;    
+    }
     nwp->duration_info.lasttoggle[k] = nwp->duration_info.MCMCtimer;
   }
 
@@ -403,10 +411,14 @@ int WtElapsedTime (Vertex tail, Vertex head, WtNetwork *nwp){
   }
 
   if(nwp->duration_info.lasttoggle){ /* Return 0 if no duration info. */
-    if (nwp->directed_flag) 
-      k = (head-1)*(nwp->nnodes-1) + tail - ((tail>head) ? 1:0) - 1; 
-    else
-      k = (head-1)*(head-2)/2 + tail - 1;    
+    if(nwp->bipartite){
+      k = (head-nwp->bipartite-1)*(nwp->bipartite) + tail - 1;
+    }else{
+      if (nwp->directed_flag) 
+	k = (head-1)*(nwp->nnodes-1) + tail - ((tail>head) ? 1:0) - 1; 
+      else
+	k = (head-1)*(head-2)/2 + tail - 1;    
+    }
     return nwp->duration_info.MCMCtimer - nwp->duration_info.lasttoggle[k];
   }
   else return 0; 
@@ -433,10 +445,14 @@ int WtElapsedTime (Vertex tail, Vertex head, WtNetwork *nwp){
 void WtTouchEdge(Vertex tail, Vertex head, WtNetwork *nwp){
   unsigned int k;
   if(nwp->duration_info.lasttoggle){ /* Skip timestamps if no duration info. */
-    if (nwp->directed_flag) 
-      k = (head-1)*(nwp->nnodes-1) + tail - ((tail>head) ? 1:0) - 1; 
-    else
-      k = (head-1)*(head-2)/2 + tail - 1;    
+    if(nwp->bipartite){
+      k = (head-nwp->bipartite-1)*(nwp->bipartite) + tail - 1;
+    }else{
+      if (nwp->directed_flag) 
+	k = (head-1)*(nwp->nnodes-1) + tail - ((tail>head) ? 1:0) - 1; 
+      else
+	k = (head-1)*(head-2)/2 + tail - 1;    
+    }
     nwp->duration_info.lasttoggle[k] = nwp->duration_info.MCMCtimer;
   }
 }

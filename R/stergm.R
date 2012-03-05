@@ -12,7 +12,7 @@ stergm <- function(nw, formation, dissolution, estimate, times=NULL, offset.coef
   options(warn=0)
   if(!is.null(control$seed))  set.seed(as.integer(control$seed))
 
-  estimate <- match.arg(estimate,c("CMLE","CMPLE","EGMoME"))
+  estimate <- match.arg(estimate,c("CMLE","CMPLE","EGMME"))
   
   if(!inherits(formation,"formula") || !inherits(dissolution,"formula"))
     stop("Arguments formation and dissolution must be formulas.")
@@ -32,7 +32,7 @@ stergm <- function(nw, formation, dissolution, estimate, times=NULL, offset.coef
                 CMPLE=stergm.CMLE(nw, formation, dissolution,
                   times, offset.coef.form, offset.coef.diss, eval.loglik,
                   estimate, control, verbose),
-                EGMoME=stergm.EGMoME(nw, formation, dissolution, offset.coef.form, offset.coef.diss,
+                EGMME=stergm.EGMME(nw, formation, dissolution, offset.coef.form, offset.coef.diss,
                   targets, target.stats, estimate, control, verbose)
                   )
 

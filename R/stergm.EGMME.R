@@ -69,7 +69,7 @@
 #
 ################################################################################
 
-stergm.EGMoME <- function(nw, formation, dissolution,  offset.coef.form, offset.coef.diss,
+stergm.EGMME <- function(nw, formation, dissolution,  offset.coef.form, offset.coef.diss,
                    targets, target.stats, estimate,
                  control,
                  verbose) {
@@ -122,9 +122,9 @@ stergm.EGMoME <- function(nw, formation, dissolution,  offset.coef.form, offset.
         if(sum((nw.stats-target.stats)^2) <= 5) break
       }
       nw
-    })
+    }, silent=TRUE)
     if(inherits(newnw,"try-error")){
-      cat("SAN failed or is not applicable. Increse burn-in if there are problems.\n")
+      cat("SAN failed or is not applicable. Increase burn-in if there are problems.\n")
     }else nw <- newnw
     formation <- ergm.update.formula(formation,nw~.)
     dissolution <- ergm.update.formula(dissolution,nw~.)
@@ -138,9 +138,10 @@ stergm.EGMoME <- function(nw, formation, dissolution,  offset.coef.form, offset.
   model.diss <- ergm.getmodel(dissolution, nw, expanded=TRUE, role="dissolution")
   model.mon <- ergm.getmodel(targets, nw, expanded=TRUE, role="target")
 
-  if(any(model.form$etamap$canonical==0) || any(model.diss$etamap$canonical==0) || any(model.mon$etamap$canonical==0)) stop("Equilibrium GMoME for models based on curved ERGMs is not supported at this time.")
+  if(any(model.form$etamap$canonical==0) || any(model.diss$etamap$canonical==0) || any(model.mon$etamap$canonical==0)) stop("Equilibrium GMME for models based on curved ERGMs is not supported at this time.")
 
   p.free<-sum(!model.form$etamap$offsettheta)+sum(!model.diss$etamap$offsettheta)
+  if(p.free==0) stop("Model specification has no free parameters (all are offsets).")
   q<-length(model.mon$etamap$offsettheta)
   if(p.free>q) stop("Fitting ",p.free," free parameters on ",q," target statistics. The specification is underidentified.")
 
@@ -171,17 +172,17 @@ stergm.EGMoME <- function(nw, formation, dissolution,  offset.coef.form, offset.
   if(!is.null(offset.coef.diss)) control$init.diss[model.diss$etamap$offsettheta]<-offset.coef.diss
   names(control$init.diss) <- model.diss$coef.names
 
-  initialfit <- stergm.EGMoME.initialfit(control$init.form, control$init.diss, nw, model.form, model.diss, model.mon, control, verbose)
+  initialfit <- stergm.EGMME.initialfit(control$init.form, control$init.diss, nw, model.form, model.diss, model.mon, control, verbose)
   
-  if(verbose) cat("Fitting STERGM Equilibrium GMoME.\n")
+  if(verbose) cat("Fitting STERGM Equilibrium GMME.\n")
 
-  Cout <- switch(control$EGMoME.main.method,
-                 "Robbins-Monro" = stergm.RM(initialfit$formation.fit$coef,
+  Cout <- switch(control$EGMME.main.method,
+                 "Robbins-Monro" = stergm.EGMME.RM(initialfit$formation.fit$coef,
                    initialfit$dissolution.fit$coef, nw, model.form, model.diss, model.mon,
                    control=control, MHproposal.form=MHproposal.form,
                   MHproposal.diss=MHproposal.diss,
                   verbose),
-                 stop("Method ", control$EGMoME.main.method, " is not implemented.")
+                 stop("Method ", control$EGMME.main.method, " is not implemented.")
                 )
 
   out <- list(network = nw, formation = formation, dissolution = dissolution, targets = targets, target.stats=target.stats, estimate=estimate, covar = Cout$covar, opt.history=Cout$opt.history, sample=Cout$sample, sample.obs=NULL, control=control, reference = "Bernoulli",
