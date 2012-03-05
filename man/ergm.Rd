@@ -20,7 +20,7 @@ ergm (formula,
       constraints=~.,
       offset.coef=NULL,
       target.stats=NULL,
-      eval.loglik=FALSE,
+      eval.loglik=TRUE,
       estimate=c("MLE", "MPLE"),
       control=control.ergm(),
       verbose=FALSE,
@@ -103,10 +103,12 @@ ergm (formula,
     If \code{NULL}, the mean-value parameters used are the observed
     statistics of the network in the formula.
   }
-  \item{eval.loglik}{For dyad-dependent models, whether to use bridge
+  \item{eval.loglik}{Logical:  For dyad-dependent models, if TRUE, use bridge
     sampling to evaluate the log-likelihoood associated with the
-    fit. Has no effect for dyad-independent models. Defaults to
-    \code{FALSE} because bridge sampling takes additional time.
+    fit. Has no effect for dyad-independent models.
+    Since bridge sampling takes additional time, setting to FALSE may
+    speed performance if likelihood values (and likelihood-based
+    values like AIC and BIC) are not needed.
   }
   \item{estimate}{If "MPLE," then the maximum pseudolikelihood estimator
     is returned.  If "MLE" (the default), then an approximate maximum likelihood
