@@ -58,7 +58,7 @@ A function to return the log-likelihood associated with an
 \examples{
 # See help(ergm) for a description of this model:
 data(florentine)
-gest <- ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle)
+gest <- ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle, eval.loglik=FALSE)
 # Log-likelihood is not evaluated, so no deviance, AIC, or BIC:
 summary(gest)
 # Evaluate the log-likelihood and attach it to the object.
