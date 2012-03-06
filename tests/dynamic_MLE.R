@@ -15,12 +15,15 @@ diss.mle<-function(y0,y1){
 }
 
 y0<-network.initialize(n)
+set.seed(321)
 y0<-simulate(y0~edges, coef=theta, control=control.simulate(MCMC.burnin=n^2*2))
 
 cat("Complete data:\n")
 
+set.seed(432)
 y1<-simulate(y0~edges, coef=theta, control=control.simulate(MCMC.burnin=n^2*2))
 
+set.seed(543)
 fit<-stergm(list(y0,y1), formation=~edges, dissolution=~edges, estimate="CMLE", control=control.stergm(CMLE.control=control.ergm(MCMLE.conv.min.pval=0.8)))
 
 stopifnot(all.equal(form.mle(y0,y1), coef(fit$formation.fit), tolerance=tolerance, check.attributes=FALSE))
@@ -29,8 +32,10 @@ stopifnot(all.equal(diss.mle(y0,y1), coef(fit$dissolution.fit), tolerance=tolera
 cat("Missing data:\n")
 
 y1m<-network.copy(y1)
+set.seed(654)
 y1m[as.edgelist(simulate(y0~edges, coef=theta, control=control.simulate(MCMC.burnin=n^2*2)))]<-NA
 
+set.seed(765)
 fit<-stergm(list(y0,y1m), formation=~edges, dissolution=~edges, estimate="CMLE", control=control.stergm(CMLE.control=control.ergm(MCMLE.conv.min.pval=0.8)))
 
 stopifnot(all.equal(form.mle(y0,y1m), coef(fit$formation.fit), tolerance=tolerance, check.attributes=FALSE))

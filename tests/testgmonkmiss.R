@@ -8,6 +8,7 @@ data(sampson)
 # samplike <- set.graph.attribute(samplike, "design", msamplike)
 # summary(samplike)
 
+set.seed(123)
 respondent <- rep(FALSE,network.size(samplike))
 respondent[sample(1:network.size(samplike), size=network.size(samplike)-2,replace=FALSE)] <- TRUE
 respondent
@@ -16,15 +17,20 @@ summary(samplike)
 
 degreedist(samplike)
 
+set.seed(234)
 efit <- ergm(samplike~edges + triangle, estimate="MPLE")
 summary(efit)
 
+set.seed(345)
 efit <- ergm(samplike~edges + triangle, control=control.ergm(MCMLE.maxit=3,
       MCMC.samplesize=1000, MCMC.interval=1000, MCMC.burnin=1000))
 summary(efit)
 
 ## Test bounded degrees.
-efit <- ergm(samplike~edges + triangle, constraints=~bd(maxout=9))
+set.seed(456)
+efit <- ergm(samplike~edges + triangle, constraints=~bd(maxout=9), 
+             control=control.ergm(MCMLE.maxit=3,
+             MCMC.samplesize=1000, MCMC.interval=1000, MCMC.burnin=1000))
 summary(efit)
 
 samplike <- set.vertex.attribute(samplike, "respondent", respondent)
@@ -34,6 +40,7 @@ summary(samplike)
 efit <- ergm(samplike~edges + triangle, estimate="MPLE")
 summary(efit)
 
+set.seed(567)
 efit <- ergm(samplike~edges + triangle, control=control.ergm(MCMLE.maxit=3,
     MCMC.samplesize=1000, MCMC.interval=1000, MCMC.burnin=1000))
 summary(efit)
