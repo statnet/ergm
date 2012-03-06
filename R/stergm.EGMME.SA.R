@@ -146,6 +146,8 @@ stergm.EGMME.SA <- function(theta.form0, theta.diss0, nw, model.form, model.diss
         freqs <- table(y)
         sum(freqs[-which.max(freqs)])
       })<nrow(h)/2)
+
+    if(all(bad.fits)) stop("The optimization appears to be stuck. Try better starting parameters, lower SA.init.gain, etc.")
     
     ## Grab the coefficients, t-values, and residuals.
     
