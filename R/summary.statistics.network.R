@@ -52,20 +52,20 @@ summary.statistics.ergm <- function(object, ..., basis=NULL)
   summary.statistics.network(object$formula, ..., basis=basis)
 }
 
-summary.statistics.network.list <- function(object, response=NULL, ..., basis=NULL){
+summary.statistics.network.list <- function(object, ..., basis=NULL){
   if(!is.null(basis)){
     if(inherits(basis,'network.list'))
       object[[2]] <- basis
     else stop('basis, if specified, should be the same type as the LHS of the formula (network.list, in this case).')
   }
   nwl <- eval(object[[2]], envir=environment(object))
-  out<-lapply(nwl, function(nw) summary.statistics.network(object, response=response, ..., basis=nw))
+  out<-lapply(nwl, function(nw) summary.statistics.network(object, ..., basis=nw))
   do.call(rbind,out)
 }
 
 summary.statistics.default <-
 summary.statistics.matrix <- 
-summary.statistics.network <- function(object, response=NULL,...,basis=NULL) {
+summary.statistics.network <- function(object,...,basis=NULL) {
   current.warn <- options()$warn
   on.exit(options(warn=current.warn))
   options(warn=0)
@@ -78,8 +78,8 @@ summary.statistics.network <- function(object, response=NULL,...,basis=NULL) {
     formula <- object
     nw <- ergm.getnetwork(formula)
   }
-  m <- ergm.getmodel(formula, nw, response=response, role="target",...)
-  gs <- ergm.getglobalstats(nw, m, response=response)
+  m <- ergm.getmodel(formula, nw, role="target",...)
+  gs <- ergm.getglobalstats(nw, m)
   gs
 }
 

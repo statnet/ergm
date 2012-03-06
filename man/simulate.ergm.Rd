@@ -7,7 +7,6 @@
 \usage{
 \method{simulate}{formula}(object, nsim=1, seed=NULL,
                            coef, 
-                           response=NULL, reference="Bernoulli",
                            constraints=~.,
                            monitor=NULL,
                            basis=NULL,
@@ -18,7 +17,6 @@
                            \dots)
 \method{simulate}{ergm}(object, nsim=1, seed=NULL, 
                         coef=object$coef,
-                        response=object$response, reference=object$reference,
                         constraints=object$constraints,
                         monitor=NULL,
                         statsonly=FALSE,
@@ -55,8 +53,6 @@
   \item{coef}{Vector of parameter values for the model from which the 
     sample is to be drawn.  If \code{object} is of class \code{ergm}, the 
     default value is the vector of estimated coefficients.
-  }
-  \item{response, reference}{Not for release.
   }
   \item{constraints}{A one-sided formula specifying one or more constraints
     on the support of the distribution of the networks being
@@ -153,9 +149,7 @@
     of network statistics specified in the model.}
   \item{control}{Control parameters used to generate the sample.}
   \item{constraints}{Constraints used to generate the sample.}
-  \item{reference}{The reference measure for the sample.}
   \item{monitor}{The monitoring formula.}
-  \item{response}{The edge attribute used as a response.}
   
   This object has summary and print methods.
 }

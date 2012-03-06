@@ -13,7 +13,6 @@
 }
 \usage{
   ergm.bridge.dindstart.llk(object, 
-                            response=NULL, 
                             coef, 
                             dind=NULL, 
                             coef.dind=NULL,  
@@ -25,8 +24,6 @@
 \arguments{
   \item{object}{
     A model formula. See \code{\link{ergm}} for details.
-  }
-  \item{response}{Not for release.
   }
   \item{coef}{
     A vector of coefficients for the configuration of interest.

@@ -50,16 +50,9 @@ MHproposal.MHproposal<-function(object,...) return(object)
 #
 ########################################################################################
 
-MHproposal.character <- function(object, arguments, nw, ..., response=NULL){
+MHproposal.character <- function(object, arguments, nw, ...){
   name<-object
-  proposal <- {
-    if(is.null(response))
-      eval(call(paste("InitMHP", name, sep="."),
-                arguments, nw))
-    else
-      eval(call(paste("InitWtMHP", name, sep="."),
-                arguments, nw, response))
-  }
+  proposal <- eval(call(paste("InitMHP", name, sep="."), arguments, nw))
 
   proposal$arguments <- arguments
 
@@ -93,9 +86,8 @@ MHproposal.character <- function(object, arguments, nw, ..., response=NULL){
 #
 ########################################################################################
 
-MHproposal.formula <- function(object, arguments, nw, weights="default", class="c", reference="Bernoulli", response=NULL, ...) {
+MHproposal.formula <- function(object, arguments, nw, weights="default", class="c", ...) {
   constraints<-object
-  reference<-match.arg(reference,unique(MHproposals$Reference))
 
   if("constraints" %in% names(arguments)){
     conlist <- arguments$constraints
@@ -135,11 +127,11 @@ MHproposal.formula <- function(object, arguments, nw, weights="default", class="
   } else {
     constraints <- paste(sort(tolower(names(conlist))),collapse="+")
   }
-    MHqualifying<-with(MHproposals,MHproposals[Class==class & Constraints==constraints & Reference==reference & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
+    MHqualifying<-with(MHproposals,MHproposals[Class==class & Constraints==constraints & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
 
   if(nrow(MHqualifying)<1){
-    commonalities<-(MHproposals$Class==class)+(MHproposals$Weights==weights)+(MHproposals$Reference==reference)+(MHproposals$Constraints==constraints)
-    stop("The combination of class (",class,"), model constraints (",constraints,"), reference measure (",reference,"), and proposal weighting (",weights,") is not implemented. ", "Check your arguments for typos. ", if(any(commonalities>=3)) paste("Nearest matching proposals: (",paste(apply(MHproposals[commonalities==3,-5],1,paste, sep="), (",collapse=", "),collapse="), ("),")",sep="",".") else "")
+    commonalities<-(MHproposals$Class==class)+(MHproposals$Weights==weights)+(MHproposals$Constraints==constraints)
+    stop("The combination of class (",class,"), model constraints (",constraints,"), and proposal weighting (",weights,") is not implemented. ", "Check your arguments for typos. ", if(any(commonalities>=3)) paste("Nearest matching proposals: (",paste(apply(MHproposals[commonalities==3,-5],1,paste, sep="), (",collapse=", "),collapse="), ("),")",sep="",".") else "")
   }
 
   if(nrow(MHqualifying)==1)
@@ -149,7 +141,7 @@ MHproposal.formula <- function(object, arguments, nw, weights="default", class="
 
   arguments$constraints<-conlist
   ## Hand it off to the class character method.
-  MHproposal.character(name,arguments,nw,response=response)
+  MHproposal.character(name,arguments,nw)
 }
 
 
@@ -174,13 +166,12 @@ MHproposal.formula <- function(object, arguments, nw, weights="default", class="
 #
 ########################################################################################
 
-MHproposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NULL, weights=NULL,class="c", reference="Bernoulli", response=NULL){
+MHproposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NULL, weights=NULL,class="c"){
   if(is.null(constraints)) constraints<-object$constraints
   if(is.null(arguments)) arguments<-object$prop.args
   if(is.null(nw)) nw<-object$network
-  if(is.null(response)) response<-object$response
   if(is.null(weights)) weights<-"default"
   
-  MHproposal(constraints,arguments=arguments,nw=nw,weights=weights,class=class,reference=reference,response=response)
+  MHproposal(constraints,arguments=arguments,nw=nw,weights=weights,class=class)
 }
 

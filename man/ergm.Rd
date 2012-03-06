@@ -14,9 +14,6 @@
 }
 \usage{
 ergm (formula,
-      response=NULL,
-      reference="Bernoulli",
-      obs=NA,
       constraints=~.,
       offset.coef=NULL,
       target.stats=NULL,
@@ -37,8 +34,6 @@ ergm (formula,
     then add nodal attributes to it using the \code{\%v\%}
     operator if necessary. Enclosing a model term in \code{offset()}
     fixes its value to one specified in \code{offset.coef}.
-  }
-  \item{response, reference, obs}{Not for release.
   }
   \item{constraints}{A one-sided formula specifying one or more constraints
     on the support of the distribution of the networks being modeled,

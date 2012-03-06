@@ -42,7 +42,7 @@
 
 check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegative=FALSE,
                            varnames=NULL, vartypes=NULL,
-                           defaultvalues=list(), required=NULL, response=NULL) {
+                           defaultvalues=list(), required=NULL) {
   fname <- get.InitErgm.fname() # From what InitErgm function was this called?
   fname <- sub('.*[.]', '', fname) # truncate up to last '.'
   message <- NULL
@@ -58,9 +58,6 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
   }
   if (is.directed(nw) && bnw > 0) {
     message <- "directed bipartite networks"
-  }
-  if (is.null(message) && nonnegative && any(nw %e% response < 0)){
-    message <- "networks with negative dyad weights"
   }
   if (!is.null(message)) {
     stop(paste("The ERGM term",fname,"may not be used with",message))

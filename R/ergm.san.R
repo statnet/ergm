@@ -73,7 +73,7 @@ san.default <- function(object,...)
   stop("Either a ergm object or a formula argument must be given")
 }
 
-san.formula <- function(object, response=NULL, reference="Bernoulli", constraints=~., target.stats=NULL,
+san.formula <- function(object, constraints=~., target.stats=NULL,
                         nsim=1, basis=NULL,
                         sequential=TRUE,
                         control=control.san(),
@@ -104,13 +104,13 @@ san.formula <- function(object, response=NULL, reference="Bernoulli", constraint
   }
 
 # model <- ergm.getmodel(formula, nw, drop=control$drop)
-  model <- ergm.getmodel(formula, nw, response=response)
-  Clist <- ergm.Cprepare(nw, model, response=response)
+  model <- ergm.getmodel(formula, nw)
+  Clist <- ergm.Cprepare(nw, model)
   Clist.miss <- ergm.design(nw, model, verbose=verbose)
   
   verb <- match(verbose,
                 c("FALSE","TRUE", "very"), nomatch=1)-1
-  MHproposal<-MHproposal(constraints,arguments=control$SAN.prop.args,nw=nw,weights=control$SAN.prop.weights, class="c",reference=reference,response=response)
+  MHproposal<-MHproposal(constraints,arguments=control$SAN.prop.args,nw=nw,weights=control$SAN.prop.weights, class="c")
 # if(is.null(control$coef)) {
 #   warning("No parameter values given, using the MPLE for the passed network.\n\t")
 # }
@@ -133,7 +133,7 @@ san.formula <- function(object, response=NULL, reference="Bernoulli", constraint
   }
 
   for(i in 1:nsim){
-    Clist <- ergm.Cprepare(nw, model,response=response)
+    Clist <- ergm.Cprepare(nw, model)
 #   Clist.miss <- ergm.design(nw, model, verbose=verbose)
     maxedges <- max(control$SAN.init.maxedges, Clist$nedges)
     if (verb) {
@@ -141,23 +141,18 @@ san.formula <- function(object, response=NULL, reference="Bernoulli", constraint
      }
 
     if(is.null(control$coef)) {
-      if(reference=="Bernoulli"){
-        fit <- ergm.mple(Clist=Clist, Clist.miss=Clist.miss, 
-                         conddeg=conddeg,
-                         control=control, MHproposal=MHproposal,
-                         m=model, verbose=verbose, ...)
-        control$coef <- fit$coef
-        if(is.null(control$invcov)) { control$invcov <- fit$covar }
-      }else{
-        control$coef<-rep(0,length(model$offset))
-        if(is.null(control$invcov)) control$invcov <- diag(length(control$coef))
-      }
+      fit <- ergm.mple(Clist=Clist, Clist.miss=Clist.miss, 
+                       conddeg=conddeg,
+                       control=control, MHproposal=MHproposal,
+                       m=model, verbose=verbose, ...)
+      control$coef <- fit$coef
+      if(is.null(control$invcov)) { control$invcov <- fit$covar }
     }else{
       if(is.null(control$invcov)) { control$invcov <- diag(length(control$coef)) }
     }
     eta0 <- ergm.eta(control$coef, model$etamap)
     
-    netsumm<-summary(model$formula,response=response)
+    netsumm<-summary(model$formula)
     target.stats <- vector.namesmatch(target.stats, names(netsumm))
     
     stats <- matrix(netsumm-target.stats,
@@ -171,10 +166,8 @@ san.formula <- function(object, response=NULL, reference="Bernoulli", constraint
       nedges <- c(Clist$nedges,0)
       tails <- Clist$tails
       heads <- Clist$heads
-      weights <- Clist$weights
       # *** don't forget to pass in tails before heads now.
 
-      if(is.null(Clist$weights)){
         z <- .C("SAN_wrapper",
                 as.integer(length(nedges)), as.integer(nedges),
                 as.integer(tails), as.integer(heads),
@@ -202,36 +195,6 @@ san.formula <- function(object, response=NULL, reference="Bernoulli", constraint
                 as.integer(length(MHproposal$arguments$constraints$bd$attribs)), 
                 as.integer(maxedges), 
                 PACKAGE="ergm")
-      }else{
-        z <- .C("WtSAN_wrapper",
-                as.integer(length(nedges)), as.integer(nedges),
-                as.integer(tails), as.integer(heads), as.double(weights),
-                as.integer(Clist$n),
-                as.integer(Clist$dir), as.integer(Clist$bipartite),
-                as.integer(Clist$nterms), 
-                as.character(Clist$fnamestring),
-                as.character(Clist$snamestring), 
-                as.character(MHproposal$name),
-                as.character(MHproposal$package),
-                as.double(c(Clist$inputs,MHproposal$inputs)),
-                as.double(eta0),
-                as.double(tau),
-                as.integer(1), # "samplesize"
-                s = as.double(stats),
-                as.integer(if(i==1 | !sequential) control$SAN.burnin else control$SAN.interval), as.integer(control$SAN.interval), 
-                newnwtails = integer(maxedges),
-                newnwheads = integer(maxedges),
-                newnwweights = double(maxedges), 
-                as.double(control$invcov),
-                as.integer(verb),
-                as.integer(MHproposal$arguments$constraints$bd$attribs), 
-                as.integer(MHproposal$arguments$constraints$bd$maxout), as.integer(MHproposal$arguments$constraints$bd$maxin),
-                as.integer(MHproposal$arguments$constraints$bd$minout), as.integer(MHproposal$arguments$constraints$bd$minin),
-                as.integer(MHproposal$arguments$constraints$bd$condAllDegExact),
-                as.integer(length(MHproposal$arguments$constraints$bd$attribs)), 
-                as.integer(maxedges), 
-                PACKAGE="ergm")
-      }
 
       if(z$newnwtails[1] <= maxedges) break
       maxedges <- 5*maxedges
@@ -240,7 +203,7 @@ san.formula <- function(object, response=NULL, reference="Bernoulli", constraint
     #   Next update the network to be the final (possibly conditionally)
     #   simulated one
     #
-    out.list[[i]] <- newnw.extract(nw, z, output=control$network.output, response=response)
+    out.list[[i]] <- newnw.extract(nw, z, output=control$network.output)
     out.mat <- rbind(out.mat,z$s[(Clist$nstats+1):(2*Clist$nstats)])
     if(sequential){
       nw <-  as.network.uncompressed(out.list[[i]])

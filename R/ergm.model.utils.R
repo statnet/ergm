@@ -19,14 +19,14 @@ vector.namesmatch<-function(v,names,errname=NULL){
 }
 
 # A helper function to check for extreme statistics and inform the user.
-ergm.checkextreme.model <- function(model, nw, init, response, target.stats, drop, silent=FALSE){
+ergm.checkextreme.model <- function(model, nw, init, target.stats, drop, silent=FALSE){
   eta0 <- ergm.eta(init, model$etamap)
   
   # Check if any terms are at their extremes.
   obs.stats.eta <- if(!is.null(target.stats)){
-    if(is.null(names(target.stats))) names(target.stats) <- names(ergm.getglobalstats(nw, model, response=response))
+    if(is.null(names(target.stats))) names(target.stats) <- names(ergm.getglobalstats(nw, model))
     target.stats
-  }else ergm.getglobalstats(nw, model, response=response)
+  }else ergm.getglobalstats(nw, model)
 
   extremeval.eta <- +(model$maxval==obs.stats.eta)-(model$minval==obs.stats.eta)
   names.eta<-names(obs.stats.eta)      

@@ -10,10 +10,10 @@
 \alias{summary}
 \title{Calculation of network or graph statistics}
 \usage{
-\method{summary.statistics}{default}(object, response=NULL, \dots, basis=NULL)
-\method{summary.statistics}{matrix}(object, response=NULL, \dots, basis=NULL)
-\method{summary.statistics}{network}(object, response=NULL, \dots, basis=NULL)
-\method{summary.statistics}{network.list}(object, response=NULL, \dots, basis=NULL)
+\method{summary.statistics}{default}(object, \dots, basis=NULL)
+\method{summary.statistics}{matrix}(object, \dots, basis=NULL)
+\method{summary.statistics}{network}(object, \dots, basis=NULL)
+\method{summary.statistics}{network.list}(object, \dots, basis=NULL)
 \method{summary.statistics}{formula}(object, \dots, basis=NULL)
 \method{summary.statistics}{ergm}(object, \dots, basis=NULL)
 }
@@ -46,8 +46,6 @@
     \code{\link[network]{network}} object in \R, use the \code{network()} function,
     then add nodal attributes to it using the \code{\%v\%}
     operator if necessary.
-  }
-  \item{response}{Not for release.
   }
 % \item{m}{A model component produced by \code{ergm.getmodel}. Only the 
 %   \code{m$coef.names} component is used to set the names of the statistics.}

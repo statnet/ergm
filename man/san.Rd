@@ -7,8 +7,6 @@
 of mean statistics}
 \usage{
 \method{san}{formula}(object, 
-                      response=NULL, 
-                      reference="Bernoulli", 
                       constraints=~., 
                       target.stats=NULL,
                       nsim=1, 
@@ -45,8 +43,6 @@ of mean statistics}
     \code{network()} function,
     then add nodal attributes to it using the \code{\%v\%}
     operator if necessary.
-  }
-  \item{response, reference}{Not for release.
   }
   \item{formula}{(By default, the \code{formula}
     is taken from the \code{ergm} object.

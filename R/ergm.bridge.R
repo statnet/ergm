@@ -1,7 +1,7 @@
 
 ## This is a helper function that constructs and returns the network
 ## object to be used and the model object.
-ergm.bridge.preproc<-function(object, basis, response){
+ergm.bridge.preproc<-function(object, basis){
 
   # If basis is not null, replace network in formula by basis.
   # In either case, let nw be network object from formula.
@@ -18,7 +18,7 @@ ergm.bridge.preproc<-function(object, basis, response){
   # New formula (no longer use 'object'):
   form <- ergm.update.formula(object, nw ~ .)
   
-  list(nw=nw, form=form, model=ergm.getmodel(form, nw, response=response))
+  list(nw=nw, form=form, model=ergm.getmodel(form, nw))
 }
 
 
@@ -27,13 +27,13 @@ ergm.bridge.preproc<-function(object, basis, response){
 ## a model `object', using `nsteps' MCMC samples. If llronly==TRUE,
 ## returns only the estimate. Otherwise, returns a list with more
 ## details. Other parameters are same as simulate.ergm.
-ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis=NULL, verbose=FALSE, ..., llronly=FALSE, control=control.ergm.bridge()){
+ergm.bridge.llr<-function(object, constraints=~., from, to, basis=NULL, verbose=FALSE, ..., llronly=FALSE, control=control.ergm.bridge()){
 
   if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
   if(!is.null(basis)) ergm.update.formula(form,basis~.)
   
   ## Here, we need to get the model object to get the likelihood and gradient functions.
-  tmp<-ergm.bridge.preproc(object,basis,response)
+  tmp<-ergm.bridge.preproc(object,basis)
   nw<-tmp$nw; m<-tmp$model; form<-tmp$form; rm(tmp)
 
 
@@ -46,34 +46,34 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
     constraints.obs<-ergm.update.formula(constraints,~.+observed)
     form.obs<-form
     stats.obs <- matrix(NA,control$nsteps,m$etamap$etalength)  
-  }else stats.obs<-matrix(summary(form,response=response),control$nsteps,m$etamap$etalength,byrow=TRUE)  
+  }else stats.obs<-matrix(summary(form),control$nsteps,m$etamap$etalength,byrow=TRUE)  
 
   for(i in seq_len(control$nsteps)){
     theta<-path[i,]
     if(verbose) cat("Running theta=[",paste(format(theta),collapse=","),"].\n",sep="")
     if(verbose>1) cat("Burning in...\n",sep="")
     ## First burn-in has to be longer, but those thereafter should be shorter if the bridges are closer together.
-    nw.state<-simulate(form, coef=theta, nsim=1, response=response, constraints=constraints, statsonly=FALSE, verbose=max(verbose-1,0),
+    nw.state<-simulate(form, coef=theta, nsim=1, constraints=constraints, statsonly=FALSE, verbose=max(verbose-1,0),
                        control=control.simulate.ergm(MCMC.burnin=if(i==1) control$MCMC.burnin else ceiling(control$MCMC.burnin/sqrt(control$nsteps)),
                          MCMC.interval=1,
                          MCMC.prop.args=control$MCMC.prop.args,
                          MCMC.prop.weights=control$MCMC.prop.weights,
                          MCMC.packagenames=control$MCMC.packagenames))
     ergm.update.formula(form,nw.state~.)
-    stats[i,]<-apply(simulate(form, coef=theta, response=response, constraints=constraints, statsonly=TRUE, verbose=max(verbose-1,0),
+    stats[i,]<-apply(simulate(form, coef=theta, constraints=constraints, statsonly=TRUE, verbose=max(verbose-1,0),
                               control=control.simulate.ergm(MCMC.burnin=0,
                                 MCMC.interval=control$MCMC.interval),
                               nsim=ceiling(control$MCMC.samplesize/control$nsteps)),2,mean)
     
     if(network.naedgecount(nw)){
-      nw.state.obs<-simulate(form.obs, coef=theta, nsim=1, response=response, constraints=constraints.obs, statsonly=FALSE, verbose=max(verbose-1,0),
+      nw.state.obs<-simulate(form.obs, coef=theta, nsim=1, constraints=constraints.obs, statsonly=FALSE, verbose=max(verbose-1,0),
                              control=control.simulate.ergm(MCMC.burnin=if(i==1) control$obs.MCMC.burnin else ceiling(control$obs.MCMC.burnin/sqrt(control$nsteps)),
                                MCMC.interval=1,
                                MCMC.prop.args=control$MCMC.prop.args,
                                MCMC.prop.weights=control$MCMC.prop.weights,
                                MCMC.packagenames=control$MCMC.packagenames))
       ergm.update.formula(form.obs,nw.state.obs~.)
-      stats.obs[i,]<-apply(simulate(form.obs, coef=theta, response=response, constraints=constraints.obs, statsonly=TRUE, verbose=max(verbose-1,0),
+      stats.obs[i,]<-apply(simulate(form.obs, coef=theta, constraints=constraints.obs, statsonly=TRUE, verbose=max(verbose-1,0),
                                 control=control.simulate.ergm(MCMC.burnin=0,
                                   MCMC.interval=control$obs.MCMC.interval),
                                 nsim=ceiling(control$obs.MCMC.samplesize/control$nsteps)),2,mean)
@@ -92,8 +92,8 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
 ## log-likelihood of configuration `theta' *relative to the reference
 ## measure*. That is, the configuration with theta=0 is defined as
 ## having log-likelihood of 0.
-ergm.bridge.0.llk<-function(object, response=response, coef, ..., llkonly=TRUE, control=control.ergm.bridge()){
-  br<-ergm.bridge.llr(object, from=rep(0,length(coef)), to=coef, response=response, control=control)
+ergm.bridge.0.llk<-function(object, coef, ..., llkonly=TRUE, control=control.ergm.bridge()){
+  br<-ergm.bridge.llr(object, from=rep(0,length(coef)), to=coef, control=control)
   if(llkonly) br$llr
   else c(br,llk=br$llr)
 }
@@ -106,12 +106,10 @@ ergm.bridge.0.llk<-function(object, response=response, coef, ..., llkonly=TRUE, 
 ## model whose likelihood is being evaluated, but don't have to.
 ## `dind' defaults to the dyad-independent terms of the `object'
 ## formula with an edges term added unless redundant.
-ergm.bridge.dindstart.llk<-function(object, response=NULL, coef, dind=NULL, coef.dind=NULL,  basis=NULL, ..., llkonly=TRUE, control=control.ergm.bridge()){
-  if(!is.null(response)) stop("Only binary ERGMs are supported at this time.")
-
+ergm.bridge.dindstart.llk<-function(object, coef, dind=NULL, coef.dind=NULL,  basis=NULL, ..., llkonly=TRUE, control=control.ergm.bridge()){
   ## Here, we need to get the model object to get the list of
   ## dyad-independent terms.
-  tmp<-ergm.bridge.preproc(object,basis,response)
+  tmp<-ergm.bridge.preproc(object,basis)
   nw<-tmp$nw; m<-tmp$model; form<-tmp$form; rm(tmp)
 
   ## By default, take dyad-independent terms in the formula, fit a
@@ -156,7 +154,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, coef, dind=NULL, coef
   from<-c(rep(0,length(coef)),coef.dind)
   to<-c(coef,rep(0,length(coef.dind)))
 
-  br<-ergm.bridge.llr(form.aug, response=response, from=from, to=to, basis=basis, control=control)
+  br<-ergm.bridge.llr(form.aug, from=from, to=to, basis=basis, control=control)
   
   if(llkonly) llk.dind + br$llr
   else c(br,llk.dind=llk.dind, llk=llk.dind + br$llr)
@@ -170,8 +168,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, coef, dind=NULL, coef
 ## The idea is to use the Hamming term as "scaffolding", which is
 ## slowly removed as the real model terms approach their objective
 ## values.
-ergm.bridge.hammingstart.llk<-function(object, response=NULL, coef, hamming.start=NULL, llk.guess=NULL, basis=NULL, ..., llkonly=TRUE, control=control.ergm.bridge()){
-  if(!is.null(response)) stop("Only binary ERGMs are supported at this time.")
+ergm.bridge.hammingstart.llk<-function(object, coef, hamming.start=NULL, llk.guess=NULL, basis=NULL, ..., llkonly=TRUE, control=control.ergm.bridge()){
   # If basis is not null, replace network in formula by basis.
   # In either case, let nw be network object from formula.
   if(is.null(nw <- basis)) {
@@ -195,7 +192,7 @@ ergm.bridge.hammingstart.llk<-function(object, response=NULL, coef, hamming.star
   to<-c(coef,0)
   
   llk.hamming<--network.dyadcount(nw)*log1p(exp(hamming.start))
-  br<-ergm.bridge.llr(form.aug, response=response, from=from, to=to, basis=basis, control=control)
+  br<-ergm.bridge.llr(form.aug, from=from, to=to, basis=basis, control=control)
 
   if(llkonly) llk.hamming + br$llr
   else c(br,llk.hamming=llk.hamming, llk=llk.hamming + br$llr) 

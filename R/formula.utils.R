@@ -5,7 +5,7 @@
 
 is.dyad.independent<-function(object,...) UseMethod("is.dyad.independent")
 
-is.dyad.independent.formula<-function(object,response=NULL,basis=NULL,constraints=~.,...){
+is.dyad.independent.formula<-function(object,basis=NULL,constraints=~.,...){
   if(constraints!=~.) FALSE
   else{    
     # If basis is not null, replace network in formula by basis.
@@ -23,14 +23,14 @@ is.dyad.independent.formula<-function(object,response=NULL,basis=NULL,constraint
     # New formula (no longer use 'object'):
     form <- ergm.update.formula(object, nw ~ .)
     
-    m<-ergm.getmodel(form, nw, response=response)
+    m<-ergm.getmodel(form, nw)
     if(any(sapply(m$terms, function(term) is.null(term$dependence) || term$dependence==TRUE))) FALSE
     else TRUE
   }
 }
 
 is.dyad.independent.ergm<-function(object,...){
-  with(object,is.dyad.independent(formula,object$response,network,constraints))
+  with(object,is.dyad.independent(formula,network,constraints))
 }
 
 ## This function appends a list of terms to the RHS of a
@@ -76,7 +76,7 @@ copy.named<-function(x){
 }
 
 
-model.transform.formula <- function(object, theta, response=NULL, recipes, ...){
+model.transform.formula <- function(object, theta, recipes, ...){
   ## Recipe syntax:
   ##
   ## Recipes are a named list with the names representing a map from
@@ -129,7 +129,7 @@ model.transform.formula <- function(object, theta, response=NULL, recipes, ...){
   ## a simple special case of toarg, if it were given a function that
   ## returned a constant value.
 
-  m <- ergm.getmodel(object, ergm.getnetwork(object), response=response)
+  m <- ergm.getmodel(object, ergm.getnetwork(object))
   theta.inds<-cumsum(c(1,coef.sublength.model(m)))
   terms<-term.list.formula(object[[3]])
   form<-object
@@ -201,10 +201,10 @@ model.transform.formula <- function(object, theta, response=NULL, recipes, ...){
 fix.curved <- function(object, ...) UseMethod("fix.curved")
 
 fix.curved.ergm <- function(object,...){
-  fix.curved.formula(object$formula, coef(object), response=object$response, ...)
+  fix.curved.formula(object$formula, coef(object), ...)
 }
 
-fix.curved.formula <- function(object, theta, response=NULL, ...){
+fix.curved.formula <- function(object, theta, ...){
   recipes<-list()
   is.fixed.1<-function(a) is.null(a$fixed) || a$fixed==FALSE
   recipes$gwdsp<-recipes$gwesp<-recipes$gwnsp<-
@@ -214,7 +214,7 @@ fix.curved.formula <- function(object, theta, response=NULL, ...){
   recipes$gwb1degree<-recipes$gwb2degree<-recipes$gwdegree<-recipes$gwidegree<-recipes$gwodegree<-
     list(filter=is.fixed.1, tocoef=1, toarg=list(decay=2), constant=list(fixed=TRUE))
 
-  model.transform.formula(object, theta, response=response, recipes, ...)
+  model.transform.formula(object, theta, recipes, ...)
 }
 
 
@@ -225,10 +225,10 @@ fix.curved.formula <- function(object, theta, response=NULL, ...){
 enformulate.curved <- function(object, ...) UseMethod("enformulate.curved")
 
 enformulate.curved.ergm <- function(object,...){
-  fix.curved.formula(object$formula, coef(object), response=object$response, ...)
+  fix.curved.formula(object$formula, coef(object), ...)
 }
 
-enformulate.curved.formula <- function(object, theta, response=NULL, ...){
+enformulate.curved.formula <- function(object, theta, ...){
   recipes<-list()
   is.fixed.1<-function(a) is.null(a$fixed) || a$fixed==FALSE
   recipes$gwdsp<-recipes$gwesp<-recipes$gwnsp<-
@@ -238,12 +238,12 @@ enformulate.curved.formula <- function(object, theta, response=NULL, ...){
   recipes$gwb1degree<-recipes$gwb2degree<-recipes$gwdegree<-recipes$gwidegree<-recipes$gwodegree<-
     list(filter=is.fixed.1, tocoef=1, toarg=list(decay=2))
 
-  model.transform.formula(object, theta, response=response, recipes, ...) 
+  model.transform.formula(object, theta, recipes, ...) 
 }
 
-set.offset.formula <- function(object, which, response=NULL){
+set.offset.formula <- function(object, which){
   nw <- ergm.getnetwork(object)
-  m<-ergm.getmodel(object, nw, response=response,role="target")
+  m<-ergm.getmodel(object, nw,role="target")
   to_offset <-unique(rep(seq_along(m$terms),coef.sublength.model(m))[which]) # Figure out which terms correspond to the coefficients to be offset.
   terms <- term.list.formula(object[[3]])
   for(i in to_offset)

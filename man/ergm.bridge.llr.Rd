@@ -12,7 +12,6 @@ two parameter vectors for an ERGM via repeated calls to
 }
 \usage{
   ergm.bridge.llr(object, 
-                  response=NULL, 
                   constraints=~., 
                   from, 
                   to, 
@@ -25,8 +24,6 @@ two parameter vectors for an ERGM via repeated calls to
 \arguments{
   \item{object}{
     A model formula. See \code{\link{ergm}} for details.
-  }
-  \item{response}{Not for release.
   }
   \item{constraints}{A one-sided formula specifying one or more constraints
     on the support of the distribution of the networks being

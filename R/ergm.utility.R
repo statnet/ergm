@@ -381,27 +381,18 @@ function(x, alternative = c("two.sided", "less", "greater"),
     return(rval)
 }
 
-newnw.extract<-function(oldnw,z,output="network",response=NULL){
+newnw.extract<-function(oldnw,z,output="network"){
   if("newedgelist" %in% names(z)){
     newedgelist<-z$newedgelist[,1:2,drop=FALSE]
-    if(!is.null(response))
-       newnwweights<-z$newedgelist[,3]
   }else{
     nedges<-z$newnwtails[1]
     # *** don't forget - edgelists are cbind(tails, heads) now
     newedgelist <-
       if(nedges>0) cbind(z$newnwtails[2:(nedges+1)],z$newnwheads[2:(nedges+1)])
       else matrix(0, ncol=2, nrow=0)
-    newnwweights <- z$newnwweights[2:(nedges+1)]
   }
   
-  newnw<-network.update(oldnw,newedgelist,matrix.type="edgelist",output=output)
-  if(!is.null(response)){
-    # It's very important that the order of weights here is the same
-    # as the one that network accepts.
-    newnw<-set.edge.attribute(newnw,attrname=response,newnwweights,e=apply(newedgelist,1,function(e) get.edgeIDs(newnw,e[1],e[2])))
-  }
-  newnw
+  network.update(oldnw,newedgelist,matrix.type="edgelist",output=output)
 }
 
 nvattr.copy.network <- function(to, from, ignore=c("bipartite","directed","hyper","loops","mnext","multiple","n")){

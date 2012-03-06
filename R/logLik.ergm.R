@@ -16,15 +16,12 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
             else{
               if(!eval.loglik) stop(nologLik.message(deparse(substitute(object))))
               ## If valued, compute a path sample from reference measure.
-              if(!is.null(object$response)) ergm.bridge.0.llk(formula,response=response,reference=reference,constraints=constraints,coef=coef(object),control=loglik.control,llkonly=FALSE,...)
-              else{
                 ## If dyad-independent, just go from the deviance.
                 if(is.dyad.independent(object) && is.null(object$sample)) -object$glm$deviance/2
                 else
                   ## If dyad-dependent, bridge from a dyad-independent model.
-                  ergm.bridge.dindstart.llk(formula,reference=reference,constraints=constraints,coef=coef(object),control=loglik.control,llkonly=FALSE,...)
-              }
-            }
+                  ergm.bridge.dindstart.llk(formula,constraints=constraints,coef=coef(object),control=loglik.control,llkonly=FALSE,...)
+            }            
             )
   
   if(is.numeric(out)){

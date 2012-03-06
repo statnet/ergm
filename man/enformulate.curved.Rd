@@ -14,7 +14,7 @@ vector. This is the form required by \code{\link{ergm}} calls.
 }
 \usage{
 \method{enformulate.curved}{ergm}(object, ...)
-\method{enformulate.curved}{formula}(object, theta, response=NULL, ...)
+\method{enformulate.curved}{formula}(object, theta, ...)
 }
 \arguments{
   \item{object}{
@@ -23,8 +23,6 @@ vector. This is the form required by \code{\link{ergm}} calls.
   }
   \item{theta}{
     Curved model parameter configuration.
-  }
-  \item{response}{Not for release.
   }
   \item{\dots}{
     Unused at this time.

@@ -104,8 +104,7 @@
 #
 #####################################################################################    
 
-ergm <- function(formula, response=NULL,
-                 reference="Bernoulli",obs=NA,
+ergm <- function(formula,
                  constraints=~.,
                  offset.coef=NULL,
                  target.stats=NULL,
@@ -137,10 +136,6 @@ ergm <- function(formula, response=NULL,
   
   MHproposal.obs<-constraints
   
-  MHproposal.obs<-switch(tolower(obs),
-                         detrank = ergm.update.formula(MHproposal.obs,~.+ranks),
-                         MHproposal.obs)
-
   # Missing data handling only needs to happen if the sufficient
   # statistics are not specified. If the sufficient statistics are
   # specified, the nw's dyad states are irrelevant.
@@ -156,7 +151,7 @@ ergm <- function(formula, response=NULL,
   ## Construct approximate response network if target.stats are given.
   
   if(!is.null(target.stats)){
-    nw.stats<-summary(formula,response=response)
+    nw.stats<-summary(formula)
     if(length(nw.stats)!=length(target.stats))
       stop("Incorrect length of the target.stats vector: should be ", length(nw.stats), " but is ",length(target.stats),".")
     
@@ -165,13 +160,11 @@ ergm <- function(formula, response=NULL,
     ## with SAN-ed network and formula.
     for(srun in 1:control$SAN.maxit){
       nw<-san(formula, target.stats=target.stats,
-              response=response,
-              reference=reference,
               constraints=constraints,
               control=control$SAN.control,
               verbose=verbose)
       formula<-ergm.update.formula(formula,nw~.)
-      nw.stats <- summary(formula,response=response, basis=nw)
+      nw.stats <- summary(formula, basis=nw)
       srun <- srun + 1
       if(verbose){
         cat(paste("Finished SAN run",srun,"\n"))
@@ -190,16 +183,16 @@ ergm <- function(formula, response=NULL,
   
   if (verbose) { cat("Initializing Metropolis-Hastings proposal.\n") }
   
-  MHproposal <- MHproposal(constraints, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference,response=response)
+  MHproposal <- MHproposal(constraints, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass)
   # Note:  MHproposal function in CRAN version does not use the "class" argument for now
-  if(!is.null(MHproposal.obs)) MHproposal.obs <- MHproposal(MHproposal.obs, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass, reference=reference, response=response)
+  if(!is.null(MHproposal.obs)) MHproposal.obs <- MHproposal(MHproposal.obs, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass)
   
   conddeg <- switch(MHproposal$name %in% c("CondDegree","CondDegreeSimpleTetrad","BipartiteCondDegHexadToggles","BipartiteCondDegTetradToggles"),control$drop,NULL)
   
   if (verbose) cat("Initializing model.\n")
   
   # Construct the initial model.
-  model.initial <- ergm.getmodel(formula, nw, response=response, initialfit=TRUE)
+  model.initial <- ergm.getmodel(formula, nw, initialfit=TRUE)
    
   # If some control$init is specified...
   if(!is.null(control$init)){
@@ -223,13 +216,12 @@ ergm <- function(formula, response=NULL,
   model.initial <- constrcheck$model; control$init <- constrcheck$init
 
   # Check if any terms are at their extremes and handle them depending on control$drop.
-  extremecheck <- ergm.checkextreme.model(model=model.initial, nw=nw, init=control$init, response=response, target.stats=target.stats, drop=control$drop)
+  extremecheck <- ergm.checkextreme.model(model=model.initial, nw=nw, init=control$init, target.stats=target.stats, drop=control$drop)
   model.initial <- extremecheck$model; control$init <- extremecheck$init
 
   if (verbose) { cat("Fitting initial model.\n") }
 
-  MPLE.is.MLE <- (reference=="Bernoulli"
-                  && ergm.independencemodel(model.initial)
+  MPLE.is.MLE <- (ergm.independencemodel(model.initial)
                   && !control$force.main
                   && constraints==(~.))
 
@@ -247,7 +239,7 @@ ergm <- function(formula, response=NULL,
   }
   
   initialfit <- ergm.initialfit(init=control$init, initial.is.final=!MCMCflag,
-                                formula=formula, nw=nw, reference=reference, target.stats=target.stats,
+                                formula=formula, nw=nw, target.stats=target.stats,
                                 m=model.initial, method=control$init.method,
                                 MPLEtype=control$MPLE.type, 
                                 conddeg=conddeg, control=control, MHproposal=MHproposal,
@@ -268,7 +260,6 @@ ergm <- function(formula, response=NULL,
     initialfit$drop <- if(control$drop) extremecheck$extremeval.theta
     initialfit$estimable <- constrcheck$estimable
     initialfit$network <- nw
-    initialfit$reference <- reference
     initialfit$newnetwork <- nw
     initialfit$formula <- formula
     initialfit$constrained <- MHproposal$arguments$constraints
@@ -284,7 +275,7 @@ ergm <- function(formula, response=NULL,
   }
   
   # Construct the curved model
-  model <- ergm.getmodel(formula, nw, response=response, expanded=TRUE, silent=TRUE)
+  model <- ergm.getmodel(formula, nw, expanded=TRUE, silent=TRUE)
   # revise init to reflect additional parameters
   init <- ergm.reviseinit(model, init)
 
@@ -293,16 +284,16 @@ ergm <- function(formula, response=NULL,
   model <- constrcheck$model; control$init <- constrcheck$init
   
   # Check if any terms are at their extremes and handle them depending on control$drop.
-  extremecheck <- ergm.checkextreme.model(model=model, nw=nw, init=init, response=response, target.stats=target.stats, drop=control$drop, silent=TRUE)
+  extremecheck <- ergm.checkextreme.model(model=model, nw=nw, init=init, target.stats=target.stats, drop=control$drop, silent=TRUE)
   model <- extremecheck$model; init <- extremecheck$init
 
-  model$nw.stats <- summary(model$formula, response=response)
+  model$nw.stats <- summary(model$formula)
   model$target.stats <- if(!is.null(target.stats)) vector.namesmatch(target.stats, names(model$nw.stats)) else model$nw.stats
 
   if (verbose) cat("Fitting ERGM.\n")
   mainfit <- switch(control$main.method,
     "Robbins-Monro" = ergm.robmon(init, nw, model, 
-                      MHproposal(constraints,weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, response=response), verbose, control),
+                      MHproposal(constraints,weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw), verbose, control),
     "Stochastic-Approximation" = ergm.stocapprox(init, nw, model, 
                                  control=control, MHproposal=MHproposal,
                                  verbose),
@@ -320,7 +311,6 @@ ergm <- function(formula, response=NULL,
                           control=control, MHproposal=MHproposal,
                           MHproposal.obs=MHproposal.obs,
                           verbose=verbose,
-                      response=response,
                           ...),
               stop("Method ", control$main.method, " is not implemented.")
               )
@@ -344,8 +334,6 @@ ergm <- function(formula, response=NULL,
 
   mainfit$control<-control
 
-  mainfit$response<-response
-  mainfit$reference<-reference
   mainfit$estimate <- estimate
 
   mainfit$offset <- model$etamap$offsettheta

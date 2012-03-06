@@ -3,7 +3,6 @@ summary.network.list <- function (object, stats.print=TRUE,
 
   cat("Number of Networks:",length(object),"\n")
   attrmap<-list(formula="Model: ",
-                reference="Reference: ",
                 constraints="Constraints: ",
                 coef="Parameters:\n",
                 stats="Stored network statistics:\n")

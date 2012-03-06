@@ -54,8 +54,7 @@ ergm.MCMLE <- function(init, nw, model,
                              MHproposal, MHproposal.obs,
                              verbose=FALSE,
                              sequential=control$MCMLE.sequential,
-                             estimate=TRUE,
-                             response=NULL, ...) {
+                             estimate=TRUE, ...) {
   # Initialize the history of parameters and statistics.
   coef.hist <- rbind(init)
   stats.hist <- matrix(NA, 0, length(model$nw.stats))
@@ -98,7 +97,7 @@ ergm.MCMLE <- function(init, nw, model,
 
     # Obtain MCMC sample
     mcmc.eta0 <- ergm.eta(mcmc.init, model$etamap)
-    z <- ergm.getMCMCsample(nw, model, MHproposal, mcmc.eta0, control, verbose, response=response)
+    z <- ergm.getMCMCsample(nw, model, MHproposal, mcmc.eta0, control, verbose)
     
     # post-processing of sample statistics:  Shift each row by the
     # vector model$nw.stats - model$target.stats, store returned nw
@@ -117,7 +116,7 @@ ergm.MCMLE <- function(init, nw, model,
     
     ##  Does the same, if observation process:
     if(obs){
-      z.obs <- ergm.getMCMCsample(nw, model, MHproposal.obs, mcmc.eta0, control.obs, verbose, response=response)
+      z.obs <- ergm.getMCMCsample(nw, model, MHproposal.obs, mcmc.eta0, control.obs, verbose)
       statsmatrix.obs <- sweep(z.obs$statsmatrix, 2, statshift, "+")
       colnames(statsmatrix.obs) <- model$coef.names
       nw.obs.returned <- network.copy(z.obs$newnetwork)
@@ -130,7 +129,7 @@ ergm.MCMLE <- function(init, nw, model,
       statsmatrix.obs <- NULL
       if(sequential) {
         nw <- nw.returned
-        nw.obs <- summary(model$formula, basis=nw, response=response)
+        nw.obs <- summary(model$formula, basis=nw)
         namesmatch <- match(names(model$target.stats), names(nw.obs))
         statshift <- -model$target.stats
         statshift[!is.na(namesmatch)] <- statshift[!is.na(namesmatch)] + nw.obs[namesmatch[!is.na(namesmatch)]]

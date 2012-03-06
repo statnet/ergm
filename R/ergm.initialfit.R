@@ -43,11 +43,11 @@
 
 ergm.initialfit<-function(init, initial.is.final,
                           formula, nw, target.stats,
-                          m, reference="Bernoulli", method = NULL,
+                          m, method = NULL,
                           MPLEtype="glm",
                           conddeg=NULL, control=NULL, MHproposal=NULL,
                           verbose=FALSE, ...) {
-  method <- match.arg(method, init.methods[[reference]])
+  method <- match.arg(method, c("MPLE","zeros"))
  
   # conddeg, whatever it does.
   if(!is.null(conddeg)){

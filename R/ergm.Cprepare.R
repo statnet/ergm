@@ -39,7 +39,7 @@
 #
 ##########################################################################
 
-ergm.Cprepare <- function(nw, m, response=NULL)
+ergm.Cprepare <- function(nw, m)
 {
   n <- network.size(nw)
   dir <- is.directed(nw)
@@ -48,25 +48,17 @@ ergm.Cprepare <- function(nw, m, response=NULL)
   if (is.null(bip)) bip <- 0
   Clist$bipartite <- bip
   Clist$ndyads <- n * (n-1) / (2-dir)
-  e<-as.edgelist(nw,attrname=response) # Ensures that for undirected networks, tail<head.
+  e<-as.edgelist(nw) # Ensures that for undirected networks, tail<head.
   if(length(e)==0){
     Clist$nedges<-0
     Clist$tails<-NULL
     Clist$heads<-NULL
-    ## Make sure weights is not NULL if response!=NULL, even if it's
-    ## empty, since it's used to decide whether MCMC or WtMCMC is
-    ## called.
-    if(!is.null(response)) Clist$weights<-numeric(0)
   }else{
-    if(!is.matrix(e)){e <- matrix(e, ncol=2+!is.null(response))}
-
-    ## Delete 0 edges.
-    if(!is.null(response)) e<-e[e[,3]!=0,,drop=FALSE]
+    if(!is.matrix(e)){e <- matrix(e, ncol=2)}
     
     Clist$nedges<-dim(e)[1]
     Clist$tails<-e[,1]
     Clist$heads<-e[,2]
-    if(!is.null(response)) Clist$weights<-e[,3]
   }
 
   Clist$lasttoggle <- nw %n% "lasttoggle"

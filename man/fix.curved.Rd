@@ -12,7 +12,7 @@ parameters are fixed. Note that each term has to be treated as a special case.
 }
 \usage{
 \method{fix.curved}{ergm}(object, ...)
-\method{fix.curved}{formula}(object, theta, response = NULL, ...)
+\method{fix.curved}{formula}(object, theta, ...)
 }
 \arguments{
   \item{object}{
@@ -21,9 +21,6 @@ parameters are fixed. Note that each term has to be treated as a special case.
 }
   \item{theta}{
     Curved model parameter configuration.
-}
-  \item{response}{
-    For valued ERGM, an edge attribute used as the response variable.
 }
   \item{\dots}{
     Unused at this time.

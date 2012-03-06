@@ -58,8 +58,6 @@
 
 simulate.ergm <- function(object, nsim=1, seed=NULL, 
                           coef=object$coef,
-                          response=object$response,
-                          reference=object$reference,
                           constraints=object$constraints,
                           monitor=NULL,
                           statsonly=FALSE,
@@ -71,7 +69,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
     if(is.null(control[[arg]]))
       control[[arg]] <- object$control[[arg]]
 
-  simulate.formula(object$formula, nsim=nsim, coef=coef, response=object$response, reference=if(is.null(reference)) "Bernoulli" else object$reference,
+  simulate.formula(object$formula, nsim=nsim, coef=coef,
                    statsonly=statsonly,
                    sequential=sequential, constraints=constraints,
                    monitor=monitor,
@@ -80,7 +78,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
 
 
 simulate.formula <- function(object, nsim=1, seed=NULL,
-                               coef, response=NULL, reference="Bernoulli",
+                               coef, 
                                constraints=~.,
                                monitor=NULL,
                                basis=NULL,
@@ -118,7 +116,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   if(!is.null(monitor)){
     # Construct a model to get the number of parameters monitor requires.
     monitor <- ergm.update.formula(monitor, nw~.)
-    monitor.m <- ergm.getmodel(monitor, basis, response=response)
+    monitor.m <- ergm.getmodel(monitor, basis)
     monitored.length <- coef.length.model(monitor.m)
     
     monitor <- term.list.formula(monitor[[3]])
@@ -128,7 +126,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   }
 
   # Prepare inputs to ergm.getMCMCsample
-  m <- ergm.getmodel(form, basis, response=response, role="static")
+  m <- ergm.getmodel(form, basis, role="static")
   # Just in case the user did not give a coef value, set it to zero.
   # (probably we could just return an error in this case!)
   if(missing(coef)) {
@@ -141,7 +139,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   if(coef.length.model(m)!=length(coef)) stop("coef has ", length(coef) - monitored.length, " elements, while the model requires ",coef.length.model(m) - monitored.length," parameters.")
 
   MHproposal <- MHproposal(constraints,arguments=control$MCMC.prop.args,
-                           nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)  
+                           nw=nw, weights=control$MCMC.prop.weights, class="c")  
 
   if (any(is.infinite(coef))){
    coef[is.infinite(coef)] <- sign(coef[is.infinite(coef)])*10000 
@@ -153,7 +151,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   eta0 <- ergm.eta(coef, m$etamap)
     
   # Create vector of current statistics
-  curstats<-summary(form,response=response)
+  curstats<-summary(form)
   names(curstats) <- m$coef.names
 
   # prepare control object
@@ -171,7 +169,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     # Call ergm.getMCMCsample only one time, using the C function to generate the whole
     # matrix of network statistics.
     control$MCMC.samplesize <- nsim
-    z <- ergm.getMCMCsample(nw, m, MHproposal, eta0, control, verbose=verbose, response=response)
+    z <- ergm.getMCMCsample(nw, m, MHproposal, eta0, control, verbose=verbose)
     
     # Post-processing:  Add term names to columns and shift each row by
     # observed statistics.
@@ -196,7 +194,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     for(i in 1:nsim){
       control$MCMC.samplesize <- 1
       control$MCMC.burnin <- ifelse(i==1, control$MCMC.burnin, control$MCMC.interval)
-      z <- ergm.getMCMCsample(nw, m, MHproposal, eta0, control, verbose=verbose, response=response)
+      z <- ergm.getMCMCsample(nw, m, MHproposal, eta0, control, verbose=verbose)
       
       # Create a network object if statsonly==FALSE
       if (!statsonly) {
@@ -210,7 +208,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   } else {
     # non-sequential
     control$MCMC.samplesize <- 1
-    z <- ergm.getMCMCsample(nw, m, MHproposal, eta0, control, verbose=verbose, response=response)
+    z <- ergm.getMCMCsample(nw, m, MHproposal, eta0, control, verbose=verbose)
     if (!statsonly) {
       nw.list <- z$newnetworks
     }
@@ -226,8 +224,8 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   } else {
     attributes(nw.list) <- list(formula=object, stats=out.mat, coef=coef,
                                 control=control,
-                                constraints=constraints, reference=reference,
-                                monitor=monitor, response=response)
+                                constraints=constraints,
+                                monitor=monitor)
 
     class(nw.list) <- "network.list"
     return(nw.list)
