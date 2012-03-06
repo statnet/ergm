@@ -123,3 +123,18 @@ ergm.Cprepare.el<-function(x, attrname=NULL, directed=if(is.network(x)) is.direc
 
   c(nrow(xm),c(xm))
 }
+
+# Note: this converter must be kept in sync with whatever edgetree.c does.
+ergm.el.lasttoggle <- function(nw){
+  n <- network.size(nw)
+  b <- if(is.bipartite(nw)) nw %n% "bipartite"
+  edge.to.pos <-
+    if(is.bipartite(nw))
+      function(e) (e[2]-b-1)*b + e[1]
+    else if(is.directed(nw))
+      function(e) (e[2]-1)*(n - 1) + e[1] - (e[1]>e[2])
+    else function(e) (e[2] - 1)*(e[2] - 2)/2 + e[1]
+
+  el <- as.edgelist(nw)
+  cbind(el,(nw %n% "lasttoggle")[apply(el,1,edge.to.pos)])
+}
