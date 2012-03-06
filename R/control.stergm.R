@@ -1,76 +1,7 @@
 ###########################################################################
 # The <control.stergm> function allows the ergm fitting process to be tuned
 # by returning a list of several control parameters
-#
-# --PARAMETERS--
-#   prop.weights.form: the method to allocate probabilities of being proposed
-#                      to dyads in the formation stage, as "TNT", "random",
-#                      "nonobserved", or "default"
-#                      default="default", which is based upon the ergm constraints
-#   prop.args.form   : an alternative, direct way of specifying additional
-#                      arguments to the formation proposals
-#   prop.weights.diss: as 'prop.weights.form', but for the dissolution model
-#   prop.args.diss   : as 'prop.args.form', but for the dissoultion model
-#   compress         : whether the stats matrix should be compressed to the set
-#                      of unique statistics with a column of probability weights
-#                      post-pended; default=FALSE
-#   SAN.burnin       : the burnin value used to create the SAN-ed network and
-#                      formula; default=NULL
-#   SAN.interval     :
-#   maxNumDyadTypes  : the maximum number of unique psuedolikelihood change stats
-#                      to be allowed if 'compress'=TRUE; ignored if 'compress'!=TRUE;
-#                      default=1e+6
-#   maxedges         : the maximum number of edges to allocate space for; default=20000
-#   maxchanges       : the maximum number of changes in dynamic network simulation for
-#                      which to allocate space; default=1000000
-#   maxMPLEsamplesize: the sample size to use for endogenous sampling in the psuedo-
-#                      likelihood computation; default=100000
-#   maxNumDyadTypes  : the maximum number of unique psuedolikelihood change stats
-#                      to be allowed if 'compress'=TRUE; ignored if 'compress'!=TRUE;
-#                      default=1e+6
-#   maxedges         : the maximum number of edges to allocate space for; default=20000
-#   maxchanges       : the maximum number of changes in dynamic network simulation for
-#                      which to allocate space; default=1000000
-#   maxMPLEsamplesize: the sample size to use for endogenous sampling in the psuedo-
-#                      likelihood computation; default=100000
-#   MPLEtype         : the method for MPL estimation as "penalized", "glm" or
-#                      "logitreg"; default="glm"
-#   trace            : the number of levels of tracing information to produce during
-#                      optimization; see <?optim> for details; default=0
-#   sequential       : whether the next iteration of the fit should use the last network
-#                      sampled as the starting point; the alternative is to always begin
-#                      from the orginial network; default=TRUE
-#   style            : the style of ML estimation to use, as one of "Newton-Raphson",
-#                      "Robbins-Monro", "Stochastic-Approximation", or "Stepping";
-#                      default="Robbins-Monro"
-#   RM.init_gain     : this is only used to adjust 'aDdiaginv'in phase1,
-#                      in particular:
-#                             aDdiaginv = gain/sqrt(aDdiaginv)
-#                      default=0.5
-#   RM.phase1n_base  : this helps define the 'phase1n' param, which in turn
-#                      multiplies 'RM.interval' to control the number of
-#                      phase1 iterations; this is the base portion of 'phase1n',
-#                      which is added to 3*(the number of formation coefficients)
-#                      to form 'phase1n'; default=7
-#   RM.phase2sub     : phase2 is a 3-deep nested for-loop and 'RM.phase2sub' limits
-#                      the outer loop counter; default=7
-#   RM.phase2n_base  : this helps define the 'phase2n' param, which in turn
-#                      limits the phase2 middle loop counter; this is the
-#                      base portion of 'phase2n', which is added to 7+(the number
-#                      of formation coefficients) to form 'phase2n'; default=100
-#   RM.burnin        : the number of MCMC steps to disregard for the burn-in
-#                      period; default=1000
-#   RM.interval      : like the SPSA.interval, this seems a little more like
-#                      a sample size, than an interval, it helps control the
-#                      number of MCMCsteps used in phase1 and phase2; in
-#                      phase2, this limits the innermost loop counter; default=100
-#   packagenames     : the packages in which change statistics are found; default="ergm"
-#   parallel         : the number of threads in which to run sampling; default=0
-#
-# --RETURNED--
-#   a list of the above parameters
-#
-######################################################################################################
+############################################################################
 
 control.stergm<-function(init.form=NULL,
                          init.diss=NULL,
@@ -92,7 +23,7 @@ control.stergm<-function(init.form=NULL,
                          CMLE.control.form=control.ergm(init=init.form, MCMC.prop.weights=MCMC.prop.weights.form, MCMC.prop.args=MCMC.prop.args.form, MCMC.init.maxedges=MCMC.init.maxedges, MCMC.packagenames=MCMC.packagenames, MCMC.interval=MCMC.burnin, parallel=parallel, parallel.type=parallel.type, parallel.version.check=parallel.version.check),
                          CMLE.control.diss=control.ergm(init=init.diss, MCMC.prop.weights=MCMC.prop.weights.diss, MCMC.prop.args=MCMC.prop.args.diss, MCMC.init.maxedges=MCMC.init.maxedges, MCMC.packagenames=MCMC.packagenames, MCMC.interval=MCMC.burnin, parallel=parallel, parallel.type=parallel.type, parallel.version.check=parallel.version.check),
 
-                         EGMME.main.method=c("Robbins-Monro"),
+                         EGMME.main.method=c("Stochastic-Approximation"),
                          
                          SAN.maxit=10,
                          SAN.control=control.san(coef=init.form,
@@ -107,58 +38,58 @@ control.stergm<-function(init.form=NULL,
                            parallel.type=parallel.type,
                            parallel.version.check=parallel.version.check),
 
-                         RM.burnin=1000,
+                         SA.burnin=1000,
 
                          # Plot the progress of the optimization.
-                         RM.plot.progress=FALSE,
-                         RM.max.plot.points=400,
+                         SA.plot.progress=FALSE,
+                         SA.max.plot.points=400,
                          
                          # Initial gain --- if the process initially goes
                          # crazy beyond recovery, lower this.
-                         RM.init.gain=0.1,
-                         RM.gain.decay=0.8, # Gain decay factor.
-                         RM.gain.max.dist.boost=8, # Gain is boosted by the square root of the average mahalanobis distance between observed and simulated, up to this much.
+                         SA.init.gain=0.1,
+                         SA.gain.decay=0.8, # Gain decay factor.
+                         SA.gain.max.dist.boost=8, # Gain is boosted by the square root of the average mahalanobis distance between observed and simulated, up to this much.
                          
-                         RM.runlength=25, # Number of jumps per .C call.
+                         SA.runlength=25, # Number of jumps per .C call.
 
                          # Interval --- number of steps between
                          # successive jumps --- is computed
                          # adaptively.
-                         RM.interval.mul=2, # Set the mean duration of extant ties this to be the interval.
-                         RM.init.interval=500, # Starting interval.
-                         RM.min.interval=20, # The lowest it can go.
+                         SA.interval.mul=2, # Set the mean duration of extant ties this to be the interval.
+                         SA.init.interval=500, # Starting interval.
+                         SA.min.interval=20, # The lowest it can go.
 
                         
-                         RM.phase1.tries=20, # Number of iterations of trying to find a reasonable configuration. FIXME: nothing happens if it's exceeded.
-                         RM.phase1.jitter=0.1, # Initial jitter sd of each parameter..
-                         RM.phase1.max.p=0.001, # P-value that a gradient estimate must obtain before it's accepted (since sign is what's important).
-                         RM.phase1.backoff.rat=1.05, # If a run produces this relative increase in the objective function, it will be backed off.                         
-                         RM.phase2.levels=10, # Number of gain levels to go through.
-                         RM.phase2.repeats=400, # Maximum number of times gain a subphase can be repeated if the optimization is "going somewhere".
-                         RM.stepdown.maxn=100, # Thin the draws for trend detection to get this many.
-                         RM.stepdown.p=0.05, # If the combined p-value for the trend in the parameters is less than this, reset the subphase counter.
-                         RM.stepdown.ct.base=5, # Baseline number of times in a row the p-value must be above RM.stepdown.p to reduce gain.
-                         RM.stepdown.ct.subphase=1, # Number of times added to the baseline per subphase.
-                         RM.phase2.backoff.rat=1.1, # If a run produces this relative increase in the objective function, it will be backed off.
-                         RM.keep.oh=0.5, # Fraction of optimization history that is used for gradient and covariance calculation.
-                         RM.phase2.jitter.mul=0.2, # The jitter standard deviation of each parameter is this times its standard deviation sans jitter.
-                         RM.phase2.maxreljump=4, # Maximum jump per run, relative to the magnitude of other jumps in the history.
-                         RM.phase2.refine=FALSE, # Whether to use linear interpolation to refine the estimate after every run. More trouble than it's worth.
+                         SA.phase1.tries=20, # Number of iterations of trying to find a reasonable configuration. FIXME: nothing happens if it's exceeded.
+                         SA.phase1.jitter=0.1, # Initial jitter sd of each parameter..
+                         SA.phase1.max.p=0.001, # P-value that a gradient estimate must obtain before it's accepted (since sign is what's important).
+                         SA.phase1.backoff.rat=1.05, # If a run produces this relative increase in the objective function, it will be backed off.                         
+                         SA.phase2.levels=10, # Number of gain levels to go through.
+                         SA.phase2.repeats=400, # Maximum number of times gain a subphase can be repeated if the optimization is "going somewhere".
+                         SA.stepdown.maxn=100, # Thin the draws for trend detection to get this many.
+                         SA.stepdown.p=0.05, # If the combined p-value for the trend in the parameters is less than this, reset the subphase counter.
+                         SA.stepdown.ct.base=5, # Baseline number of times in a row the p-value must be above SA.stepdown.p to reduce gain.
+                         SA.stepdown.ct.subphase=1, # Number of times added to the baseline per subphase.
+                         SA.phase2.backoff.rat=1.1, # If a run produces this relative increase in the objective function, it will be backed off.
+                         SA.keep.oh=0.5, # Fraction of optimization history that is used for gradient and covariance calculation.
+                         SA.phase2.jitter.mul=0.2, # The jitter standard deviation of each parameter is this times its standard deviation sans jitter.
+                         SA.phase2.maxreljump=4, # Maximum jump per run, relative to the magnitude of other jumps in the history.
+                         SA.phase2.refine=FALSE, # Whether to use linear interpolation to refine the estimate after every run. More trouble than it's worth.
                          
 
                          
 
-                         RM.refine=c("linear","mean","none"), # Method, if any, used to refine the point estimate: linear interpolation, average, and none for the last value.
+                         SA.refine=c("linear","mean","none"), # Method, if any, used to refine the point estimate: linear interpolation, average, and none for the last value.
                          
-                         RM.se=TRUE, # Whether to run Phase 3 to compute the standard errors.
-                         RM.phase3.samplesize=1000, # This times the interval is the number of steps to estimate the standard errors.
+                         SA.se=TRUE, # Whether to run Phase 3 to compute the standard errors.
+                         SA.phase3.samplesize=1000, # This times the interval is the number of steps to estimate the standard errors.
 
                          seed=NULL,
                          parallel=0,
                          parallel.type=NULL,
                          parallel.version.check=TRUE){
   
-  match.arg.pars=c("EGMME.main.method","RM.refine")
+  match.arg.pars=c("EGMME.main.method","SA.refine")
 
   if(!is.null(CMLE.control)) CMLE.control.form <- CMLE.control.diss <- CMLE.control
   

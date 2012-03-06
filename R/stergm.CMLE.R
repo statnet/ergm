@@ -34,9 +34,6 @@
 #   The symbol preceding each component indicates which function returns it,
 #   but remember that, <stergm> will additionally return the items from
 #   one of the other stergm functions as well:
-#       <stergm>             = $
-#       <stergm.RM>          = @
-#       <stergm.NM>          = !
 #
 #   the components include:
 #

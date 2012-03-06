@@ -18,7 +18,7 @@
                          CMLE.control=NULL,
                          CMLE.control.form=control.ergm(init=init.form, MCMC.prop.weights=MCMC.prop.weights.form, MCMC.prop.args=MCMC.prop.args.form, MCMC.init.maxedges=MCMC.init.maxedges, MCMC.packagenames=MCMC.packagenames, MCMC.interval=MCMC.burnin, parallel=parallel, parallel.type=parallel.type, parallel.version.check=parallel.version.check),
                          CMLE.control.diss=control.ergm(init=init.diss, MCMC.prop.weights=MCMC.prop.weights.diss, MCMC.prop.args=MCMC.prop.args.diss, MCMC.init.maxedges=MCMC.init.maxedges, MCMC.packagenames=MCMC.packagenames, MCMC.interval=MCMC.burnin, parallel=parallel, parallel.type=parallel.type, parallel.version.check=parallel.version.check),
-                         EGMME.main.method=c("Robbins-Monro"),
+                         EGMME.main.method=c("Stochastic-Approximation"),
                          SAN.maxit=10,
                          SAN.control=control.san(coef=init.form,
                            SAN.prop.weights=MCMC.prop.weights.form,
@@ -29,34 +29,34 @@
                            parallel=parallel,
                            parallel.type=parallel.type,
                            parallel.version.check=parallel.version.check),
-                         RM.burnin=1000,
-                         RM.plot.progress=FALSE,
-                         RM.max.plot.points=400,
-                         RM.init.gain=0.1,
-                         RM.gain.decay=0.8,
-                         RM.gain.max.dist.boost=8,
-                         RM.runlength=25,
-                         RM.interval.mul=2,
-                         RM.init.interval=500, 
-                         RM.min.interval=20, 
-                         RM.phase1.tries=20, 
-                         RM.phase1.jitter=0.1, 
-                         RM.phase1.max.p=0.001, 
-                         RM.phase1.backoff.rat=1.05, 
-                         RM.phase2.levels=10, 
-                         RM.phase2.repeats=400,
-                         RM.stepdown.maxn=100,
-                         RM.stepdown.p=0.05,
-                         RM.stepdown.ct.base=5,
-                         RM.stepdown.ct.subphase=1,
-                         RM.phase2.backoff.rat=1.1, 
-                         RM.keep.oh=0.5, 
-                         RM.phase2.jitter.mul=0.2, 
-                         RM.phase2.maxreljump=4, 
-                         RM.phase2.refine=FALSE, 
-                         RM.refine=c("linear","mean","none"), 
-                         RM.se=TRUE, 
-                         RM.phase3.samplesize=1000, 
+                         SA.burnin=1000,
+                         SA.plot.progress=FALSE,
+                         SA.max.plot.points=400,
+                         SA.init.gain=0.1,
+                         SA.gain.decay=0.8,
+                         SA.gain.max.dist.boost=8,
+                         SA.runlength=25,
+                         SA.interval.mul=2,
+                         SA.init.interval=500, 
+                         SA.min.interval=20, 
+                         SA.phase1.tries=20, 
+                         SA.phase1.jitter=0.1, 
+                         SA.phase1.max.p=0.001, 
+                         SA.phase1.backoff.rat=1.05, 
+                         SA.phase2.levels=10, 
+                         SA.phase2.repeats=400,
+                         SA.stepdown.maxn=100,
+                         SA.stepdown.p=0.05,
+                         SA.stepdown.ct.base=5,
+                         SA.stepdown.ct.subphase=1,
+                         SA.phase2.backoff.rat=1.1, 
+                         SA.keep.oh=0.5, 
+                         SA.phase2.jitter.mul=0.2, 
+                         SA.phase2.maxreljump=4, 
+                         SA.phase2.refine=FALSE, 
+                         SA.refine=c("linear","mean","none"), 
+                         SA.se=TRUE, 
+                         SA.phase3.samplesize=1000, 
                          seed=NULL,
                          parallel=0,
                          parallel.type=NULL,
@@ -133,97 +133,97 @@
   \item{SAN.control}{SAN control parameters.  See
     \code{\link{control.san}}
   }
-  \item{RM.burnin}{Number of time steps to advance the starting network
+  \item{SA.burnin}{Number of time steps to advance the starting network
     before beginning the optimization.
   }
-  \item{RM.plot.progress}{Logical: If TRUE, plot the trajectories of the
+  \item{SA.plot.progress}{Logical: If TRUE, plot the trajectories of the
                          parameters and target statistics as the
                          optimization progresses. Do NOT use with non-interactive plotting devices
     like \code{\link{pdf}}.
   }
 
-  \item{RM.max.plot.points}{
-    If \code{RM.plot.progress==TRUE}, the maximum number of time points
+  \item{SA.max.plot.points}{
+    If \code{SA.plot.progress==TRUE}, the maximum number of time points
     to be plotted. Defaults to 400. If more iterations elapse, they will
     be thinned to at most 400 before plotting.
     }
-  \item{RM.init.gain}{Initial gain, the multiplier for the parameter update size.  If the process initially goes
+  \item{SA.init.gain}{Initial gain, the multiplier for the parameter update size.  If the process initially goes
     crazy beyond recovery, lower this value.
   }
-  \item{RM.gain.decay}{Gain decay factor.
+  \item{SA.gain.decay}{Gain decay factor.
   }
-  \item{RM.gain.max.dist.boost}{
+  \item{SA.gain.max.dist.boost}{
     Gain is boosted or shrunk by the square root of the average mahalanobis
     distance between observed and simulated, up to this much. This
     speeds up convergence once the process finds the right values.
     }
-  \item{RM.runlength}{Number of parameter trials and updates per C run.
+  \item{SA.runlength}{Number of parameter trials and updates per C run.
   }
-  \item{RM.interval.mul}{The number of time steps between updates of the
+  \item{SA.interval.mul}{The number of time steps between updates of the
     parameters is set to be this times the mean duration of extant ties.}
-  \item{RM.init.interval}{Initial number of time steps between updates
+  \item{SA.init.interval}{Initial number of time steps between updates
     of the parameters.
   }
-  \item{RM.min.interval}{The lowest the number of time steps between updates
+  \item{SA.min.interval}{The lowest the number of time steps between updates
     of the parameters can go.
   }
   
-  \item{RM.phase1.tries}{Number of runs trying to find a 
+  \item{SA.phase1.tries}{Number of runs trying to find a 
     reasonable parameter and network configuration.
   }
-  \item{RM.phase1.jitter}{Initial jitter standard deviation
+  \item{SA.phase1.jitter}{Initial jitter standard deviation
     of each parameter.
   }
-  \item{RM.phase1.max.p}{P-value that a gradient estimate must 
+  \item{SA.phase1.max.p}{P-value that a gradient estimate must 
     obtain before it is accepted (since sign is what is important).
   }
 
-  \item{RM.phase1.backoff.rat, RM.phase2.backoff.rat}{If the run produces this 
+  \item{SA.phase1.backoff.rat, SA.phase2.backoff.rat}{If the run produces this 
     relative increase in the approximate objective function, it will be backed off.
   }
-  \item{RM.phase2.levels}{Number of gain levels (subphases) to go through.
+  \item{SA.phase2.levels}{Number of gain levels (subphases) to go through.
   }
-  \item{RM.phase2.repeats, RM.stepdown.maxn,
-    RM.stepdown.p, RM.stepdown.ct.base, RM.stepdown.ct.subphase}{A gain level may be repeated multiple times (up to
-    \code{RM.phase2.repeats}) if the optimizer detects that the
+  \item{SA.phase2.repeats, SA.stepdown.maxn,
+    SA.stepdown.p, SA.stepdown.ct.base, SA.stepdown.ct.subphase}{A gain level may be repeated multiple times (up to
+    \code{SA.phase2.repeats}) if the optimizer detects that the
     objective function is improving, so slowing down the parameters at that point is counterproductive. To detect this
-    it looks at the the window controlled by \code{RM.keep.oh}, thinning
+    it looks at the the window controlled by \code{SA.keep.oh}, thinning
     objective function values
-    to get \code{RM.stepdown.maxn}, and fitting a GLS model for a linear trend, with AR(2)
+    to get \code{SA.stepdown.maxn}, and fitting a GLS model for a linear trend, with AR(2)
     autocorrelation. If there is a negative trend is greater than
-    \code{RM.stepdown.p} \code{RM.stepdown.ct.base +
-    RM.stepdown.ct.subphase * subphase} runs in a row, the
+    \code{SA.stepdown.p} \code{SA.stepdown.ct.base +
+    SA.stepdown.ct.subphase * subphase} runs in a row, the
     gain level (subphase) is allowed to end. Otherwise, the process
     continues at the same gain level.
   }
-  \item{RM.keep.oh}{Fraction of optimization history
+  \item{SA.keep.oh}{Fraction of optimization history
     used for gradient and covariance estimation.
   }
-  \item{RM.phase2.jitter.mul}{Jitter standard deviation of each 
+  \item{SA.phase2.jitter.mul}{Jitter standard deviation of each 
     parameter is this value times its standard deviation without jitter.
   }
-  \item{RM.phase2.refine}{Logical: If TRUE, use linear 
+  \item{SA.phase2.refine}{Logical: If TRUE, use linear 
     interpolation to refine the estimate after every run.
   }
 
-  \item{RM.phase2.maxreljump}{To keep the optimization from "running
+  \item{SA.phase2.maxreljump}{To keep the optimization from "running
   away" due to, say, a poor gradient estimate building on itself, if a
   magnitude of change (Mahalanobis distance) in parameters over the course of a run divided by
   average magnitude of change for recent runs exceeds this, the change
   is truncated to this amount times the average for recent runs.}
   
 
-  \item{RM.refine}{Method, if any, used to 
+  \item{SA.refine}{Method, if any, used to 
     refine the point estimate at the end: "linear" for linear interpolation, 
     "mean" for average, and "none" to use the last value.
   }
-  \item{RM.se}{Logical:  If TRUE (the default), get an MCMC sample of statistics at
+  \item{SA.se}{Logical:  If TRUE (the default), get an MCMC sample of statistics at
     the final estimate and compute the 
     covariance matrix (and hence standard errors) of the
     parameters. This sample is stored and can also be used by
     \code{\link{mcmc.diagnostics.stergm}} to assess convergence.
   }
-  \item{RM.phase3.samplesize}{This multiplied by the interval is the 
+  \item{SA.phase3.samplesize}{This multiplied by the interval is the 
     number of steps to estimate the standard errors.
   }
   \item{seed}{Seed value (integer) for the random number generator.  

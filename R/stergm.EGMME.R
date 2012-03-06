@@ -177,7 +177,7 @@ stergm.EGMME <- function(nw, formation, dissolution,  offset.coef.form, offset.c
   if(verbose) cat("Fitting STERGM Equilibrium GMME.\n")
 
   Cout <- switch(control$EGMME.main.method,
-                 "Robbins-Monro" = stergm.EGMME.RM(initialfit$formation.fit$coef,
+                 "Stochastic-Approximation" = stergm.EGMME.SA(initialfit$formation.fit$coef,
                    initialfit$dissolution.fit$coef, nw, model.form, model.diss, model.mon,
                    control=control, MHproposal.form=MHproposal.form,
                   MHproposal.diss=MHproposal.diss,

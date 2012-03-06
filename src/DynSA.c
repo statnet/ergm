@@ -1,6 +1,6 @@
-#include "DynRM.h"
+#include "DynSA.h"
 
-void MCMCDynRMPhase2_wrapper(// Observed network.
+void MCMCDynSArun_wrapper(// Observed network.
 			     int *tails, int *heads, int *time, int *lasttoggle, int *n_edges,
 			     int *n_nodes, int *dflag, int *bipartite, 
 			     // Formation terms and proposals.
@@ -15,14 +15,14 @@ void MCMCDynRMPhase2_wrapper(// Observed network.
 			     double *eta0, 
 			     int *M_nterms, char **M_funnames, char **M_sonames, double *M_inputs,
 			     double *init_dev,
-			     int *phase2n,
+			     int *runlength,
 			     double *WinvGradient,
 			     double *jitter, double *dejitter,
 			     // Degree bounds.
 			     int *attribs, int *maxout, int *maxin, int *minout,
 			     int *minin, int *condAllDegExact, int *attriblength,
 			     // MCMC settings.
-			     int *RM_burnin, int *RM_interval, int *MH_interval,
+			     int *SA_burnin, int *SA_interval, int *MH_interval,
 			     // Space for output.
 			     int *maxedges, int *maxchanges,
 			     int *newnetworktail, int *newnetworkhead, 
@@ -54,21 +54,21 @@ void MCMCDynRMPhase2_wrapper(// Observed network.
 		      *D_MHproposaltype, *D_MHproposalpackage, &D_MH,
 		      *fVerbose);
 
-  *status = MCMCDynRMPhase2(nw,
+  *status = MCMCDynSArun(nw,
 			    
 			    F_m, &F_MH,
 			    D_m, &D_MH,
 
 			    eta0, M_m,
 			    init_dev, 
-			    *phase2n,
+			    *runlength,
 			    WinvGradient, jitter, dejitter,
 
 		  *maxedges, *maxchanges,
 		  difftime, difftail, diffhead,
 		  opt_history,
 
-		  *RM_burnin, *RM_interval, *MH_interval, 
+		  *SA_burnin, *SA_interval, *MH_interval, 
 		  *fVerbose);
 
   /* record the final network to pass back to R */
@@ -89,7 +89,7 @@ void MCMCDynRMPhase2_wrapper(// Observed network.
 /*********************
  void MCMCSampleDynPhase12
 *********************/
-MCMCDynStatus MCMCDynRMPhase2(// Observed and discordant network.
+MCMCDynStatus MCMCDynSArun(// Observed and discordant network.
 			      Network *nwp,
 			      // Formation terms and proposals.
 			      Model *F_m, MHproposal *F_MH,
@@ -99,7 +99,7 @@ MCMCDynStatus MCMCDynRMPhase2(// Observed and discordant network.
 			      double *eta, 
 			      Model *M_m,
 			      double *dev, // DEViation of the current network's targeted statistics from the target statistics.
-			      int phase2n,
+			      int runlength,
 			      double *WinvGradient, double *jitter, double *dejitter,
 			      
 			      // Space for output.
@@ -107,7 +107,7 @@ MCMCDynStatus MCMCDynRMPhase2(// Observed and discordant network.
 			      Vertex *difftime, Vertex *difftail, Vertex *diffhead,
 			      double *opt_history,
 			      // MCMC settings.
-			      unsigned int RM_burnin, unsigned int RM_interval, unsigned int MH_interval,
+			      unsigned int SA_burnin, unsigned int SA_interval, unsigned int MH_interval,
 			      // Verbosity.
 			      int fVerbose){
   Edge nextdiffedge=1;
@@ -115,7 +115,7 @@ MCMCDynStatus MCMCDynRMPhase2(// Observed and discordant network.
   double *meandev=(double*)calloc(M_m->n_stats,sizeof(double)), *last_jitter=(double*)calloc(p,sizeof(double));
 
 
-  for (unsigned int i=0; i < phase2n; i++){
+  for (unsigned int i=0; i < runlength; i++){
     n = 0;
     for(unsigned int j=0; j<M_m->n_stats; j++){
       meandev[j]=0;
@@ -129,7 +129,7 @@ MCMCDynStatus MCMCDynRMPhase2(// Observed and discordant network.
       }
     }
 
-    for(unsigned int j=0;j < RM_interval;j++){
+    for(unsigned int j=0;j < SA_interval;j++){
       MCMCDynStatus status = MCMCDyn1Step(nwp,
 					  F_m, F_MH, eta,
 					  D_m, D_MH, eta+F_m->n_stats,
