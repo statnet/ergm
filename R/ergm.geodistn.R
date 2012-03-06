@@ -8,8 +8,8 @@
 
 
 ergm.geodistdist<-function(nw, directed=is.directed(nw)){
- ergm.geodistn(edgelist=as.matrix.network(nw,matrix.type="edgelist"),
-               n=nw$gal$n, directed=directed)/(2-is.directed(nw))
+ ergm.geodistn(edgelist=as.edgelist(nw),
+               n=network.size(nw), directed=directed)/(2-is.directed(nw))
 }
 
 
@@ -74,7 +74,7 @@ ergm.geodistn <- function(edgelist, n=max(edgelist), directed=FALSE) {
 
 
 ergm.geodesicmatrix <- function(nw, directed=is.directed(nw)){
- ergm.geodesicmatrix.edgelist(edgelist=as.matrix.network(nw,matrix.type="edgelist"),
+ ergm.geodesicmatrix.edgelist(edgelist=as.edgelist(nw),
                n=network.size(nw), directed=directed)
 }
 

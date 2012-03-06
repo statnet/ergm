@@ -91,7 +91,7 @@ InitErgm.bounded.degree<-function(nw, m, arglist, drop=TRUE, ...) {
     required = c(TRUE,TRUE))
   bound <- a$bound; d <- a$d
   if(drop){
-    degrees <- as.numeric(names(table(table(as.matrix.network.edgelist(nw)))))
+    degrees <- as.numeric(names(table(table(as.edgelist(nw)))))
     degrees[degrees > max(d)] <- max(d)
     mdegrees <- match(d, degrees)  
     if(any(is.na(mdegrees))){
@@ -136,7 +136,7 @@ InitErgm.bounded.idegree<-function(nw, m, arglist, drop=TRUE, ...) {
   bound<-a$bound
   if(drop){
     degrees <-
-      as.numeric(names(table(table(as.matrix.network.edgelist(nw)[,2]))))
+      as.numeric(names(table(table(as.edgelist(nw)[,2]))))
     degrees[degrees > max(d)] <- max(d)
     mdegrees <- match(d, degrees)  
     if(any(is.na(mdegrees))){
@@ -210,7 +210,7 @@ InitErgm.bounded.kstar<-function(nw, m, arglist, drop=TRUE, ...) {
     required = c(TRUE,TRUE))
   k<-a$k;bound<-a$bound
   if(drop){
-    degrees <- as.numeric(names(table(table(as.matrix.network.edgelist(nw)))))
+    degrees <- as.numeric(names(table(table(as.edgelist(nw)))))
     mdegrees <- match(k, degrees)  
     if(any(is.na(mdegrees))){
       cat(" ")
@@ -248,7 +248,7 @@ InitErgm.bounded.odegree<-function(nw, m, arglist, drop=TRUE, ...) {
   bound<-a$bound
   if(drop){
     degrees <-
-      as.numeric(names(table(table(as.matrix.network.edgelist(nw)[,1]))))
+      as.numeric(names(table(table(as.edgelist(nw)[,1]))))
     degrees[degrees > max(d)] <- max(d)
     mdegrees <- match(d, degrees)  
     if(any(is.na(mdegrees))){
@@ -431,74 +431,6 @@ InitErgm.degreep<-function(nw, m, arglist, drop=TRUE, ...) {
   m
 }
 
-#########################################################
-InitErgm.duration<-function (nw, m, arglist, ...) {
-  a <- ergm.checkargs("duration", arglist,
-    varnames = c("form", "dissolve", "x"),
-    vartypes = c("matrix,network", "matrix,network", "matrix,network"),
-    defaultvalues = list(NULL, NULL, NULL),
-    required = c(TRUE, TRUE, FALSE))
-  x<-a$x;form<-a$form;dissolve<-a$dissolve
-  m$coef.names<-c(m$coef.names, paste("duration.",x,sep=""))
-  #Coerce x to an adjacency matrix
-  if(is.null(x)){
-    xm<-as.matrix.network(nw,matrix.type="edgelist")
-    x<-"self"
-  }else{
-    if(is.network(x)){
-      xm<-as.matrix.network(x,matrix.type="edgelist")
-      x<-paste(quote(x))
-    }else if(is.character(x)){
-      xm<-get.network.attribute(nw,x)
-      xm<-as.matrix.network(xm,matrix.type="edgelist")
-    }else{
-      xm<-as.matrix(x)
-      x<-paste(quote(x))
-    }
-  }
-  #Check for symmetry
-  if (is.null(xm) || NCOL(xm)!=2){
-    stop("duration requires the edgelist of the base network")
-  }
-  #Coerce form to an adjacency matrix
-  if(is.network(form)){
-    formm<-as.matrix.network(form,matrix.type="adjacency")
-    form<-paste(quote(form))
-  }else if(is.character(form)){
-    formm<-get.network.attribute(nw,form)
-  }else{
-    formm<-as.matrix(form)
-    form<-paste(quote(form))
-  }
-  #Check for matrix
-  if (is.null(formm) || dim(formm)!=c(network.size(nw),network.size(nw))){
-    stop("duration requires a matrix of formation rates")
-  }
-  #Coerce dissolve to an adjacency matrix
-  if(is.network(dissolve)){
-    dissolvem<-as.matrix.network(dissolve,matrix.type="adjacency")
-    dissolve<-paste(quote(dissolve))
-  }else if(is.character(dissolve)){
-    dissolvem<-get.network.attribute(nw,dissolve)
-  }else{
-    dissolvem<-as.matrix(dissolve)
-    dissolve<-paste(quote(dissolve))
-  }
-  #Check for matrix
-  if (is.null(dissolvem) || dim(dissolvem)!=
-      c(network.size(nw),network.size(nw))){
-    stop("duration requires a matrix of dissolution rates")
-  }
-  termnumber <- 1 + length(m$terms)
-# There is 1 input parameter before the covariate vector, so input
-# element 1 is set to 1 (although in this case, input element 1
-# is actually arbitrary since d_duration ignores the value of inp->attrib).
-  m$terms[[termnumber]] <- list(name = "duration", soname="ergm",
-                                inputs = c(1, 1, 
-                                  NROW(xm)*2+2*NROW(formm)^2, NROW(xm),
-                                  as.double(c(xm, formm, dissolvem))))
-  m
-}
 
 ###################################### InitErgm TERMS:  E
 
@@ -740,13 +672,13 @@ InitErgm.hamming.weighted<-function (nw, m, arglist, ...) {
 # Extract reference network as an edgelist
 #
   if(is.network(x)){
-    xm<-as.matrix.network(x,matrix.type="edgelist")
+    xm<-as.edgelist(x)
     x<-paste(quote(x))
   }else if(is.character(x)){
     xm<-get.network.attribute(nw,x)
-    xm<-as.matrix.network(xm,matrix.type="edgelist")
+    xm<-as.edgelist(xm)
   }else if(is.null(x)){
-    xm<-as.matrix.network(nw,matrix.type="edgelist")
+    xm<-as.edgelist(nw)
   }else{
     xm<-as.matrix(x)
     x<-paste(quote(x))
@@ -805,11 +737,11 @@ InitErgm.hammingmix.constant<-function (nw, m, arglist, ...) {
   drop<-a$drop
   drop<-TRUE
   if(is.network(x)){
-    xm<-as.matrix.network(x,matrix.type="edgelist",attrname)
+    xm<-as.edgelist(x,attrname)
     x<-paste(quote(x))
   }else if(is.character(x)){
     xm<-get.network.attribute(nw,x)
-    xm<-as.matrix.network(xm,matrix.type="edgelist")
+    xm<-as.edgelist(xm)
   }else{
     xm<-as.matrix(x)
     x<-paste(quote(x))

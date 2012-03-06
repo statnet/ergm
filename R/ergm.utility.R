@@ -150,7 +150,7 @@ degreedistfactor <- function(g,x)
   stop("degreedist() requires a network object")
  }
  x <- get.vertex.attribute(g,x)
- degrees <- as.matrix.network.edgelist(g)
+ degrees <- as.edgelist(g)
  if(length(degrees)>0){
   if(is.directed(g)){
    outdegrees <- table(degrees[,1],x[degrees[,2]])

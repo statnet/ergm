@@ -18,7 +18,7 @@ mk.missnet<-function(n,d,m,directed=TRUE,bipartite=0){
   y<-simulate(y~edges, coef=logit(d), control=control.simulate(MCMC.burnin=2*n^2))
   if(m>0){
     y.miss<-simulate(y~edges, coef=logit(m))
-    y[as.matrix(y.miss,matrix.type="edgelist")]<-NA
+    y[as.edgelist(y.miss)]<-NA
   }
   y
 }
@@ -69,7 +69,7 @@ n <- 50
 y <- network.initialize(n, directed=FALSE) # Create an empty network
 y <- simulate(y~edges, coef=logit(0.12), control=control.simulate(MCMC.burnin=2*n^2))
 y.miss <- simulate(y~edges, coef=logit(0.1))
-y[as.matrix(y.miss,matrix.type="edgelist")] <- NA
+y[as.edgelist(y.miss)] <- NA
 
 cat("Network statistics:\n")
 print(summary(y~edges+gwesp(0.5)))

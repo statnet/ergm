@@ -48,7 +48,7 @@ ergm.Cprepare <- function(nw, m, response=NULL)
   if (is.null(bip)) bip <- 0
   Clist$bipartite <- bip
   Clist$ndyads <- n * (n-1) / (2-dir)
-  e<-as.matrix.network(nw,matrix.type="edgelist",attrname=response)
+  e<-as.edgelist(nw,attrname=response) # Ensures that for undirected networks, tail<head.
   if(length(e)==0){
     Clist$nedges<-0
     Clist$tails<-NULL
@@ -64,17 +64,9 @@ ergm.Cprepare <- function(nw, m, response=NULL)
     if(!is.null(response)) e<-e[e[,3]!=0,,drop=FALSE]
     
     Clist$nedges<-dim(e)[1]
-    # *** Ensure that for undirected networks, tail<head.
-    if(dir){
-      Clist$tails<-e[,1]
-      Clist$heads<-e[,2]
-    }else{
-      Clist$tails<-pmin(e[,1],e[,2])
-      Clist$heads<-pmax(e[,1],e[,2])
-    }
-    if(!is.null(response)){
-      Clist$weights<-e[,3]
-    }
+    Clist$tails<-e[,1]
+    Clist$heads<-e[,2]
+    if(!is.null(response)) Clist$weights<-e[,3]
   }
 
   Clist$lasttoggle <- nw %n% "lasttoggle"
@@ -122,16 +114,12 @@ ergm.Cprepare <- function(nw, m, response=NULL)
 ## vertex having the lesser index the tail and sorted by tails, then
 ## by heads.
 ergm.Cprepare.el<-function(x, attrname=NULL, directed=if(is.network(x)) is.directed(x) else stop("Directedness argument is mandatory for edgelist input.")){
-  xm <- if(is.network(x)) as.matrix(x, matrix.type="edgelist", attrname=attrname) else x
+  xm <- if(is.network(x)) as.edgelist(x, attrname=attrname) else x
   
   if(nrow(xm)){
-    if(!directed){
-      xm[,1:2] <- t(apply(xm[,1:2,drop=FALSE],1,sort))
-    }
-    
     # Sort.
     xm <- xm[order(xm[,1],xm[,2]),,drop=FALSE]
   }
 
-  c(length(xm)/ncol(xm),c(xm))
+  c(nrow(xm),c(xm))
 }

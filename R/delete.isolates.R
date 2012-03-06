@@ -89,10 +89,10 @@ central.network<-function(x){
   xd <- network.copy(x)
   delete.isolates(xd)
 # amat <- network(1*(tcrossprod(as.sociomatrix(xd))>0))
-  amat <- as.matrix.network(xd,"edgelist")
+  amat <- as.edgelist(xd)
   isolates <- unique(amat[,2])
   if(length(isolates)>0){delete.vertices(xd,isolates)}
-  amat <- as.matrix.network(xd,"edgelist")
+  amat <- as.edgelist(xd)
   isolates <- unique(amat[,1])
   if(length(isolates)>0){delete.vertices(xd,isolates)}
   delete.isolates(xd)

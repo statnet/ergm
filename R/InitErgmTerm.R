@@ -176,7 +176,7 @@ InitErgmTerm.adegcor<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE) 
 
   deg=summary(nw ~ sociality(base=0))
-  el=as.matrix.network.edgelist(nw)
+  el=as.edgelist(nw)
   deg1<-deg[el[,1]]
   deg2<-deg[el[,2]]
   alldeg<-c(deg1,deg2)
@@ -861,7 +861,7 @@ InitErgmTerm.degcor<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE) 
 
   deg=summary(nw ~ sociality(base=0))
-  el=as.matrix.network.edgelist(nw)
+  el=as.edgelist(nw)
   deg1<-deg[el[,1]]
   deg2<-deg[el[,2]]
   alldeg<-c(deg1,deg2)
@@ -1568,14 +1568,14 @@ InitErgmTerm.hamming<-function (nw, arglist, ...) {
 
   ## Process hamming network ##
   if(is.network(a$x)){													# Arg to hamming is a network
-    xm<-as.matrix.network(a$x,matrix.type="edgelist",a$attrname)
+    xm<-as.edgelist(a$x,a$attrname)
   }else if(is.character(a$x)){												# Arg to hamming is the name of an attribute in nw
     xm<-get.network.attribute(nw,a$x)
-    xm<-as.matrix.network(xm,matrix.type="edgelist")
+    xm<-as.edgelist(xm)
   }else if(is.null(a$x)){
-    xm<-as.matrix.network(nw,matrix.type="edgelist")								# Arg to hamming does not exist; uses nw
+    xm<-as.edgelist(nw)								# Arg to hamming does not exist; uses nw
   }else if(is.matrix(a$x) && ncol(a$x)!=2){
-    xm<-as.matrix(network.update(network.copy(nw),a$x,matrix.type="adjacency"),matrix.type="edgelist")
+    xm<-as.edgelist(network.update(network.copy(nw),a$x,matrix.type="adjacency"))
   }else{
     xm<-as.matrix(a$x)													# Arg to hamming is anything else; attempts to coerce
   }
@@ -1598,14 +1598,14 @@ InitErgmTerm.hamming<-function (nw, arglist, ...) {
   } else {
     # Extract dyadic covariate
     if(is.network(a$cov)){
-      covm<-as.matrix.network(a$cov,matrix.type="edgelist",a$attrname)
+      covm<-as.edgelist(a$cov,a$attrname)
       if(length(covm)==2){covm <- matrix(covm,ncol=2)}
       if(length(covm)==3){covm <- matrix(covm,ncol=3)}
       if (NCOL(covm)==2)
         covm <- cbind(covm,1)
     }else if(is.character(a$cov)){
       covm<-get.network.attribute(nw,a$cov)
-      covm<-as.matrix.network(covm,matrix.type="edgelist") # DH:  Not really sure what should happen here
+      covm<-as.edgelist(covm) # DH:  Not really sure what should happen here
     }else{
       covm<-as.matrix(a$cov)
     }
@@ -1654,11 +1654,11 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ...) {
     stop("The 'contrast' argument of the hammingmix term is deprecated.  Use 'base' instead")
   }
   if(is.network(x)){
-    xm<-as.matrix.network(x,matrix.type="edgelist",attrname)
+    xm<-as.edgelist(x,attrname)
     x<-paste(quote(x))
   }else if(is.character(x)){
     xm<-get.network.attribute(nw,x)
-    xm<-as.matrix.network(xm, matrix.type="edgelist")
+    xm<-as.edgelist(xm)
   }else{
     xm<-as.matrix(x)
     x<-paste(quote(x))
@@ -1890,9 +1890,9 @@ InitErgmTerm.localtriangle<-function (nw, arglist, ...) {
                       required = c(TRUE, FALSE))
   x<-a$x;attrname<-a$attrname
   if(is.network(x))
-    xm<-as.matrix.network(x, matrix.type="adjacency", attrname)
+    xm<-as.matrix(x, matrix.type="adjacency", attrname)
   else if(is.character(x))
-    xm<-as.matrix.network(nw, matrix.type="adjacency", x)
+    xm<-as.matrix(nw, matrix.type="adjacency", x)
   else
     xm<-as.matrix(x)
   if(!is.null(attrname))
@@ -2456,7 +2456,7 @@ InitErgmTerm.ostar<-function(nw, arglist, ...) {
 InitErgmTerm.pdegcor<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE) 
 
-  el=as.matrix.network.edgelist(nw)
+  el=as.edgelist(nw)
   deg1<-summary(nw ~ sender(base=0))[el[,1]]
   deg2<-summary(nw ~ receiver(base=0))[el[,2]]
   deg12na<-is.na(deg1)|is.na(deg2)
@@ -2482,7 +2482,7 @@ InitErgmTerm.rdegcor<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE) 
 
   deg=summary(nw ~ sociality(base=0))
-  el=as.matrix.network.edgelist(nw)
+  el=as.edgelist(nw)
   deg1<-deg[el[,1]]
   deg2<-deg[el[,2]]
   alldeg<-c(deg1,deg2)

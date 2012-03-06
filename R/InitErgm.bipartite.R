@@ -159,16 +159,16 @@ InitErgm.bichange<-function (g, model, form=NULL, x=NULL, drop=TRUE, ...)
   if (nargs()==4){drop <- x; x <- NULL}
   #Coerce x to an adjacency matrix
   if(is.null(x)){
-   xm<-as.matrix.network(g,matrix.type="edgelist")
+   xm<-as.edgelist(g)
    x<-"self"
   }else{
    if(is.network(x)){
-    xm<-as.matrix.network(x,matrix.type="edgelist")
+    xm<-as.edgelist(x)
     x<-paste(quote(x))
    }else if(is.character(x)){
-#   xm<-as.matrix.network(g,matrix.type="edgelist",x)
+#   xm<-as.edgelist(g,x)
     xm<-get.network.attribute(g,x)
-    xm<-as.matrix.network(xm,matrix.type="edgelist")
+    xm<-as.edgelist(xm)
    }else{
     xm<-as.matrix(x)
     x<-paste(quote(x))
@@ -395,15 +395,15 @@ InitErgm.bichange<-function (g, model, form=NULL, x=NULL, drop=TRUE, ...)
 ## m$coef.names<-c(m$coef.names, paste("biduration.",x,sep=""))
 #  #Coerce x to an adjacency matrix
 #  if(is.null(x)){
-#    xm<-as.matrix.network(nw,matrix.type="edgelist")
+#    xm<-as.matrix.network(nw)
 #    x<-"self"
 #  }else{
 #    if(is.network(x)){
-#      xm<-as.matrix.network(x,matrix.type="edgelist")
+#      xm<-as.matrix.network(x)
 #      x<-paste(quote(x))
 #    }else if(is.character(x)){
 #      xm<-get.network.attribute(nw,x)
-#      xm<-as.matrix.network(xm,matrix.type="edgelist")
+#      xm<-as.matrix.network(xm)
 #    }else{
 #      xm<-as.matrix(x)
 #      x<-paste(quote(x))
@@ -465,7 +465,7 @@ InitErgm.biendure<-function (g, model, drop=TRUE, ...)
   if (!(nargs() %in% 3))
     stop(paste("biendure() model term expected 0 arguments, got ", 
                                 nargs() - 3, sep = ""), call. = FALSE)
-  xm<-as.matrix.network(g,matrix.type="edgelist")
+  xm<-as.edgelist(g)
   nb1 <- get.network.attribute(g,"bipartite")
   nb2 <- network.size(g)-nb1
   #Check for symmetry
@@ -505,15 +505,15 @@ InitErgm.biduration<-function (nw, m, arglist, ...) {
 # m$coef.names<-c(m$coef.names, paste("biduration.",x,sep=""))
   #Coerce x to an adjacency matrix
   if(is.null(x)){
-    xm<-as.matrix.network(nw,matrix.type="edgelist")
+    xm<-as.edgelist(nw)
     x<-"self"
   }else{
     if(is.network(x)){
-      xm<-as.matrix.network(x,matrix.type="edgelist")
+      xm<-as.edgelist(x)
       x<-paste(quote(x))
     }else if(is.character(x)){
       xm<-get.network.attribute(nw,x)
-      xm<-as.matrix.network(xm,matrix.type="edgelist")
+      xm<-as.edgelist(xm)
     }else{
       xm<-as.matrix(x)
       x<-paste(quote(x))

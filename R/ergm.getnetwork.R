@@ -33,7 +33,7 @@ ergm.getnetwork <- function (form, loopswarning=TRUE) {
   }
   # options(warn=current.warn)
   if (loopswarning) {
-    e <- as.matrix.network.edgelist(nw)
+    e <- as.edgelist(nw)
     if(any(e[,1]==e[,2])) {
       print("Warning:  This network contains loops")
     } else if (has.loops(nw)) {

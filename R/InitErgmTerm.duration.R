@@ -37,7 +37,7 @@ InitErgmTerm.edgecov.ages<-function(nw, arglist, role, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   ### Process the arguments
   if(is.network(a$x))
-    xm<-as.matrix.network(a$x,matrix.type="adjacency",a$attrname)
+    xm<-as.matrix(a$x,matrix.type="adjacency",a$attrname)
   else if(is.character(a$x))
     xm<-get.network.attribute(nw,a$x)
   else

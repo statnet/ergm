@@ -49,7 +49,7 @@ edgelist.ergm.default <- function(x, ...) {
 
 
 edgelist.ergm.network <- function(x, ...) {
-  edgelist.ergm(as.matrix.network.edgelist(x), directed=is.directed(x), ...)
+  edgelist.ergm(as.edgelist(x), directed=is.directed(x), ...)
 }
 
 

@@ -29,7 +29,7 @@ stopifnot(all.equal(diss.mle(y0,y1), coef(fit$dissolution.fit), tolerance=tolera
 cat("Missing data:\n")
 
 y1m<-network.copy(y1)
-y1m[as.matrix(simulate(y0~edges, coef=theta, control=control.simulate(MCMC.burnin=n^2*2)), matrix.type="edgelist")]<-NA
+y1m[as.edgelist(simulate(y0~edges, coef=theta, control=control.simulate(MCMC.burnin=n^2*2)))]<-NA
 
 fit<-stergm(list(y0,y1m), formation=~edges, dissolution=~edges, estimate="CMLE", control=control.stergm(CMLE.control=control.ergm(MCMLE.conv.min.pval=0.8)))
 
