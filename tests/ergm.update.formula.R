@@ -55,9 +55,11 @@ predict.ergm.model<- function(model)  # only for Directed Network
   return(eta)
 }
 
-data(florentine)
+#data(florentine)
+data(g4)
 
-Ergm<-ergm(flobusiness~edges+gwesp(1,fixed=TRUE))
+#Ergm<-ergm(flobusiness~edges+gwesp(1,fixed=TRUE))
+Ergm<-ergm(g4~edges+gwesp(1,fixed=TRUE))
 
 stopifnot(all(diag(predict.ergm.model(Ergm))==0))
 
