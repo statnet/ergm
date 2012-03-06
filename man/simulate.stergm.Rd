@@ -108,13 +108,14 @@ Draw from the distribution of an Separable Temporal Exponential Family Random Gr
   having onset \code{-Inf} and ties present at the end of the simulation
   having terminus \code{+Inf}. Additionally, attributes
   (\code{\link{attr}}, not network attributes) are attached as follows:
-  \describe{
-    \item{formation, dissolution}{Formation and dissolution formulas
-  used in the simulation,
-      respectively.}
-    \item{stats, stats.form, stats.diss}{Network statistics as above.}
-    \item{coef.form, coef.diss}{Coefficients used in the simulation.}
-  }
+
+  \item{formation, dissolution}{Formation and dissolution formulas
+    used in the simulation,
+    respectively.}
+  \item{stats, stats.form, stats.diss}{Network statistics as above.}
+  \item{coef.form, coef.diss}{Coefficients used in the simulation.}
+  \item{start, end}{Start and end times of the simulation.}
+
   
   
 }

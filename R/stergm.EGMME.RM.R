@@ -95,9 +95,14 @@ stergm.EGMME.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss
 
     # Plot if requested.
     if(control$RM.plot.progress){
-      library(lattice)
-      thin <- (nrow(oh)-1)%/%control$RM.max.plot.points + 1
-      print(xyplot(mcmc(oh),panel=function(...){panel.xyplot(...);panel.abline(0,0)},thin=thin,as.table=TRUE))
+      if(!dev.interactive(TRUE)){
+        warning("Progress plot requested on a non-interactive graphics device. Ignoring.")
+        control$RM.plot.progress <- FALSE # So that we don't print a warning every step.
+      }else{
+        library(lattice)
+        thin <- (nrow(oh)-1)%/%control$RM.max.plot.points + 1
+        print(xyplot(mcmc(oh),panel=function(...){panel.xyplot(...);panel.abline(0,0)},thin=thin,as.table=TRUE))
+      }
     }
     
     # Extract and return the "state".
@@ -110,7 +115,7 @@ stergm.EGMME.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss
 
   eval.optpars <- function(test.G,window,update.jitter){
 
-     ## Regress statistics on parameters.
+    ## Regress statistics on parameters.
     # This uses GLS to account for serial correlation in statistics,
     # since we want p-values. First row is the intercept.
 
@@ -136,7 +141,12 @@ stergm.EGMME.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss
              },simplify=FALSE)
     
     bad.fits <- sapply(h.fits, inherits, "try-error")
-
+    bad.fits <-     # Also, ignore fits where the statistics are too concentrated.    
+      bad.fits | (apply(ys,2,function(y){
+        freqs <- table(y)
+        sum(freqs[-which.max(freqs)])
+      })<nrow(h)/2)
+    
     ## Grab the coefficients, t-values, and residuals.
     
     h.fit <- h.pvals <- matrix(NA, nrow=p.free+1,ncol=q)
@@ -153,21 +163,15 @@ stergm.EGMME.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss
     ## Compute the variances and the statistic weights.
     
     v <- matrix(NA, q,q)
-    v[!bad.fits,!bad.fits] <- crossprod(h.resid[,!bad.fits])/nrow(h.resid)
+    v[!bad.fits,!bad.fits] <- crossprod(h.resid[,!bad.fits,drop=FALSE])/nrow(h.resid)
     v[is.na(v)] <- 0
 
     w <- robust.inverse(v)
     
     ## Adjust the number of time steps between jumps.
+    edge.ages <- state$nw%n%"time"-ergm.el.lasttoggle(state$nw)[,3]+1
     
-    stat.ac <- rep(NA,q)
-    inds <- max(NROW(h)-control$RM.runlength+1,1):NROW(h)
-    stat.ac[!bad.fits] <- diag(as.matrix(autocorr(mcmc(h.resid[inds,!bad.fits,drop=FALSE]),lags=1)[1,,]))
-    if(verbose>1){
-      cat("Lag-1 autocorrelation:\n")
-      print(stat.ac)
-    }
-    control$RM.interval<-max(round(control$RM.interval*(1+sqrt(max(stat.ac,0,na.rm=TRUE))-sqrt(control$RM.target.ac))),control$RM.min.interval)
+    control$RM.interval<- max(control$RM.min.interval, if(length(edge.ages)>0) control$RM.interval.mul*mean(edge.ages))
     if(verbose>1){
       cat("New interval:",control$RM.interval ,"\n")
     }
@@ -177,7 +181,7 @@ stergm.EGMME.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss
     ineffectual.pars <- !apply(G.signif,2,any)
 
     if(any(ineffectual.pars)){
-      cat("Parameters ",paste(p.names[!offsets][ineffectual.pars],sep=", ")," do not have a detectable effect. Shifting jitter to them.\n" ,sep="")
+      cat("Parameters",paste.and(p.names[!offsets][ineffectual.pars]),"do not have a detectable effect. Shifting jitter to them.\n" )
       control$jitter[!offsets] <- control$jitter[!offsets] * (ineffectual.pars+1/2) / mean(control$jitter[!offsets] * (ineffectual.pars+1/2))
     }
 
@@ -196,10 +200,14 @@ stergm.EGMME.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss
       print(state$eta.form)
       cat("Dissolution:\n")
       print(state$eta.diss)
-      cat("Target differences:\n")
+      cat("Target differences (most recent):\n")
       print(state$nw.diff)
-      cat("Approximate objective function:\n")
+      cat("Target differences (last run):\n")
+      print(colMeans(oh.last[,-(1:p),drop=FALSE]))
+      cat("Approximate objective function (most recent):\n")
       print(mahalanobis(oh[nrow(oh),-(1:p),drop=FALSE],0,cov=w,inverted=TRUE))
+      cat("Approximate objective function (last run):\n")
+      print(mahalanobis(colMeans(oh.last[,-(1:p),drop=FALSE]),0,cov=w,inverted=TRUE))
       cat("Estimated gradient:\n")
       print(G)
       cat("Estimated covariance of statistics:\n")
@@ -208,10 +216,11 @@ stergm.EGMME.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss
 
     
     control$WinvGradient <- matrix(0, nrow=p, ncol=q)
-    #control$WinvGradient[!offsets,] <- robust.inverse(G) %*% chol(w,pivot=TRUE) * control$gain
-    control$WinvGradient[!offsets,] <- robust.inverse(G) %*% w
-    wscale <- sqrt(mean(diag(control$WinvGradient[!offsets,,drop=FALSE]%*%v%*%t(control$WinvGradient[!offsets,,drop=FALSE]))))
-    control$WinvGradient[!offsets,] <- control$WinvGradient[!offsets,]  * control$gain / if(wscale==0) 1 else wscale
+    control$WinvGradient[!offsets,] <- robust.inverse(G) %*% suppressWarnings(chol(w,pivot=TRUE)) * control$gain * min(control$RM.gain.max.dist.boost, sqrt(mahalanobis(colMeans(h[,-(1:p),drop=FALSE]),0,cov=robust.inverse(cov(h[,-(1:p),drop=FALSE])),inverted=TRUE)))
+    #control$WinvGradient[!offsets,] <- robust.inverse(G) %*% w / mean(diag(w))
+    #wscale <- sqrt(mean(diag(control$WinvGradient[!offsets,,drop=FALSE]%*%v%*%t(control$WinvGradient[!offsets,,drop=FALSE])))) / sqrt(mahalanobis(colMeans(oh.last[,-(1:p),drop=FALSE]),0,cov=w,inverted=TRUE))
+    #wscale <-  #/ sqrt(mahalanobis(colMeans(oh.last[,-(1:p),drop=FALSE]),0,cov=w,inverted=TRUE))
+    #control$WinvGradient[!offsets,] <- control$WinvGradient[!offsets,] * wscale
     control$dejitter <- matrix(0, nrow=p, ncol=p)
     control$dejitter[!offsets,!offsets] <- control$WinvGradient[!offsets,,drop=FALSE]%*%G
     
@@ -239,7 +248,7 @@ stergm.EGMME.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss
          G=G, w=w, v=v, oh.fit=h.fit, ineffectual.pars=ineffectual.pars, bad.fits=bad.fits)
   }
 
-  backoff.test <- function(state, state.bak){
+  backoff.test <- function(state, state.bak, threshold, print.full=FALSE){
     if(is.null(state$oh.last) || is.null(state.bak$oh.last)) return(state)
     
     stats.last <- state$oh.last
@@ -251,8 +260,8 @@ stergm.EGMME.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss
     m.last3 <- mahalanobis(stats.last3, 0, w, inverted=TRUE)
 
     if(verbose) cat("Scaled objective function",mean(m.last3),"->",mean(m.last),"\n")
-    if(mean(m.last)/mean(m.last3)>control$RM.phase1.backoff.rat^(if(is.null(state.bak$backoffs)) 1 else state.bak$backoffs)){
-      cat("Objective function got significantly worse. Backing off.\n")
+    if(mean(m.last)/mean(m.last3)>threshold^(if(is.null(state.bak$backoffs)) 1 else state.bak$backoffs)){
+      if(print.full || verbose) cat("Objective function got significantly worse. Backing off.\n") else cat("!")
       state.bak$backoffs <- if(is.null(state.bak$backoffs)) 1 else state.bak$backoffs+1
       state.bak
     }else state
@@ -276,7 +285,7 @@ stergm.EGMME.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss
     if(verbose) cat("Most recent jump size relative to average is",last.jump.size/mean(jump.sizes),", with average being",mean(jump.sizes),"\n")
     
     if(last.jump.size>mean(jump.sizes)*control$RM.phase2.maxreljump){
-      cat("Jumps accelerating too fast. Truncating.\n")
+      if(verbose) cat("Jumps accelerating too fast. Truncating.\n") else cat("?")
       par <- c(state.bak$eta.form,state.bak$eta.diss)[!offsets] + last.jump/(last.jump.size/(mean(jump.sizes)*control$RM.phase2.maxreljump))
       if(p.form.free) state$eta.form[!model.form$offset] <- par[seq_len(p.form.free)]
       if(p.diss.free) state$eta.diss[!model.diss$offset] <- par[p.form.free+seq_len(p.diss.free)]
@@ -342,15 +351,20 @@ stergm.EGMME.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss
   control$jitter<-rep(0,p)
   control$jitter[!offsets]<- control$RM.phase1.jitter
 
-  control$RM.interval <- control$RM.init.interval
-
+  ## Adjust the number of time steps between jumps using burn-in.
+  edge.ages <- state$nw%n%"time"-ergm.el.lasttoggle(state$nw)[,3]+1
+  
+  control$RM.interval<- max(control$RM.min.interval, if(length(edge.ages)>0) control$RM.interval.mul*mean(edge.ages))
+  if(verbose>1){
+    cat("New interval:",control$RM.interval ,"\n")
+  }  
   
   for(try in 1:control$RM.phase1.tries){
-    if(verbose) cat('======== Attempt ',try,' ========\n',sep="") else cat('Attempt',try,'\n')
+    if(verbose) cat('======== Attempt ',try,' ========\n',sep="") else cat('Attempt',try,':\n')
     state <- do.optimization(state, control)
 
     # Perform backoff test and update backup
-    state <- backoff.test(state, state.bak)
+    state <- backoff.test(state, state.bak, control$RM.phase1.backoff.rat, TRUE)
     state.bak <- state
     
     control$gain <- control$RM.init.gain
@@ -366,12 +380,13 @@ stergm.EGMME.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss
   ###### Main optimization run. ######
 
   cat('========  Phase 2: Find and refine the estimate. ========\n',sep="")
-
-  stepdown.count <- control$RM.stepdown.ct
   
   for(subphase in 1:control$RM.phase2.levels){
     if(verbose) cat('======== Subphase ',subphase,' ========\n',sep="") else cat('Subphase 2.',subphase,' ',sep="")
+    
     control$gain <- control$RM.init.gain*control$RM.gain.decay^(subphase-1)
+    stepdown.count <- control$RM.stepdown.ct.base + round(control$RM.stepdown.ct.subphase*subphase)
+
     for(regain in 1:control$RM.phase2.repeats){
       if(verbose==0) cat(".")
       state <-do.optimization(state, control)
@@ -385,7 +400,7 @@ stergm.EGMME.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss
       }
       
       # Perform backoff test and update backup
-      ## state <- backoff.test(state, state.bak)
+      state <- backoff.test(state, state.bak, control$RM.phase2.backoff.rat, FALSE)
       
       out <- eval.optpars(FALSE,TRUE,TRUE)
       control <- out$control
@@ -409,40 +424,35 @@ stergm.EGMME.RM <- function(theta.form0, theta.diss0, nw, model.form, model.diss
       state <- accel.brake(state,state.bak)
       state.bak <- state
 
-      ## If the optimization appears to be "going somewhere", keep
+      ## If the optimization appears to be actively reducing the objective function, keep
       ## going, without reducing the gain.
 
-      ys <- oh[,(1:p),drop=FALSE][,!offsets,drop=FALSE]
-      x <- 1:NROW(oh)
-      gls.subset <- round(seq(from=NROW(oh), by=-control$RM.stepdown.thin, length.out=control$RM.stepdown.runs*control$RM.runlength/control$RM.stepdown.thin))
-      gls.subset <- gls.subset[gls.subset>=1]
-      eta.trend.ps <- try(apply(ys,2,
-                                function(y)
-                                summary(gls(y~x,correlation=corARMA(p=2),
-                                            subset=gls.subset))$tTable[2,4]), silent=TRUE)
-      if(!inherits(eta.trend.ps, "try-error")){
-        names(eta.trend.ps)<-c(paste("f.(",model.form$coef.names,")",sep=""),paste("d.(",model.diss$coef.names,")",sep=""))[!offsets]
-        eta.trend.p <- pchisq(-2 * sum(log(eta.trend.ps)),length(eta.trend.ps)*2,lower.tail=FALSE)
-        if(verbose>1){
-          cat("Parameter trend p-values:\n")
-          print(eta.trend.ps)
-        }else if(verbose){
-          cat("Parameter trend combined p-value:",eta.trend.p,". ")
+      x <- unique(round(seq(from=1,to=NROW(oh),length.out=control$RM.stepdown.maxn)))
+      ys <- oh[x,-(1:p),drop=FALSE]
+      ys <- mahalanobis(ys,0,robust.inverse(cov(ys)),inverted=TRUE)
+      
+      fit <- try(summary(gls(ys~x,correlation=corAR1()))$tTable[2,c(1,4)])
+      if(!inherits(fit, "try-error")){
+        p.val <- fit[2]/2 # We are interested in one-sided decline here.
+        est <- fit[1]
+        if(est>0) p.val <- 1-p.val # If it's actually getting worse one-sided p-value is thus.
+        if(verbose){
+          cat("Trend in the objective function p-value:",p.val,". ")
         }
-        if(eta.trend.p>control$RM.stepdown.p){
+        if(p.val>control$RM.stepdown.p){
           stepdown.count <- stepdown.count - 1
           if(stepdown.count<=0){
-            if(verbose) cat("No trend in parameters detected. Reducing gain.\n")
-            stepdown.count <- control$RM.stepdown.ct
+            if(verbose) cat("No trend in objective function detected. Reducing gain.\n")
+            stepdown.count <- control$RM.stepdown.ct.base + round((subphase+1)*control$RM.stepdown.ct.subphase)
             if(!verbose) cat("\n")
             break
-          }else if(verbose) cat("No trend in parameters detected.",stepdown.count,"to go.\n")
+          }else if(verbose) cat("No trend in objective function detected.",stepdown.count,"to go.\n")
         }else{
-            stepdown.count <- control$RM.stepdown.ct
-            if(verbose) cat("Trend in parameters detected. Continuing with current gain. Resetting counter.\n")
+            stepdown.count <- control$RM.stepdown.ct.base + round(subphase*control$RM.stepdown.ct.subphase)
+            if(verbose) cat("Trend in objective function detected. Resetting counter.\n")
         }
       }else{
-        if(verbose) cat("Problem testing trend in parameters detected. Continuing with current gain.\n")
+        if(verbose) cat("Problem testing trend in objective function detected. Continuing with current gain.\n")
       }
     }
   }

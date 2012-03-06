@@ -18,6 +18,7 @@ coef.diss <- c(2.944439)
 dynfit<-stergm(g1,formation=~edges+degree(1),dissolution=~offset(edges), targets="formation", estimate="EGMME", offset.coef.diss=log(.95/.05),target.stats=target.stats,verbose=TRUE,control=control.stergm(init.form=c(-log(.95/.05),0)))
 
 print(summary(dynfit))
+mcmc.diagnostics(dynfit)
 
 # Simulate from the fit.
 dynsim<-simulate(dynfit,time.slices=1000,monitor="all",verbose=TRUE)
@@ -44,26 +45,32 @@ print(colMeans(dynsim)[2]/colMeans(dynsim)[1])
 dynfit<-stergm(g1,formation=~offset(edges)+offset(degree(1)),dissolution=~edges, targets="dissolution", estimate="EGMME", offset.coef.form=coef.form,target.stats=target.stats[1],control=control.stergm(init.diss=1))
 
 print(summary(dynfit))
+mcmc.diagnostics(dynfit)
 
 # Fix formation edges and dissolution, fit degree(1) with edges as targets.
 
 dynfit<-stergm(g1,formation=~offset(edges)+degree(1),dissolution=~offset(edges), targets=~edges, estimate="EGMME", offset.coef.diss=coef.diss,target.stats=target.stats[1],control=control.stergm(init.form=c(coef.form[1],0)))
 
 print(summary(dynfit))
+mcmc.diagnostics(dynfit)
 
 # Fix formation edges and dissolution, fit degree(1) with edges and degree(1) as target (overspecified model).
 
 dynfit<-stergm(g1,formation=~offset(edges)+degree(1),dissolution=~offset(edges), targets="formation", estimate="EGMME", offset.coef.diss=coef.diss,target.stats=target.stats,control=control.stergm(init.form=c(coef.form[1],0)))
 
 print(summary(dynfit))
+mcmc.diagnostics(dynfit)
 
 # Fix formation edges, fit degree(1) formation and edges dissolution with edges and degree(1) as target.
 
 dynfit<-stergm(g1,formation=~offset(edges)+degree(1),dissolution=~edges, targets="formation", estimate="EGMME", target.stats=target.stats,control=control.stergm(init.form=c(coef.form[1],0),init.diss=1))
+print(summary(dynfit))
+mcmc.diagnostics(dynfit)
 
 # All parameters free, edges, degree(1), and edge.ages as target.
 # I am not 100% sure the target statistic is correct.
 
 dynfit<-stergm(g1,formation=~edges+degree(1),dissolution=~edges, targets=~edges+degree(1)+edge.ages, estimate="EGMME", target.stats=c(target.stats,target.stats[1]*20),control=control.stergm(init.form=c(-1,0),init.diss=1))
 
-summary(dynfit)
+print(summary(dynfit))
+mcmc.diagnostics(dynfit)

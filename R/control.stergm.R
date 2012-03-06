@@ -115,34 +115,35 @@ control.stergm<-function(init.form=NULL,
                          
                          # Initial gain --- if the process initially goes
                          # crazy beyond recovery, lower this.
-                         RM.init.gain=0.01,                         
+                         RM.init.gain=0.1,
+                         RM.gain.decay=0.8, # Gain decay factor.
+                         RM.gain.max.dist.boost=8, # Gain is boosted by the square root of the average mahalanobis distance between observed and simulated, up to this much.
                          
                          RM.runlength=25, # Number of jumps per .C call.
 
                          # Interval --- number of steps between
                          # successive jumps --- is computed
                          # adaptively.
-                         RM.target.ac=0.5, # Target serial autocorrelation.
+                         RM.interval.mul=2, # Set the mean duration of extant ties this to be the interval.
                          RM.init.interval=500, # Starting interval.
                          RM.min.interval=20, # The lowest it can go.
 
                         
                          RM.phase1.tries=20, # Number of iterations of trying to find a reasonable configuration. FIXME: nothing happens if it's exceeded.
                          RM.phase1.jitter=0.1, # Initial jitter sd of each parameter..
-                         RM.phase1.max.p=0.01, # P-value that a gradient estimate must obtain before it's accepted (since sign is what's important).
-                         RM.phase1.backoff.rat=1.05, # If a run produces this relative increase in the objective function, it will be backed off.
-                         
-                         RM.phase2.levels=20, # Number of gain levels to go through.
+                         RM.phase1.max.p=0.001, # P-value that a gradient estimate must obtain before it's accepted (since sign is what's important).
+                         RM.phase1.backoff.rat=1.05, # If a run produces this relative increase in the objective function, it will be backed off.                         
+                         RM.phase2.levels=10, # Number of gain levels to go through.
                          RM.phase2.repeats=400, # Maximum number of times gain a subphase can be repeated if the optimization is "going somewhere".
-                         RM.stepdown.runs=40, # Number of subphases to use to see whether the optimization is going somewhere.
-                         RM.stepdown.thin=10, # Thin the draws for trend detection.
-                         RM.stepdown.p=0.01, # If the combined p-value for the trend in the parameters is less than this, reset the subphase counter.
-                         RM.stepdown.ct=5, # Number of times in a row the p-value must be above RM.stepdown.p to reduce gain.
-                         RM.gain.decay=0.7, # Gain decay factor.
-                         RM.keep.oh=0.75, # Fraction of optimization history that is used for gradient and covariance calculation.
+                         RM.stepdown.maxn=100, # Thin the draws for trend detection to get this many.
+                         RM.stepdown.p=0.05, # If the combined p-value for the trend in the parameters is less than this, reset the subphase counter.
+                         RM.stepdown.ct.base=5, # Baseline number of times in a row the p-value must be above RM.stepdown.p to reduce gain.
+                         RM.stepdown.ct.subphase=1, # Number of times added to the baseline per subphase.
+                         RM.phase2.backoff.rat=1.1, # If a run produces this relative increase in the objective function, it will be backed off.
+                         RM.keep.oh=0.5, # Fraction of optimization history that is used for gradient and covariance calculation.
                          RM.phase2.jitter.mul=0.2, # The jitter standard deviation of each parameter is this times its standard deviation sans jitter.
-                         RM.phase2.maxreljump=16, # Maximum jump per run, relative to the magnitude of other jumps in the history.
-                         RM.phase2.refine=TRUE, # Whether to use linear interpolation to refine the estimate after every run.
+                         RM.phase2.maxreljump=4, # Maximum jump per run, relative to the magnitude of other jumps in the history.
+                         RM.phase2.refine=FALSE, # Whether to use linear interpolation to refine the estimate after every run. More trouble than it's worth.
                          
 
                          

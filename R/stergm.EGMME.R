@@ -185,7 +185,7 @@ stergm.EGMME <- function(nw, formation, dissolution,  offset.coef.form, offset.c
                  stop("Method ", control$EGMME.main.method, " is not implemented.")
                 )
 
-  out <- list(network = nw, formation = formation, dissolution = dissolution, targets = targets, target.stats=target.stats, estimate=estimate, covar = Cout$covar, opt.history=Cout$opt.history, sample=Cout$sample, sample.obs=NULL, control=control, reference = "Bernoulli",
+  out <- list(network = nw, formation = formation, dissolution = dissolution, targets = targets, target.stats=model.mon$target.stats, estimate=estimate, covar = Cout$covar, opt.history=Cout$opt.history, sample=Cout$sample, sample.obs=NULL, control=control, reference = "Bernoulli",
               formation.fit = with(Cout, list(network=nw, formula=formation, coef = eta.form, covar=covar.form, etamap = model.form$etamap, offset = model.form$etamap$offsettheta, constraints=~., estimate=estimate, control=control, reference = "Bernoulli")),
               dissolution.fit = with(Cout, list(network=nw, formula=dissolution, coef = eta.diss, covar=covar.diss, etamap = model.diss$etamap, offset = model.diss$etamap$offsettheta, constraints=~., estimate=estimate, control=control, reference = "Bernoulli"))
               )

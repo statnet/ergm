@@ -289,6 +289,7 @@
 \alias{ergm.curved.statsmatrix}
 \alias{ergm.degeneracy}
 \alias{ergm.design}
+\alias{ergm.el.lasttoggle}
 \alias{ergm.estimate}
 \alias{ergm.eta}
 \alias{ergm.etagrad}

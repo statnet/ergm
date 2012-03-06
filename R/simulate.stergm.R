@@ -190,6 +190,8 @@ simulate.network <- function(object, nsim=1, seed=NULL,
                                 stats = stats,
                                 coef.form=coef.form,
                                 coef.diss=coef.diss,
+                                start = nw%n%"time" + 0,
+                                end = nw%n%"time" + time.slices,
                                 toggles = z$changed))
       nwd
     }else

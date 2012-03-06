@@ -6,86 +6,57 @@
 
 }
 \usage{
- control.stergm (init.form=NULL,
+          control.stergm(init.form=NULL,
                          init.diss=NULL,
                          init.method=NULL,
-
                          MCMC.prop.weights.form="default",MCMC.prop.args.form=NULL,
                          MCMC.prop.weights.diss="default",MCMC.prop.args.diss=NULL,
                          MCMC.init.maxedges=20000,
                          MCMC.init.maxchanges=20000,
                          MCMC.packagenames="ergm",
-                         # Number of proposals within each time step.
                          MCMC.burnin=1000,
-
-                         # The reason MCMC.interval=MCMC.burnin is
-                         # that both represent the number of MH
-                         # proposals between approximately independent
-                         # draws.
                          CMLE.control=NULL,
                          CMLE.control.form=control.ergm(init=init.form, MCMC.prop.weights=MCMC.prop.weights.form, MCMC.prop.args=MCMC.prop.args.form, MCMC.init.maxedges=MCMC.init.maxedges, MCMC.packagenames=MCMC.packagenames, MCMC.interval=MCMC.burnin, parallel=parallel, parallel.type=parallel.type, parallel.version.check=parallel.version.check),
                          CMLE.control.diss=control.ergm(init=init.diss, MCMC.prop.weights=MCMC.prop.weights.diss, MCMC.prop.args=MCMC.prop.args.diss, MCMC.init.maxedges=MCMC.init.maxedges, MCMC.packagenames=MCMC.packagenames, MCMC.interval=MCMC.burnin, parallel=parallel, parallel.type=parallel.type, parallel.version.check=parallel.version.check),
-
                          EGMME.main.method=c("Robbins-Monro"),
-                         
                          SAN.maxit=10,
                          SAN.control=control.san(coef=init.form,
                            SAN.prop.weights=MCMC.prop.weights.form,
                            SAN.prop.args=MCMC.prop.args.form,
                            SAN.init.maxedges=MCMC.init.maxedges,
-                           
                            SAN.burnin=MCMC.burnin,
                            SAN.packagenames=MCMC.packagenames,
-                           
                            parallel=parallel,
                            parallel.type=parallel.type,
                            parallel.version.check=parallel.version.check),
-
                          RM.burnin=1000,
-
-                         # Plot the progress of the optimization.
                          RM.plot.progress=FALSE,
                          RM.max.plot.points=400,
-                         
-                         # Initial gain --- if the process initially goes
-                         # crazy beyond recovery, lower this.
-                         RM.init.gain=0.01,                         
-                         
-                         RM.runlength=25, # Number of jumps per .C call.
-
-                         # Interval --- number of steps between
-                         # successive jumps --- is computed
-                         # adaptively.
-                         RM.target.ac=0.5, # Target serial autocorrelation.
-                         RM.init.interval=500, # Starting interval.
-                         RM.min.interval=20, # The lowest it can go.
-
-                        
-                         RM.phase1.tries=20, # Number of iterations of trying to find a reasonable configuration. FIXME: nothing happens if it's exceeded.
-                         RM.phase1.jitter=0.1, # Initial jitter sd of each parameter..
-                         RM.phase1.max.p=0.01, # P-value that a gradient estimate must obtain before it's accepted (since sign is what's important).
-                         RM.phase1.backoff.rat=1.05, # If a run produces this relative increase in the objective function, it will be backed off.
-                         
-                         RM.phase2.levels=20, # Number of gain levels to go through.
-                         RM.phase2.repeats=400, # Maximum number of times gain a subphase can be repeated if the optimization is "going somewhere".
-                         RM.stepdown.runs=40, # Number of subphases to use to see whether the optimization is going somewhere.
-                         RM.stepdown.thin=10, # Thin the draws for trend detection.
-                         RM.stepdown.p=0.01, # If the combined p-value for the trend in the parameters is less than this, reset the subphase counter.
-                         RM.stepdown.ct=5, # Number of times in a row the p-value must be above RM.stepdown.p to reduce gain.
-                         RM.gain.decay=0.7, # Gain decay factor.
-                         RM.keep.oh=0.75, # Fraction of optimization history that is used for gradient and covariance calculation.
-                         RM.phase2.jitter.mul=0.2, # The jitter standard deviation of each parameter is this times its standard deviation sans jitter.
-                         RM.phase2.maxreljump=16, # Maximum jump per run, relative to the magnitude of other jumps in the history.
-                         RM.phase2.refine=TRUE, # Whether to use linear interpolation to refine the estimate after every run.
-                         
-
-                         
-
-                         RM.refine=c("linear","mean","none"), # Method, if any, used to refine the point estimate: linear interpolation, average, and none for the last value.
-                         
-                         RM.se=TRUE, # Whether to run Phase 3 to compute the standard errors.
-                         RM.phase3.samplesize=1000, # This times the interval is the number of steps to estimate the standard errors.
-
+                         RM.init.gain=0.1,
+                         RM.gain.decay=0.8,
+                         RM.gain.max.dist.boost=8,
+                         RM.runlength=25,
+                         RM.interval.mul=2,
+                         RM.init.interval=500, 
+                         RM.min.interval=20, 
+                         RM.phase1.tries=20, 
+                         RM.phase1.jitter=0.1, 
+                         RM.phase1.max.p=0.001, 
+                         RM.phase1.backoff.rat=1.05, 
+                         RM.phase2.levels=10, 
+                         RM.phase2.repeats=400,
+                         RM.stepdown.maxn=100,
+                         RM.stepdown.p=0.05,
+                         RM.stepdown.ct.base=5,
+                         RM.stepdown.ct.subphase=1,
+                         RM.phase2.backoff.rat=1.1, 
+                         RM.keep.oh=0.5, 
+                         RM.phase2.jitter.mul=0.2, 
+                         RM.phase2.maxreljump=4, 
+                         RM.phase2.refine=FALSE, 
+                         RM.refine=c("linear","mean","none"), 
+                         RM.se=TRUE, 
+                         RM.phase3.samplesize=1000, 
                          seed=NULL,
                          parallel=0,
                          parallel.type=NULL,
@@ -179,12 +150,17 @@
   \item{RM.init.gain}{Initial gain, the multiplier for the parameter update size.  If the process initially goes
     crazy beyond recovery, lower this value.
   }
+  \item{RM.gain.decay}{Gain decay factor.
+  }
+  \item{RM.gain.max.dist.boost}{
+    Gain is boosted or shrunk by the square root of the average mahalanobis
+    distance between observed and simulated, up to this much. This
+    speeds up convergence once the process finds the right values.
+    }
   \item{RM.runlength}{Number of parameter trials and updates per C run.
   }
-  \item{RM.target.ac}{Target serial autocorrelation. The number of time
-    steps between updates of the parameters will be increased and
-    decreased to target this value.
-  }
+  \item{RM.interval.mul}{The number of time steps between updates of the
+    parameters is set to be this times the mean duration of extant ties.}
   \item{RM.init.interval}{Initial number of time steps between updates
     of the parameters.
   }
@@ -202,25 +178,23 @@
     obtain before it is accepted (since sign is what is important).
   }
 
-  \item{RM.phase1.backoff.rat}{If the run produces this 
+  \item{RM.phase1.backoff.rat, RM.phase2.backoff.rat}{If the run produces this 
     relative increase in the approximate objective function, it will be backed off.
   }
   \item{RM.phase2.levels}{Number of gain levels (subphases) to go through.
   }
-  \item{RM.phase2.repeats, RM.stepdown.runs, RM.stepdown.thin,
-    RM.stepdown.p, RM.stepdown.ct}{A gain level may be repeated multiple times (up to
+  \item{RM.phase2.repeats, RM.stepdown.maxn,
+    RM.stepdown.p, RM.stepdown.ct.base, RM.stepdown.ct.subphase}{A gain level may be repeated multiple times (up to
     \code{RM.phase2.repeats}) if the optimizer detects that the
-    parameters are "going somewhere": moving in a clear direction, so
-    slowing them down at that point is counterproductive. To detect this
-    trend, it looks at parameter values up to \code{RM.phase2.stepdown.runs} back, thinning them
-    by \code{RM.stepdown.thin}, and fitting a GLS model for a linear trend, with AR(2)
-    autocorrelation for each variable, combining the p-values. If this
-    combined p-value for the trend in at least one parameter is greater
-    than \code{RM.stepdown.p} \code{RM.stepdown.ct} runs in a row, the
+    objective function is improving, so slowing down the parameters at that point is counterproductive. To detect this
+    it looks at the the window controlled by \code{RM.keep.oh}, thinning
+    objective function values
+    to get \code{RM.stepdown.maxn}, and fitting a GLS model for a linear trend, with AR(2)
+    autocorrelation. If there is a negative trend is greater than
+    \code{RM.stepdown.p} \code{RM.stepdown.ct.base +
+    RM.stepdown.ct.subphase * subphase} runs in a row, the
     gain level (subphase) is allowed to end. Otherwise, the process
     continues at the same gain level.
-  }
-  \item{RM.gain.decay}{Gain decay factor.
   }
   \item{RM.keep.oh}{Fraction of optimization history
     used for gradient and covariance estimation.
