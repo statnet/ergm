@@ -9,11 +9,11 @@
 *****************/
 
 CHANGESTAT_FN(d_b1degree_edgecov) { 
-  int i, j, k, echange, n1, n2, edgecovval, min, max, mid, nedges;
+  int i, j, k, echange, n1, /* n2, */ edgecovval, min, max, mid, nedges;
   Vertex tail1, head1, tail2, head2, b1deg, d;
 
   n1 = BIPARTITE;
-  n2 = N_NODES - BIPARTITE;
+  /* n2 = N_NODES - BIPARTITE; */
   nedges = (N_INPUT_PARAMS - N_CHANGE_STATS)/2;
   for (i=0; i < N_CHANGE_STATS; i++) 
     CHANGE_STAT[i] = 0.0;  
@@ -76,11 +76,11 @@ CHANGESTAT_FN(d_b1degree_edgecov) {
 *****************/
 
 CHANGESTAT_FN(d_b2degree_edgecov) { 
-  int i, j, k, echange, n1, n2, edgecovval, min, max, mid, nedges;
+  int i, j, k, echange, n1, /* n2, */ edgecovval, min, max, mid, nedges;
   Vertex tail1, head1, tail2, head2, b2deg, d;
 
   n1 = BIPARTITE;
-  n2 = N_NODES - BIPARTITE;
+  /* n2 = N_NODES - BIPARTITE; */
   nedges = (N_INPUT_PARAMS - N_CHANGE_STATS)/2;  
   for (i=0; i < N_CHANGE_STATS; i++)
     CHANGE_STAT[i] = 0.0;  
@@ -194,11 +194,11 @@ CHANGESTAT_FN(d_b2mindegree) {
  changestat: d_b1mindegree_edgecov
 *****************/
 CHANGESTAT_FN(d_b1mindegree_edgecov) { 
-  int i, j, k, echange, n1, n2, edgecovval, min, max, mid, nedges;
+  int i, j, k, echange, n1, /* n2, */ edgecovval, min, max, mid, nedges;
   Vertex tail1, head1, tail2, head2, b1deg, d;
 
   n1 = BIPARTITE;
-  n2 = N_NODES - BIPARTITE;
+  /* n2 = N_NODES - BIPARTITE; */
   nedges = (N_INPUT_PARAMS - N_CHANGE_STATS)/2;
   for (i=0; i < N_CHANGE_STATS; i++) 
     CHANGE_STAT[i] = 0.0;  
@@ -262,11 +262,11 @@ CHANGESTAT_FN(d_b1mindegree_edgecov) {
 *****************/
 
 CHANGESTAT_FN(d_b2mindegree_edgecov) { 
-  int i, j, k, echange, n1, n2, edgecovval, min, max, mid, nedges;
+  int i, j, k, echange, n1, /* n2, */ edgecovval, min, max, mid, nedges;
   Vertex tail1, head1, tail2, head2, b2deg, d;
 
   n1 = BIPARTITE;
-  n2 = N_NODES - BIPARTITE;
+  /* n2 = N_NODES - BIPARTITE; */
   nedges = (N_INPUT_PARAMS - N_CHANGE_STATS)/2;  
   for (i=0; i < N_CHANGE_STATS; i++)
     CHANGE_STAT[i] = 0.0;  

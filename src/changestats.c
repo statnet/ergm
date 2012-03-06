@@ -644,7 +644,7 @@ D_CHANGESTAT_FN(d_b2twostar) {
 D_CHANGESTAT_FN(d_balance) { 
   int i, edgeflag, a, b, c, d, e, edgecount, t300, 
   t210, t120C, t120U, t120D, t201, t030C, t030T, t111U, 
-  t111D, t021C, t021U, t021D, t102, t012, t003;
+  t111D, t021C, t021U, t021D, t102, t012; /* , t003; */
   Vertex node3, tail, head;
 
 
@@ -852,7 +852,7 @@ D_CHANGESTAT_FN(d_balance) {
       } else 
       t102 = t102 + (N_NODES - 2);  
       
-      t003 = (t102+t201+t300);
+      /* t003 = (t102+t201+t300); */
       b = t102 + t300; 
       CHANGE_STAT[0] += edgeflag ? -(double)b : (double)b;
       

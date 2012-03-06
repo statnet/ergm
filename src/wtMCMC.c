@@ -29,13 +29,13 @@ void WtMCMC_wrapper(int *dnumnets, int *nedges,
 		    int *status){
   int directed_flag;
   Vertex n_nodes, nmax, bip;
-  Edge n_networks;
+  /* Edge n_networks; */
   WtNetwork nw[1];
   WtModel *m;
   WtMHproposal MH;
   
   n_nodes = (Vertex)*dn; 
-  n_networks = (Edge)*dnumnets; 
+  /* n_networks = (Edge)*dnumnets;  */
   nmax = (Edge)abs(*maxedges); 
   bip = (Vertex)*bipartite; 
   

@@ -8,11 +8,10 @@
 D_CHANGESTAT_FN(d_b1kappa){
   int i, j, echange=0;
   double nedges, change, iar0, far0;
-  Vertex tail, head, taild, iak2, fak2, nnodes, *od;
+  Vertex tail, head, taild, iak2, fak2, *od;
   Vertex nb1;
 
   od=OUT_DEG;
-  nnodes = N_NODES;
   nb1 = BIPARTITE;
   change = 0.0;
   FOR_EACH_TOGGLE(i) {
@@ -116,14 +115,14 @@ D_CHANGESTAT_FN(d_biduration)
 {
   Vertex tail, head, tailtail, tailhead;
   int i, k, nprevedge, edgeflag, discord, lookmore;
-  Vertex nb2, nb1;
+  Vertex /* nb2, */ nb1;
   double change=0.0;
 
   nprevedge = (int)((INPUT_PARAM[0]));
   nb1 = (int)((INPUT_PARAM[1]));
   // nb1 = BIPARTITE;
   // nb2 = N_NODES - BIPARTITE;
-  nb2 = N_NODES - nb1;
+  /* nb2 = N_NODES - nb1; */
   
   // Rprintf("nprevedge %d\n", nprevedge);
   // Rprintf("BIPARTITE %d nb2 %f\n", BIPARTITE, BIPARTITE);
@@ -199,11 +198,11 @@ D_CHANGESTAT_FN(d_biduration)
 D_CHANGESTAT_FN(d_bimix){
 
   int matchvaltail, matchvalhead;
-  Vertex tail, head, nnodes, nstats;
+  Vertex tail, head, /* nnodes, */ nstats;
   int i, j, edgeflag=0;
 
   nstats = N_CHANGE_STATS;
-  nnodes = (N_INPUT_PARAMS)-2*nstats;
+  /* nnodes = (N_INPUT_PARAMS)-2*nstats; */
   // Rprintf("ninput %d nstats %d\n", N_INPUT_PARAMS, mtp->nstats);
   // Rprintf("nodes %d\n", nnodes);
   // for (tail=0; tail<nnodes; tail++){
@@ -243,13 +242,13 @@ D_CHANGESTAT_FN(d_bkappa)  {
   int i, j, echange=0;
   double nedges, change, iar0, far0, ier0, fer0;
   Vertex tail, head, taild, headd=0, iak2, fak2, iek2, fek2, nnodes, *id, *od;
-  Vertex nb2, nb1;
+  Vertex /* nb2, */ nb1;
   
   id=IN_DEG;
   od=OUT_DEG;
   nnodes = N_NODES;
   nb1 = BIPARTITE;
-  nb2 = nnodes - nb1;
+  /* nb2 = nnodes - nb1; */
   
   change = 0.0;
   FOR_EACH_TOGGLE(i) {
@@ -618,10 +617,10 @@ D_CHANGESTAT_FN(d_gwb1) {
   int i, echange=0;
   double alpha, oneexpa, change;
   Vertex tail, head, taild=0, *od;
-  int nb1, nb2;
+  int nb1 /*, nb2 */ ;
 
   nb1 = (int)INPUT_PARAM[0];
-  nb2 = (N_NODES) - nb1;
+  /* nb2 = (N_NODES) - nb1; */
   
   //id=IN_DEG;
   od=OUT_DEG;
@@ -766,10 +765,10 @@ D_CHANGESTAT_FN(d_gwb2){
   int i, echange=0;
   double alpha, oneexpa, change;
   Vertex tail, head, headd=0, *id;
-  int nb1, nb2;
+  int /* nb1, */ nb2;
 
   nb2 = (int)INPUT_PARAM[0];
-  nb1 = N_NODES - nb2;
+  /* nb1 = N_NODES - nb2; */
 
   id=IN_DEG;
   //od=OUT_DEG;
@@ -845,11 +844,12 @@ D_CHANGESTAT_FN(d_hiertriad) {
   Edge e;
   Vertex tail, head, node3;
   double pos3;
-  int edgeflag, i;
+  int /* edgeflag, */ i;
   
   CHANGE_STAT[0] = 0.0;
   FOR_EACH_TOGGLE(i) {
-    edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
+    /* edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)); */
+    tail = TAIL(i); head=HEAD(i);
     
     // Rprintf("tail %d head %d edgeflag %d\n",tail,head, edgeflag);
     STEP_THROUGH_OUTEDGES(head, e, node3) {
@@ -882,11 +882,12 @@ D_CHANGESTAT_FN(d_hiertriaddegree) {
   Edge e;
   Vertex tail, head, node3, ideg;
   double pos3;
-  int edgeflag, i;
+  int /* edgeflag, */ i;
   
   CHANGE_STAT[0] = 0.0;
   FOR_EACH_TOGGLE(i) {
-    edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i));
+    /* edgeflag = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)); */
+    tail = TAIL(i); head=HEAD(i);
     
     // Rprintf("tail %d head %d edgeflag %d\n",tail,head, edgeflag);
     STEP_THROUGH_OUTEDGES(head, e, node3) {
@@ -1072,7 +1073,7 @@ D_CHANGESTAT_FN(d_intransitivedynamic)  {
 D_CHANGESTAT_FN(d_intransitivity) {
   int i, edgeflag, a, b, c, d, e, edgecount, t300, 
   t210, t120C, t120U, t120D, t201, t030C, t030T, t111U, 
-  t111D, t021C, t021U, t021D, t102, t012, t003;
+  t111D, t021C, t021U, t021D, t102, t012 /*, t003 */ ;
   Vertex node3, tail, head;
 
   CHANGE_STAT[0] = 0.0;
@@ -1273,7 +1274,7 @@ D_CHANGESTAT_FN(d_intransitivity) {
       } else 
       t102 = t102 + (N_NODES - 2);  
       
-      t003 = -(t102+t201+t300);
+      /* t003 = -(t102+t201+t300); */
       b = t300;
       CHANGE_STAT[0] += edgeflag ? -(double)b : (double)b;
       TOGGLE_IF_MORE_TO_COME(i);
@@ -1740,11 +1741,11 @@ D_CHANGESTAT_FN(d_b1share)  {
   int L2tu;
   Vertex deg;
   Vertex tail, head, u, v;
-  int nb2, nb1;
+  int /* nb2, */ nb1;
 
   // nb1 = BIPARTITE;
   nb1 = (int)INPUT_PARAM[0];
-  nb2 = (N_NODES) - nb1;
+  /* nb2 = (N_NODES) - nb1; */
 
   ZERO_ALL_CHANGESTATS(i);  
   FOR_EACH_TOGGLE(i) {
@@ -1778,10 +1779,10 @@ D_CHANGESTAT_FN(d_b2share)  {
   int L2tu;
   Vertex deg;
   Vertex tail, head, u, v;
-  int nb2, nb1;
+  int /* nb2, */ nb1;
 
   nb1 = (int)INPUT_PARAM[0];
-  nb2 = (N_NODES) - nb1;
+  /* nb2 = (N_NODES) - nb1; */
 
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {

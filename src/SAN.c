@@ -33,7 +33,6 @@ void SAN_wrapper ( int *dnumnets, int *nedges,
                    int *maxedges){
   int directed_flag;
   Vertex n_nodes, nmax, bip;
-  Edge n_networks;
   Network nw[1];
   Model *m;
   MHproposal MH;
@@ -43,7 +42,6 @@ void SAN_wrapper ( int *dnumnets, int *nedges,
 
   
   n_nodes = (Vertex)*dn; /* coerce double *dn to type Vertex */
-  n_networks = (Edge)*dnumnets; 
   nmax = (Edge)*maxedges; 
   bip = (Vertex)*bipartite; /* coerce double *bipartite to type Vertex */
   

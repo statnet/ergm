@@ -27,14 +27,13 @@ void MPLEconddeg_wrapper (int *tails, int *heads, int *dnedges,
                    int *mtails, int *mheads, int *mdnedges) {
   int directed_flag;
   Vertex n_nodes, nmax, bip;
-  Edge n_edges, n_medges;
+  Edge n_edges;
   Network nw[2];
   Model *m;
   MHproposal MH;
   
   n_nodes = (Vertex)*dn; /* coerce double *dn to type Vertex */
   n_edges = (Edge)*dnedges; /* coerce double *dnedges to type Edge */
-  n_medges = (Edge)*mdnedges; /* coerce double *mdnedges to type Edge */
   nmax = (Edge)*maxedges; /* coerce double *maxedges to type Edge */
   bip = (Vertex)*bipartite; /* coerce double *bipartite to type Vertex */
   
