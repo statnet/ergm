@@ -320,7 +320,6 @@
 \alias{llik.mcmcvar3}
 \alias{logLik.stergm.CMLE}
 \alias{logistftest}
-\alias{logp.rank.ergm}
 \alias{mcmc.diagnostics.default}
 \alias{midarrow}
 \alias{model.matrix.pen.glm}
