@@ -75,7 +75,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                    statsonly=statsonly,
                    sequential=sequential, constraints=constraints,
                    monitor=monitor,
-                   control=control, verbose=verbose, ...)
+                   control=control, verbose=verbose, seed=seed, ...)
 }
 
 
