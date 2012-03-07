@@ -1,9 +1,9 @@
 %  File ergm/man/plot.network.ergm.Rd
-%  Part of the statnet package, http://statnetproject.org
+%  Part of the statnet package, http://statnet.org
 %
 %  This software is distributed under the GPL-3 license.  It is free,
 %  open source, and has the attribution requirements (GPL Section 7) in
-%    http://statnetproject.org/attribution
+%    http://statnet.org/attribution
 %
 %  Copyright 2012 the statnet development team
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -81,7 +81,6 @@
     latent=FALSE, 
     \dots)
 }
-%- maybe also `usage' for other objects documented here.
 \arguments{
   \item{x}{ an object of class \code{\link[network]{network}}. }
   \item{attrname}{ an optional edge attribute, to be used to set edge values. }
@@ -204,9 +203,7 @@ None.
 }
 \references{ Wasserman, S., and Faust, K.  (1994).  ``Social Network Analysis: Methods and Applications.''  Cambridge: Cambridge University Press. }
 \author{Carter T. Butts \email{buttsc@uci.edu} }
-%\note{  }
 
- %~Make other sections like WARNING with \section{WARNING }{....} ~
 \section{Requires}{\code{mva}}
 
 \seealso{\code{\link{plot}} }
@@ -217,5 +214,5 @@ plot(flomarriage)  #Plot the Florentine Marriage data
 plot(network(10))  #Plot a random network
 \dontrun{plot(flomarriage,interactive="points")}
 }
-\keyword{ hplot }% at least one, from doc/KEYWORDS
-\keyword{ graphs }% __ONLY ONE__ keyword per line
+\keyword{ hplot }
+\keyword{ graphs }

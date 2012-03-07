@@ -1,9 +1,9 @@
 %  File ergm/man/plot.ergm.Rd
-%  Part of the statnet package, http://statnetproject.org
+%  Part of the statnet package, http://statnet.org
 %
 %  This software is distributed under the GPL-3 license.  It is free,
 %  open source, and has the attribution requirements (GPL Section 7) in
-%    http://statnetproject.org/attribution
+%    http://statnet.org/attribution
 %
 %  Copyright 2012 the statnet development team
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -26,16 +26,8 @@
 }
 \description{
   \code{\link{plot.ergm}} is the plotting method for \code{\link{ergm}} objects.
-% For non-latent models it plots the MCMC diagnostics via the 
   It plots the MCMC diagnostics via the 
   \code{\link{mcmc.diagnostics}} function.  
-% For models with the additional class \code{latent}, this 
-% plots the minimum Kullback-Leibler positions by 
-% default.  The maximum likelihood positions
-% can be used instead, or pie charts of the posterior
-% probabilities of cluster membership can be shown.  It also plots the
-% posterior density of the nodes or a series of contour plots, one for
-% each node. 
   See \code{\link{ergm}} for more information on how to fit these
   models.
 }

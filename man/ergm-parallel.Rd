@@ -1,9 +1,9 @@
 %  File ergm/man/ergm-parallel.Rd
-%  Part of the statnet package, http://statnetproject.org
+%  Part of the statnet package, http://statnet.org
 %
 %  This software is distributed under the GPL-3 license.  It is free,
 %  open source, and has the attribution requirements (GPL Section 7) in
-%    http://statnetproject.org/attribution
+%    http://statnet.org/attribution
 %
 %  Copyright 2012 the statnet development team
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -25,15 +25,6 @@
   and workarounds associated with parallel processing in \code{\link[=ergm-package]{ergm}}.
 }
 
-% rpvm package is currently not maintained.
-%\section{PVM}{
-%  To use PVM to accelerate ERGM sampling, pass the control parameter
-%  \code{parallel.type="PVM"}.
-%  \code{\link[=ergm-package]{ergm}} and \code{\link[snow]{snow}} use
-%  \code{\link[rpvm]{rpvm}} package to communicate with a PVM
-%  cluster. \code{\link{ergm}} will check if an PVM daemon is already
-%  running and will attempt to start one if not.
-%}
 
 \section{MPI}{
   To use MPI to accellerate ERGM sampling, pass the control parameter

@@ -1,9 +1,9 @@
 %  File ergm/man/simulate.ergm.Rd
-%  Part of the statnet package, http://statnetproject.org
+%  Part of the statnet package, http://statnet.org
 %
 %  This software is distributed under the GPL-3 license.  It is free,
 %  open source, and has the attribution requirements (GPL Section 7) in
-%    http://statnetproject.org/attribution
+%    http://statnet.org/attribution
 %
 %  Copyright 2012 the statnet development team
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -82,31 +82,6 @@
     results because the characteristics of the network (e.g., size and
     directedness) must be specified.
   }
-%\item{multiplicity}{The number of replications of proposal types
-%  grouped together to form a single proposal.}
-%\item{mixed}{Should a mixed parameterization be used for the
-%  exponential family model with any degree terms in the model
-%  using their mean-value parameters and the other terms using
-%  the natural parameterization? If \code{FALSE} the natural
-%  parameterization is used. If \code{FALSE} the coefficients
-%  returned for the degree terms  are those that correspond to
-%  the mean-values in the natural parameterization. The estimates
-%  of the mean-values are the observed degree proportions.
-%  }
-%\item{fix}{Should the MCMC be run conditional on the non-degree 
-%  terms? This gives the conditional estimates of these under
-%  the natural parameterization, These are also the MLEs under
-%  the mixed parameterization with the non-degree terms
-%  represented by their mean-value parameters.
-%  }
-%\item{conditional}{Should a conditional parameterization be used for the
-%  exponential family model with any degree terms in the model
-%  using their mean-value parameters and the other terms using
-%  the natural parameterization? If \code{FALSE} the natural
-%  parameterization is used. If \code{TRUE} the coefficients
-%  returned for the degree terms are their natural parameterization
-%  estimates conditional on the non-degree term statistics.
-%  }
   \item{statsonly}{Logical:  If TRUE, return only the network statistics, 
     not the network(s) themselves.
   }
@@ -115,8 +90,6 @@
     simulation is used as the start of the next.
     Irrelevant when \code{nsim=1}.
   }
-% \item{proposal}{The structure containing information about the
-%  Metropolis-Hasting proposal used.}
   \item{control}{A list of control parameters for algorithm
     tuning. Constructed using \code{\link{control.simulate.ergm}} or
     \code{\link{control.simulate.formula}}, which have different defaults.

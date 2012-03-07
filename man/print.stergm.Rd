@@ -1,9 +1,9 @@
 %  File ergm/man/print.stergm.Rd
-%  Part of the statnet package, http://statnetproject.org
+%  Part of the statnet package, http://statnet.org
 %
 %  This software is distributed under the GPL-3 license.  It is free,
 %  open source, and has the attribution requirements (GPL Section 7) in
-%    http://statnetproject.org/attribution
+%    http://statnet.org/attribution
 %
 %  Copyright 2012 the statnet development team
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -31,8 +31,6 @@
 }
 \value{The value returned is the \code{\link{stergm}} object itself.}
 \seealso{\code{\link{network}}, \code{\link{ergm}}}
-%\examples{
-%}
 \keyword{models}
 
 

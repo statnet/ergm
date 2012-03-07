@@ -1,9 +1,9 @@
 %  File ergm/man/ergmuserterms.Rd
-%  Part of the statnet package, http://statnetproject.org
+%  Part of the statnet package, http://statnet.org
 %
 %  This software is distributed under the GPL-3 license.  It is free,
 %  open source, and has the attribution requirements (GPL Section 7) in
-%    http://statnetproject.org/attribution
+%    http://statnet.org/attribution
 %
 %  Copyright 2012 the statnet development team
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -39,12 +39,6 @@
   The terms can be used throughout the \code{\link{ergm}} package
   and behave identically to the supplied terms.
 }
-%\usage{
-%terms.ergm()
-%}
-%\arguments{
-%\item{\dots}{Specific to the model term.}
-%}
 
 \details{
     The \code{ergmuserterms} package is available from the \code{statnet}
@@ -75,8 +69,6 @@
   the sample of graph statistics using MCMC.  This sample is then returned
   to \R, which then approximates the MLE.
 }
-%\value{\code{\link{ergm}} returns an object of class 'ergm' that is a list.
-%}
 \seealso{ergm, network, ergm-terms}
 \examples{
 \dontrun{

@@ -1,9 +1,9 @@
 %  File ergm/man/ecoli.Rd
-%  Part of the statnet package, http://statnetproject.org
+%  Part of the statnet package, http://statnet.org
 %
 %  This software is distributed under the GPL-3 license.  It is free,
 %  open source, and has the attribution requirements (GPL Section 7) in
-%    http://statnetproject.org/attribution
+%    http://statnet.org/attribution
 %
 %  Copyright 2012 the statnet development team
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -46,9 +46,7 @@ Shen-Orr et al (2002), Network Motifs in the Transcriptional Regulation
 Network of Escerichia Coli, \emph{Nature Genetics},
 31(1): 64-68.
 
-%Saul and Filkov (2007)
 
-%Hummel et al (2010)
 
 }
 

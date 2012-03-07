@@ -1,9 +1,9 @@
 %  File ergm/man/ergm.Rd
-%  Part of the statnet package, http://statnetproject.org
+%  Part of the statnet package, http://statnet.org
 %
 %  This software is distributed under the GPL-3 license.  It is free,
 %  open source, and has the attribution requirements (GPL Section 7) in
-%    http://statnetproject.org/attribution
+%    http://statnet.org/attribution
 %
 %  Copyright 2012 the statnet development team
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -225,11 +225,6 @@ Although each of the statistics in a given model is a summary
 statistic for the entire network, it is rarely necessary to
 calculate statistics for an entire network
 in a proposed Metropolis-Hastings step.
-%  The reason for this is that we may assume that each statistic equals
-% zero for the observed network (translating each statistic by
-% a constant does not change the probability model), and then
-% it is only necessary to calculate the changes in the various
-%statistics for a proposed Metropolis-Hastings step.  
 Thus, for example, if the triangle term is included in the model,
 a census of all triangles in the observed network is never
 taken; instead, only the change in the number of triangles
@@ -243,9 +238,6 @@ simple Newton-Raphson algorithm to approximate the MLE.
 An alternative style of maximum likelihood estimation is to use a stochastic
 approximation algorithm. This can be chosen with the 
 \code{control.ergm(style="Robbins-Monro")} option.
-%There seems little reason to implement the Newton-Raphson
-%algorithm in C since it moves very quickly in \R and
-%it is easier to alter the code if it is written in \R.
 
 The mechanism for proposing new networks for the MCMC sampling
 scheme, which is a Metropolis-Hastings algorithm, depends on 
@@ -370,105 +362,23 @@ Note that in an undirected network, we only look at the outdegree
 matrices; \code{maxin} and \code{minin} will both be ignored
 in this case.
 
-% First, you would assign the \dQuote{ego} attribute to all your nodes -
-% because every node is an ego, every node gets a \code{TRUE} (or 1) in its
-% column in the \code{attribs} matrix.  
 
-% \code{attribs <- matrix(ncol=1,nrow=71,data=c(rep(1,71)))}
 
-% Then you would assign a maximum number of alter out degrees allowed
-% to each ego in the same column as in the \code{attribs} matrix.  In this
-% case, all egos have a maximum outdegree of 3.
 
-% \code{maxout <- matrix(ncol=1,nrow=71,data=c(rep(3,71)))}
 
-% Then, we can create dummy \code{maxin}, \code{minout},
-% \code{minin} matrices (in the future these will be empty
-% by default) and create the \code{} argument to pass
-% into the \code{\link{ergm}} call.
 
-% To create \dQuote{dummy} \code{maxin}, \code{minout}, and
-% \code{minin} matrices to correspond to the \code{attribs} and
-% \code{maxout} matrices created above, that impose no limits
-% on the amount of edges allowed, our code would look like this:
 
-% \code{maxin <- matrix(NA,ncol=2,nrow=71)
-%       minout <- matrix(NA,ncol=2,nrow=71)
-%	minin <- matrix(NA,ncol=2,nrow=71)}
 
-%  The argument we pass into the \code{\link{ergm}} call, then would look like this:
 
-%  \code{ = list( attribs=attribs,
-%        	         maxout=maxout,
-%        	         maxin=maxin,
-%        	         minout=minout,
-%        	         minin=minin)}
 
-%  This argument passed into \code{\link{ergm}} will now restrict your proposed 
-%  networks to those which meet your desired degree conditions.
   
 
-%  \code{ = list( attribs=attribs,
-%        	         maxout=maxout,
-%        	         maxin=matrix(NA,ncol=1,nrow=71),
-%        	         minout=matrix(NA,ncol=1,nrow=71),
-%        	         minin=matrix(NA,ncol=1,nrow=71))}
 
-%\preformatted{
-%attribs[n][0] = 1 # just the ego values
-%maxout[n][0] = minout[n][0] = observed outdegree of n in network
-%maxin[n][0] = minin[n][0] = observed indegree of n in network
-%  }
 }
  
-%\section{Dealing with degeneracy}{
-%In order to begin the process of estimating network coefficients,
-%we need starting values - guesses at the true values of the
-%network statistic coefficients.  The default is to begin the MCMC
-%estimation process at the deterministic MPLE values. These
-%values are often taken as good-enough final answers by many other
-%applications. However recent work has indicated that they are sub-optimal and
-%can be dramatically bad.
-%
-%In using the MPLE values, MCMC MLE often runs into
-%problems caused by the inherent instability of the natural parameter
-%space of the models (Handcock 2000, 2002, 2003).
-%If the initial values for the parameter coefficients
-%are off by a very small amount in the wrong direction, the
-%result is often a sample of networks that are degenerate -
-%that is, networks that are entirely full or entirely empty,
-%or that are otherwise less-than-representative of the
-%sample of network space our process is attempting to explore.
-%(In part, this is an indication of why one should not rely
-%solely on the MPLE). The package contains many algorithmic 
-%tools to obtain quality inference.
-%If the sample of networks is
-%degenerate, our algorithm will fail in its calculation of an
-%MLE for our data (usually in constructing the Hessian matrix).
-%%In this case, we can attempt to converge using the Robbins-Monro
-%%algorithm, minimizing the Euclidean distance between the mean of
-%%the sample network statistics and the observed network statistics
-%%as a function of the theta vector.  While this is a fairly
-%%blunt instrument for estimating the thetas in comparison to
-%%the MCMC, it still has the potential to get us thetas in the
-%%right range; then we can run the MCMC again, using our better
-%%estimates of theta.  A potential problem with this technique is
-%%that it only works well if the space of sufficient statistics
-%%is sufficiently regular around our sample network; but as a
-%%stop-gap measure, it has shown some limited success.
-%See the references for details, especially Handcock (2003) and Hunter and
-%Handcock (2006).
-%}
 
 \references{
-%Handcock, M.S. (2000) \emph{Progress in Statistical Modeling of Drug User and 
-%  Sexual Networks}, Center for Statistics and the Social Sciences,
-%     University of Washington.
 
-%Handcock, M. S. (2002)
-%    \emph{Degeneracy and inference for social network models}
-%    Paper presented at the Sunbelt XXII International Social
-%Network Conference in New Orleans, LA.
 
 Admiraal R, Handcock MS (2007).
  \pkg{networksis}: Simulate bipartite graphs with fixed

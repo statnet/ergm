@@ -1,9 +1,9 @@
 %  File ergm/man/control.stergm.Rd
-%  Part of the statnet package, http://statnetproject.org
+%  Part of the statnet package, http://statnet.org
 %
 %  This software is distributed under the GPL-3 license.  It is free,
 %  open source, and has the attribution requirements (GPL Section 7) in
-%    http://statnetproject.org/attribution
+%    http://statnet.org/attribution
 %
 %  Copyright 2012 the statnet development team
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -71,7 +71,6 @@
                          parallel.type=NULL,
                          parallel.version.check=TRUE)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{init.form, init.diss}{numeric or \code{NA} vector equal in length to the number of
     parameters in the formation/dissolution model or \code{NULL} (the default); the initial
@@ -280,14 +279,7 @@
     of Statistics Technical Report.
   }
 }
-%\author{
-%%  ~~who you are~~
-%}
-%\note{
-%%  ~~further notes~~
-%}
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
   \code{\link{stergm}}. The \code{\link{control.simulate.stergm}} 
@@ -295,9 +287,5 @@ function performs a
 similar function for
 \code{\link{simulate.stergm}}.  
 }
-%\examples{
-%}
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
 \keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{ ~kwd2 }

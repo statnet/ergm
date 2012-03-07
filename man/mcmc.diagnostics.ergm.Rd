@@ -1,9 +1,9 @@
 %  File ergm/man/mcmc.diagnostics.ergm.Rd
-%  Part of the statnet package, http://statnetproject.org
+%  Part of the statnet package, http://statnet.org
 %
 %  This software is distributed under the GPL-3 license.  It is free,
 %  open source, and has the attribution requirements (GPL Section 7) in
-%    http://statnetproject.org/attribution
+%    http://statnet.org/attribution
 %
 %  Copyright 2012 the statnet development team
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -64,10 +64,6 @@
   
 }
 \references{
-%  Warnes, G.W. (2000).  Multi-Chain and Parallel Algorithms for Markov
-%  Chain Monte Carlo. Dissertation, Department of Biostatistics,
-%  University of Washington,
-%
   Raftery, A.E. and Lewis, S.M. (1992).  One long run with diagnostics:
   Implementation strategies for Markov chain Monte Carlo. Statistical
   Science, 7, 493-497.
