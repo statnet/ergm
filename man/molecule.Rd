@@ -1,3 +1,12 @@
+%  File ergm/man/molecule.Rd
+%  Part of the statnet package, http://statnetproject.org
+%
+%  This software is distributed under the GPL-3 license.  It is free,
+%  open source, and has the attribution requirements (GPL Section 7) in
+%    http://statnetproject.org/attribution
+%
+%  Copyright 2012 the statnet development team
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{molecule}
 \alias{molecule}
 \title{Synthetic network with 20 nodes and 28 edges}

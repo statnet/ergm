@@ -1,3 +1,12 @@
+%  File ergm/man/ergm.allstats.Rd
+%  Part of the statnet package, http://statnetproject.org
+%
+%  This software is distributed under the GPL-3 license.  It is free,
+%  open source, and has the attribution requirements (GPL Section 7) in
+%    http://statnetproject.org/attribution
+%
+%  Copyright 2012 the statnet development team
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{ergm.allstats}
 \alias{ergm.allstats}
 \title{Calculate all possible vectors of statistics on a network for an ERGM}

@@ -1,3 +1,12 @@
+#  File ergm/tests/simpletests.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 # Simulate a network with a high number of nodes with outdegree=3 and a low number with indegree=3:
 library(ergm)
 data(sampson)
