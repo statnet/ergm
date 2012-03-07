@@ -10,7 +10,7 @@
     \itemize{
       \item Facilities for fitting and simulating Separable Temporal
       ERGMs (STERGMs) of Krivitsky (2009) and, Krivitsky and Handcock
-      (2011) have been added. See \code{\link{stergm}} and
+      (2010) have been added. See \code{\link{stergm}} and
       \code{\link[=simulate.network]{smulate}}.
       
       \item \code{\link{ergm}} MCMLE will now test if the optimization
