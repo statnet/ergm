@@ -149,13 +149,14 @@ ergm (formula,
   where \eqn{n} is the                               
   sample size and \eqn{p} is the number of network statistics specified in the
   model, that is used in the maximum likelihood estimation routine.}
+ \item{sample.obs}{As \code{sample}, but for the constrained sample.}
  \item{iterations}{The number of Newton-Raphson iterations required
   before convergence.}
  \item{MCMCtheta}{The value of \eqn{\theta} used to produce the Markov chain
   Monte Carlo sample.  As long as the Markov chain mixes sufficiently
   well, \code{sample} is roughly a random sample from the distribution
   of network statistics specified by the model with the parameter equal
-  to \code{MCMCtheta}.  If \code{MPLEonly=TRUE} then 
+  to \code{MCMCtheta}.  If \code{estimate="MPLE"} then 
   \code{MCMCtheta} equals the MPLE.}
  \item{loglikelihood}{The approximate change in log-likelihood 
  in the last iteration.
@@ -166,17 +167,15 @@ ergm (formula,
   should be very close to zero.}
  \item{covar}{Approximate covariance matrix for the MLE, based on the inverse
   Hessian of the approximated loglikelihood evaluated at the maximizer.}
- \item{samplesize}{The size of the MCMC sample}
  \item{failure}{Logical:  Did the MCMC estimation fail?}
  \item{mc.se}{MCMC standard error estimates}
  \item{newnetwork}{The final network at the end of the MCMC
  simulation}
- \item{burnin}{If included, the burnin used for the MCMC simulation}
- \item{interval}{If included, the interval used for the MCMC simulation}
  \item{network}{Original network}
- \item{theta.original}{The first value of coef}
- \item{mplefit}{The MPLE fit as a \code{glm} object.}
- \item{null.deviance}{Deviance of the null model.}
+ \item{coef.init}{The initial value of \eqn{\theta}.}
+ \item{initial}{The MPLE fit as a \code{glm} object.}
+ \item{null.deviance}{Deviance of the null model. Valid only for
+  unconstrained models.}
  \item{mle.lik}{The approximate log-likelihood for the MLE.
   The value is only approximate because it is estimated based 
   on the MCMC random sample.}
@@ -189,8 +188,7 @@ ergm (formula,
 for internal use.}
  \item{formula}{The original \code{\link{formula}} entered into the \code{\link{ergm}} function.}
  \item{constraints}{Constraints used by original \code{ergm} call}
- \item{prop.weights}{MCMC proposal weights used by original \code{ergm} call
- (part of the \code{\link{control.ergm}} function output).}
+ \item{control}{The control list passed to the call.}
  \item{offset}{vector of logical telling which model parameters are to be set
  at a fixed value (i.e., not estimated).}
  \item{drop}{If \code{\link[=control.ergm]{control$drop}=TRUE}, a numeric vector indicating which terms were dropped due to to extreme values of the
@@ -203,6 +201,14 @@ for internal use.}
        \code{+Inf}.}
    }
  }
+\item{coef.hist, stats.hist, stats.obs.hist}{
+   For the MCMLE method, the history of coefficients and resulting
+  average statistics.
+}
+\item{estimable}{A logical vector indicating which terms could not be
+  estimated due to a \code{constraints} constraint fixing that term at a
+  constant value.
+}
   See the method \code{\link{print.ergm}} for details on how
   an \code{\link{ergm}} object is printed.  Note that the
   method \code{\link{summary.ergm}} returns a summary of the

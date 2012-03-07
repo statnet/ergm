@@ -13,7 +13,7 @@ ergmMPLE (formula, fitmodel=FALSE, control=control.ergm(),
   \item{formula}{An ergm formula.  See \code{\link{ergm}}.}
   \item{fitmodel}{Logical:  Should the MPLE be found?  
       If \code{fitmodel==TRUE}, then \code{ergmMPLE} simply calls the 
-      \code{\link{ergm}} function with the \code{MPLEonly=TRUE} option set.
+      \code{\link{ergm}} function with the \code{estimate="MPLE"} option set.
       If \code{fitmodel==FALSE} (the default), then only the response, predictor,
       and weights are returned; thus, the MPLE may be found by hand or the vector
       of change statistics may be used in some other way.}
