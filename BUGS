@@ -1,0 +1,39 @@
+Known bugs and issues
+
+# Degree-constrained proposals #
+
+Degree-constrained sampling presently has three implementations: 
+CondDegreeTetrad, CondDegree (using CondDegreeTetradToggles and 
+CondDegreeHexadToggles), and CondDegreeSimple (using 
+CondDegreeSimpleTetrad and CondDegreeSingleHexad). It is not clear which 
+of them are correct / faster / more efficient. We should, ideally, 
+reduce them to one.
+
+# Curved term cutoff #
+
+For now, the cutoff= in gw* functions is a hard bound, not adaptive in 
+any way, even if there exist values above it, to keep things simple and 
+stable. We may want to improve this later, or at least have the 
+initialization functions check if there are values above it.
+
+# Passing curved coefficients as initial values for ergm() #
+
+For a curved model, initial curved parameters cannot be passed in the
+theta0 argument and must be embedded in the formula. This prevents
+coef() of an ergm fit from being used as initial value for another
+ergm run for the same model if the model has curved terms. A function
+enformulate.curved() works around this by constructing suitable
+inputs, but a more consistent solution is desirable.
+
+# R version changes (affects public release version) #
+R >= 2.12:  nlme package should be removable from depends line
+R >= 2.12:  man page titles can handle markup (example:  logLik.ergm.Rd)
+
+# Missing data MPLE for bipartite networks#
+
+Missing data MPLE code produces incorrect estimates for some bipartite
+networks.
+
+# Missing documentation #
+The terms adegcor, rdegcor, and pdegcor lack documentation
+
