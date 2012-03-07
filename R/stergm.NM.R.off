@@ -1,0 +1,82 @@
+stergm.NM <- function(theta0, nw, model.form, model.diss, Clist, 
+                      gamma0,
+                      MCMCparams, MHproposal.form, MHproposal.diss,
+                      verbose=FALSE){
+  eta0 <- ergm.eta(theta0, model.form$etamap)
+
+  if(verbose){
+    cat("Nelder-Mead algorithm with theta_0 equal to\n")
+    print(theta0)
+  }
+  eta0 <- ergm.eta(theta0, model.form$etamap)
+
+  z <- stergm.NM.C(nw, Clist$meanstats, model.form, model.diss, MHproposal.form, MHproposal.diss,
+                        eta0, gamma0, MCMCparams, verbose=verbose)
+
+  ve<-with(z,list(coef=eta,sample=NULL,sample.miss=NULL))
+    
+  structure(c(ve, list(newnetwork=nw, 
+                       theta.original=theta0,
+                       network=nw)),
+            class="stergm")
+}
+
+
+stergm.NM.C <- function(g, meanstats, model.form, model.diss, 
+                          MHproposal.form, MHproposal.diss, eta0, gamma0,
+                          MCMCparams, verbose) {
+
+  Clist.form <- ergm.Cprepare(g, model.form)
+  Clist.diss <- ergm.Cprepare(g, model.diss)
+  maxchanges <- max(MCMCparams$maxchanges, Clist.form$nedges)/5
+  MCMCparams$maxchanges <- MCMCparams$maxchanges/5
+  if(verbose){cat(paste("MCMCDyn workspace is",maxchanges,"\n"))}
+
+  z <- .C("MCMCDynNM_wrapper",
+          # Observed/starting network. 1
+          as.integer(Clist.form$heads), as.integer(Clist.form$tails), 
+          as.integer(Clist.form$nedges),
+          as.integer(Clist.form$n),
+          as.integer(Clist.form$dir), as.integer(Clist.form$bipartite),
+          # Formation terms and proposals. 9
+          as.integer(Clist.form$nterms), as.character(Clist.form$fnamestring), as.character(Clist.form$snamestring),
+          as.character(MHproposal.form$name), as.character(MHproposal.form$package),
+          as.double(Clist.form$inputs), eta=as.double(eta0),
+          # Formation parameter fitting. 16
+          as.double(summary(model.form$formula)-meanstats),
+          # Nedler-Mead parameters. 17
+          fail=integer(1),
+          as.double(MCMCparams$NM.abstol),
+          as.double(MCMCparams$NM.reltol),
+          as.double(MCMCparams$NM.alpha),
+          as.double(MCMCparams$NM.beta),
+          as.double(MCMCparams$NM.gamma),
+          as.integer(verbose),
+          fncount=integer(2),
+          as.integer(MCMCparams$NM.maxit),
+          # Dissolution terms and proposals. 21
+          as.integer(Clist.diss$nterms), as.character(Clist.diss$fnamestring), as.character(Clist.diss$snamestring),
+          as.character(MHproposal.diss$name), as.character(MHproposal.diss$package),
+          as.double(Clist.diss$inputs), as.double(gamma0),
+          # Degree bounds.
+          as.integer(MHproposal.form$bd$attribs), 
+          as.integer(MHproposal.form$bd$maxout), as.integer(MHproposal.form$bd$maxin),
+          as.integer(MHproposal.form$bd$minout), as.integer(MHproposal.form$bd$minin),
+          as.integer(MHproposal.form$bd$condAllDegExact), as.integer(length(MHproposal.form$bd$attribs)), 
+          # MCMC settings.              
+          as.integer(MCMCparams$NM.burnin),
+          as.integer(MCMCparams$NM.interval),
+          as.integer(MCMCparams$burnin),
+          # Space for output.
+          as.integer(maxchanges),
+          # Verbosity.
+          as.integer(verbose), 
+          PACKAGE="ergm") 
+
+  eta <- z$eta
+  names(eta) <- names(eta0)
+
+  list(meanstats=MCMCparams$meanstats,
+       eta=eta,
+       opt.history=z$opt.history)
+}

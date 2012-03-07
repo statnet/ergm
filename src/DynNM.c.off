@@ -1,0 +1,94 @@
+#include <R_ext/Applic.h>
+#include "DynNM.h"
+
+void MCMCDynNM_wrapper(// Observed network.
+		    int *heads, int *tails, int *n_edges,
+		    int *n_nodes, int *dflag, int *bipartite, 
+		    // Formation terms and proposals.
+		    int *F_nterms, char **F_funnames, char **F_sonames, 
+		    char **F_MHproposaltype, char **F_MHproposalpackage,
+		    double *F_inputs, double *F_theta0, 
+		    double *init_dev,
+		    // Nelder-Mead settings.
+		    int *fail,
+		    double *abstol,
+		    double *intol,
+		    double *alpha,
+		    double *beta,
+		    double *gamma,
+		    int *trace,
+		    int *fncount,
+		    int *maxit,
+		    // Dissolution terms and proposals.
+		    int *D_nterms, char **D_funnames, char **D_sonames, 
+		    char **D_MHproposaltype, char **D_MHproposalpackage,
+		    double *D_inputs, double *D_theta0,
+		    // Degree bounds.
+		    int *attribs, int *maxout, int *maxin, int *minout,
+		    int *minin, int *condAllDegExact, int *attriblength,
+		    // MCMC settings.
+		    int *burnin, int *interval, int *dyninterval,
+		    // Space for output.
+		    int *maxedges,
+		    // Verbosity.
+		    int *fVerbose){
+  Network nw[2];
+  Model *F_m, *D_m;
+  MHproposal F_MH, D_MH;
+  double Fmin;
+
+  Vertex *difftime, *diffhead, *difftail;
+  difftime = (Vertex *) calloc(*maxedges,sizeof(Vertex));
+  diffhead = (Vertex *) calloc(*maxedges,sizeof(Vertex));
+  difftail = (Vertex *) calloc(*maxedges,sizeof(Vertex));
+  MCMCDyn_init_common(heads, tails, *n_edges,
+		      *n_nodes, *dflag, *bipartite, nw,
+		      *F_nterms, *F_funnames, *F_sonames, F_inputs, &F_m,
+		      *D_nterms, *D_funnames, *D_sonames, D_inputs, &D_m,
+		      
+		      attribs, maxout, maxin, minout,
+		      minin, *condAllDegExact, *attriblength, 
+
+		      *F_MHproposaltype, *F_MHproposalpackage, &F_MH,
+		      *D_MHproposaltype, *D_MHproposalpackage, &D_MH,
+		      *fVerbose);
+
+  double  *D_stats=(double *) calloc(D_m->n_stats,sizeof(double));
+  double  *F_stats_acc=(double *) calloc(F_m->n_stats,sizeof(double));
+
+  MCMCSampleDyn_optimfn_args ex={nw,F_m,&F_MH,NULL,F_stats_acc,D_m,&D_MH,D_theta0,init_dev,D_stats,*maxedges,difftime,diffhead,difftail,*dyninterval,*interval,*interval};
+  
+  nmmin(F_m->n_stats,F_theta0,F_theta0,&Fmin,MCMCSampleDyn_optimfn,fail,*abstol,*intol,(void *)&ex,*alpha,*beta,*gamma,*fVerbose,fncount,*maxit);
+    
+  MCMCDyn_finish_common(nw, F_m, D_m, &F_MH, &D_MH);
+
+  free(difftime);
+  free(diffhead);
+  free(difftail);
+  free(D_stats);
+}
+
+
+
+
+    
+double MCMCSampleDyn_optimfn(int n, double *par, void *ex){
+  MCMCSampleDyn_optimfn_args *a=(MCMCSampleDyn_optimfn_args *) ex;
+  
+  return MCMCSampleDynObjective(a->nwp,
+				// Formation terms and proposals.
+				a->F_m, a->F_MH, par,
+				// Dissolution terms and proposals.
+				a->D_m, a->D_MH, a->D_theta,
+				// Degree bounds.
+				a->F_stats, a->D_stats,
+				a->nmax,
+				a->difftime, a->diffhead, a->difftail,
+				// MCMC settings.
+				a->dyninterval,
+				a->burnin,
+				a->S,
+				a->F_stats_acc, NULL, NULL,
+				0);
+}
+
