@@ -96,10 +96,10 @@ control.stergm<-function(init.form=NULL,
   control<-list()
   formal.args<-formals(sys.function())
   for(arg in names(formal.args))
-    control[[arg]]<-get(arg)
+    control[arg]<-list(get(arg))
 
   for(arg in match.arg.pars)
-    control[[arg]]<-match.arg(control[[arg]][1],eval(formal.args[[arg]]))
+    control[arg]<-list(match.arg(control[[arg]][1],eval(formal.args[[arg]])))
   
   control
 }

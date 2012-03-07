@@ -41,6 +41,6 @@ control.simulate.stergm<-control.simulate.network<-function(MCMC.burnin=1000,
                                   MCMC.init.maxchanges=1000000){
     control<-list()
     for(arg in names(formals(sys.function())))
-      control[[arg]]<-get(arg)
+      control[arg]<-list(get(arg))
     control
   }

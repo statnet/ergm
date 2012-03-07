@@ -245,19 +245,19 @@ control.ergm<-function(drop=TRUE,
   formal.args<-formals(sys.function())
   formal.args[["..."]]<-NULL
   for(arg in names(formal.args))
-    control[[arg]]<-get(arg)
+    control[arg]<-list(get(arg))
 
   for(arg in names(list(...))){
     if(!is.null(old.controls[[arg]])){
       warning("Passing ",arg," to control.ergm(...) is deprecated and may be removed in a future version. Specify it as control.ergm(",old.controls[[arg]],"=...) instead.")
-      control[[old.controls[[arg]]]]<-list(...)[[arg]]
+      control[old.controls[[arg]]]<-list(list(...)[[arg]])
     }else{
       stop("Unrecognized control parameter: ",arg,".")
     }
   }
 
   for(arg in match.arg.pars)
-    control[[arg]]<-match.arg(control[[arg]][1],eval(formal.args[[arg]]))
+    control[arg]<-list(match.arg(control[[arg]][1],eval(formal.args[[arg]])))
   
   control
 }
@@ -268,7 +268,7 @@ control.ergm.toplevel<-function(control,...){
   for(arg in names(old.controls))
     if(arg %in% names(ergm.args)){
       warning("Passing ",arg," to ergm(...) is deprecated and may be removed in a future version. Specify it as control.ergm(",old.controls[[arg]],"=...) instead.")
-      control[[old.controls[[arg]]]]<-ergm.args[[arg]]
+      control[old.controls[[arg]]]<-list(ergm.args[[arg]])
     }
   
   control

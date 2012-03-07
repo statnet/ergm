@@ -143,6 +143,6 @@ control.godfather<-function(GF.init.maxedges=100000
               ){
     control<-list()
     for(arg in names(formals(sys.function())))
-      control[[arg]]<-get(arg)
+      control[arg]<-list(get(arg))
     control
   }

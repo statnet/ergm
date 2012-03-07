@@ -8,7 +8,7 @@ control.logLik.stergm<-function(control = control.logLik.ergm(),
   control<-list()
   formal.args<-formals(sys.function())
   for(arg in names(formal.args))
-    control[[arg]]<-get(arg)
+    control[arg]<-list(get(arg))
 
   control
 }

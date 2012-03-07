@@ -69,7 +69,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
   control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges")
   for(arg in control.transfer)
     if(is.null(control[[arg]]))
-      control[[arg]] <- object$control[[arg]]
+      control[arg] <- list(object$control[[arg]])
 
   simulate.formula(object$formula, nsim=nsim, coef=coef, response=object$response, reference=if(is.null(reference)) "Bernoulli" else object$reference,
                    statsonly=statsonly,

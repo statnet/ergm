@@ -73,12 +73,12 @@ control.simulate<-control.simulate.formula<-control.simulate.formula.ergm<-funct
   formal.args<-formals(sys.function())
   formal.args[["..."]]<-NULL
   for(arg in names(formal.args))
-    control[[arg]]<-get(arg)
+    control[arg]<-list(get(arg))
 
   for(arg in names(list(...))){
     if(!is.null(old.controls[[arg]])){
       warning("Passing ",arg," to simulate(...) is deprecated and may be removed in a future version. Specify it as control.simulate.formula(",old.controls[[arg]],"=...) instead.")
-      control[[old.controls[[arg]]]]<-list(...)[[arg]]
+      control[old.controls[[arg]]]<-list(list(...)[[arg]])
     }else{
       stop("Unrecognized control parameter: ",arg,".")
     }
@@ -115,12 +115,12 @@ control.simulate.ergm<-function(MCMC.burnin=NULL,
   formal.args<-formals(sys.function())
   formal.args[["..."]]<-NULL
   for(arg in names(formal.args))
-    control[[arg]]<-get(arg)
+    control[arg]<-list(get(arg))
 
   for(arg in names(list(...)))
     if(!is.null(old.controls[[arg]])){
       warning("Passing ",arg," to control.simulate.ergm(...) is deprecated and may be removed in a future version. Specify it as control.simulate.ergm(",old.controls[[arg]],"=...) instead.")
-      control[[old.controls[[arg]]]]<-list(...)[[arg]]
+      control[old.controls[[arg]]]<-list(list(...)[[arg]])
     }
   
   control
@@ -132,7 +132,7 @@ control.simulate.ergm.toplevel<-function(control,...){
   for(arg in names(old.controls))
     if(arg %in% names(ergm.simulate.args)){
       warning("Passing ",arg," to simulate.ergm(...) is deprecated and may be removed in a future version. Specify it as control.simulate.ergm(",old.controls[[arg]],"=...) instead.")
-      control[[old.controls[[arg]]]]<-ergm.simulate.args[[arg]]
+      control[old.controls[[arg]]]<-list(ergm.simulate.args[[arg]])
     }
   
   control

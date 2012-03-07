@@ -54,7 +54,7 @@ control.gof.ergm<-function(nsim=100,
                            parallel.version.check=TRUE){
   control<-list()
   for(arg in names(formals(sys.function())))
-    control[[arg]]<-get(arg)
+    control[arg]<-list(get(arg))
   control
 }
 
@@ -77,6 +77,6 @@ control.gof.formula<-function(nsim=100,
                               parallel.version.check=TRUE){
   control<-list()
   for(arg in names(formals(sys.function())))
-    control[[arg]]<-get(arg)
+    control[arg]<-list(get(arg))
   control
 }

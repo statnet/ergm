@@ -116,7 +116,7 @@ gof.ergm <- function (object, ...,
   control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges")
   for(arg in control.transfer)
     if(is.null(control[[arg]]))
-      control[[arg]] <- object$control[[arg]]
+      control[arg] <- list(object$control[[arg]])
   
   if(is.null(constraints)) constraints <- object$constraints
   

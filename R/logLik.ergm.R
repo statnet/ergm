@@ -4,7 +4,7 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
   control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges","MCMC.samplesize")
   for(arg in control.transfer)
     if(is.null(control[[arg]]))
-      control[[arg]] <- object$control[[arg]]
+      control[arg] <- list(object$control[[arg]])
 
 
   # "object" has an element control.
