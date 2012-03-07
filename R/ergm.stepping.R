@@ -1,32 +1,18 @@
+#  File ergm/R/ergm.stepping.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ############################################################################
 # The <ergm.stepping> function provides one of the styles of maximum
 # likelihood estimation that can be used. This one is attributed to ?? and
 # uses ?? approach. The other  MLE styles are found in functions <ergm.robmon>
 # <ergm.stocapprox> and <ergm.mainfitloop>
-#
-# --PARAMETERS--
-#   init         : the initial theta values
-#   nw             : the network
-#   model          : the model, as returned by <ergm.getmodel>
-#   Clist          : a list of several network and model parameters,
-#                    as returned by <ergm.Cprepare>
-#   initialfit     : an ergm object, as the initial fit
-#   control     : a list of parameters for controlling the MCMC sampling
-#   MHproposal     : an MHproposal object for 'nw', as returned by
-#                    <MHproposal>
-#   MHproposal.obs: an MHproposal object for the observed network of'nw',
-#                    as returned by <MHproposal>
-#   verbose        : whether the MCMC sampling should be verbose AND
-#                    the diagnostic plots should be printed ; default=FALSE
-#   ...            : additional paramters that are passed onto
-#                    <ergm.estimate> and <simulate.formula>
-#
-# --RETURNED--
-#   v: an ergm object as a list containing several items; for details see
-#      the return list in the <ergm> function header (<ergm.stepping>=@)
-#
 ###########################################################################      
-
 ergm.stepping = function(init, nw, model, initialfit, constraints,
                          control, MHproposal, MHproposal.obs, 
                          verbose=FALSE, ...){

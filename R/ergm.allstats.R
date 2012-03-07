@@ -1,39 +1,16 @@
-#=========================================================================
-# This file contains the 2 following functions for calculating exact
-# log-likelihoods
-#           <ergm.allstats>
-#           <ergm.exact>
-#=========================================================================
-
-
-
+#  File ergm/R/ergm.allstats.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ##########################################################################
 # The <ergm.allstats> function visits every possible network via the
 # recursive algorithm in <AllStatistics.C> and tabulates the unique
 # statistics.
-#
-# --PARAMETERS--
-#   formula:  a formula of the form 'nw ~ modelterm(s)'
-#   zeroobs:  whether the statistics should be shifted by the observed
-#             stats (T or F); default = TRUE
-#   force  :  whether to force the calculation of the statistics, despite
-#             the "large" size of the network (T or F). The network is 
-#             specified by 'formula' and currently "large" means an 
-#             undirected network of size > 8 or directed with size > 6;
-#             default = FALSE
-#   maxNumChangeStatVectors: the maximum number of unique vectors of
-#             statistics that may be returned; if the number of unique
-#             stats vectors exceeds this count, an ERROR will occur;
-#             default = 2^16
-#   ...    :  extra arguments passed by <ergm.exact>; all will be ignored
-#
-# --RETURNED--
-#   NULL:  if the network is too "large" and 'force'=FALSE, otherwise
-#   a list with 2 following components:
-#     weights: the proportion of networks with the statistics given in
-#              the 'statmat'
-#     statmat: the unique vectors of statistics, rowbound
-#
 ##########################################################################
 
 ergm.allstats <- function(formula, zeroobs = TRUE, force = FALSE,
@@ -87,26 +64,6 @@ ergm.allstats <- function(formula, zeroobs = TRUE, force = FALSE,
 ##########################################################################
 # The <ergm.exact> function computes the exact log-likelihood of a
 # given vector of coefficients, by use of the <ergm.allstats> function.
-#
-# --PARAMETERS--
-#   eta    :  a vector of coefficients for the model terms given in
-#             'formula'
-#   formula:  a formula of the form 'nw ~ modelterm(s)'
-#   statmat:  the 'statmat' returned by <ergm.allstats>. This saves 
-#             repeatedly calculating 'statmat' in the event that
-#             <ergm.exact> is called multiple times. If using this
-#             approach, 'zeroobs' should be TRUE, else the loglikelihood
-#             will be shifted by the value eta %*% observed stats;
-#             default=NULL
-#   weights:  the 'weights' returned by <ergm.allstats>; these are used 
-#             in conjuction with 'statmat' to avoid repeated calculations;
-#             default=NULL
-#   ...    :  additional arguments passed to <ergm.exact> that will be
-#             ignored
-#
-# --RETURNED--
-#   the exact log-likelihood at eta for the given formula IF the value
-#   returned by <ergm.allstats> is non-NULL
 ##########################################################################
 
 ergm.exact <- function(eta, formula, statmat=NULL, weights=NULL, ...) {

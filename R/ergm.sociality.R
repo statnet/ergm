@@ -1,12 +1,12 @@
-#==================================================================
-# This file contains the 5 following functions for ??
-#    <sociality>            <sociality.network>
-#    <sociality.default>    <sociality.formula>
-#    <sociality.ergm>
-#==================================================================
-
-
-
+#  File ergm/R/ergm.sociality.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 sociality <- function(object, ...)
 UseMethod("sociality")
 
@@ -18,24 +18,6 @@ sociality.default <- function(object,...)
 }
 
 
-
-
-#################################################################
-# The <sociality.network> function ??
-#
-# --PARAMETERS--
-#   object    : a network object
-#   ...       : any parameters passed via ... are ignored
-#   statistics: is a character vector naming the columns of the
-#               returned matrix; default="centrality (eigen)" for
-#               undirected networks and c("prestige (eigen)",
-#               centrality (eigen)") for undirected networks
-#
-# --RETURNED--
-#   stats:  a matrix whose i,j entry gives the ?? of the ith
-#           statistic of 'statistics' for the jth node of 'object'
-#
-#################################################################
 
 sociality.network <- function (object, ..., 
    statistics=NULL){
@@ -77,42 +59,6 @@ sociality.network <- function (object, ...,
 
 
 
-
-###########################################################################
-# The <sociality.formula> function ??
-#
-# --PARAMETERS--
-#   formula     :  a formula of the form 'nw ~ model term(s)'
-#   ...         : any parameters passed via ... are ignored
-#   init      : the vector of initial theta values
-#   nsim        : the number of simulations to gather for the
-#                 returned 'sim.sociality' vector
-#   burnin      : the number of proposals to ignore before MCMC sampling
-#                 begins; default=10,000
-#   interval    : the number of proposals to disregard between sampled 
-#                 statistics; default=100
-#   constraints : a one-sided formula of the constraint terms; options are
-#                      bd        degrees        nodegrees
-#                      edges     degreedist     indegreedist
-#                      observed  outdegreedist
-#                 default="~ ."
-#   prop.weights: the method to allocate probabilities of being proposed
-#                 to dyads as "TNT", "random", "nonobserved", or "default"
-#                 default="default", which is based upon the ergm constraints
-#   prop.args   : an alternative, direct way of specifying additional
-#                 arguments to proposal              
-#   seed        :  an integer starting value for the random number generator;
-#                  default=NULL
-#   drop        : whether degenerate terms should be dropped from the fit 
-#                 (T or F); default=TRUE  
-#   statistics  : is a character vector naming the statistics to ??
-#
-# --RETURNED--
-#   the ?? as an invisible list containing:
-#     sociality    :
-#     sim.sociality:
-#
-###############################################################################
 
 sociality.formula <- function (formula, ..., init, nsim=100,
                                burnin=100, interval=100,
@@ -193,42 +139,6 @@ sociality.formula <- function (formula, ..., init, nsim=100,
   }
 
 
-
-
-###########################################################################
-# The <sociality.ergm> function ??
-#
-# --PARAMETERS--
-#   object      :  a formula of the form 'nw ~ model term(s)'
-#   ...         : any parameters passed via ... are ignored
-#   nsim        : the number of simulations to gather for the
-#                 returned 'sim.sociality' vector
-#   burnin      : the number of proposals to ignore before MCMC sampling
-#                 begins; default=10,000
-#   interval    : the number of proposals to disregard between sampled 
-#                 statistics; default=100
-#   constraints : a one-sided formula of the constraint terms; options are
-#                      bd        degrees        nodegrees
-#                      edges     degreedist     indegreedist
-#                      observed  outdegreedist
-#                 default="~ ."
-#   prop.weights: the method to allocate probabilities of being proposed
-#                 to dyads as "TNT", "random", "nonobserved", or "default"
-#                 default="default", which is based upon the ergm constraints
-#   prop.args   : an alternative, direct way of specifying additional
-#                 arguments to proposal              
-#   seed        :  an integer starting value for the random number generator;
-#                  default=NULL
-#   drop        : whether degenerate terms should be dropped from the fit 
-#                 (T or F); default=TRUE  
-#   statistics  : is a character vector naming the statistics to ??
-#
-# --RETURNED--
-#   the ?? as an invisible list containing:
-#     sociality    :
-#     sim.sociality:
-#
-###############################################################################
 
 sociality.ergm <- function (object, ..., nsim=100,
                             burnin=100, interval=100,

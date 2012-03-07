@@ -1,18 +1,15 @@
+#  File ergm/R/ergm.mahalanobis.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ################################################################
 # The <ergm.mahalanobis> function computes and returns the
 # mahalanobis distance
-#
-# --PARAMETERS--
-#   x     : a random vector of length n
-#   center: the mean values of 'x'
-#   cov   : the covariance matrix of 'x'  
-#
-# --IGNORED--
-#   inverted: ?? 
-#
-# --RETURNED--
-#   retval: the mahalanobis distance
-#
 ################################################################
 
 ergm.mahalanobis <- function(x, center, cov, inverted=FALSE, ...)

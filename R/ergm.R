@@ -1,107 +1,15 @@
+#  File ergm/R/ergm.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ###############################################################################
 # The <ergm> function fits ergms from a specified formula returning either
 # MPLEs or approximate MLE's based on MCMC estimation.
-#
-#
-# --PARAMETERS--
-#   formula       :  a formula of the form 'nw ~ model term(s)'
-#   init        :  a vector of starting values for estimation or offset values, or optionally
-#                    if these are to be estimated, NULL (the default);
-#   constraints   :  a one-sided formula of the constraint terms; options are
-#                         bd        degrees        nodegrees
-#                         edges     degreedist     indegreedist
-#                         observed  outdegreedist
-#                    default="~ ."
-#   target.stats     :  a vector of the mean value parameters;
-#                    default=the observed statistic from the 'nw' in formula
-#   control       :  a list of control parameters returned from <control.ergm>;
-#                    default=control.ergm()
-#   verbose       :  whether ergm should be verbose (T or F); default=FALSE
-#
-#
-# --RETURNED--
-#   because a stergm object is the return type of several functions, and
-#   because this is a rather lengthy list, and because the returned items
-#   of this function borrow from the other stergm.* functions, this list
-#   provides the returned items for all funtions returning a stergm.
-#   The symbol preceding each component indicates which function returns it,
-#   but remember that, <stergm> will additionally return the items from
-#   one of the other stergm functions as well:                               
-#   because an ergm object is the return type of several functions, and
-#   because this is a rather lengthy list, this list represents the return
-#   type for all funtions returning an ergm. The symbol preceding each
-#   component indicates which function returns it:
-#       <ergm>             = $
-#       <ergm.mainfitloop> = *
-#       <ergm.mple>        = !
-#       <ergm.stepping>    = @
-#       <ergm.stocapprox>  = %
-#       <ergm.estimate>    = ^
-#       <ergm.robmon>      = &
-#       <ergm.mapl>        = #
-#       <ergm.maple>       = ~
-#
-#   the components include:
-#
-#    $*!@%^&#~+  coef            :  the vector of estimated model coefficients
-#    $* @%^&  +  sample          :  the row-binded matrix of network statistics from
-#                                   each sample; 'sample' will also have 2 attributes:
-#                   mcpar        : the following vector taken from control:
-#                                        c(burnin+1, endrun, interval)
-#                                  where 'endrun' is defined as
-#                                     burnin+interval*(samplesize-1)
-#                   class        : "mcmc"
-#    $*!@%^&#~+  iterations      :  the number of Newton-Raphson iterations required
-#                                   before convergence
-#    $*!@%^&#~+  MCMCtheta       :  the vector of natural parameters used to produce
-#                                   the MCMC sample
-#    $* @%^&  +  loglikelihood   :  the estimated change in log-likelihood in the last
-#                                   iteration
-#    $*!@%^&#~+  gradient        :  the value of the gradient of the approximated log-
-#                                   likelihood function at the maximizing value
-#    $*!@%^&#~+  covar           :  the approximated covariance matrix for the MLE
-#    $*!@%^&#~+  samplesize      :  the size of the MCMC sample
-#    $*!@%^&#~+  failure         :  whether estimation failed (T or F)
-#    $*!@%^&#~+  mc.se           :  the standard error estimates
-#    $* @% &# +  newnetwork      :  the final network sampled; in the ergm returned from
-#                                   <ergm.robmom>, this='network'
-#    $* @% &# +  network         :  the 'nw' inputted to <ergm> via the 'formula'
-#    $* @% &  +  theta.original  :  the theta values at the start of the MCMC sampling
-#    $* @        mplefit         :  the MPLE fit as a glm object, and returned by
-#                                   <ergm.mple>
-#    $*!@% &#~+  null.deviance   :  the deviance of the null model
-#    $*!@% &#~+  mle.lik         :  the approximate log-likelihood for the MLE, if computed
-#    $* @        etamap          :  the set of function mapping theta -> eta;
-#                                   see <etamap>? for the components of this list
-#    $           degeneracy.value:  the degeneracy value assigned by <ergm.degeneracy>
-#    $           degeneracy.type :  a vector of length 2, as returned by
-#                                   <ergm.compute.degeneracy> (found in the
-#                                   <ergm.degeracy> file)
-#    $      #    formula         :  the 'formula' value inputted to <ergm>
-#    $      #    constraints     :  the 'constraints' value inputted to <ergm>
-#           #    prop.args       :  the list of arguments that were passed onto the
-#                                   <InitMHP> routines
-#    $      #    prop.weights    :  the MCMC proposal weights inputted to <ergm> via
-#                                  'control'
-#    $      #    offset          :  a vector of whether each model parameter was set at
-#                                  a fixed value (not estimated)
-#    $      #    drop            :  list of dropped terms
-#     * @%^&  +  sample.obs      :  the matrix of sample network statistics for observed
-#                                   data
-#     * @        parallel        :  the number of additional threads used when sampling
-#      !    #~   glm             :  the fit established by MPL estimation and returned
-#                                   by <ergm.logitreg>, <ergm.pen.glm> or <glm>
-#                                   depending on the 'MPLEtype';
-#      !    #~   glm.null        :  the null fit established by MPL estimation and
-#                                   returned by <ergm.logitreg>, <ergm.pen.glm> or <glm>
-#                                   depending on the 'MPLEtype';
-#      !   #~    theta1          :  the vector of ??
-#         &      rm.coef         :  the robmon coefficients used as 'init' in the final
-#                                   estimation
-#          #~    aic             :  the Akaike information criterion value
-#      !   #~   loglikelihoodratio: the log-likelihood corresponding to
-#                                   'coef'
-#
 #####################################################################################    
 
 ergm <- function(formula,

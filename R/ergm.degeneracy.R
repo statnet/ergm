@@ -1,37 +1,16 @@
-#==================================================================================
-# This file contains the following 2 functions for assessing degeneracy
-#            <ergm.degeneracy>
-#            <ergm.compute.degeneracy>
-#==================================================================================
-
-
-
-
-
+#  File ergm/R/ergm.degeneracy.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ####################################################################################
 # The <ergm.degeneracy> function checks a given ergm object for degeneracy by
 # computing and returning the instability value of the model and the value
 # of the log-likelihood function at the maximized theta values
-#
-# --PARAMETERS--
-#   object   :  an ergm object
-#   control  :  the list of controls as returned by <control.ergm>;
-#               default=control.ergm()
-#   fast     :  whether the degeneracy check should be "fast", i.e to sample
-#               changeobs(?) when there are > 100, rather than use all changeobs;
-#               default=TRUE
-#   test.only:  whether to silence printing of the model instability calculation
-#               (T or F); this parameter is ignored if the instability > 1;
-#               default=FALSE
-#   verbose  :  whether to print a notification when 'object' is deemed degenerate
-#               (T or F); default=FALSE
-#
-#
-# --RETURNED--
-#   the original ergm object with 2 additional components:
-#     degeneracy.value:  the instability of the model
-#     degeneracy.type :  the vector returned by <ergm.compute.degeneracy>;
-#
 #######################################################################################
 
 ergm.degeneracy <- function(object, 
@@ -145,39 +124,6 @@ ergm.degeneracy <- function(object,
 #######################################################################################
 # The <ergm.compute.degeneracy> function is a helper function to <ergm.degenarcy> that
 # establishes the 'degeneracy.type'
-#
-# --PARAMETERS--
-#   xobs       : the changeobs
-#   init     : the initial model parameters
-#   etamap     : the theta-> eta mapping, as returned by <ergm.etamap>
-#   statsmatrix: the sample summary statistics
-#   nr.maxit   : the maximum number of iterations to be used by the native R
-#                routine <optim>; default=100
-#   nr.reltol  : the relative convergence tolerance; see ?optim for details;
-#                default=.01
-#   verbose    : whether the result as degenerate or not should be printed (T or F);
-#                default=FALSE
-#   trace      : an integer specifying how many levels of tracing should
-#                should be printed during optimazition via the <optim> routine;
-#                default=6*verbose
-#   hessian    : whether a numerically differentiated Hessian matrix should be
-#                returned by <optim>; default=FALSE
-#   guess      : initial values used by the optimization routine <optim> ;
-#   trustregion:  the maximum value of the log-likelihood ratio that is trusted;
-#                default=20   
-#
-#
-# --IGNORED PARAMETERS--
-#   epsilon: ??; default=1e-10 
-#   ...    : to accomodate additional parameters passed from within the program   
-# 
-# --RETURNED--
-#   a 2-element vector containing  
-#     loglikelihood: the value of the log-likelihood function corresponding to 'theta';
-#                    if degenerate, this is a vector of Inf
-#     theta        : the vector of theta values found through maximixing the log-
-#                    likelihood; if degenerate, this is 'guess'
-#
 ##########################################################################################
 
 ergm.compute.degeneracy<-function(xobs, init, etamap, statsmatrix,

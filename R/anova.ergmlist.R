@@ -1,25 +1,16 @@
+#  File ergm/R/anova.ergmlist.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 #################################################################################
 # The <anova.ergmlist> function computes an analysis of variance table for one
 # or more linear model fits with the same response.
-#
-# --PARAMETERS--
-#   object:  an ergm object
-#   ...   :  additional ergm objects. If these have a different response than
-#            that of object, these are ignored. If this argument is not provided,
-#            the <anova.ergm> function is used instead
-#
-#
-# --IGNORED PARAMETERS--
-#   scale:  a numeric estimate of the noise variance, sigma^2; default=0, which
-#           estimates sigma^2 from the largest model considered
-#   test :  a character string, "F", "Chisq", or "Cp", specifying which
-#           test statistic to use; default="F"
-#
-# --RETURNED--
-#   an anova object with the analysis of variance table for the considered ergms
-#
 #################################################################################
-
 anova.ergmlist <- function (object, ..., eval.loglik=FALSE, scale = 0, test = "F") 
 {
   objects <- list(object, ...)

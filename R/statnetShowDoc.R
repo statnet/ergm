@@ -1,27 +1,15 @@
-#================================================================================
-# This file contains the following 2 functions for displaying documents
-#        <statnetShowDoc>
-#        <statnetbrowseURL>
-#===============================================================================
-
-
-
-
-
+#  File ergm/R/statnetShowDoc.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ###############################################################################
 # The <statnetShowDoc> function shows a given document in its appropriate
 # environment (i.e. a page viewer for .txt files, a browser for .html files) 
-#
-# --PARAMETERS--
-#   what   : the name of the document to show; default="LICENSE"
-#   type   : the type of document 'what' is, as "html" or "txt";
-#            default=c("html", "txt")
-#   package: the package containing 'what'; default="statnet"
-#   title  : the title to give the opened document
-#
-# --RETURNED--
-#   the path to 'what'
-#
 ###############################################################################
 
 statnetShowDoc <- function (what="LICENSE", type = c("html", "txt"),
@@ -66,14 +54,6 @@ statnetShowDoc <- function (what="LICENSE", type = c("html", "txt"),
 ###############################################################################
 # The <statnetbrowseURL> function envokes the given brower to open the given
 # URL
-#
-# --PARAMETERS--
-#   url    : a url
-#   browser: the (full?) path to the browser's main directory?? 
-#
-# --RETURNED--
-#   an error code where 0 indicates success and -1 indicates failure
-#
 ###############################################################################
 
 statnetbrowseURL <- function (url, browser = getOption("browser")) 

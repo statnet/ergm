@@ -1,47 +1,18 @@
-#==============================================================================
-# This file contains the 2 following functions for getting an MCMC sample
-#      <ergm.getMCMCsample>
-#      <ergm.mcmcslave>
-#==============================================================================
-
-
-
-
+#  File ergm/R/ergm.getMCMCsample.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 #########################################################################################
 # The <ergm.getMCMCsample> function samples networks using an MCMC algorithm via
 # <MCMC_wrapper.C>. Unlike its <ergm.getMCMCsample> counterpart, this function is
 # caple of running in multiple threads.  Note that the returned stats will be relative to
 # the original network, i.e., the calling function must shift the statistics if required. 
 # The calling function must also attach column names to the statistics matrix if required.
-#
-# --PARAMETERS--
-#   nw        :  a network object
-#   model     :  a model for the given 'nw' as returned by <ergm.getmodel>
-#   MHproposal:  a list of the parameters needed for Metropolis-Hastings proposals and
-#                the result of calling <MHproposal>
-#   eta0      :  the initial eta coefficients
-#   verbose   :  whether the C functions should be verbose; default=FALSE
-#   control:  list of MCMC tuning parameters; those recognized include
-#       parallel    : the number of threads in which to run the sampling
-#       packagenames: names of packages; this is only relevant if "ergm" is given
-#       samplesize  : the number of networks to be sampled
-#       interval    : the number of proposals to ignore between sampled networks
-#       burnin      : the number of proposals to initially ignore for the burn-in
-#                     period
-#
-# Note:  In reality, there should be many fewer arguments to this function,
-# since most info should be passed via Clist (this is, after all, what Clist
-# is for:  Holding all arguments required for the .C call).  In particular,
-# the elements of MHproposal, control, verbose should certainly
-# be part of Clist.  But this is a project for another day!
-#
-# --RETURNED--
-#   the sample as a list containing:
-#     statsmatrix:  the stats matrix for the sampled networks, RELATIVE TO THE ORIGINAL
-#                   NETWORK!
-#     newnetwork :  the edgelist of the final sampled network
-#     nedges     :  the number of edges in the 'newnetwork' ??
-#
 #########################################################################################
 
 ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control, 
@@ -123,26 +94,6 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
 # The <ergm.mcmcslave> function is that which the slaves will call to perform
 # a validation on the mcmc equal to their slave number. It also returns an
 # MCMC sample.
-#
-# --PARAMETERS--
-#   Clist     : the list of parameters returned by <ergm.Cprepare>
-#   MHproposal: the MHproposal list as returned by <getMHproposal>
-#   eta0      : the canonical eta parameters
-#   control: a list of parameters for controlling the MCMC algorithm;
-#               recognized components include:
-#       samplesize  : the number of networks to be sampled
-#       interval    : the number of proposals to ignore between sampled networks
-#       burnin      : the number of proposals to initially ignore for the burn-in
-#                     period
-#   verbose   : whether the C code should be verbose (T or F) 
-#
-# --RETURNED--
-#   the MCMC sample as a list of the following:
-#     s         : the statsmatrix
-#     newnwtails: the vector of tails for the new network- is this the final
-#                 network sampled? - is this the original nw if 'maxedges' is 0
-#     newnwheads: the vector of heads for the new network - same q's
-#
 ###############################################################################
 
 ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose) {

@@ -1,35 +1,17 @@
+#  File ergm/R/ergm.bounddeg.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ########################################################################
 # The <ergm.bounddeg> function initializes the list of parameters used
 # to bound the degree during the sampling process, and issues warnings
 # if the original network doesn't meet the constraints specified by
 # 'bounddeg'
-# 
-#
-# --PARAMETERS--
-#   bounddeg: a list of parameters which may contain the following for
-#             a network of size n nodes:
-#      attribs: an nxp matrix, where entry ij is TRUE if node i has
-#               attribute j, and FALSE otherwise; default=an nx1 matrix
-#               of 1's
-#      maxout : an nxp matrix, where entry ij is the maximum number of
-#               out degrees for node i to nodes with attribute j;
-#               default=an nxp matrix of the value (n-1)
-#      maxin  : defined similarly to maxout, but ignored for undirected
-#               networks; default=an nxp matrix of the value (n-1)
-#      minout : defined similarly to maxout; default=an nxp matrix of 0's
-#      minin  : defined similarly to maxout, but ignored for undirected
-#               networks; default=an nxp matrix of 0's
-#   nw: the orginal network specified to <ergm> in 'formula'
-#
-# --RETURNED--
-#   a list of parameters used to bound degree during sampling
-#      condAllDegExact: always FALSE
-#      attribs        : as defined above
-#      maxout         : as defined above
-#      maxin          : as defined above
-#      minout         : as defined above
-#      minin          : as defined above
-#   
 ########################################################################
 
 ergm.bounddeg <- function(bounddeg,nw){    

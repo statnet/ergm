@@ -1,27 +1,16 @@
-#==========================================================================
-# This file contains the following 5 functions for computing summary stats
-#      <summary.statistics>           <summary.statistics.formula>
-#      <summary.formula>              <summary.statistics.ergm>
-#      <summary.statisitcs.default>   <summary.statistics.network>
-#      <summary.statisitics.matrix>
-#==========================================================================
-
-
-
-
+#  File ergm/R/summary.statistics.network.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 #############################################################################
 # Each of the <summary.statistics.X> functions and <summary.formula> checks
 # that the implicit formula is correctly given as 'nw ~ term(s)' and returns
 # the global statistics of the network specified by the formula
-#
-# --PARAMETERS--
-#   object:  a formula, matrix, ergm, or network, as appropriate
-#   basis :  optionally, the network from the formula; if a network
-#            is passed to 'basis', it is assumed that 'object' is the
-#            formula
-#
-# --RETURNED--
-#   gs: the vector of global stats, as returned by <ergm.getglobalstats>
 #############################################################################
 
 summary.statistics <- function(object, ..., basis=NULL) {

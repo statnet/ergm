@@ -1,17 +1,17 @@
+#  File ergm/R/ergm.etagrad.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ################################################################################
 # The <ergm.etagrad> function caculates and returns the gradient of eta
 # mapped from theta using the etamap object created by <ergm.etamap>. If the
 # gradient is only intended to be a multiplier for some vector, the more
 # efficient <ergm.etagradmult> is recommended.
-#
-# --PARAMETERS--
-#   theta :  the vector of curved model parameters 
-#   etamap:  the list constituting the theta-> eta mapping that is returned by
-#            <ergm.etamap>
-#
-# --RETURNED--
-#   etagrad: a matrix of the gradient of eta 
-#
 ################################################################################
 
 ergm.etagrad <- function(theta, etamap) {

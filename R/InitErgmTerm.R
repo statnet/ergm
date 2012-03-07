@@ -1,41 +1,12 @@
-#===========================================================================
-# This file contains the following 74 new, easier-to-write ergm-term
-# initialization functions (each prepended with "InitErgmTerm"):
-#   A:   <absdiff>          <absdiffcat>      <altkstar>
-#        <asymmetric>       <adegcor>
-#   B:   <b1concurrent>     <b1degree>        <b1factor>
-#        <b1star>           <b1starmix>       <b1twostar>
-#        <b2concurrent>     <b2degree>        <b2factor>         
-#        <b2star>           <b2starmix>       <b2twostar>
-#        <balance>
-#   C:   <concurrent>       <cycle>           <ctriple>=<ctriad> 
-#   D:   <degree>           <density>         <dsp>
-#        <dyadcov>          <degcrossprod>    <degcor>
-#   E:   <edgecov>          <edges>           <esp>
-#   G:   <gwb1degree>       <gwb2degree>      <gwdegree>
-#        <gwdsp>            <gwesp>           <gwidegree>
-#        <gwnsp>            <gwodegree>
-#   H:   <hamming>          <hammingmix>
-#   I:   <idegree>          <intransitive>    <indegreepopularity> 
-#        <isolates>         <istar>
-#   K:   <kstar>
-#   L:   <localtraingle>
-#   M:   <m2star>           <meandeg>         <mutual>
-#   N:   <nearsimmelian>    <nodefactor>      <nodecov>=<nodemain> 
-#        <nodeicov>         <nodeifactor>     <nodematch>=<match>
-#        <nodemix>          <nodeocov>        <nodeofactor>       
-#        <nsp>
-#   O:   <odegree>          <opentriad>       <ostar>
-#        <outdegreepopularity>  
-#   P:   <pdegcor>
-#   R:   <receiver>         <rdegcor>
-#   S:   <sender>           <simmelian>       <simmelianties>
-#        <smalldiff>        <sociality>
-#   T:   <threepath>        <transitive>      <triangles>=<triangle>
-#        <triadcensus>      <tripercent>      <ttriple>=<ttriad>
-#        <transitiveties>   <twopath
-#==========================================================================
-
+#  File ergm/R/InitErgmTerm.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ################################################################################
 # The <InitErgmTerm.X> functions initialize each ergm term, X, by
 #   1) checking the validity of X and its arguments via <check.ErgmTerm> and

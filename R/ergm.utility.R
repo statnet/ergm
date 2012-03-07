@@ -1,32 +1,12 @@
-#==============================================================
-# This file contains the following 21 utility functions:
-#      <ostar2deg>                  
-#      <is.invertible>          <summary.statsmatrix.ergm>
-#      <is.ergm>                <ergm.t.summary>
-#      <is.latent>
-#      <degreedist>             <is.latent.cluster>
-#      <degreedistfactor>       <newnw.extract>
-#      <espartnerdist>          <statnet.edit>
-#      <dspartnerdist>          <ergm.update.formula>
-#      <rspartnerdist>          <term.list.formula>
-#      <twopathdist>            <copy.named>
-#      <compress.data.frame>    <sort.data.frame>
-#==============================================================      
-
-
-
-###############################################################################
-# The <ostar2deg> function ??
+#  File ergm/R/ergm.utility.R
+#  Part of the statnet package, http://statnetproject.org
 #
-# --PARAMETERS--
-#   object  : an ergm object
-#   ninflast: whether ??
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
 #
-# --RETURNED--
-#   odeg: the vector of ??
-#
-###############################################################################
-
+#  Copyright 2012 the statnet development team
+######################################################################
 ostar2deg <- function(object, ninflast=TRUE){
  nnodes <- network.size(object$newnetwork)
  nodeg <- paste("odeg",1:(nnodes-1),sep="")
@@ -68,19 +48,6 @@ is.ergm <- function(object)
 ###############################################################################
 # The <degreedist> function computes and returns the degree distribution for
 # a given network
-#
-# --PARAMETERS--
-#   g    : a network object
-#   print: whether to print the degree distribution; default=TRUE
-#
-# --RETURNED--
-#   degrees:
-#      if directed  -- a matrix of the distributions of in and out degrees;
-#                      this is row bound and only contains degrees for which
-#                      one of the in or out distributions has a positive count
-#      if bipartite -- a list containing the degree distributions of b1 and b2
-#      otherwise    -- a vector of the positive values in the degree
-#                      distribution
 ###############################################################################
 
 degreedist <- function(g, print=TRUE)
@@ -131,17 +98,6 @@ degreedist <- function(g, print=TRUE)
 ###############################################################################
 # The <degreedistfactor> function returns the cross table of the degree
 # distribution for a network and a given factor
-#
-# --PARAMETERS--
-#   g: a network
-#   x: a nodal attribute, as a character string
-#
-# --RETURNED--
-#   degrees:
-#      if directed  -- a list containing 2 cross tables, the in degree
-#                      distributions by 'x', and out degree dist by 'x'
-#      otherwise    -- a table of the degree distribution by 'x'
-#
 ###############################################################################
 
 degreedistfactor <- function(g,x)
@@ -310,24 +266,6 @@ summary.statsmatrix.ergm <- function(object, ...){
 ###############################################################################
 # The <ergm.t.summary> function conducts a t test for comparing the mean of a
 # given vector and a hypothesized mean
-#
-# --PARAMETERS--
-#   x          : a numeric vector
-#   alternative: a string to indicate whether the test is two-sided or one-
-#                sided to the left or right, as either "two.sided", "less",
-#                or "greater"; default="two.sided"
-#   mu         : the hypothesized mean; default = 0
-#
-# --IGNORED PARAMETERS--
-#   var.equal : whether the variance of ?? is ??; default=FALSE
-#   conf.level: the confidence level; default=0.95
-#   ...       : ??
-#
-# --RETURNED--
-#   rval: a vetor of the standard error, the t statistic, the p value, and the
-#         standard deviation, consistent with 'alternative'; if the length of
-#         x is <2, this vector will be predominently NA's
-#
 ###############################################################################
 
 ergm.t.summary <-

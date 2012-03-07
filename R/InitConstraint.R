@@ -1,14 +1,12 @@
-#============================================================================
-# This file contains the following 12 functions for initializing empty
-# constraint lists (each prependend with "InitConstraint")
-#         <edges>                   <outdegreedist>
-#         <degrees>=<nodedegrees>   <bd>
-#         <degreesTetrad>           <indegrees>
-#         <degreesHexad>            <outdegrees>
-#         <degreedist>              <hamming>
-#         <indegreedist>            <observed>
-#============================================================================
-
+#  File ergm/R/InitConstraint.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ##########################################################################################
 # Each of the <InitConstraint.X> functions accepts an existing constraint list, 'conlist',
 # and to this adds an empty constraint list for term X; if any arguments are passed besides

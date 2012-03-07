@@ -1,12 +1,12 @@
-#=============================================================
-# This file contains the following 4 files for gathering
-# summary statistics from simulated networks:
-#      <mvmodel>           <mvmodel.formula>
-#      <mvmodel.default>   <mvmodel.ergm>
-#=============================================================
-
-
-
+#  File ergm/R/mvmodel.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 mvmodel <- function(object, ...)
 UseMethod("mvmodel")
 
@@ -22,40 +22,6 @@ mvmodel.default <- function(object,...)
 # The <mvmodel.X> functions each perform a simulation study, which
 # simulates a given number of networks according to a provided formula
 # or ergm X and summarizes the given statistics 
-#
-# --PARAMETERS--
-#   formula/object: X, either a formula or ergm
-#   ...           : any parameters passed via ... are ignored
-#   init        : the vector of initial theta values to use when
-#                   simulating networks
-#   nsim          : the number of simulations to draw
-#   burnin        : the number of proposals to disregard for the initial
-#                   burn-in period
-#   interval      : the number of proposals to disregard in between
-#                   the drawn simulations
-#   constraints   : a one-sided formula specifying the constraints on the
-#                   support of the distribution of networks being simulated;
-#                   default=NULL
-#   control       : a list of control parameters for algorithm tuning, as
-#                   returned by <control.simulate.ergm> or
-#                   <control.simulate.formula>; default=<control.simulate.X>
-#   seed          : an integer at which to set the random number generator
-#   statistic     : this parameter may have one of two forms - either
-#                   a function that accepts a network 'nw' as input and
-#                   as output gives a summary statistic, or this may be
-#                   the character string "density", in which case, the
-#                   'statistic' function is defined for you; the
-#                   default is to return the sociomatrix of 'nw'
-#
-# --RETURNED--
-#   if 'statistic' takes on its default value, a "sociomatrix" is
-#      returned, where the ij entry is the percent of simulations in which
-#      edge ij was present;
-#   otherwise, the simulation summary is returned as a list containing:
-#     mean:  the vector of mean 'statistic's over the set of simulations
-#     sim :  the matrix of summary statistics where entry ij is the
-#            jth statistic returned by 'statistic' for the ith simulation
-#
 ########################################################################
 
 mvmodel.formula <- function (formula, ..., init, nsim=100,
@@ -139,12 +105,6 @@ mvmodel.formula <- function (formula, ..., init, nsim=100,
 
 
 
-
-#######################################################################
-#
-#  (see the <mvmodel.formula> function for header details)
-#
-########################################################################
 
 mvmodel.ergm <- function (object, ..., nsim=100,
                           burnin=10000, interval=1000,

@@ -1,3 +1,12 @@
+#  File ergm/R/ergm.stocapprox.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ############################################################################
 # The <ergm.stocapprox> function provides one of the styles of maximum
 # likelihood estimation that can be used. This one is based on Snijders
@@ -6,35 +15,7 @@
 # web page:         http://stat.gamma.rug.nl/snijders/publ.htm
 # The other MLE styles are found in functions <ergm.robmon>, <ergm.stepping>
 # and <ergm.mainfitloop>
-#
-# --PARAMETERS--
-#   init    : the initial theta values
-#   nw        : the network
-#   model     : the model, as returned by <ergm.getmodel>
-#   Clist     : a list of several network and model parameters,
-#               as returned by <ergm.Cprepare>
-#   initialfit: an ergm object, as the initial fit
-#   control: a list of parameters for controlling the MCMC sampling;
-#               recognized components include
-#                  'phase1_n'      'phase3_n'    'epsilon'
-#                  'initial_gain'  'nsubphases'  'niterations'
-#                  'nr.maxit'      'nr.reltol'   'calc.mcmc.se'
-#                  'hessian'       'method'      'metric'
-#                  'compress'      'trustregion' 'burnin'
-#                  'interval'
-#               the use of these variables is explained in the
-#               <control.ergm> function header
-#   MHproposal: an MHproposal object for 'nw', as returned by
-#               <getMHproposal>
-#   verbose   : whether the MCMC sampling should be verbose (T or F);
-#               default=FALSE
-#
-# --RETURNED--
-#   v: an ergm object as a list containing several items; for details see
-#      the return list in the <ergm> function header (<ergm.stocapprox>=%)
-#
 ###########################################################################      
-
 ergm.stocapprox <- function(init, nw, model, Clist,
                             control, MHproposal,
                             verbose=FALSE){

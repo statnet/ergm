@@ -1,13 +1,12 @@
-#=========================================================================
-# This file contains the following 2 functions for computing changestat
-# summaries of dynamic networks ??
-#   <ergm.godfather>
-#   <control.godfather>
-#=========================================================================
-
-
-
-
+#  File ergm/R/ergm.godfather.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ###########################################################################
 # <ergm.godfather>:  make the network a proposal it can't refuse. 
 # Each toggle has a timestamp, and this function forces the network to make
@@ -16,42 +15,6 @@
 # product is a matrix of change statistics in which the number of rows is
 # determined by the # of unique timestamps and the number of columns is
 # determined by the ERGM terms as usual.
-#
-# --PARAMETERS--
-#   formula   : an ergm formula (i.e., nw ~ terms)
-#   timestamps: a vector of timestamps for the given 'toggles'
-#   toggles   : an edgelist of toggles that corresponds in length to
-#               'timestamps'
-#   sim       : a stergm sample, as returned by <stergm.getMCMCsample>
-#               if 'sim' is not provided, both 'toggles' and
-#               'timestamps' should be
-#   start     : the start time; this is ignored if 'sim' is provided;
-#               default=min(timestamps)
-#   end       : the end time; this is ignored if 'sim' is provided;
-#               default=max(timestamps)
-#   accumulate: whether to proceed to the next timestamp without making
-#               the proposed toggles (T or F); FALSE will force all toggles
-#               to be realized on the network given in 'formula'
-#               ?? if this is TRUE
-#   verbose   : whether this and the C function should be verbose (T or F)
-#               default=FALSE
-#   control   : a list of additional tuning parameters for this function,
-#               as returned by <control.godfather>;
-#               default=<control.godfather>()
-#
-# --RETURNED--
-#   the dynamic changestats summary as a list of the following:
-#    stats     : a matrix, where the i,j entry represents the change in the
-#                jth summary statistic between the original network and the
-#                network at the ith unique timestamp
-#    timestamps: the vector  c(NA, start:end)), where start and end are
-#                specified either by attributes of 'sim' or by the 'start'
-#                and 'end' inputs or default to the minimum and maximum
-#                timestamps
-#    newnetwork: the network after all toggles have been made if requested
-#                by 'return_new_network' in <control.godfather>;
-#                NULL otherwise
-#
 ############################################################################
 
 ergm.godfather <- function(formula, timestamps=NULL, toggles=NULL, sim=NULL,
@@ -125,18 +88,6 @@ ergm.godfather <- function(formula, timestamps=NULL, toggles=NULL, sim=NULL,
 ####################################################################
 # The <control.godfather> function allows for tuning of the
 # <ergm.godfather> function
-#
-# --PARAMETERS--
-#   maxedges          : the maximum number of edges to make space
-#                       for for the new network; this is ignored
-#                       if 5*Clist$nedges is greater; this is also
-#                       ignored if 'return_new_network' is FALSE;
-#                       default=100000
-#
-#
-# --RETURNED--
-#   a list of the above parameters
-#
 ####################################################################
 
 control.godfather<-function(GF.init.maxedges=100000

@@ -1,40 +1,16 @@
-#===================================================================================
-# This file contains the following 2 functions for creating the 'ergm.model' object
-#             <ergm.getmodel>
-#             <updatemodel.ErgmTerm>
-#===================================================================================
-
-
-
-
-
+#  File ergm/R/ergm.getmodel.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ###################################################################################
 # The <ergm.getmodel> function parses the given formula, and initiliazes each ergm
 # term via the <InitErgmTerm> functions to create a 'model.ergm' object for the
 # given network
-#
-# --PARAMETERS--
-#   formula:  a formula of the form 'network ~ model.term(s)'
-#   nw     :  the network of interest
-#   silent :  whether to print the warning messages from the initialization of each
-#             model term (T or F); default=FALSE
-#   ...    :  additional parameters for model formulation;
-#             recognized parameters include
-#               initialfit: whether curved exponential terms have been initially fit
-#                           by MPLE (T or F)
-#
-# --RETURNED--
-#   a 'model.ergm' object as a list containing:
-#     formula       :  the formula inputted to <ergm.getmodel>
-#     coef.names    :  a vector of coefficient names
-#     offset        :  a logical vector of whether each term was "offset", i.e. fixed
-#     terms         :  a list of terms and 'term components' initialized by the 
-#                      appropriate <InitErgmTerm.X> function.  See the <InitErgm> 
-#                      function header for details about the 'terms' list
-#     network.stats0:  NULL always??
-#     etamap        :  the theta -> eta mapping as a list returned from <ergm.etamap> 
-#     class         :  the character string "model.ergm" 
-#
 #####################################################################################
 
 ergm.getmodel <- function (formula, nw, silent=FALSE, role="static",...) {
@@ -136,18 +112,6 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, role="static",...) {
 #######################################################################
 # The <updatemodel.ErgmTerm> function updates an existing model object
 # to include an initialized ergm term, X;
-#
-# --PARAMETERS--
-#   model  : the pre-existing model, as created by <ergm.getmodel>
-#   outlist: the list describing term X, as returned by <InitErgmTerm.X>
-#
-# --RETURNED--
-#   model: the updated model (with the obvious changes seen below) if
-#            'outlist'!=NULL, else
-#          the original model; (note that this return is necessary,
-#            since terms may be eliminated by giving only 0 statistics,
-#            and consequently returning a NULL 'outlist')
-#
 #######################################################################
 
 updatemodel.ErgmTerm <- function(model, outlist) { 

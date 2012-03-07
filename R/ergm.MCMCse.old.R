@@ -1,3 +1,12 @@
+#  File ergm/R/ergm.MCMCse.old.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ergm.MCMCse.old<-function(theta, init, statsmatrix, statsmatrix.obs,
                       model, 
                       lag.max=10, lag.max.obs=lag.max) {

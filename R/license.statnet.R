@@ -1,13 +1,15 @@
+#  File ergm/R/license.statnet.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ###############################################################################
 # The <license.statnet> function prints the licensing information for any of
 # the statnet packages
-#
-# --PARAMETERS--
-#   package: the name of one of the statnet packages; default="statnet"
-#
-# --RETURNED--
-#   NULL
-#
 ###############################################################################
 
 license.statnet <- function (package="statnet") {

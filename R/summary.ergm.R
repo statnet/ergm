@@ -1,49 +1,15 @@
+#  File ergm/R/summary.ergm.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ###############################################################################
 # The <summary.ergm> function prints a 'summary of model fit' table and returns
 # the components of this table and several others listed below
-#
-# --PARAMETERS--
-#   object     : an ergm object
-#
-#
-# --IGNORED PARAMETERS--
-#   ...        : used for flexibility
-#   digits     : significant digits for the coefficients;default=
-#                max(3,getOption("digits")-3), but the hard-coded value is 5
-#   correlation: whether the correlation matrix of the estimated parameters
-#                should be printed (T or F); default=FALSE
-#   covariance : whether the covariance matrix of the estimated parameters
-#                should be printed (T or F); default=FALSE
-#   eps        : the numerical tolerance inputted to the native R function
-#                <format.pval>; the code using 'eps' is now commented out;
-#                default=.0001
-#
-# --RETURNED--
-#   ans: a "summary.ergm" object as a list containing the following
-#      formula         : object$formula
-#      randomeffects   : object$re
-#      digits          : the 'digits' inputted to <summary.ergm> or the default
-#                        value (despite the fact the digits will be 5)
-#      correlation     : the 'correlation' passed to <summary.ergm>
-#      degeneracy.value: object$degenarcy.value
-#      offset          : object$offset
-#      drop            : object$drop
-#      covariance      : the 'covariance' passed to <summary.ergm>
-#      pseudolikelihood: whether pseudoliklelihood was used (T or F)
-#      independence    : whether ?? (T or F)
-#      iterations      : object$iterations
-#      samplesize      : NA if 'pseudolikelihood'=TRUE, object$samplesize otherwise
-#      message         : a message regarding the validity of the standard error
-#                        estimates
-#      aic             : the AIC goodness of fit measure
-#      bic             : the BIC goodness of fit measure
-#      coefs           : the dataframe of parameter coefficients and their
-#                        standard erros and p-values
-#      asycov          : the asymptotic covariance matrix
-#      asyse           : the asymptotic standard error matrix
-#      senderreceivercorrelation: 'randomeffects' if this is a matrix;
-#                        otherwise, the correlation between sender and receiver??
-#
 ################################################################################
 
 summary.ergm <- function (object, ..., 

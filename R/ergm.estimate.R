@@ -1,48 +1,15 @@
+#  File ergm/R/ergm.estimate.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ##################################################################################
 # The <ergm.estimate> function searches for and returns a maximizer of the
 # log-likelihood function. This function is observation-process capable.
-#
-# --PARAMETERS--
-#   init          : the vector of theta parameters that produced 'statsmatrix'
-#   model           : the model, as returned by <ergm.getmodel>
-#   statsmatrix     : the matrix of observed statistics that has already had the
-#                     "observed statistics" vector subtracted out (i.e., the
-#                     "observed stats" are assumed to be zero here)
-#   statsmatrix.obs: the corresponding statsmatrix for the observation process;
-#                     default=NULL
-#   nr.maxit        : the maximum number of iterations to use within the <optim>
-#                     rountine; default=1000
-#   nr.reltol       : the relative tolerance to use within the <optim> rountine;
-#                     default=sqrt(.Machine$double.eps)
-#   metric          : the name of a metric to use, as either "Likelihood",
-#                     "lognormal", "Median.Likelihood", or "EF.Likelihood";
-#                     default="lognormal"
-#   method          : the method to be used by the <optim> routine;
-#                     default="Nelder-Mead"
-#   compress        : whether the matrix of statistics should be compressed
-#                     via <ergm.sufftoprob>; default=FALSE
-#   calc.mcmc.se    : whether to calculate the standard errors induced by the
-#                     MCMC algorithm; default=TRUE
-#   hessainflag     : whether the Hessian matrix of the likelihood function
-#                     should be computed; default=TRUE
-#   verbose         : whether the progress of the estimation should be printed;
-#                     default=FALSE
-#   trace           : a non-negative interger specifying how much tracing
-#                     information should be printed by the <optim> routine;
-#                     default=6*'verbose'
-#   trustregion     : the trust region parameter for the likelihood functions
-#   estimateonly    : whether only the estimates (vs. the estimates and the
-#                     standard errors) should be calculated; default=FALSE
-#
-#
-# --IGNORED PARAMETERS--
-#   epsilon         : ??; default=1e-10
-#
-#
-# --RETURNED--
-#   an ergm object as a list containing several components; for details
-#   see the return list in the <ergm> function header (<ergm.estimate>=^)
-#
 ###################################################################################         
 
 ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,

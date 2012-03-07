@@ -1,13 +1,12 @@
-#============================================================================
-# This file contains the following 4 functions for checking ergm arguments
-#          <ergm.checkargs>           <ergm.checkdirected>
-#          <ergm.checkbipartite>      <ergm.checkdegeneracy>
-#============================================================================
-
-
-
-
-
+#  File ergm/R/ergm.check.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ######################################################################################
 # The <ergm.checkargs> function ensures for the <InitErgm.X> function that the
 # term X:
@@ -15,25 +14,6 @@
 #   2) has correct argument types if arguments where provieded
 #   3) has default values assigned for non-required arguments
 # by halting execution if either of the first 2 criteria are not met
-#
-# --PARAMETERS--
-#  fname        : the name of the model term as a character string
-#  arglist      : the list of arguments for term X
-#  varnames     : the vector of names of the possible arguments for term X;
-#                 default=NULL 
-#  vartypes     : the vector of types of the possible arguments for term X;
-#                 default=NULL 
-#  defaultvalues: the list of default values for the possible arguments of term X;
-#                 default=list()
-#  required     : the logical vector of whether each possible argument is required;
-#                 default=NULL
-#
-# --RETURNED--
-#   a vector containing the following 2 variables:
-#     .conflicts.OK: always TRUE
-#     out          : a list of the values for each possible argument of term X;
-#                    user provided values are used when given, default values otherwise.
-#
 ######################################################################################
 
 ergm.checkargs <- function(fname, arglist, varnames=NULL, vartypes=NULL,
@@ -96,17 +76,6 @@ ergm.checkargs <- function(fname, arglist, varnames=NULL, vartypes=NULL,
 # The <ergm.checkdirected> function halts execution for the <InitErgm> functions
 # with an error message if the given model term cannot be used with the network
 # because of its bipartite state
-#
-# --PARAMETERS--
-#   fname            : the name of the model term as a character string
-#   nw.bipartiteflag : whether the network is bipartite (T or F)
-#   requirement      : whether the term requires a bipartite network (T or F)
-#   extramessage     : additional messages to attach to the warning;
-#                      default value = ""
-#
-# --RETURNED--
-#   NULL
-#
 #################################################################################
 
 ergm.checkbipartite <- function(fname, nw.bipartiteflag, requirement,
@@ -126,17 +95,6 @@ ergm.checkbipartite <- function(fname, nw.bipartiteflag, requirement,
 # The <ergm.checkdirected> function halts execution for the <InitErgm> functions
 # with an error message if the given model term cannot be used with the network
 # because of its state as (un)directed
-#
-# --PARAMETERS--
-#   fname           : the name of the model term as a character string
-#   nw.directedflag : whether the network is directed (T or F)
-#   requirement     : whether the term requires a directed network (T or F)
-#   extramessage    : additional messages to attach to the warning;
-#                     default value = ""
-#
-# --RETURNED--
-#   NULL
-#
 #################################################################################
 
 ergm.checkdirected <- function(fname, nw.directedflag, requirement,
@@ -156,21 +114,6 @@ ergm.checkdirected <- function(fname, nw.directedflag, requirement,
 #################################################################################
 # The <ergm.checkdegeneracy> function checks for degeneracy by looking for
 # variability in the stats matrix 
-#
-# --PARAMETERS--
-#   statsmatrix :  the matrix of summary sample statistics
-#   verbose     :  whether the degeneracy warning should be printed (T or F)
-#
-#
-# --IGNORED PARAMETERS--
-#   statsmatrix.obs : the matrix of summary sample statistics from the
-#                      observation process network; default=NULL
-#
-#
-# --RETURNED--
-#   degen: whether the ergm model is degenerate, in the sense that
-#          there was no varibility in the statsmatrix (T or F)
-#
 #################################################################################
 
 ergm.checkdegeneracy <- function(statsmatrix, statsmatrix.obs=NULL, verbose=FALSE) {

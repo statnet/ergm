@@ -1,3 +1,12 @@
+#  File ergm/R/InitErgmTerm.duration.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 InitErgmTerm.edges.ageinterval<-function(nw, arglist, role, ...) {
   if(!any(role %in% c("dissolution","target"))) stop("Term edges.ageinterval can only be used in a dissolution model or as a target statistic.")
   a <- check.ErgmTerm(nw, arglist,

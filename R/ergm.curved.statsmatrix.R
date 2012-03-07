@@ -1,20 +1,15 @@
+#  File ergm/R/ergm.curved.statsmatrix.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 #####################################################################
 # The <ergm.curved.statsmatrix> maps the stats matrix to its reduced
 # form based on the etamap object created by <ergm.etamap>
-#
-# --PARAMETERS--
-#   statsmatrix:  the matrix of sampled summary statistics
-#   theta      :  the  model parameters producing
-#                 'statsmatrix'
-#   etamap     :  the theta-> eta mapping, as returned by <ergm.etamap> 
-#                   
-# --RETURNED--
-#   a 2-element list containing
-#     sm   :  the reduced form 'statsmatrix'
-#     novar:  whether each row of the stats matrix has any variance (T or F)
-#
-# author: MSH  1/29/06
-#
 #######################################################################
 
 "ergm.curved.statsmatrix" <- function(statsmatrix,theta,etamap){

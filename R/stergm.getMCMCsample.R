@@ -1,63 +1,17 @@
+#  File ergm/R/stergm.getMCMCsample.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ############################################################################
 # The <stergm.getMCMCsample> function collects a sample of networks and
 # returns the formation and dissolution statistics of each sample, along with
 # a toggle matrix of the changes needed from the original network to each
 # in the sample
-#
-# --PARAMETERS--
-#   nw             : a network object
-#   model.form     : a formation model, as returned by <ergm.getmodel>
-#   model.diss     : a dissolution model, as returned by <ergm.getmodel>
-#   MHproposal.form: a list of parameters needed for MHproposals of the
-#                    formations
-#   MHproposal.diss: a list of parameters needed for MHproposals of the
-#                    dissolutions
-#   init.form    : the initial model coefficients for 'model.form'
-#   init.diss    : the initial model coefficients for 'model.diss'
-#   control     : the list of parameters controlling the MCMC algorithm;
-#                    recognized components include:
-#      maxchanges    :  this ends up defining the "MCMCDyn workspace", but
-#                       in a peculiar way: the 'maxchanges' you give, let's
-#                       call this number 'mc' is fed into this equation:
-#                           mc < 5^x * mc - 55
-#                       the 'x' that solves the equation is then used and
-#                       and 'maxchanges' and the MCMCDyn workspace is defined as
-#                           5^(x-1) * (the original mc)
-#                       if the computed Clist.form$nedges is > than the original
-#                       'maxchanges', 'maxchanges' is ignored and this odd little
-#                       process occurs to the 'nedeges'
-#      parallel      :  the number of threads in which to run sampling
-#      samplesize    :  the desired MCMC sample size
-#      toggles       :  whether to return the toggle matrix; non-NULL values
-#                       will include 'changed' in the return list, NULL
-#                       will not
-#      MH.burnin     :  this is accepted as 'MH_interval' which determines
-#                       the number of proposals in each MCMC step
-#      time.burnin   :  the number of MCMC steps to disregard for the burnin
-#                       period 
-#      time.interval :  the number of MCMC steps to disregard in between
-#                       sampled networks
-#   verbose        : whether this and other functions should be verbose
-#
-# Note:  In reality, there should be many fewer arguments to this function,
-# since most info should be passed via Clist (this is, after all, what Clist
-# is for:  Holding all arguments required for the .C call).  In particular,
-# the elements of MHproposal.form, control, verbose, should certainly
-# be part of Clist.  But this is a project for another day!
-#
-# --RETURNED--
-#   the MCMC sample as a list containing:
-#     statsmatrix.form: the matrix of sampled statistics for 'model.form' RELATIVE TO INITIAL NETWORK
-#     statsmatrix.diss: the matrix of sampled statistics for 'model.form' RELATIVE TO INITIAL NETWORK
-#     statsmatrix.mon: the matrix of sampled statistics for 'model.mon' RELATIVE TO INITIAL NETWORK
-#     newnetwork      : the final network from the sampling process
-#     changed         : a toggle matrix, where the first column is
-#                       the timestamp of the toggle and the 2nd and 3rd
-#                       columns are the head & tail of the toggle; this
-#                       is only returned if 'control'$toggles is not NULL
-#     maxchanges      : the "MCMC Dyn workspace"; see 'maxchanges' in the
-#                       input param list
-#
 ############################################################################
   
 stergm.getMCMCsample <- function(nw, model.form, model.diss, model.mon,

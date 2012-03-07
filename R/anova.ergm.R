@@ -1,18 +1,16 @@
+#  File ergm/R/anova.ergm.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ################################################################################
 # The <anova.ergm> function computes an analysis of variance table for a
 # single model fit
-#
-# --PARAMETERS--
-#   object:  an ergm object
-#   ...   :  additional ergm objects. If this argument is provided,
-#            the <anova.ergmlist> function is used instead
-#
-#
-# --RETURNED--
-#   an anova object with the analysis of variance table for the given ergm
-#
 #################################################################################
-
 anova.ergm <- function (object, ..., eval.loglik=FALSE) 
 {
   if (length(list(object, ...)) > 1) 

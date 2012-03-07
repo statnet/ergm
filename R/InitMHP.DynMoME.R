@@ -1,11 +1,12 @@
-#===================================================================
-# This file contains the 5 following MHP initializers, each
-# prepended with 'InitMHP.'  All of these functions may also be
-# found in the <InitMHP> file.
-#      <formation>       <formationTNT>
-#      <dissolution>
-#===================================================================
-
+#  File ergm/R/InitMHP.DynMoME.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 
 InitMHP.formation <- function(arguments, nw, model) {
   MHproposal <- list(name = "Formation", inputs=NULL, package="ergm")

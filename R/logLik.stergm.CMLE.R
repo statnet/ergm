@@ -1,3 +1,12 @@
+#  File ergm/R/logLik.stergm.CMLE.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 
 logLik.stergm.CMLE<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || force.reeval, control=control.logLik.stergm(), ...){
   if(!is.null(control$seed))  set.seed(as.integer(control$seed))

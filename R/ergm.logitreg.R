@@ -1,47 +1,15 @@
-#============================================================================
-# This file contains the following 2 functions for logistic regression
-#        <ergm.logitreg>
-#        <ergm.logisticdeviance>
-#============================================================================
-
-
-
-
-
+#  File ergm/R/ergm.logitreg.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 #############################################################################
 # The <ergm.logitreg> function maximizes the log-likelihood via logistic
 # regression
-# 
-# --PARAMETERS--
-#   x        : the design matrix
-#   y        : the binary outcomes, presumably the vector of edge values
-#   wt       : a vector of wieghts for each case; default=rep(1,length(y));
-#              this and the two params above are returned by <ergm.pl>
-#   intercept: whether an intercept should be estimated (T or F);
-#              default=FALSE
-#   start    : initial values for the parameters to be optimized over
-#   offset   : ?? (this is passed in as the 'foffset' returned by <ergm.pl>
-#   maxit    : the maximum number of iterations to use; default=200
-#   ...      : additional control parameters to be passed to the native
-#              R routine <optim>
-#
-# --RETURNED--
-#   fit: the best fit, as found by the <optim> function, and as a list of:
-#        par         :  the best set of parameters found
-#        value       :  the logistic deviance, as computed by
-#                       <ergm.logisticdeviance> evaluated at 'par'
-#        counts      :  a two-element vector giving the number of calls to the
-#                       <ergm.locisticdeviance> function and the gradient
-#                       function for the "BFGS" method; this excludes calls
-#                       for computing the Hessian
-#        convergence :  a convergence code; 0 indicates successful convergence,
-#                       a positive number indicates various problems (see
-#                       "?otpim" for details
-#        message     :  additional information returned by the optimizer
-#        hessian     :  a symmetric matrix giving an estimate of the Hessian
-#                       evaluated at 'par'
-#        cov.unscaled:  the covariance, as the robust inverse of the Hessian
-#
 #############################################################################
 
 ergm.logitreg <- function(x, y, wt = rep(1, length(y)),

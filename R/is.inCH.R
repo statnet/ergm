@@ -1,15 +1,15 @@
+#  File ergm/R/is.inCH.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ###############################################################################
 # The <is.inCH> function determines whether a vector p is in the convex hull
 # of the vectors M
-#
-# --PARAMETERS--
-#   p:  a vector of length n
-#   M:  a q by n matrix 
-#
-# --RETURNED--
-#   x: TRUE if p is in the CH of the points M
-#      FALSE othewise
-#
 ###############################################################################
 
 is.inCH <- function(p, M) {

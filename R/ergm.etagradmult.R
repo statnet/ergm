@@ -1,16 +1,15 @@
+#  File ergm/R/ergm.etagradmult.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ##############################################################################
 # The <ergm.etagradmult> function calculates and returns the product of the
 # gradient of eta with a vector v
-#
-# --PARAMETERS--
-#   theta :  the curved model parameters
-#   v     :  a vector of the same length as the vector of mapped eta parameters
-#   etamap:  the list constituting the theta-> eta mapping returned by <ergm.etamap>
-#
-# --RETURNED--
-#   ans: the vector that is the product of the gradient of eta and v; infinite
-#        values are replaced by (+-)10000
-#
 #################################################################################
 
 ergm.etagradmult <- function(theta, v, etamap) {

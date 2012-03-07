@@ -1,3 +1,12 @@
+#  File ergm/R/stergm.EGMME.initialfit.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 stergm.EGMME.initialfit<-function(init.form, init.diss, nw, model.form, model.diss, model.mon, control, verbose=FALSE){
   if(!is.null(control$init.method) && control$init.method == "zeros"){
     init.form[is.na(init.form)]<-0

@@ -1,28 +1,15 @@
+#  File ergm/R/ergm.plinfo.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ###############################################################################
 # The <ergm.plinfo> function prepares via <plinfo_wrapper.C> 2 of the
 # components needed for MPL estimation
-#
-# --PARAMETERS--
-#   Clist       : a list of parameters used for fitting and returned
-#                 by <ergm.Cprepare>
-#   Clist.miss  : the corresponding 'Clist' for the network of missing
-#                 edges returned by <ergm.design>
-#   m           : the model, as returned by <ergm.getmodel>
-#
-#
-# --IGNORED--
-#   these are essentially ignored, since they are both used to calculate
-#   items which are not returned:
-#       theta.offset: a logical vector specifying which of the model
-#                     coefficients are offset, i.e. fixed
-#       fix         : appears to be have the same meaning as 'theta.offset'
-#
-#
-# --RETURNED--
-#   the pseudo likelihood info as a list containing
-#     xmat: the matrix of change statistics??
-#     zy  : the corresponding vector of responses, i.e. tie values
-#
 ###############################################################################
 
 ergm.plinfo<-function(Clist, Clist.miss, m, fix=NULL, theta.offset=NULL)

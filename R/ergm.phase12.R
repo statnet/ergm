@@ -1,33 +1,16 @@
+#  File ergm/R/ergm.phase12.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ###############################################################################
 # The <ergm.phase12> function is a wrapper for the <MCMC.phase12.C> method,
 # which collects a sample of networks and returns the matrix of summary
 # statistics
-#
-# --PARAMETERS--
-#   g         : a network object
-#   model     : a model for 'g', as returned by <ergm.getmodel>
-#   MHproposal: an MHproposal object, as returned by <MHproposal>
-#   eta0      : the vector of initial eta coefficients
-#   control: a list of control parameters for the MCMC algorithm;
-#               recognized components include:
-#                     'maxedges'     'samplesize'     'gain'
-#                     'stats'        'phase1'         'nsub'
-#                     'burnin'       'interval'       'target.stats'
-#               the purpose of most of these variables is given in the
-#               <control.ergm> function header; 'stats' seems to be
-#                used as the mean statistics; 'target.stats' is merely
-#                returned.
-#   verbose   : whether the C functions should be verbose (T or F)
-#
-# --RETURNED--
-#   a list containing
-#     statsmatrix: the matrix of summary statistics
-#     newnetwork : the final network sampled
-#     target.stats  : the 'target.stats' from 'control'
-#     maxedges   : the 'maxedges' from 'control'
-#     eta        : the parameters used to produce the sample given
-#                  by 'statsmatrix'
-#
 ###############################################################################
 
 ergm.phase12 <- function(g, model,

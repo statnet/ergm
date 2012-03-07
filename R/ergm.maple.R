@@ -1,34 +1,15 @@
+#  File ergm/R/ergm.maple.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ####################################################################
 # The <ergm.maple> function finds a maximizer to the pseudo-
 # likelihood function
-#
-# --PARAMETERS--
-#   pl      : a list of pseudo likelihood components, as returned
-#             <ergm.pl>.  Note that <ergm.plinfo> does not
-#             return all the needed components.
-#   m       : the model, as returned by <ergm.getmodel>
-#   init  : the vector of initial theta coefficients
-#   MPLEtype: the method for MPL estimation as "penalized", "glm"
-#             or "logitreg"; default="glm"
-#   family  : the family to use in the R native routine <glm>; 
-#             only applicable if "glm" is the 'MPLEtype';
-#             default="binomial"
-#   save.glm: whether the mple fit and the null mple fit should be
-#             returned (T or F); if false, NULL is returned for both;
-#             default==TRUE
-#   thetal  : the independence theta; if specified and non-NULL, this
-#             is ignored except to return its value in the returned 
-#             ergm; default=NULL, in which case 'theta1' is computed           
-#   verbose : whether this and the C routines should be verbose
-#             (T or F); default=FALSE
-#   ...     : additional parameters passed from within; all will
-#             be ignored                                                           
-#
-# --RETURNED--
-#   an ergm object as a list containing several items; for details
-#   see the return list in the <ergm> function header
-#   (<ergm.maple>= ~)
-#
 ##################################################################
 
 ergm.maple<-function(pl, m, init=NULL,

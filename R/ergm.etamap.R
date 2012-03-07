@@ -1,35 +1,16 @@
+#  File ergm/R/ergm.etamap.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ###########################################################################
 # The <ergm.etamap> function takes a model object and creates a mapping
 # from the model parameters, theta, to the canonical eta parameters;
 # the mapping is carried out by <ergm.eta>
-#
-# --PARAMETERS--
-#   model: a model object, as returned by <ergm.getmodel>
-#
-# --RETURNED--
-#   etamap: the theta -> eta mapping given by a list of the following:
-#     canonical  : a numeric vector whose ith entry specifies whether
-#                  the ith component of theta is canonical (via non-
-#                  negative integers) or curved (via zeroes)
-#     offsetmap  : a logical vector whose ith entry tells whether the
-#                  ith coefficient of the canonical parameterization
-#                  was "offset", i.e fixed 
-#     offset     : a logical vector whose ith entry tells whether the
-#                  ith model term was offset/fixed
-#     offsettheta: a logical vector whose ith entry tells whether the
-#                  ith curved theta coeffient was offset/fixed;
-#     curved     : a list with one component per curved EF term in the
-#                  model containing
-#         from    : the indices of the curved theta parameter that are
-#                   to be mapped from
-#         to      : the indices of the canonical eta parameters to be
-#                   mapped to
-#         map     : the map provided by <InitErgmTerm>
-#         gradient: the gradient function provided by <InitErgmTerm> 
-#         cov     : the eta covariance ??, possibly always NULL (no
-#                   <Init> function creates such an item)
-#     etalength  : the length of the eta vector
-#
 ###############################################################################
 
 ergm.etamap <- function(model) {

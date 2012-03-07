@@ -1,36 +1,18 @@
-#===========================================================================
-# The <InitMHP> file contains the following 24 functions for
-# initializing the MHproposal object; each is prepended with 'InitMHP.'
-#       <randomtoggle>      <CondOutDegreeDist> 
-#       <TNT>               <ConstantEdges>     
-#       <TNT10>             <CondInDegree>      
-#       <CondDegree>        <CondOutDegree>     <HammingTNT>   
-#       <CondDegreeTetrad>         <HammingConstantEdges>
-#       <CondDegreeHexad>            <randomtoggleNonObserved>
-#       <CondDegreeDist>          <nobetweengroupties>
-#       <CondInDegreeDist>  
-#============================================================================
-
-
+#  File ergm/R/InitMHP.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ########################################################################
 # Each of the <InitMHP.X> functions initializes and returns a
 # MHproposal list; when appropriate, proposal types are checked against
 # covariates and network types for 1 of 2 side effects: to print warning
 # messages or to halt execution (only <InitMHP.nobetweengroupties> can
 # halt execution)
-#
-# --PARAMETERS--
-#   arguments: is ignored by all but <InitMHP.nobetweengroupties>,
-#              where 'arguments' is used to get the nodal attributes
-#              via <get.node.attr>
-#   nw       : the network given by the model
-#
-# --RETURNED--
-#   MHproposal: a list containing:
-#        name   : the name of the proposal
-#        inputs : a vector to be passed to the proposal
-#        package: is "ergm"
-#
 ############################################################################
 
 

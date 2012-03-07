@@ -1,3 +1,12 @@
+#  File ergm/R/plot.network.ergm.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 #########################################################################
 # The <plot.network.ergm> function produces a two-dimensional network
 # visualization based on <plot.network.default>; a variety of options are 
@@ -6,19 +15,6 @@
 # with additional pre-processing of arguments; some of the capabilites 
 # require the latentnet package; see <plot.network> in the network package
 # for details.
-#
-# --PARAMETERS--
-#   x: a network
-#    : (see the man page for descriptions of the other 52 input params)
-#
-# --RETURNED--
-#   the plot as an invisible list containing:
-#    x        : the x-coordinates used in the plot
-#    y        : the y-coordinates used in the plot
-#    latentfit: the latent fit as a list containing:
-#       Z.mle : ??
-#       beta  : ??
-#
 #########################################################################
 
 "plot.network.ergm"<-function(x,

@@ -1,21 +1,18 @@
+#  File ergm/R/get.node.attr.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ###############################################################################
 # The <get.node.attr> function returns the vector of covariates for the given
 # network and specified attribute if the attribute exists - execution will
 # halt if the attribute is not correctly given as a single string or is not 
 # found in the vertex attribute list; optionally <get.node.attr> will also 
 # check that return vector is numeric, halting execution if not
-#
-# --PARAMETERS--
-#   nw          : a network object
-#   attrname    : the name of a nodal attribute, as a character string
-#   functionname: the name of the calling function; this is only used for
-#                 the warning messages that accompany a halt
-#   numeric     : whether to halt execution if the return vector is not
-#                 numeric; default=FALSE
-#   
-# --RETURNED--
-#   out:  the vector of 'attrname' covariates
-#
 ###############################################################################
 
 get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {  

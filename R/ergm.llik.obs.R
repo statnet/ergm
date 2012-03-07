@@ -1,56 +1,18 @@
-#==========================================================================
-# This file contains the following 14 functions for computing log likelihoods,
-# gradients, hessians, and such for networks with observation process
-#          <llik.fun.obs>         <llik.hessian.obs>
-#          <llik.grad.obs>        <llik.fun.obs.robust>
-#=========================================================================
-
-
-
-
-
+#  File ergm/R/ergm.llik.obs.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ###################################################################################
 # Each of the <llik.X> functions computes either a likelihood function, a gradient
 # function, or a Hessian matrix;  Each takes the same set of input parameters and
 # these are described below; the return values differ however and so these are
 # described above each function.   
-# 
-#
-# --PARAMETERS--
-#   theta      : the vector of theta parameters; this is only used to solidify
-#                offset coefficients; the not-offset terms are given by 'init'
-#                of the 'etamap'
-#   xobs       : the vector of observed statistics
-#   xsim       : the matrix of simulated statistics
-#   probs      : the probability weight for each row of the stats matrix
-#   xsim.obs  : the 'xsim' counterpart for observation process
-#   probs.obs : the 'probs' counterpart for observation process
-#   varweight  : the weight by which the variance of the base predictions will be
-#                scaled; the name of this param was changed from 'penalty' to better
-#                reflect what this parameter actually is; default=0.5, which is the
-#                "true"  weight, in the sense that the lognormal approximation is
-#                given by
-#                           sum(xobs * x) - mb - 0.5*vb
-#   trustregion: the maximum value of the log-likelihood ratio that is trusted;
-#                default=20
-#   eta0       : the initial eta vector
-#   etamap     : the theta -> eta mapping, as returned by <ergm.etamap>
-#
-#
-# --RETURNED--
-#   llr: the log-likelihood ratio of l(eta) - l(eta0)
-#
 ####################################################################################
-
-
-
-
-#####################################################################################
-# --RETURNED--
-#   llr: the log-likelihood ratio of l(eta) - l(eta0) using a lognormal
-#        approximation; i.e., assuming that the network statistics are approximately
-#        normally  distributed so that exp(eta * stats) is lognormal
-#####################################################################################                           
 llik.fun.obs <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
                      varweight=0.5, trustregion=20, eta0, etamap){
   theta.offset <- etamap$init
@@ -93,10 +55,6 @@ llik.fun.obs <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL
 
 
 
-#####################################################################################
-# --RETURNED--
-#   llg: the gradient of the not-offset eta parameters with ??
-#####################################################################################
 
 llik.grad.obs <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NULL,
                       varweight=0.5, trustregion=20, eta0, etamap){
@@ -139,10 +97,6 @@ llik.grad.obs <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NU
 
 
 
-#####################################################################################
-# --RETURNED--
-#   He: the ?? Hessian matrix
-#####################################################################################
 
 llik.hessian.obs <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
                          varweight=0.5, eta0, etamap){
@@ -209,12 +163,6 @@ llik.hessian.obs <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=
 
 
 
-
-#####################################################################################
-# --RETURNED--
-#   llr: the log-likelihood ratio of l(eta) - l(eta0) using ??
-#                "robust obsing data code"
-#####################################################################################
 
 llik.fun.obs.robust<- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
                      varweight=0.5, trustregion=20, eta0, etamap){

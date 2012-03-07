@@ -1,45 +1,18 @@
-#=============================================================================
-# This file contains the 2 following function for fitting a stergm, using the
-# Robbins-Monro approach
-#       <stergm.RM>
-#       <stergm.phase12.C>
-#=============================================================================
-
-
-
-
+#  File ergm/R/stergm.EGMME.SA.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ################################################################################
 # The <stergm.RM> function fits a stergm using the Robbins-Monro style of
 # methods of moments estimation; this style should only be used if it is known
 # a priori that the derivative of each element of the equilibrium expected
 # values of the statistics of interest with respect to the corresponding formation
 # phase parameter is positive.
-#
-# --PARAMETERS--
-#   theta.form0    : the initial theta formation coefficients
-#   nw             : a network object
-#   model.form     : a formation model, as returned by <ergm.getmodel>
-#   model.diss     : a dissolution model, as returned by <ergm.getmodel>
-#   theta.diss     : the initial theta dissolution coefficients
-#   control     : the list of parameters which tune the MCMC sampling
-#                    processes; the recognized components of 'control'
-#                    are those passed to and used by <stergm.phase12.C>
-#                    and are described in its function header
-#   MHproposal.form: a MHproposal object for the formation process, as
-#                    returned by <getMHproposal>
-#   MHproposal.diss: a MHproposal object for the dissolution process, as
-#                    returned by <getMHproposal>
-#   verbose        : whether this and subsequently called R and C code
-#                    should be verbose (T or F); default=FALSE
-#
-# --RETURNED--
-#   a stergm object as a list containing:
-#    coef.form :   the estimated formation coefficients
-#    coef.diss :   the estimated dissolution coefficients
-#    newnetwork:   the 'nw' inputted into this function
-#    network   :   the 'nw' inputted into this function
-#    theta.form.original: the 'theta.form0' inputted into this function
-#
 ################################################################################
 
 stergm.EGMME.SA <- function(theta.form0, theta.diss0, nw, model.form, model.diss, model.mon,

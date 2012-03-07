@@ -1,52 +1,17 @@
-#=================================================================================
-# This file contains the following 10 diagnostic tools and their helper functions
-#      <mcmc.diagnostics>            <traceplot.ergm>
-#      <mcmc.diagnostics.default>    <set.mfrow>
-#      <mcmc.diagnostics.ergm>       <nvar.mcmc>
-#      <is.mcmc.object>
-#      <is.mcmc.list.object>
-#      <plot.mcmc.ergm>              <varnames.mcmc>
-#=================================================================================
-
-
-
+#  File ergm/R/mcmc.diagnostics.ergm.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 #########################################################################
 # The <mcmc.diagnostics.X> functions create diagnostic plots for the
 # MCMC sampled statistics of the ergm X and prints the Raftery-Lewis
 # diagnostics, indicating whether they are sufficient or not; if X is not
 # an ergm, execution will halt
-#
-# --PARAMTERS--
-#   object : an ergm object, that has an MCMC established stats matrix
-#   sample : the name of the component in 'object' to base the diagnosis
-#            on; recognized strings are "observed", "sample", and
-#            "thetasample"; default="sample"
-#   smooth : whether to draw a smooth line through the trace plots;
-#            default=TRUE
-#   maxplot: the maximum number of statistics to plot; default=1000
-#   verbose: whether to print out additional information about the
-#            MCMC runs including lag correlations; default=TRUE
-#   center : whether the samples should be centered on the observed
-#            statistics; default=TRUE
-#   ...    : addtional parameters that are passed to <plot.mcmc.ergm>
-#   main, ylab, xlab: have their usual par-like meanings
-#
-#
-# --IGNORED PARAMETERS--
-#   r      : what percentile of the distribution to estimate; this is
-#            ignored: default=.0125
-#   digits : the number of digits to print; default=6
-#
-# --RETURNED--
-#   raft: a list containing
-#    params          : ?? 
-#    resmatrix       : ??
-#    degeneracy.value: the degeneracy.value of 'object', as computed by
-#                      <ergm.degeneracy>
-#    degeneracy.type : the degeneracy.type of 'object', as computed by
-#                      <ergm.compute.degeneracy> 
-#    simvals         :
-#
 ##########################################################################
 
 mcmc.diagnostics <- function(object, ...) {

@@ -1,29 +1,15 @@
-#=======================================================================================
-# This file contains the following 6 files for creating MHproposal objects
-#          <MHproposal>                <MHproposal.character>
-#          <MHproposal.NULL>           <MHproposal.formula>
-#          <MHproposal.MHproposal>     <MHproposal.ergm>
-#=======================================================================================
-
+#  File ergm/R/MHproposal.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ########################################################################################
 # The <MHproposal> function initializes and returns an MHproposal object via one of the
 # class-specific functions below
-#
-# --PARAMETERS--
-#   (see the class-specific function headers)
-#
-# --RETURNED--
-#   proposal: an MHproposal object as a list containing the following:
-#     name   : the C name of the proposal
-#     inputs : NULL (I think - the only non-null value returned by the InitMH
-#              is for <nobetweengroupties>, but this isn't included in the 
-#              look-up table
-#     package: shared library name where the proposal can be found (usually "ergm")
-#     arguments: list of arguments passed to the InitMHP function; in particular,
-#       constraints: list of constraints
-#       constraints$bd: the list of parameters to bound degree in the fitting process
-#              and returned by <ergm.bounddeg>
-#
 ########################################################################################
 
 MHproposal<-function(object, ...) UseMethod("MHproposal")
@@ -41,13 +27,6 @@ MHproposal.MHproposal<-function(object,...) return(object)
 ########################################################################################
 # The <MHproposal.character> function initializes the MHproposal object using the
 # <InitMHP.> function that corresponds to the name given in 'object'
-#
-# --PARAMETERS--
-#   object     :  the name of the proposal, one found in the look-up table
-#   arguments  :  a list of parameters used by the <Init.MHP> routines possibly including
-#                  bd: a list of parameters used to bound degree via <ergm.bounddeg>
-#   nw         :  the network object orginally given to <ergm> via 'formula'
-#
 ########################################################################################
 
 MHproposal.character <- function(object, arguments, nw, ...){
@@ -71,19 +50,6 @@ MHproposal.character <- function(object, arguments, nw, ...){
 # are supported in conjuction with the given weights and class by a unique MH proposal;
 # if so the MHproposal object is created via <MHproposal.character> using the 
 # MHP type found in the look-up table above.
-#
-# --PARAMETERS--
-#   object     :  a one-sided formula of constraint terms ( ~ term(s))
-#   arguments  :  a list of parameters used by the <Init.MHP> routines  possibly including
-#                  bd: a list of parameters used to bound degree via <ergm.bounddeg>
-#   nw         :  a network object
-#   constraints:  the constraints as a one sided formula '~ term(s)'
-#   weights    :  specifies the method used to allocate probabilities of being proposed
-#                 to dyads; options are "TNT", "TNT10", "random", "nonobserved" and
-#                 "default"; default="default"
-#   class      :  the class of the proposal; choices include "c", "f", and "d"
-#                 default="c"
-#
 ########################################################################################
 
 MHproposal.formula <- function(object, arguments, nw, weights="default", class="c", ...) {
@@ -151,19 +117,6 @@ MHproposal.formula <- function(object, arguments, nw, weights="default", class="
 ########################################################################################
 # The <MHproposal.ergm> function creates the MHproposal object via <MHproposal.formula>
 # after extracting the appropriate parameters from the given ergm object
-#
-# --PARAMETERS--
-#   object     :  an ergm object
-#   constraints:  the constraints as a one sided formula '~ term(s)';
-#                 default=object$constraints
-#   arguments  :  a list of parameters used by the <Init.MHP> routines  possibly including
-#                  bd: a list of parameters used to bound degree via <ergm.bounddeg>
-#   nw         :  a network object; default=object.network
-#   weights    :  the proposal weights component of <control.ergm> as either
-#                 "TNT", "random", "TNT10", or "default"; default="default"
-#                 (these options don't agree with the prop.weights of <control.ergm>)
-#   class      :  "c", otherwise execution will halt
-#
 ########################################################################################
 
 MHproposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NULL, weights=NULL,class="c"){

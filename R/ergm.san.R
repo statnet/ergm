@@ -1,12 +1,12 @@
-#=========================================================================
-# This file contains 4 functions for created "SAN-ed" networks & formulas
-#           <san>              <san.formula>
-#           <san.default>      <san.ergm>
-#=========================================================================
-
-
-
-
+#  File ergm/R/ergm.san.R
+#  Part of the statnet package, http://statnetproject.org
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) in
+#    http://statnetproject.org/attribution
+#
+#  Copyright 2012 the statnet development team
+######################################################################
 ####################################################################
 # Each of the <san.X> functions samples one or more networks via
 # <SAN_wrapper.C> according to the vector of mean stats given;
@@ -15,53 +15,6 @@
 #    - if the formula does not correctly specify a network
 #    - no mean stats are given
 #
-# --PARAMETERS--
-#   object     : an ergm object of a formula for such
-#   nsim       : the number of sampled networks to return;
-#                default=1
-#   seed       : the number at which to start the random number
-#                generator; default=NULL
-#   init     : a vector of initial values for the theta coefficients;
-#                default=those returned by <ergm.mple>
-#   invcov     : the initial inverse covariance matrix used to
-#                calculate the Mahalanobis distance; default=that 
-#                from the mple fit if 'init'=NULL, else default=the
-#                identity matrix of size 'init'
-#   burnin     : the number of proposal to disregard before sampling
-#                begins; default=1e4
-#   interval   : the number of proposals between sampled statistics;
-#                default=1e4
-#   target.stats  : a vector of the mean statistics for each model
-#                coefficient; default=NULL (which will halt execution)
-#   basis      : optionally, a network can be provided in 'basis' and
-#                this replaces that given by 'object'; default=NULL
-#   sequential : whether subsequent sampling should start with the
-#                previously sampled network; the alternative is to
-#                always begin sampling from the original network;
-#                default=TRUE
-#   constraints: a one-sided formula giving one or more constraints on
-#                the support of the distribution of the networks being
-#                modeled; a list of availabe options is described in the
-#                <ergm> R documentation; default=~.
-#   control    : a control list for tuning the MHproposals and other
-#                elements of the fit; default=<control.san>()
-#   verbose    : whether this and the C program should be verbose;
-#                default=FALSE
-#   ...        : additional parameters that will passed onto <ergm.mple>
-#
-# --IGNORED--
-#   tau:  this is passed along to several C functions; its use in
-#         <SANMetropolisHastings.c> is commented out
-#
-# --RETURNED--
-#   outlist: either a single sampled network if 'nsim'=1, else a
-#            network.list object as list containing
-#              formula :  the formula given by 'object'
-#              networks:  the list of sampled networks
-#              stats   :  the summary statistics of the sampled networks
-#              coef    :  the initial theta coefficients used by
-#                         the sampling rountine, i.e. 'init'
-#            
 ##############################################################################
 
 san <- function(object, ...){
