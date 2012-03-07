@@ -588,7 +588,7 @@ plot(flomarriage)
 #
 # now make the vertex size proportional to their wealth
 #
-plot(flomarriage, vertex.cex="wealth", main="Marriage Ties")
+plot(flomarriage, vertex.cex=flomarriage \%v\% "wealth" / 20, main="Marriage Ties")
 #
 # Use 'data(package = "ergm")' to list the data sets in a
 #
