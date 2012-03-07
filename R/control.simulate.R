@@ -77,7 +77,7 @@ control.simulate<-control.simulate.formula<-control.simulate.formula.ergm<-funct
 
   for(arg in names(list(...))){
     if(!is.null(old.controls[[arg]])){
-      warning("Passing ",arg," to simulate(...) is deprecated and may be removed in a future version. Specify it as control.simulate.formula(",old.controls[[arg]],"=...) instead.")
+      warning("Passing ",arg," to control.simulate.formula(...) is deprecated and may be removed in a future version. Specify it as control.simulate.formula(",old.controls[[arg]],"=...) instead.")
       control[old.controls[[arg]]]<-list(list(...)[[arg]])
     }else{
       stop("Unrecognized control parameter: ",arg,".")
