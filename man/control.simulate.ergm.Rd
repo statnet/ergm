@@ -64,7 +64,6 @@ control.simulate.ergm(MCMC.burnin=NULL,
 
                       network.output="network",
 
-                      seed=NULL,
                       parallel=0,
                       parallel.type=NULL,
                       parallel.version.check=TRUE,
@@ -107,9 +106,6 @@ control.simulate.ergm(MCMC.burnin=NULL,
   \item{network.output}{R class with which to output 
     networks. The options are "network" (default) and "edgelist.compressed" 
     (which saves space but only supports networks without vertex attributes)
-  }
-  \item{seed}{Seed value (integer) for the random number generator.  
-    See \code{\link[base]{set.seed}}
   }
   \item{parallel}{Number of threads in which to run the
     sampling. Defaults to 0 (no parallelism). See the entry on
