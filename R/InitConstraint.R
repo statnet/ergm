@@ -128,13 +128,6 @@ InitConstraint.observed <- function(conlist){
   conlist
 }
 
-InitConstraint.ranks<-function(conlist){
-   if (nargs()>1)
-     stop(paste("Rank constraint does not take arguments at this time."), call.=FALSE)
-   conlist$ranks<-list()
-   conlist
-}
-
 InitConstraint.atleast<-function(conlist,nw=NULL){
   if(is.null(nw)) stop("Formation constraint ``atleast'' requires a baseline network.",call.=FALSE)
   if(network.naedgecount(nw)) stop("Baseline network passed to formation constraint ``atleast'' may not have missing dyads.")
