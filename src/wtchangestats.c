@@ -197,6 +197,9 @@ WtD_CHANGESTAT_FN(d_cyclicalweights){
 		old_two_path = sqrt(old_ykh * yik);
 		new_two_path = sqrt(new_ykh * yik);
 		break;
+	      default: // never reached, but prevents a warning
+		old_two_path = 0;
+		new_two_path = 0;
 	      }
 	  
 	      switch(combine){
@@ -843,6 +846,9 @@ WtD_CHANGESTAT_FN(d_transitiveweights){
 		old_two_path = sqrt(old_ykh * yik);
 		new_two_path = sqrt(new_ykh * yik);
 		break;
+	      default: // never reached, but prevents a warning
+		old_two_path = 0;
+		new_two_path = 0;
 	      }
 	  
 	      switch(combine){
