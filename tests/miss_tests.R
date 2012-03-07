@@ -50,21 +50,25 @@ run.miss.test<-function(y){
 
 # Directed
 cat("\n\nDirected Network\n")
+set.seed(123)
 y<-mk.missnet(n, d, m, TRUE, 0)
 stopifnot(run.miss.test(y))
 
 # Undirected
 cat("\n\nUndirected Network\n")
+set.seed(456)
 y<-mk.missnet(n, d, m, FALSE, 0)
 stopifnot(run.miss.test(y))  
 
 # Bipartite Undirected
 cat("\n\nBipartite Undirected Network\n")
+set.seed(789)
 y<-mk.missnet(n, d, m, FALSE, b)
 stopifnot(run.miss.test(y))
 
 # Add the curved+missing test here for now
 
+set.seed(321)
 n <- 50
 y <- network.initialize(n, directed=FALSE) # Create an empty network
 y <- simulate(y~edges, coef=logit(0.12), control=control.simulate(MCMC.burnin=2*n^2))
@@ -76,6 +80,7 @@ print(summary(y~edges+gwesp(0.5)))
 truth<-correct.edges.theta(y)
 cat("Correct estimate =",truth,"\n")
 
+set.seed(654)
 mcmcfit<-ergm(y~edges+gwesp(0.5), control=control.ergm(MCMLE.maxit=5))
 summary(mcmcfit)
 stopifnot(abs(coef(mcmcfit)[1]-truth)/sqrt(mcmcfit$covar[1])<2)
