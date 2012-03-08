@@ -78,6 +78,8 @@ san.formula <- function(object, response=NULL, reference="Bernoulli", constraint
                         sequential=TRUE,
                         control=control.san(),
                         verbose=FALSE, ...) {
+  check.control.class("san")
+  
   out.list <- list()
   out.mat <- numeric(0)
   formula <- object
@@ -261,7 +263,7 @@ san.ergm <- function(object, formula=object$formula,
                      target.stats=object$target.stats,
                      nsim=1, basis=NULL,
                      sequential=TRUE, 
-                     control=object$SAN.control,
+                     control=object$control$SAN.control,
                      verbose=FALSE, ...) {
   if(is.null(control$coef)) control$coef <- coef(object)
   san.formula(formula, nsim=nsim, 

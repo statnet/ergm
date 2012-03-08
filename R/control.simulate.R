@@ -84,8 +84,7 @@ control.simulate<-control.simulate.formula<-control.simulate.formula.ergm<-funct
     }
   }
 
-  
-  control
+  set.control.class("control.simulate.formula")
 }
 
 control.simulate.ergm<-function(MCMC.burnin=NULL,
@@ -103,7 +102,7 @@ control.simulate.ergm<-function(MCMC.burnin=NULL,
                                 parallel.type=NULL,
                                 parallel.version.check=TRUE,
                                 ...){
- old.controls <- list(
+  old.controls <- list(
                        maxedges="MCMC.init.maxedges",
                        prop.weights="MCMC.prop.weights",
                        prop.args="MCMC.prop.args",
@@ -121,8 +120,8 @@ control.simulate.ergm<-function(MCMC.burnin=NULL,
       warning("Passing ",arg," to control.simulate.ergm(...) is deprecated and may be removed in a future version. Specify it as control.simulate.ergm(",old.controls[[arg]],"=...) instead.")
       control[old.controls[[arg]]]<-list(list(...)[[arg]])
     }
-  
-  control
+ 
+  set.control.class()
 }
 
 control.simulate.ergm.toplevel<-function(control,...){

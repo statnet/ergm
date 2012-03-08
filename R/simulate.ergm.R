@@ -66,11 +66,14 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                           sequential=TRUE,
                           control=control.simulate.ergm(),
                           verbose=FALSE, ...) {
+  check.control.class(c("simulate.ergm","simulate.formula"))
   control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges")
   for(arg in control.transfer)
     if(is.null(control[[arg]]))
       control[arg] <- list(object$control[[arg]])
 
+  control <- set.control.class("control.simulate.formula")
+  
   simulate.formula(object$formula, nsim=nsim, coef=coef, response=object$response, reference=if(is.null(reference)) "Bernoulli" else object$reference,
                    statsonly=statsonly,
                    sequential=sequential, constraints=constraints,
@@ -88,6 +91,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
                                sequential=TRUE,
                                control=control.simulate.formula(),
                                verbose=FALSE, ...) {
+  check.control.class(myname="ERGM simulate.formula")
   # Backwards-compatibility code:
   if("theta0" %in% names(list(...))){
     warning("Passing the parameter vector as theta0= is depcrecated. Use coef= instead.")

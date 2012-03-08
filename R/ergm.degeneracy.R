@@ -35,10 +35,11 @@
 #######################################################################################
 
 ergm.degeneracy <- function(object, 
-                          control=control.ergm(),
+                          control=object$control,
                           fast=TRUE,
                           test.only=FALSE,
                           verbose=FALSE) {
+  check.control.class(control, "ergm")
   
   if(!is.ergm(object)){
     stop("A ergm object argument must be given.")

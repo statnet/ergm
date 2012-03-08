@@ -6,16 +6,16 @@
   Auxiliary function as user interface for fine-tuning STERGM simulation.
 }
 \usage{
-control.simulate.stergm(MCMC.burnin=1000,
-                        MCMC.prop.weights.form="default",MCMC.prop.args.form=NULL,
-                        MCMC.prop.weights.diss="default",MCMC.prop.args.diss=NULL,                                  
-                        MCMC.init.maxedges=20000,
-                        MCMC.packagenames="ergm",
-                        MCMC.init.maxchanges=1000000)
+control.simulate.stergm(MCMC.burnin=NULL,
+                        MCMC.prop.weights.form=NULL,MCMC.prop.args.form=NULL,
+                        MCMC.prop.weights.diss=NULL,MCMC.prop.args.diss=NULL,
+                        MCMC.init.maxedges=NULL,
+                        MCMC.packagenames=NULL,
+                        MCMC.init.maxchanges=NULL)
 
-control.simulate.stergm(MCMC.burnin=1000,
+control.simulate.network(MCMC.burnin=1000,
                         MCMC.prop.weights.form="default",MCMC.prop.args.form=NULL,
-                        MCMC.prop.weights.diss="default",MCMC.prop.args.diss=NULL,                                  
+                        MCMC.prop.weights.diss="default",MCMC.prop.args.diss=NULL,
                         MCMC.init.maxedges=20000,
                         MCMC.packagenames="ergm",
                         MCMC.init.maxchanges=1000000)

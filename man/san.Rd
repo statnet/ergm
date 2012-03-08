@@ -24,7 +24,7 @@ of mean statistics}
                    nsim=1, 
                    basis=NULL,
                    sequential=TRUE, 
-                   control=object$SAN.control,
+                   control=object$control$SAN.control,
                    verbose=FALSE, 
                    \dots)
 }

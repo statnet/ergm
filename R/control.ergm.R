@@ -153,9 +153,9 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.conv.min.pval=0.5,
                        MCMLE.NR.maxit=100,
                        MCMLE.NR.reltol=sqrt(.Machine$double.eps),
-                       MCMLE.obs.MCMC.samplesize=MCMC.samplesize,
-                       MCMLE.obs.MCMC.interval=MCMC.interval,
-                       MCMLE.obs.MCMC.burnin=MCMC.burnin,
+                       obs.MCMC.samplesize=MCMC.samplesize,
+                       obs.MCMC.interval=MCMC.interval,
+                       obs.MCMC.burnin=MCMC.burnin,
                        MCMLE.check.degeneracy=FALSE,
                        MCMLE.MCMC.precision=0.05,
                        MCMLE.metric=c("lognormal", "Median.Likelihood",
@@ -183,13 +183,7 @@ control.ergm<-function(drop=TRUE,
                        Step.maxit=50,
                        Step.gridsize=100,
 
-                       loglik.control=control.ergm.bridge(MCMC.burnin=MCMC.burnin,
-                         MCMC.interval=MCMC.interval,
-                         MCMC.samplesize=MCMC.samplesize,
-                         MCMC.prop.weights=MCMC.prop.weights,
-                         MCMC.prop.args=MCMC.prop.args,
-                         MCMC.init.maxedges=MCMC.init.maxedges,
-                         MCMC.packagenames=MCMC.packagenames),
+                       loglik.control=control.logLik.ergm(),
 
                        seed=NULL,
                        parallel=0,
@@ -206,8 +200,8 @@ control.ergm<-function(drop=TRUE,
                        initialfit="init.method",
                        style="main.method",
                        obs.MCMCsamplesize="MCMLE.obs.samplesize",
-                       obs.interval="MCMLE.obs.MCMC.interval",
-                       obs.burnin="MCMLE.obs.MCMC.burnin",
+                       obs.interval="obs.MCMC.interval",
+                       obs.burnin="obs.MCMC.burnin",
                        compress="MCMC.compress",
                        metric="MCMLE.metric",
                        force.mcmc="force.main",
@@ -258,8 +252,8 @@ control.ergm<-function(drop=TRUE,
 
   for(arg in match.arg.pars)
     control[arg]<-list(match.arg(control[[arg]][1],eval(formal.args[[arg]])))
-  
-  control
+
+  set.control.class()
 }
 
 control.ergm.toplevel<-function(control,...){

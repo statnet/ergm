@@ -52,9 +52,9 @@ control.ergm(drop=TRUE,
              MCMLE.conv.min.pval=0.5,
              MCMLE.NR.maxit=100,
              MCMLE.NR.reltol=sqrt(.Machine$double.eps),
-             MCMLE.obs.MCMC.samplesize=MCMC.samplesize,
-             MCMLE.obs.MCMC.interval=MCMC.interval,
-             MCMLE.obs.MCMC.burnin=MCMC.burnin,
+             obs.MCMC.samplesize=MCMC.samplesize,
+             obs.MCMC.interval=MCMC.interval,
+             obs.MCMC.burnin=MCMC.burnin,
              MCMLE.check.degeneracy=FALSE,
              MCMLE.MCMC.precision=0.05,
              MCMLE.metric=c("lognormal", "Median.Likelihood",
@@ -83,13 +83,7 @@ control.ergm(drop=TRUE,
              Step.maxit=50,
              Step.gridsize=100,
 
-             loglik.control=control.ergm.bridge(MCMC.burnin=MCMC.burnin,
-                         MCMC.interval=MCMC.interval,
-                         MCMC.samplesize=MCMC.samplesize,
-                         MCMC.prop.weights=MCMC.prop.weights,
-                         MCMC.prop.args=MCMC.prop.args,
-                         MCMC.init.maxedges=MCMC.init.maxedges,
-                         MCMC.packagenames=MCMC.packagenames),
+             loglik.control=control.logLik.ergm(),
 
              seed=NULL,
              parallel=0,
@@ -271,7 +265,7 @@ control.ergm(drop=TRUE,
   }
   \item{MCMLE.NR.reltol}{Not yet documented.
   }
-  \item{MCMLE.obs.MCMC.samplesize,MCMLE.obs.MCMC.burnin,MCMLE.obs.MCMC.interval}{
+  \item{obs.MCMC.samplesize,obs.MCMC.burnin,obs.MCMC.interval}{
     Sample size, burnin, and interval parameters for the MCMC sampling used
     when unobserved data are present in the estimation routine.    
   }

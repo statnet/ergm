@@ -113,6 +113,7 @@ ergm <- function(formula, response=NULL,
                  estimate=c("MLE", "MPLE"),
                  control=control.ergm(),
                  verbose=FALSE,...) {
+  check.control.class()
   current.warn <- options()$warn
   on.exit(options(warn=current.warn), add=TRUE)
   options(warn=0)

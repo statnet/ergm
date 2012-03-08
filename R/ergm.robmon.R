@@ -42,7 +42,6 @@ ergm.robmon <- function(init, nw, model,
                         burnin, interval, MHproposal,
                         verbose=FALSE, 
                         control=control.ergm() ){
-  
   #phase 1:  Estimate diagonal elements of D matrix (covariance matrix for init)
   n1 <- control$SA.phase1_n
   if(is.null(n1)) {n1 <- 7 + 3 * model$etamap$etalength} #default value

@@ -19,7 +19,7 @@ control.ergm.bridge<-function(nsteps=20, # Number of geometric bridges to use
   for(arg in names(formal.args))
     control[arg]<-list(get(arg))
 
-  control
+  set.control.class()
 }
 
 

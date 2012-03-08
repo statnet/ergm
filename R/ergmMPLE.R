@@ -30,6 +30,7 @@
 ergmMPLE <- function(formula, fitmodel=FALSE, control=control.ergm(),
                      verbose=FALSE, ...) 
 {
+  check.control.class("ergm")
   if (fitmodel) {
     return(ergm(formula, estimate="MPLE", control=control, verbose=verbose, ...))
   }

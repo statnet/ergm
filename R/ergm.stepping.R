@@ -58,7 +58,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 		samples[[iter]]=simulate.formula(formula, nsim=control$Step.MCMC.samplesize,
                                      coef=eta[[iter]], statsonly=TRUE,
                                      constraints=constraints, 
-                                     control=control, ...)
+                                     control=set.control.class("control.simulate.formula",control), ...)
 		sampmeans[[iter]]=colMeans(samples[[iter]])
 		
 		hi <- control$Step.gridsize  # Goal: Let gamma be largest possible multiple of .01
@@ -150,7 +150,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   finalsample <- simulate.formula(formula, nsim=control$MCMC.samplesize,
                                   coef=eta[[iter]], statsonly=TRUE, 
                                   constraints=constraints, 
-                                  control=control, ...)
+                                  control=set.control.class("control.simulate.formula",control), ...)
   sampmeans[[iter]] <- colMeans(finalsample)
   xi[[iter]] <- obsstats
 	v<-ergm.estimate(init=eta[[iter]], model=model, 

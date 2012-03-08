@@ -87,7 +87,7 @@ gof.ergm <- function (object, ...,
                       constraints=NULL,
                       control=control.gof.ergm(),
                       verbose=FALSE) {
-  
+  check.control.class(c("gof.ergm","gof.formula"))
   nw <- as.network(object$network)
 
   #Set up the defaults, if called with GOF==NULL
@@ -117,6 +117,8 @@ gof.ergm <- function (object, ...,
   for(arg in control.transfer)
     if(is.null(control[[arg]]))
       control[arg] <- list(object$control[[arg]])
+
+  control <- set.control.class("control.gof.formula")
   
   if(is.null(constraints)) constraints <- object$constraints
   
@@ -135,6 +137,8 @@ gof.formula <- function(object, ...,
                         constraints=~.,
                         control=control.gof.formula(),
                         verbose=FALSE) {
+  check.control.class()
+  
   if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
   if (verbose) 
     cat("Starting GOF for the given ERGM formula.\n")
@@ -373,7 +377,7 @@ gof.formula <- function(object, ...,
     }
     tempnet <- simulate(object, nsim=1, coef=coef,
                         constraints=constraints, 
-                        control=control,
+                        control=set.control.class("control.simulate.formula",control),
                         basis=tempnet,
                         verbose=verbose)
     seed <- NULL # Don't re-seed after first iteration   

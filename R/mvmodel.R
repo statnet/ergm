@@ -65,6 +65,7 @@ mvmodel.formula <- function (formula, ..., init, nsim=100,
                              seed=NULL, 
                              statistic=NULL
 		      ) {
+  check.control.class("simulate.formula", "ERGM mvmodel.formula")
   trms <- ergm.getterms(formula)
   if(length(trms)>2){
     g <- eval(trms[[2]], sys.parent())
@@ -153,6 +154,8 @@ mvmodel.ergm <- function (object, ..., nsim=100,
                           control=control.simulate.ergm(),
                           statistic=NULL) {
 
+  check.control.class("simulate.ergm")
+  
 # trms <- ergm.getterms(object$formula)
 # g <- as.network(eval(trms[[2]], sys.parent()))
   g <- object$network

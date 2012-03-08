@@ -77,9 +77,9 @@ ergm.MCMLE <- function(init, nw, model,
   
   if(obs){
     control.obs <- control
-    control.obs$MCMC.samplesize <- control$MCMLE.obs.MCMC.samplesize
-    control.obs$MCMC.interval <- control$MCMLE.obs.MCMC.interval
-    control.obs$MCMC.burnin <- control$MCMLE.obs.MCMC.burnin
+    control.obs$MCMC.samplesize <- control$obs.MCMC.samplesize
+    control.obs$MCMC.interval <- control$obs.MCMC.interval
+    control.obs$MCMC.burnin <- control$obs.MCMC.burnin
   }
   finished <- FALSE
   # mcmc.init will change at each iteration.  It is the value that is used

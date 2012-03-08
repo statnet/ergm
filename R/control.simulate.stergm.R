@@ -32,15 +32,32 @@
 #
 #########################################################################
 
-control.simulate.stergm<-control.simulate.network<-function(MCMC.burnin=1000,
-                                                            MCMC.prop.weights.form="default",MCMC.prop.args.form=NULL,
-                                                            MCMC.prop.weights.diss="default",MCMC.prop.args.diss=NULL,                                  
-                                  MCMC.init.maxedges=20000,
-                                  MCMC.packagenames="ergm",
-
-                                  MCMC.init.maxchanges=1000000){
+control.simulate.network<-function(MCMC.burnin=1000,
+                                   MCMC.prop.weights.form="default",MCMC.prop.args.form=NULL,
+                                   MCMC.prop.weights.diss="default",MCMC.prop.args.diss=NULL,                                  
+                                   MCMC.init.maxedges=20000,
+                                   MCMC.packagenames="ergm",
+                                   
+                                   MCMC.init.maxchanges=1000000){
     control<-list()
     for(arg in names(formals(sys.function())))
       control[arg]<-list(get(arg))
-    control
+
+    set.control.class()
   }
+
+control.simulate.stergm<-function(MCMC.burnin=NULL,
+                                  MCMC.prop.weights.form=NULL,MCMC.prop.args.form=NULL,
+                                  MCMC.prop.weights.diss=NULL,MCMC.prop.args.diss=NULL,                                  
+                                  MCMC.init.maxedges=NULL,
+                                  MCMC.packagenames=NULL,
+
+                                  MCMC.init.maxchanges=NULL){
+    control<-list()
+    for(arg in names(formals(sys.function())))
+      control[arg]<-list(get(arg))
+
+    set.control.class()
+  }
+
+

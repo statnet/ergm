@@ -53,7 +53,6 @@ control.simulate.formula.ergm(MCMC.burnin=1000,
                               parallel.version.check=TRUE,
                               \dots)
 
-
 control.simulate.ergm(MCMC.burnin=NULL,
                       MCMC.interval=NULL,
                       MCMC.prop.weights=NULL,

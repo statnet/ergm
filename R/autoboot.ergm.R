@@ -25,8 +25,8 @@
 ## present, support partially observed ERGMs and may or may not work
 ## for models that have been drop-ed.
 
-autoboot.ergm<-function(object, R, verbose=FALSE, control=control.ergm()){
-
+autoboot.ergm<-function(object, R, verbose=FALSE, control=object$control){
+  check.control.class("ergm")
   if(is.null(object$sample) || any(is.na(object$sample))){
     if(is.dyad.independent(object))
       stop(paste("ERGM fit `",deparse(substitute(object)),"` is dyad-independent. Standard errors returned by the object are exact.",sep=""))
@@ -95,7 +95,8 @@ autoboot.ergm<-function(object, R, verbose=FALSE, control=control.ergm()){
   t(theta.boot)[resamp.ind,]
 }
 
-autoboot.se.ergm<-function(object, theta.boot=NULL, R, verbose=FALSE, control=control.ergm()){
+autoboot.se.ergm<-function(object, theta.boot=NULL, R, verbose=FALSE, control=object$control){
+  check.control.class("ergm")
   if(is.null(theta.boot)) theta.boot<-autoboot.ergm(object, R, verbose=FALSE, control=control.ergm())
 
   sqrt(apply(sweep(theta.boot,2,coef(object))^2,2,mean))

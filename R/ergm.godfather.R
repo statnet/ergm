@@ -60,6 +60,8 @@ ergm.godfather <- function(formula, timestamps=NULL, toggles=NULL, sim=NULL,
                            final.network=FALSE,
                            verbose=FALSE,
                            control=control.godfather()) {
+  check.control.class("godfather")
+  
   if(is.null(sim)){
     if(is.null(timestamps) | is.null(toggles)){
       stop("Both 'timestamps' and 'toggle' are required arguments if 'sim' ",
@@ -144,5 +146,7 @@ control.godfather<-function(GF.init.maxedges=100000
     control<-list()
     for(arg in names(formals(sys.function())))
       control[arg]<-list(get(arg))
+
+    control <- set.control.class()
     control
   }

@@ -25,7 +25,7 @@ Draw from the distribution of an Separable Temporal Exponential Family Random Gr
                              coef.form,coef.diss,
                              monitor = NULL,
                              time.slices, time.burnin=0, time.interval=1,
-                             control=control.simulate.stergm(),
+                             control=control.simulate.network(),
                              statsonly=time.burnin>0||time.interval>1,
                              stats.form = FALSE,
                              stats.diss = FALSE,

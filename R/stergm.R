@@ -7,6 +7,8 @@ stergm <- function(nw, formation, dissolution, estimate, times=NULL, offset.coef
                    eval.loglik=FALSE,
                  control=control.stergm(),
                  verbose=FALSE, ...) {
+  check.control.class()
+  
   current.warn <- options()$warn
   on.exit(options(warn=current.warn), add=TRUE)
   options(warn=0)

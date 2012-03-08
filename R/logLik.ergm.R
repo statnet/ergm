@@ -1,11 +1,13 @@
 ## A function to compute and return the log-likelihood of an ERGM MLE.
 logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || force.reeval, control=control.logLik.ergm(), ...){
-
-  control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges","MCMC.samplesize")
+  check.control.class()
+  
+  control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges", "MCMC.samplesize", "obs.MCMC.burnin", "obs.MCMC.interval", "obs.MCMC.samplesize")
   for(arg in control.transfer)
     if(is.null(control[[arg]]))
       control[arg] <- list(object$control[[arg]])
 
+  control <- set.control.class("control.ergm.bridge")
 
   # "object" has an element control.
   loglik.control<-control

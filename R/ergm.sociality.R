@@ -169,7 +169,7 @@ sociality.formula <- function (formula, ..., init, nsim=100,
   SimGraphSeriesObj <- simulate(formula, nsim=nsim, seed=seed,
                                 burnin=burnin, interval=interval,
                                 constraints=constraints, coef=init,
-                                control=control.simulate.ergm(
+                                control=control.simulate.formula(
                                   MCMC.burnin=burnin,
                                   MCMC.interval=interval,
                                   MCMC.prop.args=prop.args,

@@ -403,6 +403,10 @@
 \alias{vector.namesmatch}
 \alias{xyplot.mcmc.list.ergm}
 
+\alias{print.control.list}
+\alias{set.control.class}
+\alias{check.control.class}
+
 \description{
 Internal ergm functions.}
 

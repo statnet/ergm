@@ -77,6 +77,15 @@ simulate.stergm<-function(object, nsim=1, seed=NULL,
                           stats.form = FALSE,
                           stats.diss = FALSE,
                           verbose=FALSE, ...){
+  check.control.class(c("simulate.stergm","simulate.network"))
+  
+  control.transfer <- c("MCMC.burnin", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges", "MCMC.init.maxchanges")
+  for(arg in control.transfer)
+    if(is.null(control[[arg]]))
+      control[arg] <- list(object$control[[arg]])
+
+  control <- set.control.class("control.simulate.network")
+  
   simulate.network(object$network,formation=object$formation,dissolution=object$dissolution,nsim=nsim,coef.form=coef.form, coef.diss=coef.diss, monitor=monitor, time.slices=time.slices, time.burnin=time.burnin, time.interval=time.interval,control=control, statsonly=statsonly, stats.form = stats.form, stats.diss = stats.diss, verbose=verbose,...)
 }
 
@@ -88,12 +97,13 @@ simulate.network <- function(object, nsim=1, seed=NULL,
                              coef.form,coef.diss,
                              monitor = NULL,
                              time.slices, time.burnin=0, time.interval=1,
-                             control=control.simulate.stergm(),
+                             control=control.simulate.network(),
                              statsonly=time.burnin>0||time.interval>1,
                              stats.form = FALSE,
                              stats.diss = FALSE,
                              verbose=FALSE, ...) {
   if(length(list(...))) stop("Unknown arguments: ",names(list(...)))
+  check.control.class(myname="STERGM simulate.network")
   
   if(!is.null(seed)) set.seed(as.integer(seed))
   # Toggles is a "main call" parameter, since it affects what to

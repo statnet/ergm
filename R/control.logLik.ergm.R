@@ -19,5 +19,5 @@ control.logLik.ergm<-function(nsteps=20,
   for(arg in names(formal.args))
     control[arg]<-list(get(arg))
 
-  control
+  set.control.class()
 }
