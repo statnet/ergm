@@ -149,13 +149,14 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     flush.console()
 #
     control$stats <- matrix(0,ncol=conddeg$Clist$nstats,nrow=control$MPLE.samplesize+1)
-    data <- list(conddeg=conddeg,Clist=Clist, MHproposal=MHproposal, eta0=eta0,
+    data <- list(conddeg=conddeg,Clist=Clist,
+         MHproposal=MHproposal, eta0=eta0,
          control=control,maxedges=maxedges,verbose=verbose)
     simfn <- function(i, data){
      # *** don't forget, pass in tails first now, not heads    
      z <- .C("MPLEconddeg_wrapper",
+            as.integer(1), as.integer(data$conddeg$Clist$nedges),
             as.integer(data$conddeg$Clist$tails), as.integer(data$conddeg$Clist$heads),
-            as.integer(data$conddeg$Clist$nedges), as.integer(data$conddeg$Clist$maxpossibleedges), 
             as.integer(data$conddeg$Clist$n),
             as.integer(data$conddeg$Clist$dir), as.integer(data$conddeg$Clist$bipartite),
             as.integer(data$conddeg$Clist$nterms),
@@ -163,7 +164,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
             as.character(data$conddeg$Clist$snamestring),
             as.character(data$MHproposal$name), as.character(data$MHproposal$package),
             as.double(data$conddeg$Clist$inputs), as.double(data$eta0),
-            as.integer(data$control$MPLE.samplesize+1),
+            as.integer(data$control$MPLE.samplesize),
             s = as.double(t(data$control$stats)),
             as.integer(0), 
             as.integer(1),
@@ -173,10 +174,9 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
             as.integer(data$MHproposal$arguments$constraints$bd$maxout), as.integer(data$MHproposal$arguments$constraints$bd$maxin),
             as.integer(data$MHproposal$arguments$constraints$bd$minout), as.integer(data$MHproposal$arguments$constraints$bd$minin),
             as.integer(data$MHproposal$arguments$constraints$bd$condAllDegExact),
-as.integer(length(data$MHproposal$arguments$constraints$bd$attribs)),
+            as.integer(length(data$MHproposal$arguments$constraints$bd$attribs)),
             as.integer(data$maxedges),
-            as.integer(data$control$Clist.miss$tails), as.integer(data$control$Clist.miss$heads),
-            as.integer(data$control$Clist.miss$nedges),
+            status = integer(1),
             PACKAGE="ergm")
     # save the results
     z <- list(s=z$s, newnwtails=z$newnwtails, newnwheads=z$newnwheads)

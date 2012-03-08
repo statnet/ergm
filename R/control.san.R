@@ -50,6 +50,8 @@ control.san<-function(coef=NULL,
                       SAN.prop.args=list(),
                       SAN.packagenames="ergm",
 
+                      MPLE.samplesize=50000,
+
                       network.output="network",
 
                       seed=NULL,
