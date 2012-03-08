@@ -10,7 +10,7 @@ stergm.EGMME.initialfit<-function(init.form, init.diss, nw, model.form, model.di
            && is.dyad.independent(model.diss$formula)){
     if(verbose) cat("Formation statistics are analogous to targeted statistics, dissolution is fixed, dissolution terms appear to have formation analogs, and dissolution process is dyad-independent, so using Carnegie-Krivitsky-Hunter-Goodreau approximation.\n")
     # Fit an ERGM to the formation terms:
-    init.form<-coef(ergm(model.form$formula,control=control.ergm(init=init.form)))
+    init.form<-coef(ergm(model.form$formula,control=control.ergm(init=init.form, eval.loglik=FALSE)))
     # Now, match up non-offset formation terms with dissolution terms.
     # In case it's not obvious (it's not to me) what the following
     # does, it takes non-offset elements of init.form, then, from
