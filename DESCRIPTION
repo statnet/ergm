@@ -9,8 +9,8 @@ Author: Mark S. Handcock <handcock@stat.ucla.edu>,
         Pavel N. Krivitsky <krivitsky@stat.psu.edu>,
         Martina Morris <morrism@u.washington.edu>
 Maintainer: David R. Hunter <dhunter@stat.psu.edu>
-Depends: network, robustbase, Matrix, trust, nlme, coda
+Depends: network (>= 1.7-1), robustbase, Matrix, trust, nlme, coda
 Suggests: lattice, latticeExtra, sna, Rglpk, snow, latentnet, networkDynamic
 Description: An integrated set of tools to analyze and simulate networks based on exponential-family random graph models (ERGM). "ergm" is a part of the "statnet" suite of packages for network analysis.
-License: file LICENSE
+License: GPL-3 + file LICENSE
 URL: statnet.org
