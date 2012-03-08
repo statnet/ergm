@@ -31,6 +31,10 @@
 #                     information should be printed by the <optim> routine;
 #                     default=6*'verbose'
 #   trustregion     : the trust region parameter for the likelihood functions
+#   dampening       : (logical) should likelihood dampening be used?
+#  dampening.min.ess: effective sample size below which dampening is used
+#   dampening.level : proportional distance from boundary of the convex hull
+#                     move
 #   estimateonly    : whether only the estimates (vs. the estimates and the
 #                     standard errors) should be calculated; default=FALSE
 #
@@ -52,6 +56,9 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                         calc.mcmc.se=TRUE, hessianflag=TRUE,
                         verbose=FALSE, trace=6*verbose,
                         trustregion=20, 
+                        dampening=FALSE,
+                        dampening.min.ess=100,
+                        dampening.level=0.1,
                         cov.type="normal",# cov.type="robust", 
                         estimateonly=FALSE, ...) {
   # If there is an observation process to deal with, statsmatrix.obs will not be NULL;
@@ -139,18 +146,21 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     loglikelihoodfn <- switch(metric,
                               Likelihood=llik.fun.obs,
                               lognormal=llik.fun.obs,
+                              logtaylor=llik.fun.obs,
                               Median.Likelihood=llik.fun.obs,
                               EF.Likelihood=llik.fun.obs,
                               llik.fun.obs.robust)
     gradientfn <- switch(metric,
                          Likelihood=llik.grad.obs,
                          lognormal=llik.grad.obs,
+                         logtaylor=llik.grad.obs,
                          Median.Likelihood=llik.grad.obs,
                          EF.Likelihood=llik.grad.obs,
                          llik.grad.obs)
     Hessianfn <- switch(metric,
                         Likelihood=llik.hessian.obs,
                         lognormal=llik.hessian.obs,
+                        logtaylor=llik.hessian.obs,
                         Median.Likelihood=llik.hessian.obs,
                         EF.Likelihood=llik.hessian.obs,
                         llik.hessian.obs)
@@ -158,18 +168,21 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     loglikelihoodfn <- switch(metric,
                               Likelihood=llik.fun,
                               lognormal=llik.fun,
+                              logtaylor=llik.fun.logtaylor,
                               Median.Likelihood=llik.fun.median,
                               EF.Likelihood=llik.fun.EF,
                               llik.fun2)
     gradientfn <- switch(metric,
                          Likelihood=llik.grad,
                          lognormal=llik.grad,
+                         logtaylor=llik.grad,
                          Median.Likelihood=llik.grad,
                          EF.Likelihood=llik.grad,
                          llik.grad)
     Hessianfn <- switch(metric,
                         Likelihood=llik.hessian,
                         lognormal=llik.hessian,
+                        logtaylor=llik.hessian,
                         Median.Likelihood=llik.hessian,
                         EF.Likelihood=llik.hessian,
                         llik.hessian)
@@ -242,6 +255,9 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                       xsim=xsim, probs=probs,
                       xsim.obs=xsim.obs, probs.obs=probs.obs,
                       varweight=varweight, trustregion=trustregion,
+                      dampening=dampening,
+                      dampening.min.ess=dampening.min.ess,
+                      dampening.level=dampening.level,
                       eta0=eta0, etamap=model$etamap),
             silent=FALSE)
     Lout$par<-Lout$argument

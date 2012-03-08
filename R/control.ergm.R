@@ -51,13 +51,17 @@
 #   mcmc.precision   : a vector of the upper bounds on the precision of the standard errors
 #                      induced by the MCMC algorithm; default=0.05
 #   metric           : the name of the optimization metric to use, as one of
-#                      "Median.Likelihood", "lognormal", "EF.Likelihood" or "naive";
+#                      "Median.Likelihood", "lognormal", "logtaylor","EF.Likelihood" or "naive";
 #                      default="Median.Likelihood"
 #   method           : the name of the optimaztion method to use, as either "BFGS" or
 #                      "Nelder-Mead"; this is an <optim> param; default="BFGS"
 #   trustregion      : the maximum amount that the likelihood will be allowed to increase
 #                      in an iteration; default=0.5 if 'style'="Stochastic-Approximation",
 #                      default=20 otherwise
+#   dampening        : (logical) should likelihood dampening be used?
+#   dampening.min.ess: effective sample size below which dampening is used
+#   dampening.level  : proportional distance from boundary of the convex hull
+#                      move
 #   style            : the style of ML estimation to use, as one of "Newton-Raphson",
 #                      "Robbins-Monro", "Stochastic-Approximation","Stepping";
 #                      default="Robbins-Monro"
@@ -158,13 +162,17 @@ control.ergm<-function(drop=TRUE,
                        obs.MCMC.burnin=MCMC.burnin,
                        MCMLE.check.degeneracy=FALSE,
                        MCMLE.MCMC.precision=0.05,
-                       MCMLE.metric=c("lognormal", "Median.Likelihood",
+                       MCMLE.metric=c("lognormal", "logtaylor",
+                         "Median.Likelihood",
                          "EF.Likelihood", "naive"),
                        MCMLE.method=c("BFGS","Nelder-Mead"),
                        MCMLE.trustregion=20,
+                       MCMLE.dampening=FALSE,
+                       MCMLE.dampening.min.ess=20,
+                       MCMLE.dampening.level=0.1,
                        MCMLE.steplength=0.5,
-                       MCMLE.adaptive.trustregion=3,
-                       MCMLE.adaptive.epsilon=0.01,
+                       MCMC.adaptive.trustregion=3,
+                       MCMC.adaptive.epsilon=0.01,
                        MCMLE.sequential=TRUE,
 
                        SA.phase1_n=NULL, SA.initial_gain=NULL, 

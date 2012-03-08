@@ -52,7 +52,9 @@
 #        normally  distributed so that exp(eta * stats) is lognormal
 #####################################################################################                           
 llik.fun.obs <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
-                     varweight=0.5, trustregion=20, eta0, etamap){
+                     varweight=0.5, trustregion=20,
+                     dampening=FALSE,dampening.min.ess=100, damping.level=0.1,
+                     etamap){
   theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
@@ -84,7 +86,7 @@ llik.fun.obs <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL
 #
 # Penalize changes to trustregion
 #
-  if (llr>trustregion) {
+  if (is.numeric(trustregion) && llr>trustregion) {
     return(2*trustregion - llr)
   } else {
     return(llr)
@@ -99,7 +101,9 @@ llik.fun.obs <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL
 #####################################################################################
 
 llik.grad.obs <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NULL,
-                      varweight=0.5, trustregion=20, eta0, etamap){
+                      varweight=0.5, trustregion=20,
+                      dampening=FALSE,dampening.min.ess=100, damping.level=0.1,
+                      eta0, etamap){
   theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
@@ -217,7 +221,9 @@ llik.hessian.obs <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=
 #####################################################################################
 
 llik.fun.obs.robust<- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
-                     varweight=0.5, trustregion=20, eta0, etamap){
+                     varweight=0.5, trustregion=20,
+                     dampening=FALSE,dampening.min.ess=100, damping.level=0.1,
+                     eta0, etamap){
   theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
@@ -249,7 +255,7 @@ llik.fun.obs.robust<- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.ob
 #
 # Penalize changes to trustregion
 #
-  if (llr>trustregion) {
+  if (is.numeric(trustregion) && llr>trustregion) {
     return(2*trustregion - llr)
   } else {
     return(llr)

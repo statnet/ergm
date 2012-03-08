@@ -54,7 +54,9 @@
 #####################################################################################
 
 llik.fun <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
-                     varweight=0.5, trustregion=20, eta0, etamap){
+                     varweight=0.5, trustregion=20, 
+                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
+                     eta0, etamap){
   theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
   # Convert theta to eta
@@ -78,14 +80,12 @@ llik.fun <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
 
   # trustregion is the maximum value of llr that we actually trust.
   # So if llr>trustregion, return a value less than trustregion instead.
-  if (llr>trustregion) {
+  if (is.numeric(trustregion) && llr>trustregion) {
     return(2*trustregion - llr)
   } else {
     return(llr)
   }
 }
-
-
 
 #llik.grad <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NULL,
 #                      varweight=0.5, trustregion=20, eta0, etamap){
@@ -287,7 +287,9 @@ llik.hessian.naive <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.ob
 #####################################################################################
 
 llik.fun.EF <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
-                     varweight=0.5, trustregion=20, eta0, etamap){
+                     varweight=0.5, trustregion=20,
+                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
+                     eta0, etamap){
   theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
@@ -303,7 +305,11 @@ llik.fun.EF <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
 #
 # Penalize changes to trustregion
 #
-  llr <- llr - 2*(llr-trustregion)*(llr>trustregion)
+  if (is.numeric(trustregion) && llr>trustregion) {
+    return(2*trustregion - llr)
+  } else {
+    return(llr)
+  }
 #
 # cat(paste("max, log-lik",maxbase,llr,"\n"))
 # aaa <- sum(xobs * etaparam) - log(sum(probs*exp(xsim %*% etaparam)))
@@ -450,7 +456,9 @@ llik.mcmcvar3 <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NU
 #####################################################################################
 
 llik.fun.median <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
-                     varweight=0.5, trustregion=20, eta0, etamap){
+                     varweight=0.5, trustregion=20,
+                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
+                     eta0, etamap){
   theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
   # Convert theta to eta
@@ -483,11 +491,84 @@ llik.fun.median <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=N
 #
 # Penalize changes to trustregion
 #
-  llr <- llr - 2*(llr-trustregion)*(llr>trustregion)
+  if (is.numeric(trustregion) && llr>trustregion) {
+    return(2*trustregion - llr)
+  } else {
+    return(llr)
+  }
 #
 # cat(paste("max, log-lik",maxbase,llr,"\n"))
 # aaa <- sum(xobs * etaparam) - log(sum(probs*exp(xsim %*% etaparam)))
 # cat(paste("log-lik",llr,aaa,"\n"))
 # aaa
   llr
+}
+
+llik.fun.logtaylor <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
+                     varweight=0.5, trustregion=20, 
+                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
+                     eta0, etamap){
+  theta.offset <- etamap$init
+  theta.offset[!etamap$offsettheta] <- theta
+  # Convert theta to eta
+  eta <- ergm.eta(theta.offset, etamap)
+
+  # Calculate approximation to l(eta) - l(eta0) using a lognormal approximation
+  etaparam <- eta-eta0
+# MSH: Is this robust?
+  etaparam <- etaparam[!etamap$offsetmap]
+  xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
+  xobs <- xobs[!etamap$offsetmap]
+  #
+  if (dampening) {
+    #if theta_extended is (almost) outside convex hull don't trust theta
+    etad0 <- eta0[!etamap$offsetmap]
+    etad  <-  eta[!etamap$offsetmap]
+    eta_extended <- etad + etaparam*dampening.level
+    expon_extended <- xsim %*% (eta_extended - etad0)
+    wts <- exp(expon_extended)
+    ess <- ceiling(sum(wts)^2/sum(wts^2))
+#    http://xianblog.wordpress.com/2010/09/24/effective-sample-size/
+    if(!is.na(ess) && {ess<dampening.min.ess}){ return(-Inf) } #.005*length(wts))
+  }
+
+# basepred <- xsim %*% etaparam
+  trim <- 0
+  skew <- 20
+  while(abs(skew)>10){
+   basepred <- wins(xsim %*% etaparam,trim=trim)
+   n <- length(basepred)
+   mb <- sum(basepred*probs)
+   vb <- sum(basepred*basepred*probs)
+   skew <- sqrt(n) * sum((basepred*basepred*basepred)*probs)/(vb^(3/2)) * ((1 - 1/n))^(3/2)
+   vb <- vb - mb*mb
+   if(!is.finite(skew) | is.na(skew)){skew <- 0}
+   print(skew)
+   trim <- trim + 0.01
+  }
+  part <- mb+vb/2 + ((vb^1.5)/6)*skew
+  llr <- sum(xobs * etaparam) - part
+  #
+
+  # Simplistic error control;  -800 is effectively like -Inf:
+  if(is.infinite(llr) | is.na(llr)){llr <- -800}
+
+  # trustregion is the maximum value of llr that we actually trust.
+  # So if llr>trustregion, return a value less than trustregion instead.
+  if (is.numeric(trustregion) && llr>trustregion) {
+    return(2*trustregion - llr)
+  } else {
+    return(llr)
+  }
+}
+"wins" <- function(x,trim=.05, na.rm=TRUE) {
+    if (trim == 0){return(x)}
+    if ((trim < 0) | (trim>0.5) )
+        stop("trimming must be reasonable")
+    qtrim <- quantile(x,c(trim,.5, 1-trim),na.rm = na.rm)
+    xbot <- qtrim[1]
+    xtop <- qtrim[3]
+    x[x < xbot] <- xbot
+    x[x > xtop] <- xtop
+    return(x)
 }

@@ -61,6 +61,9 @@ control.ergm(drop=TRUE,
                "EF.Likelihood", "naive"),
              MCMLE.method=c("BFGS","Nelder-Mead"),
              MCMLE.trustregion=20,
+             MCMLE.dampening=FALSE,
+             MCMLE.dampening.min.ess=20,
+             MCMLE.dampening.level=0.1,
              MCMLE.steplength=0.5,
              MCMLE.adaptive.trustregion=3,
              MCMLE.adaptive.epsilon=0.01,
@@ -291,6 +294,9 @@ control.ergm(drop=TRUE,
     allow for the approximated likelihood at a given iteration.
     See Snijders (2002) for details.
   }
+  \item{MCMLE.dampening}{(logical) Should likelihood dampening be used?}
+  \item{MCMLE.dampening.min.ess}{The effective sample size below which dampening is used.}
+  \item{MCMLE.dampening.level}{The proportional distance from boundary of the convex hull move.}
   \item{MCMLE.steplength}{Multiplier for step length, which may 
     (for values less than one) 
     make fitting more stable at the cost of efficiency.
