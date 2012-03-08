@@ -55,7 +55,7 @@ ostar2deg <- function(object, ninflast=TRUE){
 
 is.invertible <- function(V, tol=1e-12)
 {
-    ev <- eigen(V, sym = TRUE, only.values = TRUE)$values
+    ev <- eigen(V, symmetric = TRUE, only.values = TRUE)$values
     all(ev/max(ev) > tol)
 }
 
@@ -372,7 +372,7 @@ function(x, alternative = c("two.sided", "less", "greater"),
 	pval <- pt(tstat, df)
     }
     else if (alternative == "greater") {
-	pval <- pt(tstat, df, lower = FALSE)
+	pval <- pt(tstat, df, lower.tail = FALSE)
     }
     else {
 	pval <- 2 * pt(-abs(tstat), df)
