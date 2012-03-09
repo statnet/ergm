@@ -32,17 +32,54 @@ ergm.getCluster <- function(control, verbose=FALSE){
 #                 }
 #                 makeCluster(control$parallel,type="PVM")
 #               },
-               MPI={
-                 # See if a preexisting cluster exists.
-                 if(is.null(getMPIcluster())){
-                   # Remember that we are responsible for it.
-                   unlockBinding("ergm.MPIcluster.started", environment(ergm.getCluster))                  
-                   assign("ergm.MPIcluster.started", TRUE, environment(ergm.getCluster))
-                   lockBinding("ergm.MPIcluster.started", environment(ergm.getCluster))
-                   makeCluster(control$parallel,type="MPI")
-                 }else
-                   getMPIcluster()
-               },
+
+
+# FIXME:  Excerpt from an email by Kurt Hornik:
+#* checking R code for possible problems ... NOTE
+#Found the following possibly unsafe calls:
+#File 'R/parallel.utils.R':
+# found unlockBinding("ergm.MPIcluster.started",
+#   environment(ergm.getCluster))
+#
+#   ...
+#   
+#Can you pls fix?  Note that there are three issues: for the first, the
+#simplest should be using a dynamic variable, e.g.
+#
+# ergm.MPIcluster.started <-
+# local({
+#     started <- FALSE
+#     function(new) {
+#         if(!missing(new))
+#	      started <<- new
+#	  else
+#	      started
+#     }
+#     })
+#
+#and then use as
+#
+#    ergm.MPIcluster.started(TRUE)
+#
+#to set and
+#
+#    ergm.MPIcluster.started()
+#
+#to get
+################ As a result of above problem, "MPI" bit is commented out:
+#   
+#   
+#               MPI={
+#                 # See if a preexisting cluster exists.
+#                 if(is.null(getMPIcluster())){
+#                   # Remember that we are responsible for it.
+#                   unlockBinding("ergm.MPIcluster.started", environment(ergm.getCluster))                  
+#                   assign("ergm.MPIcluster.started", TRUE, environment(ergm.getCluster))
+#                   lockBinding("ergm.MPIcluster.started", environment(ergm.getCluster))
+#                   makeCluster(control$parallel,type="MPI")
+#                 }else
+#                   getMPIcluster()
+#               },
                SOCK={
                  makeCluster(control$parallel,type="SOCK")
                }

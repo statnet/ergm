@@ -50,12 +50,12 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, role="static",...) {
       args=v[[i]]
       args[[1]] = as.name("list")
       fname <- paste(termroot,"Term.", v[[i]][[1]], sep = "")
-      newInitErgm <- exists(fname, env=formula.env, mode="function")
+      newInitErgm <- exists(fname, envir=formula.env, mode="function")
       v[[i]] <- call(ifelse (newInitErgm, fname, 
                              paste(termroot,".", v[[i]][[1]], sep = "")))
     } else { # This term has no arguments
       fname <- paste(termroot,"Term.", v[[i]], sep = "")
-      newInitErgm <- exists(fname, env=formula.env, mode="function")
+      newInitErgm <- exists(fname, envir=formula.env, mode="function")
       v[[i]] <- call(ifelse (newInitErgm, fname, 
                              paste(termroot,".", v[[i]], sep = "")))
       model$offset <- c(model$offset,FALSE)
@@ -75,7 +75,7 @@ ergm.getmodel <- function (formula, nw, silent=FALSE, role="static",...) {
       }    
       # The above steps are preparing the way to make the function call
       # InitErgm.xxxx(g, m, args, ...)
-      if(!exists(as.character(v[[i]][[1]]),env=formula.env, mode="function")){
+      if(!exists(as.character(v[[i]][[1]]),envir=formula.env, mode="function")){
         stop("The term ", substring(as.character(v[[i]][[1]]),first=nchar(termroot)+2),
              " does not exist for this type of ERGM. Are you sure you have the right name?\n",
              call. = FALSE)

@@ -59,6 +59,8 @@ append.rhs.formula<-function(object,newterms){
 }
 
 
+# FIXME:  Must rewrite without using .Internal!  Currently this breaks
+# a lot of code, so this will be a tricky job.
 ergm.update.formula<-function (object, new, ...){
   tmp <- as.formula(.Internal(update.formula(as.formula(object), as.formula(new))))
   # Ensure that the formula's environment gets set to the network's
