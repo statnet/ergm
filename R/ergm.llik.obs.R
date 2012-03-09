@@ -149,7 +149,9 @@ llik.grad.obs <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NU
 #####################################################################################
 
 llik.hessian.obs <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
-                         varweight=0.5, eta0, etamap){
+                     varweight=0.5, trustregion=20,
+                     dampening=FALSE,dampening.min.ess=100, damping.level=0.1,
+                     etamap){
   theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
 #

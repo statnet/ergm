@@ -124,7 +124,9 @@ llik.fun <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
 #####################################################################################
 
 llik.grad <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NULL,
-                      varweight=0.5, trustregion=20, eta0, etamap){
+                     varweight=0.5, trustregion=20, 
+                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
+                     eta0, etamap){
   theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
@@ -173,7 +175,9 @@ llik.grad <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NULL,
 #####################################################################################
 
 llik.hessian <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
-                         varweight=0.5, trustregion=20, eta0, etamap){
+                     varweight=0.5, trustregion=20, 
+                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
+                     eta0, etamap){
   theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
 # xsim[,etamap$offsettheta] <- 0
@@ -237,7 +241,9 @@ llik.hessian <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL
 #####################################################################################
 
 llik.hessian.naive <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
-                               varweight=0.5, eta0, etamap){
+                     varweight=0.5, trustregion=20,
+                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
+                     eta0, etamap){
   xsim <- xsim[,!etamap$offsettheta, drop=FALSE]
   theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
@@ -328,7 +334,9 @@ llik.fun.EF <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
 #####################################################################################
 
 llik.fun2 <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL, 
-                      varweight=0.5, trustregion=20, eta0, etamap){
+                     varweight=0.5, trustregion=20,
+                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
+                     eta0, etamap){
   theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
@@ -348,7 +356,9 @@ llik.fun2 <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
 #####################################################################################
 
 llik.grad2 <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
-                       varweight=0.5, trustregion=20, eta0, etamap){
+                     varweight=0.5, trustregion=20,
+                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
+                     eta0, etamap){
   theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
@@ -380,7 +390,9 @@ llik.hessian2 <- llik.hessian
 #####################################################################################
 
 llik.fun3 <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL, 
-                      varweight=0.5, trustregion=20, eta0, etamap){ # eqn (5)
+                     varweight=0.5, trustregion=20,
+                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
+                     eta0, etamap){ # eqn (5)
   theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
@@ -398,7 +410,9 @@ llik.fun3 <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
 #####################################################################################
 
 llik.grad3 <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NULL,
-                       varweight=0.5, trustregion=20, eta0, etamap){ #eqn (11)
+                     varweight=0.5, trustregion=20,
+                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
+                     eta0, etamap){ #eqn (11)
   theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
@@ -418,7 +432,9 @@ llik.grad3 <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NULL,
 #####################################################################################
 
 llik.info3 <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NULL,
-                       varweight=0.5, eta0, etamap){ #eqn (12)
+                     varweight=0.5, trustregion=20,
+                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
+                     eta0, etamap){ #eqn (12)
   eta <- ergm.eta(theta, etamap)
   etagrad <- ergm.etagrad(theta,etamap)
   deta <- matrix(eta-eta0,ncol=1)
@@ -436,7 +452,9 @@ llik.info3 <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NULL,
 #####################################################################################
 
 llik.mcmcvar3 <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NULL,
-                          varweight=0.5, eta0, etamap){ #eqn (13) sort of
+                     varweight=0.5, trustregion=20,
+                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
+                     eta0, etamap){  #eqn (13) sort of
   eta <- ergm.eta(theta, etamap)
   deta <- matrix(eta-eta0,ncol=1)
   basepred <- as.vector(xsim %*% deta)
@@ -528,25 +546,17 @@ llik.fun.logtaylor <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.ob
     expon_extended <- xsim %*% (eta_extended - etad0)
     wts <- exp(expon_extended)
     ess <- ceiling(sum(wts)^2/sum(wts^2))
-#    http://xianblog.wordpress.com/2010/09/24/effective-sample-size/
+#   http://xianblog.wordpress.com/2010/09/24/effective-sample-size/
     if(!is.na(ess) && {ess<dampening.min.ess}){ return(-Inf) } #.005*length(wts))
   }
 
-# basepred <- xsim %*% etaparam
-  trim <- 0
-  skew <- 20
-  while(abs(skew)>10){
-   basepred <- wins(xsim %*% etaparam,trim=trim)
-   n <- length(basepred)
-   mb <- sum(basepred*probs)
-   vb <- sum(basepred*basepred*probs)
-   skew <- sqrt(n) * sum((basepred*basepred*basepred)*probs)/(vb^(3/2)) * ((1 - 1/n))^(3/2)
-   vb <- vb - mb*mb
-   if(!is.finite(skew) | is.na(skew)){skew <- 0}
-   print(skew)
-   trim <- trim + 0.01
-  }
-  part <- mb+vb/2 + ((vb^1.5)/6)*skew
+  basepred <- xsim %*% etaparam
+  ns <- length(basepred)
+  mb <- sum(basepred*probs)
+  vb <- sum(basepred*basepred*probs)-mb*mb
+  skew <- sqrt(ns*(ns-1))*sum(((basepred-mb)^3)*probs)/(vb^(3/2)*(ns-2))
+  if(!is.finite(skew) | is.na(skew)){skew <- 0}
+  part <- mb+vb/2 + sum(((basepred-mb)^3)*probs)/6
   llr <- sum(xobs * etaparam) - part
   #
 
@@ -561,7 +571,7 @@ llik.fun.logtaylor <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.ob
     return(llr)
   }
 }
-"wins" <- function(x,trim=.05, na.rm=TRUE) {
+"ergm.llik.wins" <- function(x,trim=.05, na.rm=TRUE) {
     if (trim == 0){return(x)}
     if ((trim < 0) | (trim>0.5) )
         stop("trimming must be reasonable")

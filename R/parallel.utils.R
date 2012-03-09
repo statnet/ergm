@@ -14,15 +14,16 @@ ergm.getCluster <- function(control, verbose=FALSE){
 
   cl <- switch(type,
 # The rpvm package is apparently not being maintained.
-#               PVM={              
-#                 PVM.running <- try(.PVM.config(), silent=TRUE)
-#                 if(inherits(PVM.running,"try-error")){
-#                   hostfile <- paste(Sys.getenv("HOME"),"/.xpvm_hosts",sep="")
-#                   .PVM.start.pvmd(hostfile)
-#                   cat("PVM not running. Attempting to start.\n")
-#                 }
-#                 makeCluster(control$parallel,type="PVM")
-#               },
+               PVM={              
+                 capture.output(require(rpvm, quietly=TRUE, warn.conflicts = FALSE))
+#                PVM.running <- try(.PVM.config(), silent=TRUE)
+#                if(inherits(PVM.running,"try-error")){
+#                  hostfile <- paste(Sys.getenv("HOME"),"/.xpvm_hosts",sep="")
+#                  .PVM.start.pvmd(hostfile)
+#                  cat("PVM not running. Attempting to start.\n")
+#                }
+                 makeCluster(control$parallel,type="PVM")
+               },
                MPI={
                  # See if a preexisting cluster exists.
                  if(is.null(getMPIcluster())){
