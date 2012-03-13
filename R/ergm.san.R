@@ -119,7 +119,7 @@ san.formula <- function(object, response=NULL, reference="Bernoulli", constraint
 # control$coef <- c(control$coef[1],rep(0,Clist$nstats-1))
   
   if(MHproposal$name=="CondDegree"){ 
-   formula.conddegmple <- ergm.update.formula(formula, ~ conddegmple + .)
+   formula.conddegmple <- ergm.update.formula(formula, . ~ conddegmple + .)
    m.conddeg <- ergm.getmodel(formula.conddegmple, nw, initialfit=TRUE)
    Clist.conddegmple <- ergm.Cprepare(nw, m.conddeg)
    Clist.conddegmple$target.stats=c(1,target.stats)

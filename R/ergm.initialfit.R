@@ -51,7 +51,7 @@ ergm.initialfit<-function(init, initial.is.final,
  
   # conddeg, whatever it does.
   if(!is.null(conddeg)){
-   formula.conddegmple <- ergm.update.formula(formula, ~ conddegmple + .)
+   formula.conddegmple <- ergm.update.formula(formula, . ~ conddegmple + .)
    m.conddeg <- ergm.getmodel(formula.conddegmple, nw, initialfit=TRUE)
    method <- "MPLE"
    Clist <- ergm.Cprepare(nw, m.conddeg)
