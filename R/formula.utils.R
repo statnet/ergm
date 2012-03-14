@@ -49,20 +49,39 @@ append.rhs.formula<-function(object,newterms){
   object
 }
 
-
-# FIXME:  Must rewrite without using .Internal!  Currently this breaks
-# a lot of code, so this will be a tricky job.
-##Old version:
-#ergm.update.formula<-function (object, new, ...){
-#  tmp <- as.formula(.Internal(update.formula(as.formula(object), as.formula(new))))
-#  # Ensure that the formula's environment gets set to the network's
-#  # environment.
-#  if(new[[2]]==".")
-#    environment(tmp)<-environment(object)
-#  else
-#    environment(tmp)<-environment(new)
-#  return(tmp)
-#}
+# A reimplementation of update.formula() that does not simplify.
+ergm.update.formula<-function (object, new, ...){
+  old.lhs <- if(length(object)==2) NULL else object[[2]]
+  old.rhs <- if(length(object)==2) object[[2]] else object[[3]]
+  
+  new.lhs <- if(length(new)==2) NULL else new[[2]]
+  new.rhs <- if(length(new)==2) new[[2]] else new[[3]]
+  
+  sub.dot <- function(c, dot){
+    if(is.null(dot)) c # If nothing to substitute with, just return it.
+    else if(is.call(c)) as.call(c(list(c[[1]]), lapply(c[-1], sub.dot, dot))) # If it's a call, construct a call consisting of the call and each of the arguments with the substitution performed, recursively.
+    else if(is.name(c) && c==".")  dot # If it's a dot, return substitute.
+    else c # If it's anything else, just return it.
+  }
+  
+  deparen<- function(c, ops = c("+","*")){
+    if(is.call(c)){
+      if(as.character(c[[1]]) %in% ops){
+        op <- as.character(c[[1]])
+        if(length(c)==2 && is.call(c[[2]]) && c[[2]][[1]]==op)
+          return(deparen(c[[2]], ops))
+        else if(length(c)==3 && is.call(c[[3]]) && c[[3]][[1]]==op)
+          return(call(op, call(op, deparen(c[[2]],ops), deparen(c[[3]][[2]],ops)), deparen(c[[3]][[3]],ops)))
+      }
+      return(as.call(c(list(c[[1]]), lapply(c[-1], deparen, ops)))) # If it's a non-reducible call, construct a call consisting of the call and each of the arguments with the substitution performed, recursively.
+    }else return(c)
+  }
+  
+  # Construct the formula and ensure that the formula's environment
+  # gets set to the network's environment.
+  out <- if(length(new)==2) call("~", deparen(sub.dot(new.rhs, old.rhs))) else call("~", deparen(sub.dot(new.lhs, old.lhs)), deparen(sub.dot(new.rhs, old.rhs)))
+  as.formula(out, env =  if(new[[2]]==".") environment(object) else environment(new))
+}
 
 term.list.formula<-function(rhs){
   if(length(rhs)==1) list(rhs)
