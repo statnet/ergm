@@ -71,7 +71,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
     newnetworks <- list(newnetwork)
   }else{
     control.parallel <- control
-    control.parallel$samplesize <- round(control$MCMC.samplesize / control$parallel)
+    control.parallel$MCMC.samplesize <- round(control$MCMC.samplesize / control$parallel)
     
     cl <- ergm.getCluster(control, verbose)
     #
@@ -97,14 +97,14 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
       if(!is.null(z$burnin.failed) && z$burnin.failed) warning("Burn-in failed to converge after retries.")
       
       statsmatrix <- rbind(statsmatrix,
-                           matrix(z$s, nrow=control.parallel$samplesize,
+                           matrix(z$s, nrow=control.parallel$MCMC.samplesize,
                                   ncol=Clist$nstats,
                                   byrow = TRUE))
     }
 
     newnetworks[[i]]<-newnetwork<-newnw.extract(nw,z,response=response)
     if(verbose){cat("parallel samplesize=",nrow(statsmatrix),"by",
-                    control.parallel$samplesize,"\n")}
+                    control.parallel$MCMC.samplesize,"\n")}
     
     ergm.stopCluster(cl)
   }
