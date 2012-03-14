@@ -1,5 +1,16 @@
 # Set up a flag for whether we are in charge of MPI cluster.
-ergm.MPIcluster.started <- FALSE
+ergm.MPIcluster.started <- local({
+  started <- FALSE
+  function(new) {
+    if(!missing(new))
+      started <<- new
+    else
+      started
+  }
+})
+
+myLibLoc <- function()
+  sub('/ergm/Meta/package.rds','',attr(packageDescription("ergm"),"file"))
 
 # Acquires a cluster of specified type.
 ergm.getCluster <- function(control, verbose=FALSE){
@@ -28,9 +39,7 @@ ergm.getCluster <- function(control, verbose=FALSE){
                  # See if a preexisting cluster exists.
                  if(is.null(getMPIcluster())){
                    # Remember that we are responsible for it.
-                   unlockBinding("ergm.MPIcluster.started", environment(ergm.getCluster))                  
-                   assign("ergm.MPIcluster.started", TRUE, environment(ergm.getCluster))
-                   lockBinding("ergm.MPIcluster.started", environment(ergm.getCluster))
+                   ergm.MPIcluster.started(TRUE)
                    makeCluster(control$parallel,type="MPI")
                  }else
                    getMPIcluster()
@@ -46,11 +55,9 @@ ergm.getCluster <- function(control, verbose=FALSE){
 
     # Try loading from the same location as the master.
     attached <- unlist(clusterCall(cl, require,
-                                 package="ergm",
-                                 character.only=TRUE))
-## FIXME:  setting binding for myLibLoc in the .onLoad function
-## is broken; did not have time to fix this.
-#                                 ,lib.loc=myLibLoc))
+                                   package="ergm",
+                                   character.only=TRUE,
+                                   lib.loc=myLibLoc()))
     # If something failed, warn and try loading from anywhere.
     if(!all(attached)){
       if(verbose) cat("Failed to attach ergm on the slave nodes from the same location as the master node. Will try to load from anywhere in the library path.\n")
@@ -78,7 +85,7 @@ ergm.stopCluster <- function(object, ...)
 
 # Only stop the MPI cluster if we were the ones who had started it.
 ergm.stopCluster.MPIcluster <- function(object, ...){
-  if(ergm.MPIcluster.started) stopCluster(object)
+  if(ergm.MPIcluster.started()) stopCluster(object)
 }
 
 ergm.stopCluster.default <- function(object, ...){
