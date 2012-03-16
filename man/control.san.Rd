@@ -17,7 +17,7 @@ control.san(coef=NULL,
             SAN.prop.weights="default",
             SAN.prop.args=list(),
             SAN.packagenames="ergm",
-
+            MPLE.samplesize = 50000,
             network.output="network",
 
             seed=NULL,
@@ -65,6 +65,9 @@ control.san(coef=NULL,
   \item{SAN.packagenames}{Names of packages in which 
     changestatistics are found. 
     Currently unused as \code{ergm} is presumed.
+  }
+  \item{MPLE.samplesize}{Not currently documented; used in 
+    conditional-on-degree version of MPLE.
   }
   \item{network.output}{R class with which to output 
     networks. The options are "network" (default) and "edgelist.compressed" 
