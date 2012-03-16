@@ -390,6 +390,8 @@
 \alias{statnetbrowseURL}
 \alias{stergm.CMLE}
 \alias{stergm.EGMME}
+\alias{stergm.EGMME.GD}
+\alias{stergm.EGMME.OS}
 \alias{stergm.EGMME.SA}
 \alias{stergm.EGMME.SA.Phase2.C}
 \alias{stergm.EGMME.initialfit}

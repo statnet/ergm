@@ -1,14 +1,3 @@
-#.onLoad <- function(lib, pkg) {
-# FIXME: Setting binding for myLibLoc using old code below does not work.
-# See also ergm.getCluster function in R/parallel.utils.R 
-#  # "Declare" myLibLoc
-#  myLibLoc <- NULL
-#  # Remember where this package is located, to later make sure we load
-#  # the same version on a cluster node.
-#  unlockBinding("myLibLoc", environment(ergm.getCluster))
-#  assign("myLibLoc",lib,pos=environment(ergm.getCluster))
-#}
-
 .onAttach <- function(lib, pkg){
   info <- packageDescription("ergm")
   packageStartupMessage(
@@ -25,16 +14,4 @@
  )
 }
 
-
-
-#############################################################
-# The <.Last.lib> function unloads the compiled ergm code
-#
-# --PARAMETERS--
-#   libpath: the complete path to the package, as a string
-#############################################################
-#
-#.Last.lib <- function(libpath){
-#  library.dynam.unload("ergm",libpath)
-#}
 

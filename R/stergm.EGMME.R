@@ -177,10 +177,15 @@ stergm.EGMME <- function(nw, formation, dissolution,  offset.coef.form, offset.c
   if(verbose) cat("Fitting STERGM Equilibrium GMME.\n")
 
   Cout <- switch(control$EGMME.main.method,
-                 "Stochastic-Approximation" = stergm.EGMME.SA(initialfit$formation.fit$coef,
+                 "One-Step" = stergm.EGMME.OS(initialfit$formation.fit$coef,
                    initialfit$dissolution.fit$coef, nw, model.form, model.diss, model.mon,
                    control=control, MHproposal.form=MHproposal.form,
                   MHproposal.diss=MHproposal.diss,
+                  verbose),
+                 "Gradient-Descent" = stergm.EGMME.GD(initialfit$formation.fit$coef,
+                   initialfit$dissolution.fit$coef, nw, model.form, model.diss, model.mon,
+                   control=control, MHproposal.form=MHproposal.form,
+                   MHproposal.diss=MHproposal.diss,
                   verbose),
                  stop("Method ", control$EGMME.main.method, " is not implemented.")
                 )

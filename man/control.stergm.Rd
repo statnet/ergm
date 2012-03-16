@@ -18,7 +18,8 @@
                          CMLE.control=NULL,
                          CMLE.control.form=control.ergm(init=init.form, MCMC.prop.weights=MCMC.prop.weights.form, MCMC.prop.args=MCMC.prop.args.form, MCMC.init.maxedges=MCMC.init.maxedges, MCMC.packagenames=MCMC.packagenames, MCMC.interval=MCMC.burnin, parallel=parallel, parallel.type=parallel.type, parallel.version.check=parallel.version.check),
                          CMLE.control.diss=control.ergm(init=init.diss, MCMC.prop.weights=MCMC.prop.weights.diss, MCMC.prop.args=MCMC.prop.args.diss, MCMC.init.maxedges=MCMC.init.maxedges, MCMC.packagenames=MCMC.packagenames, MCMC.interval=MCMC.burnin, parallel=parallel, parallel.type=parallel.type, parallel.version.check=parallel.version.check),
-                         EGMME.main.method=c("Stochastic-Approximation"),
+                         EGMME.main.method=c("One-Step",
+                                             "Gradient-Descent"),
                          SAN.maxit=10,
                          SAN.control=control.san(coef=init.form,
                            SAN.prop.weights=MCMC.prop.weights.form,
@@ -29,6 +30,7 @@
                            parallel=parallel,
                            parallel.type=parallel.type,
                            parallel.version.check=parallel.version.check),
+                         SA.restarts = 10,
                          SA.burnin=1000,
                          SA.plot.progress=FALSE,
                          SA.max.plot.points=400,
@@ -43,7 +45,8 @@
                          SA.phase1.jitter=0.1, 
                          SA.phase1.max.p=0.001, 
                          SA.phase1.backoff.rat=1.05, 
-                         SA.phase2.levels=10, 
+                         SA.phase2.levels=10,
+                         SA.phase2.max.mc.se=0, 
                          SA.phase2.repeats=400,
                          SA.stepdown.maxn=100,
                          SA.stepdown.p=0.05,
@@ -133,6 +136,11 @@
   \item{SAN.control}{SAN control parameters.  See
     \code{\link{control.san}}
   }
+
+  \item{SA.restarts}{
+    Maximum number of times to restart a failed optimization process. 
+  }
+  
   \item{SA.burnin}{Number of time steps to advance the starting network
     before beginning the optimization.
   }
@@ -183,6 +191,11 @@
   }
   \item{SA.phase2.levels}{Number of gain levels (subphases) to go through.
   }
+
+  \item{SA.phase2.max.mc.se}{Approximate precision of the estimates that
+    must be attained before stopping. 
+  }
+  
   \item{SA.phase2.repeats, SA.stepdown.maxn,
     SA.stepdown.p, SA.stepdown.ct.base, SA.stepdown.ct.subphase}{A gain level may be repeated multiple times (up to
     \code{SA.phase2.repeats}) if the optimizer detects that the

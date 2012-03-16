@@ -57,7 +57,8 @@ print.summary.ergm <- function (x,
              `Stepping`=cat("\n Stepping MLE Results:\n"),
              stop("Unknown estimation method. This is a bug.")),
            EGMME = if(!is.null(control$EGMME.main.method))  switch(control$EGMME.main.method,
-             `Stochastic-Approximation`=cat("\nEquilibrium Generalized Method of Moments Results:\n"),
+             `Gradient-Descent`=cat("\nEquilibrium Generalized Method of Moments Results:\n"),
+             `One-Step`=cat("\nEquilibrium Generalized Method of Moments Results:\n"),
              stop("Unknown estimation method. This is a bug.")),
            stop("Unknown estimate type. This is a bug.")
            )

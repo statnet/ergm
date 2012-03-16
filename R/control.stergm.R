@@ -23,7 +23,7 @@ control.stergm<-function(init.form=NULL,
                          CMLE.control.form=control.ergm(init=init.form, MCMC.prop.weights=MCMC.prop.weights.form, MCMC.prop.args=MCMC.prop.args.form, MCMC.init.maxedges=MCMC.init.maxedges, MCMC.packagenames=MCMC.packagenames, MCMC.interval=MCMC.burnin, parallel=parallel, parallel.type=parallel.type, parallel.version.check=parallel.version.check),
                          CMLE.control.diss=control.ergm(init=init.diss, MCMC.prop.weights=MCMC.prop.weights.diss, MCMC.prop.args=MCMC.prop.args.diss, MCMC.init.maxedges=MCMC.init.maxedges, MCMC.packagenames=MCMC.packagenames, MCMC.interval=MCMC.burnin, parallel=parallel, parallel.type=parallel.type, parallel.version.check=parallel.version.check),
 
-                         EGMME.main.method=c("Stochastic-Approximation"),
+                         EGMME.main.method=c("One-Step","Gradient-Descent"),
                          
                          SAN.maxit=10,
                          SAN.control=control.san(coef=init.form,
@@ -38,6 +38,8 @@ control.stergm<-function(init.form=NULL,
                            parallel.type=parallel.type,
                            parallel.version.check=parallel.version.check),
 
+                         SA.restarts=10,
+                         
                          SA.burnin=1000,
 
                          # Plot the progress of the optimization.
@@ -65,6 +67,7 @@ control.stergm<-function(init.form=NULL,
                          SA.phase1.max.p=0.001, # P-value that a gradient estimate must obtain before it's accepted (since sign is what's important).
                          SA.phase1.backoff.rat=1.05, # If a run produces this relative increase in the objective function, it will be backed off.                         
                          SA.phase2.levels=10, # Number of gain levels to go through.
+                         SA.phase2.max.mc.se=0, # Maximum standard error of the parameter estimates.
                          SA.phase2.repeats=400, # Maximum number of times gain a subphase can be repeated if the optimization is "going somewhere".
                          SA.stepdown.maxn=100, # Thin the draws for trend detection to get this many.
                          SA.stepdown.p=0.05, # If the combined p-value for the trend in the parameters is less than this, reset the subphase counter.
