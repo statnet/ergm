@@ -118,34 +118,26 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, coef, dind=NULL, coef
   nw<-tmp$nw; m<-tmp$model; form<-tmp$form; rm(tmp)
 
   ## By default, take dyad-independent terms in the formula, fit a
-  ## model with these terms and "edges", then drop the terms that get
-  ## NAs (i.e. are redundant).
-   if(is.null(dind)){
-    dind<-nw~edges
+  ## model with these terms and "edges". Terms that are redundant (NA)
+  ## get their coefficients zeroed out below.
+  if(is.null(dind)){
+    dind<-~nw
     terms.full<-term.list.formula(form[[3]])
     for(i in seq_along(terms.full))
       if(!is.null(m$terms[[i]]$dependence) && m$terms[[i]]$dependence==FALSE)
         dind<-append.rhs.formula(dind,list(terms.full[[i]]))
+    dind<-append.rhs.formula(dind,list(as.name("edges")))
     ergm.dind<-ergm(dind,estimate="MPLE")
-    ## If any terms are redundant...
-    if(any(is.na(coef(ergm.dind)))){
-      dind<-~nw
-      terms.dind<-term.list.formula(ergm.dind$formula[[3]])
-      for(i in seq_along(terms.dind))
-        if(!is.na(coef(ergm.dind)[i]))
-          dind<-append.rhs.formula(dind,list(terms.dind[[i]]))
-      ergm.dind<-ergm(dind,estimate="MPLE")
-    }
   }else{
     dind<-ergm.update.formula(dind,nw~.)  
     ergm.dind<-ergm(dind,estimate="MPLE")
-  }  
+  }
   
   if(!is.dyad.independent(dind))
     stop("Reference model `dind' must be dyad-independent.")
 
   if(is.null(coef.dind)){
-    coef.dind<-coef(ergm.dind)
+    coef.dind<-ifelse(is.na(coef(ergm.dind)),0,coef(ergm.dind))
     llk.dind<--ergm.dind$glm$deviance/2
   }else{
     lin.pred <- model.matrix(ergm.dind$glm) %*% coef.dind

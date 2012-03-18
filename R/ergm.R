@@ -279,8 +279,10 @@ ergm <- function(formula, response=NULL,
 
     initialfit$control<-control
     
-    if(any(!model.initial$etamap$offsettheta))
+    if(any(!model.initial$etamap$offsettheta)){
+      if(verbose) cat("Evaluating log-likelihood at the estimate.\n")
       initialfit<-logLik.ergm(initialfit, add=TRUE, control=control$loglik.control)
+    }
     return(initialfit)
   }
   
@@ -356,11 +358,15 @@ ergm <- function(formula, response=NULL,
   if (!control$MCMC.return.stats)
     mainfit$sample <- NULL
 
+  if(eval.loglik){
+    cat("Evaluating log-likelihood at the estimate.\n")
+    mainfit<-logLik.ergm(mainfit, add=TRUE, control=control$loglik.control)
+  }
+
   if (MCMCflag) {
     cat("\nThis model was fit using MCMC.  To examine model diagnostics", 
         "and check for degeneracy, use the mcmc.diagnostics() function.\n")
   }
-  if(eval.loglik)
-    mainfit<-logLik.ergm(mainfit, add=TRUE, control=control$loglik.control)
+
   mainfit
 }
