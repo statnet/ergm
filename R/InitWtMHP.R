@@ -5,6 +5,8 @@ InitWtMHP.Poisson <- function(arguments, nw, response) {
   }
   MHproposal
 }
+#ergm.MHP.table("c", "Poisson", "",  0, "random", "Poisson")
+
 
 InitWtMHP.ZIPoisson <- function(arguments, nw, response) {
   if(! "p0" %in% names(arguments)){
@@ -20,6 +22,7 @@ InitWtMHP.ZIPoisson <- function(arguments, nw, response) {
   }
   MHproposal
 }
+#ergm.MHP.table("c", "Poisson", "",  0, "0inflated", "ZIPoisson")
 
 InitWtMHP.PoissonNonObserved <- function(arguments, nw, response) {
   MHproposal <- list(name = "PoissonNonObserved", inputs=ergm.Cprepare.miss(nw), package="ergm")
@@ -28,6 +31,7 @@ InitWtMHP.PoissonNonObserved <- function(arguments, nw, response) {
   }
   MHproposal
 }
+#ergm.MHP.table("c", "Poisson", "observed",  0, "random", "PoissonNonObserved")
 
 InitWtMHP.DescRank <- function(arguments, nw, response) {
   MHproposal <- list(name = "CompleteOrdering", inputs=NULL, package="ergm")
@@ -36,6 +40,7 @@ InitWtMHP.DescRank <- function(arguments, nw, response) {
   }
   MHproposal
 }
+#ergm.MHP.table("c", "DescRank", "",  0, "random", "DescRank")
 
 InitWtMHP.DescRankEquivalent <- function(arguments, nw, response) {
   MHproposal <- list(name = "CompleteOrderingEquivalent", package="ergm")
@@ -71,7 +76,7 @@ InitWtMHP.DescRankEquivalent <- function(arguments, nw, response) {
   
   MHproposal
 }
-
+#ergm.MHP.table("c", "DescRank", "ranks",  0, "random", "DescRankEquivalent")
 
 InitWtMHP.StdNormal <- function(arguments, nw, response) {
   MHproposal <- list(name = "StdNormal", inputs=NULL, package="ergm")
@@ -80,6 +85,7 @@ InitWtMHP.StdNormal <- function(arguments, nw, response) {
   }
   MHproposal
 }
+#ergm.MHP.table("c", "StdNormal", "",  0, "random", "StdNormal")
 
 InitWtMHP.StdNormalRank <- function(arguments, nw, response) {
   if(!is.directed(nw) && !is.bipartite(nw)) stop("StdNormRank: The Standard Normal proposal with rank-constraint only works with directed or bipartite networks.")
@@ -98,4 +104,4 @@ InitWtMHP.StdNormalRank <- function(arguments, nw, response) {
   }
   MHproposal
 }
-
+#ergm.MHP.table("c", "StdNormal", "ranks",  0, "random", "StdNormalRank")

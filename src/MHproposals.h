@@ -7,13 +7,9 @@ void MH_randomtoggle (MHproposal *MHp, Network *nwp);
 void MH_TNT (MHproposal *MHp, Network *nwp);
 void MH_TNT10 (MHproposal *MHp, Network *nwp);
 void MH_ConstantEdges (MHproposal *MHp, Network *nwp);
-void MH_CondDegreeTetrad (MHproposal *MHp, Network *nwp);
 void MH_CondDegreeDist (MHproposal *MHp, Network *nwp);
 void MH_CondOutDegreeDist (MHproposal *MHp, Network *nwp);
 void MH_CondInDegreeDist (MHproposal *MHp, Network *nwp);
-void MH_CondDegree (MHproposal *MHp, Network *nwp);
-void MH_CondDegreeHexadToggles (MHproposal *MHp, Network *nwp);
-void MH_CondDegreeTetradToggles (MHproposal *MHp, Network *nwp);
 void MH_RandomNode (MHproposal *MHp, Network *nwp);
 void MH_randomtoggleNonObserved (MHproposal *MHp, Network *nwp);
 

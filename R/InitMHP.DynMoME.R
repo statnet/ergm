@@ -6,7 +6,6 @@
 #      <dissolution>
 #===================================================================
 
-
 InitMHP.formation <- function(arguments, nw, model) {
   MHproposal <- list(name = "Formation", inputs=NULL, package="ergm")
   if(is.bipartite(nw)){
@@ -14,6 +13,8 @@ InitMHP.formation <- function(arguments, nw, model) {
   }
   MHproposal
 }
+#ergm.MHP.table("f", "Bernoulli", "",  0, "random", "formation")
+#ergm.MHP.table("f", "Bernoulli", "bd",  0, "random", "formation")
 
 InitMHP.formationTNT <- function(arguments, nw, model) {
   MHproposal <- list(name = "FormationTNT", inputs=NULL, package="ergm")
@@ -22,7 +23,8 @@ InitMHP.formationTNT <- function(arguments, nw, model) {
   }
   MHproposal
 }
-
+#ergm.MHP.table("f", "Bernoulli", "",  1, "TNT", "formationTNT")
+#ergm.MHP.table("f", "Bernoulli", "bd",  1, "TNT", "formationTNT")
 
 InitMHP.dissolution <- function(arguments, nw, model) {
   MHproposal <- list(name = "Dissolution", inputs=NULL, package="ergm")
@@ -31,3 +33,5 @@ InitMHP.dissolution <- function(arguments, nw, model) {
   }
   MHproposal
 }
+#ergm.MHP.table("d", "Bernoulli", "",  0, "random", "dissolution")
+#ergm.MHP.table("d", "Bernoulli", "bd",  0, "random", "dissolution")

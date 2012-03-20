@@ -76,7 +76,7 @@ ergm.checkconstraints.model <- function(model, MHproposal, init, silent=FALSE){
   # Get the list of all the constraints that the proposal imposes on the sample space.
   constraints.old<-names(MHproposal$arguments$constraints)
   repeat{
-    constraints <- unique(sort(c(constraints.old, unlist(ConstraintImplications[constraints.old]))))
+    constraints <- unique(sort(c(constraints.old, unlist(ergm.ConstraintImplications()[constraints.old]))))
     if(all(constraints==constraints.old)) break
     else constraints.old <- constraints
   }

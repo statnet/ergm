@@ -4,21 +4,29 @@
 #define Mhead (MHp->togglehead)
 #define Mtail (MHp->toggletail)
 
-void MH_CondDegreeSimpleTetrad(MHproposal *MHp, Network *nwp)  {  
+/* 
+void MH_CondDegreeTetrad
+
+   Select two edges with no nodes in common, A1-A2 and B1-B2, s.t. A1-B2 and B1-A2 are not edges, and propose to replace the former two by the latter two.
+ */
+void MH_CondDegreeTetrad(MHproposal *MHp, Network *nwp)  {  
   Vertex A1, A2, B1, B2;
   
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=4;    
     return;
   }
-  GetRandEdge(&A1, &A2, nwp);
-  GetRandEdge(&B1, &B2, nwp);
-  while(A1==B1 || A1==B2 || A2==B1 || A2==B2 || EdgetreeSearch(A1, B2, nwp->outedges) || EdgetreeSearch(B1, A2, nwp->outedges)){
+
+  do{
     GetRandEdge(&A1, &A2, nwp);
     GetRandEdge(&B1, &B2, nwp);
-//Rprintf("A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
-  }
-//Rprintf("in A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
+    //Rprintf("A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
+  }while(A1==B1 || A1==B2 || A2==B1 || A2==B2 || 
+	 (nwp->directed_flag ? 
+	  EdgetreeSearch(A1, B2, nwp->outedges) || EdgetreeSearch(B1, A2, nwp->outedges) : // Directed
+	  EdgetreeSearch(MIN(A1, B2), MAX(A1, B2), nwp->outedges) || EdgetreeSearch(MIN(B1, A2), MAX(B1, A2), nwp->outedges) // Undirected
+	  ));
+    //Rprintf("in A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
   Mtail[0]=A1; Mhead[0]=A2;
   Mtail[1]=A1; Mhead[1]=B2;
   Mtail[2]=B1; Mhead[2]=B2;
@@ -26,17 +34,19 @@ void MH_CondDegreeSimpleTetrad(MHproposal *MHp, Network *nwp)  {
 }
 
 /* 
-void MH_CondDegreeSimple
+void MH_CondDegreeHexad
 
    Select three edges A1->A2, B1->B2, C1->C2 at random and rotate them to 
    A1->B2, B1->C2, and C1->A2.
 
    Note that while all the *1s need to be distinct and all the *2s
-   need to be distinct, all dyads to be created must be empty and
-   meaningful (i.e. not loops), it's OK if A1=C2, B1=A2, and/or C1=B2.
+   need to be distinct and all dyads to be created must be empty and
+   meaningful (i.e. not loops), it's OK if A1=C2, B1=A2, and/or
+   C1=B2. Indeed, "reversing" the cyclical triangle is the one
+   operation that tetradic toggles can't accomplish.
 
  */
-void MH_CondDegreeSimpleHexad(MHproposal *MHp, Network *nwp)  {  
+void MH_CondDegreeHexad(MHproposal *MHp, Network *nwp)  {  
   Vertex A1, A2, B1, B2, C1, C2;
   
   if(MHp->ntoggles == 0) { /* Initialize */
@@ -62,19 +72,95 @@ void MH_CondDegreeSimpleHexad(MHproposal *MHp, Network *nwp)  {
   Mtail[5]=C1; Mhead[5]=A2;
 }
 
-void MH_CondDegreeSimple (MHproposal *MHp, Network *nwp)  {  
+void MH_CondDegree(MHproposal *MHp, Network *nwp)  {  
   
   if(MHp->ntoggles == 0) { /* Initialize CondDeg by */
-	                   /* Choosing Hexad or Tetrad */
-    MHp->ntoggles=6;
+      MHp->ntoggles= nwp->directed_flag ? 6 : 4;
     return;
   }
 
-  if( unif_rand() > 0.9 &&  nwp->directed_flag ){
+  if(nwp->directed_flag && unif_rand() > 0.9){ /* Do the tetrad or hexad proposal. Undirected networks don't need the hexad.*/
     MHp->ntoggles=6;
-    MH_CondDegreeSimpleHexad(MHp, nwp);
+    MH_CondDegreeHexad(MHp, nwp);
   }else{
     MHp->ntoggles=4;
-    MH_CondDegreeSimpleTetrad(MHp, nwp);
+    MH_CondDegreeTetrad(MHp, nwp);
   }
+}
+
+void MH_CondOutDegree(MHproposal *MHp, Network *nwp)  {  
+  Vertex A1, A2, B2;
+  
+  if(MHp->ntoggles == 0) { /* Initialize */
+    MHp->ntoggles=2;
+    return;
+  }
+
+  do{
+    GetRandEdge(&A1, &A2, nwp);
+    B2 = 1 + unif_rand() * nwp->nnodes;
+  }while(A1==B2 || A2==B2 || EdgetreeSearch(A1, B2, nwp->outedges));
+
+//Rprintf("A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
+//Rprintf("in A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
+  Mtail[0]=A1; Mhead[0]=A2;
+  Mtail[1]=A1; Mhead[1]=B2;
+}
+
+void MH_CondInDegree(MHproposal *MHp, Network *nwp)  {  
+  Vertex A1, A2, B1;
+  
+  if(MHp->ntoggles == 0) { /* Initialize */
+    MHp->ntoggles=2;
+    return;
+  }
+
+  do{
+    GetRandEdge(&A1, &A2, nwp);
+    B1 = 1 + unif_rand() * nwp->nnodes;
+  }while(A1==B1 || A2==B1 || EdgetreeSearch(B1, A2, nwp->outedges));
+
+//Rprintf("A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
+//Rprintf("in A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
+  Mtail[0]=A1; Mhead[0]=A2;
+  Mtail[1]=B1; Mhead[1]=A2;
+}
+
+
+void MH_CondB1Degree(MHproposal *MHp, Network *nwp)  {  
+  Vertex A1, A2, B2;
+  
+  if(MHp->ntoggles == 0) { /* Initialize */
+    MHp->ntoggles=2;
+    return;
+  }
+
+  do{
+    GetRandEdge(&A1, &A2, nwp);
+    B2 = 1 + nwp->bipartite + unif_rand() * (nwp->nnodes-nwp->bipartite);
+  }while(A2==B2 || EdgetreeSearch(A1, B2, nwp->outedges));
+
+//Rprintf("A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
+//Rprintf("in A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
+  Mtail[0]=A1; Mhead[0]=A2;
+  Mtail[1]=A1; Mhead[1]=B2;
+}
+
+void MH_CondB2Degree(MHproposal *MHp, Network *nwp)  {  
+  Vertex A1, A2, B1;
+  
+  if(MHp->ntoggles == 0) { /* Initialize */
+    MHp->ntoggles=2;
+    return;
+  }
+
+  do{
+    GetRandEdge(&A1, &A2, nwp);
+    B1 = 1 + unif_rand() * nwp->bipartite;
+  }while(A1==B1 || A2==B1 || EdgetreeSearch(B1, A2, nwp->outedges));
+
+//Rprintf("A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
+//Rprintf("in A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
+  Mtail[0]=A1; Mhead[0]=A2;
+  Mtail[1]=B1; Mhead[1]=A2;
 }

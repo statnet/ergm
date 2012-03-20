@@ -30,22 +30,27 @@
 #
 ############################################################################
 
-
-
 InitMHP.formationMLE <- function(arguments, nw) {
   MHproposal <- list(name = "FormationMLE", inputs=ergm.Cprepare.el(arguments$constraints$atleast$nw), package="ergm")
   MHproposal
 }
+#ergm.MHP.table("c", "Bernoulli", "atleast",  0, "random", "formationMLE")
+#ergm.MHP.table("c", "Bernoulli", "atleast+bd",  0, "random", "formationMLE")
+
 
 InitMHP.formationMLETNT <- function(arguments, nw) {
   MHproposal <- list(name = "FormationMLETNT", inputs=ergm.Cprepare.el(arguments$constraints$atleast$nw), package="ergm")
   MHproposal
 }
+#ergm.MHP.table("c", "Bernoulli", "atleast",  1, "TNT", "formationMLETNT")
+#ergm.MHP.table("c", "Bernoulli", "atleast+bd",  1, "TNT", "formationMLETNT")
 
 InitMHP.dissolutionMLE <- function(arguments, nw) {
   MHproposal <- list(name = "DissolutionMLE", inputs=ergm.Cprepare.el(arguments$constraints$atmost$nw), package="ergm")
   MHproposal
 }
+#ergm.MHP.table("c", "Bernoulli", "atmost",  0, "random", "dissolutionMLE")
+#ergm.MHP.table("c", "Bernoulli", "atmost+bd",  0, "random", "dissolutionMLE")
 
 InitMHP.formationNonObservedMLE <- function(arguments, nw) {
   ## Precalculate toggleable dyads: dyads which
@@ -59,6 +64,7 @@ InitMHP.formationNonObservedMLE <- function(arguments, nw) {
   MHproposal <- list(name = "randomtoggleNonObserved", inputs=ergm.Cprepare.el(y.miss-y0), package="ergm")
   MHproposal
 }
+#ergm.MHP.table("c", "Bernoulli", "atleast+observed",  0, "random", "formationNonObservedMLE")
 
 InitMHP.dissolutionNonObservedMLE <- function(arguments, nw) {
   ## Precalculate toggleable dyads: dyads which
@@ -72,5 +78,5 @@ InitMHP.dissolutionNonObservedMLE <- function(arguments, nw) {
   MHproposal <- list(name = "randomtoggleNonObserved", inputs=ergm.Cprepare.el(y.miss & y0), package="ergm")
   MHproposal
 }
-
+#ergm.MHP.table("c", "Bernoulli", "atmost+observed",  0, "random", "dissolutionNonObservedMLE")
 
