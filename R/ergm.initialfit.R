@@ -50,10 +50,9 @@ ergm.initialfit<-function(init, initial.is.final,
   method <- match.arg(method, init.methods[[reference]])
  
   # conddeg, whatever it does.
-  if(!is.null(conddeg)){
+  if(method=="MPLE" && !is.null(conddeg)){
    formula.conddegmple <- ergm.update.formula(formula, . ~ conddegmple + .)
    m.conddeg <- ergm.getmodel(formula.conddegmple, nw, initialfit=TRUE)
-   method <- "MPLE"
    Clist <- ergm.Cprepare(nw, m.conddeg)
    Clist.miss <- ergm.design(nw, m.conddeg, verbose=FALSE)
    m$target.stats=c(1,target.stats)
