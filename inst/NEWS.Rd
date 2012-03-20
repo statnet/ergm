@@ -11,7 +11,7 @@
       \item Facilities for fitting and simulating Separable Temporal
       ERGMs (STERGMs) of Krivitsky (2009) and, Krivitsky and Handcock
       (2010) have been added. See \code{\link{stergm}} and
-      \code{\link[=simulate.network]{smulate}}.
+      \code{\link[=simulate.network]{simulate}}.
       
       \item \code{\link{ergm}} MCMLE will now test if the optimization
       has converged to the MLE and stop if it detects convergence.
@@ -38,7 +38,7 @@
       \item \code{\link{ergm}} extreme statistics detection (if
       \code{control.ergm(drop=TRUE)}) can now detect both extremely high
       and extremely low values, setting the coefficients to +Inf and
-      -Inf respectively. Direction of "dropping" is retruned.
+      -Inf respectively. Direction of "dropping" is returned.
 
       \item An initial method \code{"zeros"} has been, to use a vector
       of zeros as starting parameters.
@@ -127,7 +127,7 @@
       renamed:
       \code{maxedges}, \code{prop.weights}, \code{prop.args},
       \code{packagename}, \code{summarizestats},    \code{nr.maxit},
-      \code{nr.reltol}, \code{maxNumDyadTypes}, \code{maxedges},
+      \code{nr.reltol}, \code{maxNumDyadTypes},
       \code{steplength}, \code{initialfit}, \code{style},
       \code{obs.MCMCsamplesize}, \code{obs.interval}, \code{obs.burnin},
       \code{compress}, \code{metric}, \code{force.mcmc},
