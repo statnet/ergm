@@ -31,11 +31,10 @@ WtNetwork WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
   GetRNGstate();  /* R function enabling uniform RNG */
 
   if(lasttoggle_flag){
-    unsigned int ndyads = bipartite? (nnodes-bipartite)*bipartite : (directed_flag? nnodes*(nnodes-1) : (nnodes*(nnodes-1))/2);
     nw.duration_info.MCMCtimer=time;
-    nw.duration_info.lasttoggle = (int *) calloc(ndyads, sizeof(int));
+    nw.duration_info.lasttoggle = (int *) calloc(DYADCOUNT(nnodes, bipartite, directed_flag), sizeof(int));
     if(lasttoggle)
-      memcpy(nw.duration_info.lasttoggle, lasttoggle, ndyads * sizeof(int));
+      memcpy(nw.duration_info.lasttoggle, lasttoggle, DYADCOUNT(nnodes, bipartite, directed_flag) * sizeof(int));
   }
   else nw.duration_info.lasttoggle = NULL;
 
@@ -121,16 +120,17 @@ WtNetwork *WtNetworkCopy(WtNetwork *dest, WtNetwork *src){
   memcpy(dest->outedges, src->outedges, maxedges*sizeof(WtTreeNode));
 
   int directed_flag = dest->directed_flag = src->directed_flag;
+  Vertex bipartite = dest->bipartite = src->bipartite;
+
 
   if(src->duration_info.lasttoggle){
     dest->duration_info.MCMCtimer=src->duration_info.MCMCtimer;
-    dest->duration_info.lasttoggle = (int *) calloc(directed_flag? nnodes*(nnodes-1) : (nnodes*(nnodes-1))/2, sizeof(int));
-    memcpy(dest->duration_info.lasttoggle, src->duration_info.lasttoggle,(directed_flag? nnodes*(nnodes-1) : (nnodes*(nnodes-1))/2) * sizeof(int));
+    dest->duration_info.lasttoggle = (int *) calloc(DYADCOUNT(nnodes, bipartite, directed_flag), sizeof(int));
+    memcpy(dest->duration_info.lasttoggle, src->duration_info.lasttoggle,DYADCOUNT(nnodes, bipartite, directed_flag) * sizeof(int));
   }
   else dest->duration_info.lasttoggle = NULL;
 
   dest->nedges = src->nedges;
-  dest->bipartite = src->bipartite;
 
   return dest;
 }

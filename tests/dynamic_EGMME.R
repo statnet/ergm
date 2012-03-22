@@ -7,7 +7,7 @@ do.plot <- FALSE
 
 g0<-network.initialize(n,dir=FALSE)
 
-#            meandeg, degree(1)
+#            edges, degree(1)
 target.stats<-c(      n*1/2,    n*0.6)
 
 # Get a reasonably close starting network.
@@ -70,14 +70,14 @@ mcmc.diagnostics(dynfit)
 
 # Fix formation edges, fit degree(1) formation and edges dissolution with edges and degree(1) as target.
 set.seed(12345)
-dynfit<-stergm(g1,formation=~offset(edges)+degree(1),dissolution=~edges, targets="formation", estimate="EGMME", target.stats=target.stats,control=control.stergm(SA.plot.progress=do.plot,init.form=c(coef.form[1],0),init.diss=1))
+dynfit<-stergm(g1,formation=~offset(edges)+degree(1),dissolution=~edges, targets="formation", estimate="EGMME", target.stats=target.stats,control=control.stergm(SA.plot.progress=do.plot,init.form=c(coef.form[1],0),init.diss=1,SA.init.gain=0.01))
 print(summary(dynfit))
 mcmc.diagnostics(dynfit)
 
 # All parameters free, edges, degree(1), and edge.ages as target.
 # I am not 100% sure the target statistic is correct.
 set.seed(56789)
-dynfit<-stergm(g1,formation=~edges+degree(1),dissolution=~edges, targets=~edges+degree(1)+edge.ages, estimate="EGMME", target.stats=c(target.stats,target.stats[1]*20),control=control.stergm(SA.plot.progress=do.plot,init.form=c(-1,0),init.diss=1))
+dynfit<-stergm(g1,formation=~edges+degree(1),dissolution=~edges, targets=~edges+degree(1)+edge.ages, estimate="EGMME", target.stats=c(target.stats,target.stats[1]*20),control=control.stergm(SA.plot.progress=do.plot,init.form=c(-1,0),init.diss=1,SA.init.gain=0.01))
 
 print(summary(dynfit))
 mcmc.diagnostics(dynfit)

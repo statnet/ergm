@@ -8,6 +8,7 @@
 
 #define MIN(a,b) ((a)<(b) ? (a) : (b))
 #define MAX(a,b) ((a)<(b) ? (b) : (a))
+#define DYADCOUNT(nnodes, bipartite, directed) (bipartite? (nnodes-bipartite)*bipartite : (directed? nnodes*(nnodes-1) : (nnodes*(nnodes-1))/2))
 
 /*typedef unsigned int Vertex;
 typedef unsigned int Edge; */

@@ -18,7 +18,7 @@ void MH_FormationMLE (MHproposal *MHp, Network *nwp)
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
     nnodes = nwp[0].nnodes;
-    ndyads = (nnodes-1)*nnodes / (nwp[0].directed_flag? 1:2);
+    ndyads = DYADCOUNT(nnodes, 0, nwp[0].directed_flag);
     nedges0 = MHp->inputs[0];
     return;
   }
@@ -61,13 +61,11 @@ void MH_FormationMLE (MHproposal *MHp, Network *nwp)
 ***********************/
 void MH_DissolutionMLE (MHproposal *MHp, Network *nwp) 
 {  
-  static Vertex nnodes;
   unsigned int trytoggle;
   static Edge nedges0;
 
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
-    nnodes = nwp[0].nnodes;
     nedges0 = MHp->inputs[0];
     return;
   }
@@ -113,7 +111,7 @@ void MH_FormationMLETNT(MHproposal *MHp, Network *nwp)
     MHp->ntoggles=1;
     nnodes = nwp->nnodes;
     odds = comp/(1.0-comp);
-    ndyads = (nnodes-1)*nnodes / (nwp->directed_flag? 1:2);
+    ndyads = DYADCOUNT(nnodes, 0, nwp[0].directed_flag);
 
     Edge nedges0 = MHp->inputs[0];
     MHp->discord = (Network**) calloc(2,sizeof(Network*)); // A space for the sentinel NULL pointer.

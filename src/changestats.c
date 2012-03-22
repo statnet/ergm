@@ -1587,12 +1587,7 @@ D_CHANGESTAT_FN(d_degree_w_homophily) {
 *****************/
 D_CHANGESTAT_FN(d_density) {
   int i;
-  Vertex ndyads;
-  
-  ndyads = (N_NODES)*(N_NODES-1);
-  if(!DIRECTED){
-    ndyads = ndyads / 2;
-  }
+  Edge ndyads = N_DYADS;
   
   /* *** don't forget tail -> head */    
   CHANGE_STAT[0] = 0.0;

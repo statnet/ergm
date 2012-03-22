@@ -17,7 +17,7 @@ void MH_Formation (MHproposal *MHp, Network *nwp)
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
     nnodes = nwp[0].nnodes;
-    ndyads = (nnodes-1)*nnodes / (nwp[0].directed_flag? 1:2);
+    ndyads = DYADCOUNT(nnodes, 0, nwp[0].directed_flag);
     return;
   }
   
@@ -76,7 +76,7 @@ void MH_FormationTNT (MHproposal *MHp, Network *nwp)
     MHp->ntoggles=1;
     nnodes = nwp[0].nnodes;
     odds = comp/(1.0-comp);
-    ndyads = (nnodes-1)*nnodes / (nwp[0].directed_flag? 1:2);
+    ndyads = DYADCOUNT(nnodes, 0, nwp[0].directed_flag);
     return;
   }
   
@@ -192,7 +192,7 @@ void MH_BipartiteFormation (MHproposal *MHp, Network *nwp)
     MHp->ntoggles=1;
     nnodes = nwp[0].nnodes;
     nb1 = nwp[0].bipartite;
-    ndyads = (nnodes-nb1)*nb1;
+    ndyads = DYADCOUNT(nnodes, nb1, 0);
     return;
   }
 
@@ -247,7 +247,7 @@ void MH_BipartiteFormationTNT (MHproposal *MHp, Network *nwp)
     nnodes = nwp[0].nnodes;
     odds = comp/(1.0-comp);
     nb1 = nwp[0].bipartite;
-    ndyads = (nnodes-nb1)*nb1;  
+    ndyads = DYADCOUNT(nnodes, nb1, 0);  
     return;
   }
   

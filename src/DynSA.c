@@ -76,7 +76,7 @@ void MCMCDynSArun_wrapper(// Observed network.
   if(*status==MCMCDyn_OK){
     newnetworktail[0]=newnetworkhead[0]=EdgeTree2EdgeList(newnetworktail+1,newnetworkhead+1,nw,*maxedges);
     *time = nw->duration_info.MCMCtimer;
-    memcpy(lasttoggle, nw->duration_info.lasttoggle, sizeof(int)*(*dflag? *n_nodes*(*n_nodes-1) : (*n_nodes*(*n_nodes-1))/2));
+    memcpy(lasttoggle, nw->duration_info.lasttoggle, sizeof(int)*DYADCOUNT(*n_nodes, *bipartite, *dflag));
   }
 
   MCMCDyn_finish_common(nw, F_m, D_m, M_m, &F_MH, &D_MH);

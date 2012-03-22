@@ -58,7 +58,7 @@ void MH_TNT (MHproposal *MHp, Network *nwp)
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
     odds = comp/(1.0-comp);
-    ndyads = (nwp->nnodes-1)*nwp->nnodes / (nwp->directed_flag? 1:2);  
+    ndyads = DYADCOUNT(nwp->nnodes, 0, nwp->directed_flag);
     return;
   }
   
@@ -114,7 +114,7 @@ void MH_TNT10 (MHproposal *MHp, Network *nwp)
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=10;
     odds = comp/(1.0-comp);
-    ndyads = (nwp->nnodes-1)*nwp->nnodes / (nwp->directed_flag? 1:2);  
+    ndyads = DYADCOUNT(nwp->nnodes, 0, nwp->directed_flag);
     return;
   }
   
