@@ -3,14 +3,9 @@
 
 \alias{ConstraintImplications}
 
-\alias{InitConstraint.atleast}
-\alias{InitConstraint.atmost}
 \alias{InitConstraint.bd}
 \alias{InitConstraint.degreedist}
 \alias{InitConstraint.degrees}
-\alias{InitConstraint.degreesHexad}
-\alias{InitConstraint.degreesTetrad}
-\alias{InitConstraint.degreessimple}
 \alias{InitConstraint.edges}
 \alias{InitConstraint.hamming}
 \alias{InitConstraint.indegreedist}
@@ -19,9 +14,6 @@
 \alias{InitConstraint.outdegreedist}
 \alias{InitConstraint.ranks}
 
-\alias{InitErgm.D.dyad}
-\alias{InitErgm.D.edge}
-\alias{InitErgm.D.off}
 \alias{InitErgm.altistar}
 \alias{InitErgm.altostar}
 \alias{InitErgm.b1kappa}
@@ -39,10 +31,7 @@
 \alias{InitErgm.bounded.ostar}
 \alias{InitErgm.bounded.triangle}
 \alias{InitErgm.degreep}
-\alias{InitErgm.dissolve}
-\alias{InitErgm.duration}
 \alias{InitErgm.factor}
-\alias{InitErgm.formation}
 \alias{InitErgm.geodegree}
 \alias{InitErgm.gwb1706}
 \alias{InitErgm.gwb1share}
@@ -107,11 +96,7 @@
 \alias{InitErgmTerm.density}
 \alias{InitErgmTerm.dsp}
 \alias{InitErgmTerm.dyadcov}
-\alias{InitErgmTerm.edge.ages}
-\alias{InitErgmTerm.edgecov}
-\alias{InitErgmTerm.edgecov.ages}
 \alias{InitErgmTerm.edges}
-\alias{InitErgmTerm.edges.ageinterval}
 \alias{InitErgmTerm.esp}
 \alias{InitErgmTerm.gwb1degree}
 \alias{InitErgmTerm.gwb2degree}
@@ -172,9 +157,6 @@
 
 \alias{InitMHP.CondDegree}
 \alias{InitMHP.CondDegreeDist}
-\alias{InitMHP.CondDegreeHexad}
-\alias{InitMHP.CondDegreeSimple}
-\alias{InitMHP.CondDegreeTetrad}
 \alias{InitMHP.CondInDegreeDist}
 \alias{InitMHP.CondOutDegreeDist}
 \alias{InitMHP.ConstantEdges}
@@ -182,14 +164,6 @@
 \alias{InitMHP.HammingTNT}
 \alias{InitMHP.TNT}
 \alias{InitMHP.TNT10}
-\alias{InitMHP.dissolution}
-\alias{InitMHP.dissolutionMLE}
-\alias{InitMHP.dissolutionNonObservedMLE}
-\alias{InitMHP.formation}
-\alias{InitMHP.formationMLE}
-\alias{InitMHP.formationMLETNT}
-\alias{InitMHP.formationNonObservedMLE}
-\alias{InitMHP.formationTNT}
 \alias{InitMHP.nobetweengroupties}
 \alias{InitMHP.randomtoggle}
 \alias{InitMHP.randomtoggleNonObserved}
@@ -239,14 +213,12 @@
 \alias{MHproposal.character}
 \alias{MHproposal.ergm}
 \alias{MHproposal.formula}
-\alias{MHproposals}
 
 \alias{approx.hotelling.diff.test}
 \alias{append.rhs.formula}
 \alias{as.edgelist}
 \alias{as.edgelist.compressed}
 \alias{as.network.uncompressed}
-\alias{assignvariables}
 \alias{autoboot.ergm}
 \alias{autoboot.se.ergm}
 \alias{central.network}
@@ -256,7 +228,6 @@
 \alias{colMeans.mcmc.list}
 \alias{compress.data.frame}
 \alias{control.ergm.toplevel}
-\alias{control.godfather}
 \alias{control.simulate.ergm.toplevel}
 \alias{copy.named}
 \alias{degreedist}
@@ -304,7 +275,6 @@
 \alias{ergm.getmodel}
 \alias{ergm.getnetwork}
 \alias{ergm.getterms}
-\alias{ergm.godfather}
 \alias{ergm.independencemodel}
 \alias{ergm.initialfit}
 \alias{ergm.logisticdeviance}
