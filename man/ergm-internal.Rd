@@ -257,7 +257,6 @@
 \alias{compress.data.frame}
 \alias{control.ergm.toplevel}
 \alias{control.godfather}
-\alias{control.logLik.stergm}
 \alias{control.simulate.ergm.toplevel}
 \alias{copy.named}
 \alias{degreedist}
@@ -359,7 +358,6 @@
 \alias{llik.hessian2}
 \alias{llik.info3}
 \alias{llik.mcmcvar3}
-\alias{logLik.stergm.CMLE}
 \alias{logistftest}
 \alias{logp.rank.ergm}
 \alias{mcmc.diagnostics.default}
@@ -388,15 +386,6 @@
 \alias{statnet.edit}
 \alias{statnetShowDoc}
 \alias{statnetbrowseURL}
-\alias{stergm.CMLE}
-\alias{stergm.EGMME}
-\alias{stergm.EGMME.GD}
-\alias{stergm.EGMME.OS}
-\alias{stergm.EGMME.SA}
-\alias{stergm.EGMME.SA.Phase2.C}
-\alias{stergm.EGMME.initialfit}
-\alias{stergm.RM}
-\alias{stergm.getMCMCsample}
 \alias{summary.statsmatrix.ergm}
 \alias{sweep.mcmc.list}
 \alias{term.list.formula}

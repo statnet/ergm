@@ -132,19 +132,3 @@ InitConstraint.ranks<-function(conlist, lhs.nw, ...){
    conlist$ranks<-list()
    conlist
 }
-
-InitConstraint.atleast<-function(conlist, lhs.nw, nw=NULL, ...){
-  if(is.null(nw)) stop("Formation constraint ``atleast'' requires a baseline network.",call.=FALSE)
-  if(network.naedgecount(nw)) stop("Baseline network passed to formation constraint ``atleast'' may not have missing dyads.")
-  conlist$atleast<-list(nw=nw)
-  conlist
-}
-#ergm.ConstraintImplications("atleast", c())
-
-InitConstraint.atmost<-function(conlist, lhs.nw, nw=NULL, ...){
-  if(is.null(nw)) stop("Dissolution constraint ``atmost'' requires a baseline network.",call.=FALSE)
-  if(network.naedgecount(nw)) stop("Baseline network passed to dissolution constraint ``atmost'' may not have missing dyads.")
-  conlist$atmost<-list(nw=nw)
-  conlist
-}
-#ergm.ConstraintImplications("atmost", c())

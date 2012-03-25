@@ -1,8 +1,7 @@
 \name{mcmc.diagnostics}
 \alias{mcmc.diagnostics.ergm}
-\alias{mcmc.diagnostics.stergm}
 \alias{mcmc.diagnostics}
-\title{Conduct MCMC diagnostics on an ergm or stergm fit}
+\title{Conduct MCMC diagnostics on an ergm fit}
 \description{
   This function prints diagnistic information and creates simple diagnostic plots for the MCMC sampled
   statistics produced from a fit.
@@ -13,15 +12,10 @@
                                   curved=TRUE,
                                   vars.per.page=3,
                                   \dots) 
-\method{mcmc.diagnostics}{stergm} (object,  
-                                  center=TRUE,
-                                  curved=TRUE,
-                                  vars.per.page=3,
-                                  \dots) 
 }
 \arguments{
-  \item{object}{An ergm or stergm object.  See documentation for
-    \code{\link{ergm}} or \code{\link{stergm}}, respectively.
+  \item{object}{An ergm object.  See documentation for
+    \code{\link{ergm}}.
   }
   \item{center}{Logical:  If TRUE, ; center the samples
     on the observed statistics.
@@ -51,7 +45,7 @@
   \url{http://www.mrc-bsu.cam.ac.uk/bugs/classic/coda04/readme.shtml}.
 
   More information can be found by looking at the documentation of
-  \code{\link{ergm}} and \code{\link{stergm}}.
+  \code{\link{ergm}}.
   
 }
 \references{
