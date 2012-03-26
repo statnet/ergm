@@ -36,8 +36,8 @@
 #                   ~idegree+odegree+espartners+distance otherwise
 #   constraints   : a one-sided formula of the constraint terms; options are
 #                         bd        degrees        nodegrees
-#                         edges     degreedist     indegreedist
-#                         observed  outdegreedist
+#                         edges     degreedist     idegreedist
+#                         observed  odegreedist
 #                   default="~ ."   
 #   control       : a list of parameters for controlling GOF evaluation, as
 #                   returned by <control.gof.X>; default=control.gof.X()

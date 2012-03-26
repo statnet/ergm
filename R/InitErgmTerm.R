@@ -1423,7 +1423,7 @@ InitErgmTerm.gwidegree<-function(nw, arglist, initialfit=FALSE, ...) {
     }
     list(name="idegree", coef.names=paste("gwidegree#",d,sep=""), 
          inputs=c(d), params=list(gwidegree=NULL,gwidegree.decay=decay),
-         map=map, gradient=gradient, conflicts.constraints="indegreedist")
+         map=map, gradient=gradient, conflicts.constraints="idegreedist")
   } else { 
     if(!is.null(attrname)) {
       nodecov <- get.node.attr(nw, attrname, "gwidegree")
@@ -1445,7 +1445,7 @@ InitErgmTerm.gwidegree<-function(nw, arglist, initialfit=FALSE, ...) {
       name <- "gwidegree"
       coef.names <- "gwidegree"
       inputs <- c(decay)
-      list(name=name, coef.names=coef.names, inputs=inputs, conflicts.constraints="indegreedist")
+      list(name=name, coef.names=coef.names, inputs=inputs, conflicts.constraints="idegreedist")
     }
   }
 }
@@ -1526,7 +1526,7 @@ InitErgmTerm.gwodegree<-function(nw, arglist, initialfit=FALSE, ...) {
     }
     list(name="odegree", coef.names=paste("gwodegree#",d,sep=""),
          inputs=c(d), params=list(gwodegree=NULL,gwodegree.decay=decay),
-         map=map, gradient=gradient, conflicts.constraints="outdegreedist")
+         map=map, gradient=gradient, conflicts.constraints="odegreedist")
   } else {
     if(!is.null(attrname)) {
       nodecov <- get.node.attr(nw, attrname, "gwodegree")
@@ -1548,7 +1548,7 @@ InitErgmTerm.gwodegree<-function(nw, arglist, initialfit=FALSE, ...) {
       name <- "gwodegree"
       coef.names <- "gwodegree"
       inputs <- c(decay)
-      list(name=name, coef.names=coef.names, inputs=inputs, conflicts.constraints="outdegreedist")
+      list(name=name, coef.names=coef.names, inputs=inputs, conflicts.constraints="odegreedist")
     }
   }
 }
@@ -1762,7 +1762,7 @@ InitErgmTerm.idegree<-function(nw, arglist, ...) {
     list(name=name, coef.names=coef.names, inputs=inputs,
          emptynwstats=emptynwstats, dependence=TRUE)
   }else{
-    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, minval = 0, maxval=network.size(nw), conflicts.constraints="indegreedist")
+    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, minval = 0, maxval=network.size(nw), conflicts.constraints="idegreedist")
   }
 }
 
@@ -1775,7 +1775,7 @@ InitErgmTerm.indegreepopularity<-function (nw, arglist, ...) {
                       defaultvalues = list(),
                       required = NULL)
   list(name="indegreepopularity", coef.names="indegreepopularity",
-       minval=0, maxval=network.dyadcount(nw)*sqrt(network.size(nw)-1), conflicts.constraints="indegreedist")
+       minval=0, maxval=network.dyadcount(nw)*sqrt(network.size(nw)-1), conflicts.constraints="idegreedist")
 }
 
 
@@ -1840,7 +1840,7 @@ InitErgmTerm.istar<-function(nw, arglist, ...) {
     coef.names <- paste("istar",k,sep="")
     inputs <- c(k)
   }
-  list(name="istar", coef.names=coef.names, inputs=inputs, minval = 0, conflicts.constraints="indegreedist")
+  list(name="istar", coef.names=coef.names, inputs=inputs, minval = 0, conflicts.constraints="idegreedist")
 }
 
 
@@ -2389,7 +2389,7 @@ InitErgmTerm.odegree<-function(nw, arglist, ...) {
     list(name=name, coef.names=coef.names, inputs=inputs,
          emptynwstats=emptynwstats, dependence=TRUE, minval=0)
   }else{
-    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, minval=0, maxval=network.size(nw), conflicts.constraints="outdegreedist")
+    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, minval=0, maxval=network.size(nw), conflicts.constraints="odegreedist")
   }
 }
 
@@ -2402,7 +2402,7 @@ InitErgmTerm.outdegreepopularity<-function (nw, arglist, ...) {
                       defaultvalues = list(),
                       required = NULL)
   list(name="outdegreepopularity", coef.names="outdegreepopularity",
-       minval=0, maxval=network.dyadcount(nw)*sqrt(network.size(nw)-1), conflicts.constraints="outdegreedist")
+       minval=0, maxval=network.dyadcount(nw)*sqrt(network.size(nw)-1), conflicts.constraints="odegreedist")
 }
 
 
@@ -2446,7 +2446,7 @@ InitErgmTerm.ostar<-function(nw, arglist, ...) {
     coef.names <- paste("ostar",k,sep="")
     inputs <- c(k)
   }
-  list(name="ostar", coef.names=coef.names, inputs=inputs, minval=0, conflicts.constraints="outdegreedist")  
+  list(name="ostar", coef.names=coef.names, inputs=inputs, minval=0, conflicts.constraints="odegreedist")  
 }
 
 
@@ -2509,7 +2509,7 @@ InitErgmTerm.receiver<-function(nw, arglist, ...) {
   ld<-length(d)
   if(ld==0){return(NULL)}
   list(name="receiver", coef.names=paste("receiver",d,sep=""),
-       inputs=c(d), emptynwstats=rep(0,length(d)), dependence=FALSE, minval=0, maxval=network.size(nw)-1, conflicts.constraints="indegrees")
+       inputs=c(d), emptynwstats=rep(0,length(d)), dependence=FALSE, minval=0, maxval=network.size(nw)-1, conflicts.constraints="idegrees")
 }
 
 
@@ -2529,7 +2529,7 @@ InitErgmTerm.sender<-function(nw, arglist, ...) {
   ld<-length(d)
   if(ld==0){return(NULL)}
   list(name="sender", coef.names=paste("sender",d,sep=""),
-       inputs=c(d), emptynwstats=rep(0,length(d)), dependence=FALSE, minval=0, maxval=network.size(nw)-1, conflicts.constraints="outdegrees")
+       inputs=c(d), emptynwstats=rep(0,length(d)), dependence=FALSE, minval=0, maxval=network.size(nw)-1, conflicts.constraints="odegrees")
 }
 
 

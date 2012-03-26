@@ -71,12 +71,16 @@ ergm (formula,
         whose vertex degrees are the same as those in the network passed
         in the model formula have non-zero probability.
       }
+      \item{\code{odegrees}, \code{idegrees}, \code{b1degrees}, \code{b2degrees}}{
+         \code{odegrees} preserves the outdegree of each vertex of the given
+    network, while allowing indegree to vary, and similarly for the others.
+      }
       \item{\code{degreedist}}{
         Preserve the degree distribution of the given network: only networks
         whose degree distributions are the same as those in the network passed
         in the model formula have non-zero probability.
       }
-      \item{\code{indegreedist} and \code{outdegreedist}}{
+      \item{\code{idegreedist} and \code{odegreedist}}{
         Preserve the (respectively) indegree or outdegree distribution of 
         the given network.
       }

@@ -1,12 +1,12 @@
 #============================================================================
 # This file contains the following 12 functions for initializing empty
 # constraint lists (each prependend with "InitConstraint")
-#         <edges>                   <outdegreedist>
+#         <edges>                   <odegreedist>
 #         <degrees>=<nodedegrees>   <bd>
-#         <degreesTetrad>           <indegrees>
-#         <degreesHexad>            <outdegrees>
+#         <degreesTetrad>           <idegrees>
+#         <degreesHexad>            <odegrees>
 #         <degreedist>              <hamming>
-#         <indegreedist>            <observed>
+#         <idegreedist>            <observed>
 #============================================================================
 
 ##########################################################################################
@@ -36,27 +36,27 @@ InitConstraint.degrees<-InitConstraint.nodedegrees<-function(conlist, lhs.nw, ..
    conlist$degrees<-list()
    conlist
 }
-#ergm.ConstraintImplications("degrees", c("edges", "indegrees", "outdegrees", "indegreedist", "outdegreedist", "degreedist", "bd"))
+#ergm.ConstraintImplications("degrees", c("edges", "idegrees", "odegrees", "idegreedist", "odegreedist", "degreedist", "bd"))
 
-InitConstraint.outdegrees<-InitConstraint.outdegrees<-function(conlist, lhs.nw, ...){
+InitConstraint.odegrees<-function(conlist, lhs.nw, ...){
    if(length(list(...)))
-     stop(paste("Vertex outdegrees constraint does not take arguments at this time."), call.=FALSE)
-   if(!is.directed(lhs.nw)) stop("Vertex outdegrees constraint is only meaningful for directed networks.", call.=FALSE)
-   conlist$outdegrees<-list()
+     stop(paste("Vertex odegrees constraint does not take arguments at this time."), call.=FALSE)
+   if(!is.directed(lhs.nw)) stop("Vertex odegrees constraint is only meaningful for directed networks.", call.=FALSE)
+   conlist$odegrees<-list()
    conlist
 }
-#ergm.ConstraintImplications("outdegrees", c("edges", "outdegreedist"))
+#ergm.ConstraintImplications("odegrees", c("edges", "odegreedist"))
 
-InitConstraint.indegrees<-InitConstraint.indegrees<-function(conlist, lhs.nw, ...){
+InitConstraint.idegrees<-function(conlist, lhs.nw, ...){
    if(length(list(...)))
-     stop(paste("Vertex indegrees constraint does not take arguments at this time."), call.=FALSE)
-   if(!is.directed(lhs.nw)) stop("Vertex indegrees constraint is only meaningful for directed networks.", call.=FALSE)
-   conlist$indegrees<-list()
+     stop(paste("Vertex idegrees constraint does not take arguments at this time."), call.=FALSE)
+   if(!is.directed(lhs.nw)) stop("Vertex idegrees constraint is only meaningful for directed networks.", call.=FALSE)
+   conlist$idegrees<-list()
    conlist
 }
-#ergm.ConstraintImplications("indegrees", c("edges", "indegreedist"))
+#ergm.ConstraintImplications("idegrees", c("edges", "idegreedist"))
 
-InitConstraint.b1degrees<-InitConstraint.b1degrees<-function(conlist, lhs.nw, ...){
+InitConstraint.b1degrees<-function(conlist, lhs.nw, ...){
    if(length(list(...)))
      stop(paste("B1 vertex degrees constraint does not take arguments at this time."), call.=FALSE)
    if(!is.bipartite(lhs.nw)) stop("B1 vertex degrees constraint is only meaningful for bipartite networks.", call.=FALSE)
@@ -65,7 +65,7 @@ InitConstraint.b1degrees<-InitConstraint.b1degrees<-function(conlist, lhs.nw, ..
 }
 #ergm.ConstraintImplications("b1degrees", c("edges"))
 
-InitConstraint.b2degrees<-InitConstraint.b2degrees<-function(conlist, lhs.nw, ...){
+InitConstraint.b2degrees<-function(conlist, lhs.nw, ...){
    if(length(list(...)))
      stop(paste("B2 vertex degrees constraint does not take arguments at this time."), call.=FALSE)
    if(!is.bipartite(lhs.nw)) stop("B2 vertex degrees constraint is only meaningful for bipartite networks.", call.=FALSE)
@@ -80,25 +80,25 @@ InitConstraint.degreedist<-function(conlist, lhs.nw, ...){
    conlist$degreedist<-list()
    conlist
 }
-#ergm.ConstraintImplications("degreedist", c("edges", "indegreedist", "outdegreedist"))
+#ergm.ConstraintImplications("degreedist", c("edges", "idegreedist", "odegreedist"))
 
 
-InitConstraint.indegreedist<-function(conlist, lhs.nw, ...){
+InitConstraint.idegreedist<-function(conlist, lhs.nw, ...){
    if(length(list(...)))
      stop(paste("InDegree distribution constraint does not take arguments at this time."), call.=FALSE)
-   conlist$indegreedist<-list()
+   conlist$idegreedist<-list()
    conlist
 }
-#ergm.ConstraintImplications("indegreedist", c("edges"))
+#ergm.ConstraintImplications("idegreedist", c("edges"))
 
 
-InitConstraint.outdegreedist<-function(conlist, lhs.nw, ...){
+InitConstraint.odegreedist<-function(conlist, lhs.nw, ...){
    if(length(list(...)))
      stop(paste("OutDegree distribution constraint does not take arguments at this time."), call.=FALSE)
-   conlist$outdegreedist<-list()
+   conlist$odegreedist<-list()
    conlist
 }
-#ergm.ConstraintImplications("outdegreedist", c("edges"))
+#ergm.ConstraintImplications("odegreedist", c("edges"))
 
 
 InitConstraint.bd<-function(conlist, lhs.nw, attribs=0, maxout=0, maxin=0, minout=0, minin=0){

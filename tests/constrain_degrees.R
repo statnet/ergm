@@ -11,18 +11,18 @@ id <- function(nw) apply(as.matrix(nw, matrix.type="adjacency"), 2, sum)
 y0 <- as.network(n, density=d, directed=TRUE)
 
 ### Outdegrees
-ys <- simulate(y0~sender(base=0)+receiver(base=0), constraints=~outdegrees, coef=rep(0,n*2), nsim=100, statsonly=TRUE)
+ys <- simulate(y0~sender(base=0)+receiver(base=0), constraints=~odegrees, coef=rep(0,n*2), nsim=100, statsonly=TRUE)
 stopifnot(all(sweep(ys[,1:n], 2, od(y0))==0), any(sweep(ys[,-(1:n)], 2, id(y0))!=0)) # Outdegrees shouldn't vary but indegrees should.
 
 ### Indegrees
-ys <- simulate(y0~receiver(base=0)+sender(base=0), constraints=~indegrees, coef=rep(0,n*2), nsim=100, statsonly=TRUE)
+ys <- simulate(y0~receiver(base=0)+sender(base=0), constraints=~idegrees, coef=rep(0,n*2), nsim=100, statsonly=TRUE)
 stopifnot(all(sweep(ys[,1:n], 2, id(y0))==0), any(sweep(ys[,-(1:n)], 2, od(y0))!=0)) # Indegrees shouldn't vary but outdegrees should.
 
 ### Both in- and outdegrees
 ys <- simulate(y0~sender(base=0)+receiver(base=0), constraints=~degrees, coef=rep(0,n*2), nsim=100, statsonly=TRUE)
 stopifnot(all(sweep(ys, 2, c(od(y0),id(y0)))==0))
 
-ys <- simulate(y0~sender(base=0)+receiver(base=0), constraints=~outdegrees+indegrees, coef=rep(0,n*2), nsim=100, statsonly=TRUE)
+ys <- simulate(y0~sender(base=0)+receiver(base=0), constraints=~odegrees+idegrees, coef=rep(0,n*2), nsim=100, statsonly=TRUE)
 stopifnot(all(sweep(ys, 2, c(od(y0),id(y0)))==0))
 
 ###### Undirected

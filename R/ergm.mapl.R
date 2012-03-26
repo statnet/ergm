@@ -14,8 +14,8 @@
 #                  maximizing the MCMC likelihood; default=3
 #   constraints :  a one-sided formula of the constraint terms; options are
 #                      bd        degrees        nodegrees
-#                      edges     degreedist     indegreedist
-#                      observed  outdegreedist
+#                      edges     degreedist     idegreedist
+#                      observed  odegreedist
 #                  default="~ ."
 #   proposaltype:  presumably the MHproposal type, but this is only used
 #                  in calls to <ergm.san>, which doesn't accept a

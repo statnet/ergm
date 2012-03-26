@@ -9,8 +9,8 @@
 #                    if these are to be estimated, NULL (the default);
 #   constraints   :  a one-sided formula of the constraint terms; options are
 #                         bd        degrees        nodegrees
-#                         edges     degreedist     indegreedist
-#                         observed  outdegreedist
+#                         edges     degreedist     idegreedist
+#                         observed  odegreedist
 #                    default="~ ."
 #   target.stats     :  a vector of the mean value parameters;
 #                    default=the observed statistic from the 'nw' in formula

@@ -138,7 +138,7 @@ void MpleInit_no_compress(int *responsevec, double *covmat, int *weightsvector,
   Vertex rowmax;
   ModelTerm *mtp;
   double *newRow = (double *) R_alloc(m->n_stats,sizeof(double));
-  /* Note:  This function uses macros found in changestats.h */
+  /* Note:  This function uses macros found in changestat.h */
   
   if(BIPARTITE > 0) rowmax = BIPARTITE + 1;
   else              rowmax = N_NODES;
@@ -187,7 +187,7 @@ void MpleInit_hash(int *responsevec, double *covmat, int *weightsvector,
   Vertex rowmax;
   ModelTerm *mtp;
   double *newRow = (double *) R_alloc(m->n_stats,sizeof(double));
-  /* Note:  This function uses macros found in changestats.h */
+  /* Note:  This function uses macros found in changestat.h */
   
   if(BIPARTITE > 0) rowmax = BIPARTITE + 1;
   else              rowmax = N_NODES;

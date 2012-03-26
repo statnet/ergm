@@ -93,8 +93,8 @@ sociality.network <- function (object, ...,
 #                 statistics; default=100
 #   constraints : a one-sided formula of the constraint terms; options are
 #                      bd        degrees        nodegrees
-#                      edges     degreedist     indegreedist
-#                      observed  outdegreedist
+#                      edges     degreedist     idegreedist
+#                      observed  odegreedist
 #                 default="~ ."
 #   prop.weights: the method to allocate probabilities of being proposed
 #                 to dyads as "TNT", "random", "nonobserved", or "default"
@@ -209,8 +209,8 @@ sociality.formula <- function (formula, ..., init, nsim=100,
 #                 statistics; default=100
 #   constraints : a one-sided formula of the constraint terms; options are
 #                      bd        degrees        nodegrees
-#                      edges     degreedist     indegreedist
-#                      observed  outdegreedist
+#                      edges     degreedist     idegreedist
+#                      observed  odegreedist
 #                 default="~ ."
 #   prop.weights: the method to allocate probabilities of being proposed
 #                 to dyads as "TNT", "random", "nonobserved", or "default"
