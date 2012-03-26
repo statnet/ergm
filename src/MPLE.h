@@ -11,16 +11,8 @@ void MPLE_wrapper (int *tails, int *heads, int *dnedges,
 		   int *responsevec, double *covmat,
 		   int *weightsvector,
 		   double * offset, double * compressedOffset,
-		   int *maxNumDyadTypes, int *maxMPLEsamplesize, 
-       int *compressflag);
+		   int *maxNumDyadTypes, int *maxMPLEsamplesize);
 void MpleInit_hash (int *responsevec, double *covmat, int *weightsvector,
 		    double *offset, double *compressedOffset,
 		    int maxNumDyadTypes, Edge maxMPLE, Network *nwp, Model *m);
-void MpleInit_no_compress (int *responsevec, double *covmat, int *weightsvector,
-		    double *offset, double *compressedOffset,
-		    int maxNumDyadTypes, Edge maxMPLE, Network *nwp, Model *m);
-int findCovMatRow(double *newRow,double *matrix, int rowLength, 
-		  int numRows, int *responsevec, 
-		  double * offset, double * compressedOffset, 
-		  int curDyadNum); 
 #endif

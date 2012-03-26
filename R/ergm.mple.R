@@ -21,8 +21,7 @@
 #                      returned (T or F); if false, NULL is returned for both;
 #                      default==TRUE
 #   maxNumDyadTypes  : the maximum number of unique psuedolikelihood change stats
-#                      to be allowed if 'compress'=TRUE; ignored if 
-#                      'compress'!=TRUE; default=1e+6    
+#                      to be allowed; default=1e+6    
 #   thetal           : the independence theta; if specified and non-NULL, this is
 #                      ignored except to return its value in the returned ergm;
 #                      default=NULL, in which case 'theta1' is computed
@@ -37,8 +36,6 @@
 #   MHproposal       : an MHproposal object, as returned by <ergm.getMHproposal>
 #   verbose          : whether this and the C routines should be verbose (T or F);
 #                      default=FALSE
-#   compressflag     : whether to compress the design matrix of change stats by
-#                      tabulating the unique rows (T or F); default=TRUE
 #   ...              : additional parameters passed from within; all will be
 #                      ignored
 #
@@ -55,7 +52,7 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL, theta.offset=NULL,
                     maxNumDyadTypes=1e+6,
                     theta1=NULL, 
 		    conddeg=NULL, control=NULL, MHproposal=NULL,
-        verbose=FALSE, compressflag=TRUE,
+                    verbose=FALSE,
                     ...) {
   if(is.numeric(init)){theta.offset <- init}
   pl <- ergm.pl(Clist=Clist, Clist.miss=Clist.miss, m=m,
@@ -64,7 +61,7 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL, theta.offset=NULL,
                 maxNumDyadTypes=maxNumDyadTypes,
                 conddeg=conddeg, 
 		control=control, MHproposal=MHproposal,
-                verbose=verbose, compressflag=compressflag)
+                verbose=verbose)
 
   if(MPLEtype=="penalized"){
    if(verbose) cat("Using penalized MPLE.\n")

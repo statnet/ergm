@@ -14,7 +14,7 @@
 #   maxMPLEsamplesize: the sample size to use for endogenous sampling in the
 #                      pseudolikelihood computation; default=1e6
 #   maxNumDyadTypes  : the maximum number of unique pseudolikelihood
-#                      change statistics to be allowed if 'compressflag'=TRUE;
+#                      change statistics to be allowed;
 #                      if this is less than the networks maximum count of
 #                      unique change stats, these will be sampled to attain
 #                      the correct size; default=1e6
@@ -30,13 +30,10 @@
 #   MHproposal       : an MHproposal object, as returned by <ergm.getMHproposal>
 #   verbose          : whether this and the C routines should be verbose (T or F);
 #                      default=FALSE
-#   compressflag     : whether to compress the design matrix of change stats by
-#                      tabulating the unique rows (T or F); default=TRUE
-#
 #
 # --RETURNED--
 #   a list containing
-#     xmat     : the possibly compressed and possibly sampled matrix of change
+#     xmat     : the compressed and possibly sampled matrix of change
 #                statistics
 #     zy       : the corresponding vector of responses, i.e. tie values
 #     foffset  : ??
@@ -63,7 +60,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
                     maxMPLEsamplesize=1e+6,
                     maxNumDyadTypes=1e+6,
                     conddeg=NULL, control, MHproposal,
-                    verbose=FALSE, compressflag=TRUE) {
+                    verbose=FALSE) {
   bip <- Clist$bipartite
   n <- Clist$n
 
@@ -118,11 +115,9 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
           as.double(offset), compressedOffset=double(maxNumDyadTypes),
           as.integer(maxNumDyadTypes),
           as.integer(maxMPLEsamplesize),
-          as.integer(compressflag),
           PACKAGE="ergm")
   uvals <- z$weightsvector!=0
   if (verbose) {
-    if (compressflag) { cat("Compressed ") }
     cat(paste("MPLE covariate matrix has", sum(uvals), "rows.\n"))
   }
   zy <- z$y[uvals]
