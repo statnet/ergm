@@ -22,9 +22,6 @@
 #                      SAN-ed network and formula; default=10
 #   SAN.burnin       : the burnin value used to create the SAN-ed network and
 #                      formula; default=NULL
-#   maxNumDyadTypes  : the maximum number of unique psuedolikelihood change stats
-#                      to be allowed if 'compress'=TRUE; ignored if 'compress'!=TRUE;
-#                      default=1e+6
 #   maxedges         : the maximum number of edges to allocate space for; default=20000
 #   maxchanges       : the maximum number of changes in dynamic network simulation for
 #                      which to allocate space; default=1000000

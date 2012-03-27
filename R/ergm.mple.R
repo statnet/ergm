@@ -20,8 +20,6 @@
 #   save.glm         : whether the mple fit and the null mple fit should be
 #                      returned (T or F); if false, NULL is returned for both;
 #                      default==TRUE
-#   maxNumDyadTypes  : the maximum number of unique psuedolikelihood change stats
-#                      to be allowed; default=1e+6    
 #   thetal           : the independence theta; if specified and non-NULL, this is
 #                      ignored except to return its value in the returned ergm;
 #                      default=NULL, in which case 'theta1' is computed
@@ -49,7 +47,6 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
                     MPLEtype="glm", family="binomial",
                     maxMPLEsamplesize=1e+6,
                     save.glm=TRUE,
-                    maxNumDyadTypes=1e+6,
                     theta1=NULL, 
 		    conddeg=NULL, control=NULL, MHproposal=NULL,
                     verbose=FALSE,
@@ -57,7 +54,6 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
   pl <- ergm.pl(Clist=Clist, Clist.miss=Clist.miss, m=m,
                 theta.offset=init,
                 maxMPLEsamplesize=maxMPLEsamplesize,
-                maxNumDyadTypes=maxNumDyadTypes,
                 conddeg=conddeg, 
 		control=control, MHproposal=MHproposal,
                 verbose=verbose)

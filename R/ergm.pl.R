@@ -13,11 +13,6 @@
 #                      coefficients are offset, i.e. fixed
 #   maxMPLEsamplesize: the sample size to use for endogenous sampling in the
 #                      pseudolikelihood computation; default=1e6
-#   maxNumDyadTypes  : the maximum number of unique pseudolikelihood
-#                      change statistics to be allowed;
-#                      if this is less than the networks maximum count of
-#                      unique change stats, these will be sampled to attain
-#                      the correct size; default=1e6
 #   conddeg          : an indicator of whether the MPLE should be conditional
 #                      on degree; non-NULL values indicate yes, NULL no;
 #                      default=NULL 
@@ -58,13 +53,12 @@
 
 ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
                     maxMPLEsamplesize=1e+6,
-                    maxNumDyadTypes=1e+6,
                     conddeg=NULL, control, MHproposal,
                     verbose=FALSE) {
   bip <- Clist$bipartite
   n <- Clist$n
 
-  maxNumDyadTypes <- min(maxNumDyadTypes,
+  maxNumDyadTypes <- min(control$MPLE.max.dyad.types,
                          ifelse(bip>0, bip*(n-bip), 
                                 ifelse(Clist$dir, n*(n-1), n*(n-1)/2)))
   # May have to think harder about what maxNumDyadTypes should be if we 
