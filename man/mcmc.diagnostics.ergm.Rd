@@ -74,7 +74,7 @@
   object.  The function is mainly used for its side effect, which is
   to produce plots and summary output based on those plots.
 }
-\seealso{\code{\link{ergm}}, \code{\link{stergm}},\code{network} package,
+\seealso{\code{\link{ergm}}, \code{network} package,
          \code{coda} package, 
          \code{\link{summary.ergm}}
         }

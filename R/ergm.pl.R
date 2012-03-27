@@ -64,36 +64,6 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
   bip <- Clist$bipartite
   n <- Clist$n
 
-  # Determine whether any edges are missing.  If so, this will reduce the
-  # number of observed (numobs) and also "turn off" the missing edges by
-  # setting offset to 1 in the corresponding rows.
-  if(Clist.miss$nedges>0){
-    nrows <- ifelse(bip>0, bip, n)
-    ncolumns <- ifelse(bip>0, n-bip, n)
-    base <- cbind(rep(1:nrows, rep(ncolumns, nrows)),
-                  rep((1+bip):(ncolumns+bip), nrows))
-    base <- base[base[, 2] > base[, 1], ]
-    # At this point, the rows of base are in dictionary order
-    if(Clist.miss$dir){
-      # If we get here, then interleave the transposed rows, as in
-      # (1,2), (2,1),   (1,3), (3,1),   (1,4), (4,1),  etc.
-      # This is necessary because it's the order in which the
-      # MPLE wrapper expects them to be entered, which is only
-      # important when there are missing data because the "offset" 
-      # vector in that case must index the correct rows.
-      # (The C code reconstructs the base matrix from scratch.)
-      base <- cbind(base, base[,c(2,1)])
-      base <- matrix(t(base),ncol=2,byrow=TRUE)
-    }
-    ubase <- base[,1] + n*base[,2]
-    offset <- !is.na(match(ubase, Clist.miss$tails+Clist.miss$heads*n))
-    offset <- 1*offset
-    numobs <- Clist$ndyads - sum(offset)
-  }else{
-    numobs <- Clist$ndyads
-    offset <- rep(0,numobs)
-  }
-
   maxNumDyadTypes <- min(maxNumDyadTypes,
                          ifelse(bip>0, bip*(n-bip), 
                                 ifelse(Clist$dir, n*(n-1), n*(n-1)/2)))
@@ -102,8 +72,10 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
   if(is.null(conddeg)){
   # *** don't forget, pass in tails first now, not heads
   z <- .C("MPLE_wrapper",
-          as.integer(Clist$tails),    as.integer(Clist$heads),
-          as.integer(Clist$nedges),   
+          as.integer(Clist$tails), as.integer(Clist$heads),
+          as.integer(Clist$nedges),
+          as.integer(Clist.miss$tails), as.integer(Clist.miss$heads),
+          as.integer(Clist.miss$nedges),
           as.integer(n), 
           as.integer(Clist$dir),     as.integer(bip),
           as.integer(Clist$nterms), 
@@ -112,7 +84,6 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
           y = integer(maxNumDyadTypes),
           x = double(maxNumDyadTypes*Clist$nstats),
           weightsvector = integer(maxNumDyadTypes),
-          as.double(offset), compressedOffset=double(maxNumDyadTypes),
           as.integer(maxNumDyadTypes),
           PACKAGE="ergm")
   uvals <- z$weightsvector!=0
@@ -123,7 +94,6 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
   wend <- z$weightsvector[uvals]
   xmat <- matrix(z$x, ncol=Clist$nstats, byrow=TRUE)[uvals,,drop=FALSE]
   colnames(xmat) <- m$coef.names
-  dmiss <- z$compressedOffset[uvals]
   rm(z,uvals)
   }else{
     if (verbose) {
@@ -243,14 +213,6 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
       theta.offset[1] <- log(1/(Clist$ndyads-1))
     }
     names(theta.offset) <- m$coef.names
-  }
-  
-  if(Clist.miss$nedges>0){
-    xmat <- xmat[dmiss==0,,drop=FALSE]
-    zy <- zy[dmiss==0]
-    wend <- wend[dmiss==0]
-    foffset <- foffset[dmiss==0]
-    if(is.null(colnames(xmat))){colnames(xmat) <- m$coef.names}
   }
   
 #
