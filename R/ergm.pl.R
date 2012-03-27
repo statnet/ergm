@@ -114,7 +114,6 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
           weightsvector = integer(maxNumDyadTypes),
           as.double(offset), compressedOffset=double(maxNumDyadTypes),
           as.integer(maxNumDyadTypes),
-          as.integer(maxMPLEsamplesize),
           PACKAGE="ergm")
   uvals <- z$weightsvector!=0
   if (verbose) {

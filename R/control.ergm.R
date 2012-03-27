@@ -28,8 +28,6 @@
 #   maxedges         : the maximum number of edges to allocate space for; default=20000
 #   maxchanges       : the maximum number of changes in dynamic network simulation for
 #                      which to allocate space; default=1000000
-#   maxMPLEsamplesize: the sample size to use for endogenous sampling in the psuedo-
-#                      likelihood computation; default=100000
 #   obs.MCMCsamplesize:            ; default= NULL,
 #   obs.interval    :              ; default= NULL,
 #   obs.burnin      :              ; default= NULL,
@@ -121,7 +119,6 @@ control.ergm<-function(drop=TRUE,
                        main.hessian=TRUE,
 
                        MPLE.max.dyad.types=1e+6, 
-                       MPLE.max.samplesize=100000,
                        MPLE.samplesize=50000,                       
                        MPLE.type=c("glm", "penalized"),
                       
@@ -219,7 +216,6 @@ control.ergm<-function(drop=TRUE,
                        method="MCMLE.method",
                        MPLEtype="MPLE.type",
                        check.degeneracy="MCMLE.check.degeneracy",
-                       maxMPLEsamplesize="MPLE.max.samplesize",
                        MPLEsamplesize="MPLE.samplesize",
                        phase1_n="SA.phase1_n", initial_gain="SA.initial_gain", 
                        nsubphases="SA.nsubphases", niterations="SA.niterations", phase3_n="SA.phase3_n",

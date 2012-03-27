@@ -11,8 +11,8 @@ void MPLE_wrapper (int *tails, int *heads, int *dnedges,
 		   int *responsevec, double *covmat,
 		   int *weightsvector,
 		   double * offset, double * compressedOffset,
-		   int *maxNumDyadTypes, int *maxMPLEsamplesize);
+		   int *maxNumDyadTypes);
 void MpleInit_hash (int *responsevec, double *covmat, int *weightsvector,
 		    double *offset, double *compressedOffset,
-		    int maxNumDyadTypes, Edge maxMPLE, Network *nwp, Model *m);
+		    int maxNumDyadTypes, Network *nwp, Model *m);
 #endif

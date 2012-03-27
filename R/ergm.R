@@ -253,7 +253,6 @@ ergm <- function(formula, response=NULL,
                                 MPLEtype=control$MPLE.type, 
                                 conddeg=conddeg, control=control, MHproposal=MHproposal,
                                 verbose=verbose, 
-                                compressflag = control$MCMC.compress, 
                                 maxNumDyadTypes=control$MPLE.max.dyad.types,
                                 ...)
   
