@@ -45,7 +45,7 @@
 #
 ######################################################################################
 
-ergm.mple<-function(Clist, Clist.miss, m, init=NULL, theta.offset=NULL,
+ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
                     MPLEtype="glm", family="binomial",
                     maxMPLEsamplesize=1e+6,
                     save.glm=TRUE,
@@ -54,9 +54,8 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL, theta.offset=NULL,
 		    conddeg=NULL, control=NULL, MHproposal=NULL,
                     verbose=FALSE,
                     ...) {
-  if(is.numeric(init)){theta.offset <- init}
   pl <- ergm.pl(Clist=Clist, Clist.miss=Clist.miss, m=m,
-                theta.offset=theta.offset,
+                theta.offset=init,
                 maxMPLEsamplesize=maxMPLEsamplesize,
                 maxNumDyadTypes=maxNumDyadTypes,
                 conddeg=conddeg, 
