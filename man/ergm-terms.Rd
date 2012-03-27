@@ -728,9 +728,9 @@ of the degrees of all pairs of nodes in the network which are tied.
     For a directed network, a triangle is defined as any set of three edges
     \eqn{(i{\rightarrow}j), (j{\rightarrow}k)}{(i,j), (j,k)} and either
     \eqn{(k{\rightarrow}i)} or \eqn{(k{\leftarrow}i)} where again all nodes are
-    within the same neighborhood. The argument \code{x} is a network or an
-    adjacency matrix that specifies whether the two nodes are in the same
-    neighborhood. Note that \code{triangle}, with or without an argument, is a
+    within the same neighborhood. The argument \code{x} is an undirected
+    network or an symmetric adjacency matrix that specifies whether the two nodes 
+    are in the same neighborhood. Note that \code{triangle}, with or without an argument, is a
     special case of \code{localtriangle}. }
     
     \item{\code{m2star}}{\emph{Mixed 2-stars, a.k.a 2-paths:} 

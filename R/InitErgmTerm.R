@@ -19,7 +19,7 @@
 #   I:   <idegree>          <intransitive>    <indegreepopularity> 
 #        <isolates>         <istar>
 #   K:   <kstar>
-#   L:   <localtraingle>
+#   L:   <localtriangle>
 #   M:   <m2star>           <meandeg>         <mutual>
 #   N:   <nearsimmelian>    <nodefactor>      <nodecov>=<nodemain> 
 #        <nodeicov>         <nodeifactor>     <nodematch>=<match>

@@ -3380,62 +3380,50 @@ D_CHANGESTAT_FN(d_kstar) {
 *****************/
 D_CHANGESTAT_FN(d_localtriangle) { 
   Edge e;
-  Vertex tail, head, change, node3;
+  Vertex tail, head, node3, nmat;
+  double change;
   int edgeflag, i;
-  long int nmat;
   
-  nmat = (long int)(INPUT_PARAM[0]);
+  nmat = (Vertex)(INPUT_PARAM[0]);
   
   /* *** don't forget tail -> head */    
   CHANGE_STAT[0] = 0.0;
   FOR_EACH_TOGGLE(i) 
     {
       edgeflag = IS_OUTEDGE(tail = TAIL(i), head = HEAD(i));
-      change = 0;
+      change = 0.0;
       
-      if(INPUT_PARAM[1+(HEAD(i)-1)+(TAIL(i)-1)*nmat] != 0){
-	for(e = EdgetreeMinimum(nwp->outedges, head);
-	    (node3 = nwp->outedges[e].value) != 0;
-	    e = EdgetreeSuccessor(nwp->outedges, e)) /* step through outedges of head */
-	  {
-	    if(INPUT_PARAM[1+(node3-1)+(TAIL(i)-1)*nmat] != 0 && 
-	       INPUT_PARAM[1+(node3-1)+(HEAD(i)-1)*nmat] != 0 ){
+      if(INPUT_PARAM[1+(HEAD(i)-1)+(TAIL(i)-1)*nmat] == 1.0){
+        STEP_THROUGH_OUTEDGES(head, e, node3) { /* step through outedges of head */
+	    if(INPUT_PARAM[1+(node3-1)+(TAIL(i)-1)*nmat] == 1.0 && 
+	       INPUT_PARAM[1+(node3-1)+(HEAD(i)-1)*nmat] == 1.0 ){
 	      if (DIRECTED){
-		if (EdgetreeSearch(node3, tail, nwp->outedges) != 0) ++change;
-		if (EdgetreeSearch(node3, tail, nwp->inedges) != 0) ++change;
+		if (IS_INEDGE(node3,tail) ) ++change;
+		if (IS_OUTEDGE(node3,tail)) ++change;
 	      }else{
-		if (EdgetreeSearch(MIN(node3,tail), MAX(node3,tail), nwp->outedges) != 0){
-		  ++change;
-		}
+		if (IS_UNDIRECTED_EDGE(node3,tail)) ++change;
 	      }
 	    }
 	  }
 	
-	for(e = EdgetreeMinimum(nwp->inedges, head); 
-	    (node3 = nwp->inedges[e].value) != 0;
-	    e = EdgetreeSuccessor(nwp->inedges, e)) /* step through inedges of head */
-	  {
-	    if(INPUT_PARAM[1+(node3-1)+(TAIL(i)-1)*nmat] != 0 && 
-	       INPUT_PARAM[1+(node3-1)+(HEAD(i)-1)*nmat] != 0 ){
+        STEP_THROUGH_INEDGES(head, e, node3) { /* step through inedges of head */
+	    if(INPUT_PARAM[1+(node3-1)+(TAIL(i)-1)*nmat] == 1.0 && 
+	       INPUT_PARAM[1+(node3-1)+(HEAD(i)-1)*nmat] == 1.0 ){
 	      if (DIRECTED)
 		{
-		  if (EdgetreeSearch(node3, tail, nwp->outedges) != 0)
-		    ++change;
-		  if (EdgetreeSearch(node3, tail,  nwp->inedges) != 0)
-		    ++change;
+		if (IS_INEDGE(node3,tail) ) ++change;
+		if (IS_OUTEDGE(node3,tail)) ++change;
 		}
 	      else
 		{
-		  if (EdgetreeSearch(MIN(node3,tail), MAX(node3,tail), nwp->outedges) != 0){
-		    ++change;
-		  }
+		  if (IS_UNDIRECTED_EDGE(node3,tail)) ++change;
 		}
 	    }
 	  }
 	
-	CHANGE_STAT[0] += edgeflag ? -(double)change : change;
-      }
+	CHANGE_STAT[0] += edgeflag ? - change : change;
       
+      }
       TOGGLE_IF_MORE_TO_COME(i);
     }  
   UNDO_PREVIOUS_TOGGLES(i);
