@@ -1895,6 +1895,10 @@ InitErgmTerm.localtriangle<-function (nw, arglist, ...) {
     xm<-as.matrix(nw, matrix.type="adjacency", x)
   else
     xm<-as.matrix(x)
+  if(!isSymmetric(xm)){
+    warning("localtriangle requires an undirected neighborhood. Using only mutual ties.", call.=FALSE)
+    xm <- pmin(xm[],(t(xm))[])
+  }
   if(!is.null(attrname))
     coef.names <- paste("localtriangle", attrname, sep = ".")
   else
