@@ -72,7 +72,7 @@ set.seed(321)
 n <- 50
 y <- network.initialize(n, directed=FALSE) # Create an empty network
 y <- simulate(y~edges, coef=logit(0.12), control=control.simulate(MCMC.burnin=2*n^2))
-y.miss <- simulate(y~edges, coef=logit(0.1))
+y.miss <- simulate(y~edges, coef=logit(0.01))
 y[as.edgelist(y.miss)] <- NA
 
 cat("Network statistics:\n")
