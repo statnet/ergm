@@ -140,17 +140,22 @@ ergm.MCMLE <- function(init, nw, model,
     # If the model is linear, all non-offset statistics are passed. If
     # the model is curved, the (likelihood) estimating equations (3.1)
     # by Hunter and Handcock (2006) are given instead.
-    conv.pval <- approx.hotelling.diff.test(t(ergm.etagradmult(mcmc.init,t(statsmatrix),model$etamap))[,!model$etamap$offsettheta,drop=FALSE],
-
-                                            if(obs) t(ergm.etagradmult(mcmc.init,t(statsmatrix.obs),model$etamap))[,!model$etamap$offsettheta,drop=FALSE])
+    esteq <- t(ergm.etagradmult(mcmc.init,t(statsmatrix),model$etamap))[,!model$etamap$offsettheta,drop=FALSE]
+    names(esteq) <- names(mcmc.init)
+    esteq.obs <- if(obs) t(ergm.etagradmult(mcmc.init,t(statsmatrix.obs),model$etamap))[,!model$etamap$offsettheta,drop=FALSE] else NULL   
+    conv.pval <- approx.hotelling.diff.test(esteq, esteq.obs)
+                                            
     # We can either pretty-print the p-value here, or we can print the
     # full thing. What the latter gives us is a nice "progress report"
     # on whether the estimation is getting better..
 
-    # if(verbose) cat("P-value for equality of observed and simulated statistics:",format.pval(conv.pval,digits=4,eps=1e-4),"\n")
-    if(verbose) cat("P-value for equality of observed and simulated statistics:",conv.pval,"\n")
+    if(verbose){
+      cat("Average estimating equation values:\n")
+      print(if(obs) colMeans(esteq.obs)-colMeans(esteq) else colMeans(esteq))
+    }
+    cat("Convergence test P-value:",format(conv.pval, scientific=TRUE,digits=2),"\n")
     if(conv.pval>control$MCMLE.conv.min.pval){
-      cat("Convergence detected. Stopping early.\n")
+      cat("Convergence detected. Stopping.\n")
       finished <- TRUE
     }
     
@@ -206,11 +211,11 @@ ergm.MCMLE <- function(init, nw, model,
       if(v$loglikelihood < control$MCMLE.trustregion-0.001){
         current.scipen <- options()$scipen
         options(scipen=3)
-        cat("the log-likelihood improved by",
+        cat("The log-likelihood improved by",
             format.pval(v$loglikelihood,digits=4,eps=1e-4),"\n")
         options(scipen=current.scipen)
       }else{
-        cat("the log-likelihood did not improve.\n")
+        cat("The log-likelihood did not improve.\n")
       }
       if((adaptive.steplength==1) && (v$loglikelihood < control$MCMLE.adaptive.epsilon) ){break}
     }else{
@@ -243,11 +248,11 @@ ergm.MCMLE <- function(init, nw, model,
       if(v$loglikelihood < control$MCMLE.trustregion-0.001){
         current.scipen <- options()$scipen
         options(scipen=3)
-        cat("the log-likelihood improved by",
+        cat("The log-likelihood improved by",
             format.pval(v$loglikelihood,digits=4,eps=1e-4),"\n")
         options(scipen=current.scipen)
       }else{
-        cat("the log-likelihood did not improve.\n")
+        cat("The log-likelihood did not improve.\n")
       }
       if((control$MCMLE.steplength==1) && (v$loglikelihood < control$MCMLE.adaptive.epsilon) ){break}
     }
