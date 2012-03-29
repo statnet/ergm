@@ -13,11 +13,11 @@
           'or type citation("ergm").\n', sep="")
                         )
   
-  RegisterMHPs()
-  RegisterConstraintImplications()
+  .RegisterMHPs()
+  .RegisterConstraintImplications()
 }
 
-RegisterMHPs <- function(){
+.RegisterMHPs <- function(){
   ergm.MHP.table("f", "Bernoulli", "",  0, "random", "formation")
   ergm.MHP.table("f", "Bernoulli", "bd",  0, "random", "formation")
   ergm.MHP.table("f", "Bernoulli", "",  1, "TNT", "formationTNT")
@@ -54,7 +54,7 @@ RegisterMHPs <- function(){
   ergm.MHP.table("c", "StdNormal", "ranks",  0, "random", "StdNormalRank")
 }
 
-RegisterConstraintImplications <- function(){
+.RegisterConstraintImplications <- function(){
   ergm.ConstraintImplications("edges", c())
   ergm.ConstraintImplications("degrees", c("edges", "idegrees", "odegrees", "idegreedist", "odegreedist", "degreedist", "bd"))
   ergm.ConstraintImplications("odegrees", c("edges", "odegreedist"))

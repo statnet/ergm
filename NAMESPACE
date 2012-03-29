@@ -4,4 +4,4 @@ useDynLib(ergm)
 importFrom(utils, packageDescription)
 
 # Export all names
-exportPattern(".")
+exportPattern("^[^\\.]")
