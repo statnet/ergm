@@ -74,8 +74,5 @@ ergm.plinfo<-function(Clist, Clist.miss, m, fix=NULL, theta.offset=NULL)
    fxmat <- xmat[,!fix]
   }
 
-# mplefit <- glm(zy ~ .-1 + offset(foffset), data=data.frame(fxmat),
-#       family=binomial)
-
   list(zy=zy, xmat=xmat)
 }
