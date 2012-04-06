@@ -30,6 +30,7 @@
   ergm.MHP.table("c", "Bernoulli", "bd",  1, "TNT", "TNT")
   ergm.MHP.table("c", "Bernoulli", "", -1, "TNT10", "TNT10")
   ergm.MHP.table("c", "Bernoulli", "degrees",  0, "random", "CondDegree")
+  ergm.MHP.table("c", "Bernoulli", "degreesmix",  0, "random", "CondDegreeMix")
   ergm.MHP.table("c", "Bernoulli", "idegrees+odegrees",  0, "random", "CondDegree")
   ergm.MHP.table("c", "Bernoulli", "b1degrees+b2degrees",  0, "random", "CondDegree")
   ergm.MHP.table("c", "Bernoulli", "odegrees",  0, "random", "CondOutDegree")
@@ -57,6 +58,7 @@
 .RegisterConstraintImplications <- function(){
   ergm.ConstraintImplications("edges", c())
   ergm.ConstraintImplications("degrees", c("edges", "idegrees", "odegrees", "idegreedist", "odegreedist", "degreedist", "bd"))
+  ergm.ConstraintImplications("degreesmix", c("edges", "idegrees", "odegrees", "idegreedist", "odegreedist", "degreedist", "bd"))
   ergm.ConstraintImplications("odegrees", c("edges", "odegreedist"))
   ergm.ConstraintImplications("idegrees", c("edges", "idegreedist"))
   ergm.ConstraintImplications("b1degrees", c("edges"))

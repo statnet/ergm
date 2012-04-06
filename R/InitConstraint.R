@@ -36,6 +36,12 @@ InitConstraint.degrees<-InitConstraint.nodedegrees<-function(conlist, lhs.nw, ..
    conlist$degrees<-list()
    conlist
 }
+InitConstraint.degreesmix<-function(conlist, lhs.nw, attrib="disease", ...){
+   if(nargs()>3)
+     stop(paste("Vertex degrees constraint takes one argument at this time."), call.=FALSE)
+   conlist$degreesmix<-list(attrib=attrib)
+   conlist
+}
 #ergm.ConstraintImplications("degrees", c("edges", "idegrees", "odegrees", "idegreedist", "odegreedist", "degreedist", "bd"))
 
 InitConstraint.odegrees<-function(conlist, lhs.nw, ...){

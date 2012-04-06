@@ -9,5 +9,6 @@ void MH_CondOutDegree(MHproposal *MHp, Network *nwp);
 void MH_CondInDegree(MHproposal *MHp, Network *nwp); 
 void MH_CondB1Degree(MHproposal *MHp, Network *nwp); 
 void MH_CondB2Degree(MHproposal *MHp, Network *nwp);  
+void MH_CondDegreeMix(MHproposal *MHp, Network *nwp);
 
 #endif

@@ -65,6 +65,12 @@ InitMHP.CondDegree <- function(arguments, nw) {
   MHproposal <- list(name = "CondDegree", inputs=NULL, package="ergm")
   MHproposal
 }
+InitMHP.CondDegreeMix <- function(arguments, nw) {
+  MHproposal <- list(name = "CondDegreeMix",
+    inputs=get.vertex.attribute(nw,arguments$constraints$degreesmix$attrib),
+    package="ergm")
+  MHproposal
+}
 #ergm.MHP.table("c", "Bernoulli", "degrees",  0, "random", "CondDegree")
 #ergm.MHP.table("c", "Bernoulli", "idegrees+odegrees",  0, "random", "CondDegree")
 #ergm.MHP.table("c", "Bernoulli", "b1degrees+b2degrees",  0, "random", "CondDegree")

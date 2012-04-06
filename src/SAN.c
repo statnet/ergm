@@ -216,6 +216,7 @@ void SANMetropolisHastings (MHproposal *MHp,
      ip+=deltainvsig[i]*((m->workspace[i])+2.0*networkstatistics[i]);
      dif+=delta[i]*networkstatistics[i];
     }
+//  Rprintf("ip %f cs %f\n",ip,(m->workspace[0]));
       
     /* if we accept the proposed network */
     if (ip <= 0.0) { 

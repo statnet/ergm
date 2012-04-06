@@ -2,7 +2,9 @@
 logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || force.reeval, control=control.logLik.ergm(), ...){
   check.control.class()
   
-  control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges", "MCMC.samplesize", "obs.MCMC.burnin", "obs.MCMC.interval", "obs.MCMC.samplesize")
+  control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights",
+"MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges", "MCMC.samplesize",
+"obs.MCMC.burnin", "obs.MCMC.interval", "obs.MCMC.samplesize","warn.dyads")
   for(arg in control.transfer)
     if(is.null(control[[arg]]))
       control[arg] <- list(object$control[[arg]])
@@ -46,7 +48,7 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
     if(length(constr)==1){
       network.dyadcount(object$network)-network.naedgecount(object$network)
     }else if(length(constr)>=2){
-      warning("The number of observed dyads in this network is ill-defined due to complex constraints on the sample space.")    
+      if(loglik.control$warn.dyads){warning("The number of observed dyads in this network is ill-defined due to complex constraints on the sample space.")}
       network.dyadcount(object$network)-network.naedgecount(object$network)
     }else{
       switch(constr,
@@ -54,7 +56,7 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
              atleast = network.dyadcount(object$network)-network.naedgecount(object$network | object$constraint$atleast$nw) - network.edgecount(object$constraint$atleast$nw),
              atmost = network.edgecount(object$constraint$atmost$nw) - network.naedgecount(object$network & object$constraint$atleast$nw),
              {
-               warning("The number of observed dyads in this network is ill-defined due to constraints on the sample space.")
+               if(loglik.control$warn.dyads){warning("The number of observed dyads in this network is ill-defined due to constraints on the sample space.")}
                network.dyadcount(object$network)-network.naedgecount(object$network)
              })
     }

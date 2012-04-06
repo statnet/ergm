@@ -17,6 +17,9 @@ void MH_CondDegreeTetrad(MHproposal *MHp, Network *nwp)  {
     return;
   }
 
+//nstats = N_CHANGE_STATS;
+//matchvaltail = INPUT_PARAM[tail-1+2*nstats];
+//matchvalhead = INPUT_PARAM[head-1+2*nstats];
   do{
     GetRandEdge(&A1, &A2, nwp);
     GetRandEdge(&B1, &B2, nwp);
@@ -27,6 +30,42 @@ void MH_CondDegreeTetrad(MHproposal *MHp, Network *nwp)  {
 	  EdgetreeSearch(MIN(A1, B2), MAX(A1, B2), nwp->outedges) || EdgetreeSearch(MIN(B1, A2), MAX(B1, A2), nwp->outedges) // Undirected
 	  ));
     //Rprintf("in A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
+  Mtail[0]=A1; Mhead[0]=A2;
+  Mtail[1]=A1; Mhead[1]=B2;
+  Mtail[2]=B1; Mhead[2]=B2;
+  Mtail[3]=B1; Mhead[3]=A2;
+}
+
+/* 
+void MH_CondDegreeMix
+
+   Select two edges with no nodes in common, A1-A2 and B1-B2, s.t. A1-B2 and B1-A2 are not edges, and propose to replace the former two by the latter two.
+ */
+void MH_CondDegreeMix(MHproposal *MHp, Network *nwp)  {  
+  Vertex A1, A2, B1, B2;
+  
+  if(MHp->ntoggles == 0) { /* Initialize */
+    MHp->ntoggles=4;    
+    return;
+  }
+//  Rprintf("0 %f 1 %f 2 %f 3 %f\n",MHp->inputs[0],MHp->inputs[1],MHp->inputs[2],MHp->inputs[3]); 
+//  Rprintf("0 %f 1 %f 2 %f 3 %f\n",MHp->inputs[4],MHp->inputs[5],MHp->inputs[6],MHp->inputs[7]); 
+//  Rprintf("0 %f 1 %f 2 %f 3 %f\n",MHp->inputs[8],MHp->inputs[9],MHp->inputs[10],MHp->inputs[11]); 
+
+  do{
+    GetRandEdge(&A1, &A2, nwp);
+    GetRandEdge(&B1, &B2, nwp);
+//Rprintf("A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
+//Rprintf("g: A1 %f A2 %f B1 %f B2 %f\n",MHp->inputs[A1-1],MHp->inputs[A2-1],MHp->inputs[B1-1],MHp->inputs[B2-1]); 
+  }while(
+	 (abs(MHp->inputs[A1-1]-MHp->inputs[B2-1])<0.001||abs(MHp->inputs[A2-1]-MHp->inputs[B1-1])<0.001)|| 
+	  A1==B1 || A1==B2 || A2==B1 || A2==B2 || 
+	 (nwp->directed_flag ? 
+	  EdgetreeSearch(A1, B2, nwp->outedges) || EdgetreeSearch(B1, A2, nwp->outedges) : // Directed
+	  EdgetreeSearch(MIN(A1, B2), MAX(A1, B2), nwp->outedges) || EdgetreeSearch(MIN(B1, A2), MAX(B1, A2), nwp->outedges) // Undirected
+	  ));
+//  Rprintf("in A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
+//  Rprintf("g: A1 %f A2 %f B1 %f B2 %f\n",MHp->inputs[A1-1],MHp->inputs[A2-1],MHp->inputs[B1-1],MHp->inputs[B2-1]); 
   Mtail[0]=A1; Mhead[0]=A2;
   Mtail[1]=A1; Mhead[1]=B2;
   Mtail[2]=B1; Mhead[2]=B2;

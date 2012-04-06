@@ -9,6 +9,8 @@ control.logLik.ergm<-function(nsteps=20,
                               MCMC.prop.weights=NULL,
                               MCMC.prop.args=NULL,
 
+                              warn.dyads=TRUE,
+
                               MCMC.init.maxedges=NULL,
                               MCMC.packagenames=NULL,
                               
