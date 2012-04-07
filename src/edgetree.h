@@ -37,7 +37,7 @@ typedef struct TreeNodestruct {
 edges in a network structure.
 */ 
 typedef struct Dur_Infstruct {
-  int MCMCtimer;
+  int time;
   int *lasttoggle;
 } Dur_Inf;
 

@@ -31,7 +31,7 @@ WtNetwork WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
   GetRNGstate();  /* R function enabling uniform RNG */
 
   if(lasttoggle_flag){
-    nw.duration_info.MCMCtimer=time;
+    nw.duration_info.time=time;
     nw.duration_info.lasttoggle = (int *) calloc(DYADCOUNT(nnodes, bipartite, directed_flag), sizeof(int));
     if(lasttoggle)
       memcpy(nw.duration_info.lasttoggle, lasttoggle, DYADCOUNT(nnodes, bipartite, directed_flag) * sizeof(int));
@@ -124,7 +124,7 @@ WtNetwork *WtNetworkCopy(WtNetwork *dest, WtNetwork *src){
 
 
   if(src->duration_info.lasttoggle){
-    dest->duration_info.MCMCtimer=src->duration_info.MCMCtimer;
+    dest->duration_info.time=src->duration_info.time;
     dest->duration_info.lasttoggle = (int *) calloc(DYADCOUNT(nnodes, bipartite, directed_flag), sizeof(int));
     memcpy(dest->duration_info.lasttoggle, src->duration_info.lasttoggle,DYADCOUNT(nnodes, bipartite, directed_flag) * sizeof(int));
   }
@@ -291,7 +291,7 @@ int WtToggleEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwor
       else
 	k = (head-1)*(head-2)/2 + tail - 1;    
     }
-    nwp->duration_info.lasttoggle[k] = nwp->duration_info.MCMCtimer;
+    nwp->duration_info.lasttoggle[k] = nwp->duration_info.time;
   }
 
   if (WtAddEdgeToTrees(tail,head,weight,nwp))
@@ -385,7 +385,7 @@ void WtSetEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwork 
       else
 	k = (head-1)*(head-2)/2 + tail - 1;    
     }
-    nwp->duration_info.lasttoggle[k] = nwp->duration_info.MCMCtimer;
+    nwp->duration_info.lasttoggle[k] = nwp->duration_info.time;
   }
 
   WtSetEdge(tail,head,weight,nwp);
@@ -419,7 +419,7 @@ int WtElapsedTime (Vertex tail, Vertex head, WtNetwork *nwp){
       else
 	k = (head-1)*(head-2)/2 + tail - 1;    
     }
-    return nwp->duration_info.MCMCtimer - nwp->duration_info.lasttoggle[k];
+    return nwp->duration_info.time - nwp->duration_info.lasttoggle[k];
   }
   else return 0; 
   /* Should maybe return an error code of some sort, since 0 elapsed time
@@ -453,7 +453,7 @@ void WtTouchEdge(Vertex tail, Vertex head, WtNetwork *nwp){
       else
 	k = (head-1)*(head-2)/2 + tail - 1;    
     }
-    nwp->duration_info.lasttoggle[k] = nwp->duration_info.MCMCtimer;
+    nwp->duration_info.lasttoggle[k] = nwp->duration_info.time;
   }
 }
 

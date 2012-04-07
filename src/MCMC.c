@@ -342,8 +342,6 @@ void MCMCSamplePhase12(MHproposal *MHp,
   
 /*Rprintf("nsubphases %d\n", nsubphases); */
 
-  nwp->duration_info.MCMCtimer=0;
-  
   /*if (fVerbose)
     Rprintf("The number of statistics is %i and the total samplesize is %d\n",
     m->n_stats,samplesize);*/
