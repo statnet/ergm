@@ -51,7 +51,7 @@ It has three vertex attributes:
 \item{group}{Groups of novices as classified by Sampson: 
 "Loyal", "Outcasts", and "Turks". There is also an 
 interstitial group not represented here.}
-\item{cloisterville}{An indicator if attendance the minor
+\item{cloisterville}{An indicator of attendance the minor
 seminary of ``Cloisterville" before coming to the monastery.}
 \item{vertex.names}{The given names of the novices.}
 }
