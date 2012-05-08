@@ -294,7 +294,7 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose) {
       # If a statistic didn't mix at all, fail it as well.
       failed[is.na(failed)] <- TRUE
       if(any(failed)){
-        cat("Burn-in failed to converge or mixed very poorly for statistics", paste.and(names(Clist$diagnosable[Clist$diagnosable])[failed]), ". Rerunning.\n")
+        cat("Burn-in failed to converge or mixed very poorly for statistics", .paste.and(names(Clist$diagnosable[Clist$diagnosable])[failed]), ". Rerunning.\n")
         if(try == control$MCMC.burnin.retries+1) burnin.failed <- TRUE
       }
       else{

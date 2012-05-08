@@ -217,7 +217,7 @@ ergm <- function(formula, response=NULL,
   if(!is.null(offset.coef)) control$init[model.initial$etamap$offsettheta]<-offset.coef
   
   # Make sure any offset elements are given in control$init.
-  if(any(is.na(control$init) & model.initial$etamap$offsettheta)) stop("The model contains offset terms whose parameter values have not been specified:", paste.and(model.initial$coef.names[is.na(control$init)|model.initial$offsettheta]), ".", sep="")
+  if(any(is.na(control$init) & model.initial$etamap$offsettheta)) stop("The model contains offset terms whose parameter values have not been specified:", .paste.and(model.initial$coef.names[is.na(control$init)|model.initial$offsettheta]), ".", sep="")
 
   # Check if any terms are constrained to a constant and issue a warning.
   constrcheck <- ergm.checkconstraints.model(model.initial, MHproposal, control$init)

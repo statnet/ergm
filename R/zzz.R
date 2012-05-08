@@ -1,5 +1,14 @@
 .onAttach <- function(lib, pkg){
   info <- packageDescription("ergm")
+
+  # If the following have already been defined in the latentnet package, don't duplicate. Otherwise, assign them.
+  IFNOTEXISTS <- c("robust.inverse","mcmc.diagnostics","mcmc.diagnostics.default","gof","gof.default")
+  for(fun in IFNOTEXISTS){
+    if(!exists(fun, mode="function")){
+      assign(fun, get(paste('.',fun,sep='')), pos="package:ergm")
+    }
+  }
+  
   packageStartupMessage(
     paste('\nergm: version ', info$Version, ', created on ', info$Date, '\n',
           "Copyright (c) 2003, Mark S. Handcock, University of California-Los Angeles\n",

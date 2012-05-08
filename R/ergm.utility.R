@@ -453,7 +453,7 @@ sort.data.frame<-function(x, decreasing=FALSE, ...){
 }
 
 ## Concatenate a character list with commas and ands in the right places.
-paste.and <- function(x, oq='', cq=''){
+.paste.and <- function(x, oq='', cq=''){
   x <- paste(oq, x, cq, sep='')
   if(length(x)==0) return('')
   if(length(x)==1) return(x)

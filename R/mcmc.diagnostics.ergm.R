@@ -49,11 +49,11 @@
 #
 ##########################################################################
 
-mcmc.diagnostics <- function(object, ...) {
+.mcmc.diagnostics <- function(object, ...) {
   UseMethod("mcmc.diagnostics")
 }
 
-mcmc.diagnostics.default <- function(object, ...) {
+.mcmc.diagnostics.default <- function(object, ...) {
   stop("An ergm object must be given as an argument ")
 }
 

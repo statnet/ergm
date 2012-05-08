@@ -18,7 +18,7 @@
 #
 ###############################################################################
 
-"robust.inverse" <- function (H, tol = sqrt(.Machine$double.eps)) 
+.robust.inverse <- function (H, tol = sqrt(.Machine$double.eps)) 
 {
     iH <- try(solve(H), silent=TRUE)
     if(inherits(iH,"try-error")){

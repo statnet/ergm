@@ -49,12 +49,12 @@ ergm.checkextreme.model <- function(model, nw, init, response, target.stats, dro
 
     if(!silent){
       # Inform the user what's getting dropped.
-      if(any(low.drop.theta)) cat(paste("Observed statistic(s)", paste.and(names.theta[low.drop.theta]), "are at their smallest attainable values. Their coefficients will be fixed at -Inf.\n", sep=" "))
-      if(any(high.drop.theta)) cat(paste("Observed statistic(s)", paste.and(names.theta[high.drop.theta]), "are at their greatest attainable values. Their coefficients will be fixed at +Inf.\n", sep=" "))
+      if(any(low.drop.theta)) cat(paste("Observed statistic(s)", .paste.and(names.theta[low.drop.theta]), "are at their smallest attainable values. Their coefficients will be fixed at -Inf.\n", sep=" "))
+      if(any(high.drop.theta)) cat(paste("Observed statistic(s)", .paste.and(names.theta[high.drop.theta]), "are at their greatest attainable values. Their coefficients will be fixed at +Inf.\n", sep=" "))
     }
     
     # If the user specified a non-fixed element of init, and that element is getting dropped, warn the user.
-    if(any(is.finite(init[low.drop.theta|high.drop.theta]))) warning("Overriding user-specified initial init coefficient", paste.and(names.theta[is.na(init[low.drop.theta|high.drop.theta])]), ". To preserve, enclose in an offset() function.", sep="")
+    if(any(is.finite(init[low.drop.theta|high.drop.theta]))) warning("Overriding user-specified initial init coefficient", .paste.and(names.theta[is.na(init[low.drop.theta|high.drop.theta])]), ". To preserve, enclose in an offset() function.", sep="")
 
     init[low.drop.theta|high.drop.theta] <- extremeval.theta[low.drop.theta|high.drop.theta]*Inf
     model$etamap$offsettheta[low.drop.theta|high.drop.theta] <- TRUE
@@ -62,8 +62,8 @@ ergm.checkextreme.model <- function(model, nw, init, response, target.stats, dro
   }else{
     if(!silent){
       # If no drop, warn the user anyway.
-      if(any(low.drop.theta)) warning(paste("Observed statistic(s)", paste.and(names.theta[low.drop.theta]), "are at their smallest attainable values and drop=FALSE. The MLE is poorly defined.", sep=" "))
-      if(any(high.drop.theta)) warning(paste("Observed statistic(s)", paste.and(names.theta[high.drop.theta]), "are at their greatest attainable values and drop=FALSE. The MLE is poorly defined.", sep=" "))
+      if(any(low.drop.theta)) warning(paste("Observed statistic(s)", .paste.and(names.theta[low.drop.theta]), "are at their smallest attainable values and drop=FALSE. The MLE is poorly defined.", sep=" "))
+      if(any(high.drop.theta)) warning(paste("Observed statistic(s)", .paste.and(names.theta[high.drop.theta]), "are at their greatest attainable values and drop=FALSE. The MLE is poorly defined.", sep=" "))
     }
   }
 
@@ -92,7 +92,7 @@ ergm.checkconstraints.model <- function(model, MHproposal, init, silent=FALSE){
   
   if(any(conflict.coefs)){
     if(!silent){
-      warning(paste("The specified model's sample space constraint holds statistic(s)", paste.and(model$coef.names[conflict.coefs]), " constant. They will be ignored.", sep=" "))
+      warning(paste("The specified model's sample space constraint holds statistic(s)", .paste.and(model$coef.names[conflict.coefs]), " constant. They will be ignored.", sep=" "))
     }
     init[conflict.coefs] <- 0
     model$etamap$offsettheta[conflict.coefs] <- TRUE
