@@ -56,9 +56,9 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss, model.mon,
             as.double(Clist.diss$inputs), as.double(eta.diss),
             # Monitored terms.
             if(!is.null(model.mon)) as.integer(Clist.mon$nterms) else as.integer(0), 
-            if(!is.null(model.mon)) as.character(Clist.mon$fnamestring),
-            if(!is.null(model.mon)) as.character(Clist.mon$snamestring),
-            if(!is.null(model.mon)) as.double(Clist.mon$inputs),
+            if(!is.null(model.mon)) as.character(Clist.mon$fnamestring) else character(0),
+            if(!is.null(model.mon)) as.character(Clist.mon$snamestring) else character(0),
+            if(!is.null(model.mon)) as.double(Clist.mon$inputs) else double(0),
             # Degree bounds.
             as.integer(MHproposal.form$arguments$constraints$bd$attribs), 
             as.integer(MHproposal.form$arguments$constraints$bd$maxout), as.integer(MHproposal.form$arguments$constraints$bd$maxin),
