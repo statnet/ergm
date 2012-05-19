@@ -109,7 +109,7 @@ mvmodel.formula <- function (formula, ..., init, nsim=100,
 
   # Set up the output arrays
 
-  simcentrality <- statistic(SimGraphSeriesObj$networks[[1]])
+  simcentrality <- statistic(SimGraphSeriesObj[[1]])
 
   if(!probabilites){
     sim.mvmodel <-array(0,dim=c(nsim,length(simcentrality)))
@@ -121,7 +121,7 @@ mvmodel.formula <- function (formula, ..., init, nsim=100,
 
   for (i in 2:nsim)
   { 
-    simcentrality <- statistic(SimGraphSeriesObj$networks[[i]])
+    simcentrality <- statistic(SimGraphSeriesObj[[i]])
     if(!probabilites){
       sim.mvmodel[i,] <- simcentrality
     }else{
@@ -187,7 +187,7 @@ mvmodel.ergm <- function (object, ..., nsim=100,
 
   # Set up the output arrays
 
-  simcentrality <- statistic(SimGraphSeriesObj$networks[[1]])
+  simcentrality <- statistic(SimGraphSeriesObj[[1]])
 
   if(!probabilites){
     sim.mvmodel <-array(0,dim=c(nsim,length(simcentrality)))
@@ -199,7 +199,7 @@ mvmodel.ergm <- function (object, ..., nsim=100,
 
   for (i in 2:nsim)
   { 
-    simcentrality <- statistic(SimGraphSeriesObj$networks[[i]])
+    simcentrality <- statistic(SimGraphSeriesObj[[i]])
     if(!probabilites){
       sim.mvmodel[i,] <- simcentrality
     }else{
