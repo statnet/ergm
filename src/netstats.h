@@ -17,7 +17,7 @@
 
 /* *** don't forget tail -> head, so these functions accept tails first, not heads */
 
-void network_stats_wrapper(int *tails, int *heads, int *time, int *lasttoggle, int *dnedges, 
+void network_stats_wrapper(int *tails, int *heads, int *timing, int *time, int *lasttoggle, int *dnedges, 
 			   int *dn, int *dflag,  int *bipartite,
 			   int *nterms, char **funnames,
 			   char **sonames, double *inputs,  double *stats);

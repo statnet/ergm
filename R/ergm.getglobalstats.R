@@ -38,9 +38,10 @@ ergm.getglobalstats <- function(nw, m) {
   # only the d_??? function exists, it needs to add on to empty
   # network statistics.
   
-  # *** don't forget, tails are passes in first now, notheads  
+  # *** don't forget, tails are passes in first now, not heads  
   gs <- .C("network_stats_wrapper",
-           as.integer(Clist$tails), as.integer(Clist$heads), as.integer(Clist$time), as.integer(Clist$lasttoggle),
+           as.integer(Clist$tails), as.integer(Clist$heads),
+           as.integer(!is.null(Clist$time) && !is.null(Clist$lasttoggle)), as.integer(Clist$time), as.integer(Clist$lasttoggle),
            as.integer(Clist$nedges),
            as.integer(Clist$n),
            as.integer(Clist$dir), as.integer(Clist$bipartite), 
