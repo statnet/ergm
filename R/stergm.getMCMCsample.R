@@ -68,6 +68,7 @@ stergm.getMCMCsample <- function(nw, model.form, model.diss, model.mon,
             as.double(control$time.samplesize), as.integer(control$MCMC.burnin),
             as.double(control$time.burnin), as.double(control$time.interval),
             # Space for output.
+            as.integer(c(collect.form, collect.diss, !is.null(model.mon))),
             s.form = if(collect.form) double(Clist.form$nstats*(control$time.samplesize+1)) else double(0),
             s.diss = if(collect.diss) double(Clist.diss$nstats*(control$time.samplesize+1)) else double(0),
             s.mon = if(!is.null(model.mon)) double(Clist.mon$nstats*(control$time.samplesize+1)) else double(0),

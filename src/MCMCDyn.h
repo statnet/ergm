@@ -67,6 +67,7 @@ void MCMCDyn_wrapper(// Starting network.
 		     double *nsteps,  int *MH_interval,
 		     double *burnin, double *interval,  
 		     // Space for output.
+		     int *collect_what,
 		     double *F_sample, double *D_sample, double *M_sample,
 		     int *maxedges,
 		     int *newnetworktails, int *newnetworkheads, 

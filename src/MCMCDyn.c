@@ -90,6 +90,7 @@ void MCMCDyn_wrapper(// Starting network.
 		     double *nsteps,  int *MH_interval,
 		     double *burnin, double *interval,  
 		     // Space for output.
+		     int *sample_what,
 		     double *F_sample, double *D_sample, double *M_sample,
 		     int *maxedges,
 		     int *newnetworktails, int *newnetworkheads, 
@@ -135,7 +136,7 @@ void MCMCDyn_wrapper(// Starting network.
 			  F_m, &F_MH, F_eta,
 			  D_m, &D_MH, D_eta,
 			  M_m,
-			  F_sample, D_sample, M_sample, *maxedges, *maxchanges, difftime, difftail, diffhead,
+			  sample_what[0]? F_sample:NULL, sample_what[1]? D_sample:NULL, sample_what[2]? M_sample:NULL, *maxedges, *maxchanges, difftime, difftail, diffhead,
 			  *nsteps, *MH_interval, *burnin, *interval,
 			  *fVerbose);
    
