@@ -8,13 +8,22 @@
 #  Copyright 2012 the statnet development team
 ######################################################################
 # Set up a flag for whether we are in charge of MPI cluster.
-ergm.MPIcluster.started <- FALSE
+ergm.MPIcluster.started <- local({
+  started <- FALSE
+  function(new) {
+    if(!missing(new))
+      started <<- new
+    else
+      started
+  }
+})
+
+myLibLoc <- function()
+  sub('/ergm/Meta/package.rds','',attr(packageDescription("ergm"),"file"))
 
 # Acquires a cluster of specified type.
 ergm.getCluster <- function(control, verbose=FALSE){
   capture.output(require(snow, quietly=TRUE, warn.conflicts = FALSE))
-# The rpvm package is apparently not being maintained.
-#  capture.output(require(rpvm, quietly=TRUE, warn.conflicts = FALSE))
 
   type <- if(is.null(control$parallel.type)) getClusterOption("type") else control$parallel.type
 
@@ -22,64 +31,15 @@ ergm.getCluster <- function(control, verbose=FALSE){
     #   Start Cluster
 
   cl <- switch(type,
-# The rpvm package is apparently not being maintained.
-#               PVM={              
-#                 PVM.running <- try(.PVM.config(), silent=TRUE)
-#                 if(inherits(PVM.running,"try-error")){
-#                   hostfile <- paste(Sys.getenv("HOME"),"/.xpvm_hosts",sep="")
-#                   .PVM.start.pvmd(hostfile)
-#                   cat("PVM not running. Attempting to start.\n")
-#                 }
-#                 makeCluster(control$parallel,type="PVM")
-#               },
-
-
-# FIXME:  Excerpt from an email by Kurt Hornik:
-#* checking R code for possible problems ... NOTE
-#Found the following possibly unsafe calls:
-#File 'R/parallel.utils.R':
-# found unlockBinding("ergm.MPIcluster.started",
-#   environment(ergm.getCluster))
-#
-#   ...
-#   
-#Can you pls fix?  Note that there are three issues: for the first, the
-#simplest should be using a dynamic variable, e.g.
-#
-# ergm.MPIcluster.started <-
-# local({
-#     started <- FALSE
-#     function(new) {
-#         if(!missing(new))
-#	      started <<- new
-#	  else
-#	      started
-#     }
-#     })
-#
-#and then use as
-#
-#    ergm.MPIcluster.started(TRUE)
-#
-#to set and
-#
-#    ergm.MPIcluster.started()
-#
-#to get
-################ As a result of above problem, "MPI" bit is commented out:
-#   
-#   
-#               MPI={
-#                 # See if a preexisting cluster exists.
-#                 if(is.null(getMPIcluster())){
-#                   # Remember that we are responsible for it.
-#                   unlockBinding("ergm.MPIcluster.started", environment(ergm.getCluster))                  
-#                   assign("ergm.MPIcluster.started", TRUE, environment(ergm.getCluster))
-#                   lockBinding("ergm.MPIcluster.started", environment(ergm.getCluster))
-#                   makeCluster(control$parallel,type="MPI")
-#                 }else
-#                   getMPIcluster()
-#               },
+               MPI={
+                 # See if a preexisting cluster exists.
+                 if(is.null(getMPIcluster())){
+                   # Remember that we are responsible for it.
+                   ergm.MPIcluster.started(TRUE)
+                   makeCluster(control$parallel,type="MPI")
+                 }else
+                   getMPIcluster()
+               },
                SOCK={
                  makeCluster(control$parallel,type="SOCK")
                }
@@ -91,11 +51,9 @@ ergm.getCluster <- function(control, verbose=FALSE){
 
     # Try loading from the same location as the master.
     attached <- unlist(clusterCall(cl, require,
-                                 package="ergm",
-                                 character.only=TRUE))
-## FIXME:  setting binding for myLibLoc in the .onLoad function
-## is broken; did not have time to fix this.
-#                                 ,lib.loc=myLibLoc))
+                                   package="ergm",
+                                   character.only=TRUE,
+                                   lib.loc=myLibLoc()))
     # If something failed, warn and try loading from anywhere.
     if(!all(attached)){
       if(verbose) cat("Failed to attach ergm on the slave nodes from the same location as the master node. Will try to load from anywhere in the library path.\n")
@@ -123,7 +81,7 @@ ergm.stopCluster <- function(object, ...)
 
 # Only stop the MPI cluster if we were the ones who had started it.
 ergm.stopCluster.MPIcluster <- function(object, ...){
-  if(ergm.MPIcluster.started) stopCluster(object)
+  if(ergm.MPIcluster.started()) stopCluster(object)
 }
 
 ergm.stopCluster.default <- function(object, ...){

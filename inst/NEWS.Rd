@@ -2,9 +2,47 @@
 \title{NEWS file for the \code{\link[=ergm-package]{ergm}} package}
 \encoding{UTF-8}
 
-% When a release is forked, copy the sections to a new release and
-% delete unused sections.
-\section{Changes in version 3.0}{
+\section{Changes in version 3.0-2}{
+  \subsection{NOTE}{
+    \itemize{
+      \item This is a technical bugfix release. There are no user-visible
+      changes or changes in package behavior.
+    }
+  }
+
+  \subsection{DEPRECATED & DEFUNCT}{
+    \itemize{
+      
+      \item Suggestion dependency on
+      \code{\link[=latentnet-package]{latentnet}} has been removed.
+      
+      \item Parallel computing with PVM (via \code{rpvm}) has been
+      removed, since the package in question is no longer maintained.
+      
+    }
+  }
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item A variety of fixes have been applied to make the package
+      comply with more stringent package standards. In particular,
+      \code{ergm.update.formula} no longer uses the ``forbidden''
+      \code{.Internal()} call.
+
+      \item A number of miscellaneous \code{R CMD check} warnings have
+      been addressed.
+
+      \item Some nonstandard behavior exposed by changes in
+      \code{R-devel} has been addressed.
+
+      \item Some parallel capabilities had to be disabled in 3.0-1 due
+      to \R's handling of package environments. They have been reenabled.
+    }
+  }
+}
+
+
+\section{Changes in version 3.0-1}{
  
   \subsection{NEW FEATURES}{
     \itemize{
@@ -96,31 +134,6 @@
       \item Handling of networks with many edges has been improved somewhat.
     }
   }
-
-  % \subsection{C-LEVEL FACILITIES}{
-  %   \itemize{
-  %     \item It is not clear that we need a subsection called "C-LEVEL FACILITIES".
-  %   }
-  % }
-
-  % \subsection{UTILITIES}{
-  %   \itemize{
-  %     \item Likewise, "UTILITIES" is probably unnecessary.
-  %   }
-  % }
-
-  % \subsection{INSTALLATION}{
-  %   \itemize{
-  %     \item ... as is "INSTALLATION".
-  %   }
-  % }
-
-  % \subsection{PACKAGE INSTALLATION}{
-  %   \itemize{
-  %     \item ditto.
-  %   }
-  % }
-
   \subsection{DEPRECATED & DEFUNCT}{
     \itemize{
       \item The following control parameters have been removed or

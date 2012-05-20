@@ -46,7 +46,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
     
     cl <- ergm.getCluster(control, verbose)
     #
-    #   Run the jobs with rpvm or Rmpi
+    #   Run the jobs on a cluster
     #
     flush.console()
     outlist <- clusterCall(cl,ergm.mcmcslave,
