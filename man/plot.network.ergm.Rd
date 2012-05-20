@@ -17,7 +17,6 @@
   The function is based on the 
   plotting capabilities of the \code{\link[network]{network}} package with additional
   pre-processing of arguments.
-  Some of the capabilites require the \code{\link[latentnet]{latentnet}} package.
   See \code{\link[network]{plot.network}} in the \code{\link[network]{network}} package for details.
 }
 \usage{
@@ -71,14 +70,8 @@
     cex.main=par("cex.main"), 
     cex.sub=par("cex.sub"),
     seed=NULL,
-    latent.control=list(maxit=500,
-                        trace=0,
-                        dyadsample=10000,
-                        penalty.sigma=c(5,0.5), 
-                        nsubsample=200),
     colornames="rainbow",
     verbose=FALSE, 
-    latent=FALSE, 
     \dots)
 }
 \arguments{
@@ -91,8 +84,6 @@
   \item{usearrows}{ boolean; should arrows (rather than line segments) be used to indicate edges? }
   \item{mode}{ the vertex placement algorithm; this must correspond to a \code{network.layout} function.
     These include 
-    \code{"latent"}, \code{"latentPrior"},
-     and
     \code{"fruchtermanreingold"}. }
   \item{displayisolates}{ boolean; should isolates be displayed? }
   \item{interactive}{ boolean; should interactive adjustment of vertex placement be attempted? }
@@ -136,11 +127,9 @@
   \item{cex.main}{ Character expansion for the plot title.}
   \item{cex.sub}{ Character expansion for the plot sub-title.}
   \item{seed}{ Integer for seeding random number generator.  See \code{\link[base]{set.seed}}.}
-  \item{latent.control}{A list of parameters to control the \code{latent} and \code{latentPrior} models, \code{dyadsample} determines the size above which to sample the latent dyads; see \code{\link{ergm}} and \code{\link[stats]{optim}} for details.}
   \item{colornames}{A vector of color names that can be selected by index for
 the plot. By default it is \code{colors()}.}
   \item{verbose}{logical; if this is \code{TRUE}, we will print out more information as we run the function.}
-  \item{latent}{logical; use a two-dimensional latent space model based on the MLE fit.  See documentation for \code{ergmm()} in \code{\link[latentnet]{latentnet}}.}
   \item{\dots}{ additional arguments to \code{\link{plot}}. }
 }
 \details{
@@ -151,10 +140,6 @@ can be obtained.  Network layout -- if not specified directly
 using \code{coord} -- is determined via one of the various
 available algorithms.  These are (briefly) as follows:
 \enumerate{
-
-\item \code{latentPrior}: Use a two-dimensional latent space model based on a
-Bayesian minimum Kullback-Leibler fit. 
-See documentation for \code{latent()} in \code{\link{ergm}}.
 
 \item \code{random}: Vertices are placed (uniformly) randomly within a square region about the origin.
 

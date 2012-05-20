@@ -9,12 +9,11 @@
 ######################################################################
 #########################################################################
 # The <plot.network.ergm> function produces a two-dimensional network
-# visualization based on <plot.network.default>; a variety of options are 
-# available to control vertex placement, display details, color, etc; the 
-# function is based on the plotting capabilities of the network package 
-# with additional pre-processing of arguments; some of the capabilites 
-# require the latentnet package; see <plot.network> in the network package
-# for details.
+# visualization based on <plot.network.default>; a variety of options
+# are available to control vertex placement, display details, color,
+# etc; the function is based on the plotting capabilities of the
+# network package with additional pre-processing of arguments; see
+# <plot.network> in the network package for details.
 #########################################################################
 
 "plot.network.ergm"<-function(x,
@@ -67,10 +66,8 @@
     cex.main=par("cex.main"), 
     cex.sub=par("cex.sub"),
     seed=NULL,
-    latent.control=list(maxit=500,trace=0,dyadsample=10000,
-               penalty.sigma=c(5,0.5), nsubsample=200),
     colornames="rainbow",
-    verbose=FALSE, latent=FALSE, ...){
+    verbose=FALSE, ...){
 #
    #Extract the network to be displayed
    if(is.hyper(x)){    #Is this a hypergraph?  If so, use two-mode form.
@@ -109,7 +106,7 @@
     Ydesign <- Ydesign==0
    }   
    current.warn <- options()$warn
-   if(is.null(current.warn)){current.warn <- 0}
+   on.exit({options(warn=current.warn)})
 #
    if(!is.null(seed)) set.seed(seed)
 #
@@ -251,160 +248,12 @@
      d <- d[use,use]
    }
 #
-   if(!is.null(coord) | mode=="fruchtermanreingold" | interactive){
-      latent <- FALSE
-   }
-   if(latent){
-    latent <- try(require(latentnet))
-   }
    if(is.list(coord)){
      coord <- cbind(coord$x, coord$y)
    }
 
-   latentfit <- NULL
-   if(latent){ #Place by latent space MLE
-    require(latentnet)
-    plotfile <- paste("gplottmp",Sys.getpid(),sep="")
-    curplot <- dev.cur()
-    pictex(file = plotfile)
-    options(warn=-1)
-    coord <- plot.network.default(x,
-         attrname=attrname,
-         label=label,
-         coord=coord,
-         jitter=jitter,
-         thresh=thresh,
-         usearrows=usearrows,
-         mode=mode,
-         displayisolates=displayisolates,
-         interactive=interactive,
-         xlab=xlab,
-         ylab=ylab,
-         xlim=xlim,
-         ylim=ylim,
-         pad=pad,
-         label.pad=label.pad,
-         displaylabels=displaylabels,
-         boxed.labels=boxed.labels,
-         label.pos=label.pos,
-         label.bg=label.bg,
-         vertex.sides=vertex.sides,
-         vertex.rot=vertex.rot,
-         arrowhead.cex=arrowhead.cex,
-         label.cex=label.cex,
-         loop.cex=loop.cex,
-         vertex.cex=vertex.cex,
-         edge.col=edge.col,
-         label.col=label.col,
-         vertex.col=vertex.col,
-         label.border=label.border,
-         vertex.border=vertex.border,
-         edge.lty=edge.lty,
-         label.lty=label.lty,
-         vertex.lty=vertex.lty,
-         edge.lwd=edge.lwd,
-         label.lwd=label.lwd,
-         edge.len=edge.len,
-         edge.curve=edge.curve,
-         edge.steps=edge.steps,
-         loop.steps=loop.steps,
-         object.scale=object.scale,
-         uselen=uselen,
-         usecurve=usecurve,
-         suppress.axes=suppress.axes,
-         vertices.last=vertices.last,
-         new=new,
-         layout.par=layout.par,
-         ...
-     )
-     dev.off()
-     unlink(plotfile)
-     dev.set(curplot)
-     options(warn=current.warn)
-#
-#    Adjust for the components
-#
-     dimSpace <- 2
-     if(verbose) cat("Calling geodesic distances\n")
-     D <- ergm.geodesicmatrix(network(d,directed=is.directed(x)))
-     D[D==Inf] <- max(D[D!=Inf])+1
-     reach <- D!=max(D)
-#
-#    sample
-#
-     if(!is.null(Ydesign)){   
-       nsample <- sum(reach[Ydesign]) 
-     }else{   
-       nsample <- sum(reach)
-     }   
-     if(!is.null(latent.control$dyadsample) &&
-         nsample > latent.control$dyadsample){
-       dyadsample <- sample(nsample,size=latent.control$dyadsample,replace=FALSE)
-       samreach <- reach & !reach     
-       if(!is.null(Ydesign)){   
-         samreach[reach[Ydesign]][dyadsample] <- TRUE  
-       }else{   
-         samreach[reach][dyadsample] <- TRUE
-       }   
-     }else{
-       samreach <- reach
-       if(!is.null(Ydesign)){   
-         samreach[!Ydesign] <- FALSE
-       }   	
-     }
-
-     Y <- d[use,use]
-     g <- nrow(Y)
-     if(is.null(latent.control$MCMLE.maxit)){latent.control$MCMLE.maxit <- 40}
-     if(is.null(latent.control$trace)){latent.control$trace <-6}
-     if(is.null(latent.control$dyadsample)){latent.control$dyadsample <- 1000}
-     if(is.null(latent.control$penalty.sigma)){latent.control$penalty.sigma <- c(10,0.5)}
-     if(g > 100){
-       maxit <- round(200/sqrt(g))
-       trace <- 6
-     }
-
-     Z <- coord
-     beta <- 0
-     ## now find the mle
-     abvZ <- c(beta,Z)
-
-     if(latent.control$penalty.sigma[1]>0){
-      penalty.factor <- c(
-       1/(latent.control$penalty.sigma[1]*latent.control$penalty.sigma[1]),
-       latent.control$penalty.sigma[2])
-     }else{
-      penalty.factor <- c(0,latent.control$penalty.sigma[2])
-     }
-     #BFGS  use previous found MDS fit to plug into quasi newton raphson
-     abz.list <- list(Y=Y,nnodes=g,dimSpace=dimSpace,
-                      penalty.factor=penalty.factor,
-                      reach=samreach[use,use],directed=is.directed(x),
-		      Ydesign=Ydesign[use,use])  
-     if(verbose) cat("Calling latent MLE fit\n")
-# Commented out by DH because mlpY.plot and mlpY.grad.plot do not exist.
-#     MLE.fit <- try(
-#                optim(par=abvZ,fn=mlpY.plot,gr=mlpY.grad.plot,
-#                 method="BFGS",
-#                 control=list(fnscale=-1, maxit=latent.control$MCMLE.maxit, 
-#                              trace=latent.control$trace),
-#                 abz.list=abz.list)
-#                 )
-#     if(inherits(MLE.fit,"try-error")){
-      stop("MLE could not be found.")
-#     }else{
-#      abvZ <- MLE.fit$par
-#     }
-     Z.mle <- matrix(abvZ[-1],nrow=g,ncol=dimSpace)
-     latentfit <- list(Z.mle=Z.mle, beta=abvZ[1])
-     coord[use,1]<-Z.mle[,1]
-     coord[!use,1]<-min(coord[use,1])
-     coord[use,2]<-Z.mle[,2]
-     coord[!use,2]<-min(coord[use,2])
-#   End of latent
-   }
    options(warn=-1)
-    coord <- plot.network.default(x,
+   coord <- plot.network.default(x,
          attrname=attrname,
          label=label,
          coord=coord,
@@ -453,9 +302,8 @@
          layout.par=layout.par,
          ...
      )
-   options(warn=current.warn)
 #
 #  Back to the original code
 #
-   invisible(list(x=coord[,1],y=coord[,2], latentfit=latentfit))
+   invisible(list(x=coord[,1],y=coord[,2]))
 }
