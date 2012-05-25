@@ -81,7 +81,7 @@ mcmc.diagnostics.ergm <- function(object,
     cv <-  cov(as.matrix(sm))
     
     z <- ds/sds*sqrt(ns)
-    chi2<-t(sqrt(ns)*ds)%*%solve(cv)%*%(ds*sqrt(ns))
+    chi2<-t(sqrt(ns)*ds)%*%robust.inverse(cv)%*%(ds*sqrt(ns))
   }else{
     cat("\nAre unconstrained sample statistics significantly different from constrained?\n")
     ds <- colMeans.mcmc.list(sm) - if(!center) colMeans.mcmc.list(sm.obs) else 0
@@ -95,7 +95,7 @@ mcmc.diagnostics.ergm <- function(object,
 
     
     z <- ds/sqrt(sds^2/ns+sds.obs^2/ns.obs)
-    chi2<-t(ds)%*%solve(t(cv/sqrt(ns))/sqrt(ns)+t(cv.obs/sqrt(ns.obs))/sqrt(ns.obs))%*%(ds)
+    chi2<-t(ds)%*%robust.inverse(t(cv/sqrt(ns))/sqrt(ns)+t(cv.obs/sqrt(ns.obs))/sqrt(ns.obs))%*%(ds)
   }
   p.z <- pnorm(abs(z),lower.tail=FALSE)*2
   p.chi2 <- pchisq(chi2,nvar(sm),lower.tail=FALSE)
