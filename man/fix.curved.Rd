@@ -56,6 +56,7 @@ parameters are fixed. Note that each term has to be treated as a special case.
   \code{\link{ergm}},   \code{\link{simulate.ergm}}
 }
 \examples{
+\donttest{
 data(sampson)
 gest<-ergm(samplike~edges+gwesp(alpha=.5,fixed=FALSE),
            control=control.ergm(MCMLE.maxit=3))
@@ -67,5 +68,6 @@ tmp<-fix.curved(gest)
 tmp
 # A gwesp() statistic only
 simulate(tmp$formula, coef=tmp$theta, statsonly=TRUE) 
+}
 }
 \keyword{ model }
