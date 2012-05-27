@@ -109,6 +109,7 @@ summary(gest)
 # test the gof.ergm function
 gofflo <- gof(gest)
 gofflo
+summary(gofflo)
 
 # Plot all three on the same page
 # with nice margins
@@ -120,7 +121,9 @@ plot(gofflo)
 plot(gofflo, plotlogodds=TRUE)
 
 # Use the formula version of gof
+\donttest{
 gofflo2 <-gof(flomarriage ~ edges + kstar(2), coef=c(-1.6339, 0.0049))
 plot(gofflo2)
+}
 }
 \keyword{models}

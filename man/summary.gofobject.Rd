@@ -36,6 +36,7 @@
 
 \seealso{gof.ergm, gof.formula, ergm, network, simulate.ergm}
 \examples{
+\dontrun{
 #
 data(florentine)
 #
@@ -51,5 +52,6 @@ summary(gest)
 gofflo <- gof(gest)
 gofflo
 summary(gofflo)
+}
 }
 \keyword{graphs}

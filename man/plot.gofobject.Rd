@@ -51,6 +51,7 @@
 
 \seealso{gof.ergm, gof.formula, ergm, network, simulate.ergm}
 \examples{
+\dontrun{
 #
 data(florentine)
 #
@@ -74,5 +75,6 @@ plot(gofflo, plotlogodds=TRUE)
 # Use the formula version
 #
 gof(flomarriage ~ edges + kstar(2), coef=c(-1.6339, 0.0049))
+}
 }
 \keyword{graphs}

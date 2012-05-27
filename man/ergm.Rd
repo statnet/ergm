@@ -527,6 +527,7 @@ summary(gest)
 # add terms for the propensity to form 2-stars and triangles
 # of families 
 #
+\donttest{
 gest <- ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle)
 summary(gest)
 
@@ -550,5 +551,6 @@ gest <- ergm(molecule ~ edges + kstar(2) + triangle
                               + nodematch("atomic type",diff=TRUE),
   control=control.ergm(MCMC.samplesize=10000))
 summary(gest)
+}
 }
 \keyword{models}
