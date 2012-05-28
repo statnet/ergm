@@ -49,7 +49,10 @@ append.rhs.formula<-function(object,newterms){
   object
 }
 
-# A reimplementation of update.formula() that does not simplify.
+# A reimplementation of update.formula() that does not simplify.  Note
+# that the resulting formula's environment is set to that of new iff
+# new has an LHS _and_ its LHS is not . . Otherwise, it is set to
+# object's.
 ergm.update.formula<-function (object, new, ...){
   old.lhs <- if(length(object)==2) NULL else object[[2]]
   old.rhs <- if(length(object)==2) object[[2]] else object[[3]]
@@ -78,9 +81,10 @@ ergm.update.formula<-function (object, new, ...){
   }
   
   # Construct the formula and ensure that the formula's environment
-  # gets set to the network's environment.
+  # gets set to the environment of LHS of the new formula, if it
+  # exists and is not . .
   out <- if(length(new)==2) call("~", deparen(sub.dot(new.rhs, old.rhs))) else call("~", deparen(sub.dot(new.lhs, old.lhs)), deparen(sub.dot(new.rhs, old.rhs)))
-  as.formula(out, env =  if(new[[2]]==".") environment(object) else environment(new))
+  as.formula(out, env =  if(length(new)==2 || new[[2]]==".") environment(object) else environment(new))
 }
 
 term.list.formula<-function(rhs){
