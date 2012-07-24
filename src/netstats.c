@@ -10,7 +10,7 @@
 
 /* *** don't forget tail-> head, so this fucntion now accepts tails before heads */
 
-void network_stats_wrapper(int *tails, int *heads, int *time, int *lasttoggle, int *dnedges, 
+void network_stats_wrapper(int *tails, int *heads, int *timings, int *time, int *lasttoggle, int *dnedges, 
 			   int *dn, int *dflag,  int *bipartite,
 			   int *nterms, char **funnames,
 			   char **sonames, double *inputs,  double *stats)
@@ -30,7 +30,7 @@ void network_stats_wrapper(int *tails, int *heads, int *time, int *lasttoggle, i
   
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
   nw[0]=NetworkInitialize(NULL, NULL, 0,
-                          n_nodes, directed_flag, bip, time?1:0, time?*time:0, lasttoggle);
+                          n_nodes, directed_flag, bip, *timings?1:0, *timings?*time:0, *timings?lasttoggle:NULL);
 
   /* Compute the change statistics and copy them to stats for return
      to R.  Note that stats already has the statistics of an empty

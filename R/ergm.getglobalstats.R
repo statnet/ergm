@@ -41,7 +41,7 @@ ergm.getglobalstats <- function(nw, m, response=NULL) {
   # *** don't forget, tails are passes in first now, notheads  
   gs <- if(is.null(response))
          .C("network_stats_wrapper",
-            as.integer(Clist$tails), as.integer(Clist$heads), as.integer(Clist$time), as.integer(Clist$lasttoggle),
+            as.integer(Clist$tails), as.integer(Clist$heads), as.integer(!is.null(Clist$time)), as.integer(Clist$time), as.integer(Clist$lasttoggle),
             as.integer(Clist$nedges),
             as.integer(Clist$n),
             as.integer(Clist$dir), as.integer(Clist$bipartite), 
@@ -53,7 +53,7 @@ ergm.getglobalstats <- function(nw, m, response=NULL) {
             )$gs
          else
          .C("wt_network_stats_wrapper",
-            as.integer(Clist$tails), as.integer(Clist$heads), as.double(Clist$weights), as.integer(Clist$time), as.integer(Clist$lasttoggle),
+            as.integer(Clist$tails), as.integer(Clist$heads), as.double(Clist$weights), as.integer(!is.null(Clist$time)), as.integer(Clist$time), as.integer(Clist$lasttoggle),
             as.integer(Clist$nedges),
             as.integer(Clist$n),
             as.integer(Clist$dir), as.integer(Clist$bipartite), 

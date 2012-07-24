@@ -7,7 +7,7 @@
  has true global values equal to zero for all statistics, then this
  change gives the true global values for the observed graph.
 *****************/
-void wt_network_stats_wrapper(int *tails, int *heads, double *weights, int *time, int *lasttoggle, int *dnedges,
+void wt_network_stats_wrapper(int *tails, int *heads, double *weights, int *timings, int *time, int *lasttoggle, int *dnedges,
 			   int *dn, int *dflag,  int *bipartite,
 			   int *nterms, char **funnames,
 			   char **sonames, double *inputs,  double *stats)
@@ -27,7 +27,7 @@ void wt_network_stats_wrapper(int *tails, int *heads, double *weights, int *time
   
   m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
   nw[0]=WtNetworkInitialize(NULL, NULL, NULL, 0,
-			    n_nodes, directed_flag, bip, time?1:0, time?*time:0, lasttoggle);
+			    n_nodes, directed_flag, bip, *timings?1:0, *timings?*time:0, *timings?lasttoggle:NULL);
 
   /* Compute the change statistics and copy them to stats for return
      to R.  Note that stats already has the statistics of an empty
