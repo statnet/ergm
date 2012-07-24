@@ -51,25 +51,24 @@ ergm.getCluster <- function(control, verbose=FALSE){
   
   # Set things up. 
   clusterSetupRNG(cl)
-  if("ergm" %in% control$MCMC.packagenames){
-
+  for(pkg in control$MCMC.packagenames){
     # Try loading from the same location as the master.
     attached <- unlist(clusterCall(cl, require,
-                                   package="ergm",
+                                   package=pkg,
                                    character.only=TRUE,
                                    lib.loc=myLibLoc()))
     # If something failed, warn and try loading from anywhere.
     if(!all(attached)){
       if(verbose) cat("Failed to attach ergm on the slave nodes from the same location as the master node. Will try to load from anywhere in the library path.\n")
       attached <- clusterCall(cl, require,
-                            package="ergm",
+                            package=pkg,
                             character.only=TRUE)      
       if(!all(attached)) stop("Failed to attach ergm on one or more slave nodes. Make sure it's installed on or accessible from all of them and is in the library path.")
     }
     
     if(control$parallel.version.check){
-      slave.versions <- clusterCall(cl,packageVersion,"ergm")
-      master.version <- packageVersion("ergm")
+      slave.versions <- clusterCall(cl,packageVersion,pkg)
+      master.version <- packageVersion(pkg)
 
       if(!all(sapply(slave.versions,identical,master.version)))
         stop("The version of ergm attached on one or more slave nodes is different from from that on the master node (this node). Make sure the same version is installed on all nodes. If you are absolutely certain that this message is in error, override with the parallel.version.check=FALSE control parameter.")
