@@ -156,13 +156,13 @@
 \docType{methods}
 \title{Terms used in Exponential Family Random Graph Models}
 \description{
-  The function \code{\link{ergm}} is used to fit linear exponential 
+  The function \code{\link{ergm}} is used to fit exponential 
   random graph models, in which
   the probability of a given network, \eqn{y}, on a set of nodes is 
-  \eqn{\exp\{\theta{\cdot}g(y)\}/c(\theta)}{\exp\{\theta * g(y)\}/c(\theta)}, where 
+  \eqn{\exp\{\eta(\theta) \cdot g(y)\}/c(\theta)}{\exp\{\eta(\theta) \cdot g(y)\}/c(\theta)}, where 
   \eqn{g(y)} is a vector of network statistics for \eqn{y},
-  \eqn{\theta} is a parameter vector of the same 
-  length and \eqn{c(\theta)} is the
+  \eqn{\eta(\theta)} is a natural parameter vector of the same 
+  length (with \eqn{\eta(\theta)=\theta} for most terms), and \eqn{c(\theta)} is the
   normalizing constant for the distribution.
 
   The network statistics \eqn{g(y)} are entered as terms in the 
