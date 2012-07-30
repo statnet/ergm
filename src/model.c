@@ -90,12 +90,6 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
       thisterm->s_func = 
 	(void (*)(ModelTerm*, Network*)) R_FindSymbol(fn,sn,NULL);
 
-      /* Optional function for those statistics that care about
-	 duration. Called just before the timer is incremented. */
-      fn[0]='t';
-      thisterm->t_func =
-	(void (*)(ModelTerm*, Network*)) R_FindSymbol(fn,sn,NULL);
-
       /*Clean up by freeing sn and fn*/
       free((void *)fn);
       free((void *)sn);
@@ -161,28 +155,6 @@ void ChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead,
     mtp->dstats = dstats; /* Stuck the change statistic here.*/
     (*(mtp->d_func))(ntoggles, toggletail, togglehead, 
 		   mtp, nwp);  /* Call d_??? function */
-    dstats += (mtp++)->nstats;
-  }
-}
-
-
-/*
-  MCMCChangeStatsT
-  A helper's helper function to compute change statistics associated with advancing the clock by 1 unit.
-  The vector of changes is written to m->workspace.
-*/
-void ChangeStatsT(Network *nwp, Model *m){
-  ModelTerm *mtp = m->termarray;
-  double *dstats = m->workspace;
-  
-  for (unsigned int i=0; i < m->n_terms; i++){
-    /* Calculate change statistics */
-    mtp->dstats = dstats; /* Stuck the change statistic here.*/
-    if(mtp->t_func){
-      (*(mtp->t_func))(mtp, nwp);  /* Call t_??? function */
-    }else{
-      memset(mtp->dstats, 0, mtp->nstats*sizeof(double)); /* If none exists, zero changes. */
-    }
     dstats += (mtp++)->nstats;
   }
 }

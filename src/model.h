@@ -33,7 +33,6 @@ int GetIndexForAttrValue(int value);
 /* *** don't forget tail-> head, so this function accepts toggletail first, not togglehead  */
 
 void ChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, Network *nwp, Model *m);
-void ChangeStatsT(Network *nwp, Model *m);
 
 #endif
 
