@@ -1,14 +1,5 @@
 Known bugs and issues
 
-# Degree-constrained proposals #
-
-Degree-constrained sampling presently has three implementations: 
-CondDegreeTetrad, CondDegree (using CondDegreeTetradToggles and 
-CondDegreeHexadToggles), and CondDegreeSimple (using 
-CondDegreeSimpleTetrad and CondDegreeSingleHexad). It is not clear which 
-of them are correct / faster / more efficient. We should, ideally, 
-reduce them to one.
-
 # Curved term cutoff #
 
 For now, the cutoff= in gw* functions is a hard bound, not adaptive in 
@@ -29,7 +20,7 @@ inputs, but a more consistent solution is desirable.
 R >= 2.12:  nlme package should be removable from depends line
 R >= 2.12:  man page titles can handle markup (example:  logLik.ergm.Rd)
 
-# Missing data MPLE for bipartite networks#
+# Missing data MPLE for bipartite networks #
 
 Missing data MPLE code produces incorrect estimates for some bipartite
 networks.
