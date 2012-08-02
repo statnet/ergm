@@ -236,7 +236,6 @@
 \alias{is.ergm}
 \alias{is.invertible}
 \alias{largest.components}
-\alias{license.statnet}
 \alias{llik.fun}
 \alias{llik.fun.EF}
 \alias{llik.fun.median}
