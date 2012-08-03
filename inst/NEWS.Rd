@@ -4,6 +4,73 @@
 
 % When a release is forked, copy the sections to a new release and
 % delete unused sections.
+\section{Changes in version 3.1}{
+ 
+  \subsection{NEW FEATURES}{
+    \itemize{ \item Infrastructure
+      has been added for fitting valued ERGMs of Krivitsky (2012). The
+      "user interface" is subject to change, however. (The
+      implementation of statistics for counts can be found in \R package
+      \code{\link{ergm.count}})
+    } 
+  }
+  
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item The implementation of dynamic network models has been moved to a
+      new package, \code{\link[=tergm-package]{tergm}}.
+
+      \item Sample space constraints \code{\link{degrees}},
+      \code{\link{idegrees}}, \code{\link{odegrees}},
+      \code{\link{b1degrees}}, \code{\link{b2degrees}} onstraints have
+      been reimplemented or fixed.
+
+      \item Certain functions are now only exported if they haven't
+      already be defined (e.g., by
+      \code{\link[=latentnet-package]{latentnet}}).
+      
+    }
+  }
+
+  % \subsection{C-LEVEL FACILITIES}{
+  %   \itemize{
+  %     \item It is not clear that we need a subsection called "C-LEVEL FACILITIES".
+  %   }
+  % }
+
+  % \subsection{UTILITIES}{
+  %   \itemize{
+  %     \item Likewise, "UTILITIES" is probably unnecessary.
+  %   }
+  % }
+
+  % \subsection{INSTALLATION}{
+  %   \itemize{
+  %     \item ... as is "INSTALLATION".
+  %   }
+  % }
+
+  % \subsection{PACKAGE INSTALLATION}{
+  %   \itemize{
+  %     \item ditto.
+  %   }
+  % }
+
+  \subsection{DEPRECATED & DEFUNCT}{
+    \itemize{
+      \item Dynamic network modeling code has been moved to
+    \code{\link[=tergm-package]{tergm}} package.
+    }
+  }
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item Some bugs introduced by the developers relying on a certain
+      behavior of the \code{\link{.C}} API which had changed have been fixed. 
+    }
+  }
+}
+
 \section{Changes in version 3.0}{
  
   \subsection{NEW FEATURES}{
@@ -93,33 +160,14 @@
 	\item Plots now use \code{\link{lattice}} graphics, if available.
       }
 
-      \item Handling of networks with many edges has been improved somewhat.
+      \item Handling of networks with many edges has been improved
+      somewhat.
+
+      \item \code{\link{gof.ergm}} and \code{\link{gof.formula}} now set
+      the statistics used to diagnose the fit adaptively, depending on
+      the directedness of the network being modeled.
     }
   }
-
-  % \subsection{C-LEVEL FACILITIES}{
-  %   \itemize{
-  %     \item It is not clear that we need a subsection called "C-LEVEL FACILITIES".
-  %   }
-  % }
-
-  % \subsection{UTILITIES}{
-  %   \itemize{
-  %     \item Likewise, "UTILITIES" is probably unnecessary.
-  %   }
-  % }
-
-  % \subsection{INSTALLATION}{
-  %   \itemize{
-  %     \item ... as is "INSTALLATION".
-  %   }
-  % }
-
-  % \subsection{PACKAGE INSTALLATION}{
-  %   \itemize{
-  %     \item ditto.
-  %   }
-  % }
 
   \subsection{DEPRECATED & DEFUNCT}{
     \itemize{
@@ -163,6 +211,9 @@
 
       \item Several bugs relating to handling models with with offset
       terms have been fixed.
+
+      \item The bounded degree (\code{bd}) ERGM would sometimes tabulate
+      degrees incorrectly. This has been fixed.
 
       \item Miscellaneous robustification and bug fixes.
     }
@@ -210,13 +261,23 @@
       \code{theta0} argument). See the function documentation for usage
       scenarios.
 
-      \item The following new models terms have been added:  \code{\link{degcrossprod}} and \code{\link{degcor}}.
+      \item The following new models terms have been added:
+      \code{\link{degcrossprod}} and \code{\link{degcor}}.
+
+      \item Tests for change statistics have been added. 
   
-      \item For version 2.4-3, a new dataset has been added:  \code{\link{kapferer}}, the well-known
+      \item A new dataset has been added:  \code{\link{kapferer}}, the well-known
       tailor shop network dataset of Kapferer (1972).
     }
   }
 
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item The package has been \dQuote{standardized} to represent
+      directed ties as \code{(tail,head)}.   
+    }
+  }
+  
   \subsection{BUG FIXES}{
     \itemize{
       \item Log-likelihood calculation for dyad-dependent models has
@@ -232,4 +293,13 @@
       \item Bug in is.inCH in 2.4-2 fixed in 2.4-3.
     }
   }
+
+    \subsection{DEPRECATED & DEFUNCT}{
+    \itemize{
+      \item \code{as.directed} function has been removed.
+
+      \item All model terms included in the package have been
+      reimplemented using the new \code{InitErgmTerm} framework.
+    }
+  } 
 }
