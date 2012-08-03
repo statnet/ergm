@@ -1,26 +1,13 @@
 .onAttach <- function(lib, pkg){
-  info <- packageDescription("ergm")
-
+  packageStartupMessage(mkStartupMessage("ergm"))
+  
   # If the following have already been defined in the latentnet package, don't duplicate. Otherwise, assign them.
-  IFNOTEXISTS <- c("robust.inverse","mcmc.diagnostics","mcmc.diagnostics.default","gof","gof.default","paste.and")
+  IFNOTEXISTS <- c("robust.inverse","mcmc.diagnostics","mcmc.diagnostics.default","gof","gof.default")
   for(fun in IFNOTEXISTS){
     if(!exists(fun, mode="function")){
       assign(fun, get(paste('.',fun,sep='')), pos="package:ergm")
     }
   }
-  
-  packageStartupMessage(
-    paste('\nergm: version ', info$Version, ', created on ', info$Date, '\n',
-          "Copyright (c) 2003, Mark S. Handcock, University of California-Los Angeles\n",
-          "                    David R. Hunter, Penn State University\n",
-          "                    Carter T. Butts, University of California-Irvine\n",
-          "                    Steven M. Goodreau, University of Washington\n",
-          "                    Pavel N. Krivitsky, Penn State University\n",
-          "                    Martina Morris, University of Washington\n",
-          'Based on "statnet" project software (statnet.org).\n',
-          'For license and citation information see statnet.org/attribution\n',
-          'or type citation("ergm").\n', sep="")
-                        )
   
   .RegisterMHPs()
   .RegisterConstraintImplications()
