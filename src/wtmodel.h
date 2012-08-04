@@ -1,5 +1,5 @@
-#ifndef MODEL_H
-#define MODEL_H
+#ifndef WTMODEL_H
+#define WTMODEL_H
 
 #include "wtedgetree.h"
 #include "wtchangestat.h"
