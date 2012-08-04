@@ -59,12 +59,12 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
                          MCMC.interval=1,
                          MCMC.prop.args=control$MCMC.prop.args,
                          MCMC.prop.weights=control$MCMC.prop.weights,
-                         MCMC.packagenames=control$MCMC.packagenames))
+                         MCMC.packagenames=control$MCMC.packagenames), ...)
     ergm.update.formula(form,nw.state~.)
     stats[i,]<-apply(simulate(form, coef=theta, response=response, constraints=constraints, statsonly=TRUE, verbose=max(verbose-1,0),
                               control=control.simulate.formula(MCMC.burnin=0,
                                 MCMC.interval=control$MCMC.interval),
-                              nsim=ceiling(control$MCMC.samplesize/control$nsteps)),2,mean)
+                              nsim=ceiling(control$MCMC.samplesize/control$nsteps), ...),2,mean)
     
     if(network.naedgecount(nw)){
       nw.state.obs<-simulate(form.obs, coef=theta, nsim=1, response=response, constraints=constraints.obs, statsonly=FALSE, verbose=max(verbose-1,0),
@@ -72,12 +72,12 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
                                MCMC.interval=1,
                                MCMC.prop.args=control$MCMC.prop.args,
                                MCMC.prop.weights=control$MCMC.prop.weights,
-                               MCMC.packagenames=control$MCMC.packagenames))
+                               MCMC.packagenames=control$MCMC.packagenames), ...)
       ergm.update.formula(form.obs,nw.state.obs~.)
       stats.obs[i,]<-apply(simulate(form.obs, coef=theta, response=response, constraints=constraints.obs, statsonly=TRUE, verbose=max(verbose-1,0),
                                 control=control.simulate.formula(MCMC.burnin=0,
                                   MCMC.interval=control$obs.MCMC.interval),
-                                nsim=ceiling(control$obs.MCMC.samplesize/control$nsteps)),2,mean)
+                                nsim=ceiling(control$obs.MCMC.samplesize/control$nsteps), ...),2,mean)
     }
   }
     
@@ -95,7 +95,7 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
 ## having log-likelihood of 0.
 ergm.bridge.0.llk<-function(object, response=response, coef, ..., llkonly=TRUE, control=control.ergm.bridge()){
   check.control.class("ergm.bridge")
-  br<-ergm.bridge.llr(object, from=rep(0,length(coef)), to=coef, response=response, control=control)
+  br<-ergm.bridge.llr(object, from=rep(0,length(coef)), to=coef, response=response, control=control, ...)
   if(llkonly) br$llr
   else c(br,llk=br$llr)
 }
