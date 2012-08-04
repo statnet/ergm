@@ -269,6 +269,7 @@ ergm <- function(formula, response=NULL,
     initialfit$estimable <- constrcheck$estimable
     initialfit$network <- nw
     initialfit$reference <- reference
+    initialfit$response <- response
     initialfit$newnetwork <- nw
     initialfit$formula <- formula
     initialfit$constrained <- MHproposal$arguments$constraints
