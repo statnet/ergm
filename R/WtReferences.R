@@ -2,11 +2,13 @@
 # meausres. Eventually, we should create an "InitReference" or similar
 # framework.
 
-
-# A lookup table for methods for initial fits; the default is the first one.
-init.methods<-list(
-                   Bernoulli=c("MPLE","zeros"),
-                   Poisson=c("zeros"),
-                   DescRank=c("zeros"),
-                   StdNormal=c("zeros")
-                   )
+ergm.init.methods <- local({
+  init.methods <- list()
+  function(reference, new.methods){
+    if(!missing(new.methods)){
+      init.methods[[reference]] <<- unique(c(new.methods, init.methods[[reference]]))
+    }else{
+      init.methods[[reference]]
+    }
+  }
+})

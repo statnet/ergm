@@ -47,7 +47,7 @@ ergm.initialfit<-function(init, initial.is.final,
                           MPLEtype="glm",
                           conddeg=NULL, control=NULL, MHproposal=NULL,
                           verbose=FALSE, ...) {
-  method <- match.arg(method, init.methods[[reference]])
+  method <- match.arg(method, ergm.init.methods(reference))
  
   # conddeg, whatever it does.
   if(method=="MPLE" && !is.null(conddeg)){
@@ -79,7 +79,7 @@ ergm.initialfit<-function(init, initial.is.final,
                     control=control, MHproposal=MHproposal,
                     verbose=verbose, ...),
                   zeros = structure(list(coef=ifelse(is.na(init),0,init)),class="ergm"),
-                  stop(paste("Invalid method specified for initial parameter calculation. Available methods are ",.paste.and(formals()$method),".",sep=""))
+                  stop(paste("Invalid method specified for initial parameter calculation. Available methods are ",paste.and(formals()$method),".",sep=""))
                   )
   }else{
     # If this is just the initial value, *and* the user has supplied

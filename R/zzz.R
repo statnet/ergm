@@ -11,6 +11,7 @@
   
   .RegisterMHPs()
   .RegisterConstraintImplications()
+  .RegisterInitMethods()
 }
 
 .RegisterMHPs <- function(){
@@ -65,4 +66,11 @@
   ergm.ConstraintImplications("bd", c())
   ergm.ConstraintImplications("hamming", c())
   ergm.ConstraintImplications("observed", c())
+}
+
+.RegisterInitMethods <- function(){
+  ergm.init.methods("Bernoulli", c("MPLE", "zeros"))
+  ergm.init.methods("Poisson", c("zeros"))
+  ergm.init.methods("DescRank", c("zeros"))
+  ergm.init.methods("StdNormal", c("zeros"))
 }
