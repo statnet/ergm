@@ -56,8 +56,10 @@
     sample is to be drawn.  If \code{object} is of class \code{ergm}, the 
     default value is the vector of estimated coefficients.
   }
-  \item{response, reference}{Not for release.
-  }
+  \item{response}{\emph{EXPERIMENTAL.} Name of the edge attribute whose value is to be
+    modeled. Defaults to \code{NULL} for simple presence or absence. }
+  \item{reference}{\emph{EXPERIMENTAL.} Name of the reference measure to
+    be used. (Defaults to \code{Bernoulli}.)}
   \item{constraints}{A one-sided formula specifying one or more constraints
     on the support of the distribution of the networks being
     simulated. See the documentation for a similar argument for

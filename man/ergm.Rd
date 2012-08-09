@@ -38,7 +38,11 @@ ergm (formula,
     operator if necessary. Enclosing a model term in \code{offset()}
     fixes its value to one specified in \code{offset.coef}.
   }
-  \item{response, reference, obs}{Not for release.
+  \item{response}{\emph{EXPERIMENTAL.} Name of the edge attribute whose value is to be
+    modeled. Defaults to \code{NULL} for simple presence or absence. }
+  \item{reference}{\emph{EXPERIMENTAL.} Name of the reference measure to
+    be used. (Defaults to \code{Bernoulli}.)}
+  \item{obs}{Not for release.
   }
   \item{constraints}{A one-sided formula specifying one or more constraints
     on the support of the distribution of the networks being modeled,
@@ -547,12 +551,6 @@ Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b).
   Exponential-Family Models for Networks.
  \emph{Journal of Statistical Software}, 24(3).
  \url{http://www.jstatsoft.org/v24/i03/}.
-
-Krivitsky PN, Handcock MS (2007).
- \pkg{latentnet}: Latent position and cluster models for
-  statistical networks.
- Seattle, WA.
- Version 2, \url{statnet.org}.
 
 Morris M, Handcock MS, Hunter DR (2008).
  Specification of Exponential-Family Random Graph Models:
