@@ -43,9 +43,6 @@
   ergm.MHP.table("c", "Bernoulli", "bd+blockdiag", 1, "TNT", "blockdiagTNT")
   ergm.MHP.table("c", "Bernoulli", "blockdiag+observed",  0, "random", "blockdiagNonObserved")
   ergm.MHP.table("c", "Bernoulli", "bd+blockdiag+observed",  0, "random", "blockdiagNonObserved")
-  ergm.MHP.table("c", "Poisson", "",  0, "random", "Poisson")
-  ergm.MHP.table("c", "Poisson", "",  0, "0inflated", "ZIPoisson")
-  ergm.MHP.table("c", "Poisson", "observed",  0, "random", "PoissonNonObserved")
   ergm.MHP.table("c", "DescRank", "",  0, "random", "DescRank")
   ergm.MHP.table("c", "DescRank", "ranks",  0, "random", "DescRankEquivalent")
   ergm.MHP.table("c", "StdNormal", "",  0, "random", "StdNormal")
@@ -71,7 +68,6 @@
 
 .RegisterInitMethods <- function(){
   ergm.init.methods("Bernoulli", c("MPLE", "zeros"))
-  ergm.init.methods("Poisson", c("zeros"))
   ergm.init.methods("DescRank", c("zeros"))
   ergm.init.methods("StdNormal", c("zeros"))
 }

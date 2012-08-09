@@ -552,6 +552,10 @@ Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b).
  \emph{Journal of Statistical Software}, 24(3).
  \url{http://www.jstatsoft.org/v24/i03/}.
 
+Krivitsky PN (2012). Exponential-Family Random Graph Models for Valued
+Networks. \emph{Electronic Journal of Statistics}, 2012, 6,
+1100-1128. \href{http://dx.doi.org/10.1214/12-EJS696}{\code{doi:10.1214/12-EJS696}}
+ 
 Morris M, Handcock MS, Hunter DR (2008).
  Specification of Exponential-Family Random Graph Models:
   Terms and Computational Aspects.

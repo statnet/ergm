@@ -15,15 +15,10 @@ use \code{demo(packages="ergm")}.
 When publishing results obtained using this package the original authors
 are to be cited as:
 
-Mark S. Handcock, David R. Hunter, Carter T. Butts, Steven M. Goodreau,
-and Martina Morris. 2003 
-\emph{statnet: Software tools for the Statistical Modeling of Network Data}
-\cr
-\url{statnet.org}.
+When publishing results obtained using this package, please cite the
+original authors as described in \code{citation(package="ergm")}.
 
 All programs derived from this package must cite it.
-For complete citation information, use\cr
-\code{citation(package="ergm")}.
 }
 \details{
 Recent advances in the statistical modeling of random networks have had an
@@ -155,6 +150,11 @@ Krivitsky PN, Handcock MS (2007).
  Seattle, WA.
  Version 2, \url{http://statnet.org}.
 
+Krivitsky PN (2012). Exponential-Family Random Graph Models for Valued
+Networks. \emph{Electronic Journal of Statistics}, 2012, 6,
+1100-1128. \href{http://dx.doi.org/10.1214/12-EJS696}{\code{doi:10.1214/12-EJS696}}
+
+ 
 Morris M, Handcock MS, Hunter DR (2008).
  Specification of Exponential-Family Random Graph Models:
   Terms and Computational Aspects.

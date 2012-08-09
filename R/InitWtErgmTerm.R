@@ -60,19 +60,6 @@ InitWtErgmTerm.atleast<-function(nw, arglist, response, ...) {
        minval=0, maxval=network.dyadcount(nw,TRUE))
 }
 
-InitWtErgmTerm.CMP<-function(nw, arglist, response, ...) {
-  a <- check.ErgmTerm(nw, arglist,
-                      varnames = NULL,
-                      vartypes = NULL,
-                      defaultvalues = list(),
-                      required = NULL)
-  list(name="nsumlogfactorial",
-       coef.names="CMP",
-       inputs=NULL,
-       dependence=FALSE,
-       maxval=0)
-}
-
 InitWtErgmTerm.edgecov <- function(nw, arglist, response, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, 
