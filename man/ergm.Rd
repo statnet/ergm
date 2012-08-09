@@ -66,6 +66,10 @@ ergm (formula,
         \dQuote{Placing Bounds
         on Degrees} section for more information.
       }
+      \item{\code{blockdiag(attrname)}}{
+	Force a block-diagonal structure on the network. Only dyads
+	\eqn{(i,j)} for which \code{attrname(i)==attrname(j)} can have edges.
+      }
       \item{\code{degrees} and \code{nodedegrees}}{
         Preserve the degree of each vertex of the given network: only networks
         whose vertex degrees are the same as those in the network passed

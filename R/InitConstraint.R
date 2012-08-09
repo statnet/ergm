@@ -138,3 +138,10 @@ InitConstraint.ranks<-function(conlist, lhs.nw, ...){
    conlist$ranks<-list()
    conlist
 }
+
+InitConstraint.blockdiag<-function(conlist, lhs.nw, attrname=NULL, ...){
+  if(length(list(...)))
+    stop(paste("Block diagonal constraint takes one argument at this time."), call.=FALSE)
+  conlist$blockdiag <- list(attrname=attrname)
+  conlist
+}

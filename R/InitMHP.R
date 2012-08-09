@@ -193,23 +193,3 @@ InitMHP.randomtoggleNonObserved <- function(arguments, nw) {
 }
 #ergm.MHP.table("c", "Bernoulli", "bd+observed",  0, "random", "randomtoggleNonObserved")
 #ergm.MHP.table("c", "Bernoulli", "observed",  0, "random", "randomtoggleNonObserved")
-
-# This one does not have a C function.
-InitMHP.nobetweengroupties <- function(arguments, nw) {
-  x <- get.node.attr(nw, arguments, "InitMHP.nobetweengroupties")
-  if(any(is.na(x)) || any(table(x)==1)) {
-    stop("nobetweengroups may not be used with a nodal covariate containing ",
-         "NAs or nonrepeated values")
-  }
-  a <- sort(x)
-  b <- table(a)
-  d <- unique(a)
-  e <- unlist(sapply(d, grep, x))
-  f <- b*(b-1)
-  inputs <- c(length(b), b, e)
-  MHproposal <- list(name="nobetweengroupties", inputs = inputs, package="ergm")
-  MHproposal
-}
-
-
-
