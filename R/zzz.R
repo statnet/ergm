@@ -15,12 +15,6 @@
 }
 
 .RegisterMHPs <- function(){
-  ergm.MHP.table("f", "Bernoulli", "",  0, "random", "formation")
-  ergm.MHP.table("f", "Bernoulli", "bd",  0, "random", "formation")
-  ergm.MHP.table("f", "Bernoulli", "",  1, "TNT", "formationTNT")
-  ergm.MHP.table("f", "Bernoulli", "bd",  1, "TNT", "formationTNT")
-  ergm.MHP.table("d", "Bernoulli", "",  0, "random", "dissolution")
-  ergm.MHP.table("d", "Bernoulli", "bd",  0, "random", "dissolution")
   ergm.MHP.table("c", "Bernoulli", "",  0, "random", "randomtoggle")
   ergm.MHP.table("c", "Bernoulli", "bd",  0, "random", "randomtoggle")
   ergm.MHP.table("c", "Bernoulli", "",  1, "TNT", "TNT")
