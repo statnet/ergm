@@ -1,5 +1,12 @@
-as.edgelist <- function(nw, attrname = NULL, as.sna.edgelist = FALSE,...){
-  el <- as.matrix.network.edgelist(nw, attrname=attrname, as.sna.edgelist=as.sna.edgelist,...)
-  if(!is.directed(nw)) el[,1:2] <- cbind(pmin(el[,1],el[,2]),pmax(el[,1],el[,2]))
+as.edgelist <- function(x, ...) UseMethod("as.edgelist")
+
+as.edgelist.network <- function(x, attrname = NULL, as.sna.edgelist = FALSE,...){
+  el <- as.matrix.network.edgelist(x, attrname=attrname, as.sna.edgelist=as.sna.edgelist,...)
+  if(!is.directed(x)) el[,1:2] <- cbind(pmin(el[,1],el[,2]),pmax(el[,1],el[,2]))
+  el[order(el[,1],el[,2]),,drop=FALSE]
+}
+
+as.edgelist.matrix <- function(x, directed=TRUE, ...){
+  if(!directed) el[,1:2] <- cbind(pmin(x[,1],x[,2]),pmax(x[,1],x[,2]))
   el[order(el[,1],el[,2]),,drop=FALSE]
 }
