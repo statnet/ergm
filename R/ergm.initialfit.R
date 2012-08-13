@@ -45,7 +45,7 @@ ergm.initialfit<-function(init, initial.is.final,
                           formula, nw, target.stats,
                           m, reference="Bernoulli", method = NULL,
                           MPLEtype="glm",
-                          conddeg=NULL, control=NULL, MHproposal=NULL,
+                          conddeg=NULL, control=NULL, MHproposal=NULL, MHproposal.obs=NULL,
                           verbose=FALSE, ...) {
   method <- match.arg(method, ergm.init.methods(reference))
  
@@ -58,9 +58,20 @@ ergm.initialfit<-function(init, initial.is.final,
    m$target.stats=c(1,target.stats)
    conddeg <- list(m=m.conddeg, Clist=Clist, Clist.miss=Clist.miss)
   }
+
+  free.dyads <- get.free.dyads(MHproposal)
+  free.dyads.obs <- get.free.dyads(MHproposal.obs)
+
+  nw.miss <- if(is.null(free.dyads)){
+    if(is.null(free.dyads.obs)) is.na(nw)
+    else free.dyads.obs
+  }else{
+    if(is.null(free.dyads.obs)) !free.dyads
+    else (!free.dyads) | free.dyads.obs
+  }
   
   Clist <- ergm.Cprepare(nw, m)
-  Clist.miss <- ergm.design(nw, m, verbose=FALSE)
+  Clist.miss <- ergm.Cprepare(nw.miss, m)
   m$target.stats<-target.stats
   control$Clist.miss<-Clist.miss
 

@@ -128,6 +128,10 @@ InitConstraint.observed <- function(conlist, lhs.nw, ...){
   if(length(list(...)))
     stop(paste("Toggle non-observed constraint does not take arguments at this time."), call.=FALSE)
   conlist$observed<-list()
+
+  conlist$observed$free.dyads <- function(){
+    is.na(lhs.nw)
+  }
   conlist
 }
 #ergm.ConstraintImplications("observed", c())
@@ -143,5 +147,16 @@ InitConstraint.blockdiag<-function(conlist, lhs.nw, attrname=NULL, ...){
   if(length(list(...)))
     stop(paste("Block diagonal constraint takes one argument at this time."), call.=FALSE)
   conlist$blockdiag <- list(attrname=attrname)
+  
+  # This definition should "remember" attrname and lhs.nw.
+  conlist$blockdiag$free.dyads <- function(){
+    a <- lhs.nw %v% attrname
+    el <- do.call(rbind,tapply(seq_along(a),INDEX=list(a),simplify=FALSE,FUN=function(i) do.call(rbind,lapply(i,function(j) cbind(j,i)))))
+    el <- el[el[,1]!=el[,2],]
+    el <- as.edgelist(el, directed=is.directed(lhs.nw))
+
+    network.update(lhs.nw, el, matrix.type="edgelist")
+  }
+  
   conlist
 }

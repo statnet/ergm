@@ -232,7 +232,8 @@ ergm <- function(formula, response=NULL,
   MPLE.is.MLE <- (reference=="Bernoulli"
                   && ergm.independencemodel(model.initial)
                   && !control$force.main
-                  && constraints==(~.))
+                  && is.dyad.ind.MHproposal(MHproposal)
+                  && (is.null(MHproposal.obs) || is.dyad.ind.MHproposal(MHproposal.obs)))
 
   # If all other criteria for MPLE=MLE are met, _and_ SAN network matches target.stats directly, we can get away with MPLE.
   MCMCflag <- (estimate=="MLE" && (!MPLE.is.MLE
@@ -251,7 +252,9 @@ ergm <- function(formula, response=NULL,
                                 formula=formula, nw=nw, reference=reference, target.stats=target.stats,
                                 m=model.initial, method=control$init.method,
                                 MPLEtype=control$MPLE.type, 
-                                conddeg=conddeg, control=control, MHproposal=MHproposal,
+                                conddeg=conddeg, control=control,
+                                MHproposal=MHproposal,
+                                MHproposal.obs=MHproposal.obs,
                                 verbose=verbose, 
                                 maxNumDyadTypes=control$MPLE.max.dyad.types,
                                 ...)

@@ -436,3 +436,22 @@ statnet.edit <- function(name,package=c("statnet","ergm","network")){
   }
   invisible(filepath)
 }
+
+get.free.dyads <- function(MHp){
+  y <- NULL
+  for(con in MHp$arguments$constraints){
+    if(!is.null(con$free.dyads)){
+      y <- if(is.null(y)) con$free.dyads() else y & con$free.dyads()
+    }
+  }
+  y
+}
+
+is.dyad.ind.MHproposal <- function(MHp){
+  dind <- TRUE
+  for(con in names(MHp$arguments$constraints)){
+    if(con=="bd" && isTRUE(all.equal(unlist(MHp$arguments$constraints[[con]]),FALSE,check.attributes=FALSE))) next
+    if(is.null(MHp$arguments$constraints[[con]]$free.dyads)) dind <- FALSE
+  }
+  dind
+}
