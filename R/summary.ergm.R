@@ -147,7 +147,7 @@ summary.ergm <- function (object, ...,
                            )
   
   nodes<- network.size(object$network)
-  dyads<- network.dyadcount(object$network)
+  dyads<- network.dyadcount(object$network)-network.edgecount(NVL(get.miss.dyads(object$constrained, object$constrained.obs),is.na(object$network)))
   df <- length(object$coef)
 
   rdf <- dyads - df
@@ -191,14 +191,9 @@ summary.ergm <- function (object, ...,
 
   if(!inherits(llk,"try-error")){
   
-    ans$devtable <- c("",apply(cbind(paste(format(c("   Null", 
-                                                    "Residual", ""), width = 8), devtext), 
-                                     format(c(object$null.deviance,
-                                              -2*llk, 
-                                              object$null.deviance+2*llk),
-                                            digits = 5), " on",
-                                     format(c(dyads, rdf, df),
-                                            digits = 5)," degrees of freedom\n"), 
+    ans$devtable <- c("",apply(cbind(paste(format(c("    Null", "Residual"), width = 8), devtext), 
+                                     format(c(0, -2*llk), digits = 5), " on",
+                                     format(c(dyads, rdf), digits = 5)," degrees of freedom\n"), 
                                1, paste, collapse = " "),"\n")
     
     

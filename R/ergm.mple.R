@@ -64,8 +64,6 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
                   pl$zy ~ pl$xmat -1 + offset(pl$foffset),
                   data=data.frame(pl$xmat), weights=pl$wend,
                   start=init[!m$etamap$offsettheta])
-#  mple$deviance <- 2 * (mplefit$loglik-mplefit$loglik[1])[-1]
-   mplefit$deviance <- -2*mplefit$loglik
    mplefit$cov.unscaled <- mplefit$var
    mplefit.summary <- mplefit
   }else{
@@ -119,21 +117,18 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
      if (inherits(mindfit, "try-error")) {
       theta1 <- list(coef=NULL, 
                     theta=rep(0,ncol(pl$xmat)),
-                    independent=independent,
-                    loglikelihood=-pl$numobs*log(2))
+                    independent=independent)
      }else{
       mindfit.summary <- summary(mindfit)
       theta.ind[independent] <- mindfit$coef
       theta1 <- list(coef=mindfit$coef, 
                     theta=theta.ind,
-                    independent=independent,
-                    loglikelihood=-mindfit$deviance/2)
+                    independent=independent)
      }
     }else{
      theta1 <- list(coef=NULL, 
                     theta=rep(0,ncol(pl$xmat)),
-                    independent=independent,
-                    loglikelihood=-pl$numobs*log(2))
+                    independent=independent)
     }
    }
 #
@@ -162,11 +157,7 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
 # Old end
 #
   gradient <- rep(NA, length(theta))
-#
-# Calculate the (global) log-likelihood
-#
-  loglik <- -mplefit$deviance/2
-#
+
   mc.se <- gradient <- rep(NA, length(theta))
   if(length(theta)==1){
    covar <- array(0,dim=c(1,1))
@@ -179,7 +170,6 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
         !is.na(theta)&!m$etamap$offsettheta] <- real.cov
 #
   iteration <-  mplefit$iter 
-  samplesize <- NA
 
 # mplefit <- call(MPLEtype, pl$zy ~ 1, family=binomial)
 #
@@ -195,7 +185,7 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
       mplefit.null <- try(glm(pl$zy ~ 1, family=family, weights=pl$wend),
                           silent = TRUE)
       if (inherits(mplefit.null, "try-error")) {
-        mplefit.null <- list(coef=0, deviance=0,
+        mplefit.null <- list(coef=0, deviance=0, null.deviance=0,
                              cov.unscaled=diag(1))
       }
     }
@@ -215,10 +205,10 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
   }
 
   # Output results as ergm-class object
-  structure(list(coef=theta, sample=NA,
-      iterations=iteration, mle.lik=loglik,
-      MCMCtheta=theta, loglikelihoodratio=loglik, gradient=gradient,
-      hessian=NULL, covar=covar, samplesize=samplesize, failure=FALSE,
+  structure(list(coef=theta,
+      iterations=iteration, 
+      MCMCtheta=theta, gradient=gradient,
+      hessian=NULL, covar=covar, failure=FALSE,
       mc.se=mc.se, glm = glm, glm.null = glm.null,
       null.deviance=null.deviance, aic=aic,
       theta1=theta1),

@@ -37,10 +37,10 @@ anova.ergmlist <- function (object, ..., eval.loglik=FALSE, scale = 0, test = "F
   logl <- df <- Rdf <- rep(0, nmodels)
   for (i in 1:nmodels) {
     nodes<- network.size(objects[[i]]$newnetwork)
-    n <- network.dyadcount(objects[[i]]$newnetwork)
+    n <- nobs(logLik(objects[[i]]))
     df[i] <- length(objects[[i]]$coef) 
     Rdf[i] <- n - df[i]
-    logl[i] <- logLik(objects[[i]],eval.loglik=eval.loglik)
+    logl[i] <- logLik(objects[[i]])
   }
   k <- nmodels
 # k <- 1 + length(objects[[i]]$glm$coef)
@@ -78,7 +78,7 @@ anova.ergmlist <- function (object, ..., eval.loglik=FALSE, scale = 0, test = "F
 #   Rdf <- c(object$glm$df.null, Rdf)
 #   logl <- c(-object$glm$null.deviance/2, logl)
     Rdf <- c(n, Rdf)
-    logl <- c(-n*log(2), logl)
+    logl <- c(0, logl)
 #  }
   pv <- pchisq(abs(2 * diff(logl)), abs(diff(df)), lower.tail = FALSE)
 

@@ -23,14 +23,14 @@ anova.ergm <- function (object, ..., eval.loglik=FALSE)
     stop(nologLik.message(deparse(substitute(object))))
 
   nodes<- network.size(object$newnetwork)
-  n<- network.dyadcount(object$network)
+  n<- nobs(logl)
   df <- length(object$coef)
   Rdf <- n - df
 
   k <- 1 + (length(object$mplefit$glm$coef) >= 2)
   df <- c(0, df)
   Rdf <- c(n, Rdf)
-  logl <- c(-n*log(2), logl)
+  logl <- c(0, logl)
   pv <- pchisq(abs(2 * diff(logl)), abs(diff(df)), lower.tail = FALSE)
   table <- data.frame(c(NA, -diff(Rdf)), c(NA, diff(2 * logl)), 
                       Rdf, -2 * logl, c(NA, pv))

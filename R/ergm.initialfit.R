@@ -59,19 +59,8 @@ ergm.initialfit<-function(init, initial.is.final,
    conddeg <- list(m=m.conddeg, Clist=Clist, Clist.miss=Clist.miss)
   }
 
-  free.dyads <- get.free.dyads(MHproposal)
-  free.dyads.obs <- get.free.dyads(MHproposal.obs)
-
-  nw.miss <- if(is.null(free.dyads)){
-    if(is.null(free.dyads.obs)) is.na(nw)
-    else free.dyads.obs
-  }else{
-    if(is.null(free.dyads.obs)) !free.dyads
-    else (!free.dyads) | free.dyads.obs
-  }
-  
   Clist <- ergm.Cprepare(nw, m)
-  Clist.miss <- ergm.Cprepare(nw.miss, m)
+  Clist.miss <- ergm.Cprepare(NVL(get.miss.dyads(MHproposal$arguments$constraints, MHproposal.obs$arguments$constraints), is.na(nw)), m)
   m$target.stats<-target.stats
   control$Clist.miss<-Clist.miss
 

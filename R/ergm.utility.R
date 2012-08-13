@@ -437,9 +437,9 @@ statnet.edit <- function(name,package=c("statnet","ergm","network")){
   invisible(filepath)
 }
 
-get.free.dyads <- function(MHp){
+get.free.dyads <- function(constraints){
   y <- NULL
-  for(con in MHp$arguments$constraints){
+  for(con in constraints){
     if(!is.null(con$free.dyads)){
       y <- if(is.null(y)) con$free.dyads() else y & con$free.dyads()
     }
@@ -447,11 +447,24 @@ get.free.dyads <- function(MHp){
   y
 }
 
-is.dyad.ind.MHproposal <- function(MHp){
+is.dyad.ind.constraints <- function(constraints, constraints.obs=NULL){
   dind <- TRUE
-  for(con in names(MHp$arguments$constraints)){
-    if(con=="bd" && isTRUE(all.equal(unlist(MHp$arguments$constraints[[con]]),FALSE,check.attributes=FALSE))) next
-    if(is.null(MHp$arguments$constraints[[con]]$free.dyads)) dind <- FALSE
+  for(con in names(constraints)){
+    if(con=="bd" && isTRUE(all.equal(unlist(constraints[[con]]),FALSE,check.attributes=FALSE))) next
+    if(is.null(constraints[[con]]$free.dyads)) dind <- FALSE
   }
-  dind
+  dind && if(!is.null(constraints.obs)) is.dyad.ind.constraints(constraints.obs) else TRUE
+}
+
+get.miss.dyads <- function(constraints, constraints.obs){
+  free.dyads <- get.free.dyads(constraints)
+  free.dyads.obs <- get.free.dyads(constraints.obs)
+  
+  if(is.null(free.dyads)){
+    if(is.null(free.dyads.obs)) NULL
+    else free.dyads.obs
+  }else{
+    if(is.null(free.dyads.obs)) !free.dyads
+    else (!free.dyads) | free.dyads.obs
+  }
 }

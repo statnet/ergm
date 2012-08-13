@@ -23,7 +23,7 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
               if(!is.null(object$response)) ergm.bridge.0.llk(formula,response=response,reference=reference,constraints=constraints,coef=coef(object),control=loglik.control,llkonly=FALSE,...)
               else{
                 ## If dyad-independent, just go from the deviance.
-                if(is.dyad.independent(object) && is.null(object$sample)) -object$glm$deviance/2
+                if(is.dyad.independent(object) && is.null(object$sample) && is.dyad.ind.constraints(object$constrained, object$constrained.obs)) -object$glm$deviance/2 - -object$glm$null.deviance/2
                 else
                   ## If dyad-dependent, bridge from a dyad-independent model.
                   ergm.bridge.dindstart.llk(formula,reference=reference,constraints=constraints,coef=coef(object),control=loglik.control,llkonly=FALSE,...)
@@ -42,25 +42,14 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
   attr(llk,"nobs")<-{
     # FIXME: We need a more general framework for handling constrained
     # and partially observed network "degrees of freedom".
-    #
-    # Note that bd is always going to be in there.
-    constr <- names(object$constrained)
-    if(length(constr)==1){
-      network.dyadcount(object$network)-network.naedgecount(object$network)
-    }else if(length(constr)>=2){
-      if(loglik.control$warn.dyads){warning("The number of observed dyads in this network is ill-defined due to complex constraints on the sample space.")}
-      network.dyadcount(object$network)-network.naedgecount(object$network)
-    }else{
-      switch(constr,
-             # The following assumes that the atleast and/or the atmost network cannot have missing dyads.
-             atleast = network.dyadcount(object$network)-network.naedgecount(object$network | object$constraint$atleast$nw) - network.edgecount(object$constraint$atleast$nw),
-             atmost = network.edgecount(object$constraint$atmost$nw) - network.naedgecount(object$network & object$constraint$atleast$nw),
-             {
-               if(loglik.control$warn.dyads){warning("The number of observed dyads in this network is ill-defined due to constraints on the sample space.")}
-               network.dyadcount(object$network)-network.naedgecount(object$network)
-             })
+
+    if(!is.dyad.ind.constraints(object$constrained, object$constrained.obs)
+       && loglik.control$warn.dyads){
+      warning("The number of observed dyads in this network is ill-defined due to complex constraints on the sample space.")
     }
-  }    
+    
+    network.dyadcount(object$network) - network.edgecount(NVL(get.miss.dyads(object$constrained, object$constrained.obs),is.na(object$network)))
+  }
   
   if(add){
     object$mle.lik<-llk

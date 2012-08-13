@@ -82,7 +82,8 @@ print.summary.ergm <- function (x,
       cat(x$devtable)
       
       cat(paste("AIC:", format(x$aic, digits = 5), "  ", 
-                "BIC:", format(x$bic, digits = 5), "\n", sep=" "))
+                "BIC:", format(x$bic, digits = 5), "  ",
+                "(Smaller is better.)", "\n", sep=" "))
     } else cat(nologLik.message(x$objname))
   }
 
