@@ -25,7 +25,7 @@
    tails before heads now */
 
 void MPLE_wrapper(int *tails, int *heads, int *dnedges,
-		  int *bltails, int *blheads, int *dblnedges,
+		  int *wl, int *ltails, int *lheads, int *dlnedges,
 		  int *dn, int *dflag, int *bipartite, int *nterms, 
 		  char **funnames, char **sonames, double *inputs,  
 		  int *responsevec, double *covmat,
@@ -43,7 +43,9 @@ void MPLE_wrapper(int *tails, int *heads, int *dnedges,
                           n_nodes, directed_flag, bip, 0, 0, NULL);
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
   
-  MpleInit_hash(responsevec, covmat, weightsvector, bltails, blheads, *dblnedges, *maxNumDyadTypes, nw, m); 
+  if(*wl) MpleInit_hash_wl(responsevec, covmat, weightsvector, ltails, lheads, *dlnedges, *maxNumDyadTypes, nw, m); 
+  else MpleInit_hash_bl(responsevec, covmat, weightsvector, ltails, lheads, *dlnedges, *maxNumDyadTypes, nw, m); 
+
   ModelDestroy(m);
   NetworkDestroy(nw);
   PutRNGstate(); /* Must be called after GetRNGstate before returning to R */
@@ -115,10 +117,16 @@ numRows should, ideally, be a power of 2, but doesn't have to be.
  other edges as they are in the observed network.  The response vector 
  for the logistic regression is simply the vector of indicators 
  giving the states of the edges in the observed network.
+
+ It comes in two versions: one that iterates through all valid dyads,
+ skipping those on the additional list, which is treated as a
+ blacklist; and another that iterates only through dyads on the
+ additional ist, which is treated as a whitelist.
+
 *****************/
 
 
-void MpleInit_hash(int *responsevec, double *covmat, int *weightsvector,
+void MpleInit_hash_bl(int *responsevec, double *covmat, int *weightsvector,
 		   int *bltails, int *blheads, Edge blnedges, 
 		   Edge maxNumDyadTypes, Network *nwp, Model *m){
   double *newRow = (double *) R_alloc(m->n_stats,sizeof(double));
@@ -161,6 +169,45 @@ void MpleInit_hash(int *responsevec, double *covmat, int *weightsvector,
 		       responsevec, weightsvector)) {
 	error("Too many unique dyads!");
       }
+    }
+  }
+}
+
+void MpleInit_hash_wl(int *responsevec, double *covmat, int *weightsvector,
+		   int *wltails, int *wlheads, Edge wlnedges, 
+		   Edge maxNumDyadTypes, Network *nwp, Model *m){
+  double *newRow = (double *) R_alloc(m->n_stats,sizeof(double));
+  /* Note:  This function uses macros found in changestat.h */
+  
+  for(Edge wlpos = 0; wlpos < wlnedges; wlpos++){
+    Vertex t=wltails[wlpos], h=wlheads[wlpos];
+    
+    int response = IS_OUTEDGE(t,h);
+    unsigned int totalStats = 0;
+    /* Let mtp loop through each model term */
+    for (ModelTerm *mtp=m->termarray; mtp < m->termarray + m->n_terms; mtp++){
+      mtp->dstats = newRow + totalStats;
+      /* Now call d_xxx function, which updates mtp->dstats to reflect
+	 changing the current dyad.  */
+      (*(mtp->d_func))(1, &t, &h, mtp, nwp);
+      /* dstats values reflect changes in current dyad; for MPLE, 
+	 values must reflect going from 0 to 1.  Thus, we have to reverse 
+	 the sign of dstats whenever the current edge exists. */
+      if(response){
+	for(unsigned int l=0; l<mtp->nstats; l++){
+	  mtp->dstats[l] = -mtp->dstats[l];
+	}
+      }
+      /* Update mtp->dstats pointer to skip ahead by mtp->nstats */
+      totalStats += mtp->nstats; 
+    }
+    /* In next command, if there is an offset vector then its total
+       number of entries should match the number of times through the 
+       inner loop (i.e., the number of dyads in the network) */          
+    if(!insCovMatRow(newRow, covmat, m->n_stats,
+		     maxNumDyadTypes, response, 
+		     responsevec, weightsvector)) {
+      error("Too many unique dyads!");
     }
   }
 }
