@@ -36,8 +36,15 @@ InitMHP.blockdiag <- function(arguments, nw){
 
 InitMHP.blockdiagTNT <- function(arguments, nw){
   if(is.bipartite(nw)) stop("Block-diagonal sampling is not implemented for bipartite networks at this time.")
+
+  el <- as.edgelist(nw)
+  a <- nw %v% arguments$constraints$blockdiag$attrname
+  
+  if(any(a[el[,1]]!=a[el[,2]])) stop("Block-diagonal TNT sampler implementation does not support sampling networks with off-block-diagonal ties at this time.")
+
+  
   # rle() returns contigous runs of values.
-  a <- rle(nw %v% arguments$constraints$blockdiag$attrname)
+  a <- rle(a)
   # If we have more runs than unique values, the blocks must not be all contiguous.
   if(length(a$lengths)!=length(unique(a$values))) stop("Current implementation of block-diagonal sampling requires that the blocks be contiguous.")
 
