@@ -437,11 +437,16 @@ statnet.edit <- function(name,package=c("statnet","ergm","network")){
   invisible(filepath)
 }
 
+# Work around a bug in network 1.7-1
+standardize.network <- function(nw){
+  network.update(nw, as.edgelist(nw), matrix.type="edgelist")
+}
+
 get.free.dyads <- function(constraints){
   y <- NULL
   for(con in constraints){
     if(!is.null(con$free.dyads)){
-      y <- if(is.null(y)) con$free.dyads() else y & con$free.dyads()
+      y <- if(is.null(y)) standardize.network(con$free.dyads()) else y & standardize.network(con$free.dyads())
     }
   }
   y
@@ -464,7 +469,32 @@ get.miss.dyads <- function(constraints, constraints.obs){
     if(is.null(free.dyads.obs)) NULL
     else free.dyads.obs
   }else{
-    if(is.null(free.dyads.obs)) !free.dyads
-    else (!free.dyads) | free.dyads.obs
+    if(is.null(free.dyads.obs)) standardize.network(invert.network(free.dyads))
+    else standardize.network(invert.network(free.dyads)) | free.dyads.obs
   }
+}
+
+.hash.el <- function(x){
+  apply(x, 1, paste, collapse="\r")
+}
+
+invert.network <- function(nw){
+  n <- network.size(nw)
+  m <- nw %n% "bipartite"
+
+  # Borrows from !.network:
+  el <- cbind(rep(1:n, each = n), rep(1:n, n))
+  if (!is.directed(nw)) 
+    el <- el[el[, 1] <= el[, 2], , drop=FALSE]
+  if (!has.loops(nw)) 
+    el <- el[el[, 1] != el[, 2], , drop=FALSE]
+
+  if(m) el <- el[(el[,1]<=m & el[,2]<=m) | (el[,1]>m & el[,2]>m), , drop=FALSE]
+
+  # el now contains the set of possible dyads
+
+  el <- el[! .hash.el(el) %in% .hash.el(as.edgelist(nw)), , drop=FALSE]
+
+  network.update(nw, el, matrix.type="edgelist")
+  
 }
