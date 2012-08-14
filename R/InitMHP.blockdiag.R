@@ -62,6 +62,6 @@ InitMHP.blockdiagNonObserved <- function(arguments, nw){
 
   el <- el[a[el[,1]]==a[el[,2]],,drop=FALSE]
   
-  MHproposal <- list(name = "randomtoggleNonObserved", inputs=ergm.Cprepare.el(el), package="ergm")
+  MHproposal <- list(name = "randomtoggleList", inputs=ergm.Cprepare.el(el), package="ergm")
   MHproposal
 }

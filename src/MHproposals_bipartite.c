@@ -387,19 +387,3 @@ void MH_BipartiteCondDegreeDist (MHproposal *MHp, Network *nwp) {
   }
 }
 
-
-void MH_BipartiterandomtoggleNonObserved (MHproposal *MHp, Network *nwp)  {  
-  Edge rane, nmissing = MHp->inputs[0];
-
-  if(MHp->ntoggles == 0) { /* Initialize */
-    MHp->ntoggles=1;
-    return;
-  }
-
-  // Note that missing edgelist is indexed from 0 but the first
-  // element of MHp->inputs is the number of missing edges.
-  rane = 1 + unif_rand() * nmissing;
-  
-  Mtail[0]=MHp->inputs[rane];
-  Mhead[0]=MHp->inputs[nmissing+rane];
-}

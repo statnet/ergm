@@ -11,7 +11,7 @@ void MH_CondDegreeDist (MHproposal *MHp, Network *nwp);
 void MH_CondOutDegreeDist (MHproposal *MHp, Network *nwp);
 void MH_CondInDegreeDist (MHproposal *MHp, Network *nwp);
 void MH_RandomNode (MHproposal *MHp, Network *nwp);
-void MH_randomtoggleNonObserved (MHproposal *MHp, Network *nwp);
+void MH_randomtoggleList (MHproposal *MHp, Network *nwp);
 
 void MH_ConstrainedCondOutDegDist (MHproposal *MHp, Network *nwp);
 void MH_OneRandomTnTNode (MHproposal *MHp, Network *nwp);

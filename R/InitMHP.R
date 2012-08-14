@@ -185,10 +185,7 @@ InitMHP.randomtoggleNonObserved <- function(arguments, nw) {
   if(network.naedgecount(nw)==0){
    stop("The passed network does not have any non-observed dyads.\n Hence constraining to the observed will hold the network fixed at this network.\n Either the network or the constraint need to be altered.")
   }
-  MHproposal <- list(name = "randomtoggleNonObserved", inputs=ergm.Cprepare.miss(nw), package="ergm")
-  if(is.bipartite(nw)){
-    MHproposal$name <- "BipartiterandomtoggleNonObserved"
-  }
+  MHproposal <- list(name = "randomtoggleList", inputs=ergm.Cprepare.miss(nw), package="ergm")
   MHproposal
 }
 #ergm.MHP.table("c", "Bernoulli", "bd+observed",  0, "random", "randomtoggleNonObserved")

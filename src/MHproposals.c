@@ -512,25 +512,43 @@ void MH_randomnode (MHproposal *MHp, Network *nwp) {
     }
 }
 
-void MH_randomtoggleNonObserved (MHproposal *MHp, Network *nwp)  {  
-  Edge rane, nmissing = MHp->inputs[0];
-  
-  if(MHp->ntoggles == 0) { /* Initialize randomtoggle */
+/********************
+   void MH_randomtoggleList
+   Propose ONLY edges on a static list
+***********************/
+void MH_randomtoggleList (MHproposal *MHp, Network *nwp) 
+{  
+  static Edge nedges0;
+
+  if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
+    nedges0 = MHp->inputs[0];
+    return;
+  }
+  
+  if(nedges0==0){ /* Attempting dissolution on a complete graph. */
+    Mtail[0]=MH_FAILED;
+    Mhead[0]=MH_IMPOSSIBLE;
     return;
   }
 
-  if(nmissing==0){
-    *Mtail = MH_FAILED;
-    *Mhead = MH_IMPOSSIBLE;
+  unsigned int trytoggle;
+  for(trytoggle=0;trytoggle<MAX_TRIES;trytoggle++){
+    /* Select a dyad at random that is in the reference graph. (We
+       have a convenient sampling frame.) */
+    /* Generate. */
+    Edge rane = 1 + unif_rand() * nedges0;
+    Mtail[0]=MHp->inputs[rane];
+    Mhead[0]=MHp->inputs[nedges0+rane];
+    
+    if(CheckTogglesValid(MHp, nwp)) break;
   }
 
-  // Note that missing edgelist is indexed from 0 but the first
-  // element of MHp->inputs is the number of missing edges.
-  rane = 1 + unif_rand() * nmissing;
-  
-  Mtail[0]=MHp->inputs[rane];
-  Mhead[0]=MHp->inputs[nmissing+rane];
+  /* If no valid proposal found, signal a failed proposal. */
+  if(trytoggle>=MAX_TRIES) {
+    Mtail[0]=MH_FAILED;
+    Mhead[0]=MH_UNSUCCESSFUL;
+  }
 }
 
 /* The ones below have not been tested */
