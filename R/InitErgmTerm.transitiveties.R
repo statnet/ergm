@@ -17,7 +17,7 @@ InitErgmTerm.transitiveties<-function (nw, arglist, ...) {
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     ui <- seq(along=u)
     if (length(u)==1)
-      stop ("Attribute given to transitiveties() has only one value", call.=FALSE)
+      warning ("Attribute given to transitiveties() has only one value", call.=FALSE)
     if (!diff) {
       coef.names <- paste("transitiveties",attrname,sep=".")
       inputs <- c(nodecov)
@@ -50,7 +50,7 @@ InitErgmTerm.cyclicalties<-function (nw, arglist, ...) {
     nodecov <- match(nodecov,u,nomatch=length(u)+1)
     ui <- seq(along=u)
     if (length(u)==1)
-      stop ("Attribute given to cyclicalties() has only one value", call.=FALSE)
+      warning ("Attribute given to cyclicalties() has only one value", call.=FALSE)
     if (!diff) {
       coef.names <- paste("cyclicalties",attrname,sep=".")
       inputs <- c(nodecov)

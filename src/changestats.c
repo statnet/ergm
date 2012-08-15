@@ -4840,7 +4840,6 @@ D_CHANGESTAT_FN(d_transitiveties) {
   Edge e, f;
   int i, echange, ochange;
   int L2th, L2tu, L2uh;
-  int base=1;
   Vertex tail, head, u, v;
   double cumchange;
   double tailattr;
@@ -4909,10 +4908,10 @@ D_CHANGESTAT_FN(d_transitiveties) {
 	    f = EdgetreeSuccessor(nwp->inedges, f)){
 	  if(EdgetreeSearch(tail,v,nwp->outedges)!= 0){
 	    L2tu++;
-	    if(L2tu>=base) {break;}
+	    if(L2tu>0) {break;}
 	  }
 	}
-	cumchange += (L2tu<base);
+	cumchange += (L2tu==0);
       }
     }
     /* step through inedges of head */
@@ -4931,15 +4930,15 @@ D_CHANGESTAT_FN(d_transitiveties) {
 	    f = EdgetreeSuccessor(nwp->outedges, f)){
 	  if(EdgetreeSearch(v,head,nwp->outedges)!= 0){
 	    L2uh++;
-	    if(L2uh>=base) {break;}
+	    if(L2uh>0) {break;}
 	  }
 	}
-	cumchange += (L2uh<base) ;
+	cumchange += (L2uh==0) ;
       }
     }
     }
     
-    cumchange += (L2th>=base) ;
+    cumchange += (L2th>0) ;
 //  Rprintf("L2th %d echange %d cumchange %f tail %d head %d\n", L2th, echange, cumchange,tail,head);
     cumchange  = echange*cumchange;
     (CHANGE_STAT[0]) += cumchange;
@@ -4994,7 +4993,6 @@ D_CHANGESTAT_FN(d_cyclicalties) {
   Edge e, f;
   int i, echange, ochange;
   int L2th, L2tu, L2uh;
-  int base=1;
   Vertex tail, head, u, v;
   double cumchange;
   double tailattr;
@@ -5014,7 +5012,7 @@ D_CHANGESTAT_FN(d_cyclicalties) {
        for(e = EdgetreeMinimum(nwp->outedges, head);
 	   (u = nwp->outedges[e].value) != 0;
 	   e = EdgetreeSuccessor(nwp->outedges, e)){
-         if (EdgetreeSearch(tail, u, nwp->outedges) != 0 && (tailattr == INPUT_ATTRIB[u-1])){
+         if (EdgetreeSearch(tail, u, nwp->inedges) != 0 && (tailattr == INPUT_ATTRIB[u-1])){
 	   L2tu=ochange;
 	   /* step through inedges of u */
 	   for(f = EdgetreeMinimum(nwp->inedges, u); 
@@ -5030,10 +5028,10 @@ D_CHANGESTAT_FN(d_cyclicalties) {
        }
        /* step through inedges of head */
        
-       for(e = EdgetreeMinimum(nwp->inedges, head);
-	   (u = nwp->inedges[e].value) != 0;
-	   e = EdgetreeSuccessor(nwp->inedges, e)){
-         if (EdgetreeSearch(tail, u, nwp->outedges) != 0 && (tailattr == INPUT_ATTRIB[u-1])){
+       for(e = EdgetreeMinimum(nwp->outedges, head);
+	   (u = nwp->outedges[e].value) != 0;
+	   e = EdgetreeSuccessor(nwp->outedges, e)){
+         if (EdgetreeSearch(tail, u, nwp->inedges) != 0 && (tailattr == INPUT_ATTRIB[u-1])){
 	   L2th++;
          }
          if (EdgetreeSearch(u, tail, nwp->outedges) != 0 && (tailattr == INPUT_ATTRIB[u-1])){
@@ -5063,10 +5061,10 @@ D_CHANGESTAT_FN(d_cyclicalties) {
 	    f = EdgetreeSuccessor(nwp->inedges, f)){
 	  if(EdgetreeSearch(tail,v,nwp->outedges)!= 0){
 	    L2tu++;
-	    if(L2tu>=base) {break;}
+	    if(L2tu>0) {break;}
 	  }
 	}
-	cumchange += (L2tu<base);
+	cumchange += (L2tu==0);
       }
     }
     /* step through outedges of head */
@@ -5085,15 +5083,15 @@ D_CHANGESTAT_FN(d_cyclicalties) {
 	    f = EdgetreeSuccessor(nwp->outedges, f)){
 	  if(EdgetreeSearch(v,head,nwp->outedges)!= 0){
 	    L2uh++;
-	    if(L2uh>=base) {break;}
+	    if(L2uh>0) {break;}
 	  }
 	}
-	cumchange += (L2uh<base) ;
+	cumchange += (L2uh==0) ;
       }
     }
     }
     
-    cumchange += (L2th>=base) ;
+    cumchange += (L2th>0) ;
 //  Rprintf("L2th %d echange %d cumchange %f tail %d head %d\n", L2th, echange, cumchange,tail,head);
     cumchange  = echange*cumchange;
     (CHANGE_STAT[0]) += cumchange;
