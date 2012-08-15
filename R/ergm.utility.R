@@ -437,9 +437,28 @@ statnet.edit <- function(name,package=c("statnet","ergm","network")){
   invisible(filepath)
 }
 
-# Work around a bug in network 1.7-1
+# Create a copy of a network of interest with certain guarantees about its internal representation:
+# * tails < heads
+# * no (tail,head) pair has more than one edge ID associated with it
 standardize.network <- function(nw){
-  network.update(nw, as.edgelist(nw), matrix.type="edgelist")
+  el <- rbind(as.edgelist(nw),as.edgelist(is.na(nw)))
+  eids <- apply(el, 1, function(e) get.edgeIDs(nw, e[1], e[2], na.omit=FALSE))
+  if(is.list(eids)){ # I.e., apply() wasn't able to simplify.
+    bad.ei <- which(sapply(eids,length)>1)
+    for(ei in bad.ei){
+      dup.eids <- duplicated(nw$mel[eids[[ei]]])
+      if(sum(!dup.eids)!=1) stop("Edge (",el[ei,1],el[ei,2],") has multiple IDs with distinct attributes. Cannot repair.")
+      eids[[ei]] <- eids[[ei]][!dup.eids]
+    }
+    eids <- unlist(eids)
+  }
+
+  vals <- lapply(nw$mel,"[[","atl")[eids]
+  names <- lapply(vals, names)
+
+  nw <- delete.edges(nw, seq_along(nw$mel))
+  nw <- add.edges(nw, el[,1], el[,2], names.eval=names, vals.eval=vals)
+  nw
 }
 
 get.free.dyads <- function(constraints){
