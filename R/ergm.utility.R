@@ -440,24 +440,33 @@ statnet.edit <- function(name,package=c("statnet","ergm","network")){
 # Create a copy of a network of interest with certain guarantees about its internal representation:
 # * tails < heads
 # * no (tail,head) pair has more than one edge ID associated with it
-standardize.network <- function(nw){
-  el <- rbind(as.edgelist(nw),as.edgelist(is.na(nw)))
-  eids <- apply(el, 1, function(e) get.edgeIDs(nw, e[1], e[2], na.omit=FALSE))
-  if(is.list(eids)){ # I.e., apply() wasn't able to simplify.
-    bad.ei <- which(sapply(eids,length)>1)
-    for(ei in bad.ei){
-      dup.eids <- duplicated(nw$mel[eids[[ei]]])
-      if(sum(!dup.eids)!=1) stop("Edge (",el[ei,1],el[ei,2],") has multiple IDs with distinct attributes. Cannot repair.")
-      eids[[ei]] <- eids[[ei]][!dup.eids]
+standardize.network <- function(nw, preserve.eattr=TRUE){
+  if(preserve.eattr){
+    el <- rbind(as.edgelist(nw),as.edgelist(is.na(nw)))
+    eids <- apply(el, 1, function(e) get.edgeIDs(nw, e[1], e[2], na.omit=FALSE))
+    if(is.list(eids)){ # I.e., apply() wasn't able to simplify.
+      bad.ei <- which(sapply(eids,length)>1)
+      for(ei in bad.ei){
+        dup.eids <- duplicated(nw$mel[eids[[ei]]])
+        if(sum(!dup.eids)!=1) stop("Edge (",el[ei,1],el[ei,2],") has multiple IDs with distinct attributes. Cannot repair.")
+        eids[[ei]] <- eids[[ei]][!dup.eids]
+      }
+      eids <- unlist(eids)
     }
-    eids <- unlist(eids)
+    
+    vals <- lapply(nw$mel,"[[","atl")[eids]
+    names <- lapply(vals, names)
+    el.na <- NULL
+  }else{
+    el <- rbind(as.edgelist(nw))
+    vals <- NULL
+    names <- NULL
+    el.na <- as.edgelist(is.na(nw))
   }
-
-  vals <- lapply(nw$mel,"[[","atl")[eids]
-  names <- lapply(vals, names)
-
+  
   nw <- delete.edges(nw, seq_along(nw$mel))
   nw <- add.edges(nw, el[,1], el[,2], names.eval=names, vals.eval=vals)
+  if(!is.null(el.na)) nw[el.na] <- NA
   nw
 }
 
@@ -465,19 +474,10 @@ get.free.dyads <- function(constraints){
   y <- NULL
   for(con in constraints){
     if(!is.null(con$free.dyads)){
-      y <- if(is.null(y)) standardize.network(con$free.dyads()) else y & standardize.network(con$free.dyads())
+      y <- if(is.null(y)) standardize.network(con$free.dyads(),FALSE) else y & standardize.network(con$free.dyads(),FALSE)
     }
   }
   y
-}
-
-is.dyad.ind.constraints <- function(constraints, constraints.obs=NULL){
-  dind <- TRUE
-  for(con in names(constraints)){
-    if(con=="bd" && isTRUE(all.equal(unlist(constraints[[con]]),FALSE,check.attributes=FALSE))) next
-    if(is.null(constraints[[con]]$free.dyads)) dind <- FALSE
-  }
-  dind && if(!is.null(constraints.obs)) is.dyad.ind.constraints(constraints.obs) else TRUE
 }
 
 get.miss.dyads <- function(constraints, constraints.obs){
@@ -488,8 +488,8 @@ get.miss.dyads <- function(constraints, constraints.obs){
     if(is.null(free.dyads.obs)) NULL
     else free.dyads.obs
   }else{
-    if(is.null(free.dyads.obs)) standardize.network(invert.network(free.dyads))
-    else standardize.network(invert.network(free.dyads)) | free.dyads.obs
+    if(is.null(free.dyads.obs)) standardize.network(invert.network(free.dyads),FALSE)
+    else standardize.network(invert.network(free.dyads),FALSE) | free.dyads.obs
   }
 }
 
