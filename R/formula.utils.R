@@ -3,36 +3,6 @@
 ## manipulating ERGM formulas.                                   ##
 ###################################################################
 
-is.dyad.independent<-function(object,...) UseMethod("is.dyad.independent")
-
-is.dyad.independent.formula<-function(object,response=NULL,basis=NULL,constraints=~.,...){
-  if(constraints!=~.) FALSE
-  else{    
-    # If basis is not null, replace network in formula by basis.
-    # In either case, let nw be network object from formula.
-    if(is.null(nw <- basis)) {
-      nw <- ergm.getnetwork(object)
-    }
-    
-    nw <- as.network(nw)
-    if(!is.network(nw)){
-      stop("A network object on the LHS of the formula or via",
-           " the 'basis' argument must be given")
-    }
-    
-    # New formula (no longer use 'object'):
-    form <- ergm.update.formula(object, nw ~ .)
-    
-    m<-ergm.getmodel(form, nw, response=response)
-    if(any(sapply(m$terms, function(term) is.null(term$dependence) || term$dependence==TRUE))) FALSE
-    else TRUE
-  }
-}
-
-is.dyad.independent.ergm<-function(object,...){
-  with(object,is.dyad.independent(formula,object$response,network,constraints))
-}
-
 ## This function appends a list of terms to the RHS of a
 ## formula. If the formula is one-sided, the RHS becomes the LHS.
 ## For example,

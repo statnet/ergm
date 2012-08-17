@@ -69,7 +69,6 @@
 #    $* @% &  +  theta.original  :  the theta values at the start of the MCMC sampling
 #    $* @        mplefit         :  the MPLE fit as a glm object, and returned by
 #                                   <ergm.mple>
-#    $*!@% &#~+  null.deviance   :  the deviance of the null model
 #    $*!@% &#~+  mle.lik         :  the approximate log-likelihood for the MLE, if computed
 #    $* @        etamap          :  the set of function mapping theta -> eta;
 #                                   see <etamap>? for the components of this list
@@ -98,7 +97,6 @@
 #      !   #~    theta1          :  the vector of ??
 #         &      rm.coef         :  the robmon coefficients used as 'init' in the final
 #                                   estimation
-#          #~    aic             :  the Akaike information criterion value
 #      !   #~   loglikelihoodratio: the log-likelihood corresponding to
 #                                   'coef'
 #
@@ -230,10 +228,10 @@ ergm <- function(formula, response=NULL,
   if (verbose) { cat("Fitting initial model.\n") }
 
   MPLE.is.MLE <- (reference=="Bernoulli"
-                  && ergm.independencemodel(model.initial)
+                  && is.dyad.independent(model.initial)
                   && !control$force.main
-                  && is.dyad.ind.constraints(MHproposal$arguments$constraints,
-                                             MHproposal.obs$arguments$constraints))
+                  && is.dyad.independent(MHproposal$arguments$constraints,
+                                         MHproposal.obs$arguments$constraints))
 
   # If all other criteria for MPLE=MLE are met, _and_ SAN network matches target.stats directly, we can get away with MPLE.
   MCMCflag <- (estimate=="MLE" && (!MPLE.is.MLE
@@ -283,7 +281,7 @@ ergm <- function(formula, response=NULL,
 
     initialfit$control<-control
     
-    if(any(!model.initial$etamap$offsettheta)){
+    if(any(!model.initial$etamap$offsettheta) && eval.loglik){
       if(verbose) cat("Evaluating log-likelihood at the estimate.\n")
       initialfit<-logLik.ergm(initialfit, add=TRUE, control=control$loglik.control)
     }
@@ -364,7 +362,7 @@ ergm <- function(formula, response=NULL,
     mainfit$sample <- NULL
 
   if(eval.loglik){
-    cat("Evaluating log-likelihood at the estimate.\n")
+    if(verbose) cat("Evaluating log-likelihood at the estimate.\n")
     mainfit<-logLik.ergm(mainfit, add=TRUE, control=control$loglik.control)
   }
 
