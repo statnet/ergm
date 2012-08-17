@@ -57,7 +57,7 @@ InitWtErgmTerm.atleast<-function(nw, arglist, response, ...) {
        coef.names=paste("atleast",a$threshold,sep="."),
        inputs=a$threshold,
        dependence=FALSE,
-       minval=0, maxval=network.dyadcount(nw,TRUE))
+       minval=0, maxval=network.dyadcount(nw,FALSE))
 }
 
 InitWtErgmTerm.edgecov <- function(nw, arglist, response, ...) {
@@ -104,7 +104,7 @@ InitWtErgmTerm.ininterval<-function(nw, arglist, response, ...) {
        coef.names=paste("ininterval",if(a$open[0]) "(" else "[", a$lower,",",a$upper, if(a$open[1]) ")" else "]",sep=""),
        inputs=c(a$lower,a$upper,a$open),
        dependence=FALSE,
-       minval=0, maxval=network.dyadcount(nw,TRUE))
+       minval=0, maxval=network.dyadcount(nw,FALSE))
 }
 
 InitWtErgmTerm.greaterthan<-function(nw, arglist, response, ...) {
@@ -117,7 +117,7 @@ InitWtErgmTerm.greaterthan<-function(nw, arglist, response, ...) {
        coef.names=paste("greaterthan",a$threshold,sep="."),
        inputs=a$threshold,
        dependence=FALSE,
-       minval=0, maxval=network.dyadcount(nw,TRUE))
+       minval=0, maxval=network.dyadcount(nw,FALSE))
 }
 
 
@@ -422,7 +422,7 @@ InitWtErgmTerm.nonzero<-function(nw, arglist, response, ...) {
        coef.names="nonzero",
        inputs=NULL,
        dependence=FALSE,
-       minval=0, maxval=network.dyadcount(nw,TRUE))
+       minval=0, maxval=network.dyadcount(nw,FALSE))
 }
 
 InitWtErgmTerm.mutual<-function (nw, arglist, response, ...) {
@@ -456,7 +456,7 @@ InitWtErgmTerm.transitiveties<-function (nw, arglist, response, ...) {
        coef.names="transitiveties",
        inputs=c(a$threshold),
        dependence=TRUE,
-       minval=0, maxval=network.dyadcount(nw,TRUE))  
+       minval=0, maxval=network.dyadcount(nw,FALSE))  
 }
 
 InitWtErgmTerm.transitiveweights<-function (nw, arglist, response, ...) {
@@ -495,7 +495,7 @@ InitWtErgmTerm.cyclicalties<-function (nw, arglist, response, ...) {
        coef.names="cyclicalties",
        inputs=c(a$threshold),
        dependence=TRUE,
-       minval=0, maxval=network.dyadcount(nw,TRUE))
+       minval=0, maxval=network.dyadcount(nw,FALSE))
   
 }
 
