@@ -258,7 +258,7 @@ InitErgmTerm.asymmetric <- function(nw, arglist, ...) {
   out <- list(name="asymmetric",                      #name: required
               coef.names = "asymmetric",              #coef.names: required
               minval = 0,
-              maxval = network.dyadcount(nw)/2
+              maxval = network.dyadcount(nw,FALSE)/2
               ) 
   if (!is.null(a$attrname)) {
     if (a$diff) {
@@ -976,7 +976,7 @@ InitErgmTerm.dsp<-function(nw, arglist, ...) {
       nb2 <- network.size(nw) - nb1
       emptynwstats[d==0] <- nb1*(nb1-1)/2 + nb2*(nb2-1)/2
     }else{
-      emptynwstats[d==0] <- network.dyadcount(nw)
+      emptynwstats[d==0] <- network.dyadcount(nw,FALSE)
     }
   }else{
     emptynwstats <- NULL
@@ -1089,7 +1089,7 @@ InitErgmTerm.edges<-function(nw, arglist, ...) {
                       required = NULL)
   
   list(name="edges", coef.names="edges", dependence=FALSE,
-       minval = 0, maxval = network.dyadcount(nw), conflicts.constraints="edges")
+       minval = 0, maxval = network.dyadcount(nw,FALSE), conflicts.constraints="edges")
 }
 
 
@@ -1586,7 +1586,7 @@ InitErgmTerm.hamming<-function (nw, arglist, ...) {
   coef.names <- "hamming"  # This might be modified later
   if (is.null(a$cov)) {
     minval <- 0
-    maxval <- network.dyadcount(nw)
+    maxval <- network.dyadcount(nw,FALSE)
     if (length(sc03)>1) 
       coef.names <- paste("hamming", as.character(sc03[[2]]), sep=".")
     covm <- NULL
@@ -1775,7 +1775,7 @@ InitErgmTerm.indegreepopularity<-function (nw, arglist, ...) {
                       defaultvalues = list(),
                       required = NULL)
   list(name="indegreepopularity", coef.names="indegreepopularity",
-       minval=0, maxval=network.dyadcount(nw)*sqrt(network.size(nw)-1), conflicts.constraints="idegreedist")
+       minval=0, maxval=network.dyadcount(nw,FALSE)*sqrt(network.size(nw)-1), conflicts.constraints="idegreedist")
 }
 
 
@@ -1994,7 +1994,7 @@ InitErgmTerm.mutual<-function (nw, arglist, ...) {
        coef.names = coef.names,        #coef.names: required
        inputs=inputs,
        minval = 0,
-       maxval = network.dyadcount(nw)/2) 
+       maxval = network.dyadcount(nw,FALSE)/2) 
 }
 
 #=======================InitErgmTerm functions:  N============================#
@@ -2007,7 +2007,7 @@ InitErgmTerm.nearsimmelian<-function (nw, arglist, ...) {
                       vartypes = NULL,
                       defaultvalues = list(),
                       required = NULL)
-  list(name="nearsimmelian", coef.names="nearsimmelian", minval=0, maxval=network.dyadcount(nw)*network.size(nw)*0.5)
+  list(name="nearsimmelian", coef.names="nearsimmelian", minval=0, maxval=network.dyadcount(nw,FALSE)*network.size(nw)*0.5)
 }
 
 
@@ -2315,7 +2315,7 @@ InitErgmTerm.nsp<-function(nw, arglist, ...) {
       nb2 <- network.size(nw) - nb1
       emptynwstats[d==0] <- nb1*(nb1-1)/2 + nb2*(nb2-1)/2
     }else{
-      emptynwstats[d==0] <- network.dyadcount(nw)
+      emptynwstats[d==0] <- network.dyadcount(nw,FALSE)
     }
   }else{
     emptynwstats <- NULL
@@ -2406,7 +2406,7 @@ InitErgmTerm.outdegreepopularity<-function (nw, arglist, ...) {
                       defaultvalues = list(),
                       required = NULL)
   list(name="outdegreepopularity", coef.names="outdegreepopularity",
-       minval=0, maxval=network.dyadcount(nw)*sqrt(network.size(nw)-1), conflicts.constraints="odegreedist")
+       minval=0, maxval=network.dyadcount(nw,FALSE)*sqrt(network.size(nw)-1), conflicts.constraints="odegreedist")
 }
 
 
