@@ -123,7 +123,11 @@ mcmc.diagnostics.ergm <- function(object,
     sds <- apply(as.matrix(sm),2,sd)
     sds.obs <- apply(as.matrix(sm.obs),2,sd)
     ns <- effectiveSize(sm)
-    ns.obs <- effectiveSize(sm.obs)
+    # It's OK constrained sample doesn't vary. (E.g, the extreme case
+    # --- completely observed network --- is just one configuration of
+    # statistics.)
+    # Thus, the effective sample size for nonvarying is set to 1.
+    ns.obs <- pmax(effectiveSize(sm.obs),1)
 
     cv <-  cov(as.matrix(sm))
     cv.obs <-  cov(as.matrix(sm.obs))
