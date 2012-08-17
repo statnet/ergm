@@ -111,13 +111,12 @@ ergm.maple<-function(pl, m, init=NULL,
 #  options(warn=2)
    if(nrow(pl$xmat) > pl$maxMPLEsamplesize){
 #
-#   fix aic and deviance for sampled data
+#   fix deviance for sampled data
 #
     mplefit$deviance <- ergm.logisticdeviance(beta=mplefit$coef,
      X=model.matrix(terms(pl$zy.full ~ .-1,data=data.frame(pl$xmat.full)),
                            data=data.frame(pl$xmat.full)),
      y=pl$zy.full, offset=pl$foffset.full)
-    mplefit$aic <- mplefit$deviance + 2*mplefit$rank
    }
   }
   theta <- pl$theta.offset
@@ -167,8 +166,6 @@ ergm.maple<-function(pl, m, init=NULL,
 #  options(warn=2)
   }
 
-  aic <- mplefit$aic
-
   if(save.glm){
     glm <- mplefit
     glm.null <- mplefit.null
@@ -183,7 +180,6 @@ ergm.maple<-function(pl, m, init=NULL,
       MCMCtheta=theta, gradient=gradient,
       hessian=NULL, covar=covar, failure=FALSE,
       mc.se=mc.se, glm = glm, glm.null = glm.null,
-                 aic=aic,
       theta1=theta1),
      class="ergm")
 }
