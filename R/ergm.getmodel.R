@@ -128,6 +128,7 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
     }
   } 
   model$etamap <- ergm.etamap(model)
+  class(model) <- "ergm.model"
   model
 }
 
