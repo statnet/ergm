@@ -193,7 +193,6 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
     #  options(warn=2)
   }
 
-  null.deviance <- mplefit$null.deviance
   aic <- mplefit$aic
 
   if(save.glm){
@@ -210,7 +209,7 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
       MCMCtheta=theta, gradient=gradient,
       hessian=NULL, covar=covar, failure=FALSE,
       mc.se=mc.se, glm = glm, glm.null = glm.null,
-      null.deviance=null.deviance, aic=aic,
+      aic=aic,
       theta1=theta1),
      class="ergm")
 }

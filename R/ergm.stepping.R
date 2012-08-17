@@ -209,9 +209,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 	}
 	
   v$sample <- ergm.sample.tomcmc(v$sample, control)
-  v$null.deviance <- 2*network.dyadcount(nw.orig)*log(2)
-	v$mle.lik <- mle.lik
-	v$etamap <- model$etamap
+  v$etamap <- model$etamap
   v$iterations <- iter
 
 	v

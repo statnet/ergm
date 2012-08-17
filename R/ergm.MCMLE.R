@@ -285,7 +285,6 @@ ergm.MCMLE <- function(init, nw, model,
   # v$allparamvals <- parametervalues
 
 
-  v$null.deviance <- 2*network.dyadcount(nw.orig)*log(2)
   v$etamap <- model$etamap
   v
 }
@@ -307,8 +306,8 @@ approx.hotelling.diff.test<-function(x,y=NULL){
     # y, if it's given, is the constrained sample, so it's OK if it
     # doesn't vary. (E.g, the extreme case --- completely observed
     # network --- is just one configuration of statistics.)
-    y.n <- effectiveSize(y)
-    y.n[y.n==0] <- 1 # The actual number is irrelevant, since the cov. mat. will be 0.
+    # Thus, the effective sample size for nonvarying is set to 1.
+    y.n <- pmax(effectiveSize(y),1)
   }
   x.n <- x.n[x.n!=0]
   

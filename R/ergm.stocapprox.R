@@ -131,8 +131,6 @@ ergm.stocapprox <- function(init, nw, model, Clist,
 # ve$coef <- theta
 #
   ve$sample <- ergm.sample.tomcmc(ve$sample, control)
-  ve$null.deviance <- 2*network.dyadcount(nw)*log(2)
-  ve$mle.lik <- -ve$null.deviance/2 + ve$loglikelihood
 # The next is the right one to uncomment
 # ve$mcmcloglik <- ve$mcmcloglik - network.dyadcount(nw)*log(2)
 
