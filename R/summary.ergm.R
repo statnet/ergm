@@ -66,7 +66,6 @@ summary.ergm <- function (object, ...,
   }
   
   nodes<- network.size(object$network)
-  dyads<- network.dyadcount(object$network)
   mc.se<- if(is.null(object$mc.se)) rep(NA, length(object$coef)) else object$mc.se
   
 
@@ -147,7 +146,7 @@ summary.ergm <- function (object, ...,
                            )
   
   nodes<- network.size(object$network)
-  dyads<- network.dyadcount(object$network)-network.edgecount(NVL(get.miss.dyads(object$constrained, object$constrained.obs),is.na(object$network)))
+  dyads<- network.dyadcount(object$network,FALSE)-network.edgecount(NVL(get.miss.dyads(object$constrained, object$constrained.obs),network.initialize(1)))
   df <- length(object$coef)
 
   rdf <- dyads - df
