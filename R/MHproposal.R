@@ -39,6 +39,16 @@ ergm.ConstraintImplications <- local({
 })
 
 
+prune.conlist <- function(conlist){
+  ## Remove constraints implied by other constraints.
+  for(constr in names(conlist))
+    for(impl in ergm.ConstraintImplications()[[constr]])
+      conlist[[impl]]<-NULL
+
+  conlist
+}
+
+
 ########################################################################################
 # The <MHproposal> function initializes and returns an MHproposal object via one of the
 # class-specific functions below
@@ -127,38 +137,41 @@ MHproposal.character <- function(object, arguments, nw, ..., response=NULL){
 #
 ########################################################################################
 
+mk.conlist <- function(object, nw){
+  if(is.null(object)) return(NULL)
+  ## Construct a list of constraints and arguments from the formula.
+  conlist<-list()
+  constraints<-as.list(attr(terms(object,allowDotAsName=TRUE),"variables"))[-1]
+  for(constraint in constraints){
+    ## The . in the default formula means no constrains.
+    ## There may be other constraints in the formula, however.
+    if(constraint==".") next
+    
+    if(is.call(constraint)){
+      init.call<-list()
+      init.call<-list(as.name(paste("InitConstraint.", constraint[[1]], sep = "")), lhs.nw=nw, conlist=conlist)
+      
+      init.call<-c(init.call,as.list(constraint)[-1])
+    }else{
+      init.call <- list(as.name(paste("InitConstraint.", constraint, sep = "")), lhs.nw=nw, conlist=conlist)
+    }
+    if(!exists(as.character(init.call[[1]]), environment(object))) stop(paste("The constraint you have selected ('",constraints,"') is not defined. Are you sure you have not mistyped it?",sep=""))
+    conlist <- eval(as.call(init.call), environment(object))
+  }
+  conlist <- prune.conlist(conlist)
+  class(conlist) <- "conlist"
+  conlist
+}
+
 MHproposal.formula <- function(object, arguments, nw, weights="default", class="c", reference="Bernoulli", response=NULL, ...) {
-  constraints<-object
   reference<-match.arg(reference,unique(ergm.MHP.table()$Reference))
 
   if("constraints" %in% names(arguments)){
-    conlist <- arguments$constraints
+    conlist <- prune.conlist(arguments$constraints)
+    class(conlist) <- "conlist"
   }else{
-    ## Construct a list of constraints and arguments from the formula.
-    conlist<-list()
-    constraints<-as.list(attr(terms(constraints,allowDotAsName=TRUE),"variables"))[-1]
-    for(constraint in constraints){
-      ## The . in the default formula means no constrains.
-      ## There may be other constraints in the formula, however.
-      if(constraint==".") next
-      
-      if(is.call(constraint)){
-        init.call<-list()
-        init.call<-list(as.name(paste("InitConstraint.", constraint[[1]], sep = "")), lhs.nw=nw, conlist=conlist)
-        
-        init.call<-c(init.call,as.list(constraint)[-1])
-      }else{
-        init.call <- list(as.name(paste("InitConstraint.", constraint, sep = "")), lhs.nw=nw, conlist=conlist)
-      }
-      if(!exists(as.character(init.call[[1]]), environment(object))) stop(paste("The constraint you have selected ('",constraints,"') is not defined. Are you sure you have not mistyped it?",sep=""))
-      conlist <- eval(as.call(init.call), environment(object))
-    }
+    conlist <- mk.conlist(object, nw)
   }
-  
-  ## Remove constraints implied by other constraints.
-  for(constr in names(conlist))
-    for(impl in ergm.ConstraintImplications()[[constr]])
-      conlist[[impl]]<-NULL
   
   ## Convert vector of constraints to a "standard form".
   if(is.null(names(conlist))) {
@@ -166,7 +179,8 @@ MHproposal.formula <- function(object, arguments, nw, weights="default", class="
   } else {
     constraints <- paste(sort(tolower(names(conlist))),collapse="+")
   }
-    MHqualifying<-with(ergm.MHP.table(),ergm.MHP.table()[Class==class & Constraints==constraints & Reference==reference & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
+  
+  MHqualifying<-with(ergm.MHP.table(),ergm.MHP.table()[Class==class & Constraints==constraints & Reference==reference & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
 
   if(nrow(MHqualifying)<1){
     commonalities<-(ergm.MHP.table()$Class==class)+(ergm.MHP.table()$Weights==weights)+(ergm.MHP.table()$Reference==reference)+(ergm.MHP.table()$Constraints==constraints)
