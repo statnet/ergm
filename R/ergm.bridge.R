@@ -108,7 +108,7 @@ ergm.bridge.0.llk<-function(object, response=response, coef, ..., llkonly=TRUE, 
 ## model whose likelihood is being evaluated, but don't have to.
 ## `dind' defaults to the dyad-independent terms of the `object'
 ## formula with an edges term added unless redundant.
-ergm.bridge.dindstart.llk<-function(object, response=NULL, coef, dind=NULL, coef.dind=NULL,  basis=NULL, ..., llkonly=TRUE, control=control.ergm.bridge()){
+ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef, dind=NULL, coef.dind=NULL,  basis=NULL, ..., llkonly=TRUE, control=control.ergm.bridge()){
   check.control.class("ergm.bridge")
   if(!is.null(response)) stop("Only binary ERGMs are supported at this time.")
 
@@ -116,6 +116,13 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, coef, dind=NULL, coef
   ## dyad-independent terms.
   tmp<-ergm.bridge.preproc(object,basis,response)
   nw<-tmp$nw; m<-tmp$model; form<-tmp$form; rm(tmp)
+
+  constraints.obs <- if(network.naedgecount(nw))
+    ergm.update.formula(constraints,~.+observed)
+  else
+    NULL
+
+  if(!is.dyad.independent(mk.conlist(constraints,nw), mk.conlist(constraints.obs,nw))) stop("Bridge sampling with dyad-independent start does not work with dyad-dependent constraints.")
 
   ## By default, take dyad-independent terms in the formula, fit a
   ## model with these terms and "edges". Terms that are redundant (NA)
@@ -127,15 +134,16 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, coef, dind=NULL, coef
       if(!is.null(m$terms[[i]]$dependence) && m$terms[[i]]$dependence==FALSE)
         dind<-append.rhs.formula(dind,list(terms.full[[i]]))
     dind<-append.rhs.formula(dind,list(as.name("edges")))
-    ergm.dind<-ergm(dind,estimate="MPLE")
   }else{
     dind<-ergm.update.formula(dind,nw~.)  
-    ergm.dind<-ergm(dind,estimate="MPLE")
   }
-  
+
   if(!is.dyad.independent(dind))
     stop("Reference model `dind' must be dyad-independent.")
 
+  
+  ergm.dind<-ergm(dind,estimate="MPLE",constraints=constraints,eval.loglik=FALSE,control=control.ergm(drop=FALSE))
+  
   if(is.null(coef.dind)){
     coef.dind<-ifelse(is.na(coef(ergm.dind)),0,coef(ergm.dind))
     llk.dind<--ergm.dind$glm$deviance/2 - -ergm.dind$glm$null.deviance/2
@@ -143,7 +151,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, coef, dind=NULL, coef
     lin.pred <- model.matrix(ergm.dind$glm) %*% coef.dind
     llk.dind<-
       crossprod(lin.pred,ergm.dind$glm$y*ergm.dind$glm$prior.weights)-sum(log1p(exp(lin.pred))*ergm.dind$glm$prior.weights) -
-        (network.dyadcount(object$network) - network.edgecount(NVL(get.miss.dyads(object$constrained, object$constrained.obs),is.na(object$network))))*log(1/2)
+        (network.dyadcount(object$network,FALSE) - network.edgecount(NVL(get.miss.dyads(object$constrained, object$constrained.obs),network.initialize(1))))*log(1/2)
   }  
 
   ## Construct the augmented formula.
@@ -152,7 +160,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, coef, dind=NULL, coef
   from<-c(rep(0,length(coef)),coef.dind)
   to<-c(coef,rep(0,length(coef.dind)))
 
-  br<-ergm.bridge.llr(form.aug, response=response, from=from, to=to, basis=basis, control=control)
+  br<-ergm.bridge.llr(form.aug, response=response, constraints=constraints, from=from, to=to, basis=basis, control=control)
   
   if(llkonly) llk.dind + br$llr
   else c(br,llk.dind=llk.dind, llk=llk.dind + br$llr)
