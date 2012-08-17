@@ -153,7 +153,7 @@ InitConstraint.blockdiag<-function(conlist, lhs.nw, attrname=NULL, ...){
     a <- lhs.nw %v% attrname
     el <- do.call(rbind,tapply(seq_along(a),INDEX=list(a),simplify=FALSE,FUN=function(i) do.call(rbind,lapply(i,function(j) cbind(j,i)))))
     el <- el[el[,1]!=el[,2],]
-    el <- as.edgelist(el, directed=is.directed(lhs.nw))
+    el <- as.edgelist(el, n=network.size(lhs.nw), directed=is.directed(lhs.nw))
     # standardize.network() not needed here, since el is already in standard order.
     network.update(lhs.nw, el, matrix.type="edgelist")
   }
