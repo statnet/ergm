@@ -86,7 +86,7 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
   llrs<--sapply(seq_len(control$nsteps), function(i) crossprod(Dtheta.Du,ergm.etagradmult(path[i,],stats[i,]-stats.obs[i,],m$etamap)))/control$nsteps
   llr<-sum(llrs)
   if(llronly) llr
-  else list(llr=llr,llrs=llrs,path=path,stats=stats,stats.obs=stats.obs,Dtheta.Du=Dtheta.Du)
+  else list(llr=llr,from=from,to=to,llrs=llrs,path=path,stats=stats,stats.obs=stats.obs,Dtheta.Du=Dtheta.Du)
 }
 
 ## A convenience wrapper around ergm.bridge.llr: returns the
@@ -151,7 +151,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
     lin.pred <- model.matrix(ergm.dind$glm) %*% coef.dind
     llk.dind<-
       crossprod(lin.pred,ergm.dind$glm$y*ergm.dind$glm$prior.weights)-sum(log1p(exp(lin.pred))*ergm.dind$glm$prior.weights) -
-        (network.dyadcount(object$network,FALSE) - network.edgecount(NVL(get.miss.dyads(object$constrained, object$constrained.obs),network.initialize(1))))*log(1/2)
+        (network.dyadcount(ergm.dind$network,FALSE) - network.edgecount(NVL(get.miss.dyads(ergm.dind$constrained, ergm.dind$constrained.obs),network.initialize(1))))*log(1/2)
   }  
 
   ## Construct the augmented formula.
