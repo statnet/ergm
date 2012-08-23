@@ -17,7 +17,7 @@ set.seed(258)
 b1 <- floor(runif(150, 1,200))
 b2 <- floor(runif(150, 201, 400))
 exbip.el <- cbind(b1,b2)
-bipnw2 <- as.network(exbip.el, matrix.type="edgelist", bipartite=100, directed=FALSE)
+bipnw2 <- as.network(exbip.el, matrix.type="edgelist", bipartite=200, directed=FALSE)
 bipnw2 %v% "Letter" <- letters[1:2]
 color <- rbinom(400, 1, .4)
 color[color ==1] <- "Purple"
@@ -115,13 +115,13 @@ s.kad <- summary(bipnw2~b1starmix(1, "Letter", diff=FALSE))
 e.kad <- ergm(bipnw2~b1starmix(1, "Letter", diff=FALSE), estimate="MPLE")
 s.kabd <- summary(bipnw2~b1starmix(1, "Letter", base=2, diff=FALSE))
 e.kabd <- ergm(bipnw2~b1starmix(1, "Letter", base=2:3, diff=FALSE), estimate="MPLE")
-if (!all(s.ka==c(2,2,5,2)) ||
-    !all(round(e.ka$coef+c(5.915, 6.445, 5.084, 6.244),3)==0) ||
-    !all(s.kab==c(14,18,18)) ||
-    !all(round(e.kab$coef+c(6.275, 6.016),3)==0) ||
-    !all(s.kad==c(32,39)) ||
-    !all(round(e.kad$coef+c(6.138, 5.940),3)==0) ||
-    s.kabd != 32 || round(e.kabd$coef+ 6.138,3)!=0)  {
+if (!all(s.ka==c(9,4,7,4)) ||
+    !all(round(e.ka$coef+c(4.870, 5.802, 5.267, 5.962),3)==0) ||
+    !all(s.kab==c(36, 39, 40)) ||
+    !all(round(e.kab$coef+c(5.613, 5.497),3)==0) ||
+    !all(s.kad==c(75, 75)) ||
+    !all(round(e.kad$coef+c(5.567, 5.567),3)==0) ||
+    s.kabd != 75 || round(e.kabd$coef+ 5.567,3)!=0)  {
  print(list(s.ka=s.ka, e.ka=e.ka, s.kab=s.kab, e.kab=e.kab,
             s.kad=s.kad, e.kad=e.kad, s.kabd=s.kabd, e.kabd=e.kabd))
  stop("Failed b1starmix term test")
@@ -143,13 +143,13 @@ e.ab <- ergm(bipnw2~b1twostar("Letter", base=c(1,3,5)), estimate="MPLE")
 s.aab <- summary(bipnw2~b1twostar("Letter", "Color", base=2:4))
 e.aab <- ergm(bipnw2~b1twostar("Letter", "Color", base=c(1,3,5)), estimate="MPLE")
 if (!all(s.a==c(9,4,15,17,7,4)) ||
-    !all(round(e.a$coef+c(5.688, 6.012, 5.223, 5.463, 4.635, 5.688),3)==0) ||
-    !all(s.aa==c(12,3,18,10,8,5)) ||
-    !all(round(e.aa$coef+c(5.174, 6.789, 5.155, 5.299, 4.996, 5.587),3)==0) ||
+    !all(round(e.a$coef+c(4.523, 5.22, 4.773, 4.593, 4.881, 5.446),3)==0) ||
+    !all(s.aa==c(13,2,13,15,5,8)) ||
+    !all(round(e.aa$coef+c(4.548, 6.281, 4.882, 4.702, 4.758, 4.364),3)==0) ||
     !all(s.ab==c(9,7,4)) ||
-    !all(round(e.ab$coef+c(6.012, 5.463, 5.688),3)==0) ||
-    !all(s.aab==c(12,8,5)) ||
-    !all(round(e.aab$coef+c(6.789, 5.299, 5.587),3)==0)) {
+    !all(round(e.ab$coef+c(5.22, 4.593, 5.446),3)==0) ||
+    !all(s.aab==c(13,5,8)) ||
+    !all(round(e.aab$coef+c(6.281, 4.702, 4.364),3)==0)) {
  print(list(s.a=s.a, e.a=e.a, s.aa=s.aa, e.aa=e.aa, s.ab=s.ab, e.ab=e.ab,
             s.aab=s.aab, e.aab=e.aab))
  stop("Failed b1twostar term test")
@@ -246,13 +246,13 @@ s.kad <- summary(bipnw2~b2starmix(1, "Letter", diff=FALSE))
 e.kad <- ergm(bipnw2~b2starmix(1, "Letter", diff=FALSE), estimate="MPLE")
 s.kabd <- summary(bipnw2~b2starmix(1, "Letter", base=2, diff=FALSE))
 e.kabd <- ergm(bipnw2~b2starmix(1, "Letter", base=2:3, diff=FALSE), estimate="MPLE")
-if (!all(s.ka==c(1,4,0,2)) ||
-    !all(round(e.ka$coef+c(6.275, 5.869, 6.016, 6.016),3)==0) ||
-    !all(s.kab==c(14,18,18)) ||
-    !all(round(e.kab$coef+c(6.275, 6.016),3)==0) ||
+if (!all(s.ka==c(6, 8, 3, 6)) ||
+    !all(round(e.ka$coef+c(5.613, 5.641, 5.523, 5.497),3)==0) ||
+    !all(s.kab==c(36, 39, 40)) ||
+    !all(round(e.kab$coef+c(5.613, 5.497),3)==0) ||
     !all(s.kad==c(71,79)) ||
-    !all(round(e.kad$coef+c(6.051, 6.016),3)==0) ||
-    s.kabd != 71 || round(e.kabd$coef+ 6.051,3)!=0)  {
+    !all(round(e.kad$coef+c(5.627, 5.510),3)==0) ||
+    s.kabd != 71 || round(e.kabd$coef+ 5.627,3)!=0)  {
  print(list(s.ka=s.ka, e.ka=e.ka, s.kab=s.kab, e.kab=e.kab,
             s.kad=s.kad, e.kad=e.kad, s.kabd=s.kabd, e.kabd=e.kabd))
  stop("Failed b2starmix term test")
@@ -274,13 +274,13 @@ e.ab <- ergm(bipnw2~b2twostar("Letter", base=c(1,3,5)), estimate="MPLE")
 s.aab <- summary(bipnw2~b2twostar("Letter", "Color", base=2:4))
 e.aab <- ergm(bipnw2~b2twostar("Letter", "Color", base=c(1,3,5)), estimate="MPLE")
 if (!all(s.a==c(6,3,16,16,8,6)) ||
-    !all(round(e.a$coef+c(5.185, 6.158, 4.892, 4.844, 4.142, 4.901),3)==0) ||
-    !all(s.aa==c(10,6,16,11,3,9)) ||
-    !all(round(e.aa$coef+c(5.25, 5.698, 4.632, 5.331, 4.931, 4.123),3)==0) ||
+    !all(round(e.a$coef+c(5, 5.754, 4.603, 4.780, 4.462, 5.055),3)==0) ||
+    !all(s.aa==c(8, 1, 17, 15, 4, 10)) ||
+    !all(round(e.aa$coef+c(4.823, 6.739, 4.690, 4.702, 5.351, 4.37),3)==0) ||
     !all(s.ab==c(6,8,6)) ||
-    !all(round(e.ab$coef+c(6.158, 4.844, 4.901),3)==0) ||
-    !all(s.aab==c(10,3,9)) ||
-    !all(round(e.aab$coef+c(5.698, 5.331, 4.123),3)==0)) {
+    !all(round(e.ab$coef+c(5.754, 4.78, 5.055),3)==0) ||
+    !all(s.aab==c(8,4,10)) ||
+    !all(round(e.aab$coef+c(6.739, 4.702, 4.370),3)==0)) {
  print(list(s.a=s.a, e.a=e.a, s.aa=s.aa, e.aa=e.aa, s.ab=s.ab, e.ab=e.ab,
             s.aab=s.aab, e.aab=e.aab))
  stop("Failed b2twostar term test")
