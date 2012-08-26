@@ -162,7 +162,8 @@ ergm <- function(formula, response=NULL,
     if(verbose) cat("Constructing an approximate response network.\n")
     ## If target.stats are given, overwrite the given network and formula
     ## with SAN-ed network and formula.
-    for(srun in 1:control$SAN.maxit){
+    if(control$SAN.maxit > 0){
+     for(srun in 1:control$SAN.maxit){
       nw<-san(formula, target.stats=target.stats,
               response=response,
               reference=reference,
@@ -184,6 +185,7 @@ ergm <- function(formula, response=NULL,
         print(round(nw.stats-target.stats,0))
       }
       if(sum((nw.stats-target.stats)^2) <= 5) break
+     }
     }
   }
   
