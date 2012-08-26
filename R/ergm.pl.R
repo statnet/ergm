@@ -145,7 +145,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
                           ncol=data$conddeg$Clist$nstats,
                           byrow = TRUE)
     colnames(statsmatrix) <- data$conddeg$m$coef.names
-    xb <- ergm.sufftoprob(statsmatrix[-1,],compress=TRUE)
+    xb <- ergm.sufftoprob(statsmatrix[-c(1,data$control$MPLE.samplesize+1),],compress=TRUE)
 # if (verbose) {cat("Finished compression.\n")}
     xmat <- xb[,-c(1,ncol(xb)),drop=FALSE]
     wend <- xb[,ncol(xb)]
