@@ -191,8 +191,8 @@ summary.ergm <- function (object, ...,
   if(!inherits(llk,"try-error")){
   
     ans$devtable <- c("",apply(cbind(paste(format(c("    Null", "Residual"), width = 8), devtext), 
-                                     format(c(0, -2*llk), digits = 5), " on",
-                                     format(c(dyads, rdf), digits = 5)," degrees of freedom\n"), 
+                                     format(c(0, -2*llk), digits = digits), " on",
+                                     format(c(dyads, rdf), digits = digits)," degrees of freedom\n"), 
                                1, paste, collapse = " "),"\n")
     
     

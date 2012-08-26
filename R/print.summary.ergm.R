@@ -26,6 +26,8 @@ print.summary.ergm <- function (x,
               correlation=FALSE, covariance=FALSE,
               signif.stars= getOption("show.signif.stars"),
               eps.Pvalue=0.0001, print.header=TRUE, print.formula=TRUE, print.fitinfo=TRUE, print.coefmat=TRUE, print.message=TRUE, print.deviances=TRUE, print.drop=TRUE, print.offset=TRUE, print.degeneracy=TRUE,...){
+  if(missing(digits)) digits <- x$digits
+  
   control <- x$control
   if(print.header){
     cat("\n==========================\n")
@@ -81,8 +83,8 @@ print.summary.ergm <- function (x,
     if(!is.null(x$devtable)){
       cat(x$devtable)
       
-      cat(paste("AIC:", format(x$aic, digits = 5), "  ", 
-                "BIC:", format(x$bic, digits = 5), "  ",
+      cat(paste("AIC:", format(x$aic, digits = digits), "  ", 
+                "BIC:", format(x$bic, digits = digits), "  ",
                 "(Smaller is better.)", "\n", sep=" "))
     } else cat(nologLik.message(x$objname))
   }
