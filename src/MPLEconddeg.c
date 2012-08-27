@@ -90,7 +90,7 @@ MCMCStatus CondDegSampler (MHproposal *MHp,
   int samplesize, int burnin, 
   int interval, int fVerbose, int nmax,
   Network *nwp, Model *m) {
-  int staken, tottaken;
+//int staken, tottaken;
   int i,j;
   
   /*********************
@@ -107,33 +107,39 @@ MCMCStatus CondDegSampler (MHproposal *MHp,
    in subsequent calls to M-H
    *********************/
   /*  Catch more edges than we can return */
-  if(CondDegSample(MHp, theta, networkstatistics, burnin, &staken,
-                   fVerbose, nwp, m)!=MCMC_OK)
-     return MCMC_MH_FAILED;
-     if(nmax!=0 && nwp->nedges >= nmax-1){
-       return MCMC_TOO_MANY_EDGES;
-     }
+ //     Rprintf("Sample size %d\n", samplesize);
+//      Rprintf("burnin %d interval %d\n", burnin, interval);
+//  if(CondDegSample(MHp, theta, networkstatistics, burnin, &staken,
+//                   fVerbose, nwp, m)!=MCMC_OK)
+//     return MCMC_MH_FAILED;
+//     if(nmax!=0 && nwp->nedges >= nmax-1){
+//       return MCMC_TOO_MANY_EDGES;
+//     }
 /*   if (fVerbose){ 
        Rprintf(".");
      } */
+  //    Rprintf("From %f theta0\n", 333);
+  MHp->logratio = 0;
   
   if (samplesize>1){
-    staken = 0;
-    tottaken = 0;
+//  staken = 0;
+//  tottaken = 0;
     
     /* Now sample networks */
     for (i=1; i < samplesize; i++){
       networkstatistics += m->n_stats;
       /* This then adds the change statistics to these values */
       
-      /* Catch massive number of edges caused by degeneracy */
-      if(CondDegSample(MHp, theta, networkstatistics, interval, &staken,
-                       fVerbose, nwp, m)!=MCMC_OK)
-      return MCMC_MH_FAILED;
-      if(nmax!=0 && nwp->nedges >= nmax-1){
-	 return MCMC_TOO_MANY_EDGES;
+      (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
+    
+      /* Calculate change statistics. */
+      ChangeStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, nwp, m);
+      
+      /* record network statistics for posterity */
+      for (unsigned int j = 0; j < m->n_stats; j++){
+        networkstatistics[j] += m->workspace[j];
       }
-      tottaken += staken;
+//    Rprintf("n_stats %d ns %f %f\n", m->n_stats,  networkstatistics[0],networkstatistics[1]);
 
 #ifdef Win32
       if( ((100*i) % samplesize)==0 && samplesize > 500){
@@ -141,7 +147,9 @@ MCMCStatus CondDegSampler (MHproposal *MHp,
     	R_ProcessEvents();
       }
 #endif
-      /*if (fVerbose){
+  //    Rprintf("Sample size %d\n", samplesize);
+  //    Rprintf("Sampled %d from CondDegSample\n", i);
+      /* if (fVerbose){
         if( ((3*i) % samplesize)==0 && samplesize > 500){
         Rprintf("Sampled %d from CondDegSample\n", i);}
       }
@@ -154,55 +162,6 @@ MCMCStatus CondDegSampler (MHproposal *MHp,
         Rprintf(".");  
       } */
     }
-    /*********************
-    Below is an extremely crude device for letting the user know
-    when the chain doesn't accept many of the proposed steps.
-    *********************/
-    if (fVerbose){
-      Rprintf("Sampler accepted %6.3f%% of %d proposed steps.\n",
-      tottaken*100.0/(1.0*interval*samplesize), interval*samplesize); 
-    }
-  }else{
-    if (fVerbose){
-      Rprintf("Sampler accepted %6.3f%% of %d proposed steps.\n",
-      staken*100.0/(1.0*burnin), burnin); 
-    }
   }
-  return MCMC_OK;
-}
-
-/*********************
- void CondDegSample
-
- In this function, theta is a m->n_stats-vector just as in CondDegSample,
- but now networkstatistics is merely another m->n_stats-vector because
- this function merely iterates nsteps times through the Markov
- chain, keeping track of the cumulative change statistics along
- the way, then returns, leaving the updated change statistics in
- the networkstatistics vector.  In other words, this function 
- essentially generates a sample of size one
-*********************/
-MCMCStatus CondDegSample (MHproposal *MHp,
-			 double *theta, double *networkstatistics,
-			 int nsteps, int *staken,
-			 int fVerbose,
-			 Network *nwp,
-			 Model *m) {
-  unsigned int taken=0, unsuccessful=0;
-  
-  for(unsigned int step=0; step < nsteps; step++) {
-    MHp->logratio = 0;
-    (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
-    
-    /* Calculate change statistics. */
-    ChangeStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, nwp, m);
-      
-    /* record network statistics for posterity */
-    for (unsigned int i = 0; i < m->n_stats; i++){
-      networkstatistics[i] += m->workspace[i];
-    }
-    taken++;
-  }
-  *staken = taken;
   return MCMC_OK;
 }

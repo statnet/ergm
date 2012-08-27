@@ -33,9 +33,4 @@ MCMCStatus CondDegSampler (MHproposal *MHp,
 		 int samplesize, int burnin, 
 		 int interval, int fVerbose, int nmax,
 	       	 Network *nwp, Model *m);
-MCMCStatus CondDegSample (MHproposal *MHp,
-			 double *theta, double *statistics, 
-			 int nsteps, int *staken,
-			 int fVerbose,
-			 Network *nwp, Model *m);
 #endif
