@@ -168,7 +168,10 @@
   The network statistics \eqn{g(y)} are entered as terms in the 
   function call to \code{\link{ergm}}.
 
-  This page describes the possible terms (and hence network statistics).
+  This page describes the possible terms (and hence network statistics)
+  for the default (binary) ERGMs. Terms for valued ERGMs included in
+  \code{\link[=ergm-package]{ergm}} are documented in the page on
+  \link[=valued-ergm-terms]{valued ERGM terms}.
 }
 %\usage{
 %ergm-terms()

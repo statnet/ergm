@@ -412,7 +412,7 @@ InitWtErgmTerm.nodeocov<-function (nw, arglist, response, ...) {
        dependence=FALSE)
 }
 
-InitWtErgmTerm.nonzero<-function(nw, arglist, response, ...) {
+InitWtErgmTerm.edges<-InitWtErgmTerm.nonzero<-function(nw, arglist, response, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = NULL,
                       vartypes = NULL,
@@ -433,7 +433,7 @@ InitWtErgmTerm.mutual<-function (nw, arglist, response, ...) {
                       defaultvalues = list("min",0),
                       required = c(FALSE,FALSE))
 
-  form <- match.arg(a$form,c("min","nabsdiff","threshold","product","geometric","product"))
+  form <- match.arg(a$form,c("min","nabsdiff","threshold","product","geometric"))
   
   list(name=switch(form,min="mutual_wt_min",nabsdiff="mutual_wt_nabsdiff",threshold="mutual_wt_threshold",product="mutual_wt_product", geometric="mutual_wt_geom_mean"),
        coef.names=switch(form,min="mutual.min",nabsdiff="mutual.nabsdiff",threshold=paste("mutual",a$threshold,sep="."), product="mutual.product",geometric="mutual.geom.mean"),
@@ -462,23 +462,23 @@ InitWtErgmTerm.transitiveties<-function (nw, arglist, response, ...) {
 InitWtErgmTerm.transitiveweights<-function (nw, arglist, response, ...) {
 ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, bipartite=NULL, nonnegative=TRUE,
-                      varnames = c("path","combine","compare"),
+                      varnames = c("twopath","combine","affect"),
                       vartypes = c("character","character","character"),
                       defaultvalues = list("min","max","min"),
                       required = c(FALSE,FALSE), response=response)
-  paths<-c("min","geomean")
-  path<-match.arg(a$path,paths)
+  twopaths<-c("min","geomean")
+  twopath<-match.arg(a$twopath,twopaths)
   combines<-c("max","sum")
   combine<-match.arg(a$combine,combines)
-  compares<-c("min","geomean")
-  compare<-match.arg(a$compare,compares)
+  affects<-c("min","geomean")
+  affect<-match.arg(a$affect,affects)
 
   list(name="transitiveweights",
-       coef.names=paste("transitiveweights",path,combine,compare,sep="."),
+       coef.names=paste("transitiveweights",twopath,combine,affect,sep="."),
        inputs=c(
-         which(paths==path),
+         which(twopaths==twopath),
          which(combines==combine),
-         which(compares==compare)
+         which(affects==affect)
          ),
        dependence=TRUE,
        minval = 0)
@@ -502,23 +502,23 @@ InitWtErgmTerm.cyclicalties<-function (nw, arglist, response, ...) {
 InitWtErgmTerm.cyclicalweights<-function (nw, arglist, response, ...) {
 ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, bipartite=NULL, nonnegative=TRUE,
-                      varnames = c("path","combine","compare"),
+                      varnames = c("twopath","combine","affect"),
                       vartypes = c("character","character","character"),
                       defaultvalues = list("min","max","min"),
                       required = c(FALSE,FALSE), response=response)
-  paths<-c("min","geomean")
-  path<-match.arg(a$path,paths)
+  twopaths<-c("min","geomean")
+  twopath<-match.arg(a$twopath,twopaths)
   combines<-c("max","sum")
   combine<-match.arg(a$combine,combines)
-  compares<-c("min","geomean")
-  compare<-match.arg(a$compare,compares)
+  affects<-c("min","geomean")
+  affect<-match.arg(a$affect,affects)
 
   list(name="cyclicalweights",
-       coef.names=paste("cyclicalweights",path,combine,compare,sep="."),
+       coef.names=paste("cyclicalweights",twopath,combine,affect,sep="."),
        inputs=c(
-         which(paths==path),
+         which(twopaths==twopath),
          which(combines==combine),
-         which(compares==compare)
+         which(affects==affect)
          ),
        dependence=TRUE,
        minval = 0)
