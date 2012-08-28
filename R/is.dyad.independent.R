@@ -41,5 +41,5 @@ is.dyad.independent.conlist <- function(object, object.obs=NULL, ...){
 is.dyad.independent.ergm<-function(object,...){
   with(object,
        is.dyad.independent(formula,object$response,network)
-       && is.dyad.independent(constrained, object$constrained.obs))
+       && is.dyad.independent(object$constrained, object$constrained.obs))
 }
