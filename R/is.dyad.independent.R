@@ -5,6 +5,8 @@
 
 is.dyad.independent<-function(object,...) UseMethod("is.dyad.independent")
 
+is.dyad.independent.NULL <- function(object, ...) TRUE # By convention.
+
 is.dyad.independent.ergm.model <- function(object, ...){
   ! any(sapply(object$terms, function(term) is.null(term$dependence) || term$dependence))
 }
