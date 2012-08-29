@@ -155,7 +155,7 @@ summary.ergm <- function (object, ...,
 
 # Convert to % error
   if(any(!is.na(mc.se))){
-   mc.se[!is.na(mc.se)] <- round(100*mc.se[!is.na(mc.se)]*mc.se[!is.na(mc.se)]/(asyse[!is.na(mc.se)]*asyse[!is.na(mc.se)]))
+   mc.se[!is.na(mc.se)] <- round(100*mc.se[!is.na(mc.se)]^2/asyse[!is.na(mc.se)]^2)
   }
 
   count <- 1
