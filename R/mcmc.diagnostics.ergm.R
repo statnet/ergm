@@ -132,14 +132,13 @@ mcmc.diagnostics.ergm <- function(object,
     cv <-  cov(as.matrix(sm))
     cv.obs <-  cov(as.matrix(sm.obs))
 
-    
     z <- ds/sqrt(sds^2/ns+sds.obs^2/ns.obs)
-    chi2<-t(ds)%*%robust.inverse(t(cv/sqrt(ns))/sqrt(ns)+t(cv.obs/sqrt(ns.obs))/sqrt(ns.obs))%*%(ds)
   }
   p.z <- pnorm(abs(z),lower.tail=FALSE)*2
-  p.chi2 <- pchisq(chi2,nvar(sm),lower.tail=FALSE)
+
+  overall.test <- approx.hotelling.diff.test(sm,sm.obs)
   
-  m <- rbind(c(ds,NA),c(z,chi2),c(p.z,p.chi2))
+  m <- rbind(c(ds,NA),c(z,overall.test$statistic),c(p.z,overall.test$p.value))
   rownames(m) <- c("diff.","test stat.","P-val.")
   colnames(m) <- c(varnames(sm),"Overall (Chi^2)")
   print(m)

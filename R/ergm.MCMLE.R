@@ -143,7 +143,7 @@ ergm.MCMLE <- function(init, nw, model,
     esteq <- t(ergm.etagradmult(mcmc.init,t(statsmatrix),model$etamap))[,!model$etamap$offsettheta,drop=FALSE]
     names(esteq) <- names(mcmc.init)
     esteq.obs <- if(obs) t(ergm.etagradmult(mcmc.init,t(statsmatrix.obs),model$etamap))[,!model$etamap$offsettheta,drop=FALSE] else NULL   
-    conv.pval <- approx.hotelling.diff.test(esteq, esteq.obs)
+    conv.pval <- approx.hotelling.diff.test(esteq, esteq.obs)$p.value
                                             
     # We can either pretty-print the p-value here, or we can print the
     # full thing. What the latter gives us is a nice "progress report"
@@ -290,31 +290,52 @@ ergm.MCMLE <- function(init, nw, model,
 }
 
 approx.hotelling.diff.test<-function(x,y=NULL){
-  d <-  colMeans(x)
-  if(!is.null(y)) d <- d - colMeans(y)
-
-  # If a statistic doesn't vary and doesn't match, don't terminate.
+  # Note that for we want to get the effective sample size before we
+  # convert it to a matrix, in case it's an mcmc.list object.
   x.n <- effectiveSize(x)
-  if(any(d[x.n==0]!=0)) return(0)
-
-  # If it doesn't vary and matches, ignore it.
-  d <- d[x.n!=0]
-  x <- x[,x.n!=0,drop=FALSE]
-
+  x <- as.matrix(x)
+  d <-  colMeans(x)
   if(!is.null(y)){
-    y <- y[,x.n!=0,drop=FALSE]
     # y, if it's given, is the constrained sample, so it's OK if it
     # doesn't vary. (E.g, the extreme case --- completely observed
     # network --- is just one configuration of statistics.)
     # Thus, the effective sample size for nonvarying is set to 1.
     y.n <- pmax(effectiveSize(y),1)
+    y <- as.matrix(y)
+    d <- d - colMeans(y)
   }
+
+  # If a statistic doesn't vary and doesn't match, don't terminate.
+  if(any(d[x.n==0]!=0)) return(0)
+
+  # If it doesn't vary and matches, ignore it.
+  d <- d[x.n!=0]
+  x <- x[,x.n!=0,drop=FALSE]
   x.n <- x.n[x.n!=0]
+
+  if(!is.null(y)){
+    y <- y[,x.n!=0,drop=FALSE]
+    y.n <- y.n[x.n!=0]
+  }
   
   v <- t(cov(x)/sqrt(x.n))/sqrt(x.n)
   if(!is.null(y)) v <- v + t(cov(y)/sqrt(y.n))/sqrt(y.n)
   chi2 <- t(d)%*%robust.inverse(v)%*%d
-  pchisq(chi2,ncol(x),lower.tail=FALSE)
+  names(chi2) <- "X-squared"
+  df <- ncol(x)
+  names(df) <- "df"
+  nullval <- rep(0, ncol(x))
+  names(nullval) <- colnames(x)
+  out <- list(statistic=chi2, parameter=df, p.value=pchisq(chi2,df,lower.tail=FALSE),
+              method = paste("Chi-squared approximation to the Hotelling's T-test for",
+                if(is.null(y)) "equality of all column means to 0"
+                else "difference between column means of two samples", "with correction for autocorrelation"),
+              null.value=nullval,
+              alternative="two.sided",
+              estimate = d,
+              covariance = v)
+  class(out)<-"htest"
+  out
 }
 
 #################
