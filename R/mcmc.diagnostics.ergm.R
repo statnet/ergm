@@ -174,7 +174,7 @@ mcmc.diagnostics.ergm <- function(object,
   }
 
   cat("\nSample statistics burn-in diagnostic (Geweke):\n")
-  sm.gw<-geweke.diag(sm)
+  sm.gw<-geweke.diag.ar(sm)
   for(i in seq_along(sm.gw)){
     cat("Chain", chain, "\n")
     print(sm.gw[[i]])
@@ -183,7 +183,7 @@ mcmc.diagnostics.ergm <- function(object,
   }
   if(!is.null(sm.obs)){
     cat("Sample statistics burn-in diagnostic (Geweke):\n")
-    sm.obs.gw<-geweke.diag(sm.obs)
+    sm.obs.gw<-geweke.diag.ar(sm.obs)
     for(i in seq_along(sm.obs.gw)){
       cat("Chain", chain, "\n")
       print(sm.obs.gw[[i]])
@@ -293,4 +293,32 @@ xyplot.mcmc.list.ergm <-
                main = main,
                ylab = ylab,
                ...)
+}
+
+## The following function is a modified version of geweke.diag
+## from the coda R package. The original code is Copyright (C)
+## 2005-2011 Martyn Plummer, Nicky Best, Kate Cowles, Karen
+## Vines
+##
+## It is incorporated into the ergm package under the terms of
+## the GPL v3 license.
+##
+## coda's implementation uses spectrum0, which is not robust
+## enough.
+geweke.diag.ar<-function (x, frac1 = 0.1, frac2 = 0.5){
+  if (is.mcmc.list(x)) 
+    return(lapply(x, geweke.diag.ar, frac1, frac2))
+  x <- as.mcmc(x)
+  xstart <- c(start(x), end(x) - frac2 * (end(x) - start(x)))
+  xend <- c(start(x) + frac1 * (end(x) - start(x)), end(x))
+  y.variance <- y.mean <- vector("list", 2)
+  for (i in 1:2) {
+    y <- window(x, start = xstart[i], end = xend[i])
+    y.mean[[i]] <- apply(as.matrix(y), 2, mean)
+    y.variance[[i]] <- spectrum0.ar(y)$spec/niter(y)
+  }
+  z <- (y.mean[[1]] - y.mean[[2]])/sqrt(y.variance[[1]] + y.variance[[2]])
+  out <- list(z = z, frac = c(frac1, frac2), p.val = pnorm(abs(z),0,1,lower.tail=FALSE)*2)
+  class(out) <- "geweke.diag"
+  return(out)
 }

@@ -263,35 +263,8 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose) {
 
       if(control$MCMC.runtime.traceplot) plot(mcmc(burnin.stats,start=burnin+1,burnin+samplesize*interval,thin=interval),ask=FALSE,smooth=TRUE,density=FALSE)
       
-      ## The following function is a modified version of geweke.diag
-      ## from the coda R package. The original code is Copyright (C)
-      ## 2005-2011 Martyn Plummer, Nicky Best, Kate Cowles, Karen
-      ## Vines
-      ##
-      ## It is incorporated into the ergm package under the terms of
-      ## the GPL v3 license.
-      ##
-      ## coda's implementation uses spectrum0, which is not robust
-      ## enough.
-      my.geweke.diag<-function (x, frac1 = 0.1, frac2 = 0.5){
-        x <- as.mcmc(x)
-        xstart <- c(start(x), end(x) - frac2 * (end(x) - start(x)))
-        xend <- c(start(x) + frac1 * (end(x) - start(x)), end(x))
-        y.variance <- y.mean <- vector("list", 2)
-        for (i in 1:2) {
-          y <- window(x, start = xstart[i], end = xend[i])
-          y.mean[[i]] <- apply(as.matrix(y), 2, mean)
-          y.variance[[i]] <- spectrum0.ar(y)$spec/niter(y)
-        }
-        z <- (y.mean[[1]] - y.mean[[2]])/sqrt(y.variance[[1]] + y.variance[[2]])
-
-        # Output 2-sided P-value, rather than Z score.
-        pnorm(abs(z),0,1,lower.tail=FALSE)*2
-               
-      }
-
       # Bonferroni adjustment
-      failed <- my.geweke.diag(burnin.stats) < control$MCMC.burnin.check.alpha/ncol(burnin.stats)
+      failed <- geweke.diag.ar(burnin.stats)$p.val < control$MCMC.burnin.check.alpha/ncol(burnin.stats)
       # If a statistic didn't mix at all, fail it as well.
       failed[is.na(failed)] <- TRUE
       if(any(failed)){
