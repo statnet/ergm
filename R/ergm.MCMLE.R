@@ -289,7 +289,7 @@ ergm.MCMLE <- function(init, nw, model,
   v
 }
 
-approx.hotelling.diff.test<-function(x,y=NULL){
+approx.hotelling.diff.test<-function(x,y=NULL,mu0=NULL){
   # Note that for we want to get the effective sample size before we
   # convert it to a matrix, in case it's an mcmc.list object.
   x.n <- effectiveSize(x)
@@ -305,9 +305,28 @@ approx.hotelling.diff.test<-function(x,y=NULL){
     d <- d - colMeans(y)
   }
 
-  # If a statistic doesn't vary and doesn't match, don't terminate.
-  if(any(d[x.n==0]!=0)) return(0)
-
+  if(!is.null(mu0)) d <- d - mu0
+  
+  # If a statistic doesn't vary and doesn't match, return a 0 p-value:
+  if(any(d[x.n==0]!=0)){
+    chi2 <- +Inf
+    names(chi2) <- "X-squared"
+    df <- ncol(x)
+    names(df) <- "df"
+    nullval <- if(is.null(mu0)) rep(0, ncol(x)) else mu0
+    names(nullval) <- colnames(x)
+    
+    out <- list(statistic=chi2, parameter=df, p.value=0,
+                method = paste("Chi-squared approximation to the Hotelling's T-test for",
+                  if(is.null(y)) "equality of all column means to mu0"
+                  else "difference between column means of two samples", "with correction for autocorrelation"),
+                null.value=nullval,
+                alternative="two.sided",
+                estimate = d)
+    class(out)<-"htest"
+    return(out)
+  }
+  
   # If it doesn't vary and matches, ignore it.
   d <- d[x.n!=0]
   x <- x[,x.n!=0,drop=FALSE]
@@ -324,7 +343,7 @@ approx.hotelling.diff.test<-function(x,y=NULL){
   names(chi2) <- "X-squared"
   df <- ncol(x)
   names(df) <- "df"
-  nullval <- rep(0, ncol(x))
+  nullval <- if(is.null(mu0)) rep(0, ncol(x)) else mu0
   names(nullval) <- colnames(x)
   out <- list(statistic=chi2, parameter=df, p.value=pchisq(chi2,df,lower.tail=FALSE),
               method = paste("Chi-squared approximation to the Hotelling's T-test for",

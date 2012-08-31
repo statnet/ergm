@@ -116,7 +116,6 @@ mcmc.diagnostics.ergm <- function(object,
     cv <-  cov(as.matrix(sm))
     
     z <- ds/sds*sqrt(ns)
-    chi2<-t(sqrt(ns)*ds)%*%robust.inverse(cv)%*%(ds*sqrt(ns))
   }else{
     cat("\nAre unconstrained sample statistics significantly different from constrained?\n")
     ds <- colMeans.mcmc.list(sm) - if(!center) colMeans.mcmc.list(sm.obs) else 0
@@ -136,7 +135,7 @@ mcmc.diagnostics.ergm <- function(object,
   }
   p.z <- pnorm(abs(z),lower.tail=FALSE)*2
 
-  overall.test <- approx.hotelling.diff.test(sm,sm.obs)
+  overall.test <- approx.hotelling.diff.test(sm,sm.obs,if(is.null(sm.obs) && !center) object$target.stats else NULL)
   
   m <- rbind(c(ds,NA),c(z,overall.test$statistic),c(p.z,overall.test$p.value))
   rownames(m) <- c("diff.","test stat.","P-val.")
