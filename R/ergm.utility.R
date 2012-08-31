@@ -448,7 +448,7 @@ standardize.network <- function(nw, preserve.eattr=TRUE){
       bad.ei <- which(sapply(eids,length)>1)
       for(ei in bad.ei){
         dup.eids <- duplicated(nw$mel[eids[[ei]]])
-        if(sum(!dup.eids)!=1) stop("Edge (",el[ei,1],el[ei,2],") has multiple IDs with distinct attributes. Cannot repair.")
+        if(sum(!dup.eids)!=1) stop("Edge (",el[ei,1],",",el[ei,2],") has multiple IDs with distinct attributes. Cannot repair.")
         eids[[ei]] <- eids[[ei]][!dup.eids]
       }
       eids <- unlist(eids)
