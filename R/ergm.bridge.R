@@ -117,6 +117,8 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   tmp<-ergm.bridge.preproc(object,basis,response)
   nw<-tmp$nw; m<-tmp$model; form<-tmp$form; rm(tmp)
 
+  p.pos.full <- c(1,cumsum(coef.sublength.model(m)))
+  
   constraints.obs <- if(network.naedgecount(nw))
     ergm.update.formula(constraints,~.+observed)
   else
@@ -127,12 +129,15 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   ## By default, take dyad-independent terms in the formula, fit a
   ## model with these terms and "edges". Terms that are redundant (NA)
   ## get their coefficients zeroed out below.
+  offset.dind <- c()
   if(is.null(dind)){
     dind<-~nw
     terms.full<-term.list.formula(form[[3]])
     for(i in seq_along(terms.full))
-      if(!is.null(m$terms[[i]]$dependence) && m$terms[[i]]$dependence==FALSE)
+      if(!is.null(m$terms[[i]]$dependence) && m$terms[[i]]$dependence==FALSE){
         dind<-append.rhs.formula(dind,list(terms.full[[i]]))
+        if(m$offset[i]) offset.dind <- c(offset.dind, coef[p.pos.full[i]:p.pos.full[i+1]])
+      }
     dind<-append.rhs.formula(dind,list(as.name("edges")))
   }else{
     dind<-ergm.update.formula(dind,nw~.)  
@@ -141,8 +146,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   if(!is.dyad.independent(dind))
     stop("Reference model `dind' must be dyad-independent.")
 
-  
-  ergm.dind<-ergm(dind,estimate="MPLE",constraints=constraints,eval.loglik=FALSE,control=control.ergm(drop=FALSE))
+  ergm.dind<-ergm(dind,estimate="MPLE",constraints=constraints,eval.loglik=FALSE,control=control.ergm(drop=FALSE), offset.coef = offset.dind)
   
   if(is.null(coef.dind)){
     coef.dind<-ifelse(is.na(coef(ergm.dind)),0,coef(ergm.dind))

@@ -248,3 +248,14 @@ set.offset.formula <- function(object, which, response=NULL){
   ergm.update.formula(object, append.rhs.formula(~.,terms)) # append.rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
 }
 
+unset.offset.formula <- function(object, which=TRUE, response=NULL){
+  nw <- ergm.getnetwork(object)
+  m<-ergm.getmodel(object, nw, response=response,role="target")
+  to_unoffset <-unique(rep(seq_along(m$terms),coef.sublength.model(m))[which]) # Figure out which terms correspond to the coefficients to be un offset.
+  terms <- term.list.formula(object[[3]])
+  for(i in to_unoffset)
+    if(inherits(terms[[i]],"call") && terms[[i]][[1]]=="offset") # Is the term an offset?
+      terms[[i]]<-terms[[i]][[2]] # Grab the term inside the offset.
+  ergm.update.formula(object, append.rhs.formula(~.,terms)) # append.rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
+}
+
