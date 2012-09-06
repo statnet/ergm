@@ -107,7 +107,7 @@ MHproposal.character <- function(object, arguments, nw, ..., response=NULL){
 
   proposal$arguments <- arguments
 
-  proposal$arguments$constraints$bd <- ergm.bounddeg(arguments$bd,nw)
+  proposal$arguments$constraints$bd <- ergm.bounddeg(arguments$constraints$bd,nw)
 
   class(proposal)<-"MHproposal"
   proposal
