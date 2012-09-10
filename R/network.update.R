@@ -84,10 +84,10 @@ network.update<-function(nw, newmatrix, matrix.type=NULL, output="network")
 
 as.edgelist.compressed<-function(x, attrname=NULL, force.bipartite=FALSE){
   #In case of lists, process independently
-  if(is.list(x)&&(!(class(x)%in%c("network"))))
+  if(is.list(x) && !inherits(x,"network"))
     return(lapply(x,as.edgelist.compressed, attrname=attrname, force.bipartite=force.bipartite))
   #Begin with network objects
-  if(class(x)=="network"){
+  if(inherits(x,"network")){
     require("network")  #Must have network library to process network objects
     out<-as.matrix.network.edgelist(x,attrname=attrname)
 #   if(!is.directed(x)){
@@ -144,7 +144,7 @@ as.edgelist.compressed<-function(x, attrname=NULL, force.bipartite=FALSE){
 as.network.uncompressed<-function(x, 
         na.rm=FALSE, edge.check=FALSE, ...){
   #Initialize the network object
-  if(class(x)=="network"){return(x)}
+  if(inherits(x,"network")){return(x)}
   if(is.null(attr(x,"vnames"))){
    warning("as.network.uncompressed input must be a compressed network, or a network.\n Returning the original object.\n")
    return(x)

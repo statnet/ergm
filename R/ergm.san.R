@@ -92,7 +92,7 @@ san.formula <- function(object, response=NULL, reference="Bernoulli", constraint
   } else {
     nw <- ergm.getnetwork(formula)
   }
-  if(class(nw) =="network.list"){
+  if(inherits(nw,"network.list")){
     nw <- nw$networks[[1]]
   }
   nw <- as.network(nw)
