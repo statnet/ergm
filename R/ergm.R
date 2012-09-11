@@ -282,7 +282,8 @@ ergm <- function(formula, response=NULL,
     initialfit$estimate <- estimate
 
     initialfit$control<-control
-    
+
+    if(eval.loglik) initialfit$null.lik <- logLikNull.ergm(initialfit)
     if(any(!model.initial$etamap$offsettheta) && eval.loglik){
       if(verbose) cat("Evaluating log-likelihood at the estimate.\n")
       initialfit<-logLik.ergm(initialfit, add=TRUE, control=control$loglik.control)
@@ -360,6 +361,9 @@ ergm <- function(formula, response=NULL,
   mainfit$drop <- if(control$drop) extremecheck$extremeval.theta
   mainfit$estimable <- constrcheck$estimable
   mainfit$etamap <- model$etamap
+
+  mainfit$null.lik<-logLikNull.ergm(mainfit)
+  
   if (!control$MCMC.return.stats)
     mainfit$sample <- NULL
 

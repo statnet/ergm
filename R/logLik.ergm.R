@@ -46,7 +46,7 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
   if(!inherits(llk,"logLik")){
     class(llk)<-"logLik"
     attr(llk,"df")<-length(coef(object))
-    attr(llk,"nobs")<-{
+    attr(llk,"nobs")<- if(is.null(object$null.lik)){ # If we can steal the number of observations from the null model...
       # FIXME: We need a more general framework for handling
       # constrained and partially observed network "degrees of
       # freedom". PROGRESS: We can handle dyad-independent ones fine,
@@ -58,7 +58,12 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
       }
       
       network.dyadcount(object$network,FALSE) - network.edgecount(NVL(get.miss.dyads(object$constrained, object$constrained.obs),network.initialize(1)))
-    }
+    }else attr(object$null.lik,"nobs")
+  }
+
+
+  if(!is.null(object$null.lik) && !is.na(object$null.lik)){ # If Null likelihood is defined, shift the MLE likelihood.
+    llk[] <- c(llk + object$null.lik) # The brackets are important to preserve attr()s on llk, and the c() is important to strip the ones from the sum.
   }
   
   if(add){
@@ -74,16 +79,20 @@ nologLik.message<-function(objname){
 logLikNull <- function(object, ...) UseMethod("logLikNull")
 
 logLikNull.ergm <- function(object, control=control.logLik.ergm(), ...){
-  if(!is.null(object$response)){
-    warning("Null model likelihood calculation is not implemented for valued ERGMs at this time.")
-    return(NA)
-  }
-  if(!is.dyad.independent(object$constrained, object$constrained.obs)){
-    warning("The constraint on the sample space is not dyad-independent. Null model likelihood is only implemented for dyad-independent constraints at this time.")
-    return(NA)
-  }
+  if(!is.null(object$null.lik)) object$null.lik
+
   nobs <- if(is.null(object$mle.lik)) network.dyadcount(object$network,FALSE) - network.edgecount(NVL(get.miss.dyads(object$constrained, object$constrained.obs),network.initialize(1))) else attr(object$mle.lik,"nobs")
-  llk <- nobs * log(1/2)
+  
+  llk <-
+    if(!is.null(object$response)){
+      warning("Null model likelihood calculation is not implemented for valued ERGMs at this time.")
+      NA
+    }else if(!is.dyad.independent(object$constrained, object$constrained.obs)){
+      warning("The constraint on the sample space is not dyad-independent. Null model likelihood is only implemented for dyad-independent constraints at this time. Number of observations is similarly ill-defined.")
+      NA
+    }else nobs * log(1/2)
+  
+
   class(llk)<-"logLik"
   attr(llk,"df")<-0
   attr(llk,"nobs")<-nobs

@@ -60,7 +60,6 @@ print.summary.ergm <- function (x,
              stop("Unknown estimation method. This is a bug.")),
            EGMME = if(!is.null(control$EGMME.main.method))  switch(control$EGMME.main.method,
              `Gradient-Descent`=cat("\nEquilibrium Generalized Method of Moments Results:\n"),
-             `One-Step`=cat("\nEquilibrium Generalized Method of Moments Results:\n"),
              stop("Unknown estimation method. This is a bug.")),
            stop("Unknown estimate type. This is a bug.")
            )
@@ -82,6 +81,8 @@ print.summary.ergm <- function (x,
   if(print.deviances){
     if(!is.null(x$devtable)){
       cat(x$devtable)
+
+      if(x$null.lik.0) cat("Note that the null model likelihood and deviance are defined to be 0.\n\n")
       
       cat(paste("AIC:", format(x$aic, digits = digits), "  ", 
                 "BIC:", format(x$bic, digits = digits), "  ",

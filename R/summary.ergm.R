@@ -117,7 +117,6 @@ summary.ergm <- function (object, ...,
   ans$samplesize <- switch(object$estimate,
                            EGMME = if(!is.null(control$EGMME.main.method)) switch(control$EGMME.main.method,
                              `Gradient-Descent`=control$SA.phase3n,
-                             `One-Step`=control$SA.phase3n,
                              stop("Unknown estimation method. This is a bug.")),
                            MPLE = NA,
                            MLE = if(!is.null(control$main.method)) switch(control$main.method,
@@ -133,7 +132,6 @@ summary.ergm <- function (object, ...,
   ans$iterations <- switch(object$estimate,
                            EGMME = if(!is.null(control$EGMME.main.method)) switch(control$EGMME.main.method,
                              `Gradient-Descent`=NA,
-                             `One-Step`=NA,
                              stop("Unknown estimation method. This is a bug.")),
                            MPLE = NA,
                            MLE = if(!is.null(control$main.method)) switch(control$main.method,
@@ -180,24 +178,24 @@ summary.ergm <- function (object, ...,
     else if(object$estimate == "MLE" && any(is.na(mc.se)) && 
                       (!independence || control$force.main) ) {
       ans$message <- "\nWarning:  The standard errors are suspect due to possible poor convergence.\n"
-    }else if(object$estimate == "EGMME"){
-      ans$message <- "\nWarning:  The standard errors do not incorporate uncertainty due to the \"noisy\" estimation procedure.\n"
     }
   } else {
     ans$message <- "\nFor this model, the pseudolikelihood is the same as the likelihood.\n"
   }
-  llk<-try(logLik(object,...), silent=TRUE)
+  mle.lik<-try(logLik(object,...), silent=TRUE)
+  null.lik<-try(logLikNull(object,...), silent=TRUE)
 
-  if(!inherits(llk,"try-error")){
+  ans$null.lik.0 <- is.na(null.lik)
+
+  if(!inherits(mle.lik,"try-error")){
   
     ans$devtable <- c("",apply(cbind(paste(format(c("    Null", "Residual"), width = 8), devtext), 
-                                     format(c(0, -2*llk), digits = digits), " on",
+                                     format(c(if(is.na(null.lik)) 0 else -2*null.lik, -2*mle.lik), digits = digits), " on",
                                      format(c(dyads, rdf), digits = digits)," degrees of freedom\n"), 
                                1, paste, collapse = " "),"\n")
     
-    
-    ans$aic <- AIC(llk)
-    ans$bic <- BIC(llk)
+    ans$aic <- AIC(mle.lik)
+    ans$bic <- BIC(mle.lik)
   }else ans$objname<-deparse(substitute(object))
   
   ans$coefs <- as.data.frame(tempmatrix)
