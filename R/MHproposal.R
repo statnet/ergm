@@ -94,8 +94,11 @@ MHproposal.MHproposal<-function(object,...) return(object)
 #
 ########################################################################################
 
-MHproposal.character <- function(object, arguments, nw, ..., response=NULL){
+MHproposal.character <- function(object, arguments, nw, ..., response=NULL, reference=reference){
   name<-object
+
+  arguments$reference <- reference
+  
   proposal <- {
     if(is.null(response))
       eval(call(paste("InitMHP", name, sep="."),
@@ -106,6 +109,9 @@ MHproposal.character <- function(object, arguments, nw, ..., response=NULL){
   }
 
   proposal$arguments <- arguments
+  proposal$arguments$reference <- NULL
+
+  proposal$reference <- reference
 
   proposal$arguments$constraints$bd <- ergm.bounddeg(arguments$constraints$bd,nw)
 
@@ -150,7 +156,6 @@ mk.conlist <- function(object, nw){
     if(is.call(constraint)){
       init.call<-list()
       init.call<-list(as.name(paste("InitConstraint.", constraint[[1]], sep = "")), lhs.nw=nw, conlist=conlist)
-      
       init.call<-c(init.call,as.list(constraint)[-1])
     }else{
       init.call <- list(as.name(paste("InitConstraint.", constraint, sep = "")), lhs.nw=nw, conlist=conlist)
@@ -163,8 +168,16 @@ mk.conlist <- function(object, nw){
   conlist
 }
 
-MHproposal.formula <- function(object, arguments, nw, weights="default", class="c", reference="Bernoulli", response=NULL, ...) {
-  reference<-match.arg(reference,unique(ergm.MHP.table()$Reference))
+MHproposal.formula <- function(object, arguments, nw, weights="default", class="c", reference=~Bernoulli, response=NULL, ...) {
+  reference <- reference
+  if(is.call(reference[[2]])){
+    ref.call <- list()
+    ref.call <- list(as.name(paste("InitReference", reference[[2]][[1]], sep = ".")), lhs.nw=nw)
+    ref.call <- c(ref.call,as.list(reference[[2]])[-1])
+  }else{
+    ref.call <- list(as.name(paste("InitReference", reference[[2]], sep = ".")), lhs.nw=nw)
+  }
+  reference <- eval(as.call(ref.call),environment(reference))
 
   if("constraints" %in% names(arguments)){
     conlist <- prune.conlist(arguments$constraints)
@@ -180,7 +193,7 @@ MHproposal.formula <- function(object, arguments, nw, weights="default", class="
     constraints <- paste(sort(tolower(names(conlist))),collapse="+")
   }
   
-  MHqualifying<-with(ergm.MHP.table(),ergm.MHP.table()[Class==class & Constraints==constraints & Reference==reference & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
+  MHqualifying<-with(ergm.MHP.table(),ergm.MHP.table()[Class==class & Constraints==constraints & Reference==reference$name & if(is.null(weights) || weights=="default") TRUE else Weights==weights,])
 
   if(nrow(MHqualifying)<1){
     commonalities<-(ergm.MHP.table()$Class==class)+(ergm.MHP.table()$Weights==weights)+(ergm.MHP.table()$Reference==reference)+(ergm.MHP.table()$Constraints==constraints)
@@ -195,7 +208,7 @@ MHproposal.formula <- function(object, arguments, nw, weights="default", class="
     
   arguments$constraints<-conlist
   ## Hand it off to the class character method.
-  MHproposal.character(name,arguments,nw,response=response)
+  MHproposal.character(name, arguments, nw, response=response, reference=reference)
 }
 
 
@@ -220,12 +233,13 @@ MHproposal.formula <- function(object, arguments, nw, weights="default", class="
 #
 ########################################################################################
 
-MHproposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NULL, weights=NULL,class="c", reference="Bernoulli", response=NULL){
+MHproposal.ergm<-function(object,...,constraints=NULL, arguments=NULL, nw=NULL, weights=NULL,class="c", reference=NULL, response=NULL){
   if(is.null(constraints)) constraints<-object$constraints
-  if(is.null(arguments)) arguments<-object$prop.args
+  if(is.null(arguments)) arguments<-object$control$MCMC.prop.args
+  if(is.null(weights)) weights<-object$control$MCMC.prop.weights
   if(is.null(nw)) nw<-object$network
+  if(is.null(reference)) response<-object$reference
   if(is.null(response)) response<-object$response
-  if(is.null(weights)) weights<-"default"
   
   MHproposal(constraints,arguments=arguments,nw=nw,weights=weights,class=class,reference=reference,response=response)
 }

@@ -7,7 +7,7 @@
 \usage{
 \method{simulate}{formula}(object, nsim=1, seed=NULL,
                            coef, 
-                           response=NULL, reference="Bernoulli",
+                           response=NULL, reference=~Bernoulli,
                            constraints=~.,
                            monitor=NULL,
                            basis=NULL,
@@ -57,13 +57,20 @@
     default value is the vector of estimated coefficients.
   }
   \item{response}{\emph{EXPERIMENTAL.} Name of the edge attribute whose value is to be
-    modeled. Defaults to \code{NULL} for simple presence or absence. }
-  \item{reference}{\emph{EXPERIMENTAL.} Name of the reference measure to
-    be used. (Defaults to \code{Bernoulli}.)}
+    modeled. Defaults to \code{NULL} for simple presence or
+    absence, modeled via \link[=ergm-terms]{binary ERGM terms}. Passing
+    anything but \code{NULL} uses \code{\link[=valued-ergm-terms]{valued ERGM terms} }}
+  
+  \item{reference}{\emph{EXPERIMENTAL.} A one-sided formula specifying
+    the reference measure (\eqn{h(y)}) to be used. (Defaults to \code{~Bernoulli}.)
+    See help for \link[=ergm-references]{ERGM reference measures} implemented in the
+    \code{\link[=ergm-package]{ergm}} package.}
+  
   \item{constraints}{A one-sided formula specifying one or more constraints
     on the support of the distribution of the networks being
     simulated. See the documentation for a similar argument for
-    \code{\link{ergm}} for more information. For
+    \code{\link{ergm}} and see \link[=ergm-constraints]{list of
+    implemented constraints} for more information. For
     \code{simulate.formula}, defaults to no constraints. For
     \code{simulate.ergm}, defaults to using the same constraints as
     those with which \code{object} was fitted.

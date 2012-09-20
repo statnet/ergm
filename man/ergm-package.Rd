@@ -5,8 +5,9 @@
 Fit, Simulate and Diagnose Exponential-Family Models for Networks
 }
 \description{
-\code{\link[=ergm-package]{ergm}} is a collection of functions to plot, fit, diagnose, and simulate from random 
-graph models. For a list of functions type: \code{help(package='ergm')}
+\code{\link[=ergm-package]{ergm}} is a collection of functions to plot,
+fit, diagnose, and simulate from exponential-family random 
+graph models (ERGMs). For a list of functions type: \code{help(package='ergm')}
 
 For a complete list of the functions, use \code{library(help="ergm")} 
 or read the rest of the manual. For a simple demonstration,
@@ -32,16 +33,20 @@ three interrelated factors: the complexity of realistic models, the lack of
 simulation tools for inference and validation, and a poor understanding of the
 inferential properties of nontrivial models.
 
-This manual introduces software tools for the representation, visualization,
-and analysis of network data that address each of these previous shortcomings.
-The package relies on the \code{\link[network]{network}} package which allows networks to be
-represented in \R. The \code{\link{ergm}} package allows maximum likelihood estimates of
-exponential random network models to be calculated using Markov Chain Monte
-Carlo.  The package also provides tools for plotting networks, simulating
-networks and assessing model goodness-of-fit.
+This manual introduces software tools for the representation,
+visualization, and analysis of network data that address each of these
+previous shortcomings.  The package relies on the
+\code{\link[network]{network}} package which allows networks to be
+represented in \R. The \code{\link[=ergm-package]{ergm}} package
+implements maximum likelihood estimates of ERGMs to be calculated using
+Markov Chain Monte Carlo (via \code{\link{ergm}}). The package also
+provides tools for simulating networks (via
+\code{\link{simulate.ergm}}) and assessing model
+goodness-of-fit (see \code{\link{mcmc.diagnostics}} and
+\code{\link{gof.ergm}}).
 
 For detailed information on how to download and install the software,
-go to the \code{\link{ergm}} website:
+go to the \code{\link[=ergm-package]{ergm}} website:
 \url{statnet.org}.
 A tutorial, support newsgroup, references and links to further resources are provided there.
 }
@@ -124,13 +129,13 @@ Handcock MS, Hunter DR, Butts CT, Goodreau SM, Morris M (2003a).
  \pkg{ergm}: A Package to Fit, Simulate and Diagnose
   Exponential-Family Models for Networks.
  Statnet Project, Seattle, WA.
- Version 2, \url{statnet.org}.
+ Version 3, \url{statnet.org}.
 
 Handcock MS, Hunter DR, Butts CT, Goodreau SM, Morris M (2003b).
  \pkg{statnet}: Software Tools for the Statistical Modeling of
   Network Data.
  Statnet Project, Seattle, WA.
- Version 2, \url{statnet.org}.
+ Version 3, \url{statnet.org}.
 
 Hunter, D. R. and Handcock, M. S. (2006)
    Inference in curved exponential family models for networks,

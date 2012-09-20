@@ -103,7 +103,7 @@
 #####################################################################################    
 
 ergm <- function(formula, response=NULL,
-                 reference="Bernoulli",obs=NA,
+                 reference=~Bernoulli,obs=NA,
                  constraints=~.,
                  offset.coef=NULL,
                  target.stats=NULL,
@@ -229,7 +229,7 @@ ergm <- function(formula, response=NULL,
 
   if (verbose) { cat("Fitting initial model.\n") }
 
-  MPLE.is.MLE <- (reference=="Bernoulli"
+  MPLE.is.MLE <- (MHproposal$reference$name=="Bernoulli"
                   && is.dyad.independent(model.initial)
                   && !control$force.main
                   && is.dyad.independent(MHproposal$arguments$constraints,

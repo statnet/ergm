@@ -73,7 +73,7 @@ san.default <- function(object,...)
   stop("Either a ergm object or a formula argument must be given")
 }
 
-san.formula <- function(object, response=NULL, reference="Bernoulli", constraints=~., target.stats=NULL,
+san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints=~., target.stats=NULL,
                         nsim=1, basis=NULL,
                         sequential=TRUE,
                         control=control.san(),
@@ -143,7 +143,7 @@ san.formula <- function(object, response=NULL, reference="Bernoulli", constraint
      }
 
     if(is.null(control$coef)) {
-      if(reference=="Bernoulli"){
+      if(reference==~Bernoulli){
         fit <- ergm.mple(Clist=Clist, Clist.miss=Clist.miss, 
                          conddeg=conddeg,
                          control=control, MHproposal=MHproposal,
@@ -269,6 +269,7 @@ san.ergm <- function(object, formula=object$formula,
   san.formula(formula, nsim=nsim, 
               target.stats=target.stats,
               basis=basis,
+              reference = object$reference,
               sequential=sequential,
               constraints=constraints,
               control=control,

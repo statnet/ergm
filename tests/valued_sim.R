@@ -20,12 +20,12 @@ theta<-c(x.coef,xy.coef,xx.coef)
 
 cat("mean=",mu,", var=",sig^2,", corr=",rho,"\neta=(",paste(theta,collapse=","),")\n",sep="")
 
-s<-simulate(testnet3d~sum+mutual("product")+sum(pow=2), nsim=1000, reference="StdNormal", response="w", coef=theta,
+s<-simulate(testnet3d~sum+mutual("product")+sum(pow=2), nsim=1000, reference=~StdNormal, response="w", coef=theta,
             statsonly=TRUE, control=control.simulate(MCMC.burnin=10000))
 
 cat("Simulated mean (statsonly):",mean(s[,1])/6,"\n",sep="")
 
-s.full<-simulate(testnet3d~sum+mutual("product")+sum(pow=2), nsim=1000, reference="StdNormal", response="w",
+s.full<-simulate(testnet3d~sum+mutual("product")+sum(pow=2), nsim=1000, reference=~StdNormal, response="w",
                  coef=theta, statsonly=FALSE, control=control.simulate(MCMC.burnin=10000))
 
 s.cells<-sapply(s.full, function(x) as.matrix(x,m="a",a="w"),simplify=FALSE)
@@ -60,7 +60,7 @@ print(c(cor(sapply(s.cells,"[",1,2),sapply(s.cells,"[",2,1)),
 cat("Standard-normal-reference ERGM with rank constraint\n")
 load("testrank3d.RData")
 
-s.full<-simulate(testrank3d~sum, nsim=1000, reference="StdNormal", response="w", coef=0, statsonly=FALSE,
+s.full<-simulate(testrank3d~sum, nsim=1000, reference=~StdNormal, response="w", coef=0, statsonly=FALSE,
                  constraints=~ranks, control=control.simulate(MCMC.burnin=10000))
 s.cells<-sapply(s.full, function(x) as.matrix(x,m="a",a="w"), simplify=FALSE)
 ref.sample<-pmax(rnorm(10000),rnorm(10000))

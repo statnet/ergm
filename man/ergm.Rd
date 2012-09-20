@@ -3,11 +3,15 @@
 \alias{ergm.object}
 \title{Exponential Family Random Graph Models}
 \description{
-  \code{\link{ergm}} is used to fit linear exponential random network models, in which
+  \code{\link{ergm}} is used to fit linear exponential random graph
+  models (ERGMs), in which
   the probability of a given network, \eqn{y}, on a set of nodes is 
-  \eqn{\exp(\theta{\cdot}g(y))/c(\theta)}, where 
-  \eqn{g(y)} is a vector of network statistics,
-  \eqn{\theta} is a parameter vector of the same length and \eqn{c(\theta)} is the
+  \eqn{h(y) \exp\{\eta(\theta) \cdot
+    g(y)\}/c(\theta)}, where
+  \eqn{h(y)} is the reference measure (usually \eqn{h(y)=1}),
+  \eqn{g(y)} is a vector of network statistics for \eqn{y},
+  \eqn{\eta(\theta)} is a natural parameter vector of the same 
+  length (with \eqn{\eta(\theta)=\theta} for most terms), and \eqn{c(\theta)} is the
   normalizing constant for the distribution.
   \code{\link{ergm}} can return either a maximum pseudo-likelihood
   estimate or an approximate maximum likelihood estimator based on a Monte Carlo scheme.
@@ -15,7 +19,7 @@
 \usage{
 ergm (formula,
       response=NULL,
-      reference="Bernoulli",
+      reference=~Bernoulli,
       obs=NA,
       constraints=~.,
       offset.coef=NULL,
@@ -32,23 +36,31 @@ ergm (formula,
     where \code{y} is a \code{\link[network]{network}} object or a matrix that can be
     coerced to a \code{\link[network]{network}}  object.  For the details on the possible
     \code{<model terms>}, see \code{\link{ergm-terms}} and Morris, Handcock and
-    Hunter (2008).  To create a
+    Hunter (2008) for binary ERGM terms and
+    \code{\link{valued-ergm-terms}} and Krivitsky (2012) for valued ERGM
+    terms (terms for weighted edges).  To create a
     \code{\link[network]{network}} object in \R, use the \code{network()} function,
     then add nodal attributes to it using the \code{\%v\%}
     operator if necessary. Enclosing a model term in \code{offset()}
     fixes its value to one specified in \code{offset.coef}.
   }
   \item{response}{\emph{EXPERIMENTAL.} Name of the edge attribute whose value is to be
-    modeled. Defaults to \code{NULL} for simple presence or absence. }
-  \item{reference}{\emph{EXPERIMENTAL.} Name of the reference measure to
-    be used. (Defaults to \code{Bernoulli}.)}
+    modeled. Defaults to \code{NULL} for simple presence or
+    absence, modeled via \link[=ergm-terms]{binary ERGM terms}. Passing
+    anything but \code{NULL} uses \code{\link[=valued-ergm-terms]{valued ERGM terms} }}
+  
+  \item{reference}{\emph{EXPERIMENTAL.} A one-sided formula specifying
+    the reference measure (\eqn{h(y)}) to be used. (Defaults to \code{~Bernoulli}.)
+    See help for \link[=ergm-references]{ERGM reference measures} implemented in the
+    \code{\link[=ergm-package]{ergm}} package.}
+  
   \item{obs}{Not for release.
   }
   \item{constraints}{A one-sided formula specifying one or more constraints
     on the support of the distribution of the networks being modeled,
     using syntax similar to the \code{formula} argument. Multiple constraints
     may be given, separated by \dQuote{+} operators.
-    Together with the model terms in the formula, the constraints
+    Together with the model terms in the formula and the reference measure, the constraints
     define the distribution of networks being modeled.
 
     It is also possible to specify a proposal function directly
@@ -58,53 +70,14 @@ ergm (formula,
 
     The default is \code{~.}, for an unconstrained model.
 
-    The constraint terms currently implemented are 
-    \describe{
-      \item{\code{.} or \code{NULL}}{
-        A placeholder for no constraints: all networks of a
-        particular size and type have non-zero probability.
-        Cannot be combined with other constraints.
-      }
-      \item{\code{bd(attribs,maxout,maxin,minout,minin)}}{
-        Constrain maximum and minimum vertex degree. See
-        \dQuote{Placing Bounds
-        on Degrees} section for more information.
-      }
-      \item{\code{blockdiag(attrname)}}{
-	Force a block-diagonal structure on the network. Only dyads
-	\eqn{(i,j)} for which \code{attrname(i)==attrname(j)} can have edges.
-      }
-      \item{\code{degrees} and \code{nodedegrees}}{
-        Preserve the degree of each vertex of the given network: only networks
-        whose vertex degrees are the same as those in the network passed
-        in the model formula have non-zero probability.
-      }
-      \item{\code{odegrees}, \code{idegrees}, \code{b1degrees}, \code{b2degrees}}{
-         \code{odegrees} preserves the outdegree of each vertex of the given
-    network, while allowing indegree to vary, and similarly for the others.
-      }
-      \item{\code{degreedist}}{
-        Preserve the degree distribution of the given network: only networks
-        whose degree distributions are the same as those in the network passed
-        in the model formula have non-zero probability.
-      }
-      \item{\code{idegreedist} and \code{odegreedist}}{
-        Preserve the (respectively) indegree or outdegree distribution of 
-        the given network.
-      }
-      \item{\code{edges}}{
-        Preserve the edge count of the given network: only networks
-        having the same number of edges as the network passed
-        in the model formula have non-zero probability.
-      }
-      \item{\code{observed}}{
-        Preserve the observed dyads of the given network.
-      }
-    }
-    Not all combinations of the above are supported.
+    See the \link[=ergm-constraints]{ERGM constraints} documentation for
+    the constraints implemented in the \code{\link[=ergm-package]{ergm}}
+    package. Other packages may add their own constraints.
+    
+    Note that not all possible combinations of constraints and reference
+    measures are supported.
   }
-  \item{offset.coef}{Not yet documented.
-  }
+  \item{offset.coef}{A vector of coefficients for the offset terms.}
   \item{target.stats}{vector of "observed network statistics,"
     if these statistics are for some reason different than the 
     actual statistics of the network on the left-hand side of
@@ -139,17 +112,6 @@ ergm (formula,
   \item{\dots}{Additional
     arguments, to be passed to lower-level functions.
   }
-}
-
-\section{Model Terms}{
-  The \code{\link{ergm}} function allows the user to explore a large number
-  of potential models for their network data.  The
-  terms currently supported by the program,
-  and a brief description of each is given in the documentation
-  \code{\link{ergm-terms}}. 
-  In the \code{\link{formula}} for the model, the model terms are various function-like
-  calls, some of which require arguments, separated by \code{+} signs.
-  For a more detailed understanding of the model terms, see and Morris, Handcock and Hunter (2008).
 }
 
 \value{\code{\link{ergm}} returns an object of class \code{\link{ergm}} that is a list
@@ -268,205 +230,6 @@ be controlled using the \code{prop.weights} argument to the
 The package is designed so that the user could conceivably add additional 
 proposal types. 
 }
-  
-\section{Placing Bounds on Degrees:}{
-There are many times when one may wish to condition on the
-number of inedges or outedges possessed by a node, either as a
-consequence of some intrinsic property of that node (e.g., to control for 
-activity or popularity processes), to account
-for known outliers of some kind, and thus we wish to limit its indegree, an
-intrinsic property of the sampling scheme whence came our data (e.g.,
-the survey asked everyone to name only three friends total) or as a
-function of the attributes of the nodes to which a node has edges
-(e.g., we specify that nodes designated \dQuote{male} have a maximum number
-of outdegrees to nodes designated \dQuote{female}).  To accomplish this we
-use the \code{constraints} term  \code{bd}.
-
-Let's consider the simple cases first. 
-Suppose you want to condition on the total number of degrees
-regardless of attributes.  That is, if you had a survey that asked
-respondents to name three alters and no more, then you might want to
-limit your maximal outdegree to three without regard to any of the
-alters' attributes. The argument is then:  
-
-   \code{constraints=~bd(maxout=3)}
-
-Similar calls are used to restrict the number of indegrees
-(\code{maxin}), the minimum number of outdegrees
-(\code{minout}), and the minimum number of indegrees
-(\code{minin}).
-
-You can also set ego specific limits. For example:
-
-   \code{constraints=bd(maxout=rep(c(3,4),c(36,35)))}
-
-limits the first 36 to 3 and the other 35 to 4 outdegrees.
-
-Multiple restrictions can be combined. \code{bd} is very flexible.
-In general, the \code{bd} term can contain up to five arguments:
-
-  \preformatted{
-    bd(attribs=attribs,
-       maxout=maxout,
-       maxin=maxin,
-       minout=minout,
-       minin=minin)
-  }
-
-Omitted arguments are unrestricted, and arguments of length 1
-are replicated out to all nodes (as above). If an individual
-entry in \code{maxout},..., \code{minin} is \code{NA} then
-no restriction of that kind is applied to that actor.
-
-In general, \code{attribs} is a matrix of the attributes on
-which we are conditioning.  The dimensions of \code{attribs}
-are \code{n_nodes} rows by \code{attrcount} columns, where
-\code{attrcount} is the number of distinct attribute values
-on which we want to condition (i.e., a separate column is
-required for \dQuote{male} and \dQuote{female} if we want to condition on
-the number of ties to both \dQuote{male} and \dQuote{female} partners).
-The value of \code{attribs[n, i]}, therefore, is \code{TRUE}
-if node \code{n} has attribute value i, and \code{FALSE} otherwise.
-(Note that, since each column represents only a single value
-of a single attribute, the values of this matrix are all
-Boolean (\code{TRUE} or \code{FALSE}).)  It is important to
-note that \code{attribs} is a matrix of nodal attributes,
-not alter attributes.
-
-So, for instance, if we wanted to construct an \code{attribs} matrix
-with two columns, one each for male and female attribute
-values (we are conditioning on these values of the attribute
-\dQuote{sex}), and the attribute sex is represented in ads.sex as
-an \code{n_node}-long vector of 0s and 1s (men and women),
-then our code would look as follows:
-
-\preformatted{
- # male column: bit vector, TRUE for males
- attrsex1 <- (ads.sex == 0) 
- # female column: bit vector, TRUE for females
- attrsex2 <- (ads.sex == 1)
- # now create attribs matrix
- attribs <- matrix(ncol=2,nrow=71, data=c(attrsex1,attrsex2))
-}
-
-\code{maxout} is a matrix of alter attributes, with the same
-dimensions as the \code{attribs} matrix.  \code{maxout} is \code{n_nodes}
-rows by \code{attrcount} columns.  The value of \code{maxout[n,i]},
-therefore, is the maximum number of outdegrees permitted
-from node \code{n} to nodes with the attribute \code{i} (where a \code{NA}
-means there is no maximum).
-
-For example:  if we wanted to create a \code{maxout} matrix to work
-with our \code{attribs} matrix above, with a maximum from every
-node of five outedges to males and five outedges to females,
-our code would look like this:
-
-\preformatted{
-      # every node has maximum of 5 outdegrees to male alters
-      maxoutsex1 <- c(rep(5,71))
-      # every node has maximum of 5 outdegrees to female alters
-      maxoutsex2 <- c(rep(5,71))
-      # now create maxout matrix
-      maxout <- cbind(maxoutsex1,maxoutsex2)
-}
-
-The \code{maxin}, \code{minout}, and \code{minin} matrices
-are constructed exactly like the \code{maxout} matrix,
-except for the maximum allowed indegree, the minimum allowed
-outdegree, and the minimum allowed indegree, respectively.
-Note that in an undirected network, we only look at the outdegree
-matrices; \code{maxin} and \code{minin} will both be ignored
-in this case.
-
-% First, you would assign the \dQuote{ego} attribute to all your nodes -
-% because every node is an ego, every node gets a \code{TRUE} (or 1) in its
-% column in the \code{attribs} matrix.  
-
-% \code{attribs <- matrix(ncol=1,nrow=71,data=c(rep(1,71)))}
-
-% Then you would assign a maximum number of alter out degrees allowed
-% to each ego in the same column as in the \code{attribs} matrix.  In this
-% case, all egos have a maximum outdegree of 3.
-
-% \code{maxout <- matrix(ncol=1,nrow=71,data=c(rep(3,71)))}
-
-% Then, we can create dummy \code{maxin}, \code{minout},
-% \code{minin} matrices (in the future these will be empty
-% by default) and create the \code{} argument to pass
-% into the \code{\link{ergm}} call.
-
-% To create \dQuote{dummy} \code{maxin}, \code{minout}, and
-% \code{minin} matrices to correspond to the \code{attribs} and
-% \code{maxout} matrices created above, that impose no limits
-% on the amount of edges allowed, our code would look like this:
-
-% \code{maxin <- matrix(NA,ncol=2,nrow=71)
-%       minout <- matrix(NA,ncol=2,nrow=71)
-%	minin <- matrix(NA,ncol=2,nrow=71)}
-
-%  The argument we pass into the \code{\link{ergm}} call, then would look like this:
-
-%  \code{ = list( attribs=attribs,
-%        	         maxout=maxout,
-%        	         maxin=maxin,
-%        	         minout=minout,
-%        	         minin=minin)}
-
-%  This argument passed into \code{\link{ergm}} will now restrict your proposed 
-%  networks to those which meet your desired degree conditions.
-  
-
-%  \code{ = list( attribs=attribs,
-%        	         maxout=maxout,
-%        	         maxin=matrix(NA,ncol=1,nrow=71),
-%        	         minout=matrix(NA,ncol=1,nrow=71),
-%        	         minin=matrix(NA,ncol=1,nrow=71))}
-
-%\preformatted{
-%attribs[n][0] = 1 # just the ego values
-%maxout[n][0] = minout[n][0] = observed outdegree of n in network
-%maxin[n][0] = minin[n][0] = observed indegree of n in network
-%  }
-}
- 
-%\section{Dealing with degeneracy}{
-%In order to begin the process of estimating network coefficients,
-%we need starting values - guesses at the true values of the
-%network statistic coefficients.  The default is to begin the MCMC
-%estimation process at the deterministic MPLE values. These
-%values are often taken as good-enough final answers by many other
-%applications. However recent work has indicated that they are sub-optimal and
-%can be dramatically bad.
-%
-%In using the MPLE values, MCMC MLE often runs into
-%problems caused by the inherent instability of the natural parameter
-%space of the models (Handcock 2000, 2002, 2003).
-%If the initial values for the parameter coefficients
-%are off by a very small amount in the wrong direction, the
-%result is often a sample of networks that are degenerate -
-%that is, networks that are entirely full or entirely empty,
-%or that are otherwise less-than-representative of the
-%sample of network space our process is attempting to explore.
-%(In part, this is an indication of why one should not rely
-%solely on the MPLE). The package contains many algorithmic 
-%tools to obtain quality inference.
-%If the sample of networks is
-%degenerate, our algorithm will fail in its calculation of an
-%MLE for our data (usually in constructing the Hessian matrix).
-%%In this case, we can attempt to converge using the Robbins-Monro
-%%algorithm, minimizing the Euclidean distance between the mean of
-%%the sample network statistics and the observed network statistics
-%%as a function of the theta vector.  While this is a fairly
-%%blunt instrument for estimating the thetas in comparison to
-%%the MCMC, it still has the potential to get us thetas in the
-%%right range; then we can run the MCMC again, using our better
-%%estimates of theta.  A potential problem with this technique is
-%%that it only works well if the space of sufficient statistics
-%%is sufficiently regular around our sample network; but as a
-%%stop-gap measure, it has shown some limited success.
-%See the references for details, especially Handcock (2003) and Hunter and
-%Handcock (2006).
-%}
 
 \references{
 %Handcock, M.S. (2000) \emph{Progress in Statistical Modeling of Drug User and 

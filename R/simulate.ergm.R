@@ -74,7 +74,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
 
   control <- set.control.class("control.simulate.formula")
   
-  simulate.formula(object$formula, nsim=nsim, coef=coef, response=object$response, reference=if(is.null(reference)) "Bernoulli" else object$reference,
+  simulate.formula(object$formula, nsim=nsim, coef=coef, response=object$response, reference=if(is.null(reference)) object$reference else reference,
                    statsonly=statsonly,
                    sequential=sequential, constraints=constraints,
                    monitor=monitor,
@@ -83,7 +83,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
 
 
 simulate.formula <- function(object, nsim=1, seed=NULL,
-                               coef, response=NULL, reference="Bernoulli",
+                               coef, response=NULL, reference=~Bernoulli,
                                constraints=~.,
                                monitor=NULL,
                                basis=NULL,
