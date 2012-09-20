@@ -16,6 +16,7 @@ control.logLik.ergm(nsteps=20,
 
                     MCMC.prop.weights=NULL,
                     MCMC.prop.args=NULL,
+                    warn.dyads=TRUE,
 
                     MCMC.init.maxedges=NULL,
                     MCMC.packagenames=NULL,
@@ -56,6 +57,10 @@ control.logLik.ergm(nsteps=20,
     low edge density, as is typical of many realistic social networks.
   }
   \item{MCMC.prop.args}{An alternative, direct way of specifying additional arguments to proposal. 
+  }
+  \item{warn.dyads}{Whether or not a warning should be issued when
+    sample space constraints render the observed number of dyads
+    ill-defined.
   }
   \item{MCMC.init.maxedges}{Maximum number of edges expected in network.
   }
