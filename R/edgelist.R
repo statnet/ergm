@@ -14,10 +14,10 @@ as.edgelist.network <- function(x, attrname = NULL, as.sna.edgelist = FALSE, inv
 
 .check.el.attr <- function(x, y){
   stopifnot(ncol(x) == ncol(y),
-            attr(to,"n") == attr(from,"n"),
-            attr(to,"directed") == attr(from,"directed"),
-            attr(to,"bipartite") == attr(from,"bipartite"),
-            attr(to,"loops") == attr(from,"loops"))
+            attr(x,"n") == attr(y,"n"),
+            attr(x,"directed") == attr(y,"directed"),
+            attr(x,"bipartite") == attr(y,"bipartite"),
+            attr(x,"loops") == attr(y,"loops"))
 }
 
 is.inverted <- function(x, ...) UseMethod("is.inverted")
