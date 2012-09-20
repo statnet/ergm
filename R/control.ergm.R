@@ -185,7 +185,6 @@ control.ergm<-function(drop=TRUE,
                        Step.maxit=50,
                        Step.gridsize=100,
 
-                       warn.dyads=TRUE,
                        loglik.control=control.logLik.ergm(),
 
                        seed=NULL,

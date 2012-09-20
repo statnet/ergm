@@ -16,7 +16,6 @@ control.ergm(drop=TRUE,
              main.hessian=TRUE,
 
              MPLE.max.dyad.types=1e+6, 
-             MPLE.max.samplesize=100000,
              MPLE.samplesize=50000,                       
              MPLE.type=c("glm", "penalized"),
                       
@@ -57,7 +56,7 @@ control.ergm(drop=TRUE,
              obs.MCMC.burnin=MCMC.burnin,
              MCMLE.check.degeneracy=FALSE,
              MCMLE.MCMC.precision=0.05,
-             MCMLE.metric=c("lognormal", "Median.Likelihood",
+             MCMLE.metric=c("lognormal", "logtaylor", "Median.Likelihood",
                "EF.Likelihood", "naive"),
              MCMLE.method=c("BFGS","Nelder-Mead"),
              MCMLE.trustregion=20,
@@ -167,10 +166,6 @@ control.ergm(drop=TRUE,
     regression used to calculate the MPLE.  This calculation uses 
     a compression algorithm that allocates space based on 
     \code{MPLE.max.dyad.types}.
-  }
-  \item{MPLE.max.samplesize}{Not currently used.
-    Was the sample size to use for endogenous
-    sampling in the pseudolikelihood computation.
   }
   \item{MPLE.samplesize}{Not currently documented; used in 
     conditional-on-degree version of MPLE.
