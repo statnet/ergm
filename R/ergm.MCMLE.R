@@ -306,6 +306,10 @@ approx.hotelling.diff.test<-function(x,y=NULL,mu0=NULL){
   }
 
   if(!is.null(mu0)) d <- d - mu0
+
+  method <- paste("Chi-squared approximation to the Hotelling's",
+                  if(is.null(y)) "One" else "Two",
+                  "Sample T^2-test", "with correction for autocorrelation")
   
   # If a statistic doesn't vary and doesn't match, return a 0 p-value:
   if(any(d[x.n==0]!=0)){
@@ -317,9 +321,7 @@ approx.hotelling.diff.test<-function(x,y=NULL,mu0=NULL){
     names(nullval) <- colnames(x)
     
     out <- list(statistic=chi2, parameter=df, p.value=0,
-                method = paste("Chi-squared approximation to the Hotelling's T-test for",
-                  if(is.null(y)) "equality of all column means to mu0"
-                  else "difference between column means of two samples", "with correction for autocorrelation"),
+                method = method,
                 null.value=nullval,
                 alternative="two.sided",
                 estimate = d)
@@ -346,9 +348,7 @@ approx.hotelling.diff.test<-function(x,y=NULL,mu0=NULL){
   nullval <- if(is.null(mu0)) rep(0, ncol(x)) else mu0
   names(nullval) <- colnames(x)
   out <- list(statistic=chi2, parameter=df, p.value=pchisq(chi2,df,lower.tail=FALSE),
-              method = paste("Chi-squared approximation to the Hotelling's T-test for",
-                if(is.null(y)) "equality of all column means to 0"
-                else "difference between column means of two samples", "with correction for autocorrelation"),
+              method = method,
               null.value=nullval,
               alternative="two.sided",
               estimate = d,
