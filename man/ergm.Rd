@@ -37,7 +37,7 @@ ergm (formula,
     coerced to a \code{\link[network]{network}}  object.  For the details on the possible
     \code{<model terms>}, see \code{\link{ergm-terms}} and Morris, Handcock and
     Hunter (2008) for binary ERGM terms and
-    \code{\link{valued-ergm-terms}} and Krivitsky (2012) for valued ERGM
+    Krivitsky (2012) for valued ERGM
     terms (terms for weighted edges).  To create a
     \code{\link[network]{network}} object in \R, use the \code{network()} function,
     then add nodal attributes to it using the \code{\%v\%}
@@ -46,8 +46,8 @@ ergm (formula,
   }
   \item{response}{\emph{EXPERIMENTAL.} Name of the edge attribute whose value is to be
     modeled. Defaults to \code{NULL} for simple presence or
-    absence, modeled via \link[=ergm-terms]{binary ERGM terms}. Passing
-    anything but \code{NULL} uses \code{\link[=valued-ergm-terms]{valued ERGM terms} }}
+    absence, modeled via binary ERGM terms. Passing
+    anything but \code{NULL} uses valued ERGM terms.} 
   
   \item{reference}{\emph{EXPERIMENTAL.} A one-sided formula specifying
     the reference measure (\eqn{h(y)}) to be used. (Defaults to \code{~Bernoulli}.)

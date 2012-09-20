@@ -4,6 +4,8 @@
 
 \alias{InitErgmTerm.conddegmple}
 
+% MH proposals ought to get a documentation entry eventually.
+
 \alias{InitMHP.CondDegree}
 \alias{InitMHP.CondDegreeDist}
 \alias{InitMHP.CondInDegreeDist}
@@ -16,14 +18,17 @@
 \alias{InitMHP.nobetweengroupties}
 \alias{InitMHP.randomtoggle}
 \alias{InitMHP.randomtoggleNonObserved}
-
+\alias{InitMHP.CondB1Degree}
+\alias{InitMHP.CondB2Degree}
+\alias{InitMHP.CondInDegree}
+\alias{InitMHP.CondOutDegree}
+\alias{InitMHP.blockdiag}
+\alias{InitMHP.blockdiagNonObserved}
+\alias{InitMHP.blockdiagTNT}
 \alias{InitWtMHP.DescRank}
 \alias{InitWtMHP.DescRankEquivalent}
-\alias{InitWtMHP.Poisson}
-\alias{InitWtMHP.PoissonNonObserved}
 \alias{InitWtMHP.StdNormal}
 \alias{InitWtMHP.StdNormalRank}
-\alias{InitWtMHP.ZIPoisson}
 
 \alias{MHproposal}
 \alias{MHproposal.MHproposal}
