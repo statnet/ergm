@@ -13,7 +13,8 @@
 }
 \usage{
   ergm.bridge.dindstart.llk(object, 
-                            response=NULL, 
+                            response=NULL,
+                            constraints=~.,
                             coef, 
                             dind=NULL, 
                             coef.dind=NULL,  
@@ -26,7 +27,15 @@
   \item{object}{
     A model formula. See \code{\link{ergm}} for details.
   }
-  \item{response}{Not for release.
+  \item{response}{
+    The name of the edge attribute that is the response. Note that it's
+    included solely for consistency, since
+    \code{ergm.bridge.dindstart.llk} can only handle binary ERGMs.
+  }
+  \item{constraints}{
+    A model constraints formula. See \code{\link{ergm}} for
+    details. Note that only constraints that do not induce dyadic
+    dependence can be handled by \code{ergm.bridge.dindstart.llk}.
   }
   \item{coef}{
     A vector of coefficients for the configuration of interest.
