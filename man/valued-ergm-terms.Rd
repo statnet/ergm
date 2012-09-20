@@ -5,6 +5,64 @@
 \alias{valued.terms.ergm}
 \alias{valued-terms}
 \alias{valued.terms}
+\alias{InitWtErgmTerm.absdiff}
+\alias{InitWtErgmTerm.absdiffcat}
+\alias{InitWtErgmTerm.atleast}
+\alias{InitWtErgmTerm.cyclicalties}
+\alias{InitWtErgmTerm.cyclicalweights}
+\alias{InitWtErgmTerm.deference}
+\alias{InitWtErgmTerm.edgecov}
+\alias{InitWtErgmTerm.greaterthan}
+\alias{InitWtErgmTerm.inconsistency}
+\alias{InitWtErgmTerm.ininterval}
+\alias{InitWtErgmTerm.mutual}
+\alias{InitWtErgmTerm.nodecov}
+\alias{InitWtErgmTerm.nodecovar}
+\alias{InitWtErgmTerm.nodefactor}
+\alias{InitWtErgmTerm.nodeicov}
+\alias{InitWtErgmTerm.nodeicovar}
+\alias{InitWtErgmTerm.nodeifactor}
+\alias{InitWtErgmTerm.nodeisqrtcovar}
+\alias{InitWtErgmTerm.nodemain}
+\alias{InitWtErgmTerm.nodeocov}
+\alias{InitWtErgmTerm.nodeocovar}
+\alias{InitWtErgmTerm.nodeofactor}
+\alias{InitWtErgmTerm.nodeosqrtcovar}
+\alias{InitWtErgmTerm.nodesqrtcovar}
+\alias{InitWtErgmTerm.nonconformity}
+\alias{InitWtErgmTerm.nonzero}
+\alias{InitWtErgmTerm.sum}
+\alias{InitWtErgmTerm.transitiveties}
+\alias{InitWtErgmTerm.transitiveweights}
+\alias{absdiff}
+\alias{absdiffcat}
+\alias{atleast}
+\alias{cyclicalties}
+\alias{cyclicalweights}
+\alias{deference}
+\alias{edgecov}
+\alias{greaterthan}
+\alias{inconsistency}
+\alias{ininterval}
+\alias{mutual}
+\alias{nodecov}
+\alias{nodecovar}
+\alias{nodefactor}
+\alias{nodeicov}
+\alias{nodeicovar}
+\alias{nodeifactor}
+\alias{nodeisqrtcovar}
+\alias{nodemain}
+\alias{nodeocov}
+\alias{nodeocovar}
+\alias{nodeofactor}
+\alias{nodeosqrtcovar}
+\alias{nodesqrtcovar}
+\alias{nonconformity}
+\alias{nonzero}
+\alias{sum}
+\alias{transitiveties}
+\alias{transitiveweights}
 \docType{methods}
 \title{Terms used in Valued Exponential Family Random Graph Models}
 \description{
@@ -19,10 +77,12 @@
   length (with \eqn{\eta(\theta)=\theta} for most terms), and \eqn{c(\theta)} is the
   normalizing constant for the distribution.
 
-  This page describes the possible terms (and hence network statistics)
-  implemented for valued ERGMs. For further information on specifying
-  ERGMs, see the documentation on \link[=ergm-terms]{ERGM terms} and \code{\link{ergm}}.
-}
+  This page describes the terms (elements of \eqn{g(y)}) for networks
+  with weighted edges that are included with the
+  \code{\link[=ergm-package]{ergm}} package. Other packages may add new
+  terms. For binary ERGM terms, and for general information about
+  specifying ERGMs, go \link[=ergm-terms]{here} and \code{\link{ergm}}.
+  }
 %\usage{
 %ergm-terms()
 %}
@@ -31,7 +91,7 @@
 \section{Possible terms to represent network statistics}{
 
   A substantial number of binary ERGM statistics --- particularly the
-  once with dyadic indepenence --- have simple generalizations to valued
+  ones with dyadic indepenence --- have simple generalizations to valued
   ERGMs, and have been adapted in
   \code{\link[=ergm-package]{ergm}}. They have the same form as their
   binary ERGM counterparts listed in the \link[=ergm-terms]{binary ERGM
