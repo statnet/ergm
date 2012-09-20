@@ -23,7 +23,9 @@
 \alias{concurrent}
 \alias{concurrentties}
 \alias{ctriple}
+\alias{ctriad}
 \alias{cycle}
+\alias{cyclicalties}
 \alias{degree}
 \alias{degcrossprod}
 \alias{degcor}
@@ -73,11 +75,16 @@
 \alias{sociality}
 \alias{threepath}
 \alias{transitive}
+\alias{transitiveties}
 \alias{triadcensus}
 \alias{triangle}
 \alias{tripercent}
 \alias{ttriple}
+\alias{ttriad}
 \alias{twopath}
+\alias{InitErgmTerm.coincidence}
+\alias{InitErgmTerm.match}
+\alias{InitErgmTerm.triangles}
 \alias{InitErgmTerm.absdiff}
 \alias{InitErgmTerm.absdiffcat}
 \alias{InitErgmTerm.altkstar}
@@ -99,6 +106,7 @@
 \alias{InitErgmTerm.concurrentties}
 \alias{InitErgmTerm.ctriple}
 \alias{InitErgmTerm.cycle}
+\alias{InitErgmTerm.cyclicalties}
 \alias{InitErgmTerm.degree}
 \alias{InitErgmTerm.degcrossprod}
 \alias{InitErgmTerm.degcor}
@@ -149,6 +157,7 @@
 \alias{InitErgmTerm.threepath}
 \alias{InitErgmTerm.transitive}
 \alias{InitErgmTerm.triadcensus}
+\alias{InitErgmTerm.transitiveties}
 \alias{InitErgmTerm.triangle}
 \alias{InitErgmTerm.tripercent}
 \alias{InitErgmTerm.ttriple}
@@ -468,7 +477,7 @@ equal to the number of (first mode) mutual partners of that pair.
     networks. }
 
     
-    \item{\code{ctriple(attrname=NULL)}}{\emph{Cyclic triples:} This term adds one
+    \item{\code{ctriple(attrname=NULL)} a.k.a. \code{ctriad}}{\emph{Cyclic triples:} This term adds one
     statistic to the model, equal to the number of cyclic triples in the
     network, defined as a set of edges of the form \eqn{\{(i{\rightarrow}j),
     (j{\rightarrow}k), (k{\rightarrow}i)\}}{\{(i,j), (j,k), (k,i)\}}. Note that
@@ -1195,7 +1204,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     used with undirected networks; for directed networks, it is difficult to
     define the numerator and denominator in a consistent and meaningful way.}
     
-    \item{\code{ttriple(attrname=NULL)}}{\emph{Transitive triples:} 
+    \item{\code{ttriple(attrname=NULL)} a.k.a. \code{ttriad}}{\emph{Transitive triples:} 
     This term adds one statistic to the model, equal to the number of transitive
     triples in the network, defined as a set of edges \eqn{\{(i{\rightarrow}j),
     (j{\rightarrow}k), (i{\rightarrow}k)\}}{\{(i,j), (j,k), (i,k)\}}. Note that
