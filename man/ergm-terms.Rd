@@ -1480,8 +1480,7 @@ of the degrees of all pairs of nodes in the network which are tied.
   models, \emph{Sociological Methodology}, 36(1): 99-153. 
   }
 }
-\seealso{ergm, network, \%v\%, \%n\%, sna,
-         summary.ergm, print.ergm}
+\seealso{\code{\link[=ergm-package]{ergm}} package, \code{\link{ergm}}, \code{\link{network}}, \code{\link{\%v\%}}, \code{\link{\%n\%}}}
 \examples{
 \dontrun{
 ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle)
