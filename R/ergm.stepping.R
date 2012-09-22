@@ -199,13 +199,11 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 	
 	if(!v$failure & !any(is.na(v$coef))){
 		asyse <- mc.se
-		options(warn=-1)
 		if(is.null(v$covar)){
-			asyse[names(v$coef)] <- sqrt(diag(robust.inverse(-v$hessian)))
+			asyse[names(v$coef)] <- suppressWarnings(sqrt(diag(robust.inverse(-v$hessian))))
 		}else{
-			asyse[names(v$coef)] <- sqrt(diag(v$covar))
+			asyse[names(v$coef)] <- suppressWarnings(sqrt(diag(v$covar)))
 		}
-		options(warn=0)
 	}
 	
   v$sample <- ergm.sample.tomcmc(v$sample, control)

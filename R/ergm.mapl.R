@@ -48,8 +48,6 @@ ergm.mapl <- function(formula, init="MPLE",
                  tau=1, invcov=NULL,
                  verbose=FALSE, ...) {
   check.control.class("ergm")
-  current.warn <- options()$warn
-  options(warn=0)
   if (verbose) cat("Evaluating network in model\n")
 
   nw <- ergm.getnetwork(formula)

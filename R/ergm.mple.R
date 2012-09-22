@@ -67,8 +67,6 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
    mplefit$cov.unscaled <- mplefit$var
    mplefit.summary <- mplefit
   }else{
-   options(warn=-1)
-#  options(warn=2)
    if(MPLEtype=="logitreg"){
     mplefit <- model.matrix(terms(pl$zy ~ .-1,data=data.frame(pl$xmat)),
                            data=data.frame(pl$xmat))
@@ -132,8 +130,6 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
     }
    }
 #
-   options(warn=0)
-#  options(warn=2)
    if(nrow(pl$xmat) > pl$maxMPLEsamplesize){
 #
 #   fix deviance for sampled data
@@ -175,8 +171,6 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
   if(MPLEtype=="penalized"){
     mplefit.null <- ergm.pen.glm(pl$zy ~ 1, weights=pl$wend)
   }else{
-    options(warn=-1)
-    #  options(warn=2)
     if(MPLEtype=="logitreg"){
       mplefit.null <- ergm.logitreg(x=matrix(1,ncol=1,nrow=length(pl$zy)),
                                     y=pl$zy, offset=pl$foffset, wt=pl$wend)
@@ -188,8 +182,6 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
                              cov.unscaled=diag(1))
       }
     }
-    options(warn=0)
-    #  options(warn=2)
   }
 
   if(save.glm){

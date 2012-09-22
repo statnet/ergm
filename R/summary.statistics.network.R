@@ -30,9 +30,6 @@ summary.statistics <- function(object, ..., basis=NULL) {
 
 
 summary.formula <- function(object, ...){
-  current.warn <- options()$warn
-  on.exit(options(warn=current.warn))
-  options(warn=0)
   if(length(object)!=3 || object[[1]]!="~")
     stop ("Formula must be of form 'y ~ model'.")
   lhs <- eval(object[[2]], envir = environment(object))
@@ -66,9 +63,6 @@ summary.statistics.network.list <- function(object, response=NULL, ..., basis=NU
 summary.statistics.default <-
 summary.statistics.matrix <- 
 summary.statistics.network <- function(object, response=NULL,...,basis=NULL) {
-  current.warn <- options()$warn
-  on.exit(options(warn=current.warn))
-  options(warn=0)
   if(is.network(basis)){
     nw <- basis
     formula <- as.formula(object)

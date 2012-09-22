@@ -112,9 +112,6 @@ ergm <- function(formula, response=NULL,
                  control=control.ergm(),
                  verbose=FALSE,...) {
   check.control.class()
-  current.warn <- options()$warn
-  on.exit(options(warn=current.warn), add=TRUE)
-  options(warn=0)
 
   estimate <- match.arg(estimate)
   # Backwards-compatibility:

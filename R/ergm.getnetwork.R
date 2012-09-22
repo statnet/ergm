@@ -15,8 +15,6 @@
 ###################################################################################
 
 ergm.getnetwork <- function (form, loopswarning=TRUE) {
-  current.warn <- options()$warn
-# options(warn=0)
   if ((dc<-data.class(form)) != "formula")
     stop (paste("Invalid formula of class ",dc))
   trms<-terms(form)
@@ -31,7 +29,6 @@ ergm.getnetwork <- function (form, loopswarning=TRUE) {
   if(inherits(nw,"try-error")){
       stop("Invalid network. Is the left-hand-side of the formula correct?")
   }
-  # options(warn=current.warn)
   if (loopswarning) {
     e <- as.edgelist(nw)
     if(any(e[,1]==e[,2])) {
