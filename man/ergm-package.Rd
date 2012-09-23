@@ -13,9 +13,6 @@ For a complete list of the functions, use \code{library(help="ergm")}
 or read the rest of the manual. For a simple demonstration,
 use \code{demo(packages="ergm")}.
 
-When publishing results obtained using this package the original authors
-are to be cited as:
-
 When publishing results obtained using this package, please cite the
 original authors as described in \code{citation(package="ergm")}.
 

@@ -42,8 +42,7 @@
   constraints.
 
 }
-\section{Possible network constraints}{
-  The constraint terms currently implemented are 
+\section{Constraints implemented in  the \code{\link[=ergm-package]{ergm}} package}{
   \describe{
     \item{\code{.} or \code{NULL}}{
       A placeholder for no constraints: all networks of a
