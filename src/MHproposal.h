@@ -70,8 +70,6 @@ typedef struct MHproposalstruct {
   DegreeBound *bd;
   Network **discord;
   double *inputs; /* may be used if needed, ignored if not. */
-  /* int multiplicity; Is this needed? I removed all references to
-       'multiplicity' everywhere */
 } MHproposal;
 
 
@@ -88,6 +86,22 @@ void MH_free(MHproposal *MHp);
 
 int CheckTogglesValid(MHproposal *MHp, Network *nwp);
 int CheckConstrainedTogglesValid(MHproposal *MHp, Network *nwp);
+
+#define BD_LOOP(proc) BD_COND_LOOP({proc}, TRUE, 1)
+
+#define BD_COND_LOOP(proc, cond, tryfactor)				\
+  unsigned int trytoggle;						\
+  for(trytoggle = 0; trytoggle < MAX_TRIES*tryfactor; trytoggle++){	\
+    {proc}								\
+    if((cond) && CheckTogglesValid(MHp,nwp)) break;			\
+  }									\
+  /* If no valid proposal found, signal a failed proposal. */		\
+  if(trytoggle>=MAX_TRIES*tryfactor){					\
+    MHp->toggletail[0]=MH_FAILED;					\
+    MHp->togglehead[0]=MH_UNSUCCESSFUL;					\
+  }									\
+  
+
 #endif 
 
 
