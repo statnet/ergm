@@ -28,14 +28,14 @@
 #define XOR(a,b) (((a)==0) != ((b)==0))
 #define XNOR(a,b) (((a)==0) == ((b)==0))
 
-/*  Notes on MHproposal type:
-   An MH proposal function must take two arguments:  a pointer to an 
-   MHproposal structure, which holds all the information regarding the
+/*  Notes on WtMHproposal type:
+   An Weighted MH proposal function must take two arguments:  a pointer to an 
+   Weighted MHproposal structure, which holds all the information regarding the
    MH proposal; and a pointer to an array of WtNetwork structures, which 
    contain the network(s).  
    
-   Each MH proposal function should check to see whether ntoggles==0
-   upon being called.  If so, the MH proposal function should change
+   Each Weighted MH proposal function should check to see whether ntoggles==0
+   upon being called.  If so, the Weighted MH proposal function should change
    the value of ntoggles to be the largest possible number of toggles
    required, so that this amount of memory can be allocated.
 */
@@ -53,8 +53,6 @@ typedef struct WtMHproposalstruct {
   int status;
   WtNetwork **discord;
   double *inputs; /* may be used if needed, ignored if not. */
-  /* int multiplicity; Is this needed? I removed all references to
-       'multiplicity' everywhere */
 } WtMHproposal;
 
 
