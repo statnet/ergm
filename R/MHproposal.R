@@ -155,10 +155,10 @@ mk.conlist <- function(object, nw){
     
     if(is.call(constraint)){
       init.call<-list()
-      init.call<-list(as.name(paste("InitConstraint.", constraint[[1]], sep = "")), lhs.nw=nw, conlist=conlist)
+      init.call<-list(as.name(paste("InitConstraint.", constraint[[1]], sep = "")), conlist=conlist, lhs.nw=nw)
       init.call<-c(init.call,as.list(constraint)[-1])
     }else{
-      init.call <- list(as.name(paste("InitConstraint.", constraint, sep = "")), lhs.nw=nw, conlist=conlist)
+      init.call <- list(as.name(paste("InitConstraint.", constraint, sep = "")), conlist=conlist, lhs.nw=nw)
     }
     if(!exists(as.character(init.call[[1]]), environment(object))) stop(paste("The constraint you have selected ('",constraints,"') is not defined. Are you sure you have not mistyped it?",sep=""))
     conlist <- eval(as.call(init.call), environment(object))
