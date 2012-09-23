@@ -1,17 +1,11 @@
 InitWtMHP.DescRank <- function(arguments, nw, response) {
   MHproposal <- list(name = "CompleteOrdering", inputs=NULL, package="ergm")
-  if(is.bipartite(nw)){
-    MHproposal$name <- "CompleteOrderingBipartite"
-  }
   MHproposal
 }
 #ergm.MHP.table("c", "DescRank", "",  0, "random", "DescRank")
 
 InitWtMHP.DescRankEquivalent <- function(arguments, nw, response) {
   MHproposal <- list(name = "CompleteOrderingEquivalent", package="ergm")
-  if(is.bipartite(nw)){
-    MHproposal$name <- "CompleteOrderingEquivalentBipartite"
-  }
   
   # Construct the data structure for not-too-inefficient sampling
   n <- if(is.bipartite(nw)) nw %n% "bipartite" else network.size(nw)
@@ -45,9 +39,6 @@ InitWtMHP.DescRankEquivalent <- function(arguments, nw, response) {
 
 InitWtMHP.StdNormal <- function(arguments, nw, response) {
   MHproposal <- list(name = "StdNormal", inputs=NULL, package="ergm")
-  if(is.bipartite(nw)){
-    MHproposal$name <- "BipartiteStdNormal"
-  }
   MHproposal
 }
 #ergm.MHP.table("c", "StdNormal", "",  0, "random", "StdNormal")
@@ -57,7 +48,7 @@ InitWtMHP.StdNormalRank <- function(arguments, nw, response) {
 
   if(is.bipartite(nw)){
     stop("Bipartite rank constraint not yet implemented")
-    MHproposal <- list(name = "BipartiteStdNormalRank", inputs=c(m), package="ergm")
+    MHproposal <- list(name = "BipartiteStdNormal", inputs=c(m), package="ergm")
   }else{
     m<-as.matrix(nw,attrname=response,matrix.type="adjacency")
     diag(m)<-NA
