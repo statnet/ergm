@@ -100,6 +100,8 @@ void WtTouchEdge(Vertex tail, Vertex head, WtNetwork *nwp);
 /* Utility functions. */
 int WtFindithEdge (Vertex *tail, Vertex *head, double *weight, Edge i, WtNetwork *nwp);
 int WtGetRandEdge(Vertex *tail, Vertex *head, double *weight, WtNetwork *nwp);
+int WtFindithNonedge (Vertex *tail, Vertex *head, Edge i, WtNetwork *nwp);
+int WtGetRandNonedge(Vertex *tail, Vertex *head, WtNetwork *nwp);
 void Wtprintedge(Edge e, WtTreeNode *edges);
 void WtInOrderTreeWalk(WtTreeNode *edges, Edge x);
 void WtNetworkEdgeList(WtNetwork *nwp);

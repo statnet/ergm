@@ -117,8 +117,26 @@ int ElapsedTime(Vertex tail, Vertex head, Network *nwp);
 void TouchEdge(Vertex tail, Vertex head, Network *nwp);
 
 /* Utility functions. */
-int FindithEdge (Vertex *tail, Vertex *head, Edge i, Network *nwp);
+int FindithEdge(Vertex *tail, Vertex *head, Edge i, Network *nwp);
 int GetRandEdge(Vertex *tail, Vertex *head, Network *nwp);
+// This one is implemented as a macro, since it's very simple and works exactly the same for weighted and unweighted.
+#define GetRandDyad(tail, head, nwp)					\
+  if((nwp)->bipartite){							\
+    *(tail) = 1 + unif_rand() * (nwp)->bipartite;			\
+    *(head) = 1 + (nwp)->bipartite + unif_rand() * ((nwp)->nnodes - (nwp)->bipartite); \
+  }else{								\
+    *(tail) = 1 + unif_rand() * (nwp)->nnodes;				\
+    *(head) = 1 + unif_rand() * ((nwp)->nnodes-1);			\
+    if(*(head)>=*(tail)) (*(head))++;					\
+    									\
+    if (!(nwp)->directed_flag && *(tail) > *(head)) {			\
+      Vertex tmp = *(tail);						\
+      *(tail) = *(head);						\
+      *(head) = tmp;							\
+    }									\
+  }
+int FindithNondge(Vertex *tail, Vertex *head, Edge i, Network *nwp);
+int GetRandNonedge(Vertex *tail, Vertex *head, Network *nwp);
 void printedge(Edge e, TreeNode *edges);
 void InOrderTreeWalk(TreeNode *edges, Edge x);
 void NetworkEdgeList(Network *nwp);
