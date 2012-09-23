@@ -6,8 +6,6 @@
 #include "model.h"
 #include "MHproposal.h"
 
-void MH_Bipartiterandomtoggle (MHproposal *MHp, Network *nwp);
-void MH_BipartiteConstantEdges (MHproposal *MHp, Network *nwp);
 void MH_BipartiteHammingConstantEdges (MHproposal *MHp, Network *nwp);
 void MH_BipartiteHammingTNT (MHproposal *MHp, Network *nwp);
 void MH_BipartiteCondDegreeDist (MHproposal *MHp, Network *nwp);

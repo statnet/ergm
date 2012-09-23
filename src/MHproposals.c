@@ -14,28 +14,14 @@ void MH_randomtoggle (MHproposal *MHp, Network *nwp)  {
 
   /* *** don't forget tail-> head now */
 
-  Vertex tail, head;
-  int fvalid, trytoggle;
-  
   if(MHp->ntoggles == 0) { /* Initialize randomtoggle */
     MHp->ntoggles=1;
     return;
   }
   
-  fvalid = 0;
-  trytoggle = 0;
-  while(fvalid==0 && trytoggle < MAX_TRIES){
-    tail = 1 + unif_rand() * nwp->nnodes;
-    while ((head = 1 + unif_rand() * nwp->nnodes) == tail);
-    if (!nwp->directed_flag && tail > head) {
-      Mtail[0] = head;
-      Mhead[0] = tail;
-    }else{
-      Mtail[0] = tail;
-      Mhead[0] = head;
-    }
-    fvalid=CheckTogglesValid(MHp, nwp);
-  }
+  BD_LOOP({
+      GetRandDyad(Mtail, Mhead, nwp);
+    });
 }
 
 /********************
@@ -49,7 +35,6 @@ void MH_TNT (MHproposal *MHp, Network *nwp)
 {
   /* *** don't forget tail-> head now */
   
-  Vertex tail, head;
   Edge nedges=nwp->nedges;
   static double comp=0.5;
   static double odds;
@@ -58,41 +43,32 @@ void MH_TNT (MHproposal *MHp, Network *nwp)
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
     odds = comp/(1.0-comp);
-    ndyads = DYADCOUNT(nwp->nnodes, 0, nwp->directed_flag);
+    ndyads = DYADCOUNT(nwp->nnodes, nwp->bipartite, nwp->directed_flag);
     return;
   }
   
-  for(int trytoggle = 0; trytoggle < MAX_TRIES; trytoggle++){
-    if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
-      GetRandEdge(Mtail, Mhead, nwp);
-      /* Thanks to Robert Goudie for pointing out an error in the previous 
-      version of this sampler when proposing to go from nedges==0 to nedges==1 
-      or vice versa.  Note that this happens extremely rarely unless the 
-      network is small or the parameter values lead to extremely sparse 
-      networks.  */
-      MHp->logratio += log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
-			nedges / (odds*ndyads + nedges)));
-    }else{ /* Select a dyad at random */
-      do{
-        tail = 1 + unif_rand() * nwp->nnodes;
-      }while ((head = 1 + unif_rand() * nwp->nnodes) == tail);
-      if (tail > head && !nwp->directed_flag)  {
-        Mtail[0] = head;
-        Mhead[0] = tail;
-      }else{
-        Mtail[0] = tail;
-        Mhead[0] = head;
+  BD_LOOP({
+      if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
+	GetRandEdge(Mtail, Mhead, nwp);
+	/* Thanks to Robert Goudie for pointing out an error in the previous 
+	   version of this sampler when proposing to go from nedges==0 to nedges==1 
+	   or vice versa.  Note that this happens extremely rarely unless the 
+	   network is small or the parameter values lead to extremely sparse 
+	   networks.  */
+	MHp->logratio += log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
+			      nedges / (odds*ndyads + nedges)));
+      }else{ /* Select a dyad at random */
+	GetRandDyad(Mtail, Mhead, nwp);
+	
+	if(EdgetreeSearch(Mtail[0],Mhead[0],nwp->outedges)!=0){
+	  MHp->logratio += log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
+				nedges / (odds*ndyads + nedges)));
+	}else{
+	  MHp->logratio += log((nedges==0 ? comp*ndyads + (1.0-comp) :
+				1.0 + (odds*ndyads)/(nedges + 1)));
+	}
       }
-      if(EdgetreeSearch(Mtail[0],Mhead[0],nwp->outedges)!=0){
-        MHp->logratio += log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
-        nedges / (odds*ndyads + nedges)));
-      }else{
-        MHp->logratio += log((nedges==0 ? comp*ndyads + (1.0-comp) :
-        1.0 + (odds*ndyads)/(nedges + 1)));
-      }
-    }
-    if(CheckTogglesValid(MHp,nwp)) break;
-  }
+    });
 }
 
 /********************
@@ -105,7 +81,6 @@ void MH_TNT10 (MHproposal *MHp, Network *nwp)
 {
   /* *** don't forget tail-> head now */
   
-  Vertex tail, head;
   Edge nedges=nwp->nedges;
   static double comp=0.5;
   static double odds;
@@ -114,37 +89,27 @@ void MH_TNT10 (MHproposal *MHp, Network *nwp)
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=10;
     odds = comp/(1.0-comp);
-    ndyads = DYADCOUNT(nwp->nnodes, 0, nwp->directed_flag);
+    ndyads = DYADCOUNT(nwp->nnodes, nwp->bipartite, nwp->directed_flag);
     return;
   }
   
-  for(int trytoggle = 0; trytoggle < MAX_TRIES; trytoggle++){
-   for(int n = 0; n < 10; n++){
-    if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
-      GetRandEdge(Mtail, Mhead, nwp);
-      MHp->logratio += log(nedges  / (odds*ndyads + nedges));
-    }else{ /* Select a dyad at random */
-      do{
-        tail = 1 + unif_rand() * nwp->nnodes;
-      }while ((head = 1 + unif_rand() * nwp->nnodes) == tail);
-      if (tail > head && !nwp->directed_flag)  {
-        Mtail[n] = head;
-        Mhead[n] = tail;
-      }else{
-        Mtail[n] = tail;
-        Mhead[n] = head;
+  BD_LOOP({
+      for(unsigned int n = 0; n < 10; n++){
+	if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
+	  GetRandEdge(Mtail, Mhead, nwp);
+	  MHp->logratio += log(nedges  / (odds*ndyads + nedges));
+	}else{ /* Select a dyad at random */
+	  GetRandDyad(Mtail+n, Mhead+n, nwp);
+	  if(EdgetreeSearch(Mtail[n],Mhead[n],nwp->outedges)!=0){
+	    MHp->logratio += log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
+				  nedges / (odds*ndyads + nedges)));
+	  }else{
+	    MHp->logratio += log((nedges==0 ? comp*ndyads + (1.0-comp) :
+				  1.0 + (odds*ndyads)/(nedges + 1)));
+	  }
+	} 
       }
-      if(EdgetreeSearch(Mtail[n],Mhead[n],nwp->outedges)!=0){
-        MHp->logratio += log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
-			   nedges / (odds*ndyads + nedges)));
-      }else{
-        MHp->logratio += log((nedges==0 ? comp*ndyads + (1.0-comp) :
-			   1.0 + (odds*ndyads)/(nedges + 1)));
-      }
-    } 
-   }
-   if(CheckTogglesValid(MHp,nwp)) break;
-  }
+    });
 }
 
 /*********************
@@ -159,35 +124,25 @@ void MH_TNT10 (MHproposal *MHp, Network *nwp)
  datasets are sparse, so this is not likely to be an issue.
 *********************/
 void MH_ConstantEdges (MHproposal *MHp, Network *nwp)  {  
-  Vertex tail, head, temp;
-
   /* *** don't forget tail-> head now */
   
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=2;    
     return;
-  } /* Note:  This proposal cannot be used for full or empty observed graphs.
-       If desired, we could check for this at initialization phase. 
-       (For now, however, no way to easily return an error message and stop.)*/
-  for(int trytoggle = 0; trytoggle < MAX_TRIES; trytoggle++){
-    /* First, select edge at random */
-    GetRandEdge(Mtail, Mhead, nwp);
-    /* Second, select dyad at random until it has no edge */
-    do{
-      tail = 1 + unif_rand() * nwp->nnodes;
-      head = 1 + unif_rand() * nwp->nnodes;
-      if (!nwp->directed_flag && tail > head) {
-        temp=tail;  tail=head;  head=temp; /* swap tail for head */
-      }
-    }while (EdgetreeSearch(tail, head, nwp->outedges) != 0 || tail == head);
-    
-    Mtail[1]=tail;
-    Mhead[1]=head;
-    
-    if(CheckTogglesValid(MHp,nwp)) break; 
   }
+  /* Note:  This proposal cannot be used for full or empty observed graphs.
+     If desired, we could check for this at initialization phase. 
+     (For now, however, no way to easily return an error message and stop.)*/
+  BD_LOOP({
+      /* First, select edge at random */
+      GetRandEdge(Mtail, Mhead, nwp);
+      /* Second, select dyad at random until it has no edge */
+      do{
+	GetRandDyad(Mtail+1, Mhead+1, nwp);
+      }while(EdgetreeSearch(Mtail[1], Mhead[1], nwp->outedges) != 0);
+    });
 }
-  
+
 /*********************
  void MH_CondDegreeDist
  It used to be called  MH_CondDegDistSwapToggles
@@ -532,23 +487,14 @@ void MH_randomtoggleList (MHproposal *MHp, Network *nwp)
     return;
   }
 
-  unsigned int trytoggle;
-  for(trytoggle=0;trytoggle<MAX_TRIES;trytoggle++){
-    /* Select a dyad at random that is in the reference graph. (We
-       have a convenient sampling frame.) */
-    /* Generate. */
-    Edge rane = 1 + unif_rand() * nedges0;
-    Mtail[0]=MHp->inputs[rane];
-    Mhead[0]=MHp->inputs[nedges0+rane];
-    
-    if(CheckTogglesValid(MHp, nwp)) break;
-  }
-
-  /* If no valid proposal found, signal a failed proposal. */
-  if(trytoggle>=MAX_TRIES) {
-    Mtail[0]=MH_FAILED;
-    Mhead[0]=MH_UNSUCCESSFUL;
-  }
+  BD_LOOP({
+      /* Select a dyad at random that is in the reference graph. (We
+	 have a convenient sampling frame.) */
+      /* Generate. */
+      Edge rane = 1 + unif_rand() * nedges0;
+      Mtail[0]=MHp->inputs[rane];
+      Mhead[0]=MHp->inputs[nedges0+rane];
+    });
 }
 
 /* The ones below have not been tested */

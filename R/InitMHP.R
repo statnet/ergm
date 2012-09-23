@@ -34,25 +34,16 @@
 ############################################################################
 InitMHP.randomtoggle <- function(arguments, nw) {
   MHproposal <- list(name = "randomtoggle", inputs=NULL, package="ergm")
-  if(is.bipartite(nw)){
-    MHproposal$name <- "Bipartiterandomtoggle"
-  }
   MHproposal
 }
 
 InitMHP.TNT <- function(arguments, nw) {
   MHproposal <- list(name = "TNT", inputs=NULL, package="ergm")
-  if(is.bipartite(nw)){
-    MHproposal$name <- "BipartiteTNT"
-  }
   MHproposal
 }
 
 InitMHP.TNT10 <- function(arguments, nw) {
   MHproposal <- list(name = "TNT10", inputs=NULL, package="ergm")
-  if(is.bipartite(nw)){
-    MHproposal$name <- "BipartiteTNT"
-  }
   MHproposal
 }
 
@@ -140,9 +131,6 @@ InitMHP.CondOutDegreeDist <- function(arguments, nw) {
 
 InitMHP.ConstantEdges <- function(arguments, nw) {
   MHproposal <- list(name = "ConstantEdges", inputs=NULL, package="ergm")
-  if(is.bipartite(nw)){
-    MHproposal$name <- "BipartiteConstantEdges"
-  }
   MHproposal
 }
 
