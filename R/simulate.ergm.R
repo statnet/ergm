@@ -204,7 +204,8 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
       
       # Create a network object if statsonly==FALSE
       if (!statsonly) {
-        nw <- nw.list[[i]] <- z$newnetwork
+        nw <- as.network.uncompressed(z$newnetwork)
+        nw.list[[i]] <- z$newnetwork
       }
       out.mat[i,] <- curstats + z$statsmatrix
       # If we get here, statsonly must be FALSE
