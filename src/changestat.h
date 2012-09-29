@@ -5,13 +5,14 @@
 #include "edgelist.h"
 
 typedef struct ModelTermstruct {
-	void (*d_func)(Edge, Vertex*, Vertex*, struct ModelTermstruct*, Network*);
-  	void (*s_func)(struct ModelTermstruct*, Network*);
-	double *attrib; /* Ptr to vector of covariates (if necessary; generally unused) */
-	int nstats;   /* Number of change statistics to be returned */
-	double *dstats; /* ptr to change statistics returned */
-	int ninputparams; /* Number of input parameters passed to function */
-	double *inputparams; /* ptr to input parameters passed */
+  void (*d_func)(Edge, Vertex*, Vertex*, struct ModelTermstruct*, Network*);
+  void (*s_func)(struct ModelTermstruct*, Network*);
+  double *attrib; /* Ptr to vector of covariates (if necessary; generally unused) */
+  int nstats;   /* Number of change statistics to be returned */
+  double *dstats; /* ptr to change statistics returned */
+  int ninputparams; /* Number of input parameters passed to function */
+  double *inputparams; /* ptr to input parameters passed */
+  double *statcache; /* vector of the same length as dstats */
 } ModelTerm;
 
 
@@ -117,6 +118,24 @@ double my_choose(double n, int r);
 /* NB:  CHANGESTAT_FN is now deprecated (replaced by D_CHANGESTAT_FN) */
 #define D_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp)
 #define S_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)
+
+/* This macro wraps two calls to an s_??? function with toggles
+   between them. */
+#define D_FROM_S							\
+  {									\
+    (*(mtp->s_func))(mtp, nwp);  /* Call s_??? function */		\
+    memcpy(mtp->statcache,mtp->dstats,N_CHANGE_STATS*sizeof(double));	\
+    /* Note: This cannot be abstracted into EXEC_THROUGH_TOGGLES. */	\
+    int j;								\
+    FOR_EACH_TOGGLE(j) TOGGLE(TAIL(j),HEAD(j));				\
+    (*(mtp->s_func))(mtp, nwp);  /* Call s_??? function */		\
+    for(unsigned int i=0; i<N_CHANGE_STATS; i++)			\
+      mtp->dstats[i] -= mtp->statcache[i];				\
+    FOR_EACH_TOGGLE(j) TOGGLE(TAIL(j),HEAD(j));				\
+  }
+
+/* This macro constructs a function that wraps D_FROM_S. */
+#define D_FROM_S_FN(a) D_CHANGESTAT_FN(a) D_FROM_S
 
 /* Not often used */
 #define INPUT_ATTRIB (mtp->attrib)

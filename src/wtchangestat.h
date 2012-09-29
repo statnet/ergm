@@ -6,7 +6,6 @@
 typedef struct WtModelTermstruct {
   void (*d_func)(Edge, Vertex*, Vertex*, double*, struct WtModelTermstruct*, WtNetwork*);
   void (*s_func)(struct WtModelTermstruct*, WtNetwork*);
-  void (*t_func)(struct WtModelTermstruct*, WtNetwork*);
   double *attrib; /* Ptr to vector of covariates (if necessary; generally unused) */
   int nstats;   /* Number of change statistics to be returned */
   double *dstats; /* ptr to change statistics returned */
@@ -147,17 +146,24 @@ typedef struct WtModelTermstruct {
 /* changestat function prototypes, 
    plus a few supporting function prototypes */
 #define WtD_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *tails, Vertex *heads, double *weights, WtModelTerm *mtp, WtNetwork *nwp)
-#define WtT_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
 #define WtS_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
 
-WtD_CHANGESTAT_FN(d_from_s);
-/* This could be done more efficiently (saving a function call) 
-   by assigning a function pointer as follows:
-   #define WtD_FROM_S_FN(a) WtD_CHANGESTAT_FN(*a)=d_from_s;
-   However, it looks like it might confuse the function finding routines.
-   In the future, it might be a good idea to have the initialization
-   code autodetect when D_ function is not found, but S_ function is, and set it properly. */
-#define WtD_FROM_S_FN(a) WtD_CHANGESTAT_FN(a){ d_from_s(ntoggles, tails, heads, weights, mtp, nwp); }
+/* This macro wraps two calls to an s_??? function with toggles
+   between them. */
+#define D_FROM_S							\
+  {									\
+    (*(mtp->s_func))(mtp, nwp);  /* Call s_??? function */		\
+    memcpy(mtp->statcache,mtp->dstats,N_CHANGE_STATS*sizeof(double));	\
+    /* Note: This cannot be abstracted into EXEC_THROUGH_TOGGLES. */	\
+    FOR_EACH_TOGGLE() { GETTOGGLEINFO(); SETWT_WITH_BACKUP(); }		\
+    (*(mtp->s_func))(mtp, nwp);  /* Call s_??? function */		\
+    for(unsigned int i=0; i<N_CHANGE_STATS; i++)			\
+      mtp->dstats[i] -= mtp->statcache[i];				\
+    FOR_EACH_TOGGLE() { UNDO_SETWT(); }					\
+  }
+
+/* This macro constructs a function that wraps D_FROM_S. */
+#define WtD_FROM_S_FN(a) WtD_CHANGESTAT_FN(a) D_FROM_S
 
 /* Not often used */
 #define INPUT_ATTRIB (mtp->attrib)

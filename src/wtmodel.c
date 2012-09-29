@@ -91,12 +91,6 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
       thisterm->s_func = 
 	(void (*)(WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
 
-      /* Optional function for those statistics that care about
-	 duration. Called just before the timer is incremented. */
-      fn[0]='t';
-      thisterm->t_func =
-	(void (*)(WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
-
       /*Clean up by freeing sn and fn*/
       free((void *)fn);
       free((void *)sn);
