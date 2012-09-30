@@ -10,12 +10,14 @@
 \alias{asymmetric}
 \alias{atleast}
 \alias{b1concurrent}
+\alias{b1degrange}
 \alias{b1degree}
 \alias{b1factor}
 \alias{b1star}
 \alias{b1starmix}
 \alias{b1twostar}
 \alias{b2concurrent}
+\alias{b2degrange}
 \alias{b2degree}
 \alias{b2factor}
 \alias{b2star}
@@ -32,6 +34,7 @@
 \alias{deference}
 \alias{degcor}
 \alias{degcrossprod}
+\alias{degrange}
 \alias{degree}
 \alias{density}
 \alias{dsp}
@@ -50,6 +53,7 @@
 \alias{gwodegree}
 \alias{hamming}
 \alias{hammingmix}
+\alias{idegrange}
 \alias{idegree}
 \alias{inconsistency}
 \alias{ininterval}
@@ -80,6 +84,7 @@
 \alias{nonconformity}
 \alias{nonzero}
 \alias{nsp}
+\alias{odegrange}
 \alias{odegree}
 \alias{opentriad}
 \alias{ostar}
@@ -105,12 +110,14 @@
 \alias{InitErgmTerm.altkstar}
 \alias{InitErgmTerm.asymmetric}
 \alias{InitErgmTerm.b1concurrent}
+\alias{InitErgmTerm.b1degrange}
 \alias{InitErgmTerm.b1degree}
 \alias{InitErgmTerm.b1factor}
 \alias{InitErgmTerm.b1star}
 \alias{InitErgmTerm.b1starmix}
 \alias{InitErgmTerm.b1twostar}
 \alias{InitErgmTerm.b2concurrent}
+\alias{InitErgmTerm.b2degrange}
 \alias{InitErgmTerm.b2degree}
 \alias{InitErgmTerm.b2factor}
 \alias{InitErgmTerm.b2star}
@@ -126,6 +133,7 @@
 \alias{InitErgmTerm.cyclicalties}
 \alias{InitErgmTerm.degcor}
 \alias{InitErgmTerm.degcrossprod}
+\alias{InitErgmTerm.degrange}
 \alias{InitErgmTerm.degree}
 \alias{InitErgmTerm.density}
 \alias{InitErgmTerm.dsp}
@@ -143,6 +151,7 @@
 \alias{InitErgmTerm.gwodegree}
 \alias{InitErgmTerm.hamming}
 \alias{InitErgmTerm.hammingmix}
+\alias{InitErgmTerm.idegrange}
 \alias{InitErgmTerm.idegree}
 \alias{InitErgmTerm.intransitive}
 \alias{InitErgmTerm.isolates}
@@ -163,6 +172,7 @@
 \alias{InitErgmTerm.nodeocov}
 \alias{InitErgmTerm.nodeofactor}
 \alias{InitErgmTerm.nsp}
+\alias{InitErgmTerm.odegrange}
 \alias{InitErgmTerm.odegree}
 \alias{InitErgmTerm.opentriad}
 \alias{InitErgmTerm.ostar}
@@ -351,7 +361,37 @@ network
     it functions just like the \code{by} argument of the \code{b1degree} term.
     This term can only be
     used with undirected bipartite networks. }
-    
+
+  \item{\code{b1degrange(from, to=+Inf, by=NULL, homophily=FALSE)}
+    (binary)}{\emph{Degree range for the first mode in a bipartite
+    (a.k.a. two-mode) network:} 
+    The \code{from} and \code{to} arguments are vectors of distinct
+    integers (or \code{+Inf}, for \code{to} (its default)). If one of the vectors has
+    length 1, it is recycled to the length of the other. Otherwise, they
+    must have the same length. This term adds one
+    network statistic to the model for each element of \code{from} (or \code{to}); the \eqn{i}th
+    such statistic equals the number of nodes of the first mode
+    ("actors") in the network of degree
+    greater than or equal to 
+    \code{from[i]} but strictly less than \code{to[i]}, i.e. with
+    edge count
+    in semiopen interval \code{[from,to)}. The optional argument
+    \code{by} is a character string giving the name of an attribute in the
+    network's vertex attribute list. 
+    If this is specified and \code{homophily} is \code{TRUE},
+    then degrees are calculated using the subnetwork consisting of only
+    edges whose endpoints have the same value of the \code{by} attribute.
+    If \code{by} is specified and
+    \code{homophily} is \code{FALSE} (the default), then separate degree range
+    statistics are calculated for nodes having each separate
+    value of the attribute.
+
+    This term can only be used with bipartite networks; for directed networks
+    see \code{idegrange} and \code{odegrange}. For undirected networks,
+    see \code{degrange}, and see \code{b2degrange}
+    for degrees of the second mode ("events").}
+
+  
     \item{\code{b1degree(d, by=NULL)} (binary)}{\emph{Degree for the first mode in a
     bipartite (aka two-mode) network:} The \code{d} argument is a vector of
     distinct integers. This term adds one network statistic to the model for
@@ -453,7 +493,37 @@ network
     it functions just like the \code{by} argument of the \code{b2degree} term.
     This term can only be
     used with undirected bipartite networks. }
+
+  \item{\code{b2degrange(from, to=+Inf, by=NULL, homophily=FALSE)}
+    (binary)}{\emph{Degree range for the second mode in a bipartite
+    (a.k.a. two-mode) network:} 
+    The \code{from} and \code{to} arguments are vectors of distinct
+    integers (or \code{+Inf}, for \code{to} (its default)). If one of the vectors has
+    length 1, it is recycled to the length of the other. Otherwise, they
+    must have the same length. This term adds one
+    network statistic to the model for each element of \code{from} (or \code{to}); the \eqn{i}th
+    such statistic equals the number of nodes of the second mode
+    ("events") in the network of degree
+    greater than or equal to 
+    \code{from[i]} but strictly less than \code{to[i]}, i.e. with
+    edge count
+    in semiopen interval \code{[from,to)}. The optional argument
+    \code{by} is a character string giving the name of an attribute in the
+    network's vertex attribute list. 
+    If this is specified and \code{homophily} is \code{TRUE},
+    then degrees are calculated using the subnetwork consisting of only
+    edges whose endpoints have the same value of the \code{by} attribute.
+    If \code{by} is specified and
+    \code{homophily} is \code{FALSE} (the default), then separate degree range
+    statistics are calculated for nodes having each separate
+    value of the attribute.
     
+    This term can only be used with bipartite networks; for directed networks
+    see \code{idegrange} and \code{odegrange}. For undirected networks,
+    see \code{degrange}, and see \code{b1degrange}
+    for degrees of the first mode ("actors").}
+
+  
     \item{\code{b2degree(d, by=NULL)} (binary)}{\emph{Degree for the second mode in a
     bipartite (aka two-mode) network:} The \code{d} argument is a vector of
     distinct integers. This term adds one network statistic to the model for
@@ -607,8 +677,34 @@ equal to the number of (first mode) mutual partners of that pair.
 	to induce a multimodal distribution of networks.
   }
 
+  \item{\code{degrange(from, to=+Inf, by=NULL, homophily=FALSE)}
+    (binary)}{\emph{Degree range:} 
+    The \code{from} and \code{to} arguments are vectors of distinct
+    integers (or \code{+Inf}, for \code{to} (its default)). If one of the vectors has
+    length 1, it is recycled to the length of the other. Otherwise, they
+    must have the same length. This term adds one
+    network statistic to the model for each element of \code{from} (or \code{to}); the \eqn{i}th
+    such statistic equals the number of nodes in the network of degree
+    greater than or equal to 
+    \code{from[i]} but strictly less than \code{to[i]}, i.e. with edges
+    in semiopen interval \code{[from,to)}. The optional argument
+    \code{by} is a character string giving the name of an attribute in the
+    network's vertex attribute list. 
+    If this is specified and \code{homophily} is \code{TRUE},
+    then degrees are calculated using the subnetwork consisting of only
+    edges whose endpoints have the same value of the \code{by} attribute.
+    If \code{by} is specified and
+    \code{homophily} is \code{FALSE} (the default), then separate degree range
+    statistics are calculated for nodes having each separate
+    value of the attribute.
+    
+    This term can only be used with undirected networks; for directed networks
+    see \code{idegrange} and \code{odegrange}. This term can be used
+    with bipartite networks, and will count nodes of both first and second mode in
+    the specified degree range. To count only nodes of the first mode ("actors"), use \code{b1degrange}
+    and to count only those fo the second mode ("events"), use \code{b2degrange}.}
   
-    \item{\code{degree(d, by=NULL, homophily=FALSE)} (binary)}{\emph{Degree:} 
+  \item{\code{degree(d, by=NULL, homophily=FALSE)} (binary)}{\emph{Degree:} 
     The \code{d} argument is a vector of distinct integers. This term adds one
     network statistic to the model for each element in \code{d}; the \eqn{i}th
     such statistic equals the number of nodes in the network of degree
@@ -862,7 +958,36 @@ of the degrees of all pairs of nodes in the network which are tied.
     statistics to be omitted from the tabulation. For example \code{base=2} will
     omit the second statistic, making it the de facto reference category.
     This term can only be used with directed networks.}
- 
+
+  \item{\code{idegrange(from, to=+Inf, by=NULL, homophily=FALSE)}
+    (binary)}{\emph{In-degree range:} 
+    The \code{from} and \code{to} arguments are vectors of distinct
+    integers (or \code{+Inf}, for \code{to} (its default)). If one of the vectors has
+    length 1, it is recycled to the length of the other. Otherwise, they
+    must have the same length. This term adds one
+    network statistic to the model for each element of \code{from} (or \code{to}); the \eqn{i}th
+    such statistic equals the number of nodes in the network of in-degree
+    greater than or equal to 
+    \code{from[i]} but strictly less than \code{to[i]}, i.e. with
+    in-edge count
+    in semiopen interval \code{[from,to)}. The optional argument
+    \code{by} is a character string giving the name of an attribute in the
+    network's vertex attribute list. 
+    If this is specified and \code{homophily} is \code{TRUE},
+    then degrees are calculated using the subnetwork consisting of only
+    edges whose endpoints have the same value of the \code{by} attribute.
+    If \code{by} is specified and
+    \code{homophily} is \code{FALSE} (the default), then separate degree range
+    statistics are calculated for nodes having each separate
+    value of the attribute.
+    
+    This term can only be used with directed networks; for undirected
+    networks (bipartite and not)
+    see \code{degrange}. For degrees of specific modes of bipartite
+    networks, see \code{b1degrange} and \code{b2degrange}. For
+    in-degrees, see \code{idegrange}.}
+
+  
     \item{\code{idegree(d, by=NULL, homophily=FALSE)} (binary)}{\emph{In-degree:} The \code{d} argument
     is a vector of distinct integers. This term adds one network statistic to
     the model for each element in \code{d}; the \eqn{i}th such statistic equals
@@ -1211,6 +1336,34 @@ of the degrees of all pairs of nodes in the network which are tied.
     over homogeneous shared partners only (i.e., only partners on a
     directed two-path connecting the nodes in the non-edge and in the same
     direction).}
+
+    \item{\code{odegrange(from, to=+Inf, by=NULL, homophily=FALSE)}
+    (binary)}{\emph{Out-degree range:} 
+    The \code{from} and \code{to} arguments are vectors of distinct
+    integers (or \code{+Inf}, for \code{to} (its default)). If one of the vectors has
+    length 1, it is recycled to the length of the other. Otherwise, they
+    must have the same length. This term adds one
+    network statistic to the model for each element of \code{from} (or \code{to}); the \eqn{i}th
+    such statistic equals the number of nodes in the network of out-degree
+    greater than or equal to 
+    \code{from[i]} but strictly less than \code{to[i]}, i.e. with
+    out-edge count
+    in semiopen interval \code{[from,to)}. The optional argument
+    \code{by} is a character string giving the name of an attribute in the
+    network's vertex attribute list. 
+    If this is specified and \code{homophily} is \code{TRUE},
+    then degrees are calculated using the subnetwork consisting of only
+    edges whose endpoints have the same value of the \code{by} attribute.
+    If \code{by} is specified and
+    \code{homophily} is \code{FALSE} (the default), then separate degree range
+    statistics are calculated for nodes having each separate
+    value of the attribute.
+    
+    This term can only be used with directed networks; for undirected
+    networks (bipartite and not)
+    see \code{degrange}. For degrees of specific modes of bipartite
+    networks, see \code{b1degrange} and \code{b2degrange}. For
+    in-degrees, see \code{idegrange}.}
   
     \item{\code{odegree(d, by=NULL, homophily=FALSE)} (binary)}{\emph{Out-degree:} The \code{d} argument
     is a vector of distinct integers. This term adds one network statistic to

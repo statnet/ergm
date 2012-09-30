@@ -311,6 +311,80 @@ InitErgmTerm.b1concurrent<-function(nw, arglist, ...) {
   list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, minval=0, maxval=nb1)
 }
 
+################################################################################
+InitErgmTerm.b1degrange<-function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=FALSE,
+                      varnames = c("from", "to", "byarg", "homophily"),
+                      vartypes = c("numeric", "numeric", "character", "logical"),
+                      defaultvalues = list(NULL, Inf, NULL, FALSE),
+                      required = c(TRUE, FALSE, FALSE, FALSE))
+  from<-a$from; to<-a$to; byarg <- a$byarg; homophily <- a$homophily
+  to <- ifelse(to==Inf, network.size(nw)+1, to)
+
+  if(length(to)==1 && length(from)>1) to <- rep(to, length(from))
+  else if(length(from)==1 && length(to)>1) from <- rep(from, length(to))
+  else if(length(from)!=length(to)) stop("The arguments of term odegrange must have arguments either of the same length, or one of them must have length 1.")
+  else if(any(from>=to)) stop("Term odegrange must have from<to.")
+
+  nb1 <- get.network.attribute(nw, "bipartite")
+  emptynwstats<-NULL
+  if(!is.null(byarg)) {
+    nodecov <- get.node.attr(nw, byarg, "b1degrange")
+    if(!homophily) nodecov <- nodecov[seq_len(nb1)]
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+    nodecov <- match(nodecov,u) # Recode to numeric
+    if (length(u)==1)
+         stop ("Attribute given to b1degrange() has only one value", call.=FALSE)
+  }
+  if(!is.null(byarg) && !homophily) {
+    # Combine b1degrange and u into 3xk matrix, where k=length(from)*length(u)
+    lu <- length(u)
+    du <- rbind(rep(from,lu), rep(to,lu), rep(1:lu, rep(length(from), lu)))
+    if (any(du[1,]==0)) {
+      emptynwstats <- rep(0, ncol(du))
+      tmp <- du[3,du[1,]==0]
+      for(i in 1:length(tmp)) tmp[i] <- sum(nodecov==tmp[i])
+        emptynwstats[du[1,]==0] <- tmp
+    }
+  } else {
+    if (any(from==0)) {
+      emptynwstats <- rep(0, length(from))
+      emptynwstats[from==0] <- network.size(nw)
+    }
+  }
+  if(is.null(byarg)) {
+    if(length(from)==0){return(NULL)}
+    coef.names <- ifelse(to>=network.size(nw)+1,
+                         paste("b1deg",from,"+",sep=""),
+                         paste("b1deg",from,"to",to,sep=""))
+    name <- "b1degrange"
+    inputs <- c(rbind(from,to))
+  } else if (homophily) {
+    if(length(from)==0){return(NULL)}
+    # See comment in d_b1degrange_w_homophily function
+    coef.names <- ifelse(to>=network.size(nw)+1,
+                         paste("b1deg",from,"+", ".homophily.",byarg,sep=""),
+                         paste("b1deg",from,"to",to, ".homophily.",byarg,sep=""))
+    name <- "b1degrange_w_homophily"
+    inputs <- c(rbind(from,to), nodecov)
+  } else {
+    if(ncol(du)==0) {return(NULL)}
+    #  No covariates here, so "ParamsBeforeCov" unnecessary
+    # See comment in d_b1degrange_by_attr function
+    coef.names <- ifelse(du[2,]>=network.size(nw)+1,
+                         paste("b1deg",du[1,],"+.", byarg, u[du[3,]],sep=""),
+                         paste("b1deg",du[1,],"to",du[2,],".",byarg, u[du[3,]],sep=""))
+    name <- "b1degrange_by_attr"
+    inputs <- c(as.vector(du), nodecov)
+  }
+  if (!is.null(emptynwstats)){
+    list(name=name,coef.names=coef.names, inputs=inputs,
+         emptynwstats=emptynwstats, dependence=TRUE, minval = 0)
+  }else{
+    list(name=name,coef.names=coef.names, inputs=inputs, dependence=TRUE, minval = 0, maxval=network.size(nw), conflicts.constraints="b1degreedist")
+  }
+}
 
 
 ################################################################################
@@ -531,6 +605,80 @@ InitErgmTerm.b2concurrent<-function(nw, arglist, ...) {
   list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, minval = 0, maxval=network.size(nw)-nb1)
 }
 
+################################################################################
+InitErgmTerm.b2degrange<-function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=FALSE,
+                      varnames = c("from", "to", "byarg", "homophily"),
+                      vartypes = c("numeric", "numeric", "character", "logical"),
+                      defaultvalues = list(NULL, Inf, NULL, FALSE),
+                      required = c(TRUE, FALSE, FALSE, FALSE))
+  from<-a$from; to<-a$to; byarg <- a$byarg; homophily <- a$homophily
+  to <- ifelse(to==Inf, network.size(nw)+1, to)
+
+  if(length(to)==1 && length(from)>1) to <- rep(to, length(from))
+  else if(length(from)==1 && length(to)>1) from <- rep(from, length(to))
+  else if(length(from)!=length(to)) stop("The arguments of term odegrange must have arguments either of the same length, or one of them must have length 1.")
+  else if(any(from>=to)) stop("Term odegrange must have from<to.")
+
+  nb1 <- get.network.attribute(nw, "bipartite")
+  emptynwstats<-NULL
+  if(!is.null(byarg)) {
+    nodecov <- get.node.attr(nw, byarg, "b2degrange")
+    if(!homophily) nodecov <- nodecov[-seq_len(nb1)]
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+    nodecov <- match(nodecov,u) # Recode to numeric
+    if (length(u)==1)
+         stop ("Attribute given to b2degrange() has only one value", call.=FALSE)
+  }
+  if(!is.null(byarg) && !homophily) {
+    # Combine b2degrange and u into 3xk matrix, where k=length(from)*length(u)
+    lu <- length(u)
+    du <- rbind(rep(from,lu), rep(to,lu), rep(1:lu, rep(length(from), lu)))
+    if (any(du[1,]==0)) {
+      emptynwstats <- rep(0, ncol(du))
+      tmp <- du[3,du[1,]==0]
+      for(i in 1:length(tmp)) tmp[i] <- sum(nodecov==tmp[i])
+        emptynwstats[du[1,]==0] <- tmp
+    }
+  } else {
+    if (any(from==0)) {
+      emptynwstats <- rep(0, length(from))
+      emptynwstats[from==0] <- network.size(nw)
+    }
+  }
+  if(is.null(byarg)) {
+    if(length(from)==0){return(NULL)}
+    coef.names <- ifelse(to>=network.size(nw)+1,
+                         paste("b2deg",from,"+",sep=""),
+                         paste("b2deg",from,"to",to,sep=""))
+    name <- "b2degrange"
+    inputs <- c(rbind(from,to))
+  } else if (homophily) {
+    if(length(from)==0){return(NULL)}
+    # See comment in d_b2degrange_w_homophily function
+    coef.names <- ifelse(to>=network.size(nw)+1,
+                         paste("b2deg",from,"+", ".homophily.",byarg,sep=""),
+                         paste("b2deg",from,"to",to, ".homophily.",byarg,sep=""))
+    name <- "b2degrange_w_homophily"
+    inputs <- c(rbind(from,to), nodecov)
+  } else {
+    if(ncol(du)==0) {return(NULL)}
+    #  No covariates here, so "ParamsBeforeCov" unnecessary
+    # See comment in d_b2degrange_by_attr function
+    coef.names <- ifelse(du[2,]>=network.size(nw)+1,
+                         paste("b2deg",du[1,],"+.", byarg, u[du[3,]],sep=""),
+                         paste("b2deg",du[1,],"to",du[2,],".",byarg, u[du[3,]],sep=""))
+    name <- "b2degrange_by_attr"
+    inputs <- c(as.vector(du), nodecov)
+  }
+  if (!is.null(emptynwstats)){
+    list(name=name,coef.names=coef.names, inputs=inputs,
+         emptynwstats=emptynwstats, dependence=TRUE, minval = 0)
+  }else{
+    list(name=name,coef.names=coef.names, inputs=inputs, dependence=TRUE, minval = 0, maxval=network.size(nw), conflicts.constraints="b2degreedist")
+  }
+}
 
 
 ################################################################################
@@ -883,6 +1031,79 @@ InitErgmTerm.degcrossprod<-function (nw, arglist, ...) {
        inputs=2*summary(nw ~ edges),
        dependence = TRUE # So we don't use MCMC if not necessary
        )
+}
+
+################################################################################
+InitErgmTerm.degrange<-function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=FALSE,
+                      varnames = c("from", "to", "byarg", "homophily"),
+                      vartypes = c("numeric", "numeric", "character", "logical"),
+                      defaultvalues = list(NULL, Inf, NULL, FALSE),
+                      required = c(TRUE, FALSE, FALSE, FALSE))
+  from<-a$from; to<-a$to; byarg <- a$byarg; homophily <- a$homophily
+  to <- ifelse(to==Inf, network.size(nw)+1, to)
+
+  if(length(to)==1 && length(from)>1) to <- rep(to, length(from))
+  else if(length(from)==1 && length(to)>1) from <- rep(from, length(to))
+  else if(length(from)!=length(to)) stop("The arguments of term degrange must have arguments either of the same length, or one of them must have length 1.")
+  else if(any(from>=to)) stop("Term degrange must have from<to.")
+
+  emptynwstats<-NULL
+  if(!is.null(byarg)) {
+    nodecov <- get.node.attr(nw, byarg, "degrange")
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+    nodecov <- match(nodecov,u) # Recode to numeric
+    if (length(u)==1)
+         stop ("Attribute given to degrange() has only one value", call.=FALSE)
+  }
+  if(!is.null(byarg) && !homophily) {
+    # Combine degrange and u into 3xk matrix, where k=length(from)*length(u)
+    lu <- length(u)
+    du <- rbind(rep(from,lu), rep(to,lu), rep(1:lu, rep(length(from), lu)))
+    if (any(du[1,]==0)) {
+      emptynwstats <- rep(0, ncol(du))
+      tmp <- du[3,du[1,]==0]
+      for(i in 1:length(tmp)) tmp[i] <- sum(nodecov==tmp[i])
+        emptynwstats[du[1,]==0] <- tmp
+    }
+  } else {
+    if (any(from==0)) {
+      emptynwstats <- rep(0, length(from))
+      emptynwstats[from==0] <- network.size(nw)
+    }
+  }
+  if(is.null(byarg)) {
+    if(length(from)==0){return(NULL)}
+    coef.names <- ifelse(to>=network.size(nw)+1,
+                         paste("deg",from,"+",sep=""),
+                         paste("deg",from,"to",to,sep=""))
+    name <- "degrange"
+    inputs <- c(rbind(from,to))
+  } else if (homophily) {
+    if(length(from)==0){return(NULL)}
+    # See comment in d_degrange_w_homophily function
+    coef.names <- ifelse(to>=network.size(nw)+1,
+                         paste("deg",from,"+", ".homophily.",byarg,sep=""),
+                         paste("deg",from,"to",to, ".homophily.",byarg,sep=""))
+    name <- "degrange_w_homophily"
+    inputs <- c(rbind(from,to), nodecov)
+  } else {
+    if(ncol(du)==0) {return(NULL)}
+    #  No covariates here, so "ParamsBeforeCov" unnecessary
+    # See comment in d_degrange_by_attr function
+    coef.names <- ifelse(du[2,]>=network.size(nw)+1,
+                         paste("deg",du[1,],"+.", byarg, u[du[3,]],sep=""),
+                         paste("deg",du[1,],"to",du[2,],".",byarg, u[du[3,]],sep=""))
+    name <- "degrange_by_attr"
+    inputs <- c(as.vector(du), nodecov)
+  }
+  if (!is.null(emptynwstats)){
+    list(name=name,coef.names=coef.names, inputs=inputs,
+         emptynwstats=emptynwstats, dependence=TRUE, minval = 0)
+  }else{
+    list(name=name,coef.names=coef.names, inputs=inputs, dependence=TRUE, minval = 0, maxval=network.size(nw), conflicts.constraints="degreedist")
+  }
 }
 
 ################################################################################
@@ -1706,6 +1927,78 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ...) {
 
 #=======================InitErgmTerm functions:  I============================#
 
+################################################################################
+InitErgmTerm.idegrange<-function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=FALSE,
+                      varnames = c("from", "to", "byarg", "homophily"),
+                      vartypes = c("numeric", "numeric", "character", "logical"),
+                      defaultvalues = list(NULL, Inf, NULL, FALSE),
+                      required = c(TRUE, FALSE, FALSE, FALSE))
+  from<-a$from; to<-a$to; byarg <- a$byarg; homophily <- a$homophily
+  to <- ifelse(to==Inf, network.size(nw)+1, to)
+
+  if(length(to)==1 && length(from)>1) to <- rep(to, length(from))
+  else if(length(from)==1 && length(to)>1) from <- rep(from, length(to))
+  else if(length(from)!=length(to)) stop("The arguments of term idegrange must have arguments either of the same length, or one of them must have length 1.")
+  else if(any(from>=to)) stop("Term idegrange must have from<to.")
+
+  emptynwstats<-NULL
+  if(!is.null(byarg)) {
+    nodecov <- get.node.attr(nw, byarg, "idegrange")
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+    nodecov <- match(nodecov,u) # Recode to numeric
+    if (length(u)==1)
+         stop ("Attribute given to idegrange() has only one value", call.=FALSE)
+  }
+  if(!is.null(byarg) && !homophily) {
+    # Combine idegrange and u into 3xk matrix, where k=length(from)*length(u)
+    lu <- length(u)
+    du <- rbind(rep(from,lu), rep(to,lu), rep(1:lu, rep(length(from), lu)))
+    if (any(du[1,]==0)) {
+      emptynwstats <- rep(0, ncol(du))
+      tmp <- du[3,du[1,]==0]
+      for(i in 1:length(tmp)) tmp[i] <- sum(nodecov==tmp[i])
+        emptynwstats[du[1,]==0] <- tmp
+    }
+  } else {
+    if (any(from==0)) {
+      emptynwstats <- rep(0, length(from))
+      emptynwstats[from==0] <- network.size(nw)
+    }
+  }
+  if(is.null(byarg)) {
+    if(length(from)==0){return(NULL)}
+    coef.names <- ifelse(to>=network.size(nw)+1,
+                         paste("ideg",from,"+",sep=""),
+                         paste("ideg",from,"to",to,sep=""))
+    name <- "idegrange"
+    inputs <- c(rbind(from,to))
+  } else if (homophily) {
+    if(length(from)==0){return(NULL)}
+    # See comment in d_idegrange_w_homophily function
+    coef.names <- ifelse(to>=network.size(nw)+1,
+                         paste("ideg",from,"+", ".homophily.",byarg,sep=""),
+                         paste("ideg",from,"to",to, ".homophily.",byarg,sep=""))
+    name <- "idegrange_w_homophily"
+    inputs <- c(rbind(from,to), nodecov)
+  } else {
+    if(ncol(du)==0) {return(NULL)}
+    #  No covariates here, so "ParamsBeforeCov" unnecessary
+    # See comment in d_idegrange_by_attr function
+    coef.names <- ifelse(du[2,]>=network.size(nw)+1,
+                         paste("ideg",du[1,],"+.", byarg, u[du[3,]],sep=""),
+                         paste("ideg",du[1,],"to",du[2,],".",byarg, u[du[3,]],sep=""))
+    name <- "idegrange_by_attr"
+    inputs <- c(as.vector(du), nodecov)
+  }
+  if (!is.null(emptynwstats)){
+    list(name=name,coef.names=coef.names, inputs=inputs,
+         emptynwstats=emptynwstats, dependence=TRUE, minval = 0)
+  }else{
+    list(name=name,coef.names=coef.names, inputs=inputs, dependence=TRUE, minval = 0, maxval=network.size(nw), conflicts.constraints="idegreedist")
+  }
+}
 
 ################################################################################
 InitErgmTerm.idegree<-function(nw, arglist, ...) {
@@ -2336,6 +2629,79 @@ InitErgmTerm.nsp<-function(nw, arglist, ...) {
 
 
 #=======================InitErgmTerm functions:  O============================#
+
+################################################################################
+InitErgmTerm.odegrange<-function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=FALSE,
+                      varnames = c("from", "to", "byarg", "homophily"),
+                      vartypes = c("numeric", "numeric", "character", "logical"),
+                      defaultvalues = list(NULL, Inf, NULL, FALSE),
+                      required = c(TRUE, FALSE, FALSE, FALSE))
+  from<-a$from; to<-a$to; byarg <- a$byarg; homophily <- a$homophily
+  to <- ifelse(to==Inf, network.size(nw)+1, to)
+
+  if(length(to)==1 && length(from)>1) to <- rep(to, length(from))
+  else if(length(from)==1 && length(to)>1) from <- rep(from, length(to))
+  else if(length(from)!=length(to)) stop("The arguments of term odegrange must have arguments either of the same length, or one of them must have length 1.")
+  else if(any(from>=to)) stop("Term odegrange must have from<to.")
+
+  emptynwstats<-NULL
+  if(!is.null(byarg)) {
+    nodecov <- get.node.attr(nw, byarg, "odegrange")
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+    nodecov <- match(nodecov,u) # Recode to numeric
+    if (length(u)==1)
+         stop ("Attribute given to odegrange() has only one value", call.=FALSE)
+  }
+  if(!is.null(byarg) && !homophily) {
+    # Combine odegrange and u into 3xk matrix, where k=length(from)*length(u)
+    lu <- length(u)
+    du <- rbind(rep(from,lu), rep(to,lu), rep(1:lu, rep(length(from), lu)))
+    if (any(du[1,]==0)) {
+      emptynwstats <- rep(0, ncol(du))
+      tmp <- du[3,du[1,]==0]
+      for(i in 1:length(tmp)) tmp[i] <- sum(nodecov==tmp[i])
+        emptynwstats[du[1,]==0] <- tmp
+    }
+  } else {
+    if (any(from==0)) {
+      emptynwstats <- rep(0, length(from))
+      emptynwstats[from==0] <- network.size(nw)
+    }
+  }
+  if(is.null(byarg)) {
+    if(length(from)==0){return(NULL)}
+    coef.names <- ifelse(to>=network.size(nw)+1,
+                         paste("odeg",from,"+",sep=""),
+                         paste("odeg",from,"to",to,sep=""))
+    name <- "odegrange"
+    inputs <- c(rbind(from,to))
+  } else if (homophily) {
+    if(length(from)==0){return(NULL)}
+    # See comment in d_odegrange_w_homophily function
+    coef.names <- ifelse(to>=network.size(nw)+1,
+                         paste("odeg",from,"+", ".homophily.",byarg,sep=""),
+                         paste("odeg",from,"to",to, ".homophily.",byarg,sep=""))
+    name <- "odegrange_w_homophily"
+    inputs <- c(rbind(from,to), nodecov)
+  } else {
+    if(ncol(du)==0) {return(NULL)}
+    #  No covariates here, so "ParamsBeforeCov" unnecessary
+    # See comment in d_odegrange_by_attr function
+    coef.names <- ifelse(du[2,]>=network.size(nw)+1,
+                         paste("odeg",du[1,],"+.", byarg, u[du[3,]],sep=""),
+                         paste("odeg",du[1,],"to",du[2,],".",byarg, u[du[3,]],sep=""))
+    name <- "odegrange_by_attr"
+    inputs <- c(as.vector(du), nodecov)
+  }
+  if (!is.null(emptynwstats)){
+    list(name=name,coef.names=coef.names, inputs=inputs,
+         emptynwstats=emptynwstats, dependence=TRUE, minval = 0)
+  }else{
+    list(name=name,coef.names=coef.names, inputs=inputs, dependence=TRUE, minval = 0, maxval=network.size(nw), conflicts.constraints="odegreedist")
+  }
+}
 
 ################################################################################
 InitErgmTerm.odegree<-function(nw, arglist, ...) {
