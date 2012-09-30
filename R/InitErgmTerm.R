@@ -287,7 +287,7 @@ InitErgmTerm.b1concurrent<-function(nw, arglist, ...) {
   byarg <- a$byarg
   nb1 <- get.network.attribute(nw, "bipartite")       
   if(!is.null(byarg)) {
-    nodecov <- get.node.attr(nw, byarg, "b1concurrent")
+    nodecov <- get.node.attr(nw, byarg, "b1concurrent")[seq_len(nb1)]
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u) # Recode to numeric
@@ -324,7 +324,7 @@ InitErgmTerm.b1degree <- function(nw, arglist, ...) {
   ### Process the arguments
   nb1 <- get.network.attribute(nw, "bipartite")
   if (!is.null(a$byarg)) {  # CASE 1:  a$byarg GIVEN
-    nodecov <- get.node.attr(nw, a$byarg)
+    nodecov <- get.node.attr(nw, a$byarg)[seq_len(nb1)]
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u) # Recode to numeric
@@ -335,7 +335,7 @@ InitErgmTerm.b1degree <- function(nw, arglist, ...) {
     if (any(du[1,]==0)) { # Alter emptynwstats
       tmp <- du[2,du[1,]==0]
       for(i in 1:length(tmp)) 
-        tmp[i] <- sum(nodecov[1:nb1]==tmp[i])
+        tmp[i] <- sum(nodecov==tmp[i])
       emptynwstats[du[1,]==0] <- tmp
     }
     name <- "b1degree_by_attr"
@@ -507,7 +507,7 @@ InitErgmTerm.b2concurrent<-function(nw, arglist, ...) {
   byarg <- a$byarg
   nb1 <- get.network.attribute(nw, "bipartite")
   if(!is.null(byarg)) {
-    nodecov <- get.node.attr(nw, byarg, "b2concurrent")
+    nodecov <- get.node.attr(nw, byarg, "b2concurrent")[-seq_len(nb1)]
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u) # Recode to numeric
@@ -545,7 +545,7 @@ InitErgmTerm.b2degree <- function(nw, arglist, ...) {
   nb1 <- get.network.attribute(nw, "bipartite")
   n <- network.size(nw)
   if (!is.null(a$byarg)) {  # CASE 1:  a$byarg GIVEN
-    nodecov <- get.node.attr(nw, a$byarg)
+    nodecov <- get.node.attr(nw, a$byarg)[-seq_len(nb1)]
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u) # Recode to numeric
@@ -556,7 +556,7 @@ InitErgmTerm.b2degree <- function(nw, arglist, ...) {
     if (any(du[1,]==0)) { # Alter emptynwstats
       tmp <- du[2,du[1,]==0]
       for(i in 1:length(tmp)) 
-        tmp[i] <- sum(nodecov[(1+nb1):n]==tmp[i])
+        tmp[i] <- sum(nodecov==tmp[i])
       emptynwstats[du[1,]==0] <- tmp
     }
     name <- "b2degree_by_attr"

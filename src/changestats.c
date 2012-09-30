@@ -436,7 +436,7 @@ D_CHANGESTAT_FN(d_b2concurrent_by_attr) {
     b2 = HEAD(i);
     echange = IS_OUTEDGE(TAIL(i), b2) ? -1 : 1;
     b2deg = IN_DEG[b2];
-    b2attr = INPUT_PARAM[N_CHANGE_STATS + b2 - 1];
+    b2attr = INPUT_PARAM[N_CHANGE_STATS + b2 - 1 - BIPARTITE];
     for(j = 0; j < N_CHANGE_STATS; j++) {
       if (b2attr == INPUT_PARAM[j]) { /* we have attr match */
         CHANGE_STAT[j] += (b2deg + echange > 1) - (b2deg > 1);
@@ -486,7 +486,7 @@ D_CHANGESTAT_FN(d_b2degree_by_attr) {
     b2 = HEAD(i);
     echange = IS_OUTEDGE(TAIL(i), b2) ? -1 : 1;
     b2deg = IN_DEG[b2];
-    b2attr = INPUT_PARAM[2*N_CHANGE_STATS + b2 - 1];
+    b2attr = INPUT_PARAM[2*N_CHANGE_STATS + b2 - 1 - BIPARTITE];
     for(j = 0; j < N_CHANGE_STATS; j++) {
       if (b2attr == INPUT_PARAM[2*j+1]) { /* we have attr match */
         d = (Vertex)INPUT_PARAM[2*j];
