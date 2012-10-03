@@ -138,3 +138,24 @@ ergm.el.lasttoggle <- function(nw){
   el <- as.edgelist(nw)
   cbind(el,(nw %n% "lasttoggle")[apply(el,1,edge.to.pos)])
 }
+
+to.matrix.lasttoggle <- function(nw){
+  n <- network.size(nw)
+  b <- if(is.bipartite(nw)) nw %n% "bipartite"
+  
+  if(is.bipartite(nw)) m <- matrix(nw %n% "lasttoggle", b, n-b, byrow=FALSE)
+  else{
+    m <- matrix(NA,n,n)
+    if(is.directed(nw))
+      m[as.logical(1-diag(1,nrow=n))] <- nw %n% "lasttoggle"
+    else
+      m[lower.tri(m)] <- m[upper.tri(m)] <- nw %n% "lasttoggle"
+  }
+  m
+}
+
+to.lasttoggle.matrix <- function(m, directed=TRUE, bipartite=FALSE){
+  if(bipartite) c(m)
+  else if(directed) c(m[as.logical(1-diag(1,nrow=nrow(m)))])
+  else c(m[upper.tri(m)])
+}
