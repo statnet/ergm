@@ -111,6 +111,8 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
       }else{
        model <- eval(v[[i]], formula.env)  #Call the InitErgm function
       }
+      # If SO package name not specified explicitly, autodetect.
+      if(is.null(model$terms[[length(model$terms)]]$pkgname)) model$terms[[length(model$terms)]]$pkgname <- which.package.InitFunction(v[[i]][[1]],formula.env)
     } else { # New InitErgmTerms style
       v[[i]][[2]] <- nw
       names(v[[i]])[2] <-  ""
@@ -123,11 +125,14 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
         names(v[[i]])[3+j] <- names(dotdotdot)[j]
       }
       outlist <- eval(v[[i]], formula.env)  #Call the InitErgm function
+      # If SO package name not specified explicitly, autodetect.
+      if(is.null(outlist$pkgname)) outlist$pkgname <- which.package.InitFunction(v[[i]][[1]],formula.env)
       # Now it is necessary to add the output to the model object
       model <- updatemodel.ErgmTerm(model, outlist)
     }
   } 
   model$etamap <- ergm.etamap(model)
+  
   class(model) <- "ergm.model"
   model
 }

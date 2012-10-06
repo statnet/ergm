@@ -517,3 +517,16 @@ invert.network <- function(nw){
   network.update(nw, el, matrix.type="edgelist")
   
 }
+
+
+# Return the name of the package containing function f visible from
+# environment env.
+which.package.InitFunction <- function(f, env = parent.frame()){
+  f <- as.character(f)
+  # Find the first entity named f in the search path, and get its name
+  # attribute (if present).
+  loc <- attr(findFunction(f, where=env)[[1]], "name")
+  # If name attribute is not NULL and begins with "package:", return
+  # the package name. Otherwise, return NULL.
+  if(!is.null(loc) && grepl("^package:", loc)) sub("^package:", "", loc) else NULL
+}

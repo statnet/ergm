@@ -89,9 +89,7 @@ ergm.Cprepare <- function(nw, m, response=NULL)
                                    term_i$soname
                                  } else if (!is.null(term_i$pkgname)) {
                                    term_i$pkgname
-                                 } else {
-                                   "ergm"
-                                 } )
+                                 } else stop("ERGM term specifying C function `", term_i$name,"' is missing C library or package name.") )
       Clist$inputs <- c(Clist$inputs, term_i$inputs)
       Clist$nstats <- Clist$nstats + term_i$inputs[2]
     }
