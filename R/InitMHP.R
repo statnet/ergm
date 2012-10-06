@@ -33,33 +33,32 @@
 #
 ############################################################################
 InitMHP.randomtoggle <- function(arguments, nw) {
-  MHproposal <- list(name = "randomtoggle", inputs=NULL, package="ergm")
+  MHproposal <- list(name = "randomtoggle", inputs=NULL)
   MHproposal
 }
 
 InitMHP.TNT <- function(arguments, nw) {
-  MHproposal <- list(name = "TNT", inputs=NULL, package="ergm")
+  MHproposal <- list(name = "TNT", inputs=NULL)
   MHproposal
 }
 
 InitMHP.TNT10 <- function(arguments, nw) {
-  MHproposal <- list(name = "TNT10", inputs=NULL, package="ergm")
+  MHproposal <- list(name = "TNT10", inputs=NULL)
   MHproposal
 }
 
 InitMHP.CondDegree <- function(arguments, nw) {
-  MHproposal <- list(name = "CondDegree", inputs=NULL, package="ergm")
+  MHproposal <- list(name = "CondDegree", inputs=NULL)
   MHproposal
 }
 InitMHP.CondDegreeMix <- function(arguments, nw) {
   MHproposal <- list(name = "CondDegreeMix",
-    inputs=get.vertex.attribute(nw,arguments$constraints$degreesmix$attrib),
-    package="ergm")
+    inputs=get.vertex.attribute(nw,arguments$constraints$degreesmix$attrib))
   MHproposal
 }
 
 InitMHP.CondOutDegree <- function(arguments, nw) {
-  MHproposal <- list(name = "CondOutDegree", inputs=NULL, package="ergm")
+  MHproposal <- list(name = "CondOutDegree", inputs=NULL)
   if (!is.directed(nw)) # Really, this should never trigger, since the InitConstraint function should check.
     stop("The CondOutDegree proposal function does not work with an",
           "undirected network.")
@@ -68,7 +67,7 @@ InitMHP.CondOutDegree <- function(arguments, nw) {
 }
 
 InitMHP.CondInDegree <- function(arguments, nw) {
-  MHproposal <- list(name = "CondInDegree", inputs=NULL, package="ergm")
+  MHproposal <- list(name = "CondInDegree", inputs=NULL)
   if (!is.directed(nw)) # Really, this should never trigger, since the InitConstraint function should check.
     stop("The CondInDegree proposal function does not work with an",
           "undirected network.")
@@ -76,7 +75,7 @@ InitMHP.CondInDegree <- function(arguments, nw) {
 }
 
 InitMHP.CondB1Degree <- function(arguments, nw) {
-  MHproposal <- list(name = "CondB1Degree", inputs=NULL, package="ergm")
+  MHproposal <- list(name = "CondB1Degree", inputs=NULL)
   if (!is.bipartite(nw)) # Really, this should never trigger, since the InitConstraint function should check.
     stop("The CondB1Degree proposal function does not work with a non-bipartite network.")
   
@@ -84,14 +83,14 @@ InitMHP.CondB1Degree <- function(arguments, nw) {
 }
 
 InitMHP.CondB2Degree <- function(arguments, nw) {
-  MHproposal <- list(name = "CondB2Degree", inputs=NULL, package="ergm")
+  MHproposal <- list(name = "CondB2Degree", inputs=NULL)
   if (!is.bipartite(nw)) # Really, this should never trigger, since the InitConstraint function should check.
     stop("The CondB2Degree proposal function does not work with a non-bipartite network.")
   MHproposal
 }
 
 InitMHP.CondDegreeDist <- function(arguments, nw) {
-  MHproposal <- list(name = "CondDegreeDist", inputs=NULL, package="ergm")
+  MHproposal <- list(name = "CondDegreeDist", inputs=NULL)
   if (is.directed(nw)) {
     cat("Warning:  Using the 'degreedist' constraint with a directed network\n",
           "is currently perilous.  We recommend that you use 'outdegree' or\n",
@@ -104,7 +103,7 @@ InitMHP.CondDegreeDist <- function(arguments, nw) {
 }
 
 InitMHP.CondInDegreeDist <- function(arguments, nw) {
-  MHproposal <- list(name = "CondInDegreeDist", inputs=NULL, package="ergm")
+  MHproposal <- list(name = "CondInDegreeDist", inputs=NULL)
   if (!is.directed(nw)) {
     cat("Warning:  Using the 'idegreedist' constraint with an undirected network\n",
           "is currently perilous.  We recommend that you use 'degreedist'\n",
@@ -117,7 +116,7 @@ InitMHP.CondInDegreeDist <- function(arguments, nw) {
 }
 
 InitMHP.CondOutDegreeDist <- function(arguments, nw) {
-  MHproposal <- list(name = "CondOutDegreeDist", inputs=NULL, package="ergm")
+  MHproposal <- list(name = "CondOutDegreeDist", inputs=NULL)
   if (!is.directed(nw)) {
     cat("Warning:  Using the 'odegreedist' constraint with an undirected network\n",
           "is currently perilous.  We recommend that you use 'degreedist'\n",
@@ -130,12 +129,12 @@ InitMHP.CondOutDegreeDist <- function(arguments, nw) {
 }
 
 InitMHP.ConstantEdges <- function(arguments, nw) {
-  MHproposal <- list(name = "ConstantEdges", inputs=NULL, package="ergm")
+  MHproposal <- list(name = "ConstantEdges", inputs=NULL)
   MHproposal
 }
 
 InitMHP.HammingConstantEdges <- function(arguments, nw) {
-  MHproposal <- list(name = "HammingConstantEdges", inputs=NULL, package="ergm")
+  MHproposal <- list(name = "HammingConstantEdges", inputs=NULL)
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartiteHammingConstantEdges"
   }
@@ -143,7 +142,7 @@ InitMHP.HammingConstantEdges <- function(arguments, nw) {
 }
 
 InitMHP.HammingTNT <- function(arguments, nw) {
-  MHproposal <- list(name = "HammingTNT", inputs=NULL, package="ergm")
+  MHproposal <- list(name = "HammingTNT", inputs=NULL)
   if(is.bipartite(nw)){
     MHproposal$name <- "BipartiteHammingTNT"
   }
@@ -154,7 +153,7 @@ InitMHP.randomtoggleNonObserved <- function(arguments, nw) {
   if(network.naedgecount(nw)==0){
    stop("The passed network does not have any non-observed dyads.\n Hence constraining to the observed will hold the network fixed at this network.\n Either the network or the constraint need to be altered.")
   }
-  MHproposal <- list(name = "randomtoggleList", inputs=ergm.Cprepare.miss(nw), package="ergm")
+  MHproposal <- list(name = "randomtoggleList", inputs=ergm.Cprepare.miss(nw))
   MHproposal
 }
 

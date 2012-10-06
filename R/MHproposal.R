@@ -98,13 +98,15 @@ MHproposal.character <- function(object, arguments, nw, ..., response=NULL, refe
   name<-object
 
   arguments$reference <- reference
+
+  fun <- if(is.null(response)) paste("InitMHP", name, sep=".") else paste("InitWtMHP", name, sep=".")
   
   proposal <- {
     if(is.null(response))
-      eval(call(paste("InitMHP", name, sep="."),
+      eval(call(fun,
                 arguments, nw))
     else
-      eval(call(paste("InitWtMHP", name, sep="."),
+      eval(call(fun,
                 arguments, nw, response))
   }
 
@@ -115,6 +117,8 @@ MHproposal.character <- function(object, arguments, nw, ..., response=NULL, refe
 
   proposal$arguments$constraints$bd <- ergm.bounddeg(arguments$constraints$bd,nw)
 
+  if(is.null(proposal$pkgname))  proposal$pkgname <- which.package.InitFunction(fun)
+  
   class(proposal)<-"MHproposal"
   proposal
 }

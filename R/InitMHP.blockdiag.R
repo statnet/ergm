@@ -30,7 +30,7 @@ InitMHP.blockdiag <- function(arguments, nw){
   w <- w/max(w)
   # Note that this automagically takes care of singleton blocks by giving them weight 0.
   
-  MHproposal <- list(name = "blockdiag", inputs=c(length(b)-1,  b, w), package="ergm")
+  MHproposal <- list(name = "blockdiag", inputs=c(length(b)-1,  b, w))
   MHproposal
 }
 
@@ -54,7 +54,7 @@ InitMHP.blockdiagTNT <- function(arguments, nw){
   w <- w/max(w)
   # Note that this automagically takes care of singleton blocks by giving them weight 0.
   
-  MHproposal <- list(name = "blockdiagTNT", inputs=c(nd, length(b)-1,  b, w), package="ergm")
+  MHproposal <- list(name = "blockdiagTNT", inputs=c(nd, length(b)-1,  b, w))
   MHproposal
 }
 
@@ -69,6 +69,6 @@ InitMHP.blockdiagNonObserved <- function(arguments, nw){
 
   el <- el[a[el[,1]]==a[el[,2]],,drop=FALSE]
   
-  MHproposal <- list(name = "randomtoggleList", inputs=ergm.Cprepare.el(el), package="ergm")
+  MHproposal <- list(name = "randomtoggleList", inputs=ergm.Cprepare.el(el))
   MHproposal
 }
