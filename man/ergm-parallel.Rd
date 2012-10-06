@@ -10,11 +10,15 @@
 \description{
   \code{\link[=ergm-package]{ergm}} can take advantage of multiple
   CPUs or CPU cores on the system on which it runs, as well as computing
-  clusters.
+  clusters. It uses package \code{\link[snow-package]{snow}} to
+  facilitate this, and supports all cluster types that it does.
 
-  This entry describes the APIs it can use, as well as common problems
-  and workarounds associated with parallel processing in \code{\link[=ergm-package]{ergm}}.
-}
+  The parallel API and the number of nodes used are controlled using the
+  \code{parallel} and \code{parallel.type} arguments passed to the
+  control functions, such as \code{\link{control.ergm}}.
+
+  This entry describes common problems and workarounds associated with
+  particular parallel processing APIs.  }
 
 % rpvm package is currently not maintained.
 %\section{PVM}{
@@ -40,7 +44,7 @@
   once it finishes, using MPI on these installations may fail. A
   workaround is to start the cluster outside of \code{\link{ergm}}
   (e.g., \code{dummy <- makeCluster(nnodes,
-  type="MPI")}). \code{\link{ergm}} will notice the preexisting
+  type="MPI")}). \code{\link{ergm}} will notice the
   preexisting cluster and make use of it, but it will not stop it.
 
 }
