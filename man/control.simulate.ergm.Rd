@@ -13,7 +13,7 @@ control.simulate(MCMC.burnin=1000,
                  MCMC.prop.weights="default",
                  MCMC.prop.args=list(),
                  MCMC.init.maxedges=20000,
-                 MCMC.packagenames="ergm",
+                 MCMC.packagenames=c(),
                  MCMC.runtime.traceplot=FALSE,  
 
                  network.output="network",
@@ -28,7 +28,7 @@ control.simulate.formula(MCMC.burnin=1000,
                          MCMC.prop.weights="default",
                          MCMC.prop.args=list(),
                          MCMC.init.maxedges=20000,
-                         MCMC.packagenames="ergm",
+                         MCMC.packagenames=c(),
                          MCMC.runtime.traceplot=FALSE,  
 
                          network.output="network",
@@ -43,7 +43,7 @@ control.simulate.formula.ergm(MCMC.burnin=1000,
                               MCMC.prop.weights="default",
                               MCMC.prop.args=list(),
                               MCMC.init.maxedges=20000,
-                              MCMC.packagenames="ergm",
+                              MCMC.packagenames=c(),
                               MCMC.runtime.traceplot=FALSE,  
 
                               network.output="network",
@@ -96,8 +96,9 @@ control.simulate.ergm(MCMC.burnin=NULL,
   }
   \item{MCMC.init.maxedges}{Maximum number of edges expected in network.
   }
-  \item{MCMC.packagenames}{Names of packages in which change statistic
-    functions are found.
+  \item{MCMC.packagenames}{Names of packages in which to look for change statistic
+    functions in addition to those autodetected. This argument should not be
+    needed outside of very strange setups.
   }
   \item{MCMC.runtime.traceplot}{Logical:  If TRUE, plot traceplots of 
     the MCMC sample after every MCMC MLE iteration.

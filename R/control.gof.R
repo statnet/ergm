@@ -67,7 +67,7 @@ control.gof.formula<-function(nsim=100,
                               MCMC.prop.args=list(),
                               
                               MCMC.init.maxedges=20000,
-                              MCMC.packagenames="ergm",
+                              MCMC.packagenames=c(),
                               
                               MCMC.runtime.traceplot=FALSE,          
                               network.output="network",

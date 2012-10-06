@@ -1,11 +1,21 @@
 # Set up a flag for whether we are in charge of MPI cluster.
 ergm.MPIcluster.started <- local({
   started <- FALSE
-  function(new) {
+  function(new){
     if(!missing(new))
       started <<- new
     else
       started
+  }
+})
+
+ergm.MCMC.packagenames <- local({
+  packagenames <- c("ergm") # It has to include itself.
+  function(new){
+    if(!missing(new))
+      packagenames <<- unique(c(packagenames,new))
+    else
+      packagenames
   }
 })
 
@@ -51,7 +61,9 @@ ergm.getCluster <- function(control, verbose=FALSE){
   
   # Set things up. 
   clusterSetupRNG(cl)
-  for(pkg in control$MCMC.packagenames){
+  # On the off chance that user wants to load extra packages which we don't know about already.
+  ergm.MCMC.packagenames(control$MCMC.packagenames)
+  for(pkg in ergm.MCMC.packagenames()){
     # Try loading from the same location as the master.
     attached <- unlist(clusterCall(cl, require,
                                    package=pkg,

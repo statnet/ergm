@@ -132,6 +132,10 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
     }
   } 
   model$etamap <- ergm.etamap(model)
+
+  # I.e., construct a vector of package names associated with the model terms.
+  # Note that soname is not the same, since it's not guaranteed to be a loadable package.
+  ergm.MCMC.packagenames(unlist(sapply(model$terms, "[[", "pkgname")))
   
   class(model) <- "ergm.model"
   model

@@ -131,7 +131,7 @@ control.ergm<-function(drop=TRUE,
                        MCMC.init.maxedges=20000,
                        MCMC.addto.se=TRUE,
                        MCMC.compress=FALSE,
-                       MCMC.packagenames="ergm",
+                       MCMC.packagenames=c(),
 
                        SAN.maxit=10,
                        SAN.control=control.san(coef=init,

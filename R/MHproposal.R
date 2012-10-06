@@ -116,8 +116,11 @@ MHproposal.character <- function(object, arguments, nw, ..., response=NULL, refe
   proposal$reference <- reference
 
   proposal$arguments$constraints$bd <- ergm.bounddeg(arguments$constraints$bd,nw)
-
+  # If package not specified, autodetect.
   if(is.null(proposal$pkgname))  proposal$pkgname <- which.package.InitFunction(fun)
+
+  # Add the package to the list of those to be loaded.
+  ergm.MCMC.packagenames(proposal$pkgname)
   
   class(proposal)<-"MHproposal"
   proposal

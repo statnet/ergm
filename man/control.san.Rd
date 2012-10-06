@@ -16,7 +16,7 @@ control.san(coef=NULL,
                       
             SAN.prop.weights="default",
             SAN.prop.args=list(),
-            SAN.packagenames="ergm",
+            SAN.packagenames=c(),
             MPLE.samplesize = 50000,
             network.output="network",
 
@@ -62,9 +62,9 @@ control.san(coef=NULL,
   \item{SAN.prop.args}{An alternative, direct way of specifying additional 
     arguments to proposal.
   }
-  \item{SAN.packagenames}{Names of packages in which 
-    changestatistics are found. 
-    Currently unused as \code{ergm} is presumed.
+  \item{SAN.packagenames}{Names of packages in which to look for change statistic
+    functions in addition to those autodetected. This argument should not be
+    needed outside of very strange setups.
   }
   \item{MPLE.samplesize}{Not currently documented; used in 
     conditional-on-degree version of MPLE.

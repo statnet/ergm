@@ -53,7 +53,7 @@ control.simulate<-control.simulate.formula<-control.simulate.formula.ergm<-funct
                                                      MCMC.prop.args=list(),
 
                                                      MCMC.init.maxedges=20000,
-                                                     MCMC.packagenames="ergm",
+                                                     MCMC.packagenames=c(),
 
                                                      MCMC.runtime.traceplot=FALSE,  
                                                      network.output="network",

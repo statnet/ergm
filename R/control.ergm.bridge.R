@@ -10,7 +10,7 @@ control.ergm.bridge<-function(nsteps=20, # Number of geometric bridges to use
                               MCMC.prop.args=list(),
 
                               MCMC.init.maxedges=20000,
-                              MCMC.packagenames="ergm",
+                              MCMC.packagenames=c(),
                               
                               seed=NULL){
 

@@ -32,7 +32,7 @@ control.ergm(drop=TRUE,
              MCMC.init.maxedges=20000,
              MCMC.addto.se=TRUE,
              MCMC.compress=FALSE,
-             MCMC.packagenames="ergm",
+             MCMC.packagenames=c(),
 
              SAN.maxit=10,
              SAN.control=control.san(
@@ -231,8 +231,9 @@ control.ergm(drop=TRUE,
     returned is compressed to the set of unique statistics with a 
     column of frequencies post-pended.
   }
-  \item{MCMC.packagenames}{Names of packages in which change statistic
-    functions are found.
+  \item{MCMC.packagenames}{Names of packages in which to look for change statistic
+    functions in addition to those autodetected. This argument should not be
+    needed outside of very strange setups.
   }
 
   \item{SAN.maxit}{When \code{target.stats} argument is passed to

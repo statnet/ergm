@@ -48,7 +48,7 @@ control.san<-function(coef=NULL,
                       
                       SAN.prop.weights="default",
                       SAN.prop.args=list(),
-                      SAN.packagenames="ergm",
+                      SAN.packagenames=c(),
 
                       MPLE.samplesize=50000,
 
