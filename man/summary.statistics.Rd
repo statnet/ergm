@@ -47,7 +47,10 @@
     then add nodal attributes to it using the \code{\%v\%}
     operator if necessary.
   }
-  \item{response}{Not for release.
+  \item{response}{Name of the edge attribute whose value is to be
+    modeled. Defaults to \code{NULL} for simple presence or
+    absence, modeled via binary ERGM terms. Passing
+    anything but \code{NULL} uses valued ERGM terms.
   }
 % \item{m}{A model component produced by \code{ergm.getmodel}. Only the 
 %   \code{m$coef.names} component is used to set the names of the statistics.}
@@ -69,6 +72,9 @@
  corresponding statistic(s) on an empty network, these change statistics
  give the absolute statistics on the original network.
 
+ \code{summary.formula} for networks understands the
+ \code{\link{lasttoggle}} "API".
+ 
  %More information can be found by looking at the documentation of
  %\code{\link{ergm}}.
 }
