@@ -126,10 +126,10 @@ Rprintf("L: A1 %f A2 %f B1 %f B2 %f\n",MHp->inputs[A1-1],MHp->inputs[A2-1],MHp->
   Mtail[3]=B1; Mhead[3]=A2;
 }
 
-void MH_CondDegreeMix(MHproposal *MHp, Network *nwp)  {  
+void MH_CondDegreeMixChangeOrig(MHproposal *MHp, Network *nwp)  {  
   Vertex A1, A2, B1, B2;
   int b;
-  int bb;
+  int bb, bbb=0;
   
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=4;    
@@ -143,6 +143,7 @@ void MH_CondDegreeMix(MHproposal *MHp, Network *nwp)  {
     GetRandEdge(&A1, &A2, nwp);
     GetRandEdge(&B1, &B2, nwp);
     bb=(unif_rand() > 0.05);
+    bbb++;
     if(bb){
 //  if(unif_rand() > 0.5){
 //  Less
@@ -156,17 +157,63 @@ void MH_CondDegreeMix(MHproposal *MHp, Network *nwp)  {
 //Rprintf("g: A1 %f A2 %f B1 %f B2 %f\n",MHp->inputs[A1-1],MHp->inputs[A2-1],MHp->inputs[B1-1],MHp->inputs[B2-1]); 
 //}
   }while(
-  	 b || A1==B1 || A1==B2 || A2==B1 || A2==B2 || 
+  	 (bbb<20) || b || A1==B1 || A1==B2 || A2==B1 || A2==B2 || 
 	 (nwp->directed_flag ? 
 	  IS_OUTEDGE(A1, B2) || IS_OUTEDGE(B1, A2) : // Directed
 	  IS_UNDIRECTED_EDGE(A1,B2) || IS_UNDIRECTED_EDGE(B1,A2) // Undirected
 	  ));
 //Rprintf("in A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
 //Rprintf("%d: A1 %f A2 %f B1 %f B2 %f\n",bb,MHp->inputs[A1-1],MHp->inputs[A2-1],MHp->inputs[B1-1],MHp->inputs[B2-1]); 
-  Mtail[0]=A1; Mhead[0]=A2;
-  Mtail[1]=A1; Mhead[1]=B2;
-  Mtail[2]=B1; Mhead[2]=B2;
-  Mtail[3]=B1; Mhead[3]=A2;
+ if(bbb==20){
+   Mtail[0]=A1; Mhead[0]=A2;
+   Mtail[1]=A1; Mhead[1]=A2;
+   Mtail[2]=B1; Mhead[2]=B2;
+   Mtail[3]=B1; Mhead[3]=B2;
+  }else{
+   Mtail[0]=A1; Mhead[0]=A2;
+   Mtail[1]=A1; Mhead[1]=B2;
+   Mtail[2]=B1; Mhead[2]=B2;
+   Mtail[3]=B1; Mhead[3]=A2;
+  }
+}
+
+void MH_CondDegreeMix(MHproposal *MHp, Network *nwp)  {  
+  Vertex A1, A2, B1, B2;
+  int b;
+  int bb, bbb=0;
+  
+  if(MHp->ntoggles == 0) { /* Initialize */
+    MHp->ntoggles=4;    
+    return;
+  }
+
+  do{
+    GetRandEdge(&A1, &A2, nwp);
+    GetRandEdge(&B1, &B2, nwp);
+    bb=(unif_rand() > 0.05);
+    bbb++;
+    if(bb){
+  	 b=((abs(MHp->inputs[A1-1]-MHp->inputs[A2-1])<0.001)&(abs(MHp->inputs[B2-1]-MHp->inputs[B1-1])<0.001)&(abs(MHp->inputs[A1-1]-MHp->inputs[B1-1])>0.001));
+    }else{
+  	 b=((abs(MHp->inputs[A1-1]-MHp->inputs[A2-1])>0.001)&(abs(MHp->inputs[B2-1]-MHp->inputs[B1-1])>0.001)&(abs(MHp->inputs[A1-1]-MHp->inputs[B1-1])<0.001));
+    }
+  }while(
+  	 (bbb<40) || b || A1==B1 || A1==B2 || A2==B1 || A2==B2 || 
+	 (nwp->directed_flag ? 
+	  IS_OUTEDGE(A1, B2) || IS_OUTEDGE(B1, A2) : // Directed
+	  IS_UNDIRECTED_EDGE(A1,B2) || IS_UNDIRECTED_EDGE(B1,A2) // Undirected
+	  ));
+ if(bbb==40){
+   Mtail[0]=A1; Mhead[0]=A2;
+   Mtail[1]=A1; Mhead[1]=A2;
+   Mtail[2]=B1; Mhead[2]=B2;
+   Mtail[3]=B1; Mhead[3]=B2;
+  }else{
+   Mtail[0]=A1; Mhead[0]=A2;
+   Mtail[1]=A1; Mhead[1]=B2;
+   Mtail[2]=B1; Mhead[2]=B2;
+   Mtail[3]=B1; Mhead[3]=A2;
+  }
 }
 
 /* 

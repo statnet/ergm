@@ -12,5 +12,6 @@ void MH_CondB2Degree(MHproposal *MHp, Network *nwp);
 void MH_CondDegreeMix(MHproposal *MHp, Network *nwp);
 void MH_CondDegreeTetradMixMore(MHproposal *MHp, Network *nwp);
 void MH_CondDegreeTetradMixLess(MHproposal *MHp, Network *nwp);
+void MH_CondDegreeMixChangeOrig(MHproposal *MHp, Network *nwp);
 
 #endif
