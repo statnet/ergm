@@ -9,7 +9,7 @@
   An informal extension to \code{\link{network}} objects allowing some
   limited temporal information to be stored.
 }
-\description{
+\details{
 
   WARNING: THIS DOCUMENTATION IS PROVIDED AS A COURTESY, AND THE API
   DESCRIBED IS SUBJECT TO CHANGE WITHOUT NOTICE, DOWN TO COMPLETE
@@ -34,7 +34,7 @@
   \code{\link[summary.formula]{summary}} can be passed networks with
   this information using the following \code{\link{network}} (i.e.,
   \code{\link{\%n\%}}) attributes:
-  \description{
+  \describe{
     \item{\code{time}}{the time stamp associated with the network}
     \item{\code{lasttoggle}}{a vector of length
       \code{\link{network.dyadcount}(nw)}, giving the last change time
