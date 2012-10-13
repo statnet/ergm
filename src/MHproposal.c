@@ -92,7 +92,10 @@ DegreeBound* DegreeBoundInitialize(int *attribs, int *maxout, int *maxin,
   int i,j;
   DegreeBound *bd;
 
-  if(!(minout||minin||maxout||maxin||condAllDegExact)) return NULL;
+  // This test no longer works, since the integer(0)->NULL no longer holds.
+  // if(!(minout||minin||maxout||maxin||condAllDegExact)) return NULL; 
+  
+  if(!condAllDegExact && !attriblength) return NULL;
   
 
   bd = (DegreeBound *) malloc(sizeof(DegreeBound));
@@ -138,8 +141,12 @@ DegreeBound* DegreeBoundInitialize(int *attribs, int *maxout, int *maxin,
 	  for (i=1;i<=nwp->nnodes;i++)
 	    bd->maxin[i-1] = bd->minin[i-1] = nwp->indegree[i];
 	}
+      return bd;
     }
-  return bd;
+  else
+    {
+      return NULL;
+    }
 }
 
 
