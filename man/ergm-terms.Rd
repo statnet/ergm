@@ -199,6 +199,7 @@
 \alias{InitWtErgmTerm.cyclicalweights}
 \alias{InitWtErgmTerm.deference}
 \alias{InitWtErgmTerm.edgecov}
+\alias{InitWtErgmTerm.edges}
 \alias{InitWtErgmTerm.greaterthan}
 \alias{InitWtErgmTerm.inconsistency}
 \alias{InitWtErgmTerm.ininterval}
