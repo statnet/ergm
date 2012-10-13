@@ -148,11 +148,13 @@ to.matrix.lasttoggle <- function(nw){
   
   if(is.bipartite(nw)) m <- matrix(nw %n% "lasttoggle", b, n-b, byrow=FALSE)
   else{
-    m <- matrix(NA,n,n)
+    m <- matrix(0,n,n)
     if(is.directed(nw))
       m[as.logical(1-diag(1,nrow=n))] <- nw %n% "lasttoggle"
-    else
-      m[lower.tri(m)] <- m[upper.tri(m)] <- nw %n% "lasttoggle"
+    else{      
+      m[upper.tri(m)] <- nw %n% "lasttoggle"
+      m <- m + t(m)
+    }
   }
   m
 }
