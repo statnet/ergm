@@ -15,7 +15,3 @@ alt <- glm(mplesetup$response ~ mplesetup$predictor - 1,
 if(!all(abs(modelfit$coef - alt$coefficients)<1e-4)) {
   stop("Failed second test of ergmMPLE")
 }
-
-
-
-

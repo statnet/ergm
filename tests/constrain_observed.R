@@ -1,4 +1,5 @@
 library(ergm)
+opttest({
 data(florentine)
 f.miss<-network.copy(flomarriage)
 f.miss[2,1] <- NA
@@ -18,6 +19,4 @@ for(s in 1:1000){
 }
 
 if(!OK.2.1 || !OK.3.1) stop("No toggles of a missing dyad in 1000 trials.")
-
-
-
+}, "constraint on observed")

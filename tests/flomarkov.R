@@ -1,4 +1,5 @@
 library(ergm)
+opttest({
 #
 # Load a graph object of the Florentine data
 #
@@ -19,3 +20,4 @@ summary(gest)
 #
 gest <- ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle)
 summary(gest)
+}, "Florentine Markov graph")

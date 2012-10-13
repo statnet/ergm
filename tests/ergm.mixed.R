@@ -1,5 +1,5 @@
-library(ergm)                                        #
-
+library(ergm)
+opttest({
 # import synthetic network that looks like a molecule
 data(molecule)
 set.vertex.attribute(molecule,"atomic type",c(1,1,1,1,1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3))
@@ -20,3 +20,4 @@ gest <- ergm(molecule ~ edges + kstar(2) + triangle + nodematch("atomic type",di
 # mixed=TRUE,
              control=control.ergm(MCMC.samplesize=10000))
 summary(gest)
+}, "ergm mixed")

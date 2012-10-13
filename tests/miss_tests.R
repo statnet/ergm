@@ -1,5 +1,5 @@
 library(ergm)
-
+opttest({
 theta0err<--1 # Perturbation in the initial values
 maxit<-20 # Maximum number of iterations
 tolerance<-0.01 # Result must be within 1% of truth.
@@ -84,3 +84,4 @@ set.seed(654)
 mcmcfit<-ergm(y~edges+gwesp(0.5), control=control.ergm(MCMLE.maxit=5))
 summary(mcmcfit)
 stopifnot(abs(coef(mcmcfit)[1]-truth)/sqrt(mcmcfit$covar[1])<2)
+}, "missing data")

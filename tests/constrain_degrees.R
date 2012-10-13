@@ -1,4 +1,6 @@
 library(ergm)
+opttest({
+
 nsim <- 100
 n <- 50
 m <- 10
@@ -49,5 +51,4 @@ stopifnot(all(sweep(ys, 2, c(od(y0),id(y0)))==0))
 
 ys <- simulate(y0~sociality(base=0), constraints=~b1degrees+b2degrees, coef=rep(0,n), nsim=100, statsonly=TRUE)
 stopifnot(all(sweep(ys, 2, c(od(y0),id(y0)))==0))
-
-
+}, "degree constraints")

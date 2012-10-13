@@ -1,4 +1,5 @@
 library(ergm)
+opttest({
 #
 data(florentine)
 
@@ -52,3 +53,4 @@ efit <- ergm(flomarriage ~ edges + kstar(2), control=control.ergm(init=c(-1.6,0)
 # kstar2  0.0      0.02746 0.1774   0.877   0.009076 
 #
 summary(efit)
+},,"undirected network with missing data and dyadic dependence")
