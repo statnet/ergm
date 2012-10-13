@@ -44,5 +44,8 @@
       \code{to.lasttoggle.matrix} for how they are serialized.}
   }
 
+  For technical reasons, the \code{\link[tergm-package]{tergm}} routines
+  treat the \code{lasttoggle} time points as shifted by \eqn{-1}.
+
   Again, this API is subject to change without notice.
 }
