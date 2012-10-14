@@ -166,6 +166,7 @@
 \alias{InitErgmTerm.nodefactor}
 \alias{InitErgmTerm.nodeicov}
 \alias{InitErgmTerm.nodeifactor}
+\alias{InitErgmTerm.nodemain}
 \alias{InitErgmTerm.nodematch}
 \alias{InitErgmTerm.nodemix}
 \alias{InitErgmTerm.nodeocov}
