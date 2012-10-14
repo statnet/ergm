@@ -12,6 +12,28 @@
       "user interface" is subject to change, however. (The
       implementation of statistics for counts can be found in \R package
       \code{\link{ergm.count}})
+
+      \item A large number of ERGM terms for counts have been
+      implemented and documented. See \code{? 'ergm-terms'}.
+
+      \item \code{\link[=ergm-package]{ergm}} now keeps track of of when
+      it is and when it's not possible to evaluate the likelihood of the
+      null model (a model with no terms), and takes into account whether
+      a model is constrained, has missing dyads, etc.. This can also
+      improve the MPLE.
+      
+      A new generic, \code{\link{logLikNull}} has been added that
+      returns the null likelihood.
+
+      For models where this is not possible, the
+      null likelihood (and deviance, etc.) is defined to be 0.
+      
+      \item A new constraint, \code{blockdiag} has been added, for
+      modeling networks with only within-block ties allowed. This is
+      useful for, e.g., fitting an ERGM to several networks jointly. See
+      \code{? 'ergm-constraints'} for available constraints.
+      
+
     } 
   }
   
@@ -28,7 +50,11 @@
       \item Certain functions are now only exported if they haven't
       already be defined (e.g., by
       \code{\link[=latentnet-package]{latentnet}}).
-      
+
+      \item Documentation and citation information have been  cleaned up
+      and reorganized. In particular, see \code{? 'ergm-constraints'},
+      \code{? 'ergm-terms'} for an article on terms, and \code{?
+      'ergm-references'} for reference measures implemented.
     }
   }
 
