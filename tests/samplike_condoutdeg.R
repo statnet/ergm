@@ -13,7 +13,7 @@ summary(efit)
 #
 # This fit holds the out degrees fixed
 #
-efit <- ergm(samplike ~ edges + triangle, constraints=~outdegrees,
+efit <- ergm(samplike ~ edges + triangle, constraints=~odegrees,
   control=control.ergm(MCMLE.maxit=3, MCMC.samplesize=10000))
 summary(efit)
 
