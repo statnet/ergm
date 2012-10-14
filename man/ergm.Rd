@@ -334,8 +334,9 @@ Available from
 }
 
 \seealso{network, \%v\%, \%n\%, \code{\link{ergm-terms}}, \code{\link{ergmMPLE}},
-         \code{\link{summary.ergm}}, \code{\link{print.ergm}}}
+  \code{\link{summary.ergm}}, \code{\link{print.ergm}}}
 \examples{
+\donttest{
 #
 # load the Florentine marriage data matrix
 #
@@ -386,7 +387,6 @@ summary(gest)
 # add terms for the propensity to form 2-stars and triangles
 # of families 
 #
-\donttest{
 gest <- ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle)
 summary(gest)
 

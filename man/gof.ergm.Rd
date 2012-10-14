@@ -94,6 +94,7 @@
 
 \seealso{ergm, network, simulate.ergm, summary.ergm, plot.gofobject}
 \examples{
+\donttest{
 data(florentine)
 gest <- ergm(flomarriage ~ edges + kstar(2))
 gest
@@ -114,7 +115,6 @@ plot(gofflo)
 plot(gofflo, plotlogodds=TRUE)
 
 # Use the formula version of gof
-\donttest{
 gofflo2 <-gof(flomarriage ~ edges + kstar(2), coef=c(-1.6339, 0.0049))
 plot(gofflo2)
 }
