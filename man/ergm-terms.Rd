@@ -24,6 +24,7 @@
 \alias{b2starmix}
 \alias{b2twostar}
 \alias{balance}
+\alias{coincidence}
 \alias{concurrent}
 \alias{concurrentties}
 \alias{ctriad}
@@ -31,7 +32,6 @@
 \alias{cycle}
 \alias{cyclicalties}
 \alias{cyclicalweights}
-\alias{deference}
 \alias{degcor}
 \alias{degcrossprod}
 \alias{degrange}
@@ -55,7 +55,6 @@
 \alias{hammingmix}
 \alias{idegrange}
 \alias{idegree}
-\alias{inconsistency}
 \alias{ininterval}
 \alias{intransitive}
 \alias{isolates}
@@ -63,6 +62,7 @@
 \alias{kstar}
 \alias{localtriangle}
 \alias{m2star}
+\alias{match}
 \alias{meandeg}
 \alias{mutual}
 \alias{nearsimmelian}
@@ -81,7 +81,6 @@
 \alias{nodeofactor}
 \alias{nodeosqrtcovar}
 \alias{nodesqrtcovar}
-\alias{nonconformity}
 \alias{nonzero}
 \alias{nsp}
 \alias{odegrange}
@@ -92,7 +91,6 @@
 \alias{sender}
 \alias{simmelian}
 \alias{simmelianties}
-\alias{smalldiff}
 \alias{sociality}
 \alias{sum}
 \alias{threepath}
@@ -101,6 +99,7 @@
 \alias{transitiveweights}
 \alias{triadcensus}
 \alias{triangle}
+\alias{triangles}
 \alias{tripercent}
 \alias{ttriad}
 \alias{ttriple}
@@ -180,7 +179,6 @@
 \alias{InitErgmTerm.sender}
 \alias{InitErgmTerm.simmelian}
 \alias{InitErgmTerm.simmelianties}
-\alias{InitErgmTerm.smalldiff}
 \alias{InitErgmTerm.sociality}
 \alias{InitErgmTerm.threepath}
 \alias{InitErgmTerm.transitive}
@@ -197,11 +195,9 @@
 \alias{InitWtErgmTerm.atleast}
 \alias{InitWtErgmTerm.cyclicalties}
 \alias{InitWtErgmTerm.cyclicalweights}
-\alias{InitWtErgmTerm.deference}
 \alias{InitWtErgmTerm.edgecov}
 \alias{InitWtErgmTerm.edges}
 \alias{InitWtErgmTerm.greaterthan}
-\alias{InitWtErgmTerm.inconsistency}
 \alias{InitWtErgmTerm.ininterval}
 \alias{InitWtErgmTerm.mutual}
 \alias{InitWtErgmTerm.nodecov}
@@ -217,7 +213,6 @@
 \alias{InitWtErgmTerm.nodeofactor}
 \alias{InitWtErgmTerm.nodeosqrtcovar}
 \alias{InitWtErgmTerm.nodesqrtcovar}
-\alias{InitWtErgmTerm.nonconformity}
 \alias{InitWtErgmTerm.nonzero}
 \alias{InitWtErgmTerm.sum}
 \alias{InitWtErgmTerm.transitiveties}
