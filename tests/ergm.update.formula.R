@@ -55,6 +55,8 @@ predict.ergm.model<- function(model)  # only for Directed Network
   return(eta)
 }
 
+
+opttest({
 #data(florentine)
 data(g4)
 
@@ -63,3 +65,4 @@ Ergm<-ergm(g4~edges+gwesp(1,fixed=TRUE))
 
 stopifnot(all(diag(predict.ergm.model(Ergm))==0))
 
+}, "part of ergm.update.formula")

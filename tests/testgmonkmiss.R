@@ -1,4 +1,5 @@
 library(ergm)
+opttest({
 data(sampson)
 
 #
@@ -44,4 +45,4 @@ set.seed(567)
 efit <- ergm(samplike~edges + triangle, control=control.ergm(MCMLE.maxit=3,
     MCMC.samplesize=1000, MCMC.interval=1000, MCMC.burnin=1000))
 summary(efit)
-
+},"directed network with missing data and dyadic dependence")

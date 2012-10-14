@@ -1,5 +1,6 @@
 ### Tests to make sure drop=FALSE works.
 library(ergm)
+opttest({
 data(sampson)
 
 ## Shouldn't need to drop.
@@ -21,3 +22,4 @@ y1 <- as.network(matrix(1,10,10))
 summary(ergm(y1~edges, control=control.ergm(drop=FALSE)))
 # MCMC
 summary(ergm(y1~edges, control=control.ergm(drop=FALSE, force.main=TRUE, init=0)))
+}, "drop disabled")

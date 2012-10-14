@@ -1,4 +1,5 @@
 library(ergm)
+opttest({
 library(Rglpk)
 
 ####Load the data (provided in the package):
@@ -10,4 +11,4 @@ m2<-ergm(formula=form, verbose=FALSE,
         MCMLE.metric="lognormal", MCMC.samplesize=1000, MCMC.burnin=1e+4, MCMC.interval=1000, 
         seed=12345))
 if (m2$iterations <5 || m2$iterations > 25) stop("Something fishy in stepping test: Iterations = ", m2$iterations)
-
+}, "Stepping test")

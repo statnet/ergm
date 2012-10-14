@@ -55,7 +55,7 @@ Steven M. Goodreau \email{goodreau@u.washington.edu},\cr
 Pavel N. Krivitsky \email{krivitsky@stat.psu.edu}, and\cr
 Martina Morris \email{morrism@u.washington.edu}
 
-Maintainer: David R. Hunter \email{dhunter@stat.psu.edu}
+Maintainer: Pavel N. Krivitsky \email{krivitsky@stat.psu.edu}
 }
 \references{
 Admiraal R, Handcock MS (2007).

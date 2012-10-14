@@ -1,5 +1,5 @@
 library(ergm)
-
+opttest({
 # Note:  n can be made larger if a more stringent test is desired
 
 # First, a test for sparse networks with n edges, so the
@@ -29,7 +29,4 @@ for(n in 500) { # n should be a multiple of 100
   }
   cat(paste("Passed second MPLE test for n =",n))
 }
-
-
-
-
+},"MPLE for large networks")

@@ -3,7 +3,12 @@
 
 
 \alias{InitErgmTerm.conddegmple}
-
+\alias{as.edgelist.network}
+\alias{ergm.ConstraintImplications}
+\alias{ergm.MCMC.packagenames}
+\alias{ergm.MHP.table}
+\alias{ergm.init.methods}
+\alias{which.package.InitFunction}
 % MH proposals ought to get a documentation entry eventually.
 
 \alias{InitMHP.CondDegree}
@@ -82,7 +87,6 @@
 \alias{ergm.curved.statsmatrix}
 \alias{ergm.degeneracy}
 \alias{ergm.design}
-\alias{ergm.el.lasttoggle}
 \alias{ergm.estimate}
 \alias{ergm.eta}
 \alias{ergm.etagrad}
@@ -199,6 +203,18 @@
 \alias{is.dyad.independent.conlist}
 \alias{is.dyad.independent.ergm.model}
 
+
+\alias{get.free.dyads}
+\alias{get.miss.dyads}
+\alias{geweke.diag.ar}
+\alias{invert.network}
+
+\alias{mk.edge.to.pos.lasttoggle.f}
+\alias{as.edgelist.matrix}
+
+% Redact?
+\alias{ergm.llik.wins}
+\alias{llik.fun.logtaylor}
 
 \description{
 Internal ergm functions.}

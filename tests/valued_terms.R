@@ -1,4 +1,5 @@
 library(ergm)
+opttest({
 # Because they are meaningful for any nonnegative dyad values, the implementation of these terms is in the ergm package, but Poisson-reference ERGM code is required to test them.
 library(ergm.count)
 
@@ -81,5 +82,4 @@ s_results <- t(sapply(y.sim, summary.call))
 d_results <- attr(y.sim,"stats")
 
 stopifnot(all.equal(s_results,d_results))
-
-
+}, "valued term")

@@ -1,4 +1,5 @@
 library(ergm)
+opttest({
 n <- 10
 a <- rep(1:4,1:4)
 
@@ -40,3 +41,4 @@ M[]<-0
 M[2,3]<-1
 
 stopifnot(all(as.matrix(y)==M))
+}, "block diagonal constraint")

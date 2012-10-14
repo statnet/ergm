@@ -1273,7 +1273,7 @@ InitErgmTerm.edgecov <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, 
                       varnames = c("x", "attrname"),
-                      vartypes = c("matrix,network", "character"),
+                      vartypes = c("matrix,network,character", "character"),
                       defaultvalues = list(NULL, NULL),
                       required = c(TRUE, FALSE))
   ### Process the arguments

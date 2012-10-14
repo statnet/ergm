@@ -1,4 +1,5 @@
 library(ergm)
+opttest({
 data(florentine)
 # a markov graph fit to the Florentine data
 gest <- ergm(flomarriage ~ edges + kstar(2), control=control.ergm(seed=16124))
@@ -22,3 +23,4 @@ summary(gest)
 gest <- ergm(flomarriage ~ kstar(2), constraints=~edges, control=control.ergm(seed=16124))
 gest
 summary(gest)
+}, "Florentine")

@@ -1,4 +1,5 @@
 library(ergm)
+opttest({
 logit <- function(p) log(p/(1-p))
 data(sampson)
 
@@ -49,3 +50,4 @@ y <- network.initialize(10, directed=FALSE)
 y[1,2]<-y[2,3]<-y[3,4]<-1
 dummy <- ergm(y~edges+triangles+degree(2)+kstar(5)+gwdegree(1,fixed=FALSE),
               control=control.ergm(MCMLE.maxit=3)) # It doesn't seem to stop for a while.
+}, "drop")

@@ -1,5 +1,5 @@
 library(ergm)
-library(coda)
+opttest({
 n<-500
 base.net <- network.initialize(n=n,directed=FALSE)
 norm.stats<-c(.7,.1,.5)
@@ -17,3 +17,4 @@ target.stats.sim<-apply(ergm.sim,2,mean)
 print(target.stats.sim)
 print(effectiveSize(mcmc(ergm.sim)))
 print((target.stats.sim-target.stats)/sqrt(apply(ergm.sim,2,var)/effectiveSize(mcmc(ergm.sim))))
+}, "MPLE + target statistics")
