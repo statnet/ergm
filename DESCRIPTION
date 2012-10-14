@@ -9,7 +9,7 @@ Authors@R: c(
            person("Steven M.", "Goodreau", role=c("aut"), email="goodreau@u.washington.edu"),
            person("Pavel N.", "Krivitsky", role=c("aut","cre"), email="krivitsky@stat.psu.edu"),
      	   person("Martina", "Morris", role=c("aut"), email="morrism@u.washington.edu"))
-Depends: statnet.common (= 3.0-999), network (>= 1.7-1), robustbase, Matrix, trust, nlme, coda
+Depends: statnet.common (>= 3.0-999), network (>= 1.7-1), robustbase, Matrix, trust, nlme, coda
 Suggests: lattice, latticeExtra, sna, Rglpk, snow, latentnet, tergm, ergm.count
 Description: An integrated set of tools to analyze and simulate networks based on exponential-family random graph models (ERGM). "ergm" is a part of the "statnet" suite of packages for network analysis.
 License: GPL-3 + file LICENSE
