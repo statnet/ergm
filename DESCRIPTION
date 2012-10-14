@@ -1,13 +1,13 @@
 Package: ergm
-Version: 3.1-11814-11816.1-2012.10.13-18.19.01
+Version: 3.1-11814-11824.1-2012.10.13-22.02.55
 Date: 2012-10-13
 Title:  Fit, Simulate and Diagnose Exponential-Family Models for Networks
 Authors@R: c(
 	   person("Mark S.", "Handcock", role=c("aut"), email="handcock@stat.ucla.edu"),
-           person("David R.", "Hunter", role=c("aut","cre"), email="dhunter@stat.psu.edu"),
+           person("David R.", "Hunter", role=c("aut"), email="dhunter@stat.psu.edu"),
    	   person("Carter T.", "Butts", role=c("aut"), email="buttsc@uci.edu"),
            person("Steven M.", "Goodreau", role=c("aut"), email="goodreau@u.washington.edu"),
-           person("Pavel N.", "Krivitsky", role=c("aut"), email="krivitsky@stat.psu.edu"),
+           person("Pavel N.", "Krivitsky", role=c("aut","cre"), email="krivitsky@stat.psu.edu"),
      	   person("Martina", "Morris", role=c("aut"), email="morrism@u.washington.edu"))
 Depends: statnet.common, network (>= 1.7-1), robustbase, Matrix, trust, nlme, coda
 Suggests: lattice, latticeExtra, sna, Rglpk, snow, latentnet, tergm, ergm.count

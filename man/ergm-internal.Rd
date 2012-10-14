@@ -209,6 +209,13 @@
 \alias{geweke.diag.ar}
 \alias{invert.network}
 
+\alias{mk.edge.to.pos.lasttoggle.f}
+\alias{as.edgelist.matrix}
+
+% Redact?
+\alias{ergm.llik.wins}
+\alias{llik.fun.logtaylor}
+
 \description{
 Internal ergm functions.}
 

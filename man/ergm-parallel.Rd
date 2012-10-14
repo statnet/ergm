@@ -10,7 +10,7 @@
 \description{
   \code{\link[=ergm-package]{ergm}} can take advantage of multiple
   CPUs or CPU cores on the system on which it runs, as well as computing
-  clusters. It uses package \code{\link[snow-package]{snow}} to
+  clusters. It uses package \code{snow} to
   facilitate this, and supports all cluster types that it does.
 
   The parallel API and the number of nodes used are controlled using the

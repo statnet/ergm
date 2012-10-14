@@ -5,7 +5,8 @@
 \alias{to.matrix.lasttoggle}
 \alias{to.lasttoggle.matrix}
 \alias{ergm.el.lasttoggle}
-\title{
+\title{Storing last toggle information in a network}
+\description{
   An informal extension to \code{\link{network}} objects allowing some
   limited temporal information to be stored.
 }
@@ -16,7 +17,7 @@
   REMOVAL. NOT ALL FUNCTIONS THAT COULD SUPPORT IT DO. USE AT YOUR OWN
   RISK.
   
-  While \code{\link{networkDynamic}} provides a flexible, consistent
+  While \code{\link[networkDynamic]{networkDynamic}} provides a flexible, consistent
   method for storing dynamic networks, the \code{C} routines of
   \code{\link[=ergm-package]{ergm}} and
   \code{\link[=tergm-package]{tergm}} required a simpler and more
@@ -29,9 +30,9 @@
   dyads in the network had changed.
 
   Though this is an API intended for internal use, some functions,
-  like \code{\link{stergm}} (for EGMME),
+  like \code{\link[tergm]{stergm}} (for EGMME),
   \code{\link[=simulate.stergm]{simulate}}, and
-  \code{\link[summary.formula]{summary}} can be passed networks with
+  \code{\link[=summary.formula]{summary}} can be passed networks with
   this information using the following \code{\link{network}} (i.e.,
   \code{\link{\%n\%}}) attributes:
   \describe{
@@ -44,7 +45,7 @@
       \code{to.lasttoggle.matrix} for how they are serialized.}
   }
 
-  For technical reasons, the \code{\link[tergm-package]{tergm}} routines
+  For technical reasons, the \code{\link[=tergm-package]{tergm}} routines
   treat the \code{lasttoggle} time points as shifted by \eqn{-1}.
 
   Again, this API is subject to change without notice.

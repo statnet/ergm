@@ -82,7 +82,7 @@ network.update<-function(nw, newmatrix, matrix.type=NULL, output="network")
 #
 ###############################################################################
 
-as.edgelist.compressed<-function(x, attrname=NULL, force.bipartite=FALSE){
+as.edgelist.compressed<-function(x, attrname=NULL, force.bipartite=FALSE, ...){
   #In case of lists, process independently
   if(is.list(x) && !inherits(x,"network"))
     return(lapply(x,as.edgelist.compressed, attrname=attrname, force.bipartite=force.bipartite))
