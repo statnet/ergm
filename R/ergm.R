@@ -103,7 +103,7 @@
 #####################################################################################    
 
 ergm <- function(formula, response=NULL,
-                 reference=~Bernoulli,obs=NA,
+                 reference=~Bernoulli,
                  constraints=~.,
                  offset.coef=NULL,
                  target.stats=NULL,
@@ -128,15 +128,8 @@ ergm <- function(formula, response=NULL,
   nw <- ergm.getnetwork(formula)
   proposalclass <- "c"
 
-  # Construct the constraint for the observation process.
-  # There may be a better way to specify this in the future.
-  
   MHproposal.obs<-constraints
   
-  MHproposal.obs<-switch(tolower(obs),
-                         detrank = ergm.update.formula(MHproposal.obs,~.+ranks),
-                         MHproposal.obs)
-
   # Missing data handling only needs to happen if the sufficient
   # statistics are not specified. If the sufficient statistics are
   # specified, the nw's dyad states are irrelevant.
@@ -192,7 +185,7 @@ ergm <- function(formula, response=NULL,
   # Note:  MHproposal function in CRAN version does not use the "class" argument for now
   if(!is.null(MHproposal.obs)) MHproposal.obs <- MHproposal(MHproposal.obs, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass, reference=reference, response=response)
   
-  conddeg <- switch(MHproposal$name %in% c("CondDegree","CondDegreeSimpleTetrad","BipartiteCondDegHexadToggles","BipartiteCondDegTetradToggles","CondDegreeMix"),control$drop,NULL)
+  conddeg <- switch(any(names(MHproposal$constraints) %in% c("degrees","b1degrees","b2degrees","idegrees","odegrees")),control$drop,NULL)
   
   if (verbose) cat("Initializing model.\n")
   

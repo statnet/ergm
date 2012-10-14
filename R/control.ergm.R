@@ -46,7 +46,7 @@
 #   mcmc.precision   : a vector of the upper bounds on the precision of the standard errors
 #                      induced by the MCMC algorithm; default=0.05
 #   metric           : the name of the optimization metric to use, as one of
-#                      "Median.Likelihood", "lognormal", "logtaylor","EF.Likelihood" or "naive";
+#                      "Median.Likelihood", "lognormal", "EF.Likelihood" or "naive";
 #                      default="Median.Likelihood"
 #   method           : the name of the optimaztion method to use, as either "BFGS" or
 #                      "Nelder-Mead"; this is an <optim> param; default="BFGS"
@@ -156,7 +156,7 @@ control.ergm<-function(drop=TRUE,
                        obs.MCMC.burnin=MCMC.burnin,
                        MCMLE.check.degeneracy=FALSE,
                        MCMLE.MCMC.precision=0.05,
-                       MCMLE.metric=c("lognormal", "logtaylor",
+                       MCMLE.metric=c("lognormal",
                          "Median.Likelihood",
                          "EF.Likelihood", "naive"),
                        MCMLE.method=c("BFGS","Nelder-Mead"),

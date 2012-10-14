@@ -21,7 +21,6 @@
   ergm.MHP.table("c", "Bernoulli", "bd",  1, "TNT", "TNT")
   ergm.MHP.table("c", "Bernoulli", "", -1, "TNT10", "TNT10")
   ergm.MHP.table("c", "Bernoulli", "degrees",  0, "random", "CondDegree")
-  ergm.MHP.table("c", "Bernoulli", "degreesmix",  0, "random", "CondDegreeMix")
   ergm.MHP.table("c", "Bernoulli", "idegrees+odegrees",  0, "random", "CondDegree")
   ergm.MHP.table("c", "Bernoulli", "b1degrees+b2degrees",  0, "random", "CondDegree")
   ergm.MHP.table("c", "Bernoulli", "odegrees",  0, "random", "CondOutDegree")
@@ -43,16 +42,11 @@
   ergm.MHP.table("c", "Bernoulli", "bd+blockdiag", 1, "TNT", "blockdiagTNT")
   ergm.MHP.table("c", "Bernoulli", "blockdiag+observed",  0, "random", "blockdiagNonObserved")
   ergm.MHP.table("c", "Bernoulli", "bd+blockdiag+observed",  0, "random", "blockdiagNonObserved")
-  ergm.MHP.table("c", "DescRank", "",  0, "random", "DescRank")
-  ergm.MHP.table("c", "DescRank", "ranks",  0, "random", "DescRankEquivalent")
-  ergm.MHP.table("c", "StdNormal", "",  0, "random", "StdNormal")
-  ergm.MHP.table("c", "StdNormal", "ranks",  0, "random", "StdNormalRank")
 }
 
 .RegisterConstraintImplications <- function(){
   ergm.ConstraintImplications("edges", c())
   ergm.ConstraintImplications("degrees", c("edges", "idegrees", "odegrees", "idegreedist", "odegreedist", "degreedist", "bd"))
-  ergm.ConstraintImplications("degreesmix", c("edges", "idegrees", "odegrees", "idegreedist", "odegreedist", "degreedist", "bd"))
   ergm.ConstraintImplications("odegrees", c("edges", "odegreedist"))
   ergm.ConstraintImplications("idegrees", c("edges", "idegreedist"))
   ergm.ConstraintImplications("b1degrees", c("edges"))
@@ -68,6 +62,4 @@
 
 .RegisterInitMethods <- function(){
   ergm.init.methods("Bernoulli", c("MPLE", "zeros"))
-  ergm.init.methods("DescRank", c("zeros"))
-  ergm.init.methods("StdNormal", c("zeros"))
 }

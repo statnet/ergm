@@ -20,7 +20,6 @@
 ergm (formula,
       response=NULL,
       reference=~Bernoulli,
-      obs=NA,
       constraints=~.,
       offset.coef=NULL,
       target.stats=NULL,
@@ -54,8 +53,6 @@ ergm (formula,
     See help for \link[=ergm-references]{ERGM reference measures} implemented in the
     \code{\link[=ergm-package]{ergm}} package.}
   
-  \item{obs}{Not for release.
-  }
   \item{constraints}{A one-sided formula specifying one or more constraints
     on the support of the distribution of the networks being modeled,
     using syntax similar to the \code{formula} argument. Multiple constraints

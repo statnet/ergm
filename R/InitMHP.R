@@ -51,11 +51,6 @@ InitMHP.CondDegree <- function(arguments, nw) {
   MHproposal <- list(name = "CondDegree", inputs=NULL)
   MHproposal
 }
-InitMHP.CondDegreeMix <- function(arguments, nw) {
-  MHproposal <- list(name = "CondDegreeMix",
-    inputs=get.vertex.attribute(nw,arguments$constraints$degreesmix$attrib))
-  MHproposal
-}
 
 InitMHP.CondOutDegree <- function(arguments, nw) {
   MHproposal <- list(name = "CondOutDegree", inputs=NULL)
