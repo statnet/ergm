@@ -16,6 +16,13 @@
       \item A large number of ERGM terms for counts have been
       implemented and documented. See \code{? 'ergm-terms'}.
 
+      \item A number of new terms binary ERGM terms have been
+      implemented as well. Particularly, \code{\link{degrange}},
+      \code{\link{odegrange}}, \code{\link{idegrange}},
+      \code{\link{b1degrange}}, and \code{\link{b2degrange}}, which
+      generalize \code{\link{degree}} and \code{\link{concurrent}} by
+      allowing the user to specify contiguous ranges of degree values.
+
       \item \code{\link[=ergm-package]{ergm}} now keeps track of of when
       it is and when it's not possible to evaluate the likelihood of the
       null model (a model with no terms), and takes into account whether
@@ -33,7 +40,6 @@
       useful for, e.g., fitting an ERGM to several networks jointly. See
       \code{? 'ergm-constraints'} for available constraints.
       
-
     } 
   }
   
