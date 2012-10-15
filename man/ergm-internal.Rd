@@ -212,6 +212,11 @@
 \alias{mk.edge.to.pos.lasttoggle.f}
 \alias{as.edgelist.matrix}
 
+% TODO: Document these!
+\alias{InitErgmTerm.indegreepopularity}
+\alias{InitErgmTerm.outdegreepopularity}
+\alias{InitErgmTerm.smalldiff}
+
 \description{
 Internal ergm functions.}
 

@@ -24,7 +24,3 @@ R >= 2.12:  man page titles can handle markup (example:  logLik.ergm.Rd)
 
 Missing data MPLE code produces incorrect estimates for some bipartite
 networks.
-
-# Missing documentation #
-The terms adegcor, rdegcor, and pdegcor lack documentation
-
