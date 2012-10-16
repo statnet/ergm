@@ -178,41 +178,94 @@ void MH_CondDegreeMixChangeOrig(MHproposal *MHp, Network *nwp)  {
 }
 
 void MH_CondDegreeMix(MHproposal *MHp, Network *nwp)  {  
-  Vertex A1, A2, B1, B2;
-  int b;
-  int bb, bbb=0;
+  Vertex A11, A12, B11, B12;
+  Vertex A21, A22, B21, B22;
+  int bad, goodtype;
+  int pm, numtrys;
   
   if(MHp->ntoggles == 0) { /* Initialize */
-    MHp->ntoggles=4;    
+    MHp->ntoggles=8;    
     return;
   }
 
+  numtrys=0;
+  pm=(unif_rand() > 0.5);
+  if(pm){
   do{
-    GetRandEdge(&A1, &A2, nwp);
-    GetRandEdge(&B1, &B2, nwp);
-    bb=(unif_rand() > 0.05);
-    bbb++;
-    if(bb){
-  	 b=((abs(MHp->inputs[A1-1]-MHp->inputs[A2-1])<0.001)&(abs(MHp->inputs[B2-1]-MHp->inputs[B1-1])<0.001)&(abs(MHp->inputs[A1-1]-MHp->inputs[B1-1])>0.001));
-    }else{
-  	 b=((abs(MHp->inputs[A1-1]-MHp->inputs[A2-1])>0.001)&(abs(MHp->inputs[B2-1]-MHp->inputs[B1-1])>0.001)&(abs(MHp->inputs[A1-1]-MHp->inputs[B1-1])<0.001));
-    }
+    GetRandEdge(&A11, &A12, nwp);
+    GetRandEdge(&B11, &B12, nwp);
+    numtrys++;
+  	bad=((abs(MHp->inputs[A11-1]-MHp->inputs[A12-1])<0.001)&(abs(MHp->inputs[B12-1]-MHp->inputs[B11-1])<0.001)&(abs(MHp->inputs[A11-1]-MHp->inputs[B11-1])>0.001));
+    goodtype = 2;
   }while(
-  	 (bbb<40) || b || A1==B1 || A1==B2 || A2==B1 || A2==B2 || 
+  	 (numtrys<1000) && ((!bad) || A11==B11 || A11==B12 || A12==B11 || A12==B12 || 
 	 (nwp->directed_flag ? 
-	  IS_OUTEDGE(A1, B2) || IS_OUTEDGE(B1, A2) : // Directed
-	  IS_UNDIRECTED_EDGE(A1,B2) || IS_UNDIRECTED_EDGE(B1,A2) // Undirected
-	  ));
- if(bbb==40){
-   Mtail[0]=A1; Mhead[0]=A2;
-   Mtail[1]=A1; Mhead[1]=A2;
-   Mtail[2]=B1; Mhead[2]=B2;
-   Mtail[3]=B1; Mhead[3]=B2;
+	  IS_OUTEDGE(A11, B12) || IS_OUTEDGE(B11, A12) : // Directed
+	  IS_UNDIRECTED_EDGE(A11,B12) || IS_UNDIRECTED_EDGE(B11,A12) // Undirected
+	  )));
+  do{
+    GetRandEdge(&A21, &A22, nwp);
+    GetRandEdge(&B21, &B22, nwp);
+    numtrys++;
+  	bad=((abs(MHp->inputs[A21-1]-MHp->inputs[A22-1])>0.001)&(abs(MHp->inputs[B22-1]-MHp->inputs[B21-1])>0.001)&(abs(MHp->inputs[A21-1]-MHp->inputs[B22-1])<0.001));
+    goodtype = 0;
+  }while(
+  	 (numtrys<1000) && ((!bad) || A21==B21 || A21==B22 || A22==B21 || A22==B22 || 
+	 (nwp->directed_flag ? 
+	  IS_OUTEDGE(A21, B22) || IS_OUTEDGE(B21, A22) : // Directed
+	  IS_UNDIRECTED_EDGE(A21,B22) || IS_UNDIRECTED_EDGE(B21,A22) // Undirected
+	  )));
+ }else{
+  do{
+    GetRandEdge(&A11, &A12, nwp);
+    GetRandEdge(&B11, &B12, nwp);
+    numtrys++;
+  	bad=((abs(MHp->inputs[A11-1]-MHp->inputs[A12-1])<0.001)&(abs(MHp->inputs[B12-1]-MHp->inputs[B11-1])<0.001)&(abs(MHp->inputs[A11-1]-MHp->inputs[B11-1])<0.001));
+    goodtype = 3;
+  }while(
+  	 (numtrys<1000) && ((!bad) || A11==B11 || A11==B12 || A12==B11 || A12==B12 || 
+	 (nwp->directed_flag ? 
+	  IS_OUTEDGE(A11, B12) || IS_OUTEDGE(B11, A12) : // Directed
+	  IS_UNDIRECTED_EDGE(A11,B12) || IS_UNDIRECTED_EDGE(B11,A12) // Undirected
+	  )));
+  do{
+    GetRandEdge(&A21, &A22, nwp);
+    GetRandEdge(&B21, &B22, nwp);
+    numtrys++;
+  	bad=((abs(MHp->inputs[A21-1]-MHp->inputs[A22-1])>0.001)&(abs(MHp->inputs[B22-1]-MHp->inputs[B21-1])>0.001)&(abs(MHp->inputs[A21-1]-MHp->inputs[B22-1])>0.001));
+    goodtype = 4;
+  }while(
+  	 (numtrys<1000) && ((!bad) || A21==B21 || A21==B22 || A22==B21 || A22==B22 || 
+	 (nwp->directed_flag ? 
+	  IS_OUTEDGE(A21, B22) || IS_OUTEDGE(B21, A22) : // Directed
+	  IS_UNDIRECTED_EDGE(A21,B22) || IS_UNDIRECTED_EDGE(B21,A22) // Undirected
+	  )));
+ }
+//Rprintf("try %d bad %d (A1==B1 || A1==B2 || A2==B1 || A2==B2) %d edge %d\n",numtrys,bad,(A1==B1 || A1==B2 || A2==B1 || A2==B2), (IS_UNDIRECTED_EDGE(A1,B2) || IS_UNDIRECTED_EDGE(B1,A2))); 
+
+//if(numtrys < 1000){
+//Rprintf("A11 %d A12 %d B11 %d B12 %d numtrys %d type %d\n",A11,A12,B11,B12,numtrys,goodtype); 
+//}
+ if(numtrys==1000){
+   Mtail[0]=A11; Mhead[0]=A12;
+   Mtail[1]=A11; Mhead[1]=A12;
+   Mtail[2]=B11; Mhead[2]=B12;
+   Mtail[3]=B11; Mhead[3]=B12;
+   Mtail[4]=A21; Mhead[4]=A22;
+   Mtail[5]=A21; Mhead[5]=A22;
+   Mtail[6]=B21; Mhead[6]=B22;
+   Mtail[7]=B21; Mhead[7]=B22;
+// MHp->toggletail[0]=MH_FAILED;                   \
+// MHp->togglehead[0]=MH_UNSUCCESSFUL;       
   }else{
-   Mtail[0]=A1; Mhead[0]=A2;
-   Mtail[1]=A1; Mhead[1]=B2;
-   Mtail[2]=B1; Mhead[2]=B2;
-   Mtail[3]=B1; Mhead[3]=A2;
+   Mtail[0]=A11; Mhead[0]=A12;
+   Mtail[1]=A11; Mhead[1]=B12;
+   Mtail[2]=B11; Mhead[2]=B12;
+   Mtail[3]=B11; Mhead[3]=A12;
+   Mtail[4]=A21; Mhead[4]=A22;
+   Mtail[5]=A21; Mhead[5]=B22;
+   Mtail[6]=B21; Mhead[6]=B22;
+   Mtail[7]=B21; Mhead[7]=A22;
   }
 }
 
