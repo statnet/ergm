@@ -508,7 +508,7 @@ invert.network <- function(nw){
   if (!has.loops(nw)) 
     el <- el[el[, 1] != el[, 2], , drop=FALSE]
 
-  if(m) el <- el[(el[,1]<=m & el[,2]<=m) | (el[,1]>m & el[,2]>m), , drop=FALSE]
+  if(m) el <- el[(el[,1]<=m)!=(el[,2]<=m), , drop=FALSE]
 
   # el now contains the set of possible dyads
 
