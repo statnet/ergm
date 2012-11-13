@@ -43,7 +43,7 @@ as.edgelist.matrix <- function(x, n, directed=TRUE, bipartite=FALSE, loops=FALSE
   if(!loops) x <- x[x[,1]!=x[,2],,drop=FALSE]
   if(bipartite) x <- x[(x[,1]<=bipartite)!=(x[,2]<=bipartite),,drop=FALSE]
   x <- unique(x[order(x[,1],x[,2]),,drop=FALSE])
-  attr(x,"n") <- directed
+  attr(x,"n") <- n
   attr(x,"directed") <- directed
   attr(x,"bipartite") <- bipartite
   attr(x,"loops") <- loops
