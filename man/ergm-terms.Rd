@@ -1379,10 +1379,10 @@ of the degrees of all pairs of nodes in the network which are tied.
     This term can only be used with directed networks; for undirected networks
     see \code{degree}. }
 
-    \item{\code{opentriad} (binary)}{\emph{``Open triads'':} This term adds one
-    statistic to the model equal to three times the number of triangles
-    in the network minus the number of 2-stars. It is currently only
-    implemented for undirected networks. }
+    \item{\code{opentriad} (binary)}{\emph{``Open triads'':} This term
+    adds one statistic to the model equal to the number of 2-stars minus
+    three times the number of triangles in the network. It is currently
+    only implemented for undirected networks. }
   
     \item{\code{ostar(k, attrname=NULL)} (binary)}{\emph{k-Outstars:} The \code{k} argument is
     a vector of distinct integers. This term adds one network statistic to the
