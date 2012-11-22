@@ -40,7 +40,6 @@ WtD_CHANGESTAT_FN(d_nodeocorr);
 WtD_CHANGESTAT_FN(d_nodeofactor_nonzero);
 WtD_CHANGESTAT_FN(d_nodeofactor_sum);
 WtD_CHANGESTAT_FN(d_nonzero);
-WtD_CHANGESTAT_FN(d_nsumlogfactorial);
 
 /********************  changestats:   S    ***********/
 WtD_CHANGESTAT_FN(d_sum);
