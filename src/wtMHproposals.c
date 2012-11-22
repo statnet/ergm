@@ -13,7 +13,7 @@
 void MH_CompleteOrdering(WtMHproposal *MHp, WtNetwork *nwp)  {  
   Vertex tail, head1, head2;
   
-  if(MHp->ntoggles == 0) { // Initialize Poisson 
+  if(MHp->ntoggles == 0) { // Initialize CompleteOrdering 
     MHp->ntoggles=2;
     return;
   }
@@ -104,7 +104,7 @@ void MH_CompleteOrderingEquivalent(WtMHproposal *MHp, WtNetwork *nwp)  {
 void MH_StdNormal(WtMHproposal *MHp, WtNetwork *nwp)  {  
   double oldwt;
   
-  if(MHp->ntoggles == 0) { // Initialize Poisson 
+  if(MHp->ntoggles == 0) { // Initialize StdNormal 
     MHp->ntoggles=1;
     return;
   }
