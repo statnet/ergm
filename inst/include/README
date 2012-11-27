@@ -1,0 +1,36 @@
+USAGE
+
+These files are exported by ergm via R's LinkingTo: API, and allow
+other R packages to extend ergm's functionality. To make use of them,
+add the following dependencies to your package's DESCRIPTION file:
+
+Depends: ergm
+LinkingTo: ergm
+
+and place a one-line C file (e.g., include_stubs.c) containing the
+following one line in the src/ directory of your package:
+
+#include "ergm_stubs.c"
+
+You will then be able to #include any of the exported header files, use the macros, and call any functions they define.
+
+If you make use of this functionality, please credit us and cite the
+ergm package. (See citation(ergm) for instructions.)
+
+STABILITY
+
+Currently, the following exported APIs are considered stable, and
+should remain source-compatible (1) for the forseeable future:
+
+* Custom binary change statistics API used by ergm.userterms. This
+  includes, in particular, the functionality documented in the Journal
+  of the Statistical Sofware paper(s) and in workshops. The header
+  files involved are changestat.h, edgetree.h, and edgelist.h.
+
+ALL OTHER exported header files and APIs are provided as a
+courtesy. They are to be considered EXPERIMENTAL and subject to change
+without notice.
+
+(1) An API being "source-compatible" means that if updating ergm
+    package breaks your package, the breakage can be fixed without
+    modifying it, simply by recompiling your package.
