@@ -103,7 +103,7 @@
 #####################################################################################    
 
 ergm <- function(formula, response=NULL,
-                 reference=~Bernoulli,obs=NA,
+                 reference=~Bernoulli,obs.constraints=~observed,
                  constraints=~.,
                  offset.coef=NULL,
                  target.stats=NULL,
@@ -128,24 +128,25 @@ ergm <- function(formula, response=NULL,
   nw <- ergm.getnetwork(formula)
   proposalclass <- "c"
 
-  # Construct the constraint for the observation process.
-  # There may be a better way to specify this in the future.
-  
-  MHproposal.obs<-constraints
-  
-  MHproposal.obs<-switch(tolower(obs),
-                         detrank = ergm.update.formula(MHproposal.obs,~.+ranks),
-                         MHproposal.obs)
 
   # Missing data handling only needs to happen if the sufficient
   # statistics are not specified. If the sufficient statistics are
   # specified, the nw's dyad states are irrelevant.
-  if(network.naedgecount(nw)){
-    if(!is.null(target.stats)){
-      warning("Target statistics specified in a network with missing dyads. Missingness will be overridden.")
-      nw[as.matrix(is.na(nw),matrix.type="edgelist")] <- 0
-    }else MHproposal.obs<-ergm.update.formula(MHproposal.obs,~.+observed)
+  if(network.naedgecount(nw) && !is.null(target.stats)){
+    warning("Target statistics specified in a network with missing dyads. Missingness will be overridden.")
+    nw[as.matrix(is.na(nw),matrix.type="edgelist")] <- 0
   }
+
+  # Get list of observation process constraints.
+  obs.constraints <- term.list.formula(obs.constraints[[length(obs.constraints)]])
+  
+  # If no missing edges, remove the "observed" constraint.
+  if(network.naedgecount(nw)==0){
+    obs.con.names <- sapply(obs.constraints, function(x) as.character(if(is.call(x)) x[[1]] else x))
+    obs.constraints[obs.con.names=="observed"] <- NULL
+  }
+  
+  MHproposal.obs<-append.rhs.formula(constraints, obs.constraints, TRUE)
   
   if(constraints==MHproposal.obs) MHproposal.obs<-NULL
 

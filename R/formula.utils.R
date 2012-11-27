@@ -3,18 +3,19 @@
 ## manipulating ERGM formulas.                                   ##
 ###################################################################
 
-## This function appends a list of terms to the RHS of a
-## formula. If the formula is one-sided, the RHS becomes the LHS.
+## This function appends a list of terms to the RHS of a formula. If
+## the formula is one-sided, the RHS becomes the LHS, if
+## keep.onesided==FALSE (the default).
 ## For example,
 ## append.rhs.formula(y~x,list(as.name("z1"),as.name("z2"))) -> y~x+z1+z2
 ## append.rhs.formula(~y,list(as.name("z"))) -> y~z
 ## append.rhs.formula(~y+x,list(as.name("z"))) -> y+x~z
-append.rhs.formula<-function(object,newterms){
+## append.rhs.formula(~y,list(as.name("z")),TRUE) -> ~y+z
+append.rhs.formula<-function(object,newterms,keep.onesided=FALSE){
   for(newterm in newterms){
-    if(length(object)==3)
-      object[[3]]<-call("+",object[[3]],newterm)
-    else
-      object[[3]]<-newterm
+    if(length(object)==3) object[[3]]<-call("+",object[[3]],newterm)
+    else if(keep.onesided) object[[2]]<-call("+",object[[2]],newterm)
+    else object[[3]]<-newterm
   }
   object
 }

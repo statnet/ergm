@@ -20,7 +20,7 @@
 ergm (formula,
       response=NULL,
       reference=~Bernoulli,
-      obs=NA,
+      obs.constraints=~observed,
       constraints=~.,
       offset.coef=NULL,
       target.stats=NULL,
@@ -54,7 +54,11 @@ ergm (formula,
     See help for \link[=ergm-references]{ERGM reference measures} implemented in the
     \code{\link[=ergm-package]{ergm}} package.}
   
-  \item{obs}{Not for release.
+  \item{obs.constraints}{\emph{NOT FOR RELEASE.} Constraints defining the space of underlying
+    networks that could have produced the observed network. Defaults to
+    \code{~\link[=ergm-constraints]{observed}}, to induce the space of
+    networks with observed dyads fixed at observed values and missing
+    (\code{NA}) dyads varying.
   }
   \item{constraints}{A one-sided formula specifying one or more constraints
     on the support of the distribution of the networks being modeled,
