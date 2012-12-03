@@ -184,7 +184,7 @@ WtS_CHANGESTAT_FN(s_nodeicov_rank){
       for (Vertex v3=1; v3 <= N_NODES; v3++){
 	if(v3==v2 || v3==v1) continue;
 	if(v12>GETWT(v1,v3)) 
-	  CHANGE_STAT[0] += INPUT_PARAM[v2] - INPUT_PARAM[v3];
+	  CHANGE_STAT[0] += INPUT_PARAM[v2-1] - INPUT_PARAM[v3-1];
       }
     }
   }
