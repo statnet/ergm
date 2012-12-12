@@ -145,23 +145,26 @@ ergm <- function(formula, response=NULL,
   ## Construct approximate response network if target.stats are given.
   
   if(!is.null(target.stats)){
-    nw.stats<-summary(formula,response=response)
-    if(length(nw.stats)!=length(target.stats))
-      stop("Incorrect length of the target.stats vector: should be ", length(nw.stats), " but is ",length(target.stats),".")
+    nw.stats<-summary(remove.offset.formula(formula),response=response)
+    target.stats <- vector.namesmatch(target.stats, names(nw.stats))
+    target.stats <- na.omit(target.stats)
+    if(length(nw.stats)!=length(target.stats)){
+      stop("Incorrect length of the target.stats vector: should be ", length(nw.stats), " but is ",length(target.stats),". Note that offset() terms should *not* get target statistics.")
+    }
     
     if(verbose) cat("Constructing an approximate response network.\n")
     ## If target.stats are given, overwrite the given network and formula
     ## with SAN-ed network and formula.
     if(control$SAN.maxit > 0){
      for(srun in 1:control$SAN.maxit){
-      nw<-san(formula, target.stats=target.stats,
+      nw<-san(remove.offset.formula(formula), target.stats=target.stats,
               response=response,
               reference=reference,
               constraints=constraints,
               control=control$SAN.control,
               verbose=verbose)
       formula<-ergm.update.formula(formula,nw~.)
-      nw.stats <- summary(formula,response=response, basis=nw)
+      nw.stats <- summary(remove.offset.formula(formula),response=response)
       srun <- srun + 1
       if(verbose){
         cat(paste("Finished SAN run",srun,"\n"))
@@ -177,6 +180,22 @@ ergm <- function(formula, response=NULL,
       if(sum((nw.stats-target.stats)^2) <= 5) break
      }
     }
+
+    offinfo <- offset.info.formula(formula,response=response)
+    tmp <- rep(NA, length(offinfo$eta))
+    tmp[!offinfo$eta] <- target.stats
+    names(tmp)[!offinfo$eta] <- names(target.stats)
+    s <- summary(formula,response=response)[offinfo$eta]
+    tmp[offinfo$eta] <- s
+    names(tmp)[offinfo$eta] <- names(s)
+    
+    # From this point on, target.stats has NAs corresponding to the
+    # offset terms.
+    #
+    # TODO: Only have target.stats contain non-offset terms'
+    # statistics, and have the rest of the code handle it
+    # intelligently.
+    target.stats <- tmp
   }
   
   if (verbose) { cat("Initializing Metropolis-Hastings proposal.\n") }
@@ -295,7 +314,7 @@ ergm <- function(formula, response=NULL,
   model <- extremecheck$model; init <- extremecheck$init
 
   model$nw.stats <- summary(model$formula, response=response)
-  model$target.stats <- if(!is.null(target.stats)) vector.namesmatch(target.stats, names(model$nw.stats)) else model$nw.stats
+  model$target.stats <- if(!is.null(target.stats)) target.stats else model$nw.stats
 
   if (verbose) cat("Fitting ERGM.\n")
   mainfit <- switch(control$main.method,
