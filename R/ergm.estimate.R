@@ -320,26 +320,24 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     mc.se <- rep(NA, length=length(theta))
     covar <- NA
     if(!hessianflag){
-     #  covar <- robust.inverse(cov(xsim))
-     #  Lout$hessian <- cov(xsim)
-     Lout$hessian <- Hessianfn(theta=theta, xobs=xobs, xsim=xsim,
-                               probs=probs, 
-                               xsim.obs=xsim.obs, probs.obs=probs.obs,
-                               varweight=varweight,
-                               eta0=eta0, etamap=model$etamap
-                               )
-     covar <- matrix(NA, ncol=length(theta), nrow=length(theta))
-     covar[!model$etamap$offsettheta,!model$etamap$offsettheta ] <- robust.inverse(-Lout$hessian)
-     dimnames(covar) <- list(names(theta),names(theta))
-    }else{
-     covar <- matrix(NA, ncol=length(theta), nrow=length(theta))
-     covar[!model$etamap$offsettheta,!model$etamap$offsettheta ] <- robust.inverse(-Lout$hessian)
-     dimnames(covar) <- list(names(theta),names(theta))
-     He <- matrix(NA, ncol=length(theta), nrow=length(theta))
-     He[!model$etamap$offsettheta,!model$etamap$offsettheta ] <- Lout$hessian
-     dimnames(He) <- list(names(theta),names(theta))
-     Lout$hessian <- He
+      #  covar <- robust.inverse(cov(xsim))
+      #  Lout$hessian <- cov(xsim)
+      Lout$hessian <- Hessianfn(theta=Lout$par, xobs=xobs, xsim=xsim,
+                                probs=probs, 
+                                xsim.obs=xsim.obs, probs.obs=probs.obs,
+                                varweight=varweight,
+                                eta0=eta0, etamap=model$etamap
+                                )
     }
+    
+    covar <- matrix(NA, ncol=length(theta), nrow=length(theta))
+    covar[!model$etamap$offsettheta,!model$etamap$offsettheta ] <- robust.inverse(-Lout$hessian)
+    dimnames(covar) <- list(names(theta),names(theta))
+    He <- matrix(NA, ncol=length(theta), nrow=length(theta))
+    He[!model$etamap$offsettheta,!model$etamap$offsettheta ] <- Lout$hessian
+    dimnames(He) <- list(names(theta),names(theta))
+    Lout$hessian <- He
+    
     if(calc.mcmc.se){
       if (verbose) { cat("Starting MCMC s.e. computation.\n") }
       if ((metric=="lognormal" || metric=="Likelihood")
@@ -403,7 +401,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     return(structure(list(coef=theta, sample=statsmatrix, sample.obs=statsmatrix.obs, 
                           iterations=iteration, #mcmcloglik=mcmcloglik,
                           MCMCtheta=init, 
-                          loglikelihood=loglikelihood, gradient=gradient,
+                          loglikelihood=loglikelihood, gradient=gradient, hessian=Lout$hessian,
                           covar=covar, failure=FALSE,
                           mc.se=mc.se#, #acf=mcmcacf,
                           #fullsample=statsmatrix.all
