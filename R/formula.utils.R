@@ -260,3 +260,19 @@ unset.offset.formula <- function(object, which=TRUE, response=NULL){
   ergm.update.formula(object, append.rhs.formula(~.,terms)) # append.rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
 }
 
+# Delete all offset() terms in an ERGM formula.
+remove.offset.formula <- function(object, response=NULL){
+  terms <- term.list.formula(object[[3]])
+  for(i in rev(seq_along(terms)))
+    if(inherits(terms[[i]],"call") && terms[[i]][[1]]=="offset") # Is the term an offset?
+      terms[[i]]<-NULL # Delete the offset term.
+  ergm.update.formula(object, append.rhs.formula(~.,terms)) # append.rhs.formula call returns a formula of the form .~terms[[1]] + terms[[2]], etc.
+}
+
+# A lightweight function that simply returns the offset vectors
+# associated with a formula.
+offset.info.formula <- function(object, response=NULL){
+  nw <- ergm.getnetwork(object)
+  m<-ergm.getmodel(object, nw, response=response,role="target")
+  with(m$etamap, list(term=offset, theta=offsettheta,eta=offsetmap))
+}
