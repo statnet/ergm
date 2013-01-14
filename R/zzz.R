@@ -1,5 +1,5 @@
 .onAttach <- function(lib, pkg){
-  sm <- statnetStartupMessage("ergm", c("ergm.count","tergm"), FALSE)
+  sm <- statnetStartupMessage("ergm", c("statnet","ergm.count","tergm"), TRUE)
   if(!is.null(sm)) packageStartupMessage(sm)
   
   # If the following have already been defined in the latentnet package, don't duplicate. Otherwise, assign them.
