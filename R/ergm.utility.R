@@ -7,8 +7,8 @@
 #      <degreedist>             <is.latent.cluster>
 #      <degreedistfactor>       <newnw.extract>
 #      <espartnerdist>          <statnet.edit>
-#      <dspartnerdist>          <ergm.update.formula>
-#      <rspartnerdist>          <term.list.formula>
+#      <dspartnerdist>         
+#      <rspartnerdist>         
 #      <twopathdist>            <copy.named>
 #      <compress.data.frame>    <sort.data.frame>
 #==============================================================      

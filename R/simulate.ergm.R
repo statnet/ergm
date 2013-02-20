@@ -117,11 +117,11 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   }
 
   # New formula (no longer use 'object'):
-  form <- ergm.update.formula(object, basis ~ .)
+  form <- ergm.update.formula(object, basis ~ ., from.new="basis")
 
   if(!is.null(monitor)){
     # Construct a model to get the number of parameters monitor requires.
-    monitor <- ergm.update.formula(monitor, nw~.)
+    monitor <- ergm.update.formula(monitor, nw~., from.new="nw")
     monitor.m <- ergm.getmodel(monitor, basis, response=response)
     monitored.length <- coef.length.model(monitor.m)
     

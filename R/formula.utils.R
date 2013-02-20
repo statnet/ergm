@@ -21,10 +21,11 @@ append.rhs.formula<-function(object,newterms,keep.onesided=FALSE){
 }
 
 # A reimplementation of update.formula() that does not simplify.  Note
-# that the resulting formula's environment is set to that of new iff
-# new has an LHS _and_ its LHS is not . . Otherwise, it is set to
-# object's.
-ergm.update.formula<-function (object, new, ...){
+# that the resulting formula's environment is set as follows. If
+# from.new==FALSE, it is set to that of object. Otherwise, a new
+# sub-environment of object, containing, in addition, variables in new
+# listed in from.new (if a character vector) or all of new (if TRUE).
+ergm.update.formula<-function (object, new, ..., from.new=FALSE){
   old.lhs <- if(length(object)==2) NULL else object[[2]]
   old.rhs <- if(length(object)==2) object[[2]] else object[[3]]
   
@@ -51,11 +52,24 @@ ergm.update.formula<-function (object, new, ...){
     }else return(c)
   }
   
-  # Construct the formula and ensure that the formula's environment
-  # gets set to the environment of LHS of the new formula, if it
-  # exists and is not . .
   out <- if(length(new)==2) call("~", deparen(sub.dot(new.rhs, old.rhs))) else call("~", deparen(sub.dot(new.lhs, old.lhs)), deparen(sub.dot(new.rhs, old.rhs)))
-  as.formula(out, env =  if(length(new)==2 || new[[2]]==".") environment(object) else environment(new))
+
+  #  a new sub-environment for the formula, containing both
+  # the variables from the old formula and the new.
+  
+  if(identical(from.new,FALSE)){ # The new formula will use the environment of the original formula (the default).
+    e <- environment(object)
+  }else{
+    # Create a sub-environment also containing variables from environment of new.
+    e <- new.env(parent=environment(object))
+    
+    if(identical(from.new,TRUE)) from.new <- ls(pos=environment(new)) # If TRUE, copy all of them (dangerous!).
+    
+    for(name in from.new)
+      assign(name, get(name, pos=environment(new)), pos=e)
+  }
+
+  as.formula(out, env = e)
 }
 
 term.list.formula<-function(rhs){

@@ -388,7 +388,7 @@ gof.formula <- function(object, ...,
 #     if ((i %% 10 == 0) || (i==control$nsim)) cat("\n")
 #    }
     if ('model' %in% all.gof.vars) {
-     sim.model[i,] <- summary(ergm.update.formula(object,tempnet ~ .))
+     sim.model[i,] <- summary(ergm.update.formula(object,tempnet ~ ., from.new="tempnet"))
     }
     if ('distance' %in% all.gof.vars) {
      sim.dist[i,] <- ergm.geodistdist(tempnet)

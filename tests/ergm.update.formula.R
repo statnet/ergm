@@ -5,7 +5,7 @@ while(exists("test.network"))
 
 lhs.subst.san <- function(rhs,target.stats) {
         test.network <- network.initialize(n=10,directed=F)
-        form <- ergm.update.formula(rhs,test.network~.)
+        form <- ergm.update.formula(rhs,test.network~., from.new="test.network")
         san(form,target.stats=target.stats)
         }
 
@@ -32,7 +32,7 @@ predict.ergm.model<- function(model)  # only for Directed Network
 	  {
 	   net[i,j]<-1
 	   alternative[i,j]<-1 - net[i,j]
-	   u2<- summary(ergm.update.formula(model$formula, alternative ~ .))
+	   u2<- summary(ergm.update.formula(model$formula, alternative ~ ., from.new="alternative"))
 	   delta<-u2-u1
 	   prob<-1/(1+exp(sum(beta*delta)))
 	   if (net[i,j]==1) eta[i,j]<- prob
@@ -43,8 +43,8 @@ predict.ergm.model<- function(model)  # only for Directed Network
     else
      {
       alternative[i,j]<-1 - net[i,j]
-      u1<-summary(ergm.update.formula(model$formula, net ~ .))
-      u2<-summary(ergm.update.formula(model$formula, alternative ~ .))
+      u1<-summary(ergm.update.formula(model$formula, net ~ ., from.new="net"))
+      u2<-summary(ergm.update.formula(model$formula, alternative ~ ., from.new="alternative"))
       delta<- u2-u1
       prob<- 1/(1+exp(sum(beta*delta)))
       if (net[i,j]==1) eta[i,j]<- prob

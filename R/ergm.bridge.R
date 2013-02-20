@@ -16,7 +16,7 @@ ergm.bridge.preproc<-function(object, basis, response){
   }
   
   # New formula (no longer use 'object'):
-  form <- ergm.update.formula(object, nw ~ .)
+  form <- ergm.update.formula(object, nw ~ ., from.new="nw")
   
   list(nw=nw, form=form, model=ergm.getmodel(form, nw, response=response))
 }
@@ -31,7 +31,7 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
   check.control.class("ergm.bridge")
 
   if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
-  if(!is.null(basis)) ergm.update.formula(form,basis~.)
+  if(!is.null(basis)) ergm.update.formula(form,basis~., from.new="basis")
   
   ## Here, we need to get the model object to get the likelihood and gradient functions.
   tmp<-ergm.bridge.preproc(object,basis,response)
@@ -60,7 +60,7 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
                          MCMC.prop.args=control$MCMC.prop.args,
                          MCMC.prop.weights=control$MCMC.prop.weights,
                          MCMC.packagenames=control$MCMC.packagenames), ...)
-    ergm.update.formula(form,nw.state~.)
+    ergm.update.formula(form,nw.state~., from.new="nw.state")
     stats[i,]<-apply(simulate(form, coef=theta, response=response, constraints=constraints, statsonly=TRUE, verbose=max(verbose-1,0),
                               control=control.simulate.formula(MCMC.burnin=0,
                                 MCMC.interval=control$MCMC.interval),
@@ -73,7 +73,7 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
                                MCMC.prop.args=control$MCMC.prop.args,
                                MCMC.prop.weights=control$MCMC.prop.weights,
                                MCMC.packagenames=control$MCMC.packagenames), ...)
-      ergm.update.formula(form.obs,nw.state.obs~.)
+      ergm.update.formula(form.obs,nw.state.obs~., from.new="nw.state.obs")
       stats.obs[i,]<-apply(simulate(form.obs, coef=theta, response=response, constraints=constraints.obs, statsonly=TRUE, verbose=max(verbose-1,0),
                                 control=control.simulate.formula(MCMC.burnin=0,
                                   MCMC.interval=control$obs.MCMC.interval),
@@ -140,7 +140,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
       }
     dind<-append.rhs.formula(dind,list(as.name("edges")))
   }else{
-    dind<-ergm.update.formula(dind,nw~.)  
+    dind<-ergm.update.formula(dind,nw~., from.new="nw")
   }
 
   if(!is.dyad.independent(dind))
@@ -199,7 +199,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
 ##     hamming.start<-log(expm1(-llk.guess/network.dyadcount(nw)))
 ##   }
 
-##   form.aug<-ergm.update.formula(object, . ~ . + hamming(nw))
+##   form.aug<-ergm.update.formula(object, . ~ . + hamming(nw), from.new="nw")
 ##   from<-c(rep(0,length(coef)), hamming.start)
 ##   to<-c(coef,0)
   
