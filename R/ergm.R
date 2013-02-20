@@ -163,7 +163,7 @@ ergm <- function(formula, response=NULL,
               constraints=constraints,
               control=control$SAN.control,
               verbose=verbose)
-      formula<-ergm.update.formula(formula,nw~.)
+      formula<-ergm.update.formula(formula,nw~., from.new="nw")
       nw.stats <- summary(remove.offset.formula(formula),response=response)
       srun <- srun + 1
       if(verbose){
