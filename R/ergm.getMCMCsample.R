@@ -233,6 +233,11 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose) {
 
       # The following is only executed (and the loop continued) if too many edges.
       maxedges <- maxedges * 10
+      if(!is.null(control$MCMC.max.maxedges)){
+        if(maxedges == control$MCMC.max.maxedges*10) # True iff the previous maxedges exactly equaled control$MCMC.max.maxedges and that was too small.
+          stop("Number of edges in the network exceeds maximum allowed by control parameters MCMC.max.maxedges, MCMCLE.density.guard, etc..")
+        maxedges <- min(maxedges, control$MCMC.max.maxedges)
+      }
 
     }
   }

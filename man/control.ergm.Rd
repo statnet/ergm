@@ -30,6 +30,7 @@ control.ergm(drop=TRUE,
              MCMC.burnin.check.alpha=0.01,
              MCMC.runtime.traceplot=FALSE,
              MCMC.init.maxedges=20000,
+             MCMC.max.maxedges=Inf,
              MCMC.addto.se=TRUE,
              MCMC.compress=FALSE,
              MCMC.packagenames=c(),
@@ -67,6 +68,9 @@ control.ergm(drop=TRUE,
              MCMLE.adaptive.trustregion=3,
              MCMLE.adaptive.epsilon=0.01,
              MCMLE.sequential=TRUE,
+             MCMLE.density.guard.min=10000,
+             MCMLE.density.guard=2,
+
 
              SA.phase1_n=NULL, 
              SA.initial_gain=NULL, 
@@ -223,7 +227,11 @@ control.ergm(drop=TRUE,
   \item{MCMC.runtime.traceplot}{Logical:  If TRUE, plot traceplots of 
     the MCMC sample after every MCMC MLE iteration.
   }
-  \item{MCMC.init.maxedges}{Maximum number of edges expected in network.
+  \item{MCMC.init.maxedges, MCMC.max.maxedges}{Maximum number of edges
+    expected in network. Starting at \code{MCMC.init.maxedges}, it will
+    be incremented by a factor of 10 if exceeded during fitting, up to
+    \code{MCMC.max.maxedges}, at which point the process will stop with
+    an error.
   }
   \item{MCMC.addto.se}{Not yet documented.
   }
@@ -319,6 +327,15 @@ control.ergm(drop=TRUE,
     TRUE option may help if the \code{target.stats} 
     in the \code{\link{ergm}} function are far from the
     initial network.
+  }
+  \item{MCMLE.density.guard.min, MCMLE.density.guard}{
+    A simple heuristic to stop optimization if it finds itself in an
+    overly dense region, which usually indicates ERGM degeneracy: if the
+    sampler encounters a network configuration that has more than
+    \code{MCMLE.density.guard.min} edges and whose number of edges is
+    exceeds the observed network by more than
+    \code{MCMLE.density.guard}, the optimization process will be stopped
+    with an error.
   }
   \item{SA.phase1_n}{Number of MCMC samples to draw
     in Phase 1 of the stochastic approximation algorithm.

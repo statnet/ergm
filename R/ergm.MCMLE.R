@@ -64,6 +64,15 @@ ergm.MCMLE <- function(init, nw, model,
   # Store information about original network, which will be returned at end
   nw.orig <- network.copy(nw)
 
+  if(control$MCMLE.density.guard>1){
+    # Calculate the density guard threshold.
+    control$MCMC.max.maxedges <- round(min(control$MCMC.max.maxedges,
+                                           max(control$MCMLE.density.guard*network.edgecount(nw,FALSE),
+                                               control$MCMLE.density.guard.min)))
+    control$MCMC.init.maxedges <- round(min(control$MCMC.max.maxedges, control$MCMC.init.maxedges))
+    if(verbose) cat("Density guard set to",control$MCMC.max.maxedges,"from an initial count of",network.edgecount(nw,FALSE)," edges.\n")
+  }  
+
   # statshift is the difference between the target.stats (if
   # specified) and the statistics of the networks in the LHS of the
   # formula or produced by SAN. If target.stats is not speficied
