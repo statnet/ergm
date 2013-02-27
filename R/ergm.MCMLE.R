@@ -272,11 +272,6 @@ ergm.MCMLE <- function(init, nw, model,
     stats.hist <- rbind(stats.hist, apply(statsmatrix, 2, mean))
     parametervalues <- rbind(parametervalues, mcmc.init)
     if(finished) break # This allows premature termination.
-
-    control$MCMC.samplesize <- control$MCMC.samplesize * control$MCMC.samplesize.mul
-    if(obs)
-      control.obs$MCMC.samplesize <- control.obs$MCMC.samplesize * control$MCMC.samplesize.mul 
-
   } # end of main loop
 
   # FIXME:  We should not be "tacking on" extra list items to the 
