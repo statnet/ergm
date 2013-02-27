@@ -1,6 +1,9 @@
 .onAttach <- function(lib, pkg){
   sm <- statnetStartupMessage("ergm", c("statnet","ergm.count","tergm"), TRUE)
-  if(!is.null(sm)) packageStartupMessage(sm)
+  if(!is.null(sm)){
+    packageStartupMessage(sm)
+    packageStartupMessage(paste(strwrap("NOTE: If you use custom ERGM terms based on ergm.userterms version prior to 3.1, you will need to perform a one-time update of the package boilerplate files (that files that you did not write or modify) from ergm.userterms 3.1 or later. See help('eut-upgrade') for instructions."),collapse="\n"))
+  }
   
   # If the following have already been defined in the latentnet package, don't duplicate. Otherwise, assign them.
   IFNOTEXISTS <- c("robust.inverse","mcmc.diagnostics","mcmc.diagnostics.default","gof","gof.default")
