@@ -12,7 +12,8 @@ following one line in the src/ directory of your package:
 
 #include "ergm_stubs.c"
 
-You will then be able to #include any of the exported header files, use the macros, and call any functions they define.
+You will then be able to #include any of the exported header files,
+use the macros, and call any functions they define.
 
 If you make use of this functionality, please credit us and cite the
 ergm package. (See citation(ergm) for instructions.)
