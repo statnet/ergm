@@ -1,5 +1,10 @@
 ## A function to compute and return the log-likelihood of an ERGM MLE.
 logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || force.reeval, control=control.logLik.ergm(), ...){
+
+  if(!force.reeval && !is.null(object$mle.lik)) return(object$mle.lik)
+
+  # Then, we need to recalculate...
+  
   check.control.class()
   
   control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights",
@@ -13,11 +18,9 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
 
   # "object" has an element control.
   loglik.control<-control
-
   
   out<-with(object,
-            if(!force.reeval && !is.null(object$mle.lik)) mle.lik
-            else{
+            {
               if(!eval.loglik) stop(nologLik.message(deparse(substitute(object))))
               
               ## If dyad-independent or MPLE, just go from the deviance.
@@ -29,7 +32,7 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
               else
                 ## If dyad-dependent but not valued and has a dyad-independent constraint, bridge from a dyad-independent model.
                 if(is.dyad.independent(object$constrained, object$constrained.obs)
-                      && is.null(object$response))
+                   && is.null(object$response))
                   ergm.bridge.dindstart.llk(formula,reference=reference,constraints=constraints,coef=coef(object),control=loglik.control,llkonly=FALSE,...)
                 else
                   ## If valued or has dyad-dependent constraint, compute a path sample from reference measure.
