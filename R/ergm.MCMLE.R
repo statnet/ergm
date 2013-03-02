@@ -340,13 +340,16 @@ approx.hotelling.diff.test<-function(x,y=NULL,mu0=NULL){
   
   # If it doesn't vary and matches, ignore it.
   d <- d[x.n!=0]
-  x <- x[,x.n!=0,drop=FALSE]
-  x.n <- x.n[x.n!=0]
 
+  # Remove from y first, since we are changing x.n below.
   if(!is.null(y)){
     y <- y[,x.n!=0,drop=FALSE]
     y.n <- y.n[x.n!=0]
   }
+  
+  x <- x[,x.n!=0,drop=FALSE]
+  x.n <- x.n[x.n!=0]
+
   
   v <- t(cov(x)/sqrt(x.n))/sqrt(x.n)
   if(!is.null(y)) v <- v + t(cov(y)/sqrt(y.n))/sqrt(y.n)
