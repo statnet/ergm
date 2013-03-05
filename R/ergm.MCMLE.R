@@ -108,7 +108,9 @@ ergm.MCMLE <- function(init, nw, model,
     # Obtain MCMC sample
     mcmc.eta0 <- ergm.eta(mcmc.init, model$etamap)
     z <- ergm.getMCMCsample(nw, model, MHproposal, mcmc.eta0, control, verbose, response=response)
-    
+
+    if(z$status==1) stop("Number of edges in the simulated network exceeds that observed by a large factor (",control$MCMLE.density.guard,"). This is a strong indication of model degeneracy. If you are reasonably certain that this is not the case, increase the MCMLE.density.guard control.ergm() parameter.")
+
     # post-processing of sample statistics:  Shift each row by the
     # vector model$nw.stats - model$target.stats, store returned nw
     # The statistics in statsmatrix should all be relative to either the
@@ -127,6 +129,9 @@ ergm.MCMLE <- function(init, nw, model,
     ##  Does the same, if observation process:
     if(obs){
       z.obs <- ergm.getMCMCsample(nw, model, MHproposal.obs, mcmc.eta0, control.obs, verbose, response=response)
+
+      if(z.obs$status==1) stop("Number of edges in the simulated network exceeds that observed by a large factor (",control$MCMC.max.maxedges,"). This is a strong indication of model degeneracy. If you are reasonably certain that this is not the case, increase the MCMLE.density.guard control.ergm() parameter.")
+      
       statsmatrix.obs <- sweep(z.obs$statsmatrix, 2, statshift, "+")
       colnames(statsmatrix.obs) <- model$coef.names
       nw.obs.returned <- network.copy(z.obs$newnetwork)

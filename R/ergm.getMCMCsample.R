@@ -55,7 +55,9 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
     flush.console()
     z <- ergm.mcmcslave(Clist,MHproposal,eta0,control,verbose)
     
-    # Note that status code 1 (MCMC_TOO_MANY_EDGES) is handled in ergm.mcmcslave.
+    if(z$status == 1){ # MCMC_TOO_MANY_EDGES, exceeding even control$MCMC.max.maxedges
+      return(list(status=z$status))
+    }
     
     if(z$status == 2){ # MCMC_MH_FAILED
       # MH proposal failed somewhere. Throw an error.
@@ -88,8 +90,11 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
     newnetworks <- list()
     for(i in (1:control$parallel)){
       z <- outlist[[i]]
-      # Note that status code 1 (MCMC_TOO_MANY_EDGES) is handled in ergm.mcmcslave.
 
+      if(z$status == 1){ # MCMC_TOO_MANY_EDGES, exceeding even control$MCMC.max.maxedges
+        return(list(status=z$status))
+      }
+      
       if(z$status == 2){ # MCMC_MH_FAILED
         # MH proposal failed somewhere. Throw an error.
         stop("Sampling failed due to a Metropolis-Hastings proposal failing.")
@@ -113,7 +118,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
   colnames(statsmatrix) <- model$coef.names
 
   statsmatrix[is.na(statsmatrix)] <- 0
-  list(statsmatrix=statsmatrix, newnetwork=newnetwork, newnetworks=newnetworks)
+  list(statsmatrix=statsmatrix, newnetwork=newnetwork, newnetworks=newnetworks, status=0)
 }
 
 
@@ -235,7 +240,7 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose) {
       maxedges <- maxedges * 10
       if(!is.null(control$MCMC.max.maxedges)){
         if(maxedges == control$MCMC.max.maxedges*10) # True iff the previous maxedges exactly equaled control$MCMC.max.maxedges and that was too small.
-          stop("Number of edges in the network exceeds maximum allowed by control parameters MCMC.max.maxedges, MCMCLE.density.guard, etc..")
+          return(z) # This will kick the too many edges problem upstairs, so to speak.
         maxedges <- min(maxedges, control$MCMC.max.maxedges)
       }
 

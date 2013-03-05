@@ -69,7 +69,7 @@ control.ergm(drop=TRUE,
              MCMLE.adaptive.epsilon=0.01,
              MCMLE.sequential=TRUE,
              MCMLE.density.guard.min=10000,
-             MCMLE.density.guard=2,
+             MCMLE.density.guard=exp(3),
 
 
              SA.phase1_n=NULL, 
