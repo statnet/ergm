@@ -24,7 +24,9 @@
 \renewenvironment{Schunk}{\vspace{\topsep}}{\vspace{\topsep}}
 
 \SweaveOpts{concordance=TRUE}
-\SweaveOpts{width=4,height=4}
+\SweaveOpts{width=6,height=6}
+
+\setkeys{Gin}{width=0.7\textwidth} 
 
 <<foo,include=FALSE,echo=FALSE>>=
 
@@ -367,7 +369,7 @@ the original network to the distribution of values we get in simulated
 networks from our model. 
 
 
-<<fig=TRUE,width=4,height=4>>=
+<<fig=TRUE>>=
 flomodel.03.gof <- gof(flomodel.03~degree)
 
 flomodel.03.gof
@@ -499,16 +501,19 @@ args(ergm)
 @
 
 One more try...
-<<eval=TRUE,results=hide>>=
+<<results=hide>>=
 fit <- ergm(magnolia~edges+gwesp(0.25,fixed=T)+nodematch('Grade')+nodematch('Race')+
   nodematch('Sex'),
  control = control.ergm(seed=1,MCMC.samplesize=50000,MCMC.interval=1000),
  verbose=T)
 @
 
-<<eval=TRUE,fig=TRUE>>=
+<<fig1>>=
+png( 'fig1.png', width=900, height=900, units='px')
 mcmc.diagnostics(fit)
+invisible(dev.off())
 @
+\includegraphics[clip=true, trim=0px 200px 0px 0px, width=6in]{fig1}
 
 Success! Of course, in real life one might have a lot more trial and
 error.
