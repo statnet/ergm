@@ -9,7 +9,7 @@
 \usepackage{multirow}
 \setlength{\parskip}{\smallskipamount}
 
-%\VignetteIndexEntry{networkDynamic Example}
+%\VignetteIndexEntry{ergm Example}
 
 \begin{document}
 
@@ -146,7 +146,7 @@ $Y_{ij}$ is an actor pair in $Y$; $Y^{c}$ is the rest of the network;
 $\Delta\left(g(y)\right)_{ij}$ is the change in $g(y)$ when the
 value of $Y_{ij}$ is toggled on.
 
-We begin with the simplest possible model, the Bernoulli or Erdös-Rényi
+We begin with the simplest possible model, the Bernoulli or Erd?s-R?nyi
 model, which contains only an edge term.
 
 <<>>=
@@ -352,7 +352,7 @@ flomodel.03.sim[[1]]
 plot(flomodel.03.sim[[1]], label= flomodel.03.sim[[1]] %v% "vertex.names")
 @
 
-Voilà. Of course, yours will look somewhat different.
+Voil?. Of course, yours will look somewhat different.
 
 
 \section{Examining the quality of model fit \textendash{} \textit{GOF} }
