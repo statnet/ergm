@@ -1,5 +1,6 @@
-library(ergm)
+library(statnet.common)
 opttest({
+library(ergm)
 data(florentine)
 f.miss<-network.copy(flomarriage)
 f.miss[2,1] <- NA

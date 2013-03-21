@@ -1,5 +1,6 @@
-library(ergm)
+library(statnet.common)
 opttest({
+library(ergm)
 temp.func <- function(nw,deg) {
   fit <- ergm(nw~edges+degree(deg))
   return(fit)

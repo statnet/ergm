@@ -1,5 +1,6 @@
-library(ergm)
+library(statnet.common)
 opttest({
+library(ergm)
 data(florentine)
 # a markov graph fit to the Florentine data
 gest <- ergm(flomarriage ~ edges + kstar(2), control=control.ergm(seed=16124))

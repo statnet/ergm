@@ -1,5 +1,6 @@
-library(ergm)
+library(statnet.common)
 opttest({
+library(ergm)
 theta0err<--1 # Perturbation in the initial values
 maxit<-20 # Maximum number of iterations
 tolerance<-0.01 # Result must be within 1% of truth.

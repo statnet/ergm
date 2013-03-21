@@ -1,5 +1,6 @@
 library(ergm)
 opttest({
+library(statnet.common)
 # import synthetic network that looks like a molecule
 data(molecule)
 set.vertex.attribute(molecule,"atomic type",c(1,1,1,1,1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3))

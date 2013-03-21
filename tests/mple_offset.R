@@ -1,5 +1,6 @@
-library(ergm)
+library(statnet.common)
 opttest({
+library(ergm)
 data(sampson)
 
 total.theta <- coef(ergm(samplike~edges))

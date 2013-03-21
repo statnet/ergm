@@ -1,5 +1,6 @@
-library(ergm)
+library(statnet.common)
 opttest({
+library(ergm)
 data(florentine)
  
 fit1 <- ergm(flomarriage ~ offset(edges) + kstar(2:3), offset.coef=1, control=control.ergm(MCMLE.maxit=3))

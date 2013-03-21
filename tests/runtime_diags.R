@@ -1,5 +1,6 @@
-library(ergm)
+library(statnet.common)
 opttest({
+library(ergm)
 data(florentine)
 
 gest <- ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle,

@@ -1,6 +1,7 @@
 ### Tests to make sure drop=FALSE works.
-library(ergm)
+library(statnet.common)
 opttest({
+library(ergm)
 data(sampson)
 
 ## Shouldn't need to drop.
