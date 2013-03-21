@@ -20,7 +20,7 @@
   While \code{\link[networkDynamic]{networkDynamic}} provides a flexible, consistent
   method for storing dynamic networks, the \code{C} routines of
   \code{\link[=ergm-package]{ergm}} and
-  \code{\link[=tergm-package]{tergm}} required a simpler and more
+  \code{\link[tergm:tergm-package]{tergm}} required a simpler and more
   lightweight representation.
 
   This representation consisted of a single integer representing the
@@ -31,7 +31,7 @@
 
   Though this is an API intended for internal use, some functions,
   like \code{\link[tergm]{stergm}} (for EGMME),
-  \code{\link[=simulate.stergm]{simulate}}, and
+  \code{\link[tergm:simulate.stergm]{simulate}}, and
   \code{\link[=summary.formula]{summary}} can be passed networks with
   this information using the following \code{\link{network}} (i.e.,
   \code{\link{\%n\%}}) attributes:
@@ -45,7 +45,7 @@
       \code{to.lasttoggle.matrix} for how they are serialized.}
   }
 
-  For technical reasons, the \code{\link[=tergm-package]{tergm}} routines
+  For technical reasons, the \code{\link[tergm:tergm-package]{tergm}} routines
   treat the \code{lasttoggle} time points as shifted by \eqn{-1}.
 
   Again, this API is subject to change without notice.
