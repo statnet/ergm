@@ -238,7 +238,7 @@
   This page describes the possible terms (and hence network statistics)
   included in \code{\link[=ergm-package]{ergm}} package. Other packages
   may add their own terms, and package
-  \code{\link[=ergm.userterms-package]{ergm.userterms}} provides tools
+  \code{\link[ergm.userterms:ergm.userterms-package]{ergm.userterms}} provides tools
   for implementing them.
 
   The current recommendation for any package implementing additional

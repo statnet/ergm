@@ -1,7 +1,7 @@
 \name{eut-upgrade}
 \alias{eut-upgrade}
 
-\title{Updating \code{\link[=ergm.userterms-package]{ergm.userterms}} prior to 3.1}
+\title{Updating \code{\link[ergm.userterms:ergm.userterms-package]{ergm.userterms}} prior to 3.1}
 
 \description{Explanation and instructions for updating custom ERGM terms
   developed prior to the release of \code{\link[=ergm-package]{ergm}}
@@ -9,7 +9,7 @@
 
 \section{Explanation}{
 
-  \code{\link[=ergm.userterms-package]{ergm.userterms}} --- Statnet's
+  \code{\link[ergm.userterms:ergm.userterms-package]{ergm.userterms}} --- Statnet's
   mechanism enabling users to write their own ERGM terms --- comes in a
   form of an R package containing files for the user to put their own
   statistics into (i.e., \code{changestats.user.h},
@@ -17,7 +17,7 @@
   some boilerplate to support them (e.g., \code{edgetree.h},
   \code{edgetree.c}, \code{changestat.h}, \code{changestat.c}, etc.).
 
-  Although the \code{\link[=ergm.userterms-package]{ergm.userterms}} API
+  Although the \code{\link[ergm.userterms:ergm.userterms-package]{ergm.userterms}} API
   is stable, recent developments in ergm have necessitated the
   boilerplate files in ergm.userterms to be updated.  To reiterate, the
   user-written statistic source code (\code{changestats.user.h},
@@ -40,25 +40,25 @@
 
   \enumerate{
     
-    \item Download the up-to-date \code{\link[=ergm.userterms-package]{ergm.userterms}} source from CRAN
+    \item Download the up-to-date \code{\link[ergm.userterms:ergm.userterms-package]{ergm.userterms}} source from CRAN
     using, e.g., \code{\link{download.packages}} and unpack it.
 
     \item Copy the R and C files defining the user-written terms
     (usually \code{changestats.user.h}, \code{changestats.user.c}, and
     \code{InitErgmTerm.user.R}) and \emph{only} those files from the old
-    \code{\link[=ergm.userterms-package]{ergm.userterms}} source code to
+    \code{\link[ergm.userterms:ergm.userterms-package]{ergm.userterms}} source code to
     the new. Do \emph{not} copy the boilerplate files that you did not
     modify.
 	
     \item If you have customized the package \code{DESCRIPTION} file
     (e.g., to change the package name) or \code{zzz.R} (e.g., to change
     the startup message), modify them as needed in the updated
-    \code{\link[=ergm.userterms-package]{ergm.userterms}}, but do
+    \code{\link[ergm.userterms:ergm.userterms-package]{ergm.userterms}}, but do
     \emph{not} simply overwrite them with their old versions.
 
     \item Make sure that your \code{\link[=ergm-package]{ergm}}
     installation is up to date, and rebuild
-    \code{\link[=ergm.userterms-package]{ergm.userterms}}.
+    \code{\link[ergm.userterms:ergm.userterms-package]{ergm.userterms}}.
     
   }
 }
