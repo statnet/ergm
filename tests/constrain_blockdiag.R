@@ -1,5 +1,6 @@
-library(ergm)
+library(statnet.common)
 opttest({
+library(ergm)
 n <- 10
 a <- rep(1:4,1:4)
 

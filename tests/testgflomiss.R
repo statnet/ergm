@@ -1,5 +1,6 @@
-library(ergm)
+library(statnet.common)
 opttest({
+library(ergm)
 #
 data(florentine)
 

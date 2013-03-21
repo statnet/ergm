@@ -2,7 +2,6 @@ InitWtMHP.DescRank <- function(arguments, nw, response) {
   MHproposal <- list(name = "CompleteOrdering", inputs=NULL)
   MHproposal
 }
-#ergm.MHP.table("c", "DescRank", "",  0, "random", "DescRank")
 
 InitWtMHP.DescRankEquivalent <- function(arguments, nw, response) {
   MHproposal <- list(name = "CompleteOrderingEquivalent")
@@ -35,13 +34,11 @@ InitWtMHP.DescRankEquivalent <- function(arguments, nw, response) {
   
   MHproposal
 }
-#ergm.MHP.table("c", "DescRank", "ranks",  0, "random", "DescRankEquivalent")
 
 InitWtMHP.StdNormal <- function(arguments, nw, response) {
   MHproposal <- list(name = "StdNormal", inputs=NULL)
   MHproposal
 }
-#ergm.MHP.table("c", "StdNormal", "",  0, "random", "StdNormal")
 
 InitWtMHP.StdNormalRank <- function(arguments, nw, response) {
   if(!is.directed(nw) && !is.bipartite(nw)) stop("StdNormRank: The Standard Normal proposal with rank-constraint only works with directed or bipartite networks.")
@@ -60,4 +57,35 @@ InitWtMHP.StdNormalRank <- function(arguments, nw, response) {
   }
   MHproposal
 }
-#ergm.MHP.table("c", "StdNormal", "ranks",  0, "random", "StdNormalRank")
+
+InitWtMHP.DiscUnif <- function(arguments, nw, response) {
+  a <- NVL(arguments$reference$a, -Inf)
+  b <- NVL(arguments$reference$b, Inf)
+  if(!is.finite(a) || !is.finite(b)) stop('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
+  MHproposal <- list(name = "DiscUnif", inputs=c(a,b))
+  MHproposal
+}
+
+InitWtMHP.DiscUnifNonObserved <- function(arguments, nw, response) {
+  a <- NVL(arguments$reference$a, -Inf)
+  b <- NVL(arguments$reference$b, Inf)
+  if(!is.finite(a) || !is.finite(b)) stop('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
+  MHproposal <- list(name = "DiscUnifNonObserved", inputs=c(a,b,ergm.Cprepare.miss(nw)))
+  MHproposal
+}
+
+InitWtMHP.Unif <- function(arguments, nw, response) {
+  a <- NVL(arguments$reference$a, -Inf)
+  b <- NVL(arguments$reference$b, Inf)
+  if(!is.finite(a) || !is.finite(b)) stop('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
+  MHproposal <- list(name = "Unif", inputs=c(a,b))
+  MHproposal
+}
+
+InitWtMHP.UnifNonObserved <- function(arguments, nw, response) {
+  a <- NVL(arguments$reference$a, -Inf)
+  b <- NVL(arguments$reference$b, Inf)
+  if(!is.finite(a) || !is.finite(b)) stop('Uniform reference measures that are not bounded are not implemented at this time. Specifiy a and b to be finite.')
+  MHproposal <- list(name = "UnifNonObserved", inputs=c(a,b,ergm.Cprepare.miss(nw)))
+  MHproposal
+}

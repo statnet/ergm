@@ -1,5 +1,6 @@
-library(ergm)
+library(statnet.common)
 opttest({
+library(ergm)
 #
 # Load a graph object of the Florentine data
 #

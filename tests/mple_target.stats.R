@@ -1,5 +1,6 @@
-library(ergm)
+library(statnet.common)
 opttest({
+library(ergm)
 n<-500
 base.net <- network.initialize(n=n,directed=FALSE)
 norm.stats<-c(.7,.1,.5)

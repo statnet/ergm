@@ -1,5 +1,6 @@
-library(ergm)
+library(statnet.common)
 opttest({
+library(ergm)
 logit <- function(p) log(p/(1-p))
 data(sampson)
 

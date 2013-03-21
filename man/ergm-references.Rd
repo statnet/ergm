@@ -4,33 +4,56 @@
 \alias{ergm.references}
 \alias{references.ergm}
 \alias{Bernoulli}
+\alias{Unif}
+\alias{DiscUnif}
 \alias{InitReference.Bernoulli}
+\alias{InitReference.DiscUnif}
+\alias{InitReference.Unif}
+\alias{InitWtMHP.DiscUnif}
+\alias{InitWtMHP.DiscUnifNonObserved}
+\alias{InitWtMHP.Unif}
+\alias{InitWtMHP.UnifNonObserved}
 
 \docType{methods}
 
-\title{Reference Measures for Exponential-Family Random Graph Models
-  (binary ERGMs)}
+\title{Reference Measures for Exponential-Family Random Graph Models}
 
 \description{
-  This page documents the default (Bernoulli) reference measure for
-  binary ERGMs. It does not need to be specified explicitly, so it is
-  included mainly for completeness.
-
+  This page describes the possible reference measures (baseline distributions)
+  for found in the \code{\link[=ergm-package]{ergm}} package, particularly the default (Bernoulli) reference measure for
+  binary ERGMs.
+  
   The reference measure is specified on the RHS of a one-sided formula passed as
   the \code{reference} argument to \code{\link[ergm]{ergm}}. 
   See the \code{\link[ergm]{ergm}} documentation for a complete
   description of how reference measures are specified.
 }
 
-\section{Possible reference measures to represent binary ERGMs}{
+\section{Possible reference measures to represent baseline distributions}{
 
   Reference measures currently available are:
   \describe{
     
     \item{\code{Bernoulli}}{\emph{Bernoulli-reference ERGM:} Specifies each
       dyad's baseline distribution to be Bernoulli with probability of
-      the tie being \eqn{0.5}. }
-    }
+      the tie being \eqn{0.5}. This is the only reference measure used
+      in binary mode. }
+
+    \item{\code{DiscUnif(a,b)}}{\emph{Discrete-Uniform-reference ERGM:}
+      Specifies each dyad's baseline distribution to be discrete uniform
+      between \code{a} and \code{b} (both inclusive): \eqn{h(y)=1}, with
+      the support being
+      \eqn{\code{a},\code{a}+1,\ldots,\code{b}-1,\code{b}}. At this time, both \code{a} and
+      \code{b} must be finite. }
+
+    \item{\code{Unif(a,b)}}{\emph{Coninuous-Uniform-reference ERGM:}
+      Specifies each dyad's baseline distribution to be continuous uniform
+      between \code{a} and \code{b} (both inclusive): \eqn{h(y)=1}, with
+      the support being
+      \eqn{[\code{a},\code{b}]}. At this time, both \code{a} and
+      \code{b} must be finite.  }
+
+  }
 }
 
 \references{

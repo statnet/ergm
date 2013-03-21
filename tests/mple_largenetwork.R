@@ -1,5 +1,6 @@
-library(ergm)
+library(statnet.common)
 opttest({
+library(ergm)
 # Note:  n can be made larger if a more stringent test is desired
 
 # First, a test for sparse networks with n edges, so the

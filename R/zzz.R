@@ -47,10 +47,18 @@
   ergm.MHP.table("c", "Bernoulli", "bd+blockdiag", 1, "TNT", "blockdiagTNT")
   ergm.MHP.table("c", "Bernoulli", "blockdiag+observed",  0, "random", "blockdiagNonObserved")
   ergm.MHP.table("c", "Bernoulli", "bd+blockdiag+observed",  0, "random", "blockdiagNonObserved")
+
   ergm.MHP.table("c", "DescRank", "",  0, "random", "DescRank")
   ergm.MHP.table("c", "DescRank", "ranks",  0, "random", "DescRankEquivalent")
+
   ergm.MHP.table("c", "StdNormal", "",  0, "random", "StdNormal")
   ergm.MHP.table("c", "StdNormal", "ranks",  0, "random", "StdNormalRank")
+
+  ergm.MHP.table("c", "Unif", "",  0, "random", "Unif")
+  ergm.MHP.table("c", "Unif", "observed",  0, "random", "UnifNonObserved")
+  
+  ergm.MHP.table("c", "DiscUnif", "",  0, "random", "DiscUnif")
+  ergm.MHP.table("c", "DiscUnif", "observed",  0, "random", "DiscUnifNonObserved")  
 }
 
 .RegisterConstraintImplications <- function(){
@@ -74,4 +82,6 @@
   ergm.init.methods("Bernoulli", c("MPLE", "zeros"))
   ergm.init.methods("DescRank", c("zeros"))
   ergm.init.methods("StdNormal", c("zeros"))
+  ergm.init.methods("Unif", c("zeros"))
+  ergm.init.methods("DiscUnif", c("zeros"))
 }

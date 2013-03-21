@@ -1,8 +1,6 @@
-library(ergm)
+library(statnet.common)
 opttest({
-# Because they are meaningful for any nonnegative dyad values, the implementation of these terms is in the ergm package, but Poisson-reference ERGM code is required to test them.
-library(ergm.count)
-
+library(ergm)
 
 # Correct values. Note that for undirected networks, this needs to be
 # divied by 2.
@@ -29,14 +27,14 @@ simulate.call <- function(y)
            + cyclicalweights("min","max","min")
            + cyclicalweights("min","sum","min")
            + cyclicalweights("geomean","sum","geomean"),
-           coef=rep(0,6),reference=~Poisson,response="w",control=control.simulate(MCMC.burnin=0,MCMC.interval=100),nsim=100,statsonly=FALSE)
+           coef=rep(0,6),reference=~DiscUnif(0,4),response="w",control=control.simulate(MCMC.burnin=0,MCMC.interval=100),nsim=100,statsonly=FALSE)
 
 # Undirected
 y <- network.initialize(20, dir=FALSE)
 
 # Check the s_ statistics
 
-y <- simulate(y~sum,coef=0,reference=~Poisson,response="w",control=control.simulate(MCMC.burnin=1000),nsim=1)
+y <- simulate(y~sum,coef=0,reference=~DiscUnif(0,4),response="w",control=control.simulate(MCMC.burnin=1000),nsim=1)
 
 y.summ <- summary.call(y)
 
@@ -61,7 +59,7 @@ stopifnot(all.equal(s_results,d_results))
 # Directed
 y <- network.initialize(20, dir=TRUE)
 
-y <- simulate(y~sum,coef=0,reference=~Poisson,response="w",control=control.simulate(MCMC.burnin=1000),nsim=1)
+y <- simulate(y~sum,coef=0,reference=~DiscUnif(0,4),response="w",control=control.simulate(MCMC.burnin=1000),nsim=1)
 
 y.summ <- summary.call(y)
 
