@@ -94,7 +94,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   check.control.class(myname="ERGM simulate.formula")
   # Backwards-compatibility code:
   if("theta0" %in% names(list(...))){
-    warning("Passing the parameter vector as theta0= is depcrecated. Use coef= instead.")
+    warning("Passing the parameter vector as theta0= is deprecated. Use coef= instead.")
     coef<-list(...)$theta0
   }
   control <- control.simulate.ergm.toplevel(control,...)
