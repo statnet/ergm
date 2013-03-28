@@ -25,7 +25,12 @@ ergm.getnetwork <- function (form, loopswarning=TRUE) {
   if(!exists(x=paste(trms[[2]]),envir=nw.env)){
     stop(paste("The network in the formula '",capture.output(print(form)),"' cannot be found.",sep=""))
   }
-  nw <- try(as.network(eval(trms[[2]],envir=nw.env), silent = TRUE))  
+  nw <- try(
+          {
+            tmp <- eval(trms[[2]],envir=nw.env)
+            if(is.network(tmp)) tmp else as.network(tmp)
+          },
+          silent = TRUE)
   if(inherits(nw,"try-error")){
       stop("Invalid network. Is the left-hand-side of the formula correct?")
   }
