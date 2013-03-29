@@ -7,7 +7,6 @@
 /********************  changestats:  A    ***********/
 D_CHANGESTAT_FN(d_absdiff);
 D_CHANGESTAT_FN(d_absdiffcat);
-D_CHANGESTAT_FN(d_adegcor); S_CHANGESTAT_FN(s_adegcor);
 D_CHANGESTAT_FN(d_altkstar);
 D_CHANGESTAT_FN(d_asymmetric);
 /********************  changestats:  B    ***********/
@@ -93,6 +92,7 @@ D_CHANGESTAT_FN(d_hammingmix);
 D_CHANGESTAT_FN(d_idegree);
 D_CHANGESTAT_FN(d_idegree_by_attr);
 D_CHANGESTAT_FN(d_idegree_w_homophily);
+D_CHANGESTAT_FN(d_indegreepopularity);
 D_CHANGESTAT_FN(d_intransitive);
 D_CHANGESTAT_FN(d_isolates);
 S_CHANGESTAT_FN(s_isolates);
@@ -125,10 +125,7 @@ D_CHANGESTAT_FN(d_odegree_w_homophily);
 D_CHANGESTAT_FN(d_opentriad);
 D_CHANGESTAT_FN(d_ostar);
 D_CHANGESTAT_FN(d_outdegreepopularity);
-/********************  changestats:   P    ***********/
-D_CHANGESTAT_FN(d_pdegcor); S_CHANGESTAT_FN(s_pdegcor);
 /********************  changestats:   R    ***********/
-D_CHANGESTAT_FN(d_rdegcor); S_CHANGESTAT_FN(s_rdegcor);
 D_CHANGESTAT_FN(d_receiver);
 /********************  changestats:   S    ***********/
 D_CHANGESTAT_FN(d_sender);
