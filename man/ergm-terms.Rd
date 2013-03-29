@@ -36,6 +36,7 @@
 \alias{degcrossprod}
 \alias{degrange}
 \alias{degree}
+\alias{degreepopularity}
 \alias{density}
 \alias{dsp}
 \alias{dyadcov}
@@ -55,6 +56,7 @@
 \alias{hammingmix}
 \alias{idegrange}
 \alias{idegree}
+\alias{idegreepopularity}
 \alias{ininterval}
 \alias{intransitive}
 \alias{isolates}
@@ -85,6 +87,7 @@
 \alias{nsp}
 \alias{odegrange}
 \alias{odegree}
+\alias{odegreepopularity}
 \alias{opentriad}
 \alias{ostar}
 \alias{receiver}
@@ -134,6 +137,7 @@
 \alias{InitErgmTerm.degcrossprod}
 \alias{InitErgmTerm.degrange}
 \alias{InitErgmTerm.degree}
+\alias{InitErgmTerm.degreepopularity}
 \alias{InitErgmTerm.density}
 \alias{InitErgmTerm.dsp}
 \alias{InitErgmTerm.dyadcov}
@@ -152,6 +156,7 @@
 \alias{InitErgmTerm.hammingmix}
 \alias{InitErgmTerm.idegrange}
 \alias{InitErgmTerm.idegree}
+\alias{InitErgmTerm.idegreepopularity}
 \alias{InitErgmTerm.intransitive}
 \alias{InitErgmTerm.isolates}
 \alias{InitErgmTerm.istar}
@@ -174,6 +179,7 @@
 \alias{InitErgmTerm.nsp}
 \alias{InitErgmTerm.odegrange}
 \alias{InitErgmTerm.odegree}
+\alias{InitErgmTerm.odegreepopularity}
 \alias{InitErgmTerm.opentriad}
 \alias{InitErgmTerm.ostar}
 \alias{InitErgmTerm.receiver}
@@ -718,7 +724,14 @@ equal to the number of (first mode) mutual partners of that pair.
     value of the attribute.
     This term can only be used with undirected networks; for directed networks
     see \code{idegree} and \code{odegree}. }
-    
+
+  \item{\code{degreepopularity} (binary)}{\emph{Degree popularity:} This
+    term adds one network statistic to the model equaling the sum over
+    the actors of each actor's degree taken to the 3/2 power (or,
+    equivalently, multiplied by its square root). This term is an
+    undirected analog to the terms of Snijders et al. (2010), equations
+    (11) and (12). This term can only be used with undirected networks.}
+  
     \item{\code{degcrossprod} (binary)}{\emph{Degree Cross-Product:} 
     This term adds one network statistic equal to the mean of the cross-products
 of the degrees of all pairs of nodes in the network which are tied.
@@ -986,7 +999,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     in-degrees, see \code{idegrange}.}
 
   
-    \item{\code{idegree(d, by=NULL, homophily=FALSE)} (binary)}{\emph{In-degree:} The \code{d} argument
+  \item{\code{idegree(d, by=NULL, homophily=FALSE)} (binary)}{\emph{In-degree:} The \code{d} argument
     is a vector of distinct integers. This term adds one network statistic to
     the model for each element in \code{d}; the \eqn{i}th such statistic equals
     the number of nodes in the network of in-degree \code{d[i]}, i.e. the number
@@ -1003,8 +1016,15 @@ of the degrees of all pairs of nodes in the network which are tied.
     This term can only be used with directed networks; for undirected networks
     see \code{degree}. }
 
-      \item{\code{ininterval(lower=-Inf, upper=+Inf, open=c(TRUE,TRUE))}
-	(valued)}{\emph{Number of ties
+  \item{\code{idegreepopularity} (binary)}{\emph{In-degree popularity:}
+    This term adds one network statistic to the model equaling the sum
+    over the actors of each actor's in-degree taken to the 3/2 power
+    (or, equivalently, multiplied by its square root). This term is
+    analogous to the term of Snijders et al. (2010), equation (11). This
+    term can only be used with directed networks.}
+
+  \item{\code{ininterval(lower=-Inf, upper=+Inf, open=c(TRUE,TRUE))}
+    (valued)}{\emph{Number of ties
 	whose values are in an interval}
       Adds one statistic equaling to the number of ties whose values
       are between \code{lower} and
@@ -1379,6 +1399,13 @@ of the degrees of all pairs of nodes in the network which are tied.
     value of the attribute.
     This term can only be used with directed networks; for undirected networks
     see \code{degree}. }
+  
+  \item{\code{odegreepopularity} (binary)}{\emph{Out-degree popularity:}
+    This term adds one network statistic to the model equaling the sum
+    over the actors of each actor's outdegree taken to the 3/2 power
+    (or, equivalently, multiplied by its square root). This term is
+    analogous to the term of Snijders et al. (2010), equation (12). This
+    term can only be used with directed networks.}
 
     \item{\code{opentriad} (binary)}{\emph{``Open triads'':} This term
     adds one statistic to the model equal to the number of 2-stars minus
@@ -1622,6 +1649,11 @@ of the degrees of all pairs of nodes in the network which are tied.
   \item Krivitsky P. N. (2012). Exponential-Family Random Graph Models for Valued
     Networks. \emph{Electronic Journal of Statistics}, 2012, 6,
     1100-1128. \href{http://dx.doi.org/10.1214/12-EJS696}{\code{doi:10.1214/12-EJS696}}
+
+    \item Snijders T. A. B., G. G. van de Bunt, and
+    C. E. G. Steglich. Introduction to Stochastic Actor-Based Models for
+    Network Dynamics. \emph{Social Networks}, 2010, 32(1),
+    44-60. \href{http://dx.doi.org/10.1016/j.socnet.2009.02.004}{\code{doi:10.1016/j.socnet.2009.02.004}}
 
     \item Morris M, Handcock MS, and Hunter DR. Specification of Exponential-Family Random Graph Models: Terms and Computational Aspects. \emph{Journal of Statistical Software}, 2008, 24(4), 1-24. \url{http://www.jstatsoft.org/v24/i04}
     

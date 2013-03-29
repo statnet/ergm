@@ -1754,6 +1754,39 @@ D_CHANGESTAT_FN(d_degree) {
 }
  
 /*****************
+ changestat: d_degreepopularity
+*****************/
+D_CHANGESTAT_FN(d_degreepopularity) { 
+  int i, edgeflag;
+  double change;
+  Vertex head, tail;
+  
+  /* *** don't forget tail -> head */    
+  change = 0.0;
+  FOR_EACH_TOGGLE(i) {
+    tail=TAIL(i);
+    head=HEAD(i);
+    edgeflag = IS_UNDIRECTED_EDGE(tail, head); /* either 0 or 1 */
+    Vertex tdeg = OUT_DEG[tail] + IN_DEG[tail];
+    Vertex hdeg = OUT_DEG[head] + IN_DEG[head];
+    if(edgeflag){
+      change -= sqrt(tdeg);
+      change += (tdeg-1.0)*(sqrt(tdeg-1.0)-sqrt(tdeg));
+      change -= sqrt(hdeg);
+      change += (hdeg-1.0)*(sqrt(hdeg-1.0)-sqrt(hdeg));
+    }else{
+      change += sqrt(tdeg+1.0);
+      change += tdeg*(sqrt(tdeg+1.0)-sqrt(tdeg));
+      change += sqrt(hdeg+1.0);
+      change += hdeg*(sqrt(hdeg+1.0)-sqrt(hdeg));
+    }
+    TOGGLE_IF_MORE_TO_COME(i); 
+  }
+  CHANGE_STAT[0]=change; 
+  UNDO_PREVIOUS_TOGGLES(i);
+}
+
+/*****************
  changestat: d_degree_by_attr
 *****************/
 D_CHANGESTAT_FN(d_degree_by_attr) { 
@@ -3430,9 +3463,9 @@ D_CHANGESTAT_FN(d_idegree_w_homophily) {
 }
 
 /*****************
- changestat: d_indegreepopularity
+ changestat: d_idegreepopularity
 *****************/
-D_CHANGESTAT_FN(d_indegreepopularity) { 
+D_CHANGESTAT_FN(d_idegreepopularity) { 
   int i, edgeflag;
   double change;
   Vertex head, tail, deg=0;
@@ -4543,9 +4576,9 @@ D_CHANGESTAT_FN(d_ostar) {
 }
 
 /*****************
- changestat: d_outdegreepopularity
+ changestat: d_odegreepopularity
 *****************/
-D_CHANGESTAT_FN(d_outdegreepopularity) { 
+D_CHANGESTAT_FN(d_odegreepopularity) { 
   int i, edgeflag;
   double change;
   Vertex head, tail, deg=0;
@@ -4556,12 +4589,13 @@ D_CHANGESTAT_FN(d_outdegreepopularity) {
     tail=TAIL(i);
     head=HEAD(i);
     edgeflag = IS_OUTEDGE(tail, head); /* either 0 or 1 */
-    change += (edgeflag? -1.0 : 1.0) * sqrt((double)(OUT_DEG[head]));
     deg = (double)(OUT_DEG[tail]);
     if(edgeflag){
-      change += IN_DEG[tail]*(sqrt(deg-1.0)-sqrt(deg));
+      change -= sqrt(deg);
+      change += (deg-1.0)*(sqrt(deg-1.0)-sqrt(deg));
     }else{
-      change += IN_DEG[tail]*(sqrt(deg+1.0)-sqrt(deg));
+      change += sqrt(deg+1.0);
+      change += deg*(sqrt(deg+1.0)-sqrt(deg));
     }
     TOGGLE_IF_MORE_TO_COME(i); 
   }
