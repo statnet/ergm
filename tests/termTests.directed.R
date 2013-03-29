@@ -168,16 +168,16 @@ if (s.0 != 224 || round(e.0$coef + .21, 3) != 0) {
 
 
                      
-# indegreepopularity, directed
+# idegreepopularity, directed
 num.tests=num.tests + 1
-s.0 <- summary(samplike~indegreepopularity)
-e.0 <- ergm(samplike~indegreepopularity, estimate="MPLE")
+s.0 <- summary(samplike~idegreepopularity)
+e.0 <- ergm(samplike~idegreepopularity, estimate="MPLE")
 if (round(s.0-214.6543,3) != 0 || round(e.0$coef + .2387, 3) != 0) {
  print(list(s.0=s.0, e.0=e.0))
- stop("Failed indegreepopularity term test")
+ stop("Failed idegreepopularity term test")
 } else {
   num.passed.tests=num.passed.tests+1
-  print("Passed indegreepopularity term test")
+  print("Passed idegreepopularity term test")
 }
 
 
@@ -367,16 +367,16 @@ if (!all(s.k == c(88,178, 191)) ||
 
 
                      
-# outdegreepopularity, directed
+# odegreepopularity, directed
 num.tests=num.tests + 1
-s.0 <- summary(samplike~outdegreepopularity)
-e.0 <- ergm(samplike~outdegreepopularity, estimate="MPLE")
-if (round(s.0-194.6547,3) != 0 || round(e.0$coef + .2571, 3) != 0) {
+s.0 <- summary(samplike~odegreepopularity)
+e.0 <- ergm(samplike~odegreepopularity, estimate="MPLE")
+if (round(s.0-196.9432,3) != 0 || round(e.0$coef + 0.2909, 3) != 0) {
  print(list(s.0=s.0, e.0=e.0))
- stop("Failed outdegreepopularity term test")
+ stop("Failed odegreepopularity term test")
 } else {
   num.passed.tests=num.passed.tests+1
-  print("Passed outdegreepopularity term test")
+  print("Passed odegreepopularity term test")
 }
 
                 

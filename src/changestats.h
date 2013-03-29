@@ -60,6 +60,7 @@ D_CHANGESTAT_FN(d_degcrossprod);
 D_CHANGESTAT_FN(d_degree);
 D_CHANGESTAT_FN(d_degree_by_attr);
 D_CHANGESTAT_FN(d_degree_w_homophily);
+D_CHANGESTAT_FN(d_degreepopularity);
 D_CHANGESTAT_FN(d_density);
 D_CHANGESTAT_FN(d_dsp);
 D_CHANGESTAT_FN(d_dyadcov);
@@ -93,6 +94,7 @@ D_CHANGESTAT_FN(d_hammingmix);
 D_CHANGESTAT_FN(d_idegree);
 D_CHANGESTAT_FN(d_idegree_by_attr);
 D_CHANGESTAT_FN(d_idegree_w_homophily);
+D_CHANGESTAT_FN(d_idegreepopularity);
 D_CHANGESTAT_FN(d_intransitive);
 D_CHANGESTAT_FN(d_isolates);
 S_CHANGESTAT_FN(s_isolates);
@@ -124,7 +126,7 @@ D_CHANGESTAT_FN(d_odegree_by_attr);
 D_CHANGESTAT_FN(d_odegree_w_homophily);
 D_CHANGESTAT_FN(d_opentriad);
 D_CHANGESTAT_FN(d_ostar);
-D_CHANGESTAT_FN(d_outdegreepopularity);
+D_CHANGESTAT_FN(d_odegreepopularity);
 /********************  changestats:   P    ***********/
 D_CHANGESTAT_FN(d_pdegcor); S_CHANGESTAT_FN(s_pdegcor);
 /********************  changestats:   R    ***********/

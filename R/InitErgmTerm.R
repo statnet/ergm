@@ -9,14 +9,14 @@
 #        <b2star>           <b2starmix>       <b2twostar>
 #        <balance>
 #   C:   <concurrent>       <cycle>           <ctriple>=<ctriad> 
-#   D:   <degree>           <density>         <dsp>
+#   D:   <degree>           <degreepopularity><density>         <dsp>
 #        <dyadcov>          <degcrossprod>    <degcor>
 #   E:   <edgecov>          <edges>           <esp>
 #   G:   <gwb1degree>       <gwb2degree>      <gwdegree>
 #        <gwdsp>            <gwesp>           <gwidegree>
 #        <gwnsp>            <gwodegree>
 #   H:   <hamming>          <hammingmix>
-#   I:   <idegree>          <intransitive>    <indegreepopularity> 
+#   I:   <idegree>          <intransitive>    <idegreepopularity> 
 #        <isolates>         <istar>
 #   K:   <kstar>
 #   L:   <localtriangle>
@@ -26,7 +26,7 @@
 #        <nodemix>          <nodeocov>        <nodeofactor>       
 #        <nsp>
 #   O:   <odegree>          <opentriad>       <ostar>
-#        <outdegreepopularity>  
+#        <odegreepopularity>  
 #   P:   <pdegcor>
 #   R:   <receiver>         <rdegcor>
 #   S:   <sender>           <simmelian>       <simmelianties>
@@ -1166,6 +1166,17 @@ InitErgmTerm.degree<-function(nw, arglist, ...) {
   }
 }
 
+################################################################################
+InitErgmTerm.degreepopularity<-function (nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=FALSE,
+                      varnames = NULL,
+                      vartypes = NULL,
+                      defaultvalues = list(),
+                      required = NULL)
+  list(name="degreepopularity", coef.names="degreepopularity",
+       minval=0, maxval=network.dyadcount(nw,FALSE)*sqrt(network.size(nw)-1), conflicts.constraints="degreedist")
+}
+
 
 ################################################################################
 InitErgmTerm.density<-function(nw, arglist, ...) {
@@ -2061,13 +2072,13 @@ InitErgmTerm.idegree<-function(nw, arglist, ...) {
 
 
 ################################################################################
-InitErgmTerm.indegreepopularity<-function (nw, arglist, ...) {
+InitErgmTerm.idegreepopularity<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = NULL,
                       vartypes = NULL,
                       defaultvalues = list(),
                       required = NULL)
-  list(name="indegreepopularity", coef.names="indegreepopularity",
+  list(name="idegreepopularity", coef.names="idegreepopularity",
        minval=0, maxval=network.dyadcount(nw,FALSE)*sqrt(network.size(nw)-1), conflicts.constraints="idegreedist")
 }
 
@@ -2765,13 +2776,13 @@ InitErgmTerm.odegree<-function(nw, arglist, ...) {
 
 
 ################################################################################
-InitErgmTerm.outdegreepopularity<-function (nw, arglist, ...) {
+InitErgmTerm.odegreepopularity<-function (nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = NULL,
                       vartypes = NULL,
                       defaultvalues = list(),
                       required = NULL)
-  list(name="outdegreepopularity", coef.names="outdegreepopularity",
+  list(name="odegreepopularity", coef.names="odegreepopularity",
        minval=0, maxval=network.dyadcount(nw,FALSE)*sqrt(network.size(nw)-1), conflicts.constraints="odegreedist")
 }
 

@@ -80,6 +80,17 @@ if (!all(s.d==c(30,28)) || round(e.d$coef - 5.11, 3) != 0 ||
   num.passed.tests = num.passed.tests+1
 }
 
+# degreepopularity, undirected
+num.tests=num.tests + 1
+s.0 <- summary(fmh~degreepopularity)
+e.0 <- ergm(fmh~degreepopularity, estimate="MPLE")
+if (round(s.0-795.7458,3) != 0 || round(e.0$coef + 1.1398, 3) != 0) {
+ print(list(s.0=s.0, e.0=e.0))
+ stop("Failed degreepopularity term test")
+} else {
+  num.passed.tests=num.passed.tests+1
+  print("Passed degreepopularity term test")
+}
 
 # gwdegree, undirected
 num.tests=num.tests+1
