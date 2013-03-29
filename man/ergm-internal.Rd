@@ -180,9 +180,6 @@
 \alias{sociality.formula}
 \alias{sociality.network}
 \alias{sort.data.frame}
-\alias{statnet.edit}
-\alias{statnetShowDoc}
-\alias{statnetbrowseURL}
 \alias{summary.statsmatrix.ergm}
 \alias{sweep.mcmc.list}
 \alias{term.list.formula}
