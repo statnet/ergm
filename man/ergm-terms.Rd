@@ -94,6 +94,7 @@
 \alias{sender}
 \alias{simmelian}
 \alias{simmelianties}
+\alias{smalldiff}
 \alias{sociality}
 \alias{sum}
 \alias{threepath}
@@ -186,6 +187,7 @@
 \alias{InitErgmTerm.sender}
 \alias{InitErgmTerm.simmelian}
 \alias{InitErgmTerm.simmelianties}
+\alias{InitErgmTerm.smalldiff}
 \alias{InitErgmTerm.sociality}
 \alias{InitErgmTerm.threepath}
 \alias{InitErgmTerm.transitive}
@@ -1470,6 +1472,16 @@ of the degrees of all pairs of nodes in the network which are tied.
     is a measure of the clustering of Simmelians (given the number of
     Simmelians). This term can only be used with directed networks.}
 
+  \item{\code{smalldiff(attrname, cutoff)} (binary)}{\emph{Number of
+    ties between actors with similar (but not necessarily identical)
+    attribute values:} The \code{attrname} argument is a character
+    string giving the name of a quantitative attribute in the network's
+    vertex attribute list. This term adds one statistic, having as its
+    value the number of edges in the network for which the incident
+    actors' attribute values differ less than \code{cotoff}; that is,
+    number of edges between \code{i} to \code{j} such that
+    \code{abs(attrname[i]-attrname[j])<cutoff}.}
+     
     \item{\code{sociality(attrname=NULL, base=1)} (binary)}{\emph{Undirected degree:} 
     This term adds one network statistic for each node equal to the number of
     ties of that node. The optional \code{attrname} argument is a character
