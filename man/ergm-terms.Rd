@@ -208,10 +208,13 @@
 \alias{InitWtErgmTerm.edges}
 \alias{InitWtErgmTerm.greaterthan}
 \alias{InitWtErgmTerm.ininterval}
+\alias{InitWtErgmTerm.match}
 \alias{InitWtErgmTerm.mutual}
 \alias{InitWtErgmTerm.nodecov}
 \alias{InitWtErgmTerm.nodecovar}
 \alias{InitWtErgmTerm.nodefactor}
+\alias{InitWtErgmTerm.nodematch}
+\alias{InitWtErgmTerm.nodemix}
 \alias{InitWtErgmTerm.nodeicov}
 \alias{InitWtErgmTerm.nodeicovar}
 \alias{InitWtErgmTerm.nodeifactor}
@@ -1244,7 +1247,8 @@ of the degrees of all pairs of nodes in the network which are tied.
 
   
     \item{\code{nodematch(attrname, diff=FALSE,
-    keep=NULL)} (binary), a.k.a. \code{match}}{\emph{Uniform homophily and differential homophily:}
+    keep=NULL)} (binary), \code{nodematch(attrname, diff=FALSE,
+    keep=NULL, form="sum")} (valued) a.k.a. \code{match}}{\emph{Uniform homophily and differential homophily:}
     The \code{attrname} argument is a character vector giving one or
     more names of attributes in the network's vertex attribute
     list. When \code{diff=FALSE}, this term adds one network statistic
@@ -1264,7 +1268,8 @@ of the degrees of all pairs of nodes in the network which are tied.
     matches for just the 2nd and 4th categories, use \code{nodematch}
     with \code{diff=TRUE} and \code{keep=c(2,4)}.}
    
-    \item{\code{nodemix(attrname, base=NULL)} (binary)}{\emph{Nodal attribute
+    \item{\code{nodemix(attrname, base=NULL)} (binary),
+    \code{nodemix(attrname, base=NULL, form="sum")} (valued)}{\emph{Nodal attribute
     mixing:} The \code{attrname} argument is a character vector giving
     the names of categorical attributes in the network's vertex
     attribute list. By default, this term adds one network statistic to

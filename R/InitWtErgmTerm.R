@@ -357,6 +357,126 @@ InitWtErgmTerm.nodeifactor<-function (nw, arglist, response, ...) {
        )
 }
 
+InitWtErgmTerm.nodematch<-InitWtErgmTerm.match<-function (nw, arglist, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, 
+                      varnames = c("attrname", "diff", "keep", "form"),
+                      vartypes = c("character", "logical", "numeric", "character"),
+                      defaultvalues = list(NULL, FALSE, NULL, "sum"),
+                      required = c(TRUE, FALSE, FALSE, FALSE))
+  ### Process the arguments
+  nodecov <-
+    if(length(a$attrname)==1)
+      get.node.attr(nw, a$attrname)
+    else{
+      do.call(paste,c(sapply(a$attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
+    }
+  u <- sort(unique(nodecov))
+  if (!is.null(a$keep)) {
+    u <- u[a$keep]
+  }
+  #   Recode to numeric
+  nodecov <- match(nodecov,u,nomatch=length(u)+1)
+  # All of the "nomatch" should be given unique IDs so they never match:
+  dontmatch <- nodecov==(length(u)+1)
+  nodecov[dontmatch] <- length(u) + (1:sum(dontmatch))
+  ui <- seq(along=u)
+
+  form<-match.arg(a$form,c("sum","nonzero"))
+
+  ### Construct the list to return
+  if (a$diff) {
+    coef.names <- paste("nodematch", form, paste(a$attrname,collapse="."), u, sep=".")
+    inputs <- c(ui, nodecov)
+  } else {
+    coef.names <- paste("nodematch", form, paste(a$attrname,collapse="."), sep=".")
+    inputs <- nodecov
+  }
+  list(name=paste("nodematch",form,sep="_"),                                 #name: required
+       coef.names = coef.names,                          #coef.names: required
+       inputs =  inputs,
+       dependence = FALSE # So we don't use MCMC if not necessary
+       )
+}
+
+InitWtErgmTerm.nodemix<-function (nw, arglist, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("attrname", "base", "form"),
+                      vartypes = c("character", "numeric", "character"),
+                      defaultvalues = list(NULL, NULL, "sum"),
+                      required = c(TRUE, FALSE, FALSE))
+
+  form<-match.arg(a$form,c("sum","nonzero"))
+
+  ### Process the arguments
+  if (is.bipartite(nw) && is.directed(nw)) {
+    stop("Directed bipartite networks are not currently possible")
+  }
+  nodecov <-
+    if(length(a$attrname)==1)
+      get.node.attr(nw, a$attrname)
+    else{
+      do.call(paste,c(sapply(a$attrname,function(oneattr) get.node.attr(nw,oneattr),simplify=FALSE),sep="."))
+    }
+    
+  if (is.bipartite(nw)) {
+    #  So undirected network storage but directed mixing
+    nb1 <- get.network.attribute(nw, "bipartite")       
+    #  Recode nodecov to numeric (but retain original sorted names in "namescov")
+    b1namescov <- sort(unique(nodecov[1:nb1]))
+    b2namescov <- sort(unique(nodecov[(1+nb1):network.size(nw)]))
+    namescov <- c(b1namescov, b2namescov)
+    b1nodecov <- match(nodecov[1:nb1],b1namescov)
+    b2nodecov <- match(nodecov[(1+nb1):network.size(nw)],b2namescov)
+    nr <- length(b1namescov)
+    nc <- length(b2namescov)
+    nodecov <- c(b1nodecov, b2nodecov + nr)
+    u <- cbind(rep(1:nr,nc), nr + rep(1:nc, each=nr))
+    if(any(is.na(nodecov))){u<-rbind(u,NA)}    
+    if (!is.null(a$base) && !identical(a$base,0)) {
+      u <- u[-a$base,]
+    }
+    name <- "mix"
+    cn <- paste("mix", form, paste(a$attrname,collapse="."), apply(matrix(namescov[u],ncol=2),
+                                       1,paste,collapse="."), sep=".")
+    inputs <- c(u[,1], u[,2], nodecov)
+    attr(inputs, "ParamsBeforeCov") <- NROW(u)
+  } else {# So one mode, but could be directed or undirected
+    u<-sort(unique(nodecov))
+    if(any(is.na(nodecov))){u<-c(u,NA)}
+    #   Recode to numeric if necessary
+    nodecov <- match(nodecov,u,nomatch=length(u)+1)
+    ui <- seq(along=u)
+    ucount<-sapply(ui,function(x){sum(nodecov==x,na.rm=TRUE)}) #Count cases
+    uui <- matrix(1:length(ui)^2,length(ui),length(ui))  #Create int tables
+    urm <- t(sapply(ui,rep,length(ui)))   #This is the reverse of what you'd
+    ucm <- sapply(ui,rep,length(ui))      #expect for r/c, but it's correct
+    uun <- outer(u,u,paste,sep=".")
+    if (!is.directed(nw)) {
+      uui <- uui[upper.tri(uui,diag=TRUE)]
+      urm <- urm[upper.tri(urm,diag=TRUE)]  
+      ucm <- ucm[upper.tri(ucm,diag=TRUE)]
+      uun <- uun[upper.tri(uun,diag=TRUE)]
+    }
+    if (!is.null(a$base) && !identical(a$base,0)) {
+      urm <- as.vector(urm)[-a$base]
+      ucm <- as.vector(ucm)[-a$base]
+      uun <- as.vector(uun)[-a$base]
+    }
+    name <- "nodemix"
+    cn <- paste("mix", form, paste(a$attrname,collapse="."), uun, sep=".")
+    inputs <- c(urm, ucm, nodecov)
+    #attr(inputs, "ParamsBeforeCov") <- 2*length(uui)
+    attr(inputs, "ParamsBeforeCov") <- 2*length(uun)
+  }
+  ### Construct the list to return
+  list(name = paste(name, form, sep="_"), coef.names = cn, # required
+       inputs = inputs, 
+       dependence = FALSE # So we don't use MCMC if not necessary
+       )
+}
+
 InitWtErgmTerm.nodecov<-InitWtErgmTerm.nodemain<-function (nw, arglist, response, ...) {
   a <- check.ErgmTerm(nw, arglist,
                      varnames = c("attrname","transform","transformname","form"),

@@ -343,6 +343,54 @@ WtD_CHANGESTAT_FN(d_ininterval){
 /********************  changestats:   M    ***********/
 
 /*****************
+ changestat: d_mix_nonzero
+ This appears to be the version of nodemix used for 
+ bipartite networks (only)
+*****************/
+WtD_CHANGESTAT_FN(d_mix_nonzero){
+  int matchvaltail, matchvalhead;
+  int j, nstats;
+
+  nstats = N_CHANGE_STATS;
+
+  /* *** don't forget tail -> head */    
+  EXEC_THROUGH_TOGGLES({
+      double s = (NEWWT!=0) - (OLDWT!=0);
+      matchvaltail = INPUT_PARAM[TAIL-1+2*nstats];
+      matchvalhead = INPUT_PARAM[HEAD-1+2*nstats];
+      for (j=0; j<nstats; j++) {
+	if(matchvaltail==INPUT_PARAM[j] && matchvalhead==INPUT_PARAM[nstats+j]) {
+	  CHANGE_STAT[j] += s;
+	}
+      }
+    });
+}
+
+/*****************
+ changestat: d_mix_sum
+ This appears to be the version of nodemix used for 
+ bipartite networks (only)
+*****************/
+WtD_CHANGESTAT_FN(d_mix_sum){
+  int matchvaltail, matchvalhead;
+  int j, nstats;
+
+  nstats = N_CHANGE_STATS;
+
+  /* *** don't forget tail -> head */    
+  EXEC_THROUGH_TOGGLES({
+      double s = NEWWT - OLDWT;
+      matchvaltail = INPUT_PARAM[TAIL-1+2*nstats];
+      matchvalhead = INPUT_PARAM[HEAD-1+2*nstats];
+      for (j=0; j<nstats; j++) {
+	if(matchvaltail==INPUT_PARAM[j] && matchvalhead==INPUT_PARAM[nstats+j]) {
+	  CHANGE_STAT[j] += s;
+	}
+      }
+    });
+}
+
+/*****************
  stat: mutual (product a.k.a. covariance)
 *****************/
 WtD_CHANGESTAT_FN(d_mutual_wt_product){
@@ -556,6 +604,108 @@ WtD_CHANGESTAT_FN(d_nodeifactor_sum){
       if (headattr == factorval) CHANGE_STAT[j] += s;
     }
   });
+}
+
+/*****************
+ changestat: d_nodematch_nonzero
+*****************/
+WtD_CHANGESTAT_FN(d_nodematch_nonzero) { 
+  Vertex ninputs = N_INPUT_PARAMS - N_NODES;
+
+  /* *** don't forget tail -> head */    
+  EXEC_THROUGH_TOGGLES({
+      double matchval = INPUT_PARAM[TAIL+ninputs-1];
+      if (matchval == INPUT_PARAM[HEAD+ninputs-1]) { /* We have a match! */
+	double s = (NEWWT!=0) - (OLDWT!=0);
+	if (ninputs==0) {/* diff=F in network statistic specification */
+	  CHANGE_STAT[0] += s;
+	} else { /* diff=T */
+	  for (unsigned int j=0; j<ninputs; j++) {
+	    if (matchval == INPUT_PARAM[j]) 
+	      CHANGE_STAT[j] += s;
+	  }
+	}
+      }
+    });
+}
+
+/*****************
+ changestat: d_nodematch_sum
+*****************/
+WtD_CHANGESTAT_FN(d_nodematch_sum) { 
+  Vertex ninputs = N_INPUT_PARAMS - N_NODES;
+
+  /* *** don't forget tail -> head */    
+  EXEC_THROUGH_TOGGLES({
+      double matchval = INPUT_PARAM[TAIL+ninputs-1];
+      if (matchval == INPUT_PARAM[HEAD+ninputs-1]) { /* We have a match! */
+	double s = NEWWT - OLDWT;
+	if (ninputs==0) {/* diff=F in network statistic specification */
+	  CHANGE_STAT[0] += s;
+	} else { /* diff=T */
+	  for (unsigned int j=0; j<ninputs; j++) {
+	    if (matchval == INPUT_PARAM[j]) 
+	      CHANGE_STAT[j] += s;
+	  }
+	}
+      }
+    });
+}
+
+/*****************
+ changestat: d_nodemix_nonzero
+ Update mixing matrix, non-bipartite networks only 
+ (but see also d_mix_nonzero)
+*****************/
+WtD_CHANGESTAT_FN(d_nodemix_nonzero) {
+  int ninputs = N_INPUT_PARAMS - N_NODES, ninputs2 = ninputs/2;
+  double rtype, ctype, tmp;
+
+  /* *** don't forget tail -> head */    
+  EXEC_THROUGH_TOGGLES({
+      double change = (NEWWT!=0) - (OLDWT!=0);
+      /*Find the node covariate values (types) for the tail and head*/
+      rtype=INPUT_PARAM[TAIL+ninputs-1];
+      ctype=INPUT_PARAM[HEAD+ninputs-1];
+      if (!DIRECTED && rtype > ctype)  {
+        tmp = rtype; rtype = ctype; ctype = tmp; /* swap rtype, ctype */
+      }
+      /*Find the right statistic to update */
+      for(unsigned int j=0; j<ninputs2; j++){
+        if((INPUT_PARAM[j] == rtype) && (INPUT_PARAM[j+ninputs2] == ctype)){
+          CHANGE_STAT[j] += change;
+          j = ninputs2; /* leave the for loop */
+        }
+      } 
+    });
+}
+
+/*****************
+ changestat: d_nodemix_sum
+ Update mixing matrix, non-bipartite networks only 
+ (but see also d_mix_sum)
+*****************/
+WtD_CHANGESTAT_FN(d_nodemix_sum) {
+  int ninputs = N_INPUT_PARAMS - N_NODES, ninputs2 = ninputs/2;
+  double rtype, ctype, tmp;
+
+  /* *** don't forget tail -> head */    
+  EXEC_THROUGH_TOGGLES({
+      double change = NEWWT - OLDWT;
+      /*Find the node covariate values (types) for the tail and head*/
+      rtype=INPUT_PARAM[TAIL+ninputs-1];
+      ctype=INPUT_PARAM[HEAD+ninputs-1];
+      if (!DIRECTED && rtype > ctype)  {
+        tmp = rtype; rtype = ctype; ctype = tmp; /* swap rtype, ctype */
+      }
+      /*Find the right statistic to update */
+      for(unsigned int j=0; j<ninputs2; j++){
+        if((INPUT_PARAM[j] == rtype) && (INPUT_PARAM[j+ninputs2] == ctype)){
+          CHANGE_STAT[j] += change;
+          j = ninputs2; /* leave the for loop */
+        }
+      } 
+    });
 }
 
 /*****************
