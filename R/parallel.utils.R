@@ -24,7 +24,7 @@ myLibLoc <- function()
 
 # Acquires a cluster of specified type.
 ergm.getCluster <- function(control, verbose=FALSE){
-  capture.output(require(snow, quietly=TRUE, warn.conflicts = FALSE))
+  capture.output(library(snow, quietly=TRUE, warn.conflicts = FALSE))
 # The rpvm package is apparently not being maintained.
 #  capture.output(require(rpvm, quietly=TRUE, warn.conflicts = FALSE))
 
@@ -36,7 +36,7 @@ ergm.getCluster <- function(control, verbose=FALSE){
   cl <- switch(type,
 # The rpvm package is apparently not being maintained.
                PVM={              
-                 capture.output(require(rpvm, quietly=TRUE, warn.conflicts = FALSE))
+#                capture.output(require(rpvm, quietly=TRUE, warn.conflicts = FALSE))
 #                PVM.running <- try(.PVM.config(), silent=TRUE)
 #                if(inherits(PVM.running,"try-error")){
 #                  hostfile <- paste(Sys.getenv("HOME"),"/.xpvm_hosts",sep="")
