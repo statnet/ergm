@@ -9,19 +9,32 @@
   \subsection{NEW FEATURES}{
     \itemize{ \item Infrastructure
       has been added for fitting valued ERGMs of Krivitsky (2012). The
-      "user interface" is subject to change, however. (The
-      implementation of statistics for counts can be found in \R package
+      \dQuote{user interface} is subject to change, however. (The
+      implementation of reference measures for counts can be found in \R package
       \code{\link{ergm.count}})
 
-      \item A large number of ERGM terms for counts have been
-      implemented and documented. See \code{? 'ergm-terms'}.
+      \item \code{\link[=ergm-package]{ergm}} itself now includes
+      rudimentary implementations for discrtete uniform and continuous
+      uniform reference measures. See \code{help('ergm-references')}.
 
-      \item A number of new terms binary ERGM terms have been
+      \item A large number of ERGM terms for counts have been
+      implemented and documented. See \code{help('ergm-terms')}.
+
+      \item A number of new binary ERGM terms have been
       implemented as well. Particularly, \code{\link{degrange}},
       \code{\link{odegrange}}, \code{\link{idegrange}},
       \code{\link{b1degrange}}, and \code{\link{b2degrange}}, which
       generalize \code{\link{degree}} and \code{\link{concurrent}} by
       allowing the user to specify contiguous ranges of degree values.
+
+      \item A rudimentary \dQuote{degeneracy} heuristic has been
+      implemented and enabled by default, immediately stopping MC MLE
+      optimization if simulating from a parameter configuration of
+      interest encounters produces networks with too many edges. See
+      \code{MCMLE.density.guard} argument in \code{\link{control.ergm}}
+      documentation for details. Note that this is intended mainly to
+      keep the fitting from bogging down on bad models, and it should
+      not be used as a formal degeneracy diagnostic.
 
       \item \code{\link[=ergm-package]{ergm}} now keeps track of of when
       it is and when it's not possible to evaluate the likelihood of the
@@ -30,7 +43,7 @@
       improve the MPLE.
       
       A new generic, \code{\link{logLikNull}} has been added that
-      returns the null likelihood.
+      returns the null model likelihood.
 
       For models where this is not possible, the
       null likelihood (and deviance, etc.) is defined to be 0.
@@ -50,7 +63,7 @@
 
       \item Sample space constraints \code{\link{degrees}},
       \code{\link{idegrees}}, \code{\link{odegrees}},
-      \code{\link{b1degrees}}, \code{\link{b2degrees}} onstraints have
+      \code{\link{b1degrees}}, \code{\link{b2degrees}} have
       been reimplemented or fixed.
 
       \item Certain functions are now only exported if they haven't
@@ -64,11 +77,16 @@
     }
   }
 
-  % \subsection{C-LEVEL FACILITIES}{
-  %   \itemize{
-  %     \item It is not clear that we need a subsection called "C-LEVEL FACILITIES".
-  %   }
-  % }
+  \subsection{C-LEVEL FACILITIES}{
+    \itemize{
+      
+      \item \code{\link[=ergm-package]{ergm}} now exports header and
+      stub files for the \code{LinkingTo:} API, and package
+      \code{ergm.userterms} now uses it. Please see
+      \code{inst/include/README} before using it, however.
+      
+    }
+  }
 
   % \subsection{UTILITIES}{
   %   \itemize{
@@ -91,14 +109,23 @@
   \subsection{DEPRECATED & DEFUNCT}{
     \itemize{
       \item Dynamic network modeling code has been moved to
-    \code{\link[=tergm-package]{tergm}} package.
+      \code{\link[=tergm-package]{tergm}} package.
+
+      \item Function \code{statnet.edit} has been removed.
     }
   }
 
   \subsection{BUG FIXES}{
     \itemize{
       \item Some bugs introduced by the developers relying on a certain
-      behavior of the \code{\link{.C}} API which had changed have been fixed. 
+      behavior of the \code{\link{.C}} API which had changed have been
+      fixed. 
+
+      \item Some undocumented terms have been fixed and documented,
+      including \code{\link{odegreepopularity}},
+      \code{\link{idegreepopularity}}, \code{\link{degreepopularity}},
+      and \code{\link{smalldiff}}.
+    
     }
   }
 }
@@ -131,13 +158,13 @@
       \code{\link{control.ergm}} argument \code{MCMC.burnin.retries} for
       details.
 
-      \item \code{\link{ergm}} MCMLE now stores "history" of
+      \item \code{\link{ergm}} MCMLE now stores \dQuote{history} of
       \eqn{\theta} and simulated statistics.
 
       \item \code{\link{ergm}} extreme statistics detection (if
       \code{control.ergm(drop=TRUE)}) can now detect both extremely high
       and extremely low values, setting the coefficients to +Inf and
-      -Inf respectively. Direction of "dropping" is returned.
+      -Inf respectively. Direction of \dQuote{dropping} is returned.
 
       \item An initial method \code{"zeros"} has been, to use a vector
       of zeros as starting parameters.
@@ -255,7 +282,7 @@
 \section{Changes in version 2.4}{
   \subsection{NEW FEATURES}{
     \itemize{
-      \item The "news" feature has been implemented. Type
+      \item The \dQuote{news} feature has been implemented. Type
   \code{news(package="ergm")} to see the version's updates.
       
       \item A function \code{\link{ergm.allstats}} was added to
