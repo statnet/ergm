@@ -1,0 +1,4 @@
+%\VignetteIndexEntry{ergm: Introduction to Exponential-family Random Graph modeling with ergm}
+\documentclass{article}
+\begin{document}
+\end{document}
