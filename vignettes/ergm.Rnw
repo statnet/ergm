@@ -112,7 +112,7 @@ library(statnet)
 
 or 
 
-<<>>=
+<<results=hide>>=
 library(ergm)
 library(sna)
 @
@@ -169,7 +169,6 @@ Corresponding probability is:
  &  & \exp(-1.609)/(1+\exp(-1.609))\\
  & = & 0.1667
 \end{eqnarray*}
-
 which is what you would expect, since there are 20/120 ties.
 
 Let's add a term often thought to be a measure of
@@ -260,7 +259,7 @@ summary(fauxmodel.01)
 Note that two of the coefficients are estimated as -Inf
 (the nodematch coefficients for race Black and Other). Why is this?
 
-<<eval=FALSE>>=
+<<>>=
 table(mesa %v% 'Race') # Frequencies of race
 mixingmatrix(mesa, "Race")
 @
@@ -316,7 +315,7 @@ on a dataset)
 For a list of available terms that can be used to specify an ERGM,
 see Appendix B, or type:
 
-help('ergm-terms')
+\verb@help('ergm-terms')@
 
 For a more complete discussion of these terms see the 'Specifications'
 paper in J Stat Software v. 24. (link is available online at \url{www.statnet.org})
@@ -352,7 +351,7 @@ flomodel.03.sim[[1]]
 plot(flomodel.03.sim[[1]], label= flomodel.03.sim[[1]] %v% "vertex.names")
 @
 
-Voil?. Of course, yours will look somewhat different.
+Voila. Of course, yours will look somewhat different.
 
 
 \section{Examining the quality of model fit \textendash{} \textit{GOF} }
@@ -374,7 +373,9 @@ flomodel.03.gof <- gof(flomodel.03~degree)
 
 flomodel.03.gof
 plot(flomodel.03.gof)
+@
 
+<<fig=TRUE>>=
 mesamodel.02 <- ergm(mesa~edges)
 mesamodel.02.gof <- gof(mesamodel.02~distance,nsim=10)
 plot(mesamodel.02.gof)
@@ -445,7 +446,7 @@ plot(magnolia, vertex.cex=.5)
 fit <- ergm(magnolia~edges+triangle, control=control.ergm(seed=1))
 mcmc.diagnostics(fit, center=F)
 @
-<<echo=FALSE,eval=TRUE,results=verbatim>>= 
+<<echo=FALSE,eval=TRUE,results=verbatim,width=75>>= 
 try_out <- try(ergm(magnolia~edges+triangle, control=control.ergm(seed=1))) 
 cat(try_out) 
 @
@@ -497,7 +498,6 @@ fit <- ergm(magnolia~edges+gwesp(0.25,fixed=T)+nodematch('Grade')+nodematch('Rac
  control = control.ergm(seed=1))
 mcmc.diagnostics(fit)
 
-args(ergm)
 @
 
 One more try...
