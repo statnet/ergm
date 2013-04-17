@@ -1,3 +1,12 @@
+#  File R/ergm.model.utils.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2013 Statnet Commons
+#######################################################################
 # A helper function to reorder vector v (if named) into order specified by names.
 vector.namesmatch<-function(v,names,errname=NULL){
   if(is.null(errname)) errname <- deparse(substitute(v))
