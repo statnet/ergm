@@ -37,13 +37,11 @@ void MPLEconddeg_wrapper(int *dnumnets, int *nedges,
                    int *status){
   int directed_flag;
   Vertex n_nodes, nmax, bip;
-  Edge n_networks;
   Network nw[1];
   Model *m;
   MHproposal MH;
   
   n_nodes = (Vertex)*dn; /* coerce double *dn to type Vertex */
-  n_networks = (Edge)*dnumnets; /* coerce double *dnedges to type Edge */
   nmax = (Edge)*maxedges; /* coerce double *maxedges to type Edge */
   bip = (Vertex)*bipartite; /* coerce double *bipartite to type Vertex */
   
@@ -100,7 +98,7 @@ MCMCStatus CondDegSampler (MHproposal *MHp,
   int interval, int fVerbose, int nmax,
   Network *nwp, Model *m) {
 //int staken, tottaken;
-  int i,j;
+  int i;
   
   /*********************
   networkstatistics are modified in groups of m->n_stats, and they
