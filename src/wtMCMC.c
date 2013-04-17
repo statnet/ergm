@@ -212,9 +212,23 @@ WtMCMCStatus WtMetropolisHastings (WtMHproposal *MHp,
       }
     }
     
+    if(fVerbose>=5){
+      Rprintf("Proposal: ");
+      for(unsigned int i=0; i<MHp->ntoggles; i++)
+	Rprintf("  (%d, %d) -> %f  ", MHp->toggletail[i], MHp->togglehead[i], MHp->toggleweight[i]);
+      Rprintf("\n");
+    }
+
     /* Calculate change statistics,
        remembering that tail -> head */
     WtChangeStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, MHp->toggleweight, nwp, m);
+
+    if(fVerbose>=5){
+      Rprintf("Changes: (");
+      for(unsigned int i=0; i<m->n_stats; i++)
+	Rprintf(" %f ", m->workspace[i]);
+      Rprintf(")\n");
+    }
     
     /* Calculate inner product */
     double ip=0;
@@ -225,9 +239,17 @@ WtMCMCStatus WtMetropolisHastings (WtMHproposal *MHp,
        then let the MH probability equal min{exp(cutoff), 1.0}.
        But we'll do it in log space instead.  */
     double cutoff = ip + MHp->logratio;
+
+    if(fVerbose>=5){
+      Rprintf("log acceptance probability: %f + %f = %f\n", ip, MHp->logratio, cutoff);
+    }
     
     /* if we accept the proposed network */
     if (cutoff >= 0.0 || log(unif_rand()) < cutoff) { 
+      if(fVerbose>=5){
+	Rprintf("Accepted.\n");
+      }
+
       /* Make proposed toggles (updating timestamps--i.e., for real this time) */
       for(unsigned int i=0; i < MHp->ntoggles; i++){
 	WtSetEdge(MHp->toggletail[i], MHp->togglehead[i], MHp->toggleweight[i], nwp);
@@ -243,6 +265,10 @@ WtMCMCStatus WtMetropolisHastings (WtMHproposal *MHp,
 	networkstatistics[i] += m->workspace[i];
       }
       taken++;
+    }else{
+      if(fVerbose>=5){
+	Rprintf("Rejected.\n");
+      }
     }
   }
   

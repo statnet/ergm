@@ -93,9 +93,7 @@ MCMCStatus MCMCSample(MHproposal *MHp,
 		Network *nwp, Model *m){
   int staken, tottaken;
   int i, j;
-  
-
-  
+    
   /*********************
   networkstatistics are modified in groups of m->n_stats, and they
   reflect the CHANGE in the values of the statistics from the
@@ -216,9 +214,23 @@ MCMCStatus MetropolisHastings(MHproposal *MHp,
       }
     }
     
+    if(fVerbose>=5){
+      Rprintf("Proposal: ");
+      for(unsigned int i=0; i<MHp->ntoggles; i++)
+	Rprintf(" (%d, %d)", MHp->toggletail[i], MHp->togglehead[i]);
+      Rprintf("\n");
+    }
+
     /* Calculate change statistics,
        remembering that tail -> head */
     ChangeStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, nwp, m);
+
+    if(fVerbose>=5){
+      Rprintf("Changes: (");
+      for(unsigned int i=0; i<m->n_stats; i++)
+	Rprintf(" %f ", m->workspace[i]);
+      Rprintf(")\n");
+    }
     
     /* Calculate inner product */
     double ip=0;
@@ -229,9 +241,17 @@ MCMCStatus MetropolisHastings(MHproposal *MHp,
        then let the MH probability equal min{exp(cutoff), 1.0}.
        But we'll do it in log space instead.  */
     double cutoff = ip + MHp->logratio;
+
+    if(fVerbose>=5){
+      Rprintf("log acceptance probability: %f + %f = %f\n", ip, MHp->logratio, cutoff);
+    }
     
     /* if we accept the proposed network */
     if (cutoff >= 0.0 || log(unif_rand()) < cutoff) { 
+      if(fVerbose>=5){
+	Rprintf("Accepted.\n");
+      }
+
       /* Make proposed toggles (updating timestamps--i.e., for real this time) */
       for(unsigned int i=0; i < MHp->ntoggles; i++){
 	ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
@@ -246,6 +266,10 @@ MCMCStatus MetropolisHastings(MHproposal *MHp,
 	networkstatistics[i] += m->workspace[i];
       }
       taken++;
+    }else{
+      if(fVerbose>=5){
+	Rprintf("Rejected.\n");
+      }
     }
   }
   
