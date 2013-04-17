@@ -22,19 +22,43 @@ void MH_CondDegreeTetrad(MHproposal *MHp, Network *nwp)  {
 //matchvaltail = INPUT_PARAM[tail-1+2*nstats];
 //matchvalhead = INPUT_PARAM[head-1+2*nstats];
   do{
-    GetRandEdge(&A1, &A2, nwp);
+    /*
+      The reason the following randomization is needed is that, given
+      the a tetrad with (only) A1-A2 and B1-B2 having edges, there are
+      two degree-preserving proposals that can be made: to replace the
+      edges with A1-B2 and B1-A2 or to replace with A1-B1 and A2-B2.
+      
+      GetRandEdge always returns tail<head for undirected networks, so
+      a sampler that only uses GetRandEdge(&A1, &A2, nwp) misses out
+      on potential proposals. This causes it to become trapped in
+      bipartite or near-bipartite configurations. Bipartite networks
+      are already bipartite, so they are not affected.
+
+      Swapping A1 and A2 half the time allows either of the above
+      proposals to be considered.
+    */
+    if(!nwp->directed_flag && !nwp->bipartite && unif_rand()<0.5) GetRandEdge(&A2, &A1, nwp);
+    else GetRandEdge(&A1, &A2, nwp);
+
     GetRandEdge(&B1, &B2, nwp);
     //Rprintf("A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
   }while(A1==B1 || A1==B2 || A2==B1 || A2==B2 || 
 	 (nwp->directed_flag ? 
-	  IS_OUTEDGE(A1, B2) || IS_OUTEDGE(B1, A2) : // Directed
-	  IS_UNDIRECTED_EDGE(A1,B2) || IS_UNDIRECTED_EDGE(B1,A2) // Undirected
+	  (IS_OUTEDGE(A1, B2) || IS_OUTEDGE(B1, A2)) : // Directed
+	  (IS_UNDIRECTED_EDGE(A1,B2) || IS_UNDIRECTED_EDGE(B1,A2)) // Undirected
 	  ));
-    //Rprintf("in A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
-  Mtail[0]=A1; Mhead[0]=A2;
-  Mtail[1]=A1; Mhead[1]=B2;
-  Mtail[2]=B1; Mhead[2]=B2;
-  Mtail[3]=B1; Mhead[3]=A2;
+  //Rprintf("in A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
+  if(nwp->directed_flag){
+    Mtail[0]=A1; Mhead[0]=A2;
+    Mtail[1]=A1; Mhead[1]=B2;
+    Mtail[2]=B1; Mhead[2]=B2;
+    Mtail[3]=B1; Mhead[3]=A2;
+  }else{
+    Mtail[0]=MIN(A1,A2); Mhead[0]=MAX(A1,A2);
+    Mtail[1]=MIN(A1,B2); Mhead[1]=MAX(A1,B2);
+    Mtail[2]=MIN(B1,B2); Mhead[2]=MAX(B1,B2);
+    Mtail[3]=MIN(B1,A2); Mhead[3]=MAX(B1,A2);
+  }
 }
 
 //void MH_CondDegreeMix(MHproposal *MHp, Network *nwp)  {  
@@ -280,6 +304,8 @@ void MH_CondDegreeHexad
    meaningful (i.e. not loops), it's OK if A1=C2, B1=A2, and/or
    C1=B2. Indeed, "reversing" the cyclical triangle is the one
    operation that tetradic toggles can't accomplish.
+
+   Note that this must *never* be called for undirected networks.
 
  */
 void MH_CondDegreeHexad(MHproposal *MHp, Network *nwp)  {  
