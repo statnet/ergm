@@ -6,13 +6,11 @@
   A \code{\link{logLik}} method for \code{\link[=ergm.object]{ergm}}.
 }
 \description{
-A function to return the log-likelihood associated with an
-\code{\link[=ergm.object]{ergm}} fit, evaluating it if
-necessary. As of version 3.1, all likelihoods are given relative
-to the reference measure. (I.e., a null model, with no terms, is
-defined to have likelihood of 0, and all other models are defined
-relative to that.) \code{logLikNull} computes, when possible, the log-probability of observing the observed,
-unconstrained dyads of the network observed under the null model.
+  A function to return the log-likelihood associated with an
+  \code{\link[=ergm.object]{ergm}} fit, evaluating it if
+  necessary. \code{logLikNull} computes, when possible (see Value), the
+  log-probability of observing the observed, unconstrained dyads of the
+  network observed under the null model.
 }
 \usage{
 \method{logLik}{ergm}(object, 
@@ -64,6 +62,11 @@ logLikNull(object, \dots)
   \code{logLikNull} returns an object of type
   \code{\link{logLik}} if it is able to compute the null model
   probability, and \code{NA} otherwise.
+
+  As of version 3.1, all likelihoods for which \code{logLikNull} is not
+  implemented are computed relative to the reference measure. (I.e., a
+  null model, with no terms, is defined to have likelihood of 0, and all
+  other models are defined relative to that.)
 }
 \references{
   Hunter, D. R. and Handcock, M. S. (2006)
@@ -91,6 +94,4 @@ summary(gest)
 AIC(gest)+AIC(logLikNull(gest)) # AIC
 BIC(gest)+BIC(logLikNull(gest)) # BIC
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
 \keyword{ models  }
