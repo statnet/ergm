@@ -43,7 +43,7 @@ goodness-of-fit (see \code{\link{mcmc.diagnostics}} and
 \code{\link{gof.ergm}}).
 
 A number of Statnet Project packages extend and enhance
-\code{\link[ergm-package]{ergm}}. These include
+\code{\link[=ergm-package]{ergm}}. These include
 \code{\link[tergm:tergm-package]{tergm}} (Temporal ERGM), which provides
 extensions for modeling evolution of networks over time;
 \code{\link[ergm.count:ergm.count-package]{ergm.count}}, which
