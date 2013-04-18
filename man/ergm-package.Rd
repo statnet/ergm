@@ -42,6 +42,16 @@ provides tools for simulating networks (via
 goodness-of-fit (see \code{\link{mcmc.diagnostics}} and
 \code{\link{gof.ergm}}).
 
+A number of Statnet Project packages extend and enhance
+\code{\link[ergm-package]{ergm}}. These include
+\code{\link[tergm:tergm-package]{tergm}} (Temporal ERGM), which provides
+extensions for modeling evolution of networks over time;
+\code{\link[ergm.count:ergm.count-package]{ergm.count}}, which
+facilitates exponential family modeling for networks whose dyadic
+measurements are counts; and
+\code{\link[ergm.userterms:ergm.userterms-package]{ergm.userterms}},
+which allows users to implement their own ERGM terms.
+
 For detailed information on how to download and install the software,
 go to the \code{\link[=ergm-package]{ergm}} website:
 \url{statnet.org}.
