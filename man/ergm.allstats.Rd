@@ -21,7 +21,7 @@ ergm.allstats (formula, zeroobs = TRUE, force = FALSE,
   \code{\link{ergm.exact}} function.
 }
 \arguments{
- \item{formula}{an \R \code{link{formula}} object of the form
+ \item{formula}{an \R \code{\link{formula}} object of the form
    \code{y ~ <model terms>},
    where \code{y} is a network object or a matrix that can be
    coerced to a \code{\link[network]{network}} object.  For the details 
