@@ -78,20 +78,27 @@ logLikNull(object, \dots)
   \code{\link{logLik}}, \code{\link{ergm.bridge.llr}}, \code{\link{ergm.bridge.dindstart.llk}}
 }
 \examples{
-# See help(ergm) for a description of this model:
+# See help(ergm) for a description of this model. The likelihood will
+# not be evaluated.
 data(florentine)
+\dontrun{
+# The default maximum number of iterations is currently 20. We'll only
+# use 2 here for speed's sake.
 gest <- ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle, eval.loglik=FALSE)
+}
+gest <- ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle, eval.loglik=FALSE, control=control.ergm(MCMLE.maxit=2))
 # Log-likelihood is not evaluated, so no deviance, AIC, or BIC:
 summary(gest)
 # Evaluate the log-likelihood and attach it to the object.
+\dontrun{
+# The default number of bridges is currently 20. We'll only use 3 here
+# for speed's sake.
 gest <- logLik(gest, add=TRUE)
-# Deviances, AIC, and BIC (relative to the null model) now shown:
-summary(gest)
-# Deviances, AIC, and BIC that use the probability under the null model
-#  as the baseline are shifted:
-
--2*c(logLik(gest)+logLikNull(gest)) # Deviance
-AIC(gest)+AIC(logLikNull(gest)) # AIC
-BIC(gest)+BIC(logLikNull(gest)) # BIC
 }
-\keyword{ models  }
+gest <- logLik(gest, add=TRUE, control=control.logLik.ergm(nsteps=3))
+# Deviances, AIC, and BIC are now shown:
+summary(gest)
+# Null model likelihood can also be evaluated, but not for all constraints:
+logLikNull(gest) # == network.dyadcount(flomarriage)*log(1/2)
+}
+\keyword{models}
