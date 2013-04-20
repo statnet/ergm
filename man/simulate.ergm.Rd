@@ -207,8 +207,8 @@ g.use <- network(16,density=0.1,directed=FALSE)
 #
 g.sim <- simulate(~edges+kstar(2), nsim=3, coef=c(-1.8,0.03),
                basis=g.use, control=control.simulate(
-                 MCMC.burnin=100000,
-                 MCMC.interval=1000))
+                 MCMC.burnin=1000,
+                 MCMC.interval=100))
 g.sim
 summary(g.sim)
 #
@@ -224,9 +224,9 @@ summary(gest)
 # Draw from the fitted model (satatistics only), and observe the number
 # of triangles as well.
 #
-g.sim <- simulate(gest, nsim=100, 
+g.sim <- simulate(gest, nsim=10, 
             monitor=~triangles, statsonly=TRUE,
-            control=control.simulate(MCMC.burnin=1000, MCMC.interval=1000))
-head(g.sim)
+            control=control.simulate.ergm(MCMC.burnin=1000, MCMC.interval=100))
+g.sim
 }
 \keyword{models}
