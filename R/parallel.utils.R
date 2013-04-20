@@ -52,6 +52,7 @@ ergm.getCluster <- function(control, verbose=FALSE){
                    ergm.MPIcluster.started(TRUE)
                    makeCluster(control$parallel,type="MPI")
                  }else
+                   ergm.MPIcluster.started(FALSE)
                    getMPIcluster()
                },
                SOCK={
@@ -96,7 +97,10 @@ ergm.stopCluster <- function(object, ...)
 
 # Only stop the MPI cluster if we were the ones who had started it.
 ergm.stopCluster.MPIcluster <- function(object, ...){
-  if(ergm.MPIcluster.started()) stopCluster(object)
+  if(ergm.MPIcluster.started()){
+    ergm.MPIcluster.started(FALSE)
+    stopCluster(object)
+  }
 }
 
 ergm.stopCluster.default <- function(object, ...){
