@@ -12,6 +12,7 @@ bibentry("Article",
          journal = "Journal of Statistical Software",
          year = 2008,
          volume = 24,
-         number = 3)
+         number = 3,
+	 pages = "1--29")
 
 statnet.cite.foot("ergm")
