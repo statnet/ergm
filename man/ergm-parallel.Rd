@@ -57,3 +57,16 @@
   preexisting cluster and make use of it, but it will not stop it.
 
 }
+
+\examples{
+\donttest{
+# See help(ergm) for a description of this model.
+data(florentine)
+gest <- ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangles,
+             eval.loglik=FALSE,
+             control=control.ergm(parallel=2, parallel.type="SOCK"))
+summary(gest)
+# Note the combined MCMC diagnostics:
+mcmc.diagnostics(gest)
+}
+}
