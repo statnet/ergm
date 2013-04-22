@@ -130,7 +130,7 @@ InitConstraint.observed <- function(conlist, lhs.nw, ...){
   conlist$observed<-list()
 
   conlist$observed$free.dyads <- function(){
-    standardize.network(is.na(lhs.nw))
+   standardize.network(is.na(lhs.nw))
   }
   conlist
 }

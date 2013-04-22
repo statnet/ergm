@@ -39,6 +39,6 @@ ergm.design <- function(nw, model, verbose=FALSE){
   Clist.miss
 }
 
-ergm.Cprepare.miss <- function(nw)
+ergm.Cprepare.miss <- function(nw){
   ergm.Cprepare.el(is.na(nw))
-
+}

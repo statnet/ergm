@@ -460,6 +460,8 @@ get.free.dyads <- function(constraints){
 }
 
 get.miss.dyads <- function(constraints, constraints.obs){
+# Returns a network indicating the missing dyads in the network (
+# (respecting the constraints).
   free.dyads <- get.free.dyads(constraints)
   free.dyads.obs <- get.free.dyads(constraints.obs)
   
