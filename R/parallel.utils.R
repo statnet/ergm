@@ -43,20 +43,20 @@ ergm.getCluster <- function(control, verbose=FALSE){
 #                  .PVM.start.pvmd(hostfile)
 #                  cat("PVM not running. Attempting to start.\n")
 #                }
-                 parallel::makeCluster(control$parallel,type="PVM")
+                 makeCluster(control$parallel,type="PVM")
                },
                MPI={
                  # See if a preexisting cluster exists.
-                 if(is.null(parallel::getMPIcluster())){
+                 if(is.null(getMPIcluster())){
                    # Remember that we are responsible for it.
                    ergm.MPIcluster.started(TRUE)
-                   parallel::makeCluster(control$parallel,type="MPI")
+                   makeCluster(control$parallel,type="MPI")
                  }else
                    ergm.MPIcluster.started(FALSE)
-                   parallel::getMPIcluster()
+                   getMPIcluster()
                },
                SOCK={
-                 parallel::makeCluster(control$parallel,type="SOCK")
+                 makeCluster(control$parallel,type="SOCK")
                }
                )
   
@@ -66,21 +66,21 @@ ergm.getCluster <- function(control, verbose=FALSE){
   ergm.MCMC.packagenames(control$MCMC.packagenames)
   for(pkg in ergm.MCMC.packagenames()){
     # Try loading from the same location as the master.
-    attached <- unlist(parallel::clusterCall(cl, require,
+    attached <- unlist(clusterCall(cl, require,
                                    package=pkg,
                                    character.only=TRUE,
                                    lib.loc=myLibLoc()))
     # If something failed, warn and try loading from anywhere.
     if(!all(attached)){
       if(verbose) cat("Failed to attach ergm on the slave nodes from the same location as the master node. Will try to load from anywhere in the library path.\n")
-      attached <- parallel::clusterCall(cl, require,
+      attached <- clusterCall(cl, require,
                             package=pkg,
                             character.only=TRUE)      
       if(!all(attached)) stop("Failed to attach ergm on one or more slave nodes. Make sure it's installed on or accessible from all of them and is in the library path.")
     }
     
     if(control$parallel.version.check){
-      slave.versions <- parallel::clusterCall(cl,packageVersion,pkg)
+      slave.versions <- clusterCall(cl,packageVersion,pkg)
       master.version <- packageVersion(pkg)
 
       if(!all(sapply(slave.versions,identical,master.version)))
@@ -99,12 +99,12 @@ ergm.stopCluster <- function(object, ...)
 ergm.stopCluster.MPIcluster <- function(object, ...){
   if(ergm.MPIcluster.started()){
     ergm.MPIcluster.started(FALSE)
-    parallel::stopCluster(object)
+    stopCluster(object)
   }
 }
 
 ergm.stopCluster.default <- function(object, ...){
-  parallel::stopCluster(object)
+  stopCluster(object)
 }
 
 
