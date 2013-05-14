@@ -313,7 +313,7 @@ InitErgmTerm.b1concurrent<-function(nw, arglist, ...) {
 
 ################################################################################
 InitErgmTerm.b1degrange<-function(nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=FALSE,
+  a <- check.ErgmTerm(nw, arglist, bipartite=TRUE,
                       varnames = c("from", "to", "byarg", "homophily"),
                       vartypes = c("numeric", "numeric", "character", "logical"),
                       defaultvalues = list(NULL, Inf, NULL, FALSE),
@@ -607,7 +607,7 @@ InitErgmTerm.b2concurrent<-function(nw, arglist, ...) {
 
 ################################################################################
 InitErgmTerm.b2degrange<-function(nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=FALSE,
+  a <- check.ErgmTerm(nw, arglist, bipartite=TRUE,
                       varnames = c("from", "to", "byarg", "homophily"),
                       vartypes = c("numeric", "numeric", "character", "logical"),
                       defaultvalues = list(NULL, Inf, NULL, FALSE),
@@ -1940,7 +1940,7 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ...) {
 
 ################################################################################
 InitErgmTerm.idegrange<-function(nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=FALSE,
+  a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = c("from", "to", "byarg", "homophily"),
                       vartypes = c("numeric", "numeric", "character", "logical"),
                       defaultvalues = list(NULL, Inf, NULL, FALSE),
@@ -2643,7 +2643,7 @@ InitErgmTerm.nsp<-function(nw, arglist, ...) {
 
 ################################################################################
 InitErgmTerm.odegrange<-function(nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=FALSE,
+  a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = c("from", "to", "byarg", "homophily"),
                       vartypes = c("numeric", "numeric", "character", "logical"),
                       defaultvalues = list(NULL, Inf, NULL, FALSE),
