@@ -231,7 +231,6 @@ ergm.MCMLE <- function(init, nw, model,
       }else{
         cat("The log-likelihood did not improve.\n")
       }
-      if((adaptive.steplength==1) && (v$loglikelihood < control$MCMLE.adaptive.epsilon) ){break}
     }else{
 
       if(verbose){cat("Calling MCMLE Optimization...\n")}
@@ -268,7 +267,6 @@ ergm.MCMLE <- function(init, nw, model,
       }else{
         cat("The log-likelihood did not improve.\n")
       }
-      if((control$MCMLE.steplength==1) && (v$loglikelihood < control$MCMLE.adaptive.epsilon) ){break}
     }
           
     mcmc.init <- v$coef
