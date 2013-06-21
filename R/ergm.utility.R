@@ -523,9 +523,10 @@ single.impute.dyads <- function(nw, response=NULL){
         nw[na.el] <- 0
         nw[na.el] <- rbinom(nae,1,d)
     }else{
-        x <- as.edgelist(nw,response=response)[,3]
+        x <- as.edgelist(nw,attrname=response)[,3]
+        zeros <- network.dyadcount(nw,na.omit=TRUE)-length(x)
         nw[na.el] <- 0
-        nw[na.el,names.eval=response,add.edges=TRUE] <- sample(x,nae,replace=TRUE)
+        nw[na.el,names.eval=response,add.edges=TRUE] <- sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))
     }
 
     nw
