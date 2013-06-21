@@ -42,8 +42,8 @@
 ######################################################################################
 
 ergm.initialfit<-function(init, initial.is.final,
-                          formula, nw, target.stats,
-                          m, reference=~Bernoulli, method = NULL,
+                          formula, nw,
+                          m, response=NULL, reference=~Bernoulli, method = NULL,
                           MPLEtype="glm",
                           conddeg=NULL, control=NULL, MHproposal=NULL, MHproposal.obs=NULL,
                           verbose=FALSE, ...) {
@@ -55,13 +55,12 @@ ergm.initialfit<-function(init, initial.is.final,
    m.conddeg <- ergm.getmodel(formula.conddegmple, nw, initialfit=TRUE)
    Clist <- ergm.Cprepare(nw, m.conddeg)
    Clist.miss <- ergm.design(nw, m.conddeg, verbose=FALSE)
-   m$target.stats=c(1,target.stats)
+   m$target.stats=c(1,m$target.stats)
    conddeg <- list(m=m.conddeg, Clist=Clist, Clist.miss=Clist.miss)
   }
 
   Clist <- ergm.Cprepare(nw, m)
   Clist.miss <- ergm.Cprepare(NVL(get.miss.dyads(MHproposal$arguments$constraints, MHproposal.obs$arguments$constraints), is.na(nw)), m)
-  m$target.stats<-target.stats
   control$Clist.miss<-Clist.miss
 
   # Respect init elements that are not offsets if it's only a starting value.
@@ -79,6 +78,8 @@ ergm.initialfit<-function(init, initial.is.final,
                     control=control, MHproposal=MHproposal,
                     verbose=verbose, ...),
                   zeros = structure(list(coef=ifelse(is.na(init),0,init)),class="ergm"),
+                  CD = ergm.CD(ifelse(is.na(init),0,init),
+                      nw, m, control, MHproposal, MHproposal.obs, verbose,response=response,...),
                   stop(paste("Invalid method specified for initial parameter calculation. Available methods are ",paste.and(formals()$method),".",sep=""))
                   )
   }else{

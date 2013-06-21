@@ -511,3 +511,22 @@ which.package.InitFunction <- function(f, env = parent.frame()){
   # the package name. Otherwise, return NULL.
   if(!is.null(loc) && grepl("^package:", loc)) sub("^package:", "", loc) else NULL
 }
+
+single.impute.dyads <- function(nw, response=NULL){
+    nae <- network.naedgecount(nw)
+    if(nae==0) return(nw)
+    
+    na.el <- as.edgelist(is.na(nw))
+
+    if(is.null(response)){
+        d <- network.edgecount(nw,na.omit=TRUE)/network.dyadcount(nw,na.omit=TRUE)
+        nw[na.el] <- 0
+        nw[na.el] <- rbinom(nae,1,d)
+    }else{
+        x <- as.edgelist(nw,response=response)[,3]
+        nw[na.el] <- 0
+        nw[na.el,names.eval=response,add.edges=TRUE] <- sample(x,nae,replace=TRUE)
+    }
+
+    nw
+}

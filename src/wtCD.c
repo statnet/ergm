@@ -1,4 +1,4 @@
-#include "wtMCMC.h"
+#include "wtCD.h"
 
 /*****************
  Note on undirected networks:  For j<k, edge {j,k} should be stored
@@ -13,22 +13,19 @@
 
  and don't forget that tail -> head
 *****************/
-void WtMCMC_wrapper(int *dnumnets, int *nedges,
+void WtCD_wrapper(int *dnumnets, int *nedges,
 		    int *tails, int *heads, double *weights, 
 		    int *dn, int *dflag, int *bipartite, 
 		    int *nterms, char **funnames,
 		    char **sonames, 
 		    char **MHproposaltype, char **MHproposalpackage,
-		    double *inputs, double *theta0, int *samplesize, 
-		    double *sample, int *burnin, int *interval,  
-		    int *newnetworktails, 
-		    int *newnetworkheads, 
-		    double *newnetworkweights,
+		  double *inputs, double *theta0, int *samplesize, int *nsteps, 
+		  double *sample,
 		    int *fVerbose, 
-		    int *maxedges,
 		    int *status){
   int directed_flag;
-  Vertex n_nodes, nmax, bip;
+  Vertex n_nodes, bip, *undotail, *undohead;
+  double *undoweight;
   /* Edge n_networks; */
   WtNetwork nw[1];
   WtModel *m;
@@ -36,7 +33,6 @@ void WtMCMC_wrapper(int *dnumnets, int *nedges,
   
   n_nodes = (Vertex)*dn; 
   /* n_networks = (Edge)*dnumnets;  */
-  nmax = (Edge)abs(*maxedges); 
   bip = (Vertex)*bipartite; 
   
   GetRNGstate();  /* R function enabling uniform RNG */
@@ -55,18 +51,20 @@ void WtMCMC_wrapper(int *dnumnets, int *nedges,
 	    *fVerbose,
 	    nw);
 
-  *status = WtMCMCSample(&MH,
-			 theta0, sample, *samplesize,
-			 *burnin, *interval,
-			 *fVerbose, nmax, nw, m);
+  undotail = calloc(MH.ntoggles * *nsteps, sizeof(Vertex));
+  undohead = calloc(MH.ntoggles * *nsteps, sizeof(Vertex));
+  undoweight = calloc(MH.ntoggles * *nsteps, sizeof(double));
 
+  *status = WtCDSample(&MH,
+		       theta0, sample, *samplesize, *nsteps, undotail, undohead, undoweight,
+		       *fVerbose, nw, m);
+
+  free(undotail);
+  free(undohead);
+  free(undoweight);
   WtMH_free(&MH);
         
 /* Rprintf("Back! %d %d\n",nw[0].nedges, nmax); */
-
-  /* record new generated network to pass back to R */
-  if(*status == WtMCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads)
-    newnetworktails[0]=newnetworkheads[0]=WtEdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,newnetworkweights+1,nw,nmax-1);
   
   WtModelDestroy(m);
   WtNetworkDestroy(nw);
@@ -84,12 +82,10 @@ void WtMCMC_wrapper(int *dnumnets, int *nedges,
  networks in the sample.  Put all the sampled statistics into
  the networkstatistics array. 
 *********************/
-WtMCMCStatus WtMCMCSample(WtMHproposal *MHp,
+WtMCMCStatus WtCDSample(WtMHproposal *MHp,
 			  double *theta, double *networkstatistics, 
-			  int samplesize, int burnin, 
-			  int interval, int fVerbose, int nmax,
+			int samplesize, int nsteps, Vertex *undotail, Vertex *undohead, double *undoweight, int fVerbose,
 			  WtNetwork *nwp, WtModel *m) {
-  int staken, tottaken;
   int i, j;
     
   /*********************
@@ -107,63 +103,20 @@ WtMCMCStatus WtMCMCSample(WtMHproposal *MHp,
 /* } */
 /* Rprintf("\n"); */
 
-  /*********************
-   Burn in step.
-   *********************/
-/*  Catch more edges than we can return */
-  if(WtMetropolisHastings(MHp, theta, networkstatistics, burnin, &staken,
-			fVerbose, nwp, m)!=WtMCMC_OK)
-    return WtMCMC_MH_FAILED;
-  if(nmax!=0 && nwp->nedges >= nmax-1){
-    return WtMCMC_TOO_MANY_EDGES;
-  }
-  
-/*   if (fVerbose){ 
-       Rprintf(".");
-     } */
-  
-  if (samplesize>1){
-    staken = 0;
-    tottaken = 0;
+  /* Now sample networks */
+  for (i=0; i < samplesize; i++){
     
-    /* Now sample networks */
-    for (i=1; i < samplesize; i++){
-      /* Set current vector of stats equal to previous vector */
-      for (j=0; j<m->n_stats; j++){
-        networkstatistics[j+m->n_stats] = networkstatistics[j];
-      }
-      networkstatistics += m->n_stats;
-      /* This then adds the change statistics to these values */
-      
-      /* Catch massive number of edges caused by degeneracy */
-      if(WtMetropolisHastings(MHp, theta, networkstatistics, interval, &staken,
-			    fVerbose, nwp, m)!=WtMCMC_OK)
-	return WtMCMC_MH_FAILED;
-      if(nmax!=0 && nwp->nedges >= nmax-1){
-	return WtMCMC_TOO_MANY_EDGES;
-      }
-      tottaken += staken;
-
+    if(WtCDStep(MHp, theta, networkstatistics, nsteps, undotail, undohead, undoweight,
+		fVerbose, nwp, m)!=WtMCMC_OK)
+      return WtMCMC_MH_FAILED;
+    
 #ifdef Win32
-      if( ((100*i) % samplesize)==0 && samplesize > 500){
-	R_FlushConsole();
-    	R_ProcessEvents();
-      }
+    if( ((100*i) % samplesize)==0 && samplesize > 500){
+      R_FlushConsole();
+      R_ProcessEvents();
+    }
 #endif
-    }
-    /*********************
-    Below is an extremely crude device for letting the user know
-    when the chain doesn't accept many of the proposed steps.
-    *********************/
-    if (fVerbose){
-      Rprintf("Sampler accepted %6.3f%% of %d proposed steps.\n",
-      tottaken*100.0/(1.0*interval*samplesize), interval*samplesize); 
-    }
-  }else{
-    if (fVerbose){
-      Rprintf("Sampler accepted %6.3f%% of %d proposed steps.\n",
-      staken*100.0/(1.0*burnin), burnin); 
-    }
+    networkstatistics += m->n_stats;
   }
   return WtMCMC_OK;
 }
@@ -179,17 +132,16 @@ WtMCMCStatus WtMCMCSample(WtMHproposal *MHp,
  the networkstatistics vector.  In other words, this function 
  essentially generates a sample of size one
 *********************/
-WtMCMCStatus WtMetropolisHastings (WtMHproposal *MHp,
+WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 				 double *theta, double *networkstatistics,
-				 int nsteps, int *staken,
-				 int fVerbose,
+		       int nsteps, Vertex *undotail, Vertex *undohead, double *undoweight,
+		                 int fVerbose,
 				 WtNetwork *nwp,
 				 WtModel *m) {
   
-  unsigned int taken=0, unsuccessful=0;
-/*  if (fVerbose)
-    Rprintf("Now proposing %d MH steps... ", nsteps); */
-  for(unsigned int step=0; step < nsteps; step++) {
+  unsigned int unsuccessful=0, ntoggled=0;
+
+  for(unsigned int step=0; step<nsteps; step++){
     MHp->logratio = 0;
     (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
 
@@ -203,12 +155,12 @@ WtMCMCStatus WtMetropolisHastings (WtMHproposal *MHp,
       if(MHp->togglehead[0]==MH_UNSUCCESSFUL){
 	warning("MH Proposal function failed to find a valid proposal.");
 	unsuccessful++;
-	if(unsuccessful>taken*MH_QUIT_UNSUCCESSFUL){
+	if(unsuccessful>MH_QUIT_UNSUCCESSFUL){
 	  Rprintf("Too many MH Proposal function failures.\n");
 	  return WtMCMC_MH_FAILED;
 	}       
 
-	continue;
+	return MH_UNSUCCESSFUL;
       }
     }
     
@@ -250,24 +202,30 @@ WtMCMCStatus WtMetropolisHastings (WtMHproposal *MHp,
 	Rprintf("Accepted.\n");
       }
 
-      /* Make proposed toggles (updating timestamps--i.e., for real this time) */
-      for(unsigned int i=0; i < MHp->ntoggles; i++){
-	Vertex t=MHp->toggletail[i], h=MHp->togglehead[i];
-	double w=MHp->toggleweight[i];
-	
-	if(MHp->discord)
-	  for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){
-	    // This could be speeded up by implementing an "incrementation" function.
-	    WtSetEdge(t, h, WtGetEdge(t,  h, *nwd) + w - WtGetEdge(t, h, nwp), *nwd);
-	  }
-
-	WtSetEdge(t, h, w, nwp);
+      if(step<nsteps-1){
+	/* Make proposed toggles (updating timestamps--i.e., for real this time) */
+	for(unsigned int i=0; i < MHp->ntoggles; i++){
+	  Vertex t=MHp->toggletail[i], h=MHp->togglehead[i];
+	  double w=MHp->toggleweight[i];
+	  undotail[ntoggled]=t;
+	  undohead[ntoggled]=h;
+	  undoweight[ntoggled]=WtGetEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
+	  ntoggled++;
+	  
+	  if(MHp->discord)
+	    for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){
+	      // This could be speeded up by implementing an "incrementation" function.
+	      WtSetEdge(t, h, WtGetEdge(t, h, *nwd) + w - WtGetEdge(t, h, nwp), *nwd);
+	    }
+	  
+	  WtSetEdge(t, h, w, nwp);
+	}
       }
+
       /* record network statistics for posterity */
       for (unsigned int i = 0; i < m->n_stats; i++){
 	networkstatistics[i] += m->workspace[i];
       }
-      taken++;
     }else{
       if(fVerbose>=5){
 	Rprintf("Rejected.\n");
@@ -275,7 +233,19 @@ WtMCMCStatus WtMetropolisHastings (WtMHproposal *MHp,
     }
   }
   
-  *staken = taken;
+  /* Undo toggles. */
+  for(unsigned int i=0; i < ntoggled; i++){
+    Vertex t = undotail[i], h = undohead[i];
+    double w = undoweight[i];
+    if(MHp->discord)
+      for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){
+	// This could be speeded up by implementing an "incrementation" function.
+	WtSetEdge(t, h, WtGetEdge(t, h, *nwd) + w - WtGetEdge(t, h, nwp), *nwd);
+      }
+    
+    WtSetEdge(t, h, w, nwp);
+  }
+  
   return WtMCMC_OK;
 }
 

@@ -264,15 +264,18 @@ ergm <- function(formula, response=NULL,
     MCMCflag <- FALSE
     warning("All terms are either offsets or extreme values. Skipping MCMC.")
   }
+
+  model.initial$nw.stats <- summary(model.initial$formula, response=response)
+  model.initial$target.stats <- if(!is.null(target.stats)) target.stats else model.initial$nw.stats
   
   initialfit <- ergm.initialfit(init=control$init, initial.is.final=!MCMCflag,
-                                formula=formula, nw=nw, reference=reference, target.stats=target.stats,
+                                formula=formula, nw=nw, reference=reference, 
                                 m=model.initial, method=control$init.method,
                                 MPLEtype=control$MPLE.type, 
                                 conddeg=conddeg, control=control,
                                 MHproposal=MHproposal,
                                 MHproposal.obs=MHproposal.obs,
-                                verbose=verbose, 
+                                verbose=verbose, response=response,
                                 maxNumDyadTypes=control$MPLE.max.dyad.types,
                                 ...)
   

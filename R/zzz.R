@@ -2,7 +2,7 @@
   sm <- statnetStartupMessage("ergm", c("statnet","ergm.count","tergm"), TRUE)
   if(!is.null(sm)){
     packageStartupMessage(sm)
-    packageStartupMessage(paste(strwrap("NOTE: If you use custom ERGM terms based on ergm.userterms version prior to 3.1, you will need to perform a one-time update of the package boilerplate files (the files that you did not write or modify) from ergm.userterms 3.1 or later. See help('eut-upgrade') for instructions."),collapse="\n"))
+    packageStartupMessage(paste(c(strwrap(paste("NOTE: If you use custom ERGM terms based on ",sQuote("ergm.userterms")," version prior to 3.1, you will need to perform a one-time update of the package boilerplate files (the files that you did not write or modify) from ",sQuote("ergm.userterms")," 3.1 or later. See help('eut-upgrade') for instructions.",sep="")),""),collapse="\n"))
   }
   
   # If the following have already been defined in the latentnet package, don't duplicate. Otherwise, assign them.
@@ -79,9 +79,9 @@
 }
 
 .RegisterInitMethods <- function(){
-  ergm.init.methods("Bernoulli", c("MPLE", "zeros"))
-  ergm.init.methods("DescRank", c("zeros"))
-  ergm.init.methods("StdNormal", c("zeros"))
-  ergm.init.methods("Unif", c("zeros"))
-  ergm.init.methods("DiscUnif", c("zeros"))
+  ergm.init.methods("Bernoulli", c("MPLE", "CD", "zeros"))
+  ergm.init.methods("DescRank", c("CD","zeros"))
+  ergm.init.methods("StdNormal", c("CD","zeros"))
+  ergm.init.methods("Unif", c("CD","zeros"))
+  ergm.init.methods("DiscUnif", c("CD","zeros"))
 }

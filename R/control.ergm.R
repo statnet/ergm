@@ -188,6 +188,24 @@ control.ergm<-function(drop=TRUE,
                        Step.maxit=50,
                        Step.gridsize=100,
 
+                       CD.nsteps=1,
+                       CD.maxit=60,
+                       CD.conv.min.pval=0.5,
+                       CD.NR.maxit=100,
+                       CD.NR.reltol=sqrt(.Machine$double.eps),
+                       CD.MCMC.precision=0.05,
+                       CD.metric=c("lognormal", "logtaylor",
+                         "Median.Likelihood",
+                         "EF.Likelihood", "naive"),
+                       CD.method=c("BFGS","Nelder-Mead"),
+                       CD.trustregion=20,
+                       CD.dampening=FALSE,
+                       CD.dampening.min.ess=20,
+                       CD.dampening.level=0.1,
+                       CD.steplength=0.5,
+                       CD.adaptive.trustregion=3,
+                       CD.adaptive.epsilon=0.01,
+                       
                        loglik.control=control.logLik.ergm(),
 
                        seed=NULL,
@@ -237,7 +255,7 @@ control.ergm<-function(drop=TRUE,
                        packagenames="MCMC.packagenames"
                        )
 
-  match.arg.pars=c("MPLE.type","MCMLE.metric","MCMLE.method","main.method")
+  match.arg.pars=c("MPLE.type","MCMLE.metric","MCMLE.method","main.method","CD.metric","CD.method")
   
   control<-list()
   formal.args<-formals(sys.function())
