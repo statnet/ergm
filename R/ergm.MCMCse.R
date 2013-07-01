@@ -58,7 +58,7 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
   xobs <- xobs[!offsetmap]
   xsim <- xsim[,!offsetmap, drop=FALSE]
 
-  # Take any theta offsets (values fixed at theta-1) into consideration
+  # Take any theta offsets (values fixed at init) into consideration
   theta.offset <- etamap$init
   theta.offset[!offsettheta] <- theta[!offsettheta]
 
@@ -129,8 +129,7 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
     novar <- novar | (diag(H.obs)==0)
     H.obs <- H.obs[!novar,,drop=FALSE] 
     H.obs <- H.obs[,!novar,drop=FALSE] 
-    cov.zbar.obs <- cov.zbar.obs[!novar,,drop=FALSE] 
-    cov.zbar.obs <- cov.zbar.obs[,!novar,drop=FALSE] 
+    cov.zbar.obs <- cov.zbar.obs[!(novar|offsettheta),!(novar|offsettheta),drop=FALSE]
   }
   if(nrow(H)==1){
     H <- as.matrix(H[!novar,]) 
@@ -144,14 +143,14 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
     mc.se <- rep(NA,length=length(theta))
     return(mc.se)
   }
-  cov.zbar <- cov.zbar[!novar,,drop=FALSE] 
-  cov.zbar <- cov.zbar[,!novar,drop=FALSE] 
+  cov.zbar <- cov.zbar[!(novar|offsettheta),!(novar|offsettheta),drop=FALSE]
   if(length(novar)==length(offsettheta)){
    novar <- novar | offsettheta
   }else{
    novar <- novar[!offsettheta]
   }
   mc.se <- rep(NA,length=length(theta))
+  if(inherits(try(solve(H)),"try-error")) warning("Approximate Hessian matrix is singular. Standard errors due to MCMC approximation of the likelihood cannot be evaluated. This is likely due to highly correlated model terms.")
   mc.se0 <- try(solve(H, cov.zbar), silent=TRUE)
   if(!(inherits(mc.se0,"try-error"))){
     mc.se0 <- try(diag(solve(H, t(mc.se0))), silent=TRUE)

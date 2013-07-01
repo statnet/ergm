@@ -110,8 +110,7 @@ ergm.MCMCse.lognormal<-function(theta, init, statsmatrix, statsmatrix.obs,
     novar <- novar | (diag(H.obs)==0)
     H.obs <- H.obs[!novar,,drop=FALSE] 
     H.obs <- H.obs[,!novar,drop=FALSE] 
-    cov.zbar.obs <- cov.zbar.obs[!novar,,drop=FALSE] 
-    cov.zbar.obs <- cov.zbar.obs[,!novar,drop=FALSE] 
+    cov.zbar.obs <- cov.zbar.obs[!(novar|offsettheta),!(novar|offsettheta),drop=FALSE] 
   }
   if(nrow(H)==1){
     H <- as.matrix(H[!novar,]) 
@@ -125,9 +124,9 @@ ergm.MCMCse.lognormal<-function(theta, init, statsmatrix, statsmatrix.obs,
     mc.se <- rep(NA,length=length(theta))
     return(mc.se)
   }
-  cov.zbar <- cov.zbar[!novar,,drop=FALSE] 
-  cov.zbar <- cov.zbar[,!novar,drop=FALSE] 
+  cov.zbar <- cov.zbar[!(novar|offsettheta),!(novar|offsettheta),drop=FALSE]
   mc.se <- rep(NA,length=length(theta))
+  if(inherits(try(solve(H)),"try-error")) warning("Approximate Hessian matrix is singular. Standard errors due to MCMC approximation of the likelihood cannot be evaluated. This is likely due to highly correlated model terms.")
   mc.se0 <- try(solve(H, cov.zbar), silent=TRUE)
   if(length(novar)==length(offsettheta)){
    novar <- novar | offsettheta
