@@ -231,7 +231,15 @@ ergm <- function(formula, response=NULL,
     }
   }else control$init <- rep(NA, length(model.initial$etamap$offsettheta)) # Set the default value of control$init.
 
-  if(!is.null(offset.coef)) control$init[model.initial$etamap$offsettheta]<-offset.coef
+  if(!is.null(offset.coef)){
+      # TODO: Names matching here?
+      if(length(control$init[model.initial$etamap$offsettheta])!=length(offset.coef))
+          stop("Invalid offset parameter vector offset.coef: ",
+               "wrong number of parameters: expected ",
+               length(control$init[model.initial$etamap$offsettheta]),
+               " got ",length(offset.coef),".")
+      control$init[model.initial$etamap$offsettheta]<-offset.coef
+  }
   
   # Make sure any offset elements are given in control$init.
   if(any(is.na(control$init) & model.initial$etamap$offsettheta)) stop("The model contains offset terms whose parameter values have not been specified:", paste.and(model.initial$coef.names[is.na(control$init)|model.initial$offsettheta]), ".", sep="")

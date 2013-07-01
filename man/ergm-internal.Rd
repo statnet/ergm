@@ -69,7 +69,6 @@
 \alias{ergm.Cprepare.miss}
 \alias{ergm.MCMCse}
 \alias{ergm.MCMCse.lognormal}
-\alias{ergm.MCMCse.old}
 \alias{ergm.MCMLE}
 \alias{ergm.MPIcluster.started}
 \alias{ergm.bounddeg}
