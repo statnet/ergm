@@ -111,7 +111,7 @@ InitConstraint.odegreedist<-function(conlist, lhs.nw, ...){
 #ergm.ConstraintImplications("odegreedist", c("edges"))
 
 
-InitConstraint.bd<-function(conlist, lhs.nw, attribs=0, maxout=0, maxin=0, minout=0, minin=0){
+InitConstraint.bd<-function(conlist, lhs.nw, attribs=NULL, maxout=NA, maxin=NA, minout=NA, minin=NA){
    if(nargs()>6)
      stop(paste("Bounded degrees constraint takes at most 5 arguments; ",nargs()-1," given.",sep=""), call.=FALSE)
    conlist$bd<-list(attribs=attribs,maxout=maxout,maxin=maxin,minout=minout,minin=minin)

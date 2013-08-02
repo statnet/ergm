@@ -44,7 +44,7 @@
 ergm.bounddeg <- function(bounddeg,nw){    
   nnodes=network.size(nw)
   if(is.null(bounddeg) ||
-     all(sapply(bounddeg,function(x){length(x)==1 && x==0}))) {
+     all(sapply(bounddeg,function(x){length(x)==1 && is.na(x)}))) {
     attribs <- NULL
     maxout <- NULL
     maxin <- NULL
@@ -80,17 +80,18 @@ ergm.bounddeg <- function(bounddeg,nw){
         indeg<-apply(attribs,2,function(z){tabulate(el[z[el[,1]],2], nbins=nnodes)})
       }
     }
-    if(is.null(minin )) minin <- matrix(0,ncol=ncol(attribs),nrow=nnodes)
-    if(is.null(minout)) minout <- matrix(0,ncol=ncol(attribs),nrow=nnodes)
-    if(is.null(maxin ) || maxin==0) maxin <- matrix(nnodes-1,ncol=ncol(attribs),nrow=nnodes)
-    if(is.null(maxout) || maxout==0) maxout <- matrix(nnodes-1,ncol=ncol(attribs),nrow=nnodes)
-    if(length(minin )==1) minin  <- matrix(minin ,ncol=ncol(attribs),nrow=nnodes)
-    if(length(minout)==1) minout <- matrix(minout,ncol=ncol(attribs),nrow=nnodes)
-    if(length(maxin )==1) maxin  <- matrix(maxin ,ncol=ncol(attribs),nrow=nnodes)
-    if(length(maxout)==1) maxout <- matrix(maxout,ncol=ncol(attribs),nrow=nnodes)
-    minin[is.na( minin)| minin<0] <- 0
-    minout[is.na(minout)|minout<0] <- 0
-    maxin[is.na( maxin)] <- nnodes-1
+
+    # Convert degree bounds into matrices if they aren't already, and
+    # if they are NULL, make them NA. Also, ensure they are in the
+    # right range (though bipartite networks' degrees could be further constrained).
+    minin  <- pmax(pmin(matrix(NVL(minin , NA), ncol=ncol(attribs), nrow=nnodes), nnodes-1), 0)
+    minout <- pmax(pmin(matrix(NVL(minout, NA), ncol=ncol(attribs), nrow=nnodes), nnodes-1), 0)
+    maxin  <- pmax(pmin(matrix(NVL(maxin , NA), ncol=ncol(attribs), nrow=nnodes), nnodes-1), 0)
+    maxout <- pmax(pmin(matrix(NVL(maxout, NA), ncol=ncol(attribs), nrow=nnodes), nnodes-1), 0)
+
+    minin [is.na(minin )] <- 0
+    minout[is.na(minout)] <- 0
+    maxin [is.na(maxin )] <- nnodes-1
     maxout[is.na(maxout)] <- nnodes-1
     if (any(outdeg>maxout | outdeg<minout) || (is.directed(nw) && any(indeg>maxin | indeg<minin))) {
       cat("Warning:  Initial network does not satisfy degree constraints.\n",
