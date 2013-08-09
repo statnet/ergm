@@ -70,7 +70,9 @@ ergm.MCMCse.lognormal<-function(theta, init, statsmatrix, statsmatrix.obs,
   cov.zbar <- (R[1,  ,  ] + part + t(part))/nrow(xsim)
   cov.zbar.offset <- matrix(0, ncol = length(offsetmap), 
                             nrow = length(offsetmap))
-  cov.zbar <- suppressWarnings(chol(cov.zbar, pivot=TRUE))
+  cov.zbar <- suppressWarnings(chol(cov.zbar,pivot=TRUE))
+  pivot <- order(attr(cov.zbar, "pivot"))
+  cov.zbar <-cov.zbar[, pivot]
   cov.zbar.offset[!offsetmap,!offsetmap] <- cov.zbar
   cov.zbar.offset <- t(ergm.etagradmult(theta.offset, t(cov.zbar.offset), etamap))
   cov.zbar <- crossprod(cov.zbar.offset, cov.zbar.offset)
@@ -97,6 +99,8 @@ ergm.MCMCse.lognormal<-function(theta, init, statsmatrix, statsmatrix.obs,
     }
     cov.zbar.obs <- (R[1,  ,  ] + part + t(part))/nrow(xsim.obs)
     cov.zbar.obs <- suppressWarnings(chol(cov.zbar.obs, pivot=TRUE))
+    pivot <- order(attr(cov.zbar.obs, "pivot"))
+    cov.zbar.obs <-cov.zbar.obs[, pivot]
     cov.zbar.offset[!offsetmap,!offsetmap] <- cov.zbar.obs
     cov.zbar.offset <- t(ergm.etagradmult(theta.offset, t(cov.zbar.offset), etamap))
     cov.zbar.obs <- crossprod(cov.zbar.offset, cov.zbar.offset)
