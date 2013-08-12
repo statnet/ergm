@@ -179,8 +179,6 @@ void MpleInit_hash_bl(int *responsevec, double *covmat, int *weightsvector,
     maxDyads = MAX(maxDyads*2,maxDyads);
   }
   
-
-  Rprintf("maxdyads=%d dyads=%d ", maxDyads, dc);
   // Find a number relatively prime with the dyad count:
   Edge step = MAX(N_NODES/3,2);
   while(gcd(dc,step)!=1) step++;
