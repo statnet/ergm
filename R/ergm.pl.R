@@ -69,8 +69,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
           as.integer(Clist$tails), as.integer(Clist$heads),
           as.integer(Clist$nedges),
           as.integer(FALSE),
-          as.integer(Clist.miss$tails), as.integer(Clist.miss$heads),
-          as.integer(Clist.miss$nedges),
+          as.integer(c(Clist.miss$nedges,Clist.miss$tails,Clist.miss$heads)),
           as.integer(n), 
           as.integer(Clist$dir),     as.integer(bip),
           as.integer(Clist$nterms), 
@@ -79,6 +78,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
           y = integer(maxNumDyadTypes),
           x = double(maxNumDyadTypes*Clist$nstats),
           weightsvector = integer(maxNumDyadTypes),
+          as.integer(.Machine$integer.max), # maxDyads
           as.integer(maxNumDyadTypes),
           PACKAGE="ergm")
   uvals <- z$weightsvector!=0
