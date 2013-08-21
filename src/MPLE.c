@@ -213,7 +213,8 @@ void MpleInit_hash_bl(int *responsevec, double *covmat, int *weightsvector,
     if(!insCovMatRow(newRow, covmat, m->n_stats,
 		     maxDyadTypes, response, 
 		     responsevec, weightsvector)) {
-      warning("Too many unique dyads. MPLE is approximate.");
+      warning("Too many unique dyads. MPLE is approximate, and MPLE standard errors are suspect.");
+      break;
     }
   }
 }
@@ -254,7 +255,8 @@ void MpleInit_hash_wl(int *responsevec, double *covmat, int *weightsvector,
     if(!insCovMatRow(newRow, covmat, m->n_stats,
 		     maxDyadTypes, response, 
 		     responsevec, weightsvector)) {
-      warning("Too many unique dyads. MPLE is approximate.");
+      warning("Too many unique dyads. MPLE is approximate, and MPLE standard errors are suspect.");
+      break;
     }
   }
 }
