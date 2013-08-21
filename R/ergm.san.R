@@ -202,7 +202,8 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
                 as.integer(MHproposal$arguments$constraints$bd$minout), as.integer(MHproposal$arguments$constraints$bd$minin),
                 as.integer(MHproposal$arguments$constraints$bd$condAllDegExact),
                 as.integer(length(MHproposal$arguments$constraints$bd$attribs)), 
-                as.integer(maxedges), 
+                as.integer(maxedges),
+                status = integer(1),
                 PACKAGE="ergm")
       }else{
         z <- .C("WtSAN_wrapper",
@@ -232,11 +233,13 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
                 as.integer(MHproposal$arguments$constraints$bd$condAllDegExact),
                 as.integer(length(MHproposal$arguments$constraints$bd$attribs)), 
                 as.integer(maxedges), 
+                status = integer(1),
                 PACKAGE="ergm")
       }
 
-      if(z$newnwtails[1] <= maxedges) break
-      maxedges <- 5*maxedges
+      if(z$status==1) maxedges <- 5*maxedges
+      else if(z$status==0) break
+      else stop("Error in SAN C code.")
     }
     #
     #   Next update the network to be the final (possibly conditionally)
