@@ -206,11 +206,20 @@ ergm <- function(formula, response=NULL,
     target.stats <- tmp
   }
   
-  if (verbose) { cat("Initializing Metropolis-Hastings proposal.\n") }
+  if (verbose) cat("Initializing Metropolis-Hastings proposal(s):") 
   
   MHproposal <- MHproposal(constraints, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference,response=response)
+  if (verbose) cat(" ",MHproposal$pkgname,":MH_",MHproposal$name,sep="")
+
+  
   # Note:  MHproposal function in CRAN version does not use the "class" argument for now
-  if(!is.null(MHproposal.obs)) MHproposal.obs <- MHproposal(MHproposal.obs, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass, reference=reference, response=response)
+  if(!is.null(MHproposal.obs)){
+      MHproposal.obs <- MHproposal(MHproposal.obs, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass, reference=reference, response=response)
+      if (verbose) cat(" ",MHproposal.obs$pkgname,":MH_",MHproposal.obs$name,sep="")
+  }
+
+  if(verbose) cat("\n")
+
   
   conddeg <- switch(MHproposal$name %in% c("CondDegree","CondDegreeSimpleTetrad","BipartiteCondDegHexadToggles","BipartiteCondDegTetradToggles","CondDegreeMix"),control$drop,NULL)
   
