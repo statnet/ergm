@@ -189,6 +189,7 @@ control.ergm<-function(drop=TRUE,
                        Step.gridsize=100,
 
                        CD.nsteps=1,
+                       CD.min.nsteps=8,
                        CD.maxit=60,
                        CD.conv.min.pval=0.5,
                        CD.NR.maxit=100,

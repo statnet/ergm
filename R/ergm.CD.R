@@ -59,6 +59,7 @@ ergm.CD <- function(init, nw, model,
   coef.hist <- rbind(init)
   stats.hist <- matrix(NA, 0, length(model$nw.stats))
   stats.obs.hist <- matrix(NA, 0, length(model$nw.stats))
+  tether.hist <- 0
   
   # Store information about original network, which will be returned at end
   nw.orig <- network.copy(nw)
@@ -109,6 +110,8 @@ ergm.CD <- function(init, nw, model,
   repeat{ # Optimization loop: finish when simulated is statistically indistinguishable from observed
     finished <- FALSE
     if(iteration == control$CD.maxit) finished <- TRUE
+
+    tether.hist <- c(tether.hist, control$CD.nsteps)
     
     if(verbose){
       cat("Optimization run ",iteration," of at most ", control$CD.maxit, " with tether length ", control$CD.nsteps, " and with parameter: \n", sep="")
@@ -182,12 +185,14 @@ ergm.CD <- function(init, nw, model,
         smou <- unique(statsmatrix.obs)
         if(!any(apply(smu, 1, is.CH, smou))){
           cat("Convex hulls of constrained and unconstrained sample statistics do not overlap. Reducing tether length.")
-          control$CD.nsteps <- control$CD.nsteps * 3/4
+          control$CD.nsteps <- round(control$CD.nsteps * 3/4)
+          break
         }       
       }else{
         if(!is.inCH(rep(0,ncol(statsmatrix)),statsmatrix)){
           cat("Convex hull of the sample does not contain the observed statistics. Reducing tether length.")
-          control$CD.nsteps <- control$CD.nsteps * 3/4
+          control$CD.nsteps <- round(control$CD.nsteps * 3/4)
+          break
         }
       }
     }
@@ -214,7 +219,7 @@ ergm.CD <- function(init, nw, model,
       if(control$CD.nsteps==Inf){
         cat("Convergence detected for untethered MCMC. Stopping.\n")
         finished <- TRUE
-      }else if(MCMLE.starting){
+      }else if(MCMLE.starting && control$CD.nsteps>=control$CD.min.nsteps){
         cat("Convergence in tether lengths detected. Proceeding to untethered MCMC.\n")
         control$CD.nsteps <- Inf
       }else{
@@ -349,6 +354,7 @@ ergm.CD <- function(init, nw, model,
   v$coef.hist <- coef.hist
   v$stats.hist <- stats.hist
   v$stats.obs.hist <- stats.obs.hist
+  v$tether.hist <- tether.hist
   # The following output is sometimes helpful.  It's the total history
   # of all eta values, from the initial eta0 to the final estimate
   # v$allparamvals <- parametervalues
