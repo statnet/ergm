@@ -129,10 +129,7 @@ ergm.CD <- function(init, nw, model,
       }
     }else{
       statsmatrix.obs <- NULL
-      nw.obs <- summary(model$formula, basis=nw, response=response)
-      namesmatch <- match(names(model$target.stats), names(nw.obs))
-      statshift <- -model$target.stats
-      statshift[!is.na(namesmatch)] <- statshift[!is.na(namesmatch)] + nw.obs[namesmatch[!is.na(namesmatch)]]
+      statshift <- summary(model$formula, basis=nw, response=response) - model$target.stats
     }
 
     # If the model is linear, all non-offset statistics are passed. If

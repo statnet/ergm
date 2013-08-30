@@ -144,10 +144,7 @@ ergm.MCMLE <- function(init, nw, model,
       statsmatrix.obs <- NULL
       if(sequential) {
         nw <- nw.returned
-        nw.obs <- summary(model$formula, basis=nw, response=response)
-        namesmatch <- match(names(model$target.stats), names(nw.obs))
-        statshift <- -model$target.stats
-        statshift[!is.na(namesmatch)] <- statshift[!is.na(namesmatch)] + nw.obs[namesmatch[!is.na(namesmatch)]]
+        statshift <- summary(model$formula, basis=nw, response=response) - model$target.stats
       }
     }
 
