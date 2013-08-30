@@ -48,11 +48,10 @@
 #
 #############################################################################
 
-ergm.CD <- function(init, nw, model,
+ergm.CD.fixed <- function(init, nw, model,
                              control, 
                              MHproposal, MHproposal.obs,
                              verbose=FALSE,
-                             sequential=control$MCMLE.sequential,
                              estimate=TRUE,
                              response=NULL, ...) {
   # Initialize the history of parameters and statistics.
@@ -62,20 +61,11 @@ ergm.CD <- function(init, nw, model,
   
   # Store information about original network, which will be returned at end
   nw.orig <- network.copy(nw)
-  
+
   # Impute missing dyads.
   nw <- single.impute.dyads(nw, response=response)
   model$nw.stats <- summary(model$formula, response=response, basis=nw)
-
-  if(control$MCMLE.density.guard>1){
-    # Calculate the density guard threshold.
-    control$MCMC.max.maxedges <- round(min(control$MCMC.max.maxedges,
-                                           max(control$MCMLE.density.guard*network.edgecount(nw,FALSE),
-                                               control$MCMLE.density.guard.min)))
-    control$MCMC.init.maxedges <- round(min(control$MCMC.max.maxedges, control$MCMC.init.maxedges))
-    if(verbose) cat("Density guard set to",control$MCMC.max.maxedges,"from an initial count of",network.edgecount(nw,FALSE)," edges.\n")
-  }  
-
+  
   # statshift is the difference between the target.stats (if
   # specified) and the statistics of the networks in the LHS of the
   # formula or produced by SAN. If target.stats is not speficied
@@ -92,40 +82,26 @@ ergm.CD <- function(init, nw, model,
     control.obs$MCMC.samplesize <- control$obs.MCMC.samplesize
     control.obs$MCMC.interval <- control$obs.MCMC.interval
     control.obs$MCMC.burnin <- control$obs.MCMC.burnin
-
-    nw.obs <- network.copy(nw)
-    statshift.obs <- statshift
   }
+  finished <- FALSE
   # mcmc.init will change at each iteration.  It is the value that is used
   # to generate the MCMC samples.  init will never change.
   mcmc.init <- init
   parametervalues <- init # Keep track of all parameter values
-
-  iteration <- 1
-  repeat{ # Tether length loop: finish when doubling tether length doesn't change statistics
-    cat("Tether length ", control$CD.nsteps,".\n", sep="")
-    MCMLE.starting <- TRUE
-    MCMLE.converged <- FALSE
-  repeat{ # Optimization loop: finish when simulated is statistically indistinguishable from observed
-    finished <- FALSE
+  for(iteration in 1:control$CD.maxit){
     if(iteration == control$CD.maxit) finished <- TRUE
-    
     if(verbose){
-      cat("Optimization run ",iteration," of at most ", control$CD.maxit, " with tether length ", control$CD.nsteps, " and with parameter: \n", sep="")
+      cat("Iteration ",iteration," of at most ", control$CD.maxit,
+          " with parameter: \n", sep="")
       print(mcmc.init)
     }else{
-      cat("Optimization run ",iteration," of at most ", control$CD.maxit,": \n",sep="")
+      cat("Iteration ",iteration," of at most ", control$CD.maxit,": \n",sep="")
     }
 
     # Obtain MCMC sample
     mcmc.eta0 <- ergm.eta(mcmc.init, model$etamap)
-    if(control$CD.nsteps==Inf){
-    z <- ergm.getMCMCsample(nw, model, MHproposal, mcmc.eta0, control, verbose, response=response)
-    if(z$status==1) stop("Number of edges in a simulated network exceeds that in the observed by a factor of more than ",floor(control$MCMLE.density.guard),". This is a strong indicator of model degeneracy. If you are reasonably certain that this is not the case, increase the MCMLE.density.guard control.ergm() parameter.")
-    }
-    else
-      z <- ergm.getCDsample(nw, model, MHproposal, mcmc.eta0, control, verbose, response=response)
-    
+    z <- ergm.getCDsample(nw, model, MHproposal, mcmc.eta0, control, verbose, response=response)
+
     # post-processing of sample statistics:  Shift each row by the
     # vector model$nw.stats - model$target.stats, store returned nw
     # The statistics in statsmatrix should all be relative to either the
@@ -135,9 +111,6 @@ ergm.CD <- function(init, nw, model,
     statsmatrix <- sweep(z$statsmatrix, 2, statshift, "+")
     colnames(statsmatrix) <- model$coef.names
     
-    if(control$CD.nsteps==Inf)
-    nw.returned <- network.copy(z$newnetwork)
-
     if(verbose){
       cat("Back from unconstrained MCMC. Average statistics:\n")
       print(apply(statsmatrix, 2, mean))
@@ -145,17 +118,10 @@ ergm.CD <- function(init, nw, model,
     
     ##  Does the same, if observation process:
     if(obs){
-      if(control$CD.nsteps==Inf){
-      z.obs <- ergm.getMCMCsample(nw.obs, model, MHproposal.obs, mcmc.eta0, control.obs, verbose, response=response)
+      z.obs <- ergm.getCDsample(nw, model, MHproposal.obs, mcmc.eta0, control.obs, verbose, response=response)
 
-      if(z.obs$status==1) stop("Number of edges in the simulated network exceeds that observed by a large factor (",control$MCMC.max.maxedges,"). This is a strong indication of model degeneracy. If you are reasonably certain that this is not the case, increase the MCMLE.density.guard control.ergm() parameter.")
-      }else
-        z.obs <- ergm.getCDsample(nw.obs, model, MHproposal.obs, mcmc.eta0, control.obs, verbose, response=response)
-      
-      statsmatrix.obs <- sweep(z.obs$statsmatrix, 2, statshift.obs, "+")
+      statsmatrix.obs <- sweep(z.obs$statsmatrix, 2, statshift, "+")
       colnames(statsmatrix.obs) <- model$coef.names
-      if(control$CD.nsteps==Inf)
-      nw.obs.returned <- network.copy(z.obs$newnetwork)
       
       if(verbose){
         cat("Back from constrained MCMC. Average statistics:\n")
@@ -163,33 +129,6 @@ ergm.CD <- function(init, nw, model,
       }
     }else{
       statsmatrix.obs <- NULL
-    }
-    
-    if(control$CD.nsteps==Inf && sequential) {
-      nw <- nw.returned
-      statshift <- summary(model$formula, basis=nw, response=response) - model$target.stats
-
-      if(obs){
-        nw.obs <- nw.obs.returned
-        statshift.obs <- summary(model$formula, basis=nw.obs, response=response) - model$target.stats
-      }      
-    }
-
-    if(MCMLE.starting && control$CD.nsteps>1){
-      if(obs){
-        # There is certainly a better way to do this:
-        smu <- unique(statsmatrix)
-        smou <- unique(statsmatrix.obs)
-        if(!any(apply(smu, 1, is.CH, smou))){
-          cat("Convex hulls of constrained and unconstrained sample statistics do not overlap. Reducing tether length.")
-          control$CD.nsteps <- control$CD.nsteps * 3/4
-        }       
-      }else{
-        if(!is.inCH(rep(0,ncol(statsmatrix)),statsmatrix)){
-          cat("Convex hull of the sample does not contain the observed statistics. Reducing tether length.")
-          control$CD.nsteps <- control$CD.nsteps * 3/4
-        }
-      }
     }
 
     # If the model is linear, all non-offset statistics are passed. If
@@ -199,35 +138,23 @@ ergm.CD <- function(init, nw, model,
     names(esteq) <- names(mcmc.init)
     esteq.obs <- if(obs) t(ergm.etagradmult(mcmc.init,t(statsmatrix.obs),model$etamap))[,!model$etamap$offsettheta,drop=FALSE] else NULL   
     conv.pval <- approx.hotelling.diff.test(esteq, esteq.obs)$p.value
-    
+                                            
     # We can either pretty-print the p-value here, or we can print the
     # full thing. What the latter gives us is a nice "progress report"
     # on whether the estimation is getting better..
-    
+
     if(verbose){
       cat("Average estimating equation values:\n")
-        print(if(obs) colMeans(esteq.obs)-colMeans(esteq) else colMeans(esteq))
+      print(if(obs) colMeans(esteq.obs)-colMeans(esteq) else colMeans(esteq))
     }
     cat("Convergence test P-value:",format(conv.pval, scientific=TRUE,digits=2),"\n")
     if(conv.pval>control$CD.conv.min.pval){
-      MCMLE.converged <- TRUE
-      if(control$CD.nsteps==Inf){
-        cat("Convergence detected for untethered MCMC. Stopping.\n")
-        finished <- TRUE
-      }else if(MCMLE.starting){
-        cat("Convergence in tether lengths detected. Proceeding to untethered MCMC.\n")
-        control$CD.nsteps <- Inf
-      }else{
-        cat("Convergence for this tether length detected. Increasing tether length.\n")
-        control$CD.nsteps <- control$CD.nsteps*2
-        if(control$CD.nsteps>=control$MCMC.interval/2){
-          cat("Tether length exceeds the half the MCMC interval setting. Switching to untethered MCMC.\n")
-          control$CD.nsteps <- Inf
-        }
-      }
+      cat("Convergence detected. Stopping.\n")
+      finished <- TRUE
     }
-    MCMLE.starting <- FALSE
-
+    
+    # Removed block A of code here.  (See end of file.)
+    
     if(!estimate){
       if(verbose){cat("Skipping optimization routines...\n")}
       l <- list(coef=mcmc.init, mc.se=rep(NA,length=length(mcmc.init)),
@@ -237,7 +164,7 @@ ergm.CD <- function(init, nw, model,
                 mle.lik=NULL,
                 gradient=rep(NA,length=length(mcmc.init)), #acf=NULL,
                 samplesize=control$MCMC.samplesize, failure=TRUE,
-                newnetwork = nw.returned)
+                newnetwork = nw)
       return(structure (l, class="ergm"))
     } 
 
@@ -285,7 +212,7 @@ ergm.CD <- function(init, nw, model,
         cat("The log-likelihood did not improve.\n")
       }
     }else{
-      
+
       if(verbose){cat("Calling MCMLE Optimization...\n")}
       statsmean <- apply(statsmatrix.0,2,mean)
       if(!is.null(statsmatrix.0.obs)){
@@ -321,19 +248,14 @@ ergm.CD <- function(init, nw, model,
         cat("The log-likelihood did not improve.\n")
       }
     }
+          
     mcmc.init <- v$coef
     coef.hist <- rbind(coef.hist, mcmc.init)
     stats.obs.hist <- if(!is.null(statsmatrix.obs)) rbind(stats.obs.hist, apply(statsmatrix.obs, 2, mean)) else NULL
     stats.hist <- rbind(stats.hist, apply(statsmatrix, 2, mean))
     parametervalues <- rbind(parametervalues, mcmc.init)
-
-    iteration <- iteration + 1
-    
-    if(MCMLE.converged || finished) break
-  } # End of the optimization loop
-    
-    if(finished) break
-  } # End of the step length loop
+    if(finished) break # This allows premature termination.
+  } # end of main loop
 
   # FIXME:  We should not be "tacking on" extra list items to the 
   # object returned by ergm.estimate.  Instead, it is more transparent
@@ -343,7 +265,7 @@ ergm.CD <- function(init, nw, model,
   if(obs) v$sample.obs <- ergm.sample.tomcmc(statsmatrix.0.obs, control)
   
   v$network <- nw.orig
-  v$newnetwork <- if(control$CD.nsteps==Inf) nw.returned else nw.orig
+  v$newnetwork <- nw
   v$coef.init <- init
   
   v$coef.hist <- coef.hist

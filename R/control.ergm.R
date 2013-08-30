@@ -111,7 +111,7 @@ control.ergm<-function(drop=TRUE,
                        init.method=NULL,
                        
                        main.method=c("MCMLE","Robbins-Monro",
-                               "Stochastic-Approximation","Stepping"),
+                               "Stochastic-Approximation","Stepping","CD","CD.fixed"),
                        force.main=FALSE,
                        main.hessian=TRUE,
 
