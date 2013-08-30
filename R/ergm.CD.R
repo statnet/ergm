@@ -129,7 +129,6 @@ ergm.CD <- function(init, nw, model,
       }
     }else{
       statsmatrix.obs <- NULL
-      statshift <- summary(model$formula, basis=nw, response=response) - model$target.stats
     }
 
     # If the model is linear, all non-offset statistics are passed. If
