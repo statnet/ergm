@@ -183,7 +183,7 @@ ergm.CD <- function(init, nw, model,
         # There is certainly a better way to do this:
         smu <- unique(statsmatrix)
         smou <- unique(statsmatrix.obs)
-        if(!any(apply(smu, 1, is.CH, smou))){
+        if(!any(apply(smu, 1, is.inCH, smou))){
           cat("Convex hulls of constrained and unconstrained sample statistics do not overlap. Reducing tether length.")
           control$CD.nsteps <- round(control$CD.nsteps * 3/4)
           break
