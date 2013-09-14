@@ -879,7 +879,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     number of terms in computing the statistics to reduce the computational
     burden.    This term can only be used with undirected networks.}
 
-    \item{\code{gwdsp(alpha, fixed=FALSE, cutoff=30)} (binary)}{\emph{Geometrically weighted
+    \item{\code{gwdsp(alpha=0, fixed=FALSE, cutoff=30)} (binary)}{\emph{Geometrically weighted
     dyadwise shared partner distribution:} 
     This term adds one network statistic to the model equal to the geometrically
     weighted dyadwise shared partner distribution with weight parameter
@@ -895,7 +895,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     number of terms in computing the statistics to reduce the computational
     burden.}
     
-    \item{\code{gwesp(alpha, fixed=FALSE, cutoff=30)} (binary)}{\emph{Geometrically weighted
+    \item{\code{gwesp(alpha=0, fixed=FALSE, cutoff=30)} (binary)}{\emph{Geometrically weighted
     edgewise shared partner distribution:} 
     This term is just like \code{gwdsp} except it adds a statistic equal to the
     geometrically weighted \emph{edgewise} (not dyadwise) shared partner
@@ -925,7 +925,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     number of terms in computing the statistics to reduce the computational
     burden.}
 
-    \item{\code{gwnsp(alpha, fixed=FALSE, cutoff=30)} (binary)}{\emph{Geometrically weighted
+    \item{\code{gwnsp(alpha=0, fixed=FALSE, cutoff=30)} (binary)}{\emph{Geometrically weighted
     nonedgewise shared partner distribution:} This term is just like
     \code{gwesp} and \code{gwdsp} except it adds a statistic equal to
     the geometrically weighted \emph{nonedgewise} (that is, over dyads
