@@ -13,6 +13,73 @@
 
 % When a release is forked, copy the sections to a new release and
 % delete unused sections.
+\section{Changes in version 3.1.1}{
+ 
+  \subsection{NEW FEATURES}{
+    \itemize{ 
+      \item This is a bugfix release.
+    } 
+  }
+
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item Long-standing bugs in MCMC standard error calculation have
+      been fixed. In particular, MCMC standard errors are now calculated
+      for offset models, and they are no longer overestimated (by too
+      much).
+      
+      \item \code{\link{san}} now behaves sensibly when the network exceeds the
+      number of edges allocated.
+
+      \item \code{\link{degrange}} terms now initialize correctly for their
+      respective network types.
+      
+      \item Some spurious warnings are no longer printed.
+      
+      \item A variety of minor errors has been fixed.
+    
+    }
+  }
+  
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      \item \code{\link[=ergm-package]{ergm}}'s implementation and tests now work with
+      \code{\link[=network-package]{network}} version 1.8. (In
+      particular, \code{bipartite=0} is now treated as a network with no
+      actors.)
+    }
+  }
+
+  % \subsection{C-LEVEL FACILITIES}{
+  %   \itemize{
+  %   }
+  % }
+
+  % \subsection{UTILITIES}{
+  %   \itemize{
+  %     \item Likewise, "UTILITIES" is probably unnecessary.
+  %   }
+  % }
+
+  % \subsection{INSTALLATION}{
+  %   \itemize{
+  %     \item ... as is "INSTALLATION".
+  %   }
+  % }
+
+  % \subsection{PACKAGE INSTALLATION}{
+  %   \itemize{
+  %     \item ditto.
+  %   }
+  % }
+
+  % \subsection{DEPRECATED & DEFUNCT}{
+  %   \itemize{
+  %   }
+  % }
+
+}
+
 \section{Changes in version 3.1}{
  
   \subsection{NEW FEATURES}{
@@ -96,24 +163,6 @@
       
     }
   }
-
-  % \subsection{UTILITIES}{
-  %   \itemize{
-  %     \item Likewise, "UTILITIES" is probably unnecessary.
-  %   }
-  % }
-
-  % \subsection{INSTALLATION}{
-  %   \itemize{
-  %     \item ... as is "INSTALLATION".
-  %   }
-  % }
-
-  % \subsection{PACKAGE INSTALLATION}{
-  %   \itemize{
-  %     \item ditto.
-  %   }
-  % }
 
   \subsection{DEPRECATED & DEFUNCT}{
     \itemize{
