@@ -56,8 +56,6 @@
 \alias{as.edgelist}
 \alias{as.edgelist.compressed}
 \alias{as.network.uncompressed}
-\alias{autoboot.ergm}
-\alias{autoboot.se.ergm}
 \alias{central.network}
 \alias{check.ErgmTerm}
 \alias{coef.length.model}

@@ -97,7 +97,6 @@ as.edgelist.compressed<-function(x, attrname=NULL, force.bipartite=FALSE, ...){
     return(lapply(x,as.edgelist.compressed, attrname=attrname, force.bipartite=force.bipartite))
   #Begin with network objects
   if(inherits(x,"network")){
-    require("network")  #Must have network library to process network objects
     out<-as.matrix.network.edgelist(x,attrname=attrname)
 #   if(!is.directed(x)){
 #    out <- out[1:(nrow(x)/2),]

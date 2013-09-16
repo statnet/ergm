@@ -119,7 +119,6 @@ ergm.stopCluster.default <- function(object, ...){
 
 
 ergm.sample.tomcmc<-function(sample, params){
-  library(coda)
   samplesize <- nrow(sample)
   if(params$parallel){
 

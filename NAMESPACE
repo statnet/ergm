@@ -2,6 +2,11 @@
 useDynLib(ergm)
 
 importFrom(utils, packageDescription)
+importFrom(robustbase, lmrob, covMcd)
+importFrom(coda, mcmc, mcmc.list, effectiveSize)
+importFrom(trust, trust)
+importFrom(Matrix, nearPD)
+import(statnet.common, network)
 
 # Export all names that do not begin with a dot.
 exportPattern("^[^\\.]")

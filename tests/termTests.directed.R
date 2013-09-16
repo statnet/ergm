@@ -9,7 +9,6 @@
 #######################################################################
 
 library(ergm)
-#library(network)  This is not necessary; ergm already depends on network
 
 # a directed nw
 data(sampson)

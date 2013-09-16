@@ -95,7 +95,8 @@ data(florentine)
 # use 2 here for speed's sake.
 gest <- ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle, eval.loglik=FALSE)
 }
-gest <- ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle, eval.loglik=FALSE, control=control.ergm(MCMLE.maxit=2))
+gest <- ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle, eval.loglik=FALSE,
+             control=control.ergm(MCMLE.maxit=2))
 # Log-likelihood is not evaluated, so no deviance, AIC, or BIC:
 summary(gest)
 # Evaluate the log-likelihood and attach it to the object.

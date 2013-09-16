@@ -9,8 +9,6 @@
 #######################################################################
 
 library(ergm)
-#library(network)  This is not necessary; ergm already depends on network
-
 
 # an undirected nw
 data(faux.mesa.high)

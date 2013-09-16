@@ -257,8 +257,6 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose) {
   }
   
   if(!is.null(control$MCMC.burnin.retries) && control$MCMC.burnin.retries>0){
-    library(coda)
-
     out <- NULL
 
     for(try in seq_len(control$MCMC.burnin.retries+1)){
