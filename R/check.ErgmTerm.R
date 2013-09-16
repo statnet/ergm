@@ -59,7 +59,16 @@ check.ErgmTerm <- function(nw, arglist, directed=NULL, bipartite=NULL, nonnegati
     #directed != (dnw<-eval(expression(nw$gal$dir),parent.frame()))) {
     message <- paste("networks with directed==", dnw, sep="")
   }
-  if(is.null(bnw<- nw %n% "bipartite")) bnw <- 0
+  
+  bnw<- nw %n% "bipartite"
+  # check for bipartite 1st partition size zero (not yet supported by ergm)
+  if(is.numeric(bnw)){
+    if (bnw==0){
+      message <- "networks with a bipartite first partition of size 0 (bipartite=0)"
+    }
+  }
+  
+  if(is.null(bnw)) bnw <- 0
   if (!is.null(bipartite) && bipartite != (bnw > 0)) {
     #bipartite != (bnw <- eval(expression(nw %n% "bipartite"),parent.frame()) > 0)) {
     message <- paste("networks with bipartite", 

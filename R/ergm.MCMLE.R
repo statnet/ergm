@@ -91,13 +91,16 @@ ergm.MCMLE <- function(init, nw, model,
   # Is there observational structure?
   obs <- ! is.null(MHproposal.obs)
   
-  # Initialize control.obs in case there is observation structure
+  # Initialize control.obs and other *.obs if there is observation structure
   
   if(obs){
     control.obs <- control
     control.obs$MCMC.samplesize <- control$obs.MCMC.samplesize
     control.obs$MCMC.interval <- control$obs.MCMC.interval
     control.obs$MCMC.burnin <- control$obs.MCMC.burnin
+
+    nw.obs <- network.copy(nw)
+    statshift.obs <- statshift
   }
   finished <- FALSE
   # mcmc.init will change at each iteration.  It is the value that is used
@@ -137,11 +140,11 @@ ergm.MCMLE <- function(init, nw, model,
     
     ##  Does the same, if observation process:
     if(obs){
-      z.obs <- ergm.getMCMCsample(nw, model, MHproposal.obs, mcmc.eta0, control.obs, verbose, response=response)
+      z.obs <- ergm.getMCMCsample(nw.obs, model, MHproposal.obs, mcmc.eta0, control.obs, verbose, response=response)
 
       if(z.obs$status==1) stop("Number of edges in the simulated network exceeds that observed by a large factor (",control$MCMC.max.maxedges,"). This is a strong indication of model degeneracy. If you are reasonably certain that this is not the case, increase the MCMLE.density.guard control.ergm() parameter.")
       
-      statsmatrix.obs <- sweep(z.obs$statsmatrix, 2, statshift, "+")
+      statsmatrix.obs <- sweep(z.obs$statsmatrix, 2, statshift.obs, "+")
       colnames(statsmatrix.obs) <- model$coef.names
       nw.obs.returned <- network.copy(z.obs$newnetwork)
       
@@ -151,13 +154,16 @@ ergm.MCMLE <- function(init, nw, model,
       }
     }else{
       statsmatrix.obs <- NULL
-      if(sequential) {
-        nw <- nw.returned
-        nw.obs <- summary(model$formula, basis=nw, response=response)
-        namesmatch <- match(names(model$target.stats), names(nw.obs))
-        statshift <- -model$target.stats
-        statshift[!is.na(namesmatch)] <- statshift[!is.na(namesmatch)] + nw.obs[namesmatch[!is.na(namesmatch)]]
-      }
+    }
+    
+    if(sequential) {
+      nw <- nw.returned
+      statshift <- summary(model$formula, basis=nw, response=response) - model$target.stats
+
+      if(obs){
+        nw.obs <- nw.obs.returned
+        statshift.obs <- summary(model$formula, basis=nw.obs, response=response) - model$target.stats
+      }      
     }
 
     # If the model is linear, all non-offset statistics are passed. If
@@ -240,7 +246,6 @@ ergm.MCMLE <- function(init, nw, model,
       }else{
         cat("The log-likelihood did not improve.\n")
       }
-      if((adaptive.steplength==1) && (v$loglikelihood < control$MCMLE.adaptive.epsilon) ){break}
     }else{
 
       if(verbose){cat("Calling MCMLE Optimization...\n")}
@@ -277,7 +282,6 @@ ergm.MCMLE <- function(init, nw, model,
       }else{
         cat("The log-likelihood did not improve.\n")
       }
-      if((control$MCMLE.steplength==1) && (v$loglikelihood < control$MCMLE.adaptive.epsilon) ){break}
     }
           
     mcmc.init <- v$coef

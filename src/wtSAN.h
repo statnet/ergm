@@ -14,6 +14,7 @@
 #include "wtchangestat.h"
 #include "wtMHproposal.h"
 #include "wtmodel.h"
+#include "wtMCMC.h"
 
 void WtSAN_wrapper (int * dnumnets, int *nedges,
 		    int *tails, int *heads, double *weights,
@@ -28,14 +29,15 @@ void WtSAN_wrapper (int * dnumnets, int *nedges,
 		    double *newnetworkweights,
 		    double *invcov,
 		    int *fVerbose, 
-		    int *maxedges);
+		    int *maxedges,
+		    int *status);
 
-void WtSANSample (WtMHproposal *MHp,
+WtMCMCStatus WtSANSample (WtMHproposal *MHp,
 		double *theta, double *invcov, double *tau, double *networkstatistics, 
 		int samplesize, int burnin, 
-		int interval, int fVerbose,
+	        int interval, int fVerbose, int nmax,
 		WtNetwork *nwp, WtModel *m);
-void WtSANMetropolisHastings (WtMHproposal *MHp,
+WtMCMCStatus WtSANMetropolisHastings (WtMHproposal *MHp,
 			 double *theta, double *invcov, double *tau, double *statistics, 
 			 int nsteps, int *staken,
 			 int fVerbose,

@@ -165,12 +165,12 @@ MCMCStatus MCMCSample(MHproposal *MHp,
     when the chain doesn't accept many of the proposed steps.
     *********************/
     if (fVerbose){
-      Rprintf("Sampler accepted %6.3f%% of %d proposed steps.\n",
+      Rprintf("Sampler accepted %7.3f%% of %d proposed steps.\n",
       tottaken*100.0/(1.0*interval*samplesize), interval*samplesize); 
     }
   }else{
     if (fVerbose){
-      Rprintf("Sampler accepted %6.3f%% of %d proposed steps.\n",
+      Rprintf("Sampler accepted %7.3f%% of %d proposed steps.\n",
       staken*100.0/(1.0*burnin), burnin); 
     }
   }

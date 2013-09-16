@@ -1,12 +1,3 @@
-#  File R/ergm.mple.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, http://statnet.org .
-#
-#  This software is distributed under the GPL-3 license.  It is free,
-#  open source, and has the attribution requirements (GPL Section 7) at
-#  http://statnet.org/attribution
-#
-#  Copyright 2003-2013 Statnet Commons
-#######################################################################
 ##########################################################################
 # The <ergm.mple> function finds a maximizer to the psuedolikelihood
 # function
@@ -83,12 +74,12 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
                              start=init[!m$etamap$offsettheta])
     mplefit.summary <- list(cov.unscaled=mplefit$cov.unscaled)
    }else{
-    mplefit <- try(
+    mplefit <- suppressWarnings(try(
           glm(pl$zy ~ .-1 + offset(pl$foffset), data=data.frame(pl$xmat),
                weights=pl$wend, family=family),
 # Note:  It appears that specifying a starting vector can lead to problems!
 #               start=init[!m$etamap$offsettheta]),
-                    silent = TRUE)
+                    silent = TRUE))
     if (inherits(mplefit, "try-error")) {
       mplefit <- list(coef=pl$theta.offset, deviance=0,
                       cov.unscaled=diag(length(pl$theta.offset)))
@@ -117,10 +108,10 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
     }
     independent <- independent>0
     if(any(independent)){
-     mindfit <- try(glm(pl$zy ~ .-1 + offset(pl$foffset), 
+     mindfit <- suppressWarnings(try(glm(pl$zy ~ .-1 + offset(pl$foffset), 
                     data=data.frame(pl$xmat[,independent,drop=FALSE]),
                     weights=pl$wend, family=family),
-                    silent = TRUE)
+                    silent = TRUE))
      if (inherits(mindfit, "try-error")) {
       theta1 <- list(coef=NULL, 
                     theta=rep(0,ncol(pl$xmat)),
@@ -184,8 +175,8 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
       mplefit.null <- ergm.logitreg(x=matrix(1,ncol=1,nrow=length(pl$zy)),
                                     y=pl$zy, offset=pl$foffset, wt=pl$wend)
     }else{
-      mplefit.null <- try(glm(pl$zy ~ 1, family=family, weights=pl$wend),
-                          silent = TRUE)
+      mplefit.null <- suppressWarnings(try(glm(pl$zy ~ 1, family=family, weights=pl$wend),
+                          silent = TRUE))
       if (inherits(mplefit.null, "try-error")) {
         mplefit.null <- list(coef=0, deviance=0, null.deviance=0,
                              cov.unscaled=diag(1))

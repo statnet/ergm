@@ -23,7 +23,7 @@ m<-.1 # Missingness rate
 logit<-function(p) log(p/(1-p))
 
 cat("n=",n,", density=",d,", missing=",m,"\n",sep="")
-mk.missnet<-function(n,d,m,directed=TRUE,bipartite=0){
+mk.missnet<-function(n,d,m,directed=TRUE,bipartite=FALSE){
   y<-network.initialize(n, directed=directed, bipartite=bipartite)
   y<-simulate(y~edges, coef=logit(d), control=control.simulate(MCMC.burnin=2*n^2))
   if(m>0){
@@ -61,13 +61,13 @@ run.miss.test<-function(y){
 # Directed
 cat("\n\nDirected Network\n")
 set.seed(123)
-y<-mk.missnet(n, d, m, TRUE, 0)
+y<-mk.missnet(n, d, m, TRUE, FALSE)
 stopifnot(run.miss.test(y))
 
 # Undirected
 cat("\n\nUndirected Network\n")
 set.seed(456)
-y<-mk.missnet(n, d, m, FALSE, 0)
+y<-mk.missnet(n, d, m, FALSE, FALSE)
 stopifnot(run.miss.test(y))  
 
 # Bipartite Undirected

@@ -14,6 +14,7 @@
 #include "changestat.h"
 #include "MHproposal.h"
 #include "model.h"
+#include "MCMC.h"
 
 /* *** don't forget tail -> head, so this function accepts tails first, not heads  */
 
@@ -32,14 +33,15 @@ void SAN_wrapper (int *dnumnets, int *nedges,
 		  int *fVerbose, 
 		  int *attribs, int *maxout, int *maxin, int *minout,
 		  int *minin, int *condAllDegExact, int *attriblength, 
-		  int *maxedges);
+		  int *maxedges,
+		  int *status);
 
-void SANSample (MHproposal *MHp,
+MCMCStatus SANSample (MHproposal *MHp,
 		double *theta, double *invcov, double *tau, double *networkstatistics, 
 		int samplesize, int burnin, 
-		int interval, int fVerbose,
+		int interval, int fVerbose, int nmax,
 		Network *nwp, Model *m);
-void SANMetropolisHastings (MHproposal *MHp,
+MCMCStatus SANMetropolisHastings (MHproposal *MHp,
 			 double *theta, double *invcov, double *tau, double *statistics, 
 			 int nsteps, int *staken,
 			 int fVerbose,
