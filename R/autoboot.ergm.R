@@ -40,7 +40,6 @@ autoboot.ergm<-function(object, R, verbose=FALSE, control=object$control){
   if(verbose) cat("Compressing the statistics: ")
   
   ## "Compress" duplicate statistics:
-  library(coda)
   samp<-compress.data.frame(as.data.frame(samp))
   samp.fr<-samp$frequencies
   samp<-as.matrix(samp$rows)

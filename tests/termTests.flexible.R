@@ -1,6 +1,5 @@
 
 library(ergm)
-#library(network)  This is not necessary; ergm already depends on network
 
 # a bipartite nw
 set.seed(143)
