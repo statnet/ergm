@@ -107,7 +107,7 @@ int ToggleEdge (Vertex tail, Vertex head, Network *nwp);
 int ToggleEdgeWithTimestamp (Vertex tail, Vertex head, Network *nwp);
 int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp);
 void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge *last_edge);
-void CheckEdgetreeFull (TreeNode *edges, Edge *lastedge, Network *nwp);
+void CheckEdgetreeFull (Network *nwp);
 int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp);
 int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges,
 		     Edge *last_edge);

@@ -136,10 +136,10 @@ static void (*fun)(Vertex,Vertex,TreeNode *,Edge *) = NULL;
 if(fun==NULL) fun = (void (*)(Vertex,Vertex,TreeNode *,Edge *)) R_FindSymbol("AddHalfedgeToTree", "ergm", NULL);
 fun(a,b,edges,last_edge);
 }
-void CheckEdgetreeFull(TreeNode *edges, Edge *lastedge, Network *nwp){
-static void (*fun)(TreeNode *,Edge *,Network *) = NULL;
-if(fun==NULL) fun = (void (*)(TreeNode *,Edge *,Network *)) R_FindSymbol("CheckEdgetreeFull", "ergm", NULL);
-fun(edges,lastedge,nwp);
+void CheckEdgetreeFull(Network *nwp){
+static void (*fun)(Network *) = NULL;
+if(fun==NULL) fun = (void (*)(Network *)) R_FindSymbol("CheckEdgetreeFull", "ergm", NULL);
+fun(nwp);
 }
 int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp){
 static int (*fun)(Vertex,Vertex,Network *) = NULL;
@@ -574,10 +574,10 @@ static void (*fun)(Vertex,Vertex,double,WtTreeNode *,Edge *) = NULL;
 if(fun==NULL) fun = (void (*)(Vertex,Vertex,double,WtTreeNode *,Edge *)) R_FindSymbol("WtAddHalfedgeToTree", "ergm", NULL);
 fun(a,b,weight,edges,last_edge);
 }
-void WtCheckEdgetreeFull(WtTreeNode *edges, Edge *lastedge, WtNetwork *nwp){
-static void (*fun)(WtTreeNode *,Edge *,WtNetwork *) = NULL;
-if(fun==NULL) fun = (void (*)(WtTreeNode *,Edge *,WtNetwork *)) R_FindSymbol("WtCheckEdgetreeFull", "ergm", NULL);
-fun(edges,lastedge,nwp);
+void WtCheckEdgetreeFull(WtNetwork *nwp){
+static void (*fun)(WtNetwork *) = NULL;
+if(fun==NULL) fun = (void (*)(WtNetwork *)) R_FindSymbol("WtCheckEdgetreeFull", "ergm", NULL);
+fun(nwp);
 }
 int WtDeleteEdgeFromTrees(Vertex tail, Vertex head, WtNetwork *nwp){
 static int (*fun)(Vertex,Vertex,WtNetwork *) = NULL;
