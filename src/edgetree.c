@@ -20,7 +20,7 @@ Network NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,
 
   Network nw;
 
-  nw.next_inedge = nw.next_outedge = (Edge)nnodes+1;
+  nw.last_inedge = nw.last_outedge = (Edge)nnodes;
   /* Calloc will zero the allocated memory for us, probably a lot
      faster. */
   nw.outdegree = (Vertex *) calloc((nnodes+1),sizeof(Vertex));
@@ -104,8 +104,8 @@ void NetworkDestroy(Network *nwp) {
 *****************/
 Network *NetworkCopy(Network *dest, Network *src){
   Vertex nnodes = dest->nnodes = src->nnodes;
-  dest->next_inedge = src->next_inedge;
-  dest->next_outedge = src->next_outedge;
+  dest->last_inedge = src->last_inedge;
+  dest->last_outedge = src->last_outedge;
 
   dest->outdegree = (Vertex *) malloc((nnodes+1)*sizeof(Vertex));
   memcpy(dest->outdegree, src->outdegree, (nnodes+1)*sizeof(Vertex));
@@ -298,8 +298,6 @@ int ToggleEdgeWithTimestamp(Vertex tail, Vertex head, Network *nwp){
     return 1 - DeleteEdgeFromTrees(tail,head,nwp);
 }
 
-
-
 /* *** don't forget, edges are now given by tails -> heads, and as
        such, the function definitions now require tails to be passed
        in before heads */
@@ -392,13 +390,13 @@ void TouchEdge(Vertex tail, Vertex head, Network *nwp){
 
 int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp){
   if (EdgetreeSearch(tail, head, nwp->outedges) == 0) {
-    AddHalfedgeToTree(tail, head, nwp->outedges, nwp->next_outedge);
-    AddHalfedgeToTree(head, tail, nwp->inedges, nwp->next_inedge);
+    AddHalfedgeToTree(tail, head, nwp->outedges, &(nwp->last_outedge));
+    AddHalfedgeToTree(head, tail, nwp->inedges, &(nwp->last_inedge));
     ++nwp->outdegree[tail];
     ++nwp->indegree[head];
     ++nwp->nedges;
-    UpdateNextedge (nwp->inedges, &(nwp->next_inedge), nwp); 
-    UpdateNextedge (nwp->outedges, &(nwp->next_outedge), nwp);
+    CheckEdgetreeFull (nwp->inedges, &(nwp->last_inedge), nwp); 
+    CheckEdgetreeFull (nwp->outedges, &(nwp->last_outedge), nwp);
     return 1;
   }
   return 0;
@@ -407,7 +405,7 @@ int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp){
 /*****************
  void AddHalfedgeToTree:  Only called by AddEdgeToTrees
 *****************/
-void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge next_edge){
+void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge *last_edge){
   TreeNode *eptr = edges+a, *newnode;
   Edge e;
 
@@ -415,38 +413,32 @@ void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge next_edge){
     eptr->value=b;
     return;
   }
-  (newnode = edges + next_edge)->value=b;  
+  (newnode = edges + (++*last_edge))->value=b;  
   newnode->left = newnode->right = 0;
   /* Now find the parent of this new edge */
   for (e=a; e!=0; e=(b < (eptr=edges+e)->value) ? eptr->left : eptr->right);
   newnode->parent=eptr-edges;  /* Point from the new edge to the parent... */
   if (b < eptr->value)  /* ...and have the parent point back. */
-    eptr->left=next_edge; 
+    eptr->left=*last_edge; 
   else
-    eptr->right=next_edge;
+    eptr->right=*last_edge;
 }
 
 /*****************
-void UpdateNextedge
+void CheckEdgetreeFull
 *****************/
-void UpdateNextedge (TreeNode *edges, Edge *nextedge, Network *nwp) {
+void CheckEdgetreeFull (TreeNode *edges, Edge *lastedge, Network *nwp) {
   const unsigned int mult=2;
   
-  while (++*nextedge < nwp->maxedges) {
-    if (edges[*nextedge].value==0) return;
+  if(*lastedge==nwp->maxedges-1){
+    nwp->maxedges *= mult;
+    nwp->inedges = (TreeNode *) realloc(nwp->inedges, 
+					sizeof(TreeNode) * nwp->maxedges);
+    memset(nwp->inedges+*lastedge+1,0,sizeof(TreeNode) * (nwp->maxedges-*lastedge-1));
+    nwp->outedges = (TreeNode *) realloc(nwp->outedges, 
+					 sizeof(TreeNode) * nwp->maxedges);
+    memset(nwp->outedges+*lastedge+1,0,sizeof(TreeNode) * (nwp->maxedges-*lastedge-1));
   }
-  /* Reached end of allocated memory;  back to start and recheck for "holes" */
-  for (*nextedge = (Edge)nwp->nnodes+1; *nextedge < nwp->maxedges; ++*nextedge) {
-    if (edges[*nextedge].value==0) return;
-  }
-  /* There are no "holes" left, so this network overflows mem allocation */
-  nwp->maxedges *= mult;
-  nwp->inedges = (TreeNode *) realloc(nwp->inedges, 
-                                      sizeof(TreeNode) * nwp->maxedges);
-  memset(nwp->inedges+*nextedge,0,sizeof(TreeNode) * (nwp->maxedges-*nextedge));
-  nwp->outedges = (TreeNode *) realloc(nwp->outedges, 
-                                       sizeof(TreeNode) * nwp->maxedges);
-  memset(nwp->outedges+*nextedge,0,sizeof(TreeNode) * (nwp->maxedges-*nextedge));
 }
 
 
@@ -466,11 +458,13 @@ void UpdateNextedge (TreeNode *edges, Edge *nextedge, Network *nwp) {
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
 int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp){
-  if (DeleteHalfedgeFromTree(tail, head, nwp->outedges,&(nwp->next_outedge))&&
-      DeleteHalfedgeFromTree(head, tail, nwp->inedges, &(nwp->next_inedge))) {
+  if (DeleteHalfedgeFromTree(tail, head, nwp->outedges,&(nwp->last_outedge))&&
+      DeleteHalfedgeFromTree(head, tail, nwp->inedges, &(nwp->last_inedge))) {
     --nwp->outdegree[tail];
     --nwp->indegree[head];
     --nwp->nedges;
+    if(nwp->last_outedge < nwp->nnodes) nwp->last_outedge=nwp->nnodes;
+    if(nwp->last_inedge < nwp->nnodes) nwp->last_inedge=nwp->nnodes;
     return 1;
   }
   return 0;
@@ -481,10 +475,10 @@ int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp){
 
  Delete the TreeNode with value b from the tree rooted at edges[a].
  Return 0 if no such TreeNode exists, 1 otherwise.  Also update the
- value of *next_edge appropriately.
+ value of *last_edge appropriately.
 *****************/
 int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges,
-		     Edge *next_edge){
+		     Edge *last_edge){
   Edge x, z, root=(Edge)a;
   TreeNode *xptr, *zptr, *ptr;
 
@@ -522,11 +516,32 @@ int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges,
     else 
       ptr->right = x;
   }  
-  /* Clear z node, update *next_edge if necessary. */
+  /* Clear z node, update *last_edge if necessary. */
   zptr->value=0;
-  if (z < *next_edge)
-    *next_edge=z;
+  if(z!=root){
+    RelocateHalfedge(*last_edge,z,edges);
+    (*last_edge)--;
+  }
   return 1;
+}
+
+void RelocateHalfedge(Edge from, Edge to, TreeNode *edges){
+  if(from==to) return;
+  TreeNode *toptr=edges+to, *fromptr=edges+from;
+  if(toptr->value)
+    error("Attempting to overwrite an used TreeNode.");
+  if(!fromptr->value)
+    error("Attempting to move an unused TreeNode.");
+
+  if(fromptr->left) edges[fromptr->left].parent = to;
+  if(fromptr->right) edges[fromptr->right].parent = to;
+  if(fromptr->parent){
+    TreeNode *parentptr = edges+fromptr->parent;
+    if(parentptr->left==from) parentptr->left =  to;
+    else parentptr->right =  to;
+  }
+  memcpy(toptr,fromptr,sizeof(TreeNode));
+  fromptr->value = 0;
 }
 
 /*****************
@@ -652,13 +667,11 @@ int GetRandEdge(Vertex *tail, Vertex *head, Network *nwp) {
     // Otherwise, find a TreeNode which has a head.
     do{
       // Note that the outedges array has maxedges elements, but the
-      // 0th one is always blank, so there is actually space for
-      // maxedges-1 nodes.
-      rane = 1 + unif_rand() * (nwp->maxedges-1);
-    }while(nwp->outedges[rane].value==0);
-
-    // Form the head.
-    *head=nwp->outedges[rane].value;
+      // 0th one is always blank, and those with index >
+      // nwp->last_outedge are blank as well, so we need to generate
+      // an index from 1 through nwp->last_outedge (inclusive).
+      rane = 1 + unif_rand() * nwp->last_outedge;
+    }while((*head=nwp->outedges[rane].value)==0); // Form the head, while we are at it.
     
     // Ascend the edgetree as long as we can.
     // Note that it will stop as soon as rane no longer has a parent,
