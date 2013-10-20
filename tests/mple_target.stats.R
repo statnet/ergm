@@ -10,6 +10,7 @@
 library(statnet.common)
 opttest({
 library(ergm)
+library(coda)
 n<-500
 base.net <- network.initialize(n=n,directed=FALSE)
 norm.stats<-c(.7,.1,.5)
