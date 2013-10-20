@@ -8,7 +8,7 @@
 
 #define MIN(a,b) ((a)<(b) ? (a) : (b))
 #define MAX(a,b) ((a)<(b) ? (b) : (a))
-#define DYADCOUNT(nnodes, bipartite, directed) (bipartite? (nnodes-bipartite)*bipartite : (directed? nnodes*(nnodes-1) : (nnodes*(nnodes-1))/2))
+#define DYADCOUNT(nnodes, bipartite, directed) (bipartite? (unsigned long)(nnodes-bipartite)*(unsigned long)bipartite : (directed? (unsigned long)nnodes*(unsigned long)(nnodes-1) : (((unsigned long)nnodes*(unsigned long)(nnodes-1))/2)))
 
 /*typedef unsigned int Vertex;
 typedef unsigned int Edge; */
@@ -53,8 +53,8 @@ typedef struct Dur_Infstruct {
      store all of the incoming and outgoing edges, respectively. 
    directed_flag is 1 or 0, depending on whether or not the 
      network is directed. 
-   next_inedge and next_outedge are continually updated to give
-     the smallest index of an edge object not being used.  
+   last_inedge and last_outedge are continually updated to give
+     the highest index of an edge object being used.  
    outdegree[] and indegree[] are continually updated to give
      the appropriate degree values for each vertex.  These should
      point to Vertex-vectors of length nnodes+1.  
@@ -67,8 +67,8 @@ typedef struct Networkstruct {
   Vertex bipartite;  
   Vertex nnodes;
   Edge nedges;
-  Edge next_inedge;
-  Edge next_outedge;
+  Edge last_inedge;
+  Edge last_outedge;
   Vertex *indegree;
   Vertex *outdegree;
   double *value;  
@@ -106,11 +106,12 @@ Edge EdgetreeMaximum (TreeNode *edges, Edge x);
 int ToggleEdge (Vertex tail, Vertex head, Network *nwp);
 int ToggleEdgeWithTimestamp (Vertex tail, Vertex head, Network *nwp);
 int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp);
-void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge next_edge);
-void UpdateNextedge (TreeNode *edges, Edge *nextedge, Network *nwp);
+void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge *last_edge);
+void CheckEdgetreeFull (Network *nwp);
 int DeleteEdgeFromTrees(Vertex tail, Vertex head, Network *nwp);
 int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges,
-		     Edge *next_edge);
+		     Edge *last_edge);
+void RelocateHalfedge(Edge from, Edge to, TreeNode *edges);
 
 /* Duration functions. */
 int ElapsedTime(Vertex tail, Vertex head, Network *nwp);
