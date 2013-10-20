@@ -528,16 +528,12 @@ int DeleteHalfedgeFromTree(Vertex a, Vertex b, TreeNode *edges,
 void RelocateHalfedge(Edge from, Edge to, TreeNode *edges){
   if(from==to) return;
   TreeNode *toptr=edges+to, *fromptr=edges+from;
-  if(toptr->value)
-    error("Attempting to overwrite an used TreeNode.");
-  if(!fromptr->value)
-    error("Attempting to move an unused TreeNode.");
 
   if(fromptr->left) edges[fromptr->left].parent = to;
   if(fromptr->right) edges[fromptr->right].parent = to;
   if(fromptr->parent){
     TreeNode *parentptr = edges+fromptr->parent;
-    if(parentptr->left==from) parentptr->left =  to;
+    if(parentptr->left==from) parentptr->left = to;
     else parentptr->right =  to;
   }
   memcpy(toptr,fromptr,sizeof(TreeNode));

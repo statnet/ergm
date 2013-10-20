@@ -619,16 +619,12 @@ int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges,
 void WtRelocateHalfedge(Edge from, Edge to, WtTreeNode *edges){
   if(from==to) return;
   WtTreeNode *toptr=edges+to, *fromptr=edges+from;
-  if(toptr->value)
-    error("Attempting to overwrite an used WtTreeNode.");
-  if(!fromptr->value)
-    error("Attempting to move an unused WtTreeNode.");
 
   if(fromptr->left) edges[fromptr->left].parent = to;
   if(fromptr->right) edges[fromptr->right].parent = to;
   if(fromptr->parent){
     WtTreeNode *parentptr = edges+fromptr->parent;
-    if(parentptr->left==from) parentptr->left =  to;
+    if(parentptr->left==from) parentptr->left = to;
     else parentptr->right =  to;
   }
   memcpy(toptr,fromptr,sizeof(WtTreeNode));
