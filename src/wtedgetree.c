@@ -481,8 +481,7 @@ int WtAddEdgeToTrees(Vertex tail, Vertex head, double weight, WtNetwork *nwp){
     ++nwp->outdegree[tail];
     ++nwp->indegree[head];
     ++nwp->nedges;
-    WtCheckEdgetreeFull (nwp->inedges, &(nwp->last_inedge), nwp); 
-    WtCheckEdgetreeFull (nwp->outedges, &(nwp->last_outedge), nwp);
+    WtCheckEdgetreeFull(nwp); 
     return 1;
   }
   return 0;
@@ -515,18 +514,22 @@ void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight, WtTreeNode *edges, 
 /*****************
 void CheckEdgetreeFull
 *****************/
-void WtCheckEdgetreeFull (WtTreeNode *edges, Edge *lastedge, WtNetwork *nwp) {
+void WtCheckEdgetreeFull (WtNetwork *nwp) {
   const unsigned int mult=2;
   
-  if(*lastedge==nwp->maxedges-1){
-    /* There are no "holes" left, so this network overflows mem allocation */
-    nwp->maxedges *= mult;
+  // Note that maximum index in the nwp->*edges is nwp->maxedges-1, and we need to keep one element open for the next insertion.
+  if(nwp->last_outedge==nwp->maxedges-2 || nwp->last_inedge==nwp->maxedges-2){
+    // Only enlarge the non-root part of the array.
+    Edge newmax = nwp->maxedges + (nwp->maxedges - nwp->nnodes - 1)*mult;
     nwp->inedges = (WtTreeNode *) realloc(nwp->inedges, 
-					  sizeof(WtTreeNode) * nwp->maxedges);
-    memset(nwp->inedges+*lastedge+1,0,sizeof(WtTreeNode) * (nwp->maxedges-*lastedge-1));
+					  sizeof(WtTreeNode) * newmax);
+    memset(nwp->inedges+nwp->last_inedge+2,0,
+	   sizeof(WtTreeNode) * (newmax-nwp->maxedges));
     nwp->outedges = (WtTreeNode *) realloc(nwp->outedges, 
-					   sizeof(WtTreeNode) * nwp->maxedges);
-    memset(nwp->outedges+*lastedge+1,0,sizeof(WtTreeNode) * (nwp->maxedges-*lastedge-1));
+					   sizeof(WtTreeNode) * newmax);
+    memset(nwp->outedges+nwp->last_outedge+2,0,
+	   sizeof(WtTreeNode) * (newmax-nwp->maxedges));
+    nwp->maxedges = newmax;
   }
 }
 

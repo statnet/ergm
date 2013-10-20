@@ -395,8 +395,7 @@ int AddEdgeToTrees(Vertex tail, Vertex head, Network *nwp){
     ++nwp->outdegree[tail];
     ++nwp->indegree[head];
     ++nwp->nedges;
-    CheckEdgetreeFull (nwp->inedges, &(nwp->last_inedge), nwp); 
-    CheckEdgetreeFull (nwp->outedges, &(nwp->last_outedge), nwp);
+    CheckEdgetreeFull(nwp); 
     return 1;
   }
   return 0;
@@ -427,17 +426,22 @@ void AddHalfedgeToTree (Vertex a, Vertex b, TreeNode *edges, Edge *last_edge){
 /*****************
 void CheckEdgetreeFull
 *****************/
-void CheckEdgetreeFull (TreeNode *edges, Edge *lastedge, Network *nwp) {
+void CheckEdgetreeFull (Network *nwp) {
   const unsigned int mult=2;
   
-  if(*lastedge==nwp->maxedges-1){
-    nwp->maxedges *= mult;
+  // Note that maximum index in the nwp->*edges is nwp->maxedges-1, and we need to keep one element open for the next insertion.
+  if(nwp->last_outedge==nwp->maxedges-2 || nwp->last_inedge==nwp->maxedges-2){
+    // Only enlarge the non-root part of the array.
+    Edge newmax = nwp->maxedges + (nwp->maxedges - nwp->nnodes - 1)*mult;
     nwp->inedges = (TreeNode *) realloc(nwp->inedges, 
-					sizeof(TreeNode) * nwp->maxedges);
-    memset(nwp->inedges+*lastedge+1,0,sizeof(TreeNode) * (nwp->maxedges-*lastedge-1));
+					  sizeof(TreeNode) * newmax);
+    memset(nwp->inedges+nwp->last_inedge+2,0,
+	   sizeof(TreeNode) * (newmax-nwp->maxedges));
     nwp->outedges = (TreeNode *) realloc(nwp->outedges, 
-					 sizeof(TreeNode) * nwp->maxedges);
-    memset(nwp->outedges+*lastedge+1,0,sizeof(TreeNode) * (nwp->maxedges-*lastedge-1));
+					   sizeof(TreeNode) * newmax);
+    memset(nwp->outedges+nwp->last_outedge+2,0,
+	   sizeof(TreeNode) * (newmax-nwp->maxedges));
+    nwp->maxedges = newmax;
   }
 }
 

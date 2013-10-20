@@ -88,7 +88,7 @@ int WtToggleEdge (Vertex tail, Vertex head, double weight, WtNetwork *nwp);
 int WtToggleEdgeWithTimestamp (Vertex tail, Vertex head, double weight, WtNetwork *nwp);
 int WtAddEdgeToTrees(Vertex tail, Vertex head, double weight, WtNetwork *nwp);
 void WtAddHalfedgeToTree (Vertex a, Vertex b, double weight, WtTreeNode *edges, Edge *last_edge);
-void WtCheckEdgetreeFull (WtTreeNode *edges, Edge *lastedge, WtNetwork *nwp);
+void WtCheckEdgetreeFull (WtNetwork *nwp);
 int WtDeleteEdgeFromTrees(Vertex tail, Vertex head, WtNetwork *nwp);
 int WtDeleteHalfedgeFromTree(Vertex a, Vertex b, WtTreeNode *edges,
 		     Edge *last_edge);
