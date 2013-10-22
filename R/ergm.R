@@ -336,7 +336,7 @@ ergm <- function(formula, response=NULL,
   if (verbose) cat("Fitting ERGM.\n")
   mainfit <- switch(control$main.method,
     "Robbins-Monro" = ergm.robmon(init, nw, model, 
-                      MHproposal(constraints,weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, response=response), verbose, control),
+      MHproposal=MHproposal, verbose=verbose, control=control),
     "Stochastic-Approximation" = ergm.stocapprox(init, nw, model, 
                                  control=control, MHproposal=MHproposal,
                                  verbose),
