@@ -242,7 +242,8 @@ ergm.MCMLE <- function(init, nw, model,
       if(verbose){cat("Calling MCMLE Optimization...\n")}
       statsmean <- apply(statsmatrix.0,2,mean)
       if(!is.null(statsmatrix.0.obs)){
-        statsmatrix.obs <- statsmatrix.0.obs*control$MCMLE.steplength+statsmatrix.0*(1-control$MCMLE.steplength)
+        sl <- rep((1:nrow(statsmatrix.0)),length.out=nrow(statsmatrix.0.obs))
+        statsmatrix.obs <- statsmatrix.0.obs*control$MCMLE.steplength+statsmatrix.0[sl,]*(1-control$MCMLE.steplength)
       }else{
         statsmatrix <- sweep(statsmatrix.0,2,(1-control$MCMLE.steplength)*statsmean,"-")
       }
