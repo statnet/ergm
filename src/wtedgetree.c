@@ -794,10 +794,10 @@ int WtGetRandEdge(Vertex *tail, Vertex *head, double *weight, WtNetwork *nwp) {
    be needed. */      
   /* *** but if it is needed, don't forget,  tail -> head */
 
-int WtFindithNonedge (Vertex *tail, Vertex *head, Edge i, WtNetwork *nwp) {
+int WtFindithNonedge (Vertex *tail, Vertex *head, Dyad i, WtNetwork *nwp) {
   Vertex taili=1;
   Edge e;
-  Edge ndyads = DYADCOUNT(nwp->nnodes, nwp->bipartite, nwp->directed_flag);
+  Dyad ndyads = DYADCOUNT(nwp->nnodes, nwp->bipartite, nwp->directed_flag);
   Vertex nheads = nwp->bipartite ? nwp->nnodes-nwp->bipartite : nwp->nnodes-1;
   
   // If the index is too high or too low, exit immediately.
@@ -848,7 +848,7 @@ int WtFindithNonedge (Vertex *tail, Vertex *head, Edge i, WtNetwork *nwp) {
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
 int WtGetRandNonedge(Vertex *tail, Vertex *head, WtNetwork *nwp) {
-  Edge ndyads = DYADCOUNT(nwp->nnodes, nwp->bipartite, nwp->directed_flag);
+  Dyad ndyads = DYADCOUNT(nwp->nnodes, nwp->bipartite, nwp->directed_flag);
   if(ndyads-nwp->nedges==0) return(0);
 
   /* There are two ways to get a random nonedge: 1) keep trying dyads
@@ -865,11 +865,10 @@ int WtGetRandNonedge(Vertex *tail, Vertex *head, WtNetwork *nwp) {
   // FIXME: The constant maxEattempts needs to be tuned.
   const unsigned int maxEattempts=10;
   unsigned int Eattempts = ndyads/(ndyads-nwp->nedges);
-  Edge rane;
   
   if(Eattempts>maxEattempts){
     // If the network is too dense, use the deterministic-time method:
-    rane=1 + unif_rand() * (ndyads-nwp->nedges);
+    Dyad rane=1 + unif_rand() * (ndyads-nwp->nedges);
     WtFindithNonedge(tail, head, rane, nwp);
   }else{
     do{

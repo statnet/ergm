@@ -700,7 +700,7 @@ int GetRandEdge(Vertex *tail, Vertex *head, Network *nwp) {
 int FindithNonedge (Vertex *tail, Vertex *head, Edge i, Network *nwp) {
   Vertex taili=1;
   Edge e;
-  Edge ndyads = DYADCOUNT(nwp->nnodes, nwp->bipartite, nwp->directed_flag);
+  Dyad ndyads = DYADCOUNT(nwp->nnodes, nwp->bipartite, nwp->directed_flag);
   
   // If the index is too high or too low, exit immediately.
   if (i > ndyads - nwp->nedges || i<=0)
@@ -760,7 +760,7 @@ int FindithNonedge (Vertex *tail, Vertex *head, Edge i, Network *nwp) {
 /* *** don't forget tail->head, so this function now accepts tail before head */
 
 int GetRandNonedge(Vertex *tail, Vertex *head, Network *nwp) {
-  Edge ndyads = DYADCOUNT(nwp->nnodes, nwp->bipartite, nwp->directed_flag);
+  Dyad ndyads = DYADCOUNT(nwp->nnodes, nwp->bipartite, nwp->directed_flag);
   if(ndyads-nwp->nedges==0) return(0);
 
   /* There are two ways to get a random nonedge: 1) keep trying dyads
@@ -777,11 +777,10 @@ int GetRandNonedge(Vertex *tail, Vertex *head, Network *nwp) {
   // FIXME: The constant maxEattempts needs to be tuned.
   const unsigned int maxEattempts=10;
   unsigned int Eattempts = ndyads/(ndyads-nwp->nedges);
-  Edge rane;
   
   if(Eattempts>maxEattempts){
     // If the network is too dense, use the deterministic-time method:
-    rane=1 + unif_rand() * (ndyads-nwp->nedges);
+    Dyad rane=1 + unif_rand() * (ndyads-nwp->nedges);
     FindithNonedge(tail, head, rane, nwp);
   }else{
     do{

@@ -38,7 +38,7 @@ void MH_TNT (MHproposal *MHp, Network *nwp)
   Edge nedges=nwp->nedges;
   static double comp=0.5;
   static double odds;
-  static Edge ndyads;
+  static Dyad ndyads;
   
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=1;
@@ -84,7 +84,7 @@ void MH_TNT10 (MHproposal *MHp, Network *nwp)
   Edge nedges=nwp->nedges;
   static double comp=0.5;
   static double odds;
-  static Edge ndyads;
+  static Dyad ndyads;
   
   if(MHp->ntoggles == 0) { /* Initialize */
     MHp->ntoggles=10;

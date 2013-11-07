@@ -1906,7 +1906,7 @@ D_CHANGESTAT_FN(d_degree_w_homophily) {
 *****************/
 D_CHANGESTAT_FN(d_density) {
   int i;
-  Edge ndyads = N_DYADS;
+  Dyad ndyads = N_DYADS;
   
   /* *** don't forget tail -> head */    
   CHANGE_STAT[0] = 0.0;

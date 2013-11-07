@@ -20,7 +20,7 @@ void MH_BipartiteHammingConstantEdges (MHproposal *MHp, Network *nwp)
   int nde, ndn, nce, ncn;
   static double comp=0.5;
   static double odds;
-  static Edge ndyads;
+  static Dyad ndyads;
   static Edge nnodes;
   static Edge nb1;
   
@@ -112,7 +112,7 @@ void MH_BipartiteHammingTNT (MHproposal *MHp, Network *nwp)
   int nd, nc;
   static double comp=0.5;
   static double odds;
-  static Edge ndyads;
+  static Dyad ndyads;
   static Edge nnodes;
   static Edge nb1;
   

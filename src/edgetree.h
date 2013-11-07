@@ -8,14 +8,12 @@
 
 #define MIN(a,b) ((a)<(b) ? (a) : (b))
 #define MAX(a,b) ((a)<(b) ? (b) : (a))
-#define DYADCOUNT(nnodes, bipartite, directed) (bipartite? (unsigned long)(nnodes-bipartite)*(unsigned long)bipartite : (directed? (unsigned long)nnodes*(unsigned long)(nnodes-1) : (((unsigned long)nnodes*(unsigned long)(nnodes-1))/2)))
+#define DYADCOUNT(nnodes, bipartite, directed) ((bipartite)? (unsigned long)((nnodes)-(bipartite))*(unsigned long)(bipartite) : ((directed)? (unsigned long)(nnodes)*(unsigned long)((nnodes)-1) : (((unsigned long)(nnodes)*(unsigned long)((nnodes)-1))/2)))
 
-/*typedef unsigned int Vertex;
-typedef unsigned int Edge; */
+/*typedef unsigned int Vertex; */
 typedef int Vertex;
-typedef int Edge;
-
-
+typedef unsigned int Edge;
+typedef unsigned long int Dyad;
 
 /*  TreeNode is a binary tree structure, which is how the edgelists 
     are stored.  The root of the tree for vertex i will be inedges[i]
@@ -136,7 +134,7 @@ int GetRandEdge(Vertex *tail, Vertex *head, Network *nwp);
       *(head) = tmp;							\
     }									\
   }
-int FindithNondge(Vertex *tail, Vertex *head, Edge i, Network *nwp);
+int FindithNondge(Vertex *tail, Vertex *head, Dyad i, Network *nwp);
 int GetRandNonedge(Vertex *tail, Vertex *head, Network *nwp);
 void printedge(Edge e, TreeNode *edges);
 void InOrderTreeWalk(TreeNode *edges, Edge x);
