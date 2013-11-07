@@ -85,7 +85,7 @@ typedef struct WtModelTermstruct {
 #define SETWT(a,b,w) (WtSetEdge(a,b,w,nwp))
 
 #define N_NODES (nwp->nnodes) /* Total number of nodes in the network */
-#define N_DYADS (nwp->directed_flag?(nnodes*(nnodes-1)):nwp->bipartite?nwp->bipartite*(nnodes-nwp->bipartite):(nnodes*(nnodes-1)/2))
+#define N_DYADS (DYADCOUNT(nwp->nnodes,nwp->bipartite,nwp->directed_flag))
 #define OUT_DEG (nwp->outdegree) /* Vector of length N_NODES giving current outdegrees */
 #define IN_DEG (nwp->indegree) /* Vector of length N_NODES giving current indegrees */
 #define DIRECTED (nwp->directed_flag) /* 0 if network is undirected, 1 if directed */
