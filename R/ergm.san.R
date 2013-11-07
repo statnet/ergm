@@ -144,14 +144,14 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
 
     if(is.null(control$coef)) {
       if(reference==~Bernoulli){
-        fit <- ergm.mple(Clist=Clist, Clist.miss=Clist.miss, 
+        fit <- try(ergm.mple(Clist=Clist, Clist.miss=Clist.miss, 
                          conddeg=conddeg,
                          control=control, MHproposal=MHproposal,
-                         m=model, verbose=verbose, ...)
-        control$coef <- fit$coef
+                         m=model, verbose=verbose, ...))
+        control$coef <- if(inherits(fit, "try-error")) rep(0,length(model$coef.names)) else fit$coef
         if(is.null(control$invcov)) { control$invcov <- fit$covar }
       }else{
-        control$coef<-rep(0,length(model$offset))
+        control$coef<-rep(0,length(model$coef.names))
         if(is.null(control$invcov)) control$invcov <- diag(length(control$coef))
       }
     }else{
