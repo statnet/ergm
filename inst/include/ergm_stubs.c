@@ -176,9 +176,9 @@ static int (*fun)(Vertex *,Vertex *,Network *) = NULL;
 if(fun==NULL) fun = (int (*)(Vertex *,Vertex *,Network *)) R_FindSymbol("GetRandEdge", "ergm", NULL);
 return fun(tail,head,nwp);
 }
-int FindithNondge(Vertex *tail, Vertex *head, Edge i, Network *nwp){
-static int (*fun)(Vertex *,Vertex *,Edge,Network *) = NULL;
-if(fun==NULL) fun = (int (*)(Vertex *,Vertex *,Edge,Network *)) R_FindSymbol("FindithNondge", "ergm", NULL);
+int FindithNondge(Vertex *tail, Vertex *head, Dyad i, Network *nwp){
+static int (*fun)(Vertex *,Vertex *,Dyad,Network *) = NULL;
+if(fun==NULL) fun = (int (*)(Vertex *,Vertex *,Dyad,Network *)) R_FindSymbol("FindithNondge", "ergm", NULL);
 return fun(tail,head,i,nwp);
 }
 int GetRandNonedge(Vertex *tail, Vertex *head, Network *nwp){
@@ -614,9 +614,9 @@ static int (*fun)(Vertex *,Vertex *,double *,WtNetwork *) = NULL;
 if(fun==NULL) fun = (int (*)(Vertex *,Vertex *,double *,WtNetwork *)) R_FindSymbol("WtGetRandEdge", "ergm", NULL);
 return fun(tail,head,weight,nwp);
 }
-int WtFindithNonedge(Vertex *tail, Vertex *head, Edge i, WtNetwork *nwp){
-static int (*fun)(Vertex *,Vertex *,Edge,WtNetwork *) = NULL;
-if(fun==NULL) fun = (int (*)(Vertex *,Vertex *,Edge,WtNetwork *)) R_FindSymbol("WtFindithNonedge", "ergm", NULL);
+int WtFindithNonedge(Vertex *tail, Vertex *head, Dyad i, WtNetwork *nwp){
+static int (*fun)(Vertex *,Vertex *,Dyad,WtNetwork *) = NULL;
+if(fun==NULL) fun = (int (*)(Vertex *,Vertex *,Dyad,WtNetwork *)) R_FindSymbol("WtFindithNonedge", "ergm", NULL);
 return fun(tail,head,i,nwp);
 }
 int WtGetRandNonedge(Vertex *tail, Vertex *head, WtNetwork *nwp){
