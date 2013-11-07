@@ -39,7 +39,7 @@
 ###########################################################################      
 
 ergm.robmon <- function(init, nw, model,
-                        burnin, interval, MHproposal,
+                        MHproposal,
                         verbose=FALSE, 
                         control=control.ergm() ){
   #phase 1:  Estimate diagonal elements of D matrix (covariance matrix for init)
@@ -178,7 +178,7 @@ cat(paste("theta new:",theta,"\n"))
   structure(c(ve, list(newnetwork=nw, 
                  theta.original=init,
                  rm.coef=theta,
-                 interval=interval, burnin=burnin, 
+                 interval=control$MCMC.interval, burnin=control$MCMC.burnin, 
                  network=nw)),
              class="ergm")
 }
