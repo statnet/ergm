@@ -68,3 +68,35 @@ approx.hotelling.diff.test<-function(x,y=NULL,mu0=NULL){
   class(out)<-"htest"
   out
 }
+
+## The following function uses small parts of geweke.diag from the
+## coda R package. The original code is Copyright (C) 2005-2011 Martyn
+## Plummer, Nicky Best, Kate Cowles, Karen Vines
+##
+## It is incorporated into the ergm package under the terms of the GPL
+## v3.
+##
+## Rather than comparing each mean independently, compares them
+## jointly. Note that it returns an htest object, not a geweke.diag
+## object.
+
+geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5){
+  if (is.mcmc.list(x)) 
+    return(lapply(x, geweke.diag.mv, frac1, frac2))
+  x <- as.mcmc(x)
+  x1 <- window(x, start=start(x), end=start(x) + frac1 * (end(x) - start(x)))
+  x2 <- window(x, start=end(x) - frac2 * (end(x) - start(x)), end=end(x))
+  test <- approx.hotelling.diff.test(x1,x2)
+  test$method <- paste("Multivariate extension to Geweke's burn-in convergence diagnostic")
+  return(test)
+}
+
+# Compute the sample estimating equations of an ERGM. If the model is
+# linear, all non-offset statistics are passed. If the model is
+# curved, the score estimating equations (3.1) by Hunter and
+# Handcock (2006) are given instead.
+.ergm.esteq <- function(theta, model, statsmatrix){
+  esteq <- t(ergm.etagradmult(theta,t(as.matrix(statsmatrix)),model$etamap))[,!model$etamap$offsettheta,drop=FALSE]
+  colnames(esteq) <- model$coef.names[!model$etamap$offsettheta]
+  esteq
+}
