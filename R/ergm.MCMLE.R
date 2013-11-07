@@ -157,18 +157,14 @@ ergm.MCMLE <- function(init, nw, model,
       }      
     }
 
-    # If the model is linear, all non-offset statistics are passed. If
-    # the model is curved, the (likelihood) estimating equations (3.1)
-    # by Hunter and Handcock (2006) are given instead.
-    esteq <- t(ergm.etagradmult(mcmc.init,t(statsmatrix),model$etamap))[,!model$etamap$offsettheta,drop=FALSE]
-    names(esteq) <- names(mcmc.init)
-    esteq.obs <- if(obs) t(ergm.etagradmult(mcmc.init,t(statsmatrix.obs),model$etamap))[,!model$etamap$offsettheta,drop=FALSE] else NULL   
+    # Compute the sample estimating equations and the convergence p-value.
+    esteq <- .ergm.esteq(mcmc.init, model, statsmatrix)
+    esteq.obs <- if(obs) .ergm.esteq(mcmc.init, model, statsmatrix.obs) else NULL   
     conv.pval <- approx.hotelling.diff.test(esteq, esteq.obs)$p.value
                                             
     # We can either pretty-print the p-value here, or we can print the
     # full thing. What the latter gives us is a nice "progress report"
     # on whether the estimation is getting better..
-
     if(verbose){
       cat("Average estimating equation values:\n")
       print(if(obs) colMeans(esteq.obs)-colMeans(esteq) else colMeans(esteq))
