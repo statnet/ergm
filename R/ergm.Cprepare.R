@@ -102,7 +102,7 @@ ergm.Cprepare <- function(nw, m, response=NULL)
   # We don't care about diagnostics for terms that are not being
   # estimated.
   Clist$diagnosable <- ! m$etamap$offsetmap
-  names(Clist$diagnosable) <- m$coef.names[!m$etamap$offsetmap]
+  names(Clist$diagnosable) <- m$coef.names
     
   Clist
 }
