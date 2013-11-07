@@ -49,7 +49,8 @@ control.san<-function(coef=NULL,
                       SAN.prop.weights="default",
                       SAN.prop.args=list(),
                       SAN.packagenames=c(),
-
+                      
+                      MPLE.max.dyad.types=1e6,
                       MPLE.samplesize=50000,
 
                       network.output="network",
