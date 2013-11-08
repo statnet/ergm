@@ -249,11 +249,12 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose) {
   
   if(!is.null(control$MCMC.burnin.retries) && control$MCMC.burnin.retries>0){
     out <- NULL
+    burnin.stats <- NULL
 
     for(try in seq_len(control$MCMC.burnin.retries+1)){
-      samplesize <- min(control$MCMC.samplesize,control$MCMC.burnin*control$MCMC.burnin.check.last)
-      burnin <- ceiling(control$MCMC.burnin*(1-control$MCMC.burnin.check.last))
-      interval <- ceiling(control$MCMC.burnin*control$MCMC.burnin.check.last/samplesize)
+      samplesize <- min(control$MCMC.samplesize,control$MCMC.burnin)
+      burnin <- 0
+      interval <- ceiling(control$MCMC.burnin/samplesize)
       out<-dorun(prev.run=out,
                  burnin = burnin,
                  samplesize = samplesize,
@@ -263,20 +264,25 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose) {
       # Stop if something went wrong.
       if(out$status!=0) return(out)
 
-      # Get the vector of the last burnin draws.
-      burnin.stats <- matrix(out$s, nrow=samplesize,
-                             ncol=Clist$nstats,
-                             byrow = TRUE)[,Clist$diagnosable,drop=FALSE]
+      # Get the array of the burnin draws. Note that all draws get stored (but the first 10%).
+      burnin.stats <- rbind(burnin.stats,
+                            matrix(out$s, nrow=samplesize,
+                                   ncol=Clist$nstats,
+                                   byrow = TRUE)[,Clist$diagnosable,drop=FALSE]
+                            )
       colnames(burnin.stats) <- names(Clist$diagnosable)[Clist$diagnosable==TRUE]
-
-      if(control$MCMC.runtime.traceplot) plot(mcmc(burnin.stats,start=burnin+1,burnin+samplesize*interval,thin=interval),ask=FALSE,smooth=TRUE,density=FALSE)
       
-      # Bonferroni adjustment
-      failed <- geweke.diag.ar(burnin.stats)$p.val < control$MCMC.burnin.check.alpha/ncol(burnin.stats)
-      # If a statistic didn't mix at all, fail it as well.
-      failed[is.na(failed)] <- TRUE
-      if(any(failed)){
-        cat("Burn-in failed to converge or mixed very poorly for statistics", paste.and(names(Clist$diagnosable[Clist$diagnosable])[failed]), ". Rerunning.\n")
+      if(control$MCMC.runtime.traceplot) plot(mcmc(burnin.stats,start=burnin+1,burnin+samplesize*interval,thin=interval),ask=FALSE,smooth=TRUE,density=FALSE)
+
+      # Extract the last draws for diagnostics.
+      burnin.stats.last <- burnin.stats[-seq_len((1-control$MCMC.burnin.check.last)*nrow(burnin.stats)),]
+      
+      failed.all <- geweke.diag.mv(burnin.stats.last)$p.value < control$MCMC.burnin.check.alpha 
+      if(failed.all){
+        failed <- effectiveSize(burnin.stats.last)
+        failed <- order(failed)
+        if(verbose) cat("Burn-in failed to converge or mixed very poorly. Ranking of statistics from worst-mixing to best-mixing:", paste.and(names(Clist$diagnosable[Clist$diagnosable])[failed]), ". Rerunning.\n")
+        burnin.stats <- burnin.stats[-seq_len(nrow(burnin.stats)/10),,drop=FALSE]
         if(try == control$MCMC.burnin.retries+1) burnin.failed <- TRUE
       }
       else{
