@@ -128,7 +128,7 @@ ergm.MCMLE <- function(init, nw, model,
       cat("Back from unconstrained MCMC. Average statistics:\n")
       print(apply(statsmatrix, 2, mean))
     }
-    
+   
     ##  Does the same, if observation process:
     if(obs){
       z.obs <- ergm.getMCMCsample(nw.obs, model, MHproposal.obs, mcmc.eta0, control.obs, verbose, response=response)
@@ -159,6 +159,8 @@ ergm.MCMLE <- function(init, nw, model,
 
     # Compute the sample estimating equations and the convergence p-value.
     esteq <- .ergm.esteq(mcmc.init, model, statsmatrix)
+    if(isTRUE(all.equal(apply(esteq,2,sd), rep(0,ncol(esteq)), check.names=FALSE)))
+      stop("Unconstrained MCMC sampling did not mix at all. Optimization cannot continue.")
     esteq.obs <- if(obs) .ergm.esteq(mcmc.init, model, statsmatrix.obs) else NULL   
     conv.pval <- approx.hotelling.diff.test(esteq, esteq.obs)$p.value
                                             
@@ -173,6 +175,25 @@ ergm.MCMLE <- function(init, nw, model,
     if(conv.pval>control$MCMLE.conv.min.pval){
       cat("Convergence detected. Stopping.\n")
       finished <- TRUE
+    }
+
+    # Dynamic interval via effective sample size. Use geometric 
+    if(!is.null(control$MCMC.effectiveSize)){
+      effSizes <- effectiveSize(esteq)
+      names(effSizes) <- colnames(esteq)
+      if(verbose){
+        cat("Effective MCMC sample sizes:\n")
+        print(effSizes)
+      }
+      effSizes <- effSizes[effSizes!=0] # Ignore 0 effective sizes (for now)
+      # Harmonic mean (for now).
+      mean.fn <- function(x) x^(-1)
+      mean.ifn <- function(x) x^(-1)
+      effSizes.mean <- mean.ifn(mean(mean.fn(effSizes)))
+      control$MCMC.interval <- min(ceiling(control$MCMC.interval*control$MCMC.effectiveSize/effSizes.mean), control$MCMC.max.interval)
+      if(verbose){
+        cat("Mean effective sample size =",effSizes.mean,". New interval =",control$MCMC.interval,".\n")
+      }
     }
     
     # Removed block A of code here.  (See end of file.)
