@@ -277,16 +277,17 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...) {
 
       # Extract the last draws for diagnostics.
       burnin.stats.last <- burnin.stats[-seq_len((1-control$MCMC.burnin.check.last)*nrow(burnin.stats)),]
-
+      burnin.stats.last <- burnin.stats.last[round(seq(from=1, to=nrow(burnin.stats.last), length.out=min(control$MCMC.samplesize,nrow(burnin.stats.last)))),,drop=TRUE]
+      
       burnin.esteq.last <-
         if(all(c("theta","etamap") %in% names(list(...)))) .ergm.esteq(list(...)$theta, list(etamap=list(...)$etamap), burnin.stats.last)
         else burnin.stats.last[,Clist$diagnosable,drop=FALSE]
-      
-      failed.all <- geweke.diag.mv(burnin.esteq.last)$p.value < control$MCMC.burnin.check.alpha
-      if(failed.all){
+
+      burnin.pval <- geweke.diag.mv(burnin.esteq.last)$p.value
+      if(burnin.pval < control$MCMC.burnin.check.alpha){
         failed <- effectiveSize(burnin.esteq.last)
         failed <- order(failed)
-        if(verbose) cat("Burn-in failed to converge or mixed very poorly. Ranking of statistics from worst-mixing to best-mixing:", paste.and(names(Clist$diagnosable[Clist$diagnosable])[failed]), ". Rerunning.\n")
+        if(verbose) cat("Burn-in failed to converge or mixed very poorly, with p-value =",burnin.pval,". Ranking of statistics from worst-mixing to best-mixing:", paste.and(names(Clist$diagnosable[Clist$diagnosable])[failed]), ". Rerunning.\n")
         burnin.stats <- burnin.stats[-seq_len(nrow(burnin.stats)/10),,drop=FALSE]
         if(try == control$MCMC.burnin.retries+1) burnin.failed <- TRUE
       }
