@@ -1,70 +1,74 @@
 approx.hotelling.diff.test<-function(x,y=NULL,mu0=NULL){
-  # Note that for we want to get the effective sample size before we
-  # convert it to a matrix, in case it's an mcmc.list object.
-  x.n <- effectiveSize(x)
-  x <- as.matrix(x)
+  if(is.mcmc.list(x)){
+    x.spec0 <- lapply(x, .ergm.mvar.spec0)
+    x.n <- lapply(x,nrow)
+    vcov.xm <- Reduce("+", Map("*", x.spec0, x.n))/Reduce("+", x.n)^2
+    x <- as.matrix(x)
+  }else{
+    x <- as.matrix(x)
+    x.spec0 <- .ergm.mvar.spec0(x)
+    x.n <- nrow(x)
+    vcov.xm <- x.spec0/x.n
+  }
+  vcov.xm[is.na(vcov.xm)] <- 0
+
   d <-  colMeans(x)
+  vcov.d <- vcov.xm
+  
   if(!is.null(y)){
-    # y, if it's given, is the constrained sample, so it's OK if it
-    # doesn't vary. (E.g, the extreme case --- completely observed
-    # network --- is just one configuration of statistics.)
-    # Thus, the effective sample size for nonvarying is set to 1.
-    y.n <- pmax(effectiveSize(y),1)
-    y <- as.matrix(y)
+    if(is.mcmc.list(y)){
+      y.spec0 <- lapply(y, .ergm.mvar.spec0)
+      y.n <- lapply(y,nrow)
+      vcov.ym <- Reduce("+", Map("*", y.spec0, y.n))/Reduce("+", y.n)^2
+      y <- as.matrix(y)
+    }else{
+      y <- as.matrix(y)
+      y.spec0 <- .ergm.mvar.spec0(y)
+      y.n <- nrow(y)
+      vcov.ym <- y.spec0/y.n
+    }
+    vcov.ym[is.na(vcov.ym)] <- 0
+
     d <- d - colMeans(y)
+    vcov.d <- vcov.d + vcov.ym
   }
 
-  if(!is.null(mu0)) d <- d - mu0
+  novar <- diag(vcov.d)==0
+  
+  if(is.null(mu0)) mu0 <- rep(0,ncol(x))
+  names(mu0)<-colnames(x)
 
   method <- paste("Chi-squared approximation to the Hotelling's",
                   if(is.null(y)) "One" else "Two",
                   "Sample T^2-test", "with correction for autocorrelation")
   
   # If a statistic doesn't vary and doesn't match, return a 0 p-value:
-  if(any(d[x.n==0]!=0)){
+  if(any((d-mu0)[novar]!=0)){
+    warning("Vector(s) ", paste.and(colnames(x)[novar]),
+            if(is.null(y)) " do not vary in x or in y and have differences unequal to mu0"
+            else "do not vary and do not equal mu0",
+            "; P-value has been set to 0.")
+        
     chi2 <- +Inf
-    names(chi2) <- "X-squared"
-    df <- ncol(x)
-    names(df) <- "df"
-    nullval <- if(is.null(mu0)) rep(0, ncol(x)) else mu0
-    names(nullval) <- colnames(x)
-    
-    out <- list(statistic=chi2, parameter=df, p.value=0,
-                method = method,
-                null.value=nullval,
-                alternative="two.sided",
-                estimate = d)
-    class(out)<-"htest"
-    return(out)
+  }else{
+    if(any(novar)){
+      warning("Vector(s) ", paste.and(colnames(x)[novar]),
+              if(is.null(y)) " do not vary in x or in y but have differences equal to mu0"
+              else "do not vary but equals mu0",
+              "; they have been ignored for the purposes of testing.")
+    }
+    chi2 <- t((d-mu0)[!novar])%*%robust.inverse(vcov.d[!novar,!novar,drop=FALSE])%*%(d-mu0)[!novar]
   }
   
-  # If it doesn't vary and matches, ignore it.
-  d <- d[x.n!=0]
-
-  # Remove from y first, since we are changing x.n below.
-  if(!is.null(y)){
-    y <- y[,x.n!=0,drop=FALSE]
-    y.n <- y.n[x.n!=0]
-  }
-  
-  x <- x[,x.n!=0,drop=FALSE]
-  x.n <- x.n[x.n!=0]
-
-  
-  v <- t(cov(x)/sqrt(x.n))/sqrt(x.n)
-  if(!is.null(y)) v <- v + t(cov(y)/sqrt(y.n))/sqrt(y.n)
-  chi2 <- t(d)%*%robust.inverse(v)%*%d
   names(chi2) <- "X-squared"
-  df <- ncol(x)
+  df <- ncol(x)-sum(novar)
   names(df) <- "df"
-  nullval <- if(is.null(mu0)) rep(0, ncol(x)) else mu0
-  names(nullval) <- colnames(x)
   out <- list(statistic=chi2, parameter=df, p.value=pchisq(chi2,df,lower.tail=FALSE),
               method = method,
-              null.value=nullval,
+              null.value=mu0,
               alternative="two.sided",
               estimate = d,
-              covariance = v)
+              covariance = vcov.d)
   class(out)<-"htest"
   out
 }
@@ -99,4 +103,39 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5){
   esteq <- t(ergm.etagradmult(theta,t(as.matrix(statsmatrix)),model$etamap))[,!model$etamap$offsettheta,drop=FALSE]
   colnames(esteq) <- names(theta)[!model$etamap$offsettheta]
   esteq
+}
+
+# This function can be viewed as a multivariate version of coda's
+# spectrum0.ar().  Its return value, divided by nrow(cbind(x)), is the
+# estimated variance-covariance matrix of the sampling distribution of
+# the mean of x if x is a multivatriate time series with AR(p)
+# structure, with p determined by AIC.
+#
+# ar() fails if crossprod(x) is singular, so 
+.ergm.mvar.spec0 <- function(x,tol=.Machine$double.eps){
+    x <- cbind(x)
+    n <- nrow(x)
+    p <- ncol(x)
+
+    v <- matrix(NA,p,p)
+    novar <- apply(x,2,sd)==0 # FIXME: Add tolerance?
+    x <- x[,!novar,drop=FALSE]
+
+    if(ncol(x)){
+      arfit <- try(ar(x,aic=TRUE),silent=TRUE)
+      if(inherits(arfit,"try-error")){
+        warning("Excessive correlation among the statistics. Using a separate effectiveSize approximation.")
+        x.factor <- sqrt(n/effectiveSize(x))
+        v.var <- t(cov(x)*x.factor)*x.factor
+      }else{
+        arvar <- arfit$var.pred
+        arcoefs <- arfit$ar
+        arcoefs <- if(is.null(dim(arcoefs))) sum(arcoefs) else apply(arcoefs,2:3,sum)
+        adj <- diag(1,nrow=p) - arcoefs
+        iadj <- solve(adj)
+        v.var <- iadj %*% arfit$var.pred %*% t(iadj)
+      }
+      v[!novar,!novar] <- v.var
+    }
+    v
 }

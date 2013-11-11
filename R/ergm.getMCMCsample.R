@@ -45,7 +45,7 @@
 #########################################################################################
 
 ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control, 
-                                        verbose, response=NULL) {
+                                        verbose, response=NULL, ...) {
   
   Clist <- ergm.Cprepare(nw, model, response=response)
 
@@ -53,7 +53,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
 
   if(control$parallel==0){
     flush.console()
-    z <- ergm.mcmcslave(Clist,MHproposal,eta0,control,verbose)
+    z <- ergm.mcmcslave(Clist,MHproposal,eta0,control,verbose,...)
     
     if(z$status == 1){ # MCMC_TOO_MANY_EDGES, exceeding even control$MCMC.max.maxedges
       return(list(status=z$status))
@@ -82,7 +82,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
     #
     flush.console()
     outlist <- clusterCall(cl,ergm.mcmcslave,
-                           Clist,MHproposal,eta0,control.parallel,verbose)
+                           Clist,MHproposal,eta0,control.parallel,verbose,...)
     #
     #   Process the results
     #
@@ -140,7 +140,8 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
 #       interval    : the number of proposals to ignore between sampled networks
 #       burnin      : the number of proposals to initially ignore for the burn-in
 #                     period
-#   verbose   : whether the C code should be verbose (T or F) 
+#   verbose   : whether the C code should be verbose (T or F)
+#   ...       : optional arguments
 #
 # --RETURNED--
 #   the MCMC sample as a list of the following:
@@ -151,7 +152,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
 #
 ###############################################################################
 
-ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose) {
+ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...) {
   # A subroutine to allow caller to override some settings or resume
   # from a pervious run.
   dorun <- function(prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL){
@@ -268,24 +269,29 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose) {
       burnin.stats <- rbind(burnin.stats,
                             matrix(out$s, nrow=samplesize,
                                    ncol=Clist$nstats,
-                                   byrow = TRUE)[,Clist$diagnosable,drop=FALSE]
+                                   byrow = TRUE)
                             )
-      colnames(burnin.stats) <- names(Clist$diagnosable)[Clist$diagnosable==TRUE]
+      colnames(burnin.stats) <- names(Clist$diagnosable)
       
-      if(control$MCMC.runtime.traceplot) plot(mcmc(burnin.stats,start=burnin+1,burnin+samplesize*interval,thin=interval),ask=FALSE,smooth=TRUE,density=FALSE)
+      if(control$MCMC.runtime.traceplot) plot(mcmc(burnin.stats[,Clist$diagnosable,drop=FALSE],start=burnin+1,burnin+samplesize*interval,thin=interval),ask=FALSE,smooth=TRUE,density=FALSE)
 
       # Extract the last draws for diagnostics.
       burnin.stats.last <- burnin.stats[-seq_len((1-control$MCMC.burnin.check.last)*nrow(burnin.stats)),]
+
+      burnin.esteq.last <-
+        if(all(c("theta","etamap") %in% names(list(...)))) .ergm.esteq(list(...)$theta, list(etamap=list(...)$etamap), burnin.stats.last)
+        else burnin.stats.last[,Clist$diagnosable,drop=FALSE]
       
-      failed.all <- geweke.diag.mv(burnin.stats.last)$p.value < control$MCMC.burnin.check.alpha 
+      failed.all <- geweke.diag.mv(burnin.esteq.last)$p.value < control$MCMC.burnin.check.alpha
       if(failed.all){
-        failed <- effectiveSize(burnin.stats.last)
+        failed <- effectiveSize(burnin.esteq.last)
         failed <- order(failed)
         if(verbose) cat("Burn-in failed to converge or mixed very poorly. Ranking of statistics from worst-mixing to best-mixing:", paste.and(names(Clist$diagnosable[Clist$diagnosable])[failed]), ". Rerunning.\n")
         burnin.stats <- burnin.stats[-seq_len(nrow(burnin.stats)/10),,drop=FALSE]
         if(try == control$MCMC.burnin.retries+1) burnin.failed <- TRUE
       }
       else{
+        if(verbose) cat("Burn-in converged. Proceeding to the sampling run.\n")
         burnin.failed <- FALSE
         break
       }

@@ -174,6 +174,7 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.sequential=TRUE,
                        MCMLE.density.guard.min=10000,
                        MCMLE.density.guard=exp(3),
+                       MCMLE.min.effectiveSize=MCMC.effectiveSize/2,
 
                        SA.phase1_n=NULL, SA.initial_gain=NULL, 
                        SA.nsubphases=MCMLE.maxit,
