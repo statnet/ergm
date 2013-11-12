@@ -162,7 +162,7 @@ t  08 09 __ 10 11
 
 
 // Euclid's Algorithm to compute Greatest Common Divisor of a and b.
-unsigned int gcd(unsigned int a, unsigned int b){
+unsigned long int gcd(unsigned long int a, unsigned long int b){
   if(b==0) return a;
   else return gcd(b, a%b);
 }
@@ -173,17 +173,17 @@ void MpleInit_hash_bl(int *responsevec, double *covmat, int *weightsvector,
   double *newRow = (double *) R_alloc(m->n_stats,sizeof(double));
   /* Note:  This function uses macros found in changestat.h */
 
-  Edge dc = DYADCOUNT(N_NODES, BIPARTITE, DIRECTED);
+  Dyad dc = DYADCOUNT(N_NODES, BIPARTITE, DIRECTED);
   if(!BIPARTITE && !DIRECTED){
     dc*=2;
-    maxDyads = MAX(maxDyads*2,maxDyads);
+    maxDyads*=2;
   }
   
   // Find a number relatively prime with the dyad count:
   Edge step = MAX(N_NODES/3,2);
   while(gcd(dc,step)!=1) step++;
 
-  for(Edge d = 0, di = 0; d < MIN(maxDyads,dc); d++, di=(di+step)%dc){
+  for(Dyad d = 0, di = 0; d < MIN(maxDyads,dc); d++, di=(di+step)%dc){
     Vertex t=DYADID2T(di), h=DYADID2H(di);
     //Rprintf("d=%d di=%d t=%d h=%d ", d,di,t,h);
     if((!DIRECTED && t>=h) || iEdgeListSearch(t,h,bl)) continue;
