@@ -90,6 +90,57 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
   xmat <- matrix(z$x, ncol=Clist$nstats, byrow=TRUE)[uvals,,drop=FALSE]
   colnames(xmat) <- m$coef.names
   rm(z,uvals)
+
+  # If we ran out of space, AND we have a sparse network, then, use
+  # case-control MPLE.
+  if(sum(wend)<Clist$ndyads && mean(zy)<1/2){
+    if(verbose) cat("A sparse network with too many unique dyads encountered. Using case-control MPLE.\n")
+    # Strip out the rows associated with ties.
+    wend <- wend[zy==0]
+    xmat <- xmat[zy==0,,drop=FALSE]
+    zy <- zy[zy==0]
+
+    ## Run a whitelist PL over all of the edges in the network.
+    # Generate a random permutation of edges, in case we run out of space here as well.
+    missing <- paste(Clist$tails,Clist$heads,sep=".") %in% paste(Clist.miss$tails,Clist.miss$heads,sep=".")
+    ordering <- sample.int(Clist$nedges-sum(missing))
+    z <- .C("MPLE_wrapper",
+            as.integer(Clist$tails), as.integer(Clist$heads),
+            as.integer(Clist$nedges),
+            as.integer(TRUE),
+            as.integer(c(Clist$nedges-sum(missing),Clist$tails[!missing][ordering],Clist$heads[!missing][ordering])),
+            as.integer(n), 
+            as.integer(Clist$dir),     as.integer(bip),
+            as.integer(Clist$nterms), 
+            as.character(Clist$fnamestring), as.character(Clist$snamestring),
+            as.double(Clist$inputs),
+            y = integer(maxNumDyadTypes),
+            x = double(maxNumDyadTypes*Clist$nstats),
+            weightsvector = integer(maxNumDyadTypes),
+            as.integer(.Machine$integer.max), # maxDyads
+            as.integer(maxNumDyadTypes),
+            PACKAGE="ergm")
+    uvals <- z$weightsvector!=0
+    zy.e <- z$y[uvals]
+    wend.e <- z$weightsvector[uvals]
+    xmat.e <- matrix(z$x, ncol=Clist$nstats, byrow=TRUE)[uvals,,drop=FALSE]
+    colnames(xmat.e) <- m$coef.names
+    rm(z,uvals)
+
+    # Divvy up the sampling weight of the ties:
+    wend.e.total <- (Clist$nedges-sum(missing))
+    wend.e <- wend.e / sum(wend.e) * wend.e.total
+
+    # Divvy up the sampling weight of the nonties:
+    wend <- wend / sum(wend) * (Clist$ndyads-wend.e.total)
+
+    zy <- c(zy,zy.e)
+    wend <- c(wend, wend.e)
+    xmat <- rbind(xmat, xmat.e)
+
+    rm(zy.e, wend.e, xmat.e)
+  }
+  
   }else{
     if (verbose) {
       cat("Using the MPLE conditional on degree.\n")

@@ -47,7 +47,7 @@ ergm.Cprepare <- function(nw, m, response=NULL)
   bip <- nw$gal$bipartite
   if (is.null(bip)) bip <- 0
   Clist$bipartite <- bip
-  Clist$ndyads <- n * (n-1) / (2-dir)
+  Clist$ndyads <- network.dyadcount(nw)
   e<-as.edgelist(nw,attrname=response) # Ensures that for undirected networks, tail<head.
   if(length(e)==0){
     Clist$nedges<-0

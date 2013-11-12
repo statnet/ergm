@@ -265,7 +265,7 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...) {
       # Stop if something went wrong.
       if(out$status!=0) return(out)
 
-      # Get the array of the burnin draws. Note that all draws get stored (but the first 10%).
+      # Get the array of the burnin draws. Note that all draws get stored.
       burnin.stats <- rbind(burnin.stats,
                             matrix(out$s, nrow=samplesize,
                                    ncol=Clist$nstats,
@@ -276,8 +276,8 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...) {
       if(control$MCMC.runtime.traceplot) plot(mcmc(burnin.stats[,Clist$diagnosable,drop=FALSE],start=burnin+1,burnin+samplesize*interval,thin=interval),ask=FALSE,smooth=TRUE,density=FALSE)
 
       # Extract the last draws for diagnostics.
-      burnin.stats.last <- burnin.stats[-seq_len((1-control$MCMC.burnin.check.last)*nrow(burnin.stats)),]
-      burnin.stats.last <- burnin.stats.last[round(seq(from=1, to=nrow(burnin.stats.last), length.out=min(control$MCMC.samplesize,nrow(burnin.stats.last)))),,drop=TRUE]
+      burnin.stats.last <- burnin.stats[-seq_len((1-control$MCMC.burnin.check.last)*nrow(burnin.stats)),,drop=FALSE]
+      burnin.stats.last <- burnin.stats.last[round(seq(from=1, to=nrow(burnin.stats.last), length.out=min(control$MCMC.samplesize,nrow(burnin.stats.last)))),,drop=FALSE]
       
       burnin.esteq.last <-
         if(all(c("theta","etamap") %in% names(list(...)))) .ergm.esteq(list(...)$theta, list(etamap=list(...)$etamap), burnin.stats.last)
