@@ -214,12 +214,29 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     }
   } else {
     # non-sequential
-    control$MCMC.samplesize <- 1
-    z <- ergm.getMCMCsample(nw, m, MHproposal, eta0, control, verbose=verbose, response=response)
-    if (!statsonly) {
-      nw.list <- z$newnetworks
+    if (statsonly) {
+     control$MCMC.samplesize <- 1
+     z <- ergm.getMCMCsample(nw, m, MHproposal, eta0, control, verbose=verbose, response=response)
+    }else{
+     control$MCMC.samplesize <- control$parallel
+     num.runs <- ceiling(nsim / control$parallel)
+     nw.list <- vector(mode = "list", length(nsim))
+     j <- 1
+     for(i in 1:num.runs){
+      z <- ergm.getMCMCsample(nw, m, MHproposal, eta0, control, verbose=verbose, response=response)
+      if(length(nw.list) <= (nsim-control$parallel)){
+       for(k in 1:control$parallel){
+        nw.list[[j]] <- z$newnetworks[[k]]
+        j <- j + 1
+       }
+      }else{
+       for(k in 1:(nsim-length(nw.list))){
+        nw.list[[j]] <- z$newnetworks[[k]]
+        j <- j + 1
+       }
+      }
+     }
     }
-
   }
   
   if (statsonly)

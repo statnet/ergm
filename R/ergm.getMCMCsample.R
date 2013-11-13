@@ -106,9 +106,16 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
                            matrix(z$s, nrow=control.parallel$MCMC.samplesize,
                                   ncol=Clist$nstats,
                                   byrow = TRUE))
+      if(control$network.output!="NULL"){
+       newnetworks[[i]]<-newnw.extract(nw,z,response=response,output=control$network.output)
+      }
+    }
+    if(control$network.output!="NULL"){
+      newnetwork <- newnetworks[[control$parallel]]
+    }else{
+      newnetwork <- newnw.extract(nw,z,response=response,output=control$network.output)
     }
 
-    newnetworks[[i]]<-newnetwork<-newnw.extract(nw,z,response=response)
     if(verbose){cat("parallel samplesize=",nrow(statsmatrix),"by",
                     control.parallel$MCMC.samplesize,"\n")}
     
