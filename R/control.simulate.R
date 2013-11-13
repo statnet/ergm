@@ -25,9 +25,10 @@
 #                   the only recognized package name is "ergm";
 #                   default="ergm"
 #   network.output: the R class with which to output networks; the
-#                   options are "network" and "edgelist.compressed"
+#                   options are "NULL", "network" and "edgelist.compressed"
 #                   (which saves space but only supports networks
-#                    without vertex attributes); default="network"
+#                   without vertex attributes); "NULL" does not
+#                   return networks; default="network"
 #   parallel      : number of threads in which to run the sampling
 #
 # --IGNORED--
