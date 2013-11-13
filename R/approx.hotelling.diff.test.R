@@ -46,7 +46,7 @@ approx.hotelling.diff.test<-function(x,y=NULL,mu0=NULL){
   if(any((d-mu0)[novar]!=0)){
     warning("Vector(s) ", paste.and(colnames(x)[novar]),
             if(is.null(y)) " do not vary in x or in y and have differences unequal to mu0"
-            else "do not vary and do not equal mu0",
+            else " do not vary and do not equal mu0",
             "; P-value has been set to 0.")
         
     chi2 <- +Inf
@@ -54,7 +54,7 @@ approx.hotelling.diff.test<-function(x,y=NULL,mu0=NULL){
     if(any(novar)){
       warning("Vector(s) ", paste.and(colnames(x)[novar]),
               if(is.null(y)) " do not vary in x or in y but have differences equal to mu0"
-              else "do not vary but equals mu0",
+              else " do not vary but equal mu0",
               "; they have been ignored for the purposes of testing.")
     }
     chi2 <- t((d-mu0)[!novar])%*%robust.inverse(vcov.d[!novar,!novar,drop=FALSE])%*%(d-mu0)[!novar]
@@ -131,7 +131,7 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5){
         arvar <- arfit$var.pred
         arcoefs <- arfit$ar
         arcoefs <- if(is.null(dim(arcoefs))) sum(arcoefs) else apply(arcoefs,2:3,sum)
-        adj <- diag(1,nrow=p) - arcoefs
+        adj <- diag(1,nrow=p-sum(novar)) - arcoefs
         iadj <- solve(adj)
         v.var <- iadj %*% arfit$var.pred %*% t(iadj)
       }
