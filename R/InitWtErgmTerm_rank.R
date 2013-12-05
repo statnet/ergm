@@ -98,3 +98,17 @@ InitWtErgmTerm.nonconformity<-function(nw, arglist, response, ...) {
        inputs=inputs,
        dependence=TRUE)
 }
+
+InitWtErgmTerm.tiedranks<-function(nw, arglist, response, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=TRUE,
+                      varnames = NULL,
+                      vartypes = NULL,
+                      defaultvalues = NULL,
+                      required = NULL)
+
+ 
+  list(name="tiedranks",
+       coef.names="tiedranks",
+       inputs=NULL,
+       dependence=TRUE)
+}

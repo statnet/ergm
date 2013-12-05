@@ -384,3 +384,36 @@ WtS_CHANGESTAT_FN(s_nonconformity_thresholds){
   }
 }
 
+
+WtD_CHANGESTAT_FN(d_tiedranks){
+  OPTIMAL_RANK_D({
+      Vertex v1=t;
+      Vertex v2=h;
+      double v12_old = GETWT(v1,v2);
+      double v12_new = weights[0];
+      for(Vertex v3=1; v3 <= N_NODES; v3++){
+	if(v3==v1 || v3==v2) continue;
+	double v13=GETWT(v1,v3);
+	if(v13==v12_old) CHANGE_STAT[0]--;
+	if(v13==v12_new) CHANGE_STAT[0]++;
+      }
+    },{ // Swapping two rankings does not change the number of ties at all.
+      
+    });
+}
+
+WtS_CHANGESTAT_FN(s_tiedranks){ 
+  ZERO_ALL_CHANGESTATS();
+  for(Vertex v1=1; v1 <= N_NODES; v1++){
+    for(Vertex v2=1; v2 <= N_NODES; v2++){
+      if(v2==v1) continue;
+      double v12 = GETWT(v1,v2);
+      for(Vertex v3=1; v3 < v2; v3++){
+	if(v3==v2 || v3==v1) continue;
+	double v13 = GETWT(v1,v3);
+	if(v12==v13) CHANGE_STAT[0]++;
+      }
+    }
+  }
+}
+
