@@ -214,7 +214,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
       if(verbose){cat(sprintf("Finished simulation %d of %d.\n",i, nsim))}
     }
   } else {
-    # non-sequential
+    # non-sequential so could be statsonly or not.
     if (statsonly) {
      control$MCMC.samplesize <- 1
      z <- ergm.getMCMCsample(nw, m, MHproposal, eta0, control, verbose=verbose, response=response)
