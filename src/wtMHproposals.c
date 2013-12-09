@@ -17,24 +17,38 @@ void MH_CompleteOrdering(WtMHproposal *MHp, WtNetwork *nwp)  {
     MHp->ntoggles=2;
     return;
   }
-  
-  GetRandDyad(&tail, &head1, nwp);
 
-  if(nwp->bipartite){
-    head2 = 1 + nwp->bipartite + unif_rand() * (nwp->nnodes - nwp->bipartite - 1);
-    if(head2 >= head1) head2++;
-  }else{
-    head2 = 1 + unif_rand() * (nwp->nnodes - 2);
-    if(head2 >= tail) head2++;
-    if(head2 >= head1) head2++;
+  unsigned int trytoggle;
+
+  for(trytoggle=0; trytoggle<MAX_TRIES; trytoggle++){
+  
+    GetRandDyad(&tail, &head1, nwp);
+    
+    if(nwp->bipartite){
+      head2 = 1 + nwp->bipartite + unif_rand() * (nwp->nnodes - nwp->bipartite - 1);
+      if(head2 >= head1) head2++;
+    }else{
+      head2 = 1 + unif_rand() * (nwp->nnodes - 2);
+      if(head2 >= tail) head2++;
+      if(head2 >= head1){
+	head2++;
+	if(head2 == tail) head2++; // Increment if landed on top of tail. Note that head2 must have started out < tail, so there is no possibility of head2 being incremented 3 times.
+      }
+    }
+    
+    Mtail[0] = Mtail[1] = tail;
+    Mhead[0] = head1;
+    Mhead[1] = head2;
+    
+    Mweight[1] = WtGetEdge(Mtail[0],Mhead[0],nwp);
+    Mweight[0] = WtGetEdge(Mtail[1],Mhead[1],nwp);
+
+    if(Mweight[0]!=Mweight[1]) break;
   }
-  
-  Mtail[0] = Mtail[1] = tail;
-  Mhead[0] = head1;
-  Mhead[1] = head2;
-  
-  Mweight[1] = WtGetEdge(Mtail[0],Mhead[0],nwp);
-  Mweight[0] = WtGetEdge(Mtail[1],Mhead[1],nwp);
+  if(trytoggle>=MAX_TRIES){
+    MHp->toggletail[0]=MH_FAILED;
+    MHp->togglehead[0]=MH_UNSUCCESSFUL;	
+  }
 }
 
 /*********************
