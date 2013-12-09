@@ -112,3 +112,17 @@ InitWtErgmTerm.tiedranks<-function(nw, arglist, response, ...) {
        inputs=NULL,
        dependence=TRUE)
 }
+
+InitWtErgmTerm.rank.classes<-function(nw, arglist, response, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=TRUE,
+                      varnames = NULL,
+                      vartypes = NULL,
+                      defaultvalues = NULL,
+                      required = NULL)
+
+ 
+  list(name="rank_classes",
+       coef.names="rank_classes",
+       inputs=NULL,
+       dependence=TRUE)
+}
