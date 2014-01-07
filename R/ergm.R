@@ -374,6 +374,14 @@ ergm <- function(formula, response=NULL,
                           verbose=verbose,
                       response=response,
                           ...),
+    "CD.fixed" = ergm.CD.fixed(init, nw,
+                          model, 
+                          control=control, MHproposal=MHproposal,
+                          MHproposal.obs=MHproposal.obs,
+                          verbose=verbose,
+                      response=response,
+                          ...),
+
 
               stop("Method ", control$main.method, " is not implemented.")
               )
