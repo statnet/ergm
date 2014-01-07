@@ -134,7 +134,7 @@ ergm.CD.fixed <- function(init, nw, model,
     # Compute the sample estimating equations and the convergence p-value.
     esteq <- .ergm.esteq(mcmc.init, model, statsmatrix)
     esteq.obs <- if(obs) .ergm.esteq(mcmc.init, model, statsmatrix.obs) else NULL   
-    conv.pval <- approx.hotelling.diff.test(esteq, esteq.obs)$p.value
+    conv.pval <- approx.hotelling.diff.test(esteq, esteq.obs, assume.indep=TRUE)$p.value
                                             
     # We can either pretty-print the p-value here, or we can print the
     # full thing. What the latter gives us is a nice "progress report"
