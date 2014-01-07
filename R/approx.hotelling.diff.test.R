@@ -1,12 +1,12 @@
-approx.hotelling.diff.test<-function(x,y=NULL,mu0=NULL){
+approx.hotelling.diff.test<-function(x,y=NULL,mu0=NULL,assume.indep=FALSE){
   if(is.mcmc.list(x)){
-    x.spec0 <- lapply(x, .ergm.mvar.spec0)
+    x.spec0 <- if(assume.indep) lapply(x, cov) else lapply(x, .ergm.mvar.spec0)
     x.n <- lapply(x,nrow)
     vcov.xm <- Reduce("+", Map("*", x.spec0, x.n))/Reduce("+", x.n)^2
     x <- as.matrix(x)
   }else{
     x <- as.matrix(x)
-    x.spec0 <- .ergm.mvar.spec0(x)
+    x.spec0 <- if(assume.indep) cov(x) else .ergm.mvar.spec0(x)
     x.n <- nrow(x)
     vcov.xm <- x.spec0/x.n
   }
@@ -17,13 +17,13 @@ approx.hotelling.diff.test<-function(x,y=NULL,mu0=NULL){
   
   if(!is.null(y)){
     if(is.mcmc.list(y)){
-      y.spec0 <- lapply(y, .ergm.mvar.spec0)
+      y.spec0 <- if(assume.indep) lapply(x, cov) else lapply(y, .ergm.mvar.spec0)
       y.n <- lapply(y,nrow)
       vcov.ym <- Reduce("+", Map("*", y.spec0, y.n))/Reduce("+", y.n)^2
       y <- as.matrix(y)
     }else{
       y <- as.matrix(y)
-      y.spec0 <- .ergm.mvar.spec0(y)
+      y.spec0 <- if(assume.indep) cov(y) else .ergm.mvar.spec0(y)
       y.n <- nrow(y)
       vcov.ym <- y.spec0/y.n
     }
@@ -40,7 +40,7 @@ approx.hotelling.diff.test<-function(x,y=NULL,mu0=NULL){
 
   method <- paste("Chi-squared approximation to the Hotelling's",
                   if(is.null(y)) "One" else "Two",
-                  "Sample T^2-test", "with correction for autocorrelation")
+                  "Sample T^2-test", if(!assume.indep) "with correction for autocorrelation")
   
   # If a statistic doesn't vary and doesn't match, return a 0 p-value:
   if(any((d-mu0)[novar]!=0)){
