@@ -194,7 +194,15 @@ ergm.MCMLE <- function(init, nw, model,
             }else break # Proceed to optimization if either the sample size is sufficient
         }else break # Or if dynamic interval is disabled.
     }
+
+    # Dynamic burn-in
+    control$MCMC.burnin <- mean(z$burnin.total) / 4
+    if(verbose) cat("Unconstrained MCMC burn-in took an average of",mean(z$burnin.total),"steps. New burn-in:",control$MCMC.burnin,".\n")
     
+    if(obs){
+      control.obs$MCMC.burnin <- mean(z.obs$burnin.total) / 4
+      if(verbose) cat("Constrained MCMC burn-in took an average of",mean(z.obs$burnin.total),"steps. New burn-in:",control.obs$MCMC.burnin,".\n")
+    }
     
     conv.pval <- approx.hotelling.diff.test(esteq, esteq.obs)$p.value
                                             

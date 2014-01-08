@@ -72,6 +72,8 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
     newnetwork <- newnw.extract(nw,z,response=response,
                                 output=control$network.output)
     newnetworks <- list(newnetwork)
+
+    burnin.total <- z$burnin.total
   }else{
     control.parallel <- control
     control.parallel$MCMC.samplesize <- round(control$MCMC.samplesize / control$parallel)
@@ -88,6 +90,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
     #
     statsmatrix <- NULL
     newnetworks <- list()
+    burnin.total <- c()
     for(i in (1:control$parallel)){
       z <- outlist[[i]]
 
@@ -109,6 +112,8 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
       if(is.null(control$network.output)||control$network.output!="NULL"){
        newnetworks[[i]]<-newnw.extract(nw,z,response=response,output=control$network.output)
       }
+
+      burnin.total <- c(burnin.total, z$burnin.total)
     }
     if(is.null(control$network.output)||control$network.output!="NULL"){
       newnetwork <- newnetworks[[control$parallel]]
@@ -125,7 +130,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
   colnames(statsmatrix) <- model$coef.names
 
   statsmatrix[is.na(statsmatrix)] <- 0
-  list(statsmatrix=statsmatrix, newnetwork=newnetwork, newnetworks=newnetworks, status=0)
+  list(statsmatrix=statsmatrix, newnetwork=newnetwork, newnetworks=newnetworks, status=0, burnin.total=burnin.total)
 }
 
 
@@ -258,11 +263,12 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...) {
   if(!is.null(control$MCMC.burnin.retries) && control$MCMC.burnin.retries>0){
     out <- NULL
     burnin.stats <- NULL
-
+    burnin.total <- 0
+    samplesize <- min(control$MCMC.samplesize,control$MCMC.burnin)
+    burnin <- 0
+    interval <- ceiling(control$MCMC.burnin/samplesize)
+    
     for(try in seq_len(control$MCMC.burnin.retries+1)){
-      samplesize <- min(control$MCMC.samplesize,control$MCMC.burnin)
-      burnin <- 0
-      interval <- ceiling(control$MCMC.burnin/samplesize)
       out<-dorun(prev.run=out,
                  burnin = burnin,
                  samplesize = samplesize,
@@ -272,6 +278,8 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...) {
       # Stop if something went wrong.
       if(out$status!=0) return(out)
 
+      burnin.total <- burnin.total + burnin + (samplesize-1)*interval
+      
       # Get the array of the burnin draws. Note that all draws get stored.
       burnin.stats <- rbind(burnin.stats,
                             matrix(out$s, nrow=samplesize,
@@ -279,27 +287,36 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...) {
                                    byrow = TRUE)
                             )
       colnames(burnin.stats) <- names(Clist$diagnosable)
-      
-      if(control$MCMC.runtime.traceplot) plot(mcmc(burnin.stats[,Clist$diagnosable,drop=FALSE],start=burnin+1,burnin+samplesize*interval,thin=interval),ask=FALSE,smooth=TRUE,density=FALSE)
 
+      if(nrow(burnin.stats)>=samplesize*8){
+        burnin.stats <- burnin.stats[seq_len(floor(nrow(burnin.stats)/2))*2,,drop=FALSE]
+        interval <- interval*2
+        if(verbose) cat("Increasing thinning to",interval,".\n")
+      }
+      
       # Extract the last draws for diagnostics.
       burnin.stats.last <- burnin.stats[-seq_len((1-control$MCMC.burnin.check.last)*nrow(burnin.stats)),,drop=FALSE]
-      burnin.stats.last <- burnin.stats.last[round(seq(from=1, to=nrow(burnin.stats.last), length.out=min(control$MCMC.samplesize,nrow(burnin.stats.last)))),,drop=FALSE]
       
       burnin.esteq.last <-
         if(all(c("theta","etamap") %in% names(list(...)))) .ergm.esteq(list(...)$theta, list(etamap=list(...)$etamap), burnin.stats.last)
         else burnin.stats.last[,Clist$diagnosable,drop=FALSE]
 
-      burnin.pval <- geweke.diag.mv(burnin.esteq.last)$p.value
-      if(burnin.pval < control$MCMC.burnin.check.alpha){
+      if(control$MCMC.runtime.traceplot) plot(mcmc(burnin.esteq.last[round(seq(from=1,by=floor(nrow(burnin.esteq.last)/1000),length.out=1000)),],start=1,thin=floor(nrow(burnin.esteq.last)/1000)),ask=FALSE,smooth=TRUE,density=FALSE)
+      
+      burnin.test <- geweke.diag.mv(burnin.esteq.last,.3,.3) # Note that the first and the last are different. More similar sample sizes give more power, and the gap between the samples is the same as before (0.4).
+      if(burnin.test$parameter["df"]<burnin.test$parameter["param"]*control$MCMC.burnin.min.df.per.param){
+        if(verbose) cat("Insufficient burn-in sample size (",burnin.test$parameter["df"],"<",burnin.test$parameter["param"],"*",control$MCMC.burnin.min.df.per.param,") to test convergence. Rerunning.\n")
+        if(try == control$MCMC.burnin.retries+1) burnin.failed <- TRUE
+      }else if(burnin.test$p.value < control$MCMC.burnin.check.alpha){
         failed <- effectiveSize(burnin.esteq.last)
         failed <- order(failed)
-        if(verbose) cat("Burn-in failed to converge or mixed very poorly, with p-value =",burnin.pval,". Ranking of statistics from worst-mixing to best-mixing:", paste.and(names(Clist$diagnosable[Clist$diagnosable])[failed]), ". Rerunning.\n")
-        burnin.stats <- burnin.stats[-seq_len(nrow(burnin.stats)/10),,drop=FALSE]
+        if(verbose) cat("Burn-in failed to converge or mixed very poorly, with p-value =",burnin.test$p.value,". Ranking of statistics from worst-mixing to best-mixing:", paste.and(names(Clist$diagnosable[Clist$diagnosable])[failed]), ". Rerunning.\n")
         if(try == control$MCMC.burnin.retries+1) burnin.failed <- TRUE
-      }
-      else{
-        if(verbose) cat("Burn-in converged. Proceeding to the sampling run.\n")
+      }else{
+        if(verbose){
+          print(burnin.test)
+          cat("Burn-in converged. Proceeding to the sampling run.\n")
+        }
         burnin.failed <- FALSE
         break
       }
@@ -316,6 +333,7 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...) {
       plot(mcmc(stats,start=1,end=control$MCMC.samplesize*control$MCMC.interval,thin=control$MCMC.interval),ask=FALSE,smooth=TRUE,density=FALSE)
     }
     out$burnin.failed <- burnin.failed
+    out$burnin.total <- burnin.total
     out
   } else {
     out <- dorun()
