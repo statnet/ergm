@@ -8,7 +8,7 @@ qtsq <- function(p, param, df, lower.tail = TRUE, log.p = FALSE){
     fq / ((df - param + 1)/(param*df))
 }
 
-approx.hotelling.diff.test<-function(x,y=NULL,mu0=NULL,assume.indep=FALSE){
+approx.hotelling.diff.test<-function(x,y=NULL, mu0=NULL, assume.indep=FALSE, var.equal=FALSE){
 
   tr <- function(x) sum(diag(as.matrix(x)))
 
@@ -23,7 +23,7 @@ approx.hotelling.diff.test<-function(x,y=NULL,mu0=NULL,assume.indep=FALSE){
     if(assume.indep){
       vcovs <- vcovs.indep
     }else{
-      vcovs <- lapply(v, .ergm.mvar.spec0)
+      vcovs <- lapply(lapply(v, .ergm.mvar.spec0), function(m) matrix(ifelse(is.na(c(m)), 0, c(m)),nrow(m),ncol(m)))
     }
     ms <- lapply(v, colMeans)
     m <- colMeans(as.matrix(v))
@@ -43,7 +43,6 @@ approx.hotelling.diff.test<-function(x,y=NULL,mu0=NULL,assume.indep=FALSE){
     neff <- n / infl
     
     vcov.m <- vcov/n # Here, vcov already incorporates the inflation due to autocorrelation.
-    vcov.m[is.na(vcov.m)] <- 0
     v <- as.matrix(v)
   })
   rm(mywithin)
@@ -56,7 +55,12 @@ approx.hotelling.diff.test<-function(x,y=NULL,mu0=NULL,assume.indep=FALSE){
   
   if(!is.null(y)){
     d <- d - y$m
-    vcov.d <- vcov.d + y$vcov.m
+    if(var.equal){
+      vcov.pooled <- (x$vcov*(x$n-1) + y$vcov*(y$n-1))/(x$n+y$n-2)
+      vcov.d <- vcov.pooled * (1/x$n + 1/y$n)
+    }else{
+      vcov.d <- vcov.d + y$vcov.m
+    }
   }
 
 
@@ -71,7 +75,7 @@ approx.hotelling.diff.test<-function(x,y=NULL,mu0=NULL,assume.indep=FALSE){
   
   method <- paste("Hotelling's",
                   if(is.null(y)) "One" else "Two",
-                  "-Sample T^2-Test", if(!assume.indep) "with correction for autocorrelation")
+                  "-Sample",if(var.equal) "Pooled","T^2-Test", if(!assume.indep) "with correction for autocorrelation")
   
   # If a statistic doesn't vary and doesn't match, return a 0 p-value:
   if(any((d-mu0)[novar]!=0)){
@@ -94,6 +98,8 @@ approx.hotelling.diff.test<-function(x,y=NULL,mu0=NULL,assume.indep=FALSE){
   names(T2) <- "T^2"
   pars <- c(param = p, df = if(is.null(y)){
     x$neff-1
+  }else if(var.equal){
+    x$neff+y$neff-2
   }else{
     mywith <- function(...) with(...)
     # This is the Krishnamoorthy and Yu (2004) degrees of freedom formula, courtesy of Wikipedia.
@@ -102,7 +108,9 @@ approx.hotelling.diff.test<-function(x,y=NULL,mu0=NULL,assume.indep=FALSE){
     rm(mywith)
     df
   })
-  out <- list(statistic=T2, parameter=pars, p.value=ptsq(T2,pars[1],pars[2],lower.tail=FALSE),
+
+  if(pars[1]>=pars[2]) warning("Effective degrees of freedom (",pars[2],") must exceed the number of varying parameters (",pars[1],"). P-value will not be computed.")
+  out <- list(statistic=T2, parameter=pars, p.value=if(pars[1]<pars[2]) ptsq(T2,pars[1],pars[2],lower.tail=FALSE) else NA,
               method = method,
               null.value=mu0,
               alternative="two.sided",
@@ -122,6 +130,8 @@ approx.hotelling.diff.test<-function(x,y=NULL,mu0=NULL,assume.indep=FALSE){
 ## Rather than comparing each mean independently, compares them
 ## jointly. Note that it returns an htest object, not a geweke.diag
 ## object.
+##
+## If approx.hotelling.diff.test returns an error, then
 
 geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5){
   if (is.mcmc.list(x)) 
@@ -129,9 +139,12 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5){
   x <- as.mcmc(x)
   x1 <- window(x, start=start(x), end=start(x) + frac1 * (end(x) - start(x)))
   x2 <- window(x, start=end(x) - frac2 * (end(x) - start(x)), end=end(x))
-  test <- approx.hotelling.diff.test(x1,x2)
+
+  test <- approx.hotelling.diff.test(x1,x2,var.equal=TRUE) # When converged, the chain should have the same variance throughout.
+  if(is.na(test$p.value)) test$p.value <- 0 # Interpret too-small a sample size as insufficient burn-in.
+
   test$method <- paste("Multivariate extension to Geweke's burn-in convergence diagnostic")
-  return(test)
+  test
 }
 
 # Compute the sample estimating equations of an ERGM. If the model is
