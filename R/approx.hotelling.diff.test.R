@@ -1,46 +1,77 @@
-approx.hotelling.diff.test<-function(x,y=NULL,mu0=NULL,assume.indep=FALSE){
-  if(is.mcmc.list(x)){
-    x.spec0 <- if(assume.indep) lapply(x, cov) else lapply(x, .ergm.mvar.spec0)
-    x.n <- lapply(x,nrow)
-    vcov.xm <- Reduce("+", Map("*", x.spec0, x.n))/Reduce("+", x.n)^2
-    x <- as.matrix(x)
-  }else{
-    x <- as.matrix(x)
-    x.spec0 <- if(assume.indep) cov(x) else .ergm.mvar.spec0(x)
-    x.n <- nrow(x)
-    vcov.xm <- x.spec0/x.n
-  }
-  vcov.xm[is.na(vcov.xm)] <- 0
+ptsq <- function (q, param, df, lower.tail = TRUE, log.p = FALSE){
+    fq <- q*(df - param + 1)/(param*df)
+    pf(fq, param, df - param + 1, lower.tail=lower.tail, log.p=log.p)
+}
 
-  d <-  colMeans(x)
-  vcov.d <- vcov.xm
+qtsq <- function(p, param, df, lower.tail = TRUE, log.p = FALSE){
+    fq <- qf(fq, param, df - param + 1, lower.tail=lower.tail, log.p=log.p)
+    fq / ((df - param + 1)/(param*df))
+}
+
+approx.hotelling.diff.test<-function(x,y=NULL,mu0=NULL,assume.indep=FALSE){
+
+  tr <- function(x) sum(diag(as.matrix(x)))
+
+  vars <- list(x=list(v=x))
+  if(!is.null(y)) vars$y <- list(v=y)
+  
+  mywithin <- function(...) within(...) # This is a workaround suggsted by Duncan Murdoch: calling lapply(X, within, {CODE}) would leave CODE unable to see any objects in f.
+  vars <- lapply(vars, mywithin, {
+    if(!is.mcmc.list(v))
+      v <- mcmc.list(mcmc(as.matrix(v)))
+    vcovs.indep <- lapply(v, cov)
+    if(assume.indep){
+      vcovs <- vcovs.indep
+    }else{
+      vcovs <- lapply(v, .ergm.mvar.spec0)
+    }
+    ms <- lapply(v, colMeans)
+    m <- colMeans(as.matrix(v))
+    ns <- sapply(v,nrow)
+    n <- sum(ns)
+
+    # These are pooled estimates of the variance-covariance
+    # matrix. Note that the outer product of the difference between
+    # chain means (times n) is added on as well, because the chains
+    # are supposed to all have the same population mean. However, the
+    # divisor is then the combined sample size less 1, because we are
+    # assuming equal means.
+    vcov.indep <- Reduce("+", Map("+", Map("*", vcovs.indep, ns-1), Map("*", Map(outer, lapply(ms,"-",m), lapply(ms,"-",m)), ns) ))/(n-1)
+    vcov <- Reduce("+", Map("+", Map("*", vcovs, ns-1), Map("*", Map(outer, lapply(ms,"-",m), lapply(ms,"-",m)), ns) ))/(n-1)
+
+    infl <- tr(vcov) / tr(vcov.indep) # I.e., how much bigger is the trace of the variance-covariance after taking autocorrelation into account than before.
+    neff <- n / infl
+    
+    vcov.m <- vcov/n # Here, vcov already incorporates the inflation due to autocorrelation.
+    vcov.m[is.na(vcov.m)] <- 0
+    v <- as.matrix(v)
+  })
+  rm(mywithin)
+  
+  x <- vars$x
+  y <- vars$y
+  
+  d <- x$m
+  vcov.d <- x$vcov.m
   
   if(!is.null(y)){
-    if(is.mcmc.list(y)){
-      y.spec0 <- if(assume.indep) lapply(x, cov) else lapply(y, .ergm.mvar.spec0)
-      y.n <- lapply(y,nrow)
-      vcov.ym <- Reduce("+", Map("*", y.spec0, y.n))/Reduce("+", y.n)^2
-      y <- as.matrix(y)
-    }else{
-      y <- as.matrix(y)
-      y.spec0 <- if(assume.indep) cov(y) else .ergm.mvar.spec0(y)
-      y.n <- nrow(y)
-      vcov.ym <- y.spec0/y.n
-    }
-    vcov.ym[is.na(vcov.ym)] <- 0
-
-    d <- d - colMeans(y)
-    vcov.d <- vcov.d + vcov.ym
+    d <- d - y$m
+    vcov.d <- vcov.d + y$vcov.m
   }
 
-  novar <- diag(vcov.d)==0
-  
-  if(is.null(mu0)) mu0 <- rep(0,ncol(x))
-  names(mu0)<-colnames(x)
 
-  method <- paste("Chi-squared approximation to the Hotelling's",
+  p <- ncol(x$v)
+  if(is.null(mu0)) mu0 <- rep(0,p)
+  names(mu0)<-colnames(x$v)
+
+  novar <- diag(vcov.d)==0
+  p <- p-sum(novar)
+
+  ivcov.d <-robust.inverse(vcov.d[!novar,!novar,drop=FALSE])
+  
+  method <- paste("Hotelling's",
                   if(is.null(y)) "One" else "Two",
-                  "Sample T^2-test", if(!assume.indep) "with correction for autocorrelation")
+                  "-Sample T^2-Test", if(!assume.indep) "with correction for autocorrelation")
   
   # If a statistic doesn't vary and doesn't match, return a 0 p-value:
   if(any((d-mu0)[novar]!=0)){
@@ -49,7 +80,7 @@ approx.hotelling.diff.test<-function(x,y=NULL,mu0=NULL,assume.indep=FALSE){
             else " do not vary and do not equal mu0",
             "; P-value has been set to 0.")
         
-    chi2 <- +Inf
+    T2 <- +Inf
   }else{
     if(any(novar)){
       warning("Vector(s) ", paste.and(colnames(x)[novar]),
@@ -57,13 +88,21 @@ approx.hotelling.diff.test<-function(x,y=NULL,mu0=NULL,assume.indep=FALSE){
               else " do not vary but equal mu0",
               "; they have been ignored for the purposes of testing.")
     }
-    chi2 <- t((d-mu0)[!novar])%*%robust.inverse(vcov.d[!novar,!novar,drop=FALSE])%*%(d-mu0)[!novar]
+    T2 <- c(t((d-mu0)[!novar])%*%ivcov.d%*%(d-mu0)[!novar])
   }
   
-  names(chi2) <- "X-squared"
-  df <- ncol(x)-sum(novar)
-  names(df) <- "df"
-  out <- list(statistic=chi2, parameter=df, p.value=pchisq(chi2,df,lower.tail=FALSE),
+  names(T2) <- "T^2"
+  pars <- c(param = p, df = if(is.null(y)){
+    x$neff-1
+  }else{
+    mywith <- function(...) with(...)
+    # This is the Krishnamoorthy and Yu (2004) degrees of freedom formula, courtesy of Wikipedia.
+    df <- (p+p^2)/sum(sapply(vars, mywith, (tr(vcov.m[!novar,!novar] %*% ivcov.d %*% vcov.m[!novar,!novar] %*% ivcov.d) +
+                                            tr(vcov.m[!novar,!novar] %*% ivcov.d)^2)/neff))
+    rm(mywith)
+    df
+  })
+  out <- list(statistic=T2, parameter=pars, p.value=ptsq(T2,pars[1],pars[2],lower.tail=FALSE),
               method = method,
               null.value=mu0,
               alternative="two.sided",
@@ -111,7 +150,9 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5){
 # the mean of x if x is a multivatriate time series with AR(p)
 # structure, with p determined by AIC.
 #
-# ar() fails if crossprod(x) is singular, so 
+# ar() fails if crossprod(x) is singular, so do each chain independently when not.
+#
+# FIXME: Actually, for MCMC with multiple chains, we should be using the pooled mean.
 .ergm.mvar.spec0 <- function(x,tol=.Machine$double.eps){
     x <- cbind(x)
     n <- nrow(x)
