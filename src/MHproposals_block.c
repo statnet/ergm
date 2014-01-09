@@ -59,7 +59,7 @@ void MH_blockdiagTNT (MHproposal *MHp, Network *nwp)
   /* *** don't forget tail-> head now */
   
   Vertex tail, head, blks=MHp->inputs[1];
-  double *blkpos = MHp->inputs+2, *blkcwt = MHp->inputs+2+blks+1; 
+  double *blkpos = MHp->inputs+2, *blkcwt = MHp->inputs+2+blks+1, logratio=0; 
   Edge nedges=nwp->nedges;
   static double comp=0.5;
   static double odds;
@@ -81,8 +81,8 @@ void MH_blockdiagTNT (MHproposal *MHp, Network *nwp)
 	   or vice versa.  Note that this happens extremely rarely unless the 
 	   network is small or the parameter values lead to extremely sparse 
 	   networks.  */
-	MHp->logratio += log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
-			      nedges / (odds*ndyads + nedges)));
+	logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
+			 nedges / (odds*ndyads + nedges)));
       }else{ /* Select a dyad at random within a block */
 	double r = unif_rand();
 	// TODO: Use bisection to perform this search in O(log b) instead of O(b) time. 
@@ -99,12 +99,13 @@ void MH_blockdiagTNT (MHproposal *MHp, Network *nwp)
 	  Mhead[0] = head;
 	}
 	if(EdgetreeSearch(Mtail[0],Mhead[0],nwp->outedges)!=0){
-	  MHp->logratio += log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
+	  logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
 				nedges / (odds*ndyads + nedges)));
 	}else{
-	  MHp->logratio += log((nedges==0 ? comp*ndyads + (1.0-comp) :
+	  logratio = log((nedges==0 ? comp*ndyads + (1.0-comp) :
 				1.0 + (odds*ndyads)/(nedges + 1)));
 	}
       }
     });
+  MHp->logratio += logratio;
 }

@@ -55,7 +55,8 @@ void MH_TNT (MHproposal *MHp, Network *nwp)
     ndyads = DYADCOUNT(nwp->nnodes, nwp->bipartite, nwp->directed_flag);
     return;
   }
-  
+
+  double logratio=0;
   BD_LOOP({
       if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
 	GetRandEdge(Mtail, Mhead, nwp);
@@ -64,20 +65,21 @@ void MH_TNT (MHproposal *MHp, Network *nwp)
 	   or vice versa.  Note that this happens extremely rarely unless the 
 	   network is small or the parameter values lead to extremely sparse 
 	   networks.  */
-	MHp->logratio += log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
+	logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
 			      nedges / (odds*ndyads + nedges)));
       }else{ /* Select a dyad at random */
 	GetRandDyad(Mtail, Mhead, nwp);
 	
 	if(EdgetreeSearch(Mtail[0],Mhead[0],nwp->outedges)!=0){
-	  MHp->logratio += log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
+	  logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
 				nedges / (odds*ndyads + nedges)));
 	}else{
-	  MHp->logratio += log((nedges==0 ? comp*ndyads + (1.0-comp) :
+	  logratio = log((nedges==0 ? comp*ndyads + (1.0-comp) :
 				1.0 + (odds*ndyads)/(nedges + 1)));
 	}
       }
     });
+  MHp->logratio += logratio;
 }
 
 /********************
@@ -102,23 +104,26 @@ void MH_TNT10 (MHproposal *MHp, Network *nwp)
     return;
   }
   
+  double logratio;
   BD_LOOP({
+      logratio = 0;
       for(unsigned int n = 0; n < 10; n++){
 	if (unif_rand() < comp && nedges > 0) { /* Select a tie at random */
 	  GetRandEdge(Mtail, Mhead, nwp);
-	  MHp->logratio += log(nedges  / (odds*ndyads + nedges));
+	  logratio = log(nedges  / (odds*ndyads + nedges));
 	}else{ /* Select a dyad at random */
 	  GetRandDyad(Mtail+n, Mhead+n, nwp);
 	  if(EdgetreeSearch(Mtail[n],Mhead[n],nwp->outedges)!=0){
-	    MHp->logratio += log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
+	    logratio += log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
 				  nedges / (odds*ndyads + nedges)));
 	  }else{
-	    MHp->logratio += log((nedges==0 ? comp*ndyads + (1.0-comp) :
+	    logratio += log((nedges==0 ? comp*ndyads + (1.0-comp) :
 				  1.0 + (odds*ndyads)/(nedges + 1)));
 	  }
 	} 
       }
     });
+  MHp->logratio += logratio;
 }
 
 /*********************
@@ -641,7 +646,8 @@ void MH_OneRandomTnTNode (MHproposal *MHp, Network *nwp) {
   int noutedge=0, ninedge=0, k0=0, fvalid=0, k;
 
   /* *** don't forget tail-> head now */
-    
+
+  double logratio=0;
   fvalid=0;
   while(fvalid==0){
     
@@ -680,7 +686,7 @@ void MH_OneRandomTnTNode (MHproposal *MHp, Network *nwp) {
 	    Mhead[0] = head;
 	  }
 	
-	MHp->logratio += log(((noutedge+ninedge)*1.0)/(nwp->nnodes-1-noutedge-ninedge-1));
+	logratio = log(((noutedge+ninedge)*1.0)/(nwp->nnodes-1-noutedge-ninedge-1));
 	fvalid =1;
       }else{
 	/* Choose random non-tie */
@@ -724,12 +730,13 @@ void MH_OneRandomTnTNode (MHproposal *MHp, Network *nwp) {
 	
         if ( nwp->directed_flag )
 	  {
-	    MHp->logratio += log((nwp->nnodes-1-noutedge-ninedge)/(noutedge+ninedge+1.0));
+	    logratio = log((nwp->nnodes-1-noutedge-ninedge)/(noutedge+ninedge+1.0));
 	  }else{
-	    MHp->logratio += log((nwp->nnodes-1-noutedge-ninedge)/(noutedge+ninedge+1.0));
+	    logratio = log((nwp->nnodes-1-noutedge-ninedge)/(noutedge+ninedge+1.0));
 	  }
       }
   }
+  MHp->logratio += logratio;
 }
 
 /*********************
