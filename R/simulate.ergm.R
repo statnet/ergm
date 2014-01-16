@@ -226,7 +226,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   if (nsim==1) {
     return(nw.list[[1]])
   } else {
-    nw.list <- nw.list[seq_len(nsim),]
+    nw.list <- nw.list[seq_len(nsim)]
     attributes(nw.list) <- list(formula=object, stats=out.mat, coef=coef,
                                 control=control,
                                 constraints=constraints, reference=reference,
