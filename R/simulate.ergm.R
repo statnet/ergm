@@ -175,7 +175,6 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     # Call ergm.getMCMCsample only one time, using the C function to generate the whole
     # matrix of network statistics.
     control$MCMC.samplesize <- nsim
-    control$network.output <- "NULL"
     z <- ergm.getMCMCsample(nw, m, MHproposal, eta0, control, verbose=verbose, response=response)
     
     # Post-processing:  Add term names to columns and shift each row by
@@ -189,64 +188,45 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   if (!statsonly) { 
     nw.list <- list()
   }
-  out.mat <- matrix(nrow=nsim, ncol=length(curstats), 
+  out.mat <- matrix(nrow=0, ncol=length(curstats), 
                     dimnames = list(NULL, m$coef.names)) 
-  
+
   # Call ergm.getMCMCsample once for each network desired.  This is much slower
   # than when sequential==TRUE and statsonly==TRUE, but here we have a 
   # more complicated situation:  Either we want a network for each
   # MCMC iteration (statsonly=FALSE) or we want to restart each chain
   # at the original network (sequential=FALSE).
-  if (sequential) { # so non-stats only non-parallel method used here
-    for(i in 1:nsim){
-      control$MCMC.samplesize <- 1
-      control$MCMC.burnin <- ifelse(i==1, control$MCMC.burnin, control$MCMC.interval)
-      z <- ergm.getMCMCsample(nw, m, MHproposal, eta0, control, verbose=verbose, response=response)
-      
-      # Create a network object if statsonly==FALSE
-      if (!statsonly) {
-        nw <- as.network.uncompressed(z$newnetwork)
-        nw.list[[i]] <- z$newnetwork
-      }
-      out.mat[i,] <- curstats + z$statsmatrix
-      # If we get here, statsonly must be FALSE
+  if(control$parallel) curstats <- matrix(curstats, nrow=control$parallel, ncol=length(curstats), byrow=TRUE)
+  
+  for(i in 1:ceiling(nsim/max(control$parallel,1))){
+    
+    control$MCMC.samplesize <- if(control$parallel==0) 1 else control$parallel
+    control$MCMC.burnin <- if(i==1 || sequential==FALSE) control$MCMC.burnin else control$MCMC.interval
+    z <- ergm.getMCMCsample(nw, m, MHproposal, eta0, control, verbose=verbose, response=response)
+    
+    out.mat <- rbind(out.mat, curstats + z$statsmatrix)
+
+    if(!statsonly) # then store the returned network:
+      if(control$parallel==0) nw.list[[length(nw.list)+1]] <- z$newnetwork else nw.list <- c(nw.list, z$newnetworks)
+
+    if(sequential){ # then update the network state:
+      nw <- if(control$parallel==0) z$newnetwork else z$newnetworks
       curstats <- curstats + z$statsmatrix
-      if(verbose){cat(sprintf("Finished simulation %d of %d.\n",i, nsim))}
     }
-  } else {
-    # non-sequential so could be statsonly or not.
-    if (statsonly) {
-     control$MCMC.samplesize <- 1
-     z <- ergm.getMCMCsample(nw, m, MHproposal, eta0, control, verbose=verbose, response=response)
-    }else{
-     control$MCMC.samplesize <- control$parallel
-     num.runs <- ceiling(nsim / control$parallel)
-     nw.list <- vector(mode = "list", length(nsim))
-     j <- 1
-     for(i in 1:num.runs){
-      z <- ergm.getMCMCsample(nw, m, MHproposal, eta0, control, verbose=verbose, response=response)
-      if(length(nw.list) <= (nsim-control$parallel)){
-       for(k in 1:control$parallel){
-        nw.list[[j]] <- z$newnetworks[[k]]
-        j <- j + 1
-       }
-      }else{
-       for(k in 1:(nsim-length(nw.list))){
-        nw.list[[j]] <- z$newnetworks[[k]]
-        j <- j + 1
-       }
-      }
-     }
-    }
+
+    if(verbose){cat(sprintf("Finished simulation %d of %d.\n",i, nsim))}
   }
+
+  out.mat <- out.mat[seq_len(nsim),]
   
   if (statsonly)
-    return(out.mat[1:nsim,]) # If nsim==1, this will return a vector, not a matrix
+    return(out.mat) # If nsim==1, this will return a vector, not a matrix
   
   # If we get here, statsonly==FALSE.
   if (nsim==1) {
     return(nw.list[[1]])
   } else {
+    nw.list <- nw.list[seq_len(nsim),]
     attributes(nw.list) <- list(formula=object, stats=out.mat, coef=coef,
                                 control=control,
                                 constraints=constraints, reference=reference,
