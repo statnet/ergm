@@ -100,17 +100,19 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=NULL, assume.indep=FALSE, var
     }
     T2 <- c(t((d-mu0)[!novar])%*%ivcov.d%*%(d-mu0)[!novar])
   }
+
+  NANVL <- function(z, ifNAN) ifelse(is.nan(z),ifNAN,z)
   
   names(T2) <- "T^2"
   pars <- c(param = p, df = if(is.null(y)){
-    x$neff-1
+    NANVL(x$neff,1)-1
   }else if(var.equal){
-    x$neff+y$neff-2
+    NANVL(x$neff,1)+NANVL(y$neff,1)-2
   }else{
     mywith <- function(...) with(...)
     # This is the Krishnamoorthy and Yu (2004) degrees of freedom formula, courtesy of Wikipedia.
-    df <- (p+p^2)/sum(sapply(vars, mywith, (tr(vcov.m[!novar,!novar] %*% ivcov.d %*% vcov.m[!novar,!novar] %*% ivcov.d) +
-                                            tr(vcov.m[!novar,!novar] %*% ivcov.d)^2)/neff))
+    df <- (p+p^2)/sum(NANVL(sapply(vars, mywith, (tr(vcov.m[!novar,!novar] %*% ivcov.d %*% vcov.m[!novar,!novar] %*% ivcov.d) +
+                                            tr(vcov.m[!novar,!novar] %*% ivcov.d)^2)/neff), 0))
     rm(mywith)
     df
   })

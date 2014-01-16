@@ -306,8 +306,11 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...) {
 
       if(control$MCMC.runtime.traceplot) plot(mcmc(burnin.esteq.last[round(seq(from=1,by=floor(nrow(burnin.esteq.last)/1000),length.out=1000)),],start=1,thin=floor(nrow(burnin.esteq.last)/1000)),ask=FALSE,smooth=TRUE,density=FALSE)
       
-      burnin.test <- geweke.diag.mv(burnin.esteq.last,.3,.3) # Note that the first and the last are different. More similar sample sizes give more power, and the gap between the samples is the same as before (0.4).
-      if(burnin.test$parameter["df"]<burnin.test$parameter["param"]*control$MCMC.burnin.min.df.per.param){
+      burnin.test <- try(geweke.diag.mv(burnin.esteq.last,.3,.3)) # Note that the first and the last are different. More similar sample sizes give more power, and the gap between the samples is the same as before (0.4).
+      if(inherits(burnin.test,"try-error")){
+        if(verbose) cat("Burn-in convergence test failed. Rerunning.\n")
+        if(try == control$MCMC.burnin.retries+1) burnin.failed <- TRUE
+      }else if(burnin.test$parameter["df"]<burnin.test$parameter["param"]*control$MCMC.burnin.min.df.per.param){
         if(verbose) cat("Insufficient burn-in sample size (",burnin.test$parameter["df"],"<",burnin.test$parameter["param"],"*",control$MCMC.burnin.min.df.per.param,") to test convergence. Rerunning.\n")
         if(try == control$MCMC.burnin.retries+1) burnin.failed <- TRUE
       }else if(burnin.test$p.value < control$MCMC.burnin.check.alpha){
