@@ -205,7 +205,11 @@ ergm.MCMLE <- function(init, nw, model,
     }
     
     conv.pval <- approx.hotelling.diff.test(esteq, esteq.obs)$p.value
-                                            
+    if(is.na(conv.pval)){
+      if(verbose) cat("Simulated statistics match observed, but insufficient variation in the sufficient statistics to asses convergence.\n")
+      conv.pval <- 1
+    }
+    
     # We can either pretty-print the p-value here, or we can print the
     # full thing. What the latter gives us is a nice "progress report"
     # on whether the estimation is getting better..
