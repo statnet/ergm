@@ -1,11 +1,17 @@
+dtsq <- function(x, param, df, log = FALSE){
+  fx <- x*(df - param + 1)/(param*df)
+  p <- df(fx, param, df - param + 1, log=log)
+  if(log) p + log((df - param + 1)/(param*df)) else p*((df - param + 1)/(param*df))
+}
+
 ptsq <- function (q, param, df, lower.tail = TRUE, log.p = FALSE){
-    fq <- q*(df - param + 1)/(param*df)
-    pf(fq, param, df - param + 1, lower.tail=lower.tail, log.p=log.p)
+  fq <- q*(df - param + 1)/(param*df)
+  pf(fq, param, df - param + 1, lower.tail=lower.tail, log.p=log.p)
 }
 
 qtsq <- function(p, param, df, lower.tail = TRUE, log.p = FALSE){
-    fq <- qf(fq, param, df - param + 1, lower.tail=lower.tail, log.p=log.p)
-    fq / ((df - param + 1)/(param*df))
+  fq <- qf(fq, param, df - param + 1, lower.tail=lower.tail, log.p=log.p)
+  fq / ((df - param + 1)/(param*df))
 }
 
 approx.hotelling.diff.test<-function(x,y=NULL, mu0=NULL, assume.indep=FALSE, var.equal=FALSE){
