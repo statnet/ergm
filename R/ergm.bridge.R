@@ -140,7 +140,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   ## get their coefficients zeroed out below.
   offset.dind <- c()
   if(is.null(dind)){
-    dind<-~nw
+    dind<-~.
     terms.full<-term.list.formula(form[[3]])
     for(i in seq_along(terms.full))
       if(!is.null(m$terms[[i]]$dependence) && m$terms[[i]]$dependence==FALSE){
@@ -148,9 +148,10 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
         if(m$offset[i]) offset.dind <- c(offset.dind, coef[p.pos.full[i]:p.pos.full[i+1]])
       }
     dind<-append.rhs.formula(dind,list(as.name("edges")))
-  }else{
-    dind<-ergm.update.formula(dind,nw~., from.new="nw")
+    environment(dind) <- environment(object)
   }
+  
+  dind<-ergm.update.formula(dind,nw~., from.new="nw")
 
   if(!is.dyad.independent(dind))
     stop("Reference model `dind' must be dyad-independent.")
