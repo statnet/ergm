@@ -21,6 +21,18 @@
       return incorrect acceptance probabilities when combined with the
       \code{\link[=ergm-constraints]{bd}} constraint. This has been
       fixed.
+
+      \item In \code{\link{simulate.ergm}} and
+      \code{\link{simulate.formula}}, some combinations of
+      \code{control$parallel}, \code{statsonly}, and \code{sequential}
+      arguments would cause an error. This has been fixed. Note that the
+      current implementation of parallel simulation when
+      \code{statsonly=FALSE} or \code{sequential=FALSE} is very
+      inefficient.
+
+      \item A namespace bug in the likelihod calculation code, reported
+      by Matthew Hoover, has been fixed.
+      
     }
   }
 
