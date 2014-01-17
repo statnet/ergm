@@ -304,9 +304,9 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...) {
         if(all(c("theta","etamap") %in% names(list(...)))) .ergm.esteq(list(...)$theta, list(etamap=list(...)$etamap), burnin.stats.last)
         else burnin.stats.last[,Clist$diagnosable,drop=FALSE]
 
-      if(control$MCMC.runtime.traceplot) plot(mcmc(burnin.esteq.last[round(seq(from=1,by=floor(nrow(burnin.esteq.last)/1000),length.out=1000)),],start=1,thin=floor(nrow(burnin.esteq.last)/1000)),ask=FALSE,smooth=TRUE,density=FALSE)
+      if(control$MCMC.runtime.traceplot) plot(window(mcmc(burnin.esteq.last,thin=max(1,floor(nrow(burnin.esteq.last)/1000)))),ask=FALSE,smooth=TRUE,density=FALSE)
       
-      burnin.test <- try(geweke.diag.mv(burnin.esteq.last,.3,.3)) # Note that the first and the last are different. More similar sample sizes give more power, and the gap between the samples is the same as before (0.4).
+      burnin.test <- suppressWarnings(try(geweke.diag.mv(burnin.esteq.last,.3,.3))) # Note that the first and the last are different. More similar sample sizes give more power, and the gap between the samples is the same as before (0.4).
       if(inherits(burnin.test,"try-error")){
         if(verbose) cat("Burn-in convergence test failed. Rerunning.\n")
         if(try == control$MCMC.burnin.retries+1) burnin.failed <- TRUE
