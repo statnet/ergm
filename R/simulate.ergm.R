@@ -189,7 +189,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     # Post-processing:  Add term names to columns and shift each row by
     # observed statistics.
     colnames(z$statsmatrix) <- m$coef.names
-    return(sweep(z$statsmatrix, 2, curstats, "+"))
+    return(sweep(z$statsmatrix[seq_len(nsim),,drop=FALSE], 2, curstats, "+"))
   } 
   
   # If we get here, either sequential==FALSE or statsonly==FALSE.
@@ -224,13 +224,12 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     }
 
     if(verbose){cat(sprintf("Finished simulation %d of %d.\n",i, nsim))}
-
   }
 
-  out.mat <- out.mat[seq_len(nsim),]
+  out.mat <- out.mat[seq_len(nsim),,drop=FALSE]
   
   if (statsonly)
-    return(out.mat) # If nsim==1, this will return a vector, not a matrix
+    return(out.mat)
   
   # If we get here, statsonly==FALSE.
   if (nsim==1) {
