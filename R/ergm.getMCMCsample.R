@@ -56,9 +56,15 @@
 ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control, 
                                         verbose, response=NULL) {
   
-  Clist <- ergm.Cprepare(nw, model, response=response)
-
-  z <- NULL
+  if(is.network(nw[[1]])){ # I.e., we are dealing with a list of initial networks.
+    nnw <- length(nw)
+    # FIXME: This doesn't have to be the case:
+    if(control$parallel!=nnw)
+      stop("Number of initial networks passed to ergm.getMCMCsample must equal control$parallel (for now).")
+  }else nnw <- 1
+     
+  Clist <- if(nnw>1) lapply(nw, ergm.Cprepare, model,
+response=response) else ergm.Cprepare(nw, model, response=response)
 
   if(control$parallel==0){
     flush.console()
@@ -83,15 +89,19 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
     newnetworks <- list(newnetwork)
   }else{
     control.parallel <- control
-    control.parallel$MCMC.samplesize <- round(control$MCMC.samplesize / control$parallel)
+    control.parallel$MCMC.samplesize <- ceiling(control$MCMC.samplesize / control$parallel)
     
     cl <- ergm.getCluster(control, verbose)
     #
     #   Run the jobs with rpvm or Rmpi
     #
     flush.console()
-    outlist <- clusterCall(cl,ergm.mcmcslave,
-                           Clist,MHproposal,eta0,control.parallel,verbose)
+    outlist <- {
+      if(nnw>1) clusterMap(cl,ergm.mcmcslave,
+                           Clist, MoreArgs=list(MHproposal,eta0,control.parallel,verbose))
+      else clusterCall(cl,ergm.mcmcslave,
+                       Clist,MHproposal,eta0,control.parallel,verbose)
+    }
     #
     #   Process the results
     #
@@ -113,11 +123,12 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
       
       statsmatrix <- rbind(statsmatrix,
                            matrix(z$s, nrow=control.parallel$MCMC.samplesize,
-                                  ncol=Clist$nstats,
+                                  ncol=(if(nnw==1) Clist else Clist[[i]])$nstats,
                                   byrow = TRUE))
+      newnetworks[[i]]<-newnw.extract(if(nnw==1) nw else nw[[i]],z,response=response)
     }
+    newnetwork<-newnetworks[[1]]
 
-    newnetworks[[i]]<-newnetwork<-newnw.extract(nw,z,response=response)
     if(verbose){cat("parallel samplesize=",nrow(statsmatrix),"by",
                     control.parallel$MCMC.samplesize,"\n")}
     
