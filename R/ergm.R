@@ -212,8 +212,12 @@ ergm <- function(formula, response=NULL,
   MHproposal <- MHproposal(constraints, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass,reference=reference,response=response)
   # Note:  MHproposal function in CRAN version does not use the "class" argument for now
   if(!is.null(MHproposal.obs)) MHproposal.obs <- MHproposal(MHproposal.obs, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass, reference=reference, response=response)
-  
-  conddeg <- switch(any(names(MHproposal$constraints) %in% c("degrees","b1degrees","b2degrees","idegrees","odegrees")),control$drop,NULL)
+
+  # conddeg MPLE only handles tetrad toggles, so it must be restricted:
+  conddeg <- switch(!is.directed(nw) && ("degrees" %in% names(MHproposal$arguments$constraints) ||
+                                         all(c("b1degrees","b2degrees") %in% names(MHproposal$arguments$constraints))),
+                    control$drop,
+                    NULL)
   
   if (verbose) cat("Initializing model.\n")
   
