@@ -220,8 +220,11 @@ ergm <- function(formula, response=NULL,
 
   if(verbose) cat("\n")
 
-  
-  conddeg <- switch(MHproposal$name %in% c("CondDegree","CondDegreeSimpleTetrad","BipartiteCondDegHexadToggles","BipartiteCondDegTetradToggles","CondDegreeMix"),control$drop,NULL)
+  # conddeg MPLE only handles tetrad toggles, so it must be restricted:
+  conddeg <- switch(!is.directed(nw) && ("degrees" %in% names(MHproposal$arguments$constraints) ||
+                                         all(c("b1degrees","b2degrees") %in% names(MHproposal$arguments$constraints))),
+                    control$drop,
+                    NULL)
   
   if (verbose) cat("Initializing model.\n")
   
