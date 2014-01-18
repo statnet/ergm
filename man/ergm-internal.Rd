@@ -3,6 +3,7 @@
 
 
 \alias{InitErgmTerm.conddegmple}
+\alias{InitErgmTerm.indices}
 \alias{as.edgelist.network}
 \alias{ergm.ConstraintImplications}
 \alias{ergm.MCMC.packagenames}
