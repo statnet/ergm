@@ -89,6 +89,7 @@ ergm.MCMLE <- function(init, nw, model,
     control.obs$MCMC.samplesize <- control$obs.MCMC.samplesize
     control.obs$MCMC.interval <- control$obs.MCMC.interval
     control.obs$MCMC.burnin <- control$obs.MCMC.burnin
+    control.obs$MCMC.burnin.min <- control$obs.MCMC.burnin.min
 
     nw.obs <- network.copy(nw)
     statshift.obs <- statshift
@@ -196,11 +197,11 @@ ergm.MCMLE <- function(init, nw, model,
     }
 
     # Dynamic burn-in
-    control$MCMC.burnin <- mean(z$burnin.total) / 4
+    control$MCMC.burnin <- max(control$MCMC.burnin.min, mean(z$burnin.total) / 4)
     if(verbose) cat("Unconstrained MCMC burn-in took an average of",mean(z$burnin.total),"steps. New burn-in:",control$MCMC.burnin,".\n")
     
     if(obs){
-      control.obs$MCMC.burnin <- mean(z.obs$burnin.total) / 4
+      control.obs$MCMC.burnin <- max(control.obs$MCMC.burnin.min, mean(z.obs$burnin.total) / 4)
       if(verbose) cat("Constrained MCMC burn-in took an average of",mean(z.obs$burnin.total),"steps. New burn-in:",control.obs$MCMC.burnin,".\n")
     }
     
