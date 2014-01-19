@@ -47,8 +47,6 @@ ergm.initialfit<-function(init, initial.is.final,
                           MPLEtype="glm",
                           conddeg=NULL, control=NULL, MHproposal=NULL, MHproposal.obs=NULL,
                           verbose=FALSE, ...) {
-  method <- match.arg(method, ergm.init.methods(MHproposal$reference$name))
- 
   # conddeg, whatever it does.
   if(method=="MPLE" && !is.null(conddeg)){
    formula.conddegmple <- ergm.update.formula(formula, . ~ conddegmple + .)

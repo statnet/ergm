@@ -108,7 +108,7 @@ ergm <- function(formula, response=NULL,
                  offset.coef=NULL,
                  target.stats=NULL,
                  eval.loglik=TRUE,
-                 estimate=c("MLE", "MPLE"),
+                 estimate=c("MLE", "MPLE", "CD"),
                  control=control.ergm(),
                  verbose=FALSE,...) {
   check.control.class()
@@ -121,7 +121,11 @@ ergm <- function(formula, response=NULL,
     estimate <- "MPLE"
   }
 
-  
+  if(estimate=="CD"){
+      control$init.method <- "CD"
+      eval.loglik <- FALSE
+  }
+
   if(!is.null(control$seed))  set.seed(as.integer(control$seed))
   if (verbose) cat("Evaluating network in model\n")
   
@@ -229,7 +233,8 @@ ergm <- function(formula, response=NULL,
   if (verbose) cat("Initializing model.\n")
   
   # Construct the initial model.
-  model.initial <- ergm.getmodel(formula, nw, response=response, initialfit=TRUE)
+  control$init.method <- match.arg(control$init.method, ergm.init.methods(MHproposal$reference$name))
+  model.initial <- ergm.getmodel(formula, nw, response=response, initialfit=control$init.method=="MPLE")
    
   # If some control$init is specified...
   if(!is.null(control$init)){
@@ -263,7 +268,7 @@ ergm <- function(formula, response=NULL,
   # Check if any terms are at their extremes and handle them depending on control$drop.
   extremecheck <- ergm.checkextreme.model(model=model.initial, nw=nw, init=control$init, response=response, target.stats=target.stats, drop=control$drop)
   model.initial <- extremecheck$model; control$init <- extremecheck$init
-
+ 
   if (verbose) { cat("Fitting initial model.\n") }
 
   MPLE.is.MLE <- (MHproposal$reference$name=="Bernoulli"
@@ -287,6 +292,9 @@ ergm <- function(formula, response=NULL,
 
   model.initial$nw.stats <- summary(model.initial$formula, response=response)
   model.initial$target.stats <- if(!is.null(target.stats)) target.stats else model.initial$nw.stats
+
+  if(control$init.method=="CD") if(is.null(names(control$init)))
+      names(control$init) <- .coef.names.model(model.initial, FALSE)
   
   initialfit <- ergm.initialfit(init=control$init, initial.is.final=!MCMCflag,
                                 formula=formula, nw=nw, reference=reference, 
@@ -299,14 +307,7 @@ ergm <- function(formula, response=NULL,
                                 maxNumDyadTypes=control$MPLE.max.dyad.types,
                                 ...)
   
-  
-
-
-  if (MCMCflag) {
-    init <- initialfit$coef
-    names(init) <- model.initial$coef.names
-    init[is.na(init)] <- 0
-  } else { # Just return initial (non-MLE) fit and exit.
+  if (!MCMCflag){ # Just return initial (non-MLE) fit and exit.
     initialfit$offset <- model.initial$etamap$offsettheta
     initialfit$drop <- if(control$drop) extremecheck$extremeval.theta
     initialfit$estimable <- constrcheck$estimable
@@ -330,11 +331,19 @@ ergm <- function(formula, response=NULL,
     }
     return(initialfit)
   }
-  
+
+  # Otherwise, set up the main phase of estimation:
   # Construct the curved model
   model <- ergm.getmodel(formula, nw, response=response, expanded=TRUE, silent=TRUE)
-  # revise init to reflect additional parameters
-  init <- ergm.reviseinit(model, init)
+
+  # Revise the initial value, if necessary:
+  init <- initialfit$coef
+  init[is.na(init)] <- 0
+  if(control$init.method=="MPLE"){ # Only MPLE requires these kludges.
+      names(init) <- model.initial$coef.names
+      # revise init to reflect additional parameters
+      init <- ergm.reviseinit(model, init)
+  }
 
   # Check if any terms are constrained to a constant and issue a warning.
   constrcheck <- ergm.checkconstraints.model(model, MHproposal, init=init, silent=TRUE)

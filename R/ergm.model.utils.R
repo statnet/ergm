@@ -111,6 +111,11 @@ coef.sublength.model<-function(object, ...){
   })
 }
 
-coef.length.model<-function(object, ...){
+coef.length.model <- function(object, ...){
   sum(coef.sublength.model(object))
+}
+
+.coef.names.model <- function(object, canonical){
+    if(canonical) model$coef.names
+    else unlist(lapply(object$terms, function(term) NVL(names(term$params),term$coef.names)))
 }
