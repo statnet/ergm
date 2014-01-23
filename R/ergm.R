@@ -320,6 +320,10 @@ ergm <- function(formula, response=NULL,
     initialfit$constrained.obs <- MHproposal.obs$arguments$constraints
     initialfit$constraints <- constraints
     initialfit$target.stats <- model.initial$target.stats
+    initialfit$target.esteq <- if(!is.null(model.initial$target.stats)){
+      tmp <- .ergm.esteq(initialfit$coef, model.initial, rbind(model.initial$target.stats))
+      structure(c(tmp), names=colnames(tmp))
+    }
     initialfit$estimate <- estimate
 
     initialfit$control<-control
@@ -344,6 +348,7 @@ ergm <- function(formula, response=NULL,
       # revise init to reflect additional parameters
       init <- ergm.reviseinit(model, init)
   }
+  names(init) <- .coef.names.model(model, FALSE)
 
   # Check if any terms are constrained to a constant and issue a warning.
   constrcheck <- ergm.checkconstraints.model(model, MHproposal, init=init, silent=TRUE)
@@ -411,6 +416,10 @@ ergm <- function(formula, response=NULL,
 
   mainfit$formula <- formula
   mainfit$target.stats <- model$target.stats
+  mainfit$target.esteq <- if(!is.null(model$target.stats)){
+    tmp <- .ergm.esteq(mainfit$coef, model, rbind(model$target.stats))
+    structure(c(tmp), names=colnames(tmp))
+  }
 
   mainfit$constrained <- MHproposal$arguments$constraints
   mainfit$constrained.obs <- MHproposal.obs$arguments$constraints
