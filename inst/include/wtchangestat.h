@@ -120,10 +120,10 @@ typedef struct WtModelTermstruct {
 /* The idea here is to essentially swap the contents of the proposed
    weights with the current weights, and then swap them back when
    done. */
-#define TAIL tail_var
-#define HEAD head_var
-#define NEWWT newwt_var
-#define OLDWT oldwt_var
+#define TAIL (tail_var)
+#define HEAD (head_var)
+#define NEWWT (newwt_var)
+#define OLDWT (oldwt_var)
 
 #define GETOLDTOGGLEINFO() Vertex TAIL=tails[TOGGLEIND], HEAD=heads[TOGGLEIND]; double OLDWT=GETWT(TAIL,HEAD);
 #define GETTOGGLEINFO() GETOLDTOGGLEINFO(); double NEWWT=weights[TOGGLEIND];
@@ -140,7 +140,14 @@ typedef struct WtModelTermstruct {
       Back up the current edge weight by swapping weight[i] with current edge weight.
    For each toggle:
       Undo the changes by swapping them back. */
-#define EXEC_THROUGH_TOGGLES(subroutine){ZERO_ALL_CHANGESTATS();FOR_EACH_TOGGLE(){ GETTOGGLEINFO(); {subroutine}; SETWT_IF_MORE_TO_COME();} UNDO_PREVIOUS_SETWTS();}
+#define EXEC_THROUGH_TOGGLES(subroutine){ZERO_ALL_CHANGESTATS();FOR_EACH_TOGGLE(){ GETTOGGLEINFO(); {subroutine}; SETWT_IF_MORE_TO_COME();}; UNDO_PREVIOUS_SETWTS();}
+
+#define SAMEDYAD(a1,b1,a2,b2) (DIRECTED? a1==a2 && b1==b2 : MIN(a1,b1)==MIN(a2,b2) && MAX(a1,b1)==MAX(a2,b2))
+
+#define GETOLDWT(a,b) (SAMEDYAD(TAIL,HEAD,a,b)?OLDWT:GETWT(a,b))
+#define GETNEWWT(a,b) (SAMEDYAD(TAIL,HEAD,a,b)?NEWWT:GETWT(a,b))
+#define GETNEWWTOLD(a,b,old) (SAMEDYAD(TAIL,HEAD,a,b)?NEWWT:(old))
+
 
 /****************************************************/
 /* changestat function prototypes, 
