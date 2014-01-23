@@ -161,7 +161,7 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5){
 # Handcock (2006) are given instead.
 .ergm.esteq <- function(theta, model, statsmatrix){
   esteq <- t(ergm.etagradmult(theta,t(as.matrix(statsmatrix)),model$etamap))[,!model$etamap$offsettheta,drop=FALSE]
-  colnames(esteq) <- names(theta)[!model$etamap$offsettheta]
+  colnames(esteq) <- .coef.names.model(model, FALSE)[!model$etamap$offsettheta]
   esteq
 }
 
