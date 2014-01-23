@@ -217,14 +217,24 @@ ergm.CD <- function(init, nw, model,
         cat("Convergence detected for untethered MCMC. Stopping.\n")
         finished <- TRUE
       }else if(MCMLE.starting && control$CD.nsteps>=control$CD.min.nsteps){
-        cat("Convergence in tether lengths detected. Proceeding to untethered MCMC.\n")
-        control$CD.nsteps <- Inf
+        if(control$CD.untethered){
+          cat("Convergence in tether lengths detected. Proceeding to untethered MCMC.\n")
+          control$CD.nsteps <- Inf
+        }else{
+          cat("Convergence in tether lengths detected. Finishing.\n")
+          finished <- TRUE
+        }
       }else{
         cat("Convergence for this tether length detected. Increasing tether length.\n")
         control$CD.nsteps <- control$CD.nsteps*2
-        if(control$CD.nsteps>=control$MCMC.interval/2){
-          cat("Tether length exceeds the half the MCMC interval setting. Switching to untethered MCMC.\n")
-          control$CD.nsteps <- Inf
+        if(control$CD.nsteps>=control$MCMC.interval*2){
+          if(control$CD.untethered){
+            cat("Tether length exceeds the MCMC interval setting. Switching to untethered MCMC.\n")
+            control$CD.nsteps <- Inf
+          }else{
+            cat("Tether length exceeds the MCMC interval setting. Finishing.\n")
+            finished <- TRUE
+          }
         }
       }
     }
