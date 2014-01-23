@@ -520,8 +520,9 @@ single.impute.dyads <- function(nw, response=NULL){
 
     if(is.null(response)){
         d <- network.edgecount(nw,na.omit=TRUE)/network.dyadcount(nw,na.omit=TRUE)
+        nimpute <- round(d*nae)
         nw[na.el] <- 0
-        nw[na.el] <- rbinom(nae,1,d)
+        nw[na.el[sample.int(nae,nimpute),,drop=FALSE]] <- 1
     }else{
         x <- as.edgelist(nw,attrname=response)[,3]
         zeros <- network.dyadcount(nw,na.omit=TRUE)-length(x)
