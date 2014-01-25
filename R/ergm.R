@@ -290,7 +290,7 @@ ergm <- function(formula, response=NULL,
     warning("All terms are either offsets or extreme values. Skipping MCMC.")
   }
 
-  model.initial$nw.stats <- summary(model.initial$formula, response=response)
+  model.initial$nw.stats <- summary(model.initial$formula, response=response, initialfit=control$init.method=="MPLE")
   model.initial$target.stats <- if(!is.null(target.stats)) target.stats else model.initial$nw.stats
 
   if(control$init.method=="CD") if(is.null(names(control$init)))
