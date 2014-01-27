@@ -144,7 +144,7 @@ control.ergm<-function(drop=TRUE,
                          SAN.prop.args=MCMC.prop.args,
                          SAN.init.maxedges=MCMC.init.maxedges,
                          
-                         SAN.burnin=MCMC.burnin,
+                         SAN.burnin=MCMC.burnin*10,
                          SAN.interval=MCMC.interval,
                          SAN.packagenames=MCMC.packagenames,
                          MPLE.max.dyad.types=MPLE.max.dyad.types,
