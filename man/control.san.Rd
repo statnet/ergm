@@ -19,7 +19,7 @@ control.san(coef=NULL,
 
             SAN.tau=1,
             SAN.invcov=NULL,
-            SAN.burnin=10000,
+            SAN.burnin=100000,
             SAN.interval=10000,
             SAN.init.maxedges=20000,
                       

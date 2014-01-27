@@ -32,6 +32,8 @@
 
       \item A namespace bug in the likelihod calculation code, reported
       by Matthew Hoover, has been fixed.
+
+      \item MPLE for some degree-based constrained has been reenabled.
       
     }
   }
@@ -42,10 +44,14 @@
   % }
 
   
-  % \subsection{OTHER USER-VISIBLE CHANGES}{
-  %   \itemize{
-  %   }
-  % }
+  \subsection{OTHER USER-VISIBLE CHANGES}{
+    \itemize{
+      
+      \item Default \code{SAN.burnin} control parameter has been
+      increated to 100,000.
+      
+    }
+  }
 
   % \subsection{C-LEVEL FACILITIES}{
   %   \itemize{
