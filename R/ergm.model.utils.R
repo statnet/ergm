@@ -116,6 +116,6 @@ coef.length.model <- function(object, ...){
 }
 
 .coef.names.model <- function(object, canonical){
-    if(canonical) model$coef.names
+    if(canonical) object$coef.names
     else unlist(lapply(object$terms, function(term) NVL(names(term$params),term$coef.names)))
 }
