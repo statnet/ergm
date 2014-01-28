@@ -175,7 +175,7 @@ ergm.CD.fixed <- function(init, nw, model,
       while(v$loglikelihood > control$CD.adaptive.trustregion){
         adaptive.steplength <- adaptive.steplength / 2
         if(!is.null(statsmatrix.0.obs)){
-          statsmatrix.obs <- statsmatrix.0.obs*adaptive.steplength+statsmatrix.0*(1-adaptive.steplength)
+          statsmatrix.obs <- sweep(statsmatrix.0.obs,2,(colMeans(statsmatrix.0.obs)-statsmean)*(1-adaptive.steplength))
         }else{
           statsmatrix <- sweep(statsmatrix.0,2,(1-adaptive.steplength)*statsmean,"-")
         }
@@ -213,7 +213,7 @@ ergm.CD.fixed <- function(init, nw, model,
       if(verbose){cat("Calling MCMLE Optimization...\n")}
       statsmean <- apply(statsmatrix.0,2,mean)
       if(!is.null(statsmatrix.0.obs)){
-        statsmatrix.obs <- statsmatrix.0.obs*control$CD.steplength+statsmatrix.0*(1-control$CD.steplength)
+        statsmatrix.obs <- sweep(statsmatrix.0.obs,2,(colMeans(statsmatrix.0.obs)-statsmean)*(1-control$CD.steplength))
       }else{
         statsmatrix <- sweep(statsmatrix.0,2,(1-control$CD.steplength)*statsmean,"-")
       }
