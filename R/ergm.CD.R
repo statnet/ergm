@@ -178,18 +178,18 @@ ergm.CD <- function(init, nw, model,
       }      
     }
 
-    if(MCMLE.starting && control$CD.nsteps>1){
+    if(control$CD.nsteps.backoff && MCMLE.starting && control$CD.nsteps>1){
       if(obs){
         # There is certainly a better way to do this:
         smu <- unique(statsmatrix)
-        smou <- unique(statsmatrix.obs)
+        smou <- sweep(unique(statsmatrix.obs),2,(colMeans(statsmatrix.0.obs)-colMeans(statsmatrix))*(1-control$CD.steplength))
         if(!any(apply(smu, 1, is.inCH, smou))){
           cat("Convex hulls of constrained and unconstrained sample statistics do not overlap. Reducing tether length.")
           control$CD.nsteps <- round(control$CD.nsteps * 3/4)
           break
         }       
       }else{
-        if(!is.inCH(rep(0,ncol(statsmatrix)),statsmatrix)){
+        if(!is.inCH(rep(0,ncol(statsmatrix)),sweep(statsmatrix,2,(1-control$CD.steplength)*statsmean,"-"))){
           cat("Convex hull of the sample does not contain the observed statistics. Reducing tether length.")
           control$CD.nsteps <- round(control$CD.nsteps * 3/4)
           break
