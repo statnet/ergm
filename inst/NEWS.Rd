@@ -14,7 +14,15 @@
 % When a release is forked, copy the sections to a new release and
 % delete unused sections.
 \section{Changes in version 3.1.2}{
- 
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item \code{\link{ergmMPLE}} can now output an array of change
+      scores associated with each dyad. See the help page for more
+      details.
+    } 
+  }
+  
   \subsection{BUG FIXES}{
     \itemize{
       \item Some Metropolis-Hastings proposal functions would sometimes
@@ -38,10 +46,12 @@
     }
   }
 
-  % \subsection{NEW FEATURES}{
-  %   \itemize{ 
-  %   } 
-  % }
+  \subsection{DEPRECATED & DEFUNCT}{
+    \itemize{
+      \item Argument \code{fitmodel} to \code{\link{ergmMPLE}} has been
+      deprecated in favor of \code{output}.
+    }
+  }
 
   
   \subsection{OTHER USER-VISIBLE CHANGES}{
@@ -73,11 +83,6 @@
   % \subsection{PACKAGE INSTALLATION}{
   %   \itemize{
   %     \item ditto.
-  %   }
-  % }
-
-  % \subsection{DEPRECATED & DEFUNCT}{
-  %   \itemize{
   %   }
   % }
 
