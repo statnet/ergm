@@ -80,11 +80,14 @@ ergm.update.formula<-function (object, new, ..., from.new=FALSE){
   as.formula(out, env = e)
 }
 
-term.list.formula<-function(rhs){
-  if(length(rhs)==1) list(rhs)
-  else if(rhs[[1]]=="+") c(term.list.formula(rhs[[2]]),term.list.formula(rhs[[3]]))
-  else if(rhs[[1]]=="(") term.list.formula(rhs[[2]])
-  else list(rhs)
+term.list.formula<-function(rhs, sign=+1){
+  if(length(rhs)==1) {attr(rhs,"sign")<-sign; list(rhs)}
+  else if(length(rhs)==2 && rhs[[1]]=="+") term.list.formula(rhs[[2]],sign)
+  else if(length(rhs)==2 && rhs[[1]]=="-") term.list.formula(rhs[[2]],-sign)
+  else if(length(rhs)==3 && rhs[[1]]=="+") c(term.list.formula(rhs[[2]],sign),term.list.formula(rhs[[3]],sign))
+  else if(length(rhs)==3 && rhs[[1]]=="-") c(term.list.formula(rhs[[2]],sign),term.list.formula(rhs[[3]],-sign))
+  else if(rhs[[1]]=="(") term.list.formula(rhs[[2]], sign)
+  else {attr(rhs,"sign")<-sign; list(rhs)}
 }
 
 
