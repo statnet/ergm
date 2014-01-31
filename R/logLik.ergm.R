@@ -28,7 +28,7 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
                  || (is.dyad.independent(object)
                      && is.null(object$sample)
                      && is.null(object$response)))
-                -object$glm$deviance/2 - -object$glm$null.deviance/2
+                -object$glm$deviance/2 - -object$glm.null$deviance/2
               else
                 ## If dyad-dependent but not valued and has a dyad-independent constraint, bridge from a dyad-independent model.
                 if(is.dyad.independent(object$constrained, object$constrained.obs)
