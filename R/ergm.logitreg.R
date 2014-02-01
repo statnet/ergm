@@ -46,21 +46,29 @@
 
 ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
                           intercept = FALSE, start = rep(0, p),
-                          offset=NULL, maxit=200, ...)
+                          offset=NULL, m=NULL, maxit=200, ...)
 {
-  gmin <- function(beta, X, y, w, offset) {
-      eta <- (X %*% beta)+offset; p <- plogis(eta)
-      -2 * matrix(w *dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% X
+  if(is.null(m)){
+    etamap <- identity
+    etagrad <- function(beta) diag(1,length(beta),length(beta))
+  }else{
+    etamap <- function(beta) ergm.eta(beta,m$etamap)
+    etagrad <- function(beta) ergm.etagrad(beta, m$etamap)
+  }
+  gmin <- function(beta, X, y, w, offset, etamap, etagrad) {
+    eta <- (X %*% etamap(beta))+offset; p <- plogis(eta)
+    -2 * matrix(w *dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% X %*% t(etagrad(beta))
   }
   if(is.null(dim(x))) dim(x) <- c(length(x), 1)
   if(is.null(offset)) offset <- rep(0,length(y))
-  dn <- dimnames(x)[[2]]
+  dn <- if(is.null(m)) dimnames(x)[[2]] else .coef.names.model(m, FALSE)
   if(!length(dn)) dn <- paste("Var", 1:ncol(x), sep="")
   p <- ncol(x) + intercept
   if(intercept) {x <- cbind(1, x); dn <- c("(Intercept)", dn)}
   if(is.factor(y)) y <- (unclass(y) != 1)
+  start[is.na(start)]<-0
   fit <- optim(start, ergm.logisticdeviance, gmin,
-               X = x, y = y, w = wt, offset=offset,
+               X = x, y = y, w = wt, offset=offset, etamap=etamap, etagrad=etagrad,
                method = "BFGS", hessian=TRUE, control=list(maxit=maxit), ...)
   names(fit$par) <- dn
   fit$coef <- fit$par
@@ -82,8 +90,8 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
 
 
 ergm.logisticdeviance <- function(beta, X, y,
-                            w=rep(1,length(y)), offset=rep(0,length(y))) {
-      p <- plogis((X %*% beta)+offset)
+                            w=rep(1,length(y)), offset=rep(0,length(y)), etamap=identity, etagrad=NULL) {
+      p <- plogis((X %*% etamap(beta))+offset)
       -sum(2 * w * ifelse(y, log(p), log(1-p)))
 }
 

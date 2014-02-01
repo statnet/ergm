@@ -53,7 +53,7 @@
 
 ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
                     maxMPLEsamplesize=1e+6,
-                    conddeg=NULL, control, MHproposal,
+                    conddeg=NULL, control, MHproposal, ignore.offset=FALSE,
                     verbose=FALSE) {
   bip <- Clist$bipartite
   n <- Clist$n
@@ -173,7 +173,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
             as.character(data$conddeg$Clist$fnamestring),
             as.character(data$conddeg$Clist$snamestring),
             as.character(data$MHproposal$name), as.character(data$MHproposal$pkgname),
-            as.double(data$conddeg$Clist$inputs), as.double(data$eta0),
+            as.double(data$conddeg$Clist$inputs), as.double(.deinf(data$eta0)),
             as.integer(data$control$MPLE.samplesize),
             s = as.double(t(data$control$stats)),
             as.integer(0), 
@@ -235,11 +235,11 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
   #
   # Adjust for the offset
   #
-  if(any(m$etamap$offsettheta)){
+  if(any(m$etamap$offsettheta) && !ignore.offset){
     if(any(is.na(theta.offset[m$etamap$offsettheta]))){
       stop("Offset terms without offset coefficients specified!")
     }
-    foffset <- xmat[,m$etamap$offsettheta,drop=FALSE] %*% cbind(theta.offset[m$etamap$offsettheta]) # Compute the offset's effect.
+    foffset <- xmat[,m$etamap$offsetmap,drop=FALSE] %*% cbind(ergm.eta(theta.offset,m$etamap)[m$etamap$offsetmap]) # Compute the offset's effect.
     foffset[is.nan(foffset)] <- 0 # 0*Inf==0 in this case.
     # Remove offset covariate columns.
     xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE] 
@@ -252,13 +252,13 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     foffset <- foffset[is.finite(foffset)]
   }else{
     foffset <- rep(0, length=length(zy))
-    theta.offset <- rep(0, length=Clist$nstats)
+    theta.offset <- rep(0, length(m$etamap$offsettheta))
     if(Clist$nedges>0){
       theta.offset[1] <- log(Clist$nedges/(Clist$ndyads-Clist$nedges))
     }else{
       theta.offset[1] <- log(1/(Clist$ndyads-1))
     }
-    names(theta.offset) <- m$coef.names
+    names(theta.offset) <- .coef.names.model(m, FALSE)
   }
   
 #

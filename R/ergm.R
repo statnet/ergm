@@ -234,45 +234,48 @@ ergm <- function(formula, response=NULL,
   
   # Construct the initial model.
   control$init.method <- match.arg(control$init.method, ergm.init.methods(MHproposal$reference$name))
-  model.initial <- ergm.getmodel(formula, nw, response=response, initialfit=control$init.method=="MPLE")
+  model <- ergm.getmodel(formula, nw, response=response)
+  if(length(model$etamap$curved)){ # Curved model: use ergm.logitreg() rather than glm().
+      control$MPLE.type <- "logitreg"
+  }
    
   # If some control$init is specified...
   if(!is.null(control$init)){
     # Check length of control$init.
-    if (length(control$init)!=length(model.initial$etamap$offsettheta)) {
-      if(verbose) cat("control$init is", control$init, "\n", "number of statistics is",length(model.initial$coef.names), "\n")
+    if (length(control$init)!=length(model$etamap$offsettheta)) {
+      if(verbose) cat("control$init is", control$init, "\n", "number of statistics is",length(model$coef.names), "\n")
       stop(paste("Invalid starting parameter vector control$init:",
                  "wrong number of parameters.",
                  "If you are passing output from another ergm run as control$init,",
                  "in a model with curved terms, see help(enformulate.curved)."))
     }
-  }else control$init <- rep(NA, length(model.initial$etamap$offsettheta)) # Set the default value of control$init.
+  }else control$init <- rep(NA, length(model$etamap$offsettheta)) # Set the default value of control$init.
 
   if(!is.null(offset.coef)){
       # TODO: Names matching here?
-      if(length(control$init[model.initial$etamap$offsettheta])!=length(offset.coef))
+      if(length(control$init[model$etamap$offsettheta])!=length(offset.coef))
           stop("Invalid offset parameter vector offset.coef: ",
                "wrong number of parameters: expected ",
-               length(control$init[model.initial$etamap$offsettheta]),
+               length(control$init[model$etamap$offsettheta]),
                " got ",length(offset.coef),".")
-      control$init[model.initial$etamap$offsettheta]<-offset.coef
+      control$init[model$etamap$offsettheta]<-offset.coef
   }
   
   # Make sure any offset elements are given in control$init.
-  if(any(is.na(control$init) & model.initial$etamap$offsettheta)) stop("The model contains offset terms whose parameter values have not been specified:", paste.and(model.initial$coef.names[is.na(control$init)|model.initial$offsettheta]), ".", sep="")
+  if(any(is.na(control$init) & model$etamap$offsettheta)) stop("The model contains offset terms whose parameter values have not been specified:", paste.and(model$coef.names[is.na(control$init)|model$offsettheta]), ".", sep="")
 
   # Check if any terms are constrained to a constant and issue a warning.
-  constrcheck <- ergm.checkconstraints.model(model.initial, MHproposal, control$init)
-  model.initial <- constrcheck$model; control$init <- constrcheck$init
+  constrcheck <- ergm.checkconstraints.model(model, MHproposal, control$init)
+  model <- constrcheck$model; control$init <- constrcheck$init
 
   # Check if any terms are at their extremes and handle them depending on control$drop.
-  extremecheck <- ergm.checkextreme.model(model=model.initial, nw=nw, init=control$init, response=response, target.stats=target.stats, drop=control$drop)
-  model.initial <- extremecheck$model; control$init <- extremecheck$init
+  extremecheck <- ergm.checkextreme.model(model=model, nw=nw, init=control$init, response=response, target.stats=target.stats, drop=control$drop)
+  model <- extremecheck$model; control$init <- extremecheck$init
  
   if (verbose) { cat("Fitting initial model.\n") }
 
   MPLE.is.MLE <- (MHproposal$reference$name=="Bernoulli"
-                  && is.dyad.independent(model.initial)
+                  && is.dyad.independent(model)
                   && !control$force.main
                   && is.dyad.independent(MHproposal$arguments$constraints,
                                          MHproposal.obs$arguments$constraints))
@@ -284,21 +287,21 @@ ergm <- function(formula, response=NULL,
                || control$force.main)
 
   # Short-circuit the optimization if all terms are either offsets or dropped.
-  if(MCMCflag && all(model.initial$etamap$offsettheta)){
+  if(MCMCflag && all(model$etamap$offsettheta)){
     # Note that this cannot be overridden with control$force.main.
     MCMCflag <- FALSE
     warning("All terms are either offsets or extreme values. Skipping MCMC.")
   }
 
-  model.initial$nw.stats <- summary(model.initial$formula, response=response, initialfit=control$init.method=="MPLE")
-  model.initial$target.stats <- if(!is.null(target.stats)) target.stats else model.initial$nw.stats
+  model$nw.stats <- summary(model$formula, response=response)
+  model$target.stats <- if(!is.null(target.stats)) target.stats else model$nw.stats
 
   if(control$init.method=="CD") if(is.null(names(control$init)))
-      names(control$init) <- .coef.names.model(model.initial, FALSE)
+      names(control$init) <- .coef.names.model(model, FALSE)
   
   initialfit <- ergm.initialfit(init=control$init, initial.is.final=!MCMCflag,
                                 formula=formula, nw=nw, reference=reference, 
-                                m=model.initial, method=control$init.method,
+                                m=model, method=control$init.method,
                                 MPLEtype=control$MPLE.type, 
                                 conddeg=conddeg, control=control,
                                 MHproposal=MHproposal,
@@ -308,7 +311,7 @@ ergm <- function(formula, response=NULL,
                                 ...)
   
   if (!MCMCflag){ # Just return initial (non-MLE) fit and exit.
-    initialfit$offset <- model.initial$etamap$offsettheta
+    initialfit$offset <- model$etamap$offsettheta
     initialfit$drop <- if(control$drop) extremecheck$extremeval.theta
     initialfit$estimable <- constrcheck$estimable
     initialfit$network <- nw
@@ -319,9 +322,9 @@ ergm <- function(formula, response=NULL,
     initialfit$constrained <- MHproposal$arguments$constraints
     initialfit$constrained.obs <- MHproposal.obs$arguments$constraints
     initialfit$constraints <- constraints
-    initialfit$target.stats <- model.initial$target.stats
-    initialfit$target.esteq <- if(!is.null(model.initial$target.stats)){
-      tmp <- .ergm.esteq(initialfit$coef, model.initial, rbind(model.initial$target.stats))
+    initialfit$target.stats <- model$target.stats
+    initialfit$target.esteq <- if(!is.null(model$target.stats)){
+      tmp <- .ergm.esteq(initialfit$coef, model, rbind(model$target.stats))
       structure(c(tmp), names=colnames(tmp))
     }
     initialfit$estimate <- estimate
@@ -329,7 +332,7 @@ ergm <- function(formula, response=NULL,
     initialfit$control<-control
 
     if(eval.loglik) initialfit$null.lik <- logLikNull.ergm(initialfit)
-    if(any(!model.initial$etamap$offsettheta) && eval.loglik){
+    if(any(!model$etamap$offsettheta) && eval.loglik){
       if(verbose) cat("Evaluating log-likelihood at the estimate.\n")
       initialfit<-logLik.ergm(initialfit, add=TRUE, control=control$loglik.control)
     }
@@ -337,29 +340,9 @@ ergm <- function(formula, response=NULL,
   }
 
   # Otherwise, set up the main phase of estimation:
-  # Construct the curved model
-  model <- ergm.getmodel(formula, nw, response=response, expanded=TRUE, silent=TRUE)
-
-  # Revise the initial value, if necessary:
   init <- initialfit$coef
   init[is.na(init)] <- 0
-  if(control$init.method=="MPLE"){ # Only MPLE requires these kludges.
-      names(init) <- model.initial$coef.names
-      # revise init to reflect additional parameters
-      init <- ergm.reviseinit(model, init)
-  }
   names(init) <- .coef.names.model(model, FALSE)
-
-  # Check if any terms are constrained to a constant and issue a warning.
-  constrcheck <- ergm.checkconstraints.model(model, MHproposal, init=init, silent=TRUE)
-  model <- constrcheck$model; control$init <- constrcheck$init
-  
-  # Check if any terms are at their extremes and handle them depending on control$drop.
-  extremecheck <- ergm.checkextreme.model(model=model, nw=nw, init=init, response=response, target.stats=target.stats, drop=control$drop, silent=TRUE)
-  model <- extremecheck$model; init <- extremecheck$init
-
-  model$nw.stats <- summary(model$formula, response=response)
-  model$target.stats <- if(!is.null(target.stats)) target.stats else model$nw.stats
 
   if (verbose) cat("Fitting ERGM.\n")
   mainfit <- switch(control$main.method,
