@@ -58,6 +58,7 @@ ergm.CD.fixed <- function(init, nw, model,
   coef.hist <- rbind(init)
   stats.hist <- matrix(NA, 0, length(model$nw.stats))
   stats.obs.hist <- matrix(NA, 0, length(model$nw.stats))
+  steplen.hist <- c()
   
   # Store information about original network, which will be returned at end
   nw.orig <- network.copy(nw)
@@ -150,8 +151,6 @@ ergm.CD.fixed <- function(init, nw, model,
       finished <- TRUE
     }
     
-    # Removed block A of code here.  (See end of file.)
-    
     if(!estimate){
       if(verbose){cat("Skipping optimization routines...\n")}
       l <- list(coef=mcmc.init, mc.se=rep(NA,length=length(mcmc.init)),
@@ -208,16 +207,19 @@ ergm.CD.fixed <- function(init, nw, model,
       }else{
         cat("The log-likelihood did not improve.\n")
       }
+      steplen.hist <- c(steplen.hist, adaptive.steplength)
     }else{
-
+      steplen <- if(!is.null(control$CD.steplength.margin)) .Hummel.steplength(statsmatrix.0, statsmatrix.0.obs, control$CD.steplength.margin, control$CD.steplength) else control$CD.steplength
       if(verbose){cat("Calling MCMLE Optimization...\n")}
       statsmean <- apply(statsmatrix.0,2,mean)
       if(!is.null(statsmatrix.0.obs)){
-        statsmatrix.obs <- sweep(statsmatrix.0.obs,2,(colMeans(statsmatrix.0.obs)-statsmean)*(1-control$CD.steplength))
+        statsmatrix.obs <- sweep(statsmatrix.0.obs,2,(colMeans(statsmatrix.0.obs)-statsmean)*(1-steplen))
       }else{
-        statsmatrix <- sweep(statsmatrix.0,2,(1-control$CD.steplength)*statsmean,"-")
+        statsmatrix <- sweep(statsmatrix.0,2,(1-steplen)*statsmean,"-")
       }
-      if(verbose){cat(paste("Using Newton-Raphson Step with step length ",control$CD.steplength," ...\n"))}
+      steplen.hist <- c(steplen.hist, steplen)
+      
+      if(verbose){cat(paste("Using Newton-Raphson Step with step length ",steplen," ...\n"))}
       # Use estimateonly=TRUE if this is not the last iteration.
       v<-ergm.estimate(init=mcmc.init, model=model,
                        statsmatrix=statsmatrix, 
@@ -268,6 +270,7 @@ ergm.CD.fixed <- function(init, nw, model,
   v$coef.hist <- coef.hist
   v$stats.hist <- stats.hist
   v$stats.obs.hist <- stats.obs.hist
+  v$steplen.hist <- steplen.hist
   # The following output is sometimes helpful.  It's the total history
   # of all eta values, from the initial eta0 to the final estimate
   # v$allparamvals <- parametervalues

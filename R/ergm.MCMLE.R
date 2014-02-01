@@ -60,6 +60,7 @@ ergm.MCMLE <- function(init, nw, model,
   coef.hist <- rbind(init)
   stats.hist <- matrix(NA, 0, length(model$nw.stats))
   stats.obs.hist <- matrix(NA, 0, length(model$nw.stats))
+  steplen.hist <- c()
   
   # Store information about original network, which will be returned at end
   nw.orig <- network.copy(nw)
@@ -224,8 +225,6 @@ ergm.MCMLE <- function(init, nw, model,
       finished <- TRUE
     }
 
-    # Removed block A of code here.  (See end of file.)
-    
     if(!estimate){
       if(verbose){cat("Skipping optimization routines...\n")}
       l <- list(coef=mcmc.init, mc.se=rep(NA,length=length(mcmc.init)),
@@ -282,16 +281,19 @@ ergm.MCMLE <- function(init, nw, model,
       }else{
         cat("The log-likelihood did not improve.\n")
       }
+      steplen.hist <- c(steplen.hist, adaptive.steplength)
     }else{
-
+      steplen <- if(!is.null(control$MCMLE.steplength.margin)) .Hummel.steplength(statsmatrix.0, statsmatrix.0.obs, control$MCMLE.steplength.margin, control$MCMLE.steplength) else control$MCMLE.steplength
       if(verbose){cat("Calling MCMLE Optimization...\n")}
       statsmean <- apply(statsmatrix.0,2,mean)
       if(!is.null(statsmatrix.0.obs)){
-        statsmatrix.obs <- sweep(statsmatrix.0.obs,2,(colMeans(statsmatrix.0.obs)-statsmean)*(1-control$MCMLE.steplength))
+        statsmatrix.obs <- sweep(statsmatrix.0.obs,2,(colMeans(statsmatrix.0.obs)-statsmean)*(1-steplen))
       }else{
-        statsmatrix <- sweep(statsmatrix.0,2,(1-control$MCMLE.steplength)*statsmean,"-")
+        statsmatrix <- sweep(statsmatrix.0,2,(1-steplen)*statsmean,"-")
       }
-      if(verbose){cat(paste("Using Newton-Raphson Step with step length ",control$MCMLE.steplength," ...\n"))}
+      steplen.hist <- c(steplen.hist, steplen)
+      
+      if(verbose){cat(paste("Using Newton-Raphson Step with step length ",steplen," ...\n"))}
       # Use estimateonly=TRUE if this is not the last iteration.
       v<-ergm.estimate(init=mcmc.init, model=model,
                        statsmatrix=statsmatrix, 
@@ -339,10 +341,11 @@ ergm.MCMLE <- function(init, nw, model,
   v$newnetwork <- nw.returned
   v$coef.init <- init
   v$initialfit <- initialfit
-  
+
   v$coef.hist <- coef.hist
   v$stats.hist <- stats.hist
   v$stats.obs.hist <- stats.obs.hist
+  v$steplen.hist <- steplen.hist
   # The following output is sometimes helpful.  It's the total history
   # of all eta values, from the initial eta0 to the final estimate
   # v$allparamvals <- parametervalues
@@ -351,51 +354,4 @@ ergm.MCMLE <- function(init, nw, model,
   v$etamap <- model$etamap
   v
 }
-
-#################
-# Block of code A removed from above:
-
-##  Check for degeneracy if new network has fewer than 49999 edges
-#    if(z$nedges >= 50000-1 || ergm.checkdegeneracy(statsmatrix, statsmatrix.obs, verbose=verbose)){
-#      if(iteration <= control$MCMLE.maxit){
-#        cat(paste("The MCMC sampler is producing degenerate samples.\n",
-#                  "Try starting the algorithm at an alternative model\n",
-#                  "(That is, changing the 'init' argument).\n",
-#                  "I am trying something simple...\n",
-#                  "The current init is:\n"))
-#        print(mcmc.init)
-#        mcmc.init <- 0.9*mcmc.init
-#        next
-#      }else{
-#        cat(paste("The MCMC sampler is producing degenerate samples.\n",
-#                  "Try starting the algorithm at an alternative model\n",
-#                  "(That is, changing the 'init' argument).\n",
-#                  "The current init is:\n"))
-#        print(mcmc.init)
-#        v$coef <- mcmc.init
-#        return(structure (v, class="ergm"))
-#      }
-#    }
-#    if(verbose){
-#      cat(paste("The density of the returned network is",
-#                network.density(nw.returned),"\n"))
-#      cat(paste("The density of the original network is",
-#                network.density(nw.orig),"\n"))
-#      cat("Summary of simulation, relative to observed network:\n")
-#      print(apply(statsmatrix,2,summary.statsmatrix.ergm),scipen=6)
-#      degreedist(nw.returned)
-#      cat("Meanstats of simulation, relative to observed network:\n")
-#      print(summary(model$formula, basis=nw.returned)-model$target.stats)
-#      if(network.naedgecount(nw) > 0){
-#        cat("Summary of simulation, relative to missing network:\n")
-#        a = apply(statsmatrix.miss,2,summary.statsmatrix.ergm)[4,]
-#        b = sweep(apply(statsmatrix,2,summary.statsmatrix.ergm),2,a,"-")
-#        print(b,scipen=6)
-#        degreedist(nw.miss.returned)
-#        cat("Meanstats of simulation, relative to missing network:\n")
-#        print(summary(model$formula, basis=nw.miss.returned)-model$target.stats)
-#        nw.returned <- network.copy(nw.miss.returned)
-#      }
-#    }
-
 

@@ -59,6 +59,7 @@ ergm.CD <- function(init, nw, model,
   coef.hist <- rbind(init)
   stats.hist <- matrix(NA, 0, length(model$nw.stats))
   stats.obs.hist <- matrix(NA, 0, length(model$nw.stats))
+  steplen.hist <- c()
   tether.hist <- 0
   
   # Store information about original network, which will be returned at end
@@ -178,25 +179,6 @@ ergm.CD <- function(init, nw, model,
       }      
     }
 
-    if(control$CD.nsteps.backoff && MCMLE.starting && control$CD.nsteps>1){
-      if(obs){
-        # There is certainly a better way to do this:
-        smu <- unique(statsmatrix)
-        smou <- sweep(unique(statsmatrix.obs),2,(colMeans(statsmatrix.0.obs)-colMeans(statsmatrix))*(1-control$CD.steplength))
-        if(!any(apply(smu, 1, is.inCH, smou))){
-          cat("Convex hulls of constrained and unconstrained sample statistics do not overlap. Reducing tether length.")
-          control$CD.nsteps <- round(control$CD.nsteps * 3/4)
-          break
-        }       
-      }else{
-        if(!is.inCH(rep(0,ncol(statsmatrix)),sweep(statsmatrix,2,(1-control$CD.steplength)*statsmean,"-"))){
-          cat("Convex hull of the sample does not contain the observed statistics. Reducing tether length.")
-          control$CD.nsteps <- round(control$CD.nsteps * 3/4)
-          break
-        }
-      }
-    }
-
     # Compute the sample estimating equations and the convergence p-value.
     esteq <- .ergm.esteq(mcmc.init, model, statsmatrix)
     esteq.obs <- if(obs) .ergm.esteq(mcmc.init, model, statsmatrix.obs) else NULL   
@@ -205,10 +187,9 @@ ergm.CD <- function(init, nw, model,
     # We can either pretty-print the p-value here, or we can print the
     # full thing. What the latter gives us is a nice "progress report"
     # on whether the estimation is getting better..
-    
     if(verbose){
       cat("Average estimating equation values:\n")
-        print(if(obs) colMeans(esteq.obs)-colMeans(esteq) else colMeans(esteq))
+      print(if(obs) colMeans(esteq.obs)-colMeans(esteq) else colMeans(esteq))
     }
     cat("Convergence test P-value:",format(conv.pval, scientific=TRUE,digits=2),"\n")
     if(conv.pval>control$CD.conv.min.pval){
@@ -296,16 +277,19 @@ ergm.CD <- function(init, nw, model,
       }else{
         cat("The log-likelihood did not improve.\n")
       }
+      steplen.hist <- c(steplen.hist, adaptive.steplength)
     }else{
-      
+      steplen <- if(!is.null(control$CD.steplength.margin)) .Hummel.steplength(statsmatrix.0, statsmatrix.0.obs, control$CD.steplength.margin, control$CD.steplength) else control$CD.steplength
       if(verbose){cat("Calling MCMLE Optimization...\n")}
       statsmean <- apply(statsmatrix.0,2,mean)
       if(!is.null(statsmatrix.0.obs)){
-        statsmatrix.obs <- sweep(statsmatrix.0.obs,2,(colMeans(statsmatrix.0.obs)-statsmean)*(1-control$CD.steplength))
+        statsmatrix.obs <- sweep(statsmatrix.0.obs,2,(colMeans(statsmatrix.0.obs)-statsmean)*(1-steplen))
       }else{
-        statsmatrix <- sweep(statsmatrix.0,2,(1-control$CD.steplength)*statsmean,"-")
+        statsmatrix <- sweep(statsmatrix.0,2,(1-steplen)*statsmean,"-")
       }
-      if(verbose){cat(paste("Using Newton-Raphson Step with step length ",control$CD.steplength," ...\n"))}
+      steplen.hist <- c(steplen.hist, steplen)
+      
+      if(verbose){cat(paste("Using Newton-Raphson Step with step length ",steplen," ...\n"))}
       # Use estimateonly=TRUE if this is not the last iteration.
       v<-ergm.estimate(init=mcmc.init, model=model,
                        statsmatrix=statsmatrix, 
@@ -333,6 +317,7 @@ ergm.CD <- function(init, nw, model,
         cat("The log-likelihood did not improve.\n")
       }
     }
+          
     mcmc.init <- v$coef
     coef.hist <- rbind(coef.hist, mcmc.init)
     stats.obs.hist <- if(!is.null(statsmatrix.obs)) rbind(stats.obs.hist, apply(statsmatrix.obs, 2, mean)) else NULL
@@ -361,6 +346,7 @@ ergm.CD <- function(init, nw, model,
   v$coef.hist <- coef.hist
   v$stats.hist <- stats.hist
   v$stats.obs.hist <- stats.obs.hist
+  v$steplen.hist <- steplen.hist
   v$tether.hist <- tether.hist
   # The following output is sometimes helpful.  It's the total history
   # of all eta values, from the initial eta0 to the final estimate
