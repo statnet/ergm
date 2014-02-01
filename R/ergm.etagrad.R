@@ -25,7 +25,6 @@ ergm.etagrad <- function(theta, etamap) {
       etagrad[cm$from,cm$to] <- cm$gradient(theta[cm$from], length(cm$to), cm$cov)  #Added by CTB on 1/28/06
     }
   }
-  etagrad[is.infinite(etagrad)] <- 10000*sign(etagrad)[is.infinite(etagrad)]
   etagrad
 }
 

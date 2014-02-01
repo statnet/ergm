@@ -150,9 +150,6 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   MHproposal <- MHproposal(constraints,arguments=control$MCMC.prop.args,
                            nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)  
 
-  if (any(is.infinite(coef))){
-   coef[is.infinite(coef)] <- sign(coef[is.infinite(coef)])*10000 
-  }
   if (any(is.nan(coef) | is.na(coef)))
     stop("Illegal value of coef passed to simulate.formula")
   

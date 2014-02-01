@@ -188,8 +188,8 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
                 as.character(MHproposal$name),
                 as.character(MHproposal$pkgname),
                 as.double(c(Clist$inputs,MHproposal$inputs)),
-                as.double(eta0),
-                as.double(tau),
+                as.double(.deinf(eta0)),
+                as.double(.deinf(tau)),
                 as.integer(1), # "samplesize"
                 s = as.double(stats),
                 as.integer(if(i==1 | !sequential) control$SAN.burnin else control$SAN.interval), as.integer(control$SAN.interval), 
@@ -217,8 +217,8 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
                 as.character(MHproposal$name),
                 as.character(MHproposal$pkgname),
                 as.double(c(Clist$inputs,MHproposal$inputs)),
-                as.double(eta0),
-                as.double(tau),
+                as.double(.deinf(eta0)),
+                as.double(.deinf(tau)),
                 as.integer(1), # "samplesize"
                 s = as.double(stats),
                 as.integer(if(i==1 | !sequential) control$SAN.burnin else control$SAN.interval), as.integer(control$SAN.interval), 

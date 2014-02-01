@@ -532,3 +532,8 @@ single.impute.dyads <- function(nw, response=NULL){
 
     nw
 }
+
+# Given a vector, truncate all infinite (or, really, bigger in
+# magnitude than replace=) values with replace= with the appropriate
+# sign. Leave NAs and NANs alone.
+.deinf <- function(x, replace=1/.Machine$double.eps) ifelse(is.nan(x) | abs(x)<replace, x, sign(x)*replace)
