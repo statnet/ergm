@@ -109,12 +109,14 @@ ergm.MCMLE <- function(init, nw, model,
     }else{
       cat("Iteration ",iteration," of at most ", control$MCMLE.maxit,": \n",sep="")
     }
-
-    repeat{
-        
+    skip.burnin <- FALSE 
+    repeat{ # Keep trying until effective sample size is
+            # sufficient. Don't repeat the burn-in after the first
+            # time through.
+      
         # Obtain MCMC sample
         mcmc.eta0 <- ergm.eta(mcmc.init, model$etamap)
-        z <- ergm.getMCMCsample(nw, model, MHproposal, mcmc.eta0, control, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
+        z <- ergm.getMCMCsample(nw, model, MHproposal, mcmc.eta0, if(skip.burnin) within(control, {MCMC.burnin <- 0}) else control, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
         
         if(z$status==1) stop("Number of edges in a simulated network exceeds that in the observed by a factor of more than ",floor(control$MCMLE.density.guard),". This is a strong indicator of model degeneracy. If you are reasonably certain that this is not the case, increase the MCMLE.density.guard control.ergm() parameter.")
         
@@ -135,21 +137,21 @@ ergm.MCMLE <- function(init, nw, model,
    
         ##  Does the same, if observation process:
         if(obs){
-            z.obs <- ergm.getMCMCsample(nw.obs, model, MHproposal.obs, mcmc.eta0, control.obs, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
-            
-            if(z.obs$status==1) stop("Number of edges in the simulated network exceeds that observed by a large factor (",control$MCMC.max.maxedges,"). This is a strong indication of model degeneracy. If you are reasonably certain that this is not the case, increase the MCMLE.density.guard control.ergm() parameter.")
-      
-            statsmatrix.obs <- sweep(z.obs$statsmatrix, 2, statshift.obs, "+")
-            colnames(statsmatrix.obs) <- model$coef.names
-            nw.obs.returned <- network.copy(z.obs$newnetwork)
-            
-            if(verbose){
-                cat("Back from constrained MCMC. Average statistics:\n")
-                print(apply(statsmatrix.obs, 2, mean))
-            }
+          z.obs <- ergm.getMCMCsample(nw.obs, model, MHproposal.obs, mcmc.eta0, if(skip.burnin) within(control.obs, {MCMC.burnin <- 0}) else control.obs, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
+          
+          if(z.obs$status==1) stop("Number of edges in the simulated network exceeds that observed by a large factor (",control$MCMC.max.maxedges,"). This is a strong indication of model degeneracy. If you are reasonably certain that this is not the case, increase the MCMLE.density.guard control.ergm() parameter.")
+          
+          statsmatrix.obs <- sweep(z.obs$statsmatrix, 2, statshift.obs, "+")
+          colnames(statsmatrix.obs) <- model$coef.names
+          nw.obs.returned <- network.copy(z.obs$newnetwork)
+          
+          if(verbose){
+            cat("Back from constrained MCMC. Average statistics:\n")
+            print(apply(statsmatrix.obs, 2, mean))
+          }
         }else{
-            statsmatrix.obs <- NULL
-    }
+          statsmatrix.obs <- NULL
+        }
         
         if(sequential) {
             nw <- nw.returned
@@ -167,7 +169,17 @@ ergm.MCMLE <- function(init, nw, model,
             stop("Unconstrained MCMC sampling did not mix at all. Optimization cannot continue.")
         esteq.obs <- if(obs) .ergm.esteq(mcmc.init, model, statsmatrix.obs) else NULL
 
-        
+        if(!skip.burnin){
+          # Dynamic burn-in
+          control$MCMC.burnin <- max(control$MCMC.burnin.min, mean(z$burnin.total) / 4)
+          if(verbose) cat("Unconstrained MCMC burn-in took an average of",mean(z$burnin.total),"steps. New burn-in:",control$MCMC.burnin,".\n")
+          
+          if(obs){
+            control.obs$MCMC.burnin <- max(control.obs$MCMC.burnin.min, mean(z.obs$burnin.total) / 4)
+            if(verbose) cat("Constrained MCMC burn-in took an average of",mean(z.obs$burnin.total),"steps. New burn-in:",control.obs$MCMC.burnin,".\n")
+          }
+        }
+
         # Dynamic interval via effective sample size.
         if(!is.null(control$MCMC.effectiveSize)){
             effSizes <- effectiveSize(esteq)
@@ -191,19 +203,11 @@ ergm.MCMLE <- function(init, nw, model,
 
             # If the harmonic mean effective sample size is below the threshold (if set), don't proceed to optimization.
             if(NVL(control$MCMLE.min.effectiveSize,0)>effSizes.mean){
-                if(verbose)
-                    cat("Insufficient effective sample size for MCMLE optimization. Rerunning with the longer interval.\n")
+              if(verbose)
+                cat("Insufficient effective sample size for MCMLE optimization. Rerunning with the longer interval.\n")
+              skip.burnin <- TRUE
             }else break # Proceed to optimization if either the sample size is sufficient
         }else break # Or if dynamic interval is disabled.
-    }
-
-    # Dynamic burn-in
-    control$MCMC.burnin <- max(control$MCMC.burnin.min, mean(z$burnin.total) / 4)
-    if(verbose) cat("Unconstrained MCMC burn-in took an average of",mean(z$burnin.total),"steps. New burn-in:",control$MCMC.burnin,".\n")
-    
-    if(obs){
-      control.obs$MCMC.burnin <- max(control.obs$MCMC.burnin.min, mean(z.obs$burnin.total) / 4)
-      if(verbose) cat("Constrained MCMC burn-in took an average of",mean(z.obs$burnin.total),"steps. New burn-in:",control.obs$MCMC.burnin,".\n")
     }
     
     conv.pval <- approx.hotelling.diff.test(esteq, esteq.obs)$p.value

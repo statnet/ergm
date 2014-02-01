@@ -263,7 +263,7 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...) {
     }
   }
   
-  if(!is.null(control$MCMC.burnin.retries) && control$MCMC.burnin.retries>0){
+  if(control$MCMC.burnin>0 && NVL(control$MCMC.burnin.retries,0)>0){
     out <- NULL
     burnin.stats <- NULL
     burnin.total <- 0
@@ -310,8 +310,8 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...) {
       if(inherits(burnin.test,"try-error")){
         if(verbose) cat("Burn-in convergence test failed. Rerunning.\n")
         if(try == control$MCMC.burnin.retries+1) burnin.failed <- TRUE
-      }else if(burnin.test$parameter["df"]<burnin.test$parameter["param"]*control$MCMC.burnin.min.df.per.param){
-        if(verbose) cat("Insufficient burn-in sample size (",burnin.test$parameter["df"],"<",burnin.test$parameter["param"],"*",control$MCMC.burnin.min.df.per.param,") to test convergence. Rerunning.\n")
+      }else if(burnin.test$parameter["df"]<control$MCMC.burnin.min.df){
+        if(verbose) cat("Insufficient burn-in sample size (",burnin.test$parameter["df"],"<",control$MCMC.burnin.min.df,") to test convergence. Rerunning.\n")
         if(try == control$MCMC.burnin.retries+1) burnin.failed <- TRUE
       }else if(burnin.test$p.value < control$MCMC.burnin.check.alpha){
         failed <- effectiveSize(burnin.esteq.last)
