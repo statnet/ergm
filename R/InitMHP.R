@@ -42,6 +42,12 @@ InitMHP.TNT <- function(arguments, nw) {
   MHproposal
 }
 
+InitMHP.TriNT <- function(arguments, nw) {
+  if(is.bipartite(nw)) stop("`TriNT` proposal does not work for bipartite networks.")
+  MHproposal <- list(name = "TriNT", inputs=NULL)
+  MHproposal
+}
+
 InitMHP.TNT10 <- function(arguments, nw) {
   MHproposal <- list(name = "TNT10", inputs=NULL)
   MHproposal
