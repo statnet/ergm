@@ -23,7 +23,7 @@ void MH_Unif(WtMHproposal *MHp, WtNetwork *nwp)  {
   double oldwt;
   static int a, b;
   
-  if(MHp->ntoggles == 0) { // Initialize DiscUnif 
+  if(MHp->ntoggles == 0) { // Initialize Unif 
     MHp->ntoggles=1;
     a = MHp->inputs[0];
     b = MHp->inputs[1];
@@ -43,19 +43,19 @@ void MH_Unif(WtMHproposal *MHp, WtNetwork *nwp)  {
 
 
 /*********************
- void MH_DiscUnifNonObserved
+ void MH_UnifNonObserved
 
  Missing data MH algorithm for continuous-uniform-reference ERGM.
 *********************/
 void MH_UnifNonObserved(WtMHproposal *MHp, WtNetwork *nwp)  {  
-  Edge nmissing = MHp->inputs[1];
-
+  static Edge nmissing;
   static int a, b;
   
-  if(MHp->ntoggles == 0) { // Initialize DiscUnif 
+  if(MHp->ntoggles == 0) { // Initialize Unif 
     MHp->ntoggles=1;
     a = MHp->inputs[0];
     b = MHp->inputs[1];
+    nmissing = MHp->inputs[2];
     return;
   }
 
@@ -117,14 +117,14 @@ void MH_DiscUnif(WtMHproposal *MHp, WtNetwork *nwp)  {
  Missing data MH algorithm for discrete-uniform-reference ERGM.
 *********************/
 void MH_DiscUnifNonObserved(WtMHproposal *MHp, WtNetwork *nwp)  {  
-  Edge nmissing = MHp->inputs[1];
-
+  static Edge nmissing;
   static int a, b;
   
   if(MHp->ntoggles == 0) { // Initialize DiscUnif 
     MHp->ntoggles=1;
     a = MHp->inputs[0];
     b = MHp->inputs[1];
+    nmissing = MHp->inputs[2];
     return;
   }
 
