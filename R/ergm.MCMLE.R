@@ -287,7 +287,7 @@ ergm.MCMLE <- function(init, nw, model,
       }
       steplen.hist <- c(steplen.hist, adaptive.steplength)
     }else{
-      steplen <- if(!is.null(control$MCMLE.steplength.margin)) .Hummel.steplength(statsmatrix.0, statsmatrix.0.obs, control$MCMLE.steplength.margin, control$MCMLE.steplength) else control$MCMLE.steplength
+      steplen <- if(!is.null(control$MCMLE.steplength.margin)) .Hummel.steplength(statsmatrix.0[,!model$etamap$offsetmap,drop=FALSE], statsmatrix.0.obs[,!model$etamap$offsetmap,drop=FALSE], control$MCMLE.steplength.margin, control$MCMLE.steplength) else control$MCMLE.steplength
       if(verbose){cat("Calling MCMLE Optimization...\n")}
       statsmean <- apply(statsmatrix.0,2,mean)
       if(!is.null(statsmatrix.0.obs)){
