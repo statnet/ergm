@@ -13,6 +13,7 @@
 \alias{b1degrange}
 \alias{b1degree}
 \alias{b1factor}
+\alias{b1mindegree}
 \alias{b1star}
 \alias{b1starmix}
 \alias{b1twostar}
@@ -20,6 +21,7 @@
 \alias{b2degrange}
 \alias{b2degree}
 \alias{b2factor}
+\alias{b2mindegree}
 \alias{b2star}
 \alias{b2starmix}
 \alias{b2twostar}
@@ -116,6 +118,7 @@
 \alias{InitErgmTerm.b1degrange}
 \alias{InitErgmTerm.b1degree}
 \alias{InitErgmTerm.b1factor}
+\alias{InitErgmTerm.b1mindegree}
 \alias{InitErgmTerm.b1star}
 \alias{InitErgmTerm.b1starmix}
 \alias{InitErgmTerm.b1twostar}
@@ -123,6 +126,7 @@
 \alias{InitErgmTerm.b2degrange}
 \alias{InitErgmTerm.b2degree}
 \alias{InitErgmTerm.b2factor}
+\alias{InitErgmTerm.b2mindegree}
 \alias{InitErgmTerm.b2star}
 \alias{InitErgmTerm.b2starmix}
 \alias{InitErgmTerm.b2twostar}
@@ -368,6 +372,7 @@ network
     \code{by} is a character string giving the name of an attribute in the
     network's vertex attribute list;
     it functions just like the \code{by} argument of the \code{b1degree} term.
+    Without the optional argument, this statistic is equivalent to \code{b1mindegree(2)}.
     This term can only be
     used with undirected bipartite networks. }
 
@@ -400,7 +405,6 @@ network
     see \code{degrange}, and see \code{b2degrange}
     for degrees of the second mode ("events").}
 
-  
     \item{\code{b1degree(d, by=NULL)} (binary)}{\emph{Degree for the first mode in a
     bipartite (aka two-mode) network:} The \code{d} argument is a vector of
     distinct integers. This term adds one network statistic to the model for
@@ -412,8 +416,7 @@ network
     attribute list. If this is specified 
     then each node's degree is tabulated only with other nodes having the same
     value of the \code{by} attribute.
-    This term can
-    only be used with undirected bipartite networks.}
+    This term can only be used with undirected bipartite networks.}
     
     \item{\code{b1factor(attrname, base=1)} (binary)}{\emph{Factor attribute effect for
     the first mode in a bipartite (aka two-mode) network :} 
@@ -435,6 +438,14 @@ network
     for \dQuote{pear}, then set \dQuote{banana} and \dQuote{orange} to the base
     (remember to sort the values first) by using \code{nodefactor("fruit",
     base=2:3)}. This term can only be used with undirected bipartite networks.}
+    
+    \item{\code{b1mindegree(d)} (binary)}{\emph{Minimum degree for the first mode in a
+    bipartite (aka two-mode) network:} The \code{d} argument is a vector of
+    distinct integers. This term adds one network statistic to the model for
+    each element in \code{d}; the \eqn{i}th such statistic equals the number of
+    nodes in the first mode of a bipartite network with at least degree \code{d[i]}. 
+    The first mode of a bipartite network object is sometimes known as the "actor" mode.
+    This term can only be used with undirected bipartite networks.}
     
     \item{\code{b1star(k, attrname=NULL)} (binary)}{\emph{k-Stars for the first mode in a
     bipartite (aka two-mode) network: } The \code{k} argument is a vector of
@@ -500,8 +511,8 @@ network
     \code{by} is a character string giving the name of an attribute in the
     network's vertex attribute list;
     it functions just like the \code{by} argument of the \code{b2degree} term.
-    This term can only be
-    used with undirected bipartite networks. }
+    Without the optional argument, this statistic is equivalent to \code{b2mindegree(2)}.
+    This term can only be used with undirected bipartite networks. }
 
   \item{\code{b2degrange(from, to=+Inf, by=NULL, homophily=FALSE)}
     (binary)}{\emph{Degree range for the second mode in a bipartite
@@ -531,7 +542,6 @@ network
     see \code{idegrange} and \code{odegrange}. For undirected networks,
     see \code{degrange}, and see \code{b1degrange}
     for degrees of the first mode ("actors").}
-
   
     \item{\code{b2degree(d, by=NULL)} (binary)}{\emph{Degree for the second mode in a
     bipartite (aka two-mode) network:} The \code{d} argument is a vector of
@@ -567,6 +577,14 @@ network
     \dQuote{orange} to the base (remember to sort the values first) by using
     \code{nodefactor("fruit", base=2:3)}. This term can only be used with
     undirected bipartite networks.}
+    
+    \item{\code{b2mindegree(d)} (binary)}{\emph{Minimum degree for the second mode in a
+    bipartite (aka two-mode) network:} The \code{d} argument is a vector of
+    distinct integers. This term adds one network statistic to the model for
+    each element in \code{d}; the \eqn{i}th such statistic equals the number of
+    nodes  in the second mode of a bipartite network with at least degree \code{d[i]}. 
+    The second mode of a bipartite network object is sometimes known as the "event" mode.
+    This term can only be used with undirected bipartite networks.}
     
     \item{\code{b2star(k, attrname=NULL)} (binary)}{\emph{k-Stars for the second mode in a
     bipartite (aka two-mode) network: } The \code{k} argument is a vector of
