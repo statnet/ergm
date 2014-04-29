@@ -119,7 +119,8 @@ response=response) else ergm.Cprepare(nw, model, response=response)
                            matrix(z$s, nrow=control.parallel$MCMC.samplesize,
                                   ncol=(if(nnw==1) Clist else Clist[[i]])$nstats,
                                   byrow = TRUE))
-      newnetworks[[i]]<-newnw.extract(if(nnw==1) nw else nw[[i]],z,response=response)
+      newnetworks[[i]]<-newnw.extract(if(nnw==1) nw else nw[[i]],z,
+                                  response=response,output=control$network.output)
       burnin.total <- c(burnin.total, z$burnin.total)
     }
     newnetwork<-newnetworks[[1]]
