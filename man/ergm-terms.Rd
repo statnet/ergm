@@ -14,6 +14,7 @@
 \alias{b1degree}
 \alias{b1factor}
 \alias{b1mindegree}
+\alias{b1nodematch}
 \alias{b1star}
 \alias{b1starmix}
 \alias{b1twostar}
@@ -22,6 +23,7 @@
 \alias{b2degree}
 \alias{b2factor}
 \alias{b2mindegree}
+\alias{b2nodematch}
 \alias{b2star}
 \alias{b2starmix}
 \alias{b2twostar}
@@ -119,6 +121,7 @@
 \alias{InitErgmTerm.b1degree}
 \alias{InitErgmTerm.b1factor}
 \alias{InitErgmTerm.b1mindegree}
+\alias{InitErgmTerm.b1nodematch}
 \alias{InitErgmTerm.b1star}
 \alias{InitErgmTerm.b1starmix}
 \alias{InitErgmTerm.b1twostar}
@@ -126,6 +129,7 @@
 \alias{InitErgmTerm.b2degrange}
 \alias{InitErgmTerm.b2degree}
 \alias{InitErgmTerm.b2factor}
+\alias{InitErgmTerm.b2nodematch}
 \alias{InitErgmTerm.b2mindegree}
 \alias{InitErgmTerm.b2star}
 \alias{InitErgmTerm.b2starmix}
@@ -447,6 +451,31 @@ network
     The first mode of a bipartite network object is sometimes known as the "actor" mode.
     This term can only be used with undirected bipartite networks.}
     
+    \item{\code{b1nodematch(attrname, diff=FALSE, keep=NULL, by=NULL, alpha=1, beta=1, 
+    byb2attr=NULL)} (binary)}{\emph{Nodal attribute-based homophily effect for
+    the first mode in a bipartite (aka two-mode) network:}  This term is introduced
+    in Bomiriya et al (2014).
+    The \code{attrname} argument is a character string giving the name of a
+    categorical attribute in the network's vertex attribute list. Out of the two arguments
+    (discount parameters) \code{alpha} and \code{beta}, both which takes values from [0,1], 
+    only one should be set at a time. If none is set to a value other than 1, this term will 
+    simply be a homophily based two-star statistic. This term adds one statistic to the model 
+    unless \code{diff} is set to \code{TRUE}, in which case the term adds multiple network 
+    statistics to the model, one for each of (a subset of) the unique values of the \code{attrname} 
+    attribute. To include only the attribute values you wish, use the \code{keep} argument. 
+    If an \code{alpha} discount parameter is used, each of these statistics gives the sum of 
+    the number of common second-mode nodes raised to the power \code{alpha} for each pair of 
+    first-mode nodes with that attribute. If a \code{beta} discount parameter is used, each 
+    of these statistics gives half the sum of the number of two-paths with two first-mode nodes 
+    with that attribute as the two ends of the two path raised to the power \code{beta} for each 
+    edge in the network. The \code{byb2attr} argument is a character string giving the name of a
+   	second mode categorical attribute in the network's attribute list. Setting this argument
+   	will separate the orginal statistics based on the values of the set second mode attribute---
+   	i.e. for example, if \code{diff} is \code{FALSE}, then the sum of all the statistics for 
+   	each level of this second-mode attribute will be equal to the original \code{b1nodematch}
+   	statistic where \code{byb2attr} set to \code{NULL}. This term can only be used with 
+   	undirected bipartite networks.}
+    
     \item{\code{b1star(k, attrname=NULL)} (binary)}{\emph{k-Stars for the first mode in a
     bipartite (aka two-mode) network: } The \code{k} argument is a vector of
     distinct integers. This term adds one network statistic to the model for
@@ -514,7 +543,7 @@ network
     Without the optional argument, this statistic is equivalent to \code{b2mindegree(2)}.
     This term can only be used with undirected bipartite networks. }
 
-  \item{\code{b2degrange(from, to=+Inf, by=NULL, homophily=FALSE)}
+    \item{\code{b2degrange(from, to=+Inf, by=NULL, homophily=FALSE)}
     (binary)}{\emph{Degree range for the second mode in a bipartite
     (a.k.a. two-mode) network:} 
     The \code{from} and \code{to} arguments are vectors of distinct
@@ -586,6 +615,31 @@ network
     The second mode of a bipartite network object is sometimes known as the "event" mode.
     This term can only be used with undirected bipartite networks.}
     
+    \item{\code{b2nodematch(attrname, diff=FALSE, keep=NULL, by=NULL, alpha=1, beta=1, 
+    byb1attr=NULL)} (binary)}{\emph{Nodal attribute-based homophily effect for
+    the second mode in a bipartite (aka two-mode) network:} This term is introduced
+    in Bomiriya et al (2014).
+    The \code{attrname} argument is a character string giving the name of a
+    categorical attribute in the network's vertex attribute list. Out of the two arguments
+    (discount parameters) \code{alpha} and \code{beta}, both which takes values from [0,1], 
+    only one should be set at a time. If none is set to a value other than 1, this term will 
+    simply be a homophily based two-star statistic. This term adds one statistic to the model 
+    unless \code{diff} is set to \code{TRUE}, in which case the term adds multiple network 
+    statistics to the model, one for each of (a subset of) the unique values of the \code{attrname} 
+    attribute. To include only the attribute values you wish, use the \code{keep} argument. 
+    If an \code{alpha} discount parameter is used, each of these statistics gives the sum of 
+    the number of common first-mode nodes raised to the power \code{alpha} for each pair of 
+    second-mode nodes with that attribute. If a \code{beta} discount parameter is used, each 
+    of these statistics gives half the sum of the number of two-paths with two second-mode nodes 
+    with that attribute as the two ends of the two path raised to the power \code{beta} for each 
+    edge in the network. The \code{byb1attr} argument is a character string giving the name of a
+   	first mode categorical attribute in the network's attribute list. Setting this argument
+   	will separate the orginal statistics based on the values of the set first mode attribute---
+   	i.e. for example, if \code{diff} is \code{FALSE}, then the sum of all the statistics for 
+   	each level of this first-mode attribute will be equal to the original \code{b2nodematch}
+   	statistic where \code{byb1attr} set to \code{NULL}. This term can only be used with 
+   	undirected bipartite networks.}
+
     \item{\code{b2star(k, attrname=NULL)} (binary)}{\emph{k-Stars for the second mode in a
     bipartite (aka two-mode) network: } The \code{k} argument is a vector of
     distinct integers. This term adds one network statistic to the model for
@@ -1662,6 +1716,9 @@ of the degrees of all pairs of nodes in the network which are tied.
 }
 \references{
 \itemize{
+  \item Bomiriya, R. P, Bansal, S., and Hunter, D. R. (2014).  Modeling
+  Homophily in ERGMs for Bipartite Networks.  Submitted.
+  
   \item Davis, J.A. and Leinhardt, S.  (1972).  The Structure of Positive Interpersonal
   Relations in Small Groups.  In J. Berger (Ed.), \emph{Sociological Theories in Progress,
   Volume 2}, 218--251.  Boston: Houghton Mifflin.

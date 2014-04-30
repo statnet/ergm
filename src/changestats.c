@@ -377,6 +377,151 @@ D_CHANGESTAT_FN(d_b1factor) {
 }
 
 /*****************
+ changestat: d_b1nodematch
+*****************/
+D_CHANGESTAT_FN(d_b1nodematch) {
+  
+  Vertex h, t, node3, node4, ninputs;
+  int i, j, edgeflag, count, exponenttype, matchval, b2attrsize, attrval1, attrval2, diffstatus, numofstats;     
+  Edge e, e2;
+  double beta, alpha, change=0.0, exponent; 
+  const int BetaType=1, AlphaType=2;
+  
+  b2attrsize = INPUT_PARAM[0];          
+
+  if(b2attrsize > 0){                   
+    ninputs = N_INPUT_PARAMS - 2*N_NODES - b2attrsize;/*have 2 sets of node attributes and b2attrvals */  
+  }                                      
+  else{                                  
+    ninputs = N_INPUT_PARAMS - N_NODES; 
+  }                                      
+
+  diffstatus = !(ninputs == 3); /* 1 if Diff = T and 0 if Diff = F */
+  numofstats = diffstatus ? (b2attrsize == 0 ? (ninputs - 3): (ninputs - 3) * b2attrsize) : (b2attrsize == 0 ? 1 : b2attrsize); 
+  
+  exponent = beta = INPUT_PARAM[1]; /* exponent on nodematch count */  
+  exponenttype = BetaType;
+  alpha = INPUT_PARAM[2];               
+  
+  if (beta >= 1.0 && alpha < 1.0) {  
+    exponent = alpha;
+    exponenttype = AlphaType;
+  }
+  //  Rprintf("N_INPUT_PARAMS = %d, N_NODES=%d\n", N_INPUT_PARAMS, N_NODES);
+  //  Rprintf("ninputs = %d, beta=%f, alpha=%f, exponenttype=%d, exponent=%f\n",
+  //  ninputs, beta, alpha, exponenttype, exponent);
+  
+  ZERO_ALL_CHANGESTATS(i);
+  FOR_EACH_TOGGLE(i) {
+    t = TAIL(i);
+    h = HEAD(i);
+    edgeflag = IS_OUTEDGE(t, h);
+    matchval = INPUT_PARAM[t + ninputs - 1]; 
+    
+    /* Now count the neighbors of h whose attribute value equals matchval */
+    /* All neighbors of h are inedges because this is a bipartite network */
+    count = 0;
+    change = 0.0;
+
+    if(b2attrsize == 0){ 
+    
+      STEP_THROUGH_INEDGES(h, e, node3) {
+	    if (INPUT_PARAM[node3 + ninputs - 1] == matchval && t != node3) { /* match! */ 
+	        ++count;
+
+	  // Rprintf("Matching twostar found! %d and %d connect to %d\n==================\n", t, node3, h);
+	        if (exponenttype == AlphaType) {
+	    
+	    /* calculate alpha change stat instead of beta change stat. */
+	    /* Look for number of two-paths connecting t and node3, not via h */
+	        count = 0;
+	    
+	        STEP_THROUGH_OUTEDGES(t, e2, node4) {
+	      // Rprintf("node3=%d, node4=%d, alpha=%f\n", node3,node4,alpha);
+		        if (node4 != h) {              /* RPB */
+		            count += IS_OUTEDGE(node3, node4); /* add 1 if node4 connects node3 with t */
+		        }
+	        }
+	    
+	        /* if count==0, then the statistic is always (plus or minus) 1 */
+	        // Rprintf("count is %d\n", count);
+	        change += (count==0 ? 1 : pow(count+1, exponent) - pow(count, exponent));
+	        }
+	      }
+        } 
+    
+      /* If count==0 then the statistic cannot change; it is the same with or */
+      /* without the proposed toggle */
+    
+      if (exponenttype == BetaType && count>0) {
+	    /* Now raise count and count+1 to beta, find the difference */
+	    change = 0.5*(count+1)*pow(count, exponent);
+	    change -= 0.5*count*(exponent==0.0? (count==1? 0.0 : 1.0) : pow((count-1), exponent));
+      }
+
+      if (diffstatus) { /* diff=T */                           
+	    // Rprintf("Change stat is adding %f\n", edgeflag ? -change : change);
+	   
+	    CHANGE_STAT[matchval-1] += edgeflag ? -change : change;  
+	
+      } else { /* diff=F */
+	    CHANGE_STAT[0] += edgeflag ? -change : change;
+      }
+
+    } else {  
+      
+      attrval1 = INPUT_PARAM[h + ninputs + N_NODES + b2attrsize - 1];  
+ 
+      STEP_THROUGH_INEDGES(h, e, node3) {
+	
+	if (INPUT_PARAM[node3 + ninputs - 1] == matchval && t != node3) { /* match! */ 
+	 
+	  ++count;   
+
+	  // Rprintf("Matching twostar found! %d and %d connect to %d\n==================\n", t, node3, h);
+	  if (exponenttype == AlphaType) {
+	    /* calculate alpha change stat instead of beta change stat. */
+	    /* Look for number of two-paths connecting t and node3, not via h */
+	    
+	    count = 0;      
+	
+	    STEP_THROUGH_OUTEDGES(t, e2, node4) {
+	      // Rprintf("node3=%d, node4=%d, alpha=%f\n", node3,node4,alpha);
+	      if (node4 != h) { 
+		    attrval2 = INPUT_PARAM[node4 + ninputs + N_NODES + b2attrsize - 1];  
+		    if(attrval2 == attrval1) count += IS_OUTEDGE(node3, node4); 
+	      }
+	    }
+	    /* if count==0, then the statistic is always (plus or minus) 1 */
+	    // Rprintf("count is %d\n", count);
+	    /* setting the change stat for each parameter */
+   	      change += (count== 0 ? 1 : pow(count+1, exponent) - pow(count, exponent)); 	    
+        }
+	  }
+    } 
+    /* If count==0 then the statistic cannot change; it is the same with or */
+    /* without the proposed toggle */
+      if (exponenttype == BetaType && count > 0) {       
+
+      /* Now raise count and count+1 to beta, find the difference */
+	   change  = 0.5*(count+1)*pow(count, beta);
+	   change -= 0.5*count*(beta==0.0? (count==1? 0.0 : 1.0) : pow((count-1), beta));	
+      }       
+     
+      if(diffstatus){  	 
+	      CHANGE_STAT[b2attrsize*(matchval-1) + attrval1 - 1] += edgeflag ? -change : change;
+      } else{        
+          CHANGE_STAT[attrval1 - 1] += edgeflag ? -change : change;
+      }
+
+    } 
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+
+  UNDO_PREVIOUS_TOGGLES(i);
+}
+
+/*****************
  changestat: d_b1starmix
 *****************/
 D_CHANGESTAT_FN(d_b1starmix) { 
@@ -701,6 +846,147 @@ D_CHANGESTAT_FN(d_b2factor) {
     TOGGLE_IF_MORE_TO_COME(i); /* Needed in case of multiple toggles */
   }
   UNDO_PREVIOUS_TOGGLES(i); /* Needed on exit in case of multiple toggles */
+}
+
+/*****************
+ changestat: d_b2nodematch
+*****************/
+D_CHANGESTAT_FN(d_b2nodematch) {
+ 
+  Vertex h, t, node3, node4, ninputs;
+  int i, j, edgeflag, count, exponenttype, matchval, b1attrsize, attrval1, attrval2, diffstatus, numofstats, ind;
+  Edge e, e2;
+  double beta, alpha, change=0.0, exponent;
+  const int BetaType=1, AlphaType=2;
+
+  b1attrsize = INPUT_PARAM[0];             
+
+  if(b1attrsize > 0){                   
+    ninputs = N_INPUT_PARAMS - 2*N_NODES - b1attrsize;/*have 2 sets of node attributes and b2attrvals */  
+  }                                      
+  else{                                  
+    ninputs = N_INPUT_PARAMS - N_NODES;  
+  }
+
+  diffstatus = !(ninputs == 3); /* 1 if Diff = T and o if Diff = F - RPB */
+  numofstats = diffstatus ? (b1attrsize == 0 ? (ninputs - 3): (ninputs - 3) * b1attrsize) : (b1attrsize == 0 ? 1 : b1attrsize); 
+
+  exponent = beta = INPUT_PARAM[1]; /* exponent on nodematch count */
+  exponenttype = BetaType;
+  alpha = INPUT_PARAM[2];
+  if (beta >= 1.0 && alpha < 1.0) {  
+    exponent = alpha;
+    exponenttype = AlphaType;
+  }
+  //  Rprintf("N_INPUT_PARAMS = %d, N_NODES=%d\n", N_INPUT_PARAMS, N_NODES);
+  //  Rprintf("ninputs = %d, beta=%f, alpha=%f, exponenttype=%d, exponent=%f\n",
+  //  ninputs, beta, alpha, exponenttype, exponent);
+  
+  ZERO_ALL_CHANGESTATS(i);
+  FOR_EACH_TOGGLE(i) {
+    t = TAIL(i);
+    h = HEAD(i);
+    edgeflag = IS_OUTEDGE(t, h);
+    matchval = INPUT_PARAM[h + ninputs - 1];
+    /* Now count the neighbors of t whose attribute value equals matchval */
+    /* All neighbors of t are outedges because this is a bipartite network */
+    count=0;
+    change = 0.0;
+       
+    /*  double CHANGE[b1attrsize]; /* RPB */
+
+      
+  if(b1attrsize == 0){
+
+    STEP_THROUGH_OUTEDGES(t, e, node3) {
+      if (INPUT_PARAM[node3 + ninputs - 1] == matchval && h != node3) { /* match! */
+        ++count;
+        
+	// Rprintf("Matching twostar found! %d and %d connect to %d\n==================\n", t, node3, h);
+        if (exponenttype == AlphaType) {
+          /* calculate alpha change stat instead of beta change stat. */
+          /* Look for number of two-paths connecting h and node3 */
+          count = 0;
+         
+      STEP_THROUGH_INEDGES(h, e2, node4) {
+            // Rprintf("node3=%d, node4=%d, alpha=%f\n", node3,node4,alpha);
+            if (node4 != t) {
+              count += IS_OUTEDGE(node4, node3); /* add 1 if node4 connects node3 with h */
+            }
+          }
+          /* if count==0, then the statistic is always 1 */
+          // Rprintf("count is %d\n", count);
+          change += (count==0 ? 1 : pow(count+1, exponent) - pow(count, exponent));
+        }
+      }
+    }
+    /* If count==0 then the statistic cannot change; it is the same with or */
+    /* without the proposed toggle */
+    
+    if (exponenttype == BetaType && count>0) {
+      /* Now raise count and count+1 to beta, find the difference */
+      change = 0.5*(count+1)*pow(count, beta);
+      change -= 0.5*count*(beta==0.0? (count==1? 0.0 : 1.0) : pow((count-1), beta));
+    }
+    
+    if (!diffstatus) { /* diff=F */
+      // Rprintf("Change stat is adding %f\n", edgeflag ? -change : change);
+      CHANGE_STAT[0] += edgeflag ? -change : change;
+    } else { /* diff=T */
+       CHANGE_STAT[matchval-1] += edgeflag ? -change : change;
+    }
+    
+  } else {
+
+ attrval1 = INPUT_PARAM[t + ninputs + N_NODES + b1attrsize - 1];  
+ 
+      STEP_THROUGH_OUTEDGES(t, e, node3) {
+	
+	if (INPUT_PARAM[node3 + ninputs - 1] == matchval && h != node3) { /* match! */ 
+	 
+	  ++count;   
+
+	  // Rprintf("Matching twostar found! %d and %d connect to %d\n==================\n", t, node3, h);
+	  if (exponenttype == AlphaType) {
+	    /* calculate alpha change stat instead of beta change stat. */
+	    /* Look for number of two-paths connecting t and node3, not via h */
+	    
+	    count = 0;      
+	
+	    STEP_THROUGH_INEDGES(h, e2, node4) {
+	      // Rprintf("node3=%d, node4=%d, alpha=%f\n", node3,node4,alpha);
+	      if (node4 != t) { 
+		    attrval2 = INPUT_PARAM[node4 + ninputs + N_NODES + b1attrsize - 1];  
+		    if(attrval2 == attrval1) count += IS_OUTEDGE(node4, node3); 
+	      }
+	    }
+	    /* if count==0, then the statistic is always (plus or minus) 1 */
+	    // Rprintf("count is %d\n", count);
+	    /* setting the change stat for each parameter */
+   	      change += (count== 0 ? 1 : pow(count+1, exponent) - pow(count, exponent)); 	    
+        }
+	  }
+    } 
+    /* If count==0 then the statistic cannot change; it is the same with or */
+    /* without the proposed toggle */
+      if (exponenttype == BetaType && count > 0) {     
+
+      /* Now raise count and count+1 to beta, find the difference */
+	   change  = 0.5*(count+1)*pow(count, beta);
+	   change -= 0.5*count*(beta==0.0? (count==1? 0.0 : 1.0) : pow((count-1), beta));	
+      }      
+     
+      if(diffstatus){  	 
+	      CHANGE_STAT[b1attrsize*(matchval-1) + attrval1 - 1] += edgeflag ? -change : change;
+      } else{        
+          CHANGE_STAT[attrval1 - 1] += edgeflag ? -change : change;
+      }
+
+     }
+    TOGGLE_IF_MORE_TO_COME(i);
+  }
+
+  UNDO_PREVIOUS_TOGGLES(i);
 }
 
 /*****************
