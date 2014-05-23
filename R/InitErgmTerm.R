@@ -1290,8 +1290,12 @@ InitErgmTerm.edgecov <- function(nw, arglist, ...) {
   ### Process the arguments
   if(is.network(a$x))
     xm<-as.matrix.network(a$x,matrix.type="adjacency",a$attrname)
-  else if(is.character(a$x))
+  else if(is.character(a$x)){
     xm<-get.network.attribute(nw,a$x)
+    if (is.null(xm)){
+      stop("There is no network attributed named ",a$x)
+    }
+  }
   else
     xm<-as.matrix(a$x)
   
