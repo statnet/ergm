@@ -179,8 +179,12 @@ s.x <- summary(samplike~edgecov(cov))
 e.x <- ergm(samplike ~ edgecov(cov))
 s.xa <- summary(samplike~edgecov(samplike, "YearsTrusted"))
 e.xa <- ergm(samplike ~ edgecov(samplike, "YearsTrusted"))
+n.x <- try(summary(samplike~edgecov('dummy')),silent=TRUE)
+set.network.attribute(samplike,'dummy',cov)
+n2.x <- summary(samplike~edgecov('dummy'))
 if (s.x!=134 || round(e.x$coef + .5022,3)!=0  ||
-    s.xa!=183 || e.xa$coef!=+Inf ) {
+    s.xa!=183 || e.xa$coef!=+Inf ||
+    !is(n.x,'try-error') || n2.x!=134) {
  print(list(s.x=s.x,e.x=e.x,s.xa=s.xa,e.xa=e.xa))
  stop("Failed edgecov test")
 }else{
