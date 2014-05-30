@@ -791,17 +791,18 @@ of the degrees of all pairs of nodes in the network which are tied.
     networks.}
     
     \item{\code{edgecov(x, attrname=NULL)} (binary), \code{edgecov(x,
-    attrname=NULL, form="sum")} (valued)}{\emph{Edge covariate:} 
-    The \code{x} argument is either a square matrix of covariates, one for each
-    possible edge in the network, covariates, or a network; if the latter,
-    optional argument \code{attrname} provides the name of the quantitative edge
-    attribute to use for covariate values (in this case, missing edges in
-    \code{x} are assigned a covariate value of zero). This term adds one
-    statistic to the model, equal to the sum of the covariate values for each
-    edge appearing in the network. The \code{edgecov} term applies to both
-    directed and undirected networks. For undirected networks the covariates are
-    also assumed to be undirected. The \code{edgecov} and \code{dyadcov} terms
-    are equivalent for undirected networks.}
+    attrname=NULL, form="sum")} (valued)}{\emph{Edge covariate:} The \code{x}
+    argument is either a square matrix of covariates, one for each possible
+    edge in the network, the name of a network attribute of covariates,
+    or a network; if the latter, optional argument \code{attrname} provides
+    the name of the quantitative edge attribute to use for covariate values
+    (in this case, missing edges in \code{x} are assigned a covariate value
+    of zero). This term adds one statistic to the model, equal to the sum
+    of the covariate values for each edge appearing in the network. The
+    \code{edgecov} term applies to both directed and undirected networks. For
+    undirected networks the covariates are also assumed to be undirected. The
+    \code{edgecov} and \code{dyadcov} terms are equivalent for undirected
+    networks.}
     
     \item{\code{edges} (binary or valued), a.k.a \code{nonzero} (valued)}{\emph{Edges:} This term adds one network statistic equal
     to the number of edges (i.e. nonzero values) in the network. For undirected networks, \code{edges}
