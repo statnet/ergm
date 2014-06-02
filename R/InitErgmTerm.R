@@ -2933,10 +2933,10 @@ InitErgmTerm.sociality<-function(nw, arglist, ...) {
   if(ld==0){return(NULL)}
   if(!is.null(attrname)){
     coef.names <- paste("sociality",d,".",attrname,sep="")
-    inputs <- c(d, nodecov)
+    inputs <- c(d, 0, nodecov) # Input requires a "guard" value.
   }else{
     coef.names <- paste("sociality",d,sep="")
-    inputs <- c(d)
+    inputs <- c(d,0) # Input requires a "guard" value.
   }
   list(name="sociality", coef.names=coef.names, inputs=inputs, minval=0, maxval=network.size(nw)-1, conflicts.constraints="degrees")
 }

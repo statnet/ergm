@@ -4780,36 +4780,12 @@ D_CHANGESTAT_FN(d_sociality) {
 
   /* *** don't forget tail -> head */    
   ZERO_ALL_CHANGESTATS(i);
-  if(ninputs>nstats){
+  if(ninputs>nstats+1){
     /* match on attributes */
-    FOR_EACH_TOGGLE(i)
-      {      
-	echange = (EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp->outedges) == 0) ? 1 : -1;
-	tailattr = INPUT_ATTRIB[tail-1+nstats];
-	if(tailattr == INPUT_ATTRIB[head-1+nstats]){
-	  j=0;
-	  deg = (Vertex)INPUT_PARAM[j];
-	  while(deg != tail && j < nstats){
-	    j++;
-	    deg = (Vertex)INPUT_PARAM[j];
-	  }
-	  if(j < nstats){CHANGE_STAT[j] += echange;}
-	  j=0;
-	  deg = (Vertex)INPUT_PARAM[j];
-	  while(deg != head && j < nstats){
-	    j++;
-	    deg = (Vertex)INPUT_PARAM[j];
-	  }
-	  if(j < nstats){CHANGE_STAT[j] += echange;}
-	}
-	
-	TOGGLE_IF_MORE_TO_COME(i);
-      }
-  }else{
-    /* *** don't forget tail -> head */    
-    FOR_EACH_TOGGLE(i)
-      {      
-	echange = (EdgetreeSearch(tail=TAIL(i), head=HEAD(i), nwp->outedges) == 0) ? 1 : -1;
+    FOR_EACH_TOGGLE(i) {      
+      echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
+      tailattr = INPUT_ATTRIB[tail-1+nstats+1]; // +1 for the "guard" value between vertex IDs and attribute vector
+      if(tailattr == INPUT_ATTRIB[head-1+nstats+1]){
 	j=0;
 	deg = (Vertex)INPUT_PARAM[j];
 	while(deg != tail && j < nstats){
@@ -4824,9 +4800,31 @@ D_CHANGESTAT_FN(d_sociality) {
 	  deg = (Vertex)INPUT_PARAM[j];
 	}
 	if(j < nstats){CHANGE_STAT[j] += echange;}
-	
-	TOGGLE_IF_MORE_TO_COME(i);
       }
+      
+      TOGGLE_IF_MORE_TO_COME(i);
+    }
+  }else{
+    /* *** don't forget tail -> head */    
+    FOR_EACH_TOGGLE(i) {      
+      echange = IS_OUTEDGE(tail=TAIL(i), head=HEAD(i)) ? -1 : 1;
+      j=0;
+      deg = (Vertex)INPUT_PARAM[j];
+      while(deg != tail && j < nstats){
+	j++;
+	deg = (Vertex)INPUT_PARAM[j];
+      }
+      if(j < nstats){CHANGE_STAT[j] += echange;}
+      j=0;
+      deg = (Vertex)INPUT_PARAM[j];
+      while(deg != head && j < nstats){
+	j++;
+	deg = (Vertex)INPUT_PARAM[j];
+      }
+      if(j < nstats){CHANGE_STAT[j] += echange;}
+      
+      TOGGLE_IF_MORE_TO_COME(i);
+    }
   }
   
   UNDO_PREVIOUS_TOGGLES(i);
