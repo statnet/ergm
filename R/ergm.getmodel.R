@@ -174,6 +174,8 @@ updatemodel.ErgmTerm <- function(model, outlist) {
     model$maxval <- c(model$maxval,
                       rep(if(!is.null(outlist$maxval)) outlist$maxval else +Inf,
                           length.out=length(outlist$coef.names)))
+    model$duration <- c(model$duration,
+                      if(!is.null(outlist$duration)) outlist$duration else FALSE)
     model$terms[[termnumber]] <- outlist
   }
   model

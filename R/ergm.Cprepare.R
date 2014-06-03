@@ -139,7 +139,7 @@ mk.edge.to.pos.lasttoggle.f <- function(nw){
 ergm.el.lasttoggle <- function(nw){
   edge.to.pos <- mk.edge.to.pos.lasttoggle.f(nw)
   el <- as.edgelist(nw)
-  cbind(el,(nw %n% "lasttoggle")[apply(el,1,edge.to.pos)])
+  cbind(el,NVL((nw %n% "lasttoggle"),0)[apply(el,1,edge.to.pos)]) # change to 0 if null
 }
 
 to.matrix.lasttoggle <- function(nw){
