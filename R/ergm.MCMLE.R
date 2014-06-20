@@ -109,14 +109,16 @@ ergm.MCMLE <- function(init, nw, model,
     }else{
       cat("Iteration ",iteration," of at most ", control$MCMLE.maxit,": \n",sep="")
     }
-    skip.burnin <- FALSE 
+
+    skip.burnin <- if (control$MCMC.burnin > 0L) FALSE else TRUE;
+    
     repeat{ # Keep trying until effective sample size is
             # sufficient. Don't repeat the burn-in after the first
             # time through.
       
         # Obtain MCMC sample
         mcmc.eta0 <- ergm.eta(mcmc.init, model$etamap)
-        z <- ergm.getMCMCsample(nw, model, MHproposal, mcmc.eta0, if(skip.burnin) within(control, {MCMC.burnin <- 0}) else control, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
+        z <- ergm.getMCMCsample(nw, model, MHproposal, mcmc.eta0, control, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
         
         if(z$status==1) stop("Number of edges in a simulated network exceeds that in the observed by a factor of more than ",floor(control$MCMLE.density.guard),". This is a strong indicator of model degeneracy. If you are reasonably certain that this is not the case, increase the MCMLE.density.guard control.ergm() parameter.")
         
@@ -137,7 +139,7 @@ ergm.MCMLE <- function(init, nw, model,
    
         ##  Does the same, if observation process:
         if(obs){
-          z.obs <- ergm.getMCMCsample(nw.obs, model, MHproposal.obs, mcmc.eta0, if(skip.burnin) within(control.obs, {MCMC.burnin <- 0}) else control.obs, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
+          z.obs <- ergm.getMCMCsample(nw.obs, model, MHproposal.obs, mcmc.eta0, control.obs, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
           
           if(z.obs$status==1) stop("Number of edges in the simulated network exceeds that observed by a large factor (",control$MCMC.max.maxedges,"). This is a strong indication of model degeneracy. If you are reasonably certain that this is not the case, increase the MCMLE.density.guard control.ergm() parameter.")
           
