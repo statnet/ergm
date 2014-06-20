@@ -24,15 +24,13 @@ efit <- ergm(samplike~edges + triangle, estimate="MPLE")
 summary(efit)
 
 set.seed(345)
-efit <- ergm(samplike~edges + triangle, control=control.ergm(MCMLE.maxit=3,
-      MCMC.samplesize=1000, MCMC.interval=1000, MCMC.burnin=1000))
+efit <- ergm(samplike~edges + triangle, control=control.ergm(MCMLE.maxit=3))
 summary(efit)
 
 ## Test bounded degrees.
 set.seed(456)
 efit <- ergm(samplike~edges + triangle, constraints=~bd(maxout=9), 
-             control=control.ergm(MCMLE.maxit=3,
-             MCMC.samplesize=1000, MCMC.interval=1000, MCMC.burnin=1000))
+             control=control.ergm(MCMLE.maxit=3))
 summary(efit)
 
 samplike <- set.vertex.attribute(samplike, "respondent", respondent)
@@ -43,7 +41,6 @@ efit <- ergm(samplike~edges + triangle, estimate="MPLE")
 summary(efit)
 
 set.seed(567)
-efit <- ergm(samplike~edges + triangle, control=control.ergm(MCMLE.maxit=3,
-    MCMC.samplesize=1000, MCMC.interval=1000, MCMC.burnin=1000))
+efit <- ergm(samplike~edges + triangle, control=control.ergm(MCMLE.maxit=3))
 summary(efit)
 },"directed network with missing data and dyadic dependence")
