@@ -93,7 +93,7 @@ ergm.checkargs <- function(fname, arglist, varnames=NULL, vartypes=NULL,
 
 
 #################################################################################
-# The <ergm.checkdirected> function halts execution for the <InitErgm> functions
+# The <ergm.checkbipartite> function halts execution for the <InitErgm> functions
 # with an error message if the given model term cannot be used with the network
 # because of its bipartite state
 #
