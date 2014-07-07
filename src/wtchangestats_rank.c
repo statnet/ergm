@@ -132,7 +132,7 @@ WtD_CHANGESTAT_FN(d_inconsistency_cov_rank){
 	  if(v123_cov==0) continue;
 	  double v13_old = GETOLDWT2(v1,v3);
 	  double v13_ref = INPUT_PARAM[(v1-1)*N_NODES+(v3-1)];
-	  double v13_new = GETNEWWT2OLD(v1,v3,v12_old);
+	  double v13_new = GETNEWWT2OLD(v1,v3,v13_old);
 	  if((v12_old>v13_old)!=(v12_ref>v13_ref)) CHANGE_STAT[0]-=v123_cov;
 	  if((v12_new>v13_new)!=(v12_ref>v13_ref)) CHANGE_STAT[0]+=v123_cov;
 	}

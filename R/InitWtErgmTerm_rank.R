@@ -15,10 +15,10 @@ InitWtErgmTerm.deference<-function(nw, arglist, response, ...) {
 
 InitWtErgmTerm.inconsistency<-function (nw, arglist, response, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                     varnames = c("x","attrname","weights","wtname"),
-                     vartypes = c("matrix,network","character","array,function","character"),
-                     defaultvalues = list(nw,NULL,NULL,NULL),
-                     required = c(FALSE,FALSE,FALSE,FALSE))
+                     varnames = c("x","attrname","weights","wtname","wtcenter"),
+                     vartypes = c("matrix,network","character","array,function","character","logical"),
+                     defaultvalues = list(nw,NULL,NULL,NULL,FALSE),
+                     required = c(FALSE,FALSE,FALSE,FALSE,FALSE))
 
   name<-"inconsistency_rank"
   
@@ -50,12 +50,29 @@ InitWtErgmTerm.inconsistency<-function (nw, arglist, response, ...) {
 
   if(!is.null(a$weights)){
     name<-"inconsistency_cov_rank"
-    if(!is.null(a$wtname)) coef.names<-paste(coef.names,"*",a$wtname,sep="")
+    if(!is.null(a$wtname)) coef.names<-paste(coef.names,":",a$wtname,if(a$wtcenter)"c"else"",sep="")
 
     if(is.function(a$weights)){
-      mk.inconsist.cov<-function(n,FUN) aperm(array(unlist(sapply(seq_len(n),function(i) sapply(seq_len(n), function(j1) sapply(seq_len(n), function(j2) FUN(i,j1,j2,...),simplify=FALSE),simplify=FALSE),simplify=FALSE)),c(n,n,n)),3:1)
+      mk.inconsist.cov<-function(n,FUN)
+        aperm(array(unlist(sapply(seq_len(n),
+                                  function(i)
+                                  sapply(seq_len(n),
+                                         function(j1)
+                                         sapply(seq_len(n),
+                                                function(j2)
+                                                if(i==j1||i==j2||j1==j2) NA
+                                                else FUN(i,j1,j2),
+                                                simplify=FALSE),
+                                         simplify=FALSE),
+                                  simplify=FALSE)),
+                    c(n,n,n)),
+              3:1)
       a$weights<-mk.inconsist.cov(network.size(nw),a$weights)
     }
+
+    if(a$wtcenter) a$weights <- a$weights - mean(na.omit(c(a$weights)))
+
+    a$weights[is.na(a$weights)] <- 0
     
     inputs<-c(inputs,aperm(a$weights,c(3,2,1)))
   }
