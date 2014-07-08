@@ -72,17 +72,18 @@ response=response) else ergm.Cprepare(nw, model, response=response)
     
     if(!is.null(z$burnin.failed) && z$burnin.failed) warning("Burn-in failed to converge after retries.")
     
-    statsmatrix <- matrix(z$s, nrow=control$MCMC.samplesize,
+    statsmatrix <- matrix(z$s,
                           ncol=Clist$nstats,
                           byrow = TRUE)
     newnetwork <- newnw.extract(nw,z,response=response,
                                 output=control$network.output)
     newnetworks <- list(newnetwork)
 
-    burnin.total <- z$burnin.total
+    final.interval <- z$final.interval
   }else{
     control.parallel <- control
     control.parallel$MCMC.samplesize <- ceiling(control$MCMC.samplesize / control$parallel)
+    control.parallel$MCMC.effectiveSize <- ceiling(control$MCMC.effectiveSize / control$parallel)
     
     cl <- ergm.getCluster(control, verbose)
     #
@@ -100,7 +101,7 @@ response=response) else ergm.Cprepare(nw, model, response=response)
     #
     statsmatrix <- NULL
     newnetworks <- list()
-    burnin.total <- c()
+    final.interval <- c()
     for(i in (1:control$parallel)){
       z <- outlist[[i]]
 
@@ -116,12 +117,12 @@ response=response) else ergm.Cprepare(nw, model, response=response)
       if(!is.null(z$burnin.failed) && z$burnin.failed) warning("Burn-in failed to converge after retries.")
       
       statsmatrix <- rbind(statsmatrix,
-                           matrix(z$s, nrow=control.parallel$MCMC.samplesize,
+                           matrix(z$s,
                                   ncol=(if(nnw==1) Clist else Clist[[i]])$nstats,
                                   byrow = TRUE))
       newnetworks[[i]]<-newnw.extract(if(nnw==1) nw else nw[[i]],z,
                                   response=response,output=control$network.output)
-      burnin.total <- c(burnin.total, z$burnin.total)
+      final.interval <- c(final.interval, z$final.interval)
     }
     newnetwork<-newnetworks[[1]]
 
@@ -134,7 +135,7 @@ response=response) else ergm.Cprepare(nw, model, response=response)
   colnames(statsmatrix) <- model$coef.names
 
   statsmatrix[is.na(statsmatrix)] <- 0
-  list(statsmatrix=statsmatrix, newnetwork=newnetwork, newnetworks=newnetworks, status=0, burnin.total=burnin.total)
+  list(statsmatrix=statsmatrix, newnetwork=newnetwork, newnetworks=newnetworks, status=0, final.interval=final.interval)
 }
 
 
@@ -224,8 +225,8 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...) {
                 status = integer(1),
                 PACKAGE="ergm")
         
-        # save the results
-        z<-list(s=z$s, newnwtails=z$newnwtails, newnwheads=z$newnwheads, status=z$status, maxedges=maxedges)
+        # save the results (note that if prev.run is NULL, c(NULL$s,z$s)==z$s.
+        z<-list(s=c(prev.run$s,z$s), newnwtails=z$newnwtails, newnwheads=z$newnwheads, status=z$status, maxedges=maxedges)
       }else{
         z <- .C("WtMCMC_wrapper",
                 as.integer(length(nedges)), as.integer(nedges),
@@ -249,7 +250,7 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...) {
                 status = integer(1),
                 PACKAGE="ergm")
         # save the results
-        z<-list(s=z$s, newnwtails=z$newnwtails, newnwheads=z$newnwheads, newnwweights=z$newnwweights, status=z$status, maxedges=maxedges)
+        z<-list(s=c(prev.run$s,z$s), newnwtails=z$newnwtails, newnwheads=z$newnwheads, newnwweights=z$newnwweights, status=z$status, maxedges=maxedges)
       }
       if(z$status!=1) return(z) # Handle everything except for MCMC_TOO_MANY_EDGES elsewhere.
 
@@ -263,95 +264,77 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...) {
 
     }
   }
-  
-  if(control$MCMC.burnin>0 && NVL(control$MCMC.burnin.retries,0)>0){
-    out <- NULL
-    burnin.stats <- NULL
-    burnin.total <- 0
-    samplesize <- min(control$MCMC.samplesize,control$MCMC.burnin)
-    burnin <- 0
-    interval <- ceiling(control$MCMC.burnin/samplesize)
+
+  if(!is.null(control$MCMC.effectiveSize)){
+    if(verbose) cat("Beginning adaptive MCMC...\n")
+
     
-    for(try in seq_len(control$MCMC.burnin.retries+1)){
+    interval <- control$MCMC.interval
+    stats <- out <- NULL
+    for(mcrun in seq_len(control$MCMC.effectiveSize.maxruns)){
       out<-dorun(prev.run=out,
-                 burnin = burnin,
-                 samplesize = samplesize,
+                 burnin = interval, # I.e., skip that much before the first draw.
+                 samplesize = control$MCMC.effectiveSize,
                  interval = interval,
-                 maxedges = out$maxedges # note that the first time through, maxedges=NULL$maxedges, which is NULL.
+                 maxedges = out$maxedges
                  )
+      
       # Stop if something went wrong.
       if(out$status!=0) return(out)
-
-      burnin.total <- burnin.total + burnin + (samplesize-1)*interval
       
-      # Get the array of the burnin draws. Note that all draws get stored.
-      burnin.stats <- rbind(burnin.stats,
-                            matrix(out$s, nrow=samplesize,
-                                   ncol=Clist$nstats,
-                                   byrow = TRUE)
-                            )
-      colnames(burnin.stats) <- names(Clist$diagnosable)
-
-      if(nrow(burnin.stats)>=samplesize*8){
-        burnin.stats <- burnin.stats[seq_len(floor(nrow(burnin.stats)/2))*2,,drop=FALSE]
+      stats <- rbind(matrix(out$s, # s is cumulative
+                            ncol=Clist$nstats,
+                            byrow = TRUE)
+                     )
+      colnames(stats) <- names(Clist$diagnosable)
+      
+      if(nrow(stats)>=control$MCMC.effectiveSize*8){
+        stats <- stats[seq_len(floor(nrow(stats)/2))*2,,drop=FALSE]
+        out$s <- c(t(stats))
         interval <- interval*2
         if(verbose) cat("Increasing thinning to",interval,".\n")
       }
       
-      # Extract the last draws for diagnostics.
-      burnin.stats.last <- burnin.stats[-seq_len((1-control$MCMC.burnin.check.last)*nrow(burnin.stats)),,drop=FALSE]
+      esteq <-
+        if(all(c("theta","etamap") %in% names(list(...)))) .ergm.esteq(list(...)$theta, list(etamap=list(...)$etamap), stats)
+        else stats[,Clist$diagnosable,drop=FALSE]
       
-      burnin.esteq.last <-
-        if(all(c("theta","etamap") %in% names(list(...)))) .ergm.esteq(list(...)$theta, list(etamap=list(...)$etamap), burnin.stats.last)
-        else burnin.stats.last[,Clist$diagnosable,drop=FALSE]
+      meS <- .max.effectiveSize(esteq)
+      if(verbose) cat("Maximum Harmonic mean ESS of",meS$eS,"attained with burn-in of", round(meS$b/nrow(stats)*100),"%.\n")
+      
+      if(meS$eS>=control$MCMC.effectiveSize){
+        if(verbose) cat("Target ESS achieved. Returning.\n")
 
-      if(control$MCMC.runtime.traceplot) plot(window(mcmc(burnin.esteq.last,thin=max(1,floor(nrow(burnin.esteq.last)/1000)))),ask=FALSE,smooth=TRUE,density=FALSE)
-      
-      burnin.test <- suppressWarnings(try(geweke.diag.mv(burnin.esteq.last,.3,.3))) # Note that the first and the last are different. More similar sample sizes give more power, and the gap between the samples is the same as before (0.4).
-      if(inherits(burnin.test,"try-error")){
-        if(verbose) cat("Burn-in convergence test failed. Rerunning.\n")
-        if(try == control$MCMC.burnin.retries+1) burnin.failed <- TRUE
-      }else if(burnin.test$parameter["df"]<control$MCMC.burnin.min.df){
-        if(verbose) cat("Insufficient burn-in sample size (",burnin.test$parameter["df"],"<",control$MCMC.burnin.min.df,") to test convergence. Rerunning.\n")
-        if(try == control$MCMC.burnin.retries+1) burnin.failed <- TRUE
-      }else if(burnin.test$p.value < control$MCMC.burnin.check.alpha){
-        failed <- effectiveSize(burnin.esteq.last)
-        failed <- order(failed)
-        if(verbose) cat("Burn-in failed to converge or mixed very poorly, with p-value =",burnin.test$p.value,". Ranking of statistics from worst-mixing to best-mixing:", paste.and(names(Clist$diagnosable[Clist$diagnosable])[failed]), ". Rerunning.\n")
-        if(try == control$MCMC.burnin.retries+1) burnin.failed <- TRUE
-      }else{
-        if(verbose){
-          print(burnin.test)
-          cat("Burn-in converged. Proceeding to the sampling run.\n")
-        }
-        burnin.failed <- FALSE
-        break
+        if(meS$burnin) stats <- stats[-seq_len(meS$burnin),,drop=FALSE]
+        out$s <- c(t(stats))
+        out$final.interval <- interval
+        return(out)
       }
+      
+      if(control$MCMC.runtime.traceplot) plot(window(mcmc(esteq,thin=max(1,floor(nrow(esteq)/1000)))),ask=FALSE,smooth=TRUE,density=FALSE)
+      
     }
+    warning("Unable to reach target effective size in iterations alotted.")
+    
+    out$final.interval <- interval
+    if(meS$burnin) stats <- stats[-seq_len(meS$burnin),,drop=FALSE]
+    out$s <- c(t(stats))
+    out
+  }else dorun()  
+}
 
-    # Do the actual sampling run. Note that we've already done the burnin.
-    out <- dorun(prev.run=out, burnin=0, maxedges=out$maxedges)
-    if(control$MCMC.runtime.traceplot) {
-      stats <- matrix(out$s, nrow=control$MCMC.samplesize,
-                      ncol=Clist$nstats,
-                      byrow = TRUE)[,Clist$diagnosable,drop=FALSE]
-      colnames(stats) <- names(Clist$diagnosable)[Clist$diagnosable==TRUE]
-      
-      plot(mcmc(stats,start=1,end=control$MCMC.samplesize*control$MCMC.interval,thin=control$MCMC.interval),ask=FALSE,smooth=TRUE,density=FALSE)
-    }
-    out$burnin.failed <- burnin.failed
-    out$burnin.total <- burnin.total
-    out
-  } else {
-    out <- dorun()
-    if(control$MCMC.runtime.traceplot) {
-      stats <- matrix(out$s, nrow=control$MCMC.samplesize,
-                      ncol=Clist$nstats,
-                      byrow = TRUE)[,Clist$diagnosable,drop=FALSE]
-      colnames(stats) <- names(Clist$diagnosable)[Clist$diagnosable==TRUE]
-      
-      plot(mcmc(stats,start=control$MCMC.burnin+1,control$MCMC.burnin+control$MCMC.samplesize*control$MCMC.interval,thin=control$MCMC.interval),ask=FALSE,smooth=TRUE,density=FALSE)
-    }
-    out
+
+.max.effectiveSize <- function(x, npts=20, base=3/4){
+  es <- function(b){
+    if(b>0) x <- x[-seq_len(b),,drop=FALSE]
+    effSizes <- effectiveSize(x)
+    mean.fn <- function(x) x^(-1)
+    mean.ifn <- function(x) x^(-1)
+    mean.ifn(mean(mean.fn(effSizes)))
   }
+
+  pts <- sort(round(base^seq_len(npts)*nrow(x)))
+  ess <- sapply(pts, es)
+
+  list(burnin=pts[which.max(ess)], eS=max(ess))
 }
