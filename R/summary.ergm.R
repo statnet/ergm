@@ -157,7 +157,15 @@ summary.ergm <- function (object, ...,
 
 # Convert to % error
   if(any(!is.na(mc.se))){
-   mc.se[!is.na(mc.se)] <- round(100*mc.se[!is.na(mc.se)]^2/asyse[!is.na(mc.se)]^2)
+    # The whole function should probably be cleaned up, but, for now,
+    # asyse = sqrt(V.model + V.MC) and mc.se = sqrt(V.MC)
+    # We want (sqrt(V.model + V.MCMC)-sqrt(V.model))/sqrt(V.model + V.MCMC) * 100%,
+    
+    # so we need to recover sqrt(V.model), which we can grab from
+    # above, but because it gets defined and redefined, I'll just
+    # calculate it as
+    # asyse^2 - mc.se^2, so the numerator is ayse - sqrt(asyse^2 - mc.se^2)
+   mc.se[!is.na(mc.se)] <- round(100*(asyse[!is.na(mc.se)]-sqrt(asyse[!is.na(mc.se)]^2 - mc.se[!is.na(mc.se)]^2))/asyse[!is.na(mc.se)])
   }
 
   count <- 1
