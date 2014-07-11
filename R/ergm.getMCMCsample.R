@@ -70,11 +70,8 @@ response=response) else ergm.Cprepare(nw, model, response=response)
       stop("Sampling failed due to a Metropolis-Hastings proposal failing.")
     }
     
-    if(!is.null(z$burnin.failed) && z$burnin.failed) warning("Burn-in failed to converge after retries.")
+    statsmatrix <- z$s
     
-    statsmatrix <- matrix(z$s,
-                          ncol=Clist$nstats,
-                          byrow = TRUE)
     newnetwork <- newnw.extract(nw,z,response=response,
                                 output=control$network.output)
     newnetworks <- list(newnetwork)
@@ -114,12 +111,8 @@ response=response) else ergm.Cprepare(nw, model, response=response)
         stop("Sampling failed due to a Metropolis-Hastings proposal failing.")
       }
       
-      if(!is.null(z$burnin.failed) && z$burnin.failed) warning("Burn-in failed to converge after retries.")
-      
-      statsmatrix <- rbind(statsmatrix,
-                           matrix(z$s,
-                                  ncol=(if(nnw==1) Clist else Clist[[i]])$nstats,
-                                  byrow = TRUE))
+      statsmatrices[[i]] <- rbind(statsmatrix,z$s)
+                           
       newnetworks[[i]]<-newnw.extract(if(nnw==1) nw else nw[[i]],z,
                                   response=response,output=control$network.output)
       final.interval <- c(final.interval, z$final.interval)
@@ -188,10 +181,7 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...) {
       heads <- prev.run$newnwheads[2:(nedges+1)]
       weights <- prev.run$newnwweights[2:(nedges+1)]
       nedges <- c(nedges,0,0)
-      stats <- matrix(prev.run$s,
-                      ncol=Clist$nstats,
-                      byrow = TRUE)
-      stats <- stats[nrow(stats),]
+      stats <- prev.run$s[nrow(prev.run$s),]
     }
 
     if(is.null(burnin)) burnin <- control$MCMC.burnin
@@ -226,7 +216,8 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...) {
                 PACKAGE="ergm")
         
         # save the results (note that if prev.run is NULL, c(NULL$s,z$s)==z$s.
-        z<-list(s=c(prev.run$s,z$s), newnwtails=z$newnwtails, newnwheads=z$newnwheads, status=z$status, maxedges=maxedges)
+        z<-list(s=matrix(z$s, ncol=Clist$nstats, byrow = TRUE),
+                newnwtails=z$newnwtails, newnwheads=z$newnwheads, status=z$status, maxedges=maxedges)
       }else{
         z <- .C("WtMCMC_wrapper",
                 as.integer(length(nedges)), as.integer(nedges),
@@ -250,8 +241,13 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...) {
                 status = integer(1),
                 PACKAGE="ergm")
         # save the results
-        z<-list(s=c(prev.run$s,z$s), newnwtails=z$newnwtails, newnwheads=z$newnwheads, newnwweights=z$newnwweights, status=z$status, maxedges=maxedges)
+        z<-list(s=matrix(z$s, ncol=Clist$nstats, byrow = TRUE),
+                newnwtails=z$newnwtails, newnwheads=z$newnwheads, newnwweights=z$newnwweights, status=z$status, maxedges=maxedges)
       }
+
+      z$s <- rbind(prev.run$s,z$s)
+      colnames(z$s) <- names(Clist$diagnosable)
+      
       if(z$status!=1) return(z) # Handle everything except for MCMC_TOO_MANY_EDGES elsewhere.
 
       # The following is only executed (and the loop continued) if too many edges.
@@ -268,13 +264,34 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...) {
   if(!is.null(control$MCMC.effectiveSize)){
     if(verbose) cat("Beginning adaptive MCMC...\n")
 
+    howmuchmore <- function(target.ess, current.ss, current.ess, current.burnin){
+      (target.ess-current.ess)*(current.ss-current.burnin)/current.ess
+    }
     
     interval <- control$MCMC.interval
-    stats <- out <- NULL
+    meS <- list(burnin=0,eS=control$MCMC.effectiveSize)
+    out <- NULL
     for(mcrun in seq_len(control$MCMC.effectiveSize.maxruns)){
+      if(mcrun==1){
+        samplesize <- control$MCMC.samplesize
+        if(verbose)
+          cat("First run: running forward by",samplesize, "steps with interval", interval, ".\n")
+      }else{
+        if(meS$eS<1){
+          samplesize <- control$MCMC.samplesize
+          if(verbose)
+            cat("Insufficient ESS to determine the number of steps remaining: running forward by",samplesize, "steps with interval", interval, ".\n")
+        }else{
+          pred.ss <- howmuchmore(control$MCMC.effectiveSize, NVL(nrow(out$s),0), meS$eS, meS$burnin)
+          damp.ss <- pred.ss*(meS$eS/(control$MCMC.effectiveSize.damp+meS$eS))+control$MCMC.samplesize*(1-meS$eS/(control$MCMC.effectiveSize.damp+meS$eS))
+          samplesize <- round(damp.ss)
+          if(verbose) cat("Predicted additional sample size:",pred.ss, "dampened to",damp.ss, ", so running", samplesize, "steps forward.\n")
+        }
+      }
+        
       out<-dorun(prev.run=out,
                  burnin = interval, # I.e., skip that much before the first draw.
-                 samplesize = control$MCMC.effectiveSize,
+                 samplesize = samplesize,
                  interval = interval,
                  maxedges = out$maxedges
                  )
@@ -282,45 +299,41 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...) {
       # Stop if something went wrong.
       if(out$status!=0) return(out)
       
-      stats <- rbind(matrix(out$s, # s is cumulative
-                            ncol=Clist$nstats,
-                            byrow = TRUE)
-                     )
-      colnames(stats) <- names(Clist$diagnosable)
-      
-      if(nrow(stats)>=control$MCMC.effectiveSize*8){
-        stats <- stats[seq_len(floor(nrow(stats)/2))*2,,drop=FALSE]
-        out$s <- c(t(stats))
+      while(nrow(out$s)-meS$burnin>=(control$MCMC.samplesize)*2){
+        out$s <- out$s[seq_len(floor(nrow(out$s)/2))*2,,drop=FALSE]
         interval <- interval*2
         if(verbose) cat("Increasing thinning to",interval,".\n")
       }
       
       esteq <-
-        if(all(c("theta","etamap") %in% names(list(...)))) .ergm.esteq(list(...)$theta, list(etamap=list(...)$etamap), stats)
-        else stats[,Clist$diagnosable,drop=FALSE]
+        if(all(c("theta","etamap") %in% names(list(...)))) .ergm.esteq(list(...)$theta, list(etamap=list(...)$etamap), out$s)
+        else out$s[,Clist$diagnosable,drop=FALSE]
       
       meS <- .max.effectiveSize(esteq)
-      if(verbose) cat("Maximum Harmonic mean ESS of",meS$eS,"attained with burn-in of", round(meS$b/nrow(stats)*100),"%.\n")
-      
-      if(meS$eS>=control$MCMC.effectiveSize){
-        if(verbose) cat("Target ESS achieved. Returning.\n")
+      if(verbose) cat("Maximum Harmonic mean ESS of",meS$eS,"attained with burn-in of", round(meS$b/nrow(out$s)*100,2),"%.\n")
 
-        if(meS$burnin) stats <- stats[-seq_len(meS$burnin),,drop=FALSE]
-        out$s <- c(t(stats))
-        out$final.interval <- interval
-        return(out)
-      }
-      
       if(control$MCMC.runtime.traceplot) plot(window(mcmc(esteq,thin=max(1,floor(nrow(esteq)/1000)))),ask=FALSE,smooth=TRUE,density=FALSE)
-      
+
+      if(meS$eS>=control$MCMC.effectiveSize){
+        if(verbose) cat("Target ESS achieved. Returning.\n")      
+        break
+      }
     }
-    warning("Unable to reach target effective size in iterations alotted.")
     
+    if(meS$eS<control$MCMC.effectiveSize)
+      warning("Unable to reach target effective size in iterations alotted.")
+
+    if(meS$burnin) out$s <- out$s[-seq_len(meS$burnin),,drop=FALSE]
+        
     out$final.interval <- interval
-    if(meS$burnin) stats <- stats[-seq_len(meS$burnin),,drop=FALSE]
-    out$s <- c(t(stats))
+    
+    out$s <- mcmc(out$s, (meS$burnin+1)*interval, thin=interval)
     out
-  }else dorun()  
+  }else{
+    out <- dorun()
+    out$s <- mcmc(out$s, control$MCMC.burnin+1, thin=control$MCMC.interval)
+    out
+  }
 }
 
 

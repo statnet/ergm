@@ -170,8 +170,12 @@ ergm.MCMLE <- function(init, nw, model,
 
     # Update the interval to be used.
     if(!is.null(control$MCMC.effectiveSize)){
-      control$MCMC.interval <- round(max(z$final.interval,z.obs$final.interval)/2)
+      control$MCMC.interval <- round(max(z$final.interval,2)/2)
       if(verbose) cat("New interval =",control$MCMC.interval,".\n")
+      if(obs){
+        control.obs$MCMC.interval <- round(max(z.obs$final.interval,2)/2)
+        if(verbose) cat("New constrained interval =",control.obs$MCMC.interval,".\n")
+      }
     }
     
     conv.pval <- approx.hotelling.diff.test(esteq, esteq.obs)$p.value
