@@ -129,30 +129,33 @@ ergm.MCMCse.lognormal<-function(theta, init, statsmatrix, statsmatrix.obs,
     return(mc.se)
   }
   cov.zbar <- cov.zbar[!(novar.offset),!(novar.offset),drop=FALSE]
-  mc.se <- rep(NA,length=length(theta))
-  if(inherits(try(solve(H)),"try-error")) warning("Approximate Hessian matrix is singular. Standard errors due to MCMC approximation of the likelihood cannot be evaluated. This is likely due to highly correlated model terms.")
-  mc.se0 <- try(solve(H, cov.zbar), silent=TRUE)
 
-  if(!(inherits(mc.se0,"try-error"))){
-    mc.se0 <- try(diag(solve(H, t(mc.se0))), silent=TRUE)
-    if(!(inherits(mc.se0,"try-error"))){
+  mc.cov <- matrix(NA,ncol=length(theta),nrow=length(theta))
+  mc.cov0 <- try(solve(H, cov.zbar), silent=TRUE)
+  if(!(inherits(mc.cov0,"try-error"))){
+    mc.cov0 <- try(solve(H, t(mc.cov0)), silent=TRUE)
+    if(!(inherits(mc.cov0,"try-error"))){
       if(!is.null(statsmatrix.obs)){
-        mc.se.obs0 <- try(solve(H.obs, cov.zbar.obs), silent=TRUE)
-        if(!(inherits(mc.se.obs0,"try-error"))){
-          mc.se.obs0 <- try(diag(solve(H.obs, t(mc.se.obs0))), silent=TRUE)
-          if(!inherits(mc.se.obs0,"try-error")){
-            mc.se[!novar.offset] <- sqrt(mc.se0 + mc.se.obs0)
+        mc.cov.obs0 <- try(solve(H.obs, cov.zbar.obs), silent=TRUE)
+        if(!(inherits(mc.cov.obs0,"try-error"))){
+          mc.cov.obs0 <- try(solve(H.obs, t(mc.cov.obs0)), silent=TRUE)
+          if(!inherits(mc.cov.obs0,"try-error")){
+            mc.cov[!novar.offset,!novar.offset] <- mc.cov0 + mc.cov.obs0
           }else{
-            mc.se[!novar.offset] <- sqrt(mc.se0)
+            mc.cov[!novar.offset,!novar.offset] <- mc.cov0
           }
         }else{
-          mc.se[!novar.offset] <- sqrt(mc.se0)
+          mc.cov[!novar.offset,!novar.offset] <- mc.cov0
         }
       }else{
-        mc.se[!novar.offset] <- sqrt(mc.se0)
+        mc.cov[!novar.offset,!novar.offset] <- mc.cov0
       }
     }
   }
-  names(mc.se) <- names(theta)
-  return(mc.se)
+  colnames(mc.cov) <- names(theta)
+  rownames(mc.cov) <- names(theta)
+
+  mc.se <- setNames(sqrt(diag(mc.cov)), names(theta))
+  
+  return(list(mc.se=mc.se, mc.cov=mc.cov))
 }

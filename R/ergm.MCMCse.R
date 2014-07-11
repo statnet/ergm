@@ -144,30 +144,9 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
   }else{
    novar <- novar[!offsettheta]
   }
-  mc.se <- rep(NA,length=length(theta))
+
   if(inherits(try(solve(H)),"try-error")) warning("Approximate Hessian matrix is singular. Standard errors due to MCMC approximation of the likelihood cannot be evaluated. This is likely due to highly correlated model terms.")
-  mc.se0 <- try(solve(H, cov.zbar), silent=TRUE)
-  if(!(inherits(mc.se0,"try-error"))){
-    mc.se0 <- try(diag(solve(H, t(mc.se0))), silent=TRUE)
-    if(!(inherits(mc.se0,"try-error"))){
-      if(!is.null(statsmatrix.obs)){
-        mc.se.obs0 <- try(solve(H.obs, cov.zbar.obs), silent=TRUE)
-        if(!(inherits(mc.se.obs0,"try-error"))){
-          mc.se.obs0 <- try(diag(solve(H.obs, t(mc.se.obs0))), silent=TRUE)
-          if(!inherits(mc.se.obs0,"try-error")){
-            mc.se[!novar] <- sqrt(mc.se0 + mc.se.obs0)
-          }else{
-            mc.se[!novar] <- sqrt(mc.se0)
-          }
-        }else{
-          mc.se[!novar] <- sqrt(mc.se0)
-        }
-      }else{
-        mc.se[!novar] <- sqrt(mc.se0)
-      }
-    }
-  }
-  names(mc.se) <- names(theta)
+
   mc.cov <- matrix(NA,ncol=length(theta),nrow=length(theta))
   mc.cov0 <- try(solve(H, cov.zbar), silent=TRUE)
   if(!(inherits(mc.cov0,"try-error"))){
@@ -192,6 +171,8 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
   }
   colnames(mc.cov) <- names(theta)
   rownames(mc.cov) <- names(theta)
-#
+
+  mc.se <- setNames(sqrt(diag(mc.cov)), names(theta))
+  
   return(list(mc.se=mc.se, mc.cov=mc.cov))
 }

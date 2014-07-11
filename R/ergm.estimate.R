@@ -342,7 +342,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
       if (verbose) { cat("Starting MCMC s.e. computation.\n") }
       if ((metric=="lognormal" || metric=="Likelihood")
           && length(model$etamap$curved)==0) {
-        mc.se <- ergm.MCMCse.lognormal(theta=theta, init=init, 
+        MCMCse <- ergm.MCMCse.lognormal(theta=theta, init=init, 
                                        statsmatrix=statsmatrix0, 
                                        statsmatrix.obs=statsmatrix.obs,
                                        H=V, H.obs=V.obs,
@@ -352,13 +352,10 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                              statsmatrix=statsmatrix0,
                              statsmatrix.obs=statsmatrix.obs,
                              model=model)
-        mc.se <- MCMCse$mc.se
-#       The next line forces the s.e. in summary.ergm to combine
-#       the hessian of the likelihood plus the MCMC s.e.
-#       covar <- MCMCse$mc.cov+covar
-#       If the above line is commented out only the hessian of the likelihood 
-#       is used.
       }
+
+      mc.se <- MCMCse$mc.se
+      mc.cov <- MCMCse$mc.cov
     }
     c0  <- loglikelihoodfn(theta=Lout$par, xobs=xobs,
                            xsim=xsim, probs=probs,
@@ -403,7 +400,8 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                           MCMCtheta=init, 
                           loglikelihood=loglikelihood, gradient=gradient, hessian=Lout$hessian,
                           covar=covar, failure=FALSE,
-                          mc.se=mc.se#, #acf=mcmcacf,
+                          mc.se=mc.se,
+                          mc.cov=mc.cov #, #acf=mcmcacf,
                           #fullsample=statsmatrix.all
                           ),
                         class="ergm"))
