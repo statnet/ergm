@@ -46,20 +46,35 @@
 
 ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control, 
                                         verbose, response=NULL, ...) {
-  
-  if(is.network(nw[[1]])){ # I.e., we are dealing with a list of initial networks.
-    nnw <- length(nw)
-    # FIXME: This doesn't have to be the case:
-    if(control$parallel!=nnw)
-      stop("Number of initial networks passed to ergm.getMCMCsample must equal control$parallel (for now).")
-  }else nnw <- 1
-     
-  Clist <- if(nnw>1) lapply(nw, ergm.Cprepare, model,
-response=response) else ergm.Cprepare(nw, model, response=response)
+  nthreads <- max(if(inherits(control$parallel,"cluster")) length(control$parallel) else control$parallel, 1)
 
-  if(control$parallel==0){
-    flush.console()
-    z <- ergm.mcmcslave(Clist,MHproposal,eta0,control,verbose,...)
+  if(is.network(nw)) nw <- list(nw)
+  nws <- rep(nw, length.out=nthreads)
+  
+  Clists <- lapply(nw, ergm.Cprepare, model, response=response)
+
+  
+  control.parallel <- control
+  if(!is.null(control$MCMC.samplesize)) control.parallel$MCMC.samplesize <- ceiling(control$MCMC.samplesize / nthreads)
+  if(!is.null(control$MCMC.effectiveSize)) control.parallel$MCMC.effectiveSize <- ceiling(control$MCMC.effectiveSize / nthreads)
+
+  
+  cl <- ergm.getCluster(control, verbose)
+
+  flush.console()
+  outlist <- {
+    if(!is.null(cl)) clusterMap(cl,ergm.mcmcslave,
+                                Clists, MoreArgs=list(MHproposal=MHproposal,eta0=eta0,control=control.parallel,verbose=verbose,...))
+    else list(ergm.mcmcslave(Clist=Clists[[1]], MHproposal=MHproposal,eta0=eta0,control=control.parallel,verbose=verbose,...))
+  }
+  #
+  #   Process the results
+  #
+  statsmatrices <- NULL
+  newnetworks <- list()
+  final.interval <- c()
+  for(i in (1:nthreads)){
+    z <- outlist[[i]]
     
     if(z$status == 1){ # MCMC_TOO_MANY_EDGES, exceeding even control$MCMC.max.maxedges
       return(list(status=z$status))
@@ -68,71 +83,27 @@ response=response) else ergm.Cprepare(nw, model, response=response)
     if(z$status == 2){ # MCMC_MH_FAILED
       # MH proposal failed somewhere. Throw an error.
       stop("Sampling failed due to a Metropolis-Hastings proposal failing.")
-    }
-    
-    statsmatrix <- z$s
-    
-    newnetwork <- newnw.extract(nw,z,response=response,
-                                output=control$network.output)
-    newnetworks <- list(newnetwork)
-
-    final.interval <- z$final.interval
-  }else{
-    control.parallel <- control
-    control.parallel$MCMC.samplesize <- ceiling(control$MCMC.samplesize / control$parallel)
-    control.parallel$MCMC.effectiveSize <- ceiling(control$MCMC.effectiveSize / control$parallel)
-    
-    cl <- ergm.getCluster(control, verbose)
-    #
-    #   Run the jobs with rpvm or Rmpi
-    #
-    flush.console()
-    outlist <- {
-      if(nnw>1) clusterMap(cl,ergm.mcmcslave,
-                           Clist, MoreArgs=list(MHproposal,eta0,control.parallel,verbose,...))
-      else clusterCall(cl,ergm.mcmcslave,
-                       Clist,MHproposal,eta0,control.parallel,verbose,...)
-    }
-    #
-    #   Process the results
-    #
-    statsmatrix <- NULL
-    newnetworks <- list()
-    final.interval <- c()
-    for(i in (1:control$parallel)){
-      z <- outlist[[i]]
-
-      if(z$status == 1){ # MCMC_TOO_MANY_EDGES, exceeding even control$MCMC.max.maxedges
-        return(list(status=z$status))
       }
-      
-      if(z$status == 2){ # MCMC_MH_FAILED
-        # MH proposal failed somewhere. Throw an error.
-        stop("Sampling failed due to a Metropolis-Hastings proposal failing.")
-      }
-      
-      statsmatrices[[i]] <- rbind(statsmatrix,z$s)
-                           
-      newnetworks[[i]]<-newnw.extract(if(nnw==1) nw else nw[[i]],z,
-                                  response=response,output=control$network.output)
-      final.interval <- c(final.interval, z$final.interval)
-    }
-    newnetwork<-newnetworks[[1]]
-
-    if(verbose){cat("parallel samplesize=",nrow(statsmatrix),"by",
-                    control.parallel$MCMC.samplesize,"\n")}
     
-    ergm.stopCluster(cl)
+    statsmatrices[[i]] <- z$s
+    
+    newnetworks[[i]]<-newnw.extract(nw[[i]],z,
+                                    response=response,output=control$network.output)
+    final.interval <- c(final.interval, z$final.interval)
   }
+  newnetwork<-newnetworks[[1]]
+  
+  if(verbose){cat("Sample size =",nrow(statsmatrix),"by",
+                  control.parallel$MCMC.samplesize,"\n")}
+  
+  ergm.stopCluster(cl)
 
+  statsmatrix <- do.call("rbind",statsmatrices)
   colnames(statsmatrix) <- model$coef.names
 
   statsmatrix[is.na(statsmatrix)] <- 0
   list(statsmatrix=statsmatrix, newnetwork=newnetwork, newnetworks=newnetworks, status=0, final.interval=final.interval)
 }
-
-
-
 
 
 ###############################################################################
