@@ -174,7 +174,7 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5){
 # ar() fails if crossprod(x) is singular, so do each chain independently when not.
 #
 # FIXME: Actually, for MCMC with multiple chains, we should be using the pooled mean.
-.ergm.mvar.spec0 <- function(x,tol=.Machine$double.eps){
+.ergm.mvar.spec0 <- function(x, order.max=NULL, aic=is.null(order.max), ...){
     x <- cbind(x)
     n <- nrow(x)
     p <- ncol(x)
@@ -184,20 +184,24 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5){
     x <- x[,!novar,drop=FALSE]
 
     if(ncol(x)){
-      arfit <- try(ar(x,aic=TRUE),silent=TRUE)
+      arfit <- try(ar(x,aic=is.null(order.max), order.max=order.max, ...),silent=TRUE)
       if(inherits(arfit,"try-error")){
-        warning("Excessive correlation among the statistics. Using a separate effectiveSize approximation.")
-        x.factor <- sqrt(n/effectiveSize(x))
-        v.var <- t(cov(x)*x.factor)*x.factor
+        warning("Excessive correlation among the statistics. Using a no-crosscorrelation approximation.")
+        arfits <- apply(x, 2, ar, aic=is.null(order.max), order.max=order.max, ..., simplify=FALSE)
+        arvar <- diag(sapply(arfits, "[[", "var.pred"), nrow=ncol(x))
+        arcoefs <- diag(sapply(lapply(arfits, "[[", "ar"), sum), nrow=ncol(x))
       }else{
         arvar <- arfit$var.pred
         arcoefs <- arfit$ar
         arcoefs <- if(is.null(dim(arcoefs))) sum(arcoefs) else apply(arcoefs,2:3,sum)
-        adj <- diag(1,nrow=p-sum(novar)) - arcoefs
-        iadj <- solve(adj)
-        v.var <- iadj %*% arfit$var.pred %*% t(iadj)
       }
+
+      adj <- diag(1,nrow=p-sum(novar)) - arcoefs
+      iadj <- solve(adj)
+      v.var <- iadj %*% arvar %*% t(iadj)
+    
       v[!novar,!novar] <- v.var
     }
     v
 }
+

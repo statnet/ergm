@@ -57,17 +57,7 @@ ergm.MCMCse.lognormal<-function(theta, init, statsmatrix, statsmatrix.obs,
   #  Calculate the auto-covariance of the MCMC suff. stats.
   #  and hence the MCMC s.e.
   z <- sweep(xsim, 2, xobs, "-")
-  lag.max <- min(round(sqrt(nrow(xsim))),lag.max)
-  if(nrow(xsim) > 1000){
-    lag.max <- round(15*(1+1000/nrow(xsim)))
-  }
-  R <- acf(z, lag.max = lag.max, type = "covariance", plot = FALSE)$acf
-  if(dim(R)[2] > 1){
-    part <- apply(R[-1,  ,  ,drop=FALSE], c(2, 3), sum)
-  }else{
-    part <- matrix(sum(R[-1,  ,  , drop=FALSE]))
-  }
-  cov.zbar <- (R[1,  ,  ] + part + t(part))/nrow(xsim)
+  cov.zbar <- .ergm.mvar.spec0(xsim) / nrow(xsim)
   cov.zbar.offset <- matrix(0, ncol = length(offsetmap), 
                             nrow = length(offsetmap))
   cov.zbar <- suppressWarnings(chol(cov.zbar,pivot=TRUE))
