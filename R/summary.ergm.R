@@ -184,7 +184,7 @@ summary.ergm <- function (object, ...,
       devtext <- "Pseudo-deviance:"
       ans$message <- "\nWarning:  The standard errors are based on naive pseudolikelihood and are suspect.\n"
     } 
-    else if(object$estimate == "MLE" && any(is.na(mc.se)) && 
+    else if(object$estimate == "MLE" && any(is.na(mc.se) & !ans$offset & !ans$drop==0 & !ans$estimable) && 
                       (!independence || control$force.main) ) {
       ans$message <- "\nWarning:  The standard errors are suspect due to possible poor convergence.\n"
     }
