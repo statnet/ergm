@@ -237,7 +237,8 @@ control.ergm(drop=TRUE,
   }
   \item{MCMC.compress}{Logical:  If TRUE, the matrix of sample statistics
     returned is compressed to the set of unique statistics with a 
-    column of frequencies post-pended.
+    column of frequencies post-pended.  This option is currently deprecated
+    and has no effect.
   }
   \item{MCMC.packagenames}{Names of packages in which to look for change statistic
     functions in addition to those autodetected. This argument should not be
