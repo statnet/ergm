@@ -15,13 +15,10 @@
 % delete unused sections.
 \section{Changes in version 3.1.3}{
 
-  \subsection{NEW FEATURES}{
-    \itemize{
-      \item \code{\link{ergmMPLE}} can now output an array of change
-      scores associated with each dyad. See the help page for more
-      details.
-    } 
-  }
+  % \subsection{NEW FEATURES}{
+  %   \itemize{
+  %   } 
+  % }
   
   \subsection{BUG FIXES}{
     \itemize{
