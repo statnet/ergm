@@ -13,6 +13,75 @@
 
 % When a release is forked, copy the sections to a new release and
 % delete unused sections.
+\section{Changes in version 3.1.3}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item \code{\link{ergmMPLE}} can now output an array of change
+      scores associated with each dyad. See the help page for more
+      details.
+    } 
+  }
+  
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item An array bounds issue was fixed in the \code{C}
+      code. It has not affected any previous output.
+
+      \item Some spurious convergence warnings are no longer printed by
+      \code{\link{summary.ergm}}.
+
+      \item Bugs in the valued Uniform and Discrete Uniform
+      Metropolis-Hastings proposals for missing dyads have been fixed.
+
+      \item Term \code{\link{edgecov}} invoked with the network
+      attribute syntax now checks for the presence of the network
+      attribute in question.
+
+    }
+  }
+
+  \subsection{DEPRECATED & DEFUNCT}{
+    \itemize{
+      \item Calling \code{\link{ergm}}, with \code{estimate="MPLE"} for
+      a curved exponential family model (e.g., \code{gwesp} with
+      \code{fixed=FALSE}) is now an error. (Previously, it treated the
+      curved term as fixed, which was misleading.)
+    }
+  }
+
+  
+  % \subsection{OTHER USER-VISIBLE CHANGES}{
+  %   \itemize{
+      
+  %   }
+  % }
+
+  % \subsection{C-LEVEL FACILITIES}{
+  %   \itemize{
+  %   }
+  % }
+
+  % \subsection{UTILITIES}{
+  %   \itemize{
+  %     \item Likewise, "UTILITIES" is probably unnecessary.
+  %   }
+  % }
+
+  % \subsection{INSTALLATION}{
+  %   \itemize{
+  %     \item ... as is "INSTALLATION".
+  %   }
+  % }
+
+  % \subsection{PACKAGE INSTALLATION}{
+  %   \itemize{
+  %     \item ditto.
+  %   }
+  % }
+
+}
+
 \section{Changes in version 3.1.2}{
 
   \subsection{NEW FEATURES}{
@@ -41,7 +110,7 @@
       \item A namespace bug in the likelihod calculation code, reported
       by Matthew Hoover, has been fixed.
 
-      \item MPLE for some degree-based constrained has been reenabled.
+      \item MPLE for some degree-based constraints has been reenabled.
       
     }
   }
@@ -62,30 +131,6 @@
       
     }
   }
-
-  % \subsection{C-LEVEL FACILITIES}{
-  %   \itemize{
-  %   }
-  % }
-
-  % \subsection{UTILITIES}{
-  %   \itemize{
-  %     \item Likewise, "UTILITIES" is probably unnecessary.
-  %   }
-  % }
-
-  % \subsection{INSTALLATION}{
-  %   \itemize{
-  %     \item ... as is "INSTALLATION".
-  %   }
-  % }
-
-  % \subsection{PACKAGE INSTALLATION}{
-  %   \itemize{
-  %     \item ditto.
-  %   }
-  % }
-
 }
 
 \section{Changes in version 3.1.1}{
