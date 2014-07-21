@@ -75,7 +75,7 @@ ergm.pen.glm <- function(formula = attr(data, "formula"),
   if(missing(weights)){weights <- rep(1,length=n)}
   beta <- c(log((sum(y*weights)/sum((1-y)*weights))),
             rep(0, k - 1))
-  if(!missing(start) && !is.null(start) && ncol(x)==length(start)){
+  if(!missing(start) && !is.null(start) && ncol(x)==length(start) && !is.na(start)){
     beta[1] <- beta[1] - sum((x %*% start)*weights)
   }
   iter <- 0
