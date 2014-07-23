@@ -1,3 +1,12 @@
+%  File man/control.simulate.ergm.Rd in package ergm, part of the Statnet suite
+%  of packages for network analysis, http://statnet.org .
+%
+%  This software is distributed under the GPL-3 license.  It is free,
+%  open source, and has the attribution requirements (GPL Section 7) at
+%  http://statnet.org/attribution
+%
+%  Copyright 2003-2013 Statnet Commons
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{control.simulate}
 \alias{control.simulate}
 \alias{control.simulate.formula}
@@ -53,16 +62,16 @@ control.simulate.formula.ergm(MCMC.burnin=1000,
                               parallel.version.check=TRUE,
                               \dots)
 
-control.simulate.ergm(MCMC.burnin=NULL,
-                      MCMC.interval=NULL,
-                      MCMC.prop.weights=NULL,
-                      MCMC.prop.args=NULL,
-                      MCMC.init.maxedges=NULL,
-                      MCMC.packagenames=NULL,
-                      MCMC.runtime.traceplot=FALSE,
+control.simulate.ergm(MCMC.burnin=1000,
+                      MCMC.interval=1000,
+                      MCMC.prop.weights="default",
+                      MCMC.prop.args=list(),
+                      MCMC.init.maxedges=20000,
+                      MCMC.packagenames=c(),
+                      MCMC.runtime.traceplot=FALSE,  
 
                       network.output="network",
-
+                                             
                       parallel=0,
                       parallel.type=NULL,
                       parallel.version.check=TRUE,

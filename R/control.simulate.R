@@ -1,3 +1,12 @@
+#  File R/control.simulate.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2013 Statnet Commons
+#######################################################################
 #==========================================================
 # This file contains the following 2 functions for
 # controlling simulation routines
@@ -25,10 +34,9 @@
 #                   the only recognized package name is "ergm";
 #                   default="ergm"
 #   network.output: the R class with which to output networks; the
-#                   options are "NULL", "network" and "edgelist.compressed"
+#                   options are "network" and "edgelist.compressed"
 #                   (which saves space but only supports networks
-#                   without vertex attributes); "NULL" does not
-#                   return networks; default="network"
+#                    without vertex attributes); default="network"
 #   parallel      : number of threads in which to run the sampling
 #
 # --IGNORED--
@@ -48,21 +56,24 @@
 #
 #########################################################################
 
-control.simulate<-control.simulate.formula<-control.simulate.formula.ergm<-function(MCMC.burnin=1000,
-                                                     MCMC.interval=1000,
-                                                     MCMC.prop.weights="default",
-                                                     MCMC.prop.args=list(),
 
-                                                     MCMC.init.maxedges=20000,
-                                                     MCMC.packagenames=c(),
-
-                                                     MCMC.runtime.traceplot=FALSE,  
-                                                     network.output="network",
-                                                     
-                                                     parallel=0,
-                                                     parallel.type=NULL,
-                                                     parallel.version.check=TRUE,
-                                                     ...){
+control.simulate<-
+  control.simulate.formula<-
+  control.simulate.formula.ergm<-function(MCMC.burnin=1000,
+                                          MCMC.interval=1000,
+                                          MCMC.prop.weights="default",
+                                          MCMC.prop.args=list(),
+                                          
+                                          MCMC.init.maxedges=20000,
+                                          MCMC.packagenames=c(),
+                                          
+                                          MCMC.runtime.traceplot=FALSE,  
+                                          network.output="network",
+                                          
+                                          parallel=0,
+                                          parallel.type=NULL,
+                                          parallel.version.check=TRUE,
+                                          ...){
   old.controls <- list(
                        maxedges="MCMC.init.maxedges",
                        prop.weights="MCMC.prop.weights",
@@ -88,17 +99,17 @@ control.simulate<-control.simulate.formula<-control.simulate.formula.ergm<-funct
   set.control.class("control.simulate.formula")
 }
 
-control.simulate.ergm<-function(MCMC.burnin=NULL,
-                                MCMC.interval=NULL,
-                                MCMC.prop.weights=NULL,
-                                MCMC.prop.args=NULL,
-
-                                MCMC.init.maxedges=NULL,
-                                MCMC.packagenames=NULL,
+control.simulate.ergm<-function(MCMC.burnin=1000,
+                                MCMC.interval=1000,
+                                MCMC.prop.weights="default",
+                                MCMC.prop.args=list(),
                                 
-                                MCMC.runtime.traceplot=FALSE,
+                                MCMC.init.maxedges=20000,
+                                MCMC.packagenames=c(),
+                                
+                                MCMC.runtime.traceplot=FALSE,  
                                 network.output="network",
-
+                                
                                 parallel=0,
                                 parallel.type=NULL,
                                 parallel.version.check=TRUE,
