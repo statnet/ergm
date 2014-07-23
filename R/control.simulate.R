@@ -56,21 +56,24 @@
 #
 #########################################################################
 
-control.simulate<-control.simulate.formula<-control.simulate.formula.ergm<-function(MCMC.burnin=1000,
-                                                     MCMC.interval=1000,
-                                                     MCMC.prop.weights="default",
-                                                     MCMC.prop.args=list(),
 
-                                                     MCMC.init.maxedges=20000,
-                                                     MCMC.packagenames=c(),
-
-                                                     MCMC.runtime.traceplot=FALSE,  
-                                                     network.output="network",
-                                                     
-                                                     parallel=0,
-                                                     parallel.type=NULL,
-                                                     parallel.version.check=TRUE,
-                                                     ...){
+control.simulate<-
+  control.simulate.formula<-
+  control.simulate.formula.ergm<-function(MCMC.burnin=1000,
+                                          MCMC.interval=1000,
+                                          MCMC.prop.weights="default",
+                                          MCMC.prop.args=list(),
+                                          
+                                          MCMC.init.maxedges=20000,
+                                          MCMC.packagenames=c(),
+                                          
+                                          MCMC.runtime.traceplot=FALSE,  
+                                          network.output="network",
+                                          
+                                          parallel=0,
+                                          parallel.type=NULL,
+                                          parallel.version.check=TRUE,
+                                          ...){
   old.controls <- list(
                        maxedges="MCMC.init.maxedges",
                        prop.weights="MCMC.prop.weights",
@@ -96,17 +99,17 @@ control.simulate<-control.simulate.formula<-control.simulate.formula.ergm<-funct
   set.control.class("control.simulate.formula")
 }
 
-control.simulate.ergm<-function(MCMC.burnin=NULL,
-                                MCMC.interval=NULL,
-                                MCMC.prop.weights=NULL,
-                                MCMC.prop.args=NULL,
-
-                                MCMC.init.maxedges=NULL,
-                                MCMC.packagenames=NULL,
+control.simulate.ergm<-function(MCMC.burnin=1000,
+                                MCMC.interval=1000,
+                                MCMC.prop.weights="default",
+                                MCMC.prop.args=list(),
                                 
-                                MCMC.runtime.traceplot=FALSE,
+                                MCMC.init.maxedges=20000,
+                                MCMC.packagenames=c(),
+                                
+                                MCMC.runtime.traceplot=FALSE,  
                                 network.output="network",
-
+                                
                                 parallel=0,
                                 parallel.type=NULL,
                                 parallel.version.check=TRUE,
