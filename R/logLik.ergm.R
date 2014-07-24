@@ -1,12 +1,3 @@
-#  File R/logLik.ergm.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, http://statnet.org .
-#
-#  This software is distributed under the GPL-3 license.  It is free,
-#  open source, and has the attribution requirements (GPL Section 7) at
-#  http://statnet.org/attribution
-#
-#  Copyright 2003-2013 Statnet Commons
-#######################################################################
 ## A function to compute and return the log-likelihood of an ERGM MLE.
 logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || force.reeval, control=control.logLik.ergm(), ...){
 
@@ -18,7 +9,7 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
   
   control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights",
 "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges", "MCMC.samplesize",
-"obs.MCMC.burnin", "obs.MCMC.interval", "obs.MCMC.samplesize","warn.dyads")
+"obs.MCMC.burnin", "obs.MCMC.interval", "obs.MCMC.samplesize","warn.dyads","MPLE.type")
   for(arg in control.transfer)
     if(is.null(control[[arg]]))
       control[arg] <- list(object$control[[arg]])
@@ -37,7 +28,9 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
                  || (is.dyad.independent(object)
                      && is.null(object$sample)
                      && is.null(object$response)))
-                -object$glm$deviance/2 - -object$glm$null.deviance/2
+			 if(control$MPLE.type=="penalized")
+				 object$glm$loglik - object$glm.null$loglik else
+                -object$glm$deviance/2 - -object$glm.null$deviance/2
               else
                 ## If dyad-dependent but not valued and has a dyad-independent constraint, bridge from a dyad-independent model.
                 if(is.dyad.independent(object$constrained, object$constrained.obs)

@@ -1,12 +1,3 @@
-#  File R/get.node.attr.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, http://statnet.org .
-#
-#  This software is distributed under the GPL-3 license.  It is free,
-#  open source, and has the attribution requirements (GPL Section 7) at
-#  http://statnet.org/attribution
-#
-#  Copyright 2003-2013 Statnet Commons
-#######################################################################
 ###############################################################################
 # The <get.node.attr> function returns the vector of covariates for the given
 # network and specified attribute if the attribute exists - execution will
@@ -45,7 +36,7 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
          call.=FALSE)
   #We'll assume that every vertex must have a value, so checking the 
   #first is reasonable.
-  if (!any(attrname==names(nw$val[[1]])))
+  if (!any(attrname==unique(unlist(lapply(nw$val,names)))))
     stop(paste("Attribute", attrname, "named in", functionname,
                "model term is not contained in vertex attribute list."),
          call.=FALSE)

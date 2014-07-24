@@ -1,12 +1,3 @@
-#  File R/ergm.pen.glm.R in package ergm, part of the Statnet suite
-#  of packages for network analysis, http://statnet.org .
-#
-#  This software is distributed under the GPL-3 license.  It is free,
-#  open source, and has the attribution requirements (GPL Section 7) at
-#  http://statnet.org/attribution
-#
-#  Copyright 2003-2013 Statnet Commons
-#######################################################################
 #===================================================================
 # This file contains the following 3 files for penalized glm fits
 #             <ergm.pen.glm>
@@ -84,7 +75,7 @@ ergm.pen.glm <- function(formula = attr(data, "formula"),
   if(missing(weights)){weights <- rep(1,length=n)}
   beta <- c(log((sum(y*weights)/sum((1-y)*weights))),
             rep(0, k - 1))
-  if(!missing(start) && !is.null(start) && ncol(x)==length(start)){
+  if(!missing(start) && !is.null(start) && ncol(x)==length(start) && !is.na(start)){
     beta[1] <- beta[1] - sum((x %*% start)*weights)
   }
   iter <- 0
