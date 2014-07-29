@@ -1,0 +1,51 @@
+---
+title: "ERGM terms cross-reference"
+author: "statnet.org"
+date: "07/28/2014"
+output: html_document
+---
+
+<!-- \VignetteEngine{knitr::knitr} -->
+
+This document is an automatically generated cross reference for the ergm model terms from the [stanet project](http://statnet.org).  The source for this data and additional descriptions are in the `?ergm.terms` help file or the [ergm manual](http://cran.r-project.org/web/packages/ergm/ergm.pdf). 
+
+
+```{r, include=FALSE}
+library(ergm)
+rawdoc<-tools:::parse_Rd('../man/ergm-terms.Rd')
+termBlock<-ergm:::.extractTermBlock(rawdoc)
+items<-ergm:::.extractTags(termBlock,"\\item")
+terms<-lapply(items,ergm:::.extractTerms)
+terms<-unlist(terms,recursive=FALSE)
+```
+
+## Term category matrix
+Some terms are listed multiple times because their arguments give them multiple forms
+
+```{r,results='asis',echo=FALSE}
+ergm:::.termMatrix(terms)
+```
+
+
+## Term definitions table
+
+Some terms are listed multiple times because their arguments give them multiple forms
+
+```{r,results='asis',echo=FALSE}
+ergm:::.termTable(terms)
+```
+
+## Term index by category
+
+Note that currently the categories are somewhat ambiguous in their exclusivity.  For example, a term marked as 'directed' can not be used with an undirected network, but a term not marked with either 'directed' or 'undirected' can be used with both. (rename to 'directed-only' ?)
+
+```{r,results='asis',echo=FALSE}
+ergm:::.termToc(terms)
+```
+
+------------
+
+This documentation was built with..
+```{r}
+sessionInfo()
+```
