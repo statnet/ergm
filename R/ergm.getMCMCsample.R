@@ -47,17 +47,22 @@
 ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control, 
                                         verbose, response=NULL, ...) {
   
+  if (inherits(control$parallel,"cluster")) 
+    nclus <- nrow(summary(control$parallel))
+  else 
+    nclus <- control$parallel
+  
   if(is.network(nw[[1]])){ # I.e., we are dealing with a list of initial networks.
     nnw <- length(nw)
     # FIXME: This doesn't have to be the case:
-    if(control$parallel!=nnw)
-      stop("Number of initial networks passed to ergm.getMCMCsample must equal control$parallel (for now).")
+    if(nclus!=nnw)
+      stop("Number of initial networks passed to ergm.getMCMCsample must equal number of clusters (for now).")
   }else nnw <- 1
      
   Clist <- if(nnw>1) lapply(nw, ergm.Cprepare, model,
 response=response) else ergm.Cprepare(nw, model, response=response)
 
-  if(control$parallel==0){
+  if(nclus==0){
     flush.console()
     z <- ergm.mcmcslave(Clist,MHproposal,eta0,control,verbose,...)
     
@@ -82,7 +87,7 @@ response=response) else ergm.Cprepare(nw, model, response=response)
     burnin.total <- z$burnin.total
   }else{
     control.parallel <- control
-    control.parallel$MCMC.samplesize <- ceiling(control$MCMC.samplesize / control$parallel)
+    control.parallel$MCMC.samplesize <- ceiling(control$MCMC.samplesize / nclus)
     
     cl <- ergm.getCluster(control, verbose)
     #
@@ -101,7 +106,7 @@ response=response) else ergm.Cprepare(nw, model, response=response)
     statsmatrix <- NULL
     newnetworks <- list()
     burnin.total <- c()
-    for(i in (1:control$parallel)){
+    for(i in (1:nclus)){
       z <- outlist[[i]]
 
       if(z$status == 1){ # MCMC_TOO_MANY_EDGES, exceeding even control$MCMC.max.maxedges
