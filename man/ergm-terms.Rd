@@ -306,7 +306,7 @@ network
 }
 
 \section{Terms to represent network statistics included in the
-  \code{\link[=ergm-package]{ergm}} pacakge}{
+  \code{\link[=ergm-package]{ergm}} package}{
   \describe{
     
     \item{\code{absdiff(attrname, pow=1)} (binary) (dyad-independent) (common),
