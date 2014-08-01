@@ -6,7 +6,7 @@ importFrom(robustbase, lmrob, covMcd)
 importFrom(trust, trust)
 importFrom(Matrix, nearPD)
 importFrom(Rglpk, Rglpk_solve_LP)
-importFrom(snow, getMPIcluster)
+#importFrom(snow, getMPIcluster)
 import(statnet.common, network, coda)
 
 # Export all names that do not begin with a dot.
