@@ -86,7 +86,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     cat(paste("MPLE covariate matrix has", sum(uvals), "rows.\n"))
   }
   zy <- z$y[uvals]
-  wend <- z$weightsvector[uvals]
+  wend <- as.numeric(z$weightsvector[uvals])
   xmat <- matrix(z$x, ncol=Clist$nstats, byrow=TRUE)[uvals,,drop=FALSE]
   colnames(xmat) <- m$coef.names
   rm(z,uvals)
@@ -122,7 +122,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
             PACKAGE="ergm")
     uvals <- z$weightsvector!=0
     zy.e <- z$y[uvals]
-    wend.e <- z$weightsvector[uvals]
+    wend.e <- as.numeric(z$weightsvector[uvals])
     xmat.e <- matrix(z$x, ncol=Clist$nstats, byrow=TRUE)[uvals,,drop=FALSE]
     colnames(xmat.e) <- m$coef.names
     rm(z,uvals)
