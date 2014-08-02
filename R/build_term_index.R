@@ -4,11 +4,14 @@
 
 
 
-#currently, the content we are interested is in index 491, but need more robust way to discover this
+#TODO currently, the content we are interested is in index 244, but need more robust way to discover this
 # should be the 3rd section?
-.extractTermBlock<-function(rawdoc){
-  
-  return<-rawdoc[[491]][[2]][[3]]
+
+# grab a the relevent section of .Rd document structure
+.extractTermBlock<-function(){
+  # query the install documentation
+  rawdoc<-rawdoc<-tools::Rd_db('ergm')$'ergm-terms.Rd'
+  return<-rawdoc[[244]][[2]][[3]]
 }
 
 # takes a chunk of text like "   (tag1) (tag2)" and returns just the tags
@@ -101,10 +104,25 @@
   cat("</table>")
 }
 
-.termMatrix<-function(terms){
+# terms : a list structure of the documentation data
+# categores : an optional vector of column names to print and include
+# only.include : an optional vector of categories, only terms that match the category will be printed 
+.termMatrix<-function(terms,categories=NULL,only.include=NULL){
+  
+  # if list of categories not supplied, generate it
+  # otherwise, use the categories (and column order) provided
   cats<-unique(unlist(sapply(terms,'[[','categories')))
+  if(is.null(categories)){
+    categories<-cats
+  } else { 
+    # check that not requesting something that doesn't exist
+    if (any(!categories%in%cats)){
+      stop("requested column name does not appear in documentation category tags")
+    }
+  }
+  
   # figure out which terms are members of each cat
-  membership<-lapply(cats,function(cat){
+  membership<-lapply(categories,function(cat){
     # return checkmark for terms that match cat, otherwise blank
     sapply(terms,function(term){
       if(any(term$categories==cat)){
@@ -114,17 +132,150 @@
       }
     })
   })
+  
+  # figure out which terms should be included
+  if(!is.null(only.include)){
+    included<-sapply(terms,function(term){
+      if(any(term$categories%in%only.include)){
+        return(TRUE)
+      } else {
+        return(FALSE)
+      }
+    })
+    terms<-terms[included]
+  }
+  
   # generate the html table
   cat("<table border=1 cellpadding='8'>\n")
-  cat("<tr><th>Term name</th><th>",paste(cats,collapse='</th><th>'),"</th></tr>\n",sep='')
+  cat("<tr><th>Term name</th><th>",paste(categories,collapse='</th><th>'),"</th></tr>\n",sep='')
   for (t in seq_along(terms)){
     term<-terms[[t]]
     cat("<tr><td><a href='#",term$term.id,"'>",term$term.name,"</a></td>",sep="")
-    for(c in seq_along(cats)){
+    for(c in seq_along(categories)){
       cat("<td>",membership[[c]][[t]],"</td>")
     }
     cat("</tr>",sep='')
   }
   cat("</table>")
+}
+
+
+# go through the structure parsed from term documentation to 
+# ensure that it meets our expectations
+.checkTermDocs <-function(terms){
+  
+  
+  for (term in terms){
+    
+    # every term must include at least one of 'directed' and 'undirected'
+    if (!any(c('directed','undirected')%in%term$categories)){
+      stop('the term ',term$term.name,' must be marked as directed and/or undirected in the documentation')
+    }
+    # every term must include either 'valued' or 'binary'
+    # check that there is a visable init function defined for the term
+    # some terms have both valued an binary forms
+    if ('valued'%in%term$categories){
+      if(!is.function(get(paste('InitWtErgmTerm',term$term.name,sep='.')))){
+        stop('unable to locate an InitWtErgmTerm function defined for weighted term ',term$term.name,' in documentation')
+      }
+    } 
+    if ('binary'%in%term$categories){
+      if(!is.function(get(paste('InitErgmTerm',term$term.name,sep='.')))){
+        stop('unable to locate an InitErgmTerm function defined for term ',term$term.name,' in documentation')
+      }
+    }
+    if (!any(c('binary','valued')%in%term$categories)) {
+      stop('the term ',term$term.name,' is not marked as binary or valued in the documentation')
+    }
+  }
+}
+
+# function to look up the set of terms applicable for a specific network
+
+search.ergmTerms<-function(net,keyword,categories,name){
+  
+  if (!missing(net)){
+    if(!is.network(net)){
+      stop("the 'net' argument must be the network argument that applicable terms are to be searched for")
+    }
+  }
+  
+  termBlock<-.extractTermBlock()
+  items<-.extractTags(termBlock,"\\item")
+  terms<-lapply(items,.extractTerms)
+  terms<-unlist(terms,recursive=FALSE)
+  
+  
+  
+  if(missing(categories)){
+    categories<-character(0)
+  }
+  if (!missing(net)){
+    if(is.directed(net)){
+      categories<-c(categories,'directed')
+    } else {
+      categories<-c(categories,'undirected')
+    }
+    if(is.bipartite(net)){
+      categories<-c(categories,'bipartite')
+    } 
+  }
+  found<-rep(TRUE,length(terms))
+  
+  # if name is specified, restrict to terms with that name
+  if(!missing(name)){
+    for (t in seq_along(terms)){
+      term<-terms[[t]]
+      found[t]<-any(term$term.name==name)
+    }
+  }
+  
+  # restrict by categories
+  for (t in which(found)){
+    term<-terms[[t]]
+    if(!all(categories%in%term$categories)){
+      found[t]<-FALSE
+    }
+  }
+  
+  # next (optionally) restrict by keyword matches
+  if (!missing(keyword)){
+    for (t in which(found)){
+      term<-terms[[t]]
+      # if we don't find the keyword in the text grep, mark it as false
+      descText<-capture.output(tools::Rd2txt(term$description.rd,fragment=TRUE))
+      if(length(grep(keyword,descText))==0){
+        found[t]<-FALSE
+      } 
+    }
+  }
+  
+  
+  # if term name was specified, print out all the matching terms
+  # otherwise,  loop over the remaining terms to format output as condensed
+  output<-list()
+  if(!missing(name)){
+    if(sum(found)==0){
+      cat("No terms named '",name,"' were found. Try searching with keyword='",name,"'instead.",sep='')
+    } else {
+      cat("Definitions for term(s) ",name,":\n")
+      for (t in which(found)){
+        term<-terms[[t]]
+        output<-c(output,term)
+        cat(paste(term$term.name,"(",ifelse(is.na(term$term.args),'',term$term.args),")\n    ",sep=''), capture.output(tools::Rd2txt(term$description.rd,fragment=TRUE)),"\n    Categories:",paste(term$categories,collapse=', '),"\n\n")
+      }
+    }
+  }else{
+    for (t in which(found)){
+      term<-terms[[t]]
+      outText<-paste(term$term.name,"(",ifelse(is.na(term$term.args),'',term$term.args),")\n    ",term$short.desc,"\n",sep='')
+      outText<-sub("\t",'',outText)
+      outText<-gsub(" +",' ',outText)
+      output<-c(output,outText)
+    }
+    cat("Found ",length(output)," matching ergm terms:\n")
+    cat(paste(output,collapse='\n'))
+  }
+  invisible(output)
 }
 
