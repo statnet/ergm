@@ -24,24 +24,22 @@ myLibLoc <- function()
 
 # Acquires a cluster of specified type.
 ergm.getCluster <- function(control, verbose=FALSE){
-  capture.output(library(snow, quietly=TRUE, warn.conflicts = FALSE))
-# The rpvm package is apparently not being maintained.
-#  capture.output(require(rpvm, quietly=TRUE, warn.conflicts = FALSE))
-
-  if(isTRUE(control$parallel==0) || is.null(control$parallel)) return(NULL)
+  capture.output(library(parallel, quietly=TRUE, warn.conflicts = FALSE))
+  # The rpvm package is apparently not being maintained.
+  #  capture.output(require(rpvm, quietly=TRUE, warn.conflicts = FALSE))
   
-  # If we were passsed a cluster, just pass it on.
   if(inherits(control$parallel,"cluster")){
     ergm.MPIcluster.started(FALSE)
     if(verbose) cat("Cluster passed by user.\n", sep="")
     cl <- control$parallel
   }else{
     
-    type <- if(is.null(control$parallel.type)) getClusterOption("type") else control$parallel.type
+    #type <- if(is.null(control$parallel.type)) getClusterOption("type") else control$parallel.type
+    type <- if(is.null(control$parallel.type)) "PSOCK" else control$parallel.type
     
+    if(verbose) cat("Using ",type,".\n", sep="")
     
     #   Start Cluster
-    
     cl <- switch(type,
                  # The rpvm package is apparently not being maintained.
                  PVM={              
@@ -55,22 +53,27 @@ ergm.getCluster <- function(control, verbose=FALSE){
                    makeCluster(control$parallel,type="PVM")
                  },
                  MPI={
+                   
                    # See if a preexisting cluster exists.
                    if(is.null(getMPIcluster())){
                      # Remember that we are responsible for it.
                      ergm.MPIcluster.started(TRUE)
                      makeCluster(control$parallel,type="MPI")
-                 }else
-                   ergm.MPIcluster.started(FALSE)
+                   }else
+                     ergm.MPIcluster.started(FALSE)
                    getMPIcluster()
                  },
                  SOCK={
-                   makeCluster(control$parallel,type="SOCK")
+                   makeCluster(control$parallel,type="PSOCK")
+                 },
+                 PSOCK={
+                   makeCluster(control$parallel,type="PSOCK")
                  }
-                 )
+    )
   }
-  # Set things up. # FIXME: Not sure if this should be bypassed if cl is passed in.
-  clusterSetupRNG(cl)
+  # Set RNG up. 
+  clusterSetRNGStream(cl)
+  
   # On the off chance that user wants to load extra packages which we don't know about already.
   ergm.MCMC.packagenames(control$MCMC.packagenames)
   for(pkg in ergm.MCMC.packagenames()){
@@ -83,15 +86,15 @@ ergm.getCluster <- function(control, verbose=FALSE){
     if(!all(attached)){
       if(verbose) cat("Failed to attach ergm on the slave nodes from the same location as the master node. Will try to load from anywhere in the library path.\n")
       attached <- clusterCall(cl, require,
-                            package=pkg,
-                            character.only=TRUE)      
+                              package=pkg,
+                              character.only=TRUE)      
       if(!all(attached)) stop("Failed to attach ergm on one or more slave nodes. Make sure it's installed on or accessible from all of them and is in the library path.")
     }
     
     if(control$parallel.version.check){
       slave.versions <- clusterCall(cl,packageVersion,pkg)
       master.version <- packageVersion(pkg)
-
+      
       if(!all(sapply(slave.versions,identical,master.version)))
         stop("The version of ",pkg, " attached on one or more slave nodes is different from from that on the master node (this node). Make sure that the same version is installed on all nodes. If you are absolutely certain that this message is in error, override with the parallel.version.check=FALSE control parameter.")
     }
@@ -113,24 +116,32 @@ ergm.stopCluster.MPIcluster <- function(object, ...){
 }
 
 ergm.stopCluster.default <- function(object, ...){
-  stopCluster(object)
+  if(ergm.MPIcluster.started()){
+    ergm.MPIcluster.started(FALSE)
+    stopCluster(object)
+  }
 }
 
 
 
 ergm.sample.tomcmc<-function(sample, params){
+  if (inherits(params$parallel,"cluster")) 
+    nclus <- nrow(summary(params$parallel))
+  else 
+    nclus <- params$parallel
+  
   samplesize <- nrow(sample)
-  if(params$parallel){
-
-    samplesize<-round(samplesize / params$parallel)
-
-    sample<-sapply(seq_len(params$parallel),function(i) {
+  if(nclus > 1){
+    
+    samplesize<-round(samplesize / nclus)
+    
+    sample<-sapply(seq_len(nclus),function(i) {
       # Let mcmc() figure out the "end" from dimensions.
       mcmc(sample[(samplesize*(i-1)+1):(samplesize*i),], start = params$MCMC.burnin, thin = params$MCMC.interval)
     }, simplify=FALSE)
-
+    
     do.call("mcmc.list",sample)
-
+    
   }else{
     # Let mcmc() figure out the "end" from dimensions.
     mcmc(sample, start = params$MCMC.burnin, thin = params$MCMC.interval)

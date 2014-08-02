@@ -9,7 +9,7 @@ Testing for durational dependent models
 }
 \description{
 These functions test whether an ERGM model or formula is
-durational dependent or not. If the model does not include any terms that need information about the duration of existing ties, the ergm proceass can use more efficient internal data structures.
+durational dependent or not. If the formula or model does not include any terms that need information about the duration of existing ties, the ergm proceass can use more efficient internal data structures.
 }
 \usage{
 \method{is.durational}{character}(object, ...)

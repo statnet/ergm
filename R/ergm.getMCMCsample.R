@@ -46,7 +46,10 @@
 
 ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control, 
                                         verbose, response=NULL, ...) {
-  nthreads <- max(if(inherits(control$parallel,"cluster")) length(control$parallel) else control$parallel, 1)
+  nthreads <- max(
+    if(inherits(control$parallel,"cluster")) nrow(summary(control$parallel))
+    else control$parallel,
+    1)
 
   if(is.network(nw)) nw <- list(nw)
   nws <- rep(nw, length.out=nthreads)

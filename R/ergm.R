@@ -268,7 +268,13 @@ ergm <- function(formula, response=NULL,
   # Check if any terms are at their extremes and handle them depending on control$drop.
   extremecheck <- ergm.checkextreme.model(model=model.initial, nw=nw, init=control$init, response=response, target.stats=target.stats, drop=control$drop)
   model.initial <- extremecheck$model; control$init <- extremecheck$init
- 
+
+  
+  # Construct the curved model, and check if it's different from the initial model. If so, we know that it's curved.
+  model <- ergm.getmodel(formula, nw, response=response, expanded=TRUE, silent=TRUE)
+  # MPLE is not supported for curved ERGMs.
+  if(length(model$etamap$offsetmap)!=length(model.initial$etamap$offsetmap) && estimate=="MPLE") stop("Maximum Pseudo-Likelihood (MPLE) estimation for curved ERGMs is not implemented at this time. You may want to pass fixed=TRUE parameter in curved terms to specify the curved parameters as fixed.")
+  
   if (verbose) { cat("Fitting initial model.\n") }
 
   MPLE.is.MLE <- (MHproposal$reference$name=="Bernoulli"
@@ -337,9 +343,6 @@ ergm <- function(formula, response=NULL,
   }
 
   # Otherwise, set up the main phase of estimation:
-  # Construct the curved model
-  model <- ergm.getmodel(formula, nw, response=response, expanded=TRUE, silent=TRUE)
-
   # Revise the initial value, if necessary:
   init <- initialfit$coef
   init[is.na(init)] <- 0

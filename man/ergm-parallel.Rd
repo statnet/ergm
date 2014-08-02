@@ -8,17 +8,16 @@
 \docType{methods}
 \title{Parallel Processing in the \code{\link[=ergm-package]{ergm}} Package}
 \description{
-  \code{\link[=ergm-package]{ergm}} can take advantage of multiple
+  For estimation that require MCMC, \code{\link[=ergm-package]{ergm}} 
+  can take advantage of multiple
   CPUs or CPU cores on the system on which it runs, as well as computing
-  clusters. It uses package \code{snow} to
-  facilitate this, and supports all cluster types that it does.
+  clusters. It uses package \code{parallel} and \code{snow} to
+  facilitate this, and supports all cluster types that they does.
 
-  The parallel API and the number of nodes used are controlled using the
+  The number of nodes used and the parallel API are controlled using the
   \code{parallel} and \code{parallel.type} arguments passed to the
   control functions, such as \code{\link{control.ergm}}.
-
-  This entry describes common problems and workarounds associated with
-  particular parallel processing APIs.  }
+}
 
 % rpvm package is currently not maintained.
 %\section{PVM}{
@@ -30,13 +29,30 @@
 %  running and will attempt to start one if not.
 %}
 
-\section{MPI}{
+\section{PSOCK clusters}{
+  The \code{parallel} package is used with PSOCK clusters by default,
+  to utilize multiple cores on a system. The number of
+  cores on a system can be determined with the \code{detectCores} function.
+  
+  This method works with the base
+  installation of R on all platforms, and does not require additional software. 
+  
+  For more advanced applications, such as clusters that span multiple 
+  machines on a network, the clusters can be initialized manually, 
+  and passed into \code{ergm} using the
+  \code{parallel} control argument. See the second example below.
+}
+
+\section{MPI clusters}{
   To use MPI to accellerate ERGM sampling, pass the control parameter
-  \code{parallel.type="MPI"}.
-  \code{\link[=ergm-package]{ergm}} and \code{snow} use
-  \code{Rmpi} package to communicate with an MPI
+  \code{parallel.type="MPI"}.  
+  \code{\link[=ergm-package]{ergm}} uses the \code{snow} and
+  \code{Rmpi} packages to communicate with an MPI
   cluster. \code{\link{ergm}} will check if an MPI cluster already
   exists and will create one if one doesn't.
+  
+  Using MPI clusters requires the system to have an existing MPI installation.
+  See the MPI documentation for your particular platform for instructions.
 
   On some installations, the function \code{\link[snow]{stopCluster}}
   does not work properly for MPI clusters. Because \code{\link{ergm}}
@@ -51,13 +67,20 @@
 
 \examples{
 \donttest{
-# See help(ergm) for a description of this model.
-data(florentine)
-gest <- ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangles,
-             eval.loglik=FALSE,
-             control=control.ergm(parallel=2, parallel.type="SOCK"))
-summary(gest)
-# Note the combined MCMC diagnostics:
-mcmc.diagnostics(gest)
+# Uses 3 SOCK clusters for MCMLE estimation
+data(faux.magnolia.high)
+nw <- faux.magnolia.high
+fauxmodel.01 <- ergm(nw ~ edges + isolates + gwesp(0.2, fixed=T), 
+                     control=control.ergm(parallel=3, parallel.type="PSOCK"))
+summary(fauxmodel.01)
+
+# Passing an existing cluster to ERGM
+clus <- makeCluster(4, type='PSOCK')
+data(faux.magnolia.high)
+nw <- faux.magnolia.high
+fauxmodel.01 <- ergm(nw ~ edges + isolates + gwesp(0.2, fixed=T), 
+                     control=control.ergm(parallel=clus))
+stopCluster(clus)
+summary(fauxmodel.01)
 }
 }
