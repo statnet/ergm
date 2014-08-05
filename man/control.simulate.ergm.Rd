@@ -62,16 +62,16 @@ control.simulate.formula.ergm(MCMC.burnin=1000,
                               parallel.version.check=TRUE,
                               \dots)
 
-control.simulate.ergm(MCMC.burnin=1000,
-                      MCMC.interval=1000,
-                      MCMC.prop.weights="default",
-                      MCMC.prop.args=list(),
-                      MCMC.init.maxedges=20000,
-                      MCMC.packagenames=c(),
-                      MCMC.runtime.traceplot=FALSE,  
+control.simulate.ergm(MCMC.burnin=NULL,
+                      MCMC.interval=NULL,
+                      MCMC.prop.weights=NULL,
+                      MCMC.prop.args=NULL,
+                      MCMC.init.maxedges=NULL,
+                      MCMC.packagenames=NULL,
+                      MCMC.runtime.traceplot=FALSE,
 
                       network.output="network",
-                                             
+
                       parallel=0,
                       parallel.type=NULL,
                       parallel.version.check=TRUE,
