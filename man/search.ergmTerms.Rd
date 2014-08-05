@@ -26,7 +26,7 @@ optional character name of a specific term to return
 }
 }
 \details{
-Uses \code{\link{grep}} internally to match keywords against the term description, so \code{keywords} is currently matched as a single phrase}.  Category tags will only return a match if all of the specified tags are included in the term. 
+Uses \code{\link{grep}} internally to match keywords against the term description, so \code{keywords} is currently matched as a single phrase.  Category tags will only return a match if all of the specified tags are included in the term. 
 }
 \value{
 prints out the name and short description of matching terms, and invisibly returns them as a list.  If \code{name} is specified, prints out the full definition for the named term. 
