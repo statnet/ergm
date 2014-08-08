@@ -72,6 +72,7 @@
 
 
 
+
 # output listings of terms, grouped by category
 .termToc<-function(terms){
   cats<-unique(unlist(sapply(terms,'[[','categories')))
@@ -94,12 +95,27 @@
   }
 }
 
-.termTable<-function(terms){
+.termTable<-function(terms,merge.names=FALSE){
   cat("<table border=1 cellpadding='8'>\n")
   cat("<tr>><th>Description</th><th>Categories</th></tr>\n")
-  for (term in terms){
-    cat("<tr><td><a id='",term$term.id,"'>",term$term.name,"(",ifelse(is.na(term$term.args),'',term$term.args),")</a><br>",sep='')
-    cat(capture.output(tools::Rd2HTML(term$description.rd,fragment=TRUE)),"</p></td><td>",paste(term$categories,collapse=", "),"</td></tr>")
+  if (merge.names){
+    # merge all the terms with the same names
+    termNames<-sapply(terms,'[[','term.name')
+    for (term.name in unique(termNames)){
+      matchedTerms<-terms[which(termNames==term.name)]
+      cat("<tr><td><a id='",matchedTerms[[1]]$term.id,"'>")
+      for(term in matchedTerms){
+        cat(' ',term$term.name,"(",ifelse(is.na(term$term.args),'',term$term.args),")",sep='')
+      }
+      cat('</a><br>')
+      cat(capture.output(tools::Rd2HTML(matchedTerms[[1]]$description.rd,fragment=TRUE)),"</p></td>")
+      cat("<td>",paste(unique(unlist(lapply(matchedTerms,'[[','categories'))),collapse=", "),"</td></tr>")
+    }
+  } else {
+    for (term in terms){
+      cat("<tr><td><a id='",term$term.id,"'>",term$term.name,"(",ifelse(is.na(term$term.args),'',term$term.args),")</a><br>",sep='')
+      cat(capture.output(tools::Rd2HTML(term$description.rd,fragment=TRUE)),"</p></td><td>",paste(term$categories,collapse=", "),"</td></tr>")
+    }
   }
   cat("</table>")
 }
@@ -146,7 +162,7 @@
   }
   
   # generate the html table
-  cat("<table border=1 cellpadding='8'>\n")
+  cat("<table>\n")
   cat("<tr><th>Term name</th><th>",paste(categories,collapse='</th><th>'),"</th></tr>\n",sep='')
   for (t in seq_along(terms)){
     term<-terms[[t]]

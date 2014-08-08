@@ -7,6 +7,12 @@ output:
     toc: true
     mathjax: null
 ---
+<style type="text/css">
+table, td, th {
+  border: 1px;
+  cellpadding: 8px;
+}
+</style>
 
 <!-- \VignetteEngine{knitr::knitr} -->
 
@@ -21,7 +27,22 @@ terms<-lapply(items,ergm:::.extractTerms)
 terms<-unlist(terms,recursive=FALSE)
 ```
 
-## Basic / Frequently-used term categor matrix
+## Interactive searching
+
+It is possible to search the `ergm-terms` help page and search for specific categories of terms using the `search.ergmTerms` command.  For example to find all the terms that mention 'triangle' in their description:
+
+```{r}
+search.ergmTerms(keyword='triangle')
+```
+
+Or to find all of the dyad-independent bipartite terms:
+
+```{r}
+search.ergmTerms(categories=c('bipartite','dyad-independent'))
+```
+
+
+## Basic / Frequently-used term category matrix
 
 For convience, this table lists a subset of the most commonly-used ergm terms. 
 
