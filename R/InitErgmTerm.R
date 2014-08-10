@@ -429,6 +429,10 @@ InitErgmTerm.b1factor<-function (nw, arglist, ...) {
   base <- a$base
   nb1 <- get.network.attribute(nw, "bipartite")
   nodecov <- get.node.attr(nw, attrname, "b1factor")[1:nb1]
+  
+  if(all(is.na(nodecov)))
+	  stop("Argument to b1factor() does not exist", call.=FALSE)
+  
   u<-sort(unique(nodecov))
   if(any(is.na(nodecov))){u<-c(u,NA)}
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -723,6 +727,10 @@ InitErgmTerm.b2factor<-function (nw, arglist, ...) {
   base <- a$base
   nb1 <- get.network.attribute(nw, "bipartite")
   nodecov <- get.node.attr(nw, attrname, "b2factor")[(nb1+1):network.size(nw)]
+  
+  if(all(is.na(nodecov)))
+	  stop("Argument to b2factor() does not exist", call.=FALSE)
+  
   u<-sort(unique(nodecov))
   if(any(is.na(nodecov))){u<-c(u,NA)}
   nodecov <- match(nodecov,u,nomatch=length(u)+1)

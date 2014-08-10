@@ -36,6 +36,8 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
          call.=FALSE)
   #We'll assume that every vertex must have a value, so checking the 
   #first is reasonable.
+	
+  if(NVL(get.network.attribute(nw,"bipartite"),FALSE))	
   if (!any(attrname==unique(unlist(lapply(nw$val,names)))))
     stop(paste("Attribute", attrname, "named in", functionname,
                "model term is not contained in vertex attribute list."),
