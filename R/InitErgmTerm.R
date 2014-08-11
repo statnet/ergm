@@ -1812,7 +1812,15 @@ InitErgmTerm.hamming<-function (nw, arglist, ...) {
 
   ## Process hamming network ##
   if(is.network(a$x)){													# Arg to hamming is a network
-    xm<-as.edgelist(a$x,a$attrname)
+    # check for attribute existance before creating matrix
+  
+    if( is.null(a$attrname) || is.null(get.edge.attribute(a$x,a$attrname))){ 
+      xm<-as.edgelist(a$x)  # so call the non attribute version
+    } else {
+      xm<-as.edgelist(a$x,a$attrname)
+    }
+    
+    
   }else if(is.character(a$x)){												# Arg to hamming is the name of an attribute in nw
     xm<-get.network.attribute(nw,a$x)
     xm<-as.edgelist(xm)
