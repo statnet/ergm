@@ -1034,8 +1034,8 @@ of the degrees of all pairs of nodes in the network which are tied.
     
     \item{\code{hammingmix(attrname, x, base=0)} (binary) (directed) (dyad-independent)}{\emph{Hamming 
     distance within mixing:} 
-    This term adds one statistic to the model for every possible pairing of
-    attribute values of the network. Each such statistic is the Hamming distance
+    This term adds one statistic to the model for every possible pairing of  
+    attribute values of the network for the vertex attribute named \code{attrname}. Each such statistic is the Hamming distance
     (i.e., the number of differences) between the appropriate subset of dyads in
     the network and the corresponding subset in \code{x}. The ordering of the
     attribute values is alphabetical. 

@@ -1906,7 +1906,7 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ...) {
     stop("The 'contrast' argument of the hammingmix term is deprecated.  Use 'base' instead")
   }
   if(is.network(x)){
-    xm<-as.edgelist(x,attrname)
+    xm<-as.edgelist(x)
     x<-paste(quote(x))
   }else if(is.character(x)){
     xm<-get.network.attribute(nw,x)
