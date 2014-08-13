@@ -382,7 +382,8 @@ D_CHANGESTAT_FN(d_b1factor) {
 D_CHANGESTAT_FN(d_b1nodematch) {
   
   Vertex h, t, node3, node4, ninputs;
-  int i, j, edgeflag, count, exponenttype, matchval, b2attrsize, attrval1, attrval2, diffstatus, numofstats;     
+  int i, edgeflag, count, exponenttype, matchval, b2attrsize, attrval1, attrval2, diffstatus;
+  /* int j, numofstats; */
   Edge e, e2;
   double beta, alpha, change=0.0, exponent; 
   const int BetaType=1, AlphaType=2;
@@ -397,7 +398,7 @@ D_CHANGESTAT_FN(d_b1nodematch) {
   }                                      
 
   diffstatus = !(ninputs == 3); /* 1 if Diff = T and 0 if Diff = F */
-  numofstats = diffstatus ? (b2attrsize == 0 ? (ninputs - 3): (ninputs - 3) * b2attrsize) : (b2attrsize == 0 ? 1 : b2attrsize); 
+  /* numofstats = diffstatus ? (b2attrsize == 0 ? (ninputs - 3): (ninputs - 3) * b2attrsize) : (b2attrsize == 0 ? 1 : b2attrsize); */
   
   exponent = beta = INPUT_PARAM[1]; /* exponent on nodematch count */  
   exponenttype = BetaType;
@@ -854,7 +855,8 @@ D_CHANGESTAT_FN(d_b2factor) {
 D_CHANGESTAT_FN(d_b2nodematch) {
  
   Vertex h, t, node3, node4, ninputs;
-  int i, j, edgeflag, count, exponenttype, matchval, b1attrsize, attrval1, attrval2, diffstatus, numofstats, ind;
+  int i, edgeflag, count, exponenttype, matchval, b1attrsize, attrval1, attrval2, diffstatus;
+  /* int j, ind, numofstats; */
   Edge e, e2;
   double beta, alpha, change=0.0, exponent;
   const int BetaType=1, AlphaType=2;
@@ -869,7 +871,7 @@ D_CHANGESTAT_FN(d_b2nodematch) {
   }
 
   diffstatus = !(ninputs == 3); /* 1 if Diff = T and o if Diff = F - RPB */
-  numofstats = diffstatus ? (b1attrsize == 0 ? (ninputs - 3): (ninputs - 3) * b1attrsize) : (b1attrsize == 0 ? 1 : b1attrsize); 
+  /* numofstats = diffstatus ? (b1attrsize == 0 ? (ninputs - 3): (ninputs - 3) * b1attrsize) : (b1attrsize == 0 ? 1 : b1attrsize); */
 
   exponent = beta = INPUT_PARAM[1]; /* exponent on nodematch count */
   exponenttype = BetaType;
@@ -893,7 +895,8 @@ D_CHANGESTAT_FN(d_b2nodematch) {
     count=0;
     change = 0.0;
        
-    /*  double CHANGE[b1attrsize]; /* RPB */
+    /* RPB */
+    /*  double CHANGE[b1attrsize]; */
 
       
   if(b1attrsize == 0){

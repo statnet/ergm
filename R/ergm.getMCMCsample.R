@@ -269,12 +269,13 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...) {
     }
   }
   
+  burnin.total <- 0
+
   if(control$MCMC.burnin>0 && NVL(control$MCMC.burnin.retries,0)>0){
     out <- NULL
     burnin.stats <- NULL
-    burnin.total <- 0
     samplesize <- min(control$MCMC.samplesize,control$MCMC.burnin)
-    burnin <- 0
+    burnin <- control$MCMC.burnin
     interval <- ceiling(control$MCMC.burnin/samplesize)
     
     for(try in seq_len(control$MCMC.burnin.retries+1)){
@@ -357,6 +358,8 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...) {
       
       plot(mcmc(stats,start=control$MCMC.burnin+1,control$MCMC.burnin+control$MCMC.samplesize*control$MCMC.interval,thin=control$MCMC.interval),ask=FALSE,smooth=TRUE,density=FALSE)
     }
+
+    out$burnin.total <- burnin.total
     out
   }
 }
