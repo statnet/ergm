@@ -85,10 +85,10 @@ InitWtErgmTerm.edgecov <- function(nw, arglist, response, ...) {
     cn<-paste("edgecov", as.character(sys.call(0)[[3]][2]), sep = ".")
   }
 
-  form<-match.arg(a$form,c("sum","nonzero","rank"))
+  form<-match.arg(a$form,c("sum","nonzero"))
   
   inputs <- c(as.double(xm))
-  list(name=paste("edgecov",form,sep="_"), coef.names = paste(cn,form,sep="."), inputs = inputs, dependence=form=="rank")
+  list(name=paste("edgecov",form,sep="_"), coef.names = paste(cn,form,sep="."), inputs = inputs, dependence=FALSE)
 }
 
 
@@ -501,7 +501,7 @@ InitWtErgmTerm.nodeicov<-function (nw, arglist, response, ...) {
                      vartypes = c("character","function","character","character"),
                      defaultvalues = list(NULL,identity,"","sum"),
                      required = c(TRUE,FALSE,FALSE,FALSE))
-  form<-match.arg(a$form,c("sum","nonzero","rank"))
+  form<-match.arg(a$form,c("sum","nonzero"))
   attrname<-a$attrname
   f<-a$transform
   f.name<-a$transformname
@@ -510,7 +510,7 @@ InitWtErgmTerm.nodeicov<-function (nw, arglist, response, ...) {
   list(name=paste("nodeicov",form,sep="_"), soname="ergm",
        coef.names=coef.names,
        inputs=c(nodecov),
-       dependence=(form=="rank"))
+       dependence=FALSE)
 }
 
 

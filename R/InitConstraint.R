@@ -131,13 +131,6 @@ InitConstraint.observed <- function(conlist, lhs.nw, ...){
 }
 #ergm.ConstraintImplications("observed", c())
 
-InitConstraint.ranks<-function(conlist, lhs.nw, ...){
-   if(length(list(...)))
-     stop(paste("Rank constraint does not take arguments at this time."), call.=FALSE)
-   conlist$ranks<-list()
-   conlist
-}
-
 InitConstraint.blockdiag<-function(conlist, lhs.nw, attrname=NULL, ...){
   if(length(list(...)))
     stop(paste("Block diagonal constraint takes one argument at this time."), call.=FALSE)

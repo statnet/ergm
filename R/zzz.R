@@ -50,11 +50,7 @@
   ergm.MHP.table("c", "Bernoulli", "blockdiag+observed",  0, "random", "blockdiagNonObserved")
   ergm.MHP.table("c", "Bernoulli", "bd+blockdiag+observed",  0, "random", "blockdiagNonObserved")
 
-  ergm.MHP.table("c", "DescRank", "",  0, "random", "DescRank")
-  ergm.MHP.table("c", "DescRank", "ranks",  0, "random", "DescRankEquivalent")
-
   ergm.MHP.table("c", "StdNormal", "",  0, "random", "StdNormal")
-  ergm.MHP.table("c", "StdNormal", "ranks",  0, "random", "StdNormalRank")
 
   ergm.MHP.table("c", "Unif", "",  0, "random", "Unif")
   ergm.MHP.table("c", "Unif", "observed",  0, "random", "UnifNonObserved")
@@ -82,7 +78,6 @@
 
 .RegisterInitMethods <- function(){
   ergm.init.methods("Bernoulli", c("MPLE", "CD", "zeros"))
-  ergm.init.methods("DescRank", c("CD","zeros"))
   ergm.init.methods("StdNormal", c("CD","zeros"))
   ergm.init.methods("Unif", c("CD","zeros"))
   ergm.init.methods("DiscUnif", c("CD","zeros"))
