@@ -50,7 +50,9 @@ ergm.getCluster <- function(control, verbose=FALSE){
                    #                  .PVM.start.pvmd(hostfile)
                    #                  cat("PVM not running. Attempting to start.\n")
                    #                }
+                   ergm.MPIcluster.started(TRUE)
                    makeCluster(control$parallel,type="PVM")
+                   
                  },
                  MPI={
                    
@@ -61,13 +63,17 @@ ergm.getCluster <- function(control, verbose=FALSE){
                      makeCluster(control$parallel,type="MPI")
                    }else
                      ergm.MPIcluster.started(FALSE)
-                   getMPIcluster()
-                 },
+                     getMPIcluster()
+                   },
                  SOCK={
+                   ergm.MPIcluster.started(TRUE)
                    makeCluster(control$parallel,type="PSOCK")
+                   
                  },
                  PSOCK={
+                   ergm.MPIcluster.started(TRUE)
                    makeCluster(control$parallel,type="PSOCK")
+                   
                  }
     )
   }
