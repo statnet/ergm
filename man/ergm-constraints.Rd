@@ -19,7 +19,6 @@
 \alias{InitConstraint.nodedegrees}
 \alias{InitConstraint.observed}
 \alias{InitConstraint.odegreedist}
-\alias{InitConstraint.ranks}
 
 \docType{methods}
 

@@ -31,10 +31,7 @@
 \alias{InitMHP.blockdiag}
 \alias{InitMHP.blockdiagNonObserved}
 \alias{InitMHP.blockdiagTNT}
-\alias{InitWtMHP.DescRank}
-\alias{InitWtMHP.DescRankEquivalent}
 \alias{InitWtMHP.StdNormal}
-\alias{InitWtMHP.StdNormalRank}
 
 \alias{MHproposal}
 \alias{MHproposal.MHproposal}
