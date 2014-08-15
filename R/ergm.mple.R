@@ -156,13 +156,17 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
   mc.se <- gradient <- rep(NA, length(theta))
   if(length(theta)==1){
    covar <- array(0,dim=c(1,1))
+   hess <- array(0,dim=c(1,1))
   }else{
    covar <- diag(rep(0,length(theta)))
+   hess <- diag(rep(0,length(theta)))
   }
 # covar <- as.matrix(covar[!m$etamap$offsettheta,!m$etamap$offsettheta])
 # covar[!is.na(real.coef),!is.na(real.coef)] <- real.cov
   covar[!is.na(theta)&!m$etamap$offsettheta,
         !is.na(theta)&!m$etamap$offsettheta] <- real.cov
+  hess[!is.na(theta)&!m$etamap$offsettheta,
+        !is.na(theta)&!m$etamap$offsettheta] <- -solve(real.cov)
 #
   iteration <-  mplefit$iter 
 
@@ -196,7 +200,7 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
   structure(list(coef=theta,
       iterations=iteration, 
       MCMCtheta=theta, gradient=gradient,
-      hessian=NULL, covar=covar, failure=FALSE,
+      hessian=hess, covar=covar, failure=FALSE,
       mc.se=mc.se, glm = glm, glm.null = glm.null,
       theta1=theta1),
      class="ergm")

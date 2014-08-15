@@ -440,6 +440,10 @@ InitErgmTerm.b1factor<-function (nw, arglist, ...) {
   base <- a$base
   nb1 <- get.network.attribute(nw, "bipartite")
   nodecov <- get.node.attr(nw, attrname, "b1factor")[1:nb1]
+  
+  if(all(is.na(nodecov)))
+	  stop("Argument to b1factor() does not exist", call.=FALSE)
+  
   u<-sort(unique(nodecov))
   if(any(is.na(nodecov))){u<-c(u,NA)}
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -734,6 +738,10 @@ InitErgmTerm.b2factor<-function (nw, arglist, ...) {
   base <- a$base
   nb1 <- get.network.attribute(nw, "bipartite")
   nodecov <- get.node.attr(nw, attrname, "b2factor")[(nb1+1):network.size(nw)]
+  
+  if(all(is.na(nodecov)))
+	  stop("Argument to b2factor() does not exist", call.=FALSE)
+  
   u<-sort(unique(nodecov))
   if(any(is.na(nodecov))){u<-c(u,NA)}
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -1804,7 +1812,15 @@ InitErgmTerm.hamming<-function (nw, arglist, ...) {
 
   ## Process hamming network ##
   if(is.network(a$x)){													# Arg to hamming is a network
-    xm<-as.edgelist(a$x,a$attrname)
+    # check for attribute existance before creating matrix
+  
+    if( is.null(a$attrname) || is.null(get.edge.attribute(a$x,a$attrname))){ 
+      xm<-as.edgelist(a$x)  # so call the non attribute version
+    } else {
+      xm<-as.edgelist(a$x,a$attrname)
+    }
+    
+    
   }else if(is.character(a$x)){												# Arg to hamming is the name of an attribute in nw
     xm<-get.network.attribute(nw,a$x)
     xm<-as.edgelist(xm)
@@ -1890,7 +1906,7 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ...) {
     stop("The 'contrast' argument of the hammingmix term is deprecated.  Use 'base' instead")
   }
   if(is.network(x)){
-    xm<-as.edgelist(x,attrname)
+    xm<-as.edgelist(x)
     x<-paste(quote(x))
   }else if(is.character(x)){
     xm<-get.network.attribute(nw,x)

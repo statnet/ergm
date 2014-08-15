@@ -27,13 +27,13 @@ void CD_wrapper(int *dnumnets, int *nedges,
 		  int *status){
   int directed_flag;
   Vertex n_nodes, bip, *undotail, *undohead;
-  Edge n_networks;
+  /* Edge n_networks; */
   Network nw[1];
   Model *m;
   MHproposal MH;
   
   n_nodes = (Vertex)*dn; 
-  n_networks = (Edge)*dnumnets; 
+  /* n_networks = (Edge)*dnumnets;  */
   bip = (Vertex)*bipartite; 
   
   GetRNGstate();  /* R function enabling uniform RNG */
@@ -84,7 +84,8 @@ MCMCStatus CDSample(MHproposal *MHp,
 		double *theta, double *networkstatistics, 
 		    int samplesize, int nsteps, Vertex *undotail, Vertex *undohead, int fVerbose,
 		Network *nwp, Model *m){
-  int i, j;
+  int i;
+  /* int j; */
     
   /*********************
   networkstatistics are modified in groups of m->n_stats, and they

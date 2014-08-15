@@ -204,7 +204,8 @@ void MH_CondDegreeMixChangeOrig(MHproposal *MHp, Network *nwp)  {
 void MH_CondDegreeMix(MHproposal *MHp, Network *nwp)  {  
   Vertex A11, A12, B11, B12;
   Vertex A21, A22, B21, B22;
-  int bad, goodtype;
+  int bad;
+  /* int goodtype; */
   int pm, numtrys;
   
   if(MHp->ntoggles == 0) { /* Initialize */
@@ -220,7 +221,7 @@ void MH_CondDegreeMix(MHproposal *MHp, Network *nwp)  {
     GetRandEdge(&B11, &B12, nwp);
     numtrys++;
   	bad=((abs(MHp->inputs[A11-1]-MHp->inputs[A12-1])<0.001)&(abs(MHp->inputs[B12-1]-MHp->inputs[B11-1])<0.001)&(abs(MHp->inputs[A11-1]-MHp->inputs[B11-1])>0.001));
-    goodtype = 2;
+    /* goodtype = 2; */
   }while(
   	 (numtrys<1000) && ((!bad) || A11==B11 || A11==B12 || A12==B11 || A12==B12 || 
 	 (nwp->directed_flag ? 
@@ -232,7 +233,7 @@ void MH_CondDegreeMix(MHproposal *MHp, Network *nwp)  {
     GetRandEdge(&B21, &B22, nwp);
     numtrys++;
   	bad=((abs(MHp->inputs[A21-1]-MHp->inputs[A22-1])>0.001)&(abs(MHp->inputs[B22-1]-MHp->inputs[B21-1])>0.001)&(abs(MHp->inputs[A21-1]-MHp->inputs[B22-1])<0.001));
-    goodtype = 0;
+    /* goodtype = 0; */
   }while(
   	 (numtrys<1000) && ((!bad) || A21==B21 || A21==B22 || A22==B21 || A22==B22 || 
 	 (nwp->directed_flag ? 
@@ -245,7 +246,7 @@ void MH_CondDegreeMix(MHproposal *MHp, Network *nwp)  {
     GetRandEdge(&B11, &B12, nwp);
     numtrys++;
   	bad=((abs(MHp->inputs[A11-1]-MHp->inputs[A12-1])<0.001)&(abs(MHp->inputs[B12-1]-MHp->inputs[B11-1])<0.001)&(abs(MHp->inputs[A11-1]-MHp->inputs[B11-1])<0.001));
-    goodtype = 3;
+    /* goodtype = 3; */
   }while(
   	 (numtrys<1000) && ((!bad) || A11==B11 || A11==B12 || A12==B11 || A12==B12 || 
 	 (nwp->directed_flag ? 
@@ -257,7 +258,7 @@ void MH_CondDegreeMix(MHproposal *MHp, Network *nwp)  {
     GetRandEdge(&B21, &B22, nwp);
     numtrys++;
   	bad=((abs(MHp->inputs[A21-1]-MHp->inputs[A22-1])>0.001)&(abs(MHp->inputs[B22-1]-MHp->inputs[B21-1])>0.001)&(abs(MHp->inputs[A21-1]-MHp->inputs[B22-1])>0.001));
-    goodtype = 4;
+    /* goodtype = 4;*/
   }while(
   	 (numtrys<1000) && ((!bad) || A21==B21 || A21==B22 || A22==B21 || A22==B22 || 
 	 (nwp->directed_flag ? 
@@ -279,8 +280,8 @@ void MH_CondDegreeMix(MHproposal *MHp, Network *nwp)  {
    Mtail[5]=A21; Mhead[5]=A22;
    Mtail[6]=B21; Mhead[6]=B22;
    Mtail[7]=B21; Mhead[7]=B22;
-// MHp->toggletail[0]=MH_FAILED;                   \
-// MHp->togglehead[0]=MH_UNSUCCESSFUL;       
+// MHp->toggletail[0]=MH_FAILED;
+// MHp->togglehead[0]=MH_UNSUCCESSFUL;
   }else{
    Mtail[0]=A11; Mhead[0]=A12;
    Mtail[1]=A11; Mhead[1]=B12;

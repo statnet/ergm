@@ -86,7 +86,7 @@ WtMCMCStatus WtCDSample(WtMHproposal *MHp,
 			  double *theta, double *networkstatistics, 
 			int samplesize, int nsteps, Vertex *undotail, Vertex *undohead, double *undoweight, int fVerbose,
 			  WtNetwork *nwp, WtModel *m) {
-  int i, j;
+  int i;
     
   /*********************
   networkstatistics are modified in groups of m->n_stats, and they

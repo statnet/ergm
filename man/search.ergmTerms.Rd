@@ -5,7 +5,7 @@
 Search the ergm-terms documentation for appropriate terms
 }
 \description{
-Searches through the \code{\link{ergm_terms}} help page and prints out a list of terms appropriate for the specified network's structural constraints, optionally restricting by additional categories and keyword matches. 
+Searches through the \code{\link{ergm.terms}} help page and prints out a list of terms appropriate for the specified network's structural constraints, optionally restricting by additional categories and keyword matches. 
 }
 \usage{
 search.ergmTerms(net, keyword, categories, name)
@@ -26,7 +26,7 @@ optional character name of a specific term to return
 }
 }
 \details{
-Uses \code{\link{grep}} internally to match keywords against the term description, so \code{keywords} is currently matched as a single phrase}.  Category tags will only return a match if all of the specified tags are included in the term. 
+Uses \code{\link{grep}} internally to match keywords against the term description, so \code{keywords} is currently matched as a single phrase.  Category tags will only return a match if all of the specified tags are included in the term. 
 }
 \value{
 prints out the name and short description of matching terms, and invisibly returns them as a list.  If \code{name} is specified, prints out the full definition for the named term. 
@@ -37,7 +37,7 @@ skyebend@uw.edu
 }
 
 \seealso{
-See also \code{\link{ergm_terms}} for the complete documentation
+See also \code{\link{ergm.terms}} for the complete documentation
 }
 \examples{
 # find all of the terms that mention triangles

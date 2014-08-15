@@ -702,16 +702,17 @@ void MH_NodePairedTiesToggles (MHproposal *MHp, Network *nwp) {
 *********************/
 void MH_OneRandomTnTNode (MHproposal *MHp, Network *nwp) {  
   Vertex tail=0, head, e, head1;
-  int noutedge=0, ninedge=0, k0=0, ndyad, fvalid=0, k;
+  int noutedge=0, ninedge=0, k0=0, fvalid=0, k;
+  /* int ndyad; */
 
   /* *** don't forget tail-> head now */
   
-  if ( nwp->directed_flag )
+  /* if ( nwp->directed_flag )
     {
       ndyad = (nwp->nnodes - 1) * nwp->nnodes;
     }else{
       ndyad = (nwp->nnodes - 1) * nwp->nnodes / 2;
-    }
+    } */
 
   double logratio=0;
   fvalid=0;

@@ -77,7 +77,7 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
       searching for symbols associated with the object file with prefix
       sn, having the name fn.  Assuming that one is found, we're golden.*/ 
       thisterm->d_func = 
-	(void (*)(int, Vertex*, Vertex*, double *, WtModelTerm*, WtNetwork*))
+	(void (*)(Edge, Vertex*, Vertex*, double *, WtModelTerm*, WtNetwork*))
 	R_FindSymbol(fn,sn,NULL);
       if(thisterm->d_func==NULL){
         error("Error in WtModelInitialize: could not find function %s in "
