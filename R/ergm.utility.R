@@ -506,10 +506,19 @@ which.package.InitFunction <- function(f, env = parent.frame()){
   f <- as.character(f)
   # Find the first entity named f in the search path, and get its name
   # attribute (if present).
-  loc <- attr(findFunction(f, where=env)[[1]], "name")
-  # If name attribute is not NULL and begins with "package:", return
-  # the package name. Otherwise, return NULL.
-  if(!is.null(loc) && grepl("^package:", loc)) sub("^package:", "", loc) else NULL
+  found <- findFunction(f, where=env)
+  if (length(found) > 0) {
+    loc <- attr(found[[1]], "name")
+    # If name attribute is not NULL and begins with "package:", return
+    # the package name. Otherwise, return NULL.
+    if(!is.null(loc) && grepl("^package:", loc)) sub("^package:", "", loc) else NULL
+  } else {
+    # can't find the function normally; the package might have been imported
+    # instead of attached
+    found <- get(f, envir=env)
+    environmentName(environment(found))
+  }
+  
 }
 
 single.impute.dyads <- function(nw, response=NULL){
