@@ -2,45 +2,6 @@
 #NOTE: a number of undocumented terms have been removed from this file
 # the terms still exist on the experimental_terms svn branch
 
-#########################################################
-InitErgmTerm.cyclicalties<-function (nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=TRUE,bipartite=NULL,
-    varnames = c("attrname", "diff"),
-    vartypes = c("character", "logical"),
-    defaultvalues = list(NULL, FALSE),
-    required = c(FALSE, FALSE))
- ### Process the arguments
-  ### Construct the list to return
-  out <- list(name="cyclicalties",                      #name: required
-              coef.names = "cyclicalties"               #coef.names: required
-              ) 
-  if(!is.null(a$attrname)) {
-    nodecov <- get.node.attr(nw, a$attrname, "cyclicalties")
-    u<-sort(unique(nodecov))
-    if(any(is.na(nodecov))){u<-c(u,NA)}
-    nodecov <- match(nodecov,u,nomatch=length(u)+1)
-    ui <- seq(along=u)
-    if (length(u)==1)
-      stop ("Attribute given to cyclicalties() has only one value", call.=FALSE)
-    if (!a$diff) {
-      out$coef.names <- paste("cyclicalties", a$attrname, sep=".")
-      out$inputs <- c(0,1,length(nodecov),nodecov)
-    } else {
-      out$coef.names <- paste("cyclicalties", a$attrname, u, sep=".")
-      out$inputs <- c(length(ui), length(ui),
-                      length(ui)+length(nodecov),
-                      ui, nodecov)
-    }
-  }else{
-    out$coef.names <- "cyclicalties"
-    out$inputs <- c(0,1,0)
-  }
-  out$minval <- 0
-  out
-}
-
-
-
 InitErgmTerm.concurrentties<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,bipartite=NULL,
                       varnames = c("byarg"),
