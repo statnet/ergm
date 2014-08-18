@@ -10,6 +10,7 @@
 #      <rspartnerdist>         
 #      <twopathdist>            <copy.named>
 #      <compress.data.frame>    <sort.data.frame>
+#      <catchToList>
 #==============================================================      
 
 
@@ -546,3 +547,22 @@ single.impute.dyads <- function(nw, response=NULL){
 # magnitude than replace=) values with replace= with the appropriate
 # sign. Leave NAs and NANs alone.
 .deinf <- function(x, replace=1/.Machine$double.eps) ifelse(is.nan(x) | abs(x)<replace, x, sign(x)*replace)
+
+
+
+# executes expression, returns the result in a list with any warnings and errors
+catchToList <- function(expr) {
+  val <- NULL
+  myWarnings <- NULL
+  wHandler <- function(w) {
+    myWarnings <<- c(myWarnings, w$message)
+    #invokeRestart("muffleWarning")
+  }
+  myError <- NULL
+  eHandler <- function(e) {
+    myError <<- e$message
+    NULL
+  }
+  val <- tryCatch(withCallingHandlers(expr, warning = wHandler), error = eHandler)
+  list(value = val, warnings = myWarnings, error=myError)
+} 
