@@ -32,6 +32,7 @@ network.update<-function(nw, newmatrix, matrix.type=NULL, output="network", igno
   for(a in setdiff(list.network.attributes(nw),ignore.nattr)) unw <- set.network.attribute(unw, a, get.network.attribute(nw, a, unlist=FALSE))
   for(a in setdiff(list.vertex.attributes(nw),ignore.vattr)) unw <- set.vertex.attribute(unw, a, get.vertex.attribute(nw, a, unlist=FALSE))
 
+
   if(is.null(matrix.type)){
     warning("Don't leave matrix type to chance! Pass matrix.type to network.update!")
     matrix.type <- which.matrix.type(newmatrix)

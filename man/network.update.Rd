@@ -5,7 +5,7 @@
 network.update(nw, newmatrix, matrix.type=NULL, output="network")
 }
 \description{
-  Replaces the sociomatrix in a network object with the sociomatrix specified by
+  Replaces the edges in a network object with the edges corresponding to the sociomatrix specified by
 \code{newmatrix}.
   See \code{\link{ergm}} for more information.
 }
@@ -22,7 +22,7 @@ network.update(nw, newmatrix, matrix.type=NULL, output="network")
   \item{output}{Currently unused.}
 }
 
-\value{\code{\link{network.update}} returns a \code{\link[network]{network}} object.
+\value{\code{\link{network.update}} returns a new \code{\link[network]{network}} object with the edges specified by \code{newmatrix} and network and vertex attributes copied from the input network \code{nw}. Input network is not modified. 
 }
 \seealso{ergm, network}
 \examples{
