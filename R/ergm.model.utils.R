@@ -5,7 +5,7 @@ vector.namesmatch<-function(v,names,errname=NULL){
   if (is.null(names(v))){
     if(length(v) == length(names)){
       names(v) <- names
-    }else stop("Length of ``", errname, "'' is ", length(v), " should be ", names,".")
+    }else stop('Length of "', errname, '" is ', length(v), " but should be ", length(names),".")
   }else{
     if(length(v) == length(names)
        && length(unique(names(v)))==length(v)
@@ -13,7 +13,7 @@ vector.namesmatch<-function(v,names,errname=NULL){
        && all(sort(names(v)) == sort(names))){
       namesmatch <- match(names(v), names)
       v <- v[namesmatch]
-    }else stop("Name missmatch in ``", errname,"''. Specify by position.")
+    }else stop('Name missmatch in "', errname,'". Specify by position.')
   }
   v
 }
