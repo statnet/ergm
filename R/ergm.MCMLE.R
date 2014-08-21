@@ -352,6 +352,8 @@ ergm.MCMLE <- function(init, nw, model,
   v$stats.hist <- stats.hist
   v$stats.obs.hist <- stats.obs.hist
   v$steplen.hist <- steplen.hist
+  
+  v$iterations <- iteration
   # The following output is sometimes helpful.  It's the total history
   # of all eta values, from the initial eta0 to the final estimate
   # v$allparamvals <- parametervalues
