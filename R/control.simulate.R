@@ -48,7 +48,7 @@
 #
 #########################################################################
 
-control.simulate<-control.simulate.formula<-control.simulate.formula.ergm<-function(MCMC.burnin=1000,
+control.simulate<-control.simulate.formula<-control.simulate.formula.ergm<-function(MCMC.burnin=10000,
                                                      MCMC.interval=1000,
                                                      MCMC.prop.weights="default",
                                                      MCMC.prop.args=list(),

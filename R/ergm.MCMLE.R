@@ -202,6 +202,7 @@ ergm.MCMLE <- function(init, nw, model,
             if(verbose){
                 cat("Mean effective sample size =",effSizes.mean,". New interval =",control$MCMC.interval,".\n")
             }
+            message("Mean effective sample size =",effSizes.mean,". New interval =",control$MCMC.interval,".\n")
 
             # If the harmonic mean effective sample size is below the threshold (if set), don't proceed to optimization.
             if(NVL(control$MCMLE.min.effectiveSize,0)>effSizes.mean){
@@ -354,6 +355,8 @@ ergm.MCMLE <- function(init, nw, model,
   v$steplen.hist <- steplen.hist
   
   v$iterations <- iteration
+  v$control <- control
+  
   # The following output is sometimes helpful.  It's the total history
   # of all eta values, from the initial eta0 to the final estimate
   # v$allparamvals <- parametervalues

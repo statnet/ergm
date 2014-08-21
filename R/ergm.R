@@ -428,7 +428,7 @@ ergm <- function(formula, response=NULL,
   mainfit$constrained.obs <- MHproposal.obs$arguments$constraints
   mainfit$constraints <- constraints
 
-  mainfit$control<-control
+  #mainfit$control<-control
 
   mainfit$response<-response
   mainfit$reference<-reference

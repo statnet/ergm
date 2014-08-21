@@ -121,7 +121,7 @@ control.ergm<-function(drop=TRUE,
                       
                        MCMC.prop.weights="default", MCMC.prop.args=list(),
                        MCMC.burnin=10000,
-                       MCMC.interval=100,
+                       MCMC.interval=1000,
                        MCMC.samplesize=10000,
                        MCMC.effectiveSize=100,
                        MCMC.max.interval=500000,
