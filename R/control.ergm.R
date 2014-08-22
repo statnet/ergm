@@ -111,7 +111,7 @@ control.ergm<-function(drop=TRUE,
                        init.method=NULL,
                        
                        main.method=c("MCMLE","Robbins-Monro",
-                               "Stochastic-Approximation","Stepping","CD","CD.fixed"),
+                               "Stochastic-Approximation","Stepping"),
                        force.main=FALSE,
                        main.hessian=TRUE,
 
@@ -195,28 +195,6 @@ control.ergm<-function(drop=TRUE,
                        Step.MCMC.samplesize=100,
                        Step.maxit=50,
                        Step.gridsize=100,
-
-                       CD.nsteps=1,
-                       CD.nsteps.mul=2,
-                       CD.min.nsteps=8,
-                       CD.untethered=TRUE,
-                       CD.maxit=60,
-                       CD.conv.min.pval=0.5,
-                       CD.NR.maxit=100,
-                       CD.NR.reltol=sqrt(.Machine$double.eps),
-                       CD.MCMC.precision=0.05,
-                       CD.metric=c("naive", "lognormal", "logtaylor",
-                         "Median.Likelihood",
-                         "EF.Likelihood"),
-                       CD.method=c("BFGS","Nelder-Mead"),
-                       CD.trustregion=20,
-                       CD.dampening=FALSE,
-                       CD.dampening.min.ess=20,
-                       CD.dampening.level=0.1,
-                       CD.steplength.margin=1,
-                       CD.steplength=0.5,
-                       CD.adaptive.trustregion=3,
-                       CD.adaptive.epsilon=0.01,
                        
                        loglik.control=control.logLik.ergm(),
 
@@ -267,7 +245,7 @@ control.ergm<-function(drop=TRUE,
                        packagenames="MCMC.packagenames"
                        )
 
-  match.arg.pars=c("MPLE.type","MCMLE.metric","MCMLE.method","main.method","CD.metric","CD.method")
+  match.arg.pars=c("MPLE.type","MCMLE.metric","MCMLE.method","main.method")
   
   control<-list()
   formal.args<-formals(sys.function())

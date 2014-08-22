@@ -77,8 +77,8 @@
 }
 
 .RegisterInitMethods <- function(){
-  ergm.init.methods("Bernoulli", c("MPLE", "CD", "zeros"))
-  ergm.init.methods("StdNormal", c("CD","zeros"))
-  ergm.init.methods("Unif", c("CD","zeros"))
-  ergm.init.methods("DiscUnif", c("CD","zeros"))
+  ergm.init.methods("Bernoulli", c("MPLE", "zeros"))
+  ergm.init.methods("StdNormal", c("zeros"))
+  ergm.init.methods("Unif", c("zeros"))
+  ergm.init.methods("DiscUnif", c("zeros"))
 }

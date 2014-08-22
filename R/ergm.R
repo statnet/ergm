@@ -108,7 +108,7 @@ ergm <- function(formula, response=NULL,
                  offset.coef=NULL,
                  target.stats=NULL,
                  eval.loglik=TRUE,
-                 estimate=c("MLE", "MPLE", "CD"),
+                 estimate=c("MLE", "MPLE"),
                  control=control.ergm(),
                  verbose=FALSE,...) {
   check.control.class()
@@ -119,11 +119,6 @@ ergm <- function(formula, response=NULL,
   if(!is.null(list(...)$MPLEonly) && list(...)$MPLEonly){
     warning("Argument MPLEonly is deprecated. Use ``estimate=\"MPLE\"'' instead." )
     estimate <- "MPLE"
-  }
-
-  if(estimate=="CD"){
-      control$init.method <- "CD"
-      eval.loglik <- FALSE
   }
 
   if(!is.null(control$seed))  set.seed(as.integer(control$seed))
@@ -298,9 +293,6 @@ ergm <- function(formula, response=NULL,
 
   model.initial$nw.stats <- summary(model.initial$formula, response=response, initialfit=control$init.method=="MPLE")
   model.initial$target.stats <- if(!is.null(target.stats)) target.stats else model.initial$nw.stats
-
-  if(control$init.method=="CD") if(is.null(names(control$init)))
-      names(control$init) <- .coef.names.model(model.initial, FALSE)
   
   initialfit <- ergm.initialfit(init=control$init, initial.is.final=!MCMCflag,
                                 formula=formula, nw=nw, reference=reference, 
@@ -382,20 +374,6 @@ ergm <- function(formula, response=NULL,
     "MCMLE" = ergm.MCMLE(init, nw,
                           model, 
                           initialfit,
-                          control=control, MHproposal=MHproposal,
-                          MHproposal.obs=MHproposal.obs,
-                          verbose=verbose,
-                      response=response,
-                          ...),
-    "CD" = ergm.CD(init, nw,
-                          model, 
-                          control=control, MHproposal=MHproposal,
-                          MHproposal.obs=MHproposal.obs,
-                          verbose=verbose,
-                      response=response,
-                          ...),
-    "CD.fixed" = ergm.CD.fixed(init, nw,
-                          model, 
                           control=control, MHproposal=MHproposal,
                           MHproposal.obs=MHproposal.obs,
                           verbose=verbose,
