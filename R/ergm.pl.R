@@ -234,13 +234,23 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
 
   #
   # Adjust for the offset
-  #
+  # =======================
+  # Helper function
+  # A is a matrix. V is a column vector that may contain Infs
+  # computes A %*% V, counting 0*Inf as 0
+  # May be slow if there are many rows. Use C here?
+  multiply.with.inf <- function(A,V) {
+    cbind(sapply(seq_len(nrow(A)), function(i) sum(V * A[i,], na.rm=T)))
+  }
+
   if(any(m$etamap$offsettheta)){
     if(any(is.na(theta.offset[m$etamap$offsettheta]))){
       stop("Offset terms without offset coefficients specified!")
     }
-    foffset <- xmat[,m$etamap$offsettheta,drop=FALSE] %*% cbind(theta.offset[m$etamap$offsettheta]) # Compute the offset's effect.
-    foffset[is.nan(foffset)] <- 0 # 0*Inf==0 in this case.
+    # Compute the offset's effect.
+    foffset <- multiply.with.inf(xmat[,m$etamap$offsettheta,drop=FALSE], 
+                                 cbind(theta.offset[m$etamap$offsettheta])) 
+    
     # Remove offset covariate columns.
     xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE] 
     colnames(xmat) <- m$coef.names[!m$etamap$offsettheta]

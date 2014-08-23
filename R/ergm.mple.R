@@ -92,7 +92,7 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
     } else if (!is.null(glm.result$warnings)) {
       # if the glm results are crazy, redo it with 0 starting values
       if (max(abs(glm.result$value$coef), na.rm=T) > 1e6) {
-        message("glm results wonky; restarting with zeros.")
+        message("Data may be separable; restarting glm with zeros.")
         mplefit <- glm(pl$zy ~ .-1 + offset(pl$foffset), 
                        data=data.frame(pl$xmat),
                        weights=pl$wend, family=family, 
@@ -146,7 +146,7 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
       } else if (!is.null(glm.result$warnings)) {
         # if the glm results are crazy, redo it with 0 starting values
         if (max(abs(glm.result$value$coef), na.rm=T) > 1e6) {
-          message("glm results wonky; restarting with zeros.")
+          message("Data may be separable; restarting glm with zeros.")
           mindfit <- glm(pl$zy ~ .-1 + offset(pl$foffset), 
                          data=data.frame(pl$xmat[,independent,drop=FALSE]),
                          weights=pl$wend, family=family,
