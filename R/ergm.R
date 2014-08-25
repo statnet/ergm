@@ -406,7 +406,8 @@ ergm <- function(formula, response=NULL,
   mainfit$constrained.obs <- MHproposal.obs$arguments$constraints
   mainfit$constraints <- constraints
 
-  #mainfit$control<-control
+  # unless the main fitting algorithm passes back a modified control
+  if (is.null(mainfit$control)) mainfit$control<-control
 
   mainfit$response<-response
   mainfit$reference<-reference
