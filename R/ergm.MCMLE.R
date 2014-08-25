@@ -202,8 +202,7 @@ ergm.MCMLE <- function(init, nw, model,
             if(verbose){
                 cat("Mean effective sample size =",effSizes.mean,". New interval =",control$MCMC.interval,".\n")
             }
-            message("Mean effective sample size =",effSizes.mean,". New interval =",control$MCMC.interval,".\n")
-
+            
             # If the harmonic mean effective sample size is below the threshold (if set), don't proceed to optimization.
             if(NVL(control$MCMLE.min.effectiveSize,0)>effSizes.mean){
               if(verbose)
