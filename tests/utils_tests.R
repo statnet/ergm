@@ -2,7 +2,7 @@
 
 # ------------- tests for the network.update function -----
 
-library(tergm)
+require(ergm)
 aaa <- network.initialize(10,directed=TRUE,loops=TRUE)
 aaa %v% 'race' <- rep(c('B','W'),10)
 aaa %v% 'letters'<-rep(LETTERS,10)
