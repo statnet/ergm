@@ -18,7 +18,7 @@
 }
 \usage{
 control.gof.formula(nsim=100,
-                    MCMC.burnin=1000,
+                    MCMC.burnin=10000,
                     MCMC.interval=1000,
                     MCMC.prop.weights="default",
                     MCMC.prop.args=list(),

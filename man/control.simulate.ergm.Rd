@@ -17,7 +17,7 @@
   Auxiliary function as user interface for fine-tuning ERGM simulation.
 }
 \usage{
-control.simulate(MCMC.burnin=1000,
+control.simulate(MCMC.burnin=10000,
                  MCMC.interval=1000,
                  MCMC.prop.weights="default",
                  MCMC.prop.args=list(),
@@ -32,7 +32,7 @@ control.simulate(MCMC.burnin=1000,
                  parallel.version.check=TRUE,
                  \dots)
 
-control.simulate.formula(MCMC.burnin=1000,
+control.simulate.formula(MCMC.burnin=10000,
                          MCMC.interval=1000,
                          MCMC.prop.weights="default",
                          MCMC.prop.args=list(),
@@ -47,7 +47,7 @@ control.simulate.formula(MCMC.burnin=1000,
                          parallel.version.check=TRUE,
                          \dots)
 
-control.simulate.formula.ergm(MCMC.burnin=1000,
+control.simulate.formula.ergm(MCMC.burnin=10000,
                               MCMC.interval=1000,
                               MCMC.prop.weights="default",
                               MCMC.prop.args=list(),

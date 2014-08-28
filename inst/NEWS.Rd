@@ -13,6 +13,56 @@
 
 % When a release is forked, copy the sections to a new release and
 % delete unused sections.
+\section{Changes in version 3.2}{
+
+  % \subsection{NEW FEATURES}{
+  %   \itemize{
+  %   } 
+  % }
+  
+  % \subsection{BUG FIXES}{
+  %  \itemize{
+  %  }
+  % }
+
+  %\subsection{DEPRECATED & DEFUNCT}{
+  %  \itemize{
+
+  %  }
+  % }
+
+  
+   \subsection{OTHER USER-VISIBLE CHANGES}{
+     \itemize{
+      \item changes in default values for various burnin-related control options, mostly increasing burnin by 10x
+     }
+   }
+
+  % \subsection{C-LEVEL FACILITIES}{
+  %   \itemize{
+  %   }
+  % }
+
+  % \subsection{UTILITIES}{
+  %   \itemize{
+  %     \item Likewise, "UTILITIES" is probably unnecessary.
+  %   }
+  % }
+
+  % \subsection{INSTALLATION}{
+  %   \itemize{
+  %     \item ... as is "INSTALLATION".
+  %   }
+  % }
+
+  % \subsection{PACKAGE INSTALLATION}{
+  %   \itemize{
+  %     \item ditto.
+  %   }
+  % }
+
+}
+
 \section{Changes in version 3.1.3}{
 
   % \subsection{NEW FEATURES}{

@@ -11,7 +11,9 @@
 \alias{network.update}
 \title{Replaces the sociomatrix in a network object}
 \usage{
-network.update(nw, newmatrix, matrix.type=NULL, output="network")
+network.update(nw, newmatrix, matrix.type=NULL, output="network",
+              ignore.nattr = c("bipartite", "directed", "hyper", 
+              "loops", "mnext", "multiple", "n"), ignore.vattr = c())
 }
 \description{
   Replaces the edges in a network object with the edges corresponding to the sociomatrix specified by
@@ -29,6 +31,8 @@ network.update(nw, newmatrix, matrix.type=NULL, output="network")
   matrix \code{newmatrix} is.  Default is to use the 
   \code{\link[network]{which.matrix.type}} function.}
   \item{output}{Currently unused.}
+  \item{ignore.nattr}{character vector of the names of network-level attributes to ignore when updating network objects (defaults to standard network properties)}
+  \item{ignore.vattr}{character vector of the names of vertex-level attributes to ignore when updating network objects}
 }
 
 \value{\code{\link{network.update}} returns a new \code{\link[network]{network}} object with the edges specified by \code{newmatrix} and network and vertex attributes copied from the input network \code{nw}. Input network is not modified. 
