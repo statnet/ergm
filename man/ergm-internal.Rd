@@ -41,6 +41,8 @@
 \alias{InitMHP.blockdiagNonObserved}
 \alias{InitMHP.blockdiagTNT}
 \alias{InitWtMHP.StdNormal}
+\alias{InitMHP.CondDegreeMix}
+\alias{InitMHP.TriNT}
 
 \alias{MHproposal}
 \alias{MHproposal.MHproposal}
