@@ -168,6 +168,11 @@ ergm <- function(formula, response=NULL,
       stop("Incorrect length of the target.stats vector: should be ", length(nw.stats), " but is ",length(target.stats),". Note that offset() terms should *not* get target statistics.")
     }
     
+    # no need to pass the offset term's init to SAN
+    offset.terms <- offset.info.formula(formula)$term
+    san.control <- control$SAN.control
+    san.control$coef <- san.control$coef[!offset.terms]
+    
     if(verbose) cat("Constructing an approximate response network.\n")
     ## If target.stats are given, overwrite the given network and formula
     ## with SAN-ed network and formula.
@@ -177,7 +182,7 @@ ergm <- function(formula, response=NULL,
               response=response,
               reference=reference,
               constraints=constraints,
-              control=control$SAN.control,
+              control=san.control,
               verbose=verbose)
       formula<-ergm.update.formula(formula,nw~., from.new="nw")
       nw.stats <- summary(remove.offset.formula(formula),response=response)
