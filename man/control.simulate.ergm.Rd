@@ -24,7 +24,6 @@ control.simulate(MCMC.burnin=10000,
                  MCMC.init.maxedges=20000,
                  MCMC.packagenames=c(),
                  MCMC.runtime.traceplot=FALSE,  
-
                  network.output="network",
                                                      
                  parallel=0,
@@ -38,8 +37,7 @@ control.simulate.formula(MCMC.burnin=10000,
                          MCMC.prop.args=list(),
                          MCMC.init.maxedges=20000,
                          MCMC.packagenames=c(),
-                         MCMC.runtime.traceplot=FALSE,  
-
+                         MCMC.runtime.traceplot=FALSE,
                          network.output="network",
                                                      
                          parallel=0,
@@ -53,10 +51,9 @@ control.simulate.formula.ergm(MCMC.burnin=10000,
                               MCMC.prop.args=list(),
                               MCMC.init.maxedges=20000,
                               MCMC.packagenames=c(),
-                              MCMC.runtime.traceplot=FALSE,  
-
+                              MCMC.runtime.traceplot=FALSE,
                               network.output="network",
-                                                     
+                                                         
                               parallel=0,
                               parallel.type=NULL,
                               parallel.version.check=TRUE,
@@ -69,7 +66,6 @@ control.simulate.ergm(MCMC.burnin=NULL,
                       MCMC.init.maxedges=NULL,
                       MCMC.packagenames=NULL,
                       MCMC.runtime.traceplot=FALSE,
-
                       network.output="network",
 
                       parallel=0,
