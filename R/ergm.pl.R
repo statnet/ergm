@@ -70,6 +70,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
   maxNumDyadTypes <- min(control$MPLE.max.dyad.types,
                          ifelse(bip>0, bip*(n-bip), 
                                 ifelse(Clist$dir, n*(n-1), n*(n-1)/2)))
+                        
   # May have to think harder about what maxNumDyadTypes should be if we 
   # implement a hash-table approach to compression.
   if(is.null(conddeg)){
