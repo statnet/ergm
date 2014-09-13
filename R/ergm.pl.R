@@ -1,3 +1,12 @@
+#  File R/ergm.pl.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2013 Statnet Commons
+#######################################################################
 ###############################################################################
 # The <ergm.pl> function prepares many of the components needed by <ergm.mple>
 # for the regression rountines that are used to find the MPLE estimated ergm;
@@ -61,6 +70,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
   maxNumDyadTypes <- min(control$MPLE.max.dyad.types,
                          ifelse(bip>0, bip*(n-bip), 
                                 ifelse(Clist$dir, n*(n-1), n*(n-1)/2)))
+                        
   # May have to think harder about what maxNumDyadTypes should be if we 
   # implement a hash-table approach to compression.
   if(is.null(conddeg)){
@@ -234,13 +244,23 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
 
   #
   # Adjust for the offset
-  #
+  # =======================
+  # Helper function
+  # A is a matrix. V is a column vector that may contain Infs
+  # computes A %*% V, counting 0*Inf as 0
+  # May be slow if there are many rows. Use C here?
+  multiply.with.inf <- function(A,V) {
+    cbind(sapply(seq_len(nrow(A)), function(i) sum(V * A[i,], na.rm=T)))
+  }
+
   if(any(m$etamap$offsettheta)){
     if(any(is.na(theta.offset[m$etamap$offsettheta]))){
       stop("Offset terms without offset coefficients specified!")
     }
-    foffset <- xmat[,m$etamap$offsettheta,drop=FALSE] %*% cbind(theta.offset[m$etamap$offsettheta]) # Compute the offset's effect.
-    foffset[is.nan(foffset)] <- 0 # 0*Inf==0 in this case.
+    # Compute the offset's effect.
+    foffset <- multiply.with.inf(xmat[,m$etamap$offsettheta,drop=FALSE], 
+                                 cbind(theta.offset[m$etamap$offsettheta])) 
+    
     # Remove offset covariate columns.
     xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE] 
     colnames(xmat) <- m$coef.names[!m$etamap$offsettheta]

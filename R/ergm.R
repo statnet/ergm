@@ -1,3 +1,12 @@
+#  File R/ergm.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2013 Statnet Commons
+#######################################################################
 ###############################################################################
 # The <ergm> function fits ergms from a specified formula returning either
 # MPLEs or approximate MLE's based on MCMC estimation.
@@ -164,6 +173,11 @@ ergm <- function(formula, response=NULL,
       stop("Incorrect length of the target.stats vector: should be ", length(nw.stats), " but is ",length(target.stats),". Note that offset() terms should *not* get target statistics.")
     }
     
+    # no need to pass the offset term's init to SAN
+    offset.terms <- offset.info.formula(formula)$term
+    san.control <- control$SAN.control
+    san.control$coef <- san.control$coef[!offset.terms]
+    
     if(verbose) cat("Constructing an approximate response network.\n")
     ## If target.stats are given, overwrite the given network and formula
     ## with SAN-ed network and formula.
@@ -173,7 +187,7 @@ ergm <- function(formula, response=NULL,
               response=response,
               reference=reference,
               constraints=constraints,
-              control=control$SAN.control,
+              control=san.control,
               verbose=verbose)
       formula<-ergm.update.formula(formula,nw~., from.new="nw")
       nw.stats <- summary(remove.offset.formula(formula),response=response)
@@ -428,7 +442,8 @@ ergm <- function(formula, response=NULL,
   mainfit$constrained.obs <- MHproposal.obs$arguments$constraints
   mainfit$constraints <- constraints
 
-  #mainfit$control<-control
+  # unless the main fitting algorithm passes back a modified control
+  if (is.null(mainfit$control)) mainfit$control<-control
 
   mainfit$response<-response
   mainfit$reference<-reference

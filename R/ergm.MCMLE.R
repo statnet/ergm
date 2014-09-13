@@ -1,3 +1,12 @@
+#  File R/ergm.MCMLE.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2013 Statnet Commons
+#######################################################################
 ############################################################################
 # The <ergm.MCMLE> function provides one of the styles of maximum
 # likelihood estimation that can be used. This one is the default and uses
@@ -202,8 +211,7 @@ ergm.MCMLE <- function(init, nw, model,
             if(verbose){
                 cat("Mean effective sample size =",effSizes.mean,". New interval =",control$MCMC.interval,".\n")
             }
-            message("Mean effective sample size =",effSizes.mean,". New interval =",control$MCMC.interval,".\n")
-
+            
             # If the harmonic mean effective sample size is below the threshold (if set), don't proceed to optimization.
             if(NVL(control$MCMLE.min.effectiveSize,0)>effSizes.mean){
               if(verbose)

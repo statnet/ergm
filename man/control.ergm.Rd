@@ -1,3 +1,12 @@
+%  File man/control.ergm.Rd in package ergm, part of the Statnet suite
+%  of packages for network analysis, http://statnet.org .
+%
+%  This software is distributed under the GPL-3 license.  It is free,
+%  open source, and has the attribution requirements (GPL Section 7) at
+%  http://statnet.org/attribution
+%
+%  Copyright 2003-2013 Statnet Commons
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{control.ergm}
 \alias{control.ergm}
 \title{ Auxiliary for Controlling ERGM Fitting }
@@ -22,12 +31,16 @@ control.ergm(drop=TRUE,
              MCMC.prop.weights="default", 
              MCMC.prop.args=list(),
              MCMC.burnin=10000,
-             MCMC.interval=100,
+             MCMC.interval=1000,
              MCMC.samplesize=10000,
+             MCMC.effectiveSize=100,
+             MCMC.max.interval=500000,
              MCMC.return.stats=TRUE,
-             MCMC.burnin.retries=0,
+             MCMC.burnin.retries=1000,
              MCMC.burnin.check.last=1/2,
              MCMC.burnin.check.alpha=0.01,
+             MCMC.burnin.min=MCMC.burnin/10,
+             MCMC.burnin.min.df=10,
              MCMC.runtime.traceplot=FALSE,
              MCMC.init.maxedges=20000,
              MCMC.max.maxedges=Inf,
@@ -36,14 +49,14 @@ control.ergm(drop=TRUE,
              MCMC.packagenames=c(),
 
              SAN.maxit=10,
-             SAN.control=control.san(
-                         coef=init,
+             SAN.control=control.san(coef=init,
                          SAN.prop.weights=MCMC.prop.weights,
                          SAN.prop.args=MCMC.prop.args,
                          SAN.init.maxedges=MCMC.init.maxedges,
                          SAN.burnin=MCMC.burnin*10,
                          SAN.interval=MCMC.interval,
                          SAN.packagenames=MCMC.packagenames,
+                         MPLE.max.dyad.types=MPLE.max.dyad.types,
                          parallel=parallel,
                          parallel.type=parallel.type,
                          parallel.version.check=parallel.version.check),
@@ -55,21 +68,25 @@ control.ergm(drop=TRUE,
              obs.MCMC.samplesize=MCMC.samplesize,
              obs.MCMC.interval=MCMC.interval,
              obs.MCMC.burnin=MCMC.burnin,
+             obs.MCMC.burnin.min=obs.MCMC.burnin/10,
              MCMLE.check.degeneracy=FALSE,
              MCMLE.MCMC.precision=0.05,
-             MCMLE.metric=c("lognormal", "logtaylor", "Median.Likelihood",
+             MCMLE.metric=c("lognormal", "logtaylor",
+               "Median.Likelihood",
                "EF.Likelihood", "naive"),
              MCMLE.method=c("BFGS","Nelder-Mead"),
              MCMLE.trustregion=20,
              MCMLE.dampening=FALSE,
              MCMLE.dampening.min.ess=20,
              MCMLE.dampening.level=0.1,
-             MCMLE.steplength=0.5,
+             MCMLE.steplength.margin=0.05,
+             MCMLE.steplength=if(is.null(MCMLE.steplength.margin)) 0.5 else 1,
              MCMLE.adaptive.trustregion=3,
              MCMLE.adaptive.epsilon=0.01,
              MCMLE.sequential=TRUE,
              MCMLE.density.guard.min=10000,
              MCMLE.density.guard=exp(3),
+             MCMLE.min.effectiveSize=MCMC.effectiveSize/2,
 
 
              SA.phase1_n=NULL, 
