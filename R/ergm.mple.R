@@ -206,7 +206,9 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
 #
   gradient <- rep(NA, length(theta))
 
-  mc.se <- gradient <- rep(NA, length(theta))
+  # FIXME: Actually, if case-control sampling was used, this should be positive.
+  est.cov <- matrix(0, length(theta),length(theta))
+  
   if(length(theta)==1){
    covar <- array(0,dim=c(1,1))
    hess <- array(0,dim=c(1,1))
@@ -254,7 +256,7 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
       iterations=iteration, 
       MCMCtheta=theta, gradient=gradient,
       hessian=hess, covar=covar, failure=FALSE,
-      mc.se=mc.se, glm = glm, glm.null = glm.null,
+      est.cov=est.cov, glm = glm, glm.null = glm.null,
       theta1=theta1),
      class="ergm")
 }

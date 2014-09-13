@@ -111,7 +111,7 @@ ergm.getCluster <- function(control, verbose=FALSE){
       master.version <- packageVersion(pkg)
       
       if(!all(sapply(slave.versions,identical,master.version)))
-        stop("The version of ergm attached on one or more slave nodes is different from from that on the master node (this node). Make sure the same version is installed on all nodes. If you are absolutely certain that this message is in error, override with the parallel.version.check=FALSE control parameter.")
+        stop("The version of ",pkg, " attached on one or more slave nodes is different from from that on the master node (this node). Make sure that the same version is installed on all nodes. If you are absolutely certain that this message is in error, override with the parallel.version.check=FALSE control parameter.")
     }
   }
   cl

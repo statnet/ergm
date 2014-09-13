@@ -55,103 +55,148 @@
 
 ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control, 
                                         verbose, response=NULL, ...) {
-  
-  if (inherits(control$parallel,"cluster")) 
-    nclus <- nrow(summary(control$parallel))
-  else 
-    nclus <- control$parallel
-  
-  if(is.network(nw[[1]])){ # I.e., we are dealing with a list of initial networks.
-    nnw <- length(nw)
-    # FIXME: This doesn't have to be the case:
-    if(nclus!=nnw)
-      stop("Number of initial networks passed to ergm.getMCMCsample must equal number of clusters (for now).")
-  }else nnw <- 1
-     
-  Clist <- if(nnw>1) lapply(nw, ergm.Cprepare, model,
-response=response) else ergm.Cprepare(nw, model, response=response)
+  nthreads <- max(
+    if(inherits(control$parallel,"cluster")) nrow(summary(control$parallel))
+    else control$parallel,
+    1)
 
-  if(nclus==0){
-    flush.console()
-    z <- ergm.mcmcslave(Clist,MHproposal,eta0,control,verbose,...)
+  cl <- if(!is.numeric(control$parallel) || control$parallel!=0){
+    ergm.getCluster(control, verbose)
+  }else NULL
+  
+  if(is.network(nw)) nw <- list(nw)
+  nws <- rep(nw, length.out=nthreads)
+  
+  Clists <- lapply(nws, ergm.Cprepare, model, response=response)
+
+  control.parallel <- control
+  if(!is.null(control$MCMC.samplesize)) control.parallel$MCMC.samplesize <- ceiling(control$MCMC.samplesize / nthreads)
+
+  flush.console()
+
+  doruns <- function(prev.runs=rep(list(NULL),nthreads), burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL){
+    if(!is.null(cl)) clusterMap(cl,ergm.mcmcslave,
+                                  Clist=Clists, prev.run=prev.runs, MoreArgs=list(MHproposal=MHproposal,eta0=eta0,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges))
+    else list(ergm.mcmcslave(Clist=Clists[[1]], prev.run=prev.runs[[1]],burnin=burnin,samplesize=samplesize,interval=interval,maxedges=maxedges,MHproposal=MHproposal,eta0=eta0,control=control.parallel,verbose=verbose,...))
+  }
+  
+  if(!is.null(control.parallel$MCMC.effectiveSize)){
+    if(verbose) cat("Beginning adaptive MCMC...\n")
+
+    howmuchmore <- function(target.ess, current.ss, current.ess, current.burnin){
+      (target.ess-current.ess)*(current.ss-current.burnin)/current.ess
+    }
     
-    if(z$status == 1){ # MCMC_TOO_MANY_EDGES, exceeding even control$MCMC.max.maxedges
+    interval <- control.parallel$MCMC.interval
+    meS <- list(burnin=0,eS=control.parallel$MCMC.effectiveSize)
+    outl <- rep(list(NULL),nthreads)
+    for(mcrun in seq_len(control.parallel$MCMC.effectiveSize.maxruns)){
+      if(mcrun==1){
+        samplesize <- control.parallel$MCMC.samplesize
+        if(verbose)
+          cat("First run: running each chain forward by",samplesize, "steps with interval", interval, ".\n")
+      }else{
+        if(meS$eS<1){
+          samplesize <- control.parallel$MCMC.samplesize
+          if(verbose)
+            cat("Insufficient ESS to determine the number of steps remaining: running forward by",samplesize, "steps with interval", interval, ".\n")
+        }else{
+          pred.ss <- howmuchmore(control.parallel$MCMC.effectiveSize, NVL(nrow(outl[[1]]$s),0), meS$eS, meS$burnin)
+          damp.ss <- pred.ss*(meS$eS/(control.parallel$MCMC.effectiveSize.damp+meS$eS))+control.parallel$MCMC.samplesize*(1-meS$eS/(control.parallel$MCMC.effectiveSize.damp+meS$eS))
+          samplesize <- round(damp.ss)
+          if(verbose) cat("Predicted additional sample size:",pred.ss, "dampened to",damp.ss, ", so running", samplesize, "steps forward.\n")
+        }
+      }
+        
+      outl<-doruns(prev.runs=outl,
+                  burnin = interval, # I.e., skip that much before the first draw.
+                  samplesize = samplesize,
+                  interval = interval,
+                  maxedges = if(!is.null(outl[[1]])) max(sapply(outl,"[[","maxedges")) else NULL
+                  )
+      
+      # Stop if something went wrong.
+      if(any(sapply(outl,"[[","status")!=0)) break
+      
+      while(nrow(outl[[1]]$s)-meS$burnin>=(control.parallel$MCMC.samplesize)*2){
+        for(i in seq_along(outl)) outl[[i]]$s <- outl[[i]]$s[seq_len(floor(nrow(outl[[i]]$s)/2))*2,,drop=FALSE]
+        interval <- interval*2
+        if(verbose) cat("Increasing thinning to",interval,".\n")
+      }
+      
+      esteq <- lapply(outl, function(out)
+                      if(all(c("theta","etamap") %in% names(list(...)))) .ergm.esteq(list(...)$theta, list(etamap=list(...)$etamap), out$s)
+                      else out$s[,Clist$diagnosable,drop=FALSE]
+                      )
+      
+      meS <- .max.effectiveSize(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base)
+      if(verbose) cat("Maximum Harmonic mean ESS of",meS$eS,"attained with burn-in of", round(meS$b/nrow(outl[[1]]$s)*100,2),"%.\n")
+
+      if(control.parallel$MCMC.runtime.traceplot){
+        plot(as.mcmc.list(lapply(lapply(esteq, mcmc), window, thin=max(1,floor(nrow(esteq)/1000))))
+             ,ask=FALSE,smooth=TRUE,density=FALSE)
+      }
+
+      if(meS$eS>=control.parallel$MCMC.effectiveSize){
+        if(verbose) cat("Target ESS achieved. Returning.\n")      
+        break
+      }
+    }
+    
+    if(meS$eS<control.parallel$MCMC.effectiveSize)
+      warning("Unable to reach target effective size in iterations alotted.")
+
+    for(i in seq_along(outl)){
+      if(meS$burnin) outl[[i]]$s <- outl[[i]]$s[-seq_len(meS$burnin),,drop=FALSE]
+      outl[[i]]$s <- mcmc(outl[[i]]$s, (meS$burnin+1)*interval, thin=interval)
+      outl[[i]]$final.interval <- interval
+    }
+  }else{
+    outl <- doruns()
+    for(i in seq_along(outl)){
+      outl[[i]]$s <- mcmc(outl[[i]]$s, control.parallel$MCMC.burnin+1, thin=control.parallel$MCMC.interval)
+    }
+  }
+
+  #
+  #   Process the results
+  #
+  statsmatrices <- list()
+  newnetworks <- list()
+  final.interval <- c()
+  for(i in (1:nthreads)){
+    z <- outl[[i]]
+    
+    if(z$status == 1){ # MCMC_TOO_MANY_EDGES, exceeding even control.parallel$MCMC.max.maxedges
       return(list(status=z$status))
     }
     
     if(z$status == 2){ # MCMC_MH_FAILED
       # MH proposal failed somewhere. Throw an error.
       stop("Sampling failed due to a Metropolis-Hastings proposal failing.")
-    }
-    
-    if(!is.null(z$burnin.failed) && z$burnin.failed) warning("Burn-in failed to converge after retries.")
-    
-    statsmatrix <- matrix(z$s, nrow=control$MCMC.samplesize,
-                          ncol=Clist$nstats,
-                          byrow = TRUE)
-    newnetwork <- newnw.extract(nw,z,response=response,
-                                output=control$network.output)
-    newnetworks <- list(newnetwork)
-
-    burnin.total <- z$burnin.total
-  }else{
-    control.parallel <- control
-    control.parallel$MCMC.samplesize <- ceiling(control$MCMC.samplesize / nclus)
-    
-    cl <- ergm.getCluster(control, verbose)
-    #
-    #   Run the jobs with rpvm or Rmpi
-    #
-    flush.console()
-    outlist <- {
-      if(nnw>1) clusterMap(cl,ergm.mcmcslave,
-                           Clist, MoreArgs=list(MHproposal,eta0,control.parallel,verbose,...))
-      else clusterCall(cl,ergm.mcmcslave,
-                       Clist,MHproposal,eta0,control.parallel,verbose,...)
-    }
-    #
-    #   Process the results
-    #
-    statsmatrix <- NULL
-    newnetworks <- list()
-    burnin.total <- c()
-    for(i in (1:nclus)){
-      z <- outlist[[i]]
-
-      if(z$status == 1){ # MCMC_TOO_MANY_EDGES, exceeding even control$MCMC.max.maxedges
-        return(list(status=z$status))
       }
-      
-      if(z$status == 2){ # MCMC_MH_FAILED
-        # MH proposal failed somewhere. Throw an error.
-        stop("Sampling failed due to a Metropolis-Hastings proposal failing.")
-      }
-      
-      if(!is.null(z$burnin.failed) && z$burnin.failed) warning("Burn-in failed to converge after retries.")
-      
-      statsmatrix <- rbind(statsmatrix,
-                           matrix(z$s, nrow=control.parallel$MCMC.samplesize,
-                                  ncol=(if(nnw==1) Clist else Clist[[i]])$nstats,
-                                  byrow = TRUE))
-      newnetworks[[i]]<-newnw.extract(if(nnw==1) nw else nw[[i]],z,
-                                  response=response,output=control$network.output)
-      burnin.total <- c(burnin.total, z$burnin.total)
-    }
-    newnetwork<-newnetworks[[1]]
-
-    if(verbose){cat("parallel samplesize=",nrow(statsmatrix),"by",
-                    control.parallel$MCMC.samplesize,"\n")}
     
-    ergm.stopCluster(cl)
+    statsmatrices[[i]] <- z$s
+    
+    newnetworks[[i]]<-newnw.extract(nws[[i]],z,
+                                    response=response,output=control.parallel$network.output)
+    final.interval <- c(final.interval, z$final.interval)
   }
+  newnetwork<-newnetworks[[1]]
+  
+  
+  ergm.stopCluster(cl)
 
+  statsmatrix <- do.call("rbind",statsmatrices)
   colnames(statsmatrix) <- model$coef.names
 
+  if(verbose){cat("Sample size =",nrow(statsmatrix),"by",
+                  control.parallel$MCMC.samplesize,"\n")}
+  
   statsmatrix[is.na(statsmatrix)] <- 0
-  list(statsmatrix=statsmatrix, newnetwork=newnetwork, newnetworks=newnetworks, status=0, burnin.total=burnin.total)
+  list(statsmatrix=statsmatrix, newnetwork=newnetwork, newnetworks=newnetworks, status=0, final.interval=final.interval)
+
 }
-
-
 
 
 
@@ -182,193 +227,114 @@ response=response) else ergm.Cprepare(nw, model, response=response)
 #
 ###############################################################################
 
-ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...) {
-  # A subroutine to allow caller to override some settings or resume
-  # from a pervious run.
-  dorun <- function(prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL){
-    
-    numnetworks <- 0
+ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL, maxedges=NULL) {
 
-    if(is.null(prev.run)){ # Start from Clist
-      nedges <- c(Clist$nedges,0,0)
-      tails <- Clist$tails
-      heads <- Clist$heads
-      weights <- Clist$weights
-      stats <- rep(0, Clist$nstats)
-    }else{ # Pick up where we left off
-      nedges <- prev.run$newnwtails[1]
-      tails <- prev.run$newnwtails[2:(nedges+1)]
-      heads <- prev.run$newnwheads[2:(nedges+1)]
-      weights <- prev.run$newnwweights[2:(nedges+1)]
-      nedges <- c(nedges,0,0)
-      stats <- matrix(prev.run$s,
-                      ncol=Clist$nstats,
-                      byrow = TRUE)
-      stats <- stats[nrow(stats),]
-    }
+  numnetworks <- 0
 
-    if(is.null(burnin)) burnin <- control$MCMC.burnin
-    if(is.null(samplesize)) samplesize <- control$MCMC.samplesize
-    if(is.null(interval)) interval <- control$MCMC.interval
-    if(is.null(maxedges)) maxedges <- control$MCMC.init.maxedges
-
-    repeat{
-      if(is.null(Clist$weights)){
-        z <- .C("MCMC_wrapper",
-                as.integer(numnetworks), as.integer(nedges),
-                as.integer(tails), as.integer(heads),
-                as.integer(Clist$n),
-                as.integer(Clist$dir), as.integer(Clist$bipartite),
-                as.integer(Clist$nterms),
-                as.character(Clist$fnamestring),
-                as.character(Clist$snamestring),
-                as.character(MHproposal$name), as.character(MHproposal$pkgname),
-                as.double(c(Clist$inputs,MHproposal$inputs)), as.double(.deinf(eta0)),
-                as.integer(samplesize),
-                s = as.double(rep(stats, samplesize)),
-                as.integer(burnin), 
-                as.integer(interval),
-                newnwtails = integer(maxedges),
-                newnwheads = integer(maxedges),
-                as.integer(verbose), as.integer(MHproposal$arguments$constraints$bd$attribs),
-                as.integer(MHproposal$arguments$constraints$bd$maxout), as.integer(MHproposal$arguments$constraints$bd$maxin),
-                as.integer(MHproposal$arguments$constraints$bd$minout), as.integer(MHproposal$arguments$constraints$bd$minin),
-                as.integer(MHproposal$arguments$constraints$bd$condAllDegExact), as.integer(length(MHproposal$arguments$constraints$bd$attribs)),
-                as.integer(maxedges),
-                status = integer(1),
-                PACKAGE="ergm")
-        
-        # save the results
-        z<-list(s=z$s, newnwtails=z$newnwtails, newnwheads=z$newnwheads, status=z$status, maxedges=maxedges)
-      }else{
-        z <- .C("WtMCMC_wrapper",
-                as.integer(length(nedges)), as.integer(nedges),
-                as.integer(tails), as.integer(heads), as.double(weights),
-                as.integer(Clist$n),
-                as.integer(Clist$dir), as.integer(Clist$bipartite),
-                as.integer(Clist$nterms),
-                as.character(Clist$fnamestring),
-                as.character(Clist$snamestring),
-                as.character(MHproposal$name), as.character(MHproposal$pkgname),
-                as.double(c(Clist$inputs,MHproposal$inputs)), as.double(.deinf(eta0)),
-                as.integer(samplesize),
-                s = as.double(rep(stats, samplesize)),
-                as.integer(burnin), 
-                as.integer(interval),
-                newnwtails = integer(maxedges),
-                newnwheads = integer(maxedges),
-                newnwweights = double(maxedges),
-                as.integer(verbose), 
-                as.integer(maxedges),
-                status = integer(1),
-                PACKAGE="ergm")
-        # save the results
-        z<-list(s=z$s, newnwtails=z$newnwtails, newnwheads=z$newnwheads, newnwweights=z$newnwweights, status=z$status, maxedges=maxedges)
-      }
-      if(z$status!=1) return(z) # Handle everything except for MCMC_TOO_MANY_EDGES elsewhere.
-
-      # The following is only executed (and the loop continued) if too many edges.
-      maxedges <- maxedges * 10
-      if(!is.null(control$MCMC.max.maxedges)){
-        if(maxedges == control$MCMC.max.maxedges*10) # True iff the previous maxedges exactly equaled control$MCMC.max.maxedges and that was too small.
-          return(z) # This will kick the too many edges problem upstairs, so to speak.
-        maxedges <- min(maxedges, control$MCMC.max.maxedges)
-      }
-
-    }
+  if(is.null(prev.run)){ # Start from Clist
+    nedges <- c(Clist$nedges,0,0)
+    tails <- Clist$tails
+    heads <- Clist$heads
+    weights <- Clist$weights
+    stats <- rep(0, Clist$nstats)
+  }else{ # Pick up where we left off
+    nedges <- prev.run$newnwtails[1]
+    tails <- prev.run$newnwtails[2:(nedges+1)]
+    heads <- prev.run$newnwheads[2:(nedges+1)]
+    weights <- prev.run$newnwweights[2:(nedges+1)]
+    nedges <- c(nedges,0,0)
+    stats <- prev.run$s[nrow(prev.run$s),]
   }
   
-  burnin.total <- 0
-
-  if(control$MCMC.burnin>0 && NVL(control$MCMC.burnin.retries,0)>0){
-    out <- NULL
-    burnin.stats <- NULL
-    samplesize <- min(control$MCMC.samplesize,control$MCMC.burnin)
-    burnin <- control$MCMC.burnin
-    interval <- ceiling(control$MCMC.burnin/samplesize)
+  if(is.null(burnin)) burnin <- control$MCMC.burnin
+  if(is.null(samplesize)) samplesize <- control$MCMC.samplesize
+  if(is.null(interval)) interval <- control$MCMC.interval
+  if(is.null(maxedges)) maxedges <- control$MCMC.init.maxedges
+  
+  repeat{
+    if(is.null(Clist$weights)){
+      z <- .C("MCMC_wrapper",
+              as.integer(numnetworks), as.integer(nedges),
+              as.integer(tails), as.integer(heads),
+              as.integer(Clist$n),
+              as.integer(Clist$dir), as.integer(Clist$bipartite),
+              as.integer(Clist$nterms),
+              as.character(Clist$fnamestring),
+              as.character(Clist$snamestring),
+              as.character(MHproposal$name), as.character(MHproposal$pkgname),
+              as.double(c(Clist$inputs,MHproposal$inputs)), as.double(.deinf(eta0)),
+              as.integer(samplesize),
+              s = as.double(rep(stats, samplesize)),
+              as.integer(burnin), 
+              as.integer(interval),
+              newnwtails = integer(maxedges),
+              newnwheads = integer(maxedges),
+              as.integer(verbose), as.integer(MHproposal$arguments$constraints$bd$attribs),
+              as.integer(MHproposal$arguments$constraints$bd$maxout), as.integer(MHproposal$arguments$constraints$bd$maxin),
+              as.integer(MHproposal$arguments$constraints$bd$minout), as.integer(MHproposal$arguments$constraints$bd$minin),
+              as.integer(MHproposal$arguments$constraints$bd$condAllDegExact), as.integer(length(MHproposal$arguments$constraints$bd$attribs)),
+              as.integer(maxedges),
+              status = integer(1),
+              PACKAGE="ergm")
+      
+        # save the results (note that if prev.run is NULL, c(NULL$s,z$s)==z$s.
+      z<-list(s=matrix(z$s, ncol=Clist$nstats, byrow = TRUE),
+                newnwtails=z$newnwtails, newnwheads=z$newnwheads, status=z$status, maxedges=maxedges)
+    }else{
+      z <- .C("WtMCMC_wrapper",
+              as.integer(length(nedges)), as.integer(nedges),
+              as.integer(tails), as.integer(heads), as.double(weights),
+              as.integer(Clist$n),
+              as.integer(Clist$dir), as.integer(Clist$bipartite),
+              as.integer(Clist$nterms),
+              as.character(Clist$fnamestring),
+              as.character(Clist$snamestring),
+              as.character(MHproposal$name), as.character(MHproposal$pkgname),
+              as.double(c(Clist$inputs,MHproposal$inputs)), as.double(.deinf(eta0)),
+              as.integer(samplesize),
+              s = as.double(rep(stats, samplesize)),
+              as.integer(burnin), 
+              as.integer(interval),
+              newnwtails = integer(maxedges),
+              newnwheads = integer(maxedges),
+              newnwweights = double(maxedges),
+              as.integer(verbose), 
+              as.integer(maxedges),
+              status = integer(1),
+              PACKAGE="ergm")
+      # save the results
+      z<-list(s=matrix(z$s, ncol=Clist$nstats, byrow = TRUE),
+              newnwtails=z$newnwtails, newnwheads=z$newnwheads, newnwweights=z$newnwweights, status=z$status, maxedges=maxedges)
+    }
     
-    for(try in seq_len(control$MCMC.burnin.retries+1)){
-      out<-dorun(prev.run=out,
-                 burnin = burnin,
-                 samplesize = samplesize,
-                 interval = interval,
-                 maxedges = out$maxedges # note that the first time through, maxedges=NULL$maxedges, which is NULL.
-                 )
-      # Stop if something went wrong.
-      if(out$status!=0) return(out)
-
-      burnin.total <- burnin.total + burnin + (samplesize-1)*interval
-      
-      # Get the array of the burnin draws. Note that all draws get stored.
-      burnin.stats <- rbind(burnin.stats,
-                            matrix(out$s, nrow=samplesize,
-                                   ncol=Clist$nstats,
-                                   byrow = TRUE)
-                            )
-      colnames(burnin.stats) <- names(Clist$diagnosable)
-
-      if(nrow(burnin.stats)>=samplesize*8){
-        burnin.stats <- burnin.stats[seq_len(floor(nrow(burnin.stats)/2))*2,,drop=FALSE]
-        interval <- interval*2
-        if(verbose) cat("Increasing thinning to",interval,".\n")
-      }
-      
-      # Extract the last draws for diagnostics.
-      burnin.stats.last <- burnin.stats[-seq_len((1-control$MCMC.burnin.check.last)*nrow(burnin.stats)),,drop=FALSE]
-      
-      burnin.esteq.last <-
-        if(all(c("theta","etamap") %in% names(list(...)))) .ergm.esteq(list(...)$theta, list(etamap=list(...)$etamap), burnin.stats.last)
-        else burnin.stats.last[,Clist$diagnosable,drop=FALSE]
-
-      if(control$MCMC.runtime.traceplot) plot(window(mcmc(burnin.esteq.last,thin=max(1,floor(nrow(burnin.esteq.last)/1000)))),ask=FALSE,smooth=TRUE,density=FALSE)
-      
-      burnin.test <- suppressWarnings(try(geweke.diag.mv(burnin.esteq.last,.3,.3))) # Note that the first and the last are different. More similar sample sizes give more power, and the gap between the samples is the same as before (0.4).
-      if(inherits(burnin.test,"try-error")){
-        if(verbose) cat("Burn-in convergence test failed. Rerunning.\n")
-        if(try == control$MCMC.burnin.retries+1) burnin.failed <- TRUE
-      }else if(burnin.test$parameter["df"]<control$MCMC.burnin.min.df){
-        if(verbose) cat("Insufficient burn-in sample size (",burnin.test$parameter["df"],"<",control$MCMC.burnin.min.df,") to test convergence. Rerunning.\n")
-        if(try == control$MCMC.burnin.retries+1) burnin.failed <- TRUE
-      }else if(burnin.test$p.value < control$MCMC.burnin.check.alpha){
-        failed <- effectiveSize(burnin.esteq.last)
-        failed <- order(failed)
-        if(verbose) cat("Burn-in failed to converge or mixed very poorly, with p-value =",burnin.test$p.value,". Ranking of statistics from worst-mixing to best-mixing:", paste.and(names(Clist$diagnosable[Clist$diagnosable])[failed]), ". Rerunning.\n")
-        if(try == control$MCMC.burnin.retries+1) burnin.failed <- TRUE
-      }else{
-        if(verbose){
-          print(burnin.test)
-          cat("Burn-in converged. Proceeding to the sampling run.\n")
-        }
-        burnin.failed <- FALSE
-        break
-      }
+    z$s <- rbind(prev.run$s,z$s)
+    colnames(z$s) <- names(Clist$diagnosable)
+    
+    if(z$status!=1) return(z) # Handle everything except for MCMC_TOO_MANY_EDGES elsewhere.
+    
+    # The following is only executed (and the loop continued) if too many edges.
+    maxedges <- maxedges * 10
+    if(!is.null(control$MCMC.max.maxedges)){
+      if(maxedges == control$MCMC.max.maxedges*10) # True iff the previous maxedges exactly equaled control$MCMC.max.maxedges and that was too small.
+        return(z) # This will kick the too many edges problem upstairs, so to speak.
+      maxedges <- min(maxedges, control$MCMC.max.maxedges)
     }
-
-    # Do the actual sampling run. Note that we've already done the burnin.
-    out <- dorun(prev.run=out, burnin=0, maxedges=out$maxedges)
-    if(control$MCMC.runtime.traceplot) {
-      stats <- matrix(out$s, nrow=control$MCMC.samplesize,
-                      ncol=Clist$nstats,
-                      byrow = TRUE)[,Clist$diagnosable,drop=FALSE]
-      colnames(stats) <- names(Clist$diagnosable)[Clist$diagnosable==TRUE]
-      
-      plot(mcmc(stats,start=1,end=control$MCMC.samplesize*control$MCMC.interval,thin=control$MCMC.interval),ask=FALSE,smooth=TRUE,density=FALSE)
-    }
-    out$burnin.failed <- burnin.failed
-    out$burnin.total <- burnin.total
-    out
-  } else {
-    out <- dorun()
-    if(control$MCMC.runtime.traceplot) {
-      stats <- matrix(out$s, nrow=control$MCMC.samplesize,
-                      ncol=Clist$nstats,
-                      byrow = TRUE)[,Clist$diagnosable,drop=FALSE]
-      colnames(stats) <- names(Clist$diagnosable)[Clist$diagnosable==TRUE]
-      
-      plot(mcmc(stats,start=control$MCMC.burnin+1,control$MCMC.burnin+control$MCMC.samplesize*control$MCMC.interval,thin=control$MCMC.interval),ask=FALSE,smooth=TRUE,density=FALSE)
-    }
-
-    out$burnin.total <- burnin.total
-    out
   }
+}
+
+
+.max.effectiveSize <- function(x, npts, base){
+  if(!is.list(x)) x <- list(x)
+  es <- function(b){
+    if(b>0) x <- lapply(lapply(x, "[", -seq_len(b),,drop=FALSE),mcmc)
+    effSizes <- effectiveSize(as.mcmc.list(x))
+    mean.fn <- function(x) x^(-1)
+    mean.ifn <- function(x) x^(-1)
+    mean.ifn(mean(mean.fn(effSizes)))
+  }
+
+  pts <- sort(round(base^seq_len(npts)*nrow(x[[1]])))
+  ess <- sapply(pts, es)
+
+  list(burnin=pts[which.max(ess)], eS=max(ess))
 }

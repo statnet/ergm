@@ -155,6 +155,6 @@ ergm.stocapprox <- function(init, nw, model, Clist,
   structure(c(ve, list(newnetwork=nw, 
                  theta.original=init,
                  interval=control$MCMC.interval, burnin=control$MCMC.burnin, 
-                 network=nw.orig)),
+                 network=nw.orig, est.cov=ve$mc.cov)),
              class="ergm")
 }
