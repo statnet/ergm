@@ -1,9 +1,68 @@
+%  File inst/NEWS.Rd in package ergm, part of the Statnet suite
+%  of packages for network analysis, http://statnet.org .
+%
+%  This software is distributed under the GPL-3 license.  It is free,
+%  open source, and has the attribution requirements (GPL Section 7) at
+%  http://statnet.org/attribution
+%
+%  Copyright 2003-2013 Statnet Commons
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{NEWS}
 \title{NEWS file for the \code{\link[=ergm-package]{ergm}} package}
 \encoding{UTF-8}
 
 % When a release is forked, copy the sections to a new release and
 % delete unused sections.
+\section{Changes in version 3.2}{
+
+  % \subsection{NEW FEATURES}{
+  %   \itemize{
+  %   } 
+  % }
+  
+  % \subsection{BUG FIXES}{
+  %  \itemize{
+  %  }
+  % }
+
+  %\subsection{DEPRECATED & DEFUNCT}{
+  %  \itemize{
+
+  %  }
+  % }
+
+  
+   \subsection{OTHER USER-VISIBLE CHANGES}{
+     \itemize{
+      \item changes in default values for various burnin-related control options, mostly increasing burnin by 10x
+     }
+   }
+
+  % \subsection{C-LEVEL FACILITIES}{
+  %   \itemize{
+  %   }
+  % }
+
+  % \subsection{UTILITIES}{
+  %   \itemize{
+  %     \item Likewise, "UTILITIES" is probably unnecessary.
+  %   }
+  % }
+
+  % \subsection{INSTALLATION}{
+  %   \itemize{
+  %     \item ... as is "INSTALLATION".
+  %   }
+  % }
+
+  % \subsection{PACKAGE INSTALLATION}{
+  %   \itemize{
+  %     \item ditto.
+  %   }
+  % }
+
+}
+
 \section{Changes in version 3.1.3}{
 
   % \subsection{NEW FEATURES}{

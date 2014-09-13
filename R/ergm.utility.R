@@ -1,3 +1,12 @@
+#  File R/ergm.utility.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2013 Statnet Commons
+#######################################################################
 #==============================================================
 # This file contains the following 21 utility functions:
 #      <ostar2deg>                  
@@ -10,6 +19,7 @@
 #      <rspartnerdist>         
 #      <twopathdist>            <copy.named>
 #      <compress.data.frame>    <sort.data.frame>
+#      <catchToList>
 #==============================================================      
 
 
@@ -506,34 +516,41 @@ which.package.InitFunction <- function(f, env = parent.frame()){
   f <- as.character(f)
   # Find the first entity named f in the search path, and get its name
   # attribute (if present).
-  loc <- attr(findFunction(f, where=env)[[1]], "name")
-  # If name attribute is not NULL and begins with "package:", return
-  # the package name. Otherwise, return NULL.
-  if(!is.null(loc) && grepl("^package:", loc)) sub("^package:", "", loc) else NULL
-}
-
-single.impute.dyads <- function(nw, response=NULL){
-    nae <- network.naedgecount(nw)
-    if(nae==0) return(nw)
-    
-    na.el <- as.edgelist(is.na(nw))
-
-    if(is.null(response)){
-        d <- network.edgecount(nw,na.omit=TRUE)/network.dyadcount(nw,na.omit=TRUE)
-        nimpute <- round(d*nae)
-        nw[na.el] <- 0
-        nw[na.el[sample.int(nae,nimpute),,drop=FALSE]] <- 1
-    }else{
-        x <- as.edgelist(nw,attrname=response)[,3]
-        zeros <- network.dyadcount(nw,na.omit=TRUE)-length(x)
-        nw[na.el] <- 0
-        nw[na.el,names.eval=response,add.edges=TRUE] <- sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))
-    }
-
-    nw
+  found <- findFunction(f, where=env)
+  if (length(found) > 0) {
+    loc <- attr(found[[1]], "name")
+    # If name attribute is not NULL and begins with "package:", return
+    # the package name. Otherwise, return NULL.
+    if(!is.null(loc) && grepl("^package:", loc)) sub("^package:", "", loc) else NULL
+  } else {
+    # can't find the function normally; the package might have been imported
+    # instead of attached
+    found <- get(f, envir=env)
+    environmentName(environment(found))
+  }
+  
 }
 
 # Given a vector, truncate all infinite (or, really, bigger in
 # magnitude than replace=) values with replace= with the appropriate
 # sign. Leave NAs and NANs alone.
 .deinf <- function(x, replace=1/.Machine$double.eps) ifelse(is.nan(x) | abs(x)<replace, x, sign(x)*replace)
+
+
+
+# executes expression, returns the result in a list with any warnings and errors
+catchToList <- function(expr) {
+  val <- NULL
+  myWarnings <- NULL
+  wHandler <- function(w) {
+    myWarnings <<- c(myWarnings, w$message)
+    #invokeRestart("muffleWarning")
+  }
+  myError <- NULL
+  eHandler <- function(e) {
+    myError <<- e$message
+    NULL
+  }
+  val <- tryCatch(withCallingHandlers(expr, warning = wHandler), error = eHandler)
+  list(value = val, warnings = myWarnings, error=myError)
+} 

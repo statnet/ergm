@@ -1,3 +1,12 @@
+#  File R/ergm.bridge.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2013 Statnet Commons
+#######################################################################
 
 ## This is a helper function that constructs and returns the network
 ## object to be used and the model object.
@@ -147,7 +156,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   if(!is.dyad.independent(dind))
     stop("Reference model `dind' must be dyad-independent.")
 
-  ergm.dind<-ergm(dind,estimate="MPLE",constraints=constraints,eval.loglik=FALSE,control=control.ergm(drop=FALSE), offset.coef = offset.dind)
+  ergm.dind<-ergm(dind,estimate="MPLE",constraints=constraints,eval.loglik=FALSE,control=control.ergm(drop=FALSE, MPLE.max.dyad.types=control$MPLE.max.dyad.types), offset.coef = offset.dind)
   
   if(is.null(coef.dind)){
     coef.dind<-ifelse(is.na(coef(ergm.dind)),0,coef(ergm.dind))

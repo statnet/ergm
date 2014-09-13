@@ -1,3 +1,12 @@
+#  File R/summary.ergm.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2013 Statnet Commons
+#######################################################################
 ###############################################################################
 # The <summary.ergm> function prints a 'summary of model fit' table and returns
 # the components of this table and several others listed below
@@ -119,9 +128,7 @@ summary.ergm <- function (object, ...,
                              `Gradient-Descent`=control$SA.phase3n,
                              stop("Unknown estimation method. This is a bug.")),
                            MPLE = NA,
-                           CD=,
                            MLE = if(!is.null(control$main.method)) switch(control$main.method,
-                             CD=control$MCMC.samplesize,
                              `Stochastic-Approximation`=,
                                MCMLE=control$MCMC.samplesize,
                              `Robbins-Monro`=control$RM.phase3n,
@@ -136,11 +143,9 @@ summary.ergm <- function (object, ...,
                              `Gradient-Descent`=NA,
                              stop("Unknown estimation method. This is a bug.")),
                            MPLE = NA,
-                           CD=control$CD.maxit,
                            MLE = if(!is.null(control$main.method)) switch(control$main.method,
                                `Stochastic-Approximation`=NA,
                              MCMLE=control$MCMLE.maxit,
-                             CD=control$CD.maxit,
                              `Robbins-Monro`=NA,
                              `Stepping`=NA,
                              stop("Unknown estimation method. This is a bug.")),

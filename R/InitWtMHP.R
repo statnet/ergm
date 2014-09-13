@@ -1,60 +1,15 @@
-InitWtMHP.DescRank <- function(arguments, nw, response) {
-  MHproposal <- list(name = "CompleteOrdering", inputs=NULL)
-  MHproposal
-}
-
-InitWtMHP.DescRankEquivalent <- function(arguments, nw, response) {
-  MHproposal <- list(name = "CompleteOrderingEquivalent")
-  
-  # Construct the data structure for not-too-inefficient sampling
-  n <- if(is.bipartite(nw)) nw %n% "bipartite" else network.size(nw)
-  m <- as.matrix(nw, matrix.type = "adjacency", attrname = response)
-  diag(m)<-NA
-
-  m<-apply(m, 1,
-        function(x){
-          cs<-js<-c()
-          for(c in sort(unique(x))){ # For each equivalence class
-            j<-which(x==c)
-            njs<-length(j)
-            if(njs<2) next
-            cs<-c(cs,njs)
-            js<-c(js,j)
-          }
-          cs<-c(0,cumsum(cs))+1
-          cs<-cs+length(cs)
-          c(length(cs)-1,cs,js)
-        }
-        )
-
-  is<-c(0,cumsum(sapply(m,length))[-length(m)])
-  is<-is+length(is)
-
-  MHproposal$inputs<-c(is,unlist(m))
-  
-  MHproposal
-}
+#  File R/InitWtMHP.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2013 Statnet Commons
+#######################################################################
 
 InitWtMHP.StdNormal <- function(arguments, nw, response) {
   MHproposal <- list(name = "StdNormal", inputs=NULL)
-  MHproposal
-}
-
-InitWtMHP.StdNormalRank <- function(arguments, nw, response) {
-  if(!is.directed(nw) && !is.bipartite(nw)) stop("StdNormRank: The Standard Normal proposal with rank-constraint only works with directed or bipartite networks.")
-
-  if(is.bipartite(nw)){
-    stop("Bipartite rank constraint not yet implemented")
-    MHproposal <- list(name = "BipartiteStdNormal", inputs=c(m))
-  }else{
-    m<-as.matrix(nw,attrname=response,matrix.type="adjacency")
-    diag(m)<-NA
-    # This produces a matrix of "classes" of alters for each ego.
-    classes<-apply(m,1,function(x) as.numeric(factor(x)))
-    diag(classes)<-0
-
-    MHproposal <- list(name = "StdNormalRank", inputs=c(classes))
-  }
   MHproposal
 }
 

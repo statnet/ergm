@@ -1,3 +1,12 @@
+#  File R/network.update.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2013 Statnet Commons
+#######################################################################
 #============================================================================
 # This file contains the following 3 functions used to update networks:
 #          <network.update>
@@ -31,6 +40,7 @@ network.update<-function(nw, newmatrix, matrix.type=NULL, output="network", igno
          multiple = is.multiplex(nw), bipartite = nw %n% "bipartite")
   for(a in setdiff(list.network.attributes(nw),ignore.nattr)) unw <- set.network.attribute(unw, a, get.network.attribute(nw, a, unlist=FALSE))
   for(a in setdiff(list.vertex.attributes(nw),ignore.vattr)) unw <- set.vertex.attribute(unw, a, get.vertex.attribute(nw, a, unlist=FALSE))
+
 
   if(is.null(matrix.type)){
     warning("Don't leave matrix type to chance! Pass matrix.type to network.update!")

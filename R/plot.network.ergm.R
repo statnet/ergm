@@ -1,3 +1,12 @@
+#  File R/plot.network.ergm.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2013 Statnet Commons
+#######################################################################
 #########################################################################
 # The <plot.network.ergm> function produces a two-dimensional network
 # visualization based on <plot.network.default>; a variety of options are 

@@ -1,3 +1,12 @@
+#  File R/InitWtErgmTerm.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2013 Statnet Commons
+#######################################################################
 InitWtErgmTerm.absdiff <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
@@ -85,10 +94,10 @@ InitWtErgmTerm.edgecov <- function(nw, arglist, response, ...) {
     cn<-paste("edgecov", as.character(sys.call(0)[[3]][2]), sep = ".")
   }
 
-  form<-match.arg(a$form,c("sum","nonzero","rank"))
+  form<-match.arg(a$form,c("sum","nonzero"))
   
   inputs <- c(as.double(xm))
-  list(name=paste("edgecov",form,sep="_"), coef.names = paste(cn,form,sep="."), inputs = inputs, dependence=form=="rank")
+  list(name=paste("edgecov",form,sep="_"), coef.names = paste(cn,form,sep="."), inputs = inputs, dependence=FALSE)
 }
 
 
@@ -501,7 +510,7 @@ InitWtErgmTerm.nodeicov<-function (nw, arglist, response, ...) {
                      vartypes = c("character","function","character","character"),
                      defaultvalues = list(NULL,identity,"","sum"),
                      required = c(TRUE,FALSE,FALSE,FALSE))
-  form<-match.arg(a$form,c("sum","nonzero","rank"))
+  form<-match.arg(a$form,c("sum","nonzero"))
   attrname<-a$attrname
   f<-a$transform
   f.name<-a$transformname
@@ -510,7 +519,7 @@ InitWtErgmTerm.nodeicov<-function (nw, arglist, response, ...) {
   list(name=paste("nodeicov",form,sep="_"), soname="ergm",
        coef.names=coef.names,
        inputs=c(nodecov),
-       dependence=(form=="rank"))
+       dependence=FALSE)
 }
 
 

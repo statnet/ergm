@@ -1,3 +1,12 @@
+#  File R/ergm.initialfit.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2013 Statnet Commons
+#######################################################################
 ####################################################################################
 # The <ergm.initialfit> function fits an initial ergm object using either ML or MPL
 # estimation.  If initial parameters are provided in 'init' and 'MLestimate' is 
@@ -76,8 +85,6 @@ ergm.initialfit<-function(init, initial.is.final,
                     control=control, MHproposal=MHproposal,
                     verbose=verbose, ...),
                   zeros = structure(list(coef=ifelse(is.na(init),0,init)),class="ergm"),
-                  CD = ergm.CD.fixed(ifelse(is.na(init),0,init),
-                      nw, m, control, MHproposal, MHproposal.obs, verbose,response=response,...),
                   stop(paste("Invalid method specified for initial parameter calculation. Available methods are ",paste.and(formals()$method),".",sep=""))
                   )
   }else{

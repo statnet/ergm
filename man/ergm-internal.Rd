@@ -1,3 +1,12 @@
+%  File man/ergm-internal.Rd in package ergm, part of the Statnet suite
+%  of packages for network analysis, http://statnet.org .
+%
+%  This software is distributed under the GPL-3 license.  It is free,
+%  open source, and has the attribution requirements (GPL Section 7) at
+%  http://statnet.org/attribution
+%
+%  Copyright 2003-2013 Statnet Commons
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{ergm-internal}
 \title{Internal ergm Objects}
 
@@ -31,10 +40,9 @@
 \alias{InitMHP.blockdiag}
 \alias{InitMHP.blockdiagNonObserved}
 \alias{InitMHP.blockdiagTNT}
-\alias{InitWtMHP.DescRank}
-\alias{InitWtMHP.DescRankEquivalent}
 \alias{InitWtMHP.StdNormal}
-\alias{InitWtMHP.StdNormalRank}
+\alias{InitMHP.CondDegreeMix}
+\alias{InitMHP.TriNT}
 
 \alias{MHproposal}
 \alias{MHproposal.MHproposal}

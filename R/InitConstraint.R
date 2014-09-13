@@ -1,3 +1,12 @@
+#  File R/InitConstraint.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2013 Statnet Commons
+#######################################################################
 #============================================================================
 # This file contains the following 12 functions for initializing empty
 # constraint lists (each prependend with "InitConstraint")
@@ -36,12 +45,7 @@ InitConstraint.degrees<-InitConstraint.nodedegrees<-function(conlist, lhs.nw, ..
    conlist$degrees<-list()
    conlist
 }
-InitConstraint.degreesmix<-function(conlist, lhs.nw, attrib="disease", ...){
-   if(nargs()>3)
-     stop(paste("Vertex degrees constraint takes one argument at this time."), call.=FALSE)
-   conlist$degreesmix<-list(attrib=attrib)
-   conlist
-}
+
 #ergm.ConstraintImplications("degrees", c("edges", "idegrees", "odegrees", "idegreedist", "odegreedist", "degreedist", "bd"))
 
 InitConstraint.odegrees<-function(conlist, lhs.nw, ...){
@@ -135,13 +139,6 @@ InitConstraint.observed <- function(conlist, lhs.nw, ...){
   conlist
 }
 #ergm.ConstraintImplications("observed", c())
-
-InitConstraint.ranks<-function(conlist, lhs.nw, ...){
-   if(length(list(...)))
-     stop(paste("Rank constraint does not take arguments at this time."), call.=FALSE)
-   conlist$ranks<-list()
-   conlist
-}
 
 InitConstraint.blockdiag<-function(conlist, lhs.nw, attrname=NULL, ...){
   if(length(list(...)))

@@ -74,19 +74,43 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
                              start=init[!m$etamap$offsettheta])
     mplefit.summary <- list(cov.unscaled=mplefit$cov.unscaled)
    }else{
-    mplefit <- suppressWarnings(try(
-          glm(pl$zy ~ .-1 + offset(pl$foffset), data=data.frame(pl$xmat),
-               weights=pl$wend, family=family),
-# Note:  It appears that specifying a starting vector can lead to problems!
-#               start=init[!m$etamap$offsettheta]),
-                    silent = TRUE))
-    if (inherits(mplefit, "try-error")) {
+#     mplefit <- suppressWarnings(try(
+#           glm(pl$zy ~ .-1 + offset(pl$foffset), data=data.frame(pl$xmat),
+#                weights=pl$wend, family=family),
+# # Note:  It appears that specifying a starting vector can lead to problems!
+# #               start=init[!m$etamap$offsettheta]),
+#                     silent = TRUE))
+    glm.result <- catchToList(glm(pl$zy ~ .-1 + offset(pl$foffset), 
+                                  data=data.frame(pl$xmat),
+                                  weights=pl$wend, family=family))
+    
+    # error handling for glm results
+    if (!is.null(glm.result$error)) {
       mplefit <- list(coef=pl$theta.offset, deviance=0,
                       cov.unscaled=diag(length(pl$theta.offset)))
       mplefit.summary <- list(cov.unscaled=diag(length(pl$theta.offset)))
-    }else{
+    } else if (!is.null(glm.result$warnings)) {
+      # if the glm results are crazy, redo it with 0 starting values
+      if (max(abs(glm.result$value$coef), na.rm=T) > 1e6) {
+        cat("Data may be separable; restarting glm with zeros.\n")
+        mplefit <- glm(pl$zy ~ .-1 + offset(pl$foffset), 
+                       data=data.frame(pl$xmat),
+                       weights=pl$wend, family=family, 
+                       start=rep.int(0, length(init[!m$etamap$offsettheta])))
+        mplefit.summary <- summary(mplefit)
+      } else {
+        # unknown warning, just report it
+        
+        mplefit <- glm.result$value
+        mplefit.summary <- summary(mplefit)
+      }
+    } else {
+      # no errors or warnings
+      mplefit <- glm.result$value
       mplefit.summary <- summary(mplefit)
     }
+    
+
    }
 #
 #  Determine the independence theta and MLE
@@ -108,21 +132,50 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
     }
     independent <- independent>0
     if(any(independent)){
-     mindfit <- suppressWarnings(try(glm(pl$zy ~ .-1 + offset(pl$foffset), 
-                    data=data.frame(pl$xmat[,independent,drop=FALSE]),
-                    weights=pl$wend, family=family),
-                    silent = TRUE))
-     if (inherits(mindfit, "try-error")) {
-      theta1 <- list(coef=NULL, 
-                    theta=rep(0,ncol(pl$xmat)),
-                    independent=independent)
-     }else{
-      mindfit.summary <- summary(mindfit)
-      theta.ind[independent] <- mindfit$coef
-      theta1 <- list(coef=mindfit$coef, 
-                    theta=theta.ind,
-                    independent=independent)
-     }
+      
+      glm.result <- catchToList(glm(pl$zy ~ .-1 + offset(pl$foffset), 
+                                    data=data.frame(pl$xmat[,independent,drop=FALSE]),
+                                    weights=pl$wend, family=family))
+      
+      # error handling for glm results
+      if (!is.null(glm.result$error)) {
+        theta1 <- list(coef=NULL, 
+                       theta=rep(0,ncol(pl$xmat)),
+                       independent=independent)
+      } else if (!is.null(glm.result$warnings)) {
+        # if the glm results are crazy, redo it with 0 starting values
+        if (max(abs(glm.result$value$coef), na.rm=T) > 1e6) {
+          cat("Data may be separable; restarting glm with zeros.\n")
+          mindfit <- glm(pl$zy ~ .-1 + offset(pl$foffset), 
+                         data=data.frame(pl$xmat[,independent,drop=FALSE]),
+                         weights=pl$wend, family=family,
+                         start=rep.int(0, sum(independent)))
+          mindfit.summary <- summary(mindfit)
+          theta.ind[independent] <- mindfit$coef
+          theta1 <- list(coef=mindfit$coef, 
+                         theta=theta.ind,
+                         independent=independent)
+        } else {
+          # unknown warning, just report it
+          
+          mindfit <- glm.result$value
+          mindfit.summary <- summary(mindfit)
+          theta.ind[independent] <- mindfit$coef
+          theta1 <- list(coef=mindfit$coef, 
+                         theta=theta.ind,
+                         independent=independent)
+        }
+      } else {
+        # no errors or warnings
+        mindfit <- glm.result$value
+        mindfit.summary <- summary(mindfit)
+        theta.ind[independent] <- mindfit$coef
+        theta1 <- list(coef=mindfit$coef, 
+                       theta=theta.ind,
+                       independent=independent)
+      }
+      
+     
     }else{
      theta1 <- list(coef=NULL, 
                     theta=rep(0,ncol(pl$xmat)),
@@ -179,8 +232,8 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
       mplefit.null <- ergm.logitreg(x=matrix(1,ncol=1,nrow=length(pl$zy)),
                                     y=pl$zy, offset=pl$foffset, wt=pl$wend)
     }else{
-      mplefit.null <- suppressWarnings(try(glm(pl$zy ~ 1, family=family, weights=pl$wend),
-                          silent = TRUE))
+      mplefit.null <- try(glm(pl$zy ~ 1, family=family, weights=pl$wend),
+                          silent = TRUE)
       if (inherits(mplefit.null, "try-error")) {
         mplefit.null <- list(coef=0, deviance=0, null.deviance=0,
                              cov.unscaled=diag(1))
@@ -205,5 +258,4 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
       theta1=theta1),
      class="ergm")
 }
-
 

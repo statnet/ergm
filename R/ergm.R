@@ -1,3 +1,12 @@
+#  File R/ergm.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2013 Statnet Commons
+#######################################################################
 ###############################################################################
 # The <ergm> function fits ergms from a specified formula returning either
 # MPLEs or approximate MLE's based on MCMC estimation.
@@ -108,7 +117,7 @@ ergm <- function(formula, response=NULL,
                  offset.coef=NULL,
                  target.stats=NULL,
                  eval.loglik=TRUE,
-                 estimate=c("MLE", "MPLE", "CD"),
+                 estimate=c("MLE", "MPLE"),
                  control=control.ergm(),
                  verbose=FALSE,...) {
   check.control.class()
@@ -119,11 +128,6 @@ ergm <- function(formula, response=NULL,
   if(!is.null(list(...)$MPLEonly) && list(...)$MPLEonly){
     warning("Argument MPLEonly is deprecated. Use ``estimate=\"MPLE\"'' instead." )
     estimate <- "MPLE"
-  }
-
-  if(estimate=="CD"){
-      control$init.method <- "CD"
-      eval.loglik <- FALSE
   }
 
   if(!is.null(control$seed))  set.seed(as.integer(control$seed))
@@ -164,6 +168,11 @@ ergm <- function(formula, response=NULL,
       stop("Incorrect length of the target.stats vector: should be ", length(nw.stats), " but is ",length(target.stats),". Note that offset() terms should *not* get target statistics.")
     }
     
+    # no need to pass the offset term's init to SAN
+    offset.terms <- offset.info.formula(formula)$term
+    san.control <- control$SAN.control
+    san.control$coef <- san.control$coef[!offset.terms]
+    
     if(verbose) cat("Constructing an approximate response network.\n")
     ## If target.stats are given, overwrite the given network and formula
     ## with SAN-ed network and formula.
@@ -173,7 +182,7 @@ ergm <- function(formula, response=NULL,
               response=response,
               reference=reference,
               constraints=constraints,
-              control=control$SAN.control,
+              control=san.control,
               verbose=verbose)
       formula<-ergm.update.formula(formula,nw~., from.new="nw")
       nw.stats <- summary(remove.offset.formula(formula),response=response)
@@ -298,9 +307,6 @@ ergm <- function(formula, response=NULL,
 
   model.initial$nw.stats <- summary(model.initial$formula, response=response, initialfit=control$init.method=="MPLE")
   model.initial$target.stats <- if(!is.null(target.stats)) target.stats else model.initial$nw.stats
-
-  if(control$init.method=="CD") if(is.null(names(control$init)))
-      names(control$init) <- .coef.names.model(model.initial, FALSE)
   
   initialfit <- ergm.initialfit(init=control$init, initial.is.final=!MCMCflag,
                                 formula=formula, nw=nw, reference=reference, 
@@ -387,20 +393,6 @@ ergm <- function(formula, response=NULL,
                           verbose=verbose,
                       response=response,
                           ...),
-    "CD" = ergm.CD(init, nw,
-                          model, 
-                          control=control, MHproposal=MHproposal,
-                          MHproposal.obs=MHproposal.obs,
-                          verbose=verbose,
-                      response=response,
-                          ...),
-    "CD.fixed" = ergm.CD.fixed(init, nw,
-                          model, 
-                          control=control, MHproposal=MHproposal,
-                          MHproposal.obs=MHproposal.obs,
-                          verbose=verbose,
-                      response=response,
-                          ...),
 
 
               stop("Method ", control$main.method, " is not implemented.")
@@ -428,7 +420,8 @@ ergm <- function(formula, response=NULL,
   mainfit$constrained.obs <- MHproposal.obs$arguments$constraints
   mainfit$constraints <- constraints
 
-  mainfit$control<-control
+  # unless the main fitting algorithm passes back a modified control
+  if (is.null(mainfit$control)) mainfit$control<-control
 
   mainfit$response<-response
   mainfit$reference<-reference

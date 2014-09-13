@@ -1,3 +1,17 @@
+#  File R/InitErgmTerm.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2013 Statnet Commons
+#######################################################################
+
+#NOTE: a number of undocumented terms have been removed from this file
+# the terms still exist on the experimental_terms svn branch
+
+
 #===========================================================================
 # This file contains the following 74 new, easier-to-write ergm-term
 # initialization functions (each prepended with "InitErgmTerm"):
@@ -171,23 +185,7 @@ InitErgmTerm.absdiffcat <- function(nw, arglist, ...) {
 
 
 
-################################################################################
-InitErgmTerm.adegcor<-function (nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=FALSE) 
 
-  deg=summary(nw ~ sociality(base=0))
-  el=as.edgelist(nw)
-  deg1<-deg[el[,1]]
-  deg2<-deg[el[,2]]
-  alldeg<-c(deg1,deg2)
-  sigma2<-(sum(alldeg*alldeg)-length(alldeg)*(mean(alldeg)^2))
-  ### Construct the list to return
-  list(name="adegcor",                            #name: required
-       coef.names = "adegcor",                    #coef.names: required
-       inputs=sigma2,
-       dependence = TRUE # So we don't use MCMC if not necessary
-       )
-}
 
 
 ################################################################################
@@ -2853,48 +2851,12 @@ InitErgmTerm.ostar<-function(nw, arglist, ...) {
 
 #=======================InitErgmTerm functions:  P============================#
 
-################################################################################
-InitErgmTerm.pdegcor<-function (nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=TRUE) 
 
-  el=as.edgelist(nw)
-  deg1<-summary(nw ~ sender(base=0))[el[,1]]
-  deg2<-summary(nw ~ receiver(base=0))[el[,2]]
-  deg12na<-is.na(deg1)|is.na(deg2)
-  deg1<-deg1[!deg12na]
-  deg2<-deg2[!deg12na]
-  sigma1<-(sum(deg1*deg1)-length(deg1)*(mean(deg1)^2))
-  sigma2<-(sum(deg2*deg2)-length(deg2)*(mean(deg2)^2))
-  sigma1 <- 0
-  sigma2 <- 0
-  ### Construct the list to return
-  list(name="pdegcor",                            #name: required
-       coef.names = "pdegcor",                    #coef.names: required
-       inputs=sigma2,
-       dependence = TRUE # So we don't use MCMC if not necessary
-       )
-}
 
 
 #=======================InitErgmTerm functions:  R============================#
 
-################################################################################
-InitErgmTerm.rdegcor<-function (nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=FALSE) 
 
-  deg=summary(nw ~ sociality(base=0))
-  el=as.edgelist(nw)
-  deg1<-deg[el[,1]]
-  deg2<-deg[el[,2]]
-  alldeg<-c(deg1,deg2)
-  sigma2<-(sum(alldeg*alldeg)-length(alldeg)*(mean(alldeg)^2))
-  ### Construct the list to return
-  list(name="rdegcor",                            #name: required
-       coef.names = "rdegcor",                    #coef.names: required
-       inputs=sigma2,
-       dependence = TRUE # So we don't use MCMC if not necessary
-       )
-}
 
 ################################################################################
 InitErgmTerm.receiver<-function(nw, arglist, ...) {

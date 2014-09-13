@@ -1,3 +1,12 @@
+%  File man/ergm.Rd in package ergm, part of the Statnet suite
+%  of packages for network analysis, http://statnet.org .
+%
+%  This software is distributed under the GPL-3 license.  It is free,
+%  open source, and has the attribution requirements (GPL Section 7) at
+%  http://statnet.org/attribution
+%
+%  Copyright 2003-2013 Statnet Commons
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{ergm}
 \alias{ergm}
 \alias{ergm.object}
@@ -25,7 +34,7 @@ ergm (formula,
       offset.coef=NULL,
       target.stats=NULL,
       eval.loglik=TRUE,
-      estimate=c("MLE", "MPLE", "CD"),
+      estimate=c("MLE", "MPLE"),
       control=control.ergm(),
       verbose=FALSE,
       \dots)
@@ -104,8 +113,7 @@ ergm (formula,
     estimator is returned.  For certain models, the MPLE and MLE are equivalent,
     in which case this argument is ignored.  (To force MCMC-based approximate
     likelihood calculation even when the MLE and MPLE are the same, see the
-    \code{force.main} argument of \code{\link{control.ergm}}. If "CD",
-    the Monte-Carlo contrastive divergence estimate is returned. )
+    \code{force.main} argument of \code{\link{control.ergm}}. )
   }
   \item{control}{A list of control parameters for algorithm
     tuning. Constructed using \code{\link{control.ergm}}. 

@@ -1,3 +1,12 @@
+#  File R/ergm.MCMLE.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2013 Statnet Commons
+#######################################################################
 ############################################################################
 # The <ergm.MCMLE> function provides one of the styles of maximum
 # likelihood estimation that can be used. This one is the default and uses
@@ -324,6 +333,10 @@ ergm.MCMLE <- function(init, nw, model,
   v$stats.hist <- stats.hist
   v$stats.obs.hist <- stats.obs.hist
   v$steplen.hist <- steplen.hist
+  
+  v$iterations <- iteration
+  v$control <- control
+  
   # The following output is sometimes helpful.  It's the total history
   # of all eta values, from the initial eta0 to the final estimate
   # v$allparamvals <- parametervalues

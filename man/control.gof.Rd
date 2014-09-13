@@ -1,3 +1,12 @@
+%  File man/control.gof.Rd in package ergm, part of the Statnet suite
+%  of packages for network analysis, http://statnet.org .
+%
+%  This software is distributed under the GPL-3 license.  It is free,
+%  open source, and has the attribution requirements (GPL Section 7) at
+%  http://statnet.org/attribution
+%
+%  Copyright 2003-2013 Statnet Commons
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{control.gof}
 \alias{control.gof}
 \alias{control.gof.formula}
@@ -9,7 +18,7 @@
 }
 \usage{
 control.gof.formula(nsim=100,
-                    MCMC.burnin=1000,
+                    MCMC.burnin=10000,
                     MCMC.interval=1000,
                     MCMC.prop.weights="default",
                     MCMC.prop.args=list(),
