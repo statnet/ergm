@@ -188,6 +188,6 @@ cat(paste("theta new:",theta,"\n"))
                  theta.original=init,
                  rm.coef=theta,
                  interval=control$MCMC.interval, burnin=control$MCMC.burnin, 
-                 network=nw)),
+                 network=nw, est.cov=ve$mc.cov)),
              class="ergm")
 }

@@ -66,7 +66,7 @@ ergm.MCMCse.lognormal<-function(theta, init, statsmatrix, statsmatrix.obs,
   #  Calculate the auto-covariance of the MCMC suff. stats.
   #  and hence the MCMC s.e.
   z <- sweep(xsim, 2, xobs, "-")
-  cov.zbar <- .ergm.mvar.spec0(xsim) / nrow(xsim)
+  cov.zbar <- .ergm.mvar.spec0(z) / nrow(z)
   cov.zbar.offset <- matrix(0, ncol = length(offsetmap), 
                             nrow = length(offsetmap))
   cov.zbar <- suppressWarnings(chol(cov.zbar,pivot=TRUE))
@@ -90,13 +90,7 @@ ergm.MCMCse.lognormal<-function(theta, init, statsmatrix, statsmatrix.obs,
   lag.max.obs <- lag.max
   if(!is.null(statsmatrix.obs)){
     z <- xsim.obs
-    R <- acf(z, lag.max = lag.max.obs, type = "covariance", plot = FALSE)$acf
-    if(dim(R)[2] > 1){
-      part <- apply(R[-1,  ,  ,drop=FALSE], c(2, 3), sum)
-    }else{
-      part <- matrix(sum(R[-1,  ,  , drop=FALSE]))
-    }
-    cov.zbar.obs <- (R[1,  ,  ] + part + t(part))/nrow(xsim.obs)
+    cov.zbar.obs <- .ergm.mvar.spec0(z) / nrow(z)
     cov.zbar.obs <- suppressWarnings(chol(cov.zbar.obs, pivot=TRUE))
     pivot <- order(attr(cov.zbar.obs, "pivot"))
     cov.zbar.obs <-cov.zbar.obs[, pivot]
@@ -124,29 +118,28 @@ ergm.MCMCse.lognormal<-function(theta, init, statsmatrix, statsmatrix.obs,
   }
   if(all(dim(H)==c(0,0))){
     hessian <- matrix(NA, ncol=length(theta), nrow=length(theta))
-    mc.se <- rep(NA,length=length(theta))
-    return(mc.se)
+    return(matrix(NA, length(theta), length(theta)))
   }
   cov.zbar <- cov.zbar[!(novar.offset),!(novar.offset),drop=FALSE]
 
   mc.cov <- matrix(NA,ncol=length(theta),nrow=length(theta))
-  mc.cov0 <- try(solve(H, cov.zbar), silent=TRUE)
-  if(!(inherits(mc.cov0,"try-error"))){
-    mc.cov0 <- try(solve(H, t(mc.cov0)), silent=TRUE)
+
+  if(is.null(statsmatrix.obs)){
+    mc.cov0 <- try(solve(H, cov.zbar), silent=TRUE)
     if(!(inherits(mc.cov0,"try-error"))){
-      if(!is.null(statsmatrix.obs)){
-        mc.cov.obs0 <- try(solve(H.obs, cov.zbar.obs), silent=TRUE)
-        if(!(inherits(mc.cov.obs0,"try-error"))){
-          mc.cov.obs0 <- try(solve(H.obs, t(mc.cov.obs0)), silent=TRUE)
-          if(!inherits(mc.cov.obs0,"try-error")){
-            mc.cov[!novar.offset,!novar.offset] <- mc.cov0 + mc.cov.obs0
-          }else{
-            mc.cov[!novar.offset,!novar.offset] <- mc.cov0
-          }
-        }else{
-          mc.cov[!novar.offset,!novar.offset] <- mc.cov0
-        }
-      }else{
+      mc.cov0 <- try(solve(H, t(mc.cov0)), silent=TRUE)
+      if(!(inherits(mc.cov0,"try-error"))){
+        mc.cov[!novar.offset,!novar.offset] <- mc.cov0
+      }
+    }
+  }else{
+    H <- H.obs - H # Bread^-1
+    cov.zbar <- cov.zbar + cov.zbar.obs # Filling
+    
+    mc.cov0 <- try(solve(H, cov.zbar), silent=TRUE)
+    if(!(inherits(mc.cov0,"try-error"))){
+      mc.cov0 <- try(solve(H, t(mc.cov0)), silent=TRUE)
+      if(!(inherits(mc.cov0,"try-error"))){
         mc.cov[!novar.offset,!novar.offset] <- mc.cov0
       }
     }
@@ -154,7 +147,5 @@ ergm.MCMCse.lognormal<-function(theta, init, statsmatrix, statsmatrix.obs,
   colnames(mc.cov) <- names(theta)
   rownames(mc.cov) <- names(theta)
 
-  mc.se <- setNames(sqrt(diag(mc.cov)), names(theta))
-  
-  return(list(mc.se=mc.se, mc.cov=mc.cov))
+  mc.cov
 }

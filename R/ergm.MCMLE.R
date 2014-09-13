@@ -300,7 +300,7 @@ ergm.MCMLE <- function(init, nw, model,
     parametervalues <- rbind(parametervalues, mcmc.init)
     # This allows premature termination.
 
-    if(!is.null(control$MCMLE.MCMC.precision) && steplen==1){
+    if(iteration>1 && !is.null(control$MCMLE.MCMC.precision) && steplen==1){
       prec.loss <- (sqrt(diag(v$mc.cov+v$covar))-sqrt(diag(v$covar)))/sqrt(diag(v$mc.cov+v$covar))
       if(verbose){
         cat("Linear scale precision loss due to MC estimation of the likelihood:\n")
@@ -310,7 +310,7 @@ ergm.MCMLE <- function(init, nw, model,
         cat("Precision adequate. Finishing.\n")
         break
       }else{
-        control$MCMC.effectiveSize <- control$MCMC.effectiveSize * max(prec.loss)/control$MCMLE.MCMC.precision
+        control$MCMC.effectiveSize <- min(control$MCMC.effectiveSize * max(prec.loss, na.rm=TRUE)/control$MCMLE.MCMC.precision,control$MCMC.samplesize/2)
         cat("Increasing target MCMC ESS to",control$MCMC.effectiveSize,".\n")
       }
     }
@@ -328,6 +328,8 @@ ergm.MCMLE <- function(init, nw, model,
   v$newnetwork <- nw.returned
   v$coef.init <- init
   v$initialfit <- initialfit
+  v$est.cov <- v$mc.cov
+  v$mc.cov <- NULL
 
   v$coef.hist <- coef.hist
   v$stats.hist <- stats.hist

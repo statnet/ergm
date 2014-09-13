@@ -204,7 +204,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
   if (all(model$etamap$canonical==1) && 
       (metric=="lognormal" || metric=="Likelihood")) {
     if (obsprocess) {
-      if (verbose) { cat("Using log-normal approx with obsing (no optim)\n") }
+      if (verbose) { cat("Using log-normal approx with missing (no optim)\n") }
       Lout <- list(hessian = -(V-V.obs))
     } else {
       if (verbose) { cat("Using log-normal approx (no optim)\n") }
@@ -327,6 +327,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     #  and hence the MCMC s.e.
     #
     mc.se <- rep(NA, length=length(theta))
+    mc.cov <- matrix(NA, length(theta), length(theta))
     covar <- NA
     if(!hessianflag){
       #  covar <- robust.inverse(cov(xsim))
@@ -349,22 +350,20 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     
     if(calc.mcmc.se){
       if (verbose) { cat("Starting MCMC s.e. computation.\n") }
-      if ((metric=="lognormal" || metric=="Likelihood")
-          && length(model$etamap$curved)==0) {
-        MCMCse <- ergm.MCMCse.lognormal(theta=theta, init=init, 
-                                       statsmatrix=statsmatrix0, 
-                                       statsmatrix.obs=statsmatrix.obs,
-                                       H=V, H.obs=V.obs,
-                                       model=model)
-      } else {
-        MCMCse <- ergm.MCMCse(theta=theta,init=init, 
-                             statsmatrix=statsmatrix0,
-                             statsmatrix.obs=statsmatrix.obs,
-                             model=model)
+      mc.cov <-
+        if ((metric=="lognormal" || metric=="Likelihood")
+            && length(model$etamap$curved)==0) {
+          ergm.MCMCse.lognormal(theta=theta, init=init, 
+                                statsmatrix=statsmatrix0, 
+                                statsmatrix.obs=statsmatrix.obs,
+                                H=V, H.obs=V.obs,
+                                model=model)
+        } else {
+        ergm.MCMCse(theta=theta,init=init, 
+                    statsmatrix=statsmatrix0,
+                    statsmatrix.obs=statsmatrix.obs,
+                    model=model)
       }
-
-      mc.se <- MCMCse$mc.se
-      mc.cov <- MCMCse$mc.cov
     }
     c0  <- loglikelihoodfn(theta=Lout$par, xobs=xobs,
                            xsim=xsim, probs=probs,
@@ -409,7 +408,6 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                           MCMCtheta=init, 
                           loglikelihood=loglikelihood, gradient=gradient, hessian=Lout$hessian,
                           covar=covar, failure=FALSE,
-                          mc.se=mc.se,
                           mc.cov=mc.cov #, #acf=mcmcacf,
                           #fullsample=statsmatrix.all
                           ),

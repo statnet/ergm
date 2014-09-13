@@ -60,6 +60,10 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
     else control$parallel,
     1)
 
+  cl <- if(!is.numeric(control$parallel) || control$parallel!=0){
+    ergm.getCluster(control, verbose)
+  }else NULL
+  
   if(is.network(nw)) nw <- list(nw)
   nws <- rep(nw, length.out=nthreads)
   
@@ -67,8 +71,6 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
 
   control.parallel <- control
   if(!is.null(control$MCMC.samplesize)) control.parallel$MCMC.samplesize <- ceiling(control$MCMC.samplesize / nthreads)
-
-  cl <- ergm.getCluster(control, verbose)
 
   flush.console()
 
@@ -127,7 +129,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
                       else out$s[,Clist$diagnosable,drop=FALSE]
                       )
       
-      meS <- .max.effectiveSize(esteq)
+      meS <- .max.effectiveSize(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base)
       if(verbose) cat("Maximum Harmonic mean ESS of",meS$eS,"attained with burn-in of", round(meS$b/nrow(outl[[1]]$s)*100,2),"%.\n")
 
       if(control.parallel$MCMC.runtime.traceplot){
@@ -159,7 +161,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
   #
   #   Process the results
   #
-  statsmatrices <- NULL
+  statsmatrices <- list()
   newnetworks <- list()
   final.interval <- c()
   for(i in (1:nthreads)){
@@ -321,7 +323,7 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NU
 }
 
 
-.max.effectiveSize <- function(x, npts=20, base=3/4){
+.max.effectiveSize <- function(x, npts, base){
   if(!is.list(x)) x <- list(x)
   es <- function(b){
     if(b>0) x <- lapply(lapply(x, "[", -seq_len(b),,drop=FALSE),mcmc)
