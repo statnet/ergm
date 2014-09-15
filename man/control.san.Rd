@@ -78,6 +78,12 @@ control.san(coef=NULL,
     functions in addition to those autodetected. This argument should not be
     needed outside of very strange setups.
   }
+  \item{MPLE.max.dyad.types}{Maximum number of unique values of 
+    change statistic vectors, which are the predictors in a logistic
+    regression used to calculate the MPLE.  This calculation uses 
+    a compression algorithm that allocates space based on 
+    \code{MPLE.max.dyad.types
+  }  
   \item{MPLE.samplesize}{Not currently documented; used in 
     conditional-on-degree version of MPLE.
   }
