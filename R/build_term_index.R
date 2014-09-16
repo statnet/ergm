@@ -208,7 +208,7 @@
 
 # function to look up the set of terms applicable for a specific network
 
-search.ergmTerms<-function(net,keyword,categories,name){
+search.ergmTerms<-function(keyword,net,categories,name){
   
   if (!missing(net)){
     if(!is.network(net)){
@@ -260,7 +260,7 @@ search.ergmTerms<-function(net,keyword,categories,name){
       term<-terms[[t]]
       # if we don't find the keyword in the text grep, mark it as false
       descText<-capture.output(tools::Rd2txt(term$description.rd,fragment=TRUE))
-      if(length(grep(keyword,descText))==0){
+      if(length(grep(keyword,descText,ignore.case=TRUE))==0){
         found[t]<-FALSE
       } 
     }
