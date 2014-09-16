@@ -82,7 +82,7 @@ control.san(coef=NULL,
     change statistic vectors, which are the predictors in a logistic
     regression used to calculate the MPLE.  This calculation uses 
     a compression algorithm that allocates space based on 
-    \code{MPLE.max.dyad.types
+    \code{MPLE.max.dyad.types}
   }  
   \item{MPLE.samplesize}{Not currently documented; used in 
     conditional-on-degree version of MPLE.
