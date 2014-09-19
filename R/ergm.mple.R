@@ -86,13 +86,14 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
     
     # error handling for glm results
     if (!is.null(glm.result$error)) {
+      warning(glm.result$error)
       mplefit <- list(coef=pl$theta.offset, deviance=0,
                       cov.unscaled=diag(length(pl$theta.offset)))
       mplefit.summary <- list(cov.unscaled=diag(length(pl$theta.offset)))
     } else if (!is.null(glm.result$warnings)) {
       # if the glm results are crazy, redo it with 0 starting values
       if (max(abs(glm.result$value$coef), na.rm=T) > 1e6) {
-        cat("Data may be separable; restarting glm with zeros.\n")
+        warning("GLM model may be separable; restarting glm with zeros.\n")
         mplefit <- glm(pl$zy ~ .-1 + offset(pl$foffset), 
                        data=data.frame(pl$xmat),
                        weights=pl$wend, family=family, 
@@ -100,7 +101,7 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
         mplefit.summary <- summary(mplefit)
       } else {
         # unknown warning, just report it
-        
+        warning(glm.result$warnings)
         mplefit <- glm.result$value
         mplefit.summary <- summary(mplefit)
       }
@@ -139,13 +140,14 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
       
       # error handling for glm results
       if (!is.null(glm.result$error)) {
+        warning(glm.result$error)
         theta1 <- list(coef=NULL, 
                        theta=rep(0,ncol(pl$xmat)),
                        independent=independent)
       } else if (!is.null(glm.result$warnings)) {
         # if the glm results are crazy, redo it with 0 starting values
         if (max(abs(glm.result$value$coef), na.rm=T) > 1e6) {
-          cat("Data may be separable; restarting glm with zeros.\n")
+          warning("GLM model may be separable; restarting glm with zeros.\n")
           mindfit <- glm(pl$zy ~ .-1 + offset(pl$foffset), 
                          data=data.frame(pl$xmat[,independent,drop=FALSE]),
                          weights=pl$wend, family=family,
@@ -157,7 +159,7 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
                          independent=independent)
         } else {
           # unknown warning, just report it
-          
+          warning(glm.result$warnings)
           mindfit <- glm.result$value
           mindfit.summary <- summary(mindfit)
           theta.ind[independent] <- mindfit$coef

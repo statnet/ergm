@@ -544,7 +544,7 @@ catchToList <- function(expr) {
   myWarnings <- NULL
   wHandler <- function(w) {
     myWarnings <<- c(myWarnings, w$message)
-    #invokeRestart("muffleWarning")
+    invokeRestart("muffleWarning")
   }
   myError <- NULL
   eHandler <- function(e) {
