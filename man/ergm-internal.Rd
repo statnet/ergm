@@ -19,30 +19,11 @@
 \alias{ergm.MHP.table}
 \alias{ergm.init.methods}
 \alias{which.package.InitFunction}
-% MH proposals ought to get a documentation entry eventually.
 
-\alias{InitMHP.CondDegree}
-\alias{InitMHP.CondDegreeDist}
-\alias{InitMHP.CondInDegreeDist}
-\alias{InitMHP.CondOutDegreeDist}
-\alias{InitMHP.ConstantEdges}
 \alias{InitMHP.HammingConstantEdges}
 \alias{InitMHP.HammingTNT}
-\alias{InitMHP.TNT}
-\alias{InitMHP.TNT10}
 \alias{InitMHP.nobetweengroupties}
-\alias{InitMHP.randomtoggle}
-\alias{InitMHP.randomtoggleNonObserved}
-\alias{InitMHP.CondB1Degree}
-\alias{InitMHP.CondB2Degree}
-\alias{InitMHP.CondInDegree}
-\alias{InitMHP.CondOutDegree}
-\alias{InitMHP.blockdiag}
-\alias{InitMHP.blockdiagNonObserved}
-\alias{InitMHP.blockdiagTNT}
 \alias{InitWtMHP.StdNormal}
-\alias{InitMHP.CondDegreeMix}
-\alias{InitMHP.TriNT}
 
 \alias{MHproposal}
 \alias{MHproposal.MHproposal}
