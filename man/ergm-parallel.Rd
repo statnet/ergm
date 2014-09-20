@@ -53,7 +53,7 @@
 }
 
 \section{MPI clusters}{
-  To use MPI to accellerate ERGM sampling, pass the control parameter
+  To use MPI to accelerate ERGM sampling, pass the control parameter
   \code{parallel.type="MPI"}.  
   \code{\link[=ergm-package]{ergm}} uses the \code{snow} and
   \code{Rmpi} packages to communicate with an MPI
@@ -74,19 +74,29 @@
 
 }
 
+\section{User initiated clusters}{
+  A cluster can be passed into \code{ergm} with the \code{parallel} control parameter. 
+  \code{ergm} will detect the number of nodes in the cluster, and use all of them for
+  MCMC sampling. This method is flexible: it will accept any cluster type that is
+  compatible with \code{snow} or \code{parallel} packages. Usage examples
+  for a multiple-machine high performance MPI cluster can be found at the 
+  \link[https://statnet.csde.washington.edu/trac/wiki/ergmParallel]{statnet wiki}: 
+  \code{https://statnet.csde.washington.edu/trac/wiki/ergmParallel}
+}
+
 \examples{
 \donttest{
 # Uses 3 SOCK clusters for MCMLE estimation
-data(faux.magnolia.high)
-nw <- faux.magnolia.high
+data(faux.mesa.high)
+nw <- faux.mesa.high
 fauxmodel.01 <- ergm(nw ~ edges + isolates + gwesp(0.2, fixed=T), 
                      control=control.ergm(parallel=3, parallel.type="PSOCK"))
 summary(fauxmodel.01)
 
 # Passing an existing cluster to ERGM
 clus <- makeCluster(4, type='PSOCK')
-data(faux.magnolia.high)
-nw <- faux.magnolia.high
+data(faux.mesa.high)
+nw <- faux.mesa.high
 fauxmodel.01 <- ergm(nw ~ edges + isolates + gwesp(0.2, fixed=T), 
                      control=control.ergm(parallel=clus))
 stopCluster(clus)
