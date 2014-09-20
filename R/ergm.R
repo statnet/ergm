@@ -218,6 +218,8 @@ ergm <- function(formula, response=NULL,
     # statistics, and have the rest of the code handle it
     # intelligently.
     target.stats <- tmp
+  } else {
+    if (network.edgecount(nw) == 0) warning("Network is empty and no target stats are specified.")
   }
   
   if (verbose) cat("Initializing Metropolis-Hastings proposal(s):") 
