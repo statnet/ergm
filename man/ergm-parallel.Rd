@@ -79,9 +79,8 @@
   \code{ergm} will detect the number of nodes in the cluster, and use all of them for
   MCMC sampling. This method is flexible: it will accept any cluster type that is
   compatible with \code{snow} or \code{parallel} packages. Usage examples
-  for a multiple-machine high performance MPI cluster can be found at the 
-  \link[https://statnet.csde.washington.edu/trac/wiki/ergmParallel]{statnet wiki}: 
-  \code{https://statnet.csde.washington.edu/trac/wiki/ergmParallel}
+  for a multiple-machine high performance MPI cluster can be found at the statnet wiki: 
+\url{https://statnet.csde.washington.edu/trac/wiki/ergmParallel} 
 }
 
 \examples{

@@ -1,4 +1,4 @@
-\name{ergm-constraints}
+\name{ergm_MH_proposals}
 
 \alias{InitMHP.CondDegree}
 \alias{InitMHP.CondDegreeDist}
