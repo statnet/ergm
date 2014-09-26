@@ -327,7 +327,7 @@ ergm.MCMLE <- function(init, nw, model,
   v$network <- nw.orig
   v$newnetwork <- nw.returned
   v$coef.init <- init
-  v$initialfit <- initialfit
+  #v$initialfit <- initialfit
   v$est.cov <- v$mc.cov
   v$mc.cov <- NULL
 
