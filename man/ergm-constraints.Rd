@@ -29,6 +29,7 @@
 \alias{InitConstraint.observed}
 \alias{InitConstraint.odegreedist}
 \alias{InitConstraint.fixedas}
+\alias{InitConstraint.fixallbut}
 
 \docType{methods}
 
@@ -100,6 +101,12 @@
       Preserve the edges in 'present' and preclude the edges in 'absent'. 
       Both 'present' and 'absent' can take input object as edgelist and 
       network, the latter will convert to the corresponding edgelist.
+ 	}
+ 	
+ 	\item{\code{fixallbut(free.dyads)}}{
+      Preserve the dyad status in all but free.dyads. free.dyads can 
+      take input object as edgelist and network, the latter will 
+      convert to the corresponding edgelist.
  	}
   Not all combinations of the above are supported.
   }

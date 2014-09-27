@@ -8,12 +8,16 @@
 #  Copyright 2003-2013 Statnet Commons
 #######################################################################
 library(statnet.common)
+
+# fixedas
+
 opttest({
+			
 	library(ergm)
 	
 	net1 <- network(10,directed=FALSE,density=0.2)
 	
-	(el1 <- as.edgelist(net1))
+	el1 <- as.edgelist(net1)
 	
 # both present and absent
 	present <- as.edgelist(el1[c(1,2),],n=10,directed=FALSE)
@@ -84,6 +88,26 @@ opttest({
 			stopifnot(all(!sapply(s1,function(x)as.data.frame(t(as.edgelist(absent))) %in% as.data.frame(t(as.edgelist(x))))))
 			
 			
-			
-			
 		})
+		
+		
+# fixallbut
+
+opttest({
+			
+	library(ergm)
+	
+	net1 <- network(10,directed=FALSE,density=0.5)
+
+	free.dyads <- as.edgelist(matrix(sample(1:10,8,replace=F),4,2),n=10,directed=FALSE)
+	
+	t1 <- ergm(net1~edges,constraint=~fixallbut(free.dyads=free.dyads))
+	
+	s1 <-simulate(t1,1000)
+	
+	fixed.dyads.state <- net1[as.edgelist(invert.network(network.update(net1,free.dyads,matrix.type="edgelist")))]
+	
+	stopifnot(all(sapply(s1,function(x) all.equal(x[as.edgelist(invert.network(network.update(x,free.dyads,matrix.type="edgelist")))],fixed.dyads.state))))
+	
+	
+})

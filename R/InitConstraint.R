@@ -179,8 +179,6 @@ InitConstraint.fixedas<-function(conlist, lhs.nw, present=NULL, absent=NULL,...)
 			stop("Argument 'absent' in fixedas constraint should be either a network or edgelist")
 		}
 	}
-	conlist$fixedas$present <- present
-	conlist$fixedas$absent <- absent
 	conlist$fixedas$free.dyads<-function(){ 
 	fixed <- rbind(present,absent)
 		if(any(duplicated(fixed))){
@@ -191,6 +189,39 @@ InitConstraint.fixedas<-function(conlist, lhs.nw, present=NULL, absent=NULL,...)
 	conlist
 }
 
+
+
+
+
+InitConstraint.fixallbut<-function(conlist, lhs.nw, free.dyads=NULL,...){
+	if(is.null(free.dyads))
+		stop(paste("fixallbut constraint takes one required argument free.dyads and one optional argument fixed.state"), call.=FALSE)
+	
+
+		if(is.network(free.dyads)){
+			free.dyads <- as.edgelist(free.dyads)
+		}
+		
+		if(!is.matrix(free.dyads)){
+			stop("Argument 'free.dyads' in fixallbut constraint should be either a network or edgelist")
+		}
+	
+#	
+#	if(!is.null(fixed.state)){
+#		if(length(fixed.state)==1)
+#			rep(fixed.state,nrow(fixed.dyads))
+#		if(length(fixed.state != nrow(fixed.dayds)))
+#			stop("fixed.state should be a vector of length equals to the nubmer of dyads in fixed.dyads")
+#		if(!all(fixed.state %in% c(0,1)))
+#			stop("fixed.state should be a vector of 0,1")
+#	}
+#	
+#	
+	conlist$fixallbut$free.dyads<-function(){ 
+		standardize.network(network.update(lhs.nw,free.dyads, matrix.type = "edgelist"))
+	}
+	conlist
+}
 
 
 

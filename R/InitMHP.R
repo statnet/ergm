@@ -181,3 +181,18 @@ InitMHP.fixedas <- function(arguments, nw){
 	MHproposal
 	
 }
+
+
+InitMHP.fixallbut <- function(arguments, nw){
+	y0<-arguments$constraints$fixallbut$free.dyads()
+	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
+	MHproposal <- list(name = "randomtoggleList", inputs=c(ergm.Cprepare.el(y0)), pkgname="ergm")
+	
+	MHproposal
+	
+}
+
+
+
+
+
