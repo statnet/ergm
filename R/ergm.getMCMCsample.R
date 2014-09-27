@@ -126,7 +126,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
       
       esteq <- lapply(outl, function(out)
                       if(all(c("theta","etamap") %in% names(list(...)))) .ergm.esteq(list(...)$theta, list(etamap=list(...)$etamap), out$s)
-                      else out$s[,Clist$diagnosable,drop=FALSE]
+                      else out$s[,Clists[[1]]$diagnosable,drop=FALSE]
                       )
       
       meS <- .max.effectiveSize(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base)
