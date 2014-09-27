@@ -157,3 +157,43 @@ InitConstraint.blockdiag<-function(conlist, lhs.nw, attrname=NULL, ...){
   
   conlist
 }
+
+
+
+InitConstraint.fixedas<-function(conlist, lhs.nw, present=NULL, absent=NULL,...){
+	if(is.null(present) & is.null(absent))
+		stop(paste("fixedas constraint takes at least one argument, either present or absent or both."), call.=FALSE)
+	if(!is.null(present)){
+		if(is.network(present)){
+			present <- as.edgelist(present)
+		}
+		if(!is.matrix(present)){
+			stop("Argument 'present' in fixedas constraint should be either a network or edgelist")
+		}
+	}
+	if(!is.null(absent)){
+		if(is.network(absent)){
+			absent <- as.edgelist(absent)
+		}
+		if(!is.matrix(absent)){
+			stop("Argument 'absent' in fixedas constraint should be either a network or edgelist")
+		}
+	}
+	conlist$fixedas$present <- present
+	conlist$fixedas$absent <- absent
+	conlist$fixedas$free.dyads<-function(){ 
+	fixed <- rbind(present,absent)
+		if(any(duplicated(fixed))){
+			stop("Dyads cannot be fixed at both present and absent")
+		}
+		standardize.network(invert.network(network.update(lhs.nw,fixed, matrix.type = "edgelist")))
+	}
+	conlist
+}
+
+
+
+
+
+
+#ergm.ConstraintImplications("edges", c())

@@ -50,7 +50,8 @@
   ergm.MHP.table("c", "Bernoulli", "bd+blockdiag", 1, "TNT", "blockdiagTNT")
   ergm.MHP.table("c", "Bernoulli", "blockdiag+observed",  0, "random", "blockdiagNonObserved")
   ergm.MHP.table("c", "Bernoulli", "bd+blockdiag+observed",  0, "random", "blockdiagNonObserved")
-
+  ergm.MHP.table("c", "Bernoulli", "fixedas",  0, "random", "fixedas")
+  
   ergm.MHP.table("c", "StdNormal", "",  0, "random", "StdNormal")
 
   ergm.MHP.table("c", "Unif", "",  0, "random", "Unif")
