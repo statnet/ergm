@@ -21,7 +21,7 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=NULL, assume.indep=FALSE, var
   vars <- list(x=list(v=x))
   if(!is.null(y)) vars$y <- list(v=y)
   
-  mywithin <- function(...) within(...) # This is a workaround suggsted by Duncan Murdoch: calling lapply(X, within, {CODE}) would leave CODE unable to see any objects in f.
+  mywithin <- function(data, ...) within(data, ...) # This is a workaround suggsted by Duncan Murdoch: calling lapply(X, within, {CODE}) would leave CODE unable to see any objects in f.
   vars <- lapply(vars, mywithin, {
     if(!is.mcmc.list(v))
       v <- mcmc.list(mcmc(as.matrix(v)))
@@ -109,7 +109,7 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=NULL, assume.indep=FALSE, var
   }else if(var.equal){
     NANVL(x$neff,1)+NANVL(y$neff,1)-2
   }else{
-    mywith <- function(...) with(...)
+    mywith <- function(data, ...) with(data, ...)
     # This is the Krishnamoorthy and Yu (2004) degrees of freedom formula, courtesy of Wikipedia.
     df <- (p+p^2)/sum(NANVL(sapply(vars, mywith, (tr(vcov.m[!novar,!novar] %*% ivcov.d %*% vcov.m[!novar,!novar] %*% ivcov.d) +
                                             tr(vcov.m[!novar,!novar] %*% ivcov.d)^2)/neff), 0))
