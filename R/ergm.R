@@ -178,13 +178,12 @@ ergm <- function(formula, response=NULL,
     ## with SAN-ed network and formula.
     if(control$SAN.maxit > 0){
      for(srun in 1:control$SAN.maxit){
-      nw<-suppressWarnings(
-            san(remove.offset.formula(formula), target.stats=target.stats,
+      nw<-san(remove.offset.formula(formula), target.stats=target.stats,
               response=response,
               reference=reference,
               constraints=constraints,
               control=san.control,
-              verbose=verbose))
+              verbose=verbose)
       formula<-ergm.update.formula(formula,nw~., from.new="nw")
       nw.stats <- summary(remove.offset.formula(formula),response=response)
       srun <- srun + 1
