@@ -183,7 +183,7 @@ mcmc.diagnostics.ergm <- function(object,
 
   cat("\nSample statistics burn-in diagnostic (Geweke):\n")
   sm.gw<-geweke.diag(sm)
-  sm.gws<-geweke.diag.mv(sm)
+  sm.gws<-.geweke.diag.mv(sm)
   for(i in seq_along(sm.gw)){
     cat("Chain", chain, "\n")
     print(sm.gw[[i]])
@@ -194,7 +194,7 @@ mcmc.diagnostics.ergm <- function(object,
   if(!is.null(sm.obs)){
     cat("Sample statistics burn-in diagnostic (Geweke):\n")
     sm.obs.gw<-geweke.diag(sm.obs)
-    sm.obs.gws<-geweke.diag.mv(sm.obs)
+    sm.obs.gws<-.geweke.diag.mv(sm.obs)
     for(i in seq_along(sm.obs.gw)){
       cat("Chain", chain, "\n")
       print(sm.obs.gw[[i]])

@@ -1,15 +1,15 @@
-dtsq <- function(x, param, df, log = FALSE){
+.dtsq <- function(x, param, df, log = FALSE){
   fx <- x*(df - param + 1)/(param*df)
   p <- df(fx, param, df - param + 1, log=log)
   if(log) p + log((df - param + 1)/(param*df)) else p*((df - param + 1)/(param*df))
 }
 
-ptsq <- function (q, param, df, lower.tail = TRUE, log.p = FALSE){
+.ptsq <- function (q, param, df, lower.tail = TRUE, log.p = FALSE){
   fq <- q*(df - param + 1)/(param*df)
   pf(fq, param, df - param + 1, lower.tail=lower.tail, log.p=log.p)
 }
 
-qtsq <- function(p, param, df, lower.tail = TRUE, log.p = FALSE){
+.qtsq <- function(p, param, df, lower.tail = TRUE, log.p = FALSE){
   fq <- qf(fq, param, df - param + 1, lower.tail=lower.tail, log.p=log.p)
   fq / ((df - param + 1)/(param*df))
 }
@@ -118,7 +118,7 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=NULL, assume.indep=FALSE, var
   })
 
   if(pars[1]>=pars[2]) warning("Effective degrees of freedom (",pars[2],") must exceed the number of varying parameters (",pars[1],"). P-value will not be computed.")
-  out <- list(statistic=T2, parameter=pars, p.value=if(pars[1]<pars[2]) ptsq(T2,pars[1],pars[2],lower.tail=FALSE) else NA,
+  out <- list(statistic=T2, parameter=pars, p.value=if(pars[1]<pars[2]) .ptsq(T2,pars[1],pars[2],lower.tail=FALSE) else NA,
               method = method,
               null.value=mu0,
               alternative="two.sided",
@@ -141,9 +141,9 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=NULL, assume.indep=FALSE, var
 ##
 ## If approx.hotelling.diff.test returns an error, then
 
-geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5){
+.geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5){
   if (is.mcmc.list(x)) 
-    return(lapply(x, geweke.diag.mv, frac1, frac2))
+    return(lapply(x, .geweke.diag.mv, frac1, frac2))
   x <- as.mcmc(x)
   x1 <- window(x, start=start(x), end=start(x) + frac1 * (end(x) - start(x)))
   x2 <- window(x, start=end(x) - frac2 * (end(x) - start(x)), end=end(x))
