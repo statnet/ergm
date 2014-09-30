@@ -218,8 +218,10 @@ mcmc.diagnostics.ergm <- function(object,
 }
 
 plot.mcmc.list.ergm <- function(x, main=NULL, vars.per.page=3,...){
-  dp <- update(densityplot(x, panel=function(...){panel.densityplot(...);panel.abline(v=0)}),xlab=NULL,ylab=NULL)
-  tp <- update(xyplot.mcmc.list.ergm(x, panel=function(...){panel.xyplot(...);panel.loess(...);panel.abline(0,0)}),xlab=NULL,ylab=NULL)
+  require(lattice, quietly=TRUE, warn.conflicts=FALSE)
+  
+  dp <- update(lattice::densityplot(x, panel=function(...){lattice::panel.densityplot(...);lattice::panel.abline(v=0)}),xlab=NULL,ylab=NULL)
+  tp <- update(xyplot.mcmc.list.ergm(x, panel=function(...){lattice::panel.xyplot(...);lattice::panel.loess(...);lattice::panel.abline(0,0)}),xlab=NULL,ylab=NULL)
 
   library(latticeExtra)
 
@@ -286,8 +288,9 @@ xyplot.mcmc.list.ergm <-
 ##                              "~ index"))
     data[[".index"]] <- seq(from = start(x), by = thin(x), length = nrow(datalist[[1]])) ## repeated
     .run <- gl(length(datalist), nrow(datalist[[1]]))
+    require(lattice, quietly=TRUE, warn.conflicts=FALSE)
     if (groups && !outer)
-        xyplot(form, data = data,
+      lattice::xyplot(form, data = data,
                outer = TRUE,
                layout = layout,
                groups = .run,
@@ -297,7 +300,7 @@ xyplot.mcmc.list.ergm <-
                ylab = ylab,
                ...)
     else
-        xyplot(form, data = data,
+      lattice::xyplot(form, data = data,
                outer = TRUE,
                layout = layout,
                default.scales = default.scales,

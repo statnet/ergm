@@ -65,13 +65,13 @@ ergm.getCluster <- function(control, verbose=FALSE){
                  MPI={
                    require(snow)
                    # See if a preexisting cluster exists.
-                   if(is.null(getMPIcluster())){
+                   if(is.null(snow::getMPIcluster())){
                      # Remember that we are responsible for it.
                      ergm.MPIcluster.started(TRUE)
                      makeCluster(control$parallel,type="MPI")
                    }else
                      ergm.MPIcluster.started(FALSE)
-                     getMPIcluster()
+                     snow::getMPIcluster()
                    },
                  SOCK={
                    ergm.MPIcluster.started(TRUE)
