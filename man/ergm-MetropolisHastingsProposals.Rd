@@ -21,6 +21,8 @@
 \alias{InitMHP.blockdiagTNT}
 %\alias{InitWtMHP.StdNormal}
 \alias{InitMHP.CondDegreeMix}
+\alias{InitMHP.fixedas}
+\alias{InitMHP.fixallbut}
 \alias{InitMHP.TriNT}
 
 \docType{methods}
@@ -83,6 +85,9 @@
         \item{InitMHP.CondOutDegreeDist}{MHp for \eqn{constraints= ~odegreedist}. For directed network, similar to InitMHP.CondDegreeDist, except for outdegree case
         }
 
+		\item{InitMHP.fixedas}{MHp for \eqn{constraints=~fixedas(present,absent)}. Propose a random dyad that is not in either 'present' edgelist or 'absent' edgelist to toggle. Edges in 'present' and empty dyads in 'absent' are remained fixed.}
+		
+		\item{InitMHP.fixallbut}{MHp for \eqn{constraints=~fixallbut(free.dyads)}. Propose a ranodm dyad that is in free.dyads edgelist to toggle.}
 %        \item{InitMHP.HammingConstantEdges}{}
 %        \item{InitMHP.HammingTNT}{}
 
