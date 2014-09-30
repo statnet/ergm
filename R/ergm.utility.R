@@ -539,7 +539,7 @@ which.package.InitFunction <- function(f, env = parent.frame()){
 
 
 # executes expression, returns the result in a list with any warnings and errors
-catchToList <- function(expr) {
+.catchToList <- function(expr) {
   val <- NULL
   myWarnings <- NULL
   wHandler <- function(w) {

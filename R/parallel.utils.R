@@ -33,9 +33,6 @@ myLibLoc <- function()
 
 # Acquires a cluster of specified type.
 ergm.getCluster <- function(control, verbose=FALSE){
-  capture.output(library(parallel, quietly=TRUE, warn.conflicts = FALSE))
-  # The rpvm package is apparently not being maintained.
-  #  capture.output(require(rpvm, quietly=TRUE, warn.conflicts = FALSE))
   
   if(inherits(control$parallel,"cluster")){
     ergm.MPIcluster.started(FALSE)
@@ -66,7 +63,7 @@ ergm.getCluster <- function(control, verbose=FALSE){
                    
                  },
                  MPI={
-                   
+                   require(snow)
                    # See if a preexisting cluster exists.
                    if(is.null(getMPIcluster())){
                      # Remember that we are responsible for it.

@@ -80,7 +80,7 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
 # # Note:  It appears that specifying a starting vector can lead to problems!
 # #               start=init[!m$etamap$offsettheta]),
 #                     silent = TRUE))
-    glm.result <- catchToList(glm(pl$zy ~ .-1 + offset(pl$foffset), 
+    glm.result <- .catchToList(glm(pl$zy ~ .-1 + offset(pl$foffset), 
                                   data=data.frame(pl$xmat),
                                   weights=pl$wend, family=family))
     
@@ -134,7 +134,7 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
     independent <- independent>0
     if(any(independent)){
       
-      glm.result <- catchToList(glm(pl$zy ~ .-1 + offset(pl$foffset), 
+      glm.result <- .catchToList(glm(pl$zy ~ .-1 + offset(pl$foffset), 
                                     data=data.frame(pl$xmat[,independent,drop=FALSE]),
                                     weights=pl$wend, family=family))
       
