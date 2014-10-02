@@ -43,8 +43,6 @@ ergm.getCluster <- function(control, verbose=FALSE){
     #type <- if(is.null(control$parallel.type)) getClusterOption("type") else control$parallel.type
     type <- if(is.null(control$parallel.type)) "PSOCK" else control$parallel.type
     
-    if (!(type %in% c("SOCK", "PSOCK"))) require(snow)
-    
     if(verbose) cat("Using ",type,".\n", sep="")
     
     #   Start Cluster
@@ -63,16 +61,11 @@ ergm.getCluster <- function(control, verbose=FALSE){
                    
                  },
                  MPI={
-                   require(snow)
-                   # See if a preexisting cluster exists.
-                   if(is.null(snow::getMPIcluster())){
-                     # Remember that we are responsible for it.
-                     ergm.MPIcluster.started(TRUE)
-                     makeCluster(control$parallel,type="MPI")
-                   }else
-                     ergm.MPIcluster.started(FALSE)
-                     snow::getMPIcluster()
-                   },
+                   
+                   # Remember that we are responsible for it.
+                   ergm.MPIcluster.started(TRUE)
+                   makeCluster(control$parallel,type="MPI")
+                 },
                  SOCK={
                    ergm.MPIcluster.started(TRUE)
                    makeCluster(control$parallel,type="PSOCK")

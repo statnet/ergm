@@ -12,13 +12,8 @@ opttest({
 library(ergm)
 data(florentine)
 
-for(type in c("SOCK","MPI","MPI2")){
+for(type in c("SOCK", "MPI")){
   cat("\n\n======= Testing",type,"=======\n\n")
-  
-  if(type=="MPI2"){
-    cl <- makeCluster(2,"MPI")
-    type <- "MPI"
-  }
   
   gest <- ergm(flomarriage ~ edges + absdiff("wealth"),
                eval.loglik=FALSE,
@@ -66,14 +61,9 @@ opttest({
 library(ergm)
 data(florentine)
 
-for(type in c("SOCK","MPI","MPI2")){
+for(type in c("SOCK", "MPI")){
   cat("\n\n======= Testing",type,"=======\n\n")
-  
-  if(type=="MPI2"){
-    cl <- makeCluster(2,"MPI")
-    type <- "MPI"
-  }
-  
+
   gest <- ergm(flomarriage ~ edges + absdiff("wealth"),
                eval.loglik=FALSE,
                control=control.ergm(MCMC.burnin=1000, MCMC.interval=10, MCMLE.maxit=2, MCMC.samplesize=1000, force.main=TRUE,
