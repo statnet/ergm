@@ -1,3 +1,5 @@
+# more comprehensive parallel testing
+
 library(ergm)
 data(florentine)
 
