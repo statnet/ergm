@@ -553,7 +553,7 @@
 		the order the statistics would be created when \code{base=NULL}), the
 		corresponding terms will be left out.}
 
-		\item{\code{b2concurrent(by=NULL)}(binary)(bipartite)(undirected)(frequently-used)
+		\item{\code{b2concurrent(by=NULL)}(binary)(bipartite)(undirected)
 		}{\emph{Concurrent node count for the
 		second mode in a bipartite (aka two-mode) network:} This term adds one
 		network statistic to the model, equal to the number of nodes in the second
@@ -1034,7 +1034,7 @@
 		number of terms in computing the statistics to reduce the computational
 		burden.}
 
-		\item{\code{gwidegree(decay, fixed=FALSE, cutoff=30)}(binary)(directed)(curved)
+		\item{\code{gwidegree(decay, fixed=FALSE, cutoff=30)}(binary)(directed)(curved)(frequently-used)
 		}{\emph{Geometrically weighted
 		in-degree distribution:} This term adds one network statistic to the model
 		equal to the weighted in-degree distribution with weight parameter
@@ -1068,7 +1068,7 @@ is only relevant if \code{fixed=FALSE}. In that case it only uses this
 number of terms in computing the statistics to reduce the computational
 burden.}
 
-		\item{\code{gwodegree(decay, fixed=FALSE, cutoff=30)}(binary)(directed)(curved)
+		\item{\code{gwodegree(decay, fixed=FALSE, cutoff=30)}(binary)(directed)(curved)(frequently-used)
 		}{\emph{Geometrically weighted
 		out-degree distribution:} This term adds one network statistic to the model
 		equal to the weighted out-degree distribution with weight parameter
@@ -1790,7 +1790,7 @@ burden.}
 			changing the \code{d} argument to a numeric vector giving a subset of
 			\eqn{\{0, 1, 2, 3\}}.}
 
-		\item{\code{triangle(attrname=NULL)}(binary)(frequently-used)(triad-related)(directed)(undirected)(categorical nodal attribute)
+		\item{\code{triangle(attrname=NULL)}(binary)(triad-related)(directed)(undirected)(categorical nodal attribute)
 		}{\emph{Triangles:}
 		This term adds one statistic to the model equal to the number of triangles
 		in the network. For an undirected network, a triangle is defined to be any
