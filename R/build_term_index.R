@@ -10,7 +10,7 @@
 # grab a the relevent section of .Rd document structure
 .extractTermBlock<-function(){
   # query the install documentation
-  rawdoc<-rawdoc<-tools::Rd_db('ergm')$'ergm-terms.Rd'
+  rawdoc<-tools::Rd_db('ergm')$'ergm-terms.Rd'
   return<-rawdoc[[244]][[2]][[3]]
 }
 
@@ -159,7 +159,11 @@
       }
     })
     terms<-terms[included]
+	# fix a bug , the membership didn't update for only.include
+	membership <- lapply(membership,"[",included)
   }
+  
+  
   
   # generate the html table
   cat("<table>\n")
