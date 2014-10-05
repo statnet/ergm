@@ -226,24 +226,20 @@ if (!all(head(s.0)==c(4,0,0,1,0,0)) ||
 
 
 # tripercent, undirected
-# num.tests=num.tests+1
-# all of these are turning out 0 or NA                
-#s.0 <- summary(unnw~tripercent)
-#e.0 <- ergm(unnw~tripercent, estimate="MPLE")
-#s.a <- summary(unnw~tripercent("Pet"))
-#e.a <- ergm(unnw~tripercent("Pet"), estimate="MPLE")                
-#s.ad <- summary(unnw~tripercent("Race", diff=TRUE))
-#e.ad <- ergm(unnw~tripercent("Race", diff=TRUE), estimate="MPLE")   
-#if (s.0 != 62 || round(e.0$coef + .06997, 3) != 0 ||
-#    s.a != 18 || round(e.a$coef - .06354, 3) != 0 ||
-#    !all(s.ad==c(2,0,0)) ||
-#    !all(round(e.ad$coef + c(.70278, .44099), 3) == 0)) { 
-# print(list(s.0=s.0, e.0=e.0, s.a=s.a, e.a=e.a, s.ad=s.ad, e.ad=e.ad))
-# stop("Failed tripercent term test")
-#} else {
-# print("Passed tripercent term test")
-#  num.passed.tests = num.passed.tests+1
-#}
+num.tests=num.tests+1
+s.0 <- summary(unnw~tripercent)
+e.0 <- ergm(unnw~tripercent, estimate="MPLE")
+s.a <- summary(unnw~tripercent("Pet"))
+e.a <- ergm(unnw~tripercent("Pet"), estimate="MPLE")                
+if (round(s.0 - 29.19463,3)!=0 || round(e.0$coef - 0.4492 , 3) != 0 ||
+	round(s.a - 29.09091,3)!=0 || round(e.a$coef - 0.2501 , 3) != 0 
+    ) { 
+ print(list(s.0=s.0, e.0=e.0, s.a=s.a, e.a=e.a))
+ stop("Failed tripercent term test")
+} else {
+ print("Passed tripercent term test")
+  num.passed.tests = num.passed.tests+1
+}
 
 
 if(num.passed.tests==num.tests)
