@@ -68,6 +68,7 @@ if (s.0 != 97 || round(e.0$coef + 4.871, 3) != 0 ||
 }
 
 
+
 # degree, undirected
 num.tests=num.tests+1
 s.d <- summary(fmh~degree(2:3))
@@ -87,6 +88,54 @@ if (!all(s.d==c(30,28)) || round(e.d$coef - 5.11, 3) != 0 ||
   num.passed.tests = num.passed.tests+1
 }
 
+
+
+# degrange, undirected
+num.tests=num.tests + 1
+s.0 <- summary(fmh~degrange(1:3))
+e.0 <- ergm(fmh~degrange(1:3), estimate="MPLE")
+s.h <- summary(fmh~degrange(1:3, by="Sex", homophily=TRUE))
+e.h <- ergm(fmh~degrange(1:3, by="Sex", homophily=TRUE), estimate="MPLE")
+if (!all(s.0==c(148, 97, 67)) || round(e.0$coef + c(4.349, 4.067, 3.178  ))!= 0 ||!all(s.h==c(122, 65, 36)) || round(e.h$coef + c(3.389, 3.032, 2.368 ))!= 0) {
+	print(list(s.0=s.0, e.0=e.0, s.h=s.h, e.h=e.h))
+	stop("Failed degrange term test")
+} else {
+	print("Passed degrange term test")
+	num.passed.tests = num.passed.tests+1
+}
+
+
+
+# degcrossprod, undirected
+num.tests=num.tests + 1
+s.0 <- summary(unnw~degcrossprod)
+e.0 <- ergm(unnw~degcrossprod, estimate="MPLE")
+if (!all(round(s.0-c(56.30102),3)==0) || round(e.0$coef - c(0.099))!= 0) {
+	print(list(s.0=s.0, e.0=e.0))
+	stop("Failed degcrossprod term test")
+} else {
+	print("Passed degcrossprod term test")
+	num.passed.tests = num.passed.tests+1
+}
+
+
+# degcor, undirected
+num.tests=num.tests + 1
+s.0 <- summary(unnw~degcor)
+e.0 <- ergm(unnw~degcor, estimate="MPLE")
+if (!all(round(s.0 + c(0.09789041 ),3)==0) || round(e.0$coef - c(0.2282))!= 0) {
+	print(list(s.0=s.0, e.0=e.0))
+	stop("Failed degcor term test")
+} else {
+	print("Passed degcor term test")
+	num.passed.tests = num.passed.tests+1
+}
+
+
+
+
+
+
 # degreepopularity, undirected
 num.tests=num.tests + 1
 s.0 <- summary(fmh~degreepopularity)
@@ -98,6 +147,8 @@ if (round(s.0-795.7458,3) != 0 || round(e.0$coef + 1.1398, 3) != 0) {
   num.passed.tests=num.passed.tests+1
   print("Passed degreepopularity term test")
 }
+
+
 
 # gwdegree, undirected
 num.tests=num.tests+1
@@ -136,6 +187,22 @@ if (!all(s.k == c(406, 659, 1010)) ||
 } else {
   print("Passed kstar term test")
   num.passed.tests = num.passed.tests+1
+}
+
+
+
+
+# opentriad, undirected
+num.tests=num.tests+1
+s.0 <- summary(fmh~opentriad)
+e.0 <- ergm(fmh~opentriad, estimate="MPLE")
+if (!all(s.o == 422) ||
+		round(e.o$coef + 4.603e-09, 3) != 0) {
+	print(list(s.o=s.o, e.o=e.o))
+	stop("Failed opentriad term test")
+} else {
+	print("Passed opentriad term test")
+	num.passed.tests = num.passed.tests+1
 }
 
 # sociality, undirected

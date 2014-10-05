@@ -19,7 +19,7 @@ InitErgmTerm.concurrentties<-function(nw, arglist, ...) {
     lu <- length(u)
     ui <- seq(along=u)
   }
-  out <- list(name="concurrentties",                      #name: required
+  out <- list(name="concurrent_ties",                      #name: required
               coef.names = "concurrentties",               #coef.names: required
               minval = 0
               ) 
