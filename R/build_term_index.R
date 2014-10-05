@@ -170,9 +170,9 @@
   cat("<tr><th>Term name</th><th>",paste(categories,collapse='</th><th>'),"</th></tr>\n",sep='')
   for (t in seq_along(terms)){
     term<-terms[[t]]
-    cat("<tr><td><a href='#",term$term.id,"'>",term$term.name,"</a></td>",sep="")
+    cat("<tr><td align='center'><a href='#",term$term.id,"'>",term$term.name,"</a></td>",sep="")
     for(c in seq_along(categories)){
-      cat("<td>",membership[[c]][[t]],"</td>")
+      cat("<td align='center'>",membership[[c]][[t]],"</td>")
     }
     cat("</tr>",sep='')
   }
