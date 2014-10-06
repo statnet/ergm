@@ -4,14 +4,15 @@
 
 
 
-#TODO currently, the content we are interested is in index 244, but need more robust way to discover this
-# should be the 3rd section?
 
 # grab a the relevent section of .Rd document structure
+# based on the location of a specific comment tag
 .extractTermBlock<-function(){
   # query the install documentation
   rawdoc<-tools::Rd_db('ergm')$'ergm-terms.Rd'
-  return<-rawdoc[[244]][[2]][[3]]
+  # find the tag indicating where the term definitions begin
+  defIndex<-grep('beginTerms',rawdoc[[244]][[2]])
+  return<-rawdoc[[244]][[2]][[defIndex]]
 }
 
 # takes a chunk of text like "   (tag1) (tag2)" and returns just the tags
@@ -23,7 +24,7 @@
   })
 }
 
-# function to extract parts of an Rd object with specific tags
+# utility function to extract parts of an Rd object with specific tags
 .extractTags<-function(block,tagvalue){
   indices<-sapply(block,attr,'Rd_tag')==tagvalue
   return(block[indices])
@@ -52,6 +53,9 @@
       warning('could not locate category tags for term ',term.name)
     } else {
        cats<-.extractCats(as.character(item[[1]][[termIndices[t]+1]]))
+       if(length(cats)==1 && cats[[1]]==''){
+         warning('failed to extract category tags for term ',term.name,'. Are all of the tags enclosed in () and listed on the same line as the term name?')
+       }
     }
     # try to extract short definition from the first sentance
     short.desc<-paste(item[[2]][[1]],sep='',collapse=' ')
