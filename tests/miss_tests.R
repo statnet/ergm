@@ -70,7 +70,7 @@ stopifnot(run.miss.test(y))
 
 # Bipartite Undirected
 cat("\n\nBipartite Undirected Network\n")
-set.seed(789)
+set.seed(123)
 y<-mk.missnet(n, d, m, FALSE, b)
 stopifnot(run.miss.test(y))
 
