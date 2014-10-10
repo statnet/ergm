@@ -196,9 +196,9 @@ if (!all(s.k == c(406, 659, 1010)) ||
 num.tests=num.tests+1
 s.0 <- summary(fmh~opentriad)
 e.0 <- ergm(fmh~opentriad, estimate="MPLE")
-if (!all(s.o == 422) ||
-		round(e.o$coef + 4.603e-09, 3) != 0) {
-	print(list(s.o=s.o, e.o=e.o))
+if (!all(s.0 == 473) ||
+		round(e.0$coef + 0, 3) != 0) {
+	print(list(s.0=s.0, e.0=e.0))
 	stop("Failed opentriad term test")
 } else {
 	print("Passed opentriad term test")
