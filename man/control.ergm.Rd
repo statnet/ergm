@@ -28,25 +28,23 @@ control.ergm(drop=TRUE,
              MPLE.samplesize=50000,                       
              MPLE.type=c("glm", "penalized"),
                       
-             MCMC.prop.weights="default", 
-             MCMC.prop.args=list(),
+             MCMC.prop.weights="default", MCMC.prop.args=list(),
              MCMC.burnin=10000,
-             MCMC.interval=1000,
+             MCMC.interval=1,
              MCMC.samplesize=10000,
-             MCMC.effectiveSize=100,
-             MCMC.max.interval=500000,
+             MCMC.maxchain=1e8,
+             MCMC.effectiveSize=NULL,
+             MCMC.effectiveSize.damp=10,
+             MCMC.effectiveSize.maxruns=1000,
+             MCMC.effectiveSize.base=1/2,
+             MCMC.effectiveSize.points=5,
              MCMC.return.stats=TRUE,
-             MCMC.burnin.retries=1000,
-             MCMC.burnin.check.last=1/2,
-             MCMC.burnin.check.alpha=0.01,
-             MCMC.burnin.min=MCMC.burnin/10,
-             MCMC.burnin.min.df=10,
              MCMC.runtime.traceplot=FALSE,
              MCMC.init.maxedges=20000,
              MCMC.max.maxedges=Inf,
              MCMC.addto.se=TRUE,
              MCMC.compress=FALSE,
-             MCMC.packagenames=c(),
+             MCMC.packagenames=c(),             
 
              SAN.maxit=10,
              SAN.control=control.san(coef=init,
@@ -218,12 +216,13 @@ control.ergm(drop=TRUE,
   \item{MCMC.burnin}{Number of proposals before any MCMC sampling
     is done. It typically is set to a fairly large number.
   }
-  \item{MCMC.interval}{Number of proposals between sampled statistics.
+  \item{MCMC.interval}{Number of proposals between sampled statistics. Increasing interval will reduces the autocorrelation in the sample, and may increase the precision in estimates at the expense of time.
   }
   \item{MCMC.samplesize}{Number of network statistics,
     randomly drawn from a given distribution on the set of all networks,
     returned by the Metropolis-Hastings algorithm.
   }
+  \item{MCMC.maxchain}{Maximum number of MCMC steps in one sampling step.}
   \item{MCMC.return.stats}{Logical:  If TRUE, return the matrix
     of MCMC-sampled network statistics.  This matrix should have
     \code{MCMC.samplesize} rows.

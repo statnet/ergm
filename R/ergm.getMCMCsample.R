@@ -59,6 +59,8 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
     if(inherits(control$parallel,"cluster")) nrow(summary(control$parallel))
     else control$parallel,
     1)
+  
+  status = 0
 
   cl <- if(!is.numeric(control$parallel) || control$parallel!=0){
     ergm.getCluster(control, verbose)
@@ -91,6 +93,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
     meS <- list(burnin=0,eS=control.parallel$MCMC.effectiveSize)
     outl <- rep(list(NULL),nthreads)
     for(mcrun in seq_len(control.parallel$MCMC.effectiveSize.maxruns)){
+      
       if(mcrun==1){
         samplesize <- control.parallel$MCMC.samplesize
         if(verbose)
@@ -104,8 +107,15 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
           pred.ss <- howmuchmore(control.parallel$MCMC.effectiveSize, NVL(nrow(outl[[1]]$s),0), meS$eS, meS$burnin)
           damp.ss <- pred.ss*(meS$eS/(control.parallel$MCMC.effectiveSize.damp+meS$eS))+control.parallel$MCMC.samplesize*(1-meS$eS/(control.parallel$MCMC.effectiveSize.damp+meS$eS))
           samplesize <- round(damp.ss)
+          
           if(verbose) cat("Predicted additional sample size:",pred.ss, "dampened to",damp.ss, ", so running", samplesize, "steps forward.\n")
         }
+      }
+        
+      # if the MCMC chain we ask for is too large, don't do it. Restart the MCMC process.
+      if (samplesize * interval >= control.parallel$MCMC.maxchain && mcrun > 1) {
+        status = 3
+        break
       }
         
       outl<-doruns(prev.runs=outl,
@@ -143,7 +153,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
       }
     }
     
-    if(meS$eS<control.parallel$MCMC.effectiveSize)
+    if(meS$eS<control.parallel$MCMC.effectiveSize && status != 3)
       warning("Unable to reach target effective size in iterations alotted.")
 
     for(i in seq_along(outl)){
@@ -194,7 +204,8 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
                   control.parallel$MCMC.samplesize,"\n")}
   
   statsmatrix[is.na(statsmatrix)] <- 0
-  list(statsmatrix=statsmatrix, newnetwork=newnetwork, newnetworks=newnetworks, status=0, final.interval=final.interval)
+  
+  list(statsmatrix=statsmatrix, newnetwork=newnetwork, newnetworks=newnetworks, status=status, final.interval=final.interval)
 
 }
 

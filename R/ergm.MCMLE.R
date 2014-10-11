@@ -300,7 +300,7 @@ ergm.MCMLE <- function(init, nw, model,
     parametervalues <- rbind(parametervalues, mcmc.init)
     # This allows premature termination.
 
-    if(iteration>1 && !is.null(control$MCMLE.MCMC.precision) && steplen==1){
+    if(iteration>1 && !is.null(control$MCMLE.MCMC.precision) && steplen==1 && z$status != 3){
       prec.loss <- (sqrt(diag(v$mc.cov+v$covar))-sqrt(diag(v$covar)))/sqrt(diag(v$mc.cov+v$covar))
       if(verbose){
         cat("Linear scale precision loss due to MC estimation of the likelihood:\n")
@@ -313,6 +313,12 @@ ergm.MCMLE <- function(init, nw, model,
         control$MCMC.effectiveSize <- min(control$MCMC.effectiveSize * max(prec.loss, na.rm=TRUE)/control$MCMLE.MCMC.precision,control$MCMC.samplesize/2)
         cat("Increasing target MCMC ESS to",control$MCMC.effectiveSize,".\n")
       }
+    }
+    
+    if (z$status == 3) {
+      cat("MCMC process taking too long. Restarting...\n")
+      control$MCMC.effectiveSize <- control$MCMLE.effectiveSize
+      control$MCMC.interval <- 1
     }
     
   } # end of main loop
