@@ -115,6 +115,7 @@ or
 <<results=hide>>=
 library(ergm)
 library(sna)
+set.seed(1)
 @
 
 
@@ -181,19 +182,31 @@ flomodel.02 <- ergm(flomarriage~edges+triangle)
 summary(flomodel.02)
 @
 
+<<results=hide>>=
+coef1 = flomodel.02$coef[1]
+coef2 = flomodel.02$coef[2]
+logodds = coef1 + c(0,1,2) * coef2
+expit = function(x) 1/(1+exp(-x))
+ps = expit(logodds)
+coef1 = round(coef1, 2)
+coef2 = round(coef2, 2)
+logodds = round(logodds, 2)
+ps = round(ps, 2)
+@
+
 Again, how to interpret coefficients?
 
 Conditional log-odds of two actors forming a tie is:
 \[
--1.673\times\mbox{change in the number of ties}+0.139\times\mbox{change in number of triangles}
+\Sexpr{coef1} \times \mbox{change in the number of ties} + \Sexpr{coef2} \times \mbox{change in number of triangles}
 \]
 
 \begin{itemize}
 \item if the tie will not add any triangles to the network, its log-odds
-is: $-1.673$.
-\item if it will add one triangle to the network, its log-odds is: $-1.673+0.139=-1.534$
-\item if it will add two triangles to the network, its log-odds is: $-1.673+0.139\times2=-1.395$
-\item the corresponding probabilities are 0.158, 0.177, and 0.199.
+is: $\Sexpr{coef1}$.
+\item if it will add one triangle to the network, its log-odds is: $\Sexpr{coef1}+\Sexpr{coef2}=\Sexpr{logodds[2]}$
+\item if it will add two triangles to the network, its log-odds is: $\Sexpr{coef1}+\Sexpr{coef2}\times2=\Sexpr{logodds[3]}$
+\item the corresponding probabilities are \Sexpr{ps[1]}, \Sexpr{ps[2]}, and \Sexpr{ps[3]}.
 \end{itemize}
 Let's take a closer look at the ergm object itself:
 
@@ -290,7 +303,7 @@ ergm(missnet~edges+degree(2))
 @
 
 
-The two estimates for the degree2 coefficient differ considerably.
+The two estimates for the degree 2 coefficient differ considerably.
 In the first case, there is one node we know for sure has degree 2,
 two that may or may not, and seven that we know for sure do not. In
 the latter, there is one node that has degree 2, and nine that do
