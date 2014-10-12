@@ -189,7 +189,7 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.effectiveSize=50,
 
                        SA.phase1_n=NULL, SA.initial_gain=NULL, 
-                       SA.nsubphases=MCMLE.maxit,
+                       SA.nsubphases=4,
                        SA.niterations=NULL, 
                        SA.phase3_n=NULL,
                        SA.trustregion=0.5,
