@@ -16,11 +16,6 @@
 #   statsmatrix     :  the matrix of network statistics
 #   statsmatrix.obs :  the matrix of network statistics on the constrained network
 #   model           :  the model, as returned by <ergm.getmodel>
-#   lag.max         :  the maximum lag at which to calculate the acf for the
-#                      the network corresponding to 'statsmatrix'; default=10
-#   lag.max.obs     :  the maximum lag at which to calculate the acf for the
-#                      the network corresponding to 'statsmatrix.obs';
-#                      default=lag.max
 #
 # --RETURNED--
 #   the variance of the MCMC sampling as a list containing:
@@ -30,8 +25,7 @@
 ################################################################################
 
 ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
-                      model, 
-                      lag.max=10, lag.max.obs=lag.max) {
+                      model) {
   # Not sure why this is necessary, but:
   names(theta) <- names(init)
 
@@ -62,14 +56,13 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
   theta.offset <- etamap$init
   theta.offset[!offsettheta] <- theta[!offsettheta]
 
-  #  Calculate the auto-covariance of the MCMC suff. stats.
-  #  and hence the MCMC s.e.
-  z <- sweep(xsim, 2, xobs, "-")
-  cov.zbar <- .ergm.mvar.spec0(z) / nrow(z)
+  # Calculate prediction probabilities that had been used in the last MCMLE update.
   basepred <- xsim %*% etaparam
   prob <- max(basepred)
   prob <- exp(basepred - prob)
   prob <- prob/sum(prob)
+
+  # Estimate the Hessian.
   E <- apply(sweep(xsim, 1, prob, "*"), 2, sum)
   #  E <- apply(xsim,2,wtd.median,weight=prob)
   htmp <- sweep(sweep(xsim, 2, E, "-"), 1, sqrt(prob), "*")
@@ -78,6 +71,11 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
   htmp.offset <- t(ergm.etagradmult(theta.offset, t(htmp.offset), etamap))
   H <- crossprod(htmp.offset, htmp.offset)
 
+  #  Calculate the auto-covariance of the MCMC suff. stats.
+  #  and hence the MCMC s.e.
+  z <- sweep(xsim, 2, xobs, "-")
+  cov.zbar <- .ergm.mvar.spec0(z) * sum(prob^2)
+  imp.factor <- mean(prob^2)
   cov.zbar.offset <- matrix(0, ncol = length(offsetmap), 
                             nrow = length(offsetmap))
   cov.zbar <- suppressWarnings(chol(cov.zbar, pivot=TRUE))
@@ -86,7 +84,7 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
   cov.zbar.offset[!offsetmap,!offsetmap] <- cov.zbar
   cov.zbar.offset <- t(ergm.etagradmult(theta.offset, t(cov.zbar.offset), etamap))
   cov.zbar <- crossprod(cov.zbar.offset, cov.zbar.offset)
-
+  
   # Identify canonical parameters corresponding to statistics that do not vary
   novar <- diag(H)==0
   novar.offset <- rep(TRUE, length(offsettheta))
@@ -95,10 +93,7 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
   #  Calculate the auto-covariance of the Conditional MCMC suff. stats.
   #  and hence the Conditional MCMC s.e.
   E.obs <- 0
-  lag.max.obs <- lag.max
   if(!is.null(statsmatrix.obs)){
-    z <- xsim.obs
-    cov.zbar.obs <- .ergm.mvar.spec0(z) / nrow(z)
     obspred <- xsim.obs %*% etaparam
     prob.obs <- exp(obspred - max(obspred))
     prob.obs <- prob.obs/sum(prob.obs)
@@ -108,6 +103,10 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
     htmp.obs.offset[,!offsetmap] <- htmp.obs
     htmp.obs.offset <- t(ergm.etagradmult(theta.offset, t(htmp.obs.offset), etamap))
     H.obs <- crossprod(htmp.obs.offset, htmp.obs.offset)
+
+    z <- xsim.obs
+    cov.zbar.obs <- .ergm.mvar.spec0(z) * sum(prob.obs^2)
+    imp.factor <- mean(imp.factor, mean(prob.obs^2))
     cov.zbar.obs.offset <- matrix(0, ncol = length(offsetmap), 
                                   nrow = length(offsetmap))
     cov.zbar.obs <- suppressWarnings(chol(cov.zbar.obs, pivot=TRUE))
@@ -166,5 +165,7 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
   colnames(mc.cov) <- names(theta)
   rownames(mc.cov) <- names(theta)
 
+  attr(mc.cov, "imp.factor") <- imp.factor
+  
   mc.cov
 }
