@@ -23,7 +23,6 @@
 \alias{InitMHP.HammingConstantEdges}
 \alias{InitMHP.HammingTNT}
 \alias{InitMHP.nobetweengroupties}
-\alias{InitWtMHP.StdNormal}
 
 \alias{MHproposal}
 \alias{MHproposal.MHproposal}
