@@ -109,7 +109,7 @@ ergm.MCMLE <- function(init, nw, model,
   # mcmc.init will change at each iteration.  It is the value that is used
   # to generate the MCMC samples.  init will never change.
   mcmc.init <- init
-  parametervalues <- init # Keep track of all parameter values
+  
   calc.MCSE <- FALSE
   for(iteration in 1:control$MCMLE.maxit){
     if(verbose){
@@ -297,18 +297,22 @@ ergm.MCMLE <- function(init, nw, model,
     coef.hist <- rbind(coef.hist, mcmc.init)
     stats.obs.hist <- if(!is.null(statsmatrix.obs)) rbind(stats.obs.hist, apply(statsmatrix.obs, 2, mean)) else NULL
     stats.hist <- rbind(stats.hist, apply(statsmatrix, 2, mean))
-    parametervalues <- rbind(parametervalues, mcmc.init)
+    
     # This allows premature termination.
 
-    if(iteration>1 && !is.null(control$MCMLE.MCMC.precision) && steplen==1 && z$status != 3){
+    if(steplen==1 && !is.null(control$MCMLE.MCMC.precision) && z$status != 3){
       prec.loss <- (sqrt(diag(v$mc.cov+v$covar))-sqrt(diag(v$covar)))/sqrt(diag(v$mc.cov+v$covar))
       if(verbose){
         cat("Linear scale precision loss due to MC estimation of the likelihood:\n")
         print(prec.loss)
       }
+      
       if(max(prec.loss, na.rm=TRUE) <= control$MCMLE.MCMC.precision){
-        cat("Precision adequate. Finishing.\n")
-        break
+        if (identical(tail(steplen.hist, 2), c(1,1))) {
+          # two consecutive steps with Hummel step length = 1 
+          cat("Precision adequate. Finishing.\n")
+          break
+        }
       }else{
         control$MCMC.effectiveSize <- min(control$MCMC.effectiveSize * max(prec.loss, na.rm=TRUE)/control$MCMLE.MCMC.precision,control$MCMC.samplesize/2)
         cat("Increasing target MCMC ESS to",control$MCMC.effectiveSize,".\n")
@@ -345,11 +349,6 @@ ergm.MCMLE <- function(init, nw, model,
   v$iterations <- iteration
   v$control <- control
   
-  # The following output is sometimes helpful.  It's the total history
-  # of all eta values, from the initial eta0 to the final estimate
-  # v$allparamvals <- parametervalues
-
-
   v$etamap <- model$etamap
   v
 }
