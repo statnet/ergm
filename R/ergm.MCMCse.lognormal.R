@@ -19,11 +19,6 @@
 #   H               :  the Hessian matrix
 #   H.obs           :  the Hessian matrix on the constrained network
 #   model           :  the model, as returned by <ergm.getmodel>
-#   lag.max         :  the maximum lag at which to calculate the acf for the
-#                      the network corresponding to 'statsmatrix'; default=10
-#   lag.max.obs     :  the maximum lag at which to calculate the acf for the
-#                      the network corresponding to 'statsmatrix.obs';
-#                      default=lag.max
 #
 # --RETURNED--
 #   mc.se: the vector of MCMC lognormal standard error estimates for each theta
@@ -32,8 +27,7 @@
 ################################################################################
 
 ergm.MCMCse.lognormal<-function(theta, init, statsmatrix, statsmatrix.obs,
-                      H, H.obs, model, 
-                      lag.max=10, lag.max.obs=lag.max) {
+                      H, H.obs, model) {
   # Not sure why this is necessary, but:
   names(theta) <- names(init)
 
@@ -87,7 +81,6 @@ ergm.MCMCse.lognormal<-function(theta, init, statsmatrix, statsmatrix.obs,
   #  Calculate the auto-covariance of the Conditional MCMC suff. stats.
   #  and hence the Conditional MCMC s.e.
   E.obs <- 0
-  lag.max.obs <- lag.max
   if(!is.null(statsmatrix.obs)){
     z <- xsim.obs
     cov.zbar.obs <- .ergm.mvar.spec0(z) / nrow(z)

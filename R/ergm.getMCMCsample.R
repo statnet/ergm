@@ -59,8 +59,6 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
     if(inherits(control$parallel,"cluster")) nrow(summary(control$parallel))
     else control$parallel,
     1)
-  
-  status = 0
 
   cl <- if(!is.numeric(control$parallel) || control$parallel!=0){
     ergm.getCluster(control, verbose)
@@ -93,7 +91,6 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
     meS <- list(burnin=0,eS=control.parallel$MCMC.effectiveSize)
     outl <- rep(list(NULL),nthreads)
     for(mcrun in seq_len(control.parallel$MCMC.effectiveSize.maxruns)){
-      
       if(mcrun==1){
         samplesize <- control.parallel$MCMC.samplesize
         if(verbose)
@@ -107,15 +104,8 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
           pred.ss <- howmuchmore(control.parallel$MCMC.effectiveSize, NVL(nrow(outl[[1]]$s),0), meS$eS, meS$burnin)
           damp.ss <- pred.ss*(meS$eS/(control.parallel$MCMC.effectiveSize.damp+meS$eS))+control.parallel$MCMC.samplesize*(1-meS$eS/(control.parallel$MCMC.effectiveSize.damp+meS$eS))
           samplesize <- round(damp.ss)
-          
           if(verbose) cat("Predicted additional sample size:",pred.ss, "dampened to",damp.ss, ", so running", samplesize, "steps forward.\n")
         }
-      }
-        
-      # if the MCMC chain we ask for is too large, don't do it. Restart the MCMC process.
-      if (samplesize * interval >= control.parallel$MCMC.maxchain && mcrun > 1) {
-        status = 3
-        break
       }
         
       outl<-doruns(prev.runs=outl,
@@ -153,7 +143,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
       }
     }
     
-    if(meS$eS<control.parallel$MCMC.effectiveSize && status != 3)
+    if(meS$eS<control.parallel$MCMC.effectiveSize)
       warning("Unable to reach target effective size in iterations alotted.")
 
     for(i in seq_along(outl)){
@@ -204,8 +194,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
                   control.parallel$MCMC.samplesize,"\n")}
   
   statsmatrix[is.na(statsmatrix)] <- 0
-  
-  list(statsmatrix=statsmatrix, newnetwork=newnetwork, newnetworks=newnetworks, status=status, final.interval=final.interval)
+  list(statsmatrix=statsmatrix, newnetwork=newnetwork, newnetworks=newnetworks, status=0, final.interval=final.interval)
 
 }
 
@@ -334,10 +323,11 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NU
 }
 
 
-.max.effectiveSize <- function(x, npts, base){
+.max.effectiveSize <- function(x, npts, base, order=2){
   if(!is.list(x)) x <- list(x)
   es <- function(b){
     if(b>0) x <- lapply(lapply(x, "[", -seq_len(b),,drop=FALSE),mcmc)
+    #effSizes <- .fast.effectiveSize(as.mcmc.list(x), order=order)
     effSizes <- effectiveSize(as.mcmc.list(x))
     mean.fn <- function(x) x^(-1)
     mean.ifn <- function(x) x^(-1)
@@ -348,4 +338,29 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NU
   ess <- sapply(pts, es)
 
   list(burnin=pts[which.max(ess)], eS=max(ess))
+}
+
+.fast.effectiveSize <- function(x, order=2){
+  if (is.mcmc.list(x)){
+    ess <- do.call("rbind", lapply(x, .fast.effectiveSize, order=order))
+    ans <- apply(ess, 2, sum)
+  } else {
+    x <- as.mcmc(x)
+    x <- as.matrix(x)
+    spec <- .fast.spectrum0.ar(x, order=order)$spec
+    ans <- ifelse(spec == 0, 0, nrow(x) * apply(x, 2, var)/spec)
+    }
+    return(ans)
+}
+.fast.spectrum0.ar <- function (x, order=2){
+    x <- as.matrix(x)
+    v0 <- order <- numeric(ncol(x))
+    names(v0) <- names(order) <- colnames(x)
+    z <- 1:nrow(x)
+    for (i in 1:ncol(x)) {
+      ar.out <- ar(x[, i], aic = FALSE, order.max=order)
+      v0[i] <- ar.out$var.pred/(1 - sum(ar.out$ar))^2
+      order[i] <- ar.out$order
+    }
+    return(list(spec = v0, order = order))
 }

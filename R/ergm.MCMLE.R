@@ -111,6 +111,7 @@ ergm.MCMLE <- function(init, nw, model,
   mcmc.init <- init
   
   calc.MCSE <- FALSE
+  last.adequate <- FALSE  
   for(iteration in 1:control$MCMLE.maxit){
     if(verbose){
       cat("Iteration ",iteration," of at most ", control$MCMLE.maxit,
@@ -253,7 +254,7 @@ ergm.MCMLE <- function(init, nw, model,
       steplen.hist <- c(steplen.hist, adaptive.steplength)
     }else{
       steplen <- if(!is.null(control$MCMLE.steplength.margin)) .Hummel.steplength(statsmatrix.0[,!model$etamap$offsetmap,drop=FALSE], statsmatrix.0.obs[,!model$etamap$offsetmap,drop=FALSE], control$MCMLE.steplength.margin, control$MCMLE.steplength) else control$MCMLE.steplength
-      if(steplen==1 || is.null(control$MCMLE.steplength.margin) || iteration==control$MCMLE.maxit) calc.MCSE <- TRUE
+      if(steplen==control$MCMLE.steplength || is.null(control$MCMLE.steplength.margin) || iteration==control$MCMLE.maxit) calc.MCSE <- TRUE
       
       if(verbose){cat("Calling MCMLE Optimization...\n")}
       statsmean <- apply(statsmatrix.0,2,mean)
@@ -300,29 +301,37 @@ ergm.MCMLE <- function(init, nw, model,
     
     # This allows premature termination.
 
-    if(steplen==1 && !is.null(control$MCMLE.MCMC.precision) && z$status != 3){
+    if(steplen<control$MCMLE.steplength){ # If step length is less than its maximum, don't bother with precision stuff.
+      last.adequate <- FALSE
+      next
+    }
+    
+    if(!is.null(control$MCMLE.MCMC.precision)){
       prec.loss <- (sqrt(diag(v$mc.cov+v$covar))-sqrt(diag(v$covar)))/sqrt(diag(v$mc.cov+v$covar))
       if(verbose){
+        cat("Standard Error:\n")
+        print(sqrt(diag(v$covar)))
+        cat("MC SE:\n")
+        print(sqrt(diag(v$mc.cov)))
         cat("Linear scale precision loss due to MC estimation of the likelihood:\n")
         print(prec.loss)
       }
-      
-      if(max(prec.loss, na.rm=TRUE) <= control$MCMLE.MCMC.precision){
-        if (identical(tail(steplen.hist, 2), c(1,1))) {
-          # two consecutive steps with Hummel step length = 1 
-          cat("Precision adequate. Finishing.\n")
+      if(sqrt(mean(prec.loss^2, na.rm=TRUE)) <= control$MCMLE.MCMC.precision){
+        if(last.adequate){
+          cat("Precision adequate twice. Finishing.\n")
           break
+        }else{
+          cat("Precision adequate.\n")
+          last.adequate <- TRUE
         }
       }else{
-        control$MCMC.effectiveSize <- min(control$MCMC.effectiveSize * max(prec.loss, na.rm=TRUE)/control$MCMLE.MCMC.precision,control$MCMC.samplesize/2)
-        cat("Increasing target MCMC ESS to",control$MCMC.effectiveSize,".\n")
+        last.adequate <- FALSE
+        prec.scl <- max(sqrt(mean(prec.loss^2, na.rm=TRUE))/control$MCMLE.MCMC.precision, 1) # Never decrease it.
+        control$MCMC.effectiveSize <- round(control$MCMC.effectiveSize * prec.scl)
+        if(control$MCMC.effectiveSize/control$MCMC.samplesize>control$MCMLE.MCMC.max.ESS.frac) control$MCMC.samplesize <- control$MCMC.effectiveSize/control$MCMLE.MCMC.max.ESS.frac
+        # control$MCMC.samplesize <- round(control$MCMC.samplesize * prec.scl)
+        cat("Increasing target MCMC sample size to ", control$MCMC.samplesize, ", ESS to",control$MCMC.effectiveSize,".\n")
       }
-    }
-    
-    if (z$status == 3) {
-      cat("MCMC process taking too long. Restarting...\n")
-      control$MCMC.effectiveSize <- control$MCMLE.effectiveSize
-      control$MCMC.interval <- 1
     }
     
   } # end of main loop
