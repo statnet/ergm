@@ -129,7 +129,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
                       else out$s[,Clists[[1]]$diagnosable,drop=FALSE]
                       )
       
-      meS <- .max.effectiveSize(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base)
+      meS <- .max.effectiveSize(esteq, npts=control$MCMC.effectiveSize.points, base=control$MCMC.effectiveSize.base, ar.order=control$MCMC.effectiveSize.order)
       if(verbose) cat("Maximum Harmonic mean ESS of",meS$eS,"attained with burn-in of", round(meS$b/nrow(outl[[1]]$s)*100,2),"%.\n")
 
       if(control.parallel$MCMC.runtime.traceplot){
@@ -323,12 +323,12 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NU
 }
 
 
-.max.effectiveSize <- function(x, npts, base, order=2){
+.max.effectiveSize <- function(x, npts, base, ar.order=0){
   if(!is.list(x)) x <- list(x)
   es <- function(b){
     if(b>0) x <- lapply(lapply(x, "[", -seq_len(b),,drop=FALSE),mcmc)
-    #effSizes <- .fast.effectiveSize(as.mcmc.list(x), order=order)
-    effSizes <- effectiveSize(as.mcmc.list(x))
+    effSizes <- if(ar.order) .fast.effectiveSize(as.mcmc.list(x), ar.order=ar.order)
+                else effectiveSize(as.mcmc.list(x))
     mean.fn <- function(x) x^(-1)
     mean.ifn <- function(x) x^(-1)
     mean.ifn(mean(mean.fn(effSizes)))
@@ -340,25 +340,25 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NU
   list(burnin=pts[which.max(ess)], eS=max(ess))
 }
 
-.fast.effectiveSize <- function(x, order=2){
+.fast.effectiveSize <- function(x, ar.order=1){
   if (is.mcmc.list(x)){
-    ess <- do.call("rbind", lapply(x, .fast.effectiveSize, order=order))
+    ess <- do.call("rbind", lapply(x, .fast.effectiveSize, ar.order=ar.order))
     ans <- apply(ess, 2, sum)
   } else {
     x <- as.mcmc(x)
     x <- as.matrix(x)
-    spec <- .fast.spectrum0.ar(x, order=order)$spec
+    spec <- .fast.spectrum0.ar(x, ar.order=ar.order)$spec
     ans <- ifelse(spec == 0, 0, nrow(x) * apply(x, 2, var)/spec)
     }
     return(ans)
 }
-.fast.spectrum0.ar <- function (x, order=2){
+.fast.spectrum0.ar <- function (x, ar.order=1){
     x <- as.matrix(x)
     v0 <- order <- numeric(ncol(x))
     names(v0) <- names(order) <- colnames(x)
     z <- 1:nrow(x)
     for (i in 1:ncol(x)) {
-      ar.out <- ar(x[, i], aic = FALSE, order.max=order)
+      ar.out <- ar(x[, i], aic = FALSE, order.max=ar.order)
       v0[i] <- ar.out$var.pred/(1 - sum(ar.out$ar))^2
       order[i] <- ar.out$order
     }
