@@ -111,7 +111,8 @@ ergm.MCMLE <- function(init, nw, model,
   mcmc.init <- init
   
   calc.MCSE <- FALSE
-  last.adequate <- FALSE  
+  last.adequate <- FALSE
+  finished <- FALSE
   for(iteration in 1:control$MCMLE.maxit){
     if(verbose){
       cat("Iteration ",iteration," of at most ", control$MCMLE.maxit,
@@ -301,6 +302,8 @@ ergm.MCMLE <- function(init, nw, model,
     
     # This allows premature termination.
 
+    if(finished) break
+    
     if(steplen<control$MCMLE.steplength){ # If step length is less than its maximum, don't bother with precision stuff.
       last.adequate <- FALSE
       next
@@ -319,9 +322,9 @@ ergm.MCMLE <- function(init, nw, model,
       if(sqrt(mean(prec.loss^2, na.rm=TRUE)) <= control$MCMLE.MCMC.precision){
         if(last.adequate){
           cat("Precision adequate twice. Finishing.\n")
-          break
+          finished <- TRUE
         }else{
-          cat("Precision adequate.\n")
+          cat("Precision adequate. Performing one more iteration.\n")
           last.adequate <- TRUE
         }
       }else{
@@ -332,6 +335,19 @@ ergm.MCMLE <- function(init, nw, model,
         # control$MCMC.samplesize <- round(control$MCMC.samplesize * prec.scl)
         cat("Increasing target MCMC sample size to ", control$MCMC.samplesize, ", ESS to",control$MCMC.effectiveSize,".\n")
       }
+    }else if(!is.null(control$MCMLE.conv.min.pval)){
+      # TODO: Move this to statnet.common.
+      ERRVL <- function(...){
+        for(x in list(...))
+          if(!inherits(x, "try-error")) return(x)
+        stop("No non-error expressions passed.")
+      }
+      conv.pval <- ERRVL(try(approx.hotelling.diff.test(esteq, esteq.obs)$p.value), NA)
+      cat("Nonconvergence test p-value:",conv.pval,"\n")
+      if(!is.na(conv.pval) && conv.pval>=control$MCMLE.conv.min.pval){
+        cat("No nonconvergence detected. Stopping.")
+        break
+      }      
     }
     
   } # end of main loop
