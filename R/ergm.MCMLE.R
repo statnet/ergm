@@ -72,6 +72,7 @@ ergm.MCMLE <- function(init, nw, model,
   steplen.hist <- c()
 
   control$MCMC.effectiveSize <- control$MCMLE.effectiveSize
+  control$MCMC.base.samplesize <- control$MCMC.samplesize
 
   # Store information about original network, which will be returned at end
   nw.orig <- network.copy(nw)
@@ -112,7 +113,7 @@ ergm.MCMLE <- function(init, nw, model,
   
   calc.MCSE <- FALSE
   last.adequate <- FALSE
-  finished <- FALSE
+  one.more <- FALSE
   for(iteration in 1:control$MCMLE.maxit){
     if(verbose){
       cat("Iteration ",iteration," of at most ", control$MCMLE.maxit,
@@ -302,10 +303,11 @@ ergm.MCMLE <- function(init, nw, model,
     
     # This allows premature termination.
 
-    if(finished) break
+    if(one.more) break
     
     if(steplen<control$MCMLE.steplength){ # If step length is less than its maximum, don't bother with precision stuff.
       last.adequate <- FALSE
+      control$MCMC.samplesize <- control$MCMC.base.samplesize
       next
     }
     
@@ -321,24 +323,25 @@ ergm.MCMLE <- function(init, nw, model,
       }
       if(sqrt(mean(prec.loss^2, na.rm=TRUE)) <= control$MCMLE.MCMC.precision){
         if(last.adequate){
-          cat("Precision adequate twice. Finishing.\n")
-          finished <- TRUE
+          cat("Precision adequate twice. Stopping.\n")
+          break
         }else{
           cat("Precision adequate. Performing one more iteration.\n")
           last.adequate <- TRUE
         }
       }else{
         last.adequate <- FALSE
-        if (!is.null(control$MCMC.effectiveSize)) {
-          prec.scl <- max(sqrt(mean(prec.loss^2, na.rm=TRUE))/control$MCMLE.MCMC.precision, 1) # Never decrease it.
+        prec.scl <- max(sqrt(mean(prec.loss^2, na.rm=TRUE))/control$MCMLE.MCMC.precision, 1) # Never decrease it.
+        if (!is.null(control$MCMC.effectiveSize)) { # ESS-based sampling
           control$MCMC.effectiveSize <- round(control$MCMC.effectiveSize * prec.scl)
           if(control$MCMC.effectiveSize/control$MCMC.samplesize>control$MCMLE.MCMC.max.ESS.frac) control$MCMC.samplesize <- control$MCMC.effectiveSize/control$MCMLE.MCMC.max.ESS.frac
           # control$MCMC.samplesize <- round(control$MCMC.samplesize * prec.scl)
           cat("Increasing target MCMC sample size to ", control$MCMC.samplesize, ", ESS to",control$MCMC.effectiveSize,".\n")
-        } else {
-          warning("Sample size may be inadequate to achieve specified MCMC precision. Try increasing MCMC.interval or MCMC.samplesize.")
+        } else { # Fixed-interval sampling
+          control$MCMC.samplesize <- round(control$MCMC.samplesize * prec.scl)
+          control$MCMC.burnin <- round(control$MCMC.burnin * prec.scl)
+          cat("Increasing MCMC sample size to ", control$MCMC.samplesize, ", burn-in to",control$MCMC.burnin,".\n")
         }
-        
       }
     }else if(!is.null(control$MCMLE.conv.min.pval)){
       # TODO: Move this to statnet.common.
@@ -353,8 +356,16 @@ ergm.MCMLE <- function(init, nw, model,
         cat("No nonconvergence detected. Stopping.")
         break
       }      
+    }else{
+      if(last.adequate){
+        cat("Step length converged twice. Stopping.\n")
+        break
+      }else{
+        cat("Step length converged once. Increasing MCMC sample size.\n")
+        last.adequate <- TRUE
+        control$MCMC.samplesize <- control$MCMC.base.samplesize * control$MCMLE.last.boost
+      }
     }
-    
   } # end of main loop
 
   # FIXME:  We should not be "tacking on" extra list items to the 
