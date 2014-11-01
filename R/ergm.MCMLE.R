@@ -329,11 +329,16 @@ ergm.MCMLE <- function(init, nw, model,
         }
       }else{
         last.adequate <- FALSE
-        prec.scl <- max(sqrt(mean(prec.loss^2, na.rm=TRUE))/control$MCMLE.MCMC.precision, 1) # Never decrease it.
-        control$MCMC.effectiveSize <- round(control$MCMC.effectiveSize * prec.scl)
-        if(control$MCMC.effectiveSize/control$MCMC.samplesize>control$MCMLE.MCMC.max.ESS.frac) control$MCMC.samplesize <- control$MCMC.effectiveSize/control$MCMLE.MCMC.max.ESS.frac
-        # control$MCMC.samplesize <- round(control$MCMC.samplesize * prec.scl)
-        cat("Increasing target MCMC sample size to ", control$MCMC.samplesize, ", ESS to",control$MCMC.effectiveSize,".\n")
+        if (!is.null(control$MCMC.effectiveSize)) {
+          prec.scl <- max(sqrt(mean(prec.loss^2, na.rm=TRUE))/control$MCMLE.MCMC.precision, 1) # Never decrease it.
+          control$MCMC.effectiveSize <- round(control$MCMC.effectiveSize * prec.scl)
+          if(control$MCMC.effectiveSize/control$MCMC.samplesize>control$MCMLE.MCMC.max.ESS.frac) control$MCMC.samplesize <- control$MCMC.effectiveSize/control$MCMLE.MCMC.max.ESS.frac
+          # control$MCMC.samplesize <- round(control$MCMC.samplesize * prec.scl)
+          cat("Increasing target MCMC sample size to ", control$MCMC.samplesize, ", ESS to",control$MCMC.effectiveSize,".\n")
+        } else {
+          warning("Sample size may be inadequate to achieve specified MCMC precision. Try increasing MCMC.interval or MCMC.samplesize.")
+        }
+        
       }
     }else if(!is.null(control$MCMLE.conv.min.pval)){
       # TODO: Move this to statnet.common.
