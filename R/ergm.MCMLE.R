@@ -113,7 +113,7 @@ ergm.MCMLE <- function(init, nw, model,
   
   calc.MCSE <- FALSE
   last.adequate <- FALSE
-  one.more <- FALSE
+  
   for(iteration in 1:control$MCMLE.maxit){
     if(verbose){
       cat("Iteration ",iteration," of at most ", control$MCMLE.maxit,
@@ -255,7 +255,7 @@ ergm.MCMLE <- function(init, nw, model,
       }
       steplen.hist <- c(steplen.hist, adaptive.steplength)
     }else{
-      steplen <- if(!is.null(control$MCMLE.steplength.margin)) .Hummel.steplength(statsmatrix.0[,!model$etamap$offsetmap,drop=FALSE], statsmatrix.0.obs[,!model$etamap$offsetmap,drop=FALSE], control$MCMLE.steplength.margin, control$MCMLE.steplength) else control$MCMLE.steplength
+      steplen <- if(!(MCMLE.termination%in%c("Hotelling","none"))) .Hummel.steplength(statsmatrix.0[,!model$etamap$offsetmap,drop=FALSE], statsmatrix.0.obs[,!model$etamap$offsetmap,drop=FALSE], control$MCMLE.steplength.margin, control$MCMLE.steplength) else control$MCMLE.steplength
       if(steplen==control$MCMLE.steplength || is.null(control$MCMLE.steplength.margin) || iteration==control$MCMLE.maxit) calc.MCSE <- TRUE
       
       if(verbose){cat("Calling MCMLE Optimization...\n")}
@@ -302,8 +302,6 @@ ergm.MCMLE <- function(init, nw, model,
     stats.hist <- rbind(stats.hist, apply(statsmatrix, 2, mean))
     
     # This allows premature termination.
-
-    if(one.more) break
     
     if(steplen<control$MCMLE.steplength){ # If step length is less than its maximum, don't bother with precision stuff.
       last.adequate <- FALSE
@@ -311,7 +309,7 @@ ergm.MCMLE <- function(init, nw, model,
       next
     }
     
-    if(!is.null(control$MCMLE.MCMC.precision)){
+    if(control$MCMLE.termination == "precision"){
       prec.loss <- (sqrt(diag(v$mc.cov+v$covar))-sqrt(diag(v$covar)))/sqrt(diag(v$mc.cov+v$covar))
       if(verbose){
         cat("Standard Error:\n")
@@ -343,7 +341,7 @@ ergm.MCMLE <- function(init, nw, model,
           cat("Increasing MCMC sample size to ", control$MCMC.samplesize, ", burn-in to",control$MCMC.burnin,".\n")
         }
       }
-    }else if(!is.null(control$MCMLE.conv.min.pval)){
+    }else if(MCMLE.termination=='Hotelling'){
       # TODO: Move this to statnet.common.
       ERRVL <- function(...){
         for(x in list(...))
@@ -356,7 +354,7 @@ ergm.MCMLE <- function(init, nw, model,
         cat("No nonconvergence detected. Stopping.")
         break
       }      
-    }else{
+    }else if(MCMLE.termination=='Hummel'){
       if(last.adequate){
         cat("Step length converged twice. Stopping.\n")
         break
