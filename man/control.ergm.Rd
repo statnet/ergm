@@ -227,7 +227,7 @@ control.ergm(drop=TRUE,
     at the expense of time. Set it higher for larger networks, or when using parallel functionality.
   }  
   \item{MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns,
-  MCMC.effectiveSize.base, MCMC.effectiveSize.points, MCMC.effectiveSize.order} {
+  MCMC.effectiveSize.base, MCMC.effectiveSize.points, MCMC.effectiveSize.order}{
     Set \code{MCMC.effectiveSize} to non-NULL value to adaptively determine MCMC length needed
     to get the specified effective size; 50 is a reasonable value. This feature is
     experimental.
