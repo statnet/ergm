@@ -82,7 +82,7 @@ control.ergm(drop=TRUE,
              MCMLE.dampening.min.ess=20,
              MCMLE.dampening.level=0.1,
              MCMLE.steplength.margin=0.05,
-             MCMLE.steplength=if(MCMLE.termination\%in\%c("Hotelling","none")) 0.5 else 1,
+             MCMLE.steplength=1,
              MCMLE.adaptive.trustregion=3,
              MCMLE.sequential=TRUE,
              MCMLE.density.guard.min=10000,
@@ -92,7 +92,7 @@ control.ergm(drop=TRUE,
 
              SA.phase1_n=NULL, 
              SA.initial_gain=NULL, 
-             SA.nsubphases=MCMLE.maxit, 
+             SA.nsubphases=4, 
              SA.niterations=NULL, 
              SA.phase3_n=NULL,
              SA.trustregion=0.5,
@@ -226,9 +226,9 @@ control.ergm(drop=TRUE,
     Increasing sample size may increase the precision in the estimates by reducing MCMC error,
     at the expense of time. Set it higher for larger networks, or when using parallel functionality.
   }  
-  \item{MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns,
+  \item{MCMLE.effectiveSize, MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns,
   MCMC.effectiveSize.base, MCMC.effectiveSize.points, MCMC.effectiveSize.order}{
-    Set \code{MCMC.effectiveSize} to non-NULL value to adaptively determine MCMC length needed
+    Set \code{MCMLE.effectiveSize} to non-NULL value to adaptively determine MCMC length needed
     to get the specified effective size; 50 is a reasonable value. This feature is
     experimental.
   }  
@@ -303,7 +303,7 @@ control.ergm(drop=TRUE,
   to \code{optim} only when \code{trust} fails.
   }  
   
-  \item{obs.MCMC.samplesize, obs.MCMC.burnin, obs.MCMC.interval}{
+  \item{obs.MCMC.samplesize, obs.MCMC.burnin, obs.MCMC.interval, obs.MCMC.burnin.min}{
     Sample size, burnin, and interval parameters for the MCMC sampling used
     when unobserved data are present in the estimation routine.    
   }
@@ -330,6 +330,11 @@ control.ergm(drop=TRUE,
   \item{MCMLE.dampening}{(logical) Should likelihood dampening be used?}
   \item{MCMLE.dampening.min.ess}{The effective sample size below which dampening is used.}
   \item{MCMLE.dampening.level}{The proportional distance from boundary of the convex hull move.}
+  \item{MCMLE.steplength.margin}{
+    The extra margin required for a Hummel step to count as being inside 
+    the convex hull of the sample. 
+    Set this to 0 if the step length gets stuck at the same value over several iteraions.
+  }
   \item{MCMLE.steplength}{Multiplier for step length, which may 
     (for values less than one) 
     make fitting more stable at the cost of efficiency.
@@ -359,6 +364,8 @@ control.ergm(drop=TRUE,
     \code{MCMLE.density.guard}, the optimization process will be stopped
     with an error.
   }
+  \item{MCMLE.last.boost}{For the Hummel termination criterion, increase
+  the MCMC sample size of the last iteration by this factor.}
   \item{SA.phase1_n}{Number of MCMC samples to draw
     in Phase 1 of the stochastic approximation algorithm.
     Defaults to 7 plus 3 times the number of terms in the model.
