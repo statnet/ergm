@@ -90,6 +90,7 @@
          \code{\link{summary.ergm}}
         }
 \examples{
+\dontrun{
 #
 data(florentine)
 #
@@ -112,5 +113,6 @@ plot(gest$sample, ask=FALSE)
 # A full range of diagnostics is available 
 # using codamenu()
 #
+}
 }
 \keyword{models}

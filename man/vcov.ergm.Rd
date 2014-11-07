@@ -43,8 +43,8 @@
 %  Wadsworth \& Brooks/Cole.
 %}
 \examples{
-data(faux.mesa.high)
-fit <- ergm(faux.mesa.high ~ edges + concurrent)
+data(florentine)
+fit <- ergm(flomarriage ~ edges + concurrent)
 vcov(fit)
 }
 
