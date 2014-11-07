@@ -15,15 +15,22 @@
 % delete unused sections.
 \section{Changes in version 3.2}{
 
-  % \subsection{NEW FEATURES}{
-  %   \itemize{
-  %   } 
-  % }
+   \subsection{NEW FEATURES}{
+     \itemize{
+     \item{ergm MCMLE estimation, by default, uses the stepping algorithm by Hummel et al (2012) to determine step length, and terminates estimation when the step length = 1 for two consecutive iterations. The old method (from version 3.1) is still available by setting control parameter \code{MCMLE.termination="Hotelling"}. }
+     \item{As a result, the final MCMC sample average may be different from the observed statistics. This is reflected in \code{mcmc.diagnostics().}}
+     \item{Default ergm MCMC parameters changed to \code{MCMC.interval=1024, MCMC.samplesize=1024, MCMC.burnin=MCMC.interval*16}. The final sample size in the Hummel stepping algorithm is boosted by a factor of \code{MCMLE.last.boost}}
+     \item{Parallel functionality: ergm can take user-created clusters as the parallel control parameter. This is the recommended method for using ergm on a high-performance computing cluster. See \link{ergm-parallel}}
+     \item{The estimated covariance matrix of the ergm estimate can be extracted using \code{vcov()} function.}
+     }
+   }
   
-  % \subsection{BUG FIXES}{
-  %  \itemize{
-  %  }
-  % }
+   \subsection{BUG FIXES}{
+    \itemize{
+    \item{Networks where some statistics are at the lowest value, leading to some terms being -Inf, was not giving the correct estimated coefficients. Now fixed.}
+    \item{Many other fixes...}
+    }
+   }
 
   %\subsection{DEPRECATED & DEFUNCT}{
   %  \itemize{
@@ -34,7 +41,7 @@
   
    \subsection{OTHER USER-VISIBLE CHANGES}{
      \itemize{
-      \item changes in default values for various burnin-related control options, mostly increasing burnin by 10x
+      \item{The "iterations" output in an ergm object now returns the number of MCMLE iterations taken by the estimation.}
      }
    }
 
