@@ -18,14 +18,73 @@
    \subsection{NEW FEATURES}{
      \itemize{
      \item{ergm MCMLE estimation, by default, uses the stepping algorithm by Hummel et al (2012) to determine step length, and terminates estimation when the step length = 1 for two consecutive iterations. The old method (from version 3.1) is still available by setting control parameter \code{MCMLE.termination="Hotelling"}. }
-     \item{As a result, the final MCMC sample average may be different from the observed statistics. This is reflected in \code{mcmc.diagnostics().}}
+     \item{As a result of using 'Hummel', the final MCMC sample average may be different from the observed statistics. This is reflected in \code{mcmc.diagnostics()}: these plots can no longer be used to ensure that the mean statistics from the model match the observed network statistics. For that functionality, please use the GOF command: \code{gof(object, GOF=~model)}.}
      \item{Default ergm MCMC parameters changed to \code{MCMC.interval=1024, MCMC.samplesize=1024, MCMC.burnin=MCMC.interval*16}. The final sample size in the Hummel stepping algorithm is boosted by a factor of \code{MCMLE.last.boost}}
-     \item{Parallel functionality: ergm can take user-created clusters as the parallel control parameter. This is the recommended method for using ergm on a high-performance computing cluster. See \link{ergm-parallel}}
+     \item{Default values for a number of other control parameters have changed, see CHANGES below.}
+     \item{Parallel functionality: ergm can take user-created clusters as the parallel control parameter. This is the recommended method for using ergm on a high-performance computing cluster. See \link{ergm-parallel}. Functionality now implemented via the 'parallel package', direct dependence on 'snow' package is removed}
+     \item{New helper function \code{search.ergmTerms()} function which through the \code{\link{ergm.terms}} help page and prints out a list of terms appropriate for the specified network's structural constraints, optionally restricting by additional categories and keyword matches.}
      \item{The estimated covariance matrix of the ergm estimate can be extracted using \code{vcov()} function.}
-     }
-     \item{New ergm constraint terms: fixallbut, fixedas. The former one can specify the set of dyads (as an edgelist or a network object) to be fixed, the latter one can specify two sets of dyads (as edgelists or networks objects), to be fixed present and fixed absent respectively.}
-     \item{Potential speed/memory usage improvement: sampling algorithms in both R can C levels are optimized.}
-   }
+     \item{new EXPERIMENTAL Effective Sample Size (ESS)  feature to adaptively determine MCMC length needed to get the specified effective size; 50 is a reasonable value. Includes new \code{ergm.control} parameters
+        \itemize{
+          \item    \code{MCMC.effectiveSize=NULL}
+          \item    \code{MCMC.effectiveSize.damp=10}
+          \item    \code{MCMC.effectiveSize.maxruns=1000}
+          \item    \code{MCMC.effectiveSize.base=1/2}
+          \item    \code{MCMC.effectiveSize.points=5}
+          \item    \code{MCMC.effectiveSize.order=0.1}
+          \item    \code{MCMLE.MCMC.max.ESS.frac}
+        }
+      }
+    \item SAN.control now includes an \code{MPLE.max.dayd.types} parameter which defaults to the value of the ergm.control parameter of the same name 
+    \item { addition of the \code{StdNormal} reference distribution. See \code{?ergm.references}}
+    \item{ new ergm terms:
+      \itemize{
+       \item \code{b1mindegree}  (and b2 version) Minimum degree for the designated mode in a bipartite network
+       \item \code{b1nodematch}  (and b2 version) Nodal attribute-based homophily effect for the designated mode in a bipartite network.
+      }
+    }
+    \item { additional arguments added to the \code{network.update} function to control which attributes and properties are updated.}
+    \item {  new \code{esteq} argument for \code{simulate.formula} and \code{simulate.ergm}:  Default is FALSE. If TRUE, compute the sample estimating equations of an ERGM. If the model is linear, all non-offset statistics are passed. If the model is curved, the score estimating equations (3.1) by Hunter and Handcock (2006) are given instead.}
+    \item{ new and expanded tests of the ergm functions for use with R CMD CHECK tools. }
+    \item{ addition of \code{is.durational} methods for models and formulas. These functions test whether the terms in an ERGM model or formula is durational dependent or not. If the formula or model does not include any terms that need information about the duration of existing ties, the ergm proceass can use more efficient internal data structures. This is mostly in support of \code{tergm} functionality.} 
+    \item{New ergm constraint terms: \code{fixallbut(free.dyads)}, \code{fixedas(present,absent)}. The former one can specify the set of dyads (as an edgelist or a network object) to be fixed, the latter one can specify two sets of dyads (as edgelists or networks objects), to be fixed present and fixed absent respectively. See \code{?ergm.constraints}}
+    \item{Potential speed/memory usage improvement: sampling algorithms in both R can C levels are optimized.}
+  
+    \item {FIXME: condegreemix?}
+    \item {FIXME: TriNT?}
+  }
+     
+   
+   
+   \subsection{CHANGES}{
+    \itemize{
+      \item FIXME Hoteling difftest changes?
+      \item FIXME getMCMCSample changes?
+      \item FIXME ergm MPMLE GLM changes?
+      \item FIXME recoding of INF values before C?
+      \item {MCMC control parameters changes in control.ergm
+        \itemize{ 
+          \item default for \code{MCMC.interval} increased from 100 to 1000
+          \item default for \code{MCMC.burnin} changed from 10000 to mcmc.interval*16
+          \item default for \code{MCMC.samplesize decreased} from 10000 to 1024
+        }
+      }
+      \item{ MCMLE control parameter changes in control.ergm
+        \itemize{
+          \item a new control argument \code{MCMLE.termination} has been added to specifiy the criterion used for terminating MCMLE estimation
+          \item a new \code{MCMLE.metric} argument \code{'logtaylor'} has been added
+          \item control parameter \code{MCMCLE.steplength.margin} has been added
+          \item default value for \code{MCMLE.MCMC.precision} has been increased from 0.05 to 0.005
+          \item default value for \code{MCMLE.steplength} has been changed from 0.5 to 1
+          
+        }
+      }
+      \item { ergm.control parameter \code{SA.nsubphases} default changed from MCMLE.maxit to 4}
+      \item { control.gof parameter \code{MCMC.burnin} default increased from 1000 to 10000}
+      \item { similarly, the default for the \code{MCMC.burnin} control parameter for \code{control.simulate}, \code{control.simulate.formula}, \item{control.simulate.formula.ergm} increased from 1000 to 10000}
+      
+    }
+  }
   
    \subsection{BUG FIXES}{
     \itemize{
@@ -37,11 +96,14 @@
     }
    }
 
-  %\subsection{DEPRECATED & DEFUNCT}{
-  %  \itemize{
-
-  %  }
-  % }
+   \subsection{DEPRECATED & DEFUNCT}{
+    \itemize{
+      \item{ the ergm.control parameter MCMLE.method has been deprecated.  By default, ergm uses \code{trust}, and falls back to \code{optim} with Nelder-Mead method when \code{trust} fails.}
+      \item the ergm.control parameter \code{MCMLE.adaptive.epsilon} has been removed
+      \item the ergm.control parameters \code{MCMC.burnin.retries}, \code{MCMC.burnin.check.last} and \code{MCMC.burnin.check.alpha} have been removed. 
+      \item \code{MCMLE.adaptive.epsilon} prameter has been removed
+    }
+   }
 
   
    \subsection{OTHER USER-VISIBLE CHANGES}{
