@@ -89,6 +89,10 @@
   More information can be found by looking at the documentation of
   \code{\link{ergm}}.
   
+  For \code{GOF = ~model}, the model's observed sufficient statistics are plotted
+  as quantiles of the simulated sample. In a good fit, the observed statistics should
+  be near the sample median (0.5). 
+  
   For \code{gof.ergm} and \code{gof.formula}, default behavior depends on
   the directedness of the network involved; if undirected then degree,
   espartners, and distance are used as default properties to examine.  If

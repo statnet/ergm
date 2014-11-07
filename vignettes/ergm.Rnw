@@ -533,6 +533,8 @@ invisible(dev.off())
 Success! Of course, in real life one might have a lot more trial and
 error.
 
+Recent changes in the ergm estimation algorithm mean that the MCMC diagnostic plots can no longer be used to ensure that the mean statistics from the model match the observed network statistics. For that functionality, please use the GOF command: \code{gof(fit, GOF=~model).} The plots can still be used to assess MCMC mixing and convergence.
+
 
 \section{Working with egocentrically sampled network data}
 

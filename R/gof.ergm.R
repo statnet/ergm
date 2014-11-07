@@ -759,7 +759,7 @@ plot.gofobject <- function(x, ...,
         out <- x$psim.model
         out.obs <- x$pobs.model
         out.bds <- x$bds.model
-        ylab <- "statistic"
+        ylab <- "simulated quantiles"
     }
     pnames <- names(out.obs)
     ymin <- min(min(out,na.rm=TRUE),min(out.obs,na.rm=TRUE))

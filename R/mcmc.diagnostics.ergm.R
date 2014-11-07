@@ -125,6 +125,8 @@ mcmc.diagnostics.ergm <- function(object,
     cv <-  cov(as.matrix(sm))
     
     z <- ds/sds*sqrt(ns)
+    
+    cat("Recent changes in the ergm estimation algorithm mean that these plots can no longer be used to ensure that the mean statistics from the model match the observed network statistics. For that functionality, please use the GOF command: gof(ergmFitObject, GOF=~model).\n")
   }else{
     cat("\nAre unconstrained sample statistics significantly different from constrained?\n")
     ds <- colMeans.mcmc.list(sm) - if(!center) colMeans.mcmc.list(sm.obs) else 0
