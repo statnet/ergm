@@ -23,11 +23,16 @@
      \item{Parallel functionality: ergm can take user-created clusters as the parallel control parameter. This is the recommended method for using ergm on a high-performance computing cluster. See \link{ergm-parallel}}
      \item{The estimated covariance matrix of the ergm estimate can be extracted using \code{vcov()} function.}
      }
+     \item{New ergm constraint terms: fixallbut, fixedas. The former one can specify the set of dyads (as an edgelist or a network object) to be fixed, the latter one can specify two sets of dyads (as edgelists or networks objects), to be fixed present and fixed absent respectively.}
+     \item{Potential speed/memory usage improvement: sampling algorithms in both R can C levels are optimized.}
    }
   
    \subsection{BUG FIXES}{
     \itemize{
     \item{Networks where some statistics are at the lowest value, leading to some terms being -Inf, was not giving the correct estimated coefficients. Now fixed.}
+    \item{Bug fix in Penalized-likelihood MPLE estimation}
+    \item{Bug fix in MPLE estimation when ergm edgecov term has an attribute as a matrix.}
+    \item{Bug fix in ergm nodecov term when attributes are specified only for the second mode in a bipartite network}
     \item{Many other fixes...}
     }
    }
@@ -42,6 +47,8 @@
    \subsection{OTHER USER-VISIBLE CHANGES}{
      \itemize{
       \item{The "iterations" output in an ergm object now returns the number of MCMLE iterations taken by the estimation.}
+      \item{New help page for ergm MetropolisHastings Proposal methods.}
+      \item{}
      }
    }
 
