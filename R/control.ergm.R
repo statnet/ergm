@@ -191,6 +191,7 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.density.guard=exp(3),
                        MCMLE.effectiveSize=NULL,
                        MCMLE.last.boost=8,
+                       MCMLE.Hummel.esteq=TRUE, 
                        
                        SA.phase1_n=NULL, SA.initial_gain=NULL, 
                        SA.nsubphases=4,
