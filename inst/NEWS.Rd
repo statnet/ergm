@@ -46,10 +46,10 @@
     \item { additional arguments added to the \code{network.update} function to control which attributes and properties are updated.}
     \item {  new \code{esteq} argument for \code{simulate.formula} and \code{simulate.ergm}:  Default is FALSE. If TRUE, compute the sample estimating equations of an ERGM. If the model is linear, all non-offset statistics are passed. If the model is curved, the score estimating equations (3.1) by Hunter and Handcock (2006) are given instead.}
     \item{ new and expanded tests of the ergm functions for use with R CMD CHECK tools. }
-    \item{ addition of \code{is.durational} methods for models and formulas. These functions test whether the terms in an ERGM model or formula is durational dependent or not. If the formula or model does not include any terms that need information about the duration of existing ties, the ergm proceass can use more efficient internal data structures. This is mostly in support of \code{tergm} functionality.} 
+    \item{ addition of \code{is.durational} methods for models and formulas. These functions test whether the terms in an ERGM model or formula is durational dependent or not. If the formula or model does not include any terms that need information about the duration of existing ties, the ergm process can use more efficient internal data structures. This is mostly in support of \code{tergm} functionality.} 
     \item{New ergm constraint terms: \code{fixallbut(free.dyads)}, \code{fixedas(present,absent)}. The former one can specify the set of dyads (as an edgelist or a network object) to be fixed, the latter one can specify two sets of dyads (as edgelists or networks objects), to be fixed present and fixed absent respectively. See \code{?ergm.constraints}}
     \item{Potential speed/memory usage improvement: sampling algorithms in both R can C levels are optimized.}
-  
+    \item{ergm now Imports the \code{network} package via NAMESPACE to avoid internal namespace collisions when used with \code{iGraph}}
     \item {FIXME: condegreemix?}
     \item {FIXME: TriNT?}
   }
@@ -61,7 +61,6 @@
       \item FIXME Hoteling difftest changes?
       \item FIXME getMCMCSample changes?
       \item FIXME ergm MPMLE GLM changes?
-      \item FIXME recoding of INF values before C?
       \item {MCMC control parameters changes in control.ergm
         \itemize{ 
           \item default for \code{MCMC.interval} increased from 100 to 1000
@@ -71,7 +70,7 @@
       }
       \item{ MCMLE control parameter changes in control.ergm
         \itemize{
-          \item a new control argument \code{MCMLE.termination} has been added to specifiy the criterion used for terminating MCMLE estimation
+          \item a new control argument \code{MCMLE.termination} has been added to specify the criterion used for terminating MCMLE estimation
           \item a new \code{MCMLE.metric} argument \code{'logtaylor'} has been added
           \item control parameter \code{MCMCLE.steplength.margin} has been added
           \item default value for \code{MCMLE.MCMC.precision} has been increased from 0.05 to 0.005
@@ -92,6 +91,12 @@
     \item{Bug fix in Penalized-likelihood MPLE estimation}
     \item{Bug fix in MPLE estimation when ergm edgecov term has an attribute as a matrix.}
     \item{Bug fix in ergm nodecov term when attributes are specified only for the second mode in a bipartite network}
+    \item{Various compatibility improvments to avoid warnings from R 3.1.2 and 3.1.3}
+    \item{control parameter MPLE.max.dyad.types is now passed to logLik.ergm() and ergm.bridge.dindstart.llk().
+fixes issue reported by Sebastian Daza}
+    \item{Fixed a fencepost bug in ergm.bridge.dindstart.llk()'s construction of the offset coefficient vector in the dyad-independent submodel reported by Philip Leifeld}
+    \item{Adjusted package initialization code to avoid throwing error reported by Philip Leifeld when ergm imported by another package instead of attached to workspace.}
+    \item {Fixed a bug with ergm.pl not dropping the appropriate rows when there are Infs. When network stats are 0, the glm model should now be specified correctly. Reported by Kevin Lewis}
     \item{Many other fixes...}
     }
    }
@@ -101,7 +106,8 @@
       \item{ the ergm.control parameter MCMLE.method has been deprecated.  By default, ergm uses \code{trust}, and falls back to \code{optim} with Nelder-Mead method when \code{trust} fails.}
       \item the ergm.control parameter \code{MCMLE.adaptive.epsilon} has been removed
       \item the ergm.control parameters \code{MCMC.burnin.retries}, \code{MCMC.burnin.check.last} and \code{MCMC.burnin.check.alpha} have been removed. 
-      \item \code{MCMLE.adaptive.epsilon} prameter has been removed
+      \item \code{MCMLE.adaptive.epsilon} parameter has been removed
+      \item the \code{faux.high} dataset was removed as it was identical to \code{faux.mesa.high}
     }
    }
 
@@ -250,7 +256,7 @@
     \itemize{
       
       \item Default \code{SAN.burnin} control parameter has been
-      increated to 100,000.
+      increased to 100,000.
       
     }
   }
@@ -298,7 +304,7 @@
       \code{\link{ergm.count}})
 
       \item \code{\link[=ergm-package]{ergm}} itself now includes
-      rudimentary implementations for discrtete uniform and continuous
+      rudimentary implementations for discrete uniform and continuous
       uniform reference measures. See \code{help('ergm-references')}.
 
       \item A large number of ERGM terms for counts have been
@@ -348,7 +354,7 @@
       \item Sample space constraints \code{\link{degrees}},
       \code{\link{idegrees}}, \code{\link{odegrees}},
       \code{\link{b1degrees}}, \code{\link{b2degrees}} have
-      been reimplemented or fixed.
+      been re-implemented or fixed.
 
       \item Certain functions are now only exported if they haven't
       already be defined (e.g., by
