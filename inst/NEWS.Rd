@@ -50,8 +50,7 @@
     \item{New ergm constraint terms: \code{fixallbut(free.dyads)}, \code{fixedas(present,absent)}. The former one can specify the set of dyads (as an edgelist or a network object) to be fixed, the latter one can specify two sets of dyads (as edgelists or networks objects), to be fixed present and fixed absent respectively. See \code{?ergm.constraints}}
     \item{Potential speed/memory usage improvement: sampling algorithms in both R can C levels are optimized.}
     \item{ergm now imports the \code{network} package via NAMESPACE to avoid internal namespace collisions when used with \code{iGraph}}
-    \item {FIXME: condegreemix?}
-    \item {FIXME: TriNT?}
+  }
   }
      
    
@@ -78,8 +77,7 @@
       \item { ergm.control parameter \code{SA.nsubphases} default changed from MCMLE.maxit to 4}
       \item { control.gof parameter \code{MCMC.burnin} default increased from 1000 to 10000}
       \item { similarly, the default for the \code{MCMC.burnin} control parameter for \code{control.simulate}, \code{control.simulate.formula} and \code{control.simulate.formula.ergm} increased from 1000 to 10000}
-      
-    }
+      }
   }
   
    \subsection{BUG FIXES}{
