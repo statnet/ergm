@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  http://statnet.org/attribution
 #
-#  Copyright 2003-2013 Statnet Commons
+#  Copyright 2003-2014 Statnet Commons
 #######################################################################
 # A helper function to reorder vector v (if named) into order specified by names.
 vector.namesmatch<-function(v,names,errname=NULL){
