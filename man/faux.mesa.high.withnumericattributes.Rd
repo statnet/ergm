@@ -5,7 +5,7 @@
 %  open source, and has the attribution requirements (GPL Section 7) at
 %  http://statnet.org/attribution
 %
-%  Copyright 2003-2013 Statnet Commons
+%  Copyright 2003-2014 Statnet Commons
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{faux.mesa.high.withnumericattributes}
 \docType{data}
@@ -17,10 +17,11 @@ coded numerically.  See the documentation for \code{\link{faux.mesa.high}}.
 }
 
 \usage{
- data(faux.mesa.high.withnumericattributes)}
- 
+ data(faux.mesa.high.withnumericattributes)
 
 }
+
+\seealso{\code{\link{faux.mesa.high}}}
 
 \keyword{datasets}
 

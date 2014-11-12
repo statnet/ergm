@@ -5,7 +5,7 @@
 %  open source, and has the attribution requirements (GPL Section 7) at
 %  http://statnet.org/attribution
 %
-%  Copyright 2003-2013 Statnet Commons
+%  Copyright 2003-2015 Statnet Commons
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{faux.magnolia.high.withnumericattributes}
 \docType{data}
@@ -17,10 +17,12 @@ coded numerically.  See the documentation for \code{\link{faux.magnolia.high}}.
 }
 
 \usage{
- data(faux.magnolia.high.withnumericattributes)}
+ data(faux.magnolia.high.withnumericattributes)
  
 
 }
+
+\seealso{ \code{\link{faux.magnolia.high}}}
 
 \keyword{datasets}
 
