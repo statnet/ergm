@@ -20,7 +20,10 @@ it is based is in the rural western US, with a student body that is largely
 Hispanic and Native American.
 }
 
-\usage{data(faux.mesa.high)}
+\usage{
+ data(faux.mesa.high)
+ data(faux.mesa.high.withnumericattributes)}
+ 
 \format{
 \code{faux.mesa.high} is a \code{\link[network]{network}} object with 205 vertices (students, in this case)
 and 203 undirected edges (mutual friendships).  To obtain additional 
@@ -33,8 +36,17 @@ The \code{Race} attribute is based on the answers to
 two questions, one on Hispanic identity and one on race, and takes six possible
 values:
 White (non-Hisp.), Black (non-Hisp.), Hispanic, Asian
-(non-Hisp.), Native American, and Other (non-Hisp.)
+(non-Hisp.), Native American, and Other (non-Hisp.).
+The \code{Sex} attribute is coded Male and Female.
 
+\emph{Note:}  
+The attributes Race and Sex in this dataset are coded as character variables.
+If you want numeric codes for these variables instead, use 
+\code{faux.magnolia.high.withnumericattributes} instead.  In that dataset, \code{Race}
+is coded 1=White (non-Hisp.), 2=Black (non-Hisp.), 3=Hispanic, 4=Asian
+(non-Hisp.), 5=Native American, and 6=Other (non-Hisp.), and 
+\code{Sex} is coded 1=Male and 2=Female.
+Both datasets are named \code{faux.mesa.high} after loading.
 }
 
 \source{

@@ -14,11 +14,13 @@
 \description{
 This data set
 represents a simulation of an in-school friendship 
-network.  The network is named faux.magnolia.high because the school commnunities on which 
+network.  The network is named \code{faux.magnolia.high} because the school commnunities on which 
 it is based are large and located in the southern US.
 }
 
-\usage{data(faux.magnolia.high)}
+\usage{
+ data(faux.magnolia.high)
+ data(faux.magnolia.high.withnumericattributes}
 
 \format{
 \code{faux.magnolia.high} is a \code{\link[network]{network}} object with 1461 vertices
@@ -32,8 +34,17 @@ The \code{Race} attribute is based on the answers to
 two questions, one on Hispanic identity and one on race, and takes six possible
 values:
 White (non-Hisp.), Black (non-Hisp.), Hispanic, Asian
-(non-Hisp.), Native American, and Other (non-Hisp.)
+(non-Hisp.), Native American, and Other (non-Hisp.).  
+The \code{Sex} attribute is coded Male and Female.
 
+\emph{Note:}  
+The attributes Race and Sex in this dataset are coded as character variables.
+If you want numeric codes for these variables instead, use 
+\code{faux.magnolia.high.withnumericattributes} instead.  In that dataset, \code{Race}
+is coded 1=White (non-Hisp.), 2=Black (non-Hisp.), 3=Hispanic, 4=Asian
+(non-Hisp.), 5=Native American, and 6=Other (non-Hisp.), and 
+\code{Sex} is coded 1=Male and 2=Female.
+Both datasets are named \code{faux.magnolia.high} after loading.
 }
 
 \source{
