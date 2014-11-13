@@ -30,7 +30,7 @@
 
 \title{Metropolis-Hastings Proposal Methods for ERGM MCMC}
 \description{
-  \code{\link{ergm}}  uses a Metropolis-Hastings (MH) algorithm in the Markov Chain Monte Carlo (MCMC) to sample networks. For each MCMC step, \eqn{n} (\eqn{n=1} in most cases) toggles are proposed to change the dyad(s) to the opposite value. The probability of accepting the proposed change is determined by the MH acceptance ratio.  The different MH methods implemented in \code{\link{ergm}} vary the sets of dyads that are selected for toggle proposals.  This is used in some cases to improve the performance of the algorithm, and in other cases to constrain the sample space.
+  \code{\link{ergm}}  uses a Metropolis-Hastings (MH) algorithm to control the behavior of the Markov Chain Monte Carlo (MCMC) for sampling networks.  The MCMC chain is intended to step around the sample space of possible networks, selecting a network at regular intervals to evaluate the statistics in the model.  For each MCMC step, \eqn{n} (\eqn{n=1} in the simple case) toggles are proposed to change the dyad(s) to the opposite value. The probability of accepting the proposed change is determined by the MH acceptance ratio.  The role of the different MH methods implemented in \code{\link{ergm}} is to vary how the sets of dyads are selected for toggle proposals.  This is used in some cases to improve the performance (speed and mixing) of the algorithm, and in other cases to constrain the sample space.
 }
 
 \section{MH proposal methods implemented in the \code{\link[=ergm-package]{ergm}} package}{
