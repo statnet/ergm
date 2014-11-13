@@ -401,6 +401,8 @@ ergm <- function(formula, response=NULL,
               stop("Method ", control$main.method, " is not implemented.")
               )
 
+  initialfit <- NULL
+  
   if(!is.null(control$MCMLE.check.degeneracy) && control$MCMLE.check.degeneracy && (is.null(mainfit$theta1$independent) || !all(mainfit$theta1$independent))){
     if(verbose) {
       cat("Checking for degeneracy.\n")
