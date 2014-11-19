@@ -188,10 +188,10 @@ coef2 = flomodel.02$coef[2]
 logodds = coef1 + c(0,1,2) * coef2
 expit = function(x) 1/(1+exp(-x))
 ps = expit(logodds)
-coef1 = round(coef1, 2)
-coef2 = round(coef2, 2)
-logodds = round(logodds, 2)
-ps = round(ps, 2)
+coef1 = round(coef1, 3)
+coef2 = round(coef2, 3)
+logodds = round(logodds, 3)
+ps = round(ps, 3)
 @
 
 Again, how to interpret coefficients?
@@ -481,8 +481,6 @@ fit <- ergm(magnolia~edges+triangle,seed=1,
 mcmc.diagnostics(fit, center=F)
 @
 
-Now, try it again with a sample size of 50,000.
-
 How about trying the more robust version of modeling triangles:
 GWESP? (For a technical introduction to GWESP see Hunter and Handcock;
 for a more intuitive description and empirical application see Goodreau
@@ -517,19 +515,25 @@ One more try...
 <<results=hide>>=
 fit <- ergm(magnolia~edges+gwesp(0.25,fixed=T)+nodematch('Grade')+nodematch('Race')+
   nodematch('Sex'),
- control = control.ergm(seed=1,MCMC.samplesize=50000,MCMC.interval=1000),
+ control = control.ergm(seed=1,MCMC.samplesize=4096,MCMC.interval=8192),
  verbose=T)
 @
 
 <<fig1>>=
-png( 'fig1.png', width=900, height=900, units='px')
+png( 'fig1-%d.png', width=900, height=900, units='px')
 mcmc.diagnostics(fit)
 invisible(dev.off())
 @
-\includegraphics[clip=true, trim=0px 200px 0px 0px, width=6in]{fig1}
+\begin{center}
+\includegraphics[clip=true, trim=0px 0px 0px 0px, width=6in, height=4in]{fig1-1}
+
+\includegraphics[clip=true, trim=0px 200px 0px 0px, width=6in, height=3in]{fig1-2}
+\end{center}
 
 Success! Of course, in real life one might have a lot more trial and
 error.
+
+Changes in version 3.2 of the ergm estimation algorithm mean that the MCMC diagnostic plots can no longer be used to ensure that the mean statistics from the model match the observed network statistics. For that functionality, please use the GOF command: \verb@gof(fit, GOF=~model)@. The plots can still be used to assess MCMC mixing and convergence.
 
 
 \section{Working with egocentrically sampled network data}

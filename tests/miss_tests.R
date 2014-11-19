@@ -10,14 +10,14 @@
 library(statnet.common)
 opttest({
 library(ergm)
-theta0err<--1 # Perturbation in the initial values
+theta0err<- 1 # Perturbation in the initial values
 tolerance<-0.2 # Result must be within 0.2*s.e. of truth.
 
 n<-20 # Number of nodes
 b<-3 # Bipartite split
 
 d<-.1 # Density
-m<-.1 # Missingness rate
+m<-.05 # Missingness rate
 
 logit<-function(p) log(p/(1-p))
 
