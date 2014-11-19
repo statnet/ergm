@@ -12,6 +12,7 @@
 \title{Goodreau's Faux Mesa High School as a network object}
 \alias{faux.mesa.high}
 \alias{fauxhigh}
+\alias{faux.mesa.high.withnumericattributes}
 \description{
 This data set (formerly called \dQuote{fauxhigh})
 represents a simulation of an in-school friendship 
@@ -42,7 +43,7 @@ The \code{Sex} attribute is coded Male and Female.
 \emph{Note:}  
 The attributes Race and Sex in this dataset are coded as character variables.
 If you want numeric codes for these variables instead, use 
-\code{faux.magnolia.high.withnumericattributes} instead.  In that dataset, \code{Race}
+\code{faux.magnolia.high.withnumericattributes}.  In that dataset, \code{Race}
 is coded 1=White (non-Hisp.), 2=Black (non-Hisp.), 3=Hispanic, 4=Asian
 (non-Hisp.), 5=Native American, and 6=Other (non-Hisp.), and 
 \code{Sex} is coded 1=Male and 2=Female.
