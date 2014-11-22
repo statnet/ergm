@@ -30,7 +30,7 @@
 
 \title{Metropolis-Hastings Proposal Methods for ERGM MCMC}
 \description{
-  \code{\link{ergm}}  uses Metropolis-Hastings (MH) algorithm in Markov Chain Monte Carlo (MCMC) for sampling networks. In each MCMC step, \eqn{n} (\eqn{n=1} in most cases) toggles are proposed to change the dyads to their opposite values. Whether the proposed changes are accepted or not is decided by the MH acceptance ratio. Different MH methods decide which sets of dyads are selected to propose toggles.
+  \code{\link{ergm}}  uses a Metropolis-Hastings (MH) algorithm to control the behavior of the Markov Chain Monte Carlo (MCMC) for sampling networks.  The MCMC chain is intended to step around the sample space of possible networks, selecting a network at regular intervals to evaluate the statistics in the model.  For each MCMC step, \eqn{n} (\eqn{n=1} in the simple case) toggles are proposed to change the dyad(s) to the opposite value. The probability of accepting the proposed change is determined by the MH acceptance ratio.  The role of the different MH methods implemented in \code{\link{ergm}} is to vary how the sets of dyads are selected for toggle proposals.  This is used in some cases to improve the performance (speed and mixing) of the algorithm, and in other cases to constrain the sample space.
 }
 
 \section{MH proposal methods implemented in the \code{\link[=ergm-package]{ergm}} package}{
@@ -42,17 +42,19 @@
         \item{InitMHP.randomtoggle}{Propose a randomly selected dyad to toggle.
         }
         
-        \item{InitMHP.TNT}{Default MH algorithm. Stratifies population of dyads
-        	into those having ties and those having no ties (hence T/NT).  
-        	Gives at least 50\% chance of
-   proposing a toggle of an existing edge, as opposed to simple random toggles that rarely do so in sparse networks (comments from code)
+        \item{InitMHP.TNT}{Default MH algorithm. Stratifies the population of dyads
+        	by edge status: those having ties and those having no ties (hence T/NT).  
+        	This is useful for improving performance in sparse networks,
+        	because it gives at least 50\% chance of proposing a toggle of an existing edge.
         }
              
         \item{InitMHP.TNT10}{(Experimental) Propose 10 TNT steps at once, though
-        	this may not work properly at present. (comments from code)
+        	this may not work properly at present. 
         }
         
-        \item{InitMHP.TriNT}{Similar to \code{InitMHP.TNT}, except that once the toggle been proposed, randomly select a third node and gives \eqn{50\%} of chance to toggle each dyad that connects the third node to the two nodes from the previous proposed toggle.}
+        \item{InitMHP.TriNT}{Similar to \code{InitMHP.TNT}, except that once a pair of dyads have been 
+        selected, a third node is randomly selected.  This gives a \eqn{50\%} chance of toggling each dyad that connects 
+        the third node to the two nodes from the previous proposed toggle.}
         
 
 }
@@ -62,16 +64,18 @@
 
     \describe{
 
-         \item{InitMHP.blockdiag}{MHp for \eqn{constraints= ~blockdiag}. Select a diagonal block according to the weight, then randomly select a dayd and propose to toggle.
+         \item{InitMHP.blockdiag}{MHp for \eqn{constraints= ~blockdiag}. Select a diagonal block according to the weight, then randomly select a dayd within the block for the toggle proposal.
         }
-        \item{InitMHP.blockdiagNonObserved}{MHp for \eqn{constraints= ~blockdiag+observed}. Similar to InitMHP.blockdiag, except that only among missing dyads.
+        \item{InitMHP.blockdiagNonObserved}{MHp for \eqn{constraints= ~blockdiag+observed}. Similar to InitMHP.blockdiag, but
+        applied only to missing dyads.
         }
-        \item{InitMHP.blockdiagTNT}{MHp for \eqn{constraints= ~blockdiag}. Similar to InitMHP.blockdiag, except that it proposes a toggle of an existing edge (in the block by construction) with at least 50\% probability.
+        \item{InitMHP.blockdiagTNT}{MHp for \eqn{constraints= ~blockdiag}. Similar to InitMHP.blockdiag, except that it selects ties
+        and non-ties for proposed toggles (in the block by construction) with equal probability.  Like the unconstrained TNT proposal, this is useful for improving performance in sparse networks.
         }
         
-         \item{InitMHP.CondB1Degree}{MHp for \eqn{constraints= ~b1degrees}. For bipartite networks, randomly select an edge A1->A2 and a different node in the second mode, B2, and propose to toggle A1->A2 and toggle A1->B2 at once. No matter which mode A1,A2 belong to, the degrees of nodes in mode 1 are preserved  (comments from code)
+         \item{InitMHP.CondB1Degree}{MHp for \eqn{constraints= ~b1degrees}. For bipartite networks, randomly select an edge A1->A2 and a different node in the second mode, B2, and propose to toggle A1->A2 and A1->B2 at once. This ensures that the degrees of nodes in mode 1 are preserved.  
         }
-        \item{InitMHP.CondB2Degree}{MHp for \eqn{constraints= ~b2degrees}. For bipartite network, randomly select an edge B1->B2 and a different node in the second mode, A2, and propose to toggle B1->B2 and toggle B1->A2 at once. No matter which mode B1,B2 belong to, the degrees of nodes in mode 2 are preserved
+        \item{InitMHP.CondB2Degree}{MHp for \eqn{constraints= ~b2degrees}. For bipartite network, randomly select an edge B1->B2 and a different node in the second mode, A2, and propose to toggle B1->B2 and toggle B1->A2 at once. This ensures that the degrees of nodes in mode 2 are preserved.  
         }
         
         \item{InitMHP.CondDegree}{MHp for \eqn{constraints= ~degree}. Propose either 4 toggles (MH_CondDegreeTetrad) or 6 toggles (MH_CondDegreeHexad) at once. For undirected networks, propose 4 toggles (MH_CondDegreeTetrad). MH_CondDegreeTetrad selects two edges with no nodes in common, A1-A2 and B1-B2, s.t. A1-B2 and B1-A2 are not edges, and propose to replace the former two by the latter two. MH_CondDegreeHexad selects three edges A1->A2, B1->B2, C1->C2 at random and rotate them to A1->B2, B1->C2, and C1->A2.
@@ -89,9 +93,9 @@
         \item{InitMHP.CondOutDegreeDist}{MHp for \eqn{constraints= ~odegreedist}. For directed networks, similar to InitMHP.CondDegreeDist, except for outdegree case
         }
 
-		\item{InitMHP.fixedas}{MHp for \eqn{constraints=~fixedas(present,absent)}. Propose a random dyad that is not in either 'present' edgelist or 'absent' edgelist to toggle. Edges in 'present' and empty dyads in 'absent' are remained fixed.}
+	\item{InitMHP.fixedas}{MHp for \eqn{constraints=~fixedas(present,absent)}. Select a random dyad that is not in either 'present' edgelist or 'absent' edgelist to toggle. Edges in 'present' and empty dyads in 'absent' are remained fixed.}
 		
-		\item{InitMHP.fixallbut}{MHp for \eqn{constraints=~fixallbut(free.dyads)}. Propose a ranodm dyad that is in free.dyads edgelist to toggle.}
+	\item{InitMHP.fixallbut}{MHp for \eqn{constraints=~fixallbut(free.dyads)}. Select a random dyad that is in free.dyads edgelist to toggle.}
 %        \item{InitMHP.HammingConstantEdges}{}
 %        \item{InitMHP.HammingTNT}{}
 
@@ -103,7 +107,7 @@
        
         \item{InitMHP.CondInDegree}{MHp for \eqn{constraints= ~idegrees}. For directed networks, randomly select two dyads with a common head node, one having an edge one not, and propose to swap the tie from one tail to the other.
         }
-        \item{InitMHP.CondOutDegree}{MHp for \eqn{constraints= ~odegrees}. For directed networks, randomly select two dyads with a common tail node, one having an edge and one not, and propose to switch the tie from one head to the other.
+        \item{InitMHP.CondOutDegree}{MHp for \eqn{constraints= ~odegrees}. For directed networks, randomly select two dyads with a common tail node, one having an edge and one not, and propose to swap the tie from one head to the other.
         }
 
 %        \item{InitWtMHP.StdNormal}{}
