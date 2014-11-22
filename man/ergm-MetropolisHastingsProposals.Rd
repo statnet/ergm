@@ -49,7 +49,7 @@
         }
              
         \item{InitMHP.TNT10}{(Experimental) Propose 10 TNT steps at once, though
-        	this may not work properly at present. (comments from code)
+        	this may not work properly at present. 
         }
         
         \item{InitMHP.TriNT}{Similar to \code{InitMHP.TNT}, except that once a pair of dyads have been 
@@ -73,9 +73,9 @@
         and non-ties for proposed toggles (in the block by construction) with equal probability.  Like the unconstrained TNT proposal, this is useful for improving performance in sparse networks.
         }
         
-         \item{InitMHP.CondB1Degree}{MHp for \eqn{constraints= ~b1degrees}. For bipartite networks, randomly select an edge A1->A2 and a different node in the second mode, B2, and propose to toggle A1->A2 and toggle A1->B2 at once. This ensures that the degrees of nodes in mode 1 are preserved  (comments from code)
+         \item{InitMHP.CondB1Degree}{MHp for \eqn{constraints= ~b1degrees}. For bipartite networks, randomly select an edge A1->A2 and a different node in the second mode, B2, and propose to toggle A1->A2 and A1->B2 at once. This ensures that the degrees of nodes in mode 1 are preserved.  
         }
-        \item{InitMHP.CondB2Degree}{MHp for \eqn{constraints= ~b2degrees}. For bipartite network, randomly select an edge B1->B2 and a different node in the second mode, A2, and propose to toggle B1->B2 and toggle B1->A2 at once. No matter which mode B1,B2 belong to, the degrees of nodes in mode 2 are preserved
+        \item{InitMHP.CondB2Degree}{MHp for \eqn{constraints= ~b2degrees}. For bipartite network, randomly select an edge B1->B2 and a different node in the second mode, A2, and propose to toggle B1->B2 and toggle B1->A2 at once. This ensures that the degrees of nodes in mode 2 are preserved.  
         }
         
         \item{InitMHP.CondDegree}{MHp for \eqn{constraints= ~degree}. Propose either 4 toggles (MH_CondDegreeTetrad) or 6 toggles (MH_CondDegreeHexad) at once. For undirected networks, propose 4 toggles (MH_CondDegreeTetrad). MH_CondDegreeTetrad selects two edges with no nodes in common, A1-A2 and B1-B2, s.t. A1-B2 and B1-A2 are not edges, and propose to replace the former two by the latter two. MH_CondDegreeHexad selects three edges A1->A2, B1->B2, C1->C2 at random and rotate them to A1->B2, B1->C2, and C1->A2.
@@ -107,7 +107,7 @@
        
         \item{InitMHP.CondInDegree}{MHp for \eqn{constraints= ~idegrees}. For directed networks, randomly select two dyads with a common head node, one having an edge one not, and propose to swap the tie from one tail to the other.
         }
-        \item{InitMHP.CondOutDegree}{MHp for \eqn{constraints= ~odegrees}. For directed networks, randomly select two dyads with a common tail node, one having an edge and one not, and propose to switch the tie from one head to the other.
+        \item{InitMHP.CondOutDegree}{MHp for \eqn{constraints= ~odegrees}. For directed networks, randomly select two dyads with a common tail node, one having an edge and one not, and propose to swap the tie from one head to the other.
         }
 
 %        \item{InitWtMHP.StdNormal}{}
