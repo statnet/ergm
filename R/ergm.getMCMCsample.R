@@ -133,6 +133,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
       if(verbose) cat("Maximum Harmonic mean ESS of",meS$eS,"attained with burn-in of", round(meS$b/nrow(outl[[1]]$s)*100,2),"%.\n")
 
       if(control.parallel$MCMC.runtime.traceplot){
+        for (i in seq_along(esteq)) colnames(esteq[[i]]) <- names(list(...)$theta)
         plot(as.mcmc.list(lapply(lapply(esteq, mcmc), window, thin=max(1,floor(nrow(esteq)/1000))))
              ,ask=FALSE,smooth=TRUE,density=FALSE)
       }
@@ -155,6 +156,16 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
     outl <- doruns()
     for(i in seq_along(outl)){
       outl[[i]]$s <- mcmc(outl[[i]]$s, control.parallel$MCMC.burnin+1, thin=control.parallel$MCMC.interval)
+    }
+    
+    if(control.parallel$MCMC.runtime.traceplot){
+      esteq <- lapply(outl, function(out)
+        if(all(c("theta","etamap") %in% names(list(...)))) .ergm.esteq(list(...)$theta, list(etamap=list(...)$etamap), out$s)
+        else out$s[,Clists[[1]]$diagnosable,drop=FALSE]
+      )
+      for (i in seq_along(esteq)) colnames(esteq[[i]]) <- names(list(...)$theta)
+      plot(as.mcmc.list(lapply(lapply(esteq, mcmc), window, thin=max(1,floor(nrow(esteq)/1000))))
+           ,ask=FALSE,smooth=TRUE,density=FALSE)
     }
   }
 
