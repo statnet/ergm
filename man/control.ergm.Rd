@@ -230,8 +230,7 @@ control.ergm(drop=TRUE,
   \item{MCMLE.effectiveSize, MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns,
   MCMC.effectiveSize.base, MCMC.effectiveSize.points, MCMC.effectiveSize.order}{
     Set \code{MCMLE.effectiveSize} to non-NULL value to adaptively determine MCMC length needed
-    to get the specified effective size; 50 is a reasonable value. This feature is
-    experimental.
+    to get the specified effective size; 50 is a reasonable value.  This feature is in experimental status until we verify the coverage of the standard errors.
   }  
   \item{MCMC.return.stats}{Logical:  If TRUE, return the matrix
     of MCMC-sampled network statistics.  This matrix should have
@@ -278,14 +277,13 @@ control.ergm(drop=TRUE,
       \item{"Hotelling"}
       {After every MCMC sample, a Hotelling's T^2
     test for equality of MCMC-simulated network statistics to observed
-    is conducted, and if its P-value exceeds this setting, the
+    is conducted, and if its P-value exceeds \code{MCMLE.conv.min.pval}, the
     estimation is considered to have converged and finishes. This was the default option
     in \code{ergm} version 3.1.}
       \item{"precision"}
       {Terminate when the MCMC standard errors are below the precision bound specified by
       \code{MCMLE.MCMC.precision}, and the Hummel step length is 1 for two consecutive
-      iterations. See \code{MCMLE.MCMC.precision} for details. This is an experimental
-      feature.}
+      iterations. See \code{MCMLE.MCMC.precision} for details. This feature is in experimental status until we verify the coverage of the standard errors.}
       \item{"none"}
       {Stop after \code{MCMLE.maxit} iterations.}
   }
