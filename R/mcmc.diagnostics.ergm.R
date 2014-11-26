@@ -115,43 +115,45 @@ mcmc.diagnostics.ergm <- function(object,
     print(summary(sm.obs))
   }
   
-  # This can probably be improved.
-  if(is.null(sm.obs)){
-    cat("\nAre sample statistics significantly different from observed?\n")
-    ds <- colMeans.mcmc.list(sm) - if(!center) object$target.stats else 0
-    sds <- apply(as.matrix(sm),2,sd)
-    ns <- effectiveSize(sm)
-
-    cv <-  cov(as.matrix(sm))
+  # only show if we are using Hotelling termination criterion
+  if (object$control$MCMLE.termination == "Hotelling") {
+    # This can probably be improved.
+    if(is.null(sm.obs)){
+      cat("\nAre sample statistics significantly different from observed?\n")
+      ds <- colMeans.mcmc.list(sm) - if(!center) object$target.stats else 0
+      sds <- apply(as.matrix(sm),2,sd)
+      ns <- effectiveSize(sm)
+      
+      cv <-  cov(as.matrix(sm))
+      
+      z <- ds/sds*sqrt(ns)
+      
+    }else{
+      cat("\nAre unconstrained sample statistics significantly different from constrained?\n")
+      ds <- colMeans.mcmc.list(sm) - if(!center) colMeans.mcmc.list(sm.obs) else 0
+      sds <- apply(as.matrix(sm),2,sd)
+      sds.obs <- apply(as.matrix(sm.obs),2,sd)
+      ns <- effectiveSize(sm)
+      # It's OK constrained sample doesn't vary. (E.g, the extreme case
+      # --- completely observed network --- is just one configuration of
+      # statistics.)
+      # Thus, the effective sample size for nonvarying is set to 1.
+      ns.obs <- pmax(effectiveSize(sm.obs),1)
+      
+      cv <-  cov(as.matrix(sm))
+      cv.obs <-  cov(as.matrix(sm.obs))
+      
+      z <- ds/sqrt(sds^2/ns+sds.obs^2/ns.obs)
+    }
+    p.z <- pnorm(abs(z),lower.tail=FALSE)*2
     
-    z <- ds/sds*sqrt(ns)
-
-  }else{
-    cat("\nAre unconstrained sample statistics significantly different from constrained?\n")
-    ds <- colMeans.mcmc.list(sm) - if(!center) colMeans.mcmc.list(sm.obs) else 0
-    sds <- apply(as.matrix(sm),2,sd)
-    sds.obs <- apply(as.matrix(sm.obs),2,sd)
-    ns <- effectiveSize(sm)
-    # It's OK constrained sample doesn't vary. (E.g, the extreme case
-    # --- completely observed network --- is just one configuration of
-    # statistics.)
-    # Thus, the effective sample size for nonvarying is set to 1.
-    ns.obs <- pmax(effectiveSize(sm.obs),1)
-
-    cv <-  cov(as.matrix(sm))
-    cv.obs <-  cov(as.matrix(sm.obs))
-
-    z <- ds/sqrt(sds^2/ns+sds.obs^2/ns.obs)
+    overall.test <- approx.hotelling.diff.test(sm,sm.obs,if(is.null(sm.obs) && !center) object$target.stats else NULL)
+    
+    m <- rbind(c(ds,NA),c(z,overall.test$statistic),c(p.z,overall.test$p.value))
+    rownames(m) <- c("diff.","test stat.","P-val.")
+    colnames(m) <- c(varnames(sm),"Overall (Chi^2)")
+    print(m)
   }
-  p.z <- pnorm(abs(z),lower.tail=FALSE)*2
-
-  overall.test <- approx.hotelling.diff.test(sm,sm.obs,if(is.null(sm.obs) && !center) object$target.stats else NULL)
-  
-  m <- rbind(c(ds,NA),c(z,overall.test$statistic),c(p.z,overall.test$p.value))
-  rownames(m) <- c("diff.","test stat.","P-val.")
-  colnames(m) <- c(varnames(sm),"Overall (Chi^2)")
-  print(m)
-
   # End simulated vs. observed test.
   
   cat("\nSample statistics cross-correlations:\n")
