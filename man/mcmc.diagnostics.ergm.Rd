@@ -5,7 +5,7 @@
 %  open source, and has the attribution requirements (GPL Section 7) at
 %  http://statnet.org/attribution
 %
-%  Copyright 2003-2013 Statnet Commons
+%  Copyright 2003-2014 Statnet Commons
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{mcmc.diagnostics}
 \alias{mcmc.diagnostics.ergm}
@@ -45,7 +45,9 @@
   density estimate for each variable in the chain.  The diagnostics
   printed include correlations and convergence diagnostics.
   
-  In fact, an \code{object} contains the matrix of
+  Recent changes in the ergm estimation algorithm mean that these plots can no longer be used to ensure that the mean statistics from the model match the observed network statistics. For that functionality, please use the GOF command: \code{gof(object, GOF=~model)}.
+  
+  In fact, an ergm output \code{object} contains the matrix of
   statistics from the MCMC run as component \code{$sample}.
   This matrix is actually an object of class \code{mcmc} and
   can be used directly in the \code{coda} package to assess MCMC
@@ -88,6 +90,7 @@
          \code{\link{summary.ergm}}
         }
 \examples{
+\dontrun{
 #
 data(florentine)
 #
@@ -110,5 +113,6 @@ plot(gest$sample, ask=FALSE)
 # A full range of diagnostics is available 
 # using codamenu()
 #
+}
 }
 \keyword{models}

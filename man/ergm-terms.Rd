@@ -5,7 +5,7 @@
 %  open source, and has the attribution requirements (GPL Section 7) at
 %  http://statnet.org/attribution
 %
-%  Copyright 2003-2013 Statnet Commons
+%  Copyright 2003-2014 Statnet Commons
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{ergm-terms}
 \alias{ergm-terms}
@@ -316,6 +316,7 @@ network
 
 \section{Terms to represent network statistics included in the
   \code{\link[=ergm-package]{ergm}} package}{
+  A cross-referenced html version of the term documentation is is available via \code{vignette('ergm-term-crossRef')} and terms can also be searched via \code{\link{search.ergmTerms}}.
   \describe{
     %%%%%%%%%%%%%%%%%%%%%%555
     % This section below is specially formatted so that it can be parsed to build additional 
@@ -1832,7 +1833,7 @@ of the degrees of all pairs of nodes in the network which are tied.
   models, \emph{Sociological Methodology}, 36(1): 99-153. 
   }
 }
-\seealso{\code{\link[=ergm-package]{ergm}} package, \code{\link{ergm}}, \code{\link{network}}, \code{\link{\%v\%}}, \code{\link{\%n\%}}}
+\seealso{\code{\link[=ergm-package]{ergm}} package, \code{\link{search.ergmTerms}}, \code{\link{ergm}}, \code{\link{network}}, \code{\link{\%v\%}}, \code{\link{\%n\%}}}
 \examples{
 \dontrun{
 ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangle)

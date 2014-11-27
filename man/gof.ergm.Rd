@@ -5,7 +5,7 @@
 %  open source, and has the attribution requirements (GPL Section 7) at
 %  http://statnet.org/attribution
 %
-%  Copyright 2003-2013 Statnet Commons
+%  Copyright 2003-2014 Statnet Commons
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{gof}
 \alias{gof.ergm}
@@ -88,6 +88,10 @@
   A plot of the summary measures is plotted.
   More information can be found by looking at the documentation of
   \code{\link{ergm}}.
+  
+  For \code{GOF = ~model}, the model's observed sufficient statistics are plotted
+  as quantiles of the simulated sample. In a good fit, the observed statistics should
+  be near the sample median (0.5). 
   
   For \code{gof.ergm} and \code{gof.formula}, default behavior depends on
   the directedness of the network involved; if undirected then degree,

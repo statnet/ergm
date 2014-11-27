@@ -5,7 +5,7 @@
 %  open source, and has the attribution requirements (GPL Section 7) at
 %  http://statnet.org/attribution
 %
-%  Copyright 2003-2013 Statnet Commons
+%  Copyright 2003-2014 Statnet Commons
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{ergm-internal}
 \title{Internal ergm Objects}
@@ -36,8 +36,6 @@
 \alias{as.edgelist}
 \alias{as.edgelist.compressed}
 \alias{as.network.uncompressed}
-\alias{autoboot.ergm}
-\alias{autoboot.se.ergm}
 \alias{central.network}
 \alias{check.ErgmTerm}
 \alias{coef.length.model}
@@ -143,7 +141,6 @@
 \alias{llik.info3}
 \alias{llik.mcmcvar3}
 \alias{logistftest}
-\alias{logp.rank.ergm}
 \alias{mcmc.diagnostics.default}
 \alias{midarrow}
 \alias{model.matrix.pen.glm}

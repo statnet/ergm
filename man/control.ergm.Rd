@@ -5,7 +5,7 @@
 %  open source, and has the attribution requirements (GPL Section 7) at
 %  http://statnet.org/attribution
 %
-%  Copyright 2003-2013 Statnet Commons
+%  Copyright 2003-2014 Statnet Commons
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{control.ergm}
 \alias{control.ergm}
@@ -29,22 +29,24 @@ control.ergm(drop=TRUE,
              MPLE.type=c("glm", "penalized"),
                       
              MCMC.prop.weights="default", MCMC.prop.args=list(),
-             MCMC.burnin=10000,
-             MCMC.interval=1,
-             MCMC.samplesize=10000,
-             MCMC.maxchain=1e8,
+             MCMC.interval=1024,
+             MCMC.burnin=MCMC.interval*16,
+             MCMC.samplesize=1024,
+             
              MCMC.effectiveSize=NULL,
              MCMC.effectiveSize.damp=10,
              MCMC.effectiveSize.maxruns=1000,
              MCMC.effectiveSize.base=1/2,
              MCMC.effectiveSize.points=5,
+             MCMC.effectiveSize.order=1,
+             
              MCMC.return.stats=TRUE,
              MCMC.runtime.traceplot=FALSE,
              MCMC.init.maxedges=20000,
              MCMC.max.maxedges=Inf,
              MCMC.addto.se=TRUE,
              MCMC.compress=FALSE,
-             MCMC.packagenames=c(),             
+             MCMC.packagenames=c(),            
 
              SAN.maxit=10,
              SAN.control=control.san(coef=init,
@@ -59,6 +61,7 @@ control.ergm(drop=TRUE,
                          parallel.type=parallel.type,
                          parallel.version.check=parallel.version.check),
 
+             MCMLE.termination=c("Hummel", "Hotelling", "precision", "none"),
              MCMLE.maxit=20,
              MCMLE.conv.min.pval=0.5,
              MCMLE.NR.maxit=100,
@@ -68,28 +71,29 @@ control.ergm(drop=TRUE,
              obs.MCMC.burnin=MCMC.burnin,
              obs.MCMC.burnin.min=obs.MCMC.burnin/10,
              MCMLE.check.degeneracy=FALSE,
-             MCMLE.MCMC.precision=0.05,
+             MCMLE.MCMC.precision=0.005,
+             MCMLE.MCMC.max.ESS.frac=0.1,
              MCMLE.metric=c("lognormal", "logtaylor",
-               "Median.Likelihood",
-               "EF.Likelihood", "naive"),
+                            "Median.Likelihood",
+                            "EF.Likelihood", "naive"),
              MCMLE.method=c("BFGS","Nelder-Mead"),
              MCMLE.trustregion=20,
              MCMLE.dampening=FALSE,
              MCMLE.dampening.min.ess=20,
              MCMLE.dampening.level=0.1,
              MCMLE.steplength.margin=0.05,
-             MCMLE.steplength=if(is.null(MCMLE.steplength.margin)) 0.5 else 1,
+             MCMLE.steplength=1,
              MCMLE.adaptive.trustregion=3,
-             MCMLE.adaptive.epsilon=0.01,
              MCMLE.sequential=TRUE,
              MCMLE.density.guard.min=10000,
              MCMLE.density.guard=exp(3),
-             MCMLE.min.effectiveSize=MCMC.effectiveSize/2,
-
+             MCMLE.effectiveSize=NULL,
+             MCMLE.last.boost=4,
+             MCMLE.Hummel.esteq=TRUE, 
 
              SA.phase1_n=NULL, 
              SA.initial_gain=NULL, 
-             SA.nsubphases=MCMLE.maxit, 
+             SA.nsubphases=4, 
              SA.niterations=NULL, 
              SA.phase3_n=NULL,
              SA.trustregion=0.5,
@@ -109,8 +113,7 @@ control.ergm(drop=TRUE,
              seed=NULL,
              parallel=0,
              parallel.type=NULL,
-             parallel.version.check=TRUE,
-             
+             parallel.version.check=TRUE,             
              \dots)
 }
 \details{
@@ -155,7 +158,7 @@ control.ergm(drop=TRUE,
   \item{init.method}{A chatacter vector or \code{NULL}. The default method for 
     finding the starting coefficient values, if \code{init} is not specified, is
     maximum pseudo-likelihood estimation (MPLE). Another valid value is
-    \code{"zeros"} for a vector of \code{0} of appropriate length.
+    \code{"zeros"} for a \code{0} vector of appropriate length.
   }
   \item{main.method}{One of "MCMLE","Robbins-Monro",
     "Stochastic-Approximation", or "Stepping".  Chooses
@@ -213,32 +216,33 @@ control.ergm(drop=TRUE,
   }
   \item{MCMC.prop.args}{An alternative, direct way of specifying additional arguments to proposal. 
   }
+  \item{MCMC.interval}{Number of proposals between sampled statistics. Increasing interval will reduces the autocorrelation in the sample, and may increase the precision in estimates by reducing MCMC error, at the expense of time. Set the interval higher for larger networks.
+  }
   \item{MCMC.burnin}{Number of proposals before any MCMC sampling
     is done. It typically is set to a fairly large number.
   }
-  \item{MCMC.interval}{Number of proposals between sampled statistics. Increasing interval will reduces the autocorrelation in the sample, and may increase the precision in estimates at the expense of time.
-  }
   \item{MCMC.samplesize}{Number of network statistics,
     randomly drawn from a given distribution on the set of all networks,
-    returned by the Metropolis-Hastings algorithm.
-  }
-  \item{MCMC.maxchain}{Maximum number of MCMC steps in one sampling step.}
+    returned by the Metropolis-Hastings algorithm. 
+    Increasing sample size may increase the precision in the estimates by reducing MCMC error,
+    at the expense of time. Set it higher for larger networks, or when using parallel functionality.
+  }  
+  \item{MCMLE.effectiveSize, MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns,
+  MCMC.effectiveSize.base, MCMC.effectiveSize.points, MCMC.effectiveSize.order}{
+    Set \code{MCMLE.effectiveSize} to non-NULL value to adaptively
+             determine the burn-in and the MCMC length needed
+    to get the specified effective size using the method of Sahlin (2011); 50 is a reasonable value.  This
+             feature is in experimental status until we verify the
+             coverage of the standard errors.
+
+	     
+  }  
   \item{MCMC.return.stats}{Logical:  If TRUE, return the matrix
     of MCMC-sampled network statistics.  This matrix should have
     \code{MCMC.samplesize} rows.
     This matrix can be 
     used directly by the \code{coda} package to assess MCMC
     convergence.
-  }
-  \item{MCMC.burnin.retries}{Maximum number of times to rerun the burn-in phase if a failure to
-    converge is detected. Defaults to 0 for no checks.
-  }
-  \item{MCMC.burnin.check.last}{What fraction at the end of the burn-in phase
-    to use for detecting non-convergence. Defaults to one half.
-  }
-  \item{MCMC.burnin.check.alpha}{Maximum Bonferroni-adjusted P-value under the
-    Geweke test for a statistic to be considered unconverged. Defaults
-    to 0.01.
   }
   \item{MCMC.runtime.traceplot}{Logical:  If TRUE, plot traceplots of 
     the MCMC sample after every MCMC MLE iteration.
@@ -249,12 +253,12 @@ control.ergm(drop=TRUE,
     \code{MCMC.max.maxedges}, at which point the process will stop with
     an error.
   }
-  \item{MCMC.addto.se}{Not yet documented.
+  \item{MCMC.addto.se}{Whether to add the standard errors induced by the
+    MCMC algorithm to the estimates' standard errors.
   }
   \item{MCMC.compress}{Logical:  If TRUE, the matrix of sample statistics
     returned is compressed to the set of unique statistics with a 
-    column of frequencies post-pended.  This option is currently deprecated
-    and has no effect.
+    column of frequencies post-pended. 
   }
   \item{MCMC.packagenames}{Names of packages in which to look for change statistic
     functions in addition to those autodetected. This argument should not be
@@ -265,52 +269,64 @@ control.ergm(drop=TRUE,
   \code{\link{ergm}}, the maximum number of attempts to use
   \code{\link{san}} to obtain a network with statistics close to those
   specified.}  
-
   \item{SAN.control}{Control arguments to \code{\link{san}}.
     See \code{\link{control.san}} for details.
   }
 
+  \item{MCMLE.termination}{The criterion used for terminating MCMLE estimation: 
+   \itemize{
+      \item{"Hummel"}
+      {Terminate when the Hummel step length
+    is 1 for two consecutive iterations. For the last iteration, the sample size is
+    boosted by a factor of \code{MCMLE.last.boost}. See Hummel et. al. (2012)}
+      \item{"Hotelling"}
+      {After every MCMC sample, a Hotelling's T^2
+    test for equality of MCMC-simulated network statistics to observed
+    is conducted, and if its P-value exceeds \code{MCMLE.conv.min.pval}, the
+    estimation is considered to have converged and finishes. This was the default option
+    in \code{ergm} version 3.1.}
+      \item{"precision"}
+      {Terminate when the MCMC standard errors are below the precision bound specified by
+      \code{MCMLE.MCMC.precision}, and the Hummel step length is 1 for two consecutive
+      iterations. See \code{MCMLE.MCMC.precision} for details. This feature is in experimental status until we verify the coverage of the standard errors.}
+      \item{"none"}
+      {Stop after \code{MCMLE.maxit} iterations.}
+  }
+  }
   \item{MCMLE.maxit}{Maximum number of times the parameter for the MCMC
     should be updated by maximizing the MCMC likelihood. At each
     step the parameter is changed to the values that maximizes
     the MCMC likelihood based on the current sample.
   }
 
-  \item{MCMLE.conv.min.pval}{ After every MCMC sample, a Hotelling's T^2
-    test for equality of MCMC-simulated network statistics to observed
-    is conducted, and if its P-value exceeds this setting, the
-    estimation is considered to have converged and finishes. To turn
-    this off and perform all
-    \code{\link[=control.ergm]{control$MCMLE.maxit}} iterations, set
-    \code{MCMLE.conv.min.pval=1}.  }
+  \item{MCMLE.conv.min.pval}{ The P-value used in the Hotelling test for early termination.
+    }
   
-  \item{MCMLE.NR.maxit}{Maximum number of iterations in the
-    Newton-Raphson optimization.
-  }
-  \item{MCMLE.NR.reltol}{Not yet documented.
-  }
-  \item{obs.MCMC.samplesize,obs.MCMC.burnin,obs.MCMC.interval}{
+  \item{MCMLE.NR.maxit, MCMLE.NR.reltol}{The method, maximum number of iterations and relative tolerance to use within the \code{optim} rountine
+  in the MLE optimization. Note that by default, ergm uses \code{trust}, and falls back
+  to \code{optim} only when \code{trust} fails.
+  }  
+  
+  \item{obs.MCMC.samplesize, obs.MCMC.burnin, obs.MCMC.interval, obs.MCMC.burnin.min}{
     Sample size, burnin, and interval parameters for the MCMC sampling used
     when unobserved data are present in the estimation routine.    
   }
   \item{MCMLE.check.degeneracy}{Logical:  If TRUE, employ
     a check for model degeneracy.
   }
-  \item{MCMLE.MCMC.precision}{Vector of upper bounds on the precisions 
-    of the standard errors induced by the MCMC algorithm.
+  \item{MCMLE.MCMC.precision, MCMLE.MCMC.max.ESS.frac}{\code{MCMLE.MCMC.precision} is a vector of upper bounds on the standard errors induced by the MCMC algorithm, expressed as a percentage of the total standard error. The MCMLE algorithm will terminate when the MCMC standard errors are below the
+    precision bound, and the Hummel step length is 1 for two consecutive iterations. This is an experimental feature.
+    
+    If effective sample size is used (see \code{MCMC.effectiveSize}), then ergm may increase the target ESS
+    to reduce the MCMC standard error.
   }
   \item{MCMLE.metric}{Method to calculate the loglikelihood approximation.
     See Hummel et al (2010)
     for an explanation of "lognormal" and "naive".
   }
-  \item{MCMLE.method}{Name of the optimization method
-    to use. See \code{\link[stats]{optim}} for the options. 
-    The default method
-    \code{"BFGS"} is a quasi-Newton method (also known as a variable
-    metric algorithm). It is attributed to
-    Broyden, Fletcher, Goldfarb and Shanno. This uses function values
-    and gradients to build up a picture of the surface to be optimized.
-  }
+  \item{MCMLE.method}{Deprecated. By default, ergm uses \code{trust}, and falls back
+  to \code{optim} with Nelder-Mead method when \code{trust} fails.}
+  
   \item{MCMLE.trustregion}{Maximum increase the algorithm will
     allow for the approximated likelihood at a given iteration.
     See Snijders (2002) for details.
@@ -318,24 +334,22 @@ control.ergm(drop=TRUE,
   \item{MCMLE.dampening}{(logical) Should likelihood dampening be used?}
   \item{MCMLE.dampening.min.ess}{The effective sample size below which dampening is used.}
   \item{MCMLE.dampening.level}{The proportional distance from boundary of the convex hull move.}
+  \item{MCMLE.steplength.margin}{
+    The extra margin required for a Hummel step to count as being inside 
+    the convex hull of the sample. 
+    Set this to 0 if the step length gets stuck at the same value over several iteraions.
+  }
   \item{MCMLE.steplength}{Multiplier for step length, which may 
     (for values less than one) 
     make fitting more stable at the cost of efficiency.
     Can be set to "adaptive"; see 
-    \code{MCMLE.adaptive.trustregion} and 
-    \code{MCMLE.adaptive.epsilon}.
+    \code{MCMLE.adaptive.trustregion}.
   }
   \item{MCMLE.adaptive.trustregion}{Maximum increase the algorithm
     will allow for the approximated loglikelihood at a given
     iteration when \code{MCMLE.steplength="adaptive"}.
   }
-  \item{MCMLE.adaptive.epsilon}{convergence tolerance:  If
-    the change in loglikelihood value 
-    when \code{MCMLE.steplength="adaptive"} is smaller than this
-    tolerance (and the adaptive steplength equals 1), 
-    stop even if we haven't yet reached \code{MCMLE.maxit}
-    iterations.
-  }
+
   \item{MCMLE.sequential}{Logical:  If TRUE,
     the next iteration of the fit uses the last network 
     sampled as the starting network.  If FALSE, always use the 
@@ -354,6 +368,10 @@ control.ergm(drop=TRUE,
     \code{MCMLE.density.guard}, the optimization process will be stopped
     with an error.
   }
+  \item{MCMLE.last.boost}{For the Hummel termination criterion, increase
+  the MCMC sample size of the last iteration by this factor.}
+  \item{MCMLE.Hummel.esteq}{For curved ERGMs, should the estimating function values be used to compute the Hummel step length? This allows the Hummel stepping algorithm converge when some sufficient statistics are at 0.}
+  
   \item{SA.phase1_n}{Number of MCMC samples to draw
     in Phase 1 of the stochastic approximation algorithm.
     Defaults to 7 plus 3 times the number of terms in the model.
@@ -373,24 +391,17 @@ control.ergm(drop=TRUE,
     Defaults to 7 plus the number of terms in the model.
     See Snijders (2002) for details.
   }
-  \item{SA.phase3_n}{ample size for the MCMC sample
+  \item{SA.phase3_n}{Sample size for the MCMC sample
     in Phase 3 of the stochastic approximation algorithm.
     See Snijders (2002) for details.
   }
-  \item{SA.trustregion}{Not yet documented.
+  \item{SA.trustregion}{The trust region parameter for the likelihood functions, used in the stochastic approximation algorithm.
   }
 
-  \item{RM.phase1n_base}{The Robbins-Monro control
+  \item{RM.phase1n_base, RM.phase2n_base, RM.phase2sub, RM.init_gain, RM.phase3n}{The Robbins-Monro control
     parameters are not yet documented.
   }
-  \item{RM.phase2n_base}{Not yet documented.
-  }
-  \item{RM.phase2sub}{Not yet documented.
-  }
-  \item{RM.init_gain}{Not yet documented.
-  }
-  \item{RM.phase3n}{Not yet documented.
-  }
+
   \item{Step.MCMC.samplesize}{MCMC sample size for the preliminary steps of the
     "Stepping" method of optimization.  This is usually chosen to be smaller
     than the final MCMC sample size (which equals \code{MCMC.samplesize}).
@@ -460,6 +471,10 @@ control.ergm(drop=TRUE,
     \item Hummel, R. M., Hunter, D. R., and Handcock, M. S. (2012),
     Improving Simulation-Based Algorithms for Fitting ERGMs,
     Journal of Computational and Graphical Statistics, to appear.
+
+    \item Kristoffer Sahlin. Estimating convergence of Markov chain
+    Monte Carlo simulations. Master's Thesis. Stockholm University, 2011. \url{http://www2.math.su.se/matstat/reports/master/2011/rep2/report.pdf}
+
   }
 }
 \keyword{ models }
