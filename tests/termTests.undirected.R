@@ -67,6 +67,21 @@ if (s.0 != 97 || round(e.0$coef + 4.871, 3) != 0 ||
   print("Passed concurrent term test")
 }
 
+#concurrentties, undirected
+num.tests=num.tests+1
+s.0 <- summary(fmh~concurrentties)
+e.0 <- ergm(fmh~concurrentties, estimate="MPLE")
+s.b <- summary(fmh~concurrentties(by="Grade"))
+e.b <- ergm(fmh~concurrentties(by="Sex"), estimate="MPLE")
+if (!all(s.0==258)||round(e.0$coef+3.234,3)!=0 ||
+    !all(s.b==c(103,51,36,19,31,18))||
+    !all(round(e.b$coef+c(3.078,3.429),3)==0))  {
+	print(list(s.0=s.0,e.0=e.0, s.b=s.b, e.b=e.b))
+	stop("Failed concurrentties term test")
+} else {
+	num.passed.tests = num.passed.tests+1
+	print("Passed concurrentties term test")
+}
 
 
 # degree, undirected

@@ -52,20 +52,6 @@ if (s.0 != 32 || round(e.0$coef+1.33,3)!=0 ||
 
 
 
-#concurrentties, directed
-num.tests=num.tests+1
-s.0 <- summary(samplike~concurrentties)
-e.0 <- ergm(samplike~concurrentties, estimate="MPLE")
-if (!all(s.0==140)||round(e.0$coef+-0.4536,3)==0) {
-	print(list(s.0=s.0,e.0=e.0, e.l=e.l, s.f=s.f, e.lf=e.lf))
-	stop("Failed concurrentties term test")
-} else {
-	num.passed.tests = num.passed.tests+1
-	print("Passed concurrentties term test")
-}
-
-
-
 # ctripe=ctriad, directed
 num.tests=num.tests + 1
 s.0 <- summary(samplike~ctriple)
