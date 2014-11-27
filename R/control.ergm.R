@@ -184,7 +184,7 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.dampening.min.ess=20,
                        MCMLE.dampening.level=0.1,
                        MCMLE.steplength.margin=0.05,
-                       MCMLE.steplength=1,
+                       MCMLE.steplength=if(is.null(MCMLE.steplength.margin)) 0.5 else 1,
                        MCMLE.adaptive.trustregion=3,
                        MCMLE.sequential=TRUE,
                        MCMLE.density.guard.min=10000,
@@ -277,12 +277,7 @@ control.ergm<-function(drop=TRUE,
   
   for(arg in match.arg.pars)
     control[arg]<-list(match.arg(control[[arg]][1],eval(formal.args[[arg]])))
-  
-  passed.args = as.list(sys.call())
-  if (is.null(passed.args$MCMLE.steplength)) {
-    if (control$MCMLE.termination%in%c("Hotelling","none")) control$MCMLE.steplength <- 0.5
-  }
-  
+
   set.control.class()
 }
 
