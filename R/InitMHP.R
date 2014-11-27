@@ -12,8 +12,8 @@
 # initializing the MHproposal object; each is prepended with 'InitMHP.'
 #       <randomtoggle>      <CondOutDegreeDist> 
 #       <TNT>               <ConstantEdges>    
-#       <TNT10>             <CondInDegree>      
-#       <CondDegree>        <CondOutDegree>     <HammingTNT>   
+#       <CondInDegree>      <CondDegree>
+#       <CondOutDegree>     <HammingTNT>   
 #       <CondDegreeTetrad>         <HammingConstantEdges>
 #       <CondDegreeHexad>            <randomtoggleNonObserved>
 #       <CondDegreeDist>          <nobetweengroupties>
@@ -48,17 +48,6 @@ InitMHP.randomtoggle <- function(arguments, nw) {
 
 InitMHP.TNT <- function(arguments, nw) {
   MHproposal <- list(name = "TNT", inputs=NULL)
-  MHproposal
-}
-
-InitMHP.TriNT <- function(arguments, nw) {
-  if(is.bipartite(nw)) stop("`TriNT` proposal does not work for bipartite networks.")
-  MHproposal <- list(name = "TriNT", inputs=NULL)
-  MHproposal
-}
-
-InitMHP.TNT10 <- function(arguments, nw) {
-  MHproposal <- list(name = "TNT10", inputs=NULL)
   MHproposal
 }
 
