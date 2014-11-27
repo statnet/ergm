@@ -82,7 +82,7 @@ control.ergm(drop=TRUE,
              MCMLE.dampening.min.ess=20,
              MCMLE.dampening.level=0.1,
              MCMLE.steplength.margin=0.05,
-             MCMLE.steplength=1,
+             MCMLE.steplength=if(is.null(MCMLE.steplength.margin)) 0.5 else 1,
              MCMLE.adaptive.trustregion=3,
              MCMLE.sequential=TRUE,
              MCMLE.density.guard.min=10000,
@@ -280,13 +280,14 @@ control.ergm(drop=TRUE,
     is 1 for two consecutive iterations. For the last iteration, the sample size is
     boosted by a factor of \code{MCMLE.last.boost}. See Hummel et. al. (2012)}
       \item{"Hotelling"}
-      {After every MCMC sample, a Hotelling's T^2
+      {After every MCMC sample, an autocorrelation-adjusted Hotelling's T^2
     test for equality of MCMC-simulated network statistics to observed
     is conducted, and if its P-value exceeds \code{MCMLE.conv.min.pval}, the
     estimation is considered to have converged and finishes. This was the default option
     in \code{ergm} version 3.1.}
       \item{"precision"}
-      {Terminate when the MCMC standard errors are below the precision bound specified by
+      {Terminate when the estimated loss in estimating precision due to
+	using MCMC standard errors is below the precision bound specified by
       \code{MCMLE.MCMC.precision}, and the Hummel step length is 1 for two consecutive
       iterations. See \code{MCMLE.MCMC.precision} for details. This feature is in experimental status until we verify the coverage of the standard errors.}
       \item{"none"}
@@ -337,13 +338,18 @@ control.ergm(drop=TRUE,
   \item{MCMLE.steplength.margin}{
     The extra margin required for a Hummel step to count as being inside 
     the convex hull of the sample. 
-    Set this to 0 if the step length gets stuck at the same value over several iteraions.
+    Set this to 0 if the step length gets stuck at the same value over
+    several iteraions. Set it to \code{NULL} to use fixed step length.
   }
   \item{MCMLE.steplength}{Multiplier for step length, which may 
     (for values less than one) 
-    make fitting more stable at the cost of efficiency.
+    make fitting more stable at the cost of computational efficiency.
     Can be set to "adaptive"; see 
     \code{MCMLE.adaptive.trustregion}.
+
+    If \code{MCMLE.steplength.margin} is not \code{NULL}, the step
+    length will be set using the algorithm of Hummel et al. (2010). In
+    that case, it will serve as the maximum step length considered.
   }
   \item{MCMLE.adaptive.trustregion}{Maximum increase the algorithm
     will allow for the approximated loglikelihood at a given
