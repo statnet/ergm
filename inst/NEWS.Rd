@@ -24,7 +24,7 @@
      \item{Parallel functionality: ergm can take user-created clusters as the parallel control parameter. This is the recommended method for using ergm on a high-performance computing cluster. See \link{ergm-parallel}. Functionality now implemented via the \code{parallel} package, direct dependence on \code{snow} package is removed}
      \item{New helper function \code{search.ergmTerms()} function which through the \code{\link{ergm.terms}} help page and prints out a list of terms appropriate for the specified network's structural constraints, optionally restricting by additional categories and keyword matches.}
      \item{The estimated covariance matrix of the ergm estimate can be extracted using \code{vcov} function.}
-     \item{new EXPERIMENTAL Effective Sample Size (ESS)  feature to adaptively determine MCMC length needed to get the specified effective size. Set \code{MCMC.effectiveSize} to non-NULL to enable this functionality; 50 is a reasonable value. Includes new \code{ergm.control} parameters
+     \item{New EXPERIMENTAL Effective Sample Size (ESS)  feature to adaptively determine MCMC length needed to get the specified effective size. Set \code{MCMC.effectiveSize} to non-NULL to enable this functionality; 50 is a reasonable value. Includes new \code{ergm.control} parameters
         \itemize{
           \item    \code{MCMC.effectiveSize=NULL}
           \item    \code{MCMC.effectiveSize.damp=10}
@@ -61,12 +61,12 @@
         \itemize{ 
           \item default for \code{MCMC.interval} increased from 100 to 1000
           \item default for \code{MCMC.burnin} changed from 10000 to mcmc.interval*16
-          \item default for \code{MCMC.samplesize decreased} from 10000 to 1024
+          \item default for \code{MCMC.samplesize} decreased from 10000 to 1024
         }
       }
       \item{ MCMLE control parameter changes in control.ergm
         \itemize{
-          \item a new control argument \code{MCMLE.termination} has been added to specify the criterion used for terminating MCMLE estimation
+          \item a new control argument \code{MCMLE.termination} has been added to specify the criterion used for terminating MCMLE estimation.
           \item a new \code{MCMLE.metric} argument \code{'logtaylor'} has been added
           \item control parameter \code{MCMCLE.steplength.margin} has been added
           \item default value for \code{MCMLE.MCMC.precision} has been increased from 0.05 to 0.005

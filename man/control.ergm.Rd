@@ -229,8 +229,13 @@ control.ergm(drop=TRUE,
   }  
   \item{MCMLE.effectiveSize, MCMC.effectiveSize, MCMC.effectiveSize.damp, MCMC.effectiveSize.maxruns,
   MCMC.effectiveSize.base, MCMC.effectiveSize.points, MCMC.effectiveSize.order}{
-    Set \code{MCMLE.effectiveSize} to non-NULL value to adaptively determine MCMC length needed
-    to get the specified effective size; 50 is a reasonable value.  This feature is in experimental status until we verify the coverage of the standard errors.
+    Set \code{MCMLE.effectiveSize} to non-NULL value to adaptively
+             determine the burn-in and the MCMC length needed
+    to get the specified effective size using the method of Sahlin (2011); 50 is a reasonable value.  This
+             feature is in experimental status until we verify the
+             coverage of the standard errors.
+
+	     
   }  
   \item{MCMC.return.stats}{Logical:  If TRUE, return the matrix
     of MCMC-sampled network statistics.  This matrix should have
@@ -466,6 +471,10 @@ control.ergm(drop=TRUE,
     \item Hummel, R. M., Hunter, D. R., and Handcock, M. S. (2012),
     Improving Simulation-Based Algorithms for Fitting ERGMs,
     Journal of Computational and Graphical Statistics, to appear.
+
+    \item Kristoffer Sahlin. Estimating convergence of Markov chain
+    Monte Carlo simulations. Master's Thesis. Stockholm University, 2011. \url{http://www2.math.su.se/matstat/reports/master/2011/rep2/report.pdf}
+
   }
 }
 \keyword{ models }

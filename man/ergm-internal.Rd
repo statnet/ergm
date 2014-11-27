@@ -36,8 +36,6 @@
 \alias{as.edgelist}
 \alias{as.edgelist.compressed}
 \alias{as.network.uncompressed}
-\alias{autoboot.ergm}
-\alias{autoboot.se.ergm}
 \alias{central.network}
 \alias{check.ErgmTerm}
 \alias{coef.length.model}
@@ -143,7 +141,6 @@
 \alias{llik.info3}
 \alias{llik.mcmcvar3}
 \alias{logistftest}
-\alias{logp.rank.ergm}
 \alias{mcmc.diagnostics.default}
 \alias{midarrow}
 \alias{model.matrix.pen.glm}
