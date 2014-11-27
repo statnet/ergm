@@ -230,7 +230,11 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 #
 # This is a variant of Hummel et al. (2013)'s steplength algorithm,
 # also usable for missing data MLE.
-.Hummel.steplength <- function(x1, x2=NULL, margin=0.05, steplength.max=1){
+#
+# order, if specified, only checks for being in the convex hull for
+# each individual variable (i.e., min and max) or each pair of
+# variables.
+.Hummel.steplength <- function(x1, x2=NULL, margin=0.05, steplength.max=1, order=0){
   margin <- 1 + margin
   x1 <- rbind(x1); m1 <- colMeans(x1); x1 <- unique(x1)
   if(is.null(x2)) x2 <- rep(0,ncol(x1))
@@ -238,8 +242,19 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 
   # Note that S might only be the unique rows, while xM is the column
   # means of the whole matrix.
-  in.hull <- function(gamma, x, xM, M){ 
-    is.inCH(margin*gamma * x + (1-margin*gamma) * xM, M)
+  
+  in.hull <- if(order>0){
+    order <- min(order, ncol(x1))
+    # Iterate through every combination of order variables, and
+    # confirm that the shifted mean is in their convex hull.
+    function(gamma, x, xM, M)
+      all(combn(ncol(x1), order, function(vars){
+        is.inCH(margin*gamma * x[vars] + (1-margin*gamma) * xM[vars], M[,vars,drop=FALSE])
+      }))
+  }else{
+    function(gamma, x, xM, M){ 
+      is.inCH(margin*gamma * x + (1-margin*gamma) * xM, M)
+    }
   }
 
   # is.inCH() can handle 1-row M, so this is perfectly fine.

@@ -205,7 +205,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
                   control.parallel$MCMC.samplesize,"\n")}
   
   statsmatrix[is.na(statsmatrix)] <- 0
-  list(statsmatrix=statsmatrix, newnetwork=newnetwork, newnetworks=newnetworks, status=0, final.interval=final.interval)
+  list(statsmatrix=statsmatrix, statsmatrices=statsmatrices, newnetwork=newnetwork, newnetworks=newnetworks, status=0, final.interval=final.interval)
 
 }
 
@@ -338,8 +338,8 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NU
   if(!is.list(x)) x <- list(x)
   es <- function(b){
     if(b>0) x <- lapply(lapply(x, "[", -seq_len(b),,drop=FALSE),mcmc)
-    effSizes <- if(ar.order) .fast.effectiveSize(as.mcmc.list(x), ar.order=ar.order)
-                else effectiveSize(as.mcmc.list(x))
+    effSizes <- if(ar.order) .fast.effectiveSize(as.matrix(as.mcmc.list(x), ar.order=ar.order))
+                else effectiveSize(as.matrix(as.mcmc.list(x)))
     mean.fn <- function(x) x^(-1)
     mean.ifn <- function(x) x^(-1)
     mean.ifn(mean(mean.fn(effSizes)))

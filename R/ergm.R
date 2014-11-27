@@ -112,7 +112,7 @@
 #####################################################################################    
 
 ergm <- function(formula, response=NULL,
-                 reference=~Bernoulli,
+                 reference=~Bernoulli,obs.constraints=~observed,
                  constraints=~.,
                  offset.coef=NULL,
                  target.stats=NULL,
@@ -144,8 +144,19 @@ ergm <- function(formula, response=NULL,
     warning("Target statistics specified in a network with missing dyads. Missingness will be overridden.")
     nw[as.matrix(is.na(nw),matrix.type="edgelist")] <- 0
   }
- 
-  MHproposal.obs <- if(network.naedgecount(nw)==0) NULL else append.rhs.formula(constraints, list(as.name("observed")), TRUE)
+
+  # Get list of observation process constraints.
+  obs.constraints <- term.list.formula(obs.constraints[[length(obs.constraints)]])
+  
+  # If no missing edges, remove the "observed" constraint.
+  if(network.naedgecount(nw)==0){
+    obs.con.names <- sapply(obs.constraints, function(x) as.character(if(is.call(x)) x[[1]] else x))
+    obs.constraints[obs.con.names=="observed"] <- NULL
+  }
+  
+  MHproposal.obs<-append.rhs.formula(constraints, obs.constraints, TRUE)
+  
+  if(constraints==MHproposal.obs) MHproposal.obs<-NULL
 
   ## Construct approximate response network if target.stats are given.
   
@@ -389,9 +400,9 @@ ergm <- function(formula, response=NULL,
 
               stop("Method ", control$main.method, " is not implemented.")
               )
-  
-  initialfit <- NULL
 
+  initialfit <- NULL
+  
   if(!is.null(control$MCMLE.check.degeneracy) && control$MCMLE.check.degeneracy && (is.null(mainfit$theta1$independent) || !all(mainfit$theta1$independent))){
     if(verbose) {
       cat("Checking for degeneracy.\n")
