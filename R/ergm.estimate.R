@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  http://statnet.org/attribution
 #
-#  Copyright 2003-2013 Statnet Commons
+#  Copyright 2003-2014 Statnet Commons
 #######################################################################
 ##################################################################################
 # The <ergm.estimate> function searches for and returns a maximizer of the
@@ -287,7 +287,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                         hessian=hessianflag,
                         method="Nelder-Mead",
                         control=list(trace=trace,fnscale=-1,maxit=100*nr.maxit,
-                                     reltol=0.01),
+                                     reltol=nr.reltol),
                         xobs=xobs, 
                         xsim=xsim, probs=probs, 
                         xsim.obs=xsim.obs, probs.obs=probs.obs,
