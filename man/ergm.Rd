@@ -151,9 +151,7 @@ ergm (formula,
  \item{network}{Original network}
  \item{newnetwork}{The final network at the end of the MCMC
  simulation}
-% \item{mc.se}{MCMC standard error estimates}
  \item{coef.init}{The initial value of \eqn{\theta}.}
-% \item{initial}{The MPLE fit as a \code{glm} object.}
  \item{est.cov}{The covariance matrix of the MCMC samples.}
  \item{coef.hist, steplen.hist, stats.hist, stats.obs.hist}{
    For the MCMLE method, the history of coefficients, steplen, and resulting average statistics.
@@ -164,7 +162,7 @@ ergm (formula,
  family model)}
   \item{formula}{The original \code{\link{formula}} entered into the \code{\link{ergm}} function.}
   \item{target.stats}{The vector of the mean value parameters (converted to non-curved parameters if model contains curved parameters) specified in the \code{ergm} arguments.; default=the observed statistic from the 'nw' in formula}
-  \item{target.esteq}{The vector of target sample estimation equation. It is identical to target.stats for non-curved model. For curved model, it preserves the target mean value of curved terms.}
+  \item{target.esteq}{The vector of target sample estimation equation. It is identical to target.stats for non-curved models. For curved models, it preserves the target mean values of curved terms.}
   \item{constrained}{The list of constraints calculated from the \code{constraints} used by original \code{ergm} call}
    \item{constraints}{Constraints used by original \code{ergm} call}
   \item{reference}{The reference measure used by original \code{ergm} call}
