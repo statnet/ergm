@@ -148,29 +148,30 @@ ergm (formula,
  \item{covar}{Approximate covariance matrix for the MLE, based on the inverse
   Hessian of the approximated loglikelihood evaluated at the maximizer.}
  \item{failure}{Logical:  Did the MCMC estimation fail?}
- \item{mc.se}{MCMC standard error estimates}
+ \item{network}{Original network}
  \item{newnetwork}{The final network at the end of the MCMC
  simulation}
- \item{network}{Original network}
+% \item{mc.se}{MCMC standard error estimates}
  \item{coef.init}{The initial value of \eqn{\theta}.}
- \item{initial}{The MPLE fit as a \code{glm} object.}
- \item{null.deviance}{Deviance of the null model. Valid only for
-  unconstrained models.}
- \item{mle.lik}{The approximate log-likelihood for the MLE.
-  The value is only approximate because it is estimated based 
-  on the MCMC random sample.}
- \item{etamap}{The set of functions mapping the true parameter theta
+% \item{initial}{The MPLE fit as a \code{glm} object.}
+ \item{est.cov}{The covariance matrix of the MCMC samples.}
+ \item{coef.hist, steplen.hist, stats.hist, stats.obs.hist}{
+   For the MCMLE method, the history of coefficients, steplen, and resulting average statistics.
+}
+ \item{control}{The control list passed to the call.}
+  \item{etamap}{The set of functions mapping the true parameter theta
  to the canonical parameter eta (irrelevant except in a curved exponential
  family model)}
- \item{degeneracy.value}{Score calculated to assess the degree of 
- degeneracy in the model.}
- \item{degeneracy.type}{Supporting output for \code{degeneracy.value}. Mainly
-for internal use.}
- \item{formula}{The original \code{\link{formula}} entered into the \code{\link{ergm}} function.}
- \item{constraints}{Constraints used by original \code{ergm} call}
- \item{control}{The control list passed to the call.}
- \item{offset}{vector of logical telling which model parameters are to be set
+  \item{formula}{The original \code{\link{formula}} entered into the \code{\link{ergm}} function.}
+  \item{target.stats}{The vector of the mean value parameters (converted to non-curved parameters if model contains curved parameters) specified in the \code{ergm} arguments.; default=the observed statistic from the 'nw' in formula}
+  \item{target.esteq}{The vector of target sample estimation equation. It is identical to target.stats for non-curved model. For curved model, it preserves the target mean value of curved terms.}
+  \item{constrained}{The list of constraints calculated from the \code{constraints} used by original \code{ergm} call}
+   \item{constraints}{Constraints used by original \code{ergm} call}
+  \item{reference}{The reference measure used by original \code{ergm} call}
+  \item{estimate}{The type of the estimate used by original \code{ergm} call}
+  \item{offset}{vector of logical telling which model parameters are to be set
  at a fixed value (i.e., not estimated).}
+ 
  \item{drop}{If \code{\link[=control.ergm]{control$drop}=TRUE}, a numeric vector indicating which terms were dropped due to to extreme values of the
    corresponding statistics on the observed network, and how:
    \describe{
@@ -181,14 +182,22 @@ for internal use.}
        \code{+Inf}.}
    }
  }
-\item{coef.hist, stats.hist, stats.obs.hist}{
-   For the MCMLE method, the history of coefficients and resulting
-  average statistics.
-}
+ 
 \item{estimable}{A logical vector indicating which terms could not be
   estimated due to a \code{constraints} constraint fixing that term at a
   constant value.
 }
+
+ \item{null.lik}{Log-likelihood of the null model. Valid only for
+  unconstrained models.}
+ \item{mle.lik}{The approximate log-likelihood for the MLE.
+  The value is only approximate because it is estimated based 
+  on the MCMC random sample.}
+
+ \item{degeneracy.value}{Score calculated to assess the degree of 
+ degeneracy in the model. Only shows when MCMLE.check.degeneracy is TRUE in \code{control.ergm}. }
+ \item{degeneracy.type}{Supporting output for \code{degeneracy.value}. Only shows when MCMLE.check.degeneracy is TRUE in \code{control.ergm}. Mainly for internal use.}
+
   See the method \code{\link{print.ergm}} for details on how
   an \code{\link{ergm}} object is printed.  Note that the
   method \code{\link{summary.ergm}} returns a summary of the
