@@ -152,21 +152,21 @@ ergm (formula,
  \item{newnetwork}{The final network at the end of the MCMC
  simulation}
  \item{coef.init}{The initial value of \eqn{\theta}.}
- \item{est.cov}{The covariance matrix of the MCMC samples.}
+ \item{est.cov}{The covariance matrix of the model statistics in the final MCMC sample.}
  \item{coef.hist, steplen.hist, stats.hist, stats.obs.hist}{
-   For the MCMLE method, the history of coefficients, steplen, and resulting average statistics.
+   For the MCMLE method, the history of coefficients, Hummel step lengths, and average model statistics for each iteration..
 }
  \item{control}{The control list passed to the call.}
   \item{etamap}{The set of functions mapping the true parameter theta
  to the canonical parameter eta (irrelevant except in a curved exponential
  family model)}
   \item{formula}{The original \code{\link{formula}} entered into the \code{\link{ergm}} function.}
-  \item{target.stats}{The vector of the mean value parameters (converted to non-curved parameters if model contains curved parameters) specified in the \code{ergm} arguments.; default=the observed statistic from the 'nw' in formula}
-  \item{target.esteq}{The vector of target sample estimation equation. It is identical to target.stats for non-curved models. For curved models, it preserves the target mean values of curved terms.}
-  \item{constrained}{The list of constraints calculated from the \code{constraints} used by original \code{ergm} call}
-   \item{constraints}{Constraints used by original \code{ergm} call}
-  \item{reference}{The reference measure used by original \code{ergm} call}
-  \item{estimate}{The type of the estimate used by original \code{ergm} call}
+  \item{target.stats}{The target.stats used during estimation (passed through from the Arguments)}
+  \item{target.esteq}{Used for curved models to preserve the target mean values of the curved terms. It is identical to target.stats for non-curved models.}
+  \item{constrained}{The list of constraints implied by the constraints used by original \code{ergm} call}
+   \item{constraints}{Constraints used during estimation (passed through from the Arguments)}
+  \item{reference}{The reference measure used during estimation (passed through from the Arguments)}
+  \item{estimate}{The estimation method used (passed through from the Arguments).}
   \item{offset}{vector of logical telling which model parameters are to be set
  at a fixed value (i.e., not estimated).}
  
