@@ -58,9 +58,9 @@
         and non-ties for proposed toggles (in the block by construction) with equal probability.  Like the unconstrained TNT proposal, this is useful for improving performance in sparse networks.
         }
         
-         \item{InitMHP.CondB1Degree}{MHp for \eqn{constraints= ~b1degrees}. For bipartite networks, randomly select an edge A1->A2 and a different node in the second mode, B2, which A1 does not connect with, and propose to toggle A1->A2 and A1->B2 at once. This ensures that the degrees of nodes in mode 1 are preserved.  
+         \item{InitMHP.CondB1Degree}{MHp for \eqn{constraints= ~b1degrees}. For bipartite networks, randomly select an edge {B1i, B2j} and an empty dyad with the same node B1i, {B1i, B2k}, and propose to toggle both {B1i, B2j} and {B1i, B2k}. This ensures that the degrees of individual nodes in mode 1 are preserved.
         }
-        \item{InitMHP.CondB2Degree}{MHp for \eqn{constraints= ~b2degrees}. For bipartite network, randomly select an edge B1->B2 and a different node in the second mode, A2, which B1 does not connect with, and propose to toggle B1->B2 and toggle B1->A2 at once. This ensures that the degrees of nodes in mode 2 are preserved.  
+        \item{InitMHP.CondB2Degree}{MHp for \eqn{constraints= ~b2degrees}. For bipartite network, randomly select an edge {B1j, B2i} and an empty dyad with the same node B2i, {B1k, B2i}, and propose to toggle both {B1j, B2i} and {B1k, B2i}. This ensures that the degrees of individual nodes in mode 2 are preserved.
         }
         
         \item{InitMHP.CondDegree}{MHp for \eqn{constraints= ~degree}. Propose either 4 toggles (MH_CondDegreeTetrad) or 6 toggles (MH_CondDegreeHexad) at once. For undirected networks, propose 4 toggles (MH_CondDegreeTetrad). MH_CondDegreeTetrad selects two edges with no nodes in common, A1-A2 and B1-B2, s.t. A1-B2 and B1-A2 are not edges, and propose to replace the former two by the latter two. MH_CondDegreeHexad selects three edges A1->A2, B1->B2, C1->C2 at random and rotate them to A1->B2, B1->C2, and C1->A2.
