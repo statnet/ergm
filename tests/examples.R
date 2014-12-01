@@ -38,11 +38,11 @@ opttest({
 rm(list=ls())
 library(ergm)
 {
-# Uses 3 SOCK clusters for MCMLE estimation
+# Uses 2 SOCK clusters for MCMLE estimation
 data(faux.mesa.high)
 nw <- faux.mesa.high
 fauxmodel.01 <- ergm(nw ~ edges + isolates + gwesp(0.2, fixed=T), 
-                     control=control.ergm(parallel=3, parallel.type="PSOCK"))
+                     control=control.ergm(parallel=2, parallel.type="PSOCK"))
 summary(fauxmodel.01)
 
 }
