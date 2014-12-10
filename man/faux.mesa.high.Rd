@@ -53,9 +53,9 @@ data:
 
 \preformatted{
 ~ edges + nodefactor("Grade") + nodefactor("Race") + nodefactor("Sex")
- + nodematch("Grade",diff=T) + nodematch("Race",diff=T)
- + nodematch("Sex",diff=F) + gwdegree(1.0,fixed=T)
- + gwesp(1.0,fixed=T) + gwdsp(1.0,fixed=T)
+ + nodematch("Grade",diff=TRUE) + nodematch("Race",diff=TRUE)
+ + nodematch("Sex",diff=FALSE) + gwdegree(1.0,fixed=TRUE)
+ + gwesp(1.0,fixed=TRUE) + gwdsp(1.0,fixed=TRUE)
 }
 
 The resulting model fit was then applied to a network with actors 
