@@ -107,7 +107,7 @@ void MH_CondDegreeTetradMixMore(MHproposal *MHp, Network *nwp)  {
 //Rprintf("A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
 //Rprintf("g: A1 %f A2 %f B1 %f B2 %f\n",MHp->inputs[A1-1],MHp->inputs[A2-1],MHp->inputs[B1-1],MHp->inputs[B2-1]); 
   }while(
-  	 ((abs(MHp->inputs[A1-1]-MHp->inputs[A2-1])>0.001)||(abs(MHp->inputs[B2-1]-MHp->inputs[B1-1])>0.001)||(abs(MHp->inputs[A1-1]-MHp->inputs[B1-1])<0.001))|| 
+  	 ((fabs(MHp->inputs[A1-1]-MHp->inputs[A2-1])>0.001)||(fabs(MHp->inputs[B2-1]-MHp->inputs[B1-1])>0.001)||(fabs(MHp->inputs[A1-1]-MHp->inputs[B1-1])<0.001))|| 
 	  A1==B1 || A1==B2 || A2==B1 || A2==B2 || 
 	 (nwp->directed_flag ? 
 	  IS_OUTEDGE(A1, B2) || IS_OUTEDGE(B1, A2) : // Directed
@@ -145,7 +145,7 @@ void MH_CondDegreeTetradMixLess(MHproposal *MHp, Network *nwp)  {
 //Rprintf("g: A1 %f A2 %f B1 %f B2 %f\n",MHp->inputs[A1-1],MHp->inputs[A2-1],MHp->inputs[B1-1],MHp->inputs[B2-1]); 
 //}
   }while(
-  	 ((abs(MHp->inputs[A1-1]-MHp->inputs[A2-1])<0.001)||(abs(MHp->inputs[B2-1]-MHp->inputs[B1-1])<0.001)||(abs(MHp->inputs[A1-1]-MHp->inputs[B1-1])<0.001))|| 
+  	 ((fabs(MHp->inputs[A1-1]-MHp->inputs[A2-1])<0.001)||(fabs(MHp->inputs[B2-1]-MHp->inputs[B1-1])<0.001)||(fabs(MHp->inputs[A1-1]-MHp->inputs[B1-1])<0.001))|| 
 	  A1==B1 || A1==B2 || A2==B1 || A2==B2 || 
 	 (nwp->directed_flag ? 
 	  IS_OUTEDGE(A1, B2) || IS_OUTEDGE(B1, A2) : // Directed
@@ -180,10 +180,10 @@ void MH_CondDegreeMixChangeOrig(MHproposal *MHp, Network *nwp)  {
     if(bb){
 //  if(unif_rand() > 0.5){
 //  Less
-  	 b=((abs(MHp->inputs[A1-1]-MHp->inputs[A2-1])<0.001)||(abs(MHp->inputs[B2-1]-MHp->inputs[B1-1])<0.001)||(abs(MHp->inputs[A1-1]-MHp->inputs[B1-1])<0.001));
+  	 b=((fabs(MHp->inputs[A1-1]-MHp->inputs[A2-1])<0.001)||(fabs(MHp->inputs[B2-1]-MHp->inputs[B1-1])<0.001)||(fabs(MHp->inputs[A1-1]-MHp->inputs[B1-1])<0.001));
     }else{
 //  More
-  	 b=((abs(MHp->inputs[A1-1]-MHp->inputs[A2-1])>0.001)||(abs(MHp->inputs[B2-1]-MHp->inputs[B1-1])>0.001)||(abs(MHp->inputs[A1-1]-MHp->inputs[B1-1])<0.001));
+  	 b=((fabs(MHp->inputs[A1-1]-MHp->inputs[A2-1])>0.001)||(fabs(MHp->inputs[B2-1]-MHp->inputs[B1-1])>0.001)||(fabs(MHp->inputs[A1-1]-MHp->inputs[B1-1])<0.001));
     }
 //    if(unif_rand() > 0.999){
 //Rprintf("A1 %d A2 %d B1 %d B2 %d\n",A1,A2,B1,B2); 
@@ -229,7 +229,7 @@ void MH_CondDegreeMix(MHproposal *MHp, Network *nwp)  {
     GetRandEdge(&A11, &A12, nwp);
     GetRandEdge(&B11, &B12, nwp);
     numtrys++;
-  	bad=((abs(MHp->inputs[A11-1]-MHp->inputs[A12-1])<0.001)&(abs(MHp->inputs[B12-1]-MHp->inputs[B11-1])<0.001)&(abs(MHp->inputs[A11-1]-MHp->inputs[B11-1])>0.001));
+  	bad=((fabs(MHp->inputs[A11-1]-MHp->inputs[A12-1])<0.001)&(fabs(MHp->inputs[B12-1]-MHp->inputs[B11-1])<0.001)&(fabs(MHp->inputs[A11-1]-MHp->inputs[B11-1])>0.001));
     /* goodtype = 2; */
   }while(
   	 (numtrys<1000) && ((!bad) || A11==B11 || A11==B12 || A12==B11 || A12==B12 || 
@@ -241,7 +241,7 @@ void MH_CondDegreeMix(MHproposal *MHp, Network *nwp)  {
     GetRandEdge(&A21, &A22, nwp);
     GetRandEdge(&B21, &B22, nwp);
     numtrys++;
-  	bad=((abs(MHp->inputs[A21-1]-MHp->inputs[A22-1])>0.001)&(abs(MHp->inputs[B22-1]-MHp->inputs[B21-1])>0.001)&(abs(MHp->inputs[A21-1]-MHp->inputs[B22-1])<0.001));
+  	bad=((fabs(MHp->inputs[A21-1]-MHp->inputs[A22-1])>0.001)&(fabs(MHp->inputs[B22-1]-MHp->inputs[B21-1])>0.001)&(fabs(MHp->inputs[A21-1]-MHp->inputs[B22-1])<0.001));
     /* goodtype = 0; */
   }while(
   	 (numtrys<1000) && ((!bad) || A21==B21 || A21==B22 || A22==B21 || A22==B22 || 
@@ -254,7 +254,7 @@ void MH_CondDegreeMix(MHproposal *MHp, Network *nwp)  {
     GetRandEdge(&A11, &A12, nwp);
     GetRandEdge(&B11, &B12, nwp);
     numtrys++;
-  	bad=((abs(MHp->inputs[A11-1]-MHp->inputs[A12-1])<0.001)&(abs(MHp->inputs[B12-1]-MHp->inputs[B11-1])<0.001)&(abs(MHp->inputs[A11-1]-MHp->inputs[B11-1])<0.001));
+  	bad=((fabs(MHp->inputs[A11-1]-MHp->inputs[A12-1])<0.001)&(fabs(MHp->inputs[B12-1]-MHp->inputs[B11-1])<0.001)&(fabs(MHp->inputs[A11-1]-MHp->inputs[B11-1])<0.001));
     /* goodtype = 3; */
   }while(
   	 (numtrys<1000) && ((!bad) || A11==B11 || A11==B12 || A12==B11 || A12==B12 || 
@@ -266,7 +266,7 @@ void MH_CondDegreeMix(MHproposal *MHp, Network *nwp)  {
     GetRandEdge(&A21, &A22, nwp);
     GetRandEdge(&B21, &B22, nwp);
     numtrys++;
-  	bad=((abs(MHp->inputs[A21-1]-MHp->inputs[A22-1])>0.001)&(abs(MHp->inputs[B22-1]-MHp->inputs[B21-1])>0.001)&(abs(MHp->inputs[A21-1]-MHp->inputs[B22-1])>0.001));
+  	bad=((fabs(MHp->inputs[A21-1]-MHp->inputs[A22-1])>0.001)&(fabs(MHp->inputs[B22-1]-MHp->inputs[B21-1])>0.001)&(fabs(MHp->inputs[A21-1]-MHp->inputs[B22-1])>0.001));
     /* goodtype = 4;*/
   }while(
   	 (numtrys<1000) && ((!bad) || A21==B21 || A21==B22 || A22==B21 || A22==B22 || 
