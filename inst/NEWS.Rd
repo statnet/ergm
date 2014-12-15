@@ -11,9 +11,72 @@
 \title{NEWS file for the \code{\link[=ergm-package]{ergm}} package}
 \encoding{UTF-8}
 
+
 % When a release is forked, copy the sections to a new release and
 % delete unused sections.
-\section{Changes in version 3.2}{
+\section{Changes in version 3.2.4}{
+
+  %%  \subsection{NEW FEATURES}{
+  %%    \itemize{
+  %%      \item
+  %% }
+  %% }
+   
+  %%  \subsection{CHANGES}{
+  %%   \itemize{
+  %%     \item
+  %%     }
+  %% }
+  
+   \subsection{BUG FIXES}{
+     \itemize{
+      \item{Some technical corrections were made in the documentation:
+	none of the examples use \code{T} and \code{F} for \code{TRUE}
+	and \code{FALSE}.}
+      \item{A few memory management issues exposed by Valgrind have been
+	addressed. No past results are invalidated.}
+    }
+   }
+
+   %% \subsection{DEPRECATED & DEFUNCT}{
+   %%  \itemize{
+   %%    \item{ }
+   %%  }
+   %% }
+
+  
+   %% \subsection{OTHER USER-VISIBLE CHANGES}{
+   %%   \itemize{
+   %%    \item{}
+   %%   }
+   %% }
+
+  % \subsection{C-LEVEL FACILITIES}{
+  %   \itemize{
+  %   }
+  % }
+
+  % \subsection{UTILITIES}{
+  %   \itemize{
+  %     \item Likewise, "UTILITIES" is probably unnecessary.
+  %   }
+  % }
+
+  % \subsection{INSTALLATION}{
+  %   \itemize{
+  %     \item ... as is "INSTALLATION".
+  %   }
+  % }
+
+  % \subsection{PACKAGE INSTALLATION}{
+  %   \itemize{
+  %     \item ditto.
+  %   }
+  % }
+
+}
+
+\section{Changes in version 3.2.3}{
 
    \subsection{NEW FEATURES}{
      \itemize{
@@ -113,30 +176,6 @@ fixes issue reported by Sebastian Daza}
       \item{New help page for ergm MetropolisHastings Proposal methods.}
      }
    }
-
-  % \subsection{C-LEVEL FACILITIES}{
-  %   \itemize{
-  %   }
-  % }
-
-  % \subsection{UTILITIES}{
-  %   \itemize{
-  %     \item Likewise, "UTILITIES" is probably unnecessary.
-  %   }
-  % }
-
-  % \subsection{INSTALLATION}{
-  %   \itemize{
-  %     \item ... as is "INSTALLATION".
-  %   }
-  % }
-
-  % \subsection{PACKAGE INSTALLATION}{
-  %   \itemize{
-  %     \item ditto.
-  %   }
-  % }
-
 }
 
 \section{Changes in version 3.1.3}{
