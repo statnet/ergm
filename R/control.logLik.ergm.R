@@ -23,7 +23,11 @@ control.logLik.ergm<-function(nsteps=20,
                               MCMC.init.maxedges=NULL,
                               MCMC.packagenames=NULL,
                               
-                              seed=NULL){
+                              seed=NULL,
+                              parallel=NULL,
+                              parallel.type=NULL,
+                              parallel.version.check=TRUE
+){
 
   control<-list()
   formal.args<-formals(sys.function())

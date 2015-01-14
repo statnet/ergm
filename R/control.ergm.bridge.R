@@ -21,7 +21,11 @@ control.ergm.bridge<-function(nsteps=20, # Number of geometric bridges to use
                               MCMC.init.maxedges=20000,
                               MCMC.packagenames=c(),
                               
-                              seed=NULL){
+                              seed=NULL,
+                              parallel=0,
+                              parallel.type=NULL,
+                              parallel.version.check=TRUE
+){
 
   control<-list()
   formal.args<-formals(sys.function())
