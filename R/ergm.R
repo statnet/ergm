@@ -207,7 +207,7 @@ ergm <- function(formula, response=NULL,
     tmp[!offinfo$eta] <- target.stats
     names(tmp)[!offinfo$eta] <- names(target.stats)
     s <- summary(formula,response=response)[offinfo$eta]
-    tmp[offinfo$eta] <- s
+    # tmp[offinfo$eta] <- s
     names(tmp)[offinfo$eta] <- names(s)
     
     # From this point on, target.stats has NAs corresponding to the
