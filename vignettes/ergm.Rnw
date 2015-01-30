@@ -41,16 +41,7 @@ options(width=75)
 (ERG or p{*}) modeling with ergm\\
 \small{Version \Sexpr{foo$Version}}  }
 
-\author{Carter T. Butts (University of California, Irvine)\\
-Martina Morris (University of Washington) \\
-Pavel N. Krivitsky (Penn State University)\\
-Zack Almquist (University of California, Irvine) \\
-\medskip{}
-Joint with the rest of the Statnet Development Team:\\
-Mark S. Handcock (UCLA)\\
-David R. Hunter (Penn State University)\\
-Steven M. Goodreau (University of Washington) \\
-Skye Bender de-Moll (Oakland)}
+\author{The Statnet Development Team}
 
 \maketitle
 
@@ -903,110 +894,180 @@ In the STERGM workshop, we show how complete dynamic networks also
 can be simulated over time on the basis of egocentric data like these,
 with the minimal addition of a single estimate of partnership duration.
 For a movie of an example dynamic simulation used to explore the impact
-of network structure on HIV transmission, see \href{http://statnet.org/movies}{statnet.org/movies}.
+of network structure on HIV transmission, 
+see \href{http://statnet.org/movies}{statnet.org/movies}.
 
 
 \section{Additional functionality in the statnet family of packages}
 
 
-\subsection{Additional functionality}
+\subsection{In the \texttt{ergm} and \texttt{network} packages:}
 
-The statnet suite of packages currently contains many additional features
-not covered in this tutorial:
 \begin{itemize}
-\item tools for fitting dynamic network models (\verb@stergm@, in the
-ergm base package)
-\item tools for fitting relational event models (\verb@relevent@ package)
-\item curved exponential family estimation and simulation (\verb@ergm@
-base package)
-\item latent space and latent cluster analysis (\verb@latentnet@ package)
-\item network permutation models (\verb@netperm@ package)
-\item MLE estimation for degree distributions (negative binomial, Poisson,
-scale-free, etc.) (\verb@degreenet@ package)
-\item analysis of bipartite networks (\verb@network@ package)
-\item simulation of bipartite networks with given degree distributions (\verb@networksis@
-package)
-\item hierarchical ERGMs (\verb@hergm@ package)
-\end{itemize}
-Any of these not in the ergm base package are in stand-alone packages
-that can be downloaded either from CRAN, or from the \verb@statnet@
-website. For more detailed information, please visit the \verb@statnet@
-webpage (\href{http://statnet.org}{http://statnet.org}).
 
+\item ERGMs for valued ties \textendash{} see the paper by Pavel Krivitsky (2012)
+
+\item Analysis of bipartite networks \textendash{} \verb@network@ recognizes this as an attribute of the network and \verb@ergm@ provides specific model terms for such networks that begin with b1 or b2 (try: \texttt{search.ergmTerms(categories=c('bipartite')))}.
+
+\end{itemize}
+
+\subsection{In other packages from the statnet suite:}
+
+These are in stand-alone packages that can be downloaded either from CRAN, 
+or from the \verb@statnet@ website. Many have online training materials from our
+workshops.  For more detailed information, 
+please visit the \verb@statnet@ webpaage 
+(\href{http://statnet.org}{http://statnet.org}).
+
+\subsubsection{Static (cross-sectional) network analysis packages}
+
+\begin{itemize}
+
+\item \href{http://cran.r-project.org/web/packages/sna/index.html}{\texttt{sna}} \textendash{} Traditional SNA methods and summaries.
+
+\item \href{http://cran.r-project.org/web/packages/latentnet/index.html}{\texttt{latentnet}}
+\textendash{} Latent space and latent cluster analysis.
+
+\item \href{http://cran.r-project.org/web/packages/netperm/index.html}{\texttt{netperm}} 
+\textendash{} Network permutation models.
+
+\item \href{http://cran.r-project.org/web/packages/degreenet/index.html}{\texttt{degreenet}} 
+\textendash{} MLE estimation for degree distributions (negative binomial, Poisson, scale-free, etc.) 
+
+\item \href{http://cran.r-project.org/web/packages/networksis/index.html}{(\texttt{networksis}}
+\textendash{} Simulation of bipartite networks with given degree distributions. 
+
+\end{itemize}
+
+\subsubsection{Dynamic (longitudinal) network analysis packages:}
+
+\begin{itemize}
+
+\item \href{http://cran.r-project.org/web/packages/tergm/index.html}{\texttt{tergm}}
+\textendash{} Temporal ERGMs (TERGMs): discrete-time dynamic network models for longitudinal network panel data, and other temporal extensions.
+
+\item \href{http://cran.r-project.org/web/packages/relevent/index.html}{\texttt{relevent}}
+\textendash{} Relational event models: continuous-time dynamic network models for longitudinal network data.
+
+\item \href{http://cran.r-project.org/web/packages/networkDynamic/index.html}{\texttt{networkDynamic}}
+\textendash{} Dynamic network data storage and manipulation.
+
+\item \href{http://cran.r-project.org/web/packages/ndtv/index.html}{\texttt{ndtv}}
+\textendash{} Network movie maker.
+
+\end{itemize}
+
+
+\subsection{R packages that build on statnet}
+
+There is a growing number of R packages written by other folks that build on or extend the functionality of the statnet suite.  You can get a current list of those packages by looking at the reverse depends/suggests on CRAN.  A partial list includes:
+
+\begin{itemize}
+
+\item \href{http://cran.r-project.org/web/packages/EpiModel/index.html}{\texttt{EpiModel} package}
+\textendash{} Mathematical Modeling of Infectious Disease, includes functions for deterministic compartmental modeling, stochastic individual contact modeling, and stochatic network modeling
+
+\item \href{http://cran.r-project.org/web/packages/RDS/index.html}{\texttt{RDS} package}
+\textendash{} Estimation with data collected using Respondent-Driven Sampling.
+
+\item \href{http://cran.r-project.org/web/packages/Bergm/index.html}{\texttt{Bergm} package} \textendash{} Bayesian ERGM estimation 
+
+\item \href{http://cran.r-project.org/web/packages/hergm/index.html}{\texttt{hergm} package} \textendash{} Hierarchical Exponential-Family Random Graph Models with Local Dependence (for latent groups).
+
+\item \href{http://cran.r-project.org/web/packages/lvm4net/index.html}{\texttt{lvm4net} package} 
+\textendash{} Latent variable models.
+
+\item \href{http://cran.r-project.org/web/packages/VBLPC/index.html}{\texttt{VBLPCM} package}
+\textendash{} Variational Bayes Latent Position Cluster Models. 
+
+\item \href{http://cran.r-project.org/web/packages/xergm/index.html}{\texttt{xergm} package}
+\textendash{} Temporal exponential random graph models (TERGM) by bootstrapped pseudolikelihood, MCMC MLE and (temporal) network autocorrelation models.
+
+\end{itemize}
 
 \subsection{Additional functionality in development:}
 \begin{itemize}
-\item ERGMs for valued ties \textendash{} expected later 2012
-\item Temporal ERGMs (TERGMs) for longitudinal network panel data, and other
-temporal extensions \textendash{} expected later 2012
-\item Temporally extended (vertex and edge) attributes for TERGMS \textendash{}
-expected later 2012
-\item Network movie maker: ndTV \textendash{} functionality previewed in
-STERGM workshop this year, CRAN release expected later 2012
+
+\item \texttt{ergm.ego} package \textendash{} ERGM estimation and inference from egocentrically sampled data (expected May 2015)
+
+\item \texttt{tsna} package \textendash{} Temporally extended (vertex and edge) SNA methods for dynamic longitudinal network data (expected May 2015)
+
+\item \texttt{MLergm} package \textendash{} ERGM estimation and inference for multi-level data (for observed groups) (expected 2016)
+
 \end{itemize}
 
-\subsection{Statnet Commons: The development group}
-Mark S. Handcock <\href{mailto:handcock@stat.ucla.edu}{handcock@stat.ucla.edu}>
-David R. Hunter <\href{mailto:dhunter@stat.psu.edu}{dhunter@stat.psu.edu}>
-Carter T. Butts <\href{mailto:buttsc@uci.edu}{buttsc@uci.edu}>
-Steven M. Goodreau <\href{mailto:goodreau@u.washington.edu}{goodreau@u.washington.edu}>
-Skye Bender-deMoll <\href{mailto:skyebend@skyeome.net}{skyebend@skyeome.net}>
-Martina Morris <\href{mailto:morrism@u.washington.edu}{morrism@u.washington.edu}>
-Pavel N. Krivitsky <\href{mailto:krivitsky@stat.psu.edu}{krivitsky@stat.psu.edu}>
+\section{Statnet Commons: The core development team}
 
+  Mark S. Handcock <\href{mailto:handcock@stat.ucla.edu}{handcock@stat.ucla.edu}>\\
+  David R. Hunter <\href{mailto:dhunter@stat.psu.edu}{dhunter@stat.psu.edu}>\\
+  Carter T. Butts <\href{mailto:buttsc@uci.edu}{buttsc@uci.edu}>\\
+  Steven M. Goodreau <\href{mailto:goodreau@u.washington.edu}{goodreau@u.washington.edu}>\\
+  Skye Bender-deMoll <\href{mailto:skyebend@skyeome.net}{skyebend@skyeome.net}>\\
+  Martina Morris <\href{mailto:morrism@u.washington.edu}{morrism@u.washington.edu}>\\
+  Pavel N. Krivitsky <\href{mailto:pavel@UOW.EDU.AU}{pavel@UOW.EDU.AU}>
+  
 \section*{Appendix A: Clarifying the terms \textendash{} ergm and network }
 
 You will see the terms ergm and network used in multiple contexts
 throughout the documentation. This is common in R, but often confusing
-to newcomers. To clarify: 
+to newcomers. To clarify:
+
 \textbf{ergm} 
 \begin{itemize}
 \item \textbf{ERGM}: the acronym for an Exponential Random Graph Model;
 a statistical model for relational data that takes a generalized exponential
 family form. 
 \item \textbf{ergm package}: one of the packages within the \verb@statnet@
-suite
+  suite
 \item \textbf{ergm function}: a function within the ergm package; fits an
 ERGM to a network object, creating an ergm object in the process. 
 \item \textbf{ergm object}: a class of objects produced by a call to the
 ergm function, representing the results of an ERGM fit to a network. 
 \end{itemize}
+
 \textbf{network} 
 \begin{itemize}
 \item \textbf{network}: a set of actors and the relations among them. Used
 interchangeably with the term graph. 
 \item \textbf{network package}: one of the packages within the \verb@statnet@
-suite; used to create, store, modify and plot the information found
+  suite; used to create, store, modify and plot the information found
 in network objects. 
 \item \textbf{network object}: a class of object in \verb@R@ used to represent
-a network.\end{itemize}
+a network.
+\end{itemize}
 
+\section{References}
 \begin{thebibliography}{}
 
 \bibitem[Goodreau, S., J. Kitts and M. Morris (2009)]{goodreau}
 Goodreau, S., J. Kitts and M. Morris (2009).
 \newblock Birds of a Feather, or Friend of a Friend? Using Statistical Network Analysis to Investigate Adolescent Social Networks.
-\newblock \emph{Demography 46(1)}: 103-125. 
+\newblock \emph{Demography 46(1)}:103-125. 
 
 \bibitem[Handcock, M. S., D. R. Hunter, C. T. Butts, S. M. Goodreau and M. Morris (2008)]{handcock}
 Handcock, M. S., D. R. Hunter, C. T. Butts, S. M. Goodreau and M. Morris (2008).
 \newblock statnet: Software Tools for the Representation, Visualization, Analysis and Simulation of Network Data.
 \newblock \emph{Journal of Statistical Software 42(01)}.
 
-\bibitem[Krivitsky, P.N.(2009)]{thesis}
-Krivitsky, P.N.(2009). 
-\newblock PhD thesis.
-\newblock \emph{University of Washington, Seattle, WA}
-
-\bibitem[Krivitsky, P. N., M. S. Handcock and M. Morris (2011).]{pavel}
-Krivitsky, P. N., M. S. Handcock and M. Morris (2011). 
-\newblock Network Size and Composition Effects in Exponential-Family Random Graph Models.
-\newblock \emph{Statistical Methodology, forthcoming}
-
 \bibitem[Hunter et al.(2008b)]{ergm}
 Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b). 
 \newblock ergm: A Package to Fit, Simulate and Diagnose Exponential-Family Models for Networks. 
 \newblock \emph{Journal of Statistical Software}, 24(3). \url{http://www.jstatsoft.org/v24/i03/}. 
+
+\bibitem[Krivitsky, P.N.(2009)]{pavelthesis}
+Krivitsky, P.N.(2009). 
+\newblock PhD thesis.
+\newblock \emph{University of Washington, Seattle, WA}
+
+\bibitem[Krivitsky, P. N., M. S. Handcock and M. Morris (2011).]{pavelSize}
+Krivitsky, P. N., M. S. Handcock and M. Morris (2011). 
+\newblock Network Size and Composition Effects in Exponential-Family Random Graph Models.
+\newblock \emph{Statistical Methodology 8:}319-339
+
+\bibitem[Krivitsky, P. N. (2012).]{pavelValued}
+Krivitsky PN (2012). 
+\newblock Exponential-family random graph models for valued networks.
+\newblock \emph{Electronic Journal of Statistics 6:}1100-1128
 
 \end{thebibliography}
 
