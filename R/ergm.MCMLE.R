@@ -383,6 +383,9 @@ ergm.MCMLE <- function(init, nw, model,
       }
     }
     #Otherwise, don't stop before iterations are exhausted.
+    if (iteration == control$MCMLE.maxit) {
+      message("MCMLE estimation did not converge after ", control$MCMLE.maxit, " iterations. The estimated coefficients may not be accurate. Estimation may be resumed by passing the coefficients as initial values; see 'init' under ?control.ergm for details.\n")
+    }
   } # end of main loop
 
   # FIXME:  We should not be "tacking on" extra list items to the 
