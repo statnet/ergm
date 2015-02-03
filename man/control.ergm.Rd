@@ -89,7 +89,8 @@ control.ergm(drop=TRUE,
              MCMLE.density.guard=exp(3),
              MCMLE.effectiveSize=NULL,
              MCMLE.last.boost=4,
-             MCMLE.Hummel.esteq=TRUE, 
+             MCMLE.Hummel.esteq=TRUE,
+             MCMLE.steplength.min=0.0001,
 
              SA.phase1_n=NULL, 
              SA.initial_gain=NULL, 
@@ -377,6 +378,7 @@ control.ergm(drop=TRUE,
   \item{MCMLE.last.boost}{For the Hummel termination criterion, increase
   the MCMC sample size of the last iteration by this factor.}
   \item{MCMLE.Hummel.esteq}{For curved ERGMs, should the estimating function values be used to compute the Hummel step length? This allows the Hummel stepping algorithm converge when some sufficient statistics are at 0.}
+  \item{MCMLE.steplength.min}{Stops MCMLE estimation when the step length gets stuck below this minimum value.}
   
   \item{SA.phase1_n}{Number of MCMC samples to draw
     in Phase 1 of the stochastic approximation algorithm.

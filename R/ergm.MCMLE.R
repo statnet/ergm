@@ -265,6 +265,7 @@ ergm.MCMLE <- function(init, nw, model,
         cat("The log-likelihood did not improve.\n")
       }
       steplen.hist <- c(steplen.hist, adaptive.steplength)
+
     }else{
       steplen <-
         if(!is.null(control$MCMLE.steplength.margin))
@@ -324,8 +325,8 @@ ergm.MCMLE <- function(init, nw, model,
     if(steplen<control$MCMLE.steplength){ # If step length is less than its maximum, don't bother with precision stuff.
       last.adequate <- FALSE
       control$MCMC.samplesize <- control$MCMC.base.samplesize
-      next
-    }
+      
+    } else {
     
     if(control$MCMLE.termination == "precision"){
       prec.loss <- (sqrt(diag(v$mc.cov+v$covar))-sqrt(diag(v$covar)))/sqrt(diag(v$mc.cov+v$covar))
@@ -382,6 +383,13 @@ ergm.MCMLE <- function(init, nw, model,
         control$MCMC.samplesize <- control$MCMC.base.samplesize * control$MCMLE.last.boost
       }
     }
+    
+    }
+    
+    # stop if MCMLE is stuck (steplen stuck near 0)
+    if (length(steplen.hist > 2) && sum(tail(steplen.hist,2)) < 2*control$MCMLE.steplength.min) {
+      stop("MCMLE estimation stuck. There may be excessive correlation between model terms, suggesting a poor model for the observed data. If target.stats are specified, try increasing SAN parameters.")
+    }    
     #Otherwise, don't stop before iterations are exhausted.
     if (iteration == control$MCMLE.maxit) {
       message("MCMLE estimation did not converge after ", control$MCMLE.maxit, " iterations. The estimated coefficients may not be accurate. Estimation may be resumed by passing the coefficients as initial values; see 'init' under ?control.ergm for details.\n")
