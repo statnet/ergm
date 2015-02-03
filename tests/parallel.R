@@ -56,6 +56,13 @@ fauxmodel.01 <- ergm(flomarriage ~ edges + isolates + gwesp(0.2, fixed=T),
                      control=control.ergm(parallel=clus, 
                                           MCMLE.maxit=100))
 proc.time() - t0
+
+sim.test <- simulate.formula(network(1000) ~ edges + 
+                           gwesp(0.5, fixed = TRUE) + mutual + istar(2), 
+                         coef = c(-5, 1.3, 1.5, -0.5), nsim = 4, 
+                         control = control.simulate.formula(parallel = clus, 
+                                                            parallel.type = "PSOCK"))
+
 stopCluster(clus)
   
 }, "parallel")
