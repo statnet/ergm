@@ -88,8 +88,6 @@ WtMCMCStatus WtCDSample(WtMHproposal *MHp,
 			  double *theta, double *networkstatistics, 
 			int samplesize, int nsteps, int multiplicity, Vertex *undotail, Vertex *undohead, double *undoweight, int fVerbose,
 			  WtNetwork *nwp, WtModel *m, double *extraworkspace){
-  int i;
-    
   /*********************
   networkstatistics are modified in groups of m->n_stats, and they
   reflect the CHANGE in the values of the statistics from the
@@ -105,10 +103,12 @@ WtMCMCStatus WtCDSample(WtMHproposal *MHp,
 /* } */
 /* Rprintf("\n"); */
 
+  int staken=0;
+  
   /* Now sample networks */
-  for (i=0; i < samplesize; i++){
+  for (unsigned int i=0; i < samplesize; i++){
     
-    if(WtCDStep(MHp, theta, networkstatistics, nsteps, multiplicity, undotail, undohead, undoweight,
+    if(WtCDStep(MHp, theta, networkstatistics, nsteps, multiplicity, &staken, undotail, undohead, undoweight,
 		fVerbose, nwp, m, extraworkspace)!=WtMCMC_OK)
       return WtMCMC_MH_FAILED;
     
@@ -119,6 +119,11 @@ WtMCMCStatus WtCDSample(WtMHproposal *MHp,
     }
 #endif
     networkstatistics += m->n_stats;
+  }
+
+  if (fVerbose){
+    Rprintf("Sampler accepted %7.3f%% of %d proposed steps.\n",
+	    staken*100.0/(1.0*samplesize*nsteps), samplesize*nsteps); 
   }
   
   return WtMCMC_OK;
@@ -136,11 +141,11 @@ WtMCMCStatus WtCDSample(WtMHproposal *MHp,
  essentially generates a sample of size one
 *********************/
 WtMCMCStatus WtCDStep (WtMHproposal *MHp,
-				 double *theta, double *networkstatistics,
-		       int nsteps, int multiplicity, Vertex *undotail, Vertex *undohead, double *undoweight,
-		                 int fVerbose,
-				 WtNetwork *nwp,
-				 WtModel *m, double *extraworkspace) {
+		       double *theta, double *networkstatistics,
+		       int nsteps, int multiplicity, int *staken, Vertex *undotail, Vertex *undohead, double *undoweight,
+		       int fVerbose,
+		       WtNetwork *nwp,
+		       WtModel *m, double *extraworkspace) {
   
   unsigned int unsuccessful=0, ntoggled=0;
 
@@ -246,6 +251,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
       if(fVerbose>=5){
 	Rprintf("Accepted.\n");
       }
+      (*staken)++; 
 
       if(step<nsteps-1){
 	/* Make the remaining proposed toggles (which we did not make provisionally) */

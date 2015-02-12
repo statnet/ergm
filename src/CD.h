@@ -24,7 +24,7 @@ MCMCStatus CDSample(MHproposal *MHp,
 		    Network *nwp, Model *m, double *extraworkspace);
 MCMCStatus CDStep(MHproposal *MHp,
 		  double *theta, double *statistics,
-		  int nsteps, int multiplicity, Vertex *undotail, Vertex *undohead, 
+		  int nsteps, int multiplicity, int *staken, Vertex *undotail, Vertex *undohead, 
 		  int fVerbose,
 		  Network *nwp, Model *m, double *extraworkspace);
 #endif

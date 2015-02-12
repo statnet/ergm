@@ -20,9 +20,9 @@ WtMCMCStatus WtCDSample(WtMHproposal *MHp,
 			int fVerbose,
 			WtNetwork *nwp, WtModel *m, double *extraworkspace);
 WtMCMCStatus WtCDStep(WtMHproposal *MHp,
-				   double *theta, double *statistics, 
-		      int nsteps, int multiplicity, Vertex *undotail, Vertex *undohead, double *undoweight,
-				   int fVerbose,
-				   WtNetwork *nwp, WtModel *m, double *extraworkspace);
+		      double *theta, double *statistics, 
+		      int nsteps, int multiplicity, int *staken, Vertex *undotail, Vertex *undohead, double *undoweight,
+		      int fVerbose,
+		      WtNetwork *nwp, WtModel *m, double *extraworkspace);
 
 #endif

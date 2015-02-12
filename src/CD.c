@@ -86,7 +86,6 @@ MCMCStatus CDSample(MHproposal *MHp,
 		    double *theta, double *networkstatistics, 
 		    int samplesize, int nsteps, int multiplicity, Vertex *undotail, Vertex *undohead, int fVerbose,
 		    Network *nwp, Model *m, double *extraworkspace){
-  int i;
     
   /*********************
   networkstatistics are modified in groups of m->n_stats, and they
@@ -103,10 +102,12 @@ MCMCStatus CDSample(MHproposal *MHp,
 /* } */
 /* Rprintf("\n"); */
 
+  int staken=0;
+  
   /* Now sample networks */
-  for (i=0; i < samplesize; i++){
+  for (unsigned int i=0; i < samplesize; i++){
     
-    if(CDStep(MHp, theta, networkstatistics, nsteps, multiplicity, undotail, undohead,
+    if(CDStep(MHp, theta, networkstatistics, nsteps, multiplicity, &staken, undotail, undohead,
 	      fVerbose, nwp, m, extraworkspace)!=MCMC_OK)
       return MCMC_MH_FAILED;
     
@@ -117,6 +118,11 @@ MCMCStatus CDSample(MHproposal *MHp,
     }
 #endif
     networkstatistics += m->n_stats;
+  }
+
+  if (fVerbose){
+    Rprintf("Sampler accepted %7.3f%% of %d proposed steps.\n",
+	    staken*100.0/(1.0*samplesize*nsteps), samplesize*nsteps); 
   }
   
   return MCMC_OK;
@@ -135,7 +141,8 @@ MCMCStatus CDSample(MHproposal *MHp,
 *********************/
 MCMCStatus CDStep(MHproposal *MHp,
 		  double *theta, double *networkstatistics,
-		  int nsteps, int multiplicity, Vertex *undotail, Vertex *undohead,
+		  int nsteps, int multiplicity, int *staken,
+		  Vertex *undotail, Vertex *undohead,
 		  int fVerbose,
 		  Network *nwp,
 		  Model *m, double* extraworkspace) {
@@ -240,6 +247,7 @@ MCMCStatus CDStep(MHproposal *MHp,
       if(fVerbose>=5){
 	Rprintf("Accepted.\n");
       }
+      (*staken)++; 
 
       if(step<nsteps-1){
 	/* Make the remaining proposed toggles (which we did not make provisionally) */
