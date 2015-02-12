@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  http://statnet.org/attribution
 #
-#  Copyright 2003-2013 Statnet Commons
+#  Copyright 2003-2014 Statnet Commons
 #######################################################################
 control.ergm.bridge<-function(nsteps=20, # Number of geometric bridges to use
                               MCMC.burnin=10000,
@@ -21,7 +21,11 @@ control.ergm.bridge<-function(nsteps=20, # Number of geometric bridges to use
                               MCMC.init.maxedges=20000,
                               MCMC.packagenames=c(),
                               
-                              seed=NULL){
+                              seed=NULL,
+                              parallel=0,
+                              parallel.type=NULL,
+                              parallel.version.check=TRUE
+){
 
   control<-list()
   formal.args<-formals(sys.function())

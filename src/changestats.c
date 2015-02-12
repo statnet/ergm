@@ -469,11 +469,12 @@ D_CHANGESTAT_FN(d_b1nodematch) {
 	    change -= 0.5*count*(exponent==0.0? (count==1? 0.0 : 1.0) : pow((count-1), exponent));
       }
 
-      if (diffstatus) { /* diff=T */                           
-	    // Rprintf("Change stat is adding %f\n", edgeflag ? -change : change);
-	   
+      if (diffstatus) { /* diff=T */
+  	    if(ninputs==4) /* keep != NULL*/
+	    CHANGE_STAT[0] += edgeflag ? -change : change;
+  	    else
 	    CHANGE_STAT[matchval-1] += edgeflag ? -change : change;  
-	
+
       } else { /* diff=F */
 	    CHANGE_STAT[0] += edgeflag ? -change : change;
       }
@@ -941,13 +942,16 @@ D_CHANGESTAT_FN(d_b2nodematch) {
       change -= 0.5*count*(beta==0.0? (count==1? 0.0 : 1.0) : pow((count-1), beta));
     }
     
-    if (!diffstatus) { /* diff=F */
-      // Rprintf("Change stat is adding %f\n", edgeflag ? -change : change);
-      CHANGE_STAT[0] += edgeflag ? -change : change;
-    } else { /* diff=T */
-       CHANGE_STAT[matchval-1] += edgeflag ? -change : change;
+
+    if (diffstatus) { /* diff=T */
+	    if(ninputs==4) /* keep != NULL*/
+	    CHANGE_STAT[0] += edgeflag ? -change : change;
+	    else
+	    CHANGE_STAT[matchval-1] += edgeflag ? -change : change;
+
+    } else { /* diff=F */
+	    CHANGE_STAT[0] += edgeflag ? -change : change;
     }
-    
   } else {
 
  attrval1 = INPUT_PARAM[t + ninputs + N_NODES + b1attrsize - 1];  

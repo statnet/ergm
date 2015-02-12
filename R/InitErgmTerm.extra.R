@@ -3,13 +3,14 @@
 # the terms still exist on the experimental_terms svn branch
 
 InitErgmTerm.concurrentties<-function(nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=TRUE,bipartite=NULL,
+  a <- check.ErgmTerm(nw, arglist, directed=FALSE,bipartite=NULL,
                       varnames = c("byarg"),
                       vartypes = c("character"),
                       defaultvalues = list(NULL),
                       required = c(FALSE))
-  if(!is.null(a$byarg)) {
-    nodecov <- get.node.attr(nw, a$byarg, "concurrentties")
+  byarg <- a$byarg
+  if(!is.null(byarg)) {
+    nodecov <- get.node.attr(nw, byarg, "concurrentties")
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u) # Recode to numeric
@@ -19,22 +20,19 @@ InitErgmTerm.concurrentties<-function(nw, arglist, ...) {
     lu <- length(u)
     ui <- seq(along=u)
   }
-  out <- list(name="concurrentties",                      #name: required
-              coef.names = "concurrentties",               #coef.names: required
-              minval = 0
-              ) 
-  if(!is.null(a$byarg)) {
-    #  No covariates here, so input component 1 is arbitrary
-    out$coef.names <- paste("concurrentties",".", a$byarg, u, sep="")
-    out$inputs <- c(0, length(u), length(u)+length(nodecov), ui, nodecov)
-    out$name="concurrent_ties_by_attr"
-    # See comment in d_concurrent_ties_by_attr function
+   
+  if(!is.null(byarg)) {
+    if(length(u)==0) {return(NULL)}
+    #  See comment in d_concurrent_by_attr function
+    coef.names <- paste("concurrentties",".", byarg, u, sep="")
+    name <- "concurrent_ties_by_attr"
+    inputs <- c(ui, nodecov)
   }else{
-    #  No covariates here, so input component 1 is arbitrary
-    out$inputs <- c(0, 1, 0)
-    out$coef.names <- "concurrentties"
+    coef.names <- "concurrentties"
+    name <- "concurrent_ties"
+    inputs <- NULL
   }
-  out
+  list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, minval = 0)
 }
 
 

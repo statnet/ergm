@@ -1,6 +1,7 @@
-library(ergm)
+library(statnet.common)
 opttest({
 rm(list=ls())
+library(ergm)
 {
 data(molecule)
 molecule %v% "atomic type" <- c(1,1,1,1,1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3)
@@ -17,6 +18,7 @@ anova(fit0, fit1, fit2)
 },"anova.ergm.Rd")
 opttest({
 rm(list=ls())
+library(ergm)
 {
 data(sampson)
 gest<-ergm(samplike~edges+gwesp(alpha=.5, fixed=FALSE), 
@@ -34,19 +36,20 @@ summary(gest2)
 },"enformulate.curved.Rd")
 opttest({
 rm(list=ls())
+library(ergm)
 {
-# See help(ergm) for a description of this model.
-data(florentine)
-gest <- ergm(flomarriage ~ kstar(1:2) + absdiff("wealth") + triangles,
-             eval.loglik=FALSE,
-             control=control.ergm(parallel=2, parallel.type="SOCK"))
-summary(gest)
-# Note the combined MCMC diagnostics:
-mcmc.diagnostics(gest)
+# Uses 2 SOCK clusters for MCMLE estimation
+data(faux.mesa.high)
+nw <- faux.mesa.high
+fauxmodel.01 <- ergm(nw ~ edges + isolates + gwesp(0.2, fixed=T), 
+                     control=control.ergm(parallel=2, parallel.type="PSOCK"))
+summary(fauxmodel.01)
+
 }
 },"ergm-parallel.Rd")
 opttest({
 rm(list=ls())
+library(ergm)
 {
 #
 # load the Florentine marriage data matrix
@@ -125,6 +128,7 @@ summary(gest)
 },"ergm.Rd")
 opttest({
 rm(list=ls())
+library(ergm)
 {
 data(sampson)
 gest<-ergm(samplike~edges+gwesp(alpha=.5,fixed=FALSE),
@@ -141,6 +145,7 @@ simulate(tmp$formula, coef=tmp$theta, statsonly=TRUE)
 },"fix.curved.Rd")
 opttest({
 rm(list=ls())
+library(ergm)
 {
 data(florentine)
 gest <- ergm(flomarriage ~ edges + kstar(2))

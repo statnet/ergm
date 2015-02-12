@@ -5,7 +5,7 @@
 %  open source, and has the attribution requirements (GPL Section 7) at
 %  http://statnet.org/attribution
 %
-%  Copyright 2003-2013 Statnet Commons
+%  Copyright 2003-2014 Statnet Commons
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{ergm-parallel}
 \alias{ergm-parallel}
@@ -53,43 +53,36 @@
 }
 
 \section{MPI clusters}{
-  To use MPI to accellerate ERGM sampling, pass the control parameter
+  To use MPI to accelerate ERGM sampling, pass the control parameter
   \code{parallel.type="MPI"}.  
-  \code{\link[=ergm-package]{ergm}} uses the \code{snow} and
+  \code{\link[=ergm-package]{ergm}} requires the \code{snow} and
   \code{Rmpi} packages to communicate with an MPI
-  cluster. \code{\link{ergm}} will check if an MPI cluster already
-  exists and will create one if one doesn't.
+  cluster. 
   
   Using MPI clusters requires the system to have an existing MPI installation.
   See the MPI documentation for your particular platform for instructions.
 
-  On some installations, the function \code{\link[snow]{stopCluster}}
-  does not work properly for MPI clusters. Because \code{\link{ergm}}
-  creates a cluster every time it needs an MCMC sample and disbands it
-  once it finishes, using MPI on these installations may fail. A
-  workaround is to start the cluster outside of \code{\link{ergm}}
-  (e.g., \code{dummy <- makeCluster(nnodes,
-  type="MPI")}). \code{\link{ergm}} will notice the
-  preexisting cluster and make use of it, but it will not stop it.
+  To use {{{ergm}}} across multiple machines in a high performance computing environment,
+  see the section "User initiated clusters" below.
+}
 
+\section{User initiated clusters}{
+  A cluster can be passed into \code{ergm} with the \code{parallel} control parameter. 
+  \code{ergm} will detect the number of nodes in the cluster, and use all of them for
+  MCMC sampling. This method is flexible: it will accept any cluster type that is
+  compatible with \code{snow} or \code{parallel} packages. Usage examples
+  for a multiple-machine high performance MPI cluster can be found at the statnet wiki: 
+\url{https://statnet.csde.washington.edu/trac/wiki/ergmParallel} 
 }
 
 \examples{
 \donttest{
-# Uses 3 SOCK clusters for MCMLE estimation
-data(faux.magnolia.high)
-nw <- faux.magnolia.high
-fauxmodel.01 <- ergm(nw ~ edges + isolates + gwesp(0.2, fixed=T), 
-                     control=control.ergm(parallel=3, parallel.type="PSOCK"))
+# Uses 2 SOCK clusters for MCMLE estimation
+data(faux.mesa.high)
+nw <- faux.mesa.high
+fauxmodel.01 <- ergm(nw ~ edges + isolates + gwesp(0.2, fixed=TRUE), 
+                     control=control.ergm(parallel=2, parallel.type="PSOCK"))
 summary(fauxmodel.01)
 
-# Passing an existing cluster to ERGM
-clus <- makeCluster(4, type='PSOCK')
-data(faux.magnolia.high)
-nw <- faux.magnolia.high
-fauxmodel.01 <- ergm(nw ~ edges + isolates + gwesp(0.2, fixed=T), 
-                     control=control.ergm(parallel=clus))
-stopCluster(clus)
-summary(fauxmodel.01)
 }
 }

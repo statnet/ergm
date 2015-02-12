@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  http://statnet.org/attribution
 #
-#  Copyright 2003-2013 Statnet Commons
+#  Copyright 2003-2014 Statnet Commons
 #######################################################################
 ###############################################################################
 # The <ergm> function fits ergms from a specified formula returning either
@@ -212,7 +212,7 @@ ergm <- function(formula, response=NULL,
     tmp[!offinfo$eta] <- target.stats
     names(tmp)[!offinfo$eta] <- names(target.stats)
     s <- summary(formula,response=response)[offinfo$eta]
-    tmp[offinfo$eta] <- s
+    # tmp[offinfo$eta] <- s
     names(tmp)[offinfo$eta] <- names(s)
     
     # From this point on, target.stats has NAs corresponding to the
@@ -222,6 +222,8 @@ ergm <- function(formula, response=NULL,
     # statistics, and have the rest of the code handle it
     # intelligently.
     target.stats <- tmp
+  } else {
+    if (network.edgecount(nw) == 0) warning("Network is empty and no target stats are specified.")
   }
   
   if (verbose) cat("Initializing Metropolis-Hastings proposal(s):") 
@@ -395,7 +397,8 @@ ergm <- function(formula, response=NULL,
 				verbose=verbose,...),
     "MCMLE" = ergm.MCMLE(init, nw,
                           model, 
-                          initialfit,
+                          # no need to pass initialfit to MCMLE
+                          initialfit=(initialfit<-NULL),
                           control=control, MHproposal=MHproposal,
                           MHproposal.obs=MHproposal.obs,
                           verbose=verbose,
@@ -420,6 +423,8 @@ ergm <- function(formula, response=NULL,
               stop("Method ", control$main.method, " is not implemented.")
               )
 
+  initialfit <- NULL
+  
   if(!is.null(control$MCMLE.check.degeneracy) && control$MCMLE.check.degeneracy && (is.null(mainfit$theta1$independent) || !all(mainfit$theta1$independent))){
     if(verbose) {
       cat("Checking for degeneracy.\n")

@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  http://statnet.org/attribution
 #
-#  Copyright 2003-2013 Statnet Commons
+#  Copyright 2003-2014 Statnet Commons
 #######################################################################
 #=================================================================================
 # This file contains the following 10 diagnostic tools and their helper functions
@@ -115,42 +115,45 @@ mcmc.diagnostics.ergm <- function(object,
     print(summary(sm.obs))
   }
   
-  # This can probably be improved.
-  if(is.null(sm.obs)){
-    cat("\nAre sample statistics significantly different from observed?\n")
-    ds <- colMeans.mcmc.list(sm) - if(!center) object$target.stats else 0
-    sds <- apply(as.matrix(sm),2,sd)
-    ns <- effectiveSize(sm)
-
-    cv <-  cov(as.matrix(sm))
+  # only show if we are using Hotelling termination criterion
+  if (identical(object$control$MCMLE.termination, "Hotelling")) {
+    # This can probably be improved.
+    if(is.null(sm.obs)){
+      cat("\nAre sample statistics significantly different from observed?\n")
+      ds <- colMeans.mcmc.list(sm) - if(!center) object$target.stats else 0
+      sds <- apply(as.matrix(sm),2,sd)
+      ns <- effectiveSize(sm)
+      
+      cv <-  cov(as.matrix(sm))
+      
+      z <- ds/sds*sqrt(ns)
+      
+    }else{
+      cat("\nAre unconstrained sample statistics significantly different from constrained?\n")
+      ds <- colMeans.mcmc.list(sm) - if(!center) colMeans.mcmc.list(sm.obs) else 0
+      sds <- apply(as.matrix(sm),2,sd)
+      sds.obs <- apply(as.matrix(sm.obs),2,sd)
+      ns <- effectiveSize(sm)
+      # It's OK constrained sample doesn't vary. (E.g, the extreme case
+      # --- completely observed network --- is just one configuration of
+      # statistics.)
+      # Thus, the effective sample size for nonvarying is set to 1.
+      ns.obs <- pmax(effectiveSize(sm.obs),1)
+      
+      cv <-  cov(as.matrix(sm))
+      cv.obs <-  cov(as.matrix(sm.obs))
+      
+      z <- ds/sqrt(sds^2/ns+sds.obs^2/ns.obs)
+    }
+    p.z <- pnorm(abs(z),lower.tail=FALSE)*2
     
-    z <- ds/sds*sqrt(ns)
-  }else{
-    cat("\nAre unconstrained sample statistics significantly different from constrained?\n")
-    ds <- colMeans.mcmc.list(sm) - if(!center) colMeans.mcmc.list(sm.obs) else 0
-    sds <- apply(as.matrix(sm),2,sd)
-    sds.obs <- apply(as.matrix(sm.obs),2,sd)
-    ns <- effectiveSize(sm)
-    # It's OK constrained sample doesn't vary. (E.g, the extreme case
-    # --- completely observed network --- is just one configuration of
-    # statistics.)
-    # Thus, the effective sample size for nonvarying is set to 1.
-    ns.obs <- pmax(effectiveSize(sm.obs),1)
-
-    cv <-  cov(as.matrix(sm))
-    cv.obs <-  cov(as.matrix(sm.obs))
-
-    z <- ds/sqrt(sds^2/ns+sds.obs^2/ns.obs)
+    overall.test <- approx.hotelling.diff.test(sm,sm.obs,if(is.null(sm.obs) && !center) object$target.stats else NULL)
+    
+    m <- rbind(c(ds,NA),c(z,overall.test$statistic),c(p.z,overall.test$p.value))
+    rownames(m) <- c("diff.","test stat.","P-val.")
+    colnames(m) <- c(varnames(sm),"Overall (Chi^2)")
+    print(m)
   }
-  p.z <- pnorm(abs(z),lower.tail=FALSE)*2
-
-  overall.test <- approx.hotelling.diff.test(sm,sm.obs,if(is.null(sm.obs) && !center) object$target.stats else NULL)
-  
-  m <- rbind(c(ds,NA),c(z,overall.test$statistic),c(p.z,overall.test$p.value))
-  rownames(m) <- c("diff.","test stat.","P-val.")
-  colnames(m) <- c(varnames(sm),"Overall (Chi^2)")
-  print(m)
-
   # End simulated vs. observed test.
   
   cat("\nSample statistics cross-correlations:\n")
@@ -183,7 +186,7 @@ mcmc.diagnostics.ergm <- function(object,
 
   cat("\nSample statistics burn-in diagnostic (Geweke):\n")
   sm.gw<-geweke.diag(sm)
-  sm.gws<-geweke.diag.mv(sm)
+  sm.gws<-.geweke.diag.mv(sm)
   for(i in seq_along(sm.gw)){
     cat("Chain", chain, "\n")
     print(sm.gw[[i]])
@@ -194,7 +197,7 @@ mcmc.diagnostics.ergm <- function(object,
   if(!is.null(sm.obs)){
     cat("Sample statistics burn-in diagnostic (Geweke):\n")
     sm.obs.gw<-geweke.diag(sm.obs)
-    sm.obs.gws<-geweke.diag.mv(sm.obs)
+    sm.obs.gws<-.geweke.diag.mv(sm.obs)
     for(i in seq_along(sm.obs.gw)){
       cat("Chain", chain, "\n")
       print(sm.obs.gw[[i]])
@@ -212,14 +215,18 @@ mcmc.diagnostics.ergm <- function(object,
     plot(sm,...)
     if(!is.null(sm.obs)) plot(sm.obs,...)
   }
+  
+  cat("\nRecent changes in the ergm estimation algorithm mean that these plots can no longer be used to ensure that the mean statistics from the model match the observed network statistics. For that functionality, please use the GOF command: gof(ergmFitObject, GOF=~model).\n")
 
   invisible(list(degeneracy.value=degeneracy.value,
                  degeneracy.type=degeneracy.type))
 }
 
 plot.mcmc.list.ergm <- function(x, main=NULL, vars.per.page=3,...){
-  dp <- update(densityplot(x, panel=function(...){panel.densityplot(...);panel.abline(v=0)}),xlab=NULL,ylab=NULL)
-  tp <- update(xyplot.mcmc.list.ergm(x, panel=function(...){panel.xyplot(...);panel.loess(...);panel.abline(0,0)}),xlab=NULL,ylab=NULL)
+  require(lattice, quietly=TRUE, warn.conflicts=FALSE)
+  
+  dp <- update(lattice::densityplot(x, panel=function(...){lattice::panel.densityplot(...);lattice::panel.abline(v=0)}),xlab=NULL,ylab=NULL)
+  tp <- update(xyplot.mcmc.list.ergm(x, panel=function(...){lattice::panel.xyplot(...);lattice::panel.loess(...);lattice::panel.abline(0,0)}),xlab=NULL,ylab=NULL)
 
   library(latticeExtra)
 
@@ -286,8 +293,9 @@ xyplot.mcmc.list.ergm <-
 ##                              "~ index"))
     data[[".index"]] <- seq(from = start(x), by = thin(x), length = nrow(datalist[[1]])) ## repeated
     .run <- gl(length(datalist), nrow(datalist[[1]]))
+    require(lattice, quietly=TRUE, warn.conflicts=FALSE)
     if (groups && !outer)
-        xyplot(form, data = data,
+      lattice::xyplot(form, data = data,
                outer = TRUE,
                layout = layout,
                groups = .run,
@@ -297,7 +305,7 @@ xyplot.mcmc.list.ergm <-
                ylab = ylab,
                ...)
     else
-        xyplot(form, data = data,
+      lattice::xyplot(form, data = data,
                outer = TRUE,
                layout = layout,
                default.scales = default.scales,

@@ -1,15 +1,15 @@
-dtsq <- function(x, param, df, log = FALSE){
+.dtsq <- function(x, param, df, log = FALSE){
   fx <- x*(df - param + 1)/(param*df)
   p <- df(fx, param, df - param + 1, log=log)
   if(log) p + log((df - param + 1)/(param*df)) else p*((df - param + 1)/(param*df))
 }
 
-ptsq <- function (q, param, df, lower.tail = TRUE, log.p = FALSE){
+.ptsq <- function (q, param, df, lower.tail = TRUE, log.p = FALSE){
   fq <- q*(df - param + 1)/(param*df)
   pf(fq, param, df - param + 1, lower.tail=lower.tail, log.p=log.p)
 }
 
-qtsq <- function(p, param, df, lower.tail = TRUE, log.p = FALSE){
+.qtsq <- function(p, param, df, lower.tail = TRUE, log.p = FALSE){
   fq <- qf(fq, param, df - param + 1, lower.tail=lower.tail, log.p=log.p)
   fq / ((df - param + 1)/(param*df))
 }
@@ -21,7 +21,7 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=NULL, assume.indep=FALSE, var
   vars <- list(x=list(v=x))
   if(!is.null(y)) vars$y <- list(v=y)
   
-  mywithin <- function(...) within(...) # This is a workaround suggsted by Duncan Murdoch: calling lapply(X, within, {CODE}) would leave CODE unable to see any objects in f.
+  mywithin <- function(data, ...) within(data, ...) # This is a workaround suggsted by Duncan Murdoch: calling lapply(X, within, {CODE}) would leave CODE unable to see any objects in f.
   vars <- lapply(vars, mywithin, {
     if(!is.mcmc.list(v))
       v <- mcmc.list(mcmc(as.matrix(v)))
@@ -109,7 +109,7 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=NULL, assume.indep=FALSE, var
   }else if(var.equal){
     NANVL(x$neff,1)+NANVL(y$neff,1)-2
   }else{
-    mywith <- function(...) with(...)
+    mywith <- function(data, ...) with(data, ...)
     # This is the Krishnamoorthy and Yu (2004) degrees of freedom formula, courtesy of Wikipedia.
     df <- (p+p^2)/sum(NANVL(sapply(vars, mywith, (tr(vcov.m[!novar,!novar] %*% ivcov.d %*% vcov.m[!novar,!novar] %*% ivcov.d) +
                                             tr(vcov.m[!novar,!novar] %*% ivcov.d)^2)/neff), 0))
@@ -118,7 +118,7 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=NULL, assume.indep=FALSE, var
   })
 
   if(pars[1]>=pars[2]) warning("Effective degrees of freedom (",pars[2],") must exceed the number of varying parameters (",pars[1],"). P-value will not be computed.")
-  out <- list(statistic=T2, parameter=pars, p.value=if(pars[1]<pars[2]) ptsq(T2,pars[1],pars[2],lower.tail=FALSE) else NA,
+  out <- list(statistic=T2, parameter=pars, p.value=if(pars[1]<pars[2]) .ptsq(T2,pars[1],pars[2],lower.tail=FALSE) else NA,
               method = method,
               null.value=mu0,
               alternative="two.sided",
@@ -141,9 +141,9 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=NULL, assume.indep=FALSE, var
 ##
 ## If approx.hotelling.diff.test returns an error, then
 
-geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5){
+.geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5){
   if (is.mcmc.list(x)) 
-    return(lapply(x, geweke.diag.mv, frac1, frac2))
+    return(lapply(x, .geweke.diag.mv, frac1, frac2))
   x <- as.mcmc(x)
   x1 <- window(x, start=start(x), end=start(x) + frac1 * (end(x) - start(x)))
   x2 <- window(x, start=end(x) - frac2 * (end(x) - start(x)), end=end(x))
@@ -174,7 +174,7 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5){
 # ar() fails if crossprod(x) is singular, so do each chain independently when not.
 #
 # FIXME: Actually, for MCMC with multiple chains, we should be using the pooled mean.
-.ergm.mvar.spec0 <- function(x,tol=.Machine$double.eps){
+.ergm.mvar.spec0 <- function(x, order.max=NULL, aic=is.null(order.max), ...){
     x <- cbind(x)
     n <- nrow(x)
     p <- ncol(x)
@@ -184,20 +184,24 @@ geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5){
     x <- x[,!novar,drop=FALSE]
 
     if(ncol(x)){
-      arfit <- try(ar(x,aic=TRUE),silent=TRUE)
+      arfit <- try(ar(x,aic=is.null(order.max), order.max=order.max, ...),silent=TRUE)
       if(inherits(arfit,"try-error")){
-        warning("Excessive correlation among the statistics. Using a separate effectiveSize approximation.")
-        x.factor <- sqrt(n/effectiveSize(x))
-        v.var <- t(cov(x)*x.factor)*x.factor
+        warning("Excessive correlation among the statistics. Using a no-crosscorrelation approximation.")
+        arfits <- apply(x, 2, ar, aic=is.null(order.max), order.max=order.max, ..., simplify=FALSE)
+        arvar <- diag(sapply(arfits, "[[", "var.pred"), nrow=ncol(x))
+        arcoefs <- diag(sapply(lapply(arfits, "[[", "ar"), sum), nrow=ncol(x))
       }else{
         arvar <- arfit$var.pred
         arcoefs <- arfit$ar
         arcoefs <- if(is.null(dim(arcoefs))) sum(arcoefs) else apply(arcoefs,2:3,sum)
-        adj <- diag(1,nrow=p-sum(novar)) - arcoefs
-        iadj <- solve(adj)
-        v.var <- iadj %*% arfit$var.pred %*% t(iadj)
       }
+
+      adj <- diag(1,nrow=p-sum(novar)) - arcoefs
+      iadj <- solve(adj)
+      v.var <- iadj %*% arvar %*% t(iadj)
+    
       v[!novar,!novar] <- v.var
     }
     v
 }
+

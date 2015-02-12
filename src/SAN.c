@@ -185,8 +185,14 @@ MCMCStatus SANSample (MHproposal *MHp,
     when the chain doesn't accept many of the proposed steps.
     *********************/
     if (fVerbose){
-      Rprintf("SAN Metropolis-Hastings accepted %7.3f%% of %d proposed steps.\n",
+	  if (samplesize > 0 && interval > LONG_MAX / samplesize) {
+		// overflow
+		Rprintf("SAN Metropolis-Hastings accepted %7.3f%% of %d proposed steps.\n",
+	      tottaken*100.0/(1.0*interval*samplesize), interval, samplesize); 
+	  } else {
+	    Rprintf("SAN Metropolis-Hastings accepted %7.3f%% of %d proposed steps.\n",
 	      tottaken*100.0/(1.0*interval*samplesize), interval*samplesize); 
+	  }
     }
   }else{
     if (fVerbose){

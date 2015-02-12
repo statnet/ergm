@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  http://statnet.org/attribution
 #
-#  Copyright 2003-2013 Statnet Commons
+#  Copyright 2003-2014 Statnet Commons
 #######################################################################
 #=========================================================================
 # This file contains 4 functions for created "SAN-ed" networks & formulas
@@ -153,10 +153,10 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
 
     if(is.null(control$coef)) {
       if(reference==~Bernoulli){
-        fit <- try(ergm.mple(Clist=Clist, Clist.miss=Clist.miss, 
+        fit <- suppressWarnings(try(ergm.mple(Clist=Clist, Clist.miss=Clist.miss, 
                          conddeg=conddeg,
                          control=control, MHproposal=MHproposal,
-                         m=model, verbose=verbose, ...))
+                         m=model, verbose=verbose, ...)))
         control$coef <- if(inherits(fit, "try-error")) rep(0,length(model$coef.names)) else fit$coef
         if(is.null(control$invcov)) { control$invcov <- fit$covar }
       }else{

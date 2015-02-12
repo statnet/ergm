@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  http://statnet.org/attribution
 #
-#  Copyright 2003-2013 Statnet Commons
+#  Copyright 2003-2014 Statnet Commons
 #######################################################################
 ############################################################################
 # The <ergm.robmon> function provides one of the styles of maximum
@@ -188,6 +188,6 @@ cat(paste("theta new:",theta,"\n"))
                  theta.original=init,
                  rm.coef=theta,
                  interval=control$MCMC.interval, burnin=control$MCMC.burnin, 
-                 network=nw)),
+                 network=nw, est.cov=ve$mc.cov)),
              class="ergm")
 }

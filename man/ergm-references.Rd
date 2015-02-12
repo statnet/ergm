@@ -5,7 +5,7 @@
 %  open source, and has the attribution requirements (GPL Section 7) at
 %  http://statnet.org/attribution
 %
-%  Copyright 2003-2013 Statnet Commons
+%  Copyright 2003-2014 Statnet Commons
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{ergm-references}
 \alias{ergm-references}
@@ -18,10 +18,12 @@
 \alias{InitReference.Bernoulli}
 \alias{InitReference.DiscUnif}
 \alias{InitReference.Unif}
+\alias{InitReference.StdNormal}
 \alias{InitWtMHP.DiscUnif}
 \alias{InitWtMHP.DiscUnifNonObserved}
 \alias{InitWtMHP.Unif}
 \alias{InitWtMHP.UnifNonObserved}
+\alias{InitWtMHP.StdNormal}
 
 \docType{methods}
 
@@ -52,15 +54,19 @@
       Specifies each dyad's baseline distribution to be discrete uniform
       between \code{a} and \code{b} (both inclusive): \eqn{h(y)=1}, with
       the support being
-      \eqn{\code{a},\code{a}+1,\ldots,\code{b}-1,\code{b}}. At this time, both \code{a} and
+      \code{a},\code{a}+1,\ldots,\code{b}-1,\code{b}. At this time, both \code{a} and
       \code{b} must be finite. }
 
     \item{\code{Unif(a,b)}}{\emph{Coninuous-Uniform-reference ERGM:}
       Specifies each dyad's baseline distribution to be continuous uniform
       between \code{a} and \code{b} (both inclusive): \eqn{h(y)=1}, with
       the support being
-      \eqn{[\code{a},\code{b}]}. At this time, both \code{a} and
+      [\code{a},\code{b}]. At this time, both \code{a} and
       \code{b} must be finite.  }
+      
+    \item{\code{StdNormal}}{\emph{Standard-Normal-reference ERGM:}
+      Specifies each dyad's baseline distribution to be the normal distribution
+      with mean 0 and variance 1.  }
 
   }
 }

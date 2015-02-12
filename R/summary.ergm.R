@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  http://statnet.org/attribution
 #
-#  Copyright 2003-2013 Statnet Commons
+#  Copyright 2003-2014 Statnet Commons
 #######################################################################
 ###############################################################################
 # The <summary.ergm> function prints a 'summary of model fit' table and returns
@@ -70,46 +70,8 @@ summary.ergm <- function (object, ...,
      object$mplefit$coef[is.na(object$coef)]
   }
 
-  if(is.null(object$hessian) && is.null(object$covar)){
-    object$covar <- diag(NA, nrow=length(object$coef))
-  }
   
   nodes<- network.size(object$network)
-  mc.se<- if(is.null(object$mc.se)) rep(NA, length(object$coef)) else object$mc.se
-  
-
-  if(is.null(object$covar)){
-    asycov <- try(robust.inverse(-object$hessian), silent=TRUE)
-    if(inherits(asycov,"try-error")){
-      asycov <- diag(1/diag(-object$hessian))
-    }
-  }else{
-    asycov <- object$covar
-  }
-  colnames(asycov) <- rownames(asycov) <- names(object$coef)
-  
-  asyse <- diag(asycov)
-  if(total.variation && any(!is.na(mc.se))){
-   asyse[!is.na(mc.se)] <- asyse[!is.na(mc.se)]+mc.se[!is.na(mc.se)]^2
-  }
-  asyse[asyse<0|is.infinite(object$coef)|object$offset] <- NA
-  asyse <- sqrt(asyse)
-  if(any(is.na(asyse)&!object$offset) & !is.null(object$mplefit)){
-   if(is.null(object$mplefit$covar)){
-    if(!is.null(object$mplefit$covar)){
-     mpleasycov <- try(robust.inverse(-object$mplefit$hessian), silent=TRUE)
-     if(inherits(mpleasycov,"try-error")){
-      mpleasycov <- diag(1/diag(-object$mplefit$hessian))
-     }
-     asyse[is.na(asyse)] <- sqrt(diag(mpleasycov))[is.na(asyse)]
-    }
-   }else{
-    mpleasycov <- object$mplefit$covar
-    asyse[is.na(asyse)] <- sqrt(diag(mpleasycov))[is.na(asyse)]
-   }
-  }
-  asyse <- matrix(asyse, ncol=length(asyse))
-  colnames(asyse) <- colnames(asycov)
 
   ans <- list(formula=object$formula,
               digits=digits, correlation=correlation,
@@ -148,7 +110,7 @@ summary.ergm <- function (object, ...,
                            CD=control$CD.maxit,
                            MLE = if(!is.null(control$main.method)) switch(control$main.method,
                                `Stochastic-Approximation`=NA,
-                             MCMLE=control$MCMLE.maxit,
+                             MCMLE=paste(object$iterations, "out of", control$MCMLE.maxit),
                              CD=control$CD.maxit,
                              `Robbins-Monro`=NA,
                              `Stepping`=NA,
@@ -160,29 +122,29 @@ summary.ergm <- function (object, ...,
   dyads<- network.dyadcount(object$network,FALSE)-network.edgecount(NVL(get.miss.dyads(object$constrained, object$constrained.obs),network.initialize(1)))
   df <- length(object$coef)
 
+
+  asycov <- vcov(object, sources=if(total.variation) "all" else "model")
+  asyse <- sqrt(diag(asycov))
+  # Convert to % error  
+  est.se <- sqrt(diag(vcov(object, sources="estimation")))
+  mod.se <- sqrt(diag(vcov(object, sources="model")))
+  tot.se <- sqrt(diag(vcov(object, sources="all")))
+  est.pct <- rep(NA,length(est.se))
+  if(any(!is.na(est.se))){
+    # We want (sqrt(V.model + V.MCMC)-sqrt(V.model))/sqrt(V.model + V.MCMC) * 100%,
+    est.pct[!is.na(est.se)] <- ifelse(est.se[!is.na(est.se)]>0, round(100*(tot.se[!is.na(est.se)]-mod.se[!is.na(est.se)])/tot.se[!is.na(est.se)]), 0)
+  }
+
   rdf <- dyads - df
   tval <- object$coef / asyse
   pval <- 2 * pt(q=abs(tval), df=rdf, lower.tail=FALSE)
-
-# Convert to % error
-  if(any(!is.na(mc.se))){
-    # The whole function should probably be cleaned up, but, for now,
-    # asyse = sqrt(V.model + V.MC) and mc.se = sqrt(V.MC)
-    # We want (sqrt(V.model + V.MCMC)-sqrt(V.model))/sqrt(V.model + V.MCMC) * 100%,
-    
-    # so we need to recover sqrt(V.model), which we can grab from
-    # above, but because it gets defined and redefined, I'll just
-    # calculate it as
-    # asyse^2 - mc.se^2, so the numerator is ayse - sqrt(asyse^2 - mc.se^2)
-   mc.se[!is.na(mc.se)] <- round(100*(asyse[!is.na(mc.se)]-sqrt(asyse[!is.na(mc.se)]^2 - mc.se[!is.na(mc.se)]^2))/asyse[!is.na(mc.se)])
-  }
-
+  
   count <- 1
   templist <- NULL
   while (count <= length(names(object$coef)))
     {
      templist <- append(templist,c(object$coef[count],
-          asyse[count],mc.se[count],pval[count]))
+          asyse[count],est.pct[count],pval[count]))
      count <- count+1
     }
 
@@ -196,7 +158,7 @@ summary.ergm <- function (object, ...,
       devtext <- "Pseudo-deviance:"
       ans$message <- "\nWarning:  The standard errors are based on naive pseudolikelihood and are suspect.\n"
     } 
-    else if(object$estimate == "MLE" && any(is.na(mc.se) & !ans$offset & !ans$drop==0 & !ans$estimable) && 
+    else if(object$estimate == "MLE" && any(is.na(est.se) & !ans$offset & !ans$drop==0 & !ans$estimable) && 
                       (!independence || control$force.main) ) {
       ans$message <- "\nWarning:  The standard errors are suspect due to possible poor convergence.\n"
     }

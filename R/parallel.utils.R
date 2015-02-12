@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  http://statnet.org/attribution
 #
-#  Copyright 2003-2013 Statnet Commons
+#  Copyright 2003-2014 Statnet Commons
 #######################################################################
 # Set up a flag for whether we are in charge of MPI cluster.
 ergm.MPIcluster.started <- local({
@@ -33,9 +33,6 @@ myLibLoc <- function()
 
 # Acquires a cluster of specified type.
 ergm.getCluster <- function(control, verbose=FALSE){
-  capture.output(library(parallel, quietly=TRUE, warn.conflicts = FALSE))
-  # The rpvm package is apparently not being maintained.
-  #  capture.output(require(rpvm, quietly=TRUE, warn.conflicts = FALSE))
   
   if(inherits(control$parallel,"cluster")){
     ergm.MPIcluster.started(FALSE)
@@ -65,15 +62,10 @@ ergm.getCluster <- function(control, verbose=FALSE){
                  },
                  MPI={
                    
-                   # See if a preexisting cluster exists.
-                   if(is.null(getMPIcluster())){
-                     # Remember that we are responsible for it.
-                     ergm.MPIcluster.started(TRUE)
-                     makeCluster(control$parallel,type="MPI")
-                   }else
-                     ergm.MPIcluster.started(FALSE)
-                     getMPIcluster()
-                   },
+                   # Remember that we are responsible for it.
+                   ergm.MPIcluster.started(TRUE)
+                   makeCluster(control$parallel,type="MPI")
+                 },
                  SOCK={
                    ergm.MPIcluster.started(TRUE)
                    makeCluster(control$parallel,type="PSOCK")
@@ -111,7 +103,7 @@ ergm.getCluster <- function(control, verbose=FALSE){
       master.version <- packageVersion(pkg)
       
       if(!all(sapply(slave.versions,identical,master.version)))
-        stop("The version of ergm attached on one or more slave nodes is different from from that on the master node (this node). Make sure the same version is installed on all nodes. If you are absolutely certain that this message is in error, override with the parallel.version.check=FALSE control parameter.")
+        stop("The version of ",pkg, " attached on one or more slave nodes is different from from that on the master node (this node). Make sure that the same version is installed on all nodes. If you are absolutely certain that this message is in error, override with the parallel.version.check=FALSE control parameter.")
     }
   }
   cl
@@ -152,7 +144,7 @@ ergm.sample.tomcmc<-function(sample, params){
     
     sample<-sapply(seq_len(nclus),function(i) {
       # Let mcmc() figure out the "end" from dimensions.
-      mcmc(sample[(samplesize*(i-1)+1):(samplesize*i),], start = params$MCMC.burnin, thin = params$MCMC.interval)
+      mcmc(sample[(samplesize*(i-1)+1):(samplesize*i), , drop=F], start = params$MCMC.burnin, thin = params$MCMC.interval)
     }, simplify=FALSE)
     
     do.call("mcmc.list",sample)

@@ -10,15 +10,14 @@
 library(statnet.common)
 opttest({
 library(ergm)
-theta0err<--1 # Perturbation in the initial values
-maxit<-20 # Maximum number of iterations
-tolerance<-0.02 # Result must be within 2% of truth.
+theta0err<- 1 # Perturbation in the initial values
+tolerance<-0.2 # Result must be within 0.2*s.e. of truth.
 
 n<-20 # Number of nodes
 b<-3 # Bipartite split
 
 d<-.1 # Density
-m<-.1 # Missingness rate
+m<-.05 # Missingness rate
 
 logit<-function(p) log(p/(1-p))
 
@@ -47,15 +46,14 @@ run.miss.test<-function(y){
   cat("Correct estimate =",truth,"\n")
   
   mplefit<-ergm(y~edges)
-  mpleOK<-all.equal(truth, coef(mplefit), check.attributes=FALSE, tolerance=tolerance)
-  cat("MPLE estimate =", coef(mplefit), if(isTRUE(mpleOK)) "OK" else mpleOK,"\n")
+  mpleOK<-abs(truth-coef(mplefit))/sqrt(diag(vcov(mplefit, source="model"))) 
+  cat("MPLE estimate =", coef(mplefit), if(mpleOK<tolerance) "OK" else mpleOK,"\n")
 
-  mcmcfit<-ergm(y~edges, control=control.ergm(force.main=TRUE, MCMC.interval=ceiling(n^(3/2)), MCMLE.maxit=maxit, 
-               init=truth+theta0err))
-  mcmcOK<-all.equal(truth, coef(mcmcfit), check.attributes=FALSE, tolerance=tolerance)
-  cat("MCMCMLE estimate =", coef(mcmcfit), if(isTRUE(mcmcOK)) "OK" else mcmcOK,"\n")
+  mcmcfit<-ergm(y~edges, control=control.ergm(force.main=TRUE, init=truth+theta0err))
+  mcmcOK<-abs(truth-coef(mcmcfit))/sqrt(diag(vcov(mcmcfit, source="model"))) 
+  cat("MCMCMLE estimate =", coef(mcmcfit), if(mcmcOK<tolerance) "OK" else mcmcOK,"\n")
   
-  return(isTRUE(mpleOK) && isTRUE(mcmcOK))
+  return((mpleOK<tolerance) && (mcmcOK<tolerance))
 }
 
 # Directed
@@ -72,7 +70,7 @@ stopifnot(run.miss.test(y))
 
 # Bipartite Undirected
 cat("\n\nBipartite Undirected Network\n")
-set.seed(789)
+set.seed(123)
 y<-mk.missnet(n, d, m, FALSE, b)
 stopifnot(run.miss.test(y))
 

@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  http://statnet.org/attribution
 #
-#  Copyright 2003-2013 Statnet Commons
+#  Copyright 2003-2014 Statnet Commons
 #######################################################################
 .onAttach <- function(lib, pkg){
   sm <- statnetStartupMessage("ergm", c("statnet","ergm.count","tergm"), TRUE)
@@ -50,7 +50,10 @@
   ergm.MHP.table("c", "Bernoulli", "bd+blockdiag", 1, "TNT", "blockdiagTNT")
   ergm.MHP.table("c", "Bernoulli", "blockdiag+observed",  0, "random", "blockdiagNonObserved")
   ergm.MHP.table("c", "Bernoulli", "bd+blockdiag+observed",  0, "random", "blockdiagNonObserved")
-
+  ergm.MHP.table("c", "Bernoulli", "fixedas",  0, "random", "fixedas")
+  ergm.MHP.table("c", "Bernoulli", "fixallbut",  0, "random", "fixallbut")
+  
+  
   ergm.MHP.table("c", "StdNormal", "",  0, "random", "StdNormal")
 
   ergm.MHP.table("c", "Unif", "",  0, "random", "Unif")

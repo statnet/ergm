@@ -5,7 +5,7 @@
 %  open source, and has the attribution requirements (GPL Section 7) at
 %  http://statnet.org/attribution
 %
-%  Copyright 2003-2013 Statnet Commons
+%  Copyright 2003-2014 Statnet Commons
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{ergm-constraints}
 \alias{ergm-constraints}
@@ -28,6 +28,8 @@
 \alias{InitConstraint.nodedegrees}
 \alias{InitConstraint.observed}
 \alias{InitConstraint.odegreedist}
+\alias{InitConstraint.fixedas}
+\alias{InitConstraint.fixallbut}
 
 \docType{methods}
 
@@ -95,10 +97,20 @@
     \item{\code{observed}}{
       Preserve the observed dyads of the given network.
     }
-  }
+    \item{\code{fixedas(present,absent)}}{
+      Preserve the edges in 'present' and preclude the edges in 'absent'. 
+      Both 'present' and 'absent' can take input object as edgelist and 
+      network, the latter will convert to the corresponding edgelist.
+ 	}
+ 	
+ 	\item{\code{fixallbut(free.dyads)}}{
+      Preserve the dyad status in all but free.dyads. free.dyads can 
+      take input object as edgelist and network, the latter will 
+      convert to the corresponding edgelist.
+ 	}
   Not all combinations of the above are supported.
-}
-  
+  }
+}  
 \section{Placing Bounds on Degrees:}{
 There are many times when one may wish to condition on the
 number of inedges or outedges possessed by a node, either as a

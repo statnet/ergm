@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  http://statnet.org/attribution
 #
-#  Copyright 2003-2013 Statnet Commons
+#  Copyright 2003-2014 Statnet Commons
 #######################################################################
 #========================================================================
 # This file contains the following 2 functions for simulating ergms
@@ -77,7 +77,7 @@ simulate.ergm <- function(object, nsim=1, seed=NULL,
                           control=control.simulate.ergm(),
                           verbose=FALSE, ...) {
   check.control.class(c("simulate.ergm","simulate.formula"))
-  control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges")
+  control.transfer <- c("MCMC.burnin", "MCMC.interval", "MCMC.prop.weights", "MCMC.prop.args", "MCMC.packagenames", "MCMC.init.maxedges","parallel","parallel.type","parallel.version.check")
   for(arg in control.transfer)
     if(is.null(control[[arg]]))
       control[arg] <- list(object$control[[arg]])
@@ -177,6 +177,12 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     cat (paste ("Starting MCMC iterations to generate ", nsim,
                 " network", ifelse(nsim>1,"s\n","\n"), sep=""))
   }
+
+  nthreads <- max(
+    if(inherits(control$parallel,"cluster")) nrow(summary(control$parallel))
+    else control$parallel,
+    1)
+  
   
   #########################
   ## Main part of function:
@@ -203,21 +209,21 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     # more complicated situation:  Either we want a network for each
     # MCMC iteration (statsonly=FALSE) or we want to restart each chain
     # at the original network (sequential=FALSE).
-    if(control$parallel) curstats <- matrix(curstats, nrow=control$parallel, ncol=length(curstats), byrow=TRUE)
+    if(nthreads>1) curstats <- matrix(curstats, nrow=nthreads, ncol=length(curstats), byrow=TRUE)
     
-    for(i in 1:ceiling(nsim/max(control$parallel,1))){
+    for(i in 1:ceiling(nsim/nthreads)){
       
-      control$MCMC.samplesize <- if(control$parallel==0) 1 else control$parallel
+      control$MCMC.samplesize <- nthreads
       control$MCMC.burnin <- if(i==1 || sequential==FALSE) control$MCMC.burnin else control$MCMC.interval
       z <- ergm.getMCMCsample(nw, m, MHproposal, eta0, control, verbose=verbose, response=response)
       
       out.mat <- rbind(out.mat, curstats + z$statsmatrix)
       
       if(!statsonly) # then store the returned network:
-        if(control$parallel==0) nw.list[[length(nw.list)+1]] <- z$newnetwork else nw.list <- c(nw.list, z$newnetworks)
+        if(nthreads>1) nw.list[[length(nw.list)+1]] <- z$newnetwork else nw.list <- c(nw.list, z$newnetworks)
       
       if(sequential){ # then update the network state:
-        nw <- if(control$parallel==0) z$newnetwork else z$newnetworks
+        nw <- if(nthreads>1) z$newnetwork else z$newnetworks
         curstats <- curstats + z$statsmatrix
       }
 

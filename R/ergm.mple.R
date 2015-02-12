@@ -80,19 +80,20 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
 # # Note:  It appears that specifying a starting vector can lead to problems!
 # #               start=init[!m$etamap$offsettheta]),
 #                     silent = TRUE))
-    glm.result <- catchToList(glm(pl$zy ~ .-1 + offset(pl$foffset), 
+    glm.result <- .catchToList(glm(pl$zy ~ .-1 + offset(pl$foffset), 
                                   data=data.frame(pl$xmat),
                                   weights=pl$wend, family=family))
     
     # error handling for glm results
     if (!is.null(glm.result$error)) {
+      warning(glm.result$error)
       mplefit <- list(coef=pl$theta.offset, deviance=0,
                       cov.unscaled=diag(length(pl$theta.offset)))
       mplefit.summary <- list(cov.unscaled=diag(length(pl$theta.offset)))
     } else if (!is.null(glm.result$warnings)) {
       # if the glm results are crazy, redo it with 0 starting values
       if (max(abs(glm.result$value$coef), na.rm=T) > 1e6) {
-        cat("Data may be separable; restarting glm with zeros.\n")
+        warning("GLM model may be separable; restarting glm with zeros.\n")
         mplefit <- glm(pl$zy ~ .-1 + offset(pl$foffset), 
                        data=data.frame(pl$xmat),
                        weights=pl$wend, family=family, 
@@ -100,7 +101,7 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
         mplefit.summary <- summary(mplefit)
       } else {
         # unknown warning, just report it
-        
+        warning(glm.result$warnings)
         mplefit <- glm.result$value
         mplefit.summary <- summary(mplefit)
       }
@@ -133,19 +134,20 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
     independent <- independent>0
     if(any(independent)){
       
-      glm.result <- catchToList(glm(pl$zy ~ .-1 + offset(pl$foffset), 
+      glm.result <- .catchToList(glm(pl$zy ~ .-1 + offset(pl$foffset), 
                                     data=data.frame(pl$xmat[,independent,drop=FALSE]),
                                     weights=pl$wend, family=family))
       
       # error handling for glm results
       if (!is.null(glm.result$error)) {
+        warning(glm.result$error)
         theta1 <- list(coef=NULL, 
                        theta=rep(0,ncol(pl$xmat)),
                        independent=independent)
       } else if (!is.null(glm.result$warnings)) {
         # if the glm results are crazy, redo it with 0 starting values
         if (max(abs(glm.result$value$coef), na.rm=T) > 1e6) {
-          cat("Data may be separable; restarting glm with zeros.\n")
+          warning("GLM model may be separable; restarting glm with zeros.\n")
           mindfit <- glm(pl$zy ~ .-1 + offset(pl$foffset), 
                          data=data.frame(pl$xmat[,independent,drop=FALSE]),
                          weights=pl$wend, family=family,
@@ -157,7 +159,7 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
                          independent=independent)
         } else {
           # unknown warning, just report it
-          
+          warning(glm.result$warnings)
           mindfit <- glm.result$value
           mindfit.summary <- summary(mindfit)
           theta.ind[independent] <- mindfit$coef
@@ -206,7 +208,9 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
 #
   gradient <- rep(NA, length(theta))
 
-  mc.se <- gradient <- rep(NA, length(theta))
+  # FIXME: Actually, if case-control sampling was used, this should be positive.
+  est.cov <- matrix(0, length(theta),length(theta))
+  
   if(length(theta)==1){
    covar <- array(0,dim=c(1,1))
    hess <- array(0,dim=c(1,1))
@@ -254,7 +258,7 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
       iterations=iteration, 
       MCMCtheta=theta, gradient=gradient,
       hessian=hess, covar=covar, failure=FALSE,
-      mc.se=mc.se, glm = glm, glm.null = glm.null,
+      est.cov=est.cov, glm = glm, glm.null = glm.null,
       theta1=theta1),
      class="ergm")
 }

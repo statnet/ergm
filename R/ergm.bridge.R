@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  http://statnet.org/attribution
 #
-#  Copyright 2003-2013 Statnet Commons
+#  Copyright 2003-2014 Statnet Commons
 #######################################################################
 
 ## This is a helper function that constructs and returns the network
@@ -68,7 +68,11 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
                          MCMC.interval=1,
                          MCMC.prop.args=control$MCMC.prop.args,
                          MCMC.prop.weights=control$MCMC.prop.weights,
-                         MCMC.packagenames=control$MCMC.packagenames), ...)
+                         MCMC.packagenames=control$MCMC.packagenames,
+                         parallel=control$parallel,
+                         parallel.type=control$parallel.type,
+                         parallel.version.check=control$parallel.version.check
+                                                        ), ...)
     ergm.update.formula(form,nw.state~., from.new="nw.state")
     stats[i,]<-apply(simulate(form, coef=theta, response=response, constraints=constraints, statsonly=TRUE, verbose=max(verbose-1,0),
                               control=control.simulate.formula(MCMC.burnin=0,
@@ -81,11 +85,17 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
                                MCMC.interval=1,
                                MCMC.prop.args=control$MCMC.prop.args,
                                MCMC.prop.weights=control$MCMC.prop.weights,
-                               MCMC.packagenames=control$MCMC.packagenames), ...)
+                               MCMC.packagenames=control$MCMC.packagenames,
+                               parallel=control$parallel,
+                               parallel.type=control$parallel.type,
+                               parallel.version.check=control$parallel.version.check), ...)
       ergm.update.formula(form.obs,nw.state.obs~., from.new="nw.state.obs")
       stats.obs[i,]<-apply(simulate(form.obs, coef=theta, response=response, constraints=constraints.obs, statsonly=TRUE, verbose=max(verbose-1,0),
                                 control=control.simulate.formula(MCMC.burnin=0,
-                                  MCMC.interval=control$obs.MCMC.interval),
+                                  MCMC.interval=control$obs.MCMC.interval,
+                                  parallel=control$parallel,
+                                  parallel.type=control$parallel.type,
+                                  parallel.version.check=control$parallel.version.check),
                                 nsim=ceiling(control$obs.MCMC.samplesize/control$nsteps), ...),2,mean)
     }
   }

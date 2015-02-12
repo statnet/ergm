@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  http://statnet.org/attribution
 #
-#  Copyright 2003-2013 Statnet Commons
+#  Copyright 2003-2014 Statnet Commons
 #######################################################################
 control.logLik.ergm<-function(nsteps=20,
                               MCMC.burnin=NULL,
@@ -23,7 +23,11 @@ control.logLik.ergm<-function(nsteps=20,
                               MCMC.init.maxedges=NULL,
                               MCMC.packagenames=NULL,
                               
-                              seed=NULL){
+                              seed=NULL,
+                              parallel=NULL,
+                              parallel.type=NULL,
+                              parallel.version.check=TRUE
+){
 
   control<-list()
   formal.args<-formals(sys.function())

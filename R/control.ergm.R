@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  http://statnet.org/attribution
 #
-#  Copyright 2003-2013 Statnet Commons
+#  Copyright 2003-2014 Statnet Commons
 #######################################################################
 ###########################################################################
 # The <control.ergm> function allows the ergm fitting process to be tuned
@@ -129,17 +129,16 @@ control.ergm<-function(drop=TRUE,
                        MPLE.type=c("glm", "penalized"),
                       
                        MCMC.prop.weights="default", MCMC.prop.args=list(),
-                       MCMC.burnin=10000,
-                       MCMC.interval=1000,
-                       MCMC.samplesize=10000,
-                       MCMC.effectiveSize=100,
-                       MCMC.max.interval=500000,
+                       MCMC.interval=1024,
+                       MCMC.burnin=MCMC.interval*16,
+                       MCMC.samplesize=1024,
+                       MCMC.effectiveSize=NULL,
+                       MCMC.effectiveSize.damp=10,
+                       MCMC.effectiveSize.maxruns=1000,
+                       MCMC.effectiveSize.base=1/2,
+                       MCMC.effectiveSize.points=5,
+                       MCMC.effectiveSize.order=1,
                        MCMC.return.stats=TRUE,
-                       MCMC.burnin.retries=1000,
-                       MCMC.burnin.check.last=1/2,
-                       MCMC.burnin.check.alpha=0.01,
-                       MCMC.burnin.min=MCMC.burnin/10,
-                       MCMC.burnin.min.df=10,
                        MCMC.runtime.traceplot=FALSE,
                        MCMC.init.maxedges=20000,
                        MCMC.max.maxedges=Inf,
@@ -148,12 +147,13 @@ control.ergm<-function(drop=TRUE,
                        MCMC.packagenames=c(),
 
                        SAN.maxit=10,
+                       SAN.burnin.times=10,
                        SAN.control=control.san(coef=init,
                          SAN.prop.weights=MCMC.prop.weights,
                          SAN.prop.args=MCMC.prop.args,
                          SAN.init.maxedges=MCMC.init.maxedges,
                          
-                         SAN.burnin=MCMC.burnin*10,
+                         SAN.burnin=MCMC.burnin*SAN.burnin.times,
                          SAN.interval=MCMC.interval,
                          SAN.packagenames=MCMC.packagenames,
                          MPLE.max.dyad.types=MPLE.max.dyad.types,
@@ -161,7 +161,8 @@ control.ergm<-function(drop=TRUE,
                          parallel=parallel,
                          parallel.type=parallel.type,
                          parallel.version.check=parallel.version.check),
-
+                       
+                       MCMLE.termination=c("Hummel", "Hotelling", "precision", "none"),
                        MCMLE.maxit=20,
                        MCMLE.conv.min.pval=0.5,
                        MCMLE.NR.maxit=100,
@@ -171,7 +172,8 @@ control.ergm<-function(drop=TRUE,
                        obs.MCMC.burnin=MCMC.burnin,
                        obs.MCMC.burnin.min=obs.MCMC.burnin/10,
                        MCMLE.check.degeneracy=FALSE,
-                       MCMLE.MCMC.precision=0.05,
+                       MCMLE.MCMC.precision=0.005,
+                       MCMLE.MCMC.max.ESS.frac=0.1,
                        MCMLE.metric=c("lognormal", "logtaylor",
                          "Median.Likelihood",
                          "EF.Likelihood", "naive"),
@@ -181,16 +183,19 @@ control.ergm<-function(drop=TRUE,
                        MCMLE.dampening.min.ess=20,
                        MCMLE.dampening.level=0.1,
                        MCMLE.steplength.margin=0.05,
+                       MCMLE.steplength.order=0,
                        MCMLE.steplength=if(is.null(MCMLE.steplength.margin)) 0.5 else 1,
                        MCMLE.adaptive.trustregion=3,
-                       MCMLE.adaptive.epsilon=0.01,
                        MCMLE.sequential=TRUE,
                        MCMLE.density.guard.min=10000,
                        MCMLE.density.guard=exp(3),
-                       MCMLE.min.effectiveSize=MCMC.effectiveSize/2,
-
+                       MCMLE.effectiveSize=NULL,
+                       MCMLE.last.boost=4,
+                       MCMLE.Hummel.esteq=TRUE, 
+                       MCMLE.steplength.min=0.0001,
+                       
                        SA.phase1_n=NULL, SA.initial_gain=NULL, 
-                       SA.nsubphases=MCMLE.maxit,
+                       SA.nsubphases=4,
                        SA.niterations=NULL, 
                        SA.phase3_n=NULL,
                        SA.trustregion=0.5,
@@ -251,7 +256,7 @@ control.ergm<-function(drop=TRUE,
                        force.mcmc="force.main",
                        adaptive.trustregion="MCMLE.adaptive.trustregion",
                        adaptive.epsilon="MCMLE.adaptive.epsilon",
-                       mcmc.precision="MCMLE.mcmc.precision",
+                       mcmc.precision="MCMLE.MCMC.precision",
                        method="MCMLE.method",
                        MPLEtype="MPLE.type",
                        check.degeneracy="MCMLE.check.degeneracy",
@@ -276,7 +281,7 @@ control.ergm<-function(drop=TRUE,
                        packagenames="MCMC.packagenames"
                        )
 
-  match.arg.pars=c("MPLE.type","MCMLE.metric","MCMLE.method","main.method","CD.metric","CD.method")
+  match.arg.pars <- c("MPLE.type","MCMLE.metric","MCMLE.method","main.method",'MCMLE.termination',"CD.metric","CD.method")
   
   control<-list()
   formal.args<-formals(sys.function())

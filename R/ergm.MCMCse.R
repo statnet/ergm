@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  http://statnet.org/attribution
 #
-#  Copyright 2003-2013 Statnet Commons
+#  Copyright 2003-2014 Statnet Commons
 #######################################################################
 #############################################################################
 # The <ergm.MCMCse> function computes and returns the MCMC standard errors
@@ -16,11 +16,6 @@
 #   statsmatrix     :  the matrix of network statistics
 #   statsmatrix.obs :  the matrix of network statistics on the constrained network
 #   model           :  the model, as returned by <ergm.getmodel>
-#   lag.max         :  the maximum lag at which to calculate the acf for the
-#                      the network corresponding to 'statsmatrix'; default=10
-#   lag.max.obs     :  the maximum lag at which to calculate the acf for the
-#                      the network corresponding to 'statsmatrix.obs';
-#                      default=lag.max
 #
 # --RETURNED--
 #   the variance of the MCMC sampling as a list containing:
@@ -30,8 +25,7 @@
 ################################################################################
 
 ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
-                      model, 
-                      lag.max=10, lag.max.obs=lag.max) {
+                      model) {
   # Not sure why this is necessary, but:
   names(theta) <- names(init)
 
@@ -62,24 +56,13 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
   theta.offset <- etamap$init
   theta.offset[!offsettheta] <- theta[!offsettheta]
 
-  #  Calculate the auto-covariance of the MCMC suff. stats.
-  #  and hence the MCMC s.e.
-  z <- sweep(xsim, 2, xobs, "-")
-  lag.max <- min(round(sqrt(nrow(xsim))),lag.max)
-  if(nrow(xsim) > 1000){
-    lag.max <- round(15*(1+1000/nrow(xsim)))
-  }
-  R <- acf(z, lag.max = lag.max, type = "covariance", plot = FALSE)$acf
-  if(dim(R)[2] > 1){
-    part <- apply(R[-1,  ,  ,drop=FALSE], c(2, 3), sum)
-  }else{
-    part <- matrix(sum(R[-1,  ,  , drop=FALSE]))
-  }
-  cov.zbar <- (R[1,  ,  ] + part + t(part))/nrow(xsim)
+  # Calculate prediction probabilities that had been used in the last MCMLE update.
   basepred <- xsim %*% etaparam
   prob <- max(basepred)
   prob <- exp(basepred - prob)
   prob <- prob/sum(prob)
+
+  # Estimate the Hessian.
   E <- apply(sweep(xsim, 1, prob, "*"), 2, sum)
   #  E <- apply(xsim,2,wtd.median,weight=prob)
   htmp <- sweep(sweep(xsim, 2, E, "-"), 1, sqrt(prob), "*")
@@ -88,6 +71,11 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
   htmp.offset <- t(ergm.etagradmult(theta.offset, t(htmp.offset), etamap))
   H <- crossprod(htmp.offset, htmp.offset)
 
+  #  Calculate the auto-covariance of the MCMC suff. stats.
+  #  and hence the MCMC s.e.
+  z <- sweep(xsim, 2, xobs, "-")
+  cov.zbar <- .ergm.mvar.spec0(z) * sum(prob^2)
+  imp.factor <- mean(prob^2)
   cov.zbar.offset <- matrix(0, ncol = length(offsetmap), 
                             nrow = length(offsetmap))
   cov.zbar <- suppressWarnings(chol(cov.zbar, pivot=TRUE))
@@ -96,23 +84,16 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
   cov.zbar.offset[!offsetmap,!offsetmap] <- cov.zbar
   cov.zbar.offset <- t(ergm.etagradmult(theta.offset, t(cov.zbar.offset), etamap))
   cov.zbar <- crossprod(cov.zbar.offset, cov.zbar.offset)
-
+  
   # Identify canonical parameters corresponding to statistics that do not vary
   novar <- diag(H)==0
+  novar.offset <- rep(TRUE, length(offsettheta))
+  novar.offset[!offsettheta] <- novar # Note that novar.offset == TRUE where offsettheta==TRUE as well.
 
   #  Calculate the auto-covariance of the Conditional MCMC suff. stats.
   #  and hence the Conditional MCMC s.e.
   E.obs <- 0
-  lag.max.obs <- lag.max
   if(!is.null(statsmatrix.obs)){
-    z <- xsim.obs
-    R <- acf(z, lag.max = lag.max.obs, type = "covariance", plot = FALSE)$acf
-    if(dim(R)[2] > 1){
-      part <- apply(R[-1,  ,  ,drop=FALSE], c(2, 3), sum)
-    }else{
-      part <- matrix(sum(R[-1,  ,  , drop=FALSE]))
-    }
-    cov.zbar.obs <- (R[1,  ,  ] + part + t(part))/nrow(xsim.obs)
     obspred <- xsim.obs %*% etaparam
     prob.obs <- exp(obspred - max(obspred))
     prob.obs <- prob.obs/sum(prob.obs)
@@ -122,6 +103,10 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
     htmp.obs.offset[,!offsetmap] <- htmp.obs
     htmp.obs.offset <- t(ergm.etagradmult(theta.offset, t(htmp.obs.offset), etamap))
     H.obs <- crossprod(htmp.obs.offset, htmp.obs.offset)
+
+    z <- xsim.obs
+    cov.zbar.obs <- .ergm.mvar.spec0(z) * sum(prob.obs^2)
+    imp.factor <- mean(imp.factor, mean(prob.obs^2))
     cov.zbar.obs.offset <- matrix(0, ncol = length(offsetmap), 
                                   nrow = length(offsetmap))
     cov.zbar.obs <- suppressWarnings(chol(cov.zbar.obs, pivot=TRUE))
@@ -144,8 +129,7 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
   }
   if(all(dim(H)==c(0,0))){
     hessian <- matrix(NA, ncol=length(theta), nrow=length(theta))
-    mc.se <- rep(NA,length=length(theta))
-    return(mc.se)
+    return(matrix(NA, length(theta), length(theta)))
   }
   cov.zbar <- cov.zbar[!(novar|offsettheta),!(novar|offsettheta),drop=FALSE]
   if(length(novar)==length(offsettheta)){
@@ -153,54 +137,35 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
   }else{
    novar <- novar[!offsettheta]
   }
-  mc.se <- rep(NA,length=length(theta))
+
   if(inherits(try(solve(H)),"try-error")) warning("Approximate Hessian matrix is singular. Standard errors due to MCMC approximation of the likelihood cannot be evaluated. This is likely due to highly correlated model terms.")
-  mc.se0 <- try(solve(H, cov.zbar), silent=TRUE)
-  if(!(inherits(mc.se0,"try-error"))){
-    mc.se0 <- try(diag(solve(H, t(mc.se0))), silent=TRUE)
-    if(!(inherits(mc.se0,"try-error"))){
-      if(!is.null(statsmatrix.obs)){
-        mc.se.obs0 <- try(solve(H.obs, cov.zbar.obs), silent=TRUE)
-        if(!(inherits(mc.se.obs0,"try-error"))){
-          mc.se.obs0 <- try(diag(solve(H.obs, t(mc.se.obs0))), silent=TRUE)
-          if(!inherits(mc.se.obs0,"try-error")){
-            mc.se[!novar] <- sqrt(mc.se0 + mc.se.obs0)
-          }else{
-            mc.se[!novar] <- sqrt(mc.se0)
-          }
-        }else{
-          mc.se[!novar] <- sqrt(mc.se0)
-        }
-      }else{
-        mc.se[!novar] <- sqrt(mc.se0)
+
+  mc.cov <- matrix(NA,ncol=length(theta),nrow=length(theta))
+
+  if(is.null(statsmatrix.obs)){
+    mc.cov0 <- try(solve(H, cov.zbar), silent=TRUE)
+    if(!(inherits(mc.cov0,"try-error"))){
+      mc.cov0 <- try(solve(H, t(mc.cov0)), silent=TRUE)
+      if(!(inherits(mc.cov0,"try-error"))){
+        mc.cov[!novar.offset,!novar.offset] <- mc.cov0
       }
     }
-  }
-  names(mc.se) <- names(theta)
-  mc.cov <- matrix(NA,ncol=length(theta),nrow=length(theta))
-  mc.cov0 <- try(solve(H, cov.zbar), silent=TRUE)
-  if(!(inherits(mc.cov0,"try-error"))){
-    mc.cov0 <- try(solve(H, t(mc.cov0)), silent=TRUE)
+  }else{
+    H <- H.obs - H # Bread^-1
+    cov.zbar <- cov.zbar + cov.zbar.obs # Filling
+    
+    mc.cov0 <- try(solve(H, cov.zbar), silent=TRUE)
     if(!(inherits(mc.cov0,"try-error"))){
-      if(!is.null(statsmatrix.obs)){
-        mc.cov.obs0 <- try(solve(H.obs, cov.zbar.obs), silent=TRUE)
-        if(!(inherits(mc.cov.obs0,"try-error"))){
-          mc.cov.obs0 <- try(solve(H.obs, t(mc.cov.obs0)), silent=TRUE)
-          if(!inherits(mc.cov.obs0,"try-error")){
-            mc.cov[!novar,!novar] <- mc.cov0 + mc.cov.obs0
-          }else{
-            mc.cov[!novar,!novar] <- mc.cov0
-          }
-        }else{
-          mc.cov[!novar,!novar] <- mc.cov0
-        }
-      }else{
-        mc.cov[!novar,!novar] <- mc.cov0
+      mc.cov0 <- try(solve(H, t(mc.cov0)), silent=TRUE)
+      if(!(inherits(mc.cov0,"try-error"))){
+        mc.cov[!novar.offset,!novar.offset] <- mc.cov0
       }
     }
   }
   colnames(mc.cov) <- names(theta)
   rownames(mc.cov) <- names(theta)
-#
-  return(list(mc.se=mc.se, mc.cov=mc.cov))
+
+  attr(mc.cov, "imp.factor") <- imp.factor
+  
+  mc.cov
 }

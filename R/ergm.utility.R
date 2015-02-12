@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  http://statnet.org/attribution
 #
-#  Copyright 2003-2013 Statnet Commons
+#  Copyright 2003-2014 Statnet Commons
 #######################################################################
 #==============================================================
 # This file contains the following 21 utility functions:
@@ -560,12 +560,12 @@ single.impute.dyads <- function(nw, response=NULL){
 
 
 # executes expression, returns the result in a list with any warnings and errors
-catchToList <- function(expr) {
+.catchToList <- function(expr) {
   val <- NULL
   myWarnings <- NULL
   wHandler <- function(w) {
     myWarnings <<- c(myWarnings, w$message)
-    #invokeRestart("muffleWarning")
+    invokeRestart("muffleWarning")
   }
   myError <- NULL
   eHandler <- function(e) {
