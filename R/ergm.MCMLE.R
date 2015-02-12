@@ -122,7 +122,7 @@ ergm.MCMLE <- function(init, nw, model,
   
   calc.MCSE <- FALSE
   last.adequate <- FALSE
-  one.more <- FALSE
+  
   for(iteration in 1:control$MCMLE.maxit){
     if(verbose){
       cat("Iteration ",iteration," of at most ", control$MCMLE.maxit,
@@ -270,7 +270,7 @@ ergm.MCMLE <- function(init, nw, model,
       steplen <-
         if(!is.null(control$MCMLE.steplength.margin))
           .Hummel.steplength(
-            if(control$MCMLE.Hummel.esteq) esteq else statsmatrix.0[,!model$etamap$offsetmap,drop=FALSE],
+            if(control$MCMLE.Hummel.esteq) esteq else statsmatrix.0[,!model$etamap$offsetmap,drop=FALSE], 
             if(control$MCMLE.Hummel.esteq) esteq.obs else statsmatrix.0.obs[,!model$etamap$offsetmap,drop=FALSE],
             control$MCMLE.steplength.margin, control$MCMLE.steplength, control$MCMLE.steplength.order)
         else control$MCMLE.steplength

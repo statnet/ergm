@@ -149,29 +149,28 @@ ergm (formula,
  \item{covar}{Approximate covariance matrix for the MLE, based on the inverse
   Hessian of the approximated loglikelihood evaluated at the maximizer.}
  \item{failure}{Logical:  Did the MCMC estimation fail?}
- \item{mc.se}{MCMC standard error estimates}
+ \item{network}{Original network}
  \item{newnetwork}{The final network at the end of the MCMC
  simulation}
- \item{network}{Original network}
  \item{coef.init}{The initial value of \eqn{\theta}.}
- \item{initial}{The MPLE fit as a \code{glm} object.}
- \item{null.deviance}{Deviance of the null model. Valid only for
-  unconstrained models.}
- \item{mle.lik}{The approximate log-likelihood for the MLE.
-  The value is only approximate because it is estimated based 
-  on the MCMC random sample.}
- \item{etamap}{The set of functions mapping the true parameter theta
+ \item{est.cov}{The covariance matrix of the model statistics in the final MCMC sample.}
+ \item{coef.hist, steplen.hist, stats.hist, stats.obs.hist}{
+   For the MCMLE method, the history of coefficients, Hummel step lengths, and average model statistics for each iteration..
+}
+ \item{control}{The control list passed to the call.}
+  \item{etamap}{The set of functions mapping the true parameter theta
  to the canonical parameter eta (irrelevant except in a curved exponential
  family model)}
- \item{degeneracy.value}{Score calculated to assess the degree of 
- degeneracy in the model.}
- \item{degeneracy.type}{Supporting output for \code{degeneracy.value}. Mainly
-for internal use.}
- \item{formula}{The original \code{\link{formula}} entered into the \code{\link{ergm}} function.}
- \item{constraints}{Constraints used by original \code{ergm} call}
- \item{control}{The control list passed to the call.}
- \item{offset}{vector of logical telling which model parameters are to be set
+  \item{formula}{The original \code{\link{formula}} entered into the \code{\link{ergm}} function.}
+  \item{target.stats}{The target.stats used during estimation (passed through from the Arguments)}
+  \item{target.esteq}{Used for curved models to preserve the target mean values of the curved terms. It is identical to target.stats for non-curved models.}
+  \item{constrained}{The list of constraints implied by the constraints used by original \code{ergm} call}
+   \item{constraints}{Constraints used during estimation (passed through from the Arguments)}
+  \item{reference}{The reference measure used during estimation (passed through from the Arguments)}
+  \item{estimate}{The estimation method used (passed through from the Arguments).}
+  \item{offset}{vector of logical telling which model parameters are to be set
  at a fixed value (i.e., not estimated).}
+ 
  \item{drop}{If \code{\link[=control.ergm]{control$drop}=TRUE}, a numeric vector indicating which terms were dropped due to to extreme values of the
    corresponding statistics on the observed network, and how:
    \describe{
@@ -182,14 +181,22 @@ for internal use.}
        \code{+Inf}.}
    }
  }
-\item{coef.hist, stats.hist, stats.obs.hist}{
-   For the MCMLE method, the history of coefficients and resulting
-  average statistics.
-}
+ 
 \item{estimable}{A logical vector indicating which terms could not be
   estimated due to a \code{constraints} constraint fixing that term at a
   constant value.
 }
+
+ \item{null.lik}{Log-likelihood of the null model. Valid only for
+  unconstrained models.}
+ \item{mle.lik}{The approximate log-likelihood for the MLE.
+  The value is only approximate because it is estimated based 
+  on the MCMC random sample.}
+
+ \item{degeneracy.value}{Score calculated to assess the degree of 
+ degeneracy in the model. Only shows when MCMLE.check.degeneracy is TRUE in \code{control.ergm}. }
+ \item{degeneracy.type}{Supporting output for \code{degeneracy.value}. Only shows when MCMLE.check.degeneracy is TRUE in \code{control.ergm}. Mainly for internal use.}
+
   See the method \code{\link{print.ergm}} for details on how
   an \code{\link{ergm}} object is printed.  Note that the
   method \code{\link{summary.ergm}} returns a summary of the
