@@ -45,78 +45,82 @@
 #########################################################################################
 
 ergm.getCDsample <- function(nw, model, MHproposal, eta0, control, 
-                             verbose, response=NULL) {
-    
-  Clist <- ergm.Cprepare(nw, model, response=response)
+                             verbose, response=NULL, ...) {
+  nthreads <- max(
+    if(inherits(control$parallel,"cluster")) nrow(summary(control$parallel))
+    else control$parallel,
+    1)
 
-  z <- NULL
+  cl <- if(!is.numeric(control$parallel) || control$parallel!=0){
+    ergm.getCluster(control, verbose)
+  }else NULL
+  
+  if(is.network(nw)) nw <- list(nw)
+  nws <- rep(nw, length.out=nthreads)
+  
+  Clists <- lapply(nws, ergm.Cprepare, model, response=response)
 
-  if(control$parallel==0){
-    flush.console()
-    z <- ergm.cdslave(Clist,MHproposal,eta0,control,verbose)
+  control.parallel <- control
+  if(!is.null(control$MCMC.samplesize)) control.parallel$MCMC.samplesize <- ceiling(control$MCMC.samplesize / nthreads)
+
+  flush.console()
+
+  doruns <- function(prev.runs=rep(list(NULL),nthreads), burnin=NULL, samplesize=NULL, interval=NULL){
+    if(!is.null(cl)) clusterMap(cl,ergm.cdcslave,
+                                  Clist=Clists, prev.run=prev.runs, MoreArgs=list(MHproposal=MHproposal,eta0=eta0,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval))
+    else list(ergm.cdslave(Clist=Clists[[1]], prev.run=prev.runs[[1]],burnin=burnin,samplesize=samplesize,interval=interval,MHproposal=MHproposal,eta0=eta0,control=control.parallel,verbose=verbose,...))
+  }
+  
+  outl <- doruns()
+  for(i in seq_along(outl)){
+    outl[[i]]$s <- mcmc(outl[[i]]$s, control.parallel$MCMC.burnin+1, thin=control.parallel$MCMC.interval)
+  }
+  
+  if(control.parallel$MCMC.runtime.traceplot){
+    esteq <- lapply(outl, function(out)
+      if(all(c("theta","etamap") %in% names(list(...)))) .ergm.esteq(list(...)$theta, list(etamap=list(...)$etamap), out$s)
+      else out$s[,Clists[[1]]$diagnosable,drop=FALSE]
+                    )
+    for (i in seq_along(esteq)) colnames(esteq[[i]]) <- names(list(...)$theta)
+    plot(as.mcmc.list(lapply(lapply(esteq, mcmc), window, thin=max(1,floor(nrow(esteq)/1000))))
+        ,ask=FALSE,smooth=TRUE,density=FALSE)
+  }
+
+  #
+  #   Process the results
+  #
+  statsmatrices <- list()
+  newnetworks <- list()
+  final.interval <- c()
+  for(i in (1:nthreads)){
+    z <- outl[[i]]
     
-    if(z$status == 1){ # MCMC_TOO_MANY_EDGES, exceeding even control$MCMC.max.maxedges
+    if(z$status == 1){ # MCMC_TOO_MANY_EDGES, exceeding even control.parallel$MCMC.max.maxedges
       return(list(status=z$status))
     }
     
     if(z$status == 2){ # MCMC_MH_FAILED
       # MH proposal failed somewhere. Throw an error.
       stop("Sampling failed due to a Metropolis-Hastings proposal failing.")
-    }
-    
-    if(!is.null(z$burnin.failed) && z$burnin.failed) warning("Burn-in failed to converge after retries.")
-    
-    statsmatrix <- matrix(z$s, nrow=control$MCMC.samplesize,
-                          ncol=Clist$nstats,
-                          byrow = TRUE)
-  }else{
-    control.parallel <- control
-    control.parallel$MCMC.samplesize <- round(control$MCMC.samplesize / control$parallel)
-    
-    cl <- ergm.getCluster(control, verbose)
-    #
-    #   Run the jobs with rpvm or Rmpi
-    #
-    flush.console()
-    outlist <- clusterCall(cl,ergm.cdslave,
-                           Clist,MHproposal,eta0,control.parallel,verbose)
-    #
-    #   Process the results
-    #
-    statsmatrix <- NULL
-    for(i in (1:control$parallel)){
-      z <- outlist[[i]]
-
-      if(z$status == 1){ # MCMC_TOO_MANY_EDGES, exceeding even control$MCMC.max.maxedges
-        return(list(status=z$status))
       }
-      
-      if(z$status == 2){ # MCMC_MH_FAILED
-        # MH proposal failed somewhere. Throw an error.
-        stop("Sampling failed due to a Metropolis-Hastings proposal failing.")
-      }
-      
-      if(!is.null(z$burnin.failed) && z$burnin.failed) warning("Burn-in failed to converge after retries.")
-      
-      statsmatrix <- rbind(statsmatrix,
-                           matrix(z$s, nrow=control.parallel$MCMC.samplesize,
-                                  ncol=Clist$nstats,
-                                  byrow = TRUE))
-    }
-
-    if(verbose){cat("parallel samplesize=",nrow(statsmatrix),"by",
-                    control.parallel$MCMC.samplesize,"\n")}
     
-    ergm.stopCluster(cl)
+    statsmatrices[[i]] <- z$s
+    
+    final.interval <- c(final.interval, z$final.interval)
   }
+  
+  ergm.stopCluster(cl)
 
+  statsmatrix <- do.call("rbind",statsmatrices)
   colnames(statsmatrix) <- model$coef.names
 
+  if(verbose){cat("Sample size =",nrow(statsmatrix),"by",
+                  control.parallel$MCMC.samplesize,"\n")}
+  
   statsmatrix[is.na(statsmatrix)] <- 0
-  list(statsmatrix=statsmatrix, status=0)
+  list(statsmatrix=statsmatrix, statsmatrices=statsmatrices, status=0)
+
 }
-
-
 
 
 
@@ -146,61 +150,73 @@ ergm.getCDsample <- function(nw, model, MHproposal, eta0, control,
 #
 ###############################################################################
 
-ergm.cdslave <- function(Clist,MHproposal,eta0,control,verbose) {
-    # A subroutine to allow caller to override some settings or resume
-    # from a pervious run.
-    numnetworks <- 0
-    
+ergm.cdslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NULL, burnin=NULL, samplesize=NULL, interval=NULL) {
+
+  numnetworks <- 0
+
+  if(is.null(prev.run)){ # Start from Clist
     nedges <- c(Clist$nedges,0,0)
     tails <- Clist$tails
     heads <- Clist$heads
     weights <- Clist$weights
     stats <- rep(0, Clist$nstats)
-    
-    samplesize <- control$MCMC.samplesize
-    
-    if(is.null(Clist$weights)){
-        z <- .C("CD_wrapper",
-                as.integer(numnetworks), as.integer(nedges),
-                as.integer(tails), as.integer(heads),
-                as.integer(Clist$n),
-                as.integer(Clist$dir), as.integer(Clist$bipartite),
-                as.integer(Clist$nterms),
-                as.character(Clist$fnamestring),
-                as.character(Clist$snamestring),
-                as.character(MHproposal$name), as.character(MHproposal$pkgname),
-                as.double(c(Clist$inputs,MHproposal$inputs)), as.double(.deinf(eta0)),
-                as.integer(samplesize), as.integer(control$CD.nsteps),
-                s = as.double(rep(stats, samplesize)),
-                as.integer(verbose), as.integer(MHproposal$arguments$constraints$bd$attribs),
-                as.integer(MHproposal$arguments$constraints$bd$maxout), as.integer(MHproposal$arguments$constraints$bd$maxin),
-                as.integer(MHproposal$arguments$constraints$bd$minout), as.integer(MHproposal$arguments$constraints$bd$minin),
-                as.integer(MHproposal$arguments$constraints$bd$condAllDegExact), as.integer(length(MHproposal$arguments$constraints$bd$attribs)),
-                status = integer(1),
-                PACKAGE="ergm")
-        
-        # save the results
-        z<-list(s=z$s, newnwtails=z$newnwtails, newnwheads=z$newnwheads, status=z$status)
-      }else{
-        z <- .C("WtCD_wrapper",
-                as.integer(length(nedges)), as.integer(nedges),
-                as.integer(tails), as.integer(heads), as.double(weights),
-                as.integer(Clist$n),
-                as.integer(Clist$dir), as.integer(Clist$bipartite),
-                as.integer(Clist$nterms),
-                as.character(Clist$fnamestring),
-                as.character(Clist$snamestring),
-                as.character(MHproposal$name), as.character(MHproposal$pkgname),
-                as.double(c(Clist$inputs,MHproposal$inputs)), as.double(.deinf(eta0)),
-                as.integer(samplesize), as.integer(control$CD.nsteps),
-                s = as.double(rep(stats, samplesize)),
-                as.integer(verbose), 
-                status = integer(1),
-                PACKAGE="ergm")
-        # save the results
-        z<-list(s=z$s, status=z$status)
-      }
+  }else{ # Pick up where we left off
+    nedges <- prev.run$newnwtails[1]
+    tails <- prev.run$newnwtails[2:(nedges+1)]
+    heads <- prev.run$newnwheads[2:(nedges+1)]
+    weights <- prev.run$newnwweights[2:(nedges+1)]
+    nedges <- c(nedges,0,0)
+    stats <- prev.run$s[nrow(prev.run$s),]
+  }
+  
+  if(is.null(burnin)) burnin <- control$MCMC.burnin
+  if(is.null(samplesize)) samplesize <- control$MCMC.samplesize
+  if(is.null(interval)) interval <- control$MCMC.interval
 
-    z
+  samplesize <- control$MCMC.samplesize
+  
+  if(is.null(Clist$weights)){
+    z <- .C("CD_wrapper",
+            as.integer(numnetworks), as.integer(nedges),
+            as.integer(tails), as.integer(heads),
+            as.integer(Clist$n),
+            as.integer(Clist$dir), as.integer(Clist$bipartite),
+            as.integer(Clist$nterms),
+            as.character(Clist$fnamestring),
+            as.character(Clist$snamestring),
+            as.character(MHproposal$name), as.character(MHproposal$pkgname),
+            as.double(c(Clist$inputs,MHproposal$inputs)), as.double(.deinf(eta0)),
+            as.integer(samplesize), as.integer(control$CD.nsteps), as.integer(control$CD.multiplicity),
+            s = as.double(rep(stats, samplesize)),
+            as.integer(verbose), as.integer(MHproposal$arguments$constraints$bd$attribs),
+            as.integer(MHproposal$arguments$constraints$bd$maxout), as.integer(MHproposal$arguments$constraints$bd$maxin),
+            as.integer(MHproposal$arguments$constraints$bd$minout), as.integer(MHproposal$arguments$constraints$bd$minin),
+            as.integer(MHproposal$arguments$constraints$bd$condAllDegExact), as.integer(length(MHproposal$arguments$constraints$bd$attribs)),
+            status = integer(1),
+            PACKAGE="ergm")
+    
+    # save the results
+    z<-list(s=matrix(z$s, ncol=Clist$nstats, byrow = TRUE), status=z$status)
+  }else{
+    z <- .C("WtCD_wrapper",
+            as.integer(length(nedges)), as.integer(nedges),
+            as.integer(tails), as.integer(heads), as.double(weights),
+            as.integer(Clist$n),
+            as.integer(Clist$dir), as.integer(Clist$bipartite),
+            as.integer(Clist$nterms),
+            as.character(Clist$fnamestring),
+            as.character(Clist$snamestring),
+            as.character(MHproposal$name), as.character(MHproposal$pkgname),
+            as.double(c(Clist$inputs,MHproposal$inputs)), as.double(.deinf(eta0)),
+            as.integer(samplesize), as.integer(control$CD.nsteps), as.integer(control$CD.multiplicity),
+            s = as.double(rep(stats, samplesize)),
+            as.integer(verbose), 
+            status = integer(1),
+            PACKAGE="ergm")
+    # save the results
+    z<-list(s=matrix(z$s, ncol=Clist$nstats, byrow = TRUE), status=z$status)
+  }
+  
+  z
     
 }

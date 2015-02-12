@@ -82,6 +82,10 @@ ergm.MCMLE <- function(init, nw, model,
   # Store information about original network, which will be returned at end
   nw.orig <- network.copy(nw)
 
+  # Impute missing dyads.
+  nw <- single.impute.dyads(nw, response=response)
+  model$nw.stats <- summary(model$formula, response=response, basis=nw)
+
   if(control$MCMLE.density.guard>1){
     # Calculate the density guard threshold.
     control$MCMC.max.maxedges <- round(min(control$MCMC.max.maxedges,
@@ -92,15 +96,13 @@ ergm.MCMLE <- function(init, nw, model,
   }  
 
   nws <- rep(list(nw),nthreads) # nws is now a list of networks.
-  
+
   # statshift is the difference between the target.stats (if
   # specified) and the statistics of the networks in the LHS of the
   # formula or produced by SAN. If target.stats is not speficied
   # explicitly, they are computed from this network, so statshift==0.
   statshifts <- rep(list(model$nw.stats - model$target.stats), nthreads) # Each network needs its own statshift.
 
-  
-  
   # Is there observational structure?
   obs <- ! is.null(MHproposal.obs)
   
@@ -183,7 +185,7 @@ ergm.MCMLE <- function(init, nw, model,
         statshifts.obs <- lapply(nws.obs, function(nw) summary(model$formula, basis=nws.obs, response=response) - model$target.stats)
       }      
     }
-    
+
     # Compute the sample estimating equations and the convergence p-value. 
     esteq <- .ergm.esteq(mcmc.init, model, statsmatrix)
     if(isTRUE(all.equal(apply(esteq,2,sd), rep(0,ncol(esteq)), check.names=FALSE))&&!all(esteq==0))
@@ -265,7 +267,6 @@ ergm.MCMLE <- function(init, nw, model,
         cat("The log-likelihood did not improve.\n")
       }
       steplen.hist <- c(steplen.hist, adaptive.steplength)
-
     }else{
       steplen <-
         if(!is.null(control$MCMLE.steplength.margin))

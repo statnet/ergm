@@ -83,11 +83,11 @@ void MH_TNT (MHproposal *MHp, Network *nwp)
 }
 
 /********************
-   void MH_TriNT
-   Tie/no tie:  Gives at least 50% chance of
-   proposing a toggle of an existing edge, as opposed
-   to simple random toggles that rarely do so in sparse 
-   networks
+   void MH_TriNT Tie/no tie with triad: Gives at least 50% chance of
+   proposing a toggle of an existing edge, as opposed to simple random
+   toggles that rarely do so in sparse networks; then 1/4 of the time
+   also proposes a toggle on an edge incident on the tail, 1/4 on the
+   head, and 1/4 on both (a triad).
 ***********************/
 void MH_TriNT (MHproposal *MHp, Network *nwp) 
 {
@@ -135,19 +135,135 @@ void MH_TriNT (MHproposal *MHp, Network *nwp)
       
       MHp->ntoggles=1;
       if(unif_rand()<pthird){
-	*(Mtail+MHp->ntoggles) = nwp->directed_flag ? *Mtail : MIN(*Mtail, third);
-	*(Mhead+MHp->ntoggles) = nwp->directed_flag ? third : MAX(*Mtail, third);
+	if(nwp->directed_flag){
+	  unsigned int r = unif_rand()<0.5;
+	  Mtail[MHp->ntoggles] = r ? *Mtail : third;
+	  Mhead[MHp->ntoggles] = r ? third : *Mtail;
+	}else{
+	  Mtail[MHp->ntoggles] = MIN(*Mtail, third);
+	  Mhead[MHp->ntoggles] = MAX(*Mtail, third);
+	}
 	MHp->ntoggles++;
       }
       if(unif_rand()<pthird){
-	*(Mtail+MHp->ntoggles) = nwp->directed_flag ? third : MIN(*Mhead, third);
-	*(Mhead+MHp->ntoggles) = nwp->directed_flag ? *Mhead : MAX(*Mhead, third);
+	if(nwp->directed_flag){
+	  unsigned int r = unif_rand()<0.5;
+	  Mtail[MHp->ntoggles] = r ? *Mhead : third;
+	  Mhead[MHp->ntoggles] = r ? third : *Mhead;
+	}else{
+	  Mtail[MHp->ntoggles] = MIN(*Mhead, third);
+	  Mhead[MHp->ntoggles] = MAX(*Mhead, third);
+	}
 	MHp->ntoggles++;
       }
     });
 
   MHp->logratio += logratio;
 }
+
+/********************
+   void MH_TriNT
+   Tie/no tie:  Gives at least 50% chance of
+   proposing a toggle of an existing edge, as opposed
+   to simple random toggles that rarely do so in sparse 
+   networks
+***********************/
+/* void MH_TriNT (MHproposal *MHp, Network *nwp)  */
+/* { */
+/*   /\* *** don't forget tail-> head now *\/ */
+  
+/*   Edge nedges=nwp->nedges; */
+/*   const double comp=0.5, pthird=0.5; */
+/*   static double odds; */
+/*   static Dyad ndyads; */
+  
+/*   if(MHp->ntoggles == 0) { /\* Initialize *\/ */
+/*     MHp->ntoggles=5; */
+/*     odds = comp/(1.0-comp); */
+/*     ndyads = DYADCOUNT(nwp->nnodes, nwp->bipartite, nwp->directed_flag); */
+/*     return; */
+/*   } */
+
+/*   double logratio=0; */
+/*   BD_COND_LOOP({ */
+/*       int bal0; */
+/*       if (unif_rand() < comp && nedges > 0) { /\* Select a tie at random *\/ */
+/* 	GetRandEdge(Mtail, Mhead, nwp); */
+/* 	/\* Thanks to Robert Goudie for pointing out an error in the previous  */
+/* 	   version of this sampler when proposing to go from nedges==0 to nedges==1  */
+/* 	   or vice versa.  Note that this happens extremely rarely unless the  */
+/* 	   network is small or the parameter values lead to extremely sparse  */
+/* 	   networks.  *\/ */
+/* 	bal0 = -1; */
+/* 	logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) : */
+/* 			      nedges / (odds*ndyads + nedges))); */
+/*       }else{ /\* Select a dyad at random *\/ */
+/* 	GetRandDyad(Mtail, Mhead, nwp); */
+	
+/* 	if(EdgetreeSearch(Mtail[0],Mhead[0],nwp->outedges)!=0){ */
+/* 	  bal0 = -1; */
+/* 	  logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) : */
+/* 				nedges / (odds*ndyads + nedges))); */
+/* 	}else{ */
+/* 	  bal0 = +1; */
+/* 	  logratio = log((nedges==0 ? comp*ndyads + (1.0-comp) : */
+/* 				1.0 + (odds*ndyads)/(nedges + 1))); */
+/* 	} */
+/*       } */
+
+/*       MHp->ntoggles=1; */
+
+/*       Vertex third; */
+/*       do{ */
+/* 	third = 1 + unif_rand()*nwp->nnodes; */
+/*       }while(third==*Mtail || third==*Mhead); */
+      
+/*       if(unif_rand()<pthird){ */
+/* 	unsigned int swap = unif_rand()<0.5; */
+/* 	Mtail[MHp->ntoggles] = nwp->directed_flag ? (swap ? *Mtail : third) : MIN(*Mtail, third); */
+/* 	Mhead[MHp->ntoggles] = nwp->directed_flag ? (swap ? third : *Mtail) : MAX(*Mtail, third); */
+/* 	MHp->ntoggles++; */
+/*       } */
+/*       if(unif_rand()<pthird){ */
+/* 	unsigned int swap = unif_rand()<0.5; */
+/* 	Mtail[MHp->ntoggles] = nwp->directed_flag ? (swap ? third : *Mhead) : MIN(*Mhead, third); */
+/* 	Mhead[MHp->ntoggles] = nwp->directed_flag ? (swap ? *Mhead : third) : MAX(*Mhead, third); */
+/* 	MHp->ntoggles++; */
+/*       } */
+      
+/*       int bal = 0; */
+/*       for(unsigned int i=1; i<MHp->ntoggles; i++) */
+/* 	bal += (EdgetreeSearch(Mtail[i],Mhead[i],nwp->outedges)) ? -1 : +1; */
+      
+/*       if(bal > 0){ // Find some edges to remove. */
+/* 	if(nedges==0) continue; // Can't "balance" edge addition. */
+/* 	for(unsigned int i=0; i<bal; i++){ */
+/* 	  GetRandEdge(Mtail+MHp->ntoggles, Mhead+MHp->ntoggles, nwp); */
+/* 	  MHp->ntoggles++; */
+/* 	} */
+/*       }else if(bal < 0){ // Find some edges to add. */
+/* 	if(nedges==ndyads) continue; // Can't "balance" edge removal. */
+/* 	for(unsigned int i=0; i<bal; i++){ */
+/* 	  GetRandNonedge(Mtail+MHp->ntoggles, Mhead+MHp->ntoggles, nwp); */
+/* 	  MHp->ntoggles++; */
+/* 	} */
+/*       } */
+
+/*       // If we got this far, we've found all the edges we needed. */
+/*       // There might be a symmetry violation in here somewhere. */
+/*       unsigned int repetition=FALSE; */
+/*       for(unsigned int i=0; i<MHp->ntoggles-1; i++){ */
+/* 	for(unsigned int j=i+1; j<MHp->ntoggles; j++){ */
+/* 	  if(Mtail[i]==Mtail[j] && Mhead[i]==Mhead[j]){ */
+/* 	    repetition = TRUE; */
+/* 	    break; */
+/* 	  } */
+/* 	} */
+/* 	if(repetition) break; */
+/*       } */
+/*     },!repetition,2); */
+/*   MHp->logratio += logratio; */
+/* } */
 
 
 /********************

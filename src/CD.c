@@ -19,7 +19,7 @@ void CD_wrapper(int *dnumnets, int *nedges,
 		  int *nterms, char **funnames,
 		  char **sonames, 
 		  char **MHproposaltype, char **MHproposalpackage,
-		double *inputs, double *theta0, int *samplesize, int *nsteps, 
+		double *inputs, double *theta0, int *samplesize, int *nsteps, int *multiplicity,
 		  double *sample,
 		  int *fVerbose, 
 		  int *attribs, int *maxout, int *maxin, int *minout,
@@ -53,15 +53,17 @@ void CD_wrapper(int *dnumnets, int *nedges,
 	  nw, attribs, maxout, maxin, minout, minin,
 	  *condAllDegExact, *attriblength);
 
-  undotail = calloc(MH.ntoggles * *nsteps, sizeof(Vertex));
-  undohead = calloc(MH.ntoggles * *nsteps, sizeof(Vertex));
+  undotail = calloc(MH.ntoggles * *nsteps * *multiplicity, sizeof(Vertex));
+  undohead = calloc(MH.ntoggles * *nsteps * *multiplicity, sizeof(Vertex));
+  double *extraworkspace = calloc(m->n_stats, sizeof(double));
 
   *status = CDSample(&MH,
-		     theta0, sample, *samplesize, *nsteps, undotail, undohead,
-		       *fVerbose, nw, m);
+		     theta0, sample, *samplesize, *nsteps, *multiplicity, undotail, undohead,
+		     *fVerbose, nw, m, extraworkspace);
   
   free(undotail);
   free(undohead);
+  free(extraworkspace);
   MH_free(&MH);
 
   ModelDestroy(m);
@@ -81,11 +83,10 @@ void CD_wrapper(int *dnumnets, int *nedges,
  the networkstatistics array. 
 *********************/
 MCMCStatus CDSample(MHproposal *MHp,
-		double *theta, double *networkstatistics, 
-		    int samplesize, int nsteps, Vertex *undotail, Vertex *undohead, int fVerbose,
-		Network *nwp, Model *m){
+		    double *theta, double *networkstatistics, 
+		    int samplesize, int nsteps, int multiplicity, Vertex *undotail, Vertex *undohead, int fVerbose,
+		    Network *nwp, Model *m, double *extraworkspace){
   int i;
-  /* int j; */
     
   /*********************
   networkstatistics are modified in groups of m->n_stats, and they
@@ -102,21 +103,21 @@ MCMCStatus CDSample(MHproposal *MHp,
 /* } */
 /* Rprintf("\n"); */
 
-    /* Now sample networks */
-    for (i=0; i < samplesize; i++){
-      
-      if(CDStep(MHp, theta, networkstatistics, nsteps, undotail, undohead,
-			    fVerbose, nwp, m)!=MCMC_OK)
-	return MCMC_MH_FAILED;
-
+  /* Now sample networks */
+  for (i=0; i < samplesize; i++){
+    
+    if(CDStep(MHp, theta, networkstatistics, nsteps, multiplicity, undotail, undohead,
+	      fVerbose, nwp, m, extraworkspace)!=MCMC_OK)
+      return MCMC_MH_FAILED;
+    
 #ifdef Win32
-      if( ((100*i) % samplesize)==0 && samplesize > 500){
-	R_FlushConsole();
-    	R_ProcessEvents();
-      }
-#endif
-      networkstatistics += m->n_stats;
+    if( ((100*i) % samplesize)==0 && samplesize > 500){
+      R_FlushConsole();
+      R_ProcessEvents();
     }
+#endif
+    networkstatistics += m->n_stats;
+  }
   
   return MCMC_OK;
 }
@@ -133,81 +134,72 @@ MCMCStatus CDSample(MHproposal *MHp,
  essentially generates a sample of size one
 *********************/
 MCMCStatus CDStep(MHproposal *MHp,
-			      double *theta, double *networkstatistics,
-		  int nsteps, Vertex *undotail, Vertex *undohead,
-			      int fVerbose,
-			      Network *nwp,
-			      Model *m) {
+		  double *theta, double *networkstatistics,
+		  int nsteps, int multiplicity, Vertex *undotail, Vertex *undohead,
+		  int fVerbose,
+		  Network *nwp,
+		  Model *m, double* extraworkspace) {
 
   unsigned int unsuccessful=0, ntoggled=0;
 
   for(unsigned int step=0; step<nsteps; step++){
-    MHp->logratio = 0;
-    (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
+    unsigned int mtoggled=0;
+    memset(extraworkspace, 0, m->n_stats*sizeof(double));
+    double cumlr = 0;
+    
+    for(unsigned int mult=0; mult<multiplicity; mult++){
+      MHp->logratio = 0;
+      (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
 
-    if(MHp->toggletail[0]==MH_FAILED){
-      if(MHp->togglehead[0]==MH_UNRECOVERABLE)
-	error("Something very bad happened during proposal. Memory has not been deallocated, so restart R soon.");
-      if(MHp->togglehead[0]==MH_IMPOSSIBLE){
-	Rprintf("MH Proposal function encountered a configuration from which no toggle(s) can be proposed.\n");
-	return MCMC_MH_FAILED;
-      }
-      if(MHp->togglehead[0]==MH_UNSUCCESSFUL){
-	warning("MH Proposal function failed to find a valid proposal.");
-	unsuccessful++;
-	if(unsuccessful>MH_QUIT_UNSUCCESSFUL){
-	  Rprintf("Too many MH Proposal function failures.\n");
+      if(MHp->toggletail[0]==MH_FAILED){
+	if(MHp->togglehead[0]==MH_UNRECOVERABLE)
+	  error("Something very bad happened during proposal. Memory has not been deallocated, so restart R soon.");
+	if(MHp->togglehead[0]==MH_IMPOSSIBLE){
+	  Rprintf("MH Proposal function encountered a configuration from which no toggle(s) can be proposed.\n");
 	  return MCMC_MH_FAILED;
-	}       
-
-	return MH_UNSUCCESSFUL;
-     }
-    }
-    
-    if(fVerbose>=5){
-      Rprintf("Proposal: ");
-      for(unsigned int i=0; i<MHp->ntoggles; i++)
-	Rprintf(" (%d, %d)", MHp->toggletail[i], MHp->togglehead[i]);
-      Rprintf("\n");
-    }
-
-    /* Calculate change statistics,
-       remembering that tail -> head */
-    ChangeStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, nwp, m);
-
-    if(fVerbose>=5){
-      Rprintf("Changes: (");
-      for(unsigned int i=0; i<m->n_stats; i++)
-	Rprintf(" %f ", m->workspace[i]);
-      Rprintf(")\n");
-    }
-    
-    /* Calculate inner product */
-    double ip=0;
-    for (unsigned int i=0; i<m->n_stats; i++){
-      ip += theta[i] * m->workspace[i];
-    }
-    /* The logic is to set cutoff = ip+logratio ,
-       then let the MH probability equal min{exp(cutoff), 1.0}.
-       But we'll do it in log space instead.  */
-    double cutoff = ip + MHp->logratio;
-
-    if(fVerbose>=5){
-      Rprintf("log acceptance probability: %f + %f = %f\n", ip, MHp->logratio, cutoff);
-    }
-    
-    /* if we accept the proposed network */
-    if (cutoff >= 0.0 || log(unif_rand()) < cutoff) { 
+	}
+	if(MHp->togglehead[0]==MH_UNSUCCESSFUL){
+	  warning("MH Proposal function failed to find a valid proposal.");
+	  unsuccessful++;
+	  if(unsuccessful>MH_QUIT_UNSUCCESSFUL){
+	    Rprintf("Too many MH Proposal function failures.\n");
+	    return MCMC_MH_FAILED;
+	  }       
+	  
+	  return MH_UNSUCCESSFUL;
+	}
+      }
+      
       if(fVerbose>=5){
-	Rprintf("Accepted.\n");
+	Rprintf("Proposal: ");
+	for(unsigned int i=0; i<MHp->ntoggles; i++)
+	  Rprintf(" (%d, %d)", MHp->toggletail[i], MHp->togglehead[i]);
+	Rprintf("\n");
       }
 
-      if(step<nsteps-1){
-	/* Make proposed toggles (updating timestamps--i.e., for real this time) */
+      /* Calculate change statistics,
+	 remembering that tail -> head */
+      ChangeStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, nwp, m);
+
+      // Add them to the cumulative changes.
+      for(unsigned int i=0; i<m->n_stats; i++)
+	extraworkspace[i] += m->workspace[i];
+      
+      if(fVerbose>=5){
+	Rprintf("Changes: (");
+	for(unsigned int i=0; i<m->n_stats; i++){
+	  Rprintf(" %f ", m->workspace[i]);
+	}
+	Rprintf(")\n");
+      }
+
+      if(mult<multiplicity-1){
+	/* Make proposed toggles provisionally. */
 	for(unsigned int i=0; i < MHp->ntoggles; i++){
 	  undotail[ntoggled]=MHp->toggletail[i];
 	  undohead[ntoggled]=MHp->togglehead[i];
 	  ntoggled++;
+	  mtoggled++;
 	  ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
 	  
 	  if(MHp->discord)
@@ -217,17 +209,75 @@ MCMCStatus CDStep(MHproposal *MHp,
 	}
       }
 
+      // Accumulate the log acceptance ratio.
+      cumlr += MHp->logratio;
+    } // Multiplicity
+
+    
+    if(fVerbose>=5){
+      Rprintf("Cumulative changes: (");
+      for(unsigned int i=0; i<m->n_stats; i++)
+	Rprintf(" %f ", extraworkspace[i]);
+      Rprintf(")\n");
+    }
+    
+    /* Calculate inner product */
+    double ip=0;
+    for (unsigned int i=0; i<m->n_stats; i++){
+      ip += theta[i] * extraworkspace[i];
+    }
+    /* The logic is to set cutoff = ip+logratio ,
+       then let the MH probability equal min{exp(cutoff), 1.0}.
+       But we'll do it in log space instead.  */
+    double cutoff = ip + cumlr;
+
+    if(fVerbose>=5){
+      Rprintf("log acceptance probability: %f + %f = %f\n", ip, cumlr, cutoff);
+    }
+    
+    /* if we accept the proposed network */
+    if (cutoff >= 0.0 || log(unif_rand()) < cutoff) { 
+      if(fVerbose>=5){
+	Rprintf("Accepted.\n");
+      }
+
+      if(step<nsteps-1){
+	/* Make the remaining proposed toggles (which we did not make provisionally) */
+	for(unsigned int i=0; i < MHp->ntoggles; i++){
+	  undotail[ntoggled]=MHp->toggletail[i];
+	  undohead[ntoggled]=MHp->togglehead[i];
+	  ntoggled++;
+	  ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
+
+	  if(MHp->discord)
+	  for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
+	    ToggleEdge(MHp->toggletail[i],  MHp->togglehead[i], *nwd);
+	  }
+	}
+      }
+
       /* record network statistics for posterity */
       for (unsigned int i = 0; i < m->n_stats; i++){
-	networkstatistics[i] += m->workspace[i];
+	networkstatistics[i] += extraworkspace[i];
       }
 
     }else{
       if(fVerbose>=5){
 	Rprintf("Rejected.\n");
       }
+      // Undo the provisional toggles (the last mtoggled ones)
+      for(unsigned int i=0; i < mtoggled; i++){
+	ntoggled--;
+	Vertex t = undotail[ntoggled], h = undohead[ntoggled];
+	ToggleEdge(t, h, nwp);
+	
+	if(MHp->discord)
+	  for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
+	    ToggleEdge(t, h, *nwd);
+	  }
+      }
     }
-  }
+  } // Step
   
   /* Undo toggles. */
   for(unsigned int i=0; i < ntoggled; i++){

@@ -211,6 +211,7 @@ control.ergm<-function(drop=TRUE,
                        Step.gridsize=100,
 
                        CD.nsteps=1,
+                       CD.multiplicity=1,
                        CD.nsteps.mul=2,
                        CD.min.nsteps=8,
                        CD.untethered=TRUE,
