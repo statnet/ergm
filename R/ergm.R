@@ -112,7 +112,7 @@
 #####################################################################################    
 
 ergm <- function(formula, response=NULL,
-                 reference=~Bernoulli,obs.constraints=~observed,
+                 reference=~Bernoulli,
                  constraints=~.,
                  offset.coef=NULL,
                  target.stats=NULL,
@@ -144,19 +144,8 @@ ergm <- function(formula, response=NULL,
     warning("Target statistics specified in a network with missing dyads. Missingness will be overridden.")
     nw[as.matrix(is.na(nw),matrix.type="edgelist")] <- 0
   }
-
-  # Get list of observation process constraints.
-  obs.constraints <- term.list.formula(obs.constraints[[length(obs.constraints)]])
-  
-  # If no missing edges, remove the "observed" constraint.
-  if(network.naedgecount(nw)==0){
-    obs.con.names <- sapply(obs.constraints, function(x) as.character(if(is.call(x)) x[[1]] else x))
-    obs.constraints[obs.con.names=="observed"] <- NULL
-  }
-  
-  MHproposal.obs<-append.rhs.formula(constraints, obs.constraints, TRUE)
-  
-  if(constraints==MHproposal.obs) MHproposal.obs<-NULL
+ 
+  MHproposal.obs <- if(network.naedgecount(nw)==0) NULL else append.rhs.formula(constraints, list(as.name("observed")), TRUE)
 
   ## Construct approximate response network if target.stats are given.
   
@@ -400,6 +389,8 @@ ergm <- function(formula, response=NULL,
 
               stop("Method ", control$main.method, " is not implemented.")
               )
+  
+  initialfit <- NULL
 
   initialfit <- NULL
   
