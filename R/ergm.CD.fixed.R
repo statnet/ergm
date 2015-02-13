@@ -225,12 +225,12 @@ ergm.CD.fixed <- function(init, nw, model,
       steplen.hist <- c(steplen.hist, adaptive.steplength)
     }else{
       steplen <-
-        if(!is.null(control$MCMLE.steplength.margin))
+        if(!is.null(control$CD.steplength.margin))
           .Hummel.steplength(
             if(control$MCMLE.Hummel.esteq) esteq else statsmatrix.0[,!model$etamap$offsetmap,drop=FALSE], 
             if(control$MCMLE.Hummel.esteq) esteq.obs else statsmatrix.0.obs[,!model$etamap$offsetmap,drop=FALSE],
-            control$MCMLE.steplength.margin, control$MCMLE.steplength, control$MCMLE.steplength.order)
-        else control$MCMLE.steplength
+            control$CD.steplength.margin, control$CD.steplength, control$MCMLE.steplength.order)
+        else control$CD.steplength
       
       if(verbose){cat("Calling MCMLE Optimization...\n")}
       statsmean <- apply(statsmatrix.0,2,mean)
