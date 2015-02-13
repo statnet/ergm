@@ -20,6 +20,7 @@ void CD_wrapper(int *dnumnets, int *nedges,
 		  char **sonames, 
 		  char **MHproposaltype, char **MHproposalpackage,
 		double *inputs, double *theta0, int *samplesize, int *nsteps, int *multiplicity,
+		int *drop0s,
 		  double *sample,
 		  int *fVerbose, 
 		  int *attribs, int *maxout, int *maxin, int *minout,
@@ -58,7 +59,7 @@ void CD_wrapper(int *dnumnets, int *nedges,
   double *extraworkspace = calloc(m->n_stats, sizeof(double));
 
   *status = CDSample(&MH,
-		     theta0, sample, *samplesize, *nsteps, *multiplicity, undotail, undohead,
+		     theta0, sample, *samplesize, *nsteps, *multiplicity, *drop0s, undotail, undohead,
 		     *fVerbose, nw, m, extraworkspace);
   
   free(undotail);
@@ -84,7 +85,7 @@ void CD_wrapper(int *dnumnets, int *nedges,
 *********************/
 MCMCStatus CDSample(MHproposal *MHp,
 		    double *theta, double *networkstatistics, 
-		    int samplesize, int nsteps, int multiplicity, Vertex *undotail, Vertex *undohead, int fVerbose,
+		    int samplesize, int nsteps, int multiplicity, int drop0s, Vertex *undotail, Vertex *undohead, int fVerbose,
 		    Network *nwp, Model *m, double *extraworkspace){
     
   /*********************
@@ -105,7 +106,8 @@ MCMCStatus CDSample(MHproposal *MHp,
   int staken=0;
   
   /* Now sample networks */
-  for (unsigned int i=0; i < samplesize; i++){
+  unsigned int i=0, sattempted=0;
+  while(i<samplesize){
     
     if(CDStep(MHp, theta, networkstatistics, nsteps, multiplicity, &staken, undotail, undohead,
 	      fVerbose, nwp, m, extraworkspace)!=MCMC_OK)
@@ -117,12 +119,26 @@ MCMCStatus CDSample(MHproposal *MHp,
       R_ProcessEvents();
     }
 #endif
-    networkstatistics += m->n_stats;
+    unsigned int keep=FALSE;
+    if(drop0s){
+      for(unsigned int j=0; j<m->n_stats; j++)
+	if(networkstatistics[j]){
+	  keep=TRUE;
+	  break;
+	}
+    }else keep=TRUE;
+
+    if(keep){
+      networkstatistics += m->n_stats;
+      i++;
+    }
+
+    sattempted++;
   }
 
   if (fVerbose){
     Rprintf("Sampler accepted %7.3f%% of %d proposed steps.\n",
-	    staken*100.0/(1.0*samplesize*nsteps), samplesize*nsteps); 
+	    staken*100.0/(1.0*sattempted*nsteps), sattempted*nsteps); 
   }
   
   return MCMC_OK;

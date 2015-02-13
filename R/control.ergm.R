@@ -232,6 +232,7 @@ control.ergm<-function(drop=TRUE,
                        CD.steplength=0.5,
                        CD.adaptive.trustregion=3,
                        CD.adaptive.epsilon=0.01,
+                       CD.drop0s=FALSE,
                        
                        loglik.control=control.logLik.ergm(),
 

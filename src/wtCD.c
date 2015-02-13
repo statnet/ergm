@@ -20,6 +20,7 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
 		    char **sonames, 
 		    char **MHproposaltype, char **MHproposalpackage,
 		  double *inputs, double *theta0, int *samplesize, int *nsteps, int *multiplicity,
+		  int *drop0s,
 		  double *sample,
 		    int *fVerbose, 
 		    int *status){
@@ -57,7 +58,7 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
   double *extraworkspace = calloc(m->n_stats, sizeof(double));
 
   *status = WtCDSample(&MH,
-		       theta0, sample, *samplesize, *nsteps, *multiplicity, undotail, undohead, undoweight,
+		       theta0, sample, *samplesize, *nsteps, *multiplicity,  *drop0s, undotail, undohead, undoweight,
 		       *fVerbose, nw, m, extraworkspace);
   
   free(undotail);
@@ -86,7 +87,7 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
 *********************/
 WtMCMCStatus WtCDSample(WtMHproposal *MHp,
 			  double *theta, double *networkstatistics, 
-			int samplesize, int nsteps, int multiplicity, Vertex *undotail, Vertex *undohead, double *undoweight, int fVerbose,
+			int samplesize, int nsteps, int multiplicity, int drop0s, Vertex *undotail, Vertex *undohead, double *undoweight, int fVerbose,
 			  WtNetwork *nwp, WtModel *m, double *extraworkspace){
   /*********************
   networkstatistics are modified in groups of m->n_stats, and they
@@ -106,7 +107,8 @@ WtMCMCStatus WtCDSample(WtMHproposal *MHp,
   int staken=0;
   
   /* Now sample networks */
-  for (unsigned int i=0; i < samplesize; i++){
+  unsigned int i=0, sattempted=0;
+  while(i<samplesize){
     
     if(WtCDStep(MHp, theta, networkstatistics, nsteps, multiplicity, &staken, undotail, undohead, undoweight,
 		fVerbose, nwp, m, extraworkspace)!=WtMCMC_OK)
@@ -118,12 +120,26 @@ WtMCMCStatus WtCDSample(WtMHproposal *MHp,
       R_ProcessEvents();
     }
 #endif
-    networkstatistics += m->n_stats;
+    unsigned int keep=FALSE;
+    if(drop0s){
+      for(unsigned int j=0; j<m->n_stats; j++)
+	if(networkstatistics[j]){
+	  keep=TRUE;
+	  break;
+	}
+    }else keep=TRUE;
+
+    if(keep){
+      networkstatistics += m->n_stats;
+      i++;
+    }
+
+    sattempted++;
   }
 
   if (fVerbose){
     Rprintf("Sampler accepted %7.3f%% of %d proposed steps.\n",
-	    staken*100.0/(1.0*samplesize*nsteps), samplesize*nsteps); 
+	    staken*100.0/(1.0*sattempted*nsteps), sattempted*nsteps); 
   }
   
   return WtMCMC_OK;
