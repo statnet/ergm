@@ -35,7 +35,7 @@
 #                   <ergm.san> which is the only code using this
 #                   control list.
 #   packagenames  : the names of packages in which changestatistics
-#                   are found; currently ignored as ‘ergm’ is presumed;
+#                   are found; currently ignored as 'ergm' is presumed;
 #                   default="ergm"
 #   maxchanges    : ??; default=1000000
 #   parallel      : number of threads in which to run the sampling; 
