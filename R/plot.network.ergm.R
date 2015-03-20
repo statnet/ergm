@@ -268,7 +268,7 @@
       latent <- FALSE
    }
    if(latent){
-    latent <- try(require(latentnet))
+    latent <- try(requireNamespace('latentnet'))
    }
    if(is.list(coord)){
      coord <- cbind(coord$x, coord$y)
@@ -276,7 +276,7 @@
 
    latentfit <- NULL
    if(latent){ #Place by latent space MLE
-    require(latentnet)
+    requireNamespace('latentnet')
     plotfile <- paste("gplottmp",Sys.getpid(),sep="")
     curplot <- dev.cur()
     pictex(file = plotfile)

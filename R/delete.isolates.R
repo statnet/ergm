@@ -30,7 +30,7 @@ delete.isolates<-function(x){
   if(!is.network(x))
     stop("delete.isolates requires an argument of class network.")
 
-  require(sna, quietly=TRUE, warn.conflicts=FALSE)
+  requireNamespace('sna', quietly=TRUE, warn.conflicts=FALSE)
   isolates <- (1:network.size(x))[sna::is.isolate(x)]
   if(length(isolates)>0){
     invisible(delete.vertices(x,isolates))
@@ -62,7 +62,7 @@ largest.components<-function(x, minsize=4){
   if(!is.network(x))
     stop("largest.components requires an argument of class network.")
 
-  require(sna, quietly=TRUE, warn.conflicts=FALSE)
+  requireNamespace('sna', quietly=TRUE, warn.conflicts=FALSE)
   xd <- network.copy(x)
   delete.isolates(xd)
   amat <- network(1*(tcrossprod(as.sociomatrix(xd))>0))
