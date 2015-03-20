@@ -48,7 +48,7 @@ sociality.default <- function(object,...)
 
 sociality.network <- function (object, ..., 
    statistics=NULL){
-  require(sna, quietly=TRUE, warn.conflicts=FALSE)
+  requireNamespace('sna', quietly=TRUE, warn.conflicts=FALSE)
   if(!is.directed(object)){
     gmode <- "network"
     if(is.null(statistics)){
