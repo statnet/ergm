@@ -61,6 +61,6 @@
   }else{
     sm <- statsmatrix
   }
-  novar <- apply(sm,2,var)<1e-6
+  novar <- apply(sm,2,stats::var)<.Machine$double.eps^0.5
   list(sm=sm, novar=novar)
 }

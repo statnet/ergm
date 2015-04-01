@@ -67,7 +67,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
   if(is.network(nw)) nw <- list(nw)
   nws <- rep(nw, length.out=nthreads)
   
-  Clists <- lapply(nws, ergm.Cprepare, model, response=response)
+  Clists <- lapply(nws, ergm::ergm.Cprepare, model, response=response)
 
   control.parallel <- control
   if(!is.null(control$MCMC.samplesize)) control.parallel$MCMC.samplesize <- ceiling(control$MCMC.samplesize / nthreads)
@@ -134,7 +134,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
 
       if(control.parallel$MCMC.runtime.traceplot){
         for (i in seq_along(esteq)) colnames(esteq[[i]]) <- names(list(...)$theta)
-        plot(as.mcmc.list(lapply(lapply(esteq, mcmc), window, thin=max(1,floor(nrow(esteq)/1000))))
+        plot(coda::as.mcmc.list(lapply(lapply(esteq, coda::mcmc), window, thin=max(1,floor(nrow(esteq)/1000))))
              ,ask=FALSE,smooth=TRUE,density=FALSE)
       }
 
@@ -149,13 +149,13 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
 
     for(i in seq_along(outl)){
       if(meS$burnin) outl[[i]]$s <- outl[[i]]$s[-seq_len(meS$burnin),,drop=FALSE]
-      outl[[i]]$s <- mcmc(outl[[i]]$s, (meS$burnin+1)*interval, thin=interval)
+      outl[[i]]$s <- coda::mcmc(outl[[i]]$s, (meS$burnin+1)*interval, thin=interval)
       outl[[i]]$final.interval <- interval
     }
   }else{
     outl <- doruns()
     for(i in seq_along(outl)){
-      outl[[i]]$s <- mcmc(outl[[i]]$s, control.parallel$MCMC.burnin+1, thin=control.parallel$MCMC.interval)
+      outl[[i]]$s <- coda::mcmc(outl[[i]]$s, control.parallel$MCMC.burnin+1, thin=control.parallel$MCMC.interval)
     }
     
     if(control.parallel$MCMC.runtime.traceplot){
@@ -164,7 +164,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
         else out$s[,Clists[[1]]$diagnosable,drop=FALSE]
       )
       for (i in seq_along(esteq)) colnames(esteq[[i]]) <- names(list(...)$theta)
-      plot(as.mcmc.list(lapply(lapply(esteq, mcmc), window, thin=max(1,floor(nrow(esteq)/1000))))
+      plot(coda::as.mcmc.list(lapply(lapply(esteq, coda::mcmc), window, thin=max(1,floor(nrow(esteq)/1000))))
            ,ask=FALSE,smooth=TRUE,density=FALSE)
     }
   }
@@ -337,9 +337,9 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NU
 .max.effectiveSize <- function(x, npts, base, ar.order=0){
   if(!is.list(x)) x <- list(x)
   es <- function(b){
-    if(b>0) x <- lapply(lapply(x, "[", -seq_len(b),,drop=FALSE),mcmc)
-    effSizes <- if(ar.order) .fast.effectiveSize(as.matrix(as.mcmc.list(x), ar.order=ar.order))
-                else effectiveSize(as.matrix(as.mcmc.list(x)))
+    if(b>0) x <- lapply(lapply(x, "[", -seq_len(b),,drop=FALSE),coda::mcmc)
+    effSizes <- if(ar.order) .fast.effectiveSize(as.matrix(coda::as.mcmc.list(x), ar.order=ar.order))
+                else effectiveSize(as.matrix(coda::as.mcmc.list(x)))
     mean.fn <- function(x) x^(-1)
     mean.ifn <- function(x) x^(-1)
     mean.ifn(mean(mean.fn(effSizes)))
@@ -352,14 +352,14 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NU
 }
 
 .fast.effectiveSize <- function(x, ar.order=1){
-  if (is.mcmc.list(x)){
+  if (coda::is.mcmc.list(x)){
     ess <- do.call("rbind", lapply(x, .fast.effectiveSize, ar.order=ar.order))
-    ans <- apply(ess, 2, sum)
+    ans <- apply(ess, 2, stats::sum)
   } else {
-    x <- as.mcmc(x)
+    x <- coda::as.mcmc(x)
     x <- as.matrix(x)
     spec <- .fast.spectrum0.ar(x, ar.order=ar.order)$spec
-    ans <- ifelse(spec == 0, 0, nrow(x) * apply(x, 2, var)/spec)
+    ans <- ifelse(spec == 0, 0, nrow(x) * apply(x, 2, stats::var)/spec)
     }
     return(ans)
 }
