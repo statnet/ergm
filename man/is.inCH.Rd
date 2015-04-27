@@ -59,11 +59,13 @@ is.inCH(p, M, \dots)
   in \code{M}.
 }
 \references{ 
+\itemize{
     \item \url{http://www.cs.mcgill.ca/~fukuda/soft/polyfaq/node22.html}
 
     \item Hummel, R. M., Hunter, D. R., and Handcock, M. S. (2012),
     Improving Simulation-Based Algorithms for Fitting ERGMs,
     Journal of Computational and Graphical Statistics, 21: 920-939.
+}
 }
 
 %\seealso{}
