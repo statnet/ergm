@@ -10,7 +10,6 @@
 library(statnet.common)
 opttest({
 library(ergm)
-library(Rglpk)
 
 ####Load the data (provided in the package):
 data(ecoli)

@@ -5,7 +5,7 @@ importFrom(utils, packageDescription)
 importFrom(robustbase, lmrob, covMcd)
 importFrom(trust, trust)
 importFrom(Matrix, nearPD)
-importFrom(Rglpk, Rglpk_solve_LP)
+importFrom(lpSolve, lp)
 import(statnet.common, network, coda, parallel)
 
 # Export all names that do not begin with a dot.
