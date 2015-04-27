@@ -478,7 +478,7 @@ control.ergm(drop=TRUE,
     
     \item Hummel, R. M., Hunter, D. R., and Handcock, M. S. (2012),
     Improving Simulation-Based Algorithms for Fitting ERGMs,
-    Journal of Computational and Graphical Statistics, to appear.
+    Journal of Computational and Graphical Statistics, 21: 920-939.
 
     \item Kristoffer Sahlin. Estimating convergence of Markov chain
     Monte Carlo simulations. Master's Thesis. Stockholm University, 2011. \url{http://www2.math.su.se/matstat/reports/master/2011/rep2/report.pdf}
