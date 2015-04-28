@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  http://statnet.org/attribution
 #
-#  Copyright 2003-2014 Statnet Commons
+#  Copyright 2003-2015 Statnet Commons
 #######################################################################
 InitErgmTerm.conddegmple<-function (nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.

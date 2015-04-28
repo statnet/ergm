@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  http://statnet.org/attribution
 #
-#  Copyright 2003-2013 Statnet Commons
+#  Copyright 2003-2015 Statnet Commons
 #######################################################################
 ### Tests to make sure drop=FALSE works.
 library(statnet.common)
