@@ -354,7 +354,7 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NU
 .fast.effectiveSize <- function(x, ar.order=1){
   if (coda::is.mcmc.list(x)){
     ess <- do.call("rbind", lapply(x, .fast.effectiveSize, ar.order=ar.order))
-    ans <- apply(ess, 2, stats::sum)
+    ans <- apply(ess, 2, base::sum)
   } else {
     x <- coda::as.mcmc(x)
     x <- as.matrix(x)

@@ -49,11 +49,12 @@ control.ergm(drop=TRUE,
              MCMC.packagenames=c(),            
 
              SAN.maxit=10,
+             SAN.burnin.times=10,
              SAN.control=control.san(coef=init,
                          SAN.prop.weights=MCMC.prop.weights,
                          SAN.prop.args=MCMC.prop.args,
                          SAN.init.maxedges=MCMC.init.maxedges,
-                         SAN.burnin=MCMC.burnin*10,
+                         SAN.burnin=MCMC.burnin * SAN.burnin.times,
                          SAN.interval=MCMC.interval,
                          SAN.packagenames=MCMC.packagenames,
                          MPLE.max.dyad.types=MPLE.max.dyad.types,
@@ -270,6 +271,7 @@ control.ergm(drop=TRUE,
   \code{\link{ergm}}, the maximum number of attempts to use
   \code{\link{san}} to obtain a network with statistics close to those
   specified.}  
+  \item{SAN.burnin.times}{Multiplier for \code{SAN.burnin} relative to \code{MCMC.burnin}. This lets one control the amount of SAN burn-in (arguably, the most important of SAN parameters) without overriding the other SAN.control defaults. }
   \item{SAN.control}{Control arguments to \code{\link{san}}.
     See \code{\link{control.san}} for details.
   }
