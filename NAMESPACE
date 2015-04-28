@@ -29,6 +29,9 @@ S3method(anova,ergmlist)
 
 S3method(as.network,numeric)
 S3method(as.network,uncompressed)
+S3method(as.edgelist,compressed)
+S3method(as.edgelist,matrix)
+S3method(as.edgelist,network)
 
 S3method(coef,ergm)
 S3method(coef,length.model)
