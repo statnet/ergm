@@ -124,7 +124,7 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
       if(is.null(model$terms[[length(model$terms)]]$pkgname)) model$terms[[length(model$terms)]]$pkgname <- which.package.InitFunction(v[[i]][[1]],formula.env)
     } else { # New InitErgmTerms style
       v[[i]][[2]] <- nw
-      names(v[[i]])[2] <-  ""
+      names(v[[i]])[2] <-  "" 
       v[[i]][[3]] <- args
       names(v[[i]])[3] <- ""
       dotdotdot <- c(if(!is.null(response)) list(response=response), list(role=role), list(...))
