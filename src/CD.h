@@ -11,7 +11,7 @@ void CD_wrapper(int *dnumnets, int *dnedges,
 		  int *nterms, char **funnames,
 		  char **sonames, 
 		  char **MHproposaltype, char **MHproposalpackage,
-		double *inputs, double *theta0, int *samplesize, int *nsteps, int *multiplicity,
+		double *inputs, double *theta0, int *samplesize, int *CDparams,
 		int *drop0s,
 		  double *sample, 
 		  int *fVerbose, 
@@ -20,12 +20,12 @@ void CD_wrapper(int *dnumnets, int *dnedges,
 		int *status);
 MCMCStatus CDSample(MHproposal *MHp,
 		    double *theta, double *networkstatistics, 
-		    int samplesize, int nsteps, int multiplicity, int drop0s, Vertex *undotails, Vertex *undoheads,
+		    int samplesize, int *CDparams, int drop0s, Vertex *undotails, Vertex *undoheads,
 		    int fVerbose,
 		    Network *nwp, Model *m, double *extraworkspace);
 MCMCStatus CDStep(MHproposal *MHp,
 		  double *theta, double *statistics,
-		  int nsteps, int multiplicity, int *staken, Vertex *undotail, Vertex *undohead, 
+		  int *CDparams, int *staken, Vertex *undotail, Vertex *undohead, 
 		  int fVerbose,
 		  Network *nwp, Model *m, double *extraworkspace);
 #endif

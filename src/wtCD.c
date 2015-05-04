@@ -19,7 +19,7 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
 		    int *nterms, char **funnames,
 		    char **sonames, 
 		    char **MHproposaltype, char **MHproposalpackage,
-		  double *inputs, double *theta0, int *samplesize, int *nsteps, int *multiplicity,
+		  double *inputs, double *theta0, int *samplesize, int *CDparams,
 		  int *drop0s,
 		  double *sample,
 		    int *fVerbose, 
@@ -52,13 +52,13 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
 	    *fVerbose,
 	    nw);
 
-  undotail = calloc(MH.ntoggles * *nsteps * *multiplicity, sizeof(Vertex));
-  undohead = calloc(MH.ntoggles * *nsteps * *multiplicity, sizeof(Vertex));
-  undoweight = calloc(MH.ntoggles * *nsteps * *multiplicity, sizeof(double));
+  undotail = calloc(MH.ntoggles * CDparams[0] * CDparams[1], sizeof(Vertex));
+  undohead = calloc(MH.ntoggles * CDparams[0] * CDparams[1], sizeof(Vertex));
+  undoweight = calloc(MH.ntoggles * CDparams[0] * CDparams[1], sizeof(double));
   double *extraworkspace = calloc(m->n_stats, sizeof(double));
 
   *status = WtCDSample(&MH,
-		       theta0, sample, *samplesize, *nsteps, *multiplicity,  *drop0s, undotail, undohead, undoweight,
+		       theta0, sample, *samplesize, CDparams,  *drop0s, undotail, undohead, undoweight,
 		       *fVerbose, nw, m, extraworkspace);
   
   free(undotail);
@@ -87,7 +87,7 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
 *********************/
 WtMCMCStatus WtCDSample(WtMHproposal *MHp,
 			  double *theta, double *networkstatistics, 
-			int samplesize, int nsteps, int multiplicity, int drop0s, Vertex *undotail, Vertex *undohead, double *undoweight, int fVerbose,
+			int samplesize, int *CDparams, int drop0s, Vertex *undotail, Vertex *undohead, double *undoweight, int fVerbose,
 			  WtNetwork *nwp, WtModel *m, double *extraworkspace){
   /*********************
   networkstatistics are modified in groups of m->n_stats, and they
@@ -110,7 +110,7 @@ WtMCMCStatus WtCDSample(WtMHproposal *MHp,
   unsigned int i=0, sattempted=0;
   while(i<samplesize){
     
-    if(WtCDStep(MHp, theta, networkstatistics, nsteps, multiplicity, &staken, undotail, undohead, undoweight,
+    if(WtCDStep(MHp, theta, networkstatistics, CDparams, &staken, undotail, undohead, undoweight,
 		fVerbose, nwp, m, extraworkspace)!=WtMCMC_OK)
       return WtMCMC_MH_FAILED;
     
@@ -139,7 +139,7 @@ WtMCMCStatus WtCDSample(WtMHproposal *MHp,
 
   if (fVerbose){
     Rprintf("Sampler accepted %7.3f%% of %d proposed steps.\n",
-	    staken*100.0/(1.0*sattempted*nsteps), sattempted*nsteps); 
+	    staken*100.0/(1.0*sattempted*CDparams[0]), sattempted*CDparams[0]); 
   }
   
   return WtMCMC_OK;
@@ -150,7 +150,7 @@ WtMCMCStatus WtCDSample(WtMHproposal *MHp,
 
  In this function, theta is a m->n_stats-vector just as in WtMCMCSample,
  but now networkstatistics is merely another m->n_stats-vector because
- this function merely iterates nsteps times through the Markov
+ this function merely iterates nsteps=CDparams[0] times through the Markov
  chain, keeping track of the cumulative change statistics along
  the way, then returns, leaving the updated change statistics in
  the networkstatistics vector.  In other words, this function 
@@ -158,19 +158,19 @@ WtMCMCStatus WtCDSample(WtMHproposal *MHp,
 *********************/
 WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 		       double *theta, double *networkstatistics,
-		       int nsteps, int multiplicity, int *staken, Vertex *undotail, Vertex *undohead, double *undoweight,
+		       int *CDparams, int *staken, Vertex *undotail, Vertex *undohead, double *undoweight,
 		       int fVerbose,
 		       WtNetwork *nwp,
 		       WtModel *m, double *extraworkspace) {
   
   unsigned int unsuccessful=0, ntoggled=0;
 
-  for(unsigned int step=0; step<nsteps; step++){
+  for(unsigned int step=0; step<CDparams[0]; step++){
     unsigned int mtoggled=0;
     memset(extraworkspace, 0, m->n_stats*sizeof(double));
     double cumlr = 0;
     
-    for(unsigned int mult=0; mult<multiplicity; mult++){
+    for(unsigned int mult=0; mult<CDparams[1]; mult++){
       MHp->logratio = 0;
       (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
 
@@ -216,7 +216,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 	Rprintf(")\n");
       }
 
-      if(mult<multiplicity-1){
+      if(mult<CDparams[1]-1){
 	/* Make proposed toggles provisionally. */
 	for(unsigned int i=0; i < MHp->ntoggles; i++){
 	  Vertex t=MHp->toggletail[i], h=MHp->togglehead[i];
@@ -238,7 +238,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 
       // Accumulate the log acceptance ratio.
       cumlr += MHp->logratio;
-    } // Multiplicity
+    } // mult
 
     
     if(fVerbose>=5){
@@ -269,7 +269,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
       }
       (*staken)++; 
 
-      if(step<nsteps-1){
+      if(step<CDparams[0]-1){
 	/* Make the remaining proposed toggles (which we did not make provisionally) */
 	for(unsigned int i=0; i < MHp->ntoggles; i++){
 	  Vertex t=MHp->toggletail[i], h=MHp->togglehead[i];
@@ -284,7 +284,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 	      // This could be speeded up by implementing an "incrementation" function.
 	      WtSetEdge(t, h, WtGetEdge(t, h, *nwd) + w - WtGetEdge(t, h, nwp), *nwd);
 	    }
-	  
+
 	  WtSetEdge(t, h, w, nwp);
 	}
       }
@@ -303,21 +303,23 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 	ntoggled--;
 	Vertex t = undotail[ntoggled], h = undohead[ntoggled];
 	double w = undoweight[ntoggled];
+
 	if(MHp->discord)
 	  for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){
 	    // This could be speeded up by implementing an "incrementation" function.
 	    WtSetEdge(t, h, WtGetEdge(t, h, *nwd) + w - WtGetEdge(t, h, nwp), *nwd);
 	  }
-    
+
 	WtSetEdge(t, h, w, nwp);
       }
     }
-  } // Step
+  } // step
   
   /* Undo toggles. */
   for(unsigned int i=0; i < ntoggled; i++){
     Vertex t = undotail[i], h = undohead[i];
     double w = undoweight[i];
+
     if(MHp->discord)
       for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){
 	// This could be speeded up by implementing an "incrementation" function.

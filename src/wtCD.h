@@ -10,19 +10,19 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
 		    int *nterms, char **funnames,
 		    char **sonames, 
 		    char **MHproposaltype, char **MHproposalpackage,
-		    double *inputs, double *theta0, int *samplesize, int *nsteps, int *multiplicity,
+		    double *inputs, double *theta0, int *samplesize, int *CDparams,
 		  int *drop0s,
 		    double *sample,
 		    int *fVerbose, 
 		    int *status);
 WtMCMCStatus WtCDSample(WtMHproposal *MHp,
 			double *theta, double *networkstatistics, 
-			int samplesize, int nsteps, int multiplicity, int drop0s, Vertex *undotail, Vertex *undohead, double *undoweight,
+			int samplesize, int *CDparams, int drop0s, Vertex *undotail, Vertex *undohead, double *undoweight,
 			int fVerbose,
 			WtNetwork *nwp, WtModel *m, double *extraworkspace);
 WtMCMCStatus WtCDStep(WtMHproposal *MHp,
 		      double *theta, double *statistics, 
-		      int nsteps, int multiplicity, int *staken, Vertex *undotail, Vertex *undohead, double *undoweight,
+		      int *CDparams, int *staken, Vertex *undotail, Vertex *undohead, double *undoweight,
 		      int fVerbose,
 		      WtNetwork *nwp, WtModel *m, double *extraworkspace);
 

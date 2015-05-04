@@ -19,7 +19,7 @@ void CD_wrapper(int *dnumnets, int *nedges,
 		  int *nterms, char **funnames,
 		  char **sonames, 
 		  char **MHproposaltype, char **MHproposalpackage,
-		double *inputs, double *theta0, int *samplesize, int *nsteps, int *multiplicity,
+		double *inputs, double *theta0, int *samplesize, int *CDparams,
 		int *drop0s,
 		  double *sample,
 		  int *fVerbose, 
@@ -54,12 +54,12 @@ void CD_wrapper(int *dnumnets, int *nedges,
 	  nw, attribs, maxout, maxin, minout, minin,
 	  *condAllDegExact, *attriblength);
 
-  undotail = calloc(MH.ntoggles * *nsteps * *multiplicity, sizeof(Vertex));
-  undohead = calloc(MH.ntoggles * *nsteps * *multiplicity, sizeof(Vertex));
+  undotail = calloc(MH.ntoggles * CDparams[0] * CDparams[1], sizeof(Vertex));
+  undohead = calloc(MH.ntoggles * CDparams[0] * CDparams[1], sizeof(Vertex));
   double *extraworkspace = calloc(m->n_stats, sizeof(double));
 
   *status = CDSample(&MH,
-		     theta0, sample, *samplesize, *nsteps, *multiplicity, *drop0s, undotail, undohead,
+		     theta0, sample, *samplesize, CDparams, *drop0s, undotail, undohead,
 		     *fVerbose, nw, m, extraworkspace);
   
   free(undotail);
@@ -85,7 +85,7 @@ void CD_wrapper(int *dnumnets, int *nedges,
 *********************/
 MCMCStatus CDSample(MHproposal *MHp,
 		    double *theta, double *networkstatistics, 
-		    int samplesize, int nsteps, int multiplicity, int drop0s, Vertex *undotail, Vertex *undohead, int fVerbose,
+		    int samplesize, int *CDparams, int drop0s, Vertex *undotail, Vertex *undohead, int fVerbose,
 		    Network *nwp, Model *m, double *extraworkspace){
     
   /*********************
@@ -109,7 +109,7 @@ MCMCStatus CDSample(MHproposal *MHp,
   unsigned int i=0, sattempted=0;
   while(i<samplesize){
     
-    if(CDStep(MHp, theta, networkstatistics, nsteps, multiplicity, &staken, undotail, undohead,
+    if(CDStep(MHp, theta, networkstatistics, CDparams, &staken, undotail, undohead,
 	      fVerbose, nwp, m, extraworkspace)!=MCMC_OK)
       return MCMC_MH_FAILED;
     
@@ -138,7 +138,7 @@ MCMCStatus CDSample(MHproposal *MHp,
 
   if (fVerbose){
     Rprintf("Sampler accepted %7.3f%% of %d proposed steps.\n",
-	    staken*100.0/(1.0*sattempted*nsteps), sattempted*nsteps); 
+	    staken*100.0/(1.0*sattempted*CDparams[0]), sattempted*CDparams[0]); 
   }
   
   return MCMC_OK;
@@ -149,7 +149,7 @@ MCMCStatus CDSample(MHproposal *MHp,
 
  In this function, theta is a m->n_stats-vector just as in MCMCSample,
  but now networkstatistics is merely another m->n_stats-vector because
- this function merely iterates nsteps times through the Markov
+ this function merely iterates nsteps=CDparams[0] times through the Markov
  chain, keeping track of the cumulative change statistics along
  the way, then returns, leaving the updated change statistics in
  the networkstatistics vector.  In other words, this function 
@@ -157,7 +157,7 @@ MCMCStatus CDSample(MHproposal *MHp,
 *********************/
 MCMCStatus CDStep(MHproposal *MHp,
 		  double *theta, double *networkstatistics,
-		  int nsteps, int multiplicity, int *staken,
+		  int *CDparams, int *staken,
 		  Vertex *undotail, Vertex *undohead,
 		  int fVerbose,
 		  Network *nwp,
@@ -165,12 +165,12 @@ MCMCStatus CDStep(MHproposal *MHp,
 
   unsigned int unsuccessful=0, ntoggled=0;
 
-  for(unsigned int step=0; step<nsteps; step++){
+  for(unsigned int step=0; step<CDparams[0]; step++){
     unsigned int mtoggled=0;
     memset(extraworkspace, 0, m->n_stats*sizeof(double));
     double cumlr = 0;
     
-    for(unsigned int mult=0; mult<multiplicity; mult++){
+    for(unsigned int mult=0; mult<CDparams[1]; mult++){
       MHp->logratio = 0;
       (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
 
@@ -216,7 +216,7 @@ MCMCStatus CDStep(MHproposal *MHp,
 	Rprintf(")\n");
       }
 
-      if(mult<multiplicity-1){
+      if(mult<CDparams[1]-1){
 	/* Make proposed toggles provisionally. */
 	for(unsigned int i=0; i < MHp->ntoggles; i++){
 	  undotail[ntoggled]=MHp->toggletail[i];
@@ -234,7 +234,7 @@ MCMCStatus CDStep(MHproposal *MHp,
 
       // Accumulate the log acceptance ratio.
       cumlr += MHp->logratio;
-    } // Multiplicity
+    } // mult
 
     
     if(fVerbose>=5){
@@ -265,18 +265,19 @@ MCMCStatus CDStep(MHproposal *MHp,
       }
       (*staken)++; 
 
-      if(step<nsteps-1){
+      if(step<CDparams[0]-1){
 	/* Make the remaining proposed toggles (which we did not make provisionally) */
 	for(unsigned int i=0; i < MHp->ntoggles; i++){
 	  undotail[ntoggled]=MHp->toggletail[i];
 	  undohead[ntoggled]=MHp->togglehead[i];
 	  ntoggled++;
-	  ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
 
 	  if(MHp->discord)
-	  for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
-	    ToggleEdge(MHp->toggletail[i],  MHp->togglehead[i], *nwd);
-	  }
+	    for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
+	      ToggleEdge(MHp->toggletail[i],  MHp->togglehead[i], *nwd);
+	    }
+
+	  ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
 	}
       }
 
@@ -293,25 +294,27 @@ MCMCStatus CDStep(MHproposal *MHp,
       for(unsigned int i=0; i < mtoggled; i++){
 	ntoggled--;
 	Vertex t = undotail[ntoggled], h = undohead[ntoggled];
-	ToggleEdge(t, h, nwp);
-	
+
 	if(MHp->discord)
 	  for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
 	    ToggleEdge(t, h, *nwd);
 	  }
+
+	ToggleEdge(t, h, nwp);
       }
     }
-  } // Step
+  } // step
   
   /* Undo toggles. */
   for(unsigned int i=0; i < ntoggled; i++){
     Vertex t = undotail[i], h = undohead[i];
-    ToggleEdge(t, h, nwp);
-    
+
     if(MHp->discord)
       for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
 	ToggleEdge(t, h, *nwd);
       }
+
+    ToggleEdge(t, h, nwp);
   }
   
   return MCMC_OK;
