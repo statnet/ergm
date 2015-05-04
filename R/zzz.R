@@ -29,6 +29,8 @@
   ergm.MHP.table("c", "Bernoulli", "bd",  -1/2, "TriNT", "TriNT")
   ergm.MHP.table("c", "Bernoulli", "",  -1/2, "TriNT2", "TriNT2")
   ergm.MHP.table("c", "Bernoulli", "bd",  -1/2, "TriNT2", "TriNT2")
+  ergm.MHP.table("c", "Bernoulli", "",  -1/2, "TribalancedNT", "TribalancedNT")
+  ergm.MHP.table("c", "Bernoulli", "bd",  -1/2, "TribalancedNT", "TribalancedNT")
   ergm.MHP.table("c", "Bernoulli", "degrees",  0, "random", "CondDegree")
   ergm.MHP.table("c", "Bernoulli", "degreesmix",  0, "random", "CondDegreeMix")
   ergm.MHP.table("c", "Bernoulli", "idegrees+odegrees",  0, "random", "CondDegree")

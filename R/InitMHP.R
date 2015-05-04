@@ -61,6 +61,11 @@ InitMHP.TriNT2 <- function(arguments, nw) {
   MHproposal
 }
 
+InitMHP.TribalancedNT <- function(arguments, nw) {
+  MHproposal <- list(name = "TribalancedNT", inputs=NULL)
+  MHproposal
+}
+
 InitMHP.CondDegree <- function(arguments, nw) {
   MHproposal <- list(name = "CondDegree", inputs=NULL)
   MHproposal

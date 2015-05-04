@@ -262,6 +262,133 @@ void MH_TriNT2 (MHproposal *MHp, Network *nwp)
 
 
 /********************
+   void MH_TribalancedNT
+
+   A proposal that alternates between TNT and Tribalanced.
+***********************/
+void MH_TribalancedNT(MHproposal *MHp, Network *nwp)  {  
+
+  Edge nedges=nwp->nedges;
+  const double pTNT = 0.5;
+  static Dyad ndyads;
+  const Dyad minedges = 15;
+  const Vertex minnodes = 15;
+  
+  if(MHp->ntoggles == 0) { /* Initialize TribalancedNT */
+
+    ndyads = DYADCOUNT(nwp->nnodes, nwp->bipartite, nwp->directed_flag);
+    
+    MHp->ntoggles = 0;
+    MH_TNT(MHp, nwp);
+    MHp->ntoggles = 0;
+    MH_Tribalanced(MHp, nwp);
+
+    MHp->ntoggles = 6;
+    return;
+  }
+
+  if(unif_rand() < pTNT || nwp->nnodes < minnodes || nedges < minedges || ndyads-nedges < minedges){
+    MHp->ntoggles=1;
+    MH_TNT(MHp, nwp);
+  }else{
+    MHp->ntoggles=6;
+    MH_Tribalanced(MHp, nwp);
+  }
+}
+
+
+/********************
+   void MH_Tribalanced
+
+   A triadic proposal that balances the number of edges:
+
+   1) Propose a tie and a nontie with no nodes in common.
+   2) Select either the tie or the nontie (at random); call it the focus dyad.
+   3) Select a node not incident on any of proposed ties at random.
+   4) Propose the dyads between third node and the focus's head and tail.
+   5) Count the net change in ties due to 4.
+   6) If the count is positive, propose to remove this many ties, selected at random such that they have no nodes in common with other proposed dyads.
+   7) If the count is negative, propose to add this many ties, selected at random such that they have no nodes in common with other proposed dyads.
+
+***********************/
+void MH_Tribalanced (MHproposal *MHp, Network *nwp)
+{
+  /* *** don't forget tail-> head now */
+  
+  Edge nedges=nwp->nedges;
+  static Dyad ndyads;
+  
+  if(MHp->ntoggles == 0) { /* Initialize */
+    MHp->ntoggles=6;
+    ndyads = DYADCOUNT(nwp->nnodes, nwp->bipartite, nwp->directed_flag);
+    return;
+  }
+
+  BD_LOOP({
+      Vertex used[9]; 
+      
+      GetRandEdge(Mtail, Mhead, nwp);
+      used[0] = *Mtail; used[1] = *Mhead;
+      
+      do{      
+	GetRandNonedge(Mtail+1, Mhead+1, nwp);
+      }while(Mtail[1]==used[0] || Mtail[1]==used[1] || Mhead[1]==used[0] || Mhead[1]==used[1]);
+      used[2] = Mtail[1]; used[3] = Mhead[1];
+      
+      MHp->ntoggles=2;
+
+      Vertex third;
+      do{
+      	third = 1 + unif_rand()*nwp->nnodes;
+      }while(third==used[0] || third==used[1] || third==used[2] || third==used[3]);
+      used[4] = third;
+      
+      unsigned int focus = unif_rand()*2;
+
+      unsigned int swap = unif_rand()<0.5;
+      Mtail[MHp->ntoggles] = nwp->directed_flag ? (swap ? Mtail[focus] : third) : MIN(Mtail[focus], third);
+      Mhead[MHp->ntoggles] = nwp->directed_flag ? (swap ? third : Mtail[focus]) : MAX(Mtail[focus], third);
+      MHp->ntoggles++;
+
+      swap = unif_rand()<0.5;
+      Mtail[MHp->ntoggles] = nwp->directed_flag ? (swap ? third : Mhead[focus]) : MIN(Mhead[focus], third);
+      Mhead[MHp->ntoggles] = nwp->directed_flag ? (swap ? Mhead[focus] : third) : MAX(Mhead[focus], third);
+      MHp->ntoggles++;
+
+      int bal = 0;
+      for(unsigned int i=2; i<MHp->ntoggles; i++)
+      	bal += (EdgetreeSearch(Mtail[i],Mhead[i],nwp->outedges)) ? -1 : +1;
+      
+      if(bal != 0){ // Find some edges to balance.
+      	for(unsigned int i=0; i<abs(bal); i++){
+      	  unsigned int repetition;
+      	  do{
+      	    repetition = FALSE;
+	    
+      	    if(bal > 0)
+      	      GetRandEdge(Mtail+MHp->ntoggles, Mhead+MHp->ntoggles, nwp);
+      	    else
+      	      GetRandNonedge(Mtail+MHp->ntoggles, Mhead+MHp->ntoggles, nwp);
+
+      	    for(unsigned int j=0; j<5+i*2; j++){
+      	      if(used[j]==Mtail[MHp->ntoggles] || used[j]==Mhead[MHp->ntoggles]){
+      		repetition = TRUE;
+      		break;
+      	      }
+      	    }
+      	  }while(repetition);
+	  
+      	  used[5+i*2]=Mtail[MHp->ntoggles]; used[5+i*2+1]=Mhead[MHp->ntoggles];
+      	  MHp->ntoggles++;
+      	}
+      }
+    });
+  MHp->logratio += 0;
+}
+
+
+
+/********************
    void MH_TNT10
    Attempts to do 10 TNT steps at once, but this seems flawed currently
    because it does not correctly update network quantities like nedges
