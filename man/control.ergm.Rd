@@ -5,7 +5,7 @@
 %  open source, and has the attribution requirements (GPL Section 7) at
 %  http://statnet.org/attribution
 %
-%  Copyright 2003-2014 Statnet Commons
+%  Copyright 2003-2015 Statnet Commons
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{control.ergm}
 \alias{control.ergm}
@@ -49,11 +49,12 @@ control.ergm(drop=TRUE,
              MCMC.packagenames=c(),            
 
              SAN.maxit=10,
+             SAN.burnin.times=10,
              SAN.control=control.san(coef=init,
                          SAN.prop.weights=MCMC.prop.weights,
                          SAN.prop.args=MCMC.prop.args,
                          SAN.init.maxedges=MCMC.init.maxedges,
-                         SAN.burnin=MCMC.burnin*10,
+                         SAN.burnin=MCMC.burnin * SAN.burnin.times,
                          SAN.interval=MCMC.interval,
                          SAN.packagenames=MCMC.packagenames,
                          MPLE.max.dyad.types=MPLE.max.dyad.types,
@@ -270,6 +271,7 @@ control.ergm(drop=TRUE,
   \code{\link{ergm}}, the maximum number of attempts to use
   \code{\link{san}} to obtain a network with statistics close to those
   specified.}  
+  \item{SAN.burnin.times}{Multiplier for \code{SAN.burnin} relative to \code{MCMC.burnin}. This lets one control the amount of SAN burn-in (arguably, the most important of SAN parameters) without overriding the other SAN.control defaults. }
   \item{SAN.control}{Control arguments to \code{\link{san}}.
     See \code{\link{control.san}} for details.
   }
@@ -478,7 +480,7 @@ control.ergm(drop=TRUE,
     
     \item Hummel, R. M., Hunter, D. R., and Handcock, M. S. (2012),
     Improving Simulation-Based Algorithms for Fitting ERGMs,
-    Journal of Computational and Graphical Statistics, to appear.
+    Journal of Computational and Graphical Statistics, 21: 920-939.
 
     \item Kristoffer Sahlin. Estimating convergence of Markov chain
     Monte Carlo simulations. Master's Thesis. Stockholm University, 2011. \url{http://www2.math.su.se/matstat/reports/master/2011/rep2/report.pdf}

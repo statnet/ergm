@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  http://statnet.org/attribution
 #
-#  Copyright 2003-2014 Statnet Commons
+#  Copyright 2003-2015 Statnet Commons
 #######################################################################
 #============================================================================
 # This file contains the following 4 functions for checking ergm arguments
@@ -184,11 +184,11 @@ ergm.checkdirected <- function(fname, nw.directedflag, requirement,
 
 ergm.checkdegeneracy <- function(statsmatrix, statsmatrix.obs=NULL, verbose=FALSE) {
  degen <- FALSE
- novar <- apply(statsmatrix,2,var)<1e-6
+ novar <- apply(statsmatrix,2,stats::var)<.Machine$double.eps^0.5
  if(all(novar)){
   if(verbose){
     warning("All the MCMC sample statistics are the same.\n", call.=FALSE)
-    print(apply(statsmatrix,2,summary.statsmatrix.ergm),scipen=6)
+    print(apply(statsmatrix,2,ergm::summary.statsmatrix.ergm),scipen=6)
   }
   degen <- TRUE
  }

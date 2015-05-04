@@ -12,3 +12,14 @@ terms<-unlist(terms,recursive=FALSE)
 ergm:::.checkTermDocs(terms)
 
 # crude checks for search.ergmTerms are in the search.ergmTerms man page
+
+# expect to find at least eight terms mentioning triangles
+found<-search.ergmTerms('triangle')
+if(length(found)<8){
+  stop(' search.ergmTerms unexpectly found less than 8 terms mentioning triangles')
+}
+
+found<-search.ergmTerms(categories = 'bipartite')
+if(length(found)<20){
+  stop(' search.ergmTerms unexpectly found less than 20 terms with the category "bipartite"')
+}

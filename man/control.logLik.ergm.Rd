@@ -5,7 +5,7 @@
 %  open source, and has the attribution requirements (GPL Section 7) at
 %  http://statnet.org/attribution
 %
-%  Copyright 2003-2014 Statnet Commons
+%  Copyright 2003-2015 Statnet Commons
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{control.logLik.ergm}
 \alias{control.logLik.ergm}
@@ -30,7 +30,10 @@ control.logLik.ergm(nsteps=20,
                     MCMC.init.maxedges=NULL,
                     MCMC.packagenames=NULL,
 
-                    seed=NULL)
+                    seed=NULL,
+                    parallel = NULL, 
+                    parallel.type = NULL,
+                    parallel.version.check = TRUE)
 }
 \details{
     This function is only used within a call to the \code{\link{logLik.ergm}} function.
@@ -79,6 +82,20 @@ control.logLik.ergm(nsteps=20,
   }
   \item{seed}{Seed value (integer) for the random number generator.  
     See \code{\link[base]{set.seed}}
+  }
+  \item{parallel}{Number of threads in which to run the
+    sampling. Defaults to 0 (no parallelism). See the entry on
+    \link[=ergm-parallel]{parallel processing} for
+    details and troubleshooting.
+  }
+  \item{parallel.type}{API to use for parallel
+    processing. Supported values are \code{"MPI"} and
+    \code{"PSOCK"}. Defaults to using the \code{parallel} package with PSOCK clusters. See
+    \code{\link{ergm-parallel}}
+  }
+  \item{parallel.version.check}{Logical:  If TRUE, check that the version of
+    \code{\link[=ergm-package]{ergm}} running on the slave nodes is the
+    same as that running on the master node.
   }
 }
 \value{

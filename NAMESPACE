@@ -5,8 +5,107 @@ importFrom(utils, packageDescription)
 importFrom(robustbase, lmrob, covMcd)
 importFrom(trust, trust)
 importFrom(Matrix, nearPD)
-importFrom(Rglpk, Rglpk_solve_LP)
+importFrom(lpSolve, lp)
 import(statnet.common, network, coda, parallel)
+importFrom(stats,simulate)
 
 # Export all names that do not begin with a dot.
 exportPattern("^[^\\.]")
+
+# register S3 methods so they will be visable when
+# namespace is attached but package not loaded
+
+S3method(MHproposal,MHproposal) 
+S3method(MHproposal,NULL) 
+S3method(MHproposal,character)
+S3method(MHproposal,ergm)
+S3method(MHproposal,formula)
+
+S3method(anova,ergm)
+S3method(anova,ergmlist)
+#as.edgelist.compressed 
+#as.edgelist.matrix 
+#as.edgelist.network
+
+S3method(as.network,numeric)
+S3method(as.network,uncompressed)
+S3method(as.edgelist,compressed)
+S3method(as.edgelist,matrix)
+S3method(as.edgelist,network)
+
+S3method(coef,ergm)
+S3method(coef,length.model)
+S3method(coef,sublength.model)
+S3method(enformulate.curved,ergm)
+S3method(enformulate.curved,formula)
+
+S3method(ergm.stopCluster,MPIcluster)
+S3method(ergm.stopCluster,default) 
+
+S3method(fix.curved,ergm)
+S3method(fix.curved,formula)
+
+S3method(gof,default) 
+S3method(gof,ergm)
+S3method(gof,formula)
+
+S3method(is.durational,NULL)
+S3method(is.durational,character)
+S3method(is.durational,ergm.model)
+S3method(is.durational,formula)
+
+S3method(is.dyad.independent,NULL)
+S3method(is.dyad.independent,conlist) 
+S3method(is.dyad.independent,ergm)
+S3method(is.dyad.independent,ergm.model)
+S3method(is.dyad.independent,formula)
+
+S3method(logLik,ergm)
+S3method(logLikNull,ergm)
+
+S3method(mcmc.diagnostics,default)
+S3method(mcmc.diagnostics,ergm)
+
+S3method(model.matrix,pen.glm)
+
+S3method(mvmodel,default)
+S3method(mvmodel,ergm)
+S3method(mvmodel,formula)
+
+S3method(plot,ergm)
+S3method(plot,gofobject)
+S3method(plot,mcmc.list.ergm)
+S3method(plot,network.ergm)
+
+S3method(print,ergm)
+S3method(print,gofobject)
+S3method(print,network.list)
+S3method(print,summary.ergm)
+
+S3method(san,default)
+S3method(san,ergm)
+S3method(san,formula)
+
+S3method(simulate,ergm)
+S3method(simulate,formula)
+
+# why does sociality have S3 forms but other terms don't?
+S3method(sociality,default)
+S3method(sociality,ergm)
+S3method(sociality,formula)
+S3method(sociality,network)
+
+S3method(summary,ergm)
+S3method(summary,formula)
+S3method(summary,gofobject)
+S3method(summary,network.list)
+S3method(summary,statistics)
+S3method(summary,statistics.default)
+S3method(summary,statistics.ergm)
+S3method(summary,statistics.formula)
+S3method(summary,statistics.matrix)
+S3method(summary,statistics.network)
+S3method(summary,statistics.network.list)
+S3method(summary,statsmatrix.ergm)
+         
+S3method(vcov,ergm)

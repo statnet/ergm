@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  http://statnet.org/attribution
 #
-#  Copyright 2003-2014 Statnet Commons
+#  Copyright 2003-2015 Statnet Commons
 #######################################################################
 #==================================================================
 # This file contains the 5 following functions for ??
@@ -48,7 +48,7 @@ sociality.default <- function(object,...)
 
 sociality.network <- function (object, ..., 
    statistics=NULL){
-  require(sna, quietly=TRUE, warn.conflicts=FALSE)
+  requireNamespace('sna', quietly=TRUE, warn.conflicts=FALSE)
   if(!is.directed(object)){
     gmode <- "network"
     if(is.null(statistics)){

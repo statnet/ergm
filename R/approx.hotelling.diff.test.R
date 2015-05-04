@@ -31,9 +31,9 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=NULL, assume.indep=FALSE, var
     }else{
       vcovs <- lapply(lapply(v, .ergm.mvar.spec0), function(m) matrix(ifelse(is.na(c(m)), 0, c(m)),nrow(m),ncol(m)))
     }
-    ms <- lapply(v, colMeans)
+    ms <- lapply(v, base::colMeans)
     m <- colMeans(as.matrix(v))
-    ns <- sapply(v,nrow)
+    ns <- sapply(v,base::nrow)
     n <- sum(ns)
 
     # These are pooled estimates of the variance-covariance
@@ -180,20 +180,20 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=NULL, assume.indep=FALSE, var
     p <- ncol(x)
 
     v <- matrix(NA,p,p)
-    novar <- apply(x,2,sd)==0 # FIXME: Add tolerance?
+    novar <- abs(apply(x,2,stats::sd))<.Machine$double.eps^0.5
     x <- x[,!novar,drop=FALSE]
 
     if(ncol(x)){
       arfit <- try(ar(x,aic=is.null(order.max), order.max=order.max, ...),silent=TRUE)
       if(inherits(arfit,"try-error")){
         warning("Excessive correlation among the statistics. Using a no-crosscorrelation approximation.")
-        arfits <- apply(x, 2, ar, aic=is.null(order.max), order.max=order.max, ..., simplify=FALSE)
+        arfits <- apply(x, 2, stats::ar, aic=is.null(order.max), order.max=order.max, ..., simplify=FALSE)
         arvar <- diag(sapply(arfits, "[[", "var.pred"), nrow=ncol(x))
         arcoefs <- diag(sapply(lapply(arfits, "[[", "ar"), sum), nrow=ncol(x))
       }else{
         arvar <- arfit$var.pred
         arcoefs <- arfit$ar
-        arcoefs <- if(is.null(dim(arcoefs))) sum(arcoefs) else apply(arcoefs,2:3,sum)
+        arcoefs <- if(is.null(dim(arcoefs))) sum(arcoefs) else apply(arcoefs,2:3,base::sum)
       }
 
       adj <- diag(1,nrow=p-sum(novar)) - arcoefs

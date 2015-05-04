@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  http://statnet.org/attribution
 #
-#  Copyright 2003-2014 Statnet Commons
+#  Copyright 2003-2015 Statnet Commons
 #######################################################################
 #####################################################################
 # The <ergm.curved.statsmatrix> maps the stats matrix to its reduced
@@ -61,6 +61,6 @@
   }else{
     sm <- statsmatrix
   }
-  novar <- apply(sm,2,var)<1e-6
+  novar <- apply(sm,2,stats::var)<.Machine$double.eps^0.5
   list(sm=sm, novar=novar)
 }
