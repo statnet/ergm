@@ -193,7 +193,7 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=NULL, assume.indep=FALSE, var
       }else{
         arvar <- arfit$var.pred
         arcoefs <- arfit$ar
-        arcoefs <- if(is.null(dim(arcoefs))) sum(arcoefs) else apply(arcoefs,2:3,.Primitive("sum"))
+        arcoefs <- if(is.null(dim(arcoefs))) sum(arcoefs) else apply(arcoefs,2:3,base::sum)
       }
 
       adj <- diag(1,nrow=p-sum(novar)) - arcoefs
