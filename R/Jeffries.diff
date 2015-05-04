@@ -1,0 +1,59 @@
+Index: R/ergm.estimate.R
+===================================================================
+--- R/ergm.estimate.R	(revision 13707)
++++ R/ergm.estimate.R	(working copy)
+@@ -158,6 +158,7 @@
+                               logtaylor=llik.fun.obs,
+                               Median.Likelihood=llik.fun.obs,
+                               EF.Likelihood=llik.fun.obs,
++                              Jeffreys=llik.fun.Jeffreys,
+                               llik.fun.obs.robust)
+     gradientfn <- switch(metric,
+                          Likelihood=llik.grad.obs,
+Index: R/ergm.llik.R
+===================================================================
+--- R/ergm.llik.R	(revision 13707)
++++ R/ergm.llik.R	(working copy)
+@@ -591,3 +591,42 @@
+     x[x > xtop] <- xtop
+     return(x)
+ }
++
++
++#####################################################################################
++# --RETURNED--
++#   llr: the penalised log-likelihood ratio of l(eta)+1/2*det(I(eta))
++#   - l(eta0) using the naive algorithm
++#####################################################################################
++
++llik.fun.Jeffreys <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL, 
++                     varweight=0.5, trustregion=20,
++                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
++                     eta0, etamap){
++  theta.offset <- etamap$init
++  theta.offset[!etamap$offsettheta] <- theta
++  eta <- ergm.eta(theta.offset, etamap)
++  etaparam <- eta-eta0
++  basepred <- xsim %*% etaparam
++  maxbase <- max(basepred)
++  llr <- sum(xobs * etaparam) - maxbase - log(sum(probs*exp(basepred-maxbase)))
++
++  H <- llik.hessian(theta, xobs, xsim, probs, xsim.obs, probs.obs,
++                     varweight, trustregion, 
++                     dampening,dampening.min.ess, dampening.level,
++                     eta0, etamap)
++
++  ## H0 <- llik.hessian(theta0, xobs, xsim, probs, xsim.obs, probs.obs,
++  ##                   varweight, trustregion, 
++  ##                   dampening,dampening.min.ess, dampening.level,
++  ##                   eta0, etamap)
++
++  llr + 0.5*determinant(H,logarithm=TRUE)$modulus
++}
++
++#####################################################################################
++# --RETURNED--
++#   llg: the gradient of the not-offset eta parameters with ??
++#####################################################################################
++
++llik.grad.Jeffreys <- NULL
