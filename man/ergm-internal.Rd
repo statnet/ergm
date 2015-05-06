@@ -41,7 +41,6 @@
 \alias{coef.length.model}
 \alias{coef.sublength.model}
 \alias{colMeans.mcmc.list}
-\alias{compress.data.frame}
 \alias{control.ergm.toplevel}
 \alias{control.simulate.ergm.toplevel}
 \alias{copy.named}
@@ -155,7 +154,6 @@
 \alias{nologLik.message}
 \alias{nvattr.copy.network}
 \alias{ostar2deg}
-\alias{paste.and}
 \alias{plot.mcmc.list.ergm}
 \alias{robust.inverse}
 \alias{rspartnerdist}
@@ -164,7 +162,6 @@
 \alias{sociality.ergm}
 \alias{sociality.formula}
 \alias{sociality.network}
-\alias{sort.data.frame}
 \alias{summary.statsmatrix.ergm}
 \alias{sweep.mcmc.list}
 \alias{term.list.formula}
@@ -172,10 +169,6 @@
 \alias{updatemodel.ErgmTerm}
 \alias{vector.namesmatch}
 \alias{xyplot.mcmc.list.ergm}
-
-\alias{print.control.list}
-\alias{set.control.class}
-\alias{check.control.class}
 
 \alias{prune.conlist}
 \alias{standardize.network}
