@@ -14,10 +14,7 @@
 \alias{InitErgmTerm.conddegmple}
 \alias{InitErgmTerm.indices}
 \alias{as.edgelist.network}
-\alias{ergm.ConstraintImplications}
 \alias{ergm.MCMC.packagenames}
-\alias{ergm.MHP.table}
-\alias{ergm.init.methods}
 \alias{which.package.InitFunction}
 
 \alias{InitMHP.HammingConstantEdges}
