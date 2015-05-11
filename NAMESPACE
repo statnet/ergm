@@ -22,7 +22,7 @@ export(
   as.edgelist.network,             
   as.network.numeric,
   as.network.uncompressed,         
-  central.network,
+  #central.network, proposed to delete
   check.ErgmTerm,                  
   coef.ergm,
   coefficients.ergm,               
@@ -31,30 +31,30 @@ export(
   colMeans.mcmc.list,
   control.ergm,                    
   control.ergm.bridge,
-  control.ergm.toplevel,           
+  # control.ergm.toplevel,      proposed to make internal    
   control.gof.ergm,
   control.gof.formula,             
   control.logLik.ergm,
   control.san,                     
   control.simulate,
   control.simulate.ergm,           
-  control.simulate.ergm.toplevel,
+  # control.simulate.ergm.toplevel,  proposed to make internal
   control.simulate.formula,        
   control.simulate.formula.ergm,
-  copy.named,                      
+  # copy.named,   propsed delete                   
   degreedist,
   degreedistfactor,                
-  delete.isolates,
+  # delete.isolates,
   drawcircle,                      
   drawpie,
-  dspartnerdist,                   
+  # dspartnerdist,            proposed to make internal       
   enformulate.curved,
   enformulate.curved.ergm,         
   enformulate.curved.formula,
   ergm,                            
   ergm.allstats,
   ergm.bounddeg,                   
-  ergm.bridge.0.llk,
+  #ergm.bridge.0.llk,  proposed to make internal
   ergm.bridge.dindstart.llk,       
   ergm.bridge.llr,
   ergm.bridge.preproc,             
@@ -64,13 +64,13 @@ export(
   ergm.checkdegeneracy,            
   ergm.checkdirected,
   ergm.checkextreme.model,         
-  ergm.coefficient.degeneracy,
-  ergm.compute.degeneracy,         
+  # ergm.coefficient.degeneracy, proposed to make internal
+  # ergm.compute.degeneracy,         proposed to make internal
   ergm.ConstraintImplications,
   ergm.Cprepare,                   
   ergm.Cprepare.el,
-  ergm.Cprepare.miss,              
-  ergm.curved.statsmatrix,
+  # ergm.Cprepare.miss,         proposed to make internal     
+  # ergm.curved.statsmatrix,    proposed to make internal
   ergm.degeneracy,                 
   ergm.design,
   ergm.el.lasttoggle,              
@@ -98,7 +98,7 @@ export(
   ergm.mahalanobis,                
   ergm.mapl,
   ergm.maple,                      
-  ergm.MCMC.packagenames,
+  # ergm.MCMC.packagenames, proposed to make internal
   ergm.MCMCse,                     
   ergm.MCMCse.lognormal,
   ergm.mcmcslave,                  
@@ -110,27 +110,27 @@ export(
   ergm.nodegeodesics,              
   ergm.pairgeodesic,
   ergm.pen.glm,                    
-  ergm.phase12,
+  # ergm.phase12, proposed to make internal
   ergm.pl,                         
-  ergm.reviseinit,
-  ergm.rhs.formula,                
-  ergm.robmon,
-  ergm.sample.eta2theta,           
-  ergm.sample.tomcmc,
-  ergm.stepping,                   
-  ergm.stocapprox,
+  # ergm.reviseinit, proposed to make internal
+  # ergm.rhs.formula,      proposed to make internal          
+  # ergm.robmon, proposed to make internal
+  # ergm.sample.eta2theta,      proposed to make internal     
+  # ergm.sample.tomcmc,  proposed to make internal
+  # ergm.stepping,       proposed to make internal             
+  # ergm.stocapprox, proposed to make internal
   ergm.stopCluster,                
   ergm.stopCluster.default,
   ergm.stopCluster.MPIcluster,     
-  ergm.sufftoprob,
-  ergm.t.summary,                  
+  # ergm.sufftoprob,  proposed to make internal
+  # ergm.t.summary,              proposed to make internal     
   ergm.update.formula,
-  espartnerdist,                   
+  # espartnerdist,              proposed to make internal      
   fix.curved,
   fix.curved.ergm,                 
   fix.curved.formula,
   get.free.dyads,                  
-  get.InitErgm.fname,
+  # get.InitErgm.fname,  proposed to make internal
   get.miss.dyads,                  
   get.node.attr,
   gof,                             
@@ -323,27 +323,27 @@ export(
   is.dyad.independent.NULL,
   is.ergm,                         
   is.inCH,
-  is.invertible,                   
-  largest.components,
-  llik.fun,                        
-  llik.fun2,
-  llik.fun3,                       
-  llik.fun.EF,
-  llik.fun.logtaylor,              
-  llik.fun.median,
-  llik.fun.obs,                    
-  llik.fun.obs.robust,
-  llik.grad,                       
-  llik.grad2,
-  llik.grad3,                      
-  llik.grad.obs,
-  llik.hessian,                    
-  llik.hessian2,
-  llik.hessian.naive,              
-  llik.hessian.obs,
-  llik.info3,                      
-  llik.mcmcvar3,
-  logistftest,                     
+  # is.invertible,                proposed to make internal   
+  # largest.components,      proposed to make internal 
+  #llik.fun,                        
+  #llik.fun2,
+  #llik.fun3,                       
+  #llik.fun.EF,
+  #llik.fun.logtaylor,              
+  #llik.fun.median,
+  #llik.fun.obs,                    
+  #llik.fun.obs.robust,
+  #llik.grad,                       
+  #llik.grad2,
+  #llik.grad3,                      
+  #llik.grad.obs,
+  #llik.hessian,                    
+  #llik.hessian2,
+  #llik.hessian.naive,              
+  #llik.hessian.obs,
+  #llik.info3,                      
+  #llik.mcmcvar3,
+  #logistftest,      proposed to make internal                   
   logLik.ergm,
   logLikNull,                      
   logLikNull.ergm,
@@ -356,22 +356,22 @@ export(
   MHproposal.formula,              
   MHproposal.MHproposal,
   MHproposal.NULL,                 
-  midarrow,
-  mk.conlist,                      
-  mk.edge.to.pos.lasttoggle.f,
-  model.matrix.pen.glm,            
-  model.transform.formula,
+  #midarrow,  proposed delete
+  #mk.conlist,         proposed to make internal                 
+  #mk.edge.to.pos.lasttoggle.f,   proposed to make internal 
+  # model.matrix.pen.glm,               proposed to make internal 
+  # model.transform.formula,   proposed to make internal 
   mvmodel,                         
   mvmodel.default,
   mvmodel.ergm,                    
   mvmodel.formula,
-  myLibLoc,                        
+  #myLibLoc,                           proposed to make internal 
   network.update,
   newnw.extract,                   
-  nologLik.message,
+  #nologLik.message,     proposed to make internal 
   nvattr.copy.network,             
   offset.info.formula,
-  ostar2deg,                       
+  # ostar2deg,             proposed to make internal          
   plot.ergm,
   plot.gofobject,                  
   plot.mcmc.list.ergm,
@@ -383,7 +383,7 @@ export(
   prune.conlist,
   remove.offset.formula,           
   robust.inverse,
-  rspartnerdist,                   
+  # rspartnerdist,                   proposed to make internal    
   san,
   san.default,                     
   san.ergm,
@@ -392,11 +392,11 @@ export(
   set.offset.formula,              
   simulate.ergm,
   simulate.formula,                
-  sociality,
-  sociality.default,               
-  sociality.ergm,
-  sociality.formula,               
-  sociality.network,
+  #sociality,     proposed to make internal 
+  #sociality.default,               
+  #sociality.ergm,
+  #sociality.formula,               
+  #sociality.network,
   standardize.network,             
   summary.ergm,
   summary.formula,                 
@@ -414,14 +414,14 @@ export(
   term.list.formula,               
   to.lasttoggle.matrix,
   to.matrix.lasttoggle,            
-  twopathdist,
+  # twopathdist,     proposed to make internal 
   unset.offset.formula,            
-  updatemodel.ErgmTerm,
+  # updatemodel.ErgmTerm,    proposed to make internal 
   vcov.ergm,                       
   vector.namesmatch,
-  which.package.InitFunction,      
-  wtd.median,
-  xyplot.mcmc.list.ergm
+  # which.package.InitFunction, proposed to make internal
+  wtd.median
+  # xyplot.mcmc.list.ergm    proposed to make internal 
 )
 
 # register S3 methods so they will be visable when

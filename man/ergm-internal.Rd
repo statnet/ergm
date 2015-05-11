@@ -98,7 +98,6 @@
 \alias{ergm.pen.glm}
 \alias{ergm.phase12}
 \alias{ergm.pl}
-\alias{ergm.plinfo}
 \alias{ergm.reviseinit}
 \alias{ergm.rhs.formula}
 \alias{ergm.robmon}
