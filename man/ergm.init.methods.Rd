@@ -11,7 +11,7 @@
 \alias{ergm.init.methods}
 \title{Set up the initial fitting methods for reference measure}
 \description{
-  This function set up the available initial fitting methods 
+  This is a low-level function not intended to be called directly by end users. This function sets up the available initial fitting methods 
     for each reference measure. (It is defined in the scope of local environment)  
 }
 \usage{

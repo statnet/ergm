@@ -13,6 +13,11 @@
 \alias{ergm.parallel}
 \alias{parallel.ergm}
 \alias{parallel-ergm}
+\alias{ergm.stopCluster}
+\alias{ergm.stopCluster.MPIcluster}
+\alias{ergm.stopCluster.default}
+\alias{ergm.getCluster}
+\alias{ergm.MPIcluster.started}
 
 \docType{methods}
 \title{Parallel Processing in the \code{\link[=ergm-package]{ergm}} Package}

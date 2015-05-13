@@ -246,6 +246,8 @@
 \alias{InitWtErgmTerm.sum}
 \alias{InitWtErgmTerm.transitiveties}
 \alias{InitWtErgmTerm.transitiveweights}
+\alias{InitErgmTerm.conddegmple}
+\alias{InitErgmTerm.indices}
 \docType{methods}
 \title{Terms used in Exponential Family Random Graph Models}
 \description{

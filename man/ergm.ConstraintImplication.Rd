@@ -11,7 +11,7 @@
 \alias{ergm.ConstraintImplications}
 \title{Set up the implied constraints from the current constraint}
 \description{
-  This function set up the implied constraints from the current
+  This is a low-level function not intended to be called directly by end users. For information on constraints, see the \code{\link{ergm-constraints}} page.  This function set up the implied constraints from the current
   constraint. (It is defined in the scope of local environment)  
 }
 \usage{
