@@ -2,6 +2,7 @@
 \alias{ergm.Cprepare}
 \alias{ergm.Cprepare.el}
 \alias{ergm.Cprepare.miss}
+\alias{ergm.design}
 
 \title{
 Internal Function to Prepare Data for ergm's C Interface 

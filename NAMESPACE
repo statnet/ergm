@@ -45,8 +45,8 @@ export(
   degreedist,
   # degreedistfactor,                
   # delete.isolates,
-  drawcircle,                      
-  drawpie,
+  # drawcircle,                      
+  drawpie,     # deprecated in favor of ergmm.drawpie in latentnet
   # dspartnerdist,            proposed to make internal       
   enformulate.curved,
   enformulate.curved.ergm,         
@@ -54,27 +54,27 @@ export(
   ergm,                            
   ergm.allstats,
   ergm.bounddeg,                   
-  #ergm.bridge.0.llk,  proposed to make internal
+  ergm.bridge.0.llk,  
   ergm.bridge.dindstart.llk,       
   ergm.bridge.llr,
   ergm.bridge.preproc,             
   ergm.checkargs,
-  ergm.checkbipartite,             
-  ergm.checkconstraints.model,
-  ergm.checkdegeneracy,            
+  # ergm.checkbipartite,             
+  # ergm.checkconstraints.model,
+  # ergm.checkdegeneracy,            
   ergm.checkdirected,
-  ergm.checkextreme.model,         
+  # ergm.checkextreme.model,         
   # ergm.coefficient.degeneracy, proposed to make internal
   # ergm.compute.degeneracy,         proposed to make internal
   ergm.ConstraintImplications,
   ergm.Cprepare,                   
   ergm.Cprepare.el,
-  # ergm.Cprepare.miss,         proposed to make internal     
+  ergm.Cprepare.miss,       
   # ergm.curved.statsmatrix,    proposed to make internal
   ergm.degeneracy,                 
   ergm.design,
   ergm.el.lasttoggle,              
-  ergm.estimate,
+  #ergm.estimate,    proposed to make internal
   ergm.eta,                        
   ergm.etagrad,
   ergm.etagradmult,                
@@ -96,15 +96,15 @@ export(
   ergm.logisticdeviance,           
   ergm.logitreg,
   ergm.mahalanobis,                
-  ergm.mapl,
-  ergm.maple,                      
+  #ergm.mapl,
+  #ergm.maple,                      
   # ergm.MCMC.packagenames, proposed to make internal
-  ergm.MCMCse,                     
+  #ergm.MCMCse,            proposed to make internal           
   ergm.MCMCse.lognormal,
   ergm.mcmcslave,                  
   ergm.MCMLE,
   ergm.MHP.table,                  
-  ergm.MPIcluster.started,
+  #ergm.MPIcluster.started,
   ergm.mple,                       
   ergmMPLE,
   ergm.nodegeodesics,              
@@ -120,8 +120,8 @@ export(
   # ergm.stepping,       proposed to make internal             
   # ergm.stocapprox, proposed to make internal
   ergm.stopCluster,                
-  ergm.stopCluster.default,
-  ergm.stopCluster.MPIcluster,     
+  #ergm.stopCluster.default,
+  #ergm.stopCluster.MPIcluster,     
   # ergm.sufftoprob,  proposed to make internal
   # ergm.t.summary,              proposed to make internal     
   ergm.update.formula,
@@ -323,7 +323,7 @@ export(
   is.dyad.independent.NULL,
   is.ergm,                         
   is.inCH,
-  # is.invertible,                proposed to make internal   
+  # is.invertible,                proposed to delete   
   # largest.components,      proposed to make internal 
   #llik.fun,                        
   #llik.fun2,
@@ -423,6 +423,8 @@ export(
   wtd.median
   # xyplot.mcmc.list.ergm    proposed to make internal 
 )
+
+
 
 # register S3 methods so they will be visable when
 # namespace is attached but package not loaded

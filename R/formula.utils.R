@@ -92,12 +92,6 @@ term.list.formula<-function(rhs, sign=+1){
 }
 
 
-copy.named<-function(x){
-  y<-list()
-  for(name in names(x)) y[[name]]<-x[[name]]
-  y
-}
-
 
 model.transform.formula <- function(object, theta, response=NULL, recipes, ...){
   ## Recipe syntax:

@@ -42,20 +42,15 @@
 \alias{ergm.MCMLE}
 
 \alias{ergm.bounddeg}
-\alias{ergm.bridge.0.llk}
+
 \alias{ergm.bridge.hammingstart.llk}
 \alias{ergm.bridge.preproc}
-\alias{ergm.checkargs}
-\alias{ergm.checkbipartite}
-\alias{ergm.checkconstraints.model}
-\alias{ergm.checkdegeneracy}
-\alias{ergm.checkdirected}
-\alias{ergm.checkextreme.model}
+
 \alias{ergm.coefficient.degeneracy}
 \alias{ergm.compute.degeneracy}
 \alias{ergm.curved.statsmatrix}
 \alias{ergm.degeneracy}
-\alias{ergm.design}
+
 \alias{ergm.estimate}
 \alias{ergm.eta}
 \alias{ergm.etagrad}
