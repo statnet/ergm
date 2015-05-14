@@ -71,7 +71,7 @@ control.ergm(drop=TRUE,
              obs.MCMC.interval=MCMC.interval,
              obs.MCMC.burnin=MCMC.burnin,
              obs.MCMC.burnin.min=obs.MCMC.burnin/10,
-             MCMC.prop.weights=obs.MCMC.prop.weights, MCMC.prop.args=obs.MCMC.prop.args,
+             obs.MCMC.prop.weights=MCMC.prop.weights, obs.MCMC.prop.args=MCMC.prop.args,
 
              MCMLE.check.degeneracy=FALSE,
              MCMLE.MCMC.precision=0.005,
