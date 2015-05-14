@@ -81,3 +81,18 @@ InitMHP.blockdiagNonObserved <- function(arguments, nw){
   MHproposal <- list(name = "randomtoggleList", inputs=ergm.Cprepare.el(el))
   MHproposal
 }
+
+InitMHP.blockdiagNonObservedTNT <- function(arguments, nw){
+  if(is.bipartite(nw)) stop("Block-diagonal sampling is not implemented for bipartite networks at this time.")
+  # rle() returns contigous runs of values.
+  a <- nw %v% arguments$constraints$blockdiag$attrname
+  # If we have more runs than unique values, the blocks must not be all contiguous.
+  if(length(rle(a)$lengths)!=length(unique(rle(a)$values))) stop("Current implementation of block-diagonal sampling requires that the blocks be contiguous.")
+
+  el <- as.edgelist(is.na(nw))
+
+  el <- el[a[el[,1]]==a[el[,2]],,drop=FALSE]
+  
+  MHproposal <- list(name = "listTNT", inputs=ergm.Cprepare.el(el))
+  MHproposal
+}

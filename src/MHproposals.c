@@ -511,6 +511,76 @@ void MH_randomtoggleList (MHproposal *MHp, Network *nwp)
     });
 }
 
+
+/********************
+   void MH_listTNT
+   Propose ONLY edges on a static list
+   Use TNT weights.
+   This is a fusion of MH_DissolutionMLETNT and MH_TNT:
+
+   A "discord" network is constructed that is the intersection of
+   dyads on the static list and the edges present in nwp. Then,
+   standard TNT procedure is followed, but the dyad space (and the
+   number of dyads) is the number of dyads in the static list and the
+   network for the ties is the ties in the discord network.
+***********************/
+void MH_listTNT (MHproposal *MHp, Network *nwp) 
+{
+  static Vertex nnodes;
+  static double comp=0.5, odds;
+  static Network discord;
+  static Dyad ndyads;
+
+  if(MHp->ntoggles == 0) { /* Initialize */
+    MHp->ntoggles=1;
+    nnodes = nwp->nnodes;
+    odds = comp/(1.0-comp);
+
+    ndyads = MHp->inputs[0]; // Note that ndyads here is the number of dyads in the list.
+    MHp->discord = (Network**) calloc(2,sizeof(Network*)); // A space for the sentinel NULL pointer.
+    MHp->discord[0] = &discord;
+    
+    // Network containing edges that are present in the network AND are on the toggleable list.
+    discord = NetworkInitialize(NULL, NULL, 0, nnodes, nwp->directed_flag, nwp->bipartite, 0, 0, NULL);
+   
+    for(Edge i=0; i<ndyads; i++){
+      Vertex tail=MHp->inputs[1+i], head=MHp->inputs[1+ndyads+i];
+      if(EdgetreeSearch(tail, head,nwp->outedges)!=0)
+	ToggleEdge(tail,head, &discord);
+    }
+
+    return;
+  }
+  
+  Edge nedges=discord.nedges;
+  double logratio=0;
+  BD_LOOP({
+      if (unif_rand() < comp && nedges > 0) { /* Select a tie at random from the network of eligibles */
+	GetRandEdge(Mtail, Mhead, &discord);
+	/* Thanks to Robert Goudie for pointing out an error in the previous 
+	   version of this sampler when proposing to go from nedges==0 to nedges==1 
+	   or vice versa.  Note that this happens extremely rarely unless the 
+	   network is small or the parameter values lead to extremely sparse 
+	   networks.  */
+	logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
+			      nedges / (odds*ndyads + nedges)));
+      }else{ /* Select a dyad at random from the list */
+	Edge rane = 1 + unif_rand() * ndyads;
+	Mtail[0]=MHp->inputs[rane];
+	Mhead[0]=MHp->inputs[ndyads+rane];
+	
+	if(EdgetreeSearch(Mtail[0],Mhead[0],discord.outedges)!=0){
+	  logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
+				nedges / (odds*ndyads + nedges)));
+	}else{
+	  logratio = log((nedges==0 ? comp*ndyads + (1.0-comp) :
+				1.0 + (odds*ndyads)/(nedges + 1)));
+	}
+      }
+    });
+  MHp->logratio += logratio;
+}
+
 /* The ones below have not been tested */
 
 /*********************
