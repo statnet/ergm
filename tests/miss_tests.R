@@ -11,7 +11,7 @@ library(statnet.common)
 opttest({
 library(ergm)
 theta0err<- 1 # Perturbation in the initial values
-tolerance<-0.2 # Result must be within 0.2*s.e. of truth.
+tolerance<-0.05 # Result must be within 0.05*s.e. of truth.
 
 n<-20 # Number of nodes
 b<-3 # Bipartite split
