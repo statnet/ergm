@@ -71,6 +71,8 @@ control.ergm(drop=TRUE,
              obs.MCMC.interval=MCMC.interval,
              obs.MCMC.burnin=MCMC.burnin,
              obs.MCMC.burnin.min=obs.MCMC.burnin/10,
+             MCMC.prop.weights=obs.MCMC.prop.weights, MCMC.prop.args=obs.MCMC.prop.args,
+
              MCMLE.check.degeneracy=FALSE,
              MCMLE.MCMC.precision=0.005,
              MCMLE.MCMC.max.ESS.frac=0.1,
@@ -202,12 +204,12 @@ control.ergm(drop=TRUE,
     Meinhard Ploner, Daniela Dunkler, Harry
     Southworth, and Georg Heinze in the "logistf" package.
   }
-  \item{MCMC.prop.weights}{Specifies the proposal distribution used in the MCMC
-    Metropolis-Hastings algorithm.  Possible choices are \code{"TNT"} or 
-    \code{"random"}; the \code{"default"} is one of these two, depending on the
-    constraints in place (as defined by the \code{constraints}
-    argument of the \code{\link{ergm}} function), though not all weights
-    may be used with all constraints.  
+  \item{MCMC.prop.weights, obs.MCMC.prop.weights}{Specifies the proposal distribution used in the MCMC
+    Metropolis-Hastings algorithm.  Possible choices depending on
+    selected \code{reference} and \code{constraints} arguments of the \code{\link{ergm}} function,
+    but often include \code{"TNT"} and \code{"random"}, and the \code{"default"} is to use the one with the
+    highest priority available.
+    
     The \code{TNT} (tie / no tie) option puts roughly equal weight on selecting a
     dyad with or without a tie as a candidate for toggling, whereas the
     \code{random} option puts equal weight on all possible dyads, though the
@@ -215,8 +217,15 @@ control.ergm(drop=TRUE,
     place.  When no constraints are in place, the default is TNT, which 
     appears to improve Markov chain mixing particularly for networks with a
     low edge density, as is typical of many realistic social networks.
+
+    \code{obs.MCMC.prop.weights}, if given separately, specifies the
+    weights to be used for the constrained MCMC when missing dyads are
+    present, defaulting to the same as \code{MCMC.prop.weights}.
   }
-  \item{MCMC.prop.args}{An alternative, direct way of specifying additional arguments to proposal. 
+  \item{MCMC.prop.args, obs.MCMC.prop.args}{An alternative, direct way
+    of specifying additional arguments to proposal. \code{obs.MCMC.prop.args}, if given separately, specifies the
+    weights to be used for the constrained MCMC when missing dyads are
+    present, defaulting to the same as \code{MCMC.prop.args}.
   }
   \item{MCMC.interval}{Number of proposals between sampled statistics. Increasing interval will reduces the autocorrelation in the sample, and may increase the precision in estimates by reducing MCMC error, at the expense of time. Set the interval higher for larger networks.
   }
