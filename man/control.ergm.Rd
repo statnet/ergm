@@ -281,7 +281,11 @@ control.ergm(drop=TRUE,
       \item{"Hummel"}
       {Terminate when the Hummel step length
     is 1 for two consecutive iterations. For the last iteration, the sample size is
-    boosted by a factor of \code{MCMLE.last.boost}. See Hummel et. al. (2012)}
+    boosted by a factor of \code{MCMLE.last.boost}. See Hummel et. al. (2012).
+
+    Note that this criterion is incompatible with
+   \code{MCMLE.steplength} \eqn{\ne} 1 or \code{MCMLE.steplength.margin}
+   \eqn{=} \code{NULL}.}
       \item{"Hotelling"}
       {After every MCMC sample, an autocorrelation-adjusted Hotelling's T^2
     test for equality of MCMC-simulated network statistics to observed
@@ -292,7 +296,12 @@ control.ergm(drop=TRUE,
       {Terminate when the estimated loss in estimating precision due to
 	using MCMC standard errors is below the precision bound specified by
       \code{MCMLE.MCMC.precision}, and the Hummel step length is 1 for two consecutive
-      iterations. See \code{MCMLE.MCMC.precision} for details. This feature is in experimental status until we verify the coverage of the standard errors.}
+      iterations. See \code{MCMLE.MCMC.precision} for details. This
+   feature is in experimental status until we verify the coverage of the
+   standard errors.
+
+   Note that this criterion is incompatible with
+   \eqn{\code{MCMLE.steplength}\ne 1} or \eqn{\code{MCMLE.steplength.margin}=\code{NULL}}.}
       \item{"none"}
       {Stop after \code{MCMLE.maxit} iterations.}
   }
@@ -342,7 +351,9 @@ control.ergm(drop=TRUE,
     The extra margin required for a Hummel step to count as being inside 
     the convex hull of the sample. 
     Set this to 0 if the step length gets stuck at the same value over
-    several iteraions. Set it to \code{NULL} to use fixed step length.
+    several iteraions. Set it to \code{NULL} to use fixed step
+    length. Note that this parameter is required to be non-\code{NULL}
+    for MCMLE termination using Hummel or precision criteria.
   }
   \item{MCMLE.steplength}{Multiplier for step length, which may 
     (for values less than one) 
@@ -352,7 +363,9 @@ control.ergm(drop=TRUE,
 
     If \code{MCMLE.steplength.margin} is not \code{NULL}, the step
     length will be set using the algorithm of Hummel et al. (2010). In
-    that case, it will serve as the maximum step length considered.
+    that case, it will serve as the maximum step length
+    considered. However, setting it to anything other than 1 will
+    preclude using Hummel or precision as termination criteria.
   }
   \item{MCMLE.adaptive.trustregion}{Maximum increase the algorithm
     will allow for the approximated loglikelihood at a given
