@@ -370,7 +370,7 @@ ergm.MCMLE <- function(init, nw, model,
       conv.pval <- ERRVL(try(approx.hotelling.diff.test(esteq, esteq.obs)$p.value), NA)
       cat("Nonconvergence test p-value:",conv.pval,"\n")
       if(!is.na(conv.pval) && conv.pval>=control$MCMLE.conv.min.pval){
-        cat("No nonconvergence detected. Stopping.")
+        cat("No nonconvergence detected. Stopping.\n")
         break
       }      
     }else if(control$MCMLE.termination=='Hummel'){
