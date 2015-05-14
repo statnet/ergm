@@ -182,7 +182,7 @@ ergm.MCMLE <- function(init, nw, model,
       
       if(obs){
         nws.obs <- nws.obs.returned
-        statshifts.obs <- lapply(nws.obs, function(nw) summary(model$formula, basis=nws.obs, response=response) - model$target.stats)
+        statshifts.obs <- lapply(nws.obs, function(nw.obs) summary(model$formula, basis=nw.obs, response=response) - model$target.stats)
       }      
     }
 
@@ -371,7 +371,7 @@ ergm.MCMLE <- function(init, nw, model,
       conv.pval <- ERRVL(try(approx.hotelling.diff.test(esteq, esteq.obs)$p.value), NA)
       cat("Nonconvergence test p-value:",conv.pval,"\n")
       if(!is.na(conv.pval) && conv.pval>=control$MCMLE.conv.min.pval){
-        cat("No nonconvergence detected. Stopping.")
+        cat("No nonconvergence detected. Stopping.\n")
         break
       }      
     }else if(control$MCMLE.termination=='Hummel'){

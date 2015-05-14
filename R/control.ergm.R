@@ -171,6 +171,8 @@ control.ergm<-function(drop=TRUE,
                        obs.MCMC.interval=MCMC.interval,
                        obs.MCMC.burnin=MCMC.burnin,
                        obs.MCMC.burnin.min=obs.MCMC.burnin/10,
+                       obs.MCMC.prop.weights=MCMC.prop.weights, obs.MCMC.prop.args=MCMC.prop.args,
+
                        MCMLE.check.degeneracy=FALSE,
                        MCMLE.MCMC.precision=0.005,
                        MCMLE.MCMC.max.ESS.frac=0.1,
@@ -303,6 +305,9 @@ control.ergm<-function(drop=TRUE,
   for(arg in match.arg.pars)
     control[arg]<-list(match.arg(control[[arg]][1],eval(formal.args[[arg]])))
 
+  if((MCMLE.steplength!=1 || is.null(MCMLE.steplength.margin)) && MCMLE.termination %in% c("Hummel", "precision"))
+    stop("Hummel and precision-based termination require non-null MCMLE.steplength.margin and MCMLE.steplength = 1.")
+  
   set.control.class()
 }
 

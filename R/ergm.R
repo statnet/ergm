@@ -234,7 +234,7 @@ ergm <- function(formula, response=NULL,
   
   # Note:  MHproposal function in CRAN version does not use the "class" argument for now
   if(!is.null(MHproposal.obs)){
-      MHproposal.obs <- MHproposal(MHproposal.obs, weights=control$MCMC.prop.weights, control$MCMC.prop.args, nw, class=proposalclass, reference=reference, response=response)
+      MHproposal.obs <- MHproposal(MHproposal.obs, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference, response=response)
       if (verbose) cat(" ",MHproposal.obs$pkgname,":MH_",MHproposal.obs$name,sep="")
   }
 
