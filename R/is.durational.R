@@ -29,7 +29,7 @@ is.durational.formula<-function(object,response=NULL,basis=NULL,...){
 	form <- ergm.update.formula(object, nw ~ ., from.new="nw")
 	# work around when durational dependent terms do not has role="target"
 #	if(	deparse(substitute(object))=="monitor")
-	m<-ergm.getmodel(form, nw, response=response, role="target")
+	m<-ergm.getmodel(form, nw, response=response, role=NULL)
 	is.durational(m)
 }
 
