@@ -510,16 +510,9 @@ fit <- ergm(magnolia~edges+gwesp(0.25,fixed=T)+nodematch('Grade')+nodematch('Rac
  verbose=T)
 @
 
-<<fig1>>=
-png( 'fig1-%d.png', width=900, height=900, units='px')
+<<fig1,fig=TRUE>>=
 mcmc.diagnostics(fit)
-invisible(dev.off())
 @
-\begin{center}
-\includegraphics[clip=true, trim=0px 0px 0px 0px, width=6in, height=4in]{fig1-1}
-
-\includegraphics[clip=true, trim=0px 200px 0px 0px, width=6in, height=3in]{fig1-2}
-\end{center}
 
 Success! Of course, in real life one might have a lot more trial and
 error.

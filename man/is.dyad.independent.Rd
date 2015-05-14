@@ -11,6 +11,9 @@
 \alias{is.dyad.independent}
 \alias{is.dyad.independent.formula}
 \alias{is.dyad.independent.ergm}
+\alias{is.dyad.independent.NULL}
+\alias{is.dyad.independent.conlist}
+\alias{is.dyad.independent.ergm.model}
 \title{
 Testing for dyad-independence
 }

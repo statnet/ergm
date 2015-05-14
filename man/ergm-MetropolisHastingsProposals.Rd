@@ -26,6 +26,17 @@
 \alias{InitMHP.fixallbut}
 \alias{InitMHP.TriNT}
 
+\alias{InitMHP.HammingConstantEdges}
+\alias{InitMHP.HammingTNT}
+\alias{InitMHP.nobetweengroupties}
+
+\alias{MHproposal}
+\alias{MHproposal.MHproposal}
+\alias{MHproposal.NULL}
+\alias{MHproposal.character}
+\alias{MHproposal.ergm}
+\alias{MHproposal.formula}
+
 \docType{methods}
 
 \title{Metropolis-Hastings Proposal Methods for ERGM MCMC}

@@ -11,55 +11,38 @@
 \title{Internal ergm Objects}
 
 
-\alias{InitErgmTerm.conddegmple}
-\alias{InitErgmTerm.indices}
 \alias{as.edgelist.network}
-\alias{ergm.ConstraintImplications}
 \alias{ergm.MCMC.packagenames}
-\alias{ergm.MHP.table}
-\alias{ergm.init.methods}
 \alias{which.package.InitFunction}
 
-\alias{InitMHP.HammingConstantEdges}
-\alias{InitMHP.HammingTNT}
-\alias{InitMHP.nobetweengroupties}
-
-\alias{MHproposal}
-\alias{MHproposal.MHproposal}
-\alias{MHproposal.NULL}
-\alias{MHproposal.character}
-\alias{MHproposal.ergm}
-\alias{MHproposal.formula}
-
 \alias{approx.hotelling.diff.test}
-\alias{append.rhs.formula}
+
 \alias{as.edgelist}
 \alias{as.edgelist.compressed}
 \alias{as.network.uncompressed}
 \alias{autoboot.ergm}
 \alias{autoboot.se.ergm}
 \alias{central.network}
-\alias{check.ErgmTerm}
+
 \alias{coef.length.model}
 \alias{coef.sublength.model}
 \alias{colMeans.mcmc.list}
-\alias{compress.data.frame}
 \alias{control.ergm.toplevel}
 \alias{control.simulate.ergm.toplevel}
 \alias{copy.named}
-\alias{degreedist}
-\alias{degreedistfactor}
+
+
 \alias{delete.isolates}
 \alias{drawcircle}
 \alias{drawpie}
 \alias{dspartnerdist}
-\alias{ergm.Cprepare}
-\alias{ergm.Cprepare.el}
-\alias{ergm.Cprepare.miss}
+
+
+
 \alias{ergm.MCMCse}
 \alias{ergm.MCMCse.lognormal}
 \alias{ergm.MCMLE}
-\alias{ergm.MPIcluster.started}
+
 \alias{ergm.bounddeg}
 \alias{ergm.bridge.0.llk}
 \alias{ergm.bridge.hammingstart.llk}
@@ -84,12 +67,12 @@
 \alias{ergm.geodesicmatrix.edgelist}
 \alias{ergm.geodistdist}
 \alias{ergm.geodistn}
-\alias{ergm.getCluster}
-\alias{ergm.getMCMCsample}
+
+
 \alias{ergm.getglobalstats}
-\alias{ergm.getmodel}
-\alias{ergm.getnetwork}
-\alias{ergm.getterms}
+
+
+
 \alias{ergm.independencemodel}
 \alias{ergm.initialfit}
 \alias{ergm.logisticdeviance}
@@ -97,27 +80,26 @@
 \alias{ergm.mahalanobis}
 \alias{ergm.mapl}
 \alias{ergm.maple}
-\alias{ergm.mcmcslave}
+
 \alias{ergm.mple}
 \alias{ergm.nodegeodesics}
 \alias{ergm.pairgeodesic}
 \alias{ergm.pen.glm}
 \alias{ergm.phase12}
 \alias{ergm.pl}
-\alias{ergm.plinfo}
 \alias{ergm.reviseinit}
-\alias{ergm.rhs.formula}
+
 \alias{ergm.robmon}
 \alias{ergm.sample.eta2theta}
 \alias{ergm.sample.tomcmc}
 \alias{ergm.stepping}
 \alias{ergm.stocapprox}
-\alias{ergm.stopCluster}
-\alias{ergm.stopCluster.MPIcluster}
-\alias{ergm.stopCluster.default}
+
+
+
 \alias{ergm.sufftoprob}
 \alias{ergm.t.summary}
-\alias{ergm.update.formula}
+
 \alias{espartnerdist}
 \alias{get.InitErgm.fname}
 \alias{get.node.attr}
@@ -147,7 +129,7 @@
 \alias{mcmc.diagnostics.default}
 \alias{midarrow}
 \alias{model.matrix.pen.glm}
-\alias{model.transform.formula}
+
 \alias{mvmodel}
 \alias{mvmodel.default}
 \alias{mvmodel.ergm}
@@ -158,35 +140,29 @@
 \alias{nologLik.message}
 \alias{nvattr.copy.network}
 \alias{ostar2deg}
-\alias{paste.and}
 \alias{plot.mcmc.list.ergm}
 \alias{robust.inverse}
 \alias{rspartnerdist}
-\alias{set.offset.formula}
+
 \alias{sociality.default}
 \alias{sociality.ergm}
 \alias{sociality.formula}
 \alias{sociality.network}
-\alias{sort.data.frame}
 \alias{summary.statsmatrix.ergm}
 \alias{sweep.mcmc.list}
-\alias{term.list.formula}
+
 \alias{twopathdist}
 \alias{updatemodel.ErgmTerm}
 \alias{vector.namesmatch}
 \alias{xyplot.mcmc.list.ergm}
 
-\alias{print.control.list}
-\alias{set.control.class}
-\alias{check.control.class}
-
 \alias{prune.conlist}
 \alias{standardize.network}
-\alias{unset.offset.formula}
 
-\alias{is.dyad.independent.NULL}
-\alias{is.dyad.independent.conlist}
-\alias{is.dyad.independent.ergm.model}
+
+
+
+
 
 
 \alias{get.free.dyads}
@@ -201,8 +177,7 @@
 \alias{ergm.llik.wins}
 \alias{llik.fun.logtaylor}
 
-\alias{offset.info.formula}
-\alias{remove.offset.formula}
+
 
 
 \description{
