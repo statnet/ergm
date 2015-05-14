@@ -389,7 +389,7 @@ export(
   san.ergm,
   san.formula,                     
   search.ergmTerms,
-  set.offset.formula,              
+  # set.offset.formula,          proposed to make internal    
   simulate.ergm,
   simulate.formula,                
   #sociality,     proposed to make internal 
@@ -415,7 +415,7 @@ export(
   to.lasttoggle.matrix,
   to.matrix.lasttoggle,            
   # twopathdist,     proposed to make internal 
-  unset.offset.formula,            
+  # unset.offset.formula,      proposed to make internal      
   # updatemodel.ErgmTerm,    proposed to make internal 
   vcov.ergm,                       
   vector.namesmatch,

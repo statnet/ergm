@@ -2,185 +2,115 @@
 \alias{ergm.getmodel}
 \alias{ergm.getnetwork}
 \alias{ergm.getterms}
-\alias{ergm.rhs.formula}
+%\alias{ergm.rhs.formula}
 \alias{ergm.update.formula}
-\alias{model.transform.formula}
-\alias{set.offset.formula}
+%\alias{model.transform.formula}
+%\alias{set.offset.formula}
 \alias{term.list.formula}
-\alias{unset.offset.formula}
+%\alias{unset.offset.formula}
 \alias{offset.info.formula}
 \alias{remove.offset.formula}
 \alias{append.rhs.formula}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Internal Functions for Manipulating and Extracting from ergm Formulas
+Internal Functions for Querying, Validating and Extracting from ERGM Formulas
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+These are all functions that are generally not called directly by users, but may be employed by other depending packages.  
 }
 \usage{
 ergm.getmodel(formula, nw, response = NULL, silent = FALSE, role = "static", ...)
+
+ergm.getnetwork(form, loopswarning = TRUE)
+
+ergm.getterms(formula)
+
+ergm.update.formula(object, new, ..., from.new = FALSE)
+
+term.list.formula(rhs, sign = +1)
+
+offset.info.formula(object, response = NULL) 
+
+remove.offset.formula(object, response = NULL)
+
+append.rhs.formula(object, newterms, keep.onesided = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{formula}{
-%%     ~~Describe \code{formula} here~~
+a formula of the form \code{'network ~ model.term(s)'}
 }
   \item{nw}{
-%%     ~~Describe \code{nw} here~~
+the network of interest
 }
   \item{response}{
-%%     ~~Describe \code{response} here~~
+charcter, name of edge attribute containing edge weights?
 }
   \item{silent}{
-%%     ~~Describe \code{silent} here~~
+logical, whether to print the warning messages from the initialization of each model term; default=FALSE
 }
-  \item{role}{
-%%     ~~Describe \code{role} here~~
-}
+  \item{role}{}
   \item{\dots}{
-%%     ~~Describe \code{\dots} here~~
+additional parameters for model formulation
 }
+  \item{form}{same as formula, a formula of the form \code{'network ~ model.term(s)'}}
+  \item{loopswarning}{whether warnings about loops should be printed (T or F);default=TRUE}
+  
+  \item{object}{formula object to be updated}
+  \item{new}{new formula to be used in updating}
+  \item{from.new}{logical or character vector of variable names. controls how environment of formula gets updated.}
+  \item{rhs}{right hand side of formula?}
+  \item{sign}{}
+  \item{newterms}{}
+  \item{keep.onesided}{}
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+\itemize{
+  \item{The \code{ergm.getmodel} function parses the given formula, and initiliazes each ergm
+ term via the \code{InitErgmTerm} functions to create a 'model.ergm' object for the
+ given network}
+ 
+ \item{The \code{ergm.getnetwork} function ensures that the network in a given formula
+ is valid; if so, the network is returned; if not, execution is halted with warnings}
+ 
+ \item{The \code{ergm.getterms} function returns the terms of a given formula and ensures that the formula is  indeed a formula with the necessary \code{~} operator}
+ 
+ \item{\code{ergm.update.formula} is a reimplementation of \code{\link{update.formula}} that does not simplify.  Note that the resulting formula's environment is set as follows. If
+ \code{from.new==FALSE}, it is set to that of object. Otherwise, a new
+ sub-environment of object, containing, in addition, variables in new
+ listed in from.new (if a character vector) or all of new (if TRUE).}
+ 
+ \item{\code{term.list.formula} ???}
+ 
+ \item{\code{offset.info.formula} returns the offset vectors associated with a formula.}
+ 
+ \item{\code{remove.offset.formula} deletes all \code{\link{offset}} terms in an ERGM formula.}
+ \item{\code{append.rhs.formula}  appends a list of terms to the RHS of a formula. If the formula is one-sided, the RHS becomes the LHS, if \code{keep.onesided==FALSE} (the default).}
+}
 }
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
-}
-\references{
-%% ~put references to the literature/web site here ~
-}
-\author{
-%%  ~~who you are~~
-}
-\note{
-%%  ~~further notes~~
-}
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
-
-## The function is currently defined as
-function (formula, nw, response = NULL, silent = FALSE, role = "static", 
-    ...) 
-{
-    if ((dc <- data.class(formula)) != "formula") 
-        stop(paste("Invalid formula of class ", dc), call. = FALSE)
-    if (formula[[1]] != "~") 
-        stop("Formula must be of the form 'network ~ model'.", 
-            call. = FALSE)
-    if (length(formula) < 3) 
-        stop(paste("No model specified for network ", formula[[2]]), 
-            call. = FALSE)
-    v <- term.list.formula(formula[[3]])
-    formula.env <- environment(formula)
-    model <- structure(list(formula = formula, coef.names = NULL, 
-        offset = NULL, terms = NULL, networkstats.0 = NULL, etamap = NULL), 
-        class = "model.ergm")
-    termroot <- if (is.null(response)) 
-        "InitErgm"
-    else "InitWtErgm"
-    for (i in 1:length(v)) {
-        if (is.call(v[[i]])) {
-            if (v[[i]][[1]] == "offset") {
-                if (length(v[[i]][[2]]) <= 1) {
-                  v[[i]] <- as.call(v[[i]][2])
-                }
-                else {
-                  v[[i]] <- as.call(v[[i]][[2]])
-                }
-                model$offset <- c(model$offset, TRUE)
-            }
-            else {
-                model$offset <- c(model$offset, FALSE)
-            }
-            args = v[[i]]
-            args[[1]] = as.name("list")
-            fname <- paste(termroot, "Term.", v[[i]][[1]], sep = "")
-            newInitErgm <- exists(fname, envir = formula.env, 
-                mode = "function")
-            v[[i]] <- call(ifelse(newInitErgm, fname, paste(termroot, 
-                ".", v[[i]][[1]], sep = "")))
-        }
-        else {
-            fname <- paste(termroot, "Term.", v[[i]], sep = "")
-            newInitErgm <- exists(fname, envir = formula.env, 
-                mode = "function")
-            v[[i]] <- call(ifelse(newInitErgm, fname, paste(termroot, 
-                ".", v[[i]], sep = "")))
-            model$offset <- c(model$offset, FALSE)
-            args = list()
-        }
-        if (!newInitErgm) {
-            v[[i]][[2]] <- nw
-            names(v[[i]])[2] <- ""
-            v[[i]][[3]] <- model
-            names(v[[i]])[3] <- ""
-            v[[i]][[4]] <- args
-            dotdotdot <- c(if (!is.null(response)) list(response = response), 
-                list(role = role), list(...))
-            for (j in seq_along(dotdotdot)) {
-                if (is.null(dotdotdot[[j]])) 
-                  next
-                v[[i]][[4 + j]] <- dotdotdot[[j]]
-                names(v[[i]])[4 + j] <- names(dotdotdot)[j]
-            }
-            if (!exists(as.character(v[[i]][[1]]), envir = formula.env, 
-                mode = "function")) {
-                stop("The term ", substring(as.character(v[[i]][[1]]), 
-                  first = nchar(termroot) + 2), " does not exist for this type of ERGM. Are you sure you have the right name?\n", 
-                  call. = FALSE)
-            }
-            if (silent) {
-                silentwarnings <- capture.output(model <- eval(v[[i]], 
-                  formula.env))
-            }
-            else {
-                model <- eval(v[[i]], formula.env)
-            }
-            if (is.null(model$terms[[length(model$terms)]]$pkgname)) 
-                model$terms[[length(model$terms)]]$pkgname <- which.package.InitFunction(v[[i]][[1]], 
-                  formula.env)
-        }
-        else {
-            v[[i]][[2]] <- nw
-            names(v[[i]])[2] <- ""
-            v[[i]][[3]] <- args
-            names(v[[i]])[3] <- ""
-            dotdotdot <- c(if (!is.null(response)) list(response = response), 
-                list(role = role), list(...))
-            for (j in seq_along(dotdotdot)) {
-                if (is.null(dotdotdot[[j]])) 
-                  next
-                v[[i]][[3 + j]] <- dotdotdot[[j]]
-                names(v[[i]])[3 + j] <- names(dotdotdot)[j]
-            }
-            outlist <- eval(v[[i]], formula.env)
-            if (is.null(outlist$pkgname)) 
-                outlist$pkgname <- which.package.InitFunction(v[[i]][[1]], 
-                  formula.env)
-            model <- updatemodel.ErgmTerm(model, outlist)
-        }
-    }
-    model$etamap <- ergm.etamap(model)
-    ergm.MCMC.packagenames(unlist(sapply(model$terms, "[[", "pkgname")))
-    class(model) <- "ergm.model"
-    model
+\code{ergm.getmodel} returns a 'model.ergm' object as a list containing:
+  \itemize{
+    \item{ formula       :  the formula inputted to \code{\link{ergm.getmodel}}}
+    \item{ coef.names    :  a vector of coefficient names}
+    \item{ offset        :  a logical vector of whether each term was "offset", i.e. fixed}
+    \item{ terms         :  a list of terms and 'term components' initialized by the 
+                          appropriate \code{InitErgmTerm.X} function. } 
+    \item{ network.stats0:  NULL always??}
+    \item{ etamap        :  the theta -> eta mapping as a list returned from <ergm.etamap> }
+    \item{ class         :  the character string "model.ergm"} 
   }
+\code{ergm.getnetwork} returns:
+  \itemize{
+    \item{the network from the formula IF (i) the formula was correctly structured
+      and (ii) the network is found within the formula's enviornment}  
+  }
+  \code{ergm.getterms} returns:
+  \itemize{
+    \item{the terms object associated with the formula and returned by the 
+         native R function \code{\link{terms}}>. see \code{\link[stats]{terms.object}} for details about
+         the components}
+  }
+  \code{ergm.update.formula}, \code{remove.offset.formula} and 
+\code{append.rhs.formula} each return an updated formula object
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
