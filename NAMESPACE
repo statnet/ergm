@@ -92,7 +92,7 @@ export(
   ergm.getterms,                   
   ergm.initialfit,
   ergm.init.methods,               
-  ergm.llik.wins,
+  #ergm.llik.wins,
   ergm.logisticdeviance,           
   ergm.logitreg,
   ergm.mahalanobis,                
@@ -100,7 +100,7 @@ export(
   #ergm.maple,                      
   # ergm.MCMC.packagenames, proposed to make internal
   #ergm.MCMCse,            proposed to make internal           
-  ergm.MCMCse.lognormal,
+  #ergm.MCMCse.lognormal,
   ergm.mcmcslave,                  
   ergm.MCMLE,
   ergm.MHP.table,                  
@@ -109,7 +109,7 @@ export(
   ergmMPLE,
   ergm.nodegeodesics,              
   ergm.pairgeodesic,
-  ergm.pen.glm,                    
+  # ergm.pen.glm,                    
   # ergm.phase12, proposed to make internal
   ergm.pl,                         
   # ergm.reviseinit, proposed to make internal
@@ -209,7 +209,7 @@ export(
   print.gofobject,                 
   print.network.list,
   print.summary.ergm,              
-  prune.conlist,
+  #prune.conlist,
   remove.offset.formula,           
   robust.inverse,
   # rspartnerdist,                   proposed to make internal    
