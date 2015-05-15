@@ -11,15 +11,14 @@
 \title{Internal ergm Objects}
 
 
-\alias{as.edgelist.network}
+
 %\alias{ergm.MCMC.packagenames}
 %\alias{which.package.InitFunction}
 
 \alias{approx.hotelling.diff.test}
 
-\alias{as.edgelist}
-\alias{as.edgelist.compressed}
-\alias{as.network.uncompressed}
+
+
 \alias{central.network}
 
 \alias{coef.length.model}
@@ -162,7 +161,7 @@
 \alias{invert.network}
 
 %\alias{mk.edge.to.pos.lasttoggle.f}
-\alias{as.edgelist.matrix}
+%\alias{as.edgelist.matrix}
 
 
 

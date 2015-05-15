@@ -17,11 +17,11 @@ export(
   append.rhs.formula,
   approx.hotelling.diff.test,      
   as.edgelist,
-  as.edgelist.compressed,          
-  as.edgelist.matrix,
-  as.edgelist.network,             
-  as.network.numeric,
-  as.network.uncompressed,         
+  #as.edgelist.compressed,          
+  #as.edgelist.matrix,
+  #as.edgelist.network,             
+  #as.network.numeric,
+  #as.network.uncompressed,         
   #central.network, proposed to delete
   check.ErgmTerm,                  
   coef.ergm,
@@ -57,7 +57,7 @@ export(
   ergm.bridge.0.llk,  
   ergm.bridge.dindstart.llk,       
   ergm.bridge.llr,
-  ergm.bridge.preproc,             
+  #ergm.bridge.preproc,             
   ergm.checkargs,
   # ergm.checkbipartite,             
   # ergm.checkconstraints.model,
@@ -283,9 +283,9 @@ S3method(anova,ergm)
 S3method(anova,ergmlist)
 
 S3method(as.network,numeric)
-S3method(as.network,uncompressed)
-S3method(as.edgelist,compressed)
-S3method(as.edgelist,matrix)
+#S3method(as.network,uncompressed)
+#S3method(as.edgelist,compressed)
+#S3method(as.edgelist,matrix)
 S3method(as.edgelist,network)
 
 S3method(coef,ergm)

@@ -24,6 +24,11 @@
 \alias{InitMHP.HammingTNT}
 \alias{InitMHP.nobetweengroupties}
 
+\alias{NonObservedTNT}
+\alias{InitMHP.blockdiagNonObservedTNT}
+\alias{InitMHP.fixallbutTNT} 
+\alias{InitMHP.fixedasTNT}
+
 \alias{MHproposal}
 \alias{MHproposal.MHproposal}
 \alias{MHproposal.NULL}
