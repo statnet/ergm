@@ -19,7 +19,7 @@
 
 
 
-\alias{central.network}
+%\alias{central.network}
 
 \alias{coef.length.model}
 \alias{coef.sublength.model}
