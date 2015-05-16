@@ -1,6 +1,5 @@
 \name{ergm_MH_proposals}
-
-\alias{MH_proposals}
+\alias{InitMHP}
 \alias{InitMHP.CondDegree}
 \alias{InitMHP.CondDegreeDist}
 \alias{InitMHP.CondInDegreeDist}
@@ -19,7 +18,6 @@
 \alias{InitMHP.CondDegreeMix}
 \alias{InitMHP.fixedas}
 \alias{InitMHP.fixallbut}
-
 \alias{InitMHP.HammingConstantEdges}
 \alias{InitMHP.HammingTNT}
 \alias{InitMHP.nobetweengroupties}
@@ -29,12 +27,6 @@
 \alias{InitMHP.fixallbutTNT} 
 \alias{InitMHP.fixedasTNT}
 
-\alias{MHproposal}
-\alias{MHproposal.MHproposal}
-\alias{MHproposal.NULL}
-\alias{MHproposal.character}
-\alias{MHproposal.ergm}
-\alias{MHproposal.formula}
 
 \docType{methods}
 
@@ -70,6 +62,11 @@
         \item{InitMHP.blockdiagNonObserved}{MHp for \eqn{constraints= ~blockdiag+observed}. Similar to InitMHP.blockdiag, but
         applied only to missing dyads.
         }
+        
+         \item{InitMHP.blockdiagNonObservedTNT}{Similar to InitMHP.blockdiagNonObserved, except that it selects ties and non-ties for proposed toggles (in the block by construction) with equal probability.  Like the unconstrained TNT proposal, this is useful for improving performance in sparse networks.
+        }
+        
+        
         \item{InitMHP.blockdiagTNT}{MHp for \eqn{constraints= ~blockdiag}. Similar to InitMHP.blockdiag, except that it selects ties
         and non-ties for proposed toggles (in the block by construction) with equal probability.  Like the unconstrained TNT proposal, this is useful for improving performance in sparse networks.
         }
@@ -95,9 +92,16 @@
         }
 
 	\item{InitMHP.fixedas}{MHp for \eqn{constraints=~fixedas(present,absent)}. Select a random dyad that is not in either 'present' edgelist or 'absent' edgelist to toggle. Edges in 'present' and empty dyads in 'absent' are remained fixed.}
-		
+	
+	\item{InitMHP.fixedasTNT}{Similar to InitMHP.fixedas, except that it selects ties
+        and non-ties for proposed toggles with equal probability.  Like the unconstrained TNT proposal, this is useful for improving performance in sparse networks.}	
+	
+			
 	\item{InitMHP.fixallbut}{MHp for \eqn{constraints=~fixallbut(free.dyads)}. Select a random dyad that is in free.dyads edgelist to toggle.}
-        
+  
+  \item{InitMHP.fixallbutTNT}{Similar to InitMHP.fixallbut, except that it selects ties and non-ties for proposed toggles with equal probability.  Like the unconstrained TNT proposal, this is useful for improving performance in sparse networks.}
+  
+  
         \item{InitMHP.randomtoggleNonObserved}{MHp for \eqn{constraints= ~observed}. Randomly select a missing/non-observed dyad and propose a toggle.
         }
        
@@ -108,7 +112,7 @@
 
        }}
 
-\seealso{\code{\link[=ergm-package]{ergm}} package, \code{\link{ergm}}, \code{\link{ergm-constraints}}}
+\seealso{\code{\link[=ergm-package]{ergm}} package, \code{\link{ergm}}, \code{\link{ergm-constraints}},  \code{\link{MHproposal}}}
 
   
 \references{
