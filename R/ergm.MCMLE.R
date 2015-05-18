@@ -217,7 +217,8 @@ ergm.MCMLE <- function(init, nw, model,
                 mle.lik=NULL,
                 gradient=rep(NA,length=length(mcmc.init)), #acf=NULL,
                 samplesize=control$MCMC.samplesize, failure=TRUE,
-                newnetwork = nws.returned[[1]])
+                newnetwork = nws.returned[[1]],
+                newnetworks = nws.returned)
       return(structure (l, class="ergm"))
     } 
 
