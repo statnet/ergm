@@ -113,7 +113,7 @@ ergm.MCMLE <- function(init, nw, model,
     control.obs$MCMC.burnin <- control$obs.MCMC.burnin
     control.obs$MCMC.burnin.min <- control$obs.MCMC.burnin.min
 
-    nws.obs <- lapply(nws, network.copy)
+    nws.obs <- lapply(nws, network::network.copy)
     statshifts.obs <- statshifts
   }
   # mcmc.init will change at each iteration.  It is the value that is used
@@ -146,12 +146,12 @@ ergm.MCMLE <- function(init, nw, model,
     # parameters that will give a mean vector of zero)
     statsmatrices <- mapply(sweep, z$statsmatrices, statshifts, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE)
     for(i in seq_along(statsmatrices)) colnames(statsmatrices[[i]]) <- model$coef.names
-    nws.returned <- lapply(z$newnetworks,network.copy)
+    nws.returned <- lapply(z$newnetworks,network::network.copy)
     statsmatrix <- do.call("rbind",statsmatrices)
     
     if(verbose){
       cat("Back from unconstrained MCMC. Average statistics:\n")
-      print(apply(statsmatrix, 2, mean))
+      print(apply(statsmatrix, 2, base::mean))
     }
     
     ##  Does the same, if observation process:
@@ -162,12 +162,12 @@ ergm.MCMLE <- function(init, nw, model,
       
       statsmatrices.obs <- mapply(sweep, z.obs$statsmatrices, statshifts.obs, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE)
       for(i in seq_along(statsmatrices.obs)) colnames(statsmatrices.obs[[i]]) <- model$coef.names
-      nws.obs.returned <- lapply(z.obs$newnetworks, network.copy)
+      nws.obs.returned <- lapply(z.obs$newnetworks, network::network.copy)
       statsmatrix.obs <- do.call("rbind",statsmatrices.obs)
       
       if(verbose){
         cat("Back from constrained MCMC. Average statistics:\n")
-        print(apply(statsmatrix.obs, 2, mean))
+        print(apply(statsmatrix.obs, 2, base::mean))
       }
     }else{
       statsmatrices.obs <- statsmatrix.obs <- NULL
@@ -186,7 +186,7 @@ ergm.MCMLE <- function(init, nw, model,
     
     # Compute the sample estimating equations and the convergence p-value. 
     esteq <- .ergm.esteq(mcmc.init, model, statsmatrix)
-    if(isTRUE(all.equal(apply(esteq,2,sd), rep(0,ncol(esteq)), check.names=FALSE))&&!all(esteq==0))
+    if(isTRUE(all.equal(apply(esteq,2,stats::sd), rep(0,ncol(esteq)), check.names=FALSE))&&!all(esteq==0))
       stop("Unconstrained MCMC sampling did not mix at all. Optimization cannot continue.")
     esteq.obs <- if(obs) .ergm.esteq(mcmc.init, model, statsmatrix.obs) else NULL
 
@@ -227,7 +227,7 @@ ergm.MCMLE <- function(init, nw, model,
     if(control$MCMLE.steplength=="adaptive"){
       if(verbose){cat("Calling adaptive MCMLE Optimization...\n")}
       adaptive.steplength <- 2
-      statsmean <- apply(statsmatrix.0,2,mean)
+      statsmean <- apply(statsmatrix.0,2,base::mean)
       v <- list(loglikelihood=control$MCMLE.adaptive.trustregion*2)
       while(v$loglikelihood > control$MCMLE.adaptive.trustregion){
         adaptive.steplength <- adaptive.steplength / 2
@@ -279,7 +279,7 @@ ergm.MCMLE <- function(init, nw, model,
       if(steplen==control$MCMLE.steplength || is.null(control$MCMLE.steplength.margin) || iteration==control$MCMLE.maxit) calc.MCSE <- TRUE
       
       if(verbose){cat("Calling MCMLE Optimization...\n")}
-      statsmean <- apply(statsmatrix.0,2,mean)
+      statsmean <- apply(statsmatrix.0,2,base::mean)
       if(!is.null(statsmatrix.0.obs)){
         statsmatrix.obs <- sweep(statsmatrix.0.obs,2,(colMeans(statsmatrix.0.obs)-statsmean)*(1-steplen))
       }else{
@@ -318,8 +318,8 @@ ergm.MCMLE <- function(init, nw, model,
           
     mcmc.init <- v$coef
     coef.hist <- rbind(coef.hist, mcmc.init)
-    stats.obs.hist <- if(!is.null(statsmatrix.obs)) rbind(stats.obs.hist, apply(statsmatrix.obs[], 2, mean)) else NULL
-    stats.hist <- rbind(stats.hist, apply(statsmatrix, 2, mean))
+    stats.obs.hist <- if(!is.null(statsmatrix.obs)) rbind(stats.obs.hist, apply(statsmatrix.obs[], 2, base::mean)) else NULL
+    stats.hist <- rbind(stats.hist, apply(statsmatrix, 2, base::mean))
     
     # This allows premature termination.
     
@@ -388,7 +388,7 @@ ergm.MCMLE <- function(init, nw, model,
     }
     
     # stop if MCMLE is stuck (steplen stuck near 0)
-    if (length(steplen.hist > 2) && sum(tail(steplen.hist,2)) < 2*control$MCMLE.steplength.min) {
+    if ((length(steplen.hist) > 2) && sum(tail(steplen.hist,2)) < 2*control$MCMLE.steplength.min) {
       stop("MCMLE estimation stuck. There may be excessive correlation between model terms, suggesting a poor model for the observed data. If target.stats are specified, try increasing SAN parameters.")
     }    
     #Otherwise, don't stop before iterations are exhausted.
