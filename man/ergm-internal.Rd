@@ -11,18 +11,15 @@
 \title{Internal ergm Objects}
 
 
-\alias{as.edgelist.network}
-\alias{ergm.MCMC.packagenames}
-\alias{which.package.InitFunction}
+
+%\alias{ergm.MCMC.packagenames}
+%\alias{which.package.InitFunction}
 
 \alias{approx.hotelling.diff.test}
 
-\alias{as.edgelist}
-\alias{as.edgelist.compressed}
-\alias{as.network.uncompressed}
-\alias{autoboot.ergm}
-\alias{autoboot.se.ergm}
-\alias{central.network}
+
+
+%\alias{central.network}
 
 \alias{coef.length.model}
 \alias{coef.sublength.model}
@@ -33,32 +30,26 @@
 
 
 \alias{delete.isolates}
-\alias{drawcircle}
+
 \alias{drawpie}
-\alias{dspartnerdist}
+%\alias{dspartnerdist}
 
 
 
-\alias{ergm.MCMCse}
-\alias{ergm.MCMCse.lognormal}
+%\alias{ergm.MCMCse}
+%\alias{ergm.MCMCse.lognormal}
 \alias{ergm.MCMLE}
 
 \alias{ergm.bounddeg}
-\alias{ergm.bridge.0.llk}
-\alias{ergm.bridge.hammingstart.llk}
-\alias{ergm.bridge.preproc}
-\alias{ergm.checkargs}
-\alias{ergm.checkbipartite}
-\alias{ergm.checkconstraints.model}
-\alias{ergm.checkdegeneracy}
-\alias{ergm.checkdirected}
-\alias{ergm.checkextreme.model}
-\alias{ergm.coefficient.degeneracy}
-\alias{ergm.compute.degeneracy}
-\alias{ergm.curved.statsmatrix}
+
+%\alias{ergm.bridge.preproc}
+
+%\alias{ergm.coefficient.degeneracy}
+%\alias{ergm.compute.degeneracy}
+%\alias{ergm.curved.statsmatrix}
 \alias{ergm.degeneracy}
-\alias{ergm.design}
-\alias{ergm.estimate}
+
+%\alias{ergm.estimate}
 \alias{ergm.eta}
 \alias{ergm.etagrad}
 \alias{ergm.etagradmult}
@@ -78,66 +69,65 @@
 \alias{ergm.logisticdeviance}
 \alias{ergm.logitreg}
 \alias{ergm.mahalanobis}
-\alias{ergm.mapl}
-\alias{ergm.maple}
+%\alias{ergm.mapl}
+%\alias{ergm.maple}
 
 \alias{ergm.mple}
 \alias{ergm.nodegeodesics}
 \alias{ergm.pairgeodesic}
-\alias{ergm.pen.glm}
-\alias{ergm.phase12}
+%\alias{ergm.pen.glm}
+%\alias{ergm.phase12}
 \alias{ergm.pl}
-\alias{ergm.reviseinit}
+%\alias{ergm.reviseinit}
 
-\alias{ergm.robmon}
-\alias{ergm.sample.eta2theta}
-\alias{ergm.sample.tomcmc}
-\alias{ergm.stepping}
-\alias{ergm.stocapprox}
+%\alias{ergm.robmon}
+%\alias{ergm.sample.eta2theta}
+%\alias{ergm.sample.tomcmc}
+%\alias{ergm.stepping}
+%\alias{ergm.stocapprox}
 
 
 
-\alias{ergm.sufftoprob}
-\alias{ergm.t.summary}
+%\alias{ergm.sufftoprob}
+%\alias{ergm.t.summary}
 
 \alias{espartnerdist}
-\alias{get.InitErgm.fname}
+%\alias{get.InitErgm.fname}
 \alias{get.node.attr}
-\alias{init.methods}
+%\alias{init.methods}
 \alias{is.ergm}
 \alias{is.invertible}
 \alias{largest.components}
-\alias{llik.fun}
-\alias{llik.fun.EF}
-\alias{llik.fun.median}
-\alias{llik.fun.obs}
-\alias{llik.fun.obs.robust}
-\alias{llik.fun2}
-\alias{llik.fun3}
-\alias{llik.grad}
-\alias{llik.grad.obs}
-\alias{llik.grad2}
-\alias{llik.grad3}
-\alias{llik.hessian}
-\alias{llik.hessian.naive}
-\alias{llik.hessian.obs}
-\alias{llik.hessian2}
-\alias{llik.info3}
-\alias{llik.mcmcvar3}
+%\alias{llik.fun}
+%\alias{llik.fun.EF}
+%\alias{llik.fun.median}
+%\alias{llik.fun.obs}
+%\alias{llik.fun.obs.robust}
+%\alias{llik.fun2}
+%\alias{llik.fun3}
+%\alias{llik.grad}
+%\alias{llik.grad.obs}
+%\alias{llik.grad2}
+%\alias{llik.grad3}
+%\alias{llik.hessian}
+%\alias{llik.hessian.naive}
+%\alias{llik.hessian.obs}
+%\alias{llik.hessian2}
+%\alias{llik.info3}
+%\alias{llik.mcmcvar3}
 \alias{logistftest}
-\alias{logp.rank.ergm}
-\alias{mcmc.diagnostics.default}
-\alias{midarrow}
-\alias{model.matrix.pen.glm}
+
+%\alias{midarrow}
+%\alias{model.matrix.pen.glm}
 
 \alias{mvmodel}
 \alias{mvmodel.default}
 \alias{mvmodel.ergm}
 \alias{mvmodel.formula}
-\alias{mk.conlist}
-\alias{myLibLoc}
+%\alias{mk.conlist}
+%\alias{myLibLoc}
 \alias{newnw.extract}
-\alias{nologLik.message}
+%\alias{nologLik.message}
 \alias{nvattr.copy.network}
 \alias{ostar2deg}
 \alias{plot.mcmc.list.ergm}
@@ -152,11 +142,11 @@
 \alias{sweep.mcmc.list}
 
 \alias{twopathdist}
-\alias{updatemodel.ErgmTerm}
+%\alias{updatemodel.ErgmTerm}
 \alias{vector.namesmatch}
-\alias{xyplot.mcmc.list.ergm}
+%\alias{xyplot.mcmc.list.ergm}
 
-\alias{prune.conlist}
+%\alias{prune.conlist}
 \alias{standardize.network}
 
 
@@ -170,12 +160,10 @@
 \alias{geweke.diag.ar}
 \alias{invert.network}
 
-\alias{mk.edge.to.pos.lasttoggle.f}
-\alias{as.edgelist.matrix}
+%\alias{mk.edge.to.pos.lasttoggle.f}
+%\alias{as.edgelist.matrix}
 
-% Redact?
-\alias{ergm.llik.wins}
-\alias{llik.fun.logtaylor}
+
 
 
 

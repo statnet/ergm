@@ -1,16 +1,11 @@
 \name{ergm_MH_proposals}
-
-\alias{MH_proposals}
+\alias{InitMHP}
 \alias{InitMHP.CondDegree}
 \alias{InitMHP.CondDegreeDist}
 \alias{InitMHP.CondInDegreeDist}
 \alias{InitMHP.CondOutDegreeDist}
 \alias{InitMHP.ConstantEdges}
-%\alias{InitMHP.HammingConstantEdges}
-%\alias{InitMHP.HammingTNT}
 \alias{InitMHP.TNT}
-\alias{InitMHP.TNT10}
-%\alias{InitMHP.nobetweengroupties}
 \alias{InitMHP.randomtoggle}
 \alias{InitMHP.randomtoggleNonObserved}
 \alias{InitMHP.CondB1Degree}
@@ -20,22 +15,18 @@
 \alias{InitMHP.blockdiag}
 \alias{InitMHP.blockdiagNonObserved}
 \alias{InitMHP.blockdiagTNT}
-%\alias{InitWtMHP.StdNormal}
 \alias{InitMHP.CondDegreeMix}
 \alias{InitMHP.fixedas}
 \alias{InitMHP.fixallbut}
-\alias{InitMHP.TriNT}
-
 \alias{InitMHP.HammingConstantEdges}
 \alias{InitMHP.HammingTNT}
 \alias{InitMHP.nobetweengroupties}
 
-\alias{MHproposal}
-\alias{MHproposal.MHproposal}
-\alias{MHproposal.NULL}
-\alias{MHproposal.character}
-\alias{MHproposal.ergm}
-\alias{MHproposal.formula}
+\alias{NonObservedTNT}
+\alias{InitMHP.blockdiagNonObservedTNT}
+\alias{InitMHP.fixallbutTNT} 
+\alias{InitMHP.fixedasTNT}
+
 
 \docType{methods}
 
@@ -59,15 +50,6 @@
         	because it gives at least 50\% chance of proposing a toggle of an existing edge.
         }
              
-        \item{InitMHP.TNT10}{(Experimental) Propose 10 TNT steps at once, though
-        	this may not work properly at present. 
-        }
-        
-        \item{InitMHP.TriNT}{Similar to \code{InitMHP.TNT}, except that once a pair of dyads have been 
-        selected, a third node is randomly selected.  This gives a \eqn{50\%} chance of toggling each dyad that connects 
-        the third node to the two nodes from the previous proposed toggle.}
-        
-
 }
 
 \bold{MH proposals for constrained ergm models}
@@ -80,6 +62,11 @@
         \item{InitMHP.blockdiagNonObserved}{MHp for \eqn{constraints= ~blockdiag+observed}. Similar to InitMHP.blockdiag, but
         applied only to missing dyads.
         }
+        
+         \item{InitMHP.blockdiagNonObservedTNT}{Similar to InitMHP.blockdiagNonObserved, except that it selects ties and non-ties for proposed toggles (in the block by construction) with equal probability.  Like the unconstrained TNT proposal, this is useful for improving performance in sparse networks.
+        }
+        
+        
         \item{InitMHP.blockdiagTNT}{MHp for \eqn{constraints= ~blockdiag}. Similar to InitMHP.blockdiag, except that it selects ties
         and non-ties for proposed toggles (in the block by construction) with equal probability.  Like the unconstrained TNT proposal, this is useful for improving performance in sparse networks.
         }
@@ -105,14 +92,16 @@
         }
 
 	\item{InitMHP.fixedas}{MHp for \eqn{constraints=~fixedas(present,absent)}. Select a random dyad that is not in either 'present' edgelist or 'absent' edgelist to toggle. Edges in 'present' and empty dyads in 'absent' are remained fixed.}
-		
+	
+	\item{InitMHP.fixedasTNT}{Similar to InitMHP.fixedas, except that it selects ties
+        and non-ties for proposed toggles with equal probability.  Like the unconstrained TNT proposal, this is useful for improving performance in sparse networks.}	
+	
+			
 	\item{InitMHP.fixallbut}{MHp for \eqn{constraints=~fixallbut(free.dyads)}. Select a random dyad that is in free.dyads edgelist to toggle.}
-%        \item{InitMHP.HammingConstantEdges}{}
-%        \item{InitMHP.HammingTNT}{}
-
-%        \item{InitMHP.nobetweengroupties}{}
-
-        
+  
+  \item{InitMHP.fixallbutTNT}{Similar to InitMHP.fixallbut, except that it selects ties and non-ties for proposed toggles with equal probability.  Like the unconstrained TNT proposal, this is useful for improving performance in sparse networks.}
+  
+  
         \item{InitMHP.randomtoggleNonObserved}{MHp for \eqn{constraints= ~observed}. Randomly select a missing/non-observed dyad and propose a toggle.
         }
        
@@ -121,11 +110,9 @@
         \item{InitMHP.CondOutDegree}{MHp for \eqn{constraints= ~odegrees}. For directed networks, randomly select two dyads with a common tail node, one having an edge and one not, and propose to swap the tie from one head to the other.
         }
 
-%        \item{InitWtMHP.StdNormal}{}
-
        }}
 
-\seealso{\code{\link[=ergm-package]{ergm}} package, \code{\link{ergm}}, \code{\link{ergm-constraints}}}
+\seealso{\code{\link[=ergm-package]{ergm}} package, \code{\link{ergm}}, \code{\link{ergm-constraints}},  \code{\link{MHproposal}}}
 
   
 \references{

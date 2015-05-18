@@ -9,15 +9,23 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{ergm.bridge.llr}
 \alias{ergm.bridge.llr}
+\alias{ergm.bridge.0.llk}
 \title{
 A simple implementation of bridge sampling to evaluate
 log-likelihood-ratio between two ERGM configurations 
 }
 \description{
-This function uses bridge sampling with geometric spacing to 
+\code{ergm.bridge.llr} uses bridge sampling with geometric spacing to 
 estimate the difference between the log-likelihoods of
 two parameter vectors for an ERGM via repeated calls to
 \code{\link{simulate.formula.ergm}}.
+
+\code{ergm.bridge.0.llk} is a convenience wrapper around \code{ergm.bridge.llr}: returns the
+log-likelihood of configuration `theta' \emph{relative to the reference
+measure}. That is, the configuration with theta=0 is defined as
+having log-likelihood of 0
+
+See also \code{\link{ergm.bridge.dindstart.llk}} to use dyad-independent ERGM as a staring point.
 }
 \usage{
   ergm.bridge.llr(object, 
@@ -30,6 +38,13 @@ two parameter vectors for an ERGM via repeated calls to
                   \dots, 
                   llronly=FALSE, 
                   control=control.ergm.bridge())
+                  
+  ergm.bridge.0.llk(object, 
+                    response=response, 
+                    coef, 
+                    ..., 
+                    llkonly=TRUE, 
+                    control=control.ergm.bridge())
 }
 \arguments{
   \item{object}{
@@ -55,14 +70,16 @@ two parameter vectors for an ERGM via repeated calls to
   \item{verbose}{Logical:  If TRUE, print detailed information.
   }
   \item{\dots}{
-    Further arguments to \code{\link{simulate.formula.ergm}}.
+    Further arguments to \code{ergm.bridge.llr} and \code{\link{simulate.formula.ergm}}.
   }
   \item{llronly}{Logical:  If TRUE, only the estiamted log-ratio will 
-    be returned.)
+    be returned.
   }
   \item{control}{Control arguments.  See 
     \code{\link{control.ergm.bridge}} for details.
   }
+  \item{coef}{A vector of coefficients for the configuration of interest.}
+  \item{llkonly}{Whether only the estiamted log-likelihood should be returned. (Defaults to TRUE.)}
 }
 \value{
   If \code{llronly=TRUE}, returns the scalar
@@ -85,7 +102,7 @@ Hunter, D. R. and Handcock, M. S. (2006)
 }
 
 \seealso{
-\code{\link{simulate.formula.ergm}}
+\code{\link{simulate.formula.ergm}}, \code{\link{ergm.bridge.dindstart.llk}}
 }
 \keyword{ model }
 

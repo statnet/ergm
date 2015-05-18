@@ -137,76 +137,8 @@ degreedist <- function(g, print=TRUE)
 }
 
 
-###############################################################################
-# The <degreedistfactor> function returns the cross table of the degree
-# distribution for a network and a given factor
-#
-# --PARAMETERS--
-#   g: a network
-#   x: a nodal attribute, as a character string
-#
-# --RETURNED--
-#   degrees:
-#      if directed  -- a list containing 2 cross tables, the in degree
-#                      distributions by 'x', and out degree dist by 'x'
-#      otherwise    -- a table of the degree distribution by 'x'
-#
-###############################################################################
-
-degreedistfactor <- function(g,x)
-{
- if(!is.network(g)){
-  stop("degreedist() requires a network object")
- }
- x <- get.vertex.attribute(g,x)
- degrees <- as.edgelist(g)
- if(length(degrees)>0){
-  if(is.directed(g)){
-   outdegrees <- table(degrees[,1],x[degrees[,2]])
-#  outdegrees <- c(rep(0, network.size(g)-nrow(outdegrees)), outdegrees)
-   if(!is.null(outdegrees)){print(table(outdegrees[,1]))}
-   if(!is.null(outdegrees)){print(table(outdegrees[,2]))}
-   indegrees <- table(degrees[,2],x[degrees[,1]])
-#  indegrees <- c(rep(0, network.size(g)-nrow(indegrees)), indegrees)
-   if(!is.null(indegrees)){print(table(indegrees[,1]))}
-   if(!is.null(indegrees)){print(table(indegrees[,2]))}
-   degrees <- list(indegrees=indegrees, outdegrees=outdegrees)
-#  degrees <- rbind(indegrees, outdegrees)
-  }else{
-   degrees <- table(degrees,x[degrees])
-   degrees <- c(rep(0, network.size(g)-nrow(degrees)), degrees)
-   if(!is.null(degrees)){print(table(degrees))}
-  }
- }
- invisible(degrees)
-}
 
 
-#espartnerdist <- function(g, print=TRUE)
-#{
-# if(!is.network(g)){
-#  stop("espartnerdist() requires a network object")
-# }
-## twopaths
-# smatrix <- g[,]
-##twopaths <- crossprod(smatrix)
-# twopaths <- t(smatrix) %*% smatrix
-## (transitive) three-triangle (= triangle for directed)
-# twopaths[smatrix==0] <- 0
-# degrees <- tabulate(twopaths[row(twopaths)<col(twopaths)]+1,
-#                     nbins=network.size(g)-1)
-# if(is.directed(g)){
-#  degrees[1] <- sum(smatrix)-sum(degrees[-1])
-# }else{
-#  degrees[1] <- 0.5*sum(smatrix)-sum(degrees[-1])
-# }
-# names(degrees) <- paste(0:(network.size(g)-2))
-# if(print){
-#  cat("ESP (edgewise shared partner) distribution:\n")
-#  if(!is.null(degrees)){print(degrees[degrees>0])}
-# }
-# invisible(degrees)
-#}
 
 
 espartnerdist <- function(g, print=TRUE)
@@ -225,25 +157,6 @@ espartnerdist <- function(g, print=TRUE)
 }
 
 
-#dspartnerdist <- function(g, print=TRUE)
-#{
-# if(!is.network(g)){
-#  stop("dspartnerdist() requires a network object")
-# }
-## twopaths
-# smatrix <- g[,]
-##twopaths <- crossprod(smatrix)
-# twopaths <- t(smatrix) %*% smatrix
-## (transitive) three-triangle (= triangle for directed)
-# degrees <- tabulate(twopaths[row(twopaths)<col(twopaths)]+1,
-#                     nbins=network.size(g)-1)
-# names(degrees) <- paste(0:(network.size(g)-2))
-# if(print){
-#  cat("DSP (dyadwise shared partner) distribution:\n")
-#  if(!is.null(degrees)){print(degrees[degrees>0])}
-# }
-# invisible(degrees)
-#}
 
 
 

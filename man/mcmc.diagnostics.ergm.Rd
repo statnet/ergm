@@ -10,6 +10,7 @@
 \name{mcmc.diagnostics}
 \alias{mcmc.diagnostics.ergm}
 \alias{mcmc.diagnostics}
+\alias{mcmc.diagnostics.default}
 \title{Conduct MCMC diagnostics on an ergm fit}
 \description{
   This function prints diagnistic information and creates simple diagnostic plots for the MCMC sampled

@@ -1,5 +1,11 @@
 \name{check.ErgmTerm}
 \alias{check.ErgmTerm}
+\alias{ergm.checkargs}
+\alias{ergm.checkbipartite}
+\alias{ergm.checkconstraints.model}
+\alias{ergm.checkdegeneracy}
+\alias{ergm.checkdirected}
+\alias{ergm.checkextreme.model}
 \title{
 Ensures an Ergm Term and its Arguments Meet Appropriate Conditions
 }

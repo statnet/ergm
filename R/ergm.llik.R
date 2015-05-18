@@ -531,63 +531,64 @@ llik.fun.median <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=N
   llr
 }
 
-llik.fun.logtaylor <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
-                     varweight=0.5, trustregion=20, 
-                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1,
-                     eta0, etamap){
-  theta.offset <- etamap$init
-  theta.offset[!etamap$offsettheta] <- theta
-  # Convert theta to eta
-  eta <- ergm.eta(theta.offset, etamap)
+llik.fun.logtaylor <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL, 
+	 	                     varweight=0.5, trustregion=20,  
+	 	                     dampening=FALSE,dampening.min.ess=100, dampening.level=0.1, 
+	 	                     eta0, etamap){ 
+	 	  theta.offset <- etamap$init 
+	 	  theta.offset[!etamap$offsettheta] <- theta 
+	 	  # Convert theta to eta 
+	 	  eta <- ergm.eta(theta.offset, etamap) 
+ 	 
+ 	  # Calculate approximation to l(eta) - l(eta0) using a lognormal approximation 
+	 	  etaparam <- eta-eta0 
+	 	# MSH: Is this robust? 
+	 	  etaparam <- etaparam[!etamap$offsetmap] 
+	 	  xsim <- xsim[,!etamap$offsetmap, drop=FALSE] 
+	 	  xobs <- xobs[!etamap$offsetmap] 
+	 	  # 
+	 	  if (dampening) { 
+	 	    #if theta_extended is (almost) outside convex hull don't trust theta 
+	 	    etad0 <- eta0[!etamap$offsetmap] 
+	 	    etad  <-  eta[!etamap$offsetmap] 
+	 	    eta_extended <- etad + etaparam*dampening.level 
+	 	    expon_extended <- xsim %*% (eta_extended - etad0) 
+	 	    wts <- exp(expon_extended) 
+	 	    ess <- ceiling(sum(wts)^2/sum(wts^2)) 
+	 	#   http://xianblog.wordpress.com/2010/09/24/effective-sample-size/ 
+	 	    if(!is.na(ess) && {ess<dampening.min.ess}){ return(-Inf) } #.005*length(wts)) 
+	 	  } 
+	 	 
+	 	  basepred <- xsim %*% etaparam 
+	 	  ns <- length(basepred) 
+	 	  mb <- sum(basepred*probs) 
+	 	  vb <- sum(basepred*basepred*probs)-mb*mb 
+	 	  skew <- sqrt(ns*(ns-1))*sum(((basepred-mb)^3)*probs)/(vb^(3/2)*(ns-2)) 
+	 	  if(!is.finite(skew) | is.na(skew)){skew <- 0} 
+	 	  part <- mb+vb/2 + sum(((basepred-mb)^3)*probs)/6 
+	 	  llr <- sum(xobs * etaparam) - part 
+	 	  # 
+	 	 
+	 	  # Simplistic error control;  -800 is effectively like -Inf: 
+	 	  if(is.infinite(llr) | is.na(llr)){llr <- -800} 
+	 	 
+	 	  # trustregion is the maximum value of llr that we actually trust. 
+	 	  # So if llr>trustregion, return a value less than trustregion instead. 
+	 	  if (is.numeric(trustregion) && llr>trustregion) { 
+	 	    return(2*trustregion - llr) 
+	 	  } else { 
+	 	    return(llr) 
+	 	  } 
+	 	} 
 
-  # Calculate approximation to l(eta) - l(eta0) using a lognormal approximation
-  etaparam <- eta-eta0
-# MSH: Is this robust?
-  etaparam <- etaparam[!etamap$offsetmap]
-  xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
-  xobs <- xobs[!etamap$offsetmap]
-  #
-  if (dampening) {
-    #if theta_extended is (almost) outside convex hull don't trust theta
-    etad0 <- eta0[!etamap$offsetmap]
-    etad  <-  eta[!etamap$offsetmap]
-    eta_extended <- etad + etaparam*dampening.level
-    expon_extended <- xsim %*% (eta_extended - etad0)
-    wts <- exp(expon_extended)
-    ess <- ceiling(sum(wts)^2/sum(wts^2))
-#   http://xianblog.wordpress.com/2010/09/24/effective-sample-size/
-    if(!is.na(ess) && {ess<dampening.min.ess}){ return(-Inf) } #.005*length(wts))
-  }
-
-  basepred <- xsim %*% etaparam
-  ns <- length(basepred)
-  mb <- sum(basepred*probs)
-  vb <- sum(basepred*basepred*probs)-mb*mb
-  skew <- sqrt(ns*(ns-1))*sum(((basepred-mb)^3)*probs)/(vb^(3/2)*(ns-2))
-  if(!is.finite(skew) | is.na(skew)){skew <- 0}
-  part <- mb+vb/2 + sum(((basepred-mb)^3)*probs)/6
-  llr <- sum(xobs * etaparam) - part
-  #
-
-  # Simplistic error control;  -800 is effectively like -Inf:
-  if(is.infinite(llr) | is.na(llr)){llr <- -800}
-
-  # trustregion is the maximum value of llr that we actually trust.
-  # So if llr>trustregion, return a value less than trustregion instead.
-  if (is.numeric(trustregion) && llr>trustregion) {
-    return(2*trustregion - llr)
-  } else {
-    return(llr)
-  }
-}
-"ergm.llik.wins" <- function(x,trim=.05, na.rm=TRUE) {
-    if (trim == 0){return(x)}
-    if ((trim < 0) | (trim>0.5) )
-        stop("trimming must be reasonable")
-    qtrim <- quantile(x,c(trim,.5, 1-trim),na.rm = na.rm)
-    xbot <- qtrim[1]
-    xtop <- qtrim[3]
-    x[x < xbot] <- xbot
-    x[x > xtop] <- xtop
-    return(x)
-}
+	 	ergm.llik.wins <- function(x,trim=.05, na.rm=TRUE) { 
+	 	    if (trim == 0){return(x)} 
+	 	    if ((trim < 0) | (trim>0.5) ) 
+ 	        stop("trimming must be reasonable") 
+	 	    qtrim <- quantile(x,c(trim,.5, 1-trim),na.rm = na.rm) 
+	 	    xbot <- qtrim[1] 
+	 	    xtop <- qtrim[3] 
+	 	    x[x < xbot] <- xbot 
+  	    x[x > xtop] <- xtop 
+	 	    return(x) 
+	 	} 

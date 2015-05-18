@@ -24,6 +24,8 @@
   normalizing constant for the distribution.
   \code{\link{ergm}} can return either a maximum pseudo-likelihood
   estimate or an approximate maximum likelihood estimator based on a Monte Carlo scheme.
+  
+  (for an overview of the package, see \link{ergm-package})
 }
 \usage{
 ergm (formula,
