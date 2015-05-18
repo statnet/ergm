@@ -48,6 +48,7 @@ sociality.default <- function(object,...)
 
 sociality.network <- function (object, ..., 
    statistics=NULL){
+  .Deprecated(msg="the sociality.network function will not be supported in the future. see summary.formula and the ergm term 'sociality' for an alternate")
   requireNamespace('sna', quietly=TRUE, warn.conflicts=FALSE)
   if(!is.directed(object)){
     gmode <- "network"
@@ -131,6 +132,7 @@ sociality.formula <- function (formula, ..., init, nsim=100,
                                seed=NULL,  drop=FALSE,
                                statistics=NULL
                                ) {
+  .Deprecated(msg="the sociality.formula function will not be supported in the future. see summary.formula and the ergm term 'sociality' for an alternate")
   trms <- ergm.getterms(formula)
   if(length(trms)>2){
     g <- eval(trms[[2]], sys.parent())
@@ -244,6 +246,7 @@ sociality.ergm <- function (object, ..., nsim=100,
                             constraints=NULL, prop.weights="default", prop.args =list(),
                             seed=NULL, drop=FALSE,
                             statistics=NULL) {
+  .Deprecated(msg="the sociality.ergm function will not be supported in the future. see summary.formula and the ergm term 'sociality' for an alternate")
 
 # trms <- ergm.getterms(object$formula)
 # g <- as.network(eval(trms[[2]], sys.parent()))

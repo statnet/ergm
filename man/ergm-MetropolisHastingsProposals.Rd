@@ -1,4 +1,5 @@
 \name{ergm_MH_proposals}
+\alias{ergm_MH_proposals}
 \alias{InitMHP}
 \alias{InitMHP.CondDegree}
 \alias{InitMHP.CondDegreeDist}

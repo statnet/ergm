@@ -17,24 +17,12 @@
 
 \alias{approx.hotelling.diff.test}
 
-
-
-%\alias{central.network}
-
 \alias{coef.length.model}
 \alias{coef.sublength.model}
 \alias{colMeans.mcmc.list}
 \alias{control.ergm.toplevel}
 \alias{control.simulate.ergm.toplevel}
 \alias{copy.named}
-
-
-\alias{delete.isolates}
-
-\alias{drawpie}
-%\alias{dspartnerdist}
-
-
 
 %\alias{ergm.MCMCse}
 %\alias{ergm.MCMCse.lognormal}
@@ -91,13 +79,12 @@
 %\alias{ergm.sufftoprob}
 %\alias{ergm.t.summary}
 
-\alias{espartnerdist}
 %\alias{get.InitErgm.fname}
 \alias{get.node.attr}
 %\alias{init.methods}
 \alias{is.ergm}
 \alias{is.invertible}
-\alias{largest.components}
+
 %\alias{llik.fun}
 %\alias{llik.fun.EF}
 %\alias{llik.fun.median}
@@ -129,21 +116,12 @@
 \alias{newnw.extract}
 %\alias{nologLik.message}
 \alias{nvattr.copy.network}
-\alias{ostar2deg}
 \alias{plot.mcmc.list.ergm}
 \alias{robust.inverse}
-\alias{rspartnerdist}
-
-\alias{sociality.default}
-\alias{sociality.ergm}
-\alias{sociality.formula}
-\alias{sociality.network}
 \alias{summary.statsmatrix.ergm}
 \alias{sweep.mcmc.list}
 
-\alias{twopathdist}
 %\alias{updatemodel.ErgmTerm}
-\alias{vector.namesmatch}
 %\alias{xyplot.mcmc.list.ergm}
 
 %\alias{prune.conlist}

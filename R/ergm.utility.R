@@ -37,6 +37,7 @@
 ###############################################################################
 
 ostar2deg <- function(object, ninflast=TRUE){
+.Deprecated(msg="ostar2deg will not be supported in future versions of ergm." )
  nnodes <- network.size(object$newnetwork)
  nodeg <- paste("odeg",1:(nnodes-1),sep="")
  nostar <- paste("ostar",1:(nnodes-1),sep="")
@@ -64,6 +65,7 @@ ostar2deg <- function(object, ninflast=TRUE){
 
 is.invertible <- function(V, tol=1e-12)
 {
+  .Deprecated(msg="is.invertible will not be supported in future versions of ergm. use 'rcond' instead" )
     ev <- eigen(V, symmetric = TRUE, only.values = TRUE)$values
     all(ev/max(ev) > tol)
 }
@@ -136,13 +138,41 @@ degreedist <- function(g, print=TRUE)
  invisible(degrees)
 }
 
-
+degreedistfactor <- function(g,x) 
+	 	{ 
+  .Deprecated(msg = "This function will probably not be supported in future versions of ergm")
+	 	 if(!is.network(g)){ 
+	 	  stop("degreedist() requires a network object") 
+	 	 } 
+	 	 x <- get.vertex.attribute(g,x) 
+	 	 degrees <- as.edgelist(g) 
+	 	 if(length(degrees)>0){ 
+	 	  if(is.directed(g)){ 
+	 	   outdegrees <- table(degrees[,1],x[degrees[,2]]) 
+	 	#  outdegrees <- c(rep(0, network.size(g)-nrow(outdegrees)), outdegrees) 
+	 	   if(!is.null(outdegrees)){print(table(outdegrees[,1]))} 
+	 	   if(!is.null(outdegrees)){print(table(outdegrees[,2]))} 
+	 	   indegrees <- table(degrees[,2],x[degrees[,1]]) 
+	 	#  indegrees <- c(rep(0, network.size(g)-nrow(indegrees)), indegrees) 
+	 	   if(!is.null(indegrees)){print(table(indegrees[,1]))} 
+	 	   if(!is.null(indegrees)){print(table(indegrees[,2]))} 
+	 	   degrees <- list(indegrees=indegrees, outdegrees=outdegrees) 
+	 	#  degrees <- rbind(indegrees, outdegrees) 
+	 	  }else{ 
+	 	   degrees <- table(degrees,x[degrees]) 
+	 	   degrees <- c(rep(0, network.size(g)-nrow(degrees)), degrees) 
+	 	   if(!is.null(degrees)){print(table(degrees))} 
+	 	  } 
+	 	 } 
+	 	 invisible(degrees) 
+	 	} 
 
 
 
 
 espartnerdist <- function(g, print=TRUE)
 {
+  .Deprecated("espartnerdist function will not be supported in future versions of ergm.  use summary.formula with esp term instead")
  if(!is.network(g)){
   stop("espartnerdist() requires a network object")
  }
@@ -162,6 +192,7 @@ espartnerdist <- function(g, print=TRUE)
 
 dspartnerdist <- function(g, print=TRUE)
 {
+  .Deprecated("dspartnerdist function will not be supported in future versions of ergm.  use summary.formula with dsp term instead")
  if(!is.network(g)){
   stop("dspartnerdist() requires a network object")
  }
@@ -179,6 +210,7 @@ dspartnerdist <- function(g, print=TRUE)
 
 twopathdist <- function(g, print=TRUE)
 {
+  .Deprecated("twopathdist function will not be supported in future versions of ergm")
  if(!is.network(g)){
   stop("twopathdist() requires a network object")
  }
@@ -204,8 +236,9 @@ twopathdist <- function(g, print=TRUE)
 }
 
 
-"rspartnerdist" <- function (g, print = TRUE) 
+rspartnerdist <- function (g, print = TRUE) 
 {
+  .Deprecated("rspartnerdist function will not be supported in future versions of ergm.  use summary.formula with esp and dsp terms instead")
     if (!is.network(g)) {
         stop("rspartnerdist() requires a network object")
     }

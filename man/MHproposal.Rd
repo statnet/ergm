@@ -16,16 +16,15 @@
 \alias{MHproposal.ergm}
 \alias{MHproposal.formula}
 
-\title{ Functions initialize the MHproposal object}
+\title{Functions to initialize the MHproposal object}
 \usage{
-
                       
 \method{MHproposal}{character}(object, 
 									arguments, 
-									nw, 
+									nw, \dots,
 									response=NULL, 
-									reference=~Bernoulli,
-                   \dots)                      
+									reference=reference
+                   )  
                       
                       
 \method{MHproposal}{formula}(object, 
@@ -37,18 +36,17 @@
 									response=NULL,
                   \dots)
 
-\method{MHproposal}{ergm}(object,
+\method{MHproposal}{ergm}(object, \dots,
 									constraints=NULL, 
 									arguments=NULL, 
 									nw=NULL, 
 									weights=NULL,
 									class="c", 
-									reference=~Bernoulli, 
-									response=NULL,
-                   \dots)
+									reference=NULL, 
+									response=NULL)
 }
 \description{
-Functions initialize the MHproposal object using the <InitMHP.> function that corresponds to the name given in 'object'
+S3 Functions that initialize the Metropolis-Hastings Proposal (MHproposal) object using the InitMHP.* function that corresponds to the name given in 'object'.  These functions are not generally called directly by the user.  See \link{ergm_MH_proposals} for general explanation and lists of available Metropolis-Hastings proposal types. 
 }
 \arguments{
   \item{object}{Either a character, a \code{\link{formula}} or an \code{\link{ergm}} object.
@@ -56,12 +54,12 @@ Functions initialize the MHproposal object using the <InitMHP.> function that co
     where \code{y} is a network object or a matrix that can be
     coerced to a \code{\link[network]{network}} object.  
   }
-  \item{nw}{The network object orginally given to <ergm> via 'formula'
+  \item{nw}{The network object originally given to \code{\link{ergm}} via 'formula'
   }
   
   \item{weights}{Specifies the method used to allocate probabilities of being proposed to dyads; options are "TNT", "TNT10", "random", "nonobserved" and "default"; default="default"}
   
-  \item{argument}{A list of parameters used by the <Init.MHP> routines}
+  \item{arguments}{A list of parameters used by the Init.MHP routines}
   
   \item{response}{\emph{EXPERIMENTAL.} Name of the edge attribute whose value is to be
     modeled. Defaults to \code{NULL} for simple presence or absence. }
@@ -85,7 +83,21 @@ Functions initialize the MHproposal object using the <InitMHP.> function that co
 %\details{}
 
 \value{
-   Returns a MHproposal object
+   Returns an MHproposal object: a list with class \code{'MHProposal'} containing the following named elements:
+   \itemize{
+     \item name   : the C name of the proposal
+     \item{inputs : NULL (I think - the only non-null value returned by the InitMH
+              is for <nobetweengroupties>, but this isn't included in the 
+              look-up table}
+     \item package: shared library name where the proposal can be found (usually "ergm")
+     \item{arguments: list of arguments passed to the InitMHP function; in particular,
+       \itemize{
+        \item constraints: list of constraints
+        \item{constraints$bd: the list of parameters to bound degree in the fitting process
+              and returned by <ergm.bounddeg>}
+              }
+          }
+ }
 }
 \seealso{\code{\link{InitMHP}}}
 %\examples{}

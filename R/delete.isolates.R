@@ -26,6 +26,7 @@
 ###################################################################
 
 delete.isolates<-function(x){
+  .Deprecated(msg = "This function will probably not be supported in future versions of ergm")
   #Check to be sure we were called with a network
   if(!is.network(x))
     stop("delete.isolates requires an argument of class network.")
@@ -58,6 +59,7 @@ delete.isolates<-function(x){
 ###################################################################
 
 largest.components<-function(x, minsize=4){
+  .Deprecated(msg = "This function will probably not be supported in future versions of ergm")
   #Check to be sure we were called with a network
   if(!is.network(x))
     stop("largest.components requires an argument of class network.")
@@ -76,5 +78,36 @@ largest.components<-function(x, minsize=4){
   invisible(xd)
 }
 
+
+#################################################################### 
+# The <central.network> function returns an empty graph 
+# 
+# --PARAMETERS-- 
+#   x      : a network 
+# 
+# --RETURNED-- 
+#   xd: the original network x, with all edges and all nodes removed 
+# 
+##################################################################### 
+	 	 
+central.network<-function(x){
+  .Deprecated(msg = "This function will probably not be supported in future versions of ergm")
+	 	  #Check to be sure we were called with a network 
+	 	  if(!is.network(x)) 
+	 	    stop("central.network requires an argument of class network.") 
+	 	 
+	 	# require(sna, quietly=TRUE, warn.conflicts=FALSE) 
+	 	  xd <- network.copy(x) 
+	 	  delete.isolates(xd) 
+	 	# amat <- network(1*(tcrossprod(as.sociomatrix(xd))>0)) 
+	 	  amat <- as.edgelist(xd) 
+	 	  isolates <- unique(amat[,2]) 
+	 	  if(length(isolates)>0){delete.vertices(xd,isolates)} 
+	 	  amat <- as.edgelist(xd) 
+	 	  isolates <- unique(amat[,1]) 
+	 	  if(length(isolates)>0){delete.vertices(xd,isolates)} 
+	 	  delete.isolates(xd) 
+	 	  invisible(xd) 
+	 	} 
 
 

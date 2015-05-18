@@ -16,8 +16,9 @@
 
 
 
-mvmodel <- function(object, ...)
+mvmodel <- function(object, ...){
 UseMethod("mvmodel")
+}
 
 
 
@@ -74,6 +75,7 @@ mvmodel.formula <- function (formula, ..., init, nsim=100,
                              seed=NULL, 
                              statistic=NULL
 		      ) {
+  .Deprecated(new = 'simulate.formula',msg = "mvmodel functions will not be supported in future versions of ergm. use simulate.formula instead")
   check.control.class("simulate.formula", "ERGM mvmodel.formula")
   trms <- ergm.getterms(formula)
   if(length(trms)>2){
@@ -162,7 +164,7 @@ mvmodel.ergm <- function (object, ..., nsim=100,
                           seed=NULL,
                           control=control.simulate.ergm(),
                           statistic=NULL) {
-
+  .Deprecated(new = 'simulate.ergm', .Deprecated(new = 'simulate.formula',msg = "mvmodel functions will not be supported in future versions of ergm. use simulate.ergm instead"))
   check.control.class("simulate.ergm")
   
 # trms <- ergm.getterms(object$formula)

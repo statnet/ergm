@@ -11,7 +11,7 @@
 \alias{ergm.MHP.table}
 \title{Table mapping reference,constraints, etc. to Metropolis Hastings Proposals (MHP)}
 \description{
-		This is a low-level function not intended to be called directly by end users. For information on Metropolis-Hastings proposal methods, see \link{MH_proposals}. This function sets up the table mapping constraints, references, etc. to
+		This is a low-level function not intended to be called directly by end users. For information on Metropolis-Hastings proposal methods, \link{ergm_MH_proposals}. This function sets up the table mapping constraints, references, etc. to
 		MHproposals.  (It is defined in the scope of local environment)  }
 \usage{
  ergm.MHP.table(Class, Reference, Constraints, Priority, Weights, MHP)

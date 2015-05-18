@@ -1,9 +1,9 @@
 \name{as.edgelist}
 \alias{as.edgelist}
-%\alias{as.edgelist.compressed}
-%\alias{as.edgelist.matrix}
-%\alias{as.edgelist.network}
-%\alias{as.edgelist.uncompressed}
+\alias{as.edgelist.compressed}
+\alias{as.edgelist.matrix}
+\alias{as.edgelist.network}
+\alias{as.edgelist.uncompressed}
 \title{
 Convert a network object into a numeric edgelist matrix
 }
