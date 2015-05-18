@@ -61,10 +61,15 @@ ergm.CD <- function(init, nw, model,
   stats.obs.hist <- matrix(NA, 0, length(model$nw.stats))
   steplen.hist <- c()
   tether.hist <- 0
-  
+
+  nthreads <- max(
+    if(inherits(control$parallel,"cluster")) nrow(summary(control$parallel))
+    else control$parallel,
+    1)
+
   # Store information about original network, which will be returned at end
   nw.orig <- network.copy(nw)
-  
+
   # Impute missing dyads.
   nw <- single.impute.dyads(nw, response=response)
   model$nw.stats <- summary(model$formula, response=response, basis=nw)
@@ -82,26 +87,26 @@ ergm.CD <- function(init, nw, model,
   # specified) and the statistics of the networks in the LHS of the
   # formula or produced by SAN. If target.stats is not speficied
   # explicitly, they are computed from this network, so statshift==0.
-  statshift <- model$nw.stats - model$target.stats
+  statshifts <- rep(list(model$nw.stats - model$target.stats), nthreads) # Each network needs its own statshift.
 
   # Is there observational structure?
   obs <- ! is.null(MHproposal.obs)
   
-  # Initialize control.obs in case there is observation structure
+  # Initialize control.obs and other *.obs if there is observation structure
   
   if(obs){
     control.obs <- control
     control.obs$MCMC.samplesize <- control$obs.MCMC.samplesize
     control.obs$MCMC.interval <- control$obs.MCMC.interval
     control.obs$MCMC.burnin <- control$obs.MCMC.burnin
+    control.obs$MCMC.burnin.min <- control$obs.MCMC.burnin.min
 
-    nw.obs <- network.copy(nw)
-    statshift.obs <- statshift
+    nws.obs <- lapply(nws, network.copy)
+    statshifts.obs <- statshifts
   }
   # mcmc.init will change at each iteration.  It is the value that is used
   # to generate the MCMC samples.  init will never change.
   mcmc.init <- init
-  parametervalues <- init # Keep track of all parameter values
 
   iteration <- 1
   repeat{ # Tether length loop: finish when doubling tether length doesn't change statistics
@@ -124,20 +129,21 @@ ergm.CD <- function(init, nw, model,
     # Obtain MCMC sample
     mcmc.eta0 <- ergm.eta(mcmc.init, model$etamap)
     if(control$CD.nsteps==Inf){
-    z <- ergm.getMCMCsample(nw, model, MHproposal, mcmc.eta0, control, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
+    z <- ergm.getMCMCsample(nws, model, MHproposal, mcmc.eta0, control, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
     if(z$status==1) stop("Number of edges in a simulated network exceeds that in the observed by a factor of more than ",floor(control$MCMLE.density.guard),". This is a strong indicator of model degeneracy. If you are reasonably certain that this is not the case, increase the MCMLE.density.guard control.ergm() parameter.")
     }
     else
-      z <- ergm.getCDsample(nw, model, MHproposal, mcmc.eta0, control, verbose, response=response)
-    
+      z <- ergm.getCDsample(nws, model, MHproposal, mcmc.eta0, control, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
+
     # post-processing of sample statistics:  Shift each row by the
     # vector model$nw.stats - model$target.stats, store returned nw
     # The statistics in statsmatrix should all be relative to either the
     # observed statistics or, if given, the alternative target.stats
     # (i.e., the estimation goal is to use the statsmatrix to find 
     # parameters that will give a mean vector of zero)
-    statsmatrix <- sweep(z$statsmatrix, 2, statshift, "+")
-    colnames(statsmatrix) <- model$coef.names
+    statsmatrices <- mapply(sweep, z$statsmatrices, statshifts, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE)
+    for(i in seq_along(statsmatrices)) colnames(statsmatrices[[i]]) <- model$coef.names
+    statsmatrix <- do.call("rbind",statsmatrices)
     
     if(control$CD.nsteps==Inf)
     nw.returned <- network.copy(z$newnetwork)
@@ -150,25 +156,25 @@ ergm.CD <- function(init, nw, model,
     ##  Does the same, if observation process:
     if(obs){
       if(control$CD.nsteps==Inf){
-      z.obs <- ergm.getMCMCsample(nw.obs, model, MHproposal.obs, mcmc.eta0, control.obs, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
+      z.obs <- ergm.getMCMCsample(nws.obs, model, MHproposal.obs, mcmc.eta0, control.obs, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
 
       if(z.obs$status==1) stop("Number of edges in the simulated network exceeds that observed by a large factor (",control$MCMC.max.maxedges,"). This is a strong indication of model degeneracy. If you are reasonably certain that this is not the case, increase the MCMLE.density.guard control.ergm() parameter.")
       }else
-        z.obs <- ergm.getCDsample(nw.obs, model, MHproposal.obs, mcmc.eta0, control.obs, verbose, response=response)
-      
-      statsmatrix.obs <- sweep(z.obs$statsmatrix, 2, statshift.obs, "+")
-      colnames(statsmatrix.obs) <- model$coef.names
-      if(control$CD.nsteps==Inf)
-      nw.obs.returned <- network.copy(z.obs$newnetwork)
+      z.obs <- ergm.getCDsample(nws.obs, model, MHproposal.obs, mcmc.eta0, control.obs, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
+
+      statsmatrices.obs <- mapply(sweep, z.obs$statsmatrices, statshifts.obs, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE)
+      for(i in seq_along(statsmatrices.obs)) colnames(statsmatrices.obs[[i]]) <- model$coef.names
+      statsmatrix.obs <- do.call("rbind",statsmatrices.obs)
       
       if(verbose){
         cat("Back from constrained MCMC. Average statistics:\n")
         print(apply(statsmatrix.obs, 2, mean))
       }
     }else{
-      statsmatrix.obs <- NULL
+      statsmatrices.obs <- statsmatrix.obs <- NULL
+      z.obs <- NULL
     }
-    
+
     if(control$CD.nsteps==Inf && sequential) {
       nw <- nw.returned
       statshift <- summary(model$formula, basis=nw, response=response) - model$target.stats
@@ -322,7 +328,7 @@ ergm.CD <- function(init, nw, model,
     coef.hist <- rbind(coef.hist, mcmc.init)
     stats.obs.hist <- if(!is.null(statsmatrix.obs)) rbind(stats.obs.hist, apply(statsmatrix.obs, 2, mean)) else NULL
     stats.hist <- rbind(stats.hist, apply(statsmatrix, 2, mean))
-    parametervalues <- rbind(parametervalues, mcmc.init)
+    coef.hist <- rbind(coef.hist, mcmc.init)
 
     iteration <- iteration + 1
     
@@ -350,8 +356,6 @@ ergm.CD <- function(init, nw, model,
   v$tether.hist <- tether.hist
   # The following output is sometimes helpful.  It's the total history
   # of all eta values, from the initial eta0 to the final estimate
-  # v$allparamvals <- parametervalues
-
 
   v$etamap <- model$etamap
   v

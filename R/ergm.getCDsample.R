@@ -58,7 +58,7 @@ ergm.getCDsample <- function(nw, model, MHproposal, eta0, control,
   if(is.network(nw)) nw <- list(nw)
   nws <- rep(nw, length.out=nthreads)
   
-  Clists <- lapply(nws, ergm.Cprepare, model, response=response)
+  Clists <- lapply(nws, ergm::ergm.Cprepare, model, response=response)
 
   control.parallel <- control
   if(!is.null(control$MCMC.samplesize)) control.parallel$MCMC.samplesize <- ceiling(control$MCMC.samplesize / nthreads)

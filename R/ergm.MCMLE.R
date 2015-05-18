@@ -121,7 +121,6 @@ ergm.MCMLE <- function(init, nw, model,
   # mcmc.init will change at each iteration.  It is the value that is used
   # to generate the MCMC samples.  init will never change.
   mcmc.init <- init
-  
   calc.MCSE <- FALSE
   last.adequate <- FALSE
   

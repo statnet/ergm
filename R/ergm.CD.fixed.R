@@ -64,7 +64,7 @@ ergm.CD.fixed <- function(init, nw, model,
     if(inherits(control$parallel,"cluster")) nrow(summary(control$parallel))
     else control$parallel,
     1)
-  
+
   # Store information about original network, which will be returned at end
   nw.orig <- network.copy(nw)
 
@@ -99,6 +99,7 @@ ergm.CD.fixed <- function(init, nw, model,
   # to generate the MCMC samples.  init will never change.
   mcmc.init <- init
   finished <- FALSE
+
   for(iteration in 1:control$CD.maxit){
     if(iteration == control$CD.maxit) finished <- TRUE
     if(verbose){
@@ -130,7 +131,7 @@ ergm.CD.fixed <- function(init, nw, model,
     
     ##  Does the same, if observation process:
     if(obs){
-      z.obs <- ergm.getCDsample(nws, model, MHproposal.obs, mcmc.eta0, control.obs, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
+      z.obs <- ergm.getCDsample(nws.obs, model, MHproposal.obs, mcmc.eta0, control.obs, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
 
       statsmatrices.obs <- mapply(sweep, z.obs$statsmatrices, statshifts.obs, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE)
       for(i in seq_along(statsmatrices.obs)) colnames(statsmatrices.obs[[i]]) <- model$coef.names
@@ -145,7 +146,7 @@ ergm.CD.fixed <- function(init, nw, model,
       z.obs <- NULL
     }
 
-    # Compute the sample estimating equations and the convergence p-value.
+    # Compute the sample estimating equations and the convergence p-value. 
     esteq <- .ergm.esteq(mcmc.init, model, statsmatrix)
     if(isTRUE(all.equal(apply(esteq,2,sd), rep(0,ncol(esteq)), check.names=FALSE))&&!all(esteq==0))
       stop("Unconstrained MCMC sampling did not mix at all. Optimization cannot continue.")
@@ -155,7 +156,6 @@ ergm.CD.fixed <- function(init, nw, model,
     # We can either pretty-print the p-value here, or we can print the
     # full thing. What the latter gives us is a nice "progress report"
     # on whether the estimation is getting better..
-
     if(verbose){
       cat("Average estimating equation values:\n")
       print(if(obs) colMeans(esteq.obs)-colMeans(esteq) else colMeans(esteq))
@@ -165,7 +165,7 @@ ergm.CD.fixed <- function(init, nw, model,
       cat("Convergence detected. Stopping.\n")
       finished <- TRUE
     }
-    
+
     if(!estimate){
       if(verbose){cat("Skipping optimization routines...\n")}
       l <- list(coef=mcmc.init, mc.se=rep(NA,length=length(mcmc.init)),
