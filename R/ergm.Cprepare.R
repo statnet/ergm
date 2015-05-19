@@ -120,7 +120,14 @@ ergm.Cprepare <- function(nw, m, response=NULL)
 ## Construct and serialize a very simple static edgelist, with the
 ## vertex having the lesser index the tail and sorted by tails, then
 ## by heads.
-ergm.Cprepare.el<-function(x, attrname=NULL, directed=if(is.network(x)) is.directed(x) else stop("Directedness argument is mandatory for edgelist input.")){
+ergm.Cprepare.el<-function(x, attrname=NULL, directed){
+  if(missing(directed)){
+    if(is.network(x)){
+      directed<-is.directed(x)
+    }  else{ 
+      stop("Directedness argument is mandatory for edgelist input.")
+    }
+  }
   xm <- if(is.network(x)) as.edgelist(x, attrname=attrname) else x
   
   if(nrow(xm)){

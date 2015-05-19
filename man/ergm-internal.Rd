@@ -110,7 +110,6 @@
 \alias{newnw.extract}
 %\alias{nologLik.message}
 \alias{nvattr.copy.network}
-\alias{plot.mcmc.list.ergm}
 \alias{robust.inverse}
 \alias{summary.statsmatrix.ergm}
 \alias{sweep.mcmc.list}
@@ -120,8 +119,6 @@
 
 %\alias{prune.conlist}
 \alias{standardize.network}
-\alias{get.free.dyads}
-\alias{get.miss.dyads}
 \alias{geweke.diag.ar}
 
 %\alias{mk.edge.to.pos.lasttoggle.f}

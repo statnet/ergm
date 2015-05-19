@@ -8,28 +8,44 @@
 Internal Function to Prepare Data for ergm's C Interface 
 }
 \description{
-This is an internal function not intended to be called by end users.  The \code{ergm.Cprepare} function builds an object called Clist that contains all the necessary ingredients to be passed to the C functions
+These are internal functions not intended to be called by end users.  The \code{ergm.Cprepare} function builds an object called Clist that contains all the necessary ingredients to be passed to the C functions, other functions create edgelists and handle missing edge data. 
 }
 \usage{
 ergm.Cprepare(nw, m, response = NULL)
+
+ergm.Cprepare.el(x, attrname=NULL, directed)
+
+ergm.Cprepare.miss(nw)
+
+ergm.design(nw, model, verbose = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{nw}{
+  \item{nw,x}{
 a network object
 }
-  \item{m}{
+  \item{m,model}{
 a model object, as returned by \code{\link{ergm.getmodel}}
 }
-  \item{response}{
+  \item{response,attrname}{
 character name of an edge attribute
+} 
+\item{directed}{
+logical, is the network to be considered directed? (defaults to is.directed(x))
 }
+\item{verbose}{logical, whether the design matrix should be printed; default=FALSE}
 }
 \details{
-This function is used directly by other ergm-related packages, but should never need to be called directly by the user. 
+These low-level functions are used by other ergm-related packages, but should never need to be called directly by the user. 
+\itemize{
+\item \code{ergm.Cprepare} builds an object called Clist that contains all the necessary ingredients to be passed to the C functions
+\item \code{ergm.Cprepare.el} constructs and serializes a very simple static edgelist, with the vertex having the lesser index the tail and sorted by tails, then by heads.
+\item \code{ergm.Cprepare.miss} constructs an edgelist as \code{ergm.Cprepare.el}, but only includes 'missing' edges (marked as NA)
+\item \code{ergm.design}  functions as \code{ergm.Cprepare} would, but acts on the network of missing edges
+}
 }
 \value{
-Clist:  a list of parameters used by several of the fitting routines containing
+\code{ergm.Cprepare} returns Clist:  a list of parameters used by several of the fitting routines containing
 \itemize{
 \item{      n           :  the size of the network}
 \item{     dir         :  whether the network is directed (T or F)}
@@ -59,4 +75,14 @@ Clist:  a list of parameters used by several of the fitting routines containing
                            contain the C function 'd_fname'; default="ergm"
                            for each fname in fnamestring}
  }
+ 
+\code{ergm.design} returns: Clist.miss
+\itemize{
+\item{if 'nw' has missing edges, see the return list, 'Clist', from the
+                              \code{ergm.Cprepare} function header}
+\item{if 'nw' hasn't any missing edges, the list will only contain NULL
+                                values for the 'tails' and 'heads' components,
+                                a 0 for 'nedges' and 'dir' appropriately set }
+}
+\code{ergm.Cprepare.miss} returns a vector of length 1+Nmissing*2. The first element is the number of missing edges, and the remainder a column-major edgelist
 }
