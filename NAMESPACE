@@ -80,8 +80,8 @@ export(
   ergm.etagradmult,                
   ergm.etamap,
   ergm.exact,                      
-  ergm.geodesicmatrix,
-  ergm.geodesicmatrix.edgelist,    
+  #ergm.geodesicmatrix,  made internal 
+  #ergm.geodesicmatrix.edgelist,    made internal
   ergm.geodistdist,
   ergm.geodistn,                   
   ergm.getCluster,
@@ -98,8 +98,8 @@ export(
   ergm.mahalanobis,                
   #ergm.mapl,
   #ergm.maple,                      
-  # ergm.MCMC.packagenames, proposed to make internal
-  #ergm.MCMCse,            proposed to make internal           
+  # ergm.MCMC.packagenames, made internal
+  #ergm.MCMCse,            made internal           
   #ergm.MCMCse.lognormal,
   ergm.mcmcslave,                  
   ergm.MCMLE,
@@ -107,8 +107,8 @@ export(
   #ergm.MPIcluster.started,
   ergm.mple,                       
   ergmMPLE,
-  ergm.nodegeodesics,              
-  ergm.pairgeodesic,
+  #ergm.nodegeodesics,        made internal      
+  #ergm.pairgeodesic,         made internal
   # ergm.pen.glm,                    
   # ergm.phase12, made internal
   ergm.pl,                         

@@ -10,10 +10,18 @@
 \name{coef.ergm}
 \alias{coef.ergm}
 \alias{coefficients.ergm}
+\alias{coef.length.model}
+\alias{coef.sublength.model}
 \title{Extract Model Coefficients}
 \usage{
+
 \method{coef}{ergm}(object, \dots)
+
 \method{coefficients}{ergm}(object, \dots)
+
+\method{coef}{length.model}(object, ...)
+
+\method{coef}{sublength.model}(object, ...)
 }
 \alias{coef.ergm}
 \alias{coefficients.ergm}

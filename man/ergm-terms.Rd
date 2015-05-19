@@ -12,6 +12,7 @@
 \alias{ergm.terms}
 \alias{terms-ergm}
 \alias{terms.ergm}
+\alias{InitErgmTerm}
 
 \alias{absdiff}
 \alias{absdiffcat}

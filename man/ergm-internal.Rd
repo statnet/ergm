@@ -17,17 +17,16 @@
 
 \alias{approx.hotelling.diff.test}
 
-\alias{coef.length.model}
-\alias{coef.sublength.model}
+
 \alias{colMeans.mcmc.list}
-\alias{control.ergm.toplevel}
-\alias{control.simulate.ergm.toplevel}
+%\alias{control.ergm.toplevel}
+%\alias{control.simulate.ergm.toplevel}
 
 %\alias{ergm.MCMCse}
 %\alias{ergm.MCMCse.lognormal}
 \alias{ergm.MCMLE}
 
-\alias{ergm.bounddeg}
+
 
 %\alias{ergm.bridge.preproc}
 
@@ -37,19 +36,8 @@
 \alias{ergm.degeneracy}
 
 %\alias{ergm.estimate}
-\alias{ergm.eta}
-\alias{ergm.etagrad}
-\alias{ergm.etagradmult}
-\alias{ergm.etamap}
-\alias{ergm.geodesicmatrix}
-\alias{ergm.geodesicmatrix.edgelist}
-\alias{ergm.geodistdist}
-\alias{ergm.geodistn}
-
 
 \alias{ergm.getglobalstats}
-
-
 
 \alias{ergm.independencemodel}
 \alias{ergm.initialfit}
@@ -60,8 +48,7 @@
 %\alias{ergm.maple}
 
 \alias{ergm.mple}
-\alias{ergm.nodegeodesics}
-\alias{ergm.pairgeodesic}
+
 %\alias{ergm.pen.glm}
 %\alias{ergm.phase12}
 \alias{ergm.pl}

@@ -94,9 +94,10 @@ S3 Functions that initialize the Metropolis-Hastings Proposal (MHproposal) objec
        \itemize{
         \item constraints: list of constraints
         \item{constraints$bd: the list of parameters to bound degree in the fitting process
-              and returned by <ergm.bounddeg>}
+              and returned by \code{\link{ergm.bounddeg}}
               }
-          }
+        }
+      }
  }
 }
 \seealso{\code{\link{InitMHP}}}
