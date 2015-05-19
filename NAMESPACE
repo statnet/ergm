@@ -138,7 +138,7 @@ export(
   gof.ergm,                        
   gof.formula,
                      
-  invert.network,                  
+  invert.network,       # deprecated         
   is.durational,
   is.durational.character,         
   is.durational.ergm.model,

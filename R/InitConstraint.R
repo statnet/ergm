@@ -184,7 +184,7 @@ InitConstraint.fixedas<-function(conlist, lhs.nw, present=NULL, absent=NULL,...)
 		if(any(duplicated(fixed))){
 			stop("Dyads cannot be fixed at both present and absent")
 		}
-		standardize.network(invert.network(network.update(lhs.nw,fixed, matrix.type = "edgelist")))
+		standardize.network(!network.update(lhs.nw,fixed, matrix.type = "edgelist"))
 	}
 	conlist
 }

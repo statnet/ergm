@@ -13,6 +13,12 @@
 \alias{twopathdist}
 \alias{ostar2deg}
 \alias{drawpie}
+\alias{invert.network}
+\alias{is.invertible}
+\alias{mvmodel}
+\alias{mvmodel.default}
+\alias{mvmodel.ergm}
+\alias{mvmodel.formula}
 
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{

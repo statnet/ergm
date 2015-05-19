@@ -435,6 +435,7 @@ get.miss.dyads <- function(constraints, constraints.obs){
 }
 
 invert.network <- function(nw){
+  .Deprecated(msg="invert.network has been deprecated, use '!.network' instead")
   n <- network.size(nw)
   m <- nw %n% "bipartite"
 

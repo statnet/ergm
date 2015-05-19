@@ -10,6 +10,7 @@
 \name{ergm}
 \alias{ergm}
 \alias{ergm.object}
+\alias{is.ergm}
 \title{Exponential Family Random Graph Models}
 \description{
   \code{\link{ergm}} is used to fit linear exponential random graph

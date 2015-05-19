@@ -22,7 +22,6 @@
 \alias{colMeans.mcmc.list}
 \alias{control.ergm.toplevel}
 \alias{control.simulate.ergm.toplevel}
-\alias{copy.named}
 
 %\alias{ergm.MCMCse}
 %\alias{ergm.MCMCse.lognormal}
@@ -82,8 +81,7 @@
 %\alias{get.InitErgm.fname}
 \alias{get.node.attr}
 %\alias{init.methods}
-\alias{is.ergm}
-\alias{is.invertible}
+
 
 %\alias{llik.fun}
 %\alias{llik.fun.EF}
@@ -107,10 +105,6 @@
 %\alias{midarrow}
 %\alias{model.matrix.pen.glm}
 
-\alias{mvmodel}
-\alias{mvmodel.default}
-\alias{mvmodel.ergm}
-\alias{mvmodel.formula}
 %\alias{mk.conlist}
 %\alias{myLibLoc}
 \alias{newnw.extract}
@@ -126,25 +120,12 @@
 
 %\alias{prune.conlist}
 \alias{standardize.network}
-
-
-
-
-
-
-
 \alias{get.free.dyads}
 \alias{get.miss.dyads}
 \alias{geweke.diag.ar}
-\alias{invert.network}
 
 %\alias{mk.edge.to.pos.lasttoggle.f}
 %\alias{as.edgelist.matrix}
-
-
-
-
-
 
 \description{
 Internal \code{\link[=ergm-package]{ergm}} functions.}

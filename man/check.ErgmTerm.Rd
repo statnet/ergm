@@ -21,7 +21,9 @@ This is a low-level function not intended to be called by end users.  For inform
  by halting execution if any of the first 3 criteria are not met.
 }
 \usage{
-check.ErgmTerm(nw, arglist, directed = NULL, bipartite = NULL, nonnegative = FALSE, varnames = NULL, vartypes = NULL, defaultvalues = list(), required = NULL, response = NULL)
+check.ErgmTerm(nw, arglist, directed = NULL, bipartite = NULL,
+               nonnegative = FALSE, varnames = NULL, vartypes = NULL, 
+               defaultvalues = list(), required = NULL, response = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
