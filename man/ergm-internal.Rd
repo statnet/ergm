@@ -32,7 +32,6 @@
 %\alias{ergm.coefficient.degeneracy}
 %\alias{ergm.compute.degeneracy}
 %\alias{ergm.curved.statsmatrix}
-\alias{ergm.degeneracy}
 
 %\alias{ergm.estimate}
 \alias{ergm.initialfit}

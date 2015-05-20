@@ -9,7 +9,9 @@ Checks an ergm Object for Degeneracy
  of the log-likelihood function at the maximized theta values
 }
 \usage{
-ergm.degeneracy(object, control = object$control, fast = TRUE, test.only = FALSE, verbose = FALSE)
+ergm.degeneracy(object, control = object$control, 
+                fast = TRUE, test.only = FALSE, 
+                verbose = FALSE)
 }
 \arguments{
   \item{object}{
