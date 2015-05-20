@@ -5,7 +5,6 @@
 \alias{ergm.geodistn}
 \alias{ergm.nodegeodesics}
 \alias{ergm.pairgeodesic}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 calculate geodesic distance distribution for a network or edgelist
 }

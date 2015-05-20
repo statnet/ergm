@@ -24,7 +24,6 @@
 
 %\alias{ergm.MCMCse}
 %\alias{ergm.MCMCse.lognormal}
-\alias{ergm.MCMLE}
 
 
 
@@ -36,10 +35,6 @@
 \alias{ergm.degeneracy}
 
 %\alias{ergm.estimate}
-
-\alias{ergm.getglobalstats}
-
-\alias{ergm.independencemodel}
 \alias{ergm.initialfit}
 \alias{ergm.logisticdeviance}
 \alias{ergm.logitreg}
@@ -66,10 +61,8 @@
 %\alias{ergm.t.summary}
 
 %\alias{get.InitErgm.fname}
-\alias{get.node.attr}
+
 %\alias{init.methods}
-
-
 %\alias{llik.fun}
 %\alias{llik.fun.EF}
 %\alias{llik.fun.median}
@@ -97,7 +90,6 @@
 \alias{newnw.extract}
 %\alias{nologLik.message}
 \alias{nvattr.copy.network}
-\alias{robust.inverse}
 \alias{summary.statsmatrix.ergm}
 \alias{sweep.mcmc.list}
 
