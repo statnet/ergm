@@ -425,8 +425,8 @@ get.miss.dyads <- function(constraints, constraints.obs){
     if(is.null(free.dyads.obs)) NULL
     else free.dyads.obs
   }else{
-    if(is.null(free.dyads.obs)) standardize.network(invert.network(free.dyads),FALSE)
-    else standardize.network(invert.network(free.dyads),FALSE) | free.dyads.obs
+    if(is.null(free.dyads.obs)) standardize.network(!free.dyads,FALSE)
+    else standardize.network(!free.dyads,FALSE) | free.dyads.obs
   }
 }
 
