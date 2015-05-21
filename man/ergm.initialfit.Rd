@@ -96,6 +96,7 @@ returns  an \code{\link{ergm}} object as one of the following lists
   \item { if MPLE -- the list returned by \code{\link{ergm.mple}}
 }
 }
+}
 
 
 
