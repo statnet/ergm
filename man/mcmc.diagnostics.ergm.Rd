@@ -11,17 +11,21 @@
 \alias{mcmc.diagnostics.ergm}
 \alias{mcmc.diagnostics}
 \alias{mcmc.diagnostics.default}
+\alias{plot.mcmc.list.ergm}
 \title{Conduct MCMC diagnostics on an ergm fit}
 \description{
-  This function prints diagnistic information and creates simple diagnostic plots for the MCMC sampled
-  statistics produced from a fit.
+  This function prints diagnistic information and creates simple diagnostic plots for the MCMC sampled statistics produced from a fit.
 }
 \usage{
 \method{mcmc.diagnostics}{ergm} (object, 
-                                  center=TRUE,
-                                  curved=TRUE,
-                                  vars.per.page=3,
-                                  \dots) 
+              center=TRUE,
+              curved=TRUE,
+              vars.per.page=3,
+              \dots)
+\method{plot}{mcmc.list.ergm}(x, 
+                main = NULL, 
+                vars.per.page = 3, 
+                \dots)
 }
 \arguments{
   \item{object}{An ergm object.  See documentation for
@@ -38,13 +42,15 @@
     per plotting page.  Ignored
     if \code{latticeExtra} package is not installed.
   }
+  \item{x}{an mcmc.list object containing the mcmc diagnostic samples}
+  \item{main}{
+   character, main plot heading title
+  }
   \item{\dots}{Additional arguments, to be passed to plotting functions.
   }
 }
 
-\details{ The plots produced are a trace of the sampled output and a
-  density estimate for each variable in the chain.  The diagnostics
-  printed include correlations and convergence diagnostics.
+\details{ A pair of plots are produced for each statistic:a trace of the sampled output statistic values on the left and density estimate for each variable in the MCMC chain on the right.  Diagnostics printed to the console include correlations and convergence diagnostics.
   
   Recent changes in the ergm estimation algorithm mean that these plots can no longer be used to ensure that the mean statistics from the model match the observed network statistics. For that functionality, please use the GOF command: \code{gof(object, GOF=~model)}.
   

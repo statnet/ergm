@@ -40,7 +40,7 @@ get.node.attr <- function(nw, attrname, functionname=NULL, numeric=FALSE) {
 	
   if(NVL(get.network.attribute(nw,"bipartite"),FALSE)){}  
   # not sure what this code above was supposed to do, but it was only checking if the attribute existed if the network	was bipartite
-  # maybe, if it was bipartite, it should check if appropriate values exist for the mode in question?
+  # maybe, if it was bipartite, it should check if appropriate values exist for the mode in question? and should use 'is.bipartite()' for the check
   
   if (!any(attrname==unique(unlist(lapply(nw$val,names))))){
     stop(paste("Attribute '", attrname, "' named in", functionname,

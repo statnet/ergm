@@ -111,8 +111,9 @@ ergm.getCluster <- function(control, verbose=FALSE){
 
 
 # Shuts down clusters.
-ergm.stopCluster <- function(object, ...)
+ergm.stopCluster <- function(object, ...){
   UseMethod("ergm.stopCluster")
+}
 
 # Only stop the MPI cluster if we were the ones who had started it.
 ergm.stopCluster.MPIcluster <- function(object, ...){

@@ -8,7 +8,7 @@
 #  Copyright 2003-2015 Statnet Commons
 #######################################################################
 # For now, this file contains information about reference
-# meausres. Eventually, we should create an "InitReference" or similar
+# measures. Eventually, we should create an "InitReference" or similar
 # framework.
 
 ergm.init.methods <- local({

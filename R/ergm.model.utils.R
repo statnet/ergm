@@ -20,7 +20,7 @@ vector.namesmatch<-function(v,names,errname=NULL){
        && length(unique(names(v)))==length(v)
        && length(unique(names))==length(names)
        && all(sort(names(v)) == sort(names))){
-      namesmatch <- match(names(v), names)
+      namesmatch <- match(names, names(v))
       v <- v[namesmatch]
     }else stop('Name missmatch in "', errname,'". Specify by position.')
   }

@@ -18,86 +18,39 @@
 \alias{approx.hotelling.diff.test}
 
 
-
-%\alias{central.network}
-
-\alias{coef.length.model}
-\alias{coef.sublength.model}
 \alias{colMeans.mcmc.list}
-\alias{control.ergm.toplevel}
-\alias{control.simulate.ergm.toplevel}
-\alias{copy.named}
-
-
-\alias{delete.isolates}
-
-\alias{drawpie}
-%\alias{dspartnerdist}
-
-
+%\alias{control.ergm.toplevel}
+%\alias{control.simulate.ergm.toplevel}
 
 %\alias{ergm.MCMCse}
 %\alias{ergm.MCMCse.lognormal}
-\alias{ergm.MCMLE}
 
-\alias{ergm.bounddeg}
+
 
 %\alias{ergm.bridge.preproc}
 
 %\alias{ergm.coefficient.degeneracy}
 %\alias{ergm.compute.degeneracy}
 %\alias{ergm.curved.statsmatrix}
-\alias{ergm.degeneracy}
 
 %\alias{ergm.estimate}
-\alias{ergm.eta}
-\alias{ergm.etagrad}
-\alias{ergm.etagradmult}
-\alias{ergm.etamap}
-\alias{ergm.geodesicmatrix}
-\alias{ergm.geodesicmatrix.edgelist}
-\alias{ergm.geodistdist}
-\alias{ergm.geodistn}
-
-
-\alias{ergm.getglobalstats}
-
-
-
-\alias{ergm.independencemodel}
 \alias{ergm.initialfit}
 \alias{ergm.logisticdeviance}
 \alias{ergm.logitreg}
-\alias{ergm.mahalanobis}
 %\alias{ergm.mapl}
 %\alias{ergm.maple}
-
-\alias{ergm.mple}
-\alias{ergm.nodegeodesics}
-\alias{ergm.pairgeodesic}
 %\alias{ergm.pen.glm}
 %\alias{ergm.phase12}
-\alias{ergm.pl}
 %\alias{ergm.reviseinit}
-
 %\alias{ergm.robmon}
 %\alias{ergm.sample.eta2theta}
 %\alias{ergm.sample.tomcmc}
 %\alias{ergm.stepping}
 %\alias{ergm.stocapprox}
-
-
-
 %\alias{ergm.sufftoprob}
 %\alias{ergm.t.summary}
-
-\alias{espartnerdist}
 %\alias{get.InitErgm.fname}
-\alias{get.node.attr}
 %\alias{init.methods}
-\alias{is.ergm}
-\alias{is.invertible}
-\alias{largest.components}
 %\alias{llik.fun}
 %\alias{llik.fun.EF}
 %\alias{llik.fun.median}
@@ -120,53 +73,21 @@
 %\alias{midarrow}
 %\alias{model.matrix.pen.glm}
 
-\alias{mvmodel}
-\alias{mvmodel.default}
-\alias{mvmodel.ergm}
-\alias{mvmodel.formula}
 %\alias{mk.conlist}
 %\alias{myLibLoc}
-\alias{newnw.extract}
 %\alias{nologLik.message}
-\alias{nvattr.copy.network}
-\alias{ostar2deg}
-\alias{plot.mcmc.list.ergm}
-\alias{robust.inverse}
-\alias{rspartnerdist}
-
-\alias{sociality.default}
-\alias{sociality.ergm}
-\alias{sociality.formula}
-\alias{sociality.network}
 \alias{summary.statsmatrix.ergm}
 \alias{sweep.mcmc.list}
 
-\alias{twopathdist}
 %\alias{updatemodel.ErgmTerm}
-\alias{vector.namesmatch}
 %\alias{xyplot.mcmc.list.ergm}
 
 %\alias{prune.conlist}
 \alias{standardize.network}
-
-
-
-
-
-
-
-\alias{get.free.dyads}
-\alias{get.miss.dyads}
 \alias{geweke.diag.ar}
-\alias{invert.network}
 
 %\alias{mk.edge.to.pos.lasttoggle.f}
 %\alias{as.edgelist.matrix}
-
-
-
-
-
 
 \description{
 Internal \code{\link[=ergm-package]{ergm}} functions.}
