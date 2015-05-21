@@ -13,7 +13,7 @@ These are internal functions not intended to be called by end users.  The \code{
 \usage{
 ergm.Cprepare(nw, m, response = NULL)
 
-ergm.Cprepare.el(x, attrname=NULL, directed)
+ergm.Cprepare.el(x, attrname=NULL, prototype=NULL)
 
 ergm.Cprepare.miss(nw)
 
@@ -30,8 +30,11 @@ a model object, as returned by \code{\link{ergm.getmodel}}
   \item{response,attrname}{
 character name of an edge attribute
 } 
-\item{directed}{
-logical, is the network to be considered directed? (defaults to is.directed(x))
+\item{prototype}{
+  A network whose relevant attributes (size, directedness, bipartitedness,
+  and presence of loops) are imposed on the output edgelist if \code{x}
+  is already an edgelist. (For example, if the prototype is undirected,
+  \code{ergm.Cprepare.el} will ensure that \eqn{t < h}.)
 }
 \item{verbose}{logical, whether the design matrix should be printed; default=FALSE}
 }

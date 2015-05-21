@@ -93,6 +93,6 @@ InitMHP.blockdiagNonObservedTNT <- function(arguments, nw){
 
   el <- el[a[el[,1]]==a[el[,2]],,drop=FALSE]
   
-  MHproposal <- list(name = "listTNT", inputs=ergm.Cprepare.el(el,directed=is.directed(nw)))
+  MHproposal <- list(name = "listTNT", inputs=ergm.Cprepare.el(el))
   MHproposal
 }
