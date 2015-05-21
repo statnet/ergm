@@ -112,6 +112,27 @@ control.ergm(drop=TRUE,
              Step.maxit=50,
              Step.gridsize=100,
 
+             CD.nsteps=8,
+             CD.multiplicity=1,
+             CD.nsteps.obs=128,
+             CD.multiplicity.obs=1,
+             CD.maxit=60,
+             CD.conv.min.pval=0.5,
+             CD.NR.maxit=100,
+             CD.NR.reltol=sqrt(.Machine$double.eps),
+             CD.metric=c("naive", "lognormal", "logtaylor",
+               "Median.Likelihood",
+               "EF.Likelihood"),
+             CD.method=c("BFGS","Nelder-Mead"),
+             CD.trustregion=20,
+             CD.dampening=FALSE,
+             CD.dampening.min.ess=20,
+             CD.dampening.level=0.1,
+             CD.steplength.margin=0.05,
+             CD.steplength=1,
+             CD.adaptive.trustregion=3,
+             CD.adaptive.epsilon=0.01,
+
              loglik.control=control.logLik.ergm(),
 
              seed=NULL,
@@ -447,6 +468,45 @@ control.ergm(drop=TRUE,
     of \eqn{1/N}.
     See Hummel et al. (2012) for details.
   }
+
+  \item{CD.nsteps, CD.multiplicity}{
+    Main settings for contrastive divergence to obtain initial values for the
+    estimation: respectively, the number of Metropolis--Hastings steps to take before
+    reverting to the starting value and the number of tentative
+    proposals per step. Computational experiments indicate that
+    increasing \code{CD.multiplicity} improves the estimate faster than
+    increasing \code{CD.nsteps} --- up to a point --- but it also samples from the wrong
+    distribution, in the sense that while as
+    \code{CD.nsteps}\eqn{\rightarrow\infty}, the CD estimate approaches
+    the MLE, this is not the case for \code{CD.multiplicity}.
+
+    In practice, MPLE, when available, usually outperforms CD for even a very high
+    \code{CD.nsteps} (which is, in turn, not very stable), so CD is useful primarily when
+    MPLE is not available. This feature is to be considered
+    experimental and in flux.
+
+    The default values have been set experimentally, providing a
+    reasonably stable, if not great, starting values.
+  }
+  \item{CD.nsteps.obs, CD.multiplicity.obs}{
+    When there are missing dyads, \code{CD.nsteps} and
+    \code{CD.multiplicity} must be set to a relatively high value, as
+    the network passed is not necessarily a good start for
+    CD. Therefore, these settings are in effect if there are missing dyads in the observed
+    network, using a higher default number of steps.
+  }
+  \item{CD.maxit, CD.conv.min.pval, CD.NR.maxit, CD.NR.reltol,
+    CD.metric, CD.method, CD.trustregion, CD.dampening, CD.dampening.min.ess,
+    CD.dampening.level, CD.steplength.margin, CD.steplength, CD.adaptive.trustregion,
+    CD.adaptive.epsilon}{
+    Miscellaneous tuning parameters of the CD sampler and
+    optimizer. These have the same meaning as their \code{MCMC.*}
+    counterparts.
+
+    Note that only the Hotelling's stopping criterion is implemented for
+    CD.
+   }
+  
   \item{loglik.control}{See \code{\link{control.ergm.bridge}}
   }
   \item{seed}{Seed value (integer) for the random number generator.  

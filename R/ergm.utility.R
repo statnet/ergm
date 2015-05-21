@@ -482,6 +482,27 @@ which.package.InitFunction <- function(f, env = parent.frame()){
   
 }
 
+single.impute.dyads <- function(nw, response=NULL){
+    nae <- network.naedgecount(nw)
+    if(nae==0) return(nw)
+    
+    na.el <- as.edgelist(is.na(nw))
+
+    if(is.null(response)){
+        d <- network.edgecount(nw,na.omit=TRUE)/network.dyadcount(nw,na.omit=TRUE)
+        nimpute <- round(d*nae)
+        nw[na.el] <- 0
+        nw[na.el[sample.int(nae,nimpute),,drop=FALSE]] <- 1
+    }else{
+        x <- as.edgelist(nw,attrname=response)[,3]
+        zeros <- network.dyadcount(nw,na.omit=TRUE)-length(x)
+        nw[na.el] <- 0
+        nw[na.el,names.eval=response,add.edges=TRUE] <- sample(c(0,x),nae,replace=TRUE,prob=c(zeros,rep(1,length(x))))
+    }
+
+    nw
+}
+
 # Given a vector, truncate all infinite (or, really, bigger in
 # magnitude than replace=) values with replace= with the appropriate
 # sign. Leave NAs and NANs alone.

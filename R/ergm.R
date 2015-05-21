@@ -117,7 +117,7 @@ ergm <- function(formula, response=NULL,
                  offset.coef=NULL,
                  target.stats=NULL,
                  eval.loglik=TRUE,
-                 estimate=c("MLE", "MPLE"),
+                 estimate=c("MLE", "MPLE", "CD"),
                  control=control.ergm(),
                  verbose=FALSE,...) {
   check.control.class()
@@ -128,6 +128,11 @@ ergm <- function(formula, response=NULL,
   if(!is.null(list(...)$MPLEonly) && list(...)$MPLEonly){
     warning("Argument MPLEonly is deprecated. Use ``estimate=\"MPLE\"'' instead." )
     estimate <- "MPLE"
+  }
+
+  if(estimate=="CD"){
+      control$init.method <- "CD"
+      eval.loglik <- FALSE
   }
 
   if(!is.null(control$seed))  set.seed(as.integer(control$seed))
@@ -273,8 +278,11 @@ ergm <- function(formula, response=NULL,
   # Construct the curved model, and check if it's different from the initial model. If so, we know that it's curved.
   model <- ergm.getmodel(formula, nw, response=response, expanded=TRUE, silent=TRUE)
   # MPLE is not supported for curved ERGMs.
-  if(length(model$etamap$offsetmap)!=length(model.initial$etamap$offsetmap) && estimate=="MPLE") stop("Maximum Pseudo-Likelihood (MPLE) estimation for curved ERGMs is not implemented at this time. You may want to pass fixed=TRUE parameter in curved terms to specify the curved parameters as fixed.")
-  
+  if(estimate=="MPLE"){
+    if(!is.null(response)) stop("Maximum Pseudo-Likelihood (MPLE) estimation for valued ERGMs is not implemented at this time. You may want to pass fixed=TRUE parameter in curved terms to specify the curved parameters as fixed.")
+    if(length(model$etamap$offsetmap)!=length(model.initial$etamap$offsetmap)) stop("Maximum Pseudo-Likelihood (MPLE) estimation for curved ERGMs is not implemented at this time. You may want to pass fixed=TRUE parameter in curved terms to specify the curved parameters as fixed.")
+  }
+ 
   if (verbose) { cat("Fitting initial model.\n") }
 
   MPLE.is.MLE <- (MHproposal$reference$name=="Bernoulli"
@@ -298,6 +306,9 @@ ergm <- function(formula, response=NULL,
 
   model.initial$nw.stats <- summary(model.initial$formula, response=response, initialfit=control$init.method=="MPLE")
   model.initial$target.stats <- if(!is.null(target.stats)) target.stats else model.initial$nw.stats
+
+  if(control$init.method=="CD") if(is.null(names(control$init)))
+      names(control$init) <- .coef.names.model(model.initial, FALSE)
   
   initialfit <- ergm.initialfit(init=control$init, initial.is.final=!MCMCflag,
                                 formula=formula, nw=nw, reference=reference, 
@@ -389,8 +400,6 @@ ergm <- function(formula, response=NULL,
 
               stop("Method ", control$main.method, " is not implemented.")
               )
-  
-  initialfit <- NULL
 
   initialfit <- NULL
   

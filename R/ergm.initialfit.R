@@ -85,6 +85,8 @@ ergm.initialfit<-function(init, initial.is.final,
                     control=control, MHproposal=MHproposal,
                     verbose=verbose, ...),
                   zeros = structure(list(coef=ifelse(is.na(init),0,init)),class="ergm"),
+                  CD = ergm.CD.fixed(ifelse(is.na(init),0,init),
+                      nw, m, control, MHproposal, MHproposal.obs, verbose,response=response,...),
                   stop(paste("Invalid method specified for initial parameter calculation. Available methods are ",paste.and(formals()$method),".",sep=""))
                   )
   }else{

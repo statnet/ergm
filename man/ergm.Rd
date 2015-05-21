@@ -36,7 +36,7 @@ ergm (formula,
       offset.coef=NULL,
       target.stats=NULL,
       eval.loglik=TRUE,
-      estimate=c("MLE", "MPLE"),
+      estimate=c("MLE", "MPLE", "CD"),
       control=control.ergm(),
       verbose=FALSE,
       \dots)
@@ -109,7 +109,8 @@ ergm (formula,
     estimator is returned.  For certain models, the MPLE and MLE are equivalent,
     in which case this argument is ignored.  (To force MCMC-based approximate
     likelihood calculation even when the MLE and MPLE are the same, see the
-    \code{force.main} argument of \code{\link{control.ergm}}. )
+    \code{force.main} argument of \code{\link{control.ergm}}. If "CD",
+    the Monte-Carlo contrastive divergence estimate is returned. )
   }
   \item{control}{A list of control parameters for algorithm
     tuning. Constructed using \code{\link{control.ergm}}. 
