@@ -221,7 +221,6 @@ ergm <- function(formula, response=NULL,
   if (verbose) cat(" ",MHproposal$pkgname,":MH_",MHproposal$name,sep="")
 
   
-  # Note:  MHproposal function in CRAN version does not use the "class" argument for now
   if(!is.null(MHproposal.obs)){
       MHproposal.obs <- MHproposal(MHproposal.obs, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference, response=response)
       if (verbose) cat(" ",MHproposal.obs$pkgname,":MH_",MHproposal.obs$name,sep="")
@@ -234,11 +233,26 @@ ergm <- function(formula, response=NULL,
                                          all(c("b1degrees","b2degrees") %in% names(MHproposal$arguments$constraints))),
                     control$drop,
                     NULL)
-  
+
   if (verbose) cat("Initializing model.\n")
   
   # Construct the initial model.
-  control$init.method <- match.arg(control$init.method, ergm.init.methods(MHproposal$reference$name))
+
+  # The following kludge knocks out MPLE if the sample space
+  # constraints are not dyad-independent. For example, ~observed
+  # constraint is dyad-independent, while ~edges is not. The exception
+  # is conddeg, which is a special case.
+  #
+  # TODO: Create a flexible and general framework to manage methods
+  # for obtaining initial values.
+  init.candidates <- ergm.init.methods(MHproposal$reference$name)
+  if("MPLE" %in% init.candidates && !is.dyad.independent(MHproposal$arguments$constraints,
+                          MHproposal.obs$arguments$constraints) && is.null(conddeg)){
+    init.candidates <- init.candidates[init.candidates!="MPLE"]
+    if(verbose) cat("MPLE cannot be used for this constraint structure.\n")
+  }
+  control$init.method <- match.arg(control$init.method, init.candidates)
+  if(verbose) cat(paste0("Using initial method '",control$init.method,"'.\n"))
   model.initial <- ergm.getmodel(formula, nw, response=response, initialfit=control$init.method=="MPLE")
    
   # If some control$init is specified...
@@ -281,6 +295,9 @@ ergm <- function(formula, response=NULL,
   if(estimate=="MPLE"){
     if(!is.null(response)) stop("Maximum Pseudo-Likelihood (MPLE) estimation for valued ERGMs is not implemented at this time. You may want to pass fixed=TRUE parameter in curved terms to specify the curved parameters as fixed.")
     if(length(model$etamap$offsetmap)!=length(model.initial$etamap$offsetmap)) stop("Maximum Pseudo-Likelihood (MPLE) estimation for curved ERGMs is not implemented at this time. You may want to pass fixed=TRUE parameter in curved terms to specify the curved parameters as fixed.")
+    if(!is.dyad.independent(MHproposal$arguments$constraints,
+                            MHproposal.obs$arguments$constraints) && is.null(conddeg))
+      stop("Maximum Pseudo-Likelihood (MPLE) estimation for ERGMs with dyad-dependent constraints is only implemented for certain degree constraints at this time.")
   }
  
   if (verbose) { cat("Fitting initial model.\n") }
@@ -298,10 +315,36 @@ ergm <- function(formula, response=NULL,
                || control$force.main)
 
   # Short-circuit the optimization if all terms are either offsets or dropped.
-  if(MCMCflag && all(model.initial$etamap$offsettheta)){
+  if(all(model.initial$etamap$offsettheta)){
     # Note that this cannot be overridden with control$force.main.
-    MCMCflag <- FALSE
-    warning("All terms are either offsets or extreme values. Skipping MCMC.")
+    cat("All terms are either offsets or extreme values. No optimization is performed.\n")
+    return(structure(list(coef=control$init,
+                          iterations=0,
+                          loglikelihood=NA,
+                          mle.lik=NULL,
+                          gradient=rep(NA,length=length(control$init)),
+                          failure=TRUE,
+                          offset=model.initial$etamap$offsettheta,
+                          drop=if(control$drop) extremecheck$extremeval.theta,
+                          estimable=constrcheck$estimable,
+                          network=nw,
+                          reference=reference,
+                          response=response,
+                          newnetwork=nw,
+                          formula=formula,
+                          constrained=MHproposal$arguments$constraints,
+                          constrained.obs=MHproposal.obs$arguments$constraints,
+                          constraints=constraints,
+                          target.stats=model.initial$target.stats,
+                          target.esteq=if(!is.null(model.initial$target.stats)){
+                            tmp <- .ergm.esteq(initialfit$coef, model.initial, rbind(model.initial$target.stats))
+                            structure(c(tmp), names=colnames(tmp))
+                          },
+                          estimate=estimate,
+                          control=control
+                          ),
+                     class="ergm"))
+
   }
 
   model.initial$nw.stats <- summary(model.initial$formula, response=response, initialfit=control$init.method=="MPLE")
