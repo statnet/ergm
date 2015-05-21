@@ -66,7 +66,7 @@ ergm.getCDsample <- function(nw, model, MHproposal, eta0, control,
   flush.console()
 
   doruns <- function(prev.runs=rep(list(NULL),nthreads), burnin=NULL, samplesize=NULL, interval=NULL){
-    if(!is.null(cl)) clusterMap(cl,ergm.cdcslave,
+    if(!is.null(cl)) clusterMap(cl,ergm.cdslave,
                                   Clist=Clists, prev.run=prev.runs, MoreArgs=list(MHproposal=MHproposal,eta0=eta0,control=control.parallel,verbose=verbose,...,burnin=burnin,samplesize=samplesize,interval=interval))
     else list(ergm.cdslave(Clist=Clists[[1]], prev.run=prev.runs[[1]],burnin=burnin,samplesize=samplesize,interval=interval,MHproposal=MHproposal,eta0=eta0,control=control.parallel,verbose=verbose,...))
   }
