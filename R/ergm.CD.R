@@ -147,7 +147,7 @@ ergm.CD <- function(init, nw, model,
     for(i in seq_along(statsmatrices)) colnames(statsmatrices[[i]]) <- model$coef.names
     statsmatrix <- do.call("rbind",statsmatrices)
     
-    if(control$CD.nsteps==Inf){
+    if(control$CD.nsteps==Inf)
       nw.returned <- network.copy(z$newnetwork)
 
     if(verbose){
