@@ -129,7 +129,7 @@ ergm.CD.fixed <- function(init, nw, model,
     statsmatrix <- do.call("rbind",statsmatrices)
     
     if(verbose){
-      cat("Back from unconstrained MCMC. Average statistics:\n")
+      cat("Back from unconstrained CD. Average statistics:\n")
       print(apply(statsmatrix, 2, mean))
     }
     
@@ -153,7 +153,7 @@ ergm.CD.fixed <- function(init, nw, model,
     # Compute the sample estimating equations and the convergence p-value. 
     esteq <- .ergm.esteq(mcmc.init, model, statsmatrix)
     if(isTRUE(all.equal(apply(esteq,2,sd), rep(0,ncol(esteq)), check.names=FALSE))&&!all(esteq==0))
-      stop("Unconstrained MCMC sampling did not mix at all. Optimization cannot continue.")
+      stop("Unconstrained CD sampling did not mix at all. Optimization cannot continue.")
     esteq.obs <- if(obs) .ergm.esteq(mcmc.init, model, statsmatrix.obs) else NULL   
     conv.pval <- approx.hotelling.diff.test(esteq, esteq.obs, assume.indep=TRUE)$p.value
                                             
