@@ -20,7 +20,6 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
 		    char **sonames, 
 		    char **MHproposaltype, char **MHproposalpackage,
 		  double *inputs, double *theta0, int *samplesize, int *CDparams,
-		  int *drop0s,
 		  double *sample,
 		    int *fVerbose, 
 		    int *status){
@@ -58,7 +57,7 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
   double *extraworkspace = calloc(m->n_stats, sizeof(double));
 
   *status = WtCDSample(&MH,
-		       theta0, sample, *samplesize, CDparams,  *drop0s, undotail, undohead, undoweight,
+		       theta0, sample, *samplesize, CDparams, undotail, undohead, undoweight,
 		       *fVerbose, nw, m, extraworkspace);
   
   free(undotail);
@@ -87,7 +86,7 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
 *********************/
 WtMCMCStatus WtCDSample(WtMHproposal *MHp,
 			  double *theta, double *networkstatistics, 
-			int samplesize, int *CDparams, int drop0s, Vertex *undotail, Vertex *undohead, double *undoweight, int fVerbose,
+			int samplesize, int *CDparams, Vertex *undotail, Vertex *undohead, double *undoweight, int fVerbose,
 			  WtNetwork *nwp, WtModel *m, double *extraworkspace){
   /*********************
   networkstatistics are modified in groups of m->n_stats, and they
@@ -120,19 +119,8 @@ WtMCMCStatus WtCDSample(WtMHproposal *MHp,
       R_ProcessEvents();
     }
 #endif
-    unsigned int keep=FALSE;
-    if(drop0s){
-      for(unsigned int j=0; j<m->n_stats; j++)
-	if(networkstatistics[j]){
-	  keep=TRUE;
-	  break;
-	}
-    }else keep=TRUE;
-
-    if(keep){
       networkstatistics += m->n_stats;
       i++;
-    }
 
     sattempted++;
   }
