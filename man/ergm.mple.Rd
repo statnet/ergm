@@ -114,8 +114,8 @@ The maximizer of the pseudolikelihood, may thus easily be found (at least in pri
 }
 }
 \references{
-Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris and Martina (2008). “ergm: A
-Package to Fit, Simulate and Diagnose Exponential-Family Models for Networks.” _Journal
+Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris and Martina (2008). "ergm: A
+Package to Fit, Simulate and Diagnose Exponential-Family Models for Networks." _Journal
 of Statistical Software_, *24*(3), pp. 1-29. \url{http://www.jstatsoft.org/v24/i03/paper}
 
 van  Duijn  MAJ,  Gile  K,  Handcock  MS  (2007).  Comparison  of  Maximum  Pseudo  Likeli-
