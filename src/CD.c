@@ -7,7 +7,7 @@
 *****************/
 
 /*****************
- void MCMC_wrapper
+ void CD_wrapper
 
  Wrapper for a call from R.
 
@@ -74,7 +74,7 @@ void CD_wrapper(int *dnumnets, int *nedges,
 
 
 /*********************
- MCMCStatus MCMCSample
+ MCMCStatus CDSample
 
  Using the parameters contained in the array theta, obtain the
  network statistics for a sample of size samplesize.  burnin is the
@@ -147,7 +147,7 @@ MCMCStatus CDSample(MHproposal *MHp,
 /*********************
  void MetropolisHastings
 
- In this function, theta is a m->n_stats-vector just as in MCMCSample,
+ In this function, theta is a m->n_stats-vector just as in CDSample,
  but now networkstatistics is merely another m->n_stats-vector because
  this function merely iterates nsteps=CDparams[0] times through the Markov
  chain, keeping track of the cumulative change statistics along

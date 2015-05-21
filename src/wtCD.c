@@ -7,7 +7,7 @@
 *****************/
 
 /*****************
- void WtMCMC_wrapper
+ void WtCD_wrapper
 
  Wrapper for a call from R.
 
@@ -76,7 +76,7 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
 
 
 /*********************
- void WtMCMCSample
+ void WtCDSample
 
  Using the parameters contained in the array theta, obtain the
  network statistics for a sample of size samplesize.  burnin is the
@@ -148,7 +148,7 @@ WtMCMCStatus WtCDSample(WtMHproposal *MHp,
 /*********************
  void MetropolisHastings
 
- In this function, theta is a m->n_stats-vector just as in WtMCMCSample,
+ In this function, theta is a m->n_stats-vector just as in WtCDSample,
  but now networkstatistics is merely another m->n_stats-vector because
  this function merely iterates nsteps=CDparams[0] times through the Markov
  chain, keeping track of the cumulative change statistics along
