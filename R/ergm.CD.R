@@ -168,8 +168,8 @@ ergm.CD <- function(init, nw, model,
       for(i in seq_along(statsmatrices.obs)) colnames(statsmatrices.obs[[i]]) <- model$coef.names
       statsmatrix.obs <- do.call("rbind",statsmatrices.obs)
 
-      if(control$CD.nsteps==Inf){
-      nw.obs.returned <- network.copy(z.obs$newnetwork)
+      if(control$CD.nsteps==Inf)
+        nw.obs.returned <- network.copy(z.obs$newnetwork)
       
       if(verbose){
         cat("Back from constrained MCMC. Average statistics:\n")
