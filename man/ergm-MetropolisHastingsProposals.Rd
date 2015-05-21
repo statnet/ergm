@@ -9,6 +9,7 @@
 \alias{InitMHP.TNT}
 \alias{InitMHP.randomtoggle}
 \alias{InitMHP.randomtoggleNonObserved}
+\alias{InitMHP.NonObservedTNT}
 \alias{InitMHP.CondB1Degree}
 \alias{InitMHP.CondB2Degree}
 \alias{InitMHP.CondInDegree}
@@ -105,7 +106,10 @@
   
         \item{InitMHP.randomtoggleNonObserved}{MHp for \eqn{constraints= ~observed}. Randomly select a missing/non-observed dyad and propose a toggle.
         }
-       
+
+	\item{InitMHP.NonObservedTNT}{Similar to InitMHP.randomtoggleNonObserved, except that it selects ties and non-ties for proposed toggles with equal probability.  Like the unconstrained TNT proposal, this is useful for improving performance in sparse networks.
+        }
+	
         \item{InitMHP.CondInDegree}{MHp for \eqn{constraints= ~idegrees}. For directed networks, randomly select two dyads with a common head node, one having an edge one not, and propose to swap the tie from one tail to the other.
         }
         \item{InitMHP.CondOutDegree}{MHp for \eqn{constraints= ~odegrees}. For directed networks, randomly select two dyads with a common tail node, one having an edge and one not, and propose to swap the tie from one head to the other.
