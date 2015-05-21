@@ -83,6 +83,8 @@ ergm.CD <- function(init, nw, model,
     if(verbose) cat("Density guard set to",control$MCMC.max.maxedges,"from an initial count of",network.edgecount(nw,FALSE)," edges.\n")
   }  
 
+  nws <- rep(list(nw),nthreads) # nws is now a list of networks.
+
   # statshift is the difference between the target.stats (if
   # specified) and the statistics of the networks in the LHS of the
   # formula or produced by SAN. If target.stats is not speficied
@@ -145,8 +147,8 @@ ergm.CD <- function(init, nw, model,
     for(i in seq_along(statsmatrices)) colnames(statsmatrices[[i]]) <- model$coef.names
     statsmatrix <- do.call("rbind",statsmatrices)
     
-    if(control$CD.nsteps==Inf)
-    nw.returned <- network.copy(z$newnetwork)
+    if(control$CD.nsteps==Inf){
+      nw.returned <- network.copy(z$newnetwork)
 
     if(verbose){
       cat("Back from unconstrained MCMC. Average statistics:\n")
@@ -165,6 +167,9 @@ ergm.CD <- function(init, nw, model,
       statsmatrices.obs <- mapply(sweep, z.obs$statsmatrices, statshifts.obs, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE)
       for(i in seq_along(statsmatrices.obs)) colnames(statsmatrices.obs[[i]]) <- model$coef.names
       statsmatrix.obs <- do.call("rbind",statsmatrices.obs)
+
+      if(control$CD.nsteps==Inf){
+      nw.obs.returned <- network.copy(z.obs$newnetwork)
       
       if(verbose){
         cat("Back from constrained MCMC. Average statistics:\n")
