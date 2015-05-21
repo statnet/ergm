@@ -95,7 +95,7 @@ export(
   #ergm.llik.wins,
   ergm.logisticdeviance,           
   ergm.logitreg,
-  ergm.mahalanobis,                
+  ergm.mahalanobis,       # deprecated
   #ergm.mapl,
   #ergm.maple,                      
   # ergm.MCMC.packagenames, made internal

@@ -26,6 +26,7 @@
 
 ergm.mahalanobis <- function(x, center, cov, inverted=FALSE, ...)
 {
+  .Deprecated(msg = 'ergm.mahalanobis will be removed in future versions of ergm. See stats::mahalanobis as an alternative')
     x <- matrix(x, ncol=length(x))
     x <- sweep(x, 2, center)
     cov <- robust.inverse(cov, ...)

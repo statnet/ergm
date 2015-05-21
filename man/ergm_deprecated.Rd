@@ -19,6 +19,7 @@
 \alias{mvmodel.default}
 \alias{mvmodel.ergm}
 \alias{mvmodel.formula}
+\alias{ergm.mahalanobis}
 
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{

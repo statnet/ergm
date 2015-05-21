@@ -336,12 +336,15 @@ function(x, alternative = c("two.sided", "less", "greater"),
     return(rval)
 }
 
+# generate a network object from the edgelist output of the mcmc sample
 newnw.extract<-function(oldnw,z,output="network",response=NULL){
+  # if z has a newedgelist attached, use it
   if("newedgelist" %in% names(z)){
     newedgelist<-z$newedgelist[,1:2,drop=FALSE]
     if(!is.null(response))
        newnwweights<-z$newedgelist[,3]
   }else{
+    # expect that z will have seperate lists of heads and tails
     nedges<-z$newnwtails[1]
     # *** don't forget - edgelists are cbind(tails, heads) now
     newedgelist <-
@@ -359,6 +362,7 @@ newnw.extract<-function(oldnw,z,output="network",response=NULL){
   newnw
 }
 
+# copy network and vertex attributes between two networks
 nvattr.copy.network <- function(to, from, ignore=c("bipartite","directed","hyper","loops","mnext","multiple","n")){
   for(a in list.vertex.attributes(from)){
     if(! a%in%ignore)

@@ -37,30 +37,19 @@
 \alias{ergm.initialfit}
 \alias{ergm.logisticdeviance}
 \alias{ergm.logitreg}
-\alias{ergm.mahalanobis}
 %\alias{ergm.mapl}
 %\alias{ergm.maple}
-
-\alias{ergm.mple}
-
 %\alias{ergm.pen.glm}
 %\alias{ergm.phase12}
-\alias{ergm.pl}
 %\alias{ergm.reviseinit}
-
 %\alias{ergm.robmon}
 %\alias{ergm.sample.eta2theta}
 %\alias{ergm.sample.tomcmc}
 %\alias{ergm.stepping}
 %\alias{ergm.stocapprox}
-
-
-
 %\alias{ergm.sufftoprob}
 %\alias{ergm.t.summary}
-
 %\alias{get.InitErgm.fname}
-
 %\alias{init.methods}
 %\alias{llik.fun}
 %\alias{llik.fun.EF}
@@ -86,9 +75,7 @@
 
 %\alias{mk.conlist}
 %\alias{myLibLoc}
-\alias{newnw.extract}
 %\alias{nologLik.message}
-\alias{nvattr.copy.network}
 \alias{summary.statsmatrix.ergm}
 \alias{sweep.mcmc.list}
 
