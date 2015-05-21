@@ -34,7 +34,6 @@
 %\alias{ergm.curved.statsmatrix}
 
 %\alias{ergm.estimate}
-\alias{ergm.initialfit}
 \alias{ergm.logisticdeviance}
 \alias{ergm.logitreg}
 %\alias{ergm.mapl}
@@ -83,7 +82,6 @@
 %\alias{xyplot.mcmc.list.ergm}
 
 %\alias{prune.conlist}
-\alias{standardize.network}
 \alias{geweke.diag.ar}
 
 %\alias{mk.edge.to.pos.lasttoggle.f}
