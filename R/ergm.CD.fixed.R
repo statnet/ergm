@@ -82,9 +82,10 @@ ergm.CD.fixed <- function(init, nw, model,
 
   # Is there observational structure?
   obs <- ! is.null(MHproposal.obs)
-
-  if(obs && control$CD.nsteps*control$CD.multiplicity<network.naedgecount(nw.orig))
-    warning("Contrastive Divergence for networks with missing data is not recommended for small CD.nsteps and CD.multiplicity. Suggest increasing them to at least the number of missing dyads.")
+  if(obs){
+    control$CD.nsteps<-control$CD.nsteps.obs
+    control$CD.multiplicity<-control$CD.multiplicity.obs
+  }
   
   # Initialize control.obs and other *.obs if there is observation structure
   

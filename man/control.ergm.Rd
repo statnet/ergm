@@ -112,8 +112,10 @@ control.ergm(drop=TRUE,
              Step.maxit=50,
              Step.gridsize=100,
 
-             CD.nsteps=1,
+             CD.nsteps=8,
              CD.multiplicity=1,
+             CD.nsteps.obs=128,
+             CD.multiplicity.obs=1,
              CD.nsteps.mul=2,
              CD.min.nsteps=8,
              CD.untethered=TRUE,
@@ -482,14 +484,20 @@ control.ergm(drop=TRUE,
     \code{CD.nsteps}\eqn{\rightarrow\infty}, the CD estimate approaches
     the MLE, this is not the case for \code{CD.multiplicity}.
 
-    When there are missing dyads, \code{CD.nsteps} and
-    \code{CD.multiplicity} must be set to a relatively high value, as
-    the network passed is not necessarily a good start for CD.
-
     In practice, MPLE, when available, usually outperforms CD for even a very high
     \code{CD.nsteps} (which is, in turn, not very stable), so CD is useful primarily when
     MPLE is not available. This feature is to be considered
     experimental and in flux.
+
+    The default values have been set experimentally, providing a
+    reasonably stable, if not great, starting values.
+  }
+  \item{CD.nsteps.obs, CD.multiplicity.obs}{
+    When there are missing dyads, \code{CD.nsteps} and
+    \code{CD.multiplicity} must be set to a relatively high value, as
+    the network passed is not necessarily a good start for
+    CD. Therefore, these settings are in effect if there are missing dyads in the observed
+    network, using a higher default number of steps.
   }
   \item{CD.maxit, CD.conv.min.pval, CD.NR.maxit, CD.NR.reltol,
     CD.metric, CD.method, CD.trustregion, CD.dampening, CD.dampening.min.ess,
