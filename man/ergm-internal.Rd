@@ -15,7 +15,7 @@
 %\alias{ergm.MCMC.packagenames}
 %\alias{which.package.InitFunction}
 
-\alias{approx.hotelling.diff.test}
+%\alias{approx.hotelling.diff.test}
 
 
 \alias{colMeans.mcmc.list}
