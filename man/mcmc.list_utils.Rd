@@ -5,7 +5,7 @@
 utility operations for mcmc.list objects
 }
 \description{
-Adaptations of \code{\link{colMeans}} and \code{\link{sweep}} for working with \code{\link[coda]{mcmc.list}} objects. The function ‘mcmc.list’ is used to represent parallel runs of the same chain, with different starting values and random seeds. 
+Adaptations of \code{\link{colMeans}} and \code{\link{sweep}} for working with \code{\link[coda]{mcmc.list}} objects. The function mcmc.list is used to represent parallel runs of the same chain, with different starting values and random seeds. 
 
 }
 \usage{

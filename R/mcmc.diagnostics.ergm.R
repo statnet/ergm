@@ -231,6 +231,10 @@ plot.mcmc.list.ergm <- function(x, main=NULL, vars.per.page=3,...){
   #library(latticeExtra)
 
   pages <- ceiling(nvar(x)/vars.per.page)
+  # if the number of vars is less than vars.per.page, make adjustment
+  if(nvar(x)<vars.per.page){
+    vars.per.page<-nvar(x)
+  }
   
   reordering <- c(rbind(seq_len(nvar(x)),nvar(x)+seq_len(nvar(x))))
   

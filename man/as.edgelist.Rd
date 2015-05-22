@@ -11,13 +11,23 @@ Convert a network object into a numeric edgelist matrix
 Constructs an edgelist in the format expected by ergm's internal functions
 }
 \usage{
-as.edgelist(x, ...)
+\method{as.edgelist}{network}(x, attrname = NULL, as.sna.edgelist = FALSE, 
+                            inverted = NULL, ...)
+\method{as.edgelist}{matrix}(x, n, directed = TRUE, bipartite = FALSE, 
+                            loops = FALSE, inverted = FALSE, ...)
 }
-%- maybe also 'usage' for other objects documented here.
+
 \arguments{
   \item{x}{
 a \code{network} object with additional class added indicating how it should be dispatched.
 }
+ \item{attrname}{optionally, the name of an edge attribute to use for edge values}
+ \item{as.sna.edgelist}{logical; should the edgelist be returned in edgelist form expected by the sna package?}
+ \item{inverted}{logical; value is passed to the 'inverted' flag on the edgelist returned}
+ \item{n}{integer number of vertices in network, value passed to the 'n' flag on edgelist returned}
+ \item{directed}{logical; is network directed, value passed to the 'directed' flag on edgelist returned}
+ \item{bipartite}{logical or integer; is network bipartite, value passed to the 'bipartite' flag on edgelist returned}
+ \item{loops}{logical; are self-loops allowed in network?, value passed to the 'loops' flag on edgelist returned}
   \item{\dots}{
 additional arguments to other methods
 }
@@ -40,7 +50,7 @@ a two-column matrix of integers giving the tail (source) and head (target) indic
 
 \item \code{attr(,"loops")} does the original network contain self-loops
 
-\item \code{attr(,"inverted")}  ?
+\item \code{attr(,"inverted")}  indicates if the network has been inverted?
 }
 }
 

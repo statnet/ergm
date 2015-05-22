@@ -18,7 +18,6 @@
 %\alias{approx.hotelling.diff.test}
 
 
-\alias{colMeans.mcmc.list}
 %\alias{control.ergm.toplevel}
 %\alias{control.simulate.ergm.toplevel}
 
@@ -76,7 +75,7 @@
 %\alias{myLibLoc}
 %\alias{nologLik.message}
 \alias{summary.statsmatrix.ergm}
-\alias{sweep.mcmc.list}
+
 
 %\alias{updatemodel.ErgmTerm}
 %\alias{xyplot.mcmc.list.ergm}
