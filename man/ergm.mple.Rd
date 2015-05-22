@@ -82,9 +82,20 @@ additional parameters passed from within; all will be
 }
 }
 \details{
-According to Hunter et. al (2008):
+According to Hunter et al. (2008):
+"The maximizer of the pseudolikelihood may thus easily be found (at least in principle) by using logistic regression as a computational device."
+In order for this to work, the predictors of the logistic regression model
+must be calculated.  These are the change statistics as described
+in Section 3.2 of Hunter et al. (2008), put into matrix form
+so that each pair of nodes is one row whose values are the vector of change
+statistics for that node pair.  The ergm.pl function computes these change
+statistics and the ergm.mple function implements the logistic regression using
+R's glm function.  Generally, neither ergm.mple nor ergm.pl should be called
+by users if the logistic regression output is desired; instead, use the \code{\link{ergmMPLE}} function.
 
-The maximizer of the pseudolikelihood, may thus easily be found (at least in principle) by using logistic regression as a computational device.  ... when the ERGM is a dyadic independence model not containing the mutual or asymmetric terms, the true likelihood and the pseudolikelihood are the same, which is to say that the true maximum likelihood estimator may be found via an MPLE computation. When the ERGM in question is not a dyadic independence model, the statistical properties of  pseudolikelihood  estimators  for  social  networks  are  not  well  understood.   Recent  work Journal of Statistical Software 17 (van Duijn, Gile, and Handcock 2007) recommends strongly against their use as estimators. Nonetheless,  it  is  sometimes  helpful  to  be  able  to  check  the  value  of  an  MPLE
+In the case where the ERGM is a dyadic independence model, the MPLE is the same as the MLE.  However, in general this is not the case and, as van Duijn et al. (2009) warn, the statistical properties of MPLEs in general are somewhat mysterious.
+
+MPLE values are used even in the case of dyadic dependence models as starting points for the MCMC algorithm.
 }
 \value{
 \code{ergm.mple} returns an ergm object as a list containing several items; for details see the return list in the \code{\link{ergm}}
@@ -114,16 +125,11 @@ The maximizer of the pseudolikelihood, may thus easily be found (at least in pri
 }
 }
 \references{
-Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris and Martina (2008). "ergm: A
-Package to Fit, Simulate and Diagnose Exponential-Family Models for Networks." _Journal
-of Statistical Software_, *24*(3), pp. 1-29. \url{http://www.jstatsoft.org/v24/i03/paper}
+Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris and Martina (2008). 
+"ergm: A Package to Fit, Simulate and Diagnose Exponential-Family Models for Networks." _Journal of Statistical Software_, *24*(3), pp. 1-29. \url{http://www.jstatsoft.org/v24/i03/paper}
 
-van  Duijn  MAJ,  Gile  K,  Handcock  MS  (2007).  Comparison  of  Maximum  Pseudo  Likeli-
-hood and Maximum Likelihood Estimation of Exponential Family Random Graph Models."
-Working Paper 74
-, Center for Statistics and the Social Sciences, University of Washington.
-\url{http://www.csss.washington.edu/Papers/2007/wp74.pdf}
-
+van  Duijn  MAJ,  Gile  K,  Handcock  MS  (2009).  "Comparison  of  Maximum  Pseudo  Likelihood and Maximum Likelihood Estimation of Exponential Family Random Graph Models."
+_Social Networks_, *31*, pp. 52-62.
 }
 
 \seealso{
