@@ -90,7 +90,7 @@ export(
   ergm.getmodel,                   
   ergm.getnetwork,
   ergm.getterms,                   
-  ergm.initialfit,
+  # ergm.initialfit,
   ergm.init.methods,               
   #ergm.llik.wins,
   ergm.logisticdeviance,           
@@ -102,7 +102,7 @@ export(
   #ergm.MCMCse,            made internal           
   #ergm.MCMCse.lognormal,
   ergm.mcmcslave,                  
-  ergm.MCMLE,
+  #ergm.MCMLE,             made internal
   ergm.MHP.table,                  
   #ergm.MPIcluster.started,
   ergm.mple,                       
