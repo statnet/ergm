@@ -20,7 +20,7 @@ The \code{ergm.etagradmult} function calculates and returns the product of the
  gradient of eta with a vector v
  
  The \code{ergm.etamap} function takes a model object and creates a mapping
- from the model parameters, theta, to the canonical eta parameters;
+ from the model parameters, theta, to the canonical (linear) eta parameters;
  the mapping is carried out by \code{ergm.eta}
 
 }
@@ -41,7 +41,9 @@ ergm.etamap(model)
   \item{model}{ model object, as returned by \code{\link{ergm.getmodel}}}
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+  This function is only important in the case of curved exponential family models, i.e., those in which the parameter of interest (theta) is not a linear function of the sufficient statistics (eta) in the exponential-family model. In non-curved models, we may assume without loss of generality that eta(theta)=theta.  
+  
+  A succinct description of how eta(theta) is incorporated into an ERGM is given by equation (5) of Hunter (2007).  See Hunter and Handcock (2006) and Hunter (2007) for further details about how eta and its derivatives are used in the estimation process.
 }
 \value{
 \itemize{
@@ -81,10 +83,17 @@ ergm.etamap(model)
 }
 }
 \references{
-%% ~put references to the literature/web site here ~
+  \itemize{
+    \item Hunter, D. R. and M. S. Handcock (2006). Inference in curved
+  exponential family models for networks. \emph{Journal of Computational
+  and Graphical Statistics}, 15: 565--583.
+
+    \item Hunter, D. R. (2007). Curved exponential family models for social
+  networks. \emph{Social Networks}, 29: 216--230.
+  }
 }
 
 
 \seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
+\code{\link{ergm-terms}}
 }

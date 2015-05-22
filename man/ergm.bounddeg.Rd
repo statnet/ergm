@@ -32,7 +32,17 @@ the orginal \code{network} specified to \code{ergm} in 'formula'
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+  In some modeling situations, the degree of certain nodes are constrained to
+  lie in a certain range (rather than their theoretically possible range
+  of 0 to n-1).  Such sample space constraints may be incorporated into the
+  ergm modeling process, and if so then the MCMC routine is prevented from 
+  visiting network states that violate any of these bounds.  
+  
+  In case there are categories of nodes and degree bounds for each set of 
+  categories, such constraints may be incorporated as well.  For instance,
+  if the nodes are girls and boys, and there is a maximum of 5 out-ties to boys and a maximum of 5 out-ties to girls for each node, we would define p to be 2, and the nxp matrix attribs would have TRUE in the first column (say) for exactly those nodes that are boys and TRUE in the second column for only the girls.  The maxout matrix would consist of all 5s in this case, and the other arguments would be left as their default values.
+  
+  Since the observed network is generally the beginning of the Markov chain, it must satisfy all of the degree constraints itself; thus, this function returns an error message if any bound is violated by the observed network.
 }
 \value{
   a list of parameters used to bound degree during sampling
