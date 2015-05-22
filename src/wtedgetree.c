@@ -41,9 +41,10 @@ WtNetwork WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
 
   if(lasttoggle_flag){
     nw.duration_info.time=time;
-    if(lasttoggle)
+    if(lasttoggle){
       nw.duration_info.lasttoggle = (int *) calloc(DYADCOUNT(nnodes, bipartite, directed_flag), sizeof(int));
       memcpy(nw.duration_info.lasttoggle, lasttoggle, DYADCOUNT(nnodes, bipartite, directed_flag) * sizeof(int));
+    } else nw.duration_info.lasttoggle = NULL;
   }
   else nw.duration_info.lasttoggle = NULL;
 
