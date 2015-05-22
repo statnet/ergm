@@ -7,7 +7,9 @@ Copy network- and vertex-level attributes between two network objects
 An internal ergm utility function to copy the network-level attributes and vertex-level attributes from one \code{\link{network}} object to another, ignoring some standard properties by default. 
 }
 \usage{
-nvattr.copy.network(to, from, ignore = c("bipartite", "directed", "hyper", "loops", "mnext", "multiple", "n"))
+nvattr.copy.network(to, from, ignore = c("bipartite", "directed",
+                                         "hyper", "loops", "mnext",
+                                         "multiple", "n"))
 }
 
 \arguments{

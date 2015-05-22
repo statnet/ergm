@@ -15,13 +15,12 @@ get.miss.dyads(constraints, constraints.obs)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{constraints}{
-%%     ~~Describe \code{constraints} here~~
-}
-  \item{constraints.obs}{}
-}
-\details{
-%%  ~~ If necessary, more details than the description above ~~
+  \item{constraints, constraints.obs}{
+    A list of initialized constraints produced by
+    \code{InitConstraint.*} functions for the model of interest and the
+    same list with \code{+observed} constraint appended if missing dyads
+    are present.
+  }
 }
 \value{
 A network object containing the specified set of edges
@@ -31,6 +30,3 @@ A network object containing the specified set of edges
 \link{ergm-constraints}
 }
 
-\examples{
-
-}

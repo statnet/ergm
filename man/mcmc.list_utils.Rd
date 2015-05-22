@@ -27,14 +27,13 @@ a \code{\link{mcmc.list}} object
   logical. If TRUE (the default), warn if the length or dimensions of STATS do not match the specified dimensions of x. Set to FALSE for a small speed gain when you know that dimensions match.
  }
   \item{\dots}{
-additional arguments to \code{\link{colMeans} or \code{\link{sweep}}
-}
+additional arguments to \code{\link{colMeans}} or \code{\link{sweep}}
 }
 }
 \details{
 \code{colMeans.mcmc.list} converts the mcmc list into a matrix and then runs \code{colMeans} on it
 
-\code{sweep.mcmc.lists} modifies the values of the chains by computing some aggregate summary statistic function (\code{STATS} on the entire chain and applying it to each value via \code{FUN} (default is subtraction).  See \code{\link{sweep}} for additional examples.
+\code{sweep.mcmc.lists} modifies the values of the chains by computing some aggregate summary statistic function (\code{STATS}) on the entire chain and applying it to each value via \code{FUN} (default is subtraction).  See \code{\link{sweep}} for additional examples.
 }
 \value{
 \code{colMeans.mcmc} returns a vector with length equal to the number of mcmc chains in \code{x} with the mean value for each chain.

@@ -20,30 +20,30 @@
 \usage{
                       
 \method{MHproposal}{character}(object, 
-									arguments, 
-									nw, \dots,
-									response=NULL, 
-									reference=reference
+                   arguments, 
+                   nw, \dots,
+                   response=NULL, 
+                   reference=reference
                    )  
                       
                       
 \method{MHproposal}{formula}(object, 
-									arguments, 
-									nw, 
-									weights="default", 
-									class="c", 
-									reference=~Bernoulli, 
-									response=NULL,
+                   arguments, 
+                   nw, 
+                   weights="default", 
+                   class="c", 
+                   reference=~Bernoulli, 
+                   response=NULL,
                   \dots)
 
 \method{MHproposal}{ergm}(object, \dots,
-									constraints=NULL, 
-									arguments=NULL, 
-									nw=NULL, 
-									weights=NULL,
-									class="c", 
-									reference=NULL, 
-									response=NULL)
+                   constraints=NULL, 
+                   arguments=NULL, 
+                   nw=NULL, 
+                   weights=NULL,
+                   class="c", 
+                   reference=NULL, 
+                   response=NULL)
 }
 \description{
 S3 Functions that initialize the Metropolis-Hastings Proposal (MHproposal) object using the InitMHP.* function that corresponds to the name given in 'object'.  These functions are not generally called directly by the user.  See \link{ergm_MH_proposals} for general explanation and lists of available Metropolis-Hastings proposal types. 
