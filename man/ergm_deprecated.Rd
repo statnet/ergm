@@ -1,4 +1,5 @@
 \name{ergm_deprecated}
+\alias{ergm_deprecated}
 \alias{delete.isolates}
 \alias{central.network}
 \alias{largest.components}
@@ -26,5 +27,29 @@
 Functions that will no longer be supported in future releases of the package
 }
 \description{
-Functions that have been superceed, were never documented, or were removed from the package for ther reasons
+Functions that have been superceed, were never documented, or will be removed from the package for other reasons
+
+\itemize{
+\item{delete.isolates}
+\item{central.network}
+\item{largest.components}
+\item{degreedistfactor}
+\item{sociality.default}
+\item{sociality.ergm}
+\item{sociality.formula}
+\item{sociality.network}
+\item{rspartnerdist}
+\item{espartnerdist}
+\item{dspartnerdist}
+\item{twopathdist}
+\item{ostar2deg}
+\item{drawpie}
+\item{invert.network}
+\item{is.invertible}
+\item{mvmodel}
+\item{mvmodel.default}
+\item{mvmodel.ergm}
+\item{mvmodel.formula}
+\item{ergm.mahalanobis}
+}
 }

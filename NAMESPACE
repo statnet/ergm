@@ -20,8 +20,8 @@ export(
   as.edgelist.compressed,          
   as.edgelist.matrix,
   as.edgelist.network,             
-  #as.network.numeric,
-  #as.network.uncompressed,         
+  #as.network.numeric,           made internal
+  #as.network.uncompressed,      made internal
   central.network, # deprecated
   check.ErgmTerm,                  
   coef.ergm,
@@ -41,11 +41,11 @@ export(
   # control.simulate.ergm.toplevel,  made internal
   control.simulate.formula,        
   control.simulate.formula.ergm,
-  # copy.named,   propsed delete                   
+  # copy.named,    deleted              
   degreedist,
   degreedistfactor, # deprecated           
   delete.isolates,  # deprecated
-  # drawcircle,                      
+  # drawcircle,                    made interal      
   drawpie,     # deprecated in favor of ergmm.drawpie in latentnet
   dspartnerdist,            # deprecated       
   enformulate.curved,
@@ -57,13 +57,13 @@ export(
   ergm.bridge.0.llk,  
   ergm.bridge.dindstart.llk,       
   ergm.bridge.llr,
-  #ergm.bridge.preproc,             
+  # ergm.bridge.preproc,      made interal
   ergm.checkargs,
-  # ergm.checkbipartite,             
-  # ergm.checkconstraints.model,
-  # ergm.checkdegeneracy,            
+  # ergm.checkbipartite,          made interal       
+  # ergm.checkconstraints.model,    made interal
+  # ergm.checkdegeneracy,               made interal 
   ergm.checkdirected,
-  # ergm.checkextreme.model,         
+  # ergm.checkextreme.model,         made internal
   # ergm.coefficient.degeneracy, proposed to make internal
   # ergm.compute.degeneracy,         proposed to make internal
   ergm.ConstraintImplications,
@@ -90,27 +90,27 @@ export(
   ergm.getmodel,                   
   ergm.getnetwork,
   ergm.getterms,                   
-  # ergm.initialfit,
+  # ergm.initialfit,    made internal
   ergm.init.methods,               
   #ergm.llik.wins,
   ergm.logisticdeviance,           
   ergm.logitreg,
   ergm.mahalanobis,       # deprecated
-  #ergm.mapl,
-  #ergm.maple,                      
+  # ergm.mapl,
+  # ergm.maple,           made internal      
   # ergm.MCMC.packagenames, made internal
   #ergm.MCMCse,            made internal           
-  #ergm.MCMCse.lognormal,
+  #ergm.MCMCse.lognormal,  made internal
   ergm.mcmcslave,                  
   #ergm.MCMLE,             made internal
   ergm.MHP.table,                  
-  #ergm.MPIcluster.started,
+  #ergm.MPIcluster.started,  made internal
   ergm.mple,                       
   ergmMPLE,
   #ergm.nodegeodesics,        made internal      
   #ergm.pairgeodesic,         made internal
-  # ergm.pen.glm,                    
-  # ergm.phase12, made internal
+  # ergm.pen.glm,             made internal
+  # ergm.phase12,            made internal
   ergm.pl,                         
   # ergm.reviseinit, made internal
   # ergm.rhs.formula,      made internal       
@@ -209,7 +209,7 @@ export(
   print.gofobject,                 
   print.network.list,
   print.summary.ergm,              
-  #prune.conlist,
+  #prune.conlist,     # made internal
   remove.offset.formula,           
   robust.inverse,
   rspartnerdist,         # deprecated    

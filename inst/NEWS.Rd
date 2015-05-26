@@ -66,8 +66,13 @@
         \item \code{require} and \code{library} calls changed to \code{requireNamespace} and namespace prefixes added to calls from other packages, 
         \item S3 methods explicitly registered in \code{NAMESPACE}.
         \item \code{packageDescription} is no longer used in package citation methods.
-	\item Many formerly internal functions have been documented in a
-	semi-stable API.
+	\item Many formerly 'internal' functions have been documented in a
+	semi-stable API for use by developers of other ergm-related packages.
+  \item{ Many formerly undocumented 'internal' functions have been made internal by the \code{NAMESPACE}. As far as we know, this avoids functions in use by reverse-Depending packages.  These currently appear as commented items in the \code{NAMESPACE} file.
+  }
+  \item{ Many undocumented 'internal' functions that do not appear to be used have been deprecated and will likely be removed in the next release.  See \code{?ergm_deprecated} for a list.  If called, these functions will give a Deprecation warning and suggest an alternate function where appropriate. 
+  
+  }
         }
        }
      }
