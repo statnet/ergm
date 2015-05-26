@@ -14,30 +14,27 @@
 % When a release is forked, copy the sections to a new release and
 % delete unused sections.
 
-\section{Changes in version 3.3}{
+\section{Changes in version 3.4}{
 
   \subsection{NEW FEATURES}{
     \itemize{
       \item Added message to notify when ergm MCMLE does not converge after max iterations.
       \item Copied the combined Sampson monks dataset to ergm. See \code{?sampson}.
-      \item ergm simulation, bridge, and logLik functions now "inherit" the parallel setting from the ergm object and generally pass it along when possible.
+      \item ergm simulation, bridge, and logLik functions now "inherit"
+    the parallel setting from the ergm object and generally pass it
+    along when possible.
+    \item A new estimate type and source for initial values, contrastive
+    divergence, has been added. It is intended primarily for obtaining
+    initial values for MCMLE for valued ERGMs and ERGMs with complex
+    (e.g., degree and edge-count) constraints. For binary networks with
+    dyad-independent constraints, MPLE still generally works better and
+    remains the default.
+
+    To obtain the contrastive divergence estimate, call
+   \code{\link{ergm}} with \code{estimate="CD"}.
    }
   }
    
-    \subsection{CHANGES}{
-     \itemize{
-       \item{Implemented solution to MCMLE steplength getting stuck at 0 for some models where initial networks are very far from target stats. If the Hummel step length is < control$MCMLE.steplength.min, stop with an informative error message, reporting that the the starting value is poor. If using target stats, it try increasing SAN parameters, or your configuration may be impossible or unlikely. (This suggests a poor model for the observed data.) MCMLE.steplength.min=0.0001 by default. Estimation will stop with an error message when steplen is smaller than the min for 2 iterations. (issue #1089)}
-       \item Replaced the integer function abs() by floating point function fabs() in MHproposals_degree.c.
-       \item Various documentation corrections and fixes
-       \item{ CRAN-requested code structure changes (generally not visable to user):
-        \itemize{
-        \item \code{require} and \code{library} calls changed to \code{requireNamespace} and namespace prefixes added to calls from other packages, 
-        \item S3 methods explicitly registered in NAMESPACE.
-        \item Updated package citation methods to remove call to \code{packageDescription}
-        }
-       }
-       }
-   }
   
    \subsection{BUG FIXES}{
      \itemize{
@@ -45,18 +42,36 @@
       \item{Fixed integer overflow bug in sample size reporting}
   
       \item{Fixed bug in saving target.stats vector. Offset terms in target.stats output are now NA instead of the SAN network stats. (issue #1049)}
-      \item{Fixed ergm segfault when unknown node attributes are used in ergm formulas. Modified get.node.attr function so that it will check if specified attribute exists. (previous code only checked if network was bipartite). (issue #1140, reported by Philip Leifeld) }
+      \item{Fixed ergm segfault when unknown node attributes are used in
+      ergm formulas. Modified get.node.attr function so that it will
+      check if specified attribute exists. (previous code only checked
+      if network was bipartite). (issue #1140, reported by Philip
+      Leifeld) }
+           \item{Implemented solution to MCMLE steplength getting stuck at 0 for some models where initial networks are very far from target stats. If the Hummel step length is < control$MCMLE.steplength.min, stop with an informative error message, reporting that the the starting value is poor. If using target stats, it try increasing SAN parameters, or your configuration may be impossible or unlikely. (This suggests a poor model for the observed data.) MCMLE.steplength.min=0.0001 by default. Estimation will stop with an error message when steplen is smaller than the min for 2 iterations. (issue #1089)}
+       \item Replaced the integer function abs() by floating point function fabs() in MHproposals_degree.c.
+       \item Various documentation corrections and fixes
+
     }
    }
 
-
-
   
-   %% \subsection{OTHER USER-VISIBLE CHANGES}{
-   %%   \itemize{
-   %%    \item{}
-   %%   }
-   %% }
+   \subsection{OTHER USER-VISIBLE CHANGES}{
+     \itemize{
+      \item{\code{\link{ergm}} with \code{estimate="MPLE"} will now
+	refuse to estimate the MPLE for valued ERGMs, curved ERGMs, and ERGMs with
+	certain complex constraints, as true MPLE
+	for these is not yet implemented.}
+       \item{ CRAN-requested code structure changes (generally not visable to user):
+        \itemize{
+        \item \code{require} and \code{library} calls changed to \code{requireNamespace} and namespace prefixes added to calls from other packages, 
+        \item S3 methods explicitly registered in \code{NAMESPACE}.
+        \item \code{packageDescription} is no longer used in package citation methods.
+	\item Many formerly internal functions have been documented in a
+	semi-stable API.
+        }
+       }
+     }
+   }
 
   % \subsection{C-LEVEL FACILITIES}{
   %   \itemize{
