@@ -86,7 +86,7 @@ ergm.checkconstraints.model <- function(model, MHproposal, init, silent=FALSE){
   constraints.old<-names(MHproposal$arguments$constraints)
   repeat{
     constraints <- unique(sort(c(constraints.old, unlist(ergm.ConstraintImplications()[constraints.old]))))
-    if(all(constraints==constraints.old)) break
+    if(all(constraints %in% constraints.old)) break
     else constraints.old <- constraints
   }
 

@@ -38,6 +38,8 @@
   
    \subsection{BUG FIXES}{
      \itemize{
+      \item{Fixed issue where constraints was not appropriately compared to older version}
+      \item{Fixed bug where the deviance of dyad-independence models was incorrectly computed/reported for all models}
       \item{Removed \code{Rglpk} package dependency; replaced it with \code{lpSolve} package dependency. See man page for \code{is.inCH} for details}
       \item{Fixed integer overflow bug in sample size reporting}
   
