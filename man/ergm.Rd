@@ -11,9 +11,9 @@
 \alias{ergm}
 \alias{ergm.object}
 \alias{is.ergm}
-\title{Exponential Family Random Graph Models}
+\title{Exponential-Family Random Graph Models}
 \description{
-  \code{\link{ergm}} is used to fit linear exponential random graph
+  \code{\link{ergm}} is used to fit exponential-family random graph
   models (ERGMs), in which
   the probability of a given network, \eqn{y}, on a set of nodes is 
   \eqn{h(y) \exp\{\eta(\theta) \cdot
@@ -23,10 +23,12 @@
   \eqn{\eta(\theta)} is a natural parameter vector of the same 
   length (with \eqn{\eta(\theta)=\theta} for most terms), and \eqn{c(\theta)} is the
   normalizing constant for the distribution.
-  \code{\link{ergm}} can return either a maximum pseudo-likelihood
-  estimate or an approximate maximum likelihood estimator based on a Monte Carlo scheme.
+  \code{\link{ergm}} can return a maximum pseudo-likelihood
+  estimate, an approximate maximum likelihood estimate based on a Monte
+  Carlo scheme, or an approximate contrastive divergence estimate based
+  on a similar scheme.
   
-  (for an overview of the package, see \link{ergm-package})
+  (For an overview of the package, see \link{ergm-package}.)
 }
 \usage{
 ergm (formula,
@@ -55,12 +57,12 @@ ergm (formula,
     operator if necessary. Enclosing a model term in \code{offset()}
     fixes its value to one specified in \code{offset.coef}.
   }
-  \item{response}{\emph{EXPERIMENTAL.} Name of the edge attribute whose value is to be
+  \item{response}{Name of the edge attribute whose value is to be
     modeled. Defaults to \code{NULL} for simple presence or
     absence, modeled via binary ERGM terms. Passing
     anything but \code{NULL} uses valued ERGM terms.} 
   
-  \item{reference}{\emph{EXPERIMENTAL.} A one-sided formula specifying
+  \item{reference}{A one-sided formula specifying
     the reference measure (\eqn{h(y)}) to be used. (Defaults to \code{~Bernoulli}.)
     See help for \link[=ergm-references]{ERGM reference measures} implemented in the
     \code{\link[=ergm-package]{ergm}} package.}
@@ -109,7 +111,7 @@ ergm (formula,
     estimator is returned.  For certain models, the MPLE and MLE are equivalent,
     in which case this argument is ignored.  (To force MCMC-based approximate
     likelihood calculation even when the MLE and MPLE are the same, see the
-    \code{force.main} argument of \code{\link{control.ergm}}. If "CD",
+    \code{force.main} argument of \code{\link{control.ergm}}. If "CD" (\emph{EXPERIMENTAL}),
     the Monte-Carlo contrastive divergence estimate is returned. )
   }
   \item{control}{A list of control parameters for algorithm

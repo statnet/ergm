@@ -33,9 +33,9 @@
 
 \docType{methods}
 
-\title{Sample Space Constraints for Exponential Family Random Graph Models}
+\title{Sample Space Constraints for Exponential-Family Random Graph Models}
 \description{
-  \code{\link{ergm}} is used to fit linear exponential random graph
+  \code{\link{ergm}} is used to fit exponential-family random graph
   models (ERGMs), in which
   the probability of a given network, \eqn{y}, on a set of nodes is 
   \eqn{h(y) \exp\{\eta(\theta) \cdot

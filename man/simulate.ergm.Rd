@@ -100,7 +100,10 @@
   \item{statsonly}{Logical:  If TRUE, return only the network statistics, 
     not the network(s) themselves.
   }
-  \item{esteq}{Logical:    If TRUE, compute the sample estimating equations of an ERGM. If the model is linear, all non-offset statistics are passed. If the model is curved, the score estimating equations (3.1) by Hunter and Handcock (2006) are given instead.
+  \item{esteq}{Logical:    If TRUE, compute the sample estimating
+    equations of an ERGM: if the model is non-curved, all non-offset
+    statistics are returned either way, but if the model is curved, the
+    score estimating function values (3.1) by Hunter and Handcock (2006) are returned instead.
   }
   \item{sequential}{Logical:  If FALSE, each of the \code{nsim} simulated
     Markov chains begins at the initial network.  If TRUE, the end of one 
