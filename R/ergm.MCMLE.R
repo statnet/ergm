@@ -65,6 +65,7 @@ ergm.MCMLE <- function(init, nw, model,
                              sequential=control$MCMLE.sequential,
                              estimate=TRUE,
                              response=NULL, ...) {
+  cat("Starting maximum likelihood estimation via MCMLE:\n",sep="")
   # Initialize the history of parameters and statistics.
   coef.hist <- rbind(init)
   stats.hist <- matrix(NA, 0, length(model$nw.stats))

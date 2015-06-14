@@ -54,6 +54,7 @@ ergm.CD.fixed <- function(init, nw, model,
                              verbose=FALSE,
                              estimate=TRUE,
                              response=NULL, ...) {
+  cat("Starting contrastive divergence estimation via CD-MCMLE:\n",sep="")
   # Initialize the history of parameters and statistics.
   coef.hist <- rbind(init)
   stats.hist <- matrix(NA, 0, length(model$nw.stats))
