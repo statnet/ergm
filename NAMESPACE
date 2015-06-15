@@ -250,7 +250,6 @@ export(
   vector.namesmatch,
   # which.package.InitFunction, proposed to make internal
   wtd.median
-  # xyplot.mcmc.list.ergm    proposed to make internal 
 )
 
 # export all the ergm terms

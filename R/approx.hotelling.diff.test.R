@@ -128,25 +128,23 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=NULL, assume.indep=FALSE, var
   out
 }
 
-## The following function uses small parts of geweke.diag from the
-## coda R package. The original code is Copyright (C) 2005-2011 Martyn
-## Plummer, Nicky Best, Kate Cowles, Karen Vines
-##
-## It is incorporated into the ergm package under the terms of the GPL
-## v3.
+## The following function's bookkeeping parts (e.g., handling of
+## mcmc.list and calculation of windows starts and ends) are loosely
+## based on parts of geweke.diag() from the coda R package.
 ##
 ## Rather than comparing each mean independently, compares them
 ## jointly. Note that it returns an htest object, not a geweke.diag
 ## object.
 ##
-## If approx.hotelling.diff.test returns an error, then
-
+## If approx.hotelling.diff.test returns an error, then assume that
+## burn-in is insufficient.
 .geweke.diag.mv <- function(x, frac1 = 0.1, frac2 = 0.5){
-  if (is.mcmc.list(x)) 
+  if(inherits(x, "mcmc.list"))
     return(lapply(x, .geweke.diag.mv, frac1, frac2))
   x <- as.mcmc(x)
-  x1 <- window(x, start=start(x), end=start(x) + frac1 * (end(x) - start(x)))
-  x2 <- window(x, start=end(x) - frac2 * (end(x) - start(x)), end=end(x))
+  x.len <- end(x) - start(x)
+  x1 <- window(x, start=start(x), end=start(x) + frac1*x.len)
+  x2 <- window(x, start=end(x) - frac2*x.len, end=end(x))
 
   test <- approx.hotelling.diff.test(x1,x2,var.equal=TRUE) # When converged, the chain should have the same variance throughout.
   if(is.na(test$p.value)) test$p.value <- 0 # Interpret too-small a sample size as insufficient burn-in.
