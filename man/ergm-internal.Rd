@@ -78,7 +78,6 @@
 
 
 %\alias{updatemodel.ErgmTerm}
-%\alias{xyplot.mcmc.list.ergm}
 
 %\alias{prune.conlist}
 \alias{geweke.diag.ar}

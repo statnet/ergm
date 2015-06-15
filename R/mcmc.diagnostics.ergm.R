@@ -226,7 +226,7 @@ plot.mcmc.list.ergm <- function(x, main=NULL, vars.per.page=3,...){
   requireNamespace('lattice', quietly=TRUE, warn.conflicts=FALSE)
   
   dp <- update(lattice::densityplot(x, panel=function(...){lattice::panel.densityplot(...);lattice::panel.abline(v=0)}),xlab=NULL,ylab=NULL)
-  tp <- update(xyplot.mcmc.list.ergm(x, panel=function(...){lattice::panel.xyplot(...);lattice::panel.loess(...);lattice::panel.abline(0,0)}),xlab=NULL,ylab=NULL)
+  tp <- update(lattice::xyplot(x, panel=function(...){lattice::panel.xyplot(...);lattice::panel.loess(...);lattice::panel.abline(0,0)}),xlab=NULL,ylab=NULL)
 
   #library(latticeExtra)
 
@@ -250,72 +250,5 @@ sweep.mcmc.list<-function(x, STATS, FUN="-", check.margin=TRUE, ...){
     x[[chain]] <- sweep(x[[chain]], 2, STATS, FUN, check.margin, ...)
   }
   x
-}
-
-## The following function is a modified version of xyplot.mcmc.list
-## from the coda R package. The original code is Copyright (C) 2005
-## Deepayan Sarkar <Deepayan.Sarkar@R-project.org>, Douglas Bates
-## <Douglas.Bates@R-project.org>.
-##
-## It is incorporated into the ergm package under the terms of the
-## GPL v3 license.
-##
-## I hope that they'll incorproate the changes at some point in the
-## future.
-xyplot.mcmc.list.ergm <-
-    function(x, data = NULL,
-             outer = FALSE, groups = !outer,
-             aspect = "xy", layout = c(1, ncol(x[[1]])),
-             default.scales = list(y = list(relation = "free")),
-             type = 'l',
-             start = 1, thin = 1,
-             main = attr(x, "title"),
-             ylab = "",
-             ...)
-{
-    if (!is.R()) {
-      stop("This function is not yet available in S-PLUS")
-    }
-    if (groups && outer) warning("'groups=TRUE' ignored when 'outer=TRUE'")
-    datalist <- lapply(x, function(x) as.data.frame(x))
-    data <- do.call("rbind", datalist)
-    form <-
-        if (outer)
-            eval(parse(text = paste(paste(lapply(names(data), as.name),
-                       collapse = "+"), "~.index | .run")))
-        else
-            eval(parse(text = paste(paste(lapply(names(data), as.name),
-                       collapse = "+"), "~.index")))
-##     form <-
-##         if (outer)
-##             as.formula(paste(paste(names(data),
-##                                    collapse = "+"),
-##                              "~ index | .run"))
-##         else
-##             as.formula(paste(paste(names(data),
-##                                    collapse = "+"),
-##                              "~ index"))
-    data[[".index"]] <- seq(from = start(x), by = thin(x), length = nrow(datalist[[1]])) ## repeated
-    .run <- gl(length(datalist), nrow(datalist[[1]]))
-    requireNamespace('lattice', quietly=TRUE, warn.conflicts=FALSE)
-    if (groups && !outer)
-      lattice::xyplot(form, data = data,
-               outer = TRUE,
-               layout = layout,
-               groups = .run,
-               default.scales = default.scales,
-               type = type,
-               main = main,
-               ylab = ylab,
-               ...)
-    else
-      lattice::xyplot(form, data = data,
-               outer = TRUE,
-               layout = layout,
-               default.scales = default.scales,
-               type = type,
-               main = main,
-               ylab = ylab,
-               ...)
 }
 
