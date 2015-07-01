@@ -51,7 +51,16 @@ is.inCH <- function(p, M, ...) { # Pass extra arguments directly to LP solver
   if (length(p) != NCOL(M)) 
     stop("Number of columns in matrix (2nd argument) is not equal to dimension ",
          "of first argument.")
-         
+
+  # Center and rescale p and M for the sake of numeric conditioning:
+  M <- sweep(M, 2, p, "-")
+  p <- p - p
+
+  # TODO: Use some sort of a robust (guaranteed pos. def.) covariance matrix rescaling here?
+  Msd <- if(nrow(M)>1) pmax(apply(M, 2, sd), sqrt(.Machine$double.eps)) else rep(1, length(p))
+  M <- sweep(M, 2, Msd, "/")
+  p <- p/Msd
+  
   q = c(1, p) 
   L = cbind(1, M)
 ############################################
