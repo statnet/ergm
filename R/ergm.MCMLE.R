@@ -363,12 +363,6 @@ ergm.MCMLE <- function(init, nw, model,
         }
       }
     }else if(control$MCMLE.termination=='Hotelling'){
-      # TODO: Move this to statnet.common.
-      ERRVL <- function(...){
-        for(x in list(...))
-          if(!inherits(x, "try-error")) return(x)
-        stop("No non-error expressions passed.")
-      }
       conv.pval <- ERRVL(try(approx.hotelling.diff.test(esteq, esteq.obs)$p.value), NA)
       cat("Nonconvergence test p-value:",conv.pval,"\n")
       if(!is.na(conv.pval) && conv.pval>=control$MCMLE.conv.min.pval){
