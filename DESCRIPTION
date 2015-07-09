@@ -9,8 +9,10 @@ Authors@R: c(
            person("Steven M.", "Goodreau", role=c("aut"), email="goodreau@u.washington.edu"),
            person("Pavel N.", "Krivitsky", role=c("aut","cre"), email="pavel@uow.edu.au"),
      	   person("Martina", "Morris", role=c("aut"), email="morrism@u.washington.edu"),
-         person("Li","Wang",role=c("ctb"),email="lxwang@gmail.com"),
-         person("Kirk","Li",role=c("ctb"),email="kirkli@uw.edu"))
+           person("Li","Wang",role=c("ctb"),email="lxwang@gmail.com"),
+           person("Kirk","Li",role=c("ctb"),email="kirkli@uw.edu"),
+	   person("Skye", "Bender-deMoll", role=c("ctb"), email="skyebend@uw.edu")
+)
 Depends: statnet.common (>= 3.1-0), network (>= 1.11)
 Imports: robustbase (>= 0.9-10), coda, trust, Matrix, lpSolve, parallel
 Suggests: lattice, latticeExtra, sna, latentnet, knitr
