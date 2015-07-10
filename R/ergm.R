@@ -251,7 +251,7 @@ ergm <- function(formula, response=NULL,
     init.candidates <- init.candidates[init.candidates!="MPLE"]
     if(verbose) cat("MPLE cannot be used for this constraint structure.\n")
   }
-  if("MPLE" %in% init.candidates && !is.null(target.stats) && !is.curved(formula, response=response, basis=basis)){
+  if("MPLE" %in% init.candidates && !is.null(target.stats) && is.curved(formula, response=response)){
     init.candidates <- init.candidates[init.candidates!="MPLE"]
     if(verbose) cat("At this time, MPLE cannot be used for curved families when target.stats are passed.\n")
   }
@@ -308,7 +308,7 @@ ergm <- function(formula, response=NULL,
 
   MPLE.is.MLE <- (MHproposal$reference$name=="Bernoulli"
                   && is.dyad.independent(model.initial)
-                  && !is.curved(formula, response=response, basis=basis)
+                  && !is.curved(formula, response=response)
                   && !control$force.main
                   && is.dyad.independent(MHproposal$arguments$constraints,
                                          MHproposal.obs$arguments$constraints))
