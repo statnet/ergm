@@ -14,7 +14,6 @@ importFrom(stats,simulate)
 export(
   anova.ergm,
   anova.ergmlist,                  
-  append.rhs.formula,
   approx.hotelling.diff.test,      
   as.edgelist,
   as.edgelist.compressed,          
@@ -240,14 +239,12 @@ export(
   summary.statistics.network.list,
   summary.statsmatrix.ergm,        
   sweep.mcmc.list,
-  term.list.formula,               
   to.lasttoggle.matrix,
   to.matrix.lasttoggle,            
   # twopathdist,     proposed to make internal 
   # unset.offset.formula,      proposed to make internal      
   # updatemodel.ErgmTerm,    proposed to make internal 
   vcov.ergm,                       
-  vector.namesmatch,
   # which.package.InitFunction, proposed to make internal
   wtd.median
 )
