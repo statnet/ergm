@@ -149,6 +149,11 @@ export(
   is.dyad.independent.ergm.model,
   is.dyad.independent.formula,     
   is.dyad.independent.NULL,
+  is.curved,             
+  is.curved.ergm,        
+  is.curved.ergm.model,
+  is.curved.formula,     
+  is.curved.NULL,
   is.ergm,                         
   is.inCH,
   is.invertible,           # deprecated
@@ -310,6 +315,11 @@ S3method(is.dyad.independent,conlist)
 S3method(is.dyad.independent,ergm)
 S3method(is.dyad.independent,ergm.model)
 S3method(is.dyad.independent,formula)
+
+S3method(is.curved,NULL)
+S3method(is.curved,ergm)
+S3method(is.curved,ergm.model)
+S3method(is.curved,formula)
 
 S3method(logLik,ergm)
 S3method(logLikNull,ergm)
