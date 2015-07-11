@@ -36,9 +36,6 @@ curved.
   \item{response, basis}{
     Name of the edge attribute whose value is to be modeled. See \code{\link{ergm}}.
   }
-  \item{object.obs}{
-  
-  }
   \item{\dots}{
     Unused at this time.
   }
