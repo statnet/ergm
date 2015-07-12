@@ -19,7 +19,7 @@
 \usage{
 \method{mcmc.diagnostics}{ergm} (object, 
               center=TRUE,
-              curved=TRUE,
+              esteq=TRUE,
               vars.per.page=3,
               \dots)
 \method{plot}{mcmc.list.ergm}(x, 
@@ -34,9 +34,10 @@
   \item{center}{Logical:  If TRUE, ; center the samples
     on the observed statistics.
   }
-  \item{curved}{Logical:  If TRUE, for statistics corresponding to
-    curved ERGM terms, summarize the curved statistics (evaluated at the MLE of any curved parameters) (i.e.,
-    \eqn{\eta_{I}(\hat{\theta})\cdot g_{I}(y)} for \eqn{I} being indices of
+  \item{esteq}{Logical:  If TRUE, for statistics corresponding to
+    curved ERGM terms, summarize the curved statistics by their
+    estimating equation values (evaluated at the MLE of any curved parameters) (i.e.,
+    \eqn{\eta'_{I}(\hat{\theta})\cdot g_{I}(y)} for \eqn{I} being indices of
     the canonical parameters in question), 
     rather than the canonical (sufficient) vectors of the curved
     statistics (\eqn{g_{I}(y)}).

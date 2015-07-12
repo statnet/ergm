@@ -68,7 +68,7 @@ mcmc.diagnostics.default <- function(object, ...) {
 
 mcmc.diagnostics.ergm <- function(object,
                                   center=TRUE,
-                                  curved=TRUE,
+                                  esteq=TRUE,
                                   vars.per.page=3,...) {
 #
   if(!is.null(object$degeneracy.value) && !is.na(object$degeneracy.value)){
@@ -103,9 +103,9 @@ mcmc.diagnostics.ergm <- function(object,
     }
   }
 
-  if(curved){
-    sm <- do.call(mcmc.list, lapply(sm, ergm.sample.eta2theta, coef=object$coef, etamap=object$etamap))
-    if(!is.null(sm.obs)) sm.obs <- do.call(mcmc.list, lapply(sm.obs, ergm.sample.eta2theta, coef=object$coef, etamap=object$etamap))
+  if(esteq){
+    sm <- do.call(mcmc.list, lapply(sm, function(x) .ergm.esteq(theta=object$coef, model=object$etamap, x)))
+    if(!is.null(sm.obs)) sm.obs <- do.call(mcmc.list, lapply(sm.obs, function(x) .ergm.esteq(theta=object$coef, model=object$etamap, x)))
   }
 
   cat("Sample statistics summary:\n")
