@@ -69,12 +69,13 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
   htmp.offset <- matrix(0, ncol = length(offsetmap), nrow = nrow(htmp))
   htmp.offset[,!offsetmap] <- htmp
   htmp.offset <- t(ergm.etagradmult(theta.offset, t(htmp.offset), etamap))
-  H <- crossprod(htmp.offset, htmp.offset)
+  H <- crossprod(htmp.offset, htmp.offset)[!offsettheta,!offsettheta,drop=FALSE]
 
   #  Calculate the auto-covariance of the MCMC suff. stats.
   #  and hence the MCMC s.e.
   z <- sweep(xsim, 2, xobs, "-")
   cov.zbar <- .ergm.mvar.spec0(z) * sum(prob^2)
+  cov.zbar[is.na(c(cov.zbar))] <- 0
   imp.factor <- mean(prob^2)
   cov.zbar.offset <- matrix(0, ncol = length(offsetmap), 
                             nrow = length(offsetmap))
@@ -84,11 +85,10 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
   cov.zbar.offset[!offsetmap,!offsetmap] <- cov.zbar
   cov.zbar.offset <- t(ergm.etagradmult(theta.offset, t(cov.zbar.offset), etamap))
   cov.zbar <- crossprod(cov.zbar.offset, cov.zbar.offset)
-  
+
   # Identify canonical parameters corresponding to statistics that do not vary
-  novar <- diag(H)==0
-  novar.offset <- rep(TRUE, length(offsettheta))
-  novar.offset[!offsettheta] <- novar # Note that novar.offset == TRUE where offsettheta==TRUE as well.
+  novar <- rep(TRUE, length(offsettheta))
+  novar[!offsettheta] <- diag(H) < sqrt(.Machine$double.eps)
 
   #  Calculate the auto-covariance of the Conditional MCMC suff. stats.
   #  and hence the Conditional MCMC s.e.
@@ -102,10 +102,11 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
     htmp.obs.offset <- matrix(0, ncol = length(offsetmap), nrow = nrow(htmp.obs))
     htmp.obs.offset[,!offsetmap] <- htmp.obs
     htmp.obs.offset <- t(ergm.etagradmult(theta.offset, t(htmp.obs.offset), etamap))
-    H.obs <- crossprod(htmp.obs.offset, htmp.obs.offset)
+    H.obs <- crossprod(htmp.obs.offset, htmp.obs.offset)[!offsettheta,!offsettheta,drop=FALSE]
 
     z <- xsim.obs
     cov.zbar.obs <- .ergm.mvar.spec0(z) * sum(prob.obs^2)
+    cov.zbar.obs[is.na(c(cov.zbar.obs))] <- 0
     imp.factor <- mean(imp.factor, mean(prob.obs^2))
     cov.zbar.obs.offset <- matrix(0, ncol = length(offsetmap), 
                                   nrow = length(offsetmap))
@@ -115,28 +116,22 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
     cov.zbar.obs.offset[!offsetmap,!offsetmap] <- cov.zbar.obs
     cov.zbar.obs.offset <- t(ergm.etagradmult(theta.offset, t(cov.zbar.obs.offset), etamap))
     cov.zbar.obs <- crossprod(cov.zbar.obs.offset, cov.zbar.obs.offset)
-    novar <- novar | (diag(H.obs)==0)
-    H.obs <- H.obs[!novar,,drop=FALSE] 
-    H.obs <- H.obs[,!novar,drop=FALSE] 
+    novar[!offsettheta] <- novar[!offsettheta] | (diag(H.obs)<sqrt(.Machine$double.eps))
+
+    H.obs <- H.obs[!novar[!offsettheta],!novar[!offsettheta],drop=FALSE] 
     cov.zbar.obs <- cov.zbar.obs[!(novar|offsettheta),!(novar|offsettheta),drop=FALSE]
   }
   if(nrow(H)==1){
-    H <- as.matrix(H[!novar,]) 
-    H <- as.matrix(H[,!novar]) 
+    H <- as.matrix(H[!novar[!offsettheta],!novar[!offsettheta]])
   }else{
-    H <- H[!novar,,drop=FALSE] 
-    H <- H[,!novar,drop=FALSE] 
+    H <- H[!novar[!offsettheta],!novar[!offsettheta],drop=FALSE]
   }
   if(all(dim(H)==c(0,0))){
     hessian <- matrix(NA, ncol=length(theta), nrow=length(theta))
     return(matrix(NA, length(theta), length(theta)))
   }
   cov.zbar <- cov.zbar[!(novar|offsettheta),!(novar|offsettheta),drop=FALSE]
-  if(length(novar)==length(offsettheta)){
-   novar <- novar | offsettheta
-  }else{
-   novar <- novar[!offsettheta]
-  }
+  novar <- novar | offsettheta
 
   if(inherits(try(solve(H)),"try-error")) warning("Approximate Hessian matrix is singular. Standard errors due to MCMC approximation of the likelihood cannot be evaluated. This is likely due to highly correlated model terms.")
 
@@ -147,7 +142,7 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
     if(!(inherits(mc.cov0,"try-error"))){
       mc.cov0 <- try(solve(H, t(mc.cov0)), silent=TRUE)
       if(!(inherits(mc.cov0,"try-error"))){
-        mc.cov[!novar.offset,!novar.offset] <- mc.cov0
+        mc.cov[!novar,!novar] <- mc.cov0
       }
     }
   }else{
@@ -158,7 +153,7 @@ ergm.MCMCse<-function(theta, init, statsmatrix, statsmatrix.obs,
     if(!(inherits(mc.cov0,"try-error"))){
       mc.cov0 <- try(solve(H, t(mc.cov0)), silent=TRUE)
       if(!(inherits(mc.cov0,"try-error"))){
-        mc.cov[!novar.offset,!novar.offset] <- mc.cov0
+        mc.cov[!novar,!novar] <- mc.cov0
       }
     }
   }
