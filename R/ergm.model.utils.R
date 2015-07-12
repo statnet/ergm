@@ -26,7 +26,7 @@ ergm.checkextreme.model <- function(model, nw, init, response, target.stats, dro
   # and only the elements of extremeval.eta corresponding to
   # canonical terms get copied into it.
   extremeval.theta <- rep(0, length(init))
-  extremeval.theta[model$etamap$canonical!=0]<-extremeval.eta[model$etamap$canonical]
+  extremeval.theta[model$etamap$canonical!=0 & !model$etamap$offsettheta]<-extremeval.eta[model$etamap$canonical[!model$etamap$offsettheta]]
   names.theta <- rep(NA, length(length(init)))
   names.theta[model$etamap$canonical!=0]<-names.eta[model$etamap$canonical]
   
@@ -56,7 +56,7 @@ ergm.checkextreme.model <- function(model, nw, init, response, target.stats, dro
       if(any(high.drop.theta)) warning(paste("Observed statistic(s)", paste.and(names.theta[high.drop.theta]), "are at their greatest attainable values and drop=FALSE. The MLE is poorly defined.", sep=" "))
     }
   }
-
+  
   list(model=model, init=init, extremeval.theta=extremeval.theta)
 }
 
