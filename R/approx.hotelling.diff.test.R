@@ -158,8 +158,13 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=NULL, assume.indep=FALSE, var
 # curved, the score estimating equations (3.1) by Hunter and
 # Handcock (2006) are given instead.
 .ergm.esteq <- function(theta, model, statsmatrix){
-  esteq <- t(ergm.etagradmult(theta,t(as.matrix(statsmatrix)),model$etamap))[,!model$etamap$offsettheta,drop=FALSE]
-  colnames(esteq) <- .coef.names.model(model, FALSE)[!model$etamap$offsettheta]
+  etamap <- NVL(model$etamap, model)
+  esteq <- t(ergm.etagradmult(theta,t(as.matrix(statsmatrix)),etamap))[,!etamap$offsettheta,drop=FALSE]
+  if(is.mcmc(statsmatrix)){
+    esteq <- mcmc(esteq, start=start(statsmatrix), end=end(statsmatrix), thin=thin(statsmatrix))
+    varnames(esteq) <- NVL(names(theta), .coef.names.model(model, FALSE))[!etamap$offsettheta]
+  }else  colnames(esteq) <- NVL(names(theta), .coef.names.model(model, FALSE))[!etamap$offsettheta]
+
   esteq
 }
 
