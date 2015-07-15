@@ -101,8 +101,12 @@ ergm.MCMLE <- function(init, nw, model,
   # statshift is the difference between the target.stats (if
   # specified) and the statistics of the networks in the LHS of the
   # formula or produced by SAN. If target.stats is not speficied
-  # explicitly, they are computed from this network, so statshift==0.
-  statshifts <- rep(list(model$nw.stats - model$target.stats), nthreads) # Each network needs its own statshift.
+  # explicitly, they are computed from this network, so
+  # statshift==0. To make target.stats play nicely with offsets, we
+  # set statshifts to 0 where target.stats is NA (due to offset).
+  statshift <- model$nw.stats - model$target.stats
+  statshift[is.na(statshift)] <- 0
+  statshifts <- rep(list(statshift), nthreads) # Each network needs its own statshift.
 
   # Is there observational structure?
   obs <- ! is.null(MHproposal.obs)
@@ -249,7 +253,7 @@ ergm.MCMLE <- function(init, nw, model,
                          epsilon=control$epsilon,
                          nr.maxit=control$MCMLE.NR.maxit,
                          nr.reltol=control$MCMLE.NR.reltol,
-                         calc.mcmc.se=control$MCMC.addto.se, hessianflag=control$main.hessian,
+                         calc.mcmc.se=control$MCMLE.termination == "precision" || (control$MCMC.addto.se && last.adequate), hessianflag=control$main.hessian,
                          trustregion=control$MCMLE.trustregion, method=control$MCMLE.method,
                          metric=control$MCMLE.metric,
                          dampening=control$MCMLE.dampening,
@@ -296,7 +300,7 @@ ergm.MCMLE <- function(init, nw, model,
                        epsilon=control$epsilon,
                        nr.maxit=control$MCMLE.NR.maxit,
                        nr.reltol=control$MCMLE.NR.reltol,
-                       calc.mcmc.se=control$MCMC.addto.se, 
+                       calc.mcmc.se=control$MCMLE.termination == "precision" || (control$MCMC.addto.se && last.adequate),
                        hessianflag=control$main.hessian,
                        trustregion=control$MCMLE.trustregion, 
                        method=control$MCMLE.method,

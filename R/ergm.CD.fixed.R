@@ -78,9 +78,13 @@ ergm.CD.fixed <- function(init, nw, model,
   # statshift is the difference between the target.stats (if
   # specified) and the statistics of the networks in the LHS of the
   # formula or produced by SAN. If target.stats is not speficied
-  # explicitly, they are computed from this network, so statshift==0.
-  statshifts <- rep(list(model$nw.stats - model$target.stats), nthreads) # Each network needs its own statshift.
-
+  # explicitly, they are computed from this network, so
+  # statshift==0. To make target.stats play nicely with offsets, we
+  # set statshifts to 0 where target.stats is NA (due to offset).
+  statshift <- model$nw.stats - model$target.stats
+  statshift[is.na(statshift)] <- 0
+  statshifts <- rep(list(statshift), nthreads) # Each network needs its own statshift.
+  
   # Is there observational structure?
   obs <- ! is.null(MHproposal.obs)
   if(obs){
@@ -156,7 +160,7 @@ ergm.CD.fixed <- function(init, nw, model,
     if(isTRUE(all.equal(apply(esteq,2,sd), rep(0,ncol(esteq)), check.names=FALSE))&&!all(esteq==0))
       stop("Unconstrained CD sampling did not mix at all. Optimization cannot continue.")
     esteq.obs <- if(obs) .ergm.esteq(mcmc.init, model, statsmatrix.obs) else NULL   
-    conv.pval <- approx.hotelling.diff.test(esteq, esteq.obs, assume.indep=TRUE)$p.value
+    conv.pval <- suppressWarnings(approx.hotelling.diff.test(esteq, esteq.obs, assume.indep=TRUE)$p.value)
                                             
     # We can either pretty-print the p-value here, or we can print the
     # full thing. What the latter gives us is a nice "progress report"
