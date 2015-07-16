@@ -129,7 +129,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   
   if(MHproposal$name %in% c("CondDegree","CondDegreeMix")){ 
    formula.conddegmple <- ergm.update.formula(formula, . ~ conddegmple + .)
-   m.conddeg <- ergm.getmodel(formula.conddegmple, nw, initialfit=TRUE)
+   m.conddeg <- ergm.getmodel(formula.conddegmple, nw)
    Clist.conddegmple <- ergm.Cprepare(nw, m.conddeg)
    Clist.conddegmple$target.stats=c(1,target.stats)
    conddeg <- list(m=m.conddeg, Clist=Clist.conddegmple, Clist.miss=ergm.Cprepare(nw, m.conddeg))
@@ -166,7 +166,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
     }else{
       if(is.null(control$invcov)) { control$invcov <- diag(length(control$coef)) }
     }
-    eta0 <- ergm.eta(control$coef, model$etamap)
+    eta0 <- ifelse(is.na(control$coef), 0, control$coef)
     
     netsumm<-summary(model$formula,response=response)
     target.stats <- vector.namesmatch(target.stats, names(netsumm))
@@ -177,7 +177,6 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
 #
 #   Check for truncation of the returned edge list
 #
-    eta0[is.na(eta0)]<-0
     repeat{
       nedges <- c(Clist$nedges,0)
       tails <- Clist$tails
