@@ -42,97 +42,66 @@ ergm.MCMCse.lognormal<-function(theta, init, statsmatrix, statsmatrix.obs,
   av <- apply(statsmatrix, 2, mean)
 # av <- apply(statsmatrix,2,median)
   xsim <- sweep(statsmatrix, 2, av, "-")
+  gsim <- .ergm.esteq(theta, model, xsim)
   xobs <- -av
   if(!is.null(statsmatrix.obs)){
    av.obs <- apply(statsmatrix.obs, 2, mean)
 #  av.obs <- apply(statsmatrix.obs, 2, median)
    xsim.obs <- sweep(statsmatrix.obs, 2, av.obs,"-")
+   gsim.obs <- .ergm.esteq(theta, model, xsim.obs)
    xsim.obs <- xsim.obs[,!offsetmap, drop=FALSE]
    xobs <- av.obs-av
   }
   xobs <- xobs[!offsetmap]
   xsim <- xsim[,!offsetmap, drop=FALSE]
 
-  # Take any theta offsets (values fixed at init) into consideration
-  theta.offset <- etamap$init
-  theta.offset[!offsettheta] <- theta[!offsettheta]
-
   #  Calculate the auto-covariance of the MCMC suff. stats.
   #  and hence the MCMC s.e.
-  z <- sweep(xsim, 2, xobs, "-")
-  cov.zbar <- .ergm.mvar.spec0(z) / nrow(z)
-  cov.zbar[is.na(c(cov.zbar))] <- 0
-  cov.zbar.offset <- matrix(0, ncol = length(offsetmap), 
-                            nrow = length(offsetmap))
-  cov.zbar <- suppressWarnings(chol(cov.zbar, pivot=TRUE))
-  pivot <- order(attr(cov.zbar, "pivot"))
-  cov.zbar <-cov.zbar[, pivot]
-  cov.zbar.offset[!offsetmap,!offsetmap] <- cov.zbar
-  cov.zbar.offset <- t(ergm.etagradmult(theta.offset, t(cov.zbar.offset), etamap))
-  cov.zbar <- crossprod(cov.zbar.offset, cov.zbar.offset)
+  cov.zbar <- .ergm.mvar.spec0(gsim) / nrow(gsim)
 
-  # Identify canonical parameters corresponding to statistics that do not vary
-  novar <- rep(TRUE, length(offsettheta))
-  novar[!offsettheta] <- diag(H) < sqrt(.Machine$double.eps)
+  # Identify canonical parameters corresponding to non-offset statistics that do not vary
+  novar <- rep(TRUE, nrow(H))
+  novar <- diag(H) < sqrt(.Machine$double.eps)
 
   #  Calculate the auto-covariance of the Conditional MCMC suff. stats.
   #  and hence the Conditional MCMC s.e.
-  E.obs <- 0
   if(!is.null(statsmatrix.obs)){
-    z <- xsim.obs
-    cov.zbar.obs <- .ergm.mvar.spec0(z) / nrow(z)
-    cov.zbar.obs[is.na(c(cov.zbar.obs))] <- 0
-    cov.zbar.obs.offset <- matrix(0, ncol = length(offsetmap), 
-                                  nrow = length(offsetmap))
-    cov.zbar.obs <- suppressWarnings(chol(cov.zbar.obs, pivot=TRUE))
-    pivot <- order(attr(cov.zbar.obs, "pivot"))
-    cov.zbar.obs <-cov.zbar.obs[, pivot]
-    cov.zbar.obs.offset[!offsetmap,!offsetmap] <- cov.zbar.obs
-    cov.zbar.obs.offset <- t(ergm.etagradmult(theta.offset, t(cov.zbar.obs.offset), etamap))
-    cov.zbar.obs <- crossprod(cov.zbar.obs.offset, cov.zbar.obs.offset)
-    novar[!offsettheta] <- novar[!offsettheta] | (diag(H.obs)<sqrt(.Machine$double.eps))
+    cov.zbar.obs <- .ergm.mvar.spec0(gsim.obs) / nrow(gsim.obs)
 
-    H.obs <- H.obs[!novar[!offsettheta],!novar[!offsettheta],drop=FALSE] 
-    cov.zbar.obs <- cov.zbar.obs[!(novar|offsettheta),!(novar|offsettheta),drop=FALSE]
-  }
-  if(nrow(H)==1){
-    H <- as.matrix(H[!novar[!offsettheta],!novar[!offsettheta]])
+    novar <- novar & (diag(H.obs)<sqrt(.Machine$double.eps))
   }else{
-    H <- H[!novar[!offsettheta],!novar[!offsettheta],drop=FALSE]
+    cov.zbar.obs <- cov.zbar
+    cov.zbar.obs[,] <- 0
+    H.obs <- H
+    H.obs[,] <- 0
   }
-  if(all(dim(H)==c(0,0))){
-    hessian <- matrix(NA, ncol=length(theta), nrow=length(theta))
-    return(matrix(NA, length(theta), length(theta)))
-  }
-  cov.zbar <- cov.zbar[!(novar|offsettheta),!(novar|offsettheta),drop=FALSE]
-  novar <- novar | offsettheta
 
-  if(inherits(try(solve(H)),"try-error")) warning("Approximate Hessian matrix is singular. Standard errors due to MCMC approximation of the likelihood cannot be evaluated. This is likely due to highly correlated model terms.")
+  H <- H[!novar, !novar, drop=FALSE]
+  H.obs <- H.obs[!novar, !novar, drop=FALSE]
 
-  mc.cov <- matrix(NA,ncol=length(theta),nrow=length(theta))
+  cov.zbar <- cov.zbar[!novar, !novar, drop=FALSE]
+  cov.zbar.obs <- cov.zbar.obs[!novar, !novar, drop=FALSE]
 
-  if(is.null(statsmatrix.obs)){
-    mc.cov0 <- try(solve(H, cov.zbar), silent=TRUE)
-    if(!(inherits(mc.cov0,"try-error"))){
-      mc.cov0 <- try(solve(H, t(mc.cov0)), silent=TRUE)
-      if(!(inherits(mc.cov0,"try-error"))){
-        mc.cov[!novar,!novar] <- mc.cov0
-      }
-    }
+
+  mc.cov.offset <- matrix(0, ncol=length(theta),nrow=length(theta))
+
+  H <- H.obs - H # Bread^-1
+  cov.zbar <- cov.zbar + cov.zbar.obs # Filling
+
+  mc.cov <- matrix(NA,ncol=length(novar),nrow=length(novar))
+
+  if(sum(!novar)==0 || inherits(try(solve(H)),"try-error")){
+    warning("Approximate Hessian matrix is singular. Standard errors due to MCMC approximation of the likelihood cannot be evaluated. This is likely due to insufficient MCMC sample size or highly correlated model terms.")
   }else{
-    H <- H.obs - H # Bread^-1
-    cov.zbar <- cov.zbar + cov.zbar.obs # Filling
-    
-    mc.cov0 <- try(solve(H, cov.zbar), silent=TRUE)
-    if(!(inherits(mc.cov0,"try-error"))){
-      mc.cov0 <- try(solve(H, t(mc.cov0)), silent=TRUE)
-      if(!(inherits(mc.cov0,"try-error"))){
-        mc.cov[!novar,!novar] <- mc.cov0
-      }
-    }
+    mc.cov0 <- solve(H, cov.zbar)
+    mc.cov0 <- solve(H, t(mc.cov0))
+    mc.cov[!novar,!novar] <- mc.cov0
   }
-  colnames(mc.cov) <- names(theta)
-  rownames(mc.cov) <- names(theta)
 
-  mc.cov
+  mc.cov.offset[!offsettheta,!offsettheta] <- mc.cov
+
+  colnames(mc.cov.offset) <- names(theta)
+  rownames(mc.cov.offset) <- names(theta)
+
+  mc.cov.offset
 }
