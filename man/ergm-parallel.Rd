@@ -17,7 +17,7 @@
 \alias{ergm.stopCluster.MPIcluster}
 \alias{ergm.stopCluster.default}
 \alias{ergm.getCluster}
-\alias{ergm.MPIcluster.started}
+\alias{ergm.cluster.started}
 
 \docType{methods}
 \title{Parallel Processing in the \code{\link[=ergm-package]{ergm}} Package}
