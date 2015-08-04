@@ -52,17 +52,23 @@ is.inCH <- function(p, M, ...) { # Pass extra arguments directly to LP solver
     stop("Number of columns in matrix (2nd argument) is not equal to dimension ",
          "of first argument.")
 
-  # Center and rescale p and M for the sake of numeric conditioning:
+  # Center p and M:
   M <- sweep(M, 2, p, "-")
   p <- p - p
 
-  # TODO: Use some sort of a robust (guaranteed pos. def.) covariance matrix rescaling here?
-  Msd <- if(nrow(M)>1) pmax(apply(M, 2, sd), sqrt(.Machine$double.eps)) else rep(1, length(p))
-  M <- sweep(M, 2, Msd, "/")
-  p <- p/Msd
+  # Rotate p and M onto their principal components, dropping linearly dependent dimensions:
+  e <- eigen(crossprod(M), symmetric=TRUE)
+  Q <- e$vec[,sqrt(e$val/max(e$val))>sqrt(.Machine$double.eps),drop=FALSE]
+  Mr <- M%*%Q # Columns of Mr are guaranteed to be linearly independent.
+  pr <- p%*%Q
+
+  # Scale p and M:
+  Mrsd <- if(nrow(Mr)>1) pmax(apply(Mr, 2, sd), sqrt(.Machine$double.eps)) else rep(1, length(p))
+  Mr <- sweep(Mr, 2, Mrsd, "/")
+  pr <- pr/Mrsd
   
-  q = c(1, p) 
-  L = cbind(1, M)
+  q = c(1, pr) 
+  L = cbind(1, Mr)
 ############################################
 # USE lp FUNCTION FROM lpSolve PACKAGE:
   ans <- lp(objective.in = c(-q, q),
