@@ -272,22 +272,21 @@ Bender-deMoll S, Morris M, Moody J (2008).
  \emph{Journal of Statistical Software}, 24(7).
  \url{http://www.jstatsoft.org/v24/i07/}.
 
-Butts CT (2006).
- \pkg{netperm}: Permutation Models for Relational Data.
- Version 0.2, \url{http://erzuli.ss.uci.edu/R.stuff}.
+%Butts CT (2006).
+% \pkg{netperm}: Permutation Models for Relational Data.
+% Version 0.2, \url{http://erzuli.ss.uci.edu/R.stuff}.
 
 Butts CT (2007).
  \pkg{sna}: Tools for Social Network Analysis.
- Version 1.5, \url{http://erzuli.ss.uci.edu/R.stuff}.
+R package version 2.3-2. \url{http://CRAN.R-project.org/package=sna}.
 
 Butts CT (2008).
  \pkg{network}: A Package for Managing Relational Data in \R.
  \emph{Journal of Statistical Software}, 24(2).
  \url{http://www.jstatsoft.org/v24/i02/}.
 
-Butts CT, with help~from David~Hunter, Handcock MS (2007).
- \pkg{network}: Classes for Relational Data.
- Version 1.2, \url{http://erzuli.ss.uci.edu/R.stuff}.
+Butts C (2015).
+ \pkg{network}: The Statnet Project (http://www.statnet.org). R package version 1.12.0, \url{http://CRAN.R-project.org/package=network}.
 
 Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).
  A \pkg{statnet} Tutorial.

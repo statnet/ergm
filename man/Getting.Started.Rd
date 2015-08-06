@@ -91,22 +91,21 @@ Boer P, Huisman M, Snijders T, Zeggelink E (2003).
   analysis of social networks.
  Groningen: ProGAMMA / ICS, version 1.4 edition.
 
-Butts CT (2006).
- \pkg{netperm}: Permutation Models for Relational Data.
- Version 0.2, \url{http://erzuli.ss.uci.edu/R.stuff}.
+%Butts CT (2006).
+% \pkg{netperm}: Permutation Models for Relational Data.
+% Version 0.2, \url{http://erzuli.ss.uci.edu/R.stuff}.
 
 Butts CT (2007).
  \pkg{sna}: Tools for Social Network Analysis.
- Version 1.5, \url{http://erzuli.ss.uci.edu/R.stuff}.
+ R package version 2.3-2. \url{http://CRAN.R-project.org/package=sna}.
 
 Butts CT (2008).
  \pkg{network}: A Package for Managing Relational Data in \R.
  \emph{Journal of Statistical Software}, 24(2).
  \url{http://www.jstatsoft.org/v24/i02/}.
 
-Butts CT, with help~from David~Hunter, Handcock MS (2007).
- \pkg{network}: Classes for Relational Data.
- Version 1.2, \url{http://erzuli.ss.uci.edu/R.stuff}.
+Butts C (2015).
+ \pkg{network}: The Statnet Project (http://www.statnet.org). R package version 1.12.0, \url{http://CRAN.R-project.org/package=network}.
 
 Frank, O., and Strauss, D.(1986). Markov graphs. \emph{Journal of the American
 Statistical Association}, 81, 832-842. 

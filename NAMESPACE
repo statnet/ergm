@@ -1,13 +1,25 @@
 
 useDynLib(ergm)
 
-importFrom(utils, packageDescription)
 importFrom(robustbase, lmrob, covMcd)
 importFrom(trust, trust)
 importFrom(Matrix, nearPD)
 importFrom(lpSolve, lp)
 import(statnet.common, network, coda, parallel)
 importFrom(stats,simulate)
+importFrom("grDevices", "colors", "dev.cur", "dev.off", "dev.set",
+             "pictex", "rainbow")
+importFrom("graphics", "boxplot", "lines", "mtext", "pairs", "par",
+             "plot", "points", "polygon")
+importFrom("stats", "AIC", "BIC", "ar", "as.formula", "coef", "cov",
+             "cov.wt", "dlogis", "end", "formula", "influence", "logLik",
+             "median", "model.extract", "model.frame", "model.matrix",
+             "na.omit", "nobs", "optim", "pchisq", "pf", "plogis",
+             "pnorm", "predict", "printCoefmat", "pt", "qf", "quantile",
+             "runif", "sd", "start", "terms", "uniroot", "update", "var",
+             "vcov", "weighted.mean", "window")
+importFrom("utils", "packageDescription","capture.output", "flush.console", "methods",
+             "packageVersion", "tail")
 
 # Export all names that do not begin with a dot.
 #exportPattern("^[^\\.]")
