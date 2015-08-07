@@ -319,6 +319,21 @@ network
   considered a nontie.)
 }
 
+\section{Covariate transformations}{
+  Some terms taking nodal or dyadic covariates take optional
+  \code{transform} and \code{transformname} arguments. \code{transform}
+  should be a function with one argument, taking a data structure of the
+  same mode as the covariate and returning a similarly structured data
+  structure, transforming the covariate as needed.
+
+  For example, \code{nodecov("a", transform=function(x) x^2)}
+  will add a nodal covariate having the square of the value of the nodal attribute
+  \code{"a"}.
+
+  \code{transformname}, if given, will be added to the term's name to
+  help identify it.
+}
+
 \section{Terms to represent network statistics included in the
   \code{\link[=ergm-package]{ergm}} package}{
   A cross-referenced html version of the term documentation is is available via \code{vignette('ergm-term-crossRef')} and terms can also be searched via \code{\link{search.ergmTerms}}.
@@ -1270,8 +1285,8 @@ of the degrees of all pairs of nodes in the network which are tied.
     sub-graph of size three which is exactly one tie short of being complete.
     This term can only be used with directed networks.}
     
-    \item{\code{nodecov(attrname)}  (binary)  (dyad-independent)  (frequently-used)   (directed)  (undirected) (quantitative nodal attribute)
-    , \code{nodecov(attrname,
+    \item{\code{nodecov(attrname, transform, transformname)}  (binary)  (dyad-independent)  (frequently-used)   (directed)  (undirected) (quantitative nodal attribute)
+    , \code{nodecov(attrname, transform, transformname,
     form="sum")}  (valued)  (dyad-independent)  (directed)  (undirected) (quantitative nodal attribute)
     , a.k.a. \code{nodemain}  (binary)   (directed)  (undirected)}{\emph{Main effect of a covariate:} 
     The \code{attrname} argument is a character string giving the name of a
@@ -1321,8 +1336,8 @@ of the degrees of all pairs of nodes in the network which are tied.
     base=2:3)}. For an analogous term for quantitative vertex
     attributes, see \code{nodecov}. }
     
-    \item{\code{nodeicov(attrname)}  (binary)  (directed) (quantitative nodal attribute) (frequently-used)
-    , \code{nodeicov(attrname, form="sum")}  (valued)  (directed) (quantitative nodal attribute)
+    \item{\code{nodeicov(attrname, transform, transformname)}  (binary)  (directed) (quantitative nodal attribute) (frequently-used)
+    , \code{nodeicov(attrname, transform, transformname, form="sum")}  (valued)  (directed) (quantitative nodal attribute)
     }{\emph{Main effect of a covariate for
     in-edges:} 
     The \code{attrname} argument is a character string giving the name of a
@@ -1424,8 +1439,8 @@ of the degrees of all pairs of nodes in the network which are tied.
     should be included. By default (i.e., with \code{base=NULL} or
     \code{base=0}), all pairings are included.}
     
-    \item{\code{nodeocov(attrname)}  (binary)  (directed) (dyadic-independent)(quantitative nodal attribute)
-    , \code{nodeocov(attrname, form="sum")}  (valued)  (directed) (dyadic-independent)
+    \item{\code{nodeocov(attrname, transform, transformname)}  (binary)  (directed) (dyadic-independent)(quantitative nodal attribute)
+    , \code{nodeocov(attrname, transform, transformname, form="sum")}  (valued)  (directed) (dyadic-independent)
 	(quantitative nodal attribute)
     }{\emph{Main effect of a covariate for
     out-edges:} 
@@ -1656,7 +1671,8 @@ of the degrees of all pairs of nodes in the network which are tied.
     }
       
   
-    \item{\code{threetrail(keep=1:4)} (formerly \code{threepath})  (binary)  (directed)  (undirected) (triad-related)
+    \item{\code{threetrail(keep=1:4)} (binary)  (directed)  (undirected)
+    (triad-related), a.k.a. \code{threepath}
     }{\emph{ Three-trails:}
     For an undirected network, this term adds one statistic equal to the number
     of 3-trails, where a 3-trail is defined as a \dQuote{trail} of length three that
