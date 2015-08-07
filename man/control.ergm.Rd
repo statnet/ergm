@@ -180,12 +180,17 @@ control.ergm(drop=TRUE,
     an uncoverged \code{\link{ergm}} run, but see
     \code{\link{enformulate.curved}}.
   }
-  \item{init.method}{A chatacter vector or \code{NULL}. The default method for 
-    finding the starting coefficient values, if \code{init} is not specified, is
-    maximum pseudo-likelihood estimation (MPLE). Another valid value is
-    \code{"zeros"} for a \code{0} vector of appropriate length.
+  \item{init.method}{A chatacter vector or \code{NULL}. The default
+             method depends on the reference measure used. For the
+             binary (\code{"Bernoulli"}) ERGMs, it's 
+	     maximum pseudo-likelihood estimation (MPLE). Other valid values include
+	     \code{"zeros"} for a \code{0} vector of appropriate length and
+             \code{"CD"} for contrastive divergence.
+
+	     Valid initial methods for a given reference can be queried
+	     using \code{\link{ergm.init.methods}}.
   }
-  \item{main.method}{One of "MCMLE","Robbins-Monro",
+  \item{main.method}{One of "MCMLE" (default),"Robbins-Monro",
     "Stochastic-Approximation", or "Stepping".  Chooses
     the estimation method used to find the MLE.
     \code{MCMLE} attempts to maximize an approximation to the
@@ -200,6 +205,10 @@ control.ergm(drop=TRUE,
     advantages over stochastic approximation, but the choice will
     depend on the model and data being fit. See Handcock (2000) and 
     Hunter and Handcock (2006) for details.
+
+    Note that in recent versions of ERGM, the enhancements of
+    \code{Stepping} have been folded into the default \code{MCMLE},
+    which is able to handle more modeling scenarios.
   }
   \item{force.main}{Logical:  If TRUE, then force MCMC-based estimation
     method, even if the exact MLE can be computed via maximum pseudolikelihood

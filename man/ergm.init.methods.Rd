@@ -9,15 +9,21 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{ergm.init.methods}
 \alias{ergm.init.methods}
-\title{Set up the initial fitting methods for reference measure}
+\title{Set up the initial fitting methods for reference measure and
+  query available methods for that reference measure}
 \description{
   This is a low-level function not intended to be called directly by end users. This function sets up the available initial fitting methods 
-    for each reference measure. (It is defined in the scope of local environment)  
+    for each reference measure and queries them.
 }
 \usage{
  ergm.init.methods(reference, new.methods)
 	}
 \arguments{
   \item{reference}{The reference measure used in the model.}
-  \item{new.methods}{Add new initial fitting methods to the reference measure.}
+  \item{new.methods}{If passed, prepends the new initial fitting methods
+    to the list for that reference measure.}
+}
+\value{
+  A character vector listing initial methods for the reference measure
+  specified. (If \code{new.methods} is passed, does so invisibly.)
 }
