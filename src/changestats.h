@@ -150,7 +150,7 @@ D_CHANGESTAT_FN(d_sociality);
 /********************  changestats:   T    ***********/
 D_CHANGESTAT_FN(d_tdsp);
 D_CHANGESTAT_FN(d_tesp);
-D_CHANGESTAT_FN(d_threepath);
+D_CHANGESTAT_FN(d_threetrail);
 D_CHANGESTAT_FN(d_tnsp);
 D_CHANGESTAT_FN(d_transitive);
 D_CHANGESTAT_FN(d_transitiveties); S_CHANGESTAT_FN(s_transitiveties);

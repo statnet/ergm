@@ -112,6 +112,7 @@
 \alias{sociality}
 \alias{sum}
 \alias{threepath}
+\alias{threetrail}
 \alias{transitive}
 \alias{transitiveties}
 \alias{transitiveweights}
@@ -208,6 +209,7 @@
 \alias{InitErgmTerm.smalldiff}
 \alias{InitErgmTerm.sociality}
 \alias{InitErgmTerm.threepath}
+\alias{InitErgmTerm.threetrail}
 \alias{InitErgmTerm.transitive}
 \alias{InitErgmTerm.transitiveties}
 \alias{InitErgmTerm.triadcensus}
@@ -1654,32 +1656,35 @@ of the degrees of all pairs of nodes in the network which are tied.
     }
       
   
-    \item{\code{threepath(keep=1:4)}  (binary)  (directed)  (undirected) (triad-related)
-    }{\emph{ Three-paths:}
+    \item{\code{threetrail(keep=1:4)} (formerly \code{threepath})  (binary)  (directed)  (undirected) (triad-related)
+    }{\emph{ Three-trails:}
     For an undirected network, this term adds one statistic equal to the number
-    of threepaths, where a threepath is defined as a path of length three that
+    of 3-trails, where a 3-trail is defined as a \dQuote{trail} of length three that
     traverses three distinct edges.
-    Note that a threepath need not
+    Note that a 3-trail need not
     include four distinct nodes; in particular, a triangle counts as three
-    threepaths.  For a directed network, this term adds four statistics 
+    3-trails.  For a directed network, this term adds four statistics 
     (or some subset of these four specified by the \code{keep} argument),
     one for each of the four distinct types of directed three-paths.  If the 
     nodes of the path are written from left to right such that the middle edge
     points to the right (R), then the four types are RRR, RRL, LRR, and LRL.
-    That is, an RRR threepath is of the form 
+    That is, an RRR 3-trail is of the form 
     \eqn{i\rightarrow j\rightarrow k\rightarrow l}{i-->j-->k-->l}, and RRL
-    threepath is of the form
+    3-trail is of the form
     \eqn{i\rightarrow j\rightarrow k\leftarrow l}{i-->j-->k<--l}, etc.
     Like in the undirected case, there is no requirement that the nodes be
-    distinct in a directed threepath.  However, the three edges must all be 
+    distinct in a directed 3-trail.  However, the three edges must all be 
     distinct.  Thus, a mutual tie \eqn{i\leftrightarrow j}{i<-->j} does not
-    count as a threepath of the form
+    count as a 3-trail of the form
     \eqn{i\rightarrow j\rightarrow i\leftarrow j}{i-->j-->i<--j}; however,
     in the subnetwork \eqn{i\leftrightarrow j \rightarrow k}{i<-->j-->k},
-    there are two directed threepaths, one LRR
+    there are two directed 3-trails, one LRR
     (\eqn{k\leftarrow j\rightarrow i\leftarrow j}{k<--j-->i-->j})
     and one RRR
     (\eqn{j\rightarrow i\rightarrow j\leftarrow k}{k<--j-->i-->j}).
+
+    This term used to be (inaccurately) called \code{threepath}. That
+    name has been deprecated and may be removed in a future version.
     }
 
     \item{\code{transitive}  (binary)  (directed)  (triad-related)}{\emph{Transitive triads:} 

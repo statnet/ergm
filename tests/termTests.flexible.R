@@ -525,21 +525,21 @@ print(list(s.ac.d=s.ac.d, s.ac.u=s.ac.u, s.ac.b=s.ac.b,
 
 
                 
-# threepath, either
+# threetrail, either
 num.tests=num.tests+1
-s.0 <- summary(samplike~threepath)
-e.0 <- ergm(fmh~threepath, estimate="MPLE")
-s.k <- summary(samplike~threepath(keep=2))
-e.k <- ergm(samplike~threepath(keep=1:2), estimate="MPLE")
+s.0 <- summary(samplike~threetrail)
+e.0 <- ergm(fmh~threetrail, estimate="MPLE")
+s.k <- summary(samplike~threetrail(keep=2))
+e.k <- ergm(samplike~threetrail(keep=1:2), estimate="MPLE")
 if (!all(s.0==c(2103, 2326, 1749, 1897)) ||
     round(e.0$coef + .2842, 3) != 0 ||
     s.k!=2326 ||
     !all(round(e.k$coef+c(.0188, -.0077),3)==0)) {
  print(list(s.0=s.0, e.0=e.0, s.k=s.k, e.k=e.k))
- stop("Failed threepath term test")
+ stop("Failed threetrail term test")
 } else {
   num.passed.tests=num.passed.tests+1
-  print("Passed threepath term test")
+  print("Passed threetrail term test")
 }
 
                 

@@ -2981,6 +2981,7 @@ InitErgmTerm.sociality<-function(nw, arglist, ...) {
 
 ################################################################################
 InitErgmTerm.threepath <- function(nw, arglist, ...) {
+  warning("This term is inaccurately named and actually refers to a '3-trail' in that it counts repeated vertices: i-j-k-i is a 3-trail but not a 3-path. See ergm-terms help for more information. This name has been deprecated and will be removed in a future version: if a 3-trail is what you want, use the term 'threetrail'.")
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, 
                        varnames = c("keep"),
@@ -2989,12 +2990,31 @@ InitErgmTerm.threepath <- function(nw, arglist, ...) {
                        required = c(FALSE))
   types <- c("RRR","RRL","LRR","LRL")[a$keep]
   if (is.directed(nw)) {
-    return(list(name = "threepath", 
-                coef.names = paste("threepath", types, sep="."),
+    return(list(name = "threetrail", 
+                coef.names = paste("threetrail", types, sep="."),
                 inputs=a$keep, minval = 0))
   }
   else {
-    return(list(name = "threepath", coef.names = "threepath", minval = 0))
+    return(list(name = "threetrail", coef.names = "threetrail", minval = 0))
+  }
+}
+
+################################################################################
+InitErgmTerm.threetrail <- function(nw, arglist, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm (nw, arglist, 
+                       varnames = c("keep"),
+                       vartypes = c("numeric"),
+                       defaultvalues = list(1:4),
+                       required = c(FALSE))
+  types <- c("RRR","RRL","LRR","LRL")[a$keep]
+  if (is.directed(nw)) {
+    return(list(name = "threetrail", 
+                coef.names = paste("threetrail", types, sep="."),
+                inputs=a$keep, minval = 0))
+  }
+  else {
+    return(list(name = "threetrail", coef.names = "threetrail", minval = 0))
   }
 }
 

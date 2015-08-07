@@ -5240,14 +5240,14 @@ D_CHANGESTAT_FN(d_tesp) {
 }
 
 /*****************
- changestat: d_threepath
+ changestat: d_threetrail
 *****************/
-D_CHANGESTAT_FN(d_threepath) { 
+D_CHANGESTAT_FN(d_threetrail) { 
   int i, j, k, edgeflag, change, dchange[4];
   Edge e;
   Vertex tail, head, node3;
   /* The four values of dchange represent the four different types of
-     directed threepaths oriented so that the middle step is always 
+     directed threetrails oriented so that the middle step is always 
      "right" (R).  In order:   RRR, RRL, LRR, LRL 
                          i.e., >>>  >><  <>>  <><  */
 
@@ -5256,12 +5256,12 @@ D_CHANGESTAT_FN(d_threepath) {
   ZERO_ALL_CHANGESTATS(i);
   FOR_EACH_TOGGLE(i) {
     edgeflag = IS_OUTEDGE(tail = TAIL(i), head = HEAD(i));
-    /* Step A: Count threepaths in which tail->head is the middle edge */
+    /* Step A: Count threetrails in which tail->head is the middle edge */
     dchange[0] = IN_DEG[tail] * OUT_DEG[head]; /* R then R; may count head->tail->head->tail */
     dchange[1] = IN_DEG[tail] * (IN_DEG[head]-edgeflag); /* R then L */
     dchange[2] = (OUT_DEG[tail]-edgeflag) * OUT_DEG[head]; /* L then R */
     dchange[3] = (OUT_DEG[tail]-edgeflag) * (IN_DEG[head]-edgeflag); /* L then L */
-    /* Step B: Count threepaths where tail is one endpoint */
+    /* Step B: Count threetrails where tail is one endpoint */
     STEP_THROUGH_OUTEDGES(head, e, node3) { /* tail->head->node3-x  which means -RL */
       dchange[1] += IN_DEG[node3]-1;    /* RRL; subtract 1 for head itself */
       dchange[0] += OUT_DEG[node3]; /* RRR; possibly counted tail->head->tail->head */
@@ -5272,7 +5272,7 @@ D_CHANGESTAT_FN(d_threepath) {
         dchange[1] += IN_DEG[node3];     /* RRL */
       }
     }
-    /* Step C: Count threepaths where head is one endpoint */
+    /* Step C: Count threetrails where head is one endpoint */
     STEP_THROUGH_INEDGES(tail, e, node3) { /* x-node3->tail->head  which means -RR */
       dchange[2] += OUT_DEG[node3]-1;  /* LRR; subtract 1 for tail itself */
       dchange[0] += IN_DEG[node3]; /* RRR; possibly counted tail->head->tail->head */
