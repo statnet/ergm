@@ -52,13 +52,15 @@ is.inCH <- function(p, M, ...) { # Pass extra arguments directly to LP solver
     stop("Number of columns in matrix (2nd argument) is not equal to dimension ",
          "of first argument.")
 
+  if(nrow(M)==1) return(isTRUE(all.equal(p, M, check.attributes = FALSE)))
+  
   # Center p and M:
   M <- sweep(M, 2, p, "-")
   p <- p - p
 
   # Rotate p and M onto their principal components, dropping linearly dependent dimensions:
   e <- eigen(crossprod(M), symmetric=TRUE)
-  Q <- e$vec[,sqrt(e$val/max(e$val))>sqrt(.Machine$double.eps),drop=FALSE]
+  Q <- e$vec[,e$val>0 & sqrt(e$val/max(e$val))>sqrt(.Machine$double.eps)*2,drop=FALSE]
   Mr <- M%*%Q # Columns of Mr are guaranteed to be linearly independent.
   pr <- p%*%Q
 
