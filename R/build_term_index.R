@@ -11,8 +11,15 @@
   # query the install documentation
   rawdoc<-tools::Rd_db('ergm')$'ergm-terms.Rd'
   # find the tag indicating where the term definitions begin
-  defIndex<-grep('beginTerms',rawdoc[[247]][[2]])
-  return<-rawdoc[[247]][[2]][[defIndex]]
+  
+  for (i in rawdoc) {
+    if (length(i) > 1) {
+      defIndex<-grep('beginTerms',i[[2]])
+      if (length(defIndex)>0) return(i[[2]][[defIndex]])
+    }
+  }
+  
+  stop("Error extracting term definitions")
 }
 
 # takes a chunk of text like "   (tag1) (tag2)" and returns just the tags

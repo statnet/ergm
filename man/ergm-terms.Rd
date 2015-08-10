@@ -1672,8 +1672,9 @@ of the degrees of all pairs of nodes in the network which are tied.
       
   
     \item{\code{threetrail(keep=1:4)} (binary)  (directed)  (undirected)
-    (triad-related), a.k.a. \code{threepath}
+    (triad-related), 
     }{\emph{ Three-trails:}
+    a.k.a. \code{threepath}.
     For an undirected network, this term adds one statistic equal to the number
     of 3-trails, where a 3-trail is defined as a \dQuote{trail} of length three that
     traverses three distinct edges.
