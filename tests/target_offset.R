@@ -10,6 +10,7 @@ out <- tryCatch(ergm(flomarriage~offset(edges)+edges+degree(1)+offset(degree(0))
 summary(out)
 mcmc.diagnostics(out)
 
+set.seed(11)
 
 out <- tryCatch(ergm(flomarriage~offset(edges)+edges+gwdegree(fix=FALSE)+degree(0)+offset(degree(1)),target.stats=summary(flomarriage~edges+gwdegree(fix=FALSE)+degree(0)),
               offset.coef=c(0,-0.25)),
