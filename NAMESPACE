@@ -27,10 +27,10 @@ export(
   anova.ergm,
   anova.ergmlist,                  
   approx.hotelling.diff.test,      
-  as.edgelist,
+  #as.edgelist,                  moved to network
   as.edgelist.compressed,          
-  as.edgelist.matrix,
-  as.edgelist.network,             
+  #as.edgelist.matrix,           moved to network
+  #as.edgelist.network,          moved to network  
   #as.network.numeric,           made internal
   #as.network.uncompressed,      made internal
   central.network, # deprecated
@@ -298,8 +298,8 @@ S3method(anova,ergmlist)
 S3method(as.network,numeric)
 #S3method(as.network,uncompressed)
 S3method(as.edgelist,compressed)
-S3method(as.edgelist,matrix)
-S3method(as.edgelist,network)
+#S3method(as.edgelist,matrix)
+#S3method(as.edgelist,network)
 
 S3method(coef,ergm)
 S3method(coef,length.model)
