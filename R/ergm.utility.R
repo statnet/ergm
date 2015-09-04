@@ -467,7 +467,7 @@ which.package.InitFunction <- function(f, env = parent.frame()){
   f <- as.character(f)
   # Find the first entity named f in the search path, and get its name
   # attribute (if present).
-  found <- findFunction(f, where=env)
+  found <- methods::findFunction(f, where=env)
   if (length(found) > 0) {
     loc <- attr(found[[1]], "name")
     # If name attribute is not NULL and begins with "package:", return
