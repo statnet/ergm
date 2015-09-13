@@ -350,6 +350,11 @@ llik.fun2 <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL,
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
   etaparam <- eta-eta0
+
+  etaparam <- etaparam[!etamap$offsetmap]
+  xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
+  xobs <- xobs[!etamap$offsetmap]
+
   basepred <- xsim %*% etaparam
   maxbase <- max(basepred)
   llr <- sum(xobs * etaparam) - maxbase - log(sum(probs*exp(basepred-maxbase)))
