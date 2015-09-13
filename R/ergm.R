@@ -134,6 +134,10 @@ ergm <- function(formula, response=NULL,
     control$init.method <- "CD"
     eval.loglik <- FALSE
   }
+
+  if(estimate=="MPLE"){
+    control$init.method <- "MPLE"
+  }
   
   if(!is.null(control$seed))  set.seed(as.integer(control$seed))
   if (verbose) cat("Evaluating network in model\n")
