@@ -14,6 +14,98 @@
 % When a release is forked, copy the sections to a new release and
 % delete unused sections.
 
+\section{Changes in version 3.5}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item Added a new generic, \code{\link{is.curved}} that tests if a
+      given ERGM or model is curved.
+   }
+  }
+   
+  
+   \subsection{BUG FIXES}{
+     \itemize{
+       \item MPLE is no longer used if the model is curved and target
+       statistics are passed, as that caused problems.
+
+       \item MCMC standard error calculation, "dropping" of extreme
+       terms, main MC MLE loop, and other places have been made more
+       robust to weird combinations of estimating problems (e.g., curved
+       terms + target statistics + offset terms + poor starting value).
+
+       \item Hummel et al.'s convex hull calculation and MCMC SE
+       calculation have been robustified against highly correlated
+       sample statistics by using PCA to rotate them into an orthogonal
+       configuration.
+
+       \item Code for parallel calculation has been optimized to provide
+       a bigger gain from multiple cores/processors/nodes.
+
+       \item \code{\link[ergm-terms]{threepath}} has been deprecated in
+       favor of \code{threetrail} to more accurately reflect what is
+       being computed.
+
+       \item The "naive" log-likelihood ratio metric now handles offsets
+       more robustly.
+
+       \item Many documentation fixes and clarifications.
+
+    }
+   }
+
+  
+   \subsection{OTHER USER-VISIBLE CHANGES}{
+     \itemize{
+      \item Skye Bender-deMoll has been added as a contributor to the package.
+
+      \item Some functions, particularly \code{ERRVL},
+      \code{append.rhs.formula}, \code{vectors.namesmatch},
+      \code{term.list.formula}, and \code{ergm.update.formula} have been
+      moved to the \code{\link{statnet.common}} package.
+
+      \item The \code{as.edgelist} family of functions have been moved
+      to the \code{\link[network-package]{network}} package.
+
+      \item \code{\link{mcmc.diagnostics.ergm}} now takes the
+      \code{esteq=} argument. If \code{TRUE}, the diagnostics are
+      performed on the simulated values of the estimating functions. If
+      \code{FALSE}, they are performed on simulated values of canonical
+      statistics. This obviates and replaces the the \code{curved=}
+      argument.
+
+      \item \code{\link{san}} when used with curved models now requires
+      canonical statistics as targets.
+
+
+     }
+   }
+
+  % \subsection{C-LEVEL FACILITIES}{
+  %   \itemize{
+  %   }
+  % }
+
+  % \subsection{UTILITIES}{
+  %   \itemize{
+  %     \item Likewise, "UTILITIES" is probably unnecessary.
+  %   }
+  % }
+
+  % \subsection{INSTALLATION}{
+  %   \itemize{
+  %     \item ... as is "INSTALLATION".
+  %   }
+  % }
+
+  % \subsection{PACKAGE INSTALLATION}{
+  %   \itemize{
+  %     \item ditto.
+  %   }
+  % }
+
+}
+
 \section{Changes in version 3.4}{
 
   \subsection{NEW FEATURES}{
@@ -49,7 +141,7 @@
       check if specified attribute exists. (previous code only checked
       if network was bipartite). (issue #1140, reported by Philip
       Leifeld) }
-           \item{Implemented solution to MCMLE steplength getting stuck at 0 for some models where initial networks are very far from target stats. If the Hummel step length is < control$MCMLE.steplength.min, stop with an informative error message, reporting that the the starting value is poor. If using target stats, it try increasing SAN parameters, or your configuration may be impossible or unlikely. (This suggests a poor model for the observed data.) MCMLE.steplength.min=0.0001 by default. Estimation will stop with an error message when steplen is smaller than the min for 2 iterations. (issue #1089)}
+           \item{Implemented solution to MCMLE steplength getting stuck at 0 for some models where initial networks are very far from target stats. If the Hummel step length is < control$MCMLE.steplength.min, stop with an informative error message, reporting that the the starting value is poor. If using target stats, try increasing SAN parameters, or your configuration may be impossible or unlikely. (This suggests a poor model for the observed data.) MCMLE.steplength.min=0.0001 by default. Estimation will stop with an error message when steplen is smaller than the min for 2 iterations. (issue #1089)}
        \item Replaced the integer function abs() by floating point function fabs() in MHproposals_degree.c.
        \item Various documentation corrections and fixes
 
@@ -79,30 +171,6 @@
        }
      }
    }
-
-  % \subsection{C-LEVEL FACILITIES}{
-  %   \itemize{
-  %   }
-  % }
-
-  % \subsection{UTILITIES}{
-  %   \itemize{
-  %     \item Likewise, "UTILITIES" is probably unnecessary.
-  %   }
-  % }
-
-  % \subsection{INSTALLATION}{
-  %   \itemize{
-  %     \item ... as is "INSTALLATION".
-  %   }
-  % }
-
-  % \subsection{PACKAGE INSTALLATION}{
-  %   \itemize{
-  %     \item ditto.
-  %   }
-  % }
-
 }
 \section{Changes in version 3.2.4}{
 
