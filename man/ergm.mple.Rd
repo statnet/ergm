@@ -126,7 +126,7 @@ MPLE values are used even in the case of dyadic dependence models as starting po
 }
 \references{
 Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris and Martina (2008). 
-"ergm: A Package to Fit, Simulate and Diagnose Exponential-Family Models for Networks." _Journal of Statistical Software_, *24*(3), pp. 1-29. \url{http://www.jstatsoft.org/v24/i03/paper}
+"ergm: A Package to Fit, Simulate and Diagnose Exponential-Family Models for Networks." _Journal of Statistical Software_, *24*(3), pp. 1-29. \url{http://www.jstatsoft.org/article/view/v024i03}
 
 van  Duijn  MAJ,  Gile  K,  Handcock  MS  (2009).  "Comparison  of  Maximum  Pseudo  Likelihood and Maximum Likelihood Estimation of Exponential Family Random Graph Models."
 _Social Networks_, *31*, pp. 52-62.
