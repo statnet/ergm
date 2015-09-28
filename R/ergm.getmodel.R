@@ -88,7 +88,8 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
                              paste(termroot,".", v[[i]][[1]], sep = "")))
     } else { # This term has no arguments
       fname <- paste(termroot,"Term.", v[[i]], sep = "")
-      newInitErgm <- exists(fname, envir=formula.env, mode="function")
+      # check if the Init function by that name exsits in the parent enviroment, or in the local namespace
+      newInitErgm <- exists(fname, mode="function")
       v[[i]] <- call(ifelse (newInitErgm, fname, 
                              paste(termroot,".", v[[i]], sep = "")))
       model$offset <- c(model$offset,FALSE)
@@ -121,7 +122,7 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
        model <- eval(v[[i]], formula.env)  #Call the InitErgm function
       }
       # If SO package name not specified explicitly, autodetect.
-      if(is.null(model$terms[[length(model$terms)]]$pkgname)) model$terms[[length(model$terms)]]$pkgname <- which.package.InitFunction(v[[i]][[1]],formula.env)
+      if(is.null(model$terms[[length(model$terms)]]$pkgname)) model$terms[[length(model$terms)]]$pkgname <- which.package.InitFunction(v[[i]][[1]])
     } else { # New InitErgmTerms style
       v[[i]][[2]] <- nw
       names(v[[i]])[2] <-  ""
@@ -133,9 +134,9 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
         v[[i]][[3+j]] <- dotdotdot[[j]]
         names(v[[i]])[3+j] <- names(dotdotdot)[j]
       }
-      outlist <- eval(v[[i]], formula.env)  #Call the InitErgm function
+      outlist <- eval(v[[i]])  #Call the InitErgm function
       # If SO package name not specified explicitly, autodetect.
-      if(is.null(outlist$pkgname)) outlist$pkgname <- which.package.InitFunction(v[[i]][[1]],formula.env)
+      if(is.null(outlist$pkgname)) outlist$pkgname <- which.package.InitFunction(v[[i]][[1]])
       # Now it is necessary to add the output to the model object
       model <- updatemodel.ErgmTerm(model, outlist)
     }
