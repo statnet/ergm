@@ -49,6 +49,7 @@ run.miss.test<-function(y){
   cat("MPLE estimate =", coef(mplefit), if(isTRUE(mpleOK)) "OK" else mpleOK,"\n")
 
   mcmcfit<-ergm(y~edges, control=control.ergm(force.main=TRUE, init=truth+theta0err),eval.loglik=FALSE, verbose=TRUE)
+  mcmc.diagnostics(mcmcfit)
   mcmcOK<-abs(truth-coef(mcmcfit))/sqrt(diag(vcov(mcmcfit, source="estimation"))) 
   cat("MCMCMLE estimate =", coef(mcmcfit), if(mcmcOK<tolerance) "OK" else mcmcOK,"\n")
   
