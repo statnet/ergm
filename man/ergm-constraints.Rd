@@ -65,8 +65,16 @@
         on Degrees} section for more information.
     }
     \item{\code{blockdiag(attrname)}}{
-      Force a block-diagonal structure on the network. Only dyads
-      \eqn{(i,j)} for which \code{attrname(i)==attrname(j)} can have edges.
+      Force a block-diagonal structure (and its bipartite analogue) on
+      the network. Only dyads \eqn{(i,j)} for which
+      \code{attrname(i)==attrname(j)} can have edges.
+
+      Note that the current implementation requires that blocks be
+      contiguous for \dQuote{unipartite} graphs, and for bipartite
+      graphs, they must be contiguous within a partition and must have
+      the same ordering in both partitions. (They do not, however,
+      require that all blocks be represented in both partitions, but
+      those that overlap must have the same order.)
     }
     \item{\code{degrees} and \code{nodedegrees}}{
       Preserve the degree of each vertex of the given network: only networks

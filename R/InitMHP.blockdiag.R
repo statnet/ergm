@@ -36,6 +36,7 @@
 ## TODO: Document functions and export them, for use by tergm.
 .consensus.order <- function(x1, x2){
   o <- intersect(x1, x2)
+  if(!all(x1[x1 %in% o] == x2[x2 %in% o])) stop("Current implementation of block-diagonal sampling requires the common blocks of egos and blocks of alters to have the same order. See help('ergm-constraionts') for more information.")
   o1 <- c(0, which(x1 %in% o),length(x1)+1)
   o2 <- c(0, which(x2 %in% o),length(x2)+1)
   n <- length(o1) - 1
@@ -73,7 +74,7 @@
   
   ## rle() returns contigous runs of values.
   # If we have more runs than unique values, the blocks must not be all contiguous.
-  if(length(rle(ea)$lengths)!=length(unique(rle(ea)$values)) || length(rle(aa)$lengths)!=length(unique(rle(aa)$values))) stop("Current implementation of block-diagonal sampling requires that the blocks of alters be contiguous.")
+  if(length(rle(ea)$lengths)!=length(unique(rle(ea)$values)) || length(rle(aa)$lengths)!=length(unique(rle(aa)$values))) stop("Current implementation of block-diagonal sampling requires that the blocks of the egos and the alters be contiguous. See help('ergm-constraionts') for more information.")
 
   tmp <- .double.rle(ea, aa)
 
