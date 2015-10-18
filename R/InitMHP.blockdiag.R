@@ -29,7 +29,11 @@
 ############################################################################
 
 
+
+#### WARNING: The following functions also have a copy in tergm. Fixes
+#### should be applied to both (for now.)
 ## FIXME: There is almost certainly a better way to do this.
+## TODO: Document functions and export them, for use by tergm.
 .consensus.order <- function(x1, x2){
   o <- intersect(x1, x2)
   o1 <- c(0, which(x1 %in% o),length(x1)+1)
