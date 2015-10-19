@@ -201,7 +201,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
   # First: If we're using the lognormal approximation, the maximizer is
   # closed-form.  We can't use the closed-form maximizer if we are
   # dealing with a curved exponential family.
-  if (all(model$etamap$canonical==1) && 
+  if (all(model$etamap$canonical!=0) && 
       (metric=="lognormal" || metric=="Likelihood")) {
     if (obsprocess) {
       if (verbose) { cat("Using log-normal approx with missing (no optim)\n") }
