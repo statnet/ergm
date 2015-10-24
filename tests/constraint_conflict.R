@@ -7,13 +7,9 @@
 #
 #  Copyright 2003-2015 Statnet Commons
 #######################################################################
-library(statnet.common)
-opttest({
 library(ergm)
 data(florentine)
 
-#if(!inherits(try(
-efit <- ergm(flomarriage~edges, constraints=~edges)#),
-#   "try-error"))
-#  stop("Should have had an error here.")
-}, "constraint conflicts")
+efit <- ergm(flomarriage~edges, constraints=~edges)
+
+stopifnot(length(warnings())==1)

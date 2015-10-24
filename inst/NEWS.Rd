@@ -24,7 +24,10 @@
       \item Block-diagonal sampler now handles bipartite networks.
 
       \item Code for parallel calculation has been optimized to provide
-       a bigger gain from multiple cores/processors/nodes.
+      a bigger gain from multiple cores/processors/nodes.
+
+      \item Bridge sampling to evaluate the log-likelihood at the MLE
+      now prints out a brief progress report by default.
    }
   }
    
@@ -46,6 +49,9 @@
        \item The "naive" log-likelihood ratio metric now handles offsets
        more robustly.
 
+       \item The null log-likelihood calculation prints messages instead
+       of throwing warnings.
+       
        \item The closed-form solution (see Hummel et al., 2010) for the "lognormal" metric had
        been inadvertantly disabled. It has been reenabled.
 
