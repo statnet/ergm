@@ -49,6 +49,9 @@
        \item The "naive" log-likelihood ratio metric now handles offsets
        more robustly.
 
+       \item The null log-likelihood calculation prints messages instead
+       of throwing warnings.
+       
        \item The closed-form solution (see Hummel et al., 2010) for the "lognormal" metric had
        been inadvertantly disabled. It has been reenabled.
 
