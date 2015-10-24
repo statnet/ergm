@@ -6,7 +6,8 @@ Copy a network object enforcing ergm-appropriate guarantees about its internal r
 \description{
 Create a copy of a \code{\link{network}} of interest with certain guarantees about its internal representation:
 \itemize{
-\item for every edge, the id of the 'tails' vertex is < id of the 'heads' vertex
+\item for every edge, the id of the 'tails' vertex is < id of the
+'heads' vertex if the network is undirected
 \item no (tail,head) id pair has more than one edge ID associated with it (no multiplex edges)
 }
 
