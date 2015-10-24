@@ -58,9 +58,11 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
     stats.obs <- matrix(NA,control$nsteps,m$etamap$etalength)  
   }else stats.obs<-matrix(summary(form,response=response),control$nsteps,m$etamap$etalength,byrow=TRUE)  
 
+  cat("Using", control$nsteps, "bridges: ")
   for(i in seq_len(control$nsteps)){
     theta<-path[i,]
-    if(verbose) cat("Running theta=[",paste(format(theta),collapse=","),"].\n",sep="")
+    if(verbose==0) cat(i,"")
+    if(verbose>0) cat("Running theta=[",paste(format(theta),collapse=","),"].\n",sep="")
     if(verbose>1) cat("Burning in...\n",sep="")
     ## First burn-in has to be longer, but those thereafter should be shorter if the bridges are closer together.
     nw.state<-simulate(form, coef=theta, nsim=1, response=response, constraints=constraints, statsonly=FALSE, verbose=max(verbose-1,0),
@@ -99,6 +101,7 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
                                 nsim=ceiling(control$obs.MCMC.samplesize/control$nsteps), ...),2,mean)
     }
   }
+  cat(".\n")
     
   Dtheta.Du<-to-from
 

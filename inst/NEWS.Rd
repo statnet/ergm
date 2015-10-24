@@ -24,7 +24,10 @@
       \item Block-diagonal sampler now handles bipartite networks.
 
       \item Code for parallel calculation has been optimized to provide
-       a bigger gain from multiple cores/processors/nodes.
+      a bigger gain from multiple cores/processors/nodes.
+
+      \item Bridge sampling to evaluate the log-likelihood at the MLE
+      now prints out a brief progress report by default.
    }
   }
    
