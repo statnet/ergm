@@ -382,6 +382,8 @@ control.ergm(drop=TRUE,
   \item{MCMLE.trustregion}{Maximum increase the algorithm will
     allow for the approximated likelihood at a given iteration.
     See Snijders (2002) for details.
+
+    Note that not all metrics abide by it.
   }
   \item{MCMLE.dampening}{(logical) Should likelihood dampening be used?}
   \item{MCMLE.dampening.min.ess}{The effective sample size below which dampening is used.}
