@@ -7,8 +7,7 @@
 #
 #  Copyright 2003-2015 Statnet Commons
 #######################################################################
-library(statnet.common)
-opttest({
+
 library(ergm)
 n <- 10
 m <- 7
@@ -83,6 +82,3 @@ M[]<-0
 M[6,2]<-1
 
 stopifnot(all(as.matrix(y)==M))
-
-
-}, "block diagonal constraint")
