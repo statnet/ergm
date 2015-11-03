@@ -88,7 +88,7 @@ ergm.pen.glm <- function(formula = attr(data, "formula"),
    iter <- iter + 1
    XW2 <- sweep(x, 1, (weights*(pi * (1 - pi)))^0.5, "*") #### X' (W ^ 1/2)
    Fisher <- crossprod(XW2)  #### X' W  X
-   covs <- robust.inverse(Fisher)  ### (X' W  X) ^ -1
+   covs <- ginv(Fisher)  ### (X' W  X) ^ -1
 #  H <- crossprod(XW2, covs) %*% XW2
 #  H <- XW2 %*% covs %*% t(XW2)
    diagH <- pi
@@ -184,7 +184,7 @@ logistftest <- function(formula = attr(data, "formula"),
     iter <- iter + 1
     XW2 <- sweep(x, 1, (weights*(pi * (1 - pi)))^0.5, "*") #### X' (W ^ 1/2)
     Fisher <- crossprod(XW2)  #### X' W  X
-    covs <- robust.inverse(Fisher)  ### (X' W  X) ^ -1
+    covs <- ginv(Fisher)  ### (X' W  X) ^ -1
     diagH <- pi
     for(i in seq(along=diagH)){
        diagH[i] <- XW2[i,] %*% covs %*% XW2[i,]
@@ -239,7 +239,7 @@ logistftest <- function(formula = attr(data, "formula"),
    iter <- iter + 1
    XW2 <- sweep(x, 1, (weights*(pi * (1 - pi)))^0.5, "*")  #### X' (W ^ 1/2)
    Fisher <- crossprod(XW2)  #### X' W  X
-   covs <- robust.inverse(Fisher)  ### (X' W  X) ^ -1
+   covs <- ginv(Fisher)  ### (X' W  X) ^ -1
    diagH <- pi
    for(i in seq(along=diagH)){
      diagH[i] <- XW2[i,] %*% covs %*% XW2[i,]
@@ -250,7 +250,7 @@ logistftest <- function(formula = attr(data, "formula"),
    #### Teil von X' (W ^ 1/2)
    XX.Fisher <- crossprod(XX.XW2)  #### Teil von  X' W  X
    XX.covs <- matrix(0, k, k)
-   XX.covs[ - pos,  - pos] <- robust.inverse(XX.Fisher)  
+   XX.covs[ - pos,  - pos] <- ginv(XX.Fisher)  
    ### aufblasen der Cov-Matrix
    delta <- as.vector(XX.covs %*% U.star)
    mx <- max(abs(delta))/maxstep

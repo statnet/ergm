@@ -23,10 +23,7 @@ vcov.ergm <- function(object, sources=c("all","model","estimation"), ...){
       object$covar <- matrix(NA, p, p)
     }
     if(is.null(object$covar)){
-      v.mod <- try(robust.inverse(-object$hessian), silent=TRUE)
-      if(inherits(v.mod,"try-error")){
-        v.mod <- diag(1/diag(-object$hessian))
-      }
+      v.mod <- ginv(-object$hessian)
     }else{
       v.mod <- object$covar
     }

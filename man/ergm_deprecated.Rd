@@ -21,6 +21,7 @@
 \alias{mvmodel.ergm}
 \alias{mvmodel.formula}
 \alias{ergm.mahalanobis}
+\alias{robust.inverse}
 
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
@@ -51,5 +52,6 @@ Functions that have been superceed, were never documented, or will be removed fr
 \item{mvmodel.ergm}
 \item{mvmodel.formula}
 \item{ergm.mahalanobis}
+\item{robust.inverse}
 }
 }

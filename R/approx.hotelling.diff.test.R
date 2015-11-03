@@ -77,7 +77,7 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=NULL, assume.indep=FALSE, var
   novar <- diag(vcov.d)==0
   p <- p-sum(novar)
 
-  ivcov.d <-robust.inverse(vcov.d[!novar,!novar,drop=FALSE])
+  ivcov.d <-ginv(vcov.d[!novar,!novar,drop=FALSE])
   
   method <- paste("Hotelling's",
                   if(is.null(y)) "One" else "Two",

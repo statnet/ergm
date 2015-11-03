@@ -7,6 +7,7 @@ importFrom(Matrix, nearPD)
 importFrom(lpSolve, lp)
 import(statnet.common, network, coda, parallel)
 importFrom(stats,simulate)
+importFrom(MASS,ginv)
 importFrom("grDevices", "colors", "dev.cur", "dev.off", "dev.set",
              "pictex", "rainbow")
 importFrom("graphics", "boxplot", "lines", "mtext", "pairs", "par",
@@ -228,7 +229,7 @@ export(
   print.summary.ergm,              
   #prune.conlist,     # made internal
   remove.offset.formula,           
-  robust.inverse,
+  robust.inverse, # deprecated
   rspartnerdist,         # deprecated    
   san,
   san.default,                     

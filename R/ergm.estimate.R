@@ -218,7 +218,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     # or more statistics.
     if(inherits(Lout$par,"try-error")){
       Lout$par <- try(eta0[!model$etamap$offsetmap] 
-                      - robust.inverse(Lout$hessian) %*% 
+                      - ginv(Lout$hessian) %*% 
                       xobs[!model$etamap$offsetmap],
                       silent=TRUE)
     }
@@ -330,7 +330,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     mc.cov <- matrix(NA, length(theta), length(theta))
     covar <- NA
     if(!hessianflag){
-      #  covar <- robust.inverse(cov(xsim))
+      #  covar <- ginv(cov(xsim))
       #  Lout$hessian <- cov(xsim)
       Lout$hessian <- Hessianfn(theta=Lout$par, xobs=xobs, xsim=xsim,
                                 probs=probs, 
@@ -341,7 +341,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     }
     
     covar <- matrix(NA, ncol=length(theta), nrow=length(theta))
-    covar[!model$etamap$offsettheta,!model$etamap$offsettheta ] <- robust.inverse(-Lout$hessian)
+    covar[!model$etamap$offsettheta,!model$etamap$offsettheta ] <- ginv(-Lout$hessian)
     dimnames(covar) <- list(names(theta),names(theta))
     He <- matrix(NA, ncol=length(theta), nrow=length(theta))
     He[!model$etamap$offsettheta,!model$etamap$offsettheta ] <- Lout$hessian
