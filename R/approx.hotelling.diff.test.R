@@ -196,7 +196,7 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=NULL, assume.indep=FALSE, var
       # biggest singular values, respectively, is greater than the
       # tolerance.
       e <- eigen(cov(x), symmetric=TRUE)
-      Q <- e$vec[,e$val>0 & sqrt(e$val/max(e$val))>tol*2,drop=FALSE]
+      Q <- e$vec[,sqrt(pmax(e$val,0)/max(e$val))>tol*2,drop=FALSE]
       xr <- x%*%Q # Columns of xr are guaranteed to be linearly independent.
 
       # Calculate the time-series variance of the mean on the PC scale.

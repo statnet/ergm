@@ -60,7 +60,7 @@ is.inCH <- function(p, M, ...) { # Pass extra arguments directly to LP solver
 
   # Rotate p and M onto their principal components, dropping linearly dependent dimensions:
   e <- eigen(crossprod(M), symmetric=TRUE)
-  Q <- e$vec[,e$val>0 & sqrt(e$val/max(e$val))>sqrt(.Machine$double.eps)*2,drop=FALSE]
+  Q <- e$vec[,sqrt(pmax(e$val,0)/max(e$val))>sqrt(.Machine$double.eps)*2,drop=FALSE]
   Mr <- M%*%Q # Columns of Mr are guaranteed to be linearly independent.
   pr <- p%*%Q
 
