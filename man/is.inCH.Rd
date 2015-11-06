@@ -14,13 +14,14 @@ some sample of vectors}
 \description{
   \code{is.inCH} returns \code{TRUE} if and only if 
   \code{p} is contained in the convex hull of the points given as
-  the rows of \code{M}.
+  the rows of \code{M}. If \code{p} is a matrix, each row is tested individually, and
+  \code{TRUE} is returned if all rows are in the convex hull.
 }
 \usage{
 is.inCH(p, M, \dots)
 }
 \arguments{
-  \item{p}{A \eqn{d}-dimensional vector}
+  \item{p}{A \eqn{d}-dimensional vector or a matrix with \eqn{d} columns}
   \item{M}{An \eqn{r} by \eqn{d} matrix.  Each row of \code{M} is a 
   \eqn{d}-dimensional vector.}
   \item{\dots}{arguments passed directly to linear program solver}
@@ -55,7 +56,7 @@ is.inCH(p, M, \dots)
   (2012).
 }
 \value{
-  Logical, telling whether \code{p} is in the closed convex hull of the points
+  Logical, telling whether \code{p} is (or all rows of \code{p} are) in the closed convex hull of the points
   in \code{M}.
 }
 \references{ 

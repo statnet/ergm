@@ -43,34 +43,45 @@
 #  ...and if the minimum is strictly negative, return FALSE because the point
 #  is not in the CH in that case.
 
+## Note: p can be a matrix. In that case, every row of p is checked.
 
 is.inCH <- function(p, M, ...) { # Pass extra arguments directly to LP solver
-  p <- as.vector(p)
+
+  if(is.null(dim(p))) p <- rbind(p)
+
   if (!is.matrix(M)) 
     stop("Second argument must be a matrix.")
-  if (length(p) != NCOL(M)) 
+  if (ncol(p) != ncol(M)) 
     stop("Number of columns in matrix (2nd argument) is not equal to dimension ",
          "of first argument.")
 
-  if(nrow(M)==1) return(isTRUE(all.equal(p, M, check.attributes = FALSE)))
-  
-  # Center p and M:
-  M <- sweep(M, 2, p, "-")
-  p <- p - p
+  if(nrow(M)==1){
+    for(i in seq_len(nrow(p))){
+      if(!isTRUE(all.equal(p[i,], M, check.attributes = FALSE))) return(FALSE)
+    }
+    return(TRUE)
+  }
+
+  ## Combine p and M so that we don't drop any dimensions by mistake:
+  ## Center p and M:
+  pM <- rbind(p,M)
+  pM <- sweep(pM, 2, colMeans(pM), "-")
 
   # Rotate p and M onto their principal components, dropping linearly dependent dimensions:
-  e <- eigen(crossprod(M), symmetric=TRUE)
+  e <- eigen(crossprod(pM), symmetric=TRUE)
   Q <- e$vec[,sqrt(pmax(e$val,0)/max(e$val))>sqrt(.Machine$double.eps)*2,drop=FALSE]
-  Mr <- M%*%Q # Columns of Mr are guaranteed to be linearly independent.
-  pr <- p%*%Q
+  pMr <- pM%*%Q # Columns of pMr are guaranteed to be linearly independent.
 
   # Scale p and M:
-  Mrsd <- if(nrow(Mr)>1) pmax(apply(Mr, 2, sd), sqrt(.Machine$double.eps)) else rep(1, length(p))
-  Mr <- sweep(Mr, 2, Mrsd, "/")
-  pr <- pr/Mrsd
-  
-  q = c(1, pr) 
+  pMrsd <- pmax(apply(pMr, 2, sd), sqrt(.Machine$double.eps))
+  pMr <- sweep(pMr, 2, pMrsd, "/")
+
+  pr <- pMr[seq_len(nrow(p)),,drop=FALSE]
+  Mr <- pMr[-seq_len(nrow(p)),,drop=FALSE]
   L = cbind(1, Mr)
+
+  for(i in seq_len(nrow(p))){
+  q = c(1, pr[i,]) 
 ############################################
 # USE lp FUNCTION FROM lpSolve PACKAGE:
   ans <- lp(objective.in = c(-q, q),
@@ -79,8 +90,9 @@ is.inCH <- function(p, M, ...) { # Pass extra arguments directly to LP solver
             const.rhs = c(1, rep(0, NROW(L))), 
             ...
             )
-  if(ans$objval==0)return(TRUE)  #if the min is zero, the point p is in the CH of the points M
-  else return(FALSE)
+  if(ans$objval!=0)return(FALSE)  #if the min is not zero, the point p[i,] is not in the CH of the points M
+  }
+  return(TRUE) # If all points passed the test, return TRUE.
 
 ##############################################
 ## USE solveLP FUNCTION FROM linprog PACKAGE (deprecated)
