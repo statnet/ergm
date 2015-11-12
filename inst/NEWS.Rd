@@ -14,7 +14,55 @@
 % When a release is forked, copy the sections to a new release and
 % delete unused sections.
 
-\section{Changes in version 3.5}{
+\section{Changes in version 3.5.1}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+   }
+  }
+   
+  
+   \subsection{BUG FIXES}{
+     \itemize{
+       \item Parallel processing when using userterms and similar was
+       accidentaly broken in the previous release.
+    }
+   }
+
+  
+   \subsection{OTHER USER-VISIBLE CHANGES}{
+     \itemize{
+
+     }
+   }
+
+  % \subsection{C-LEVEL FACILITIES}{
+  %   \itemize{
+  %   }
+  % }
+
+  % \subsection{UTILITIES}{
+  %   \itemize{
+  %     \item Likewise, "UTILITIES" is probably unnecessary.
+  %   }
+  % }
+
+  % \subsection{INSTALLATION}{
+  %   \itemize{
+  %     \item ... as is "INSTALLATION".
+  %   }
+  % }
+
+  % \subsection{PACKAGE INSTALLATION}{
+  %   \itemize{
+  %     \item ditto.
+  %   }
+  % }
+
+}
+
+
+\section{Changes in version 3.5.1}{
 
   \subsection{NEW FEATURES}{
     \itemize{
@@ -90,30 +138,6 @@
 
      }
    }
-
-  % \subsection{C-LEVEL FACILITIES}{
-  %   \itemize{
-  %   }
-  % }
-
-  % \subsection{UTILITIES}{
-  %   \itemize{
-  %     \item Likewise, "UTILITIES" is probably unnecessary.
-  %   }
-  % }
-
-  % \subsection{INSTALLATION}{
-  %   \itemize{
-  %     \item ... as is "INSTALLATION".
-  %   }
-  % }
-
-  % \subsection{PACKAGE INSTALLATION}{
-  %   \itemize{
-  %     \item ditto.
-  %   }
-  % }
-
 }
 
 \section{Changes in version 3.4}{
