@@ -386,6 +386,7 @@ ergm <- function(formula, response=NULL,
     initialfit$constrained.obs <- MHproposal.obs$arguments$constraints
     initialfit$constraints <- constraints
     initialfit$target.stats <- model.initial$target.stats
+    initialfit$etamap <- model.initial$etamap
     initialfit$target.esteq <- if(!is.null(model.initial$target.stats)){
       tmp <- .ergm.esteq(initialfit$coef, model.initial, rbind(model.initial$target.stats))
       structure(c(tmp), names=colnames(tmp))
@@ -398,6 +399,7 @@ ergm <- function(formula, response=NULL,
     if(any(!model.initial$etamap$offsettheta) && eval.loglik){
       cat("Evaluating log-likelihood at the estimate. ")
       initialfit<-logLik.ergm(initialfit, add=TRUE, control=control$loglik.control, verbose=verbose)
+      cat("\n")
     }
     return(initialfit)
   }
