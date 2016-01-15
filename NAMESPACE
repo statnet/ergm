@@ -115,7 +115,8 @@ export(
   #ergm.MCMCse.lognormal,  made internal
   ergm.mcmcslave,                  
   #ergm.MCMLE,             made internal
-  ergm.MHP.table,                  
+  ergm.MHP.table, 
+  ergm.term.table,
   #ergm.MPIcluster.started,  made internal
   ergm.mple,                       
   ergmMPLE,

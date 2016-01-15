@@ -89,9 +89,18 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
     } else { # This term has no arguments
       fname <- paste(termroot,"Term.", v[[i]], sep = "")
       # check if the Init function by that name exsits in the parent enviroment, or in the local namespace
-      newInitErgm <- exists(fname, mode="function")
-      v[[i]] <- call(ifelse (newInitErgm, fname, 
-                             paste(termroot,".", v[[i]], sep = "")))
+      #newInitErgm <- exists(fname, mode="function")
+      #v[[i]] <- call(ifelse (newInitErgm, fname, 
+      #                       paste(termroot,".", v[[i]], sep = "")))
+      
+      # check if an Init function by that name exists in the tergm lookup table
+      newInitErgm<-TRUE
+      termFun<-ergm.term.table(fname)
+      if(is.null(termFun)){
+        stop('unable to locate ergm termed named "',fname,' in ergm.terms.table')
+      }
+      v[[i]]<-as.call(list(termFun))
+     
       model$offset <- c(model$offset,FALSE)
       args=list()
     }
@@ -136,7 +145,7 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
       }
       outlist <- eval(v[[i]])  #Call the InitErgm function
       # If SO package name not specified explicitly, autodetect.
-      if(is.null(outlist$pkgname)) outlist$pkgname <- which.package.InitFunction(v[[i]][[1]])
+      if(is.null(outlist$pkgname)) outlist$pkgname <- 'ergm' # which.package.InitFunction(v[[i]][[1]]) TODO: this needs to be done by the table as well
       # Now it is necessary to add the output to the model object
       model <- updatemodel.ErgmTerm(model, outlist)
     }
