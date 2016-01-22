@@ -268,9 +268,9 @@ export(
 )
 
 # export all the ergm terms
-#exportPattern("^InitErgmTerm.*")
+# exportPattern("^InitErgmTerm.*")
 # export all the weighted ergm terms
-exportPattern("^InitWtErgmTerm.*")
+# exportPattern("^InitWtErgmTerm.*")
 # export all the constaints
 exportPattern("^InitConstraint.*")
 # export all the MH proposals

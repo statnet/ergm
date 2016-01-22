@@ -83,81 +83,47 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
       args=v[[i]]
       args[[1]] = as.name("list")
       fname <- paste(termroot,"Term.", v[[i]][[1]], sep = "")
-      #newInitErgm <- exists(fname, envir=formula.env, mode="function")
-      #v[[i]] <- call(ifelse (newInitErgm, fname, 
-      #                       paste(termroot,".", v[[i]][[1]], sep = "")))
-      #termFun<-getAnywhere(fname)$objs[[1]]  #get the first matching function found anywhere  TODO: warn if there is more than one?
-      termFun<-get(fname)
-      if(is.null(termFun)){
-        stop('unable to locate ergm termed named "',fname)
+      # look for the named function in the ergm namespace and other user-visable namespaces
+      #termFun<-get(fname, mode='function') 
+      termFun<-getAnywhere(fname)$objs  #check in all namespaces for function found anywhere  TODO: warn if there is more than one?
+      #termFun<-get(fname, mode='function')
+      # check if function was found
+      if(is.null(termFun) || length(termFun)==0){
+        stop('unable to locate ergm term named "',fname,'"')
       }
+      termFun<-termFun[[1]] # get the first matching function found
       v[[i]]<-as.call(list(termFun))
-      newInitErgm=TRUE
     } else { # This term has no arguments
       fname <- paste(termroot,"Term.", v[[i]], sep = "")
-      # check if the Init function by that name exsits in the parent enviroment, or in the local namespace
-      #newInitErgm <- exists(fname, mode="function")
-      #v[[i]] <- call(ifelse (newInitErgm, fname, 
-      #                       paste(termroot,".", v[[i]], sep = "")))
-      
-      # check if an Init function by that name exists in the tergm lookup table
-      newInitErgm<-TRUE
-      #termFun<-getAnywhere(fname)$objs[[1]]  #get the first matching function found anywhere  TODO: warn if there is more than one?
-      termFun<-get(fname)
-      if(is.null(termFun)){
-        stop('unable to locate ergm termed named "',fname)
+      termFun<-getAnywhere(fname)$objs  #check in all namespaces for function found anywhere  TODO: warn if there is more than one?
+      #termFun<-get(fname, mode='function')
+      # check if function was found
+      if(is.null(termFun) || length(termFun)==0){
+        stop('unable to locate ergm term named "',fname,'"')
       }
+      termFun<-termFun[[1]] # get the first matching function found
       v[[i]]<-as.call(list(termFun))
      
       model$offset <- c(model$offset,FALSE)
       args=list()
     }
-    if (!newInitErgm) { #Using the old InitErgm style
-      v[[i]][[2]] <- nw
-      names(v[[i]])[2] <-  ""
-      v[[i]][[3]] <- model
-      names(v[[i]])[3] <- ""
-      v[[i]][[4]] <- args
-      dotdotdot <- c(if(!is.null(response)) list(response=response), list(role=role), list(...))
-      for(j in seq_along(dotdotdot)) {
-        if(is.null(dotdotdot[[j]])) next
-        v[[i]][[4+j]] <- dotdotdot[[j]]
-        names(v[[i]])[4+j] <- names(dotdotdot)[j]
-      }    
-      # The above steps are preparing the way to make the function call
-      # InitErgm.xxxx(g, m, args, ...)
-      #if(!exists(as.character(v[[i]][[1]]),envir=formula.env, mode="function")){
-      if(!is.function(v[[i]][[1]])){
-        stop("The term ", substring(as.character(v[[i]][[1]]),first=nchar(termroot)+2),
-             " could not be located for this type of ERGM. Are you sure you have the right name?\n",
-             call. = FALSE)
-      }
-      if(silent){
-       silentwarnings <- capture.output(
-        model <- eval(v[[i]], formula.env)  #Call the InitErgm function
-       )
-      }else{
-       model <- eval(v[[i]], formula.env)  #Call the InitErgm function
-      }
-      # If SO package name not specified explicitly, autodetect.
-      if(is.null(model$terms[[length(model$terms)]]$pkgname)) model$terms[[length(model$terms)]]$pkgname <- which.package.InitFunction(v[[i]][[1]])
-    } else { # New InitErgmTerms style
-      v[[i]][[2]] <- nw
-      names(v[[i]])[2] <-  ""
-      v[[i]][[3]] <- args
-      names(v[[i]])[3] <- ""
-      dotdotdot <- c(if(!is.null(response)) list(response=response), list(role=role), list(...))
-      for(j in seq_along(dotdotdot)) {
-        if(is.null(dotdotdot[[j]])) next
-        v[[i]][[3+j]] <- dotdotdot[[j]]
-        names(v[[i]])[3+j] <- names(dotdotdot)[j]
-      }
-      outlist <- eval(v[[i]],formula.env)  #Call the InitErgm function
-      # If SO package name not specified explicitly, autodetect.
-      if(is.null(outlist$pkgname)) outlist$pkgname <- 'ergm' # which.package.InitFunction(v[[i]][[1]]) TODO: this needs to be done by the table as well
-      # Now it is necessary to add the output to the model object
-      model <- updatemodel.ErgmTerm(model, outlist)
+    v[[i]][[2]] <- nw
+    names(v[[i]])[2] <-  ""
+    v[[i]][[3]] <- args
+    names(v[[i]])[3] <- ""
+    dotdotdot <- c(if(!is.null(response)) list(response=response), list(role=role), list(...))
+    for(j in seq_along(dotdotdot)) {
+      if(is.null(dotdotdot[[j]])) next
+      v[[i]][[3+j]] <- dotdotdot[[j]]
+      names(v[[i]])[3+j] <- names(dotdotdot)[j]
     }
+    #Call the InitErgm function in the environment where the formula was created
+    # so that it will have access to any parameters of the ergm terms
+    outlist <- eval(v[[i]],formula.env)  
+    # If SO package name not specified explicitly, autodetect.
+    if(is.null(outlist$pkgname)) outlist$pkgname <- 'ergm' # which.package.InitFunction(v[[i]][[1]]) TODO: this needs to be done by the table as well
+    # Now it is necessary to add the output to the model object
+    model <- updatemodel.ErgmTerm(model, outlist)
   } 
   model$etamap <- ergm.etamap(model)
 
