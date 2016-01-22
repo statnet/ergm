@@ -17,7 +17,6 @@
   .RegisterMHPs()
   .RegisterConstraintImplications()
   .RegisterInitMethods()
-  .RegisterErgmTerms()
 }
 
 .RegisterMHPs <- function(){
@@ -92,21 +91,3 @@
   ergm.init.methods("DiscUnif", c("CD","zeros"))
 }
 
-ergm.term.table<-local({
-  ergmTerms<-list()
-  function(termName, FUN){
-    if(!missing(FUN)){
-      # store the function in the list of known functions
-     ergmTerms[[termName]] <<- FUN
-    } else if(!missing(termName)){
-      # return a function matching the term name
-      return(ergmTerms[[termName]])
-    } else {
-      # return the entire list
-      return(ergmTerms)
-    }
-  }
-})
-.RegisterErgmTerms<-function(){
-  ergm.term.table('InitErgmTerm.edges',InitErgmTerm.edges)
-}

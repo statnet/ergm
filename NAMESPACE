@@ -116,7 +116,6 @@ export(
   ergm.mcmcslave,                  
   #ergm.MCMLE,             made internal
   ergm.MHP.table, 
-  ergm.term.table,
   #ergm.MPIcluster.started,  made internal
   ergm.mple,                       
   ergmMPLE,
@@ -269,7 +268,7 @@ export(
 )
 
 # export all the ergm terms
-exportPattern("^InitErgmTerm.*")
+#exportPattern("^InitErgmTerm.*")
 # export all the weighted ergm terms
 exportPattern("^InitWtErgmTerm.*")
 # export all the constaints
