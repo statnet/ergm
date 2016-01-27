@@ -29,6 +29,7 @@
 
 robust.inverse <- function (H, tol = sqrt(.Machine$double.eps)) 
 {
+  .Deprecated("ginv() from MASS", msg = "robust.inverse() has been deprecated and may be removed in a future version; use ginv() in the MASS package instead.")
     iH <- try(solve(H), silent=TRUE)
     if(inherits(iH,"try-error")){
      if (length(dim(H)) > 2 || !(is.numeric(H) || is.complex(H))) 

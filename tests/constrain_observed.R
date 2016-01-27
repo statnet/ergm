@@ -7,8 +7,7 @@
 #
 #  Copyright 2003-2015 Statnet Commons
 #######################################################################
-library(statnet.common)
-opttest({
+
 library(ergm)
 data(florentine)
 f.miss<-network.copy(flomarriage)
@@ -29,4 +28,3 @@ for(s in 1:1000){
 }
 
 if(!OK.2.1 || !OK.3.1) stop("No toggles of a missing dyad in 1000 trials.")
-}, "constraint on observed")

@@ -209,7 +209,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 	if(!v$failure & !any(is.na(v$coef))){
 		asyse <- mc.se
 		if(is.null(v$covar)){
-			asyse[names(v$coef)] <- suppressWarnings(sqrt(diag(robust.inverse(-v$hessian))))
+			asyse[names(v$coef)] <- suppressWarnings(sqrt(diag(ginv(-v$hessian))))
 		}else{
 			asyse[names(v$coef)] <- suppressWarnings(sqrt(diag(v$covar)))
 		}
@@ -222,33 +222,21 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 	v
 }  # Ends the whole function
 
-# Given two matrices x1 and x2 with d columns (and any positive
-# numbers of rows), find the greatest gamma<=steplength.max s.t., the
-# centroid of x1, shifted toward the centroid of x2 by 1-margin*gamma
-# of the way, is in the convex hull of x2 or vice versa, whichever is
-# greater.
-#
-# This is a variant of Hummel et al. (2013)'s steplength algorithm,
-# also usable for missing data MLE.
-#
-# order, if specified, only checks for being in the convex hull for
-# each individual variable (i.e., min and max) or each pair of
-# variables.
+## Given two matrices x1 and x2 with d columns (and any positive
+## numbers of rows), find the greatest gamma<=steplength.max s.t., the
+## points of x2 shrunk towards the centroid of x1 a factor of
+## margin*gamma, are all in the convex hull of x1.
+
+## This is a variant of Hummel et al. (2013)'s steplength algorithm
+## also usable for missing data MLE.
 .Hummel.steplength <- function(x1, x2=NULL, margin=0.05, steplength.max=1){
   margin <- 1 + margin
   x1 <- rbind(x1); m1 <- colMeans(x1); x1 <- unique(x1)
   if(is.null(x2)) x2 <- rep(0,ncol(x1))
-  x2 <- rbind(x2); m2 <- colMeans(x2); x2 <- unique(x2)
-
-  # Note that S might only be the unique rows, while xM is the column
-  # means of the whole matrix.
-  
-  in.hull <- function(gamma, x, xM, M){ 
-    is.inCH(margin*gamma * x + (1-margin*gamma) * xM, M)
-  }
+  x2 <- rbind(x2); x2 <- unique(x2)
 
   # is.inCH() can handle 1-row M, so this is perfectly fine.
-  zerofn <- function(gamma) if(in.hull(gamma, m2, m1, x1) || in.hull(gamma, m1, m2, x2)) (gamma-steplength.max) else Inf
+  zerofn <- function(gamma) if(is.inCH(t(margin*gamma * t(x2)  + (1-margin*gamma)*m1), x1)) (gamma-steplength.max) else Inf
 
   # Note that it will not, necessarily, actually find the zero.
   suppressWarnings(uniroot(zerofn, interval=c(0, steplength.max))$root)

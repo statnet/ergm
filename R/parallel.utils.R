@@ -83,7 +83,7 @@ ergm.getCluster <- function(control, verbose=FALSE){
   
   # On the off chance that user wants to load extra packages which we don't know about already.
   ergm.MCMC.packagenames(control$MCMC.packagenames)
-  if (F) {
+
   for(pkg in ergm.MCMC.packagenames()){
     # Try loading from the same location as the master.
     attached <- unlist(clusterCall(cl, require,
@@ -106,7 +106,6 @@ ergm.getCluster <- function(control, verbose=FALSE){
       if(!all(sapply(slave.versions,identical,master.version)))
         stop("The version of ",pkg, " attached on one or more slave nodes is different from from that on the master node (this node). Make sure that the same version is installed on all nodes. If you are absolutely certain that this message is in error, override with the parallel.version.check=FALSE control parameter.")
     }
-  }
   }
   cl
 }

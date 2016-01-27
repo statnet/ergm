@@ -386,6 +386,7 @@ ergm <- function(formula, response=NULL,
     initialfit$constrained.obs <- MHproposal.obs$arguments$constraints
     initialfit$constraints <- constraints
     initialfit$target.stats <- model.initial$target.stats
+    initialfit$etamap <- model.initial$etamap
     initialfit$target.esteq <- if(!is.null(model.initial$target.stats)){
       tmp <- .ergm.esteq(initialfit$coef, model.initial, rbind(model.initial$target.stats))
       structure(c(tmp), names=colnames(tmp))
@@ -394,10 +395,11 @@ ergm <- function(formula, response=NULL,
     
     initialfit$control<-control
     
-    if(eval.loglik) initialfit$null.lik <- logLikNull.ergm(initialfit)
+    if(eval.loglik) initialfit$null.lik <- logLikNull.ergm(initialfit, verbose=verbose)
     if(any(!model.initial$etamap$offsettheta) && eval.loglik){
-      if(verbose) cat("Evaluating log-likelihood at the estimate.\n")
-      initialfit<-logLik.ergm(initialfit, add=TRUE, control=control$loglik.control)
+      cat("Evaluating log-likelihood at the estimate. ")
+      initialfit<-logLik.ergm(initialfit, add=TRUE, control=control$loglik.control, verbose=verbose)
+      cat("\n")
     }
     return(initialfit)
   }
@@ -507,14 +509,14 @@ ergm <- function(formula, response=NULL,
   mainfit$estimable <- constrcheck$estimable
   mainfit$etamap <- model$etamap
   
-  mainfit$null.lik<-logLikNull.ergm(mainfit)
+  mainfit$null.lik<-logLikNull.ergm(mainfit, verbose=verbose)
   
   if (!control$MCMC.return.stats)
     mainfit$sample <- NULL
   
   if(eval.loglik){
-    if(verbose) cat("Evaluating log-likelihood at the estimate.\n")
-    mainfit<-logLik.ergm(mainfit, add=TRUE, control=control$loglik.control)
+    cat("Evaluating log-likelihood at the estimate. ")
+    mainfit<-logLik.ergm(mainfit, add=TRUE, control=control$loglik.control, verbose=verbose)
   }
   
   # done with parallel cluster

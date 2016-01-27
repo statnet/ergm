@@ -7,10 +7,10 @@
 #
 #  Copyright 2003-2015 Statnet Commons
 #######################################################################
-library(statnet.common)
-opttest({
+
 library(ergm)
 n <- 10
+m <- 7
 a <- rep(1:4,1:4)
 
 M <- matrix(0,n,n)
@@ -51,4 +51,34 @@ M[]<-0
 M[2,3]<-1
 
 stopifnot(all(as.matrix(y)==M))
-}, "block diagonal constraint")
+
+#### Bipartite ####
+
+y0 <- network.initialize(n, directed=FALSE, bipartite=m)
+a <- unlist(split(a, rep(1:2, n/2)))
+a <- c(sort(a[1:m]), sort(a[-(1:m)]))
+y0 %v% "b" <- a
+
+M <- matrix(0,m,n-m)
+
+for(i in unique(a)){
+  M[a[1:m]==i,a[-(1:m)]==i]<-1
+}
+
+y <- simulate(y0~edges, coef=100, constraints=~blockdiag("b"), control=control.simulate.formula(MCMC.burnin=10000))
+
+stopifnot(all(as.matrix(y)==M))
+
+#### Bipartite Unobserved ####
+
+y0 <- network.initialize(n, directed=FALSE, bipartite=m)
+y0 %v% "b" <- a
+y0[7,8]<-NA
+y0[6,9]<-NA
+
+y <- simulate(y0~edges, coef=100, constraints=~blockdiag("b")+observed, control=control.simulate.formula(MCMC.burnin=10000))
+
+M[]<-0
+M[6,2]<-1
+
+stopifnot(all(as.matrix(y)==M))

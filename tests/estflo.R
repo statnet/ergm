@@ -7,8 +7,7 @@
 #
 #  Copyright 2003-2015 Statnet Commons
 #######################################################################
-library(statnet.common)
-opttest({
+
 library(ergm)
 data(florentine)
 # a markov graph fit to the Florentine data
@@ -33,4 +32,3 @@ summary(gest)
 gest <- ergm(flomarriage ~ kstar(2), constraints=~edges, control=control.ergm(seed=16124))
 gest
 summary(gest)
-}, "Florentine")

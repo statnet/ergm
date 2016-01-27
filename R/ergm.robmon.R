@@ -155,7 +155,7 @@ cat(paste("theta new:",theta,"\n"))
 
 # ubar <- apply(z$statsmatrix, 2, base::mean)
 # hessian <- (t(z$statsmatrix) %*% z$statsmatrix)/n3 - outer(ubar,ubar)
-# covar <- robust.inverse(covar)
+# covar <- ginv(covar)
   
   if(verbose){cat("Calling MCMLE Optimization...\n")}
   if(verbose){cat("Using Newton-Raphson Step ...\n")}

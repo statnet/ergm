@@ -75,10 +75,7 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
   fit$coef <- fit$par
   fit$deviance <- fit$value
   fit$iter <- fit$counts[1]
-  asycov <- try(robust.inverse(fit$hessian), silent = TRUE)
-  if (inherits(asycov, "try-error")) {
-     asycov <- diag(1/diag(-fit$hessian))
-  }
+  asycov <- ginv(fit$hessian)
   fit$cov.unscaled <- asycov
 # cat("\nCoefficients:\n"); print(fit$par)
 # # R: use fit$value and fit$convergence

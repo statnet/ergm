@@ -14,69 +14,24 @@
 % When a release is forked, copy the sections to a new release and
 % delete unused sections.
 
-\section{Changes in version 3.5}{
+\section{Changes in version 3.5.1}{
 
   \subsection{NEW FEATURES}{
     \itemize{
-      \item Added a new generic, \code{\link{is.curved}} that tests if a
-      given ERGM or model is curved.
    }
   }
    
   
    \subsection{BUG FIXES}{
      \itemize{
-       \item MPLE is no longer used if the model is curved and target
-       statistics are passed, as that caused problems.
-
-       \item MCMC standard error calculation, "dropping" of extreme
-       terms, main MC MLE loop, and other places have been made more
-       robust to weird combinations of estimating problems (e.g., curved
-       terms + target statistics + offset terms + poor starting value).
-
-       \item Hummel et al.'s convex hull calculation and MCMC SE
-       calculation have been robustified against highly correlated
-       sample statistics by using PCA to rotate them into an orthogonal
-       configuration.
-
-       \item Code for parallel calculation has been optimized to provide
-       a bigger gain from multiple cores/processors/nodes.
-
-       \item \code{\link[ergm-terms]{threepath}} has been deprecated in
-       favor of \code{threetrail} to more accurately reflect what is
-       being computed.
-
-       \item The "naive" log-likelihood ratio metric now handles offsets
-       more robustly.
-
-       \item Many documentation fixes and clarifications.
-
+       \item Parallel processing when using userterms and similar was
+       accidentaly broken in the previous release.
     }
    }
 
   
    \subsection{OTHER USER-VISIBLE CHANGES}{
      \itemize{
-      \item Skye Bender-deMoll has been added as a contributor to the package.
-
-      \item Some functions, particularly \code{ERRVL},
-      \code{append.rhs.formula}, \code{vectors.namesmatch},
-      \code{term.list.formula}, and \code{ergm.update.formula} have been
-      moved to the \code{\link{statnet.common}} package.
-
-      \item The \code{as.edgelist} family of functions have been moved
-      to the \code{\link[network-package]{network}} package.
-
-      \item \code{\link{mcmc.diagnostics.ergm}} now takes the
-      \code{esteq=} argument. If \code{TRUE}, the diagnostics are
-      performed on the simulated values of the estimating functions. If
-      \code{FALSE}, they are performed on simulated values of canonical
-      statistics. This obviates and replaces the the \code{curved=}
-      argument.
-
-      \item \code{\link{san}} when used with curved models now requires
-      canonical statistics as targets.
-
 
      }
    }
@@ -104,6 +59,85 @@
   %   }
   % }
 
+}
+
+
+\section{Changes in version 3.5.1}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item Added a new generic, \code{\link{is.curved}} that tests if a
+      given ERGM or model is curved.
+
+      \item Block-diagonal sampler now handles bipartite networks.
+
+      \item Code for parallel calculation has been optimized to provide
+      a bigger gain from multiple cores/processors/nodes.
+
+      \item Bridge sampling to evaluate the log-likelihood at the MLE
+      now prints out a brief progress report by default.
+   }
+  }
+   
+  
+   \subsection{BUG FIXES}{
+     \itemize{
+       \item MPLE is no longer used if the model is curved and target
+       statistics are passed, as that caused problems.
+
+       \item MCMC standard error calculation, "dropping" of extreme
+       terms, main MC MLE loop, and other places have been made more
+       robust to weird combinations of estimating problems (e.g., curved
+       terms + target statistics + offset terms + poor starting value).
+
+       \item \code{\link[ergm-terms]{threepath}} has been deprecated in
+       favor of \code{threetrail} to more accurately reflect what is
+       being computed.
+
+       \item The "naive" log-likelihood ratio metric now handles offsets
+       more robustly.
+
+       \item The null log-likelihood calculation prints messages instead
+       of throwing warnings.
+       
+       \item The closed-form solution (see Hummel et al., 2010) for the "lognormal" metric had
+       been inadvertantly disabled. It has been reenabled.
+
+       \item Many documentation fixes and clarifications.
+    }
+   }
+
+  
+   \subsection{OTHER USER-VISIBLE CHANGES}{
+     \itemize{
+       \item Skye Bender-deMoll has been added as a contributor to the
+       package.
+       
+       \item Hummel et al.'s convex hull calculation and MCMC SE
+       calculation have been robustified against highly correlated
+       sample statistics by using PCA to rotate them into an orthogonal
+       configuration.
+       
+       \item Some functions, particularly \code{ERRVL},
+       \code{append.rhs.formula}, \code{vectors.namesmatch},
+       \code{term.list.formula}, and \code{ergm.update.formula} have been
+       moved to the \code{\link{statnet.common}} package.
+       
+       \item The \code{as.edgelist} family of functions have been moved
+       to the \code{\link[network-package]{network}} package.
+       
+       \item \code{\link{mcmc.diagnostics.ergm}} now takes the
+       \code{esteq=} argument. If \code{TRUE}, the diagnostics are
+       performed on the simulated values of the estimating functions. If
+       \code{FALSE}, they are performed on simulated values of canonical
+       statistics. This obviates and replaces the the \code{curved=}
+       argument.
+       
+       \item \code{\link{san}} when used with curved models now requires
+       canonical statistics as targets.
+
+     }
+   }
 }
 
 \section{Changes in version 3.4}{

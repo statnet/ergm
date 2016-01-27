@@ -45,6 +45,8 @@
 \examples{
 data(florentine)
 fit <- ergm(flomarriage ~ edges + concurrent)
-vcov(fit)
+vcov(fit, sources="model")
+vcov(fit, sources="estimation")
+vcov(fit, sources="all") # the default
 }
 
