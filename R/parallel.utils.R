@@ -149,7 +149,7 @@ ergm.sample.tomcmc<-function(sample, params){
       mcmc(sample[(samplesize*(i-1)+1):(samplesize*i), , drop=FALSE], start = params$MCMC.burnin, thin = params$MCMC.interval)
     }, simplify=FALSE)
     
-    do.call("mcmc.list",sample)
+    do.call(mcmc.list,sample)
     
   }else{
     # Let mcmc() figure out the "end" from dimensions.

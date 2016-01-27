@@ -111,7 +111,7 @@ ergm.getCDsample <- function(nw, model, MHproposal, eta0, control,
   
   ergm.stopCluster(cl)
 
-  statsmatrix <- do.call("rbind",statsmatrices)
+  statsmatrix <- do.call(rbind,statsmatrices)
   colnames(statsmatrix) <- model$coef.names
 
   if(verbose){cat("Sample size =",nrow(statsmatrix),"by",
