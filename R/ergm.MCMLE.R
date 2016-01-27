@@ -153,7 +153,7 @@ ergm.MCMLE <- function(init, nw, model,
     statsmatrices <- mapply(sweep, z$statsmatrices, statshifts, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE)
     for(i in seq_along(statsmatrices)) colnames(statsmatrices[[i]]) <- model$coef.names
     nws.returned <- lapply(z$newnetworks,network::network.copy)
-    statsmatrix <- do.call("rbind",statsmatrices)
+    statsmatrix <- do.call(rbind,statsmatrices)
     
     if(verbose){
       cat("Back from unconstrained MCMC. Average statistics:\n")
@@ -169,7 +169,7 @@ ergm.MCMLE <- function(init, nw, model,
       statsmatrices.obs <- mapply(sweep, z.obs$statsmatrices, statshifts.obs, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE)
       for(i in seq_along(statsmatrices.obs)) colnames(statsmatrices.obs[[i]]) <- model$coef.names
       nws.obs.returned <- lapply(z.obs$newnetworks, network::network.copy)
-      statsmatrix.obs <- do.call("rbind",statsmatrices.obs)
+      statsmatrix.obs <- do.call(rbind,statsmatrices.obs)
       
       if(verbose){
         cat("Back from constrained MCMC. Average statistics:\n")

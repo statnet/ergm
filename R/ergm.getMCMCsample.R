@@ -198,7 +198,7 @@ ergm.getMCMCsample <- function(nw, model, MHproposal, eta0, control,
   
   ergm.stopCluster(cl)
 
-  statsmatrix <- do.call("rbind",statsmatrices)
+  statsmatrix <- do.call(rbind,statsmatrices)
   colnames(statsmatrix) <- model$coef.names
 
   if(verbose){cat("Sample size =",nrow(statsmatrix),"by",
@@ -353,7 +353,7 @@ ergm.mcmcslave <- function(Clist,MHproposal,eta0,control,verbose,...,prev.run=NU
 
 .fast.effectiveSize <- function(x, ar.order=1){
   if (coda::is.mcmc.list(x)){
-    ess <- do.call("rbind", lapply(x, .fast.effectiveSize, ar.order=ar.order))
+    ess <- do.call(rbind, lapply(x, .fast.effectiveSize, ar.order=ar.order))
     ans <- apply(ess, 2, base::sum)
   } else {
     x <- coda::as.mcmc(x)

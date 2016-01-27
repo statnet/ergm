@@ -131,7 +131,7 @@ ergm.CD.fixed <- function(init, nw, model,
     # parameters that will give a mean vector of zero)
     statsmatrices <- mapply(sweep, z$statsmatrices, statshifts, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE)
     for(i in seq_along(statsmatrices)) colnames(statsmatrices[[i]]) <- model$coef.names
-    statsmatrix <- do.call("rbind",statsmatrices)
+    statsmatrix <- do.call(rbind,statsmatrices)
     
     if(verbose){
       cat("Back from unconstrained CD. Average statistics:\n")
@@ -144,7 +144,7 @@ ergm.CD.fixed <- function(init, nw, model,
 
       statsmatrices.obs <- mapply(sweep, z.obs$statsmatrices, statshifts.obs, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE)
       for(i in seq_along(statsmatrices.obs)) colnames(statsmatrices.obs[[i]]) <- model$coef.names
-      statsmatrix.obs <- do.call("rbind",statsmatrices.obs)
+      statsmatrix.obs <- do.call(rbind,statsmatrices.obs)
       
       if(verbose){
         cat("Back from constrained MCMC. Average statistics:\n")
