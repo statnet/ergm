@@ -26,20 +26,20 @@ target.stats<-c(      n*1/2,    n*0.6,        20)
 dynfit<-tergm::stergm(g0,formation = ~edges+degree(1), dissolution = ~edges,
                targets = ~edges+degree(1)+mean.age,
                target.stats=target.stats, estimate="EGMME",
-               control=tergm::control.stergm(SA.plot.progress=TRUE))
+               control=tergm::control.stergm(SA.plot.progress=TRUE, SA.restart.on.err=FALSE))
 
 par(ask=TRUE)
-mcmc.diagnostics(dynfit)
+ergm::mcmc.diagnostics(dynfit)
 summary(dynfit)
 
 # use a summary formula to display number of isolates and edges
-# at discrete time points
+                                        # at discrete time points
+my.nD <- simulate(dynfit, nsim=1, time.slices=100, output="networkDynamic")
 summary(my.nD~isolates+edges+mean.age, at=1:10)
-ergm::summary.statistics.formula(networkDynamic::as.networkDynamic(network.initialize(5)~mean.age))
+ergm::summary.statistics.formula(my.nD~mean.age)
 
 # try a term that needs to mysteriously access an environment variable
-library(ergm)
-data(sampson)
+data(sampson, package="ergm")
 ergm::summary.statistics.formula(samplike~hammingmix("group"))
 
 
