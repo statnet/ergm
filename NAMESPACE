@@ -273,14 +273,14 @@ export(
 # export all the weighted ergm terms
 # exportPattern("^InitWtErgmTerm.*")
 # export all the constaints
-exportPattern("^InitConstraint.*")
+#exportPattern("^InitConstraint.*")
 # export all the MH proposals
-exportPattern("^InitMHP.*")
+#exportPattern("^InitMHP.*")
 # export all the weighted MH proposals
-exportPattern("^InitWtMHP.*")
+#exportPattern("^InitWtMHP.*")
 
 # export all reference distributions
-exportPattern("^InitReference.*")
+#exportPattern("^InitReference.*")
 
   
 
