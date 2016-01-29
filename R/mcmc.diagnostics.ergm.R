@@ -199,7 +199,8 @@ mcmc.diagnostics.ergm <- function(object,
   if(!is.null(sm.obs)){
     cat("Sample statistics burn-in diagnostic (Geweke):\n")
     sm.obs.gw<-geweke.diag(sm.obs)
-    sm.obs.gws<-.geweke.diag.mv(sm.obs)
+    sm.obs.gws<-try(.geweke.diag.mv(sm.obs))
+    if(!("try-error" %in% class(sm.obs.gws))){
     for(i in seq_along(sm.obs.gw)){
       cat("Chain", chain, "\n")
       print(sm.obs.gw[[i]])
@@ -207,6 +208,7 @@ mcmc.diagnostics.ergm <- function(object,
       print(2*pnorm(abs(sm.obs.gw[[i]]$z),lower.tail=FALSE))
       cat("Joint P-value (lower = worse): ", sm.gws[[i]]$p.value,".\n")
     }
+   }
   }
   
   if(requireNamespace('latticeExtra')){  
