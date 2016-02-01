@@ -71,6 +71,8 @@ ergm.MCMLE <- function(init, nw, model,
   stats.hist <- matrix(NA, 0, length(model$nw.stats))
   stats.obs.hist <- matrix(NA, 0, length(model$nw.stats))
   steplen.hist <- c()
+  steplen <- control$MCMLE.steplength
+  if(control$MCMLE.steplength=="adaptive") steplen <- 1
 
   control$MCMC.effectiveSize <- control$MCMLE.effectiveSize
   control$MCMC.base.samplesize <- control$MCMC.samplesize
@@ -273,13 +275,14 @@ ergm.MCMLE <- function(init, nw, model,
         cat("The log-likelihood did not improve.\n")
       }
       steplen.hist <- c(steplen.hist, adaptive.steplength)
+      steplen <- adaptive.steplength
     }else{
       steplen <-
         if(!is.null(control$MCMLE.steplength.margin))
           .Hummel.steplength(
             if(control$MCMLE.Hummel.esteq) esteq else statsmatrix.0[,!model$etamap$offsetmap,drop=FALSE], 
             if(control$MCMLE.Hummel.esteq) esteq.obs else statsmatrix.0.obs[,!model$etamap$offsetmap,drop=FALSE],
-            control$MCMLE.steplength.margin, control$MCMLE.steplength)
+            control$MCMLE.steplength.margin, control$MCMLE.steplength,steplen=steplen,verbose=verbose)
         else control$MCMLE.steplength
       
       if(steplen==control$MCMLE.steplength || is.null(control$MCMLE.steplength.margin) || iteration==control$MCMLE.maxit) calc.MCSE <- TRUE

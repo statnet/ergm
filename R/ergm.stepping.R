@@ -229,15 +229,57 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 
 ## This is a variant of Hummel et al. (2013)'s steplength algorithm
 ## also usable for missing data MLE.
-.Hummel.steplength <- function(x1, x2=NULL, margin=0.05, steplength.max=1){
+.Hummel.steplength <- function(x1, x2=NULL, margin=0.05, steplength.max=1, steplen=1, verbose=FALSE){
   margin <- 1 + margin
   x1 <- rbind(x1); m1 <- colMeans(x1); x1 <- unique(x1)
   if(is.null(x2)) x2 <- rep(0,ncol(x1))
   x2 <- rbind(x2); x2 <- unique(x2)
 
-  # is.inCH() can handle 1-row M, so this is perfectly fine.
-  zerofn <- function(gamma) if(is.inCH(t(margin*gamma * t(x2)  + (1-margin*gamma)*m1), x1)) (gamma-steplength.max) else Inf
+  if(nrow(x2) > 100){
+#  Reduce matrix to those extremes with the num th smallest probabilities
+   af <- function(x,num=100){
+	  num <- min(nrow(x),num)
+	  d2 <- sweep(x,2,colMeans(x))
+	  sv <- svd(d2)
+	  d = d2 %*% sv$v
+	  l2 <- rep(0,length(sv$d))
+	  ev <- sv$d*sv$d / mean(sv$d*sv$d)
+	  l2[ev>0.001] <- 1/ev[ev>0.001]
+	  # a are the Mahalanobis distances
+	  a = apply(sweep(d*d,2,l2,"*"),1,sum)
+          x[order(-a)[1:num],]
+   }
 
-  # Note that it will not, necessarily, actually find the zero.
-  suppressWarnings(uniroot(zerofn, interval=c(0, steplength.max))$root)
+   # is.inCH() can handle 1-row M, so this is perfectly fine.
+   zerofn <- function(gamma){
+	  x=af(t(margin*gamma * t(x2)  + (1-margin*gamma)*m1))
+	  is.inCH(x, x1, numcheck=50)
+   }
+  }else{
+   zerofn <- function(gamma){is.inCH(t(margin*gamma * t(x2)  + (1-margin*gamma)*m1), x1)}
+  }
+
+  # Modify search to reflect the binary nature of the outcome and the
+  # prior belief about the gamma (centered on prior value with a s.d. of sd.p)
+  sd.p <- 0.1
+  low <- 0
+  high <- steplength.max
+  g <- steplen
+  maxit <- 20
+  i <- 0
+  while(i < maxit & abs(high-low)>0.01){
+   z=zerofn(g)
+   if(z){
+    low <- g
+    g <- qnorm( mean(pnorm(c(high,g), mean = steplen, sd = sd.p)), mean = steplen, sd = sd.p)
+   }else{
+    high <- g
+    g <- qnorm( mean(pnorm(c(low, g), mean = steplen, sd = sd.p)), mean = steplen, sd = sd.p)
+   }
+   i <- i+1
+   out <- c(i,g,low,high,z)
+   names(out) <- c("iters","est","low","high","z")
+   if(verbose) print(out)
+  }
+  g
 }

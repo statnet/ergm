@@ -45,9 +45,10 @@
 
 ## Note: p can be a matrix. In that case, every row of p is checked.
 
-is.inCH <- function(p, M, ...) { # Pass extra arguments directly to LP solver
+is.inCH <- function(p, M, numcheck=NULL, ...) { # Pass extra arguments directly to LP solver
 
   if(is.null(dim(p))) p <- rbind(p)
+  if(is.null(numcheck)) numcheck <- nrow(p)
 
   if (!is.matrix(M)) 
     stop("Second argument must be a matrix.")
@@ -80,7 +81,7 @@ is.inCH <- function(p, M, ...) { # Pass extra arguments directly to LP solver
   Mr <- pMr[-seq_len(nrow(p)),,drop=FALSE]
   L = cbind(1, Mr)
 
-  for(i in seq_len(nrow(p))){
+  for(i in seq_len(numcheck)){
   q = c(1, pr[i,]) 
 ############################################
 # USE lp FUNCTION FROM lpSolve PACKAGE:
@@ -90,6 +91,7 @@ is.inCH <- function(p, M, ...) { # Pass extra arguments directly to LP solver
             const.rhs = c(1, rep(0, NROW(L))), 
             ...
             )
+# print(c(i,ans$objval))
   if(ans$objval!=0)return(FALSE)  #if the min is not zero, the point p[i,] is not in the CH of the points M
   }
   return(TRUE) # If all points passed the test, return TRUE.
