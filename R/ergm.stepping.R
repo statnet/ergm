@@ -237,6 +237,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 
   if(nrow(x2) > 100){
 #  Reduce matrix to those extremes with the num th smallest probabilities
+   if(verbose){cat("Using fast and approximate Hummel et al search.")}
    af <- function(x,num=100){
 	  num <- min(nrow(x),num)
 	  d2 <- sweep(x,2,colMeans(x))
@@ -253,19 +254,21 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
    # is.inCH() can handle 1-row M, so this is perfectly fine.
    zerofn <- function(gamma){
 	  x=af(t(margin*gamma * t(x2)  + (1-margin*gamma)*m1))
-	  is.inCH(x, x1, numcheck=50)
+	  is.inCH(x, x1, numcheck=50, verbose=verbose)
    }
+   maxit <- 10
   }else{
-   zerofn <- function(gamma){is.inCH(t(margin*gamma * t(x2)  + (1-margin*gamma)*m1), x1)}
+   if(verbose){cat("Using detailed Hummel et al search.")}
+   maxit <- 25
+   zerofn <- function(gamma){is.inCH(t(margin*gamma * t(x2)  + (1-margin*gamma)*m1), x1, verbose=verbose)}
   }
 
   # Modify search to reflect the binary nature of the outcome and the
-  # prior belief about the gamma (centered on prior value with a s.d. of sd.p)
+  # prior belief about the gamma (centered on prior valeu with a s.d. of sd.p)
   sd.p <- 0.1
   low <- 0
   high <- steplength.max
   g <- steplen
-  maxit <- 20
   i <- 0
   while(i < maxit & abs(high-low)>0.01){
    z=zerofn(g)
@@ -277,9 +280,10 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
     g <- qnorm( mean(pnorm(c(low, g), mean = steplen, sd = sd.p)), mean = steplen, sd = sd.p)
    }
    i <- i+1
-   out <- c(i,g,low,high,z)
-   names(out) <- c("iters","est","low","high","z")
-   if(verbose) print(out)
+#  out <- c(i,g,low,high,z)
+#  names(out) <- c("iters","est","low","high","z")
+#  print(out)
+   if(verbose) cat(sprintf("iter= %d, est=%f, low=%f, high=%f, test=%d.\n",i,g,low,high,z))
   }
   g
 }

@@ -200,7 +200,14 @@ approx.hotelling.diff.test<-function(x,y=NULL, mu0=NULL, assume.indep=FALSE, var
       xr <- x%*%Q # Columns of xr are guaranteed to be linearly independent.
 
       # Calculate the time-series variance of the mean on the PC scale.
-      arfit <- ar(xr,aic=is.null(order.max), order.max=order.max, ...)
+
+      if(is.null(order.max)){ord <- 10*log10(nrow(xr))}
+      arfit <- .catchToList(ar(xr,aic=is.null(order.max), order.max=ord, ...))
+      while(!is.null(arfit$error) & ord > 1){
+        ord <- ord - 1
+        arfit <- .catchToList(ar(xr,aic=is.null(order.max), order.max=ord, ...))
+      }
+      arfit <- arfit$value
       arvar <- arfit$var.pred
       arcoefs <- arfit$ar
       arcoefs <- if(is.null(dim(arcoefs))) sum(arcoefs) else apply(arcoefs,2:3,base::sum)
