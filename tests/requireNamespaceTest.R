@@ -3,7 +3,6 @@ data(flo)
 requireNamespace('ergm')   #load the namespace, but don't attach the package
 
 # run a summary
-# gives error Error: The term density does not exist for this type of ERGM. Are you sure you have the right name?
 ergm::summary.statistics.formula(as.network(flo)~density)
 
 # try a user-defined ergm term
@@ -26,7 +25,7 @@ target.stats<-c(      n*1/2,    n*0.6,        20)
 dynfit<-tergm::stergm(g0,formation = ~edges+degree(1), dissolution = ~edges,
                targets = ~edges+degree(1)+mean.age,
                target.stats=target.stats, estimate="EGMME",
-               control=tergm::control.stergm(SA.plot.progress=TRUE, SA.restart.on.err=FALSE))
+               control=tergm::control.stergm(SA.restart.on.err=FALSE))
 
 par(ask=TRUE)
 ergm::mcmc.diagnostics(dynfit)
