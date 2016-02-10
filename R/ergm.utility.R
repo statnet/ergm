@@ -460,6 +460,27 @@ invert.network <- function(nw){
   
 }
 
+locate.InitFunction <- function(name, prefix, errname=NULL, env = parent.frame()){
+  if(is.call(name)) name <- name[[1]]
+  name <- as.character(name)
+  fname <- paste(prefix,name,sep=".")
+  
+  f <- try(get(fname, mode='function', envir=env), silent=TRUE)
+  if(inherits(f, "try-error")){
+    m <- getAnywhere(fname)
+    if(length(m$objs)){
+      ## Prioritise visible over not:
+      if(any(m$visible)){
+        m <- lapply(m[-1], "[", m$visible)
+      }
+      if(length(m$objs)>1) warning("Name ",fname," matched by multiple objects; using the first one on the list.")
+      f <- m$objs[[1]] 
+    }else{
+      if(!is.null(errname)) stop(errname,' ', sQuote(name), " initialization function ", sQuote(fname), " not found.") else f <- NULL
+    }
+  }
+  f
+}
 
 # Return the name of the package containing function f visible from
 # environment env.

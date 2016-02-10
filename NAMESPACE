@@ -116,7 +116,7 @@ export(
   #ergm.MCMCse.lognormal,  made internal
   ergm.mcmcslave,                  
   #ergm.MCMLE,             made internal
-  ergm.MHP.table,                  
+  ergm.MHP.table, 
   #ergm.MPIcluster.started,  made internal
   ergm.mple,                       
   ergmMPLE,
@@ -269,18 +269,18 @@ export(
 )
 
 # export all the ergm terms
-exportPattern("^InitErgmTerm.*")
+# exportPattern("^InitErgmTerm.*")
 # export all the weighted ergm terms
-exportPattern("^InitWtErgmTerm.*")
+# exportPattern("^InitWtErgmTerm.*")
 # export all the constaints
-exportPattern("^InitConstraint.*")
+#exportPattern("^InitConstraint.*")
 # export all the MH proposals
-exportPattern("^InitMHP.*")
+#exportPattern("^InitMHP.*")
 # export all the weighted MH proposals
-exportPattern("^InitWtMHP.*")
+#exportPattern("^InitWtMHP.*")
 
 # export all reference distributions
-exportPattern("^InitReference.*")
+#exportPattern("^InitReference.*")
 
   
 

@@ -15,7 +15,7 @@
   }
 }
 
-.onLoad <- function(lib, pkg){  
+.onLoad <- function(lib, pkg){
   .RegisterMHPs()
   .RegisterConstraintImplications()
   .RegisterInitMethods()
@@ -92,3 +92,4 @@
   ergm.init.methods("Unif", c("CD","zeros"))
   ergm.init.methods("DiscUnif", c("CD","zeros"))
 }
+
