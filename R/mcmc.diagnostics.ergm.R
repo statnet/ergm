@@ -82,7 +82,7 @@ mcmc.diagnostics.ergm <- function(object,
   # Coerce sample objects to mcmc.list. This allows all subsequent
   # operations to assume mcmc.list. The reason [["sample"]] is being
   # used here rather than $sample is because there is an unlikely
-  # posibility that $sample doesn't exist but $sample.obs does.
+  # possibility that $sample doesn't exist but $sample.obs does.
   sm <- if(is.null(object[["sample"]])) NULL else as.mcmc.list(object[["sample"]])
   sm.obs <- if(is.null(object[["sample.obs"]])) NULL else as.mcmc.list(object[["sample.obs"]])
 
@@ -188,7 +188,8 @@ mcmc.diagnostics.ergm <- function(object,
 
   cat("\nSample statistics burn-in diagnostic (Geweke):\n")
   sm.gw<-geweke.diag(sm)
-  sm.gws<-.geweke.diag.mv(sm)
+  sm.gws<-try(.geweke.diag.mv(sm))
+  if(!("try-error" %in% class(sm.gws))){
   for(i in seq_along(sm.gw)){
     cat("Chain", chain, "\n")
     print(sm.gw[[i]])
@@ -196,10 +197,12 @@ mcmc.diagnostics.ergm <- function(object,
     print(2*pnorm(abs(sm.gw[[i]]$z),lower.tail=FALSE))
     cat("Joint P-value (lower = worse): ", sm.gws[[i]]$p.value,".\n")
   }
+  }
   if(!is.null(sm.obs)){
     cat("Sample statistics burn-in diagnostic (Geweke):\n")
     sm.obs.gw<-geweke.diag(sm.obs)
-    sm.obs.gws<-.geweke.diag.mv(sm.obs)
+    sm.obs.gws<-try(.geweke.diag.mv(sm.obs))
+    if(!("try-error" %in% class(sm.obs.gws))){
     for(i in seq_along(sm.obs.gw)){
       cat("Chain", chain, "\n")
       print(sm.obs.gw[[i]])
@@ -207,6 +210,7 @@ mcmc.diagnostics.ergm <- function(object,
       print(2*pnorm(abs(sm.obs.gw[[i]]$z),lower.tail=FALSE))
       cat("Joint P-value (lower = worse): ", sm.gws[[i]]$p.value,".\n")
     }
+   }
   }
   
   if(requireNamespace('latticeExtra')){  
