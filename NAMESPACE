@@ -20,7 +20,7 @@ importFrom("stats", "AIC", "BIC", "ar", "as.formula", "coef", "cov",
              "runif", "sd", "start", "terms", "uniroot", "update", "var",
              "vcov", "weighted.mean", "window")
 importFrom("utils", "packageDescription","capture.output", "flush.console", "methods",
-             "packageVersion", "tail")
+             "packageVersion", "tail","getAnywhere")
 importFrom("methods",'findFunction')
 
 # Export all names that do not begin with a dot.
