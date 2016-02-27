@@ -109,15 +109,13 @@ MHproposal.character <- function(object, arguments, nw, ..., response=NULL, refe
 
   arguments$reference <- reference
 
-  fun <- if(is.null(response)) paste("InitMHP", name, sep=".") else paste("InitWtMHP", name, sep=".")
-  
+  f <- locate.InitFunction(name, if(is.null(response)) "InitMHP" else "InitWtMHP", "Metropolis-Hastings proposal")
+
   proposal <- {
     if(is.null(response))
-      eval(call(fun,
-                arguments, nw))
+      eval(as.call(list(f, arguments, nw)))
     else
-      eval(call(fun,
-                arguments, nw, response))
+      eval(as.call(list(f, arguments, nw, response)))
   }
 
   proposal$arguments <- arguments
@@ -127,7 +125,7 @@ MHproposal.character <- function(object, arguments, nw, ..., response=NULL, refe
 
   proposal$arguments$constraints$bd <- ergm.bounddeg(arguments$constraints$bd,nw)
   # If package not specified, autodetect.
-  if(is.null(proposal$pkgname))  proposal$pkgname <- which.package.InitFunction(fun)
+  if(is.null(proposal$pkgname))  proposal$pkgname <- environmentName(environment(f))
 
   # Add the package to the list of those to be loaded.
   ergm.MCMC.packagenames(proposal$pkgname)
@@ -169,15 +167,15 @@ mk.conlist <- function(object, nw){
     ## The . in the default formula means no constrains.
     ## There may be other constraints in the formula, however.
     if(constraint==".") next
+
+    f <- locate.InitFunction(constraint, "InitConstraint", "Sample space constraint")
     
     if(is.call(constraint)){
-      init.call<-list()
-      init.call<-list(as.name(paste("InitConstraint.", constraint[[1]], sep = "")), conlist=conlist, lhs.nw=nw)
+      init.call<-list(f, conlist=conlist, lhs.nw=nw)
       init.call<-c(init.call,as.list(constraint)[-1])
     }else{
-      init.call <- list(as.name(paste("InitConstraint.", constraint, sep = "")), conlist=conlist, lhs.nw=nw)
+      init.call <- list(f, conlist=conlist, lhs.nw=nw)
     }
-    if(!exists(as.character(init.call[[1]]), environment(object))) stop(paste("The constraint you have selected ('",constraints,"') is not defined. Are you sure you have not mistyped it?",sep=""))
     conlist <- eval(as.call(init.call), environment(object))
   }
   conlist <- prune.conlist(conlist)
@@ -187,12 +185,14 @@ mk.conlist <- function(object, nw){
 
 MHproposal.formula <- function(object, arguments, nw, weights="default", class="c", reference=~Bernoulli, response=NULL, ...) {
   reference <- reference
+
+  f <- locate.InitFunction(reference[[2]], "InitReference", "Reference distribution") 
+  
   if(is.call(reference[[2]])){
-    ref.call <- list()
-    ref.call <- list(as.name(paste("InitReference", reference[[2]][[1]], sep = ".")), lhs.nw=nw)
+    ref.call <- list(f, lhs.nw=nw)
     ref.call <- c(ref.call,as.list(reference[[2]])[-1])
   }else{
-    ref.call <- list(as.name(paste("InitReference", reference[[2]], sep = ".")), lhs.nw=nw)
+    ref.call <- list(f, lhs.nw=nw)
   }
   reference <- eval(as.call(ref.call),environment(reference))
 
