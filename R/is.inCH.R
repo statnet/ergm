@@ -45,7 +45,7 @@
 
 ## Note: p can be a matrix. In that case, every row of p is checked.
 
-is.inCH <- function(p, M, ...) { # Pass extra arguments directly to LP solver
+is.inCH <- function(p, M, verbose=FALSE, ...) { # Pass extra arguments directly to LP solver
 
   if(is.null(dim(p))) p <- rbind(p)
 
@@ -62,36 +62,28 @@ is.inCH <- function(p, M, ...) { # Pass extra arguments directly to LP solver
     return(TRUE)
   }
 
-  ## Combine p and M so that we don't drop any dimensions by mistake:
-  ## Center p and M:
-  pM <- rbind(p,M)
-  pM <- sweep(pM, 2, colMeans(pM), "-")
+  ##
+  ## NOTE: PCA code has been moved to .Hummel.steplength().
+  ##
 
-  # Rotate p and M onto their principal components, dropping linearly dependent dimensions:
-  e <- eigen(crossprod(pM), symmetric=TRUE)
-  Q <- e$vec[,sqrt(pmax(e$val,0)/max(e$val))>sqrt(.Machine$double.eps)*2,drop=FALSE]
-  pMr <- pM%*%Q # Columns of pMr are guaranteed to be linearly independent.
-
-  # Scale p and M:
-  pMrsd <- pmax(apply(pMr, 2, sd), sqrt(.Machine$double.eps))
-  pMr <- sweep(pMr, 2, pMrsd, "/")
-
-  pr <- pMr[seq_len(nrow(p)),,drop=FALSE]
-  Mr <- pMr[-seq_len(nrow(p)),,drop=FALSE]
-  L = cbind(1, Mr)
+  L = cbind(1, M)
 
   for(i in seq_len(nrow(p))){
-  q = c(1, pr[i,]) 
+   q = c(1, p[i,]) 
 ############################################
 # USE lp FUNCTION FROM lpSolve PACKAGE:
-  ans <- lp(objective.in = c(-q, q),
-            const.mat = rbind( c(q, -q), cbind(L, -L)),
-            const.dir = "<=",
-            const.rhs = c(1, rep(0, NROW(L))), 
-            ...
-            )
-  if(ans$objval!=0)return(FALSE)  #if the min is not zero, the point p[i,] is not in the CH of the points M
+   ans <- lp(objective.in = c(-q, q),
+             const.mat = rbind( c(q, -q), cbind(L, -L)),
+             const.dir = "<=",
+             const.rhs = c(1, rep(0, NROW(L))), 
+             ...
+             )
+   if(ans$objval!=0){
+    if(verbose) cat(sprintf("is.inCH: iter= %d, outside hull.\n",i))
+    return(FALSE)  #if the min is not zero, the point p[i,] is not in the CH of the points M
+   }
   }
+  if(verbose) cat(sprintf("is.inCH: iter= %d, inside hull.\n",i))
   return(TRUE) # If all points passed the test, return TRUE.
 
 ##############################################
@@ -119,7 +111,3 @@ is.inCH <- function(p, M, ...) { # Pass extra arguments directly to LP solver
 #  else return(FALSE)
 
 }
-
-
-
-

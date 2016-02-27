@@ -229,15 +229,73 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 
 ## This is a variant of Hummel et al. (2013)'s steplength algorithm
 ## also usable for missing data MLE.
-.Hummel.steplength <- function(x1, x2=NULL, margin=0.05, steplength.max=1){
+.Hummel.steplength <- function(x1, x2=NULL, margin=0.05, steplength.max=1, steplength.prev=steplength.max, x2.num.max=100, steplen.maxit=25, verbose=FALSE){
   margin <- 1 + margin
-  x1 <- rbind(x1); m1 <- colMeans(x1); x1 <- unique(x1)
-  if(is.null(x2)) x2 <- rep(0,ncol(x1))
-  x2 <- rbind(x2); x2 <- unique(x2)
+  x1 <- rbind(x1); m1 <- rbind(colMeans(x1)); x1 <- unique(x1)
+  if(is.null(x2)){
+    m2 <- rbind(rep(0,ncol(x1)))
+  }else{                                      
+    x2 <- rbind(x2)
+    m2 <- rbind(colMeans(x2))
+    x2 <- unique(x2)
+  }
 
-  # is.inCH() can handle 1-row M, so this is perfectly fine.
-  zerofn <- function(gamma) if(is.inCH(t(margin*gamma * t(x2)  + (1-margin*gamma)*m1), x1)) (gamma-steplength.max) else Inf
+  ## Use PCA to rotate x1 into something numerically stable and drop
+  ## unused dimensions, then apply the same affine transformation to
+  ## m1 and x2:
+  if(nrow(x1)>1){
+    ## Center:
+    x1m <- colMeans(x1) # note that colMeans(x)!=m1
+    x1c <- sweep(x1, 2, x1m, "-")
+    ## Rotate x1 onto its principal components, dropping linearly dependent dimensions:
+    e <- eigen(crossprod(x1c), symmetric=TRUE)
+    Q <- e$vec[,sqrt(pmax(e$val,0)/max(e$val))>sqrt(.Machine$double.eps)*2,drop=FALSE]
+    x1cr <- x1c%*%Q # Columns of x1cr are guaranteed to be linearly independent.
 
-  # Note that it will not, necessarily, actually find the zero.
-  suppressWarnings(uniroot(zerofn, interval=c(0, steplength.max))$root)
+    ## Scale x1:
+    x1crsd <- pmax(apply(x1cr, 2, sd), sqrt(.Machine$double.eps))
+    x1crs <- sweep(x1cr, 2, x1crsd, "/")
+
+    ## Now, apply these operations to m1 and x2:
+    m1crs <- sweep(sweep(m1, 2, x1m, "-")%*%Q, 2, x1crsd, "/")
+    if(!is.null(x2)) x2crs <- sweep(sweep(x2, 2, x1m, "-")%*%Q, 2, x1crsd, "/")
+    m2crs <- sweep(sweep(m2, 2, x1m, "-")%*%Q, 2, x1crsd, "/")
+  }
+  
+  if(!is.null(x2) && nrow(x2crs) > x2.num.max){
+    ## If constrained sample size > x2.num.max
+    if(verbose){cat("Using fast and approximate Hummel et al search.\n")}
+    d <- rowSums(sweep(x2crs, 2, m1crs)^2)
+    x2crs[order(-d)[1:x2.num.max],,drop=FALSE]
+  }
+
+  ## Here, if x2 is defined, check against every point in it, without
+  ## the margin and against its centroid m2 with the
+  ## margin. Otherwise, just check against m2 with the margin.
+  zerofn <- function(gamma){is.inCH(rbind(if(!is.null(x2)) t(gamma * t(x2crs)  + (1-margin*gamma)*c(m1crs)),
+                                          margin*gamma * m2crs  + (1-margin*gamma)*m1crs),
+                                    x1crs, verbose=verbose)}
+
+  # Modify search to reflect the binary nature of the outcome and the
+  # prior belief about the gamma (centered on prior value with a s.d. of sd.p)
+  sd.p <- 0.3
+  low <- 0
+  g <- high <- steplength.max # We start at the maximum, because we need to first check that we've already arrived.
+  i <- 0
+  while(i < steplen.maxit & abs(high-low)>0.001){
+   z=zerofn(g)
+   if(z){
+    low <- g
+    g <- qnorm( mean(pnorm(c(high,g), mean = steplength.prev, sd = sd.p)), mean = steplength.prev, sd = sd.p)
+   }else{
+    high <- g
+    g <- qnorm( mean(pnorm(c(low, g), mean = steplength.prev, sd = sd.p)), mean = steplength.prev, sd = sd.p)
+   }
+   i <- i+1
+#  out <- c(i,g,low,high,z)
+#  names(out) <- c("iters","est","low","high","z")
+#  print(out)
+   if(verbose) cat(sprintf("iter= %d, est=%f, low=%f, high=%f, test=%d.\n",i,g,low,high,z))
+  }
+  g
 }
