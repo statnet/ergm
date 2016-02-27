@@ -18,12 +18,13 @@ some sample of vectors}
   \code{TRUE} is returned if all rows are in the convex hull.
 }
 \usage{
-is.inCH(p, M, \dots)
+is.inCH(p, M, verbose=FALSE, \dots)
 }
 \arguments{
   \item{p}{A \eqn{d}-dimensional vector or a matrix with \eqn{d} columns}
   \item{M}{An \eqn{r} by \eqn{d} matrix.  Each row of \code{M} is a 
-  \eqn{d}-dimensional vector.}
+    \eqn{d}-dimensional vector.}
+  \item{verbose}{A logical vector indicating whether to print progress}
   \item{\dots}{arguments passed directly to linear program solver}
 }
 \details{
