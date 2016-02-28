@@ -74,33 +74,57 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
                              start=init, maxit=control$MPLE.maxit)
     mplefit.summary <- list(cov.unscaled=mplefit$cov.unscaled)
    }else{
-    mplefit <- suppressWarnings(try(
-          glm(pl$zy ~ .-1 + offset(pl$foffset), data=data.frame(pl$xmat),
-               weights=pl$wend, family=family),
-# Note:  It appears that specifying a starting vector can lead to problems!
-#               start=init[!m$etamap$offsettheta]),
-                    silent = TRUE))
-    if (inherits(mplefit, "try-error")) {
+#     mplefit <- suppressWarnings(try(
+#           glm(pl$zy ~ .-1 + offset(pl$foffset), data=data.frame(pl$xmat),
+#                weights=pl$wend, family=family),
+# # Note:  It appears that specifying a starting vector can lead to problems!
+# #               start=init[!m$etamap$offsettheta]),
+#                     silent = TRUE))
+    glm.result <- .catchToList(glm(pl$zy ~ .-1 + offset(pl$foffset), 
+                                  data=data.frame(pl$xmat),
+                                  weights=pl$wend, family=family))
+    
+    # error handling for glm results
+    if (!is.null(glm.result$error)) {
+      warning(glm.result$error)
       mplefit <- list(coef=pl$theta.offset, deviance=0,
                       cov.unscaled=diag(length(pl$theta.offset)))
       mplefit.summary <- list(cov.unscaled=diag(length(pl$theta.offset)))
-    }else{
+    } else if (!is.null(glm.result$warnings)) {
+      # if the glm results are crazy, redo it with 0 starting values
+      if (max(abs(glm.result$value$coef), na.rm=T) > 1e6) {
+        warning("GLM model may be separable; restarting glm with zeros.\n")
+        mplefit <- glm(pl$zy ~ .-1 + offset(pl$foffset), 
+                       data=data.frame(pl$xmat),
+                       weights=pl$wend, family=family, 
+                       start=rep.int(0, length(init[!m$etamap$offsettheta])))
+        mplefit.summary <- summary(mplefit)
+      } else {
+        # unknown warning, just report it
+        warning(glm.result$warnings)
+        mplefit <- glm.result$value
+        mplefit.summary <- summary(mplefit)
+      }
+    } else {
+      # no errors or warnings
+      mplefit <- glm.result$value
       mplefit.summary <- summary(mplefit)
     }
+    
+
    }
 ##########TODO How to handle offsets???????
-   )
    if(nrow(pl$xmat) > pl$maxMPLEsamplesize){
 #
 #   fix deviance for sampled data
 #
-    mplefit$deviance <- ergm.logisticdeviance(beta=mplefit$coef,
+    mplefit$deviance <- ergm.logisticdeviance(theta=mplefit$coef,
      X=model.matrix(terms(pl$zy.full ~ .-1,data=data.frame(pl$xmat.full)),
                            data=data.frame(pl$xmat.full)),
      y=pl$zy.full, offset=pl$foffset.full)
    }
   }
-  theta <- pl$theta.offset
+  theta <- init
   real.coef <- mplefit$coef
   real.cov <- mplefit.summary$cov.unscaled
   if(ncol(real.cov)==1){real.cov <- as.vector(real.cov)}
@@ -113,16 +137,22 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
 #
   gradient <- rep(NA, length(theta))
 
-  mc.se <- gradient <- rep(NA, length(theta))
+  # FIXME: Actually, if case-control sampling was used, this should be positive.
+  est.cov <- matrix(0, length(theta),length(theta))
+  
   if(length(theta)==1){
    covar <- array(0,dim=c(1,1))
+   hess <- array(0,dim=c(1,1))
   }else{
    covar <- diag(rep(0,length(theta)))
+   hess <- diag(rep(0,length(theta)))
   }
 # covar <- as.matrix(covar[!m$etamap$offsettheta,!m$etamap$offsettheta])
 # covar[!is.na(real.coef),!is.na(real.coef)] <- real.cov
   covar[!is.na(theta)&!m$etamap$offsettheta,
         !is.na(theta)&!m$etamap$offsettheta] <- real.cov
+  hess[!is.na(theta)&!m$etamap$offsettheta,
+        !is.na(theta)&!m$etamap$offsettheta] <- -solve(real.cov)
 #
   iteration <-  mplefit$iter 
 
@@ -130,17 +160,15 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
 #
   if(MPLEtype=="penalized"){
     mplefit.null <- ergm.pen.glm(pl$zy ~ -1 + offset(pl$foffset), weights=pl$wend)
+  }else if(MPLEtype=="logitreg"){
+    mplefit.null <- ergm.logitreg(x=matrix(0,ncol=1,nrow=length(pl$zy)),
+                                  y=pl$zy, offset=pl$foffset, wt=pl$wend)
   }else{
-    if(MPLEtype=="logitreg"){
-      mplefit.null <- ergm.logitreg(x=matrix(0,ncol=1,nrow=length(pl$zy)),
-                                    y=pl$zy, offset=pl$foffset, wt=pl$wend)
-    }else{
-      mplefit.null <- suppressWarnings(try(glm(pl$zy ~ -1 + offset(pl$foffset), family=family, weights=pl$wend),
-                          silent = TRUE))
-      if (inherits(mplefit.null, "try-error")) {
-        mplefit.null <- list(coef=0, deviance=0, null.deviance=0,
-                             cov.unscaled=diag(1))
-      }
+    mplefit.null <- try(glm(pl$zy ~ -1 + offset(pl$foffset), family=family, weights=pl$wend),
+                        silent = TRUE)
+    if (inherits(mplefit.null, "try-error")) {
+      mplefit.null <- list(coef=0, deviance=0, null.deviance=0,
+                           cov.unscaled=diag(1))
     }
   }
 
@@ -148,8 +176,8 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
     glm <- mplefit
     glm.null <- mplefit.null
   }else{
-    glm <- NULL
-    glm.null <- NULL
+    glm <- list(deviance=mplefit$deviance)
+    glm.null <- list(deviance=mplefit.null$deviance)
   }
 
   # Output results as ergm-class object
@@ -157,8 +185,7 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
       iterations=iteration, 
       MCMCtheta=theta, gradient=gradient,
       hessian=NULL, covar=covar, failure=FALSE,
-      mc.se=mc.se, glm = glm, glm.null = glm.null),
+      glm = glm, glm.null = glm.null),
      class="ergm")
 }
-
 

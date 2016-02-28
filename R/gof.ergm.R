@@ -1,3 +1,12 @@
+#  File R/gof.ergm.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2015 Statnet Commons
+#######################################################################
 #=============================================================================
 # This file contains the following 8 functions for assessing goodness of fit
 #         <gof>              <summary.gofobject>
@@ -71,12 +80,12 @@
 #
 ###############################################################################
 
-.gof <- function(object, ...){
+gof <- function(object, ...){
       UseMethod("gof")
     }
 
 
-.gof.default <- function(object,...) {
+gof.default <- function(object,...) {
   classes <- setdiff(gsub(pattern="^gof.",replacement="",as.vector(methods("gof"))), "default")
   stop("Goodness-of-Fit methods have been implemented only for class(es) ",
        paste.and(paste('"',classes,'"',sep="")), " in the packages loaded.")
@@ -750,7 +759,7 @@ plot.gofobject <- function(x, ...,
         out <- x$psim.model
         out.obs <- x$pobs.model
         out.bds <- x$bds.model
-        ylab <- "statistic"
+        ylab <- "simulated quantiles"
     }
     pnames <- names(out.obs)
     ymin <- min(min(out,na.rm=TRUE),min(out.obs,na.rm=TRUE))

@@ -1,3 +1,12 @@
+#  File tests/termTests.bipartite.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2013 Statnet Commons
+#######################################################################
 
 library(ergm)
 
@@ -45,6 +54,24 @@ if (s.0 != 12 || round(e.0$coef + 3.961, 3) != 0 ||
 }
 
 
+#b1degrange, bipartite, undirected
+num.tests=num.tests+1
+s.d <- summary(bipnw~b1degrange(from=c(1,2),to=c(Inf,Inf)))
+e.d <- ergm(bipnw~b1degrange(from=c(1,2),to=c(Inf,Inf)), estimate="MPLE")
+s.dh <- summary(bipnw~b1degrange(from=c(1,2),to=c(Inf,Inf),by="Letter",homophily=TRUE))
+e.dh <- ergm(bipnw~b1degrange(from=c(1,2),to=c(Inf,Inf),by="Letter",homophily=TRUE), estimate="MPLE")
+if (!all(s.d==c(42,12)) ||
+		!all(round(e.d$coef+c(4.027, 3.961),3)==0) ||
+		!all(s.dh==c(19,3)) ||
+		!all(round(e.dh$coef+c(3.891, 3.143 ),3)==0)) {
+	print(list(s.d=s.d, e.d=e.d, s.dh=s.dh, e.db=e.db))
+	stop("Failed b1degree term test")
+} else {
+	num.passed.tests=num.passed.tests+1
+	print("Passed b1degree term test")
+}
+
+
 #b1degree, bipartite, undirected
 num.tests=num.tests+1
 s.d <- summary(bipnw~b1degree(1:3))
@@ -65,6 +92,7 @@ if (!all(s.d==c(30,8,2)) ||
 
 
 
+
 #b1factor, bipartite, undirected
 num.tests=num.tests+1
 s.a <- summary(bipnw~b1factor("Letter"))
@@ -80,6 +108,22 @@ if (!all(s.a==c(21,19)) ||
 } else {
   num.passed.tests=num.passed.tests+1
   print("Passed b1factor term test")
+}
+
+
+
+
+#b1mindegree, bipartite, undirected
+num.tests=num.tests+1
+s.d <- summary(bipnw~b1mindegree(1:3))
+e.d <- ergm(bipnw~b1mindegree(1:3), estimate="MPLE")
+if (!all(s.d==c(42,12,4)) ||
+		!all(round(e.d$coef+c(4.027, 3.961, 3.584),3)==0)) {
+	print(list(s.d=s.d, e.d=e.d))
+	stop("Failed b1mindegree term test")
+} else {
+	num.passed.tests=num.passed.tests+1
+	print("Passed b1mindegree term test")
 }
 
 
@@ -176,6 +220,24 @@ if (s.0 != 20 || round(e.0$coef + 3.497, 3) != 0 ||
 }
 
 
+
+#b2degrange, bipartite, undirected
+num.tests=num.tests+1
+s.d <- summary(bipnw~b2degrange(from=c(1,2),to=c(Inf,Inf)))
+e.d <- ergm(bipnw~b2degrange(from=c(1,2),to=c(Inf,Inf)), estimate="MPLE")
+s.dh <- summary(bipnw~b2degrange(from=c(1,2),to=c(Inf,Inf),by="Letter",homophily=TRUE))
+e.dh <- ergm(bipnw~b2degrange(from=c(1,2),to=c(Inf,Inf),by="Letter",homophily=TRUE), estimate="MPLE")
+if (!all(s.d==c(26,20)) ||
+		!all(round(e.d$coef+c(3.912,3.497),3)==0) ||
+		!all(s.dh==c(19,3)) ||
+		!all(round(e.dh$coef+c(3.03, 4.46 ),3)==0)) {
+	print(list(s.d=s.d, e.d=e.d, s.dh=s.dh, e.db=e.db))
+	stop("Failed b2degree term test")
+} else {
+	num.passed.tests=num.passed.tests+1
+	print("Passed b2degree term test")
+}
+
 #b2degree, bipartite, undirected
 num.tests=num.tests+1
 s.d <- summary(bipnw~b2degree(1:3))
@@ -194,6 +256,18 @@ if (!all(s.d==c(6,9,8)) ||
 }
 
 
+#b2mindegree, bipartite, undirected
+num.tests=num.tests+1
+s.d <- summary(bipnw~b2mindegree(1:3))
+e.d <- ergm(bipnw~b2mindegree(1:3), estimate="MPLE")
+if (!all(s.d==c(26,20,11)) ||
+		!all(round(e.d$coef+c(3.912,3.497,3.604  ),3)==0)) {
+	print(list(s.d=s.d, e.d=e.d))
+	stop("Failed b2mindegree term test")
+} else {
+	num.passed.tests=num.passed.tests+1
+	print("Passed b2mindegree term test")
+}
 
 
 #b2factor, bipartite, undirected
@@ -289,14 +363,29 @@ if (!all(s.a==c(6,3,16,16,8,6)) ||
 }
 
 
+
+
+
+#coincidence, bipartite, undirected, no test on fitting due to the number of coef is large
+num.tests=num.tests+1
+s.c <- table(summary(bipnw~coincidence,active=0))
+#e.c <- table(round(ergm(bipnw~coincidence, estimate="MPLE")$coef,0))
+if (!all(s.c==c(381,24,1))) {
+	print(list(s.c=s.c, e.c=e.c))
+	stop("Failed coincidence term test")
+} else {
+	num.passed.tests=num.passed.tests+1
+	print("Passed coincidence term test")
+}
+
 # gwb1degree, bipartite
 num.tests=num.tests+1
 s.d <- summary(bipnw~gwb1degree(.3))
-e.d <- ergm(bipnw~gwb1degree(.4), estimate="MPLE")
+e.d <- ergm(bipnw~gwb1degree(.4, fixed=TRUE), estimate="MPLE")
 s.df <- summary(bipnw~gwb1degree(.3, fixed=TRUE))
 e.df <- ergm(bipnw~gwb1degree(.2, fixed=TRUE), estimate="MPLE")
 s.da <- summary(bipnw~gwb1degree(.1, attrname="Letter"))
-e.da <- ergm(bipnw~gwb1degree(.1, attrname="Letter"), estimate="MPLE")
+e.da <- ergm(bipnw~gwb1degree(.1, attrname="Letter", fixed=TRUE), estimate="MPLE")
 s.dfa <- summary(bipnw~gwb1degree(.1, TRUE, "Letter"))
 e.dfa <- ergm(bipnw~gwb1degree(.1, TRUE, "Letter"), estimate="MPLE")
 if (round(e.d$coef + 6.979, 3) != 0 ||
@@ -316,11 +405,11 @@ if (round(e.d$coef + 6.979, 3) != 0 ||
 # gwb2degree, bipartite
 num.tests=num.tests+1
 s.d <- summary(bipnw~gwb2degree(.3))
-e.d <- ergm(bipnw~gwb2degree(.4), estimate="MPLE")
+e.d <- ergm(bipnw~gwb2degree(.4, fixed=TRUE), estimate="MPLE")
 s.df <- summary(bipnw~gwb2degree(.3, fixed=TRUE))
 e.df <- ergm(bipnw~gwb2degree(.2, fixed=TRUE), estimate="MPLE")
 s.da <- summary(bipnw~gwb2degree(.1, attrname="Letter"))
-e.da <- ergm(bipnw~gwb2degree(.1, attrname="Letter"), estimate="MPLE")
+e.da <- ergm(bipnw~gwb2degree(.1, attrname="Letter", fixed=TRUE), estimate="MPLE")
 s.dfa <- summary(bipnw~gwb2degree(.1, TRUE, "Letter"))
 e.dfa <- ergm(bipnw~gwb2degree(.1, TRUE, "Letter"), estimate="MPLE")
 if (round(e.d$coef + 25.99385, 3) != 0 ||

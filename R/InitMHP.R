@@ -1,10 +1,19 @@
+#  File R/InitMHP.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2015 Statnet Commons
+#######################################################################
 #===========================================================================
 # The <InitMHP> file contains the following 24 functions for
 # initializing the MHproposal object; each is prepended with 'InitMHP.'
 #       <randomtoggle>      <CondOutDegreeDist> 
 #       <TNT>               <ConstantEdges>    
-#       <TNT10>             <CondInDegree>      
-#       <CondDegree>        <CondOutDegree>     <HammingTNT>   
+#       <CondInDegree>      <CondDegree>
+#       <CondOutDegree>     <HammingTNT>   
 #       <CondDegreeTetrad>         <HammingConstantEdges>
 #       <CondDegreeHexad>            <randomtoggleNonObserved>
 #       <CondDegreeDist>          <nobetweengroupties>
@@ -39,11 +48,6 @@ InitMHP.randomtoggle <- function(arguments, nw) {
 
 InitMHP.TNT <- function(arguments, nw) {
   MHproposal <- list(name = "TNT", inputs=NULL)
-  MHproposal
-}
-
-InitMHP.TNT10 <- function(arguments, nw) {
-  MHproposal <- list(name = "TNT10", inputs=NULL)
   MHproposal
 }
 
@@ -156,4 +160,53 @@ InitMHP.randomtoggleNonObserved <- function(arguments, nw) {
   MHproposal <- list(name = "randomtoggleList", inputs=ergm.Cprepare.miss(nw))
   MHproposal
 }
+
+InitMHP.NonObservedTNT <- function(arguments, nw) {
+  if(network.naedgecount(nw)==0){
+   stop("The passed network does not have any non-observed dyads.\n Hence constraining to the observed will hold the network fixed at this network.\n Either the network or the constraint need to be altered.")
+  }
+  MHproposal <- list(name = "listTNT", inputs=ergm.Cprepare.miss(nw))
+  MHproposal
+}
+
+
+InitMHP.fixedas <- function(arguments, nw){
+	y0<-arguments$constraints$fixedas$free.dyads()
+	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
+	MHproposal <- list(name = "randomtoggleList", inputs=c(ergm.Cprepare.el(y0)), pkgname="ergm")
+	
+	MHproposal
+	
+}
+
+InitMHP.fixedasTNT <- function(arguments, nw){
+	y0<-arguments$constraints$fixedas$free.dyads()
+	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
+	MHproposal <- list(name = "listTNT", inputs=c(ergm.Cprepare.el(y0)), pkgname="ergm")
+	
+	MHproposal
+	
+}
+
+InitMHP.fixallbut <- function(arguments, nw){
+	y0<-arguments$constraints$fixallbut$free.dyads()
+	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
+	MHproposal <- list(name = "randomtoggleList", inputs=c(ergm.Cprepare.el(y0)), pkgname="ergm")
+	
+	MHproposal
+	
+}
+
+
+InitMHP.fixallbutTNT <- function(arguments, nw){
+	y0<-arguments$constraints$fixallbut$free.dyads()
+	## Given the list of toggleable dyads, no formation-specific proposal function is needed:
+	MHproposal <- list(name = "listTNT", inputs=c(ergm.Cprepare.el(y0)), pkgname="ergm")
+	
+	MHproposal
+	
+}
+
+
+
 

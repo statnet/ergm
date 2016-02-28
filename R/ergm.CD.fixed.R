@@ -54,41 +54,61 @@ ergm.CD.fixed <- function(init, nw, model,
                              verbose=FALSE,
                              estimate=TRUE,
                              response=NULL, ...) {
+  cat("Starting contrastive divergence estimation via CD-MCMLE:\n",sep="")
   # Initialize the history of parameters and statistics.
   coef.hist <- rbind(init)
   stats.hist <- matrix(NA, 0, length(model$nw.stats))
   stats.obs.hist <- matrix(NA, 0, length(model$nw.stats))
   steplen.hist <- c()
-  
+
+  nthreads <- max(
+    if(inherits(control$parallel,"cluster")) nrow(summary(control$parallel))
+    else control$parallel,
+    1)
+
   # Store information about original network, which will be returned at end
   nw.orig <- network.copy(nw)
 
   # Impute missing dyads.
   nw <- single.impute.dyads(nw, response=response)
   model$nw.stats <- summary(model$formula, response=response, basis=nw)
-  
+
+  nws <- rep(list(nw),nthreads) # nws is now a list of networks.
+
   # statshift is the difference between the target.stats (if
   # specified) and the statistics of the networks in the LHS of the
   # formula or produced by SAN. If target.stats is not speficied
-  # explicitly, they are computed from this network, so statshift==0.
+  # explicitly, they are computed from this network, so
+  # statshift==0. To make target.stats play nicely with offsets, we
+  # set statshifts to 0 where target.stats is NA (due to offset).
   statshift <- model$nw.stats - model$target.stats
-
+  statshift[is.na(statshift)] <- 0
+  statshifts <- rep(list(statshift), nthreads) # Each network needs its own statshift.
+  
   # Is there observational structure?
   obs <- ! is.null(MHproposal.obs)
+  if(obs){
+    control$CD.nsteps<-control$CD.nsteps.obs
+    control$CD.multiplicity<-control$CD.multiplicity.obs
+  }
   
-  # Initialize control.obs in case there is observation structure
+  # Initialize control.obs and other *.obs if there is observation structure
   
   if(obs){
     control.obs <- control
     control.obs$MCMC.samplesize <- control$obs.MCMC.samplesize
     control.obs$MCMC.interval <- control$obs.MCMC.interval
     control.obs$MCMC.burnin <- control$obs.MCMC.burnin
+    control.obs$MCMC.burnin.min <- control$obs.MCMC.burnin.min
+
+    nws.obs <- lapply(nws, network.copy)
+    statshifts.obs <- statshifts
   }
-  finished <- FALSE
   # mcmc.init will change at each iteration.  It is the value that is used
   # to generate the MCMC samples.  init will never change.
   mcmc.init <- init
-  parametervalues <- init # Keep track of all parameter values
+  finished <- FALSE
+
   for(iteration in 1:control$CD.maxit){
     if(iteration == control$CD.maxit) finished <- TRUE
     if(verbose){
@@ -101,7 +121,7 @@ ergm.CD.fixed <- function(init, nw, model,
 
     # Obtain MCMC sample
     mcmc.eta0 <- ergm.eta(mcmc.init, model$etamap)
-    z <- ergm.getCDsample(nw, model, MHproposal, mcmc.eta0, control, verbose, response=response)
+    z <- ergm.getCDsample(nws, model, MHproposal, mcmc.eta0, control, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
 
     # post-processing of sample statistics:  Shift each row by the
     # vector model$nw.stats - model$target.stats, store returned nw
@@ -109,38 +129,42 @@ ergm.CD.fixed <- function(init, nw, model,
     # observed statistics or, if given, the alternative target.stats
     # (i.e., the estimation goal is to use the statsmatrix to find 
     # parameters that will give a mean vector of zero)
-    statsmatrix <- sweep(z$statsmatrix, 2, statshift, "+")
-    colnames(statsmatrix) <- model$coef.names
+    statsmatrices <- mapply(sweep, z$statsmatrices, statshifts, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE)
+    for(i in seq_along(statsmatrices)) colnames(statsmatrices[[i]]) <- model$coef.names
+    statsmatrix <- do.call(rbind,statsmatrices)
     
     if(verbose){
-      cat("Back from unconstrained MCMC. Average statistics:\n")
+      cat("Back from unconstrained CD. Average statistics:\n")
       print(apply(statsmatrix, 2, mean))
     }
     
     ##  Does the same, if observation process:
     if(obs){
-      z.obs <- ergm.getCDsample(nw, model, MHproposal.obs, mcmc.eta0, control.obs, verbose, response=response)
+      z.obs <- ergm.getCDsample(nws.obs, model, MHproposal.obs, mcmc.eta0, control.obs, verbose, response=response, theta=mcmc.init, etamap=model$etamap)
 
-      statsmatrix.obs <- sweep(z.obs$statsmatrix, 2, statshift, "+")
-      colnames(statsmatrix.obs) <- model$coef.names
+      statsmatrices.obs <- mapply(sweep, z.obs$statsmatrices, statshifts.obs, MoreArgs=list(MARGIN=2, FUN="+"), SIMPLIFY=FALSE)
+      for(i in seq_along(statsmatrices.obs)) colnames(statsmatrices.obs[[i]]) <- model$coef.names
+      statsmatrix.obs <- do.call(rbind,statsmatrices.obs)
       
       if(verbose){
         cat("Back from constrained MCMC. Average statistics:\n")
         print(apply(statsmatrix.obs, 2, mean))
       }
     }else{
-      statsmatrix.obs <- NULL
+      statsmatrices.obs <- statsmatrix.obs <- NULL
+      z.obs <- NULL
     }
 
-    # Compute the sample estimating equations and the convergence p-value.
+    # Compute the sample estimating equations and the convergence p-value. 
     esteq <- .ergm.esteq(mcmc.init, model, statsmatrix)
+    if(isTRUE(all.equal(apply(esteq,2,sd), rep(0,ncol(esteq)), check.names=FALSE))&&!all(esteq==0))
+      stop("Unconstrained CD sampling did not mix at all. Optimization cannot continue.")
     esteq.obs <- if(obs) .ergm.esteq(mcmc.init, model, statsmatrix.obs) else NULL   
-    conv.pval <- approx.hotelling.diff.test(esteq, esteq.obs, assume.indep=TRUE)$p.value
+    conv.pval <- suppressWarnings(approx.hotelling.diff.test(esteq, esteq.obs, assume.indep=TRUE)$p.value)
                                             
     # We can either pretty-print the p-value here, or we can print the
     # full thing. What the latter gives us is a nice "progress report"
     # on whether the estimation is getting better..
-
     if(verbose){
       cat("Average estimating equation values:\n")
       print(if(obs) colMeans(esteq.obs)-colMeans(esteq) else colMeans(esteq))
@@ -150,7 +174,7 @@ ergm.CD.fixed <- function(init, nw, model,
       cat("Convergence detected. Stopping.\n")
       finished <- TRUE
     }
-    
+
     if(!estimate){
       if(verbose){cat("Skipping optimization routines...\n")}
       l <- list(coef=mcmc.init, mc.se=rep(NA,length=length(mcmc.init)),
@@ -174,7 +198,7 @@ ergm.CD.fixed <- function(init, nw, model,
       while(v$loglikelihood > control$CD.adaptive.trustregion){
         adaptive.steplength <- adaptive.steplength / 2
         if(!is.null(statsmatrix.0.obs)){
-          statsmatrix.obs <- sweep(statsmatrix.0.obs,2,(colMeans(statsmatrix.0.obs)-statsmean)*(1-adaptive.steplength))
+          statsmatrix.obs <- t(adaptive.steplength*t(statsmatrix.0.obs) + (1-adaptive.steplength)*statsmean) # I.e., shrink each point of statsmatrix.obs towards the centroid of statsmatrix.
         }else{
           statsmatrix <- sweep(statsmatrix.0,2,(1-adaptive.steplength)*statsmean,"-")
         }
@@ -189,7 +213,7 @@ ergm.CD.fixed <- function(init, nw, model,
                          epsilon=control$epsilon,
                          nr.maxit=control$CD.NR.maxit,
                          nr.reltol=control$CD.NR.reltol,
-                         calc.mcmc.se=control$MCMC.addto.se, hessianflag=control$main.hessian,
+                         calc.mcmc.se=FALSE, hessianflag=control$main.hessian,
                          trustregion=control$CD.trustregion, method=control$CD.method,
                          metric=control$CD.metric,
                          dampening=control$CD.dampening,
@@ -209,11 +233,18 @@ ergm.CD.fixed <- function(init, nw, model,
       }
       steplen.hist <- c(steplen.hist, adaptive.steplength)
     }else{
-      steplen <- if(!is.null(control$CD.steplength.margin)) .Hummel.steplength(statsmatrix.0, statsmatrix.0.obs, control$CD.steplength.margin, control$CD.steplength) else control$CD.steplength
+      steplen <-
+        if(!is.null(control$CD.steplength.margin))
+          .Hummel.steplength(
+            if(control$MCMLE.Hummel.esteq) esteq else statsmatrix.0[,!model$etamap$offsetmap,drop=FALSE], 
+            if(control$MCMLE.Hummel.esteq) esteq.obs else statsmatrix.0.obs[,!model$etamap$offsetmap,drop=FALSE],
+            control$CD.steplength.margin, control$CD.steplength)
+        else control$CD.steplength
+      
       if(verbose){cat("Calling MCMLE Optimization...\n")}
-      statsmean <- apply(statsmatrix.0,2,mean)
+      statsmean <- apply(statsmatrix.0,2,base::mean)
       if(!is.null(statsmatrix.0.obs)){
-        statsmatrix.obs <- sweep(statsmatrix.0.obs,2,(colMeans(statsmatrix.0.obs)-statsmean)*(1-steplen))
+        statsmatrix.obs <- t(steplen*t(statsmatrix.0.obs) + (1-steplen)*statsmean) # I.e., shrink each point of statsmatrix.obs towards the centroid of statsmatrix.
       }else{
         statsmatrix <- sweep(statsmatrix.0,2,(1-steplen)*statsmean,"-")
       }
@@ -227,7 +258,7 @@ ergm.CD.fixed <- function(init, nw, model,
                        epsilon=control$epsilon,
                        nr.maxit=control$CD.NR.maxit,
                        nr.reltol=control$CD.NR.reltol,
-                       calc.mcmc.se=control$MCMC.addto.se, 
+                       calc.mcmc.se=FALSE, 
                        hessianflag=control$main.hessian,
                        trustregion=control$CD.trustregion, 
                        method=control$CD.method,
@@ -250,9 +281,8 @@ ergm.CD.fixed <- function(init, nw, model,
           
     mcmc.init <- v$coef
     coef.hist <- rbind(coef.hist, mcmc.init)
-    stats.obs.hist <- if(!is.null(statsmatrix.obs)) rbind(stats.obs.hist, apply(statsmatrix.obs, 2, mean)) else NULL
+    stats.obs.hist <- if(!is.null(statsmatrix.obs)) rbind(stats.obs.hist, apply(statsmatrix.obs[], 2, mean)) else NULL
     stats.hist <- rbind(stats.hist, apply(statsmatrix, 2, mean))
-    parametervalues <- rbind(parametervalues, mcmc.init)
     if(finished) break # This allows premature termination.
   } # end of main loop
 
@@ -266,16 +296,18 @@ ergm.CD.fixed <- function(init, nw, model,
   v$network <- nw.orig
   v$newnetwork <- nw
   v$coef.init <- init
-  
+  #v$initialfit <- initialfit
+  v$est.cov <- v$mc.cov
+  v$mc.cov <- NULL
+
   v$coef.hist <- coef.hist
   v$stats.hist <- stats.hist
   v$stats.obs.hist <- stats.obs.hist
   v$steplen.hist <- steplen.hist
-  # The following output is sometimes helpful.  It's the total history
-  # of all eta values, from the initial eta0 to the final estimate
-  # v$allparamvals <- parametervalues
-
-
+  
+  v$iterations <- iteration
+  v$control <- control
+  
   v$etamap <- model$etamap
   v
 }

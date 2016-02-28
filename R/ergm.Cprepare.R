@@ -1,3 +1,12 @@
+#  File R/ergm.Cprepare.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2015 Statnet Commons
+#######################################################################
 ##########################################################################
 # The <ergm.Cprepare> function builds an object called Clist that contains
 # all the necessary ingredients to be passed to the C functions
@@ -111,14 +120,13 @@ ergm.Cprepare <- function(nw, m, response=NULL)
 ## Construct and serialize a very simple static edgelist, with the
 ## vertex having the lesser index the tail and sorted by tails, then
 ## by heads.
-ergm.Cprepare.el<-function(x, attrname=NULL, directed=if(is.network(x)) is.directed(x) else stop("Directedness argument is mandatory for edgelist input.")){
-  xm <- if(is.network(x)) as.edgelist(x, attrname=attrname) else x
-  
-  if(nrow(xm)){
-    # Sort.
-    xm <- xm[order(xm[,1],xm[,2]),,drop=FALSE]
-  }
-
+ergm.Cprepare.el<-function(x, attrname=NULL, prototype=NULL){
+  xm <- if(is.network(x)) as.edgelist(x, attrname=attrname)
+        else if(!is.null(prototype)) as.edgelist.matrix(x, n=network.size(prototype), directed=is.directed(prototype),
+                                                        bipartite=if(is.bipartite(prototype)) prototype%n%"bipartite" else 0,
+                                                        loops=has.loops(prototype))
+        else x[order(x[,1],x[,2]),,drop=FALSE]
+                                                        
   c(nrow(xm),c(xm))
 }
 
@@ -139,7 +147,7 @@ mk.edge.to.pos.lasttoggle.f <- function(nw){
 ergm.el.lasttoggle <- function(nw){
   edge.to.pos <- mk.edge.to.pos.lasttoggle.f(nw)
   el <- as.edgelist(nw)
-  cbind(el,(nw %n% "lasttoggle")[apply(el,1,edge.to.pos)])
+  cbind(el,NVL((nw %n% "lasttoggle"),0)[apply(el,1,edge.to.pos)]) # change to 0 if null
 }
 
 to.matrix.lasttoggle <- function(nw){

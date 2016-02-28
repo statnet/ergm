@@ -1,3 +1,12 @@
+#  File R/ergm.san.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2015 Statnet Commons
+#######################################################################
 #=========================================================================
 # This file contains 4 functions for created "SAN-ed" networks & formulas
 #           <san>              <san.formula>
@@ -120,7 +129,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
   
   if(MHproposal$name %in% c("CondDegree","CondDegreeMix")){ 
    formula.conddegmple <- ergm.update.formula(formula, . ~ conddegmple + .)
-   m.conddeg <- ergm.getmodel(formula.conddegmple, nw, initialfit=TRUE)
+   m.conddeg <- ergm.getmodel(formula.conddegmple, nw)
    Clist.conddegmple <- ergm.Cprepare(nw, m.conddeg)
    Clist.conddegmple$target.stats=c(1,target.stats)
    conddeg <- list(m=m.conddeg, Clist=Clist.conddegmple, Clist.miss=ergm.Cprepare(nw, m.conddeg))
@@ -144,12 +153,15 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
 
     if(is.null(control$coef)) {
       if(reference==~Bernoulli){
-        fit <- try(ergm.mple(Clist=Clist, Clist.miss=Clist.miss, 
-                         conddeg=conddeg,
-                         control=control, MHproposal=MHproposal,
-                         m=model, verbose=verbose, ...))
-        control$coef <- if(inherits(fit, "try-error")) rep(0,length(model$coef.names)) else fit$coef
-        if(is.null(control$invcov)) { control$invcov <- fit$covar }
+        fit <- try(ergm(formula=object, response=response, reference=reference,
+                        constraints=constraints,eval.loglik=FALSE,estimate="MPLE",control=control.ergm(drop=FALSE)),silent=TRUE)
+        if(inherits(fit, "try-error")){
+          control$coef <- rep(0,length(model$coef.names)) 
+          if(is.null(control$invcov)) control$invcov <- diag(length(control$coef))
+        }else{
+          control$coef <- coef(fit)
+          if(is.null(control$invcov)) control$invcov <- vcov(fit, sources="model")
+        }
       }else{
         control$coef<-rep(0,length(model$coef.names))
         if(is.null(control$invcov)) control$invcov <- diag(length(control$coef))
@@ -157,7 +169,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
     }else{
       if(is.null(control$invcov)) { control$invcov <- diag(length(control$coef)) }
     }
-    eta0 <- ergm.eta(control$coef, model$etamap)
+    eta0 <- ifelse(is.na(control$coef), 0, control$coef)
     
     netsumm<-summary(model$formula,response=response)
     target.stats <- vector.namesmatch(target.stats, names(netsumm))
@@ -168,7 +180,6 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
 #
 #   Check for truncation of the returned edge list
 #
-    eta0[is.na(eta0)]<-0
     repeat{
       nedges <- c(Clist$nedges,0)
       tails <- Clist$tails

@@ -1,3 +1,12 @@
+%  File man/control.san.Rd in package ergm, part of the Statnet suite
+%  of packages for network analysis, http://statnet.org .
+%
+%  This software is distributed under the GPL-3 license.  It is free,
+%  open source, and has the attribution requirements (GPL Section 7) at
+%  http://statnet.org/attribution
+%
+%  Copyright 2003-2015 Statnet Commons
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{control.san}
 \alias{control.san}
 \title{ Auxiliary for Controlling SAN }
@@ -17,7 +26,10 @@ control.san(coef=NULL,
             SAN.prop.weights="default",
             SAN.prop.args=list(),
             SAN.packagenames=c(),
+            
+            MPLE.max.dyad.types=1e6,
             MPLE.samplesize = 50000,
+            
             network.output="network",
 
             seed=NULL,
@@ -66,6 +78,12 @@ control.san(coef=NULL,
     functions in addition to those autodetected. This argument should not be
     needed outside of very strange setups.
   }
+  \item{MPLE.max.dyad.types}{Maximum number of unique values of 
+    change statistic vectors, which are the predictors in a logistic
+    regression used to calculate the MPLE.  This calculation uses 
+    a compression algorithm that allocates space based on 
+    \code{MPLE.max.dyad.types}
+  }  
   \item{MPLE.samplesize}{Not currently documented; used in 
     conditional-on-degree version of MPLE.
   }
@@ -83,8 +101,8 @@ control.san(coef=NULL,
   }
   \item{parallel.type}{API to use for parallel
     processing. Supported values are \code{"MPI"} and
-    \code{"SOCK"}. Defaults to using the \code{snow} package
-    default.
+    \code{"PSOCK"}. Defaults to using the \code{parallel} package with PSOCK clusters. See
+    \code{\link{ergm-parallel}}
   }
   \item{parallel.version.check}{Logical:  If TRUE, check that the version of
     \code{\link[=ergm-package]{ergm}} running on the slave nodes is the

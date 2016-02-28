@@ -1,3 +1,12 @@
+#  File R/ergm.estimate.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2015 Statnet Commons
+#######################################################################
 ##################################################################################
 # The <ergm.estimate> function searches for and returns a maximizer of the
 # log-likelihood function. This function is observation-process capable.
@@ -192,10 +201,10 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
   # First: If we're using the lognormal approximation, the maximizer is
   # closed-form.  We can't use the closed-form maximizer if we are
   # dealing with a curved exponential family.
-  if (all(model$etamap$canonical==1) && 
+  if (all(model$etamap$canonical!=0) && 
       (metric=="lognormal" || metric=="Likelihood")) {
     if (obsprocess) {
-      if (verbose) { cat("Using log-normal approx with obsing (no optim)\n") }
+      if (verbose) { cat("Using log-normal approx with missing (no optim)\n") }
       Lout <- list(hessian = -(V-V.obs))
     } else {
       if (verbose) { cat("Using log-normal approx (no optim)\n") }
@@ -209,7 +218,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     # or more statistics.
     if(inherits(Lout$par,"try-error")){
       Lout$par <- try(eta0[!model$etamap$offsetmap] 
-                      - robust.inverse(Lout$hessian) %*% 
+                      - ginv(Lout$hessian) %*% 
                       xobs[!model$etamap$offsetmap],
                       silent=TRUE)
     }
@@ -278,7 +287,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                         hessian=hessianflag,
                         method="Nelder-Mead",
                         control=list(trace=trace,fnscale=-1,maxit=100*nr.maxit,
-                                     reltol=0.01),
+                                     reltol=nr.reltol),
                         xobs=xobs, 
                         xsim=xsim, probs=probs, 
                         xsim.obs=xsim.obs, probs.obs=probs.obs,
@@ -318,9 +327,10 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     #  and hence the MCMC s.e.
     #
     mc.se <- rep(NA, length=length(theta))
+    mc.cov <- matrix(NA, length(theta), length(theta))
     covar <- NA
     if(!hessianflag){
-      #  covar <- robust.inverse(cov(xsim))
+      #  covar <- ginv(cov(xsim))
       #  Lout$hessian <- cov(xsim)
       Lout$hessian <- Hessianfn(theta=Lout$par, xobs=xobs, xsim=xsim,
                                 probs=probs, 
@@ -331,7 +341,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     }
     
     covar <- matrix(NA, ncol=length(theta), nrow=length(theta))
-    covar[!model$etamap$offsettheta,!model$etamap$offsettheta ] <- robust.inverse(-Lout$hessian)
+    covar[!model$etamap$offsettheta,!model$etamap$offsettheta ] <- ginv(-Lout$hessian)
     dimnames(covar) <- list(names(theta),names(theta))
     He <- matrix(NA, ncol=length(theta), nrow=length(theta))
     He[!model$etamap$offsettheta,!model$etamap$offsettheta ] <- Lout$hessian
@@ -340,24 +350,19 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
     
     if(calc.mcmc.se){
       if (verbose) { cat("Starting MCMC s.e. computation.\n") }
-      if ((metric=="lognormal" || metric=="Likelihood")
-          && length(model$etamap$curved)==0) {
-        mc.se <- ergm.MCMCse.lognormal(theta=theta, init=init, 
-                                       statsmatrix=statsmatrix0, 
-                                       statsmatrix.obs=statsmatrix.obs,
-                                       H=V, H.obs=V.obs,
-                                       model=model)
-      } else {
-        MCMCse <- ergm.MCMCse(theta=theta,init=init, 
-                             statsmatrix=statsmatrix0,
-                             statsmatrix.obs=statsmatrix.obs,
-                             model=model)
-        mc.se <- MCMCse$mc.se
-#       The next line forces the s.e. in summary.ergm to combine
-#       the hessian of the likelihood plus the MCMC s.e.
-#       covar <- MCMCse$mc.cov+covar
-#       If the above line is commented out only the hessian of the likelihood 
-#       is used.
+      mc.cov <-
+        if ((metric=="lognormal" || metric=="Likelihood")
+            && length(model$etamap$curved)==0) {
+          ergm.MCMCse.lognormal(theta=theta, init=init, 
+                                statsmatrix=statsmatrix0, 
+                                statsmatrix.obs=statsmatrix.obs,
+                                H=V, H.obs=V.obs,
+                                model=model)
+        } else {
+        ergm.MCMCse(theta=theta,init=init, 
+                    statsmatrix=statsmatrix0,
+                    statsmatrix.obs=statsmatrix.obs,
+                    model=model)
       }
     }
     c0  <- loglikelihoodfn(theta=Lout$par, xobs=xobs,
@@ -403,7 +408,7 @@ ergm.estimate<-function(init, model, statsmatrix, statsmatrix.obs=NULL,
                           MCMCtheta=init, 
                           loglikelihood=loglikelihood, gradient=gradient, hessian=Lout$hessian,
                           covar=covar, failure=FALSE,
-                          mc.se=mc.se#, #acf=mcmcacf,
+                          mc.cov=mc.cov #, #acf=mcmcacf,
                           #fullsample=statsmatrix.all
                           ),
                         class="ergm"))

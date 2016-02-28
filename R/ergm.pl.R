@@ -1,3 +1,12 @@
+#  File R/ergm.pl.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2015 Statnet Commons
+#######################################################################
 ###############################################################################
 # The <ergm.pl> function prepares many of the components needed by <ergm.mple>
 # for the regression rountines that are used to find the MPLE estimated ergm;
@@ -61,6 +70,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
   maxNumDyadTypes <- min(control$MPLE.max.dyad.types,
                          ifelse(bip>0, bip*(n-bip), 
                                 ifelse(Clist$dir, n*(n-1), n*(n-1)/2)))
+                        
   # May have to think harder about what maxNumDyadTypes should be if we 
   # implement a hash-table approach to compression.
   if(is.null(conddeg)){
@@ -86,7 +96,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     cat(paste("MPLE covariate matrix has", sum(uvals), "rows.\n"))
   }
   zy <- z$y[uvals]
-  wend <- z$weightsvector[uvals]
+  wend <- as.numeric(z$weightsvector[uvals])
   xmat <- matrix(z$x, ncol=Clist$nstats, byrow=TRUE)[uvals,,drop=FALSE]
   colnames(xmat) <- m$coef.names
   rm(z,uvals)
@@ -122,7 +132,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
             PACKAGE="ergm")
     uvals <- z$weightsvector!=0
     zy.e <- z$y[uvals]
-    wend.e <- z$weightsvector[uvals]
+    wend.e <- as.numeric(z$weightsvector[uvals])
     xmat.e <- matrix(z$x, ncol=Clist$nstats, byrow=TRUE)[uvals,,drop=FALSE]
     colnames(xmat.e) <- m$coef.names
     rm(z,uvals)
@@ -235,12 +245,15 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
   #
   # Adjust for the offset
   #
+
   if(any(m$etamap$offsettheta) && !ignore.offset){
     if(any(is.na(theta.offset[m$etamap$offsettheta]))){
       stop("Offset terms without offset coefficients specified!")
     }
-    foffset <- xmat[,m$etamap$offsetmap,drop=FALSE] %*% cbind(ergm.eta(theta.offset,m$etamap)[m$etamap$offsetmap]) # Compute the offset's effect.
-    foffset[is.nan(foffset)] <- 0 # 0*Inf==0 in this case.
+    # Compute the offset's effect.
+    foffset <- .multiply.with.inf(xmat[,m$etamap$offsetmap,drop=FALSE], 
+                                  cbind(ergm.eta(theta.offset,m$etamap)[m$etamap$offsetmap]))
+    
     # Remove offset covariate columns.
     xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE] 
     colnames(xmat) <- m$coef.names[!m$etamap$offsettheta]
@@ -252,13 +265,6 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     foffset <- foffset[is.finite(foffset)]
   }else{
     foffset <- rep(0, length=length(zy))
-    theta.offset <- rep(0, length(m$etamap$offsettheta))
-    if(Clist$nedges>0){
-      theta.offset[1] <- log(Clist$nedges/(Clist$ndyads-Clist$nedges))
-    }else{
-      theta.offset[1] <- log(1/(Clist$ndyads-1))
-    }
-    names(theta.offset) <- .coef.names.model(m, FALSE)
   }
   
 #

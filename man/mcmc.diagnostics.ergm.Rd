@@ -1,17 +1,31 @@
+%  File man/mcmc.diagnostics.ergm.Rd in package ergm, part of the Statnet suite
+%  of packages for network analysis, http://statnet.org .
+%
+%  This software is distributed under the GPL-3 license.  It is free,
+%  open source, and has the attribution requirements (GPL Section 7) at
+%  http://statnet.org/attribution
+%
+%  Copyright 2003-2015 Statnet Commons
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{mcmc.diagnostics}
 \alias{mcmc.diagnostics.ergm}
 \alias{mcmc.diagnostics}
+\alias{mcmc.diagnostics.default}
+\alias{plot.mcmc.list.ergm}
 \title{Conduct MCMC diagnostics on an ergm fit}
 \description{
-  This function prints diagnistic information and creates simple diagnostic plots for the MCMC sampled
-  statistics produced from a fit.
+  This function prints diagnistic information and creates simple diagnostic plots for the MCMC sampled statistics produced from a fit.
 }
 \usage{
 \method{mcmc.diagnostics}{ergm} (object, 
-                                  center=TRUE,
-                                  curved=TRUE,
-                                  vars.per.page=3,
-                                  \dots) 
+              center=TRUE,
+              esteq=TRUE,
+              vars.per.page=3,
+              \dots)
+\method{plot}{mcmc.list.ergm}(x, 
+                main = NULL, 
+                vars.per.page = 3, 
+                \dots)
 }
 \arguments{
   \item{object}{An ergm object.  See documentation for
@@ -20,29 +34,38 @@
   \item{center}{Logical:  If TRUE, ; center the samples
     on the observed statistics.
   }
-  \item{curved}{Logical:  If TRUE, summarize the curved statistics 
-    (evaluated at the MLE of any non-linear parameters), 
-    rather than the raw components of the curved statistics.
+  \item{esteq}{Logical:  If TRUE, for statistics corresponding to
+    curved ERGM terms, summarize the curved statistics by their
+    estimating equation values (evaluated at the MLE of any curved parameters) (i.e.,
+    \eqn{\eta'_{I}(\hat{\theta})\cdot g_{I}(y)} for \eqn{I} being indices of
+    the canonical parameters in question), 
+    rather than the canonical (sufficient) vectors of the curved
+    statistics (\eqn{g_{I}(y)}).
   }
   \item{vars.per.page}{Number of rows (one variable per row) 
     per plotting page.  Ignored
     if \code{latticeExtra} package is not installed.
   }
+  \item{x}{an mcmc.list object containing the mcmc diagnostic samples}
+  \item{main}{
+   character, main plot heading title
+  }
   \item{\dots}{Additional arguments, to be passed to plotting functions.
   }
 }
 
-\details{ The plots produced are a trace of the sampled output and a
-  density estimate for each variable in the chain.  The diagnostics
-  printed include correlations and convergence diagnostics.
+\details{ A pair of plots are produced for each statistic:a trace of the sampled output statistic values on the left and density estimate for each variable in the MCMC chain on the right.  Diagnostics printed to the console include correlations and convergence diagnostics.
   
-  In fact, an \code{object} contains the matrix of
+  Recent changes in the ergm estimation algorithm mean that these plots can no longer be used to ensure that the mean statistics from the model match the observed network statistics. For that functionality, please use the GOF command: \code{gof(object, GOF=~model)}.
+  
+  In fact, an ergm output \code{object} contains the matrix of
   statistics from the MCMC run as component \code{$sample}.
   This matrix is actually an object of class \code{mcmc} and
   can be used directly in the \code{coda} package to assess MCMC
   convergence. \emph{Hence all MCMC diagnostic methods available
   in \code{coda} are available directly.} See the examples and
-  \url{http://www.mrc-bsu.cam.ac.uk/bugs/classic/coda04/readme.shtml}.
+  \url{http://www.mrc-bsu.cam.ac.uk/software/bugs/the-bugs-project-winbugs/coda-readme/}.
+  
 
   More information can be found by looking at the documentation of
   \code{\link{ergm}}.
@@ -79,6 +102,7 @@
          \code{\link{summary.ergm}}
         }
 \examples{
+\dontrun{
 #
 data(florentine)
 #
@@ -101,5 +125,6 @@ plot(gest$sample, ask=FALSE)
 # A full range of diagnostics is available 
 # using codamenu()
 #
+}
 }
 \keyword{models}

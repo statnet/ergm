@@ -1,3 +1,12 @@
+#  File R/ergm.logitreg.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2015 Statnet Commons
+#######################################################################
 #============================================================================
 # This file contains the following 2 functions for logistic regression
 #        <ergm.logitreg>
@@ -50,14 +59,10 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
 {
   if(is.null(m)){
     etamap <- identity
-    etagrad <- function(beta) diag(1,length(beta),length(beta))
+    etagrad <- function(theta) diag(1,length(theta),length(theta))
   }else{
-    etamap <- function(beta) ergm.eta(beta,m$etamap)
-    etagrad <- function(beta) ergm.etagrad(beta, m$etamap)
-  }
-  gmin <- function(beta, X, y, w, offset, etamap, etagrad) {
-    eta <- (X %*% etamap(beta))+offset; p <- plogis(eta)
-    -2 * matrix(w *dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% X %*% t(etagrad(beta))
+    etamap <- function(theta) ergm.eta(theta,m$etamap)
+    etagrad <- function(theta) ergm.etagrad(theta, m$etamap)
   }
   if(is.null(dim(x))) dim(x) <- c(length(x), 1)
   if(is.null(offset)) offset <- rep(0,length(y))
@@ -67,17 +72,34 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
   if(intercept) {x <- cbind(1, x); dn <- c("(Intercept)", dn)}
   if(is.factor(y)) y <- (unclass(y) != 1)
   start[is.na(start)]<-0
-  fit <- optim(start, ergm.logisticdeviance, gmin,
+
+  f <-
+    if(is.null(m)) ergm.logisticdeviance
+    else function(theta.no, X, y, w, offset, etamap, etagrad){
+      theta <- start
+      theta[!m$etamap$offsettheta] <- theta.no
+      ergm.logisticdeviance(theta, X, y, w, offset, etamap, etagrad)
+    }
+  df <-
+    if(is.null(m)) function(theta, X, y, w, offset, etamap, etagrad){
+      eta <- .multiply.with.inf(X,etamap(theta))+offset; p <- plogis(eta)
+      -2 * matrix(w *dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% X %*% t(etagrad(theta))
+    }else function(theta.no, X, y, w, offset, etamap, etagrad){
+      theta <- start
+      theta[!m$etamap$offsettheta] <- theta.no    
+      eta <- .multiply.with.inf(X,etamap(theta))+offset; p <- plogis(eta)
+      -2 * matrix(w *dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% X %*% t(etagrad(theta))[,!m$etamap$offsettheta]
+    }
+
+  init <- if(!is.null(m)) start[!m$etamap$offsettheta] else start
+  fit <- optim(init, f, df,
                X = x, y = y, w = wt, offset=offset, etamap=etamap, etagrad=etagrad,
                method = "BFGS", hessian=TRUE, control=list(maxit=maxit), ...)
-  names(fit$par) <- dn
   fit$coef <- fit$par
+  names(fit$coef) <- dn[if(!is.null(m)) !m$etamap$offsettheta else TRUE]
   fit$deviance <- fit$value
   fit$iter <- fit$counts[1]
-  asycov <- try(robust.inverse(fit$hessian), silent = TRUE)
-  if (inherits(asycov, "try-error")) {
-     asycov <- diag(1/diag(-fit$hessian))
-  }
+  asycov <- ginv(fit$hessian/2)
   fit$cov.unscaled <- asycov
 # cat("\nCoefficients:\n"); print(fit$par)
 # # R: use fit$value and fit$convergence
@@ -89,9 +111,9 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
 
 
 
-ergm.logisticdeviance <- function(beta, X, y,
+ergm.logisticdeviance <- function(theta, X, y,
                             w=rep(1,length(y)), offset=rep(0,length(y)), etamap=identity, etagrad=NULL) {
-      p <- plogis((X %*% etamap(beta))+offset)
-      -sum(2 * w * ifelse(y, log(p), log(1-p)))
+      p <- plogis(.multiply.with.inf(X,etamap(theta))+offset)
+      -2*sum(w * ifelse(y, log(p), log1p(-p)))
 }
 

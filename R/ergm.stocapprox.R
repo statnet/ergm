@@ -1,3 +1,12 @@
+#  File R/ergm.stocapprox.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2015 Statnet Commons
+#######################################################################
 ############################################################################
 # The <ergm.stocapprox> function provides one of the styles of maximum
 # likelihood estimation that can be used. This one is based on Snijders
@@ -106,10 +115,10 @@ ergm.stocapprox <- function(init, nw, model, Clist,
   statshift <- summary.statistics.network(model$formula, basis=nw) - model$target.stats
   statsmatrix <- sweep(z$statsmatrix, 2, statshift, "+")
   colnames(statsmatrix) <- model$coef.names
-  v$sample <- statsmatrix
+  #v$sample <- statsmatrix
 # ubar <- apply(z$statsmatrix, 2, mean)
 # hessian <- (t(z$statsmatrix) %*% z$statsmatrix)/n3 - outer(ubar,ubar)
-# covar <- robust.inverse(covar)
+# covar <- ginv(covar)
   
   if(verbose){cat("Calling MCMLE Optimization...\n")}
   if(verbose){cat("Using Newton-Raphson Step ...\n")}
@@ -146,6 +155,6 @@ ergm.stocapprox <- function(init, nw, model, Clist,
   structure(c(ve, list(newnetwork=nw, 
                  theta.original=init,
                  interval=control$MCMC.interval, burnin=control$MCMC.burnin, 
-                 network=nw.orig)),
+                 network=nw.orig, est.cov=ve$mc.cov)),
              class="ergm")
 }

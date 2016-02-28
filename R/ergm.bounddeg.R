@@ -1,3 +1,12 @@
+#  File R/ergm.bounddeg.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2015 Statnet Commons
+#######################################################################
 ########################################################################
 # The <ergm.bounddeg> function initializes the list of parameters used
 # to bound the degree during the sampling process, and issues warnings

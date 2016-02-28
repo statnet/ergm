@@ -1,3 +1,12 @@
+/*  File src/wtSAN.c in package ergm, part of the Statnet suite
+ *  of packages for network analysis, http://statnet.org .
+ *
+ *  This software is distributed under the GPL-3 license.  It is free,
+ *  open source, and has the attribution requirements (GPL Section 7) at
+ *  http://statnet.org/attribution
+ *
+ *  Copyright 2003-2013 Statnet Commons
+ */
 #include "wtSAN.h"
 
 
@@ -168,8 +177,14 @@ WtMCMCStatus WtSANSample (WtMHproposal *MHp,
     when the chain doesn't accept many of the proposed steps.
     *********************/
     if (fVerbose){
-      Rprintf("SAN Metropolis-Hastings accepted %7.3f%% of %d proposed steps.\n",
+	  if (samplesize > 0 && interval > LONG_MAX / samplesize) {
+		// overflow
+		Rprintf("SAN Metropolis-Hastings accepted %7.3f%% of %d proposed steps.\n",
+	      tottaken*100.0/(1.0*interval*samplesize), interval, samplesize); 
+	  } else {
+	    Rprintf("SAN Metropolis-Hastings accepted %7.3f%% of %d proposed steps.\n",
 	      tottaken*100.0/(1.0*interval*samplesize), interval*samplesize); 
+	  }
     }
   }else{
     if (fVerbose){

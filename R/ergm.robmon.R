@@ -1,3 +1,12 @@
+#  File R/ergm.robmon.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2015 Statnet Commons
+#######################################################################
 ############################################################################
 # The <ergm.robmon> function provides one of the styles of maximum
 # likelihood estimation that can be used. This one is based on Snijders
@@ -63,13 +72,13 @@ ergm.robmon <- function(init, nw, model,
   colnames(statsmatrix) <- model$coef.names
 
   if(steplength<1){
-    statsmean <- apply(statsmatrix,2,mean)
+    statsmean <- apply(statsmatrix,2,base::mean)
     statsmatrix <- sweep(statsmatrix,2,(1-steplength*0.1)*statsmean,"-")
   }
-# ubar <- apply(z$statsmatrix, 2, mean)
-# Ddiag <- apply(z$statsmatrix^2, 2, mean) - ubar^2
-# Ddiag <- apply(z$statsmatrix, 2, var)
-  Ddiag <- apply(statsmatrix^2, 2, mean)
+# ubar <- apply(z$statsmatrix, 2, base::mean)
+# Ddiag <- apply(z$statsmatrix^2, 2, base::mean) - ubar^2
+# Ddiag <- apply(z$statsmatrix, 2, stats::var)
+  Ddiag <- apply(statsmatrix^2, 2, base::mean)
   # This is equivalent to, but more efficient than,
   # Ddiag <- diag(t(z$statsmatrix) %*% z$statsmatrix / phase1_n - outer(ubar,ubar))
   cat("Phase 1 complete; estimated variances are:\n")
@@ -113,7 +122,7 @@ ergm.robmon <- function(init, nw, model,
       colnames(statsmatrix) <- model$coef.names
 
       thetamatrix <- rbind(thetamatrix,theta)
-      statsmean <- apply(statsmatrix,2,mean)
+      statsmean <- apply(statsmatrix,2,base::mean)
       if(steplength<1 && subphase < n_sub ){
         statsmean <- steplength*statsmean
       }
@@ -127,7 +136,7 @@ cat(paste("theta new:",theta,"\n"))
     a <- a/2
     n_iter <- round(n_iter*2.52) # 2.52 is approx. 2^(4/3)
     thetamatrix <- rbind(thetamatrix,theta)
-    theta <- apply(thetamatrix, 2, mean)
+    theta <- apply(thetamatrix, 2, base::mean)
   }
   
   #phase 3:  Estimate covariance matrix for final theta
@@ -144,9 +153,9 @@ cat(paste("theta new:",theta,"\n"))
   statsmatrix <- sweep(z$statsmatrix, 2, model$nw.stats - model$target.stats, "+")
   colnames(statsmatrix) <- model$coef.names
 
-# ubar <- apply(z$statsmatrix, 2, mean)
+# ubar <- apply(z$statsmatrix, 2, base::mean)
 # hessian <- (t(z$statsmatrix) %*% z$statsmatrix)/n3 - outer(ubar,ubar)
-# covar <- robust.inverse(covar)
+# covar <- ginv(covar)
   
   if(verbose){cat("Calling MCMLE Optimization...\n")}
   if(verbose){cat("Using Newton-Raphson Step ...\n")}
@@ -179,6 +188,6 @@ cat(paste("theta new:",theta,"\n"))
                  theta.original=init,
                  rm.coef=theta,
                  interval=control$MCMC.interval, burnin=control$MCMC.burnin, 
-                 network=nw)),
+                 network=nw, est.cov=ve$mc.cov)),
              class="ergm")
 }

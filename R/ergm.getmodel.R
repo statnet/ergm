@@ -1,3 +1,12 @@
+#  File R/ergm.getmodel.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2015 Statnet Commons
+#######################################################################
 #===================================================================================
 # This file contains the following 2 functions for creating the 'ergm.model' object
 #             <ergm.getmodel>
@@ -60,76 +69,40 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
 
   
   for (i in 1:length(v)) {
-    if (is.call(v[[i]])) { # This term has some arguments
-      if(v[[i]][[1]] == "offset"){
-        if(length(v[[i]][[2]]) <= 1){
-         v[[i]] <- as.call(v[[i]][2])
-        }else{
-         v[[i]] <- as.call(v[[i]][[2]])
-        }
-        model$offset <- c(model$offset,TRUE)
-      }else{
-        model$offset <- c(model$offset,FALSE)
-      }
-      args=v[[i]]
-      args[[1]] = as.name("list")
-      fname <- paste(termroot,"Term.", v[[i]][[1]], sep = "")
-      newInitErgm <- exists(fname, envir=formula.env, mode="function")
-      v[[i]] <- call(ifelse (newInitErgm, fname, 
-                             paste(termroot,".", v[[i]][[1]], sep = "")))
-    } else { # This term has no arguments
-      fname <- paste(termroot,"Term.", v[[i]], sep = "")
-      newInitErgm <- exists(fname, envir=formula.env, mode="function")
-      v[[i]] <- call(ifelse (newInitErgm, fname, 
-                             paste(termroot,".", v[[i]], sep = "")))
+    if (is.call(v[[i]]) && v[[i]][[1]] == "offset"){ # Offset term
+      v[[i]] <- v[[i]][[2]]
+      model$offset <- c(model$offset,TRUE)
+    }else{
       model$offset <- c(model$offset,FALSE)
-      args=list()
     }
-    if (!newInitErgm) { #Using the old InitErgm style
-      v[[i]][[2]] <- nw
-      names(v[[i]])[2] <-  ""
-      v[[i]][[3]] <- model
-      names(v[[i]])[3] <- ""
-      v[[i]][[4]] <- args
-      dotdotdot <- c(if(!is.null(response)) list(response=response), list(role=role), list(...))
-      for(j in seq_along(dotdotdot)) {
-        if(is.null(dotdotdot[[j]])) next
-        v[[i]][[4+j]] <- dotdotdot[[j]]
-        names(v[[i]])[4+j] <- names(dotdotdot)[j]
-      }    
-      # The above steps are preparing the way to make the function call
-      # InitErgm.xxxx(g, m, args, ...)
-      if(!exists(as.character(v[[i]][[1]]),envir=formula.env, mode="function")){
-        stop("The term ", substring(as.character(v[[i]][[1]]),first=nchar(termroot)+2),
-             " does not exist for this type of ERGM. Are you sure you have the right name?\n",
-             call. = FALSE)
-      }
-      if(silent){
-       silentwarnings <- capture.output(
-        model <- eval(v[[i]], formula.env)  #Call the InitErgm function
-       )
-      }else{
-       model <- eval(v[[i]], formula.env)  #Call the InitErgm function
-      }
-      # If SO package name not specified explicitly, autodetect.
-      if(is.null(model$terms[[length(model$terms)]]$pkgname)) model$terms[[length(model$terms)]]$pkgname <- which.package.InitFunction(v[[i]][[1]],formula.env)
-    } else { # New InitErgmTerms style
-      v[[i]][[2]] <- nw
-      names(v[[i]])[2] <-  ""
-      v[[i]][[3]] <- args
-      names(v[[i]])[3] <- ""
-      dotdotdot <- c(if(!is.null(response)) list(response=response), list(role=role), list(...))
-      for(j in seq_along(dotdotdot)) {
-        if(is.null(dotdotdot[[j]])) next
-        v[[i]][[3+j]] <- dotdotdot[[j]]
-        names(v[[i]])[3+j] <- names(dotdotdot)[j]
-      }
-      outlist <- eval(v[[i]], formula.env)  #Call the InitErgm function
-      # If SO package name not specified explicitly, autodetect.
-      if(is.null(outlist$pkgname)) outlist$pkgname <- which.package.InitFunction(v[[i]][[1]],formula.env)
-      # Now it is necessary to add the output to the model object
-      model <- updatemodel.ErgmTerm(model, outlist)
+    ## v[[i]] is now a call or a name that is not "offset".
+    
+    if(is.call(v[[i]])) { # This term has some arguments; save them.
+      args <- v[[i]]
+      args[[1]] <- as.name("list")
+    }else args <- list()
+    
+    termFun<-locate.InitFunction(v[[i]], paste0(termroot,"Term"), "ERGM term")  # check in all namespaces for function found anywhere
+    
+    v[[i]]<-as.call(list(termFun))
+    
+    v[[i]][[2]] <- nw
+    names(v[[i]])[2] <-  ""
+    v[[i]][[3]] <- args
+    names(v[[i]])[3] <- ""
+    dotdotdot <- c(if(!is.null(response)) list(response=response), list(role=role), list(...))
+    for(j in seq_along(dotdotdot)) {
+      if(is.null(dotdotdot[[j]])) next
+      v[[i]][[3+j]] <- dotdotdot[[j]]
+      names(v[[i]])[3+j] <- names(dotdotdot)[j]
     }
+    #Call the InitErgm function in the environment where the formula was created
+    # so that it will have access to any parameters of the ergm terms
+    outlist <- eval(v[[i]],formula.env)  
+    # If SO package name not specified explicitly, autodetect.
+    if(is.null(outlist$pkgname)) outlist$pkgname <- environmentName(environment(termFun))
+    # Now it is necessary to add the output to the model object
+    model <- updatemodel.ErgmTerm(model, outlist)
   } 
   model$etamap <- ergm.etamap(model)
 
@@ -174,6 +147,8 @@ updatemodel.ErgmTerm <- function(model, outlist) {
     model$maxval <- c(model$maxval,
                       rep(if(!is.null(outlist$maxval)) outlist$maxval else +Inf,
                           length.out=length(outlist$coef.names)))
+    model$duration <- c(model$duration,
+                      if(!is.null(outlist$duration)) outlist$duration else FALSE)
     model$terms[[termnumber]] <- outlist
   }
   model

@@ -1,3 +1,12 @@
+%  File man/simulate.ergm.Rd in package ergm, part of the Statnet suite
+%  of packages for network analysis, http://statnet.org .
+%
+%  This software is distributed under the GPL-3 license.  It is free,
+%  open source, and has the attribution requirements (GPL Section 7) at
+%  http://statnet.org/attribution
+%
+%  Copyright 2003-2015 Statnet Commons
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{simulate.ergm}
 \alias{simulate.ergm}
 \alias{simulate.formula}
@@ -12,9 +21,10 @@
                            monitor=NULL,
                            basis=NULL,
                            statsonly=FALSE,
+                           esteq=FALSE,
                            sequential=TRUE,
                            control=control.simulate.formula(),
-                           verbose=FALSE, 
+                           verbose=FALSE,   
                            \dots)
 \method{simulate}{ergm}(object, nsim=1, seed=NULL, 
                         coef=object$coef,
@@ -22,6 +32,7 @@
                         constraints=object$constraints,
                         monitor=NULL,
                         statsonly=FALSE,
+                        esteq=FALSE,
                         sequential=TRUE,
                         control=control.simulate.ergm(),
                         verbose=FALSE, 
@@ -88,6 +99,11 @@
   }
   \item{statsonly}{Logical:  If TRUE, return only the network statistics, 
     not the network(s) themselves.
+  }
+  \item{esteq}{Logical:    If TRUE, compute the sample estimating
+    equations of an ERGM: if the model is non-curved, all non-offset
+    statistics are returned either way, but if the model is curved, the
+    score estimating function values (3.1) by Hunter and Handcock (2006) are returned instead.
   }
   \item{sequential}{Logical:  If FALSE, each of the \code{nsim} simulated
     Markov chains begins at the initial network.  If TRUE, the end of one 

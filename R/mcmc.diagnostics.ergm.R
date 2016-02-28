@@ -1,3 +1,12 @@
+#  File R/mcmc.diagnostics.ergm.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2015 Statnet Commons
+#######################################################################
 #=================================================================================
 # This file contains the following 10 diagnostic tools and their helper functions
 #      <mcmc.diagnostics>            <traceplot.ergm>
@@ -49,17 +58,17 @@
 #
 ##########################################################################
 
-.mcmc.diagnostics <- function(object, ...) {
+mcmc.diagnostics <- function(object, ...) {
   UseMethod("mcmc.diagnostics")
 }
 
-.mcmc.diagnostics.default <- function(object, ...) {
+mcmc.diagnostics.default <- function(object, ...) {
   stop("An ergm object must be given as an argument ")
 }
 
 mcmc.diagnostics.ergm <- function(object,
                                   center=TRUE,
-                                  curved=TRUE,
+                                  esteq=TRUE,
                                   vars.per.page=3,...) {
 #
   if(!is.null(object$degeneracy.value) && !is.na(object$degeneracy.value)){
@@ -73,7 +82,7 @@ mcmc.diagnostics.ergm <- function(object,
   # Coerce sample objects to mcmc.list. This allows all subsequent
   # operations to assume mcmc.list. The reason [["sample"]] is being
   # used here rather than $sample is because there is an unlikely
-  # posibility that $sample doesn't exist but $sample.obs does.
+  # possibility that $sample doesn't exist but $sample.obs does.
   sm <- if(is.null(object[["sample"]])) NULL else as.mcmc.list(object[["sample"]])
   sm.obs <- if(is.null(object[["sample.obs"]])) NULL else as.mcmc.list(object[["sample.obs"]])
 
@@ -94,9 +103,11 @@ mcmc.diagnostics.ergm <- function(object,
     }
   }
 
-  if(curved){
-    sm <- do.call(mcmc.list, lapply(sm, ergm.sample.eta2theta, coef=object$coef, etamap=object$etamap))
-    if(!is.null(sm.obs)) sm.obs <- do.call(mcmc.list, lapply(sm.obs, ergm.sample.eta2theta, coef=object$coef, etamap=object$etamap))
+  if(esteq){
+    if (!is.null(object$coef) && !is.null(object$etamap)) {
+      sm <- do.call(mcmc.list, lapply(sm, function(x) .ergm.esteq(theta=object$coef, model=object$etamap, x)))
+      if(!is.null(sm.obs)) sm.obs <- do.call(mcmc.list, lapply(sm.obs, function(x) .ergm.esteq(theta=object$coef, model=object$etamap, x)))
+    }
   }
 
   cat("Sample statistics summary:\n")
@@ -106,42 +117,45 @@ mcmc.diagnostics.ergm <- function(object,
     print(summary(sm.obs))
   }
   
-  # This can probably be improved.
-  if(is.null(sm.obs)){
-    cat("\nAre sample statistics significantly different from observed?\n")
-    ds <- colMeans.mcmc.list(sm) - if(!center) object$target.stats else 0
-    sds <- apply(as.matrix(sm),2,sd)
-    ns <- effectiveSize(sm)
-
-    cv <-  cov(as.matrix(sm))
+  # only show if we are using Hotelling termination criterion
+  if (identical(object$control$MCMLE.termination, "Hotelling")) {
+    # This can probably be improved.
+    if(is.null(sm.obs)){
+      cat("\nAre sample statistics significantly different from observed?\n")
+      ds <- colMeans.mcmc.list(sm) - if(!center) object$target.stats else 0
+      sds <- apply(as.matrix(sm),2,sd)
+      ns <- effectiveSize(sm)
+      
+      cv <-  cov(as.matrix(sm))
+      
+      z <- ds/sds*sqrt(ns)
+      
+    }else{
+      cat("\nAre unconstrained sample statistics significantly different from constrained?\n")
+      ds <- colMeans.mcmc.list(sm) - if(!center) colMeans.mcmc.list(sm.obs) else 0
+      sds <- apply(as.matrix(sm),2,sd)
+      sds.obs <- apply(as.matrix(sm.obs),2,sd)
+      ns <- effectiveSize(sm)
+      # It's OK constrained sample doesn't vary. (E.g, the extreme case
+      # --- completely observed network --- is just one configuration of
+      # statistics.)
+      # Thus, the effective sample size for nonvarying is set to 1.
+      ns.obs <- pmax(effectiveSize(sm.obs),1)
+      
+      cv <-  cov(as.matrix(sm))
+      cv.obs <-  cov(as.matrix(sm.obs))
+      
+      z <- ds/sqrt(sds^2/ns+sds.obs^2/ns.obs)
+    }
+    p.z <- pnorm(abs(z),lower.tail=FALSE)*2
     
-    z <- ds/sds*sqrt(ns)
-  }else{
-    cat("\nAre unconstrained sample statistics significantly different from constrained?\n")
-    ds <- colMeans.mcmc.list(sm) - if(!center) colMeans.mcmc.list(sm.obs) else 0
-    sds <- apply(as.matrix(sm),2,sd)
-    sds.obs <- apply(as.matrix(sm.obs),2,sd)
-    ns <- effectiveSize(sm)
-    # It's OK constrained sample doesn't vary. (E.g, the extreme case
-    # --- completely observed network --- is just one configuration of
-    # statistics.)
-    # Thus, the effective sample size for nonvarying is set to 1.
-    ns.obs <- pmax(effectiveSize(sm.obs),1)
-
-    cv <-  cov(as.matrix(sm))
-    cv.obs <-  cov(as.matrix(sm.obs))
-
-    z <- ds/sqrt(sds^2/ns+sds.obs^2/ns.obs)
+    overall.test <- approx.hotelling.diff.test(sm,sm.obs,if(is.null(sm.obs) && !center) object$target.stats else NULL)
+    
+    m <- rbind(c(ds,NA),c(z,overall.test$statistic),c(p.z,overall.test$p.value))
+    rownames(m) <- c("diff.","test stat.","P-val.")
+    colnames(m) <- c(varnames(sm),"Overall (Chi^2)")
+    print(m)
   }
-  p.z <- pnorm(abs(z),lower.tail=FALSE)*2
-
-  overall.test <- approx.hotelling.diff.test(sm,sm.obs,if(is.null(sm.obs) && !center) object$target.stats else NULL)
-  
-  m <- rbind(c(ds,NA),c(z,overall.test$statistic),c(p.z,overall.test$p.value))
-  rownames(m) <- c("diff.","test stat.","P-val.")
-  colnames(m) <- c(varnames(sm),"Overall (Chi^2)")
-  print(m)
-
   # End simulated vs. observed test.
   
   cat("\nSample statistics cross-correlations:\n")
@@ -174,7 +188,8 @@ mcmc.diagnostics.ergm <- function(object,
 
   cat("\nSample statistics burn-in diagnostic (Geweke):\n")
   sm.gw<-geweke.diag(sm)
-  sm.gws<-geweke.diag.mv(sm)
+  sm.gws<-try(.geweke.diag.mv(sm))
+  if(!("try-error" %in% class(sm.gws))){
   for(i in seq_along(sm.gw)){
     cat("Chain", chain, "\n")
     print(sm.gw[[i]])
@@ -182,10 +197,12 @@ mcmc.diagnostics.ergm <- function(object,
     print(2*pnorm(abs(sm.gw[[i]]$z),lower.tail=FALSE))
     cat("Joint P-value (lower = worse): ", sm.gws[[i]]$p.value,".\n")
   }
+  }
   if(!is.null(sm.obs)){
     cat("Sample statistics burn-in diagnostic (Geweke):\n")
     sm.obs.gw<-geweke.diag(sm.obs)
-    sm.obs.gws<-geweke.diag.mv(sm.obs)
+    sm.obs.gws<-try(.geweke.diag.mv(sm.obs))
+    if(!("try-error" %in% class(sm.obs.gws))){
     for(i in seq_along(sm.obs.gw)){
       cat("Chain", chain, "\n")
       print(sm.obs.gw[[i]])
@@ -193,9 +210,10 @@ mcmc.diagnostics.ergm <- function(object,
       print(2*pnorm(abs(sm.obs.gw[[i]]$z),lower.tail=FALSE))
       cat("Joint P-value (lower = worse): ", sm.gws[[i]]$p.value,".\n")
     }
+   }
   }
   
-  if(require(latticeExtra)){  
+  if(requireNamespace('latticeExtra')){  
     plot.mcmc.list.ergm(sm,main="Sample statistics",vars.per.page=vars.per.page,...)
     if(!is.null(sm.obs)) plot.mcmc.list.ergm(sm.obs,main="Constrained sample statistics",vars.per.page=vars.per.page,...)
   }else{
@@ -203,18 +221,26 @@ mcmc.diagnostics.ergm <- function(object,
     plot(sm,...)
     if(!is.null(sm.obs)) plot(sm.obs,...)
   }
+  
+  cat("\nMCMC diagnostics shown here are from the last round of simulation, prior to computation of final parameter estimates. Because the final estimates are refinements of those used for this simulation run, these diagnostics may understate model performance. To directly assess the performance of the final model on in-model statistics, please use the GOF command: gof(ergmFitObject, GOF=~model).\n")
 
   invisible(list(degeneracy.value=degeneracy.value,
                  degeneracy.type=degeneracy.type))
 }
 
 plot.mcmc.list.ergm <- function(x, main=NULL, vars.per.page=3,...){
-  dp <- update(densityplot(x, panel=function(...){panel.densityplot(...);panel.abline(v=0)}),xlab=NULL,ylab=NULL)
-  tp <- update(xyplot.mcmc.list.ergm(x, panel=function(...){panel.xyplot(...);panel.loess(...);panel.abline(0,0)}),xlab=NULL,ylab=NULL)
+  requireNamespace('lattice', quietly=TRUE, warn.conflicts=FALSE)
+  
+  dp <- update(lattice::densityplot(x, panel=function(...){lattice::panel.densityplot(...);lattice::panel.abline(v=0)}),xlab=NULL,ylab=NULL)
+  tp <- update(lattice::xyplot(x, panel=function(...){lattice::panel.xyplot(...);lattice::panel.loess(...);lattice::panel.abline(0,0)}),xlab=NULL,ylab=NULL)
 
-  library(latticeExtra)
+  #library(latticeExtra)
 
   pages <- ceiling(nvar(x)/vars.per.page)
+  # if the number of vars is less than vars.per.page, make adjustment
+  if(nvar(x)<vars.per.page){
+    vars.per.page<-nvar(x)
+  }
   
   reordering <- c(rbind(seq_len(nvar(x)),nvar(x)+seq_len(nvar(x))))
   
@@ -230,71 +256,5 @@ sweep.mcmc.list<-function(x, STATS, FUN="-", check.margin=TRUE, ...){
     x[[chain]] <- sweep(x[[chain]], 2, STATS, FUN, check.margin, ...)
   }
   x
-}
-
-## The following function is a modified version of xyplot.mcmc.list
-## from the coda R package. The original code is Copyright (C) 2005
-## Deepayan Sarkar <Deepayan.Sarkar@R-project.org>, Douglas Bates
-## <Douglas.Bates@R-project.org>.
-##
-## It is incorporated into the ergm package under the terms of the
-## GPL v3 license.
-##
-## I hope that they'll incorproate the changes at some point in the
-## future.
-xyplot.mcmc.list.ergm <-
-    function(x, data = NULL,
-             outer = FALSE, groups = !outer,
-             aspect = "xy", layout = c(1, ncol(x[[1]])),
-             default.scales = list(y = list(relation = "free")),
-             type = 'l',
-             start = 1, thin = 1,
-             main = attr(x, "title"),
-             ylab = "",
-             ...)
-{
-    if (!is.R()) {
-      stop("This function is not yet available in S-PLUS")
-    }
-    if (groups && outer) warning("'groups=TRUE' ignored when 'outer=TRUE'")
-    datalist <- lapply(x, function(x) as.data.frame(x))
-    data <- do.call("rbind", datalist)
-    form <-
-        if (outer)
-            eval(parse(text = paste(paste(lapply(names(data), as.name),
-                       collapse = "+"), "~.index | .run")))
-        else
-            eval(parse(text = paste(paste(lapply(names(data), as.name),
-                       collapse = "+"), "~.index")))
-##     form <-
-##         if (outer)
-##             as.formula(paste(paste(names(data),
-##                                    collapse = "+"),
-##                              "~ index | .run"))
-##         else
-##             as.formula(paste(paste(names(data),
-##                                    collapse = "+"),
-##                              "~ index"))
-    data[[".index"]] <- seq(from = start(x), by = thin(x), length = nrow(datalist[[1]])) ## repeated
-    .run <- gl(length(datalist), nrow(datalist[[1]]))
-    if (groups && !outer)
-        xyplot(form, data = data,
-               outer = TRUE,
-               layout = layout,
-               groups = .run,
-               default.scales = default.scales,
-               type = type,
-               main = main,
-               ylab = ylab,
-               ...)
-    else
-        xyplot(form, data = data,
-               outer = TRUE,
-               layout = layout,
-               default.scales = default.scales,
-               type = type,
-               main = main,
-               ylab = ylab,
-               ...)
 }
 

@@ -1,3 +1,12 @@
+/*  File src/MCMC.c in package ergm, part of the Statnet suite
+ *  of packages for network analysis, http://statnet.org .
+ *
+ *  This software is distributed under the GPL-3 license.  It is free,
+ *  open source, and has the attribution requirements (GPL Section 7) at
+ *  http://statnet.org/attribution
+ *
+ *  Copyright 2003-2013 Statnet Commons
+ */
 #include "MCMC.h"
 
 /*****************
@@ -30,13 +39,13 @@ void MCMC_wrapper(int *dnumnets, int *nedges,
 		  int *status){
   int directed_flag;
   Vertex n_nodes, nmax, bip;
-  Edge n_networks;
+  /* Edge n_networks; */
   Network nw[1];
   Model *m;
   MHproposal MH;
   
   n_nodes = (Vertex)*dn; 
-  n_networks = (Edge)*dnumnets; 
+  /* n_networks = (Edge)*dnumnets;  */
   nmax = (Edge)abs(*maxedges);
   bip = (Vertex)*bipartite; 
   
@@ -158,8 +167,14 @@ MCMCStatus MCMCSample(MHproposal *MHp,
     when the chain doesn't accept many of the proposed steps.
     *********************/
     if (fVerbose){
-      Rprintf("Sampler accepted %7.3f%% of %d proposed steps.\n",
-      tottaken*100.0/(1.0*interval*samplesize), interval*samplesize); 
+	  if (samplesize > 0 && interval > LONG_MAX / samplesize) {
+		// overflow
+		Rprintf("Sampler accepted %7.3f%% of %d proposed steps.\n",
+	      tottaken*100.0/(1.0*interval*samplesize), interval, samplesize); 
+	  } else {
+	    Rprintf("Sampler accepted %7.3f%% of %d proposed steps.\n",
+	      tottaken*100.0/(1.0*interval*samplesize), interval*samplesize); 
+	  }
     }
   }else{
     if (fVerbose){

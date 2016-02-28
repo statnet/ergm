@@ -1,3 +1,12 @@
+/*  File src/edgetree.c in package ergm, part of the Statnet suite
+ *  of packages for network analysis, http://statnet.org .
+ *
+ *  This software is distributed under the GPL-3 license.  It is free,
+ *  open source, and has the attribution requirements (GPL Section 7) at
+ *  http://statnet.org/attribution
+ *
+ *  Copyright 2003-2013 Statnet Commons
+ */
 #include "edgetree.h"
 
 /* *** don't forget, edges are now given by tails -> heads, and as
@@ -33,9 +42,10 @@ Network NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,
 
   if(lasttoggle_flag){
     nw.duration_info.time=time;
-    nw.duration_info.lasttoggle = (int *) calloc(DYADCOUNT(nnodes, bipartite, directed_flag), sizeof(int));
-    if(lasttoggle)
-      memcpy(nw.duration_info.lasttoggle, lasttoggle, DYADCOUNT(nnodes, bipartite, directed_flag) * sizeof(int));
+    if(lasttoggle){
+        nw.duration_info.lasttoggle = (int *) calloc(DYADCOUNT(nnodes, bipartite, directed_flag), sizeof(int));
+        memcpy(nw.duration_info.lasttoggle, lasttoggle, DYADCOUNT(nnodes, bipartite, directed_flag) * sizeof(int));
+    } else nw.duration_info.lasttoggle = NULL;
   }
   else nw.duration_info.lasttoggle = NULL;
 

@@ -1,3 +1,12 @@
+/*  File src/changestats.h in package ergm, part of the Statnet suite
+ *  of packages for network analysis, http://statnet.org .
+ *
+ *  This software is distributed under the GPL-3 license.  It is free,
+ *  open source, and has the attribution requirements (GPL Section 7) at
+ *  http://statnet.org/attribution
+ *
+ *  Copyright 2003-2013 Statnet Commons
+ */
 #ifndef CHANGESTATS_H
 #define CHANGESTATS_H
 
@@ -141,7 +150,7 @@ D_CHANGESTAT_FN(d_sociality);
 /********************  changestats:   T    ***********/
 D_CHANGESTAT_FN(d_tdsp);
 D_CHANGESTAT_FN(d_tesp);
-D_CHANGESTAT_FN(d_threepath);
+D_CHANGESTAT_FN(d_threetrail);
 D_CHANGESTAT_FN(d_tnsp);
 D_CHANGESTAT_FN(d_transitive);
 D_CHANGESTAT_FN(d_transitiveties); S_CHANGESTAT_FN(s_transitiveties);

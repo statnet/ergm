@@ -1,3 +1,12 @@
+#  File R/ergm.bridge.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2015 Statnet Commons
+#######################################################################
 
 ## This is a helper function that constructs and returns the network
 ## object to be used and the model object.
@@ -31,7 +40,7 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
   check.control.class("ergm.bridge")
 
   if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
-  if(!is.null(basis)) ergm.update.formula(form,basis~., from.new="basis")
+  if(!is.null(basis)) ergm.update.formula(object,basis~., from.new="basis")
   
   ## Here, we need to get the model object to get the likelihood and gradient functions.
   tmp<-ergm.bridge.preproc(object,basis,response)
@@ -49,9 +58,11 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
     stats.obs <- matrix(NA,control$nsteps,m$etamap$etalength)  
   }else stats.obs<-matrix(summary(form,response=response),control$nsteps,m$etamap$etalength,byrow=TRUE)  
 
+  cat("Using", control$nsteps, "bridges: ")
   for(i in seq_len(control$nsteps)){
     theta<-path[i,]
-    if(verbose) cat("Running theta=[",paste(format(theta),collapse=","),"].\n",sep="")
+    if(verbose==0) cat(i,"")
+    if(verbose>0) cat("Running theta=[",paste(format(theta),collapse=","),"].\n",sep="")
     if(verbose>1) cat("Burning in...\n",sep="")
     ## First burn-in has to be longer, but those thereafter should be shorter if the bridges are closer together.
     nw.state<-simulate(form, coef=theta, nsim=1, response=response, constraints=constraints, statsonly=FALSE, verbose=max(verbose-1,0),
@@ -59,7 +70,11 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
                          MCMC.interval=1,
                          MCMC.prop.args=control$MCMC.prop.args,
                          MCMC.prop.weights=control$MCMC.prop.weights,
-                         MCMC.packagenames=control$MCMC.packagenames), ...)
+                         MCMC.packagenames=control$MCMC.packagenames,
+                         parallel=control$parallel,
+                         parallel.type=control$parallel.type,
+                         parallel.version.check=control$parallel.version.check
+                                                        ), ...)
     ergm.update.formula(form,nw.state~., from.new="nw.state")
     stats[i,]<-apply(simulate(form, coef=theta, response=response, constraints=constraints, statsonly=TRUE, verbose=max(verbose-1,0),
                               control=control.simulate.formula(MCMC.burnin=0,
@@ -72,14 +87,21 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
                                MCMC.interval=1,
                                MCMC.prop.args=control$MCMC.prop.args,
                                MCMC.prop.weights=control$MCMC.prop.weights,
-                               MCMC.packagenames=control$MCMC.packagenames), ...)
+                               MCMC.packagenames=control$MCMC.packagenames,
+                               parallel=control$parallel,
+                               parallel.type=control$parallel.type,
+                               parallel.version.check=control$parallel.version.check), ...)
       ergm.update.formula(form.obs,nw.state.obs~., from.new="nw.state.obs")
       stats.obs[i,]<-apply(simulate(form.obs, coef=theta, response=response, constraints=constraints.obs, statsonly=TRUE, verbose=max(verbose-1,0),
                                 control=control.simulate.formula(MCMC.burnin=0,
-                                  MCMC.interval=control$obs.MCMC.interval),
+                                  MCMC.interval=control$obs.MCMC.interval,
+                                  parallel=control$parallel,
+                                  parallel.type=control$parallel.type,
+                                  parallel.version.check=control$parallel.version.check),
                                 nsim=ceiling(control$obs.MCMC.samplesize/control$nsteps), ...),2,mean)
     }
   }
+  cat(".\n")
     
   Dtheta.Du<-to-from
 
@@ -117,7 +139,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   tmp<-ergm.bridge.preproc(object,basis,response)
   nw<-tmp$nw; m<-tmp$model; form<-tmp$form; rm(tmp)
 
-  p.pos.full <- c(1,cumsum(coef.sublength.model(m)))
+  p.pos.full <- c(0,cumsum(coef.sublength.model(m)))
   
   constraints.obs <- if(network.naedgecount(nw))
     ergm.update.formula(constraints,~.+observed)
@@ -136,7 +158,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
     for(i in seq_along(terms.full))
       if(!is.null(m$terms[[i]]$dependence) && m$terms[[i]]$dependence==FALSE){
         dind<-append.rhs.formula(dind,list(terms.full[[i]]))
-        if(m$offset[i]) offset.dind <- c(offset.dind, coef[p.pos.full[i]:p.pos.full[i+1]])
+        if(m$offset[i]) offset.dind <- c(offset.dind, coef[(p.pos.full[i]+1):p.pos.full[i+1]])
       }
     dind<-append.rhs.formula(dind,list(as.name("edges")))
     environment(dind) <- environment(object)
@@ -147,7 +169,7 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   if(!is.dyad.independent(dind))
     stop("Reference model `dind' must be dyad-independent.")
 
-  ergm.dind<-ergm(dind,estimate="MPLE",constraints=constraints,eval.loglik=FALSE,control=control.ergm(drop=FALSE), offset.coef = offset.dind)
+  ergm.dind<-ergm(dind,estimate="MPLE",constraints=constraints,eval.loglik=FALSE,control=control.ergm(drop=FALSE, MPLE.max.dyad.types=control$MPLE.max.dyad.types), offset.coef = offset.dind)
   
   if(is.null(coef.dind)){
     coef.dind<-ifelse(is.na(coef(ergm.dind)),0,coef(ergm.dind))
@@ -171,43 +193,4 @@ ergm.bridge.dindstart.llk<-function(object, response=NULL, constraints=~., coef,
   else c(br,llk.dind=llk.dind, llk=llk.dind + br$llr)
 }
 
-## ## A wrapper around ergm.bridge.llr that uses a model with a Hamming
-## ## distance to the LHS network itself as a starting point, either with
-## ## a specified coefficient `hamming.start' or with a coefficient such
-## ## that the log-likelihood for it is llk.guess.
-## ##
-## ## The idea is to use the Hamming term as "scaffolding", which is
-## ## slowly removed as the real model terms approach their objective
-## ## values.
-## ergm.bridge.hammingstart.llk<-function(object, response=NULL, coef, hamming.start=NULL, llk.guess=NULL, basis=NULL, ..., llkonly=TRUE, control=control.ergm.bridge()){
-##   check.control.class("ergm.bridge")
-##   if(!is.null(response)) stop("Only binary ERGMs are supported at this time.")
-##   # If basis is not null, replace network in formula by basis.
-##   # In either case, let nw be network object from formula.
-##   if(is.null(nw <- basis)) {
-##     nw <- ergm.getnetwork(object)
-##   }
-  
-##   nw <- as.network(nw)
-##   if(!is.network(nw)){
-##     stop("A network object on the LHS of the formula or via",
-##          " the 'basis' argument must be given")
-##   }
-
-##   if(is.null(hamming.start)){
-##     if(is.null(llk.guess))  llk.guess<-logLik(ergm(nw~edges)$mle.lik
-
-##     hamming.start<-log(expm1(-llk.guess/network.dyadcount(nw)))
-##   }
-
-##   form.aug<-ergm.update.formula(object, . ~ . + hamming(nw), from.new="nw")
-##   from<-c(rep(0,length(coef)), hamming.start)
-##   to<-c(coef,0)
-  
-##   llk.hamming<--network.dyadcount(nw)*log1p(exp(hamming.start))
-##   br<-ergm.bridge.llr(form.aug, response=response, from=from, to=to, basis=basis, control=control)
-
-##   if(llkonly) llk.hamming + br$llr
-##   else c(br,llk.hamming=llk.hamming, llk=llk.hamming + br$llr) 
-## }
 

@@ -1,3 +1,12 @@
+#  File tests/drop_tests.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2015 Statnet Commons
+#######################################################################
 library(statnet.common)
 opttest({
 library(ergm)
@@ -46,7 +55,7 @@ stopifnot(all.equal(truth, coef(mined.mcmc), check.attributes=FALSE, tolerance=0
 
 # This is mainly to make sure it doesn't crash for dyad-dependent
 # and curved terms.
-
+set.seed(1)
 y <- network.initialize(10, directed=FALSE)
 y[1,2]<-y[2,3]<-y[3,4]<-1
 dummy <- ergm(y~edges+triangles+degree(2)+kstar(5)+gwdegree(1,fixed=FALSE),

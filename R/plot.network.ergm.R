@@ -1,3 +1,12 @@
+#  File R/plot.network.ergm.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2015 Statnet Commons
+#######################################################################
 #########################################################################
 # The <plot.network.ergm> function produces a two-dimensional network
 # visualization based on <plot.network.default>; a variety of options are 
@@ -259,7 +268,7 @@
       latent <- FALSE
    }
    if(latent){
-    latent <- try(require(latentnet))
+    latent <- try(requireNamespace('latentnet'))
    }
    if(is.list(coord)){
      coord <- cbind(coord$x, coord$y)
@@ -267,7 +276,7 @@
 
    latentfit <- NULL
    if(latent){ #Place by latent space MLE
-    require(latentnet)
+    requireNamespace('latentnet')
     plotfile <- paste("gplottmp",Sys.getpid(),sep="")
     curplot <- dev.cur()
     pictex(file = plotfile)

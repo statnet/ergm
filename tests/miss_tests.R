@@ -1,15 +1,23 @@
+#  File tests/miss_tests.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2015 Statnet Commons
+#######################################################################
 library(statnet.common)
 opttest({
 library(ergm)
-theta0err<--1 # Perturbation in the initial values
-maxit<-20 # Maximum number of iterations
-tolerance<-0.02 # Result must be within 2% of truth.
+theta0err<- 1 # Perturbation in the initial values
+tolerance<-5 # Result must be within 5*MCMCSE. of truth.
 
 n<-20 # Number of nodes
 b<-3 # Bipartite split
 
 d<-.1 # Density
-m<-.1 # Missingness rate
+m<-.05 # Missingness rate
 
 logit<-function(p) log(p/(1-p))
 
@@ -25,9 +33,8 @@ mk.missnet<-function(n,d,m,directed=TRUE,bipartite=FALSE){
 }
 
 correct.edges.theta<-function(y){
-  e<-summary(y~edges)
+  e<-network.edgecount(y)
   d<-network.dyadcount(y)
-  m<-network.naedgecount(y)
 
   logit(e/d)
 }
@@ -38,15 +45,15 @@ run.miss.test<-function(y){
   cat("Correct estimate =",truth,"\n")
   
   mplefit<-ergm(y~edges)
-  mpleOK<-all.equal(truth, coef(mplefit), check.attributes=FALSE, tolerance=tolerance)
+  mpleOK<-all.equal(truth,coef(mplefit),check.attributes=FALSE)
   cat("MPLE estimate =", coef(mplefit), if(isTRUE(mpleOK)) "OK" else mpleOK,"\n")
 
-  mcmcfit<-ergm(y~edges, control=control.ergm(force.main=TRUE, MCMC.interval=ceiling(n^(3/2)), MCMLE.maxit=maxit, 
-               init=truth+theta0err))
-  mcmcOK<-all.equal(truth, coef(mcmcfit), check.attributes=FALSE, tolerance=tolerance)
-  cat("MCMCMLE estimate =", coef(mcmcfit), if(isTRUE(mcmcOK)) "OK" else mcmcOK,"\n")
+  mcmcfit<-ergm(y~edges, control=control.ergm(force.main=TRUE, init=truth+theta0err),eval.loglik=FALSE, verbose=TRUE)
+  mcmc.diagnostics(mcmcfit)
+  mcmcOK<-abs(truth-coef(mcmcfit))/sqrt(diag(vcov(mcmcfit, source="estimation"))) 
+  cat("MCMCMLE estimate =", coef(mcmcfit), if(mcmcOK<tolerance) "OK" else mcmcOK,"\n")
   
-  return(isTRUE(mpleOK) && isTRUE(mcmcOK))
+  return(isTRUE(mpleOK) && (mcmcOK<tolerance))
 }
 
 # Directed

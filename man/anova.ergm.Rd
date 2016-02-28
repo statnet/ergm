@@ -1,5 +1,14 @@
+%  File man/anova.ergm.Rd in package ergm, part of the Statnet suite
+%  of packages for network analysis, http://statnet.org .
+%
+%  This software is distributed under the GPL-3 license.  It is free,
+%  open source, and has the attribution requirements (GPL Section 7) at
+%  http://statnet.org/attribution
+%
+%  Copyright 2003-2015 Statnet Commons
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{anova.ergm}
-\title{ANOVA for Linear Model Fits}
+\title{ANOVA for ERGM Fits}
 \usage{
 \method{anova}{ergm}(object, \dots, eval.loglik = FALSE)
 \method{anova}{ergmlist}(object, \dots, eval.loglik = FALSE, scale = 0, test = "F")
@@ -8,7 +17,7 @@
 %\alias{anova.ergm.null}
 \alias{anova.ergmlist}
 \description{
-  Compute an analysis of variance table for one or more linear model fits.
+  Compute an analysis of variance table for one or more ERGM fits.
 }
 \arguments{
   \item{object, \dots}{objects of class \code{\link{ergm}}, usually, a result of a

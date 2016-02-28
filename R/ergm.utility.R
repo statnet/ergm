@@ -1,3 +1,12 @@
+#  File R/ergm.utility.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2015 Statnet Commons
+#######################################################################
 #==============================================================
 # This file contains the following 21 utility functions:
 #      <ostar2deg>                  
@@ -10,6 +19,7 @@
 #      <rspartnerdist>         
 #      <twopathdist>            <copy.named>
 #      <compress.data.frame>    <sort.data.frame>
+#      <catchToList>
 #==============================================================      
 
 
@@ -27,6 +37,7 @@
 ###############################################################################
 
 ostar2deg <- function(object, ninflast=TRUE){
+.Deprecated(msg="ostar2deg will not be supported in future versions of ergm." )
  nnodes <- network.size(object$newnetwork)
  nodeg <- paste("odeg",1:(nnodes-1),sep="")
  nostar <- paste("ostar",1:(nnodes-1),sep="")
@@ -54,6 +65,7 @@ ostar2deg <- function(object, ninflast=TRUE){
 
 is.invertible <- function(V, tol=1e-12)
 {
+  .Deprecated(msg="is.invertible will not be supported in future versions of ergm. use 'rcond' instead" )
     ev <- eigen(V, symmetric = TRUE, only.values = TRUE)$values
     all(ev/max(ev) > tol)
 }
@@ -126,81 +138,41 @@ degreedist <- function(g, print=TRUE)
  invisible(degrees)
 }
 
-
-###############################################################################
-# The <degreedistfactor> function returns the cross table of the degree
-# distribution for a network and a given factor
-#
-# --PARAMETERS--
-#   g: a network
-#   x: a nodal attribute, as a character string
-#
-# --RETURNED--
-#   degrees:
-#      if directed  -- a list containing 2 cross tables, the in degree
-#                      distributions by 'x', and out degree dist by 'x'
-#      otherwise    -- a table of the degree distribution by 'x'
-#
-###############################################################################
-
-degreedistfactor <- function(g,x)
-{
- if(!is.network(g)){
-  stop("degreedist() requires a network object")
- }
- x <- get.vertex.attribute(g,x)
- degrees <- as.edgelist(g)
- if(length(degrees)>0){
-  if(is.directed(g)){
-   outdegrees <- table(degrees[,1],x[degrees[,2]])
-#  outdegrees <- c(rep(0, network.size(g)-nrow(outdegrees)), outdegrees)
-   if(!is.null(outdegrees)){print(table(outdegrees[,1]))}
-   if(!is.null(outdegrees)){print(table(outdegrees[,2]))}
-   indegrees <- table(degrees[,2],x[degrees[,1]])
-#  indegrees <- c(rep(0, network.size(g)-nrow(indegrees)), indegrees)
-   if(!is.null(indegrees)){print(table(indegrees[,1]))}
-   if(!is.null(indegrees)){print(table(indegrees[,2]))}
-   degrees <- list(indegrees=indegrees, outdegrees=outdegrees)
-#  degrees <- rbind(indegrees, outdegrees)
-  }else{
-   degrees <- table(degrees,x[degrees])
-   degrees <- c(rep(0, network.size(g)-nrow(degrees)), degrees)
-   if(!is.null(degrees)){print(table(degrees))}
-  }
- }
- invisible(degrees)
-}
+degreedistfactor <- function(g,x) 
+	 	{ 
+  .Deprecated(msg = "This function will probably not be supported in future versions of ergm")
+	 	 if(!is.network(g)){ 
+	 	  stop("degreedist() requires a network object") 
+	 	 } 
+	 	 x <- get.vertex.attribute(g,x) 
+	 	 degrees <- as.edgelist(g) 
+	 	 if(length(degrees)>0){ 
+	 	  if(is.directed(g)){ 
+	 	   outdegrees <- table(degrees[,1],x[degrees[,2]]) 
+	 	#  outdegrees <- c(rep(0, network.size(g)-nrow(outdegrees)), outdegrees) 
+	 	   if(!is.null(outdegrees)){print(table(outdegrees[,1]))} 
+	 	   if(!is.null(outdegrees)){print(table(outdegrees[,2]))} 
+	 	   indegrees <- table(degrees[,2],x[degrees[,1]]) 
+	 	#  indegrees <- c(rep(0, network.size(g)-nrow(indegrees)), indegrees) 
+	 	   if(!is.null(indegrees)){print(table(indegrees[,1]))} 
+	 	   if(!is.null(indegrees)){print(table(indegrees[,2]))} 
+	 	   degrees <- list(indegrees=indegrees, outdegrees=outdegrees) 
+	 	#  degrees <- rbind(indegrees, outdegrees) 
+	 	  }else{ 
+	 	   degrees <- table(degrees,x[degrees]) 
+	 	   degrees <- c(rep(0, network.size(g)-nrow(degrees)), degrees) 
+	 	   if(!is.null(degrees)){print(table(degrees))} 
+	 	  } 
+	 	 } 
+	 	 invisible(degrees) 
+	 	} 
 
 
-#espartnerdist <- function(g, print=TRUE)
-#{
-# if(!is.network(g)){
-#  stop("espartnerdist() requires a network object")
-# }
-## twopaths
-# smatrix <- g[,]
-##twopaths <- crossprod(smatrix)
-# twopaths <- t(smatrix) %*% smatrix
-## (transitive) three-triangle (= triangle for directed)
-# twopaths[smatrix==0] <- 0
-# degrees <- tabulate(twopaths[row(twopaths)<col(twopaths)]+1,
-#                     nbins=network.size(g)-1)
-# if(is.directed(g)){
-#  degrees[1] <- sum(smatrix)-sum(degrees[-1])
-# }else{
-#  degrees[1] <- 0.5*sum(smatrix)-sum(degrees[-1])
-# }
-# names(degrees) <- paste(0:(network.size(g)-2))
-# if(print){
-#  cat("ESP (edgewise shared partner) distribution:\n")
-#  if(!is.null(degrees)){print(degrees[degrees>0])}
-# }
-# invisible(degrees)
-#}
 
 
 espartnerdist <- function(g, print=TRUE)
 {
+  .Deprecated("espartnerdist function will not be supported in future versions of ergm.  use summary.formula with esp term instead")
  if(!is.network(g)){
   stop("espartnerdist() requires a network object")
  }
@@ -215,30 +187,12 @@ espartnerdist <- function(g, print=TRUE)
 }
 
 
-#dspartnerdist <- function(g, print=TRUE)
-#{
-# if(!is.network(g)){
-#  stop("dspartnerdist() requires a network object")
-# }
-## twopaths
-# smatrix <- g[,]
-##twopaths <- crossprod(smatrix)
-# twopaths <- t(smatrix) %*% smatrix
-## (transitive) three-triangle (= triangle for directed)
-# degrees <- tabulate(twopaths[row(twopaths)<col(twopaths)]+1,
-#                     nbins=network.size(g)-1)
-# names(degrees) <- paste(0:(network.size(g)-2))
-# if(print){
-#  cat("DSP (dyadwise shared partner) distribution:\n")
-#  if(!is.null(degrees)){print(degrees[degrees>0])}
-# }
-# invisible(degrees)
-#}
 
 
 
 dspartnerdist <- function(g, print=TRUE)
 {
+  .Deprecated("dspartnerdist function will not be supported in future versions of ergm.  use summary.formula with dsp term instead")
  if(!is.network(g)){
   stop("dspartnerdist() requires a network object")
  }
@@ -256,6 +210,7 @@ dspartnerdist <- function(g, print=TRUE)
 
 twopathdist <- function(g, print=TRUE)
 {
+  .Deprecated("twopathdist function will not be supported in future versions of ergm")
  if(!is.network(g)){
   stop("twopathdist() requires a network object")
  }
@@ -281,8 +236,9 @@ twopathdist <- function(g, print=TRUE)
 }
 
 
-"rspartnerdist" <- function (g, print = TRUE) 
+rspartnerdist <- function (g, print = TRUE) 
 {
+  .Deprecated("rspartnerdist function will not be supported in future versions of ergm.  use summary.formula with esp and dsp terms instead")
     if (!is.network(g)) {
         stop("rspartnerdist() requires a network object")
     }
@@ -380,12 +336,15 @@ function(x, alternative = c("two.sided", "less", "greater"),
     return(rval)
 }
 
+# generate a network object from the edgelist output of the mcmc sample
 newnw.extract<-function(oldnw,z,output="network",response=NULL){
+  # if z has a newedgelist attached, use it
   if("newedgelist" %in% names(z)){
     newedgelist<-z$newedgelist[,1:2,drop=FALSE]
     if(!is.null(response))
        newnwweights<-z$newedgelist[,3]
   }else{
+    # expect that z will have seperate lists of heads and tails
     nedges<-z$newnwtails[1]
     # *** don't forget - edgelists are cbind(tails, heads) now
     newedgelist <-
@@ -403,6 +362,7 @@ newnw.extract<-function(oldnw,z,output="network",response=NULL){
   newnw
 }
 
+# copy network and vertex attributes between two networks
 nvattr.copy.network <- function(to, from, ignore=c("bipartite","directed","hyper","loops","mnext","multiple","n")){
   for(a in list.vertex.attributes(from)){
     if(! a%in%ignore)
@@ -469,8 +429,8 @@ get.miss.dyads <- function(constraints, constraints.obs){
     if(is.null(free.dyads.obs)) NULL
     else free.dyads.obs
   }else{
-    if(is.null(free.dyads.obs)) standardize.network(invert.network(free.dyads),FALSE)
-    else standardize.network(invert.network(free.dyads),FALSE) | free.dyads.obs
+    if(is.null(free.dyads.obs)) standardize.network(!free.dyads,FALSE)
+    else standardize.network(!free.dyads,FALSE) | free.dyads.obs
   }
 }
 
@@ -479,6 +439,7 @@ get.miss.dyads <- function(constraints, constraints.obs){
 }
 
 invert.network <- function(nw){
+  .Deprecated(msg="invert.network has been deprecated, use '!.network' instead")
   n <- network.size(nw)
   m <- nw %n% "bipartite"
 
@@ -499,6 +460,27 @@ invert.network <- function(nw){
   
 }
 
+locate.InitFunction <- function(name, prefix, errname=NULL, env = parent.frame()){
+  if(is.call(name)) name <- name[[1]]
+  name <- as.character(name)
+  fname <- paste(prefix,name,sep=".")
+  
+  f <- try(get(fname, mode='function', envir=env), silent=TRUE)
+  if(inherits(f, "try-error")){
+    m <- getAnywhere(fname)
+    if(length(m$objs)){
+      ## Prioritise visible over not:
+      if(any(m$visible)){
+        m <- lapply(m[-1], "[", m$visible)
+      }
+      if(length(m$objs)>1) warning("Name ",fname," matched by multiple objects; using the first one on the list.")
+      f <- m$objs[[1]] 
+    }else{
+      if(!is.null(errname)) stop(errname,' ', sQuote(name), " initialization function ", sQuote(fname), " not found.") else f <- NULL
+    }
+  }
+  f
+}
 
 # Return the name of the package containing function f visible from
 # environment env.
@@ -506,10 +488,19 @@ which.package.InitFunction <- function(f, env = parent.frame()){
   f <- as.character(f)
   # Find the first entity named f in the search path, and get its name
   # attribute (if present).
-  loc <- attr(findFunction(f, where=env)[[1]], "name")
-  # If name attribute is not NULL and begins with "package:", return
-  # the package name. Otherwise, return NULL.
-  if(!is.null(loc) && grepl("^package:", loc)) sub("^package:", "", loc) else NULL
+  found <- methods::findFunction(f, where=env)
+  if (length(found) > 0) {
+    loc <- attr(found[[1]], "name")
+    # If name attribute is not NULL and begins with "package:", return
+    # the package name. Otherwise, return NULL.
+    if(!is.null(loc) && grepl("^package:", loc)) sub("^package:", "", loc) else NULL
+  } else {
+    # can't find the function normally; the package might have been imported
+    # instead of attached
+    found <- get(f, envir=env)
+    environmentName(environment(found))
+  }
+  
 }
 
 single.impute.dyads <- function(nw, response=NULL){
@@ -537,3 +528,28 @@ single.impute.dyads <- function(nw, response=NULL){
 # magnitude than replace=) values with replace= with the appropriate
 # sign. Leave NAs and NANs alone.
 .deinf <- function(x, replace=1/.Machine$double.eps) ifelse(is.nan(x) | abs(x)<replace, x, sign(x)*replace)
+
+
+
+# executes expression, returns the result in a list with any warnings and errors
+.catchToList <- function(expr) {
+  val <- NULL
+  myWarnings <- NULL
+  wHandler <- function(w) {
+    myWarnings <<- c(myWarnings, w$message)
+    invokeRestart("muffleWarning")
+  }
+  myError <- NULL
+  eHandler <- function(e) {
+    myError <<- e$message
+    NULL
+  }
+  val <- tryCatch(withCallingHandlers(expr, warning = wHandler), error = eHandler)
+  list(value = val, warnings = myWarnings, error=myError)
+} 
+
+## A is a matrix. V is a column vector that may contain Infs
+## computes A %*% V, counting 0*Inf as 0
+.multiply.with.inf <- function(A,V) {
+  cbind(colSums(t(A)*c(V), na.rm=TRUE))
+}

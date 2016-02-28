@@ -1,0 +1,86 @@
+---
+title: "ERGM terms cross-reference"
+author: "statnet.org"
+date: "07/28/2014"
+output: 
+  html_document:
+    toc: true
+    mathjax: null
+---
+<style type="text/css">
+table, td, th {
+  border: 1px solid #cccccc;
+  padding: 8px;
+}
+</style>
+
+<!-- 
+%\VignetteEngine{knitr::knitr} 
+%\VignetteIndexEntry{ERGM terms cross-reference}
+-->
+<!-- to render out this file for preview when not using RStudio:  rmarkdown::render('vignettes/ergm-term-crossRef.Rmd') -->
+
+This document is an automatically generated cross reference for the ergm model terms from the [stanet project](http://statnet.org).  The source for this data and additional descriptions are in the `?ergm.terms` help file or the [ergm manual](http://cran.r-project.org/web/packages/ergm/ergm.pdf). 
+
+
+```{r, include=FALSE}
+library(ergm)
+termBlock<-ergm:::.extractTermBlock()
+items<-ergm:::.extractTags(termBlock,"\\item")
+terms<-lapply(items,ergm:::.extractTerms)
+terms<-unlist(terms,recursive=FALSE)
+```
+
+## Interactive searching
+
+It is possible to search the `ergm-terms` help page and search for specific categories of terms using the `search.ergmTerms` command.  For example to find all the terms that mention 'triangle' in their description:
+
+```{r}
+search.ergmTerms(keyword='triangle')
+```
+
+Or to find all of the dyad-independent bipartite terms:
+
+```{r}
+search.ergmTerms(categories=c('bipartite','dyad-independent'))
+```
+
+
+## Basic / Frequently-used term category matrix
+
+For convenience, this table lists a subset of the most commonly-used ergm terms and categories.
+
+```{r,results='asis',echo=FALSE}
+ergm:::.termMatrix(terms,categories=c('binary', 'valued', 'directed', 'undirected', 'bipartite', 'dyad-independent'),only.include='frequently-used')
+```
+
+## Complete term category matrix
+This table lists the complete set of terms available in the ergm package. In HTML versions, clicking on a term name will jump to its definition. 
+
+```{r,results='asis',echo=FALSE}
+ergm:::.termMatrix(terms)
+```
+
+
+## Term definitions table
+
+This table lists full definitions for all of the terms along with their tags.  Note that some terms may have multiple versions (e.g. valued vs. binary) with slightly different arguments and will be listed more than once with the same definition. 
+
+```{r,results='asis',echo=FALSE}
+ergm:::.termTable(terms)
+```
+
+## Term index by category
+
+Note that currently the categories are somewhat ambiguous in their exclusivity.  For example, a term marked as 'directed' can not be used with an undirected network, but a term not marked with either 'directed' or 'undirected' can be used with both. (rename to 'directed-only' ?)
+
+```{r,results='asis',echo=FALSE}
+ergm:::.termToc(terms)
+```
+
+------------
+
+This documentation was built with..
+```{r}
+sessionInfo()
+```

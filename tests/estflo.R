@@ -1,5 +1,13 @@
-library(statnet.common)
-opttest({
+#  File tests/estflo.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2015 Statnet Commons
+#######################################################################
+
 library(ergm)
 data(florentine)
 # a markov graph fit to the Florentine data
@@ -24,4 +32,3 @@ summary(gest)
 gest <- ergm(flomarriage ~ kstar(2), constraints=~edges, control=control.ergm(seed=16124))
 gest
 summary(gest)
-}, "Florentine")

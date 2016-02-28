@@ -15,15 +15,6 @@ open source, and has the following attribution requirements
      For license and citation information see statnet.org/attribution
 --------------------------------------------------
 
---------------------------------------------------
-Source code incorporated from package 'coda'
---------------------------------------------------
-
-Several functions have been copied with modification from the R
-package 'coda', under the terms of GPL version 3. They are identified
-in the source code, along with copyright attribution.
-
-
 What does this mean?
 ====================
 
@@ -45,6 +36,6 @@ Martina Morris, University of Washington
 
 The 'statnet' development team
 
-Copyright 2008-2014
+Copyright 2008-2015
 
 

@@ -1,3 +1,12 @@
+#  File R/ergm.llik.obs.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2015 Statnet Commons
+#######################################################################
 #==========================================================================
 # This file contains the following 14 functions for computing log likelihoods,
 # gradients, hessians, and such for networks with observation process
@@ -58,20 +67,20 @@ llik.fun.obs <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL
   theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
-  x <- eta-eta0
+  etaparam <- eta-eta0
 # MSH: Is this robust?
-  x <- x[!etamap$offsetmap]
+  etaparam <- etaparam[!etamap$offsetmap]
   xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
   xsim.obs <- xsim.obs[,!etamap$offsetmap, drop=FALSE]
   xobs <- xobs[!etamap$offsetmap]
 # The next line is right!
-# aaa <- sum(xobs * x) - log(sum(probs*exp(xsim %*% x)))
+# aaa <- sum(xobs * etaparam) - log(sum(probs*exp(xsim %*% etaparam)))
 # These lines standardize:
-  basepred <- xsim %*% x
-  obspred <- xsim.obs %*% x
+  basepred <- xsim %*% etaparam
+  obspred <- xsim.obs %*% etaparam
 #
 # maxbase <- max(basepred)
-# llr <- sum(xobs * x) - maxbase - log(sum(probs*exp(basepred-maxbase)))
+# llr <- sum(xobs * etaparam) - maxbase - log(sum(probs*exp(basepred-maxbase)))
 #
 # alternative based on log-normal approximation
   mb <- sum(basepred*probs)
@@ -81,7 +90,7 @@ llik.fun.obs <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=NULL
 # 
 # This is the log-likelihood ratio (and not its negative)
 #
-  llr <- sum(xobs * x) + (mm + varweight*vm) - (mb + varweight*vb)
+  llr <- sum(xobs * etaparam) + (mm + varweight*vm) - (mb + varweight*vb)
   if(is.infinite(llr) | is.na(llr)){llr <- -800}
 #
 # Penalize changes to trustregion
@@ -107,18 +116,18 @@ llik.grad.obs <- function(theta, xobs, xsim, probs,  xsim.obs=NULL, probs.obs=NU
   theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
-  x <- eta-eta0
+  etaparam <- eta-eta0
 # MSH: Is this robust?
-  x <- x[!etamap$offsetmap]
+  etaparam <- etaparam[!etamap$offsetmap]
   xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
   xsim.obs <- xsim.obs[,!etamap$offsetmap, drop=FALSE]
   xobs <- xobs[!etamap$offsetmap]
-  basepred <- xsim %*% x
+  basepred <- xsim %*% etaparam
   prob <- max(basepred)
   prob <- probs*exp(basepred - prob)
   prob <- prob/sum(prob)
   E <- apply(sweep(xsim, 1, prob, "*"), 2, sum)
-  obspred <- xsim.obs %*% x
+  obspred <- xsim.obs %*% etaparam
   prob.obs <- max(obspred)
   prob.obs <- probs.obs*exp(obspred - prob.obs)
   prob.obs <- prob.obs/sum(prob.obs)
@@ -159,22 +168,22 @@ llik.hessian.obs <- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.obs=
 #
   eta <- ergm.eta(theta.offset, etamap)
 # etagrad <- ergm.etagrad(theta.offset, etamap)
-  x <- eta-eta0
+  etaparam <- eta-eta0
 # MSH: Is this robust?
-  x <- x[!etamap$offsetmap]
+  etaparam <- etaparam[!etamap$offsetmap]
   xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
   xsim.obs <- xsim.obs[,!etamap$offsetmap, drop=FALSE]
   xobs <- xobs[!etamap$offsetmap]
 # etagrad <- etagrad[,!etamap$offsetmap,drop=FALSE]
 # etagrad <- etagrad[!etamap$offsettheta,,drop=FALSE]
 #
-  basepred <- xsim %*% x
+  basepred <- xsim %*% etaparam
   prob <- max(basepred)
   prob <- probs*exp(basepred - prob)
   prob <- prob/sum(prob)
   E <- apply(sweep(xsim, 1, prob, "*"), 2, sum)
 
-  obspred <- xsim.obs %*% x
+  obspred <- xsim.obs %*% etaparam
   prob.obs <- max(obspred)
   prob.obs <- probs.obs*exp(obspred - prob.obs)
   prob.obs <- prob.obs/sum(prob.obs)
@@ -229,19 +238,19 @@ llik.fun.obs.robust<- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.ob
   theta.offset <- etamap$init
   theta.offset[!etamap$offsettheta] <- theta
   eta <- ergm.eta(theta.offset, etamap)
-  x <- eta-eta0
+  etaparam <- eta-eta0
 # MSH: Is this robust?
-  x <- x[!etamap$offsetmap]
+  etaparam <- etaparam[!etamap$offsetmap]
   xsim <- xsim[,!etamap$offsetmap, drop=FALSE]
   xsim.obs <- xsim.obs[,!etamap$offsetmap, drop=FALSE]
   xobs <- xobs[!etamap$offsetmap]
-# aaa <- sum(xobs * x) - log(sum(probs*exp(xsim %*% x)))
+# aaa <- sum(xobs * etaparam) - log(sum(probs*exp(xsim %*% etaparam)))
 # These lines standardize:
-  basepred <- xsim %*% x
-  obspred <- xsim.obs %*% x
+  basepred <- xsim %*% etaparam
+  obspred <- xsim.obs %*% etaparam
 #
 # maxbase <- max(basepred)
-# llr <- sum(xobs * x) - maxbase - log(sum(probs*exp(basepred-maxbase)))
+# llr <- sum(xobs * etaparam) - maxbase - log(sum(probs*exp(basepred-maxbase)))
 #
 # alternative based on log-normal approximation
   mb <- wtd.median(basepred, weight=probs)
@@ -252,7 +261,7 @@ llik.fun.obs.robust<- function(theta, xobs, xsim, probs, xsim.obs=NULL, probs.ob
 # 
 # This is the log-likelihood ratio (and not its negative)
 #
-  llr <- sum(xobs * x) + (mm + varweight*vm*vm) - (mb + varweight*vb*vb)
+  llr <- sum(xobs * etaparam) + (mm + varweight*vm*vm) - (mb + varweight*vb*vb)
   if(is.infinite(llr) | is.na(llr)){llr <- -800}
 #
 # Penalize changes to trustregion

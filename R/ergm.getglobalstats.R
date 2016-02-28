@@ -1,3 +1,12 @@
+#  File R/ergm.getglobalstats.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2015 Statnet Commons
+#######################################################################
 ###########################################################################
 # The <ergm.getglobalstats> function calculates and returns the global
 # statistics for a given network via <network_stats_wrapper.C>
@@ -41,7 +50,7 @@ ergm.getglobalstats <- function(nw, m, response=NULL) {
   # *** don't forget, tails are passes in first now, notheads  
   gs <- if(is.null(response))
          .C("network_stats_wrapper",
-            as.integer(Clist$tails), as.integer(Clist$heads), as.integer(!is.null(Clist$time)), as.integer(Clist$time), as.integer(Clist$lasttoggle),
+            as.integer(Clist$tails), as.integer(Clist$heads), as.integer(!is.null(Clist$time)), as.integer(Clist$time), as.integer(NVL(Clist$lasttoggle,0)),
             as.integer(Clist$nedges),
             as.integer(Clist$n),
             as.integer(Clist$dir), as.integer(Clist$bipartite), 
@@ -53,7 +62,7 @@ ergm.getglobalstats <- function(nw, m, response=NULL) {
             )$gs
          else
          .C("wt_network_stats_wrapper",
-            as.integer(Clist$tails), as.integer(Clist$heads), as.double(Clist$weights), as.integer(!is.null(Clist$time)), as.integer(Clist$time), as.integer(Clist$lasttoggle),
+            as.integer(Clist$tails), as.integer(Clist$heads), as.double(Clist$weights), as.integer(!is.null(Clist$time)), as.integer(Clist$time), as.integer(NVL(Clist$lasttoggle,0)),
             as.integer(Clist$nedges),
             as.integer(Clist$n),
             as.integer(Clist$dir), as.integer(Clist$bipartite), 

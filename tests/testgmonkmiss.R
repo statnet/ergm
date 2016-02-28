@@ -1,3 +1,12 @@
+#  File tests/testgmonkmiss.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2013 Statnet Commons
+#######################################################################
 library(statnet.common)
 opttest({
 library(ergm)
@@ -20,30 +29,27 @@ summary(samplike)
 degreedist(samplike)
 
 set.seed(234)
-efit <- ergm(samplike~edges + triangle, estimate="MPLE")
+efit <- ergm(samplike~edges + gwesp(0.2, fixed=T), estimate="MPLE")
 summary(efit)
 
 set.seed(345)
-efit <- ergm(samplike~edges + triangle, control=control.ergm(MCMLE.maxit=3,
-      MCMC.samplesize=1000, MCMC.interval=1000, MCMC.burnin=1000))
+efit <- ergm(samplike~edges + gwesp(0.2, fixed=T), control=control.ergm(MCMLE.maxit=3))
 summary(efit)
 
 ## Test bounded degrees.
 set.seed(456)
-efit <- ergm(samplike~edges + triangle, constraints=~bd(maxout=9), 
-             control=control.ergm(MCMLE.maxit=3,
-             MCMC.samplesize=1000, MCMC.interval=1000, MCMC.burnin=1000))
+efit <- ergm(samplike~edges + gwesp(0.2, fixed=T), constraints=~bd(maxout=9), 
+             control=control.ergm(MCMLE.maxit=3))
 summary(efit)
 
 samplike <- set.vertex.attribute(samplike, "respondent", respondent)
 rm(respondent)
 summary(samplike)
 
-efit <- ergm(samplike~edges + triangle, estimate="MPLE")
+efit <- ergm(samplike~edges + gwesp(0.2, fixed=T), estimate="MPLE")
 summary(efit)
 
 set.seed(567)
-efit <- ergm(samplike~edges + triangle, control=control.ergm(MCMLE.maxit=3,
-    MCMC.samplesize=1000, MCMC.interval=1000, MCMC.burnin=1000))
+efit <- ergm(samplike~edges + gwesp(0.2, fixed=T), control=control.ergm(MCMLE.maxit=3))
 summary(efit)
 },"directed network with missing data and dyadic dependence")

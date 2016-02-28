@@ -1,9 +1,19 @@
+%  File man/ergm.Rd in package ergm, part of the Statnet suite
+%  of packages for network analysis, http://statnet.org .
+%
+%  This software is distributed under the GPL-3 license.  It is free,
+%  open source, and has the attribution requirements (GPL Section 7) at
+%  http://statnet.org/attribution
+%
+%  Copyright 2003-2015 Statnet Commons
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{ergm}
 \alias{ergm}
 \alias{ergm.object}
-\title{Exponential Family Random Graph Models}
+\alias{is.ergm}
+\title{Exponential-Family Random Graph Models}
 \description{
-  \code{\link{ergm}} is used to fit linear exponential random graph
+  \code{\link{ergm}} is used to fit exponential-family random graph
   models (ERGMs), in which
   the probability of a given network, \eqn{y}, on a set of nodes is 
   \eqn{h(y) \exp\{\eta(\theta) \cdot
@@ -13,14 +23,17 @@
   \eqn{\eta(\theta)} is a natural parameter vector of the same 
   length (with \eqn{\eta(\theta)=\theta} for most terms), and \eqn{c(\theta)} is the
   normalizing constant for the distribution.
-  \code{\link{ergm}} can return either a maximum pseudo-likelihood
-  estimate or an approximate maximum likelihood estimator based on a Monte Carlo scheme.
+  \code{\link{ergm}} can return a maximum pseudo-likelihood
+  estimate, an approximate maximum likelihood estimate based on a Monte
+  Carlo scheme, or an approximate contrastive divergence estimate based
+  on a similar scheme.
+  
+  (For an overview of the package, see \link{ergm-package}.)
 }
 \usage{
 ergm (formula,
       response=NULL,
       reference=~Bernoulli,
-      obs.constraints=~observed,
       constraints=~.,
       offset.coef=NULL,
       target.stats=NULL,
@@ -44,22 +57,16 @@ ergm (formula,
     operator if necessary. Enclosing a model term in \code{offset()}
     fixes its value to one specified in \code{offset.coef}.
   }
-  \item{response}{\emph{EXPERIMENTAL.} Name of the edge attribute whose value is to be
+  \item{response}{Name of the edge attribute whose value is to be
     modeled. Defaults to \code{NULL} for simple presence or
     absence, modeled via binary ERGM terms. Passing
     anything but \code{NULL} uses valued ERGM terms.} 
   
-  \item{reference}{\emph{EXPERIMENTAL.} A one-sided formula specifying
+  \item{reference}{A one-sided formula specifying
     the reference measure (\eqn{h(y)}) to be used. (Defaults to \code{~Bernoulli}.)
     See help for \link[=ergm-references]{ERGM reference measures} implemented in the
     \code{\link[=ergm-package]{ergm}} package.}
   
-  \item{obs.constraints}{\emph{NOT FOR RELEASE.} Constraints defining the space of underlying
-    networks that could have produced the observed network. Defaults to
-    \code{~\link[=ergm-constraints]{observed}}, to induce the space of
-    networks with observed dyads fixed at observed values and missing
-    (\code{NA}) dyads varying.
-  }
   \item{constraints}{A one-sided formula specifying one or more constraints
     on the support of the distribution of the networks being modeled,
     using syntax similar to the \code{formula} argument. Multiple constraints
@@ -104,7 +111,7 @@ ergm (formula,
     estimator is returned.  For certain models, the MPLE and MLE are equivalent,
     in which case this argument is ignored.  (To force MCMC-based approximate
     likelihood calculation even when the MLE and MPLE are the same, see the
-    \code{force.main} argument of \code{\link{control.ergm}}. If "CD",
+    \code{force.main} argument of \code{\link{control.ergm}}. If "CD" (\emph{EXPERIMENTAL}),
     the Monte-Carlo contrastive divergence estimate is returned. )
   }
   \item{control}{A list of control parameters for algorithm
@@ -147,29 +154,28 @@ ergm (formula,
  \item{covar}{Approximate covariance matrix for the MLE, based on the inverse
   Hessian of the approximated loglikelihood evaluated at the maximizer.}
  \item{failure}{Logical:  Did the MCMC estimation fail?}
- \item{mc.se}{MCMC standard error estimates}
+ \item{network}{Original network}
  \item{newnetwork}{The final network at the end of the MCMC
  simulation}
- \item{network}{Original network}
  \item{coef.init}{The initial value of \eqn{\theta}.}
- \item{initial}{The MPLE fit as a \code{glm} object.}
- \item{null.deviance}{Deviance of the null model. Valid only for
-  unconstrained models.}
- \item{mle.lik}{The approximate log-likelihood for the MLE.
-  The value is only approximate because it is estimated based 
-  on the MCMC random sample.}
- \item{etamap}{The set of functions mapping the true parameter theta
+ \item{est.cov}{The covariance matrix of the model statistics in the final MCMC sample.}
+ \item{coef.hist, steplen.hist, stats.hist, stats.obs.hist}{
+   For the MCMLE method, the history of coefficients, Hummel step lengths, and average model statistics for each iteration..
+}
+ \item{control}{The control list passed to the call.}
+  \item{etamap}{The set of functions mapping the true parameter theta
  to the canonical parameter eta (irrelevant except in a curved exponential
  family model)}
- \item{degeneracy.value}{Score calculated to assess the degree of 
- degeneracy in the model.}
- \item{degeneracy.type}{Supporting output for \code{degeneracy.value}. Mainly
-for internal use.}
- \item{formula}{The original \code{\link{formula}} entered into the \code{\link{ergm}} function.}
- \item{constraints}{Constraints used by original \code{ergm} call}
- \item{control}{The control list passed to the call.}
- \item{offset}{vector of logical telling which model parameters are to be set
+  \item{formula}{The original \code{\link{formula}} entered into the \code{\link{ergm}} function.}
+  \item{target.stats}{The target.stats used during estimation (passed through from the Arguments)}
+  \item{target.esteq}{Used for curved models to preserve the target mean values of the curved terms. It is identical to target.stats for non-curved models.}
+  \item{constrained}{The list of constraints implied by the constraints used by original \code{ergm} call}
+   \item{constraints}{Constraints used during estimation (passed through from the Arguments)}
+  \item{reference}{The reference measure used during estimation (passed through from the Arguments)}
+  \item{estimate}{The estimation method used (passed through from the Arguments).}
+  \item{offset}{vector of logical telling which model parameters are to be set
  at a fixed value (i.e., not estimated).}
+ 
  \item{drop}{If \code{\link[=control.ergm]{control$drop}=TRUE}, a numeric vector indicating which terms were dropped due to to extreme values of the
    corresponding statistics on the observed network, and how:
    \describe{
@@ -180,14 +186,22 @@ for internal use.}
        \code{+Inf}.}
    }
  }
-\item{coef.hist, stats.hist, stats.obs.hist}{
-   For the MCMLE method, the history of coefficients and resulting
-  average statistics.
-}
+ 
 \item{estimable}{A logical vector indicating which terms could not be
   estimated due to a \code{constraints} constraint fixing that term at a
   constant value.
 }
+
+ \item{null.lik}{Log-likelihood of the null model. Valid only for
+  unconstrained models.}
+ \item{mle.lik}{The approximate log-likelihood for the MLE.
+  The value is only approximate because it is estimated based 
+  on the MCMC random sample.}
+
+ \item{degeneracy.value}{Score calculated to assess the degree of 
+ degeneracy in the model. Only shows when MCMLE.check.degeneracy is TRUE in \code{control.ergm}. }
+ \item{degeneracy.type}{Supporting output for \code{degeneracy.value}. Only shows when MCMLE.check.degeneracy is TRUE in \code{control.ergm}. Mainly for internal use.}
+
   See the method \code{\link{print.ergm}} for details on how
   an \code{\link{ergm}} object is printed.  Note that the
   method \code{\link{summary.ergm}} returns a summary of the
@@ -258,22 +272,21 @@ Bender-deMoll S, Morris M, Moody J (2008).
  \emph{Journal of Statistical Software}, 24(7).
  \url{http://www.jstatsoft.org/v24/i07/}.
 
-Butts CT (2006).
- \pkg{netperm}: Permutation Models for Relational Data.
- Version 0.2, \url{http://erzuli.ss.uci.edu/R.stuff}.
+%Butts CT (2006).
+% \pkg{netperm}: Permutation Models for Relational Data.
+% Version 0.2, \url{http://erzuli.ss.uci.edu/R.stuff}.
 
 Butts CT (2007).
  \pkg{sna}: Tools for Social Network Analysis.
- Version 1.5, \url{http://erzuli.ss.uci.edu/R.stuff}.
+R package version 2.3-2. \url{http://CRAN.R-project.org/package=sna}.
 
 Butts CT (2008).
  \pkg{network}: A Package for Managing Relational Data in \R.
  \emph{Journal of Statistical Software}, 24(2).
  \url{http://www.jstatsoft.org/v24/i02/}.
 
-Butts CT, with help~from David~Hunter, Handcock MS (2007).
- \pkg{network}: Classes for Relational Data.
- Version 1.2, \url{http://erzuli.ss.uci.edu/R.stuff}.
+Butts C (2015).
+ \pkg{network}: The Statnet Project (http://www.statnet.org). R package version 1.12.0, \url{http://CRAN.R-project.org/package=network}.
 
 Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).
  A \pkg{statnet} Tutorial.

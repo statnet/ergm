@@ -1,3 +1,12 @@
+#  File R/InitConstraint.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2015 Statnet Commons
+#######################################################################
 #============================================================================
 # This file contains the following 12 functions for initializing empty
 # constraint lists (each prependend with "InitConstraint")
@@ -36,12 +45,7 @@ InitConstraint.degrees<-InitConstraint.nodedegrees<-function(conlist, lhs.nw, ..
    conlist$degrees<-list()
    conlist
 }
-InitConstraint.degreesmix<-function(conlist, lhs.nw, attrib="disease", ...){
-   if(nargs()>3)
-     stop(paste("Vertex degrees constraint takes one argument at this time."), call.=FALSE)
-   conlist$degreesmix<-list(attrib=attrib)
-   conlist
-}
+
 #ergm.ConstraintImplications("degrees", c("edges", "idegrees", "odegrees", "idegreedist", "odegreedist", "degreedist", "bd"))
 
 InitConstraint.odegrees<-function(conlist, lhs.nw, ...){
@@ -136,13 +140,6 @@ InitConstraint.observed <- function(conlist, lhs.nw, ...){
 }
 #ergm.ConstraintImplications("observed", c())
 
-InitConstraint.ranks<-function(conlist, lhs.nw, ...){
-   if(length(list(...)))
-     stop(paste("Rank constraint does not take arguments at this time."), call.=FALSE)
-   conlist$ranks<-list()
-   conlist
-}
-
 InitConstraint.blockdiag<-function(conlist, lhs.nw, attrname=NULL, ...){
   if(length(list(...)))
     stop(paste("Block diagonal constraint takes one argument at this time."), call.=FALSE)
@@ -160,3 +157,74 @@ InitConstraint.blockdiag<-function(conlist, lhs.nw, attrname=NULL, ...){
   
   conlist
 }
+
+
+
+InitConstraint.fixedas<-function(conlist, lhs.nw, present=NULL, absent=NULL,...){
+	if(is.null(present) & is.null(absent))
+		stop(paste("fixedas constraint takes at least one argument, either present or absent or both."), call.=FALSE)
+	if(!is.null(present)){
+		if(is.network(present)){
+			present <- as.edgelist(present)
+		}
+		if(!is.matrix(present)){
+			stop("Argument 'present' in fixedas constraint should be either a network or edgelist")
+		}
+	}
+	if(!is.null(absent)){
+		if(is.network(absent)){
+			absent <- as.edgelist(absent)
+		}
+		if(!is.matrix(absent)){
+			stop("Argument 'absent' in fixedas constraint should be either a network or edgelist")
+		}
+	}
+	conlist$fixedas$free.dyads<-function(){ 
+	fixed <- rbind(present,absent)
+		if(any(duplicated(fixed))){
+			stop("Dyads cannot be fixed at both present and absent")
+		}
+		standardize.network(!network.update(lhs.nw,fixed, matrix.type = "edgelist"))
+	}
+	conlist
+}
+
+
+
+
+
+InitConstraint.fixallbut<-function(conlist, lhs.nw, free.dyads=NULL,...){
+	if(is.null(free.dyads))
+		stop(paste("fixallbut constraint takes one required argument free.dyads and one optional argument fixed.state"), call.=FALSE)
+	
+
+		if(is.network(free.dyads)){
+			free.dyads <- as.edgelist(free.dyads)
+		}
+		
+		if(!is.matrix(free.dyads)){
+			stop("Argument 'free.dyads' in fixallbut constraint should be either a network or edgelist")
+		}
+	
+#	
+#	if(!is.null(fixed.state)){
+#		if(length(fixed.state)==1)
+#			rep(fixed.state,nrow(fixed.dyads))
+#		if(length(fixed.state != nrow(fixed.dayds)))
+#			stop("fixed.state should be a vector of length equals to the nubmer of dyads in fixed.dyads")
+#		if(!all(fixed.state %in% c(0,1)))
+#			stop("fixed.state should be a vector of 0,1")
+#	}
+#	
+#	
+	conlist$fixallbut$free.dyads<-function(){ 
+		standardize.network(network.update(lhs.nw,free.dyads, matrix.type = "edgelist"))
+	}
+	conlist
+}
+
+
+
+
+
+#ergm.ConstraintImplications("edges", c())

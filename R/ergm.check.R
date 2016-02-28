@@ -1,3 +1,12 @@
+#  File R/ergm.check.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2015 Statnet Commons
+#######################################################################
 #============================================================================
 # This file contains the following 4 functions for checking ergm arguments
 #          <ergm.checkargs>           <ergm.checkdirected>
@@ -93,7 +102,7 @@ ergm.checkargs <- function(fname, arglist, varnames=NULL, vartypes=NULL,
 
 
 #################################################################################
-# The <ergm.checkdirected> function halts execution for the <InitErgm> functions
+# The <ergm.checkbipartite> function halts execution for the <InitErgm> functions
 # with an error message if the given model term cannot be used with the network
 # because of its bipartite state
 #
@@ -175,11 +184,11 @@ ergm.checkdirected <- function(fname, nw.directedflag, requirement,
 
 ergm.checkdegeneracy <- function(statsmatrix, statsmatrix.obs=NULL, verbose=FALSE) {
  degen <- FALSE
- novar <- apply(statsmatrix,2,var)<1e-6
+ novar <- apply(statsmatrix,2,stats::var)<.Machine$double.eps^0.5
  if(all(novar)){
   if(verbose){
     warning("All the MCMC sample statistics are the same.\n", call.=FALSE)
-    print(apply(statsmatrix,2,summary.statsmatrix.ergm),scipen=6)
+    print(apply(statsmatrix,2,ergm::summary.statsmatrix.ergm),scipen=6)
   }
   degen <- TRUE
  }

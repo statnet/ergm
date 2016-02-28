@@ -1,3 +1,12 @@
+#  File tests/termTests.flexible.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2013 Statnet Commons
+#######################################################################
 
 library(ergm)
 
@@ -179,8 +188,12 @@ s.x <- summary(samplike~edgecov(cov))
 e.x <- ergm(samplike ~ edgecov(cov))
 s.xa <- summary(samplike~edgecov(samplike, "YearsTrusted"))
 e.xa <- ergm(samplike ~ edgecov(samplike, "YearsTrusted"))
+n.x <- try(summary(samplike~edgecov('dummy')),silent=TRUE)
+set.network.attribute(samplike,'dummy',cov)
+n2.x <- summary(samplike~edgecov('dummy'))
 if (s.x!=134 || round(e.x$coef + .5022,3)!=0  ||
-    s.xa!=183 || e.xa$coef!=+Inf ) {
+    s.xa!=183 || e.xa$coef!=+Inf ||
+    !is(n.x,'try-error') || n2.x!=134) {
  print(list(s.x=s.x,e.x=e.x,s.xa=s.xa,e.xa=e.xa))
  stop("Failed edgecov test")
 }else{
@@ -223,8 +236,8 @@ if (!all(s.d==c(36,13)) ||
 # gwdsp, either
 num.tests=num.tests+1
 s.0 <- summary(fmh~gwdsp)
-e.0 <- ergm(samplike~gwdsp, estimate="MPLE")
-e.a <- ergm(samplike~gwdsp(.8), estimate="MPLE")
+e.0 <- ergm(samplike~gwdsp(fixed=TRUE), estimate="MPLE")
+e.a <- ergm(samplike~gwdsp(.8, fixed=TRUE), estimate="MPLE")
 s.f <- summary(fmh~gwdsp(fixed=TRUE))
 s.af <- summary(fmh~gwdsp(.3, fixed=TRUE))
 e.af <- ergm(samplike~gwdsp(.2, fixed=TRUE), estimate="MPLE")
@@ -246,8 +259,8 @@ if (!all(head(s.0)==c(431, 75, 23, 1, 1, 0)) ||
 # gwesp, either
 num.tests=num.tests+1
 s.0 <- summary(fmh~gwesp)
-e.0 <- ergm(samplike~gwesp, estimate="MPLE")
-e.a <- ergm(samplike~gwesp(.8), estimate="MPLE")
+e.0 <- ergm(samplike~gwesp(fixed=TRUE), estimate="MPLE")
+e.a <- ergm(samplike~gwesp(.8, fixed=TRUE), estimate="MPLE")
 s.f <- summary(fmh~gwesp(fixed=TRUE))
 s.af <- summary(fmh~gwesp(.3, fixed=TRUE))
 e.af <- ergm(samplike~gwesp(.2, fixed=TRUE), estimate="MPLE")
@@ -269,8 +282,8 @@ if (!all(head(s.0)==c(70,36,13,0,1,0)) ||
 # gwnsp, either
 num.tests=num.tests+1
 s.0 <- summary(fmh~gwnsp)
-e.0 <- ergm(samplike~gwnsp, estimate="MPLE")
-e.a <- ergm(samplike~gwnsp(.8), estimate="MPLE")
+e.0 <- ergm(samplike~gwnsp(fixed=TRUE), estimate="MPLE")
+e.a <- ergm(samplike~gwnsp(.8, fixed=TRUE), estimate="MPLE")
 s.f <- summary(fmh~gwnsp(fixed=TRUE))
 s.af <- summary(fmh~gwnsp(.3, fixed=TRUE))
 e.af <- ergm(samplike~gwnsp(.2, fixed=TRUE), estimate="MPLE")
@@ -512,21 +525,21 @@ print(list(s.ac.d=s.ac.d, s.ac.u=s.ac.u, s.ac.b=s.ac.b,
 
 
                 
-# threepath, either
+# threetrail, either
 num.tests=num.tests+1
-s.0 <- summary(samplike~threepath)
-e.0 <- ergm(fmh~threepath, estimate="MPLE")
-s.k <- summary(samplike~threepath(keep=2))
-e.k <- ergm(samplike~threepath(keep=1:2), estimate="MPLE")
+s.0 <- summary(samplike~threetrail)
+e.0 <- ergm(fmh~threetrail, estimate="MPLE")
+s.k <- summary(samplike~threetrail(keep=2))
+e.k <- ergm(samplike~threetrail(keep=1:2), estimate="MPLE")
 if (!all(s.0==c(2103, 2326, 1749, 1897)) ||
     round(e.0$coef + .2842, 3) != 0 ||
     s.k!=2326 ||
     !all(round(e.k$coef+c(.0188, -.0077),3)==0)) {
  print(list(s.0=s.0, e.0=e.0, s.k=s.k, e.k=e.k))
- stop("Failed threepath term test")
+ stop("Failed threetrail term test")
 } else {
   num.passed.tests=num.passed.tests+1
-  print("Passed threepath term test")
+  print("Passed threetrail term test")
 }
 
                 

@@ -1,3 +1,12 @@
+#  File tests/termTests.directed.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2013 Statnet Commons
+#######################################################################
 
 library(ergm)
 
@@ -41,6 +50,8 @@ if (s.0 != 32 || round(e.0$coef+1.33,3)!=0 ||
 }
 
 
+
+
 # ctripe=ctriad, directed
 num.tests=num.tests + 1
 s.0 <- summary(samplike~ctriple)
@@ -61,10 +72,47 @@ if (s.0 != 39 || round(e.0$coef + .3522, 3) != 0 ||
 }
 
 
+
+# cyclicalties, directed
+num.tests=num.tests+1
+s.0 <- summary(samplike~cyclicalties)
+e.0 <- ergm(samplike~cyclicalties, estimate="MPLE")
+s.b <- summary(samplike~cyclicalties(attrname="group"))
+e.b <- ergm(samplike~cyclicalties(attrname="group"), estimate="MPLE")
+if (s.0 != 62 || round(e.0$coef + 0.4154, 3) != 0 ||
+		!all(s.b==55) ||
+		!all(round(e.b$coef - 0.2289 , 3) == 0)) {
+	print(list(s.0=s.0, e.0=e.0, s.b=s.b, e.b=e.b))
+	stop("Failed cyclicalties term test")
+} else {
+	num.passed.tests = num.passed.tests+1
+	print("Passed cyclicalties term test")
+}
+
+
+
+# idegrange, directed
+num.tests=num.tests + 1
+s.0 <- summary(samplike~idegrange(5:8))
+e.0 <- ergm(samplike~idegrange(5:8), estimate="MPLE")
+s.h <- summary(samplike~idegrange(5:8, by="group", homophily=TRUE))
+e.h <- ergm(samplike~idegrange(5:8, by="group", homophily=TRUE), estimate="MPLE")
+if (!all(s.0==c(9, 6, 4, 3)) || round(e.0$coef + c(-0.1431, 1.0986, 1.1451, 0.2231 ))!= 0 ||!all(s.h==c(5, 3, 0, 0)) || round(e.h$coef + c(-0.5108, -2.1972 , Inf, Inf ))!= 0) {
+	print(list(s.0=s.0, e.0=e.0, s.h=s.h, e.h=e.h))
+	stop("Failed idegrange term test")
+} else {
+	print("Passed idegrange term test")
+	num.passed.tests = num.passed.tests+1
+}
+
+
+
+
+
 # gwidegree, directed
 num.tests=num.tests + 1
 s.d <- summary(samplike~gwidegree(.3))
-e.d <- ergm(samplike~gwidegree(.4), estimate="MPLE")
+e.d <- ergm(samplike~gwidegree(.4, fixed=TRUE), estimate="MPLE")
 s.df <- summary(samplike~gwidegree(.3, fixed=TRUE))
 e.df <- ergm(samplike~gwidegree(.2, fixed=TRUE), estimate="MPLE")
 s.dfa <- summary(samplike~gwidegree(.1, TRUE, "group"))
@@ -86,7 +134,7 @@ if (!all(head(s.d)==c(0,3,5,1,3,2)) ||
 # gwodegree, directed
 num.tests=num.tests + 1
 s.d <- summary(samplike~gwodegree(.3))
-e.d <- ergm(samplike~gwodegree(.4), estimate="MPLE")
+e.d <- ergm(samplike~gwodegree(.4, fixed=TRUE), estimate="MPLE")
 s.df <- summary(samplike~gwodegree(.3, fixed=TRUE))
 e.df <- ergm(samplike~gwodegree(.2, fixed=TRUE), estimate="MPLE")
 s.dfa <- summary(samplike~gwodegree(.1, TRUE, "group"))
@@ -378,6 +426,22 @@ if (round(s.0-196.9432,3) != 0 || round(e.0$coef + 0.2909, 3) != 0) {
   print("Passed odegreepopularity term test")
 }
 
+
+# odegrange, directed
+num.tests=num.tests + 1
+s.0 <- summary(samplike~odegrange(5:8))
+e.0 <- ergm(samplike~odegrange(5:8), estimate="MPLE")
+s.h <- summary(samplike~odegrange(5:8, by="group", homophily=TRUE))
+e.h <- ergm(samplike~odegrange(5:8, by="group", homophily=TRUE), estimate="MPLE")
+if (!all(s.0==c(12, 5, 0, 0)) || round(e.0$coef + c(0.619, -1.030, Inf, Inf))!= 0 ||!all(s.h==c(3, 0, 0, 0)) || round(e.h$coef + c(-0.2231, Inf , Inf, Inf ))!= 0) {
+	print(list(s.0=s.0, e.0=e.0, s.h=s.h, e.h=e.h))
+	stop("Failed odegrange term test")
+} else {
+	print("Passed odegrange term test")
+	num.passed.tests = num.passed.tests+1
+}
+
+
                 
 # receiver, directed
 num.tests=num.tests + 1
@@ -459,6 +523,20 @@ if (s.0 != 154 || round(e.0$coef + .07745, 3) != 0) {
 } else {
   num.passed.tests=num.passed.tests+1
   print("Passed transitive term test")
+}
+
+
+
+# transitiveties, directed
+num.tests=num.tests + 1
+s.0 <- summary(samplike~transitiveties)
+e.0 <- ergm(samplike~transitiveties, estimate="MPLE")
+if (s.0 != 69 || round(e.0$coef + 0.4116, 3) != 0) {
+	print(list(s.0=s.0, e.0=e.0))
+	stop("Failed transitiveties term test")
+} else {
+	num.passed.tests=num.passed.tests+1
+	print("Passed transitiveties term test")
 }
 
 

@@ -1,3 +1,12 @@
+%  File man/ergm-constraints.Rd in package ergm, part of the Statnet suite
+%  of packages for network analysis, http://statnet.org .
+%
+%  This software is distributed under the GPL-3 license.  It is free,
+%  open source, and has the attribution requirements (GPL Section 7) at
+%  http://statnet.org/attribution
+%
+%  Copyright 2003-2015 Statnet Commons
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{ergm-constraints}
 \alias{ergm-constraints}
 \alias{constraints-ergm}
@@ -19,13 +28,14 @@
 \alias{InitConstraint.nodedegrees}
 \alias{InitConstraint.observed}
 \alias{InitConstraint.odegreedist}
-\alias{InitConstraint.ranks}
+\alias{InitConstraint.fixedas}
+\alias{InitConstraint.fixallbut}
 
 \docType{methods}
 
-\title{Sample Space Constraints for Exponential Family Random Graph Models}
+\title{Sample Space Constraints for Exponential-Family Random Graph Models}
 \description{
-  \code{\link{ergm}} is used to fit linear exponential random graph
+  \code{\link{ergm}} is used to fit exponential-family random graph
   models (ERGMs), in which
   the probability of a given network, \eqn{y}, on a set of nodes is 
   \eqn{h(y) \exp\{\eta(\theta) \cdot
@@ -55,8 +65,16 @@
         on Degrees} section for more information.
     }
     \item{\code{blockdiag(attrname)}}{
-      Force a block-diagonal structure on the network. Only dyads
-      \eqn{(i,j)} for which \code{attrname(i)==attrname(j)} can have edges.
+      Force a block-diagonal structure (and its bipartite analogue) on
+      the network. Only dyads \eqn{(i,j)} for which
+      \code{attrname(i)==attrname(j)} can have edges.
+
+      Note that the current implementation requires that blocks be
+      contiguous for \dQuote{unipartite} graphs, and for bipartite
+      graphs, they must be contiguous within a partition and must have
+      the same ordering in both partitions. (They do not, however,
+      require that all blocks be represented in both partitions, but
+      those that overlap must have the same order.)
     }
     \item{\code{degrees} and \code{nodedegrees}}{
       Preserve the degree of each vertex of the given network: only networks
@@ -87,10 +105,20 @@
     \item{\code{observed}}{
       Preserve the observed dyads of the given network.
     }
-  }
+    \item{\code{fixedas(present,absent)}}{
+      Preserve the edges in 'present' and preclude the edges in 'absent'. 
+      Both 'present' and 'absent' can take input object as edgelist and 
+      network, the latter will convert to the corresponding edgelist.
+ 	}
+ 	
+ 	\item{\code{fixallbut(free.dyads)}}{
+      Preserve the dyad status in all but free.dyads. free.dyads can 
+      take input object as edgelist and network, the latter will 
+      convert to the corresponding edgelist.
+ 	}
   Not all combinations of the above are supported.
-}
-  
+  }
+}  
 \section{Placing Bounds on Degrees:}{
 There are many times when one may wish to condition on the
 number of inedges or outedges possessed by a node, either as a

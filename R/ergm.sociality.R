@@ -1,3 +1,12 @@
+#  File R/ergm.sociality.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2015 Statnet Commons
+#######################################################################
 #==================================================================
 # This file contains the 5 following functions for ??
 #    <sociality>            <sociality.network>
@@ -39,7 +48,8 @@ sociality.default <- function(object,...)
 
 sociality.network <- function (object, ..., 
    statistics=NULL){
-  require(sna, quietly=TRUE, warn.conflicts=FALSE)
+  .Deprecated(msg="the sociality.network function will not be supported in the future. see summary.formula and the ergm term 'sociality' for an alternate")
+  requireNamespace('sna', quietly=TRUE, warn.conflicts=FALSE)
   if(!is.directed(object)){
     gmode <- "network"
     if(is.null(statistics)){
@@ -59,14 +69,14 @@ sociality.network <- function (object, ...,
   smatrix <- as.sociomatrix(object)
   symmatrix <- smatrix 
   symmatrix[t(smatrix) > 0] <- 1
-  degreecent <- prestige(smatrix,gmode=gmode,cmode="indegree")
+  degreecent <- sna::prestige(smatrix,gmode=gmode,cmode="indegree")
   odeg <- order(-degreecent)[c(1,network.size(object))]
   stats <- matrix(0,ncol=length(statistics),nrow=network.size(object))
   for(i in seq(along=statistics)){
     if(statistics[i] %in% "eigenvector.sym"){
-      stats[,i] <- prestige(symmatrix,gmode=gmode,cmode="eigenvector")
+      stats[,i] <- sna::prestige(symmatrix,gmode=gmode,cmode="eigenvector")
     }else{
-      stats[,i] <- Re(prestige(smatrix,gmode=gmode,cmode=statistics[i]))
+      stats[,i] <- Re(sna::prestige(smatrix,gmode=gmode,cmode=statistics[i]))
     }
     if(diff(stats[odeg,i])>0){stats[,i] <- -stats[,i]}
   }
@@ -122,6 +132,7 @@ sociality.formula <- function (formula, ..., init, nsim=100,
                                seed=NULL,  drop=FALSE,
                                statistics=NULL
                                ) {
+  .Deprecated(msg="the sociality.formula function will not be supported in the future. see summary.formula and the ergm term 'sociality' for an alternate")
   trms <- ergm.getterms(formula)
   if(length(trms)>2){
     g <- eval(trms[[2]], sys.parent())
@@ -235,6 +246,7 @@ sociality.ergm <- function (object, ..., nsim=100,
                             constraints=NULL, prop.weights="default", prop.args =list(),
                             seed=NULL, drop=FALSE,
                             statistics=NULL) {
+  .Deprecated(msg="the sociality.ergm function will not be supported in the future. see summary.formula and the ergm term 'sociality' for an alternate")
 
 # trms <- ergm.getterms(object$formula)
 # g <- as.network(eval(trms[[2]], sys.parent()))

@@ -1,3 +1,12 @@
+/*  File src/netstats.c in package ergm, part of the Statnet suite
+ *  of packages for network analysis, http://statnet.org .
+ *
+ *  This software is distributed under the GPL-3 license.  It is free,
+ *  open source, and has the attribution requirements (GPL Section 7) at
+ *  http://statnet.org/attribution
+ *
+ *  Copyright 2003-2013 Statnet Commons
+ */
 #include "netstats.h"
 /*****************
  void network_stats_wrapper
@@ -28,6 +37,9 @@ void network_stats_wrapper(int *tails, int *heads, int *timings, int *time, int 
   directed_flag = *dflag;
   bip = (Vertex)*bipartite;
   
+
+  if(*lasttoggle == 0) lasttoggle = NULL;
+
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
   nw[0]=NetworkInitialize(NULL, NULL, 0,
                           n_nodes, directed_flag, bip, *timings?1:0, *timings?*time:0, *timings?lasttoggle:NULL);

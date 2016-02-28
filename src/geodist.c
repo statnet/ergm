@@ -1,3 +1,12 @@
+/*  File src/geodist.c in package ergm, part of the Statnet suite
+ *  of packages for network analysis, http://statnet.org .
+ *
+ *  This software is distributed under the GPL-3 license.  It is free,
+ *  open source, and has the attribution requirements (GPL Section 7) at
+ *  http://statnet.org/attribution
+ *
+ *  Copyright 2003-2013 Statnet Commons
+ */
 #include "geodist.h"
 
 /* The geodist functions are based on breadth-first search.
@@ -72,7 +81,7 @@ void node_geodesics (int *edgelist, int *nnodes, int *nodelist,
   Q[Qtop++]=*source;  /* Push source onto top of queue */
   while (Qbottom<Qtop) {  /* Repeat until queue is empty */
     u=Q[Qbottom++]; /* Pop vertex off bottom of queue (it must be NONWHITE) */
-    for (j=2*nodelist[u-1]; edgelist[j]==u && j<twoe; j+=2) {
+    for (j=2*nodelist[u-1]; j<twoe && edgelist[j]==u; j+=2) {
       v=edgelist[j+1];
       if (nodecolor[v-1]==0) { /* WHITE */
         nodecolor[v-1]=1; /* NONWHITE */
@@ -143,7 +152,7 @@ void pair_geodesic (int *edgelist, int *nnodes, int *nodelist,
   Q[Qtop++]=*source;  /* Push source onto top of queue */
   while (Qbottom<Qtop && !done) {  /* Repeat until queue is empty */
     u=Q[Qbottom++]; /* Pop vertex off bottom of queue (it must be NONWHITE) */
-    for (j=2*nodelist[u-1]; edgelist[j]==u && !done && j<twoe; j+=2) {
+    for (j=2*nodelist[u-1]; !done && j<twoe && edgelist[j]==u; j+=2) {
       v=edgelist[j+1];
       if (nodecolor[v-1]==0) { /* WHITE */
         nodecolor[v-1]=1; /* NONWHITE */

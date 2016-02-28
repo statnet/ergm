@@ -1,3 +1,12 @@
+%  File man/faux.mesa.high.Rd in package ergm, part of the Statnet suite
+%  of packages for network analysis, http://statnet.org .
+%
+%  This software is distributed under the GPL-3 license.  It is free,
+%  open source, and has the attribution requirements (GPL Section 7) at
+%  http://statnet.org/attribution
+%
+%  Copyright 2003-2015 Statnet Commons
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{faux.mesa.high}
 \docType{data}
 \title{Goodreau's Faux Mesa High School as a network object}
@@ -44,9 +53,9 @@ data:
 
 \preformatted{
 ~ edges + nodefactor("Grade") + nodefactor("Race") + nodefactor("Sex")
- + nodematch("Grade",diff=T) + nodematch("Race",diff=T)
- + nodematch("Sex",diff=F) + gwdegree(1.0,fixed=T)
- + gwesp(1.0,fixed=T) + gwdsp(1.0,fixed=T)
+ + nodematch("Grade",diff=TRUE) + nodematch("Race",diff=TRUE)
+ + nodematch("Sex",diff=FALSE) + gwdegree(1.0,fixed=TRUE)
+ + gwesp(1.0,fixed=TRUE) + gwdsp(1.0,fixed=TRUE)
 }
 
 The resulting model fit was then applied to a network with actors 

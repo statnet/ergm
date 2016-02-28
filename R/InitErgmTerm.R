@@ -1,3 +1,17 @@
+#  File R/InitErgmTerm.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2015 Statnet Commons
+#######################################################################
+
+#NOTE: a number of undocumented terms have been removed from this file
+# the terms still exist on the experimental_terms svn branch
+
+
 #===========================================================================
 # This file contains the following 74 new, easier-to-write ergm-term
 # initialization functions (each prepended with "InitErgmTerm"):
@@ -171,23 +185,7 @@ InitErgmTerm.absdiffcat <- function(nw, arglist, ...) {
 
 
 
-################################################################################
-InitErgmTerm.adegcor<-function (nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=FALSE) 
 
-  deg=summary(nw ~ sociality(base=0))
-  el=as.edgelist(nw)
-  deg1<-deg[el[,1]]
-  deg2<-deg[el[,2]]
-  alldeg<-c(deg1,deg2)
-  sigma2<-(sum(alldeg*alldeg)-length(alldeg)*(mean(alldeg)^2))
-  ### Construct the list to return
-  list(name="adegcor",                            #name: required
-       coef.names = "adegcor",                    #coef.names: required
-       inputs=sigma2,
-       dependence = TRUE # So we don't use MCMC if not necessary
-       )
-}
 
 
 ################################################################################
@@ -440,6 +438,10 @@ InitErgmTerm.b1factor<-function (nw, arglist, ...) {
   base <- a$base
   nb1 <- get.network.attribute(nw, "bipartite")
   nodecov <- get.node.attr(nw, attrname, "b1factor")[1:nb1]
+  
+  if(all(is.na(nodecov)))
+	  stop("Argument to b1factor() does not exist", call.=FALSE)
+  
   u<-sort(unique(nodecov))
   if(any(is.na(nodecov))){u<-c(u,NA)}
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -734,6 +736,10 @@ InitErgmTerm.b2factor<-function (nw, arglist, ...) {
   base <- a$base
   nb1 <- get.network.attribute(nw, "bipartite")
   nodecov <- get.node.attr(nw, attrname, "b2factor")[(nb1+1):network.size(nw)]
+  
+  if(all(is.na(nodecov)))
+	  stop("Argument to b2factor() does not exist", call.=FALSE)
+  
   u<-sort(unique(nodecov))
   if(any(is.na(nodecov))){u<-c(u,NA)}
   nodecov <- match(nodecov,u,nomatch=length(u)+1)
@@ -1290,8 +1296,12 @@ InitErgmTerm.edgecov <- function(nw, arglist, ...) {
   ### Process the arguments
   if(is.network(a$x))
     xm<-as.matrix.network(a$x,matrix.type="adjacency",a$attrname)
-  else if(is.character(a$x))
+  else if(is.character(a$x)){
     xm<-get.network.attribute(nw,a$x)
+    if (is.null(xm)){
+      stop("There is no network attributed named ",a$x,call.=FALSE)
+    }
+  }
   else
     xm<-as.matrix(a$x)
   
@@ -1800,7 +1810,15 @@ InitErgmTerm.hamming<-function (nw, arglist, ...) {
 
   ## Process hamming network ##
   if(is.network(a$x)){													# Arg to hamming is a network
-    xm<-as.edgelist(a$x,a$attrname)
+    # check for attribute existance before creating matrix
+  
+    if( is.null(a$attrname) || is.null(get.edge.attribute(a$x,a$attrname))){ 
+      xm<-as.edgelist(a$x)  # so call the non attribute version
+    } else {
+      xm<-as.edgelist(a$x,a$attrname)
+    }
+    
+    
   }else if(is.character(a$x)){												# Arg to hamming is the name of an attribute in nw
     xm<-get.network.attribute(nw,a$x)
     xm<-as.edgelist(xm)
@@ -1859,10 +1877,10 @@ InitErgmTerm.hamming<-function (nw, arglist, ...) {
   }
   ## Return ##
   if (!is.null(xm)) {
-    xm <- ergm.Cprepare.el(xm, directed=is.directed(nw))
+    xm <- ergm.Cprepare.el(xm, prototype=nw)
   }
   if (!is.null(covm)) {
-    covm <- ergm.Cprepare.el(covm, directed=is.directed(nw))
+    covm <- ergm.Cprepare.el(covm, prototype=nw)
   }else covm <- 0
   inputs <- c(xm, a$defaultweight, covm)
   list(name="hamming", coef.names=coef.names, #name and coef.names: required 
@@ -1886,7 +1904,7 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ...) {
     stop("The 'contrast' argument of the hammingmix term is deprecated.  Use 'base' instead")
   }
   if(is.network(x)){
-    xm<-as.edgelist(x,attrname)
+    xm<-as.edgelist(x)
     x<-paste(quote(x))
   }else if(is.character(x)){
     xm<-get.network.attribute(nw,x)
@@ -1922,7 +1940,7 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ...) {
                       sep=".")
   #  Number of input parameters before covariates equals twice the number
   #  of used matrix cells, namely 2*length(uui),
-  inputs=c(ergm.Cprepare.el(xm,directed=is.directed(nw)), u[,1], u[,2],nodecov)
+  inputs=c(ergm.Cprepare.el(xm, prototype=nw), u[,1], u[,2],nodecov)
   attr(inputs, "ParamsBeforeCov") <- nrow(u)
   # The emptynwstats code below does not work right for
   # undirected networks, mostly since hammingmix doesn't work 
@@ -2833,48 +2851,12 @@ InitErgmTerm.ostar<-function(nw, arglist, ...) {
 
 #=======================InitErgmTerm functions:  P============================#
 
-################################################################################
-InitErgmTerm.pdegcor<-function (nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=TRUE) 
 
-  el=as.edgelist(nw)
-  deg1<-summary(nw ~ sender(base=0))[el[,1]]
-  deg2<-summary(nw ~ receiver(base=0))[el[,2]]
-  deg12na<-is.na(deg1)|is.na(deg2)
-  deg1<-deg1[!deg12na]
-  deg2<-deg2[!deg12na]
-  sigma1<-(sum(deg1*deg1)-length(deg1)*(mean(deg1)^2))
-  sigma2<-(sum(deg2*deg2)-length(deg2)*(mean(deg2)^2))
-  sigma1 <- 0
-  sigma2 <- 0
-  ### Construct the list to return
-  list(name="pdegcor",                            #name: required
-       coef.names = "pdegcor",                    #coef.names: required
-       inputs=sigma2,
-       dependence = TRUE # So we don't use MCMC if not necessary
-       )
-}
 
 
 #=======================InitErgmTerm functions:  R============================#
 
-################################################################################
-InitErgmTerm.rdegcor<-function (nw, arglist, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=FALSE) 
 
-  deg=summary(nw ~ sociality(base=0))
-  el=as.edgelist(nw)
-  deg1<-deg[el[,1]]
-  deg2<-deg[el[,2]]
-  alldeg<-c(deg1,deg2)
-  sigma2<-(sum(alldeg*alldeg)-length(alldeg)*(mean(alldeg)^2))
-  ### Construct the list to return
-  list(name="rdegcor",                            #name: required
-       coef.names = "rdegcor",                    #coef.names: required
-       inputs=sigma2,
-       dependence = TRUE # So we don't use MCMC if not necessary
-       )
-}
 
 ################################################################################
 InitErgmTerm.receiver<-function(nw, arglist, ...) {
@@ -2983,10 +2965,10 @@ InitErgmTerm.sociality<-function(nw, arglist, ...) {
   if(ld==0){return(NULL)}
   if(!is.null(attrname)){
     coef.names <- paste("sociality",d,".",attrname,sep="")
-    inputs <- c(d, nodecov)
+    inputs <- c(d, 0, nodecov) # Input requires a "guard" value.
   }else{
     coef.names <- paste("sociality",d,sep="")
-    inputs <- c(d)
+    inputs <- c(d,0) # Input requires a "guard" value.
   }
   list(name="sociality", coef.names=coef.names, inputs=inputs, minval=0, maxval=network.size(nw)-1, conflicts.constraints="degrees")
 }
@@ -2999,6 +2981,7 @@ InitErgmTerm.sociality<-function(nw, arglist, ...) {
 
 ################################################################################
 InitErgmTerm.threepath <- function(nw, arglist, ...) {
+  warning("This term is inaccurately named and actually refers to a '3-trail' in that it counts repeated vertices: i-j-k-i is a 3-trail but not a 3-path. See ergm-terms help for more information. This name has been deprecated and will be removed in a future version: if a 3-trail is what you want, use the term 'threetrail'.")
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, 
                        varnames = c("keep"),
@@ -3007,12 +2990,31 @@ InitErgmTerm.threepath <- function(nw, arglist, ...) {
                        required = c(FALSE))
   types <- c("RRR","RRL","LRR","LRL")[a$keep]
   if (is.directed(nw)) {
-    return(list(name = "threepath", 
-                coef.names = paste("threepath", types, sep="."),
+    return(list(name = "threetrail", 
+                coef.names = paste("threetrail", types, sep="."),
                 inputs=a$keep, minval = 0))
   }
   else {
-    return(list(name = "threepath", coef.names = "threepath", minval = 0))
+    return(list(name = "threetrail", coef.names = "threetrail", minval = 0))
+  }
+}
+
+################################################################################
+InitErgmTerm.threetrail <- function(nw, arglist, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm (nw, arglist, 
+                       varnames = c("keep"),
+                       vartypes = c("numeric"),
+                       defaultvalues = list(1:4),
+                       required = c(FALSE))
+  types <- c("RRR","RRL","LRR","LRL")[a$keep]
+  if (is.directed(nw)) {
+    return(list(name = "threetrail", 
+                coef.names = paste("threetrail", types, sep="."),
+                inputs=a$keep, minval = 0))
+  }
+  else {
+    return(list(name = "threetrail", coef.names = "threetrail", minval = 0))
   }
 }
 

@@ -1,3 +1,12 @@
+/*  File src/wtnetstats.c in package ergm, part of the Statnet suite
+ *  of packages for network analysis, http://statnet.org .
+ *
+ *  This software is distributed under the GPL-3 license.  It is free,
+ *  open source, and has the attribution requirements (GPL Section 7) at
+ *  http://statnet.org/attribution
+ *
+ *  Copyright 2003-2013 Statnet Commons
+ */
 #include "wtnetstats.h"
 /*****************
  void network_stats_wrapper
@@ -25,6 +34,9 @@ void wt_network_stats_wrapper(int *tails, int *heads, double *weights, int *timi
   directed_flag = *dflag;
   bip = (Vertex)*bipartite;
   
+  if(*lasttoggle == 0) lasttoggle = NULL;
+
+
   m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
   nw[0]=WtNetworkInitialize(NULL, NULL, NULL, 0,
 			    n_nodes, directed_flag, bip, *timings?1:0, *timings?*time:0, *timings?lasttoggle:NULL);

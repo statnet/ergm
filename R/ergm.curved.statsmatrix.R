@@ -1,3 +1,12 @@
+#  File R/ergm.curved.statsmatrix.R in package ergm, part of the Statnet suite
+#  of packages for network analysis, http://statnet.org .
+#
+#  This software is distributed under the GPL-3 license.  It is free,
+#  open source, and has the attribution requirements (GPL Section 7) at
+#  http://statnet.org/attribution
+#
+#  Copyright 2003-2015 Statnet Commons
+#######################################################################
 #####################################################################
 # The <ergm.curved.statsmatrix> maps the stats matrix to its reduced
 # form based on the etamap object created by <ergm.etamap>
@@ -52,6 +61,6 @@
   }else{
     sm <- statsmatrix
   }
-  novar <- apply(sm,2,var)<1e-6
+  novar <- apply(sm,2,stats::var)<.Machine$double.eps^0.5
   list(sm=sm, novar=novar)
 }
