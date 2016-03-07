@@ -46,12 +46,18 @@
 \alias{cycle}
 \alias{cyclicalties}
 \alias{cyclicalweights}
+\alias{ddsp}
 \alias{degcor}
 \alias{degcrossprod}
 \alias{degrange}
 \alias{degree}
 \alias{degreepopularity}
 \alias{density}
+\alias{desp}
+\alias{dgwdsp}
+\alias{dgwesp}
+\alias{dgwnsp}
+\alias{dnsp}
 \alias{dsp}
 \alias{dyadcov}
 \alias{edgecov}
@@ -682,6 +688,20 @@ equal to the number of (first mode) mutual partners of that pair.
 	conservative, while the second is more sensitive but more likely
 	to induce a multimodal distribution of networks.
   }
+  
+    \item{\code{ddsp(d, type="OTP")} (binary) (directed)}{  \emph{Directed dyadwise shared partners:} This term adds one network statistic to the model for each element in \code{d} where the \eqn{i}th such statistic equals the number of \emph{dyads} in the network with exactly \code{d[i]} shared partners. This term can only be used with directed networks.  Multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to be counted (see below for type codes).  By default, outgoing two-paths are employed.
+    
+    While there is only one shared partner configuration in the undirected case, nine distinct configurations are possible for directed graphs.  Currently, edgewise shared partner terms may be defined with respect to five of these configurations; they are defined here as follows (using terminology from Butts (2008) and the \code{relevent} package):
+
+  \describe{
+    \item{Outgoing Two-path (OTP)}{vertex \eqn{k} is an OTP shared partner of ordered pair \eqn{(i,j)} iff \eqn{i \to k \to j}{i->k->j}. Also known as "transitive shared partner".}
+    \item{Incoming Two-path (ITP)}{vertex \eqn{k} is an ITP shared partner of ordered pair \eqn{(i,j)} iff \eqn{j \to k \to i}{j->k->i}. Also known as "cyclical shared partner"}
+    \item{Outgoing Shared Partner (OSP)}{vertex \eqn{k} is an OSP shared partner of ordered pair \eqn{(i,j)} iff \eqn{i \to k, j \to k}{i->k, j->k}.}
+    \item{Incoming Shared Partner (ISP)}{vertex \eqn{k} is an ISP shared partner of ordered pair \eqn{(i,j)} iff \eqn{k \to i, k \to j}{k->i, k->j}.}
+  }
+
+Note that Robins et al. (2009) define closely related statistics to several of the above, using slightly different terminology.
+   }
 
   \item{\code{degrange(from, to=+Inf, by=NULL, homophily=FALSE)} (binary)  (undirected) (categorical nodal attribute)
   }{\emph{Degree range:} 
@@ -751,6 +771,19 @@ of the degrees of all pairs of nodes in the network which are tied.
     \code{edges} divided by \eqn{n(n-1)/2}; for directed networks,
     \code{density} equals \code{edges} or \code{istar(1)} or \code{ostar(1)}
     divided by \eqn{n(n-1)}. }
+    
+    \item{\code{desp(d, type="OTP")} (binary) (directed)}{  \emph{Directed edgewise shared partners:} This term adds one network statistic to the model for each element in \code{d} where the \eqn{i}th such statistic equals the number of \emph{edges} in the network with exactly \code{d[i]} shared partners. This term can only be used with directed networks.  Multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to be counted (see \code{ddsp} for type codes).  By default, outgoing two-paths are employed. }
+    
+    \item{\code{dgwdsp(alpha=0, fixed=FALSE, cutoff=30, type="OTP")} (binary) (directed)}{  \emph{Geometrically weighted dyadwise shared partner distribution:} This term adds one network statistic to the model equal to the geometrically weighted dyadwise shared partner distribution with weight parameter alpha > 0. Note that the GWDSP statistic is equal to the sum of GWNSP plus GWESP. The optional argument \code{fixed} indicates whether the scale parameter \code{lambda} is to be fit as a curved exponential-family model (see Hunter and Handcock, 2006).  The default is \code{FALSE}, which means the scale parameter is not fixed and thus the model is a CEF model. For a directed network, multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to employ (see \code{ddsp} for definitions).  By default, outgoing two-paths are employed.  The optional argument \code{cutoff} sets the number of underlying DSP terms to use in computing the statistics to reduce the computational burden.
+   }
+   
+   \item{\code{dgwesp(alpha=0, fixed=FALSE, cutoff=30, type="OTP")} (binary) (directed)}{ \emph{Geometrically weighted edgewise shared partner distribution:} This term adds a statistic equal to the geometrically weighted \emph{edgewise} (not dyadwise) shared partner distribution with weight parameter \code{alpha}. The optional argument \code{fixed} indicates whether the scale parameter \code{lambda} is to be fit as a curved exponential-family model (see Hunter and Handcock, 2006).  The default is \code{FALSE}, which means the scale parameter is not fixed and thus the model is a CEF model. For a directed network, multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to employ (see \code{ddsp} for definitions).  By default, outgoing two-paths are employed.  The optional argument \code{cutoff} sets the number of underlying ESP terms to use in computing the statistics to reduce the computational burden.
+   }
+  
+   \item{\code{dgwnsp(alpha=0, fixed=FALSE, cutoff=30, type="OTP")} (binary) (directed)}{ \emph{Geometrically weighted non-edgewise shared partner distribution:} This term is just like gwesp and gwdsp except it adds a statistic equal to the geometrically weighted nonedgewise (that is, over dyads that do not have an edge) shared partner distribution with weight parameter alpha. The optional argument \code{fixed} indicates whether the scale parameter \code{lambda} is to be fit as a curved exponential-family model (see Hunter and Handcock, 2006).  The default is \code{FALSE}, which means the scale parameter is not fixed and thus the model is a CEF model. For a directed network, multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to employ (see \code{ddsp} for definitions).  By default, outgoing two-paths are employed.  The optional argument \code{cutoff} sets the number of underlying NSP terms to use in computing the statistics to reduce the computational burden.
+   }
+    
+    \item{\code{dnsp(d, type="OTP")} (binary) (directed)}{  \emph{Directed non-edgewise shared partners:} This term adds one network statistic to the model for each element in \code{d} where the \eqn{i}th such statistic equals the number of \emph{non-edges} in the network with exactly \code{d[i]} shared partners. This term can only be used with directed networks.  Multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to be counted (see \code{ddsp} for type codes).  By default, outgoing two-paths are employed. }
     
     \item{\code{dsp(d)}  (binary)  (directed)  (undirected)}{\emph{Dyadwise shared partners:} 
     The \code{d} argument is a vector of distinct integers. This term adds one
@@ -1694,6 +1727,8 @@ of the degrees of all pairs of nodes in the network which are tied.
   \item Bomiriya, R. P, Bansal, S., and Hunter, D. R. (2014).  Modeling
   Homophily in ERGMs for Bipartite Networks.  Submitted.
   
+  \item Butts, CT.  (2008).  \dQuote{A Relational Event Framework for Social Action.} \emph{Sociological Methodology,} 38(1).
+  
   \item Davis, J.A. and Leinhardt, S.  (1972).  The Structure of Positive Interpersonal
   Relations in Small Groups.  In J. Berger (Ed.), \emph{Sociological Theories in Progress,
   Volume 2}, 218--251.  Boston: Houghton Mifflin.
@@ -1716,13 +1751,15 @@ of the degrees of all pairs of nodes in the network which are tied.
   \item Krivitsky P. N. (2012). Exponential-Family Random Graph Models for Valued
     Networks. \emph{Electronic Journal of Statistics}, 2012, 6,
     1100-1128. \href{http://dx.doi.org/10.1214/12-EJS696}{\code{doi:10.1214/12-EJS696}}
+    
+  \item Robins, G; Pattison, P; and Wang, P.  (2009).  \dQuote{Closure, Connectivity, and Degree Distributions: Exponential Random Graph (p*) Models for Directed Social Networks.}  \emph{Social Networks,} 31:105-117.
 
-    \item Snijders T. A. B., G. G. van de Bunt, and
+  \item Snijders T. A. B., G. G. van de Bunt, and
     C. E. G. Steglich. Introduction to Stochastic Actor-Based Models for
     Network Dynamics. \emph{Social Networks}, 2010, 32(1),
     44-60. \href{http://dx.doi.org/10.1016/j.socnet.2009.02.004}{\code{doi:10.1016/j.socnet.2009.02.004}}
 
-    \item Morris M, Handcock MS, and Hunter DR. Specification of Exponential-Family Random Graph Models: Terms and Computational Aspects. \emph{Journal of Statistical Software}, 2008, 24(4), 1-24. \url{http://www.jstatsoft.org/v24/i04}
+  \item Morris M, Handcock MS, and Hunter DR. Specification of Exponential-Family Random Graph Models: Terms and Computational Aspects. \emph{Journal of Statistical Software}, 2008, 24(4), 1-24. \url{http://www.jstatsoft.org/v24/i04}
     
     
   \item Snijders, T. A. B., P. E. Pattison, G. L. Robins, and
