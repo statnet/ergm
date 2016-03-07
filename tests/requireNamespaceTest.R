@@ -34,7 +34,7 @@ summary(dynfit)
 # use a summary formula to display number of isolates and edges
                                         # at discrete time points
 my.nD <- simulate(dynfit, nsim=1, time.slices=100, output="networkDynamic")
-summary(my.nD~isolates+edges+mean.age, at=1:10)
+ergm::summary.formula(my.nD~isolates+edges+mean.age, at=1:10)
 ergm::summary.statistics.formula(my.nD~mean.age)
 
 # try a term that needs to mysteriously access an environment variable
