@@ -6,7 +6,7 @@ importFrom(trust, trust)
 importFrom(Matrix, nearPD)
 importFrom(lpSolve, lp)
 import(statnet.common, network, coda, parallel)
-importFrom(stats,simulate)
+importFrom(stats,simulate, qnorm)
 importFrom(MASS,ginv)
 importFrom("grDevices", "colors", "dev.cur", "dev.off", "dev.set",
              "pictex", "rainbow")
