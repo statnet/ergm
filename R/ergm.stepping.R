@@ -224,10 +224,11 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 
 ## Given two matrices x1 and x2 with d columns (and any positive
 ## numbers of rows), find the greatest gamma<=steplength.max s.t., the
-## points of x2 shrunk towards the centroid of x1 a factor of
-## margin*gamma, are all in the convex hull of x1.
+## points of x2 shrunk towards the centroid of x1 a factor of gamma,
+## are all in the convex hull of x1, as is the centroid of x2 shrunk
+## by margin*gamma.
 
-## This is a variant of Hummel et al. (2013)'s steplength algorithm
+## This is a variant of Hummel et al. (2010)'s steplength algorithm
 ## also usable for missing data MLE.
 .Hummel.steplength <- function(x1, x2=NULL, margin=0.05, steplength.max=1, steplength.prev=steplength.max, x2.num.max=100, steplen.maxit=25, verbose=FALSE){
   margin <- 1 + margin
@@ -266,7 +267,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
     ## If constrained sample size > x2.num.max
     if(verbose){cat("Using fast and approximate Hummel et al search.\n")}
     d <- rowSums(sweep(x2crs, 2, m1crs)^2)
-    x2crs[order(-d)[1:x2.num.max],,drop=FALSE]
+    x2crs <- x2crs[order(-d)[1:x2.num.max],,drop=FALSE]
   }
 
   ## Here, if x2 is defined, check against every point in it, without
