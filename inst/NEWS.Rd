@@ -14,25 +14,49 @@
 % When a release is forked, copy the sections to a new release and
 % delete unused sections.
 
-\section{Changes in version 3.5.1}{
+\section{Changes in version 3.6.0}{
 
   \subsection{NEW FEATURES}{
     \itemize{
-   }
+      \item{
+	A new suite of geometrically-weighted family of terms has been
+	added that allow the user to specify what directions of shared
+	partnerships are of interest. The new terms are,
+	\itemize{
+	  \item{(Directed) geometrically weighted dyadwise shared partners (\code{dgwdsp})}
+	  \item{(Directed) geometrically weighted edgewise shared partners (\code{dgwesp})}
+	  \item{(Directed) geometrically weighted non-edgewise shared
+	    partners (\code{dgwnsp})}
+	}
+	In addition, terms for specific shared partner counts
+	(\code{ddsp}, \code{desp}, and \code{dnsp}) are also
+	implemented. See \code{\link{ergm-terms}} for help.
+      }
+      \item{
+	\code{ergm} package now works when loaded (e.g., using
+	\code{\link{requireNamespace}}) but not attached (e.g., using
+	\code{\link{library}}).
+      }
+    }
   }
    
   
    \subsection{BUG FIXES}{
      \itemize{
-       \item Parallel processing when using userterms and similar was
-       accidentaly broken in the previous release.
-    }
+       \item{Parallel processing when using \code{ergm.userterms} and similar was
+	 accidentaly broken in the previous release.}
+       \item{Calculation of Hummel et. al. (2010) steplength for missing data MLE was
+	 incorrect; a slower but more accurate algorithm is now used.}
+       \item{Miscellaneous bugfixes and robustifications.}
+       
+     }
    }
 
   
    \subsection{OTHER USER-VISIBLE CHANGES}{
      \itemize{
-
+       \item{\code{\link{robust.inverse}} has been deprecated in favor
+	 of \code{\link[MASS]{ginv}}.
      }
    }
 
