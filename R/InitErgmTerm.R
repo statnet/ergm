@@ -1299,7 +1299,7 @@ InitErgmTerm.edgecov <- function(nw, arglist, ...) {
   else if(is.character(a$x)){
     xm<-get.network.attribute(nw,a$x)
     if (is.null(xm)){
-      stop("There is no network attributed named ",a$x,call.=FALSE)
+      stop("There is no network attribute named ",a$x,call.=FALSE)
     }
   }
   else
