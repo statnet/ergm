@@ -101,6 +101,8 @@ gof.ergm <- function (object, ...,
   check.control.class(c("gof.ergm","gof.formula"))
   nw <- as.network(object$network)
 
+  if(!is.null(object$response)) stop("GoF for valued ERGMs is not implemented at this time.")
+  
   #Set up the defaults, if called with GOF==NULL
   if(is.null(GOF)){
     if(is.directed(nw))
@@ -149,6 +151,8 @@ gof.formula <- function(object, ...,
                         control=control.gof.formula(),
                         verbose=FALSE) {
   check.control.class()
+
+  if("response" %in% names(list(...))) stop("GoF for valued ERGMs is not implemented at this time.")
   
   if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
   if (verbose) 
