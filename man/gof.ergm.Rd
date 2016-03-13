@@ -77,7 +77,7 @@
   }
   \item{unconditional}{logical; if \code{TRUE}, the simulation is unconditional on the observed dyads.
 	  if not \code{TRUE}, the simulation is conditional on the observed dyads. This is primarily
-	  used internally when the network has missing data and a conditional GoF is produced.}
+	  used internally when the network has missing data and a conditional GoF is produced.
   }
   \item{verbose}{Provide verbose information on the progress of the
     simulation.
