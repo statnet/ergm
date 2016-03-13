@@ -526,7 +526,8 @@ control.ergm(drop=TRUE,
   \item{CD.maxit, CD.conv.min.pval, CD.NR.maxit, CD.NR.reltol,
     CD.metric, CD.method, CD.trustregion, CD.dampening, CD.dampening.min.ess,
     CD.dampening.level, CD.steplength.margin, CD.steplength, CD.adaptive.trustregion,
-    CD.adaptive.epsilon, CD.Hummel.esteq, CD.Hummel.miss.sample, CD.Hummel.maxit}{
+    CD.adaptive.epsilon, CD.Hummel.esteq, CD.Hummel.miss.sample,
+    CD.Hummel.maxit, CD.steplength.min}{
     Miscellaneous tuning parameters of the CD sampler and
     optimizer. These have the same meaning as their \code{MCMC.*}
     counterparts.

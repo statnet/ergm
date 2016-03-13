@@ -56,7 +56,7 @@
    \subsection{OTHER USER-VISIBLE CHANGES}{
      \itemize{
        \item{\code{\link{robust.inverse}} has been deprecated in favor
-	 of \code{\link[MASS]{ginv}}.
+	 of \code{\link[MASS]{ginv}}.}
      }
    }
 
