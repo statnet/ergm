@@ -318,6 +318,7 @@ ergm <- function(formula, response=NULL,
                                          MHproposal.obs$arguments$constraints))
   
   # If all other criteria for MPLE=MLE are met, _and_ SAN network matches target.stats directly, we can get away with MPLE.
+  if (!is.null(target.stats) && !isTRUE(all.equal(target.stats,nw.stats))) message("Unable to match target stats. Using MCMLE estimation.")
   MCMCflag <- (estimate=="MLE" && (!MPLE.is.MLE
                                    || (!is.null(target.stats) && !isTRUE(all.equal(target.stats,nw.stats)))
   )
