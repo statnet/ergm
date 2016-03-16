@@ -48,7 +48,9 @@
        \item{Calculation of Hummel et. al. (2010) steplength for missing data MLE was
 	 incorrect; a slower but more accurate algorithm is now used.}
        \item{Miscellaneous bugfixes and robustifications.}
-       
+       \item{\code{\link{gof.formula}} and others now work with missing
+	 data.}
+       \item{Miscelaneous cleanups and bug fixes.}       
      }
    }
 
