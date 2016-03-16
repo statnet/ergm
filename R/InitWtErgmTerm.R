@@ -66,7 +66,22 @@ InitWtErgmTerm.atleast<-function(nw, arglist, response, ...) {
        coef.names=paste("atleast",a$threshold,sep="."),
        inputs=a$threshold,
        dependence=FALSE,
-       minval=0, maxval=network.dyadcount(nw,FALSE))
+       minval=0, maxval=network.dyadcount(nw,FALSE),
+       emptynwstats=if(0>=a$threshold) network.dyadcount(nw,FALSE) else 0)
+}
+
+InitWtErgmTerm.atmost<-function(nw, arglist, response, ...) {
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("threshold"),
+                      vartypes = c("numeric"),
+                      defaultvalues = list(0),
+                      required = c(FALSE))
+  list(name="atmost",
+       coef.names=paste("atmost",a$threshold,sep="."),
+       inputs=a$threshold,
+       dependence=FALSE,
+       minval=0, maxval=network.dyadcount(nw,FALSE),
+       emptynwstats=if(0<=a$threshold) network.dyadcount(nw,FALSE) else 0)
 }
 
 InitWtErgmTerm.edgecov <- function(nw, arglist, response, ...) {
@@ -101,6 +116,21 @@ InitWtErgmTerm.edgecov <- function(nw, arglist, response, ...) {
 }
 
 
+InitWtErgmTerm.equalto<-function(nw, arglist, response, ...) {
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("value", "tolerance"),
+                      vartypes = c("numeric", "numeric"),
+                      defaultvalues = list(0, 0),
+                      required = c(FALSE,FALSE))
+  list(name="ininterval",
+       coef.names=paste("equalto",a$value,"pm",a$tolerance,sep="."),
+       inputs=with(a, c(value-tolerance, value+tolerance, FALSE, FALSE)),
+       dependence=FALSE,
+       minval=0, maxval=network.dyadcount(nw,FALSE),
+       emptynwstats=if(abs(a$value)<=a$tolerance) network.dyadcount(nw,FALSE) else 0)
+}
+
+
 InitWtErgmTerm.ininterval<-function(nw, arglist, response, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("lower","upper","open"),
@@ -113,7 +143,11 @@ InitWtErgmTerm.ininterval<-function(nw, arglist, response, ...) {
        coef.names=paste("ininterval",if(a$open[0]) "(" else "[", a$lower,",",a$upper, if(a$open[1]) ")" else "]",sep=""),
        inputs=c(a$lower,a$upper,a$open),
        dependence=FALSE,
-       minval=0, maxval=network.dyadcount(nw,FALSE))
+       minval=0, maxval=network.dyadcount(nw,FALSE),
+       emptynwstats=if(
+       ((a$open[0] & 0>a$lower) | (!a$open[0] & 0>=a$lower)) &
+       ((a$open[1] & 0<a$upper) | (!a$open[1] & 0<=a$upper))
+       ) network.dyadcount(nw,FALSE) else 0)
 }
 
 InitWtErgmTerm.greaterthan<-function(nw, arglist, response, ...) {
@@ -122,13 +156,27 @@ InitWtErgmTerm.greaterthan<-function(nw, arglist, response, ...) {
                       vartypes = c("numeric"),
                       defaultvalues = list(0),
                       required = c(FALSE))
-  list(name="atleast",
+  list(name="greaterthan",
        coef.names=paste("greaterthan",a$threshold,sep="."),
        inputs=a$threshold,
        dependence=FALSE,
-       minval=0, maxval=network.dyadcount(nw,FALSE))
+       minval=0, maxval=network.dyadcount(nw,FALSE),
+       emptynwstats=if(0>a$threshold) network.dyadcount(nw,FALSE) else 0)
 }
 
+InitWtErgmTerm.smallerthan<-function(nw, arglist, response, ...) {
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("threshold"),
+                      vartypes = c("numeric"),
+                      defaultvalues = list(0),
+                      required = c(FALSE))
+  list(name="smallerthan",
+       coef.names=paste("smallerthan",a$threshold,sep="."),
+       inputs=a$threshold,
+       dependence=FALSE,
+       minval=0, maxval=network.dyadcount(nw,FALSE),
+       emptynwstats=if(0<a$threshold) network.dyadcount(nw,FALSE) else 0)
+}
 
 
 InitWtErgmTerm.sum<-function(nw, arglist, response, ...) {
@@ -569,7 +617,8 @@ InitWtErgmTerm.mutual<-function (nw, arglist, response, ...) {
        inputs=if(form=="threshold") a$threshold,
        dependence=TRUE,
        minval=switch(form,min=NULL,nabsdiff=NULL,threshold=0,product=NULL,geometric=0),
-       maxval=switch(form,min=NULL,nabsdiff=0,threshold=NULL,product=NULL,geometric=NULL)
+       maxval=switch(form,min=NULL,nabsdiff=0,threshold=NULL,product=NULL,geometric=NULL),
+       emptynwstats=switch(form,min=0,nabsdiff=0,threshold=if(a$threshold<=0) network.dyadcount(nw, FALSE)/2 else 0,product=0,geometric=0)
        )
 }
 

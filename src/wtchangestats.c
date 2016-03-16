@@ -101,6 +101,16 @@ WtD_CHANGESTAT_FN(d_atleast){
     });
 }
 
+/*****************
+ stat: atmost
+*****************/
+WtD_CHANGESTAT_FN(d_atmost){
+  EXEC_THROUGH_TOGGLES({
+      CHANGE_STAT[0] += (NEWWT<=INPUT_ATTRIB[0]) - (OLDWT<=INPUT_ATTRIB[0]);
+    });
+}
+
+
 /********************  changestats:   C    ***********/
 
 /*****************
@@ -348,6 +358,7 @@ WtD_CHANGESTAT_FN(d_ininterval){
     });
 }
 
+/********************  changestats:   L    ***********/
 
 /********************  changestats:   M    ***********/
 
@@ -868,6 +879,15 @@ WtD_CHANGESTAT_FN(d_nonzero){
 }
 
 /********************  changestats:   S    ***********/
+
+/*****************
+ stat: smallerthan
+*****************/
+WtD_CHANGESTAT_FN(d_smallerthan){
+  EXEC_THROUGH_TOGGLES({
+      CHANGE_STAT[0] += (NEWWT<INPUT_ATTRIB[0]) - (OLDWT<INPUT_ATTRIB[0]);
+  });
+}
 
 /*****************
  stat: sum

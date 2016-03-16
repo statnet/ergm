@@ -19,6 +19,7 @@
 \alias{altkstar}
 \alias{asymmetric}
 \alias{atleast}
+\alias{atmost}
 \alias{b1concurrent}
 \alias{b1degrange}
 \alias{b1degree}
@@ -63,6 +64,7 @@
 \alias{edgecov}
 \alias{edges}
 \alias{esp}
+\alias{equalto}
 \alias{greaterthan}
 \alias{gwb1degree}
 \alias{gwb2degree}
@@ -115,6 +117,7 @@
 \alias{simmelian}
 \alias{simmelianties}
 \alias{smalldiff}
+\alias{smallerthan}
 \alias{sociality}
 \alias{sum}
 \alias{threepath}
@@ -276,9 +279,14 @@ network
     \code{keep} are used in the same way as for the \code{nodematch} term; refer
     to this term for details and an example.}
 
-  \item{\code{atleast(threshold=0)}  (valued)  (directed)  (undirected)}{\emph{Number of ties with values
+  \item{\code{atleast(threshold=0)}  (valued)  (directed)  (undirected) (dyad-independent)}{\emph{Number of dyads with values
       greater than or equal to a threshold} Adds one statistic
-    equaling to the number of ties whose values equal or exceed
+    equaling to the number of dyads whose values equal or exceed
+    \code{threshold}.  }
+
+  \item{\code{atmost(threshold=0)}  (valued)  (directed)  (undirected) (dyad-independent)}{\emph{Number of dyads with values
+      less than or equal to a threshold} Adds one statistic
+    equaling to the number of dyads whose values equal or are exceeded by
     \code{threshold}.  }
   
   \item{\code{b1concurrent(by=NULL)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
@@ -844,10 +852,17 @@ of the degrees of all pairs of nodes in the network which are tied.
     homogeneous shared partners only (i.e., only partners on a directed two-path
     connecting the nodes in the edge and in the same direction).}
 
+    \item{\code{equalto(value=0, tolerance=0)}  (valued)  (directed)  (undirected) (dyadic-independent)}{\emph{Number of dyads with
+	values equal to a specific value (within tolerance):}
+      Adds one statistic equal to the number of dyads whose values
+      are within \code{tolerance} of \code{value}, i.e., between
+	\code{value-tolerance} and \code{value+tolerance}, inclusive.
+    }
+  
        
     \item{\code{greaterthan(threshold=0)}  (valued)  (directed)  (undirected) (dyadic-independent)}{\emph{Number of dyads with
 	values strictly greater than a threshold:}
-      Adds one statistic equaling to the number of ties whose values
+      Adds one statistic equal to the number of dyads whose values
       exceed \code{threshold}.
     }
   
@@ -1067,9 +1082,9 @@ of the degrees of all pairs of nodes in the network which are tied.
     term can only be used with directed networks.}
 
   \item{\code{ininterval(lower=-Inf, upper=+Inf, open=c(TRUE,TRUE))}  (valued)  (directed)  (undirected) (dyadic-independent)
-  }{\emph{Number of ties
+  }{\emph{Number of dyads
 	whose values are in an interval}
-      Adds one statistic equaling to the number of ties whose values
+      Adds one statistic equaling to the number of dyads whose values
       are between \code{lower} and
       \code{upper}. Argument \code{open}
       is a \code{logical} vector of length 2 that controls whether
@@ -1123,7 +1138,13 @@ of the degrees of all pairs of nodes in the network which are tied.
     attribute. This term can only be used for undirected networks; for directed
     networks, see \code{istar}, \code{ostar}, \code{twopath} and \code{m2star}.
     Note that \code{kstar(1)} is equal to \code{edges}. }
-    
+
+    \item{\code{smallerthan(threshold=0)}  (valued)  (directed)  (undirected) (dyadic-independent)}{\emph{Number of dyads with
+	values strictly smaller than a threshold:}
+      Adds one statistic equaling to the number of dyads whose values
+      exceeded by \code{threshold}.
+    }
+  
     \item{\code{localtriangle(x)}  (binary)  (triad-related)  (directed)  (undirected)}{\emph{Triangles within neighborhoods: } 
     This term adds one statistic to the model equal to the number of triangles
     in the network between nodes \dQuote{close to} each other. For an undirected
