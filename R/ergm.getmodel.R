@@ -98,7 +98,9 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
     }
     #Call the InitErgm function in the environment where the formula was created
     # so that it will have access to any parameters of the ergm terms
-    outlist <- eval(v[[i]],formula.env)  
+    outlist <- eval(v[[i]],formula.env)
+    # If initialization fails without error (e.g., all statistics have been dropped), continue.
+    if(is.null(outlist)) next
     # If SO package name not specified explicitly, autodetect.
     if(is.null(outlist$pkgname)) outlist$pkgname <- environmentName(environment(termFun))
     # Now it is necessary to add the output to the model object
