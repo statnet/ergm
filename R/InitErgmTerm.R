@@ -384,6 +384,23 @@ InitErgmTerm.b1degrange<-function(nw, arglist, ...) {
   }
 }
 
+################################################################################
+InitErgmTerm.b1cov<-function (nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE, 
+                      varnames = c("attrname","transform","transformname"),
+                      vartypes = c("character","function","character"),
+                      defaultvalues = list(NULL,function(x)x,""),
+                      required = c(TRUE,FALSE,FALSE))
+  attrname<-a$attrname
+  f<-a$transform
+  f.name<-a$transformname
+  coef.names <- paste(paste("nodeocov",f.name,sep=""),attrname,sep=".")
+  nb1 <- get.network.attribute(nw, "bipartite")
+  nodecov <- f(get.node.attr(nw, attrname, "nodeocov", numeric=TRUE)[1:nb1])
+  # C implementation is identical
+  list(name="nodeocov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
+}
+
 
 ################################################################################
 InitErgmTerm.b1degree <- function(nw, arglist, ...) {
@@ -606,6 +623,23 @@ InitErgmTerm.b2concurrent<-function(nw, arglist, ...) {
   }
   list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, minval = 0, maxval=network.size(nw)-nb1)
 }
+
+################################################################################
+InitErgmTerm.b2cov<-function (nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+                      varnames = c("attrname","transform","transformname"),
+                      vartypes = c("character","function","character"),
+                      defaultvalues = list(NULL,function(x)x,""),
+                      required = c(TRUE,FALSE,FALSE))
+  attrname<-a$attrname
+  f<-a$transform
+  f.name<-a$transformname
+  coef.names <- paste(paste("nodeicov",f.name,sep=""),attrname,sep=".")
+  nb1 <- get.network.attribute(nw, "bipartite")
+  nodecov <- f(get.node.attr(nw, attrname, "nodeicov", numeric=TRUE)[(nb1+1):network.size(nw)])
+  list(name="b2cov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
+}
+
 
 ################################################################################
 InitErgmTerm.b2degrange<-function(nw, arglist, ...) {

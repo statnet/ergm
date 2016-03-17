@@ -21,6 +21,7 @@
 \alias{atleast}
 \alias{atmost}
 \alias{b1concurrent}
+\alias{b1cov}
 \alias{b1degrange}
 \alias{b1degree}
 \alias{b1factor}
@@ -30,6 +31,7 @@
 \alias{b1starmix}
 \alias{b1twostar}
 \alias{b2concurrent}
+\alias{b2cov}
 \alias{b2degrange}
 \alias{b2degree}
 \alias{b2factor}
@@ -302,6 +304,20 @@ network
     This term can only be
     used with undirected bipartite networks. }
 
+    \item{\code{b1cov(attrname, transform, transformname)}  (binary)
+    (undirected) (bipartite) (dyadic-independent) (quantitative nodal
+    attribute), \code{b1cov(attrname, transform, transformname,
+    form="sum")}  (valued)  (undirected) (bipartite) (dyadic-independent)
+	(quantitative nodal attribute)
+    }{\emph{Main effect of a covariate for
+    the first mode in a bipartite (aka two-mode) network:} 
+    The \code{attrname} argument is a character string giving the name of a
+    numeric (not categorical) attribute in the network's vertex attribute list.
+    This term adds a single network statistic to the model equaling the total
+    value of \code{attrname(i)} for all edges \eqn{(i,j)} in the network. This
+    term may only be used with bipartite networks. For categorical attributes,
+    see \code{b1factor}.}
+  
   \item{\code{b1degrange(from, to=+Inf, by=NULL, homophily=FALSE)}  (binary)  (bipartite)  (undirected) 
   }{\emph{Degree range for the first mode in a bipartite
     (a.k.a. two-mode) network:} 
@@ -347,7 +363,7 @@ network
     
     \item{\code{b1factor(attrname, base=1)}  (binary)  (bipartite)  (undirected)  (dyad-independent) (frequently-used) (categorical nodal attribute)
     }{\emph{Factor attribute effect for
-    the first mode in a bipartite (aka two-mode) network :} 
+    the first mode in a bipartite (aka two-mode) network:} 
     The \code{attrname} argument is a character string giving the name of a
     categorical attribute in the network's vertex attribute list. This term adds
     multiple network statistics to the model, one for each of (a subset of) the
@@ -472,6 +488,20 @@ network
     Without the optional argument, this statistic is equivalent to \code{b2mindegree(2)}.
     This term can only be used with undirected bipartite networks. }
 
+    \item{\code{b2cov(attrname, transform, transformname)}  (binary)
+    (undirected) (bipartite) (dyadic-independent) (quantitative nodal
+    attribute), \code{b2cov(attrname, transform, transformname,
+    form="sum")}  (valued)  (undirected) (bipartite) (dyadic-independent)
+	(quantitative nodal attribute)
+    }{\emph{Main effect of a covariate for
+    the second mode in a bipartite (aka two-mode) network:} 
+    The \code{attrname} argument is a character string giving the name of a
+    numeric (not categorical) attribute in the network's vertex attribute list.
+    This term adds a single network statistic to the model equaling the total
+    value of \code{attrname(j)} for all edges \eqn{(i,j)} in the network. This
+    term may only be used with bipartite networks. For categorical attributes,
+    see \code{b2factor}.}
+  
     \item{\code{b2degrange(from, to=+Inf, by=NULL, homophily=FALSE)}  (binary)  (bipartite)  (undirected)
     }{\emph{Degree range for the second mode in a bipartite
     (a.k.a. two-mode) network:} 
