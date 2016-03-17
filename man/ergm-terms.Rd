@@ -361,7 +361,9 @@ network
     value of the \code{by} attribute.
     This term can only be used with undirected bipartite networks.}
     
-    \item{\code{b1factor(attrname, base=1)}  (binary)  (bipartite)  (undirected)  (dyad-independent) (frequently-used) (categorical nodal attribute)
+    \item{\code{b1factor(attrname, base=1)}  (binary)  (bipartite)
+    (undirected)  (dyad-independent) (frequently-used) (categorical
+    nodal attribute) \code{b1factor(attrname, base=1, form="sum")}  (valued)  (bipartite)  (undirected)  (dyad-independent) (frequently-used) (categorical nodal attribute)
     }{\emph{Factor attribute effect for
     the first mode in a bipartite (aka two-mode) network:} 
     The \code{attrname} argument is a character string giving the name of a
@@ -545,7 +547,9 @@ network
     value of the \code{by} attribute.
     This term can only be used with undirected bipartite networks.}
     
-    \item{\code{b2factor(attrname, base=1)}  (binary)  (bipartite)  (undirected)  (dyad-independent) (categorical nodal attribute) (frequently-used)
+    \item{\code{b2factor(attrname, base=1)}  (binary)  (bipartite)
+    (undirected)  (dyad-independent) (categorical nodal attribute)
+    (frequently-used) \code{b2factor(attrname, base=1, form="sum")}  (valued)  (bipartite)  (undirected)  (dyad-independent) (categorical nodal attribute) (frequently-used)
     }{\emph{Factor attribute effect for
     the second mode in a bipartite (aka two-mode) network :} 
     The \code{attrname} argument is a character string giving the name of a

@@ -40,7 +40,7 @@ InitWtErgmTerm.absdiffcat <- function(nw, arglist, response, ...) {
   napositions <- is.na(nodecov)
   nodecov[napositions] <- NAsubstitute
   if(any(napositions)){u<-c(u,NA)}
-  if(!is.null(a$base)) u <- u[-(a$base)]
+  if(any(NVL(a$base,0)!=0)) u <- u[-(a$base)]
   if (length(u)==0)
     stop ("Argument to absdiffcat() has too few distinct differences", call.=FALSE)
   u2 <- u[!is.na(u)]
@@ -82,6 +82,110 @@ InitWtErgmTerm.atmost<-function(nw, arglist, response, ...) {
        dependence=FALSE,
        minval=0, maxval=network.dyadcount(nw,FALSE),
        emptynwstats=if(0<=a$threshold) network.dyadcount(nw,FALSE) else 0)
+}
+
+InitWtErgmTerm.b1cov<-function (nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE, 
+                      varnames = c("attrname","transform","transformname","form"),
+                      vartypes = c("character","function","character","character"),
+                      defaultvalues = list(NULL,function(x)x,"","sum"),
+                      required = c(TRUE,FALSE,FALSE,FALSE))
+  attrname<-a$attrname
+  f<-a$transform
+  f.name<-a$transformname
+  form<-match.arg(a$form,c("sum","nonzero"))
+  coef.names <- paste("b1cov",form,f.name,attrname,sep=".")
+  nb1 <- get.network.attribute(nw, "bipartite")
+  nodecov <- f(get.node.attr(nw, attrname, "b1cov", numeric=TRUE)[1:nb1])
+  # C implementation is identical
+  list(name=paste("nodeocov",form,sep="_"), coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
+}
+
+InitWtErgmTerm.b1factor<-function (nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+                      varnames = c("attrname", "base", "form"),
+                      vartypes = c("character", "numeric", "character"),
+                      defaultvalues = list(NULL, 1, "sum"),
+                      required = c(TRUE, FALSE, FALSE))                                    
+  attrname<-a$attrname
+  base <- a$base
+  nb1 <- get.network.attribute(nw, "bipartite")
+  nodecov <- get.node.attr(nw, attrname, "b1factor")[1:nb1]
+  
+  if(all(is.na(nodecov)))
+	  stop("Argument to b1factor() does not exist", call.=FALSE)
+  
+  u<-sort(unique(nodecov))
+  if(any(is.na(nodecov))){u<-c(u,NA)}
+  nodecov <- match(nodecov,u,nomatch=length(u)+1)
+  ui <- seq(along=u)
+  lu <- length(ui)
+  if (lu==1){
+    stop ("Argument to b1factor() has only one value", call.=FALSE)
+  }
+  form<-match.arg(a$form,c("sum","nonzero"))
+  if(base[1]==0){
+    coef.names <- paste("b1factor", form, attrname, paste(u), sep=".")
+    inputs <- c(ui, nodecov)
+    attr(inputs, "ParamsBeforeCov") <- lu
+  }else{
+    coef.names <- paste("b1factor", form, attrname, paste(u[-base]), sep=".")
+    inputs <- c(ui[-base], nodecov)
+    attr(inputs, "ParamsBeforeCov") <- lu-length(base)
+  }
+  # C side is equivalent
+  list(name=paste("nodeofactor",form,sep="_"), coef.names=coef.names, inputs=inputs, dependence=FALSE, minval=0)
+}
+
+InitWtErgmTerm.b2cov<-function (nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE, 
+                      varnames = c("attrname","transform","transformname","form"),
+                      vartypes = c("character","function","character","character"),
+                      defaultvalues = list(NULL,function(x)x,"","sum"),
+                      required = c(TRUE,FALSE,FALSE,FALSE))
+  attrname<-a$attrname
+  f<-a$transform
+  f.name<-a$transformname
+  form<-match.arg(a$form,c("sum","nonzero"))
+  coef.names <- paste("b2cov",form,f.name,attrname,sep=".")
+  nb1 <- get.network.attribute(nw, "bipartite")
+  nodecov <- f(get.node.attr(nw, attrname, "b2cov", numeric=TRUE)[-(1:nb1)])
+  list(name=paste("b2cov",form,sep="_"), coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
+}
+
+InitWtErgmTerm.b2factor<-function (nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+                      varnames = c("attrname", "base", "form"),
+                      vartypes = c("character", "numeric", "character"),
+                      defaultvalues = list(NULL, 1, "sum"),
+                      required = c(TRUE, FALSE))
+  attrname<-a$attrname
+  base <- a$base
+  nb1 <- get.network.attribute(nw, "bipartite")
+  nodecov <- get.node.attr(nw, attrname, "b2factor")[(nb1+1):network.size(nw)]
+  
+  if(all(is.na(nodecov)))
+	  stop("Argument to b2factor() does not exist", call.=FALSE)
+  
+  u<-sort(unique(nodecov))
+  if(any(is.na(nodecov))){u<-c(u,NA)}
+  nodecov <- match(nodecov,u,nomatch=length(u)+1)
+  ui <- seq(along=u)
+  lu <- length(ui)
+  if (lu==1){
+    stop ("Argument to b2factor() has only one value", call.=FALSE)
+  }
+  form<-match.arg(a$form,c("sum","nonzero"))
+  if(base[1]==0){
+    coef.names <- paste("b2factor", form, attrname, paste(u), sep=".")
+    inputs <- c(ui, nodecov)
+    attr(inputs, "ParamsBeforeCov") <- lu
+  }else{
+    coef.names <- paste("b2factor", form, attrname, paste(u[-base]), sep=".")
+    inputs <- c(ui[-base], nodecov)
+    attr(inputs, "ParamsBeforeCov") <- lu-length(base)
+  }
+  list(name=paste("b2factor",form,sep="_"), coef.names=coef.names, inputs=inputs, dependence=FALSE, minval=0) 
 }
 
 InitWtErgmTerm.edgecov <- function(nw, arglist, response, ...) {
@@ -286,7 +390,7 @@ InitWtErgmTerm.nodefactor<-function (nw, arglist, response, ...) {
     }
 
   u <- sort(unique(nodecov))
-  if (!is.null(a$base) && !identical(a$base,0)) {
+  if (any(NVL(a$base,0)!=0)) {
     u <- u[-a$base]
     if (length(u)==0) { # Get outta here!  (can happen if user passes attribute with one value)
       print("Warning:  nodefactor term deleted because it contributes no statistics")
@@ -339,7 +443,7 @@ InitWtErgmTerm.nodeofactor<-function (nw, arglist, response, ...) {
     }
 
   u <- sort(unique(nodecov))
-  if (!is.null(a$base) && !identical(a$base,0)) {
+  if (any(NVL(a$base,0)!=0)) {
     u <- u[-a$base]
     if (length(u)==0) { # Get outta here!  (can happen if user passes attribute with one value)
       print("Warning:  nodeofactor term deleted because it contributes no statistics")
@@ -392,7 +496,7 @@ InitWtErgmTerm.nodeifactor<-function (nw, arglist, response, ...) {
     }
 
   u <- sort(unique(nodecov))
-  if (!is.null(a$base) && !identical(a$base,0)) {
+  if (any(NVL(a$base,0)!=0)) {
     u <- u[-a$base]
     if (length(u)==0) { # Get outta here!  (can happen if user passes attribute with one value)
       print("Warning:  nodeifactor term deleted because it contributes no statistics")
@@ -491,7 +595,7 @@ InitWtErgmTerm.nodemix<-function (nw, arglist, ...) {
     nodecov <- c(b1nodecov, b2nodecov + nr)
     u <- cbind(rep(1:nr,nc), nr + rep(1:nc, each=nr))
     if(any(is.na(nodecov))){u<-rbind(u,NA)}    
-    if (!is.null(a$base) && !identical(a$base,0)) {
+    if (any(NVL(a$base,0)!=0)) {
       u <- u[-a$base,]
     }
     name <- "mix"
@@ -516,7 +620,7 @@ InitWtErgmTerm.nodemix<-function (nw, arglist, ...) {
       ucm <- ucm[upper.tri(ucm,diag=TRUE)]
       uun <- uun[upper.tri(uun,diag=TRUE)]
     }
-    if (!is.null(a$base) && !identical(a$base,0)) {
+    if (any(NVL(a$base,0)!=0)) {
       urm <- as.vector(urm)[-a$base]
       ucm <- as.vector(ucm)[-a$base]
       uun <- as.vector(uun)[-a$base]
