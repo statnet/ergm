@@ -140,13 +140,13 @@ InitWtErgmTerm.ininterval<-function(nw, arglist, response, ...) {
 
   a$open<-rep(a$open,length.out=2)
   list(name="ininterval",
-       coef.names=paste("ininterval",if(a$open[0]) "(" else "[", a$lower,",",a$upper, if(a$open[1]) ")" else "]",sep=""),
-       inputs=c(a$lower,a$upper,a$open),
+       coef.names=paste("ininterval",if(a$open[1]) "(" else "[", a$lower,",",a$upper, if(a$open[2]) ")" else "]",sep=""),
+       inputs=c(.deinf(a$lower),.deinf(a$upper),a$open),
        dependence=FALSE,
        minval=0, maxval=network.dyadcount(nw,FALSE),
        emptynwstats=if(
-       ((a$open[0] & 0>a$lower) | (!a$open[0] & 0>=a$lower)) &
-       ((a$open[1] & 0<a$upper) | (!a$open[1] & 0<=a$upper))
+       ((a$open[1] & 0>a$lower) | (!a$open[1] & 0>=a$lower)) &
+       ((a$open[2] & 0<a$upper) | (!a$open[2] & 0<=a$upper))
        ) network.dyadcount(nw,FALSE) else 0)
 }
 
