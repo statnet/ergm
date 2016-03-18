@@ -23,15 +23,26 @@
 	added that allow the user to specify what directions of shared
 	partnerships are of interest. The new terms are,
 	\itemize{
-	  \item{(Directed) geometrically weighted dyadwise shared partners (\code{dgwdsp})}
-	  \item{(Directed) geometrically weighted edgewise shared partners (\code{dgwesp})}
+	  \item{(Directed) geometrically weighted dyadwise shared partners (\code{\link{dgwdsp}})}
+	  \item{(Directed) geometrically weighted edgewise shared partners (\code{\link{dgwesp}})}
 	  \item{(Directed) geometrically weighted non-edgewise shared
-	    partners (\code{dgwnsp})}
+	    partners (\code{\link{dgwnsp}})}
 	}
 	In addition, terms for specific shared partner counts
-	(\code{ddsp}, \code{desp}, and \code{dnsp}) are also
+	(\code{\link{ddsp}}, \code{\link{desp}}, and \code{\link{dnsp}}) are also
 	implemented. See \code{\link{ergm-terms}} for help.
       }
+      
+      \item{New terms (binary and valued) \code{\link{b1cov}} and \code{\link{b2cov}} have
+	been implemented, analogous to \code{\link{nodecov}},
+	\code{\link{nodeicov}}, and \code{\link{nodeocov}} but for
+	bipatite networks.}
+      
+      \item{New valued terms \code{\link{atleast}},
+	\code{\link{equalto}}, and \code{\link{smallerthan}} have
+	been implemented. A number of terms that were binary-only before
+	have been implemented for valued ERGMs.}
+
       \item{
 	\code{ergm} package now works when loaded (e.g., using
 	\code{\link{requireNamespace}}) but not attached (e.g., using
@@ -43,6 +54,8 @@
   
    \subsection{BUG FIXES}{
      \itemize{
+       \item{A number of implementation bugs in the valued ERGM terms
+	 have been fixed.}
        \item{Parallel processing when using \code{ergm.userterms} and similar was
 	 accidentaly broken in the previous release.}
        \item{Calculation of Hummel et. al. (2010) steplength for missing data MLE was
@@ -59,6 +72,8 @@
      \itemize{
        \item{\code{\link{robust.inverse}} has been deprecated in favor
 	 of \code{\link[MASS]{ginv}}.}
+       \item{\code{\link{simulate.formula}} now does parallel processing
+	 more efficiently.}
      }
    }
 
