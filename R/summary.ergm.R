@@ -23,9 +23,6 @@
 #                should be printed (T or F); default=FALSE
 #   covariance : whether the covariance matrix of the estimated parameters
 #                should be printed (T or F); default=FALSE
-#   eps        : the numerical tolerance inputted to the native R function
-#                <format.pval>; the code using 'eps' is now commented out;
-#                default=.0001
 #
 # --RETURNED--
 #   ans: a "summary.ergm" object as a list containing the following
@@ -58,8 +55,7 @@
 summary.ergm <- function (object, ..., 
                           digits = max(3, getOption("digits") - 3),
                           correlation=FALSE, covariance=FALSE,
-                          total.variation=TRUE,
-                          eps=0.0001)
+                          total.variation=TRUE)
 {
   control <- object$control
   pseudolikelihood <- object$estimate=="MPLE"

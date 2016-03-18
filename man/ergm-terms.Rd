@@ -19,7 +19,9 @@
 \alias{altkstar}
 \alias{asymmetric}
 \alias{atleast}
+\alias{atmost}
 \alias{b1concurrent}
+\alias{b1cov}
 \alias{b1degrange}
 \alias{b1degree}
 \alias{b1factor}
@@ -29,6 +31,7 @@
 \alias{b1starmix}
 \alias{b1twostar}
 \alias{b2concurrent}
+\alias{b2cov}
 \alias{b2degrange}
 \alias{b2degree}
 \alias{b2factor}
@@ -63,6 +66,7 @@
 \alias{edgecov}
 \alias{edges}
 \alias{esp}
+\alias{equalto}
 \alias{greaterthan}
 \alias{gwb1degree}
 \alias{gwb2degree}
@@ -115,6 +119,7 @@
 \alias{simmelian}
 \alias{simmelianties}
 \alias{smalldiff}
+\alias{smallerthan}
 \alias{sociality}
 \alias{sum}
 \alias{threepath}
@@ -276,9 +281,14 @@ network
     \code{keep} are used in the same way as for the \code{nodematch} term; refer
     to this term for details and an example.}
 
-  \item{\code{atleast(threshold=0)}  (valued)  (directed)  (undirected)}{\emph{Number of ties with values
+  \item{\code{atleast(threshold=0)}  (valued)  (directed)  (undirected) (dyad-independent)}{\emph{Number of dyads with values
       greater than or equal to a threshold} Adds one statistic
-    equaling to the number of ties whose values equal or exceed
+    equaling to the number of dyads whose values equal or exceed
+    \code{threshold}.  }
+
+  \item{\code{atmost(threshold=0)}  (valued)  (directed)  (undirected) (dyad-independent)}{\emph{Number of dyads with values
+      less than or equal to a threshold} Adds one statistic
+    equaling to the number of dyads whose values equal or are exceeded by
     \code{threshold}.  }
   
   \item{\code{b1concurrent(by=NULL)}  (binary)  (bipartite)  (undirected) (categorical nodal attribute)
@@ -294,6 +304,20 @@ network
     This term can only be
     used with undirected bipartite networks. }
 
+    \item{\code{b1cov(attrname, transform, transformname)}  (binary)
+    (undirected) (bipartite) (dyadic-independent) (quantitative nodal
+    attribute), \code{b1cov(attrname, transform, transformname,
+    form="sum")}  (valued)  (undirected) (bipartite) (dyadic-independent)
+	(quantitative nodal attribute)
+    }{\emph{Main effect of a covariate for
+    the first mode in a bipartite (aka two-mode) network:} 
+    The \code{attrname} argument is a character string giving the name of a
+    numeric (not categorical) attribute in the network's vertex attribute list.
+    This term adds a single network statistic to the model equaling the total
+    value of \code{attrname(i)} for all edges \eqn{(i,j)} in the network. This
+    term may only be used with bipartite networks. For categorical attributes,
+    see \code{b1factor}.}
+  
   \item{\code{b1degrange(from, to=+Inf, by=NULL, homophily=FALSE)}  (binary)  (bipartite)  (undirected) 
   }{\emph{Degree range for the first mode in a bipartite
     (a.k.a. two-mode) network:} 
@@ -337,9 +361,11 @@ network
     value of the \code{by} attribute.
     This term can only be used with undirected bipartite networks.}
     
-    \item{\code{b1factor(attrname, base=1)}  (binary)  (bipartite)  (undirected)  (dyad-independent) (frequently-used) (categorical nodal attribute)
+    \item{\code{b1factor(attrname, base=1)}  (binary)  (bipartite)
+    (undirected)  (dyad-independent) (frequently-used) (categorical
+    nodal attribute) \code{b1factor(attrname, base=1, form="sum")}  (valued)  (bipartite)  (undirected)  (dyad-independent) (frequently-used) (categorical nodal attribute)
     }{\emph{Factor attribute effect for
-    the first mode in a bipartite (aka two-mode) network :} 
+    the first mode in a bipartite (aka two-mode) network:} 
     The \code{attrname} argument is a character string giving the name of a
     categorical attribute in the network's vertex attribute list. This term adds
     multiple network statistics to the model, one for each of (a subset of) the
@@ -464,6 +490,20 @@ network
     Without the optional argument, this statistic is equivalent to \code{b2mindegree(2)}.
     This term can only be used with undirected bipartite networks. }
 
+    \item{\code{b2cov(attrname, transform, transformname)}  (binary)
+    (undirected) (bipartite) (dyadic-independent) (quantitative nodal
+    attribute), \code{b2cov(attrname, transform, transformname,
+    form="sum")}  (valued)  (undirected) (bipartite) (dyadic-independent)
+	(quantitative nodal attribute)
+    }{\emph{Main effect of a covariate for
+    the second mode in a bipartite (aka two-mode) network:} 
+    The \code{attrname} argument is a character string giving the name of a
+    numeric (not categorical) attribute in the network's vertex attribute list.
+    This term adds a single network statistic to the model equaling the total
+    value of \code{attrname(j)} for all edges \eqn{(i,j)} in the network. This
+    term may only be used with bipartite networks. For categorical attributes,
+    see \code{b2factor}.}
+  
     \item{\code{b2degrange(from, to=+Inf, by=NULL, homophily=FALSE)}  (binary)  (bipartite)  (undirected)
     }{\emph{Degree range for the second mode in a bipartite
     (a.k.a. two-mode) network:} 
@@ -507,7 +547,9 @@ network
     value of the \code{by} attribute.
     This term can only be used with undirected bipartite networks.}
     
-    \item{\code{b2factor(attrname, base=1)}  (binary)  (bipartite)  (undirected)  (dyad-independent) (categorical nodal attribute) (frequently-used)
+    \item{\code{b2factor(attrname, base=1)}  (binary)  (bipartite)
+    (undirected)  (dyad-independent) (categorical nodal attribute)
+    (frequently-used) \code{b2factor(attrname, base=1, form="sum")}  (valued)  (bipartite)  (undirected)  (dyad-independent) (categorical nodal attribute) (frequently-used)
     }{\emph{Factor attribute effect for
     the second mode in a bipartite (aka two-mode) network :} 
     The \code{attrname} argument is a character string giving the name of a
@@ -844,10 +886,17 @@ of the degrees of all pairs of nodes in the network which are tied.
     homogeneous shared partners only (i.e., only partners on a directed two-path
     connecting the nodes in the edge and in the same direction).}
 
+    \item{\code{equalto(value=0, tolerance=0)}  (valued)  (directed)  (undirected) (dyadic-independent)}{\emph{Number of dyads with
+	values equal to a specific value (within tolerance):}
+      Adds one statistic equal to the number of dyads whose values
+      are within \code{tolerance} of \code{value}, i.e., between
+	\code{value-tolerance} and \code{value+tolerance}, inclusive.
+    }
+  
        
     \item{\code{greaterthan(threshold=0)}  (valued)  (directed)  (undirected) (dyadic-independent)}{\emph{Number of dyads with
 	values strictly greater than a threshold:}
-      Adds one statistic equaling to the number of ties whose values
+      Adds one statistic equal to the number of dyads whose values
       exceed \code{threshold}.
     }
   
@@ -1067,9 +1116,9 @@ of the degrees of all pairs of nodes in the network which are tied.
     term can only be used with directed networks.}
 
   \item{\code{ininterval(lower=-Inf, upper=+Inf, open=c(TRUE,TRUE))}  (valued)  (directed)  (undirected) (dyadic-independent)
-  }{\emph{Number of ties
+  }{\emph{Number of dyads
 	whose values are in an interval}
-      Adds one statistic equaling to the number of ties whose values
+      Adds one statistic equaling to the number of dyads whose values
       are between \code{lower} and
       \code{upper}. Argument \code{open}
       is a \code{logical} vector of length 2 that controls whether
@@ -1123,7 +1172,13 @@ of the degrees of all pairs of nodes in the network which are tied.
     attribute. This term can only be used for undirected networks; for directed
     networks, see \code{istar}, \code{ostar}, \code{twopath} and \code{m2star}.
     Note that \code{kstar(1)} is equal to \code{edges}. }
-    
+
+    \item{\code{smallerthan(threshold=0)}  (valued)  (directed)  (undirected) (dyadic-independent)}{\emph{Number of dyads with
+	values strictly smaller than a threshold:}
+      Adds one statistic equaling to the number of dyads whose values
+      exceeded by \code{threshold}.
+    }
+  
     \item{\code{localtriangle(x)}  (binary)  (triad-related)  (directed)  (undirected)}{\emph{Triangles within neighborhoods: } 
     This term adds one statistic to the model equal to the number of triangles
     in the network between nodes \dQuote{close to} each other. For an undirected
