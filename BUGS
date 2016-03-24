@@ -15,3 +15,8 @@ coef() of an ergm fit from being used as initial value for another
 ergm run for the same model if the model has curved terms. A function
 enformulate.curved() works around this by constructing suitable
 inputs, but a more consistent solution is desirable.
+
+# Sampson's Monks dataset shipped with ergm has mislabelled vertices #
+
+This was pointed out by Linda Tan Siew Li: the vertex labels (monks' names) are
+wrong. This will be fixed in the next release.
