@@ -13,7 +13,11 @@
 \docType{data}
 \title{Cumulative network of positive affection within a monastery as a ``network'' object}
 \description{
-Sampson (1969) recorded
+
+\bold{NOTE:} It appears that as of \code{ergm} 3.6.0, the vertex labels
+are been permutted. This will be fixed in the next release.
+
+  Sampson (1969) recorded
 the social interactions among a group of monks
 while resident as an experimenter on vision, and collected
 numerous sociometric rankings.  

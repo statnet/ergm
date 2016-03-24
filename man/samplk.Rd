@@ -12,26 +12,30 @@
 \alias{samplk1}
 \alias{samplk2}
 \alias{samplk3}
-\title{Longitudinal networks of positive affection within a monastery as a ``network" object}
+\title{Longitudinal networks of positive affection within a monastery as a ``network'' object}
 \description{
-%Sampson (1968) collected data on a variety of
+
+\bold{NOTE:} It appears that as of \code{ergm} 3.6.0, the vertex labels
+are been permutted. This will be fixed in the next release.
+
+  %Sampson (1968) collected data on a variety of
 %interpersonal relations among 18 monks. 
 Sampson (1969) recorded
 the social interactions among a group of monks
 while resident as an experimenter on vision, and collected
 numerous sociometric rankings.  
 During his stay, a political
-``crisis in the cloister" resulted in the expulsion of four monks
+``crisis in the cloister'' resulted in the expulsion of four monks
 (Nos. 2, 3, 17, and 18) and the voluntary departure of several
 others - most immediately, Nos. 1, 7, 14, 15, and 16. (In the
 end, only 5, 6, 9, and 11 remained).
 Of particular interest
-is the data on positive affect relations (``liking"), in which each
+is the data on positive affect relations (``liking''), in which each
 monk was asked if they had positive relations to each of the
 other monks.
 
 %The data are a measure reflecting
-%changes in group sentiment over time called ``liking". It is 
+%changes in group sentiment over time called ``liking''. It is 
 %gathered at three times: \code{samplk1} to \code{samplk3}.
 The data were gathered at three times to capture changes in group sentiment
 over time: \code{samplk1}, \code{samplk2}, and \code{samplk3}.
@@ -39,7 +43,7 @@ They represent three time points in the period during which a
 new cohort entered the monastery near the end of the study but
 before the major conflict began. 
 %Information about the senior monks was not included.
-Each member ranked only his top three choices on ``liking."
+Each member ranked only his top three choices on ``liking.''
 %A ranking of 3 indicates the highest or first choice and 1 the last choice.
 (Some subjects offered tied ranks for their top four choices).
 A tie from monk A to monk B exists if A
@@ -53,7 +57,7 @@ See also the data set \code{\link{sampson}} containing the time-aggregated
 graph \code{samplike}.
 %A tie exists in this.network if the receiver was nominated at 
 %one or more of the three time points.
-It is the cumulative tie for ``liking" over the three
+It is the cumulative tie for ``liking'' over the three
 periods.  For this, a tie from monk A to monk B exists if A
 nominated B as one of his three best friends at any of the
 three time points.
@@ -63,9 +67,9 @@ They have three vertex attributes:
 
 \describe{
 \item{group}{Groups of novices as classified by Sampson: 
-"Loyal", "Outcasts", and "Turks". There is also an 
+``Loyal'', ``Outcasts'', and ``Young Turks''. There is also an 
 interstitial group not represented here.}
-\item{cloisterville}{An indicator if attendance the minor seminary of ``Cloisterville" before coming to the monastery.}
+\item{cloisterville}{An indicator if attendance the minor seminary of ``Cloisterville'' before coming to the monastery.}
 \item{vertex.names}{The given names of the novices.}
 }
 This data set is standard in the social network analysis
@@ -80,7 +84,10 @@ This dataset was updated for version 2.5 (March 2012) to add the
 \code{cloisterville} variable and refine the names. This information is from
 de Nooy, Mrvar, and Batagelj (2005).
 The original vertex names were:
-Romul_10, Bonaven_5, Ambrose_9, Berth_6, Peter_4, Louis_11, Victor_8, Winf_12, John_1, Greg_2, Hugh_14, Boni_15, Mark_7, Albert_16, Amand_13, Basil_3, Elias_17, Simp_18.
+Romul_10, Bonaven_5, Ambrose_9, Berth_6, Peter_4, Louis_11, Victor_8,
+Winf_12, John_1, Greg_2, Hugh_14, Boni_15, Mark_7, Albert_16, Amand_13,
+Basil_3, Elias_17, Simp_18.
+
 } \usage{
  data(samplk)
 }
