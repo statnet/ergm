@@ -15,7 +15,7 @@
 \description{
 
 \bold{NOTE:} It appears that as of \code{ergm} 3.6.0, the vertex labels
-are been permutted. This will be fixed in the next release.
+have been permuted. This will be fixed in the next release.
 
   Sampson (1969) recorded
 the social interactions among a group of monks
