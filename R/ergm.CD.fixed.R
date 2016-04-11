@@ -60,6 +60,7 @@ ergm.CD.fixed <- function(init, nw, model,
   stats.hist <- matrix(NA, 0, length(model$nw.stats))
   stats.obs.hist <- matrix(NA, 0, length(model$nw.stats))
   steplen.hist <- c()
+  steplen <- control$CD.steplength
 
   nthreads <- max(
     if(inherits(control$parallel,"cluster")) nrow(summary(control$parallel))
@@ -236,9 +237,10 @@ ergm.CD.fixed <- function(init, nw, model,
       steplen <-
         if(!is.null(control$CD.steplength.margin))
           .Hummel.steplength(
-            if(control$MCMLE.Hummel.esteq) esteq else statsmatrix.0[,!model$etamap$offsetmap,drop=FALSE], 
-            if(control$MCMLE.Hummel.esteq) esteq.obs else statsmatrix.0.obs[,!model$etamap$offsetmap,drop=FALSE],
-            control$CD.steplength.margin, control$CD.steplength)
+            if(control$CD.Hummel.esteq) esteq else statsmatrix.0[,!model$etamap$offsetmap,drop=FALSE], 
+            if(control$CD.Hummel.esteq) esteq.obs else statsmatrix.0.obs[,!model$etamap$offsetmap,drop=FALSE],
+            control$CD.steplength.margin, control$CD.steplength, steplength.prev=steplen, verbose=verbose,
+            x2.num.max=control$CD.Hummel.miss.sample, steplen.maxit=control$CD.Hummel.maxit)
         else control$CD.steplength
       
       if(verbose){cat("Calling MCMLE Optimization...\n")}
@@ -249,6 +251,10 @@ ergm.CD.fixed <- function(init, nw, model,
         statsmatrix <- sweep(statsmatrix.0,2,(1-steplen)*statsmean,"-")
       }
       steplen.hist <- c(steplen.hist, steplen)
+      # stop if MCMLE is stuck (steplen stuck near 0)
+      if ((length(steplen.hist) > 2) && sum(tail(steplen.hist,2)) < 2*control$CD.steplength.min) {
+        stop("MCMLE estimation stuck. There may be excessive correlation between model terms, suggesting a poor model for the observed data. If target.stats are specified, try increasing SAN parameters.")
+      }    
       
       if(verbose){cat(paste("Using Newton-Raphson Step with step length ",steplen," ...\n"))}
       # Use estimateonly=TRUE if this is not the last iteration.

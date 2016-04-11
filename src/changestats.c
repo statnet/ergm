@@ -693,6 +693,28 @@ D_CHANGESTAT_FN(d_b2concurrent_by_attr) {
   UNDO_PREVIOUS_TOGGLES(i); /* Needed on exit in case of multiple toggles */
 }
 
+/*****************
+ changestat: d_b2cov
+*****************/
+D_CHANGESTAT_FN(d_b2cov) { 
+  double sum;
+  Vertex tail, head;
+  int i, edgeflag;
+  
+  /* *** don't forget tail -> head */    
+  Vertex nb1 = BIPARTITE;
+  CHANGE_STAT[0] = 0.0;
+  FOR_EACH_TOGGLE(i) 
+    {
+      edgeflag=IS_OUTEDGE(tail = TAIL(i), head = HEAD(i));
+      sum = INPUT_ATTRIB[head-nb1-1];
+      CHANGE_STAT[0] += edgeflag ? -sum : sum;
+      TOGGLE_IF_MORE_TO_COME(i);
+    }
+  UNDO_PREVIOUS_TOGGLES(i);
+}
+
+
 // A macro indicating whether x is in [from,to)
 #define FROM_TO(x, from, to) ((x)>=(from) && (x)<(to))
 

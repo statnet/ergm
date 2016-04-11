@@ -54,6 +54,20 @@ if (s.0 != 12 || round(e.0$coef + 3.961, 3) != 0 ||
 }
 
 
+#b1cov, bipartite, undirected
+num.tests=num.tests+1
+s.a <- summary(bipnw~b1cov("Cost"))
+e.a <- ergm(bipnw~b1cov("Cost"), estimate="MPLE")
+if (!all(s.a==c(121)) ||
+    !all(round(e.a$coef+c(2.212),3)==0)) {
+ print(list(s.a=s.a, e.a=e.a))
+ stop("Failed b1cov term test")
+} else {
+  num.passed.tests=num.passed.tests+1
+  print("Passed b1cov term test")
+}
+
+
 #b1degrange, bipartite, undirected
 num.tests=num.tests+1
 s.d <- summary(bipnw~b1degrange(from=c(1,2),to=c(Inf,Inf)))
@@ -219,6 +233,19 @@ if (s.0 != 20 || round(e.0$coef + 3.497, 3) != 0 ||
   print("Passed b2concurrent term test")
 }
 
+
+#b2cov, bipartite, undirected
+num.tests=num.tests+1
+s.a <- summary(bipnw~b2cov("Cost"))
+e.a <- ergm(bipnw~b2cov("Cost"), estimate="MPLE")
+if (!all(s.a==c(129)) ||
+    !all(round(e.a$coef+c(2.191),3)==0)) {
+ print(list(s.a=s.a, e.a=e.a))
+ stop("Failed b2cov term test")
+} else {
+  num.passed.tests=num.passed.tests+1
+  print("Passed b2cov term test")
+}
 
 
 #b2degrange, bipartite, undirected

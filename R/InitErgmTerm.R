@@ -384,6 +384,23 @@ InitErgmTerm.b1degrange<-function(nw, arglist, ...) {
   }
 }
 
+################################################################################
+InitErgmTerm.b1cov<-function (nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE, 
+                      varnames = c("attrname","transform","transformname"),
+                      vartypes = c("character","function","character"),
+                      defaultvalues = list(NULL,function(x)x,""),
+                      required = c(TRUE,FALSE,FALSE))
+  attrname<-a$attrname
+  f<-a$transform
+  f.name<-a$transformname
+  coef.names <- paste(paste("nodeocov",f.name,sep=""),attrname,sep=".")
+  nb1 <- get.network.attribute(nw, "bipartite")
+  nodecov <- f(get.node.attr(nw, attrname, "nodeocov", numeric=TRUE)[1:nb1])
+  # C implementation is identical
+  list(name="nodeocov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
+}
+
 
 ################################################################################
 InitErgmTerm.b1degree <- function(nw, arglist, ...) {
@@ -520,7 +537,7 @@ InitErgmTerm.b1starmix <- function(nw, arglist, ...) {
   nodecov <- c(b1nodecov, b2nodecov + nr)
   if (a$diff) {
     u <- cbind(rep(1:nr,nc), nr + rep(1:nc, each=nr))
-    if (!is.null(a$base) && !identical(a$base,0)) { u <- u[-a$base,] }
+    if (any(NVL(a$base,0)!=0)) { u <- u[-a$base,] }
     name <- "b1starmix"
     coef.names <- paste("b1starmix", a$k, a$attrname,
                         apply(matrix(namescov[u],ncol=2), 1,paste,collapse="."), 
@@ -530,7 +547,7 @@ InitErgmTerm.b1starmix <- function(nw, arglist, ...) {
   }
   else {
     u <- 1:nr
-    if (!is.null(a$base) && !identical(a$base,0)) { u <- u[-a$base] }
+    if (any(NVL(a$base,0)!=0)) { u <- u[-a$base] }
     name <- "b1starmixhomophily"
     coef.names <- paste("b1starmix", a$k, a$attrname, namescov[u], sep=".")
     inputs <- c(a$k, nodecov, u)
@@ -565,7 +582,7 @@ InitErgmTerm.b1twostar <- function(nw, arglist, ...) {
   nc <- length(b2u)
   u <- cbind(rep(1:nr, nc*nc), rep(rep(1:nc, each=nr), nc), rep(1:nc, each=nc*nr))
   u <- u[u[,2] <= u[,3],]  
-  if (!is.null(a$base) && !identical(a$base,0)) { u <- u[-a$base,] }
+  if (any(NVL(a$base,0)!=0)) { u <- u[-a$base,] }
   coef.names <- paste("b1twostar", a$b1attrname, b1u[u[,1]],  a$b2attrname,
                       apply(matrix(b2u[u[,2:3]],ncol=2), 1, paste, collapse="."),
                       sep=".")
@@ -606,6 +623,23 @@ InitErgmTerm.b2concurrent<-function(nw, arglist, ...) {
   }
   list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, minval = 0, maxval=network.size(nw)-nb1)
 }
+
+################################################################################
+InitErgmTerm.b2cov<-function (nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
+                      varnames = c("attrname","transform","transformname"),
+                      vartypes = c("character","function","character"),
+                      defaultvalues = list(NULL,function(x)x,""),
+                      required = c(TRUE,FALSE,FALSE))
+  attrname<-a$attrname
+  f<-a$transform
+  f.name<-a$transformname
+  coef.names <- paste(paste("nodeicov",f.name,sep=""),attrname,sep=".")
+  nb1 <- get.network.attribute(nw, "bipartite")
+  nodecov <- f(get.node.attr(nw, attrname, "nodeicov", numeric=TRUE)[(nb1+1):network.size(nw)])
+  list(name="b2cov", coef.names=coef.names, inputs=c(nodecov), dependence=FALSE)
+}
+
 
 ################################################################################
 InitErgmTerm.b2degrange<-function(nw, arglist, ...) {
@@ -818,7 +852,7 @@ InitErgmTerm.b2starmix <- function(nw, arglist, ...) {
   nodecov <- c(b1nodecov, b2nodecov + nr)
   if (a$diff) {
     u <- cbind(rep(1:nr,nc), nr + rep(1:nc, each=nr))
-    if (!is.null(a$base) && !identical(a$base,0)) { u <- u[-a$base,] }
+    if (any(NVL(a$base,0)!=0)) { u <- u[-a$base,] }
     name <- "b2starmix"
     coef.names <- paste("b2starmix", a$k, a$attrname,
                         apply(matrix(namescov[u[,2:1]],ncol=2), 1,paste,collapse="."), 
@@ -828,7 +862,7 @@ InitErgmTerm.b2starmix <- function(nw, arglist, ...) {
   }
   else {
     u <- nr+(1:nc)
-    if (!is.null(a$base) && !identical(a$base,0)) { u <- u[-a$base] }
+    if (any(NVL(a$base,0)!=0)) { u <- u[-a$base] }
     name <- "b2starmixhomophily"
     coef.names <- paste("b2starmix", a$k, a$attrname, namescov[u], sep=".")
     inputs <- c(a$k, nodecov, u)
@@ -863,7 +897,7 @@ InitErgmTerm.b2twostar <- function(nw, arglist, ...) {
   nc <- length(b2u)
   u <- cbind(rep(1:nc, nr*nr), rep(rep(1:nr, each=nc), nr), rep(1:nr, each=nc*nr))
   u <- u[u[,2] <= u[,3],]  
-  if (!is.null(a$base) && !identical(a$base,0)) { u <- u[-a$base,] }
+  if (any(NVL(a$base,0)!=0)) { u <- u[-a$base,] }
   coef.names <- paste("b2twostar", a$b2attrname, b2u[u[,1]],  a$b1attrname,
                       apply(matrix(b1u[u[,2:3]],ncol=2), 1, paste, collapse="."),
                       sep=".")
@@ -1299,7 +1333,7 @@ InitErgmTerm.edgecov <- function(nw, arglist, ...) {
   else if(is.character(a$x)){
     xm<-get.network.attribute(nw,a$x)
     if (is.null(xm)){
-      stop("There is no network attributed named ",a$x,call.=FALSE)
+      stop("There is no network attribute named ",a$x,call.=FALSE)
     }
   }
   else
@@ -1932,7 +1966,7 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ...) {
     if (length(nodecov)==1)
         stop ("Argument to hammingmix() has only one value", call.=FALSE)
 
-  if (!is.null(base) && !identical(base,0)) {
+  if (any(NVL(base,0)!=0)) {
     u <- u[-base,]
   }
   coef.names <- paste("hammingmix",attrname,
@@ -2368,7 +2402,7 @@ InitErgmTerm.nodefactor<-function (nw, arglist, ...) {
     }
 
   u <- sort(unique(nodecov))
-  if (!is.null(a$base) && !identical(a$base,0)) {
+  if (any(NVL(a$base,0)!=0)) {
     u <- u[-a$base]
     if (length(u)==0) { # Get outta here!  (can happen if user passes attribute with one value)
       print("Warning:  nodefactor term deleted because it contributes no statistics")
@@ -2424,7 +2458,7 @@ InitErgmTerm.nodeifactor<-function (nw, arglist, ...) {
     }
 
   u <- sort(unique(nodecov))
-  if (!is.null(a$base) && !identical(a$base,0)) {
+  if (any(NVL(a$base,0)!=0)) {
     u <- u[-a$base]
     if (length(u)==0) { # Get outta here!  (can happen if user passes attribute with one value)
       print("Warning:  nodeifactor term deleted because it contributes no statistics")
@@ -2519,7 +2553,7 @@ InitErgmTerm.nodemix<-function (nw, arglist, ...) {
     nodecov <- c(b1nodecov, b2nodecov + nr)
     u <- cbind(rep(1:nr,nc), nr + rep(1:nc, each=nr))
     if(any(is.na(nodecov))){u<-rbind(u,NA)}    
-    if (!is.null(a$base) && !identical(a$base,0)) {
+    if (any(NVL(a$base,0)!=0)) {
       u <- u[-a$base,]
     }
     name <- "mix"
@@ -2544,7 +2578,7 @@ InitErgmTerm.nodemix<-function (nw, arglist, ...) {
       ucm <- ucm[upper.tri(ucm,diag=TRUE)]
       uun <- uun[upper.tri(uun,diag=TRUE)]
     }
-    if (!is.null(a$base) && !identical(a$base,0)) {
+    if (any(NVL(a$base,0)!=0)) {
       urm <- as.vector(urm)[-a$base]
       ucm <- as.vector(ucm)[-a$base]
       uun <- as.vector(uun)[-a$base]
@@ -2597,7 +2631,7 @@ InitErgmTerm.nodeofactor<-function (nw, arglist, ...) {
     }
 
   u <- sort(unique(nodecov))
-  if (!is.null(a$base) && !identical(a$base,0)) {
+  if (any(NVL(a$base,0)!=0)) {
     u <- u[-a$base]
     if (length(u)==0) { # Get outta here!  (can happen if user passes attribute with one value)
       print("Warning:  nodeofactor term deleted because it contributes no statistics")
@@ -2866,7 +2900,7 @@ InitErgmTerm.receiver<-function(nw, arglist, ...) {
                       defaultvalues = list(1),
                       required = c(FALSE))
   d <- 1:network.size(nw)
-  if (!identical(a$base,0)) {
+  if (any(NVL(a$base,0)!=0)) {
     d <- d[-a$base]
   }
   ld<-length(d)
@@ -2886,7 +2920,7 @@ InitErgmTerm.sender<-function(nw, arglist, ...) {
                       defaultvalues = list(1),
                       required = c(FALSE))
   d <- 1:network.size(nw)
-  if (!identical(a$base,0)) {
+  if (any(NVL(a$base,0)!=0)) {
     d <- d[-a$base]
   }
   ld<-length(d)
@@ -2949,7 +2983,7 @@ InitErgmTerm.sociality<-function(nw, arglist, ...) {
                       required = c(FALSE, FALSE))
   attrname<-a$attrname
   d <- 1:network.size(nw)
-  if (!identical(a$base,0)) {
+  if (any(NVL(a$base,0)!=0)) {
     d <- d[-a$base]
   }
   if(!is.null(attrname)) {

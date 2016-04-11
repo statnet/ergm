@@ -101,6 +101,8 @@ gof.ergm <- function (object, ...,
   check.control.class(c("gof.ergm","gof.formula"))
   nw <- as.network(object$network)
 
+  if(!is.null(object$response)) stop("GoF for valued ERGMs is not implemented at this time.")
+  
   #Set up the defaults, if called with GOF==NULL
   if(is.null(GOF)){
     if(is.directed(nw))
@@ -147,15 +149,17 @@ gof.formula <- function(object, ...,
                         GOF=NULL,
                         constraints=~.,
                         control=control.gof.formula(),
+			unconditional=TRUE,
                         verbose=FALSE) {
   check.control.class()
+
+  if("response" %in% names(list(...))) stop("GoF for valued ERGMs is not implemented at this time.")
   
   if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
   if (verbose) 
     cat("Starting GOF for the given ERGM formula.\n")
   # Unused code
   coefmissing <- NULL
-  unconditional <- TRUE
   # get network
   trms <- ergm.getterms(object)
   if(length(trms)>2){
@@ -222,12 +226,13 @@ gof.formula <- function(object, ...,
 # }
 
   # If missing simulate from the conditional model
-  if(!is.null(nw$gal$design) & unconditional){
+  if(network.naedgecount(nw) & unconditional){
    if(verbose){cat("Conditional simulations for missing fit\n")}
    if(is.null(coefmissing)){coefmissing <- coef}
+   constraints.obs<-ergm.update.formula(constraints,~.+observed)
    SimCond <- gof(object=object, coef=coefmissing,
                   GOF=GOF, 
-                  constraints=constraints,
+                  constraints=constraints.obs,
                   control=control,
                   unconditional=FALSE,
                   verbose=verbose)
@@ -254,7 +259,7 @@ gof.formula <- function(object, ...,
     cat("Calculating observed network statistics.\n")
   
   if ('model' %in% all.gof.vars) {
-   if(is.null(nw$gal$design) | !unconditional){
+   if(!network.naedgecount(nw) | !unconditional){
     obs.model <- summary(object)
    }else{
     obs.model <- SimCond$obs.model
@@ -264,7 +269,7 @@ gof.formula <- function(object, ...,
   }
 
   if ('distance' %in% all.gof.vars) {
-   if(is.null(nw$gal$design) | !unconditional){
+   if(!network.naedgecount(nw) | !unconditional){
     obs.dist <- ergm.geodistdist(nw)
     obs.dist[obs.dist==Inf] <- n
    }else{
@@ -275,7 +280,7 @@ gof.formula <- function(object, ...,
   }
 
   if ('odegree' %in% all.gof.vars) {
-   if(is.null(nw$gal$design) | !unconditional){
+   if(!network.naedgecount(nw) | !unconditional){
     mesp <- paste("c(",paste(0:(n-1),collapse=","),")",sep="")
     obs.odeg <- summary(as.formula(paste('nw ~ odegree(',mesp,')',sep="")))
    }else{
@@ -288,7 +293,7 @@ gof.formula <- function(object, ...,
   }
 
   if ('idegree' %in% all.gof.vars) {
-   if(is.null(nw$gal$design) | !unconditional){
+   if(!network.naedgecount(nw) | !unconditional){
     mesp <- paste("c(",paste(0:(n-1),collapse=","),")",sep="")
     obs.ideg <- summary(as.formula(paste('nw ~ idegree(',mesp,')',sep="")))
    }else{
@@ -301,7 +306,7 @@ gof.formula <- function(object, ...,
   }
 
   if ('degree' %in% all.gof.vars) {
-   if(is.null(nw$gal$design) | !unconditional){
+   if(!network.naedgecount(nw) | !unconditional){
     if(is.bipartite(nw)){
      obs.deg <- degreedist(nw, print=FALSE)$b2
      obs.deg <- c(obs.deg,rep(0,n-length(obs.deg)))
@@ -319,7 +324,7 @@ gof.formula <- function(object, ...,
  
   if ('espartners' %in% all.gof.vars) {
 #  obs.espart <- espartnerdist(nw, print=verbose)
-   if(is.null(nw$gal$design) | !unconditional){
+   if(!network.naedgecount(nw) | !unconditional){
     mesp <- paste("c(",paste(0:(network.size(nw)-2),collapse=","),")",sep="")
     obs.espart <- summary(as.formula(paste('nw ~ esp(',mesp,')',sep="")))
    }else{
@@ -330,7 +335,7 @@ gof.formula <- function(object, ...,
   }
  
   if ('dspartners' %in% all.gof.vars) {
-   if(is.null(nw$gal$design) | !unconditional){
+   if(!network.naedgecount(nw) | !unconditional){
 #   obs.dspart <- dspartnerdist(nw, print=verbose)
     mesp <- paste("c(",paste(0:(network.size(nw)-2),collapse=","),")",sep="")
     obs.dspart <- summary(as.formula(paste('nw ~ dsp(',mesp,')',sep="")))
@@ -353,7 +358,7 @@ gof.formula <- function(object, ...,
     namestriadcensus <- c("0","1","2", "3")
     triadcensus.formula <- "~ triadcensus(0:3)"
    }
-   if(is.null(nw$gal$design) | !unconditional){
+   if(!network.naedgecount(nw) | !unconditional){
     obs.triadcensus <- summary(as.formula(paste('nw',triadcensus.formula,sep="")))
    }else{
     obs.triadcensus <- SimCond$summary.triadcensus[,"mean"]
@@ -386,6 +391,7 @@ gof.formula <- function(object, ...,
     if(verbose){
       cat("Sim",i,"of",control$nsim,": ")
     }
+    if(network.naedgecount(nw) & !unconditional){tempnet <- nw}
     tempnet <- simulate(object, nsim=1, coef=coef,
                         constraints=constraints, 
                         control=set.control.class("control.simulate.formula",control),

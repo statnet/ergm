@@ -17,8 +17,7 @@
 \method{summary}{ergm}(object, \dots,
                digits = max(3, getOption("digits") - 3),
                correlation = FALSE, covariance = FALSE, 
-               total.variation=TRUE,
-               eps = 1e-04)
+               total.variation=TRUE)
 
 }
 \arguments{
@@ -31,7 +30,6 @@
     the estimated parameters is returned and printed.}
   \item{total.variation}{logical; if \code{TRUE}, the standard errors
 reported in the \code{Std. Error} column are based on the sum of the likelihood variation and the MCMC variation. If \code{FALSE} only the likelihood varuation is used. The \eqn{p}-values are based on this source of variation.}
-  \item{eps}{number; indicates the smallest p-value. See \code{\link{printCoefmat}}.}
   \item{\dots}{Arguments to \code{\link{logLik.ergm}}}
 }
 \description{

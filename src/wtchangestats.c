@@ -101,6 +101,70 @@ WtD_CHANGESTAT_FN(d_atleast){
     });
 }
 
+/*****************
+ stat: atmost
+*****************/
+WtD_CHANGESTAT_FN(d_atmost){
+  EXEC_THROUGH_TOGGLES({
+      CHANGE_STAT[0] += (NEWWT<=INPUT_ATTRIB[0]) - (OLDWT<=INPUT_ATTRIB[0]);
+    });
+}
+
+/********************  changestats:   B    ***********/
+
+/*****************
+ stat: b2cov (nonzero)
+*****************/
+WtD_CHANGESTAT_FN(d_b2cov_nonzero){ 
+  EXEC_THROUGH_TOGGLES({
+      CHANGE_STAT[0] += INPUT_ATTRIB[HEAD-BIPARTITE-1]*((NEWWT!=0)-(OLDWT!=0));
+  });
+}
+
+/*****************
+ stat: b2cov (sum)
+*****************/
+WtD_CHANGESTAT_FN(d_b2cov_sum){ 
+  EXEC_THROUGH_TOGGLES({
+      CHANGE_STAT[0] += INPUT_ATTRIB[HEAD-BIPARTITE-1]*(NEWWT-OLDWT);
+  });
+}
+
+/*****************
+ stat: b2factor (nonzero)
+*****************/
+WtD_CHANGESTAT_FN(d_b2factor_nonzero){ 
+  double s, factorval;
+  int j, headattr;
+  
+  EXEC_THROUGH_TOGGLES({
+      s = (NEWWT!=0) - (OLDWT!=0);
+      headattr = INPUT_ATTRIB[HEAD-BIPARTITE-1];
+      for (j=0; j < N_CHANGE_STATS; j++){
+	factorval = INPUT_PARAM[j];
+	if (headattr == factorval) CHANGE_STAT[j] += s;
+      }
+    });
+}
+
+/*****************
+ stat: b2factor (sum)
+*****************/
+WtD_CHANGESTAT_FN(d_b2factor_sum){ 
+  double s, factorval;
+  int j, headattr;
+  
+  EXEC_THROUGH_TOGGLES({
+    s = NEWWT - OLDWT;
+    headattr = INPUT_ATTRIB[HEAD-BIPARTITE-1];
+    for (j=0; j < N_CHANGE_STATS; j++){
+      factorval = INPUT_PARAM[j];
+      if (headattr == factorval) CHANGE_STAT[j] += s;
+    }
+  });
+}
+
+
 /********************  changestats:   C    ***********/
 
 /*****************
@@ -348,6 +412,7 @@ WtD_CHANGESTAT_FN(d_ininterval){
     });
 }
 
+/********************  changestats:   L    ***********/
 
 /********************  changestats:   M    ***********/
 
@@ -590,7 +655,7 @@ WtD_CHANGESTAT_FN(d_nodeifactor_nonzero){
   
   EXEC_THROUGH_TOGGLES({
       s = (NEWWT!=0) - (OLDWT!=0);
-      headattr = INPUT_ATTRIB[TAIL-1];
+      headattr = INPUT_ATTRIB[HEAD-1];
       for (j=0; j < N_CHANGE_STATS; j++){
 	factorval = INPUT_PARAM[j];
 	if (headattr == factorval) CHANGE_STAT[j] += s;
@@ -607,7 +672,7 @@ WtD_CHANGESTAT_FN(d_nodeifactor_sum){
   
   EXEC_THROUGH_TOGGLES({
     s = NEWWT - OLDWT;
-    headattr = INPUT_ATTRIB[TAIL-1];
+    headattr = INPUT_ATTRIB[HEAD-1];
     for (j=0; j < N_CHANGE_STATS; j++){
       factorval = INPUT_PARAM[j];
       if (headattr == factorval) CHANGE_STAT[j] += s;
@@ -868,6 +933,15 @@ WtD_CHANGESTAT_FN(d_nonzero){
 }
 
 /********************  changestats:   S    ***********/
+
+/*****************
+ stat: smallerthan
+*****************/
+WtD_CHANGESTAT_FN(d_smallerthan){
+  EXEC_THROUGH_TOGGLES({
+      CHANGE_STAT[0] += (NEWWT<INPUT_ATTRIB[0]) - (OLDWT<INPUT_ATTRIB[0]);
+  });
+}
 
 /*****************
  stat: sum

@@ -28,6 +28,7 @@
                       GOF=NULL,
                       constraints=~.,
                       control=control.gof.formula(),
+		      unconditional=TRUE,
                       verbose=FALSE)
 \method{gof}{ergm}(object, 
                    \dots,
@@ -73,6 +74,10 @@
   \item{control}{A list to control parameters, constructed using
     \code{\link{control.gof.formula}} or \code{\link{control.gof.ergm}}
     (which have different defaults).
+  }
+  \item{unconditional}{logical; if \code{TRUE}, the simulation is unconditional on the observed dyads.
+	  if not \code{TRUE}, the simulation is conditional on the observed dyads. This is primarily
+	  used internally when the network has missing data and a conditional GoF is produced.
   }
   \item{verbose}{Provide verbose information on the progress of the
     simulation.

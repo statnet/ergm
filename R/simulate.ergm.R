@@ -211,6 +211,26 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     # at the original network (sequential=FALSE).
     if(nthreads>1) curstats <- matrix(curstats, nrow=nthreads, ncol=length(curstats), byrow=TRUE)
     
+    # start a cluster if we need to run in parallel more than once
+    parallel.toplevel <- NULL     # top level reminder to stop cluster
+    clus <- NULL
+    if (ceiling(nsim/nthreads) > 1) {
+    
+      if (inherits(control$parallel,"cluster")) {
+        clus <- ergm.getCluster(control, verbose)
+      } else if(is.numeric(control$parallel) && control$parallel!=0){
+        clus <- ergm.getCluster(control, verbose)
+        ergm.cluster.started(FALSE)
+        parallel.toplevel <- control$parallel
+        control$parallel <- clus
+      } else {
+        clus <- NULL
+        ergm.cluster.started(FALSE)
+        if (!is.numeric(control$parallel))
+          warning("Unrecognized value passed to parallel control parameter.")
+      }
+    }
+    
     for(i in 1:ceiling(nsim/nthreads)){
       
       control$MCMC.samplesize <- nthreads
@@ -228,6 +248,14 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
       }
 
       if(verbose){cat(sprintf("Finished simulation %d of %d.\n",i, nsim))}
+    }
+    
+    # done with parallel cluster
+    if (!is.null(clus)) {
+      if (!is.null(parallel.toplevel)) {  # if not NULL, then we started the cluster
+        ergm.cluster.started(TRUE)
+      }
+      ergm.stopCluster(clus)
     }
   }
 
