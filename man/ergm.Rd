@@ -35,6 +35,7 @@ ergm (formula,
       response=NULL,
       reference=~Bernoulli,
       constraints=~.,
+      obs.constraints=~observed,
       offset.coef=NULL,
       target.stats=NULL,
       eval.loglik=TRUE,
@@ -88,6 +89,35 @@ ergm (formula,
     Note that not all possible combinations of constraints and reference
     measures are supported.
   }
+  
+  \item{obs.constraints}{
+    A one-sided formula specifying one or more constraints
+    or other modification \emph{in addition} to those specified by
+    \code{constraints} that had affected the observation process for the network,
+    using syntax similar to the \code{formula} argument. Multiple constraints
+    may be given, separated by \dQuote{+} operators.
+
+    This allows the domain of the integral in the numerator of the
+    partially obseved network face-value likelihoods of Handcock and
+    Gile (2010) and Karwa et al. (2016) to be specified explicitly.
+
+    The default is \code{~observed}, to constrain the integral to only
+    integrate over the missing dyads. (It is dropped automatically if
+    the network is completely observed.)
+    
+    It is also possible to specify a proposal function directly
+    by passing a string with the function's name. In that case,
+    arguments to the proposal should be specified through the
+    \code{obs.prop.args} argument to \code{\link{control.ergm}}.
+
+    See the \link[=ergm-constraints]{ERGM constraints} documentation for
+    the constraints implemented in the \code{\link[=ergm-package]{ergm}}
+    package. Other packages may add their own constraints.
+    
+    Note that not all possible combinations of constraints and reference
+    measures are supported.
+  }
+  
   \item{offset.coef}{A vector of coefficients for the offset terms.}
   \item{target.stats}{vector of "observed network statistics,"
     if these statistics are for some reason different than the 
@@ -311,6 +341,8 @@ Handcock MS (2003b).
  Statnet Project, Seattle, WA.
  Version 1.0, \url{statnet.org}.
 
+Handcock MS and Gile KJ (2010). Modeling Social Networks from Sampled Data. \emph{Annals of Applied Statistics}, 4(1), 5-25. \href{http://dx.doi.org/10.1214/08-AOAS221}{doi:10.1214/08-AOAS221}
+ 
 Handcock MS, Hunter DR, Butts CT, Goodreau SM, Morris M (2003a).
  \pkg{ergm}: A Package to Fit, Simulate and Diagnose
   Exponential-Family Models for Networks.
@@ -333,6 +365,11 @@ Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b).
  \emph{Journal of Statistical Software}, 24(3).
  \url{http://www.jstatsoft.org/v24/i03/}.
 
+Karwa V, Krivitsky PN, and Slavkovi\'{c} AB (2016). Sharing Social Network
+ Data: Differentially Private Estimation of Exponential-Family Random
+ Graph Models. \emph{Journal of the Royal Statistical Society, Series
+ C}, to appear. \url{http://arxiv.org/abs/1511.02930}
+ 
 Krivitsky PN (2012). Exponential-Family Random Graph Models for Valued
 Networks. \emph{Electronic Journal of Statistics}, 2012, 6,
 1100-1128. \href{http://dx.doi.org/10.1214/12-EJS696}{\code{doi:10.1214/12-EJS696}}
