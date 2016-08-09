@@ -114,6 +114,7 @@
 ergm <- function(formula, response=NULL,
                  reference=~Bernoulli,
                  constraints=~.,
+                 obs.constraints=~observed,
                  offset.coef=NULL,
                  target.stats=NULL,
                  eval.loglik=TRUE,
@@ -143,18 +144,33 @@ ergm <- function(formula, response=NULL,
   if (verbose) cat("Evaluating network in model\n")
   
   nw <- ergm.getnetwork(formula)
-  proposalclass <- "c"
+  proposalclass <- "c"  
   
+  # Observation process handling only needs to happen if the
+  # sufficient statistics are not specified. If the sufficient
+  # statistics are specified, the nw's dyad states are irrelevant.
+  if(!is.null(target.stats)){
+    if(network.naedgecount(nw)){
+      warning("Target statistics specified in a network with missing dyads. Missingness will be overridden.")
+      nw[as.matrix(is.na(nw),matrix.type="edgelist")] <- 0
+    }else if(obs.constraints!=~observed){
+      cat("Target statistics specified in a network with a nontrivial observation process. Observation process will be ignored.\n")
+    }
+    obs.constraints <- ~.
+    MHproposal.obs <- NULL
+  }else{
+    # Get list of observation process constraints.
+    obs.constraints <- term.list.formula(obs.constraints[[length(obs.constraints)]])
   
-  # Missing data handling only needs to happen if the sufficient
-  # statistics are not specified. If the sufficient statistics are
-  # specified, the nw's dyad states are irrelevant.
-  if(network.naedgecount(nw) && !is.null(target.stats)){
-    warning("Target statistics specified in a network with missing dyads. Missingness will be overridden.")
-    nw[as.matrix(is.na(nw),matrix.type="edgelist")] <- 0
+    # If no missing edges, remove the "observed" constraint.
+    if(network.naedgecount(nw)==0){
+      obs.con.names <- sapply(obs.constraints, function(x) as.character(if(is.call(x)) x[[1]] else x))
+      obs.constraints[obs.con.names=="observed"] <- NULL
+    }
+  
+    MHproposal.obs<-append.rhs.formula(constraints, obs.constraints, TRUE)
+    if(constraints==MHproposal.obs) MHproposal.obs<-NULL
   }
-  
-  MHproposal.obs <- if(network.naedgecount(nw)==0) NULL else append.rhs.formula(constraints, list(as.name("observed")), TRUE)
   
   ## Construct approximate response network if target.stats are given.
   

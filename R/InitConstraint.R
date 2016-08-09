@@ -224,6 +224,17 @@ InitConstraint.fixallbut<-function(conlist, lhs.nw, free.dyads=NULL,...){
 }
 
 
+InitConstraint.dyadnoise<-function(conlist, lhs.nw, p01, p10, ...){
+  if(length(list(...)))
+    stop(paste("Dyadic noise \"constraint\" takes one argument at this time."), call.=FALSE)
+
+  if(((length(p01) != 1 || length(p10) != 1) &&
+        any(dim(as.matrix(lhs.nw, matrix.type="adjacency")) != c(dim(p01),dim(p10)))))
+    stop("p01 and p10 must be either scalars or matrices of the same dimension as the adjacency matrices of the LHS network.")
+  
+  conlist$dyadnoise <- list(p01=p01, p10=p10)
+  conlist
+}
 
 
 
