@@ -17,6 +17,7 @@
 \alias{InitConstraint.bd}
 \alias{InitConstraint.degreedist}
 \alias{InitConstraint.degrees}
+\alias{InitConstraint.dyadnoise}
 \alias{InitConstraint.odegrees}
 \alias{InitConstraint.idegrees}
 \alias{InitConstraint.b1degrees}
@@ -92,6 +93,21 @@
       Preserve the degree distribution of the given network: only networks
       whose degree distributions are the same as those in the network passed
       in the model formula have non-zero probability.
+    }
+    \item{\code{dyadnoise(p01,p10)}}{
+      A soft constraint to adjust the sampled distribution for
+      dyad-level noise with known perturbation probabilities. It is
+      assumed that the observed LHS network is a noisy observation of
+      some unobserved true network, with \code{p01} giving the dyadwise
+      probability of erroneously observing a tie where the true network
+      had a non-tie and \code{p10} giving the dyadwise probability of
+      erroneously observing a nontie where the true network had a tie.
+
+      \code{p01} and \code{p10} can be either both be scalars or or both
+      be adjacency matrices of the same dimension as that of the LHS
+      network giving these probabilities.
+
+      See Karwa et al. (2016) for an application.
     }
     \item{\code{idegreedist} and \code{odegreedist}}{
       Preserve the (respectively) indegree or outdegree distribution of 
@@ -297,6 +313,11 @@ Hunter DR, Handcock MS, Butts CT, Goodreau SM, Morris M (2008b).
  \emph{Journal of Statistical Software}, 24(3).
  \url{http://www.jstatsoft.org/v24/i03/}.
 
+Karwa V, Krivitsky PN, and Slavkovi\'{c} AB (2016). Sharing Social Network
+ Data: Differentially Private Estimation of Exponential-Family Random
+ Graph Models. \emph{Journal of the Royal Statistical Society, Series
+ C}, to appear. \url{http://arxiv.org/abs/1511.02930}
+ 
 Krivitsky PN (2012). Exponential-Family Random Graph Models for Valued
 Networks. \emph{Electronic Journal of Statistics}, 2012, 6,
 1100-1128. \href{http://dx.doi.org/10.1214/12-EJS696}{\code{doi:10.1214/12-EJS696}}
