@@ -55,27 +55,51 @@
 
 ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
                           intercept = FALSE, start = rep(0, p),
-                          offset=NULL, maxit=200, ...)
+                          offset=NULL, m=NULL, maxit=200, ...)
 {
-  gmin <- function(beta, X, y, w, offset) {
-      eta <- (X %*% beta)+offset; p <- plogis(eta)
-      -2 * matrix(w *dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% X
+  if(is.null(m)){
+    etamap <- identity
+    etagrad <- function(theta) diag(1,length(theta),length(theta))
+  }else{
+    etamap <- function(theta) ergm.eta(theta,m$etamap)
+    etagrad <- function(theta) ergm.etagrad(theta, m$etamap)
   }
   if(is.null(dim(x))) dim(x) <- c(length(x), 1)
   if(is.null(offset)) offset <- rep(0,length(y))
-  dn <- dimnames(x)[[2]]
+  dn <- if(is.null(m)) dimnames(x)[[2]] else .coef.names.model(m, FALSE)
   if(!length(dn)) dn <- paste("Var", 1:ncol(x), sep="")
   p <- ncol(x) + intercept
   if(intercept) {x <- cbind(1, x); dn <- c("(Intercept)", dn)}
   if(is.factor(y)) y <- (unclass(y) != 1)
-  fit <- optim(start, ergm.logisticdeviance, gmin,
-               X = x, y = y, w = wt, offset=offset,
+  start[is.na(start)]<-0
+
+  f <-
+    if(is.null(m)) ergm.logisticdeviance
+    else function(theta.no, X, y, w, offset, etamap, etagrad){
+      theta <- start
+      theta[!m$etamap$offsettheta] <- theta.no
+      ergm.logisticdeviance(theta, X, y, w, offset, etamap, etagrad)
+    }
+  df <-
+    if(is.null(m)) function(theta, X, y, w, offset, etamap, etagrad){
+      eta <- .multiply.with.inf(X,etamap(theta))+offset; p <- plogis(eta)
+      -2 * matrix(w *dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% X %*% t(etagrad(theta))
+    }else function(theta.no, X, y, w, offset, etamap, etagrad){
+      theta <- start
+      theta[!m$etamap$offsettheta] <- theta.no    
+      eta <- .multiply.with.inf(X,etamap(theta))+offset; p <- plogis(eta)
+      -2 * matrix(w *dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% X %*% t(etagrad(theta))[,!m$etamap$offsettheta]
+    }
+
+  init <- if(!is.null(m)) start[!m$etamap$offsettheta] else start
+  fit <- optim(init, f, df,
+               X = x, y = y, w = wt, offset=offset, etamap=etamap, etagrad=etagrad,
                method = "BFGS", hessian=TRUE, control=list(maxit=maxit), ...)
-  names(fit$par) <- dn
   fit$coef <- fit$par
+  names(fit$coef) <- dn[if(!is.null(m)) !m$etamap$offsettheta else TRUE]
   fit$deviance <- fit$value
   fit$iter <- fit$counts[1]
-  asycov <- ginv(fit$hessian)
+  asycov <- ginv(fit$hessian/2)
   fit$cov.unscaled <- asycov
 # cat("\nCoefficients:\n"); print(fit$par)
 # # R: use fit$value and fit$convergence
@@ -87,9 +111,9 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
 
 
 
-ergm.logisticdeviance <- function(beta, X, y,
-                            w=rep(1,length(y)), offset=rep(0,length(y))) {
-      p <- plogis((X %*% beta)+offset)
-      -sum(2 * w * ifelse(y, log(p), log(1-p)))
+ergm.logisticdeviance <- function(theta, X, y,
+                            w=rep(1,length(y)), offset=rep(0,length(y)), etamap=identity, etagrad=NULL) {
+      p <- plogis(.multiply.with.inf(X,etamap(theta))+offset)
+      -2*sum(w * ifelse(y, log(p), log1p(-p)))
 }
 

@@ -153,12 +153,15 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
 
     if(is.null(control$coef)) {
       if(reference==~Bernoulli){
-        fit <- suppressWarnings(try(ergm.mple(Clist=Clist, Clist.miss=Clist.miss, 
-                         conddeg=conddeg,
-                         control=control, MHproposal=MHproposal,
-                         m=model, verbose=verbose, ...)))
-        control$coef <- if(inherits(fit, "try-error")) rep(0,length(model$coef.names)) else fit$coef
-        if(is.null(control$invcov)) { control$invcov <- fit$covar }
+        fit <- try(ergm(formula=object, response=response, reference=reference,
+                        constraints=constraints,eval.loglik=FALSE,estimate="MPLE",control=control.ergm(drop=FALSE)),silent=TRUE)
+        if(inherits(fit, "try-error")){
+          control$coef <- rep(0,length(model$coef.names)) 
+          if(is.null(control$invcov)) control$invcov <- diag(length(control$coef))
+        }else{
+          control$coef <- coef(fit)
+          if(is.null(control$invcov)) control$invcov <- vcov(fit, sources="model")
+        }
       }else{
         control$coef<-rep(0,length(model$coef.names))
         if(is.null(control$invcov)) control$invcov <- diag(length(control$coef))

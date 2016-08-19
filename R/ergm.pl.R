@@ -62,7 +62,7 @@
 
 ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
                     maxMPLEsamplesize=1e+6,
-                    conddeg=NULL, control, MHproposal,
+                    conddeg=NULL, control, MHproposal, ignore.offset=FALSE,
                     verbose=FALSE) {
   bip <- Clist$bipartite
   n <- Clist$n
@@ -183,7 +183,7 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
             as.character(data$conddeg$Clist$fnamestring),
             as.character(data$conddeg$Clist$snamestring),
             as.character(data$MHproposal$name), as.character(data$MHproposal$pkgname),
-            as.double(data$conddeg$Clist$inputs), as.double(data$eta0),
+            as.double(data$conddeg$Clist$inputs), as.double(.deinf(data$eta0)),
             as.integer(data$control$MPLE.samplesize),
             s = as.double(t(data$control$stats)),
             as.integer(0), 
@@ -244,22 +244,15 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
 
   #
   # Adjust for the offset
-  # =======================
-  # Helper function
-  # A is a matrix. V is a column vector that may contain Infs
-  # computes A %*% V, counting 0*Inf as 0
-  # May be slow if there are many rows. Use C here?
-  multiply.with.inf <- function(A,V) {
-    cbind(sapply(seq_len(nrow(A)), function(i) sum(V * A[i,], na.rm=T)))
-  }
+  #
 
-  if(any(m$etamap$offsettheta)){
+  if(any(m$etamap$offsettheta) && !ignore.offset){
     if(any(is.na(theta.offset[m$etamap$offsettheta]))){
       stop("Offset terms without offset coefficients specified!")
     }
     # Compute the offset's effect.
-    foffset <- multiply.with.inf(xmat[,m$etamap$offsettheta,drop=FALSE], 
-                                 cbind(theta.offset[m$etamap$offsettheta])) 
+    foffset <- .multiply.with.inf(xmat[,m$etamap$offsetmap,drop=FALSE], 
+                                  cbind(ergm.eta(theta.offset,m$etamap)[m$etamap$offsetmap]))
     
     # Remove offset covariate columns.
     xmat <- xmat[,!m$etamap$offsettheta,drop=FALSE] 
@@ -272,13 +265,6 @@ ergm.pl<-function(Clist, Clist.miss, m, theta.offset=NULL,
     foffset <- foffset[is.finite(foffset)]
   }else{
     foffset <- rep(0, length=length(zy))
-    theta.offset <- rep(0, length=Clist$nstats)
-    if(Clist$nedges>0){
-      theta.offset[1] <- log(Clist$nedges/(Clist$ndyads-Clist$nedges))
-    }else{
-      theta.offset[1] <- log(1/(Clist$ndyads-1))
-    }
-    names(theta.offset) <- m$coef.names
   }
   
 #

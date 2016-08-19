@@ -47,7 +47,6 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
                     MPLEtype="glm", family="binomial",
                     maxMPLEsamplesize=1e+6,
                     save.glm=TRUE,
-                    theta1=NULL, 
 		    conddeg=NULL, control=NULL, MHproposal=NULL,
                     verbose=FALSE,
                     ...) {
@@ -56,6 +55,7 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
                 maxMPLEsamplesize=maxMPLEsamplesize,
                 conddeg=conddeg, 
 		control=control, MHproposal=MHproposal,
+                ignore.offset=MPLEtype=="logitreg",
                 verbose=verbose)
 
   if(MPLEtype=="penalized"){
@@ -70,8 +70,8 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
    if(MPLEtype=="logitreg"){
     mplefit <- model.matrix(terms(pl$zy ~ .-1,data=data.frame(pl$xmat)),
                            data=data.frame(pl$xmat))
-    mplefit <- ergm.logitreg(x=mplefit, y=pl$zy, offset=pl$foffset, wt=pl$wend,
-                             start=init[!m$etamap$offsettheta])
+    mplefit <- ergm.logitreg(x=mplefit, y=pl$zy, m=m, wt=pl$wend,
+                             start=init, maxit=control$MPLE.maxit)
     mplefit.summary <- list(cov.unscaled=mplefit$cov.unscaled)
    }else{
 #     mplefit <- suppressWarnings(try(
@@ -113,95 +113,24 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
     
 
    }
-#
-#  Determine the independence theta and MLE
-#  Note that the term "match" is deprecated.
-#
-   if(is.null(theta1)){
-    independent.terms <- 
-       c("edges","match","nodecov","nodefactor","nodematch","absdiff",
-         "nodeofactor","nodeifactor","nodemain",
-         "edgecov","dyadcov","sender","receiver","sociality", 
-         "nodemix","mix",
-         "b1","b2",
-         "testme")
-    independent <- rep(0,ncol(pl$xmat))
-    names(independent) <- colnames(pl$xmat)
-    theta.ind <- independent
-    for(i in seq(along=independent.terms)){
-     independent[grep(independent.terms[i], colnames(pl$xmat))] <- i
-    }
-    independent <- independent>0
-    if(any(independent)){
-      
-      glm.result <- .catchToList(glm(pl$zy ~ .-1 + offset(pl$foffset), 
-                                    data=data.frame(pl$xmat[,independent,drop=FALSE]),
-                                    weights=pl$wend, family=family))
-      
-      # error handling for glm results
-      if (!is.null(glm.result$error)) {
-        warning(glm.result$error)
-        theta1 <- list(coef=NULL, 
-                       theta=rep(0,ncol(pl$xmat)),
-                       independent=independent)
-      } else if (!is.null(glm.result$warnings)) {
-        # if the glm results are crazy, redo it with 0 starting values
-        if (max(abs(glm.result$value$coef), na.rm=T) > 1e6) {
-          warning("GLM model may be separable; restarting glm with zeros.\n")
-          mindfit <- glm(pl$zy ~ .-1 + offset(pl$foffset), 
-                         data=data.frame(pl$xmat[,independent,drop=FALSE]),
-                         weights=pl$wend, family=family,
-                         start=rep.int(0, sum(independent)))
-          mindfit.summary <- summary(mindfit)
-          theta.ind[independent] <- mindfit$coef
-          theta1 <- list(coef=mindfit$coef, 
-                         theta=theta.ind,
-                         independent=independent)
-        } else {
-          # unknown warning, just report it
-          warning(glm.result$warnings)
-          mindfit <- glm.result$value
-          mindfit.summary <- summary(mindfit)
-          theta.ind[independent] <- mindfit$coef
-          theta1 <- list(coef=mindfit$coef, 
-                         theta=theta.ind,
-                         independent=independent)
-        }
-      } else {
-        # no errors or warnings
-        mindfit <- glm.result$value
-        mindfit.summary <- summary(mindfit)
-        theta.ind[independent] <- mindfit$coef
-        theta1 <- list(coef=mindfit$coef, 
-                       theta=theta.ind,
-                       independent=independent)
-      }
-      
-     
-    }else{
-     theta1 <- list(coef=NULL, 
-                    theta=rep(0,ncol(pl$xmat)),
-                    independent=independent)
-    }
-   }
-#
+##########TODO How to handle offsets???????
    if(nrow(pl$xmat) > pl$maxMPLEsamplesize){
 #
 #   fix deviance for sampled data
 #
-    mplefit$deviance <- ergm.logisticdeviance(beta=mplefit$coef,
+    mplefit$deviance <- ergm.logisticdeviance(theta=mplefit$coef,
      X=model.matrix(terms(pl$zy.full ~ .-1,data=data.frame(pl$xmat.full)),
                            data=data.frame(pl$xmat.full)),
      y=pl$zy.full, offset=pl$foffset.full)
    }
   }
-  theta <- pl$theta.offset
+  theta <- init
   real.coef <- mplefit$coef
   real.cov <- mplefit.summary$cov.unscaled
   if(ncol(real.cov)==1){real.cov <- as.vector(real.cov)}
   theta[!m$etamap$offsettheta] <- real.coef
 # theta[is.na(theta)] <- 0
-  names(theta) <- m$coef.names
+  names(theta) <- .coef.names.model(m, FALSE)
 
 #
 # Old end
@@ -230,18 +159,16 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
 # mplefit <- call(MPLEtype, pl$zy ~ 1, family=binomial)
 #
   if(MPLEtype=="penalized"){
-    mplefit.null <- ergm.pen.glm(pl$zy ~ 1, weights=pl$wend)
+    mplefit.null <- ergm.pen.glm(pl$zy ~ -1 + offset(pl$foffset), weights=pl$wend)
+  }else if(MPLEtype=="logitreg"){
+    mplefit.null <- ergm.logitreg(x=matrix(0,ncol=1,nrow=length(pl$zy)),
+                                  y=pl$zy, offset=pl$foffset, wt=pl$wend)
   }else{
-    if(MPLEtype=="logitreg"){
-      mplefit.null <- ergm.logitreg(x=matrix(1,ncol=1,nrow=length(pl$zy)),
-                                    y=pl$zy, offset=pl$foffset, wt=pl$wend)
-    }else{
-      mplefit.null <- try(glm(pl$zy ~ 1, family=family, weights=pl$wend),
-                          silent = TRUE)
-      if (inherits(mplefit.null, "try-error")) {
-        mplefit.null <- list(coef=0, deviance=0, null.deviance=0,
-                             cov.unscaled=diag(1))
-      }
+    mplefit.null <- try(glm(pl$zy ~ -1 + offset(pl$foffset), family=family, weights=pl$wend),
+                        silent = TRUE)
+    if (inherits(mplefit.null, "try-error")) {
+      mplefit.null <- list(coef=0, deviance=0, null.deviance=0,
+                           cov.unscaled=diag(1))
     }
   }
 
@@ -249,17 +176,16 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
     glm <- mplefit
     glm.null <- mplefit.null
   }else{
-    glm <- NULL
-    glm.null <- NULL
+    glm <- list(deviance=mplefit$deviance)
+    glm.null <- list(deviance=mplefit.null$deviance)
   }
 
   # Output results as ergm-class object
   structure(list(coef=theta,
       iterations=iteration, 
       MCMCtheta=theta, gradient=gradient,
-      hessian=hess, covar=covar, failure=FALSE,
-      est.cov=est.cov, glm = glm, glm.null = glm.null,
-      theta1=theta1),
+      hessian=NULL, covar=covar, failure=FALSE,
+      glm = glm, glm.null = glm.null),
      class="ergm")
 }
 

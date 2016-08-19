@@ -119,7 +119,7 @@ ergm.maple<-function(pl, m, init=NULL,
 #
 #   fix deviance for sampled data
 #
-    mplefit$deviance <- ergm.logisticdeviance(beta=mplefit$coef,
+    mplefit$deviance <- ergm.logisticdeviance(theta=mplefit$coef,
      X=model.matrix(terms(pl$zy.full ~ .-1,data=data.frame(pl$xmat.full)),
                            data=data.frame(pl$xmat.full)),
      y=pl$zy.full, offset=pl$foffset.full)
