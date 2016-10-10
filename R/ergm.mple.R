@@ -20,9 +20,6 @@
 #   save.glm         : whether the mple fit and the null mple fit should be
 #                      returned (T or F); if false, NULL is returned for both;
 #                      default==TRUE
-#   thetal           : the independence theta; if specified and non-NULL, this is
-#                      ignored except to return its value in the returned ergm;
-#                      default=NULL, in which case 'theta1' is computed
 #   conddeg          : an indicator of whether the MPLE should be conditional
 #                      on degree; non-NULL values indicate yes, NULL no;
 #                      default=NULL.

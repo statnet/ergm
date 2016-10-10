@@ -26,7 +26,8 @@ control.ergm(drop=TRUE,
 
              MPLE.max.dyad.types=1e+6, 
              MPLE.samplesize=50000,                       
-             MPLE.type=c("glm", "penalized"),
+             MPLE.type=c("glm", "penalized", "logitreg"),
+             MPLE.maxit=1000,
                       
              MCMC.prop.weights="default", MCMC.prop.args=list(),
              MCMC.interval=1024,
@@ -232,14 +233,20 @@ control.ergm(drop=TRUE,
   \item{MPLE.samplesize}{Not currently documented; used in 
     conditional-on-degree version of MPLE.
   }
-  \item{MPLE.type}{One of "glm" or "penalized".  Chooses method of
-    calculating MPLE.  "glm" is the usual
-    formal logistic regression, whereas "penalized" uses the 
+  \item{MPLE.type}{One of \code{"glm"}, \code{"penalized"}, or \code{"logitreg"}.  Chooses method of
+    calculating MPLE.  \code{"glm"} is the usual
+    formal logistic regression called via \code{\link{glm}}, whereas \code{"penalized"} uses the 
     bias-reduced method
     of Firth (1993) as originally implemented by 
     Meinhard Ploner, Daniela Dunkler, Harry
-    Southworth, and Georg Heinze in the "logistf" package.
+    Southworth, and Georg Heinze in the "logistf"
+    package. \code{"logitreg"} is an "in-house" implementation that is
+    slower and probably less stable but supports nonlinear
+    logistic regression. It is invoked automatically when the model has
+    curved terms.
   }
+  \item{MPLE.maxit}{Maximum number of iterations for
+    \code{"logitreg"} implementation of MPLE.}
   \item{MCMC.prop.weights, obs.MCMC.prop.weights}{Specifies the proposal distribution used in the MCMC
     Metropolis-Hastings algorithm.  Possible choices depending on
     selected \code{reference} and \code{constraints} arguments of the \code{\link{ergm}} function,

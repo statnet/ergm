@@ -12,12 +12,12 @@ The \code{ergm.mple} function finds a maximizer to the psuedolikelihood function
 }
 \usage{
 ergm.mple(Clist, Clist.miss, m, init = NULL, MPLEtype = "glm", family = "binomial",
-         maxMPLEsamplesize = 1e+06, save.glm = TRUE, theta1 = NULL, conddeg = NULL, 
+         maxMPLEsamplesize = 1e+06, save.glm = TRUE, conddeg = NULL, 
          control = NULL, MHproposal = NULL, verbose = FALSE, ...)
 
 ergm.pl(Clist, Clist.miss, m, theta.offset=NULL,
                     maxMPLEsamplesize=1e+6,
-                    conddeg=NULL, control, MHproposal,
+                    conddeg=NULL, control, MHproposal, ignore.offset=FALSE,
                     verbose=FALSE)
 }                    
 
@@ -50,11 +50,6 @@ whether the mple fit and the null mple fit should be
                       returned (T or F); if false, NULL is returned for both;
                     default==TRUE
 }
-  \item{theta1}{
-the independence theta; if specified and non-NULL, this is
-                     ignored except to return its value in the returned ergm;
-                     default=NULL, in which case 'theta1' is computed
-}
   \item{conddeg}{
 an indicator of whether the MPLE should be conditional
                       on degree; non-NULL values indicate yes, NULL no;
@@ -69,6 +64,18 @@ a list of MCMC related parameters; recognized components
   \item{MHproposal}{
 an MHproposal object, as returned by \code{\link{MHproposal}}
 }
+
+\item{ignore.offset}{
+  If \code{FALSE} (the default), columns corresponding to terms enclosed
+  in \code{offset()} are not returned with others but are instead
+  processed by multiplying them by their corresponding coefficients
+  (which are fixed, by virtue of being offsets) and the results stored
+  in a separate column.
+
+  If \code{TRUE}, they are not processed in any special way and are
+  returned with the others.
+}
+
   \item{verbose}{
 whether this and the C routines should be verbose (T or F);
                      default=FALSE
