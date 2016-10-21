@@ -106,7 +106,7 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
       if(!silent) message("Note: Term ", deparse(v[[i]])," skipped because it contributes no statistics.")
       model$term.skipped <- c(model$term.skipped, TRUE)
       next
-    }else model$formula.skipped <- c(model$formula.skipped, FALSE)
+    }else model$term.skipped <- c(model$term.skipped, FALSE)
     # If SO package name not specified explicitly, autodetect.
     if(is.null(outlist$pkgname)) outlist$pkgname <- environmentName(environment(termFun))
     # Now it is necessary to add the output to the model object
