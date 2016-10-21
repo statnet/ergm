@@ -111,8 +111,6 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   }
   control <- control.simulate.ergm.toplevel(control,...)
   
-  if(!is.null(seed)) {set.seed(as.integer(seed))}
-  
   # define nw as either the basis argument or (if NULL) the LHS of the formula
   if (is.null(nw <- basis)) {
     nw <- ergm.getnetwork(object)    
@@ -145,6 +143,63 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
 
   # Prepare inputs to ergm.getMCMCsample
   m <- ergm.getmodel(form, basis, response=response, role="static")
+
+  out <- simulate(m, nsim=nsim, seed=seed,
+                  coef=coef, response=response, reference=reference,
+                  constraints=constraints,
+                  monitor=monitored.length,
+                  basis=basis,
+                  statsonly=statsonly,
+                  esteq=esteq,
+                  sequential=sequential,
+                  control=control,
+                  verbose=verbose, ...)
+  
+  if(statsonly || nsim==1) # Then out is either a matrix or a single
+                           # network. Return it.
+    return(out)
+  
+  # If we get this far, statsonly==FALSE and nsim > 1, so out is a
+  # network.list. Therefore, set the simulation and monitor formulas,
+  # which simulate.ergm.model() doesn't know.
+  attributes(out) <- list(formula=object,
+                          monitor=monitor)
+  out
+}
+
+
+simulate.ergm.model <- function(object, nsim=1, seed=NULL,
+                                coef, response=NULL, reference=~Bernoulli,
+                                constraints=~.,
+                                monitor=NULL,
+                                basis=NULL,
+                                statsonly=FALSE,
+                                esteq=FALSE,
+                                sequential=TRUE,
+                                control=control.simulate.formula(),
+                                verbose=FALSE, ...){
+
+  check.control.class(c("simulate.formula", "simulate.ergm.model"), myname="simulate.ergm.model")
+
+  if(is.null(monitor)) monitor <- 0
+  if(!is.numeric(monitor)) stop("ergm.model method for simulate() requires monitor= argument to give the number of statistics at the end of the model that are to be monitored (defaulting to 0).")
+  if(is.null(basis)) stop("ergm.model method for simulate() requires the basis= argument for the initial state of the simulation.")
+ 
+  # Backwards-compatibility code:
+  if("theta0" %in% names(list(...))){
+    warning("Passing the parameter vector as theta0= is deprecated. Use coef= instead.")
+    coef<-list(...)$theta0
+  }
+  control <- control.simulate.ergm.toplevel(control,...)
+  
+  if(!is.null(seed)) {set.seed(as.integer(seed))}
+  
+  # define nw as either the basis argument or (if NULL) the LHS of the formula
+  nw <- basis
+  monitored.length <- monitor
+
+  m <- object
+  
   # Just in case the user did not give a coef value, set it to zero.
   # (probably we could just return an error in this case!)
   if(missing(coef)) {
@@ -166,7 +221,7 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   eta0 <- ergm.eta(coef, m$etamap)
     
   # Create vector of current statistics
-  curstats<-summary(form,response=response)
+  curstats <- ergm.getglobalstats(nw, m, response=response)
   names(curstats) <- m$coef.names
 
   # prepare control object
@@ -271,14 +326,12 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
     return(nw.list[[1]])
   } else {
     nw.list <- nw.list[seq_len(nsim)]
-    attributes(nw.list) <- list(formula=object, stats=out.mat, coef=coef,
+    attributes(nw.list) <- list(stats=out.mat, coef=coef,
                                 control=control,
                                 constraints=constraints, reference=reference,
-                                monitor=monitor, response=response)
+                                response=response)
 
     class(nw.list) <- "network.list"
     return(nw.list)
   }
 }
-
-
