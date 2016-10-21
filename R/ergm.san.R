@@ -156,20 +156,20 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
         fit <- try(ergm(formula=object, response=response, reference=reference,
                         constraints=constraints,eval.loglik=FALSE,estimate="MPLE",control=control.ergm(drop=FALSE)),silent=TRUE)
         if(inherits(fit, "try-error")){
-          control$coef <- rep(0,length(model$coef.names)) 
+          control$coef <- rep(0,coef.length.model(model)) 
           if(is.null(control$invcov)) control$invcov <- diag(length(control$coef))
         }else{
           control$coef <- coef(fit)
           if(is.null(control$invcov)) control$invcov <- vcov(fit, sources="model")
         }
       }else{
-        control$coef<-rep(0,length(model$coef.names))
+        control$coef<-rep(0,coef.length.model(model))
         if(is.null(control$invcov)) control$invcov <- diag(length(control$coef))
       }
     }else{
       if(is.null(control$invcov)) { control$invcov <- diag(length(control$coef)) }
     }
-    eta0 <- ifelse(is.na(control$coef), 0, control$coef)
+    eta0 <- ergm.eta(ifelse(is.na(control$coef), 0, control$coef), model$etamap)
     
     netsumm<-summary(model$formula,response=response)
     target.stats <- vector.namesmatch(target.stats, names(netsumm))
