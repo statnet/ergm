@@ -49,7 +49,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   
   ## Prepare the output structure:
   formula <- model$formula  # formula for this model
-  obsstats <- summary(model$formula)  # Observed statistics
+  obsstats <- ergm.getglobalstats(nw, model)  # Observed statistics
   init <- init  # beginning parameter value
   samples <- list()  # matrices of sampled network statistics
   sampmeans <- list() # vectors of column means of stats matrices
