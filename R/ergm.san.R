@@ -160,7 +160,11 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
           if(is.null(control$invcov)) control$invcov <- diag(length(control$coef))
         }else{
           control$coef <- coef(fit)
-          if(is.null(control$invcov)) control$invcov <- vcov(fit, sources="model")
+          if(is.null(control$invcov)){
+            control$invcov <- vcov(fit, sources="model")
+            if(any(is.na(diag(control$invcov))|diag(control$invcov)<0))
+              control$invcov <- diag(length(control$coef))
+          }
         }
       }else{
         control$coef<-rep(0,coef.length.model(model))
@@ -169,6 +173,11 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
     }else{
       if(is.null(control$invcov)) { control$invcov <- diag(length(control$coef)) }
     }
+
+    # Scale it up to eta. This is very ad hoc.
+    G <- ergm.etagrad(control$coef, etamap=model$etamap)
+    control$invcov <- ginv(t(G)%*%ginv(control$invcov)%*%G)
+    
     eta0 <- ergm.eta(ifelse(is.na(control$coef), 0, control$coef), model$etamap)
     
     netsumm<-ergm.getglobalstats(nw, model, response=response)
