@@ -304,8 +304,8 @@ network
     This term can only be
     used with undirected bipartite networks. }
 
-  \item{\code{b1cov(attrname, transform, transformname)}  (binary) (undirected) (bipartite) (dyadic-independent) (quantitative nodalattribute) (frequently-used),
-    \code{b1cov(attrname, transform, transformname, form="sum")}  (valued)  (undirected) (bipartite) (dyadic-independent) (quantitative nodal attribute) (frequently-used)
+  \item{\code{b1cov(attrname, transform, transformname)}  (binary) (undirected) (bipartite) (dyad-independent) (quantitative nodalattribute) (frequently-used),
+    \code{b1cov(attrname, transform, transformname, form="sum")}  (valued)  (undirected) (bipartite) (dyad-independent) (quantitative nodal attribute) (frequently-used)
     }{\emph{Main effect of a covariate for
     the first mode in a bipartite (aka two-mode) network:} 
     The \code{attrname} argument is a character string giving the name of a
@@ -390,7 +390,7 @@ network
     This term can only be used with undirected bipartite networks.}
     
     \item{\code{b1nodematch(attrname, diff=FALSE, keep=NULL, by=NULL, alpha=1, beta=1, 
-    byb2attr=NULL)}  (binary)  (bipartite)  (undirected) (dyadic-independent) (categorical nodal attribute) (frequently-used)
+    byb2attr=NULL)}  (binary)  (bipartite)  (undirected) (dyad-independent) (categorical nodal attribute) (frequently-used)
     }{\emph{Nodal attribute-based homophily effect for
     the first mode in a bipartite (aka two-mode) network:}  This term is introduced
     in Bomiriya et al (2014).
@@ -486,8 +486,8 @@ network
     Without the optional argument, this statistic is equivalent to \code{b2mindegree(2)}.
     This term can only be used with undirected bipartite networks. }
 
-  \item{\code{b2cov(attrname, transform, transformname)}  (binary) (undirected) (bipartite) (dyadic-independent) (quantitative nodal attribute) (frequently-used),
-    \code{b2cov(attrname, transform, transformname, form="sum")}  (valued) (undirected) (bipartite) (dyadic-independent) (quantitative nodal attribute) (frequently-used)
+  \item{\code{b2cov(attrname, transform, transformname)}  (binary) (undirected) (bipartite) (dyad-independent) (quantitative nodal attribute) (frequently-used),
+    \code{b2cov(attrname, transform, transformname, form="sum")}  (valued) (undirected) (bipartite) (dyad-independent) (quantitative nodal attribute) (frequently-used)
     }{\emph{Main effect of a covariate for
     the second mode in a bipartite (aka two-mode) network:} 
     The \code{attrname} argument is a character string giving the name of a
@@ -574,7 +574,7 @@ network
     This term can only be used with undirected bipartite networks.}
     
     \item{\code{b2nodematch(attrname, diff=FALSE, keep=NULL, by=NULL, alpha=1, beta=1, 
-    byb1attr=NULL)}  (binary)  (bipartite)  (undirected) (dyadic-independent) (categorical nodal attribute) (frequently-used)
+    byb1attr=NULL)}  (binary)  (bipartite)  (undirected) (dyad-independent) (categorical nodal attribute) (frequently-used)
     }{\emph{Nodal attribute-based homophily effect for
     the second mode in a bipartite (aka two-mode) network:} This term is introduced
     in Bomiriya et al (2014).
@@ -878,7 +878,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     homogeneous shared partners only (i.e., only partners on a directed two-path
     connecting the nodes in the edge and in the same direction).}
 
-    \item{\code{equalto(value=0, tolerance=0)}  (valued)  (directed)  (undirected) (dyadic-independent)}{\emph{Number of dyads with
+    \item{\code{equalto(value=0, tolerance=0)}  (valued)  (directed)  (undirected) (dyad-independent)}{\emph{Number of dyads with
 	values equal to a specific value (within tolerance):}
       Adds one statistic equal to the number of dyads whose values
       are within \code{tolerance} of \code{value}, i.e., between
@@ -886,7 +886,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     }
   
        
-    \item{\code{greaterthan(threshold=0)}  (valued)  (directed)  (undirected) (dyadic-independent)}{\emph{Number of dyads with
+    \item{\code{greaterthan(threshold=0)}  (valued)  (directed)  (undirected) (dyad-independent)}{\emph{Number of dyads with
 	values strictly greater than a threshold:}
       Adds one statistic equal to the number of dyads whose values
       exceed \code{threshold}.
@@ -1107,7 +1107,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     analogous to the term of Snijders et al. (2010), equation (11). This
     term can only be used with directed networks.}
 
-  \item{\code{ininterval(lower=-Inf, upper=+Inf, open=c(TRUE,TRUE))}  (valued)  (directed)  (undirected) (dyadic-independent)
+  \item{\code{ininterval(lower=-Inf, upper=+Inf, open=c(TRUE,TRUE))}  (valued)  (directed)  (undirected) (dyad-independent)
   }{\emph{Number of dyads
 	whose values are in an interval}
       Adds one statistic equaling to the number of dyads whose values
@@ -1165,7 +1165,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     networks, see \code{istar}, \code{ostar}, \code{twopath} and \code{m2star}.
     Note that \code{kstar(1)} is equal to \code{edges}. }
 
-    \item{\code{smallerthan(threshold=0)}  (valued)  (directed)  (undirected) (dyadic-independent)}{\emph{Number of dyads with
+    \item{\code{smallerthan(threshold=0)}  (valued)  (directed)  (undirected) (dyad-independent)}{\emph{Number of dyads with
 	values strictly smaller than a threshold:}
       Adds one statistic equaling to the number of dyads whose values
       exceeded by \code{threshold}.
@@ -1391,8 +1391,8 @@ of the degrees of all pairs of nodes in the network which are tied.
     should be included. By default (i.e., with \code{base=NULL} or
     \code{base=0}), all pairings are included.}
     
-    \item{\code{nodeocov(attrname, transform, transformname)}  (binary)  (directed) (dyadic-independent)(quantitative nodal attribute)
-    , \code{nodeocov(attrname, transform, transformname, form="sum")}  (valued)  (directed) (dyadic-independent)
+    \item{\code{nodeocov(attrname, transform, transformname)}  (binary)  (directed) (dyad-independent)(quantitative nodal attribute)
+    , \code{nodeocov(attrname, transform, transformname, form="sum")}  (valued)  (directed) (dyad-independent)
 	(quantitative nodal attribute)
     }{\emph{Main effect of a covariate for
     out-edges:} 
