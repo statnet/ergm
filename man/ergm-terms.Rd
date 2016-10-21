@@ -1200,7 +1200,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     average degree of a node.  Note that this term is a constant multiple of
     both \code{edges} and \code{density}.}
   
-    \item{\code{mutual(same=NULL, diff=FALSE, by=NULL, keep=NULL)} (binary)  (directed)  (dyad-independent)  (frequently-used), \code{mutual(form="min",threshold=0)}  (valued)  (directed) (dyad-independent) 
+    \item{\code{mutual(same=NULL, diff=FALSE, by=NULL, keep=NULL)} (binary)  (directed)  (frequently-used), \code{mutual(form="min",threshold=0)}  (valued)  (directed)
      }{\emph{Mutuality:} 
     In binary ERGMs, equal to the number of
     pairs of actors \eqn{i} and \eqn{j} for which \eqn{(i{\rightarrow}j)}{(i,j)}
