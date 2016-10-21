@@ -36,7 +36,7 @@ ergm.bridge.preproc<-function(object, basis, response){
 ## a model `object', using `nsteps' MCMC samples. If llronly==TRUE,
 ## returns only the estimate. Otherwise, returns a list with more
 ## details. Other parameters are same as simulate.ergm.
-ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis=NULL, verbose=FALSE, ..., llronly=FALSE, control=control.ergm.bridge()){
+ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constraints=~., from, to, basis=NULL, verbose=FALSE, ..., llronly=FALSE, control=control.ergm.bridge()){
   check.control.class("ergm.bridge")
 
   if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
@@ -59,46 +59,56 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
   }else stats.obs<-matrix(ergm.getglobalstats(nw, m, response=response),control$nsteps,m$etamap$etalength,byrow=TRUE)  
 
   cat("Using", control$nsteps, "bridges: ")
+
+  ## Preinitialize MHproposals as well:
+  MHproposal <- MHproposal(constraints,arguments=control$MCMC.prop.args,
+                           nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)  
+
+  if(network.naedgecount(nw)) MHproposal.obs <- MHproposal(constraints.obs,arguments=control$obs.MCMC.prop.args,
+                                                           nw=nw, weights=control$obs.MCMC.prop.weights, class="c",reference=reference,response=response)  
+
+
+  
   for(i in seq_len(control$nsteps)){
     theta<-path[i,]
     if(verbose==0) cat(i,"")
     if(verbose>0) cat("Running theta=[",paste(format(theta),collapse=","),"].\n",sep="")
     if(verbose>1) cat("Burning in...\n",sep="")
     ## First burn-in has to be longer, but those thereafter should be shorter if the bridges are closer together.
-    nw.state<-simulate(m, coef=theta, nsim=1, response=response, constraints=constraints, basis=nw, statsonly=FALSE, verbose=max(verbose-1,0),
+    nw.state<-simulate(m, coef=theta, nsim=1, response=response, reference=reference, constraints=MHproposal, basis=nw, statsonly=FALSE, verbose=max(verbose-1,0),
                        control=control.simulate.formula(MCMC.burnin=if(i==1) control$MCMC.burnin else ceiling(control$MCMC.burnin/sqrt(control$nsteps)),
                          MCMC.interval=1,
-                         MCMC.prop.args=control$MCMC.prop.args,
-                         MCMC.prop.weights=control$MCMC.prop.weights,
                          MCMC.packagenames=control$MCMC.packagenames,
                          parallel=control$parallel,
                          parallel.type=control$parallel.type,
-                         parallel.version.check=control$parallel.version.check
-                                                        ), ...)
+                         parallel.version.check=control$parallel.version.check), ...)
 
-    stats[i,]<-apply(simulate(m, coef=theta, response=response, constraints=constraints, basis=nw.state, statsonly=TRUE, verbose=max(verbose-1,0),
+    stats[i,]<-colMeans(simulate(m, coef=theta, response=response, reference=reference, constraints=MHproposal, basis=nw.state, statsonly=TRUE, verbose=max(verbose-1,0),
                               control=control.simulate.formula(MCMC.burnin=0,
-                                MCMC.interval=control$MCMC.interval),
-                              nsim=ceiling(control$MCMC.samplesize/control$nsteps), ...),2,mean)
+                                                               MCMC.interval=control$MCMC.interval,
+                                                               MCMC.packagenames=control$MCMC.packagenames,
+                                                               parallel=control$parallel,
+                                                               parallel.type=control$parallel.type,
+                                                               parallel.version.check=control$parallel.version.check),
+                              nsim=ceiling(control$MCMC.samplesize/control$nsteps), ...))
     
     if(network.naedgecount(nw)){
-      nw.state.obs<-simulate(m, coef=theta, nsim=1, response=response, constraints=constraints.obs, basis=nw, statsonly=FALSE, verbose=max(verbose-1,0),
+      nw.state.obs<-simulate(m, coef=theta, nsim=1, response=response, reference=reference, constraints=MHproposal.obs, basis=nw, statsonly=FALSE, verbose=max(verbose-1,0),
                              control=control.simulate.formula(MCMC.burnin=if(i==1) control$obs.MCMC.burnin else ceiling(control$obs.MCMC.burnin/sqrt(control$nsteps)),
                                MCMC.interval=1,
-                               MCMC.prop.args=control$MCMC.prop.args,
-                               MCMC.prop.weights=control$MCMC.prop.weights,
                                MCMC.packagenames=control$MCMC.packagenames,
                                parallel=control$parallel,
                                parallel.type=control$parallel.type,
                                parallel.version.check=control$parallel.version.check), ...)
 
-      stats.obs[i,]<-apply(simulate(form.obs, coef=theta, response=response, constraints=constraints.obs, basis=nw.state.obs, statsonly=TRUE, verbose=max(verbose-1,0),
+      stats.obs[i,]<-colMeans(simulate(m, coef=theta, response=response, reference=reference, constraints=MHproposal.obs, basis=nw.state.obs, statsonly=TRUE, verbose=max(verbose-1,0),
                                 control=control.simulate.formula(MCMC.burnin=0,
                                   MCMC.interval=control$obs.MCMC.interval,
+                                  MCMC.packagenames=control$MCMC.packagenames,
                                   parallel=control$parallel,
                                   parallel.type=control$parallel.type,
                                   parallel.version.check=control$parallel.version.check),
-                                nsim=ceiling(control$obs.MCMC.samplesize/control$nsteps), ...),2,mean)
+                                nsim=ceiling(control$obs.MCMC.samplesize/control$nsteps), ...))
     }
   }
   cat(".\n")
@@ -115,9 +125,9 @@ ergm.bridge.llr<-function(object, response=NULL, constraints=~., from, to, basis
 ## log-likelihood of configuration `theta' *relative to the reference
 ## measure*. That is, the configuration with theta=0 is defined as
 ## having log-likelihood of 0.
-ergm.bridge.0.llk<-function(object, response=response, coef, ..., llkonly=TRUE, control=control.ergm.bridge()){
+ergm.bridge.0.llk<-function(object, response=NULL, reference=~Bernoulli, coef, ..., llkonly=TRUE, control=control.ergm.bridge()){
   check.control.class("ergm.bridge")
-  br<-ergm.bridge.llr(object, from=rep(0,length(coef)), to=coef, response=response, control=control, ...)
+  br<-ergm.bridge.llr(object, from=rep(0,length(coef)), to=coef, response=response, reference=reference, control=control, ...)
   if(llkonly) br$llr
   else c(br,llk=br$llr)
 }

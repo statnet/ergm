@@ -26,6 +26,8 @@ control.ergm.bridge(nsteps=20,
 
                     MCMC.prop.weights="default",
                     MCMC.prop.args=list(),
+                    obs.MCMC.prop.weights=MCMC.prop.weights,
+                    obs.MCMC.prop.args=MCMC.prop.args,
 
                     MCMC.init.maxedges=20000,
                     MCMC.packagenames=c(),
@@ -70,6 +72,10 @@ control.ergm.bridge(nsteps=20,
     low edge density, as is typical of many realistic social networks.
   }
   \item{MCMC.prop.args}{An alternative, direct way of specifying additional arguments to proposal. 
+  }
+  \item{obs.MCMC.prop.weights, obs.MCMC.prop.args}{
+    The \code{obs} versions of these arguments are for the unobserved
+    data simulation algorithm.
   }
   \item{MCMC.init.maxedges}{Maximum number of edges expected in network.
   }

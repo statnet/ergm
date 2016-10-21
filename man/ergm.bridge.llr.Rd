@@ -30,7 +30,8 @@ See also \code{\link{ergm.bridge.dindstart.llk}} to use dyad-independent ERGM as
 \usage{
   ergm.bridge.llr(object, 
                   response=NULL, 
-                  constraints=~., 
+                  reference=~Bernoulli,
+                  constraints=~.,
                   from, 
                   to, 
                   basis=NULL, 
@@ -40,7 +41,8 @@ See also \code{\link{ergm.bridge.dindstart.llk}} to use dyad-independent ERGM as
                   control=control.ergm.bridge())
                   
   ergm.bridge.0.llk(object, 
-                    response=response, 
+                    response=NULL, 
+                    reference=~Bernoulli,
                     coef, 
                     ..., 
                     llkonly=TRUE, 
@@ -50,7 +52,15 @@ See also \code{\link{ergm.bridge.dindstart.llk}} to use dyad-independent ERGM as
   \item{object}{
     A model formula. See \code{\link{ergm}} for details.
   }
-  \item{response}{Not for release.
+  \item{response}{Name of the edge attribute whose value is to be
+    modeled. Defaults to \code{NULL} for simple presence or
+    absence, modeled via binary ERGM terms. Passing
+    anything but \code{NULL} uses valued ERGM terms.
+  }
+  \item{reference}{A one-sided formula specifying
+    the reference measure (\eqn{h(y)}) to be used. (Defaults to \code{~Bernoulli}.)
+    See help for \link[=ergm-references]{ERGM reference measures} implemented in the
+    \code{\link[=ergm-package]{ergm}} package.
   }
   \item{constraints}{A one-sided formula specifying one or more constraints
     on the support of the distribution of the networks being
@@ -59,7 +69,7 @@ See also \code{\link{ergm.bridge.dindstart.llk}} to use dyad-independent ERGM as
     \code{simulate.formula}, defaults to no constraints. For
     \code{simulate.ergm}, defaults to using the same constraints as
     those with which \code{object} was fitted.
-  }  
+  }
   \item{from, to}{
     The initial and final parameter vectors.
   }

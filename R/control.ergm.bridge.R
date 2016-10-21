@@ -17,6 +17,8 @@ control.ergm.bridge<-function(nsteps=20, # Number of geometric bridges to use
                               
                               MCMC.prop.weights="default",
                               MCMC.prop.args=list(),
+                              obs.MCMC.prop.weights=MCMC.prop.weights,
+                              obs.MCMC.prop.args=MCMC.prop.args,
 
                               MCMC.init.maxedges=20000,
                               MCMC.packagenames=c(),

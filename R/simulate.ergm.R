@@ -211,8 +211,9 @@ simulate.ergm.model <- function(object, nsim=1, seed=NULL,
   
   if(coef.length.model(m)!=length(coef)) stop("coef has ", length(coef) - monitored.length, " elements, while the model requires ",coef.length.model(m) - monitored.length," parameters.")
 
-  MHproposal <- MHproposal(constraints,arguments=control$MCMC.prop.args,
-                           nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)  
+  MHproposal <- if(inherits(constraints, "MHproposal")) constraints
+                else MHproposal(constraints,arguments=control$MCMC.prop.args,
+                                nw=nw, weights=control$MCMC.prop.weights, class="c",reference=reference,response=response)  
 
   if (any(is.nan(coef) | is.na(coef)))
     stop("Illegal value of coef passed to simulate.formula")
