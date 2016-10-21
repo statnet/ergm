@@ -369,7 +369,7 @@ ergm <- function(formula, response=NULL,
     
   }
   
-  model$nw.stats <- summary(model$formula, response=response)
+  model$nw.stats <- ergm.getglobalstats(nw, model, response=response)
   model$target.stats <- if(!is.null(target.stats)) target.stats else model$nw.stats
   
   if(control$init.method=="CD") if(is.null(names(control$init)))

@@ -171,7 +171,7 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
     }
     eta0 <- ergm.eta(ifelse(is.na(control$coef), 0, control$coef), model$etamap)
     
-    netsumm<-summary(model$formula,response=response)
+    netsumm<-ergm.getglobalstats(nw, model, response=response)
     target.stats <- vector.namesmatch(target.stats, names(netsumm))
     
     stats <- matrix(netsumm-target.stats,

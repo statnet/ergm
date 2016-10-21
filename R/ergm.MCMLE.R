@@ -87,7 +87,7 @@ ergm.MCMLE <- function(init, nw, model,
 
   # Impute missing dyads.
   nw <- single.impute.dyads(nw, response=response)
-  model$nw.stats <- summary(model$formula, response=response, basis=nw)
+  model$nw.stats <- ergm.getglobalstats(nw, model, response=response)
 
   if(control$MCMLE.density.guard>1){
     # Calculate the density guard threshold.
@@ -184,11 +184,11 @@ ergm.MCMLE <- function(init, nw, model,
     
     if(sequential) {
       nws <- nws.returned
-      statshifts <- lapply(nws, function(nw) summary(model$formula, basis=nw, response=response) - model$target.stats)
+      statshifts <- lapply(nws, function(nw) ergm.getglobalstats(nw, model, response=response) - model$target.stats)
       
       if(obs){
         nws.obs <- nws.obs.returned
-        statshifts.obs <- lapply(nws.obs, function(nw.obs) summary(model$formula, basis=nw.obs, response=response) - model$target.stats)
+        statshifts.obs <- lapply(nws.obs, function(nw.obs) ergm.getglobalstats(nw.obs, model, response=response) - model$target.stats)
       }      
     }
 
