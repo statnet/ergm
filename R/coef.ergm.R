@@ -27,8 +27,8 @@ vcov.ergm <- function(object, sources=c("all","model","estimation"), ...){
     }else{
       v.mod <- object$covar
     }
-    v.mod[diag(v.mod)<0|is.infinite(object$coef),] <- NA
-    v.mod[,diag(v.mod)<0|is.infinite(object$coef)] <- NA
+    v.mod[is.na(diag(v.mod))|diag(v.mod)<0|is.infinite(object$coef),] <- NA
+    v.mod[,is.na(diag(v.mod))|diag(v.mod)<0|is.infinite(object$coef)] <- NA
     v.mod[object$offset,] <- 0
     v.mod[,object$offset] <- 0
      colnames(v.mod) <- rownames(v.mod) <- names(object$coef)
