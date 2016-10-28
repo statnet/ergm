@@ -162,8 +162,8 @@ simulate.formula <- function(object, nsim=1, seed=NULL,
   # If we get this far, statsonly==FALSE and nsim > 1, so out is a
   # network.list. Therefore, set the simulation and monitor formulas,
   # which simulate.ergm.model() doesn't know.
-  attributes(out) <- list(formula=object,
-                          monitor=monitor)
+  attributes(out) <- c(attributes(out),
+                       list(formula=object, monitor=monitor))
   out
 }
 
