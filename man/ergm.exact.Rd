@@ -66,7 +66,7 @@ exact loglikelihood, evaluated at \code{eta},
 # Count by brute force all the edge statistics possible for a 7-node 
 # undirected network
 mynw <- network(matrix(0,7,7),dir=FALSE)
-unix.time(a <- ergm.allstats(mynw~edges))
+system.time(a <- ergm.allstats(mynw~edges))
 
 # Summarize results
 rbind(t(a$statmat),a$weights)
