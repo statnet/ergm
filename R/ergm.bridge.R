@@ -40,7 +40,7 @@ ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constrain
   check.control.class("ergm.bridge")
 
   if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
-  if(!is.null(basis)) ergm.update.formula(object,basis~., from.new="basis")
+  if(!is.null(basis)) object$formula <- nonsimp.update.formula(object$formula,basis~., from.new="basis")
   
   ## Here, we need to get the model object to get the likelihood and gradient functions.
   tmp<-ergm.bridge.preproc(object,basis,response)
