@@ -61,8 +61,12 @@
     distributions (\dQuote{espartners} and \dQuote{dspartners}), the triad
     census (\dQuote{triadcensus}), and the terms of the original model 
     (\dQuote{model}). The default formula for undirected networks is
-    \code{~ degree + espartners + distance}, and the default formula for
-    directed networks is \code{~ idegree + odegree + espartners + distance}.
+    \code{~ degree + espartners + distance + model}, and the default formula for
+    directed networks is \code{~ idegree + odegree + espartners + distance + model}.
+    By default a \dQuote{model} term is added to the formula.
+    It is a very useful overall validity check and a reminder of the statistical variation in 
+    the estimates of the mean value parameters.
+    To omit the \dQuote{model} term, add \dQuote{- model} to the formula. 
   }
   \item{constraints}{A one-sided formula specifying one or more constraints
     on the support of the distribution of the networks being

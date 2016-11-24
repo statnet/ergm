@@ -106,9 +106,14 @@ gof.ergm <- function (object, ...,
   #Set up the defaults, if called with GOF==NULL
   if(is.null(GOF)){
     if(is.directed(nw))
-      GOF<- ~idegree + odegree + espartners + distance
+      GOF<- ~idegree + odegree + espartners + distance + model
     else
-      GOF<- ~degree + espartners + distance
+      GOF<- ~degree + espartners + distance + model
+  }
+  # Add a model term, unless it is explicitly excluded
+  model_trms <- unlist(dimnames(attr(terms(GOF),"factors"))[1])
+  if(!("model" %in% model_trms)){
+    GOF <- nonsimp.update.formula(GOF,. + model)
   }
 
   ## FIXME: Need to do this differently. This approach will (probably)
@@ -154,7 +159,7 @@ gof.formula <- function(object, ...,
   check.control.class()
 
   if("response" %in% names(list(...))) stop("GoF for valued ERGMs is not implemented at this time.")
-  
+
   if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
   if (verbose) 
     cat("Starting GOF for the given ERGM formula.\n")
@@ -184,10 +189,17 @@ gof.formula <- function(object, ...,
     }
     if(is.null(GOF)){
       if(is.directed(nw))
-        GOF<- ~idegree + odegree + espartners + distance
+        GOF<- ~idegree + odegree + espartners + distance + model
       else
-        GOF<- ~degree + espartners + distance
+        GOF<- ~degree + espartners + distance + model
     }
+
+    # Add a model term, unless it is explicitly excluded
+    model_trms <- unlist(dimnames(attr(terms(GOF),"factors"))[1])
+    if(!("model" %in% model_trms)){
+      GOF <- nonsimp.update.formula(GOF,. + model)
+    }
+  
     all.gof.vars <- ergm.rhs.formula(GOF)
   }
 
@@ -196,7 +208,7 @@ gof.formula <- function(object, ...,
   for(i in seq(along=all.gof.vars)){
     all.gof.vars[i] <- match.arg(all.gof.vars[i],
                                  c('distance', 'espartners', 'dspartners', 'odegree', 'idegree', 
-                                   'degree','triadcensus','model'
+                                   'degree', 'triadcensus', 'model'
                                    )
                                  )
   }
