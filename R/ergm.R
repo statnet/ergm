@@ -314,10 +314,10 @@ ergm <- function(formula, response=NULL,
   
   # MPLE is not supported for curved ERGMs.
   if(estimate=="MPLE"){
-    if(!is.null(response)) stop("Maximum Pseudo-Likelihood (MPLE) estimation for curved ERGM terms (e.g. gwesp, gwdegree) is not implemented at this time. You may want to pass a fixed=TRUE parameter in curved terms to specify the parameters as fixed.")
+    if(!is.null(response)) stop("Maximum Pseudo-Likelihood (MPLE) estimation for valued ERGM terms is not implemented at this time. You may want to use Contrastive Divergence by passing estimate='CD' instead.")
     if(!is.dyad.independent(MHproposal$arguments$constraints,
                             MHproposal.obs$arguments$constraints) && is.null(conddeg))
-      stop("Maximum Pseudo-Likelihood (MPLE) estimation for ERGMs with dyad-dependent constraints is only implemented for certain degree constraints at this time.")
+      stop("Maximum Pseudo-Likelihood (MPLE) estimation for ERGMs with dyad-dependent constraints is only implemented for certain degree constraints at this time. You may want to use Contrastive Divergence by passing estimate='CD' instead.")
   }
   
   if (verbose) { cat("Fitting initial model.\n") }
