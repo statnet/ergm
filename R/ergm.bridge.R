@@ -33,14 +33,13 @@ ergm.bridge.preproc<-function(object, basis, response){
 
 ## The workhorse function: Uses bridge sampling to estimate the
 ## log-likelihood-ratio between two configurations `to' and `from' for
-## a model `object', using `nsteps' MCMC samples. If llronly==TRUE,
+## a formula `object', using `nsteps' MCMC samples. If llronly==TRUE,
 ## returns only the estimate. Otherwise, returns a list with more
 ## details. Other parameters are same as simulate.ergm.
 ergm.bridge.llr<-function(object, response=NULL, reference=~Bernoulli, constraints=~., from, to, basis=NULL, verbose=FALSE, ..., llronly=FALSE, control=control.ergm.bridge()){
   check.control.class("ergm.bridge")
 
   if(!is.null(control$seed)) {set.seed(as.integer(control$seed))}
-  if(!is.null(basis)) object$formula <- nonsimp.update.formula(object$formula,basis~., from.new="basis")
   
   ## Here, we need to get the model object to get the likelihood and gradient functions.
   tmp<-ergm.bridge.preproc(object,basis,response)
