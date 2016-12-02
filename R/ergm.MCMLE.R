@@ -106,7 +106,7 @@ ergm.MCMLE <- function(init, nw, model,
   # explicitly, they are computed from this network, so
   # statshift==0. To make target.stats play nicely with offsets, we
   # set statshifts to 0 where target.stats is NA (due to offset).
-  statshift <- model$nw.stats - model$target.stats
+  statshift <- model$nw.stats - NVL(model$target.stats,model$nw.stats)
   statshift[is.na(statshift)] <- 0
   statshifts <- rep(list(statshift), nthreads) # Each network needs its own statshift.
 
@@ -184,11 +184,11 @@ ergm.MCMLE <- function(init, nw, model,
     
     if(sequential) {
       nws <- nws.returned
-      statshifts <- lapply(nws, function(nw) ergm.getglobalstats(nw, model, response=response) - model$target.stats)
+      statshifts <- lapply(nws, function(nw){nw.stats <- ergm.getglobalstats(nw, model, response=response); nw.stats - NVL(model$target.stats,model$nw.stats)})
       
       if(obs){
         nws.obs <- nws.obs.returned
-        statshifts.obs <- lapply(nws.obs, function(nw.obs) ergm.getglobalstats(nw.obs, model, response=response) - model$target.stats)
+        statshifts.obs <- lapply(nws.obs, function(nw.obs){nw.stats <- ergm.getglobalstats(nw.obs, model, response=response) - NVL(model$target.stats,model$nw.stats)})
       }      
     }
 

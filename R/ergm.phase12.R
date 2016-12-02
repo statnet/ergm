@@ -101,7 +101,7 @@ ergm.phase12 <- function(g, model,
   newnetwork<-newnw.extract(g,z)
   
   colnames(statsmatrix) <- model$coef.names
-  list(statsmatrix=statsmatrix, newnetwork=newnetwork, target.stats=model$target.stats,
+  list(statsmatrix=statsmatrix, newnetwork=newnetwork, target.stats=model$target.stats, nw.stats=model$nw.stats,
        maxedges=control$MCMC.init.maxedges,
        eta=eta)
 }

@@ -68,7 +68,7 @@ ergm.robmon <- function(init, nw, model,
   steplength <- control$MCMLE.steplength
   # post-processing of sample statistics:  Shift each row by the
   # matrix model$nw.stats - model$target.stats, attach column names
-  statsmatrix <- sweep(z$statsmatrix, 2, model$nw.stats - model$target.stats, "+")
+  statsmatrix <- sweep(z$statsmatrix, 2, model$nw.stats - NVL(model$target.stats,model$nw.stats), "+")
   colnames(statsmatrix) <- model$coef.names
 
   if(steplength<1){
@@ -118,7 +118,7 @@ ergm.robmon <- function(init, nw, model,
       z <- ergm.getMCMCsample(nw, model, MHproposal, eta, control, verbose=FALSE)
       # post-processing of sample statistics:  Shift each row by the
       # matrix model$nw.stats - model$target.stats, attach column names
-      statsmatrix <- sweep(z$statsmatrix, 2, model$nw.stats - model$target.stats, "+")
+      statsmatrix <- sweep(z$statsmatrix, 2, model$nw.stats - NVL(model$target.stats,model$nw.stats), "+")
       colnames(statsmatrix) <- model$coef.names
 
       thetamatrix <- rbind(thetamatrix,theta)
@@ -150,7 +150,7 @@ cat(paste("theta new:",theta,"\n"))
   z <- ergm.getMCMCsample(nw, model, MHproposal, eta, control, verbose=FALSE)
   # post-processing of sample statistics:  Shift each row by the
   # matrix model$nw.stats - model$target.stats, attach column names
-  statsmatrix <- sweep(z$statsmatrix, 2, model$nw.stats - model$target.stats, "+")
+  statsmatrix <- sweep(z$statsmatrix, 2, model$nw.stats - NVL(model$target.stats,model$nw.stats), "+")
   colnames(statsmatrix) <- model$coef.names
 
 # ubar <- apply(z$statsmatrix, 2, base::mean)

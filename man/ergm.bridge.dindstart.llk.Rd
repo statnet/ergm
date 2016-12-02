@@ -25,6 +25,8 @@
                             response=NULL,
                             constraints=~.,
                             coef, 
+                            obs.constraints=~observed,
+                            target.stats=NULL,
                             dind=NULL, 
                             coef.dind=NULL,  
                             basis=NULL, 
@@ -36,15 +38,10 @@
   \item{object}{
     A model formula. See \code{\link{ergm}} for details.
   }
-  \item{response}{
-    The name of the edge attribute that is the response. Note that it's
+  \item{response, constraints,  obs.constraints, target.stats, basis}{
+    Same meaning as for \code{\link{ergm}}. Note that \code{response} is
     included solely for consistency, since
     \code{ergm.bridge.dindstart.llk} can only handle binary ERGMs.
-  }
-  \item{constraints}{
-    A model constraints formula. See \code{\link{ergm}} for
-    details. Note that only constraints that do not induce dyadic
-    dependence can be handled by \code{ergm.bridge.dindstart.llk}.
   }
   \item{coef}{
     A vector of coefficients for the configuration of interest.
@@ -58,10 +55,6 @@
   \item{coef.dind}{
     Parameter configuration for the dyad-independent starting
     point. Defaults to the MLE of \code{dind}. 
-  }
-  \item{basis}{An optional \code{\link[network]{network}} object to start
-    the Markov chain.  If omitted, the default is the left-hand-side of 
-    the \code{object}.
   }
   \item{\dots}{
     Further arguments to \code{\link{ergm.bridge.llr}} and \code{\link{simulate.formula.ergm}}.

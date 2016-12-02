@@ -113,7 +113,7 @@ gof.ergm <- function (object, ...,
   # Add a model term, unless it is explicitly excluded
   model_trms <- unlist(dimnames(attr(terms(GOF),"factors"))[1])
   if(!("model" %in% model_trms)){
-    GOF <- nonsimp.update.formula(GOF,. + model)
+    GOF <- nonsimp.update.formula(GOF,~. + model)
   }
 
   ## FIXME: Need to do this differently. This approach will (probably)
@@ -197,7 +197,7 @@ gof.formula <- function(object, ...,
     # Add a model term, unless it is explicitly excluded
     model_trms <- unlist(dimnames(attr(terms(GOF),"factors"))[1])
     if(!("model" %in% model_trms)){
-      GOF <- nonsimp.update.formula(GOF,. + model)
+      GOF <- nonsimp.update.formula(GOF,~. + model)
     }
   
     all.gof.vars <- ergm.rhs.formula(GOF)

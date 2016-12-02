@@ -32,10 +32,10 @@ logLik.ergm<-function(object, add=FALSE, force.reeval=FALSE, eval.loglik=add || 
     ## If dyad-dependent but not valued and has a dyad-independent constraint, bridge from a dyad-independent model.
     else if(is.dyad.independent(object$constrained, object$constrained.obs)
                    && is.null(object$response))
-      ergm.bridge.dindstart.llk(formula,reference=reference,constraints=constraints,coef=coef(object),control=loglik.control,llkonly=FALSE,...)
-    ## If valued or has dyad-dependent constraint, compute a path sample from reference measure.
+      ergm.bridge.dindstart.llk(formula,reference=reference,constraints=constraints,obs.constraints=obs.constraints,coef=coef(object),target.stats=object$target.stats,control=loglik.control,llkonly=FALSE,...)
+    ## If valued or has dyad-dependent constraint, bridge from the null model (reference measure).
     else
-      ergm.bridge.0.llk(formula,response=object$response,reference=reference,constraints=constraints,coef=coef(object),control=loglik.control,llkonly=FALSE,...)
+      ergm.bridge.0.llk(formula,response=object$response,reference=reference,constraints=constraints,obs.constraints=obs.constraints,coef=coef(object),target.stats=object$target.stats,control=loglik.control,llkonly=FALSE,...)
   }
   )
   

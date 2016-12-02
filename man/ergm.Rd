@@ -119,7 +119,7 @@ ergm (formula,
   }
   
   \item{offset.coef}{A vector of coefficients for the offset terms.}
-  \item{target.stats}{vector of "observed network statistics,"
+  \item{target.stats}{vector of \dQuote{observed network statistics},
     if these statistics are for some reason different than the 
     actual statistics of the network on the left-hand side of
     \code{formula}.

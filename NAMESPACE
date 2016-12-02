@@ -41,6 +41,8 @@ export(
   coefficients.ergm,               
   coef.length.model,
   coef.sublength.model,            
+  eta.length.model,
+  eta.sublength.model,            
   colMeans.mcmc.list,
   control.ergm,                    
   control.ergm.bridge,

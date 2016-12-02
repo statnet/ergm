@@ -82,7 +82,7 @@ ergm.CD.fixed <- function(init, nw, model,
   # explicitly, they are computed from this network, so
   # statshift==0. To make target.stats play nicely with offsets, we
   # set statshifts to 0 where target.stats is NA (due to offset).
-  statshift <- model$nw.stats - model$target.stats
+  statshift <- model$nw.stats - NVL(model$target.stats,model$nw.stats)
   statshift[is.na(statshift)] <- 0
   statshifts <- rep(list(statshift), nthreads) # Each network needs its own statshift.
   
@@ -253,7 +253,7 @@ ergm.CD.fixed <- function(init, nw, model,
       steplen.hist <- c(steplen.hist, steplen)
       # stop if MCMLE is stuck (steplen stuck near 0)
       if ((length(steplen.hist) > 2) && sum(tail(steplen.hist,2)) < 2*control$CD.steplength.min) {
-        stop("MCMLE estimation stuck. There may be excessive correlation between model terms, suggesting a poor model for the observed data. If target.stats are specified, try increasing SAN parameters.")
+        stop("CD estimation stuck. There may be excessive correlation between model terms, suggesting a poor model for the observed data. If target.stats are specified, try increasing SAN parameters.")
       }    
       
       if(verbose){cat(paste("Using Newton-Raphson Step with step length ",steplen," ...\n"))}

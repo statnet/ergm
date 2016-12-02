@@ -146,36 +146,16 @@ ergm <- function(formula, response=NULL,
   nw <- ergm.getnetwork(formula)
   proposalclass <- "c"  
   
-  # Observation process handling only needs to happen if the
-  # sufficient statistics are not specified. If the sufficient
-  # statistics are specified, the nw's dyad states are irrelevant.
-  if(!is.null(target.stats)){
-    if(network.naedgecount(nw)){
-      warning("Target statistics specified in a network with missing dyads. Missingness will be overridden.")
-      nw[as.matrix(is.na(nw),matrix.type="edgelist")] <- 0
-    }else if(obs.constraints!=~observed){
-      cat("Target statistics specified in a network with a nontrivial observation process. Observation process will be ignored.\n")
-    }
-    obs.constraints <- ~.
-    MHproposal.obs <- NULL
-  }else{
-    # Get list of observation process constraints.
-    obs.constraints <- term.list.formula(obs.constraints[[length(obs.constraints)]])
-  
-    # If no missing edges, remove the "observed" constraint.
-    if(network.naedgecount(nw)==0){
-      obs.con.names <- sapply(obs.constraints, function(x) as.character(if(is.call(x)) x[[1]] else x))
-      obs.constraints[obs.con.names=="observed"] <- NULL
-    }
-  
-    MHproposal.obs<-append.rhs.formula(constraints, obs.constraints, TRUE)
-    if(constraints==MHproposal.obs) MHproposal.obs<-NULL
-  }
-  
+  # Handle the observation process constraints.
+  tmp <- .handle.obs.constraints(nw, constraints, obs.constraints, target.stats)
+  nw <- tmp$nw
+  constraints.obs <- tmp$constraints.obs
+
+  model <- ergm.getmodel(formula, nw, response=response)
+
   ## Construct approximate response network if target.stats are given.
-  
   if(!is.null(target.stats)){
-    nw.stats<-summary(remove.offset.formula(formula),response=response)
+    nw.stats <- ergm.getglobalstats(nw, model, response=response)[!model$etamap$offsetmap]
     target.stats <- vector.namesmatch(target.stats, names(nw.stats))
     target.stats <- na.omit(target.stats)
     if(length(nw.stats)!=length(target.stats)){
@@ -216,21 +196,14 @@ ergm <- function(formula, response=NULL,
       }
     }
     
-    offinfo <- offset.info.formula(formula,response=response)
-    tmp <- rep(NA, length(offinfo$eta))
-    tmp[!offinfo$eta] <- target.stats
-    names(tmp)[!offinfo$eta] <- names(target.stats)
-    s <- summary(formula,response=response)[offinfo$eta]
-    # tmp[offinfo$eta] <- s
-    names(tmp)[offinfo$eta] <- names(s)
-    
     # From this point on, target.stats has NAs corresponding to the
     # offset terms.
     #
     # TODO: Only have target.stats contain non-offset terms'
     # statistics, and have the rest of the code handle it
     # intelligently.
-    target.stats <- tmp
+    target.stats <- .align.target.stats.offset(model, target.stats)   
+
   } else {
     if (network.edgecount(nw) == 0) warning("Network is empty and no target stats are specified.")
   }
@@ -241,10 +214,10 @@ ergm <- function(formula, response=NULL,
   if (verbose) cat(" ",MHproposal$pkgname,":MH_",MHproposal$name,sep="")
   
   
-  if(!is.null(MHproposal.obs)){
-    MHproposal.obs <- MHproposal(MHproposal.obs, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference, response=response)
+  if(!is.null(constraints.obs)){
+    MHproposal.obs <- MHproposal(constraints.obs, weights=control$obs.MCMC.prop.weights, control$obs.MCMC.prop.args, nw, class=proposalclass, reference=reference, response=response)
     if (verbose) cat(" ",MHproposal.obs$pkgname,":MH_",MHproposal.obs$name,sep="")
-  }
+  }else MHproposal.obs <- NULL
   
   if(verbose) cat("\n")
   
@@ -274,7 +247,7 @@ ergm <- function(formula, response=NULL,
 
   control$init.method <- match.arg(control$init.method, init.candidates)
   if(verbose) cat(paste0("Using initial method '",control$init.method,"'.\n"))
-  model <- ergm.getmodel(formula, nw, response=response)
+
   if(length(model$etamap$curved)){ # Curved model: use ergm.logitreg() rather than glm().
       control$MPLE.type <- "logitreg"
   }
@@ -357,9 +330,9 @@ ergm <- function(formula, response=NULL,
                           constrained=MHproposal$arguments$constraints,
                           constrained.obs=MHproposal.obs$arguments$constraints,
                           constraints=constraints,
-                          target.stats=model$target.stats,
-                          target.esteq=if(!is.null(model$target.stats)){
-                            tmp <- .ergm.esteq(initialfit$coef, model, rbind(model$target.stats))
+                          target.stats=target.stats,
+                          target.esteq=if(!is.null(target.stats)){
+                            tmp <- .ergm.esteq(initialfit$coef, model, rbind(target.stats))
                             structure(c(tmp), names=colnames(tmp))
                           },
                           estimate=estimate,
@@ -370,7 +343,7 @@ ergm <- function(formula, response=NULL,
   }
   
   model$nw.stats <- ergm.getglobalstats(nw, model, response=response)
-  model$target.stats <- if(!is.null(target.stats)) target.stats else model$nw.stats
+  model$target.stats <- target.stats
   
   if(control$init.method=="CD") if(is.null(names(control$init)))
       names(control$init) <- .coef.names.model(model, FALSE)
@@ -398,12 +371,14 @@ ergm <- function(formula, response=NULL,
     initialfit$constrained <- MHproposal$arguments$constraints
     initialfit$constrained.obs <- MHproposal.obs$arguments$constraints
     initialfit$constraints <- constraints
-    initialfit$target.stats <- model$target.stats
-    initialfit$etamap <- model$etamap
-    initialfit$target.esteq <- if(!is.null(model$target.stats)){
+    initialfit$obs.constraints <- obs.constraints 
+    initialfit$target.stats <- suppressWarnings(na.omit(model$target.stats))
+    initialfit$nw.stats <- model$nw.stats
+      initialfit$etamap <- model$etamap
+    initialfit$target.esteq <- suppressWarnings(na.omit(if(!is.null(model$target.stats)){
       tmp <- .ergm.esteq(initialfit$coef, model, rbind(model$target.stats))
       structure(c(tmp), names=colnames(tmp))
-    }
+    }))
     initialfit$estimate <- estimate
     
     initialfit$control<-control
@@ -484,15 +459,17 @@ ergm <- function(formula, response=NULL,
   mainfit$degeneracy.type <- degeneracy$degeneracy.type
   
   mainfit$formula <- formula
-  mainfit$target.stats <- model$target.stats
-  mainfit$target.esteq <- if(!is.null(model$target.stats)){
+  mainfit$target.stats <- suppressWarnings(na.omit(model$target.stats))
+  mainfit$nw.stats <- model$nw.stats
+  mainfit$target.esteq <- suppressWarnings(na.omit(if(!is.null(model$target.stats)){
     tmp <- .ergm.esteq(mainfit$coef, model, rbind(model$target.stats))
     structure(c(tmp), names=colnames(tmp))
-  }
+  }))
   
   mainfit$constrained <- MHproposal$arguments$constraints
   mainfit$constrained.obs <- MHproposal.obs$arguments$constraints
   mainfit$constraints <- constraints
+  mainfit$obs.constraints <- obs.constraints
   
   # unless the main fitting algorithm passes back a modified control
   if (is.null(mainfit$control)) mainfit$control<-control

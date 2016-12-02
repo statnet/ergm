@@ -89,8 +89,8 @@ mcmc.diagnostics.ergm <- function(object,
   if(is.null(sm)) stop("MCMC was not run or MCMC sample was not stored.")
 
   if(!center){
-    sm <- sweep.mcmc.list(sm, object$target.stats, "+")
-    if(!is.null(sm.obs)) sm.obs <- sweep.mcmc.list(sm.obs, object$target.stats, "+")
+    sm <- sweep.mcmc.list(sm, NVL(object$target.stats,object$nw.stats), "+")
+    if(!is.null(sm.obs)) sm.obs <- sweep.mcmc.list(sm.obs, NVL(object$target.stats,object$nw.stats), "+")
   }else{
     # Then sm is already centered, *unless* there is missing data.  In
     # that case, center sm relative to sm.obs and center sm.obs to
@@ -149,7 +149,7 @@ mcmc.diagnostics.ergm <- function(object,
     }
     p.z <- pnorm(abs(z),lower.tail=FALSE)*2
     
-    overall.test <- approx.hotelling.diff.test(sm,sm.obs,if(is.null(sm.obs) && !center) object$target.stats else NULL)
+    overall.test <- approx.hotelling.diff.test(sm,sm.obs,if(is.null(sm.obs) && !center) NVL(object$target.stats, object$nw.stats) else NULL)
     
     m <- rbind(c(ds,NA),c(z,overall.test$statistic),c(p.z,overall.test$p.value))
     rownames(m) <- c("diff.","test stat.","P-val.")

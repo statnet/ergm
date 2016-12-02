@@ -33,7 +33,9 @@ See also \code{\link{ergm.bridge.dindstart.llk}} to use dyad-independent ERGM as
                   reference=~Bernoulli,
                   constraints=~.,
                   from, 
-                  to, 
+                  to,
+                  obs.constraints=~observed,
+                  target.stats=NULL,
                   basis=NULL, 
                   verbose=FALSE, 
                   \dots, 
@@ -52,30 +54,11 @@ See also \code{\link{ergm.bridge.dindstart.llk}} to use dyad-independent ERGM as
   \item{object}{
     A model formula. See \code{\link{ergm}} for details.
   }
-  \item{response}{Name of the edge attribute whose value is to be
-    modeled. Defaults to \code{NULL} for simple presence or
-    absence, modeled via binary ERGM terms. Passing
-    anything but \code{NULL} uses valued ERGM terms.
-  }
-  \item{reference}{A one-sided formula specifying
-    the reference measure (\eqn{h(y)}) to be used. (Defaults to \code{~Bernoulli}.)
-    See help for \link[=ergm-references]{ERGM reference measures} implemented in the
-    \code{\link[=ergm-package]{ergm}} package.
-  }
-  \item{constraints}{A one-sided formula specifying one or more constraints
-    on the support of the distribution of the networks being
-    simulated. See the documentation for a similar argument for
-    \code{\link{ergm}} for more information. For
-    \code{simulate.formula}, defaults to no constraints. For
-    \code{simulate.ergm}, defaults to using the same constraints as
-    those with which \code{object} was fitted.
+  \item{response, reference, constraints,  obs.constraints, target.stats, basis}{
+    Same meaning as for \code{\link{ergm}}.
   }
   \item{from, to}{
     The initial and final parameter vectors.
-  }
-  \item{basis}{An optional \code{\link[network]{network}} object to start
-    the Markov chain.  If omitted, the default is the left-hand-side of 
-    the \code{object}.
   }
   \item{verbose}{Logical:  If TRUE, print detailed information.
   }
