@@ -28,6 +28,7 @@
 #define MH_UNRECOVERABLE 0
 #define MH_IMPOSSIBLE 1
 #define MH_UNSUCCESSFUL 2
+#define MH_CONSTRAINT 3
 
 /* "Quit" threshold for unsuccessful proposals as a fraction of steps. */
 #define MH_QUIT_UNSUCCESSFUL 0.05
