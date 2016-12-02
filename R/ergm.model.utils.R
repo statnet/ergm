@@ -92,8 +92,13 @@ ergm.checkconstraints.model <- function(model, MHproposal, init, silent=FALSE){
   list(model=model, init=init, estimable=!conflict.coefs)
 }
 
-coef.sublength.model<-function(object, ...){
-  sapply(object$terms, function(term){
+coef.sublength.model<-function(object, offset=NA, ...){
+  terms <-
+    if(is.na(offset)) object$terms
+    else if(offset) object$terms[object$etamap$offset]
+    else if(!offset) object$terms[!object$etamap$offset]
+                  
+  sapply(terms, function(term){
     ## curved term
     if(!is.null(term$params)) length(term$params)
     ## linear term
@@ -101,9 +106,25 @@ coef.sublength.model<-function(object, ...){
   })
 }
 
-coef.length.model <- function(object, ...){
-  sum(coef.sublength.model(object))
+coef.length.model <- function(object, offset=NA, ...){
+  sum(coef.sublength.model(object, offset=offset, ...))
 }
+
+eta.sublength.model<-function(object, offset=NA, ...){
+  terms <-
+    if(is.na(offset)) object$terms
+    else if(offset) object$terms[object$etamap$offset]
+    else if(!offset) object$terms[!object$etamap$offset]
+                  
+  sapply(terms, function(term){
+    length(term$coef.names)
+  })
+}
+
+eta.length.model <- function(object, offset=NA, ...){
+  sum(eta.sublength.model(object, offset=offset, ...))
+}
+
 
 .coef.names.model <- function(object, canonical){
     if(canonical) object$coef.names
