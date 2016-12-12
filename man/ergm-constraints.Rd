@@ -320,7 +320,7 @@ Karwa V, Krivitsky PN, and Slavkovi\'{c} AB (2016). Sharing Social Network
  
 Krivitsky PN (2012). Exponential-Family Random Graph Models for Valued
 Networks. \emph{Electronic Journal of Statistics}, 2012, 6,
-1100-1128. \href{http://dx.doi.org/10.1214/12-EJS696}{\code{doi:10.1214/12-EJS696}}
+1100-1128. \doi{10.1214/12-EJS696}
  
 Morris M, Handcock MS, Hunter DR (2008).
  Specification of Exponential-Family Random Graph Models:

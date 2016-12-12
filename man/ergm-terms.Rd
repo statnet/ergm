@@ -1797,14 +1797,14 @@ of the degrees of all pairs of nodes in the network which are tied.
 
   \item Krivitsky P. N. (2012). Exponential-Family Random Graph Models for Valued
     Networks. \emph{Electronic Journal of Statistics}, 2012, 6,
-    1100-1128. \href{http://dx.doi.org/10.1214/12-EJS696}{\code{doi:10.1214/12-EJS696}}
+    1100-1128. \doi{10.1214/12-EJS696}
     
   \item Robins, G; Pattison, P; and Wang, P.  (2009).  \dQuote{Closure, Connectivity, and Degree Distributions: Exponential Random Graph (p*) Models for Directed Social Networks.}  \emph{Social Networks,} 31:105-117.
 
   \item Snijders T. A. B., G. G. van de Bunt, and
     C. E. G. Steglich. Introduction to Stochastic Actor-Based Models for
     Network Dynamics. \emph{Social Networks}, 2010, 32(1),
-    44-60. \href{http://dx.doi.org/10.1016/j.socnet.2009.02.004}{\code{doi:10.1016/j.socnet.2009.02.004}}
+    44-60. \doi{10.1016/j.socnet.2009.02.004}
 
   \item Morris M, Handcock MS, and Hunter DR. Specification of Exponential-Family Random Graph Models: Terms and Computational Aspects. \emph{Journal of Statistical Software}, 2008, 24(4), 1-24. \url{http://www.jstatsoft.org/v24/i04}
     

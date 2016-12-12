@@ -341,7 +341,7 @@ Handcock MS (2003b).
  Statnet Project, Seattle, WA.
  Version 1.0, \url{statnet.org}.
 
-Handcock MS and Gile KJ (2010). Modeling Social Networks from Sampled Data. \emph{Annals of Applied Statistics}, 4(1), 5-25. \href{http://dx.doi.org/10.1214/08-AOAS221}{doi:10.1214/08-AOAS221}
+Handcock MS and Gile KJ (2010). Modeling Social Networks from Sampled Data. \emph{Annals of Applied Statistics}, 4(1), 5-25. \doi{10.1214/08-AOAS221}
  
 Handcock MS, Hunter DR, Butts CT, Goodreau SM, Morris M (2003a).
  \pkg{ergm}: A Package to Fit, Simulate and Diagnose
@@ -372,7 +372,7 @@ Karwa V, Krivitsky PN, and Slavkovi\'{c} AB (2016). Sharing Social Network
  
 Krivitsky PN (2012). Exponential-Family Random Graph Models for Valued
 Networks. \emph{Electronic Journal of Statistics}, 2012, 6,
-1100-1128. \href{http://dx.doi.org/10.1214/12-EJS696}{\code{doi:10.1214/12-EJS696}}
+1100-1128. \doi{10.1214/12-EJS696}
  
 Morris M, Handcock MS, Hunter DR (2008).
  Specification of Exponential-Family Random Graph Models:
