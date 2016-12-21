@@ -14,47 +14,48 @@
 \alias{samplk3}
 \title{Longitudinal networks of positive affection within a monastery as a ``network'' object}
 \description{
-
-\bold{NOTE:} It appears that as of \code{ergm} 3.6.0, the vertex labels
-have been permuted. This will be fixed in the next release.
-
-  %Sampson (1968) collected data on a variety of
-%interpersonal relations among 18 monks. 
 Sampson (1969) recorded
 the social interactions among a group of monks
-while resident as an experimenter on vision, and collected
-numerous sociometric rankings.  
+while he was a resident as an experimenter at the cloister.  
 During his stay, a political
-``crisis in the cloister'' resulted in the expulsion of four monks
-(Nos. 2, 3, 17, and 18) and the voluntary departure of several
-others - most immediately, Nos. 1, 7, 14, 15, and 16. (In the
-end, only 5, 6, 9, and 11 remained).
-Of particular interest
-is the data on positive affect relations (``liking''), in which each
-monk was asked if they had positive relations to each of the
-other monks.
+``crisis in the cloister'' resulted in the expulsion of four monks--
+namely, the three "outcasts," Brothers 
+Elias, Simplicius, Basil, and the leader of the "Young Turks,"
+Brother Gregory.  Not long after Brother Gregory departed, all but one of 
+the "Young Turks" left voluntarily:  Brothers John Bosco, Albert,
+Boniface, Hugh, and Mark.  Then, all three of the "waverers" also left:
+First, Brothers Amand and Victor, then later Brother Romuald.  Eventually,
+Brother Peter and Brother Winfrid also left, leaving only four of the original
+group.
 
-%The data are a measure reflecting
-%changes in group sentiment over time called ``liking''. It is 
-%gathered at three times: \code{samplk1} to \code{samplk3}.
+Of particular interest
+are the data on positive affect relations (``liking,'' using the terminology
+later adopted by White et al. (1976)), in which each
+monk was asked if he had positive relations to each of the
+other monks.
+Each monk ranked only his top three choices 
+(or four, in the case of ties) on ``liking''.  
+Here, we consider a directed edge from monk A to monk B to
+exist if A nominated B among these top choices.
+
+
 The data were gathered at three times to capture changes in group sentiment
-over time: \code{samplk1}, \code{samplk2}, and \code{samplk3}.
+over time.
 They represent three time points in the period during which a
 new cohort entered the monastery near the end of the study but
-before the major conflict began. 
-%Information about the senior monks was not included.
-Each member ranked only his top three choices on ``liking.''
-%A ranking of 3 indicates the highest or first choice and 1 the last choice.
-(Some subjects offered tied ranks for their top four choices).
-A tie from monk A to monk B exists if A
-nominated B as one of his three best friends at that that time point.
-%A tie is present in the data if the receiver was one of
-%his top three most liked monks at that point in time. 
-
-\code{samplk3} is a data set of Hoff, Raftery and Handcock (2002).
+before the major conflict began.  
+These three time points are 
+labeled T_2, T_3, and T_4 in the appendices of
+Sampson's 1969 dissertation, 
+and the corresponding network datasets are named
+\code{samplk1}, \code{samplk2}, and \code{samplk3}, respectively.
 
 See also the data set \code{\link{sampson}} containing the time-aggregated
 graph \code{samplike}.
+
+
+\code{samplk3} is a data set of Hoff, Raftery and Handcock (2002).
+
 %A tie exists in this.network if the receiver was nominated at 
 %one or more of the three time points.
 It is the cumulative tie for ``liking'' over the three
@@ -62,21 +63,23 @@ periods.  For this, a tie from monk A to monk B exists if A
 nominated B as one of his three best friends at any of the
 three time points.
 
-All graphs are stored as \code{\link[network]{network}} objects.
-They have three vertex attributes:
+The datasets are stored as \code{\link[network]{network}} objects
+with three vertex attributes:
 
 \describe{
-\item{group}{Groups of novices as classified by Sampson: 
-``Loyal'', ``Outcasts'', and ``Young Turks''. There is also an 
-interstitial group not represented here.}
-\item{cloisterville}{An indicator if attendance the minor seminary of ``Cloisterville'' before coming to the monastery.}
+\item{group}{Groups of novices as classified by Sampson, that is, 
+``Loyal'', ``Outcasts'', and ``Young Turks'', but with a fourth
+group called the ``Waverers'' by White et al. (1975) that comprises 
+two of the original Loyal opposition and one of the original Outcasts.}
+\item{cloisterville}{An indicator of attendance in
+the minor seminary of ``Cloisterville'' before coming to the monastery.}
 \item{vertex.names}{The given names of the novices.}
 }
 This data set is standard in the social network analysis
 literature, having been modeled by Holland and Leinhardt
 (1981), Reitz (1982), Holland, Laskey and Leinhardt (1983),
-and Fienberg, Meyer, and Wasserman (1981), Hoff, Raftery, and Handcock
-(2002), etc.
+Fienberg, Meyer, and Wasserman (1981), and Hoff, Raftery, and Handcock
+(2002), among others.
 This is only a small piece of the data collected by Sampson.
 
 
@@ -87,7 +90,27 @@ The original vertex names were:
 Romul_10, Bonaven_5, Ambrose_9, Berth_6, Peter_4, Louis_11, Victor_8,
 Winf_12, John_1, Greg_2, Hugh_14, Boni_15, Mark_7, Albert_16, Amand_13,
 Basil_3, Elias_17, Simp_18.
+The numbers indicate the ordering used in the original dissertation of
+Sampson (1969).  
 
+NB:  In ergm version 3.6.0 and earlier, 
+The adjacency matrices of the \code{\link{samplike}},
+\code{\link{samplk1}}, \code{\link{samplk2}}, and \code{\link{samplk3}}
+networks reflect the original Sampson (1969) ordering of the names even
+though the order is that of de Nooy, Mrvar, and Batagelj (2005).
+
+That is, in ergm version 3.6.0 and earlier, the vertices were mislabeled.
+The correct order is the same one given in Tables D5, D9, and D13 of 
+Sampson (1969):  
+John Bosco, Gregory, Basil, Peter, Bonaventure, Berthold, Mark,
+Victor, Ambrose, Romauld (Sampson uses both spellings "Romauld" and "Ramauld"
+in the dissertation), Louis, Winfrid, Amand, Hugh, Boniface, Albert,
+Elias, Simplicius.
+By contrast, the order given in ergm version 3.6.0 and earlier is:
+Ramuald, Bonaventure, Ambrose, Berthold, Peter, 
+Louis, Victor, Winfrid, John Bosco, Gregory, 
+Hugh, Boniface, Mark, Albert, Amand, 
+Basil, Elias, Simplicius. 
 } \usage{
  data(samplk)
 }
