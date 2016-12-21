@@ -20,9 +20,9 @@ while he was a resident as an experimenter at the cloister.
 During his stay, a political
 ``crisis in the cloister'' resulted in the expulsion of four monks--
 namely, the three "outcasts," Brothers 
-Elias, Simplicius, Basil, and the leader of the "Young Turks,"
+Elias, Simplicius, Basil, and the leader of the "young Turks,"
 Brother Gregory.  Not long after Brother Gregory departed, all but one of 
-the "Young Turks" left voluntarily:  Brothers John Bosco, Albert,
+the "young Turks" left voluntarily:  Brothers John Bosco, Albert,
 Boniface, Hugh, and Mark.  Then, all three of the "waverers" also left:
 First, Brothers Amand and Victor, then later Brother Romuald.  Eventually,
 Brother Peter and Brother Winfrid also left, leaving only four of the original
@@ -42,12 +42,12 @@ exist if A nominated B among these top choices.
 The data were gathered at three times to capture changes in group sentiment
 over time.
 They represent three time points in the period during which a
-new cohort entered the monastery near the end of the study but
+new cohort had entered the monastery near the end of the study but
 before the major conflict began.  
 These three time points are 
-labeled T_2, T_3, and T_4 in the appendices of
-Sampson's 1969 dissertation, 
-and the corresponding network datasets are named
+labeled T2, T3, and T4 in Tables D5 through D16 in the appendices of
+Sampson's 1969 dissertation.  
+and the corresponding network data sets are named
 \code{samplk1}, \code{samplk2}, and \code{samplk3}, respectively.
 
 See also the data set \code{\link{sampson}} containing the time-aggregated
@@ -63,17 +63,20 @@ periods.  For this, a tie from monk A to monk B exists if A
 nominated B as one of his three best friends at any of the
 three time points.
 
-The datasets are stored as \code{\link[network]{network}} objects
+The data sets are stored as \code{\link[network]{network}} objects
 with three vertex attributes:
 
 \describe{
 \item{group}{Groups of novices as classified by Sampson, that is, 
-``Loyal'', ``Outcasts'', and ``Young Turks'', but with a fourth
+``Loyal'', ``Outcasts'', and ``Turks'', but with a fourth
 group called the ``Waverers'' by White et al. (1975) that comprises 
-two of the original Loyal opposition and one of the original Outcasts.}
+two of the original Loyal opposition and one of the original Outcasts.
+See the \code{\link{samplike}} data set for the original classifications
+of these three waverers.}
 \item{cloisterville}{An indicator of attendance in
 the minor seminary of ``Cloisterville'' before coming to the monastery.}
-\item{vertex.names}{The given names of the novices.}
+\item{vertex.names}{The given names of the novices. NB:
+These names have been corrected as of ergm version 3.7.}
 }
 This data set is standard in the social network analysis
 literature, having been modeled by Holland and Leinhardt
@@ -83,7 +86,7 @@ Fienberg, Meyer, and Wasserman (1981), and Hoff, Raftery, and Handcock
 This is only a small piece of the data collected by Sampson.
 
 
-This dataset was updated for version 2.5 (March 2012) to add the
+This data set was updated for version 2.5 (March 2012) to add the
 \code{cloisterville} variable and refine the names. This information is from
 de Nooy, Mrvar, and Batagelj (2005).
 The original vertex names were:
@@ -96,9 +99,9 @@ Sampson (1969).
 NB:  In ergm version 3.6.0 and earlier, 
 The adjacency matrices of the \code{\link{samplike}},
 \code{\link{samplk1}}, \code{\link{samplk2}}, and \code{\link{samplk3}}
-networks reflect the original Sampson (1969) ordering of the names even
-though the order is that of de Nooy, Mrvar, and Batagelj (2005).
-
+networks reflected the original Sampson (1969) ordering of the names even
+though the vertex labels used the name order 
+of de Nooy, Mrvar, and Batagelj (2005).
 That is, in ergm version 3.6.0 and earlier, the vertices were mislabeled.
 The correct order is the same one given in Tables D5, D9, and D13 of 
 Sampson (1969):  
