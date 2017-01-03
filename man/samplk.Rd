@@ -14,6 +14,10 @@
 \alias{samplk3}
 \title{Longitudinal networks of positive affection within a monastery as a ``network'' object}
 \description{
+  Three \code{\link{network}} objects containing the ``liking''
+  nominations of Sampson's (1969) monks at the three time points.
+}
+\details{  
 Sampson (1969) recorded
 the social interactions among a group of monks
 while he was a resident as an experimenter at the cloister.  
@@ -76,7 +80,7 @@ of these three waverers.}
 \item{cloisterville}{An indicator of attendance in
 the minor seminary of ``Cloisterville'' before coming to the monastery.}
 \item{vertex.names}{The given names of the novices. NB:
-These names have been corrected as of ergm version 3.7.}
+These names have been corrected as of \code{ergm} version 3.6.1.}
 }
 This data set is standard in the social network analysis
 literature, having been modeled by Holland and Leinhardt
@@ -95,21 +99,22 @@ Winf_12, John_1, Greg_2, Hugh_14, Boni_15, Mark_7, Albert_16, Amand_13,
 Basil_3, Elias_17, Simp_18.
 The numbers indicate the ordering used in the original dissertation of
 Sampson (1969).  
+}
 
-NB:  In ergm version 3.6.0 and earlier, 
+\section{Mislabeling in Versions Prior to 3.6.1}{ In \code{ergm} versions 3.6.0 and earlier, 
 The adjacency matrices of the \code{\link{samplike}},
 \code{\link{samplk1}}, \code{\link{samplk2}}, and \code{\link{samplk3}}
 networks reflected the original Sampson (1969) ordering of the names even
 though the vertex labels used the name order 
 of de Nooy, Mrvar, and Batagelj (2005).
-That is, in ergm version 3.6.0 and earlier, the vertices were mislabeled.
+That is, in \code{ergm} version 3.6.0 and earlier, the vertices were mislabeled.
 The correct order is the same one given in Tables D5, D9, and D13 of 
 Sampson (1969):  
 John Bosco, Gregory, Basil, Peter, Bonaventure, Berthold, Mark,
 Victor, Ambrose, Romauld (Sampson uses both spellings "Romauld" and "Ramauld"
 in the dissertation), Louis, Winfrid, Amand, Hugh, Boniface, Albert,
 Elias, Simplicius.
-By contrast, the order given in ergm version 3.6.0 and earlier is:
+By contrast, the order given in \code{ergm} version 3.6.0 and earlier is:
 Ramuald, Bonaventure, Ambrose, Berthold, Peter, 
 Louis, Victor, Winfrid, John Bosco, Gregory, 
 Hugh, Boniface, Mark, Albert, Amand, 
