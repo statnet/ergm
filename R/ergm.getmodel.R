@@ -69,38 +69,44 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
 
   
   for (i in 1:length(v)) {
-    if (is.call(v[[i]]) && v[[i]][[1]] == "offset"){ # Offset term
-      v[[i]] <- v[[i]][[2]]
+    term <- v[[i]]
+    
+    if (is.call(term) && term[[1]] == "offset"){ # Offset term
+      term <- term[[2]]
       model$offset <- c(model$offset,TRUE)
     }else{
       model$offset <- c(model$offset,FALSE)
     }
-    ## v[[i]] is now a call or a name that is not "offset".
+    ## term is now a call or a name that is not "offset".
     
-    if(is.call(v[[i]])) { # This term has some arguments; save them.
-      args <- v[[i]]
+    if(is.call(term)) { # This term has some arguments; save them.
+      args <- term
       args[[1]] <- as.name("list")
     }else args <- list()
     
-    termFun<-locate.InitFunction(v[[i]], paste0(termroot,"Term"), "ERGM term")  # check in all namespaces for function found anywhere
+    termFun<-locate.InitFunction(term, paste0(termroot,"Term"), "ERGM term")  # check in all namespaces for function found anywhere
     
-    v[[i]]<-as.call(list(termFun))
+    term<-as.call(list(termFun))
     
-    v[[i]][[2]] <- nw
-    names(v[[i]])[2] <-  ""
-    v[[i]][[3]] <- args
-    names(v[[i]])[3] <- ""
+    term[[2]] <- nw
+    names(term)[2] <-  ""
+    term[[3]] <- args
+    names(term)[3] <- ""
     dotdotdot <- c(if(!is.null(response)) list(response=response), list(role=role), list(...))
     for(j in seq_along(dotdotdot)) {
       if(is.null(dotdotdot[[j]])) next
-      v[[i]][[3+j]] <- dotdotdot[[j]]
-      names(v[[i]])[3+j] <- names(dotdotdot)[j]
+      term[[3+j]] <- dotdotdot[[j]]
+      names(term)[3+j] <- names(dotdotdot)[j]
     }
     #Call the InitErgm function in the environment where the formula was created
     # so that it will have access to any parameters of the ergm terms
-    outlist <- eval(v[[i]],formula.env)
+    outlist <- eval(term,formula.env)
     # If initialization fails without error (e.g., all statistics have been dropped), continue.
-    if(is.null(outlist)) next
+    if(is.null(outlist)){
+      if(!silent) message("Note: Term ", deparse(v[[i]])," skipped because it contributes no statistics.")
+      model$term.skipped <- c(model$term.skipped, TRUE)
+      next
+    }else model$term.skipped <- c(model$term.skipped, FALSE)
     # If SO package name not specified explicitly, autodetect.
     if(is.null(outlist$pkgname)) outlist$pkgname <- environmentName(environment(termFun))
     # Now it is necessary to add the output to the model object

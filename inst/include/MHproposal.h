@@ -45,6 +45,7 @@ void DegreeBoundDestroy(DegreeBound *bd);
 #define MH_UNRECOVERABLE 0
 #define MH_IMPOSSIBLE 1
 #define MH_UNSUCCESSFUL 2
+#define MH_CONSTRAINT 3
 
 /* "Quit" threshold for unsuccessful proposals as a fraction of steps. */
 #define MH_QUIT_UNSUCCESSFUL 0.05
@@ -102,14 +103,15 @@ int CheckConstrainedTogglesValid(MHproposal *MHp, Network *nwp);
   unsigned int trytoggle;						\
   for(trytoggle = 0; trytoggle < MAX_TRIES*tryfactor; trytoggle++){	\
     {proc}								\
-    if((cond) && CheckTogglesValid(MHp,nwp)) break;			\
+    if(cond) break;							\
   }									\
-  /* If no valid proposal found, signal a failed proposal. */		\
   if(trytoggle>=MAX_TRIES*tryfactor){					\
     MHp->toggletail[0]=MH_FAILED;					\
     MHp->togglehead[0]=MH_UNSUCCESSFUL;					\
-  }									\
-  
+  }else	if(!CheckTogglesValid(MHp,nwp)){				\
+    MHp->toggletail[0]=MH_FAILED;					\
+    MHp->togglehead[0]=MH_CONSTRAINT;                                   \
+  }									
 
 #endif 
 

@@ -164,21 +164,23 @@ MCMCStatus CDStep(MHproposal *MHp,
       (*(MHp->func))(MHp, nwp); /* Call MH function to propose toggles */
 
       if(MHp->toggletail[0]==MH_FAILED){
-	if(MHp->togglehead[0]==MH_UNRECOVERABLE)
+	switch(MHp->togglehead[0]){
+	case MH_UNRECOVERABLE:
 	  error("Something very bad happened during proposal. Memory has not been deallocated, so restart R soon.");
-	if(MHp->togglehead[0]==MH_IMPOSSIBLE){
+	  
+	case MH_IMPOSSIBLE:
 	  Rprintf("MH Proposal function encountered a configuration from which no toggle(s) can be proposed.\n");
 	  return MCMC_MH_FAILED;
-	}
-	if(MHp->togglehead[0]==MH_UNSUCCESSFUL){
+	  
+	case MH_UNSUCCESSFUL:
 	  warning("MH Proposal function failed to find a valid proposal.");
 	  unsuccessful++;
-	  if(unsuccessful>MH_QUIT_UNSUCCESSFUL){
+	  if(unsuccessful>*staken*MH_QUIT_UNSUCCESSFUL){
 	    Rprintf("Too many MH Proposal function failures.\n");
 	    return MCMC_MH_FAILED;
-	  }       
-	  
-	  return MH_UNSUCCESSFUL;
+	  }
+	case MH_CONSTRAINT:
+	  continue;
 	}
       }
       

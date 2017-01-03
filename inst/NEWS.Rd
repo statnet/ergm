@@ -14,6 +14,69 @@
 % When a release is forked, copy the sections to a new release and
 % delete unused sections.
 
+
+\section{Changes in version 3.6.1}{
+
+  %% \subsection{NEW FEATURES}{
+  %%   \itemize{
+  %%     \item{
+  %%     }
+  %%   }
+  %% }
+   
+  
+   \subsection{BUG FIXES}{
+     \itemize{
+       
+       \item{The implementation of the bounded degree
+	 (\code{\link[ergm-constraints]{bd}}) constraint had a bug that
+	 distorted somewhat the distribution of networks simulated (and
+	 therefore estimated) away from the boundary of the constraint.}
+       
+       \item{Vertex labels in the \code{\link{sampson}} and
+	 \code{\link{samplike}} datasets have been corrected. (Thanks to
+	 Dr. Linda Tan Siew Li for pointing this error out.)}
+
+       \item{Use of the deprecated \code{\link{unix.time}} has been
+       changed to \code{\link{system.time}}.}
+       
+       \item{Miscellaneous fixes to the documentation and robustifications.}
+
+     }
+   }
+
+  
+   %% \subsection{OTHER USER-VISIBLE CHANGES}{
+   %%   \itemize{
+   %%   }
+   %% }
+
+  % \subsection{C-LEVEL FACILITIES}{
+  %   \itemize{
+  %   }
+  % }
+
+  % \subsection{UTILITIES}{
+  %   \itemize{
+  %     \item Likewise, "UTILITIES" is probably unnecessary.
+  %   }
+  % }
+
+  % \subsection{INSTALLATION}{
+  %   \itemize{
+  %     \item ... as is "INSTALLATION".
+  %   }
+  % }
+
+  % \subsection{PACKAGE INSTALLATION}{
+  %   \itemize{
+  %     \item ditto.
+  %   }
+  % }
+
+}
+
+
 \section{Changes in version 3.6.0}{
 
   \subsection{NEW FEATURES}{
@@ -76,30 +139,6 @@
 	 more efficiently.}
      }
    }
-
-  % \subsection{C-LEVEL FACILITIES}{
-  %   \itemize{
-  %   }
-  % }
-
-  % \subsection{UTILITIES}{
-  %   \itemize{
-  %     \item Likewise, "UTILITIES" is probably unnecessary.
-  %   }
-  % }
-
-  % \subsection{INSTALLATION}{
-  %   \itemize{
-  %     \item ... as is "INSTALLATION".
-  %   }
-  % }
-
-  % \subsection{PACKAGE INSTALLATION}{
-  %   \itemize{
-  %     \item ditto.
-  %   }
-  % }
-
 }
 
 

@@ -223,7 +223,7 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
   covar[!is.na(theta)&!m$etamap$offsettheta,
         !is.na(theta)&!m$etamap$offsettheta] <- real.cov
   hess[!is.na(theta)&!m$etamap$offsettheta,
-        !is.na(theta)&!m$etamap$offsettheta] <- -solve(real.cov)
+        !is.na(theta)&!m$etamap$offsettheta] <- -ginv(real.cov)
 #
   iteration <-  mplefit$iter 
 
