@@ -34,7 +34,7 @@ bipnw2 %v% "Color" <- color
 
 
 # a directed nw
-data(sampson)
+load("sampson.wrong.RData") # Old (wrong) version of sampson's monks
 set.seed(42)
 set.edge.attribute(samplike, "YearsTrusted", rbinom(88, 4, .5))
 set.seed(296)
