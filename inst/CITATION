@@ -33,7 +33,7 @@ statnet.cite.pkg <- function(pkg){
            organization = paste("The Statnet Project (\\url{", projhomepage, "})",sep=""),
            year         = substr(meta$Date,1,4),
            note         = paste("R package version ", meta$Version, sep=""),
-           url          = paste("http://CRAN.R-project.org/package=",meta$Package,sep="")
+           url          = paste("https://CRAN.R-project.org/package=",meta$Package,sep="")
            )
 }
 # ---- END STATNET CITATION FUNCTIONS ----'
