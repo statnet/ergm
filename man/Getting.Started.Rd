@@ -5,7 +5,7 @@
 %  open source, and has the attribution requirements (GPL Section 7) at
 %  http://statnet.org/attribution
 %
-%  Copyright 2003-2015 Statnet Commons
+%  Copyright 2003-2017 Statnet Commons
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \name{Getting.Started}
 \alias{Getting.Started}
@@ -97,7 +97,7 @@ Boer P, Huisman M, Snijders T, Zeggelink E (2003).
 
 Butts CT (2007).
  \pkg{sna}: Tools for Social Network Analysis.
- R package version 2.3-2. \url{http://CRAN.R-project.org/package=sna}.
+ R package version 2.3-2. \url{https://cran.r-project.org/package=sna}.
 
 Butts CT (2008).
  \pkg{network}: A Package for Managing Relational Data in \R.
@@ -105,7 +105,7 @@ Butts CT (2008).
  \url{http://www.jstatsoft.org/v24/i02/}.
 
 Butts C (2015).
- \pkg{network}: The Statnet Project (http://www.statnet.org). R package version 1.12.0, \url{http://CRAN.R-project.org/package=network}.
+ \pkg{network}: The Statnet Project (http://www.statnet.org). R package version 1.12.0, \url{https://cran.r-project.org/package=network}.
 
 Frank, O., and Strauss, D.(1986). Markov graphs. \emph{Journal of the American
 Statistical Association}, 81, 832-842. 

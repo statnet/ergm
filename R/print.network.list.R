@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  http://statnet.org/attribution
 #
-#  Copyright 2003-2015 Statnet Commons
+#  Copyright 2003-2017 Statnet Commons
 #######################################################################
 print.network.list <- function(x, stats.print=FALSE, ...) {
   summary.network.list(x, stats.print=stats.print, ...)

@@ -917,18 +917,18 @@ please visit the \verb@statnet@ webpage
 
 \begin{itemize}
 
-\item \href{http://cran.r-project.org/web/packages/sna/index.html}{\texttt{sna}} \textendash{} Traditional SNA methods and summaries.
+\item \href{https://cran.r-project.org/web/packages/sna/index.html}{\texttt{sna}} \textendash{} Traditional SNA methods and summaries.
 
-\item \href{http://cran.r-project.org/web/packages/latentnet/index.html}{\texttt{latentnet}}
+\item \href{https://cran.r-project.org/web/packages/latentnet/index.html}{\texttt{latentnet}}
 \textendash{} Latent space and latent cluster analysis.
 
-\item \href{http://cran.r-project.org/web/packages/netperm/index.html}{\texttt{netperm}} 
+\item \href{https://cran.r-project.org/web/packages/netperm/index.html}{\texttt{netperm}} 
 \textendash{} Network permutation models.
 
-\item \href{http://cran.r-project.org/web/packages/degreenet/index.html}{\texttt{degreenet}} 
+\item \href{https://cran.r-project.org/web/packages/degreenet/index.html}{\texttt{degreenet}} 
 \textendash{} MLE estimation for degree distributions (negative binomial, Poisson, scale-free, etc.) 
 
-\item \href{http://cran.r-project.org/web/packages/networksis/index.html}{\texttt{networksis}}
+\item \href{https://cran.r-project.org/web/packages/networksis/index.html}{\texttt{networksis}}
 \textendash{} Simulation of bipartite networks with given degree distributions. 
 
 \end{itemize}
@@ -937,16 +937,16 @@ please visit the \verb@statnet@ webpage
 
 \begin{itemize}
 
-\item \href{http://cran.r-project.org/web/packages/tergm/index.html}{\texttt{tergm}}
+\item \href{https://cran.r-project.org/web/packages/tergm/index.html}{\texttt{tergm}}
 \textendash{} Temporal ERGMs (TERGMs): discrete-time dynamic network models for longitudinal network panel data, and other temporal extensions.
 
-\item \href{http://cran.r-project.org/web/packages/relevent/index.html}{\texttt{relevent}}
+\item \href{https://cran.r-project.org/web/packages/relevent/index.html}{\texttt{relevent}}
 \textendash{} Relational event models: continuous-time dynamic network models for longitudinal network data.
 
-\item \href{http://cran.r-project.org/web/packages/networkDynamic/index.html}{\texttt{networkDynamic}}
+\item \href{https://cran.r-project.org/web/packages/networkDynamic/index.html}{\texttt{networkDynamic}}
 \textendash{} Dynamic network data storage and manipulation.
 
-\item \href{http://cran.r-project.org/web/packages/ndtv/index.html}{\texttt{ndtv}}
+\item \href{https://cran.r-project.org/web/packages/ndtv/index.html}{\texttt{ndtv}}
 \textendash{} Network movie maker.
 
 \end{itemize}
@@ -958,23 +958,23 @@ There is a growing number of R packages written by other folks that build on or 
 
 \begin{itemize}
 
-\item \href{http://cran.r-project.org/web/packages/EpiModel/index.html}{\texttt{EpiModel} package}
+\item \href{https://cran.r-project.org/web/packages/EpiModel/index.html}{\texttt{EpiModel} package}
 \textendash{} Mathematical Modeling of Infectious Disease, includes functions for deterministic compartmental modeling, stochastic individual contact modeling, and stochatic network modeling
 
-\item \href{http://cran.r-project.org/web/packages/RDS/index.html}{\texttt{RDS} package}
+\item \href{https://cran.r-project.org/web/packages/RDS/index.html}{\texttt{RDS} package}
 \textendash{} Estimation with data collected using Respondent-Driven Sampling.
 
-\item \href{http://cran.r-project.org/web/packages/Bergm/index.html}{\texttt{Bergm} package} \textendash{} Bayesian ERGM estimation 
+\item \href{https://cran.r-project.org/web/packages/Bergm/index.html}{\texttt{Bergm} package} \textendash{} Bayesian ERGM estimation 
 
-\item \href{http://cran.r-project.org/web/packages/hergm/index.html}{\texttt{hergm} package} \textendash{} Hierarchical Exponential-Family Random Graph Models with Local Dependence (for latent groups).
+\item \href{https://cran.r-project.org/web/packages/hergm/index.html}{\texttt{hergm} package} \textendash{} Hierarchical Exponential-Family Random Graph Models with Local Dependence (for latent groups).
 
-\item \href{http://cran.r-project.org/web/packages/lvm4net/index.html}{\texttt{lvm4net} package} 
+\item \href{https://cran.r-project.org/web/packages/lvm4net/index.html}{\texttt{lvm4net} package} 
 \textendash{} Latent variable models.
 
-\item \href{http://cran.r-project.org/web/packages/VBLPC/index.html}{\texttt{VBLPCM} package}
+\item \href{https://cran.r-project.org/web/packages/VBLPC/index.html}{\texttt{VBLPCM} package}
 \textendash{} Variational Bayes Latent Position Cluster Models. 
 
-\item \href{http://cran.r-project.org/web/packages/xergm/index.html}{\texttt{xergm} package}
+\item \href{https://cran.r-project.org/web/packages/xergm/index.html}{\texttt{xergm} package}
 \textendash{} Temporal exponential random graph models (TERGM) by bootstrapped pseudolikelihood, MCMC MLE and (temporal) network autocorrelation models.
 
 \end{itemize}

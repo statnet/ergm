@@ -5,7 +5,7 @@
 #  open source, and has the attribution requirements (GPL Section 7) at
 #  http://statnet.org/attribution
 #
-#  Copyright 2003-2015 Statnet Commons
+#  Copyright 2003-2017 Statnet Commons
 #######################################################################
 ###############################################################################
 # The <ergm.mapl> function creates an initial fit for a specified formula
