@@ -20,7 +20,7 @@ table, td, th {
 -->
 <!-- to render out this file for preview when not using RStudio:  rmarkdown::render('vignettes/ergm-term-crossRef.Rmd') -->
 
-This document is an automatically generated cross reference for the ergm model terms from the [stanet project](http://statnet.org).  The source for this data and additional descriptions are in the `?ergm.terms` help file or the [ergm manual](http://cran.r-project.org/web/packages/ergm/ergm.pdf). 
+This document is an automatically generated cross reference for the ergm model terms from the [stanet project](http://statnet.org).  The source for this data and additional descriptions are in the `?ergm.terms` help file or the [ergm manual](https://cran.r-project.org/web/packages/ergm/ergm.pdf). 
 
 
 ```{r, include=FALSE}

@@ -308,7 +308,7 @@ Bender-deMoll S, Morris M, Moody J (2008).
 
 Butts CT (2007).
  \pkg{sna}: Tools for Social Network Analysis.
-R package version 2.3-2. \url{http://CRAN.R-project.org/package=sna}.
+R package version 2.3-2. \url{https://cran.r-project.org/package=sna}.
 
 Butts CT (2008).
  \pkg{network}: A Package for Managing Relational Data in \R.
@@ -316,7 +316,7 @@ Butts CT (2008).
  \url{http://www.jstatsoft.org/v24/i02/}.
 
 Butts C (2015).
- \pkg{network}: The Statnet Project (http://www.statnet.org). R package version 1.12.0, \url{http://CRAN.R-project.org/package=network}.
+ \pkg{network}: The Statnet Project (http://www.statnet.org). R package version 1.12.0, \url{https://cran.r-project.org/package=network}.
 
 Goodreau SM, Handcock MS, Hunter DR, Butts CT, Morris M (2008a).
  A \pkg{statnet} Tutorial.
