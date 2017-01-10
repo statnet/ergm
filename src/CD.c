@@ -46,6 +46,10 @@ void CD_wrapper(int *dnumnets, int *nedges,
   nw[0]=NetworkInitialize(tails, heads, nedges[0], 
                           n_nodes, directed_flag, bip, 0, 0, NULL);
   
+  /* Trigger initial storage update */
+  UpdateStats(0, NULL, NULL, nw, m);
+  
+  /* Initialize the M-H proposal */
   MH_init(&MH,
 	  *MHproposaltype, *MHproposalpackage,
 	  inputs,
@@ -209,6 +213,9 @@ MCMCStatus CDStep(MHproposal *MHp,
 
       if(mult<CDparams[1]-1){
 	/* Make proposed toggles provisionally. */
+	/* First, inform u_* functions that the network is about to change. */
+	UpdateStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, nwp, m);
+	/* Then, make the changes. */
 	for(unsigned int i=0; i < MHp->ntoggles; i++){
 	  undotail[ntoggled]=MHp->toggletail[i];
 	  undohead[ntoggled]=MHp->togglehead[i];
@@ -258,6 +265,9 @@ MCMCStatus CDStep(MHproposal *MHp,
 
       if(step<CDparams[0]-1){
 	/* Make the remaining proposed toggles (which we did not make provisionally) */
+	/* First, inform u_* functions that the network is about to change. */
+	UpdateStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, nwp, m);
+	/* Then, make the changes. */
 	for(unsigned int i=0; i < MHp->ntoggles; i++){
 	  undotail[ntoggled]=MHp->toggletail[i];
 	  undohead[ntoggled]=MHp->togglehead[i];
@@ -286,6 +296,10 @@ MCMCStatus CDStep(MHproposal *MHp,
 	ntoggled--;
 	Vertex t = undotail[ntoggled], h = undohead[ntoggled];
 
+	/* FIXME: This should be done in one call, but it's very easy
+	   to make a fencepost error here. */
+	UpdateStats(1, &t, &h, nwp, m);
+      	
 	if(MHp->discord)
 	  for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
 	    ToggleEdge(t, h, *nwd);
@@ -300,6 +314,10 @@ MCMCStatus CDStep(MHproposal *MHp,
   for(unsigned int i=0; i < ntoggled; i++){
     Vertex t = undotail[i], h = undohead[i];
 
+    /* FIXME: This should be done in one call, but it's very easy
+       to make a fencepost error here. */
+    UpdateStats(1, &t, &h, nwp, m);
+    
     if(MHp->discord)
       for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
 	ToggleEdge(t, h, *nwd);

@@ -20,6 +20,7 @@ void WtModelDestroy(WtModel *m)
   for(i=0; i < m->n_terms; i++){
     free(m->dstatarray[i]);
     free(m->termarray[i].statcache);
+    if(m->termarray[i].storage) free(m->termarray[i].storage);
   }
   free(m->dstatarray);
   free(m->termarray);
@@ -100,6 +101,12 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
       thisterm->s_func = 
 	(void (*)(WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
 
+      /* Optional function to store persistent information about the
+	 network state between calls to d_ functions. */
+      fn[0]='u';
+      thisterm->u_func = 
+	(void (*)(Edge, Vertex*, Vertex*, double*, WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+      
       /*Clean up by freeing sn and fn*/
       free((void *)fn);
       free((void *)sn);
@@ -152,7 +159,7 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
 }
 
 /*
-  MCMCChangeStats
+  WtChangeStats
   A helper's helper function to compute change statistics.
   The vector of changes is written to m->workspace.
 */
@@ -169,3 +176,19 @@ void WtChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead
     dstats += (mtp++)->nstats;
   }
 }
+
+/*
+  WtUpdateStats
+  A helper's helper function to inform the code that the network state is about to change.
+*/
+void WtUpdateStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, double *toggleweight,
+				 WtNetwork *nwp, WtModel *m){
+  WtModelTerm *mtp = m->termarray;
+  for (unsigned int i=0; i < m->n_terms; i++){
+    if(mtp->u_func)
+      (*(mtp->u_func))(ntoggles, toggletail, togglehead, toggleweight, 
+		       mtp, nwp);  /* Call u_??? function */
+    mtp++;
+  }
+}
+

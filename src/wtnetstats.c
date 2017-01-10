@@ -78,6 +78,11 @@ WtNetwork *nwp, WtModel *m, double *stats){
         mtp, nwp);  /* Call d_??? function */
         for (unsigned int i=0; i < mtp->nstats; i++,statspos++)
           *statspos += mtp->dstats[i];
+
+	// Also, update the storage.
+	if(mtp->u_func)
+	  (*(mtp->u_func))(1, tails+e, heads+e, weights+e,
+			   mtp, nwp);  /* Call u_??? function */
       }else statspos += mtp->nstats;
     }
     WtSetEdge(tails[e],heads[e],weights[e],nwp);

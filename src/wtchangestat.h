@@ -14,6 +14,7 @@
 
 typedef struct WtModelTermstruct {
   void (*d_func)(Edge, Vertex*, Vertex*, double*, struct WtModelTermstruct*, WtNetwork*);
+  void (*u_func)(Edge, Vertex*, Vertex*, double*, struct WtModelTermstruct*, WtNetwork*);
   void (*s_func)(struct WtModelTermstruct*, WtNetwork*);
   double *attrib; /* Ptr to vector of covariates (if necessary; generally unused) */
   int nstats;   /* Number of change statistics to be returned */
@@ -21,6 +22,7 @@ typedef struct WtModelTermstruct {
   int ninputparams; /* Number of input parameters passed to function */
   double *inputparams; /* ptr to input parameters passed */
   double *statcache; /* vector of the same length as dstats */
+  void *storage; /* optional space for persistent storage */
 } WtModelTerm;
 
 
@@ -162,6 +164,7 @@ typedef struct WtModelTermstruct {
 /* changestat function prototypes, 
    plus a few supporting function prototypes */
 #define WtD_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *tails, Vertex *heads, double *weights, WtModelTerm *mtp, WtNetwork *nwp)
+#define WtU_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *tails, Vertex *heads, double *weights, WtModelTerm *mtp, WtNetwork *nwp)
 #define WtS_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
 
 /* This macro wraps two calls to an s_??? function with toggles

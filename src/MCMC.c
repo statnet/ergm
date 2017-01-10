@@ -58,7 +58,11 @@ void MCMC_wrapper(int *dnumnets, int *nedges,
   /* Form the network */
   nw[0]=NetworkInitialize(tails, heads, nedges[0], 
                           n_nodes, directed_flag, bip, 0, 0, NULL);
-  
+
+  /* Trigger initial storage update */
+  UpdateStats(0, NULL, NULL, nw, m);
+
+  /* Initialize the M-H proposal */
   MH_init(&MH,
 	  *MHproposaltype, *MHproposalpackage,
 	  inputs,
@@ -269,6 +273,9 @@ MCMCStatus MetropolisHastings(MHproposal *MHp,
 	Rprintf("Accepted.\n");
       }
 
+      /* Inform u_* functions that the network is about to change. */
+      UpdateStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, nwp, m);
+      
       /* Make proposed toggles (updating timestamps--i.e., for real this time) */
       for(unsigned int i=0; i < MHp->ntoggles; i++){
 	ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
