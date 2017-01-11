@@ -17,6 +17,7 @@
 WtD_CHANGESTAT_FN(d_absdiff_nonzero){ 
   double p = INPUT_ATTRIB[0];
   
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       if(p==1.0){
 	CHANGE_STAT[0] += fabs(INPUT_ATTRIB[TAIL] - INPUT_ATTRIB[HEAD])*((NEWWT!=0)-(OLDWT!=0));
@@ -32,6 +33,7 @@ WtD_CHANGESTAT_FN(d_absdiff_nonzero){
 WtD_CHANGESTAT_FN(d_absdiff_sum){ 
   double p = INPUT_ATTRIB[0];
   
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       if(p==1.0){
 	CHANGE_STAT[0] += fabs(INPUT_ATTRIB[TAIL] - INPUT_ATTRIB[HEAD])*(NEWWT-OLDWT);
@@ -52,6 +54,7 @@ WtD_CHANGESTAT_FN(d_absdiffcat_nonzero){
   ninputs = N_INPUT_PARAMS - N_NODES;
   NAsubstitute = INPUT_PARAM[ninputs-1];
   
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       change = (NEWWT!=0)-(OLDWT!=0);
       tailval = INPUT_ATTRIB[TAIL-1];
@@ -77,6 +80,7 @@ WtD_CHANGESTAT_FN(d_absdiffcat_sum){
   ninputs = N_INPUT_PARAMS - N_NODES;
   NAsubstitute = INPUT_PARAM[ninputs-1];
   
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       change = NEWWT-OLDWT;
       tailval = INPUT_ATTRIB[TAIL-1];
@@ -96,6 +100,7 @@ WtD_CHANGESTAT_FN(d_absdiffcat_sum){
  stat: atleast
 *****************/
 WtD_CHANGESTAT_FN(d_atleast){
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       CHANGE_STAT[0] += (NEWWT>=INPUT_ATTRIB[0]) - (OLDWT>=INPUT_ATTRIB[0]);
     });
@@ -105,6 +110,7 @@ WtD_CHANGESTAT_FN(d_atleast){
  stat: atmost
 *****************/
 WtD_CHANGESTAT_FN(d_atmost){
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       CHANGE_STAT[0] += (NEWWT<=INPUT_ATTRIB[0]) - (OLDWT<=INPUT_ATTRIB[0]);
     });
@@ -116,6 +122,7 @@ WtD_CHANGESTAT_FN(d_atmost){
  stat: b2cov (nonzero)
 *****************/
 WtD_CHANGESTAT_FN(d_b2cov_nonzero){ 
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       CHANGE_STAT[0] += INPUT_ATTRIB[HEAD-BIPARTITE-1]*((NEWWT!=0)-(OLDWT!=0));
   });
@@ -125,6 +132,7 @@ WtD_CHANGESTAT_FN(d_b2cov_nonzero){
  stat: b2cov (sum)
 *****************/
 WtD_CHANGESTAT_FN(d_b2cov_sum){ 
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       CHANGE_STAT[0] += INPUT_ATTRIB[HEAD-BIPARTITE-1]*(NEWWT-OLDWT);
   });
@@ -137,6 +145,7 @@ WtD_CHANGESTAT_FN(d_b2factor_nonzero){
   double s, factorval;
   int j, headattr;
   
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       s = (NEWWT!=0) - (OLDWT!=0);
       headattr = INPUT_ATTRIB[HEAD-BIPARTITE-1];
@@ -154,6 +163,7 @@ WtD_CHANGESTAT_FN(d_b2factor_sum){
   double s, factorval;
   int j, headattr;
   
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
     s = NEWWT - OLDWT;
     headattr = INPUT_ATTRIB[HEAD-BIPARTITE-1];
@@ -175,6 +185,7 @@ WtD_CHANGESTAT_FN(d_cyclicalweights){
   unsigned int path = INPUT_ATTRIB[0], combine = INPUT_ATTRIB[1], compare =  INPUT_ATTRIB[2];
   CHANGE_STAT[0]=0;
 
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       // (TAIL,HEAD) as the focus dyad
       // This means that the strongest 2-path doesn't change.
@@ -365,6 +376,7 @@ WtD_CHANGESTAT_FN(d_edgecov_nonzero) {
     nrow = N_NODES;
   }
   
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       double val = INPUT_ATTRIB[(HEAD-1-noffset)*nrow+(TAIL-1)];  
       CHANGE_STAT[0] += val*((NEWWT!=0)-(OLDWT!=0));
@@ -384,6 +396,7 @@ WtD_CHANGESTAT_FN(d_edgecov_sum) {
     nrow = N_NODES;
   }
   
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       double val = INPUT_ATTRIB[(HEAD-1-noffset)*nrow+(TAIL-1)];  
       CHANGE_STAT[0] += val*(NEWWT-OLDWT);
@@ -396,6 +409,7 @@ WtD_CHANGESTAT_FN(d_edgecov_sum) {
  stat: greaterthan
 *****************/
 WtD_CHANGESTAT_FN(d_greaterthan){
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       CHANGE_STAT[0] += (NEWWT>INPUT_ATTRIB[0]) - (OLDWT>INPUT_ATTRIB[0]);
   });
@@ -407,6 +421,7 @@ WtD_CHANGESTAT_FN(d_greaterthan){
  stat: ininterval
 *****************/
 WtD_CHANGESTAT_FN(d_ininterval){
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       CHANGE_STAT[0] += ((INPUT_ATTRIB[2] ? NEWWT>INPUT_ATTRIB[0] : NEWWT>=INPUT_ATTRIB[0]) && (INPUT_ATTRIB[3] ? NEWWT<INPUT_ATTRIB[1] : NEWWT<=INPUT_ATTRIB[1])) - ((INPUT_ATTRIB[2] ? OLDWT>INPUT_ATTRIB[0] : OLDWT>=INPUT_ATTRIB[0]) && (INPUT_ATTRIB[3] ? OLDWT<INPUT_ATTRIB[1] : OLDWT<=INPUT_ATTRIB[1]));
     });
@@ -428,6 +443,7 @@ WtD_CHANGESTAT_FN(d_mix_nonzero){
   nstats = N_CHANGE_STATS;
 
   /* *** don't forget tail -> head */    
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       double s = (NEWWT!=0) - (OLDWT!=0);
       matchvaltail = INPUT_PARAM[TAIL-1+2*nstats];
@@ -452,6 +468,7 @@ WtD_CHANGESTAT_FN(d_mix_sum){
   nstats = N_CHANGE_STATS;
 
   /* *** don't forget tail -> head */    
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       double s = NEWWT - OLDWT;
       matchvaltail = INPUT_PARAM[TAIL-1+2*nstats];
@@ -468,6 +485,7 @@ WtD_CHANGESTAT_FN(d_mix_sum){
  stat: mutual (product a.k.a. covariance)
 *****************/
 WtD_CHANGESTAT_FN(d_mutual_wt_product){
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       double htweight = GETWT(HEAD,TAIL);
       CHANGE_STAT[0] += (NEWWT*htweight) - (OLDWT*htweight);
@@ -478,6 +496,7 @@ WtD_CHANGESTAT_FN(d_mutual_wt_product){
  stat: mutual (geometric mean)
 *****************/
 WtD_CHANGESTAT_FN(d_mutual_wt_geom_mean){
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       double htweight = GETWT(HEAD,TAIL);
       CHANGE_STAT[0] += sqrt(NEWWT*htweight) - sqrt(OLDWT*htweight);
@@ -488,6 +507,7 @@ WtD_CHANGESTAT_FN(d_mutual_wt_geom_mean){
  stat: mutual (minimum)
 *****************/
 WtD_CHANGESTAT_FN(d_mutual_wt_min){
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       double htweight = GETWT(HEAD,TAIL);
       CHANGE_STAT[0] += fmin(NEWWT,htweight) - fmin(OLDWT,htweight);
@@ -499,6 +519,7 @@ WtD_CHANGESTAT_FN(d_mutual_wt_min){
  stat: mutual (-|yij-yji|)
 *****************/
 WtD_CHANGESTAT_FN(d_mutual_wt_nabsdiff){
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       double htweight = GETWT(HEAD,TAIL);
       CHANGE_STAT[0] -= fabs(NEWWT-htweight) - fabs(OLDWT-htweight);
@@ -511,6 +532,7 @@ WtD_CHANGESTAT_FN(d_mutual_wt_nabsdiff){
  stat: nodecov (nonzero)
 *****************/
 WtD_CHANGESTAT_FN(d_nodecov_nonzero){ 
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       CHANGE_STAT[0] += (INPUT_ATTRIB[TAIL-1] + INPUT_ATTRIB[HEAD-1])*((NEWWT!=0)-(OLDWT!=0));
   });
@@ -520,6 +542,7 @@ WtD_CHANGESTAT_FN(d_nodecov_nonzero){
  stat: node covar 
 *****************/
 WtD_CHANGESTAT_FN(d_nodecovar){
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       for(Vertex j=1; j<=N_NODES; j++){
 	if(j==HEAD || j==TAIL) continue;
@@ -539,6 +562,7 @@ WtD_CHANGESTAT_FN(d_nodecovar){
  stat: nodecov (sum)
 *****************/
 WtD_CHANGESTAT_FN(d_nodecov_sum){ 
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       CHANGE_STAT[0] += (INPUT_ATTRIB[TAIL-1] + INPUT_ATTRIB[HEAD-1])*(NEWWT-OLDWT);
   });
@@ -548,6 +572,7 @@ WtD_CHANGESTAT_FN(d_nodecov_sum){
  stat: nodeicov (nonzero)
 *****************/
 WtD_CHANGESTAT_FN(d_nodeicov_nonzero){ 
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       CHANGE_STAT[0] += INPUT_ATTRIB[HEAD-1]*((NEWWT!=0)-(OLDWT!=0));
   });
@@ -557,6 +582,7 @@ WtD_CHANGESTAT_FN(d_nodeicov_nonzero){
  stat: nodeicov (sum)
 *****************/
 WtD_CHANGESTAT_FN(d_nodeicov_sum){ 
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       CHANGE_STAT[0] += INPUT_ATTRIB[HEAD-1]*(NEWWT-OLDWT);
   });
@@ -566,6 +592,7 @@ WtD_CHANGESTAT_FN(d_nodeicov_sum){
  stat: nodeocov (nonzero)
 *****************/
 WtD_CHANGESTAT_FN(d_nodeocov_nonzero){ 
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       CHANGE_STAT[0] += INPUT_ATTRIB[TAIL-1]*((NEWWT!=0)-(OLDWT!=0));
   });
@@ -575,6 +602,7 @@ WtD_CHANGESTAT_FN(d_nodeocov_nonzero){
  stat: nodeocov (sum)
 *****************/
 WtD_CHANGESTAT_FN(d_nodeocov_sum){ 
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       CHANGE_STAT[0] += INPUT_ATTRIB[TAIL-1]*(NEWWT-OLDWT);
   });
@@ -588,6 +616,7 @@ WtD_CHANGESTAT_FN(d_nodefactor_nonzero){
   int j, tailattr, headattr;
   
   
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       s = (NEWWT!=0) - (OLDWT!=0);
       tailattr = INPUT_ATTRIB[TAIL-1];
@@ -608,6 +637,7 @@ WtD_CHANGESTAT_FN(d_nodefactor_sum){
   int j, tailattr, headattr;
   
   
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
     s = NEWWT - OLDWT;
     tailattr = INPUT_ATTRIB[TAIL-1];
@@ -624,6 +654,7 @@ WtD_CHANGESTAT_FN(d_nodefactor_sum){
  stat: node i[n] covar 
 *****************/
 WtD_CHANGESTAT_FN(d_nodeicovar){
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       for(Vertex i=1; i<=N_NODES; i++){
 	if(i==TAIL || i==HEAD) continue;
@@ -637,6 +668,7 @@ WtD_CHANGESTAT_FN(d_nodeicovar){
  stat: node i[n] sq[uare]r[oo]t covar[iance] 
 *****************/
 WtD_CHANGESTAT_FN(d_nodeisqrtcovar){
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       double sqrtdiff = (sqrt(NEWWT)-sqrt(OLDWT))/(N_NODES-2);
       EXEC_THROUGH_INEDGES(HEAD, e, i, yih, {
@@ -653,6 +685,7 @@ WtD_CHANGESTAT_FN(d_nodeifactor_nonzero){
   double s, factorval;
   int j, headattr;
   
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       s = (NEWWT!=0) - (OLDWT!=0);
       headattr = INPUT_ATTRIB[HEAD-1];
@@ -670,6 +703,7 @@ WtD_CHANGESTAT_FN(d_nodeifactor_sum){
   double s, factorval;
   int j, headattr;
   
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
     s = NEWWT - OLDWT;
     headattr = INPUT_ATTRIB[HEAD-1];
@@ -687,6 +721,7 @@ WtD_CHANGESTAT_FN(d_nodematch_nonzero) {
   Vertex ninputs = N_INPUT_PARAMS - N_NODES;
 
   /* *** don't forget tail -> head */    
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       double matchval = INPUT_PARAM[TAIL+ninputs-1];
       if (matchval == INPUT_PARAM[HEAD+ninputs-1]) { /* We have a match! */
@@ -710,6 +745,7 @@ WtD_CHANGESTAT_FN(d_nodematch_sum) {
   Vertex ninputs = N_INPUT_PARAMS - N_NODES;
 
   /* *** don't forget tail -> head */    
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       double matchval = INPUT_PARAM[TAIL+ninputs-1];
       if (matchval == INPUT_PARAM[HEAD+ninputs-1]) { /* We have a match! */
@@ -736,6 +772,7 @@ WtD_CHANGESTAT_FN(d_nodemix_nonzero) {
   double rtype, ctype, tmp;
 
   /* *** don't forget tail -> head */    
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       double change = (NEWWT!=0) - (OLDWT!=0);
       /*Find the node covariate values (types) for the tail and head*/
@@ -764,6 +801,7 @@ WtD_CHANGESTAT_FN(d_nodemix_sum) {
   double rtype, ctype, tmp;
 
   /* *** don't forget tail -> head */    
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       double change = NEWWT - OLDWT;
       /*Find the node covariate values (types) for the tail and head*/
@@ -786,6 +824,7 @@ WtD_CHANGESTAT_FN(d_nodemix_sum) {
  stat: node o[ut] covar 
 *****************/
 WtD_CHANGESTAT_FN(d_nodeocovar){
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       for(Vertex j=1; j<=N_NODES; j++){
 	if(j==HEAD || j==TAIL) continue;
@@ -799,6 +838,7 @@ WtD_CHANGESTAT_FN(d_nodeocovar){
  stat: node o[ut] sq[uare]r[oo]t covar 
 *****************/
 WtD_CHANGESTAT_FN(d_nodeosqrtcovar){
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       double sqrtdiff = (sqrt(NEWWT)-sqrt(OLDWT))/(N_NODES-2);
       EXEC_THROUGH_OUTEDGES(TAIL, e, j, ytj, {
@@ -816,6 +856,7 @@ WtD_CHANGESTAT_FN(d_nodeofactor_nonzero){
   int j, tailattr;
   
   
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       s = (NEWWT!=0) - (OLDWT!=0);
       tailattr = INPUT_ATTRIB[TAIL-1];
@@ -834,6 +875,7 @@ WtD_CHANGESTAT_FN(d_nodeofactor_sum){
   int j, tailattr;
   
   
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
     s = NEWWT - OLDWT;
     tailattr = INPUT_ATTRIB[TAIL-1];
@@ -866,6 +908,7 @@ WtD_CHANGESTAT_FN(d_nodesqrtcovar_centered){
     ssq*=2;
   }
 
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       double change = 0;
       double sqrtdiff = sqrt(NEWWT)-sqrt(OLDWT);
@@ -907,6 +950,7 @@ WtS_CHANGESTAT_FN(s_nodesqrtcovar_centered){
  stat: node sq[uare]r[oo]t covar[iance]
 *****************/
 WtD_CHANGESTAT_FN(d_nodesqrtcovar){
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       double change = 0;
       double sqrtdiff = sqrt(NEWWT)-sqrt(OLDWT);
@@ -927,6 +971,7 @@ WtD_CHANGESTAT_FN(d_nodesqrtcovar){
  stat: nonzero
 *****************/
 WtD_CHANGESTAT_FN(d_nonzero){
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
         CHANGE_STAT[0] += (NEWWT!=0) - (OLDWT!=0);
   });
@@ -938,6 +983,7 @@ WtD_CHANGESTAT_FN(d_nonzero){
  stat: smallerthan
 *****************/
 WtD_CHANGESTAT_FN(d_smallerthan){
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       CHANGE_STAT[0] += (NEWWT<INPUT_ATTRIB[0]) - (OLDWT<INPUT_ATTRIB[0]);
   });
@@ -947,6 +993,7 @@ WtD_CHANGESTAT_FN(d_smallerthan){
  stat: sum
 *****************/
 WtD_CHANGESTAT_FN(d_sum){
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       CHANGE_STAT[0] += NEWWT-OLDWT;
   });
@@ -958,6 +1005,7 @@ WtD_CHANGESTAT_FN(d_sum){
 WtD_CHANGESTAT_FN(d_sum_pow){
   double p = INPUT_ATTRIB[0];
   
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       CHANGE_STAT[0] += pow(NEWWT,p)-pow(OLDWT,p);
     });
@@ -973,6 +1021,7 @@ WtD_CHANGESTAT_FN(d_transitiveweights){
   CHANGE_STAT[0]=0;
   unsigned int path = INPUT_ATTRIB[0], combine = INPUT_ATTRIB[1], compare =  INPUT_ATTRIB[2];
   
+  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
       // (TAIL,HEAD) as the focus dyad
       // This means that the combined 2-path value doesn't change.
