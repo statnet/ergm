@@ -43,3 +43,6 @@ S_CHANGESTAT_FN(s_test_abs_edges_minus_5){
     CHANGE_STAT[0] = labs((long int)*(Edge *)mtp->storage-5);
   }
 }
+
+D_CHANGESTAT_FN(d_test_abs_edges_minus_5_no_s){d_test_abs_edges_minus_5(ntoggles, tails, heads, mtp, nwp);}
+U_CHANGESTAT_FN(u_test_abs_edges_minus_5_no_s){u_test_abs_edges_minus_5(ntoggles, tails, heads, mtp, nwp);}

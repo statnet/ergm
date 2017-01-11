@@ -74,8 +74,19 @@ Network *nwp, Model *m, double *stats){
     m->termarray[termi].dstats = m->workspace;
   
   /* Doing this one toggle at a time saves a lot of toggles... */
+  ModelTerm *mtp = m->termarray;
+  // Initialize the storage.
+  for (unsigned int termi=0; termi < m->n_terms; termi++, mtp++){
+    if(!mtp->s_func){
+	if(mtp->u_func)
+	  (*(mtp->u_func))(0, NULL, NULL,
+			   mtp, nwp);  /* Call u_??? function */
+    }
+  }
+
+  // Toggle the edges.
   for(Edge e=0; e<n_edges; e++){
-    ModelTerm *mtp = m->termarray;
+    mtp = m->termarray;
     double *statspos=stats;
     
     for (unsigned int termi=0; termi < m->n_terms; termi++, mtp++){
@@ -95,7 +106,7 @@ Network *nwp, Model *m, double *stats){
     ToggleEdge(tails[e],heads[e],nwp);
   }
   
-  ModelTerm *mtp = m->termarray;
+  mtp = m->termarray;
   double *dstats = m->workspace;
   double *statspos=stats;
   for (unsigned int termi=0; termi < m->n_terms; termi++, dstats+=mtp->nstats, mtp++ ){
