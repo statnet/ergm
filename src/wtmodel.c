@@ -50,6 +50,9 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
   for (l=0; l < n_terms; l++) {
       thisterm = m->termarray + l;
 
+      /* Initialize storage to NULL. */
+      thisterm->storage = NULL;
+
       /* fnames points to a single character string, consisting of the names
       of the selected options concatenated together and separated by spaces.
       This is passed by the calling R function.  These names are matched with
