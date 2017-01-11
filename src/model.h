@@ -43,5 +43,7 @@ int GetIndexForAttrValue(int value);
 
 void ChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, Network *nwp, Model *m);
 
+void UpdateStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, Network *nwp, Model *m);
+
 #endif
 

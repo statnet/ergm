@@ -1,4 +1,4 @@
-/*  File inst/include/model.h in package ergm, part of the Statnet suite
+/*  File src/model.h in package ergm, part of the Statnet suite
  *  of packages for network analysis, http://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
@@ -42,6 +42,8 @@ int GetIndexForAttrValue(int value);
 /* *** don't forget tail-> head, so this function accepts toggletail first, not togglehead  */
 
 void ChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, Network *nwp, Model *m);
+
+void UpdateStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, Network *nwp, Model *m);
 
 #endif
 

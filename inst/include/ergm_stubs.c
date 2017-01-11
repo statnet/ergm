@@ -1,12 +1,3 @@
-/*  File inst/include/ergm_stubs.c in package ergm, part of the Statnet suite
- *  of packages for network analysis, http://statnet.org .
- *
- *  This software is distributed under the GPL-3 license.  It is free,
- *  open source, and has the attribution requirements (GPL Section 7) at
- *  http://statnet.org/attribution
- *
- *  Copyright 2003-2013 Statnet Commons
- */
 #include "R_ext/Rdynload.h"
 #include "changestat.h"
 double my_choose(double n, int r){
@@ -58,6 +49,7 @@ return fun(n,r);
 #undef UNDO_PREVIOUS_DISCORD_TOGGLES
 #undef CHANGESTAT_FN
 #undef D_CHANGESTAT_FN
+#undef U_CHANGESTAT_FN
 #undef S_CHANGESTAT_FN
 #undef D_FROM_S
 #undef D_FROM_S_FN
@@ -300,6 +292,7 @@ fun(MH,theta,gain,meanstats,nphase1,nsubphases,networkstatistics,samplesize,burn
 #undef UNDO_PREVIOUS_DISCORD_TOGGLES
 #undef CHANGESTAT_FN
 #undef D_CHANGESTAT_FN
+#undef U_CHANGESTAT_FN
 #undef S_CHANGESTAT_FN
 #undef D_FROM_S
 #undef D_FROM_S_FN
@@ -313,6 +306,7 @@ fun(MH,theta,gain,meanstats,nphase1,nsubphases,networkstatistics,samplesize,burn
 #undef MH_UNRECOVERABLE
 #undef MH_IMPOSSIBLE
 #undef MH_UNSUCCESSFUL
+#undef MH_CONSTRAINT
 #undef MH_QUIT_UNSUCCESSFUL
 #undef XOR
 #undef XNOR
@@ -363,6 +357,7 @@ return fun(MHp,nwp);
 #undef MH_UNRECOVERABLE
 #undef MH_IMPOSSIBLE
 #undef MH_UNSUCCESSFUL
+#undef MH_CONSTRAINT
 #undef MH_QUIT_UNSUCCESSFUL
 #undef XOR
 #undef XNOR
@@ -388,6 +383,11 @@ return fun(value);
 void ChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, Network *nwp, Model *m){
 static void (*fun)(unsigned int,Vertex *,Vertex *,Network *,Model *) = NULL;
 if(fun==NULL) fun = (void (*)(unsigned int,Vertex *,Vertex *,Network *,Model *)) R_FindSymbol("ChangeStats", "ergm", NULL);
+fun(ntoggles,toggletail,togglehead,nwp,m);
+}
+void UpdateStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, Network *nwp, Model *m){
+static void (*fun)(unsigned int,Vertex *,Vertex *,Network *,Model *) = NULL;
+if(fun==NULL) fun = (void (*)(unsigned int,Vertex *,Vertex *,Network *,Model *)) R_FindSymbol("UpdateStats", "ergm", NULL);
 fun(ntoggles,toggletail,togglehead,nwp,m);
 }
 #undef MIN
@@ -434,6 +434,7 @@ fun(ntoggles,toggletail,togglehead,nwp,m);
 #undef UNDO_PREVIOUS_DISCORD_TOGGLES
 #undef CHANGESTAT_FN
 #undef D_CHANGESTAT_FN
+#undef U_CHANGESTAT_FN
 #undef S_CHANGESTAT_FN
 #undef D_FROM_S
 #undef D_FROM_S_FN
@@ -496,7 +497,12 @@ fun(ntoggles,toggletail,togglehead,nwp,m);
 #undef SETWT_IF_MORE_TO_COME
 #undef UNDO_PREVIOUS_SETWTS
 #undef EXEC_THROUGH_TOGGLES
+#undef SAMEDYAD
+#undef GETOLDWT
+#undef GETNEWWT
+#undef GETNEWWTOLD
 #undef WtD_CHANGESTAT_FN
+#undef WtU_CHANGESTAT_FN
 #undef WtS_CHANGESTAT_FN
 #undef D_FROM_S
 #undef WtD_FROM_S_FN
@@ -740,7 +746,12 @@ return fun(MHp,theta,statistics,nsteps,staken,fVerbose,nwp,m);
 #undef SETWT_IF_MORE_TO_COME
 #undef UNDO_PREVIOUS_SETWTS
 #undef EXEC_THROUGH_TOGGLES
+#undef SAMEDYAD
+#undef GETOLDWT
+#undef GETNEWWT
+#undef GETNEWWTOLD
 #undef WtD_CHANGESTAT_FN
+#undef WtU_CHANGESTAT_FN
 #undef WtS_CHANGESTAT_FN
 #undef D_FROM_S
 #undef WtD_FROM_S_FN
@@ -754,6 +765,7 @@ return fun(MHp,theta,statistics,nsteps,staken,fVerbose,nwp,m);
 #undef MH_UNRECOVERABLE
 #undef MH_IMPOSSIBLE
 #undef MH_UNSUCCESSFUL
+#undef MH_CONSTRAINT
 #undef MH_QUIT_UNSUCCESSFUL
 #undef XOR
 #undef XNOR
@@ -782,6 +794,7 @@ fun(MH);
 #undef MH_UNRECOVERABLE
 #undef MH_IMPOSSIBLE
 #undef MH_UNSUCCESSFUL
+#undef MH_CONSTRAINT
 #undef MH_QUIT_UNSUCCESSFUL
 #undef XOR
 #undef XNOR
@@ -800,6 +813,11 @@ fun(m);
 void WtChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, double *toggleweight, WtNetwork *nwp, WtModel *m){
 static void (*fun)(unsigned int,Vertex *,Vertex *,double *,WtNetwork *,WtModel *) = NULL;
 if(fun==NULL) fun = (void (*)(unsigned int,Vertex *,Vertex *,double *,WtNetwork *,WtModel *)) R_FindSymbol("WtChangeStats", "ergm", NULL);
+fun(ntoggles,toggletail,togglehead,toggleweight,nwp,m);
+}
+void WtUpdateStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, double *toggleweight, WtNetwork *nwp, WtModel *m){
+static void (*fun)(unsigned int,Vertex *,Vertex *,double *,WtNetwork *,WtModel *) = NULL;
+if(fun==NULL) fun = (void (*)(unsigned int,Vertex *,Vertex *,double *,WtNetwork *,WtModel *)) R_FindSymbol("WtUpdateStats", "ergm", NULL);
 fun(ntoggles,toggletail,togglehead,toggleweight,nwp,m);
 }
 #undef MIN
@@ -858,7 +876,12 @@ fun(ntoggles,toggletail,togglehead,toggleweight,nwp,m);
 #undef SETWT_IF_MORE_TO_COME
 #undef UNDO_PREVIOUS_SETWTS
 #undef EXEC_THROUGH_TOGGLES
+#undef SAMEDYAD
+#undef GETOLDWT
+#undef GETNEWWT
+#undef GETNEWWTOLD
 #undef WtD_CHANGESTAT_FN
+#undef WtU_CHANGESTAT_FN
 #undef WtS_CHANGESTAT_FN
 #undef D_FROM_S
 #undef WtD_FROM_S_FN

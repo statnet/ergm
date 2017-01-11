@@ -68,8 +68,19 @@ WtNetwork *nwp, WtModel *m, double *stats){
     m->termarray[termi].dstats = m->workspace;
   
   /* Doing this one edge at a time saves a lot of toggles... */
+  WtModelTerm *mtp = m->termarray;
+  // Initialize the storage.
+  for (unsigned int termi=0; termi < m->n_terms; termi++, mtp++){
+    if(!mtp->s_func){
+	if(mtp->u_func)
+	  (*(mtp->u_func))(0, NULL, NULL, NULL,
+			   mtp, nwp);  /* Call u_??? function */
+    }
+  }
+
+  // Toggle the edges.
   for(Edge e=0; e<n_edges; e++){
-    WtModelTerm *mtp = m->termarray;
+    mtp = m->termarray;
     double *statspos=stats;
     
     for (unsigned int termi=0; termi < m->n_terms; termi++, mtp++){
@@ -78,12 +89,17 @@ WtNetwork *nwp, WtModel *m, double *stats){
         mtp, nwp);  /* Call d_??? function */
         for (unsigned int i=0; i < mtp->nstats; i++,statspos++)
           *statspos += mtp->dstats[i];
+
+	// Also, update the storage.
+	if(mtp->u_func)
+	  (*(mtp->u_func))(1, tails+e, heads+e, weights+e,
+			   mtp, nwp);  /* Call u_??? function */
       }else statspos += mtp->nstats;
     }
     WtSetEdge(tails[e],heads[e],weights[e],nwp);
   }
   
-  WtModelTerm *mtp = m->termarray;
+  mtp = m->termarray;
   double *dstats = m->workspace;
   double *statspos=stats;
   for (unsigned int termi=0; termi < m->n_terms; termi++, dstats+=mtp->nstats, mtp++ ){

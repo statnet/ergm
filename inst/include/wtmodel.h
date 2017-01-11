@@ -1,4 +1,4 @@
-/*  File inst/include/wtmodel.h in package ergm, part of the Statnet suite
+/*  File src/wtmodel.h in package ergm, part of the Statnet suite
  *  of packages for network analysis, http://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
@@ -38,6 +38,8 @@ void WtModelDestroy(WtModel *m);
    to an array of WtModelTerm structures.  */
 
 void WtChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, double *toggleweight, WtNetwork *nwp, WtModel *m);
+
+void WtUpdateStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, double *toggleweight, WtNetwork *nwp, WtModel *m);
 
 #endif
 

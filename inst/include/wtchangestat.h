@@ -1,4 +1,4 @@
-/*  File inst/include/wtchangestat.h in package ergm, part of the Statnet suite
+/*  File src/wtchangestat.h in package ergm, part of the Statnet suite
  *  of packages for network analysis, http://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
@@ -14,6 +14,7 @@
 
 typedef struct WtModelTermstruct {
   void (*d_func)(Edge, Vertex*, Vertex*, double*, struct WtModelTermstruct*, WtNetwork*);
+  void (*u_func)(Edge, Vertex*, Vertex*, double*, struct WtModelTermstruct*, WtNetwork*);
   void (*s_func)(struct WtModelTermstruct*, WtNetwork*);
   double *attrib; /* Ptr to vector of covariates (if necessary; generally unused) */
   int nstats;   /* Number of change statistics to be returned */
@@ -21,6 +22,7 @@ typedef struct WtModelTermstruct {
   int ninputparams; /* Number of input parameters passed to function */
   double *inputparams; /* ptr to input parameters passed */
   double *statcache; /* vector of the same length as dstats */
+  void *storage; /* optional space for persistent storage */
 } WtModelTerm;
 
 
@@ -149,7 +151,7 @@ typedef struct WtModelTermstruct {
       Back up the current edge weight by swapping weight[i] with current edge weight.
    For each toggle:
       Undo the changes by swapping them back. */
-#define EXEC_THROUGH_TOGGLES(subroutine){ZERO_ALL_CHANGESTATS();FOR_EACH_TOGGLE(){ GETTOGGLEINFO(); {subroutine}; SETWT_IF_MORE_TO_COME();}; UNDO_PREVIOUS_SETWTS();}
+#define EXEC_THROUGH_TOGGLES(subroutine){FOR_EACH_TOGGLE(){ GETTOGGLEINFO(); {subroutine}; SETWT_IF_MORE_TO_COME();}; UNDO_PREVIOUS_SETWTS();}
 
 #define SAMEDYAD(a1,b1,a2,b2) (DIRECTED? a1==a2 && b1==b2 : MIN(a1,b1)==MIN(a2,b2) && MAX(a1,b1)==MAX(a2,b2))
 
@@ -162,6 +164,7 @@ typedef struct WtModelTermstruct {
 /* changestat function prototypes, 
    plus a few supporting function prototypes */
 #define WtD_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *tails, Vertex *heads, double *weights, WtModelTerm *mtp, WtNetwork *nwp)
+#define WtU_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *tails, Vertex *heads, double *weights, WtModelTerm *mtp, WtNetwork *nwp)
 #define WtS_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
 
 /* This macro wraps two calls to an s_??? function with toggles

@@ -45,6 +45,10 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
   nw[0]=WtNetworkInitialize(tails, heads, weights, nedges[0], 
 			    n_nodes, directed_flag, bip, 0, 0, NULL);
 
+  /* Trigger initial storage update */
+  WtUpdateStats(0, NULL, NULL, NULL, nw, m);
+  
+  /* Initialize the M-H proposal */
   WtMH_init(&MH,
 	    *MHproposaltype, *MHproposalpackage,
 	    inputs,
@@ -208,6 +212,9 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 
       if(mult<CDparams[1]-1){
 	/* Make proposed toggles provisionally. */
+	/* First, inform u_* functions that the network is about to change. */
+	WtUpdateStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, MHp->toggleweight, nwp, m);
+	/* Then, make the changes. */
 	for(unsigned int i=0; i < MHp->ntoggles; i++){
 	  Vertex t=MHp->toggletail[i], h=MHp->togglehead[i];
 	  double w=MHp->toggleweight[i];
@@ -261,6 +268,9 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 
       if(step<CDparams[0]-1){
 	/* Make the remaining proposed toggles (which we did not make provisionally) */
+	/* First, inform u_* functions that the network is about to change. */
+	WtUpdateStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, MHp->toggleweight, nwp, m);
+	/* Then, make the changes. */
 	for(unsigned int i=0; i < MHp->ntoggles; i++){
 	  Vertex t=MHp->toggletail[i], h=MHp->togglehead[i];
 	  double w=MHp->toggleweight[i];
@@ -294,6 +304,10 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 	Vertex t = undotail[ntoggled], h = undohead[ntoggled];
 	double w = undoweight[ntoggled];
 
+	/* FIXME: This should be done in one call, but it's very easy
+	   to make a fencepost error here. */
+	WtUpdateStats(1, &t, &h, &w, nwp, m);
+      	
 	if(MHp->discord)
 	  for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){
 	    // This could be speeded up by implementing an "incrementation" function.
@@ -310,6 +324,10 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
     Vertex t = undotail[i], h = undohead[i];
     double w = undoweight[i];
 
+    /* FIXME: This should be done in one call, but it's very easy
+       to make a fencepost error here. */
+    WtUpdateStats(1, &t, &h, &w, nwp, m);
+    
     if(MHp->discord)
       for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){
 	// This could be speeded up by implementing an "incrementation" function.

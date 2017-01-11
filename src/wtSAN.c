@@ -58,6 +58,10 @@ void WtSAN_wrapper (int *dnumnets, int *nedges,
   nw[0]=WtNetworkInitialize(tails, heads, weights, nedges[0],
 			    n_nodes, directed_flag, bip, 0, 0, NULL);
 
+  /* Trigger initial storage update */
+  WtUpdateStats(0, NULL, NULL, NULL, nw, m);
+  
+  /* Initialize the M-H proposal */
   WtMH_init(&MH,
 	    *MHproposaltype, *MHproposalpackage,
 	    inputs,
@@ -290,6 +294,9 @@ WtMCMCStatus WtSANMetropolisHastings (WtMHproposal *MHp,
 	Rprintf("Accepted.\n");
       }
 
+      /* Inform u_* functions that the network is about to change. */
+      WtUpdateStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, MHp->toggleweight, nwp, m);
+      
       /* Make proposed toggles (updating timestamps--i.e., for real this time) */
       for(unsigned int i=0; i < MHp->ntoggles; i++){
 	Vertex t=MHp->toggletail[i], h=MHp->togglehead[i];
