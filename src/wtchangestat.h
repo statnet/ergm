@@ -90,6 +90,8 @@ typedef struct WtModelTermstruct {
 #define EXEC_THROUGH_FOUTEDGES(a,e,v,w,subroutine) STEP_THROUGH_OUTEDGES_DECL(a,e,v) {Vertex v=OUTVAL(e); double w=OUTWT(e); subroutine}
 #define EXEC_THROUGH_FINEDGES(a,e,v,w,subroutine) STEP_THROUGH_INEDGES_DECL(a,e,v) {Vertex v=INVAL(e); double w=INWT(e); subroutine}
 
+/* Exectute through all edges (nonzero values) in the network. */
+#define EXEC_THROUGH_NET_EDGES(a,b,e,w,subroutine) for(Vertex a=1; a <= N_NODES; a++)  EXEC_THROUGH_FOUTEDGES(a, e, b, w, {subroutine});
 
 /* Get and set the weight of the (a,b) edge. */
 #define GETWT(a,b) (WtGetEdge(a,b,nwp))
@@ -158,6 +160,14 @@ typedef struct WtModelTermstruct {
 #define GETOLDWT(a,b) (SAMEDYAD(TAIL,HEAD,a,b)?OLDWT:GETWT(a,b))
 #define GETNEWWT(a,b) (SAMEDYAD(TAIL,HEAD,a,b)?NEWWT:GETWT(a,b))
 #define GETNEWWTOLD(a,b,old) (SAMEDYAD(TAIL,HEAD,a,b)?NEWWT:(old))
+
+#define INIT_STORAGE(type, into, initialize)				\
+  type *into;								\
+  if(!mtp->storage){							\
+    into = (type *) (mtp->storage = malloc(sizeof(type)));		\
+    {initialize};							\
+  }else into = (type *) mtp->storage;
+  
 
 
 /****************************************************/
