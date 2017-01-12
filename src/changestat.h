@@ -119,6 +119,13 @@ double my_choose(double n, int r);
 #define UNDO_PREVIOUS_TOGGLES(a) (a)--; while(--(a)>=0) TOGGLE(tails[(a)],heads[(a)])
 #define UNDO_PREVIOUS_DISCORD_TOGGLES(a) (a)--; while(--(a)>=0) {TOGGLE(tails[(a)],heads[(a)]); TOGGLE_DISCORD(tails[(a)],heads[(a)])}
 
+#define INIT_STORAGE(stored_type, store_into, initialization_code)	\
+  stored_type *store_into;						\
+  if(!mtp->storage){							\
+    store_into = (stored_type *) (mtp->storage = malloc(sizeof(stored_type))); \
+    {initialization_code};						\
+  }else store_into = (stored_type *) mtp->storage;
+
 /****************************************************/
 /* changestat function prototypes */
 

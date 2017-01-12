@@ -161,14 +161,12 @@ typedef struct WtModelTermstruct {
 #define GETNEWWT(a,b) (SAMEDYAD(TAIL,HEAD,a,b)?NEWWT:GETWT(a,b))
 #define GETNEWWTOLD(a,b,old) (SAMEDYAD(TAIL,HEAD,a,b)?NEWWT:(old))
 
-#define INIT_STORAGE(type, into, initialize)				\
-  type *into;								\
+#define INIT_STORAGE(stored_type, store_into, initialization_code)	\
+  stored_type *store_into;						\
   if(!mtp->storage){							\
-    into = (type *) (mtp->storage = malloc(sizeof(type)));		\
-    {initialize};							\
-  }else into = (type *) mtp->storage;
-  
-
+    store_into = (stored_type *) (mtp->storage = malloc(sizeof(stored_type))); \
+    {initialization_code};						\
+  }else store_into = (stored_type *) mtp->storage;
 
 /****************************************************/
 /* changestat function prototypes, 
