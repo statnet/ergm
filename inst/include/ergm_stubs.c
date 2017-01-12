@@ -47,6 +47,7 @@ return fun(n,r);
 #undef TOGGLE_DISCORD_IF_MORE_TO_COME
 #undef UNDO_PREVIOUS_TOGGLES
 #undef UNDO_PREVIOUS_DISCORD_TOGGLES
+#undef INIT_STORAGE
 #undef CHANGESTAT_FN
 #undef D_CHANGESTAT_FN
 #undef U_CHANGESTAT_FN
@@ -290,6 +291,7 @@ fun(MH,theta,gain,meanstats,nphase1,nsubphases,networkstatistics,samplesize,burn
 #undef TOGGLE_DISCORD_IF_MORE_TO_COME
 #undef UNDO_PREVIOUS_TOGGLES
 #undef UNDO_PREVIOUS_DISCORD_TOGGLES
+#undef INIT_STORAGE
 #undef CHANGESTAT_FN
 #undef D_CHANGESTAT_FN
 #undef U_CHANGESTAT_FN
@@ -432,6 +434,7 @@ fun(ntoggles,toggletail,togglehead,nwp,m);
 #undef TOGGLE_DISCORD_IF_MORE_TO_COME
 #undef UNDO_PREVIOUS_TOGGLES
 #undef UNDO_PREVIOUS_DISCORD_TOGGLES
+#undef INIT_STORAGE
 #undef CHANGESTAT_FN
 #undef D_CHANGESTAT_FN
 #undef U_CHANGESTAT_FN
@@ -468,6 +471,7 @@ fun(ntoggles,toggletail,togglehead,nwp,m);
 #undef EXEC_THROUGH_EDGES
 #undef EXEC_THROUGH_FOUTEDGES
 #undef EXEC_THROUGH_FINEDGES
+#undef EXEC_THROUGH_NET_EDGES
 #undef GETWT
 #undef SETWT
 #undef N_NODES
@@ -501,6 +505,7 @@ fun(ntoggles,toggletail,togglehead,nwp,m);
 #undef GETOLDWT
 #undef GETNEWWT
 #undef GETNEWWTOLD
+#undef INIT_STORAGE
 #undef WtD_CHANGESTAT_FN
 #undef WtU_CHANGESTAT_FN
 #undef WtS_CHANGESTAT_FN
@@ -717,6 +722,7 @@ return fun(MHp,theta,statistics,nsteps,staken,fVerbose,nwp,m);
 #undef EXEC_THROUGH_EDGES
 #undef EXEC_THROUGH_FOUTEDGES
 #undef EXEC_THROUGH_FINEDGES
+#undef EXEC_THROUGH_NET_EDGES
 #undef GETWT
 #undef SETWT
 #undef N_NODES
@@ -750,6 +756,7 @@ return fun(MHp,theta,statistics,nsteps,staken,fVerbose,nwp,m);
 #undef GETOLDWT
 #undef GETNEWWT
 #undef GETNEWWTOLD
+#undef INIT_STORAGE
 #undef WtD_CHANGESTAT_FN
 #undef WtU_CHANGESTAT_FN
 #undef WtS_CHANGESTAT_FN
@@ -847,6 +854,7 @@ fun(ntoggles,toggletail,togglehead,toggleweight,nwp,m);
 #undef EXEC_THROUGH_EDGES
 #undef EXEC_THROUGH_FOUTEDGES
 #undef EXEC_THROUGH_FINEDGES
+#undef EXEC_THROUGH_NET_EDGES
 #undef GETWT
 #undef SETWT
 #undef N_NODES
@@ -880,6 +888,7 @@ fun(ntoggles,toggletail,togglehead,toggleweight,nwp,m);
 #undef GETOLDWT
 #undef GETNEWWT
 #undef GETNEWWTOLD
+#undef INIT_STORAGE
 #undef WtD_CHANGESTAT_FN
 #undef WtU_CHANGESTAT_FN
 #undef WtS_CHANGESTAT_FN
