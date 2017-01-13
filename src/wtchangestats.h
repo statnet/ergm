@@ -13,6 +13,12 @@
 #include "wtedgetree.h"
 #include "wtchangestat.h"
 
+/********************  Utility macros    ***********/
+
+// 0 = untransformed
+// 1 = square root
+#define TRANSFORM_DYADVAL(y, transcode) (transcode==0? y : transcode==1? sqrt(y): 0)
+
 /********************  changestats:   A    ***********/
 WtD_CHANGESTAT_FN(d_atleast);
 

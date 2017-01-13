@@ -1299,13 +1299,23 @@ of the degrees of all pairs of nodes in the network which are tied.
     term may only be used with directed networks. For categorical attributes,
     see \code{nodeifactor}.}
 
-      \item{\code{nodeicovar}  (valued)  (directed) (quantitative nodal attribute)
-      }{\emph{Uncentered covariance of in-dyad values
-	incident on each actor:} This term adds one statistic equal to
-      \eqn{\sum_{i,j,k} y_{k,j}y_{k,j}}. This can be
-      viewed as a valued analog of the \code{\link[=ergm-terms]{istar(2)}}
-      statistic.
-    }
+  \item{\code{nodeicovar(center, transform)}  (valued)  (directed)}{
+    \emph{Covariance of in-dyad values
+      incident on each actor:} This term adds one statistic equal to
+    \eqn{\sum_{i,j,k} y_{j,i}y_{k,i}}. This can be
+    viewed as a valued analog of the \code{\link[=ergm-terms]{istar(2)}}
+    statistic. If \code{center=TRUE}, the \eqn{y_{\cdot,\cdot}}s are
+    centered by their mean over the whole network before the
+    calculation. Note that this makes the model non-local, but it may
+    alleviate multimodailty. If \code{transform="sqrt"},
+    \eqn{y_{\cdot,\cdot}}s are repaced by their square roots before the
+    calculation. This makes sense for counts in particular. If
+    \code{center=TRUE} as well, they are centered by the mean of the
+    square roots.
+    
+    Note that this term replaces \code{nodeisqrtcovar}, which has been
+    deprecated in favor of \code{nodeicovar(transform="sqrt")}.
+  }
 
   
     \item{\code{nodeifactor(attrname, base=1)}  (binary)  (dyad-independent)  (directed) (categorical nodal attribute) (frequently-used)
@@ -1335,15 +1345,6 @@ of the degrees of all pairs of nodes in the network which are tied.
     and \dQuote{orange} to the base (remember to sort the values first)
     by using \code{nodefactor("fruit", base=2:3)}. For an analogous term
     for quantitative vertex attributes, see \code{nodeicov}. }
-
-      \item{\code{nodeisqrtcovar}  (valued)  (directed)  (non-negative) (quantitative nodal attribute)
-      }{\emph{Uncentered covariance of square roots of in-dyad values
-	incident on each actor:} This term adds one statistic equal to \eqn{\sum_{i,j,k}
-	\sqrt{y_{i,j}}\sqrt{y_{k,j}}}. This can be
-      viewed as a valued analog of the \code{\link[=ergm-terms]{istar(2)}}
-      statistic.
-    }
-
   
     \item{\code{nodematch(attrname, diff=FALSE,
     keep=NULL)}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (categorical nodal attribute)
@@ -1403,14 +1404,23 @@ of the degrees of all pairs of nodes in the network which are tied.
     term may only be used with directed networks. For categorical attributes,
     see \code{nodeofactor}.}
 
-    \item{\code{nodeocovar}  (valued)  (directed) (quantitative nodal attribute)
-    }{\emph{Uncentered covariance of out-dyad values
-	incident on each actor:} This term adds one statistic equal to
-      \eqn{\sum_{i,j,k} y_{i,j}y_{i,k}}. This can be
-      viewed as a valued analog of the \code{\link[=ergm-terms]{ostar(2)}}
-      statistic.
-    }
-
+  \item{\code{nodeocovar(center, transform)}  (valued)  (directed)}{
+    \emph{Covariance of out-dyad values
+      incident on each actor:} This term adds one statistic equal to
+    \eqn{\sum_{i,j,k} y_{i,j}y_{i,k}}. This can be
+    viewed as a valued analog of the \code{\link[=ergm-terms]{ostar(2)}}
+    statistic. If \code{center=TRUE}, the \eqn{y_{\cdot,\cdot}}s are
+    centered by their mean over the whole network before the
+    calculation. Note that this makes the model non-local, but it may
+    alleviate multimodailty. If \code{transform="sqrt"},
+    \eqn{y_{\cdot,\cdot}}s are repaced by their square roots before the
+    calculation. This makes sense for counts in particular. If
+    \code{center=TRUE} as well, they are centered by the mean of the
+    square roots.
+    
+    Note that this term replaces \code{nodeosqrtcovar}, which has been
+    deprecated in favor of \code{nodeocovar(transform="sqrt")}.
+  }
   
     \item{\code{nodeofactor(attrname, base=1)}  (binary)  (dyad-independent)  (directed) (categorical nodal attribute)
     ,

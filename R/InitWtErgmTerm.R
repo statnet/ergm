@@ -340,37 +340,15 @@ InitWtErgmTerm.nodesqrtcovar<-function (nw, arglist, response, ...) {
 }
 
 InitWtErgmTerm.nodeosqrtcovar<-function (nw, arglist, response, ...) {
-  ### Check the network and arguments to make sure they are appropriate.
-  a <- check.ErgmTerm(nw, arglist, directed = TRUE, nonnegative=TRUE, response=response,
-                      varnames = c(),
-                      vartypes = c(),
-                      defaultvalues = list(),
-                      required = c())
-  ### Process the arguments
-
-  list(name="nodeosqrtcovar",
-       coef.names = "nodeosqrtcovar",
-       dependence = TRUE,
-       # arithmetic mean >= geometric mean
-       minval = 0
-       )
+  warning('Term nodeosqrtcovar has been deprecated in favor of nodeocovar(transform="sqrt") and may be removed in a future version.')
+  arglist$transform <- "sqrt"
+  InitWtErgmTerm.nodeocovar(nw, arglist, response, ...)
 }
 
 InitWtErgmTerm.nodeisqrtcovar<-function (nw, arglist, response, ...) {
-  ### Check the network and arguments to make sure they are appropriate.
-  a <- check.ErgmTerm(nw, arglist, directed = TRUE, nonnegative=TRUE, response=response,
-                      varnames = c(),
-                      vartypes = c(),
-                      defaultvalues = list(FALSE),
-                      required = c(FALSE))
-  ### Process the arguments
-
-  list(name="nodeisqrtcovar",
-       coef.names = "nodeisqrtcovar",
-       dependence = TRUE,
-       # arithmetic mean >= geometric mean
-       minval = 0
-       )
+  warning('Term nodeisqrtcovar has been deprecated in favor of nodeicovar(transform="sqrt") and may be removed in a future version.')
+  arglist$transform <- "sqrt"
+  InitWtErgmTerm.nodeicovar(nw, arglist, response, ...)
 }
 
 InitWtErgmTerm.nodefactor<-function (nw, arglist, response, ...) {
@@ -413,14 +391,15 @@ InitWtErgmTerm.nodefactor<-function (nw, arglist, response, ...) {
 InitWtErgmTerm.nodeocovar<-function (nw, arglist, response, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed = TRUE,
-                      varnames = NULL,
-                      vartypes = NULL,
-                      defaultvalues = NULL,
-                      required = NULL)
+                      varnames = c("center","transform"),
+                      vartypes = c("logical","character"),
+                      defaultvalues = list(FALSE,"identity"),
+                      required = c(FALSE,FALSE))
   ### Process the arguments
-
+  transcode <- match(match.arg(a$transform, c("identity","sqrt")), c("identity","sqrt"))-1  
   list(name="nodeocovar",
        coef.names = "nodeocovar",
+       inputs = c(transcode,a$center), # Transformation codes: 0 for no transformation, 1 for square root.
        dependence = TRUE
        )
 }
@@ -465,14 +444,15 @@ InitWtErgmTerm.nodeofactor<-function (nw, arglist, response, ...) {
 InitWtErgmTerm.nodeicovar<-function (nw, arglist, response, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed = TRUE,
-                      varnames = NULL,
-                      vartypes = NULL,
-                      defaultvalues = NULL,
-                      required = NULL)
+                      varnames = c("center","transform"),
+                      vartypes = c("logical","character"),
+                      defaultvalues = list(FALSE,"identity"),
+                      required = c(FALSE,FALSE))
   ### Process the arguments
-
+  transcode <- match(match.arg(a$transform, c("identity","sqrt")), c("identity","sqrt"))-1  
   list(name="nodeicovar",
        coef.names = "nodeicovar",
+       inputs = c(transcode,a$center), # Transformation codes: 0 for no transformation, 1 for square root.
        dependence = TRUE
        )
 }
