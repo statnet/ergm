@@ -539,23 +539,47 @@ WtD_CHANGESTAT_FN(d_nodecov_nonzero){
 }
 
 /*****************
- stat: node covar 
+ stat: node covar[iance] 
 *****************/
 WtD_CHANGESTAT_FN(d_nodecovar){
+  unsigned int transcode = INPUT_ATTRIB[0], center = INPUT_ATTRIB[1];
+  double sum = center?*(double *)mtp->storage : 0;
+  
   ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
-      for(Vertex j=1; j<=N_NODES; j++){
-	if(j==HEAD || j==TAIL) continue;
-	double ytj = GETWT(TAIL,j);
-	CHANGE_STAT[0] += (NEWWT*ytj) - (OLDWT*ytj);
-      }
-
-      for(Vertex i=1; i<=N_NODES; i++){
-	if(i==TAIL || i==HEAD) continue;
-	double yih = GETWT(i,HEAD);
-	CHANGE_STAT[0] += (NEWWT*yih) - (OLDWT*yih);
+      double diff = TRANSFORM_DYADVAL(NEWWT,transcode)-TRANSFORM_DYADVAL(OLDWT,transcode);
+      double new_sum = center? sum + diff : 0;
+      diff /= (N_NODES-2);
+      EXEC_THROUGH_EDGES(TAIL, e, i, yti, {
+	  if(i!=HEAD)
+	    CHANGE_STAT[0] += diff*TRANSFORM_DYADVAL(yti,transcode);
+	});
+      EXEC_THROUGH_EDGES(HEAD, e, i, yih, {
+	  if(i!=TAIL)
+	    CHANGE_STAT[0] += diff*TRANSFORM_DYADVAL(yih,transcode);
+	});
+      if(center){
+	CHANGE_STAT[0] += (sum*sum-new_sum*new_sum)/N_DYADS;
+	sum = new_sum;
       }
     });
+}
+
+WtU_CHANGESTAT_FN(u_nodecovar){
+  unsigned int transcode = INPUT_ATTRIB[0], center = INPUT_ATTRIB[1];
+  if(center){
+    INIT_STORAGE(double, sum, {
+	*sum = 0;
+	EXEC_THROUGH_NET_EDGES(tail, e1, head, y, {
+	    *sum+=TRANSFORM_DYADVAL(y, transcode);
+	    head=head; e1=e1; // Prevent a compiler warning.
+	  });
+      });
+    
+    EXEC_THROUGH_TOGGLES({
+	*sum += TRANSFORM_DYADVAL(NEWWT,transcode)-TRANSFORM_DYADVAL(OLDWT,transcode);
+      });
+  }
 }
 
 /*****************

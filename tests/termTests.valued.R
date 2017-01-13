@@ -225,7 +225,11 @@ for(o1 in c(FALSE, TRUE)){
   }
 }
 
-# TODO: nodecovar
+# nodecovar
+tst(sum(apply(undm, 1, function(r) (sum(na.omit(r)%o%na.omit(r))-sum(na.omit(r)^2))/2/(length(na.omit(r))-1))), undnw ~ nodecovar(FALSE))
+tst(sum(apply(sqrt(undpm), 1, function(r) (sum(na.omit(r)%o%na.omit(r))-sum(na.omit(r)^2))/2/(length(na.omit(r))-1))), undpnw ~ nodecovar(FALSE, "sqrt"))
+tst(sum(apply(undm-mean(na.omit(c(undm))), 1, function(r) (sum(na.omit(r)%o%na.omit(r))-sum(na.omit(r)^2))/2/(length(na.omit(r))-1))), undnw ~ nodecovar(TRUE))
+tst(sum(apply(sqrt(undpm)-mean(na.omit(c(sqrt(undpm)))), 1, function(r) (sum(na.omit(r)%o%na.omit(r))-sum(na.omit(r)^2))/2/(length(na.omit(r))-1))), undpnw ~ nodecovar(TRUE, "sqrt"))
 
 # smallerthan
 for(v in dirvt) tst(sum(dirm < v,na.rm=TRUE), dirnw ~ smallerthan(v))
@@ -300,9 +304,6 @@ for(base in list(0, 1, 2, 1:2, 3)){
   tst(sapply(sort(unique(f))[keep], function(x) sum((f==x)*dirm,na.rm=TRUE)), dirnw ~ nodeofactor("f", base=base))
   tst(sapply(sort(unique(f))[keep], function(x) sum((f==x)*(dirm!=0),na.rm=TRUE)), dirnw ~ nodeofactor("f", base=base, form="nonzero"))
 }
-
-# TODO: nodesqrtcovar
-tst(sum(sapply(1:nrow(dirm),function(i) {r <- c(sqrt(dirm)[i,-i],sqrt(dirm)[-i,i]); (sum(na.omit(r)%o%na.omit(r))-sum(na.omit(r)^2))/(length(na.omit(r))-1)})), dirnw ~ nodesqrtcovar(FALSE))
 
 # sum
 tst(sum(dirm,na.rm=TRUE), dirnw ~ sum)

@@ -1249,7 +1249,26 @@ of the degrees of all pairs of nodes in the network which are tied.
     directed networks, \code{nodecov} equals \code{nodeicov} plus
     \code{nodeocov}.}
 
+
+    \item{\code{nodecovar(center, transform)}  (valued)  (directed)}{
+    \emph{Covariance of undirected dyad values
+      incident on each actor:} This term adds one statistic equal to
+    \eqn{\sum_{i,j<k} y_{i,j}y_{i,k}/(n-2)}. This can be
+    viewed as a valued analog of the \code{\link[=ergm-terms]{star(2)}}
+    statistic. If \code{center=TRUE}, the \eqn{y_{\cdot,\cdot}}s are
+    centered by their mean over the whole network before the
+    calculation. Note that this makes the model non-local, but it may
+    alleviate multimodailty. If \code{transform="sqrt"},
+    \eqn{y_{\cdot,\cdot}}s are repaced by their square roots before the
+    calculation. This makes sense for counts in particular. If
+    \code{center=TRUE} as well, they are centered by the mean of the
+    square roots.
     
+    Note that this term replaces \code{nodesqrtcovar}, which has been
+    deprecated in favor of \code{nodecovar(transform="sqrt")}.
+  }
+
+  
     \item{\code{nodecovar}  (valued)  (directed)  (undirected) (quantitative nodal attribute)
     }{\emph{Uncentered covariance of dyad values
 	incident on each actor:} This term adds one statistic equal to
@@ -1302,7 +1321,7 @@ of the degrees of all pairs of nodes in the network which are tied.
   \item{\code{nodeicovar(center, transform)}  (valued)  (directed)}{
     \emph{Covariance of in-dyad values
       incident on each actor:} This term adds one statistic equal to
-    \eqn{\sum_{i,j,k} y_{j,i}y_{k,i}}. This can be
+    \eqn{\sum_{i,j,k} y_{j,i}y_{k,i}/(n-2)}. This can be
     viewed as a valued analog of the \code{\link[=ergm-terms]{istar(2)}}
     statistic. If \code{center=TRUE}, the \eqn{y_{\cdot,\cdot}}s are
     centered by their mean over the whole network before the
@@ -1407,7 +1426,7 @@ of the degrees of all pairs of nodes in the network which are tied.
   \item{\code{nodeocovar(center, transform)}  (valued)  (directed)}{
     \emph{Covariance of out-dyad values
       incident on each actor:} This term adds one statistic equal to
-    \eqn{\sum_{i,j,k} y_{i,j}y_{i,k}}. This can be
+    \eqn{\sum_{i,j,k} y_{i,j}y_{i,k}/(n-2)}. This can be
     viewed as a valued analog of the \code{\link[=ergm-terms]{ostar(2)}}
     statistic. If \code{center=TRUE}, the \eqn{y_{\cdot,\cdot}}s are
     centered by their mean over the whole network before the
@@ -1457,21 +1476,6 @@ of the degrees of all pairs of nodes in the network which are tied.
       viewed as a valued analog of the \code{\link[=ergm-terms]{ostar(2)}}
       statistic.
     }
-
-    \item{\code{nodesqrtcovar(center=TRUE)}  (valued)  (non-negative)  (directed)  (undirected) (quantitative nodal attribute)
-    }{\emph{Covariance of square roots of dyad values
-	incident on each actor:} This term adds one statistic equal to
-      \eqn{\sum_{i,j,k}
-	(\sqrt{y_{i,j}}\sqrt{y_{i,k}}+\sqrt{y_{k,j}}\sqrt{y_{k,j}})} if
-      \code{center=FALSE}. This can be
-      viewed as a valued analog of the \code{\link[=ergm-terms]{kstar(2)}}
-      statistic. If \code{center=FALSE} (the default), the statistic is
-	instead \eqn{\sum_{i,j,k}
-	((\sqrt{y_{i,j}}-\bar{\sqrt{y}})(\sqrt{y_{i,k}}-\bar{\sqrt{y}})+(\sqrt{y_{k,j}}-\bar{\sqrt{y}})(\sqrt{y_{k,j}}-\bar{\sqrt{y}}))},
-	where \eqn{\bar{\sqrt{y}}} is the mean of the square root of
-	dyad values.
-    }
-
   
     \item{\code{nsp(d)}  (binary)  (directed)  (undirected)}{\emph{Nonedgewise shared partners:} This is
     just like the \code{dsp} and \code{esp} terms, except this term adds

@@ -304,38 +304,17 @@ InitWtErgmTerm.sum<-function(nw, arglist, response, ...) {
 
 InitWtErgmTerm.nodecovar<-function (nw, arglist, response, ...) {
   ### Check the network and arguments to make sure they are appropriate.
-  a <- check.ErgmTerm(nw, arglist, bipartite = FALSE,
-                      varnames = NULL,
-                      vartypes = NULL,
-                      defaultvalues = NULL,
-                      required = NULL)
+  a <- check.ErgmTerm(nw, arglist, directed = FALSE,
+                      varnames = c("center","transform"),
+                      vartypes = c("logical","character"),
+                      defaultvalues = list(FALSE,"identity"),
+                      required = c(FALSE,FALSE))
   ### Process the arguments
-
+  transcode <- match(match.arg(a$transform, c("identity","sqrt")), c("identity","sqrt"))-1  
   list(name="nodecovar",
        coef.names = "nodecovar",
+       inputs = c(transcode,a$center), # Transformation codes: 0 for no transformation, 1 for square root.
        dependence = TRUE
-       )
-}
-
-InitWtErgmTerm.nodesqrtcovar<-function (nw, arglist, response, ...) {
-  ### Check the network and arguments to make sure they are appropriate.
-  a <- check.ErgmTerm(nw, arglist, bipartite = FALSE, nonnegative=TRUE, response=response,
-                      varnames = c("center"),
-                      vartypes = c("logical"),
-                      defaultvalues = list(TRUE),
-                      required = c(TRUE))
-  ### Process the arguments
-
-  name <- "nodesqrtcovar"
-
-  if(a$center) name <- paste(name,"centered",sep="_")
-
-  coef.name <- gsub("_",".",name)
-  
-  list(name=name,
-       coef.names = coef.name,
-       dependence = TRUE,
-       minval = if(a$center) NULL else 0
        )
 }
 
@@ -350,6 +329,13 @@ InitWtErgmTerm.nodeisqrtcovar<-function (nw, arglist, response, ...) {
   arglist$transform <- "sqrt"
   InitWtErgmTerm.nodeicovar(nw, arglist, response, ...)
 }
+
+InitWtErgmTerm.nodesqrtcovar<-function (nw, arglist, response, ...) {
+  warning('Term nodesqrtcovar has been deprecated in favor of nodecovar(transform="sqrt") and may be removed in a future version.')
+  arglist$transform <- "sqrt"
+  InitWtErgmTerm.nodecovar(nw, arglist, response, ...)
+}
+
 
 InitWtErgmTerm.nodefactor<-function (nw, arglist, response, ...) {
   ### Check the network and arguments to make sure they are appropriate.
