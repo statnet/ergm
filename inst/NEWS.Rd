@@ -14,16 +14,87 @@
 % When a release is forked, copy the sections to a new release and
 % delete unused sections.
 
+\section{Changes in version 4.0.0}{
 
-\section{Changes in version 3.6.1}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item{
+	Curved ERGMs are no longer "second class citizens". It is now
+	possible to obtain their MPLE, pass curved parameters via
+	\code{coef=} and \code{init=} arguments, etc.. 
+      }
 
-  %% \subsection{NEW FEATURES}{
-  %%   \itemize{
-  %%     \item{
-  %%     }
-  %%   }
-  %% }
+      \item{
+	A mechanism for specifying \dQuote{observational constraints}
+	has been added, allowing more complex observation processes than
+	just missing data to be estimated.
+
+	Currently, this can be used for estimating arbitrary ERGMs on
+	networks whose edges have been randomly flipped with known
+	probabilities (say, to preserve privacy). (See Karwa, Krivitsky,
+	and Slavcovic (2016).)
+      }
+
+      \item{
+	By default, \code{\link{gof}} now checks goodness-of-fit
+	with respect to the estimated model in addition to the specified
+	terms. This can be used to diagnose convergence.
+      }
+
+      
+    }
+  }
    
+  
+   \subsection{BUG FIXES}{
+     \itemize{
+       
+       \item{A large number of bugs in bridge sampling has been fixed.}
+
+       \item{Miscellaneous fixes to the documentation and robustifications.}
+
+     }
+   }
+
+  
+   \subsection{OTHER USER-VISIBLE CHANGES}{
+     \itemize{
+       \code{\link{enformulate.curved}} family of functions has been deprecated.
+     }
+   }
+
+  \subsection{C-LEVEL FACILITIES}{
+    \itemize{
+      The user term API now allows the C implementation to store
+      information about the network between calls to the \code{d_*}
+      function, by implementing a \code{u_*} function that initializes
+      the storage space and is called to update the stored information
+      before every toggle.
+    }
+  }
+
+  % \subsection{UTILITIES}{
+  %   \itemize{
+  %     \item Likewise, "UTILITIES" is probably unnecessary.
+  %   }
+  % }
+
+  % \subsection{INSTALLATION}{
+  %   \itemize{
+  %     \item ... as is "INSTALLATION".
+  %   }
+  % }
+
+  % \subsection{PACKAGE INSTALLATION}{
+  %   \itemize{
+  %     \item ditto.
+  %   }
+  % }
+
+}
+
+
+\section{Changes in version 3.6.1}{   
   
    \subsection{BUG FIXES}{
      \itemize{
@@ -44,36 +115,6 @@
 
      }
    }
-
-  
-   %% \subsection{OTHER USER-VISIBLE CHANGES}{
-   %%   \itemize{
-   %%   }
-   %% }
-
-  % \subsection{C-LEVEL FACILITIES}{
-  %   \itemize{
-  %   }
-  % }
-
-  % \subsection{UTILITIES}{
-  %   \itemize{
-  %     \item Likewise, "UTILITIES" is probably unnecessary.
-  %   }
-  % }
-
-  % \subsection{INSTALLATION}{
-  %   \itemize{
-  %     \item ... as is "INSTALLATION".
-  %   }
-  % }
-
-  % \subsection{PACKAGE INSTALLATION}{
-  %   \itemize{
-  %     \item ditto.
-  %   }
-  % }
-
 }
 
 
