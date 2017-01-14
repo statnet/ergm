@@ -213,7 +213,8 @@ InitErgmTerm.dgwesp<-function(nw, arglist, initialfit=FALSE, ...) {
     }
     params<-list(gwesp=NULL,gwesp.alpha=alpha)
     names(params)<-c(basenam,paste(basenam,"alpha",sep="."))
-    list(name=dname, coef.names=paste("esp#",d,sep=""), 
+    list(name=dname,
+         coef.names=if(is.directed(nw)) paste("esp.",type,"#",d,sep="") else paste("esp#",d,sep=""), 
          inputs=c(typecode,d), params=params, map=map, gradient=gradient)
   }else{
     dname<-"dgwesp"
