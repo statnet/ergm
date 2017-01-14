@@ -164,6 +164,7 @@ fix.curved.formula <- function(object, theta, response=NULL, ...){
 enformulate.curved <- function(object, ...) UseMethod("enformulate.curved")
 
 enformulate.curved.ergm <- function(object,...){
+  .Deprecated(msg="enformulate.curved() family of functions has been obviated by native handling of curved ERGM terms.")
   fix.curved.formula(object$formula, coef(object), response=object$response, ...)
 }
 

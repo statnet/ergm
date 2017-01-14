@@ -11,9 +11,12 @@
 \alias{enformulate.curved.formula}
 \alias{enformulate.curved.ergm}
 \alias{enformulate.curved}
+\alias{enformulate.curved.formula-deprecated}
+\alias{enformulate.curved.ergm-deprecated}
+\alias{enformulate.curved-deprecated}
 \title{
 Convert a curved ERGM into a form suitable as initial values for the
-same ergm.
+same ergm. Deprecated in 4.0.0.
 }
 \description{
 The generic \code{enformulate.curved} converts an \code{\link{ergm}} object or
@@ -61,18 +64,18 @@ vector. This is the form required by \code{\link{ergm}} calls.
 }
 \examples{
 \donttest{
-data(sampson)
-gest<-ergm(samplike~edges+gwesp(alpha=.5, fixed=FALSE), 
-    control=control.ergm(MCMLE.maxit=1))
-# Error:
-gest2<-try(ergm(gest$formula, control=control.ergm(init=coef(gest), MCMLE.maxit=2)))
-print(gest2)
+%% data(sampson)
+%% gest<-ergm(samplike~edges+gwesp(alpha=.5, fixed=FALSE), 
+%%     control=control.ergm(MCMLE.maxit=1))
+%% # Error:
+%% gest2<-try(ergm(gest$formula, control=control.ergm(init=coef(gest), MCMLE.maxit=2)))
+%% print(gest2)
 
-# Works:
-tmp<-enformulate.curved(gest)
-tmp
-gest2<-try(ergm(tmp$formula, control=control.ergm(init=tmp$theta, MCMLE.maxit=2)))
-summary(gest2)
+%% # Works:
+%% tmp<-enformulate.curved(gest)
+%% tmp
+%% gest2<-try(ergm(tmp$formula, control=control.ergm(init=tmp$theta, MCMLE.maxit=2)))
+%% summary(gest2)
 }
 }
 \keyword{ model }
