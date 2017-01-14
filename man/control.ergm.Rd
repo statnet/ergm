@@ -184,8 +184,7 @@ control.ergm(drop=TRUE,
       }
     }
     Passing \code{control.ergm(init=coef(prev.fit))} can be used to ``resume''
-    an uncoverged \code{\link{ergm}} run, but see
-    \code{\link{enformulate.curved}}.
+    an uncoverged \code{\link{ergm}} run.
   }
   \item{init.method}{A chatacter vector or \code{NULL}. The default
              method depends on the reference measure used. For the
