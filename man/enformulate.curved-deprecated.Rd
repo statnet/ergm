@@ -7,10 +7,7 @@
 %
 %  Copyright 2003-2017 Statnet Commons
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\name{enformulate.curved}
-\alias{enformulate.curved.formula}
-\alias{enformulate.curved.ergm}
-\alias{enformulate.curved}
+\name{enformulate.curved-deprecated}
 \alias{enformulate.curved.formula-deprecated}
 \alias{enformulate.curved.ergm-deprecated}
 \alias{enformulate.curved-deprecated}

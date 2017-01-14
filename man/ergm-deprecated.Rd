@@ -1,5 +1,5 @@
-\name{ergm_deprecated}
-\alias{ergm_deprecated}
+\name{ergm-deprecated}
+\alias{ergm-deprecated}
 \alias{delete.isolates}
 \alias{central.network}
 \alias{largest.components}
@@ -22,6 +22,9 @@
 \alias{mvmodel.formula}
 \alias{ergm.mahalanobis}
 \alias{robust.inverse}
+\alias{enformulate.curved}
+\alias{enformulate.curved.ergm}
+\alias{enformulate.curved.formula}
 
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
@@ -53,5 +56,8 @@ Functions that have been superceed, were never documented, or will be removed fr
 \item{mvmodel.formula}
 \item{ergm.mahalanobis}
 \item{robust.inverse}
+\item{enformulate.curved}
+\item{enformulate.curved.ergm}
+\item{enformulate.curved.formula}
 }
 }
