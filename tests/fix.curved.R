@@ -9,5 +9,6 @@
 #######################################################################
 library(ergm)
 data(sampson)
-gest<-ergm(samplike~edges+gwidegree(), 
-    control=control.ergm(MCMLE.maxit=1, init=c(-0.91624080, 2.19474452, 0.09277566)),eval.loglik=FALSE, verbose=TRUE)
+out<-fix.curved(samplike~edges+gwnsp(alpha=.5,fixed=TRUE)+gwesp(alpha=.5,fixed=FALSE)+gwodegree(decay=.5,fixed=FALSE)+edges,c(1:7))
+stopifnot(out$formula==(samplike ~ edges + gwnsp(alpha = 0.5, fixed = TRUE) + gwesp(alpha = 4L, fixed = TRUE) + gwodegree(decay = 6L, fixed = TRUE) + edges),
+          all(out$theta==c(1,2,3,5,7)))
