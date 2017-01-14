@@ -319,23 +319,25 @@ InitWtErgmTerm.nodecovar<-function (nw, arglist, response, ...) {
 }
 
 InitWtErgmTerm.nodeosqrtcovar<-function (nw, arglist, response, ...) {
-  warning('Term nodeosqrtcovar has been deprecated in favor of nodeocovar(transform="sqrt") and may be removed in a future version.')
+  .Deprecated('nodeocovar(transform="sqrt")',
+            old = "nodeosqrtcovar")
   arglist$transform <- "sqrt"
   InitWtErgmTerm.nodeocovar(nw, arglist, response, ...)
 }
 
 InitWtErgmTerm.nodeisqrtcovar<-function (nw, arglist, response, ...) {
-  warning('Term nodeisqrtcovar has been deprecated in favor of nodeicovar(transform="sqrt") and may be removed in a future version.')
+  .Deprecated('nodeicovar(transform="sqrt")',
+            old = "nodeisqrtcovar")
   arglist$transform <- "sqrt"
   InitWtErgmTerm.nodeicovar(nw, arglist, response, ...)
 }
 
 InitWtErgmTerm.nodesqrtcovar<-function (nw, arglist, response, ...) {
-  warning('Term nodesqrtcovar has been deprecated in favor of nodecovar(transform="sqrt") and may be removed in a future version.')
+  .Deprecated('nodecovar(transform="sqrt")',
+            old = "nodesqrtcovar")
   arglist$transform <- "sqrt"
   InitWtErgmTerm.nodecovar(nw, arglist, response, ...)
 }
-
 
 InitWtErgmTerm.nodefactor<-function (nw, arglist, response, ...) {
   ### Check the network and arguments to make sure they are appropriate.
