@@ -1525,7 +1525,7 @@ InitErgmTerm.gwdegree<-function(nw, arglist, initialfit=FALSE, ...) {
                       varnames = c("decay", "fixed", "attrname","cutoff"),
                       vartypes = c("numeric", "logical", "character", "numeric"),
                       defaultvalues = list(0, FALSE, NULL, 30),
-                      required = c(TRUE, FALSE, FALSE, FALSE))
+                      required = c(FALSE, FALSE, FALSE, FALSE))
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   cutoff<-a$cutoff
 # d <- 1:(network.size(nw)-1)
@@ -1673,7 +1673,7 @@ InitErgmTerm.gwidegree<-function(nw, arglist, initialfit=FALSE, ...) {
                       varnames = c("decay", "fixed", "attrname","cutoff"),
                       vartypes = c("numeric", "logical", "character","numeric"),
                       defaultvalues = list(0, FALSE, NULL, 30),
-                      required = c(TRUE, FALSE, FALSE, FALSE))
+                      required = c(FALSE, FALSE, FALSE, FALSE))
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   cutoff<-a$cutoff
 # d <- 1:(network.size(nw)-1)
@@ -1776,7 +1776,7 @@ InitErgmTerm.gwodegree<-function(nw, arglist, initialfit=FALSE, ...) {
                       varnames = c("decay", "fixed", "attrname","cutoff"),
                       vartypes = c("numeric", "logical", "character","numeric"),
                       defaultvalues = list(0, FALSE, NULL, 30),
-                      required = c(TRUE, FALSE, FALSE, FALSE))
+                      required = c(FALSE, FALSE, FALSE, FALSE))
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   cutoff<-a$cutoff
 # d <- 1:(network.size(nw)-1)
