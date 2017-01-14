@@ -73,39 +73,48 @@ ergm.logitreg <- function(x, y, wt = rep(1, length(y)),
   if(is.factor(y)) y <- (unclass(y) != 1)
   start[is.na(start)]<-0
 
-  f <-
-    if(is.null(m)) ergm.logisticdeviance
-    else function(theta.no, X, y, w, offset, etamap, etagrad){
-      theta <- start
-      theta[!m$etamap$offsettheta] <- theta.no
-      ergm.logisticdeviance(theta, X, y, w, offset, etamap, etagrad)
-    }
-  df <-
-    if(is.null(m)) function(theta, X, y, w, offset, etamap, etagrad){
-      eta <- .multiply.with.inf(X,etamap(theta))+offset; p <- plogis(eta)
-      -2 * matrix(w *dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% X %*% t(etagrad(theta))
-    }else function(theta.no, X, y, w, offset, etamap, etagrad){
-      theta <- start
-      theta[!m$etamap$offsettheta] <- theta.no    
-      eta <- .multiply.with.inf(X,etamap(theta))+offset; p <- plogis(eta)
-      -2 * matrix(w *dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% X %*% t(etagrad(theta))[,!m$etamap$offsettheta]
+
+  loglikelihoodfn.trust <-
+    if(is.null(m)){
+      function(theta, X, y, w, offset, etamap, etagrad){
+        eta <- as.vector(.multiply.with.inf(X,etamap(theta))+offset)
+        p <- plogis(eta)
+        list(value = sum(w * ifelse(y, log(p), log1p(-p))),
+             gradient = as.vector(matrix(w *dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% X %*% t(etagrad(theta))),
+             hessian = -etagrad(theta) %*% crossprod(X*w*p*(1-p), X) %*% t(etagrad(theta)))
+      }
+    }else{
+      function(theta.no, X, y, w, offset, etamap, etagrad){
+        theta <- start
+        theta[!m$etamap$offsettheta] <- theta.no
+        
+        eta <- as.vector(.multiply.with.inf(X,etamap(theta))+offset)
+        p <- plogis(eta)
+        list(
+          value = sum(w * ifelse(y, log(p), log1p(-p))),
+          gradient = as.vector((matrix(w *dlogis(eta) * ifelse(y, 1/p, -1/(1-p)), 1) %*% X %*% t(etagrad(theta)))[,!m$etamap$offsettheta]),
+          hessian = -(etagrad(theta) %*% crossprod(X*w*p*(1-p), X) %*% t(etagrad(theta)))[!m$etamap$offsettheta,!m$etamap$offsettheta]
+        )
+      }
     }
 
   init <- if(!is.null(m)) start[!m$etamap$offsettheta] else start
-  fit <- optim(init, f, df,
-               X = x, y = y, w = wt, offset=offset, etamap=etamap, etagrad=etagrad,
-               method = "BFGS", hessian=TRUE, control=list(maxit=maxit), ...)
-  fit$coef <- fit$par
+  fit <- trust(objfun=loglikelihoodfn.trust, parinit=init,
+               rinit=1, 
+               rmax=100, 
+               parscale=rep(1,length(init)), iterlim=maxit, minimize=FALSE,
+               X = x, y = y, w = wt, offset=offset, etamap=etamap, etagrad=etagrad)
+  fit$coef <- fit$argument
   names(fit$coef) <- dn[if(!is.null(m)) !m$etamap$offsettheta else TRUE]
-  fit$deviance <- fit$value
-  fit$iter <- fit$counts[1]
-  asycov <- ginv(fit$hessian/2)
+  fit$deviance <- -2*fit$value
+  fit$iter <- fit$iterations
+  asycov <- ginv(-fit$hessian)
   fit$cov.unscaled <- asycov
 # cat("\nCoefficients:\n"); print(fit$par)
 # # R: use fit$value and fit$convergence
 # cat("\nResidual Deviance:", format(fit$value), "\n")
-  if(fit$convergence > 0)
-      cat("\nConvergence code:", fit$convergence, "\n")
+  if(!fit$converged)
+      cat("Trust region algorithm did not converge.\n")
   invisible(fit)
 }
 

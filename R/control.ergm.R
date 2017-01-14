@@ -127,7 +127,7 @@ control.ergm<-function(drop=TRUE,
                        MPLE.max.dyad.types=1e+6, 
                        MPLE.samplesize=50000,                       
                        MPLE.type=c("glm", "penalized","logitreg"),
-                       MPLE.maxit=1000,
+                       MPLE.maxit=10000,
                       
                        MCMC.prop.weights="default", MCMC.prop.args=list(),
                        MCMC.interval=1024,
