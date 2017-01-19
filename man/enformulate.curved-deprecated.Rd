@@ -59,8 +59,8 @@ vector. This is the form required by \code{\link{ergm}} calls.
 \seealso{
   \code{\link{ergm}},   \code{\link{simulate.ergm}}
 }
-\examples{
-\donttest{
+%% \examples{
+%% \donttest{
 %% data(sampson)
 %% gest<-ergm(samplike~edges+gwesp(alpha=.5, fixed=FALSE), 
 %%     control=control.ergm(MCMLE.maxit=1))
@@ -73,6 +73,6 @@ vector. This is the form required by \code{\link{ergm}} calls.
 %% tmp
 %% gest2<-try(ergm(tmp$formula, control=control.ergm(init=tmp$theta, MCMLE.maxit=2)))
 %% summary(gest2)
-}
-}
+%% }
+%% }
 \keyword{ model }
