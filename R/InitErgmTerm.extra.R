@@ -4,11 +4,11 @@
 
 InitErgmTerm.concurrentties<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE,bipartite=NULL,
-                      varnames = c("byarg"),
+                      varnames = c("by"),
                       vartypes = c("character"),
                       defaultvalues = list(NULL),
                       required = c(FALSE))
-  byarg <- a$byarg
+  byarg <- a$by
   if(!is.null(byarg)) {
     nodecov <- get.node.attr(nw, byarg, "concurrentties")
     u<-sort(unique(nodecov))
