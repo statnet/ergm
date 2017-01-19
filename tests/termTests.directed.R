@@ -111,7 +111,7 @@ if (!all(s.0==c(9, 6, 4, 3)) || round(e.0$coef + c(-0.1431, 1.0986, 1.1451, 0.22
 
 # gwidegree, directed
 num.tests=num.tests + 1
-s.d <- summary(samplike~gwidegree(.3))
+s.d <- summary(samplike~gwidegree())
 e.d <- ergm(samplike~gwidegree(.4, fixed=TRUE), estimate="MPLE")
 s.df <- summary(samplike~gwidegree(.3, fixed=TRUE))
 e.df <- ergm(samplike~gwidegree(.2, fixed=TRUE), estimate="MPLE")
@@ -133,7 +133,7 @@ if (!all(head(s.d)==c(0,3,5,1,3,2)) ||
 
 # gwodegree, directed
 num.tests=num.tests + 1
-s.d <- summary(samplike~gwodegree(.3))
+s.d <- summary(samplike~gwodegree())
 e.d <- ergm(samplike~gwodegree(.4, fixed=TRUE), estimate="MPLE")
 s.df <- summary(samplike~gwodegree(.3, fixed=TRUE))
 e.df <- ergm(samplike~gwodegree(.2, fixed=TRUE), estimate="MPLE")

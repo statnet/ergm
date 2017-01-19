@@ -177,11 +177,11 @@ InitErgmTerm.desp<-function(nw, arglist, ...) {
 #always used (since it is directedness-safe), and the user's input is
 #overridden.  UTP cannot be chosen otherwise, since it won't work.
 #
-InitErgmTerm.dgwesp<-function(nw, arglist, initialfit=FALSE, ...) {
+InitErgmTerm.dgwesp<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("alpha","fixed","cutoff","type"),
                       vartypes = c("numeric","logical","numeric","character"),
-                      defaultvalues = list(0, FALSE, 30,"OTP"),
+                      defaultvalues = list(NULL, FALSE, 30,"OTP"),
                       required = c(FALSE, FALSE, FALSE, FALSE))
   alpha<-a$alpha;fixed<-a$fixed
   cutoff<-a$cutoff
@@ -197,7 +197,9 @@ InitErgmTerm.dgwesp<-function(nw, arglist, initialfit=FALSE, ...) {
     typecode<-which(type==type.vec)
     basenam<-paste("gwesp",type,sep=".")
   }
-  if(!initialfit && !fixed){ # This is a curved exponential family model
+  if(!fixed){ # This is a curved exponential family model
+    if(!is.null(a$alpha)) warning("In term 'dgwesp': decay parameter 'alpha' passed with 'fixed=FALSE'. 'alpha' will be ignored. To specify an initial value for 'alpha', use the 'init' control parameter.", call.=FALSE)
+
     maxesp <- min(cutoff,network.size(nw)-2)
     d <- 1:maxesp
     ld<-length(d)
@@ -217,16 +219,14 @@ InitErgmTerm.dgwesp<-function(nw, arglist, initialfit=FALSE, ...) {
          coef.names=if(is.directed(nw)) paste("esp.",type,"#",d,sep="") else paste("esp#",d,sep=""), 
          inputs=c(typecode,d), params=params, map=map, gradient=gradient)
   }else{
+    if(is.null(a$alpha)) stop("Term 'dgwesp' with 'fixed=TRUE' requires a decay parameter 'alpha'.", call.=FALSE)
+
     dname<-"dgwesp"
     maxesp <- min(cutoff,network.size(nw)-2)
-    if (initialfit && !fixed){  # First pass to get MPLE coefficient
-      coef.names <- basenam
-    }else{ # fixed == TRUE
-      if(is.directed(nw))
-        coef.names <- paste(paste("gwesp",type,"fixed.",sep="."),alpha, sep="")
-      else
-        coef.names <- paste("gwesp.fixed.",alpha,sep="")
-    }
+    if(is.directed(nw))
+      coef.names <- paste(paste("gwesp",type,"fixed.",sep="."),alpha, sep="")
+    else
+      coef.names <- paste("gwesp.fixed.",alpha,sep="")
     list(name=dname, coef.names=coef.names, inputs=c(alpha,typecode,maxesp))
   }
 }
@@ -281,14 +281,14 @@ InitErgmTerm.ddsp<-function(nw, arglist, ...) {
 
 
 ################################################################################
-InitErgmTerm.dgwdsp<-function(nw, arglist, initialfit=FALSE, ...) {
+InitErgmTerm.dgwdsp<-function(nw, arglist, ...) {
   # the following line was commented out in <InitErgm.gwdsp>:
   #    ergm.checkdirected("gwdsp", is.directed(nw), requirement=FALSE)
   # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("alpha","fixed","cutoff","type"),
                       vartypes = c("numeric","logical","numeric","character"),
-                      defaultvalues = list(0, FALSE, 30,"OTP"),
+                      defaultvalues = list(NULL, FALSE, 30,"OTP"),
                       required = c(FALSE, FALSE, FALSE, FALSE))
   alpha<-a$alpha;fixed<-a$fixed
   cutoff<-a$cutoff
@@ -307,7 +307,9 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, initialfit=FALSE, ...) {
     basenam<-paste("gwdsp",type,sep=".")
   }
   
-  if(!initialfit && !fixed){ # This is a curved exponential family model
+  if(!fixed){ # This is a curved exponential family model
+    if(!is.null(a$alpha)) warning("In term 'dgwdsp': decay parameter 'alpha' passed with 'fixed=FALSE'. 'alpha' will be ignored. To specify an initial value for 'alpha', use the 'init' control parameter.", call.=FALSE)
+
     #   d <- 1:(network.size(nw)-1)
     maxesp <- min(cutoff,network.size(nw)-2)
     d <- 1:maxesp
@@ -331,16 +333,14 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, initialfit=FALSE, ...) {
          inputs=c(typecode,d), params=params,
          map=map, gradient=gradient)
   }else{
+    if(is.null(a$alpha)) stop("Term 'dgwdsp' with 'fixed=TRUE' requires a decay parameter 'alpha'.", call.=FALSE)
+
     dname<-"dgwdsp"
     maxesp <- min(cutoff,network.size(nw)-2)
-    if (initialfit && !fixed)  # First pass to get MPLE coefficient
-      coef.names <- basenam
-    else { # fixed == TRUE
-      if (is.directed(nw)) 
-        coef.names <- paste("gwdsp",type,"fixed",alpha,sep=".")
-      else
-        coef.names <- paste("gwdsp.fixed",alpha,sep=".")
-    }
+    if (is.directed(nw)) 
+      coef.names <- paste("gwdsp",type,"fixed",alpha,sep=".")
+    else
+      coef.names <- paste("gwdsp.fixed",alpha,sep=".")
     
     list(name=dname, coef.names=coef.names, inputs=c(alpha,typecode,maxesp))
   }
@@ -394,14 +394,14 @@ InitErgmTerm.dnsp<-function(nw, arglist, ...) {
 
 
 ################################################################################
-InitErgmTerm.dgwnsp<-function(nw, arglist, initialfit=FALSE, ...) {
+InitErgmTerm.dgwnsp<-function(nw, arglist, ...) {
   # the following line was commented out in <InitErgm.gwnsp>:
   #    ergm.checkdirected("gwnsp", is.directed(nw), requirement=FALSE)
   # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("alpha","fixed","cutoff","type"),
                       vartypes = c("numeric","logical","numeric","character"),
-                      defaultvalues = list(0, FALSE, 30,"OTP"),
+                      defaultvalues = list(NULL, FALSE, 30,"OTP"),
                       required = c(FALSE, FALSE, FALSE, FALSE))
   alpha<-a$alpha;fixed<-a$fixed
   cutoff<-a$cutoff
@@ -420,7 +420,9 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, initialfit=FALSE, ...) {
     basenam<-paste("gwnsp",type,sep=".")
   }
   
-  if(!initialfit && !fixed){ # This is a curved exponential family model
+  if(!fixed){ # This is a curved exponential family model
+    if(!is.null(a$alpha)) warning("In term 'dgwnsp': decay parameter 'alpha' passed with 'fixed=FALSE'. 'alpha' will be ignored. To specify an initial value for 'alpha', use the 'init' control parameter.", call.=FALSE)
+
     #   d <- 1:(network.size(nw)-1)
     maxesp <- min(cutoff,network.size(nw)-2)
     d <- 1:maxesp
@@ -445,16 +447,14 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, initialfit=FALSE, ...) {
          inputs=c(typecode,d), params=params,
          map=map, gradient=gradient)
   }else{
+    if(is.null(a$alpha)) stop("Term 'dgwnsp' with 'fixed=TRUE' requires a decay parameter 'alpha'.", call.=FALSE)
+
     dname<-"dgwnsp"
     maxesp <- min(cutoff,network.size(nw)-2)
-    if (initialfit && !fixed)  # First pass to get MPLE coefficient
-      coef.names <- basenam
-    else { # fixed == TRUE
-      if (is.directed(nw)) 
-        coef.names <- paste("gwnsp",type,"fixed",alpha,sep=".")
-      else
-        coef.names <- paste("gwnsp.fixed",alpha,sep=".")
-    }
+    if (is.directed(nw)) 
+      coef.names <- paste("gwnsp",type,"fixed",alpha,sep=".")
+    else
+      coef.names <- paste("gwnsp.fixed",alpha,sep=".")
     
     list(name=dname, coef.names=coef.names, inputs=c(alpha,typecode,maxesp))
   }

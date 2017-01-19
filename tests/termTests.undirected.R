@@ -34,9 +34,9 @@ num.tests=0
 #altkstar, undirected, 
 num.tests=num.tests+1
 s.0 <- summary(fmh~altkstar)
-e.0 <- ergm(fmh~altkstar(fixed=TRUE), estimate="MPLE")
+e.0 <- ergm(fmh~altkstar(1, fixed=TRUE), estimate="MPLE")
 e.l <- ergm(fmh~altkstar(.5, fixed=TRUE), estimate="MPLE")
-s.f <- summary(fmh~altkstar(fixed=TRUE))
+s.f <- summary(fmh~altkstar(1, fixed=TRUE))
 e.lf <- ergm(fmh~altkstar(.9, fixed=TRUE), estimate="MPLE")
 if (!all(s.0[1:10]==c(51,30,28,18,10,2,4,1,2,1)) ||
     round(e.0$coef+ 3.234, 3) !=0 ||
@@ -167,7 +167,7 @@ if (round(s.0-795.7458,3) != 0 || round(e.0$coef + 1.1398, 3) != 0) {
 
 # gwdegree, undirected
 num.tests=num.tests+1
-s.d <- summary(fmh~gwdegree(.3))
+s.d <- summary(fmh~gwdegree())
 e.d <- ergm(fmh~gwdegree(.4, fixed=TRUE), estimate="MPLE")
 s.df <- summary(fmh~gwdegree(.3, fixed=TRUE))
 e.df <- ergm(fmh~gwdegree(.2, fixed=TRUE), estimate="MPLE")

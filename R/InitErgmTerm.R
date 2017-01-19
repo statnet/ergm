@@ -189,15 +189,16 @@ InitErgmTerm.absdiffcat <- function(nw, arglist, ...) {
 
 
 ################################################################################
-InitErgmTerm.altkstar <- function(nw, arglist, initialfit=FALSE, ...) {
+InitErgmTerm.altkstar <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=NULL,
                       varnames = c("lambda","fixed"),
                       vartypes = c("numeric","logical"),
-                      defaultvalues = list(1,FALSE),
+                      defaultvalues = list(NULL,FALSE),
                       required = c(FALSE,FALSE))
   ### Process the arguments
-  if(!initialfit && !a$fixed){ # This is a curved exponential family model
+  if(!a$fixed){ # This is a curved exponential family model
+    if(!is.null(a$lambda)) warning("In term 'altkstar': decay parameter 'lambda' passed with 'fixed=FALSE'. 'lambda' will be ignored. To specify an initial value for 'lambda', use the 'init' control parameter.", call.=FALSE)
     d <- 1:(network.size(nw)-1)
     map <- function(x,n,...) {
       i <- 1:n
@@ -215,11 +216,8 @@ InitErgmTerm.altkstar <- function(nw, arglist, initialfit=FALSE, ...) {
        params=list(altkstar=NULL, altkstar.lambda=a$lambda)
        )
   } else {
-    if (initialfit) { # coef.names must match "altkstar" from params list above
-      coef.names = "altkstar"
-    } else { # Not necessary to match; provide more informative label
-      coef.names = paste("altkstar", a$lambda, sep=".")
-    }
+    if(is.null(a$lambda)) stop("Term 'altkstar' with 'fixed=TRUE' requires a decay parameter 'lambda'.", call.=FALSE)
+    coef.names = paste("altkstar", a$lambda, sep=".")
     outlist <- list (name="altkstar",                      #name: required
                      coef.names = coef.names,
                      inputs=a$lambda
@@ -1393,25 +1391,25 @@ InitErgmTerm.esp<-function(nw, arglist, ...) {
 #=======================InitErgmTerm functions:  G============================#
 
 ################################################################################
-InitErgmTerm.gwb1degree<-function(nw, arglist, initialfit=FALSE, ...) {
-  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-  # default for 'fixed' should be made 'FALSE' when the function can handle it!                    
+InitErgmTerm.gwb1degree<-function(nw, arglist,  ...) {
+  a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,                     
                       varnames = c("decay", "fixed", "attrname","cutoff"),
                       vartypes = c("numeric", "logical", "character","numeric"),
-                      defaultvalues = list(0, TRUE, NULL, 30),
-                      required = c(TRUE, FALSE, FALSE, FALSE))
-  decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
+                      defaultvalues = list(NULL, FALSE, NULL, 30),
+                      required = c(FALSE, FALSE, FALSE, FALSE))
+  decay<-a$decay; attrname<-a$attrname;fixed<-a$fixed
   cutoff<-a$cutoff
   nb1 <- get.network.attribute(nw,"bipartite")
 # d <- 1:(network.size(nw) - nb1)
   maxesp <- min(cutoff, network.size(nw)-nb1)
 
   d <- 1:maxesp
-  if (!initialfit && !fixed) { # This is a curved exp fam
-#    if (!is.null(attrname)) {
-      stop("The gwb1degree term is not yet able to handle a ",
-           "non-fixed decay term.", call.=FALSE) # with an attribute.")
-#    }
+  if (!is.null(attrname) && !fixed) {
+      stop("The gwb1degree term cannot yet handle a nonfixed decay ",
+           "term with an attribute. Use fixed=TRUE.", call.=FALSE)
+  }
+  if(!fixed){# This is a curved exponential family model
+    if(!is.null(a$decay)) warning("In term 'gwb1degree': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
     ld<-length(d)
     if(ld==0){return(NULL)}
     map <- function(x,n,...) {
@@ -1427,8 +1425,10 @@ InitErgmTerm.gwb1degree<-function(nw, arglist, initialfit=FALSE, ...) {
     }
     list(name="b1degree", coef.names=paste("gwb1degree#",d,sep=""),
          inputs=c(d), params=list(gwb1degree=NULL,gwb1degree.decay=decay),
-         map=map, gradient=gradient)
+         map=map, gradient=gradient, conflicts.constraints="b1degreedist")
   } else {
+    if(is.null(a$decay)) stop("Term 'gwb1degree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
+
     if(!is.null(attrname)) {
       nodecov <- get.node.attr(nw, attrname, "gwb1degree")
       u<-sort(unique(nodecov))
@@ -1447,34 +1447,33 @@ InitErgmTerm.gwb1degree<-function(nw, arglist, initialfit=FALSE, ...) {
       inputs <- c(decay, nodecov)
     }else{
       name <- "gwb1degree"
-      coef.names <- paste("gwb1deg",decay,sep="")
+      coef.names <- paste("gwb1deg.fixed.",decay,sep="")
       inputs <- c(decay)
     }
-    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE)
+    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, conflicts.constraints="b1degreedist")
   }
 }
 
 
 
 ################################################################################
-InitErgmTerm.gwb2degree<-function(nw, arglist, initialfit=FALSE, ...) {
+InitErgmTerm.gwb2degree<-function(nw, arglist,  ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-  # default for 'fixed' should be made 'FALSE' when the function can handle it!                    
                       varnames = c("decay", "fixed", "attrname","cutoff"),
                       vartypes = c("numeric", "logical", "character", "numeric"),
-                      defaultvalues = list(0, TRUE, NULL, 30),
-                      required = c(TRUE, FALSE, FALSE, FALSE))
-  decay<-a$decay; fixed<-a$fixed; attrname<-a$attrname
+                      defaultvalues = list(NULL, FALSE, NULL, 30),
+                      required = c(FALSE, FALSE, FALSE, FALSE))
+  decay<-a$decay; attrname<-a$attrname;fixed<-a$fixed
   cutoff<-a$cutoff
   nb1 <- get.network.attribute(nw,"bipartite")
 # d <- 1:nb1
   maxesp <- min(cutoff,nb1)
   d <- 1:maxesp
-  if (!initialfit && !fixed) { # This is a curved exp fam
-#    if (!is.null(attrname)) {
-      stop("The gwb2degree term is not yet able to handle a ",
-           "non-fixed decay term.", call.=FALSE) # with an attribute.")
-#    }
+  if (!is.null(attrname) && !fixed) {
+      stop("The gwb2degree term cannot yet handle a nonfixed decay ",
+           "term with an attribute. Use fixed=TRUE.", call.=FALSE) }
+  if(!fixed){# This is a curved exponential family model
+    if(!is.null(a$decay)) warning("In term 'gwb2degree': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
     ld<-length(d)
     if(ld==0){return(NULL)}
     map <- function(x,n,...) {
@@ -1490,8 +1489,10 @@ InitErgmTerm.gwb2degree<-function(nw, arglist, initialfit=FALSE, ...) {
     }
     list(name="b2degree", coef.names=paste("gwb2degree#",d,sep=""),
          inputs=c(d), params=list(gwb2degree=NULL,gwb2degree.decay=decay),
-         map=map, gradient=gradient)
+         map=map, gradient=gradient, conflicts.constraints="b2degreedist")
   } else { 
+    if(is.null(a$decay)) stop("Term 'gwb2degree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
+
     if(!is.null(attrname)) {
       nodecov <- get.node.attr(nw, attrname, "gwb2degree")
       u<-sort(unique(nodecov))
@@ -1510,33 +1511,33 @@ InitErgmTerm.gwb2degree<-function(nw, arglist, initialfit=FALSE, ...) {
       inputs <- c(decay, nodecov)
     }else{
       name <- "gwb2degree"
-      coef.names <- paste("gwb2deg",decay,sep="")
+      coef.names <- paste("gwb2deg.fixed.",decay,sep="")
       inputs <- c(decay)
     }
-    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE)
+    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, conflicts.constraints="b2degreedist")
   }
 }
 
 
 
 ################################################################################
-InitErgmTerm.gwdegree<-function(nw, arglist, initialfit=FALSE, ...) {
+InitErgmTerm.gwdegree<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE,
                       varnames = c("decay", "fixed", "attrname","cutoff"),
                       vartypes = c("numeric", "logical", "character", "numeric"),
-                      defaultvalues = list(0, FALSE, NULL, 30),
+                      defaultvalues = list(NULL, FALSE, NULL, 30),
                       required = c(FALSE, FALSE, FALSE, FALSE))
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   cutoff<-a$cutoff
 # d <- 1:(network.size(nw)-1)
    maxesp <- min(cutoff,network.size(nw)-1)
   d <- 1:maxesp
-  if (!is.null(attrname) && !fixed && !initialfit) {
-    warning("The gwdegree term cannot yet handle a nonfixed decay ",
-            "term with an attribute.  Switching to fixed=TRUE.", call.=FALSE)
-    fixed <- TRUE
+  if (!is.null(attrname) && !fixed) {
+    stop("The gwdegree term cannot yet handle a nonfixed decay ",
+            "term with an attribute. Use fixed=TRUE.", call.=FALSE)
   }
-  if(!initialfit && !fixed){ # This is a curved exponential family model
+  if(!fixed){ # This is a curved exponential family model
+    if(!is.null(a$decay)) warning("In term 'gwdegree': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
     ld<-length(d)
     if(ld==0){return(NULL)}
     map <- function(x,n,...) {
@@ -1553,6 +1554,8 @@ InitErgmTerm.gwdegree<-function(nw, arglist, initialfit=FALSE, ...) {
          inputs=c(d), params=list(gwdegree=NULL,gwdegree.decay=decay),
          map=map, gradient=gradient, conflicts.constraints="degreedist")
   } else {
+    if(is.null(a$decay)) stop("Term 'gwdegree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
+
     if(!is.null(attrname)) {
       nodecov <- get.node.attr(nw, attrname, "gwdegree")
       u<-sort(unique(nodecov))
@@ -1568,31 +1571,31 @@ InitErgmTerm.gwdegree<-function(nw, arglist, initialfit=FALSE, ...) {
       name <- "gwdegree_by_attr"
       coef.names <- paste("gwdeg", decay, ".", attrname, u, sep="")
       inputs <- c(decay, nodecov)
-      list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE)
     }else{
       name <- "gwdegree"
-      coef.names <- "gwdegree"
+      coef.names <- paste("gwdeg.fixed.",decay,sep="")
       inputs <- c(decay)
-      list(name=name, coef.names=coef.names, inputs=inputs, conflicts.constraints="degreedist")
     }
+    list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE, conflicts.constraints="degreedist")
   }
 }
 
 
 
 ################################################################################
-InitErgmTerm.gwdsp<-function(nw, arglist, initialfit=FALSE, ...) {
+InitErgmTerm.gwdsp<-function(nw, arglist, ...) {
 # the following line was commented out in <InitErgm.gwdsp>:  
 #   ergm.checkdirected("gwdsp", is.directed(nw), requirement=FALSE)
 # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("alpha","fixed","cutoff"),
                       vartypes = c("numeric","logical","numeric"),
-                      defaultvalues = list(0, FALSE, 30),
+                      defaultvalues = list(NULL, FALSE, 30),
                       required = c(FALSE, FALSE, FALSE))
   alpha<-a$alpha;fixed<-a$fixed
   cutoff<-a$cutoff
-  if(!initialfit && !fixed){ # This is a curved exponential family model
+  if(!fixed){ # This is a curved exponential family model
+    if(!is.null(a$alpha)) warning("In term 'gwdsp': decay parameter 'alpha' passed with 'fixed=FALSE'. 'alpha' will be ignored. To specify an initial value for 'alpha', use the 'init' control parameter.", call.=FALSE)
 #   d <- 1:(network.size(nw)-1)
     maxesp <- min(cutoff,network.size(nw)-2)
     d <- 1:maxesp
@@ -1612,7 +1615,9 @@ InitErgmTerm.gwdsp<-function(nw, arglist, initialfit=FALSE, ...) {
          inputs=c(d), params=list(gwdsp=NULL,gwdsp.alpha=alpha),
          map=map, gradient=gradient)
   }else{
-    if (initialfit && !fixed) # First pass to get MPLE coefficient
+    if(is.null(a$alpha)) stop("Term 'gwdsp' with 'fixed=TRUE' requires a decay parameter 'alpha'.", call.=FALSE)
+
+    if (!fixed) # First pass to get MPLE coefficient
       coef.names <- "gwdsp"   # must match params$gwdsp above
     else  # fixed == TRUE
       coef.names <- paste("gwdsp.fixed.",alpha,sep="")
@@ -1624,20 +1629,22 @@ InitErgmTerm.gwdsp<-function(nw, arglist, initialfit=FALSE, ...) {
 
 
 ################################################################################
-InitErgmTerm.gwesp<-function(nw, arglist, initialfit=FALSE, ...) {
+InitErgmTerm.gwesp<-function(nw, arglist, ...) {
 # the following line was commented out in <InitErgm.gwesp>:
 #   ergm.checkdirected("gwesp", is.directed(nw), requirement=FALSE)
 # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("alpha","fixed","cutoff"),
                       vartypes = c("numeric","logical","numeric"),
-                      defaultvalues = list(0, FALSE, 30),
+                      defaultvalues = list(NULL, FALSE, 30),
                       required = c(FALSE, FALSE, FALSE))
   alpha<-a$alpha;fixed<-a$fixed
   cutoff<-a$cutoff
   alpha=alpha[1] # Not sure why anyone would enter a vector here, but...
-  if(!initialfit && !fixed){ # This is a curved exponential family model
-#   d <- 1:(network.size(nw)-2)
+  if(!fixed){ # This is a curved exponential family model
+    if(!is.null(a$alpha)) warning("In term 'gwesp': decay parameter 'alpha' passed with 'fixed=FALSE'. 'alpha' will be ignored. To specify an initial value for 'alpha', use the 'init' control parameter.", call.=FALSE)
+
+    #   d <- 1:(network.size(nw)-2)
      maxesp <- min(cutoff,network.size(nw)-2)
     d <- 1:maxesp
     ld<-length(d)
@@ -1656,10 +1663,9 @@ InitErgmTerm.gwesp<-function(nw, arglist, initialfit=FALSE, ...) {
          inputs=c(d), params=list(gwesp=NULL,gwesp.alpha=alpha),
          map=map, gradient=gradient)
   }else{
-    if (initialfit && !fixed)  # First pass to get MPLE coefficient
-      coef.names <- "gwesp"
-    else # fixed == TRUE
-      coef.names <- paste("gwesp.fixed.",alpha,sep="")
+    if(is.null(a$alpha)) stop("Term 'gwesp' with 'fixed=TRUE' requires a decay parameter 'alpha'.", call.=FALSE)
+
+    coef.names <- paste("gwesp.fixed.",alpha,sep="")
     if(is.directed(nw)){dname <- "gwtesp"}else{dname <- "gwesp"}
     list(name=dname, coef.names=coef.names, inputs=c(alpha))
   }
@@ -1668,23 +1674,24 @@ InitErgmTerm.gwesp<-function(nw, arglist, initialfit=FALSE, ...) {
 
 
 ################################################################################
-InitErgmTerm.gwidegree<-function(nw, arglist, initialfit=FALSE, ...) {
+InitErgmTerm.gwidegree<-function(nw, arglist,  ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = c("decay", "fixed", "attrname","cutoff"),
                       vartypes = c("numeric", "logical", "character","numeric"),
-                      defaultvalues = list(0, FALSE, NULL, 30),
+                      defaultvalues = list(NULL, FALSE, NULL, 30),
                       required = c(FALSE, FALSE, FALSE, FALSE))
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   cutoff<-a$cutoff
 # d <- 1:(network.size(nw)-1)
   maxesp <- min(cutoff,network.size(nw)-1)
   d <- 1:maxesp
-  if (!is.null(attrname) && !fixed && !initialfit) {
-    warning("The gwidegree term cannot yet handle a nonfixed decay ",
-            "term with an attribute.  Switching to fixed=TRUE.", call.=FALSE)
-    fixed <- TRUE
+  if (!is.null(attrname) && !fixed ) {
+    stop("The gwidegree term cannot yet handle a nonfixed decay ",
+            "term with an attribute. Use fixed=TRUE.", call.=FALSE)
+    
   }
-  if(!initialfit && !fixed){ # This is a curved exponential family model
+  if(!fixed){ # This is a curved exponential family model
+    if(!is.null(a$decay)) warning("In term 'gwidegree': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
     ld<-length(d)
     if(ld==0){return(NULL)}
     map <- function(x,n,...) {
@@ -1701,6 +1708,8 @@ InitErgmTerm.gwidegree<-function(nw, arglist, initialfit=FALSE, ...) {
          inputs=c(d), params=list(gwidegree=NULL,gwidegree.decay=decay),
          map=map, gradient=gradient, conflicts.constraints="idegreedist")
   } else { 
+    if(is.null(a$decay)) stop("Term 'gwidegree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
+
     if(!is.null(attrname)) {
       nodecov <- get.node.attr(nw, attrname, "gwidegree")
       u<-sort(unique(nodecov))
@@ -1716,31 +1725,32 @@ InitErgmTerm.gwidegree<-function(nw, arglist, initialfit=FALSE, ...) {
       name <- "gwidegree_by_attr"
       coef.names <- paste("gwideg", decay, ".", attrname, u, sep="")
       inputs <- c(decay, nodecov)
-      list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE)
     }else{
       name <- "gwidegree"
-      coef.names <- "gwidegree"
+      coef.names <- paste("gwideg.fixed.",decay,sep="")
       inputs <- c(decay)
-      list(name=name, coef.names=coef.names, inputs=inputs, conflicts.constraints="idegreedist")
     }
+    list(name=name, coef.names=coef.names, inputs=inputs, conflicts.constraints="idegreedist")
   }
 }
 
 
 ################################################################################
-InitErgmTerm.gwnsp<-function(nw, arglist, initialfit=FALSE, ...) {
+InitErgmTerm.gwnsp<-function(nw, arglist, ...) {
 # the following line was commented out in <InitErgm.gwnsp>:
 #    ergm.checkdirected("gwnsp", is.directed(nw), requirement=FALSE)
 # so, I've not passed 'directed=FALSE' to <check.ErgmTerm>  
   a <- check.ErgmTerm(nw, arglist,
                       varnames = c("alpha","fixed","cutoff"),
                       vartypes = c("numeric","logical","numeric"),
-                      defaultvalues = list(0, FALSE, 30),
+                      defaultvalues = list(NULL, FALSE, 30),
                       required = c(FALSE, FALSE, FALSE))
   alpha<-a$alpha;fixed<-a$fixed
   cutoff<-a$cutoff
   alpha=alpha[1] # Not sure why anyone would enter a vector here, but...
-  if(!initialfit && !fixed){ # This is a curved exponential family model
+  if(!fixed){ # This is a curved exponential family model
+    if(!is.null(a$alpha)) warning("In term 'gwnsp': decay parameter 'alpha' passed with 'fixed=FALSE'. 'alpha' will be ignored. To specify an initial value for 'alpha', use the 'init' control parameter.", call.=FALSE)
+
 #   d <- 1:(network.size(nw)-1)
      maxesp <- min(cutoff,network.size(nw)-2)
     d <- 1:maxesp
@@ -1760,10 +1770,9 @@ InitErgmTerm.gwnsp<-function(nw, arglist, initialfit=FALSE, ...) {
          inputs=c(d), params=list(gwnsp=NULL,gwnsp.alpha=alpha),
          map=map, gradient=gradient)
   }else{
-    if (initialfit && !fixed)  # First pass to get MPLE coefficient
-      coef.names <- "gwnsp"
-    else # fixed == TRUE
-      coef.names <- paste("gwnsp.fixed.",alpha,sep="")
+    if(is.null(a$alpha)) stop("Term 'gwnsp' with 'fixed=TRUE' requires a decay parameter 'alpha'.", call.=FALSE)
+
+    coef.names <- paste("gwnsp.fixed.",alpha,sep="")
     if(is.directed(nw)){dname <- "gwtnsp"}else{dname <- "gwnsp"}
     list(name=dname, coef.names=coef.names, inputs=c(alpha))    
   }
@@ -1771,23 +1780,24 @@ InitErgmTerm.gwnsp<-function(nw, arglist, initialfit=FALSE, ...) {
 
 
 ################################################################################
-InitErgmTerm.gwodegree<-function(nw, arglist, initialfit=FALSE, ...) {
+InitErgmTerm.gwodegree<-function(nw, arglist,  ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
                       varnames = c("decay", "fixed", "attrname","cutoff"),
                       vartypes = c("numeric", "logical", "character","numeric"),
-                      defaultvalues = list(0, FALSE, NULL, 30),
+                      defaultvalues = list(NULL, FALSE, NULL, 30),
                       required = c(FALSE, FALSE, FALSE, FALSE))
   decay<-a$decay; attrname<-a$attrname; fixed<-a$fixed  
   cutoff<-a$cutoff
 # d <- 1:(network.size(nw)-1)
    maxesp <- min(cutoff,network.size(nw)-1)
   d <- 1:maxesp
-  if (!is.null(attrname) && !fixed && !initialfit) {
-    warning("The gwodegree term cannot yet handle a nonfixed decay ",
-            "term with an attribute.  Switching to fixed=TRUE.", call.=FALSE)
-    fixed <- TRUE
+  if (!is.null(attrname) && !fixed ) {
+    stop("The gwodegree term cannot yet handle a nonfixed decay ",
+            "term with an attribute. Use fixed=TRUE.", call.=FALSE)
+    
   }
-  if(!initialfit && !fixed){ # This is a curved exponential family model
+  if(!fixed){ # This is a curved exponential family model
+    if(!is.null(a$decay)) warning("In term 'gwodegree': decay parameter 'decay' passed with 'fixed=FALSE'. 'decay' will be ignored. To specify an initial value for 'decay', use the 'init' control parameter.", call.=FALSE)
     ld<-length(d)
     if(ld==0){return(NULL)}
     map <- function(x,n,...) {
@@ -1804,6 +1814,8 @@ InitErgmTerm.gwodegree<-function(nw, arglist, initialfit=FALSE, ...) {
          inputs=c(d), params=list(gwodegree=NULL,gwodegree.decay=decay),
          map=map, gradient=gradient, conflicts.constraints="odegreedist")
   } else {
+    if(is.null(a$decay)) stop("Term 'gwodegree' with 'fixed=TRUE' requires a decay parameter 'decay'.", call.=FALSE)
+
     if(!is.null(attrname)) {
       nodecov <- get.node.attr(nw, attrname, "gwodegree")
       u<-sort(unique(nodecov))
@@ -1819,13 +1831,12 @@ InitErgmTerm.gwodegree<-function(nw, arglist, initialfit=FALSE, ...) {
       name <- "gwodegree_by_attr"
       coef.names <- paste("gwodeg", decay, ".", attrname, u, sep="")
       inputs <- c(decay, nodecov)
-      list(name=name, coef.names=coef.names, inputs=inputs, dependence=TRUE)
     }else{
       name <- "gwodegree"
-      coef.names <- "gwodegree"
+      coef.names <- paste("gwodeg.fixed.",decay,sep="")
       inputs <- c(decay)
-      list(name=name, coef.names=coef.names, inputs=inputs, conflicts.constraints="odegreedist")
     }
+    list(name=name, coef.names=coef.names, inputs=inputs, conflicts.constraints="odegreedist")
   }
 }
 
