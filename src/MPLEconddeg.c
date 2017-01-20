@@ -56,7 +56,10 @@ void MPLEconddeg_wrapper(int *dnumnets, int *nedges,
   /* Form the missing network */
   nw[0]=NetworkInitialize(tails, heads, nedges[0], 
                           n_nodes, directed_flag, bip, 0, 0, NULL);
- 
+
+  /* Trigger initial storage update */
+  UpdateStats(0, NULL, NULL, nw, m);
+  
   MH_init(&MH,
 	  *MHproposaltype, *MHproposalpackage,
 	  inputs,
