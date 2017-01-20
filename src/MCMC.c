@@ -24,9 +24,8 @@
 *****************/
 void MCMC_wrapper(int *dnumnets, int *nedges,
 		  int *tails, int *heads,
-		  int *dn, int *dflag, int *bipartite, 
-		  int *nterms, char **funnames,
-		  char **sonames, 
+		  int *dn, int *dflag, int *bipartite,
+		  int *nterms, char **funnames, char **sonames,
 		  char **MHproposaltype, char **MHproposalpackage,
 		  double *inputs, double *theta0, int *samplesize, 
 		  double *sample, int *burnin, int *interval,  
@@ -54,10 +53,10 @@ void MCMC_wrapper(int *dnumnets, int *nedges,
   directed_flag = *dflag;
 
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
-
+  
   /* Form the network */
   nw[0]=NetworkInitialize(tails, heads, nedges[0], 
-                          n_nodes, directed_flag, bip, 0, 0, NULL);
+                          n_nodes, directed_flag, bip, 0, 0, NULL, m->n_shared_storage);
 
   /* Trigger initial storage update */
   UpdateStats(0, NULL, NULL, nw, m);
@@ -343,7 +342,7 @@ void MCMCPhase12 (int *tails, int *heads, int *dnedges,
 
   /* Form the missing network */
   nw[0]=NetworkInitialize(tails, heads, n_edges,
-                          n_nodes, directed_flag, bip, 0, 0, NULL);
+                          n_nodes, directed_flag, bip, 0, 0, NULL, m->n_shared_storage);
 
 
   MH_init(&MH,

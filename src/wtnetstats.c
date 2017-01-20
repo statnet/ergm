@@ -39,7 +39,7 @@ void wt_network_stats_wrapper(int *tails, int *heads, double *weights, int *timi
 
   m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
   nw[0]=WtNetworkInitialize(NULL, NULL, NULL, 0,
-			    n_nodes, directed_flag, bip, *timings?1:0, *timings?*time:0, *timings?lasttoggle:NULL);
+			    n_nodes, directed_flag, bip, *timings?1:0, *timings?*time:0, *timings?lasttoggle:NULL, m->n_shared_storage);
 
   /* Compute the change statistics and copy them to stats for return
      to R.  Note that stats already has the statistics of an empty

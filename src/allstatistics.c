@@ -57,10 +57,10 @@ void AllStatistics (
 
   /* Step 1:  Initialize empty network and initialize model */
   GetRNGstate(); /* Necessary for R random number generator */
-  nw=NetworkInitialize(tails, heads, *dnedges,
-		       n_nodes, directed_flag, bip, 0, 0, NULL);
-  nwp = &nw;
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
+  nw=NetworkInitialize(tails, heads, *dnedges,
+		       n_nodes, directed_flag, bip, 0, 0, NULL, m->n_shared_storage);
+  nwp = &nw;
   
   /* Step 2:  Build nodelist1 and nodelist2, which together give all of the
   dyads in the network. */

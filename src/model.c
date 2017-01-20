@@ -47,18 +47,21 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
   m->termarray = (ModelTerm *) malloc(sizeof(ModelTerm) * n_terms);
   m->dstatarray = (double **) malloc(sizeof(double *) * n_terms);
   m->n_stats = 0;
+  m->n_shared_storage = 0;
   for (l=0; l < n_terms; l++) {
       thisterm = m->termarray + l;
-
+      
       /* Initialize storage to NULL. */
       thisterm->storage = NULL;
-
-      /* fnames points to a single character string, consisting of the names
-      of the selected options concatenated together and separated by spaces.
-      This is passed by the calling R function.  These names are matched with
-      their respective C functions that calculate the appropriate statistics. 
-      Similarly, sonames points to a character string containing the names
-      of the shared object files associated with the respective functions.*/
+      
+      /* First, obtain the term name and library: fnames points to a
+      single character string, consisting of the names of the selected
+      options concatenated together and separated by spaces.  This is
+      passed by the calling R function.  These names are matched with
+      their respective C functions that calculate the appropriate
+      statistics.  Similarly, sonames points to a character string
+      containing the names of the shared object files associated with
+      the respective functions.*/
       for (; *fnames == ' ' || *fnames == 0; fnames++);
       for (i = 0; fnames[i] != ' ' && fnames[i] != 0; i++);
       fnames[i] = 0;
@@ -70,7 +73,6 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
         error("Error in ModelInitialize: Can't allocate %d bytes for fn. Memory has not been deallocated, so restart R sometime soon.\n",
 		sizeof(char)*(i+3));
       }
-      fn[0]='d';
       fn[1]='_';
       for(k=0;k<i;k++)
         fn[k+2]=fnames[k];
@@ -83,27 +85,72 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
       }
       sn=strncpy(sn,sonames,j);
       sn[j]='\0';
+
+
+      /*  Second, process the values in
+          model$option[[optionnumber]]$inputs; See comments in
+          InitErgm.r for details. This needs to be done before change
+          statistica are found, to determine whether a term is
+          auxiliary.  */
+      offset = (int) *inputs++;  /* Set offset for attr vector */
+      /*      Rprintf("offsets: %f %f %f %f %f\n",inputs[0],inputs[1],inputs[2], */
+      /*		         inputs[3],inputs[4],inputs[5]); */
+      int tmp = (int) *inputs++; /* If >0, # of statistics returned. If <=0, location of the shared storage slot. */
+      if(tmp>0){
+	thisterm->nstats = tmp;
+      }else{
+	thisterm->shared_storage = -tmp;
+	m->n_shared_storage++;
+      }
       
-      /*  Most important part of the ModelTerm:  A pointer to a
-      function that will compute the change in the network statistic of 
-      interest for a particular edge toggle.  This function is obtained by
-      searching for symbols associated with the object file with prefix
-      sn, having the name fn.  Assuming that one is found, we're golden.*/ 
-      thisterm->d_func = 
-	(void (*)(Edge, Vertex*, Vertex*, ModelTerm*, Network*))
-	R_FindSymbol(fn,sn,NULL);
-      if(thisterm->d_func==NULL){
-        error("Error in ModelInitialize: could not find function %s in "
+      /*      Rprintf("l %d offset %d thisterm %d\n",l,offset,thisterm->nstats); */
+      
+      /*  Update the running total of statistics */
+      m->n_stats += thisterm->nstats; 
+      m->dstatarray[l] = (double *) malloc(sizeof(double) * thisterm->nstats);
+      thisterm->dstats = m->dstatarray[l];  /* This line is important for
+					       eventually freeing up malloc'ed
+					       memory, since thisterm->dstats
+					       can be modified but 
+					       m->dstatarray[l] cannot be.  */
+      thisterm->statcache = (double *) malloc(sizeof(double) * thisterm->nstats);
+      
+      thisterm->ninputparams = (int) *inputs++; /* Set # of inputs */
+      /* thisterm->inputparams is a ptr to inputs */
+      thisterm->inputparams = (thisterm->ninputparams ==0) ? 0 : inputs; 
+      
+      thisterm->attrib = inputs + offset; /* Ptr to attributes */
+      inputs += thisterm->ninputparams;  /* Skip to next model option */
+
+      /* If the term's nstats==0, it is auxiliary: it does not affect
+	 acceptance probabilities or contribute any
+	 statistics. Therefore, its d_ and s_ functions are never
+	 called and are not initialized. It is only used for its u_
+	 function. Therefore, the following code is only run when
+	 thisterm->nstats>0. */
+      if(thisterm->nstats){
+	/*  Most important part of the ModelTerm:  A pointer to a
+	    function that will compute the change in the network statistic of 
+	    interest for a particular edge toggle.  This function is obtained by
+	    searching for symbols associated with the object file with prefix
+	    sn, having the name fn.  Assuming that one is found, we're golden.*/ 
+	fn[0]='d';
+	thisterm->d_func = 
+	  (void (*)(Edge, Vertex*, Vertex*, ModelTerm*, Network*))
+	  R_FindSymbol(fn,sn,NULL);
+	if(thisterm->d_func==NULL){
+	  error("Error in ModelInitialize: could not find function %s in "
                 "namespace for package %s. Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
-      }      
-
-      /* Optional function to compute the statistic of interest for
-	 the network given. It can be more efficient than going one
-	 edge at a time. */
-      fn[0]='s';
-      thisterm->s_func = 
-	(void (*)(ModelTerm*, Network*)) R_FindSymbol(fn,sn,NULL);
-
+	}      
+	
+	/* Optional function to compute the statistic of interest for
+	   the network given. It can be more efficient than going one
+	   edge at a time. */
+	fn[0]='s';
+	thisterm->s_func = 
+	  (void (*)(ModelTerm*, Network*)) R_FindSymbol(fn,sn,NULL);	
+      }
+      
       /* Optional function to store persistent information about the
 	 network state between calls to d_ functions. */
       fn[0]='u';
@@ -113,36 +160,6 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
       /*Clean up by freeing sn and fn*/
       free((void *)fn);
       free((void *)sn);
-
-      /*  Now process the values in model$option[[optionnumber]]$inputs;
-          See comments in InitErgm.r for details.    */
-      offset = (int) *inputs++;  /* Set offset for attr vector */
-/*      Rprintf("offsets: %f %f %f %f %f\n",inputs[0],inputs[1],inputs[2], */
-/*		         inputs[3],inputs[4],inputs[5]); */
-      thisterm->nstats = (int) *inputs++; /* Set # of statistics returned */
-/*      Rprintf("l %d offset %d thisterm %d\n",l,offset,thisterm->nstats); */
-      if (thisterm->nstats <= 0)
-	{ /* Must return at least one statistic */
-	  Rprintf("Error in ModelInitialize:  Option %s cannot return %d \
-               statistics.\n", fnames, thisterm->nstats);
-	  return NULL;
-	}
-      /*  Update the running total of statistics */
-      m->n_stats += thisterm->nstats; 
-      m->dstatarray[l] = (double *) malloc(sizeof(double) * thisterm->nstats);
-      thisterm->dstats = m->dstatarray[l];  /* This line is important for
-                                               eventually freeing up malloc'ed
-					       memory, since thisterm->dstats
-					       can be modified but 
-					       m->dstatarray[l] cannot be.  */
-      thisterm->statcache = (double *) malloc(sizeof(double) * thisterm->nstats);
-
-      thisterm->ninputparams = (int) *inputs++; /* Set # of inputs */
-      /* thisterm->inputparams is a ptr to inputs */
-      thisterm->inputparams = (thisterm->ninputparams ==0) ? 0 : inputs; 
-      
-      thisterm->attrib = inputs + offset; /* Ptr to attributes */
-      inputs += thisterm->ninputparams;  /* Skip to next model option */
 
       /*  The lines above set thisterm->inputparams to point to needed input
       parameters (or zero if none) and then increments the inputs pointer so
@@ -175,8 +192,9 @@ void ChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead,
   for (unsigned int i=0; i < m->n_terms; i++){
     /* Calculate change statistics */
     mtp->dstats = dstats; /* Stuck the change statistic here.*/
-    (*(mtp->d_func))(ntoggles, toggletail, togglehead, 
-		   mtp, nwp);  /* Call d_??? function */
+    if(mtp->d_func)
+      (*(mtp->d_func))(ntoggles, toggletail, togglehead, 
+		       mtp, nwp);  /* Call d_??? function */
     dstats += (mtp++)->nstats;
   }
 }
