@@ -25,7 +25,7 @@
 
 Network NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges, 
 			  Vertex nnodes, int directed_flag, Vertex bipartite,
-			  int lasttoggle_flag, int time, int *lasttoggle, unsigned int n_shared_storage) {
+			  int lasttoggle_flag, int time, int *lasttoggle, unsigned int n_aux) {
 
   Network nw;
 
@@ -65,12 +65,12 @@ Network NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,
       AddEdgeToTrees(tail,head,&nw);
   }
 
-  /* Allocate pointers to shared storage */
-  nw.n_shared_storage = n_shared_storage;
-  if(n_shared_storage){
-    nw.storage = (void **)malloc(sizeof(void *)*n_shared_storage);
-    for(unsigned int i = 0; i<n_shared_storage; i++) nw.storage[i] = NULL;
-  }else nw.storage = NULL;
+  /* Allocate pointers to auxiliary storage */
+  nw.n_aux = n_aux;
+  if(n_aux){
+    nw.aux_storage = (void **)malloc(sizeof(void *)*n_aux);
+    for(unsigned int i = 0; i<n_aux; i++) nw.aux_storage[i] = NULL;
+  }else nw.aux_storage = NULL;
   
   PutRNGstate();  
   return nw;
@@ -84,7 +84,7 @@ Network NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,
 /*Takes vectors of doubles for edges; used only when constructing from inputparams. */
 Network NetworkInitializeD(double *tails, double *heads, Edge nedges,
 			  Vertex nnodes, int directed_flag, Vertex bipartite,
-			   int lasttoggle_flag, int time, int *lasttoggle, unsigned int n_shared_storage) {
+			   int lasttoggle_flag, int time, int *lasttoggle, unsigned int n_aux) {
 
   /* *** don't forget, tail -> head */
 
@@ -96,7 +96,7 @@ Network NetworkInitializeD(double *tails, double *heads, Edge nedges,
     iheads[i]=heads[i];
   }
 
-  Network nw=NetworkInitialize(itails,iheads,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag, time, lasttoggle, n_shared_storage);
+  Network nw=NetworkInitialize(itails,iheads,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag, time, lasttoggle, n_aux);
 
   free(itails);
   free(iheads);
@@ -115,14 +115,14 @@ void NetworkDestroy(Network *nwp) {
     free (nwp->duration_info.lasttoggle);
     nwp->duration_info.lasttoggle=NULL;
   }
-  if(nwp->storage){
-    for(unsigned int i=0; i<nwp->n_shared_storage; i++)
-      if(nwp->storage[i]){
-	  free(nwp->storage[i]);
-	  nwp->storage[i] = NULL;
+  if(nwp->aux_storage){
+    for(unsigned int i=0; i<nwp->n_aux; i++)
+      if(nwp->aux_storage[i]){
+	  free(nwp->aux_storage[i]);
+	  nwp->aux_storage[i] = NULL;
       }
-    free(nwp->storage);
-    nwp->storage = NULL;
+    free(nwp->aux_storage);
+    nwp->aux_storage = NULL;
   }
 }
 
@@ -158,11 +158,11 @@ Network *NetworkCopy(Network *dest, Network *src){
 
   dest->nedges = src->nedges;
 
-  /* Allocate pointers to shared storage and set them to NULL. Change stats should know to reinitialize. */
-  if(src->n_shared_storage){
-    dest->n_shared_storage = src->n_shared_storage;
-    dest->storage = (void **)malloc(sizeof(void *)*dest->n_shared_storage);
-    for(unsigned int i = 0; i<dest->n_shared_storage; i++) dest->storage[i] = NULL;
+  /* Allocate pointers to auxiliary storage and set them to NULL. u_functions should know to reinitialize. */
+  if(src->n_aux){
+    dest->n_aux = src->n_aux;
+    dest->aux_storage = (void **)malloc(sizeof(void *)*dest->n_aux);
+    for(unsigned int i = 0; i<dest->n_aux; i++) dest->aux_storage[i] = NULL;
   }
   
   return dest;

@@ -47,7 +47,7 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
   m->termarray = (WtModelTerm *) malloc(sizeof(WtModelTerm) * n_terms);
   m->dstatarray = (double **) malloc(sizeof(double *) * n_terms);
   m->n_stats = 0;
-  m->n_shared_storage = 0;
+  m->n_aux = 0;
   for (l=0; l < n_terms; l++) {
       thisterm = m->termarray + l;
 
@@ -95,13 +95,13 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
       offset = (int) *inputs++;  /* Set offset for attr vector */
       /*      Rprintf("offsets: %f %f %f %f %f\n",inputs[0],inputs[1],inputs[2], */
       /*		         inputs[3],inputs[4],inputs[5]); */
-      int tmp = (int) *inputs++; /* If >0, # of statistics returned. If <=0, location of the shared storage slot. */
+      int tmp = (int) *inputs++; /* If >0, # of statistics returned. If <=0, location of the auxiliary storage slot. */
       if(tmp>0){
 	thisterm->nstats = tmp;
       }else{
 	thisterm->nstats = 0;
-	thisterm->shared_storage = -tmp;
-	m->n_shared_storage++;
+	thisterm->aux_slot = -tmp;
+	m->n_aux++;
       }
       
       /*      Rprintf("l %d offset %d thisterm %d\n",l,offset,thisterm->nstats); */

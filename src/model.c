@@ -47,7 +47,7 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
   m->termarray = (ModelTerm *) malloc(sizeof(ModelTerm) * n_terms);
   m->dstatarray = (double **) malloc(sizeof(double *) * n_terms);
   m->n_stats = 0;
-  m->n_shared_storage = 0;
+  m->n_aux = 0;
   for (l=0; l < n_terms; l++) {
       thisterm = m->termarray + l;
       
@@ -100,8 +100,8 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
 	thisterm->nstats = tmp;
       }else{
 	thisterm->nstats = 0;
-	thisterm->shared_storage = -tmp;
-	m->n_shared_storage++;
+	thisterm->aux_slot = -tmp;
+	m->n_aux++;
       }
       
       /*      Rprintf("l %d offset %d thisterm %d\n",l,offset,thisterm->nstats); */

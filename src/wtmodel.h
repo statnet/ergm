@@ -26,7 +26,7 @@ typedef struct WtModelstruct {
   double **dstatarray; /* array of size n_terms; the ith element in this
 			  array is a pointer to an array of size
 			  termarray[i].nstats                    */
-  unsigned int n_shared_storage;
+  unsigned int n_aux;
 } WtModel;
 
 WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputs,

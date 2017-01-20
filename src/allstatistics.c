@@ -59,7 +59,7 @@ void AllStatistics (
   GetRNGstate(); /* Necessary for R random number generator */
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
   nw=NetworkInitialize(tails, heads, *dnedges,
-		       n_nodes, directed_flag, bip, 0, 0, NULL, m->n_shared_storage);
+		       n_nodes, directed_flag, bip, 0, 0, NULL, m->n_aux);
   nwp = &nw;
 
   /* Trigger initial storage update */

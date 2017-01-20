@@ -64,18 +64,18 @@ typedef struct WtNetworkstruct {
   double *value;  
   Dur_Inf duration_info;
   Edge maxedges;
-  void **storage;
-  unsigned int n_shared_storage;
+  void **aux_storage;
+  unsigned int n_aux;
 } WtNetwork;
 
 /* Initialization and destruction. */
 WtNetwork WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights, Edge nedges,
 			      Vertex nnodes, int directed_flag, Vertex bipartite,
-			      int lasttoggle_flag, int time, int *lasttoggle, unsigned int n_shared_storage);
+			      int lasttoggle_flag, int time, int *lasttoggle, unsigned int n_aux);
 void WtNetworkDestroy(WtNetwork *nwp);
 WtNetwork WtNetworkInitializeD(double *tails, double *heads, double *weights, Edge nedges,
 			       Vertex nnodes, int directed_flag, Vertex bipartite,
-			      int lasttoggle_flag, int time, int *lasttoggle, unsigned int n_shared_storage);
+			      int lasttoggle_flag, int time, int *lasttoggle, unsigned int n_aux);
 
 WtNetwork *WtNetworkCopy(WtNetwork *dest, WtNetwork *src);
 

@@ -63,7 +63,7 @@ void SAN_wrapper ( int *dnumnets, int *nedges,
 
   /* Form the network */
   nw[0]=NetworkInitialize(tails, heads, nedges[0], 
-                          n_nodes, directed_flag, bip, 0, 0, NULL, m->n_shared_storage);
+                          n_nodes, directed_flag, bip, 0, 0, NULL, m->n_aux);
   
   /* Trigger initial storage update */
   UpdateStats(0, NULL, NULL, nw, m);
