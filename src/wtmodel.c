@@ -207,10 +207,12 @@ void WtUpdateStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead
 				 WtNetwork *nwp, WtModel *m){
   WtModelTerm *mtp = m->termarray;
   for (unsigned int i=0; i < m->n_terms; i++){
+    double *dstats = mtp->dstats;
     mtp->dstats = NULL; // Trigger segfault if u_func tries to write to change statistics.
     if(mtp->u_func)
       (*(mtp->u_func))(ntoggles, toggletail, togglehead, toggleweight, 
 		       mtp, nwp);  /* Call u_??? function */
+    mtp->dstats = dstats;
     mtp++;
   }
 }
