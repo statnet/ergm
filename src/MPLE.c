@@ -52,6 +52,10 @@ void MPLE_wrapper(int *tails, int *heads, int *dnedges,
   nw[0]=NetworkInitialize(tails, heads, n_edges,
                           n_nodes, directed_flag, bip, 0, 0, NULL, m->n_shared_storage);
   
+  /* Trigger initial storage update */
+  UpdateStats(0, NULL, NULL, nw, m);
+
+>>>>>>> .merge-right.r14522
   if(*wl) MpleInit_hash_wl(responsevec, covmat, weightsvector, lel, *maxDyadTypes, nw, m); 
   else MpleInit_hash_bl(responsevec, covmat, weightsvector, lel, *maxDyads, *maxDyadTypes, nw, m); 
 

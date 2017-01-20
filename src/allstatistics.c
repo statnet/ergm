@@ -61,6 +61,9 @@ void AllStatistics (
   nw=NetworkInitialize(tails, heads, *dnedges,
 		       n_nodes, directed_flag, bip, 0, 0, NULL, m->n_shared_storage);
   nwp = &nw;
+
+  /* Trigger initial storage update */
+  UpdateStats(0, NULL, NULL, nwp, m);
   
   /* Step 2:  Build nodelist1 and nodelist2, which together give all of the
   dyads in the network. */
@@ -144,6 +147,10 @@ void RecurseOffOn(
     for (mtp=m->termarray; mtp < m->termarray + m->n_terms; mtp++){
       (*(mtp->d_func))(1, nodelist1+currentnodes, nodelist2+currentnodes, mtp, nwp);
     }
+    
+    /* Inform u_* functions that the network is about to change. */
+    UpdateStats(1, nodelist1+currentnodes, nodelist2+currentnodes, nwp, m);
+    
     for (int j=0; j < m->n_stats; j++) cumulativeStats[j] += changeStats[j];
     /* Now toggle the dyad so it's ready for the next pass */
     ToggleEdge(nodelist1[currentnodes], nodelist2[currentnodes], nwp);
