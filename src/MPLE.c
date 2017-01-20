@@ -55,7 +55,6 @@ void MPLE_wrapper(int *tails, int *heads, int *dnedges,
   /* Trigger initial storage update */
   UpdateStats(0, NULL, NULL, nw, m);
 
->>>>>>> .merge-right.r14522
   if(*wl) MpleInit_hash_wl(responsevec, covmat, weightsvector, lel, *maxDyadTypes, nw, m); 
   else MpleInit_hash_bl(responsevec, covmat, weightsvector, lel, *maxDyads, *maxDyadTypes, nw, m); 
 
