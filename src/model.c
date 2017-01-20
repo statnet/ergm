@@ -99,6 +99,7 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
       if(tmp>0){
 	thisterm->nstats = tmp;
       }else{
+	thisterm->nstats = 0;
 	thisterm->shared_storage = -tmp;
 	m->n_shared_storage++;
       }
