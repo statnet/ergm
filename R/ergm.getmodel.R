@@ -64,9 +64,6 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
                       offset = NULL,
                       terms = NULL, networkstats.0 = NULL, etamap = NULL),
                  class = "model.ergm")
-
-  termroot<-if(is.null(response)) "InitErgm" else "InitWtErgm"
-
   
   for (i in 1:length(v)) {
     term <- v[[i]]
@@ -78,50 +75,64 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
       model$offset <- c(model$offset,FALSE)
     }
     ## term is now a call or a name that is not "offset".
+
+
+    outlist <- call.ErgmTerm(term, formula.env, nw, response=response, role=role, ...)
     
-    if(is.call(term)) { # This term has some arguments; save them.
-      args <- term
-      args[[1]] <- as.name("list")
-    }else args <- list()
-    
-    termFun<-locate.InitFunction(term, paste0(termroot,"Term"), "ERGM term")  # check in all namespaces for function found anywhere
-    
-    term<-as.call(list(termFun))
-    
-    term[[2]] <- nw
-    names(term)[2] <-  ""
-    term[[3]] <- args
-    names(term)[3] <- ""
-    dotdotdot <- c(if(!is.null(response)) list(response=response), list(role=role), list(...))
-    for(j in seq_along(dotdotdot)) {
-      if(is.null(dotdotdot[[j]])) next
-      term[[3+j]] <- dotdotdot[[j]]
-      names(term)[3+j] <- names(dotdotdot)[j]
-    }
-    #Call the InitErgm function in the environment where the formula was created
-    # so that it will have access to any parameters of the ergm terms
-    outlist <- eval(term,formula.env)
+
     # If initialization fails without error (e.g., all statistics have been dropped), continue.
     if(is.null(outlist)){
       if(!silent) message("Note: Term ", deparse(v[[i]])," skipped because it contributes no statistics.")
       model$term.skipped <- c(model$term.skipped, TRUE)
       next
     }else model$term.skipped <- c(model$term.skipped, FALSE)
-    # If SO package name not specified explicitly, autodetect.
-    if(is.null(outlist$pkgname)) outlist$pkgname <- environmentName(environment(termFun))
     # Now it is necessary to add the output to the model object
     model <- updatemodel.ErgmTerm(model, outlist)
-  } 
+  }
+
+  model <- ergm.auxstorage(model, nw, response=response, ...)
+  
   model$etamap <- ergm.etamap(model)
 
   # I.e., construct a vector of package names associated with the model terms.
   # Note that soname is not the same, since it's not guaranteed to be a loadable package.
   ergm.MCMC.packagenames(unlist(sapply(model$terms, "[[", "pkgname")))
+  ergm.MCMC.packagenames(unlist(sapply(model$model.aux$terms, "[[", "pkgname")))
   
   class(model) <- "ergm.model"
   model
 }
 
+
+call.ErgmTerm <- function(term, env, nw, response=NULL, role="static", ...){
+  termroot<-if(is.null(response)) "InitErgm" else "InitWtErgm"
+  
+  if(is.call(term)) { # This term has some arguments; save them.
+    args <- term
+    args[[1]] <- as.name("list")
+  }else args <- list()
+  
+  termFun<-locate.InitFunction(term, paste0(termroot,"Term"), "ERGM term")  # check in all namespaces for function found anywhere
+  
+  term<-as.call(list(termFun))
+  
+  term[[2]] <- nw
+  names(term)[2] <-  ""
+  term[[3]] <- args
+  names(term)[3] <- ""
+  dotdotdot <- c(if(!is.null(response)) list(response=response), list(role=role), list(...))
+  for(j in seq_along(dotdotdot)) {
+    if(is.null(dotdotdot[[j]])) next
+    term[[3+j]] <- dotdotdot[[j]]
+    names(term)[3+j] <- names(dotdotdot)[j]
+  }
+  #Call the InitErgm function in the environment where the formula was created
+  # so that it will have access to any parameters of the ergm terms
+  out <- eval(term,env)
+  # If SO package name not specified explicitly, autodetect.
+  if(!is.null(out) && is.null(out$pkgname)) out$pkgname <- environmentName(environment(termFun))
+  out
+}
 
 
 #######################################################################
@@ -146,9 +157,17 @@ updatemodel.ErgmTerm <- function(model, outlist) {
     model$coef.names <- c(model$coef.names, outlist$coef.names)
     termnumber <- 1+length(model$terms)
     tmp <- attr(outlist$inputs, "ParamsBeforeCov")
-    outlist$inputs <- c(ifelse(is.null(tmp), 0, tmp),
+    # If the term requests auxiliaries or is an auxiliary itself,
+    # reserve space in the input vector. Note that these go before
+    # the parameters.
+    aux.space <-
+      if(!is.null(outlist$auxiliaries)) # requests auxiliaries
+        length(term.list.formula(term.list.formula(outlist$auxiliaries[[length(outlist$auxiliaries)]])))
+      else if(length(outlist$coef.names)==0) 1 # is an auxiliary
+      else 0
+    outlist$inputs <- c(ifelse(is.null(tmp), 0, tmp)+aux.space,
                         length(outlist$coef.names), 
-                        length(outlist$inputs), outlist$inputs)
+                        length(outlist$inputs)+aux.space, rep(NA, aux.space), outlist$inputs)
     model$minval <- c(model$minval,
                       rep(if(!is.null(outlist$minval)) outlist$minval else -Inf,
                           length.out=length(outlist$coef.names)))

@@ -57,10 +57,10 @@ void AllStatistics (
 
   /* Step 1:  Initialize empty network and initialize model */
   GetRNGstate(); /* Necessary for R random number generator */
-  nw=NetworkInitialize(tails, heads, *dnedges,
-		       n_nodes, directed_flag, bip, 0, 0, NULL);
-  nwp = &nw;
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
+  nw=NetworkInitialize(tails, heads, *dnedges,
+		       n_nodes, directed_flag, bip, 0, 0, NULL, m->n_aux);
+  nwp = &nw;
 
   /* Trigger initial storage update */
   UpdateStats(0, NULL, NULL, nwp, m);

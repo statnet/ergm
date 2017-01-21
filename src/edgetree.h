@@ -81,6 +81,8 @@ typedef struct Networkstruct {
   double *value;  
   Dur_Inf duration_info;
   Edge maxedges;
+  void **aux_storage;
+  unsigned int n_aux;
 } Network;
 
 
@@ -90,11 +92,11 @@ typedef struct Networkstruct {
 /* Initialization and destruction. */
 Network NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,
 			  Vertex nnodes, int directed_flag, Vertex bipartite,
-			  int lasttoggle_flag, int time, int *lasttoggle);
+			  int lasttoggle_flag, int time, int *lasttoggle, unsigned int n_aux);
 void NetworkDestroy(Network *nwp);
 Network NetworkInitializeD(double *tails, double *heads, Edge nedges,
 			   Vertex nnodes, int directed_flag, Vertex bipartite,
-			   int lasttoggle_flag, int time, int *lasttoggle);
+			   int lasttoggle_flag, int time, int *lasttoggle, unsigned int n_aux);
 
 Network *NetworkCopy(Network *dest, Network *src);
 

@@ -541,7 +541,7 @@ void MH_listTNT (MHproposal *MHp, Network *nwp)
     MHp->discord[0] = &discord;
     
     // Network containing edges that are present in the network AND are on the toggleable list.
-    discord = NetworkInitialize(NULL, NULL, 0, nnodes, nwp->directed_flag, nwp->bipartite, 0, 0, NULL);
+    discord = NetworkInitialize(NULL, NULL, 0, nnodes, nwp->directed_flag, nwp->bipartite, 0, 0, NULL, 0);
    
     for(Edge i=0; i<ndyads; i++){
       Vertex tail=MHp->inputs[1+i], head=MHp->inputs[1+ndyads+i];

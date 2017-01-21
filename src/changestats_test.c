@@ -39,3 +39,40 @@ S_CHANGESTAT_FN(s_test_abs_edges_minus_5){
 
 D_CHANGESTAT_FN(d_test_abs_edges_minus_5_no_s){d_test_abs_edges_minus_5(ntoggles, tails, heads, mtp, nwp);}
 U_CHANGESTAT_FN(u_test_abs_edges_minus_5_no_s){u_test_abs_edges_minus_5(ntoggles, tails, heads, mtp, nwp);}
+
+
+U_CHANGESTAT_FN(u__isociomatrix){
+  unsigned int myslot = INPUT_PARAM[0];
+  int *sm = nwp->aux_storage[myslot];
+  if(!sm){
+    sm = (int *) (nwp->aux_storage[myslot] = malloc(sizeof(int)*N_NODES*N_NODES));
+    memset(sm, 0, sizeof(int)*N_NODES*N_NODES);
+    for(Vertex tail=1; tail <= N_NODES; tail++){
+      Vertex head;
+      Edge e;
+      STEP_THROUGH_OUTEDGES(tail, e, head) {
+	ISOCIOMATRIX_CELL(sm, tail, head) = 1; 
+      }
+    }
+  }
+
+  int i;
+  FOR_EACH_TOGGLE(i){
+    Vertex tail=TAIL(i), head=HEAD(i);
+    ISOCIOMATRIX_CELL(sm, tail, head) = 1 - ISOCIOMATRIX_CELL(sm, tail, head);
+  }  
+}
+
+D_CHANGESTAT_FN(d_isociomatrix){
+  unsigned int slot = INPUT_PARAM[0];
+  int *sm = nwp->aux_storage[slot];
+  int i;
+  
+  ZERO_ALL_CHANGESTATS(i);
+  FOR_EACH_TOGGLE(i){
+    Vertex tail=TAIL(i), head=HEAD(i);
+    Dyad pos = tail-1 + (head-1)*N_NODES;
+    int edgeflag = ISOCIOMATRIX_CELL(sm, tail, head);
+    CHANGE_STAT[pos] += edgeflag? -1 : +1;
+  }  
+}

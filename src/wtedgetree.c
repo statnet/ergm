@@ -25,7 +25,7 @@
 
 WtNetwork WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
 			      Edge nedges, Vertex nnodes, int directed_flag, Vertex bipartite,
-			      int lasttoggle_flag, int time, int *lasttoggle) {
+			      int lasttoggle_flag, int time, int *lasttoggle, unsigned int n_aux) {
   WtNetwork nw;
 
   nw.last_inedge = nw.last_outedge = (Edge)nnodes;
@@ -64,7 +64,15 @@ WtNetwork WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
     else 
       WtAddEdgeToTrees(tail,head,w,&nw);
   }
-  PutRNGstate();
+
+  /* Allocate pointers to auxiliary storage */
+  nw.n_aux = n_aux;
+  if(n_aux){
+    nw.aux_storage = (void **)malloc(sizeof(void *)*n_aux);
+    for(unsigned int i = 0; i<n_aux; i++) nw.aux_storage[i] = NULL;
+  }else nw.aux_storage = NULL;
+  
+  PutRNGstate();  
   return nw;
 }
 
@@ -76,7 +84,7 @@ WtNetwork WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights,
 /*Takes vectors of doubles for edges; used only when constructing from inputparams. */
 WtNetwork WtNetworkInitializeD(double *tails, double *heads, double *weights, Edge nedges,
            Vertex nnodes, int directed_flag, Vertex bipartite,
-           int lasttoggle_flag, int time, int *lasttoggle) {
+           int lasttoggle_flag, int time, int *lasttoggle, unsigned int n_aux) {
 
   /* *** don't forget, tail -> head */
 
@@ -88,7 +96,7 @@ WtNetwork WtNetworkInitializeD(double *tails, double *heads, double *weights, Ed
     iheads[i]=heads[i];
   }
 
-  WtNetwork nw=WtNetworkInitialize(itails,iheads,weights,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag, time, lasttoggle);
+  WtNetwork nw=WtNetworkInitialize(itails,iheads,weights,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag, time, lasttoggle, n_aux);
 
   free(itails);
   free(iheads);
@@ -106,6 +114,15 @@ void WtNetworkDestroy(WtNetwork *nwp) {
   if(nwp->duration_info.lasttoggle){
     free (nwp->duration_info.lasttoggle);
     nwp->duration_info.lasttoggle=NULL;
+  }
+  if(nwp->aux_storage){
+    for(unsigned int i=0; i<nwp->n_aux; i++)
+      if(nwp->aux_storage[i]){
+	  free(nwp->aux_storage[i]);
+	  nwp->aux_storage[i] = NULL;
+      }
+    free(nwp->aux_storage);
+    nwp->aux_storage = NULL;
   }
 }
 
@@ -141,6 +158,13 @@ WtNetwork *WtNetworkCopy(WtNetwork *dest, WtNetwork *src){
 
   dest->nedges = src->nedges;
 
+  /* Allocate pointers to auxiliary storage and set them to NULL. Change stats should know to reinitialize. */
+  if(src->n_aux){
+    dest->n_aux = src->n_aux;
+    dest->aux_storage = (void **)malloc(sizeof(void *)*dest->n_aux);
+    for(unsigned int i = 0; i<dest->n_aux; i++) dest->aux_storage[i] = NULL;
+  }
+  
   return dest;
 }
 

@@ -48,12 +48,10 @@ void MPLE_wrapper(int *tails, int *heads, int *dnedges,
   Model *m;
 
   GetRNGstate(); /* Necessary for R random number generator */
-
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
-  
   nw[0]=NetworkInitialize(tails, heads, n_edges,
-                          n_nodes, directed_flag, bip, 0, 0, NULL);
-
+                          n_nodes, directed_flag, bip, 0, 0, NULL, m->n_aux);
+  
   /* Trigger initial storage update */
   UpdateStats(0, NULL, NULL, nw, m);
 

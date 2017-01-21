@@ -26,6 +26,7 @@ typedef struct Modelstruct {
   double **dstatarray; /* array of size n_terms; the ith element in this
 			  array is a pointer to an array of size
 			  termarray[i].nstats                    */
+  unsigned int n_aux;
 } Model;
 
 Model* ModelInitialize (char *fnames, char *sonames, double **inputs,

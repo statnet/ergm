@@ -83,11 +83,12 @@ ergm.Cprepare <- function(nw, m, response=NULL)
   
   mo<-m$terms 
   
-  Clist$nterms<-length(mo)
   Clist$nstats<-0
   Clist$fnamestring<-""
   Clist$snamestring<-""
   Clist$inputs<-numeric(0)
+  
+  Clist$nterms<-length(mo)
   if (Clist$nterms>0) {
     for(i in 1:Clist$nterms) {
       term_i <- mo[[i]]
@@ -103,11 +104,34 @@ ergm.Cprepare <- function(nw, m, response=NULL)
       Clist$nstats <- Clist$nstats + term_i$inputs[2]
     }
   }
+
+  # Attach the auxiliaries
+  mo <- m$model.aux$terms
+  anterms <- length(mo)
+  Clist$nterms <- Clist$nterms + anterms 
+  if (anterms>0) {
+    for(i in 1:anterms) {
+      term_i <- mo[[i]]
+      Clist$fnamestring <- paste(Clist$fnamestring, term_i$name)
+      # This lets "pkgname" play the same role as "soname":
+      Clist$snamestring <- paste(Clist$snamestring, 
+                                 if (!is.null(term_i$soname)) {
+                                   term_i$soname
+                                 } else if (!is.null(term_i$pkgname)) {
+                                   term_i$pkgname
+                                 } else stop("ERGM term specifying C function `", term_i$name,"' is missing C library or package name.") )
+      Clist$inputs <- c(Clist$inputs, term_i$inputs)
+      # Auxiliaries do not produce stats.
+    }
+  }
+  
   while (substring(Clist$fnamestring, 1, 1)==" ")
     Clist$fnamestring <- substring(Clist$fnamestring, 2)
   while (substring(Clist$snamestring, 1, 1)==" ")
     Clist$snamestring <- substring(Clist$snamestring, 2)
 
+  
+  
   # We don't care about diagnostics for terms that are not being
   # estimated.
   Clist$diagnosable <- ! m$etamap$offsetmap
