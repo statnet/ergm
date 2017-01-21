@@ -153,7 +153,13 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
       fn[0]='u';
       thisterm->u_func = 
 	(void (*)(Edge, Vertex*, Vertex*, ModelTerm*, Network*)) R_FindSymbol(fn,sn,NULL);
-
+      /* If it's an auxiliary, then it needs a u_function, or
+	 it's not doing anything. */
+      if(thisterm->nstats==0 && thisterm->u_func==NULL){
+	  error("Error in ModelInitialize: could not find function %s in "
+                "namespace for package %s. Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
+      }
+      
       /*Clean up by freeing sn and fn*/
       free((void *)fn);
       free((void *)sn);
