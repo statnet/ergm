@@ -40,3 +40,31 @@ WtS_CHANGESTAT_FN(s_test_abs_sum_minus_5){
 
 WtD_CHANGESTAT_FN(d_test_abs_sum_minus_5_no_s){d_test_abs_sum_minus_5(ntoggles, tails, heads, weights, mtp, nwp);}
 WtU_CHANGESTAT_FN(u_test_abs_sum_minus_5_no_s){u_test_abs_sum_minus_5(ntoggles, tails, heads, weights, mtp, nwp);}
+
+
+WtU_CHANGESTAT_FN(u__dsociomatrix){
+  unsigned int myslot = INPUT_PARAM[0];
+  double *sm = nwp->aux_storage[myslot];
+  if(!sm){
+    sm = (double *) (nwp->aux_storage[myslot] = malloc(sizeof(double)*N_NODES*N_NODES));
+    memset(sm, 0, sizeof(double)*N_NODES*N_NODES);
+    EXEC_THROUGH_NET_EDGES(tail, head, e, w, {
+	DSOCIOMATRIX_CELL(sm, tail, head) = w; 
+      });
+  }
+
+  EXEC_THROUGH_TOGGLES({
+      DSOCIOMATRIX_CELL(sm, TAIL, HEAD) = NEWWT - DSOCIOMATRIX_CELL(sm, TAIL, HEAD);
+    })
+}
+
+WtD_CHANGESTAT_FN(d_dsociomatrix){
+  unsigned int slot = INPUT_PARAM[0];
+  double *sm = nwp->aux_storage[slot];
+
+  ZERO_ALL_CHANGESTATS();
+  EXEC_THROUGH_TOGGLES({
+      Dyad pos = TAIL-1 + (HEAD-1)*N_NODES;
+      CHANGE_STAT[pos] += NEWWT - DSOCIOMATRIX_CELL(sm, TAIL, HEAD);
+    });  
+}
