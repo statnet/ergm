@@ -36,7 +36,6 @@ void wt_network_stats_wrapper(int *tails, int *heads, double *weights, int *timi
   
   if(*lasttoggle == 0) lasttoggle = NULL;
 
-
   m=WtModelInitialize(*funnames, *sonames, &inputs, *nterms);
   nw[0]=WtNetworkInitialize(NULL, NULL, NULL, 0,
 			    n_nodes, directed_flag, bip, *timings?1:0, *timings?*time:0, *timings?lasttoggle:NULL, m->n_aux);
@@ -85,11 +84,12 @@ WtNetwork *nwp, WtModel *m, double *stats){
     
     for (unsigned int termi=0; termi < m->n_terms; termi++, mtp++){
       if(!mtp->s_func){
-        (*(mtp->d_func))(1, tails+e, heads+e, weights+e,
-        mtp, nwp);  /* Call d_??? function */
-        for (unsigned int i=0; i < mtp->nstats; i++,statspos++)
-          *statspos += mtp->dstats[i];
-
+	if(mtp->d_func){
+	  (*(mtp->d_func))(1, tails+e, heads+e, weights+e,
+			   mtp, nwp);  /* Call d_??? function */
+	  for (unsigned int i=0; i < mtp->nstats; i++,statspos++)
+	    *statspos += mtp->dstats[i];
+	}
 	// Also, update the storage.
 	if(mtp->u_func)
 	  (*(mtp->u_func))(1, tails+e, heads+e, weights+e,

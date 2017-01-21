@@ -37,7 +37,6 @@ void network_stats_wrapper(int *tails, int *heads, int *timings, int *time, int 
   directed_flag = *dflag;
   bip = (Vertex)*bipartite;
   
-
   if(*lasttoggle == 0) lasttoggle = NULL;
 
   m=ModelInitialize(*funnames, *sonames, &inputs, *nterms);
@@ -91,18 +90,18 @@ Network *nwp, Model *m, double *stats){
     
     for (unsigned int termi=0; termi < m->n_terms; termi++, mtp++){
       if(!mtp->s_func){
-        (*(mtp->d_func))(1, tails+e, heads+e, 
-        mtp, nwp);  /* Call d_??? function */
-        for (unsigned int i=0; i < mtp->nstats; i++,statspos++)
-          *statspos += mtp->dstats[i];
-
+        if(mtp->d_func){
+	  (*(mtp->d_func))(1, tails+e, heads+e, 
+			   mtp, nwp);  /* Call d_??? function */
+	  for (unsigned int i=0; i < mtp->nstats; i++,statspos++)
+	    *statspos += mtp->dstats[i];
+	}
 	// Also, update the storage.
 	if(mtp->u_func)
 	  (*(mtp->u_func))(1, tails+e, heads+e,
 			   mtp, nwp);  /* Call u_??? function */
       }else statspos += mtp->nstats;
     }
-    
     ToggleEdge(tails[e],heads[e],nwp);
   }
   

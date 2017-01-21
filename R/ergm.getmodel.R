@@ -86,16 +86,18 @@ ergm.getmodel <- function (formula, nw, response=NULL, silent=FALSE, role="stati
       model$term.skipped <- c(model$term.skipped, TRUE)
       next
     }else model$term.skipped <- c(model$term.skipped, FALSE)
-    # If SO package name not specified explicitly, autodetect.
-    if(is.null(outlist$pkgname)) outlist$pkgname <- environmentName(environment(attr(outlist,"termFun")))
     # Now it is necessary to add the output to the model object
     model <- updatemodel.ErgmTerm(model, outlist)
-  } 
+  }
+
+  model <- ergm.auxstorage(model, nw, response=response, ...)
+  
   model$etamap <- ergm.etamap(model)
 
   # I.e., construct a vector of package names associated with the model terms.
   # Note that soname is not the same, since it's not guaranteed to be a loadable package.
   ergm.MCMC.packagenames(unlist(sapply(model$terms, "[[", "pkgname")))
+  ergm.MCMC.packagenames(unlist(sapply(model$model.aux$terms, "[[", "pkgname")))
   
   class(model) <- "ergm.model"
   model
@@ -127,7 +129,8 @@ call.ErgmTerm <- function(term, env, nw, response=NULL, role="static", ...){
   #Call the InitErgm function in the environment where the formula was created
   # so that it will have access to any parameters of the ergm terms
   out <- eval(term,env)
-  attr(out, "termFun") <- termFun
+  # If SO package name not specified explicitly, autodetect.
+  if(!is.null(out) && is.null(out$pkgname)) out$pkgname <- environmentName(environment(termFun))
   out
 }
 
@@ -154,11 +157,13 @@ updatemodel.ErgmTerm <- function(model, outlist) {
     model$coef.names <- c(model$coef.names, outlist$coef.names)
     termnumber <- 1+length(model$terms)
     tmp <- attr(outlist$inputs, "ParamsBeforeCov")
-    # If the term requests auxiliaries, reserve space in the input vector.
-    # Note that these go before the parameters.
+    # If the term requests auxiliaries or is an auxiliary itself,
+    # reserve space in the input vector. Note that these go before
+    # the parameters.
     aux.space <-
-      if(!is.null(outlist$auxiliaries))
+      if(!is.null(outlist$auxiliaries)) # requests auxiliaries
         length(term.list.formula(term.list.formula(outlist$auxiliaries[[length(outlist$auxiliaries)]])))
+      else if(length(outlist$coef.names)==0) 1 # is an auxiliary
       else 0
     outlist$inputs <- c(ifelse(is.null(tmp), 0, tmp)+aux.space,
                         length(outlist$coef.names), 

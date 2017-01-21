@@ -51,8 +51,11 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
   for (l=0; l < n_terms; l++) {
       thisterm = m->termarray + l;
       
-      /* Initialize storage to NULL. */
+      /* Initialize storage and term functions to NULL. */
       thisterm->storage = NULL;
+      thisterm->d_func = NULL;
+      thisterm->s_func = NULL;
+      thisterm->u_func = NULL;
       
       /* First, obtain the term name and library: fnames points to a
       single character string, consisting of the names of the selected
@@ -95,14 +98,7 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
       offset = (int) *inputs++;  /* Set offset for attr vector */
       /*      Rprintf("offsets: %f %f %f %f %f\n",inputs[0],inputs[1],inputs[2], */
       /*		         inputs[3],inputs[4],inputs[5]); */
-      int tmp = (int) *inputs++; /* If >0, # of statistics returned. If <=0, location of the shared storage slot. */
-      if(tmp>0){
-	thisterm->nstats = tmp;
-      }else{
-	thisterm->nstats = 0;
-	thisterm->aux_slot = -tmp;
-	m->n_aux++;
-      }
+      thisterm->nstats = (int) *inputs++; /* If >0, # of statistics returned. If ==0 an auxiliary statistic. */
       
       /*      Rprintf("l %d offset %d thisterm %d\n",l,offset,thisterm->nstats); */
       
@@ -110,12 +106,12 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
       m->n_stats += thisterm->nstats; 
       m->dstatarray[l] = (double *) malloc(sizeof(double) * thisterm->nstats);
       thisterm->dstats = m->dstatarray[l];  /* This line is important for
-					       eventually freeing up malloc'ed
+                                               eventually freeing up malloc'ed
 					       memory, since thisterm->dstats
 					       can be modified but 
 					       m->dstatarray[l] cannot be.  */
       thisterm->statcache = (double *) malloc(sizeof(double) * thisterm->nstats);
-      
+
       thisterm->ninputparams = (int) *inputs++; /* Set # of inputs */
       /* thisterm->inputparams is a ptr to inputs */
       thisterm->inputparams = (thisterm->ninputparams ==0) ? 0 : inputs; 
@@ -150,7 +146,7 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
 	fn[0]='s';
 	thisterm->s_func = 
 	  (void (*)(ModelTerm*, Network*)) R_FindSymbol(fn,sn,NULL);	
-      }
+      }else m->n_aux++;
       
       /* Optional function to store persistent information about the
 	 network state between calls to d_ functions. */
@@ -169,7 +165,6 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
 
       fnames += i;
       sonames += j;
-
     }
   
   m->workspace = (double *) malloc(sizeof(double) * m->n_stats);

@@ -24,7 +24,6 @@ typedef struct ModelTermstruct {
   double *inputparams; /* ptr to input parameters passed */
   double *statcache; /* vector of the same length as dstats */
   void *storage; /* optional space for persistent storage */
-  unsigned int aux_slot; /* index of the auxiliary storage slot for which this auxiliary is responsible */
 } ModelTerm;
 
 

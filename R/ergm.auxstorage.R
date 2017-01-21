@@ -16,7 +16,7 @@ ergm.auxstorage <- function(model, nw, response=NULL,...){
   })
 
   # Remove duplicated auxiliaries.
-  uniq.aux.outlists <- unique(unlist(term.outlists))
+  uniq.aux.outlists <- unique(unlist(aux.outlists, recursive=FALSE))
 
   # Initialize the auxiliary model.
   aux.model <- structure(list(formula=formula, coef.names = NULL,
@@ -26,11 +26,11 @@ ergm.auxstorage <- function(model, nw, response=NULL,...){
   for(i in seq_along(uniq.aux.outlists)){
     aux.outlist <- uniq.aux.outlists[[i]]
     aux.model <- updatemodel.ErgmTerm(aux.model, aux.outlist)
-    aux.model[[i]]$inputs[2] <- -(i-1) # The storage slot belonging to this auxiliary (replacing the number of stats.
+    aux.model$terms[[i]]$inputs[4] <- i-1 # The storage slot belonging to this auxiliary.
   }
 
   # Which term is requiring which auxiliary slot? (+1)
-  aux.slots <- lapply(term.outlists, match, uniq.aux.outlists)
+  aux.slots <- lapply(aux.outlists, match, uniq.aux.outlists)
 
   for(i in seq_along(model$terms))
     if(length(aux.outlists[[i]]))

@@ -50,9 +50,12 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
   m->n_aux = 0;
   for (l=0; l < n_terms; l++) {
       thisterm = m->termarray + l;
-
-      /* Initialize storage to NULL. */
+      
+      /* Initialize storage and term functions to NULL. */
       thisterm->storage = NULL;
+      thisterm->d_func = NULL;
+      thisterm->s_func = NULL;
+      thisterm->u_func = NULL;
       
       /* First, obtain the term name and library: fnames points to a
       single character string, consisting of the names of the selected
@@ -95,14 +98,7 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
       offset = (int) *inputs++;  /* Set offset for attr vector */
       /*      Rprintf("offsets: %f %f %f %f %f\n",inputs[0],inputs[1],inputs[2], */
       /*		         inputs[3],inputs[4],inputs[5]); */
-      int tmp = (int) *inputs++; /* If >0, # of statistics returned. If <=0, location of the auxiliary storage slot. */
-      if(tmp>0){
-	thisterm->nstats = tmp;
-      }else{
-	thisterm->nstats = 0;
-	thisterm->aux_slot = -tmp;
-	m->n_aux++;
-      }
+      thisterm->nstats = (int) *inputs++; /* If >0, # of statistics returned. If ==0 an auxiliary statistic. */
       
       /*      Rprintf("l %d offset %d thisterm %d\n",l,offset,thisterm->nstats); */
       
@@ -150,7 +146,8 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
 	fn[0]='s';
 	thisterm->s_func = 
 	  (void (*)(WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
-      }
+      }else m->n_aux++;
+      
       /* Optional function to store persistent information about the
 	 network state between calls to d_ functions. */
       fn[0]='u';
@@ -160,7 +157,6 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
       /*Clean up by freeing sn and fn*/
       free((void *)fn);
       free((void *)sn);
-
 
       /*  The lines above set thisterm->inputparams to point to needed input
       parameters (or zero if none) and then increments the inputs pointer so
