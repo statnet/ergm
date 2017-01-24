@@ -8,6 +8,7 @@
  *  Copyright 2003-2013 Statnet Commons
  */
 #include "wtMHproposals.h"
+#include "wtchangestat.h"
 
 /* Shorthand. */
 #define Mtail (MHp->toggletail)
@@ -29,7 +30,7 @@ void MH_StdNormal(WtMHproposal *MHp, WtNetwork *nwp)  {
   
   GetRandDyad(Mtail, Mhead, nwp);
   
-  oldwt = WtGetEdge(Mtail[0],Mhead[0],nwp);
+  oldwt = GETWT(Mtail[0],Mhead[0]);
 
   const double propsd = 0.2; // This ought to be tunable.
 
@@ -57,7 +58,7 @@ void MH_Unif(WtMHproposal *MHp, WtNetwork *nwp)  {
   
   GetRandDyad(Mtail, Mhead, nwp);
   
-  oldwt = WtGetEdge(Mtail[0],Mhead[0],nwp);
+  oldwt = GETWT(Mtail[0],Mhead[0]);
 
   do{
     Mweight[0] = runif(a,b);
@@ -98,7 +99,7 @@ void MH_UnifNonObserved(WtMHproposal *MHp, WtNetwork *nwp)  {
   Mtail[0]=MHp->inputs[rane+2];
   Mhead[1]=MHp->inputs[nmissing+rane+2];
 
-  double oldwt = WtGetEdge(Mtail[0],Mhead[0],nwp);
+  double oldwt = GETWT(Mtail[0],Mhead[0]);
 
   do{
     Mweight[0] = runif(a,b);
@@ -126,7 +127,7 @@ void MH_DiscUnif(WtMHproposal *MHp, WtNetwork *nwp)  {
   
   GetRandDyad(Mtail, Mhead, nwp);
   
-  oldwt = WtGetEdge(Mtail[0],Mhead[0],nwp);
+  oldwt = GETWT(Mtail[0],Mhead[0]);
 
   do{
     Mweight[0] = floor(runif(a,b+1));
@@ -167,7 +168,7 @@ void MH_DiscUnifNonObserved(WtMHproposal *MHp, WtNetwork *nwp)  {
   Mtail[0]=MHp->inputs[rane+2];
   Mhead[1]=MHp->inputs[nmissing+rane+2];
 
-  double oldwt = WtGetEdge(Mtail[0],Mhead[0],nwp);
+  double oldwt = GETWT(Mtail[0],Mhead[0]);
 
   do{
     Mweight[0] = floor(runif(a,b+1));

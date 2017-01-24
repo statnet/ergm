@@ -9,6 +9,7 @@
  */
 #include "MHproposals.h"
 #include "edgelist.h"
+#include "changestat.h"
 
 /* Shorthand. */
 #define Mtail (MHp->toggletail)
@@ -43,7 +44,7 @@ void MH_blockdiag (MHproposal *MHp, Network *nwp)  {
       tail = blkpos[blk-1]+1 + unif_rand() * (blkpos[blk]-blkpos[blk-1]);
       while ((head = blkpos[blk-1]+1 + unif_rand() * (blkpos[blk]-blkpos[blk-1])) == tail);
       
-      if (!nwp->directed_flag && tail > head) {
+      if (!DIRECTED && tail > head) {
 	Mtail[0] = head;
 	Mhead[0] = tail;
       }else{
@@ -127,14 +128,14 @@ void MH_blockdiagTNT (MHproposal *MHp, Network *nwp)
 	tail = blkpos[blk-1]+1 + unif_rand() * (blkpos[blk]-blkpos[blk-1]);
 	while ((head = blkpos[blk-1]+1 + unif_rand() * (blkpos[blk]-blkpos[blk-1])) == tail);
 	
-	if (tail > head && !nwp->directed_flag)  {
+	if (tail > head && !DIRECTED)  {
 	  Mtail[0] = head;
 	  Mhead[0] = tail;
 	}else{
 	  Mtail[0] = tail;
 	  Mhead[0] = head;
 	}
-	if(EdgetreeSearch(Mtail[0],Mhead[0],nwp->outedges)!=0){
+	if(IS_OUTEDGE(Mtail[0],Mhead[0])!=0){
 	  logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
 				nedges / (odds*ndyads + nedges)));
 	}else{
@@ -194,7 +195,7 @@ void MH_blockdiagTNTB (MHproposal *MHp, Network *nwp)
 	Mtail[0] = eblkpos[blk-1]+1 + unif_rand() * (eblkpos[blk]-eblkpos[blk-1]);
 	Mhead[0] = ablkpos[blk-1]+1 + unif_rand() * (ablkpos[blk]-ablkpos[blk-1]);
 
-	if(EdgetreeSearch(Mtail[0],Mhead[0],nwp->outedges)!=0){
+	if(IS_OUTEDGE(Mtail[0],Mhead[0])!=0){
 	  logratio = log((nedges==1 ? 1.0/(comp*ndyads + (1.0-comp)) :
 				nedges / (odds*ndyads + nedges)));
 	}else{
