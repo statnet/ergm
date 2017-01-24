@@ -47,7 +47,7 @@ void CD_wrapper(int *dnumnets, int *nedges,
                           n_nodes, directed_flag, bip, 0, 0, NULL, m->n_aux);
   
   /* Trigger initial storage update */
-  UpdateStats(0, NULL, NULL, nw, m);
+  InitStats(nw, m);
   
   /* Initialize the M-H proposal */
   MH_init(&MH,
@@ -70,7 +70,7 @@ void CD_wrapper(int *dnumnets, int *nedges,
   free(extraworkspace);
   MH_free(&MH);
 
-  ModelDestroy(m);
+  ModelDestroy(m, nw);
   NetworkDestroy(nw);
   PutRNGstate();  /* Disable RNG before returning */
 }

@@ -46,7 +46,7 @@ void wt_network_stats_wrapper(int *tails, int *heads, double *weights, int *timi
      statistics will simply overwrite them.*/
   WtSummStats(n_edges, tails, heads, weights, nw, m,stats);
   
-  WtModelDestroy(m);
+  WtModelDestroy(m, nw);
   WtNetworkDestroy(nw);
 }
 
@@ -71,9 +71,10 @@ WtNetwork *nwp, WtModel *m, double *stats){
   // Initialize the storage.
   for (unsigned int termi=0; termi < m->n_terms; termi++, mtp++){
     if(!mtp->s_func){
+	if(mtp->i_func)
+	  (*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
 	if(mtp->u_func)
-	  (*(mtp->u_func))(0, NULL, NULL, NULL,
-			   mtp, nwp);  /* Call u_??? function */
+	  (*(mtp->u_func))(0, NULL, NULL, NULL, mtp, nwp);  /* Call u_??? function */
     }
   }
 

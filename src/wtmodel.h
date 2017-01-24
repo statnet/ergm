@@ -32,7 +32,7 @@ typedef struct WtModelstruct {
 WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputs,
 			int n_terms);
 
-void WtModelDestroy(WtModel *m);
+void WtModelDestroy(WtModel *m, WtNetwork *nwp);
 
 /* A WtModel object contains information about an entire ERGM, including the
    total numbers of terms, parameters, and statistics along with a pointer
@@ -41,6 +41,12 @@ void WtModelDestroy(WtModel *m);
 void WtChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, double *toggleweight, WtNetwork *nwp, WtModel *m);
 
 void WtUpdateStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, double *toggleweight, WtNetwork *nwp, WtModel *m);
+
+void WtInitStats(WtNetwork *nwp, WtModel *m);
+
+void WtDestroyStats(WtNetwork *nwp, WtModel *m);
+
+
 
 #endif
 

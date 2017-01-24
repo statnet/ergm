@@ -59,7 +59,7 @@ void WtSAN_wrapper (int *dnumnets, int *nedges,
 			    n_nodes, directed_flag, bip, 0, 0, NULL, m->n_aux);
 
   /* Trigger initial storage update */
-  WtUpdateStats(0, NULL, NULL, NULL, nw, m);
+  WtInitStats(nw, m);
   
   /* Initialize the M-H proposal */
   WtMH_init(&MH,
@@ -82,7 +82,7 @@ void WtSAN_wrapper (int *dnumnets, int *nedges,
   if(*status == WtMCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads)
     newnetworktails[0]=newnetworkheads[0]=WtEdgeTree2EdgeList(newnetworktails+1,newnetworkheads,newnetworkweights,nw,nmax-1);
 
-  WtModelDestroy(m);
+  WtModelDestroy(m, nw);
   WtNetworkDestroy(nw);
   PutRNGstate();  /* Disable RNG before returning */
 }

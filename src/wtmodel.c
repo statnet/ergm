@@ -13,15 +13,9 @@
 /*****************
   void WtModelDestroy
 ******************/
-void WtModelDestroy(WtModel *m)
+void WtModelDestroy(WtModel *m, WtNetwork *nwp)
 {  
-  int i;
-
-  for(i=0; i < m->n_terms; i++){
-    free(m->dstatarray[i]);
-    free(m->termarray[i].statcache);
-    if(m->termarray[i].storage) free(m->termarray[i].storage);
-  }
+  WtDestroyStats(nwp, m);
   free(m->dstatarray);
   free(m->termarray);
   free(m->workspace); 
@@ -55,7 +49,9 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
       thisterm->storage = NULL;
       thisterm->d_func = NULL;
       thisterm->s_func = NULL;
+      thisterm->i_func = NULL;
       thisterm->u_func = NULL;
+      thisterm->f_func = NULL;
       
       /* First, obtain the term name and library: fnames points to a
       single character string, consisting of the names of the selected
@@ -156,9 +152,21 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
       /* If it's an auxiliary, then it needs a u_function, or
 	 it's not doing anything. */
       if(thisterm->nstats==0 && thisterm->u_func==NULL){
-	  error("Error in ModelInitialize: could not find function %s in "
-                "namespace for package %s. Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
+	  error("Error in WtModelInitialize: could not find updater function %s in "
+                "namespace for package %s: this term will not do anything. Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
       }
+
+      /* Optional-optional functions to initialize and finalize the
+	 term's storage. */
+      
+      fn[0]='i';
+      thisterm->i_func = 
+	(void (*)(WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+
+      fn[0]='f';
+      thisterm->f_func = 
+	(void (*)(WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+
       
       /*Clean up by freeing sn and fn*/
       free((void *)fn);
@@ -215,6 +223,45 @@ void WtUpdateStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead
       (*(mtp->u_func))(ntoggles, toggletail, togglehead, toggleweight, 
 		       mtp, nwp);  /* Call u_??? function */
     mtp->dstats = dstats;
+    mtp++;
+  }
+}
+      
+/*
+  WtInitStats
+  A helper's helper function to initialize storage for functions that use it.
+*/
+void WtInitStats(WtNetwork *nwp, WtModel *m){
+  WtModelTerm *mtp = m->termarray;
+  for (unsigned int i=0; i < m->n_terms; i++){
+    double *dstats = mtp->dstats;
+    mtp->dstats = NULL; // Trigger segfault if u_func tries to write to change statistics.
+    if(mtp->i_func)
+      (*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
+    mtp->dstats = dstats;
+    mtp++;
+  }
+
+  // Run a null update, in case the implementer uses the one-function
+  // implementation.
+  WtUpdateStats(0, NULL, NULL, NULL, nwp, m);
+}
+
+/*
+  WtDestroyStats
+  A helper's helper function to finalize storage for functions that use it.
+*/
+void WtDestroyStats(WtNetwork *nwp, WtModel *m){
+  WtModelTerm *mtp = m->termarray;
+  for (unsigned int i=0; i < m->n_terms; i++){
+    if(mtp->f_func)
+      (*(mtp->f_func))(mtp, nwp);  /* Call f_??? function */
+    free(m->dstatarray[i]);
+    free(mtp->statcache);
+    if(mtp->storage){
+      free(mtp->storage);
+      mtp->storage = NULL;
+    }
     mtp++;
   }
 }

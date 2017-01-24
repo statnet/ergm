@@ -15,7 +15,9 @@
 
 typedef struct ModelTermstruct {
   void (*d_func)(Edge, Vertex*, Vertex*, struct ModelTermstruct*, Network*);
+  void (*i_func)(struct ModelTermstruct*, Network*);
   void (*u_func)(Edge, Vertex*, Vertex*, struct ModelTermstruct*, Network*);
+  void (*f_func)(struct ModelTermstruct*, Network*);
   void (*s_func)(struct ModelTermstruct*, Network*);
   double *attrib; /* Ptr to vector of covariates (if necessary; generally unused) */
   int nstats;   /* Number of change statistics to be returned */
@@ -86,8 +88,12 @@ double my_choose(double n, int r);
 #define DIRECTED (nwp->directed_flag) /* 0 if network is undirected, 1 if directed */
 #define N_EDGES (nwp->nedges) /* Total number of edges in the network currently */
 
-/* 0 if network is not bipartite, otherwise number of first node of second type */
+/* 0 if network is not bipartite, otherwise number of nodes of the first type (the first node of the second type has Vertex index BIPARTITE+1 */
 #define BIPARTITE (nwp->bipartite)
+
+/* Get the number of tails and the number of heads consistently for both bipartite and unipartite networks. */
+#define N_TAILS (BIPARTITE ? BIPARTITE : N_NODES)
+#define N_HEADS (BIPARTITE ? N_NODES-BIPARTITE : N_NODES)
 
 /* Used for internal purposes:  assigning the next in- and out-edge when
    needed */
@@ -119,6 +125,13 @@ double my_choose(double n, int r);
 #define UNDO_PREVIOUS_TOGGLES(a) (a)--; while(--(a)>=0) TOGGLE(tails[(a)],heads[(a)])
 #define UNDO_PREVIOUS_DISCORD_TOGGLES(a) (a)--; while(--(a)>=0) {TOGGLE(tails[(a)],heads[(a)]); TOGGLE_DISCORD(tails[(a)],heads[(a)])}
 
+#define ALLOC_STORAGE(nmemb, stored_type, store_into) stored_type *store_into = (stored_type *) (mtp->storage = calloc(nmemb, sizeof(stored_type)));
+#define GET_STORAGE(stored_type, store_into) stored_type *store_into = (stored_type *) mtp->storage;
+
+#define ALLOC_AUX_STORAGE(nmemb, stored_type, store_into) stored_type *store_into = (stored_type *) (nwp->aux_storage[(unsigned int) INPUT_PARAM[0]] = calloc(nmemb, sizeof(stored_type)));
+#define GET_AUX_STORAGE(stored_type, store_into) stored_type *store_into = (stored_type *) nwp->aux_storage[(unsigned int) INPUT_PARAM[0]];
+#define GET_AUX_STORAGE_NUM(stored_type, store_into, ind) stored_type *store_into = (stored_type *) nwp->aux_storage[(unsigned int) INPUT_PARAM[ind]];
+
 #define INIT_STORAGE(stored_type, store_into, initialization_code)	\
   stored_type *store_into;						\
   if(!mtp->storage){							\
@@ -135,7 +148,9 @@ double my_choose(double n, int r);
 
 /* NB:  CHANGESTAT_FN is now deprecated (replaced by D_CHANGESTAT_FN) */
 #define D_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp)
+#define I_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)
 #define U_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *tails, Vertex *heads, ModelTerm *mtp, Network *nwp)
+#define F_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)
 #define S_CHANGESTAT_FN(a) void (a) (ModelTerm *mtp, Network *nwp)
 
 /* This macro wraps two calls to an s_??? function with toggles
