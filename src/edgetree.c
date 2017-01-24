@@ -727,9 +727,7 @@ int GetRandEdge(Vertex *tail, Vertex *head, Network *nwp) {
   value of i is (ndyads - nwp->nedges).
 ******************/
 
-/* This function is not yet written.  It's not clear whether it'll
-   be needed. */      
-  /* *** but if it is needed, don't forget,  tail -> head */
+  /* *** don't forget,  tail -> head */
 
 int FindithNonedge (Vertex *tail, Vertex *head, Edge i, Network *nwp) {
   Vertex taili=1;
