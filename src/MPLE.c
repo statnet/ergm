@@ -53,12 +53,12 @@ void MPLE_wrapper(int *tails, int *heads, int *dnedges,
                           n_nodes, directed_flag, bip, 0, 0, NULL, m->n_aux);
   
   /* Trigger initial storage update */
-  UpdateStats(0, NULL, NULL, nw, m);
+  InitStats(nw, m);
 
   if(*wl) MpleInit_hash_wl(responsevec, covmat, weightsvector, lel, *maxDyadTypes, nw, m); 
   else MpleInit_hash_bl(responsevec, covmat, weightsvector, lel, *maxDyads, *maxDyadTypes, nw, m); 
 
-  ModelDestroy(m);
+  ModelDestroy(m, nw);
   NetworkDestroy(nw);
   PutRNGstate(); /* Must be called after GetRNGstate before returning to R */
 }

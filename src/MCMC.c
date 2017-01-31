@@ -59,7 +59,7 @@ void MCMC_wrapper(int *dnumnets, int *nedges,
                           n_nodes, directed_flag, bip, 0, 0, NULL, m->n_aux);
 
   /* Trigger initial storage update */
-  UpdateStats(0, NULL, NULL, nw, m);
+  InitStats(nw, m);
 
   /* Initialize the M-H proposal */
   MH_init(&MH,
@@ -82,7 +82,7 @@ void MCMC_wrapper(int *dnumnets, int *nedges,
   if(*status == MCMC_OK && *maxedges>0 && newnetworktails && newnetworkheads)
     newnetworktails[0]=newnetworkheads[0]=EdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,nw,nmax-1);
   
-  ModelDestroy(m);
+  ModelDestroy(m, nw);
   NetworkDestroy(nw);
   PutRNGstate();  /* Disable RNG before returning */
 }
@@ -363,7 +363,7 @@ void MCMCPhase12 (int *tails, int *heads, int *dnedges,
   if(nmax>0 && newnetworktails && newnetworkheads)
     newnetworktails[0]=newnetworkheads[0]=EdgeTree2EdgeList(newnetworktails+1,newnetworkheads+1,nw,nmax-1);
 
-  ModelDestroy(m);
+  ModelDestroy(m, nw);
 
   NetworkDestroy(nw);
   PutRNGstate();  /* Disable RNG before returning */

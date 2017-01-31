@@ -63,7 +63,7 @@ void AllStatistics (
   nwp = &nw;
 
   /* Trigger initial storage update */
-  UpdateStats(0, NULL, NULL, nwp, m);
+  InitStats(nwp, m);
   
   /* Step 2:  Build nodelist1 and nodelist2, which together give all of the
   dyads in the network. */
@@ -109,7 +109,7 @@ void AllStatistics (
            cumulativeStats, covmat, weightsvector, *maxNumDyadTypes, nwp, m);
 
   /* Step 5:  Deallocate memory and return */
-  ModelDestroy(m);
+  ModelDestroy(m, nwp);
   NetworkDestroy(nwp);
   PutRNGstate(); /* Must be called after GetRNGstate before returning to R */
 }

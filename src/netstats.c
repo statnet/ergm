@@ -49,7 +49,7 @@ void network_stats_wrapper(int *tails, int *heads, int *timings, int *time, int 
      statistics will simply overwrite them. */
   SummStats(n_edges, tails, heads, nw, m, stats);
   
-  ModelDestroy(m);
+  ModelDestroy(m, nw);
   NetworkDestroy(nw);
 }
 
@@ -77,9 +77,10 @@ Network *nwp, Model *m, double *stats){
   // Initialize the storage.
   for (unsigned int termi=0; termi < m->n_terms; termi++, mtp++){
     if(!mtp->s_func){
+	if(mtp->i_func)
+	  (*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
 	if(mtp->u_func)
-	  (*(mtp->u_func))(0, NULL, NULL,
-			   mtp, nwp);  /* Call u_??? function */
+	  (*(mtp->u_func))(0, NULL, NULL, mtp, nwp);  /* Call u_??? function */
     }
   }
 

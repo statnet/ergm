@@ -46,7 +46,7 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
 			    n_nodes, directed_flag, bip, 0, 0, NULL, m->n_aux);
 
   /* Trigger initial storage update */
-  WtUpdateStats(0, NULL, NULL, NULL, nw, m);
+  WtInitStats(nw, m);
   
   /* Initialize the M-H proposal */
   WtMH_init(&MH,
@@ -72,7 +72,7 @@ void WtCD_wrapper(int *dnumnets, int *nedges,
         
 /* Rprintf("Back! %d %d\n",nw[0].nedges, nmax); */
   
-  WtModelDestroy(m);
+  WtModelDestroy(m, nw);
   WtNetworkDestroy(nw);
   PutRNGstate();  /* Disable RNG before returning */
 }

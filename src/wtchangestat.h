@@ -14,7 +14,9 @@
 
 typedef struct WtModelTermstruct {
   void (*d_func)(Edge, Vertex*, Vertex*, double*, struct WtModelTermstruct*, WtNetwork*);
+  void (*i_func)(struct WtModelTermstruct*, WtNetwork*);
   void (*u_func)(Edge, Vertex*, Vertex*, double*, struct WtModelTermstruct*, WtNetwork*);
+  void (*f_func)(struct WtModelTermstruct*, WtNetwork*);
   void (*s_func)(struct WtModelTermstruct*, WtNetwork*);
   double *attrib; /* Ptr to vector of covariates (if necessary; generally unused) */
   int nstats;   /* Number of change statistics to be returned */
@@ -107,6 +109,10 @@ typedef struct WtModelTermstruct {
 /* 0 if network is not bipartite, otherwise number of first node of second type */
 #define BIPARTITE (nwp->bipartite)
 
+/* Get the number of tails and the number of heads consistently for both bipartite and unipartite networks. */
+#define N_TAILS (BIPARTITE ? BIPARTITE : N_NODES)
+#define N_HEADS (BIPARTITE ? N_NODES-BIPARTITE : N_NODES)
+
 /* Used for internal purposes:  assigning the next in- and out-edge when
    needed */
 #define NEXT_INEDGE_NUM (nwp->next_inedge)
@@ -161,6 +167,13 @@ typedef struct WtModelTermstruct {
 #define GETNEWWT(a,b) (SAMEDYAD(TAIL,HEAD,a,b)?NEWWT:GETWT(a,b))
 #define GETNEWWTOLD(a,b,old) (SAMEDYAD(TAIL,HEAD,a,b)?NEWWT:(old))
 
+#define ALLOC_STORAGE(nmemb, stored_type, store_into) stored_type *store_into = (stored_type *) (mtp->storage = calloc(nmemb, sizeof(stored_type)));
+#define GET_STORAGE(stored_type, store_into) stored_type *store_into = (stored_type *) mtp->storage;
+
+#define ALLOC_AUX_STORAGE(nmemb, stored_type, store_into) stored_type *store_into = (stored_type *) (nwp->aux_storage[(unsigned int) INPUT_PARAM[0]] = calloc(nmemb, sizeof(stored_type)));
+#define GET_AUX_STORAGE(stored_type, store_into) stored_type *store_into = (stored_type *) nwp->aux_storage[(unsigned int) INPUT_PARAM[0]];
+#define GET_AUX_STORAGE_NUM(stored_type, store_into, ind) stored_type *store_into = (stored_type *) nwp->aux_storage[(unsigned int) INPUT_PARAM[ind]];
+
 #define INIT_STORAGE(stored_type, store_into, initialization_code)	\
   stored_type *store_into;						\
   if(!mtp->storage){							\
@@ -172,7 +185,9 @@ typedef struct WtModelTermstruct {
 /* changestat function prototypes, 
    plus a few supporting function prototypes */
 #define WtD_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *tails, Vertex *heads, double *weights, WtModelTerm *mtp, WtNetwork *nwp)
+#define WtI_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
 #define WtU_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *tails, Vertex *heads, double *weights, WtModelTerm *mtp, WtNetwork *nwp)
+#define WtF_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
 #define WtS_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
 
 /* This macro wraps two calls to an s_??? function with toggles
