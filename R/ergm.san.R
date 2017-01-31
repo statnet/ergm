@@ -127,16 +127,6 @@ san.formula <- function(object, response=NULL, reference=~Bernoulli, constraints
 # }
 # control$coef <- c(control$coef[1],rep(0,Clist$nstats-1))
   
-  if(MHproposal$name %in% c("CondDegree","CondDegreeMix")){ 
-   formula.conddegmple <- ergm.update.formula(formula, . ~ conddegmple + .)
-   m.conddeg <- ergm.getmodel(formula.conddegmple, nw)
-   Clist.conddegmple <- ergm.Cprepare(nw, m.conddeg)
-   Clist.conddegmple$target.stats=c(1,target.stats)
-   conddeg <- list(m=m.conddeg, Clist=Clist.conddegmple, Clist.miss=ergm.Cprepare(nw, m.conddeg))
-  }else{
-   conddeg <- NULL
-  }
-
   if (verb) {
     cat(paste("Starting ",nsim," MCMC iteration", ifelse(nsim>1,"s",""),
         " of ", control$SAN.burnin+control$SAN.interval*(nsim-1), 

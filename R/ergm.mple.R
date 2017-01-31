@@ -20,9 +20,6 @@
 #   save.glm         : whether the mple fit and the null mple fit should be
 #                      returned (T or F); if false, NULL is returned for both;
 #                      default==TRUE
-#   conddeg          : an indicator of whether the MPLE should be conditional
-#                      on degree; non-NULL values indicate yes, NULL no;
-#                      default=NULL.
 #   control       : a list of MCMC related parameters; recognized components
 #                      include:
 #         samplesize : the number of networks to sample
@@ -44,13 +41,12 @@ ergm.mple<-function(Clist, Clist.miss, m, init=NULL,
                     MPLEtype="glm", family="binomial",
                     maxMPLEsamplesize=1e+6,
                     save.glm=TRUE,
-		    conddeg=NULL, control=NULL, MHproposal=NULL,
+		    control=NULL, MHproposal=NULL,
                     verbose=FALSE,
                     ...) {
   pl <- ergm.pl(Clist=Clist, Clist.miss=Clist.miss, m=m,
                 theta.offset=init,
                 maxMPLEsamplesize=maxMPLEsamplesize,
-                conddeg=conddeg, 
 		control=control, MHproposal=MHproposal,
                 ignore.offset=MPLEtype=="logitreg",
                 verbose=verbose)

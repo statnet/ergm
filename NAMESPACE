@@ -1,4 +1,3 @@
-
 useDynLib(ergm)
 
 importFrom(robustbase, lmrob, covMcd)
