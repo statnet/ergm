@@ -12,12 +12,12 @@ The \code{ergm.mple} function finds a maximizer to the psuedolikelihood function
 }
 \usage{
 ergm.mple(Clist, Clist.miss, m, init = NULL, MPLEtype = "glm", family = "binomial",
-         maxMPLEsamplesize = 1e+06, save.glm = TRUE, conddeg = NULL, 
+         maxMPLEsamplesize = 1e+06, save.glm = TRUE,
          control = NULL, MHproposal = NULL, verbose = FALSE, ...)
 
 ergm.pl(Clist, Clist.miss, m, theta.offset=NULL,
                     maxMPLEsamplesize=1e+6,
-                    conddeg=NULL, control, MHproposal, ignore.offset=FALSE,
+                    control, MHproposal, ignore.offset=FALSE,
                     verbose=FALSE)
 }                    
 
@@ -49,11 +49,6 @@ the sample size to use for endogenous sampling in the psuedo-likelihood computat
 whether the mple fit and the null mple fit should be
                       returned (T or F); if false, NULL is returned for both;
                     default==TRUE
-}
-  \item{conddeg}{
-an indicator of whether the MPLE should be conditional
-                      on degree; non-NULL values indicate yes, NULL no;
-                     default=NULL.
 }
   \item{control}{
 a list of MCMC related parameters; recognized components

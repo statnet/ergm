@@ -221,11 +221,9 @@ ergm <- function(formula, response=NULL,
   
   if(verbose) cat("\n")
   
-  # conddeg MPLE only handles tetrad toggles, so it must be restricted:
-  conddeg <- switch(!is.directed(nw) && ("degrees" %in% names(MHproposal$arguments$constraints) ||
-                                           all(c("b1degrees","b2degrees") %in% names(MHproposal$arguments$constraints))),
-                    control$drop,
-                    NULL)
+  # conddeg MPLE has been superceded, but let the user know:
+  if(!is.directed(nw) && ("degrees" %in% names(MHproposal$arguments$constraints) ||
+                                           all(c("b1degrees","b2degrees") %in% names(MHproposal$arguments$constraints)))) message("Note that degree-conditional MPLE has been removed in version 4.0, having been superceded by Contrastive Divergence.")  
   
   if (verbose) cat("Initializing model.\n")
   
@@ -233,14 +231,13 @@ ergm <- function(formula, response=NULL,
   
   # The following kludge knocks out MPLE if the sample space
   # constraints are not dyad-independent. For example, ~observed
-  # constraint is dyad-independent, while ~edges is not. The exception
-  # is conddeg, which is a special case.
+  # constraint is dyad-independent, while ~edges is not.
   #
   # TODO: Create a flexible and general framework to manage methods
   # for obtaining initial values.
   init.candidates <- ergm.init.methods(MHproposal$reference$name)
   if("MPLE" %in% init.candidates && !is.dyad.independent(MHproposal$arguments$constraints,
-                                                         MHproposal.obs$arguments$constraints) && is.null(conddeg)){
+                                                         MHproposal.obs$arguments$constraints)){
     init.candidates <- init.candidates[init.candidates!="MPLE"]
     if(verbose) cat("MPLE cannot be used for this constraint structure.\n")
   }
@@ -289,7 +286,7 @@ ergm <- function(formula, response=NULL,
   if(estimate=="MPLE"){
     if(!is.null(response)) stop("Maximum Pseudo-Likelihood (MPLE) estimation for valued ERGM terms is not implemented at this time. You may want to use Contrastive Divergence by passing estimate='CD' instead.")
     if(!is.dyad.independent(MHproposal$arguments$constraints,
-                            MHproposal.obs$arguments$constraints) && is.null(conddeg))
+                            MHproposal.obs$arguments$constraints))
       stop("Maximum Pseudo-Likelihood (MPLE) estimation for ERGMs with dyad-dependent constraints is only implemented for certain degree constraints at this time. You may want to use Contrastive Divergence by passing estimate='CD' instead.")
   }
   
@@ -352,7 +349,7 @@ ergm <- function(formula, response=NULL,
                                 formula=formula, nw=nw, reference=reference, 
                                 m=model, method=control$init.method,
                                 MPLEtype=control$MPLE.type, 
-                                conddeg=conddeg, control=control,
+                                control=control,
                                 MHproposal=MHproposal,
                                 MHproposal.obs=MHproposal.obs,
                                 verbose=verbose, response=response,
