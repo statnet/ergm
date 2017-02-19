@@ -1226,6 +1226,37 @@ InitErgmTerm.density<-function(nw, arglist, ...) {
   list(name="density", coef.names="density", dependence=FALSE, minval = 0, maxval = 1, conflicts.constraints="edges")
 }
 
+################################################################################
+InitErgmTerm.diff <- function(nw, arglist, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
+                      varnames = c("attrname","pow", "dir", "sign.action"),
+                      vartypes = c("character","numeric", "character", "character"),
+                      defaultvalues = list(NULL,1, "t-h", "identity"),
+                      required = c(TRUE,FALSE, FALSE, FALSE))
+  ### Process the arguments
+  nodecov <- get.node.attr(nw, a$attrname)
+  DIRS <- c("t-h", "tail-head", "b1-b2",
+            "h-t", "head-tail", "b2-b1")
+  dir <- match.arg(tolower(a$dir), DIRS)
+  dir.mul <- if(match(dir, DIRS)<=3) +1 else -1
+  
+  SIGN.ACTIONS <- c("identity", "abs", "posonly", "negonly")
+  sign.action <- match.arg(tolower(a$sign.action), SIGN.ACTIONS)
+  sign.code <- match(sign.action, SIGN.ACTIONS)
+
+  if(sign.action!="abs" && !is.directed(nw)) message("Note that behavior of term diff() on undirected networks may be unexpected. See help(\"ergm-terms\") for more information.")
+  
+  # 1 and 4 are sign codes that allow negative differences.
+  if(sign.code %in% c(1, 4) &&  a$pow!=round(a$pow)) stop("In term diff(attrname, pow, sign=",a$sign,"), pow must be an integer.")
+  
+  ### Construct the list to return
+  list(name="diff",                                     #name: required
+       coef.names = paste0("diff", if(a$pow!=1) a$pow else "", if(sign.action!="identity") paste0(".", sign.action), if(sign.action!="abs") paste0(".", dir), ".", a$attrname), #coef.names: required
+       inputs = c(a$pow, dir.mul, sign.code, nodecov),  # We need to include the nodal covariate for this term
+       dependence = FALSE # So we don't use MCMC if not necessary
+       )
+}
 
 
 ################################################################################
