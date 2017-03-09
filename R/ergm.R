@@ -237,6 +237,7 @@ ergm <- function(formula, response=NULL,
                                            all(c("b1degrees","b2degrees") %in% names(MHproposal$arguments$constraints))),
                     control$drop,
                     NULL)
+  if(!is.null(conddeg)) .Deprecated("Contrastive Divergence", old="Degree-Conditioned MPLE")
   
   if (verbose) cat("Initializing model.\n")
   
