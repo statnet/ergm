@@ -14,16 +14,78 @@
 % When a release is forked, copy the sections to a new release and
 % delete unused sections.
 
+\section{Changes in version 3.6.2}{
 
-\section{Changes in version 3.6.1}{
+  \subsection{NEW FEATURES}{
+    \itemize{
 
-  %% \subsection{NEW FEATURES}{
+      \item{
+	New term \code{\link[ergm]{diff}}, a directed analogue to
+	\code{\link{absdiff}} has been added, allowing for different
+	ways to handle differences in nodal attributes.
+      }
+      
+      \item{
+	By default, \code{\link{gof}} now checks goodness-of-fit
+	with respect to the estimated model in addition to the specified
+	terms. This can be used to diagnose convergence.
+      }
+
+      
+    }
+  }
+   
+  
+   \subsection{BUG FIXES}{
+     \itemize{
+       
+       \item{Terms \code{\link{concurrent}}, \code{\link{degree}},
+	 \code{\link{degrange}}, and \code{concurrentties}
+	 \dQuote{\code{byarg}} argument has been corrected to
+	 \dQuote{\code{by}}.}
+
+       \item{The bug in the Contrastive Divergence code that caused ERGM
+	 fits with \code{bd} constraint to hang has been fixed.}
+
+       \item{Miscellaneous fixes and robustifications in the step-length
+	 code.}
+       
+     }
+   }
+
+  
+   %% \subsection{OTHER USER-VISIBLE CHANGES}{
+   %%   \itemize{
+   %%   }
+   %% }
+
+  %% \subsection{C-LEVEL FACILITIES}{
   %%   \itemize{
-  %%     \item{
-  %%     }
   %%   }
   %% }
-   
+
+  % \subsection{UTILITIES}{
+  %   \itemize{
+  %     \item Likewise, "UTILITIES" is probably unnecessary.
+  %   }
+  % }
+
+  % \subsection{INSTALLATION}{
+  %   \itemize{
+  %     \item ... as is "INSTALLATION".
+  %   }
+  % }
+
+  % \subsection{PACKAGE INSTALLATION}{
+  %   \itemize{
+  %     \item ditto.
+  %   }
+  % }
+
+}
+
+
+\section{Changes in version 3.6.1}{   
   
    \subsection{BUG FIXES}{
      \itemize{
@@ -44,36 +106,6 @@
 
      }
    }
-
-  
-   %% \subsection{OTHER USER-VISIBLE CHANGES}{
-   %%   \itemize{
-   %%   }
-   %% }
-
-  % \subsection{C-LEVEL FACILITIES}{
-  %   \itemize{
-  %   }
-  % }
-
-  % \subsection{UTILITIES}{
-  %   \itemize{
-  %     \item Likewise, "UTILITIES" is probably unnecessary.
-  %   }
-  % }
-
-  % \subsection{INSTALLATION}{
-  %   \itemize{
-  %     \item ... as is "INSTALLATION".
-  %   }
-  % }
-
-  % \subsection{PACKAGE INSTALLATION}{
-  %   \itemize{
-  %     \item ditto.
-  %   }
-  % }
-
 }
 
 

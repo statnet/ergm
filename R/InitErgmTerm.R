@@ -278,11 +278,11 @@ InitErgmTerm.asymmetric <- function(nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.b1concurrent<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-                      varnames = c("byarg"),
+                      varnames = c("by"),
                       vartypes = c("character"),
                       defaultvalues = list(NULL),
                       required = c(FALSE))
-  byarg <- a$byarg
+  byarg <- a$by
   nb1 <- get.network.attribute(nw, "bipartite")       
   if(!is.null(byarg)) {
     nodecov <- get.node.attr(nw, byarg, "b1concurrent")[seq_len(nb1)]
@@ -312,11 +312,11 @@ InitErgmTerm.b1concurrent<-function(nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.b1degrange<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, bipartite=TRUE,
-                      varnames = c("from", "to", "byarg", "homophily"),
+                      varnames = c("from", "to", "by", "homophily"),
                       vartypes = c("numeric", "numeric", "character", "logical"),
                       defaultvalues = list(NULL, Inf, NULL, FALSE),
                       required = c(TRUE, FALSE, FALSE, FALSE))
-  from<-a$from; to<-a$to; byarg <- a$byarg; homophily <- a$homophily
+  from<-a$from; to<-a$to; byarg <- a$by; homophily <- a$homophily
   to <- ifelse(to==Inf, network.size(nw)+1, to)
 
   if(length(to)==1 && length(from)>1) to <- rep(to, length(from))
@@ -406,14 +406,14 @@ InitErgmTerm.b1cov<-function (nw, arglist, ...) {
 InitErgmTerm.b1degree <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
-                       varnames = c("d", "byarg"),
+                       varnames = c("d", "by"),
                        vartypes = c("numeric", "character"),
                        defaultvalues = list(NULL, NULL),
                        required = c(TRUE, FALSE))
   ### Process the arguments
   nb1 <- get.network.attribute(nw, "bipartite")
-  if (!is.null(a$byarg)) {  # CASE 1:  a$byarg GIVEN
-    nodecov <- get.node.attr(nw, a$byarg)[seq_len(nb1)]
+  if (!is.null(a$by)) {  # CASE 1:  a$by GIVEN
+    nodecov <- get.node.attr(nw, a$by)[seq_len(nb1)]
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u) # Recode to numeric
@@ -428,9 +428,9 @@ InitErgmTerm.b1degree <- function(nw, arglist, ...) {
       emptynwstats[du[1,]==0] <- tmp
     }
     name <- "b1degree_by_attr"
-    coef.names <- paste("b1deg", du[1,], ".", a$byarg, u[du[2,]], sep="")
+    coef.names <- paste("b1deg", du[1,], ".", a$by, u[du[2,]], sep="")
     inputs <- c(as.vector(du), nodecov)
-  } else { # CASE 2:  a$byarg NOT GIVEN
+  } else { # CASE 2:  a$by NOT GIVEN
     name <- "b1degree"
     coef.names <- paste("b1deg", a$d, sep="")
     inputs <- a$d
@@ -593,11 +593,11 @@ InitErgmTerm.b1twostar <- function(nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.b2concurrent<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE, bipartite=TRUE,
-                      varnames = c("byarg"),
+                      varnames = c("by"),
                       vartypes = c("character"),
                       defaultvalues = list(NULL),
                       required = c(FALSE))
-  byarg <- a$byarg
+  byarg <- a$by
   nb1 <- get.network.attribute(nw, "bipartite")
   if(!is.null(byarg)) {
     nodecov <- get.node.attr(nw, byarg, "b2concurrent")[-seq_len(nb1)]
@@ -644,11 +644,11 @@ InitErgmTerm.b2cov<-function (nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.b2degrange<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, bipartite=TRUE,
-                      varnames = c("from", "to", "byarg", "homophily"),
+                      varnames = c("from", "to", "by", "homophily"),
                       vartypes = c("numeric", "numeric", "character", "logical"),
                       defaultvalues = list(NULL, Inf, NULL, FALSE),
                       required = c(TRUE, FALSE, FALSE, FALSE))
-  from<-a$from; to<-a$to; byarg <- a$byarg; homophily <- a$homophily
+  from<-a$from; to<-a$to; byarg <- a$by; homophily <- a$homophily
   to <- ifelse(to==Inf, network.size(nw)+1, to)
 
   if(length(to)==1 && length(from)>1) to <- rep(to, length(from))
@@ -721,15 +721,15 @@ InitErgmTerm.b2degrange<-function(nw, arglist, ...) {
 InitErgmTerm.b2degree <- function(nw, arglist, ...) {
   ### Check the network and arguments to make sure they are appropriate.
   a <- check.ErgmTerm (nw, arglist, directed=FALSE, bipartite=TRUE,
-                       varnames = c("d", "byarg"),
+                       varnames = c("d", "by"),
                        vartypes = c("numeric", "character"),
                        defaultvalues = list(NULL, NULL),
                        required = c(TRUE, FALSE))
   ### Process the arguments
   nb1 <- get.network.attribute(nw, "bipartite")
   n <- network.size(nw)
-  if (!is.null(a$byarg)) {  # CASE 1:  a$byarg GIVEN
-    nodecov <- get.node.attr(nw, a$byarg)[-seq_len(nb1)]
+  if (!is.null(a$by)) {  # CASE 1:  a$by GIVEN
+    nodecov <- get.node.attr(nw, a$by)[-seq_len(nb1)]
     u<-sort(unique(nodecov))
     if(any(is.na(nodecov))){u<-c(u,NA)}
     nodecov <- match(nodecov,u) # Recode to numeric
@@ -744,9 +744,9 @@ InitErgmTerm.b2degree <- function(nw, arglist, ...) {
       emptynwstats[du[1,]==0] <- tmp
     }
     name <- "b2degree_by_attr"
-    coef.names <- paste("b2deg", du[1,], ".", a$byarg, u[du[2,]], sep="")
+    coef.names <- paste("b2deg", du[1,], ".", a$by, u[du[2,]], sep="")
     inputs <- c(as.vector(du), nodecov)
-  } else { # CASE 2:  a$byarg NOT GIVEN
+  } else { # CASE 2:  a$by NOT GIVEN
     name <- "b2degree"
     coef.names <- paste("b2deg", a$d, sep="")
     inputs <- a$d
@@ -952,11 +952,11 @@ InitErgmTerm.balance<-function (nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.concurrent<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE,
-                      varnames = c("byarg"),
+                      varnames = c("by"),
                       vartypes = c("character"),
                       defaultvalues = list(NULL),
                       required = c(FALSE))
-  byarg <- a$byarg
+  byarg <- a$by
   if(!is.null(byarg)) {
     nodecov <- get.node.attr(nw, byarg, "concurrent")
     u<-sort(unique(nodecov))
@@ -1076,11 +1076,11 @@ InitErgmTerm.degcrossprod<-function (nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.degrange<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE,
-                      varnames = c("from", "to", "byarg", "homophily"),
+                      varnames = c("from", "to", "by", "homophily"),
                       vartypes = c("numeric", "numeric", "character", "logical"),
                       defaultvalues = list(NULL, Inf, NULL, FALSE),
                       required = c(TRUE, FALSE, FALSE, FALSE))
-  from<-a$from; to<-a$to; byarg <- a$byarg; homophily <- a$homophily
+  from<-a$from; to<-a$to; byarg <- a$by; homophily <- a$homophily
   to <- ifelse(to==Inf, network.size(nw)+1, to)
 
   if(length(to)==1 && length(from)>1) to <- rep(to, length(from))
@@ -1149,11 +1149,11 @@ InitErgmTerm.degrange<-function(nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.degree<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=FALSE,
-                      varnames = c("d", "byarg", "homophily"),
+                      varnames = c("d", "by", "homophily"),
                       vartypes = c("numeric", "character", "logical"),
                       defaultvalues = list(NULL, NULL, FALSE),
                       required = c(TRUE, FALSE, FALSE))
-  d<-a$d; byarg <- a$byarg; homophily <- a$homophily
+  d<-a$d; byarg <- a$by; homophily <- a$homophily
   emptynwstats<-NULL
   if(!is.null(byarg)) {
     nodecov <- get.node.attr(nw, byarg, "degree")
@@ -1228,6 +1228,37 @@ InitErgmTerm.density<-function(nw, arglist, ...) {
   list(name="density", coef.names="density", dependence=FALSE, minval = 0, maxval = 1, conflicts.constraints="edges")
 }
 
+################################################################################
+InitErgmTerm.diff <- function(nw, arglist, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
+                      varnames = c("attrname","pow", "dir", "sign.action"),
+                      vartypes = c("character","numeric", "character", "character"),
+                      defaultvalues = list(NULL,1, "t-h", "identity"),
+                      required = c(TRUE,FALSE, FALSE, FALSE))
+  ### Process the arguments
+  nodecov <- get.node.attr(nw, a$attrname)
+  DIRS <- c("t-h", "tail-head", "b1-b2",
+            "h-t", "head-tail", "b2-b1")
+  dir <- match.arg(tolower(a$dir), DIRS)
+  dir.mul <- if(match(dir, DIRS)<=3) +1 else -1
+  
+  SIGN.ACTIONS <- c("identity", "abs", "posonly", "negonly")
+  sign.action <- match.arg(tolower(a$sign.action), SIGN.ACTIONS)
+  sign.code <- match(sign.action, SIGN.ACTIONS)
+
+  if(sign.action!="abs" && !is.directed(nw)) message("Note that behavior of term diff() on undirected networks may be unexpected. See help(\"ergm-terms\") for more information.")
+  
+  # 1 and 4 are sign codes that allow negative differences.
+  if(sign.code %in% c(1, 4) &&  a$pow!=round(a$pow)) stop("In term diff(attrname, pow, sign=",a$sign,"), pow must be an integer.")
+  
+  ### Construct the list to return
+  list(name="diff",                                     #name: required
+       coef.names = paste0("diff", if(a$pow!=1) a$pow else "", if(sign.action!="identity") paste0(".", sign.action), if(sign.action!="abs") paste0(".", dir), ".", a$attrname), #coef.names: required
+       inputs = c(a$pow, dir.mul, sign.code, nodecov),  # We need to include the nodal covariate for this term
+       dependence = FALSE # So we don't use MCMC if not necessary
+       )
+}
 
 
 ################################################################################
@@ -1993,11 +2024,11 @@ InitErgmTerm.hammingmix<-function (nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.idegrange<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                      varnames = c("from", "to", "byarg", "homophily"),
+                      varnames = c("from", "to", "by", "homophily"),
                       vartypes = c("numeric", "numeric", "character", "logical"),
                       defaultvalues = list(NULL, Inf, NULL, FALSE),
                       required = c(TRUE, FALSE, FALSE, FALSE))
-  from<-a$from; to<-a$to; byarg <- a$byarg; homophily <- a$homophily
+  from<-a$from; to<-a$to; byarg <- a$by; homophily <- a$homophily
   to <- ifelse(to==Inf, network.size(nw)+1, to)
 
   if(length(to)==1 && length(from)>1) to <- rep(to, length(from))
@@ -2066,11 +2097,11 @@ InitErgmTerm.idegrange<-function(nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.idegree<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                      varnames = c("d", "byarg", "homophily"),
+                      varnames = c("d", "by", "homophily"),
                       vartypes = c("numeric", "character", "logical"),
                       defaultvalues = list(NULL, NULL, FALSE),
                       required = c(TRUE, FALSE, FALSE))
-  d<-a$d; byarg <- a$byarg; homophily <- a$homophily
+  d<-a$d; byarg <- a$by; homophily <- a$homophily
   emptynwstats<-NULL
   if(!is.null(byarg)) {
     nodecov <- get.node.attr(nw, byarg, "idegree")
@@ -2693,11 +2724,11 @@ InitErgmTerm.nsp<-function(nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.odegrange<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                      varnames = c("from", "to", "byarg", "homophily"),
+                      varnames = c("from", "to", "by", "homophily"),
                       vartypes = c("numeric", "numeric", "character", "logical"),
                       defaultvalues = list(NULL, Inf, NULL, FALSE),
                       required = c(TRUE, FALSE, FALSE, FALSE))
-  from<-a$from; to<-a$to; byarg <- a$byarg; homophily <- a$homophily
+  from<-a$from; to<-a$to; byarg <- a$by; homophily <- a$homophily
   to <- ifelse(to==Inf, network.size(nw)+1, to)
 
   if(length(to)==1 && length(from)>1) to <- rep(to, length(from))
@@ -2766,11 +2797,11 @@ InitErgmTerm.odegrange<-function(nw, arglist, ...) {
 ################################################################################
 InitErgmTerm.odegree<-function(nw, arglist, ...) {
   a <- check.ErgmTerm(nw, arglist, directed=TRUE,
-                      varnames = c("d", "byarg", "homophily"),
+                      varnames = c("d", "by", "homophily"),
                       vartypes = c("numeric", "character", "logical"),
                       defaultvalues = list(NULL, NULL, FALSE),
                       required = c(TRUE, FALSE, FALSE))
-  d<-a$d; byarg <- a$byarg; homophily <- a$homophily
+  d<-a$d; byarg <- a$by; homophily <- a$homophily
   emptynwstats<-NULL
   if(!is.null(byarg)) {
     nodecov <- get.node.attr(nw, byarg, "odegree")

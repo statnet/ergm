@@ -142,6 +142,42 @@ if (round(s.0 - .009708274,3) != 0 ||
   print("Passed density term test")
 }
 
+# diff, no required type but primarily directed, independent
+num.tests=num.tests+1
+# Auxiliary variables, useful for calculating the true values of statistics.
+sthd <- outer(samplike%v%"YearsServed",samplike%v%"YearsServed","-") # YS[t]-YS[h]
+sm <- as.matrix(samplike)
+s.a <- summary(samplike ~ diff("YearsServed"))
+e.a <- ergm(samplike ~ diff("YearsServed"))
+s.ad <- summary(samplike ~ diff("YearsServed", dir="h-t"))
+e.ad <- ergm(samplike ~ diff("YearsServed", dir="h-t"))
+s.ads2 <- summary(samplike ~ diff("YearsServed", sign.action="abs"))
+e.ads2 <- ergm(samplike ~ diff("YearsServed", sign.action="abs"))
+s.ads3 <- summary(samplike ~ diff("YearsServed", sign.action="pos"))
+e.ads3 <- ergm(samplike ~ diff("YearsServed", sign.action="pos"))
+s.ads4 <- summary(samplike ~ diff("YearsServed", sign.action="neg"))
+e.ads4 <- ergm(samplike ~ diff("YearsServed", sign.action="neg"))
+s.ap <- summary(samplike ~ diff("YearsServed", pow=3))
+e.ap <- ergm(samplike ~ diff("YearsServed", pow=3))
+
+if (s.a!=sum(sthd*sm) || round(coef(e.a),3)!=0.063 ||
+    s.ad!=sum(-sthd*sm) || round(coef(e.ad),3)!=-0.063 ||
+    s.ads2!=sum(abs(sthd)*sm) || round(coef(e.ads2),3)!=-0.381 ||
+    s.ads3!=sum((sthd+abs(sthd))*sm/2) || round(coef(e.ads3),3)!=-0.284 ||
+    s.ads4!=sum((sthd-abs(sthd))*sm/2) || round(coef(e.ads4),3)!=0.504 ||
+    s.ap!=sum(sthd^3*sm) || round(coef(e.ap),5)!=0.00184) {
+  print(list(s.a=s.a,e.a=e.a, s.ad=s.ad, e.ad=e.ad,
+             s.ads2=s.ads2, e.ads2=e.ads2,
+             s.ads3=s.ads3, e.ads3=e.ads3,
+             s.ads4=s.ads4, e.ads4=e.ads4,             
+             s.ap=s.ap, e.ap=e.ap))
+ stop("Failed diff term test")
+}else{
+ num.passed.tests=num.passed.tests+1
+ print("Passed diff term test")
+}
+
+
 
 
 # dsp, either

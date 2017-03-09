@@ -55,36 +55,36 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   sampmeans <- list() # vectors of column means of stats matrices
   xi <- list() # "new obsstats" values, somewhere between obsstats and sampmeans
   eta <- list() # MLE using lognormal approximation and "new obsstats"
-  gamma <- list() # factor controlling convex combo: # xi=gamma*obsstats + (1-gamma)*sampmeans	
-	
-	iter <- 0
-	eta[[1]] <- init
-	finished <- FALSE
+  gamma <- list() # factor controlling convex combo: # xi=gamma*obsstats + (1-gamma)*sampmeans  
+  
+  iter <- 0
+  eta[[1]] <- init
+  finished <- FALSE
   countdown <- 2
-	while (!finished) { # Iterate until gamma==1
-		iter=iter+1
+  while (!finished) { # Iterate until gamma==1
+    iter=iter+1
     ## Generate an mcmc sample from the probability distribution determined by orig.mle
-		samples[[iter]]=simulate.formula(formula, nsim=control$Step.MCMC.samplesize,
+    samples[[iter]]=simulate.formula(formula, nsim=control$Step.MCMC.samplesize,
                                      coef=eta[[iter]], statsonly=TRUE,
                                      constraints=constraints, 
                                      control=set.control.class("control.simulate.formula",control), ...)
-		sampmeans[[iter]]=colMeans(samples[[iter]])
-		
-		hi <- control$Step.gridsize  # Goal: Let gamma be largest possible multiple of .01
-		lo <- gamm <- 0
-		cat("Iteration #",iter, ". ")
+    sampmeans[[iter]]=colMeans(samples[[iter]])
+    
+    hi <- control$Step.gridsize  # Goal: Let gamma be largest possible multiple of .01
+    lo <- gamm <- 0
+    cat("Iteration #",iter, ". ")
     if (verbose) {
       cat("Current canonical parameter:\n")
       print(eta[[iter]])
     }
-		while (hi-lo>1 || hi > gamm) {
+    while (hi-lo>1 || hi > gamm) {
       gamm<-ceiling((hi+lo)/2)
-			gamma[[iter]] = gamm/control$Step.gridsize
-			xi[[iter]] = gamma[[iter]]*obsstats  + (1-gamma[[iter]])*sampmeans[[iter]]
-			inCH=is.inCH(1.05*gamma[[iter]]*obsstats  + 
+      gamma[[iter]] = gamm/control$Step.gridsize
+      xi[[iter]] = gamma[[iter]]*obsstats  + (1-gamma[[iter]])*sampmeans[[iter]]
+      inCH=is.inCH(1.05*gamma[[iter]]*obsstats  + 
                    (1 - 1.05*gamma[[iter]])*sampmeans[[iter]],
                    samples[[iter]])
-			if (inCH) {
+      if (inCH) {
         lo <-gamm
         # If 1/gridsize is not small enough, function gives warning message
       } else {
@@ -95,13 +95,13 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
                   control$Step.gridsize, " might help.")
         }
       }
-		}
-		if (!inCH && gamm>1) {# Last attempt was a fail, so decrease gamm by one
-			gamm <- gamm-1
-			gamma[[iter]] <- gamm/control$Step.gridsize
-			xi[[iter]] <- gamma[[iter]]*obsstats  + (1-gamma[[iter]])*sampmeans[[iter]]
-		}
-	
+    }
+    if (!inCH && gamm>1) {# Last attempt was a fail, so decrease gamm by one
+      gamm <- gamm-1
+      gamma[[iter]] <- gamm/control$Step.gridsize
+      xi[[iter]] <- gamma[[iter]]*obsstats  + (1-gamma[[iter]])*sampmeans[[iter]]
+    }
+  
     # Now we have found a gamm that moves xi inside the convex hull, 
     # a bit away from the boundary.  This is described 
     # in Hummel, Hunter, Handcock (2011, JCGS).
@@ -117,8 +117,8 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
     finished = (countdown==0) || (iter >= control$Step.maxit)
     
     # When the stepped xi is in the convex hull (but not on the boundary), find the MLE for gyobs=xi
-		cat("  Trying gamma=", gamma[[iter]],"\n")  
-		flush.console()
+    cat("  Trying gamma=", gamma[[iter]],"\n")  
+    flush.console()
     
     ############# PLOTS print if VERBOSE=TRUE #################
     if(verbose){
@@ -152,32 +152,32 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
                      #compress=control$MCMC.compress, 
                      ...)
     eta[[iter+1]]<-v$coef
-	}
-	cat("Now ending with one large sample for MLE. \n")
-	flush.console()
-	iter <- iter+1
+  }
+  cat("Now ending with one large sample for MLE. \n")
+  flush.console()
+  iter <- iter+1
   finalsample <- simulate.formula(formula, nsim=control$MCMC.samplesize,
                                   coef=eta[[iter]], statsonly=TRUE, 
                                   constraints=constraints, 
                                   control=set.control.class("control.simulate.formula",control), ...)
   sampmeans[[iter]] <- colMeans(finalsample)
   xi[[iter]] <- obsstats
-	v<-ergm.estimate(init=eta[[iter]], model=model, 
-									 statsmatrix=sweep(finalsample, 2, xi[[iter]], '-'), 
-									 nr.maxit=control$MCMLE.NR.maxit,
-									 metric=control$MCMLE.metric,
-									 verbose=verbose,
+  v<-ergm.estimate(init=eta[[iter]], model=model, 
+                   statsmatrix=sweep(finalsample, 2, xi[[iter]], '-'), 
+                   nr.maxit=control$MCMLE.NR.maxit,
+                   metric=control$MCMLE.metric,
+                   verbose=verbose,
                    trace=0,  # suppress 'optim' output
-									 #estimateonly=TRUE,
+                   #estimateonly=TRUE,
                    #statsmatrix.obs=statsmatrix.obs, 
                    epsilon=control$epsilon,
                     nr.reltol=control$MCMLE.NR.reltol,
                    calc.mcmc.se=control$MCMC.addto.se, hessianflag=control$main.hessian,
                     trustregion=control$MCMLE.trustregion, method=control$MCMLE.method, 
                    compress=control$MCMC.compress, 
-									 ...)
+                   ...)
   eta[[iter+1]] <- v$coef
-	
+  
   ############# FINAL PLOT 1 prints if VERBOSE=TRUE #################
   if(verbose){
     pairs(rbind(finalsample, obsstats, sampmeans[[iter]]), 
@@ -186,40 +186,40 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
           cex=c(rep(1, nrow(finalsample)), 1.4, 1.4),
           main=paste("Final Stepping Iteration (#", iter, ")", sep=""),# "\n",
           cex.main=1.5, cex.axis=1.5, cex.lab=1.5)
-	} #ends if(verbose)
-  ############## END PLOT #################		
-  #####	final.mle
-	mle.lik <- mle.lik + abs(v$loglikelihood)
-	v$newnetwork <- nw
-	v$burnin <- control$MCMC.burnin
-	v$samplesize <- control$MCMC.samplesize
-	v$interval <- control$MCMC.interval
-	v$network <- nw.orig
-	v$newnetwork <- nw
-	v$interval <- control$MCMC.interval
-	v$theta.original <- theta.original
-	v$mplefit <- initialfit
-	v$parallel <- control$parallel
+  } #ends if(verbose)
+  ############## END PLOT #################    
+  #####  final.mle
+  mle.lik <- mle.lik + abs(v$loglikelihood)
+  v$newnetwork <- nw
+  v$burnin <- control$MCMC.burnin
+  v$samplesize <- control$MCMC.samplesize
+  v$interval <- control$MCMC.interval
+  v$network <- nw.orig
+  v$newnetwork <- nw
+  v$interval <- control$MCMC.interval
+  v$theta.original <- theta.original
+  v$mplefit <- initialfit
+  v$parallel <- control$parallel
   # The following output is sometimes helpful.  It's the 
   # total history of all eta values along with all of the corresponding
   # mean value parameter estimates:
   v$allmeanvals <- t(sapply(sampmeans, function(a)a))
   v$allparamvals <- t(sapply(eta, function(a)a))
-	
-	if(!v$failure & !any(is.na(v$coef))){
-		asyse <- mc.se
-		if(is.null(v$covar)){
-			asyse[names(v$coef)] <- suppressWarnings(sqrt(diag(ginv(-v$hessian))))
-		}else{
-			asyse[names(v$coef)] <- suppressWarnings(sqrt(diag(v$covar)))
-		}
-	}
-	
+  
+  if(!v$failure & !any(is.na(v$coef))){
+    asyse <- mc.se
+    if(is.null(v$covar)){
+      asyse[names(v$coef)] <- suppressWarnings(sqrt(diag(ginv(-v$hessian))))
+    }else{
+      asyse[names(v$coef)] <- suppressWarnings(sqrt(diag(v$covar)))
+    }
+  }
+  
   v$sample <- ergm.sample.tomcmc(v$sample, control)
   v$etamap <- model$etamap
   v$iterations <- iter
 
-	v
+  v
 }  # Ends the whole function
 
 ## Given two matrices x1 and x2 with d columns (and any positive
@@ -230,7 +230,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
 
 ## This is a variant of Hummel et al. (2010)'s steplength algorithm
 ## also usable for missing data MLE.
-.Hummel.steplength <- function(x1, x2=NULL, margin=0.05, steplength.max=1, steplength.prev=steplength.max, x2.num.max=100, steplen.maxit=25, verbose=FALSE){
+.Hummel.steplength <- function(x1, x2=NULL, margin=0.05, steplength.max=1, steplength.prev=steplength.max, x2.num.max=100, steplength.maxit=25, last=FALSE, verbose=FALSE){
   margin <- 1 + margin
   x1 <- rbind(x1); m1 <- rbind(colMeans(x1)); x1 <- unique(x1)
   if(is.null(x2)){
@@ -266,6 +266,8 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   if(!is.null(x2) && nrow(x2crs) > x2.num.max){
     ## If constrained sample size > x2.num.max
     if(verbose){cat("Using fast and approximate Hummel et al search.\n")}
+    if(last){x2.num.max <- 1}
+    if(last){steplength.maxit  <- 0}
     d <- rowSums(sweep(x2crs, 2, m1crs)^2)
     x2crs <- x2crs[order(-d)[1:x2.num.max],,drop=FALSE]
   }
@@ -283,7 +285,7 @@ ergm.stepping = function(init, nw, model, initialfit, constraints,
   low <- 0
   g <- high <- steplength.max # We start at the maximum, because we need to first check that we've already arrived.
   i <- 0
-  while(i < steplen.maxit & abs(high-low)>0.001){
+  while(i < steplength.maxit & abs(high-low)>0.001){
    z=passed(g)
    if(z){
     low <- g

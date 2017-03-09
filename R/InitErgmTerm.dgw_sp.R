@@ -213,7 +213,8 @@ InitErgmTerm.dgwesp<-function(nw, arglist, initialfit=FALSE, ...) {
     }
     params<-list(gwesp=NULL,gwesp.alpha=alpha)
     names(params)<-c(basenam,paste(basenam,"alpha",sep="."))
-    list(name=dname, coef.names=paste("esp#",d,sep=""), 
+    list(name=dname,
+         coef.names=if(is.directed(nw)) paste("esp.",type,"#",d,sep="") else paste("esp#",d,sep=""), 
          inputs=c(typecode,d), params=params, map=map, gradient=gradient)
   }else{
     dname<-"dgwesp"
@@ -325,7 +326,8 @@ InitErgmTerm.dgwdsp<-function(nw, arglist, initialfit=FALSE, ...) {
     params<-list(gwdsp=NULL,gwdsp.alpha=alpha)
     names(params)<-c(basenam,paste(basenam,"alpha",sep="."))
     
-    list(name=dname, coef.names=paste("dsp#",d,sep=""),
+    list(name=dname,
+         coef.names=if(is.directed(nw)) paste("dsp.",type,"#",d,sep="") else paste("dsp#",d,sep=""), 
          inputs=c(typecode,d), params=params,
          map=map, gradient=gradient)
   }else{
@@ -437,7 +439,9 @@ InitErgmTerm.dgwnsp<-function(nw, arglist, initialfit=FALSE, ...) {
     params<-list(gwnsp=NULL,gwnsp.alpha=alpha)
     names(params)<-c(basenam,paste(basenam,"alpha",sep="."))
     
-    list(name=dname, coef.names=paste("nsp#",d,sep=""),
+    list(name=dname,
+         coef.names=if(is.directed(nw)) paste("nsp.",type,"#",d,sep="") else paste("nsp#",d,sep=""), 
+
          inputs=c(typecode,d), params=params,
          map=map, gradient=gradient)
   }else{

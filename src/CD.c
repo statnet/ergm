@@ -179,8 +179,11 @@ MCMCStatus CDStep(MHproposal *MHp,
 	    Rprintf("Too many MH Proposal function failures.\n");
 	    return MCMC_MH_FAILED;
 	  }
-	case MH_CONSTRAINT:
 	  continue;
+	  
+	case MH_CONSTRAINT:
+	  MHp->logratio = -INFINITY; // Force rejection of proposal.
+	  break; // Do not attempt any more proposals in this multiplicity chain.
 	}
       }
       
