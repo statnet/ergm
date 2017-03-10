@@ -808,7 +808,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     divided by \eqn{n(n-1)}. }
 
     \item{\code{diff(attrname, pow=1, dir="t-h", sign.action="identity")}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (quantitative nodal attribute),
-    \code{absdiff(attrname, pow=1,  dir="t-h", sign.action="keep", form ="identity")}  (valued)  (dyad-independent) (directed)  (undirected) (quantitative nodal attribute)}{\emph{Difference:}
+    \code{diff(attrname, pow=1,  dir="t-h", sign.action="identity", form ="sum")}  (valued)  (dyad-independent) (directed)  (undirected) (quantitative nodal attribute)}{\emph{Difference:}
     The \code{attrname} argument is a character string giving the name
     of a quantitative attribute in the network's vertex attribute
     list. This term adds one network statistic to the model, equaling
