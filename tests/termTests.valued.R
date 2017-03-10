@@ -162,6 +162,25 @@ tst(sum((dirm!=0),na.rm=TRUE), summary(dirnw ~ nonzero, response="w"))
 tst(sum((undm!=0),na.rm=TRUE)/2, summary(undnw ~ nonzero, response="w"))
 tst(sum((bipm!=0),na.rm=TRUE), summary(bipnw ~ nonzero, response="w"))
 
+# diff
+
+posonly <- function(x) pmax(x, 0)
+negonly <- function(x) pmin(x, 0)
+
+for(dd in c("t-h", "h-t")){
+  for(sa in c("identity", "abs", "posonly", "negonly")){
+    saf <- get(sa)
+    ddf <- switch(dd, `t-h`=identity, `h-t`=function(x) -x)
+
+    df <- function(x) saf(ddf(x))
+    
+    tst(sum(df(outer(q,q,"-"))*dirm,na.rm=TRUE), summary(dirnw ~ diff("q", dir=dd, sign.action=sa), response="w"))
+    tst(sum(df(outer(q,q,"-"))^2*dirm,na.rm=TRUE), summary(dirnw ~ diff("q",pow=2, dir=dd, sign.action=sa), response="w"))
+    tst(sum(df(outer(q,q,"-"))*(dirm!=0),na.rm=TRUE), summary(dirnw ~ diff("q", dir=dd, sign.action=sa, form="nonzero"), response="w"))
+    tst(sum(df(outer(q,q,"-"))^2*(dirm!=0),na.rm=TRUE), summary(dirnw ~ diff("q",pow=2, dir=dd, sign.action=sa, form="nonzero"), response="w"))
+  }
+}
+
 # greaterthan
 for(v in dirvt) tst(sum(dirm > v,na.rm=TRUE), summary(dirnw ~ greaterthan(v), response="w"))
 for(v in undvt) tst(sum(undm > v,na.rm=TRUE)/2, summary(undnw ~ greaterthan(v), response="w"))

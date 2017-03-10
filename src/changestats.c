@@ -2239,7 +2239,7 @@ D_CHANGESTAT_FN(d_density) {
 }
 
 /*****************                       
- changestat: d_absdiff
+ changestat: d_diff
 *****************/
 D_CHANGESTAT_FN(d_diff) { 
   double p = INPUT_PARAM[0], *x = INPUT_PARAM+2;

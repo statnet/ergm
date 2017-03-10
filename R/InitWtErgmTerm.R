@@ -158,7 +158,7 @@ InitWtErgmTerm.b2factor<-function (nw, arglist, ...) {
                       varnames = c("attrname", "base", "form"),
                       vartypes = c("character", "numeric", "character"),
                       defaultvalues = list(NULL, 1, "sum"),
-                      required = c(TRUE, FALSE))
+                      required = c(TRUE, FALSE, FALSE))
   attrname<-a$attrname
   base <- a$base
   nb1 <- get.network.attribute(nw, "bipartite")
@@ -186,6 +186,39 @@ InitWtErgmTerm.b2factor<-function (nw, arglist, ...) {
     attr(inputs, "ParamsBeforeCov") <- lu-length(base)
   }
   list(name=paste("b2factor",form,sep="_"), coef.names=coef.names, inputs=inputs, dependence=FALSE, minval=0) 
+}
+
+InitWtErgmTerm.diff <- function(nw, arglist, ...) {
+  ### Check the network and arguments to make sure they are appropriate.
+  a <- check.ErgmTerm(nw, arglist, directed=NULL, bipartite=NULL,
+                      varnames = c("attrname","pow", "dir", "sign.action", "form"),
+                      vartypes = c("character","numeric", "character", "character", "character"),
+                      defaultvalues = list(NULL,1, "t-h", "identity", "sum"),
+                      required = c(TRUE, FALSE, FALSE, FALSE, FALSE))
+  ### Process the arguments
+  form<-match.arg(a$form,c("sum","nonzero"))
+
+  nodecov <- get.node.attr(nw, a$attrname)
+  DIRS <- c("t-h", "tail-head", "b1-b2",
+            "h-t", "head-tail", "b2-b1")
+  dir <- match.arg(tolower(a$dir), DIRS)
+  dir.mul <- if(match(dir, DIRS)<=3) +1 else -1
+  
+  SIGN.ACTIONS <- c("identity", "abs", "posonly", "negonly")
+  sign.action <- match.arg(tolower(a$sign.action), SIGN.ACTIONS)
+  sign.code <- match(sign.action, SIGN.ACTIONS)
+
+  if(sign.action!="abs" && !is.directed(nw)) message("Note that behavior of term diff() on undirected networks may be unexpected. See help(\"ergm-terms\") for more information.")
+  
+  # 1 and 4 are sign codes that allow negative differences.
+  if(sign.code %in% c(1, 4) &&  a$pow!=round(a$pow)) stop("In term diff(attrname, pow, sign=",a$sign,"), pow must be an integer.")
+  
+  ### Construct the list to return
+  list(name=paste("diff", form, sep="_"),                                     #name: required
+       coef.names = paste0("diff", ".", form, if(a$pow!=1) a$pow else "", if(sign.action!="identity") paste0(".", sign.action), if(sign.action!="abs") paste0(".", dir), ".", a$attrname), #coef.names: required
+       inputs = c(a$pow, dir.mul, sign.code, nodecov),  # We need to include the nodal covariate for this term
+       dependence = FALSE # So we don't use MCMC if not necessary
+       )
 }
 
 InitWtErgmTerm.edgecov <- function(nw, arglist, response, ...) {

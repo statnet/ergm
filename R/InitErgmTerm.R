@@ -1235,7 +1235,7 @@ InitErgmTerm.diff <- function(nw, arglist, ...) {
                       varnames = c("attrname","pow", "dir", "sign.action"),
                       vartypes = c("character","numeric", "character", "character"),
                       defaultvalues = list(NULL,1, "t-h", "identity"),
-                      required = c(TRUE,FALSE, FALSE, FALSE))
+                      required = c(TRUE, FALSE, FALSE, FALSE))
   ### Process the arguments
   nodecov <- get.node.attr(nw, a$attrname)
   DIRS <- c("t-h", "tail-head", "b1-b2",
