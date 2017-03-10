@@ -13,9 +13,10 @@
 #include "wtedgetree.h"
 
 typedef struct WtModelTermstruct {
+  void (*c_func)(Vertex, Vertex, double, struct WtModelTermstruct*, WtNetwork*);
   void (*d_func)(Edge, Vertex*, Vertex*, double*, struct WtModelTermstruct*, WtNetwork*);
   void (*i_func)(struct WtModelTermstruct*, WtNetwork*);
-  void (*u_func)(Edge, Vertex*, Vertex*, double*, struct WtModelTermstruct*, WtNetwork*);
+  void (*u_func)(Vertex, Vertex, double, struct WtModelTermstruct*, WtNetwork*);
   void (*f_func)(struct WtModelTermstruct*, WtNetwork*);
   void (*s_func)(struct WtModelTermstruct*, WtNetwork*);
   double *attrib; /* Ptr to vector of covariates (if necessary; generally unused) */
@@ -130,12 +131,12 @@ typedef struct WtModelTermstruct {
 #define TOGGLEIND toggleind_var
 
 /* macro to set all changestats to zero at start of function */
-#define ZERO_ALL_CHANGESTATS() for(unsigned int TOGGLEIND=0; TOGGLEIND<N_CHANGE_STATS; TOGGLEIND++) CHANGE_STAT[TOGGLEIND]=0.0
+#define ZERO_ALL_CHANGESTATS() for(unsigned int TOGGLEIND=0; TOGGLEIND<N_CHANGE_STATS; TOGGLEIND++) memset(CHANGE_STAT, 0, sizeof(double)*N_CHANGE_STATS);
 
 /* Cycle through all toggles proposed for the current step, then
    make the current toggle in case of more than one proposed toggle, then
    undo all of the toggles to reset the original network state.  */
-#define FOR_EACH_TOGGLE() for(unsigned int TOGGLEIND=0; TOGGLEIND<ntoggles; TOGGLEIND++)
+#define FOR_EACH_TOGGLE for(unsigned int TOGGLEIND=0; TOGGLEIND<ntoggles; TOGGLEIND++)
 /* The idea here is to essentially swap the contents of the proposed
    weights with the current weights, and then swap them back when
    done. */
@@ -146,12 +147,15 @@ typedef struct WtModelTermstruct {
 
 #define GETOLDTOGGLEINFO() Vertex TAIL=tails[TOGGLEIND], HEAD=heads[TOGGLEIND]; double OLDWT=GETWT(TAIL,HEAD);
 #define GETTOGGLEINFO() GETOLDTOGGLEINFO(); double NEWWT=weights[TOGGLEIND];
+#define GETNEWTOGGLEINFO() Vertex TAIL=tails[TOGGLEIND], HEAD=heads[TOGGLEIND]; double NEWWT=weights[TOGGLEIND];
 
 /* SETWT_WITH_BACKUP(a) must be called _after_ GETTOGGLEINFO! */
 #define SETWT_WITH_BACKUP() {SETWT(TAIL,HEAD,NEWWT); weights[TOGGLEIND]=OLDWT;}
 #define UNDO_SETWT() {GETOLDTOGGLEINFO(); SETWT(TAIL,HEAD,weights[TOGGLEIND]); weights[TOGGLEIND]=OLDWT;}
-#define SETWT_IF_MORE_TO_COME() {if(TOGGLEIND+1<ntoggles) {SETWT_WITH_BACKUP()}}
-#define UNDO_PREVIOUS_SETWTS() for(unsigned int TOGGLEIND=0; TOGGLEIND+1<ntoggles; TOGGLEIND++){UNDO_SETWT()}
+#define IF_MORE_TO_COME if(TOGGLEIND+1<ntoggles)
+#define SETWT_IF_MORE_TO_COME() {IF_MORE_TO_COME{SETWT_WITH_BACKUP();}}
+#define UNDO_PREVIOUS for(unsigned int TOGGLEIND=ntoggles-1; TOGGLEIND>=0; TOGGLEIND--)
+#define UNDO_PREVIOUS_SETWTS() {UNDO_PREVIOUS{UNDO_SETWT();}}
 /* Brings together the above operations:
    For each toggle:
       Get the current edge weight.
@@ -159,7 +163,7 @@ typedef struct WtModelTermstruct {
       Back up the current edge weight by swapping weight[i] with current edge weight.
    For each toggle:
       Undo the changes by swapping them back. */
-#define EXEC_THROUGH_TOGGLES(subroutine){FOR_EACH_TOGGLE(){ GETTOGGLEINFO(); {subroutine}; SETWT_IF_MORE_TO_COME();}; UNDO_PREVIOUS_SETWTS();}
+#define EXEC_THROUGH_TOGGLES(subroutine){FOR_EACH_TOGGLE{ GETTOGGLEINFO(); {subroutine}; SETWT_IF_MORE_TO_COME();}; UNDO_PREVIOUS_SETWTS();}
 
 #define SAMEDYAD(a1,b1,a2,b2) (DIRECTED? a1==a2 && b1==b2 : MIN(a1,b1)==MIN(a2,b2) && MAX(a1,b1)==MAX(a2,b2))
 
@@ -219,9 +223,10 @@ typedef struct WtModelTermstruct {
 /****************************************************/
 /* changestat function prototypes, 
    plus a few supporting function prototypes */
+#define WtC_CHANGESTAT_FN(a) void (a) (Vertex tail, Vertex head, double weight, WtModelTerm *mtp, WtNetwork *nwp)
 #define WtD_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *tails, Vertex *heads, double *weights, WtModelTerm *mtp, WtNetwork *nwp)
 #define WtI_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
-#define WtU_CHANGESTAT_FN(a) void (a) (Edge ntoggles, Vertex *tails, Vertex *heads, double *weights, WtModelTerm *mtp, WtNetwork *nwp)
+#define WtU_CHANGESTAT_FN(a) void (a) (Vertex tail, Vertex head, double weight, WtModelTerm *mtp, WtNetwork *nwp)
 #define WtF_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
 #define WtS_CHANGESTAT_FN(a) void (a) (WtModelTerm *mtp, WtNetwork *nwp)
 
@@ -232,11 +237,11 @@ typedef struct WtModelTermstruct {
     (*(mtp->s_func))(mtp, nwp);  /* Call s_??? function */		\
     memcpy(mtp->statcache,mtp->dstats,N_CHANGE_STATS*sizeof(double));	\
     /* Note: This cannot be abstracted into EXEC_THROUGH_TOGGLES. */	\
-    FOR_EACH_TOGGLE() { GETTOGGLEINFO(); SETWT_WITH_BACKUP(); }		\
+    FOR_EACH_TOGGLE{ GETTOGGLEINFO(); SETWT_WITH_BACKUP(); }		\
     (*(mtp->s_func))(mtp, nwp);  /* Call s_??? function */		\
     for(unsigned int i=0; i<N_CHANGE_STATS; i++)			\
       mtp->dstats[i] -= mtp->statcache[i];				\
-    FOR_EACH_TOGGLE() { UNDO_SETWT(); }					\
+    FOR_EACH_TOGGLE{ UNDO_SETWT(); }					\
   }
 
 /* This macro constructs a function that wraps D_FROM_S. */

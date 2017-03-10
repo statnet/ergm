@@ -216,20 +216,19 @@ MCMCStatus CDStep(MHproposal *MHp,
 
       if(mult<CDparams[1]-1){
 	/* Make proposed toggles provisionally. */
-	/* First, inform u_* functions that the network is about to change. */
-	UpdateStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, nwp, m);
-	/* Then, make the changes. */
 	for(unsigned int i=0; i < MHp->ntoggles; i++){
 	  undotail[ntoggled]=MHp->toggletail[i];
 	  undohead[ntoggled]=MHp->togglehead[i];
 	  ntoggled++;
 	  mtoggled++;
-	  ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
-	  
+
+	  UPDATE_STORAGE(MHp->toggletail[i], MHp->togglehead[i], m, nwp);
+	  	  
 	  if(MHp->discord)
-	  for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
-	    ToggleEdge(MHp->toggletail[i],  MHp->togglehead[i], *nwd);
-	  }
+	    for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
+	      ToggleEdge(MHp->toggletail[i],  MHp->togglehead[i], *nwd);
+	    }
+	  ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
 	}
       }
 
@@ -268,14 +267,14 @@ MCMCStatus CDStep(MHproposal *MHp,
 
       if(step<CDparams[0]-1){
 	/* Make the remaining proposed toggles (which we did not make provisionally) */
-	/* First, inform u_* functions that the network is about to change. */
-	UpdateStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, nwp, m);
 	/* Then, make the changes. */
 	for(unsigned int i=0; i < MHp->ntoggles; i++){
 	  undotail[ntoggled]=MHp->toggletail[i];
 	  undohead[ntoggled]=MHp->togglehead[i];
 	  ntoggled++;
 
+	  UPDATE_STORAGE(MHp->toggletail[i],  MHp->togglehead[i], m, nwp);
+	  
 	  if(MHp->discord)
 	    for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
 	      ToggleEdge(MHp->toggletail[i],  MHp->togglehead[i], *nwd);
@@ -301,7 +300,7 @@ MCMCStatus CDStep(MHproposal *MHp,
 
 	/* FIXME: This should be done in one call, but it's very easy
 	   to make a fencepost error here. */
-	UpdateStats(1, &t, &h, nwp, m);
+	UPDATE_STORAGE(t, h, m, nwp);
       	
 	if(MHp->discord)
 	  for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
@@ -319,7 +318,7 @@ MCMCStatus CDStep(MHproposal *MHp,
 
     /* FIXME: This should be done in one call, but it's very easy
        to make a fencepost error here. */
-    UpdateStats(1, &t, &h, nwp, m);
+    UPDATE_STORAGE(t, h, m, nwp);
     
     if(MHp->discord)
       for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){

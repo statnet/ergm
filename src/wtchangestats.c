@@ -576,9 +576,7 @@ WtU_CHANGESTAT_FN(u_nodecovar){
 	  });
       });
     
-    EXEC_THROUGH_TOGGLES({
-	*sum += TRANSFORM_DYADVAL(NEWWT,transcode)-TRANSFORM_DYADVAL(OLDWT,transcode);
-      });
+    if(tail) *sum += TRANSFORM_DYADVAL(weight,transcode)-TRANSFORM_DYADVAL(GETWT(tail,head),transcode);
   }
 }
 
@@ -710,9 +708,7 @@ WtU_CHANGESTAT_FN(u_nodeicovar){
 	  });
       });
     
-    EXEC_THROUGH_TOGGLES({
-	*sum += TRANSFORM_DYADVAL(NEWWT,transcode)-TRANSFORM_DYADVAL(OLDWT,transcode);
-      });
+    if(tail) *sum += TRANSFORM_DYADVAL(weight,transcode)-TRANSFORM_DYADVAL(GETWT(tail,head),transcode);
   }
 }
 
@@ -892,9 +888,7 @@ WtU_CHANGESTAT_FN(u_nodeocovar){
 	  });
       });
     
-    EXEC_THROUGH_TOGGLES({
-	*sum += TRANSFORM_DYADVAL(NEWWT,transcode)-TRANSFORM_DYADVAL(OLDWT,transcode);
-      });
+    if(tail) *sum += TRANSFORM_DYADVAL(weight,transcode)-TRANSFORM_DYADVAL(GETWT(tail,head),transcode);
   }
 }
 
@@ -977,11 +971,11 @@ WtU_CHANGESTAT_FN(u_nodesqrtcovar_centered){
 
   if(!DIRECTED) *ssq *= 2;
   }else ssq = (double *)mtp->storage; 
-  // Note that we need to check if there are any toggles to be applied whether or not we just initialized.
-  EXEC_THROUGH_TOGGLES({
-      double sqrtdiff = sqrt(NEWWT)-sqrt(OLDWT);
-      *ssq += sqrtdiff*(DIRECTED? 1 : 2);
-    });
+
+  if(tail){
+    double sqrtdiff = sqrt(weight)-sqrt(GETWT(tail,head));
+    *ssq += sqrtdiff*(DIRECTED? 1 : 2);
+  }
 }
 
 WtS_CHANGESTAT_FN(s_nodesqrtcovar_centered){

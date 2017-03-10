@@ -29,6 +29,25 @@ typedef struct WtModelstruct {
   unsigned int n_aux;
 } WtModel;
 
+#define UPDATE_STORAGE(tail, head, weight, m, nwp){			\
+  WtModelTerm *mtp = m->termarray;					\
+  for (unsigned int i=0; i < m->n_terms; i++, mtp++){			\
+  mtp->dstats = NULL; /* Trigger segfault if u_func tries to write to change statistics. */ \
+  if(mtp->u_func) /* Skip if either no update or it's a d_func, so it doesn't require storage updates for provisional updates. */ \
+    (*(mtp->u_func))(tail, head, weight, mtp, nwp);  /* Call u_??? function */ \
+  }									\
+  }
+
+#define UPDATE_C_STORAGE(tail, head, weight, m, nwp){			\
+  WtModelTerm *mtp = m->termarray;					\
+  for (unsigned int i=0; i < m->n_terms; i++, mtp++){			\
+  mtp->dstats = NULL; /* Trigger segfault if u_func tries to write to change statistics. */ \
+  if(mtp->u_func && mtp->d_func==NULL) /* Skip if either no update or it's a d_func, so it doesn't require storage updates for provisional updates. */ \
+    (*(mtp->u_func))(tail, head, weight, mtp, nwp);  /* Call u_??? function */ \
+  }									\
+  }
+
+
 WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputs,
 			int n_terms);
 
@@ -39,8 +58,6 @@ void WtModelDestroy(WtModel *m, WtNetwork *nwp);
    to an array of WtModelTerm structures.  */
 
 void WtChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, double *toggleweight, WtNetwork *nwp, WtModel *m);
-
-void WtUpdateStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, double *toggleweight, WtNetwork *nwp, WtModel *m);
 
 void WtInitStats(WtNetwork *nwp, WtModel *m);
 

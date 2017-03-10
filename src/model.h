@@ -29,6 +29,25 @@ typedef struct Modelstruct {
   unsigned int n_aux;
 } Model;
 
+#define UPDATE_STORAGE(tail, head, m, nwp){				\
+    ModelTerm *mtp = m->termarray;					\
+    for (unsigned int i=0; i < m->n_terms; i++, mtp++){			\
+      mtp->dstats = NULL; /* Trigger segfault if u_func tries to write to change statistics. */ \
+      if(mtp->u_func) /* Skip if either no update or it's a d_func, so it doesn't require storage updates for provisional updates. */ \
+	(*(mtp->u_func))(tail, head, mtp, nwp);  /* Call u_??? function */ \
+    }									\
+  }
+
+#define UPDATE_C_STORAGE(tail, head, m, nwp){				\
+    ModelTerm *mtp = m->termarray;					\
+    for (unsigned int i=0; i < m->n_terms; i++, mtp++){			\
+      mtp->dstats = NULL; /* Trigger segfault if u_func tries to write to change statistics. */ \
+      if(mtp->u_func && mtp->d_func==NULL) /* Skip if either no update or it's a d_func, so it doesn't require storage updates for provisional updates. */ \
+	(*(mtp->u_func))(tail, head, mtp, nwp);  /* Call u_??? function */ \
+    }									\
+  }
+
+
 Model* ModelInitialize (char *fnames, char *sonames, double **inputs,
 			int n_terms);
 
@@ -43,8 +62,6 @@ int GetIndexForAttrValue(int value);
 /* *** don't forget tail-> head, so this function accepts toggletail first, not togglehead  */
 
 void ChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, Network *nwp, Model *m);
-
-void UpdateStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, Network *nwp, Model *m);
 
 void InitStats(Network *nwp, Model *m);
 

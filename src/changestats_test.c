@@ -25,13 +25,7 @@ I_CHANGESTAT_FN(i_test_abs_edges_minus_5){
 
 U_CHANGESTAT_FN(u_test_abs_edges_minus_5){
   GET_STORAGE(Edge, edges);
-  int i;
-  FOR_EACH_TOGGLE(i){
-    unsigned int edgeflag = IS_OUTEDGE(TAIL(i), HEAD(i));
-    *edges += edgeflag ? - 1 : 1;
-    TOGGLE_IF_MORE_TO_COME(i);
-  }
-  UNDO_PREVIOUS_TOGGLES(i);
+  *edges += IS_OUTEDGE(tail, head) ? - 1 : 1;
 }
 
 S_CHANGESTAT_FN(s_test_abs_edges_minus_5){
@@ -46,7 +40,7 @@ S_CHANGESTAT_FN(s_test_abs_edges_minus_5){
 
 D_CHANGESTAT_FN(d_test_abs_edges_minus_5_no_s){d_test_abs_edges_minus_5(ntoggles, tails, heads, mtp, nwp);}
 I_CHANGESTAT_FN(i_test_abs_edges_minus_5_no_s){i_test_abs_edges_minus_5(mtp, nwp);}
-U_CHANGESTAT_FN(u_test_abs_edges_minus_5_no_s){u_test_abs_edges_minus_5(ntoggles, tails, heads, mtp, nwp);}
+U_CHANGESTAT_FN(u_test_abs_edges_minus_5_no_s){u_test_abs_edges_minus_5(tail, head, mtp, nwp);}
 
 I_CHANGESTAT_FN(i__isociomatrix){
   ALLOC_AUX_SOCIOMATRIX(int, sm);
@@ -63,11 +57,7 @@ I_CHANGESTAT_FN(i__isociomatrix){
 
 U_CHANGESTAT_FN(u__isociomatrix){
   GET_AUX_STORAGE(int*, sm);
-  int i;
-  FOR_EACH_TOGGLE(i){
-    Vertex tail=TAIL(i), head=HEAD(i);
-    sm[tail][head]  = 1 - sm[tail][head];
-  }
+  sm[tail][head]  = 1 - sm[tail][head];
 }
 
 F_CHANGESTAT_FN(f__isociomatrix){

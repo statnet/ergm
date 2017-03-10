@@ -11,28 +11,19 @@
 
 /********************  changestats:  A    ***********/
 /*****************                       
- changestat: d_absdiff
+ changestat: c_absdiff
 *****************/
-D_CHANGESTAT_FN(d_absdiff) { 
+C_CHANGESTAT_FN(c_absdiff) { 
   double change, p;
-  Vertex tail, head;
-  int i;
 
   /* *** don't forget tail -> head */
-  ZERO_ALL_CHANGESTATS(i);
-  FOR_EACH_TOGGLE(i) {
-    tail = TAIL(i); 
-    head = HEAD(i);
-    p = INPUT_ATTRIB[0];
-    if(p==1.0){
-      change = fabs(INPUT_ATTRIB[tail] - INPUT_ATTRIB[head]);
-    } else {
-      change = pow(fabs(INPUT_ATTRIB[tail] - INPUT_ATTRIB[head]), p);
-    }
-    CHANGE_STAT[0] += IS_OUTEDGE(tail,head) ? -change : change;
-    TOGGLE_IF_MORE_TO_COME(i); /* Needed in case of multiple toggles */
+  p = INPUT_ATTRIB[0];
+  if(p==1.0){
+    change = fabs(INPUT_ATTRIB[tail] - INPUT_ATTRIB[head]);
+  } else {
+    change = pow(fabs(INPUT_ATTRIB[tail] - INPUT_ATTRIB[head]), p);
   }
-  UNDO_PREVIOUS_TOGGLES(i); /* Needed on exit in case of multiple toggles */
+  CHANGE_STAT[0] = IS_OUTEDGE(tail,head) ? -change : change;
 }
 
 /*****************
@@ -2474,21 +2465,11 @@ D_CHANGESTAT_FN(d_edgecov) {
 }
 
 /*****************
- changestat: d_edges
+ changestat: c_edges
 *****************/
-D_CHANGESTAT_FN(d_edges) {
-  int edgeflag, i;
-  Vertex tail, head;
-  
+C_CHANGESTAT_FN(c_edges) {
   /* *** don't forget tail -> head */    
-  CHANGE_STAT[0] = 0.0;
-  for (i=0; i < ntoggles; i++)
-    {
-      edgeflag = IS_OUTEDGE(tail = TAIL(i), head = HEAD(i));
-      CHANGE_STAT[0] += edgeflag ? - 1 : 1;
-      TOGGLE_IF_MORE_TO_COME(i);
-    }
-  UNDO_PREVIOUS_TOGGLES(i);
+  CHANGE_STAT[0] = IS_OUTEDGE(tail, head) ? - 1 : 1;
 }
 
 S_CHANGESTAT_FN(s_edges) {

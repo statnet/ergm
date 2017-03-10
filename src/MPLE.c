@@ -207,7 +207,8 @@ void MpleInit_hash_bl(int *responsevec, double *covmat, int *weightsvector,
       mtp->dstats = newRow + totalStats;
       /* Now call d_xxx function, which updates mtp->dstats to reflect
 	 changing the current dyad.  */
-      (*(mtp->d_func))(1, &t, &h, mtp, nwp);
+      if(mtp->c_func) (*(mtp->c_func))(t, h, mtp, nwp);
+      else (*(mtp->d_func))(1, &t, &h, mtp, nwp);
       /* dstats values reflect changes in current dyad; for MPLE, 
 	 values must reflect going from 0 to 1.  Thus, we have to reverse 
 	 the sign of dstats whenever the current edge exists. */
@@ -249,7 +250,8 @@ void MpleInit_hash_wl(int *responsevec, double *covmat, int *weightsvector,
       mtp->dstats = newRow + totalStats;
       /* Now call d_xxx function, which updates mtp->dstats to reflect
 	 changing the current dyad.  */
-      (*(mtp->d_func))(1, &t, &h, mtp, nwp);
+      if(mtp->c_func) (*(mtp->c_func))(t, h, mtp, nwp);
+      else (*(mtp->d_func))(1, &t, &h, mtp, nwp);
       /* dstats values reflect changes in current dyad; for MPLE, 
 	 values must reflect going from 0 to 1.  Thus, we have to reverse 
 	 the sign of dstats whenever the current edge exists. */

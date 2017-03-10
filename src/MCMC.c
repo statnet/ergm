@@ -273,16 +273,17 @@ MCMCStatus MetropolisHastings(MHproposal *MHp,
       }
 
       /* Inform u_* functions that the network is about to change. */
-      UpdateStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, nwp, m);
-      
+      	 
       /* Make proposed toggles (updating timestamps--i.e., for real this time) */
       for(unsigned int i=0; i < MHp->ntoggles; i++){
-	ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
-	
+	UPDATE_STORAGE(MHp->toggletail[i], MHp->togglehead[i], m, nwp);
+		
 	if(MHp->discord)
 	  for(Network **nwd=MHp->discord; *nwd!=NULL; nwd++){
 	    ToggleEdge(MHp->toggletail[i],  MHp->togglehead[i], *nwd);
 	  }
+
+	ToggleEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
       }
       /* record network statistics for posterity */
       for (unsigned int i = 0; i < m->n_stats; i++){

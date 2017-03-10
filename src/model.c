@@ -48,6 +48,7 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
       /* Initialize storage and term functions to NULL. */
       thisterm->storage = NULL;
       thisterm->d_func = NULL;
+      thisterm->c_func = NULL;
       thisterm->s_func = NULL;
       thisterm->i_func = NULL;
       thisterm->u_func = NULL;
@@ -127,14 +128,22 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
 	    interest for a particular edge toggle.  This function is obtained by
 	    searching for symbols associated with the object file with prefix
 	    sn, having the name fn.  Assuming that one is found, we're golden.*/ 
-	fn[0]='d';
-	thisterm->d_func = 
-	  (void (*)(Edge, Vertex*, Vertex*, ModelTerm*, Network*))
+	fn[0]='c';
+	thisterm->c_func = 
+	  (void (*)(Vertex, Vertex, ModelTerm*, Network*))
 	  R_FindSymbol(fn,sn,NULL);
-	if(thisterm->d_func==NULL){
-	  error("Error in ModelInitialize: could not find function %s in "
-                "namespace for package %s. Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
-	}      
+
+	if(thisterm->c_func==NULL){
+	  fn[0]='d';
+	  thisterm->d_func = 
+	    (void (*)(Edge, Vertex*, Vertex*, ModelTerm*, Network*))
+	    R_FindSymbol(fn,sn,NULL);
+	
+	  if(thisterm->d_func==NULL){
+	    error("Error in ModelInitialize: could not find function %s in "
+		  "namespace for package %s. Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
+	  }
+	}
 	
 	/* Optional function to compute the statistic of interest for
 	   the network given. It can be more efficient than going one
@@ -148,13 +157,15 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
 	 network state between calls to d_ functions. */
       fn[0]='u';
       thisterm->u_func = 
-	(void (*)(Edge, Vertex*, Vertex*, ModelTerm*, Network*)) R_FindSymbol(fn,sn,NULL);
+	(void (*)(Vertex, Vertex, ModelTerm*, Network*)) R_FindSymbol(fn,sn,NULL);
+
       /* If it's an auxiliary, then it needs a u_function, or
 	 it's not doing anything. */
       if(thisterm->nstats==0 && thisterm->u_func==NULL){
-	  error("Error in ModelInitialize: could not find updater function %s in "
-                "namespace for package %s: this term will not do anything. Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
+	error("Error in ModelInitialize: could not find updater function %s in "
+	      "namespace for package %s: this term will not do anything. Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
       }
+  
 
       /* Optional-optional functions to initialize and finalize the
 	 term's storage. */
@@ -194,37 +205,56 @@ Model* ModelInitialize (char *fnames, char *sonames, double **inputsp,
   A helper's helper function to compute change statistics.
   The vector of changes is written to m->workspace.
 */
-void ChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead,
+void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
 				 Network *nwp, Model *m){
+  memset(m->workspace, 0, m->n_stats*sizeof(double)); /* Zero all change stats. */ 
+
+  /* Make a pass through terms with d_functions. */
   ModelTerm *mtp = m->termarray;
   double *dstats = m->workspace;
   
   for (unsigned int i=0; i < m->n_terms; i++){
     /* Calculate change statistics */
     mtp->dstats = dstats; /* Stuck the change statistic here.*/
-    if(mtp->d_func)
-      (*(mtp->d_func))(ntoggles, toggletail, togglehead, 
+    if(mtp->c_func==NULL && mtp->d_func)
+      (*(mtp->d_func))(ntoggles, tails, heads, 
 		       mtp, nwp);  /* Call d_??? function */
     dstats += (mtp++)->nstats;
   }
-}
 
+  /* Make a pass through terms with c_functions. */
+  int toggle;
+  FOR_EACH_TOGGLE(toggle){
+    ModelTerm *mtp = m->termarray;
+    double *dstats = m->workspace;
 
-/*
-  UpdateStats
-  A helper's helper function to inform the code that the network state is about to change.
-*/
-void UpdateStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead,
-				 Network *nwp, Model *m){
-  ModelTerm *mtp = m->termarray;
-  for (unsigned int i=0; i < m->n_terms; i++){
-    double *dstats = mtp->dstats;
-    mtp->dstats = NULL; // Trigger segfault if u_func tries to write to change statistics.
-    if(mtp->u_func)
-      (*(mtp->u_func))(ntoggles, toggletail, togglehead, 
-		       mtp, nwp);  /* Call u_??? function */
-    mtp->dstats = dstats;
-    mtp++;
+    /* Calculate change statistics */
+    for (unsigned int i=0; i < m->n_terms; i++){
+      mtp->dstats = ntoggles==1 ? dstats : m->dstatarray[i]; /* If only one toggle, just write directly into the workspace array. */
+      if(mtp->c_func)
+	(*(mtp->c_func))(*(tails+toggle), *(heads+toggle),
+			 mtp, nwp);  /* Call d_??? function */
+
+      if(ntoggles!=1){
+	for(unsigned int k=0; k<N_CHANGE_STATS; k++){
+	  dstats[k] += mtp->dstats[k];
+	}
+      }
+      // Advance to the next term.
+      dstats += mtp->nstats;
+      mtp++;
+    }
+
+    /* Execute storage updates */
+    IF_MORE_TO_COME(toggle){
+      UPDATE_C_STORAGE(tails[toggle],heads[toggle], m, nwp);
+      TOGGLE(tails[toggle],heads[toggle]);
+    }
+  }
+  /* Undo previous storage updates and toggles */
+  UNDO_PREVIOUS(toggle){
+    UPDATE_C_STORAGE(tails[toggle],heads[toggle], m, nwp);
+    TOGGLE(tails[toggle],heads[toggle]);
   }
 }
       
@@ -236,16 +266,14 @@ void InitStats(Network *nwp, Model *m){
   ModelTerm *mtp = m->termarray;
   for (unsigned int i=0; i < m->n_terms; i++){
     double *dstats = mtp->dstats;
-    mtp->dstats = NULL; // Trigger segfault if u_func tries to write to change statistics.
+    mtp->dstats = NULL; // Trigger segfault if i_func tries to write to change statistics.
     if(mtp->i_func)
       (*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
+    else if(mtp->u_func) /* No initializer but an updater -> uses a 1-function implementation. */
+      (*(mtp->u_func))(0, 0, mtp, nwp);  /* Call u_??? function */
     mtp->dstats = dstats;
     mtp++;
   }
-
-  // Run a null update, in case the implementer uses the one-function
-  // implementation.
-  UpdateStats(0, NULL, NULL, nwp, m);
 }
 
 /*
