@@ -154,7 +154,7 @@ typedef struct WtModelTermstruct {
 #define UNDO_SETWT() {GETOLDTOGGLEINFO(); SETWT(TAIL,HEAD,weights[TOGGLEIND]); weights[TOGGLEIND]=OLDWT;}
 #define IF_MORE_TO_COME if(TOGGLEIND+1<ntoggles)
 #define SETWT_IF_MORE_TO_COME() {IF_MORE_TO_COME{SETWT_WITH_BACKUP();}}
-#define UNDO_PREVIOUS for(unsigned int TOGGLEIND=ntoggles-1; TOGGLEIND>=0; TOGGLEIND--)
+#define UNDO_PREVIOUS for(int TOGGLEIND=ntoggles-2; TOGGLEIND>=0; TOGGLEIND--)
 #define UNDO_PREVIOUS_SETWTS() {UNDO_PREVIOUS{UNDO_SETWT();}}
 /* Brings together the above operations:
    For each toggle:
