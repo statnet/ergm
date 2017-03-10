@@ -29,23 +29,52 @@ typedef struct WtModelstruct {
   unsigned int n_aux;
 } WtModel;
 
+ /* If DEBUG is set, back up mtp->dstats and set it to NULL in order
+    to trigger a segfault if u_func tries to write to change
+    statistics; then restore it. Otherwise, don't bother. */
+#ifdef DEBUG
+
 #define UPDATE_STORAGE(tail, head, weight, m, nwp){			\
-  WtModelTerm *mtp = m->termarray;					\
-  for (unsigned int i=0; i < m->n_terms; i++, mtp++){			\
-  mtp->dstats = NULL; /* Trigger segfault if u_func tries to write to change statistics. */ \
-  if(mtp->u_func) /* Skip if either no update or it's a d_func, so it doesn't require storage updates for provisional updates. */ \
-    (*(mtp->u_func))(tail, head, weight, mtp, nwp);  /* Call u_??? function */ \
-  }									\
+    WtModelTerm *mtp = m->termarray;					\
+    for (unsigned int i=0; i < m->n_terms; i++, mtp++){			\
+      double *dstats = mtp->dstats; /* Back up mtp->dstats. */		\
+      mtp->dstats = NULL; /* Trigger segfault if u_func tries to write to change statistics. */ \
+      if(mtp->u_func) /* Skip if no update. */				\
+	(*(mtp->u_func))(tail, head, weight, mtp, nwp);  /* Call u_??? function */ \
+      mtp->dstats = dstats; /* Restore mtp->dstats. */			\
+    }									\
   }
 
 #define UPDATE_C_STORAGE(tail, head, weight, m, nwp){			\
-  WtModelTerm *mtp = m->termarray;					\
-  for (unsigned int i=0; i < m->n_terms; i++, mtp++){			\
-  mtp->dstats = NULL; /* Trigger segfault if u_func tries to write to change statistics. */ \
-  if(mtp->u_func && mtp->d_func==NULL) /* Skip if either no update or it's a d_func, so it doesn't require storage updates for provisional updates. */ \
-    (*(mtp->u_func))(tail, head, weight, mtp, nwp);  /* Call u_??? function */ \
-  }									\
+    WtModelTerm *mtp = m->termarray;					\
+    for (unsigned int i=0; i < m->n_terms; i++, mtp++){			\
+      double *dstats = mtp->dstats; /* Back up mtp->dstats. */		\
+      mtp->dstats = NULL; /* Trigger segfault if u_func tries to write to change statistics. */ \
+      if(mtp->u_func && mtp->d_func==NULL) /* Skip if either no update or it's a d_func, so it doesn't require storage updates for provisional updates. */ \
+	(*(mtp->u_func))(tail, head, weight, mtp, nwp);  /* Call u_??? function */ \
+      mtp->dstats = dstats; /* Restore mtp->dstats. */			\
+    }									\
   }
+
+#else
+
+#define UPDATE_STORAGE(tail, head, weight, m, nwp){			\
+    WtModelTerm *mtp = m->termarray;					\
+    for (unsigned int i=0; i < m->n_terms; i++, mtp++){			\
+      if(mtp->u_func) /* Skip if no update. */				\
+	(*(mtp->u_func))(tail, head, weight, mtp, nwp);  /* Call u_??? function */ \
+    }									\
+  }
+
+#define UPDATE_C_STORAGE(tail, head, weight, m, nwp){			\
+    WtModelTerm *mtp = m->termarray;					\
+    for (unsigned int i=0; i < m->n_terms; i++, mtp++){			\
+      if(mtp->u_func && mtp->d_func==NULL) /* Skip if either no update or it's a d_func, so it doesn't require storage updates for provisional updates. */ \
+	(*(mtp->u_func))(tail, head, weight, mtp, nwp);  /* Call u_??? function */ \
+    }									\
+  }
+
+#endif
 
 
 WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputs,
