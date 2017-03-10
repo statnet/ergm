@@ -403,6 +403,81 @@ WtD_CHANGESTAT_FN(d_edgecov_sum) {
     });
 }
 
+/********************  changestats:   D    ***********/
+
+/*****************                       
+ changestat: d_diff(_nonzero)
+*****************/
+WtD_CHANGESTAT_FN(d_diff_nonzero) { 
+  double p = INPUT_PARAM[0], *x = INPUT_PARAM+2;
+  int mul = INPUT_PARAM[1], sign_code = INPUT_PARAM[2];
+
+  /* *** don't forget tail -> head */
+  ZERO_ALL_CHANGESTATS();
+  EXEC_THROUGH_TOGGLES({
+    double change = (x[TAIL] - x[HEAD])*mul;
+    switch(sign_code){
+    case 1: // identity
+      break;
+    case 2: // abs
+      change = fabs(change);
+      break;
+    case 3: // positive only
+      change = change<0 ? 0 : change;
+      break;
+    case 4: // negative only
+      change = change>0 ? 0 : change;
+      break;
+    default:
+      error("Invalid sign action code passed to d_diff_nonzero.");
+      break;
+    }
+
+    if(p!=1.0){
+      change = pow(change, p);
+    }
+    
+    CHANGE_STAT[0] += change*((NEWWT!=0)-(OLDWT!=0));
+    })
+}
+
+/*****************                       
+ changestat: d_diff(_sum)
+*****************/
+WtD_CHANGESTAT_FN(d_diff_sum) { 
+  double p = INPUT_PARAM[0], *x = INPUT_PARAM+2;
+  int mul = INPUT_PARAM[1], sign_code = INPUT_PARAM[2];
+
+  /* *** don't forget tail -> head */
+  ZERO_ALL_CHANGESTATS();
+  EXEC_THROUGH_TOGGLES({
+    double change = (x[TAIL] - x[HEAD])*mul;
+    switch(sign_code){
+    case 1: // identity
+      break;
+    case 2: // abs
+      change = fabs(change);
+      break;
+    case 3: // positive only
+      change = change<0 ? 0 : change;
+      break;
+    case 4: // negative only
+      change = change>0 ? 0 : change;
+      break;
+    default:
+      error("Invalid sign action code passed to d_diff_sum.");
+      break;
+    }
+
+    if(p!=1.0){
+      change = pow(change, p);
+    }
+    
+    CHANGE_STAT[0] += change*(NEWWT-OLDWT);
+    })
+}
+
+    
 /********************  changestats:   G    ***********/
 
 /*****************

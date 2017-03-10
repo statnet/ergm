@@ -29,6 +29,10 @@ WtD_CHANGESTAT_FN(d_cyclicalweights_threshold); WtS_CHANGESTAT_FN(s_cyclicalweig
 /********************  changestats:   E    ***********/
 WtD_CHANGESTAT_FN(d_edgecov_nonzero); WtD_CHANGESTAT_FN(d_edgecov_sum);
 
+/********************  changestats:   D    ***********/
+WtD_CHANGESTAT_FN(d_diff_nonzero);
+WtD_CHANGESTAT_FN(d_diff_sum);
+
 /********************  changestats:   G    ***********/
 WtD_CHANGESTAT_FN(d_greaterthan);
 

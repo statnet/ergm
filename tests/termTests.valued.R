@@ -11,9 +11,10 @@
 library(ergm)
 
 tst <- function(truth, fmla){
-  cat("Test:", test <- summary(fmla, response="w"), "\n")
-  cat("Truth:", truth, "\n")
-  stopifnot(isTRUE(all.equal(truth,test,check.attributes=FALSE)))
+  test <- summary(fmla, response="w")
+  if(!isTRUE(all.equal(truth,test,check.attributes=FALSE))){
+    stop("Test for ",format(fmla), " failed: correct value ",truth,", but evaluated to ",test,".")
+  }
 }
 
 n <- 129
@@ -178,6 +179,25 @@ tst(sum((bipm!=0),na.rm=TRUE), bipnw ~ edges)
 tst(sum((dirm!=0),na.rm=TRUE), dirnw ~ nonzero)
 tst(sum((undm!=0),na.rm=TRUE)/2, undnw ~ nonzero)
 tst(sum((bipm!=0),na.rm=TRUE), bipnw ~ nonzero)
+
+# diff
+
+posonly <- function(x) pmax(x, 0)
+negonly <- function(x) pmin(x, 0)
+
+for(dd in c("t-h", "h-t")){
+  for(sa in c("identity", "abs", "posonly", "negonly")){
+    saf <- get(sa)
+    ddf <- switch(dd, `t-h`=identity, `h-t`=function(x) -x)
+
+    df <- function(x) saf(ddf(x))
+    
+    tst(sum(df(outer(q,q,"-"))*dirm,na.rm=TRUE), dirnw ~ diff("q", dir=dd, sign.action=sa))
+    tst(sum(df(outer(q,q,"-"))^2*dirm,na.rm=TRUE), dirnw ~ diff("q",pow=2, dir=dd, sign.action=sa))
+    tst(sum(df(outer(q,q,"-"))*(dirm!=0),na.rm=TRUE), dirnw ~ diff("q", dir=dd, sign.action=sa, form="nonzero"))
+    tst(sum(df(outer(q,q,"-"))^2*(dirm!=0),na.rm=TRUE), dirnw ~ diff("q",pow=2, dir=dd, sign.action=sa, form="nonzero"))
+  }
+}
 
 # greaterthan
 for(v in dirvt) tst(sum(dirm > v,na.rm=TRUE), dirnw ~ greaterthan(v))
