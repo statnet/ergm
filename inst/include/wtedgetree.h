@@ -1,4 +1,4 @@
-/*  File inst/include/wtedgetree.h in package ergm, part of the Statnet suite
+/*  File src/wtedgetree.h in package ergm, part of the Statnet suite
  *  of packages for network analysis, http://statnet.org .
  *
  *  This software is distributed under the GPL-3 license.  It is free,
@@ -64,16 +64,18 @@ typedef struct WtNetworkstruct {
   double *value;  
   Dur_Inf duration_info;
   Edge maxedges;
+  void **aux_storage;
+  unsigned int n_aux;
 } WtNetwork;
 
 /* Initialization and destruction. */
 WtNetwork WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights, Edge nedges,
 			      Vertex nnodes, int directed_flag, Vertex bipartite,
-			      int lasttoggle_flag, int time, int *lasttoggle);
+			      int lasttoggle_flag, int time, int *lasttoggle, unsigned int n_aux);
 void WtNetworkDestroy(WtNetwork *nwp);
 WtNetwork WtNetworkInitializeD(double *tails, double *heads, double *weights, Edge nedges,
 			       Vertex nnodes, int directed_flag, Vertex bipartite,
-			      int lasttoggle_flag, int time, int *lasttoggle);
+			      int lasttoggle_flag, int time, int *lasttoggle, unsigned int n_aux);
 
 WtNetwork *WtNetworkCopy(WtNetwork *dest, WtNetwork *src);
 

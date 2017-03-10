@@ -26,12 +26,13 @@ typedef struct Modelstruct {
   double **dstatarray; /* array of size n_terms; the ith element in this
 			  array is a pointer to an array of size
 			  termarray[i].nstats                    */
+  unsigned int n_aux;
 } Model;
 
 Model* ModelInitialize (char *fnames, char *sonames, double **inputs,
 			int n_terms);
 
-void ModelDestroy(Model *m);
+void ModelDestroy(Model *m, Network *nwp);
 
 /* A Model object contains information about an entire ERGM, including the
    total numbers of terms, parameters, and statistics along with a pointer
@@ -44,6 +45,10 @@ int GetIndexForAttrValue(int value);
 void ChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, Network *nwp, Model *m);
 
 void UpdateStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, Network *nwp, Model *m);
+
+void InitStats(Network *nwp, Model *m);
+
+void DestroyStats(Network *nwp, Model *m);
 
 #endif
 

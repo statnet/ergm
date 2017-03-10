@@ -55,6 +55,7 @@
 \alias{degrange}
 \alias{degree}
 \alias{degreepopularity}
+\alias{diff}
 \alias{density}
 \alias{desp}
 \alias{dgwdsp}
@@ -805,7 +806,40 @@ of the degrees of all pairs of nodes in the network which are tied.
     \code{edges} divided by \eqn{n(n-1)/2}; for directed networks,
     \code{density} equals \code{edges} or \code{istar(1)} or \code{ostar(1)}
     divided by \eqn{n(n-1)}. }
-    
+
+    \item{\code{diff(attrname, pow=1, dir="t-h", sign.action="identity")}  (binary)  (dyad-independent)  (frequently-used)  (directed)  (undirected) (quantitative nodal attribute),
+    \code{diff(attrname, pow=1,  dir="t-h", sign.action="identity", form ="sum")}  (valued)  (dyad-independent) (directed)  (undirected) (quantitative nodal attribute)}{\emph{Difference:}
+    The \code{attrname} argument is a character string giving the name
+    of a quantitative attribute in the network's vertex attribute
+    list. This term adds one network statistic to the model, equaling
+    the sum, over directed edges \eqn{(i,j)}, of
+    \code{sign.action(attrname[i]-attrname[j])^pow} if  \code{dir} is
+    \code{"t-h"} (the default), \code{"tail-head"}, or \code{"b1-b2"} and of
+    \code{sign.action(attrname[j]-attrname[i])^pow} if \code{"t-h"},
+    \code{"tail-head"}, or \code{"b2-b1"}. That is, the argument
+    \code{dir} determines which vertex's attribute is subtracted from
+    which, with tail being the origin of a directed edge and head
+    being its destination, and bipartite networks' edges being treated
+    as going from the first part (b1) to the second (b2).
+
+    The following \code{sign.actions} are possible:
+    \describe{
+      \item{\code{"identity"} (the default)}{no transformation of the
+	difference regardless of sign}
+      \item{\code{"abs"}}{absolute value of the difference: equivalent
+	to the \code{absdiff} term}
+      \item{\code{"posonly"}}{positive differences are kept, negative
+	differences are replaced by 0}
+      \item{\code{"negonly"}}{negative differences are kept, positive
+	differences are replaced by 0}
+    }
+
+    Note that this term may not be meaningful for unipartite undirected
+    networks unless \code{sign.action=="abs"}. When used on such a network, it behaves as if all edges
+    were directed, going from the lower-indexed vertex to the
+    higher-indexed vertex.    
+  }
+  
     \item{\code{desp(d, type="OTP")} (binary) (directed)}{  \emph{Directed edgewise shared partners:} This term adds one network statistic to the model for each element in \code{d} where the \eqn{i}th such statistic equals the number of \emph{edges} in the network with exactly \code{d[i]} shared partners. This term can only be used with directed networks.  Multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to be counted (see \code{ddsp} for type codes).  By default, outgoing two-paths are employed. }
     
     \item{\code{dgwdsp(alpha, fixed=FALSE, cutoff=30, type="OTP")} (binary) (directed)}{  \emph{Geometrically weighted dyadwise shared partner distribution:} This term adds one network statistic to the model equal to the geometrically weighted dyadwise shared partner distribution with weight parameter alpha \eqn{\ge} 0. Note that the GWDSP statistic is equal to the sum of GWNSP plus GWESP. The optional argument \code{fixed} indicates whether the scale parameter \code{lambda} is to be fit as a curved exponential-family model (see Hunter and Handcock, 2006).  The default is \code{FALSE}, which means the scale parameter is not fixed and thus the model is a CEF model. For a directed network, multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to employ (see \code{ddsp} for definitions).  By default, outgoing two-paths are employed.  The optional argument \code{cutoff} sets the number of underlying DSP terms to use in computing the statistics to reduce the computational burden.

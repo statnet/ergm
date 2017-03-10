@@ -71,6 +71,7 @@ D_CHANGESTAT_FN(d_degree_by_attr);
 D_CHANGESTAT_FN(d_degree_w_homophily);
 D_CHANGESTAT_FN(d_degreepopularity);
 D_CHANGESTAT_FN(d_density);
+D_CHANGESTAT_FN(d_diff);
 D_CHANGESTAT_FN(d_dsp);
 D_CHANGESTAT_FN(d_dyadcov);
 /********************  changestats:  E    ***********/

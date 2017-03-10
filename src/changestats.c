@@ -2229,6 +2229,48 @@ D_CHANGESTAT_FN(d_density) {
   UNDO_PREVIOUS_TOGGLES(i);  
 }
 
+/*****************                       
+ changestat: d_diff
+*****************/
+D_CHANGESTAT_FN(d_diff) { 
+  double p = INPUT_PARAM[0], *x = INPUT_PARAM+2;
+  int mul = INPUT_PARAM[1], sign_code = INPUT_PARAM[2];
+  Vertex tail, head;
+  int i;
+
+  /* *** don't forget tail -> head */
+  ZERO_ALL_CHANGESTATS(i);
+  FOR_EACH_TOGGLE(i) {
+    tail = TAIL(i); 
+    head = HEAD(i);
+    double change = (x[tail] - x[head])*mul;
+    switch(sign_code){
+    case 1: // identity
+      break;
+    case 2: // abs
+      change = fabs(change);
+      break;
+    case 3: // positive only
+      change = change<0 ? 0 : change;
+      break;
+    case 4: // negative only
+      change = change>0 ? 0 : change;
+      break;
+    default:
+      error("Invalid sign action code passed to d_diff.");
+      break;
+    }
+
+    if(p!=1.0){
+      change = pow(change, p);
+    }
+    
+    CHANGE_STAT[0] += IS_OUTEDGE(tail,head) ? -change : change;
+    TOGGLE_IF_MORE_TO_COME(i); /* Needed in case of multiple toggles */
+  }
+  UNDO_PREVIOUS_TOGGLES(i); /* Needed on exit in case of multiple toggles */
+}
+
 /*****************
  changestat: d_dsp
 *****************/

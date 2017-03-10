@@ -35,6 +35,8 @@ return fun(n,r);
 #undef DIRECTED
 #undef N_EDGES
 #undef BIPARTITE
+#undef N_TAILS
+#undef N_HEADS
 #undef NEXT_INEDGE_NUM
 #undef NEXT_OUTEDGE_NUM
 #undef CHANGE_STAT
@@ -47,10 +49,19 @@ return fun(n,r);
 #undef TOGGLE_DISCORD_IF_MORE_TO_COME
 #undef UNDO_PREVIOUS_TOGGLES
 #undef UNDO_PREVIOUS_DISCORD_TOGGLES
+#undef ALLOC_STORAGE
+#undef GET_STORAGE
+#undef ALLOC_AUX_STORAGE
+#undef GET_AUX_STORAGE
+#undef GET_AUX_STORAGE_NUM
+#undef ALLOC_AUX_SOCIOMATRIX
+#undef FREE_AUX_SOCIOMATRIX
 #undef INIT_STORAGE
 #undef CHANGESTAT_FN
 #undef D_CHANGESTAT_FN
+#undef I_CHANGESTAT_FN
 #undef U_CHANGESTAT_FN
+#undef F_CHANGESTAT_FN
 #undef S_CHANGESTAT_FN
 #undef D_FROM_S
 #undef D_FROM_S_FN
@@ -73,20 +84,20 @@ return fun(tail,head,el);
 #undef GetRandDyad
 #include "R_ext/Rdynload.h"
 #include "edgetree.h"
-Network NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,Vertex nnodes, int directed_flag, Vertex bipartite,int lasttoggle_flag, int time, int *lasttoggle){
-static Network (*fun)(Vertex *,Vertex *,Edge,Vertex,int,Vertex,int,int,int *) = NULL;
-if(fun==NULL) fun = (Network (*)(Vertex *,Vertex *,Edge,Vertex,int,Vertex,int,int,int *)) R_FindSymbol("NetworkInitialize", "ergm", NULL);
-return fun(tails,heads,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag,time,lasttoggle);
+Network NetworkInitialize(Vertex *tails, Vertex *heads, Edge nedges,Vertex nnodes, int directed_flag, Vertex bipartite,int lasttoggle_flag, int time, int *lasttoggle, unsigned int n_aux){
+static Network (*fun)(Vertex *,Vertex *,Edge,Vertex,int,Vertex,int,int,int *,unsigned int) = NULL;
+if(fun==NULL) fun = (Network (*)(Vertex *,Vertex *,Edge,Vertex,int,Vertex,int,int,int *,unsigned int)) R_FindSymbol("NetworkInitialize", "ergm", NULL);
+return fun(tails,heads,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag,time,lasttoggle,n_aux);
 }
 void NetworkDestroy(Network *nwp){
 static void (*fun)(Network *) = NULL;
 if(fun==NULL) fun = (void (*)(Network *)) R_FindSymbol("NetworkDestroy", "ergm", NULL);
 fun(nwp);
 }
-Network NetworkInitializeD(double *tails, double *heads, Edge nedges,Vertex nnodes, int directed_flag, Vertex bipartite,int lasttoggle_flag, int time, int *lasttoggle){
-static Network (*fun)(double *,double *,Edge,Vertex,int,Vertex,int,int,int *) = NULL;
-if(fun==NULL) fun = (Network (*)(double *,double *,Edge,Vertex,int,Vertex,int,int,int *)) R_FindSymbol("NetworkInitializeD", "ergm", NULL);
-return fun(tails,heads,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag,time,lasttoggle);
+Network NetworkInitializeD(double *tails, double *heads, Edge nedges,Vertex nnodes, int directed_flag, Vertex bipartite,int lasttoggle_flag, int time, int *lasttoggle, unsigned int n_aux){
+static Network (*fun)(double *,double *,Edge,Vertex,int,Vertex,int,int,int *,unsigned int) = NULL;
+if(fun==NULL) fun = (Network (*)(double *,double *,Edge,Vertex,int,Vertex,int,int,int *,unsigned int)) R_FindSymbol("NetworkInitializeD", "ergm", NULL);
+return fun(tails,heads,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag,time,lasttoggle,n_aux);
 }
 Network * NetworkCopy(Network *dest, Network *src){
 static Network * (*fun)(Network *,Network *) = NULL;
@@ -279,6 +290,8 @@ fun(MH,theta,gain,meanstats,nphase1,nsubphases,networkstatistics,samplesize,burn
 #undef DIRECTED
 #undef N_EDGES
 #undef BIPARTITE
+#undef N_TAILS
+#undef N_HEADS
 #undef NEXT_INEDGE_NUM
 #undef NEXT_OUTEDGE_NUM
 #undef CHANGE_STAT
@@ -291,10 +304,19 @@ fun(MH,theta,gain,meanstats,nphase1,nsubphases,networkstatistics,samplesize,burn
 #undef TOGGLE_DISCORD_IF_MORE_TO_COME
 #undef UNDO_PREVIOUS_TOGGLES
 #undef UNDO_PREVIOUS_DISCORD_TOGGLES
+#undef ALLOC_STORAGE
+#undef GET_STORAGE
+#undef ALLOC_AUX_STORAGE
+#undef GET_AUX_STORAGE
+#undef GET_AUX_STORAGE_NUM
+#undef ALLOC_AUX_SOCIOMATRIX
+#undef FREE_AUX_SOCIOMATRIX
 #undef INIT_STORAGE
 #undef CHANGESTAT_FN
 #undef D_CHANGESTAT_FN
+#undef I_CHANGESTAT_FN
 #undef U_CHANGESTAT_FN
+#undef F_CHANGESTAT_FN
 #undef S_CHANGESTAT_FN
 #undef D_FROM_S
 #undef D_FROM_S_FN
@@ -372,10 +394,10 @@ static Model* (*fun)(char *,char *,double **,int) = NULL;
 if(fun==NULL) fun = (Model* (*)(char *,char *,double **,int)) R_FindSymbol("ModelInitialize", "ergm", NULL);
 return fun(fnames,sonames,inputs,n_terms);
 }
-void ModelDestroy(Model *m){
-static void (*fun)(Model *) = NULL;
-if(fun==NULL) fun = (void (*)(Model *)) R_FindSymbol("ModelDestroy", "ergm", NULL);
-fun(m);
+void ModelDestroy(Model *m, Network *nwp){
+static void (*fun)(Model *,Network *) = NULL;
+if(fun==NULL) fun = (void (*)(Model *,Network *)) R_FindSymbol("ModelDestroy", "ergm", NULL);
+fun(m,nwp);
 }
 int GetIndexForAttrValue(int value){
 static int (*fun)(int) = NULL;
@@ -391,6 +413,16 @@ void UpdateStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, 
 static void (*fun)(unsigned int,Vertex *,Vertex *,Network *,Model *) = NULL;
 if(fun==NULL) fun = (void (*)(unsigned int,Vertex *,Vertex *,Network *,Model *)) R_FindSymbol("UpdateStats", "ergm", NULL);
 fun(ntoggles,toggletail,togglehead,nwp,m);
+}
+void InitStats(Network *nwp, Model *m){
+static void (*fun)(Network *,Model *) = NULL;
+if(fun==NULL) fun = (void (*)(Network *,Model *)) R_FindSymbol("InitStats", "ergm", NULL);
+fun(nwp,m);
+}
+void DestroyStats(Network *nwp, Model *m){
+static void (*fun)(Network *,Model *) = NULL;
+if(fun==NULL) fun = (void (*)(Network *,Model *)) R_FindSymbol("DestroyStats", "ergm", NULL);
+fun(nwp,m);
 }
 #undef MIN
 #undef MAX
@@ -422,6 +454,8 @@ fun(ntoggles,toggletail,togglehead,nwp,m);
 #undef DIRECTED
 #undef N_EDGES
 #undef BIPARTITE
+#undef N_TAILS
+#undef N_HEADS
 #undef NEXT_INEDGE_NUM
 #undef NEXT_OUTEDGE_NUM
 #undef CHANGE_STAT
@@ -434,10 +468,19 @@ fun(ntoggles,toggletail,togglehead,nwp,m);
 #undef TOGGLE_DISCORD_IF_MORE_TO_COME
 #undef UNDO_PREVIOUS_TOGGLES
 #undef UNDO_PREVIOUS_DISCORD_TOGGLES
+#undef ALLOC_STORAGE
+#undef GET_STORAGE
+#undef ALLOC_AUX_STORAGE
+#undef GET_AUX_STORAGE
+#undef GET_AUX_STORAGE_NUM
+#undef ALLOC_AUX_SOCIOMATRIX
+#undef FREE_AUX_SOCIOMATRIX
 #undef INIT_STORAGE
 #undef CHANGESTAT_FN
 #undef D_CHANGESTAT_FN
+#undef I_CHANGESTAT_FN
 #undef U_CHANGESTAT_FN
+#undef F_CHANGESTAT_FN
 #undef S_CHANGESTAT_FN
 #undef D_FROM_S
 #undef D_FROM_S_FN
@@ -481,6 +524,8 @@ fun(ntoggles,toggletail,togglehead,nwp,m);
 #undef DIRECTED
 #undef N_EDGES
 #undef BIPARTITE
+#undef N_TAILS
+#undef N_HEADS
 #undef NEXT_INEDGE_NUM
 #undef NEXT_OUTEDGE_NUM
 #undef CHANGE_STAT
@@ -505,29 +550,38 @@ fun(ntoggles,toggletail,togglehead,nwp,m);
 #undef GETOLDWT
 #undef GETNEWWT
 #undef GETNEWWTOLD
+#undef ALLOC_STORAGE
+#undef GET_STORAGE
+#undef ALLOC_AUX_STORAGE
+#undef GET_AUX_STORAGE
+#undef GET_AUX_STORAGE_NUM
+#undef ALLOC_AUX_SOCIOMATRIX
+#undef FREE_AUX_SOCIOMATRIX
 #undef INIT_STORAGE
 #undef WtD_CHANGESTAT_FN
+#undef WtI_CHANGESTAT_FN
 #undef WtU_CHANGESTAT_FN
+#undef WtF_CHANGESTAT_FN
 #undef WtS_CHANGESTAT_FN
 #undef D_FROM_S
 #undef WtD_FROM_S_FN
 #undef INPUT_ATTRIB
 #include "R_ext/Rdynload.h"
 #include "wtedgetree.h"
-WtNetwork WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights, Edge nedges,Vertex nnodes, int directed_flag, Vertex bipartite,int lasttoggle_flag, int time, int *lasttoggle){
-static WtNetwork (*fun)(Vertex *,Vertex *,double *,Edge,Vertex,int,Vertex,int,int,int *) = NULL;
-if(fun==NULL) fun = (WtNetwork (*)(Vertex *,Vertex *,double *,Edge,Vertex,int,Vertex,int,int,int *)) R_FindSymbol("WtNetworkInitialize", "ergm", NULL);
-return fun(tails,heads,weights,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag,time,lasttoggle);
+WtNetwork WtNetworkInitialize(Vertex *tails, Vertex *heads, double *weights, Edge nedges,Vertex nnodes, int directed_flag, Vertex bipartite,int lasttoggle_flag, int time, int *lasttoggle, unsigned int n_aux){
+static WtNetwork (*fun)(Vertex *,Vertex *,double *,Edge,Vertex,int,Vertex,int,int,int *,unsigned int) = NULL;
+if(fun==NULL) fun = (WtNetwork (*)(Vertex *,Vertex *,double *,Edge,Vertex,int,Vertex,int,int,int *,unsigned int)) R_FindSymbol("WtNetworkInitialize", "ergm", NULL);
+return fun(tails,heads,weights,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag,time,lasttoggle,n_aux);
 }
 void WtNetworkDestroy(WtNetwork *nwp){
 static void (*fun)(WtNetwork *) = NULL;
 if(fun==NULL) fun = (void (*)(WtNetwork *)) R_FindSymbol("WtNetworkDestroy", "ergm", NULL);
 fun(nwp);
 }
-WtNetwork WtNetworkInitializeD(double *tails, double *heads, double *weights, Edge nedges,Vertex nnodes, int directed_flag, Vertex bipartite,int lasttoggle_flag, int time, int *lasttoggle){
-static WtNetwork (*fun)(double *,double *,double *,Edge,Vertex,int,Vertex,int,int,int *) = NULL;
-if(fun==NULL) fun = (WtNetwork (*)(double *,double *,double *,Edge,Vertex,int,Vertex,int,int,int *)) R_FindSymbol("WtNetworkInitializeD", "ergm", NULL);
-return fun(tails,heads,weights,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag,time,lasttoggle);
+WtNetwork WtNetworkInitializeD(double *tails, double *heads, double *weights, Edge nedges,Vertex nnodes, int directed_flag, Vertex bipartite,int lasttoggle_flag, int time, int *lasttoggle, unsigned int n_aux){
+static WtNetwork (*fun)(double *,double *,double *,Edge,Vertex,int,Vertex,int,int,int *,unsigned int) = NULL;
+if(fun==NULL) fun = (WtNetwork (*)(double *,double *,double *,Edge,Vertex,int,Vertex,int,int,int *,unsigned int)) R_FindSymbol("WtNetworkInitializeD", "ergm", NULL);
+return fun(tails,heads,weights,nedges,nnodes,directed_flag,bipartite,lasttoggle_flag,time,lasttoggle,n_aux);
 }
 WtNetwork * WtNetworkCopy(WtNetwork *dest, WtNetwork *src){
 static WtNetwork * (*fun)(WtNetwork *,WtNetwork *) = NULL;
@@ -732,6 +786,8 @@ return fun(MHp,theta,statistics,nsteps,staken,fVerbose,nwp,m);
 #undef DIRECTED
 #undef N_EDGES
 #undef BIPARTITE
+#undef N_TAILS
+#undef N_HEADS
 #undef NEXT_INEDGE_NUM
 #undef NEXT_OUTEDGE_NUM
 #undef CHANGE_STAT
@@ -756,9 +812,18 @@ return fun(MHp,theta,statistics,nsteps,staken,fVerbose,nwp,m);
 #undef GETOLDWT
 #undef GETNEWWT
 #undef GETNEWWTOLD
+#undef ALLOC_STORAGE
+#undef GET_STORAGE
+#undef ALLOC_AUX_STORAGE
+#undef GET_AUX_STORAGE
+#undef GET_AUX_STORAGE_NUM
+#undef ALLOC_AUX_SOCIOMATRIX
+#undef FREE_AUX_SOCIOMATRIX
 #undef INIT_STORAGE
 #undef WtD_CHANGESTAT_FN
+#undef WtI_CHANGESTAT_FN
 #undef WtU_CHANGESTAT_FN
+#undef WtF_CHANGESTAT_FN
 #undef WtS_CHANGESTAT_FN
 #undef D_FROM_S
 #undef WtD_FROM_S_FN
@@ -812,10 +877,10 @@ static WtModel* (*fun)(char *,char *,double **,int) = NULL;
 if(fun==NULL) fun = (WtModel* (*)(char *,char *,double **,int)) R_FindSymbol("WtModelInitialize", "ergm", NULL);
 return fun(fnames,sonames,inputs,n_terms);
 }
-void WtModelDestroy(WtModel *m){
-static void (*fun)(WtModel *) = NULL;
-if(fun==NULL) fun = (void (*)(WtModel *)) R_FindSymbol("WtModelDestroy", "ergm", NULL);
-fun(m);
+void WtModelDestroy(WtModel *m, WtNetwork *nwp){
+static void (*fun)(WtModel *,WtNetwork *) = NULL;
+if(fun==NULL) fun = (void (*)(WtModel *,WtNetwork *)) R_FindSymbol("WtModelDestroy", "ergm", NULL);
+fun(m,nwp);
 }
 void WtChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, double *toggleweight, WtNetwork *nwp, WtModel *m){
 static void (*fun)(unsigned int,Vertex *,Vertex *,double *,WtNetwork *,WtModel *) = NULL;
@@ -826,6 +891,16 @@ void WtUpdateStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead
 static void (*fun)(unsigned int,Vertex *,Vertex *,double *,WtNetwork *,WtModel *) = NULL;
 if(fun==NULL) fun = (void (*)(unsigned int,Vertex *,Vertex *,double *,WtNetwork *,WtModel *)) R_FindSymbol("WtUpdateStats", "ergm", NULL);
 fun(ntoggles,toggletail,togglehead,toggleweight,nwp,m);
+}
+void WtInitStats(WtNetwork *nwp, WtModel *m){
+static void (*fun)(WtNetwork *,WtModel *) = NULL;
+if(fun==NULL) fun = (void (*)(WtNetwork *,WtModel *)) R_FindSymbol("WtInitStats", "ergm", NULL);
+fun(nwp,m);
+}
+void WtDestroyStats(WtNetwork *nwp, WtModel *m){
+static void (*fun)(WtNetwork *,WtModel *) = NULL;
+if(fun==NULL) fun = (void (*)(WtNetwork *,WtModel *)) R_FindSymbol("WtDestroyStats", "ergm", NULL);
+fun(nwp,m);
 }
 #undef MIN
 #undef MAX
@@ -864,6 +939,8 @@ fun(ntoggles,toggletail,togglehead,toggleweight,nwp,m);
 #undef DIRECTED
 #undef N_EDGES
 #undef BIPARTITE
+#undef N_TAILS
+#undef N_HEADS
 #undef NEXT_INEDGE_NUM
 #undef NEXT_OUTEDGE_NUM
 #undef CHANGE_STAT
@@ -888,9 +965,18 @@ fun(ntoggles,toggletail,togglehead,toggleweight,nwp,m);
 #undef GETOLDWT
 #undef GETNEWWT
 #undef GETNEWWTOLD
+#undef ALLOC_STORAGE
+#undef GET_STORAGE
+#undef ALLOC_AUX_STORAGE
+#undef GET_AUX_STORAGE
+#undef GET_AUX_STORAGE_NUM
+#undef ALLOC_AUX_SOCIOMATRIX
+#undef FREE_AUX_SOCIOMATRIX
 #undef INIT_STORAGE
 #undef WtD_CHANGESTAT_FN
+#undef WtI_CHANGESTAT_FN
 #undef WtU_CHANGESTAT_FN
+#undef WtF_CHANGESTAT_FN
 #undef WtS_CHANGESTAT_FN
 #undef D_FROM_S
 #undef WtD_FROM_S_FN
