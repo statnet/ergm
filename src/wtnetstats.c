@@ -81,12 +81,12 @@ WtNetwork *nwp, WtModel *m, double *stats){
     });
     
   /* Calculate statistics for terms that don't have c_functions or s_functions.  */
-  EXEC_THROUGH_TERMS({
+  EXEC_THROUGH_TERMS_INTO(stats, {
       if(mtp->s_func==NULL && mtp->c_func==NULL && mtp->d_func){
 	(*(mtp->d_func))(ntoggles, tails, heads, weights,
 			 mtp, nwp);  /* Call d_??? function */
 	for(unsigned int k=0; k<N_CHANGE_STATS; k++){
-	  stats[k] += mtp->dstats[k];
+	  dstats[k] += mtp->dstats[k];
 	}
       }
     });
@@ -95,13 +95,13 @@ WtNetwork *nwp, WtModel *m, double *stats){
   FOR_EACH_TOGGLE{
     GETNEWTOGGLEINFO();
     
-    EXEC_THROUGH_TERMS({
+    EXEC_THROUGH_TERMS_INTO(stats, {
 	if(mtp->s_func==NULL && mtp->c_func){
 	  (*(mtp->c_func))(TAIL, HEAD, NEWWT,
 			   mtp, nwp);  /* Call c_??? function */
 	  
 	  for(unsigned int k=0; k<N_CHANGE_STATS; k++){
-	    stats[k] += mtp->dstats[k];
+	    dstats[k] += mtp->dstats[k];
 	  }
 	}
       });
@@ -112,11 +112,11 @@ WtNetwork *nwp, WtModel *m, double *stats){
   }
   
   /* Calculate statistics for terms have s_functions  */
-  EXEC_THROUGH_TERMS({
+  EXEC_THROUGH_TERMS_INTO(stats, {
       if(mtp->s_func){
 	(*(mtp->s_func))(mtp, nwp);  /* Call d_??? function */
 	for(unsigned int k=0; k<N_CHANGE_STATS; k++){
-	  stats[k] = mtp->dstats[k]; // Overwrite, not accumulate.
+	  dstats[k] = mtp->dstats[k]; // Overwrite, not accumulate.
 	}
       }
     });

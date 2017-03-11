@@ -29,9 +29,7 @@ typedef struct WtModelstruct {
   unsigned int n_aux;
 } WtModel;
 
-#define FOR_EACH_TERM				     \
-  WtModelTerm *mtp = m->termarray;		     \
-  for(unsigned int i=0; i < m->n_terms; i++, mtp++)
+#define FOR_EACH_TERM for(WtModelTerm *mtp = m->termarray; mtp < m->termarray + m->n_terms; mtp++)
 
 #define EXEC_THROUGH_TERMS(subroutine){					\
     FOR_EACH_TERM{							\
@@ -39,8 +37,8 @@ typedef struct WtModelstruct {
     }									\
   }
 
-#define EXEC_THROUGH_TERMS_WS(subroutine){				\
-    double *dstats = m->workspace;					\
+#define EXEC_THROUGH_TERMS_INTO(output, subroutine){			\
+    double *dstats = output;						\
     FOR_EACH_TERM{							\
       subroutine;							\
       dstats += mtp->nstats;						\

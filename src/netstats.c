@@ -87,12 +87,12 @@ Network *nwp, Model *m, double *stats){
     });
     
   /* Calculate statistics for terms that don't have c_functions or s_functions.  */
-  EXEC_THROUGH_TERMS({
+  EXEC_THROUGH_TERMS_INTO(stats, {
       if(mtp->s_func==NULL && mtp->c_func==NULL && mtp->d_func){
 	(*(mtp->d_func))(ntoggles, tails, heads,
 			 mtp, nwp);  /* Call d_??? function */
 	for(unsigned int k=0; k<N_CHANGE_STATS; k++){
-	  stats[k] += mtp->dstats[k];
+	  dstats[k] += mtp->dstats[k];
 	}
       }
     });
@@ -101,13 +101,13 @@ Network *nwp, Model *m, double *stats){
   for(Edge e=0; e<n_edges; e++){
     Vertex t=TAIL(e), h=HEAD(e); 
     
-    EXEC_THROUGH_TERMS({
+    EXEC_THROUGH_TERMS_INTO(stats, {
 	if(mtp->s_func==NULL && mtp->c_func){
 	  (*(mtp->c_func))(t, h,
 			   mtp, nwp);  /* Call c_??? function */
 	  
 	  for(unsigned int k=0; k<N_CHANGE_STATS; k++){
-	    stats[k] += mtp->dstats[k];
+	    dstats[k] += mtp->dstats[k];
 	  }
 	}
       });
@@ -118,11 +118,11 @@ Network *nwp, Model *m, double *stats){
   }
   
   /* Calculate statistics for terms have s_functions  */
-  EXEC_THROUGH_TERMS({
+  EXEC_THROUGH_TERMS_INTO(stats, {
       if(mtp->s_func){
 	(*(mtp->s_func))(mtp, nwp);  /* Call d_??? function */
 	for(unsigned int k=0; k<N_CHANGE_STATS; k++){
-	  stats[k] = mtp->dstats[k]; // Overwrite, not accumulate.
+	  dstats[k] = mtp->dstats[k]; // Overwrite, not accumulate.
 	}
       }
     });

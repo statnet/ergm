@@ -272,8 +272,6 @@ MCMCStatus MetropolisHastings(MHproposal *MHp,
 	Rprintf("Accepted.\n");
       }
 
-      /* Inform u_* functions that the network is about to change. */
-      	 
       /* Make proposed toggles (updating timestamps--i.e., for real this time) */
       for(unsigned int i=0; i < MHp->ntoggles; i++){
 	UPDATE_STORAGE(MHp->toggletail[i], MHp->togglehead[i], m, nwp);

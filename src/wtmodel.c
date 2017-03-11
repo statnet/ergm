@@ -210,7 +210,7 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
   memset(m->workspace, 0, m->n_stats*sizeof(double)); /* Zero all change stats. */ 
 
   /* Make a pass through terms with d_functions. */
-  EXEC_THROUGH_TERMS_WS({
+  EXEC_THROUGH_TERMS_INTO(m->workspace, {
       mtp->dstats = dstats; /* Stuck the change statistic here.*/
       if(mtp->c_func==NULL && mtp->d_func)
 	(*(mtp->d_func))(ntoggles, tails, heads, weights,
@@ -221,8 +221,8 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
   FOR_EACH_TOGGLE{
     GETTOGGLEINFO();
     
-    EXEC_THROUGH_TERMS_WS({
-	mtp->dstats = ntoggles==1 ? dstats : m->dstatarray[i]; /* If only one toggle, just write directly into the workspace array. */
+    EXEC_THROUGH_TERMS_INTO(m->workspace, {
+	mtp->dstats = dstats;
 	if(mtp->c_func){
 	  (*(mtp->c_func))(TAIL, HEAD, NEWWT,
 			   mtp, nwp);  /* Call d_??? function */
@@ -271,6 +271,7 @@ void WtInitStats(WtNetwork *nwp, WtModel *m){
   A helper's helper function to finalize storage for functions that use it.
 */
 void WtDestroyStats(WtNetwork *nwp, WtModel *m){
+  unsigned int i=0;
   EXEC_THROUGH_TERMS({
       if(mtp->f_func)
 	(*(mtp->f_func))(mtp, nwp);  /* Call f_??? function */
@@ -280,6 +281,7 @@ void WtDestroyStats(WtNetwork *nwp, WtModel *m){
 	free(mtp->storage);
 	mtp->storage = NULL;
       }
+      i++;
     });
 }
 
