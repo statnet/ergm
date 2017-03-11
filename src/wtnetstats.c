@@ -70,13 +70,17 @@ WtNetwork *nwp, WtModel *m, double *stats){
   /* Initialize storage for terms that don't have s_functions.  */
   WtModelTerm *mtp = m->termarray;
   for (unsigned int i=0; i < m->n_terms; i++){
+#ifdef DEBUG
     double *dstats = mtp->dstats;
     mtp->dstats = NULL; // Trigger segfault if i_func tries to write to change statistics.
+#endif
     if(mtp->s_func==NULL && mtp->i_func)
       (*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
     else if(mtp->s_func==NULL && mtp->u_func) /* No initializer but an updater -> uses a 1-function implementation. */
       (*(mtp->u_func))(0, 0, 0, mtp, nwp);  /* Call u_??? function */
+#ifdef DEBUG
     mtp->dstats = dstats;
+#endif
     mtp++;
   }
   
@@ -102,17 +106,17 @@ WtNetwork *nwp, WtModel *m, double *stats){
     /* Calculate change statistics */
     for (unsigned int i=0; i < m->n_terms; i++){
       mtp->dstats = m->dstatarray[i]; /* If only one toggle, just write directly into the workspace array. */
-      if(mtp->s_func==NULL && mtp->c_func)
+      if(mtp->s_func==NULL && mtp->c_func){
 	(*(mtp->c_func))(TAIL, HEAD, NEWWT,
-			 mtp, nwp);  /* Call d_??? function */
+			 mtp, nwp);  /* Call c_??? function */
 
-      for(unsigned int k=0; k<N_CHANGE_STATS; k++){
-	dstats[k] += mtp->dstats[k];
+	for(unsigned int k=0; k<N_CHANGE_STATS; k++){
+	  dstats[k] += mtp->dstats[k];
+	}
       }
       
       // Advance to the next term.
-      dstats += mtp->nstats;
-      mtp++;
+      dstats += (mtp++)->nstats;
     }
     
     /* Update storage and network */    
