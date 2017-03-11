@@ -39,7 +39,7 @@ typedef struct WtModelstruct {
     }									\
   }
 
-#define EXEC_THROUGH_TERMS_DSTATS(subroutine){				\
+#define EXEC_THROUGH_TERMS_WS(subroutine){				\
     double *dstats = m->workspace;					\
     FOR_EACH_TERM{							\
       subroutine;							\

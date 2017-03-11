@@ -210,7 +210,7 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
   memset(m->workspace, 0, m->n_stats*sizeof(double)); /* Zero all change stats. */ 
 
   /* Make a pass through terms with d_functions. */
-  EXEC_THROUGH_TERMS_DSTATS({
+  EXEC_THROUGH_TERMS_WS({
       mtp->dstats = dstats; /* Stuck the change statistic here.*/
       if(mtp->c_func==NULL && mtp->d_func)
 	(*(mtp->d_func))(ntoggles, tails, heads, weights,
@@ -221,12 +221,12 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
   FOR_EACH_TOGGLE{
     GETTOGGLEINFO();
     
-    EXEC_THROUGH_TERMS_DSTATS({
+    EXEC_THROUGH_TERMS_WS({
 	mtp->dstats = ntoggles==1 ? dstats : m->dstatarray[i]; /* If only one toggle, just write directly into the workspace array. */
 	if(mtp->c_func){
 	  (*(mtp->c_func))(TAIL, HEAD, NEWWT,
 			   mtp, nwp);  /* Call d_??? function */
-	
+
 	  if(ntoggles!=1){
 	    for(unsigned int k=0; k<N_CHANGE_STATS; k++){
 	      dstats[k] += mtp->dstats[k];
@@ -234,7 +234,7 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
 	  }
 	}
       });
-      
+
     /* Update storage and network */    
     IF_MORE_TO_COME{
       UPDATE_C_STORAGE(TAIL, HEAD, NEWWT, m, nwp);

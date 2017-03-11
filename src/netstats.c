@@ -69,8 +69,6 @@ Network *nwp, Model *m, double *stats){
   
   ShuffleEdges(tails,heads,n_edges); /* Shuffle edgelist. */
   
-  memset(m->workspace, 0, m->n_stats*sizeof(double)); /* Zero all change stats. */ 
-
   Edge ntoggles = n_edges; // So that we can use the macros
 
   /* Initialize storage for terms that don't have s_functions.  */
@@ -89,25 +87,27 @@ Network *nwp, Model *m, double *stats){
     });
     
   /* Calculate statistics for terms that don't have c_functions or s_functions.  */
-  EXEC_THROUGH_TERMS_DSTATS({
-      mtp->dstats = dstats; /* Stuck the change statistic here.*/
-      if(mtp->s_func==NULL && mtp->c_func==NULL && mtp->d_func)
+  EXEC_THROUGH_TERMS({
+      if(mtp->s_func==NULL && mtp->c_func==NULL && mtp->d_func){
 	(*(mtp->d_func))(ntoggles, tails, heads,
 			 mtp, nwp);  /* Call d_??? function */
+	for(unsigned int k=0; k<N_CHANGE_STATS; k++){
+	  stats[k] += mtp->dstats[k];
+	}
+      }
     });
 
   /* Calculate statistics for terms that have c_functions but not s_functions.  */
   for(Edge e=0; e<n_edges; e++){
     Vertex t=TAIL(e), h=HEAD(e); 
     
-    EXEC_THROUGH_TERMS_DSTATS({
-	mtp->dstats = m->dstatarray[i]; /* If only one toggle, just write directly into the workspace array. */
+    EXEC_THROUGH_TERMS({
 	if(mtp->s_func==NULL && mtp->c_func){
 	  (*(mtp->c_func))(t, h,
 			   mtp, nwp);  /* Call c_??? function */
 	  
 	  for(unsigned int k=0; k<N_CHANGE_STATS; k++){
-	    dstats[k] += mtp->dstats[k];
+	    stats[k] += mtp->dstats[k];
 	  }
 	}
       });
@@ -118,14 +118,15 @@ Network *nwp, Model *m, double *stats){
   }
   
   /* Calculate statistics for terms have s_functions  */
-  EXEC_THROUGH_TERMS_DSTATS({
-      mtp->dstats = dstats; /* Stuck the change statistic here.*/
-      if(mtp->s_func)
+  EXEC_THROUGH_TERMS({
+      if(mtp->s_func){
 	(*(mtp->s_func))(mtp, nwp);  /* Call d_??? function */
+	for(unsigned int k=0; k<N_CHANGE_STATS; k++){
+	  stats[k] = mtp->dstats[k]; // Overwrite, not accumulate.
+	}
+      }
     });
 
-  memcpy(stats, m->workspace, m->n_stats*sizeof(double));
-  
   PutRNGstate();
 }
 
