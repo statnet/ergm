@@ -217,12 +217,18 @@ void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
 			 mtp, nwp);  /* Call d_??? function */
     });
 
+  /* Put the original destination dstats back. */  
+  unsigned int i = 0;
+  EXEC_THROUGH_TERMS({
+      mtp->dstats = m->dstatarray[i];
+      i++;
+    });
+
   /* Make a pass through terms with c_functions. */
   int toggle;
   FOR_EACH_TOGGLE(toggle){
     
     EXEC_THROUGH_TERMS_INTO(m->workspace, {
-	mtp->dstats = dstats;
 	if(mtp->c_func){
 	  (*(mtp->c_func))(*(tails+toggle), *(heads+toggle),
 			   mtp, nwp);  /* Call d_??? function */

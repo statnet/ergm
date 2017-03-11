@@ -217,6 +217,13 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
 			 mtp, nwp);  /* Call d_??? function */
     });
 
+  /* Put the original destination dstats back. */  
+  unsigned int i = 0;
+  EXEC_THROUGH_TERMS({
+      mtp->dstats = m->dstatarray[i];
+      i++;
+    });
+
   /* Make a pass through terms with c_functions. */
   FOR_EACH_TOGGLE{
     GETTOGGLEINFO();
