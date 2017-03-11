@@ -217,12 +217,14 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
 			 mtp, nwp);  /* Call d_??? function */
     });
 
-  /* Put the original destination dstats back. */  
-  unsigned int i = 0;
-  EXEC_THROUGH_TERMS({
-      mtp->dstats = m->dstatarray[i];
-      i++;
-    });
+  /* Put the original destination dstats back unless there's only one toggle. */
+  if(ntoggles==1){
+    unsigned int i = 0;
+    EXEC_THROUGH_TERMS({
+	mtp->dstats = m->dstatarray[i];
+	i++;
+      });
+  }
 
   /* Make a pass through terms with c_functions. */
   FOR_EACH_TOGGLE{
@@ -233,9 +235,11 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
 	if(mtp->c_func){
 	  (*(mtp->c_func))(TAIL, HEAD, NEWWT,
 			   mtp, nwp);  /* Call d_??? function */
-
-	  for(unsigned int k=0; k<N_CHANGE_STATS; k++){
-	    dstats[k] += mtp->dstats[k];
+	  
+	  if(ntoggles!=1){
+	    for(unsigned int k=0; k<N_CHANGE_STATS; k++){
+	      dstats[k] += mtp->dstats[k];
+	    }
 	  }
 	}
       });
