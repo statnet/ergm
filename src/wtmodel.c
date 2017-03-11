@@ -223,13 +223,14 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
     
     EXEC_THROUGH_TERMS_DSTATS({
 	mtp->dstats = ntoggles==1 ? dstats : m->dstatarray[i]; /* If only one toggle, just write directly into the workspace array. */
-	if(mtp->c_func)
+	if(mtp->c_func){
 	  (*(mtp->c_func))(TAIL, HEAD, NEWWT,
 			   mtp, nwp);  /* Call d_??? function */
 	
-	if(ntoggles!=1){
-	  for(unsigned int k=0; k<N_CHANGE_STATS; k++){
-	    dstats[k] += mtp->dstats[k];
+	  if(ntoggles!=1){
+	    for(unsigned int k=0; k<N_CHANGE_STATS; k++){
+	      dstats[k] += mtp->dstats[k];
+	    }
 	  }
 	}
       });
