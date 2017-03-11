@@ -227,10 +227,8 @@ void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
 	  (*(mtp->c_func))(*(tails+toggle), *(heads+toggle),
 			   mtp, nwp);  /* Call d_??? function */
 
-	  if(ntoggles!=1){
-	    for(unsigned int k=0; k<N_CHANGE_STATS; k++){
-	      dstats[k] += mtp->dstats[k];
-	    }
+	  for(unsigned int k=0; k<N_CHANGE_STATS; k++){
+	    dstats[k] += mtp->dstats[k];
 	  }
 	}
       });
