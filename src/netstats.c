@@ -74,55 +74,43 @@ Network *nwp, Model *m, double *stats){
   Edge ntoggles = n_edges; // So that we can use the macros
 
   /* Initialize storage for terms that don't have s_functions.  */
-  ModelTerm *mtp = m->termarray;
-  for (unsigned int i=0; i < m->n_terms; i++){
+  EXEC_THROUGH_TERMS({
 #ifdef DEBUG
-    double *dstats = mtp->dstats;
-    mtp->dstats = NULL; // Trigger segfault if i_func tries to write to change statistics.
+      double *dstats = mtp->dstats;
+      mtp->dstats = NULL; // Trigger segfault if i_func tries to write to change statistics.
 #endif
-    if(mtp->s_func==NULL && mtp->i_func)
-      (*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
-    else if(mtp->s_func==NULL && mtp->u_func) /* No initializer but an updater -> uses a 1-function implementation. */
-      (*(mtp->u_func))(0, 0, mtp, nwp);  /* Call u_??? function */
+      if(mtp->s_func==NULL && mtp->i_func)
+	(*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
+      else if(mtp->s_func==NULL && mtp->u_func) /* No initializer but an updater -> uses a 1-function implementation. */
+	(*(mtp->u_func))(0, 0, mtp, nwp);  /* Call u_??? function */
 #ifdef DEBUG
-    mtp->dstats = dstats;
+      mtp->dstats = dstats;
 #endif
-    mtp++;
-  }
-  
+    });
+    
   /* Calculate statistics for terms that don't have c_functions or s_functions.  */
-  mtp = m->termarray;
-  double *dstats = m->workspace;
-  for (unsigned int i=0; i < m->n_terms; i++){
-    mtp->dstats = dstats; /* Stuck the change statistic here.*/
-    if(mtp->s_func==NULL && mtp->c_func==NULL && mtp->d_func)
-      (*(mtp->d_func))(ntoggles, tails, heads,
-		       mtp, nwp);  /* Call d_??? function */
-    dstats += (mtp++)->nstats;
-  }
+  EXEC_THROUGH_TERMS_DSTATS({
+      mtp->dstats = dstats; /* Stuck the change statistic here.*/
+      if(mtp->s_func==NULL && mtp->c_func==NULL && mtp->d_func)
+	(*(mtp->d_func))(ntoggles, tails, heads,
+			 mtp, nwp);  /* Call d_??? function */
+    });
 
-  // Toggle the edges.
+  /* Calculate statistics for terms that have c_functions but not s_functions.  */
   for(Edge e=0; e<n_edges; e++){
     Vertex t=TAIL(e), h=HEAD(e); 
     
-    ModelTerm *mtp = m->termarray;
-    double *dstats = m->workspace;
-
-    /* Calculate change statistics */
-    for (unsigned int i=0; i < m->n_terms; i++){
-      mtp->dstats = m->dstatarray[i]; /* If only one toggle, just write directly into the workspace array. */
-      if(mtp->s_func==NULL && mtp->c_func){
-	(*(mtp->c_func))(t, h,
-			 mtp, nwp);  /* Call c_??? function */
-
-	for(unsigned int k=0; k<N_CHANGE_STATS; k++){
-	  dstats[k] += mtp->dstats[k];
+    EXEC_THROUGH_TERMS_DSTATS({
+	mtp->dstats = m->dstatarray[i]; /* If only one toggle, just write directly into the workspace array. */
+	if(mtp->s_func==NULL && mtp->c_func){
+	  (*(mtp->c_func))(t, h,
+			   mtp, nwp);  /* Call c_??? function */
+	  
+	  for(unsigned int k=0; k<N_CHANGE_STATS; k++){
+	    dstats[k] += mtp->dstats[k];
+	  }
 	}
-      }
-      
-      // Advance to the next term.
-      dstats += (mtp++)->nstats;
-    }
+      });
     
     /* Update storage and network */    
     UPDATE_C_STORAGE(t, h, m, nwp);
@@ -130,14 +118,11 @@ Network *nwp, Model *m, double *stats){
   }
   
   /* Calculate statistics for terms have s_functions  */
-  mtp = m->termarray;
-  dstats = m->workspace;
-  for (unsigned int i=0; i < m->n_terms; i++){
-    mtp->dstats = dstats; /* Stuck the change statistic here.*/
-    if(mtp->s_func)
-      (*(mtp->s_func))(mtp, nwp);  /* Call d_??? function */
-    dstats += (mtp++)->nstats;
-  }
+  EXEC_THROUGH_TERMS_DSTATS({
+      mtp->dstats = dstats; /* Stuck the change statistic here.*/
+      if(mtp->s_func)
+	(*(mtp->s_func))(mtp, nwp);  /* Call d_??? function */
+    });
 
   memcpy(stats, m->workspace, m->n_stats*sizeof(double));
   

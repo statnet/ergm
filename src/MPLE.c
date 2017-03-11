@@ -203,7 +203,7 @@ void MpleInit_hash_bl(int *responsevec, double *covmat, int *weightsvector,
     int response = IS_OUTEDGE(t,h);
     unsigned int totalStats = 0;
     /* Let mtp loop through each model term */
-    for (ModelTerm *mtp=m->termarray; mtp < m->termarray + m->n_terms; mtp++){
+    EXEC_THROUGH_TERMS({
       mtp->dstats = newRow + totalStats;
       /* Now call d_xxx function, which updates mtp->dstats to reflect
 	 changing the current dyad.  */
@@ -219,7 +219,7 @@ void MpleInit_hash_bl(int *responsevec, double *covmat, int *weightsvector,
       }
       /* Update mtp->dstats pointer to skip ahead by mtp->nstats */
       totalStats += mtp->nstats; 
-    }
+      });
     /* In next command, if there is an offset vector then its total
        number of entries should match the number of times through the 
        inner loop (i.e., the number of dyads in the network) */          
@@ -246,7 +246,7 @@ void MpleInit_hash_wl(int *responsevec, double *covmat, int *weightsvector,
     int response = IS_OUTEDGE(t,h);
     unsigned int totalStats = 0;
     /* Let mtp loop through each model term */
-    for (ModelTerm *mtp=m->termarray; mtp < m->termarray + m->n_terms; mtp++){
+    EXEC_THROUGH_TERMS({
       mtp->dstats = newRow + totalStats;
       /* Now call d_xxx function, which updates mtp->dstats to reflect
 	 changing the current dyad.  */
@@ -262,7 +262,7 @@ void MpleInit_hash_wl(int *responsevec, double *covmat, int *weightsvector,
       }
       /* Update mtp->dstats pointer to skip ahead by mtp->nstats */
       totalStats += mtp->nstats; 
-    }
+      });
     /* In next command, if there is an offset vector then its total
        number of entries should match the number of times through the 
        inner loop (i.e., the number of dyads in the network) */          

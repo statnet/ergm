@@ -53,7 +53,6 @@ void AllStatistics (
   int nodelistlength, rowmax, *nodelist1, *nodelist2;
   Vertex bip = (Vertex) *bipartite;
   Model *m;
-  ModelTerm *mtp;
 
   /* Step 1:  Initialize empty network and initialize model */
   GetRNGstate(); /* Necessary for R random number generator */
@@ -94,11 +93,11 @@ void AllStatistics (
   for (int i=0; i < m->n_stats; i++) cumulativeStats[i]=0.0;
 
   unsigned int totalStats = 0;
-  for (mtp=m->termarray; mtp < m->termarray + m->n_terms; mtp++){
+  EXEC_THROUGH_TERMS({
     mtp->dstats = changeStats + totalStats;
     /* Update mtp->dstats pointer to skip atail by mtp->nstats */
     totalStats += mtp->nstats; 
-  }
+    });
   if (totalStats != m->n_stats) {
     Rprintf("I thought totalStats=%d and m->nstats=%d should be the same.\n", 
     totalStats, m->n_stats);
@@ -126,8 +125,6 @@ void RecurseOffOn(
 		   int maxNumDyadTypes, 
        Network *nwp, 
        Model *m) {
-  ModelTerm *mtp;
-
   /* Loop through twice for each dyad: Once for edge and once for no edge */
   for (int i=0; i<2; i++) {
     /* Recurse if currentnodes+1 is not yet nodelistlength */
@@ -144,10 +141,10 @@ void RecurseOffOn(
 
     /* Calculate the change statistic(s) associated with toggling the 
        dyad represented by nodelist1[currentnodes], nodelist2[currentnodes] */
-    for (mtp=m->termarray; mtp < m->termarray + m->n_terms; mtp++){
+    EXEC_THROUGH_TERMS({
       if(mtp->c_func) (*(mtp->c_func))(*(nodelist1+currentnodes), *(nodelist2+currentnodes), mtp, nwp);
       else (*(mtp->d_func))(1, nodelist1+currentnodes, nodelist2+currentnodes, mtp, nwp);
-    }
+      });
     
     /* Inform u_* functions that the network is about to change. */
     UPDATE_STORAGE(*(nodelist1+currentnodes), *(nodelist2+currentnodes), m, nwp);

@@ -210,40 +210,29 @@ void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
   memset(m->workspace, 0, m->n_stats*sizeof(double)); /* Zero all change stats. */ 
 
   /* Make a pass through terms with d_functions. */
-  ModelTerm *mtp = m->termarray;
-  double *dstats = m->workspace;
-  
-  for (unsigned int i=0; i < m->n_terms; i++){
-    /* Calculate change statistics */
-    mtp->dstats = dstats; /* Stuck the change statistic here.*/
-    if(mtp->c_func==NULL && mtp->d_func)
-      (*(mtp->d_func))(ntoggles, tails, heads, 
-		       mtp, nwp);  /* Call d_??? function */
-    dstats += (mtp++)->nstats;
-  }
+  EXEC_THROUGH_TERMS_DSTATS({
+      mtp->dstats = dstats; /* Stuck the change statistic here.*/
+      if(mtp->c_func==NULL && mtp->d_func)
+	(*(mtp->d_func))(ntoggles, tails, heads, 
+			 mtp, nwp);  /* Call d_??? function */
+    });
 
   /* Make a pass through terms with c_functions. */
   int toggle;
   FOR_EACH_TOGGLE(toggle){
-    ModelTerm *mtp = m->termarray;
-    double *dstats = m->workspace;
+    
+    EXEC_THROUGH_TERMS_DSTATS({
+	mtp->dstats = ntoggles==1 ? dstats : m->dstatarray[i]; /* If only one toggle, just write directly into the workspace array. */
+	if(mtp->c_func)
+	  (*(mtp->c_func))(*(tails+toggle), *(heads+toggle),
+			   mtp, nwp);  /* Call d_??? function */
 
-    /* Calculate change statistics */
-    for (unsigned int i=0; i < m->n_terms; i++){
-      mtp->dstats = ntoggles==1 ? dstats : m->dstatarray[i]; /* If only one toggle, just write directly into the workspace array. */
-      if(mtp->c_func)
-	(*(mtp->c_func))(*(tails+toggle), *(heads+toggle),
-			 mtp, nwp);  /* Call d_??? function */
-
-      if(ntoggles!=1){
-	for(unsigned int k=0; k<N_CHANGE_STATS; k++){
-	  dstats[k] += mtp->dstats[k];
+	if(ntoggles!=1){
+	  for(unsigned int k=0; k<N_CHANGE_STATS; k++){
+	    dstats[k] += mtp->dstats[k];
+	  }
 	}
-      }
-      // Advance to the next term.
-      dstats += mtp->nstats;
-      mtp++;
-    }
+      });
 
     /* Execute storage updates */
     IF_MORE_TO_COME(toggle){
@@ -263,17 +252,15 @@ void ChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads,
   A helper's helper function to initialize storage for functions that use it.
 */
 void InitStats(Network *nwp, Model *m){
-  ModelTerm *mtp = m->termarray;
-  for (unsigned int i=0; i < m->n_terms; i++){
-    double *dstats = mtp->dstats;
-    mtp->dstats = NULL; // Trigger segfault if i_func tries to write to change statistics.
-    if(mtp->i_func)
-      (*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
-    else if(mtp->u_func) /* No initializer but an updater -> uses a 1-function implementation. */
-      (*(mtp->u_func))(0, 0, mtp, nwp);  /* Call u_??? function */
-    mtp->dstats = dstats;
-    mtp++;
-  }
+  EXEC_THROUGH_TERMS({
+      double *dstats = mtp->dstats;
+      mtp->dstats = NULL; // Trigger segfault if i_func tries to write to change statistics.
+      if(mtp->i_func)
+	(*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
+      else if(mtp->u_func) /* No initializer but an updater -> uses a 1-function implementation. */
+	(*(mtp->u_func))(0, 0, mtp, nwp);  /* Call u_??? function */
+      mtp->dstats = dstats;
+    });
 }
 
 /*
@@ -281,17 +268,15 @@ void InitStats(Network *nwp, Model *m){
   A helper's helper function to finalize storage for functions that use it.
 */
 void DestroyStats(Network *nwp, Model *m){
-  ModelTerm *mtp = m->termarray;
-  for (unsigned int i=0; i < m->n_terms; i++){
-    if(mtp->f_func)
-      (*(mtp->f_func))(mtp, nwp);  /* Call f_??? function */
-    free(m->dstatarray[i]);
-    free(mtp->statcache);
-    if(mtp->storage){
-      free(mtp->storage);
-      mtp->storage = NULL;
-    }
-    mtp++;
-  }
+  EXEC_THROUGH_TERMS({
+      if(mtp->f_func)
+	(*(mtp->f_func))(mtp, nwp);  /* Call f_??? function */
+      free(m->dstatarray[i]);
+      free(mtp->statcache);
+      if(mtp->storage){
+	free(mtp->storage);
+	mtp->storage = NULL;
+      }
+    });
 }
 
