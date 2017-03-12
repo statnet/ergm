@@ -216,9 +216,12 @@ void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *
 	(*(mtp->d_func))(ntoggles, tails, heads, weights,
 			 mtp, nwp);  /* Call d_??? function */
     });
-
-  /* Put the original destination dstats back unless there's only one toggle. */
-  if(ntoggles==1){
+  /* Notice that mtp->dstats now points to the appropriate location in
+     m->workspace. */
+  
+  /* Put the original destination dstats back unless there's only one
+     toggle. */
+  if(ntoggles!=1){
     unsigned int i = 0;
     EXEC_THROUGH_TERMS({
 	mtp->dstats = m->dstatarray[i];
