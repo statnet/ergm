@@ -169,14 +169,6 @@ double my_choose(double n, int r);
   nwp->aux_storage[myslot] = NULL;					\
   /* nwp->storage was not shifted, so it'll be freed automatically. */	
 
-
-#define INIT_STORAGE(stored_type, store_into, initialization_code)	\
-  stored_type *store_into;						\
-  if(!mtp->storage){							\
-    store_into = (stored_type *) (mtp->storage = malloc(sizeof(stored_type))); \
-    {initialization_code};						\
-  }else store_into = (stored_type *) mtp->storage;
-
 /****************************************************/
 /* changestat function prototypes */
 

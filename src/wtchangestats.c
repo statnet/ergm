@@ -640,17 +640,22 @@ WtD_CHANGESTAT_FN(d_nodecovar){
     });
 }
 
+WtI_CHANGESTAT_FN(i_nodecovar){
+  unsigned int transcode = INPUT_ATTRIB[0], center = INPUT_ATTRIB[1];
+  if(center){
+    ALLOC_STORAGE(1, double, sum);
+    *sum = 0;
+    EXEC_THROUGH_NET_EDGES(tail, e1, head, y, {
+	*sum+=TRANSFORM_DYADVAL(y, transcode);
+	head=head; e1=e1; // Prevent a compiler warning.
+      });
+  }
+}
+
 WtU_CHANGESTAT_FN(u_nodecovar){
   unsigned int transcode = INPUT_ATTRIB[0], center = INPUT_ATTRIB[1];
   if(center){
-    INIT_STORAGE(double, sum, {
-	*sum = 0;
-	EXEC_THROUGH_NET_EDGES(tail, e1, head, y, {
-	    *sum+=TRANSFORM_DYADVAL(y, transcode);
-	    head=head; e1=e1; // Prevent a compiler warning.
-	  });
-      });
-    
+    GET_STORAGE(double, sum);
     if(tail) *sum += TRANSFORM_DYADVAL(weight,transcode)-TRANSFORM_DYADVAL(GETWT(tail,head),transcode);
   }
 }
@@ -772,16 +777,22 @@ WtD_CHANGESTAT_FN(d_nodeicovar){
     });
 }
 
+WtI_CHANGESTAT_FN(i_nodeicovar){
+  unsigned int transcode = INPUT_ATTRIB[0], center = INPUT_ATTRIB[1];
+  if(center){
+    ALLOC_STORAGE(1, double, sum);
+    *sum = 0;
+    EXEC_THROUGH_NET_EDGES(tail, e1, head, y, {
+	*sum+=TRANSFORM_DYADVAL(y, transcode);
+	head=head; e1=e1; // Prevent a compiler warning.
+      });
+  }
+}
+
 WtU_CHANGESTAT_FN(u_nodeicovar){
   unsigned int transcode = INPUT_ATTRIB[0], center = INPUT_ATTRIB[1];
   if(center){
-    INIT_STORAGE(double, sum, {
-	*sum = 0;
-	EXEC_THROUGH_NET_EDGES(tail, e1, head, y, {
-	    *sum+=TRANSFORM_DYADVAL(y, transcode);
-	    head=head; e1=e1; // Prevent a compiler warning.
-	  });
-      });
+    GET_STORAGE(double, sum);
     
     if(tail) *sum += TRANSFORM_DYADVAL(weight,transcode)-TRANSFORM_DYADVAL(GETWT(tail,head),transcode);
   }
@@ -952,16 +963,22 @@ WtD_CHANGESTAT_FN(d_nodeocovar){
     });
 }
 
+WtI_CHANGESTAT_FN(i_nodeocovar){
+  unsigned int transcode = INPUT_ATTRIB[0], center = INPUT_ATTRIB[1];
+  if(center){
+    ALLOC_STORAGE(1, double, sum);
+    *sum = 0;
+    EXEC_THROUGH_NET_EDGES(tail, e1, head, y, {
+	*sum+=TRANSFORM_DYADVAL(y, transcode);
+	    head=head; e1=e1; // Prevent a compiler warning.
+      });
+  }
+}
+
 WtU_CHANGESTAT_FN(u_nodeocovar){
   unsigned int transcode = INPUT_ATTRIB[0], center = INPUT_ATTRIB[1];
   if(center){
-    INIT_STORAGE(double, sum, {
-	*sum = 0;
-	EXEC_THROUGH_NET_EDGES(tail, e1, head, y, {
-	    *sum+=TRANSFORM_DYADVAL(y, transcode);
-	    head=head; e1=e1; // Prevent a compiler warning.
-	  });
-      });
+    GET_STORAGE(double, sum);
     
     if(tail) *sum += TRANSFORM_DYADVAL(weight,transcode)-TRANSFORM_DYADVAL(GETWT(tail,head),transcode);
   }
