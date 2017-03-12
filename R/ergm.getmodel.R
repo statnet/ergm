@@ -162,7 +162,7 @@ updatemodel.ErgmTerm <- function(model, outlist) {
     # the parameters.
     aux.space <-
       if(!is.null(outlist$auxiliaries)) # requests auxiliaries
-        length(term.list.formula(term.list.formula(outlist$auxiliaries[[length(outlist$auxiliaries)]])))
+        length(term.list.formula(outlist$auxiliaries[[length(outlist$auxiliaries)]]))
       else if(length(outlist$coef.names)==0) 1 # is an auxiliary
       else 0
     outlist$inputs <- c(ifelse(is.null(tmp), 0, tmp)+aux.space,
