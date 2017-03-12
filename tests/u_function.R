@@ -12,6 +12,19 @@ stopifnot(all(abs(s[,1]-5)==s[,2]) && all(abs(s[,1]-5)==s[,3]))
 sim.dyads <- t(sapply(lapply(sim, as.matrix), c))
 stopifnot(all(sim.dyads==s[,-(1:3)]))
 
+data(florentine)
+floempty <- flomarriage
+floempty[,] <- 0
+
+sim <- simulate(flomarriage~edges,monitor=~discord.inter.union.net(floempty), coef=0, nsim=100, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1), statsonly=TRUE)
+stopifnot(all(sim[,2:4]^2-sim[,5:7]==0))
+
+
+sim <- simulate(flomarriage~edges,monitor=~discord.inter.union.net(flomarriage), coef=0, nsim=100, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1), statsonly=TRUE)
+stopifnot(all(sim[,2:4]^2-sim[,5:7]==0))
+
+sim <- simulate(flomarriage~edges,monitor=~discord.inter.union.net(flobusiness), coef=0, nsim=100, control=control.simulate.formula(MCMC.burnin=0,MCMC.interval=1), statsonly=TRUE)
+stopifnot(all(sim[,2:4]^2-sim[,5:7]==0))
 
 
 library(ergm.count)

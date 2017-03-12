@@ -43,3 +43,59 @@ InitErgmTerm.sociomatrix<-function(nw, arglist, ...) {
        auxiliaries = ~.sociomatrix(mode))
 }
 
+InitErgmTerm..discord.net<-function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("x"),
+                      vartypes = c("network,matrix"),
+                      defaultvalues = list(NULL),
+                      required = c(TRUE))
+  
+  list(name="_discord_net",
+       coef.names=c(),
+       inputs=ergm.Cprepare.el(a$x, prototype=nw),
+       dependence=FALSE)
+}
+
+InitErgmTerm..intersect.net<-function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("x"),
+                      vartypes = c("network,matrix"),
+                      defaultvalues = list(NULL),
+                      required = c(TRUE))
+  
+  list(name="_intersect_net",
+       coef.names=c(),
+       inputs=ergm.Cprepare.el(a$x, prototype=nw),
+       dependence=FALSE)
+}
+
+InitErgmTerm..union.net<-function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("x"),
+                      vartypes = c("network,matrix"),
+                      defaultvalues = list(NULL),
+                      required = c(TRUE))
+  
+  list(name="_union_net",
+       coef.names=c(),
+       inputs=ergm.Cprepare.el(a$x, prototype=nw),
+       dependence=FALSE)
+}
+
+InitErgmTerm.discord.inter.union.net <- function(nw, arglist, ...) {
+  a <- check.ErgmTerm(nw, arglist,
+                      varnames = c("x"),
+                      vartypes = c("network"),
+                      defaultvalues = list(NULL),
+                      required = c(TRUE))
+
+  nedges <- network.edgecount(a$x)
+  
+  
+  list(name="disc_inter_union_net",
+       coef.names=c("Diun","dIun","diUn","Diun2","dIun2","diUn2"),
+       auxiliaries = ~ .discord.net(a$x) + .intersect.net(a$x) + .union.net(a$x),
+       inputs=ergm.Cprepare.el(a$x, prototype=nw),
+       emptynwstats=c(nedges, 0, nedges, nedges^2, 0, nedges^2),
+       dependence=FALSE)
+}

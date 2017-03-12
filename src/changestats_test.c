@@ -79,3 +79,90 @@ D_CHANGESTAT_FN(d_isociomatrix){
     else CHANGE_STAT[pos] *= -1;
   }
 }
+
+I_CHANGESTAT_FN(i__discord_net){
+  ALLOC_AUX_STORAGE(1, Network, dnwp);
+  NetworkCopy(dnwp, nwp);
+  Edge nedges = INPUT_PARAM[1];
+  for(Edge i=0; i<nedges; i++){
+    Vertex tail=INPUT_PARAM[2+i], head=INPUT_PARAM[2+nedges+i];
+    ToggleEdge(tail,head, dnwp);
+  }
+}
+
+U_CHANGESTAT_FN(u__discord_net){
+  GET_AUX_STORAGE(Network, dnwp);
+
+  ToggleEdge(tail, head, dnwp);
+}
+
+F_CHANGESTAT_FN(f__discord_net){
+  GET_AUX_STORAGE(Network, dnwp);
+
+  NetworkDestroy(dnwp);
+}
+
+I_CHANGESTAT_FN(i__intersect_net){
+  ALLOC_AUX_STORAGE(1, Network, dnwp);
+  *dnwp = NetworkInitialize(NULL, NULL, 0, N_NODES, DIRECTED, BIPARTITE, 0, 0, NULL, 0);
+  Edge nedges = INPUT_PARAM[1];
+  for(Edge i=0; i<nedges; i++){
+    Vertex tail=INPUT_PARAM[2+i], head=INPUT_PARAM[2+nedges+i];
+    if(IS_OUTEDGE(tail, head)!=0)
+      ToggleEdge(tail,head, dnwp);
+  }
+}
+
+U_CHANGESTAT_FN(u__intersect_net){
+  GET_AUX_STORAGE(Network, dnwp);
+
+  if(dEdgeListSearch(tail, head, INPUT_PARAM+1))
+    ToggleEdge(tail, head, dnwp);
+}
+
+F_CHANGESTAT_FN(f__intersect_net){
+  GET_AUX_STORAGE(Network, dnwp);
+
+  NetworkDestroy(dnwp);
+}
+
+I_CHANGESTAT_FN(i__union_net){
+  ALLOC_AUX_STORAGE(1, Network, dnwp);
+  NetworkCopy(dnwp, nwp);
+  Edge nedges = INPUT_PARAM[1];
+  for(Edge i=0; i<nedges; i++){
+    Vertex tail=INPUT_PARAM[2+i], head=INPUT_PARAM[2+nedges+i];
+    if(IS_OUTEDGE(tail, head)==0)
+      ToggleEdge(tail,head, dnwp);
+  }
+}
+
+U_CHANGESTAT_FN(u__union_net){
+  GET_AUX_STORAGE(Network, dnwp);
+
+  if(dEdgeListSearch(tail, head, INPUT_PARAM+1)==0)
+    ToggleEdge(tail, head, dnwp);
+}
+
+F_CHANGESTAT_FN(f__union_net){
+  GET_AUX_STORAGE(Network, dnwp);
+
+  NetworkDestroy(dnwp);
+}
+
+C_CHANGESTAT_FN(c_disc_inter_union_net){
+  GET_AUX_STORAGE_NUM(Network, dnwp, 0);
+  GET_AUX_STORAGE_NUM(Network, inwp, 1);
+  GET_AUX_STORAGE_NUM(Network, unwp, 2);
+
+  int nwedge = IS_OUTEDGE(tail, head)!=0;
+  int refedge = dEdgeListSearch(tail, head, INPUT_PARAM+3)!=0;
+  
+  CHANGE_STAT[0] = nwedge!=refedge ? -1 : +1;
+  CHANGE_STAT[1] = refedge ? (nwedge ? -1 : +1) : 0;
+  CHANGE_STAT[2] = !refedge ? (nwedge ? -1 : +1) : 0;
+
+  CHANGE_STAT[3] = (dnwp->nedges+CHANGE_STAT[0])*(dnwp->nedges+CHANGE_STAT[0]) - dnwp->nedges*dnwp->nedges;
+  CHANGE_STAT[4] = (inwp->nedges+CHANGE_STAT[1])*(inwp->nedges+CHANGE_STAT[1]) - inwp->nedges*inwp->nedges;
+  CHANGE_STAT[5] = (unwp->nedges+CHANGE_STAT[2])*(unwp->nedges+CHANGE_STAT[2]) - unwp->nedges*unwp->nedges;
+}
