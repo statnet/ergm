@@ -293,14 +293,13 @@ WtMCMCStatus WtSANMetropolisHastings (WtMHproposal *MHp,
       if(fVerbose>=5){
 	Rprintf("Accepted.\n");
       }
-
-      /* Inform u_* functions that the network is about to change. */
-      WtUpdateStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, MHp->toggleweight, nwp, m);
       
       /* Make proposed toggles (updating timestamps--i.e., for real this time) */
       for(unsigned int i=0; i < MHp->ntoggles; i++){
 	Vertex t=MHp->toggletail[i], h=MHp->togglehead[i];
 	double w=MHp->toggleweight[i];
+
+	UPDATE_STORAGE(t, h, w, m, nwp);
 	
 	if(MHp->discord)
 	  for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){

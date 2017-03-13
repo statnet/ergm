@@ -640,20 +640,23 @@ WtD_CHANGESTAT_FN(d_nodecovar){
     });
 }
 
+WtI_CHANGESTAT_FN(i_nodecovar){
+  unsigned int transcode = INPUT_ATTRIB[0], center = INPUT_ATTRIB[1];
+  if(center){
+    ALLOC_STORAGE(1, double, sum);
+    *sum = 0;
+    EXEC_THROUGH_NET_EDGES(tail, e1, head, y, {
+	*sum+=TRANSFORM_DYADVAL(y, transcode);
+	head=head; e1=e1; // Prevent a compiler warning.
+      });
+  }
+}
+
 WtU_CHANGESTAT_FN(u_nodecovar){
   unsigned int transcode = INPUT_ATTRIB[0], center = INPUT_ATTRIB[1];
   if(center){
-    INIT_STORAGE(double, sum, {
-	*sum = 0;
-	EXEC_THROUGH_NET_EDGES(tail, e1, head, y, {
-	    *sum+=TRANSFORM_DYADVAL(y, transcode);
-	    head=head; e1=e1; // Prevent a compiler warning.
-	  });
-      });
-    
-    EXEC_THROUGH_TOGGLES({
-	*sum += TRANSFORM_DYADVAL(NEWWT,transcode)-TRANSFORM_DYADVAL(OLDWT,transcode);
-      });
+    GET_STORAGE(double, sum);
+    if(tail) *sum += TRANSFORM_DYADVAL(weight,transcode)-TRANSFORM_DYADVAL(GETWT(tail,head),transcode);
   }
 }
 
@@ -774,20 +777,24 @@ WtD_CHANGESTAT_FN(d_nodeicovar){
     });
 }
 
+WtI_CHANGESTAT_FN(i_nodeicovar){
+  unsigned int transcode = INPUT_ATTRIB[0], center = INPUT_ATTRIB[1];
+  if(center){
+    ALLOC_STORAGE(1, double, sum);
+    *sum = 0;
+    EXEC_THROUGH_NET_EDGES(tail, e1, head, y, {
+	*sum+=TRANSFORM_DYADVAL(y, transcode);
+	head=head; e1=e1; // Prevent a compiler warning.
+      });
+  }
+}
+
 WtU_CHANGESTAT_FN(u_nodeicovar){
   unsigned int transcode = INPUT_ATTRIB[0], center = INPUT_ATTRIB[1];
   if(center){
-    INIT_STORAGE(double, sum, {
-	*sum = 0;
-	EXEC_THROUGH_NET_EDGES(tail, e1, head, y, {
-	    *sum+=TRANSFORM_DYADVAL(y, transcode);
-	    head=head; e1=e1; // Prevent a compiler warning.
-	  });
-      });
+    GET_STORAGE(double, sum);
     
-    EXEC_THROUGH_TOGGLES({
-	*sum += TRANSFORM_DYADVAL(NEWWT,transcode)-TRANSFORM_DYADVAL(OLDWT,transcode);
-      });
+    if(tail) *sum += TRANSFORM_DYADVAL(weight,transcode)-TRANSFORM_DYADVAL(GETWT(tail,head),transcode);
   }
 }
 
@@ -956,20 +963,24 @@ WtD_CHANGESTAT_FN(d_nodeocovar){
     });
 }
 
+WtI_CHANGESTAT_FN(i_nodeocovar){
+  unsigned int transcode = INPUT_ATTRIB[0], center = INPUT_ATTRIB[1];
+  if(center){
+    ALLOC_STORAGE(1, double, sum);
+    *sum = 0;
+    EXEC_THROUGH_NET_EDGES(tail, e1, head, y, {
+	*sum+=TRANSFORM_DYADVAL(y, transcode);
+	    head=head; e1=e1; // Prevent a compiler warning.
+      });
+  }
+}
+
 WtU_CHANGESTAT_FN(u_nodeocovar){
   unsigned int transcode = INPUT_ATTRIB[0], center = INPUT_ATTRIB[1];
   if(center){
-    INIT_STORAGE(double, sum, {
-	*sum = 0;
-	EXEC_THROUGH_NET_EDGES(tail, e1, head, y, {
-	    *sum+=TRANSFORM_DYADVAL(y, transcode);
-	    head=head; e1=e1; // Prevent a compiler warning.
-	  });
-      });
+    GET_STORAGE(double, sum);
     
-    EXEC_THROUGH_TOGGLES({
-	*sum += TRANSFORM_DYADVAL(NEWWT,transcode)-TRANSFORM_DYADVAL(OLDWT,transcode);
-      });
+    if(tail) *sum += TRANSFORM_DYADVAL(weight,transcode)-TRANSFORM_DYADVAL(GETWT(tail,head),transcode);
   }
 }
 
@@ -1052,11 +1063,11 @@ WtU_CHANGESTAT_FN(u_nodesqrtcovar_centered){
 
   if(!DIRECTED) *ssq *= 2;
   }else ssq = (double *)mtp->storage; 
-  // Note that we need to check if there are any toggles to be applied whether or not we just initialized.
-  EXEC_THROUGH_TOGGLES({
-      double sqrtdiff = sqrt(NEWWT)-sqrt(OLDWT);
-      *ssq += sqrtdiff*(DIRECTED? 1 : 2);
-    });
+
+  if(tail){
+    double sqrtdiff = sqrt(weight)-sqrt(GETWT(tail,head));
+    *ssq += sqrtdiff*(DIRECTED? 1 : 2);
+  }
 }
 
 WtS_CHANGESTAT_FN(s_nodesqrtcovar_centered){

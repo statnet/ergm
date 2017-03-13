@@ -63,53 +63,64 @@ WtNetwork *nwp, WtModel *m, double *stats){
   
   WtShuffleEdges(tails,heads,weights,n_edges); /* Shuffle edgelist. */
   
-  for (unsigned int termi=0; termi < m->n_terms; termi++)
-    m->termarray[termi].dstats = m->workspace;
-  
-  /* Doing this one edge at a time saves a lot of toggles... */
-  WtModelTerm *mtp = m->termarray;
-  // Initialize the storage.
-  for (unsigned int termi=0; termi < m->n_terms; termi++, mtp++){
-    if(!mtp->s_func){
-	if(mtp->i_func)
-	  (*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
-	if(mtp->u_func)
-	  (*(mtp->u_func))(0, NULL, NULL, NULL, mtp, nwp);  /* Call u_??? function */
-    }
-  }
+  Edge ntoggles = n_edges; // So that we can use the macros
 
-  // Toggle the edges.
-  for(Edge e=0; e<n_edges; e++){
-    mtp = m->termarray;
-    double *statspos=stats;
+  /* Initialize storage for terms that don't have s_functions.  */
+  EXEC_THROUGH_TERMS({
+#ifdef DEBUG
+      double *dstats = mtp->dstats;
+      mtp->dstats = NULL; // Trigger segfault if i_func tries to write to change statistics.
+#endif
+      if(mtp->s_func==NULL && mtp->i_func)
+	(*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
+      else if(mtp->s_func==NULL && mtp->u_func) /* No initializer but an updater -> uses a 1-function implementation. */
+	(*(mtp->u_func))(0, 0, 0, mtp, nwp);  /* Call u_??? function */
+#ifdef DEBUG
+      mtp->dstats = dstats;
+#endif
+    });
     
-    for (unsigned int termi=0; termi < m->n_terms; termi++, mtp++){
-      if(!mtp->s_func){
-	if(mtp->d_func){
-	  (*(mtp->d_func))(1, tails+e, heads+e, weights+e,
-			   mtp, nwp);  /* Call d_??? function */
-	  for (unsigned int i=0; i < mtp->nstats; i++,statspos++)
-	    *statspos += mtp->dstats[i];
+  /* Calculate statistics for terms that don't have c_functions or s_functions.  */
+  EXEC_THROUGH_TERMS_INTO(stats, {
+      if(mtp->s_func==NULL && mtp->c_func==NULL && mtp->d_func){
+	(*(mtp->d_func))(ntoggles, tails, heads, weights,
+			 mtp, nwp);  /* Call d_??? function */
+	for(unsigned int k=0; k<N_CHANGE_STATS; k++){
+	  dstats[k] += mtp->dstats[k];
 	}
-	// Also, update the storage.
-	if(mtp->u_func)
-	  (*(mtp->u_func))(1, tails+e, heads+e, weights+e,
-			   mtp, nwp);  /* Call u_??? function */
-      }else statspos += mtp->nstats;
-    }
-    WtSetEdge(tails[e],heads[e],weights[e],nwp);
+      }
+    });
+
+  /* Calculate statistics for terms that have c_functions but not s_functions.  */
+  FOR_EACH_TOGGLE{
+    GETNEWTOGGLEINFO();
+    
+    EXEC_THROUGH_TERMS_INTO(stats, {
+	if(mtp->s_func==NULL && mtp->c_func){
+	  (*(mtp->c_func))(TAIL, HEAD, NEWWT,
+			   mtp, nwp);  /* Call c_??? function */
+	  
+	  for(unsigned int k=0; k<N_CHANGE_STATS; k++){
+	    dstats[k] += mtp->dstats[k];
+	  }
+	}
+      });
+    
+    /* Update storage and network */    
+    UPDATE_C_STORAGE(TAIL, HEAD, NEWWT, m, nwp);
+    SETWT(TAIL, HEAD, NEWWT);
   }
   
-  mtp = m->termarray;
-  double *dstats = m->workspace;
-  double *statspos=stats;
-  for (unsigned int termi=0; termi < m->n_terms; termi++, dstats+=mtp->nstats, mtp++ ){
-    if(mtp->s_func){
-      (*(mtp->s_func))(mtp, nwp);  /* Call s_??? function */
-      for (unsigned int i=0; i < mtp->nstats; i++,statspos++)
-        *statspos = mtp->dstats[i];
-    }else statspos += mtp->nstats;
-  }
+  /* Calculate statistics for terms have s_functions  */
+  EXEC_THROUGH_TERMS_INTO(stats, {
+      if(mtp->s_func){
+	(*(mtp->s_func))(mtp, nwp);  /* Call d_??? function */
+	for(unsigned int k=0; k<N_CHANGE_STATS; k++){
+	  dstats[k] = mtp->dstats[k]; // Overwrite, not accumulate.
+	}
+      }
+    });
+
   PutRNGstate();
 }
 

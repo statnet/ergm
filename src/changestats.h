@@ -14,7 +14,7 @@
 #include "changestat.h"
 
 /********************  changestats:  A    ***********/
-D_CHANGESTAT_FN(d_absdiff);
+C_CHANGESTAT_FN(c_absdiff);
 D_CHANGESTAT_FN(d_absdiffcat);
 D_CHANGESTAT_FN(d_adegcor); S_CHANGESTAT_FN(s_adegcor);
 D_CHANGESTAT_FN(d_altkstar);
@@ -76,7 +76,7 @@ D_CHANGESTAT_FN(d_dsp);
 D_CHANGESTAT_FN(d_dyadcov);
 /********************  changestats:  E    ***********/
 D_CHANGESTAT_FN(d_edgecov);
-D_CHANGESTAT_FN(d_edges);S_CHANGESTAT_FN(s_edges);
+C_CHANGESTAT_FN(c_edges);S_CHANGESTAT_FN(s_edges);
 D_CHANGESTAT_FN(d_esp);
 /********************  changestats:  F    ***********/
 /********************  changestats:  G    ***********/

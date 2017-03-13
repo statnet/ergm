@@ -3,7 +3,6 @@
 WtD_CHANGESTAT_FN(d_test_abs_sum_minus_5){
   GET_STORAGE(double, stored_sum_ptr);
   double sum = *stored_sum_ptr;
-  ZERO_ALL_CHANGESTATS();
   EXEC_THROUGH_TOGGLES({
     CHANGE_STAT[0] -= fabs(sum-5);
     sum += NEWWT-OLDWT;
@@ -22,9 +21,7 @@ WtI_CHANGESTAT_FN(i_test_abs_sum_minus_5){
 
 WtU_CHANGESTAT_FN(u_test_abs_sum_minus_5){
   GET_STORAGE(double, sum);
-  EXEC_THROUGH_TOGGLES({
-      *sum += NEWWT-OLDWT;
-    });
+  *sum = weight-GETWT(tail, head);
 }
 
 WtS_CHANGESTAT_FN(s_test_abs_sum_minus_5){
@@ -44,7 +41,7 @@ WtS_CHANGESTAT_FN(s_test_abs_sum_minus_5){
 
 WtD_CHANGESTAT_FN(d_test_abs_sum_minus_5_no_s){d_test_abs_sum_minus_5(ntoggles, tails, heads, weights, mtp, nwp);}
 WtI_CHANGESTAT_FN(i_test_abs_sum_minus_5_no_s){i_test_abs_sum_minus_5(mtp, nwp);}
-WtU_CHANGESTAT_FN(u_test_abs_sum_minus_5_no_s){u_test_abs_sum_minus_5(ntoggles, tails, heads, weights, mtp, nwp);}
+WtU_CHANGESTAT_FN(u_test_abs_sum_minus_5_no_s){u_test_abs_sum_minus_5(tail, head, weight, mtp, nwp);}
 
 
 
@@ -57,12 +54,9 @@ WtI_CHANGESTAT_FN(i__dsociomatrix){
     });
 }
 
-
 WtU_CHANGESTAT_FN(u__dsociomatrix){
   GET_AUX_STORAGE(double*, sm);
-  EXEC_THROUGH_TOGGLES({
-      sm[TAIL][HEAD]  = NEWWT;
-    });
+  sm[tail][head] = weight;
 }
 
 WtF_CHANGESTAT_FN(f__dsociomatrix){

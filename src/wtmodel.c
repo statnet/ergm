@@ -48,6 +48,7 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
       /* Initialize storage and term functions to NULL. */
       thisterm->storage = NULL;
       thisterm->d_func = NULL;
+      thisterm->c_func = NULL;
       thisterm->s_func = NULL;
       thisterm->i_func = NULL;
       thisterm->u_func = NULL;
@@ -127,14 +128,22 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
 	    interest for a particular edge toggle.  This function is obtained by
 	    searching for symbols associated with the object file with prefix
 	    sn, having the name fn.  Assuming that one is found, we're golden.*/ 
-	fn[0]='d';
-	thisterm->d_func = 
-	  (void (*)(Edge, Vertex*, Vertex*, double *, WtModelTerm*, WtNetwork*))
+	fn[0]='c';
+	thisterm->c_func = 
+	  (void (*)(Vertex, Vertex, double, WtModelTerm*, WtNetwork*))
 	  R_FindSymbol(fn,sn,NULL);
-	if(thisterm->d_func==NULL){
-	  error("Error in WtModelInitialize: could not find function %s in "
-                "namespace for package %s. Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
-	}      
+
+	if(thisterm->c_func==NULL){
+	  fn[0]='d';
+	  thisterm->d_func = 
+	    (void (*)(Edge, Vertex*, Vertex*, double*, WtModelTerm*, WtNetwork*))
+	    R_FindSymbol(fn,sn,NULL);
+	
+	  if(thisterm->d_func==NULL){
+	    error("Error in WtModelInitialize: could not find function %s in "
+		  "namespace for package %s. Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
+	  }
+	}
 	
 	/* Optional function to compute the statistic of interest for
 	   the network given. It can be more efficient than going one
@@ -144,17 +153,19 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
 	  (void (*)(WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
       }else m->n_aux++;
       
-      /* Optional function to store persistent information about the
+      /* Optional functions to store persistent information about the
 	 network state between calls to d_ functions. */
       fn[0]='u';
       thisterm->u_func = 
-	(void (*)(Edge, Vertex*, Vertex*, double*, WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+	(void (*)(Vertex, Vertex, double, WtModelTerm*, WtNetwork*)) R_FindSymbol(fn,sn,NULL);
+
       /* If it's an auxiliary, then it needs a u_function, or
 	 it's not doing anything. */
       if(thisterm->nstats==0 && thisterm->u_func==NULL){
-	  error("Error in WtModelInitialize: could not find updater function %s in "
-                "namespace for package %s: this term will not do anything. Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
+	error("Error in WtModelInitialize: could not find updater function %s in "
+	      "namespace for package %s: this term will not do anything. Memory has not been deallocated, so restart R sometime soon.\n",fn,sn);
       }
+  
 
       /* Optional-optional functions to initialize and finalize the
 	 term's storage. */
@@ -194,36 +205,60 @@ WtModel* WtModelInitialize (char *fnames, char *sonames, double **inputsp,
   A helper's helper function to compute change statistics.
   The vector of changes is written to m->workspace.
 */
-void WtChangeStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, double *toggleweight,
+void WtChangeStats(unsigned int ntoggles, Vertex *tails, Vertex *heads, double *weights,
 				 WtNetwork *nwp, WtModel *m){
-  WtModelTerm *mtp = m->termarray;
-  double *dstats = m->workspace;
-  
-  for (unsigned int i=0; i < m->n_terms; i++){
-    /* Calculate change statistics */
-    mtp->dstats = dstats; /* Stuck the change statistic here.*/
-    if(mtp->d_func)
-      (*(mtp->d_func))(ntoggles, toggletail, togglehead, toggleweight,
-		       mtp, nwp);  /* Call d_??? function */
-    dstats += (mtp++)->nstats;
-  }
-}
+  memset(m->workspace, 0, m->n_stats*sizeof(double)); /* Zero all change stats. */ 
 
-/*
-  WtUpdateStats
-  A helper's helper function to inform the code that the network state is about to change.
-*/
-void WtUpdateStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead, double *toggleweight,
-				 WtNetwork *nwp, WtModel *m){
-  WtModelTerm *mtp = m->termarray;
-  for (unsigned int i=0; i < m->n_terms; i++){
-    double *dstats = mtp->dstats;
-    mtp->dstats = NULL; // Trigger segfault if u_func tries to write to change statistics.
-    if(mtp->u_func)
-      (*(mtp->u_func))(ntoggles, toggletail, togglehead, toggleweight, 
-		       mtp, nwp);  /* Call u_??? function */
-    mtp->dstats = dstats;
-    mtp++;
+  /* Make a pass through terms with d_functions. */
+  EXEC_THROUGH_TERMS_INTO(m->workspace, {
+      mtp->dstats = dstats; /* Stuck the change statistic here.*/
+      if(mtp->c_func==NULL && mtp->d_func)
+	(*(mtp->d_func))(ntoggles, tails, heads, weights,
+			 mtp, nwp);  /* Call d_??? function */
+    });
+  /* Notice that mtp->dstats now points to the appropriate location in
+     m->workspace. */
+  
+  /* Put the original destination dstats back unless there's only one
+     toggle. */
+  if(ntoggles!=1){
+    unsigned int i = 0;
+    EXEC_THROUGH_TERMS({
+	mtp->dstats = m->dstatarray[i];
+	i++;
+      });
+  }
+
+  /* Make a pass through terms with c_functions. */
+  FOR_EACH_TOGGLE{
+    GETTOGGLEINFO();
+    
+    EXEC_THROUGH_TERMS_INTO(m->workspace, {
+	mtp->dstats = dstats;
+	if(mtp->c_func){
+	  (*(mtp->c_func))(TAIL, HEAD, NEWWT,
+			   mtp, nwp);  /* Call d_??? function */
+	  
+	  if(ntoggles!=1){
+	    for(unsigned int k=0; k<N_CHANGE_STATS; k++){
+	      dstats[k] += mtp->dstats[k];
+	    }
+	  }
+	}
+      });
+
+    /* Update storage and network */    
+    IF_MORE_TO_COME{
+      UPDATE_C_STORAGE(TAIL, HEAD, NEWWT, m, nwp);
+      SETWT_WITH_BACKUP();
+    }
+  }
+  /* Undo previous storage updates and toggles */
+  UNDO_PREVIOUS{
+    GETOLDTOGGLEINFO();
+    UPDATE_C_STORAGE(TAIL,HEAD,weights[TOGGLEIND], m, nwp);
+    SETWT(TAIL,HEAD,weights[TOGGLEIND]);
+    weights[TOGGLEIND]=OLDWT;
   }
 }
       
@@ -232,19 +267,15 @@ void WtUpdateStats(unsigned int ntoggles, Vertex *toggletail, Vertex *togglehead
   A helper's helper function to initialize storage for functions that use it.
 */
 void WtInitStats(WtNetwork *nwp, WtModel *m){
-  WtModelTerm *mtp = m->termarray;
-  for (unsigned int i=0; i < m->n_terms; i++){
-    double *dstats = mtp->dstats;
-    mtp->dstats = NULL; // Trigger segfault if u_func tries to write to change statistics.
-    if(mtp->i_func)
-      (*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
-    mtp->dstats = dstats;
-    mtp++;
-  }
-
-  // Run a null update, in case the implementer uses the one-function
-  // implementation.
-  WtUpdateStats(0, NULL, NULL, NULL, nwp, m);
+  EXEC_THROUGH_TERMS({
+      double *dstats = mtp->dstats;
+      mtp->dstats = NULL; // Trigger segfault if i_func tries to write to change statistics.
+      if(mtp->i_func)
+	(*(mtp->i_func))(mtp, nwp);  /* Call i_??? function */
+      else if(mtp->u_func) /* No initializer but an updater -> uses a 1-function implementation. */
+	(*(mtp->u_func))(0, 0, 0, mtp, nwp);  /* Call u_??? function */
+      mtp->dstats = dstats;
+    });
 }
 
 /*
@@ -252,17 +283,17 @@ void WtInitStats(WtNetwork *nwp, WtModel *m){
   A helper's helper function to finalize storage for functions that use it.
 */
 void WtDestroyStats(WtNetwork *nwp, WtModel *m){
-  WtModelTerm *mtp = m->termarray;
-  for (unsigned int i=0; i < m->n_terms; i++){
-    if(mtp->f_func)
-      (*(mtp->f_func))(mtp, nwp);  /* Call f_??? function */
-    free(m->dstatarray[i]);
-    free(mtp->statcache);
-    if(mtp->storage){
-      free(mtp->storage);
-      mtp->storage = NULL;
-    }
-    mtp++;
-  }
+  unsigned int i=0;
+  EXEC_THROUGH_TERMS({
+      if(mtp->f_func)
+	(*(mtp->f_func))(mtp, nwp);  /* Call f_??? function */
+      free(m->dstatarray[i]);
+      free(mtp->statcache);
+      if(mtp->storage){
+	free(mtp->storage);
+	mtp->storage = NULL;
+      }
+      i++;
+    });
 }
 

@@ -215,9 +215,6 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 
       if(mult<CDparams[1]-1){
 	/* Make proposed toggles provisionally. */
-	/* First, inform u_* functions that the network is about to change. */
-	WtUpdateStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, MHp->toggleweight, nwp, m);
-	/* Then, make the changes. */
 	for(unsigned int i=0; i < MHp->ntoggles; i++){
 	  Vertex t=MHp->toggletail[i], h=MHp->togglehead[i];
 	  double w=MHp->toggleweight[i];
@@ -226,6 +223,9 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 	  undoweight[ntoggled]=WtGetEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
 	  ntoggled++;
 	  mtoggled++;
+
+	  UPDATE_STORAGE(t, h, w, m, nwp);
+	  
 	  if(MHp->discord)
 	    for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){
 	      // This could be speeded up by implementing an "incrementation" function.
@@ -271,8 +271,6 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 
       if(step<CDparams[0]-1){
 	/* Make the remaining proposed toggles (which we did not make provisionally) */
-	/* First, inform u_* functions that the network is about to change. */
-	WtUpdateStats(MHp->ntoggles, MHp->toggletail, MHp->togglehead, MHp->toggleweight, nwp, m);
 	/* Then, make the changes. */
 	for(unsigned int i=0; i < MHp->ntoggles; i++){
 	  Vertex t=MHp->toggletail[i], h=MHp->togglehead[i];
@@ -281,6 +279,8 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 	  undohead[ntoggled]=h;
 	  undoweight[ntoggled]=WtGetEdge(MHp->toggletail[i], MHp->togglehead[i], nwp);
 	  ntoggled++;
+
+	  UPDATE_STORAGE(t, h, w, m, nwp);
 
 	  if(MHp->discord)
 	    for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){
@@ -309,7 +309,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 
 	/* FIXME: This should be done in one call, but it's very easy
 	   to make a fencepost error here. */
-	WtUpdateStats(1, &t, &h, &w, nwp, m);
+	UPDATE_STORAGE(t, h, w, m, nwp);
       	
 	if(MHp->discord)
 	  for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){
@@ -329,7 +329,7 @@ WtMCMCStatus WtCDStep (WtMHproposal *MHp,
 
     /* FIXME: This should be done in one call, but it's very easy
        to make a fencepost error here. */
-    WtUpdateStats(1, &t, &h, &w, nwp, m);
+    UPDATE_STORAGE(t, h, w, m, nwp);
     
     if(MHp->discord)
       for(WtNetwork **nwd=MHp->discord; *nwd!=NULL; nwd++){

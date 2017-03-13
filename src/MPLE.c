@@ -203,11 +203,12 @@ void MpleInit_hash_bl(int *responsevec, double *covmat, int *weightsvector,
     int response = IS_OUTEDGE(t,h);
     unsigned int totalStats = 0;
     /* Let mtp loop through each model term */
-    for (ModelTerm *mtp=m->termarray; mtp < m->termarray + m->n_terms; mtp++){
+    EXEC_THROUGH_TERMS({
       mtp->dstats = newRow + totalStats;
       /* Now call d_xxx function, which updates mtp->dstats to reflect
 	 changing the current dyad.  */
-      (*(mtp->d_func))(1, &t, &h, mtp, nwp);
+      if(mtp->c_func) (*(mtp->c_func))(t, h, mtp, nwp);
+      else (*(mtp->d_func))(1, &t, &h, mtp, nwp);
       /* dstats values reflect changes in current dyad; for MPLE, 
 	 values must reflect going from 0 to 1.  Thus, we have to reverse 
 	 the sign of dstats whenever the current edge exists. */
@@ -218,7 +219,7 @@ void MpleInit_hash_bl(int *responsevec, double *covmat, int *weightsvector,
       }
       /* Update mtp->dstats pointer to skip ahead by mtp->nstats */
       totalStats += mtp->nstats; 
-    }
+      });
     /* In next command, if there is an offset vector then its total
        number of entries should match the number of times through the 
        inner loop (i.e., the number of dyads in the network) */          
@@ -245,11 +246,12 @@ void MpleInit_hash_wl(int *responsevec, double *covmat, int *weightsvector,
     int response = IS_OUTEDGE(t,h);
     unsigned int totalStats = 0;
     /* Let mtp loop through each model term */
-    for (ModelTerm *mtp=m->termarray; mtp < m->termarray + m->n_terms; mtp++){
+    EXEC_THROUGH_TERMS({
       mtp->dstats = newRow + totalStats;
       /* Now call d_xxx function, which updates mtp->dstats to reflect
 	 changing the current dyad.  */
-      (*(mtp->d_func))(1, &t, &h, mtp, nwp);
+      if(mtp->c_func) (*(mtp->c_func))(t, h, mtp, nwp);
+      else (*(mtp->d_func))(1, &t, &h, mtp, nwp);
       /* dstats values reflect changes in current dyad; for MPLE, 
 	 values must reflect going from 0 to 1.  Thus, we have to reverse 
 	 the sign of dstats whenever the current edge exists. */
@@ -260,7 +262,7 @@ void MpleInit_hash_wl(int *responsevec, double *covmat, int *weightsvector,
       }
       /* Update mtp->dstats pointer to skip ahead by mtp->nstats */
       totalStats += mtp->nstats; 
-    }
+      });
     /* In next command, if there is an offset vector then its total
        number of entries should match the number of times through the 
        inner loop (i.e., the number of dyads in the network) */          
