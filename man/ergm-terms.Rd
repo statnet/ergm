@@ -1388,14 +1388,16 @@ of the degrees of all pairs of nodes in the network which are tied.
     more names of attributes in the network's vertex attribute
     list. When \code{diff=FALSE}, this term adds one network statistic
     to the model, which counts the number of edges \eqn{(i,j)} for which
-    \code{attrname(i)==attrname(j)}. (When multiple names are given, the
-    statistic counts only those on which all the named attributes
-    match.) When \code{diff=TRUE}, \eqn{p} network statistics are added
+    \code{attrname(i)==attrname(j)}. This is also called ''uniform homophily,'' because each group is assumed to have the same propensity for within-group ties.  When multiple attribute names are given, the
+    statistic counts only ties for which all of the attributes
+    match. When \code{diff=TRUE}, \eqn{p} network statistics are added
     to the model, where \eqn{p} is the number of unique values of the
     \code{attrname} attribute. The \eqn{k}th such statistic counts the
     number of edges \eqn{(i,j)} for which \code{attrname(i) ==
     attrname(j) == value(k)}, where \code{value(k)} is the \eqn{k}th
-    smallest unique value of the attrname attribute. If set to non-NULL,
+    smallest unique value of the attrname attribute. This is also called ''differential homophily,'' because each group is allowed to have a unique propensity for within-group ties.  Note that a statistical test of uniform vs. differential homophily should be conducted using the ANOVA function.
+    
+    If set to non-NULL,
     the optional \code{keep} argument should be a vector of integers
     giving the values of \code{k} that should be considered for matches;
     other values are ignored (this works for both \code{diff=FALSE} and
