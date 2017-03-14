@@ -266,7 +266,7 @@ network
     \code{altkstar} parameters. For this reason, we recommend the use of the
     \code{gwdegree} instead of \code{altkstar}. See Section 3 and especially
     equation (13) of Hunter (2007) for details. The optional argument
-    \code{fixed} indicates whether the scale parameter \code{lambda} is to be
+    \code{fixed} indicates whether the \code{decay} parameter is fixed at the given value, or is to be
     fit as a curved exponential family model (see Hunter and Handcock, 2006).
     The default is \code{FALSE}, which means the scale parameter is not fixed
     and thus the model is a CEF model. This term can only be used with
@@ -842,13 +842,13 @@ of the degrees of all pairs of nodes in the network which are tied.
   
     \item{\code{desp(d, type="OTP")} (binary) (directed)}{  \emph{Directed edgewise shared partners:} This term adds one network statistic to the model for each element in \code{d} where the \eqn{i}th such statistic equals the number of \emph{edges} in the network with exactly \code{d[i]} shared partners. This term can only be used with directed networks.  Multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to be counted (see \code{ddsp} for type codes).  By default, outgoing two-paths are employed. }
     
-    \item{\code{dgwdsp(alpha=0, fixed=FALSE, cutoff=30, type="OTP")} (binary) (directed)}{  \emph{Geometrically weighted dyadwise shared partner distribution:} This term adds one network statistic to the model equal to the geometrically weighted dyadwise shared partner distribution with weight parameter alpha > 0. Note that the GWDSP statistic is equal to the sum of GWNSP plus GWESP. The optional argument \code{fixed} indicates whether the scale parameter \code{lambda} is to be fit as a curved exponential-family model (see Hunter and Handcock, 2006).  The default is \code{FALSE}, which means the scale parameter is not fixed and thus the model is a CEF model. For a directed network, multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to employ (see \code{ddsp} for definitions).  By default, outgoing two-paths are employed.  The optional argument \code{cutoff} sets the number of underlying DSP terms to use in computing the statistics to reduce the computational burden.
+    \item{\code{dgwdsp(decay=0, fixed=FALSE, cutoff=30, type="OTP")} (binary) (directed)}{  \emph{Geometrically weighted dyadwise shared partner distribution:} This term adds one network statistic to the model equal to the geometrically weighted dyadwise shared partner distribution with decay parameter \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for this parameter may be fixed (if \code{fixed=TRUE}), or it may be used instead as the starting value for the estimation of \code{decay} in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006).  Note that the GWDSP statistic is equal to the sum of GWNSP plus GWESP. For a directed network, multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to employ (see \code{ddsp} for definitions).  By default, outgoing two-paths are employed.  The optional argument \code{cutoff} sets the number of underlying DSP terms to use in computing the statistics to reduce the computational burden.
    }
    
-   \item{\code{dgwesp(alpha=0, fixed=FALSE, cutoff=30, type="OTP")} (binary) (directed)}{ \emph{Geometrically weighted edgewise shared partner distribution:} This term adds a statistic equal to the geometrically weighted \emph{edgewise} (not dyadwise) shared partner distribution with weight parameter \code{alpha}. The optional argument \code{fixed} indicates whether the scale parameter \code{lambda} is to be fit as a curved exponential-family model (see Hunter and Handcock, 2006).  The default is \code{FALSE}, which means the scale parameter is not fixed and thus the model is a CEF model. For a directed network, multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to employ (see \code{ddsp} for definitions).  By default, outgoing two-paths are employed.  The optional argument \code{cutoff} sets the number of underlying ESP terms to use in computing the statistics to reduce the computational burden.
+   \item{\code{dgwesp(decay=0, fixed=FALSE, cutoff=30, type="OTP")} (binary) (directed)}{ \emph{Geometrically weighted edgewise shared partner distribution:} This term adds a statistic equal to the geometrically weighted \emph{edgewise} (not dyadwise) shared partner distribution with decay parameter \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for this parameter may be fixed (if \code{fixed=TRUE}), or it may be used instead as the starting value for the estimation of \code{decay} in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006). For a directed network, multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to employ (see \code{ddsp} for definitions).  By default, outgoing two-paths are employed.  The optional argument \code{cutoff} sets the number of underlying ESP terms to use in computing the statistics to reduce the computational burden.
    }
   
-   \item{\code{dgwnsp(alpha=0, fixed=FALSE, cutoff=30, type="OTP")} (binary) (directed)}{ \emph{Geometrically weighted non-edgewise shared partner distribution:} This term is just like gwesp and gwdsp except it adds a statistic equal to the geometrically weighted nonedgewise (that is, over dyads that do not have an edge) shared partner distribution with weight parameter alpha. The optional argument \code{fixed} indicates whether the scale parameter \code{lambda} is to be fit as a curved exponential-family model (see Hunter and Handcock, 2006).  The default is \code{FALSE}, which means the scale parameter is not fixed and thus the model is a CEF model. For a directed network, multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to employ (see \code{ddsp} for definitions).  By default, outgoing two-paths are employed.  The optional argument \code{cutoff} sets the number of underlying NSP terms to use in computing the statistics to reduce the computational burden.
+   \item{\code{dgwnsp(decay=0, fixed=FALSE, cutoff=30, type="OTP")} (binary) (directed)}{ \emph{Geometrically weighted non-edgewise shared partner distribution:} This term is just like gwesp and gwdsp except it adds a statistic equal to the geometrically weighted nonedgewise (that is, over dyads that do not have an edge) shared partner distribution with decay parameter \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for this parameter may be fixed (if \code{fixed=TRUE}), or it may be used instead as the starting value for the estimation of \code{decay} in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006). For a directed network, multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to employ (see \code{ddsp} for definitions).  By default, outgoing two-paths are employed.  The optional argument \code{cutoff} sets the number of underlying NSP terms to use in computing the statistics to reduce the computational burden.
    }
     
     \item{\code{dnsp(d, type="OTP")} (binary) (directed)}{  \emph{Directed non-edgewise shared partners:} This term adds one network statistic to the model for each element in \code{d} where the \eqn{i}th such statistic equals the number of \emph{non-edges} in the network with exactly \code{d[i]} shared partners. This term can only be used with directed networks.  Multiple shared partner definitions are possible; the \code{type} argument may be used to select the type of shared partner to be counted (see \code{ddsp} for type codes).  By default, outgoing two-paths are employed. }
@@ -931,7 +931,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     degree distribution for the first mode in a bipartite (aka two-mode)
     network:} 
     This term adds one network statistic to the model equal to the weighted
-    degree distribution with decay controlled by the \code{decay} parameter,
+    degree distribution with decay controlled by the \code{decay} parameter, which should be non-negative,
     for nodes in the
     first mode of a bipartite network. The first mode of a bipartite network
     object is sometimes known as the "actor" mode. 
@@ -951,7 +951,7 @@ of the degrees of all pairs of nodes in the network which are tied.
     degree distribution for the second mode in a bipartite (aka two-mode)
     network:} 
     This term adds one network statistic to the model equal to the weighted
-    degree distribution with decay controlled by the \code{decay} parameter,
+    degree distribution with decay controlled by the which should be non-negative,
     for nodes in the
     second mode of a bipartite network. The second mode of a bipartite network
     object is sometimes known as the "event" mode. 
@@ -975,22 +975,21 @@ of the degrees of all pairs of nodes in the network which are tied.
     The \code{decay} parameter is the same as theta_s in
     equation (14) in Hunter (2007).  The value supplied for
     this parameter may be fixed (if \code{fixed=TRUE}),
-    or it may be used as merely the starting value for the estimation
-    in a curved exponential family model (the default).
+    or it may be used instead as the starting value for the estimation of \code{decay}
+    in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006).
     The optional argument \code{cutoff}
     is only relevant if \code{fixed=FALSE}. In that case it only uses this 
     number of terms in computing the statistics to reduce the computational
     burden.    This term can only be used with undirected networks.}
 
-    \item{\code{gwdsp(alpha=0, fixed=FALSE, cutoff=30)}  (binary)  (directed)  (undirected)  (curved)}{\emph{Geometrically weighted
+    \item{\code{gwdsp(decay=0, fixed=FALSE, cutoff=30)}  (binary)  (directed)  (undirected)  (curved)}{\emph{Geometrically weighted
     dyadwise shared partner distribution:} 
     This term adds one network statistic to the model equal to the geometrically
-    weighted dyadwise shared partner distribution with weight parameter
-    \code{alpha} \eqn{> 0}. The optional argument \code{fixed} indicates whether
-    the scale parameter \code{lambda} is to be fit as a curved exponential
-    family model (see Hunter and Handcock, 2006). The default is \code{FALSE},
-    which means the scale parameter is not fixed and thus the model is a CEF
-    model. This term can be used with directed and undirected networks. For
+    weighted dyadwise shared partner distribution with decay parameter
+    \code{decay} parameter, which should be non-negative. The value supplied for
+    this parameter may be fixed (if \code{fixed=TRUE}),
+    or it may be used instead as the starting value for the estimation of \code{decay}
+    in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006). For
     directed networks the count is over homogeneous shared partners only (i.e.,
     only partners on a directed two-path connecting the nodes in the dyad).
     The optional argument \code{cutoff}
@@ -998,15 +997,15 @@ of the degrees of all pairs of nodes in the network which are tied.
     number of terms in computing the statistics to reduce the computational
     burden.}
     
-    \item{\code{gwesp(alpha=0, fixed=FALSE, cutoff=30)}  (binary)  (frequently-used)   (directed)  (undirected)  (curved)}{\emph{Geometrically weighted
+    \item{\code{gwesp(decay=0, fixed=FALSE, cutoff=30)}  (binary)  (frequently-used)   (directed)  (undirected)  (curved)}{\emph{Geometrically weighted
     edgewise shared partner distribution:} 
     This term is just like \code{gwdsp} except it adds a statistic equal to the
     geometrically weighted \emph{edgewise} (not dyadwise) shared partner
-    distribution with weight parameter \code{alpha}. The optional argument
-    \code{fixed} indicates whether the scale parameter \code{lambda} is to be
-    fit as a curved exponential-family model (see Hunter and Handcock, 2006).
-    The default is \code{FALSE}, which means the scale parameter is not fixed
-    and thus the model is a CEF model. This term can be used with directed and
+    distribution with decay parameter
+    \code{decay} parameter, which should be non-negative. The value supplied for
+    this parameter may be fixed (if \code{fixed=TRUE}),
+    or it may be used instead as the starting value for the estimation of \code{decay}
+    in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006). This term can be used with directed and
     undirected networks. For directed networks the geometric weighting is over
     homogeneous shared partners only (i.e., only partners on a directed two-path
     connecting the nodes in the edge and in the same direction).
@@ -1017,24 +1016,24 @@ of the degrees of all pairs of nodes in the network which are tied.
  
     \item{\code{gwidegree(decay, fixed=FALSE, cutoff=30)}  (binary)  (directed) (curved)}{\emph{Geometrically weighted
     in-degree distribution:} This term adds one network statistic to the model
-    equal to the weighted in-degree distribution with weight parameter
-    \code{decay}. The optional argument \code{fixed} indicates whether the scale
-    parameter \code{lambda} is to be fit as a curved exponential family model
-    (see Hunter and Handcock, 2006). The default is \code{FALSE}, which means
-    the scale parameter is not fixed and thus the model is a CEF model. This
+    equal to the weighted in-degree distribution with decay parameter
+    \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for
+    this parameter may be fixed (if \code{fixed=TRUE}),
+    or it may be used instead as the starting value for the estimation of \code{decay}
+    in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006). This
     term can only be used with directed networks.
     The optional argument \code{cutoff}
     is only relevant if \code{fixed=FALSE}. In that case it only uses this 
     number of terms in computing the statistics to reduce the computational
     burden.}
 
-    \item{\code{gwnsp(alpha=0, fixed=FALSE, cutoff=30)}  (binary)  (directed)  (undirected) (curved)}{\emph{Geometrically weighted
+    \item{\code{gwnsp(decay=0, fixed=FALSE, cutoff=30)}  (binary)  (directed)  (undirected) (curved)}{\emph{Geometrically weighted
     nonedgewise shared partner distribution:} This term is just like
     \code{gwesp} and \code{gwdsp} except it adds a statistic equal to
     the geometrically weighted \emph{nonedgewise} (that is, over dyads
     that do not have an edge) shared partner distribution with weight
-    parameter \code{alpha}. The optional argument \code{fixed} indicates
-    whether the scale parameter \code{lambda} is to be fit as a curved
+    parameter \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The optional argument \code{fixed} indicates
+    whether the \code{decay} parameter is fixed at the given value, or is to be fit as a curved
     exponential-family model (see Hunter and Handcock, 2006).  The
     default is \code{FALSE}, which means the scale parameter is not
     fixed and thus the model is a CEF model. This term can be used with
@@ -1049,11 +1048,11 @@ of the degrees of all pairs of nodes in the network which are tied.
   
     \item{\code{gwodegree(decay, fixed=FALSE, cutoff=30)}  (binary)  (directed) (curved)}{\emph{Geometrically weighted
     out-degree distribution:} This term adds one network statistic to the model
-    equal to the weighted out-degree distribution with weight parameter
-    \code{decay}. The optional argument \code{fixed} indicates whether the scale
-    parameter \code{lambda} is to be fit as a curved exponential family model
-    (see Hunter and Handcock, 2006). The default is \code{FALSE}, which means
-    the scale parameter is not fixed and thus the model is a CEF model. This
+    equal to the weighted out-degree distribution with decay parameter
+    \code{decay} parameter, which should be non-negative. (this parameter was called \code{alpha} prior to \code{ergm 3.7}). The value supplied for
+    this parameter may be fixed (if \code{fixed=TRUE}),
+    or it may be used instead as the starting value for the estimation of \code{decay}
+    in a curved exponential family model (when \code{fixed=FALSE}, the default) (see Hunter and Handcock, 2006). This
     term can only be used with directed networks.
     The optional argument \code{cutoff}
     is only relevant if \code{fixed=FALSE}. In that case it only uses this 
